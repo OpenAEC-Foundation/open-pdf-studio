@@ -1,0 +1,4120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenPDFStudio</title>
+  <script src="pdfjs/build/pdf.mjs" type="module" id="pdfjs-script"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f3f3f3;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Title Bar */
+    .title-bar {
+      background: linear-gradient(to bottom, #ffffff 0%, #f5f5f5 100%);
+      border-bottom: 1px solid #d4d4d4;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 40px;
+      flex-shrink: 0;
+      -webkit-app-region: drag;
+    }
+
+    .title-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .app-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .file-name {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .title-bar-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .title-btn {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 6px 16px;
+      font-size: 12px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-weight: 500;
+    }
+
+    .title-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .title-btn.secondary {
+      background: #6b7280;
+    }
+
+    .title-btn.secondary:hover {
+      background: #4b5563;
+    }
+
+    /* Window Controls */
+    .window-controls {
+      display: flex;
+      -webkit-app-region: no-drag;
+    }
+
+    .window-btn {
+      width: 46px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+
+    .window-btn:hover {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    .window-btn-close:hover {
+      background: #e81123;
+      color: white;
+    }
+
+    /* Menu Bar */
+    /* Menu Bar - Dark VS Code-inspired theme */
+    .menu-bar {
+      background: #2d2d30;
+      border-bottom: 1px solid #3f3f46;
+      display: flex;
+      padding: 0 4px;
+      user-select: none;
+      flex-shrink: 0;
+      height: 28px;
+      align-items: center;
+    }
+
+    .menu-item {
+      position: relative;
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: background 0.15s;
+      border-radius: 3px;
+    }
+
+    .menu-item:hover,
+    .menu-item.active {
+      background: #3e3e42;
+    }
+
+    .menu-label {
+      font-size: 13px;
+      color: #cccccc;
+      font-weight: 400;
+    }
+
+    .menu-item:hover .menu-label,
+    .menu-item.active .menu-label {
+      color: #ffffff;
+    }
+
+    .menu-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #252526;
+      border: 1px solid #454545;
+      border-radius: 4px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      min-width: 220px;
+      padding: 4px 0;
+      display: none;
+      z-index: 1000;
+    }
+
+    .menu-dropdown.visible {
+      display: block;
+    }
+
+    .menu-option {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 16px;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+
+    .menu-option:hover {
+      background: #094771;
+    }
+
+    .menu-option.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .menu-option.disabled:hover {
+      background: transparent;
+    }
+
+    .menu-option-label {
+      font-size: 13px;
+      color: #cccccc;
+    }
+
+    .menu-option:hover .menu-option-label {
+      color: #ffffff;
+    }
+
+    .menu-option-shortcut {
+      font-size: 12px;
+      color: #858585;
+      margin-left: 24px;
+    }
+
+    .menu-option:hover .menu-option-shortcut {
+      color: #cccccc;
+    }
+
+    .menu-divider {
+      height: 1px;
+      background: #454545;
+      margin: 4px 8px;
+    }
+
+    /* Ribbon Container - Dark VS Code-inspired theme */
+    .ribbon-container {
+      background: linear-gradient(to bottom, #2d2d30 0%, #1e1e22 100%);
+      border-bottom: 1px solid #3f3f46;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    /* Ribbon Tabs - Dark VS Code-inspired theme */
+    .ribbon-tabs {
+      background: linear-gradient(to bottom, #2d2d30 0%, #252528 100%);
+      border-bottom: 1px solid #3f3f46;
+      display: flex;
+      padding: 0 8px;
+      gap: 2px;
+      height: 28px;
+      align-items: flex-end;
+    }
+
+    .ribbon-tab {
+      padding: 6px 16px;
+      font-size: 12px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: #cccccc;
+      font-weight: 500;
+      border-radius: 4px 4px 0 0;
+      transition: all 0.15s ease;
+      position: relative;
+      border: 1px solid transparent;
+      border-bottom: none;
+    }
+
+    .ribbon-tab:hover {
+      background: #3e3e42;
+      color: #ffffff;
+    }
+
+    .ribbon-tab.active {
+      background: #1e1e22;
+      color: #ffffff;
+      border-color: #3f3f46;
+      border-bottom: 1px solid #1e1e22;
+      margin-bottom: -1px;
+    }
+
+    /* Ribbon Content - Dark theme */
+    .ribbon-content {
+      background: #1e1e22;
+      padding: 4px 8px 0 8px;
+      display: none;
+      height: 94px;
+    }
+
+    .ribbon-content.active {
+      display: flex;
+      align-items: stretch;
+    }
+
+    .ribbon-groups {
+      display: flex;
+      gap: 2px;
+      align-items: stretch;
+      height: 100%;
+    }
+
+    .ribbon-group {
+      display: flex;
+      flex-direction: column;
+      padding: 0 8px;
+      border-right: 1px solid #3f3f46;
+      min-width: 50px;
+      height: 100%;
+      margin-right: 8px;
+    }
+
+    .ribbon-group:last-child {
+      border-right: none;
+      margin-right: 0;
+    }
+
+    .ribbon-group-label {
+      font-size: 9px;
+      color: #888888;
+      text-align: center;
+      font-weight: 500;
+      padding: 2px 0;
+      margin-top: auto;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .ribbon-group-content {
+      display: flex;
+      gap: 2px;
+      align-items: flex-start;
+      flex: 1;
+      padding: 2px 0;
+    }
+
+    /* Small buttons container - stacks 3 buttons vertically */
+    .ribbon-btn-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      height: 100%;
+      justify-content: flex-start;
+    }
+
+    /* Ribbon Buttons - Default (Large) - Dark theme */
+    .ribbon-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 4px 6px 2px 6px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      min-width: 54px;
+      gap: 2px;
+      height: 66px;
+    }
+
+    .ribbon-btn:hover {
+      background: #3e3e42;
+      border-color: #5a5a5e;
+    }
+
+    .ribbon-btn.active {
+      background: #094771;
+      border-color: #007acc;
+    }
+
+    .ribbon-btn-icon {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .ribbon-btn-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: #cccccc;
+    }
+
+    .ribbon-btn:hover .ribbon-btn-icon svg {
+      stroke: #ffffff;
+    }
+
+    .ribbon-btn.active .ribbon-btn-icon svg {
+      stroke: #ffffff;
+    }
+
+    .ribbon-btn-label {
+      font-size: 11px;
+      color: #cccccc;
+      text-align: center;
+      line-height: 1.2;
+      max-width: 52px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ribbon-btn:hover .ribbon-btn-label {
+      color: #ffffff;
+    }
+
+    .ribbon-btn.active .ribbon-btn-label {
+      color: #ffffff;
+      font-weight: 500;
+    }
+
+    /* Small ribbon buttons - horizontal layout, 3 fit vertically */
+    .ribbon-btn.small {
+      flex-direction: row;
+      min-width: 70px;
+      height: 22px;
+      padding: 2px 8px 2px 4px;
+      gap: 6px;
+      justify-content: flex-start;
+      border-radius: 3px;
+    }
+
+    .ribbon-btn.small .ribbon-btn-icon {
+      width: 16px;
+      height: 16px;
+    }
+
+    .ribbon-btn.small .ribbon-btn-icon svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .ribbon-btn.small .ribbon-btn-label {
+      font-size: 11px;
+      text-align: left;
+      max-width: none;
+    }
+
+    /* Ribbon dropdown - Dark theme */
+    .ribbon-dropdown {
+      position: relative;
+    }
+
+    .ribbon-dropdown-arrow {
+      position: absolute;
+      right: 2px;
+      bottom: 2px;
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 4px solid #888888;
+    }
+
+    .ribbon-btn:hover .ribbon-dropdown-arrow {
+      border-top-color: #ffffff;
+    }
+
+    /* Color picker button - Dark theme */
+    .ribbon-color-btn {
+      position: relative;
+    }
+
+    .ribbon-color-indicator {
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px;
+      height: 4px;
+      border-radius: 2px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Input controls - Dark theme */
+    .ribbon-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 2px;
+    }
+
+    .ribbon-input-label {
+      font-size: 9px;
+      color: #888888;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .ribbon-input {
+      width: 50px;
+      padding: 3px 6px;
+      border: 1px solid #3f3f46;
+      border-radius: 3px;
+      font-size: 11px;
+      background: #2d2d30;
+      color: #cccccc;
+    }
+
+    .ribbon-input:focus {
+      outline: none;
+      border-color: #007acc;
+      background: #1e1e22;
+    }
+
+    .ribbon-color-input {
+      width: 32px;
+      height: 24px;
+      border: 1px solid #3f3f46;
+      border-radius: 3px;
+      cursor: pointer;
+      padding: 2px;
+      background: #2d2d30;
+    }
+
+    .ribbon-color-input:hover {
+      border-color: #5a5a5e;
+    }
+
+    /* Ribbon input row - for horizontal layout */
+    .ribbon-input-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 22px;
+    }
+
+    .ribbon-input-row .ribbon-input-label {
+      min-width: 35px;
+      color: #cccccc;
+    }
+
+    .ribbon-input-row .ribbon-input {
+      width: 45px;
+    }
+
+    /* Content Area */
+    .content {
+      flex: 1;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+      background: #525659;
+      min-height: 0; /* Important for flex child overflow */
+    }
+
+    .main-view {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      overflow: auto;
+      padding: 20px;
+      height: 100%;
+    }
+
+    #placeholder {
+      text-align: center;
+      color: #9ca3af;
+      margin: auto;
+    }
+
+    #placeholder svg {
+      width: 100px;
+      height: 100px;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    #placeholder h2 {
+      font-size: 24px;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #d1d5db;
+    }
+
+    #placeholder p {
+      font-size: 16px;
+      opacity: 0.8;
+    }
+
+    #pdf-container {
+      display: none;
+    }
+
+    #pdf-container.visible {
+      display: block;
+    }
+
+    #canvas-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      margin-top: 0;
+    }
+
+    #canvas-container {
+      position: relative;
+      margin: 0 auto;
+      display: inline-block;
+    }
+
+    #canvas-container.hidden {
+      display: none;
+    }
+
+    .continuous-container {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+      align-items: center;
+      padding-top: 20px;
+      width: 100%;
+    }
+
+    .continuous-container.active {
+      display: flex !important;
+    }
+
+    .page-wrapper {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+
+    .page-number-label {
+      position: absolute;
+      top: -25px;
+      left: 0;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    #pdf-canvas {
+      display: block;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      background: white;
+    }
+
+    #annotation-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      cursor: crosshair;
+    }
+
+    .continuous-container canvas {
+      display: block;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      background: white;
+    }
+
+    .continuous-container .annotation-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      cursor: crosshair;
+    }
+
+    /* Properties Panel */
+    .properties-panel {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 280px;
+      background: white;
+      border-radius: 0;
+      box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+      border-left: 1px solid #d1d5db;
+      padding: 16px;
+      display: none;
+      z-index: 50;
+      overflow-y: auto;
+    }
+
+    .properties-panel.visible {
+      display: block;
+    }
+
+    .properties-panel h3 {
+      margin: 0 0 12px 0;
+      font-size: 13px;
+      color: #ffffff;
+      background: linear-gradient(to bottom, #3e3e42 0%, #2d2d30 100%);
+      padding: 8px 12px;
+      font-weight: 600;
+      margin: -16px -16px 12px -16px;
+      border-radius: 0;
+    }
+
+    .property-group {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 3px;
+    }
+
+    .property-group label {
+      font-size: 11px;
+      color: #4b5563;
+      font-weight: 500;
+      text-align: right;
+      width: 70px;
+      flex-shrink: 0;
+    }
+
+    .property-group input[type="color"],
+    .property-group input[type="number"],
+    .property-group input[type="text"],
+    .property-group textarea,
+    .property-group select {
+      flex: 1;
+      padding: 2px 4px;
+      border: 1px solid #d1d5db;
+      border-radius: 2px;
+      font-size: 11px;
+      font-family: inherit;
+      background-color: white;
+      box-sizing: border-box;
+      margin: 0;
+    }
+
+    .property-group textarea {
+      resize: vertical;
+      min-height: 40px;
+      height: auto;
+    }
+
+    /* Full-width property group (for special cases like buttons) */
+    .property-group-full {
+      grid-template-columns: 1fr;
+    }
+
+    .property-group-full label {
+      text-align: left;
+      margin-bottom: 4px;
+    }
+
+    .property-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .property-btn {
+      flex: 1;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 3px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    .property-btn.delete {
+      background: #ef4444;
+      color: white;
+    }
+
+    .property-btn.delete:hover {
+      background: #dc2626;
+    }
+
+    .property-btn.close {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .property-btn.close:hover {
+      background: #d1d5db;
+    }
+
+    /* Property Sections */
+    .property-section {
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+    }
+
+    .property-section:last-of-type {
+      margin-bottom: 4px;
+    }
+
+    .property-section-header {
+      font-size: 11px;
+      font-weight: 600;
+      color: #1f2937;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      padding: 4px 8px;
+      background: linear-gradient(to bottom, #f3f4f6 0%, #e5e7eb 100%);
+      border: 1px solid #d1d5db;
+      border-radius: 3px;
+    }
+
+    /* Property Group Row (for side-by-side fields like Created/Modified) */
+    .property-group-row {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .property-group-row > label {
+      font-size: 12px;
+      color: #4b5563;
+      font-weight: 500;
+      text-align: right;
+      padding-right: 4px;
+      align-self: start;
+      padding-top: 4px;
+    }
+
+    .property-group-row .property-dates-values {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .property-half {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .property-half label {
+      font-size: 11px;
+      color: #6b7280;
+      font-weight: 500;
+      min-width: 50px;
+    }
+
+    .property-half input {
+      flex: 1;
+      padding: 3px 6px;
+      border: 1px solid #d1d5db;
+      border-radius: 3px;
+      font-size: 11px;
+      font-family: inherit;
+    }
+
+    .prop-date {
+      background: #f9fafb;
+      color: #6b7280;
+      font-size: 10px !important;
+    }
+
+    /* Text Style Buttons (Bold, Italic, Underline, Strikethrough) */
+    .text-style-buttons {
+      display: flex;
+      gap: 4px;
+    }
+
+    .text-style-btn {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: 'Georgia', serif;
+      color: #374151;
+      transition: all 0.15s;
+    }
+
+    .text-style-btn:hover {
+      background: #f3f4f6;
+      border-color: #9ca3af;
+    }
+
+    .text-style-btn.active {
+      background: #3b82f6;
+      border-color: #2563eb;
+      color: #ffffff;
+    }
+
+    /* Text Alignment Buttons */
+    .text-align-buttons {
+      display: flex;
+      gap: 4px;
+    }
+
+    .text-align-btn {
+      width: 32px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .text-align-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: #374151;
+    }
+
+    .text-align-btn:hover {
+      background: #f3f4f6;
+      border-color: #9ca3af;
+    }
+
+    .text-align-btn.active {
+      background: #3b82f6;
+      border-color: #2563eb;
+    }
+
+    .text-align-btn.active svg {
+      stroke: #ffffff;
+    }
+
+    /* Color Input Wrapper */
+    .color-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .color-input-wrapper input[type="color"] {
+      width: 40px;
+      height: 28px;
+      padding: 2px;
+      border: 1px solid #d1d5db;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .color-hex {
+      font-size: 11px;
+      color: #6b7280;
+      font-family: 'Consolas', 'Monaco', monospace;
+    }
+
+    /* Color Palette Picker - Dropdown Style */
+    .color-palette-wrapper {
+      position: relative;
+      flex: 1;
+    }
+
+    .color-picker-button {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 6px;
+      background: white;
+      border: 1px solid #d1d5db;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+      width: 100%;
+      height: 22px;
+    }
+
+    .color-picker-button:hover {
+      border-color: #9ca3af;
+    }
+
+    .color-picker-button .color-preview {
+      width: 16px;
+      height: 14px;
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .color-picker-button .color-hex {
+      font-size: 11px;
+      color: #374151;
+      font-family: 'Consolas', 'Monaco', monospace;
+      flex: 1;
+    }
+
+    .color-picker-button .dropdown-arrow {
+      width: 12px;
+      height: 12px;
+      color: #6b7280;
+    }
+
+    .color-palette-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 4px;
+      background: white;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      padding: 8px;
+      z-index: 100;
+      display: none;
+    }
+
+    .color-palette-dropdown.show {
+      display: block;
+    }
+
+    .color-palette {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 2px;
+      margin-bottom: 8px;
+    }
+
+    .color-swatch {
+      width: 100%;
+      aspect-ratio: 1;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-radius: 2px;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.15);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+      position: relative;
+    }
+
+    .color-swatch.selected {
+      border: 2px solid #2563eb;
+      box-shadow: 0 0 0 1px white, 0 0 0 3px #2563eb;
+    }
+
+    .color-custom-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 6px 8px;
+      background: #f0f0f0;
+      border: 1px solid #d1d5db;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 11px;
+      color: #555;
+      transition: background 0.15s;
+      width: 100%;
+    }
+
+    .color-custom-btn:hover {
+      background: #e5e5e5;
+    }
+
+    .color-custom-btn svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .color-none-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 6px 8px;
+      background: #fff;
+      border: 1px solid #d1d5db;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 11px;
+      color: #555;
+      transition: background 0.15s;
+      width: 100%;
+      margin-bottom: 6px;
+    }
+
+    .color-none-btn:hover {
+      background: #f5f5f5;
+    }
+
+    .color-none-btn svg {
+      width: 14px;
+      height: 14px;
+      stroke: #999;
+    }
+
+    /* Hidden color input for custom picker */
+    .color-palette-wrapper input[type="color"] {
+      position: absolute;
+      width: 0;
+      height: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Opacity Slider */
+    .opacity-slider-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .opacity-slider-wrapper input[type="range"] {
+      flex: 1;
+      height: 4px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: #e5e7eb;
+      border-radius: 2px;
+      outline: none;
+    }
+
+    .opacity-slider-wrapper input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      background: #2563eb;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 1px solid white;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .opacity-slider-wrapper input[type="range"]::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      background: #2563eb;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 1px solid white;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    #prop-opacity-value {
+      font-size: 11px;
+      color: #374151;
+      min-width: 32px;
+      text-align: right;
+    }
+
+
+
+    /* Checkbox Labels */
+    /* Checkbox in two-column layout */
+    .property-group input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: #2563eb;
+      justify-self: start;
+    }
+
+    /* Select dropdown styling */
+    .property-group select {
+      cursor: pointer;
+    }
+
+    .property-group select:focus,
+    .property-group input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.1);
+    }
+
+    /* Properties panel width */
+    .properties-panel {
+      width: 300px;
+    }
+
+    /* Annotations List Panel */
+    .annotations-list-panel {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 260px;
+      background: white;
+      border-radius: 0;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+      border-right: 1px solid #d1d5db;
+      display: none;
+      z-index: 50;
+      overflow: hidden;
+      flex-direction: column;
+    }
+
+    .annotations-list-panel.visible {
+      display: flex;
+    }
+
+    .annotations-list-panel h3 {
+      margin: 0;
+      font-size: 13px;
+      color: #ffffff;
+      background: linear-gradient(to bottom, #3e3e42 0%, #2d2d30 100%);
+      padding: 8px 12px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .annotations-list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-bottom: 1px solid #e5e7eb;
+      background: #f9fafb;
+      flex-shrink: 0;
+    }
+
+    .annotations-list-filter {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .annotations-list-filter label {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .annotations-list-filter select {
+      font-size: 11px;
+      padding: 3px 6px;
+      border: 1px solid #d1d5db;
+      border-radius: 3px;
+      background: white;
+    }
+
+    .annotations-list-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+
+    .annotation-list-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: white;
+    }
+
+    .annotation-list-item:hover {
+      background: #f3f4f6;
+      border-color: #d1d5db;
+    }
+
+    .annotation-list-item.selected {
+      background: #eff6ff;
+      border-color: #3b82f6;
+    }
+
+    .annotation-list-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 14px;
+    }
+
+    .annotation-list-icon svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+    }
+
+    .annotation-list-info {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .annotation-list-type {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 2px;
+      text-transform: capitalize;
+    }
+
+    .annotation-list-details {
+      font-size: 10px;
+      color: #6b7280;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .annotation-list-page {
+      font-size: 10px;
+      color: #9ca3af;
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+
+    .annotations-list-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: #9ca3af;
+    }
+
+    .annotations-list-empty svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    .annotations-list-empty p {
+      font-size: 12px;
+      margin: 0;
+    }
+
+    .annotations-list-count {
+      font-size: 11px;
+      color: #6b7280;
+      padding: 6px 12px;
+      border-top: 1px solid #e5e7eb;
+      background: #f9fafb;
+      flex-shrink: 0;
+    }
+
+    /* Page Controls */
+    .page-controls {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(31, 41, 55, 0.95);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .page-controls.visible {
+      display: flex;
+    }
+
+    .page-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.2s;
+    }
+
+    .page-btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .page-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .page-info {
+      font-size: 13px;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .zoom-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding-left: 12px;
+      border-left: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Context Menu */
+    .context-menu {
+      position: fixed;
+      background: #ffffff;
+      border: 1px solid #c0c0c0;
+      border-radius: 2px;
+      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+      min-width: 220px;
+      padding: 2px 0;
+      z-index: 10000;
+      display: none;
+      font-size: 12px;
+      user-select: none;
+    }
+
+    .context-menu.visible {
+      display: block;
+    }
+
+    .context-menu-item {
+      display: flex;
+      align-items: center;
+      padding: 4px 12px 4px 8px;
+      cursor: pointer;
+      color: #333;
+      gap: 8px;
+    }
+
+    .context-menu-item:hover {
+      background: #e5f3ff;
+    }
+
+    .context-menu-item.disabled {
+      color: #999;
+      cursor: default;
+    }
+
+    .context-menu-item.disabled:hover {
+      background: transparent;
+    }
+
+    .context-menu-icon {
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .context-menu-icon svg {
+      width: 14px;
+      height: 14px;
+      color: #666;
+    }
+
+    .context-menu-label {
+      flex: 1;
+      white-space: nowrap;
+    }
+
+    .context-menu-shortcut {
+      color: #888;
+      font-size: 11px;
+      margin-left: 20px;
+    }
+
+    .context-menu-arrow {
+      color: #666;
+      font-size: 8px;
+      margin-left: 8px;
+    }
+
+    .context-menu-check {
+      width: 16px;
+      text-align: center;
+      color: #333;
+      font-weight: bold;
+    }
+
+    .context-menu-checkbox .context-menu-check {
+      visibility: hidden;
+    }
+
+    .context-menu-checkbox.checked .context-menu-check {
+      visibility: visible;
+    }
+
+    .context-menu-value {
+      font-weight: 500;
+    }
+
+    .context-menu-separator {
+      height: 1px;
+      background: #e0e0e0;
+      margin: 4px 8px;
+    }
+
+    .context-menu-submenu {
+      position: relative;
+    }
+
+    .context-menu-submenu:hover > .context-menu-submenu-content {
+      display: block;
+    }
+
+    .context-menu-submenu-content {
+      display: none;
+      position: absolute;
+      left: 100%;
+      top: -2px;
+      background: #ffffff;
+      border: 1px solid #c0c0c0;
+      border-radius: 2px;
+      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+      min-width: 150px;
+      padding: 2px 0;
+    }
+
+    .context-menu-submenu-content .context-menu-item {
+      padding: 4px 12px;
+    }
+
+    .arrange-icon-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      padding: 4px 6px;
+    }
+
+    .arrange-icon-btn {
+      width: 32px;
+      height: 32px;
+      border: 1px solid transparent;
+      background: transparent;
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+    }
+
+    .arrange-icon-btn:hover {
+      background: #e5f3ff;
+      border-color: #cce4f7;
+    }
+
+    .arrange-icon-btn:active {
+      background: #cce4f7;
+    }
+
+    .arrange-icon-btn svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    /* Preferences Dialog */
+    .preferences-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .preferences-overlay.visible {
+      display: flex;
+    }
+
+    .preferences-dialog {
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      width: 480px;
+      height: 500px;
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .preferences-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      border-bottom: 1px solid #e5e7eb;
+      background: #f9fafb;
+      border-radius: 6px 6px 0 0;
+      cursor: move;
+      user-select: none;
+    }
+
+    .preferences-header h2 {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .preferences-close-btn {
+      background: none;
+      border: none;
+      font-size: 18px;
+      color: #6b7280;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 3px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .preferences-close-btn:hover {
+      background: #e5e7eb;
+      color: #1f2937;
+    }
+
+    .preferences-content {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Preferences Tabs - matching ribbon style */
+    .pref-tabs {
+      background: linear-gradient(to bottom, #2d2d30 0%, #252528 100%);
+      border-bottom: 1px solid #3f3f46;
+      display: flex;
+      padding: 0 8px;
+      gap: 2px;
+      height: 32px;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+
+    .pref-tab {
+      padding: 6px 16px;
+      font-size: 12px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: #cccccc;
+      font-weight: 500;
+      border-radius: 4px 4px 0 0;
+      transition: all 0.15s ease;
+      position: relative;
+      border: 1px solid transparent;
+      border-bottom: none;
+    }
+
+    .pref-tab:hover {
+      background: #3e3e42;
+      color: #ffffff;
+    }
+
+    .pref-tab.active {
+      background: #ffffff;
+      color: #1f2937;
+      border-color: #3f3f46;
+      border-bottom: 1px solid #ffffff;
+      margin-bottom: -1px;
+    }
+
+    .pref-tab-content {
+      display: none;
+      padding: 12px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .pref-tab-content.active {
+      display: block;
+    }
+
+    /* Fill color with None option */
+    .pref-fill-color-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pref-fill-color-wrapper input[type="color"] {
+      width: 45px;
+      height: 24px;
+      padding: 2px;
+      border: 1px solid #d1d5db;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .pref-fill-color-wrapper input[type="color"]:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pref-fill-none-indicator {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 45px;
+      height: 24px;
+      border: 1px solid #d1d5db;
+      border-radius: 3px;
+      background: linear-gradient(135deg, #fff 45%, #ff0000 45%, #ff0000 55%, #fff 55%);
+    }
+
+    .pref-fill-none-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .pref-fill-none-checkbox input {
+      margin: 0;
+    }
+
+    .preferences-section {
+      margin-bottom: 14px;
+    }
+
+    .preferences-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .preferences-section h3 {
+      margin: 0 0 8px 0;
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .pref-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .pref-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .pref-row label {
+      font-size: 11px;
+      color: #4b5563;
+    }
+
+    .pref-row input[type="text"],
+    .pref-row input[type="number"] {
+      width: 100px;
+      padding: 4px 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 3px;
+      font-size: 11px;
+      font-family: inherit;
+    }
+
+    .pref-row input[type="text"]:focus,
+    .pref-row input[type="number"]:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+
+    .pref-row input[type="color"] {
+      width: 50px;
+      height: 24px;
+      padding: 2px;
+      border: 1px solid #d1d5db;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .pref-row select {
+      width: 100px;
+      padding: 4px 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: inherit;
+      background-color: white;
+      cursor: pointer;
+    }
+
+    .pref-row select:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+
+    .pref-checkbox-row {
+      justify-content: flex-start;
+    }
+
+    .pref-checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #4b5563;
+    }
+
+    .pref-checkbox-label input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: #2563eb;
+    }
+
+    .pref-checkbox-label span {
+      user-select: none;
+    }
+
+    .preferences-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-top: 1px solid #e5e7eb;
+      background: #f9fafb;
+      border-radius: 0 0 8px 8px;
+    }
+
+    .pref-footer-right {
+      display: flex;
+      gap: 8px;
+    }
+
+    .pref-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .pref-btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .pref-btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .pref-btn-secondary {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .pref-btn-secondary:hover {
+      background: #d1d5db;
+    }
+
+    /* Status Bar */
+    /* Status Bar - Dark VS Code-inspired theme */
+    .status-bar {
+      background: #007acc;
+      border-top: none;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 22px;
+      font-size: 12px;
+      color: #ffffff;
+      flex-shrink: 0;
+    }
+
+    .status-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .status-bar-center {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .status-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex: 1;
+      justify-content: flex-end;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0 6px;
+      height: 22px;
+      cursor: default;
+      transition: background 0.1s;
+    }
+
+    .status-item:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .status-separator {
+      width: 1px;
+      height: 14px;
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .status-item-label {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .status-item-value {
+      color: #ffffff;
+      font-weight: 500;
+    }
+
+    /* Status bar navigation controls - Dark theme */
+    .status-nav-btn {
+      background: transparent;
+      border: none;
+      padding: 2px 6px;
+      cursor: pointer;
+      font-size: 11px;
+      color: #ffffff;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .status-nav-btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .status-nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .status-nav-btn svg {
+      width: 14px;
+      height: 14px;
+      stroke: #ffffff;
+    }
+
+    .status-page-info {
+      font-size: 12px;
+      color: #ffffff;
+      min-width: 70px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .status-page-input {
+      width: 36px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+      color: #ffffff;
+      font-size: 12px;
+      text-align: center;
+      padding: 2px 4px;
+      outline: none;
+    }
+
+    .status-page-input:focus {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .status-page-input::-webkit-inner-spin-button,
+    .status-page-input::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .status-zoom-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 8px;
+      padding-left: 8px;
+      border-left: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .status-zoom-level {
+      font-size: 12px;
+      color: #ffffff;
+      min-width: 40px;
+      text-align: center;
+    }
+
+    .status-zoom-input {
+      width: 45px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+      color: #ffffff;
+      font-size: 12px;
+      text-align: center;
+      padding: 2px 4px;
+      outline: none;
+    }
+
+    .status-zoom-input:focus {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .status-zoom-input::-webkit-inner-spin-button,
+    .status-zoom-input::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    /* About Dialog */
+    .about-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      backdrop-filter: blur(4px);
+    }
+
+    .about-overlay.visible {
+      display: flex;
+    }
+
+    .about-dialog {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border-radius: 16px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+      width: 420px;
+      overflow: hidden;
+      animation: aboutSlideIn 0.3s ease;
+    }
+
+    @keyframes aboutSlideIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .about-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 32px 32px 24px;
+      text-align: center;
+      position: relative;
+    }
+
+    .about-logo {
+      width: 72px;
+      height: 72px;
+      background: white;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .about-logo svg {
+      width: 44px;
+      height: 44px;
+    }
+
+    .about-app-name {
+      font-size: 24px;
+      font-weight: 700;
+      color: white;
+      margin: 0 0 4px;
+      letter-spacing: -0.5px;
+    }
+
+    .about-version {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.8);
+      margin: 0;
+    }
+
+    .about-close-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .about-close-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .about-content {
+      padding: 24px 32px 32px;
+      color: #e2e8f0;
+    }
+
+    .about-tagline {
+      font-size: 14px;
+      color: #a5b4fc;
+      margin: 0 0 20px;
+      font-style: italic;
+      text-align: center;
+    }
+
+    .about-description {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #94a3b8;
+      margin: 0 0 24px;
+      text-align: center;
+    }
+
+    .about-company {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .about-company-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin: 0 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .about-company-name::before {
+      content: '';
+      width: 4px;
+      height: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 2px;
+    }
+
+    .about-company-desc {
+      font-size: 12px;
+      color: #64748b;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .about-links {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .about-link {
+      background: rgba(102, 126, 234, 0.2);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      color: #a5b4fc;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .about-link:hover {
+      background: rgba(102, 126, 234, 0.3);
+      border-color: rgba(102, 126, 234, 0.5);
+      color: white;
+    }
+
+    .about-link svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .about-footer {
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: 8px;
+    }
+
+    .about-copyright {
+      font-size: 11px;
+      color: #475569;
+      margin: 0;
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+    }
+
+    .loading-content {
+      background: white;
+      padding: 24px 40px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #e5e7eb;
+      border-top: 4px solid #3b82f6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 14px;
+      color: #374151;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <!-- Title Bar -->
+  <div class="title-bar">
+    <div class="title-bar-left">
+      <span class="app-title">OpenPDFStudio</span>
+      <span class="file-name" id="file-info"></span>
+    </div>
+    <div class="window-controls">
+      <button class="window-btn" id="btn-minimize" title="Minimize">
+        <svg width="10" height="1" viewBox="0 0 10 1"><rect width="10" height="1" fill="currentColor"/></svg>
+      </button>
+      <button class="window-btn" id="btn-maximize" title="Maximize">
+        <svg width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="none" stroke="currentColor" stroke-width="1"/></svg>
+      </button>
+      <button class="window-btn window-btn-close" id="btn-close" title="Close">
+        <svg width="10" height="10" viewBox="0 0 10 10"><line x1="0" y1="0" x2="10" y2="10" stroke="currentColor" stroke-width="1.2"/><line x1="10" y1="0" x2="0" y2="10" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Menu Bar -->
+  <div class="menu-bar">
+    <div class="menu-item" data-menu="file">
+      <span class="menu-label">File</span>
+      <div class="menu-dropdown" id="menu-file">
+        <div class="menu-option" id="menu-open">
+          <span class="menu-option-label">Open...</span>
+          <span class="menu-option-shortcut">Ctrl+O</span>
+        </div>
+        <div class="menu-option" id="menu-save">
+          <span class="menu-option-label">Save</span>
+          <span class="menu-option-shortcut">Ctrl+S</span>
+        </div>
+        <div class="menu-option" id="menu-save-as">
+          <span class="menu-option-label">Save As...</span>
+          <span class="menu-option-shortcut">Ctrl+Shift+S</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-option" id="menu-exit">
+          <span class="menu-option-label">Exit</span>
+          <span class="menu-option-shortcut">Alt+F4</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-item" data-menu="edit">
+      <span class="menu-label">Edit</span>
+      <div class="menu-dropdown" id="menu-edit">
+        <div class="menu-option" id="menu-undo">
+          <span class="menu-option-label">Undo</span>
+          <span class="menu-option-shortcut">Ctrl+Z</span>
+        </div>
+        <div class="menu-option" id="menu-redo">
+          <span class="menu-option-label">Redo</span>
+          <span class="menu-option-shortcut">Ctrl+Y</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-option" id="menu-delete">
+          <span class="menu-option-label">Delete</span>
+          <span class="menu-option-shortcut">Delete</span>
+        </div>
+        <div class="menu-option" id="menu-clear-page">
+          <span class="menu-option-label">Clear Page Annotations</span>
+          <span class="menu-option-shortcut">Ctrl+Shift+C</span>
+        </div>
+        <div class="menu-option" id="menu-clear-all">
+          <span class="menu-option-label">Clear All Annotations</span>
+          <span class="menu-option-shortcut"></span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-option" id="menu-select-all">
+          <span class="menu-option-label">Select All</span>
+          <span class="menu-option-shortcut">Ctrl+A</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-option" id="menu-preferences">
+          <span class="menu-option-label">Preferences...</span>
+          <span class="menu-option-shortcut">Ctrl+,</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-item" data-menu="view">
+      <span class="menu-label">View</span>
+      <div class="menu-dropdown" id="menu-view">
+        <div class="menu-option" id="menu-zoom-in">
+          <span class="menu-option-label">Zoom In</span>
+          <span class="menu-option-shortcut">Ctrl++</span>
+        </div>
+        <div class="menu-option" id="menu-zoom-out">
+          <span class="menu-option-label">Zoom Out</span>
+          <span class="menu-option-shortcut">Ctrl+-</span>
+        </div>
+        <div class="menu-option" id="menu-actual-size">
+          <span class="menu-option-label">Actual Size</span>
+          <span class="menu-option-shortcut">Ctrl+0</span>
+        </div>
+        <div class="menu-option" id="menu-fit-width">
+          <span class="menu-option-label">Fit Width</span>
+          <span class="menu-option-shortcut">Ctrl+1</span>
+        </div>
+        <div class="menu-option" id="menu-fit-page">
+          <span class="menu-option-label">Fit Page</span>
+          <span class="menu-option-shortcut">Ctrl+2</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-option" id="menu-rotate-left">
+          <span class="menu-option-label">Rotate Left</span>
+          <span class="menu-option-shortcut">Ctrl+[</span>
+        </div>
+        <div class="menu-option" id="menu-rotate-right">
+          <span class="menu-option-label">Rotate Right</span>
+          <span class="menu-option-shortcut">Ctrl+]</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-option" id="menu-single-page">
+          <span class="menu-option-label">Single Page</span>
+          <span class="menu-option-shortcut"></span>
+        </div>
+        <div class="menu-option" id="menu-continuous">
+          <span class="menu-option-label">Continuous</span>
+          <span class="menu-option-shortcut"></span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-option" id="menu-show-properties">
+          <span class="menu-option-label">Properties Panel</span>
+          <span class="menu-option-shortcut">F12</span>
+        </div>
+        <div class="menu-option" id="menu-show-annotations-list">
+          <span class="menu-option-label">Annotations List</span>
+          <span class="menu-option-shortcut">F11</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-item" data-menu="tools">
+      <span class="menu-label">Tools</span>
+      <div class="menu-dropdown" id="menu-tools">
+        <div class="menu-option" id="menu-tool-select">
+          <span class="menu-option-label">Select Tool</span>
+          <span class="menu-option-shortcut">V</span>
+        </div>
+        <div class="menu-option" id="menu-tool-hand">
+          <span class="menu-option-label">Hand Tool</span>
+          <span class="menu-option-shortcut">H</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-option" id="menu-tool-highlight">
+          <span class="menu-option-label">Highlight</span>
+          <span class="menu-option-shortcut">1</span>
+        </div>
+        <div class="menu-option" id="menu-tool-draw">
+          <span class="menu-option-label">Freehand</span>
+          <span class="menu-option-shortcut">2</span>
+        </div>
+        <div class="menu-option" id="menu-tool-line">
+          <span class="menu-option-label">Line</span>
+          <span class="menu-option-shortcut">3</span>
+        </div>
+        <div class="menu-option" id="menu-tool-box">
+          <span class="menu-option-label">Rectangle</span>
+          <span class="menu-option-shortcut">4</span>
+        </div>
+        <div class="menu-option" id="menu-tool-circle">
+          <span class="menu-option-label">Ellipse</span>
+          <span class="menu-option-shortcut">5</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-option" id="menu-tool-text">
+          <span class="menu-option-label">Text Box</span>
+          <span class="menu-option-shortcut">T</span>
+        </div>
+        <div class="menu-option" id="menu-tool-comment">
+          <span class="menu-option-label">Note</span>
+          <span class="menu-option-shortcut">N</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-item" data-menu="help">
+      <span class="menu-label">Help</span>
+      <div class="menu-dropdown" id="menu-help">
+        <div class="menu-option" id="menu-about">
+          <span class="menu-option-label">About OpenPDFStudio</span>
+          <span class="menu-option-shortcut"></span>
+        </div>
+        <div class="menu-option" id="menu-shortcuts">
+          <span class="menu-option-label">Keyboard Shortcuts</span>
+          <span class="menu-option-shortcut">F1</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ribbon -->
+  <div class="ribbon-container">
+    <!-- Ribbon Tabs -->
+    <div class="ribbon-tabs">
+      <button class="ribbon-tab active" data-tab="home">Home</button>
+      <button class="ribbon-tab" data-tab="comment">Comment</button>
+      <button class="ribbon-tab" data-tab="view">View</button>
+      <button class="ribbon-tab" data-tab="edit">Edit</button>
+      <button class="ribbon-tab" data-tab="forms">Forms</button>
+      <button class="ribbon-tab" data-tab="organize">Organize</button>
+    </div>
+
+    <!-- Home Tab Content -->
+    <div class="ribbon-content active" id="tab-home">
+      <div class="ribbon-groups">
+        <!-- Tools Group -->
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <button class="ribbon-btn active" id="tool-select" title="Select">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Select</span>
+            </button>
+            <button class="ribbon-btn" id="tool-hand" title="Hand Tool">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Hand</span>
+            </button>
+          </div>
+          <div class="ribbon-group-label">Tools</div>
+        </div>
+
+        <!-- Zoom Group - Small stacked buttons -->
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <div class="ribbon-btn-stack">
+              <button class="ribbon-btn small" id="zoom-in-ribbon" title="Zoom In">
+                <div class="ribbon-btn-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/>
+                  </svg>
+                </div>
+                <span class="ribbon-btn-label">Zoom In</span>
+              </button>
+              <button class="ribbon-btn small" id="zoom-out-ribbon" title="Zoom Out">
+                <div class="ribbon-btn-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7"/>
+                  </svg>
+                </div>
+                <span class="ribbon-btn-label">Zoom Out</span>
+              </button>
+              <button class="ribbon-btn small" id="fit-width" title="Fit Width">
+                <div class="ribbon-btn-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                  </svg>
+                </div>
+                <span class="ribbon-btn-label">Fit Width</span>
+              </button>
+            </div>
+          </div>
+          <div class="ribbon-group-label">Zoom</div>
+        </div>
+
+        <!-- Page Navigation - Small stacked + large buttons -->
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <div class="ribbon-btn-stack">
+              <button class="ribbon-btn small" id="first-page" title="First Page">
+                <div class="ribbon-btn-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                  </svg>
+                </div>
+                <span class="ribbon-btn-label">First</span>
+              </button>
+              <button class="ribbon-btn small" id="prev-page-ribbon" title="Previous Page">
+                <div class="ribbon-btn-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                  </svg>
+                </div>
+                <span class="ribbon-btn-label">Previous</span>
+              </button>
+              <button class="ribbon-btn small" id="next-page-ribbon" title="Next Page">
+                <div class="ribbon-btn-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </div>
+                <span class="ribbon-btn-label">Next</span>
+              </button>
+            </div>
+            <button class="ribbon-btn" id="last-page" title="Last Page">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Last</span>
+            </button>
+          </div>
+          <div class="ribbon-group-label">Navigate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comment Tab Content -->
+    <div class="ribbon-content" id="tab-comment">
+      <div class="ribbon-groups">
+        <!-- Highlight & Drawing -->
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <button class="ribbon-btn" id="tool-highlight" title="Highlight">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10M3 10h18M3 14h18"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Highlight</span>
+            </button>
+            <button class="ribbon-btn" id="tool-draw" title="Freehand">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Freehand</span>
+            </button>
+            <div class="ribbon-btn-stack">
+              <button class="ribbon-btn small" id="tool-line" title="Line">
+                <div class="ribbon-btn-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19l14-14"/>
+                  </svg>
+                </div>
+                <span class="ribbon-btn-label">Line</span>
+              </button>
+              <button class="ribbon-btn small" id="tool-arrow" title="Arrow">
+                <div class="ribbon-btn-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19l14-14"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 5l-6 0m6 0l0 6"/>
+                  </svg>
+                </div>
+                <span class="ribbon-btn-label">Arrow</span>
+              </button>
+              <button class="ribbon-btn small" id="tool-polyline" title="Polyline (double-click to finish)">
+                <div class="ribbon-btn-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 18L9 10L14 14L20 6"/>
+                  </svg>
+                </div>
+                <span class="ribbon-btn-label">Polyline</span>
+              </button>
+            </div>
+          </div>
+          <div class="ribbon-group-label">Drawing</div>
+        </div>
+
+        <!-- Shapes -->
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <button class="ribbon-btn" id="tool-box" title="Rectangle">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <rect x="4" y="4" width="16" height="16" rx="2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Rect</span>
+            </button>
+            <button class="ribbon-btn" id="tool-circle" title="Ellipse">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Ellipse</span>
+            </button>
+            <div class="ribbon-btn-stack">
+              <button class="ribbon-btn small" id="tool-polygon" title="Polygon">
+                <div class="ribbon-btn-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                </div>
+                <span class="ribbon-btn-label">Polygon</span>
+              </button>
+              <button class="ribbon-btn small" id="tool-cloud" title="Cloud">
+                <div class="ribbon-btn-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/>
+                  </svg>
+                </div>
+                <span class="ribbon-btn-label">Cloud</span>
+              </button>
+            </div>
+          </div>
+          <div class="ribbon-group-label">Shapes</div>
+        </div>
+
+        <!-- Text & Notes -->
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <button class="ribbon-btn" id="tool-text" title="Text">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Text</span>
+            </button>
+            <button class="ribbon-btn" id="tool-textbox" title="Text Box">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                  <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Text Box</span>
+            </button>
+            <button class="ribbon-btn" id="tool-comment" title="Note">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Note</span>
+            </button>
+            <button class="ribbon-btn" id="tool-callout" title="Callout">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Callout</span>
+            </button>
+          </div>
+          <div class="ribbon-group-label">Text</div>
+        </div>
+
+        <!-- Properties -->
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <div class="ribbon-btn-stack">
+              <div class="ribbon-input-row">
+                <label class="ribbon-input-label">Color</label>
+                <input type="color" id="color-picker" class="ribbon-color-input" value="#ffff00">
+              </div>
+              <div class="ribbon-input-row">
+                <label class="ribbon-input-label">Width</label>
+                <input type="number" id="line-width" class="ribbon-input" min="1" max="20" value="3">
+              </div>
+            </div>
+          </div>
+          <div class="ribbon-group-label">Properties</div>
+        </div>
+
+        <!-- Actions -->
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <div class="ribbon-btn-stack">
+              <button class="ribbon-btn small" id="tool-undo" title="Undo">
+                <div class="ribbon-btn-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                  </svg>
+                </div>
+                <span class="ribbon-btn-label">Undo</span>
+              </button>
+              <button class="ribbon-btn small" id="tool-clear" title="Clear All">
+                <div class="ribbon-btn-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                </div>
+                <span class="ribbon-btn-label">Clear</span>
+              </button>
+            </div>
+          </div>
+          <div class="ribbon-group-label">Edit</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- View Tab Content -->
+    <div class="ribbon-content" id="tab-view">
+      <div class="ribbon-groups">
+        <!-- Page Display -->
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <button class="ribbon-btn" id="single-page" title="Single Page">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Single</span>
+            </button>
+            <button class="ribbon-btn" id="continuous" title="Continuous">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Continuous</span>
+            </button>
+          </div>
+          <div class="ribbon-group-label">Page Display</div>
+        </div>
+
+        <!-- Rotate -->
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <button class="ribbon-btn" id="rotate-left" title="Rotate Left">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Rotate Left</span>
+            </button>
+            <button class="ribbon-btn" id="rotate-right" title="Rotate Right">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10H11a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Rotate Right</span>
+            </button>
+          </div>
+          <div class="ribbon-group-label">Rotate</div>
+        </div>
+
+        <!-- Zoom Presets -->
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <button class="ribbon-btn" id="actual-size" title="Actual Size">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">100%</span>
+            </button>
+            <button class="ribbon-btn" id="fit-page" title="Fit Page">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Fit Page</span>
+            </button>
+          </div>
+          <div class="ribbon-group-label">Zoom</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Tab Content -->
+    <div class="ribbon-content" id="tab-edit">
+      <div class="ribbon-groups">
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <button class="ribbon-btn large" id="edit-text" title="Edit Text">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Edit Text</span>
+            </button>
+          </div>
+          <div class="ribbon-group-label">Content</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Forms Tab Content -->
+    <div class="ribbon-content" id="tab-forms">
+      <div class="ribbon-groups">
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <button class="ribbon-btn" id="form-text-field" title="Text Field">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Text Field</span>
+            </button>
+            <button class="ribbon-btn" id="form-checkbox" title="Checkbox">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Checkbox</span>
+            </button>
+            <button class="ribbon-btn" id="form-radio" title="Radio Button">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                  <circle cx="12" cy="12" r="4" fill="currentColor"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Radio</span>
+            </button>
+          </div>
+          <div class="ribbon-group-label">Form Fields</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Organize Tab Content -->
+    <div class="ribbon-content" id="tab-organize">
+      <div class="ribbon-groups">
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <button class="ribbon-btn" id="insert-page" title="Insert Page">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Insert</span>
+            </button>
+            <button class="ribbon-btn" id="delete-page" title="Delete Page">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Delete</span>
+            </button>
+            <button class="ribbon-btn" id="extract-pages" title="Extract Pages">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Extract</span>
+            </button>
+          </div>
+          <div class="ribbon-group-label">Pages</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content">
+    <div class="main-view">
+      <div id="placeholder">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+        <h2>No PDF Selected</h2>
+        <p>Click "Open PDF" to browse and annotate a PDF</p>
+      </div>
+
+      <div id="pdf-container">
+        <div id="canvas-wrapper">
+          <!-- Single page mode -->
+          <div id="canvas-container" class="single-page-container">
+            <canvas id="pdf-canvas"></canvas>
+            <canvas id="annotation-canvas"></canvas>
+          </div>
+          <!-- Continuous mode -->
+          <div id="continuous-container" class="continuous-container">
+            <!-- Pages will be dynamically added here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Annotations List Panel -->
+    <div class="annotations-list-panel" id="annotations-list-panel">
+      <h3>Annotations</h3>
+      <div class="annotations-list-header">
+        <div class="annotations-list-filter">
+          <label>Show:</label>
+          <select id="annotations-list-filter">
+            <option value="all">All Pages</option>
+            <option value="current">Current Page</option>
+          </select>
+        </div>
+      </div>
+      <div class="annotations-list-content" id="annotations-list-content">
+        <!-- Annotation items will be dynamically added here -->
+      </div>
+      <div class="annotations-list-count" id="annotations-list-count">
+        0 annotations
+      </div>
+    </div>
+
+    <!-- Properties Panel -->
+    <div class="properties-panel" id="properties-panel">
+      <h3>Annotation Properties</h3>
+
+      <!-- General Section -->
+      <div class="property-section" id="prop-general-section">
+        <div class="property-section-header">General</div>
+
+        <div class="property-group" id="prop-type-group">
+          <label>Type</label>
+          <input type="text" id="prop-type" readonly>
+        </div>
+
+        <div class="property-group" id="prop-subject-group">
+          <label>Subject</label>
+          <input type="text" id="prop-subject" placeholder="Enter subject...">
+        </div>
+
+        <div class="property-group" id="prop-author-group">
+          <label>Author</label>
+          <input type="text" id="prop-author">
+        </div>
+
+        <div class="property-group" id="prop-created-group">
+          <label>Created</label>
+          <input type="text" id="prop-created" readonly class="prop-date">
+        </div>
+
+        <div class="property-group" id="prop-modified-group">
+          <label>Modified</label>
+          <input type="text" id="prop-modified" readonly class="prop-date">
+        </div>
+
+        <div class="property-group" id="prop-locked-group">
+          <label>Locked</label>
+          <select id="prop-locked">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </div>
+
+        <div class="property-group" id="prop-printable-group">
+          <label>Printable</label>
+          <select id="prop-printable">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+
+        <div class="property-group" id="prop-readonly-group">
+          <label>Read Only</label>
+          <select id="prop-readonly">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </div>
+
+        <div class="property-group" id="prop-marked-group">
+          <label>Marked</label>
+          <select id="prop-marked">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Appearance Section -->
+      <div class="property-section" id="prop-appearance-section">
+        <div class="property-section-header">Appearance</div>
+
+        <div class="property-group" id="prop-icon-group" style="display: none;">
+          <label>Icon</label>
+          <select id="prop-icon">
+            <option value="comment">Comment</option>
+            <option value="note">Note</option>
+            <option value="help">Help</option>
+            <option value="insert">Insert</option>
+            <option value="key">Key</option>
+            <option value="newparagraph">New Paragraph</option>
+            <option value="paragraph">Paragraph</option>
+            <option value="check">Check</option>
+            <option value="circle">Circle</option>
+            <option value="cross">Cross</option>
+            <option value="star">Star</option>
+          </select>
+        </div>
+
+        <div class="property-group" id="prop-fill-color-group" style="display: none;">
+          <label>Fill Color</label>
+          <div class="color-palette-wrapper" id="fill-color-wrapper">
+            <button type="button" class="color-picker-button" id="fill-color-btn">
+              <div class="color-preview" id="prop-fill-color-preview"></div>
+              <span class="color-hex" id="prop-fill-color-hex">#FFFF00</span>
+              <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </button>
+            <div class="color-palette-dropdown" id="fill-color-dropdown">
+              <button type="button" class="color-none-btn" id="fill-color-none-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="4" y1="4" x2="20" y2="20"/>
+                </svg>
+                None
+              </button>
+              <div class="color-palette" id="fill-color-palette"></div>
+              <button type="button" class="color-custom-btn" id="fill-color-custom-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 2a10 10 0 0 1 0 20"/>
+                </svg>
+                More Colors...
+              </button>
+            </div>
+            <input type="color" id="prop-fill-color">
+          </div>
+        </div>
+
+        <div class="property-group" id="prop-stroke-color-group" style="display: none;">
+          <label>Stroke Color</label>
+          <div class="color-palette-wrapper" id="stroke-color-wrapper">
+            <button type="button" class="color-picker-button" id="stroke-color-btn">
+              <div class="color-preview" id="prop-stroke-color-preview"></div>
+              <span class="color-hex" id="prop-stroke-color-hex">#000000</span>
+              <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </button>
+            <div class="color-palette-dropdown" id="stroke-color-dropdown">
+              <div class="color-palette" id="stroke-color-palette"></div>
+              <button type="button" class="color-custom-btn" id="stroke-color-custom-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 2a10 10 0 0 1 0 20"/>
+                </svg>
+                More Colors...
+              </button>
+            </div>
+            <input type="color" id="prop-stroke-color">
+          </div>
+        </div>
+
+        <div class="property-group" id="prop-color-group">
+          <label>Color</label>
+          <div class="color-palette-wrapper" id="main-color-wrapper">
+            <button type="button" class="color-picker-button" id="main-color-btn">
+              <div class="color-preview" id="prop-color-preview"></div>
+              <span class="color-hex" id="prop-color-hex">#000000</span>
+              <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </button>
+            <div class="color-palette-dropdown" id="main-color-dropdown">
+              <div class="color-palette" id="main-color-palette"></div>
+              <button type="button" class="color-custom-btn" id="main-color-custom-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 2a10 10 0 0 1 0 20"/>
+                </svg>
+                More Colors...
+              </button>
+            </div>
+            <input type="color" id="prop-color">
+          </div>
+        </div>
+
+        <div class="property-group" id="prop-opacity-group">
+          <label>Opacity</label>
+          <div class="opacity-slider-wrapper">
+            <input type="range" id="prop-opacity" min="0" max="100" value="100">
+            <span id="prop-opacity-value">100%</span>
+          </div>
+        </div>
+
+        <div class="property-group" id="prop-line-width-group">
+          <label>Line Width</label>
+          <input type="number" id="prop-line-width" min="1" max="20">
+        </div>
+
+        <div class="property-group" id="prop-border-style-group" style="display: none;">
+          <label>Border Style</label>
+          <select id="prop-border-style">
+            <option value="solid">Solid</option>
+            <option value="dashed">Dashed</option>
+            <option value="dotted">Dotted</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Line Endings Section (for arrow) -->
+      <div class="property-section" id="prop-line-endings-section" style="display: none;">
+        <div class="property-section-header">Line Endings</div>
+
+        <div class="property-group" id="prop-arrow-start-group">
+          <label>Start</label>
+          <select id="prop-arrow-start">
+            <option value="none">None</option>
+            <option value="open">Open Arrow</option>
+            <option value="closed">Closed Arrow</option>
+            <option value="diamond">Diamond</option>
+            <option value="circle">Circle</option>
+            <option value="square">Square</option>
+            <option value="slash">Slash</option>
+          </select>
+        </div>
+
+        <div class="property-group" id="prop-arrow-end-group">
+          <label>End</label>
+          <select id="prop-arrow-end">
+            <option value="none">None</option>
+            <option value="open" selected>Open Arrow</option>
+            <option value="closed">Closed Arrow</option>
+            <option value="diamond">Diamond</option>
+            <option value="circle">Circle</option>
+            <option value="square">Square</option>
+            <option value="slash">Slash</option>
+          </select>
+        </div>
+
+        <div class="property-group" id="prop-arrow-head-size-group">
+          <label>Head Size</label>
+          <input type="number" id="prop-arrow-head-size" min="4" max="40" value="12">
+        </div>
+      </div>
+
+      <!-- Size & Dimensions Section (for arrow) -->
+      <div class="property-section" id="prop-dimensions-section" style="display: none;">
+        <div class="property-section-header">Size & Dimensions</div>
+
+        <div class="property-group" id="prop-arrow-length-group">
+          <label>Length</label>
+          <input type="text" id="prop-arrow-length" readonly>
+        </div>
+      </div>
+
+      <!-- Text Formatting Section (for textbox/callout) -->
+      <div class="property-section" id="prop-text-format-section" style="display: none;">
+        <div class="property-section-header">Character</div>
+
+        <div class="property-group">
+          <label>Text Color</label>
+          <div class="color-palette-wrapper" id="text-color-wrapper">
+            <button type="button" class="color-picker-button" id="text-color-btn">
+              <div class="color-preview" id="prop-text-color-preview"></div>
+              <span class="color-hex" id="prop-text-color-hex">#000000</span>
+              <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </button>
+            <div class="color-palette-dropdown" id="text-color-dropdown">
+              <div class="color-palette" id="text-color-palette"></div>
+              <button type="button" class="color-custom-btn" id="text-color-custom-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 2a10 10 0 0 1 0 20"/>
+                </svg>
+                More Colors...
+              </button>
+            </div>
+            <input type="color" id="prop-text-color" value="#000000">
+          </div>
+        </div>
+
+        <div class="property-group">
+          <label>Font</label>
+          <select id="prop-font-family">
+            <option value="Arial">Arial</option>
+            <option value="Helvetica">Helvetica</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Tahoma">Tahoma</option>
+            <option value="Trebuchet MS">Trebuchet MS</option>
+            <option value="Impact">Impact</option>
+            <option value="Comic Sans MS">Comic Sans MS</option>
+          </select>
+        </div>
+
+        <div class="property-group">
+          <label>Font Size</label>
+          <select id="prop-text-font-size">
+            <option value="8">8 pt</option>
+            <option value="9">9 pt</option>
+            <option value="10">10 pt</option>
+            <option value="11">11 pt</option>
+            <option value="12">12 pt</option>
+            <option value="14" selected>14 pt</option>
+            <option value="16">16 pt</option>
+            <option value="18">18 pt</option>
+            <option value="20">20 pt</option>
+            <option value="24">24 pt</option>
+            <option value="28">28 pt</option>
+            <option value="32">32 pt</option>
+            <option value="36">36 pt</option>
+            <option value="48">48 pt</option>
+            <option value="72">72 pt</option>
+          </select>
+        </div>
+
+        <div class="property-group">
+          <label>Style</label>
+          <div class="text-style-buttons">
+            <button type="button" class="text-style-btn" id="prop-text-bold" title="Bold">
+              <strong>B</strong>
+            </button>
+            <button type="button" class="text-style-btn" id="prop-text-italic" title="Italic">
+              <em>I</em>
+            </button>
+            <button type="button" class="text-style-btn" id="prop-text-underline" title="Underline">
+              <u>U</u>
+            </button>
+            <button type="button" class="text-style-btn" id="prop-text-strikethrough" title="Strikethrough">
+              <s>S</s>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paragraph Section (for textbox/callout) -->
+      <div class="property-section" id="prop-paragraph-section" style="display: none;">
+        <div class="property-section-header">Paragraph</div>
+
+        <div class="property-group">
+          <label>Text Alignment</label>
+          <div class="text-align-buttons">
+            <button type="button" class="text-align-btn active" id="prop-align-left" title="Align Left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18M3 12h12M3 18h18"/>
+              </svg>
+            </button>
+            <button type="button" class="text-align-btn" id="prop-align-center" title="Align Center">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18M6 12h12M3 18h18"/>
+              </svg>
+            </button>
+            <button type="button" class="text-align-btn" id="prop-align-right" title="Align Right">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18M9 12h12M3 18h18"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="property-group">
+          <label>Line Spacing</label>
+          <select id="prop-line-spacing">
+            <option value="1">1x</option>
+            <option value="1.15">1.15x</option>
+            <option value="1.5" selected>1.5x</option>
+            <option value="2">2x</option>
+            <option value="2.5">2.5x</option>
+            <option value="3">3x</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Content Section (for text/comments) -->
+      <div class="property-section" id="prop-content-section" style="display: none;">
+        <div class="property-section-header">Content</div>
+
+        <div class="property-group" id="prop-text-group">
+          <label>Text</label>
+          <textarea id="prop-text" rows="4"></textarea>
+        </div>
+
+        <div class="property-group" id="prop-font-size-group" style="display: none;">
+          <label>Font Size</label>
+          <input type="number" id="prop-font-size" min="8" max="72">
+        </div>
+      </div>
+
+      <!-- Image Section -->
+      <div class="property-section" id="prop-image-section" style="display: none;">
+        <div class="property-section-header">Image</div>
+
+        <div class="property-group">
+          <label>Width</label>
+          <input type="number" id="prop-image-width" min="20" max="2000">
+        </div>
+
+        <div class="property-group">
+          <label>Height</label>
+          <input type="number" id="prop-image-height" min="20" max="2000">
+        </div>
+
+        <div class="property-group">
+          <label>Rotation</label>
+          <input type="number" id="prop-image-rotation" min="-360" max="360" step="1">
+        </div>
+
+        <div class="property-group property-group-full">
+          <button type="button" class="property-btn secondary" id="prop-image-reset">Reset to Original Size</button>
+        </div>
+      </div>
+
+      <div class="property-actions" id="prop-actions-section">
+        <button class="property-btn delete" id="prop-delete">Delete</button>
+        <button class="property-btn close" id="prop-close">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <div class="status-bar-left">
+      <div class="status-item">
+        <span class="status-item-label">Tool:</span>
+        <span class="status-item-value" id="status-tool">Select</span>
+      </div>
+      <div class="status-separator"></div>
+      <div class="status-item">
+        <span class="status-item-label">Annotations:</span>
+        <span class="status-item-value" id="status-annotations">0</span>
+      </div>
+    </div>
+    <div class="status-bar-center" id="pdf-controls" style="display: none;">
+      <button class="status-nav-btn" id="prev-page" title="Previous Page">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </button>
+      <span class="status-page-info" id="page-info">Page <input type="number" class="status-page-input" id="page-input" value="1" min="1"> / <span id="page-total">1</span></span>
+      <button class="status-nav-btn" id="next-page" title="Next Page">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
+      <div class="status-zoom-controls">
+        <button class="status-nav-btn" id="zoom-out" title="Zoom Out">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+          </svg>
+        </button>
+        <input type="text" class="status-zoom-input" id="zoom-input" value="150%">
+        <button class="status-nav-btn" id="zoom-in" title="Zoom In">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="status-bar-right">
+      <div class="status-item" id="status-message">Ready</div>
+    </div>
+  </div>
+
+  <!-- Page Controls (hidden - moved to status bar) -->
+  <div class="page-controls" id="page-controls" style="display: none !important;">
+    <button class="page-btn" id="prev-page-old">Previous</button>
+    <span class="page-info" id="page-info-old">Page 1 / 1</span>
+    <button class="page-btn" id="next-page-old">Next</button>
+    <div class="zoom-controls">
+      <span style="font-size: 12px;">Zoom:</span>
+      <button class="page-btn" id="zoom-out-old">-</button>
+      <span id="zoom-level-old" style="font-size: 12px;">150%</span>
+      <button class="page-btn" id="zoom-in-old">+</button>
+    </div>
+  </div>
+
+  <!-- Preferences Dialog -->
+  <div class="preferences-overlay" id="preferences-dialog">
+    <div class="preferences-dialog">
+      <div class="preferences-header">
+        <h2>Preferences</h2>
+        <button class="preferences-close-btn" id="pref-close-btn">&times;</button>
+      </div>
+      <div class="preferences-content">
+        <!-- Tabs -->
+        <div class="pref-tabs">
+          <button class="pref-tab active" data-pref-tab="general">General</button>
+          <button class="pref-tab" data-pref-tab="annotations">Annotations</button>
+          <button class="pref-tab" data-pref-tab="shapes">Shapes</button>
+          <button class="pref-tab" data-pref-tab="behavior">Behavior</button>
+        </div>
+
+        <!-- General Tab -->
+        <div class="pref-tab-content active" id="pref-tab-general">
+          <div class="preferences-section">
+            <h3>Author</h3>
+            <div class="pref-row">
+              <label for="pref-author-name">Default Author Name</label>
+              <input type="text" id="pref-author-name" value="User">
+            </div>
+          </div>
+
+          <div class="preferences-section">
+            <h3>Snapping</h3>
+            <div class="pref-row">
+              <label for="pref-angle-snap">Angle Snap (degrees)</label>
+              <input type="number" id="pref-angle-snap" min="1" max="90" value="30">
+            </div>
+            <div class="pref-row pref-checkbox-row">
+              <label class="pref-checkbox-label">
+                <input type="checkbox" id="pref-enable-angle-snap" checked>
+                <span>Enable Angle Snapping (hold Shift)</span>
+              </label>
+            </div>
+            <div class="pref-row">
+              <label for="pref-grid-size">Grid Size (pixels)</label>
+              <input type="number" id="pref-grid-size" min="5" max="100" value="10">
+            </div>
+            <div class="pref-row pref-checkbox-row">
+              <label class="pref-checkbox-label">
+                <input type="checkbox" id="pref-enable-grid-snap">
+                <span>Enable Grid Snapping</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="preferences-section">
+            <h3>Defaults</h3>
+            <div class="pref-row">
+              <label for="pref-default-color">Default Annotation Color</label>
+              <input type="color" id="pref-default-color" value="#ffff00">
+            </div>
+            <div class="pref-row">
+              <label for="pref-default-line-width">Default Line Width</label>
+              <input type="number" id="pref-default-line-width" min="1" max="20" value="3">
+            </div>
+            <div class="pref-row">
+              <label for="pref-default-font-size">Default Font Size</label>
+              <input type="number" id="pref-default-font-size" min="8" max="72" value="16">
+            </div>
+            <div class="pref-row">
+              <label for="pref-highlight-opacity">Highlight Opacity (%)</label>
+              <input type="number" id="pref-highlight-opacity" min="10" max="100" value="30">
+            </div>
+          </div>
+        </div>
+
+        <!-- Annotations Tab (TextBox & Callout) -->
+        <div class="pref-tab-content" id="pref-tab-annotations">
+          <div class="preferences-section">
+            <h3>Text Box Defaults</h3>
+            <div class="pref-row">
+              <label for="pref-textbox-fill-color">Fill Color</label>
+              <div class="pref-fill-color-wrapper">
+                <label class="pref-fill-none-checkbox">
+                  <input type="checkbox" id="pref-textbox-fill-none">
+                  <span>None</span>
+                </label>
+                <input type="color" id="pref-textbox-fill-color" value="#ffffd0">
+              </div>
+            </div>
+            <div class="pref-row">
+              <label for="pref-textbox-stroke-color">Stroke Color</label>
+              <input type="color" id="pref-textbox-stroke-color" value="#000000">
+            </div>
+            <div class="pref-row">
+              <label for="pref-textbox-border-width">Border Width</label>
+              <input type="number" id="pref-textbox-border-width" min="0" max="10" value="1">
+            </div>
+            <div class="pref-row">
+              <label for="pref-textbox-border-style">Border Style</label>
+              <select id="pref-textbox-border-style">
+                <option value="solid">Solid</option>
+                <option value="dashed">Dashed</option>
+                <option value="dotted">Dotted</option>
+              </select>
+            </div>
+            <div class="pref-row">
+              <label for="pref-textbox-opacity">Opacity (%)</label>
+              <input type="number" id="pref-textbox-opacity" min="10" max="100" value="100">
+            </div>
+            <div class="pref-row">
+              <label for="pref-textbox-font-size">Font Size</label>
+              <input type="number" id="pref-textbox-font-size" min="8" max="72" value="14">
+            </div>
+          </div>
+
+          <div class="preferences-section">
+            <h3>Callout Defaults</h3>
+            <div class="pref-row">
+              <label for="pref-callout-fill-color">Fill Color</label>
+              <div class="pref-fill-color-wrapper">
+                <label class="pref-fill-none-checkbox">
+                  <input type="checkbox" id="pref-callout-fill-none">
+                  <span>None</span>
+                </label>
+                <input type="color" id="pref-callout-fill-color" value="#ffffd0">
+              </div>
+            </div>
+            <div class="pref-row">
+              <label for="pref-callout-stroke-color">Stroke Color</label>
+              <input type="color" id="pref-callout-stroke-color" value="#000000">
+            </div>
+            <div class="pref-row">
+              <label for="pref-callout-border-width">Border Width</label>
+              <input type="number" id="pref-callout-border-width" min="0" max="10" value="1">
+            </div>
+            <div class="pref-row">
+              <label for="pref-callout-border-style">Border Style</label>
+              <select id="pref-callout-border-style">
+                <option value="solid">Solid</option>
+                <option value="dashed">Dashed</option>
+                <option value="dotted">Dotted</option>
+              </select>
+            </div>
+            <div class="pref-row">
+              <label for="pref-callout-opacity">Opacity (%)</label>
+              <input type="number" id="pref-callout-opacity" min="10" max="100" value="100">
+            </div>
+            <div class="pref-row">
+              <label for="pref-callout-font-size">Font Size</label>
+              <input type="number" id="pref-callout-font-size" min="8" max="72" value="14">
+            </div>
+          </div>
+        </div>
+
+        <!-- Shapes Tab (Rectangle, Circle) -->
+        <div class="pref-tab-content" id="pref-tab-shapes">
+          <div class="preferences-section">
+            <h3>Rectangle Defaults</h3>
+            <div class="pref-row">
+              <label for="pref-rect-fill-color">Fill Color</label>
+              <div class="pref-fill-color-wrapper">
+                <label class="pref-fill-none-checkbox">
+                  <input type="checkbox" id="pref-rect-fill-none" checked>
+                  <span>None</span>
+                </label>
+                <input type="color" id="pref-rect-fill-color" value="#ffff00" disabled>
+              </div>
+            </div>
+            <div class="pref-row">
+              <label for="pref-rect-stroke-color">Stroke Color</label>
+              <input type="color" id="pref-rect-stroke-color" value="#000000">
+            </div>
+            <div class="pref-row">
+              <label for="pref-rect-border-width">Border Width</label>
+              <input type="number" id="pref-rect-border-width" min="1" max="20" value="2">
+            </div>
+            <div class="pref-row">
+              <label for="pref-rect-border-style">Border Style</label>
+              <select id="pref-rect-border-style">
+                <option value="solid">Solid</option>
+                <option value="dashed">Dashed</option>
+                <option value="dotted">Dotted</option>
+              </select>
+            </div>
+            <div class="pref-row">
+              <label for="pref-rect-opacity">Opacity (%)</label>
+              <input type="number" id="pref-rect-opacity" min="10" max="100" value="100">
+            </div>
+          </div>
+
+          <div class="preferences-section">
+            <h3>Ellipse Defaults</h3>
+            <div class="pref-row">
+              <label for="pref-circle-fill-color">Fill Color</label>
+              <div class="pref-fill-color-wrapper">
+                <label class="pref-fill-none-checkbox">
+                  <input type="checkbox" id="pref-circle-fill-none" checked>
+                  <span>None</span>
+                </label>
+                <input type="color" id="pref-circle-fill-color" value="#ffff00" disabled>
+              </div>
+            </div>
+            <div class="pref-row">
+              <label for="pref-circle-stroke-color">Stroke Color</label>
+              <input type="color" id="pref-circle-stroke-color" value="#000000">
+            </div>
+            <div class="pref-row">
+              <label for="pref-circle-border-width">Border Width</label>
+              <input type="number" id="pref-circle-border-width" min="1" max="20" value="2">
+            </div>
+            <div class="pref-row">
+              <label for="pref-circle-border-style">Border Style</label>
+              <select id="pref-circle-border-style">
+                <option value="solid">Solid</option>
+                <option value="dashed">Dashed</option>
+                <option value="dotted">Dotted</option>
+              </select>
+            </div>
+            <div class="pref-row">
+              <label for="pref-circle-opacity">Opacity (%)</label>
+              <input type="number" id="pref-circle-opacity" min="10" max="100" value="100">
+            </div>
+          </div>
+        </div>
+
+        <!-- Behavior Tab -->
+        <div class="pref-tab-content" id="pref-tab-behavior">
+          <div class="preferences-section">
+            <h3>Creation</h3>
+            <div class="pref-row pref-checkbox-row">
+              <label class="pref-checkbox-label">
+                <input type="checkbox" id="pref-auto-select" checked>
+                <span>Auto-select annotation after creation</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="preferences-section">
+            <h3>Deletion</h3>
+            <div class="pref-row pref-checkbox-row">
+              <label class="pref-checkbox-label">
+                <input type="checkbox" id="pref-confirm-delete" checked>
+                <span>Confirm before deleting annotations</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="preferences-footer">
+        <button class="pref-btn pref-btn-secondary" id="pref-reset-btn">Reset to Defaults</button>
+        <div class="pref-footer-right">
+          <button class="pref-btn pref-btn-secondary" id="pref-cancel-btn">Cancel</button>
+          <button class="pref-btn pref-btn-primary" id="pref-save-btn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Annotation Context Menu -->
+  <div class="context-menu" id="annotation-context-menu">
+    <div class="context-menu-item" data-action="open-popup">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h12v10H6l-4 3v-3H2V2zm1 1v8h1v2l2.5-2H13V3H3z"/></svg>
+      </span>
+      <span class="context-menu-label">Open Pop-Up Note</span>
+    </div>
+    <div class="context-menu-item" data-action="hide-popup">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h12v10H6l-4 3v-3H2V2zm1 1v8h1v2l2.5-2H13V3H3z" opacity="0.4"/></svg>
+      </span>
+      <span class="context-menu-label">Hide Pop-Up Note</span>
+    </div>
+    <div class="context-menu-item" data-action="reset-popup">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 3a5 5 0 1 0 4.546 2.914l.908-.419A6 6 0 1 1 8 2v1z"/><path d="M8 0v4l3-2-3-2z"/></svg>
+      </span>
+      <span class="context-menu-label">Reset Pop-Up Note Location</span>
+    </div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item" data-action="cut">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2.5a2.5 2.5 0 1 1 3.164 2.414L8.5 7.25l1.336-2.336a2.5 2.5 0 1 1 1.414 0L9.914 7.25 13 12.5V14H3v-1.5L6.086 7.25 4.75 4.914A2.5 2.5 0 0 1 4 2.5zm2.5 1a1 1 0 1 0-2 0 1 1 0 0 0 2 0zm5 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0z"/></svg>
+      </span>
+      <span class="context-menu-label">Cut</span>
+      <span class="context-menu-shortcut">Ctrl+X</span>
+    </div>
+    <div class="context-menu-item" data-action="copy">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6z"/><path d="M2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2z"/></svg>
+      </span>
+      <span class="context-menu-label">Copy</span>
+      <span class="context-menu-shortcut">Ctrl+C</span>
+    </div>
+    <div class="context-menu-item" data-action="paste">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M10 1.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-1zm-5 0A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5v1A1.5 1.5 0 0 1 9.5 4h-3A1.5 1.5 0 0 1 5 2.5v-1zm-2 0h1v1A2.5 2.5 0 0 0 6.5 5h3A2.5 2.5 0 0 0 12 2.5v-1h1a2 2 0 0 1 2 2V14a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3.5a2 2 0 0 1 2-2z"/></svg>
+      </span>
+      <span class="context-menu-label">Paste</span>
+      <span class="context-menu-shortcut">Ctrl+V</span>
+    </div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item" data-action="delete">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1z"/></svg>
+      </span>
+      <span class="context-menu-label">Delete</span>
+      <span class="context-menu-shortcut">Delete</span>
+    </div>
+    <div class="context-menu-item" data-action="flatten">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h11A1.5 1.5 0 0 1 15 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5v-9z"/></svg>
+      </span>
+      <span class="context-menu-label">Flatten</span>
+    </div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item" data-action="add-reply">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M5 3l-.65.65 3.5 3.5H1v1h6.85l-3.5 3.5.65.65 4.5-4.5L5 3z"/><path d="M10 2h4v12h-4v-1h3V3h-3V2z"/></svg>
+      </span>
+      <span class="context-menu-label">Add Reply</span>
+    </div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item context-menu-checkbox" data-action="locked">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>
+      </span>
+      <span class="context-menu-label">Locked</span>
+      <span class="context-menu-check"></span>
+    </div>
+    <div class="context-menu-item context-menu-checkbox" data-action="marked">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/></svg>
+      </span>
+      <span class="context-menu-label">Marked</span>
+      <span class="context-menu-check"></span>
+    </div>
+    <div class="context-menu-item context-menu-checkbox checked" data-action="printable">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2H5zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z"/><path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2V7zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/></svg>
+      </span>
+      <span class="context-menu-label">Printable</span>
+      <span class="context-menu-check">✓</span>
+    </div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item context-menu-submenu" data-action="status">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3.5a.5.5 0 0 1-.5-.5v-3.5A.5.5 0 0 1 8 4z"/></svg>
+      </span>
+      <span class="context-menu-label">Status</span>
+      <span class="context-menu-arrow">▶</span>
+    </div>
+    <div class="context-menu-item" data-action="review-history">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>
+      </span>
+      <span class="context-menu-label">Review History...</span>
+    </div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item context-menu-submenu" data-action="layer">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8.235 1.559a.5.5 0 0 0-.47 0l-7.5 4a.5.5 0 0 0 0 .882L3.188 8 .264 9.559a.5.5 0 0 0 0 .882l7.5 4a.5.5 0 0 0 .47 0l7.5-4a.5.5 0 0 0 0-.882L12.813 8l2.922-1.559a.5.5 0 0 0 0-.882l-7.5-4z"/></svg>
+      </span>
+      <span class="context-menu-label">Layer: <span class="context-menu-value">None</span></span>
+      <span class="context-menu-arrow">▶</span>
+    </div>
+    <div class="context-menu-item context-menu-submenu" data-action="arrange">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M0 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2H2a2 2 0 0 1-2-2V2z"/></svg>
+      </span>
+      <span class="context-menu-label">Arrange</span>
+      <span class="context-menu-arrow">▶</span>
+      <div class="context-menu-submenu-content">
+        <div class="arrange-icon-grid">
+          <button class="arrange-icon-btn" data-action="bring-to-front" title="Bring to Front">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="10" height="10" fill="#4a90d9" stroke="#2d5a8a"/>
+              <rect x="11" y="11" width="10" height="10" fill="#f0f0f0" stroke="#999"/>
+            </svg>
+          </button>
+          <button class="arrange-icon-btn" data-action="send-to-back" title="Send to Back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="11" y="11" width="10" height="10" fill="#4a90d9" stroke="#2d5a8a"/>
+              <rect x="3" y="3" width="10" height="10" fill="#f0f0f0" stroke="#999"/>
+            </svg>
+          </button>
+          <button class="arrange-icon-btn" data-action="bring-forward" title="Bring Forward">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="8" width="8" height="8" fill="#ddd" stroke="#999"/>
+              <rect x="8" y="5" width="8" height="8" fill="#4a90d9" stroke="#2d5a8a"/>
+              <rect x="13" y="8" width="8" height="8" fill="#f0f0f0" stroke="#999"/>
+            </svg>
+          </button>
+          <button class="arrange-icon-btn" data-action="send-backward" title="Send Backward">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="8" width="8" height="8" fill="#f0f0f0" stroke="#999"/>
+              <rect x="8" y="5" width="8" height="8" fill="#4a90d9" stroke="#2d5a8a"/>
+              <rect x="13" y="8" width="8" height="8" fill="#ddd" stroke="#999"/>
+            </svg>
+          </button>
+        </div>
+        <div class="arrange-icon-grid">
+          <button class="arrange-icon-btn" data-action="rotate-left" title="Rotate Left 90°">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 12a8 8 0 0 1 14-5.3" stroke="#4a90d9"/>
+              <path d="M4 7v5h5" stroke="#4a90d9" fill="none"/>
+              <polygon points="10,10 18,10 18,18 10,18" fill="#4a90d9" stroke="#2d5a8a"/>
+            </svg>
+          </button>
+          <button class="arrange-icon-btn" data-action="rotate-right" title="Rotate Right 90°">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 12a8 8 0 0 0-14-5.3" stroke="#4a90d9"/>
+              <path d="M20 7v5h-5" stroke="#4a90d9" fill="none"/>
+              <polygon points="6,10 14,10 14,18 6,18" fill="#4a90d9" stroke="#2d5a8a"/>
+            </svg>
+          </button>
+          <button class="arrange-icon-btn" data-action="flip-horizontal" title="Flip Horizontal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="4,6 10,6 10,18 4,18" fill="#4a90d9" stroke="#2d5a8a"/>
+              <line x1="12" y1="4" x2="12" y2="20" stroke="#999" stroke-dasharray="2,2"/>
+              <polygon points="14,6 20,6 20,18 14,18" fill="#f0f0f0" stroke="#999"/>
+            </svg>
+          </button>
+          <button class="arrange-icon-btn" data-action="flip-vertical" title="Flip Vertical">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="6,4 18,4 18,10 6,10" fill="#4a90d9" stroke="#2d5a8a"/>
+              <line x1="4" y1="12" x2="20" y2="12" stroke="#999" stroke-dasharray="2,2"/>
+              <polygon points="6,14 18,14 18,20 6,20" fill="#f0f0f0" stroke="#999"/>
+            </svg>
+          </button>
+        </div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" data-action="transform">
+          <span class="context-menu-icon">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm4.5 0a.5.5 0 0 0-.5.5v11a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5v-11a.5.5 0 0 0-.5-.5h-7z"/></svg>
+          </span>
+          <span class="context-menu-label">Transform...</span>
+        </div>
+        <div class="context-menu-item" data-action="duplicate">
+          <span class="context-menu-icon">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2z"/></svg>
+          </span>
+          <span class="context-menu-label">Duplicate</span>
+        </div>
+      </div>
+    </div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item" data-action="flip-line">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 3a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 3zm4 8a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1 0-1h7a.5.5 0 0 1 .5.5z"/><path d="M8 0a.5.5 0 0 1 .5.5v.514A6.5 6.5 0 0 1 14 7.5a.5.5 0 0 1-1 0A5.5 5.5 0 0 0 8.5 2.015V2.5a.5.5 0 0 1-1 0v-.486A5.5 5.5 0 0 0 3 7.5a.5.5 0 0 1-1 0 6.5 6.5 0 0 1 5.5-6.486V.5A.5.5 0 0 1 8 0z"/></svg>
+      </span>
+      <span class="context-menu-label">Flip Line</span>
+    </div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item" data-action="convert-measurement">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 0a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h5v-1H2v-1h4v-1H4v-1h2v-1H2v-1h4V9H4V8h2V7H2V6h4V2h1v4h1V4h1v2h1V2h1v4h1V4h1v2h1V1a1 1 0 0 0-1-1H1z"/></svg>
+      </span>
+      <span class="context-menu-label">Convert to Measurement</span>
+    </div>
+    <div class="context-menu-item" data-action="convert-polyline">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 2l4 4 4-2 4 6" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="2" cy="2" r="1.5"/><circle cx="6" cy="6" r="1.5"/><circle cx="10" cy="4" r="1.5"/><circle cx="14" cy="10" r="1.5"/></svg>
+      </span>
+      <span class="context-menu-label">Convert to Polyline</span>
+    </div>
+    <div class="context-menu-item" data-action="convert-polygon">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l6 4.5v5L8 15l-6-4.5v-5L8 1z" stroke="currentColor" stroke-width="1" fill="none"/></svg>
+      </span>
+      <span class="context-menu-label">Convert to Polygon</span>
+    </div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item context-menu-submenu" data-action="style-tools">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M15.825.12a.5.5 0 0 1 .132.584c-1.53 3.43-4.743 8.17-7.095 10.64a6.067 6.067 0 0 1-2.373 1.534c-.018.227-.06.538-.16.868-.201.659-.667 1.479-1.708 1.74a8.118 8.118 0 0 1-3.078.132 3.659 3.659 0 0 1-.562-.135 1.382 1.382 0 0 1-.466-.247.714.714 0 0 1-.204-.288.622.622 0 0 1 .004-.443c.095-.245.316-.38.461-.452.394-.197.625-.453.867-.826.095-.144.184-.297.287-.472l.117-.198c.151-.255.326-.54.546-.848.528-.739 1.201-.925 1.746-.896.126.007.243.025.348.048.062-.172.142-.38.238-.608.261-.619.658-1.419 1.187-2.069 2.176-2.67 6.18-6.206 9.117-8.104a.5.5 0 0 1 .596.04z"/></svg>
+      </span>
+      <span class="context-menu-label">Style Tools</span>
+      <span class="context-menu-arrow">▶</span>
+    </div>
+    <div class="context-menu-item context-menu-submenu" data-action="export">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg>
+      </span>
+      <span class="context-menu-label">Export</span>
+      <span class="context-menu-arrow">▶</span>
+    </div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item" data-action="properties">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/><path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319z"/></svg>
+      </span>
+      <span class="context-menu-label">Properties...</span>
+    </div>
+  </div>
+
+  <!-- Page Context Menu (when nothing is selected) -->
+  <div class="context-menu" id="page-context-menu">
+    <div class="context-menu-item context-menu-submenu" data-action="add-bookmark">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/></svg>
+      </span>
+      <span class="context-menu-label">Add Bookmark</span>
+      <span class="context-menu-shortcut">Ctrl+Shift+B</span>
+      <span class="context-menu-arrow">▶</span>
+    </div>
+    <div class="context-menu-item" data-action="add-sticky-note">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2.5 1A1.5 1.5 0 0 0 1 2.5v11A1.5 1.5 0 0 0 2.5 15h6.086a1.5 1.5 0 0 0 1.06-.44l4.915-4.914A1.5 1.5 0 0 0 15 8.586V2.5A1.5 1.5 0 0 0 13.5 1h-11zM2 2.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 .5.5V8H9.5A1.5 1.5 0 0 0 8 9.5V14H2.5a.5.5 0 0 1-.5-.5v-11zm7 11.293V9.5a.5.5 0 0 1 .5-.5h4.293L9 13.793z"/></svg>
+      </span>
+      <span class="context-menu-label">Add Sticky Note</span>
+    </div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item" data-action="add-image">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/></svg>
+      </span>
+      <span class="context-menu-label">Add Image...</span>
+    </div>
+    <div class="context-menu-item" data-action="add-qr-code">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M0 .5A.5.5 0 0 1 .5 0h3a.5.5 0 0 1 0 1H1v2.5a.5.5 0 0 1-1 0v-3zm12 0a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0V1h-2.5a.5.5 0 0 1-.5-.5zM.5 12a.5.5 0 0 1 .5.5V15h2.5a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5v-3a.5.5 0 0 1 .5-.5zm15 0a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1 0-1H15v-2.5a.5.5 0 0 1 .5-.5zM4 4h1v1H4V4zm2 0h1v1H6V4zm2 0h1v1H8V4zm0 2h1v1H8V6zm-2 0h1v1H6V6zm-2 0h1v1H4V6zm8 0h1v1h-1V6zm-2 0h1v1h-1V6zm2-2h1v1h-1V4z"/></svg>
+      </span>
+      <span class="context-menu-label">Add QR Code...</span>
+    </div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item context-menu-checkbox" data-action="tool-hand" id="ctx-tool-hand">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8.5 1.75a.75.75 0 0 0-1.5 0V5h-1V2.75a.75.75 0 0 0-1.5 0V5h-.5A2.5 2.5 0 0 0 1.5 7.5v5A3.5 3.5 0 0 0 5 16h6a3.5 3.5 0 0 0 3.5-3.5v-6A2.5 2.5 0 0 0 12 4h-.5V1.75a.75.75 0 0 0-1.5 0V4h-1V1.75z"/></svg>
+      </span>
+      <span class="context-menu-label">Hand Tool</span>
+      <span class="context-menu-check"></span>
+    </div>
+    <div class="context-menu-item context-menu-checkbox" data-action="tool-snapshot">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M10.5 8.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2zm.5 2a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm9 2.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0z"/></svg>
+      </span>
+      <span class="context-menu-label">Snapshot Tool</span>
+      <span class="context-menu-check"></span>
+    </div>
+    <div class="context-menu-item context-menu-checkbox" data-action="tool-select-text">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M5.5 4a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 1 0V8h3v3.5a.5.5 0 0 0 1 0v-7a.5.5 0 0 0-1 0V7H6V4.5a.5.5 0 0 0-.5-.5z"/><path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2z"/></svg>
+      </span>
+      <span class="context-menu-label">Select Text</span>
+      <span class="context-menu-check"></span>
+    </div>
+    <div class="context-menu-item context-menu-checkbox" data-action="tool-zoom">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/><path d="M6.5 3a.5.5 0 0 1 .5.5V6h2.5a.5.5 0 0 1 0 1H7v2.5a.5.5 0 0 1-1 0V7H3.5a.5.5 0 0 1 0-1H6V3.5a.5.5 0 0 1 .5-.5z"/></svg>
+      </span>
+      <span class="context-menu-label">Zoom In/Out Tool</span>
+      <span class="context-menu-check"></span>
+    </div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item disabled" data-action="cut">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3.5 3.5c-.614-.884-.074-1.962.858-2.5L8 7.226 11.642 1c.932.538 1.472 1.616.858 2.5L8.81 8.61l1.556 2.661a2.5 2.5 0 1 1-.794.637L8 9.73l-1.572 2.177a2.5 2.5 0 1 1-.794-.637L7.19 8.61 3.5 3.5zm2.5 10a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0zm7 0a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0z"/></svg>
+      </span>
+      <span class="context-menu-label">Cut</span>
+      <span class="context-menu-shortcut">Ctrl+X</span>
+    </div>
+    <div class="context-menu-item disabled" data-action="copy">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2z"/></svg>
+      </span>
+      <span class="context-menu-label">Copy</span>
+      <span class="context-menu-shortcut">Ctrl+C</span>
+    </div>
+    <div class="context-menu-item" data-action="paste">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/></svg>
+      </span>
+      <span class="context-menu-label">Paste</span>
+      <span class="context-menu-shortcut">Ctrl+V</span>
+    </div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item disabled" data-action="delete">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+      </span>
+      <span class="context-menu-label">Delete</span>
+      <span class="context-menu-shortcut">Delete</span>
+    </div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item" data-action="select-all">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zm8 0A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm-8 8A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm8 0A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3z"/></svg>
+      </span>
+      <span class="context-menu-label">Select</span>
+    </div>
+    <div class="context-menu-item" data-action="deselect">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm0-1h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/></svg>
+      </span>
+      <span class="context-menu-label">Deselect</span>
+    </div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item context-menu-submenu" data-action="go-to">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"/></svg>
+      </span>
+      <span class="context-menu-label">Go To</span>
+      <span class="context-menu-arrow">▶</span>
+    </div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item" data-action="print">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/><path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/></svg>
+      </span>
+      <span class="context-menu-label">Print...</span>
+      <span class="context-menu-shortcut">Ctrl+P</span>
+    </div>
+    <div class="context-menu-item" data-action="find">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>
+      </span>
+      <span class="context-menu-label">Find...</span>
+      <span class="context-menu-shortcut">Ctrl+F</span>
+    </div>
+    <div class="context-menu-item" data-action="search">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/><path d="M3 6.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"/></svg>
+      </span>
+      <span class="context-menu-label">Search...</span>
+      <span class="context-menu-shortcut">Ctrl+Shift+F</span>
+    </div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item" data-action="page-properties">
+      <span class="context-menu-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/><path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319z"/></svg>
+      </span>
+      <span class="context-menu-label">Properties...</span>
+    </div>
+  </div>
+
+  <!-- About Dialog -->
+  <div class="about-overlay" id="about-dialog">
+    <div class="about-dialog">
+      <div class="about-header">
+        <button class="about-close-btn" id="about-close-btn">&times;</button>
+        <div class="about-logo">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#667eea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14 2V8H20" stroke="#667eea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16 13H8" stroke="#764ba2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16 17H8" stroke="#764ba2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10 9H9H8" stroke="#764ba2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h1 class="about-app-name">OpenPDFStudio</h1>
+        <p class="about-version">Version 1.0.5</p>
+      </div>
+      <div class="about-content">
+        <p class="about-tagline">IT Without Chains</p>
+        <p class="about-description">
+          A professional PDF editor for viewing, annotating, and editing PDF documents.
+          Built with open source technologies.
+        </p>
+        <div class="about-company">
+          <h3 class="about-company-name">OpenAEC Foundation</h3>
+          <p class="about-company-desc">
+            From the Latin "to share and distribute" - we liberate businesses from vendor lock-in
+            through professional open source solutions. Transparent pricing, transparent code.
+          </p>
+        </div>
+        <div class="about-links">
+          <a href="#" class="about-link" id="about-website-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            Website
+          </a>
+          <a href="#" class="about-link" id="about-email-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            Contact
+          </a>
+        </div>
+        <div class="about-footer">
+          <p class="about-copyright">&copy; 2025 OpenAEC Foundation. Licensed under MIT.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="loading-overlay" style="display: none;">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Loading...</div>
+    </div>
+  </div>
+
+  <script src="js/main.js" type="module"></script>
+</body>
+</html>

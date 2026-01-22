@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+out/
+
+# OS files
+.DS_Store
+Thumbs.db
+nul
+
+# IDE
+.vscode/
+.idea/
+
+# Claude Code
+.claude/
+
+# Logs
+*.log
+
+# Electron build
+release/
+
+# Test files
+*.jpg
+*.png
+!open-pdf-studio/icon.png
+!open-pdf-studio/pdfjs/**
