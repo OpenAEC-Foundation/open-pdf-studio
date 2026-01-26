@@ -179,6 +179,21 @@ export function findAnnotationAt(x, y) {
         const imgLocal = transformPointByInverseRotation(x, y, imgCenter.x, imgCenter.y, ann.rotation);
         if (imgLocal.x >= ann.x && imgLocal.x <= ann.x + ann.width && imgLocal.y >= ann.y && imgLocal.y <= ann.y + ann.height) return ann;
         break;
+      case 'textHighlight':
+      case 'textStrikethrough':
+      case 'textUnderline':
+        // Check if clicking inside any of the text rects
+        if (ann.rects && ann.rects.length > 0) {
+          for (const rect of ann.rects) {
+            if (x >= rect.x && x <= rect.x + rect.width && y >= rect.y && y <= rect.y + rect.height) {
+              return ann;
+            }
+          }
+        } else {
+          // Fallback to bounding box
+          if (x >= ann.x && x <= ann.x + ann.width && y >= ann.y && y <= ann.y + ann.height) return ann;
+        }
+        break;
     }
   }
   return null;
@@ -263,6 +278,21 @@ export function isPointInsideAnnotation(x, y, annotation) {
     case 'image':
       return localX >= annotation.x && localX <= annotation.x + annotation.width &&
              localY >= annotation.y && localY <= annotation.y + annotation.height;
+
+    case 'textHighlight':
+    case 'textStrikethrough':
+    case 'textUnderline':
+      // Check if inside any of the text rects
+      if (annotation.rects && annotation.rects.length > 0) {
+        for (const rect of annotation.rects) {
+          if (x >= rect.x && x <= rect.x + rect.width && y >= rect.y && y <= rect.y + rect.height) {
+            return true;
+          }
+        }
+      }
+      // Fallback to bounding box
+      return x >= annotation.x && x <= annotation.x + annotation.width &&
+             y >= annotation.y && y <= annotation.y + annotation.height;
 
     default:
       return false;

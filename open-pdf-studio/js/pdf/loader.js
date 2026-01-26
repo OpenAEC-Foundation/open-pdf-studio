@@ -28,6 +28,7 @@ export async function loadPDF(filePath) {
 
     // Reset annotation state
     state.annotations = [];
+    state.redoStack = [];
     state.selectedAnnotation = null;
     state.currentPage = 1;
 

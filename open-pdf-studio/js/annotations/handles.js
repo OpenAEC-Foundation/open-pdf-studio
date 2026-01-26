@@ -48,6 +48,13 @@ function getAnnotationCenter(annotation) {
         x: annotation.x + cw / 2,
         y: annotation.y + ch / 2
       };
+    case 'textHighlight':
+    case 'textStrikethrough':
+    case 'textUnderline':
+      return {
+        x: annotation.x + annotation.width / 2,
+        y: annotation.y + annotation.height / 2
+      };
     default:
       return null;
   }
@@ -199,6 +206,17 @@ export function getAnnotationHandles(annotation) {
       handles.push({ type: HANDLE_TYPES.RIGHT, x: annotation.x + annotation.width - hs/2, y: annotation.y + annotation.height/2 - hs/2 });
       // Rotation handle (above the image)
       handles.push({ type: HANDLE_TYPES.ROTATE, x: annotation.x + annotation.width/2 - hs/2, y: annotation.y - 25 - hs/2 });
+      break;
+
+    case 'textHighlight':
+    case 'textStrikethrough':
+    case 'textUnderline':
+      // Text markup annotations only have corner handles for selection feedback (no resize/rotation)
+      // They can only be moved or deleted
+      handles.push({ type: HANDLE_TYPES.TOP_LEFT, x: annotation.x - hs/2, y: annotation.y - hs/2 });
+      handles.push({ type: HANDLE_TYPES.TOP_RIGHT, x: annotation.x + annotation.width - hs/2, y: annotation.y - hs/2 });
+      handles.push({ type: HANDLE_TYPES.BOTTOM_LEFT, x: annotation.x - hs/2, y: annotation.y + annotation.height - hs/2 });
+      handles.push({ type: HANDLE_TYPES.BOTTOM_RIGHT, x: annotation.x + annotation.width - hs/2, y: annotation.y + annotation.height - hs/2 });
       break;
   }
 

@@ -11,7 +11,7 @@ import { loadPreferences } from './core/preferences.js';
 import { initCanvasContexts } from './ui/dom-elements.js';
 
 // UI initialization
-import { initAboutDialog } from './ui/dialogs.js';
+import { initAboutDialog, initDocPropertiesDialog } from './ui/dialogs.js';
 import { initMenus } from './ui/menus.js';
 import { initRibbon } from './ui/ribbon.js';
 import { initContextMenus } from './ui/context-menus.js';
@@ -26,6 +26,9 @@ import { setupEventListeners } from './events/setup.js';
 // PDF operations (for handling file drops from command line args)
 import { loadPDF } from './pdf/loader.js';
 
+// Text selection
+import { initTextSelection } from './text/text-selection.js';
+
 // Initialize application
 async function init() {
   // Initialize canvas contexts
@@ -38,11 +41,15 @@ async function init() {
   initMenus();
   initRibbon();
   initAboutDialog();
+  initDocPropertiesDialog();
   initContextMenus();
   initAnnotationsList();
   initAllColorPalettes();
   initAllPrefColorPalettes();
   initLeftPanel();
+
+  // Initialize text selection
+  initTextSelection();
 
   // Initialize preferences dialog drag
   initPreferencesDialogDrag();

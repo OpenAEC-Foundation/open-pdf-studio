@@ -24,6 +24,7 @@ export const state = {
 
   // Annotation state
   annotations: [],
+  redoStack: [], // Stack for redo operations
   isDrawing: false,
   startX: 0,
   startY: 0,
@@ -72,7 +73,14 @@ export const state = {
   defaultAuthor: getSystemUsername(),
 
   // Shift key state (for angle snapping during rotation)
-  shiftKeyPressed: false
+  shiftKeyPressed: false,
+
+  // Text selection state
+  textSelection: {
+    hasSelection: false,
+    selectedText: '',
+    pageNum: null
+  }
 };
 
 // Make shiftKeyPressed accessible globally for legacy code

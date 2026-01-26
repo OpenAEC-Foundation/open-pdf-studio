@@ -427,6 +427,35 @@ export function applyMove(annotation, deltaX, deltaY) {
       annotation.x += deltaX;
       annotation.y += deltaY;
       break;
+
+    case 'textHighlight':
+    case 'textStrikethrough':
+    case 'textUnderline':
+      // Move bounding box
+      annotation.x += deltaX;
+      annotation.y += deltaY;
+      // Move individual rects
+      if (annotation.rects) {
+        annotation.rects = annotation.rects.map(r => ({
+          x: r.x + deltaX,
+          y: r.y + deltaY,
+          width: r.width,
+          height: r.height
+        }));
+      }
+      // Move quadPoints if present
+      if (annotation.quadPoints) {
+        annotation.quadPoints = annotation.quadPoints.map(quad => {
+          // quadPoints: [x1,y1,x2,y2,x3,y3,x4,y4]
+          return [
+            quad[0] + deltaX, quad[1] + deltaY,  // top-left
+            quad[2] + deltaX, quad[3] + deltaY,  // top-right
+            quad[4] + deltaX, quad[5] + deltaY,  // bottom-left
+            quad[6] + deltaX, quad[7] + deltaY   // bottom-right
+          ];
+        });
+      }
+      break;
   }
 
   annotation.modifiedAt = new Date().toISOString();

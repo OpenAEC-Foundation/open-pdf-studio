@@ -2,6 +2,7 @@ import { state } from '../core/state.js';
 import { propertiesPanel, toolUndo, toolClear, propDelete, zoomInBtn, zoomOutBtn } from '../ui/dom-elements.js';
 import { setTool } from '../tools/manager.js';
 import { showPreferencesDialog, hidePreferencesDialog } from '../core/preferences.js';
+import { showDocPropertiesDialog } from '../ui/dialogs.js';
 import { copyAnnotation, pasteFromClipboard } from '../annotations/clipboard.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { openPDFFile } from '../pdf/loader.js';
@@ -57,6 +58,9 @@ export function handleKeydown(e) {
   } else if (ctrl && e.key === ',') {
     e.preventDefault();
     showPreferencesDialog();
+  } else if (ctrl && e.key === 'd') {
+    e.preventDefault();
+    showDocPropertiesDialog();
   }
 
   // ESC key - close dialogs or switch back to select tool

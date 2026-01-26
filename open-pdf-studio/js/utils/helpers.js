@@ -34,7 +34,10 @@ export function getTypeDisplayName(type) {
     'text': 'Text',
     'textbox': 'Text Box',
     'callout': 'Callout',
-    'image': 'Image'
+    'image': 'Image',
+    'textHighlight': 'Text Highlight',
+    'textStrikethrough': 'Text Strikethrough',
+    'textUnderline': 'Text Underline'
   };
   return names[type] || type.charAt(0).toUpperCase() + type.slice(1);
 }

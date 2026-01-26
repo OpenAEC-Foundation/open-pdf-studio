@@ -33,6 +33,20 @@ function setAllCanvasCursors(cursor) {
   });
 }
 
+// Enable or disable text selection based on current tool
+function setTextSelectionEnabled(enabled) {
+  const textLayers = document.querySelectorAll('.textLayer');
+  textLayers.forEach(layer => {
+    layer.style.pointerEvents = enabled ? 'none' : 'none';
+    // Enable/disable pointer events on spans within text layer
+    const spans = layer.querySelectorAll('span');
+    spans.forEach(span => {
+      span.style.pointerEvents = enabled ? 'auto' : 'none';
+      span.style.cursor = enabled ? 'text' : 'default';
+    });
+  });
+}
+
 // Set current tool
 export function setTool(tool) {
   // Cancel any ongoing polyline drawing when switching tools
@@ -48,6 +62,9 @@ export function setTool(tool) {
   if (tool !== 'select') {
     hideProperties();
   }
+
+  // Enable text selection only for select tool
+  setTextSelectionEnabled(tool === 'select');
 
   // Update UI - remove active state from all tool buttons
   [toolSelect, toolHand, toolHighlight, toolDraw, toolLine, toolArrow, toolCircle, toolBox, toolComment, toolText].forEach(btn => {

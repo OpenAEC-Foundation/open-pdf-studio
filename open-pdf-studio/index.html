@@ -56,6 +56,60 @@
       -webkit-app-region: no-drag;
     }
 
+    /* Quick Access Toolbar */
+    .quick-access-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      margin-left: 8px;
+      padding-left: 8px;
+      border-left: 1px solid #d4d4d4;
+      height: 100%;
+    }
+
+    .quick-access-btn {
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+      color: #444;
+      padding: 0;
+    }
+
+    .quick-access-btn:hover {
+      background: #e5e5e5;
+    }
+
+    .quick-access-btn:active {
+      background: #d5d5d5;
+    }
+
+    .quick-access-btn:disabled {
+      color: #aaa;
+      cursor: default;
+    }
+
+    .quick-access-btn:disabled:hover {
+      background: transparent;
+    }
+
+    .quick-access-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .quick-access-separator {
+      width: 1px;
+      height: 16px;
+      background: #d4d4d4;
+      margin: 0 4px;
+    }
+
     .title-bar-center {
       position: absolute;
       left: 50%;
@@ -211,6 +265,7 @@
     .menu-option-label {
       font-size: 13px;
       color: #cccccc;
+      white-space: nowrap;
     }
 
     .menu-option:hover .menu-option-label {
@@ -441,6 +496,7 @@
       font-size: 11px;
       text-align: left;
       max-width: none;
+      white-space: nowrap;
     }
 
     /* Ribbon dropdown - Dark theme */
@@ -861,6 +917,98 @@
       position: absolute;
       top: 0;
       left: 0;
+    }
+
+    /* Text Layer - for PDF text selection */
+    /* CSS based on official PDF.js pdf_viewer.css */
+    .textLayer {
+      position: absolute;
+      text-align: initial;
+      inset: 0;
+      overflow: clip;
+      opacity: 0.25;
+      line-height: 1;
+      -webkit-text-size-adjust: none;
+      -moz-text-size-adjust: none;
+      text-size-adjust: none;
+      forced-color-adjust: none;
+      transform-origin: 0 0;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .textLayer :is(span, br) {
+      color: transparent;
+      position: absolute;
+      white-space: pre;
+      cursor: text;
+      transform-origin: 0% 0%;
+      pointer-events: auto;
+    }
+
+    /* PDF.js uses markedContent spans */
+    .textLayer span.markedContent {
+      top: 0;
+      height: 0;
+    }
+
+    .textLayer .endOfContent {
+      display: block;
+      position: absolute;
+      inset: 100% 0 0;
+      z-index: -1;
+      cursor: default;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .textLayer .endOfContent.active {
+      top: 0;
+    }
+
+    /* Selection highlighting */
+    .textLayer ::selection {
+      background: rgba(0, 0, 255, 1);
+      background: AccentColor;
+    }
+
+    .textLayer br::selection {
+      background: transparent;
+    }
+
+    /* Search highlight styles */
+    .textLayer .highlight {
+      margin: -1px;
+      padding: 1px;
+      background-color: rgba(180, 0, 170, 0.4);
+      border-radius: 4px;
+    }
+
+    .textLayer .highlight.appended {
+      position: initial;
+    }
+
+    .textLayer .highlight.begin {
+      border-radius: 4px 0 0 4px;
+    }
+
+    .textLayer .highlight.end {
+      border-radius: 0 4px 4px 0;
+    }
+
+    .textLayer .highlight.middle {
+      border-radius: 0;
+    }
+
+    .textLayer .highlight.selected {
+      background-color: rgba(0, 100, 0, 1);
+    }
+
+    /* Annotation canvas - below text layer */
+    #annotation-canvas,
+    .annotation-canvas {
+      z-index: 2;
+      pointer-events: auto;
     }
 
     /* Properties Panel */
@@ -1769,6 +1917,137 @@
       height: 24px;
     }
 
+    /* Document Properties Dialog */
+    .doc-props-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .doc-props-overlay.visible {
+      display: flex;
+    }
+
+    .doc-props-dialog {
+      background: #ffffff;
+      border-radius: 0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      border: 1px solid #d4d4d4;
+      width: 450px;
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .doc-props-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0;
+      padding-left: 10px;
+      border-bottom: 1px solid #d4d4d4;
+      background: linear-gradient(to bottom, #ffffff 0%, #f5f5f5 100%);
+      height: 30px;
+      user-select: none;
+      cursor: default;
+    }
+
+    .doc-props-header h2 {
+      margin: 0;
+      font-size: 12px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .doc-props-close-btn {
+      background: none;
+      border: none;
+      font-size: 16px;
+      color: #333;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      width: 46px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0;
+      transition: background 0.1s;
+    }
+
+    .doc-props-close-btn:hover {
+      background: #e81123;
+      color: white;
+    }
+
+    .doc-props-content {
+      padding: 15px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .doc-props-row {
+      display: flex;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+
+    .doc-props-label {
+      width: 120px;
+      color: #666;
+      flex-shrink: 0;
+    }
+
+    .doc-props-value {
+      color: #333;
+      word-break: break-all;
+      flex: 1;
+    }
+
+    .doc-props-section {
+      margin-bottom: 15px;
+    }
+
+    .doc-props-section h3 {
+      font-size: 12px;
+      font-weight: 600;
+      color: #333;
+      margin: 0 0 10px 0;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    .doc-props-footer {
+      padding: 10px 15px;
+      border-top: 1px solid #d4d4d4;
+      display: flex;
+      justify-content: flex-end;
+      background: #f5f5f5;
+    }
+
+    .doc-props-footer button {
+      padding: 5px 20px;
+      font-size: 12px;
+      border: 1px solid #d4d4d4;
+      background: #ffffff;
+      cursor: pointer;
+    }
+
+    .doc-props-footer button:hover {
+      background: #e5e5e5;
+    }
+
     /* Preferences Dialog */
     .preferences-overlay {
       position: fixed;
@@ -2524,147 +2803,59 @@
               <span class="menu-option-shortcut">Ctrl+Shift+S</span>
             </div>
             <div class="menu-divider"></div>
-            <div class="menu-option" id="menu-exit">
-              <span class="menu-option-label">Exit</span>
-              <span class="menu-option-shortcut">Alt+F4</span>
-            </div>
-          </div>
-        </div>
-        <div class="menu-item" data-menu="edit">
-          <span class="menu-label">Edit</span>
-          <div class="menu-dropdown" id="menu-edit">
-            <div class="menu-option" id="menu-undo">
-              <span class="menu-option-label">Undo</span>
-              <span class="menu-option-shortcut">Ctrl+Z</span>
-            </div>
-            <div class="menu-option" id="menu-redo">
-              <span class="menu-option-label">Redo</span>
-              <span class="menu-option-shortcut">Ctrl+Y</span>
-            </div>
-            <div class="menu-divider"></div>
-            <div class="menu-option" id="menu-delete">
-              <span class="menu-option-label">Delete</span>
-              <span class="menu-option-shortcut">Delete</span>
-            </div>
-            <div class="menu-option" id="menu-clear-page">
-              <span class="menu-option-label">Clear Page Annotations</span>
-              <span class="menu-option-shortcut">Ctrl+Shift+C</span>
-            </div>
-            <div class="menu-option" id="menu-clear-all">
-              <span class="menu-option-label">Clear All Annotations</span>
-              <span class="menu-option-shortcut"></span>
-            </div>
-            <div class="menu-divider"></div>
-            <div class="menu-option" id="menu-select-all">
-              <span class="menu-option-label">Select All</span>
-              <span class="menu-option-shortcut">Ctrl+A</span>
+            <div class="menu-option" id="menu-doc-properties">
+              <span class="menu-option-label">Document Properties...</span>
+              <span class="menu-option-shortcut">Ctrl+D</span>
             </div>
             <div class="menu-divider"></div>
             <div class="menu-option" id="menu-preferences">
               <span class="menu-option-label">Preferences...</span>
               <span class="menu-option-shortcut">Ctrl+,</span>
             </div>
-          </div>
-        </div>
-        <div class="menu-item" data-menu="view">
-          <span class="menu-label">View</span>
-          <div class="menu-dropdown" id="menu-view">
-            <div class="menu-option" id="menu-zoom-in">
-              <span class="menu-option-label">Zoom In</span>
-              <span class="menu-option-shortcut">Ctrl++</span>
-            </div>
-            <div class="menu-option" id="menu-zoom-out">
-              <span class="menu-option-label">Zoom Out</span>
-              <span class="menu-option-shortcut">Ctrl+-</span>
-            </div>
-            <div class="menu-option" id="menu-actual-size">
-              <span class="menu-option-label">Actual Size</span>
-              <span class="menu-option-shortcut">Ctrl+0</span>
-            </div>
-            <div class="menu-option" id="menu-fit-width">
-              <span class="menu-option-label">Fit Width</span>
-              <span class="menu-option-shortcut">Ctrl+1</span>
-            </div>
-            <div class="menu-option" id="menu-fit-page">
-              <span class="menu-option-label">Fit Page</span>
-              <span class="menu-option-shortcut">Ctrl+2</span>
-            </div>
             <div class="menu-divider"></div>
-            <div class="menu-option" id="menu-rotate-left">
-              <span class="menu-option-label">Rotate Left</span>
-              <span class="menu-option-shortcut">Ctrl+[</span>
-            </div>
-            <div class="menu-option" id="menu-rotate-right">
-              <span class="menu-option-label">Rotate Right</span>
-              <span class="menu-option-shortcut">Ctrl+]</span>
-            </div>
-            <div class="menu-divider"></div>
-            <div class="menu-option" id="menu-single-page">
-              <span class="menu-option-label">Single Page</span>
-              <span class="menu-option-shortcut"></span>
-            </div>
-            <div class="menu-option" id="menu-continuous">
-              <span class="menu-option-label">Continuous</span>
-              <span class="menu-option-shortcut"></span>
-            </div>
-            <div class="menu-divider"></div>
-            <div class="menu-option" id="menu-show-left-panel">
-              <span class="menu-option-label">Navigation Panel</span>
-              <span class="menu-option-shortcut">F9</span>
-            </div>
-            <div class="menu-option" id="menu-show-properties">
-              <span class="menu-option-label">Properties Panel</span>
-              <span class="menu-option-shortcut">F12</span>
-            </div>
-            <div class="menu-option" id="menu-show-annotations-list">
-              <span class="menu-option-label">Annotations List</span>
-              <span class="menu-option-shortcut">F11</span>
+            <div class="menu-option" id="menu-exit">
+              <span class="menu-option-label">Exit</span>
+              <span class="menu-option-shortcut">Alt+F4</span>
             </div>
           </div>
         </div>
-        <div class="menu-item" data-menu="tools">
-          <span class="menu-label">Tools</span>
-          <div class="menu-dropdown" id="menu-tools">
-            <div class="menu-option" id="menu-tool-select">
-              <span class="menu-option-label">Select Tool</span>
-              <span class="menu-option-shortcut">V</span>
-            </div>
-            <div class="menu-option" id="menu-tool-hand">
-              <span class="menu-option-label">Hand Tool</span>
-              <span class="menu-option-shortcut">H</span>
-            </div>
-            <div class="menu-divider"></div>
-            <div class="menu-option" id="menu-tool-highlight">
-              <span class="menu-option-label">Highlight</span>
-              <span class="menu-option-shortcut">1</span>
-            </div>
-            <div class="menu-option" id="menu-tool-draw">
-              <span class="menu-option-label">Freehand</span>
-              <span class="menu-option-shortcut">2</span>
-            </div>
-            <div class="menu-option" id="menu-tool-line">
-              <span class="menu-option-label">Line</span>
-              <span class="menu-option-shortcut">3</span>
-            </div>
-            <div class="menu-option" id="menu-tool-box">
-              <span class="menu-option-label">Rectangle</span>
-              <span class="menu-option-shortcut">4</span>
-            </div>
-            <div class="menu-option" id="menu-tool-circle">
-              <span class="menu-option-label">Ellipse</span>
-              <span class="menu-option-shortcut">5</span>
-            </div>
-            <div class="menu-divider"></div>
-            <div class="menu-option" id="menu-tool-text">
-              <span class="menu-option-label">Text Box</span>
-              <span class="menu-option-shortcut">T</span>
-            </div>
-            <div class="menu-option" id="menu-tool-comment">
-              <span class="menu-option-label">Note</span>
-              <span class="menu-option-shortcut">N</span>
-            </div>
-          </div>
-        </div>
+      </div>
+      <!-- Quick Access Toolbar -->
+      <div class="quick-access-toolbar">
+        <button class="quick-access-btn" id="qa-save" title="Save (Ctrl+S)">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V7l-4-4z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 3v4a1 1 0 01-1 1H8"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 14h10v7H7z"/>
+          </svg>
+        </button>
+        <button class="quick-access-btn" id="qa-print" title="Print (Ctrl+P)">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+          </svg>
+        </button>
+        <div class="quick-access-separator"></div>
+        <button class="quick-access-btn" id="qa-undo" title="Undo (Ctrl+Z)">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+          </svg>
+        </button>
+        <button class="quick-access-btn" id="qa-redo" title="Redo (Ctrl+Y)">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10H11a8 8 0 00-8 8v2m18-10l-6 6m6-6l-6-6"/>
+          </svg>
+        </button>
+        <div class="quick-access-separator"></div>
+        <button class="quick-access-btn" id="qa-prev-view" title="Previous View">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/>
+          </svg>
+        </button>
+        <button class="quick-access-btn" id="qa-next-view" title="Next View">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+          </svg>
+        </button>
       </div>
     </div>
     <div class="title-bar-center">
@@ -2962,13 +3153,21 @@
                 </div>
                 <span class="ribbon-btn-label">Undo</span>
               </button>
-              <button class="ribbon-btn small" id="tool-clear" title="Clear All">
+              <button class="ribbon-btn small" id="tool-clear" title="Clear Page Annotations">
                 <div class="ribbon-btn-icon">
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                   </svg>
                 </div>
-                <span class="ribbon-btn-label">Clear</span>
+                <span class="ribbon-btn-label">Clear Page</span>
+              </button>
+              <button class="ribbon-btn small" id="ribbon-clear-all" title="Clear All Annotations">
+                <div class="ribbon-btn-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2zM12 11V7"/>
+                  </svg>
+                </div>
+                <span class="ribbon-btn-label">Clear All</span>
               </button>
             </div>
           </div>
@@ -3026,10 +3225,26 @@
           <div class="ribbon-group-label">Rotate</div>
         </div>
 
-        <!-- Zoom Presets -->
+        <!-- Zoom -->
         <div class="ribbon-group">
           <div class="ribbon-group-content">
-            <button class="ribbon-btn" id="actual-size" title="Actual Size">
+            <button class="ribbon-btn" id="ribbon-zoom-in" title="Zoom In (Ctrl++)">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Zoom In</span>
+            </button>
+            <button class="ribbon-btn" id="ribbon-zoom-out" title="Zoom Out (Ctrl+-)">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Zoom Out</span>
+            </button>
+            <button class="ribbon-btn" id="view-actual-size" title="Actual Size (Ctrl+0)">
               <div class="ribbon-btn-icon">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -3037,7 +3252,15 @@
               </div>
               <span class="ribbon-btn-label">100%</span>
             </button>
-            <button class="ribbon-btn" id="fit-page" title="Fit Page">
+            <button class="ribbon-btn" id="view-fit-width" title="Fit Width (Ctrl+1)">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Fit Width</span>
+            </button>
+            <button class="ribbon-btn" id="view-fit-page" title="Fit Page (Ctrl+2)">
               <div class="ribbon-btn-icon">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
@@ -3047,6 +3270,38 @@
             </button>
           </div>
           <div class="ribbon-group-label">Zoom</div>
+        </div>
+
+        <!-- Panels -->
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <button class="ribbon-btn" id="ribbon-nav-panel" title="Navigation Panel (F9)">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Navigation</span>
+            </button>
+            <button class="ribbon-btn" id="ribbon-properties-panel" title="Properties Panel (F12)">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Properties</span>
+            </button>
+            <button class="ribbon-btn" id="ribbon-annotations-list" title="Annotations List (F11)">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Annotations</span>
+            </button>
+          </div>
+          <div class="ribbon-group-label">Panels</div>
         </div>
       </div>
     </div>
@@ -3747,6 +4002,86 @@
       <button class="page-btn" id="zoom-out-old">-</button>
       <span id="zoom-level-old" style="font-size: 12px;">150%</span>
       <button class="page-btn" id="zoom-in-old">+</button>
+    </div>
+  </div>
+
+  <!-- Document Properties Dialog -->
+  <div class="doc-props-overlay" id="doc-props-dialog">
+    <div class="doc-props-dialog">
+      <div class="doc-props-header">
+        <h2>Document Properties</h2>
+        <button class="doc-props-close-btn" id="doc-props-close-btn">&times;</button>
+      </div>
+      <div class="doc-props-content">
+        <div class="doc-props-section">
+          <h3>File</h3>
+          <div class="doc-props-row">
+            <span class="doc-props-label">File Name:</span>
+            <span class="doc-props-value" id="doc-prop-filename">-</span>
+          </div>
+          <div class="doc-props-row">
+            <span class="doc-props-label">File Path:</span>
+            <span class="doc-props-value" id="doc-prop-filepath">-</span>
+          </div>
+          <div class="doc-props-row">
+            <span class="doc-props-label">File Size:</span>
+            <span class="doc-props-value" id="doc-prop-filesize">-</span>
+          </div>
+        </div>
+        <div class="doc-props-section">
+          <h3>Document</h3>
+          <div class="doc-props-row">
+            <span class="doc-props-label">Title:</span>
+            <span class="doc-props-value" id="doc-prop-title">-</span>
+          </div>
+          <div class="doc-props-row">
+            <span class="doc-props-label">Author:</span>
+            <span class="doc-props-value" id="doc-prop-author">-</span>
+          </div>
+          <div class="doc-props-row">
+            <span class="doc-props-label">Subject:</span>
+            <span class="doc-props-value" id="doc-prop-subject">-</span>
+          </div>
+          <div class="doc-props-row">
+            <span class="doc-props-label">Keywords:</span>
+            <span class="doc-props-value" id="doc-prop-keywords">-</span>
+          </div>
+          <div class="doc-props-row">
+            <span class="doc-props-label">Creator:</span>
+            <span class="doc-props-value" id="doc-prop-creator">-</span>
+          </div>
+          <div class="doc-props-row">
+            <span class="doc-props-label">Producer:</span>
+            <span class="doc-props-value" id="doc-prop-producer">-</span>
+          </div>
+        </div>
+        <div class="doc-props-section">
+          <h3>PDF Information</h3>
+          <div class="doc-props-row">
+            <span class="doc-props-label">PDF Version:</span>
+            <span class="doc-props-value" id="doc-prop-pdfversion">-</span>
+          </div>
+          <div class="doc-props-row">
+            <span class="doc-props-label">Page Count:</span>
+            <span class="doc-props-value" id="doc-prop-pagecount">-</span>
+          </div>
+          <div class="doc-props-row">
+            <span class="doc-props-label">Page Size:</span>
+            <span class="doc-props-value" id="doc-prop-pagesize">-</span>
+          </div>
+          <div class="doc-props-row">
+            <span class="doc-props-label">Creation Date:</span>
+            <span class="doc-props-value" id="doc-prop-created">-</span>
+          </div>
+          <div class="doc-props-row">
+            <span class="doc-props-label">Modified Date:</span>
+            <span class="doc-props-value" id="doc-prop-modified">-</span>
+          </div>
+        </div>
+      </div>
+      <div class="doc-props-footer">
+        <button id="doc-props-ok-btn">OK</button>
+      </div>
     </div>
   </div>
 

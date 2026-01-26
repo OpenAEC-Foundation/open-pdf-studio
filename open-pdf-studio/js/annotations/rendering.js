@@ -613,6 +613,65 @@ function drawAnnotation(ctx, annotation) {
         ctx.textAlign = 'left';
       }
       break;
+
+    case 'textHighlight':
+      // Draw text highlight - semi-transparent fill for each rect
+      ctx.fillStyle = fillColor;
+      if (annotation.rects && annotation.rects.length > 0) {
+        annotation.rects.forEach(rect => {
+          ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+        });
+      } else {
+        // Fallback to bounding box
+        ctx.fillRect(annotation.x, annotation.y, annotation.width, annotation.height);
+      }
+      break;
+
+    case 'textStrikethrough':
+      // Draw strikethrough line through the middle of each text rect
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = annotation.lineWidth || 1;
+      ctx.lineCap = 'round';
+      if (annotation.rects && annotation.rects.length > 0) {
+        annotation.rects.forEach(rect => {
+          const midY = rect.y + rect.height / 2;
+          ctx.beginPath();
+          ctx.moveTo(rect.x, midY);
+          ctx.lineTo(rect.x + rect.width, midY);
+          ctx.stroke();
+        });
+      } else {
+        // Fallback to bounding box
+        const midY = annotation.y + annotation.height / 2;
+        ctx.beginPath();
+        ctx.moveTo(annotation.x, midY);
+        ctx.lineTo(annotation.x + annotation.width, midY);
+        ctx.stroke();
+      }
+      break;
+
+    case 'textUnderline':
+      // Draw underline at the bottom of each text rect
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = annotation.lineWidth || 1;
+      ctx.lineCap = 'round';
+      if (annotation.rects && annotation.rects.length > 0) {
+        annotation.rects.forEach(rect => {
+          const bottomY = rect.y + rect.height - 1;
+          ctx.beginPath();
+          ctx.moveTo(rect.x, bottomY);
+          ctx.lineTo(rect.x + rect.width, bottomY);
+          ctx.stroke();
+        });
+      } else {
+        // Fallback to bounding box
+        const bottomY = annotation.y + annotation.height - 1;
+        ctx.beginPath();
+        ctx.moveTo(annotation.x, bottomY);
+        ctx.lineTo(annotation.x + annotation.width, bottomY);
+        ctx.stroke();
+      }
+      break;
   }
 }
 
@@ -764,6 +823,12 @@ function drawSelectionHandles(ctx, annotation) {
       ctx.lineTo(annotation.x + annotation.width/2, annotation.y - 25);
       ctx.stroke();
       break;
+    case 'textHighlight':
+    case 'textStrikethrough':
+    case 'textUnderline':
+      // Draw selection around the bounding box of all text rects
+      ctx.strokeRect(annotation.x - 2, annotation.y - 2, annotation.width + 4, annotation.height + 4);
+      break;
   }
 
   ctx.setLineDash([]);
@@ -846,6 +911,30 @@ function drawSelectionHandles(ctx, annotation) {
   });
 }
 
+// Update quick access toolbar button states
+export function updateQuickAccessButtons() {
+  const qaSave = document.getElementById('qa-save');
+  const qaPrint = document.getElementById('qa-print');
+  const qaUndo = document.getElementById('qa-undo');
+  const qaRedo = document.getElementById('qa-redo');
+  const qaPrevView = document.getElementById('qa-prev-view');
+  const qaNextView = document.getElementById('qa-next-view');
+
+  // Save/Print - enabled when PDF is loaded
+  if (qaSave) qaSave.disabled = !state.pdfDoc;
+  if (qaPrint) qaPrint.disabled = !state.pdfDoc;
+
+  // Undo - enabled when there are annotations
+  if (qaUndo) qaUndo.disabled = state.annotations.length === 0;
+
+  // Redo - enabled when there are items in redo stack
+  if (qaRedo) qaRedo.disabled = !state.redoStack || state.redoStack.length === 0;
+
+  // Previous/Next view - disabled (not implemented)
+  if (qaPrevView) qaPrevView.disabled = true;
+  if (qaNextView) qaNextView.disabled = true;
+}
+
 // Redraw all annotations (single page mode)
 export function redrawAnnotations() {
   if (!annotationCtx || !annotationCanvas) return;
@@ -877,6 +966,9 @@ export function redrawAnnotations() {
 
   // Update annotations list panel
   updateAnnotationsList();
+
+  // Update quick access button states
+  updateQuickAccessButtons();
 }
 
 // Render annotations for a specific page (continuous mode)
@@ -908,4 +1000,7 @@ export function redrawContinuous() {
       renderAnnotationsForPage(ctx, pageNum, canvas.width, canvas.height);
     }
   });
+
+  // Update quick access button states
+  updateQuickAccessButtons();
 }

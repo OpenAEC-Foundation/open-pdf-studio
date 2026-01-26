@@ -8,6 +8,7 @@ import { updateAllStatus } from '../ui/status-bar.js';
 import { hideProperties } from '../ui/properties-panel.js';
 import { getCursorForTool } from '../tools/manager.js';
 import { updateActiveThumbnail } from '../ui/left-panel.js';
+import { createSinglePageTextLayer, clearSinglePageTextLayer, createTextLayer, clearTextLayers } from '../text/text-layer.js';
 
 // Track current render task to cancel if needed
 let currentRenderTask = null;
@@ -35,6 +36,12 @@ export async function renderPage(pageNum) {
   annotationCanvas.width = viewport.width;
   annotationCanvas.height = viewport.height;
 
+  // Set --scale-factor on container for PDF.js text layer
+  const container = document.getElementById('canvas-container');
+  if (container) {
+    container.style.setProperty('--scale-factor', viewport.scale);
+  }
+
   // Render PDF page
   const ctx = pdfCanvas.getContext('2d');
   const renderContext = {
@@ -54,6 +61,13 @@ export async function renderPage(pageNum) {
   }
 
   currentRenderTask = null;
+
+  // Create text layer for text selection
+  try {
+    await createSinglePageTextLayer(page, viewport);
+  } catch (e) {
+    console.warn('Failed to create text layer:', e);
+  }
 
   // Redraw annotations
   redrawAnnotations();
@@ -75,6 +89,9 @@ export async function renderContinuous() {
 
   const continuousContainer = document.getElementById('continuous-container');
   continuousContainer.innerHTML = ''; // Clear existing content
+
+  // Clear all text layers before re-render
+  clearTextLayers();
 
   for (let pageNum = 1; pageNum <= state.pdfDoc.numPages; pageNum++) {
     const page = await state.pdfDoc.getPage(pageNum);
@@ -132,6 +149,13 @@ export async function renderContinuous() {
       }).promise;
     } catch (error) {
       console.error(`Error rendering page ${pageNum}:`, error);
+    }
+
+    // Create text layer for text selection (inserted between PDF canvas and annotation canvas)
+    try {
+      await createTextLayer(page, viewport, canvasContainer, pageNum);
+    } catch (e) {
+      console.warn(`Failed to create text layer for page ${pageNum}:`, e);
     }
 
     // Render annotations for this page

@@ -5,6 +5,8 @@ import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js
 import { copyAnnotation, pasteFromClipboard, duplicateAnnotation } from '../annotations/clipboard.js';
 import { bringToFront, sendToBack, bringForward, sendBackward, rotateAnnotation, flipHorizontal, flipVertical } from '../annotations/z-order.js';
 import { startTextEditing } from '../tools/text-editing.js';
+import { createTextMarkupAnnotation } from '../text/text-markup.js';
+import { getSelectedText, getSelectionRectsForAnnotation, clearTextSelection } from '../text/text-selection.js';
 
 // Create context menu element
 let contextMenu = null;
@@ -241,5 +243,67 @@ export function initContextMenus() {
         }
       });
     });
+  }
+}
+
+// Show context menu for text selection
+export function showTextSelectionContextMenu(e) {
+  e.preventDefault();
+
+  const menu = getContextMenu();
+  menu.innerHTML = '';
+
+  const selectedText = getSelectedText();
+  if (!selectedText) return;
+
+  // Copy
+  menu.appendChild(createMenuItem('Copy', async () => {
+    try {
+      await navigator.clipboard.writeText(selectedText);
+    } catch (err) {
+      // Fallback for older browsers
+      const textarea = document.createElement('textarea');
+      textarea.value = selectedText;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+  }));
+
+  menu.appendChild(createSeparator());
+
+  // Highlight Selection
+  menu.appendChild(createMenuItem('Highlight Selection', () => {
+    createTextMarkupAnnotation('textHighlight', '#FFFF00', 0.3);
+    clearTextSelection();
+  }));
+
+  // Strikethrough Selection
+  menu.appendChild(createMenuItem('Strikethrough Selection', () => {
+    createTextMarkupAnnotation('textStrikethrough', '#FF0000', 1.0);
+    clearTextSelection();
+  }));
+
+  // Underline Selection
+  menu.appendChild(createMenuItem('Underline Selection', () => {
+    createTextMarkupAnnotation('textUnderline', '#0000FF', 1.0);
+    clearTextSelection();
+  }));
+
+  // Position menu
+  menu.style.left = `${e.clientX}px`;
+  menu.style.top = `${e.clientY}px`;
+  menu.style.display = 'block';
+
+  // Ensure menu stays within viewport
+  const rect = menu.getBoundingClientRect();
+  if (rect.right > window.innerWidth) {
+    menu.style.left = `${window.innerWidth - rect.width - 10}px`;
+  }
+  if (rect.bottom > window.innerHeight) {
+    menu.style.top = `${window.innerHeight - rect.height - 10}px`;
   }
 }

@@ -160,10 +160,14 @@ export function showProperties(annotation) {
   }
 
   // Hide general color for types that use fill/stroke or images
+  // Show general color for text markup annotations (highlight, strikethrough, underline)
   const propColorGroup = document.getElementById('prop-color-group');
   if (propColorGroup) {
     if (['line', 'arrow', 'box', 'circle', 'draw', 'highlight', 'image', 'textbox', 'callout'].includes(annotation.type)) {
       propColorGroup.style.display = 'none';
+    } else if (['textHighlight', 'textStrikethrough', 'textUnderline'].includes(annotation.type)) {
+      // Show color picker for text markup annotations
+      propColorGroup.style.display = 'flex';
     } else {
       propColorGroup.style.display = 'flex';
     }
@@ -295,8 +299,11 @@ export function showProperties(annotation) {
   }
 
   // Line width visibility
-  if (['highlight', 'comment', 'image'].includes(annotation.type)) {
+  if (['highlight', 'comment', 'image', 'textHighlight'].includes(annotation.type)) {
     if (propLineWidthGroup) propLineWidthGroup.style.display = 'none';
+  } else if (['textStrikethrough', 'textUnderline'].includes(annotation.type)) {
+    // Text strikethrough and underline can have line width
+    if (propLineWidthGroup) propLineWidthGroup.style.display = 'flex';
   } else {
     if (propLineWidthGroup) propLineWidthGroup.style.display = 'flex';
   }

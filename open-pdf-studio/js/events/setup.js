@@ -21,10 +21,10 @@ import { renderPage, renderContinuous, setViewMode, zoomIn, zoomOut, fitWidth, f
 import { openPDFFile, loadPDF } from '../pdf/loader.js';
 import { savePDFAs } from '../pdf/saver.js';
 import { showProperties, hideProperties, updateAnnotationProperties, updateTextFormatProperties, updateArrowProperties } from '../ui/properties-panel.js';
-import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
+import { redrawAnnotations, redrawContinuous, updateQuickAccessButtons } from '../annotations/rendering.js';
 import { closeAllMenus } from '../ui/menus.js';
 import { showPreferencesDialog, hidePreferencesDialog, savePreferencesFromDialog, resetPreferencesToDefaults } from '../core/preferences.js';
-import { showAboutDialog } from '../ui/dialogs.js';
+import { showAboutDialog, showDocPropertiesDialog } from '../ui/dialogs.js';
 import { toggleAnnotationsListPanel } from '../ui/annotations-list.js';
 import { toggleLeftPanel } from '../ui/left-panel.js';
 
@@ -66,6 +66,9 @@ export function setupEventListeners() {
 
   // Ribbon events
   setupRibbonEvents();
+
+  // Quick access toolbar events
+  setupQuickAccessEvents();
 
   // Drag and drop for PDF files
   setupDragDrop();
@@ -403,6 +406,11 @@ function setupMenuEvents() {
     await savePDFAs();
   });
 
+  document.getElementById('menu-doc-properties')?.addEventListener('click', () => {
+    closeAllMenus();
+    showDocPropertiesDialog();
+  });
+
   document.getElementById('menu-close')?.addEventListener('click', () => {
     closeAllMenus();
     if (state.pdfDoc && confirm('Close current PDF?')) {
@@ -703,6 +711,64 @@ function setupFillNoneCheckboxes() {
   });
 }
 
+// Setup quick access toolbar events
+function setupQuickAccessEvents() {
+  // Save button
+  document.getElementById('qa-save')?.addEventListener('click', async () => {
+    await savePDFAs();
+  });
+
+  // Print button
+  document.getElementById('qa-print')?.addEventListener('click', () => {
+    if (state.pdfDoc) {
+      window.print();
+    }
+  });
+
+  // Undo button - remove last annotation
+  document.getElementById('qa-undo')?.addEventListener('click', () => {
+    if (state.annotations.length > 0) {
+      // Store removed annotation for redo
+      const removed = state.annotations.pop();
+      if (!state.redoStack) state.redoStack = [];
+      state.redoStack.push(removed);
+      hideProperties();
+      if (state.viewMode === 'continuous') {
+        redrawContinuous();
+      } else {
+        redrawAnnotations();
+      }
+      updateQuickAccessButtons();
+    }
+  });
+
+  // Redo button - restore last undone annotation
+  document.getElementById('qa-redo')?.addEventListener('click', () => {
+    if (state.redoStack && state.redoStack.length > 0) {
+      const restored = state.redoStack.pop();
+      state.annotations.push(restored);
+      if (state.viewMode === 'continuous') {
+        redrawContinuous();
+      } else {
+        redrawAnnotations();
+      }
+      updateQuickAccessButtons();
+    }
+  });
+
+  // Previous/Next view - placeholder for view history
+  document.getElementById('qa-prev-view')?.addEventListener('click', () => {
+    // View history not implemented yet
+  });
+
+  document.getElementById('qa-next-view')?.addEventListener('click', () => {
+    // View history not implemented yet
+  });
+
+  // Initial state update
+  updateQuickAccessButtons();
+}
+
 // Setup ribbon button events
 function setupRibbonEvents() {
   document.getElementById('zoom-in-ribbon')?.addEventListener('click', zoomIn);
@@ -727,6 +793,36 @@ function setupRibbonEvents() {
   document.getElementById('fit-page')?.addEventListener('click', fitPage);
   document.getElementById('single-page')?.addEventListener('click', () => setViewMode('single'));
   document.getElementById('continuous')?.addEventListener('click', () => setViewMode('continuous'));
+
+  // View ribbon tab buttons
+  document.getElementById('ribbon-zoom-in')?.addEventListener('click', zoomIn);
+  document.getElementById('ribbon-zoom-out')?.addEventListener('click', zoomOut);
+  document.getElementById('view-actual-size')?.addEventListener('click', actualSize);
+  document.getElementById('view-fit-width')?.addEventListener('click', fitWidth);
+  document.getElementById('view-fit-page')?.addEventListener('click', fitPage);
+  document.getElementById('ribbon-nav-panel')?.addEventListener('click', toggleLeftPanel);
+  document.getElementById('ribbon-properties-panel')?.addEventListener('click', () => {
+    if (propertiesPanel?.classList.contains('visible')) {
+      hideProperties();
+    } else if (state.selectedAnnotation) {
+      showProperties(state.selectedAnnotation);
+    }
+  });
+  document.getElementById('ribbon-annotations-list')?.addEventListener('click', toggleAnnotationsListPanel);
+
+  // Clear All Annotations button
+  document.getElementById('ribbon-clear-all')?.addEventListener('click', () => {
+    if (state.annotations.length > 0 && confirm('Clear ALL annotations from ALL pages?')) {
+      state.annotations = [];
+      state.redoStack = [];
+      hideProperties();
+      if (state.viewMode === 'continuous') {
+        redrawContinuous();
+      } else {
+        redrawAnnotations();
+      }
+    }
+  });
 }
 
 // Setup drag and drop for PDF files
