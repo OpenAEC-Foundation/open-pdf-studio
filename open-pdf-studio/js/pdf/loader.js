@@ -1,4 +1,4 @@
-import { state } from '../core/state.js';
+import { state, getActiveDocument } from '../core/state.js';
 import { placeholder, pdfContainer, fileInfo } from '../ui/dom-elements.js';
 import { showLoading, hideLoading } from '../ui/dialogs.js';
 import { updateAllStatus } from '../ui/status-bar.js';
@@ -7,6 +7,7 @@ import { createAnnotation } from '../annotations/factory.js';
 import { generateImageId } from '../utils/helpers.js';
 import { colorArrayToHex } from '../utils/colors.js';
 import { generateThumbnails } from '../ui/left-panel.js';
+import { createTab, updateWindowTitle } from '../ui/tabs.js';
 import * as pdfjsLib from '../../pdfjs/build/pdf.mjs';
 
 // Set worker source (path relative to HTML file, not this module)
@@ -56,6 +57,9 @@ export async function loadPDF(filePath) {
     // Update status bar
     updateAllStatus();
 
+    // Update window title
+    updateWindowTitle();
+
   } catch (error) {
     console.error('Error loading PDF:', error);
     alert('Failed to load PDF: ' + error.message);
@@ -71,6 +75,8 @@ export async function openPDFFile() {
   try {
     const result = await ipcRenderer.invoke('dialog:openFile');
     if (result) {
+      // Create a new tab for the file (will switch to existing tab if already open)
+      createTab(result);
       await loadPDF(result);
     }
   } catch (error) {

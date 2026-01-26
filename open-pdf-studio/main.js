@@ -1,5 +1,9 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 const path = require('path');
+const fs = require('fs');
+
+// Session file path in user data directory
+const getSessionFilePath = () => path.join(app.getPath('userData'), 'session.json');
 
 // Auto-reload in development
 try {
@@ -14,7 +18,7 @@ if (process.platform === 'linux' && process.getuid && process.getuid() === 0) {
 }
 
 // Development: auto-load this PDF on startup (set to null for production)
-const DEV_AUTO_LOAD_PDF = 'D:\\Repos\\(Impertio)\\PDF Editor\\test pdf\\A First Course in the Finite Element Method - Daryl L. Logan - 5th Edition.pdf';
+const DEV_AUTO_LOAD_PDF = null;
 
 function createWindow() {
   // Remove default menu
@@ -96,6 +100,44 @@ ipcMain.handle('dialog:saveFile', async (event, defaultPath) => {
     return result.filePath;
   }
   return null;
+});
+
+// Handle saving session data
+ipcMain.handle('session:save', async (event, sessionData) => {
+  try {
+    const sessionPath = getSessionFilePath();
+    fs.writeFileSync(sessionPath, JSON.stringify(sessionData, null, 2));
+    return true;
+  } catch (error) {
+    console.error('Failed to save session:', error);
+    return false;
+  }
+});
+
+// Handle loading session data
+ipcMain.handle('session:load', async () => {
+  try {
+    const sessionPath = getSessionFilePath();
+    if (fs.existsSync(sessionPath)) {
+      const data = fs.readFileSync(sessionPath, 'utf8');
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('Failed to load session:', error);
+  }
+  return null;
+});
+
+// Handle synchronous session save (for beforeunload event)
+ipcMain.on('session:save-sync', (event, sessionData) => {
+  try {
+    const sessionPath = getSessionFilePath();
+    fs.writeFileSync(sessionPath, JSON.stringify(sessionData, null, 2));
+    event.returnValue = true;
+  } catch (error) {
+    console.error('Failed to save session:', error);
+    event.returnValue = false;
+  }
 });
 
 app.whenReady().then(() => {

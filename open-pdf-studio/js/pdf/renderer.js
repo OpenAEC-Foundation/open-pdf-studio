@@ -327,3 +327,42 @@ export async function actualSize() {
     }
   }
 }
+
+// Clear the PDF view when no document is open
+export function clearPdfView() {
+  // Clear single page mode canvases
+  pdfCtx.clearRect(0, 0, pdfCanvas.width, pdfCanvas.height);
+  const annotationCtx = annotationCanvas.getContext('2d');
+  annotationCtx.clearRect(0, 0, annotationCanvas.width, annotationCanvas.height);
+
+  // Clear continuous mode container
+  const continuousContainer = document.getElementById('continuous-container');
+  if (continuousContainer) {
+    continuousContainer.innerHTML = '';
+  }
+
+  // Clear text layers
+  clearSinglePageTextLayer();
+  clearTextLayers();
+
+  // Reset page info
+  pageInput.value = '';
+  pageInput.disabled = true;
+  pageTotal.textContent = '0';
+  prevPageBtn.disabled = true;
+  nextPageBtn.disabled = true;
+  zoomLevel.value = '100%';
+
+  // Show placeholder if no documents open
+  const placeholder = document.getElementById('placeholder');
+  const pdfContainer = document.getElementById('pdf-container');
+  if (placeholder) placeholder.style.display = 'flex';
+  if (pdfContainer) pdfContainer.classList.remove('visible');
+
+  // Hide PDF controls in status bar
+  const pdfControls = document.getElementById('pdf-controls');
+  if (pdfControls) pdfControls.style.display = 'none';
+
+  // Update status bar
+  updateAllStatus();
+}

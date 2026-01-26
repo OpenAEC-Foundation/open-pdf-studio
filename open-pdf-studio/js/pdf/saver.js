@@ -1,6 +1,7 @@
 import { state } from '../core/state.js';
 import { showLoading, hideLoading } from '../ui/dialogs.js';
 import { hexToColorArray } from '../utils/colors.js';
+import { markDocumentSaved } from '../ui/tabs.js';
 
 // Save PDF with annotations
 export async function savePDF(saveAsPath = null) {
@@ -433,6 +434,10 @@ export async function savePDF(saveAsPath = null) {
     const outputPath = saveAsPath || state.currentPdfPath;
 
     fs.writeFileSync(outputPath, Buffer.from(pdfBytes));
+
+    // Mark document as saved
+    markDocumentSaved();
+
     return true;
   } catch (error) {
     console.error('Error saving PDF:', error);

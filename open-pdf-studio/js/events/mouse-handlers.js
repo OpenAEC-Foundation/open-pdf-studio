@@ -8,6 +8,7 @@ import { redrawAnnotations, redrawContinuous, renderAnnotationsForPage, drawPoly
 import { showProperties, hideProperties } from '../ui/properties-panel.js';
 import { startTextEditing, addTextAnnotation, addComment } from '../tools/text-editing.js';
 import { snapAngle } from '../utils/helpers.js';
+import { markDocumentModified } from '../ui/tabs.js';
 
 // Mouse down handler for single page mode
 export function handleMouseDown(e) {
@@ -578,6 +579,9 @@ export function handleMouseUp(e) {
 
   // Handle end of dragging/resizing
   if (state.isDragging || state.isResizing) {
+    // Mark document as modified when annotation is moved/resized
+    markDocumentModified();
+
     state.isDragging = false;
     state.isResizing = false;
     state.activeHandle = null;
@@ -598,6 +602,7 @@ export function handleMouseUp(e) {
   const endY = (e.clientY - rect.top) / state.scale;
 
   const prefs = state.preferences;
+  const annotationCountBefore = state.annotations.length;
 
   // Create annotation based on tool
   if (state.currentTool === 'draw' && state.currentPath.length > 1) {
@@ -811,6 +816,12 @@ export function handleMouseUp(e) {
   }
 
   state.isDrawing = false;
+
+  // Mark document as modified if annotations were added
+  if (state.annotations.length > annotationCountBefore) {
+    markDocumentModified();
+  }
+
   redrawAnnotations();
 }
 
@@ -931,6 +942,8 @@ export function handleContinuousMouseUp(e, pageNum) {
   const endX = (e.clientX - rect.left) / state.scale;
   const endY = (e.clientY - rect.top) / state.scale;
 
+  const annotationCountBefore = state.annotations.length;
+
   if (state.currentTool === 'draw' && state.currentPath.length > 1) {
     state.annotations.push(createAnnotation({
       type: 'draw',
@@ -1003,6 +1016,11 @@ export function handleContinuousMouseUp(e, pageNum) {
   state.isDrawing = false;
   state.activeContinuousCanvas = null;
   state.activeContinuousPage = null;
+
+  // Mark document as modified if annotations were added
+  if (state.annotations.length > annotationCountBefore) {
+    markDocumentModified();
+  }
 
   redrawContinuous();
 }

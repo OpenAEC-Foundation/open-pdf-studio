@@ -19,10 +19,20 @@ export const HANDLE_TYPES = {
   CALLOUT_KNEE: 'callout_knee'
 };
 
+// Get system username for default author
+export function getSystemUsername() {
+  try {
+    const os = window.require('os');
+    return os.userInfo().username || 'User';
+  } catch (e) {
+    return 'User';
+  }
+}
+
 // Default application preferences
 export const DEFAULT_PREFERENCES = {
   // General
-  authorName: 'User',
+  authorName: getSystemUsername(),
 
   // Snapping
   angleSnapDegrees: 30,
@@ -85,6 +95,9 @@ export const DEFAULT_PREFERENCES = {
   // Behavior
   autoSelectAfterCreate: true,
   confirmBeforeDelete: true,
+
+  // Startup
+  restoreLastSession: false,
 
   // Display
   showHandles: true,

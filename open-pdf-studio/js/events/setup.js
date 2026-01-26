@@ -27,6 +27,7 @@ import { showPreferencesDialog, hidePreferencesDialog, savePreferencesFromDialog
 import { showAboutDialog, showDocPropertiesDialog } from '../ui/dialogs.js';
 import { toggleAnnotationsListPanel } from '../ui/annotations-list.js';
 import { toggleLeftPanel } from '../ui/left-panel.js';
+import { closeActiveTab, createTab, markDocumentModified } from '../ui/tabs.js';
 
 // Setup window control buttons (minimize, maximize, close)
 function setupWindowControls() {
@@ -99,6 +100,7 @@ function setupToolButtons() {
   toolClear?.addEventListener('click', () => {
     if (confirm('Clear all annotations on current page?')) {
       state.annotations = state.annotations.filter(a => a.page !== state.currentPage);
+      markDocumentModified();
       if (state.viewMode === 'continuous') {
         redrawContinuous();
       } else {
@@ -111,6 +113,7 @@ function setupToolButtons() {
   toolUndo?.addEventListener('click', () => {
     if (state.annotations.length > 0) {
       state.annotations.pop();
+      markDocumentModified();
       hideProperties();
       if (state.viewMode === 'continuous') {
         redrawContinuous();
@@ -285,6 +288,7 @@ function setupPropertiesPanelEvents() {
       }
       if (confirm('Delete this annotation?')) {
         state.annotations = state.annotations.filter(a => a !== state.selectedAnnotation);
+        markDocumentModified();
         hideProperties();
         if (state.viewMode === 'continuous') {
           redrawContinuous();
@@ -413,19 +417,7 @@ function setupMenuEvents() {
 
   document.getElementById('menu-close')?.addEventListener('click', () => {
     closeAllMenus();
-    if (state.pdfDoc && confirm('Close current PDF?')) {
-      state.pdfDoc = null;
-      state.annotations = [];
-      state.currentPage = 1;
-      pdfContainer?.classList.remove('visible');
-      if (placeholder) placeholder.style.display = 'block';
-      if (document.getElementById('file-info')) {
-        document.getElementById('file-info').textContent = '';
-      }
-      // Hide PDF controls in status bar
-      const pdfControls = document.getElementById('pdf-controls');
-      if (pdfControls) pdfControls.style.display = 'none';
-    }
+    closeActiveTab();
   });
 
   document.getElementById('menu-exit')?.addEventListener('click', () => {
@@ -732,6 +724,7 @@ function setupQuickAccessEvents() {
       const removed = state.annotations.pop();
       if (!state.redoStack) state.redoStack = [];
       state.redoStack.push(removed);
+      markDocumentModified();
       hideProperties();
       if (state.viewMode === 'continuous') {
         redrawContinuous();
@@ -747,6 +740,7 @@ function setupQuickAccessEvents() {
     if (state.redoStack && state.redoStack.length > 0) {
       const restored = state.redoStack.pop();
       state.annotations.push(restored);
+      markDocumentModified();
       if (state.viewMode === 'continuous') {
         redrawContinuous();
       } else {
@@ -815,6 +809,7 @@ function setupRibbonEvents() {
     if (state.annotations.length > 0 && confirm('Clear ALL annotations from ALL pages?')) {
       state.annotations = [];
       state.redoStack = [];
+      markDocumentModified();
       hideProperties();
       if (state.viewMode === 'continuous') {
         redrawContinuous();
@@ -842,6 +837,7 @@ function setupDragDrop() {
     if (files && files.length > 0) {
       const file = files[0];
       if (file.name.toLowerCase().endsWith('.pdf')) {
+        createTab(file.path);
         await loadPDF(file.path);
       }
     }

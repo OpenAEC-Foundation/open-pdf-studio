@@ -29,6 +29,9 @@ import { loadPDF } from './pdf/loader.js';
 // Text selection
 import { initTextSelection } from './text/text-selection.js';
 
+// Tab management
+import { initTabs, createTab } from './ui/tabs.js';
+
 // Initialize application
 async function init() {
   // Initialize canvas contexts
@@ -51,6 +54,9 @@ async function init() {
   // Initialize text selection
   initTextSelection();
 
+  // Initialize tab management
+  initTabs();
+
   // Initialize preferences dialog drag
   initPreferencesDialogDrag();
 
@@ -66,8 +72,16 @@ async function init() {
   // Setup IPC listener for auto-loading PDF
   setupAutoLoadListener();
 
+  // Setup session save on window close
+  setupSessionSaveOnClose();
+
   // Check for file passed as command line argument
-  await checkCommandLineArgs();
+  const hasCommandLineFile = await checkCommandLineArgs();
+
+  // Restore last session if enabled and no command line file
+  if (!hasCommandLineFile) {
+    await restoreLastSession();
+  }
 }
 
 // Initialize preferences dialog drag functionality
@@ -141,11 +155,14 @@ async function checkCommandLineArgs() {
     const { ipcRenderer } = window.require('electron');
     const filePath = await ipcRenderer.invoke('get-opened-file');
     if (filePath && filePath.endsWith('.pdf')) {
+      createTab(filePath);
       await loadPDF(filePath);
+      return true;
     }
   } catch (e) {
     // Not running in Electron or no file passed
   }
+  return false;
 }
 
 // Setup IPC listener for auto-loading PDF from main process
@@ -154,11 +171,67 @@ function setupAutoLoadListener() {
     const { ipcRenderer } = window.require('electron');
     ipcRenderer.on('load-pdf', async (event, filePath) => {
       if (filePath && filePath.endsWith('.pdf')) {
+        createTab(filePath);
         await loadPDF(filePath);
       }
     });
   } catch (e) {
     // Not running in Electron
+  }
+}
+
+// Save session data (open documents) before window closes
+function setupSessionSaveOnClose() {
+  window.addEventListener('beforeunload', () => {
+    try {
+      const { ipcRenderer } = window.require('electron');
+
+      // Get list of open file paths (only files that have been saved)
+      const openFiles = state.documents
+        .filter(doc => doc.filePath)
+        .map(doc => doc.filePath);
+
+      const sessionData = {
+        openFiles: openFiles,
+        activeIndex: state.activeDocumentIndex
+      };
+
+      // Use sendSync for synchronous IPC (blocking but reliable for beforeunload)
+      ipcRenderer.sendSync('session:save-sync', sessionData);
+    } catch (e) {
+      // Not running in Electron or save failed
+    }
+  });
+}
+
+// Restore last session if preference is enabled
+async function restoreLastSession() {
+  // Check if restore is enabled in preferences
+  if (!state.preferences.restoreLastSession) {
+    return;
+  }
+
+  try {
+    const { ipcRenderer } = window.require('electron');
+    const sessionData = await ipcRenderer.invoke('session:load');
+
+    if (sessionData && sessionData.openFiles && sessionData.openFiles.length > 0) {
+      // Load each file from the saved session
+      for (const filePath of sessionData.openFiles) {
+        try {
+          // Check if file still exists
+          const fs = window.require('fs');
+          if (fs.existsSync(filePath)) {
+            createTab(filePath);
+            await loadPDF(filePath);
+          }
+        } catch (e) {
+          console.warn('Failed to restore file:', filePath, e);
+        }
+      }
+    }
+  } catch (e) {
+    // Not running in Electron or restore failed
   }
 }
 

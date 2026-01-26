@@ -117,6 +117,7 @@ export function showPreferencesDialog(tabName = 'general') {
   document.getElementById('pref-highlight-opacity').value = prefs.highlightOpacity;
   document.getElementById('pref-auto-select').checked = prefs.autoSelectAfterCreate;
   document.getElementById('pref-confirm-delete').checked = prefs.confirmBeforeDelete;
+  document.getElementById('pref-restore-session').checked = prefs.restoreLastSession;
 
   // TextBox defaults
   updateFillColorPicker('pref-textbox-fill-color', 'pref-textbox-fill-color-preview', 'pref-textbox-fill-color-hex',
@@ -246,6 +247,7 @@ export function savePreferencesFromDialog() {
   prefs.highlightOpacity = parseInt(document.getElementById('pref-highlight-opacity').value) || 30;
   prefs.autoSelectAfterCreate = document.getElementById('pref-auto-select').checked;
   prefs.confirmBeforeDelete = document.getElementById('pref-confirm-delete').checked;
+  prefs.restoreLastSession = document.getElementById('pref-restore-session').checked;
 
   // TextBox defaults
   prefs.textboxFillNone = document.getElementById('pref-textbox-fill-none')?.checked || false;

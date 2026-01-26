@@ -1,5 +1,5 @@
 import { state } from '../core/state.js';
-import { statusTool, statusPage, statusZoom, statusAnnotations, statusMessage } from './dom-elements.js';
+import { statusTool, statusAnnotations, statusMessage, zoomLevel, pageInput, pageTotal } from './dom-elements.js';
 
 // Update status bar tool indicator
 export function updateStatusTool() {
@@ -23,24 +23,22 @@ export function updateStatusTool() {
     'text': 'Text'
   };
 
-  statusTool.textContent = `Tool: ${toolNames[state.currentTool] || state.currentTool}`;
+  statusTool.textContent = toolNames[state.currentTool] || state.currentTool;
 }
 
 // Update status bar page indicator
 export function updateStatusPage() {
-  if (!statusPage) return;
+  if (!pageInput || !pageTotal) return;
 
-  if (state.viewMode === 'continuous') {
-    statusPage.textContent = `Continuous View - ${state.pdfDoc?.numPages || 0} pages`;
-  } else {
-    statusPage.textContent = `Page ${state.currentPage} of ${state.pdfDoc?.numPages || 0}`;
-  }
+  pageInput.value = state.currentPage;
+  pageInput.max = state.pdfDoc?.numPages || 1;
+  pageTotal.textContent = state.pdfDoc?.numPages || 0;
 }
 
 // Update status bar zoom indicator
 export function updateStatusZoom() {
-  if (!statusZoom) return;
-  statusZoom.textContent = `Zoom: ${Math.round(state.scale * 100)}%`;
+  if (!zoomLevel) return;
+  zoomLevel.value = `${Math.round(state.scale * 100)}%`;
 }
 
 // Update status bar annotation count
@@ -51,9 +49,9 @@ export function updateStatusAnnotations() {
   const totalAnnotations = state.annotations.length;
 
   if (state.viewMode === 'continuous') {
-    statusAnnotations.textContent = `Annotations: ${totalAnnotations}`;
+    statusAnnotations.textContent = `${totalAnnotations}`;
   } else {
-    statusAnnotations.textContent = `Annotations: ${pageAnnotations.length} (${totalAnnotations} total)`;
+    statusAnnotations.textContent = `${pageAnnotations.length} (${totalAnnotations} total)`;
   }
 }
 
