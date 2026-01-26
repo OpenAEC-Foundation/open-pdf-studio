@@ -78,16 +78,11 @@ function renderTextLayerManually(textContent, container, viewport, scale) {
     const fontHeight = fontHeightUnscaled * scale;
 
     // Use viewport.convertToViewportPoint to convert PDF coordinates to canvas coordinates
-    // This properly handles the coordinate system transformation
     const pdfX = tx[4];
     const pdfY = tx[5];
-
-    // convertToViewportPoint returns [canvasX, canvasY]
     const [canvasX, canvasY] = viewport.convertToViewportPoint(pdfX, pdfY);
 
     // The canvasY from convertToViewportPoint is the baseline position
-    // Adjust so text appears vertically centered in selection
-    // Baseline is typically ~80% down from top of text, so we adjust accordingly
     const domX = canvasX;
     const domY = canvasY - (fontHeight * 0.85);
 
@@ -96,14 +91,39 @@ function renderTextLayerManually(textContent, container, viewport, scale) {
     span.style.fontSize = `${fontHeight}px`;
     span.style.fontFamily = 'sans-serif';
 
-    // Apply rotation if present
+    // Calculate rotation angle
     const angle = Math.atan2(tx[1], tx[0]);
-    if (Math.abs(angle) > 0.001) {
-      span.style.transform = `rotate(${angle}rad)`;
-      span.style.transformOrigin = '0% 0%';
-    }
 
-    container.appendChild(span);
+    // Calculate expected width from PDF and scale text horizontally to match
+    if (item.width && item.width > 0) {
+      const expectedWidth = item.width * scale;
+
+      // Append hidden to measure actual width
+      span.style.visibility = 'hidden';
+      container.appendChild(span);
+      const actualWidth = span.getBoundingClientRect().width;
+      span.style.visibility = '';
+
+      if (actualWidth > 0) {
+        const scaleX = expectedWidth / actualWidth;
+
+        // Apply scaleX and rotation if present
+        if (Math.abs(angle) > 0.001) {
+          span.style.transform = `scaleX(${scaleX}) rotate(${angle}rad)`;
+        } else {
+          span.style.transform = `scaleX(${scaleX})`;
+        }
+        span.style.transformOrigin = '0% 0%';
+      }
+      // span is already appended
+    } else {
+      // No width info, just apply rotation if present
+      if (Math.abs(angle) > 0.001) {
+        span.style.transform = `rotate(${angle}rad)`;
+        span.style.transformOrigin = '0% 0%';
+      }
+      container.appendChild(span);
+    }
   }
 }
 

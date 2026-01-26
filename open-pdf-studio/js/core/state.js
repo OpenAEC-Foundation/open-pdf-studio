@@ -100,6 +100,19 @@ export const state = {
     pageNum: null
   },
 
+  // Search/Find state
+  search: {
+    isOpen: false,
+    query: '',
+    results: [],          // All matches: { pageNum, items, rects }
+    currentIndex: -1,     // Current match index (-1 = none)
+    totalMatches: 0,
+    matchCase: false,
+    wholeWord: false,
+    highlightAll: true,
+    isSearching: false
+  },
+
   // ============================================
   // BACKWARD COMPATIBILITY GETTERS/SETTERS
   // These provide access to active document properties

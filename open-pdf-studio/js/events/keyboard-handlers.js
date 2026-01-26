@@ -10,16 +10,43 @@ import { savePDFAs } from '../pdf/saver.js';
 import { toggleAnnotationsListPanel } from '../ui/annotations-list.js';
 import { toggleLeftPanel } from '../ui/left-panel.js';
 import { switchToTab } from '../ui/ribbon.js';
+import { openFindBar, closeFindBar } from '../search/find-bar.js';
 
 // Handle keydown events
 export function handleKeydown(e) {
-  // Check if typing in an input field
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+  const ctrl = e.ctrlKey || e.metaKey;
+  const shift = e.shiftKey;
+
+  // Allow certain shortcuts even when in input fields
+  const isInInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
+  const isFindInput = e.target.id === 'find-input';
+
+  // Handle find-related shortcuts even in inputs
+  if (ctrl && e.key === 'f') {
+    e.preventDefault();
+    openFindBar();
     return;
   }
 
-  const ctrl = e.ctrlKey || e.metaKey;
-  const shift = e.shiftKey;
+  if (e.key === 'F3' && !isFindInput) {
+    e.preventDefault();
+    if (state.search.isOpen) {
+      document.getElementById('find-next-btn')?.click();
+    } else {
+      openFindBar();
+    }
+    return;
+  }
+
+  // Skip other shortcuts if typing in an input field (except find input which handles its own keys)
+  if (isInInput && !isFindInput) {
+    return;
+  }
+
+  // Find input handles Enter, Shift+Enter, and Escape internally
+  if (isFindInput) {
+    return;
+  }
 
   // File shortcuts
   if (ctrl && e.key === 'o') {
@@ -46,11 +73,12 @@ export function handleKeydown(e) {
     e.preventDefault();
     if (toolClear) toolClear.click();
   } else if (ctrl && !shift && e.key === 'c') {
-    // Copy selected annotation
-    e.preventDefault();
+    // Copy selected annotation (only if annotation is selected, otherwise allow native text copy)
     if (state.selectedAnnotation) {
+      e.preventDefault();
       copyAnnotation(state.selectedAnnotation);
     }
+    // If no annotation selected, let native copy handle text selection
   } else if (ctrl && !shift && e.key === 'v') {
     // Paste from clipboard
     e.preventDefault();
@@ -66,7 +94,12 @@ export function handleKeydown(e) {
   // ESC key - close dialogs or switch back to select tool
   else if (e.key === 'Escape') {
     e.preventDefault();
-    // First check if preferences dialog is open
+    // First check if find bar is open
+    if (state.search.isOpen) {
+      closeFindBar();
+      return;
+    }
+    // Check if preferences dialog is open
     const prefsDialog = document.getElementById('preferences-dialog');
     if (prefsDialog && prefsDialog.classList.contains('visible')) {
       hidePreferencesDialog();

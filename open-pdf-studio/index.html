@@ -212,6 +212,21 @@
           </div>
           <div class="ribbon-group-label">Navigate</div>
         </div>
+
+        <!-- Find Group -->
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <button class="ribbon-btn" id="ribbon-find" title="Find (Ctrl+F)">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Find</span>
+            </button>
+          </div>
+          <div class="ribbon-group-label">Find</div>
+        </div>
       </div>
     </div>
 
@@ -732,6 +747,42 @@
     </div>
 
     <div class="main-view">
+      <!-- Find Bar -->
+      <div id="find-bar" class="find-bar">
+        <button id="find-close-btn" class="find-close-btn" title="Close (Esc)">&times;</button>
+        <div class="find-input-container">
+          <input type="text" id="find-input" class="find-input" placeholder="Find in document..." autocomplete="off">
+        </div>
+        <div class="find-nav-buttons">
+          <button id="find-prev-btn" class="find-nav-btn" title="Previous (Shift+Enter)" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 18l-6-6 6-6"/>
+            </svg>
+          </button>
+          <button id="find-next-btn" class="find-nav-btn" title="Next (Enter)" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </button>
+        </div>
+        <span id="find-results-count" class="find-results-count"></span>
+        <span id="find-message" class="find-message"></span>
+        <div class="find-options">
+          <label class="find-option">
+            <input type="checkbox" id="find-match-case">
+            <span>Match case</span>
+          </label>
+          <label class="find-option">
+            <input type="checkbox" id="find-whole-word">
+            <span>Whole words</span>
+          </label>
+          <label class="find-option">
+            <input type="checkbox" id="find-highlight-all" checked>
+            <span>Highlight all</span>
+          </label>
+        </div>
+      </div>
+
       <div id="placeholder">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />

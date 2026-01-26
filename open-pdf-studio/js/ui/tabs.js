@@ -2,7 +2,7 @@ import { state, createDocument, getActiveDocument, findDocumentByPath } from '..
 import { renderPage, renderContinuous, clearPdfView } from '../pdf/renderer.js';
 import { redrawAnnotations, redrawContinuous, updateQuickAccessButtons } from '../annotations/rendering.js';
 import { updateAllStatus } from '../ui/status-bar.js';
-import { generateThumbnails, clearThumbnails } from '../ui/left-panel.js';
+import { generateThumbnails, clearThumbnails, clearThumbnailCache } from '../ui/left-panel.js';
 import { openPDFFile } from '../pdf/loader.js';
 
 const tabsContainer = document.getElementById('document-tabs');
@@ -118,6 +118,9 @@ export function closeTab(index, force = false) {
     const result = confirm(`"${doc.fileName}" has unsaved changes. Do you want to close it anyway?`);
     if (!result) return false;
   }
+
+  // Clear thumbnail cache for this document
+  clearThumbnailCache(doc.id);
 
   // Remove the document
   state.documents.splice(index, 1);

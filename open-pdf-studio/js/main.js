@@ -32,6 +32,9 @@ import { initTextSelection } from './text/text-selection.js';
 // Tab management
 import { initTabs, createTab } from './ui/tabs.js';
 
+// Search/Find
+import { initFindBar } from './search/find-bar.js';
+
 // Initialize application
 async function init() {
   // Initialize canvas contexts
@@ -56,6 +59,9 @@ async function init() {
 
   // Initialize tab management
   initTabs();
+
+  // Initialize find bar
+  initFindBar();
 
   // Initialize preferences dialog drag
   initPreferencesDialogDrag();

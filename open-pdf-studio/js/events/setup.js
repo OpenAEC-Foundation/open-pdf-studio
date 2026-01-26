@@ -28,6 +28,7 @@ import { showAboutDialog, showDocPropertiesDialog } from '../ui/dialogs.js';
 import { toggleAnnotationsListPanel } from '../ui/annotations-list.js';
 import { toggleLeftPanel } from '../ui/left-panel.js';
 import { closeActiveTab, createTab, markDocumentModified } from '../ui/tabs.js';
+import { openFindBar } from '../search/find-bar.js';
 
 // Setup window control buttons (minimize, maximize, close)
 function setupWindowControls() {
@@ -427,7 +428,11 @@ function setupMenuEvents() {
     }
   });
 
-  // Edit menu
+  // Ribbon Find button
+  document.getElementById('ribbon-find')?.addEventListener('click', () => {
+    openFindBar();
+  });
+
   document.getElementById('menu-preferences')?.addEventListener('click', () => {
     closeAllMenus();
     showPreferencesDialog();

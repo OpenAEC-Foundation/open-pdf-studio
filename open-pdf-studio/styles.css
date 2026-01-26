@@ -2882,3 +2882,151 @@ body {
   color: #374151;
   font-weight: 500;
 }
+
+/* ========================================
+   Find Bar Styles
+   ======================================== */
+
+.find-bar {
+  display: none;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1000;
+  background: #ffffff;
+  border: 1px solid #d4d4d4;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 8px 12px;
+  align-items: center;
+  gap: 8px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 12px;
+}
+
+.find-bar.visible {
+  display: flex;
+}
+
+.find-close-btn {
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.find-close-btn:hover {
+  color: #e81123;
+}
+
+.find-input-container {
+  flex-shrink: 0;
+}
+
+.find-input {
+  width: 200px;
+  padding: 4px 8px;
+  border: 1px solid #d4d4d4;
+  font-size: 12px;
+  font-family: inherit;
+}
+
+.find-input:focus {
+  outline: none;
+  border-color: #0078d4;
+}
+
+.find-input.not-found {
+  border-color: #e81123;
+  background-color: #fff5f5;
+}
+
+.find-nav-buttons {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.find-nav-btn {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #d4d4d4;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.find-nav-btn:hover:not(:disabled) {
+  background: #e5e5e5;
+}
+
+.find-nav-btn:active:not(:disabled) {
+  background: #d5d5d5;
+}
+
+.find-nav-btn:disabled {
+  opacity: 0.5;
+}
+
+.find-nav-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.find-results-count {
+  font-size: 11px;
+  color: #666;
+  white-space: nowrap;
+  min-width: 60px;
+}
+
+.find-message {
+  font-size: 11px;
+  color: #666;
+  white-space: nowrap;
+}
+
+.find-message.not-found {
+  color: #e81123;
+}
+
+.find-options {
+  display: flex;
+  gap: 12px;
+  margin-left: 8px;
+  padding-left: 8px;
+  border-left: 1px solid #d4d4d4;
+}
+
+.find-option {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.find-option input[type="checkbox"] {
+  margin: 0;
+}
+
+/* Search Highlight Styles */
+.search-highlight {
+  position: absolute;
+  background-color: rgba(255, 255, 0, 0.4);
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+.search-highlight.current {
+  background-color: rgba(255, 165, 0, 0.6);
+  outline: 2px solid #ff8c00;
+}
