@@ -24,6 +24,27 @@ export function handleMouseDown(e) {
   state.dragStartX = x;
   state.dragStartY = y;
 
+  // Handle middle mouse button panning (works regardless of current tool)
+  if (e.button === 1) {
+    const scrollContainer = getScrollContainer();
+    state.isPanning = true;
+    state.isMiddleButtonPanning = true;
+    state.panStartX = e.clientX;
+    state.panStartY = e.clientY;
+    state.panScrollStartX = scrollContainer ? scrollContainer.scrollLeft : 0;
+    state.panScrollStartY = scrollContainer ? scrollContainer.scrollTop : 0;
+    // Set grabbing cursor on all relevant elements
+    document.body.style.cursor = 'grabbing';
+    pdfContainer.style.cursor = 'grabbing';
+    if (annotationCanvas) annotationCanvas.style.cursor = 'grabbing';
+    document.querySelectorAll('.annotation-canvas').forEach(c => c.style.cursor = 'grabbing');
+    // Add document-level listeners for smooth panning
+    document.addEventListener('mousemove', handlePanMove);
+    document.addEventListener('mouseup', handleMiddleButtonPanEnd);
+    e.preventDefault();
+    return;
+  }
+
   // Handle hand tool (panning)
   if (state.currentTool === 'hand') {
     const scrollContainer = getScrollContainer();
@@ -147,6 +168,20 @@ function handlePanEnd(e) {
   document.querySelectorAll('.annotation-canvas').forEach(c => c.style.cursor = 'grab');
   document.removeEventListener('mousemove', handlePanMove);
   document.removeEventListener('mouseup', handlePanEnd);
+}
+
+// Document-level middle button pan end handler
+function handleMiddleButtonPanEnd(e) {
+  if (!state.isPanning || !state.isMiddleButtonPanning) return;
+  state.isPanning = false;
+  state.isMiddleButtonPanning = false;
+  // Reset cursors back to default (not grab, since we're not using hand tool)
+  document.body.style.cursor = '';
+  pdfContainer.style.cursor = '';
+  if (annotationCanvas) annotationCanvas.style.cursor = '';
+  document.querySelectorAll('.annotation-canvas').forEach(c => c.style.cursor = '');
+  document.removeEventListener('mousemove', handlePanMove);
+  document.removeEventListener('mouseup', handleMiddleButtonPanEnd);
 }
 
 // Mouse move handler for single page mode
@@ -835,6 +870,25 @@ export function handleContinuousMouseDown(e, pageNum) {
   state.activeContinuousCanvas = canvas;
   state.activeContinuousPage = pageNum;
   state.currentPage = pageNum;
+
+  // Handle middle mouse button panning (works regardless of current tool)
+  if (e.button === 1) {
+    const scrollContainer = getScrollContainer();
+    state.isPanning = true;
+    state.isMiddleButtonPanning = true;
+    state.panStartX = e.clientX;
+    state.panStartY = e.clientY;
+    state.panScrollStartX = scrollContainer ? scrollContainer.scrollLeft : 0;
+    state.panScrollStartY = scrollContainer ? scrollContainer.scrollTop : 0;
+    // Set grabbing cursor on all relevant elements
+    document.body.style.cursor = 'grabbing';
+    pdfContainer.style.cursor = 'grabbing';
+    document.querySelectorAll('.annotation-canvas').forEach(c => c.style.cursor = 'grabbing');
+    document.addEventListener('mousemove', handlePanMove);
+    document.addEventListener('mouseup', handleMiddleButtonPanEnd);
+    e.preventDefault();
+    return;
+  }
 
   // Handle hand tool (panning) - use same document-level handlers as single page mode
   if (state.currentTool === 'hand') {

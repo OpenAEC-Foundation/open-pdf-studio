@@ -19,7 +19,7 @@ import { initKeyboardHandlers } from './keyboard-handlers.js';
 import { setTool } from '../tools/manager.js';
 import { renderPage, renderContinuous, setViewMode, zoomIn, zoomOut, fitWidth, fitPage, actualSize, goToPage } from '../pdf/renderer.js';
 import { openPDFFile, loadPDF } from '../pdf/loader.js';
-import { savePDFAs } from '../pdf/saver.js';
+import { savePDF, savePDFAs } from '../pdf/saver.js';
 import { showProperties, hideProperties, updateAnnotationProperties, updateTextFormatProperties, updateArrowProperties } from '../ui/properties-panel.js';
 import { redrawAnnotations, redrawContinuous, updateQuickAccessButtons } from '../annotations/rendering.js';
 import { closeAllMenus } from '../ui/menus.js';
@@ -29,14 +29,13 @@ import { toggleAnnotationsListPanel } from '../ui/annotations-list.js';
 import { toggleLeftPanel } from '../ui/left-panel.js';
 import { closeActiveTab, createTab, markDocumentModified } from '../ui/tabs.js';
 import { openFindBar } from '../search/find-bar.js';
+import { isTauri, minimizeWindow, maximizeWindow, closeWindow, openExternal } from '../tauri-api.js';
 
 // Setup window control buttons (minimize, maximize, close)
 function setupWindowControls() {
-  const { ipcRenderer } = window.require('electron');
-
-  document.getElementById('btn-minimize')?.addEventListener('click', () => ipcRenderer.send('window-minimize'));
-  document.getElementById('btn-maximize')?.addEventListener('click', () => ipcRenderer.send('window-maximize'));
-  document.getElementById('btn-close')?.addEventListener('click', () => ipcRenderer.send('window-close'));
+  document.getElementById('btn-minimize')?.addEventListener('click', () => minimizeWindow());
+  document.getElementById('btn-maximize')?.addEventListener('click', () => maximizeWindow());
+  document.getElementById('btn-close')?.addEventListener('click', () => closeWindow());
 }
 
 // Setup all event listeners
@@ -403,7 +402,7 @@ function setupMenuEvents() {
 
   document.getElementById('menu-save')?.addEventListener('click', async () => {
     closeAllMenus();
-    await savePDFAs();
+    await savePDF();
   });
 
   document.getElementById('menu-save-as')?.addEventListener('click', async () => {
@@ -424,7 +423,7 @@ function setupMenuEvents() {
   document.getElementById('menu-exit')?.addEventListener('click', () => {
     closeAllMenus();
     if (confirm('Exit PDF Annotator?')) {
-      window.close();
+      closeWindow();
     }
   });
 
@@ -582,7 +581,7 @@ N - Note`;
 
   document.getElementById('ribbon-check-updates')?.addEventListener('click', async () => {
     const GITHUB_REPO = 'OpenAEC-Foundation/Open-2D-Studio';
-    const CURRENT_VERSION = '1.0.2';
+    const CURRENT_VERSION = '1.0.3';
 
     try {
       const btn = document.getElementById('ribbon-check-updates');
@@ -627,7 +626,7 @@ N - Note`;
           `Click OK to open the download page.`
         );
         if (update) {
-          require('electron').shell.openExternal(release.html_url);
+          openExternal(release.html_url);
         }
       } else {
         alert(`You're up to date!\n\nCurrent version: v${CURRENT_VERSION}`);
@@ -659,23 +658,17 @@ N - Note`;
 
   // File association - Set as default PDF viewer
   document.getElementById('pref-set-default-app')?.addEventListener('click', async () => {
-    const { shell } = require('electron');
-    const os = require('os');
-    const platform = os.platform();
+    const platform = navigator.platform.toLowerCase();
 
-    if (platform === 'win32') {
+    if (platform.includes('win')) {
       // On Windows, open the Default Apps settings
       try {
-        // Try to open Windows Settings directly to Default Apps
-        await shell.openExternal('ms-settings:defaultapps');
+        await openExternal('ms-settings:defaultapps');
         alert('Windows Settings opened.\n\nTo set OpenPDFStudio as default:\n1. Scroll down to "Choose default apps by file type"\n2. Find .pdf\n3. Click and select OpenPDFStudio');
       } catch (err) {
-        // Fallback: open Control Panel
-        const { exec } = require('child_process');
-        exec('control /name Microsoft.DefaultPrograms');
-        alert('Default Programs opened.\n\nSelect "Set your default programs" and choose OpenPDFStudio.');
+        alert('Could not open Windows Settings.\n\nPlease manually open Settings > Apps > Default Apps.');
       }
-    } else if (platform === 'darwin') {
+    } else if (platform.includes('mac')) {
       // macOS
       alert('To set OpenPDFStudio as default PDF viewer on macOS:\n\n1. Right-click any PDF file in Finder\n2. Select "Get Info"\n3. Under "Open with", select OpenPDFStudio\n4. Click "Change All..."');
     } else {
@@ -712,7 +705,7 @@ function setupFillNoneCheckboxes() {
 function setupQuickAccessEvents() {
   // Save button
   document.getElementById('qa-save')?.addEventListener('click', async () => {
-    await savePDFAs();
+    await savePDF();
   });
 
   // Print button

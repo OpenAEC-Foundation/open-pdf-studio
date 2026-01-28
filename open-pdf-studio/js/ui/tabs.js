@@ -235,12 +235,27 @@ export function updateWindowTitle() {
   const doc = getActiveDocument();
   const baseTitle = 'OpenPDFStudio';
 
+  // Update document.title (browser/OS window title)
   if (doc) {
     const modified = doc.modified ? '*' : '';
     document.title = `${modified}${doc.fileName} - ${baseTitle}`;
   } else {
     document.title = baseTitle;
   }
+
+  // Update the file-info element in the custom title bar
+  const fileInfo = document.getElementById('file-info');
+  if (fileInfo) {
+    if (doc && doc.fileName) {
+      const modified = doc.modified ? '* ' : '';
+      fileInfo.textContent = `${modified}${doc.fileName}`;
+    } else {
+      fileInfo.textContent = '';
+    }
+  }
+
+  // Also update the tab bar to reflect any filename changes
+  updateTabBar();
 }
 
 /**

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schemas.tauri.app/config/2",
+  "identifier": "default",
+  "description": "Default capabilities for the main window",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-close",
+    "core:window:allow-minimize",
+    "core:window:allow-maximize",
+    "core:window:allow-unmaximize",
+    "core:window:allow-is-maximized",
+    "core:window:allow-set-title",
+    "core:window:allow-start-dragging",
+    "dialog:allow-open",
+    "dialog:allow-save",
+    "dialog:allow-message",
+    "dialog:allow-ask",
+    "dialog:allow-confirm",
+    "fs:read-all",
+    "fs:write-all",
+    "fs:allow-exists",
+    "fs:allow-stat",
+    "shell:allow-open",
+    "os:default"
+  ]
+}

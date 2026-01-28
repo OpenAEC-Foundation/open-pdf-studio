@@ -42,12 +42,9 @@ export function initFindBar() {
     return;
   }
 
-  console.log('Find bar initialized, findInput:', findInput);
-
   // Bind events
   findInput.addEventListener('input', onSearchInput);
   findInput.addEventListener('keydown', onSearchKeydown);
-  console.log('Find bar keydown listener attached');
   findPrevBtn?.addEventListener('click', onFindPrevious);
   findNextBtn?.addEventListener('click', onFindNext);
   findCloseBtn?.addEventListener('click', closeFindBar);
@@ -133,11 +130,9 @@ function onSearchInput(e) {
  * Handle keydown in search input
  */
 function onSearchKeydown(e) {
-  console.log('Find bar keydown:', e.key);
   switch (e.key) {
     case 'Enter':
       e.preventDefault();
-      console.log('Enter pressed, query:', findInput.value);
       // Cancel any pending debounce
       if (searchDebounceTimer) {
         clearTimeout(searchDebounceTimer);
@@ -148,7 +143,6 @@ function onSearchKeydown(e) {
       if (e.shiftKey) {
         onFindPrevious();
       } else {
-        console.log('Calling onFindNext');
         onFindNext();
       }
       break;
@@ -163,13 +157,10 @@ function onSearchKeydown(e) {
  * Handle find next button click
  */
 async function onFindNext() {
-  console.log('onFindNext called, results:', state.search.results.length, 'query:', state.search.query);
   if (state.search.results.length === 0) {
     // If no results yet, execute search first
     if (state.search.query) {
-      console.log('No results yet, executing search...');
       await executeSearchAndUpdate();
-      console.log('Search complete, results:', state.search.results.length);
     }
     return;
   }
@@ -234,13 +225,7 @@ function onHighlightChange() {
  * Execute search and update UI
  */
 async function executeSearchAndUpdate() {
-  console.log('executeSearchAndUpdate starting...');
-  try {
-    await executeSearch();
-    console.log('executeSearch completed');
-  } catch (err) {
-    console.error('executeSearch error:', err);
-  }
+  await executeSearch();
   updateUI();
 
   // Navigate to first result if found
@@ -493,18 +478,12 @@ function highlightMatch(result, isCurrent) {
   // Find all match positions in the text layer
   const positions = findAllMatchPositions(textLayer, result.matchText, state.search.matchCase);
 
-  console.log('highlightMatch: positions found:', positions.length, 'for matchText:', result.matchText);
-
   // Count which occurrence this result is on this page
   const pageResults = state.search.results.filter(r => r.pageNum === pageNum);
   const occurrenceIndex = pageResults.findIndex(r => r.index === result.index);
 
-  console.log('highlightMatch: occurrenceIndex:', occurrenceIndex, 'pageResults:', pageResults.length);
-
   if (occurrenceIndex >= 0 && occurrenceIndex < positions.length) {
     const pos = positions[occurrenceIndex];
-
-    console.log('highlightMatch: pos:', pos.highlightLeft, pos.highlightTop, pos.matchWidth, pos.matchHeight);
 
     const highlight = document.createElement('div');
     highlight.className = 'search-highlight' + (isCurrent ? ' current' : '');

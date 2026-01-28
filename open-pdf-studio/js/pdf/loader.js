@@ -9,6 +9,22 @@ import { colorArrayToHex } from '../utils/colors.js';
 import { generateThumbnails } from '../ui/left-panel.js';
 import { createTab, updateWindowTitle } from '../ui/tabs.js';
 import * as pdfjsLib from '../../pdfjs/build/pdf.mjs';
+import { isTauri, readBinaryFile, openFileDialog } from '../tauri-api.js';
+
+// Cache for original PDF bytes (used by saver to avoid re-reading)
+const originalBytesCache = new Map(); // filePath -> Uint8Array
+
+export function getCachedPdfBytes(filePath) {
+  return originalBytesCache.get(filePath);
+}
+
+export function clearCachedPdfBytes(filePath) {
+  if (filePath) {
+    originalBytesCache.delete(filePath);
+  } else {
+    originalBytesCache.clear();
+  }
+}
 
 // Set worker source (path relative to HTML file, not this module)
 pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/build/pdf.worker.mjs';
@@ -18,10 +34,19 @@ export async function loadPDF(filePath) {
   try {
     showLoading('Loading PDF...');
 
-    // Read file using Node.js fs
-    const fs = window.require('fs');
-    const data = fs.readFileSync(filePath);
-    const typedArray = new Uint8Array(data);
+    let typedArray;
+
+    if (isTauri()) {
+      // Read file using Tauri fs plugin
+      const data = await readBinaryFile(filePath);
+      typedArray = new Uint8Array(data);
+
+      // Cache original bytes for saver (avoids re-reading from disk)
+      originalBytesCache.set(filePath, typedArray);
+    } else {
+      // Fallback for browser environment (e.g., via fetch for local dev)
+      throw new Error('File system access not available');
+    }
 
     // Load PDF using pdf.js
     state.pdfDoc = await pdfjsLib.getDocument({ data: typedArray }).promise;
@@ -70,10 +95,13 @@ export async function loadPDF(filePath) {
 
 // Open file dialog and load PDF
 export async function openPDFFile() {
-  const { ipcRenderer } = window.require('electron');
+  if (!isTauri()) {
+    console.warn('File dialogs require Tauri environment');
+    return;
+  }
 
   try {
-    const result = await ipcRenderer.invoke('dialog:openFile');
+    const result = await openFileDialog();
     if (result) {
       // Create a new tab for the file (will switch to existing tab if already open)
       createTab(result);

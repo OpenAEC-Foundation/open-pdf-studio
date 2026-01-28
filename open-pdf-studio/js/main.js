@@ -35,8 +35,28 @@ import { initTabs, createTab } from './ui/tabs.js';
 // Search/Find
 import { initFindBar } from './search/find-bar.js';
 
+// Tauri API
+import { isTauri, getOpenedFile, loadSession, saveSession, fileExists } from './tauri-api.js';
+
+// Disable default browser context menu in production
+function disableDefaultContextMenu() {
+  // Only disable in Tauri (production) environment
+  if (!isTauri()) return;
+
+  document.addEventListener('contextmenu', (e) => {
+    // Allow context menu on input/textarea for copy/paste
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+      return;
+    }
+    e.preventDefault();
+  });
+}
+
 // Initialize application
 async function init() {
+  // Disable browser context menu in production
+  disableDefaultContextMenu();
+
   // Initialize canvas contexts
   initCanvasContexts();
 
@@ -74,9 +94,6 @@ async function init() {
 
   // Update initial status
   updateAllStatus();
-
-  // Setup IPC listener for auto-loading PDF
-  setupAutoLoadListener();
 
   // Setup session save on window close
   setupSessionSaveOnClose();
@@ -157,41 +174,27 @@ function initPreferencesTabs() {
 
 // Check for PDF file passed as command line argument
 async function checkCommandLineArgs() {
+  if (!isTauri()) return false;
+
   try {
-    const { ipcRenderer } = window.require('electron');
-    const filePath = await ipcRenderer.invoke('get-opened-file');
-    if (filePath && filePath.endsWith('.pdf')) {
+    const filePath = await getOpenedFile();
+    if (filePath && filePath.toLowerCase().endsWith('.pdf')) {
       createTab(filePath);
       await loadPDF(filePath);
       return true;
     }
   } catch (e) {
-    // Not running in Electron or no file passed
+    console.warn('Failed to check command line args:', e);
   }
   return false;
 }
 
-// Setup IPC listener for auto-loading PDF from main process
-function setupAutoLoadListener() {
-  try {
-    const { ipcRenderer } = window.require('electron');
-    ipcRenderer.on('load-pdf', async (event, filePath) => {
-      if (filePath && filePath.endsWith('.pdf')) {
-        createTab(filePath);
-        await loadPDF(filePath);
-      }
-    });
-  } catch (e) {
-    // Not running in Electron
-  }
-}
-
 // Save session data (open documents) before window closes
 function setupSessionSaveOnClose() {
-  window.addEventListener('beforeunload', () => {
-    try {
-      const { ipcRenderer } = window.require('electron');
+  window.addEventListener('beforeunload', async () => {
+    if (!isTauri()) return;
 
+    try {
       // Get list of open file paths (only files that have been saved)
       const openFiles = state.documents
         .filter(doc => doc.filePath)
@@ -202,10 +205,9 @@ function setupSessionSaveOnClose() {
         activeIndex: state.activeDocumentIndex
       };
 
-      // Use sendSync for synchronous IPC (blocking but reliable for beforeunload)
-      ipcRenderer.sendSync('session:save-sync', sessionData);
+      await saveSession(sessionData);
     } catch (e) {
-      // Not running in Electron or save failed
+      console.warn('Failed to save session:', e);
     }
   });
 }
@@ -217,17 +219,17 @@ async function restoreLastSession() {
     return;
   }
 
+  if (!isTauri()) return;
+
   try {
-    const { ipcRenderer } = window.require('electron');
-    const sessionData = await ipcRenderer.invoke('session:load');
+    const sessionData = await loadSession();
 
     if (sessionData && sessionData.openFiles && sessionData.openFiles.length > 0) {
       // Load each file from the saved session
       for (const filePath of sessionData.openFiles) {
         try {
           // Check if file still exists
-          const fs = window.require('fs');
-          if (fs.existsSync(filePath)) {
+          if (await fileExists(filePath)) {
             createTab(filePath);
             await loadPDF(filePath);
           }
@@ -237,7 +239,7 @@ async function restoreLastSession() {
       }
     }
   } catch (e) {
-    // Not running in Electron or restore failed
+    console.warn('Failed to restore session:', e);
   }
 }
 

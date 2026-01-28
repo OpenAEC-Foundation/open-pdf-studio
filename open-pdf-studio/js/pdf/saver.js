@@ -1,7 +1,10 @@
 import { state } from '../core/state.js';
 import { showLoading, hideLoading } from '../ui/dialogs.js';
 import { hexToColorArray } from '../utils/colors.js';
-import { markDocumentSaved } from '../ui/tabs.js';
+import { markDocumentSaved, updateWindowTitle } from '../ui/tabs.js';
+import { isTauri, readBinaryFile, writeBinaryFile, saveFileDialog } from '../tauri-api.js';
+import { getCachedPdfBytes } from './loader.js';
+import { PDFDocument, PDFString, PDFName, PDFArray } from '../../node_modules/pdf-lib/dist/pdf-lib.esm.js';
 
 // Save PDF with annotations
 export async function savePDF(saveAsPath = null) {
@@ -10,14 +13,20 @@ export async function savePDF(saveAsPath = null) {
     return false;
   }
 
+  if (!isTauri()) {
+    alert('Save functionality requires Tauri environment');
+    return false;
+  }
+
   try {
     showLoading('Saving PDF...');
 
-    const fs = window.require('fs');
-    const { PDFDocument, PDFString } = window.require('pdf-lib');
+    // Get original PDF bytes (from cache or disk)
+    let existingPdfBytes = getCachedPdfBytes(state.currentPdfPath);
+    if (!existingPdfBytes) {
+      existingPdfBytes = await readBinaryFile(state.currentPdfPath);
+    }
 
-    // Read the original PDF
-    const existingPdfBytes = fs.readFileSync(state.currentPdfPath);
     const pdfDocLib = await PDFDocument.load(existingPdfBytes);
 
     // Get the PDF pages
@@ -46,14 +55,14 @@ export async function savePDF(saveAsPath = null) {
       const convertY = (y) => pageHeight - y;
 
       // Get or create annotations array for the page
-      const annotsRef = page.node.get(window.require('pdf-lib').PDFName.of('Annots'));
+      const annotsRef = page.node.get(PDFName.of('Annots'));
       let annotsArray;
       if (annotsRef) {
-        annotsArray = context.lookup(annotsRef);
-        if (!Array.isArray(annotsArray.array)) {
-          annotsArray = [];
+        const lookedUp = context.lookup(annotsRef);
+        if (lookedUp instanceof PDFArray) {
+          annotsArray = lookedUp.asArray().slice(); // Clone
         } else {
-          annotsArray = annotsArray.array.slice(); // Clone
+          annotsArray = [];
         }
       } else {
         annotsArray = [];
@@ -425,15 +434,13 @@ export async function savePDF(saveAsPath = null) {
       }
 
       // Set the updated annotations array
-      const { PDFArray, PDFName } = window.require('pdf-lib');
       page.node.set(PDFName.of('Annots'), context.obj(annotsArray));
     }
 
     // Save the PDF
     const pdfBytes = await pdfDocLib.save();
     const outputPath = saveAsPath || state.currentPdfPath;
-
-    fs.writeFileSync(outputPath, Buffer.from(pdfBytes));
+    await writeBinaryFile(outputPath, new Uint8Array(pdfBytes));
 
     // Mark document as saved
     markDocumentSaved();
@@ -455,10 +462,22 @@ export async function savePDFAs() {
     return;
   }
 
-  const { ipcRenderer } = window.require('electron');
-  const savePath = await ipcRenderer.invoke('dialog:saveFile', state.currentPdfPath);
+  if (!isTauri()) {
+    alert('Save functionality requires Tauri environment');
+    return;
+  }
+
+  const savePath = await saveFileDialog(state.currentPdfPath);
 
   if (savePath) {
-    await savePDF(savePath);
+    const success = await savePDF(savePath);
+
+    // If saved to a new path, update the current path and UI
+    if (success && savePath !== state.currentPdfPath) {
+      state.currentPdfPath = savePath;
+
+      // Update window title, tab bar, and file info
+      updateWindowTitle();
+    }
   }
 }

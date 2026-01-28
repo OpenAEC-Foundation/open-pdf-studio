@@ -1,15 +1,24 @@
 import { DEFAULT_PREFERENCES } from './constants.js';
+import { isTauri, getUsername } from '../tauri-api.js';
 
 // Get system username for default author
-function getSystemUsername() {
-  try {
-    const os = window.require('os');
-    return os.userInfo().username || 'User';
-  } catch (e) {
-    // Fallback if not in Electron or os module unavailable
-    return 'User';
+async function getSystemUsername() {
+  if (isTauri()) {
+    try {
+      return await getUsername();
+    } catch (e) {
+      return 'User';
+    }
   }
+  return 'User';
 }
+
+// Initialize default author asynchronously
+let defaultAuthorValue = 'User';
+getSystemUsername().then(username => {
+  defaultAuthorValue = username;
+  state.defaultAuthor = username;
+});
 
 /**
  * Creates a new document state object
@@ -61,6 +70,7 @@ export const state = {
 
   // Hand tool panning state
   isPanning: false,
+  isMiddleButtonPanning: false,
   panStartX: 0,
   panStartY: 0,
   panScrollStartX: 0,
@@ -88,7 +98,7 @@ export const state = {
   preferences: { ...DEFAULT_PREFERENCES },
 
   // Default author - uses system username
-  defaultAuthor: getSystemUsername(),
+  defaultAuthor: defaultAuthorValue,
 
   // Shift key state (for angle snapping during rotation)
   shiftKeyPressed: false,

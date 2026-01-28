@@ -5,6 +5,10 @@ node_modules/
 dist/
 out/
 
+# Tauri build
+src-tauri/target/
+open-pdf-studio/src-tauri/target/
+
 # OS files
 .DS_Store
 Thumbs.db
@@ -20,14 +24,12 @@ nul
 # Logs
 *.log
 
-# Electron build
-release/
-
 # Test files
 *.jpg
 *.png
 !open-pdf-studio/icon.png
 !open-pdf-studio/pdfjs/**
+!open-pdf-studio/src-tauri/icons/**
 
 # Documentation
 open-pdf-studio/CLAUDE.md

@@ -9,7 +9,7 @@
 </head>
 <body>
   <!-- Title Bar -->
-  <div class="title-bar">
+  <div class="title-bar" data-tauri-drag-region>
     <div class="title-bar-left">
       <div class="title-bar-menus">
         <div class="menu-item" data-menu="file">
@@ -83,7 +83,7 @@
         </button>
       </div>
     </div>
-    <div class="title-bar-center">
+    <div class="title-bar-center" data-tauri-drag-region>
       <span class="app-title">OpenPDFStudio</span>
       <span class="file-name" id="file-info"></span>
     </div>
@@ -2215,7 +2215,7 @@
           </svg>
         </div>
         <h1 class="about-app-name">OpenPDFStudio</h1>
-        <p class="about-version">Version 1.0.2</p>
+        <p class="about-version">Version 1.0.3</p>
       </div>
       <div class="about-content">
         <p class="about-tagline">IT Without Chains</p>
@@ -2254,7 +2254,7 @@
   </div>
 
   <!-- Loading Overlay -->
-  <div id="loading-overlay" class="loading-overlay" style="display: none;">
+  <div id="loading-overlay" class="loading-overlay">
     <div class="loading-content">
       <div class="loading-spinner"></div>
       <div class="loading-text">Loading...</div>

@@ -14,7 +14,16 @@ const THUMBNAIL_SCALE = 0.2;
 const thumbnailCache = new Map();
 
 // Store pdfDoc references and state for each document
-const documentState = new Map(); // { pdfDoc, numPages, nextPage, isPaused }
+const documentState = new Map(); // { pdfDoc, numPages, nextPage, startPage }
+
+// Priority queue for visible thumbnails (pages that should load first)
+let priorityPages = new Set();
+
+// Track the last scroll position to continue loading from there
+let lastVisiblePage = 1;
+
+// Scroll debounce timer
+let scrollDebounceTimer = null;
 
 // Initialize left panel
 export function initLeftPanel() {
@@ -29,6 +38,84 @@ export function initLeftPanel() {
   // Panel collapse/expand toggle
   if (leftPanelToggle) {
     leftPanelToggle.addEventListener('click', toggleLeftPanel);
+  }
+
+  // Listen for scroll to prioritize visible thumbnails
+  if (thumbnailsContainer) {
+    thumbnailsContainer.addEventListener('scroll', handleThumbnailScroll);
+  }
+}
+
+// Handle scroll in thumbnails container - debounced
+function handleThumbnailScroll() {
+  // Clear existing timer
+  if (scrollDebounceTimer) {
+    clearTimeout(scrollDebounceTimer);
+  }
+
+  // Set new timer - update priorities after scroll stops
+  scrollDebounceTimer = setTimeout(() => {
+    updateVisiblePriorities();
+  }, 100);
+}
+
+// Find visible thumbnails and add them to priority queue
+function updateVisiblePriorities() {
+  if (!thumbnailsContainer) return;
+
+  const activeDoc = getActiveDocument();
+  if (!activeDoc) return;
+
+  const docCache = thumbnailCache.get(activeDoc.id);
+  if (!docCache) return;
+
+  const docState = documentState.get(activeDoc.id);
+
+  const containerRect = thumbnailsContainer.getBoundingClientRect();
+  const thumbnails = thumbnailsContainer.querySelectorAll('.thumbnail-item');
+
+  // Clear old priorities
+  priorityPages.clear();
+
+  let firstVisiblePage = null;
+
+  // Find visible thumbnails that aren't loaded yet
+  thumbnails.forEach(thumb => {
+    const thumbRect = thumb.getBoundingClientRect();
+
+    // Check if thumbnail is visible in container
+    const isVisible = (
+      thumbRect.top < containerRect.bottom &&
+      thumbRect.bottom > containerRect.top
+    );
+
+    if (isVisible) {
+      const pageNum = parseInt(thumb.dataset.page);
+
+      // Track first visible page
+      if (firstVisiblePage === null) {
+        firstVisiblePage = pageNum;
+      }
+
+      // Only add to priority if not already cached
+      if (!docCache.has(pageNum)) {
+        priorityPages.add(pageNum);
+      }
+    }
+  });
+
+  // Update the sequential loading start point to continue from visible area
+  if (firstVisiblePage !== null && docState) {
+    lastVisiblePage = firstVisiblePage;
+    // Reset nextPage to start from visible area
+    docState.nextPage = firstVisiblePage;
+    docState.startPage = firstVisiblePage;
+    docState.wrapped = false;
+  }
+
+  // If we found priority pages, restart processor to handle them
+  if (priorityPages.size > 0) {
+    startProcessor();
   }
 }
 
@@ -76,18 +163,27 @@ export async function generateThumbnails() {
   const docId = activeDoc.id;
   const numPages = pdfDoc.numPages;
 
-  console.log(`[Thumbnails] generateThumbnails for doc ${docId}, ${numPages} pages`);
+  // Get first page dimensions for placeholder sizing
+  let placeholderWidth = 150;
+  let placeholderHeight = Math.round(150 * 1.414);
+  try {
+    const firstPage = await pdfDoc.getPage(1);
+    const viewport = firstPage.getViewport({ scale: THUMBNAIL_SCALE });
+    placeholderWidth = Math.round(viewport.width);
+    placeholderHeight = Math.round(viewport.height);
+  } catch (err) {
+    console.warn('[Thumbnails] Could not get first page dimensions:', err);
+  }
 
   // Initialize or update document state
   if (!documentState.has(docId)) {
     documentState.set(docId, {
       pdfDoc,
       numPages,
-      nextPage: 1
+      nextPage: 1,
+      startPage: 1,
+      wrapped: false
     });
-    console.log(`[Thumbnails] Created new state for doc ${docId}`);
-  } else {
-    console.log(`[Thumbnails] Doc ${docId} already has state, nextPage: ${documentState.get(docId).nextPage}`);
   }
 
   // Initialize cache for this document if needed
@@ -95,14 +191,13 @@ export async function generateThumbnails() {
     thumbnailCache.set(docId, new Map());
   }
   const docCache = thumbnailCache.get(docId);
-  console.log(`[Thumbnails] Doc ${docId} has ${docCache.size} cached thumbnails`);
 
   // Clear existing thumbnail elements
   thumbnailsContainer.innerHTML = '';
 
-  // Create all placeholder containers
+  // Create all placeholder containers immediately (fixes scroll size)
   for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-    const placeholder = createThumbnailPlaceholder(pageNum);
+    const placeholder = createThumbnailPlaceholder(pageNum, placeholderWidth, placeholderHeight);
     thumbnailsContainer.appendChild(placeholder);
 
     // If we have cached thumbnail, display it immediately
@@ -114,33 +209,40 @@ export async function generateThumbnails() {
   // Mark current page as active
   updateActiveThumbnail();
 
+  // Update priorities based on initially visible thumbnails
+  setTimeout(updateVisiblePriorities, 50);
+
   // Start the processor if not running
   startProcessor();
 }
 
 // Start the thumbnail processor
 function startProcessor() {
-  if (processorRunning) {
-    console.log('[Thumbnails] Processor already running');
-    return;
-  }
+  if (processorRunning) return;
   processorRunning = true;
-  console.log('[Thumbnails] Starting processor');
   processNextThumbnail();
 }
 
-// Process the next thumbnail (prioritizes active document)
+// Process the next thumbnail (prioritizes visible pages, then active document)
 async function processNextThumbnail() {
   try {
     // Get active document
     const activeDoc = getActiveDocument();
     const activeDocId = activeDoc?.id;
 
-    // First, try to process active document
+    // First, try to process priority (visible) pages for active document
+    if (activeDocId && priorityPages.size > 0) {
+      const processed = await processPriorityThumbnail(activeDocId);
+      if (processed) {
+        setTimeout(processNextThumbnail, 0);
+        return;
+      }
+    }
+
+    // Then, process remaining pages for active document
     if (activeDocId && documentState.has(activeDocId)) {
       const processed = await processDocumentThumbnail(activeDocId);
       if (processed) {
-        // Continue processing - use setTimeout to yield
         setTimeout(processNextThumbnail, 0);
         return;
       }
@@ -148,52 +250,106 @@ async function processNextThumbnail() {
 
     // Active document is done, process other documents
     for (const [docId, docState] of documentState) {
-      if (docId === activeDocId) continue; // Skip active (already done)
+      if (docId === activeDocId) continue;
 
       const processed = await processDocumentThumbnail(docId);
       if (processed) {
-        // Continue processing - use setTimeout to yield
         setTimeout(processNextThumbnail, 0);
         return;
       }
     }
 
     // All documents processed
-    console.log('[Thumbnails] All documents processed, stopping processor');
     processorRunning = false;
   } catch (err) {
     console.error('[Thumbnails] Processor error:', err);
     processorRunning = false;
-    // Try to restart after error
     setTimeout(startProcessor, 100);
   }
 }
 
-// Process one thumbnail for a specific document
-async function processDocumentThumbnail(docId) {
-  const state = documentState.get(docId);
+// Process a priority (visible) thumbnail first
+async function processPriorityThumbnail(docId) {
+  const docState = documentState.get(docId);
   const docCache = thumbnailCache.get(docId);
 
-  if (!state || !docCache) {
-    console.log(`[Thumbnails] No state or cache for doc ${docId}`);
+  if (!docState || !docCache || priorityPages.size === 0) {
     return false;
   }
 
-  const { pdfDoc, numPages } = state;
+  const { pdfDoc } = docState;
 
-  // Find next page that needs rendering
-  while (state.nextPage <= numPages) {
-    const pageNum = state.nextPage;
-    state.nextPage++;
+  // Get first priority page
+  const pageNum = priorityPages.values().next().value;
+  priorityPages.delete(pageNum);
+
+  // Skip if already cached
+  if (docCache.has(pageNum)) {
+    return priorityPages.size > 0; // Continue if more priority pages
+  }
+
+  // Render this page
+  try {
+    const imageData = await renderThumbnailToDataURL(pdfDoc, pageNum);
+    if (imageData) {
+      docCache.set(pageNum, imageData);
+
+      // Update the display
+      const currentActiveDoc = getActiveDocument();
+      if (currentActiveDoc && currentActiveDoc.id === docId) {
+        const placeholder = thumbnailsContainer.querySelector(`[data-page="${pageNum}"]`);
+        if (placeholder) {
+          displayCachedThumbnail(placeholder, imageData);
+        }
+      }
+    }
+    return true;
+  } catch (err) {
+    console.warn(`[Thumbnails] Error rendering priority page ${pageNum}:`, err);
+    return true;
+  }
+}
+
+// Process one thumbnail for a specific document (sequential with wrap-around)
+async function processDocumentThumbnail(docId) {
+  const docState = documentState.get(docId);
+  const docCache = thumbnailCache.get(docId);
+
+  if (!docState || !docCache) {
+    return false;
+  }
+
+  const { pdfDoc, numPages } = docState;
+  const startPage = docState.startPage || 1;
+
+  // Try to find next unrendered page, starting from current position
+  // and wrapping around to beginning if needed
+  let attempts = 0;
+  const maxAttempts = numPages;
+
+  while (attempts < maxAttempts) {
+    // Check if we've completed a full cycle BEFORE processing
+    if (docState.wrapped && docState.nextPage === startPage) {
+      // All pages processed
+      return false;
+    }
+
+    const pageNum = docState.nextPage;
+    attempts++;
+
+    // Move to next page (with wrap-around)
+    docState.nextPage++;
+    if (docState.nextPage > numPages) {
+      docState.nextPage = 1;
+      docState.wrapped = true;
+    }
 
     // Skip if already cached
     if (docCache.has(pageNum)) continue;
 
     // Render this page
-    console.log(`[Thumbnails] Rendering page ${pageNum} of doc ${docId.slice(-6)}`);
     try {
       const imageData = await renderThumbnailToDataURL(pdfDoc, pageNum);
-      console.log(`[Thumbnails] Rendered page ${pageNum} of doc ${docId.slice(-6)}: ${imageData ? 'success' : 'null'}`);
       if (imageData) {
         docCache.set(pageNum, imageData);
 
@@ -206,22 +362,20 @@ async function processDocumentThumbnail(docId) {
           }
         }
       }
-      return true; // Processed one thumbnail
+      return true;
     } catch (err) {
       console.warn(`[Thumbnails] Error rendering page ${pageNum} of doc ${docId}:`, err);
-      return true; // Still counts as processed (attempted)
+      return true;
     }
   }
 
-  console.log(`[Thumbnails] Doc ${docId} complete (${numPages} pages)`);
-  return false; // No more pages to process for this document
+  return false;
 }
 
 // Render a single page thumbnail to a data URL with timeout
 async function renderThumbnailToDataURL(pdfDoc, pageNum) {
   if (!pdfDoc || pageNum > pdfDoc.numPages) return null;
 
-  // Timeout promise
   const timeoutPromise = new Promise((_, reject) => {
     setTimeout(() => reject(new Error('Render timeout')), 10000);
   });
@@ -231,19 +385,16 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum) {
       const page = await pdfDoc.getPage(pageNum);
       const viewport = page.getViewport({ scale: THUMBNAIL_SCALE });
 
-      // Create offscreen canvas
       const canvas = document.createElement('canvas');
       canvas.width = viewport.width;
       canvas.height = viewport.height;
       const ctx = canvas.getContext('2d');
 
-      // Render page
       await page.render({
         canvasContext: ctx,
         viewport: viewport
       }).promise;
 
-      // Return as data URL for caching
       return {
         dataURL: canvas.toDataURL('image/jpeg', 0.7),
         width: viewport.width,
@@ -263,42 +414,39 @@ function displayCachedThumbnail(placeholder, imageData) {
   let canvas = placeholder.querySelector('.thumbnail-canvas');
   if (!canvas) return;
 
-  // Replace canvas with image for cached thumbnails (more memory efficient)
   const img = document.createElement('img');
   img.className = 'thumbnail-canvas';
   img.src = imageData.dataURL;
-  img.style.width = '';
-  img.style.height = '';
+  img.style.width = `${imageData.width}px`;
+  img.style.height = `${imageData.height}px`;
   canvas.replaceWith(img);
 }
 
 // Create a thumbnail placeholder with estimated size
-function createThumbnailPlaceholder(pageNum) {
+function createThumbnailPlaceholder(pageNum, width = 150, height = null) {
   const thumbnailItem = document.createElement('div');
   thumbnailItem.className = 'thumbnail-item';
   thumbnailItem.dataset.page = pageNum;
 
-  // Create placeholder canvas with estimated size (will be replaced when rendered)
-  const canvas = document.createElement('canvas');
-  canvas.className = 'thumbnail-canvas';
-  // Estimate dimensions based on typical A4 ratio (1:1.414)
-  const estimatedWidth = 150;
-  const estimatedHeight = Math.round(estimatedWidth * 1.414);
-  canvas.width = estimatedWidth;
-  canvas.height = estimatedHeight;
-  canvas.style.width = `${estimatedWidth}px`;
-  canvas.style.height = `${estimatedHeight}px`;
-  canvas.style.background = '#f0f0f0';
+  const estimatedWidth = width;
+  const estimatedHeight = height || Math.round(width * 1.414);
 
-  // Create label
+  const placeholder = document.createElement('div');
+  placeholder.className = 'thumbnail-canvas thumbnail-loading';
+  placeholder.style.width = `${estimatedWidth}px`;
+  placeholder.style.height = `${estimatedHeight}px`;
+
+  const spinner = document.createElement('div');
+  spinner.className = 'thumbnail-spinner';
+  placeholder.appendChild(spinner);
+
   const label = document.createElement('div');
   label.className = 'thumbnail-label';
   label.textContent = pageNum;
 
-  thumbnailItem.appendChild(canvas);
+  thumbnailItem.appendChild(placeholder);
   thumbnailItem.appendChild(label);
 
-  // Click handler to navigate to page
   thumbnailItem.addEventListener('click', () => {
     goToPageFromThumbnail(pageNum);
   });
@@ -306,7 +454,7 @@ function createThumbnailPlaceholder(pageNum) {
   return thumbnailItem;
 }
 
-// Clear thumbnail cache for a specific document (call when document is closed)
+// Clear thumbnail cache for a specific document
 export function clearThumbnailCache(docId) {
   if (docId) {
     thumbnailCache.delete(docId);
@@ -317,7 +465,6 @@ export function clearThumbnailCache(docId) {
 // Navigate to a page when thumbnail is clicked
 function goToPageFromThumbnail(pageNum) {
   goToPage(pageNum);
-  // Note: goToPage already calls updateActiveThumbnail
 }
 
 // Update which thumbnail is marked as active
@@ -330,7 +477,6 @@ export function updateActiveThumbnail() {
     thumb.classList.toggle('active', pageNum === state.currentPage);
   });
 
-  // Scroll active thumbnail into view
   const activeThumbnail = thumbnailsContainer.querySelector('.thumbnail-item.active');
   if (activeThumbnail) {
     activeThumbnail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -342,4 +488,5 @@ export function clearThumbnails() {
   if (thumbnailsContainer) {
     thumbnailsContainer.innerHTML = '';
   }
+  priorityPages.clear();
 }

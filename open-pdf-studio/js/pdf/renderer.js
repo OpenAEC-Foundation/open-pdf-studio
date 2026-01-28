@@ -9,6 +9,7 @@ import { hideProperties } from '../ui/properties-panel.js';
 import { getCursorForTool } from '../tools/manager.js';
 import { updateActiveThumbnail } from '../ui/left-panel.js';
 import { createSinglePageTextLayer, clearSinglePageTextLayer, createTextLayer, clearTextLayers } from '../text/text-layer.js';
+import { createSinglePageLinkLayer, clearSinglePageLinkLayer, createLinkLayer, clearLinkLayers } from './link-layer.js';
 
 // Track current render task to cancel if needed
 let currentRenderTask = null;
@@ -69,6 +70,13 @@ export async function renderPage(pageNum) {
     console.warn('Failed to create text layer:', e);
   }
 
+  // Create link layer for clickable links
+  try {
+    await createSinglePageLinkLayer(page, viewport);
+  } catch (e) {
+    console.warn('Failed to create link layer:', e);
+  }
+
   // Redraw annotations
   redrawAnnotations();
 
@@ -90,8 +98,9 @@ export async function renderContinuous() {
   const continuousContainer = document.getElementById('continuous-container');
   continuousContainer.innerHTML = ''; // Clear existing content
 
-  // Clear all text layers before re-render
+  // Clear all text and link layers before re-render
   clearTextLayers();
+  clearLinkLayers();
 
   for (let pageNum = 1; pageNum <= state.pdfDoc.numPages; pageNum++) {
     const page = await state.pdfDoc.getPage(pageNum);
@@ -156,6 +165,13 @@ export async function renderContinuous() {
       await createTextLayer(page, viewport, canvasContainer, pageNum);
     } catch (e) {
       console.warn(`Failed to create text layer for page ${pageNum}:`, e);
+    }
+
+    // Create link layer for clickable links
+    try {
+      await createLinkLayer(page, viewport, canvasContainer, pageNum);
+    } catch (e) {
+      console.warn(`Failed to create link layer for page ${pageNum}:`, e);
     }
 
     // Render annotations for this page
@@ -341,9 +357,11 @@ export function clearPdfView() {
     continuousContainer.innerHTML = '';
   }
 
-  // Clear text layers
+  // Clear text and link layers
   clearSinglePageTextLayer();
   clearTextLayers();
+  clearSinglePageLinkLayer();
+  clearLinkLayers();
 
   // Reset page info
   pageInput.value = '';
