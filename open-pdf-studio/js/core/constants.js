@@ -38,9 +38,10 @@ export const DEFAULT_PREFERENCES = {
   angleSnapDegrees: 30,
   enableAngleSnap: true,
 
-  // Grid snapping (for future use)
+  // Grid snapping
   gridSize: 10,
   enableGridSnap: false,
+  showGrid: false,
 
   // Appearance
   defaultAnnotationColor: '#ffff00',
@@ -91,6 +92,34 @@ export const DEFAULT_PREFERENCES = {
   arrowEndHead: 'open', // none, open, closed, diamond, circle, square, slash
   arrowHeadSize: 12,
   arrowOpacity: 100,
+
+  // Draw/Freehand defaults
+  drawStrokeColor: '#000000',
+  drawLineWidth: 3,
+  drawOpacity: 100,
+
+  // Line defaults
+  lineStrokeColor: '#000000',
+  lineLineWidth: 2,
+  lineBorderStyle: 'solid',
+  lineOpacity: 100,
+
+  // Highlight defaults
+  highlightColor: '#ffff00',
+
+  // Polygon defaults
+  polygonStrokeColor: '#000000',
+  polygonLineWidth: 2,
+  polygonOpacity: 100,
+
+  // Cloud defaults
+  cloudStrokeColor: '#000000',
+  cloudLineWidth: 2,
+  cloudOpacity: 100,
+
+  // Comment/Note defaults
+  commentColor: '#ffff00',
+  commentIcon: 'comment',
 
   // Behavior
   autoSelectAfterCreate: true,

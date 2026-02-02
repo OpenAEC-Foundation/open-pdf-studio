@@ -1,6 +1,7 @@
 import { DEFAULT_PREFERENCES } from './constants.js';
 import { state } from './state.js';
 import { colorPicker, lineWidth } from '../ui/dom-elements.js';
+import { updateStatusMessage } from '../ui/status-bar.js';
 
 // Load preferences from localStorage
 export function loadPreferences() {
@@ -111,6 +112,7 @@ export function showPreferencesDialog(tabName = 'general') {
   document.getElementById('pref-enable-angle-snap').checked = prefs.enableAngleSnap;
   document.getElementById('pref-grid-size').value = prefs.gridSize;
   document.getElementById('pref-enable-grid-snap').checked = prefs.enableGridSnap;
+  document.getElementById('pref-show-grid').checked = prefs.showGrid;
   updateColorPicker('pref-default-color', 'pref-default-color-preview', 'pref-default-color-hex', prefs.defaultAnnotationColor);
   document.getElementById('pref-default-line-width').value = prefs.defaultLineWidth;
   document.getElementById('pref-default-font-size').value = prefs.defaultFontSize;
@@ -241,6 +243,7 @@ export function savePreferencesFromDialog() {
   prefs.enableAngleSnap = document.getElementById('pref-enable-angle-snap').checked;
   prefs.gridSize = parseInt(document.getElementById('pref-grid-size').value) || 10;
   prefs.enableGridSnap = document.getElementById('pref-enable-grid-snap').checked;
+  prefs.showGrid = document.getElementById('pref-show-grid').checked;
   prefs.defaultAnnotationColor = document.getElementById('pref-default-color').value;
   prefs.defaultLineWidth = parseInt(document.getElementById('pref-default-line-width').value) || 3;
   prefs.defaultFontSize = parseInt(document.getElementById('pref-default-font-size').value) || 16;
@@ -285,6 +288,92 @@ export function savePreferencesFromDialog() {
 
   savePreferences();
   hidePreferencesDialog();
+}
+
+// Set the current annotation's style as default for its type
+export function setAsDefaultStyle(annotation) {
+  if (!annotation) return;
+  const prefs = state.preferences;
+  const type = annotation.type;
+
+  switch (type) {
+    case 'draw':
+      prefs.drawStrokeColor = annotation.strokeColor || annotation.color || prefs.drawStrokeColor;
+      prefs.drawLineWidth = annotation.lineWidth || prefs.drawLineWidth;
+      if (annotation.opacity !== undefined) prefs.drawOpacity = Math.round(annotation.opacity * 100);
+      break;
+    case 'highlight':
+      prefs.highlightColor = annotation.color || annotation.fillColor || prefs.highlightColor;
+      if (annotation.opacity !== undefined) prefs.highlightOpacity = Math.round(annotation.opacity * 100);
+      break;
+    case 'line':
+      prefs.lineStrokeColor = annotation.strokeColor || annotation.color || prefs.lineStrokeColor;
+      prefs.lineLineWidth = annotation.lineWidth || prefs.lineLineWidth;
+      if (annotation.borderStyle) prefs.lineBorderStyle = annotation.borderStyle;
+      if (annotation.opacity !== undefined) prefs.lineOpacity = Math.round(annotation.opacity * 100);
+      break;
+    case 'arrow':
+      prefs.arrowStrokeColor = annotation.strokeColor || annotation.color || prefs.arrowStrokeColor;
+      prefs.arrowFillColor = annotation.fillColor || prefs.arrowFillColor;
+      prefs.arrowLineWidth = annotation.lineWidth || prefs.arrowLineWidth;
+      if (annotation.borderStyle) prefs.arrowBorderStyle = annotation.borderStyle;
+      if (annotation.startHead) prefs.arrowStartHead = annotation.startHead;
+      if (annotation.endHead) prefs.arrowEndHead = annotation.endHead;
+      if (annotation.headSize) prefs.arrowHeadSize = annotation.headSize;
+      if (annotation.opacity !== undefined) prefs.arrowOpacity = Math.round(annotation.opacity * 100);
+      break;
+    case 'box':
+      prefs.rectStrokeColor = annotation.strokeColor || annotation.color || prefs.rectStrokeColor;
+      prefs.rectFillColor = annotation.fillColor || prefs.rectFillColor;
+      prefs.rectFillNone = !annotation.fillColor || annotation.fillColor === 'transparent' || annotation.fillColor === null;
+      prefs.rectBorderWidth = annotation.lineWidth || prefs.rectBorderWidth;
+      if (annotation.borderStyle) prefs.rectBorderStyle = annotation.borderStyle;
+      if (annotation.opacity !== undefined) prefs.rectOpacity = Math.round(annotation.opacity * 100);
+      break;
+    case 'circle':
+      prefs.circleStrokeColor = annotation.strokeColor || annotation.color || prefs.circleStrokeColor;
+      prefs.circleFillColor = annotation.fillColor || prefs.circleFillColor;
+      prefs.circleFillNone = !annotation.fillColor || annotation.fillColor === 'transparent' || annotation.fillColor === null;
+      prefs.circleBorderWidth = annotation.lineWidth || prefs.circleBorderWidth;
+      if (annotation.borderStyle) prefs.circleBorderStyle = annotation.borderStyle;
+      if (annotation.opacity !== undefined) prefs.circleOpacity = Math.round(annotation.opacity * 100);
+      break;
+    case 'textbox':
+      prefs.textboxStrokeColor = annotation.strokeColor || annotation.color || prefs.textboxStrokeColor;
+      prefs.textboxFillColor = annotation.fillColor || prefs.textboxFillColor;
+      prefs.textboxFillNone = !annotation.fillColor || annotation.fillColor === 'transparent';
+      prefs.textboxBorderWidth = annotation.lineWidth || prefs.textboxBorderWidth;
+      if (annotation.borderStyle) prefs.textboxBorderStyle = annotation.borderStyle;
+      if (annotation.fontSize) prefs.textboxFontSize = annotation.fontSize;
+      if (annotation.opacity !== undefined) prefs.textboxOpacity = Math.round(annotation.opacity * 100);
+      break;
+    case 'callout':
+      prefs.calloutStrokeColor = annotation.strokeColor || annotation.color || prefs.calloutStrokeColor;
+      prefs.calloutFillColor = annotation.fillColor || prefs.calloutFillColor;
+      prefs.calloutFillNone = !annotation.fillColor || annotation.fillColor === 'transparent';
+      prefs.calloutBorderWidth = annotation.lineWidth || prefs.calloutBorderWidth;
+      if (annotation.borderStyle) prefs.calloutBorderStyle = annotation.borderStyle;
+      if (annotation.fontSize) prefs.calloutFontSize = annotation.fontSize;
+      if (annotation.opacity !== undefined) prefs.calloutOpacity = Math.round(annotation.opacity * 100);
+      break;
+    case 'polygon':
+      prefs.polygonStrokeColor = annotation.strokeColor || annotation.color || prefs.polygonStrokeColor;
+      prefs.polygonLineWidth = annotation.lineWidth || prefs.polygonLineWidth;
+      if (annotation.opacity !== undefined) prefs.polygonOpacity = Math.round(annotation.opacity * 100);
+      break;
+    case 'cloud':
+      prefs.cloudStrokeColor = annotation.strokeColor || annotation.color || prefs.cloudStrokeColor;
+      prefs.cloudLineWidth = annotation.lineWidth || prefs.cloudLineWidth;
+      if (annotation.opacity !== undefined) prefs.cloudOpacity = Math.round(annotation.opacity * 100);
+      break;
+    case 'comment':
+      prefs.commentColor = annotation.color || prefs.commentColor;
+      if (annotation.icon) prefs.commentIcon = annotation.icon;
+      break;
+  }
+
+  savePreferences();
+  updateStatusMessage('Style set as default');
 }
 
 // Reset preferences to defaults

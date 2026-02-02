@@ -35,10 +35,13 @@ export function createDocument(filePath = null) {
     scale: 1.5,
     viewMode: 'single',
     annotations: [],
+    undoStack: [],
     redoStack: [],
     selectedAnnotation: null,
+    selectedAnnotations: [],
     modified: false,
     scrollPosition: { x: 0, y: 0 },
+    pageRotations: {},
   };
 }
 
@@ -81,6 +84,15 @@ export const state = {
 
   // Clipboard for copy/paste operations
   clipboardAnnotation: null,
+  clipboardAnnotations: [],
+
+  // Rubber band selection state
+  isRubberBanding: false,
+  rubberBandStartX: 0,
+  rubberBandStartY: 0,
+
+  // Multi-selection drag state
+  originalAnnotations: [],
 
   // Continuous mode state
   activeContinuousCanvas: null,
@@ -194,13 +206,43 @@ export const state = {
     if (doc) doc.redoStack = value;
   },
 
+  get pageRotations() {
+    const doc = this.documents[this.activeDocumentIndex];
+    return doc ? doc.pageRotations : {};
+  },
+  set pageRotations(value) {
+    const doc = this.documents[this.activeDocumentIndex];
+    if (doc) doc.pageRotations = value;
+  },
+
   get selectedAnnotation() {
     const doc = this.documents[this.activeDocumentIndex];
     return doc ? doc.selectedAnnotation : null;
   },
   set selectedAnnotation(value) {
     const doc = this.documents[this.activeDocumentIndex];
-    if (doc) doc.selectedAnnotation = value;
+    if (doc) {
+      doc.selectedAnnotation = value;
+      // Sync: when setting single selection, update multi-selection array
+      if (value) {
+        doc.selectedAnnotations = [value];
+      } else {
+        doc.selectedAnnotations = [];
+      }
+    }
+  },
+
+  get selectedAnnotations() {
+    const doc = this.documents[this.activeDocumentIndex];
+    return doc ? doc.selectedAnnotations : [];
+  },
+  set selectedAnnotations(value) {
+    const doc = this.documents[this.activeDocumentIndex];
+    if (doc) {
+      doc.selectedAnnotations = value;
+      // Sync: keep selectedAnnotation pointing to first item or null
+      doc.selectedAnnotation = value.length > 0 ? value[0] : null;
+    }
   }
 };
 
@@ -227,6 +269,140 @@ export function hasOpenDocuments() {
  */
 export function findDocumentByPath(filePath) {
   return state.documents.findIndex(doc => doc.filePath === filePath);
+}
+
+/**
+ * Get the rotation for a specific page (in degrees, multiple of 90)
+ */
+export function getPageRotation(pageNum) {
+  const doc = state.documents[state.activeDocumentIndex];
+  return doc ? (doc.pageRotations[pageNum] || 0) : 0;
+}
+
+/**
+ * Set the rotation for a specific page (in degrees, multiple of 90)
+ */
+export function setPageRotation(pageNum, degrees) {
+  const doc = state.documents[state.activeDocumentIndex];
+  if (doc) {
+    doc.pageRotations[pageNum] = ((degrees % 360) + 360) % 360;
+  }
+}
+
+/**
+ * Clear all selections
+ */
+export function clearSelection() {
+  const doc = state.documents[state.activeDocumentIndex];
+  if (doc) {
+    doc.selectedAnnotation = null;
+    doc.selectedAnnotations = [];
+  }
+}
+
+/**
+ * Add annotation to selection (for Ctrl+click)
+ */
+export function addToSelection(annotation) {
+  const doc = state.documents[state.activeDocumentIndex];
+  if (!doc) return;
+  if (!doc.selectedAnnotations.includes(annotation)) {
+    doc.selectedAnnotations.push(annotation);
+  }
+  doc.selectedAnnotation = annotation;
+}
+
+/**
+ * Remove annotation from selection (for Ctrl+click toggle)
+ */
+export function removeFromSelection(annotation) {
+  const doc = state.documents[state.activeDocumentIndex];
+  if (!doc) return;
+  doc.selectedAnnotations = doc.selectedAnnotations.filter(a => a !== annotation);
+  doc.selectedAnnotation = doc.selectedAnnotations.length > 0
+    ? doc.selectedAnnotations[doc.selectedAnnotations.length - 1]
+    : null;
+}
+
+/**
+ * Check if annotation is in current selection
+ */
+export function isSelected(annotation) {
+  const doc = state.documents[state.activeDocumentIndex];
+  return doc ? doc.selectedAnnotations.includes(annotation) : false;
+}
+
+/**
+ * Select all annotations on current page
+ */
+export function selectAllOnPage() {
+  const doc = state.documents[state.activeDocumentIndex];
+  if (!doc) return;
+  const pageAnnotations = doc.annotations.filter(a => a.page === doc.currentPage);
+  doc.selectedAnnotations = pageAnnotations;
+  doc.selectedAnnotation = pageAnnotations.length > 0 ? pageAnnotations[0] : null;
+}
+
+/**
+ * Get the bounding box of all selected annotations
+ */
+export function getSelectionBounds() {
+  const doc = state.documents[state.activeDocumentIndex];
+  if (!doc || doc.selectedAnnotations.length === 0) return null;
+
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+  for (const ann of doc.selectedAnnotations) {
+    const bounds = getAnnotationBounds(ann);
+    if (!bounds) continue;
+    minX = Math.min(minX, bounds.x);
+    minY = Math.min(minY, bounds.y);
+    maxX = Math.max(maxX, bounds.x + bounds.width);
+    maxY = Math.max(maxY, bounds.y + bounds.height);
+  }
+
+  if (minX === Infinity) return null;
+  return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+}
+
+/**
+ * Get bounding box for a single annotation
+ */
+export function getAnnotationBounds(ann) {
+  switch (ann.type) {
+    case 'draw':
+      if (!ann.path || ann.path.length === 0) return null;
+      const drawMinX = Math.min(...ann.path.map(p => p.x));
+      const drawMinY = Math.min(...ann.path.map(p => p.y));
+      const drawMaxX = Math.max(...ann.path.map(p => p.x));
+      const drawMaxY = Math.max(...ann.path.map(p => p.y));
+      return { x: drawMinX, y: drawMinY, width: drawMaxX - drawMinX, height: drawMaxY - drawMinY };
+    case 'line':
+    case 'arrow':
+      const lx = Math.min(ann.startX, ann.endX);
+      const ly = Math.min(ann.startY, ann.endY);
+      return { x: lx, y: ly, width: Math.abs(ann.endX - ann.startX), height: Math.abs(ann.endY - ann.startY) };
+    case 'polyline':
+      if (!ann.points || ann.points.length === 0) return null;
+      const plMinX = Math.min(...ann.points.map(p => p.x));
+      const plMinY = Math.min(...ann.points.map(p => p.y));
+      const plMaxX = Math.max(...ann.points.map(p => p.x));
+      const plMaxY = Math.max(...ann.points.map(p => p.y));
+      return { x: plMinX, y: plMinY, width: plMaxX - plMinX, height: plMaxY - plMinY };
+    case 'text':
+      return { x: ann.x, y: ann.y - (ann.fontSize || 16), width: 100, height: ann.fontSize || 16 };
+    case 'comment':
+      return { x: ann.x, y: ann.y, width: ann.width || 24, height: ann.height || 24 };
+    case 'textHighlight':
+    case 'textStrikethrough':
+    case 'textUnderline':
+      return { x: ann.x, y: ann.y, width: ann.width, height: ann.height };
+    default:
+      if (ann.x !== undefined && ann.width !== undefined) {
+        return { x: ann.x, y: ann.y, width: ann.width || 150, height: ann.height || 50 };
+      }
+      return null;
+  }
 }
 
 // Make shiftKeyPressed accessible globally for legacy code

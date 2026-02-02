@@ -1,5 +1,5 @@
 import { HANDLE_SIZE, HANDLE_TYPES } from '../core/constants.js';
-import { state } from '../core/state.js';
+import { state, isSelected, getSelectionBounds, getAnnotationBounds } from '../core/state.js';
 import { annotationCanvas, annotationCtx } from '../ui/dom-elements.js';
 import { getAnnotationHandles } from './handles.js';
 import { updateStatusAnnotations } from '../ui/status-bar.js';
@@ -672,6 +672,204 @@ function drawAnnotation(ctx, annotation) {
         ctx.stroke();
       }
       break;
+
+    case 'stamp': {
+      // Render stamp - image or text-based
+      const stampImg = annotation.imageId ? state.imageCache.get(annotation.imageId) : null;
+      if (stampImg && stampImg.complete) {
+        ctx.save();
+        const cx = annotation.x + annotation.width / 2;
+        const cy = annotation.y + annotation.height / 2;
+        ctx.translate(cx, cy);
+        ctx.rotate((annotation.rotation || 0) * Math.PI / 180);
+        ctx.drawImage(stampImg, -annotation.width / 2, -annotation.height / 2, annotation.width, annotation.height);
+        ctx.restore();
+      } else if (annotation.stampText) {
+        // Text-based stamp
+        ctx.save();
+        const cx = annotation.x + annotation.width / 2;
+        const cy = annotation.y + annotation.height / 2;
+        ctx.translate(cx, cy);
+        ctx.rotate((annotation.rotation || 0) * Math.PI / 180);
+
+        const color = annotation.stampColor || annotation.color || '#ef4444';
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-annotation.width / 2, -annotation.height / 2, annotation.width, annotation.height);
+
+        ctx.fillStyle = color;
+        ctx.font = `bold ${Math.min(annotation.height * 0.5, 24)}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(annotation.stampText, 0, 0);
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic';
+        ctx.restore();
+      }
+      break;
+    }
+
+    case 'signature': {
+      // Render signature image
+      const sigImg = annotation.imageId ? state.imageCache.get(annotation.imageId) : null;
+      if (sigImg && sigImg.complete) {
+        ctx.save();
+        const cx = annotation.x + annotation.width / 2;
+        const cy = annotation.y + annotation.height / 2;
+        ctx.translate(cx, cy);
+        ctx.rotate((annotation.rotation || 0) * Math.PI / 180);
+        ctx.drawImage(sigImg, -annotation.width / 2, -annotation.height / 2, annotation.width, annotation.height);
+        ctx.restore();
+      } else {
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(annotation.x, annotation.y, annotation.width, annotation.height);
+        ctx.strokeStyle = '#999';
+        ctx.setLineDash([4, 2]);
+        ctx.strokeRect(annotation.x, annotation.y, annotation.width, annotation.height);
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#999';
+        ctx.font = '11px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Signature', annotation.x + annotation.width / 2, annotation.y + annotation.height / 2 + 4);
+        ctx.textAlign = 'left';
+      }
+      break;
+    }
+
+    case 'measureDistance': {
+      // Distance measurement line with label
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = annotation.lineWidth || 1;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(annotation.startX, annotation.startY);
+      ctx.lineTo(annotation.endX, annotation.endY);
+      ctx.stroke();
+
+      // Draw end markers
+      const mdLen = 8;
+      const mdAngle = Math.atan2(annotation.endY - annotation.startY, annotation.endX - annotation.startX);
+      const perpAngle = mdAngle + Math.PI / 2;
+      const px = Math.cos(perpAngle) * mdLen / 2;
+      const py = Math.sin(perpAngle) * mdLen / 2;
+
+      ctx.beginPath();
+      ctx.moveTo(annotation.startX - px, annotation.startY - py);
+      ctx.lineTo(annotation.startX + px, annotation.startY + py);
+      ctx.moveTo(annotation.endX - px, annotation.endY - py);
+      ctx.lineTo(annotation.endX + px, annotation.endY + py);
+      ctx.stroke();
+
+      // Draw measurement label
+      if (annotation.measureText) {
+        const midX = (annotation.startX + annotation.endX) / 2;
+        const midY = (annotation.startY + annotation.endY) / 2;
+        ctx.font = '11px Arial';
+        ctx.fillStyle = strokeColor;
+        ctx.textAlign = 'center';
+        ctx.fillText(annotation.measureText, midX, midY - 6);
+        ctx.textAlign = 'left';
+      }
+      break;
+    }
+
+    case 'measureArea': {
+      // Area measurement polygon
+      if (!annotation.points || annotation.points.length < 3) break;
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = annotation.lineWidth || 1;
+      ctx.fillStyle = (annotation.color || '#ff0000') + '20';
+      ctx.setLineDash([4, 2]);
+
+      ctx.beginPath();
+      ctx.moveTo(annotation.points[0].x, annotation.points[0].y);
+      for (let i = 1; i < annotation.points.length; i++) {
+        ctx.lineTo(annotation.points[i].x, annotation.points[i].y);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Draw label at centroid
+      if (annotation.measureText) {
+        let cx = 0, cy = 0;
+        for (const p of annotation.points) { cx += p.x; cy += p.y; }
+        cx /= annotation.points.length;
+        cy /= annotation.points.length;
+        ctx.font = '11px Arial';
+        ctx.fillStyle = strokeColor;
+        ctx.textAlign = 'center';
+        ctx.fillText(annotation.measureText, cx, cy);
+        ctx.textAlign = 'left';
+      }
+      break;
+    }
+
+    case 'redaction': {
+      // Redaction mark - red hatched overlay
+      const rw = annotation.width || 0;
+      const rh = annotation.height || 0;
+      // Semi-transparent red fill
+      ctx.fillStyle = 'rgba(255, 0, 0, 0.25)';
+      ctx.fillRect(annotation.x, annotation.y, rw, rh);
+      // Red border
+      ctx.strokeStyle = '#ff0000';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([]);
+      ctx.strokeRect(annotation.x, annotation.y, rw, rh);
+      // Diagonal hatch lines
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      const step = 10;
+      for (let d = -rh; d < rw; d += step) {
+        const x1 = Math.max(0, d) + annotation.x;
+        const y1 = Math.max(0, -d) + annotation.y;
+        const x2 = Math.min(rw, d + rh) + annotation.x;
+        const y2 = Math.min(rh, -d + rw) + annotation.y;
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+      }
+      ctx.stroke();
+      // Label
+      ctx.font = '10px Arial';
+      ctx.fillStyle = '#ff0000';
+      ctx.fillText('REDACT', annotation.x + 4, annotation.y + 14);
+      break;
+    }
+
+    case 'measurePerimeter': {
+      // Perimeter measurement polyline
+      if (!annotation.points || annotation.points.length < 2) break;
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = annotation.lineWidth || 1;
+      ctx.setLineDash([4, 2]);
+
+      ctx.beginPath();
+      ctx.moveTo(annotation.points[0].x, annotation.points[0].y);
+      for (let i = 1; i < annotation.points.length; i++) {
+        ctx.lineTo(annotation.points[i].x, annotation.points[i].y);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Draw vertices
+      for (const p of annotation.points) {
+        ctx.fillStyle = strokeColor;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Draw label near last point
+      if (annotation.measureText && annotation.points.length > 0) {
+        const lastPt = annotation.points[annotation.points.length - 1];
+        ctx.font = '11px Arial';
+        ctx.fillStyle = strokeColor;
+        ctx.fillText(annotation.measureText, lastPt.x + 8, lastPt.y - 4);
+      }
+      break;
+    }
   }
 }
 
@@ -727,6 +925,7 @@ function drawSelectionHandles(ctx, annotation) {
     case 'polygon':
     case 'cloud':
     case 'highlight':
+    case 'redaction':
       ctx.save();
       // Apply rotation if set
       if (annotation.rotation) {
@@ -911,6 +1110,52 @@ function drawSelectionHandles(ctx, annotation) {
   });
 }
 
+// Draw outline for a single annotation in multi-selection
+function drawMultiSelectionOutline(ctx, annotation) {
+  ctx.strokeStyle = '#0066cc';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+
+  const bounds = getAnnotationBounds(annotation);
+  if (bounds) {
+    ctx.strokeRect(bounds.x - 2, bounds.y - 2, bounds.width + 4, bounds.height + 4);
+  }
+  ctx.setLineDash([]);
+}
+
+// Draw overall bounding box for multi-selection
+function drawMultiSelectionBounds(ctx) {
+  const bounds = getSelectionBounds();
+  if (!bounds) return;
+
+  ctx.strokeStyle = '#0066cc';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6, 3]);
+  ctx.strokeRect(bounds.x - 6, bounds.y - 6, bounds.width + 12, bounds.height + 12);
+  ctx.setLineDash([]);
+
+  // Draw corner handles for the overall bounding box
+  const hs = HANDLE_SIZE;
+  const corners = [
+    { x: bounds.x - 6 - hs/2, y: bounds.y - 6 - hs/2 },
+    { x: bounds.x + bounds.width + 6 - hs/2, y: bounds.y - 6 - hs/2 },
+    { x: bounds.x - 6 - hs/2, y: bounds.y + bounds.height + 6 - hs/2 },
+    { x: bounds.x + bounds.width + 6 - hs/2, y: bounds.y + bounds.height + 6 - hs/2 }
+  ];
+
+  corners.forEach(corner => {
+    const cx = corner.x + hs / 2;
+    const cy = corner.y + hs / 2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, hs / 2, 0, 2 * Math.PI);
+    ctx.fillStyle = '#ffffff';
+    ctx.fill();
+    ctx.strokeStyle = '#0066cc';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+}
+
 // Update quick access toolbar button states
 export function updateQuickAccessButtons() {
   const qaSave = document.getElementById('qa-save');
@@ -924,11 +1169,12 @@ export function updateQuickAccessButtons() {
   if (qaSave) qaSave.disabled = !state.pdfDoc;
   if (qaPrint) qaPrint.disabled = !state.pdfDoc;
 
-  // Undo - enabled when there are annotations
-  if (qaUndo) qaUndo.disabled = state.annotations.length === 0;
+  // Undo - enabled when undo stack has entries
+  const doc = state.documents[state.activeDocumentIndex];
+  if (qaUndo) qaUndo.disabled = !doc || !doc.undoStack || doc.undoStack.length === 0;
 
-  // Redo - enabled when there are items in redo stack
-  if (qaRedo) qaRedo.disabled = !state.redoStack || state.redoStack.length === 0;
+  // Redo - enabled when redo stack has entries
+  if (qaRedo) qaRedo.disabled = !doc || !doc.redoStack || doc.redoStack.length === 0;
 
   // Previous/Next view - disabled (not implemented)
   if (qaPrevView) qaPrevView.disabled = true;
@@ -945,6 +1191,11 @@ export function redrawAnnotations() {
   annotationCtx.save();
   annotationCtx.scale(state.scale, state.scale);
 
+  // Draw grid overlay if enabled
+  if (state.preferences.showGrid) {
+    drawGrid(annotationCtx, annotationCanvas.width / state.scale, annotationCanvas.height / state.scale);
+  }
+
   // Draw all annotations for current page
   state.annotations.forEach(annotation => {
     if (annotation.page !== state.currentPage) return;
@@ -954,7 +1205,15 @@ export function redrawAnnotations() {
   annotationCtx.globalAlpha = 1;
 
   // Draw selection highlight and handles
-  if (state.selectedAnnotation && state.selectedAnnotation.page === state.currentPage) {
+  if (state.selectedAnnotations.length > 1) {
+    // Multi-selection: draw individual selection outlines for each
+    for (const ann of state.selectedAnnotations) {
+      if (ann.page !== state.currentPage) continue;
+      drawMultiSelectionOutline(annotationCtx, ann);
+    }
+    // Draw overall bounding box
+    drawMultiSelectionBounds(annotationCtx);
+  } else if (state.selectedAnnotation && state.selectedAnnotation.page === state.currentPage) {
     drawSelectionHandles(annotationCtx, state.selectedAnnotation);
   }
 
@@ -1003,4 +1262,30 @@ export function redrawContinuous() {
 
   // Update quick access button states
   updateQuickAccessButtons();
+}
+
+// Draw grid overlay
+function drawGrid(ctx, width, height) {
+  const gridSize = state.preferences.gridSize || 10;
+  ctx.save();
+  ctx.strokeStyle = 'rgba(200, 200, 200, 0.4)';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  for (let x = 0; x <= width; x += gridSize) {
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
+  }
+  for (let y = 0; y <= height; y += gridSize) {
+    ctx.moveTo(0, y);
+    ctx.lineTo(width, y);
+  }
+  ctx.stroke();
+  ctx.restore();
+}
+
+// Snap a coordinate to the grid
+export function snapToGrid(value) {
+  if (!state.preferences.enableGridSnap) return value;
+  const gridSize = state.preferences.gridSize || 10;
+  return Math.round(value / gridSize) * gridSize;
 }

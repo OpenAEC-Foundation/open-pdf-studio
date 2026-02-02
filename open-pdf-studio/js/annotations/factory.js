@@ -13,6 +13,8 @@ export function createAnnotation(baseProps) {
 
   // Default values - these will be overridden by baseProps if provided
   const defaults = {
+    // Unique identifier
+    id: Date.now().toString(36) + Math.random().toString(36).substr(2, 9),
     // Metadata
     author: state.defaultAuthor,
     subject: '',

@@ -1,4 +1,4 @@
-import { state } from '../core/state.js';
+import { state, getPageRotation, setPageRotation } from '../core/state.js';
 import {
   pdfCanvas, annotationCanvas, pdfCtx,
   pageInfo, pageInput, pageTotal, prevPageBtn, nextPageBtn, zoomLevel
@@ -29,7 +29,12 @@ export async function renderPage(pageNum) {
   }
 
   const page = await state.pdfDoc.getPage(pageNum);
-  const viewport = page.getViewport({ scale: state.scale });
+  const extraRotation = getPageRotation(pageNum);
+  const viewportOpts = { scale: state.scale };
+  if (extraRotation) {
+    viewportOpts.rotation = (page.rotate + extraRotation) % 360;
+  }
+  const viewport = page.getViewport(viewportOpts);
 
   // Set canvas dimensions
   pdfCanvas.width = viewport.width;
@@ -104,7 +109,12 @@ export async function renderContinuous() {
 
   for (let pageNum = 1; pageNum <= state.pdfDoc.numPages; pageNum++) {
     const page = await state.pdfDoc.getPage(pageNum);
-    const viewport = page.getViewport({ scale: state.scale });
+    const extraRotation = getPageRotation(pageNum);
+    const vpOpts = { scale: state.scale };
+    if (extraRotation) {
+      vpOpts.rotation = (page.rotate + extraRotation) % 360;
+    }
+    const viewport = page.getViewport(vpOpts);
 
     // Create wrapper for each page
     const pageWrapper = document.createElement('div');
@@ -296,7 +306,10 @@ export async function fitWidth() {
   if (!state.pdfDoc) return;
 
   const page = await state.pdfDoc.getPage(state.currentPage);
-  const viewport = page.getViewport({ scale: 1 });
+  const extraRot = getPageRotation(state.currentPage);
+  const fwOpts = { scale: 1 };
+  if (extraRot) fwOpts.rotation = (page.rotate + extraRot) % 360;
+  const viewport = page.getViewport(fwOpts);
   const container = document.querySelector('.main-view');
   const containerWidth = container.clientWidth - 40; // padding
   state.scale = containerWidth / viewport.width;
@@ -314,7 +327,10 @@ export async function fitPage() {
   if (!state.pdfDoc) return;
 
   const page = await state.pdfDoc.getPage(state.currentPage);
-  const viewport = page.getViewport({ scale: 1 });
+  const extraRot2 = getPageRotation(state.currentPage);
+  const fpOpts = { scale: 1 };
+  if (extraRot2) fpOpts.rotation = (page.rotate + extraRot2) % 360;
+  const viewport = page.getViewport(fpOpts);
   const container = document.querySelector('.main-view');
   const containerWidth = container.clientWidth - 40;
   const containerHeight = container.clientHeight - 40;
@@ -342,6 +358,29 @@ export async function actualSize() {
       await renderPage(state.currentPage);
     }
   }
+}
+
+// Rotate the current page by a delta (±90)
+export async function rotatePage(delta) {
+  if (!state.pdfDoc) return;
+  const pageNum = state.currentPage;
+  const current = getPageRotation(pageNum);
+  setPageRotation(pageNum, current + delta);
+
+  // Mark document as modified
+  const doc = state.documents[state.activeDocumentIndex];
+  if (doc) doc.modified = true;
+
+  // Re-render
+  if (state.viewMode === 'continuous') {
+    await renderContinuous();
+  } else {
+    await renderPage(pageNum);
+  }
+
+  // Update thumbnails
+  const { invalidateThumbnail } = await import('../ui/left-panel.js');
+  invalidateThumbnail(pageNum);
 }
 
 // Clear the PDF view when no document is open

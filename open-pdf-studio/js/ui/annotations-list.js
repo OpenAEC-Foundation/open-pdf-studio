@@ -1,4 +1,4 @@
-import { state } from '../core/state.js';
+import { state, isSelected } from '../core/state.js';
 import { annotationsListPanel, annotationsListContent, annotationsListFilter, annotationsListCount } from './dom-elements.js';
 import { getTypeDisplayName, formatDate } from '../utils/helpers.js';
 import { showProperties } from './properties-panel.js';
@@ -154,6 +154,34 @@ function createAnnotationListItem(annotation) {
 
   item.appendChild(content);
 
+  // Status indicator
+  if (annotation.status && annotation.status !== 'none') {
+    const statusColors = {
+      'accepted': '#22c55e',
+      'rejected': '#ef4444',
+      'cancelled': '#6b7280',
+      'completed': '#3b82f6',
+      'reviewed': '#8b5cf6'
+    };
+    const statusDot = document.createElement('span');
+    statusDot.style.cssText = `
+      width: 8px; height: 8px; border-radius: 50%;
+      background-color: ${statusColors[annotation.status] || '#888'};
+      flex-shrink: 0;
+    `;
+    statusDot.title = annotation.status.charAt(0).toUpperCase() + annotation.status.slice(1);
+    item.appendChild(statusDot);
+  }
+
+  // Reply count
+  if (annotation.replies && annotation.replies.length > 0) {
+    const replyBadge = document.createElement('span');
+    replyBadge.style.cssText = 'font-size: 10px; color: #0078d4; flex-shrink: 0;';
+    replyBadge.textContent = `${annotation.replies.length}`;
+    replyBadge.title = `${annotation.replies.length} replies`;
+    item.appendChild(replyBadge);
+  }
+
   // Lock indicator
   if (annotation.locked) {
     const lockIcon = document.createElement('span');
@@ -163,7 +191,7 @@ function createAnnotationListItem(annotation) {
   }
 
   // Selection state
-  if (state.selectedAnnotation === annotation) {
+  if (isSelected(annotation)) {
     item.style.backgroundColor = '#e3f2fd';
   }
 
@@ -180,12 +208,12 @@ function createAnnotationListItem(annotation) {
 
   // Hover effect
   item.addEventListener('mouseenter', () => {
-    if (state.selectedAnnotation !== annotation) {
+    if (!isSelected(annotation)) {
       item.style.backgroundColor = '#f5f5f5';
     }
   });
   item.addEventListener('mouseleave', () => {
-    if (state.selectedAnnotation !== annotation) {
+    if (!isSelected(annotation)) {
       item.style.backgroundColor = 'transparent';
     }
   });

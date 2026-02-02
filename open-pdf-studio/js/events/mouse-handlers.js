@@ -1,14 +1,18 @@
-import { state } from '../core/state.js';
+import { state, addToSelection, removeFromSelection, isSelected, clearSelection, getAnnotationBounds, getSelectionBounds } from '../core/state.js';
 import { annotationCanvas, annotationCtx, colorPicker, lineWidth, pdfContainer } from '../ui/dom-elements.js';
 import { createAnnotation, cloneAnnotation } from '../annotations/factory.js';
 import { findAnnotationAt } from '../annotations/geometry.js';
 import { findHandleAt, getCursorForHandle } from '../annotations/handles.js';
 import { applyResize, applyMove, applyRotation } from '../annotations/transforms.js';
-import { redrawAnnotations, redrawContinuous, renderAnnotationsForPage, drawPolygonShape, drawCloudShape } from '../annotations/rendering.js';
-import { showProperties, hideProperties } from '../ui/properties-panel.js';
+import { redrawAnnotations, redrawContinuous, renderAnnotationsForPage, drawPolygonShape, drawCloudShape, snapToGrid } from '../annotations/rendering.js';
+import { showProperties, hideProperties, showMultiSelectionProperties } from '../ui/properties-panel.js';
 import { startTextEditing, addTextAnnotation, addComment } from '../tools/text-editing.js';
 import { snapAngle } from '../utils/helpers.js';
 import { markDocumentModified } from '../ui/tabs.js';
+import { recordAdd, recordModify, recordBulkModify } from '../core/undo-manager.js';
+import { showStampPicker } from '../annotations/stamps.js';
+import { showSignatureDialog } from '../annotations/signature.js';
+import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement } from '../annotations/measurement.js';
 
 // Mouse down handler for single page mode
 export function handleMouseDown(e) {
@@ -19,8 +23,8 @@ export function handleMouseDown(e) {
   const x = (e.clientX - rect.left) / state.scale;
   const y = (e.clientY - rect.top) / state.scale;
 
-  state.startX = x;
-  state.startY = y;
+  state.startX = snapToGrid(x);
+  state.startY = snapToGrid(y);
   state.dragStartX = x;
   state.dragStartY = y;
 
@@ -67,8 +71,8 @@ export function handleMouseDown(e) {
 
   // Handle select tool
   if (state.currentTool === 'select') {
-    // First check if clicking on a handle of the selected annotation
-    if (state.selectedAnnotation) {
+    // First check if clicking on a handle of the selected annotation (only for single selection)
+    if (state.selectedAnnotation && state.selectedAnnotations.length === 1) {
       const handleType = findHandleAt(x, y, state.selectedAnnotation);
       if (handleType) {
         state.isResizing = true;
@@ -88,14 +92,50 @@ export function handleMouseDown(e) {
         return;
       }
 
-      state.selectedAnnotation = clickedAnnotation;
-      showProperties(clickedAnnotation);
-      state.isDragging = true;
-      state.originalAnnotation = cloneAnnotation(clickedAnnotation);
-      annotationCanvas.style.cursor = 'move';
+      if (e.ctrlKey || e.metaKey) {
+        // Ctrl+click: toggle in/out of multi-selection
+        if (isSelected(clickedAnnotation)) {
+          removeFromSelection(clickedAnnotation);
+        } else {
+          addToSelection(clickedAnnotation);
+        }
+        if (state.selectedAnnotations.length === 1) {
+          showProperties(state.selectedAnnotations[0]);
+        } else if (state.selectedAnnotations.length > 1) {
+          showMultiSelectionProperties();
+        } else {
+          hideProperties();
+        }
+        redrawAnnotations();
+      } else {
+        // Normal click
+        if (isSelected(clickedAnnotation) && state.selectedAnnotations.length > 1) {
+          // Clicking on an already-selected annotation in multi-select: start drag of all
+          state.isDragging = true;
+          state.originalAnnotations = state.selectedAnnotations.map(a => cloneAnnotation(a));
+          annotationCanvas.style.cursor = 'move';
+        } else {
+          // Single select
+          state.selectedAnnotations = [clickedAnnotation];
+          showProperties(clickedAnnotation);
+          state.isDragging = true;
+          state.originalAnnotation = cloneAnnotation(clickedAnnotation);
+          state.originalAnnotations = [cloneAnnotation(clickedAnnotation)];
+          annotationCanvas.style.cursor = 'move';
+        }
+      }
     } else {
-      // Clicked on empty space - deselect
-      hideProperties();
+      if (e.ctrlKey || e.metaKey) {
+        // Ctrl+click on empty space: keep selection, do nothing
+      } else {
+        // Start rubber band selection
+        state.isRubberBanding = true;
+        state.rubberBandStartX = x;
+        state.rubberBandStartY = y;
+        clearSelection();
+        hideProperties();
+        redrawAnnotations();
+      }
     }
     return;
   }
@@ -105,14 +145,16 @@ export function handleMouseDown(e) {
     if (e.detail === 2) {
       // Double-click to finish polyline
       if (state.polylinePoints.length >= 2) {
-        state.annotations.push(createAnnotation({
+        const ann = createAnnotation({
           type: 'polyline',
           page: state.currentPage,
           points: [...state.polylinePoints],
           color: colorPicker.value,
           strokeColor: colorPicker.value,
           lineWidth: parseInt(lineWidth.value)
-        }));
+        });
+        state.annotations.push(ann);
+        recordAdd(ann);
       }
       state.polylinePoints = [];
       state.isDrawingPolyline = false;
@@ -124,6 +166,30 @@ export function handleMouseDown(e) {
     state.polylinePoints.push({ x, y });
     state.isDrawingPolyline = true;
     redrawAnnotations();
+
+    // Draw in-progress polyline so it remains visible after click
+    if (state.polylinePoints.length > 0) {
+      const ctx = annotationCtx || annotationCanvas.getContext('2d');
+      ctx.save();
+      ctx.scale(state.scale, state.scale);
+      ctx.strokeStyle = colorPicker.value;
+      ctx.lineWidth = parseInt(lineWidth.value);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      state.polylinePoints.forEach((point, index) => {
+        if (index === 0) ctx.moveTo(point.x, point.y);
+        else ctx.lineTo(point.x, point.y);
+      });
+      ctx.stroke();
+      state.polylinePoints.forEach(point => {
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 4, 0, 2 * Math.PI);
+        ctx.fillStyle = colorPicker.value;
+        ctx.fill();
+      });
+      ctx.restore();
+    }
     return;
   }
 
@@ -138,6 +204,18 @@ export function handleMouseDown(e) {
   } else if (state.currentTool === 'text') {
     addTextAnnotation(x, y);
     state.isDrawing = false;
+  } else if (state.currentTool === 'stamp') {
+    showStampPicker(x, y);
+    state.isDrawing = false;
+  } else if (state.currentTool === 'signature') {
+    showSignatureDialog(x, y);
+    state.isDrawing = false;
+  } else if (state.currentTool === 'measureArea' || state.currentTool === 'measurePerimeter') {
+    // Multi-click to add points; use polyline-like behavior
+    if (!state.measurePoints) state.measurePoints = [];
+    state.measurePoints.push({ x, y });
+    state.isDrawing = false;
+    redrawAnnotations();
   }
 }
 
@@ -195,15 +273,39 @@ export function handleMouseMove(e) {
   const currentX = (e.clientX - rect.left) / state.scale;
   const currentY = (e.clientY - rect.top) / state.scale;
 
+  // Rubber band selection drawing
+  if (state.isRubberBanding && state.currentTool === 'select') {
+    redrawAnnotations();
+    // Draw rubber band rectangle
+    annotationCtx.save();
+    annotationCtx.scale(state.scale, state.scale);
+    annotationCtx.strokeStyle = '#0066cc';
+    annotationCtx.lineWidth = 1 / state.scale;
+    annotationCtx.setLineDash([4 / state.scale, 4 / state.scale]);
+    annotationCtx.fillStyle = 'rgba(0, 102, 204, 0.1)';
+    const rbX = Math.min(state.rubberBandStartX, currentX);
+    const rbY = Math.min(state.rubberBandStartY, currentY);
+    const rbW = Math.abs(currentX - state.rubberBandStartX);
+    const rbH = Math.abs(currentY - state.rubberBandStartY);
+    annotationCtx.fillRect(rbX, rbY, rbW, rbH);
+    annotationCtx.strokeRect(rbX, rbY, rbW, rbH);
+    annotationCtx.setLineDash([]);
+    annotationCtx.restore();
+    return;
+  }
+
   // Update cursor when hovering over handles
   if (state.currentTool === 'select' && state.selectedAnnotation && !state.isDragging && !state.isResizing) {
-    const handleType = findHandleAt(currentX, currentY, state.selectedAnnotation);
-    if (handleType) {
-      annotationCanvas.style.cursor = getCursorForHandle(handleType);
-    } else {
-      const ann = findAnnotationAt(currentX, currentY);
-      annotationCanvas.style.cursor = ann ? 'move' : 'default';
+    // Only show resize handles cursor for single selection
+    if (state.selectedAnnotations.length === 1) {
+      const handleType = findHandleAt(currentX, currentY, state.selectedAnnotation);
+      if (handleType) {
+        annotationCanvas.style.cursor = getCursorForHandle(handleType);
+        return;
+      }
     }
+    const ann = findAnnotationAt(currentX, currentY);
+    annotationCanvas.style.cursor = ann ? 'move' : 'default';
     return;
   }
 
@@ -229,14 +331,24 @@ export function handleMouseMove(e) {
     return;
   }
 
-  // Handle dragging (moving)
-  if (state.isDragging && state.selectedAnnotation) {
+  // Handle dragging (moving) - supports multi-selection
+  if (state.isDragging && state.selectedAnnotations.length > 0) {
     const deltaX = currentX - state.dragStartX;
     const deltaY = currentY - state.dragStartY;
 
-    // Restore original position and apply move
-    Object.assign(state.selectedAnnotation, cloneAnnotation(state.originalAnnotation));
-    applyMove(state.selectedAnnotation, deltaX, deltaY);
+    if (state.selectedAnnotations.length > 1 && state.originalAnnotations.length > 0) {
+      // Multi-selection drag
+      for (let i = 0; i < state.selectedAnnotations.length; i++) {
+        if (state.originalAnnotations[i]) {
+          Object.assign(state.selectedAnnotations[i], cloneAnnotation(state.originalAnnotations[i]));
+          applyMove(state.selectedAnnotations[i], deltaX, deltaY);
+        }
+      }
+    } else if (state.selectedAnnotation && state.originalAnnotation) {
+      // Single selection drag
+      Object.assign(state.selectedAnnotation, cloneAnnotation(state.originalAnnotation));
+      applyMove(state.selectedAnnotation, deltaX, deltaY);
+    }
 
     redrawAnnotations();
     return;
@@ -612,20 +724,66 @@ export function handleMouseUp(e) {
   // Hand tool panning is handled by document-level listener (handlePanEnd)
   if (state.isPanning) return;
 
+  // Handle rubber band selection end
+  if (state.isRubberBanding) {
+    state.isRubberBanding = false;
+    const rect = annotationCanvas.getBoundingClientRect();
+    const endX = (e.clientX - rect.left) / state.scale;
+    const endY = (e.clientY - rect.top) / state.scale;
+
+    const rbX = Math.min(state.rubberBandStartX, endX);
+    const rbY = Math.min(state.rubberBandStartY, endY);
+    const rbW = Math.abs(endX - state.rubberBandStartX);
+    const rbH = Math.abs(endY - state.rubberBandStartY);
+
+    // Only select if rubber band has meaningful size
+    if (rbW > 3 || rbH > 3) {
+      const selected = [];
+      for (const ann of state.annotations) {
+        if (ann.page !== state.currentPage) continue;
+        const bounds = getAnnotationBounds(ann);
+        if (!bounds) continue;
+        // Check if annotation intersects with rubber band
+        if (bounds.x < rbX + rbW && bounds.x + bounds.width > rbX &&
+            bounds.y < rbY + rbH && bounds.y + bounds.height > rbY) {
+          selected.push(ann);
+        }
+      }
+      if (selected.length > 0) {
+        state.selectedAnnotations = selected;
+        if (selected.length === 1) {
+          showProperties(selected[0]);
+        } else {
+          showMultiSelectionProperties();
+        }
+      }
+    }
+    redrawAnnotations();
+    return;
+  }
+
   // Handle end of dragging/resizing
   if (state.isDragging || state.isResizing) {
-    // Mark document as modified when annotation is moved/resized
-    markDocumentModified();
+    // Record undo for the modification
+    if (state.selectedAnnotations.length > 1 && state.originalAnnotations.length > 0) {
+      // Multi-selection bulk modify
+      recordBulkModify(state.selectedAnnotations, state.originalAnnotations);
+    } else if (state.originalAnnotation && state.selectedAnnotation) {
+      recordModify(state.selectedAnnotation.id, state.originalAnnotation, state.selectedAnnotation);
+    }
 
     state.isDragging = false;
     state.isResizing = false;
     state.activeHandle = null;
     state.originalAnnotation = null;
+    state.originalAnnotations = [];
     annotationCanvas.style.cursor = 'default';
 
     // Update properties panel with new values
-    if (state.selectedAnnotation) {
+    if (state.selectedAnnotations.length === 1 && state.selectedAnnotation) {
       showProperties(state.selectedAnnotation);
+    } else if (state.selectedAnnotations.length > 1) {
+      showMultiSelectionProperties();
     }
     return;
   }
@@ -633,8 +791,8 @@ export function handleMouseUp(e) {
   if (!state.isDrawing) return;
 
   const rect = annotationCanvas.getBoundingClientRect();
-  const endX = (e.clientX - rect.left) / state.scale;
-  const endY = (e.clientY - rect.top) / state.scale;
+  const endX = snapToGrid((e.clientX - rect.left) / state.scale);
+  const endY = snapToGrid((e.clientY - rect.top) / state.scale);
 
   const prefs = state.preferences;
   const annotationCountBefore = state.annotations.length;
@@ -645,9 +803,10 @@ export function handleMouseUp(e) {
       type: 'draw',
       page: state.currentPage,
       path: state.currentPath,
-      color: colorPicker.value,
-      strokeColor: colorPicker.value,
-      lineWidth: parseInt(lineWidth.value)
+      color: prefs.drawStrokeColor || colorPicker.value,
+      strokeColor: prefs.drawStrokeColor || colorPicker.value,
+      lineWidth: prefs.drawLineWidth || parseInt(lineWidth.value),
+      opacity: (prefs.drawOpacity || 100) / 100
     }));
     state.currentPath = [];
   } else if (state.currentTool === 'highlight') {
@@ -658,8 +817,8 @@ export function handleMouseUp(e) {
       y: Math.min(state.startY, endY),
       width: Math.abs(endX - state.startX),
       height: Math.abs(endY - state.startY),
-      color: colorPicker.value,
-      fillColor: colorPicker.value
+      color: prefs.highlightColor || colorPicker.value,
+      fillColor: prefs.highlightColor || colorPicker.value
     }));
   } else if (state.currentTool === 'line') {
     let finalEndX = endX;
@@ -680,9 +839,11 @@ export function handleMouseUp(e) {
       startY: state.startY,
       endX: finalEndX,
       endY: finalEndY,
-      color: colorPicker.value,
-      strokeColor: colorPicker.value,
-      lineWidth: parseInt(lineWidth.value)
+      color: prefs.lineStrokeColor || colorPicker.value,
+      strokeColor: prefs.lineStrokeColor || colorPicker.value,
+      lineWidth: prefs.lineLineWidth || parseInt(lineWidth.value),
+      borderStyle: prefs.lineBorderStyle || 'solid',
+      opacity: (prefs.lineOpacity || 100) / 100
     }));
   } else if (state.currentTool === 'arrow') {
     let finalEndX = endX;
@@ -760,9 +921,10 @@ export function handleMouseUp(e) {
       width: endX - state.startX,
       height: endY - state.startY,
       sides: 6,
-      color: colorPicker.value,
-      strokeColor: colorPicker.value,
-      lineWidth: parseInt(lineWidth.value)
+      color: prefs.polygonStrokeColor || colorPicker.value,
+      strokeColor: prefs.polygonStrokeColor || colorPicker.value,
+      lineWidth: prefs.polygonLineWidth || parseInt(lineWidth.value),
+      opacity: (prefs.polygonOpacity || 100) / 100
     }));
   } else if (state.currentTool === 'cloud') {
     const cloudX = Math.min(state.startX, endX);
@@ -777,9 +939,10 @@ export function handleMouseUp(e) {
         y: cloudY,
         width: cloudW,
         height: cloudH,
-        color: colorPicker.value,
-        strokeColor: colorPicker.value,
-        lineWidth: parseInt(lineWidth.value)
+        color: prefs.cloudStrokeColor || colorPicker.value,
+        strokeColor: prefs.cloudStrokeColor || colorPicker.value,
+        lineWidth: prefs.cloudLineWidth || parseInt(lineWidth.value),
+        opacity: (prefs.cloudOpacity || 100) / 100
       }));
     }
   } else if (state.currentTool === 'textbox') {
@@ -848,13 +1011,42 @@ export function handleMouseUp(e) {
       borderStyle: prefs.calloutBorderStyle,
       opacity: (prefs.calloutOpacity || 100) / 100
     }));
+  } else if (state.currentTool === 'redaction') {
+    const rx = Math.min(state.startX, endX);
+    const ry = Math.min(state.startY, endY);
+    const rw = Math.abs(endX - state.startX);
+    const rh = Math.abs(endY - state.startY);
+    if (rw > 5 && rh > 5) {
+      state.annotations.push(createAnnotation({
+        type: 'redaction',
+        page: state.currentPage,
+        x: rx, y: ry, width: rw, height: rh,
+        overlayColor: '#000000'
+      }));
+    }
+  } else if (state.currentTool === 'measureDistance') {
+    const dist = calculateDistance(state.startX, state.startY, endX, endY);
+    state.annotations.push(createAnnotation({
+      type: 'measureDistance',
+      page: state.currentPage,
+      startX: state.startX,
+      startY: state.startY,
+      endX: endX,
+      endY: endY,
+      color: '#ff0000',
+      strokeColor: '#ff0000',
+      lineWidth: 1,
+      measureText: formatMeasurement(dist),
+      measureValue: dist.value,
+      measureUnit: dist.unit
+    }));
   }
 
   state.isDrawing = false;
 
-  // Mark document as modified if annotations were added
+  // Record add for undo and mark document as modified
   if (state.annotations.length > annotationCountBefore) {
-    markDocumentModified();
+    recordAdd(state.annotations[state.annotations.length - 1]);
   }
 
   redrawAnnotations();
@@ -1071,9 +1263,9 @@ export function handleContinuousMouseUp(e, pageNum) {
   state.activeContinuousCanvas = null;
   state.activeContinuousPage = null;
 
-  // Mark document as modified if annotations were added
+  // Record add for undo and mark document as modified
   if (state.annotations.length > annotationCountBefore) {
-    markDocumentModified();
+    recordAdd(state.annotations[state.annotations.length - 1]);
   }
 
   redrawContinuous();

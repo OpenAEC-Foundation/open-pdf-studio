@@ -37,7 +37,14 @@ export function getTypeDisplayName(type) {
     'image': 'Image',
     'textHighlight': 'Text Highlight',
     'textStrikethrough': 'Text Strikethrough',
-    'textUnderline': 'Text Underline'
+    'textUnderline': 'Text Underline',
+    'textSquiggly': 'Text Squiggly',
+    'stamp': 'Stamp',
+    'signature': 'Signature',
+    'measureDistance': 'Distance',
+    'measureArea': 'Area',
+    'measurePerimeter': 'Perimeter',
+    'redaction': 'Redaction'
   };
   return names[type] || type.charAt(0).toUpperCase() + type.slice(1);
 }

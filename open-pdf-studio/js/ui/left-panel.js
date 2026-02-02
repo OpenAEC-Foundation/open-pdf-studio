@@ -1,4 +1,4 @@
-import { state, getActiveDocument } from '../core/state.js';
+import { state, getActiveDocument, getPageRotation } from '../core/state.js';
 import { goToPage } from '../pdf/renderer.js';
 
 // DOM elements
@@ -168,7 +168,10 @@ export async function generateThumbnails() {
   let placeholderHeight = Math.round(150 * 1.414);
   try {
     const firstPage = await pdfDoc.getPage(1);
-    const viewport = firstPage.getViewport({ scale: THUMBNAIL_SCALE });
+    const extraRot = getPageRotation(1);
+    const thOpts = { scale: THUMBNAIL_SCALE };
+    if (extraRot) thOpts.rotation = (firstPage.rotate + extraRot) % 360;
+    const viewport = firstPage.getViewport(thOpts);
     placeholderWidth = Math.round(viewport.width);
     placeholderHeight = Math.round(viewport.height);
   } catch (err) {
@@ -383,7 +386,10 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum) {
   try {
     const renderPromise = (async () => {
       const page = await pdfDoc.getPage(pageNum);
-      const viewport = page.getViewport({ scale: THUMBNAIL_SCALE });
+      const extraRot = getPageRotation(pageNum);
+      const trOpts = { scale: THUMBNAIL_SCALE };
+      if (extraRot) trOpts.rotation = (page.rotate + extraRot) % 360;
+      const viewport = page.getViewport(trOpts);
 
       const canvas = document.createElement('canvas');
       canvas.width = viewport.width;
@@ -452,6 +458,19 @@ function createThumbnailPlaceholder(pageNum, width = 150, height = null) {
   });
 
   return thumbnailItem;
+}
+
+// Invalidate and re-render a single page's thumbnail (e.g. after rotation)
+export function invalidateThumbnail(pageNum) {
+  const activeDoc = getActiveDocument();
+  if (!activeDoc) return;
+  const docCache = thumbnailCache.get(activeDoc.id);
+  if (docCache) {
+    docCache.delete(pageNum);
+  }
+  // Re-add to priority queue and restart processor
+  priorityPages.add(pageNum);
+  startProcessor();
 }
 
 // Clear thumbnail cache for a specific document

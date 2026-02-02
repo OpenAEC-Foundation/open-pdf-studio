@@ -41,20 +41,22 @@ export async function loadPDF(filePath) {
       const data = await readBinaryFile(filePath);
       typedArray = new Uint8Array(data);
 
-      // Cache original bytes for saver (avoids re-reading from disk)
-      originalBytesCache.set(filePath, typedArray);
+      // Cache a copy of original bytes for saver (pdf.js transfers the buffer
+      // to a web worker, which detaches the original Uint8Array making it length 0)
+      originalBytesCache.set(filePath, typedArray.slice());
     } else {
       // Fallback for browser environment (e.g., via fetch for local dev)
       throw new Error('File system access not available');
     }
 
-    // Load PDF using pdf.js
+    // Load PDF using pdf.js (this transfers the buffer to a worker)
     state.pdfDoc = await pdfjsLib.getDocument({ data: typedArray }).promise;
     state.currentPdfPath = filePath;
 
     // Reset annotation state
     state.annotations = [];
-    state.redoStack = [];
+    const doc = state.documents[state.activeDocumentIndex];
+    if (doc) { doc.undoStack = []; doc.redoStack = []; }
     state.selectedAnnotation = null;
     state.currentPage = 1;
 
@@ -182,39 +184,56 @@ function convertPdfAnnotation(annot, pageNum, viewport) {
     case 'Highlight':
     case 'Underline':
     case 'StrikeOut':
-    case 'Squiggly':
-      // Text markup annotations - use quadPoints if available
-      if (annot.quadPoints && annot.quadPoints.length >= 8) {
-        // Calculate bounding box from quad points
-        const xs = [annot.quadPoints[0], annot.quadPoints[2], annot.quadPoints[4], annot.quadPoints[6]];
-        const ys = [annot.quadPoints[1], annot.quadPoints[3], annot.quadPoints[5], annot.quadPoints[7]];
-        const minX = Math.min(...xs);
-        const maxX = Math.max(...xs);
-        const minY = Math.min(...ys);
-        const maxY = Math.max(...ys);
+    case 'Squiggly': {
+      // Map PDF subtype to our type
+      const typeMap = {
+        'Highlight': 'textHighlight',
+        'Underline': 'textUnderline',
+        'StrikeOut': 'textStrikethrough',
+        'Squiggly': 'textSquiggly'
+      };
+      const markupType = typeMap[annot.subtype] || 'highlight';
 
-        return createAnnotation({
-          ...baseProps,
-          type: 'highlight',
-          x: minX,
-          y: convertY(maxY),
-          width: maxX - minX,
-          height: maxY - minY,
-          color: colorArrayToHex(annot.color, '#FFFF00'),
-          fillColor: colorArrayToHex(annot.color, '#FFFF00')
-        });
+      // Extract rects from quadPoints for per-line markup
+      const rects = [];
+      if (annot.quadPoints && annot.quadPoints.length >= 8) {
+        for (let i = 0; i < annot.quadPoints.length; i += 8) {
+          const xs = [annot.quadPoints[i], annot.quadPoints[i+2], annot.quadPoints[i+4], annot.quadPoints[i+6]];
+          const ys = [annot.quadPoints[i+1], annot.quadPoints[i+3], annot.quadPoints[i+5], annot.quadPoints[i+7]];
+          const qMinX = Math.min(...xs);
+          const qMaxX = Math.max(...xs);
+          const qMinY = Math.min(...ys);
+          const qMaxY = Math.max(...ys);
+          rects.push({ x: qMinX, y: convertY(qMaxY), width: qMaxX - qMinX, height: qMaxY - qMinY });
+        }
       }
-      // Fallback to rect
+
+      // Calculate overall bounding box
+      let minX, maxX, minY, maxY;
+      if (rects.length > 0) {
+        minX = Math.min(...rects.map(r => r.x));
+        maxX = Math.max(...rects.map(r => r.x + r.width));
+        minY = Math.min(...rects.map(r => r.y));
+        maxY = Math.max(...rects.map(r => r.y + r.height));
+      } else {
+        minX = rect[0];
+        maxX = rect[2];
+        minY = convertY(rect[3]);
+        maxY = convertY(rect[1]);
+      }
+
       return createAnnotation({
         ...baseProps,
-        type: 'highlight',
-        x: rect[0],
-        y: convertY(rect[3]),
-        width: rect[2] - rect[0],
-        height: rect[3] - rect[1],
+        type: markupType,
+        x: minX,
+        y: minY,
+        width: maxX - minX,
+        height: maxY - minY,
+        rects: rects.length > 0 ? rects : undefined,
         color: colorArrayToHex(annot.color, '#FFFF00'),
         fillColor: colorArrayToHex(annot.color, '#FFFF00')
       });
+    }
 
     case 'Square':
       return createAnnotation({
@@ -227,7 +246,8 @@ function convertPdfAnnotation(annot, pageNum, viewport) {
         color: colorArrayToHex(annot.color, '#000000'),
         strokeColor: colorArrayToHex(annot.color, '#000000'),
         fillColor: annot.interiorColor ? colorArrayToHex(annot.interiorColor) : null,
-        lineWidth: annot.borderStyle?.width || 2
+        lineWidth: annot.borderStyle?.width || 2,
+        borderStyle: annot.borderStyle?.style === 1 ? 'dashed' : 'solid'
       });
 
     case 'Circle':
@@ -241,21 +261,46 @@ function convertPdfAnnotation(annot, pageNum, viewport) {
         color: colorArrayToHex(annot.color, '#000000'),
         strokeColor: colorArrayToHex(annot.color, '#000000'),
         fillColor: annot.interiorColor ? colorArrayToHex(annot.interiorColor) : null,
-        lineWidth: annot.borderStyle?.width || 2
+        lineWidth: annot.borderStyle?.width || 2,
+        borderStyle: annot.borderStyle?.style === 1 ? 'dashed' : 'solid'
       });
 
     case 'Line':
       if (annot.lineCoordinates && annot.lineCoordinates.length >= 4) {
+        // Check for line endings (arrow heads)
+        const le = annot.lineEndings || [];
+        const mapPdfHead = (h) => {
+          switch (h) {
+            case 'OpenArrow': return 'open';
+            case 'ClosedArrow': return 'closed';
+            case 'Diamond': return 'diamond';
+            case 'Circle': return 'circle';
+            case 'Square': return 'square';
+            case 'Slash': return 'slash';
+            case 'Butt': return 'butt';
+            default: return 'none';
+          }
+        };
+        const startHead = mapPdfHead(le[0]);
+        const endHead = mapPdfHead(le[1]);
+        const isArrow = startHead !== 'none' || endHead !== 'none';
+        const borderStyle = annot.borderStyle?.style === 1 ? 'dashed' : 'solid';
+
         return createAnnotation({
           ...baseProps,
-          type: 'line',
+          type: isArrow ? 'arrow' : 'line',
           startX: annot.lineCoordinates[0],
           startY: convertY(annot.lineCoordinates[1]),
           endX: annot.lineCoordinates[2],
           endY: convertY(annot.lineCoordinates[3]),
           color: colorArrayToHex(annot.color, '#000000'),
           strokeColor: colorArrayToHex(annot.color, '#000000'),
-          lineWidth: annot.borderStyle?.width || 2
+          fillColor: annot.interiorColor ? colorArrayToHex(annot.interiorColor) : undefined,
+          lineWidth: annot.borderStyle?.width || 2,
+          borderStyle: borderStyle,
+          startHead: startHead,
+          endHead: endHead,
+          headSize: 12
         });
       }
       break;
@@ -343,9 +388,28 @@ function convertPdfAnnotation(annot, pageNum, viewport) {
         icon: annot.name || 'comment'
       });
 
-    case 'FreeText':
-      // Text box or callout
+    case 'FreeText': {
+      // Extract font size and text color from DA string
+      let fontSize = 14;
+      let textColor = '#000000';
+      if (annot.defaultAppearanceData) {
+        if (annot.defaultAppearanceData.fontSize) fontSize = annot.defaultAppearanceData.fontSize;
+        if (annot.defaultAppearanceData.fontColor) {
+          const fc = annot.defaultAppearanceData.fontColor;
+          if (fc.length === 3) textColor = colorArrayToHex(fc, '#000000');
+        }
+      } else if (annot.defaultAppearance) {
+        // Parse DA string: "r g b rg /Font size Tf"
+        const sizeMatch = annot.defaultAppearance.match(/(\d+(?:\.\d+)?)\s+Tf/);
+        if (sizeMatch) fontSize = parseFloat(sizeMatch[1]);
+        const colorMatch = annot.defaultAppearance.match(/([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+rg/);
+        if (colorMatch) {
+          textColor = colorArrayToHex([parseFloat(colorMatch[1]), parseFloat(colorMatch[2]), parseFloat(colorMatch[3])], '#000000');
+        }
+      }
+
       const isCallout = annot.calloutLine && annot.calloutLine.length >= 4;
+      const borderStyle = annot.borderStyle?.style === 1 ? 'dashed' : 'solid';
 
       if (isCallout) {
         return createAnnotation({
@@ -359,8 +423,10 @@ function convertPdfAnnotation(annot, pageNum, viewport) {
           color: colorArrayToHex(annot.color, '#000000'),
           strokeColor: colorArrayToHex(annot.color, '#000000'),
           fillColor: annot.interiorColor ? colorArrayToHex(annot.interiorColor) : '#FFFFD0',
-          textColor: '#000000',
-          fontSize: 14,
+          textColor: textColor,
+          fontSize: fontSize,
+          borderStyle: borderStyle,
+          lineWidth: annot.borderStyle?.width || 1,
           arrowX: annot.calloutLine[0],
           arrowY: convertY(annot.calloutLine[1]),
           kneeX: annot.calloutLine.length >= 6 ? annot.calloutLine[2] : annot.calloutLine[0],
@@ -379,9 +445,12 @@ function convertPdfAnnotation(annot, pageNum, viewport) {
         color: colorArrayToHex(annot.color, '#000000'),
         strokeColor: colorArrayToHex(annot.color, '#000000'),
         fillColor: annot.interiorColor ? colorArrayToHex(annot.interiorColor) : '#FFFFD0',
-        textColor: '#000000',
-        fontSize: 14
+        textColor: textColor,
+        fontSize: fontSize,
+        borderStyle: borderStyle,
+        lineWidth: annot.borderStyle?.width || 1
       });
+    }
 
     case 'Stamp':
       // Image stamp - if we have appearance data

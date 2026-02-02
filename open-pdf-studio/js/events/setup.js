@@ -1,10 +1,13 @@
-import { state } from '../core/state.js';
+import { state, getPageRotation, clearSelection } from '../core/state.js';
+import { undo, redo, recordClearPage, recordClearAll, recordDelete, recordBulkDelete, recordPageRotation, recordPropertyChange, recordAdd } from '../core/undo-manager.js';
 import {
   annotationCanvas, pdfContainer, placeholder,
   prevPageBtn, nextPageBtn, zoomInBtn, zoomOutBtn, zoomLevel, pageInput,
   toolSelect, toolHand, toolHighlight, toolDraw, toolLine, toolArrow, toolCircle,
   toolBox, toolComment, toolText, toolPolygon, toolCloud,
   toolPolyline, toolTextbox, toolCallout, toolClear, toolUndo,
+  toolStamp, toolSignature, toolMeasureDistance, toolMeasureArea, toolMeasurePerimeter,
+  toolRedaction, btnApplyRedactions,
   propColor, propLineWidth, propText, propFontSize, propDelete, propClose,
   propSubject, propAuthor, propOpacity, propIcon, propLocked, propPrintable,
   propFillColor, propStrokeColor, propBorderStyle, propertiesPanel,
@@ -17,17 +20,17 @@ import {
 import { handleMouseDown, handleMouseMove, handleMouseUp } from './mouse-handlers.js';
 import { initKeyboardHandlers } from './keyboard-handlers.js';
 import { setTool } from '../tools/manager.js';
-import { renderPage, renderContinuous, setViewMode, zoomIn, zoomOut, fitWidth, fitPage, actualSize, goToPage } from '../pdf/renderer.js';
+import { renderPage, renderContinuous, setViewMode, zoomIn, zoomOut, fitWidth, fitPage, actualSize, goToPage, rotatePage } from '../pdf/renderer.js';
 import { openPDFFile, loadPDF } from '../pdf/loader.js';
 import { savePDF, savePDFAs } from '../pdf/saver.js';
-import { showProperties, hideProperties, updateAnnotationProperties, updateTextFormatProperties, updateArrowProperties } from '../ui/properties-panel.js';
+import { showProperties, hideProperties, closePropertiesPanel, updateAnnotationProperties, updateTextFormatProperties, updateArrowProperties } from '../ui/properties-panel.js';
 import { redrawAnnotations, redrawContinuous, updateQuickAccessButtons } from '../annotations/rendering.js';
 import { closeAllMenus } from '../ui/menus.js';
 import { showPreferencesDialog, hidePreferencesDialog, savePreferencesFromDialog, resetPreferencesToDefaults } from '../core/preferences.js';
 import { showAboutDialog, showDocPropertiesDialog } from '../ui/dialogs.js';
 import { toggleAnnotationsListPanel } from '../ui/annotations-list.js';
 import { toggleLeftPanel } from '../ui/left-panel.js';
-import { closeActiveTab, createTab, markDocumentModified } from '../ui/tabs.js';
+import { closeActiveTab, createTab, markDocumentModified, hasUnsavedChanges, getUnsavedDocumentNames } from '../ui/tabs.js';
 import { openFindBar } from '../search/find-bar.js';
 import { isTauri, minimizeWindow, maximizeWindow, closeWindow, openExternal } from '../tauri-api.js';
 
@@ -35,7 +38,22 @@ import { isTauri, minimizeWindow, maximizeWindow, closeWindow, openExternal } fr
 function setupWindowControls() {
   document.getElementById('btn-minimize')?.addEventListener('click', () => minimizeWindow());
   document.getElementById('btn-maximize')?.addEventListener('click', () => maximizeWindow());
-  document.getElementById('btn-close')?.addEventListener('click', () => closeWindow());
+  document.getElementById('btn-close')?.addEventListener('click', async () => {
+    if (hasUnsavedChanges()) {
+      const names = getUnsavedDocumentNames().join(', ');
+      let result = false;
+      if (window.__TAURI__?.dialog?.ask) {
+        result = await window.__TAURI__.dialog.ask(
+          `The following files have unsaved changes:\n${names}\n\nDo you want to exit without saving?`,
+          { title: 'Unsaved Changes', kind: 'warning' }
+        );
+      } else {
+        result = confirm(`The following files have unsaved changes:\n${names}\n\nDo you want to exit without saving?`);
+      }
+      if (!result) return;
+    }
+    closeWindow();
+  });
 }
 
 // Setup all event listeners
@@ -71,11 +89,17 @@ export function setupEventListeners() {
   // Quick access toolbar events
   setupQuickAccessEvents();
 
+  // XFDF import/export
+  setupXFDFButtons();
+
   // Drag and drop for PDF files
   setupDragDrop();
 
   // Scroll/wheel zoom
   setupWheelZoom();
+
+  // Panel resize handles
+  setupPanelResize();
 }
 
 // Setup tool button click handlers
@@ -95,12 +119,23 @@ function setupToolButtons() {
   toolCallout?.addEventListener('click', () => setTool('callout'));
   toolComment?.addEventListener('click', () => setTool('comment'));
   toolText?.addEventListener('click', () => setTool('text'));
+  toolStamp?.addEventListener('click', () => setTool('stamp'));
+  toolSignature?.addEventListener('click', () => setTool('signature'));
+  toolMeasureDistance?.addEventListener('click', () => setTool('measureDistance'));
+  toolMeasureArea?.addEventListener('click', () => setTool('measureArea'));
+  toolMeasurePerimeter?.addEventListener('click', () => setTool('measurePerimeter'));
+  toolRedaction?.addEventListener('click', () => setTool('redaction'));
+  btnApplyRedactions?.addEventListener('click', async () => {
+    const { applyRedactions } = await import('../annotations/redaction.js');
+    applyRedactions();
+  });
 
   // Clear annotations on current page
   toolClear?.addEventListener('click', () => {
     if (confirm('Clear all annotations on current page?')) {
+      recordClearPage(state.currentPage, state.annotations);
       state.annotations = state.annotations.filter(a => a.page !== state.currentPage);
-      markDocumentModified();
+      hideProperties();
       if (state.viewMode === 'continuous') {
         redrawContinuous();
       } else {
@@ -109,18 +144,9 @@ function setupToolButtons() {
     }
   });
 
-  // Undo (remove last annotation)
+  // Undo
   toolUndo?.addEventListener('click', () => {
-    if (state.annotations.length > 0) {
-      state.annotations.pop();
-      markDocumentModified();
-      hideProperties();
-      if (state.viewMode === 'continuous') {
-        redrawContinuous();
-      } else {
-        redrawAnnotations();
-      }
-    }
+    undo();
   });
 }
 
@@ -170,6 +196,7 @@ function setupPropertiesPanelEvents() {
   // Text style buttons
   propTextBold?.addEventListener('click', () => {
     if (state.selectedAnnotation && ['textbox', 'callout'].includes(state.selectedAnnotation.type)) {
+      recordPropertyChange(state.selectedAnnotation);
       state.selectedAnnotation.fontBold = !state.selectedAnnotation.fontBold;
       propTextBold.classList.toggle('active', state.selectedAnnotation.fontBold);
       state.selectedAnnotation.modifiedAt = new Date().toISOString();
@@ -179,6 +206,7 @@ function setupPropertiesPanelEvents() {
 
   propTextItalic?.addEventListener('click', () => {
     if (state.selectedAnnotation && ['textbox', 'callout'].includes(state.selectedAnnotation.type)) {
+      recordPropertyChange(state.selectedAnnotation);
       state.selectedAnnotation.fontItalic = !state.selectedAnnotation.fontItalic;
       propTextItalic.classList.toggle('active', state.selectedAnnotation.fontItalic);
       state.selectedAnnotation.modifiedAt = new Date().toISOString();
@@ -188,6 +216,7 @@ function setupPropertiesPanelEvents() {
 
   propTextUnderline?.addEventListener('click', () => {
     if (state.selectedAnnotation && ['textbox', 'callout'].includes(state.selectedAnnotation.type)) {
+      recordPropertyChange(state.selectedAnnotation);
       state.selectedAnnotation.fontUnderline = !state.selectedAnnotation.fontUnderline;
       propTextUnderline.classList.toggle('active', state.selectedAnnotation.fontUnderline);
       state.selectedAnnotation.modifiedAt = new Date().toISOString();
@@ -197,6 +226,7 @@ function setupPropertiesPanelEvents() {
 
   propTextStrikethrough?.addEventListener('click', () => {
     if (state.selectedAnnotation && ['textbox', 'callout'].includes(state.selectedAnnotation.type)) {
+      recordPropertyChange(state.selectedAnnotation);
       state.selectedAnnotation.fontStrikethrough = !state.selectedAnnotation.fontStrikethrough;
       propTextStrikethrough.classList.toggle('active', state.selectedAnnotation.fontStrikethrough);
       state.selectedAnnotation.modifiedAt = new Date().toISOString();
@@ -207,6 +237,7 @@ function setupPropertiesPanelEvents() {
   // Text alignment buttons
   propAlignLeft?.addEventListener('click', () => {
     if (state.selectedAnnotation && ['textbox', 'callout'].includes(state.selectedAnnotation.type)) {
+      recordPropertyChange(state.selectedAnnotation);
       state.selectedAnnotation.textAlign = 'left';
       propAlignLeft.classList.add('active');
       propAlignCenter?.classList.remove('active');
@@ -218,6 +249,7 @@ function setupPropertiesPanelEvents() {
 
   propAlignCenter?.addEventListener('click', () => {
     if (state.selectedAnnotation && ['textbox', 'callout'].includes(state.selectedAnnotation.type)) {
+      recordPropertyChange(state.selectedAnnotation);
       state.selectedAnnotation.textAlign = 'center';
       propAlignLeft?.classList.remove('active');
       propAlignCenter.classList.add('active');
@@ -229,6 +261,7 @@ function setupPropertiesPanelEvents() {
 
   propAlignRight?.addEventListener('click', () => {
     if (state.selectedAnnotation && ['textbox', 'callout'].includes(state.selectedAnnotation.type)) {
+      recordPropertyChange(state.selectedAnnotation);
       state.selectedAnnotation.textAlign = 'right';
       propAlignLeft?.classList.remove('active');
       propAlignCenter?.classList.remove('active');
@@ -241,6 +274,7 @@ function setupPropertiesPanelEvents() {
   // Image properties
   propImageWidth?.addEventListener('input', () => {
     if (state.selectedAnnotation && state.selectedAnnotation.type === 'image') {
+      recordPropertyChange(state.selectedAnnotation);
       state.selectedAnnotation.width = parseInt(propImageWidth.value) || 20;
       state.selectedAnnotation.modifiedAt = new Date().toISOString();
       redrawAnnotations();
@@ -249,6 +283,7 @@ function setupPropertiesPanelEvents() {
 
   propImageHeight?.addEventListener('input', () => {
     if (state.selectedAnnotation && state.selectedAnnotation.type === 'image') {
+      recordPropertyChange(state.selectedAnnotation);
       state.selectedAnnotation.height = parseInt(propImageHeight.value) || 20;
       state.selectedAnnotation.modifiedAt = new Date().toISOString();
       redrawAnnotations();
@@ -257,6 +292,7 @@ function setupPropertiesPanelEvents() {
 
   propImageRotation?.addEventListener('input', () => {
     if (state.selectedAnnotation && state.selectedAnnotation.type === 'image') {
+      recordPropertyChange(state.selectedAnnotation);
       state.selectedAnnotation.rotation = parseInt(propImageRotation.value) || 0;
       state.selectedAnnotation.modifiedAt = new Date().toISOString();
       redrawAnnotations();
@@ -265,6 +301,7 @@ function setupPropertiesPanelEvents() {
 
   propImageReset?.addEventListener('click', () => {
     if (state.selectedAnnotation && state.selectedAnnotation.type === 'image') {
+      recordPropertyChange(state.selectedAnnotation);
       state.selectedAnnotation.width = state.selectedAnnotation.originalWidth;
       state.selectedAnnotation.height = state.selectedAnnotation.originalHeight;
       state.selectedAnnotation.rotation = 0;
@@ -281,14 +318,28 @@ function setupPropertiesPanelEvents() {
 
   // Delete button
   propDelete?.addEventListener('click', () => {
-    if (state.selectedAnnotation) {
+    if (state.selectedAnnotations.length > 1) {
+      if (confirm(`Delete ${state.selectedAnnotations.length} annotations?`)) {
+        recordBulkDelete(state.selectedAnnotations);
+        const toDelete = new Set(state.selectedAnnotations);
+        state.annotations = state.annotations.filter(a => !toDelete.has(a));
+        clearSelection();
+        hideProperties();
+        if (state.viewMode === 'continuous') {
+          redrawContinuous();
+        } else {
+          redrawAnnotations();
+        }
+      }
+    } else if (state.selectedAnnotation) {
       if (state.selectedAnnotation.locked) {
         alert('This annotation is locked and cannot be deleted.');
         return;
       }
       if (confirm('Delete this annotation?')) {
+        const idx = state.annotations.indexOf(state.selectedAnnotation);
+        recordDelete(state.selectedAnnotation, idx);
         state.annotations = state.annotations.filter(a => a !== state.selectedAnnotation);
-        markDocumentModified();
         hideProperties();
         if (state.viewMode === 'continuous') {
           redrawContinuous();
@@ -299,8 +350,44 @@ function setupPropertiesPanelEvents() {
     }
   });
 
-  // Close button
-  propClose?.addEventListener('click', hideProperties);
+  // Status change
+  document.getElementById('prop-status')?.addEventListener('change', () => {
+    updateAnnotationProperties();
+  });
+
+  // Alt text change
+  document.getElementById('prop-alt-text')?.addEventListener('input', () => {
+    updateAnnotationProperties();
+  });
+
+  // Reply add button
+  document.getElementById('prop-reply-add')?.addEventListener('click', () => {
+    const input = document.getElementById('prop-reply-input');
+    if (!input || !input.value.trim() || !state.selectedAnnotation) return;
+    if (!state.selectedAnnotation.replies) state.selectedAnnotation.replies = [];
+    state.selectedAnnotation.replies.push({
+      id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+      author: state.defaultAuthor || 'User',
+      text: input.value.trim(),
+      createdAt: new Date().toISOString()
+    });
+    state.selectedAnnotation.modifiedAt = new Date().toISOString();
+    input.value = '';
+    showProperties(state.selectedAnnotation);
+  });
+
+  // Reply input Enter key
+  document.getElementById('prop-reply-input')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      document.getElementById('prop-reply-add')?.click();
+    }
+  });
+
+  // Close button (bottom) - closes panel entirely
+  propClose?.addEventListener('click', closePropertiesPanel);
+
+  // X button (top right) - closes panel entirely
+  document.getElementById('prop-panel-close')?.addEventListener('click', closePropertiesPanel);
 
   // Prevent clicks in properties panel from propagating
   propertiesPanel?.addEventListener('mousedown', (e) => e.stopPropagation());
@@ -420,11 +507,22 @@ function setupMenuEvents() {
     closeActiveTab();
   });
 
-  document.getElementById('menu-exit')?.addEventListener('click', () => {
+  document.getElementById('menu-exit')?.addEventListener('click', async () => {
     closeAllMenus();
-    if (confirm('Exit PDF Annotator?')) {
-      closeWindow();
+    if (hasUnsavedChanges()) {
+      const names = getUnsavedDocumentNames().join(', ');
+      let result = false;
+      if (window.__TAURI__?.dialog?.ask) {
+        result = await window.__TAURI__.dialog.ask(
+          `The following files have unsaved changes:\n${names}\n\nDo you want to exit without saving?`,
+          { title: 'Unsaved Changes', kind: 'warning' }
+        );
+      } else {
+        result = confirm(`The following files have unsaved changes:\n${names}\n\nDo you want to exit without saving?`);
+      }
+      if (!result) return;
     }
+    closeWindow();
   });
 
   // Ribbon Find button
@@ -481,9 +579,14 @@ function setupMenuEvents() {
   document.getElementById('menu-show-properties')?.addEventListener('click', () => {
     closeAllMenus();
     if (propertiesPanel?.classList.contains('visible')) {
-      hideProperties();
-    } else if (state.selectedAnnotation) {
-      showProperties(state.selectedAnnotation);
+      closePropertiesPanel();
+    } else {
+      propertiesPanel.classList.add('visible');
+      if (state.selectedAnnotation) {
+        showProperties(state.selectedAnnotation);
+      } else {
+        hideProperties();
+      }
     }
   });
 
@@ -557,6 +660,7 @@ Ctrl+W - Close
 
 EDIT:
 Ctrl+Z - Undo
+Ctrl+Y / Ctrl+Shift+Z - Redo
 Delete - Delete selected annotation
 Ctrl+Shift+C - Clear page annotations
 
@@ -715,37 +819,14 @@ function setupQuickAccessEvents() {
     }
   });
 
-  // Undo button - remove last annotation
+  // Undo button
   document.getElementById('qa-undo')?.addEventListener('click', () => {
-    if (state.annotations.length > 0) {
-      // Store removed annotation for redo
-      const removed = state.annotations.pop();
-      if (!state.redoStack) state.redoStack = [];
-      state.redoStack.push(removed);
-      markDocumentModified();
-      hideProperties();
-      if (state.viewMode === 'continuous') {
-        redrawContinuous();
-      } else {
-        redrawAnnotations();
-      }
-      updateQuickAccessButtons();
-    }
+    undo();
   });
 
-  // Redo button - restore last undone annotation
+  // Redo button
   document.getElementById('qa-redo')?.addEventListener('click', () => {
-    if (state.redoStack && state.redoStack.length > 0) {
-      const restored = state.redoStack.pop();
-      state.annotations.push(restored);
-      markDocumentModified();
-      if (state.viewMode === 'continuous') {
-        redrawContinuous();
-      } else {
-        redrawAnnotations();
-      }
-      updateQuickAccessButtons();
-    }
+    redo();
   });
 
   // Previous/Next view - placeholder for view history
@@ -759,6 +840,19 @@ function setupQuickAccessEvents() {
 
   // Initial state update
   updateQuickAccessButtons();
+}
+
+// Setup XFDF import/export
+function setupXFDFButtons() {
+  document.getElementById('xfdf-export')?.addEventListener('click', async () => {
+    const { exportXFDFToFile } = await import('../annotations/xfdf.js');
+    exportXFDFToFile();
+  });
+
+  document.getElementById('xfdf-import')?.addEventListener('click', async () => {
+    const { importXFDFFromFile } = await import('../annotations/xfdf.js');
+    importXFDFFromFile();
+  });
 }
 
 // Setup ribbon button events
@@ -795,19 +889,35 @@ function setupRibbonEvents() {
   document.getElementById('ribbon-nav-panel')?.addEventListener('click', toggleLeftPanel);
   document.getElementById('ribbon-properties-panel')?.addEventListener('click', () => {
     if (propertiesPanel?.classList.contains('visible')) {
-      hideProperties();
-    } else if (state.selectedAnnotation) {
-      showProperties(state.selectedAnnotation);
+      closePropertiesPanel();
+    } else {
+      propertiesPanel.classList.add('visible');
+      if (state.selectedAnnotation) {
+        showProperties(state.selectedAnnotation);
+      } else {
+        hideProperties(); // Shows "no selection" message
+      }
     }
   });
   document.getElementById('ribbon-annotations-list')?.addEventListener('click', toggleAnnotationsListPanel);
 
+  // Rotate buttons
+  document.getElementById('rotate-left')?.addEventListener('click', () => {
+    const oldRot = getPageRotation(state.currentPage);
+    rotatePage(-90);
+    recordPageRotation(state.currentPage, oldRot, getPageRotation(state.currentPage));
+  });
+  document.getElementById('rotate-right')?.addEventListener('click', () => {
+    const oldRot = getPageRotation(state.currentPage);
+    rotatePage(90);
+    recordPageRotation(state.currentPage, oldRot, getPageRotation(state.currentPage));
+  });
+
   // Clear All Annotations button
   document.getElementById('ribbon-clear-all')?.addEventListener('click', () => {
     if (state.annotations.length > 0 && confirm('Clear ALL annotations from ALL pages?')) {
+      recordClearAll(state.annotations);
       state.annotations = [];
-      state.redoStack = [];
-      markDocumentModified();
       hideProperties();
       if (state.viewMode === 'continuous') {
         redrawContinuous();
@@ -900,4 +1010,38 @@ function setupWheelZoom() {
       }
     }
   }, { passive: false });
+}
+
+// Setup resizable panel handles
+function setupPanelResize() {
+  const leftPanel = document.getElementById('left-panel');
+  const leftHandle = document.getElementById('left-panel-resize');
+
+  if (leftPanel && leftHandle) {
+    let startX, startWidth;
+
+    leftHandle.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      startX = e.clientX;
+      startWidth = leftPanel.offsetWidth;
+      leftHandle.classList.add('dragging');
+      document.body.style.userSelect = 'none';
+
+      const onMouseMove = (e) => {
+        const delta = e.clientX - startX;
+        const newWidth = Math.max(120, Math.min(500, startWidth + delta));
+        leftPanel.style.width = newWidth + 'px';
+      };
+
+      const onMouseUp = () => {
+        leftHandle.classList.remove('dragging');
+        document.body.style.userSelect = '';
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      };
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    });
+  }
 }

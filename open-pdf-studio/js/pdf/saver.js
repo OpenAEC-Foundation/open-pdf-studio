@@ -1,10 +1,10 @@
-import { state } from '../core/state.js';
+import { state, getPageRotation } from '../core/state.js';
 import { showLoading, hideLoading } from '../ui/dialogs.js';
 import { hexToColorArray } from '../utils/colors.js';
 import { markDocumentSaved, updateWindowTitle } from '../ui/tabs.js';
 import { isTauri, readBinaryFile, writeBinaryFile, saveFileDialog } from '../tauri-api.js';
 import { getCachedPdfBytes } from './loader.js';
-import { PDFDocument, PDFString, PDFName, PDFArray } from '../../node_modules/pdf-lib/dist/pdf-lib.esm.js';
+import { PDFDocument, PDFString, PDFName, PDFArray, PDFStream, degrees } from '../../node_modules/pdf-lib/dist/pdf-lib.esm.js';
 
 // Save PDF with annotations
 export async function savePDF(saveAsPath = null) {
@@ -21,6 +21,7 @@ export async function savePDF(saveAsPath = null) {
   try {
     showLoading('Saving PDF...');
 
+    // Get original PDF bytes (from cache or disk)
     // Get original PDF bytes (from cache or disk)
     let existingPdfBytes = getCachedPdfBytes(state.currentPdfPath);
     if (!existingPdfBytes) {
@@ -46,6 +47,14 @@ export async function savePDF(saveAsPath = null) {
     for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
       const pageNum = pageIndex + 1;
       const page = pages[pageIndex];
+
+      // Apply page rotation if set (combine with existing PDF rotation)
+      const appRotation = getPageRotation(pageNum);
+      if (appRotation) {
+        const existingDeg = page.getRotation().angle;
+        page.setRotation(degrees(existingDeg + appRotation));
+      }
+
       const pageHeight = page.getHeight();
       const pageAnnotations = annotationsByPage[pageNum] || [];
 
@@ -77,19 +86,39 @@ export async function savePDF(saveAsPath = null) {
         let annotDict;
 
         switch (ann.type) {
-          case 'highlight': {
-            // Highlight annotation
+          case 'highlight':
+          case 'textHighlight':
+          case 'textStrikethrough':
+          case 'textUnderline':
+          case 'textSquiggly': {
+            // Text markup annotations
             const x1 = ann.x;
             const y1 = convertY(ann.y + ann.height);
             const x2 = ann.x + ann.width;
             const y2 = convertY(ann.y);
 
-            // Build QuadPoints (4 corners of highlight area)
-            const quadPoints = [x1, y2, x2, y2, x1, y1, x2, y1];
+            // Build QuadPoints from rects if available, otherwise from bounding box
+            let quadPoints;
+            if (ann.rects && ann.rects.length > 0) {
+              quadPoints = [];
+              for (const r of ann.rects) {
+                const qy1 = convertY(r.y + r.height);
+                const qy2 = convertY(r.y);
+                quadPoints.push(r.x, qy2, r.x + r.width, qy2, r.x, qy1, r.x + r.width, qy1);
+              }
+            } else {
+              quadPoints = [x1, y2, x2, y2, x1, y1, x2, y1];
+            }
+
+            // Map type to PDF subtype
+            let markupSubtype = 'Highlight';
+            if (ann.type === 'textStrikethrough') markupSubtype = 'StrikeOut';
+            else if (ann.type === 'textUnderline') markupSubtype = 'Underline';
+            else if (ann.type === 'textSquiggly') markupSubtype = 'Squiggly';
 
             annotDict = context.obj({
               Type: 'Annot',
-              Subtype: 'Highlight',
+              Subtype: markupSubtype,
               Rect: [x1, y1, x2, y2],
               QuadPoints: quadPoints,
               C: hexToColorArray(ann.fillColor || ann.color),
@@ -111,6 +140,7 @@ export async function savePDF(saveAsPath = null) {
 
             // Stroke color
             const strokeColorArr = ann.strokeColor ? hexToColorArray(ann.strokeColor) : colorArr;
+            const boxBsStyle = ann.borderStyle === 'dashed' ? 'D' : ann.borderStyle === 'dotted' ? 'D' : 'S';
 
             const annDictObj = {
               Type: 'Annot',
@@ -124,11 +154,10 @@ export async function savePDF(saveAsPath = null) {
               F: 4
             };
 
-            // Use BS (Border Style) dictionary
             annDictObj.BS = context.obj({
               Type: 'Border',
               W: borderWidth,
-              S: 'S'
+              S: boxBsStyle
             });
 
             // Add interior color (fill) if specified
@@ -161,10 +190,11 @@ export async function savePDF(saveAsPath = null) {
               F: 4
             };
 
+            const circleBsStyle = ann.borderStyle === 'dashed' ? 'D' : ann.borderStyle === 'dotted' ? 'D' : 'S';
             annDictObj.BS = context.obj({
               Type: 'Border',
               W: borderWidth,
-              S: 'S'
+              S: circleBsStyle
             });
 
             if (ann.fillColor && ann.fillColor !== 'none') {
@@ -175,17 +205,20 @@ export async function savePDF(saveAsPath = null) {
             break;
           }
 
-          case 'line': {
-            // Line annotation
+          case 'line':
+          case 'arrow': {
+            // Line annotation (arrows use LE entries)
             const x1 = ann.startX;
             const y1 = convertY(ann.startY);
             const x2 = ann.endX;
             const y2 = convertY(ann.endY);
 
-            const rectX1 = Math.min(x1, x2) - borderWidth;
-            const rectY1 = Math.min(y1, y2) - borderWidth;
-            const rectX2 = Math.max(x1, x2) + borderWidth;
-            const rectY2 = Math.max(y1, y2) + borderWidth;
+            const headSize = ann.headSize || 12;
+            const padding = Math.max(borderWidth, headSize);
+            const rectX1 = Math.min(x1, x2) - padding;
+            const rectY1 = Math.min(y1, y2) - padding;
+            const rectX2 = Math.max(x1, x2) + padding;
+            const rectY2 = Math.max(y1, y2) + padding;
 
             const strokeColorArr = ann.strokeColor ? hexToColorArray(ann.strokeColor) : colorArr;
 
@@ -202,11 +235,35 @@ export async function savePDF(saveAsPath = null) {
               F: 4
             };
 
+            // Border style
+            const bsStyle = ann.borderStyle === 'dashed' ? 'D' : ann.borderStyle === 'dotted' ? 'D' : 'S';
             lineDict.BS = context.obj({
               Type: 'Border',
               W: borderWidth,
-              S: 'S'
+              S: bsStyle
             });
+
+            // Arrow line endings (LE)
+            if (ann.type === 'arrow') {
+              const mapHead = (h) => {
+                switch (h) {
+                  case 'open': return 'OpenArrow';
+                  case 'closed': return 'ClosedArrow';
+                  case 'diamond': return 'Diamond';
+                  case 'circle': return 'Circle';
+                  case 'square': return 'Square';
+                  case 'slash': return 'Slash';
+                  case 'butt': return 'Butt';
+                  default: return 'None';
+                }
+              };
+              lineDict.LE = [PDFName.of(mapHead(ann.startHead)), PDFName.of(mapHead(ann.endHead))];
+
+              // Interior color for closed arrowheads
+              if (ann.fillColor) {
+                lineDict.IC = hexToColorArray(ann.fillColor);
+              }
+            }
 
             annotDict = context.obj(lineDict);
             break;
@@ -424,6 +481,83 @@ export async function savePDF(saveAsPath = null) {
             });
             break;
           }
+
+          case 'stamp': {
+            // Stamp annotation
+            const x1 = ann.x;
+            const y1 = convertY(ann.y + ann.height);
+            const x2 = ann.x + ann.width;
+            const y2 = convertY(ann.y);
+
+            annotDict = context.obj({
+              Type: 'Annot',
+              Subtype: 'Stamp',
+              Rect: [x1, y1, x2, y2],
+              Name: ann.stampName || 'Draft',
+              Contents: PDFString.of(ann.stampText || ann.subject || ''),
+              C: colorArr,
+              CA: opacity,
+              T: PDFString.of(ann.author || 'User'),
+              M: PDFString.of(new Date().toISOString()),
+              F: 4
+            });
+            break;
+          }
+
+          case 'signature': {
+            // Save signature as Stamp annotation
+            const x1 = ann.x;
+            const y1 = convertY(ann.y + ann.height);
+            const x2 = ann.x + ann.width;
+            const y2 = convertY(ann.y);
+
+            annotDict = context.obj({
+              Type: 'Annot',
+              Subtype: 'Stamp',
+              Rect: [x1, y1, x2, y2],
+              Name: 'Signature',
+              Contents: PDFString.of('Signature'),
+              C: colorArr,
+              CA: opacity,
+              T: PDFString.of(ann.author || 'User'),
+              M: PDFString.of(new Date().toISOString()),
+              F: 4
+            });
+            break;
+          }
+
+          case 'measureDistance': {
+            // Save as Line annotation with Measure dictionary
+            const x1 = ann.startX;
+            const y1 = convertY(ann.startY);
+            const x2 = ann.endX;
+            const y2 = convertY(ann.endY);
+
+            annotDict = context.obj({
+              Type: 'Annot',
+              Subtype: 'Line',
+              Rect: [Math.min(x1,x2) - 5, Math.min(y1,y2) - 5, Math.max(x1,x2) + 5, Math.max(y1,y2) + 5],
+              L: [x1, y1, x2, y2],
+              C: hexToColorArray(ann.strokeColor || '#ff0000'),
+              CA: opacity,
+              T: PDFString.of(ann.author || 'User'),
+              Contents: PDFString.of(ann.measureText || ''),
+              M: PDFString.of(new Date().toISOString()),
+              IT: 'LineDimension',
+              F: 4
+            });
+            break;
+          }
+        }
+
+        // Generate appearance stream for better compatibility with other PDF viewers
+        if (annotDict) {
+          const apStream = generateAppearanceStream(context, ann, convertY);
+          if (apStream) {
+            const apStreamRef = context.register(apStream);
+            const apDict = context.obj({ N: apStreamRef });
+            annotDict.set(PDFName.of('AP'), apDict);
+          }
         }
 
         // Add annotation to page
@@ -480,4 +614,110 @@ export async function savePDFAs() {
       updateWindowTitle();
     }
   }
+}
+
+// Generate a PDF appearance stream (Form XObject) for an annotation
+function generateAppearanceStream(context, ann, convertY) {
+  try {
+    let streamContent = '';
+    let bbox;
+
+    switch (ann.type) {
+      case 'box': {
+        const w = ann.width;
+        const h = ann.height;
+        bbox = [0, 0, w, h];
+        const [r, g, b] = hexToRgb(ann.strokeColor || ann.color || '#000000');
+        const lw = ann.lineWidth || 2;
+        streamContent = `${lw} w\n${r} ${g} ${b} RG\n`;
+        if (ann.fillColor) {
+          const [fr, fg, fb] = hexToRgb(ann.fillColor);
+          streamContent += `${fr} ${fg} ${fb} rg\n0 0 ${w} ${h} re B\n`;
+        } else {
+          streamContent += `0 0 ${w} ${h} re S\n`;
+        }
+        break;
+      }
+      case 'circle': {
+        const w = ann.width || ann.radius * 2;
+        const h = ann.height || ann.radius * 2;
+        bbox = [0, 0, w, h];
+        const cx = w / 2, cy = h / 2;
+        const rx = w / 2, ry = h / 2;
+        const k = 0.5522847498; // Bezier approximation of circle
+        const [r, g, b] = hexToRgb(ann.strokeColor || ann.color || '#000000');
+        const lw = ann.lineWidth || 2;
+        streamContent = `${lw} w\n${r} ${g} ${b} RG\n`;
+        if (ann.fillColor) {
+          const [fr, fg, fb] = hexToRgb(ann.fillColor);
+          streamContent += `${fr} ${fg} ${fb} rg\n`;
+        }
+        // Ellipse via Bezier curves
+        streamContent += `${cx} ${cy + ry} m\n`;
+        streamContent += `${cx + k*rx} ${cy + ry} ${cx + rx} ${cy + k*ry} ${cx + rx} ${cy} c\n`;
+        streamContent += `${cx + rx} ${cy - k*ry} ${cx + k*rx} ${cy - ry} ${cx} ${cy - ry} c\n`;
+        streamContent += `${cx - k*rx} ${cy - ry} ${cx - rx} ${cy - k*ry} ${cx - rx} ${cy} c\n`;
+        streamContent += `${cx - rx} ${cy + k*ry} ${cx - k*rx} ${cy + ry} ${cx} ${cy + ry} c\n`;
+        streamContent += ann.fillColor ? 'B\n' : 'S\n';
+        break;
+      }
+      case 'line':
+      case 'arrow': {
+        const x1 = ann.startX, y1s = ann.startY, x2 = ann.endX, y2s = ann.endY;
+        const minX = Math.min(x1, x2) - 5;
+        const minY = Math.min(y1s, y2s) - 5;
+        const maxX = Math.max(x1, x2) + 5;
+        const maxY = Math.max(y1s, y2s) + 5;
+        bbox = [0, 0, maxX - minX, maxY - minY];
+        const [r, g, b] = hexToRgb(ann.strokeColor || ann.color || '#000000');
+        const lw = ann.lineWidth || 2;
+        streamContent = `${lw} w\n${r} ${g} ${b} RG\n`;
+        streamContent += `${x1 - minX} ${maxY - y1s} m ${x2 - minX} ${maxY - y2s} l S\n`;
+        break;
+      }
+      case 'draw': {
+        if (!ann.path || ann.path.length < 2) return null;
+        const xs = ann.path.map(p => p.x);
+        const ys = ann.path.map(p => p.y);
+        const minX = Math.min(...xs) - 2;
+        const minY = Math.min(...ys) - 2;
+        const maxX = Math.max(...xs) + 2;
+        const maxY = Math.max(...ys) + 2;
+        bbox = [0, 0, maxX - minX, maxY - minY];
+        const [r, g, b] = hexToRgb(ann.strokeColor || ann.color || '#000000');
+        const lw = ann.lineWidth || 2;
+        streamContent = `${lw} w\n${r} ${g} ${b} RG\n`;
+        streamContent += `${ann.path[0].x - minX} ${maxY - ann.path[0].y} m\n`;
+        for (let i = 1; i < ann.path.length; i++) {
+          streamContent += `${ann.path[i].x - minX} ${maxY - ann.path[i].y} l\n`;
+        }
+        streamContent += 'S\n';
+        break;
+      }
+      default:
+        return null;
+    }
+
+    if (!streamContent || !bbox) return null;
+
+    return context.stream(streamContent, {
+      Type: 'XObject',
+      Subtype: 'Form',
+      BBox: bbox
+    });
+  } catch (e) {
+    console.warn('Failed to generate appearance stream for', ann.type, e);
+    return null;
+  }
+}
+
+// Convert hex color to RGB values (0-1 range)
+function hexToRgb(hex) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!result) return [0, 0, 0];
+  return [
+    parseInt(result[1], 16) / 255,
+    parseInt(result[2], 16) / 255,
+    parseInt(result[3], 16) / 255
+  ];
 }

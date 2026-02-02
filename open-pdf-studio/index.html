@@ -364,6 +364,92 @@
           <div class="ribbon-group-label">Text</div>
         </div>
 
+        <!-- Stamp & Signature -->
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <button class="ribbon-btn" id="tool-stamp" title="Stamp">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Stamp</span>
+            </button>
+            <button class="ribbon-btn" id="tool-signature" title="Signature">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                  <path stroke-linecap="round" stroke-width="2" d="M3 21c2-2 4-3 6-1s4-1 6-3"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Signature</span>
+            </button>
+          </div>
+          <div class="ribbon-group-label">Stamp</div>
+        </div>
+
+        <!-- Measure -->
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <div class="ribbon-btn-stack">
+              <button class="ribbon-btn small" id="tool-measure-distance" title="Measure Distance">
+                <div class="ribbon-btn-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 20L20 4"/>
+                    <path stroke-linecap="round" stroke-width="2" d="M4 20v-4m0 4h4M20 4v4m0-4h-4"/>
+                  </svg>
+                </div>
+                <span class="ribbon-btn-label">Distance</span>
+              </button>
+              <button class="ribbon-btn small" id="tool-measure-area" title="Measure Area">
+                <div class="ribbon-btn-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <rect x="4" y="4" width="16" height="16" stroke-width="2" stroke-dasharray="4 2"/>
+                    <path stroke-linecap="round" stroke-width="2" d="M8 20v-2m4 2v-2m4 2v-2M4 8h2m-2 4h2m-2 4h2"/>
+                  </svg>
+                </div>
+                <span class="ribbon-btn-label">Area</span>
+              </button>
+              <button class="ribbon-btn small" id="tool-measure-perimeter" title="Measure Perimeter">
+                <div class="ribbon-btn-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 18L9 10L14 14L20 6"/>
+                    <path stroke-linecap="round" stroke-width="2" d="M4 18v-3m0 3h3"/>
+                  </svg>
+                </div>
+                <span class="ribbon-btn-label">Perimeter</span>
+              </button>
+            </div>
+          </div>
+          <div class="ribbon-group-label">Measure</div>
+        </div>
+
+        <!-- Redaction -->
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <button class="ribbon-btn" id="tool-redaction" title="Mark for Redaction">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <rect x="3" y="5" width="18" height="14" rx="0" stroke-width="2"/>
+                  <line x1="3" y1="12" x2="21" y2="12" stroke-width="2"/>
+                  <line x1="7" y1="5" x2="7" y2="19" stroke-width="1.5"/>
+                  <line x1="17" y1="5" x2="17" y2="19" stroke-width="1.5"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Redact</span>
+            </button>
+            <button class="ribbon-btn" id="btn-apply-redactions" title="Apply Redactions on Current Page">
+              <div class="ribbon-btn-icon" style="color: #dc2626;">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                  <rect x="3" y="5" width="18" height="14" rx="0"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Apply</span>
+            </button>
+          </div>
+          <div class="ribbon-group-label">Redaction</div>
+        </div>
+
         <!-- Properties -->
         <div class="ribbon-group">
           <div class="ribbon-group-content">
@@ -562,6 +648,31 @@
           </div>
           <div class="ribbon-group-label">Content</div>
         </div>
+
+        <!-- XFDF Import/Export -->
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <div class="ribbon-btn-stack">
+              <button class="ribbon-btn small" id="xfdf-export" title="Export Annotations to XFDF">
+                <div class="ribbon-btn-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                  </svg>
+                </div>
+                <span class="ribbon-btn-label">Export XFDF</span>
+              </button>
+              <button class="ribbon-btn small" id="xfdf-import" title="Import Annotations from XFDF">
+                <div class="ribbon-btn-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                  </svg>
+                </div>
+                <span class="ribbon-btn-label">Import XFDF</span>
+              </button>
+            </div>
+          </div>
+          <div class="ribbon-group-label">Annotations</div>
+        </div>
       </div>
     </div>
 
@@ -746,6 +857,8 @@
       </button>
     </div>
 
+    <div class="panel-resize-handle" id="left-panel-resize"></div>
+
     <div class="main-view">
       <!-- Find Bar -->
       <div id="find-bar" class="find-bar">
@@ -828,7 +941,36 @@
 
     <!-- Properties Panel -->
     <div class="properties-panel" id="properties-panel">
-      <h3>Annotation Properties</h3>
+      <div id="prop-panel-header" style="display: flex; align-items: center; justify-content: space-between; margin: -16px -16px 12px -16px; background: linear-gradient(to bottom, #3e3e42 0%, #2d2d30 100%); padding: 0 4px 0 12px;">
+        <h3 style="margin: 0; padding: 8px 0; background: none;">Properties</h3>
+        <button id="prop-panel-close" title="Close" style="background: none; border: none; cursor: default; font-size: 18px; color: #aaa; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; padding: 0;"
+          onmouseenter="this.style.background='#e81123';this.style.color='#fff'"
+          onmouseleave="this.style.background='none';this.style.color='#aaa'">&times;</button>
+      </div>
+      <div id="prop-no-selection" style="display: none;">
+        <div class="property-section">
+          <div class="property-section-header">Document</div>
+          <div class="property-group"><label>File</label><span id="doc-info-filename" style="font-size: 12px; color: #333; word-break: break-all;">-</span></div>
+          <div class="property-group"><label>Path</label><span id="doc-info-filepath" style="font-size: 11px; color: #666; word-break: break-all;">-</span></div>
+          <div class="property-group"><label>Pages</label><span id="doc-info-pages" style="font-size: 12px; color: #333;">-</span></div>
+          <div class="property-group"><label>Page Size</label><span id="doc-info-pagesize" style="font-size: 12px; color: #333;">-</span></div>
+        </div>
+        <div class="property-section">
+          <div class="property-section-header">Metadata</div>
+          <div class="property-group"><label>Title</label><span id="doc-info-title" style="font-size: 12px; color: #333;">-</span></div>
+          <div class="property-group"><label>Author</label><span id="doc-info-author" style="font-size: 12px; color: #333;">-</span></div>
+          <div class="property-group"><label>Subject</label><span id="doc-info-subject" style="font-size: 12px; color: #333;">-</span></div>
+          <div class="property-group"><label>Creator</label><span id="doc-info-creator" style="font-size: 12px; color: #333;">-</span></div>
+          <div class="property-group"><label>Producer</label><span id="doc-info-producer" style="font-size: 12px; color: #333;">-</span></div>
+          <div class="property-group"><label>PDF Version</label><span id="doc-info-version" style="font-size: 12px; color: #333;">-</span></div>
+        </div>
+        <div class="property-section">
+          <div class="property-section-header">Annotations</div>
+          <div class="property-group"><label>Total</label><span id="doc-info-annot-count" style="font-size: 12px; color: #333;">0</span></div>
+          <div class="property-group"><label>On Page</label><span id="doc-info-annot-page" style="font-size: 12px; color: #333;">0</span></div>
+        </div>
+        <div style="padding: 12px 4px; text-align: center; color: #999; font-size: 11px; font-style: italic;">Select an annotation to edit its properties</div>
+      </div>
 
       <!-- General Section -->
       <div class="property-section" id="prop-general-section">
@@ -889,6 +1031,33 @@
             <option value="no">No</option>
             <option value="yes">Yes</option>
           </select>
+        </div>
+
+        <div class="property-group" id="prop-alt-text-group">
+          <label>Alt Text</label>
+          <textarea id="prop-alt-text" rows="2" placeholder="Description for accessibility..." style="width: 100%; resize: vertical; font-size: 12px;"></textarea>
+        </div>
+
+        <div class="property-group" id="prop-status-group">
+          <label>Status</label>
+          <select id="prop-status">
+            <option value="none">None</option>
+            <option value="accepted">Accepted</option>
+            <option value="rejected">Rejected</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="completed">Completed</option>
+            <option value="reviewed">Reviewed</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Replies Section -->
+      <div class="property-section" id="prop-replies-section" style="display: none;">
+        <div class="property-section-header">Replies</div>
+        <div id="prop-replies-list" style="max-height: 150px; overflow-y: auto; margin-bottom: 8px;"></div>
+        <div style="display: flex; gap: 4px;">
+          <input type="text" id="prop-reply-input" placeholder="Add a reply..." style="flex: 1; padding: 4px 8px; border: 1px solid #ccc; font-size: 12px;">
+          <button id="prop-reply-add" style="padding: 4px 8px; border: 1px solid #0078d4; background: #0078d4; color: #fff; cursor: pointer; font-size: 12px;">Add</button>
         </div>
       </div>
 
@@ -1769,6 +1938,12 @@
               <label class="pref-checkbox-label">
                 <input type="checkbox" id="pref-enable-grid-snap">
                 <span>Enable Grid Snapping</span>
+              </label>
+            </div>
+            <div class="pref-row pref-checkbox-row">
+              <label class="pref-checkbox-label">
+                <input type="checkbox" id="pref-show-grid">
+                <span>Show Grid Overlay</span>
               </label>
             </div>
           </div>

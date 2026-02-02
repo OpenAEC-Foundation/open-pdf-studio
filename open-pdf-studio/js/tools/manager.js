@@ -3,7 +3,9 @@ import {
   annotationCanvas, pdfContainer,
   toolSelect, toolHand, toolHighlight, toolDraw, toolLine, toolArrow, toolCircle,
   toolBox, toolComment, toolText, toolPolygon, toolCloud,
-  toolPolyline, toolTextbox, toolCallout
+  toolPolyline, toolTextbox, toolCallout,
+  toolStamp, toolSignature, toolMeasureDistance, toolMeasureArea, toolMeasurePerimeter,
+  toolRedaction
 } from '../ui/dom-elements.js';
 import { hideProperties } from '../ui/properties-panel.js';
 import { redrawAnnotations } from '../annotations/rendering.js';
@@ -56,6 +58,12 @@ export function setTool(tool) {
     redrawAnnotations();
   }
 
+  // Cancel any ongoing measurement when switching tools
+  if (state.measurePoints && tool !== 'measureArea' && tool !== 'measurePerimeter') {
+    state.measurePoints = null;
+    redrawAnnotations();
+  }
+
   state.currentTool = tool;
 
   // Hide properties panel when switching tools
@@ -71,7 +79,8 @@ export function setTool(tool) {
     if (btn) btn.classList.remove('active');
   });
   // Also remove from optional buttons
-  [toolPolygon, toolCloud, toolPolyline, toolTextbox, toolCallout].forEach(btn => {
+  [toolPolygon, toolCloud, toolPolyline, toolTextbox, toolCallout,
+   toolStamp, toolSignature, toolMeasureDistance, toolMeasureArea, toolMeasurePerimeter, toolRedaction].forEach(btn => {
     if (btn) btn.classList.remove('active');
   });
 
@@ -135,6 +144,30 @@ export function setTool(tool) {
     case 'text':
       if (toolText) toolText.classList.add('active');
       setAllCanvasCursors('text');
+      break;
+    case 'stamp':
+      if (toolStamp) toolStamp.classList.add('active');
+      setAllCanvasCursors('crosshair');
+      break;
+    case 'signature':
+      if (toolSignature) toolSignature.classList.add('active');
+      setAllCanvasCursors('crosshair');
+      break;
+    case 'measureDistance':
+      if (toolMeasureDistance) toolMeasureDistance.classList.add('active');
+      setAllCanvasCursors('crosshair');
+      break;
+    case 'measureArea':
+      if (toolMeasureArea) toolMeasureArea.classList.add('active');
+      setAllCanvasCursors('crosshair');
+      break;
+    case 'measurePerimeter':
+      if (toolMeasurePerimeter) toolMeasurePerimeter.classList.add('active');
+      setAllCanvasCursors('crosshair');
+      break;
+    case 'redaction':
+      if (toolRedaction) toolRedaction.classList.add('active');
+      setAllCanvasCursors('crosshair');
       break;
     default:
       setAllCanvasCursors('default');

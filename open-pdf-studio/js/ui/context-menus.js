@@ -1,11 +1,14 @@
-import { state } from '../core/state.js';
+import { state, clearSelection, isSelected } from '../core/state.js';
 import { annotationCanvas, propertiesPanel } from './dom-elements.js';
-import { showProperties, hideProperties } from './properties-panel.js';
+import { showProperties, hideProperties, showMultiSelectionProperties } from './properties-panel.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
-import { copyAnnotation, pasteFromClipboard, duplicateAnnotation } from '../annotations/clipboard.js';
+import { copyAnnotation, copyAnnotations, pasteFromClipboard, duplicateAnnotation } from '../annotations/clipboard.js';
+import { recordAdd, recordDelete, recordBulkDelete } from '../core/undo-manager.js';
 import { bringToFront, sendToBack, bringForward, sendBackward, rotateAnnotation, flipHorizontal, flipVertical } from '../annotations/z-order.js';
 import { startTextEditing } from '../tools/text-editing.js';
 import { createTextMarkupAnnotation } from '../text/text-markup.js';
+import { setAsDefaultStyle } from '../core/preferences.js';
+import { alignAnnotations } from '../annotations/smart-guides.js';
 import { getSelectedText, getSelectionRectsForAnnotation, clearTextSelection } from '../text/text-selection.js';
 
 // Create context menu element
@@ -92,73 +95,96 @@ export function showContextMenu(e, annotation) {
   const menu = getContextMenu();
   menu.innerHTML = '';
 
+  const isMultiSelect = state.selectedAnnotations.length > 1 && isSelected(annotation);
   const isLocked = annotation.locked || false;
 
-  // Edit text (for textbox/callout)
-  if (['textbox', 'callout'].includes(annotation.type)) {
-    menu.appendChild(createMenuItem('Edit Text...', () => {
-      startTextEditing(annotation);
-    }, isLocked));
+  if (isMultiSelect) {
+    // Multi-selection context menu
+    const count = state.selectedAnnotations.length;
+
+    menu.appendChild(createMenuItem(`Copy ${count} Annotations`, () => {
+      copyAnnotations(state.selectedAnnotations);
+    }));
+    menu.appendChild(createMenuItem(`Cut ${count} Annotations`, () => {
+      copyAnnotations(state.selectedAnnotations);
+      recordBulkDelete(state.selectedAnnotations);
+      const toDelete = new Set(state.selectedAnnotations);
+      state.annotations = state.annotations.filter(a => !toDelete.has(a));
+      clearSelection();
+      hideProperties();
+      if (state.viewMode === 'continuous') {
+        redrawContinuous();
+      } else {
+        redrawAnnotations();
+      }
+    }));
+
     menu.appendChild(createSeparator());
-  }
 
-  // Properties
-  menu.appendChild(createMenuItem('Properties...', () => {
-    showProperties(annotation);
-  }));
+    // Z-order for all selected
+    menu.appendChild(createMenuItem('Bring All to Front', () => {
+      for (const ann of state.selectedAnnotations) bringToFront(ann);
+    }));
+    menu.appendChild(createMenuItem('Send All to Back', () => {
+      for (const ann of [...state.selectedAnnotations].reverse()) sendToBack(ann);
+    }));
 
-  menu.appendChild(createSeparator());
+    menu.appendChild(createSeparator());
 
-  // Clipboard operations
-  menu.appendChild(createMenuItem('Copy', () => {
-    copyAnnotation(annotation);
-  }));
-  menu.appendChild(createMenuItem('Cut', () => {
-    copyAnnotation(annotation);
-    state.annotations = state.annotations.filter(a => a !== annotation);
-    hideProperties();
-    if (state.viewMode === 'continuous') {
-      redrawContinuous();
-    } else {
-      redrawAnnotations();
+    // Alignment options
+    menu.appendChild(createMenuItem('Align Left', () => { alignAnnotations('left'); redrawAnnotations(); }));
+    menu.appendChild(createMenuItem('Align Right', () => { alignAnnotations('right'); redrawAnnotations(); }));
+    menu.appendChild(createMenuItem('Align Top', () => { alignAnnotations('top'); redrawAnnotations(); }));
+    menu.appendChild(createMenuItem('Align Bottom', () => { alignAnnotations('bottom'); redrawAnnotations(); }));
+    menu.appendChild(createMenuItem('Center Horizontally', () => { alignAnnotations('center'); redrawAnnotations(); }));
+    menu.appendChild(createMenuItem('Center Vertically', () => { alignAnnotations('middle'); redrawAnnotations(); }));
+    if (count >= 3) {
+      menu.appendChild(createMenuItem('Distribute Horizontally', () => { alignAnnotations('distribute-h'); redrawAnnotations(); }));
+      menu.appendChild(createMenuItem('Distribute Vertically', () => { alignAnnotations('distribute-v'); redrawAnnotations(); }));
     }
-  }, isLocked));
-  menu.appendChild(createMenuItem('Duplicate', () => {
-    state.selectedAnnotation = annotation;
-    duplicateAnnotation();
-  }));
 
-  menu.appendChild(createSeparator());
-
-  // Z-order operations
-  menu.appendChild(createMenuItem('Bring to Front', () => bringToFront(annotation)));
-  menu.appendChild(createMenuItem('Send to Back', () => sendToBack(annotation)));
-  menu.appendChild(createMenuItem('Bring Forward', () => bringForward(annotation)));
-  menu.appendChild(createMenuItem('Send Backward', () => sendBackward(annotation)));
-
-  // Image-specific operations
-  if (annotation.type === 'image') {
     menu.appendChild(createSeparator());
-    menu.appendChild(createMenuItem('Rotate 90° CW', () => rotateAnnotation(annotation, 90), isLocked));
-    menu.appendChild(createMenuItem('Rotate 90° CCW', () => rotateAnnotation(annotation, -90), isLocked));
-    menu.appendChild(createMenuItem('Flip Horizontal', () => flipHorizontal(annotation), isLocked));
-    menu.appendChild(createMenuItem('Flip Vertical', () => flipVertical(annotation), isLocked));
-  }
 
-  menu.appendChild(createSeparator());
+    menu.appendChild(createMenuItem(`Delete ${count} Annotations`, () => {
+      if (confirm(`Delete ${count} annotations?`)) {
+        recordBulkDelete(state.selectedAnnotations);
+        const toDelete = new Set(state.selectedAnnotations);
+        state.annotations = state.annotations.filter(a => !toDelete.has(a));
+        clearSelection();
+        hideProperties();
+        if (state.viewMode === 'continuous') {
+          redrawContinuous();
+        } else {
+          redrawAnnotations();
+        }
+      }
+    }));
+  } else {
+    // Single annotation context menu
 
-  // Lock/Unlock
-  menu.appendChild(createMenuItem(isLocked ? 'Unlock' : 'Lock', () => {
-    annotation.locked = !annotation.locked;
-    annotation.modifiedAt = new Date().toISOString();
-    if (state.selectedAnnotation === annotation) {
+    // Edit text (for textbox/callout)
+    if (['textbox', 'callout'].includes(annotation.type)) {
+      menu.appendChild(createMenuItem('Edit Text...', () => {
+        startTextEditing(annotation);
+      }, isLocked));
+      menu.appendChild(createSeparator());
+    }
+
+    // Properties
+    menu.appendChild(createMenuItem('Properties...', () => {
       showProperties(annotation);
-    }
-  }));
+    }));
 
-  // Delete
-  menu.appendChild(createMenuItem('Delete', () => {
-    if (confirm('Delete this annotation?')) {
+    menu.appendChild(createSeparator());
+
+    // Clipboard operations
+    menu.appendChild(createMenuItem('Copy', () => {
+      copyAnnotation(annotation);
+    }));
+    menu.appendChild(createMenuItem('Cut', () => {
+      copyAnnotation(annotation);
+      const idx = state.annotations.indexOf(annotation);
+      recordDelete(annotation, idx);
       state.annotations = state.annotations.filter(a => a !== annotation);
       hideProperties();
       if (state.viewMode === 'continuous') {
@@ -166,8 +192,60 @@ export function showContextMenu(e, annotation) {
       } else {
         redrawAnnotations();
       }
+    }, isLocked));
+    menu.appendChild(createMenuItem('Duplicate', () => {
+      state.selectedAnnotation = annotation;
+      duplicateAnnotation();
+    }));
+
+    menu.appendChild(createSeparator());
+
+    // Z-order operations
+    menu.appendChild(createMenuItem('Bring to Front', () => bringToFront(annotation)));
+    menu.appendChild(createMenuItem('Send to Back', () => sendToBack(annotation)));
+    menu.appendChild(createMenuItem('Bring Forward', () => bringForward(annotation)));
+    menu.appendChild(createMenuItem('Send Backward', () => sendBackward(annotation)));
+
+    // Image-specific operations
+    if (annotation.type === 'image') {
+      menu.appendChild(createSeparator());
+      menu.appendChild(createMenuItem('Rotate 90° CW', () => rotateAnnotation(annotation, 90), isLocked));
+      menu.appendChild(createMenuItem('Rotate 90° CCW', () => rotateAnnotation(annotation, -90), isLocked));
+      menu.appendChild(createMenuItem('Flip Horizontal', () => flipHorizontal(annotation), isLocked));
+      menu.appendChild(createMenuItem('Flip Vertical', () => flipVertical(annotation), isLocked));
     }
-  }, isLocked));
+
+    menu.appendChild(createSeparator());
+
+    // Set as Default Style
+    menu.appendChild(createMenuItem('Set as Default Style', () => {
+      setAsDefaultStyle(annotation);
+    }));
+
+    // Lock/Unlock
+    menu.appendChild(createMenuItem(isLocked ? 'Unlock' : 'Lock', () => {
+      annotation.locked = !annotation.locked;
+      annotation.modifiedAt = new Date().toISOString();
+      if (state.selectedAnnotation === annotation) {
+        showProperties(annotation);
+      }
+    }));
+
+    // Delete
+    menu.appendChild(createMenuItem('Delete', () => {
+      if (confirm('Delete this annotation?')) {
+        const idx = state.annotations.indexOf(annotation);
+        recordDelete(annotation, idx);
+        state.annotations = state.annotations.filter(a => a !== annotation);
+        hideProperties();
+        if (state.viewMode === 'continuous') {
+          redrawContinuous();
+        } else {
+          redrawAnnotations();
+        }
+      }
+    }, isLocked));
+  }
 
   // Position menu
   menu.style.left = `${e.clientX}px`;
@@ -228,6 +306,80 @@ export function initContextMenus() {
   if (annotationCanvas) {
     annotationCanvas.addEventListener('contextmenu', (e) => {
       if (!state.pdfDoc) return;
+
+      // Right-click finishes measure area/perimeter
+      if ((state.currentTool === 'measureArea' || state.currentTool === 'measurePerimeter') && state.measurePoints && state.measurePoints.length >= 2) {
+        e.preventDefault();
+        import('../annotations/factory.js').then(({ createAnnotation }) => {
+          import('../annotations/measurement.js').then(({ calculateArea, calculatePerimeter, formatMeasurement }) => {
+            const points = [...state.measurePoints];
+            let ann;
+            if (state.currentTool === 'measureArea' && points.length >= 3) {
+              const area = calculateArea(points);
+              ann = createAnnotation({
+                type: 'measureArea',
+                page: state.currentPage,
+                points: points,
+                color: '#ff0000',
+                strokeColor: '#ff0000',
+                lineWidth: 1,
+                measureText: formatMeasurement(area),
+                measureValue: area.value,
+                measureUnit: area.unit
+              });
+            } else if (state.currentTool === 'measurePerimeter' && points.length >= 2) {
+              const perim = calculatePerimeter(points);
+              ann = createAnnotation({
+                type: 'measurePerimeter',
+                page: state.currentPage,
+                points: points,
+                color: '#ff0000',
+                strokeColor: '#ff0000',
+                lineWidth: 1,
+                measureText: formatMeasurement(perim),
+                measureValue: perim.value,
+                measureUnit: perim.unit
+              });
+            }
+            if (ann) {
+              state.annotations.push(ann);
+              recordAdd(ann);
+            }
+            state.measurePoints = null;
+            import('../annotations/rendering.js').then(({ redrawAnnotations }) => {
+              redrawAnnotations();
+            });
+          });
+        });
+        return;
+      }
+
+      // Right-click finishes polyline drawing
+      if (state.currentTool === 'polyline' && state.isDrawingPolyline) {
+        e.preventDefault();
+        import('../annotations/factory.js').then(({ createAnnotation }) => {
+          if (state.polylinePoints.length >= 2) {
+            const colorPicker = document.getElementById('color-picker');
+            const lineWidthEl = document.getElementById('line-width');
+            const ann = createAnnotation({
+              type: 'polyline',
+              page: state.currentPage,
+              points: [...state.polylinePoints],
+              color: colorPicker?.value || '#000000',
+              strokeColor: colorPicker?.value || '#000000',
+              lineWidth: parseInt(lineWidthEl?.value) || 2
+            });
+            state.annotations.push(ann);
+            recordAdd(ann);
+          }
+          state.polylinePoints = [];
+          state.isDrawingPolyline = false;
+          import('../annotations/rendering.js').then(({ redrawAnnotations }) => {
+            redrawAnnotations();
+          });
+        });
+        return;
+      }
 
       const rect = annotationCanvas.getBoundingClientRect();
       const x = (e.clientX - rect.left) / state.scale;

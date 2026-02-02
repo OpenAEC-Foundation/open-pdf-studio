@@ -28,6 +28,7 @@ function getAnnotationCenter(annotation) {
     case 'cloud':
     case 'textbox':
     case 'image':
+    case 'redaction':
       return {
         x: annotation.x + annotation.width / 2,
         y: annotation.y + annotation.height / 2
@@ -206,6 +207,18 @@ export function getAnnotationHandles(annotation) {
       handles.push({ type: HANDLE_TYPES.RIGHT, x: annotation.x + annotation.width - hs/2, y: annotation.y + annotation.height/2 - hs/2 });
       // Rotation handle (above the image)
       handles.push({ type: HANDLE_TYPES.ROTATE, x: annotation.x + annotation.width/2 - hs/2, y: annotation.y - 25 - hs/2 });
+      break;
+
+    case 'redaction':
+      // Corner and edge handles for resize (no rotation)
+      handles.push({ type: HANDLE_TYPES.TOP_LEFT, x: annotation.x - hs/2, y: annotation.y - hs/2 });
+      handles.push({ type: HANDLE_TYPES.TOP_RIGHT, x: annotation.x + annotation.width - hs/2, y: annotation.y - hs/2 });
+      handles.push({ type: HANDLE_TYPES.BOTTOM_LEFT, x: annotation.x - hs/2, y: annotation.y + annotation.height - hs/2 });
+      handles.push({ type: HANDLE_TYPES.BOTTOM_RIGHT, x: annotation.x + annotation.width - hs/2, y: annotation.y + annotation.height - hs/2 });
+      handles.push({ type: HANDLE_TYPES.TOP, x: annotation.x + annotation.width/2 - hs/2, y: annotation.y - hs/2 });
+      handles.push({ type: HANDLE_TYPES.BOTTOM, x: annotation.x + annotation.width/2 - hs/2, y: annotation.y + annotation.height - hs/2 });
+      handles.push({ type: HANDLE_TYPES.LEFT, x: annotation.x - hs/2, y: annotation.y + annotation.height/2 - hs/2 });
+      handles.push({ type: HANDLE_TYPES.RIGHT, x: annotation.x + annotation.width - hs/2, y: annotation.y + annotation.height/2 - hs/2 });
       break;
 
     case 'textHighlight':

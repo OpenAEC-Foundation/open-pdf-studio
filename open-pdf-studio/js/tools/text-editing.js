@@ -1,6 +1,8 @@
 import { state } from '../core/state.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { showProperties } from '../ui/properties-panel.js';
+import { recordAdd, recordModify } from '../core/undo-manager.js';
+import { cloneAnnotation } from '../annotations/factory.js';
 
 // Start inline text editing for textbox/callout
 export function startTextEditing(annotation) {
@@ -17,6 +19,7 @@ export function startTextEditing(annotation) {
 
   state.isEditingText = true;
   state.editingAnnotation = annotation;
+  state._textEditSnapshot = cloneAnnotation(annotation);
 
   // Create textarea overlay
   const textarea = document.createElement('textarea');
@@ -107,6 +110,11 @@ export function finishTextEditing() {
     annotation.text = textarea.value;
     annotation.modifiedAt = new Date().toISOString();
 
+    // Record the modification for undo
+    if (state._textEditSnapshot && annotation.id) {
+      recordModify(annotation.id, state._textEditSnapshot, annotation);
+    }
+
     // Remove textarea
     textarea.remove();
   }
@@ -115,6 +123,7 @@ export function finishTextEditing() {
   state.isEditingText = false;
   state.editingAnnotation = null;
   state.textEditElement = null;
+  state._textEditSnapshot = null;
 
   // Refresh display
   if (state.viewMode === 'continuous') {
@@ -134,6 +143,7 @@ export function addTextAnnotation(x, y) {
   const text = prompt('Enter text:');
   if (text) {
     const annotation = {
+      id: Date.now().toString(36) + Math.random().toString(36).substr(2, 9),
       type: 'text',
       page: state.currentPage,
       x: x,
@@ -149,6 +159,7 @@ export function addTextAnnotation(x, y) {
     };
 
     state.annotations.push(annotation);
+    recordAdd(annotation);
 
     if (state.viewMode === 'continuous') {
       redrawContinuous();
@@ -163,6 +174,7 @@ export function addComment(x, y) {
   const text = prompt('Enter comment:');
   if (text !== null) { // Allow empty comments
     const annotation = {
+      id: Date.now().toString(36) + Math.random().toString(36).substr(2, 9),
       type: 'comment',
       page: state.currentPage,
       x: x,
@@ -170,9 +182,9 @@ export function addComment(x, y) {
       width: 24,
       height: 24,
       text: text,
-      color: '#FFFF00',
-      fillColor: '#FFFF00',
-      icon: 'comment',
+      color: state.preferences.commentColor || '#FFFF00',
+      fillColor: state.preferences.commentColor || '#FFFF00',
+      icon: state.preferences.commentIcon || 'comment',
       author: state.defaultAuthor,
       createdAt: new Date().toISOString(),
       modifiedAt: new Date().toISOString(),
@@ -181,6 +193,7 @@ export function addComment(x, y) {
     };
 
     state.annotations.push(annotation);
+    recordAdd(annotation);
 
     if (state.viewMode === 'continuous') {
       redrawContinuous();

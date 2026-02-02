@@ -1,9 +1,10 @@
-import { state } from '../core/state.js';
+import { state, selectAllOnPage, clearSelection } from '../core/state.js';
+import { undo, redo, recordBulkDelete } from '../core/undo-manager.js';
 import { propertiesPanel, toolUndo, toolClear, propDelete, zoomInBtn, zoomOutBtn } from '../ui/dom-elements.js';
 import { setTool } from '../tools/manager.js';
 import { showPreferencesDialog, hidePreferencesDialog } from '../core/preferences.js';
 import { showDocPropertiesDialog } from '../ui/dialogs.js';
-import { copyAnnotation, pasteFromClipboard } from '../annotations/clipboard.js';
+import { copyAnnotation, copyAnnotations, pasteFromClipboard } from '../annotations/clipboard.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { openPDFFile } from '../pdf/loader.js';
 import { savePDFAs } from '../pdf/saver.js';
@@ -11,6 +12,7 @@ import { toggleAnnotationsListPanel } from '../ui/annotations-list.js';
 import { toggleLeftPanel } from '../ui/left-panel.js';
 import { switchToTab } from '../ui/ribbon.js';
 import { openFindBar, closeFindBar } from '../search/find-bar.js';
+import { hideProperties, showProperties, showMultiSelectionProperties } from '../ui/properties-panel.js';
 
 // Handle keydown events
 export function handleKeydown(e) {
@@ -63,18 +65,57 @@ export function handleKeydown(e) {
   // Edit shortcuts
   else if (ctrl && !shift && e.key === 'z') {
     e.preventDefault();
-    if (toolUndo) toolUndo.click();
+    undo();
+  } else if (ctrl && e.key === 'y') {
+    e.preventDefault();
+    redo();
+  } else if (ctrl && shift && e.key === 'Z') {
+    e.preventDefault();
+    redo();
+  } else if (ctrl && !shift && e.key === 'a') {
+    // Ctrl+A: Select all annotations on current page
+    e.preventDefault();
+    if (state.pdfDoc) {
+      selectAllOnPage();
+      if (state.selectedAnnotations.length === 1) {
+        showProperties(state.selectedAnnotations[0]);
+      } else if (state.selectedAnnotations.length > 1) {
+        showMultiSelectionProperties();
+      }
+      if (state.viewMode === 'continuous') {
+        redrawContinuous();
+      } else {
+        redrawAnnotations();
+      }
+    }
   } else if (e.key === 'Delete') {
     e.preventDefault();
-    if (state.selectedAnnotation) {
+    if (state.selectedAnnotations.length > 1) {
+      // Multi-selection delete
+      if (confirm(`Delete ${state.selectedAnnotations.length} annotations?`)) {
+        recordBulkDelete(state.selectedAnnotations);
+        const toDelete = new Set(state.selectedAnnotations);
+        state.annotations = state.annotations.filter(a => !toDelete.has(a));
+        clearSelection();
+        hideProperties();
+        if (state.viewMode === 'continuous') {
+          redrawContinuous();
+        } else {
+          redrawAnnotations();
+        }
+      }
+    } else if (state.selectedAnnotation) {
       if (propDelete) propDelete.click();
     }
   } else if (ctrl && shift && e.key === 'C') {
     e.preventDefault();
     if (toolClear) toolClear.click();
   } else if (ctrl && !shift && e.key === 'c') {
-    // Copy selected annotation (only if annotation is selected, otherwise allow native text copy)
-    if (state.selectedAnnotation) {
+    // Copy selected annotations
+    if (state.selectedAnnotations.length > 1) {
+      e.preventDefault();
+      copyAnnotations(state.selectedAnnotations);
+    } else if (state.selectedAnnotation) {
       e.preventDefault();
       copyAnnotation(state.selectedAnnotation);
     }
@@ -109,15 +150,10 @@ export function handleKeydown(e) {
     setTool('select');
     // Switch to Home ribbon tab
     switchToTab('home');
-    // Deselect any selected annotation
-    if (state.selectedAnnotation) {
-      state.selectedAnnotation = null;
-      propertiesPanel.classList.remove('visible');
-      if (state.viewMode === 'continuous') {
-        redrawContinuous();
-      } else {
-        redrawAnnotations();
-      }
+    // Deselect any selected annotations
+    if (state.selectedAnnotation || state.selectedAnnotations.length > 0) {
+      clearSelection();
+      hideProperties();
     }
   }
 

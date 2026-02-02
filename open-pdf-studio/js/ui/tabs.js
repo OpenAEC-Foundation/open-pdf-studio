@@ -108,14 +108,22 @@ export function switchToTab(index) {
  * @param {boolean} force - Force close without checking for unsaved changes
  * @returns {boolean} True if tab was closed, false if cancelled
  */
-export function closeTab(index, force = false) {
+export async function closeTab(index, force = false) {
   if (index < 0 || index >= state.documents.length) return false;
 
   const doc = state.documents[index];
 
   // Check for unsaved changes
   if (!force && doc.modified) {
-    const result = confirm(`"${doc.fileName}" has unsaved changes. Do you want to close it anyway?`);
+    let result = false;
+    if (window.__TAURI__?.dialog?.ask) {
+      result = await window.__TAURI__.dialog.ask(
+        `"${doc.fileName}" has unsaved changes. Do you want to close it anyway?`,
+        { title: 'Unsaved Changes', kind: 'warning' }
+      );
+    } else {
+      result = confirm(`"${doc.fileName}" has unsaved changes. Do you want to close it anyway?`);
+    }
     if (!result) return false;
   }
 
@@ -148,9 +156,25 @@ export function closeTab(index, force = false) {
  * Close the current active tab
  * @returns {boolean} True if tab was closed
  */
-export function closeActiveTab() {
+export async function closeActiveTab() {
   if (state.activeDocumentIndex === -1) return false;
   return closeTab(state.activeDocumentIndex);
+}
+
+/**
+ * Check if any open document has unsaved changes
+ * @returns {boolean}
+ */
+export function hasUnsavedChanges() {
+  return state.documents.some(doc => doc.modified);
+}
+
+/**
+ * Get list of unsaved document names
+ * @returns {string[]}
+ */
+export function getUnsavedDocumentNames() {
+  return state.documents.filter(doc => doc.modified).map(doc => doc.fileName);
 }
 
 /**

@@ -2,9 +2,10 @@ import { state } from '../core/state.js';
 import { cloneAnnotation } from './factory.js';
 import { generateImageId } from '../utils/helpers.js';
 import { updateStatusMessage } from '../ui/status-bar.js';
-import { showProperties } from '../ui/properties-panel.js';
+import { showProperties, showMultiSelectionProperties } from '../ui/properties-panel.js';
 import { redrawAnnotations, redrawContinuous } from './rendering.js';
 import { annotationCanvas, pdfContainer } from '../ui/dom-elements.js';
+import { recordAdd, recordBulkAdd } from '../core/undo-manager.js';
 
 // Copy annotation to internal clipboard
 export function copyAnnotation(annotation) {
@@ -36,7 +37,9 @@ export async function pasteFromClipboard() {
   }
 
   // Fallback to internal clipboard for annotations
-  if (state.clipboardAnnotation) {
+  if (state.clipboardAnnotations && state.clipboardAnnotations.length > 1) {
+    pasteAnnotations();
+  } else if (state.clipboardAnnotation) {
     pasteAnnotation();
   }
 }
@@ -79,6 +82,7 @@ export async function pasteImageFromBlob(blob) {
 
   // Create image annotation
   const annotation = {
+    id: Date.now().toString(36) + Math.random().toString(36).substr(2, 9),
     type: 'image',
     page: state.currentPage,
     x: Math.max(10, x),
@@ -100,6 +104,7 @@ export async function pasteImageFromBlob(blob) {
   };
 
   state.annotations.push(annotation);
+  recordAdd(annotation);
   state.selectedAnnotation = annotation;
   showProperties(annotation);
 
@@ -131,7 +136,8 @@ export function pasteAnnotation() {
     newAnnotation.path = newAnnotation.path.map(p => ({ x: p.x + 20, y: p.y + 20 }));
   }
 
-  // Update page and timestamps
+  // Update page, id, and timestamps
+  newAnnotation.id = Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
   newAnnotation.page = state.currentPage;
   newAnnotation.createdAt = new Date().toISOString();
   newAnnotation.modifiedAt = new Date().toISOString();
@@ -147,6 +153,7 @@ export function pasteAnnotation() {
   }
 
   state.annotations.push(newAnnotation);
+  recordAdd(newAnnotation);
   state.selectedAnnotation = newAnnotation;
   showProperties(newAnnotation);
 
@@ -165,4 +172,73 @@ export function duplicateAnnotation() {
 
   copyAnnotation(state.selectedAnnotation);
   pasteAnnotation();
+}
+
+// Copy multiple annotations to internal clipboard
+export function copyAnnotations(annotations) {
+  if (!annotations || annotations.length === 0) return;
+  state.clipboardAnnotations = annotations.map(a => cloneAnnotation(a));
+  state.clipboardAnnotation = state.clipboardAnnotations[0]; // backward compat
+  updateStatusMessage(`${annotations.length} annotations copied`);
+}
+
+// Paste multiple annotations from internal clipboard
+export function pasteAnnotations() {
+  if (!state.clipboardAnnotations || state.clipboardAnnotations.length === 0) {
+    if (state.clipboardAnnotation) {
+      pasteAnnotation();
+      return;
+    }
+    return;
+  }
+
+  const newAnnotations = [];
+  for (const source of state.clipboardAnnotations) {
+    const newAnn = cloneAnnotation(source);
+
+    // Offset position
+    if (newAnn.x !== undefined) newAnn.x += 20;
+    if (newAnn.y !== undefined) newAnn.y += 20;
+    if (newAnn.startX !== undefined) newAnn.startX += 20;
+    if (newAnn.startY !== undefined) newAnn.startY += 20;
+    if (newAnn.endX !== undefined) newAnn.endX += 20;
+    if (newAnn.endY !== undefined) newAnn.endY += 20;
+    if (newAnn.centerX !== undefined) newAnn.centerX += 20;
+    if (newAnn.centerY !== undefined) newAnn.centerY += 20;
+    if (newAnn.path) {
+      newAnn.path = newAnn.path.map(p => ({ x: p.x + 20, y: p.y + 20 }));
+    }
+
+    newAnn.id = Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+    newAnn.page = state.currentPage;
+    newAnn.createdAt = new Date().toISOString();
+    newAnn.modifiedAt = new Date().toISOString();
+
+    if (newAnn.type === 'image') {
+      const newImageId = generateImageId();
+      const originalImg = state.imageCache.get(source.imageId);
+      if (originalImg) state.imageCache.set(newImageId, originalImg);
+      newAnn.imageId = newImageId;
+    }
+
+    state.annotations.push(newAnn);
+    newAnnotations.push(newAnn);
+  }
+
+  recordBulkAdd(newAnnotations);
+  state.selectedAnnotations = newAnnotations;
+
+  if (newAnnotations.length === 1) {
+    showProperties(newAnnotations[0]);
+  } else {
+    showMultiSelectionProperties();
+  }
+
+  if (state.viewMode === 'continuous') {
+    redrawContinuous();
+  } else {
+    redrawAnnotations();
+  }
+
+  updateStatusMessage(`${newAnnotations.length} annotations pasted`);
 }

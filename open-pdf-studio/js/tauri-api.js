@@ -49,7 +49,7 @@ export async function closeWindow() {
   const win = getTauriWindow();
   if (win) {
     const currentWindow = win.getCurrentWindow();
-    await currentWindow.close();
+    await currentWindow.destroy();
   }
 }
 

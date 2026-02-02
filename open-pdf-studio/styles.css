@@ -713,19 +713,34 @@ body {
 /* Left Panel */
 .left-panel {
   width: 200px;
-  min-width: 200px;
+  min-width: 0;
   background: #2d2d30;
-  border-right: 1px solid #3e3e42;
+  border-right: none;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  transition: width 0.2s ease, min-width 0.2s ease;
+  transition: none;
   cursor: default;
+}
+
+.panel-resize-handle {
+  width: 4px;
+  background: #3e3e42;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.panel-resize-handle:hover,
+.panel-resize-handle.dragging {
+  background: #007acc;
 }
 
 .left-panel.collapsed {
   width: 36px;
-  min-width: 36px;
+}
+
+.left-panel.collapsed + .panel-resize-handle {
+  display: none;
 }
 
 .left-panel-tabs {
@@ -923,6 +938,7 @@ body {
 
 .main-view {
   flex: 1;
+  min-width: 0;
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -1157,18 +1173,13 @@ body {
 
 /* Properties Panel */
 .properties-panel {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
   width: 280px;
+  min-width: 280px;
   background: white;
   border-radius: 0;
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
   border-left: 1px solid #d1d5db;
   padding: 16px;
   display: none;
-  z-index: 50;
   overflow-y: auto;
 }
 
@@ -1177,13 +1188,10 @@ body {
 }
 
 .properties-panel h3 {
-  margin: 0 0 12px 0;
+  margin: 0;
   font-size: 13px;
   color: #ffffff;
-  background: linear-gradient(to bottom, #3e3e42 0%, #2d2d30 100%);
-  padding: 8px 12px;
   font-weight: 600;
-  margin: -16px -16px 12px -16px;
   border-radius: 0;
 }
 

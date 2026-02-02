@@ -30,6 +30,9 @@ function getAnnotationCenterAndSize(ann) {
     case 'cloud':
     case 'textbox':
     case 'image':
+    case 'stamp':
+    case 'signature':
+    case 'redaction':
       return {
         centerX: ann.x + ann.width / 2,
         centerY: ann.y + ann.height / 2,
@@ -174,10 +177,34 @@ export function findAnnotationAt(x, y) {
         if (polyLocal.x >= ann.x && polyLocal.x <= ann.x + ann.width && polyLocal.y >= ann.y && polyLocal.y <= ann.y + ann.height) return ann;
         break;
       case 'image':
+      case 'stamp':
+      case 'signature':
+      case 'redaction':
         // Transform click point by inverse rotation if annotation is rotated
         const imgCenter = { x: ann.x + ann.width / 2, y: ann.y + ann.height / 2 };
         const imgLocal = transformPointByInverseRotation(x, y, imgCenter.x, imgCenter.y, ann.rotation);
         if (imgLocal.x >= ann.x && imgLocal.x <= ann.x + ann.width && imgLocal.y >= ann.y && imgLocal.y <= ann.y + ann.height) return ann;
+        break;
+      case 'measureDistance': {
+        const d = distanceToLine(x, y, ann.startX, ann.startY, ann.endX, ann.endY);
+        if (d < 8) return ann;
+        break;
+      }
+      case 'measureArea':
+      case 'measurePerimeter':
+        if (ann.points && ann.points.length >= 2) {
+          // Check proximity to any edge
+          for (let i = 0; i < ann.points.length - 1; i++) {
+            const d = distanceToLine(x, y, ann.points[i].x, ann.points[i].y, ann.points[i+1].x, ann.points[i+1].y);
+            if (d < 8) return ann;
+          }
+          // For area, also check closing edge
+          if (ann.type === 'measureArea' && ann.points.length >= 3) {
+            const last = ann.points.length - 1;
+            const d = distanceToLine(x, y, ann.points[last].x, ann.points[last].y, ann.points[0].x, ann.points[0].y);
+            if (d < 8) return ann;
+          }
+        }
         break;
       case 'textHighlight':
       case 'textStrikethrough':
@@ -276,8 +303,29 @@ export function isPointInsideAnnotation(x, y, annotation) {
       return false;
 
     case 'image':
+    case 'stamp':
+    case 'signature':
+    case 'redaction':
       return localX >= annotation.x && localX <= annotation.x + annotation.width &&
              localY >= annotation.y && localY <= annotation.y + annotation.height;
+
+    case 'measureDistance': {
+      const md = distanceToLine(x, y, annotation.startX, annotation.startY, annotation.endX, annotation.endY);
+      return md < 8;
+    }
+
+    case 'measureArea':
+    case 'measurePerimeter':
+      if (annotation.points && annotation.points.length >= 2) {
+        for (let i = 0; i < annotation.points.length - 1; i++) {
+          if (distanceToLine(x, y, annotation.points[i].x, annotation.points[i].y, annotation.points[i+1].x, annotation.points[i+1].y) < 8) return true;
+        }
+        if (annotation.type === 'measureArea' && annotation.points.length >= 3) {
+          const last = annotation.points.length - 1;
+          if (distanceToLine(x, y, annotation.points[last].x, annotation.points[last].y, annotation.points[0].x, annotation.points[0].y) < 8) return true;
+        }
+      }
+      return false;
 
     case 'textHighlight':
     case 'textStrikethrough':
