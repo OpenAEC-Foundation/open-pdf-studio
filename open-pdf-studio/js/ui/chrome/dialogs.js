@@ -1,5 +1,6 @@
 import { loadingOverlay, loadingText, aboutDialog } from '../dom-elements.js';
 import { state } from '../../core/state.js';
+import { openExternal } from '../../core/platform.js';
 
 // Show loading overlay
 export function showLoading(message = 'Loading...') {
@@ -37,6 +38,24 @@ export function initAboutDialog() {
   const closeBtn = aboutDialog?.querySelector('.about-close-btn');
   if (closeBtn) {
     closeBtn.addEventListener('click', hideAboutDialog);
+  }
+
+  // Website link
+  const websiteLink = document.getElementById('about-website-link');
+  if (websiteLink) {
+    websiteLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      openExternal('https://impertio.nl/');
+    });
+  }
+
+  // Contact link
+  const emailLink = document.getElementById('about-email-link');
+  if (emailLink) {
+    emailLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      openExternal('mailto:maarten@impertio.nl');
+    });
   }
 
   // Close when clicking overlay background

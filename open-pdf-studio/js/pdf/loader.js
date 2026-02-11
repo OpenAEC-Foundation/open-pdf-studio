@@ -8,9 +8,10 @@ import { generateImageId } from '../utils/helpers.js';
 import { colorArrayToHex } from '../utils/colors.js';
 import { generateThumbnails, refreshActiveTab } from '../ui/panels/left-panel.js';
 import { createTab, updateWindowTitle } from '../ui/chrome/tabs.js';
-import * as pdfjsLib from '../../pdfjs/build/pdf.mjs';
+import * as pdfjsLib from 'pdfjs-dist';
 import { isTauri, readBinaryFile, openFileDialog, lockFile } from '../core/platform.js';
-import { PDFDocument, PDFName, PDFDict, PDFArray, PDFRawStream } from '../../node_modules/pdf-lib/dist/pdf-lib.esm.js';
+import { PDFDocument, PDFName, PDFDict, PDFArray, PDFRawStream } from 'pdf-lib';
+import { resetAnnotationStorage } from './form-layer.js';
 
 // Cache for original PDF bytes (used by saver to avoid re-reading)
 const originalBytesCache = new Map(); // filePath -> Uint8Array
@@ -32,7 +33,7 @@ export function clearCachedPdfBytes(filePath) {
 }
 
 // Set worker source (path relative to HTML file, not this module)
-pdfjsLib.GlobalWorkerOptions.workerSrc = './pdfjs/build/pdf.worker.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).href;
 
 // Load PDF from file path
 export async function loadPDF(filePath) {
@@ -60,6 +61,9 @@ export async function loadPDF(filePath) {
     // Load PDF using pdf.js (this transfers the buffer to a worker)
     state.pdfDoc = await pdfjsLib.getDocument({ data: typedArray }).promise;
     state.currentPdfPath = filePath;
+
+    // Reset form field annotation storage for the new document
+    resetAnnotationStorage();
 
     // Reset annotation state
     state.annotations = [];
@@ -456,6 +460,14 @@ async function extractAnnotationColors(pageNum, pdfDoc) {
           } catch (e) { /* ignore RC parsing errors */ }
         }
 
+        // Extract /OPS_Rotation (our custom key only — ignore standard /Rotation
+        // which other tools use for text orientation, not whole-annotation rotation)
+        const opsRotRaw = annotDict.get(PDFName.of('OPS_Rotation'));
+        if (opsRotRaw) {
+          const rv = pdfNum(context.lookup(opsRotRaw) || opsRotRaw);
+          if (rv !== null) colors.rotation = rv;
+        }
+
         const apRaw = annotDict.get(PDFName.of('AP'));
         if (apRaw) {
           const ap = context.lookup(apRaw);
@@ -577,7 +589,7 @@ async function extractAnnotationColors(pageNum, pdfDoc) {
       }
 
       if (colors.ic || colors.apStrokeColor || colors.lineCoords || colors.opacity !== undefined ||
-          colors.matrixAngle !== undefined || colors.bboxWidth ||
+          colors.matrixAngle !== undefined || colors.bboxWidth || colors.rotation !== undefined ||
           colors.fontFamily || colors.fontBold || colors.fontItalic ||
           colors.fontUnderline || colors.fontStrikethrough || colors.borderWidth !== undefined) {
         colorMap.set(key, colors);
@@ -1186,31 +1198,50 @@ async function convertPdfAnnotation(annot, pageNum, viewport, stampImageMap, ann
       const borderStyle = bsStyle === 2 ? 'dashed' : (bsStyle === 3 || bsStyle === 4 ? 'dotted' : 'solid');
       const borderWidth = extraColors.borderWidth !== undefined ? extraColors.borderWidth : (annot.borderStyle?.width || 1);
 
-      // Derive rotation from AP/N Matrix angle
-      // The Matrix encodes base rotation (page/BBox-to-Rect mapping) + textbox rotation
-      // Round to nearest 90° to find the base, remainder is the actual textbox rotation
+      // Derive rotation: check /Rotation key first (our format), then AP/N Matrix
       let ftRotation = 0;
-      if (extraColors.matrixAngle !== undefined) {
+      if (extraColors.rotation !== undefined && extraColors.rotation !== 0) {
+        ftRotation = Math.round(extraColors.rotation);
+      }
+      if (ftRotation === 0 && extraColors.matrixAngle !== undefined) {
         const ma = extraColors.matrixAngle;
         const baseAngle = Math.round(ma / 90) * 90;
         ftRotation = -(ma - baseAngle);
-        // Round to nearest integer degree and snap near-zero to 0
         ftRotation = Math.round(ftRotation);
         if (Math.abs(ftRotation) <= 1) ftRotation = 0;
       }
 
-      // When rotated, the Rect is the bounding box of the rotated textbox (larger)
-      // Use the BBox from AP/N stream for actual dimensions, fallback to Rect
+      // Recover the original (unrotated) textbox dimensions from Rect.
       const rectW = rect[2] - rect[0];
       const rectH = rect[3] - rect[1];
       let ftWidth, ftHeight;
-      if (ftRotation !== 0 && extraColors.bboxWidth && extraColors.bboxHeight) {
-        // BBox is in form-internal coordinates which may be rotated relative to page
-        // If the base Matrix angle is near ±90°, width and height are swapped
-        const baseAngle = extraColors.matrixAngle !== undefined ? Math.round(extraColors.matrixAngle / 90) * 90 : 0;
-        const swapped = (Math.abs(baseAngle) === 90 || Math.abs(baseAngle) === 270);
-        ftWidth = swapped ? extraColors.bboxHeight : extraColors.bboxWidth;
-        ftHeight = swapped ? extraColors.bboxWidth : extraColors.bboxHeight;
+      const isStdRot = ftRotation !== 0 && ftRotation % 90 === 0;
+      if (isStdRot) {
+        // Standard rotation: Rect has original (non-expanded) dimensions
+        ftWidth = rectW;
+        ftHeight = rectH;
+      } else if (ftRotation !== 0) {
+        // Arbitrary angle: Rect is the expanded bounding box, recover original dims
+        const c = Math.abs(Math.cos(ftRotation * Math.PI / 180));
+        const s = Math.abs(Math.sin(ftRotation * Math.PI / 180));
+        const det = c * c - s * s;
+        if (Math.abs(det) > 0.01) {
+          ftWidth = Math.round((rectW * c - rectH * s) / det);
+          ftHeight = Math.round((rectH * c - rectW * s) / det);
+          if (ftWidth <= 0 || ftHeight <= 0) {
+            ftWidth = rectW;
+            ftHeight = rectH;
+          }
+        } else {
+          if (extraColors.bboxWidth && extraColors.bboxHeight &&
+              (Math.abs(extraColors.bboxWidth - rectW) > 1 || Math.abs(extraColors.bboxHeight - rectH) > 1)) {
+            ftWidth = extraColors.bboxWidth;
+            ftHeight = extraColors.bboxHeight;
+          } else {
+            ftWidth = rectW;
+            ftHeight = rectH;
+          }
+        }
       } else {
         ftWidth = rectW;
         ftHeight = rectH;

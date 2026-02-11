@@ -62,6 +62,7 @@ async function init() {
   // Initialize canvas contexts
   initCanvasContexts();
 
+
   // Load user preferences
   loadPreferences();
 

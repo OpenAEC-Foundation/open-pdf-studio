@@ -8,14 +8,15 @@ import {
   toolPolyline, toolTextbox, toolCallout, toolClear, toolUndo,
   toolStamp, toolSignature, toolMeasureDistance, toolMeasureArea, toolMeasurePerimeter,
   toolRedaction, btnApplyRedactions,
-  propColor, propLineWidth, propText, propFontSize, propDelete, propClose,
+  propColor, propLineWidth, propText, propFontSize,
   propSubject, propAuthor, propOpacity, propIcon, propLocked, propPrintable,
   propFillColor, propStrokeColor, propBorderStyle, propertiesPanel,
   propTextColor, propFontFamily, propTextFontSize, propLineSpacing,
   propTextBold, propTextItalic, propTextUnderline, propTextStrikethrough,
   propAlignLeft, propAlignCenter, propAlignRight,
   propImageWidth, propImageHeight, propImageRotation, propImageReset,
-  propArrowStart, propArrowEnd, propArrowHeadSize
+  propArrowStart, propArrowEnd, propArrowHeadSize,
+  propTextboxRotation
 } from './dom-elements.js';
 import { handleMouseDown, handleMouseMove, handleMouseUp } from '../tools/mouse-handlers.js';
 import { initKeyboardHandlers } from '../tools/keyboard-handlers.js';
@@ -34,6 +35,12 @@ import { toggleLeftPanel } from './panels/left-panel.js';
 import { closeActiveTab, createTab, markDocumentModified, hasUnsavedChanges, getUnsavedDocumentNames } from './chrome/tabs.js';
 import { openFindBar } from '../search/find-bar.js';
 import { isTauri, minimizeWindow, maximizeWindow, closeWindow, openExternal } from '../core/platform.js';
+import {
+  alignLeft, alignCenter, alignRight, alignTop, alignMiddle, alignBottom,
+  distributeSpaceH, distributeSpaceV, distributeLeft, distributeCenter,
+  distributeRight, distributeTop, distributeMiddle, distributeBottom
+} from '../annotations/alignment.js';
+import { initFormatRibbon } from './chrome/format-ribbon.js';
 
 // Setup window control buttons (minimize, maximize, close)
 function setupWindowControls() {
@@ -304,44 +311,21 @@ function setupPropertiesPanelEvents() {
     }
   });
 
+  // Textbox rotation
+  propTextboxRotation?.addEventListener('input', () => {
+    if (state.selectedAnnotation && ['textbox', 'callout'].includes(state.selectedAnnotation.type)) {
+      recordPropertyChange(state.selectedAnnotation);
+      state.selectedAnnotation.rotation = parseInt(propTextboxRotation.value) || 0;
+      state.selectedAnnotation.modifiedAt = new Date().toISOString();
+      redrawAnnotations();
+    }
+  });
+
   // Arrow properties
   propArrowStart?.addEventListener('change', updateArrowProperties);
   propArrowEnd?.addEventListener('change', updateArrowProperties);
   propArrowHeadSize?.addEventListener('input', updateArrowProperties);
 
-  // Delete button
-  propDelete?.addEventListener('click', () => {
-    if (state.selectedAnnotations.length > 1) {
-      if (confirm(`Delete ${state.selectedAnnotations.length} annotations?`)) {
-        recordBulkDelete(state.selectedAnnotations);
-        const toDelete = new Set(state.selectedAnnotations);
-        state.annotations = state.annotations.filter(a => !toDelete.has(a));
-        clearSelection();
-        hideProperties();
-        if (state.viewMode === 'continuous') {
-          redrawContinuous();
-        } else {
-          redrawAnnotations();
-        }
-      }
-    } else if (state.selectedAnnotation) {
-      if (state.selectedAnnotation.locked) {
-        alert('This annotation is locked and cannot be deleted.');
-        return;
-      }
-      if (confirm('Delete this annotation?')) {
-        const idx = state.annotations.indexOf(state.selectedAnnotation);
-        recordDelete(state.selectedAnnotation, idx);
-        state.annotations = state.annotations.filter(a => a !== state.selectedAnnotation);
-        hideProperties();
-        if (state.viewMode === 'continuous') {
-          redrawContinuous();
-        } else {
-          redrawAnnotations();
-        }
-      }
-    }
-  });
 
   // Status change
   document.getElementById('prop-status')?.addEventListener('change', () => {
@@ -375,9 +359,6 @@ function setupPropertiesPanelEvents() {
       document.getElementById('prop-reply-add')?.click();
     }
   });
-
-  // Close button (bottom) - closes panel entirely
-  propClose?.addEventListener('click', closePropertiesPanel);
 
   // X button (top right) - closes panel entirely
   document.getElementById('prop-panel-close')?.addEventListener('click', closePropertiesPanel);
@@ -966,6 +947,27 @@ function setupRibbonEvents() {
   document.getElementById('arr-send-back')?.addEventListener('click', () => {
     for (const ann of [...state.selectedAnnotations].reverse()) sendToBack(ann);
   });
+
+  // Alignment buttons (Arrange ribbon)
+  document.getElementById('arr-align-left')?.addEventListener('click', alignLeft);
+  document.getElementById('arr-align-center')?.addEventListener('click', alignCenter);
+  document.getElementById('arr-align-right')?.addEventListener('click', alignRight);
+  document.getElementById('arr-align-top')?.addEventListener('click', alignTop);
+  document.getElementById('arr-align-middle')?.addEventListener('click', alignMiddle);
+  document.getElementById('arr-align-bottom')?.addEventListener('click', alignBottom);
+
+  // Distribution buttons (Arrange ribbon)
+  document.getElementById('arr-dist-space-h')?.addEventListener('click', distributeSpaceH);
+  document.getElementById('arr-dist-space-v')?.addEventListener('click', distributeSpaceV);
+  document.getElementById('arr-dist-left')?.addEventListener('click', distributeLeft);
+  document.getElementById('arr-dist-center')?.addEventListener('click', distributeCenter);
+  document.getElementById('arr-dist-right')?.addEventListener('click', distributeRight);
+  document.getElementById('arr-dist-top')?.addEventListener('click', distributeTop);
+  document.getElementById('arr-dist-middle')?.addEventListener('click', distributeMiddle);
+  document.getElementById('arr-dist-bottom')?.addEventListener('click', distributeBottom);
+
+  // Format ribbon
+  initFormatRibbon();
 
   // Theme selector
   document.getElementById('theme-select')?.addEventListener('change', (e) => {

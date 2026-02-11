@@ -14,9 +14,26 @@ import { showStampPicker } from '../annotations/stamps.js';
 import { showSignatureDialog } from '../annotations/signature.js';
 import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement } from '../annotations/measurement.js';
 
+// Check if any modal dialog/overlay is blocking interaction
+function isModalDialogOpen() {
+  // State flag is set synchronously during blur (before mousedown fires)
+  if (state.modalDialogOpen) return true;
+  // DOM check as fallback for all overlays
+  return !!document.querySelector(
+    '.form-validation-overlay, ' +
+    '.about-overlay.visible, ' +
+    '.doc-props-overlay.visible, ' +
+    '.preferences-overlay.visible, ' +
+    '.text-annot-overlay.visible, ' +
+    '.loading-overlay.visible, ' +
+    '.backstage-overlay.visible'
+  );
+}
+
 // Mouse down handler for single page mode
 export function handleMouseDown(e) {
   if (!state.pdfDoc) return;
+  if (isModalDialogOpen()) return;
 
   const rect = annotationCanvas.getBoundingClientRect();
   // Convert to unscaled coordinates
@@ -274,6 +291,7 @@ function handleMiddleButtonPanEnd(e) {
 // Mouse move handler for single page mode
 export function handleMouseMove(e) {
   if (!state.pdfDoc || !annotationCanvas) return;
+  if (isModalDialogOpen()) return;
 
   // Skip if panning (handled by document-level listener)
   if (state.isPanning) return;
@@ -765,6 +783,7 @@ function drawShapePreview(currentX, currentY, e) {
 
 // Mouse up handler for single page mode
 export function handleMouseUp(e) {
+  if (isModalDialogOpen()) return;
   // Hand tool panning is handled by document-level listener (handlePanEnd)
   if (state.isPanning) return;
 
@@ -1108,6 +1127,7 @@ export function handleMouseUp(e) {
 
 // Mouse event handlers for continuous mode
 export function handleContinuousMouseDown(e, pageNum) {
+  if (isModalDialogOpen()) return;
   const canvas = e.target;
   const rect = canvas.getBoundingClientRect();
   state.startX = (e.clientX - rect.left) / state.scale;
@@ -1178,6 +1198,7 @@ export function handleContinuousMouseDown(e, pageNum) {
 }
 
 export function handleContinuousMouseMove(e, pageNum) {
+  if (isModalDialogOpen()) return;
   // Hand tool panning is handled by document-level listener
   if (state.isPanning) return;
 
@@ -1233,6 +1254,7 @@ export function handleContinuousMouseMove(e, pageNum) {
 }
 
 export function handleContinuousMouseUp(e, pageNum) {
+  if (isModalDialogOpen()) return;
   // Hand tool panning is handled by document-level listener
   if (state.isPanning) return;
 

@@ -12,7 +12,7 @@ import {
   propOpacity, propLocked, propPrintable,
   propIcon, propIconGroup, propStrokeColor, propStrokeColorGroup,
   propFillColor, propFillColorGroup, propBorderStyle, propBorderStyleGroup,
-  propTextGroup, propFontSizeGroup, propLineWidthGroup, propDelete,
+  propTextGroup, propFontSizeGroup, propLineWidthGroup,
   propGeneralSection, propAppearanceSection, propContentSection, propActionsSection,
   propTextFormatSection, propParagraphSection, propTextColor, propFontFamily,
   propTextFontSize, propTextBold, propTextItalic, propTextUnderline,
@@ -20,7 +20,8 @@ import {
   propLineSpacing, propImageSection, propImageWidth, propImageHeight,
   propImageRotation,
   propLineEndingsSection, propArrowStart, propArrowEnd, propArrowHeadSize,
-  propDimensionsSection, propArrowLength
+  propDimensionsSection, propArrowLength,
+  propTextboxRotation
 } from '../dom-elements.js';
 
 // Update color display helper
@@ -302,6 +303,12 @@ export function showProperties(annotation) {
         propLineSpacing.value = annotation.lineSpacing || '1.5';
         propLineSpacing.disabled = isLocked;
       }
+
+      // Rotation
+      if (propTextboxRotation) {
+        propTextboxRotation.value = Math.round(annotation.rotation || 0);
+        propTextboxRotation.disabled = isLocked;
+      }
     } else {
       propParagraphSection.style.display = 'none';
     }
@@ -417,13 +424,6 @@ export function showProperties(annotation) {
   if (repliesSection) {
     repliesSection.style.display = 'block';
     renderReplies(annotation);
-  }
-
-  // Disable delete button if locked
-  if (propDelete) {
-    propDelete.disabled = isLocked;
-    propDelete.style.opacity = isLocked ? '0.5' : '1';
-    propDelete.style.cursor = isLocked ? 'not-allowed' : 'pointer';
   }
 
   propertiesPanel.classList.add('visible');
@@ -755,13 +755,6 @@ export function showMultiSelectionProperties() {
   if (propStrokeColorGroup) propStrokeColorGroup.style.display = 'none';
   if (propLineWidthGroup) propLineWidthGroup.style.display = 'none';
   if (propBorderStyleGroup) propBorderStyleGroup.style.display = 'none';
-
-  // Enable delete button
-  if (propDelete) {
-    propDelete.disabled = false;
-    propDelete.style.opacity = '1';
-    propDelete.style.cursor = 'pointer';
-  }
 
   propertiesPanel.classList.add('visible');
 }

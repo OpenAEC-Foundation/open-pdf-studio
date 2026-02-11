@@ -1,5 +1,6 @@
 import { state, createDocument, getActiveDocument, findDocumentByPath, clearSelection } from '../../core/state.js';
 import { renderPage, renderContinuous, clearPdfView } from '../../pdf/renderer.js';
+import { hideFormFieldsBar } from '../../pdf/form-layer.js';
 import { redrawAnnotations, redrawContinuous, updateQuickAccessButtons } from '../../annotations/rendering.js';
 import { updateAllStatus } from './status-bar.js';
 import { generateThumbnails, clearThumbnails, clearThumbnailCache, refreshActiveTab } from '../panels/left-panel.js';
@@ -71,6 +72,9 @@ export function switchToTab(index) {
 
   // Update tab bar UI
   updateTabBar();
+
+  // Hide form fields bar before rendering (will be re-shown if new doc has form fields)
+  hideFormFieldsBar();
 
   // Render the new active document
   const newDoc = getActiveDocument();

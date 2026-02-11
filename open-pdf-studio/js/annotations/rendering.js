@@ -246,6 +246,9 @@ function applyBorderStyle(ctx, borderStyle) {
 
 // Draw single annotation
 function drawAnnotation(ctx, annotation) {
+  // Skip hidden annotations
+  if (annotation.hidden) return;
+
   // Use annotation's opacity property
   const baseOpacity = annotation.opacity !== undefined ? annotation.opacity :
                      (annotation.type === 'highlight' ? 0.3 : 1);
@@ -258,6 +261,7 @@ function drawAnnotation(ctx, annotation) {
   ctx.fillStyle = fillColor;
   ctx.lineWidth = annotation.lineWidth || 3;
   ctx.globalAlpha = baseOpacity;
+  ctx.globalCompositeOperation = annotation.blendMode === 'multiply' ? 'multiply' : 'source-over';
 
   switch (annotation.type) {
     case 'draw':
@@ -1054,13 +1058,13 @@ function drawSelectionHandles(ctx, annotation) {
         ctx.translate(-tbSelCenterX, -tbSelCenterY);
       }
       ctx.strokeRect(annotation.x - 2, annotation.y - 2, selTbWidth + 4, selTbHeight + 4);
-      // Draw line from top center to rotation handle (green color)
+      // Draw line from right center to rotation handle (green color)
       ctx.strokeStyle = '#22c55e';
       ctx.setLineDash([]);
       ctx.lineWidth = 1 / sc;
       ctx.beginPath();
-      ctx.moveTo(annotation.x + selTbWidth/2, annotation.y - 2);
-      ctx.lineTo(annotation.x + selTbWidth/2, annotation.y - 25 / sc);
+      ctx.moveTo(annotation.x + selTbWidth + 2, annotation.y + selTbHeight/2);
+      ctx.lineTo(annotation.x + selTbWidth + 25 / sc, annotation.y + selTbHeight/2);
       ctx.stroke();
       ctx.restore();
       break;
@@ -1288,6 +1292,7 @@ export function redrawAnnotations(lightweight = false) {
   });
 
   annotationCtx.globalAlpha = 1;
+  annotationCtx.globalCompositeOperation = 'source-over';
 
   // Draw selection highlight and handles
   if (state.selectedAnnotations.length > 1) {
@@ -1320,23 +1325,19 @@ export function redrawAnnotations(lightweight = false) {
   }
 }
 
-// Disable all buttons/inputs in contextual tabs (enabled one-by-one as implemented)
+// Enable all buttons/inputs/styles in both contextual tabs
 let _contextualTabsInitialized = false;
 function initContextualTabsDisabled() {
   if (_contextualTabsInitialized) return;
   _contextualTabsInitialized = true;
+  // All Format and Arrange tab controls are now implemented — enable everything
   ['tab-format', 'tab-arrange'].forEach(tabId => {
     const tab = document.getElementById(tabId);
     if (!tab) return;
-    tab.querySelectorAll('button').forEach(btn => btn.disabled = true);
-    tab.querySelectorAll('select').forEach(sel => sel.disabled = true);
-    tab.querySelectorAll('input').forEach(inp => inp.disabled = true);
-    tab.querySelectorAll('.ribbon-style-item').forEach(el => el.classList.add('disabled'));
-  });
-  // Enable implemented buttons
-  ['arr-bring-forward', 'arr-bring-front', 'arr-send-backward', 'arr-send-back'].forEach(id => {
-    const btn = document.getElementById(id);
-    if (btn) btn.disabled = false;
+    tab.querySelectorAll('button').forEach(btn => btn.disabled = false);
+    tab.querySelectorAll('select').forEach(sel => sel.disabled = false);
+    tab.querySelectorAll('input').forEach(inp => inp.disabled = false);
+    tab.querySelectorAll('.ribbon-style-item').forEach(el => el.classList.remove('disabled'));
   });
 }
 
@@ -1344,6 +1345,7 @@ function initContextualTabsDisabled() {
 function updateContextualTabs() {
   initContextualTabsDisabled();
   const hasSelection = state.selectedAnnotations.length > 0;
+  const hasLocked = hasSelection && state.selectedAnnotations.some(a => a.locked);
   const els = document.querySelectorAll('.contextual-tabs');
   els.forEach(el => {
     if (hasSelection) {
@@ -1358,6 +1360,24 @@ function updateContextualTabs() {
       }
     }
   });
+  // Disable/enable controls based on locked state
+  ['tab-format', 'tab-arrange'].forEach(tabId => {
+    const tab = document.getElementById(tabId);
+    if (!tab) return;
+    tab.querySelectorAll('button').forEach(btn => btn.disabled = hasLocked);
+    tab.querySelectorAll('select').forEach(sel => sel.disabled = hasLocked);
+    tab.querySelectorAll('input').forEach(inp => inp.disabled = hasLocked);
+    tab.querySelectorAll('.ribbon-style-item').forEach(el => {
+      if (hasLocked) el.classList.add('disabled');
+      else el.classList.remove('disabled');
+    });
+  });
+  // Sync Format ribbon controls with selection
+  if (hasSelection && !hasLocked) {
+    try {
+      import('../ui/chrome/format-ribbon.js').then(m => m.updateFormatRibbon());
+    } catch (e) { /* ignore */ }
+  }
 }
 
 // Render annotations for a specific page (continuous mode)
@@ -1376,6 +1396,7 @@ export function renderAnnotationsForPage(ctx, pageNum, width, height) {
   // Restore context
   ctx.restore();
   ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
 }
 
 // Redraw all pages in continuous mode

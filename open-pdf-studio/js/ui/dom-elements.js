@@ -73,8 +73,7 @@ export const propFontSize = document.getElementById('prop-font-size');
 export const propTextGroup = document.getElementById('prop-text-group');
 export const propFontSizeGroup = document.getElementById('prop-font-size-group');
 export const propLineWidthGroup = document.getElementById('prop-line-width-group');
-export const propDelete = document.getElementById('prop-delete');
-export const propClose = document.getElementById('prop-close');
+
 
 // Properties panel elements
 export const propAuthor = document.getElementById('prop-author');
@@ -114,6 +113,9 @@ export const propAppearanceSection = document.getElementById('prop-appearance-se
 export const propContentSection = document.getElementById('prop-content-section');
 export const propImageSection = document.getElementById('prop-image-section');
 export const propActionsSection = document.getElementById('prop-actions-section');
+
+// Textbox rotation
+export const propTextboxRotation = document.getElementById('prop-textbox-rotation');
 
 // Image properties
 export const propImageWidth = document.getElementById('prop-image-width');

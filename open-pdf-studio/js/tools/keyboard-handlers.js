@@ -1,6 +1,6 @@
 import { state, selectAllOnPage, clearSelection } from '../core/state.js';
-import { undo, redo, recordBulkDelete } from '../core/undo-manager.js';
-import { propertiesPanel, toolUndo, toolClear, propDelete, zoomInBtn, zoomOutBtn } from '../ui/dom-elements.js';
+import { undo, redo, recordBulkDelete, recordDelete } from '../core/undo-manager.js';
+import { propertiesPanel, toolUndo, toolClear, zoomInBtn, zoomOutBtn } from '../ui/dom-elements.js';
 import { setTool } from './manager.js';
 import { showPreferencesDialog, hidePreferencesDialog } from '../core/preferences.js';
 import { showDocPropertiesDialog } from '../ui/chrome/dialogs.js';
@@ -54,7 +54,7 @@ export function handleKeydown(e) {
   if (ctrl && e.key === 'o') {
     e.preventDefault();
     openPDFFile();
-  } else if (ctrl && shift && e.key === 's') {
+  } else if (ctrl && shift && e.key === 'S') {
     e.preventDefault();
     savePDFAs();
   } else if (ctrl && e.key === 's') {
@@ -108,7 +108,16 @@ export function handleKeydown(e) {
         }
       }
     } else if (state.selectedAnnotation) {
-      if (propDelete) propDelete.click();
+      if (state.selectedAnnotation.locked) return;
+      const idx = state.annotations.indexOf(state.selectedAnnotation);
+      recordDelete(state.selectedAnnotation, idx);
+      state.annotations = state.annotations.filter(a => a !== state.selectedAnnotation);
+      hideProperties();
+      if (state.viewMode === 'continuous') {
+        redrawContinuous();
+      } else {
+        redrawAnnotations();
+      }
     }
   } else if (ctrl && shift && e.key === 'C') {
     e.preventDefault();

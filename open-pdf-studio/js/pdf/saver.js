@@ -4,7 +4,9 @@ import { hexToColorArray } from '../utils/colors.js';
 import { markDocumentSaved, updateWindowTitle } from '../ui/chrome/tabs.js';
 import { isTauri, readBinaryFile, writeBinaryFile, saveFileDialog, unlockFile, lockFile } from '../core/platform.js';
 import { getCachedPdfBytes, setCachedPdfBytes } from './loader.js';
-import { PDFDocument, PDFString, PDFName, PDFArray, PDFStream, degrees } from '../../node_modules/pdf-lib/dist/pdf-lib.esm.js';
+import { PDFDocument, PDFString, PDFName, PDFArray, PDFStream, degrees,
+  PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup, PDFOptionList } from 'pdf-lib';
+import { getAnnotationStorage, getAnnotIdToFieldName } from './form-layer.js';
 
 // Save PDF with annotations
 export async function savePDF(saveAsPath = null) {
@@ -33,6 +35,40 @@ export async function savePDF(saveAsPath = null) {
     // Get the PDF pages
     const pages = pdfDocLib.getPages();
     const context = pdfDocLib.context;
+
+    // Persist interactive form field values from AnnotationStorage
+    const storage = getAnnotationStorage();
+    const fieldNameMap = getAnnotIdToFieldName();
+    if (storage && storage.size > 0 && fieldNameMap.size > 0) {
+      try {
+        const form = pdfDocLib.getForm();
+        for (const [annotId, fieldName] of fieldNameMap.entries()) {
+          const storedValue = storage.getRawValue(annotId);
+          if (storedValue === undefined) continue;
+          try {
+            const field = form.getField(fieldName);
+            if (field instanceof PDFTextField) {
+              field.setText(storedValue.value != null ? String(storedValue.value) : '');
+            } else if (field instanceof PDFCheckBox) {
+              storedValue.value ? field.check() : field.uncheck();
+            } else if (field instanceof PDFDropdown) {
+              if (storedValue.value != null) field.select(storedValue.value);
+            } else if (field instanceof PDFRadioGroup) {
+              if (storedValue.value != null) field.select(storedValue.value);
+            } else if (field instanceof PDFOptionList) {
+              if (storedValue.value != null) {
+                const vals = Array.isArray(storedValue.value) ? storedValue.value : [storedValue.value];
+                field.select(vals);
+              }
+            }
+          } catch (fieldErr) {
+            // Skip fields that can't be set (e.g. read-only, signature, etc.)
+          }
+        }
+      } catch (formErr) {
+        console.warn('Failed to persist form field values:', formErr);
+      }
+    }
 
     // Ensure AcroForm DR (Default Resources) has fonts for FreeText annotations.
     // PDF viewers resolve font names in DA strings through these resources.
@@ -446,9 +482,12 @@ export async function savePDF(saveAsPath = null) {
             const ftH = ann.height || 50;
             const ftRotation = ann.rotation || 0;
 
-            // Compute Rect - if rotated, expand to bounding box of rotated textbox
+            // Compute Rect
+            // For standard 90° rotations: use original dimensions (viewer handles rotation)
+            // For arbitrary angles: expand to bounding box of rotated textbox
+            const isStdRot = ftRotation !== 0 && ftRotation % 90 === 0;
             let x1, y1, x2, y2;
-            if (ftRotation !== 0) {
+            if (ftRotation !== 0 && !isStdRot) {
               const cxDoc = ann.x + ftW / 2;
               const cyDoc = ann.y + ftH / 2;
               const rad = ftRotation * Math.PI / 180;
@@ -475,12 +514,12 @@ export async function savePDF(saveAsPath = null) {
             const da = `${textColorArr[0]} ${textColorArr[1]} ${textColorArr[2]} rg /${pdfFontName} ${fontSize} Tf`;
 
             // FreeText color mapping (must match loader):
-            //   C entry  = fill/background color (PDF.js reads annot.color → our fillColor)
-            //   IC entry = stroke/border color (pdf-lib reads IC → our strokeColor)
-            const ftFillColorArr = (ann.fillColor && ann.fillColor !== 'none')
-              ? hexToColorArray(ann.fillColor) : [];
+            //   C entry  = fill/background color (annot.color in pdf.js)
+            //   IC entry = stroke/border color (extraColors.ic in loader)
             const ftStrokeColorArr = (ann.strokeColor && ann.strokeColor !== 'none')
-              ? hexToColorArray(ann.strokeColor) : null;
+              ? hexToColorArray(ann.strokeColor) : [0, 0, 0];
+            const ftFillColorArr = (ann.fillColor && ann.fillColor !== 'none')
+              ? hexToColorArray(ann.fillColor) : null;
 
             const annDictObj = {
               Type: 'Annot',
@@ -488,7 +527,7 @@ export async function savePDF(saveAsPath = null) {
               Rect: [x1, y1, x2, y2],
               Contents: PDFString.of(ann.text || ''),
               DA: PDFString.of(da),
-              C: ftFillColorArr,
+              C: ftFillColorArr || [1, 1, 1],
               CA: opacity,
               T: PDFString.of(ann.author || 'User'),
               M: PDFString.of(new Date().toISOString()),
@@ -504,10 +543,8 @@ export async function savePDF(saveAsPath = null) {
               S: ftBsStyle
             });
 
-            // Stroke/border color in IC (loader reads IC as border for FreeText)
-            if (ftStrokeColorArr) {
-              annDictObj.IC = ftStrokeColorArr;
-            }
+            // Stroke/border color in IC
+            annDictObj.IC = ftStrokeColorArr;
 
             // Callout line
             if (ann.type === 'callout' && ann.arrowX !== undefined) {
@@ -523,30 +560,41 @@ export async function savePDF(saveAsPath = null) {
               annDictObj.IT = 'FreeTextCallout';
             }
 
+            // For standard 90° multiples, also set /Rotation for viewers that rebuild AP
+            const isStandardRotation = ftRotation !== 0 && ftRotation % 90 === 0;
+
+            if (isStandardRotation) {
+              let pdfRotation = ((ftRotation % 360) + 360) % 360;
+              annDictObj.Rotation = pdfRotation;
+              annDictObj.OPS_Rotation = ftRotation;
+            }
+
             annotDict = context.obj(annDictObj);
 
-            // Generate appearance stream with rotation matrix if rotated
-            // The Matrix is needed so the loader can extract rotation angle on re-open.
-            // We must include text in the AP stream, otherwise viewers render the AP
-            // (which has no text) instead of Contents+DA, making text disappear.
-            if (ftRotation !== 0) {
-              const rad = -ftRotation * Math.PI / 180;
-              const cosR = Math.cos(rad);
-              const sinR = Math.sin(rad);
-
-              // The Rect is the expanded bounding box of the rotated textbox.
-              // Matrix maps BBox origin to Rect origin; we center the rotated content.
+            // Always generate AP stream so PDF-XChange (and other viewers) show correct colors
+            {
               const rectW = x2 - x1;
               const rectH = Math.abs(y2 - y1);
-              const cxBBox = ftW / 2;
-              const cyBBox = ftH / 2;
-              const tx = rectW / 2 - (cxBBox * cosR - cyBBox * sinR);
-              const ty = rectH / 2 - (cxBBox * sinR + cyBBox * cosR);
 
-              // Build stream content: border/fill + text
               let ftStreamContent = '';
               const [sr, sg, sb] = ann.strokeColor && ann.strokeColor !== 'none'
                 ? hexToRgb(ann.strokeColor) : [0, 0, 0];
+
+              // For arbitrary rotation angles, wrap content in rotation transform
+              const needsRotationInAP = ftRotation !== 0 && !isStandardRotation;
+              if (needsRotationInAP) {
+                const rad = -ftRotation * Math.PI / 180;
+                const cosR = Math.cos(rad);
+                const sinR = Math.sin(rad);
+                const bboxCX = rectW / 2;
+                const bboxCY = rectH / 2;
+                ftStreamContent += 'q\n';
+                ftStreamContent += `1 0 0 1 ${bboxCX} ${bboxCY} cm\n`;
+                ftStreamContent += `${cosR} ${sinR} ${-sinR} ${cosR} 0 0 cm\n`;
+                ftStreamContent += `1 0 0 1 ${-ftW / 2} ${-ftH / 2} cm\n`;
+              }
+
+              // Draw border/fill
               ftStreamContent += `${ftBorderWidth} w\n${sr} ${sg} ${sb} RG\n`;
               if (ann.fillColor && ann.fillColor !== 'none') {
                 const [fr, fg, fb] = hexToRgb(ann.fillColor);
@@ -555,7 +603,7 @@ export async function savePDF(saveAsPath = null) {
                 ftStreamContent += `0 0 ${ftW} ${ftH} re S\n`;
               }
 
-              // Render text inside the box
+              // Render text
               if (ann.text) {
                 const ftFontSize = ann.fontSize || 14;
                 const [tr, tg, tb] = ann.textColor ? hexToRgb(ann.textColor) : [0, 0, 0];
@@ -564,19 +612,20 @@ export async function savePDF(saveAsPath = null) {
                 const lineHeight = ftFontSize * 1.2;
 
                 ftStreamContent += `BT\n/${pdfFont} ${ftFontSize} Tf\n${tr} ${tg} ${tb} rg\n`;
-                // Split text into lines and render each
                 const lines = ann.text.split('\n');
                 let textY = ftH - padding - ftFontSize;
                 for (const line of lines) {
                   if (textY < 0) break;
-                  // Escape PDF special chars in text string
                   const escaped = line.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
                   ftStreamContent += `${padding} ${textY} Td\n(${escaped}) Tj\n`;
-                  // Reset position for next line (Td is relative, so negate previous)
                   ftStreamContent += `${-padding} ${-textY} Td\n`;
                   textY -= lineHeight;
                 }
                 ftStreamContent += 'ET\n';
+              }
+
+              if (needsRotationInAP) {
+                ftStreamContent += 'Q\n';
               }
 
               // Create font dict for resources
@@ -590,8 +639,7 @@ export async function savePDF(saveAsPath = null) {
               const ftApStream = context.stream(ftStreamContent, {
                 Type: 'XObject',
                 Subtype: 'Form',
-                BBox: [0, 0, ftW, ftH],
-                Matrix: [cosR, sinR, -sinR, cosR, tx, ty],
+                BBox: [0, 0, rectW, rectH],
                 Resources: context.obj({
                   Font: context.obj({ [pdfFont]: fontDict })
                 })
@@ -599,6 +647,11 @@ export async function savePDF(saveAsPath = null) {
               const ftApRef = context.register(ftApStream);
               const ftApDict = context.obj({ N: ftApRef });
               annotDict.set(PDFName.of('AP'), ftApDict);
+
+              // Store angle for our loader to recover
+              if (ftRotation !== 0 && !isStandardRotation) {
+                annotDict.set(PDFName.of('OPS_Rotation'), context.obj(ftRotation));
+              }
             }
 
             break;

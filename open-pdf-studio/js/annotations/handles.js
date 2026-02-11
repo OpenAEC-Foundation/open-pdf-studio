@@ -83,8 +83,8 @@ export function getAnnotationHandles(annotation, scale = 1) {
       handles.push({ type: HANDLE_TYPES.BOTTOM, x: annotation.x + annotation.width/2 - hs/2, y: annotation.y + annotation.height - hs/2 });
       handles.push({ type: HANDLE_TYPES.LEFT, x: annotation.x - hs/2, y: annotation.y + annotation.height/2 - hs/2 });
       handles.push({ type: HANDLE_TYPES.RIGHT, x: annotation.x + annotation.width - hs/2, y: annotation.y + annotation.height/2 - hs/2 });
-      // Rotation handle (above the shape)
-      handles.push({ type: HANDLE_TYPES.ROTATE, x: annotation.x + annotation.width/2 - hs/2, y: annotation.y - 25 / scale - hs/2 });
+      // Rotation handle (to the right of the shape)
+      handles.push({ type: HANDLE_TYPES.ROTATE, x: annotation.x + annotation.width + 25 / scale - hs/2, y: annotation.y + annotation.height/2 - hs/2 });
       break;
 
     case 'callout':

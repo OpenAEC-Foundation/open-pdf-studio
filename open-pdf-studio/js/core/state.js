@@ -98,6 +98,9 @@ export const state = {
   activeContinuousCanvas: null,
   activeContinuousPage: null,
 
+  // Modal dialog state (blocks all tool interaction)
+  modalDialogOpen: false,
+
   // Backstage state
   backstageOpen: false,
 

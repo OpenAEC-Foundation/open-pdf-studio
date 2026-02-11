@@ -1,10 +1,11 @@
 {
   "name": "open-pdf-studio",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "A free, open-source PDF annotation editor built with Tauri",
   "scripts": {
-    "build": "node build.js",
-    "watch": "node watch.js",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "npm run build && tauri build"
@@ -20,14 +21,15 @@
   "author": "OpenAEC Foundation",
   "license": "MIT",
   "devDependencies": {
-    "@tauri-apps/cli": "^2"
+    "@tauri-apps/cli": "^2",
+    "vite": "^6"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-dialog": "^2",
     "@tauri-apps/plugin-fs": "^2",
-    "@tauri-apps/plugin-shell": "^2",
     "@tauri-apps/plugin-os": "^2",
+    "@tauri-apps/plugin-shell": "^2",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^5.4.530"
   }

@@ -1,6 +1,6 @@
 import { getActiveDocument } from '../../core/state.js';
 import { isTauri, writeBinaryFile, readBinaryFile } from '../../core/platform.js';
-import { PDFDocument, PDFName, PDFHexString, PDFDict, PDFArray, PDFString } from '../../../node_modules/pdf-lib/dist/pdf-lib.esm.js';
+import { PDFDocument, PDFName, PDFHexString, PDFDict, PDFArray, PDFString } from 'pdf-lib';
 import { getCachedPdfBytes } from '../../pdf/loader.js';
 
 const attachmentsContainer = document.getElementById('attachments-container');
@@ -326,7 +326,7 @@ async function removeAttachment(activeDoc, key) {
 
 // Reload the pdf.js document from new bytes
 async function reloadDocumentFromBytes(activeDoc, bytes) {
-  const pdfjsLib = await import('../../pdfjs/build/pdf.mjs');
+  const pdfjsLib = await import('pdfjs-dist');
   const newDoc = await pdfjsLib.getDocument({ data: bytes }).promise;
   activeDoc.pdfDoc = newDoc;
 }

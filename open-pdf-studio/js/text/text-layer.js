@@ -1,5 +1,5 @@
 import { state } from '../core/state.js';
-import * as pdfjsLib from '../../pdfjs/build/pdf.mjs';
+import * as pdfjsLib from 'pdfjs-dist';
 
 /**
  * Text Layer Management Module

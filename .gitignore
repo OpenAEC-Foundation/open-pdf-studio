@@ -27,8 +27,8 @@ nul
 # Test files
 *.jpg
 *.png
-!open-pdf-studio/icon.png
-!open-pdf-studio/pdfjs/**
+!open-pdf-studio/public/icon.png
+!open-pdf-studio/public/pdfjs/**
 !open-pdf-studio/src-tauri/icons/**
 
 # Documentation

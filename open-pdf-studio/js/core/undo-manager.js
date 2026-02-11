@@ -58,8 +58,18 @@ export async function undo() {
   applyUndo(cmd);
   markDocumentModified();
 
-  const { hideProperties } = await import('../ui/panels/properties-panel.js');
-  hideProperties();
+  // For modify operations, keep selection intact and refresh properties
+  if (cmd.type === 'modifyAnnotation' || cmd.type === 'bulkModify') {
+    const { showProperties, showMultiSelectionProperties } = await import('../ui/panels/properties-panel.js');
+    if (state.selectedAnnotations.length > 1) {
+      showMultiSelectionProperties();
+    } else if (state.selectedAnnotation) {
+      showProperties(state.selectedAnnotation);
+    }
+  } else {
+    const { hideProperties } = await import('../ui/panels/properties-panel.js');
+    hideProperties();
+  }
   await refresh();
 }
 
@@ -75,8 +85,18 @@ export async function redo() {
   applyRedo(cmd);
   markDocumentModified();
 
-  const { hideProperties } = await import('../ui/panels/properties-panel.js');
-  hideProperties();
+  // For modify operations, keep selection intact and refresh properties
+  if (cmd.type === 'modifyAnnotation' || cmd.type === 'bulkModify') {
+    const { showProperties, showMultiSelectionProperties } = await import('../ui/panels/properties-panel.js');
+    if (state.selectedAnnotations.length > 1) {
+      showMultiSelectionProperties();
+    } else if (state.selectedAnnotation) {
+      showProperties(state.selectedAnnotation);
+    }
+  } else {
+    const { hideProperties } = await import('../ui/panels/properties-panel.js');
+    hideProperties();
+  }
   await refresh();
 }
 

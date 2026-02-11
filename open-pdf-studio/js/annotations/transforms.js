@@ -575,12 +575,22 @@ export function applyRotation(annotation, mouseX, mouseY, originalAnn) {
   // Calculate angle from center to mouse position
   const angle = Math.atan2(mouseY - centerY, mouseX - centerX) * (180 / Math.PI);
 
-  // Adjust angle (rotation handle is at top, so add 90 degrees)
-  annotation.rotation = angle + 90;
+  // Adjust angle (rotation handle is to the right, so no offset needed)
+  annotation.rotation = angle;
 
   // Snap to 15 degree increments when shift is held
   if (state.shiftKeyPressed && state.preferences.enableAngleSnap) {
     annotation.rotation = snapAngle(annotation.rotation, state.preferences.angleSnapDegrees);
+  } else {
+    // Magnetic snap to common angles (0, ±45, ±90, ±135, 180) within ±3° tolerance
+    const magnetAngles = [0, 45, 90, 135, 180, -45, -90, -135, -180];
+    const magnetTolerance = 3;
+    for (const magnet of magnetAngles) {
+      if (Math.abs(annotation.rotation - magnet) <= magnetTolerance) {
+        annotation.rotation = magnet;
+        break;
+      }
+    }
   }
 
   annotation.modifiedAt = new Date().toISOString();

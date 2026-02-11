@@ -1014,6 +1014,11 @@ body {
   border-color: var(--theme-ribbon-btn-active-border);
 }
 
+.ribbon-btn:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 .ribbon-btn-icon {
   width: 28px;
   height: 28px;
@@ -1081,6 +1086,34 @@ body {
 }
 
 .ribbon-btn.small .ribbon-btn-label {
+  font-size: 11px;
+  text-align: left;
+  max-width: none;
+  white-space: nowrap;
+}
+
+/* Medium ribbon buttons - horizontal layout, 2 fit vertically */
+.ribbon-btn.medium {
+  flex-direction: row;
+  min-width: 70px;
+  height: 33px;
+  padding: 2px 8px 2px 4px;
+  gap: 6px;
+  justify-content: flex-start;
+  border-radius: 3px;
+}
+
+.ribbon-btn.medium .ribbon-btn-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.ribbon-btn.medium .ribbon-btn-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.ribbon-btn.medium .ribbon-btn-label {
   font-size: 11px;
   text-align: left;
   max-width: none;
@@ -1315,16 +1348,19 @@ body {
 
 /* Format ribbon - Form grid (Width, Border, Opacity, etc.) */
 .ribbon-form-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr;
+  align-items: center;
+  gap: 3px 4px;
   padding: 4px 0;
 }
 
+.ribbon-form-grid-2col {
+  grid-template-columns: auto 1fr;
+}
+
 .ribbon-form-row {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  display: contents;
 }
 
 .ribbon-form-row label {
@@ -1344,6 +1380,11 @@ body {
 
 .ribbon-form-select-sm {
   min-width: 50px;
+}
+
+.ribbon-form-select:disabled {
+  opacity: 0.4;
+  pointer-events: none;
 }
 
 .ribbon-form-select:focus {
@@ -1371,20 +1412,84 @@ body {
   border-top-color: var(--theme-ribbon-text-hover);
 }
 
-/* Color picker button - Dark theme */
-.ribbon-color-btn {
+/* Ribbon color picker wrapper & dropdown */
+.ribbon-color-picker-wrapper {
   position: relative;
 }
 
-.ribbon-color-indicator {
+.ribbon-color-dd-arrow {
+  width: 8px;
+  height: 5px;
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--theme-ribbon-text);
+}
+
+.ribbon-color-dropdown {
+  display: none;
   position: absolute;
-  bottom: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 30px;
-  height: 4px;
-  border-radius: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  background: var(--theme-surface, #fff);
+  border: 1px solid var(--theme-border, #ccc);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  padding: 6px;
+  min-width: 170px;
+}
+
+.ribbon-color-dropdown.show {
+  display: block;
+}
+
+.ribbon-color-palette {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+}
+
+.ribbon-color-palette .color-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ribbon-color-palette .color-swatch {
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+
+.ribbon-color-palette .color-swatch:hover {
+  transform: scale(1.2);
+  z-index: 1;
+  position: relative;
+  border-color: #333;
+}
+
+.ribbon-color-dropdown-actions {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--theme-border, #ddd);
+}
+
+.ribbon-color-none-btn,
+.ribbon-color-custom-btn {
+  flex: 1;
+  padding: 3px 6px;
+  font-size: 11px;
+  background: var(--theme-surface, #fff);
+  border: 1px solid var(--theme-border, #ccc);
+  color: var(--theme-text, #333);
+  cursor: pointer;
+}
+
+.ribbon-color-none-btn:hover,
+.ribbon-color-custom-btn:hover {
+  background: var(--theme-ribbon-btn-hover, #e8e8e8);
 }
 
 /* Input controls */
@@ -1801,17 +1906,35 @@ body {
   flex: 1;
   min-width: 0;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.main-view > #form-fields-bar {
+  flex-shrink: 0;
+}
+
+.main-view > #pdf-container.visible,
+.main-view > #placeholder {
+  flex: 1;
+  min-height: 0;
   overflow: auto;
   padding: 20px;
-  height: 100%;
+}
+
+.main-view > #pdf-container.visible {
+  align-items: flex-start;
+  justify-content: center;
 }
 
 #placeholder {
   text-align: center;
   color: var(--theme-placeholder-text);
-  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 #placeholder svg {
@@ -1838,7 +1961,7 @@ body {
 }
 
 #pdf-container.visible {
-  display: block;
+  display: flex;
 }
 
 #canvas-wrapper {
@@ -2025,6 +2148,282 @@ body {
   background: rgba(255, 255, 0, 0.3);
 }
 
+/* Form Layer - interactive PDF form fields rendered by pdf.js AnnotationLayer */
+.formLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  overflow: clip;
+  pointer-events: none;
+  transform-origin: 0 0;
+}
+
+/* pdf.js AnnotationLayer widget styles */
+.formLayer.annotationLayer {
+  --annotation-unfocused-field-background: url("data:image/svg+xml;charset=UTF-8,<svg width='1px' height='1px' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' style='fill:rgba(0, 54, 255, 0.13);'/></svg>");
+  --total-scale-factor: var(--scale-factor, 1);
+  --input-focus-border-color: Highlight;
+  --input-focus-outline: 1px solid Canvas;
+  --input-unfocused-border-color: transparent;
+  --input-disabled-border-color: transparent;
+  --input-hover-border-color: black;
+}
+
+.formLayer section {
+  position: absolute;
+  text-align: initial;
+  pointer-events: auto;
+  box-sizing: border-box;
+  transform-origin: 0 0;
+}
+
+.formLayer .textWidgetAnnotation :is(input, textarea),
+.formLayer .choiceWidgetAnnotation select,
+.formLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) input {
+  background-image: var(--annotation-unfocused-field-background);
+  border: 2px solid var(--input-unfocused-border-color);
+  box-sizing: border-box;
+  font: calc(9px * var(--total-scale-factor, 1)) sans-serif;
+  height: 100%;
+  margin: 0;
+  vertical-align: top;
+  width: 100%;
+}
+
+.formLayer .choiceWidgetAnnotation select option {
+  padding: 0;
+}
+
+.formLayer .buttonWidgetAnnotation.radioButton input {
+  border-radius: 50%;
+}
+
+.formLayer .textWidgetAnnotation textarea {
+  resize: none;
+}
+
+.formLayer .textWidgetAnnotation [disabled]:is(input, textarea),
+.formLayer .choiceWidgetAnnotation select[disabled],
+.formLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) input[disabled] {
+  background: none;
+  border: 2px solid var(--input-disabled-border-color);
+  cursor: not-allowed;
+}
+
+.formLayer .textWidgetAnnotation :is(input, textarea):hover,
+.formLayer .choiceWidgetAnnotation select:hover,
+.formLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) input:hover {
+  border: 2px solid var(--input-hover-border-color);
+}
+
+.formLayer .textWidgetAnnotation :is(input, textarea):focus,
+.formLayer .choiceWidgetAnnotation select:focus {
+  background: none;
+  border: 2px solid var(--input-focus-border-color);
+  border-radius: 2px;
+  outline: var(--input-focus-outline);
+}
+
+.formLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) :focus {
+  background-image: none;
+  background-color: transparent;
+}
+
+.formLayer .buttonWidgetAnnotation.checkBox :focus {
+  border: 2px solid var(--input-focus-border-color);
+  border-radius: 2px;
+  outline: var(--input-focus-outline);
+}
+
+.formLayer .buttonWidgetAnnotation.radioButton :focus {
+  border: 2px solid var(--input-focus-border-color);
+  outline: var(--input-focus-outline);
+}
+
+.formLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.formLayer .buttonWidgetAnnotation.checkBox input:checked::before,
+.formLayer .buttonWidgetAnnotation.checkBox input:checked::after,
+.formLayer .buttonWidgetAnnotation.radioButton input:checked::before {
+  background-color: CanvasText;
+  content: "";
+  display: block;
+  position: absolute;
+}
+
+.formLayer .buttonWidgetAnnotation.checkBox input:checked::before,
+.formLayer .buttonWidgetAnnotation.checkBox input:checked::after {
+  height: 80%;
+  left: 45%;
+  width: 1px;
+}
+
+.formLayer .buttonWidgetAnnotation.checkBox input:checked::before {
+  transform: rotate(45deg);
+}
+
+.formLayer .buttonWidgetAnnotation.checkBox input:checked::after {
+  transform: rotate(-45deg);
+}
+
+.formLayer .buttonWidgetAnnotation.radioButton input:checked::before {
+  border-radius: 50%;
+  height: 50%;
+  left: 25%;
+  top: 25%;
+  width: 50%;
+}
+
+.formLayer .textWidgetAnnotation input.comb {
+  font-family: monospace;
+  padding-left: 2px;
+  padding-right: 0;
+}
+
+.formLayer .textWidgetAnnotation input.comb:focus {
+  width: 103%;
+}
+
+.formLayer .buttonWidgetAnnotation.pushButton > a {
+  position: absolute;
+  font-size: 1em;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Form fields info bar */
+.form-fields-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: #deeaf6;
+  border-bottom: 1px solid #b8d4e8;
+  font-size: 12px;
+  color: #1a1a1a;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.form-fields-bar svg {
+  flex-shrink: 0;
+}
+
+.form-fields-bar span {
+  flex: 1;
+}
+
+.form-fields-bar button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #666;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.form-fields-bar button:hover {
+  color: #e81123;
+}
+
+/* Form field validation error dialog (Windows-style) */
+.form-validation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.form-validation-dialog {
+  background: #ffffff;
+  border-radius: 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  border: 1px solid #d4d4d4;
+  width: 380px;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.form-validation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  border-bottom: 1px solid #d4d4d4;
+  background: linear-gradient(to bottom, #ffffff 0%, #f5f5f5 100%);
+  height: 30px;
+  user-select: none;
+  cursor: default;
+}
+
+.form-validation-header span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-validation-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 15px;
+}
+
+.form-validation-icon {
+  flex-shrink: 0;
+}
+
+.form-validation-text {
+  font-size: 12px;
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+  line-height: 1.5;
+  padding-top: 6px;
+}
+
+.form-validation-footer {
+  padding: 10px 15px;
+  border-top: 1px solid #d4d4d4;
+  display: flex;
+  justify-content: center;
+  background: #f5f5f5;
+}
+
+.form-validation-ok-btn {
+  padding: 5px 30px;
+  font-size: 12px;
+  border: 1px solid #d4d4d4;
+  background: #ffffff;
+  cursor: pointer;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.form-validation-ok-btn:hover {
+  background: #e5e5e5;
+}
+
+.form-validation-ok-btn:focus {
+  outline: 1px dotted #333;
+  outline-offset: -3px;
+}
+
 /* Annotation canvas - below text layer */
 #annotation-canvas,
 .annotation-canvas {
@@ -2204,35 +2603,6 @@ body {
   margin-top: 0;
   padding: 8px;
   border-top: 1px solid var(--theme-border);
-}
-
-.property-btn {
-  flex: 1;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 3px;
-  font-size: 12px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background 0.2s;
-}
-
-.property-btn.delete {
-  background: #ef4444;
-  color: white;
-}
-
-.property-btn.delete:hover {
-  background: #dc2626;
-}
-
-.property-btn.close {
-  background: var(--theme-hover);
-  color: var(--theme-text);
-}
-
-.property-btn.close:hover {
-  background: var(--theme-border);
 }
 
 /* Property Sections */

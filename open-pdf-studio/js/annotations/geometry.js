@@ -66,6 +66,9 @@ function getAnnotationCenterAndSize(ann) {
 
 // Find annotation at coordinates
 export function findAnnotationAt(x, y) {
+  // Scale-aware hit tolerance: stay ~10 screen pixels at any zoom level
+  const tol = Math.max(10 / state.scale, 2);
+
   // Search in reverse order (top annotations first)
   for (let i = state.annotations.length - 1; i >= 0; i--) {
     const ann = state.annotations[i];
@@ -76,21 +79,21 @@ export function findAnnotationAt(x, y) {
         // Check if point is near the path
         for (let point of ann.path) {
           const dist = Math.sqrt(Math.pow(x - point.x, 2) + Math.pow(y - point.y, 2));
-          if (dist < 10) return ann;
+          if (dist < tol) return ann;
         }
         break;
       case 'line':
       case 'arrow':
         // Check if point is near the line
         const dist = distanceToLine(x, y, ann.startX, ann.startY, ann.endX, ann.endY);
-        if (dist < 10) return ann;
+        if (dist < tol) return ann;
         break;
       case 'polyline':
         // Check if point is near any segment of the polyline
         if (ann.points && ann.points.length >= 2) {
           for (let i = 0; i < ann.points.length - 1; i++) {
             const segDist = distanceToLine(x, y, ann.points[i].x, ann.points[i].y, ann.points[i+1].x, ann.points[i+1].y);
-            if (segDist < 10) return ann;
+            if (segDist < tol) return ann;
           }
         }
         break;
@@ -113,7 +116,7 @@ export function findAnnotationAt(x, y) {
           if (normDist <= 1) return ann;
         }
         // Also check near the border (stroke)
-        if (isPointNearEllipse(circleLocal.x, circleLocal.y, findCircX, findCircY, findCircW, findCircH)) return ann;
+        if (isPointNearEllipse(circleLocal.x, circleLocal.y, findCircX, findCircY, findCircW, findCircH, tol)) return ann;
         break;
       case 'box':
         // Transform click point by inverse rotation if annotation is rotated
@@ -124,7 +127,7 @@ export function findAnnotationAt(x, y) {
           if (boxLocal.x >= ann.x && boxLocal.x <= ann.x + ann.width && boxLocal.y >= ann.y && boxLocal.y <= ann.y + ann.height) return ann;
         }
         // Also check near the border (stroke)
-        if (isPointNearRect(boxLocal.x, boxLocal.y, ann.x, ann.y, ann.width, ann.height)) return ann;
+        if (isPointNearRect(boxLocal.x, boxLocal.y, ann.x, ann.y, ann.width, ann.height, tol)) return ann;
         break;
       case 'highlight':
         // Transform click point by inverse rotation if annotation is rotated
@@ -166,8 +169,8 @@ export function findAnnotationAt(x, y) {
         const arrowY = ann.arrowY !== undefined ? ann.arrowY : ann.y + coHeight;
         const kneeX = ann.kneeX !== undefined ? ann.kneeX : ann.x - 30;
         const kneeY = ann.kneeY !== undefined ? ann.kneeY : ann.y + coHeight / 2;
-        if (Math.sqrt(Math.pow(x - arrowX, 2) + Math.pow(y - arrowY, 2)) < 15) return ann;
-        if (Math.sqrt(Math.pow(x - kneeX, 2) + Math.pow(y - kneeY, 2)) < 15) return ann;
+        if (Math.sqrt(Math.pow(x - arrowX, 2) + Math.pow(y - arrowY, 2)) < tol * 1.5) return ann;
+        if (Math.sqrt(Math.pow(x - kneeX, 2) + Math.pow(y - kneeY, 2)) < tol * 1.5) return ann;
         break;
       case 'polygon':
       case 'cloud':
@@ -187,7 +190,7 @@ export function findAnnotationAt(x, y) {
         break;
       case 'measureDistance': {
         const d = distanceToLine(x, y, ann.startX, ann.startY, ann.endX, ann.endY);
-        if (d < 8) return ann;
+        if (d < tol) return ann;
         break;
       }
       case 'measureArea':
@@ -196,13 +199,13 @@ export function findAnnotationAt(x, y) {
           // Check proximity to any edge
           for (let i = 0; i < ann.points.length - 1; i++) {
             const d = distanceToLine(x, y, ann.points[i].x, ann.points[i].y, ann.points[i+1].x, ann.points[i+1].y);
-            if (d < 8) return ann;
+            if (d < tol) return ann;
           }
           // For area, also check closing edge
           if (ann.type === 'measureArea' && ann.points.length >= 3) {
             const last = ann.points.length - 1;
             const d = distanceToLine(x, y, ann.points[last].x, ann.points[last].y, ann.points[0].x, ann.points[0].y);
-            if (d < 8) return ann;
+            if (d < tol) return ann;
           }
         }
         break;

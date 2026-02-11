@@ -10,6 +10,7 @@ import { getCursorForTool } from '../tools/manager.js';
 import { updateActiveThumbnail } from '../ui/panels/left-panel.js';
 import { createSinglePageTextLayer, clearSinglePageTextLayer, createTextLayer, clearTextLayers } from '../text/text-layer.js';
 import { createSinglePageLinkLayer, clearSinglePageLinkLayer, createLinkLayer, clearLinkLayers } from './link-layer.js';
+import { createSinglePageFormLayer, clearSinglePageFormLayer, createFormLayer, clearFormLayers, hideFormFieldsBar } from './form-layer.js';
 
 // Track current render task to cancel if needed
 let currentRenderTask = null;
@@ -42,10 +43,11 @@ export async function renderPage(pageNum) {
   annotationCanvas.width = viewport.width;
   annotationCanvas.height = viewport.height;
 
-  // Set --scale-factor on container for PDF.js text layer
+  // Set CSS scale variables for PDF.js text/annotation layers
   const container = document.getElementById('canvas-container');
   if (container) {
     container.style.setProperty('--scale-factor', viewport.scale);
+    container.style.setProperty('--total-scale-factor', viewport.scale);
   }
 
   // Render PDF page
@@ -83,6 +85,13 @@ export async function renderPage(pageNum) {
     console.warn('Failed to create link layer:', e);
   }
 
+  // Create form layer for interactive form fields
+  try {
+    await createSinglePageFormLayer(page, viewport);
+  } catch (e) {
+    console.warn('Failed to create form layer:', e);
+  }
+
   // Redraw annotations
   redrawAnnotations();
 
@@ -104,9 +113,10 @@ export async function renderContinuous() {
   const continuousContainer = document.getElementById('continuous-container');
   continuousContainer.innerHTML = ''; // Clear existing content
 
-  // Clear all text and link layers before re-render
+  // Clear all text, link, and form layers before re-render
   clearTextLayers();
   clearLinkLayers();
+  clearFormLayers();
 
   for (let pageNum = 1; pageNum <= state.pdfDoc.numPages; pageNum++) {
     const page = await state.pdfDoc.getPage(pageNum);
@@ -132,6 +142,8 @@ export async function renderContinuous() {
     const canvasContainer = document.createElement('div');
     canvasContainer.style.position = 'relative';
     canvasContainer.style.display = 'inline-block';
+    canvasContainer.style.setProperty('--scale-factor', viewport.scale);
+    canvasContainer.style.setProperty('--total-scale-factor', viewport.scale);
 
     // Create PDF canvas
     const pdfCanvasEl = document.createElement('canvas');
@@ -184,6 +196,13 @@ export async function renderContinuous() {
       await createLinkLayer(page, viewport, canvasContainer, pageNum);
     } catch (e) {
       console.warn(`Failed to create link layer for page ${pageNum}:`, e);
+    }
+
+    // Create form layer for interactive form fields
+    try {
+      await createFormLayer(page, viewport, canvasContainer, pageNum);
+    } catch (e) {
+      console.warn(`Failed to create form layer for page ${pageNum}:`, e);
     }
 
     // Render annotations for this page
@@ -398,11 +417,14 @@ export function clearPdfView() {
     continuousContainer.innerHTML = '';
   }
 
-  // Clear text and link layers
+  // Clear text, link, and form layers
   clearSinglePageTextLayer();
   clearTextLayers();
   clearSinglePageLinkLayer();
   clearLinkLayers();
+  clearSinglePageFormLayer();
+  clearFormLayers();
+  hideFormFieldsBar();
 
   // Reset page info
   pageInput.value = '';
