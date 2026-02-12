@@ -65,7 +65,7 @@ jobs:
     runs-on: ${{ matrix.platform }}
     env:
       TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ''
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: 'tauri2026'
     defaults:
       run:
         working-directory: open-pdf-studio
