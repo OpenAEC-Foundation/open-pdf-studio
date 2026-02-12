@@ -90,14 +90,6 @@ jobs:
       - name: Install frontend dependencies
         run: npm install
 
-      - name: Debug signing key
-        run: |
-          echo "Key length: ${#TAURI_SIGNING_PRIVATE_KEY}"
-          echo "Key starts with: ${TAURI_SIGNING_PRIVATE_KEY:0:20}..."
-          echo "Key ends with: ...${TAURI_SIGNING_PRIVATE_KEY: -20}"
-          echo "Key MD5: $(echo -n "$TAURI_SIGNING_PRIVATE_KEY" | md5sum | cut -d' ' -f1)"
-        shell: bash
-
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@action-v0.6.1
         env:
