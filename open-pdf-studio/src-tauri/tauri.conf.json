@@ -63,7 +63,7 @@
       "endpoints": [
         "https://github.com/OpenAEC-Foundation/OpenPDFStudio/releases/latest/download/latest.json"
       ],
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZBNEUzNDE1NDQyNEQxRjQKUldUMDBTUkVGVFJPK3F2cmRRM3IydS9ZRm5IcUlZNWZnOStxdzhTRGNkeVRoK1lUZzE1aDRucC8K"
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDY4OEZENkE2RTg2MzkyMzQKUldRMGttUG9wdGFQYUprM0tEemZBRkcvK0Y0OGt1dWVtNGxrN3VKbUdod3Nwb2hkTFo1SXV2aG8K"
     }
   }
 }
