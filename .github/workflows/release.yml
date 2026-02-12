@@ -65,6 +65,7 @@ jobs:
     runs-on: ${{ matrix.platform }}
     env:
       TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ""
     defaults:
       run:
         working-directory: open-pdf-studio
@@ -89,19 +90,11 @@ jobs:
       - name: Install frontend dependencies
         run: npm install
 
-      - name: Verify signing secrets
+      - name: Write signing key to file
         run: |
-          if [ -z "$TAURI_SIGNING_PRIVATE_KEY" ]; then
-            echo "::error::TAURI_SIGNING_PRIVATE_KEY is empty! Go to Settings > Secrets > Actions and set it."
-            exit 1
-          else
-            echo "TAURI_SIGNING_PRIVATE_KEY is set (length: ${#TAURI_SIGNING_PRIVATE_KEY})"
-          fi
-          if [ -z "$TAURI_SIGNING_PRIVATE_KEY_PASSWORD" ]; then
-            echo "::warning::TAURI_SIGNING_PRIVATE_KEY_PASSWORD is empty"
-          else
-            echo "TAURI_SIGNING_PRIVATE_KEY_PASSWORD is set (length: ${#TAURI_SIGNING_PRIVATE_KEY_PASSWORD})"
-          fi
+          echo "$TAURI_SIGNING_PRIVATE_KEY" > "$RUNNER_TEMP/signing-key.key"
+          KEY_SIZE=$(wc -c < "$RUNNER_TEMP/signing-key.key")
+          echo "Signing key written ($KEY_SIZE bytes)"
         shell: bash
 
       - name: Build Tauri app
