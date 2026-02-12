@@ -125,6 +125,38 @@
               </div>
               <span class="ribbon-btn-label">Hand</span>
             </button>
+            <div class="ribbon-split-btn" id="screenshot-split-btn">
+              <button class="ribbon-btn" id="screenshot-page" title="Capture Full Page">
+                <div class="ribbon-btn-icon">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                    <circle cx="12" cy="13" r="3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+                  </svg>
+                </div>
+                <span class="ribbon-btn-label">Screenshot</span>
+              </button>
+              <button class="ribbon-split-btn-arrow" id="screenshot-dropdown-toggle" title="Screenshot options">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="8" height="8">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 9l6 6 6-6"/>
+                </svg>
+              </button>
+              <div class="ribbon-split-btn-menu" id="screenshot-menu">
+                <button class="ribbon-split-btn-menu-item" id="screenshot-menu-page">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                    <circle cx="12" cy="13" r="3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+                  </svg>
+                  Full Page
+                </button>
+                <button class="ribbon-split-btn-menu-item" id="screenshot-menu-region">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h4M4 4v4M20 4h-4M20 4v4M4 20h4M4 20v-4M20 20h-4M20 20v-4"/>
+                    <rect x="8" y="8" width="8" height="8" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" stroke-dasharray="2 2"/>
+                  </svg>
+                  Region
+                </button>
+              </div>
+            </div>
           </div>
           <div class="ribbon-group-label">Tools</div>
         </div>
@@ -3721,6 +3753,53 @@
       </div>
     </div>
     <div class="backstage-content" id="backstage-content">
+    </div>
+  </div>
+
+  <!-- Software Update Dialog -->
+  <div class="update-overlay" id="update-dialog">
+    <div class="update-dialog">
+      <div class="update-header">
+        <h2>Software Update</h2>
+        <button class="update-close-btn" id="update-close-btn">&times;</button>
+      </div>
+      <div class="update-body">
+        <div class="update-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#0078d7" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+        </div>
+        <div class="update-info">
+          <p class="update-message">A new version of OpenPDFStudio is available.</p>
+          <div class="update-versions">
+            <div class="update-version-row">
+              <span class="update-version-label">Current version:</span>
+              <span class="update-version-value" id="update-current-version">-</span>
+            </div>
+            <div class="update-version-row">
+              <span class="update-version-label">New version:</span>
+              <span class="update-version-value update-version-new" id="update-new-version">-</span>
+            </div>
+          </div>
+          <div class="update-notes-section">
+            <label class="update-notes-label">Release Notes:</label>
+            <div class="update-notes" id="update-notes"></div>
+          </div>
+        </div>
+      </div>
+      <div class="update-progress-section" id="update-progress-section" style="display: none;">
+        <div class="update-progress-bar-track">
+          <div class="update-progress-bar-fill" id="update-progress-bar"></div>
+        </div>
+        <span class="update-progress-text" id="update-progress-text">Downloading... 0%</span>
+      </div>
+      <div class="update-footer">
+        <button class="update-btn update-btn-secondary" id="update-skip-btn">Skip This Version</button>
+        <div class="update-footer-right">
+          <button class="update-btn update-btn-secondary" id="update-later-btn">Remind Me Later</button>
+          <button class="update-btn update-btn-primary" id="update-install-btn">Download &amp; Install</button>
+        </div>
+      </div>
     </div>
   </div>
 

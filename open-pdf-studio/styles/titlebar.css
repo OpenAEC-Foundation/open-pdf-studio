@@ -1,0 +1,159 @@
+/* Title Bar */
+.title-bar {
+  background: linear-gradient(to bottom, var(--theme-titlebar-bg-start) 0%, var(--theme-titlebar-bg-end) 100%);
+  border-bottom: 1px solid var(--theme-titlebar-border);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 30px;
+  flex-shrink: 0;
+  -webkit-app-region: drag;
+  user-select: none;
+  cursor: default;
+}
+
+.title-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 100%;
+  -webkit-app-region: no-drag;
+}
+
+.app-icon {
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Quick Access Toolbar */
+.quick-access-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 8px;
+  height: 100%;
+}
+
+.quick-access-btn {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  color: var(--theme-titlebar-btn-color);
+  padding: 0;
+}
+
+.quick-access-btn:hover {
+  background: var(--theme-titlebar-btn-hover);
+}
+
+.quick-access-btn:active {
+  background: var(--theme-titlebar-btn-active);
+}
+
+.quick-access-btn:disabled {
+  color: var(--theme-titlebar-btn-disabled);
+  cursor: default;
+}
+
+.quick-access-btn:disabled:hover {
+  background: transparent;
+}
+
+.quick-access-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.quick-access-separator {
+  width: 1px;
+  height: 16px;
+  background: var(--theme-titlebar-border);
+  margin: 0 4px;
+}
+
+.title-bar-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.app-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--theme-titlebar-text);
+}
+
+.file-name {
+  font-size: 11px;
+  color: var(--theme-titlebar-text-secondary);
+}
+
+.title-bar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.title-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  font-size: 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-weight: 500;
+}
+
+.title-btn:hover {
+  background: #1d4ed8;
+}
+
+.title-btn.secondary {
+  background: #6b7280;
+}
+
+.title-btn.secondary:hover {
+  background: #4b5563;
+}
+
+/* Window Controls */
+.window-controls {
+  display: flex;
+  -webkit-app-region: no-drag;
+}
+
+.window-btn {
+  width: 40px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  color: var(--theme-window-btn-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.window-btn:hover {
+  background: var(--theme-window-btn-hover);
+}
+
+.window-btn-close:hover {
+  background: #e81123;
+  color: white;
+}

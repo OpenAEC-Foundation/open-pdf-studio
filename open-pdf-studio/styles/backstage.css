@@ -1,0 +1,117 @@
+/* Backstage Overlay */
+.backstage-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  flex-direction: row;
+  background: var(--theme-backstage-bg);
+}
+
+.backstage-overlay.visible {
+  display: flex;
+}
+
+.backstage-sidebar {
+  width: 260px;
+  background: var(--theme-backstage-sidebar);
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--theme-backstage-sidebar-border);
+  flex-shrink: 0;
+}
+
+.backstage-back {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: var(--theme-accent);
+  border: none;
+  color: var(--theme-file-tab-text);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.backstage-back:hover {
+  background: var(--theme-accent-hover);
+}
+
+.backstage-back svg {
+  flex-shrink: 0;
+}
+
+.backstage-items {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.backstage-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  background: transparent;
+  border: none;
+  color: var(--theme-backstage-text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.1s;
+  text-align: left;
+  width: 100%;
+}
+
+.backstage-item:hover {
+  background: var(--theme-backstage-item-hover);
+  color: var(--theme-backstage-item-hover-text);
+}
+
+.backstage-item-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.backstage-item-icon svg {
+  stroke: var(--theme-backstage-icon);
+}
+
+.backstage-item:hover .backstage-item-icon svg {
+  stroke: var(--theme-backstage-item-hover-text);
+}
+
+.backstage-item-label {
+  flex: 1;
+}
+
+.backstage-item-shortcut {
+  font-size: 11px;
+  color: var(--theme-backstage-shortcut);
+  margin-left: auto;
+}
+
+.backstage-item:hover .backstage-item-shortcut {
+  color: var(--theme-backstage-shortcut-hover);
+}
+
+.backstage-divider {
+  height: 1px;
+  background: var(--theme-backstage-divider);
+  margin: 4px 16px;
+}
+
+.backstage-content {
+  flex: 1;
+  background: var(--theme-backstage-bg);
+  padding: 40px;
+  overflow-y: auto;
+  color: var(--theme-backstage-text);
+}

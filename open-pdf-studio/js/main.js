@@ -40,6 +40,9 @@ import { initFindBar } from './search/find-bar.js';
 // Font utilities
 import { initFontDropdowns } from './utils/fonts.js';
 
+// Auto-update
+import { initUpdater, checkForUpdates } from './ui/chrome/updater.js';
+
 // Tauri API
 import { isTauri, isDevMode, getOpenedFile, loadSession, saveSession, fileExists, isDefaultPdfApp, openDefaultAppsSettings } from './core/platform.js';
 
@@ -116,6 +119,10 @@ async function init() {
 
   // Check if this app is the default PDF handler
   await checkDefaultPdfApp();
+
+  // Initialize auto-updater and check for updates silently
+  initUpdater();
+  checkForUpdates(true);
 }
 
 // Initialize preferences dialog drag functionality

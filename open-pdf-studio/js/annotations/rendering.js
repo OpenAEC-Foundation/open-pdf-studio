@@ -1,248 +1,17 @@
-import { HANDLE_SIZE, HANDLE_TYPES } from '../core/constants.js';
-import { state, isSelected, getSelectionBounds, getAnnotationBounds } from '../core/state.js';
+import { state } from '../core/state.js';
 import { annotationCanvas, annotationCtx } from '../ui/dom-elements.js';
-import { getAnnotationHandles } from './handles.js';
 import { updateStatusAnnotations } from '../ui/chrome/status-bar.js';
 import { updateAnnotationsList } from '../ui/panels/annotations-list.js';
 
-// Draw polygon shape
-export function drawPolygonShape(ctx, x, y, width, height, sides = 6) {
-  const cx = x + width / 2;
-  const cy = y + height / 2;
-  const rx = width / 2;
-  const ry = height / 2;
+// Import from sub-modules
+import { drawPolygonShape, drawCloudShape, drawTextboxContent } from './rendering/shapes.js';
+import { drawArrowheadOnCanvas, applyBorderStyle } from './rendering/decorations.js';
+import { drawSelectionHandles, drawMultiSelectionOutline, drawMultiSelectionBounds } from './rendering/selection.js';
+import { updateQuickAccessButtons, updateContextualTabs, drawGrid, snapToGrid } from './rendering/ui-state.js';
 
-  ctx.beginPath();
-  for (let i = 0; i <= sides; i++) {
-    const angle = (i * 2 * Math.PI / sides) - Math.PI / 2;
-    const px = cx + rx * Math.cos(angle);
-    const py = cy + ry * Math.sin(angle);
-    if (i === 0) {
-      ctx.moveTo(px, py);
-    } else {
-      ctx.lineTo(px, py);
-    }
-  }
-  ctx.closePath();
-  ctx.stroke();
-}
-
-// Draw cloud shape (bumpy rectangle)
-export function drawCloudShape(ctx, x, y, width, height) {
-  const bumpRadius = Math.min(width, height) / 8;
-  const numBumpsH = Math.max(3, Math.floor(width / (bumpRadius * 1.5)));
-  const numBumpsV = Math.max(2, Math.floor(height / (bumpRadius * 1.5)));
-
-  ctx.beginPath();
-
-  // Top edge (left to right)
-  const topSpacing = width / numBumpsH;
-  for (let i = 0; i < numBumpsH; i++) {
-    const bx = x + topSpacing * (i + 0.5);
-    ctx.arc(bx, y, bumpRadius, Math.PI, 0, false);
-  }
-
-  // Right edge (top to bottom)
-  const rightSpacing = height / numBumpsV;
-  for (let i = 0; i < numBumpsV; i++) {
-    const by = y + rightSpacing * (i + 0.5);
-    ctx.arc(x + width, by, bumpRadius, -Math.PI / 2, Math.PI / 2, false);
-  }
-
-  // Bottom edge (right to left)
-  for (let i = numBumpsH - 1; i >= 0; i--) {
-    const bx = x + topSpacing * (i + 0.5);
-    ctx.arc(bx, y + height, bumpRadius, 0, Math.PI, false);
-  }
-
-  // Left edge (bottom to top)
-  for (let i = numBumpsV - 1; i >= 0; i--) {
-    const by = y + rightSpacing * (i + 0.5);
-    ctx.arc(x, by, bumpRadius, Math.PI / 2, -Math.PI / 2, false);
-  }
-
-  ctx.closePath();
-  ctx.stroke();
-}
-
-// Draw textbox content with word wrap
-function drawTextboxContent(ctx, annotation, padding = 3) {
-  if (!annotation.text) return;
-
-  const width = annotation.width || 150;
-  const height = annotation.height || 50;
-  const fontSize = annotation.fontSize || 14;
-  const lineSpacing = annotation.lineSpacing || 1.2;
-  const lineHeight = fontSize * lineSpacing;
-
-  // Build font string with style options
-  const fontFamily = annotation.fontFamily || 'Arial';
-  const fontStyle = (annotation.fontItalic ? 'italic ' : '') + (annotation.fontBold ? 'bold ' : '');
-  ctx.fillStyle = annotation.textColor || annotation.color || '#000000';
-  ctx.font = `${fontStyle}${fontSize}px ${fontFamily}`;
-  ctx.textBaseline = 'top';
-
-  // Get text alignment
-  const textAlign = annotation.textAlign || 'left';
-  const maxWidth = width - padding * 2;
-
-  // Word wrap text with newline support
-  const paragraphs = annotation.text.split('\n');
-  let y = annotation.y + padding;
-
-  for (let p = 0; p < paragraphs.length; p++) {
-    if (y >= annotation.y + height) break;
-
-    const words = paragraphs[p].split(' ');
-    let line = '';
-
-    for (let i = 0; i < words.length; i++) {
-      const testLine = line + words[i] + ' ';
-      const metrics = ctx.measureText(testLine);
-      if (metrics.width > maxWidth && i > 0) {
-        // Calculate x position based on alignment
-        let textX = annotation.x + padding;
-        const lineWidth = ctx.measureText(line.trim()).width;
-        if (textAlign === 'center') {
-          textX = annotation.x + padding + (maxWidth - lineWidth) / 2;
-        } else if (textAlign === 'right') {
-          textX = annotation.x + width - padding - lineWidth;
-        }
-
-        ctx.fillText(line.trim(), textX, y);
-
-        // Draw underline if enabled
-        if (annotation.fontUnderline) {
-          ctx.beginPath();
-          ctx.moveTo(textX, y + fontSize + 1);
-          ctx.lineTo(textX + lineWidth, y + fontSize + 1);
-          ctx.strokeStyle = ctx.fillStyle;
-          ctx.lineWidth = 1;
-          ctx.stroke();
-        }
-
-        // Draw strikethrough if enabled
-        if (annotation.fontStrikethrough) {
-          ctx.beginPath();
-          ctx.moveTo(textX, y + fontSize * 0.6);
-          ctx.lineTo(textX + lineWidth, y + fontSize * 0.6);
-          ctx.strokeStyle = ctx.fillStyle;
-          ctx.lineWidth = 1;
-          ctx.stroke();
-        }
-
-        line = words[i] + ' ';
-        y += lineHeight;
-        if (y >= annotation.y + height) break;
-      } else {
-        line = testLine;
-      }
-    }
-    if (y < annotation.y + height && line.trim()) {
-      // Calculate x position based on alignment
-      let textX = annotation.x + padding;
-      const lineWidth = ctx.measureText(line.trim()).width;
-      if (textAlign === 'center') {
-        textX = annotation.x + padding + (maxWidth - lineWidth) / 2;
-      } else if (textAlign === 'right') {
-        textX = annotation.x + width - padding - lineWidth;
-      }
-
-      ctx.fillText(line.trim(), textX, y);
-
-      // Draw underline if enabled
-      if (annotation.fontUnderline) {
-        ctx.beginPath();
-        ctx.moveTo(textX, y + fontSize + 1);
-        ctx.lineTo(textX + lineWidth, y + fontSize + 1);
-        ctx.strokeStyle = ctx.fillStyle;
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-
-      // Draw strikethrough if enabled
-      if (annotation.fontStrikethrough) {
-        ctx.beginPath();
-        ctx.moveTo(textX, y + fontSize * 0.6);
-        ctx.lineTo(textX + lineWidth, y + fontSize * 0.6);
-        ctx.strokeStyle = ctx.fillStyle;
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-
-      y += lineHeight;
-    }
-  }
-  ctx.textBaseline = 'alphabetic'; // Reset
-}
-
-// Draw arrowhead at specified position
-function drawArrowheadOnCanvas(ctx, x, y, angle, size, style) {
-  const halfAngle = Math.PI / 6; // 30 degrees
-
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(angle);
-  ctx.lineJoin = 'miter';
-  ctx.miterLimit = 10;
-
-  ctx.beginPath();
-  if (style === 'open' || style === 'stealth') {
-    // Open arrow style - two lines
-    ctx.moveTo(-size, -size * Math.tan(halfAngle));
-    ctx.lineTo(0, 0);
-    ctx.lineTo(-size, size * Math.tan(halfAngle));
-    ctx.stroke();
-  } else if (style === 'closed') {
-    // Closed/filled arrow style - triangle
-    ctx.moveTo(0, 0);
-    ctx.lineTo(-size, -size * Math.tan(halfAngle));
-    ctx.lineTo(-size, size * Math.tan(halfAngle));
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-  } else if (style === 'diamond') {
-    // Diamond style
-    const halfSize = size / 2;
-    ctx.moveTo(0, 0);
-    ctx.lineTo(-halfSize, -halfSize * 0.6);
-    ctx.lineTo(-size, 0);
-    ctx.lineTo(-halfSize, halfSize * 0.6);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-  } else if (style === 'circle') {
-    // Circle style
-    const radius = size / 3;
-    ctx.arc(-radius, 0, radius, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.stroke();
-  } else if (style === 'square') {
-    // Square style
-    const halfSize = size / 3;
-    ctx.rect(-size / 2 - halfSize, -halfSize, halfSize * 2, halfSize * 2);
-    ctx.fill();
-    ctx.stroke();
-  } else if (style === 'slash') {
-    // Slash style - perpendicular line
-    ctx.moveTo(0, -size / 2);
-    ctx.lineTo(0, size / 2);
-    ctx.stroke();
-  }
-
-  ctx.restore();
-}
-
-// Apply border style (dashed/dotted/solid) to canvas context
-function applyBorderStyle(ctx, borderStyle) {
-  if (borderStyle === 'dashed') {
-    ctx.setLineDash([8, 4]);
-  } else if (borderStyle === 'dotted') {
-    ctx.setLineDash([2, 2]);
-  } else {
-    ctx.setLineDash([]);
-  }
-}
+// Re-export everything that external code needs
+export { drawPolygonShape, drawCloudShape } from './rendering/shapes.js';
+export { updateQuickAccessButtons, snapToGrid } from './rendering/ui-state.js';
 
 // Draw single annotation
 function drawAnnotation(ctx, annotation) {
@@ -351,7 +120,6 @@ function drawAnnotation(ctx, annotation) {
       }
 
       // Composite the offscreen arrow onto the main canvas with opacity
-      // drawImage with dest size to map back to document coordinates
       ctx.drawImage(offCanvas, minAX, minAY, offW, offH);
       break;
     }
@@ -471,7 +239,7 @@ function drawAnnotation(ctx, annotation) {
       ctx.font = `${Math.min(cWidth, cHeight) * 0.6}px Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('📝', annotation.x + cWidth/2, annotation.y + cHeight/2);
+      ctx.fillText('\u{1F4DD}', annotation.x + cWidth/2, annotation.y + cHeight/2);
       ctx.textAlign = 'left';
       ctx.textBaseline = 'alphabetic';
 
@@ -547,7 +315,6 @@ function drawAnnotation(ctx, annotation) {
       if (tbLineWidth > 0) {
         ctx.strokeStyle = annotation.strokeColor || strokeColor;
         ctx.lineWidth = tbLineWidth;
-        // Set line dash based on border style
         if (tbBorderStyle === 'dashed') {
           ctx.setLineDash([8, 4]);
         } else if (tbBorderStyle === 'dotted') {
@@ -556,7 +323,7 @@ function drawAnnotation(ctx, annotation) {
           ctx.setLineDash([]);
         }
         ctx.strokeRect(annotation.x, annotation.y, tbWidth, tbHeight);
-        ctx.setLineDash([]); // Reset line dash
+        ctx.setLineDash([]);
       }
 
       // Clip text to textbox bounds
@@ -594,13 +361,12 @@ function drawAnnotation(ctx, annotation) {
         armOriginX = annotation.armOriginX;
         armOriginY = annotation.armOriginY;
       } else {
-        // Default: connect from left or right edge based on arrow position
         if (arrowX < annotation.x + coWidth / 2) {
-          armOriginX = annotation.x; // Left edge
+          armOriginX = annotation.x;
         } else {
-          armOriginX = annotation.x + coWidth; // Right edge
+          armOriginX = annotation.x + coWidth;
         }
-        armOriginY = kneeY; // Same Y as knee for horizontal arm
+        armOriginY = kneeY;
       }
 
       // Draw the two-segment leader line (not rotated - arrow stays in place)
@@ -699,7 +465,6 @@ function drawAnnotation(ctx, annotation) {
           ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
         });
       } else {
-        // Fallback to bounding box
         ctx.fillRect(annotation.x, annotation.y, annotation.width, annotation.height);
       }
       break;
@@ -718,7 +483,6 @@ function drawAnnotation(ctx, annotation) {
           ctx.stroke();
         });
       } else {
-        // Fallback to bounding box
         const midY = annotation.y + annotation.height / 2;
         ctx.beginPath();
         ctx.moveTo(annotation.x, midY);
@@ -741,7 +505,6 @@ function drawAnnotation(ctx, annotation) {
           ctx.stroke();
         });
       } else {
-        // Fallback to bounding box
         const bottomY = annotation.y + annotation.height - 1;
         ctx.beginPath();
         ctx.moveTo(annotation.x, bottomY);
@@ -950,325 +713,6 @@ function drawAnnotation(ctx, annotation) {
   }
 }
 
-// Draw selection highlight and handles
-function drawSelectionHandles(ctx, annotation) {
-  // Selection outline style - thin, subtle dashed line (scale-independent)
-  const sc = state.scale || 1;
-  ctx.strokeStyle = '#0066cc';
-  ctx.lineWidth = 1 / sc;
-  ctx.setLineDash([3 / sc, 3 / sc]);
-
-  switch (annotation.type) {
-    case 'draw':
-      if (annotation.path && annotation.path.length > 0) {
-        const minX = Math.min(...annotation.path.map(p => p.x)) - 2;
-        const minY = Math.min(...annotation.path.map(p => p.y)) - 2;
-        const maxX = Math.max(...annotation.path.map(p => p.x)) + 2;
-        const maxY = Math.max(...annotation.path.map(p => p.y)) + 2;
-        ctx.strokeRect(minX, minY, maxX - minX, maxY - minY);
-      }
-      break;
-    case 'line':
-    case 'arrow':
-      ctx.beginPath();
-      ctx.moveTo(annotation.startX, annotation.startY);
-      ctx.lineTo(annotation.endX, annotation.endY);
-      ctx.stroke();
-      break;
-    case 'circle':
-      const selCircW = annotation.width || annotation.radius * 2;
-      const selCircH = annotation.height || annotation.radius * 2;
-      const selCircX = annotation.x !== undefined ? annotation.x : annotation.centerX - annotation.radius;
-      const selCircY = annotation.y !== undefined ? annotation.y : annotation.centerY - annotation.radius;
-      ctx.save();
-      // Apply rotation if set
-      if (annotation.rotation) {
-        const circCenterX = selCircX + selCircW / 2;
-        const circCenterY = selCircY + selCircH / 2;
-        ctx.translate(circCenterX, circCenterY);
-        ctx.rotate(annotation.rotation * Math.PI / 180);
-        ctx.translate(-circCenterX, -circCenterY);
-      }
-      ctx.strokeRect(selCircX - 2, selCircY - 2, selCircW + 4, selCircH + 4);
-      // Draw line from top center to rotation handle (green color)
-      ctx.strokeStyle = '#22c55e';
-      ctx.setLineDash([]);
-      ctx.beginPath();
-      ctx.moveTo(selCircX + selCircW/2, selCircY - 2);
-      ctx.lineTo(selCircX + selCircW/2, selCircY - 25);
-      ctx.stroke();
-      ctx.restore();
-      break;
-    case 'box':
-    case 'polygon':
-    case 'cloud':
-    case 'highlight':
-    case 'redaction':
-      ctx.save();
-      // Apply rotation if set
-      if (annotation.rotation) {
-        const boxSelCenterX = annotation.x + annotation.width / 2;
-        const boxSelCenterY = annotation.y + annotation.height / 2;
-        ctx.translate(boxSelCenterX, boxSelCenterY);
-        ctx.rotate(annotation.rotation * Math.PI / 180);
-        ctx.translate(-boxSelCenterX, -boxSelCenterY);
-      }
-      ctx.strokeRect(annotation.x - 2, annotation.y - 2, annotation.width + 4, annotation.height + 4);
-      // Draw line from top center to rotation handle (green color)
-      ctx.strokeStyle = '#22c55e';
-      ctx.setLineDash([]);
-      ctx.lineWidth = 1 / sc;
-      ctx.beginPath();
-      ctx.moveTo(annotation.x + annotation.width/2, annotation.y - 2);
-      ctx.lineTo(annotation.x + annotation.width/2, annotation.y - 25 / sc);
-      ctx.stroke();
-      ctx.restore();
-      break;
-    case 'comment':
-      const selCW = annotation.width || 24;
-      const selCH = annotation.height || 24;
-      ctx.strokeRect(annotation.x - 2, annotation.y - 2, selCW + 4, selCH + 4);
-      // Draw line from top center to rotation handle (green color)
-      ctx.strokeStyle = '#22c55e';
-      ctx.setLineDash([]);
-      ctx.lineWidth = 1 / sc;
-      ctx.beginPath();
-      ctx.moveTo(annotation.x + selCW/2, annotation.y - 2);
-      ctx.lineTo(annotation.x + selCW/2, annotation.y - 25 / sc);
-      ctx.stroke();
-      break;
-    case 'text':
-      if (annotationCtx) {
-        annotationCtx.font = `${annotation.fontSize || 16}px Arial`;
-        const textWidth = annotationCtx.measureText(annotation.text).width;
-        const fontSize = annotation.fontSize || 16;
-        ctx.strokeRect(annotation.x - 2, annotation.y - fontSize - 2, textWidth + 4, fontSize + 4);
-      }
-      break;
-    case 'textbox':
-      const selTbWidth = annotation.width || 150;
-      const selTbHeight = annotation.height || 50;
-      ctx.save();
-      // Apply rotation if set
-      if (annotation.rotation) {
-        const tbSelCenterX = annotation.x + selTbWidth / 2;
-        const tbSelCenterY = annotation.y + selTbHeight / 2;
-        ctx.translate(tbSelCenterX, tbSelCenterY);
-        ctx.rotate(annotation.rotation * Math.PI / 180);
-        ctx.translate(-tbSelCenterX, -tbSelCenterY);
-      }
-      ctx.strokeRect(annotation.x - 2, annotation.y - 2, selTbWidth + 4, selTbHeight + 4);
-      // Draw line from right center to rotation handle (green color)
-      ctx.strokeStyle = '#22c55e';
-      ctx.setLineDash([]);
-      ctx.lineWidth = 1 / sc;
-      ctx.beginPath();
-      ctx.moveTo(annotation.x + selTbWidth + 2, annotation.y + selTbHeight/2);
-      ctx.lineTo(annotation.x + selTbWidth + 25 / sc, annotation.y + selTbHeight/2);
-      ctx.stroke();
-      ctx.restore();
-      break;
-    case 'callout':
-      const selCoWidth = annotation.width || 150;
-      const selCoHeight = annotation.height || 50;
-      ctx.strokeRect(annotation.x - 2, annotation.y - 2, selCoWidth + 4, selCoHeight + 4);
-      // Draw selection indicators on arrow and knee points
-      const selArrowX = annotation.arrowX !== undefined ? annotation.arrowX : annotation.x - 60;
-      const selArrowY = annotation.arrowY !== undefined ? annotation.arrowY : annotation.y + selCoHeight;
-      const selKneeX = annotation.kneeX !== undefined ? annotation.kneeX : annotation.x - 30;
-      const selKneeY = annotation.kneeY !== undefined ? annotation.kneeY : annotation.y + selCoHeight / 2;
-      ctx.beginPath();
-      ctx.arc(selArrowX, selArrowY, 4, 0, 2 * Math.PI);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(selKneeX, selKneeY, 4, 0, 2 * Math.PI);
-      ctx.stroke();
-      break;
-    case 'polyline':
-      if (annotation.points && annotation.points.length > 0) {
-        const plMinX = Math.min(...annotation.points.map(p => p.x));
-        const plMinY = Math.min(...annotation.points.map(p => p.y));
-        const plMaxX = Math.max(...annotation.points.map(p => p.x));
-        const plMaxY = Math.max(...annotation.points.map(p => p.y));
-        ctx.strokeRect(plMinX - 2, plMinY - 2, plMaxX - plMinX + 4, plMaxY - plMinY + 4);
-      }
-      break;
-    case 'image':
-      ctx.strokeRect(annotation.x - 2, annotation.y - 2, annotation.width + 4, annotation.height + 4);
-      // Draw line from top center to rotation handle (green color)
-      ctx.strokeStyle = '#22c55e';
-      ctx.setLineDash([]);
-      ctx.lineWidth = 1 / sc;
-      ctx.beginPath();
-      ctx.moveTo(annotation.x + annotation.width/2, annotation.y - 2);
-      ctx.lineTo(annotation.x + annotation.width/2, annotation.y - 25 / sc);
-      ctx.stroke();
-      break;
-    case 'textHighlight':
-    case 'textStrikethrough':
-    case 'textUnderline':
-      // Draw selection around the bounding box of all text rects
-      ctx.strokeRect(annotation.x - 2, annotation.y - 2, annotation.width + 4, annotation.height + 4);
-      break;
-  }
-
-  ctx.setLineDash([]);
-
-  // Draw resize/move handles (scale-independent size)
-  const scale = state.scale || 1;
-  const handles = getAnnotationHandles(annotation, scale);
-  const hs = HANDLE_SIZE / scale;
-  const lw = 1 / scale;
-
-  handles.forEach(handle => {
-    const cx = handle.x + hs / 2;
-    const cy = handle.y + hs / 2;
-
-    // Draw rotation handle as a circle with rotation icon (green color)
-    if (handle.type === HANDLE_TYPES.ROTATE) {
-      // Outer circle
-      ctx.fillStyle = '#22c55e';
-      ctx.beginPath();
-      ctx.arc(cx, cy, hs / 2 + lw, 0, 2 * Math.PI);
-      ctx.fill();
-      // Inner rotation arrow icon
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = lw;
-      ctx.beginPath();
-      ctx.arc(cx, cy, 3 / scale, -Math.PI * 0.7, Math.PI * 0.5);
-      ctx.stroke();
-      // Small arrow head
-      const as = 2 / scale;
-      ctx.beginPath();
-      ctx.moveTo(cx - as, cy + as);
-      ctx.lineTo(cx - as, cy + as * 2);
-      ctx.lineTo(cx - as * 2, cy + as * 1.5);
-      ctx.closePath();
-      ctx.fillStyle = '#ffffff';
-      ctx.fill();
-      return;
-    }
-
-    // Draw circular handles for all types (cleaner look)
-    ctx.beginPath();
-    ctx.arc(cx, cy, hs / 2, 0, 2 * Math.PI);
-    ctx.fillStyle = '#ffffff';
-    ctx.fill();
-    ctx.strokeStyle = '#0066cc';
-    ctx.lineWidth = lw;
-    ctx.stroke();
-
-    // For corner handles, add a small inner dot
-    if ([HANDLE_TYPES.TOP_LEFT, HANDLE_TYPES.TOP_RIGHT, HANDLE_TYPES.BOTTOM_LEFT, HANDLE_TYPES.BOTTOM_RIGHT].includes(handle.type)) {
-      ctx.beginPath();
-      ctx.arc(cx, cy, 1.5 / scale, 0, 2 * Math.PI);
-      ctx.fillStyle = '#0066cc';
-      ctx.fill();
-    }
-
-    // For line endpoints, make them filled
-    if (handle.type === HANDLE_TYPES.LINE_START || handle.type === HANDLE_TYPES.LINE_END) {
-      ctx.beginPath();
-      ctx.arc(cx, cy, hs / 2, 0, 2 * Math.PI);
-      ctx.fillStyle = '#0066cc';
-      ctx.fill();
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = lw;
-      ctx.stroke();
-    }
-
-    // Callout handles - diamond shape
-    if (handle.type === HANDLE_TYPES.CALLOUT_ARROW || handle.type === HANDLE_TYPES.CALLOUT_KNEE) {
-      ctx.beginPath();
-      ctx.moveTo(cx, cy - hs / 2);
-      ctx.lineTo(cx + hs / 2, cy);
-      ctx.lineTo(cx, cy + hs / 2);
-      ctx.lineTo(cx - hs / 2, cy);
-      ctx.closePath();
-      ctx.fillStyle = '#ffffff';
-      ctx.fill();
-      ctx.strokeStyle = '#0066cc';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    }
-  });
-}
-
-// Draw outline for a single annotation in multi-selection
-function drawMultiSelectionOutline(ctx, annotation) {
-  ctx.strokeStyle = '#0066cc';
-  ctx.lineWidth = 1;
-  ctx.setLineDash([3, 3]);
-
-  const bounds = getAnnotationBounds(annotation);
-  if (bounds) {
-    ctx.strokeRect(bounds.x - 2, bounds.y - 2, bounds.width + 4, bounds.height + 4);
-  }
-  ctx.setLineDash([]);
-}
-
-// Draw overall bounding box for multi-selection
-function drawMultiSelectionBounds(ctx) {
-  const bounds = getSelectionBounds();
-  if (!bounds) return;
-
-  const sc = state.scale || 1;
-  ctx.strokeStyle = '#0066cc';
-  ctx.lineWidth = 1.5 / sc;
-  ctx.setLineDash([6 / sc, 3 / sc]);
-  const pad = 6 / sc;
-  ctx.strokeRect(bounds.x - pad, bounds.y - pad, bounds.width + pad * 2, bounds.height + pad * 2);
-  ctx.setLineDash([]);
-
-  // Draw corner handles for the overall bounding box
-  const hs = HANDLE_SIZE / sc;
-  const corners = [
-    { x: bounds.x - pad - hs/2, y: bounds.y - pad - hs/2 },
-    { x: bounds.x + bounds.width + pad - hs/2, y: bounds.y - pad - hs/2 },
-    { x: bounds.x - pad - hs/2, y: bounds.y + bounds.height + pad - hs/2 },
-    { x: bounds.x + bounds.width + pad - hs/2, y: bounds.y + bounds.height + pad - hs/2 }
-  ];
-
-  corners.forEach(corner => {
-    const cx = corner.x + hs / 2;
-    const cy = corner.y + hs / 2;
-    ctx.beginPath();
-    ctx.arc(cx, cy, hs / 2, 0, 2 * Math.PI);
-    ctx.fillStyle = '#ffffff';
-    ctx.fill();
-    ctx.strokeStyle = '#0066cc';
-    ctx.lineWidth = 1 / sc;
-    ctx.stroke();
-  });
-}
-
-// Update quick access toolbar button states
-export function updateQuickAccessButtons() {
-  const qaSave = document.getElementById('qa-save');
-  const qaSaveAs = document.getElementById('qa-save-as');
-  const qaPrint = document.getElementById('qa-print');
-  const qaUndo = document.getElementById('qa-undo');
-  const qaRedo = document.getElementById('qa-redo');
-  const qaPrevView = document.getElementById('qa-prev-view');
-  const qaNextView = document.getElementById('qa-next-view');
-
-  // Save/Save As/Print - enabled when PDF is loaded
-  if (qaSave) qaSave.disabled = !state.pdfDoc;
-  if (qaSaveAs) qaSaveAs.disabled = !state.pdfDoc;
-  if (qaPrint) qaPrint.disabled = !state.pdfDoc;
-
-  // Undo - enabled when undo stack has entries
-  const doc = state.documents[state.activeDocumentIndex];
-  if (qaUndo) qaUndo.disabled = !doc || !doc.undoStack || doc.undoStack.length === 0;
-
-  // Redo - enabled when redo stack has entries
-  if (qaRedo) qaRedo.disabled = !doc || !doc.redoStack || doc.redoStack.length === 0;
-
-  // Previous/Next view - disabled (not implemented)
-  if (qaPrevView) qaPrevView.disabled = true;
-  if (qaNextView) qaNextView.disabled = true;
-}
-
 // Redraw all annotations (single page mode)
 // Pass lightweight=true during drag/resize to skip expensive DOM updates
 export function redrawAnnotations(lightweight = false) {
@@ -1325,61 +769,6 @@ export function redrawAnnotations(lightweight = false) {
   }
 }
 
-// Enable all buttons/inputs/styles in both contextual tabs
-let _contextualTabsInitialized = false;
-function initContextualTabsDisabled() {
-  if (_contextualTabsInitialized) return;
-  _contextualTabsInitialized = true;
-  // All Format and Arrange tab controls are now implemented — enable everything
-  ['tab-format', 'tab-arrange'].forEach(tabId => {
-    const tab = document.getElementById(tabId);
-    if (!tab) return;
-    tab.querySelectorAll('button').forEach(btn => btn.disabled = false);
-    tab.querySelectorAll('select').forEach(sel => sel.disabled = false);
-    tab.querySelectorAll('input').forEach(inp => inp.disabled = false);
-    tab.querySelectorAll('.ribbon-style-item').forEach(el => el.classList.remove('disabled'));
-  });
-}
-
-// Show/hide Format and Arrange contextual ribbon tabs
-function updateContextualTabs() {
-  initContextualTabsDisabled();
-  const hasSelection = state.selectedAnnotations.length > 0;
-  const hasLocked = hasSelection && state.selectedAnnotations.some(a => a.locked);
-  const els = document.querySelectorAll('.contextual-tabs');
-  els.forEach(el => {
-    if (hasSelection) {
-      el.classList.add('visible');
-    } else {
-      el.classList.remove('visible');
-      // If a contextual tab was active, switch back to Home
-      if (el.classList.contains('ribbon-tab') && el.classList.contains('active')) {
-        el.classList.remove('active');
-        const homeTab = document.querySelector('.ribbon-tab[data-tab="home"]');
-        if (homeTab) homeTab.click();
-      }
-    }
-  });
-  // Disable/enable controls based on locked state
-  ['tab-format', 'tab-arrange'].forEach(tabId => {
-    const tab = document.getElementById(tabId);
-    if (!tab) return;
-    tab.querySelectorAll('button').forEach(btn => btn.disabled = hasLocked);
-    tab.querySelectorAll('select').forEach(sel => sel.disabled = hasLocked);
-    tab.querySelectorAll('input').forEach(inp => inp.disabled = hasLocked);
-    tab.querySelectorAll('.ribbon-style-item').forEach(el => {
-      if (hasLocked) el.classList.add('disabled');
-      else el.classList.remove('disabled');
-    });
-  });
-  // Sync Format ribbon controls with selection
-  if (hasSelection && !hasLocked) {
-    try {
-      import('../ui/chrome/format-ribbon.js').then(m => m.updateFormatRibbon());
-    } catch (e) { /* ignore */ }
-  }
-}
-
 // Render annotations for a specific page (continuous mode)
 export function renderAnnotationsForPage(ctx, pageNum, width, height) {
   ctx.clearRect(0, 0, width, height);
@@ -1413,30 +802,4 @@ export function redrawContinuous() {
 
   // Update quick access button states
   updateQuickAccessButtons();
-}
-
-// Draw grid overlay
-function drawGrid(ctx, width, height) {
-  const gridSize = state.preferences.gridSize || 10;
-  ctx.save();
-  ctx.strokeStyle = 'rgba(200, 200, 200, 0.4)';
-  ctx.lineWidth = 0.5;
-  ctx.beginPath();
-  for (let x = 0; x <= width; x += gridSize) {
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, height);
-  }
-  for (let y = 0; y <= height; y += gridSize) {
-    ctx.moveTo(0, y);
-    ctx.lineTo(width, y);
-  }
-  ctx.stroke();
-  ctx.restore();
-}
-
-// Snap a coordinate to the grid
-export function snapToGrid(value) {
-  if (!state.preferences.enableGridSnap) return value;
-  const gridSize = state.preferences.gridSize || 10;
-  return Math.round(value / gridSize) * gridSize;
 }

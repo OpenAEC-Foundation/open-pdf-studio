@@ -1,0 +1,157 @@
+/* Context Menu */
+.context-menu {
+  position: fixed;
+  background: #ffffff;
+  border: 1px solid #c0c0c0;
+  border-radius: 2px;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+  min-width: 220px;
+  padding: 2px 0;
+  z-index: 10000;
+  display: none;
+  font-size: 12px;
+  user-select: none;
+}
+
+.context-menu.visible {
+  display: block;
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 4px 12px 4px 8px;
+  cursor: pointer;
+  color: #333;
+  gap: 8px;
+}
+
+.context-menu-item:hover {
+  background: #e5f3ff;
+}
+
+.context-menu-item.disabled {
+  color: #999;
+  cursor: default;
+}
+
+.context-menu-item.disabled:hover {
+  background: transparent;
+}
+
+.context-menu-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.context-menu-icon svg {
+  width: 14px;
+  height: 14px;
+  color: #666;
+}
+
+.context-menu-label {
+  flex: 1;
+  white-space: nowrap;
+}
+
+.context-menu-shortcut {
+  color: #888;
+  font-size: 11px;
+  margin-left: 20px;
+}
+
+.context-menu-arrow {
+  color: #666;
+  font-size: 8px;
+  margin-left: 8px;
+}
+
+.context-menu-check {
+  width: 16px;
+  text-align: center;
+  color: #333;
+  font-weight: bold;
+}
+
+.context-menu-checkbox .context-menu-check {
+  visibility: hidden;
+}
+
+.context-menu-checkbox.checked .context-menu-check {
+  visibility: visible;
+}
+
+.context-menu-value {
+  font-weight: 500;
+}
+
+.context-menu-separator {
+  height: 1px;
+  background: #e0e0e0;
+  margin: 4px 8px;
+}
+
+.context-menu-submenu {
+  position: relative;
+}
+
+.context-menu-submenu:hover > .context-menu-submenu-content {
+  display: block;
+}
+
+.context-menu-submenu-content {
+  display: none;
+  position: absolute;
+  left: 100%;
+  top: -2px;
+  background: #ffffff;
+  border: 1px solid #c0c0c0;
+  border-radius: 2px;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+  min-width: 150px;
+  padding: 2px 0;
+}
+
+.context-menu-submenu-content .context-menu-item {
+  padding: 4px 12px;
+}
+
+.arrange-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  padding: 4px 6px;
+}
+
+.arrange-icon-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+}
+
+.arrange-icon-btn:hover {
+  background: #e5f3ff;
+  border-color: #cce4f7;
+}
+
+.arrange-icon-btn:active {
+  background: #cce4f7;
+}
+
+.arrange-icon-btn svg {
+  width: 24px;
+  height: 24px;
+}
+

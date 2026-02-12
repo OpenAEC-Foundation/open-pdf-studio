@@ -331,7 +331,7 @@ export async function fitWidth() {
   const fwOpts = { scale: 1 };
   if (extraRot) fwOpts.rotation = (page.rotate + extraRot) % 360;
   const viewport = page.getViewport(fwOpts);
-  const container = document.querySelector('.main-view');
+  const container = document.getElementById('pdf-container');
   const containerWidth = container.clientWidth - 40; // padding
   state.scale = containerWidth / viewport.width;
 
@@ -352,7 +352,7 @@ export async function fitPage() {
   const fpOpts = { scale: 1 };
   if (extraRot2) fpOpts.rotation = (page.rotate + extraRot2) % 360;
   const viewport = page.getViewport(fpOpts);
-  const container = document.querySelector('.main-view');
+  const container = document.getElementById('pdf-container');
   const containerWidth = container.clientWidth - 40;
   const containerHeight = container.clientHeight - 40;
   const scaleX = containerWidth / viewport.width;

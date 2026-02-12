@@ -1,0 +1,275 @@
+/* Form Layer - interactive PDF form fields rendered by pdf.js AnnotationLayer */
+.formLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  overflow: clip;
+  pointer-events: none;
+  transform-origin: 0 0;
+}
+
+/* pdf.js AnnotationLayer widget styles */
+.formLayer.annotationLayer {
+  --annotation-unfocused-field-background: url("data:image/svg+xml;charset=UTF-8,<svg width='1px' height='1px' xmlns='http://www.w3.org/2000/svg'><rect width='100%' height='100%' style='fill:rgba(0, 54, 255, 0.13);'/></svg>");
+  --total-scale-factor: var(--scale-factor, 1);
+  --input-focus-border-color: Highlight;
+  --input-focus-outline: 1px solid Canvas;
+  --input-unfocused-border-color: transparent;
+  --input-disabled-border-color: transparent;
+  --input-hover-border-color: black;
+}
+
+.formLayer section {
+  position: absolute;
+  text-align: initial;
+  pointer-events: auto;
+  box-sizing: border-box;
+  transform-origin: 0 0;
+}
+
+.formLayer .textWidgetAnnotation :is(input, textarea),
+.formLayer .choiceWidgetAnnotation select,
+.formLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) input {
+  background-image: var(--annotation-unfocused-field-background);
+  border: 2px solid var(--input-unfocused-border-color);
+  box-sizing: border-box;
+  font: calc(9px * var(--total-scale-factor, 1)) sans-serif;
+  height: 100%;
+  margin: 0;
+  vertical-align: top;
+  width: 100%;
+}
+
+.formLayer .choiceWidgetAnnotation select option {
+  padding: 0;
+}
+
+.formLayer .buttonWidgetAnnotation.radioButton input {
+  border-radius: 50%;
+}
+
+.formLayer .textWidgetAnnotation textarea {
+  resize: none;
+}
+
+.formLayer .textWidgetAnnotation [disabled]:is(input, textarea),
+.formLayer .choiceWidgetAnnotation select[disabled],
+.formLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) input[disabled] {
+  background: none;
+  border: 2px solid var(--input-disabled-border-color);
+  cursor: not-allowed;
+}
+
+.formLayer .textWidgetAnnotation :is(input, textarea):hover,
+.formLayer .choiceWidgetAnnotation select:hover,
+.formLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) input:hover {
+  border: 2px solid var(--input-hover-border-color);
+}
+
+.formLayer .textWidgetAnnotation :is(input, textarea):focus,
+.formLayer .choiceWidgetAnnotation select:focus {
+  background: none;
+  border: 2px solid var(--input-focus-border-color);
+  border-radius: 2px;
+  outline: var(--input-focus-outline);
+}
+
+.formLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) :focus {
+  background-image: none;
+  background-color: transparent;
+}
+
+.formLayer .buttonWidgetAnnotation.checkBox :focus {
+  border: 2px solid var(--input-focus-border-color);
+  border-radius: 2px;
+  outline: var(--input-focus-outline);
+}
+
+.formLayer .buttonWidgetAnnotation.radioButton :focus {
+  border: 2px solid var(--input-focus-border-color);
+  outline: var(--input-focus-outline);
+}
+
+.formLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.formLayer .buttonWidgetAnnotation.checkBox input:checked::before,
+.formLayer .buttonWidgetAnnotation.checkBox input:checked::after,
+.formLayer .buttonWidgetAnnotation.radioButton input:checked::before {
+  background-color: CanvasText;
+  content: "";
+  display: block;
+  position: absolute;
+}
+
+.formLayer .buttonWidgetAnnotation.checkBox input:checked::before,
+.formLayer .buttonWidgetAnnotation.checkBox input:checked::after {
+  height: 80%;
+  left: 45%;
+  width: 1px;
+}
+
+.formLayer .buttonWidgetAnnotation.checkBox input:checked::before {
+  transform: rotate(45deg);
+}
+
+.formLayer .buttonWidgetAnnotation.checkBox input:checked::after {
+  transform: rotate(-45deg);
+}
+
+.formLayer .buttonWidgetAnnotation.radioButton input:checked::before {
+  border-radius: 50%;
+  height: 50%;
+  left: 25%;
+  top: 25%;
+  width: 50%;
+}
+
+.formLayer .textWidgetAnnotation input.comb {
+  font-family: monospace;
+  padding-left: 2px;
+  padding-right: 0;
+}
+
+.formLayer .textWidgetAnnotation input.comb:focus {
+  width: 103%;
+}
+
+.formLayer .buttonWidgetAnnotation.pushButton > a {
+  position: absolute;
+  font-size: 1em;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Form fields info bar */
+.form-fields-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: #deeaf6;
+  border-bottom: 1px solid #b8d4e8;
+  font-size: 12px;
+  color: #1a1a1a;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.form-fields-bar svg {
+  flex-shrink: 0;
+}
+
+.form-fields-bar span {
+  flex: 1;
+}
+
+.form-fields-bar button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #666;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.form-fields-bar button:hover {
+  color: #e81123;
+}
+
+/* Form field validation error dialog (Windows-style) */
+.form-validation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.form-validation-dialog {
+  background: #ffffff;
+  border-radius: 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  border: 1px solid #d4d4d4;
+  width: 380px;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.form-validation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  border-bottom: 1px solid #d4d4d4;
+  background: linear-gradient(to bottom, #ffffff 0%, #f5f5f5 100%);
+  height: 30px;
+  user-select: none;
+  cursor: default;
+}
+
+.form-validation-header span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-validation-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 15px;
+}
+
+.form-validation-icon {
+  flex-shrink: 0;
+}
+
+.form-validation-text {
+  font-size: 12px;
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+  line-height: 1.5;
+  padding-top: 6px;
+}
+
+.form-validation-footer {
+  padding: 10px 15px;
+  border-top: 1px solid #d4d4d4;
+  display: flex;
+  justify-content: center;
+  background: #f5f5f5;
+}
+
+.form-validation-ok-btn {
+  padding: 5px 30px;
+  font-size: 12px;
+  border: 1px solid #d4d4d4;
+  background: #ffffff;
+  cursor: pointer;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.form-validation-ok-btn:hover {
+  background: #e5e5e5;
+}
+
+.form-validation-ok-btn:focus {
+  outline: 1px dotted #333;
+  outline-offset: -3px;
+}

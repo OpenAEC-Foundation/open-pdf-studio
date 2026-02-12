@@ -327,7 +327,13 @@ async function removeAttachment(activeDoc, key) {
 // Reload the pdf.js document from new bytes
 async function reloadDocumentFromBytes(activeDoc, bytes) {
   const pdfjsLib = await import('pdfjs-dist');
-  const newDoc = await pdfjsLib.getDocument({ data: bytes }).promise;
+  const newDoc = await pdfjsLib.getDocument({
+    data: bytes,
+    cMapUrl: '/pdfjs/web/cmaps/',
+    cMapPacked: true,
+    standardFontDataUrl: '/pdfjs/web/standard_fonts/',
+    isEvalSupported: false,
+  }).promise;
   activeDoc.pdfDoc = newDoc;
 }
 

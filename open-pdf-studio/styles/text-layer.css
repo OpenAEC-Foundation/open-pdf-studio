@@ -1,0 +1,110 @@
+/* Text Layer - for PDF text selection */
+/* CSS based on official PDF.js pdf_viewer.css */
+.textLayer {
+  position: absolute;
+  text-align: initial;
+  inset: 0;
+  overflow: clip;
+  opacity: 0.25;
+  line-height: 1;
+  -webkit-text-size-adjust: none;
+  -moz-text-size-adjust: none;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.textLayer :is(span, br) {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+  pointer-events: auto;
+}
+
+/* PDF.js uses markedContent spans */
+.textLayer span.markedContent {
+  top: 0;
+  height: 0;
+}
+
+.textLayer .endOfContent {
+  display: block;
+  position: absolute;
+  inset: 100% 0 0;
+  z-index: -1;
+  cursor: default;
+  user-select: none;
+  pointer-events: none;
+}
+
+.textLayer .endOfContent.active {
+  top: 0;
+}
+
+/* Selection highlighting */
+.textLayer ::selection {
+  background: rgba(0, 0, 255, 1);
+  background: AccentColor;
+}
+
+.textLayer br::selection {
+  background: transparent;
+}
+
+/* Search highlight styles */
+.textLayer .highlight {
+  margin: -1px;
+  padding: 1px;
+  background-color: rgba(180, 0, 170, 0.4);
+  border-radius: 4px;
+}
+
+.textLayer .highlight.appended {
+  position: initial;
+}
+
+.textLayer .highlight.begin {
+  border-radius: 4px 0 0 4px;
+}
+
+.textLayer .highlight.end {
+  border-radius: 0 4px 4px 0;
+}
+
+.textLayer .highlight.middle {
+  border-radius: 0;
+}
+
+.textLayer .highlight.selected {
+  background-color: rgba(0, 100, 0, 1);
+}
+
+/* Link Layer - for PDF link annotations */
+.linkLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: visible;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.linkLayer .pdf-link {
+  display: block;
+  position: absolute;
+  pointer-events: auto;
+  cursor: pointer;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  outline: none;
+  z-index: 10;
+}
+
+.linkLayer .pdf-link:hover {
+  background: rgba(255, 255, 0, 0.3);
+}

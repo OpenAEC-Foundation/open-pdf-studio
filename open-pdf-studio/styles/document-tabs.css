@@ -1,0 +1,108 @@
+/* Document Tabs Bar */
+.document-tabs {
+  display: flex;
+  background: var(--theme-tab-bg);
+  border-bottom: 1px solid var(--theme-tab-border);
+  height: 28px;
+  min-height: 28px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.document-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.document-tabs::-webkit-scrollbar-thumb {
+  background: var(--theme-tab-close-color);
+}
+
+.document-tab {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  height: 100%;
+  background: var(--theme-tab-bg);
+  border-right: 1px solid var(--theme-tab-border);
+  min-width: 140px;
+  max-width: 240px;
+  user-select: none;
+}
+
+.document-tab:hover {
+  background: var(--theme-tab-hover);
+}
+
+.document-tab.active {
+  background: var(--theme-tab-active-bg);
+  border-bottom: 2px solid var(--theme-tab-active-accent);
+}
+
+.document-tab-title {
+  flex: 1;
+  font-size: 12px;
+  color: var(--theme-tab-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 8px;
+}
+
+.document-tab.active .document-tab-title {
+  color: var(--theme-tab-active-text);
+}
+
+.document-tab-close {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  opacity: 0;
+  color: var(--theme-tab-close-color);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.document-tab:hover .document-tab-close,
+.document-tab.active .document-tab-close {
+  opacity: 1;
+}
+
+.document-tab-close:hover {
+  background: #e81123;
+  color: white;
+}
+
+.document-tab-modified {
+  color: var(--theme-tab-modified);
+  font-weight: bold;
+  margin-right: 4px;
+}
+
+.document-tabs-empty {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  color: var(--theme-tab-empty-text);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.document-tabs-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 100%;
+  color: var(--theme-tab-add-color);
+  font-size: 18px;
+  font-weight: 300;
+  border-left: 1px solid var(--theme-tab-add-border);
+}
+
+.document-tabs-add:hover {
+  background: var(--theme-tab-add-hover);
+  color: var(--theme-tab-active-text);
+}

@@ -1,0 +1,170 @@
+/* Status Bar */
+/* Status Bar - Dark VS Code-inspired theme */
+.status-bar {
+  background: var(--theme-status-bg);
+  border-top: 1px solid var(--theme-status-border);
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 22px;
+  font-size: 12px;
+  color: var(--theme-status-text);
+  flex-shrink: 0;
+  user-select: none;
+  cursor: default;
+}
+
+.status-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.status-bar-center {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  justify-content: center;
+}
+
+.status-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px;
+  height: 22px;
+  cursor: default;
+  transition: background 0.1s;
+}
+
+.status-item:hover {
+  background: var(--theme-status-hover);
+}
+
+.status-separator {
+  width: 1px;
+  height: 14px;
+  background: var(--theme-status-separator);
+}
+
+.status-item-label {
+  color: var(--theme-status-text-label);
+}
+
+.status-item-value {
+  color: var(--theme-status-text-value);
+  font-weight: 500;
+}
+
+/* Status bar navigation controls */
+.status-nav-btn {
+  background: transparent;
+  border: none;
+  padding: 2px 2px;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--theme-status-nav-text);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.status-nav-btn:hover:not(:disabled) {
+  background: var(--theme-status-nav-hover);
+}
+
+.status-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.status-nav-btn svg {
+  width: 12px;
+  height: 12px;
+  stroke: var(--theme-status-nav-text);
+}
+
+.status-page-info {
+  font-size: 12px;
+  color: var(--theme-status-text-value);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 2px;
+}
+
+.status-page-input {
+  width: 36px;
+  background: var(--theme-status-nav-hover);
+  border: 1px solid var(--theme-status-separator);
+  border-radius: 3px;
+  color: var(--theme-status-nav-text);
+  font-size: 12px;
+  text-align: center;
+  padding: 2px 4px;
+  outline: none;
+}
+
+.status-page-input:focus {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.status-page-input::-webkit-inner-spin-button,
+.status-page-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.status-zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  padding-left: 8px;
+  border-left: 1px solid var(--theme-status-separator);
+}
+
+.status-zoom-level {
+  font-size: 12px;
+  color: var(--theme-status-text-value);
+  min-width: 40px;
+  text-align: center;
+}
+
+.status-zoom-input {
+  width: 45px;
+  background: var(--theme-status-nav-hover);
+  border: 1px solid var(--theme-status-separator);
+  border-radius: 3px;
+  color: var(--theme-status-nav-text);
+  font-size: 12px;
+  text-align: center;
+  padding: 2px 4px;
+  outline: none;
+}
+
+.status-zoom-input:focus {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.status-zoom-input::-webkit-inner-spin-button,
+.status-zoom-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

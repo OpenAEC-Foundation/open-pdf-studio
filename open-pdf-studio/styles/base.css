@@ -1,0 +1,45 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-border) var(--theme-panel-bg);
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--theme-panel-bg);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--theme-border);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-text-secondary);
+}
+
+/* Force default cursor on all UI elements except canvas */
+.title-bar, .title-bar *,
+.ribbon-container, .ribbon-container *,
+.status-bar, .status-bar *,
+.left-panel, .left-panel *,
+.properties-panel, .properties-panel *,
+.backstage-overlay, .backstage-overlay *,
+.context-menu, .context-menu *,
+.document-tabs, .document-tabs * {
+  cursor: default !important;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--theme-bg);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}

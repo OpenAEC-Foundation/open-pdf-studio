@@ -4,15 +4,16 @@ import { createAnnotation, cloneAnnotation } from '../annotations/factory.js';
 import { findAnnotationAt } from '../annotations/geometry.js';
 import { findHandleAt, getCursorForHandle } from '../annotations/handles.js';
 import { applyResize, applyMove, applyRotation } from '../annotations/transforms.js';
-import { redrawAnnotations, redrawContinuous, renderAnnotationsForPage, drawPolygonShape, drawCloudShape, snapToGrid } from '../annotations/rendering.js';
+import { redrawAnnotations, redrawContinuous, renderAnnotationsForPage, snapToGrid } from '../annotations/rendering.js';
 import { showProperties, hideProperties, showMultiSelectionProperties } from '../ui/panels/properties-panel.js';
 import { startTextEditing, addTextAnnotation, addComment } from './text-editing.js';
-import { snapAngle } from '../utils/helpers.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import { recordAdd, recordModify, recordBulkModify } from '../core/undo-manager.js';
 import { showStampPicker } from '../annotations/stamps.js';
 import { showSignatureDialog } from '../annotations/signature.js';
-import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement } from '../annotations/measurement.js';
+import { startPan, startContinuousPan, handlePanMove, handleMiddleButtonPanEnd } from './pan-handler.js';
+import { drawShapePreview } from './shape-preview.js';
+import { createAnnotationFromTool, createContinuousAnnotation } from './annotation-creators.js';
 
 // Check if any modal dialog/overlay is blocking interaction
 function isModalDialogOpen() {
@@ -47,42 +48,13 @@ export function handleMouseDown(e) {
 
   // Handle middle mouse button panning (works regardless of current tool)
   if (e.button === 1) {
-    const scrollContainer = getScrollContainer();
-    state.isPanning = true;
-    state.isMiddleButtonPanning = true;
-    state.panStartX = e.clientX;
-    state.panStartY = e.clientY;
-    state.panScrollStartX = scrollContainer ? scrollContainer.scrollLeft : 0;
-    state.panScrollStartY = scrollContainer ? scrollContainer.scrollTop : 0;
-    // Set grabbing cursor on all relevant elements
-    document.body.style.cursor = 'grabbing';
-    pdfContainer.style.cursor = 'grabbing';
-    if (annotationCanvas) annotationCanvas.style.cursor = 'grabbing';
-    document.querySelectorAll('.annotation-canvas').forEach(c => c.style.cursor = 'grabbing');
-    // Add document-level listeners for smooth panning
-    document.addEventListener('mousemove', handlePanMove);
-    document.addEventListener('mouseup', handleMiddleButtonPanEnd);
-    e.preventDefault();
+    startPan(e, true);
     return;
   }
 
   // Handle hand tool (panning)
   if (state.currentTool === 'hand') {
-    const scrollContainer = getScrollContainer();
-    state.isPanning = true;
-    state.panStartX = e.clientX;
-    state.panStartY = e.clientY;
-    state.panScrollStartX = scrollContainer ? scrollContainer.scrollLeft : 0;
-    state.panScrollStartY = scrollContainer ? scrollContainer.scrollTop : 0;
-    // Set grabbing cursor on all relevant elements
-    document.body.style.cursor = 'grabbing';
-    pdfContainer.style.cursor = 'grabbing';
-    if (annotationCanvas) annotationCanvas.style.cursor = 'grabbing';
-    document.querySelectorAll('.annotation-canvas').forEach(c => c.style.cursor = 'grabbing');
-    // Add document-level listeners for smooth panning
-    document.addEventListener('mousemove', handlePanMove);
-    document.addEventListener('mouseup', handlePanEnd);
-    e.preventDefault();
+    startPan(e, false);
     return;
   }
 
@@ -243,49 +215,6 @@ export function handleMouseDown(e) {
     state.isDrawing = false;
     redrawAnnotations();
   }
-}
-
-// Get the scrollable container (main-view, not pdf-container)
-function getScrollContainer() {
-  return document.querySelector('.main-view');
-}
-
-// Document-level pan move handler (for smooth panning outside canvas)
-function handlePanMove(e) {
-  if (!state.isPanning) return;
-  const scrollContainer = getScrollContainer();
-  if (!scrollContainer) return;
-  const deltaX = e.clientX - state.panStartX;
-  const deltaY = e.clientY - state.panStartY;
-  scrollContainer.scrollLeft = state.panScrollStartX - deltaX;
-  scrollContainer.scrollTop = state.panScrollStartY - deltaY;
-}
-
-// Document-level pan end handler
-function handlePanEnd(e) {
-  if (!state.isPanning) return;
-  state.isPanning = false;
-  // Reset cursors back to grab
-  document.body.style.cursor = '';
-  pdfContainer.style.cursor = '';
-  if (annotationCanvas) annotationCanvas.style.cursor = 'grab';
-  document.querySelectorAll('.annotation-canvas').forEach(c => c.style.cursor = 'grab');
-  document.removeEventListener('mousemove', handlePanMove);
-  document.removeEventListener('mouseup', handlePanEnd);
-}
-
-// Document-level middle button pan end handler
-function handleMiddleButtonPanEnd(e) {
-  if (!state.isPanning || !state.isMiddleButtonPanning) return;
-  state.isPanning = false;
-  state.isMiddleButtonPanning = false;
-  // Reset cursors back to default (not grab, since we're not using hand tool)
-  document.body.style.cursor = '';
-  pdfContainer.style.cursor = '';
-  if (annotationCanvas) annotationCanvas.style.cursor = '';
-  document.querySelectorAll('.annotation-canvas').forEach(c => c.style.cursor = '');
-  document.removeEventListener('mousemove', handlePanMove);
-  document.removeEventListener('mouseup', handleMiddleButtonPanEnd);
 }
 
 // Mouse move handler for single page mode
@@ -471,316 +400,6 @@ export function handleMouseMove(e) {
   }
 }
 
-// Draw arrowhead at specified position
-function drawArrowhead(ctx, x, y, angle, size, style) {
-  const halfAngle = Math.PI / 6; // 30 degrees
-
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(angle);
-
-  ctx.beginPath();
-  if (style === 'open' || style === 'stealth') {
-    // Open arrow style - two lines
-    ctx.moveTo(-size, -size * Math.tan(halfAngle));
-    ctx.lineTo(0, 0);
-    ctx.lineTo(-size, size * Math.tan(halfAngle));
-    ctx.stroke();
-  } else if (style === 'closed') {
-    // Closed/filled arrow style - triangle
-    ctx.moveTo(0, 0);
-    ctx.lineTo(-size, -size * Math.tan(halfAngle));
-    ctx.lineTo(-size, size * Math.tan(halfAngle));
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-  } else if (style === 'diamond') {
-    // Diamond style
-    const halfSize = size / 2;
-    ctx.moveTo(0, 0);
-    ctx.lineTo(-halfSize, -halfSize * 0.6);
-    ctx.lineTo(-size, 0);
-    ctx.lineTo(-halfSize, halfSize * 0.6);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-  } else if (style === 'circle') {
-    // Circle style
-    const radius = size / 3;
-    ctx.arc(-radius, 0, radius, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.stroke();
-  } else if (style === 'square') {
-    // Square style
-    const halfSize = size / 3;
-    ctx.rect(-size / 2 - halfSize, -halfSize, halfSize * 2, halfSize * 2);
-    ctx.fill();
-    ctx.stroke();
-  } else if (style === 'slash') {
-    // Slash style - perpendicular line
-    ctx.moveTo(0, -size / 2);
-    ctx.lineTo(0, size / 2);
-    ctx.stroke();
-  }
-
-  ctx.restore();
-}
-
-// Draw shape preview during mouse move
-function drawShapePreview(currentX, currentY, e) {
-  redrawAnnotations();
-  annotationCtx.save();
-  annotationCtx.scale(state.scale, state.scale);
-
-  const prefs = state.preferences;
-
-  switch (state.currentTool) {
-    case 'highlight':
-      annotationCtx.fillStyle = colorPicker.value;
-      annotationCtx.globalAlpha = 0.3;
-      annotationCtx.fillRect(state.startX, state.startY, currentX - state.startX, currentY - state.startY);
-      annotationCtx.globalAlpha = 1;
-      break;
-
-    case 'line':
-      let lineEndX = currentX;
-      let lineEndY = currentY;
-      // Snap to angle increments when Shift is held
-      if (e.shiftKey && prefs.enableAngleSnap) {
-        const dx = currentX - state.startX;
-        const dy = currentY - state.startY;
-        const length = Math.sqrt(dx * dx + dy * dy);
-        const currentAngle = Math.atan2(dy, dx) * (180 / Math.PI);
-        const snappedAngle = snapAngle(currentAngle, prefs.angleSnapDegrees) * (Math.PI / 180);
-        lineEndX = state.startX + length * Math.cos(snappedAngle);
-        lineEndY = state.startY + length * Math.sin(snappedAngle);
-      }
-      annotationCtx.strokeStyle = colorPicker.value;
-      annotationCtx.lineWidth = parseInt(lineWidth.value);
-      annotationCtx.lineCap = 'round';
-      annotationCtx.beginPath();
-      annotationCtx.moveTo(state.startX, state.startY);
-      annotationCtx.lineTo(lineEndX, lineEndY);
-      annotationCtx.stroke();
-      break;
-
-    case 'arrow':
-      let arrowEndX = currentX;
-      let arrowEndY = currentY;
-      // Snap to angle increments when Shift is held
-      if (e.shiftKey && prefs.enableAngleSnap) {
-        const dx = currentX - state.startX;
-        const dy = currentY - state.startY;
-        const length = Math.sqrt(dx * dx + dy * dy);
-        const currentAngle = Math.atan2(dy, dx) * (180 / Math.PI);
-        const snappedAngle = snapAngle(currentAngle, prefs.angleSnapDegrees) * (Math.PI / 180);
-        arrowEndX = state.startX + length * Math.cos(snappedAngle);
-        arrowEndY = state.startY + length * Math.sin(snappedAngle);
-      }
-      // Get arrow preferences
-      const arrowStrokeColor = prefs.arrowStrokeColor || colorPicker.value;
-      const arrowFillColor = prefs.arrowFillColor || arrowStrokeColor;
-      const arrowLineWidth = prefs.arrowLineWidth || parseInt(lineWidth.value);
-      const arrowBorderStyle = prefs.arrowBorderStyle || 'solid';
-      const arrowHeadSize = prefs.arrowHeadSize || 12;
-      const arrowStartHead = prefs.arrowStartHead || 'none';
-      const arrowEndHead = prefs.arrowEndHead || 'open';
-
-      annotationCtx.strokeStyle = arrowStrokeColor;
-      annotationCtx.fillStyle = arrowFillColor;
-      annotationCtx.lineWidth = arrowLineWidth;
-      annotationCtx.lineCap = 'round';
-      annotationCtx.lineJoin = 'round';
-
-      // Set border style
-      if (arrowBorderStyle === 'dashed') {
-        annotationCtx.setLineDash([8, 4]);
-      } else if (arrowBorderStyle === 'dotted') {
-        annotationCtx.setLineDash([2, 2]);
-      } else {
-        annotationCtx.setLineDash([]);
-      }
-
-      // Draw the line
-      annotationCtx.beginPath();
-      annotationCtx.moveTo(state.startX, state.startY);
-      annotationCtx.lineTo(arrowEndX, arrowEndY);
-      annotationCtx.stroke();
-
-      // Reset line dash for arrowheads
-      annotationCtx.setLineDash([]);
-
-      // Draw arrowhead at end
-      if (arrowEndHead !== 'none') {
-        const angle = Math.atan2(arrowEndY - state.startY, arrowEndX - state.startX);
-        drawArrowhead(annotationCtx, arrowEndX, arrowEndY, angle, arrowHeadSize, arrowEndHead);
-      }
-
-      // Draw arrowhead at start (if enabled)
-      if (arrowStartHead !== 'none') {
-        const startAngle = Math.atan2(state.startY - arrowEndY, state.startX - arrowEndX);
-        drawArrowhead(annotationCtx, state.startX, state.startY, startAngle, arrowHeadSize, arrowStartHead);
-      }
-      break;
-
-    case 'circle':
-      const circleX = Math.min(state.startX, currentX);
-      const circleY = Math.min(state.startY, currentY);
-      const circleW = Math.abs(currentX - state.startX);
-      const circleH = Math.abs(currentY - state.startY);
-      const circleCX = circleX + circleW / 2;
-      const circleCY = circleY + circleH / 2;
-      if (circleW > 0 && circleH > 0) {
-        annotationCtx.beginPath();
-        annotationCtx.ellipse(circleCX, circleCY, circleW / 2, circleH / 2, 0, 0, 2 * Math.PI);
-        if (!prefs.circleFillNone) {
-          annotationCtx.fillStyle = prefs.circleFillColor;
-          annotationCtx.globalAlpha = prefs.circleOpacity / 100;
-          annotationCtx.fill();
-          annotationCtx.globalAlpha = 1;
-        }
-        annotationCtx.strokeStyle = prefs.circleStrokeColor;
-        annotationCtx.lineWidth = prefs.circleBorderWidth;
-        annotationCtx.stroke();
-      }
-      break;
-
-    case 'box':
-      const boxX = Math.min(state.startX, currentX);
-      const boxY = Math.min(state.startY, currentY);
-      const boxW = Math.abs(currentX - state.startX);
-      const boxH = Math.abs(currentY - state.startY);
-      if (!prefs.rectFillNone) {
-        annotationCtx.fillStyle = prefs.rectFillColor;
-        annotationCtx.globalAlpha = prefs.rectOpacity / 100;
-        annotationCtx.fillRect(boxX, boxY, boxW, boxH);
-        annotationCtx.globalAlpha = 1;
-      }
-      annotationCtx.strokeStyle = prefs.rectStrokeColor;
-      annotationCtx.lineWidth = prefs.rectBorderWidth;
-      annotationCtx.strokeRect(boxX, boxY, boxW, boxH);
-      break;
-
-    case 'polygon':
-      const width = currentX - state.startX;
-      const height = currentY - state.startY;
-      const cx = state.startX + width / 2;
-      const cy = state.startY + height / 2;
-      const rx = Math.abs(width) / 2;
-      const ry = Math.abs(height) / 2;
-      annotationCtx.strokeStyle = colorPicker.value;
-      annotationCtx.lineWidth = parseInt(lineWidth.value);
-      annotationCtx.beginPath();
-      for (let i = 0; i <= 6; i++) {
-        const angle = (i * 2 * Math.PI / 6) - Math.PI / 2;
-        const px = cx + rx * Math.cos(angle);
-        const py = cy + ry * Math.sin(angle);
-        if (i === 0) {
-          annotationCtx.moveTo(px, py);
-        } else {
-          annotationCtx.lineTo(px, py);
-        }
-      }
-      annotationCtx.closePath();
-      annotationCtx.stroke();
-      break;
-
-    case 'cloud':
-      const cloudX = Math.min(state.startX, currentX);
-      const cloudY = Math.min(state.startY, currentY);
-      const cloudW = Math.abs(currentX - state.startX);
-      const cloudH = Math.abs(currentY - state.startY);
-      if (cloudW > 10 && cloudH > 10) {
-        annotationCtx.strokeStyle = colorPicker.value;
-        annotationCtx.lineWidth = parseInt(lineWidth.value);
-        drawCloudShape(annotationCtx, cloudX, cloudY, cloudW, cloudH);
-      }
-      break;
-
-    case 'textbox':
-      const tbX = Math.min(state.startX, currentX);
-      const tbY = Math.min(state.startY, currentY);
-      const tbWidth = Math.abs(currentX - state.startX);
-      const tbHeight = Math.abs(currentY - state.startY);
-      // Set border style
-      if (prefs.textboxBorderStyle === 'dashed') {
-        annotationCtx.setLineDash([8, 4]);
-      } else if (prefs.textboxBorderStyle === 'dotted') {
-        annotationCtx.setLineDash([2, 2]);
-      } else {
-        annotationCtx.setLineDash([]);
-      }
-      if (!prefs.textboxFillNone) {
-        annotationCtx.fillStyle = prefs.textboxFillColor;
-        annotationCtx.globalAlpha = (prefs.textboxOpacity || 100) / 100;
-        annotationCtx.fillRect(tbX, tbY, tbWidth, tbHeight);
-        annotationCtx.globalAlpha = 1;
-      }
-      annotationCtx.strokeStyle = prefs.textboxStrokeColor;
-      annotationCtx.lineWidth = prefs.textboxBorderWidth;
-      annotationCtx.strokeRect(tbX, tbY, tbWidth, tbHeight);
-      annotationCtx.setLineDash([]);
-      break;
-
-    case 'callout':
-      // Draw callout preview
-      const defaultWidth = 150;
-      const defaultHeight = 60;
-      const coX = currentX - defaultWidth / 2;
-      const coY = currentY - defaultHeight / 2;
-      const arrowX = state.startX;
-      const arrowY = state.startY;
-      const boxCenterX = currentX;
-      const isArrowLeft = arrowX < boxCenterX;
-      let armOriginX;
-      if (isArrowLeft) {
-        armOriginX = coX;
-      } else {
-        armOriginX = coX + defaultWidth;
-      }
-      const armOriginY = Math.max(coY, Math.min(coY + defaultHeight, currentY));
-      const armLength = Math.min(30, Math.abs(arrowX - armOriginX) * 0.4);
-      const kneeX = isArrowLeft ? armOriginX - armLength : armOriginX + armLength;
-      const kneeY = armOriginY;
-      // Set border style
-      if (prefs.calloutBorderStyle === 'dashed') {
-        annotationCtx.setLineDash([8, 4]);
-      } else if (prefs.calloutBorderStyle === 'dotted') {
-        annotationCtx.setLineDash([2, 2]);
-      } else {
-        annotationCtx.setLineDash([]);
-      }
-      if (!prefs.calloutFillNone) {
-        annotationCtx.fillStyle = prefs.calloutFillColor;
-        annotationCtx.globalAlpha = (prefs.calloutOpacity || 100) / 100;
-        annotationCtx.fillRect(coX, coY, defaultWidth, defaultHeight);
-        annotationCtx.globalAlpha = 1;
-      }
-      annotationCtx.strokeStyle = prefs.calloutStrokeColor;
-      annotationCtx.lineWidth = prefs.calloutBorderWidth;
-      annotationCtx.strokeRect(coX, coY, defaultWidth, defaultHeight);
-      // Draw leader line
-      annotationCtx.beginPath();
-      annotationCtx.moveTo(armOriginX, armOriginY);
-      annotationCtx.lineTo(kneeX, kneeY);
-      annotationCtx.lineTo(arrowX, arrowY);
-      annotationCtx.stroke();
-      // Draw arrowhead
-      const angle = Math.atan2(arrowY - kneeY, arrowX - kneeX);
-      const arrowSize = 10;
-      annotationCtx.beginPath();
-      annotationCtx.moveTo(arrowX, arrowY);
-      annotationCtx.lineTo(arrowX - arrowSize * Math.cos(angle - Math.PI / 6), arrowY - arrowSize * Math.sin(angle - Math.PI / 6));
-      annotationCtx.moveTo(arrowX, arrowY);
-      annotationCtx.lineTo(arrowX - arrowSize * Math.cos(angle + Math.PI / 6), arrowY - arrowSize * Math.sin(angle + Math.PI / 6));
-      annotationCtx.stroke();
-      annotationCtx.setLineDash([]);
-      break;
-  }
-
-  annotationCtx.restore();
-}
-
 // Mouse up handler for single page mode
 export function handleMouseUp(e) {
   if (isModalDialogOpen()) return;
@@ -866,253 +485,12 @@ export function handleMouseUp(e) {
   const endX = snapToGrid((e.clientX - rect.left) / state.scale);
   const endY = snapToGrid((e.clientY - rect.top) / state.scale);
 
-  const prefs = state.preferences;
   const annotationCountBefore = state.annotations.length;
 
   // Create annotation based on tool
-  if (state.currentTool === 'draw' && state.currentPath.length > 1) {
-    state.annotations.push(createAnnotation({
-      type: 'draw',
-      page: state.currentPage,
-      path: state.currentPath,
-      color: prefs.drawStrokeColor || colorPicker.value,
-      strokeColor: prefs.drawStrokeColor || colorPicker.value,
-      lineWidth: prefs.drawLineWidth || parseInt(lineWidth.value),
-      opacity: (prefs.drawOpacity || 100) / 100
-    }));
-    state.currentPath = [];
-  } else if (state.currentTool === 'highlight') {
-    state.annotations.push(createAnnotation({
-      type: 'highlight',
-      page: state.currentPage,
-      x: Math.min(state.startX, endX),
-      y: Math.min(state.startY, endY),
-      width: Math.abs(endX - state.startX),
-      height: Math.abs(endY - state.startY),
-      color: prefs.highlightColor || colorPicker.value,
-      fillColor: prefs.highlightColor || colorPicker.value
-    }));
-  } else if (state.currentTool === 'line') {
-    let finalEndX = endX;
-    let finalEndY = endY;
-    if (e.shiftKey && prefs.enableAngleSnap) {
-      const dx = endX - state.startX;
-      const dy = endY - state.startY;
-      const length = Math.sqrt(dx * dx + dy * dy);
-      const currentAngle = Math.atan2(dy, dx) * (180 / Math.PI);
-      const snappedAngle = snapAngle(currentAngle, prefs.angleSnapDegrees) * (Math.PI / 180);
-      finalEndX = state.startX + length * Math.cos(snappedAngle);
-      finalEndY = state.startY + length * Math.sin(snappedAngle);
-    }
-    state.annotations.push(createAnnotation({
-      type: 'line',
-      page: state.currentPage,
-      startX: state.startX,
-      startY: state.startY,
-      endX: finalEndX,
-      endY: finalEndY,
-      color: prefs.lineStrokeColor || colorPicker.value,
-      strokeColor: prefs.lineStrokeColor || colorPicker.value,
-      lineWidth: prefs.lineLineWidth || parseInt(lineWidth.value),
-      borderStyle: prefs.lineBorderStyle || 'solid',
-      opacity: (prefs.lineOpacity || 100) / 100
-    }));
-  } else if (state.currentTool === 'arrow') {
-    let finalEndX = endX;
-    let finalEndY = endY;
-    if (e.shiftKey && prefs.enableAngleSnap) {
-      const dx = endX - state.startX;
-      const dy = endY - state.startY;
-      const length = Math.sqrt(dx * dx + dy * dy);
-      const currentAngle = Math.atan2(dy, dx) * (180 / Math.PI);
-      const snappedAngle = snapAngle(currentAngle, prefs.angleSnapDegrees) * (Math.PI / 180);
-      finalEndX = state.startX + length * Math.cos(snappedAngle);
-      finalEndY = state.startY + length * Math.sin(snappedAngle);
-    }
-    state.annotations.push(createAnnotation({
-      type: 'arrow',
-      page: state.currentPage,
-      startX: state.startX,
-      startY: state.startY,
-      endX: finalEndX,
-      endY: finalEndY,
-      color: prefs.arrowStrokeColor || colorPicker.value,
-      strokeColor: prefs.arrowStrokeColor || colorPicker.value,
-      fillColor: prefs.arrowFillColor || prefs.arrowStrokeColor || colorPicker.value,
-      lineWidth: prefs.arrowLineWidth || parseInt(lineWidth.value),
-      borderStyle: prefs.arrowBorderStyle || 'solid',
-      startHead: prefs.arrowStartHead || 'none',
-      endHead: prefs.arrowEndHead || 'open',
-      headSize: prefs.arrowHeadSize || 12,
-      opacity: (prefs.arrowOpacity || 100) / 100
-    }));
-  } else if (state.currentTool === 'circle') {
-    const circleX = Math.min(state.startX, endX);
-    const circleY = Math.min(state.startY, endY);
-    const circleW = Math.abs(endX - state.startX);
-    const circleH = Math.abs(endY - state.startY);
-    state.annotations.push(createAnnotation({
-      type: 'circle',
-      page: state.currentPage,
-      x: circleX,
-      y: circleY,
-      width: circleW,
-      height: circleH,
-      color: prefs.circleStrokeColor,
-      strokeColor: prefs.circleStrokeColor,
-      fillColor: prefs.circleFillNone ? null : prefs.circleFillColor,
-      lineWidth: prefs.circleBorderWidth,
-      borderStyle: prefs.circleBorderStyle,
-      opacity: prefs.circleOpacity / 100
-    }));
-  } else if (state.currentTool === 'box') {
-    const boxX = Math.min(state.startX, endX);
-    const boxY = Math.min(state.startY, endY);
-    const boxW = Math.abs(endX - state.startX);
-    const boxH = Math.abs(endY - state.startY);
-    state.annotations.push(createAnnotation({
-      type: 'box',
-      page: state.currentPage,
-      x: boxX,
-      y: boxY,
-      width: boxW,
-      height: boxH,
-      color: prefs.rectStrokeColor,
-      strokeColor: prefs.rectStrokeColor,
-      fillColor: prefs.rectFillNone ? null : prefs.rectFillColor,
-      lineWidth: prefs.rectBorderWidth,
-      borderStyle: prefs.rectBorderStyle,
-      opacity: prefs.rectOpacity / 100
-    }));
-  } else if (state.currentTool === 'polygon') {
-    state.annotations.push(createAnnotation({
-      type: 'polygon',
-      page: state.currentPage,
-      x: state.startX,
-      y: state.startY,
-      width: endX - state.startX,
-      height: endY - state.startY,
-      sides: 6,
-      color: prefs.polygonStrokeColor || colorPicker.value,
-      strokeColor: prefs.polygonStrokeColor || colorPicker.value,
-      lineWidth: prefs.polygonLineWidth || parseInt(lineWidth.value),
-      opacity: (prefs.polygonOpacity || 100) / 100
-    }));
-  } else if (state.currentTool === 'cloud') {
-    const cloudX = Math.min(state.startX, endX);
-    const cloudY = Math.min(state.startY, endY);
-    const cloudW = Math.abs(endX - state.startX);
-    const cloudH = Math.abs(endY - state.startY);
-    if (cloudW > 10 && cloudH > 10) {
-      state.annotations.push(createAnnotation({
-        type: 'cloud',
-        page: state.currentPage,
-        x: cloudX,
-        y: cloudY,
-        width: cloudW,
-        height: cloudH,
-        color: prefs.cloudStrokeColor || colorPicker.value,
-        strokeColor: prefs.cloudStrokeColor || colorPicker.value,
-        lineWidth: prefs.cloudLineWidth || parseInt(lineWidth.value),
-        opacity: (prefs.cloudOpacity || 100) / 100
-      }));
-    }
-  } else if (state.currentTool === 'textbox') {
-    const tbX = Math.min(state.startX, endX);
-    const tbY = Math.min(state.startY, endY);
-    const tbW = Math.abs(endX - state.startX);
-    const tbH = Math.abs(endY - state.startY);
-    if (tbW > 5 && tbH > 5) {
-      state.annotations.push(createAnnotation({
-        type: 'textbox',
-        page: state.currentPage,
-        x: tbX,
-        y: tbY,
-        width: tbW,
-        height: tbH,
-        text: '',
-        color: prefs.textboxStrokeColor,
-        strokeColor: prefs.textboxStrokeColor,
-        fillColor: prefs.textboxFillNone ? 'transparent' : prefs.textboxFillColor,
-        textColor: '#000000',
-        fontSize: prefs.textboxFontSize,
-        fontFamily: 'Arial',
-        lineWidth: prefs.textboxBorderWidth,
-        borderStyle: prefs.textboxBorderStyle,
-        opacity: (prefs.textboxOpacity || 100) / 100
-      }));
-    }
-  } else if (state.currentTool === 'callout') {
-    const defaultWidth = 150;
-    const defaultHeight = 60;
-    const coX = endX - defaultWidth / 2;
-    const coY = endY - defaultHeight / 2;
-    const boxCenterX = endX;
-    const isArrowLeft = state.startX < boxCenterX;
-    let armOriginX;
-    if (isArrowLeft) {
-      armOriginX = coX;
-    } else {
-      armOriginX = coX + defaultWidth;
-    }
-    const armOriginY = Math.max(coY, Math.min(coY + defaultHeight, endY));
-    const armLength = Math.min(30, Math.abs(state.startX - armOriginX) * 0.4);
-    const kneeX = isArrowLeft ? armOriginX - armLength : armOriginX + armLength;
-    const kneeY = armOriginY;
-    state.annotations.push(createAnnotation({
-      type: 'callout',
-      page: state.currentPage,
-      x: coX,
-      y: coY,
-      width: defaultWidth,
-      height: defaultHeight,
-      arrowX: state.startX,
-      arrowY: state.startY,
-      kneeX: kneeX,
-      kneeY: kneeY,
-      armOriginX: armOriginX,
-      armOriginY: armOriginY,
-      text: '',
-      color: prefs.calloutStrokeColor,
-      strokeColor: prefs.calloutStrokeColor,
-      fillColor: prefs.calloutFillNone ? 'transparent' : prefs.calloutFillColor,
-      textColor: '#000000',
-      fontSize: prefs.calloutFontSize,
-      fontFamily: 'Arial',
-      lineWidth: prefs.calloutBorderWidth,
-      borderStyle: prefs.calloutBorderStyle,
-      opacity: (prefs.calloutOpacity || 100) / 100
-    }));
-  } else if (state.currentTool === 'redaction') {
-    const rx = Math.min(state.startX, endX);
-    const ry = Math.min(state.startY, endY);
-    const rw = Math.abs(endX - state.startX);
-    const rh = Math.abs(endY - state.startY);
-    if (rw > 5 && rh > 5) {
-      state.annotations.push(createAnnotation({
-        type: 'redaction',
-        page: state.currentPage,
-        x: rx, y: ry, width: rw, height: rh,
-        overlayColor: prefs.redactionOverlayColor
-      }));
-    }
-  } else if (state.currentTool === 'measureDistance') {
-    const dist = calculateDistance(state.startX, state.startY, endX, endY);
-    state.annotations.push(createAnnotation({
-      type: 'measureDistance',
-      page: state.currentPage,
-      startX: state.startX,
-      startY: state.startY,
-      endX: endX,
-      endY: endY,
-      color: prefs.measureStrokeColor,
-      strokeColor: prefs.measureStrokeColor,
-      lineWidth: prefs.measureLineWidth,
-      opacity: (prefs.measureOpacity || 100) / 100,
-      measureText: formatMeasurement(dist),
-      measureValue: dist.value,
-      measureUnit: dist.unit
-    }));
+  const ann = createAnnotationFromTool(state.currentTool, state.startX, state.startY, endX, endY, e);
+  if (ann) {
+    state.annotations.push(ann);
   }
 
   state.isDrawing = false;
@@ -1139,38 +517,13 @@ export function handleContinuousMouseDown(e, pageNum) {
 
   // Handle middle mouse button panning (works regardless of current tool)
   if (e.button === 1) {
-    const scrollContainer = getScrollContainer();
-    state.isPanning = true;
-    state.isMiddleButtonPanning = true;
-    state.panStartX = e.clientX;
-    state.panStartY = e.clientY;
-    state.panScrollStartX = scrollContainer ? scrollContainer.scrollLeft : 0;
-    state.panScrollStartY = scrollContainer ? scrollContainer.scrollTop : 0;
-    // Set grabbing cursor on all relevant elements
-    document.body.style.cursor = 'grabbing';
-    pdfContainer.style.cursor = 'grabbing';
-    document.querySelectorAll('.annotation-canvas').forEach(c => c.style.cursor = 'grabbing');
-    document.addEventListener('mousemove', handlePanMove);
-    document.addEventListener('mouseup', handleMiddleButtonPanEnd);
-    e.preventDefault();
+    startContinuousPan(e, true);
     return;
   }
 
   // Handle hand tool (panning) - use same document-level handlers as single page mode
   if (state.currentTool === 'hand') {
-    const scrollContainer = getScrollContainer();
-    state.isPanning = true;
-    state.panStartX = e.clientX;
-    state.panStartY = e.clientY;
-    state.panScrollStartX = scrollContainer ? scrollContainer.scrollLeft : 0;
-    state.panScrollStartY = scrollContainer ? scrollContainer.scrollTop : 0;
-    // Set grabbing cursor on all relevant elements
-    document.body.style.cursor = 'grabbing';
-    pdfContainer.style.cursor = 'grabbing';
-    document.querySelectorAll('.annotation-canvas').forEach(c => c.style.cursor = 'grabbing');
-    document.addEventListener('mousemove', handlePanMove);
-    document.addEventListener('mouseup', handlePanEnd);
-    e.preventDefault();
+    startContinuousPan(e, false);
     return;
   }
 
@@ -1266,73 +619,9 @@ export function handleContinuousMouseUp(e, pageNum) {
 
   const annotationCountBefore = state.annotations.length;
 
-  if (state.currentTool === 'draw' && state.currentPath.length > 1) {
-    state.annotations.push(createAnnotation({
-      type: 'draw',
-      page: pageNum,
-      path: state.currentPath,
-      color: colorPicker.value,
-      strokeColor: colorPicker.value,
-      lineWidth: parseInt(lineWidth.value)
-    }));
-    state.currentPath = [];
-  } else if (state.currentTool === 'highlight') {
-    state.annotations.push(createAnnotation({
-      type: 'highlight',
-      page: pageNum,
-      x: Math.min(state.startX, endX),
-      y: Math.min(state.startY, endY),
-      width: Math.abs(endX - state.startX),
-      height: Math.abs(endY - state.startY),
-      color: colorPicker.value,
-      fillColor: colorPicker.value
-    }));
-  } else if (state.currentTool === 'line') {
-    state.annotations.push(createAnnotation({
-      type: 'line',
-      page: pageNum,
-      startX: state.startX,
-      startY: state.startY,
-      endX: endX,
-      endY: endY,
-      color: colorPicker.value,
-      strokeColor: colorPicker.value,
-      lineWidth: parseInt(lineWidth.value)
-    }));
-  } else if (state.currentTool === 'circle') {
-    const circleX = Math.min(state.startX, endX);
-    const circleY = Math.min(state.startY, endY);
-    const circleW = Math.abs(endX - state.startX);
-    const circleH = Math.abs(endY - state.startY);
-    state.annotations.push(createAnnotation({
-      type: 'circle',
-      page: pageNum,
-      x: circleX,
-      y: circleY,
-      width: circleW,
-      height: circleH,
-      color: colorPicker.value,
-      strokeColor: colorPicker.value,
-      fillColor: colorPicker.value,
-      lineWidth: parseInt(lineWidth.value)
-    }));
-  } else if (state.currentTool === 'box') {
-    const boxX = Math.min(state.startX, endX);
-    const boxY = Math.min(state.startY, endY);
-    const boxW = Math.abs(endX - state.startX);
-    const boxH = Math.abs(endY - state.startY);
-    state.annotations.push(createAnnotation({
-      type: 'box',
-      page: pageNum,
-      x: boxX,
-      y: boxY,
-      width: boxW,
-      height: boxH,
-      color: colorPicker.value,
-      fillColor: colorPicker.value,
-      strokeColor: colorPicker.value,
-      lineWidth: parseInt(lineWidth.value)
-    }));
+  const ann = createContinuousAnnotation(state.currentTool, pageNum, state.startX, state.startY, endX, endY);
+  if (ann) {
+    state.annotations.push(ann);
   }
 
   state.isDrawing = false;
