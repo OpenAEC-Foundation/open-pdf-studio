@@ -35,6 +35,8 @@ export function createDocument(filePath = null) {
     scale: 1.5,
     viewMode: 'single',
     annotations: [],
+    textEdits: [],
+    watermarks: [],
     undoStack: [],
     redoStack: [],
     selectedAnnotation: null,
@@ -117,10 +119,14 @@ export const state = {
   // Backstage state
   backstageOpen: false,
 
-  // Text editing state
+  // Text editing state (annotation inline editing)
   isEditingText: false,
   editingAnnotation: null,
   textEditElement: null,
+
+  // PDF text editing state (edit existing PDF text)
+  isEditingPdfText: false,
+  pdfTextEditState: null,
 
   // Preferences
   preferences: { ...DEFAULT_PREFERENCES },
@@ -211,6 +217,24 @@ export const state = {
   set annotations(value) {
     const doc = this.documents[this.activeDocumentIndex];
     if (doc) doc.annotations = value;
+  },
+
+  get textEdits() {
+    const doc = this.documents[this.activeDocumentIndex];
+    return doc ? doc.textEdits : [];
+  },
+  set textEdits(value) {
+    const doc = this.documents[this.activeDocumentIndex];
+    if (doc) doc.textEdits = value;
+  },
+
+  get watermarks() {
+    const doc = this.documents[this.activeDocumentIndex];
+    return doc ? doc.watermarks : [];
+  },
+  set watermarks(value) {
+    const doc = this.documents[this.activeDocumentIndex];
+    if (doc) doc.watermarks = value;
   },
 
   get redoStack() {

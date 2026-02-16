@@ -222,6 +222,19 @@
   color: var(--theme-thumbnail-active-label);
 }
 
+/* Thumbnail drag-and-drop reorder */
+.thumbnail-item.dragging {
+  opacity: 0.4;
+}
+
+.thumbnail-item.drop-before {
+  border-top: 3px solid #0078d7;
+}
+
+.thumbnail-item.drop-after {
+  border-bottom: 3px solid #0078d7;
+}
+
 /* Bookmarks Panel */
 .bookmarks-container {
   flex: 1;
@@ -369,4 +382,25 @@
   position: absolute;
   top: 0;
   left: 0;
+}
+
+/* PDF Text Edit Tool */
+.edit-text-block-hover {
+  background: rgba(0, 120, 215, 0.15);
+  outline: 1px solid rgba(0, 120, 215, 0.3);
+}
+
+.pdf-text-editor {
+  box-sizing: border-box;
+  border: 1px solid #0078d7;
+  background: #ffffff;
+  padding: 2px 3px;
+  margin: 0;
+  resize: none;
+  overflow: hidden;
+  outline: none;
+  color: #000;
+  white-space: pre-wrap;
+  word-break: break-word;
+  box-shadow: 0 0 0 1px rgba(0, 120, 215, 0.3);
 }

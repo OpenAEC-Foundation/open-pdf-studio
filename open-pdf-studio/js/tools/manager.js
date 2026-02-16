@@ -19,6 +19,7 @@ export function getCursorForTool(tool = state.currentTool) {
     case 'hand':
       return 'grab';
     case 'text':
+    case 'editText':
       return 'text';
     default:
       return 'crosshair';
@@ -62,6 +63,11 @@ export function setTool(tool) {
   if (state.measurePoints && tool !== 'measureArea' && tool !== 'measurePerimeter') {
     state.measurePoints = null;
     redrawAnnotations();
+  }
+
+  // Deactivate PDF text editing when switching away
+  if (state.currentTool === 'editText' && tool !== 'editText') {
+    import('./text-edit-tool.js').then(m => m.deactivateEditTextTool());
   }
 
   state.currentTool = tool;
@@ -168,6 +174,10 @@ export function setTool(tool) {
     case 'redaction':
       if (toolRedaction) toolRedaction.classList.add('active');
       setAllCanvasCursors('crosshair');
+      break;
+    case 'editText':
+      setAllCanvasCursors('text');
+      import('./text-edit-tool.js').then(m => m.activateEditTextTool());
       break;
     default:
       setAllCanvasCursors('default');

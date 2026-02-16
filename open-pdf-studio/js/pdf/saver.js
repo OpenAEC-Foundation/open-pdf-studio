@@ -4,9 +4,10 @@ import { hexToColorArray } from '../utils/colors.js';
 import { markDocumentSaved, updateWindowTitle } from '../ui/chrome/tabs.js';
 import { isTauri, readBinaryFile, writeBinaryFile, saveFileDialog, unlockFile, lockFile } from '../core/platform.js';
 import { getCachedPdfBytes, setCachedPdfBytes } from './loader.js';
-import { PDFDocument, PDFString, PDFName, PDFArray, PDFStream, degrees,
+import { PDFDocument, PDFString, PDFName, PDFArray, PDFStream, degrees, rgb, StandardFonts,
   PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup, PDFOptionList } from 'pdf-lib';
 import { getAnnotationStorage, getAnnotIdToFieldName } from './form-layer.js';
+import { parsePageRange } from './exporter.js';
 
 // Save PDF with annotations
 export async function savePDF(saveAsPath = null) {
@@ -826,6 +827,12 @@ export async function savePDF(saveAsPath = null) {
       page.node.set(PDFName.of('Annots'), context.obj(annotsArray));
     }
 
+    // Burn text edits into the PDF (cover-and-replace)
+    await saveTextEditsToPages(pdfDocLib, pages);
+
+    // Burn watermarks into the PDF
+    await saveWatermarksToPages(pdfDocLib, pages);
+
     // Save the PDF
     const pdfBytes = await pdfDocLib.save();
     const outputPath = saveAsPath || state.currentPdfPath;
@@ -849,6 +856,226 @@ export async function savePDF(saveAsPath = null) {
     return false;
   } finally {
     hideLoading();
+  }
+}
+
+// Save text edits into PDF pages (cover-and-replace approach)
+async function saveTextEditsToPages(pdfDocLib, pages) {
+  const doc = getActiveDocument();
+  if (!doc || !doc.textEdits || doc.textEdits.length === 0) return;
+
+  const helveticaFont = await pdfDocLib.embedFont(StandardFonts.Helvetica);
+
+  for (const edit of doc.textEdits) {
+    const pageIndex = edit.page - 1;
+    if (pageIndex < 0 || pageIndex >= pages.length) continue;
+
+    const page = pages[pageIndex];
+    const fontSize = edit.fontSize;
+    const ls = edit.lineSpacing || fontSize * 1.2;
+    const numOrig = edit.numOriginalLines || 1;
+    const [r, g, b] = hexToRgb(edit.color || '#000000');
+
+    // Cover rectangle spanning all original lines
+    const origLines = edit.originalText.split('\n');
+    const maxOrigLen = Math.max(...origLines.map(l => l.length));
+    const coverWidth = Math.max(edit.pdfWidth, fontSize * 0.7 * maxOrigLen);
+    const rectBottom = edit.pdfY - (numOrig - 1) * ls - fontSize * 0.3;
+    const rectHeight = (numOrig - 1) * ls + fontSize * 1.3;
+
+    page.drawRectangle({
+      x: edit.pdfX,
+      y: rectBottom,
+      width: coverWidth,
+      height: rectHeight,
+      color: rgb(1, 1, 1),
+      borderWidth: 0
+    });
+
+    // Draw new text line by line
+    const newLines = edit.newText.split('\n');
+    for (let i = 0; i < newLines.length; i++) {
+      if (!newLines[i]) continue;
+      page.drawText(newLines[i], {
+        x: edit.pdfX,
+        y: edit.pdfY - i * ls,
+        size: fontSize,
+        font: helveticaFont,
+        color: rgb(r, g, b)
+      });
+    }
+  }
+}
+
+// Save watermarks into PDF pages
+async function saveWatermarksToPages(pdfDocLib, pages) {
+  const watermarks = state.watermarks;
+  if (!watermarks || watermarks.length === 0) return;
+
+  const totalPages = pages.length;
+
+  // Pre-embed fonts
+  const fontCache = {};
+  async function getFont(fontFamily) {
+    if (fontCache[fontFamily]) return fontCache[fontFamily];
+    let stdFont;
+    const f = (fontFamily || '').toLowerCase();
+    if (f.includes('courier')) stdFont = StandardFonts.Courier;
+    else if (f.includes('times')) stdFont = StandardFonts.TimesRoman;
+    else stdFont = StandardFonts.Helvetica;
+    const font = await pdfDocLib.embedFont(stdFont);
+    fontCache[fontFamily] = font;
+    return font;
+  }
+
+  // Pre-embed images
+  const imageEmbedCache = {};
+  async function getEmbeddedImage(imageData) {
+    if (imageEmbedCache[imageData]) return imageEmbedCache[imageData];
+    try {
+      const base64 = imageData.split(',')[1];
+      const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+      let embedded;
+      if (imageData.startsWith('data:image/jpeg') || imageData.startsWith('data:image/jpg')) {
+        embedded = await pdfDocLib.embedJpg(bytes);
+      } else {
+        embedded = await pdfDocLib.embedPng(bytes);
+      }
+      imageEmbedCache[imageData] = embedded;
+      return embedded;
+    } catch (e) {
+      console.warn('Failed to embed watermark image:', e);
+      return null;
+    }
+  }
+
+  function shouldRenderOnPage(wm, pageNum) {
+    if (!wm.enabled) return false;
+    if (wm.pageRange === 'all') return true;
+    if (wm.pageRange === 'first') return pageNum === 1;
+    if (wm.pageRange === 'custom' && wm.customPages) {
+      return parsePageRange(wm.customPages, totalPages).includes(pageNum);
+    }
+    return true;
+  }
+
+  function hexToRgbObj(hex) {
+    const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!r) return rgb(0, 0, 0);
+    return rgb(parseInt(r[1], 16) / 255, parseInt(r[2], 16) / 255, parseInt(r[3], 16) / 255);
+  }
+
+  function getPositionPdf(position, customX, customY, pw, ph, objW, objH) {
+    switch (position) {
+      case 'center': return { x: (pw - objW) / 2, y: (ph - objH) / 2 };
+      case 'top-left': return { x: 40, y: ph - objH - 40 };
+      case 'top-right': return { x: pw - objW - 40, y: ph - objH - 40 };
+      case 'bottom-left': return { x: 40, y: 40 };
+      case 'bottom-right': return { x: pw - objW - 40, y: 40 };
+      case 'custom': return { x: customX || (pw - objW) / 2, y: ph - (customY || ph / 2) - objH / 2 };
+      default: return { x: (pw - objW) / 2, y: (ph - objH) / 2 };
+    }
+  }
+
+  // Process 'behind' watermarks first (draw before content by using drawText early),
+  // then 'infront' watermarks (draw after content)
+  for (const layer of ['behind', 'infront']) {
+    for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+      const pageNum = pageIndex + 1;
+      const page = pages[pageIndex];
+      const { width: pw, height: ph } = page.getSize();
+
+      for (const wm of watermarks) {
+        if (!wm.enabled) continue;
+        if (!shouldRenderOnPage(wm, pageNum)) continue;
+
+        if (wm.type === 'textWatermark' && (wm.layer || 'behind') === layer) {
+          const font = await getFont(wm.fontFamily);
+          const fontSize = wm.fontSize || 72;
+          const text = wm.text || '';
+          const textWidth = font.widthOfTextAtSize(text, fontSize);
+          const textHeight = fontSize;
+          const pos = getPositionPdf(wm.position, wm.customX, wm.customY, pw, ph, textWidth, textHeight);
+
+          page.drawText(text, {
+            x: pos.x + textWidth / 2,
+            y: pos.y + textHeight / 2,
+            size: fontSize,
+            font: font,
+            color: hexToRgbObj(wm.color || '#ff0000'),
+            opacity: wm.opacity !== undefined ? wm.opacity : 0.3,
+            rotate: degrees(-(wm.rotation || 0)),
+          });
+        }
+
+        if (wm.type === 'imageWatermark' && (wm.layer || 'behind') === layer && wm.imageData) {
+          const embeddedImg = await getEmbeddedImage(wm.imageData);
+          if (!embeddedImg) continue;
+
+          const scale = wm.scale || 1;
+          const imgW = (wm.width || 200) * scale;
+          const imgH = (wm.height || 200) * scale;
+          const pos = getPositionPdf(wm.position, wm.customX, wm.customY, pw, ph, imgW, imgH);
+
+          page.drawImage(embeddedImg, {
+            x: pos.x,
+            y: pos.y,
+            width: imgW,
+            height: imgH,
+            opacity: wm.opacity !== undefined ? wm.opacity : 0.2,
+            rotate: degrees(-(wm.rotation || 0)),
+          });
+        }
+
+        if (wm.type === 'headerFooter' && layer === 'infront') {
+          const font = await getFont(wm.fontFamily);
+          const fontSize = wm.fontSize || 10;
+          const color = hexToRgbObj(wm.color || '#000000');
+          const mt = wm.marginTop || 30;
+          const mb = wm.marginBottom || 30;
+          const ml = wm.marginLeft || 40;
+          const mr = wm.marginRight || 40;
+
+          const doc = getActiveDocument();
+          const filename = doc ? doc.fileName : '';
+          const now = new Date();
+          const subst = (t) => (t || '')
+            .replace(/\{page\}/g, String(pageNum))
+            .replace(/\{pages\}/g, String(totalPages))
+            .replace(/\{date\}/g, now.toLocaleDateString())
+            .replace(/\{time\}/g, now.toLocaleTimeString())
+            .replace(/\{filename\}/g, filename);
+
+          const headerY = ph - mt;
+          const footerY = mb;
+
+          const slots = [
+            { text: subst(wm.headerLeft), x: ml, y: headerY, align: 'left' },
+            { text: subst(wm.headerCenter), x: pw / 2, y: headerY, align: 'center' },
+            { text: subst(wm.headerRight), x: pw - mr, y: headerY, align: 'right' },
+            { text: subst(wm.footerLeft), x: ml, y: footerY, align: 'left' },
+            { text: subst(wm.footerCenter), x: pw / 2, y: footerY, align: 'center' },
+            { text: subst(wm.footerRight), x: pw - mr, y: footerY, align: 'right' },
+          ];
+
+          for (const slot of slots) {
+            if (!slot.text) continue;
+            let drawX = slot.x;
+            const tw = font.widthOfTextAtSize(slot.text, fontSize);
+            if (slot.align === 'center') drawX -= tw / 2;
+            else if (slot.align === 'right') drawX -= tw;
+
+            page.drawText(slot.text, {
+              x: drawX,
+              y: slot.y,
+              size: fontSize,
+              font: font,
+              color: color,
+            });
+          }
+        }
+      }
+    }
   }
 }
 

@@ -4,6 +4,7 @@ import {
   pageInfo, pageInput, pageTotal, prevPageBtn, nextPageBtn, zoomLevel
 } from '../ui/dom-elements.js';
 import { redrawAnnotations, renderAnnotationsForPage } from '../annotations/rendering.js';
+import { ensureAnnotationsForPage } from './loader.js';
 import { updateAllStatus } from '../ui/chrome/status-bar.js';
 import { hideProperties } from '../ui/panels/properties-panel.js';
 import { getCursorForTool } from '../tools/manager.js';
@@ -91,6 +92,9 @@ export async function renderPage(pageNum) {
   } catch (e) {
     console.warn('Failed to create form layer:', e);
   }
+
+  // Ensure annotations for this page are loaded (on-demand if background hasn't reached it yet)
+  await ensureAnnotationsForPage(pageNum);
 
   // Redraw annotations
   redrawAnnotations();

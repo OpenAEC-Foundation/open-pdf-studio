@@ -63,11 +63,17 @@ export async function createTextLayer(page, viewport, container, pageNum) {
 function renderTextLayerManually(textContent, container, viewport, scale) {
   const textItems = textContent.items;
 
-  for (const item of textItems) {
+  for (let i = 0; i < textItems.length; i++) {
+    const item = textItems[i];
     if (!item.str || item.str.trim() === '') continue;
 
     const span = document.createElement('span');
     span.textContent = item.str;
+
+    // Store PDF metadata for text editing
+    span.dataset.pdfTransform = JSON.stringify(item.transform);
+    span.dataset.pdfWidth = item.width || 0;
+    span.dataset.itemIndex = i;
 
     // item.transform is [scaleX, skewY, skewX, scaleY, translateX, translateY]
     const tx = item.transform;

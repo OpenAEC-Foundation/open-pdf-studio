@@ -67,6 +67,9 @@ export function handleKeydown(e) {
   } else if (ctrl && e.key === 'w') {
     e.preventDefault();
     document.getElementById('menu-close')?.click();
+  } else if (ctrl && e.key === 'p') {
+    e.preventDefault();
+    import('../ui/chrome/dialogs.js').then(({ showPrintDialog }) => showPrintDialog());
   }
 
   // Edit shortcuts

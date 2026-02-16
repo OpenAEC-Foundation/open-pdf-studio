@@ -93,7 +93,9 @@ function setupQuickAccessEvents() {
   document.getElementById('qa-save')?.addEventListener('click', async () => await savePDF());
   document.getElementById('qa-save-as')?.addEventListener('click', async () => await savePDFAs());
   document.getElementById('qa-print')?.addEventListener('click', () => {
-    if (state.pdfDoc) window.print();
+    if (state.pdfDoc) {
+      import('./chrome/dialogs.js').then(({ showPrintDialog }) => showPrintDialog());
+    }
   });
   document.getElementById('qa-undo')?.addEventListener('click', () => undo());
   document.getElementById('qa-redo')?.addEventListener('click', () => redo());

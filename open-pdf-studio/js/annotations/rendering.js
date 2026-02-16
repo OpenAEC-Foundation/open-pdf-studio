@@ -2,6 +2,7 @@ import { state } from '../core/state.js';
 import { annotationCanvas, annotationCtx } from '../ui/dom-elements.js';
 import { updateStatusAnnotations } from '../ui/chrome/status-bar.js';
 import { updateAnnotationsList } from '../ui/panels/annotations-list.js';
+import { renderWatermarksBehind, renderWatermarksInFront } from '../watermark/watermark-renderer.js';
 
 // Import from sub-modules
 import { drawPolygonShape, drawCloudShape, drawTextboxContent } from './rendering/shapes.js';
@@ -713,6 +714,50 @@ function drawAnnotation(ctx, annotation) {
   }
 }
 
+// Draw text edits (cover-and-replace) for a specific page
+// ctx is already scaled by state.scale, so coordinates are in unscaled page space
+function drawTextEdits(ctx, pageNum) {
+  const doc = state.documents[state.activeDocumentIndex];
+  if (!doc || !doc.textEdits || doc.textEdits.length === 0) return;
+
+  const pageEdits = doc.textEdits.filter(e => e.page === pageNum);
+  if (pageEdits.length === 0) return;
+
+  const canvasEl = ctx.canvas;
+  const pageHeight = canvasEl.height / state.scale;
+
+  for (const edit of pageEdits) {
+    const fontSize = edit.fontSize;
+    const ls = edit.lineSpacing || fontSize * 1.2;
+    const numOrig = edit.numOriginalLines || 1;
+
+    // First line baseline in canvas coordinates
+    const firstBaseY = pageHeight - edit.pdfY;
+
+    // Cover rectangle: extends from above first baseline to below last baseline
+    const coverTop = firstBaseY - fontSize;
+    const coverHeight = (numOrig - 1) * ls + fontSize * 1.3;
+    const origLines = edit.originalText.split('\n');
+    const maxOrigLen = Math.max(...origLines.map(l => l.length));
+    const coverWidth = Math.max(edit.pdfWidth, fontSize * 0.6 * maxOrigLen);
+
+    ctx.save();
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(edit.pdfX, coverTop, coverWidth, coverHeight);
+
+    // Draw new text line by line
+    ctx.fillStyle = edit.color || '#000000';
+    ctx.font = `${fontSize}px ${edit.fontFamily || 'Helvetica'}, sans-serif`;
+    ctx.textBaseline = 'alphabetic';
+
+    const newLines = edit.newText.split('\n');
+    for (let i = 0; i < newLines.length; i++) {
+      ctx.fillText(newLines[i], edit.pdfX, firstBaseY + i * ls);
+    }
+    ctx.restore();
+  }
+}
+
 // Redraw all annotations (single page mode)
 // Pass lightweight=true during drag/resize to skip expensive DOM updates
 export function redrawAnnotations(lightweight = false) {
@@ -729,6 +774,12 @@ export function redrawAnnotations(lightweight = false) {
     drawGrid(annotationCtx, annotationCanvas.width / state.scale, annotationCanvas.height / state.scale);
   }
 
+  // Draw watermarks behind content
+  renderWatermarksBehind(annotationCtx, state.currentPage, annotationCanvas.width / state.scale, annotationCanvas.height / state.scale);
+
+  // Draw text edits (cover-and-replace) before annotations
+  drawTextEdits(annotationCtx, state.currentPage);
+
   // Draw all annotations for current page
   state.annotations.forEach(annotation => {
     if (annotation.page !== state.currentPage) return;
@@ -737,6 +788,9 @@ export function redrawAnnotations(lightweight = false) {
 
   annotationCtx.globalAlpha = 1;
   annotationCtx.globalCompositeOperation = 'source-over';
+
+  // Draw watermarks in front of content
+  renderWatermarksInFront(annotationCtx, state.currentPage, annotationCanvas.width / state.scale, annotationCanvas.height / state.scale);
 
   // Draw selection highlight and handles
   if (state.selectedAnnotations.length > 1) {
@@ -777,10 +831,19 @@ export function renderAnnotationsForPage(ctx, pageNum, width, height) {
   ctx.save();
   ctx.scale(state.scale, state.scale);
 
+  // Draw watermarks behind content
+  renderWatermarksBehind(ctx, pageNum, width / state.scale, height / state.scale);
+
+  // Draw text edits (cover-and-replace)
+  drawTextEdits(ctx, pageNum);
+
   state.annotations.forEach(annotation => {
     if (annotation.page !== pageNum) return;
     drawAnnotation(ctx, annotation);
   });
+
+  // Draw watermarks in front of content
+  renderWatermarksInFront(ctx, pageNum, width / state.scale, height / state.scale);
 
   // Restore context
   ctx.restore();

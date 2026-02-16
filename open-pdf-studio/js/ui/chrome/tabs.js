@@ -4,7 +4,7 @@ import { hideFormFieldsBar } from '../../pdf/form-layer.js';
 import { redrawAnnotations, redrawContinuous, updateQuickAccessButtons } from '../../annotations/rendering.js';
 import { updateAllStatus } from './status-bar.js';
 import { generateThumbnails, clearThumbnails, clearThumbnailCache, refreshActiveTab } from '../panels/left-panel.js';
-import { openPDFFile } from '../../pdf/loader.js';
+import { openPDFFile, cancelAnnotationLoading } from '../../pdf/loader.js';
 import { savePDF } from '../../pdf/saver.js';
 import { unlockFile } from '../../core/platform.js';
 
@@ -119,6 +119,9 @@ export function switchToTab(index) {
  */
 export async function closeTab(index, force = false) {
   if (index < 0 || index >= state.documents.length) return false;
+
+  // Cancel any in-progress background annotation loading
+  cancelAnnotationLoading();
 
   const doc = state.documents[index];
 

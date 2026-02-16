@@ -14,6 +14,9 @@ import {
   distributeRight, distributeTop, distributeMiddle, distributeBottom
 } from '../../annotations/alignment.js';
 import { initFormatRibbon } from '../chrome/format-ribbon.js';
+import { showInsertPageDialog, showExtractPagesDialog, showMergePdfsDialog } from '../chrome/dialogs.js';
+import { deletePages } from '../../pdf/page-manager.js';
+import { setTool } from '../../tools/manager.js';
 
 // Setup ribbon button events
 export function setupRibbonEvents() {
@@ -73,9 +76,52 @@ export function setupRibbonEvents() {
     recordPageRotation(state.currentPage, oldRot, getPageRotation(state.currentPage));
   });
 
+  // Organize tab - Page management buttons
+  document.getElementById('insert-page')?.addEventListener('click', () => {
+    showInsertPageDialog();
+  });
+  document.getElementById('delete-page')?.addEventListener('click', async () => {
+    if (!state.pdfDoc) return;
+    if (state.pdfDoc.numPages <= 1) {
+      alert('Cannot delete the last remaining page.');
+      return;
+    }
+    const confirmed = await window.__TAURI__?.dialog?.ask(`Delete page ${state.currentPage}?`, { title: 'Delete Page', kind: 'warning' });
+    if (confirmed) {
+      await deletePages([state.currentPage]);
+    }
+  });
+  document.getElementById('extract-pages')?.addEventListener('click', () => {
+    showExtractPagesDialog();
+  });
+  document.getElementById('merge-pdfs')?.addEventListener('click', () => {
+    showMergePdfsDialog();
+  });
+
+  // Edit Text button
+  document.getElementById('edit-text')?.addEventListener('click', () => {
+    setTool('editText');
+  });
+
+  // Watermark buttons
+  document.getElementById('add-watermark')?.addEventListener('click', async () => {
+    const { showWatermarkDialog } = await import('../../watermark/watermark-dialog.js');
+    showWatermarkDialog();
+  });
+  document.getElementById('add-header-footer')?.addEventListener('click', async () => {
+    const { showHeaderFooterDialog } = await import('../../watermark/watermark-dialog.js');
+    showHeaderFooterDialog();
+  });
+  document.getElementById('manage-watermarks')?.addEventListener('click', async () => {
+    const { showManageWatermarksDialog } = await import('../../watermark/watermark-dialog.js');
+    showManageWatermarksDialog();
+  });
+
   // Clear All Annotations button
-  document.getElementById('ribbon-clear-all')?.addEventListener('click', () => {
-    if (state.annotations.length > 0 && confirm('Clear ALL annotations from ALL pages?')) {
+  document.getElementById('ribbon-clear-all')?.addEventListener('click', async () => {
+    if (state.annotations.length === 0) return;
+    const confirmed = await window.__TAURI__?.dialog?.ask('Clear ALL annotations from ALL pages?', { title: 'Clear All', kind: 'warning' });
+    if (confirmed) {
       recordClearAll(state.annotations);
       state.annotations = [];
       hideProperties();

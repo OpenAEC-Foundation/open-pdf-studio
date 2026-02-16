@@ -47,6 +47,12 @@ export function setupMenuEvents() {
     await savePDFAs();
   });
 
+  document.getElementById('bs-print')?.addEventListener('click', () => {
+    hideAllBsPanels();
+    closeBackstage();
+    import('../chrome/dialogs.js').then(({ showPrintDialog }) => showPrintDialog());
+  });
+
   document.getElementById('bs-export')?.addEventListener('click', () => {
     hideAboutPanel();
     showExportPanel();
@@ -222,6 +228,7 @@ FILE:
 Ctrl+N - New Document
 Ctrl+O - Open PDF
 Ctrl+S - Save
+Ctrl+P - Print
 Ctrl+W - Close
 
 EDIT:
@@ -275,6 +282,50 @@ N - Note`;
     } else {
       // Linux
       alert('To set OpenPDFStudio as default PDF viewer on Linux:\n\nRun in terminal:\nxdg-mime default openpdfstudio.desktop application/pdf');
+    }
+  });
+
+  // Virtual Printer - Install button
+  document.getElementById('pref-vprinter-install-btn')?.addEventListener('click', async () => {
+    const statusEl = document.getElementById('pref-vprinter-status');
+    const installBtn = document.getElementById('pref-vprinter-install-btn');
+    const removeBtn = document.getElementById('pref-vprinter-remove-btn');
+
+    if (statusEl) statusEl.textContent = 'Installing...';
+    if (installBtn) installBtn.disabled = true;
+
+    try {
+      const { invoke } = await import('../../core/platform.js');
+      await invoke('install_virtual_printer');
+      if (statusEl) { statusEl.textContent = 'Installed'; statusEl.style.color = '#2e7d32'; }
+      if (installBtn) { installBtn.style.display = 'none'; installBtn.disabled = false; }
+      if (removeBtn) removeBtn.style.display = '';
+    } catch (err) {
+      if (statusEl) { statusEl.textContent = 'Installation failed'; statusEl.style.color = '#c62828'; }
+      if (installBtn) installBtn.disabled = false;
+      alert('Failed to install virtual printer:\n' + (err.message || err));
+    }
+  });
+
+  // Virtual Printer - Remove button
+  document.getElementById('pref-vprinter-remove-btn')?.addEventListener('click', async () => {
+    const statusEl = document.getElementById('pref-vprinter-status');
+    const installBtn = document.getElementById('pref-vprinter-install-btn');
+    const removeBtn = document.getElementById('pref-vprinter-remove-btn');
+
+    if (statusEl) statusEl.textContent = 'Removing...';
+    if (removeBtn) removeBtn.disabled = true;
+
+    try {
+      const { invoke } = await import('../../core/platform.js');
+      await invoke('remove_virtual_printer');
+      if (statusEl) { statusEl.textContent = 'Not installed'; statusEl.style.color = '#666'; }
+      if (removeBtn) { removeBtn.style.display = 'none'; removeBtn.disabled = false; }
+      if (installBtn) installBtn.style.display = '';
+    } catch (err) {
+      if (statusEl) { statusEl.textContent = 'Removal failed'; statusEl.style.color = '#c62828'; }
+      if (removeBtn) removeBtn.disabled = false;
+      alert('Failed to remove virtual printer:\n' + (err.message || err));
     }
   });
 

@@ -790,6 +790,48 @@
           </div>
           <div class="ribbon-group-label">Pages</div>
         </div>
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <button class="ribbon-btn" id="merge-pdfs" title="Merge PDFs">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Merge</span>
+            </button>
+          </div>
+          <div class="ribbon-group-label">Combine</div>
+        </div>
+        <div class="ribbon-group">
+          <div class="ribbon-group-content">
+            <button class="ribbon-btn" id="add-watermark" title="Add Watermark">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Watermark</span>
+            </button>
+            <button class="ribbon-btn" id="add-header-footer" title="Add Header/Footer">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Header/Footer</span>
+            </button>
+            <button class="ribbon-btn" id="manage-watermarks" title="Manage Watermarks">
+              <div class="ribbon-btn-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                </svg>
+              </div>
+              <span class="ribbon-btn-label">Manage</span>
+            </button>
+          </div>
+          <div class="ribbon-group-label">Watermark</div>
+        </div>
       </div>
     </div>
 
@@ -2352,6 +2394,625 @@
     </div>
   </div>
 
+  <!-- Insert Page Dialog -->
+  <div class="insert-page-overlay" id="insert-page-dialog">
+    <div class="insert-page-dialog">
+      <div class="insert-page-header">
+        <h2>Insert Pages</h2>
+        <button class="insert-page-close-btn" id="insert-page-close-btn">&times;</button>
+      </div>
+      <div class="insert-page-content">
+        <div class="insert-page-form">
+          <div class="insert-page-row">
+            <label class="insert-page-label">Position:</label>
+            <select id="insert-page-position" class="insert-page-select">
+              <option value="after">After current page</option>
+              <option value="before">Before current page</option>
+              <option value="start">At the beginning</option>
+              <option value="end">At the end</option>
+            </select>
+          </div>
+          <div class="insert-page-row">
+            <label class="insert-page-label">Count:</label>
+            <input type="number" id="insert-page-count" class="insert-page-input" value="1" min="1" max="100" step="1">
+          </div>
+          <div class="insert-page-row">
+            <label class="insert-page-label">Paper Size:</label>
+            <select id="insert-page-paper-size" class="insert-page-select">
+              <option value="current">Same as current page</option>
+              <optgroup label="ISO A Series">
+                <option value="a0">A0 (841 x 1189 mm)</option>
+                <option value="a1">A1 (594 x 841 mm)</option>
+                <option value="a2">A2 (420 x 594 mm)</option>
+                <option value="a3">A3 (297 x 420 mm)</option>
+                <option value="a4">A4 (210 x 297 mm)</option>
+                <option value="a5">A5 (148 x 210 mm)</option>
+                <option value="a6">A6 (105 x 148 mm)</option>
+              </optgroup>
+              <optgroup label="ISO B Series">
+                <option value="b3">B3 (353 x 500 mm)</option>
+                <option value="b4">B4 (250 x 353 mm)</option>
+                <option value="b5">B5 (176 x 250 mm)</option>
+              </optgroup>
+              <optgroup label="North American">
+                <option value="letter">Letter (8.5 x 11 in)</option>
+                <option value="legal">Legal (8.5 x 14 in)</option>
+                <option value="tabloid">Tabloid (11 x 17 in)</option>
+                <option value="ledger">Ledger (17 x 11 in)</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="insert-page-footer">
+        <div></div>
+        <div class="insert-page-footer-right">
+          <button class="pref-btn pref-btn-primary" id="insert-page-ok-btn">OK</button>
+          <button class="pref-btn pref-btn-secondary" id="insert-page-cancel-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Extract Pages Dialog -->
+  <div class="extract-pages-overlay" id="extract-pages-dialog">
+    <div class="extract-pages-dialog">
+      <div class="extract-pages-header">
+        <h2>Extract Pages</h2>
+        <button class="extract-pages-close-btn" id="extract-pages-close-btn">&times;</button>
+      </div>
+      <div class="extract-pages-content">
+        <div class="extract-pages-form">
+          <div class="extract-pages-row">
+            <label class="extract-pages-label">Page Range:</label>
+            <input type="text" id="extract-pages-range" class="extract-pages-input-wide" placeholder="e.g. 1-3, 5, 8-10">
+          </div>
+          <div class="extract-pages-row extract-pages-info" id="extract-pages-info"></div>
+          <div class="extract-pages-row extract-pages-checkbox-row">
+            <label class="extract-pages-checkbox-label">
+              <input type="checkbox" id="extract-pages-delete"> Delete pages from source after extraction
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="extract-pages-footer">
+        <div></div>
+        <div class="extract-pages-footer-right">
+          <button class="pref-btn pref-btn-primary" id="extract-pages-ok-btn">Extract</button>
+          <button class="pref-btn pref-btn-secondary" id="extract-pages-cancel-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Merge PDFs Dialog -->
+  <div class="merge-pdfs-overlay" id="merge-pdfs-dialog">
+    <div class="merge-pdfs-dialog">
+      <div class="merge-pdfs-header">
+        <h2>Merge PDFs</h2>
+        <button class="merge-pdfs-close-btn" id="merge-pdfs-close-btn">&times;</button>
+      </div>
+      <div class="merge-pdfs-content">
+        <div class="merge-pdfs-form">
+          <div class="merge-pdfs-row">
+            <label class="merge-pdfs-label">Insert at:</label>
+            <select id="merge-pdfs-position" class="merge-pdfs-select">
+              <option value="end">End of document</option>
+              <option value="after">After current page</option>
+              <option value="start">Beginning of document</option>
+            </select>
+          </div>
+          <div class="merge-pdfs-file-section">
+            <div class="merge-pdfs-file-toolbar">
+              <span class="merge-pdfs-file-toolbar-label">Files to merge:</span>
+              <div class="merge-pdfs-file-toolbar-btns">
+                <button class="merge-pdfs-toolbar-btn" id="merge-pdfs-add-btn" title="Add files">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                </button>
+                <button class="merge-pdfs-toolbar-btn" id="merge-pdfs-remove-btn" title="Remove selected">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                </button>
+                <button class="merge-pdfs-toolbar-btn" id="merge-pdfs-up-btn" title="Move up">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+                </button>
+                <button class="merge-pdfs-toolbar-btn" id="merge-pdfs-down-btn" title="Move down">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="merge-pdfs-file-list" id="merge-pdfs-file-list">
+              <div class="merge-pdfs-empty">Click + to add PDF files</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="merge-pdfs-footer">
+        <div class="merge-pdfs-file-count" id="merge-pdfs-file-count"></div>
+        <div class="merge-pdfs-footer-right">
+          <button class="pref-btn pref-btn-primary" id="merge-pdfs-ok-btn">Merge</button>
+          <button class="pref-btn pref-btn-secondary" id="merge-pdfs-cancel-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Print Dialog -->
+  <div class="print-overlay" id="print-dialog">
+    <div class="print-dialog">
+      <div class="print-header">
+        <h2>Print</h2>
+        <button class="print-close-btn" id="print-close-btn">&times;</button>
+      </div>
+      <div class="print-body">
+        <!-- Left panel: settings -->
+        <div class="print-settings">
+          <!-- Printer group -->
+          <fieldset class="print-group">
+            <legend>Printer</legend>
+            <div class="print-printer-layout">
+              <div class="print-printer-left">
+                <div class="print-row">
+                  <label class="print-label">Name:</label>
+                  <select id="print-printer" class="print-select"></select>
+                </div>
+                <div class="print-row print-printer-detail-row">
+                  <span class="print-label"></span>
+                  <span class="print-printer-status" id="print-printer-status">Status: Ready</span>
+                  <span class="print-printer-sep">|</span>
+                  <span class="print-printer-type" id="print-printer-type">Type:</span>
+                </div>
+              </div>
+              <div class="print-printer-right">
+                <button class="pref-btn pref-btn-secondary print-printer-action-btn" id="print-properties-btn">Properties...</button>
+                <button class="pref-btn pref-btn-secondary print-printer-action-btn" id="print-page-setup-btn">Page Setup...</button>
+              </div>
+            </div>
+            <div class="print-row">
+              <label class="print-label">Copies:</label>
+              <input type="number" id="print-copies" class="print-input" value="1" min="1" max="99">
+              <label class="print-checkbox-label print-collate-label"><input type="checkbox" id="print-collate"> Collate</label>
+            </div>
+          </fieldset>
+
+          <!-- Page Range group -->
+          <fieldset class="print-group">
+            <legend>Page Range</legend>
+            <div class="print-row print-pages-row">
+              <div class="print-page-btns">
+                <button class="print-page-btn active" data-range="all">All</button>
+                <button class="print-page-btn" data-range="current" id="print-range-current">Current: <span id="print-current-page-num">1</span></button>
+                <button class="print-page-btn" data-range="custom">Custom</button>
+              </div>
+            </div>
+            <div class="print-row print-custom-row">
+              <label class="print-label">Pages:</label>
+              <input type="text" class="print-custom-input" id="print-custom-pages" placeholder="e.g. 1-5, 8" disabled>
+            </div>
+            <div class="print-row">
+              <label class="print-label">Subset:</label>
+              <div class="print-subset-btns">
+                <button class="print-subset-btn active" data-subset="all">All</button>
+                <button class="print-subset-btn" data-subset="odd">Odd</button>
+                <button class="print-subset-btn" data-subset="even">Even</button>
+              </div>
+              <label class="print-checkbox-label"><input type="checkbox" id="print-reverse"> Reverse Order</label>
+            </div>
+          </fieldset>
+
+          <!-- Page Placement and Scaling group -->
+          <fieldset class="print-group">
+            <legend>Page Placement and Scaling</legend>
+            <div class="print-row">
+              <label class="print-label">Type:</label>
+              <select id="print-scaling" class="print-select">
+                <option value="fit">Fit to Printer Margins</option>
+                <option value="actual">Actual Size</option>
+                <option value="shrink">Shrink Oversized Pages</option>
+                <option value="custom-scale">Custom Scale</option>
+              </select>
+            </div>
+            <div class="print-row print-zoom-row">
+              <label class="print-label">Page Zoom:</label>
+              <input type="number" id="print-zoom" class="print-input" value="100" min="10" max="400" disabled>%
+            </div>
+            <div class="print-row print-checkbox-row">
+              <label class="print-checkbox-label"><input type="checkbox" id="print-auto-rotate" checked> Auto-Rotate Page on Paper</label>
+            </div>
+            <div class="print-row print-checkbox-row">
+              <label class="print-checkbox-label"><input type="checkbox" id="print-auto-center" checked> Auto-Center Page on Paper</label>
+            </div>
+          </fieldset>
+
+          <!-- Advanced group -->
+          <fieldset class="print-group">
+            <legend>Advanced Print Options</legend>
+            <div class="print-row">
+              <label class="print-label">Print:</label>
+              <select id="print-content" class="print-select">
+                <option value="doc-and-markups">Document and Markups</option>
+                <option value="document">Document</option>
+              </select>
+            </div>
+            <div class="print-row print-checkbox-row">
+              <label class="print-checkbox-label"><input type="checkbox" id="print-as-image"> Print as Image</label>
+            </div>
+          </fieldset>
+
+          <div class="print-status" id="print-status" style="display: none;"></div>
+        </div>
+
+        <!-- Right panel: preview -->
+        <div class="print-preview-panel">
+          <div class="print-preview-header">
+            <span id="print-preview-paper">Paper: 'Letter'</span>
+          </div>
+          <div class="print-preview-container">
+            <canvas id="print-preview-canvas"></canvas>
+          </div>
+          <div class="print-preview-footer">
+            <span>Page: <span id="print-preview-page-num">1</span> of <span id="print-preview-total">1</span></span>
+            <div class="print-preview-nav">
+              <button class="print-preview-nav-btn" id="print-preview-prev" title="Previous page">&lt;</button>
+              <button class="print-preview-nav-btn" id="print-preview-next" title="Next page">&gt;</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="print-footer">
+        <div class="print-footer-left">
+          <span class="print-page-info" id="print-page-info"></span>
+        </div>
+        <div class="print-footer-right">
+          <button class="pref-btn pref-btn-primary" id="print-ok-btn">Print</button>
+          <button class="pref-btn pref-btn-secondary" id="print-cancel-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page Setup Dialog -->
+  <div class="page-setup-overlay" id="page-setup-dialog">
+    <div class="page-setup-dialog">
+      <div class="page-setup-header">
+        <h2>Page Setup</h2>
+        <button class="page-setup-close-btn" id="page-setup-close-btn">&times;</button>
+      </div>
+      <div class="page-setup-content">
+        <div class="page-setup-preview-box">
+          <canvas id="page-setup-preview-canvas" width="160" height="200"></canvas>
+        </div>
+        <fieldset class="page-setup-group">
+          <legend>Paper</legend>
+          <div class="page-setup-row">
+            <label class="page-setup-label">Size:</label>
+            <select id="page-setup-size" class="page-setup-select">
+              <option value="a3">A3 (297 x 420 mm)</option>
+              <option value="a4" selected>A4 (210 x 297 mm)</option>
+              <option value="a5">A5 (148 x 210 mm)</option>
+              <option value="letter">Letter (216 x 279 mm)</option>
+              <option value="legal">Legal (216 x 356 mm)</option>
+              <option value="tabloid">Tabloid (279 x 432 mm)</option>
+            </select>
+          </div>
+          <div class="page-setup-row">
+            <label class="page-setup-label">Source:</label>
+            <select id="page-setup-source" class="page-setup-select">
+              <option value="auto">Automatically Select</option>
+              <option value="tray1">Tray 1</option>
+              <option value="tray2">Tray 2</option>
+              <option value="manual">Manual Feed</option>
+            </select>
+          </div>
+        </fieldset>
+        <div class="page-setup-bottom">
+          <fieldset class="page-setup-group page-setup-orientation-group">
+            <legend>Orientation</legend>
+            <label class="page-setup-radio-label">
+              <input type="radio" name="page-setup-orient" value="portrait" checked> Portrait
+            </label>
+            <label class="page-setup-radio-label">
+              <input type="radio" name="page-setup-orient" value="landscape"> Landscape
+            </label>
+          </fieldset>
+          <fieldset class="page-setup-group page-setup-margins-group">
+            <legend>Margins (millimeters)</legend>
+            <div class="page-setup-margins-grid">
+              <label class="page-setup-margin-label">Left:</label>
+              <input type="number" id="page-setup-margin-left" class="page-setup-margin-input" value="25" min="0" max="200">
+              <label class="page-setup-margin-label">Right:</label>
+              <input type="number" id="page-setup-margin-right" class="page-setup-margin-input" value="25" min="0" max="200">
+              <label class="page-setup-margin-label">Top:</label>
+              <input type="number" id="page-setup-margin-top" class="page-setup-margin-input" value="25" min="0" max="200">
+              <label class="page-setup-margin-label">Bottom:</label>
+              <input type="number" id="page-setup-margin-bottom" class="page-setup-margin-input" value="25" min="0" max="200">
+            </div>
+          </fieldset>
+        </div>
+      </div>
+      <div class="page-setup-footer">
+        <div></div>
+        <div class="page-setup-footer-right">
+          <button class="pref-btn pref-btn-primary" id="page-setup-ok-btn">OK</button>
+          <button class="pref-btn pref-btn-secondary" id="page-setup-cancel-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Watermark Dialog -->
+  <div class="watermark-overlay" id="watermark-dialog">
+    <div class="watermark-dialog">
+      <div class="watermark-header">
+        <h2>Add Watermark</h2>
+        <button class="watermark-close-btn" id="watermark-close-btn">&times;</button>
+      </div>
+      <div class="watermark-content">
+        <div class="watermark-tabs">
+          <button class="watermark-tab active" data-wm-tab="text">Text</button>
+          <button class="watermark-tab" data-wm-tab="image">Image</button>
+        </div>
+        <div class="watermark-tab-content active" id="wm-tab-text">
+          <div class="watermark-form">
+            <div class="watermark-row">
+              <label class="watermark-label">Text:</label>
+              <input type="text" id="wm-text" class="watermark-input" value="DRAFT" placeholder="Watermark text">
+            </div>
+            <div class="watermark-row">
+              <label class="watermark-label">Font:</label>
+              <select id="wm-font" class="watermark-select">
+                <option value="Helvetica">Helvetica</option>
+                <option value="Arial">Arial</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier">Courier</option>
+                <option value="Georgia">Georgia</option>
+              </select>
+            </div>
+            <div class="watermark-row">
+              <label class="watermark-label">Font Size:</label>
+              <input type="number" id="wm-font-size" class="watermark-input watermark-input-sm" value="72" min="8" max="200">
+            </div>
+            <div class="watermark-row">
+              <label class="watermark-label">Color:</label>
+              <input type="color" id="wm-color" class="watermark-color" value="#ff0000">
+            </div>
+            <div class="watermark-row">
+              <label class="watermark-label">Opacity:</label>
+              <input type="range" id="wm-opacity" class="watermark-slider" min="0" max="100" value="30">
+              <span id="wm-opacity-val" class="watermark-slider-val">30%</span>
+            </div>
+            <div class="watermark-row">
+              <label class="watermark-label">Rotation:</label>
+              <input type="number" id="wm-rotation" class="watermark-input watermark-input-sm" value="-45" min="-180" max="180">&deg;
+            </div>
+            <div class="watermark-row">
+              <label class="watermark-label">Position:</label>
+              <select id="wm-position" class="watermark-select">
+                <option value="center">Center</option>
+                <option value="top-left">Top Left</option>
+                <option value="top-right">Top Right</option>
+                <option value="bottom-left">Bottom Left</option>
+                <option value="bottom-right">Bottom Right</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+            <div class="watermark-row wm-custom-pos" style="display:none">
+              <label class="watermark-label">X / Y:</label>
+              <input type="number" id="wm-custom-x" class="watermark-input watermark-input-sm" value="0">
+              <input type="number" id="wm-custom-y" class="watermark-input watermark-input-sm" value="0">
+            </div>
+            <div class="watermark-row">
+              <label class="watermark-label">Layer:</label>
+              <select id="wm-layer" class="watermark-select">
+                <option value="behind">Behind content</option>
+                <option value="infront">In front of content</option>
+              </select>
+            </div>
+            <div class="watermark-row">
+              <label class="watermark-label">Pages:</label>
+              <select id="wm-page-range" class="watermark-select">
+                <option value="all">All pages</option>
+                <option value="first">First page only</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+            <div class="watermark-row wm-custom-pages" style="display:none">
+              <label class="watermark-label">Range:</label>
+              <input type="text" id="wm-custom-pages" class="watermark-input" placeholder="e.g. 1-5, 8">
+            </div>
+          </div>
+        </div>
+        <div class="watermark-tab-content" id="wm-tab-image">
+          <div class="watermark-form">
+            <div class="watermark-row">
+              <label class="watermark-label">Image:</label>
+              <button class="pref-btn pref-btn-secondary" id="wm-img-pick">Choose Image...</button>
+              <input type="file" id="wm-img-file" accept="image/*" style="display:none">
+            </div>
+            <div class="watermark-row" id="wm-img-preview-row" style="display:none">
+              <label class="watermark-label"></label>
+              <img id="wm-img-preview" class="watermark-img-preview">
+            </div>
+            <div class="watermark-row">
+              <label class="watermark-label">Opacity:</label>
+              <input type="range" id="wm-img-opacity" class="watermark-slider" min="0" max="100" value="20">
+              <span id="wm-img-opacity-val" class="watermark-slider-val">20%</span>
+            </div>
+            <div class="watermark-row">
+              <label class="watermark-label">Scale:</label>
+              <input type="range" id="wm-img-scale" class="watermark-slider" min="10" max="300" value="100">
+              <span id="wm-img-scale-val" class="watermark-slider-val">100%</span>
+            </div>
+            <div class="watermark-row">
+              <label class="watermark-label">Rotation:</label>
+              <input type="number" id="wm-img-rotation" class="watermark-input watermark-input-sm" value="0" min="-180" max="180">&deg;
+            </div>
+            <div class="watermark-row">
+              <label class="watermark-label">Position:</label>
+              <select id="wm-img-position" class="watermark-select">
+                <option value="center">Center</option>
+                <option value="top-left">Top Left</option>
+                <option value="top-right">Top Right</option>
+                <option value="bottom-left">Bottom Left</option>
+                <option value="bottom-right">Bottom Right</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+            <div class="watermark-row wm-img-custom-pos" style="display:none">
+              <label class="watermark-label">X / Y:</label>
+              <input type="number" id="wm-img-custom-x" class="watermark-input watermark-input-sm" value="0">
+              <input type="number" id="wm-img-custom-y" class="watermark-input watermark-input-sm" value="0">
+            </div>
+            <div class="watermark-row">
+              <label class="watermark-label">Layer:</label>
+              <select id="wm-img-layer" class="watermark-select">
+                <option value="behind">Behind content</option>
+                <option value="infront">In front of content</option>
+              </select>
+            </div>
+            <div class="watermark-row">
+              <label class="watermark-label">Pages:</label>
+              <select id="wm-img-page-range" class="watermark-select">
+                <option value="all">All pages</option>
+                <option value="first">First page only</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+            <div class="watermark-row wm-img-custom-pages" style="display:none">
+              <label class="watermark-label">Range:</label>
+              <input type="text" id="wm-img-custom-pages" class="watermark-input" placeholder="e.g. 1-5, 8">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="watermark-footer">
+        <div class="watermark-footer-left"></div>
+        <div class="watermark-footer-right">
+          <button class="pref-btn pref-btn-primary" id="wm-add-btn">Add</button>
+          <button class="pref-btn pref-btn-secondary" id="wm-cancel-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header/Footer Dialog -->
+  <div class="header-footer-overlay" id="header-footer-dialog">
+    <div class="header-footer-dialog">
+      <div class="header-footer-header">
+        <h2>Add Header/Footer</h2>
+        <button class="header-footer-close-btn" id="hf-close-btn">&times;</button>
+      </div>
+      <div class="header-footer-content">
+        <div class="watermark-form">
+          <div class="hf-section-label">Header</div>
+          <div class="hf-row-triple">
+            <div class="hf-field">
+              <label>Left</label>
+              <input type="text" id="hf-header-left" class="hf-input" placeholder="Left header">
+            </div>
+            <div class="hf-field">
+              <label>Center</label>
+              <input type="text" id="hf-header-center" class="hf-input" placeholder="Center header">
+            </div>
+            <div class="hf-field">
+              <label>Right</label>
+              <input type="text" id="hf-header-right" class="hf-input" placeholder="Right header">
+            </div>
+          </div>
+          <div class="hf-section-label">Footer</div>
+          <div class="hf-row-triple">
+            <div class="hf-field">
+              <label>Left</label>
+              <input type="text" id="hf-footer-left" class="hf-input" placeholder="Left footer">
+            </div>
+            <div class="hf-field">
+              <label>Center</label>
+              <input type="text" id="hf-footer-center" class="hf-input" placeholder="Center footer">
+            </div>
+            <div class="hf-field">
+              <label>Right</label>
+              <input type="text" id="hf-footer-right" class="hf-input" placeholder="Right footer">
+            </div>
+          </div>
+          <div class="hf-variables">
+            <label>Insert Variable:</label>
+            <button class="hf-var-btn" data-var="{page}">{page}</button>
+            <button class="hf-var-btn" data-var="{pages}">{pages}</button>
+            <button class="hf-var-btn" data-var="{date}">{date}</button>
+            <button class="hf-var-btn" data-var="{time}">{time}</button>
+            <button class="hf-var-btn" data-var="{filename}">{filename}</button>
+          </div>
+          <div class="watermark-row">
+            <label class="watermark-label">Font:</label>
+            <select id="hf-font" class="watermark-select">
+              <option value="Helvetica">Helvetica</option>
+              <option value="Arial">Arial</option>
+              <option value="Times New Roman">Times New Roman</option>
+              <option value="Courier">Courier</option>
+            </select>
+          </div>
+          <div class="watermark-row">
+            <label class="watermark-label">Font Size:</label>
+            <input type="number" id="hf-font-size" class="watermark-input watermark-input-sm" value="10" min="6" max="36">
+          </div>
+          <div class="watermark-row">
+            <label class="watermark-label">Color:</label>
+            <input type="color" id="hf-color" class="watermark-color" value="#000000">
+          </div>
+          <div class="hf-margins">
+            <label class="watermark-label">Margins:</label>
+            <div class="hf-margin-fields">
+              <label>Top <input type="number" id="hf-margin-top" class="watermark-input watermark-input-sm" value="30" min="0"></label>
+              <label>Bottom <input type="number" id="hf-margin-bottom" class="watermark-input watermark-input-sm" value="30" min="0"></label>
+              <label>Left <input type="number" id="hf-margin-left" class="watermark-input watermark-input-sm" value="40" min="0"></label>
+              <label>Right <input type="number" id="hf-margin-right" class="watermark-input watermark-input-sm" value="40" min="0"></label>
+            </div>
+          </div>
+          <div class="watermark-row">
+            <label class="watermark-label">Pages:</label>
+            <select id="hf-page-range" class="watermark-select">
+              <option value="all">All pages</option>
+              <option value="first">First page only</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          <div class="watermark-row hf-custom-pages" style="display:none">
+            <label class="watermark-label">Range:</label>
+            <input type="text" id="hf-custom-pages" class="watermark-input" placeholder="e.g. 1-5, 8">
+          </div>
+        </div>
+      </div>
+      <div class="watermark-footer">
+        <div class="watermark-footer-left"></div>
+        <div class="watermark-footer-right">
+          <button class="pref-btn pref-btn-primary" id="hf-add-btn">Add</button>
+          <button class="pref-btn pref-btn-secondary" id="hf-cancel-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manage Watermarks Dialog -->
+  <div class="manage-wm-overlay" id="manage-watermarks-dialog">
+    <div class="manage-wm-dialog">
+      <div class="manage-wm-header">
+        <h2>Manage Watermarks</h2>
+        <button class="manage-wm-close-btn" id="manage-wm-close-btn">&times;</button>
+      </div>
+      <div class="manage-wm-content">
+        <div class="manage-wm-list" id="manage-wm-list">
+          <div class="manage-wm-empty">No watermarks added yet.</div>
+        </div>
+      </div>
+      <div class="watermark-footer">
+        <div class="watermark-footer-left"></div>
+        <div class="watermark-footer-right">
+          <button class="pref-btn pref-btn-secondary" id="manage-wm-close-btn2">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Signature Dialog -->
   <div class="sig-overlay" id="sig-dialog">
     <div class="sig-dialog">
@@ -2400,6 +3061,7 @@
           <button class="pref-tab" data-pref-tab="markup">Markup</button>
           <button class="pref-tab" data-pref-tab="behavior">Behavior</button>
           <button class="pref-tab" data-pref-tab="fileassoc">File Association</button>
+          <button class="pref-tab" data-pref-tab="vprinter">Virtual Printer</button>
         </div>
 
         <!-- General Tab -->
@@ -3278,6 +3940,31 @@
             </p>
           </div>
         </div>
+
+        <!-- Virtual Printer Tab -->
+        <div class="pref-tab-content" id="pref-tab-vprinter">
+          <div class="preferences-section">
+            <h3>Virtual Printer</h3>
+            <p style="font-size: 11px; color: #555; margin-bottom: 12px; line-height: 1.4;">
+              Install "Open PDF Studio" as a Windows printer. When you print from any application (Word, Chrome, Notepad, etc.) and select this printer, the output PDF will open automatically in this app.
+            </p>
+            <div class="pref-row">
+              <label>Status:</label>
+              <span id="pref-vprinter-status" style="font-size: 11px; color: #666;">Checking...</span>
+            </div>
+            <div class="pref-row" style="margin-top: 12px;">
+              <button type="button" class="pref-btn pref-btn-primary" id="pref-vprinter-install-btn" style="width: 100%; display: none;">
+                Install Virtual Printer
+              </button>
+              <button type="button" class="pref-btn pref-btn-secondary" id="pref-vprinter-remove-btn" style="width: 100%; display: none;">
+                Remove Virtual Printer
+              </button>
+            </div>
+            <p style="font-size: 10px; color: #888; margin-top: 12px; line-height: 1.4;">
+              Installation requires administrator privileges (UAC prompt). The printer uses the built-in "Microsoft Print to PDF" driver.
+            </p>
+          </div>
+        </div>
       </div>
       <div class="preferences-footer">
         <button class="pref-btn pref-btn-secondary" id="pref-reset-btn">Reset to Defaults</button>
@@ -3806,6 +4493,17 @@
           </span>
           <span class="backstage-item-label">Save As...</span>
           <span class="backstage-item-shortcut">Ctrl+Shift+S</span>
+        </button>
+        <button class="backstage-item" id="bs-print">
+          <span class="backstage-item-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 6 2 18 2 18 9"/>
+              <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
+              <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+          </span>
+          <span class="backstage-item-label">Print</span>
+          <span class="backstage-item-shortcut">Ctrl+P</span>
         </button>
         <div class="backstage-divider"></div>
         <button class="backstage-item" id="bs-import">

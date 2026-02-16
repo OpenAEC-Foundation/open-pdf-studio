@@ -11,12 +11,13 @@ import { loadPreferences, savePreferences } from './core/preferences.js';
 import { initCanvasContexts } from './ui/dom-elements.js';
 
 // UI initialization
-import { initAboutDialog, initDocPropertiesDialog, initNewDocDialog, initExportDialog } from './ui/chrome/dialogs.js';
+import { initAboutDialog, initDocPropertiesDialog, initNewDocDialog, initExportDialog, initInsertPageDialog, initExtractPagesDialog, initMergePdfsDialog, initPrintDialog, initPageSetupDialog } from './ui/chrome/dialogs.js';
 import { initSignatureDialog } from './annotations/signature.js';
 import { initMenus } from './ui/chrome/menus.js';
 import { initRibbon } from './ui/chrome/ribbon.js';
 import { initContextMenus } from './ui/chrome/context-menus.js';
 import { initAnnotationsList } from './ui/panels/annotations-list.js';
+import { initWatermarkDialog, initHeaderFooterDialog, initManageWatermarksDialog } from './watermark/watermark-dialog.js';
 import { initAttachments } from './ui/panels/attachments.js';
 import { initLinks } from './ui/panels/links.js';
 import { initAllColorPalettes, initAllPrefColorPalettes } from './ui/panels/color-palette.js';
@@ -78,8 +79,16 @@ async function init() {
   initNewDocDialog();
   initSignatureDialog();
   initExportDialog();
+  initInsertPageDialog();
+  initExtractPagesDialog();
+  initMergePdfsDialog();
+  initPrintDialog();
+  initPageSetupDialog();
   initContextMenus();
   initAnnotationsList();
+  initWatermarkDialog();
+  initHeaderFooterDialog();
+  initManageWatermarksDialog();
   initAttachments();
   initLinks();
   initAllColorPalettes();

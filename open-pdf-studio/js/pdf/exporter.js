@@ -46,7 +46,7 @@ export function parsePageRange(rangeStr, totalPages) {
  * @param {number} exportScale - Scale factor (e.g. 300/72 for 300 DPI)
  * @returns {Promise<HTMLCanvasElement>} The rendered canvas
  */
-async function renderPageOffscreen(pageNum, exportScale) {
+export async function renderPageOffscreen(pageNum, exportScale) {
   const page = await state.pdfDoc.getPage(pageNum);
   const extraRotation = getPageRotation(pageNum);
   const viewportOpts = { scale: exportScale };
@@ -99,7 +99,7 @@ async function renderPageOffscreen(pageNum, exportScale) {
  * @param {number} quality - JPEG quality (0-1)
  * @returns {Promise<Uint8Array>}
  */
-function canvasToBytes(canvas, format, quality) {
+export function canvasToBytes(canvas, format, quality) {
   return new Promise((resolve, reject) => {
     const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
     canvas.toBlob(

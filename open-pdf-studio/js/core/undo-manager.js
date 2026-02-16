@@ -55,6 +55,13 @@ export async function undo() {
   const redoStack = getRedoStack();
   redoStack.push(cmd);
 
+  if (cmd.type === 'pageStructure') {
+    const { restorePageState } = await import('../pdf/page-manager.js');
+    await restorePageState(cmd.oldBytes, cmd.oldAnnotations, cmd.oldRotations, cmd.oldPage);
+    updateButtons();
+    return;
+  }
+
   applyUndo(cmd);
   markDocumentModified();
 
@@ -81,6 +88,13 @@ export async function redo() {
   const cmd = redoStack.pop();
   const undoStack = getUndoStack();
   undoStack.push(cmd);
+
+  if (cmd.type === 'pageStructure') {
+    const { restorePageState } = await import('../pdf/page-manager.js');
+    await restorePageState(cmd.newBytes, cmd.newAnnotations, cmd.newRotations, cmd.newPage);
+    updateButtons();
+    return;
+  }
 
   applyRedo(cmd);
   markDocumentModified();
@@ -164,6 +178,33 @@ function applyUndo(cmd) {
       }
       break;
     }
+    case 'addTextEdit': {
+      if (!doc.textEdits) doc.textEdits = [];
+      const idx = doc.textEdits.findIndex(e => e.id === cmd.textEdit.id);
+      if (idx !== -1) doc.textEdits.splice(idx, 1);
+      break;
+    }
+    case 'removeTextEdit': {
+      if (!doc.textEdits) doc.textEdits = [];
+      const insertIdx = Math.min(cmd.index, doc.textEdits.length);
+      doc.textEdits.splice(insertIdx, 0, { ...cmd.textEdit });
+      break;
+    }
+    case 'addWatermark': {
+      const idx = doc.watermarks.findIndex(w => w.id === cmd.watermark.id);
+      if (idx !== -1) doc.watermarks.splice(idx, 1);
+      break;
+    }
+    case 'removeWatermark': {
+      const insertIdx = Math.min(cmd.index, doc.watermarks.length);
+      doc.watermarks.splice(insertIdx, 0, { ...cmd.watermark });
+      break;
+    }
+    case 'modifyWatermark': {
+      const idx = doc.watermarks.findIndex(w => w.id === cmd.id);
+      if (idx !== -1) Object.assign(doc.watermarks[idx], cmd.oldState);
+      break;
+    }
   }
 }
 
@@ -219,6 +260,31 @@ function applyRedo(cmd) {
       for (const item of cmd.items) {
         doc.annotations.push(cloneAnnotation(item.annotation));
       }
+      break;
+    }
+    case 'addTextEdit': {
+      if (!doc.textEdits) doc.textEdits = [];
+      doc.textEdits.push({ ...cmd.textEdit });
+      break;
+    }
+    case 'removeTextEdit': {
+      if (!doc.textEdits) doc.textEdits = [];
+      const idx = doc.textEdits.findIndex(e => e.id === cmd.textEdit.id);
+      if (idx !== -1) doc.textEdits.splice(idx, 1);
+      break;
+    }
+    case 'addWatermark': {
+      doc.watermarks.push({ ...cmd.watermark });
+      break;
+    }
+    case 'removeWatermark': {
+      const idx = doc.watermarks.findIndex(w => w.id === cmd.watermark.id);
+      if (idx !== -1) doc.watermarks.splice(idx, 1);
+      break;
+    }
+    case 'modifyWatermark': {
+      const idx = doc.watermarks.findIndex(w => w.id === cmd.id);
+      if (idx !== -1) Object.assign(doc.watermarks[idx], cmd.newState);
       break;
     }
   }
@@ -377,4 +443,32 @@ export function flushPropertyChange() {
   pendingPropertyChange = null;
   clearTimeout(propertyChangeTimer);
   updateButtons();
+}
+
+// Watermark undo/redo helpers
+export function recordAddWatermark(watermark) {
+  execute({ type: 'addWatermark', watermark: { ...watermark } });
+}
+
+export function recordRemoveWatermark(watermark, index) {
+  execute({ type: 'removeWatermark', watermark: { ...watermark }, index });
+}
+
+export function recordModifyWatermark(id, oldState, newState) {
+  execute({ type: 'modifyWatermark', id, oldState: { ...oldState }, newState: { ...newState } });
+}
+
+// Record a page structure change (insert, delete, reorder) for undo/redo
+export function recordPageStructure(oldBytes, oldAnnotations, oldRotations, oldPage, newBytes, newAnnotations, newRotations, newPage) {
+  execute({
+    type: 'pageStructure',
+    oldBytes: oldBytes,
+    oldAnnotations: oldAnnotations.map(a => ({ ...a })),
+    oldRotations: { ...oldRotations },
+    oldPage: oldPage,
+    newBytes: newBytes,
+    newAnnotations: newAnnotations.map(a => ({ ...a })),
+    newRotations: { ...newRotations },
+    newPage: newPage,
+  });
 }

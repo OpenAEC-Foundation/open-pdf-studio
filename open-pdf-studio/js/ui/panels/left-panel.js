@@ -1,5 +1,7 @@
 import { state, getActiveDocument, getPageRotation } from '../../core/state.js';
 import { goToPage } from '../../pdf/renderer.js';
+import { reorderPages, deletePages, replacePages, copyPage, cutPage, pastePage, getPageClipboard } from '../../pdf/page-manager.js';
+import { showInsertPageDialog, showExtractPagesDialog } from '../chrome/dialogs.js';
 import { updateAnnotationsList } from './annotations-list.js';
 import { updateAttachmentsList } from './attachments.js';
 import { updateSignaturesList } from './signatures.js';
@@ -468,11 +470,282 @@ function displayCachedThumbnail(placeholder, imageData) {
   canvas.replaceWith(img);
 }
 
+// Drag-and-drop state for thumbnail reordering
+let draggedPageNum = null;
+
+function handleThumbnailDragStart(e) {
+  const item = e.target.closest('.thumbnail-item');
+  if (!item) return;
+  draggedPageNum = parseInt(item.dataset.page);
+  item.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', String(draggedPageNum));
+}
+
+function handleThumbnailDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+
+  const item = e.target.closest('.thumbnail-item');
+  if (!item || !thumbnailsContainer) return;
+
+  // Clear existing indicators
+  thumbnailsContainer.querySelectorAll('.drop-before, .drop-after').forEach(el => {
+    el.classList.remove('drop-before', 'drop-after');
+  });
+
+  const targetPage = parseInt(item.dataset.page);
+  if (targetPage === draggedPageNum) return;
+
+  // Determine drop position (before or after) based on mouse Y position
+  const rect = item.getBoundingClientRect();
+  const midY = rect.top + rect.height / 2;
+  if (e.clientY < midY) {
+    item.classList.add('drop-before');
+  } else {
+    item.classList.add('drop-after');
+  }
+}
+
+function handleThumbnailDragLeave(e) {
+  const item = e.target.closest('.thumbnail-item');
+  if (item) {
+    item.classList.remove('drop-before', 'drop-after');
+  }
+}
+
+async function handleThumbnailDrop(e) {
+  e.preventDefault();
+  if (!thumbnailsContainer) return;
+
+  // Clear all indicators
+  thumbnailsContainer.querySelectorAll('.dragging, .drop-before, .drop-after').forEach(el => {
+    el.classList.remove('dragging', 'drop-before', 'drop-after');
+  });
+
+  const item = e.target.closest('.thumbnail-item');
+  if (!item || draggedPageNum === null) return;
+
+  const targetPage = parseInt(item.dataset.page);
+  if (targetPage === draggedPageNum) return;
+
+  const numPages = state.pdfDoc?.numPages;
+  if (!numPages) return;
+
+  // Determine drop position
+  const rect = item.getBoundingClientRect();
+  const midY = rect.top + rect.height / 2;
+  const dropBefore = e.clientY < midY;
+
+  // Build new page order
+  const currentOrder = [];
+  for (let i = 1; i <= numPages; i++) currentOrder.push(i);
+
+  // Remove dragged page from its position
+  const fromIdx = currentOrder.indexOf(draggedPageNum);
+  currentOrder.splice(fromIdx, 1);
+
+  // Find where target page is now (after removal)
+  let toIdx = currentOrder.indexOf(targetPage);
+  if (!dropBefore) toIdx++;
+
+  // Insert dragged page at new position
+  currentOrder.splice(toIdx, 0, draggedPageNum);
+
+  draggedPageNum = null;
+
+  await reorderPages(currentOrder);
+}
+
+function handleThumbnailDragEnd() {
+  draggedPageNum = null;
+  if (thumbnailsContainer) {
+    thumbnailsContainer.querySelectorAll('.dragging, .drop-before, .drop-after').forEach(el => {
+      el.classList.remove('dragging', 'drop-before', 'drop-after');
+    });
+  }
+}
+
+// Thumbnail context menu
+let thumbnailContextMenu = null;
+let contextMenuTargetPage = null;
+
+function getThumbnailContextMenu() {
+  if (!thumbnailContextMenu) {
+    thumbnailContextMenu = document.createElement('div');
+    thumbnailContextMenu.className = 'context-menu';
+    document.body.appendChild(thumbnailContextMenu);
+
+    document.addEventListener('click', (e) => {
+      if (thumbnailContextMenu && !thumbnailContextMenu.contains(e.target)) {
+        hideThumbnailContextMenu();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        hideThumbnailContextMenu();
+      }
+    });
+  }
+  return thumbnailContextMenu;
+}
+
+function hideThumbnailContextMenu() {
+  if (thumbnailContextMenu) {
+    thumbnailContextMenu.style.display = 'none';
+  }
+}
+
+// SVG icons for thumbnail context menu (16x16 viewBox, fill="currentColor")
+const PAGE_MENU_ICONS = {
+  cut: '<svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2.5a2.5 2.5 0 1 1 3.164 2.414L8.5 7.25l1.336-2.336a2.5 2.5 0 1 1 1.414 0L9.914 7.25 13 12.5V14H3v-1.5L6.086 7.25 4.75 4.914A2.5 2.5 0 0 1 4 2.5zm2.5 1a1 1 0 1 0-2 0 1 1 0 0 0 2 0zm5 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0z"/></svg>',
+  copy: '<svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6z"/><path d="M2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1H2z"/></svg>',
+  paste: '<svg viewBox="0 0 16 16" fill="currentColor"><path d="M10 1.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-1zm-5 0A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5v1A1.5 1.5 0 0 1 9.5 4h-3A1.5 1.5 0 0 1 5 2.5v-1zm-2 0h1v1A2.5 2.5 0 0 0 6.5 5h3A2.5 2.5 0 0 0 12 2.5v-1h1a2 2 0 0 1 2 2V14a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3.5a2 2 0 0 1 2-2z"/></svg>',
+  insert: '<svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 0h5.5L14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5H9.5V1z"/><path d="M8 6.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V11a.5.5 0 0 1-1 0V9.5H6a.5.5 0 0 1 0-1h1.5V7a.5.5 0 0 1 .5-.5z"/></svg>',
+  extract: '<svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 0h5.5L14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5H9.5V1z"/><path d="M8 12a.5.5 0 0 0 .5-.5V8.207l1.146 1.147a.5.5 0 0 0 .708-.708l-2-2a.5.5 0 0 0-.708 0l-2 2a.5.5 0 1 0 .708.708L7.5 8.207V11.5a.5.5 0 0 0 .5.5z"/></svg>',
+  replace: '<svg viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M1 11.5a.5.5 0 0 0 .5.5h11.793l-3.147 3.146a.5.5 0 0 0 .708.708l4-4a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 11H1.5a.5.5 0 0 0-.5.5zm14-7a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 1 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 4H14.5a.5.5 0 0 1 .5.5z"/></svg>',
+  delete: '<svg viewBox="0 0 16 16" fill="currentColor"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1z"/></svg>',
+  properties: '<svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg>',
+};
+
+function createContextMenuItem(label, icon, action, disabled = false) {
+  const item = document.createElement('div');
+  item.className = 'context-menu-item' + (disabled ? ' disabled' : '');
+
+  const iconEl = document.createElement('span');
+  iconEl.className = 'context-menu-icon';
+  iconEl.innerHTML = icon;
+  item.appendChild(iconEl);
+
+  const labelEl = document.createElement('span');
+  labelEl.className = 'context-menu-label';
+  labelEl.textContent = label;
+  item.appendChild(labelEl);
+
+  if (!disabled) {
+    item.addEventListener('click', async () => {
+      hideThumbnailContextMenu();
+      await action();
+    });
+  }
+
+  return item;
+}
+
+function addSeparator(menu) {
+  const sep = document.createElement('div');
+  sep.className = 'context-menu-separator';
+  menu.appendChild(sep);
+}
+
+function showThumbnailContextMenu(e, pageNum) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  if (!state.pdfDoc) return;
+
+  contextMenuTargetPage = pageNum;
+  const menu = getThumbnailContextMenu();
+  menu.innerHTML = '';
+  const isLastPage = state.pdfDoc.numPages <= 1;
+  const clipboard = getPageClipboard();
+
+  // Cut / Copy / Paste
+  menu.appendChild(createContextMenuItem('Cut', PAGE_MENU_ICONS.cut, async () => {
+    await cutPage(pageNum);
+  }, isLastPage));
+
+  menu.appendChild(createContextMenuItem('Copy', PAGE_MENU_ICONS.copy, async () => {
+    await copyPage(pageNum);
+  }));
+
+  menu.appendChild(createContextMenuItem('Paste', PAGE_MENU_ICONS.paste, async () => {
+    await pastePage(pageNum);
+  }, !clipboard));
+
+  addSeparator(menu);
+
+  // Page operations
+  menu.appendChild(createContextMenuItem('Insert Pages...', PAGE_MENU_ICONS.insert, () => {
+    showInsertPageDialog();
+  }));
+
+  menu.appendChild(createContextMenuItem('Extract Pages...', PAGE_MENU_ICONS.extract, () => {
+    showExtractPagesDialog();
+  }));
+
+  menu.appendChild(createContextMenuItem('Replace Pages...', PAGE_MENU_ICONS.replace, () => {
+    replacePages(contextMenuTargetPage);
+  }));
+
+  menu.appendChild(createContextMenuItem('Delete Pages', PAGE_MENU_ICONS.delete, async () => {
+    if (isLastPage) return;
+    const confirmed = await window.__TAURI__?.dialog?.ask(`Delete page ${pageNum}?`, { title: 'Delete Page', kind: 'warning' });
+    if (confirmed) {
+      await deletePages([pageNum]);
+    }
+  }, isLastPage));
+
+  addSeparator(menu);
+
+  // Properties
+  menu.appendChild(createContextMenuItem('Properties', PAGE_MENU_ICONS.properties, async () => {
+    await showPageProperties(pageNum);
+  }));
+
+  // Position menu at cursor
+  menu.style.left = `${e.clientX}px`;
+  menu.style.top = `${e.clientY}px`;
+  menu.style.display = 'block';
+
+  // Ensure menu stays within viewport
+  const rect = menu.getBoundingClientRect();
+  if (rect.right > window.innerWidth) {
+    menu.style.left = `${window.innerWidth - rect.width - 10}px`;
+  }
+  if (rect.bottom > window.innerHeight) {
+    menu.style.top = `${window.innerHeight - rect.height - 10}px`;
+  }
+}
+
+// Show page properties dialog
+async function showPageProperties(pageNum) {
+  if (!state.pdfDoc) return;
+  try {
+    const page = await state.pdfDoc.getPage(pageNum);
+    const rotation = getPageRotation(pageNum);
+    const viewport = page.getViewport({ scale: 1 });
+    const widthPt = viewport.width;
+    const heightPt = viewport.height;
+    const widthMm = (widthPt / 72 * 25.4).toFixed(1);
+    const heightMm = (heightPt / 72 * 25.4).toFixed(1);
+    const widthIn = (widthPt / 72).toFixed(2);
+    const heightIn = (heightPt / 72).toFixed(2);
+    const totalRotation = (page.rotate + (rotation || 0)) % 360;
+
+    const msg = `Page ${pageNum}\n\n` +
+      `Size: ${widthPt.toFixed(0)} x ${heightPt.toFixed(0)} pt\n` +
+      `Size: ${widthMm} x ${heightMm} mm\n` +
+      `Size: ${widthIn} x ${heightIn} in\n` +
+      `Rotation: ${totalRotation}\u00B0`;
+
+    if (window.__TAURI__?.dialog?.message) {
+      await window.__TAURI__.dialog.message(msg, { title: 'Page Properties', kind: 'info' });
+    } else {
+      alert(msg);
+    }
+  } catch (err) {
+    console.error('Error showing page properties:', err);
+  }
+}
+
 // Create a thumbnail placeholder with estimated size
 function createThumbnailPlaceholder(pageNum, width = 150, height = null) {
   const thumbnailItem = document.createElement('div');
   thumbnailItem.className = 'thumbnail-item';
   thumbnailItem.dataset.page = pageNum;
+  thumbnailItem.draggable = true;
 
   const estimatedWidth = width;
   const estimatedHeight = height || Math.round(width * 1.414);
@@ -496,6 +769,18 @@ function createThumbnailPlaceholder(pageNum, width = 150, height = null) {
   thumbnailItem.addEventListener('click', () => {
     goToPageFromThumbnail(pageNum);
   });
+
+  // Right-click context menu
+  thumbnailItem.addEventListener('contextmenu', (e) => {
+    showThumbnailContextMenu(e, pageNum);
+  });
+
+  // Drag-and-drop event handlers
+  thumbnailItem.addEventListener('dragstart', handleThumbnailDragStart);
+  thumbnailItem.addEventListener('dragover', handleThumbnailDragOver);
+  thumbnailItem.addEventListener('dragleave', handleThumbnailDragLeave);
+  thumbnailItem.addEventListener('drop', handleThumbnailDrop);
+  thumbnailItem.addEventListener('dragend', handleThumbnailDragEnd);
 
   return thumbnailItem;
 }

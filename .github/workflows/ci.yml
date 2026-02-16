@@ -16,6 +16,7 @@ jobs:
         include:
           - platform: 'ubuntu-22.04'
           - platform: 'windows-latest'
+          - platform: 'macos-latest'
 
     runs-on: ${{ matrix.platform }}
     defaults:
@@ -32,6 +33,10 @@ jobs:
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Rust targets (macOS universal)
+        if: matrix.platform == 'macos-latest'
+        run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
 
       - name: Install dependencies (Ubuntu only)
         if: matrix.platform == 'ubuntu-22.04'

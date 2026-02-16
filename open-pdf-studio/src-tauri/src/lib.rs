@@ -203,6 +203,258 @@ fn unlock_file(path: String, state: tauri::State<LockedFiles>) -> Result<bool, S
     Ok(true)
 }
 
+/// Enumerate installed printers via PowerShell CIM.
+/// Returns a JSON array of printer objects.
+#[tauri::command]
+fn get_printers() -> Result<String, String> {
+    #[cfg(target_os = "windows")]
+    {
+        let output = std::process::Command::new("powershell")
+            .args(&[
+                "-NoProfile", "-NonInteractive", "-Command",
+                "Get-CimInstance -ClassName Win32_Printer | Select-Object Name, DriverName, Default, PrinterStatus | ConvertTo-Json -Compress"
+            ])
+            .output()
+            .map_err(|e| format!("Failed to enumerate printers: {}", e))?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            return Err(format!("PowerShell error: {}", stderr));
+        }
+
+        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+        // PowerShell returns a single object (not array) when there's only one printer
+        let trimmed = stdout.trim();
+        if trimmed.starts_with('{') {
+            Ok(format!("[{}]", trimmed))
+        } else {
+            Ok(trimmed.to_string())
+        }
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        Ok("[]".to_string())
+    }
+}
+
+/// Print a PDF file to a specific printer using the system's default PDF handler.
+#[tauri::command]
+fn print_pdf(path: String, printer: String) -> Result<bool, String> {
+    #[cfg(target_os = "windows")]
+    {
+        std::process::Command::new("powershell")
+            .args(&[
+                "-NoProfile", "-NonInteractive", "-Command",
+                &format!(
+                    "Start-Process -FilePath '{}' -Verb PrintTo -ArgumentList '\"{}\"' -WindowStyle Hidden",
+                    path.replace('\'', "''"),
+                    printer.replace('\'', "''")
+                )
+            ])
+            .spawn()
+            .map_err(|e| format!("Failed to print: {}", e))?;
+        Ok(true)
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        Err("Printing is only supported on Windows".to_string())
+    }
+}
+
+/// Open the printer properties dialog for a given printer name.
+#[tauri::command]
+fn open_printer_properties(printer: String) -> Result<bool, String> {
+    #[cfg(target_os = "windows")]
+    {
+        // rundll32 printui.dll,PrintUIEntry /e /n "PrinterName"
+        std::process::Command::new("rundll32")
+            .args(&["printui.dll,PrintUIEntry", "/e", "/n", &printer])
+            .spawn()
+            .map_err(|e| format!("Failed to open printer properties: {}", e))?;
+        Ok(true)
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        Err("Printer properties dialog is only supported on Windows".to_string())
+    }
+}
+
+/// Get the system temp directory path.
+#[tauri::command]
+fn get_temp_dir() -> String {
+    std::env::temp_dir().to_string_lossy().to_string()
+}
+
+/// Write binary data to a temp file and return the path.
+/// This bypasses the FS plugin scope restrictions.
+#[tauri::command]
+fn write_temp_pdf(data: Vec<u8>) -> Result<String, String> {
+    let temp_dir = std::env::temp_dir();
+    let timestamp = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis())
+        .unwrap_or(0);
+    let path = temp_dir.join(format!("openstudio_print_{}.pdf", timestamp));
+    fs::write(&path, &data).map_err(|e| format!("Failed to write temp file: {}", e))?;
+    Ok(path.to_string_lossy().to_string())
+}
+
+/// Delete a file at the given path.
+#[tauri::command]
+fn delete_file(path: String) -> Result<bool, String> {
+    fs::remove_file(&path).map_err(|e| format!("Failed to delete file: {}", e))?;
+    Ok(true)
+}
+
+/// Run a PowerShell script with UAC elevation by writing it to a temp .ps1
+/// file, executing it as admin, and capturing errors via a log file.
+#[cfg(target_os = "windows")]
+fn run_elevated_ps_script(script: &str) -> Result<(), String> {
+    let temp_dir = std::env::temp_dir();
+    let timestamp = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis())
+        .unwrap_or(0);
+
+    let script_path = temp_dir.join(format!("ops_printer_{}.ps1", timestamp));
+    let log_path = temp_dir.join(format!("ops_printer_{}.log", timestamp));
+
+    // Wrap the script: redirect all errors to a log file, write "OK" on success
+    let wrapped = format!(
+        r#"try {{
+{}
+'OK' | Out-File -FilePath '{}' -Encoding UTF8
+}} catch {{
+$_.Exception.Message | Out-File -FilePath '{}' -Encoding UTF8
+exit 1
+}}"#,
+        script,
+        log_path.to_string_lossy(),
+        log_path.to_string_lossy()
+    );
+
+    fs::write(&script_path, &wrapped)
+        .map_err(|e| format!("Failed to write temp script: {}", e))?;
+
+    // Launch elevated: Start-Process -Verb RunAs -Wait on the .ps1 file
+    let output = std::process::Command::new("powershell")
+        .args(&[
+            "-NoProfile", "-NonInteractive", "-Command",
+            &format!(
+                "Start-Process powershell -Verb RunAs -Wait -ArgumentList '-NoProfile','-NonInteractive','-ExecutionPolicy','Bypass','-File','{}'",
+                script_path.to_string_lossy()
+            )
+        ])
+        .output()
+        .map_err(|e| format!("Failed to launch elevated process: {}", e))?;
+
+    // Read the log file written by the elevated process
+    let log_content = fs::read_to_string(&log_path).unwrap_or_default();
+    let log_trimmed = log_content.trim();
+
+    // Cleanup temp files
+    let _ = fs::remove_file(&script_path);
+    let _ = fs::remove_file(&log_path);
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("UAC elevation failed: {}", stderr));
+    }
+
+    if log_trimmed.is_empty() {
+        return Err("Elevated script produced no output — user may have cancelled UAC".to_string());
+    }
+
+    // Check BOM-prefixed "OK" (UTF-8 BOM from Out-File)
+    if log_trimmed == "OK" || log_trimmed.ends_with("OK") {
+        Ok(())
+    } else {
+        Err(format!("Elevated script error: {}", log_trimmed))
+    }
+}
+
+/// Install a virtual printer named "Open PDF Studio" using the built-in
+/// "Microsoft Print to PDF" driver with the PORTPROMPT: port (shows a
+/// Save As dialog with print preview, just like the stock PDF printer).
+/// Requires one-time UAC admin elevation.
+#[tauri::command]
+fn install_virtual_printer() -> Result<bool, String> {
+    #[cfg(target_os = "windows")]
+    {
+        let script = r#"$ErrorActionPreference = 'Stop'
+$printerName = 'Open PDF Studio'
+
+# Remove existing printer if present (ignore errors)
+try { Remove-Printer -Name $printerName -ErrorAction SilentlyContinue } catch {}
+
+# Create the printer using the built-in PDF driver and PORTPROMPT: port
+# PORTPROMPT: shows a Save As dialog with print preview
+Add-Printer -Name $printerName -DriverName 'Microsoft Print to PDF' -PortName 'PORTPROMPT:'"#;
+
+        run_elevated_ps_script(script)?;
+        Ok(true)
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        Err("Virtual printer is only supported on Windows".to_string())
+    }
+}
+
+/// Remove the "Open PDF Studio" virtual printer.
+/// Requires UAC admin elevation.
+#[tauri::command]
+fn remove_virtual_printer() -> Result<bool, String> {
+    #[cfg(target_os = "windows")]
+    {
+        let script = r#"$ErrorActionPreference = 'Stop'
+$printerName = 'Open PDF Studio'
+
+Remove-Printer -Name $printerName
+
+# Clean up any leftover local port from older installations
+Get-PrinterPort | Where-Object { $_.Name -like '*OpenPDFStudio*print-capture*' } | Remove-PrinterPort"#;
+
+        run_elevated_ps_script(script)?;
+        Ok(true)
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        Err("Virtual printer is only supported on Windows".to_string())
+    }
+}
+
+/// Check whether the "Open PDF Studio" virtual printer is installed.
+#[tauri::command]
+fn is_virtual_printer_installed() -> bool {
+    #[cfg(target_os = "windows")]
+    {
+        let output = std::process::Command::new("powershell")
+            .args(&[
+                "-NoProfile", "-NonInteractive", "-Command",
+                "Get-Printer -Name 'Open PDF Studio' -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name"
+            ])
+            .output();
+
+        match output {
+            Ok(o) => {
+                let stdout = String::from_utf8_lossy(&o.stdout);
+                stdout.trim() == "Open PDF Studio"
+            }
+            Err(_) => false,
+        }
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        false
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     // Check for PDF file in command line arguments
@@ -229,6 +481,7 @@ pub fn run() {
                     let _ = window.set_icon(icon);
                 }
             }
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -244,7 +497,16 @@ pub fn run() {
             lock_file,
             unlock_file,
             is_default_pdf_app,
-            open_default_apps_settings
+            open_default_apps_settings,
+            get_printers,
+            print_pdf,
+            open_printer_properties,
+            get_temp_dir,
+            write_temp_pdf,
+            delete_file,
+            install_virtual_printer,
+            remove_virtual_printer,
+            is_virtual_printer_installed
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

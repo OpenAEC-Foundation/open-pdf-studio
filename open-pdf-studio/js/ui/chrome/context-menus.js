@@ -146,8 +146,14 @@ export function showContextMenu(e, annotation) {
 
     menu.appendChild(createSeparator());
 
-    menu.appendChild(createMenuItem(`Delete ${count} Annotations`, () => {
-      if (confirm(`Delete ${count} annotations?`)) {
+    menu.appendChild(createMenuItem(`Delete ${count} Annotations`, async () => {
+      let confirmed = false;
+      if (window.__TAURI__?.dialog?.ask) {
+        confirmed = await window.__TAURI__.dialog.ask(`Delete ${count} annotations?`, { title: 'Delete Annotations', kind: 'warning' });
+      } else {
+        confirmed = confirm(`Delete ${count} annotations?`);
+      }
+      if (confirmed) {
         recordBulkDelete(state.selectedAnnotations);
         const toDelete = new Set(state.selectedAnnotations);
         state.annotations = state.annotations.filter(a => !toDelete.has(a));
@@ -233,8 +239,14 @@ export function showContextMenu(e, annotation) {
     }));
 
     // Delete
-    menu.appendChild(createMenuItem('Delete', () => {
-      if (confirm('Delete this annotation?')) {
+    menu.appendChild(createMenuItem('Delete', async () => {
+      let confirmed = false;
+      if (window.__TAURI__?.dialog?.ask) {
+        confirmed = await window.__TAURI__.dialog.ask('Delete this annotation?', { title: 'Delete Annotation', kind: 'warning' });
+      } else {
+        confirmed = confirm('Delete this annotation?');
+      }
+      if (confirmed) {
         const idx = state.annotations.indexOf(annotation);
         recordDelete(annotation, idx);
         state.annotations = state.annotations.filter(a => a !== annotation);

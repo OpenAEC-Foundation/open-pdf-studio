@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Unique deep violet to royal blue gradient -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#311B92"/>
+      <stop offset="45%" stop-color="#1A237E"/>
+      <stop offset="100%" stop-color="#1565C0"/>
+    </linearGradient>
+    <!-- Corner fold gradient -->
+    <linearGradient id="fold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E8EAF6"/>
+      <stop offset="100%" stop-color="#9FA8DA"/>
+    </linearGradient>
+    <!-- Pen body gradient -->
+    <linearGradient id="penBody" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FFB300"/>
+      <stop offset="50%" stop-color="#FFA000"/>
+      <stop offset="100%" stop-color="#FF8F00"/>
+    </linearGradient>
+    <!-- PDF badge gradient -->
+    <linearGradient id="badge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#EF5350"/>
+      <stop offset="100%" stop-color="#C62828"/>
+    </linearGradient>
+    <!-- Document shadow -->
+    <filter id="docShadow" x="-8%" y="-5%" width="120%" height="115%">
+      <feDropShadow dx="4" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+    <!-- Pen shadow -->
+    <filter id="penShadow" x="-25%" y="-8%" width="160%" height="120%">
+      <feDropShadow dx="2" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- ===== BACKGROUND ===== -->
+  <rect width="512" height="512" rx="80" fill="url(#bg)"/>
+  <!-- Subtle inner glow border -->
+  <rect x="4" y="4" width="504" height="504" rx="78" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="2"/>
+  <!-- Subtle top highlight for depth -->
+  <rect x="24" y="16" width="464" height="200" rx="70" fill="rgba(255,255,255,0.04)"/>
+
+  <!-- ===== DOCUMENT ===== -->
+  <g filter="url(#docShadow)">
+    <!-- Document body -->
+    <path d="M128 58 L310 58 L374 122 L374 450 Q374 458 366 458 L136 458 Q128 458 128 450 Z" fill="#FAFAFA"/>
+    <!-- Corner fold -->
+    <path d="M310 58 L310 114 Q310 122 318 122 L374 122 Z" fill="url(#fold)"/>
+  </g>
+
+  <!-- ===== DOCUMENT CONTENT (text lines) ===== -->
+  <rect x="162" y="152" width="178" height="12" rx="6" fill="#ADBBC5"/>
+  <rect x="162" y="182" width="148" height="12" rx="6" fill="#C5CED6"/>
+  <rect x="162" y="212" width="168" height="12" rx="6" fill="#C5CED6"/>
+  <rect x="162" y="242" width="128" height="12" rx="6" fill="#C5CED6"/>
+  <rect x="162" y="272" width="158" height="12" rx="6" fill="#C5CED6"/>
+  <rect x="162" y="302" width="108" height="12" rx="6" fill="#C5CED6"/>
+
+  <!-- ===== PDF BADGE ===== -->
+  <rect x="157" y="344" width="98" height="50" rx="8" fill="url(#badge)"/>
+  <text x="206" y="377" font-family="Segoe UI,Arial,Helvetica,sans-serif" font-weight="bold" font-size="30" fill="white" text-anchor="middle">PDF</text>
+
+  <!-- ===== EDIT STROKE (ink line near pen tip) ===== -->
+  <path d="M298 370 Q320 352 342 360" stroke="#FFB300" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.8"/>
+
+  <!-- ===== PEN / STYLUS ===== -->
+  <!-- Positioned with tip on the document, body extending upper-right -->
+  <g transform="translate(342, 366) rotate(45)" filter="url(#penShadow)">
+    <!-- Nib (tip) -->
+    <polygon points="0,0 -10,-26 10,-26" fill="#4E342E"/>
+    <polygon points="0,-4 -4,-18 4,-18" fill="#795548" opacity="0.4"/>
+
+    <!-- Metal ferrule -->
+    <rect x="-12" y="-31" width="24" height="5" rx="1" fill="#FFD54F"/>
+
+    <!-- Rubber grip -->
+    <rect x="-10" y="-55" width="20" height="24" rx="2" fill="#E65100"/>
+    <!-- Grip texture lines -->
+    <line x1="-7" y1="-50" x2="7" y2="-50" stroke="#BF360C" stroke-width="1.2" opacity="0.4"/>
+    <line x1="-7" y1="-45" x2="7" y2="-45" stroke="#BF360C" stroke-width="1.2" opacity="0.4"/>
+    <line x1="-7" y1="-40" x2="7" y2="-40" stroke="#BF360C" stroke-width="1.2" opacity="0.4"/>
+
+    <!-- Main barrel -->
+    <rect x="-12" y="-140" width="24" height="85" rx="3" fill="url(#penBody)"/>
+
+    <!-- Decorative band -->
+    <rect x="-12" y="-143" width="24" height="3" fill="#FFD54F"/>
+
+    <!-- Eraser top -->
+    <rect x="-12" y="-162" width="24" height="19" rx="5" fill="#EC407A"/>
+
+    <!-- Pen clip -->
+    <rect x="12" y="-152" width="4" height="52" rx="2" fill="#FFB300" opacity="0.65"/>
+  </g>
+</svg>

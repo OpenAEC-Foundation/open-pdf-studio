@@ -43,7 +43,7 @@ jobs:
               repo: context.repo.repo,
               tag_name: version,
               name: `OpenPDFStudio ${version}`,
-              body: `## What's New in ${version}\n\nFree, open-source PDF annotation editor built with Tauri.\n\n### Downloads\n- **Windows**: Download the \`.msi\` installer or \`.exe\` setup file\n- **Linux**: Download the \`.deb\` package or \`.AppImage\`\n\n### Features\n- PDF viewing and navigation\n- Text selection and search\n- Annotations: highlight, underline, strikethrough\n- Drawing tools: freehand, shapes, text\n- Multi-tab document support\n- Thumbnail navigation\n- Session restore`,
+              body: `## What's New in ${version}\n\nFree, open-source PDF annotation editor built with Tauri.\n\n### Downloads\n- **Windows**: Download the \`.msi\` installer or \`.exe\` setup file\n- **macOS**: Download the \`.dmg\` file (universal - supports Intel and Apple Silicon)\n- **Linux**: Download the \`.deb\` package or \`.AppImage\`\n\n### Features\n- PDF viewing and navigation\n- Text selection and search\n- Annotations: highlight, underline, strikethrough\n- Drawing tools: freehand, shapes, text\n- Multi-tab document support\n- Thumbnail navigation\n- Session restore`,
               draft: true,
               prerelease: false
             });
@@ -61,6 +61,8 @@ jobs:
             args: ''
           - platform: 'windows-latest'
             args: ''
+          - platform: 'macos-latest'
+            args: '--target universal-apple-darwin'
 
     runs-on: ${{ matrix.platform }}
     env:
@@ -81,6 +83,10 @@ jobs:
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Install Rust targets (macOS universal)
+        if: matrix.platform == 'macos-latest'
+        run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
+
       - name: Install dependencies (Ubuntu only)
         if: matrix.platform == 'ubuntu-22.04'
         run: |
@@ -96,6 +102,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectPath: open-pdf-studio
+          args: ${{ matrix.args }}
           releaseId: ${{ needs.create-release.outputs.release_id }}
           includeUpdaterJson: true
 

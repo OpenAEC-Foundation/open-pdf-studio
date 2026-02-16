@@ -272,7 +272,40 @@ export function showPreferencesDialog(tabName = 'general') {
   // Check current default PDF app
   checkDefaultPdfApp();
 
+  // Check virtual printer status
+  checkVirtualPrinterStatus();
+
   overlay.classList.add('visible');
+}
+
+// Check whether the virtual printer is installed and update UI
+async function checkVirtualPrinterStatus() {
+  const statusEl = document.getElementById('pref-vprinter-status');
+  const installBtn = document.getElementById('pref-vprinter-install-btn');
+  const removeBtn = document.getElementById('pref-vprinter-remove-btn');
+  if (!statusEl) return;
+
+  statusEl.textContent = 'Checking...';
+  if (installBtn) installBtn.style.display = 'none';
+  if (removeBtn) removeBtn.style.display = 'none';
+
+  try {
+    const { invoke } = await import('./platform.js');
+    const installed = await invoke('is_virtual_printer_installed');
+    if (installed) {
+      statusEl.textContent = 'Installed';
+      statusEl.style.color = '#2e7d32';
+      if (removeBtn) removeBtn.style.display = '';
+    } else {
+      statusEl.textContent = 'Not installed';
+      statusEl.style.color = '#666';
+      if (installBtn) installBtn.style.display = '';
+    }
+  } catch {
+    statusEl.textContent = 'Unable to detect';
+    statusEl.style.color = '#888';
+    if (installBtn) installBtn.style.display = '';
+  }
 }
 
 // Check which app is set as default for PDF files
