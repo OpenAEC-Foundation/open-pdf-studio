@@ -30,6 +30,7 @@ nul
 !open-pdf-studio/public/icon.png
 !open-pdf-studio/public/pdfjs/**
 !open-pdf-studio/src-tauri/icons/**
+!snap/gui/open-pdf-studio.png
 
 # Documentation
 CLAUDE.md
