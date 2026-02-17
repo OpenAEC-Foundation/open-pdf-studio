@@ -230,7 +230,7 @@ async function downloadAndInstall() {
 function showNoUpdateMessage() {
   if (window.__TAURI__?.dialog?.message) {
     window.__TAURI__.dialog.message(
-      'You are running the latest version of OpenPDFStudio.',
+      'You are running the latest version of Open PDF Studio.',
       { title: 'Software Update', kind: 'info' }
     );
   }

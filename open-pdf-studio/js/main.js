@@ -314,7 +314,7 @@ async function checkDefaultPdfApp() {
     // Ask the user using native Tauri dialog
     if (window.__TAURI__?.dialog?.message) {
       const result = await window.__TAURI__.dialog.message(
-        'OpenPDFStudio is not set as the default app for opening PDF files. Would you like to set it as the default?',
+        'Open PDF Studio is not set as the default app for opening PDF files. Would you like to set it as the default?',
         {
           title: 'Default PDF App',
           kind: 'info',

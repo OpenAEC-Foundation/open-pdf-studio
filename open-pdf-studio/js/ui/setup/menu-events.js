@@ -272,16 +272,16 @@ N - Note`;
       // On Windows, open the Default Apps settings
       try {
         await openExternal('ms-settings:defaultapps');
-        alert('Windows Settings opened.\n\nTo set OpenPDFStudio as default:\n1. Scroll down to "Choose default apps by file type"\n2. Find .pdf\n3. Click and select OpenPDFStudio');
+        alert('Windows Settings opened.\n\nTo set Open PDF Studio as default:\n1. Scroll down to "Choose default apps by file type"\n2. Find .pdf\n3. Click and select Open PDF Studio');
       } catch (err) {
         alert('Could not open Windows Settings.\n\nPlease manually open Settings > Apps > Default Apps.');
       }
     } else if (platform.includes('mac')) {
       // macOS
-      alert('To set OpenPDFStudio as default PDF viewer on macOS:\n\n1. Right-click any PDF file in Finder\n2. Select "Get Info"\n3. Under "Open with", select OpenPDFStudio\n4. Click "Change All..."');
+      alert('To set Open PDF Studio as default PDF viewer on macOS:\n\n1. Right-click any PDF file in Finder\n2. Select "Get Info"\n3. Under "Open with", select Open PDF Studio\n4. Click "Change All..."');
     } else {
       // Linux
-      alert('To set OpenPDFStudio as default PDF viewer on Linux:\n\nRun in terminal:\nxdg-mime default openpdfstudio.desktop application/pdf');
+      alert('To set Open PDF Studio as default PDF viewer on Linux:\n\nRun in terminal:\nxdg-mime default openpdfstudio.desktop application/pdf');
     }
   });
 

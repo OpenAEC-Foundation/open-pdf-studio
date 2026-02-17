@@ -1,0 +1,102 @@
+name: Build Snap Package
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.11.0)'
+        required: true
+        default: 'v1.11.0'
+
+jobs:
+  build-snap:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+
+    defaults:
+      run:
+        working-directory: .
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get version
+        id: get-version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "version_number=${VERSION#v}" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install frontend dependencies
+        working-directory: open-pdf-studio
+        run: npm install
+
+      - name: Build Tauri app (deb only)
+        working-directory: open-pdf-studio
+        run: npx tauri build --bundles deb
+
+      - name: Prepare snap build
+        run: |
+          # Find the built deb
+          DEB_FILE=$(find open-pdf-studio/src-tauri/target/release/bundle/deb -name "*.deb" | head -1)
+          echo "Found deb: $DEB_FILE"
+
+          # Copy deb to repo root for snapcraft
+          cp "$DEB_FILE" open-pdf-studio.deb
+
+          # Update version in snapcraft.yaml
+          sed -i "s/^version: .*/version: '${{ steps.get-version.outputs.version_number }}'/" snap/snapcraft.yaml
+
+      - name: Install Snapcraft
+        run: sudo snap install snapcraft --classic
+
+      - name: Build snap
+        run: snapcraft --destructive-mode
+
+      - name: Upload snap to GitHub release
+        run: |
+          SNAP_FILE=$(ls *.snap | head -1)
+          echo "Uploading $SNAP_FILE to release ${{ steps.get-version.outputs.version }}"
+
+          # Wait for the release to be created by the main release workflow
+          for i in $(seq 1 30); do
+            if gh release view "${{ steps.get-version.outputs.version }}" > /dev/null 2>&1; then
+              echo "Release found"
+              break
+            fi
+            echo "Waiting for release... (attempt $i/30)"
+            sleep 30
+          done
+
+          gh release upload "${{ steps.get-version.outputs.version }}" "$SNAP_FILE" --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to Snap Store
+        if: env.SNAPCRAFT_STORE_CREDENTIALS != ''
+        run: |
+          SNAP_FILE=$(ls *.snap | head -1)
+          snapcraft upload "$SNAP_FILE" --release=stable
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}

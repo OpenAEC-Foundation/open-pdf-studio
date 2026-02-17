@@ -342,7 +342,7 @@ async function checkDefaultPdfApp() {
           } else if (appName.includes('Firefox')) {
             appName = 'Mozilla Firefox';
           } else if (appName.includes('OpenPDFStudio') || appName.includes('open-pdf-studio')) {
-            appName = 'OpenPDFStudio ✓';
+            appName = 'Open PDF Studio ✓';
           } else if (appName.includes('SumatraPDF')) {
             appName = 'SumatraPDF';
           } else if (appName.includes('FoxitReader') || appName.includes('Foxit')) {

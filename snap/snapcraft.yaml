@@ -1,0 +1,43 @@
+name: open-pdf-studio
+base: core22
+version: '1.12.0'
+summary: Free, open-source PDF annotation editor
+description: |
+  Open PDF Studio is a free, open-source PDF editor and annotator
+  built with web technologies and Tauri.
+
+  Features:
+  - PDF viewing and navigation
+  - Text selection and search
+  - Annotations: highlight, underline, strikethrough
+  - Drawing tools: freehand, shapes, text
+  - Multi-tab document support
+  - Thumbnail navigation
+  - Session restore
+  - Watermarks and page management
+  - Print support
+grade: stable
+confinement: strict
+
+apps:
+  open-pdf-studio:
+    command: usr/bin/open-pdf-studio
+    desktop: usr/share/applications/open-pdf-studio.desktop
+    extensions: [gnome]
+    plugs:
+      - home
+      - removable-media
+      - network
+
+layout:
+  /usr/lib/x86_64-linux-gnu/webkit2gtk-4.1:
+    bind: $SNAP/usr/lib/x86_64-linux-gnu/webkit2gtk-4.1
+
+parts:
+  open-pdf-studio:
+    plugin: dump
+    source: open-pdf-studio.deb
+    source-type: deb
+    stage-packages:
+      - libwebkit2gtk-4.1-0
+      - libjavascriptcoregtk-4.1-0
