@@ -52,9 +52,9 @@ jobs:
         working-directory: open-pdf-studio
         run: npm install
 
-      - name: Build Tauri app (deb only)
+      - name: Build Tauri app
         working-directory: open-pdf-studio
-        run: npx tauri build --bundles deb
+        run: npx tauri build
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: 'tauri2026'
