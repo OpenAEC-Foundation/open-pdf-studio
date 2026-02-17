@@ -22,7 +22,6 @@ confinement: strict
 apps:
   open-pdf-studio:
     command: usr/bin/open-pdf-studio
-    desktop: usr/share/applications/open-pdf-studio.desktop
     extensions: [gnome]
     plugs:
       - home

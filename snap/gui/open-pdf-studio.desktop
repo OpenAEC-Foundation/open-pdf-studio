@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Open PDF Studio
+Comment=Free, open-source PDF annotation editor
+Exec=open-pdf-studio %F
+Icon=${SNAP}/usr/share/icons/hicolor/128x128/apps/open-pdf-studio.png
+Type=Application
+Categories=Office;Viewer;
+MimeType=application/pdf;
+Terminal=false
