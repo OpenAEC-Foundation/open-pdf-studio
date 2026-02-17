@@ -7,6 +7,7 @@ export function updateStatusTool() {
 
   const toolNames = {
     'select': 'Select Tool',
+    'selectComments': 'Select Comments',
     'hand': 'Hand Tool',
     'highlight': 'Highlight',
     'draw': 'Freehand',

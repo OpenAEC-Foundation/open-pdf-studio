@@ -739,7 +739,7 @@ function drawTextEdits(ctx, pageNum) {
     const coverHeight = (numOrig - 1) * ls + fontSize * 1.3;
     const origLines = edit.originalText.split('\n');
     const maxOrigLen = Math.max(...origLines.map(l => l.length));
-    const coverWidth = Math.max(edit.pdfWidth, fontSize * 0.6 * maxOrigLen);
+    const coverWidth = Math.max(edit.pdfWidth, fontSize * 0.6 * maxOrigLen) + fontSize * 0.5;
 
     ctx.save();
     ctx.fillStyle = '#ffffff';
@@ -747,7 +747,18 @@ function drawTextEdits(ctx, pageNum) {
 
     // Draw new text line by line
     ctx.fillStyle = edit.color || '#000000';
-    ctx.font = `${fontSize}px ${edit.fontFamily || 'Helvetica'}, sans-serif`;
+    const ff = (edit.fontFamily || 'Helvetica').toLowerCase();
+    const cssFallback = ff.includes('courier') ? '"Courier New", Courier, monospace'
+      : ff.includes('times') ? '"Times New Roman", Times, serif'
+      : 'Helvetica, Arial, sans-serif';
+    const fontWeight = ff.includes('bold') ? 'bold ' : '';
+    const fontStyle = ff.includes('italic') || ff.includes('oblique') ? 'italic ' : '';
+    // Use PDF.js loaded font for exact visual match on canvas, with standard font fallback
+    const fontFamily = edit.loadedFontName
+      ? `"${edit.loadedFontName}", ${cssFallback}`
+      : cssFallback;
+    const canvasFont = `${fontStyle}${fontWeight}${fontSize}px ${fontFamily}`;
+    ctx.font = canvasFont;
     ctx.textBaseline = 'alphabetic';
 
     const newLines = edit.newText.split('\n');

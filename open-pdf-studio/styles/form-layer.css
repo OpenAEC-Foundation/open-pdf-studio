@@ -183,6 +183,57 @@
   color: #e81123;
 }
 
+/* PDF/A compliance info bar */
+.pdfa-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: #f8d7da;
+  border-bottom: 1px solid #e8a0a8;
+  font-size: 12px;
+  color: #1a1a1a;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.pdfa-bar svg {
+  flex-shrink: 0;
+}
+
+.pdfa-bar span {
+  flex: 1;
+}
+
+.pdfa-bar button#pdfa-bar-enable {
+  background: #ffffff;
+  border: 1px solid #c0c0c0;
+  font-size: 11px;
+  color: #333;
+  cursor: pointer;
+  padding: 3px 12px;
+  line-height: 1;
+}
+
+.pdfa-bar button#pdfa-bar-enable:hover {
+  background: #e5e5e5;
+  border-color: #999;
+}
+
+.pdfa-bar button#pdfa-bar-close {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #666;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.pdfa-bar button#pdfa-bar-close:hover {
+  color: #e81123;
+}
+
 /* Form field validation error dialog (Windows-style) */
 .form-validation-overlay {
   position: fixed;

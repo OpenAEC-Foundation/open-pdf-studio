@@ -14,5 +14,5 @@ export default defineConfig({
       port: 3001,
     },
   },
-  build: { outDir: 'dist', emptyOutDir: true },
+  build: { outDir: 'dist', emptyOutDir: true, chunkSizeWarningLimit: 2000 },
 });

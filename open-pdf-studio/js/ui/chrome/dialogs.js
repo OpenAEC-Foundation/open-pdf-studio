@@ -483,6 +483,38 @@ function initDocPropsDialogDrag() {
 // Export Panel (backstage right-side content)
 // ============================================
 
+// ============================================
+// Import Panel
+// ============================================
+
+export function showImportPanel() {
+  const panel = document.getElementById('bs-import-panel');
+  if (panel) panel.style.display = '';
+  // Highlight Import sidebar item
+  document.querySelectorAll('.backstage-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('bs-import')?.classList.add('active');
+}
+
+export function hideImportPanel() {
+  const panel = document.getElementById('bs-import-panel');
+  if (panel) panel.style.display = 'none';
+  document.getElementById('bs-import')?.classList.remove('active');
+}
+
+export function initImportDialog() {
+  // XFDF import card — directly opens file dialog
+  document.getElementById('bs-import-xfdf-card')?.addEventListener('click', async () => {
+    const { closeBackstage } = await import('../chrome/menus.js');
+    closeBackstage();
+    const { importXFDFFromFile } = await import('../../annotations/xfdf.js');
+    importXFDFFromFile();
+  });
+}
+
+// ============================================
+// Export Panel
+// ============================================
+
 let bsExportType = 'images'; // 'images' or 'raster'
 
 export function showExportPanel() {
@@ -602,6 +634,14 @@ export function initExportDialog() {
   });
   document.getElementById('bs-export-raster-card')?.addEventListener('click', () => {
     showExportOptions('raster');
+  });
+
+  // XFDF export card — directly exports (no options needed)
+  document.getElementById('bs-export-xfdf-card')?.addEventListener('click', async () => {
+    const { closeBackstage } = await import('../chrome/menus.js');
+    closeBackstage();
+    const { exportXFDFToFile } = await import('../../annotations/xfdf.js');
+    exportXFDFToFile();
   });
 
   // Export go button

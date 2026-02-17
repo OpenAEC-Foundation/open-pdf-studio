@@ -5,7 +5,7 @@ import { savePDF, savePDFAs } from '../../pdf/saver.js';
 import { showProperties, hideProperties, closePropertiesPanel } from '../panels/properties-panel.js';
 import { closeAllMenus, closeBackstage, openBackstage } from '../chrome/menus.js';
 import { showPreferencesDialog, hidePreferencesDialog, savePreferencesFromDialog, resetPreferencesToDefaults } from '../../core/preferences.js';
-import { showDocPropertiesDialog, showNewDocDialog, showExportPanel, hideExportPanel, showAboutPanel, hideAboutPanel } from '../chrome/dialogs.js';
+import { showDocPropertiesDialog, showNewDocDialog, showImportPanel, hideImportPanel, showExportPanel, hideExportPanel, showAboutPanel, hideAboutPanel } from '../chrome/dialogs.js';
 import { toggleAnnotationsListPanel } from '../panels/annotations-list.js';
 import { toggleLeftPanel } from '../panels/left-panel.js';
 import { hasUnsavedChanges, getUnsavedDocumentNames } from '../chrome/tabs.js';
@@ -18,6 +18,7 @@ import { setTool } from '../../tools/manager.js';
 export function setupMenuEvents() {
   // Helper to hide all backstage content panels
   function hideAllBsPanels() {
+    hideImportPanel();
     hideExportPanel();
     hideAboutPanel();
   }
@@ -54,13 +55,15 @@ export function setupMenuEvents() {
   });
 
   document.getElementById('bs-export')?.addEventListener('click', () => {
+    hideImportPanel();
     hideAboutPanel();
     showExportPanel();
   });
 
   document.getElementById('bs-import')?.addEventListener('click', () => {
-    hideAllBsPanels();
-    // Import functionality placeholder
+    hideExportPanel();
+    hideAboutPanel();
+    showImportPanel();
   });
 
   document.getElementById('bs-doc-properties')?.addEventListener('click', () => {
@@ -76,6 +79,7 @@ export function setupMenuEvents() {
   });
 
   document.getElementById('bs-about')?.addEventListener('click', () => {
+    hideImportPanel();
     hideExportPanel();
     showAboutPanel();
   });

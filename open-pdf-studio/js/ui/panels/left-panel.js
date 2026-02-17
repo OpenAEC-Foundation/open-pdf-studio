@@ -1,5 +1,5 @@
 import { state, getActiveDocument, getPageRotation } from '../../core/state.js';
-import { goToPage } from '../../pdf/renderer.js';
+import { goToPage, rotatePage } from '../../pdf/renderer.js';
 import { reorderPages, deletePages, replacePages, copyPage, cutPage, pastePage, getPageClipboard } from '../../pdf/page-manager.js';
 import { showInsertPageDialog, showExtractPagesDialog } from '../chrome/dialogs.js';
 import { updateAnnotationsList } from './annotations-list.js';
@@ -10,6 +10,7 @@ import { updateFormFieldsList } from './form-fields.js';
 import { updateDestinationsList } from './destinations.js';
 import { updateTagsList } from './tags.js';
 import { updateLinksList } from './links.js';
+import { updateBookmarksList } from './bookmarks.js';
 
 // DOM elements
 const leftPanel = document.getElementById('left-panel');
@@ -161,7 +162,7 @@ export function refreshActiveTab() {
   if (!activeTab) return;
   const panelId = activeTab.dataset.panel;
   // Thumbnails are refreshed separately via generateThumbnails()
-  if (panelId && panelId !== 'thumbnails' && panelId !== 'bookmarks') {
+  if (panelId && panelId !== 'thumbnails') {
     refreshTabContent(panelId);
   }
 }
@@ -183,6 +184,8 @@ function refreshTabContent(panelId) {
     updateTagsList();
   } else if (panelId === 'links') {
     updateLinksList();
+  } else if (panelId === 'bookmarks') {
+    updateBookmarksList();
   }
 }
 
@@ -606,6 +609,8 @@ const PAGE_MENU_ICONS = {
   extract: '<svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 0h5.5L14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zm5.5 1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5H9.5V1z"/><path d="M8 12a.5.5 0 0 0 .5-.5V8.207l1.146 1.147a.5.5 0 0 0 .708-.708l-2-2a.5.5 0 0 0-.708 0l-2 2a.5.5 0 1 0 .708.708L7.5 8.207V11.5a.5.5 0 0 0 .5.5z"/></svg>',
   replace: '<svg viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M1 11.5a.5.5 0 0 0 .5.5h11.793l-3.147 3.146a.5.5 0 0 0 .708.708l4-4a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 11H1.5a.5.5 0 0 0-.5.5zm14-7a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 1 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 4H14.5a.5.5 0 0 1 .5.5z"/></svg>',
   delete: '<svg viewBox="0 0 16 16" fill="currentColor"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1z"/></svg>',
+  rotateLeft: '<svg viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466z"/></svg>',
+  rotateRight: '<svg viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966a.25.25 0 0 1 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>',
   properties: '<svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg>',
 };
 
@@ -663,6 +668,17 @@ function showThumbnailContextMenu(e, pageNum) {
   menu.appendChild(createContextMenuItem('Paste', PAGE_MENU_ICONS.paste, async () => {
     await pastePage(pageNum);
   }, !clipboard));
+
+  addSeparator(menu);
+
+  // Rotate
+  menu.appendChild(createContextMenuItem('Rotate Left', PAGE_MENU_ICONS.rotateLeft, async () => {
+    await rotatePage(-90, pageNum);
+  }));
+
+  menu.appendChild(createContextMenuItem('Rotate Right', PAGE_MENU_ICONS.rotateRight, async () => {
+    await rotatePage(90, pageNum);
+  }));
 
   addSeparator(menu);
 

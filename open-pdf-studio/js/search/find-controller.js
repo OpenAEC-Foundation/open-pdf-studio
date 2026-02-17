@@ -13,21 +13,16 @@ const textCache = new Map();
  * @returns {Promise<Array>} Array of page text data
  */
 async function extractAllText(pdfDoc) {
-  console.log('extractAllText called');
   const docId = getActiveDocument()?.id;
-  console.log('docId:', docId, 'cached:', textCache.has(docId));
 
   // Check cache first
   if (docId && textCache.has(docId)) {
-    console.log('Returning cached text');
     return textCache.get(docId);
   }
 
   const pagesText = [];
-  console.log('Extracting text from', pdfDoc.numPages, 'pages');
 
   for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
-    console.log('Extracting page', pageNum);
     const page = await pdfDoc.getPage(pageNum);
     const textContent = await page.getTextContent();
 
@@ -87,9 +82,7 @@ export function clearTextCache(docId) {
  * @returns {Promise<Array>} Array of search results
  */
 export async function performSearch(query, options = {}) {
-  console.log('performSearch called, query:', query, 'pdfDoc exists:', !!state.pdfDoc);
   if (!query || !state.pdfDoc) {
-    console.log('performSearch: no query or no pdfDoc, returning empty');
     return [];
   }
 
@@ -155,7 +148,6 @@ export async function performSearch(query, options = {}) {
  */
 export async function executeSearch() {
   const { query, matchCase, wholeWord } = state.search;
-  console.log('executeSearch called, query:', query, 'pdfDoc:', !!state.pdfDoc);
 
   if (!query) {
     state.search.results = [];
@@ -164,9 +156,7 @@ export async function executeSearch() {
     return;
   }
 
-  console.log('Calling performSearch...');
   const results = await performSearch(query, { matchCase, wholeWord });
-  console.log('performSearch returned, results:', results.length);
 
   state.search.results = results;
   state.search.totalMatches = results.length;

@@ -3,14 +3,153 @@ import * as pdfjsLib from 'pdfjs-dist';
 
 /**
  * Text Layer Management Module
- * Creates text layers using PDF.js renderTextLayer() for text selection
+ * Uses PDF.js built-in TextLayer class for accurate text selection positioning
  */
 
 // Store references to text layers for cleanup
 const textLayers = new Map();
 
 /**
- * Creates a text layer for a PDF page
+ * Strip subset prefix from PDF font name (e.g., "NDPKKA+TimesNewRomanPSMT" → "TimesNewRomanPSMT")
+ */
+function stripSubsetPrefix(fontName) {
+  if (!fontName) return '';
+  const plusIdx = fontName.indexOf('+');
+  if (plusIdx >= 0 && plusIdx <= 6) {
+    return fontName.substring(plusIdx + 1);
+  }
+  return fontName;
+}
+
+/**
+ * Parse bold/italic from PDF font name suffix
+ * Common patterns: -Bold, -Italic, -BoldItalic, -BoldOblique, -Medium, -Book, -Regular
+ */
+function parseFontWeight(cleanFontName) {
+  const name = (cleanFontName || '').toLowerCase();
+  const bold = name.includes('bold') || name.includes(',bold') || name.endsWith('-bd');
+  const italic = name.includes('italic') || name.includes('oblique')
+    || name.includes(',italic') || name.endsWith('-it');
+  return { bold, italic };
+}
+
+/**
+ * Build font info cache from page.commonObjs for actual font name detection
+ */
+function buildFontInfoCache(textContent, page) {
+  const fontInfoCache = {};
+  if (!page?.commonObjs) return fontInfoCache;
+
+  for (const item of textContent.items) {
+    const fontName = item.fontName;
+    if (fontName && !fontInfoCache[fontName]) {
+      try {
+        const fontObj = page.commonObjs.get(fontName);
+        if (fontObj && fontObj.name) {
+          const cleanName = stripSubsetPrefix(fontObj.name);
+          const weight = parseFontWeight(cleanName);
+          const isFontAvailable = document.fonts.check(`12px "${fontName}"`);
+          fontInfoCache[fontName] = {
+            name: cleanName,
+            bold: weight.bold,
+            italic: weight.italic,
+            loadedName: isFontAvailable ? fontName : '',
+          };
+        }
+      } catch (e) {
+        // Font not yet available in commonObjs
+      }
+    }
+  }
+  return fontInfoCache;
+}
+
+/**
+ * Map a PDF font name to a CSS font-family string
+ * Uses actual font name from commonObjs to detect serif/sans-serif/monospace
+ */
+export function mapPdfFontToCss(actualFontName, fallbackFamily) {
+  const name = (actualFontName || '').toLowerCase();
+
+  if (name.includes('courier') || name.includes('consolas') || name.includes('mono')
+      || fallbackFamily === 'monospace') {
+    return '"Courier New", Courier, monospace';
+  }
+
+  if (name.includes('times') || name.includes('garamond') || name.includes('georgia')
+      || name.includes('palatino') || name.includes('cambria') || name.includes('bookman')
+      || (fallbackFamily === 'serif')) {
+    return '"Times New Roman", Times, serif';
+  }
+
+  if (name.includes('arial') || name.includes('helvetica') || name.includes('calibri')
+      || name.includes('verdana') || name.includes('tahoma') || name.includes('trebuchet')
+      || name.includes('segoe') || fallbackFamily === 'sans-serif') {
+    return 'Helvetica, Arial, sans-serif';
+  }
+
+  if (fallbackFamily && fallbackFamily !== 'sans-serif') {
+    return fallbackFamily;
+  }
+  return 'Helvetica, Arial, sans-serif';
+}
+
+/**
+ * Insert <br> elements between consecutive text spans that have a large horizontal gap
+ * on the same baseline. This prevents the browser from merging columns during text selection.
+ */
+function insertColumnBreaks(textItems, textDivs) {
+  let prevItem = null;
+  let prevDiv = null;
+  let breaksInserted = 0;
+
+  for (let i = 0; i < textItems.length && i < textDivs.length; i++) {
+    const item = textItems[i];
+    const div = textDivs[i];
+
+    // Skip items without visible text (not appended to DOM by TextLayer)
+    if (!item.str) {
+      prevItem = null;
+      prevDiv = null;
+      continue;
+    }
+
+    if (prevItem && prevDiv && div.parentNode) {
+      const prevTx = prevItem.transform;
+      const currTx = item.transform;
+
+      const prevFontHeight = Math.hypot(prevTx[2], prevTx[3]);
+      const currFontHeight = Math.hypot(currTx[2], currTx[3]);
+      const avgFontHeight = (prevFontHeight + currFontHeight) / 2;
+
+      const yDiff = Math.abs(prevTx[5] - currTx[5]);
+      const sameBaseline = yDiff <= avgFontHeight * 0.5;
+
+      if (sameBaseline) {
+        // Same baseline — check horizontal gap
+        const prevRight = prevTx[4] + (prevItem.width || 0);
+        const currLeft = currTx[4];
+        const gap = currLeft - prevRight;
+
+        // Gap larger than 3x font size indicates a column boundary
+        if (gap > avgFontHeight * 3) {
+          const br = document.createElement('br');
+          br.setAttribute('role', 'presentation');
+          div.parentNode.insertBefore(br, div);
+          breaksInserted++;
+        }
+      }
+    }
+
+    // Reset tracking after end-of-line items (TextLayer already inserts <br> for those)
+    prevItem = item.hasEOL ? null : item;
+    prevDiv = item.hasEOL ? null : div;
+  }
+
+}
+
+/**
+ * Creates a text layer for a PDF page using PDF.js built-in TextLayer
  * @param {Object} page - PDF.js page object
  * @param {Object} viewport - PDF.js viewport
  * @param {HTMLElement} container - Container element to append text layer to
@@ -18,119 +157,81 @@ const textLayers = new Map();
  * @returns {Promise<HTMLElement>} The created text layer element
  */
 export async function createTextLayer(page, viewport, container, pageNum) {
-  // Get text content from PDF page
   const textContent = await page.getTextContent();
 
-  // Create text layer div
   const textLayerDiv = document.createElement('div');
   textLayerDiv.className = 'textLayer';
   textLayerDiv.dataset.page = pageNum;
 
-  const scale = viewport.scale;
-
-  // Set text layer dimensions to match SCALED canvas
-  textLayerDiv.style.width = `${viewport.width}px`;
-  textLayerDiv.style.height = `${viewport.height}px`;
-  textLayerDiv.style.setProperty('--scale-factor', scale);
-
+  // Ensure --total-scale-factor is set (renderer usually sets this on parent)
   if (container) {
-    container.style.setProperty('--scale-factor', scale);
+    container.style.setProperty('--total-scale-factor', viewport.scale);
   }
 
-  // Append text layer to container
   container.appendChild(textLayerDiv);
 
-  // Use manual rendering with correct scaled positions
-  renderTextLayerManually(textContent, textLayerDiv, viewport, scale);
-  textLayers.set(pageNum, { element: textLayerDiv, textLayer: null });
+  // Use PDF.js built-in TextLayer for accurate positioning
+  let textLayer;
+  try {
+    textLayer = new pdfjsLib.TextLayer({
+      textContentSource: textContent,
+      container: textLayerDiv,
+      viewport
+    });
+    await textLayer.render();
+  } catch (err) {
+    // Fallback: don't create text layer if TextLayer fails
+    return textLayerDiv;
+  }
 
-  // Make sure spans have proper styles for selection
-  // Only enable text selection when select tool is active
-  const isSelectTool = state.currentTool === 'select';
-  const spans = textLayerDiv.querySelectorAll('span');
-  spans.forEach(span => {
-    span.style.pointerEvents = isSelectTool ? 'auto' : 'none';
-    span.style.cursor = isSelectTool ? 'text' : 'default';
-  });
+  // Build font info cache from page.commonObjs
+  const fontInfoCache = buildFontInfoCache(textContent, page);
+  const styles = textContent.styles || {};
 
-  return textLayerDiv;
-}
+  // Filter text items (those with str property, matching textDivs order)
+  const textItems = textContent.items.filter(item => item.str !== undefined);
+  const textDivs = textLayer.textDivs;
 
-/**
- * Manual text layer rendering with proper coordinate transformation
- * Uses viewport.convertToViewportPoint() for accurate PDF to DOM coordinate conversion
- */
-function renderTextLayerManually(textContent, container, viewport, scale) {
-  const textItems = textContent.items;
-
-  for (let i = 0; i < textItems.length; i++) {
+  // Add custom data attributes to rendered spans for the edit text tool
+  for (let i = 0; i < textDivs.length && i < textItems.length; i++) {
+    const span = textDivs[i];
     const item = textItems[i];
-    if (!item.str || item.str.trim() === '') continue;
 
-    const span = document.createElement('span');
-    span.textContent = item.str;
+    const fontName = item.fontName || '';
+    const fontInfo = fontInfoCache[fontName];
+    const itemStyle = fontName ? styles[fontName] : null;
 
-    // Store PDF metadata for text editing
+    const actualFontName = fontInfo?.name || '';
+    const pdfFontFamily = itemStyle?.fontFamily || 'sans-serif';
+    const isBold = fontInfo?.bold || false;
+    const isItalic = fontInfo?.italic || false;
+    const loadedFontName = fontInfo?.loadedName || '';
+
     span.dataset.pdfTransform = JSON.stringify(item.transform);
     span.dataset.pdfWidth = item.width || 0;
     span.dataset.itemIndex = i;
-
-    // item.transform is [scaleX, skewY, skewX, scaleY, translateX, translateY]
-    const tx = item.transform;
-
-    // Calculate font height from transform matrix
-    // Font height is sqrt(c² + d²) where c=skewX, d=scaleY
-    const fontHeightUnscaled = Math.sqrt(tx[2] * tx[2] + tx[3] * tx[3]);
-    const fontHeight = fontHeightUnscaled * scale;
-
-    // Use viewport.convertToViewportPoint to convert PDF coordinates to canvas coordinates
-    const pdfX = tx[4];
-    const pdfY = tx[5];
-    const [canvasX, canvasY] = viewport.convertToViewportPoint(pdfX, pdfY);
-
-    // The canvasY from convertToViewportPoint is the baseline position
-    const domX = canvasX;
-    const domY = canvasY - (fontHeight * 0.85);
-
-    span.style.left = `${domX}px`;
-    span.style.top = `${domY}px`;
-    span.style.fontSize = `${fontHeight}px`;
-    span.style.fontFamily = 'sans-serif';
-
-    // Calculate rotation angle
-    const angle = Math.atan2(tx[1], tx[0]);
-
-    // Calculate expected width from PDF and scale text horizontally to match
-    if (item.width && item.width > 0) {
-      const expectedWidth = item.width * scale;
-
-      // Append hidden to measure actual width
-      span.style.visibility = 'hidden';
-      container.appendChild(span);
-      const actualWidth = span.getBoundingClientRect().width;
-      span.style.visibility = '';
-
-      if (actualWidth > 0) {
-        const scaleX = expectedWidth / actualWidth;
-
-        // Apply scaleX and rotation if present
-        if (Math.abs(angle) > 0.001) {
-          span.style.transform = `scaleX(${scaleX}) rotate(${angle}rad)`;
-        } else {
-          span.style.transform = `scaleX(${scaleX})`;
-        }
-        span.style.transformOrigin = '0% 0%';
-      }
-      // span is already appended
-    } else {
-      // No width info, just apply rotation if present
-      if (Math.abs(angle) > 0.001) {
-        span.style.transform = `rotate(${angle}rad)`;
-        span.style.transformOrigin = '0% 0%';
-      }
-      container.appendChild(span);
-    }
+    span.dataset.pdfFontFamily = pdfFontFamily;
+    span.dataset.pdfFontName = fontName;
+    span.dataset.pdfActualFontName = actualFontName;
+    span.dataset.pdfLoadedFontName = loadedFontName;
+    span.dataset.pdfBold = isBold;
+    span.dataset.pdfItalic = isItalic;
   }
+
+  textLayers.set(pageNum, { element: textLayerDiv, textLayer });
+
+  // Enable text selection when select or editText tool is active
+  const needsTextAccess = state.currentTool === 'select' || state.currentTool === 'editText';
+  if (needsTextAccess) {
+    textLayerDiv.style.pointerEvents = 'auto';
+  }
+  const spans = textLayerDiv.querySelectorAll('span:not(.markedContent)');
+  spans.forEach(span => {
+    span.style.pointerEvents = needsTextAccess ? 'auto' : 'none';
+    span.style.cursor = needsTextAccess ? 'text' : 'default';
+  });
+
+  return textLayerDiv;
 }
 
 /**
@@ -168,12 +269,10 @@ export function clearSinglePageTextLayer() {
  * Clears all text layers (for re-render or cleanup)
  */
 export function clearTextLayers() {
-  // Remove all text layer elements
   document.querySelectorAll('.textLayer').forEach(layer => {
     layer.remove();
   });
 
-  // Clear the tracking map
   textLayers.clear();
 }
 

@@ -63,9 +63,31 @@ function getSystemTheme() {
 export function applyTheme(themeName) {
   const effectiveTheme = resolveTheme(themeName);
   document.documentElement.setAttribute('data-theme', effectiveTheme);
-  const themeSelect = document.getElementById('theme-select');
-  if (themeSelect && themeSelect.value !== themeName) {
-    themeSelect.value = themeName;
+  updateThemePickerSelection(themeName);
+}
+
+// Update the ribbon theme picker to reflect the current theme
+export function updateThemePickerSelection(themeName) {
+  const themeNames = { system: 'System', light: 'Light', dark: 'Dark', blue: 'Blue', highContrast: 'High Contrast' };
+  const label = document.getElementById('theme-picker-label');
+  if (label) label.textContent = themeNames[themeName] || themeName;
+
+  // Update swatches in the toggle button to match the selected theme
+  const swatchesEl = document.getElementById('theme-picker-swatches');
+  const dropdown = document.getElementById('theme-picker-dropdown');
+  if (swatchesEl && dropdown) {
+    const selectedOption = dropdown.querySelector(`[data-theme-value="${themeName}"]`);
+    if (selectedOption) {
+      const optionSwatches = selectedOption.querySelector('.theme-picker-option-swatches');
+      if (optionSwatches) swatchesEl.innerHTML = optionSwatches.innerHTML;
+    }
+  }
+
+  // Highlight selected option in dropdown
+  if (dropdown) {
+    dropdown.querySelectorAll('.theme-picker-option').forEach(opt => {
+      opt.classList.toggle('selected', opt.dataset.themeValue === themeName);
+    });
   }
 }
 
@@ -390,9 +412,8 @@ export function savePreferencesFromDialog() {
   if (prefThemeSelect) {
     prefs.theme = prefThemeSelect.value;
     applyTheme(prefs.theme);
-    // Keep ribbon theme selector in sync
-    const ribbonThemeSelect = document.getElementById('theme-select');
-    if (ribbonThemeSelect) ribbonThemeSelect.value = prefs.theme;
+    // Keep ribbon theme picker in sync
+    updateThemePickerSelection(prefs.theme);
   }
   const authorGeneral = document.getElementById('pref-author-name-general');
   if (authorGeneral) prefs.authorName = authorGeneral.value || 'User';

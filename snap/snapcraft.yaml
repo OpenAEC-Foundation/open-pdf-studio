@@ -1,6 +1,6 @@
 name: open-pdf-studio
 base: core22
-version: '1.12.0'
+version: '1.13.0'
 summary: Free, open-source PDF annotation editor
 description: |
   Open PDF Studio is a free, open-source PDF editor and annotator
@@ -16,6 +16,7 @@ description: |
   - Session restore
   - Watermarks and page management
   - Print support
+icon: snap/gui/open-pdf-studio.png
 grade: stable
 confinement: strict
 

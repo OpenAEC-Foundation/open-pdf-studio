@@ -2,7 +2,7 @@ import { state } from '../core/state.js';
 import { undo, redo, recordClearPage } from '../core/undo-manager.js';
 import {
   annotationCanvas, pdfContainer,
-  toolSelect, toolHand, toolHighlight, toolDraw, toolLine, toolArrow, toolCircle,
+  toolSelect, toolHand, toolSelectComments, toolHighlight, toolDraw, toolLine, toolArrow, toolCircle,
   toolBox, toolComment, toolText, toolPolygon, toolCloud,
   toolPolyline, toolTextbox, toolCallout, toolClear, toolUndo,
   toolStamp, toolSignature, toolMeasureDistance, toolMeasureArea, toolMeasurePerimeter,
@@ -43,6 +43,7 @@ function setupWindowControls() {
 function setupToolButtons() {
   toolSelect?.addEventListener('click', () => setTool('select'));
   toolHand?.addEventListener('click', () => setTool('hand'));
+  toolSelectComments?.addEventListener('click', () => setTool('selectComments'));
   toolHighlight?.addEventListener('click', () => setTool('highlight'));
   toolDraw?.addEventListener('click', () => setTool('draw'));
   toolLine?.addEventListener('click', () => setTool('line'));
@@ -97,6 +98,9 @@ function setupQuickAccessEvents() {
       import('./chrome/dialogs.js').then(({ showPrintDialog }) => showPrintDialog());
     }
   });
+  document.getElementById('qa-preferences')?.addEventListener('click', () => {
+    import('../core/preferences.js').then(({ showPreferencesDialog }) => showPreferencesDialog());
+  });
   document.getElementById('qa-undo')?.addEventListener('click', () => undo());
   document.getElementById('qa-redo')?.addEventListener('click', () => redo());
   document.getElementById('qa-prev-view')?.addEventListener('click', () => {});
@@ -104,17 +108,6 @@ function setupQuickAccessEvents() {
   updateQuickAccessButtons();
 }
 
-// Setup XFDF import/export
-function setupXFDFButtons() {
-  document.getElementById('xfdf-export')?.addEventListener('click', async () => {
-    const { exportXFDFToFile } = await import('../annotations/xfdf.js');
-    exportXFDFToFile();
-  });
-  document.getElementById('xfdf-import')?.addEventListener('click', async () => {
-    const { importXFDFFromFile } = await import('../annotations/xfdf.js');
-    importXFDFFromFile();
-  });
-}
 
 // Image file extensions
 const IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp', '.svg'];
@@ -241,7 +234,6 @@ export function setupEventListeners() {
   setupMenuEvents();
   setupRibbonEvents();
   setupQuickAccessEvents();
-  setupXFDFButtons();
   setupDragDrop();
   setupWheelZoom();
   setupPanelResize();

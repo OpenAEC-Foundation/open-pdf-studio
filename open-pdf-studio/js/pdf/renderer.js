@@ -4,7 +4,7 @@ import {
   pageInfo, pageInput, pageTotal, prevPageBtn, nextPageBtn, zoomLevel
 } from '../ui/dom-elements.js';
 import { redrawAnnotations, renderAnnotationsForPage } from '../annotations/rendering.js';
-import { ensureAnnotationsForPage } from './loader.js';
+import { ensureAnnotationsForPage, hidePdfABar } from './loader.js';
 import { updateAllStatus } from '../ui/chrome/status-bar.js';
 import { hideProperties } from '../ui/panels/properties-panel.js';
 import { getCursorForTool } from '../tools/manager.js';
@@ -93,6 +93,18 @@ export async function renderPage(pageNum) {
     console.warn('Failed to create form layer:', e);
   }
 
+  // Re-apply overlay state for newly created layers (setTool may not have run yet)
+  if (state.currentTool === 'select' || state.currentTool === 'editText') {
+    annotationCanvas.style.zIndex = '2';
+    annotationCanvas.style.pointerEvents = 'none';
+    const container = document.getElementById('canvas-container');
+    if (container) {
+      container.querySelectorAll('.formLayer section, .linkLayer .pdf-link').forEach(el => {
+        el.style.pointerEvents = 'none';
+      });
+    }
+  }
+
   // Ensure annotations for this page are loaded (on-demand if background hasn't reached it yet)
   await ensureAnnotationsForPage(pageNum);
 
@@ -155,6 +167,11 @@ async function renderContinuousPage(pageNum) {
   annotationCanvasEl.style.top = '0';
   annotationCanvasEl.style.left = '0';
   annotationCanvasEl.style.cursor = getCursorForTool();
+  // Apply text-access overrides if select or editText tool is active
+  if (state.currentTool === 'select' || state.currentTool === 'editText') {
+    annotationCanvasEl.style.zIndex = '2';
+    annotationCanvasEl.style.pointerEvents = 'none';
+  }
 
   canvasContainer.appendChild(pdfCanvasEl);
   canvasContainer.appendChild(annotationCanvasEl);
@@ -190,6 +207,13 @@ async function renderContinuousPage(pageNum) {
     await createFormLayer(page, viewport, canvasContainer, pageNum);
   } catch (e) {
     console.warn(`Failed to create form layer for page ${pageNum}:`, e);
+  }
+
+  // Re-apply overlay state for newly created form/link layers
+  if (state.currentTool === 'select' || state.currentTool === 'editText') {
+    canvasContainer.querySelectorAll('.formLayer section, .linkLayer .pdf-link').forEach(el => {
+      el.style.pointerEvents = 'none';
+    });
   }
 
   // Render annotations
@@ -443,9 +467,9 @@ export async function actualSize() {
 }
 
 // Rotate the current page by a delta (±90)
-export async function rotatePage(delta) {
+export async function rotatePage(delta, targetPage) {
   if (!state.pdfDoc) return;
-  const pageNum = state.currentPage;
+  const pageNum = targetPage || state.currentPage;
   const current = getPageRotation(pageNum);
   setPageRotation(pageNum, current + delta);
 
@@ -486,6 +510,7 @@ export function clearPdfView() {
   clearSinglePageFormLayer();
   clearFormLayers();
   hideFormFieldsBar();
+  hidePdfABar();
 
   // Reset page info
   pageInput.value = '';

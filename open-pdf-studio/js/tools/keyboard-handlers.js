@@ -7,7 +7,7 @@ import { showDocPropertiesDialog, showNewDocDialog } from '../ui/chrome/dialogs.
 import { copyAnnotation, copyAnnotations } from '../annotations/clipboard.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { applyMove } from '../annotations/transforms.js';
-import { openPDFFile } from '../pdf/loader.js';
+import { openPDFFile, isPdfAReadOnly } from '../pdf/loader.js';
 import { savePDF, savePDFAs } from '../pdf/saver.js';
 import { toggleAnnotationsListPanel } from '../ui/panels/annotations-list.js';
 import { toggleLeftPanel } from '../ui/panels/left-panel.js';
@@ -100,7 +100,8 @@ export function handleKeydown(e) {
     }
   } else if (e.key === 'Delete') {
     e.preventDefault();
-    if (state.selectedAnnotations.length > 1) {
+    if (isPdfAReadOnly()) { /* block */ }
+    else if (state.selectedAnnotations.length > 1) {
       // Multi-selection delete
       if (confirm(`Delete ${state.selectedAnnotations.length} annotations?`)) {
         recordBulkDelete(state.selectedAnnotations);
@@ -129,8 +130,8 @@ export function handleKeydown(e) {
   }
   // Arrow keys: nudge selected annotations (skip when Ctrl held)
   else if (!ctrl && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-    const hasSelection = state.selectedAnnotations.length > 0 || state.selectedAnnotation;
-    if (hasSelection && state.pdfDoc) {
+    if (isPdfAReadOnly()) { /* block nudge */ }
+    else if ((state.selectedAnnotations.length > 0 || state.selectedAnnotation) && state.pdfDoc) {
       e.preventDefault();
       const step = (shift ? 10 : 1) / (state.scale || 1);
       let dx = 0, dy = 0;
@@ -216,42 +217,43 @@ export function handleKeydown(e) {
     if (zoomOutBtn) zoomOutBtn.click();
   } else if (ctrl && e.key === '0') {
     e.preventDefault();
-    document.getElementById('actual-size')?.click();
+    document.getElementById('actual-size-ribbon')?.click();
   } else if (ctrl && e.key === '1') {
     e.preventDefault();
     document.getElementById('fit-width')?.click();
   } else if (ctrl && e.key === '2') {
     e.preventDefault();
-    document.getElementById('fit-page')?.click();
+    document.getElementById('fit-page-ribbon')?.click();
   }
 
   // Tool shortcuts (only if PDF is loaded)
   else if (state.pdfDoc) {
+    const pdfaLocked = isPdfAReadOnly();
     if (e.key === 'v' || e.key === 'V') {
       e.preventDefault();
       setTool('select');
     } else if (e.key === 'h' || e.key === 'H') {
       e.preventDefault();
       setTool('hand');
-    } else if (e.key === '1') {
+    } else if (!pdfaLocked && (e.key === '1')) {
       e.preventDefault();
       setTool('highlight');
-    } else if (e.key === '2') {
+    } else if (!pdfaLocked && (e.key === '2')) {
       e.preventDefault();
       setTool('draw');
-    } else if (e.key === '3') {
+    } else if (!pdfaLocked && (e.key === '3')) {
       e.preventDefault();
       setTool('line');
-    } else if (e.key === '4') {
+    } else if (!pdfaLocked && (e.key === '4')) {
       e.preventDefault();
       setTool('box');
-    } else if (e.key === '5') {
+    } else if (!pdfaLocked && (e.key === '5')) {
       e.preventDefault();
       setTool('circle');
-    } else if (e.key === 't' || e.key === 'T') {
+    } else if (!pdfaLocked && (e.key === 't' || e.key === 'T')) {
       e.preventDefault();
       setTool('textbox');
-    } else if (e.key === 'n' || e.key === 'N') {
+    } else if (!pdfaLocked && (e.key === 'n' || e.key === 'N')) {
       e.preventDefault();
       setTool('comment');
     }
@@ -276,6 +278,7 @@ export function handleKeydown(e) {
 // Handle native paste event — works reliably on all platforms including Linux/WebKitGTK
 function handlePaste(e) {
   if (!state.pdfDoc) return;
+  if (isPdfAReadOnly()) return;
   const isInInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
   if (isInInput) return;
 

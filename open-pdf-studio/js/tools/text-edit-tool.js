@@ -10,8 +10,17 @@ let blockGroupsCache = new Map();
 // WeakMap: span -> block group, for fast lookup on hover/click
 let spanToBlock = new WeakMap();
 
+function rgbToHex(rgbStr) {
+  const m = rgbStr.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (!m) return '#000000';
+  const r = parseInt(m[1]), g = parseInt(m[2]), b = parseInt(m[3]);
+  return '#' + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
+}
+
 export function activateEditTextTool() {
   state.isEditingPdfText = true;
+  // Overlay layers (annotation canvas z-index, form/link pointer-events) are
+  // managed centrally by setAnnotationCanvasForTextAccess() in manager.js.
   enableTextLayerHover();
   startObservingTextLayers();
 }
@@ -24,6 +33,7 @@ export function deactivateEditTextTool() {
   spanToBlock = new WeakMap();
   state.isEditingPdfText = false;
   state.pdfTextEditState = null;
+  // Overlay layers are restored by setAnnotationCanvasForTextAccess() in manager.js
 }
 
 // ── MutationObserver: re-attach when text layers are recreated ──
@@ -107,6 +117,28 @@ function getBlockGroups(layer) {
   // Sort each line left → right by pdfX
   for (const line of lines) line.sort((a, b) => a.pdfX - b.pdfX);
 
+  // ── Step 1b: split lines at large horizontal gaps (column boundaries) ──
+  const splitLines = [];
+  for (const line of lines) {
+    let segment = [line[0]];
+    for (let j = 1; j < line.length; j++) {
+      const prev = segment[segment.length - 1];
+      const curr = line[j];
+      const prevRight = prev.pdfX + prev.pdfWidth;
+      const gap = curr.pdfX - prevRight;
+      const avgFs = (prev.fontSize + curr.fontSize) / 2;
+
+      if (gap > avgFs * 3) {
+        // Large gap — treat as separate column
+        splitLines.push(segment);
+        segment = [curr];
+      } else {
+        segment.push(curr);
+      }
+    }
+    splitLines.push(segment);
+  }
+
   // ── Step 2: group consecutive lines into blocks ──
   //
   // Two adjacent lines belong to the same block only when ALL of:
@@ -114,11 +146,11 @@ function getBlockGroups(layer) {
   //   b) baseline gap is reasonable  (0.5× – 1.8× fontSize)
   //   c) left edges are aligned      (within 1× fontSize)
   const blocks = [];
-  let curBlock = [lines[0]];
+  let curBlock = [splitLines[0]];
 
-  for (let i = 1; i < lines.length; i++) {
+  for (let i = 1; i < splitLines.length; i++) {
     const prevLine = curBlock[curBlock.length - 1];
-    const nextLine = lines[i];
+    const nextLine = splitLines[i];
 
     const prevFs = prevLine[0].fontSize;
     const nextFs = nextLine[0].fontSize;
@@ -148,6 +180,11 @@ function getBlockGroups(layer) {
   blocks.push(curBlock);
 
   // ── Build group objects ──
+  // Find the PDF canvas to sample text colors
+  const pdfCanvas = layer.parentElement?.querySelector('canvas.pdf-canvas')
+    || document.getElementById('pdf-canvas');
+  const canvasCtx = pdfCanvas?.getContext('2d', { willReadFrequently: true });
+
   const groups = blocks.map(block => {
     const allItems = block.flat();
     const allSpans = allItems.map(it => it.span);
@@ -158,14 +195,46 @@ function getBlockGroups(layer) {
     const maxRight = Math.max(...allItems.map(it => it.domRight));
     const maxBottom = Math.max(...allItems.map(it => it.domBottom));
 
-    const lineData = block.map(lineItems => ({
-      text: lineItems.map(it => it.span.textContent).join(''),
-      pdfX: lineItems[0].pdfX,
-      pdfY: lineItems[0].pdfY,
-      pdfWidth: lineItems.reduce((s, it) => s + it.pdfWidth, 0),
-      fontSize: lineItems[0].fontSize,
-      spans: lineItems.map(it => it.span)
-    }));
+    const lineData = block.map(lineItems => {
+      const firstSpan = lineItems[0].span;
+      // Use actual font name from commonObjs (stored on dataset by text-layer.js)
+      const pdfFontFamily = firstSpan.dataset.pdfFontFamily || 'sans-serif';
+      const pdfFontName = firstSpan.dataset.pdfFontName || '';
+      const actualFontName = firstSpan.dataset.pdfActualFontName || '';
+      const loadedFontName = firstSpan.dataset.pdfLoadedFontName || '';
+      const isBold = firstSpan.dataset.pdfBold === 'true';
+      const isItalic = firstSpan.dataset.pdfItalic === 'true';
+
+      // Sample text color from the rendered canvas
+      let color = '#000000';
+      if (canvasCtx) {
+        const sampleX = Math.round(lineItems[0].domLeft + 2);
+        const sampleY = Math.round((lineItems[0].domTop + lineItems[0].domBottom) / 2);
+        if (sampleX >= 0 && sampleY >= 0 && sampleX < pdfCanvas.width && sampleY < pdfCanvas.height) {
+          const pixel = canvasCtx.getImageData(sampleX, sampleY, 1, 1).data;
+          // Only use sampled color if it's not white/near-white (background)
+          if (pixel[0] < 240 || pixel[1] < 240 || pixel[2] < 240) {
+            color = '#' + ((1 << 24) | (pixel[0] << 16) | (pixel[1] << 8) | pixel[2]).toString(16).slice(1);
+          }
+        }
+      }
+
+      return {
+        text: lineItems.map(it => it.span.textContent).join(''),
+        pdfX: lineItems[0].pdfX,
+        pdfY: lineItems[0].pdfY,
+        pdfWidth: lineItems.reduce((s, it) => s + it.pdfWidth, 0),
+        fontSize: lineItems[0].fontSize,
+        spans: lineItems.map(it => it.span),
+        fontFamily: pdfFontFamily,
+        pdfFontName,
+        actualFontName,
+        loadedFontName,
+        isBold,
+        isItalic,
+        color
+      };
+    });
 
     // Baseline-to-baseline spacing in PDF units
     let lineSpacing = lineData[0].fontSize * 1.2;
@@ -233,18 +302,22 @@ function enableTextLayerHover() {
 }
 
 function disableTextLayerHover() {
+  // If switching to the select tool, preserve pointer-events for text selection
+  // (this runs asynchronously after setTool() has already applied select-tool state)
+  const keepTextAccess = state.currentTool === 'select';
+
   for (const h of hoverListeners) {
     h.span.removeEventListener('mouseenter', h.enter);
     h.span.removeEventListener('mouseleave', h.leave);
     h.span.removeEventListener('click', h.click);
     h.span.classList.remove('edit-text-hoverable', 'edit-text-block-hover');
-    h.span.style.pointerEvents = '';
-    h.span.style.cursor = '';
+    h.span.style.pointerEvents = keepTextAccess ? 'auto' : '';
+    h.span.style.cursor = keepTextAccess ? 'text' : '';
   }
   hoverListeners = [];
 
   document.querySelectorAll('.textLayer').forEach(layer => {
-    layer.style.pointerEvents = '';
+    layer.style.pointerEvents = keepTextAccess ? 'auto' : '';
   });
 }
 
@@ -253,8 +326,8 @@ function disableTextLayerHover() {
 function startPdfTextEditing(span, pageNum) {
   finishPdfTextEditing();
 
-  const container = span.closest('.textLayer');
-  if (!container) return;
+  const textLayer = span.closest('.textLayer');
+  if (!textLayer) return;
 
   const block = spanToBlock.get(span);
   if (!block || block.spans.length === 0) return;
@@ -280,24 +353,51 @@ function startPdfTextEditing(span, pageNum) {
   const visualLineHeight = groupRect.height / numLines;
   const editorFontSize = Math.round(visualLineHeight * 0.82);
 
-  // Create multi-line editor covering the whole block
+  // Place editor in the textLayer's parent container (not in the textLayer itself)
+  // because .textLayer has opacity: 0.25 which makes all children semi-transparent
+  const editorContainer = textLayer.parentElement || textLayer;
+  const containerRect = editorContainer.getBoundingClientRect();
+  const layerRect = textLayer.getBoundingClientRect();
+  const offsetX = layerRect.left - containerRect.left;
+  const offsetY = layerRect.top - containerRect.top;
+
+  const padX = 4;
+  const padY = 4;
   const editor = document.createElement('textarea');
   editor.className = 'pdf-text-editor';
   editor.value = combinedText;
   editor.style.position = 'absolute';
-  editor.style.left = `${groupRect.left}px`;
-  editor.style.top = `${groupRect.top}px`;
-  editor.style.width = `${Math.max(groupRect.width + 4, 80)}px`;
-  editor.style.height = `${Math.max(groupRect.height + 6, 24)}px`;
+  editor.style.left = `${groupRect.left + offsetX - padX}px`;
+  editor.style.top = `${groupRect.top + offsetY - padY}px`;
+  editor.style.width = `${Math.max(groupRect.width + padX * 2 + 4, 80)}px`;
+  editor.style.height = `${Math.max(groupRect.height + padY * 2 + 6, 24)}px`;
   editor.style.fontSize = `${editorFontSize}px`;
   editor.style.lineHeight = `${visualLineHeight}px`;
-  editor.style.fontFamily = 'sans-serif';
+  // Use PDF.js loaded font if available (exact visual match), else map to standard CSS font
+  const loadedFont = lineData[0].loadedFontName || '';
+  const actualName = (lineData[0].actualFontName || '').toLowerCase();
+  const fallback = (lineData[0].fontFamily || 'sans-serif').toLowerCase();
+  let cssFallbackFont;
+  if (actualName.includes('courier') || actualName.includes('consolas') || actualName.includes('mono') || fallback === 'monospace') {
+    cssFallbackFont = '"Courier New", Courier, monospace';
+  } else if (actualName.includes('times') || actualName.includes('garamond') || actualName.includes('georgia')
+      || actualName.includes('palatino') || actualName.includes('cambria') || actualName.includes('bookman')
+      || fallback === 'serif') {
+    cssFallbackFont = '"Times New Roman", Times, serif';
+  } else {
+    cssFallbackFont = 'Helvetica, Arial, sans-serif';
+  }
+  const editorFont = loadedFont ? `"${loadedFont}", ${cssFallbackFont}` : cssFallbackFont;
+  editor.style.fontFamily = editorFont;
+  if (lineData[0].isBold) editor.style.fontWeight = 'bold';
+  if (lineData[0].isItalic) editor.style.fontStyle = 'italic';
+  editor.style.color = lineData[0].color || '#000000';
   editor.style.zIndex = '1000';
 
   // Hide all spans BEFORE appending editor so text doesn't double-render
   for (const s of block.spans) s.style.visibility = 'hidden';
 
-  container.appendChild(editor);
+  editorContainer.appendChild(editor);
   editor.focus();
   editor.select();
 
@@ -353,6 +453,43 @@ function finishPdfTextEditing() {
   for (const s of block.spans) s.style.visibility = '';
 
   if (newText !== originalText && newText.trim() !== '') {
+    const { lineData } = block;
+    const pdfFontFamily = lineData[0].fontFamily || 'sans-serif';
+    const pdfFontName = lineData[0].pdfFontName || '';
+    const actualFontName = lineData[0].actualFontName || '';
+    const isBold = lineData[0].isBold || false;
+    const isItalic = lineData[0].isItalic || false;
+
+    // Map actual PDF font name to closest standard font for saving
+    const an = actualFontName.toLowerCase();
+    const fl = pdfFontFamily.toLowerCase();
+    let fontFamily;
+    if (an.includes('courier') || an.includes('consolas') || an.includes('mono') || fl === 'monospace') {
+      fontFamily = isBold && isItalic ? 'Courier-BoldOblique'
+        : isBold ? 'Courier-Bold'
+        : isItalic ? 'Courier-Oblique'
+        : 'Courier';
+    } else if (an.includes('times') || an.includes('garamond') || an.includes('georgia')
+        || an.includes('palatino') || an.includes('cambria') || an.includes('bookman')
+        || fl === 'serif') {
+      fontFamily = isBold && isItalic ? 'TimesRoman-BoldItalic'
+        : isBold ? 'TimesRoman-Bold'
+        : isItalic ? 'TimesRoman-Italic'
+        : 'TimesRoman';
+    } else {
+      fontFamily = isBold && isItalic ? 'Helvetica-BoldOblique'
+        : isBold ? 'Helvetica-Bold'
+        : isItalic ? 'Helvetica-Oblique'
+        : 'Helvetica';
+    }
+    // Capture original span texts before modifying
+    const originalSpanTexts = lineData.map(ld =>
+      ld.spans.map(s => s.textContent)
+    );
+
+    // Store the PDF.js loaded font name for canvas rendering (exact visual match)
+    const loadedFontName = lineData[0].loadedFontName || '';
+
     const editRecord = {
       id: Date.now() + Math.random().toString(36).substr(2, 9),
       page: pageNum,
@@ -364,8 +501,11 @@ function finishPdfTextEditing() {
       fontSize,
       lineSpacing,
       numOriginalLines,
-      fontFamily: 'Helvetica',
-      color: '#000000'
+      fontFamily,
+      loadedFontName,
+      pdfFontName,
+      color: lineData[0].color || '#000000',
+      originalSpanTexts
     };
 
     const doc = getActiveDocument();
@@ -374,7 +514,6 @@ function finishPdfTextEditing() {
       doc.textEdits.push(editRecord);
 
       // Update span text visually: put all new text in first span, blank the rest
-      const { lineData } = block;
       const newLines = newText.split('\n');
       for (let li = 0; li < lineData.length; li++) {
         const lineSpans = lineData[li].spans;
@@ -386,7 +525,7 @@ function finishPdfTextEditing() {
         }
       }
 
-      execute({ type: 'addTextEdit', textEdit: { ...editRecord } });
+      execute({ type: 'addTextEdit', textEdit: { ...editRecord, originalSpanTexts } });
       markDocumentModified();
 
       if (state.viewMode === 'continuous') {

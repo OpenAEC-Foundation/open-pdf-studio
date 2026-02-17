@@ -182,6 +182,60 @@ function applyUndo(cmd) {
       if (!doc.textEdits) doc.textEdits = [];
       const idx = doc.textEdits.findIndex(e => e.id === cmd.textEdit.id);
       if (idx !== -1) doc.textEdits.splice(idx, 1);
+      // Restore original span text in the text layer
+      if (cmd.textEdit.originalSpanTexts) {
+        const pageNum = cmd.textEdit.page;
+        const textLayer = document.querySelector(`.textLayer[data-page="${pageNum}"]`)
+          || document.querySelector('.textLayer');
+        if (textLayer) {
+          const spans = Array.from(textLayer.querySelectorAll('span[data-pdf-transform]'));
+          // Find spans matching the edit's PDF position
+          const editPdfY = cmd.textEdit.pdfY;
+          const editPdfX = cmd.textEdit.pdfX;
+          const fontSize = cmd.textEdit.fontSize;
+          const tolerance = fontSize * 0.3;
+          // Group spans into lines by pdfY
+          const lineMap = new Map();
+          for (const span of spans) {
+            const transform = JSON.parse(span.dataset.pdfTransform);
+            const pdfY = transform[5];
+            let foundKey = null;
+            for (const key of lineMap.keys()) {
+              if (Math.abs(pdfY - key) <= tolerance) { foundKey = key; break; }
+            }
+            if (foundKey !== null) {
+              lineMap.get(foundKey).push({ span, pdfX: transform[4], pdfY });
+            } else {
+              lineMap.set(pdfY, [{ span, pdfX: transform[4], pdfY }]);
+            }
+          }
+          // Match lines from originalSpanTexts to text layer lines
+          const origTexts = cmd.textEdit.originalSpanTexts;
+          const ls = cmd.textEdit.lineSpacing || fontSize * 1.2;
+          for (let li = 0; li < origTexts.length; li++) {
+            const expectedY = editPdfY - li * ls;
+            let bestLine = null;
+            let bestDist = Infinity;
+            for (const [key, lineSpans] of lineMap) {
+              const dist = Math.abs(key - expectedY);
+              if (dist < bestDist) { bestDist = dist; bestLine = lineSpans; }
+            }
+            if (bestLine && bestDist <= tolerance * 3) {
+              bestLine.sort((a, b) => a.pdfX - b.pdfX);
+              // Find starting span that matches the edit's pdfX position
+              let startIdx = 0;
+              let bestXDist = Infinity;
+              for (let si = 0; si < bestLine.length; si++) {
+                const dist = Math.abs(bestLine[si].pdfX - editPdfX);
+                if (dist < bestXDist) { bestXDist = dist; startIdx = si; }
+              }
+              for (let si = 0; si < origTexts[li].length && (startIdx + si) < bestLine.length; si++) {
+                bestLine[startIdx + si].span.textContent = origTexts[li][si];
+              }
+            }
+          }
+        }
+      }
       break;
     }
     case 'removeTextEdit': {
@@ -203,6 +257,25 @@ function applyUndo(cmd) {
     case 'modifyWatermark': {
       const idx = doc.watermarks.findIndex(w => w.id === cmd.id);
       if (idx !== -1) Object.assign(doc.watermarks[idx], cmd.oldState);
+      break;
+    }
+    case 'addBookmark': {
+      if (!doc.bookmarks) doc.bookmarks = [];
+      const idx = doc.bookmarks.findIndex(b => b.id === cmd.bookmark.id);
+      if (idx !== -1) doc.bookmarks.splice(idx, 1);
+      break;
+    }
+    case 'removeBookmark': {
+      if (!doc.bookmarks) doc.bookmarks = [];
+      for (const bm of cmd.bookmarks) {
+        doc.bookmarks.push({ ...bm });
+      }
+      break;
+    }
+    case 'modifyBookmark': {
+      if (!doc.bookmarks) doc.bookmarks = [];
+      const idx = doc.bookmarks.findIndex(b => b.id === cmd.id);
+      if (idx !== -1) Object.assign(doc.bookmarks[idx], cmd.oldState);
       break;
     }
   }
@@ -287,6 +360,23 @@ function applyRedo(cmd) {
       if (idx !== -1) Object.assign(doc.watermarks[idx], cmd.newState);
       break;
     }
+    case 'addBookmark': {
+      if (!doc.bookmarks) doc.bookmarks = [];
+      doc.bookmarks.push({ ...cmd.bookmark });
+      break;
+    }
+    case 'removeBookmark': {
+      if (!doc.bookmarks) doc.bookmarks = [];
+      const idsToRemove = new Set(cmd.bookmarks.map(b => b.id));
+      doc.bookmarks = doc.bookmarks.filter(b => !idsToRemove.has(b.id));
+      break;
+    }
+    case 'modifyBookmark': {
+      if (!doc.bookmarks) doc.bookmarks = [];
+      const idx = doc.bookmarks.findIndex(b => b.id === cmd.id);
+      if (idx !== -1) Object.assign(doc.bookmarks[idx], cmd.newState);
+      break;
+    }
   }
 }
 
@@ -298,6 +388,13 @@ async function refresh() {
     redrawAnnotations();
   }
   updateQuickAccessButtons();
+
+  // Refresh bookmarks panel if active
+  const activeTab = document.querySelector('.left-panel-tab.active');
+  if (activeTab && activeTab.dataset.panel === 'bookmarks') {
+    const { updateBookmarksList } = await import('../ui/panels/bookmarks.js');
+    updateBookmarksList();
+  }
 }
 
 // ---- Helper recorders ----
@@ -456,6 +553,19 @@ export function recordRemoveWatermark(watermark, index) {
 
 export function recordModifyWatermark(id, oldState, newState) {
   execute({ type: 'modifyWatermark', id, oldState: { ...oldState }, newState: { ...newState } });
+}
+
+// Bookmark undo/redo helpers
+export function recordAddBookmark(bookmark) {
+  execute({ type: 'addBookmark', bookmark: { ...bookmark } });
+}
+
+export function recordRemoveBookmark(bookmarks) {
+  execute({ type: 'removeBookmark', bookmarks: bookmarks.map(b => ({ ...b })) });
+}
+
+export function recordModifyBookmark(id, oldState, newState) {
+  execute({ type: 'modifyBookmark', id, oldState: { ...oldState }, newState: { ...newState } });
 }
 
 // Record a page structure change (insert, delete, reorder) for undo/redo

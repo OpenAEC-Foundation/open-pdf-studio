@@ -85,7 +85,7 @@ function handleMouseDown(e) {
   if (textLayer) return;
 
   // Check if we're clicking on an annotation canvas in select tool mode
-  if (state.currentTool === 'select') {
+  if (state.currentTool === 'select' || state.currentTool === 'selectComments') {
     const selection = window.getSelection();
     if (selection && !selection.isCollapsed) {
       // Clear selection when clicking outside text layer

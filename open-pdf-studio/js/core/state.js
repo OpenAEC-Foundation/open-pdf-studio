@@ -37,6 +37,7 @@ export function createDocument(filePath = null) {
     annotations: [],
     textEdits: [],
     watermarks: [],
+    bookmarks: [],
     undoStack: [],
     redoStack: [],
     selectedAnnotation: null,
@@ -44,6 +45,7 @@ export function createDocument(filePath = null) {
     modified: false,
     scrollPosition: { x: 0, y: 0 },
     pageRotations: {},
+    pdfaCompliance: null,
   };
 }
 
@@ -68,7 +70,7 @@ export const state = {
   activeDocumentIndex: -1,
 
   // Current tool (global across all documents)
-  currentTool: 'select',
+  currentTool: 'hand',
 
   // Drawing/interaction state (temporary, not per-document)
   isDrawing: false,
@@ -235,6 +237,15 @@ export const state = {
   set watermarks(value) {
     const doc = this.documents[this.activeDocumentIndex];
     if (doc) doc.watermarks = value;
+  },
+
+  get bookmarks() {
+    const doc = this.documents[this.activeDocumentIndex];
+    return doc ? doc.bookmarks : [];
+  },
+  set bookmarks(value) {
+    const doc = this.documents[this.activeDocumentIndex];
+    if (doc) doc.bookmarks = value;
   },
 
   get redoStack() {

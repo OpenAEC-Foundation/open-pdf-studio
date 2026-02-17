@@ -33,6 +33,7 @@ export const ribbonContents = document.querySelectorAll('.ribbon-content');
 // Tool buttons
 export const toolSelect = document.getElementById('tool-select');
 export const toolHand = document.getElementById('tool-hand');
+export const toolSelectComments = document.getElementById('tool-select-comments');
 export const toolHighlight = document.getElementById('tool-highlight');
 export const toolDraw = document.getElementById('tool-draw');
 export const toolLine = document.getElementById('tool-line');
@@ -52,6 +53,7 @@ export const toolMeasureDistance = document.getElementById('tool-measure-distanc
 export const toolMeasureArea = document.getElementById('tool-measure-area');
 export const toolMeasurePerimeter = document.getElementById('tool-measure-perimeter');
 export const toolRedaction = document.getElementById('tool-redaction');
+export const toolEditText = document.getElementById('edit-text');
 export const btnApplyRedactions = document.getElementById('btn-apply-redactions');
 export const toolClear = document.getElementById('tool-clear');
 export const toolUndo = document.getElementById('tool-undo');

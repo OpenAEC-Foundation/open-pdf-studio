@@ -258,7 +258,8 @@
   overflow: hidden;
 }
 
-.main-view > #form-fields-bar {
+.main-view > #form-fields-bar,
+.main-view > #pdfa-bar {
   flex-shrink: 0;
 }
 
@@ -394,7 +395,7 @@
   box-sizing: border-box;
   border: 1px solid #0078d7;
   background: #ffffff;
-  padding: 2px 3px;
+  padding: 4px 4px;
   margin: 0;
   resize: none;
   overflow: hidden;

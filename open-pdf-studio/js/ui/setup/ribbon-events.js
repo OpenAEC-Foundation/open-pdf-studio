@@ -7,7 +7,7 @@ import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering
 import { bringToFront, sendToBack, bringForward, sendBackward } from '../../annotations/z-order.js';
 import { toggleAnnotationsListPanel } from '../panels/annotations-list.js';
 import { toggleLeftPanel } from '../panels/left-panel.js';
-import { applyTheme, savePreferences } from '../../core/preferences.js';
+import { applyTheme, savePreferences, updateThemePickerSelection } from '../../core/preferences.js';
 import {
   alignLeft, alignCenter, alignRight, alignTop, alignMiddle, alignBottom,
   distributeSpaceH, distributeSpaceV, distributeLeft, distributeCenter,
@@ -38,17 +38,12 @@ export function setupRibbonEvents() {
   });
 
   document.getElementById('fit-width')?.addEventListener('click', fitWidth);
-  document.getElementById('actual-size')?.addEventListener('click', actualSize);
-  document.getElementById('fit-page')?.addEventListener('click', fitPage);
   document.getElementById('single-page')?.addEventListener('click', () => setViewMode('single'));
   document.getElementById('continuous')?.addEventListener('click', () => setViewMode('continuous'));
 
-  // View ribbon tab buttons
-  document.getElementById('ribbon-zoom-in')?.addEventListener('click', zoomIn);
-  document.getElementById('ribbon-zoom-out')?.addEventListener('click', zoomOut);
-  document.getElementById('view-actual-size')?.addEventListener('click', actualSize);
-  document.getElementById('view-fit-width')?.addEventListener('click', fitWidth);
-  document.getElementById('view-fit-page')?.addEventListener('click', fitPage);
+  // Home ribbon tab zoom buttons
+  document.getElementById('actual-size-ribbon')?.addEventListener('click', actualSize);
+  document.getElementById('fit-page-ribbon')?.addEventListener('click', fitPage);
   document.getElementById('ribbon-nav-panel')?.addEventListener('click', toggleLeftPanel);
   document.getElementById('ribbon-properties-panel')?.addEventListener('click', () => {
     if (propertiesPanel?.classList.contains('visible')) {
@@ -101,6 +96,11 @@ export function setupRibbonEvents() {
   // Edit Text button
   document.getElementById('edit-text')?.addEventListener('click', () => {
     setTool('editText');
+  });
+
+  // Add Text button (Home ribbon shortcut for text annotation tool)
+  document.getElementById('add-text')?.addEventListener('click', () => {
+    setTool('text');
   });
 
   // Watermark buttons
@@ -192,10 +192,31 @@ export function setupRibbonEvents() {
   // Format ribbon
   initFormatRibbon();
 
-  // Theme selector
-  document.getElementById('theme-select')?.addEventListener('change', (e) => {
-    state.preferences.theme = e.target.value;
-    applyTheme(e.target.value);
-    savePreferences();
-  });
+  // Theme picker (custom dropdown with color swatches)
+  const themePickerToggle = document.getElementById('theme-picker-toggle');
+  const themePickerDropdown = document.getElementById('theme-picker-dropdown');
+  if (themePickerToggle && themePickerDropdown) {
+    themePickerToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      themePickerDropdown.classList.toggle('open');
+    });
+    // Close on click outside
+    document.addEventListener('click', () => {
+      themePickerDropdown.classList.remove('open');
+    });
+    themePickerDropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+    // Handle option selection
+    themePickerDropdown.querySelectorAll('.theme-picker-option').forEach(option => {
+      option.addEventListener('click', () => {
+        const value = option.dataset.themeValue;
+        state.preferences.theme = value;
+        applyTheme(value);
+        savePreferences();
+        updateThemePickerSelection(value);
+        themePickerDropdown.classList.remove('open');
+      });
+    });
+  }
 }

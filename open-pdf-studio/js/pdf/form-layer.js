@@ -128,9 +128,6 @@ export async function createFormLayer(page, viewport, container, pageNum) {
         documentJS = Object.values(jsActions).flat().join('\n');
         jsConstants = parseJSConstants(documentJS);
         jsFunctions = parseJSFunctions(documentJS);
-        console.log('[form-layer] Document JS loaded:', documentJS.length, 'chars');
-        console.log('[form-layer] Constants found:', [...jsConstants.entries()]);
-        console.log('[form-layer] Functions found:', [...jsFunctions.keys()]);
       }
     } catch (e) {
       console.warn('Failed to load document JS:', e);
@@ -157,15 +154,6 @@ function applyFieldRestrictions(formLayerDiv, widgetAnnotations) {
     // Handle checkbox/radio actions (enable/disable other fields)
     const toggleInput = section.querySelector('input[type="checkbox"], input[type="radio"]');
     if (toggleInput) {
-      console.log(`[form-layer] Found toggle input: ${ann.fieldName}`, {
-        type: toggleInput.type,
-        actions: ann.actions ? Object.keys(ann.actions) : 'none',
-        allActions: ann.actions,
-        fieldType: ann.fieldType,
-        subtype: ann.subtype,
-        checkBox: ann.checkBox,
-        radioButton: ann.radioButton,
-      });
       if (ann.actions) {
         applyToggleActions(toggleInput, ann, formLayerDiv);
         continue;
@@ -233,8 +221,6 @@ function applyToggleActions(inputEl, ann, formLayerDiv) {
     initializedRadioGroups.add(groupName);
   }
 
-  console.log(`[form-layer] Toggle actions on ${groupName}:`, actions);
-
   const handler = () => {
     // Get the actual PDF value of the selected radio/checkbox
     let selectedValue = 'Off';
@@ -264,8 +250,6 @@ function applyToggleActions(inputEl, ann, formLayerDiv) {
 
     // Don't use HTML default "on"
     if (selectedValue === 'on') selectedValue = 'Off';
-
-    console.log(`[form-layer] Toggle handler for ${groupName}, selectedValue="${selectedValue}"`);
 
     for (const action of actions) {
       executeToggleAction(action, selectedValue, ann);
@@ -501,7 +485,6 @@ function parseDirectFieldChanges(action) {
  */
 function applyFieldChanges(changes) {
   if (changes.length === 0) return;
-  console.log('[form-layer] Applying field changes:', JSON.stringify(changes, null, 2));
 
   isTogglingFields = true;
 
@@ -529,7 +512,6 @@ function applyFieldChanges(changes) {
               updateAnnotationStorageValue(annId, '');
             }
           });
-          console.log(`[form-layer] ${hidden ? 'Hiding' : 'Showing'} field: ${fieldName}`);
         } else if (change.property === 'readonly') {
           inputs.forEach(inp => {
             inp.readOnly = change.value;
@@ -549,9 +531,6 @@ function applyFieldChanges(changes) {
           });
         }
       }
-    }
-    if (!found) {
-      console.log(`[form-layer] Field NOT FOUND: "${change.fieldName}"`);
     }
   }
 

@@ -14,6 +14,7 @@ import { showSignatureDialog } from '../annotations/signature.js';
 import { startPan, startContinuousPan, handlePanMove, handleMiddleButtonPanEnd } from './pan-handler.js';
 import { drawShapePreview } from './shape-preview.js';
 import { createAnnotationFromTool, createContinuousAnnotation } from './annotation-creators.js';
+import { isPdfAReadOnly } from '../pdf/loader.js';
 
 // Check if any modal dialog/overlay is blocking interaction
 function isModalDialogOpen() {
@@ -59,10 +60,22 @@ export function handleMouseDown(e) {
     return;
   }
 
+  // Block annotation tools when PDF/A read-only is active
+  if (isPdfAReadOnly() && state.currentTool !== 'select' && state.currentTool !== 'selectComments') {
+    return;
+  }
+
+  // Edit text tool is handled by text layer click handlers, not annotation canvas
+  if (state.currentTool === 'editText') {
+    return;
+  }
+
   // Handle select tool
-  if (state.currentTool === 'select') {
+  if (state.currentTool === 'select' || state.currentTool === 'selectComments') {
+    const pdfaLocked = isPdfAReadOnly();
+
     // First check if clicking on a handle of the selected annotation (only for single selection)
-    if (state.selectedAnnotation && state.selectedAnnotations.length === 1) {
+    if (!pdfaLocked && state.selectedAnnotation && state.selectedAnnotations.length === 1) {
       const handleType = findHandleAt(x, y, state.selectedAnnotation, state.scale);
       if (handleType) {
         state.isResizing = true;
@@ -77,13 +90,13 @@ export function handleMouseDown(e) {
     const clickedAnnotation = findAnnotationAt(x, y);
     if (clickedAnnotation) {
       // Double-click to edit text for textbox/callout
-      if (e.detail === 2 && ['textbox', 'callout'].includes(clickedAnnotation.type)) {
+      if (!pdfaLocked && e.detail === 2 && ['textbox', 'callout'].includes(clickedAnnotation.type)) {
         startTextEditing(clickedAnnotation);
         return;
       }
 
       if (e.ctrlKey || e.metaKey) {
-        if (isSelected(clickedAnnotation)) {
+        if (!pdfaLocked && isSelected(clickedAnnotation)) {
           // Ctrl+drag on selected annotation: start copy-drag
           state.isDragging = true;
           state._ctrlDragCopy = true;
@@ -105,20 +118,23 @@ export function handleMouseDown(e) {
           redrawAnnotations();
         }
       } else {
-        // Normal click
+        // Normal click - select and show properties, but don't allow drag in PDF/A mode
         if (isSelected(clickedAnnotation) && state.selectedAnnotations.length > 1) {
-          // Clicking on an already-selected annotation in multi-select: start drag of all
-          state.isDragging = true;
-          state.originalAnnotations = state.selectedAnnotations.map(a => cloneAnnotation(a));
-          annotationCanvas.style.cursor = 'move';
+          if (!pdfaLocked) {
+            state.isDragging = true;
+            state.originalAnnotations = state.selectedAnnotations.map(a => cloneAnnotation(a));
+            annotationCanvas.style.cursor = 'move';
+          }
         } else {
           // Single select
           state.selectedAnnotations = [clickedAnnotation];
           showProperties(clickedAnnotation);
-          state.isDragging = true;
-          state.originalAnnotation = cloneAnnotation(clickedAnnotation);
-          state.originalAnnotations = [cloneAnnotation(clickedAnnotation)];
-          annotationCanvas.style.cursor = 'move';
+          if (!pdfaLocked) {
+            state.isDragging = true;
+            state.originalAnnotation = cloneAnnotation(clickedAnnotation);
+            state.originalAnnotations = [cloneAnnotation(clickedAnnotation)];
+            annotationCanvas.style.cursor = 'move';
+          }
         }
       }
     } else {
@@ -231,7 +247,7 @@ export function handleMouseMove(e) {
   const currentY = (e.clientY - rect.top) / state.scale;
 
   // Rubber band selection drawing
-  if (state.isRubberBanding && state.currentTool === 'select') {
+  if (state.isRubberBanding && (state.currentTool === 'select' || state.currentTool === 'selectComments')) {
     redrawAnnotations();
     // Draw rubber band rectangle
     annotationCtx.save();
@@ -252,7 +268,7 @@ export function handleMouseMove(e) {
   }
 
   // Update cursor when hovering over handles
-  if (state.currentTool === 'select' && state.selectedAnnotation && !state.isDragging && !state.isResizing) {
+  if ((state.currentTool === 'select' || state.currentTool === 'selectComments') && state.selectedAnnotation && !state.isDragging && !state.isResizing) {
     // Only show resize handles cursor for single selection
     if (state.selectedAnnotations.length === 1) {
       const handleType = findHandleAt(currentX, currentY, state.selectedAnnotation, state.scale);
@@ -528,7 +544,7 @@ export function handleContinuousMouseDown(e, pageNum) {
     return;
   }
 
-  if (state.currentTool === 'select') {
+  if (state.currentTool === 'select' || state.currentTool === 'selectComments') {
     const clickedAnnotation = findAnnotationAt(state.startX, state.startY);
     if (clickedAnnotation) {
       showProperties(clickedAnnotation);
@@ -537,6 +553,12 @@ export function handleContinuousMouseDown(e, pageNum) {
     }
     return;
   }
+
+  // Edit text tool is handled by text layer click handlers, not annotation canvas
+  if (state.currentTool === 'editText') return;
+
+  // Block annotation tools when PDF/A read-only is active
+  if (isPdfAReadOnly()) return;
 
   state.isDrawing = true;
 

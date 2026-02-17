@@ -1,7 +1,7 @@
-/* Annotation canvas - below text layer */
+/* Annotation canvas - above text layer so clicks reach annotation handlers */
 #annotation-canvas,
 .annotation-canvas {
-  z-index: 2;
+  z-index: 6;
   pointer-events: auto;
 }
 

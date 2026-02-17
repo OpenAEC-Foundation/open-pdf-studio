@@ -2391,7 +2391,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-studio"
-version = "1.11.0"
+version = "1.13.0"
 dependencies = [
  "base64 0.22.1",
  "dirs 5.0.1",
@@ -4699,7 +4699,7 @@ checksum = "537dd038a89878be9b64dd4bd1b260315c1bb94f4d784956b81e27a088d9a09e"
 
 [[package]]
 name = "unicode-segmentation"
-version = "1.12.0"
+version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f6ccf251212114b54433ec949fd6a7841275f9ada20dddd2f29e9ceea4501493"
 
@@ -4766,7 +4766,7 @@ dependencies = [
 
 [[package]]
 name = "value-bag"
-version = "1.12.0"
+version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7ba6f5989077681266825251a52748b8c1d8a4ad098cc37e440103d0ea717fc0"
 

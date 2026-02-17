@@ -4,7 +4,7 @@ import { hideFormFieldsBar } from '../../pdf/form-layer.js';
 import { redrawAnnotations, redrawContinuous, updateQuickAccessButtons } from '../../annotations/rendering.js';
 import { updateAllStatus } from './status-bar.js';
 import { generateThumbnails, clearThumbnails, clearThumbnailCache, refreshActiveTab } from '../panels/left-panel.js';
-import { openPDFFile, cancelAnnotationLoading } from '../../pdf/loader.js';
+import { openPDFFile, cancelAnnotationLoading, hidePdfABar } from '../../pdf/loader.js';
 import { savePDF } from '../../pdf/saver.js';
 import { unlockFile } from '../../core/platform.js';
 
@@ -73,8 +73,9 @@ export function switchToTab(index) {
   // Update tab bar UI
   updateTabBar();
 
-  // Hide form fields bar before rendering (will be re-shown if new doc has form fields)
+  // Hide form fields bar and PDF/A bar before rendering (will be re-shown if new doc has them)
   hideFormFieldsBar();
+  hidePdfABar();
 
   // Render the new active document
   const newDoc = getActiveDocument();
@@ -109,6 +110,24 @@ export function switchToTab(index) {
   updateAllStatus();
   updateQuickAccessButtons();
   updateWindowTitle();
+
+  // Update PDF/A read-only tool state and bar for the new document
+  import('../../tools/manager.js').then(m => m.updatePdfAToolState());
+  if (newDoc && newDoc.pdfaCompliance) {
+    import('../../pdf/loader.js').then(({ isPdfAReadOnly }) => {
+      if (isPdfAReadOnly()) {
+        const bar = document.getElementById('pdfa-bar');
+        if (bar) {
+          const label = `PDF/A-${newDoc.pdfaCompliance.part}${newDoc.pdfaCompliance.conformance ? newDoc.pdfaCompliance.conformance.toLowerCase() : ''}`;
+          const textEl = document.getElementById('pdfa-bar-text');
+          if (textEl) {
+            textEl.textContent = `This document complies with the ${label} standard and has been opened read-only to prevent modification.`;
+          }
+          bar.style.display = 'flex';
+        }
+      }
+    });
+  }
 }
 
 /**

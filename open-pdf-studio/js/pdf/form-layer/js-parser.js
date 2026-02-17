@@ -76,12 +76,9 @@ export function getMessagesForBlurAction(actionStr, jsFunctions, jsConstants) {
   const funcName = funcMatch[1];
   const funcBody = jsFunctions.get(funcName);
   if (!funcBody) {
-    console.log('[form-layer] Function not found in doc JS:', funcName);
     return [];
   }
 
-  console.log('[form-layer] Extracting messages for blur action:', funcName);
-  console.log('[form-layer] Function body preview:', funcBody.substring(0, 500));
   return extractAlertMessages(funcBody, jsConstants);
 }
 
@@ -107,7 +104,6 @@ export function extractAlertMessages(funcBody, jsConstants) {
     if (resolved) messages.push(resolved);
   }
 
-  console.log('[form-layer] extractAlertMessages found:', messages);
   return messages;
 }
 
@@ -157,8 +153,6 @@ function resolveLocalVariable(funcBody, varName, jsConstants) {
   const exprStart = lastMatch.index + lastMatch[0].length;
   const exprStr = extractAssignmentExpression(funcBody, exprStart);
   if (!exprStr) return null;
-
-  console.log(`[form-layer] resolveLocalVariable(${varName}) extracted expression:`, JSON.stringify(exprStr).substring(0, 300));
 
   return resolveStringConcat(exprStr, funcBody, jsConstants);
 }

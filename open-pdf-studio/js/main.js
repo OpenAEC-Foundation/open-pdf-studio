@@ -11,7 +11,7 @@ import { loadPreferences, savePreferences } from './core/preferences.js';
 import { initCanvasContexts } from './ui/dom-elements.js';
 
 // UI initialization
-import { initAboutDialog, initDocPropertiesDialog, initNewDocDialog, initExportDialog, initInsertPageDialog, initExtractPagesDialog, initMergePdfsDialog, initPrintDialog, initPageSetupDialog } from './ui/chrome/dialogs.js';
+import { initAboutDialog, initDocPropertiesDialog, initNewDocDialog, initImportDialog, initExportDialog, initInsertPageDialog, initExtractPagesDialog, initMergePdfsDialog, initPrintDialog, initPageSetupDialog } from './ui/chrome/dialogs.js';
 import { initSignatureDialog } from './annotations/signature.js';
 import { initMenus } from './ui/chrome/menus.js';
 import { initRibbon } from './ui/chrome/ribbon.js';
@@ -20,6 +20,7 @@ import { initAnnotationsList } from './ui/panels/annotations-list.js';
 import { initWatermarkDialog, initHeaderFooterDialog, initManageWatermarksDialog } from './watermark/watermark-dialog.js';
 import { initAttachments } from './ui/panels/attachments.js';
 import { initLinks } from './ui/panels/links.js';
+import { initBookmarks } from './ui/panels/bookmarks.js';
 import { initAllColorPalettes, initAllPrefColorPalettes } from './ui/panels/color-palette.js';
 import { updateAllStatus } from './ui/chrome/status-bar.js';
 import { initLeftPanel } from './ui/panels/left-panel.js';
@@ -78,6 +79,7 @@ async function init() {
   initDocPropertiesDialog();
   initNewDocDialog();
   initSignatureDialog();
+  initImportDialog();
   initExportDialog();
   initInsertPageDialog();
   initExtractPagesDialog();
@@ -91,6 +93,7 @@ async function init() {
   initManageWatermarksDialog();
   initAttachments();
   initLinks();
+  initBookmarks();
   initAllColorPalettes();
   initAllPrefColorPalettes();
   initLeftPanel();

@@ -1,5 +1,5 @@
 /* Text Layer - for PDF text selection */
-/* CSS based on official PDF.js pdf_viewer.css */
+/* CSS based on official PDF.js pdf_viewer.css (v5 TextLayer) */
 .textLayer {
   position: absolute;
   text-align: initial;
@@ -14,6 +14,11 @@
   transform-origin: 0 0;
   z-index: 5;
   pointer-events: none;
+
+  /* PDF.js TextLayer CSS variable system */
+  --min-font-size: 1;
+  --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));
+  --min-font-size-inv: calc(1 / var(--min-font-size));
 }
 
 .textLayer :is(span, br) {
@@ -22,13 +27,33 @@
   white-space: pre;
   cursor: text;
   transform-origin: 0% 0%;
-  pointer-events: auto;
+  pointer-events: none;
 }
 
-/* PDF.js uses markedContent spans */
-.textLayer span.markedContent {
+/* PDF.js TextLayer: CSS variable-based font sizing and transforms */
+.textLayer > :not(.markedContent),
+.textLayer .markedContent span:not(.markedContent) {
+  z-index: 1;
+  --font-height: 0;
+  font-size: calc(var(--text-scale-factor) * var(--font-height));
+  --scale-x: 1;
+  --rotate: 0deg;
+  transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv));
+}
+
+/* PDF.js markedContent wrappers should not create layout boxes */
+.textLayer .markedContent {
+  display: contents;
+}
+
+/* Hidden canvas used by PDF.js TextLayer for text width measurement */
+.hiddenCanvasElement {
+  position: absolute;
   top: 0;
+  left: 0;
+  width: 0;
   height: 0;
+  display: none;
 }
 
 .textLayer .endOfContent {
