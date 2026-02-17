@@ -17,10 +17,6 @@ jobs:
     permissions:
       contents: write
 
-    defaults:
-      run:
-        working-directory: .
-
     steps:
       - uses: actions/checkout@v4
 
@@ -71,15 +67,13 @@ jobs:
           # Update version in snapcraft.yaml
           sed -i "s/^version: .*/version: '${{ steps.get-version.outputs.version_number }}'/" snap/snapcraft.yaml
 
-      - name: Install Snapcraft
-        run: sudo snap install snapcraft --classic
-
       - name: Build snap
-        run: snapcraft --destructive-mode
+        uses: snapcore/action-build@v1
+        id: snapcraft
 
       - name: Upload snap to GitHub release
         run: |
-          SNAP_FILE=$(ls *.snap | head -1)
+          SNAP_FILE="${{ steps.snapcraft.outputs.snap }}"
           echo "Uploading $SNAP_FILE to release ${{ steps.get-version.outputs.version }}"
 
           # Wait for the release to be created by the main release workflow
@@ -99,7 +93,7 @@ jobs:
       - name: Publish to Snap Store
         if: env.SNAPCRAFT_STORE_CREDENTIALS != ''
         run: |
-          SNAP_FILE=$(ls *.snap | head -1)
+          SNAP_FILE="${{ steps.snapcraft.outputs.snap }}"
           snapcraft upload "$SNAP_FILE" --release=stable
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
