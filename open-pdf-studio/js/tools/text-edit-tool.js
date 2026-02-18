@@ -1,6 +1,7 @@
 import { state, getActiveDocument } from '../core/state.js';
 import { execute } from '../core/undo-manager.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
+import { showTextEditProperties, hideProperties } from '../ui/panels/properties-panel.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 
 let activeEditor = null;
@@ -416,6 +417,17 @@ function startPdfTextEditing(span, pageNum) {
 
   state.pdfTextEditState = activeEditor;
 
+  // Show text properties in the right panel
+  showTextEditProperties({
+    text: combinedText,
+    fontSize,
+    fontFamily: lineData[0].actualFontName || lineData[0].pdfFontName || cssFallbackFont,
+    color: lineData[0].color || '#000000',
+    isBold: lineData[0].isBold || false,
+    isItalic: lineData[0].isItalic || false,
+    page: pageNum
+  });
+
   editor.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       e.stopPropagation();
@@ -432,6 +444,12 @@ function startPdfTextEditing(span, pageNum) {
   editor.addEventListener('blur', () => {
     setTimeout(() => {
       if (activeEditor && activeEditor.editor === editor) {
+        // Don't close if focus moved to the properties panel
+        const activeEl = document.activeElement;
+        const propsPanel = document.getElementById('properties-panel');
+        if (propsPanel && propsPanel.contains(activeEl)) {
+          return;
+        }
         finishPdfTextEditing();
       }
     }, 150);
@@ -538,6 +556,7 @@ function finishPdfTextEditing() {
 
   activeEditor = null;
   state.pdfTextEditState = null;
+  hideProperties();
 }
 
 function cancelPdfTextEditing() {
@@ -549,4 +568,181 @@ function cancelPdfTextEditing() {
 
   activeEditor = null;
   state.pdfTextEditState = null;
+  hideProperties();
+}
+
+export function findTextEditAtPosition(x, y, pageNum, canvasEl) {
+  const doc = getActiveDocument();
+  if (!doc || !doc.textEdits || doc.textEdits.length === 0) return null;
+
+  const pageEdits = doc.textEdits.filter(e => e.page === pageNum);
+  if (pageEdits.length === 0) return null;
+
+  const pageHeight = canvasEl.height / state.scale;
+
+  for (const edit of pageEdits) {
+    const fontSize = edit.fontSize;
+    const ls = edit.lineSpacing || fontSize * 1.2;
+    const newLines = edit.newText.split('\n');
+    const numLines = newLines.length;
+
+    const firstBaseY = pageHeight - edit.pdfY;
+    const editLeft = edit.pdfX;
+    const editTop = firstBaseY - fontSize;
+    const editHeight = (numLines - 1) * ls + fontSize * 1.3;
+    const maxCharCount = Math.max(...newLines.map(l => l.length), 1);
+    const editWidth = Math.max(edit.pdfWidth || 0, fontSize * 0.6 * maxCharCount) + fontSize * 0.5;
+
+    if (x >= editLeft && x <= editLeft + editWidth &&
+        y >= editTop && y <= editTop + editHeight) {
+      return edit;
+    }
+  }
+  return null;
+}
+
+export function startTextEditEditing(textEdit, pageNum, canvasEl) {
+  finishPdfTextEditing();
+
+  const pageHeight = canvasEl.height / state.scale;
+  const fontSize = textEdit.fontSize;
+  const ls = textEdit.lineSpacing || fontSize * 1.2;
+  const newLines = textEdit.newText.split('\n');
+  const numLines = newLines.length;
+
+  const firstBaseY = pageHeight - textEdit.pdfY;
+  const editTop = firstBaseY - fontSize;
+  const editHeight = (numLines - 1) * ls + fontSize * 1.3;
+  const maxCharCount = Math.max(...newLines.map(l => l.length), 1);
+  const editWidth = Math.max(textEdit.pdfWidth || 0, fontSize * 0.6 * maxCharCount) + fontSize * 0.5;
+
+  // Find the container to place the editor in
+  const container = canvasEl.parentElement;
+  if (!container) return;
+  const containerRect = container.getBoundingClientRect();
+  const canvasRect = canvasEl.getBoundingClientRect();
+  const offsetX = canvasRect.left - containerRect.left;
+  const offsetY = canvasRect.top - containerRect.top;
+
+  const padX = 4;
+  const padY = 4;
+  const scaledLeft = textEdit.pdfX * state.scale;
+  const scaledTop = editTop * state.scale;
+  const scaledWidth = editWidth * state.scale;
+  const scaledHeight = editHeight * state.scale;
+  const editorFontSize = Math.round(fontSize * state.scale * 0.82);
+  const visualLineHeight = (scaledHeight / numLines);
+
+  const editor = document.createElement('textarea');
+  editor.className = 'pdf-text-editor';
+  editor.value = textEdit.newText;
+  editor.style.position = 'absolute';
+  editor.style.left = `${scaledLeft + offsetX - padX}px`;
+  editor.style.top = `${scaledTop + offsetY - padY}px`;
+  editor.style.width = `${Math.max(scaledWidth + padX * 2 + 4, 80)}px`;
+  editor.style.height = `${Math.max(scaledHeight + padY * 2 + 6, 24)}px`;
+  editor.style.fontSize = `${editorFontSize}px`;
+  editor.style.lineHeight = `${visualLineHeight}px`;
+
+  // Map font family to CSS
+  const ff = (textEdit.fontFamily || 'Helvetica').toLowerCase();
+  let cssFontFamily;
+  if (ff.includes('courier')) {
+    cssFontFamily = '"Courier New", Courier, monospace';
+  } else if (ff.includes('times')) {
+    cssFontFamily = '"Times New Roman", Times, serif';
+  } else {
+    cssFontFamily = 'Helvetica, Arial, sans-serif';
+  }
+  editor.style.fontFamily = cssFontFamily;
+  if (ff.includes('bold')) editor.style.fontWeight = 'bold';
+  if (ff.includes('italic') || ff.includes('oblique')) editor.style.fontStyle = 'italic';
+  editor.style.color = textEdit.color || '#000000';
+  editor.style.zIndex = '1000';
+
+  container.appendChild(editor);
+  editor.focus();
+  editor.select();
+
+  const oldTextEdit = { ...textEdit };
+
+  const finishEditing = () => {
+    const newText = editor.value;
+    editor.remove();
+
+    if (newText !== oldTextEdit.newText && newText.trim() !== '') {
+      textEdit.newText = newText;
+      execute({ type: 'modifyTextEdit', oldTextEdit, newTextEdit: { ...textEdit } });
+      markDocumentModified();
+
+      if (state.viewMode === 'continuous') {
+        redrawContinuous();
+      } else {
+        redrawAnnotations();
+      }
+    }
+
+    activeEditor = null;
+    state.pdfTextEditState = null;
+    hideProperties();
+  };
+
+  const cancelEditing = () => {
+    editor.remove();
+    activeEditor = null;
+    state.pdfTextEditState = null;
+    hideProperties();
+  };
+
+  activeEditor = {
+    editor,
+    block: { spans: [] },
+    pageNum,
+    originalText: textEdit.newText,
+    pdfX: textEdit.pdfX,
+    pdfY: textEdit.pdfY,
+    pdfWidth: textEdit.pdfWidth || 0,
+    fontSize,
+    lineSpacing: ls,
+    numOriginalLines: numLines
+  };
+  state.pdfTextEditState = activeEditor;
+
+  // Show text properties in the right panel
+  const ffLower = (textEdit.fontFamily || 'Helvetica').toLowerCase();
+  showTextEditProperties({
+    text: textEdit.newText,
+    fontSize: textEdit.fontSize,
+    fontFamily: textEdit.fontFamily || 'Helvetica',
+    color: textEdit.color || '#000000',
+    isBold: ffLower.includes('bold'),
+    isItalic: ffLower.includes('italic') || ffLower.includes('oblique'),
+    page: pageNum
+  });
+
+  editor.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      e.stopPropagation();
+      cancelEditing();
+    }
+    if (e.key === 'Enter' && !e.shiftKey && numLines === 1) {
+      e.preventDefault();
+      e.stopPropagation();
+      finishEditing();
+    }
+  });
+
+  editor.addEventListener('blur', () => {
+    setTimeout(() => {
+      if (activeEditor && activeEditor.editor === editor) {
+        // Don't close if focus moved to the properties panel
+        const activeEl = document.activeElement;
+        const propsPanel = document.getElementById('properties-panel');
+        if (propsPanel && propsPanel.contains(activeEl)) {
+          return;
+        }
+        finishEditing();
+      }
+    }, 150);
+  });
 }

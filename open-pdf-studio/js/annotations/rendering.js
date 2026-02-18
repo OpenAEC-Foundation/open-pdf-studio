@@ -735,15 +735,18 @@ function drawTextEdits(ctx, pageNum) {
     const firstBaseY = pageHeight - edit.pdfY;
 
     // Cover rectangle: extends from above first baseline to below last baseline
-    const coverTop = firstBaseY - fontSize;
-    const coverHeight = (numOrig - 1) * ls + fontSize * 1.3;
-    const origLines = edit.originalText.split('\n');
-    const maxOrigLen = Math.max(...origLines.map(l => l.length));
-    const coverWidth = Math.max(edit.pdfWidth, fontSize * 0.6 * maxOrigLen) + fontSize * 0.5;
-
+    // Skip cover rect for newly added text (no original text to cover)
     ctx.save();
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(edit.pdfX, coverTop, coverWidth, coverHeight);
+    if (edit.originalText) {
+      const coverTop = firstBaseY - fontSize;
+      const coverHeight = (numOrig - 1) * ls + fontSize * 1.3;
+      const origLines = edit.originalText.split('\n');
+      const maxOrigLen = Math.max(...origLines.map(l => l.length));
+      const coverWidth = Math.max(edit.pdfWidth, fontSize * 0.6 * maxOrigLen) + fontSize * 0.5;
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(edit.pdfX, coverTop, coverWidth, coverHeight);
+    }
 
     // Draw new text line by line
     ctx.fillStyle = edit.color || '#000000';

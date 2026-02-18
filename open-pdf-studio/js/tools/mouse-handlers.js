@@ -7,6 +7,7 @@ import { applyResize, applyMove, applyRotation } from '../annotations/transforms
 import { redrawAnnotations, redrawContinuous, renderAnnotationsForPage, snapToGrid } from '../annotations/rendering.js';
 import { showProperties, hideProperties, showMultiSelectionProperties } from '../ui/panels/properties-panel.js';
 import { startTextEditing, addTextAnnotation, addComment } from './text-editing.js';
+import { findTextEditAtPosition, startTextEditEditing } from './text-edit-tool.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import { recordAdd, recordModify, recordBulkModify } from '../core/undo-manager.js';
 import { showStampPicker } from '../annotations/stamps.js';
@@ -65,8 +66,13 @@ export function handleMouseDown(e) {
     return;
   }
 
-  // Edit text tool is handled by text layer click handlers, not annotation canvas
+  // Edit text tool: first check for textEdit records at click position
   if (state.currentTool === 'editText') {
+    const canvas = annotationCanvas;
+    const hitEdit = findTextEditAtPosition(x, y, state.currentPage, canvas);
+    if (hitEdit) {
+      startTextEditEditing(hitEdit, state.currentPage, canvas);
+    }
     return;
   }
 
@@ -554,8 +560,14 @@ export function handleContinuousMouseDown(e, pageNum) {
     return;
   }
 
-  // Edit text tool is handled by text layer click handlers, not annotation canvas
-  if (state.currentTool === 'editText') return;
+  // Edit text tool: first check for textEdit records at click position
+  if (state.currentTool === 'editText') {
+    const hitEdit = findTextEditAtPosition(state.startX, state.startY, pageNum, canvas);
+    if (hitEdit) {
+      startTextEditEditing(hitEdit, pageNum, canvas);
+    }
+    return;
+  }
 
   // Block annotation tools when PDF/A read-only is active
   if (isPdfAReadOnly()) return;
@@ -568,7 +580,7 @@ export function handleContinuousMouseDown(e, pageNum) {
     addComment(state.startX, state.startY);
     state.isDrawing = false;
   } else if (state.currentTool === 'text') {
-    addTextAnnotation(state.startX, state.startY);
+    addTextAnnotation(state.startX, state.startY, pageNum, canvas);
     state.isDrawing = false;
   }
 }

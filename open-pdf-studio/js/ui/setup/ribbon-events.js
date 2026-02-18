@@ -45,11 +45,14 @@ export function setupRibbonEvents() {
   document.getElementById('actual-size-ribbon')?.addEventListener('click', actualSize);
   document.getElementById('fit-page-ribbon')?.addEventListener('click', fitPage);
   document.getElementById('ribbon-nav-panel')?.addEventListener('click', toggleLeftPanel);
-  document.getElementById('ribbon-properties-panel')?.addEventListener('click', () => {
+  document.getElementById('ribbon-properties-panel')?.addEventListener('click', (e) => {
+    const btn = e.currentTarget;
     if (propertiesPanel?.classList.contains('visible')) {
       closePropertiesPanel();
+      btn.classList.remove('active');
     } else {
       propertiesPanel.classList.add('visible');
+      btn.classList.add('active');
       if (state.selectedAnnotation) {
         showProperties(state.selectedAnnotation);
       } else {

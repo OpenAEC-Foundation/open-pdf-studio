@@ -1,8 +1,10 @@
-import { state } from '../core/state.js';
+import { state, getActiveDocument } from '../core/state.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { showProperties } from '../ui/panels/properties-panel.js';
-import { recordAdd, recordModify } from '../core/undo-manager.js';
+import { recordAdd, recordModify, execute } from '../core/undo-manager.js';
 import { cloneAnnotation } from '../annotations/factory.js';
+import { markDocumentModified } from '../ui/chrome/tabs.js';
+import { injectSyntheticTextSpans } from '../text/text-layer.js';
 
 // Start inline text editing for textbox/callout
 export function startTextEditing(annotation) {
@@ -398,39 +400,97 @@ function initTextAnnotDialogDrag(overlay, dialog) {
   });
 }
 
-// Add text annotation at position
-export async function addTextAnnotation(x, y) {
+// Add PDF content text at position (stored as textEdit, burned into PDF on save)
+export async function addTextAnnotation(x, y, pageNum, canvasEl) {
   const result = await showTextAnnotationDialog();
-  if (result) {
-    const annotation = {
-      id: Date.now().toString(36) + Math.random().toString(36).substr(2, 9),
-      type: 'text',
-      page: state.currentPage,
-      x: x,
-      y: y,
-      text: result.text,
-      fontSize: result.fontSize,
-      fontFamily: result.fontFamily,
-      fontBold: result.fontBold,
-      fontItalic: result.fontItalic,
-      fontUnderline: result.fontUnderline,
-      textAlign: result.textAlign,
-      color: result.color,
-      author: state.defaultAuthor,
-      createdAt: new Date().toISOString(),
-      modifiedAt: new Date().toISOString(),
-      locked: false,
-      printable: true
-    };
+  if (!result) return;
 
-    state.annotations.push(annotation);
-    recordAdd(annotation);
+  const page = pageNum || state.currentPage;
 
-    if (state.viewMode === 'continuous') {
-      redrawContinuous();
+  // Determine page height for coordinate conversion
+  let pageHeight;
+  if (canvasEl) {
+    pageHeight = canvasEl.height / state.scale;
+  } else {
+    const canvas = document.getElementById('annotation-canvas');
+    if (canvas) {
+      pageHeight = canvas.height / state.scale;
     } else {
-      redrawAnnotations();
+      return;
     }
+  }
+
+  // Convert canvas coords to PDF user-space (origin at bottom-left)
+  const pdfX = x;
+  const pdfY = pageHeight - y;
+
+  // Map dialog font family + bold/italic to standard PDF font name
+  const fn = (result.fontFamily || 'Arial').toLowerCase();
+  const isBold = result.fontBold || false;
+  const isItalic = result.fontItalic || false;
+  let fontFamily;
+  if (fn.includes('courier') || fn.includes('consolas') || fn.includes('mono')) {
+    fontFamily = isBold && isItalic ? 'Courier-BoldOblique'
+      : isBold ? 'Courier-Bold'
+      : isItalic ? 'Courier-Oblique'
+      : 'Courier';
+  } else if (fn.includes('times') || fn.includes('garamond') || fn.includes('georgia')
+      || fn.includes('palatino') || fn.includes('cambria') || fn.includes('bookman')) {
+    fontFamily = isBold && isItalic ? 'TimesRoman-BoldItalic'
+      : isBold ? 'TimesRoman-Bold'
+      : isItalic ? 'TimesRoman-Italic'
+      : 'TimesRoman';
+  } else {
+    fontFamily = isBold && isItalic ? 'Helvetica-BoldOblique'
+      : isBold ? 'Helvetica-Bold'
+      : isItalic ? 'Helvetica-Oblique'
+      : 'Helvetica';
+  }
+
+  const fontSize = result.fontSize || 16;
+
+  const editRecord = {
+    id: Date.now() + Math.random().toString(36).substr(2, 9),
+    page,
+    originalText: '',
+    newText: result.text,
+    pdfX,
+    pdfY,
+    pdfWidth: 0,
+    fontSize,
+    lineSpacing: fontSize * 1.2,
+    numOriginalLines: 0,
+    fontFamily,
+    loadedFontName: '',
+    pdfFontName: '',
+    color: result.color || '#000000',
+    originalSpanTexts: []
+  };
+
+  const doc = getActiveDocument();
+  if (doc) {
+    if (!doc.textEdits) doc.textEdits = [];
+    doc.textEdits.push(editRecord);
+    execute({ type: 'addTextEdit', textEdit: { ...editRecord } });
+    markDocumentModified();
+  }
+
+  // Inject synthetic text layer span so the text is selectable and editable
+  const textLayer = document.querySelector(`.textLayer[data-page="${page}"]`)
+    || document.querySelector('.textLayer');
+  if (textLayer) {
+    const activeCanvas = canvasEl || document.getElementById('annotation-canvas');
+    if (activeCanvas) {
+      const pw = activeCanvas.width / state.scale;
+      const ph = activeCanvas.height / state.scale;
+      injectSyntheticTextSpans(textLayer, page, pw, ph);
+    }
+  }
+
+  if (state.viewMode === 'continuous') {
+    redrawContinuous();
+  } else {
+    redrawAnnotations();
   }
 }
 

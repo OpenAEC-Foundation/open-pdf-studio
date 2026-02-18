@@ -2279,13 +2279,13 @@
   </div>
 
   <!-- Document Properties Dialog -->
-  <div class="doc-props-overlay" id="doc-props-dialog">
-    <div class="doc-props-dialog">
-      <div class="doc-props-header">
+  <div class="modal-overlay doc-props-overlay" id="doc-props-dialog">
+    <div class="modal-dialog doc-props-dialog">
+      <div class="modal-header doc-props-header">
         <h2>Document Properties</h2>
-        <button class="doc-props-close-btn" id="doc-props-close-btn">&times;</button>
+        <button class="modal-close-btn doc-props-close-btn" id="doc-props-close-btn">&times;</button>
       </div>
-      <div class="doc-props-content">
+      <div class="modal-body doc-props-content">
         <div class="doc-props-section">
           <h3>File</h3>
           <div class="doc-props-row">
@@ -2352,20 +2352,20 @@
           </div>
         </div>
       </div>
-      <div class="doc-props-footer">
+      <div class="modal-footer doc-props-footer">
         <button id="doc-props-ok-btn">OK</button>
       </div>
     </div>
   </div>
 
   <!-- New Document Dialog -->
-  <div class="new-doc-overlay" id="new-doc-dialog">
-    <div class="new-doc-dialog">
-      <div class="new-doc-header">
+  <div class="modal-overlay new-doc-overlay" id="new-doc-dialog">
+    <div class="modal-dialog new-doc-dialog">
+      <div class="modal-header new-doc-header">
         <h2>New Document</h2>
-        <button class="new-doc-close-btn" id="new-doc-close-btn">&times;</button>
+        <button class="modal-close-btn new-doc-close-btn" id="new-doc-close-btn">&times;</button>
       </div>
-      <div class="new-doc-content">
+      <div class="modal-body new-doc-content">
         <div class="new-doc-form">
           <div class="new-doc-row">
             <label class="new-doc-label">Paper Size:</label>
@@ -2424,7 +2424,7 @@
           <div class="new-doc-preview-text" id="new-doc-preview-text">210 x 297 mm (A4)</div>
         </div>
       </div>
-      <div class="new-doc-footer">
+      <div class="modal-footer new-doc-footer">
         <div></div>
         <div class="new-doc-footer-right">
           <button class="pref-btn pref-btn-primary" id="new-doc-ok-btn">OK</button>
@@ -2435,13 +2435,13 @@
   </div>
 
   <!-- Insert Page Dialog -->
-  <div class="insert-page-overlay" id="insert-page-dialog">
-    <div class="insert-page-dialog">
-      <div class="insert-page-header">
+  <div class="modal-overlay insert-page-overlay" id="insert-page-dialog">
+    <div class="modal-dialog insert-page-dialog">
+      <div class="modal-header insert-page-header">
         <h2>Insert Pages</h2>
-        <button class="insert-page-close-btn" id="insert-page-close-btn">&times;</button>
+        <button class="modal-close-btn insert-page-close-btn" id="insert-page-close-btn">&times;</button>
       </div>
-      <div class="insert-page-content">
+      <div class="modal-body insert-page-content">
         <div class="insert-page-form">
           <div class="insert-page-row">
             <label class="insert-page-label">Position:</label>
@@ -2484,7 +2484,7 @@
           </div>
         </div>
       </div>
-      <div class="insert-page-footer">
+      <div class="modal-footer insert-page-footer">
         <div></div>
         <div class="insert-page-footer-right">
           <button class="pref-btn pref-btn-primary" id="insert-page-ok-btn">OK</button>
@@ -2495,13 +2495,13 @@
   </div>
 
   <!-- Extract Pages Dialog -->
-  <div class="extract-pages-overlay" id="extract-pages-dialog">
-    <div class="extract-pages-dialog">
-      <div class="extract-pages-header">
+  <div class="modal-overlay extract-pages-overlay" id="extract-pages-dialog">
+    <div class="modal-dialog extract-pages-dialog">
+      <div class="modal-header extract-pages-header">
         <h2>Extract Pages</h2>
-        <button class="extract-pages-close-btn" id="extract-pages-close-btn">&times;</button>
+        <button class="modal-close-btn extract-pages-close-btn" id="extract-pages-close-btn">&times;</button>
       </div>
-      <div class="extract-pages-content">
+      <div class="modal-body extract-pages-content">
         <div class="extract-pages-form">
           <div class="extract-pages-row">
             <label class="extract-pages-label">Page Range:</label>
@@ -2515,7 +2515,7 @@
           </div>
         </div>
       </div>
-      <div class="extract-pages-footer">
+      <div class="modal-footer extract-pages-footer">
         <div></div>
         <div class="extract-pages-footer-right">
           <button class="pref-btn pref-btn-primary" id="extract-pages-ok-btn">Extract</button>
@@ -2526,13 +2526,13 @@
   </div>
 
   <!-- Merge PDFs Dialog -->
-  <div class="merge-pdfs-overlay" id="merge-pdfs-dialog">
-    <div class="merge-pdfs-dialog">
-      <div class="merge-pdfs-header">
+  <div class="modal-overlay merge-pdfs-overlay" id="merge-pdfs-dialog">
+    <div class="modal-dialog merge-pdfs-dialog">
+      <div class="modal-header merge-pdfs-header">
         <h2>Merge PDFs</h2>
-        <button class="merge-pdfs-close-btn" id="merge-pdfs-close-btn">&times;</button>
+        <button class="modal-close-btn merge-pdfs-close-btn" id="merge-pdfs-close-btn">&times;</button>
       </div>
-      <div class="merge-pdfs-content">
+      <div class="modal-body merge-pdfs-content">
         <div class="merge-pdfs-form">
           <div class="merge-pdfs-row">
             <label class="merge-pdfs-label">Insert at:</label>
@@ -2566,7 +2566,7 @@
           </div>
         </div>
       </div>
-      <div class="merge-pdfs-footer">
+      <div class="modal-footer merge-pdfs-footer">
         <div class="merge-pdfs-file-count" id="merge-pdfs-file-count"></div>
         <div class="merge-pdfs-footer-right">
           <button class="pref-btn pref-btn-primary" id="merge-pdfs-ok-btn">Merge</button>
@@ -2577,11 +2577,11 @@
   </div>
 
   <!-- Print Dialog -->
-  <div class="print-overlay" id="print-dialog">
-    <div class="print-dialog">
-      <div class="print-header">
+  <div class="modal-overlay print-overlay" id="print-dialog">
+    <div class="modal-dialog print-dialog">
+      <div class="modal-header print-header">
         <h2>Print</h2>
-        <button class="print-close-btn" id="print-close-btn">&times;</button>
+        <button class="modal-close-btn print-close-btn" id="print-close-btn">&times;</button>
       </div>
       <div class="print-body">
         <!-- Left panel: settings -->
@@ -2699,7 +2699,7 @@
         </div>
       </div>
 
-      <div class="print-footer">
+      <div class="modal-footer print-footer">
         <div class="print-footer-left">
           <span class="print-page-info" id="print-page-info"></span>
         </div>
@@ -2712,13 +2712,13 @@
   </div>
 
   <!-- Page Setup Dialog -->
-  <div class="page-setup-overlay" id="page-setup-dialog">
-    <div class="page-setup-dialog">
-      <div class="page-setup-header">
+  <div class="modal-overlay page-setup-overlay" id="page-setup-dialog">
+    <div class="modal-dialog page-setup-dialog">
+      <div class="modal-header page-setup-header">
         <h2>Page Setup</h2>
-        <button class="page-setup-close-btn" id="page-setup-close-btn">&times;</button>
+        <button class="modal-close-btn page-setup-close-btn" id="page-setup-close-btn">&times;</button>
       </div>
-      <div class="page-setup-content">
+      <div class="modal-body page-setup-content">
         <div class="page-setup-preview-box">
           <canvas id="page-setup-preview-canvas" width="160" height="200"></canvas>
         </div>
@@ -2770,7 +2770,7 @@
           </fieldset>
         </div>
       </div>
-      <div class="page-setup-footer">
+      <div class="modal-footer page-setup-footer">
         <div></div>
         <div class="page-setup-footer-right">
           <button class="pref-btn pref-btn-primary" id="page-setup-ok-btn">OK</button>
@@ -2781,13 +2781,13 @@
   </div>
 
   <!-- Watermark Dialog -->
-  <div class="watermark-overlay" id="watermark-dialog">
-    <div class="watermark-dialog">
-      <div class="watermark-header">
+  <div class="modal-overlay watermark-overlay" id="watermark-dialog">
+    <div class="modal-dialog watermark-dialog">
+      <div class="modal-header watermark-header">
         <h2>Add Watermark</h2>
-        <button class="watermark-close-btn" id="watermark-close-btn">&times;</button>
+        <button class="modal-close-btn watermark-close-btn" id="watermark-close-btn">&times;</button>
       </div>
-      <div class="watermark-content">
+      <div class="modal-body watermark-content">
         <div class="watermark-tabs">
           <button class="watermark-tab active" data-wm-tab="text">Text</button>
           <button class="watermark-tab" data-wm-tab="image">Image</button>
@@ -2925,7 +2925,7 @@
           </div>
         </div>
       </div>
-      <div class="watermark-footer">
+      <div class="modal-footer watermark-footer">
         <div class="watermark-footer-left"></div>
         <div class="watermark-footer-right">
           <button class="pref-btn pref-btn-primary" id="wm-add-btn">Add</button>
@@ -2936,13 +2936,13 @@
   </div>
 
   <!-- Header/Footer Dialog -->
-  <div class="header-footer-overlay" id="header-footer-dialog">
-    <div class="header-footer-dialog">
-      <div class="header-footer-header">
+  <div class="modal-overlay header-footer-overlay" id="header-footer-dialog">
+    <div class="modal-dialog header-footer-dialog">
+      <div class="modal-header header-footer-header">
         <h2>Add Header/Footer</h2>
-        <button class="header-footer-close-btn" id="hf-close-btn">&times;</button>
+        <button class="modal-close-btn header-footer-close-btn" id="hf-close-btn">&times;</button>
       </div>
-      <div class="header-footer-content">
+      <div class="modal-body header-footer-content">
         <div class="watermark-form">
           <div class="hf-section-label">Header</div>
           <div class="hf-row-triple">
@@ -3022,7 +3022,7 @@
           </div>
         </div>
       </div>
-      <div class="watermark-footer">
+      <div class="modal-footer watermark-footer">
         <div class="watermark-footer-left"></div>
         <div class="watermark-footer-right">
           <button class="pref-btn pref-btn-primary" id="hf-add-btn">Add</button>
@@ -3033,18 +3033,18 @@
   </div>
 
   <!-- Manage Watermarks Dialog -->
-  <div class="manage-wm-overlay" id="manage-watermarks-dialog">
-    <div class="manage-wm-dialog">
-      <div class="manage-wm-header">
+  <div class="modal-overlay manage-wm-overlay" id="manage-watermarks-dialog">
+    <div class="modal-dialog manage-wm-dialog">
+      <div class="modal-header manage-wm-header">
         <h2>Manage Watermarks</h2>
-        <button class="manage-wm-close-btn" id="manage-wm-close-btn">&times;</button>
+        <button class="modal-close-btn manage-wm-close-btn" id="manage-wm-close-btn">&times;</button>
       </div>
-      <div class="manage-wm-content">
+      <div class="modal-body manage-wm-content">
         <div class="manage-wm-list" id="manage-wm-list">
           <div class="manage-wm-empty">No watermarks added yet.</div>
         </div>
       </div>
-      <div class="watermark-footer">
+      <div class="modal-footer watermark-footer">
         <div class="watermark-footer-left"></div>
         <div class="watermark-footer-right">
           <button class="pref-btn pref-btn-secondary" id="manage-wm-close-btn2">Close</button>
@@ -3054,13 +3054,13 @@
   </div>
 
   <!-- Signature Dialog -->
-  <div class="sig-overlay" id="sig-dialog">
-    <div class="sig-dialog">
-      <div class="sig-header">
+  <div class="modal-overlay sig-overlay" id="sig-dialog">
+    <div class="modal-dialog sig-dialog">
+      <div class="modal-header sig-header">
         <h2>Signature</h2>
-        <button class="sig-close-btn" id="sig-close-btn">&times;</button>
+        <button class="modal-close-btn sig-close-btn" id="sig-close-btn">&times;</button>
       </div>
-      <div class="sig-content">
+      <div class="modal-body sig-content">
         <div class="sig-tabs">
           <button class="sig-tab active" id="sig-tab-draw">Draw</button>
           <button class="sig-tab" id="sig-tab-saved">Saved</button>
@@ -3070,7 +3070,7 @@
         </div>
         <div class="sig-saved-panel" id="sig-saved-panel" style="display:none;"></div>
       </div>
-      <div class="sig-footer">
+      <div class="modal-footer sig-footer">
         <div class="sig-footer-left">
           <label class="sig-color-label">Color:</label>
           <input type="color" id="sig-color" class="sig-color-input" value="#000000">
@@ -3085,11 +3085,11 @@
   </div>
 
   <!-- Preferences Dialog -->
-  <div class="preferences-overlay" id="preferences-dialog">
-    <div class="preferences-dialog">
-      <div class="preferences-header">
+  <div class="modal-overlay preferences-overlay" id="preferences-dialog">
+    <div class="modal-dialog preferences-dialog">
+      <div class="modal-header preferences-header">
         <h2>Preferences</h2>
-        <button class="preferences-close-btn" id="pref-close-btn">&times;</button>
+        <button class="modal-close-btn preferences-close-btn" id="pref-close-btn">&times;</button>
       </div>
       <div class="preferences-content">
         <!-- Tabs -->
@@ -4006,7 +4006,7 @@
           </div>
         </div>
       </div>
-      <div class="preferences-footer">
+      <div class="modal-footer preferences-footer">
         <button class="pref-btn pref-btn-secondary" id="pref-reset-btn">Reset to Defaults</button>
         <div class="pref-footer-right">
           <button class="pref-btn pref-btn-secondary" id="pref-cancel-btn">Cancel</button>
@@ -4017,13 +4017,13 @@
   </div>
 
   <!-- Text Annotation Dialog -->
-  <div class="text-annot-overlay" id="text-annot-dialog">
-    <div class="text-annot-dialog">
-      <div class="text-annot-header">
-        <h2>Add Text Annotation</h2>
-        <button class="text-annot-close-btn" id="text-annot-close-btn">&times;</button>
+  <div class="modal-overlay text-annot-overlay" id="text-annot-dialog">
+    <div class="modal-dialog text-annot-dialog">
+      <div class="modal-header text-annot-header">
+        <h2>Add Text</h2>
+        <button class="modal-close-btn text-annot-close-btn" id="text-annot-close-btn">&times;</button>
       </div>
-      <div class="text-annot-body">
+      <div class="modal-body text-annot-body">
         <div class="text-annot-toolbar">
           <div class="text-annot-toolbar-group">
             <select id="text-annot-font-family" title="Font Family">
@@ -4086,7 +4086,7 @@
         <div class="text-annot-preview-label">Preview:</div>
         <div class="text-annot-preview" id="text-annot-preview"></div>
       </div>
-      <div class="text-annot-footer">
+      <div class="modal-footer text-annot-footer">
         <div class="text-annot-char-count"><span id="text-annot-char-count">0</span> characters</div>
         <div class="text-annot-footer-right">
           <button class="pref-btn pref-btn-secondary" id="text-annot-cancel-btn">Cancel</button>
@@ -4791,13 +4791,13 @@
   </div>
 
   <!-- Software Update Dialog -->
-  <div class="update-overlay" id="update-dialog">
-    <div class="update-dialog">
-      <div class="update-header">
+  <div class="modal-overlay update-overlay" id="update-dialog">
+    <div class="modal-dialog update-dialog">
+      <div class="modal-header update-header">
         <h2>Software Update</h2>
-        <button class="update-close-btn" id="update-close-btn">&times;</button>
+        <button class="modal-close-btn update-close-btn" id="update-close-btn">&times;</button>
       </div>
-      <div class="update-body">
+      <div class="modal-body update-body">
         <div class="update-icon">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#0078d7" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
@@ -4827,12 +4827,54 @@
         </div>
         <span class="update-progress-text" id="update-progress-text">Downloading... 0%</span>
       </div>
-      <div class="update-footer">
+      <div class="modal-footer update-footer">
         <button class="update-btn update-btn-secondary" id="update-skip-btn">Skip This Version</button>
         <div class="update-footer-right">
           <button class="update-btn update-btn-secondary" id="update-later-btn">Remind Me Later</button>
           <button class="update-btn update-btn-primary" id="update-install-btn">Download &amp; Install</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bookmark Dialog -->
+  <div class="modal-overlay bookmark-dialog-overlay" id="bookmark-dialog">
+    <div class="modal-dialog bookmark-dialog">
+      <div class="modal-header bookmark-dialog-header">
+        <span id="bookmark-dialog-title">Add Bookmark</span>
+        <button class="modal-close-btn bookmark-dialog-close" id="bookmark-dialog-close">&times;</button>
+      </div>
+      <div class="modal-body bookmark-dialog-body">
+        <label>Title:</label>
+        <input type="text" id="bookmark-dialog-title-input" placeholder="Bookmark title">
+        <label>Page:</label>
+        <input type="number" id="bookmark-dialog-page-input" min="1">
+      </div>
+      <div class="modal-footer bookmark-dialog-footer">
+        <button class="primary" id="bookmark-dialog-ok">OK</button>
+        <button id="bookmark-dialog-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Validation Error Dialog -->
+  <div class="modal-overlay form-validation-overlay" id="form-validation-dialog">
+    <div class="modal-dialog form-validation-dialog">
+      <div class="modal-header form-validation-header">
+        <span>Validation Error</span>
+      </div>
+      <div class="modal-body form-validation-body">
+        <div class="form-validation-icon">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="14" fill="#e81123"/>
+            <rect x="14" y="8" width="4" height="12" rx="2" fill="white"/>
+            <circle cx="16" cy="24" r="2" fill="white"/>
+          </svg>
+        </div>
+        <div class="form-validation-text" id="form-validation-text"></div>
+      </div>
+      <div class="modal-footer form-validation-footer">
+        <button class="form-validation-ok-btn" id="form-validation-ok">OK</button>
       </div>
     </div>
   </div>

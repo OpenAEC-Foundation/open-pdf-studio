@@ -244,6 +244,12 @@ function applyUndo(cmd) {
       doc.textEdits.splice(insertIdx, 0, { ...cmd.textEdit });
       break;
     }
+    case 'modifyTextEdit': {
+      if (!doc.textEdits) doc.textEdits = [];
+      const idx = doc.textEdits.findIndex(e => e.id === cmd.newTextEdit.id);
+      if (idx !== -1) doc.textEdits[idx] = { ...cmd.oldTextEdit };
+      break;
+    }
     case 'addWatermark': {
       const idx = doc.watermarks.findIndex(w => w.id === cmd.watermark.id);
       if (idx !== -1) doc.watermarks.splice(idx, 1);
@@ -344,6 +350,12 @@ function applyRedo(cmd) {
       if (!doc.textEdits) doc.textEdits = [];
       const idx = doc.textEdits.findIndex(e => e.id === cmd.textEdit.id);
       if (idx !== -1) doc.textEdits.splice(idx, 1);
+      break;
+    }
+    case 'modifyTextEdit': {
+      if (!doc.textEdits) doc.textEdits = [];
+      const idx = doc.textEdits.findIndex(e => e.id === cmd.oldTextEdit.id);
+      if (idx !== -1) doc.textEdits[idx] = { ...cmd.newTextEdit };
       break;
     }
     case 'addWatermark': {

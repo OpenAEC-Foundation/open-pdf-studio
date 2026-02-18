@@ -427,7 +427,103 @@ export function showProperties(annotation) {
   }
 
   propertiesPanel.classList.add('visible');
+  const ribbonBtn = document.getElementById('ribbon-properties-panel');
+  if (ribbonBtn) ribbonBtn.classList.add('active');
   redrawAnnotations();
+}
+
+// Show properties panel for PDF text being edited (Edit Text tool)
+export function showTextEditProperties(info) {
+  // Build a pseudo-annotation that triggers the text format section display
+  const ff = (info.fontFamily || 'Helvetica').toLowerCase();
+  let displayFontFamily;
+  if (ff.includes('courier') || ff.includes('consolas') || ff.includes('mono')) {
+    displayFontFamily = 'Courier New';
+  } else if (ff.includes('times') || ff.includes('garamond') || ff.includes('georgia')
+      || ff.includes('palatino') || ff.includes('cambria') || ff.includes('bookman')) {
+    displayFontFamily = 'Times New Roman';
+  } else if (ff.includes('calibri')) {
+    displayFontFamily = 'Calibri';
+  } else if (ff.includes('verdana')) {
+    displayFontFamily = 'Verdana';
+  } else if (ff.includes('tahoma')) {
+    displayFontFamily = 'Tahoma';
+  } else if (ff.includes('trebuchet')) {
+    displayFontFamily = 'Trebuchet MS';
+  } else if (ff.includes('segoe')) {
+    displayFontFamily = 'Segoe UI';
+  } else if (ff.includes('comic')) {
+    displayFontFamily = 'Comic Sans MS';
+  } else if (ff.includes('impact')) {
+    displayFontFamily = 'Impact';
+  } else if (ff.includes('arial') || ff.includes('helvetica')) {
+    displayFontFamily = 'Arial';
+  } else {
+    // Try to clean up unknown PDF font names (strip MT, PSMT, -Bold, -Italic, etc.)
+    let cleaned = info.fontFamily || 'Arial';
+    cleaned = cleaned.replace(/[-,](Bold|Italic|Oblique|Regular|Medium|Light|Book|Roman|PSMT|MT|PS).*$/i, '');
+    cleaned = cleaned.replace(/PSMT$|MT$/i, '');
+    displayFontFamily = cleaned || 'Arial';
+  }
+
+  const pseudoAnnotation = {
+    type: 'textbox',
+    id: '_pdfTextEdit',
+    text: info.text || '',
+    fontSize: info.fontSize || 12,
+    fontFamily: displayFontFamily,
+    textColor: info.color || '#000000',
+    color: info.color || '#000000',
+    fontBold: info.isBold || false,
+    fontItalic: info.isItalic || false,
+    fontUnderline: false,
+    fontStrikethrough: false,
+    textAlign: 'left',
+    lineSpacing: '1.2',
+    lineWidth: 0,
+    opacity: 1,
+    fillColor: null,
+    strokeColor: null,
+    locked: false,
+    printable: true,
+    page: info.page || 1,
+    subject: 'PDF Text',
+    author: '',
+    createdAt: '',
+    modifiedAt: ''
+  };
+
+  showProperties(pseudoAnnotation);
+
+  // Ensure actual font size appears in the select dropdown
+  if (propTextFontSize) {
+    const roundedSize = Math.round(info.fontSize || 12);
+    const sizeStr = String(roundedSize);
+    if (!propTextFontSize.querySelector(`option[value="${sizeStr}"]`)) {
+      const opt = document.createElement('option');
+      opt.value = sizeStr;
+      opt.textContent = `${sizeStr} pt`;
+      const options = Array.from(propTextFontSize.options);
+      let insertBefore = null;
+      for (const o of options) {
+        if (parseInt(o.value) > roundedSize) { insertBefore = o; break; }
+      }
+      propTextFontSize.insertBefore(opt, insertBefore);
+    }
+    propTextFontSize.value = sizeStr;
+  }
+
+  // Override the type display to show "PDF Text" instead of "Text Box"
+  if (propType) propType.value = 'PDF Text';
+
+  // Hide sections not relevant to PDF text editing
+  if (propGeneralSection) propGeneralSection.style.display = 'none';
+  if (propAppearanceSection) propAppearanceSection.style.display = 'none';
+  if (propActionsSection) propActionsSection.style.display = 'none';
+  if (propParagraphSection) propParagraphSection.style.display = 'none';
+  if (propContentSection) propContentSection.style.display = 'none';
+  const repliesSection = document.getElementById('prop-replies-section');
+  if (repliesSection) repliesSection.style.display = 'none';
 }
 
 // Render replies for an annotation
@@ -565,6 +661,8 @@ async function populateDocInfo() {
 export function closePropertiesPanel() {
   state.selectedAnnotation = null;
   propertiesPanel.classList.remove('visible');
+  const ribbonBtn = document.getElementById('ribbon-properties-panel');
+  if (ribbonBtn) ribbonBtn.classList.remove('active');
   if (state.viewMode === 'continuous') {
     redrawContinuous();
   } else {

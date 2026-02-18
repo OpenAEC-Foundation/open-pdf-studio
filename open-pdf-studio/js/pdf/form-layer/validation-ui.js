@@ -2,7 +2,13 @@ import { state } from '../../core/state.js';
 
 // ─── Validation dialog ─────────────────────────────────────────────────────────
 
-let activeValidationDialog = null;
+const validationOverlay = document.getElementById('form-validation-dialog');
+const validationText = document.getElementById('form-validation-text');
+const validationOkBtn = document.getElementById('form-validation-ok');
+
+let validationActive = false;
+let validationInput = null;
+let validationKeyHandler = null;
 
 function cancelToolState() {
   state.isDrawing = false;
@@ -15,112 +21,106 @@ function cancelToolState() {
   state.isMiddleButtonPanning = false;
 }
 
+function closeValidationDialog() {
+  if (!validationActive) return;
+  validationOverlay.classList.remove('visible');
+  validationActive = false;
+  cancelToolState();
+  if (validationKeyHandler) {
+    document.removeEventListener('keydown', validationKeyHandler);
+    validationKeyHandler = null;
+  }
+
+  // Reset position for next show
+  const dialog = validationOverlay.querySelector('.form-validation-dialog');
+  if (dialog) {
+    dialog.style.left = '';
+    dialog.style.top = '';
+    dialog.style.transform = '';
+  }
+
+  const inp = validationInput;
+  validationInput = null;
+  if (inp) {
+    setTimeout(() => {
+      inp.focus();
+      state.modalDialogOpen = false;
+    }, 50);
+  } else {
+    setTimeout(() => { state.modalDialogOpen = false; }, 50);
+  }
+}
+
 export function showValidationDialog(message, input) {
-  if (activeValidationDialog) return;
+  if (validationActive) return;
 
   // Block all tool interaction and cancel any in-progress operation
   state.modalDialogOpen = true;
   cancelToolState();
 
-  const overlay = document.createElement('div');
-  overlay.className = 'form-validation-overlay';
+  validationActive = true;
+  validationInput = input || null;
+  validationText.textContent = message;
 
-  // Prevent all mouse events from reaching the canvas/tools underneath
-  for (const evt of ['mousedown', 'mouseup', 'click', 'dblclick', 'mousemove', 'pointerdown', 'pointerup']) {
-    overlay.addEventListener(evt, (e) => { e.stopPropagation(); });
+  // Reset position for centered display
+  const dialog = validationOverlay.querySelector('.form-validation-dialog');
+  if (dialog) {
+    dialog.style.left = '';
+    dialog.style.top = '';
+    dialog.style.transform = '';
   }
 
-  const dialog = document.createElement('div');
-  dialog.className = 'form-validation-dialog';
+  validationOverlay.classList.add('visible');
 
-  const header = document.createElement('div');
-  header.className = 'form-validation-header';
-  const title = document.createElement('span');
-  title.textContent = 'Validation Error';
-  header.appendChild(title);
+  validationOkBtn.focus();
 
-  let isDragging = false, dragX = 0, dragY = 0;
-  header.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    dragX = e.clientX - dialog.offsetLeft;
-    dragY = e.clientY - dialog.offsetTop;
-    e.preventDefault();
-  });
-  const onDragMove = (e) => {
-    if (!isDragging) return;
-    dialog.style.left = (e.clientX - dragX) + 'px';
-    dialog.style.top = (e.clientY - dragY) + 'px';
-    dialog.style.transform = 'none';
-  };
-  const onDragEnd = () => { isDragging = false; };
-  document.addEventListener('mousemove', onDragMove);
-  document.addEventListener('mouseup', onDragEnd);
-
-  const body = document.createElement('div');
-  body.className = 'form-validation-body';
-
-  const icon = document.createElement('div');
-  icon.className = 'form-validation-icon';
-  icon.innerHTML = `<svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-    <circle cx="16" cy="16" r="14" fill="#e81123"/>
-    <rect x="14" y="8" width="4" height="12" rx="2" fill="white"/>
-    <circle cx="16" cy="24" r="2" fill="white"/>
-  </svg>`;
-
-  const text = document.createElement('div');
-  text.className = 'form-validation-text';
-  text.textContent = message;
-
-  body.appendChild(icon);
-  body.appendChild(text);
-
-  const footer = document.createElement('div');
-  footer.className = 'form-validation-footer';
-  const okBtn = document.createElement('button');
-  okBtn.textContent = 'OK';
-  okBtn.className = 'form-validation-ok-btn';
-  footer.appendChild(okBtn);
-
-  dialog.appendChild(header);
-  dialog.appendChild(body);
-  dialog.appendChild(footer);
-  overlay.appendChild(dialog);
-  document.body.appendChild(overlay);
-  activeValidationDialog = overlay;
-
-  okBtn.focus();
-
-  const keyHandler = (e) => {
+  validationKeyHandler = (e) => {
     if (e.key === 'Escape' || e.key === 'Enter') {
       e.stopPropagation();
       e.preventDefault();
-      close();
+      closeValidationDialog();
     }
   };
+  document.addEventListener('keydown', validationKeyHandler);
+}
 
-  const close = () => {
-    overlay.remove();
-    activeValidationDialog = null;
-    cancelToolState();
-    document.removeEventListener('mousemove', onDragMove);
-    document.removeEventListener('mouseup', onDragEnd);
-    document.removeEventListener('keydown', keyHandler);
-    if (input) {
-      // Delay focus and dialog flag reset to avoid triggering tools from the click that closed the dialog
-      setTimeout(() => {
-        input.focus();
-        state.modalDialogOpen = false;
-      }, 50);
-    } else {
-      setTimeout(() => { state.modalDialogOpen = false; }, 50);
-    }
-  };
+// Event listeners
+validationOkBtn?.addEventListener('click', closeValidationDialog);
 
-  okBtn.addEventListener('click', close);
-  okBtn.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') close();
-  });
-  document.addEventListener('keydown', keyHandler);
+// Prevent mouse events from reaching the canvas/tools underneath
+if (validationOverlay) {
+  for (const evt of ['mousedown', 'mouseup', 'click', 'dblclick', 'mousemove', 'pointerdown', 'pointerup']) {
+    validationOverlay.addEventListener(evt, (e) => { e.stopPropagation(); });
+  }
+}
+
+// Make validation dialog draggable
+{
+  const dialog = validationOverlay?.querySelector('.form-validation-dialog');
+  const header = validationOverlay?.querySelector('.form-validation-header');
+  if (dialog && header) {
+    let isDragging = false;
+    let dragX = 0;
+    let dragY = 0;
+
+    header.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      dragX = e.clientX - dialog.offsetLeft;
+      dragY = e.clientY - dialog.offsetTop;
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      dialog.style.left = (e.clientX - dragX) + 'px';
+      dialog.style.top = (e.clientY - dragY) + 'px';
+      dialog.style.transform = 'none';
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+  }
 }
 
 // ─── Specific validators ────────────────────────────────────────────────────────

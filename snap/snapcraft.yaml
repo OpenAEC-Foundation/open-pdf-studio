@@ -1,22 +1,39 @@
 name: open-pdf-studio
 base: core22
-version: '1.13.0'
+version: '1.14.0'
 summary: Free, open-source PDF annotation editor
 description: |
   Open PDF Studio is a free, open-source PDF editor and annotator
-  built with web technologies and Tauri.
+  built for professionals who need powerful tools without expensive subscriptions.
 
   Features:
-  - PDF viewing and navigation
-  - Text selection and search
-  - Annotations: highlight, underline, strikethrough
-  - Drawing tools: freehand, shapes, text
-  - Multi-tab document support
-  - Thumbnail navigation
-  - Session restore
-  - Watermarks and page management
-  - Print support
+
+  - 22+ annotation tools: highlight, underline, strikethrough, shapes, freehand drawing, text boxes, callouts, sticky notes, stamps, and images
+  - Signatures: draw, save, and reuse up to 5 signatures
+  - Measurement tools: distance, area, and perimeter with scale calibration
+  - Page management: insert, delete, extract, reorder, replace, and merge PDFs
+  - Watermarks and headers/footers with variables
+  - Redaction: mark and apply to permanently remove sensitive content
+  - Full print dialog with live preview, scaling, and page setup
+  - Form filling: AcroForms and XFA with JavaScript validation
+  - Edit existing PDF text
+  - Export pages as PNG, JPEG, or raster PDF
+  - Multi-tab editing with session restore
+  - 10 navigation panels: thumbnails, bookmarks, annotations, attachments, signatures, layers, form fields, destinations, links, and tags
+  - XFDF annotation import/export
+  - 5 themes: Dark, Light, Blue, High Contrast, System
+  - Undo/redo with up to 100 levels
+  - Built-in auto-updater
+  - No telemetry, no data collection, no subscriptions
+
+  Built with Tauri and web technologies for a fast, lightweight, native desktop experience.
+title: Open PDF Studio
 icon: snap/gui/open-pdf-studio.png
+license: LGPL-3.0-or-later
+contact: https://impertio.nl/
+issues: https://github.com/OpenAEC-Foundation/open-pdf-studio/issues
+source-code: https://github.com/OpenAEC-Foundation/open-pdf-studio
+website: https://impertio.nl/
 grade: stable
 confinement: strict
 

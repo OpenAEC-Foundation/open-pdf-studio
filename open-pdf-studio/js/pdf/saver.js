@@ -911,21 +911,23 @@ async function saveTextEditsToPages(pdfDocLib, pages) {
     const numOrig = edit.numOriginalLines || 1;
     const [r, g, b] = hexToRgb(edit.color || '#000000');
 
-    // Cover rectangle spanning all original lines
-    const origLines = edit.originalText.split('\n');
-    const maxOrigLen = Math.max(...origLines.map(l => l.length));
-    const coverWidth = Math.max(edit.pdfWidth, fontSize * 0.6 * maxOrigLen) + fontSize * 0.5;
-    const rectBottom = edit.pdfY - (numOrig - 1) * ls - fontSize * 0.3;
-    const rectHeight = (numOrig - 1) * ls + fontSize * 1.3;
+    // Cover rectangle spanning all original lines (skip for newly added text)
+    if (edit.originalText) {
+      const origLines = edit.originalText.split('\n');
+      const maxOrigLen = Math.max(...origLines.map(l => l.length));
+      const coverWidth = Math.max(edit.pdfWidth, fontSize * 0.6 * maxOrigLen) + fontSize * 0.5;
+      const rectBottom = edit.pdfY - (numOrig - 1) * ls - fontSize * 0.3;
+      const rectHeight = (numOrig - 1) * ls + fontSize * 1.3;
 
-    page.drawRectangle({
-      x: edit.pdfX,
-      y: rectBottom,
-      width: coverWidth,
-      height: rectHeight,
-      color: rgb(1, 1, 1),
-      borderWidth: 0
-    });
+      page.drawRectangle({
+        x: edit.pdfX,
+        y: rectBottom,
+        width: coverWidth,
+        height: rectHeight,
+        color: rgb(1, 1, 1),
+        borderWidth: 0
+      });
+    }
 
     // Draw new text line by line
     const editFont = await getEditFont(edit.fontFamily);

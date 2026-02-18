@@ -1,4 +1,4 @@
-import { state } from '../core/state.js';
+import { state, getActiveDocument } from '../core/state.js';
 import * as pdfjsLib from 'pdfjs-dist';
 
 /**
@@ -231,7 +231,114 @@ export async function createTextLayer(page, viewport, container, pageNum) {
     span.style.cursor = needsTextAccess ? 'text' : 'default';
   });
 
+  // Inject synthetic spans for text added via "Add Text"
+  const unscaledWidth = viewport.width / viewport.scale;
+  const unscaledHeight = viewport.height / viewport.scale;
+  injectSyntheticTextSpans(textLayerDiv, pageNum, unscaledWidth, unscaledHeight);
+
   return textLayerDiv;
+}
+
+/**
+ * Injects synthetic text layer spans for added text (textEdits with empty originalText).
+ * These spans make added text selectable and editable like native PDF text.
+ * @param {HTMLElement} textLayerDiv - The .textLayer element
+ * @param {number} pageNum - Page number
+ * @param {number} pageWidth - Unscaled page width in PDF points
+ * @param {number} pageHeight - Unscaled page height in PDF points
+ */
+export function injectSyntheticTextSpans(textLayerDiv, pageNum, pageWidth, pageHeight) {
+  const doc = getActiveDocument();
+  if (!doc || !doc.textEdits || doc.textEdits.length === 0) return;
+
+  // Remove previously injected synthetic spans
+  textLayerDiv.querySelectorAll('span[data-synthetic]').forEach(s => s.remove());
+
+  const addedEdits = doc.textEdits.filter(e => e.page === pageNum && e.originalText === '');
+  if (addedEdits.length === 0) return;
+
+  // Create a temporary canvas for text measurement (--scale-x computation)
+  const measureCanvas = document.createElement('canvas');
+  const measureCtx = measureCanvas.getContext('2d');
+  const scale = state.scale * (window.devicePixelRatio || 1);
+
+  const ascentRatio = 0.8;
+
+  for (const edit of addedEdits) {
+    const fontSize = edit.fontSize;
+    const ls = edit.lineSpacing || fontSize * 1.2;
+    const lines = edit.newText.split('\n');
+
+    // Map fontFamily to CSS font
+    const ff = (edit.fontFamily || 'Helvetica').toLowerCase();
+    let cssFontFamily;
+    if (ff.includes('courier')) {
+      cssFontFamily = '"Courier New", Courier, monospace';
+    } else if (ff.includes('times')) {
+      cssFontFamily = '"Times New Roman", Times, serif';
+    } else {
+      cssFontFamily = 'Helvetica, Arial, sans-serif';
+    }
+
+    const isBold = ff.includes('bold');
+    const isItalic = ff.includes('italic') || ff.includes('oblique');
+    const fontWeight = isBold ? 'bold ' : '';
+    const fontStyle = isItalic ? 'italic ' : '';
+
+    for (let i = 0; i < lines.length; i++) {
+      const lineText = lines[i];
+      if (!lineText) continue;
+
+      // PDF coordinates for this line
+      const linePdfX = edit.pdfX;
+      const linePdfY = edit.pdfY - i * ls;
+
+      // Convert to text layer positioning (percentages of unscaled page)
+      // left = pdfX (assuming pageX = 0)
+      // top = (pageHeight - pdfY) - fontSize * ascentRatio
+      const left = linePdfX;
+      const top = (pageHeight - linePdfY) - fontSize * ascentRatio;
+
+      const leftPct = (100 * left / pageWidth).toFixed(2);
+      const topPct = (100 * top / pageHeight).toFixed(2);
+
+      // Create span
+      const span = document.createElement('span');
+      span.textContent = lineText;
+      span.setAttribute('role', 'presentation');
+      span.setAttribute('dir', 'ltr');
+
+      // Inline styles
+      span.style.left = `${leftPct}%`;
+      span.style.top = `${topPct}%`;
+      span.style.fontFamily = cssFontFamily;
+      span.style.setProperty('--font-height', `${fontSize.toFixed(2)}px`);
+
+      // Compute --scale-x
+      measureCtx.font = `${fontStyle}${fontWeight}${fontSize * scale}px ${cssFontFamily}`;
+      const measuredWidth = measureCtx.measureText(lineText).width;
+      if (measuredWidth > 0) {
+        // Estimate PDF text width: fontSize * 0.6 * numChars (approximate)
+        const pdfTextWidth = fontSize * 0.6 * lineText.length;
+        const scaleX = pdfTextWidth * scale / measuredWidth;
+        span.style.setProperty('--scale-x', `${scaleX}`);
+      }
+
+      // Data attributes for the edit text tool
+      const transform = [fontSize, 0, 0, fontSize, linePdfX, linePdfY];
+      span.dataset.pdfTransform = JSON.stringify(transform);
+      span.dataset.pdfWidth = String(fontSize * 0.6 * lineText.length);
+      span.dataset.pdfFontFamily = cssFontFamily;
+      span.dataset.pdfFontName = '';
+      span.dataset.pdfActualFontName = edit.fontFamily || 'Helvetica';
+      span.dataset.pdfLoadedFontName = '';
+      span.dataset.pdfBold = String(isBold);
+      span.dataset.pdfItalic = String(isItalic);
+      span.dataset.synthetic = 'true';
+
+      textLayerDiv.appendChild(span);
+    }
+  }
 }
 
 /**

@@ -446,151 +446,123 @@ function getDescendants(bookmarks, parentId) {
   return result;
 }
 
-// Show bookmark add/edit dialog
+// Bookmark dialog DOM references
+const bookmarkDialog = document.getElementById('bookmark-dialog');
+const bookmarkDialogTitle = document.getElementById('bookmark-dialog-title');
+const bookmarkTitleInput = document.getElementById('bookmark-dialog-title-input');
+const bookmarkPageInput = document.getElementById('bookmark-dialog-page-input');
+const bookmarkOkBtn = document.getElementById('bookmark-dialog-ok');
+const bookmarkCancelBtn = document.getElementById('bookmark-dialog-cancel');
+const bookmarkCloseBtn = document.getElementById('bookmark-dialog-close');
+
+let bookmarkDialogResolve = null;
+
 function showBookmarkDialog(dialogTitle, currentTitle, currentPage) {
   return new Promise((resolve) => {
-    // Create overlay
-    const overlay = document.createElement('div');
-    overlay.className = 'bookmark-dialog-overlay';
+    bookmarkDialogResolve = resolve;
 
-    const dialog = document.createElement('div');
-    dialog.className = 'bookmark-dialog';
+    // Populate
+    bookmarkDialogTitle.textContent = dialogTitle;
+    bookmarkTitleInput.value = currentTitle;
+    bookmarkPageInput.value = currentPage;
+    if (state.pdfDoc) bookmarkPageInput.max = state.pdfDoc.numPages;
 
-    // Header
-    const header = document.createElement('div');
-    header.className = 'bookmark-dialog-header';
-    const headerTitle = document.createElement('span');
-    headerTitle.textContent = dialogTitle;
-    header.appendChild(headerTitle);
+    // Reset position for centered display
+    const dialog = bookmarkDialog.querySelector('.bookmark-dialog');
+    dialog.style.left = '';
+    dialog.style.top = '';
+    dialog.style.transform = '';
 
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'bookmark-dialog-close';
-    closeBtn.innerHTML = '&times;';
-    closeBtn.addEventListener('click', () => {
-      overlay.remove();
-      state.modalDialogOpen = false;
-      resolve(null);
-    });
-    header.appendChild(closeBtn);
-    dialog.appendChild(header);
-
-    // Body
-    const body = document.createElement('div');
-    body.className = 'bookmark-dialog-body';
-
-    const titleLabel = document.createElement('label');
-    titleLabel.textContent = 'Title:';
-    body.appendChild(titleLabel);
-    const titleInput = document.createElement('input');
-    titleInput.type = 'text';
-    titleInput.value = currentTitle;
-    titleInput.placeholder = 'Bookmark title';
-    body.appendChild(titleInput);
-
-    const pageLabel = document.createElement('label');
-    pageLabel.textContent = 'Page:';
-    body.appendChild(pageLabel);
-    const pageInput = document.createElement('input');
-    pageInput.type = 'number';
-    pageInput.value = currentPage;
-    pageInput.min = 1;
-    if (state.pdfDoc) pageInput.max = state.pdfDoc.numPages;
-    body.appendChild(pageInput);
-
-    dialog.appendChild(body);
-
-    // Footer
-    const footer = document.createElement('div');
-    footer.className = 'bookmark-dialog-footer';
-
-    const okBtn = document.createElement('button');
-    okBtn.className = 'primary';
-    okBtn.textContent = 'OK';
-    okBtn.addEventListener('click', () => {
-      const title = titleInput.value.trim();
-      if (!title) {
-        titleInput.focus();
-        return;
-      }
-      let page = parseInt(pageInput.value);
-      if (isNaN(page) || page < 1) page = 1;
-      if (state.pdfDoc && page > state.pdfDoc.numPages) page = state.pdfDoc.numPages;
-      overlay.remove();
-      state.modalDialogOpen = false;
-      resolve({ title, page });
-    });
-    footer.appendChild(okBtn);
-
-    const cancelBtn = document.createElement('button');
-    cancelBtn.textContent = 'Cancel';
-    cancelBtn.addEventListener('click', () => {
-      overlay.remove();
-      state.modalDialogOpen = false;
-      resolve(null);
-    });
-    footer.appendChild(cancelBtn);
-
-    dialog.appendChild(footer);
-    overlay.appendChild(dialog);
-    document.body.appendChild(overlay);
-
+    // Show
+    bookmarkDialog.classList.add('visible');
     state.modalDialogOpen = true;
 
-    // Make dialog draggable
-    makeDraggable(dialog, header, overlay);
-
-    // Focus title input
-    setTimeout(() => titleInput.focus(), 50);
-
-    // Enter key to submit
-    titleInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') okBtn.click();
-      if (e.key === 'Escape') cancelBtn.click();
-    });
-    pageInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') okBtn.click();
-      if (e.key === 'Escape') cancelBtn.click();
-    });
+    setTimeout(() => bookmarkTitleInput.focus(), 50);
   });
 }
 
-// Make dialog draggable
-function makeDraggable(dialog, handle, overlay) {
-  let isDragging = false;
-  let offsetX = 0;
-  let offsetY = 0;
+function closeBookmarkDialog(result) {
+  bookmarkDialog.classList.remove('visible');
+  state.modalDialogOpen = false;
+  if (bookmarkDialogResolve) {
+    bookmarkDialogResolve(result);
+    bookmarkDialogResolve = null;
+  }
+}
 
-  handle.addEventListener('mousedown', (e) => {
-    if (e.target.closest('.bookmark-dialog-close')) return;
-    isDragging = true;
-    const rect = dialog.getBoundingClientRect();
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
-    e.preventDefault();
-  });
+// Bookmark dialog event listeners
+bookmarkOkBtn?.addEventListener('click', () => {
+  const title = bookmarkTitleInput.value.trim();
+  if (!title) {
+    bookmarkTitleInput.focus();
+    return;
+  }
+  let page = parseInt(bookmarkPageInput.value);
+  if (isNaN(page) || page < 1) page = 1;
+  if (state.pdfDoc && page > state.pdfDoc.numPages) page = state.pdfDoc.numPages;
+  closeBookmarkDialog({ title, page });
+});
 
-  document.addEventListener('mousemove', (e) => {
-    if (!isDragging) return;
-    const overlayRect = overlay.getBoundingClientRect();
-    let newX = e.clientX - overlayRect.left - offsetX;
-    let newY = e.clientY - overlayRect.top - offsetY;
+bookmarkCancelBtn?.addEventListener('click', () => closeBookmarkDialog(null));
+bookmarkCloseBtn?.addEventListener('click', () => closeBookmarkDialog(null));
 
-    const dialogRect = dialog.getBoundingClientRect();
-    const maxX = overlayRect.width - dialogRect.width;
-    const maxY = overlayRect.height - dialogRect.height;
-    newX = Math.max(0, Math.min(newX, maxX));
-    newY = Math.max(0, Math.min(newY, maxY));
+bookmarkTitleInput?.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') bookmarkOkBtn?.click();
+  if (e.key === 'Escape') closeBookmarkDialog(null);
+});
+bookmarkPageInput?.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') bookmarkOkBtn?.click();
+  if (e.key === 'Escape') closeBookmarkDialog(null);
+});
 
-    dialog.style.position = 'absolute';
-    dialog.style.left = newX + 'px';
-    dialog.style.top = newY + 'px';
-    dialog.style.margin = '0';
-    dialog.style.transform = 'none';
-  });
+// Close bookmark dialog with Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && bookmarkDialog?.classList.contains('visible')) {
+    closeBookmarkDialog(null);
+  }
+});
 
-  document.addEventListener('mouseup', () => {
-    isDragging = false;
-  });
+// Make bookmark dialog draggable
+{
+  const dialog = bookmarkDialog?.querySelector('.bookmark-dialog');
+  const header = bookmarkDialog?.querySelector('.bookmark-dialog-header');
+  if (dialog && header) {
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    header.addEventListener('mousedown', (e) => {
+      if (e.target.closest('.bookmark-dialog-close')) return;
+      isDragging = true;
+      const rect = dialog.getBoundingClientRect();
+      offsetX = e.clientX - rect.left;
+      offsetY = e.clientY - rect.top;
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const overlayRect = bookmarkDialog.getBoundingClientRect();
+      let newX = e.clientX - overlayRect.left - offsetX;
+      let newY = e.clientY - overlayRect.top - offsetY;
+
+      const dialogRect = dialog.getBoundingClientRect();
+      const maxX = overlayRect.width - dialogRect.width;
+      const maxY = overlayRect.height - dialogRect.height;
+      newX = Math.max(0, Math.min(newX, maxX));
+      newY = Math.max(0, Math.min(newY, maxY));
+
+      dialog.style.position = 'absolute';
+      dialog.style.left = newX + 'px';
+      dialog.style.top = newY + 'px';
+      dialog.style.margin = '0';
+      dialog.style.transform = 'none';
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+  }
 }
 
 // Context menu
