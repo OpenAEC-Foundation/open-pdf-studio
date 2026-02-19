@@ -49,7 +49,7 @@ jobs:
             });
             return data.id;
 
-  build-tauri:
+  build-linux-mac:
     needs: create-release
     permissions:
       contents: write
@@ -59,13 +59,8 @@ jobs:
         include:
           - platform: 'ubuntu-22.04'
             args: ''
-            sign-args: ''
-          - platform: 'windows-latest'
-            args: ''
-            sign-args: '--config C:/TrustedSigning/signing.conf.json'
           - platform: 'macos-latest'
             args: '--target universal-apple-darwin'
-            sign-args: ''
 
     runs-on: ${{ matrix.platform }}
     env:
@@ -96,86 +91,85 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
-      - name: Setup Azure Trusted Signing
-        if: matrix.platform == 'windows-latest'
-        shell: pwsh
+      - name: Install frontend dependencies
+        run: npm install
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@action-v0.6.1
         env:
-          AZURE_ENDPOINT: ${{ secrets.AZURE_ENDPOINT }}
-          AZURE_CODE_SIGNING_NAME: ${{ secrets.AZURE_TRUSTED_SIGNING_ACCOUNT_NAME }}
-          AZURE_CERT_PROFILE_NAME: ${{ secrets.AZURE_CERTIFICATE_PROFILE_NAME }}
-        run: |
-          New-Item -ItemType Directory -Force -Path C:\TrustedSigning | Out-Null
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: open-pdf-studio
+          args: ${{ matrix.args }}
+          releaseId: ${{ needs.create-release.outputs.release_id }}
+          includeUpdaterJson: true
 
-          # Install Trusted Signing dlib via NuGet
-          nuget install Microsoft.Trusted.Signing.Client -Version 1.0.60 -OutputDirectory C:\TrustedSigning
+  build-windows:
+    needs: create-release
+    permissions:
+      contents: write
+    runs-on: windows-latest
+    env:
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: 'tauri2026'
+    defaults:
+      run:
+        working-directory: open-pdf-studio
 
-          # Find the dlib (x64)
-          $dlib = Get-ChildItem "C:\TrustedSigning" -Recurse -Filter "Azure.CodeSigning.Dlib.dll" |
-              Where-Object { $_.FullName -match "x64" } |
-              Select-Object -First 1
-          Write-Host "DLib: $($dlib.FullName)"
+    steps:
+      - uses: actions/checkout@v4
 
-          # Find signtool from Windows SDK
-          $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Recurse -Filter "signtool.exe" |
-              Where-Object { $_.FullName -match "\\x64\\" } |
-              Sort-Object LastWriteTime -Descending |
-              Select-Object -First 1
-          Write-Host "SignTool: $($signtool.FullName)"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-          # Create metadata.json for Trusted Signing
-          $metadata = @{
-            Endpoint = $env:AZURE_ENDPOINT
-            CodeSigningAccountName = $env:AZURE_CODE_SIGNING_NAME
-            CertificateProfileName = $env:AZURE_CERT_PROFILE_NAME
-          } | ConvertTo-Json
-          Set-Content -Path "C:\TrustedSigning\metadata.json" -Value $metadata
-
-          # Create Tauri config override using object format for signCommand
-          # Object format avoids space-splitting issues with paths containing spaces
-          $config = @{
-            bundle = @{
-              windows = @{
-                signCommand = @{
-                  cmd = $signtool.FullName
-                  args = @(
-                    "sign", "/v", "/fd", "SHA256",
-                    "/tr", "http://timestamp.acs.microsoft.com",
-                    "/td", "SHA256",
-                    "/dlib", $dlib.FullName,
-                    "/dmdf", "C:\TrustedSigning\metadata.json",
-                    "%1"
-                  )
-                }
-              }
-            }
-          } | ConvertTo-Json -Depth 5
-          Set-Content -Path "C:\TrustedSigning\signing.conf.json" -Value $config
-
-          Write-Host "Azure Trusted Signing setup complete"
-          Write-Host "Config: $(Get-Content C:\TrustedSigning\signing.conf.json)"
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Install frontend dependencies
         run: npm install
 
       - name: Build Tauri app
-        id: tauri-build
         uses: tauri-apps/tauri-action@action-v0.6.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         with:
           projectPath: open-pdf-studio
-          args: ${{ matrix.args }} ${{ matrix.sign-args }}
           releaseId: ${{ needs.create-release.outputs.release_id }}
           includeUpdaterJson: true
+
+      - name: Sign Windows installer
+        uses: azure/trusted-signing-action@v0.5.0
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: ${{ secrets.AZURE_ENDPOINT }}
+          trusted-signing-account-name: ${{ secrets.AZURE_TRUSTED_SIGNING_ACCOUNT_NAME }}
+          certificate-profile-name: ${{ secrets.AZURE_CERTIFICATE_PROFILE_NAME }}
+          files-folder: ${{ github.workspace }}/open-pdf-studio/src-tauri/target/release/bundle/nsis
+          files-folder-filter: exe
+          files-folder-depth: 1
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Upload signed installer to release
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ needs.create-release.outputs.version }}"
+          for file in src-tauri/target/release/bundle/nsis/*-setup.exe; do
+            gh release upload "$VERSION" "$file" --clobber --repo "${{ github.repository }}"
+          done
 
   publish-release:
     permissions:
       contents: write
     runs-on: ubuntu-latest
-    needs: [create-release, build-tauri]
+    needs: [create-release, build-linux-mac, build-windows]
 
     steps:
       - name: Publish release
