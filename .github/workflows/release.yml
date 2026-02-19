@@ -138,7 +138,7 @@ jobs:
           $config = @{
             bundle = @{
               windows = @{
-                signCommand = "C:\TrustedSigning\sign.cmd"
+                signCommand = "cmd /C C:\TrustedSigning\sign.cmd"
               }
             }
           } | ConvertTo-Json -Depth 3
