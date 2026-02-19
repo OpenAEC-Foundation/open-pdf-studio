@@ -59,10 +59,13 @@ jobs:
         include:
           - platform: 'ubuntu-22.04'
             args: ''
+            sign-args: ''
           - platform: 'windows-latest'
             args: ''
+            sign-args: '--config C:/TrustedSigning/signing.conf.json'
           - platform: 'macos-latest'
             args: '--target universal-apple-darwin'
+            sign-args: ''
 
     runs-on: ${{ matrix.platform }}
     env:
@@ -93,16 +96,70 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
+      - name: Setup Azure Trusted Signing
+        if: matrix.platform == 'windows-latest'
+        shell: pwsh
+        env:
+          AZURE_ENDPOINT: ${{ secrets.AZURE_ENDPOINT }}
+          AZURE_CODE_SIGNING_NAME: ${{ secrets.AZURE_TRUSTED_SIGNING_ACCOUNT_NAME }}
+          AZURE_CERT_PROFILE_NAME: ${{ secrets.AZURE_CERTIFICATE_PROFILE_NAME }}
+        run: |
+          New-Item -ItemType Directory -Force -Path C:\TrustedSigning | Out-Null
+
+          # Install Trusted Signing dlib via NuGet
+          nuget install Microsoft.Trusted.Signing.Client -Version 1.0.60 -OutputDirectory C:\TrustedSigning
+
+          # Find the dlib (x64)
+          $dlib = Get-ChildItem "C:\TrustedSigning" -Recurse -Filter "Azure.CodeSigning.Dlib.dll" |
+              Where-Object { $_.FullName -match "x64" } |
+              Select-Object -First 1
+          Write-Host "DLib: $($dlib.FullName)"
+
+          # Find signtool from Windows SDK
+          $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Recurse -Filter "signtool.exe" |
+              Where-Object { $_.FullName -match "\\x64\\" } |
+              Sort-Object LastWriteTime -Descending |
+              Select-Object -First 1
+          Write-Host "SignTool: $($signtool.FullName)"
+
+          # Create metadata.json for Trusted Signing
+          $metadata = @{
+            Endpoint = $env:AZURE_ENDPOINT
+            CodeSigningAccountName = $env:AZURE_CODE_SIGNING_NAME
+            CertificateProfileName = $env:AZURE_CERT_PROFILE_NAME
+          } | ConvertTo-Json
+          Set-Content -Path "C:\TrustedSigning\metadata.json" -Value $metadata
+
+          # Create sign.cmd wrapper script
+          $signCmd = "@echo off`r`n`"$($signtool.FullName)`" sign /v /fd SHA256 /tr http://timestamp.acs.microsoft.com /td SHA256 /dlib `"$($dlib.FullName)`" /dmdf `"C:\TrustedSigning\metadata.json`" `"%~1`"`r`nif %errorlevel% neq 0 exit /b %errorlevel%"
+          Set-Content -Path "C:\TrustedSigning\sign.cmd" -Value $signCmd
+
+          # Create Tauri config override with signCommand
+          $config = @{
+            bundle = @{
+              windows = @{
+                signCommand = "C:\TrustedSigning\sign.cmd"
+              }
+            }
+          } | ConvertTo-Json -Depth 3
+          Set-Content -Path "C:\TrustedSigning\signing.conf.json" -Value $config
+
+          Write-Host "Azure Trusted Signing setup complete"
+
       - name: Install frontend dependencies
         run: npm install
 
       - name: Build Tauri app
+        id: tauri-build
         uses: tauri-apps/tauri-action@action-v0.6.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         with:
           projectPath: open-pdf-studio
-          args: ${{ matrix.args }}
+          args: ${{ matrix.args }} ${{ matrix.sign-args }}
           releaseId: ${{ needs.create-release.outputs.release_id }}
           includeUpdaterJson: true
 
