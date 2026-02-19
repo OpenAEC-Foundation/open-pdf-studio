@@ -115,13 +115,12 @@ jobs:
               Select-Object -First 1
           Write-Host "DLib: $($dlib.FullName)"
 
-          # Find signtool from Windows SDK and copy to path without spaces
+          # Find signtool from Windows SDK
           $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin" -Recurse -Filter "signtool.exe" |
               Where-Object { $_.FullName -match "\\x64\\" } |
               Sort-Object LastWriteTime -Descending |
               Select-Object -First 1
-          Copy-Item $signtool.FullName "C:\TrustedSigning\signtool.exe"
-          Write-Host "SignTool copied to: C:\TrustedSigning\signtool.exe"
+          Write-Host "SignTool: $($signtool.FullName)"
 
           # Create metadata.json for Trusted Signing
           $metadata = @{
@@ -131,15 +130,25 @@ jobs:
           } | ConvertTo-Json
           Set-Content -Path "C:\TrustedSigning\metadata.json" -Value $metadata
 
-          # Create Tauri config override with signCommand
-          # signCommand is the command Tauri runs to sign each binary (path appended as last arg)
+          # Create Tauri config override using object format for signCommand
+          # Object format avoids space-splitting issues with paths containing spaces
           $config = @{
             bundle = @{
               windows = @{
-                signCommand = "C:\TrustedSigning\signtool.exe sign /v /fd SHA256 /tr http://timestamp.acs.microsoft.com /td SHA256 /dlib $($dlib.FullName) /dmdf C:\TrustedSigning\metadata.json"
+                signCommand = @{
+                  cmd = $signtool.FullName
+                  args = @(
+                    "sign", "/v", "/fd", "SHA256",
+                    "/tr", "http://timestamp.acs.microsoft.com",
+                    "/td", "SHA256",
+                    "/dlib", $dlib.FullName,
+                    "/dmdf", "C:\TrustedSigning\metadata.json",
+                    "%1"
+                  )
+                }
               }
             }
-          } | ConvertTo-Json -Depth 3
+          } | ConvertTo-Json -Depth 5
           Set-Content -Path "C:\TrustedSigning\signing.conf.json" -Value $config
 
           Write-Host "Azure Trusted Signing setup complete"
