@@ -97,7 +97,7 @@
 /* Ribbon Content */
 .ribbon-content {
   background: var(--theme-ribbon-content-bg);
-  padding: 4px 8px 0 8px;
+  padding: 4px 8px 0 2px;
   display: none;
   height: 94px;
 }
@@ -143,10 +143,10 @@
 
 .ribbon-group-content {
   display: flex;
-  gap: 2px;
+  gap: 1px;
   align-items: flex-start;
   flex: 1;
-  padding: 2px 0;
+  padding: 1px 0;
 }
 
 /* Small buttons container - stacks 3 buttons vertically */
@@ -164,14 +164,14 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 4px 6px 2px 6px;
+  padding: 3px 3px 1px 3px;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 4px;
+  border-radius: 2px;
   cursor: pointer;
   transition: all 0.15s ease;
-  min-width: 54px;
-  gap: 2px;
+  min-width: 44px;
+  gap: 1px;
   height: 66px;
 }
 
@@ -243,7 +243,7 @@
   padding: 2px 8px 2px 4px;
   gap: 6px;
   justify-content: flex-start;
-  border-radius: 3px;
+  border-radius: 1px;
 }
 
 .ribbon-btn.small .ribbon-btn-icon {
@@ -271,7 +271,7 @@
   padding: 2px 8px 2px 4px;
   gap: 6px;
   justify-content: flex-start;
-  border-radius: 3px;
+  border-radius: 1px;
 }
 
 .ribbon-btn.medium .ribbon-btn-icon {
@@ -766,7 +766,7 @@
   width: 50px;
   padding: 3px 6px;
   border: 1px solid var(--theme-ribbon-input-border);
-  border-radius: 3px;
+  border-radius: 1px;
   font-size: 11px;
   background: var(--theme-ribbon-input-bg);
   color: var(--theme-ribbon-input-text);
@@ -782,7 +782,7 @@
   width: 32px;
   height: 24px;
   border: 1px solid var(--theme-ribbon-input-border);
-  border-radius: 3px;
+  border-radius: 1px;
   cursor: pointer;
   padding: 2px;
   background: var(--theme-ribbon-input-bg);

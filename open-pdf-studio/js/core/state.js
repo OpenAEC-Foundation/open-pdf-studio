@@ -1,3 +1,4 @@
+import { createMutable } from 'solid-js/store';
 import { DEFAULT_PREFERENCES } from './constants.js';
 import { isTauri, getUsername } from './platform.js';
 
@@ -46,6 +47,7 @@ export function createDocument(filePath = null) {
     scrollPosition: { x: 0, y: 0 },
     pageRotations: {},
     pdfaCompliance: null,
+    pdfADismissed: false,
   };
 }
 
@@ -62,9 +64,10 @@ export function getNextUntitledName() {
   return `Untitled ${untitledCounter}.pdf`;
 }
 
-// Central mutable state object
+// Central mutable state object wrapped in Solid.js createMutable
 // All modules import this and can read/modify state directly
-export const state = {
+// Reads are reactive inside Solid components; mutations via direct assignment
+export const state = createMutable({
   // Multi-document state
   documents: [],
   activeDocumentIndex: -1,
@@ -138,6 +141,10 @@ export const state = {
 
   // Shift key state (for angle snapping during rotation)
   shiftKeyPressed: false,
+
+  // Status bar message (ephemeral notification)
+  statusMessage: 'Ready',
+  statusMessageVisible: true,
 
   // Text selection state
   textSelection: {
@@ -295,7 +302,7 @@ export const state = {
       doc.selectedAnnotation = value.length > 0 ? value[0] : null;
     }
   }
-};
+});
 
 /**
  * Get the active document

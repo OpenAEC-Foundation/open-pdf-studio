@@ -8,6 +8,11 @@
   min-height: 0; /* Important for flex child overflow */
 }
 
+/* Left Panel Root (Solid.js mount point) */
+#left-panel-root {
+  display: contents;
+}
+
 /* Left Panel */
 .left-panel {
   width: 200px;
@@ -65,7 +70,7 @@
   white-space: nowrap;
 }
 
-.left-panel-tab span {
+.left-panel-tab .tab-label {
   display: none;
 }
 
@@ -258,8 +263,8 @@
   overflow: hidden;
 }
 
-.main-view > #form-fields-bar,
-.main-view > #pdfa-bar {
+.main-view > #form-fields-bar-root,
+.main-view > #pdfa-bar-root {
   flex-shrink: 0;
 }
 

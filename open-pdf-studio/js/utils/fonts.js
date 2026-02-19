@@ -1,4 +1,5 @@
 // Font utilities - system font enumeration and dropdown population
+import { systemFontList, setSystemFontList } from '../solid/stores/fontStore.js';
 
 // Comprehensive fallback list (common Windows + macOS + Linux fonts)
 const FALLBACK_FONTS = [
@@ -233,52 +234,17 @@ function detectAvailableFonts(fontList) {
   return available;
 }
 
-// Populate a <select> element with font options
-function populateSelectWithFonts(selectEl, fonts) {
-  selectEl.innerHTML = '';
-  for (const font of fonts) {
-    const option = document.createElement('option');
-    option.value = font;
-    option.textContent = font;
-    option.style.fontFamily = `'${font}', sans-serif`;
-    selectEl.appendChild(option);
-  }
+// Ensure a font exists in the store; if not, add it in sorted order
+export function ensureFontInStore(fontFamily) {
+  if (!fontFamily) return;
+  const fonts = systemFontList();
+  if (fonts.includes(fontFamily)) return;
+  const newFonts = [...fonts, fontFamily].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+  setSystemFontList(newFonts);
 }
 
-// Ensure a font value exists in the dropdown; if not, add it
-export function ensureFontInSelect(selectEl, fontFamily) {
-  if (!selectEl || !fontFamily) return;
-  // Check if option already exists
-  for (const opt of selectEl.options) {
-    if (opt.value === fontFamily) return;
-  }
-  // Add the font and re-sort
-  const option = document.createElement('option');
-  option.value = fontFamily;
-  option.textContent = fontFamily;
-  option.style.fontFamily = `'${fontFamily}', sans-serif`;
-
-  // Insert in alphabetical order
-  let inserted = false;
-  for (const opt of selectEl.options) {
-    if (fontFamily.localeCompare(opt.value, undefined, { sensitivity: 'base' }) < 0) {
-      selectEl.insertBefore(option, opt);
-      inserted = true;
-      break;
-    }
-  }
-  if (!inserted) {
-    selectEl.appendChild(option);
-  }
-}
-
-// Initialize all font dropdowns in the app
+// Initialize font list into the reactive store
 export async function initFontDropdowns() {
   const fonts = await getSystemFonts();
-
-  const propFontFamily = document.getElementById('prop-font-family');
-  const textAnnotFontFamily = document.getElementById('text-annot-font-family');
-
-  if (propFontFamily) populateSelectWithFonts(propFontFamily, fonts);
-  if (textAnnotFontFamily) populateSelectWithFonts(textAnnotFontFamily, fonts);
+  setSystemFontList(fonts);
 }

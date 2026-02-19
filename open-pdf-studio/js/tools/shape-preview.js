@@ -1,5 +1,6 @@
 import { state } from '../core/state.js';
-import { annotationCtx, colorPicker, lineWidth } from '../ui/dom-elements.js';
+import { annotationCtx } from '../ui/dom-elements.js';
+import { getColorPickerValue, getLineWidthValue } from '../solid/stores/ribbonStore.js';
 import { redrawAnnotations, drawCloudShape } from '../annotations/rendering.js';
 import { snapAngle } from '../utils/helpers.js';
 
@@ -66,7 +67,7 @@ export function drawShapePreview(currentX, currentY, e) {
 
   switch (state.currentTool) {
     case 'highlight':
-      annotationCtx.fillStyle = colorPicker.value;
+      annotationCtx.fillStyle = getColorPickerValue();
       annotationCtx.globalAlpha = 0.3;
       annotationCtx.fillRect(state.startX, state.startY, currentX - state.startX, currentY - state.startY);
       annotationCtx.globalAlpha = 1;
@@ -85,8 +86,8 @@ export function drawShapePreview(currentX, currentY, e) {
         lineEndX = state.startX + length * Math.cos(snappedAngle);
         lineEndY = state.startY + length * Math.sin(snappedAngle);
       }
-      annotationCtx.strokeStyle = colorPicker.value;
-      annotationCtx.lineWidth = parseInt(lineWidth.value);
+      annotationCtx.strokeStyle = getColorPickerValue();
+      annotationCtx.lineWidth = getLineWidthValue();
       annotationCtx.lineCap = 'round';
       annotationCtx.beginPath();
       annotationCtx.moveTo(state.startX, state.startY);
@@ -108,9 +109,9 @@ export function drawShapePreview(currentX, currentY, e) {
         arrowEndY = state.startY + length * Math.sin(snappedAngle);
       }
       // Get arrow preferences
-      const arrowStrokeColor = prefs.arrowStrokeColor || colorPicker.value;
+      const arrowStrokeColor = prefs.arrowStrokeColor || getColorPickerValue();
       const arrowFillColor = prefs.arrowFillColor || arrowStrokeColor;
-      const arrowLineWidth = prefs.arrowLineWidth || parseInt(lineWidth.value);
+      const arrowLineWidth = prefs.arrowLineWidth || getLineWidthValue();
       const arrowBorderStyle = prefs.arrowBorderStyle || 'solid';
       const arrowHeadSize = prefs.arrowHeadSize || 12;
       const arrowStartHead = prefs.arrowStartHead || 'none';
@@ -198,8 +199,8 @@ export function drawShapePreview(currentX, currentY, e) {
       const cy = state.startY + height / 2;
       const rx = Math.abs(width) / 2;
       const ry = Math.abs(height) / 2;
-      annotationCtx.strokeStyle = colorPicker.value;
-      annotationCtx.lineWidth = parseInt(lineWidth.value);
+      annotationCtx.strokeStyle = getColorPickerValue();
+      annotationCtx.lineWidth = getLineWidthValue();
       annotationCtx.beginPath();
       for (let i = 0; i <= 6; i++) {
         const angle = (i * 2 * Math.PI / 6) - Math.PI / 2;
@@ -221,8 +222,8 @@ export function drawShapePreview(currentX, currentY, e) {
       const cloudW = Math.abs(currentX - state.startX);
       const cloudH = Math.abs(currentY - state.startY);
       if (cloudW > 10 && cloudH > 10) {
-        annotationCtx.strokeStyle = colorPicker.value;
-        annotationCtx.lineWidth = parseInt(lineWidth.value);
+        annotationCtx.strokeStyle = getColorPickerValue();
+        annotationCtx.lineWidth = getLineWidthValue();
         drawCloudShape(annotationCtx, cloudX, cloudY, cloudW, cloudH);
       }
       break;

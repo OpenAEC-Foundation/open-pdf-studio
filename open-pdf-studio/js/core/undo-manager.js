@@ -1,7 +1,6 @@
 import { state, getActiveDocument, getPageRotation, setPageRotation } from './state.js';
 import { cloneAnnotation } from '../annotations/factory.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
-
 const MAX_UNDO_STACK = 100;
 
 // Per-document undo stack stored on the document object
@@ -30,13 +29,8 @@ function clearRedo() {
   if (doc) doc.redoStack = [];
 }
 
-function updateButtons() {
-  const doc = getActiveDocument();
-  const qaUndo = document.getElementById('qa-undo');
-  const qaRedo = document.getElementById('qa-redo');
-  if (qaUndo) qaUndo.disabled = !doc || !doc.undoStack || doc.undoStack.length === 0;
-  if (qaRedo) qaRedo.disabled = !doc || !doc.redoStack || doc.redoStack.length === 0;
-}
+// No-op: TitleBar.jsx now derives undo/redo enabled from reactive state
+function updateButtons() {}
 
 // Execute a command: push to undo, clear redo, mark modified
 export function execute(cmd) {
@@ -402,8 +396,8 @@ async function refresh() {
   updateQuickAccessButtons();
 
   // Refresh bookmarks panel if active
-  const activeTab = document.querySelector('.left-panel-tab.active');
-  if (activeTab && activeTab.dataset.panel === 'bookmarks') {
+  const { activeTab } = await import('../solid/stores/leftPanelStore.js');
+  if (activeTab() === 'bookmarks') {
     const { updateBookmarksList } = await import('../ui/panels/bookmarks.js');
     updateBookmarksList();
   }

@@ -1,5 +1,6 @@
 import { state } from '../core/state.js';
 import { AnnotationLayer } from 'pdfjs-dist';
+import { showFormFieldsBar as showBar, hideFormFieldsBar as hideBar } from '../solid/stores/formFieldsBarStore.js';
 
 // Sub-module imports
 import { parseJSConstants, parseJSFunctions, decodeJSString, getMessagesForBlurAction } from './form-layer/js-parser.js';
@@ -707,24 +708,17 @@ function showFormFieldsBar() {
   const doc = state.documents[state.activeDocumentIndex];
   if (!doc) return;
   if (dismissedBarDocuments.has(doc.id)) return;
-  const bar = document.getElementById('form-fields-bar');
-  if (!bar || bar.style.display !== 'none') return;
-  bar.style.display = 'flex';
-
-  const closeBtn = document.getElementById('form-fields-bar-close');
-  if (closeBtn && !closeBtn._hasListener) {
-    closeBtn._hasListener = true;
-    closeBtn.addEventListener('click', () => {
-      bar.style.display = 'none';
-      const activeDoc = state.documents[state.activeDocumentIndex];
-      if (activeDoc) dismissedBarDocuments.add(activeDoc.id);
-    });
-  }
+  showBar();
 }
 
 export function hideFormFieldsBar() {
-  const bar = document.getElementById('form-fields-bar');
-  if (bar) bar.style.display = 'none';
+  hideBar();
+}
+
+export function dismissFormFieldsBar() {
+  const doc = state.documents[state.activeDocumentIndex];
+  if (doc) dismissedBarDocuments.add(doc.id);
+  hideBar();
 }
 
 // ─── Single page / cleanup ─────────────────────────────────────────────────────

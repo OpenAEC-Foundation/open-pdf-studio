@@ -1,5 +1,6 @@
 import { state, addToSelection, removeFromSelection, isSelected, clearSelection, getAnnotationBounds, getSelectionBounds } from '../core/state.js';
-import { annotationCanvas, annotationCtx, colorPicker, lineWidth, pdfContainer } from '../ui/dom-elements.js';
+import { annotationCanvas, annotationCtx, pdfContainer } from '../ui/dom-elements.js';
+import { getColorPickerValue, getLineWidthValue } from '../solid/stores/ribbonStore.js';
 import { createAnnotation, cloneAnnotation } from '../annotations/factory.js';
 import { findAnnotationAt } from '../annotations/geometry.js';
 import { findHandleAt, getCursorForHandle } from '../annotations/handles.js';
@@ -408,8 +409,8 @@ export function handleMouseMove(e) {
     // Draw temporary line with scale
     annotationCtx.save();
     annotationCtx.scale(state.scale, state.scale);
-    annotationCtx.strokeStyle = colorPicker.value;
-    annotationCtx.lineWidth = parseInt(lineWidth.value);
+    annotationCtx.strokeStyle = getColorPickerValue();
+    annotationCtx.lineWidth = getLineWidthValue();
     annotationCtx.lineCap = 'round';
     annotationCtx.lineJoin = 'round';
     annotationCtx.beginPath();
@@ -602,8 +603,8 @@ export function handleContinuousMouseMove(e, pageNum) {
 
   if (state.currentTool === 'draw') {
     state.currentPath.push({ x: currentX, y: currentY });
-    ctx.strokeStyle = colorPicker.value;
-    ctx.lineWidth = parseInt(lineWidth.value);
+    ctx.strokeStyle = getColorPickerValue();
+    ctx.lineWidth = getLineWidthValue();
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.beginPath();
@@ -614,13 +615,13 @@ export function handleContinuousMouseMove(e, pageNum) {
     renderAnnotationsForPage(ctx, pageNum, canvas.width, canvas.height);
 
     if (state.currentTool === 'highlight') {
-      ctx.fillStyle = colorPicker.value;
+      ctx.fillStyle = getColorPickerValue();
       ctx.globalAlpha = 0.3;
       ctx.fillRect(state.startX, state.startY, currentX - state.startX, currentY - state.startY);
       ctx.globalAlpha = 1;
     } else if (state.currentTool === 'line') {
-      ctx.strokeStyle = colorPicker.value;
-      ctx.lineWidth = parseInt(lineWidth.value);
+      ctx.strokeStyle = getColorPickerValue();
+      ctx.lineWidth = getLineWidthValue();
       ctx.lineCap = 'round';
       ctx.beginPath();
       ctx.moveTo(state.startX, state.startY);
@@ -628,14 +629,14 @@ export function handleContinuousMouseMove(e, pageNum) {
       ctx.stroke();
     } else if (state.currentTool === 'circle') {
       const radius = Math.sqrt(Math.pow(currentX - state.startX, 2) + Math.pow(currentY - state.startY, 2));
-      ctx.strokeStyle = colorPicker.value;
-      ctx.lineWidth = parseInt(lineWidth.value);
+      ctx.strokeStyle = getColorPickerValue();
+      ctx.lineWidth = getLineWidthValue();
       ctx.beginPath();
       ctx.arc(state.startX, state.startY, radius, 0, 2 * Math.PI);
       ctx.stroke();
     } else if (state.currentTool === 'box') {
-      ctx.strokeStyle = colorPicker.value;
-      ctx.lineWidth = parseInt(lineWidth.value);
+      ctx.strokeStyle = getColorPickerValue();
+      ctx.lineWidth = getLineWidthValue();
       ctx.strokeRect(state.startX, state.startY, currentX - state.startX, currentY - state.startY);
     }
   }

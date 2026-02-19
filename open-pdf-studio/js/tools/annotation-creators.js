@@ -1,5 +1,5 @@
 import { state } from '../core/state.js';
-import { colorPicker, lineWidth } from '../ui/dom-elements.js';
+import { getColorPickerValue, getLineWidthValue } from '../solid/stores/ribbonStore.js';
 import { createAnnotation } from '../annotations/factory.js';
 import { snapAngle } from '../utils/helpers.js';
 import { calculateDistance, formatMeasurement } from '../annotations/measurement.js';
@@ -14,9 +14,9 @@ export function createAnnotationFromTool(tool, startX, startY, endX, endY, e) {
           type: 'draw',
           page: state.currentPage,
           path: state.currentPath,
-          color: prefs.drawStrokeColor || colorPicker.value,
-          strokeColor: prefs.drawStrokeColor || colorPicker.value,
-          lineWidth: prefs.drawLineWidth || parseInt(lineWidth.value),
+          color: prefs.drawStrokeColor || getColorPickerValue(),
+          strokeColor: prefs.drawStrokeColor || getColorPickerValue(),
+          lineWidth: prefs.drawLineWidth || getLineWidthValue(),
           opacity: (prefs.drawOpacity || 100) / 100
         });
         state.currentPath = [];
@@ -32,8 +32,8 @@ export function createAnnotationFromTool(tool, startX, startY, endX, endY, e) {
         y: Math.min(startY, endY),
         width: Math.abs(endX - startX),
         height: Math.abs(endY - startY),
-        color: prefs.highlightColor || colorPicker.value,
-        fillColor: prefs.highlightColor || colorPicker.value
+        color: prefs.highlightColor || getColorPickerValue(),
+        fillColor: prefs.highlightColor || getColorPickerValue()
       });
 
     case 'line': {
@@ -55,9 +55,9 @@ export function createAnnotationFromTool(tool, startX, startY, endX, endY, e) {
         startY: startY,
         endX: finalEndX,
         endY: finalEndY,
-        color: prefs.lineStrokeColor || colorPicker.value,
-        strokeColor: prefs.lineStrokeColor || colorPicker.value,
-        lineWidth: prefs.lineLineWidth || parseInt(lineWidth.value),
+        color: prefs.lineStrokeColor || getColorPickerValue(),
+        strokeColor: prefs.lineStrokeColor || getColorPickerValue(),
+        lineWidth: prefs.lineLineWidth || getLineWidthValue(),
         borderStyle: prefs.lineBorderStyle || 'solid',
         opacity: (prefs.lineOpacity || 100) / 100
       });
@@ -82,10 +82,10 @@ export function createAnnotationFromTool(tool, startX, startY, endX, endY, e) {
         startY: startY,
         endX: finalEndX,
         endY: finalEndY,
-        color: prefs.arrowStrokeColor || colorPicker.value,
-        strokeColor: prefs.arrowStrokeColor || colorPicker.value,
-        fillColor: prefs.arrowFillColor || prefs.arrowStrokeColor || colorPicker.value,
-        lineWidth: prefs.arrowLineWidth || parseInt(lineWidth.value),
+        color: prefs.arrowStrokeColor || getColorPickerValue(),
+        strokeColor: prefs.arrowStrokeColor || getColorPickerValue(),
+        fillColor: prefs.arrowFillColor || prefs.arrowStrokeColor || getColorPickerValue(),
+        lineWidth: prefs.arrowLineWidth || getLineWidthValue(),
         borderStyle: prefs.arrowBorderStyle || 'solid',
         startHead: prefs.arrowStartHead || 'none',
         endHead: prefs.arrowEndHead || 'open',
@@ -145,9 +145,9 @@ export function createAnnotationFromTool(tool, startX, startY, endX, endY, e) {
         width: endX - startX,
         height: endY - startY,
         sides: 6,
-        color: prefs.polygonStrokeColor || colorPicker.value,
-        strokeColor: prefs.polygonStrokeColor || colorPicker.value,
-        lineWidth: prefs.polygonLineWidth || parseInt(lineWidth.value),
+        color: prefs.polygonStrokeColor || getColorPickerValue(),
+        strokeColor: prefs.polygonStrokeColor || getColorPickerValue(),
+        lineWidth: prefs.polygonLineWidth || getLineWidthValue(),
         opacity: (prefs.polygonOpacity || 100) / 100
       });
 
@@ -164,9 +164,9 @@ export function createAnnotationFromTool(tool, startX, startY, endX, endY, e) {
           y: cloudY,
           width: cloudW,
           height: cloudH,
-          color: prefs.cloudStrokeColor || colorPicker.value,
-          strokeColor: prefs.cloudStrokeColor || colorPicker.value,
-          lineWidth: prefs.cloudLineWidth || parseInt(lineWidth.value),
+          color: prefs.cloudStrokeColor || getColorPickerValue(),
+          strokeColor: prefs.cloudStrokeColor || getColorPickerValue(),
+          lineWidth: prefs.cloudLineWidth || getLineWidthValue(),
           opacity: (prefs.cloudOpacity || 100) / 100
         });
       }
@@ -292,9 +292,9 @@ export function createContinuousAnnotation(tool, pageNum, startX, startY, endX, 
           type: 'draw',
           page: pageNum,
           path: state.currentPath,
-          color: colorPicker.value,
-          strokeColor: colorPicker.value,
-          lineWidth: parseInt(lineWidth.value)
+          color: getColorPickerValue(),
+          strokeColor: getColorPickerValue(),
+          lineWidth: getLineWidthValue()
         });
         state.currentPath = [];
         return ann;
@@ -309,8 +309,8 @@ export function createContinuousAnnotation(tool, pageNum, startX, startY, endX, 
         y: Math.min(startY, endY),
         width: Math.abs(endX - startX),
         height: Math.abs(endY - startY),
-        color: colorPicker.value,
-        fillColor: colorPicker.value
+        color: getColorPickerValue(),
+        fillColor: getColorPickerValue()
       });
 
     case 'line':
@@ -321,9 +321,9 @@ export function createContinuousAnnotation(tool, pageNum, startX, startY, endX, 
         startY: startY,
         endX: endX,
         endY: endY,
-        color: colorPicker.value,
-        strokeColor: colorPicker.value,
-        lineWidth: parseInt(lineWidth.value)
+        color: getColorPickerValue(),
+        strokeColor: getColorPickerValue(),
+        lineWidth: getLineWidthValue()
       });
 
     case 'circle': {
@@ -338,10 +338,10 @@ export function createContinuousAnnotation(tool, pageNum, startX, startY, endX, 
         y: circleY,
         width: circleW,
         height: circleH,
-        color: colorPicker.value,
-        strokeColor: colorPicker.value,
-        fillColor: colorPicker.value,
-        lineWidth: parseInt(lineWidth.value)
+        color: getColorPickerValue(),
+        strokeColor: getColorPickerValue(),
+        fillColor: getColorPickerValue(),
+        lineWidth: getLineWidthValue()
       });
     }
 
@@ -357,10 +357,10 @@ export function createContinuousAnnotation(tool, pageNum, startX, startY, endX, 
         y: boxY,
         width: boxW,
         height: boxH,
-        color: colorPicker.value,
-        fillColor: colorPicker.value,
-        strokeColor: colorPicker.value,
-        lineWidth: parseInt(lineWidth.value)
+        color: getColorPickerValue(),
+        fillColor: getColorPickerValue(),
+        strokeColor: getColorPickerValue(),
+        lineWidth: getLineWidthValue()
       });
     }
 

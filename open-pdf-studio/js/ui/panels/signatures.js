@@ -1,14 +1,5 @@
 import { getActiveDocument } from '../../core/state.js';
-
-const signaturesContainer = document.getElementById('signatures-container');
-const signaturesCount = document.getElementById('signatures-count');
-
-// Shield icon SVGs for different states
-const ICONS = {
-  valid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>',
-  invalid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
-  unknown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
-};
+import { setItems, setCountText, setEmptyMessage } from '../../solid/stores/panels/signaturesStore.js';
 
 // Format a date from a PDF date string
 function formatSignatureDate(dateStr) {
@@ -30,70 +21,6 @@ function formatSignatureDate(dateStr) {
   } catch {
     return dateStr;
   }
-}
-
-// Create a list item for a signature field
-function createSignatureItem(sigInfo) {
-  const item = document.createElement('div');
-  item.className = 'signature-list-item';
-
-  // Icon
-  const icon = document.createElement('div');
-  const status = sigInfo.verified === true ? 'valid' : sigInfo.verified === false ? 'invalid' : 'unknown';
-  icon.className = `signature-list-icon ${status}`;
-  icon.innerHTML = ICONS[status];
-  item.appendChild(icon);
-
-  // Info
-  const info = document.createElement('div');
-  info.className = 'signature-list-info';
-
-  const name = document.createElement('div');
-  name.className = 'signature-list-name';
-  name.textContent = sigInfo.name || 'Unknown Signer';
-  info.appendChild(name);
-
-  if (sigInfo.reason) {
-    const reason = document.createElement('div');
-    reason.className = 'signature-list-detail';
-    reason.textContent = `Reason: ${sigInfo.reason}`;
-    info.appendChild(reason);
-  }
-
-  if (sigInfo.location) {
-    const location = document.createElement('div');
-    location.className = 'signature-list-detail';
-    location.textContent = `Location: ${sigInfo.location}`;
-    info.appendChild(location);
-  }
-
-  if (sigInfo.date) {
-    const date = document.createElement('div');
-    date.className = 'signature-list-detail';
-    date.textContent = `Signed: ${formatSignatureDate(sigInfo.date)}`;
-    info.appendChild(date);
-  }
-
-  if (sigInfo.contactInfo) {
-    const contact = document.createElement('div');
-    contact.className = 'signature-list-detail';
-    contact.textContent = `Contact: ${sigInfo.contactInfo}`;
-    info.appendChild(contact);
-  }
-
-  const statusEl = document.createElement('div');
-  statusEl.className = `signature-list-status ${status}`;
-  if (status === 'valid') {
-    statusEl.textContent = 'Signature is valid';
-  } else if (status === 'invalid') {
-    statusEl.textContent = 'Signature is invalid';
-  } else {
-    statusEl.textContent = 'Verification not available';
-  }
-  info.appendChild(statusEl);
-
-  item.appendChild(info);
-  return item;
 }
 
 // Extract signature field info from PDF form fields
@@ -161,37 +88,46 @@ async function getSignatureFields(pdfDoc) {
 
 // Load and display digital signatures from the active PDF
 export async function updateSignaturesList() {
-  if (!signaturesContainer) return;
-
   const activeDoc = getActiveDocument();
   if (!activeDoc || !activeDoc.pdfDoc) {
-    signaturesContainer.innerHTML = '<div class="signatures-empty">No document open</div>';
-    if (signaturesCount) signaturesCount.textContent = '0 signatures';
+    setItems([]);
+    setCountText('0 signatures');
+    setEmptyMessage('No document open');
     return;
   }
 
-  signaturesContainer.innerHTML = '<div class="signatures-empty">Loading...</div>';
+  setEmptyMessage('Loading...');
 
   try {
     const sigs = await getSignatureFields(activeDoc.pdfDoc);
 
     if (sigs.length === 0) {
-      signaturesContainer.innerHTML = '<div class="signatures-empty">No digital signatures in this document</div>';
-      if (signaturesCount) signaturesCount.textContent = '0 signatures';
+      setItems([]);
+      setCountText('0 signatures');
+      setEmptyMessage('No digital signatures in this document');
       return;
     }
 
-    signaturesContainer.innerHTML = '';
-    sigs.forEach(sig => {
-      signaturesContainer.appendChild(createSignatureItem(sig));
-    });
-
-    if (signaturesCount) {
-      signaturesCount.textContent = `${sigs.length} signature${sigs.length !== 1 ? 's' : ''}`;
-    }
+    setEmptyMessage(null);
+    setItems(sigs.map(sig => {
+      const status = sig.verified === true ? 'valid' : sig.verified === false ? 'invalid' : 'unknown';
+      return {
+        fieldName: sig.fieldName,
+        name: sig.name || 'Unknown Signer',
+        reason: sig.reason,
+        location: sig.location,
+        date: sig.date ? formatSignatureDate(sig.date) : null,
+        contactInfo: sig.contactInfo,
+        status,
+        statusText: status === 'valid' ? 'Signature is valid' : status === 'invalid' ? 'Signature is invalid' : 'Verification not available',
+        page: sig.page
+      };
+    }));
+    setCountText(`${sigs.length} signature${sigs.length !== 1 ? 's' : ''}`);
   } catch (e) {
     console.warn('Failed to load signatures:', e);
-    signaturesContainer.innerHTML = '<div class="signatures-empty">Could not load signatures</div>';
-    if (signaturesCount) signaturesCount.textContent = '0 signatures';
+    setItems([]);
+    setCountText('0 signatures');
+    setEmptyMessage('Could not load signatures');
   }
 }

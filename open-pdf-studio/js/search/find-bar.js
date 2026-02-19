@@ -5,75 +5,28 @@
 import { state } from '../core/state.js';
 import { executeSearch, findNext, findPrevious, getCurrentResult, clearSearch, getResultsForPage } from './find-controller.js';
 import { renderPage, renderContinuous } from '../pdf/renderer.js';
-
-// DOM elements
-let findBar = null;
-let findInput = null;
-let findPrevBtn = null;
-let findNextBtn = null;
-let findCloseBtn = null;
-let findResultsCount = null;
-let findMessage = null;
-let matchCaseCheckbox = null;
-let wholeWordCheckbox = null;
-let highlightAllCheckbox = null;
+import { setVisible, setResultsText, setMessageText, setNotFound, setNavDisabled } from '../solid/stores/findBarStore.js';
 
 // Debounce timer for search input
 let searchDebounceTimer = null;
 
 /**
- * Initialize the find bar
+ * Initialize the find bar (no-op, retained for backward compatibility).
+ * Event binding is now handled by the Solid.js FindBar component.
  */
 export function initFindBar() {
-  // Get DOM elements
-  findBar = document.getElementById('find-bar');
-  findInput = document.getElementById('find-input');
-  findPrevBtn = document.getElementById('find-prev-btn');
-  findNextBtn = document.getElementById('find-next-btn');
-  findCloseBtn = document.getElementById('find-close-btn');
-  findResultsCount = document.getElementById('find-results-count');
-  findMessage = document.getElementById('find-message');
-  matchCaseCheckbox = document.getElementById('find-match-case');
-  wholeWordCheckbox = document.getElementById('find-whole-word');
-  highlightAllCheckbox = document.getElementById('find-highlight-all');
-
-  if (!findBar || !findInput) {
-    console.warn('Find bar elements not found');
-    return;
-  }
-
-  // Bind events
-  findInput.addEventListener('input', onSearchInput);
-  findInput.addEventListener('keydown', onSearchKeydown);
-  findPrevBtn?.addEventListener('click', onFindPrevious);
-  findNextBtn?.addEventListener('click', onFindNext);
-  findCloseBtn?.addEventListener('click', closeFindBar);
-  matchCaseCheckbox?.addEventListener('change', onOptionsChange);
-  wholeWordCheckbox?.addEventListener('change', onOptionsChange);
-  highlightAllCheckbox?.addEventListener('change', onHighlightChange);
-
-  // Set initial checkbox state
-  if (highlightAllCheckbox) {
-    highlightAllCheckbox.checked = state.search.highlightAll;
-  }
+  // No-op: DOM caching and event binding moved to FindBar.jsx
 }
 
 /**
  * Open the find bar
  */
 export function openFindBar() {
-  if (!findBar) return;
-
-  findBar.classList.add('visible');
+  setVisible(true);
   state.search.isOpen = true;
-
-  // Focus and select input
-  findInput?.focus();
-  findInput?.select();
 
   // If there's existing search text, re-run search
   if (state.search.query) {
-    findInput.value = state.search.query;
     executeSearchAndUpdate();
   }
 }
@@ -82,9 +35,7 @@ export function openFindBar() {
  * Close the find bar
  */
 export function closeFindBar() {
-  if (!findBar) return;
-
-  findBar.classList.remove('visible');
+  setVisible(false);
   state.search.isOpen = false;
 
   // Clear highlights but keep search state
@@ -103,10 +54,11 @@ export function toggleFindBar() {
 }
 
 /**
- * Handle search input
+ * Handle search input (called from component)
+ * @param {string} value - The current input value
  */
-function onSearchInput(e) {
-  const query = e.target.value;
+export function handleSearchInput(value) {
+  const query = value;
   state.search.query = query;
 
   // Debounce search
@@ -127,36 +79,15 @@ function onSearchInput(e) {
 }
 
 /**
- * Handle keydown in search input
- */
-function onSearchKeydown(e) {
-  switch (e.key) {
-    case 'Enter':
-      e.preventDefault();
-      // Cancel any pending debounce
-      if (searchDebounceTimer) {
-        clearTimeout(searchDebounceTimer);
-        searchDebounceTimer = null;
-      }
-      // Update query from current input value
-      state.search.query = findInput.value;
-      if (e.shiftKey) {
-        onFindPrevious();
-      } else {
-        onFindNext();
-      }
-      break;
-    case 'Escape':
-      e.preventDefault();
-      closeFindBar();
-      break;
-  }
-}
-
-/**
  * Handle find next button click
  */
-async function onFindNext() {
+export async function onFindNext() {
+  // Cancel any pending debounce and use current query
+  if (searchDebounceTimer) {
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = null;
+  }
+
   if (state.search.results.length === 0) {
     // If no results yet, execute search first
     if (state.search.query) {
@@ -185,7 +116,13 @@ export async function triggerSearch() {
 /**
  * Handle find previous button click
  */
-async function onFindPrevious() {
+export async function onFindPrevious() {
+  // Cancel any pending debounce and use current query
+  if (searchDebounceTimer) {
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = null;
+  }
+
   if (state.search.results.length === 0) {
     if (state.search.query) {
       await executeSearchAndUpdate();
@@ -203,10 +140,11 @@ async function onFindPrevious() {
 
 /**
  * Handle options change (match case, whole word)
+ * @param {{ matchCase: boolean, wholeWord: boolean }} options
  */
-function onOptionsChange() {
-  state.search.matchCase = matchCaseCheckbox?.checked || false;
-  state.search.wholeWord = wholeWordCheckbox?.checked || false;
+export function onOptionsChange(options) {
+  state.search.matchCase = options.matchCase;
+  state.search.wholeWord = options.wholeWord;
 
   if (state.search.query) {
     executeSearchAndUpdate();
@@ -215,9 +153,10 @@ function onOptionsChange() {
 
 /**
  * Handle highlight all checkbox change
+ * @param {boolean} highlightAll
  */
-function onHighlightChange() {
-  state.search.highlightAll = highlightAllCheckbox?.checked || false;
+export function onHighlightChange(highlightAll) {
+  state.search.highlightAll = highlightAll;
   highlightResults();
 }
 
@@ -279,49 +218,32 @@ function scrollToMatch(result) {
 }
 
 /**
- * Update the find bar UI
+ * Update the find bar UI via store signals
  */
 function updateUI() {
   const { results, currentIndex, totalMatches, query } = state.search;
 
   // Update results count
-  if (findResultsCount) {
-    if (totalMatches > 0) {
-      findResultsCount.textContent = `${currentIndex + 1} of ${totalMatches}`;
-    } else if (query) {
-      findResultsCount.textContent = 'No results';
-    } else {
-      findResultsCount.textContent = '';
-    }
+  if (totalMatches > 0) {
+    setResultsText(`${currentIndex + 1} of ${totalMatches}`);
+  } else if (query) {
+    setResultsText('No results');
+  } else {
+    setResultsText('');
   }
 
   // Update message
-  if (findMessage) {
-    if (query && totalMatches === 0) {
-      findMessage.textContent = 'Phrase not found';
-      findMessage.classList.add('not-found');
-    } else {
-      findMessage.textContent = '';
-      findMessage.classList.remove('not-found');
-    }
+  if (query && totalMatches === 0) {
+    setMessageText('Phrase not found');
+  } else {
+    setMessageText('');
   }
 
-  // Update input style
-  if (findInput) {
-    if (query && totalMatches === 0) {
-      findInput.classList.add('not-found');
-    } else {
-      findInput.classList.remove('not-found');
-    }
-  }
+  // Update not-found state (drives input + message styling)
+  setNotFound(!!query && totalMatches === 0);
 
-  // Update button states
-  if (findPrevBtn) {
-    findPrevBtn.disabled = totalMatches === 0;
-  }
-  if (findNextBtn) {
-    findNextBtn.disabled = totalMatches === 0;
-  }
+  // Update nav button disabled state
+  setNavDisabled(totalMatches === 0);
 }
 
 /**
@@ -399,9 +321,6 @@ function findAllMatchPositions(textLayer, searchText, matchCase) {
             const preRange = document.createRange();
             preRange.setStart(textNode, 0);
             preRange.setEnd(textNode, matchIndex);
-            // getBoundingClientRect gives visual (transformed) width
-            // We need to divide by scaleX to get the original coordinate offset
-            // Then multiply back for positioning (since spans are scaled)
             preWidth = preRange.getBoundingClientRect().width;
           }
 
@@ -410,11 +329,6 @@ function findAllMatchPositions(textLayer, searchText, matchCase) {
           matchRange.setStart(textNode, matchIndex);
           matchRange.setEnd(textNode, matchIndex + searchText.length);
           const matchRect = matchRange.getBoundingClientRect();
-
-          // For positioning within the scaled span, we need visual (transformed) widths
-          // which is what getBoundingClientRect returns
-          // But span.style.left is the untransformed position
-          // So we need to calculate the visual offset from span start
 
           // Get span's visual bounding rect
           const spanRect = span.getBoundingClientRect();

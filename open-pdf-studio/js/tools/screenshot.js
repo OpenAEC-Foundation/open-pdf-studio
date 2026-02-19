@@ -1,6 +1,9 @@
 import { state } from '../core/state.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
 import { isTauri, saveFileDialog, writeBinaryFile } from '../core/platform.js';
+import { render } from 'solid-js/web';
+import ScreenshotOverlay from '../solid/components/ScreenshotOverlay.jsx';
+import { startScreenshot, endScreenshot } from '../solid/stores/screenshotStore.js';
 
 function mergeCanvases(pdfCanvasEl, annotationCanvasEl) {
   const merged = document.createElement('canvas');
@@ -87,9 +90,34 @@ export async function screenshotFullPage() {
   await copyAndSave(merged);
 }
 
-function removeRegionOverlay() {
-  const overlay = document.getElementById('screenshot-region-overlay');
-  if (overlay) overlay.remove();
+let disposeSolidOverlay = null;
+
+function ensureOverlayMounted(container) {
+  const mountId = 'screenshot-overlay-root';
+  let mountEl = container.querySelector('#' + mountId);
+  if (!mountEl) {
+    // Dispose any previous Solid render
+    if (disposeSolidOverlay) {
+      disposeSolidOverlay();
+      disposeSolidOverlay = null;
+    }
+    mountEl = document.createElement('div');
+    mountEl.id = mountId;
+    mountEl.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:500;';
+    container.appendChild(mountEl);
+    disposeSolidOverlay = render(() => ScreenshotOverlay(), mountEl);
+  }
+  // The overlay itself handles pointer-events via its own styles when active
+  return mountEl;
+}
+
+function cleanupOverlayMount() {
+  if (disposeSolidOverlay) {
+    disposeSolidOverlay();
+    disposeSolidOverlay = null;
+  }
+  const mountEl = document.getElementById('screenshot-overlay-root');
+  if (mountEl) mountEl.remove();
 }
 
 export function startRegionScreenshot() {
@@ -99,133 +127,50 @@ export function startRegionScreenshot() {
     return;
   }
 
-  removeRegionOverlay();
-
   const container = canvases.container;
-  const overlay = document.createElement('div');
-  overlay.id = 'screenshot-region-overlay';
-  overlay.style.cssText = `
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 500;
-    cursor: crosshair;
-  `;
-
-  const instruction = document.createElement('div');
-  instruction.style.cssText = `
-    position: absolute;
-    top: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.75);
-    color: white;
-    padding: 6px 14px;
-    font-size: 12px;
-    z-index: 501;
-    pointer-events: none;
-    white-space: nowrap;
-  `;
-  instruction.textContent = 'Click and drag to select region. Press Esc to cancel.';
-  overlay.appendChild(instruction);
-
-  const selectionRect = document.createElement('div');
-  selectionRect.style.cssText = `
-    position: absolute;
-    border: 2px dashed #0078d7;
-    background: rgba(0, 120, 215, 0.1);
-    display: none;
-    pointer-events: none;
-  `;
-  overlay.appendChild(selectionRect);
-
-  let startX = 0, startY = 0;
-  let isDragging = false;
-
-  function onKeyDown(e) {
-    if (e.key === 'Escape') {
-      cleanup();
-      updateStatusMessage('Region screenshot cancelled');
-    }
-  }
-
-  function cleanup() {
-    removeRegionOverlay();
-    document.removeEventListener('keydown', onKeyDown);
-  }
-
-  overlay.addEventListener('mousedown', (e) => {
-    if (e.button !== 0) return;
-    const rect = overlay.getBoundingClientRect();
-    startX = e.clientX - rect.left;
-    startY = e.clientY - rect.top;
-    isDragging = true;
-    selectionRect.style.display = 'block';
-    selectionRect.style.left = startX + 'px';
-    selectionRect.style.top = startY + 'px';
-    selectionRect.style.width = '0px';
-    selectionRect.style.height = '0px';
-  });
-
-  overlay.addEventListener('mousemove', (e) => {
-    if (!isDragging) return;
-    const rect = overlay.getBoundingClientRect();
-    const currentX = e.clientX - rect.left;
-    const currentY = e.clientY - rect.top;
-
-    const x = Math.min(startX, currentX);
-    const y = Math.min(startY, currentY);
-    const w = Math.abs(currentX - startX);
-    const h = Math.abs(currentY - startY);
-
-    selectionRect.style.left = x + 'px';
-    selectionRect.style.top = y + 'px';
-    selectionRect.style.width = w + 'px';
-    selectionRect.style.height = h + 'px';
-  });
-
-  overlay.addEventListener('mouseup', async (e) => {
-    if (!isDragging) return;
-    isDragging = false;
-
-    const rect = overlay.getBoundingClientRect();
-    const endX = e.clientX - rect.left;
-    const endY = e.clientY - rect.top;
-
-    const x = Math.min(startX, endX);
-    const y = Math.min(startY, endY);
-    const w = Math.abs(endX - startX);
-    const h = Math.abs(endY - startY);
-
-    cleanup();
-
-    if (w < 5 || h < 5) {
-      updateStatusMessage('Selection too small');
-      return;
-    }
-
-    const merged = mergeCanvases(canvases.pdfCanvas, canvases.annotationCanvas);
-
-    const scaleX = merged.width / container.offsetWidth;
-    const scaleY = merged.height / container.offsetHeight;
-
-    const cropX = Math.round(x * scaleX);
-    const cropY = Math.round(y * scaleY);
-    const cropW = Math.round(w * scaleX);
-    const cropH = Math.round(h * scaleY);
-
-    const cropped = document.createElement('canvas');
-    cropped.width = cropW;
-    cropped.height = cropH;
-    const ctx = cropped.getContext('2d');
-    ctx.drawImage(merged, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
-
-    await copyAndSave(cropped);
-  });
-
-  document.addEventListener('keydown', onKeyDown);
   container.style.position = container.style.position || 'relative';
-  container.appendChild(overlay);
+
+  // Clean up any previous overlay mount in a different container
+  cleanupOverlayMount();
+  endScreenshot();
+
+  ensureOverlayMounted(container);
+
+  startScreenshot(
+    container,
+    async (sel) => {
+      // Selection complete - crop and save
+      const { left: x, top: y, width: w, height: h } = sel;
+
+      if (w < 5 || h < 5) {
+        updateStatusMessage('Selection too small');
+        cleanupOverlayMount();
+        return;
+      }
+
+      const merged = mergeCanvases(canvases.pdfCanvas, canvases.annotationCanvas);
+
+      const scaleX = merged.width / container.offsetWidth;
+      const scaleY = merged.height / container.offsetHeight;
+
+      const cropX = Math.round(x * scaleX);
+      const cropY = Math.round(y * scaleY);
+      const cropW = Math.round(w * scaleX);
+      const cropH = Math.round(h * scaleY);
+
+      const cropped = document.createElement('canvas');
+      cropped.width = cropW;
+      cropped.height = cropH;
+      const ctx = cropped.getContext('2d');
+      ctx.drawImage(merged, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+
+      cleanupOverlayMount();
+      await copyAndSave(cropped);
+    },
+    () => {
+      // Cancelled
+      updateStatusMessage('Region screenshot cancelled');
+      cleanupOverlayMount();
+    }
+  );
 }

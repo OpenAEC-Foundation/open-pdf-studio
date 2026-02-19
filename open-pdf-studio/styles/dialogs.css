@@ -173,8 +173,14 @@
 
 .preferences-dialog { width: 560px; height: 500px; }
 
-.preferences-content {
+.preferences-body-wrapper {
+  padding: 0;
   flex: 1;
+  overflow: hidden;
+}
+
+.preferences-content {
+  height: 100%;
   overflow: hidden;
   display: flex;
   flex-direction: row;
@@ -370,9 +376,8 @@
   user-select: none;
 }
 
-.preferences-footer {
+.modal-footer.preferences-footer {
   padding: 8px 12px;
-  border-top: 1px solid #e5e7eb;
 }
 
 .pref-footer-right {
@@ -2737,3 +2742,13 @@
 [data-theme="dark"] .watermark-img-preview {
   border-color: #555;
 }
+
+/* Stamp Picker Dialog */
+.stamp-picker-overlay { z-index: 10001; }
+
+.stamp-picker-dialog { width: 360px; }
+
+/* Calibration Dialog */
+.calibration-overlay { z-index: 10001; }
+
+.calibration-dialog { width: 320px; }

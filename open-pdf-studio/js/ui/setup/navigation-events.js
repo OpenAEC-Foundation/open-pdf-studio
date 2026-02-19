@@ -1,111 +1,7 @@
 import { state } from '../../core/state.js';
-import {
-  annotationCanvas, pdfCanvas, prevPageBtn, nextPageBtn, zoomInBtn, zoomOutBtn, zoomLevel, pageInput
-} from '../dom-elements.js';
-import { hideProperties } from '../panels/properties-panel.js';
-import { renderPage, renderContinuous, zoomIn, zoomOut, goToPage } from '../../pdf/renderer.js';
+import { annotationCanvas } from '../dom-elements.js';
+import { renderPage, renderContinuous, goToPage } from '../../pdf/renderer.js';
 import { showLoading, hideLoading } from '../chrome/dialogs.js';
-
-// Setup navigation event listeners
-export function setupNavigationEvents() {
-  document.getElementById('first-page')?.addEventListener('click', async () => {
-    if (state.pdfDoc && state.currentPage !== 1) {
-      state.currentPage = 1;
-      hideProperties();
-      await renderPage(state.currentPage);
-    }
-  });
-
-  prevPageBtn?.addEventListener('click', async () => {
-    if (state.currentPage > 1) {
-      state.currentPage--;
-      hideProperties();
-      await renderPage(state.currentPage);
-    }
-  });
-
-  nextPageBtn?.addEventListener('click', async () => {
-    if (state.pdfDoc && state.currentPage < state.pdfDoc.numPages) {
-      state.currentPage++;
-      hideProperties();
-      await renderPage(state.currentPage);
-    }
-  });
-
-  document.getElementById('last-page')?.addEventListener('click', async () => {
-    if (state.pdfDoc && state.currentPage !== state.pdfDoc.numPages) {
-      state.currentPage = state.pdfDoc.numPages;
-      hideProperties();
-      await renderPage(state.currentPage);
-    }
-  });
-
-  // Page input - go to page on Enter key
-  pageInput?.addEventListener('keydown', async (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      const pageNum = parseInt(pageInput.value, 10);
-      if (state.pdfDoc && pageNum >= 1 && pageNum <= state.pdfDoc.numPages) {
-        state.currentPage = pageNum;
-        hideProperties();
-        await renderPage(state.currentPage);
-      } else {
-        // Reset to current page if invalid
-        pageInput.value = state.currentPage;
-      }
-      pageInput.blur();
-    }
-  });
-
-  // Also validate on blur
-  pageInput?.addEventListener('blur', () => {
-    if (state.pdfDoc) {
-      const pageNum = parseInt(pageInput.value, 10);
-      if (isNaN(pageNum) || pageNum < 1 || pageNum > state.pdfDoc.numPages) {
-        pageInput.value = state.currentPage;
-      }
-    }
-  });
-
-  zoomInBtn?.addEventListener('click', zoomIn);
-  zoomOutBtn?.addEventListener('click', zoomOut);
-
-  // Zoom input - set zoom on Enter key
-  zoomLevel?.addEventListener('keydown', async (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      // Parse the zoom value (remove % if present)
-      let zoomValue = zoomLevel.value.replace('%', '').trim();
-      let zoomPercent = parseInt(zoomValue, 10);
-
-      if (!isNaN(zoomPercent) && zoomPercent >= 10 && zoomPercent <= 500) {
-        state.scale = zoomPercent / 100;
-        if (state.viewMode === 'continuous') {
-          await renderContinuous();
-        } else if (state.pdfDoc) {
-          await renderPage(state.currentPage);
-        }
-        zoomLevel.value = `${zoomPercent}%`;
-      } else {
-        // Reset to current zoom if invalid
-        zoomLevel.value = `${Math.round(state.scale * 100)}%`;
-      }
-      zoomLevel.blur();
-    }
-  });
-
-  // Also validate on blur
-  zoomLevel?.addEventListener('blur', () => {
-    let zoomValue = zoomLevel.value.replace('%', '').trim();
-    let zoomPercent = parseInt(zoomValue, 10);
-
-    if (isNaN(zoomPercent) || zoomPercent < 10 || zoomPercent > 500) {
-      zoomLevel.value = `${Math.round(state.scale * 100)}%`;
-    } else if (!zoomLevel.value.includes('%')) {
-      zoomLevel.value = `${zoomPercent}%`;
-    }
-  });
-}
 
 // Setup wheel zoom
 let _zoomRenderTimer = null;
@@ -164,10 +60,6 @@ export function setupWheelZoom() {
         c.style.width = (c.width * cssScale) + 'px';
         c.style.height = (c.height * cssScale) + 'px';
       });
-
-      if (zoomLevel) {
-        zoomLevel.value = `${Math.round(state.scale * 100)}%`;
-      }
 
       // Scroll so that the document point stays under the mouse cursor
       const newCanvasRect = canvas.getBoundingClientRect();

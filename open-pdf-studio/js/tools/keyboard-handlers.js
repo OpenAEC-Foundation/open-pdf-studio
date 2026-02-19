@@ -1,19 +1,21 @@
 import { state, selectAllOnPage, clearSelection } from '../core/state.js';
-import { undo, redo, recordBulkDelete, recordDelete, recordModify, recordBulkModify } from '../core/undo-manager.js';
-import { propertiesPanel, toolUndo, toolClear, zoomInBtn, zoomOutBtn } from '../ui/dom-elements.js';
+import { undo, redo, recordBulkDelete, recordDelete, recordModify, recordBulkModify, recordClearPage } from '../core/undo-manager.js';
+// Properties panel now managed by Solid.js
 import { setTool } from './manager.js';
-import { showPreferencesDialog, hidePreferencesDialog } from '../core/preferences.js';
+import { showPreferencesDialog } from '../core/preferences.js';
 import { showDocPropertiesDialog, showNewDocDialog } from '../ui/chrome/dialogs.js';
 import { copyAnnotation, copyAnnotations } from '../annotations/clipboard.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { applyMove } from '../annotations/transforms.js';
 import { openPDFFile, isPdfAReadOnly } from '../pdf/loader.js';
+import { actualSize, fitWidth, fitPage } from '../pdf/renderer.js';
 import { savePDF, savePDFAs } from '../pdf/saver.js';
 import { toggleAnnotationsListPanel } from '../ui/panels/annotations-list.js';
 import { toggleLeftPanel } from '../ui/panels/left-panel.js';
-import { switchToTab } from '../ui/chrome/ribbon.js';
-import { openFindBar, closeFindBar } from '../search/find-bar.js';
-import { hideProperties, showProperties, showMultiSelectionProperties } from '../ui/panels/properties-panel.js';
+import { switchToTab } from '../solid/stores/ribbonStore.js';
+import { openFindBar, closeFindBar, onFindNext } from '../search/find-bar.js';
+import { closeActiveTab } from '../ui/chrome/tabs.js';
+import { hideProperties, showProperties, showMultiSelectionProperties, togglePropertiesPanel } from '../ui/panels/properties-panel.js';
 
 // Handle keydown events
 export function handleKeydown(e) {
@@ -34,7 +36,7 @@ export function handleKeydown(e) {
   if (e.key === 'F3' && !isFindInput) {
     e.preventDefault();
     if (state.search.isOpen) {
-      document.getElementById('find-next-btn')?.click();
+      onFindNext();
     } else {
       openFindBar();
     }
@@ -66,7 +68,7 @@ export function handleKeydown(e) {
     savePDF();
   } else if (ctrl && e.key === 'w') {
     e.preventDefault();
-    document.getElementById('menu-close')?.click();
+    closeActiveTab();
   } else if (ctrl && e.key === 'p') {
     e.preventDefault();
     import('../ui/chrome/dialogs.js').then(({ showPrintDialog }) => showPrintDialog());
@@ -160,7 +162,12 @@ export function handleKeydown(e) {
 
   else if (ctrl && shift && e.key === 'C') {
     e.preventDefault();
-    if (toolClear) toolClear.click();
+    if (confirm('Clear all annotations on current page?')) {
+      recordClearPage(state.currentPage, state.annotations);
+      state.annotations = state.annotations.filter(a => a.page !== state.currentPage);
+      hideProperties();
+      if (state.viewMode === 'continuous') { redrawContinuous(); } else { redrawAnnotations(); }
+    }
   } else if (ctrl && !shift && e.key === 'c') {
     // Copy selected annotations
     if (state.selectedAnnotations.length > 1) {
@@ -191,12 +198,6 @@ export function handleKeydown(e) {
       closeFindBar();
       return;
     }
-    // Check if preferences dialog is open
-    const prefsDialog = document.getElementById('preferences-dialog');
-    if (prefsDialog && prefsDialog.classList.contains('visible')) {
-      hidePreferencesDialog();
-      return;
-    }
     // Switch to select tool
     setTool('select');
     // Switch to Home ribbon tab
@@ -211,19 +212,19 @@ export function handleKeydown(e) {
   // View shortcuts
   else if (ctrl && e.key === '=') {
     e.preventDefault();
-    if (zoomInBtn) zoomInBtn.click();
+    import('../pdf/renderer.js').then(m => m.zoomIn());
   } else if (ctrl && e.key === '-') {
     e.preventDefault();
-    if (zoomOutBtn) zoomOutBtn.click();
+    import('../pdf/renderer.js').then(m => m.zoomOut());
   } else if (ctrl && e.key === '0') {
     e.preventDefault();
-    document.getElementById('actual-size-ribbon')?.click();
+    actualSize();
   } else if (ctrl && e.key === '1') {
     e.preventDefault();
-    document.getElementById('fit-width')?.click();
+    fitWidth();
   } else if (ctrl && e.key === '2') {
     e.preventDefault();
-    document.getElementById('fit-page-ribbon')?.click();
+    fitPage();
   }
 
   // Tool shortcuts (only if PDF is loaded)
@@ -262,13 +263,14 @@ export function handleKeydown(e) {
   // Help shortcuts
   if (e.key === 'F1') {
     e.preventDefault();
-    document.getElementById('ribbon-shortcuts')?.click();
+    const shortcuts = `Keyboard Shortcuts:\n\nFILE:\nCtrl+N - New Document\nCtrl+O - Open PDF\nCtrl+S - Save\nCtrl+P - Print\nCtrl+W - Close\n\nEDIT:\nCtrl+Z - Undo\nCtrl+Y / Ctrl+Shift+Z - Redo\nDelete - Delete selected annotation\nCtrl+Shift+C - Clear page annotations\n\nVIEW:\nCtrl++ - Zoom In\nCtrl+- - Zoom Out\nCtrl+0 - Actual Size\nCtrl+1 - Fit Width\nCtrl+2 - Fit Page\n\nTOOLS:\nV - Select Tool\n1 - Highlight\n2 - Freehand\n3 - Line\n4 - Rectangle\n5 - Ellipse\nT - Text Box\nN - Note`;
+    alert(shortcuts);
   } else if (e.key === 'F9') {
     e.preventDefault();
     toggleLeftPanel();
   } else if (e.key === 'F12') {
     e.preventDefault();
-    document.getElementById('menu-show-properties')?.click();
+    togglePropertiesPanel();
   } else if (e.key === 'F11') {
     e.preventDefault();
     toggleAnnotationsListPanel();

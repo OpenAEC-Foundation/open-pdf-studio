@@ -1,5 +1,5 @@
 import { state, getNextUntitledName } from '../core/state.js';
-import { placeholder, pdfContainer, fileInfo } from '../ui/dom-elements.js';
+import { placeholder, pdfContainer } from '../ui/dom-elements.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { updateAllStatus } from '../ui/chrome/status-bar.js';
 import { setViewMode } from './renderer.js';
@@ -15,8 +15,6 @@ import { extractAnnotationColors } from './loader/color-extraction.js';
 import { extractStampImagesViaPdfJs } from './loader/image-extraction.js';
 import { convertPdfAnnotation } from './loader/annotation-converter.js';
 
-// PDF/A compliance bar – per-document dismiss tracking
-const dismissedPdfADocuments = new Set();
 
 // Cache for original PDF bytes (used by saver to avoid re-reading)
 const originalBytesCache = new Map(); // filePath -> Uint8Array
@@ -72,47 +70,24 @@ async function checkPdfACompliance() {
 function showPdfABar(part, conformance) {
   const doc = state.documents[state.activeDocumentIndex];
   if (!doc) return;
-  if (dismissedPdfADocuments.has(doc.id)) return;
-  const bar = document.getElementById('pdfa-bar');
-  if (!bar) return;
+  if (doc.pdfADismissed) return;
   const label = `PDF/A-${part}${conformance ? conformance.toLowerCase() : ''}`;
-  const textEl = document.getElementById('pdfa-bar-text');
-  if (textEl) {
-    textEl.textContent = `This document complies with the ${label} standard and has been opened read-only to prevent modification.`;
-  }
-  bar.style.display = 'flex';
+  const text = `This document complies with the ${label} standard and has been opened read-only to prevent modification.`;
+  import('../solid/stores/pdfaBarStore.js').then(m => m.showPdfABar(text));
 
   // Disable annotation tool buttons
   import('../tools/manager.js').then(m => m.updatePdfAToolState());
-
-  const enableBtn = document.getElementById('pdfa-bar-enable');
-  if (enableBtn && !enableBtn._hasListener) {
-    enableBtn._hasListener = true;
-    enableBtn.addEventListener('click', () => {
-      bar.style.display = 'none';
-      const activeDoc = state.documents[state.activeDocumentIndex];
-      if (activeDoc) dismissedPdfADocuments.add(activeDoc.id);
-      // Re-enable annotation tool buttons
-      import('../tools/manager.js').then(m => m.updatePdfAToolState());
-    });
-  }
-
-  const closeBtn = document.getElementById('pdfa-bar-close');
-  if (closeBtn && !closeBtn._hasListener) {
-    closeBtn._hasListener = true;
-    closeBtn.addEventListener('click', () => {
-      bar.style.display = 'none';
-      const activeDoc = state.documents[state.activeDocumentIndex];
-      if (activeDoc) dismissedPdfADocuments.add(activeDoc.id);
-      // Re-enable annotation tool buttons
-      import('../tools/manager.js').then(m => m.updatePdfAToolState());
-    });
-  }
 }
 
 export function hidePdfABar() {
-  const bar = document.getElementById('pdfa-bar');
-  if (bar) bar.style.display = 'none';
+  import('../solid/stores/pdfaBarStore.js').then(m => m.hidePdfABar());
+}
+
+export function dismissPdfAForActiveDoc() {
+  const activeDoc = state.documents[state.activeDocumentIndex];
+  if (activeDoc) activeDoc.pdfADismissed = true;
+  hidePdfABar();
+  import('../tools/manager.js').then(m => m.updatePdfAToolState());
 }
 
 // Check if the active document is PDF/A and editing has NOT been enabled
@@ -120,7 +95,7 @@ export function isPdfAReadOnly() {
   const doc = state.documents[state.activeDocumentIndex];
   if (!doc) return false;
   if (!doc.pdfaCompliance) return false;
-  return !dismissedPdfADocuments.has(doc.id);
+  return !doc.pdfADismissed;
 }
 
 // Load PDF from file path. Optional preloadedData (Uint8Array) bypasses FS plugin read.
@@ -184,14 +159,6 @@ export async function loadPDF(filePath, preloadedData = null) {
     // Show PDF container, hide placeholder
     placeholder.style.display = 'none';
     pdfContainer.classList.add('visible');
-
-    // Show PDF controls in status bar
-    const pdfControls = document.getElementById('pdf-controls');
-    if (pdfControls) pdfControls.style.display = 'flex';
-
-    // Update file info
-    const fileName = filePath.split(/[\\/]/).pop();
-    fileInfo.textContent = fileName;
 
     // Render first page immediately (before annotation loading)
     await setViewMode(state.viewMode);
@@ -306,11 +273,6 @@ export async function createBlankPDF(widthPt, heightPt, numPages) {
     // Show PDF container, hide placeholder
     placeholder.style.display = 'none';
     pdfContainer.classList.add('visible');
-
-    const pdfControls = document.getElementById('pdf-controls');
-    if (pdfControls) pdfControls.style.display = 'flex';
-
-    fileInfo.textContent = fileName;
 
     // Mark as modified so Ctrl+S will trigger Save As
     markDocumentModified();

@@ -4,12 +4,9 @@ import { hideFormFieldsBar } from '../../pdf/form-layer.js';
 import { redrawAnnotations, redrawContinuous, updateQuickAccessButtons } from '../../annotations/rendering.js';
 import { updateAllStatus } from './status-bar.js';
 import { generateThumbnails, clearThumbnails, clearThumbnailCache, refreshActiveTab } from '../panels/left-panel.js';
-import { openPDFFile, cancelAnnotationLoading, hidePdfABar } from '../../pdf/loader.js';
+import { cancelAnnotationLoading, hidePdfABar } from '../../pdf/loader.js';
 import { savePDF } from '../../pdf/saver.js';
 import { unlockFile } from '../../core/platform.js';
-
-const tabsContainer = document.getElementById('document-tabs');
-const noDocsMessage = document.getElementById('no-docs-message');
 
 /**
  * Create a new tab for a document
@@ -60,12 +57,9 @@ export function switchToTab(index) {
     }
   }
 
-  // Clear any selected annotation
+  // Clear any selected annotation and close properties panel
   state.selectedAnnotation = null;
-  const propertiesPanel = document.getElementById('properties-panel');
-  if (propertiesPanel) {
-    propertiesPanel.classList.remove('visible');
-  }
+  import('../../solid/stores/propertiesStore.js').then(m => m.setPanelVisible(false));
 
   // Switch active document
   state.activeDocumentIndex = index;
@@ -116,15 +110,9 @@ export function switchToTab(index) {
   if (newDoc && newDoc.pdfaCompliance) {
     import('../../pdf/loader.js').then(({ isPdfAReadOnly }) => {
       if (isPdfAReadOnly()) {
-        const bar = document.getElementById('pdfa-bar');
-        if (bar) {
-          const label = `PDF/A-${newDoc.pdfaCompliance.part}${newDoc.pdfaCompliance.conformance ? newDoc.pdfaCompliance.conformance.toLowerCase() : ''}`;
-          const textEl = document.getElementById('pdfa-bar-text');
-          if (textEl) {
-            textEl.textContent = `This document complies with the ${label} standard and has been opened read-only to prevent modification.`;
-          }
-          bar.style.display = 'flex';
-        }
+        const label = `PDF/A-${newDoc.pdfaCompliance.part}${newDoc.pdfaCompliance.conformance ? newDoc.pdfaCompliance.conformance.toLowerCase() : ''}`;
+        const text = `This document complies with the ${label} standard and has been opened read-only to prevent modification.`;
+        import('../../solid/stores/pdfaBarStore.js').then(m => m.showPdfABar(text));
       }
     });
   }
@@ -157,9 +145,7 @@ export async function closeTab(index, force = false) {
 
   // Clear selection and hide contextual ribbon tabs
   clearSelection();
-  document.querySelectorAll('.contextual-tabs').forEach(el => {
-    el.classList.remove('visible');
-  });
+  import('../../solid/stores/ribbonStore.js').then(m => m.setContextualTabsVisible(false));
 
   // Release file lock so other apps can write to it again
   if (doc.filePath) {
@@ -247,75 +233,7 @@ export function getUnsavedDocumentNames() {
  * Update the tab bar UI to reflect current documents
  */
 export function updateTabBar() {
-  if (!tabsContainer) return;
-
-  // Clear existing tabs and add button (except the no-docs message)
-  const existingTabs = tabsContainer.querySelectorAll('.document-tab, .document-tabs-add');
-  existingTabs.forEach(tab => tab.remove());
-
-  // Show/hide no docs message
-  if (noDocsMessage) {
-    noDocsMessage.style.display = state.documents.length === 0 ? 'flex' : 'none';
-  }
-
-  // Create tabs for each document
-  state.documents.forEach((doc, index) => {
-    const tab = document.createElement('div');
-    tab.className = 'document-tab' + (index === state.activeDocumentIndex ? ' active' : '');
-    tab.dataset.index = index;
-
-    // Modified indicator
-    const modifiedIndicator = document.createElement('span');
-    modifiedIndicator.className = 'document-tab-modified';
-    modifiedIndicator.textContent = doc.modified ? '*' : '';
-
-    // Tab title
-    const title = document.createElement('span');
-    title.className = 'document-tab-title';
-    title.textContent = doc.fileName;
-    title.title = doc.filePath || doc.fileName;
-
-    // Close button
-    const closeBtn = document.createElement('span');
-    closeBtn.className = 'document-tab-close';
-    closeBtn.innerHTML = '&times;';
-    closeBtn.title = 'Close';
-
-    // Event handlers
-    tab.addEventListener('click', (e) => {
-      if (!e.target.classList.contains('document-tab-close')) {
-        switchToTab(index);
-      }
-    });
-
-    closeBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      closeTab(index);
-    });
-
-    // Middle-click to close
-    tab.addEventListener('auxclick', (e) => {
-      if (e.button === 1) {
-        e.preventDefault();
-        closeTab(index);
-      }
-    });
-
-    tab.appendChild(modifiedIndicator);
-    tab.appendChild(title);
-    tab.appendChild(closeBtn);
-    tabsContainer.appendChild(tab);
-  });
-
-  // Add the "+" button after all tabs
-  const addButton = document.createElement('div');
-  addButton.className = 'document-tabs-add';
-  addButton.innerHTML = '+';
-  addButton.title = 'Open PDF file';
-  addButton.addEventListener('click', () => {
-    openPDFFile();
-  });
-  tabsContainer.appendChild(addButton);
+  // No-op: DocumentTabs.jsx now reads directly from reactive state
 }
 
 /**
@@ -333,19 +251,7 @@ export function updateWindowTitle() {
     document.title = baseTitle;
   }
 
-  // Update the file-info element in the custom title bar
-  const fileInfo = document.getElementById('file-info');
-  if (fileInfo) {
-    if (doc && doc.fileName) {
-      const modified = doc.modified ? '* ' : '';
-      fileInfo.textContent = `${modified}${doc.fileName}`;
-    } else {
-      fileInfo.textContent = '';
-    }
-  }
-
-  // Also update the tab bar to reflect any filename changes
-  updateTabBar();
+  // Tab bar and title bar derive from reactive state automatically
 }
 
 /**

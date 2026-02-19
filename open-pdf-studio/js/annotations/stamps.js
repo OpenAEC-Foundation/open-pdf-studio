@@ -4,6 +4,7 @@ import { recordAdd } from '../core/undo-manager.js';
 import { showProperties } from '../ui/panels/properties-panel.js';
 import { redrawAnnotations, redrawContinuous } from './rendering.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
+import { openDialog } from '../solid/stores/dialogStore.js';
 
 // Built-in stamp definitions
 export const BUILT_IN_STAMPS = [
@@ -19,119 +20,12 @@ export const BUILT_IN_STAMPS = [
   { name: 'Revised', color: '#8b5cf6', text: 'REVISED' }
 ];
 
-let stampDialog = null;
-
 // Show stamp picker dialog
 export function showStampPicker(x, y) {
-  if (stampDialog) {
-    stampDialog.remove();
-    stampDialog = null;
-  }
-
-  stampDialog = document.createElement('div');
-  stampDialog.className = 'stamp-picker-dialog';
-  stampDialog.style.cssText = `
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    background: #ffffff;
-    border: 1px solid #d4d4d4;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-    z-index: 10001;
-    width: 360px;
-    max-height: 400px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  `;
-
-  // Title bar
-  const titleBar = document.createElement('div');
-  titleBar.style.cssText = `
-    padding: 8px 12px;
-    background: linear-gradient(to bottom, #ffffff, #f5f5f5);
-    border-bottom: 1px solid #d4d4d4;
-    font-weight: bold;
-    font-size: 13px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: default;
-  `;
-  titleBar.textContent = 'Select Stamp';
-
-  const closeBtn = document.createElement('button');
-  closeBtn.textContent = '\u00D7';
-  closeBtn.style.cssText = `
-    border: none;
-    background: none;
-    font-size: 18px;
-    cursor: pointer;
-    padding: 0 4px;
-    color: #666;
-  `;
-  closeBtn.addEventListener('mouseenter', () => closeBtn.style.color = '#e81123');
-  closeBtn.addEventListener('mouseleave', () => closeBtn.style.color = '#666');
-  closeBtn.addEventListener('click', () => { stampDialog.remove(); stampDialog = null; });
-  titleBar.appendChild(closeBtn);
-  stampDialog.appendChild(titleBar);
-
-  // Stamps grid
-  const grid = document.createElement('div');
-  grid.style.cssText = `
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    padding: 12px;
-    overflow-y: auto;
-  `;
-
-  for (const stamp of BUILT_IN_STAMPS) {
-    const btn = document.createElement('button');
-    btn.style.cssText = `
-      border: 2px solid ${stamp.color};
-      background: transparent;
-      padding: 8px 12px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 12px;
-      color: ${stamp.color};
-      text-align: center;
-      letter-spacing: 1px;
-    `;
-    btn.textContent = stamp.text;
-    btn.addEventListener('mouseenter', () => { btn.style.backgroundColor = stamp.color + '15'; });
-    btn.addEventListener('mouseleave', () => { btn.style.backgroundColor = 'transparent'; });
-    btn.addEventListener('click', () => {
-      placeStamp(stamp, x, y);
-      stampDialog.remove();
-      stampDialog = null;
-    });
-    grid.appendChild(btn);
-  }
-
-  // Custom stamp from image
-  const customBtn = document.createElement('button');
-  customBtn.style.cssText = `
-    border: 2px dashed #999;
-    background: transparent;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-size: 12px;
-    color: #666;
-    grid-column: span 2;
-  `;
-  customBtn.textContent = 'Custom Stamp from Image...';
-  customBtn.addEventListener('click', () => {
-    loadCustomStamp(x, y);
-    stampDialog.remove();
-    stampDialog = null;
+  openDialog('stamp-picker', {
+    onSelect: (stamp) => placeStamp(stamp, x, y),
+    onCustom: () => loadCustomStamp(x, y)
   });
-  grid.appendChild(customBtn);
-
-  stampDialog.appendChild(grid);
-  document.body.appendChild(stampDialog);
 }
 
 // Place a built-in stamp

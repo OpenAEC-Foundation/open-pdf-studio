@@ -5,6 +5,8 @@ import { recordAdd, recordModify, execute } from '../core/undo-manager.js';
 import { cloneAnnotation } from '../annotations/factory.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import { injectSyntheticTextSpans } from '../text/text-layer.js';
+import { annotationCanvas } from '../ui/dom-elements.js';
+import { showTextEditOverlay, hideTextEditOverlay, getTextValue } from '../solid/stores/textEditOverlayStore.js';
 
 // Start inline text editing for textbox/callout
 export function startTextEditing(annotation) {
@@ -15,18 +17,12 @@ export function startTextEditing(annotation) {
   if (!['textbox', 'callout'].includes(annotation.type)) return;
   if (annotation.locked) return;
 
-  // Get canvas element dynamically (not from import, which may be null)
-  const canvas = document.getElementById('annotation-canvas');
+  const canvas = annotationCanvas || document.getElementById('annotation-canvas');
   if (!canvas) return;
 
   state.isEditingText = true;
   state.editingAnnotation = annotation;
   state._textEditSnapshot = cloneAnnotation(annotation);
-
-  // Create textarea overlay
-  const textarea = document.createElement('textarea');
-  textarea.className = 'inline-text-editor';
-  textarea.value = annotation.text || '';
 
   // Get canvas position
   const canvasRect = canvas.getBoundingClientRect();
@@ -41,85 +37,108 @@ export function startTextEditing(annotation) {
   const centerX = canvasRect.left + (annotation.x + width / 2) * state.scale;
   const centerY = canvasRect.top + (annotation.y + height / 2) * state.scale;
 
-  // Style the textarea - position by center using transform
-  textarea.style.position = 'fixed';
-  textarea.style.left = `${centerX}px`;
-  textarea.style.top = `${centerY}px`;
-  textarea.style.width = `${scaledWidth}px`;
-  textarea.style.height = `${scaledHeight}px`;
-  textarea.style.fontSize = `${(annotation.fontSize || 14) * state.scale}px`;
-  textarea.style.fontFamily = annotation.fontFamily || 'Arial';
-  textarea.style.color = annotation.textColor || annotation.color || '#000000';
-  textarea.style.backgroundColor = annotation.fillColor && annotation.fillColor !== 'transparent'
-    ? annotation.fillColor : '#ffffff';
-  textarea.style.border = `${(annotation.lineWidth || 1) * state.scale}px solid ${annotation.strokeColor || '#000000'}`;
-  textarea.style.padding = '5px';
-  textarea.style.boxSizing = 'border-box';
-  textarea.style.resize = 'none';
-  textarea.style.outline = 'none';
-  textarea.style.zIndex = '10000';
-  textarea.style.overflow = 'hidden';
-
-  // Apply transform: center the element and optionally rotate
-  if (annotation.rotation) {
-    textarea.style.transform = `translate(-50%, -50%) rotate(${annotation.rotation}deg)`;
-  } else {
-    textarea.style.transform = 'translate(-50%, -50%)';
-  }
+  // Build style object for the textarea overlay
+  const styleObj = {
+    position: 'fixed',
+    left: `${centerX}px`,
+    top: `${centerY}px`,
+    width: `${scaledWidth}px`,
+    height: `${scaledHeight}px`,
+    'font-size': `${(annotation.fontSize || 14) * state.scale}px`,
+    'font-family': annotation.fontFamily || 'Arial',
+    color: annotation.textColor || annotation.color || '#000000',
+    'background-color': annotation.fillColor && annotation.fillColor !== 'transparent'
+      ? annotation.fillColor : '#ffffff',
+    border: `${(annotation.lineWidth || 1) * state.scale}px solid ${annotation.strokeColor || '#000000'}`,
+    padding: '5px',
+    'box-sizing': 'border-box',
+    resize: 'none',
+    outline: 'none',
+    'z-index': '10000',
+    overflow: 'hidden',
+    transform: annotation.rotation
+      ? `translate(-50%, -50%) rotate(${annotation.rotation}deg)`
+      : 'translate(-50%, -50%)'
+  };
 
   // Apply text styles
-  if (annotation.fontBold) textarea.style.fontWeight = 'bold';
-  if (annotation.fontItalic) textarea.style.fontStyle = 'italic';
-  if (annotation.textAlign) textarea.style.textAlign = annotation.textAlign;
-  if (annotation.lineSpacing) textarea.style.lineHeight = annotation.lineSpacing;
+  if (annotation.fontBold) styleObj['font-weight'] = 'bold';
+  if (annotation.fontItalic) styleObj['font-style'] = 'italic';
+  if (annotation.textAlign) styleObj['text-align'] = annotation.textAlign;
+  if (annotation.lineSpacing) styleObj['line-height'] = annotation.lineSpacing;
 
-  // Add to document
-  document.body.appendChild(textarea);
-  state.textEditElement = textarea;
+  const initialText = annotation.text || '';
 
-  // Focus and select all
-  textarea.focus();
-  textarea.select();
+  // Commit function: update annotation and refresh display
+  const commitFn = (newText) => {
+    if (!state.isEditingText || !state.editingAnnotation) return;
 
-  // Handle keydown events
-  textarea.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      // Cancel editing
-      state.textEditElement.value = annotation.text || '';
-      finishTextEditing();
+    const ann = state.editingAnnotation;
+    ann.text = newText;
+    ann.modifiedAt = new Date().toISOString();
+
+    if (state._textEditSnapshot && ann.id) {
+      recordModify(ann.id, state._textEditSnapshot, ann);
     }
-    // Don't propagate keyboard events during editing
-    e.stopPropagation();
-  });
 
-  // Add blur listener after a short delay to prevent immediate blur from mouseup
-  setTimeout(() => {
-    if (state.textEditElement === textarea) {
-      textarea.addEventListener('blur', finishTextEditing);
+    state.isEditingText = false;
+    state.editingAnnotation = null;
+    state.textEditElement = null;
+    state._textEditSnapshot = null;
+
+    if (state.viewMode === 'continuous') {
+      redrawContinuous();
+    } else {
+      redrawAnnotations();
     }
-  }, 100);
+
+    if (state.selectedAnnotation === ann) {
+      showProperties(ann);
+    }
+  };
+
+  // Cancel function: restore original text, reset state, refresh display
+  const cancelFn = () => {
+    if (!state.isEditingText || !state.editingAnnotation) return;
+
+    const ann = state.editingAnnotation;
+
+    state.isEditingText = false;
+    state.editingAnnotation = null;
+    state.textEditElement = null;
+    state._textEditSnapshot = null;
+
+    if (state.viewMode === 'continuous') {
+      redrawContinuous();
+    } else {
+      redrawAnnotations();
+    }
+
+    if (state.selectedAnnotation === ann) {
+      showProperties(ann);
+    }
+  };
+
+  showTextEditOverlay(styleObj, initialText, commitFn, cancelFn);
+  state.textEditElement = true;
 }
 
-// Finish inline text editing
+// Finish inline text editing (called externally, e.g. when switching tools)
 export function finishTextEditing() {
   if (!state.isEditingText || !state.editingAnnotation) return;
 
   const annotation = state.editingAnnotation;
-  const textarea = state.textEditElement;
 
-  if (textarea) {
-    // Update annotation text
-    annotation.text = textarea.value;
-    annotation.modifiedAt = new Date().toISOString();
+  // Get the current text value from the Solid store
+  const currentText = getTextValue();
+  annotation.text = currentText;
+  annotation.modifiedAt = new Date().toISOString();
 
-    // Record the modification for undo
-    if (state._textEditSnapshot && annotation.id) {
-      recordModify(annotation.id, state._textEditSnapshot, annotation);
-    }
-
-    // Remove textarea
-    textarea.remove();
+  if (state._textEditSnapshot && annotation.id) {
+    recordModify(annotation.id, state._textEditSnapshot, annotation);
   }
+
+  hideTextEditOverlay();
 
   // Reset state
   state.isEditingText = false;
@@ -143,260 +162,9 @@ export function finishTextEditing() {
 // Show the text annotation dialog and return a promise with the result
 function showTextAnnotationDialog() {
   return new Promise((resolve) => {
-    const overlay = document.getElementById('text-annot-dialog');
-    if (!overlay) { resolve(null); return; }
-
-    const dialog = overlay.querySelector('.text-annot-dialog');
-    const input = document.getElementById('text-annot-input');
-    const preview = document.getElementById('text-annot-preview');
-    const charCount = document.getElementById('text-annot-char-count');
-    const fontFamily = document.getElementById('text-annot-font-family');
-    const fontSize = document.getElementById('text-annot-font-size');
-    const colorInput = document.getElementById('text-annot-color');
-    const colorPreview = document.getElementById('text-annot-color-preview');
-    const boldBtn = document.getElementById('text-annot-bold');
-    const italicBtn = document.getElementById('text-annot-italic');
-    const underlineBtn = document.getElementById('text-annot-underline');
-    const alignLeftBtn = document.getElementById('text-annot-align-left');
-    const alignCenterBtn = document.getElementById('text-annot-align-center');
-    const alignRightBtn = document.getElementById('text-annot-align-right');
-    const okBtn = document.getElementById('text-annot-ok-btn');
-    const cancelBtn = document.getElementById('text-annot-cancel-btn');
-    const closeBtn = document.getElementById('text-annot-close-btn');
-
-    // State
-    let isBold = false;
-    let isItalic = false;
-    let isUnderline = false;
-    let textAlign = 'left';
-
-    // Reset dialog to defaults
-    const prefs = state.preferences || {};
-    input.value = '';
-    fontFamily.value = 'Arial';
-    fontSize.value = String(prefs.defaultFontSize || 16);
-    colorInput.value = prefs.defaultAnnotationColor || '#000000';
-    colorPreview.style.backgroundColor = colorInput.value;
-    boldBtn.classList.remove('active');
-    italicBtn.classList.remove('active');
-    underlineBtn.classList.remove('active');
-    alignLeftBtn.classList.add('active');
-    alignCenterBtn.classList.remove('active');
-    alignRightBtn.classList.remove('active');
-
-    // Reset textarea styling
-    input.style.fontFamily = 'Arial';
-    input.style.fontSize = (prefs.defaultFontSize || 16) + 'px';
-    input.style.color = colorInput.value;
-    input.style.fontWeight = 'normal';
-    input.style.fontStyle = 'normal';
-    input.style.textDecoration = 'none';
-    input.style.textAlign = 'left';
-
-    // Reset position
-    if (dialog) {
-      dialog.style.left = '50%';
-      dialog.style.top = '50%';
-      dialog.style.transform = 'translate(-50%, -50%)';
-      dialog.style.position = 'absolute';
-    }
-
-    function updatePreview() {
-      if (!preview) return;
-      const text = input.value || 'Sample text';
-      const style = (isItalic ? 'italic ' : '') + (isBold ? 'bold ' : '');
-      const decoration = isUnderline ? 'underline' : 'none';
-      preview.style.fontFamily = fontFamily.value;
-      preview.style.fontSize = fontSize.value + 'px';
-      preview.style.color = colorInput.value;
-      preview.style.fontStyle = isItalic ? 'italic' : 'normal';
-      preview.style.fontWeight = isBold ? 'bold' : 'normal';
-      preview.style.textDecoration = decoration;
-      preview.style.textAlign = textAlign;
-      preview.textContent = text;
-    }
-
-    function updateCharCount() {
-      if (charCount) charCount.textContent = input.value.length;
-    }
-
-    function cleanup() {
-      overlay.classList.remove('visible');
-      input.removeEventListener('input', onInput);
-      fontFamily.removeEventListener('change', updatePreview);
-      fontSize.removeEventListener('change', updatePreview);
-      colorInput.removeEventListener('input', onColorChange);
-      boldBtn.removeEventListener('click', onBold);
-      italicBtn.removeEventListener('click', onItalic);
-      underlineBtn.removeEventListener('click', onUnderline);
-      alignLeftBtn.removeEventListener('click', onAlignLeft);
-      alignCenterBtn.removeEventListener('click', onAlignCenter);
-      alignRightBtn.removeEventListener('click', onAlignRight);
-      okBtn.removeEventListener('click', onOk);
-      cancelBtn.removeEventListener('click', onCancel);
-      closeBtn.removeEventListener('click', onCancel);
-      document.removeEventListener('keydown', onKeydown);
-    }
-
-    function onInput() {
-      updatePreview();
-      updateCharCount();
-      // Sync textarea style to match formatting
-      input.style.fontFamily = fontFamily.value;
-      input.style.fontSize = fontSize.value + 'px';
-      input.style.color = colorInput.value;
-      input.style.fontWeight = isBold ? 'bold' : 'normal';
-      input.style.fontStyle = isItalic ? 'italic' : 'normal';
-      input.style.textDecoration = isUnderline ? 'underline' : 'none';
-      input.style.textAlign = textAlign;
-    }
-
-    function onColorChange() {
-      colorPreview.style.backgroundColor = colorInput.value;
-      input.style.color = colorInput.value;
-      updatePreview();
-    }
-
-    function onBold() {
-      isBold = !isBold;
-      boldBtn.classList.toggle('active', isBold);
-      input.style.fontWeight = isBold ? 'bold' : 'normal';
-      updatePreview();
-    }
-
-    function onItalic() {
-      isItalic = !isItalic;
-      italicBtn.classList.toggle('active', isItalic);
-      input.style.fontStyle = isItalic ? 'italic' : 'normal';
-      updatePreview();
-    }
-
-    function onUnderline() {
-      isUnderline = !isUnderline;
-      underlineBtn.classList.toggle('active', isUnderline);
-      input.style.textDecoration = isUnderline ? 'underline' : 'none';
-      updatePreview();
-    }
-
-    function setAlign(align) {
-      textAlign = align;
-      alignLeftBtn.classList.toggle('active', align === 'left');
-      alignCenterBtn.classList.toggle('active', align === 'center');
-      alignRightBtn.classList.toggle('active', align === 'right');
-      input.style.textAlign = align;
-      updatePreview();
-    }
-
-    function onAlignLeft() { setAlign('left'); }
-    function onAlignCenter() { setAlign('center'); }
-    function onAlignRight() { setAlign('right'); }
-
-    function onOk() {
-      const text = input.value;
-      if (!text.trim()) { cleanup(); resolve(null); return; }
-      cleanup();
-      resolve({
-        text,
-        fontFamily: fontFamily.value,
-        fontSize: parseInt(fontSize.value),
-        color: colorInput.value,
-        fontBold: isBold,
-        fontItalic: isItalic,
-        fontUnderline: isUnderline,
-        textAlign: textAlign
-      });
-    }
-
-    function onCancel() {
-      cleanup();
-      resolve(null);
-    }
-
-    function onKeydown(e) {
-      if (!overlay.classList.contains('visible')) return;
-      if (e.key === 'Escape') {
-        onCancel();
-      } else if (e.key === 'Enter' && e.ctrlKey) {
-        onOk();
-      } else if (e.ctrlKey && e.key === 'b') {
-        e.preventDefault();
-        onBold();
-      } else if (e.ctrlKey && e.key === 'i') {
-        e.preventDefault();
-        onItalic();
-      } else if (e.ctrlKey && e.key === 'u') {
-        e.preventDefault();
-        onUnderline();
-      }
-    }
-
-    // Wire up events
-    input.addEventListener('input', onInput);
-    fontFamily.addEventListener('change', () => { onInput(); updatePreview(); });
-    fontSize.addEventListener('change', () => { onInput(); updatePreview(); });
-    colorInput.addEventListener('input', onColorChange);
-    boldBtn.addEventListener('click', onBold);
-    italicBtn.addEventListener('click', onItalic);
-    underlineBtn.addEventListener('click', onUnderline);
-    alignLeftBtn.addEventListener('click', onAlignLeft);
-    alignCenterBtn.addEventListener('click', onAlignCenter);
-    alignRightBtn.addEventListener('click', onAlignRight);
-    okBtn.addEventListener('click', onOk);
-    cancelBtn.addEventListener('click', onCancel);
-    closeBtn.addEventListener('click', onCancel);
-    document.addEventListener('keydown', onKeydown);
-
-    // Make dialog draggable
-    initTextAnnotDialogDrag(overlay, dialog);
-
-    // Show
-    overlay.classList.add('visible');
-    updatePreview();
-    updateCharCount();
-    input.focus();
-  });
-}
-
-// Drag functionality for the text annotation dialog (initialized once)
-let _textAnnotDragInitialized = false;
-function initTextAnnotDialogDrag(overlay, dialog) {
-  if (_textAnnotDragInitialized) return;
-  _textAnnotDragInitialized = true;
-
-  const header = dialog.querySelector('.text-annot-header');
-  if (!header) return;
-
-  let isDragging = false;
-  let dragOffsetX = 0;
-  let dragOffsetY = 0;
-
-  header.addEventListener('mousedown', (e) => {
-    if (e.target.closest('.text-annot-close-btn')) return;
-    isDragging = true;
-    const rect = dialog.getBoundingClientRect();
-    dragOffsetX = e.clientX - rect.left;
-    dragOffsetY = e.clientY - rect.top;
-    e.preventDefault();
-  });
-
-  document.addEventListener('mousemove', (e) => {
-    if (!isDragging) return;
-    const overlayRect = overlay.getBoundingClientRect();
-    let newX = e.clientX - overlayRect.left - dragOffsetX;
-    let newY = e.clientY - overlayRect.top - dragOffsetY;
-    const dialogRect = dialog.getBoundingClientRect();
-    const maxX = overlayRect.width - dialogRect.width;
-    const maxY = overlayRect.height - dialogRect.height;
-    newX = Math.max(0, Math.min(newX, maxX));
-    newY = Math.max(0, Math.min(newY, maxY));
-    dialog.style.left = newX + 'px';
-    dialog.style.top = newY + 'px';
-    dialog.style.transform = 'none';
-    dialog.style.position = 'absolute';
-  });
-
-  document.addEventListener('mouseup', () => {
-    isDragging = false;
+    import('../solid/stores/dialogStore.js').then(({ openDialog }) => {
+      openDialog('text-annotation', { onResult: resolve });
+    });
   });
 }
 
@@ -412,7 +180,7 @@ export async function addTextAnnotation(x, y, pageNum, canvasEl) {
   if (canvasEl) {
     pageHeight = canvasEl.height / state.scale;
   } else {
-    const canvas = document.getElementById('annotation-canvas');
+    const canvas = annotationCanvas || document.getElementById('annotation-canvas');
     if (canvas) {
       pageHeight = canvas.height / state.scale;
     } else {
@@ -479,7 +247,7 @@ export async function addTextAnnotation(x, y, pageNum, canvasEl) {
   const textLayer = document.querySelector(`.textLayer[data-page="${page}"]`)
     || document.querySelector('.textLayer');
   if (textLayer) {
-    const activeCanvas = canvasEl || document.getElementById('annotation-canvas');
+    const activeCanvas = canvasEl || annotationCanvas || document.getElementById('annotation-canvas');
     if (activeCanvas) {
       const pw = activeCanvas.width / state.scale;
       const ph = activeCanvas.height / state.scale;
