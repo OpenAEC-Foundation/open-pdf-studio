@@ -4,6 +4,17 @@ import { updateStatusAnnotations } from '../ui/chrome/status-bar.js';
 import { updateAnnotationsList } from '../ui/panels/annotations-list.js';
 import { renderWatermarksBehind, renderWatermarksInFront } from '../watermark/watermark-renderer.js';
 
+// Lazy-loaded element detection store signals (avoid circular / early Solid.js init)
+let _edStore = null;
+async function ensureEdStore() {
+  if (!_edStore) {
+    _edStore = await import('../solid/stores/panels/elementDetectionStore.js');
+  }
+  return _edStore;
+}
+// Pre-warm after first tick so it's ready when needed
+setTimeout(() => ensureEdStore(), 0);
+
 // Import from sub-modules
 import { drawPolygonShape, drawCloudShape, buildPolygonPath, buildCloudPath, buildCloudPolylinePath, drawTextboxContent } from './rendering/shapes.js';
 import { drawArrowheadOnCanvas, applyBorderStyle, drawDimensionLineEnding } from './rendering/decorations.js';
@@ -1173,6 +1184,120 @@ function drawTextEdits(ctx, pageNum) {
   }
 }
 
+// Convert hex color to rgba string
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// Draw element detection overlay (per-type visibility + selection highlight)
+function drawElementDetectionOverlay(ctx, pageNum) {
+  if (!_edStore) return;
+  if (_edStore.detectedPage() !== pageNum) return;
+
+  const selected = _edStore.selectedElement();
+  const hasSelection = selected !== null;
+
+  // Draw rooms (behind walls) — if type visible
+  if (_edStore.showRooms()) {
+    const currentRooms = _edStore.rooms();
+    for (const room of currentRooms) {
+      const isSelected = selected?.id === room.id;
+      // Use CAD fill color if available, otherwise default blue
+      const roomFill = room.fillColor || null;
+      // When something is selected, dim non-selected elements
+      if (hasSelection && !isSelected) {
+        ctx.fillStyle = roomFill ? hexToRgba(roomFill, 0.05) : 'rgba(52,152,219,0.05)';
+        ctx.strokeStyle = roomFill ? hexToRgba(roomFill, 0.15) : 'rgba(52,152,219,0.15)';
+        ctx.lineWidth = 1;
+      } else if (isSelected) {
+        ctx.fillStyle = roomFill ? hexToRgba(roomFill, 0.35) : 'rgba(52,152,219,0.35)';
+        ctx.strokeStyle = roomFill ? hexToRgba(roomFill, 0.8) : 'rgba(52,152,219,0.8)';
+        ctx.lineWidth = 2;
+      } else {
+        ctx.fillStyle = roomFill ? hexToRgba(roomFill, 0.15) : 'rgba(52,152,219,0.15)';
+        ctx.strokeStyle = roomFill ? hexToRgba(roomFill, 0.4) : 'rgba(52,152,219,0.4)';
+        ctx.lineWidth = 1;
+      }
+
+      ctx.beginPath();
+      for (let i = 0; i < room.points.length; i++) {
+        if (i === 0) ctx.moveTo(room.points[i].x, room.points[i].y);
+        else ctx.lineTo(room.points[i].x, room.points[i].y);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Draw label at centroid
+      if (room.centroid && (!hasSelection || isSelected)) {
+        ctx.font = '11px Arial';
+        ctx.fillStyle = isSelected ? 'rgba(52,152,219,1)' : 'rgba(52,152,219,0.8)';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(room.label, room.centroid.x, room.centroid.y);
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic';
+      }
+    }
+  }
+
+  // Draw walls — if type visible
+  if (_edStore.showWalls()) {
+    const currentWalls = _edStore.walls();
+    for (const wall of currentWalls) {
+      const isSelected = selected?.id === wall.id;
+      if (hasSelection && !isSelected) {
+        ctx.strokeStyle = 'rgba(231,76,60,0.15)';
+        ctx.lineWidth = Math.max(wall.thickness * 0.5, 1);
+      } else if (isSelected) {
+        ctx.strokeStyle = 'rgba(231,76,60,0.9)';
+        ctx.lineWidth = Math.max(wall.thickness, 2);
+      } else {
+        ctx.strokeStyle = 'rgba(231,76,60,0.5)';
+        ctx.lineWidth = Math.max(wall.thickness, 2);
+      }
+      ctx.lineCap = 'round';
+
+      ctx.beginPath();
+      ctx.moveTo(wall.centerline.x1, wall.centerline.y1);
+      ctx.lineTo(wall.centerline.x2, wall.centerline.y2);
+      ctx.stroke();
+    }
+  }
+
+  // Draw grids (green dashed lines) — if type visible
+  if (_edStore.showGrids()) {
+    const currentGrids = _edStore.grids();
+    for (const grid of currentGrids) {
+      const isSelected = selected?.id === grid.id;
+      if (hasSelection && !isSelected) {
+        ctx.strokeStyle = 'rgba(39,174,96,0.1)';
+        ctx.lineWidth = 0.5;
+      } else if (isSelected) {
+        ctx.strokeStyle = 'rgba(39,174,96,0.7)';
+        ctx.lineWidth = 1.5;
+      } else {
+        ctx.strokeStyle = 'rgba(39,174,96,0.4)';
+        ctx.lineWidth = 1;
+      }
+      ctx.setLineDash([6, 4]);
+      ctx.lineCap = 'butt';
+
+      for (const line of grid.lines) {
+        ctx.beginPath();
+        ctx.moveTo(line.p.x, line.p.y);
+        ctx.lineTo(line.q.x, line.q.y);
+        ctx.stroke();
+      }
+
+      ctx.setLineDash([]);
+    }
+  }
+}
+
 // Redraw all annotations (single page mode)
 // Pass lightweight=true during drag/resize to skip expensive DOM updates
 // Track annotation count to know when spatial index needs rebuild
@@ -1231,6 +1356,9 @@ export function redrawAnnotations(lightweight = false) {
 
   // Draw text edits (cover-and-replace) before annotations
   drawTextEdits(annotationCtx, curPage);
+
+  // Draw element detection overlay (walls + rooms)
+  drawElementDetectionOverlay(annotationCtx, state.currentPage);
 
   // Viewport culling: skip annotations outside the visible area for performance
   let vpX = 0, vpY = 0, vpW, vpH;
@@ -1330,6 +1458,9 @@ export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDp
 
   // Draw text edits (cover-and-replace)
   drawTextEdits(ctx, pageNum);
+
+  // Draw element detection overlay (walls + rooms)
+  drawElementDetectionOverlay(ctx, pageNum);
 
   annotations.forEach(annotation => {
     if (annotation.page !== pageNum) return;

@@ -57,6 +57,12 @@ export const measurementsIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="cu
   <path d="M14 10v4"/>
 </svg>`;
 
+export const elementsIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <rect x="3" y="3" width="18" height="18" rx="1"/>
+  <line x1="3" y1="12" x2="21" y2="12"/>
+  <line x1="12" y1="3" x2="12" y2="21"/>
+</svg>`;
+
 export const toggleIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
   <polyline points="15 18 9 12 15 6"/>
 </svg>`;
