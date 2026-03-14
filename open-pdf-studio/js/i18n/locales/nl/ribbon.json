@@ -116,6 +116,8 @@
     "edit": "Bewerken",
     "editText": "Tekst bewerken",
     "addText": "Tekst toevoegen",
+    "selectObjects": "Objecten",
+    "selectObjectsTitle": "Selecteer PDF Objecten",
     "cropMargins": "Marges bijsnijden",
     "crop": "Bijsnijden",
     "navigate": "Navigeren",

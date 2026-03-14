@@ -15,6 +15,16 @@ async function ensureEdStore() {
 // Pre-warm after first tick so it's ready when needed
 setTimeout(() => ensureEdStore(), 0);
 
+// Lazy-loaded PDF object store signals
+let _pdfObjStore = null;
+async function ensurePdfObjStore() {
+  if (!_pdfObjStore) {
+    _pdfObjStore = await import('../solid/stores/panels/pdfObjectStore.js');
+  }
+  return _pdfObjStore;
+}
+setTimeout(() => ensurePdfObjStore(), 0);
+
 // Import from sub-modules
 import { drawPolygonShape, drawCloudShape, buildPolygonPath, buildCloudPath, buildCloudPolylinePath, drawTextboxContent } from './rendering/shapes.js';
 import { drawArrowheadOnCanvas, applyBorderStyle, drawDimensionLineEnding } from './rendering/decorations.js';
@@ -1298,6 +1308,95 @@ function drawElementDetectionOverlay(ctx, pageNum) {
   }
 }
 
+// Draw PDF object overlay (hover highlight, selection, drag preview)
+function drawPdfObjectOverlay(ctx, pageNum) {
+  if (!_pdfObjStore) return;
+
+  const extractedPage = _pdfObjStore.extractedPage();
+  if (extractedPage !== pageNum) return;
+
+  const hovered = _pdfObjStore.hoveredPdfObject();
+  const selected = _pdfObjStore.selectedPdfObject();
+  const isDragging = _pdfObjStore.isDraggingObject();
+  const dragPreview = _pdfObjStore.dragPreview();
+  const showImages = _pdfObjStore.showImages();
+  const showText = _pdfObjStore.showText();
+  const showVectors = _pdfObjStore.showVectors();
+
+  const allObjects = _pdfObjStore.pdfObjects();
+
+  // Draw all detected objects with subtle outlines
+  for (const obj of allObjects) {
+    // Filter by visibility toggles
+    if (obj.type === 'image' && !showImages) continue;
+    if (obj.type === 'text' && !showText) continue;
+    if (obj.type === 'vector' && !showVectors) continue;
+
+    const isHovered = hovered?.id === obj.id;
+    const isSelected = selected?.id === obj.id;
+    const bbox = obj.bbox;
+
+    if (isSelected) {
+      // Selected: solid blue outline with handles
+      ctx.strokeStyle = 'rgba(37, 99, 235, 0.9)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(37, 99, 235, 0.08)';
+      ctx.fillRect(bbox.x, bbox.y, bbox.width, bbox.height);
+      ctx.strokeRect(bbox.x, bbox.y, bbox.width, bbox.height);
+
+      // Draw resize handles (corner squares)
+      const handleSize = 6;
+      const hs = handleSize / 2;
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = 'rgba(37, 99, 235, 0.9)';
+      ctx.lineWidth = 1.5;
+
+      const corners = [
+        [bbox.x, bbox.y],
+        [bbox.x + bbox.width, bbox.y],
+        [bbox.x + bbox.width, bbox.y + bbox.height],
+        [bbox.x, bbox.y + bbox.height],
+      ];
+      for (const [cx, cy] of corners) {
+        ctx.fillRect(cx - hs, cy - hs, handleSize, handleSize);
+        ctx.strokeRect(cx - hs, cy - hs, handleSize, handleSize);
+      }
+
+      // Draw type label
+      ctx.font = '10px Arial';
+      ctx.fillStyle = 'rgba(37, 99, 235, 0.9)';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'bottom';
+      const typeLabel = obj.type === 'image' ? 'Image'
+        : obj.type === 'text' ? 'Text'
+        : 'Vector';
+      ctx.fillText(typeLabel, bbox.x, bbox.y - 2);
+      ctx.textBaseline = 'alphabetic';
+    } else if (isHovered) {
+      // Hovered: light blue outline
+      ctx.strokeStyle = 'rgba(59, 130, 246, 0.6)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(59, 130, 246, 0.05)';
+      ctx.fillRect(bbox.x, bbox.y, bbox.width, bbox.height);
+      ctx.strokeRect(bbox.x, bbox.y, bbox.width, bbox.height);
+    }
+  }
+
+  // Draw drag preview
+  if (isDragging && dragPreview) {
+    const dp = dragPreview.bbox;
+    ctx.strokeStyle = 'rgba(37, 99, 235, 0.6)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 3]);
+    ctx.fillStyle = 'rgba(37, 99, 235, 0.1)';
+    ctx.fillRect(dp.x, dp.y, dp.width, dp.height);
+    ctx.strokeRect(dp.x, dp.y, dp.width, dp.height);
+    ctx.setLineDash([]);
+  }
+}
+
 // Redraw all annotations (single page mode)
 // Pass lightweight=true during drag/resize to skip expensive DOM updates
 // Track annotation count to know when spatial index needs rebuild
@@ -1359,6 +1458,9 @@ export function redrawAnnotations(lightweight = false) {
 
   // Draw element detection overlay (walls + rooms)
   drawElementDetectionOverlay(annotationCtx, state.currentPage);
+
+  // Draw PDF object overlay (selection + hover)
+  drawPdfObjectOverlay(annotationCtx, state.currentPage);
 
   // Viewport culling: skip annotations outside the visible area for performance
   let vpX = 0, vpY = 0, vpW, vpH;
@@ -1461,6 +1563,9 @@ export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDp
 
   // Draw element detection overlay (walls + rooms)
   drawElementDetectionOverlay(ctx, pageNum);
+
+  // Draw PDF object overlay (selection + hover)
+  drawPdfObjectOverlay(ctx, pageNum);
 
   annotations.forEach(annotation => {
     if (annotation.page !== pageNum) return;

@@ -138,6 +138,17 @@ export async function handleKeydown(e) {
     }
   } else if (e.key === 'Delete') {
     e.preventDefault();
+    // Delete selected PDF object when selectObjects tool is active
+    if (state.currentTool === 'selectObjects') {
+      import('../solid/stores/panels/pdfObjectStore.js').then(async (store) => {
+        const selected = store.selectedPdfObject();
+        if (selected) {
+          const { deletePdfObject } = await import('./pdf-object-actions.js');
+          await deletePdfObject(selected);
+        }
+      });
+      return;
+    }
     if (isPdfAReadOnly()) { /* block */ }
     else if ((getActiveDocument()?.selectedAnnotations || []).length > 0) {
       const selected = [...getActiveDocument().selectedAnnotations];

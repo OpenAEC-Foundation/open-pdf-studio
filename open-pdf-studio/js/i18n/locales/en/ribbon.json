@@ -130,6 +130,8 @@
     "edit": "Edit",
     "editText": "Edit Text",
     "addText": "Add Text",
+    "selectObjects": "Objects",
+    "selectObjectsTitle": "Select PDF Objects",
     "cropMargins": "Crop Margins",
     "crop": "Crop",
     "navigate": "Navigate",

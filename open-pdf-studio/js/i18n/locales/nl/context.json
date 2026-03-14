@@ -103,5 +103,12 @@
   "deleteAnnotation": {
     "confirmSingle": "Deze annotatie verwijderen?",
     "title": "Annotatie verwijderen"
+  },
+  "pdfObject": {
+    "delete": "Object verwijderen",
+    "deleteConfirm": "Dit PDF-object verwijderen?",
+    "image": "Afbeelding",
+    "textBlock": "Tekstblok",
+    "vectorShape": "Vectorvorm"
   }
 }

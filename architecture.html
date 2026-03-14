@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open PDF Studio — Architecture</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface2: #334155;
+            --border: #475569;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --accent2: #8b5cf6;
+            --green: #22c55e;
+            --orange: #f59e0b;
+            --red: #ef4444;
+            --cyan: #06b6d4;
+            --pink: #ec4899;
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 48px;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2 .badge {
+            font-size: 0.7rem;
+            background: var(--accent);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        section {
+            margin-bottom: 56px;
+        }
+
+        /* ── Main Architecture Diagram ── */
+        .arch-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            position: relative;
+        }
+
+        .arch-layer {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            position: relative;
+        }
+
+        .arch-layer .layer-label {
+            position: absolute;
+            top: -12px;
+            left: 24px;
+            background: var(--accent);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 2px 14px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .arch-layer.backend .layer-label { background: var(--orange); }
+        .arch-layer.state .layer-label { background: var(--accent2); }
+        .arch-layer.core .layer-label { background: var(--green); }
+        .arch-layer.bridge .layer-label { background: var(--pink); }
+
+        .layer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 4px;
+        }
+
+        .module-card {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 16px;
+            transition: transform 0.15s, border-color 0.15s;
+        }
+
+        .module-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        .module-card h3 {
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+            color: var(--cyan);
+        }
+
+        .module-card ul {
+            list-style: none;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .module-card ul li {
+            padding: 1px 0;
+        }
+
+        .module-card ul li::before {
+            content: "›";
+            margin-right: 6px;
+            color: var(--border);
+        }
+
+        .module-card .tag {
+            display: inline-block;
+            font-size: 0.65rem;
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent);
+            padding: 1px 8px;
+            border-radius: 4px;
+            margin-top: 6px;
+        }
+
+        .module-card .tag.new {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--red);
+        }
+
+        /* ── Bridge Arrow ── */
+        .bridge-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 0;
+            gap: 12px;
+        }
+
+        .bridge-arrow .line {
+            width: 3px;
+            height: 40px;
+            background: linear-gradient(to bottom, var(--accent), var(--pink));
+            border-radius: 2px;
+        }
+
+        .bridge-arrow .label {
+            font-size: 0.85rem;
+            color: var(--pink);
+            font-weight: 600;
+        }
+
+        /* ── UI Layout Diagram ── */
+        .ui-layout {
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            font-size: 0.8rem;
+        }
+
+        .ui-titlebar {
+            background: var(--surface2);
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ui-titlebar .dot {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+        }
+
+        .ui-titlebar .dot.r { background: var(--red); }
+        .ui-titlebar .dot.y { background: var(--orange); }
+        .ui-titlebar .dot.g { background: var(--green); }
+        .ui-titlebar span { margin-left: auto; color: var(--text-muted); }
+
+        .ui-ribbon {
+            background: var(--surface);
+            padding: 8px 16px;
+            display: flex;
+            gap: 4px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .ui-ribbon .tab {
+            padding: 5px 14px;
+            border-radius: 6px;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            cursor: default;
+        }
+
+        .ui-ribbon .tab.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .ui-tabs {
+            background: var(--surface);
+            padding: 6px 16px;
+            display: flex;
+            gap: 4px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ui-tabs .doc-tab {
+            padding: 4px 14px;
+            border-radius: 6px 6px 0 0;
+            background: var(--surface2);
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .ui-tabs .doc-tab.active {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .ui-body {
+            display: grid;
+            grid-template-columns: 200px 1fr 220px;
+            min-height: 300px;
+        }
+
+        .ui-left-panel {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 12px;
+        }
+
+        .ui-left-panel .panel-item {
+            padding: 5px 8px;
+            border-radius: 4px;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            cursor: default;
+        }
+
+        .ui-left-panel .panel-item.active {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent);
+        }
+
+        .ui-canvas {
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .ui-canvas .page {
+            width: 65%;
+            height: 80%;
+            background: white;
+            border-radius: 2px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .ui-canvas .page .layer {
+            font-size: 0.7rem;
+            padding: 3px 12px;
+            border-radius: 4px;
+            width: 80%;
+            text-align: center;
+        }
+
+        .ui-canvas .page .l-pdf { background: #dbeafe; color: #1e40af; }
+        .ui-canvas .page .l-text { background: #fef3c7; color: #92400e; }
+        .ui-canvas .page .l-annot { background: #dcfce7; color: #166534; }
+        .ui-canvas .page .l-form { background: #fce7f3; color: #9d174d; }
+
+        .ui-right-panel {
+            background: var(--surface);
+            border-left: 1px solid var(--border);
+            padding: 12px;
+        }
+
+        .ui-right-panel h4 {
+            font-size: 0.78rem;
+            color: var(--cyan);
+            margin-bottom: 6px;
+            margin-top: 10px;
+        }
+
+        .ui-right-panel h4:first-child { margin-top: 0; }
+
+        .ui-right-panel .prop {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            padding: 2px 0;
+        }
+
+        .ui-statusbar {
+            background: var(--surface2);
+            padding: 4px 16px;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid var(--border);
+        }
+
+        /* ── Flow Diagrams ── */
+        .flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+        }
+
+        .flow-row {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .flow-node {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 18px;
+            text-align: center;
+            min-width: 140px;
+            font-size: 0.85rem;
+        }
+
+        .flow-node.highlight {
+            border-color: var(--accent);
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .flow-node small {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            margin-top: 4px;
+        }
+
+        .flow-arrow {
+            width: 2px;
+            height: 28px;
+            background: var(--border);
+            position: relative;
+        }
+
+        .flow-arrow::after {
+            content: "";
+            position: absolute;
+            bottom: -4px;
+            left: -4px;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 6px solid var(--border);
+        }
+
+        .flow-split {
+            display: flex;
+            gap: 40px;
+            position: relative;
+            justify-content: center;
+        }
+
+        .flow-split::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 25%;
+            right: 25%;
+            height: 2px;
+            background: var(--border);
+        }
+
+        /* ── Tech Table ── */
+        .tech-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        .tech-table th {
+            text-align: left;
+            padding: 10px 16px;
+            background: var(--surface);
+            border-bottom: 2px solid var(--accent);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .tech-table td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--surface2);
+        }
+
+        .tech-table tr:hover td {
+            background: var(--surface);
+        }
+
+        .tech-badge {
+            display: inline-block;
+            font-size: 0.72rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .tech-badge.frontend { background: rgba(59, 130, 246, 0.15); color: var(--accent); }
+        .tech-badge.backend { background: rgba(245, 158, 11, 0.15); color: var(--orange); }
+        .tech-badge.build { background: rgba(34, 197, 94, 0.15); color: var(--green); }
+
+        /* ── File Tree ── */
+        .file-tree {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.82rem;
+            line-height: 1.8;
+            overflow-x: auto;
+        }
+
+        .file-tree .dir { color: var(--accent); font-weight: 600; }
+        .file-tree .file { color: var(--text-muted); }
+        .file-tree .comment { color: var(--border); font-style: italic; }
+        .file-tree .new-tag { color: var(--red); font-weight: 600; font-size: 0.7rem; }
+
+        /* ── Annotation Types Grid ── */
+        .annot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        .annot-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 0.82rem;
+        }
+
+        .annot-card .cat {
+            font-size: 0.7rem;
+            color: var(--accent2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .annot-card .items {
+            color: var(--text-muted);
+            font-size: 0.78rem;
+        }
+
+        /* ── Stats ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-card .label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 900px) {
+            .ui-body { grid-template-columns: 1fr; }
+            .ui-left-panel, .ui-right-panel { display: none; }
+            .layer-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <h1>Open PDF Studio</h1>
+        <p class="subtitle">Architectuur Overzicht &mdash; v1.20 &mdash; Tauri 2 Desktop Application</p>
+
+        <!-- Stats -->
+        <section>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="number">215</div>
+                    <div class="label">JavaScript bestanden</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">60+</div>
+                    <div class="label">Tauri commands</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">85+</div>
+                    <div class="label">UI componenten</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">28</div>
+                    <div class="label">State stores</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">44</div>
+                    <div class="label">Talen (i18n)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">15+</div>
+                    <div class="label">Annotatie types</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Architecture -->
+        <section>
+            <h2>Architectuur Lagen</h2>
+            <div class="arch-stack">
+
+                <!-- UI Layer -->
+                <div class="arch-layer">
+                    <span class="layer-label">UI Layer &mdash; Solid.js</span>
+                    <div class="layer-grid">
+                        <div class="module-card">
+                            <h3>Ribbon Interface</h3>
+                            <ul>
+                                <li>HomeTab</li>
+                                <li>FormatTab</li>
+                                <li>ArrangeTab</li>
+                                <li>ViewTab</li>
+                                <li>CommentTab</li>
+                                <li>FormsTab</li>
+                                <li>OrganizeTab</li>
+                                <li>HelpTab</li>
+                            </ul>
+                            <span class="tag">js/solid/components/ribbon/</span>
+                        </div>
+                        <div class="module-card">
+                            <h3>Left Panel</h3>
+                            <ul>
+                                <li>Thumbnails</li>
+                                <li>Annotations</li>
+                                <li>Bookmarks</li>
+                                <li>Layers</li>
+                                <li>Form Fields</li>
+                                <li>Signatures</li>
+                                <li>Links</li>
+                                <li>Element Detection</li>
+                            </ul>
+                            <span class="tag">js/solid/components/left-panel/</span>
+                        </div>
+                        <div class="module-card">
+                            <h3>Properties Panel</h3>
+                            <ul>
+                                <li>General Section</li>
+                                <li>Appearance Section</li>
+                                <li>Dimensions Section</li>
+                                <li>Content Section</li>
+                                <li>Line Endings Section</li>
+                            </ul>
+                            <span class="tag">js/solid/components/properties-panel/</span>
+                        </div>
+                        <div class="module-card">
+                            <h3>Dialogs (15+)</h3>
+                            <ul>
+                                <li>Print / Page Setup</li>
+                                <li>Merge / Extract Pages</li>
+                                <li>Signature / Stamp</li>
+                                <li>Watermark / Header-Footer</li>
+                                <li>Calibration</li>
+                                <li>Preferences</li>
+                            </ul>
+                            <span class="tag">js/solid/components/dialogs/</span>
+                        </div>
+                        <div class="module-card">
+                            <h3>Backstage (File menu)</h3>
+                            <ul>
+                                <li>Open Panel</li>
+                                <li>Export Panel</li>
+                                <li>Import Panel</li>
+                                <li>About Panel</li>
+                            </ul>
+                            <span class="tag">js/solid/components/backstage/</span>
+                        </div>
+                        <div class="module-card">
+                            <h3>i18n</h3>
+                            <ul>
+                                <li>i18next framework</li>
+                                <li>44 talen</li>
+                                <li>common / context / ribbon</li>
+                            </ul>
+                            <span class="tag">js/i18n/</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- State Layer -->
+                <div class="arch-layer state" style="margin-top: 20px;">
+                    <span class="layer-label">State Management</span>
+                    <div class="layer-grid">
+                        <div class="module-card">
+                            <h3>Central State</h3>
+                            <ul>
+                                <li>documents[]</li>
+                                <li>activeDocumentIndex</li>
+                                <li>currentTool</li>
+                                <li>preferences</li>
+                                <li>clipboard</li>
+                                <li>undo/redo stacks</li>
+                            </ul>
+                            <span class="tag">js/core/state.js — Solid.js createMutable</span>
+                        </div>
+                        <div class="module-card">
+                            <h3>UI Stores (28x)</h3>
+                            <ul>
+                                <li>ribbonStore</li>
+                                <li>leftPanelStore</li>
+                                <li>propertiesStore</li>
+                                <li>dialogStore</li>
+                                <li>formatStore / fontStore</li>
+                                <li>pdfObjectStore</li>
+                            </ul>
+                            <span class="tag">js/solid/stores/</span>
+                        </div>
+                        <div class="module-card">
+                            <h3>Core Utilities</h3>
+                            <ul>
+                                <li>preferences.js</li>
+                                <li>constants.js</li>
+                                <li>platform.js</li>
+                                <li>undo-manager.js</li>
+                            </ul>
+                            <span class="tag">js/core/</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Core Logic Layer -->
+                <div class="arch-layer core" style="margin-top: 20px;">
+                    <span class="layer-label">Core Logic</span>
+                    <div class="layer-grid">
+                        <div class="module-card">
+                            <h3>Tools</h3>
+                            <ul>
+                                <li>mouse-handlers (49KB)</li>
+                                <li>keyboard-handlers</li>
+                                <li>annotation-creators</li>
+                                <li>text-editing / text-edit-tool</li>
+                                <li>snap-engine</li>
+                                <li>shape-preview</li>
+                                <li>pdf-element-detector</li>
+                                <li>pdf-object-extractor</li>
+                            </ul>
+                            <span class="tag">js/tools/</span>
+                        </div>
+                        <div class="module-card">
+                            <h3>Annotations</h3>
+                            <ul>
+                                <li>rendering (42KB)</li>
+                                <li>transforms (27KB)</li>
+                                <li>handles / geometry</li>
+                                <li>alignment / z-order</li>
+                                <li>clipboard / smart-guides</li>
+                                <li>measurement / redaction</li>
+                                <li>signature / stamps</li>
+                                <li>xfdf import/export</li>
+                            </ul>
+                            <span class="tag">js/annotations/</span>
+                        </div>
+                        <div class="module-card">
+                            <h3>PDF Engine</h3>
+                            <ul>
+                                <li>loader + annotation converter</li>
+                                <li>renderer (pdfjs-dist)</li>
+                                <li>saver (pdf-lib, 64KB)</li>
+                                <li>page-manager</li>
+                                <li>exporter</li>
+                                <li>form-layer / link-layer</li>
+                                <li>crop-margins</li>
+                                <li>content-stream-editor</li>
+                            </ul>
+                            <span class="tag">js/pdf/</span>
+                        </div>
+                        <div class="module-card">
+                            <h3>Text & Search</h3>
+                            <ul>
+                                <li>text-selection</li>
+                                <li>text-layer</li>
+                                <li>text-markup</li>
+                                <li>find-bar / find-controller</li>
+                            </ul>
+                            <span class="tag">js/text/ + js/search/</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bridge -->
+                <div class="bridge-arrow">
+                    <div class="line"></div>
+                    <div>
+                        <div class="label">Tauri IPC Bridge</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); text-align: center;">invoke() / listen()</div>
+                    </div>
+                    <div class="line"></div>
+                </div>
+
+                <!-- Backend Layer -->
+                <div class="arch-layer backend">
+                    <span class="layer-label">Backend &mdash; Rust / Tauri 2</span>
+                    <div class="layer-grid">
+                        <div class="module-card">
+                            <h3>File I/O</h3>
+                            <ul>
+                                <li>read_file / write_file</li>
+                                <li>file_exists / delete_file</li>
+                                <li>lock_file / unlock_file</li>
+                                <li>list_pdf_files</li>
+                                <li>write_temp_pdf</li>
+                                <li>download_pdf_from_url</li>
+                            </ul>
+                        </div>
+                        <div class="module-card">
+                            <h3>Printing (Windows)</h3>
+                            <ul>
+                                <li>get_printers</li>
+                                <li>print_pdf</li>
+                                <li>open_printer_properties</li>
+                                <li>virtual printer install/remove</li>
+                            </ul>
+                        </div>
+                        <div class="module-card">
+                            <h3>Sessions & Prefs</h3>
+                            <ul>
+                                <li>save_session / load_session</li>
+                                <li>get_session_file_path</li>
+                                <li>Preferences persistence</li>
+                            </ul>
+                        </div>
+                        <div class="module-card">
+                            <h3>System Integration</h3>
+                            <ul>
+                                <li>get_username / get_temp_dir</li>
+                                <li>is_dev_mode</li>
+                                <li>open_url</li>
+                                <li>is_default_pdf_app</li>
+                                <li>File association (registry)</li>
+                            </ul>
+                        </div>
+                        <div class="module-card">
+                            <h3>Tauri Plugins</h3>
+                            <ul>
+                                <li>tauri-plugin-fs</li>
+                                <li>tauri-plugin-dialog</li>
+                                <li>tauri-plugin-shell</li>
+                                <li>tauri-plugin-updater</li>
+                                <li>tauri-plugin-deep-link</li>
+                                <li>tauri-plugin-single-instance</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- UI Layout -->
+        <section>
+            <h2>UI Layout</h2>
+            <div class="ui-layout">
+                <div class="ui-titlebar">
+                    <div class="dot r"></div>
+                    <div class="dot y"></div>
+                    <div class="dot g"></div>
+                    <span>Open PDF Studio &mdash; TitleBar.jsx (custom)</span>
+                </div>
+                <div class="ui-ribbon">
+                    <div class="tab">File</div>
+                    <div class="tab active">Home</div>
+                    <div class="tab">Format</div>
+                    <div class="tab">Arrange</div>
+                    <div class="tab">Comment</div>
+                    <div class="tab">Forms</div>
+                    <div class="tab">View</div>
+                    <div class="tab">Organize</div>
+                    <div class="tab">Help</div>
+                </div>
+                <div class="ui-tabs">
+                    <div class="doc-tab active">document.pdf</div>
+                    <div class="doc-tab">report.pdf</div>
+                    <div class="doc-tab">+</div>
+                </div>
+                <div class="ui-body">
+                    <div class="ui-left-panel">
+                        <div class="panel-item active">Thumbnails</div>
+                        <div class="panel-item">Annotations</div>
+                        <div class="panel-item">Bookmarks</div>
+                        <div class="panel-item">Layers</div>
+                        <div class="panel-item">Form Fields</div>
+                        <div class="panel-item">Signatures</div>
+                        <div class="panel-item">Links</div>
+                        <div class="panel-item">Tags</div>
+                        <div class="panel-item">Attachments</div>
+                        <div class="panel-item">Elements</div>
+                    </div>
+                    <div class="ui-canvas">
+                        <div class="page">
+                            <div class="layer l-pdf">PDF Page (pdfjs-dist)</div>
+                            <div class="layer l-text">Text Layer (selectable)</div>
+                            <div class="layer l-annot">Annotations Overlay (canvas)</div>
+                            <div class="layer l-form">Form Fields + Links</div>
+                        </div>
+                    </div>
+                    <div class="ui-right-panel">
+                        <h4>Properties Panel</h4>
+                        <div class="prop">Position: X, Y</div>
+                        <div class="prop">Size: W x H</div>
+                        <div class="prop">Rotation: 0&deg;</div>
+                        <h4>Appearance</h4>
+                        <div class="prop">Fill color</div>
+                        <div class="prop">Stroke color</div>
+                        <div class="prop">Line width</div>
+                        <div class="prop">Opacity</div>
+                        <h4>Content</h4>
+                        <div class="prop">Text / Label</div>
+                        <div class="prop">Font / Size</div>
+                    </div>
+                </div>
+                <div class="ui-statusbar">
+                    <span>Page 1 / 12</span>
+                    <span>Zoom: 100% &mdash; Tool: Select</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Flow -->
+        <section>
+            <h2>Data Flow: PDF Openen</h2>
+            <div class="flow">
+                <div class="flow-node highlight">
+                    Gebruiker opent PDF
+                    <small>File dialog / drag & drop / CLI</small>
+                </div>
+                <div class="flow-arrow"></div>
+                <div class="flow-node">
+                    loader.js
+                    <small>js/pdf/loader.js</small>
+                </div>
+                <div class="flow-arrow"></div>
+                <div class="flow-node" style="border-color: var(--orange);">
+                    Tauri: read_file()
+                    <small>Rust backend &rarr; bytes</small>
+                </div>
+                <div class="flow-arrow"></div>
+
+                <div class="flow-row">
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <div class="flow-node" style="border-color: var(--cyan);">
+                            pdfjs-dist
+                            <small>Rendering engine</small>
+                        </div>
+                        <div class="flow-arrow"></div>
+                        <div class="flow-node">
+                            Canvas render
+                            <small>Page + Text layer</small>
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <div class="flow-node" style="border-color: var(--green);">
+                            pdf-lib
+                            <small>Manipulation engine</small>
+                        </div>
+                        <div class="flow-arrow"></div>
+                        <div class="flow-node">
+                            PDF save/export
+                            <small>saver.js (64KB)</small>
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <div class="flow-node" style="border-color: var(--accent2);">
+                            Annotation converter
+                            <small>Extract existing annotations</small>
+                        </div>
+                        <div class="flow-arrow"></div>
+                        <div class="flow-node">
+                            state.annotations
+                            <small>Solid.js reactive store</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Event Flow -->
+        <section>
+            <h2>Event Flow: Gebruikersinteractie</h2>
+            <div class="flow">
+                <div class="flow-node highlight">
+                    Muis / Toetsenbord event
+                    <small>Canvas event listeners</small>
+                </div>
+                <div class="flow-arrow"></div>
+                <div class="flow-node">
+                    mouse-handlers.js / keyboard-handlers.js
+                    <small>Check currentTool, modal state</small>
+                </div>
+                <div class="flow-arrow"></div>
+
+                <div class="flow-row">
+                    <div class="flow-node">Draw Shape<small>annotation-creators.js</small></div>
+                    <div class="flow-node">Select / Move<small>transforms.js</small></div>
+                    <div class="flow-node">Text Edit<small>text-editing.js</small></div>
+                    <div class="flow-node">Pan / Zoom<small>pan-handler.js</small></div>
+                    <div class="flow-node">Measure<small>measurement.js</small></div>
+                </div>
+
+                <div class="flow-arrow"></div>
+                <div class="flow-node" style="border-color: var(--accent2);">
+                    State update
+                    <small>state.documents[i].annotations &mdash; Solid.js reactive</small>
+                </div>
+                <div class="flow-arrow"></div>
+                <div class="flow-node highlight">
+                    redrawAnnotations()
+                    <small>rendering.js (42KB) &mdash; Canvas re-render</small>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tech Stack Table -->
+        <section>
+            <h2>Technology Stack</h2>
+            <table class="tech-table">
+                <thead>
+                    <tr>
+                        <th>Laag</th>
+                        <th>Technologie</th>
+                        <th>Versie</th>
+                        <th>Doel</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="tech-badge frontend">Frontend</span></td>
+                        <td>Solid.js</td>
+                        <td>1.9</td>
+                        <td>Reactive UI framework (JSX components)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tech-badge frontend">Frontend</span></td>
+                        <td>pdfjs-dist</td>
+                        <td>5.4</td>
+                        <td>PDF rendering engine (Mozilla)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tech-badge frontend">Frontend</span></td>
+                        <td>pdf-lib</td>
+                        <td>1.17</td>
+                        <td>PDF manipulation & export</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tech-badge frontend">Frontend</span></td>
+                        <td>i18next</td>
+                        <td>25.8</td>
+                        <td>Internationalization (44 talen)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tech-badge frontend">Frontend</span></td>
+                        <td>Canvas API</td>
+                        <td>&mdash;</td>
+                        <td>Annotatie rendering & interactie</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tech-badge backend">Backend</span></td>
+                        <td>Tauri</td>
+                        <td>2.10</td>
+                        <td>Desktop framework, IPC, native APIs</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tech-badge backend">Backend</span></td>
+                        <td>Rust</td>
+                        <td>&mdash;</td>
+                        <td>File I/O, printing, system integration</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tech-badge backend">Backend</span></td>
+                        <td>reqwest</td>
+                        <td>0.12</td>
+                        <td>HTTP client (PDF downloads)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tech-badge build">Build</span></td>
+                        <td>Vite</td>
+                        <td>7.3</td>
+                        <td>Bundler & dev server (:3041)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tech-badge build">Build</span></td>
+                        <td>NSIS / DMG / DEB</td>
+                        <td>&mdash;</td>
+                        <td>Installers: Windows, macOS, Linux</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- File Structure -->
+        <section>
+            <h2>Bestandsstructuur</h2>
+            <div class="file-tree">
+<span class="dir">open-pdf-studio/</span>
+├── <span class="dir">js/</span> <span class="comment">── Frontend (215 bestanden, 4.6MB)</span>
+│   ├── <span class="dir">core/</span> <span class="comment">── State, preferences, constants, platform</span>
+│   ├── <span class="dir">pdf/</span> <span class="comment">── Loader, renderer, saver, page-manager, exporter</span>
+│   │   └── <span class="file">content-stream-editor.js</span> <span class="new-tag">NEW</span>
+│   ├── <span class="dir">annotations/</span> <span class="comment">── Rendering, transforms, handles, geometry (16 files)</span>
+│   ├── <span class="dir">tools/</span> <span class="comment">── Mouse/keyboard handlers, snap, detection (15 files)</span>
+│   │   ├── <span class="file">pdf-object-extractor.js</span> <span class="new-tag">NEW</span>
+│   │   └── <span class="file">pdf-object-actions.js</span> <span class="new-tag">NEW</span>
+│   ├── <span class="dir">solid/</span> <span class="comment">── Solid.js UI framework</span>
+│   │   ├── <span class="file">App.jsx</span> <span class="comment">── Root component</span>
+│   │   ├── <span class="dir">components/</span> <span class="comment">── 85+ componenten</span>
+│   │   │   ├── <span class="dir">ribbon/</span> <span class="comment">── Ribbon tabs (Home, Format, Arrange, ...)</span>
+│   │   │   ├── <span class="dir">left-panel/</span> <span class="comment">── Thumbnails, annotations, bookmarks, ...</span>
+│   │   │   ├── <span class="dir">properties-panel/</span> <span class="comment">── Properties sidebar</span>
+│   │   │   ├── <span class="dir">dialogs/</span> <span class="comment">── 15+ modal dialogs</span>
+│   │   │   ├── <span class="dir">preferences/</span> <span class="comment">── Settings tabs</span>
+│   │   │   └── <span class="dir">backstage/</span> <span class="comment">── File menu panels</span>
+│   │   └── <span class="dir">stores/</span> <span class="comment">── 28 UI stores</span>
+│   │       └── <span class="dir">panels/</span> <span class="comment">── Panel-specific stores</span>
+│   ├── <span class="dir">i18n/</span> <span class="comment">── Internationalization (44 talen)</span>
+│   │   └── <span class="dir">locales/</span> <span class="comment">── en/, nl/, de/, fr/, ...</span>
+│   ├── <span class="dir">text/</span> <span class="comment">── Text selection & markup</span>
+│   ├── <span class="dir">search/</span> <span class="comment">── Find bar & controller</span>
+│   ├── <span class="dir">ui/</span> <span class="comment">── DOM setup, menus, context menus, status bar</span>
+│   ├── <span class="dir">mobile/</span> <span class="comment">── Touch gestures, recent files (Android)</span>
+│   └── <span class="file">main.js</span> <span class="comment">── Entry point</span>
+├── <span class="dir">src-tauri/</span> <span class="comment">── Rust backend</span>
+│   ├── <span class="dir">src/</span>
+│   │   ├── <span class="file">main.rs</span> <span class="comment">── App initialization</span>
+│   │   └── <span class="file">lib.rs</span> <span class="comment">── 60+ Tauri commands</span>
+│   ├── <span class="file">Cargo.toml</span> <span class="comment">── Rust dependencies</span>
+│   └── <span class="file">tauri.conf.json</span> <span class="comment">── Window, plugins, build config</span>
+├── <span class="dir">styles/</span> <span class="comment">── CSS stylesheets</span>
+├── <span class="dir">public/</span> <span class="comment">── Static assets</span>
+├── <span class="dir">dist/</span> <span class="comment">── Build output (13MB)</span>
+├── <span class="file">index.html</span> <span class="comment">── Main HTML entry</span>
+├── <span class="file">vite.config.js</span> <span class="comment">── Vite bundler config</span>
+└── <span class="file">package.json</span> <span class="comment">── Node.js dependencies</span>
+            </div>
+        </section>
+
+        <!-- Annotation Types -->
+        <section>
+            <h2>Ondersteunde Annotatie Types</h2>
+            <div class="annot-grid">
+                <div class="annot-card">
+                    <div class="cat">Shapes</div>
+                    <div class="items">Rectangle, Circle/Ellipse, Polygon, Cloud</div>
+                </div>
+                <div class="annot-card">
+                    <div class="cat">Lines</div>
+                    <div class="items">Line, Polyline, Arrow (diverse stijlen)</div>
+                </div>
+                <div class="annot-card">
+                    <div class="cat">Text</div>
+                    <div class="items">Text Box, Callout, Comment/Note</div>
+                </div>
+                <div class="annot-card">
+                    <div class="cat">Markup</div>
+                    <div class="items">Highlight, Underline, Strikethrough</div>
+                </div>
+                <div class="annot-card">
+                    <div class="cat">Media</div>
+                    <div class="items">Images, Stamps, Signatures</div>
+                </div>
+                <div class="annot-card">
+                    <div class="cat">Advanced</div>
+                    <div class="items">Measurement (afstand/oppervlak), Redaction</div>
+                </div>
+                <div class="annot-card">
+                    <div class="cat">Forms</div>
+                    <div class="items">Interactive form fields</div>
+                </div>
+                <div class="annot-card">
+                    <div class="cat">Navigation</div>
+                    <div class="items">Links, Bookmarks, Destinations</div>
+                </div>
+            </div>
+        </section>
+
+        <footer style="text-align: center; color: var(--text-muted); font-size: 0.8rem; margin-top: 40px; padding: 20px 0; border-top: 1px solid var(--surface2);">
+            Open PDF Studio Architecture &mdash; Generated March 2026 &mdash; OpenAEC Foundation
+        </footer>
+    </div>
+</body>
+</html>

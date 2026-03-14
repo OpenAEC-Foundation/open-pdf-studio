@@ -42,6 +42,8 @@ export const addTextIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 
 
 export const cropMarginsIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 2v4H2m20 0h-4M6 22v-4H2m20 0h-4"/><rect x="6" y="6" width="12" height="12" stroke-width="2" stroke-dasharray="3 2" fill="none"/></svg>`;
 
+export const selectObjectsIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/><rect x="3" y="3" width="7" height="7" stroke-width="1.5" stroke-dasharray="2 2" fill="none"/></svg>`;
+
 // --- Home tab: Navigate ---
 
 export const firstPageIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/></svg>`;

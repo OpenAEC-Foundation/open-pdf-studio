@@ -1,38 +1,35 @@
 # Open PDF Studio — Status
 
-**Datum**: 2026-02-28
+**Datum**: 2026-03-03
 **Branch**: Jochem
 **Laatste PR**: #148 (gemerged) — snap engine, calibration dialog, i18n updates
 
 ## Wat is er vandaag gedaan
 
-### Gemerged naar main (PR #148)
-- Snap engine verbeteringen + nieuwe `pdf-snap-extractor.js`
-- Calibration dialog compleet vernieuwd met visuele reference line picker
-- i18n updates voor 30+ talen (measurement, calibration, preferences strings)
-- Preferences tabs uitgebreid (Annotations, Behavior, Markup)
-- Context menu, ribbon, dependency updates
+### Architectuur documentatie
+- `architecture.html` aangemaakt in project root — interactieve visuele weergave van de volledige architectuur
+- Bevat: lagendiagram, UI layout, data flow, event flow, tech stack tabel, bestandsstructuur, annotatie types
+- Dark theme, responsive, geen externe dependencies
 
-### Op Jochem branch (NIET gemerged, uncommitted)
-- **Element Detection heuristieken (Level 2)** — verbeterde PDF element detector:
-  - Graphics state tracker (lineWidth, colors, dash patterns uit operator list)
-  - Stroke width filtering (histogram-based wall threshold)
-  - Hatching pattern detectie en uitsluiting
-  - Dimension line detectie en uitsluiting
-  - Verbeterde room detection (min dimensions, betere labels, CAD fill color)
-  - UI: filtered stats weergave in panel
-  - Rendering: room overlay met originele CAD fill color
+### Architectuur analyse
+- Vergelijking gemaakt met industriestandaard PDF editors (Foxit, PSPDFKit, Adobe)
+- Conclusie: architectuur is solide; Tauri + Solid.js is moderner dan concurrenten, dual PDF engine (pdfjs + pdf-lib) is industry-standard
 
 ## Uncommitted bestanden op Jochem
 ```
- M  rendering.js          (element detection overlay + room fill colors)
- M  LeftPanel.jsx          (elements tab toevoeging)
- M  leftPanelIcons.js      (elements icon)
- M  panels.css             (element detection panel CSS)
-??  ElementDetectionPanel.jsx
-??  elementDetectionStore.js
-??  pdf-element-detector.js
-??  element-detection.js
+M  rendering.js            (element detection overlay + room fill colors)
+ M  i18n locales en/nl      (context.json, ribbon.json)
+ M  HomeTab.jsx             (ribbon updates)
+ M  ribbonIcons.js          (icon changes)
+ M  keyboard-handlers.js    (tool updates)
+ M  manager.js              (tool updates)
+ M  mouse-handlers.js       (tool updates)
+ M  Cargo.toml              (dependency updates)
+??  content-stream-editor.js
+??  pdfObjectStore.js
+??  pdf-object-actions.js
+??  pdf-object-extractor.js
+??  architecture.html        (NIEUW — architectuur visualisatie)
 ```
 
 ## Notities

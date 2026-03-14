@@ -12,6 +12,7 @@ import {
   handIcon, selectTextIcon, selectCommentsIcon, screenshotIcon,
   zoomInIcon, zoomOutIcon, fitWidthIcon, actualSizeIcon, fitPageIcon,
   rotateLeftIcon, rotateRightIcon, editTextIcon, addTextIcon, cropMarginsIcon,
+  selectObjectsIcon,
   firstPageIcon, prevPageIcon, nextPageIcon, lastPageIcon, findIcon
 } from '../../data/ribbonIcons.js';
 import { openDialog } from '../../stores/dialogStore.js';
@@ -107,6 +108,8 @@ export default function HomeTab() {
             disabled={noPdf() || isPdfAReadOnly()} active={state.currentTool === 'editText'} onClick={() => setTool('editText')} />
           <RibbonButton id="add-text" title={t('home.addText')} icon={addTextIcon} label={t('home.addText')}
             disabled={noPdf() || isPdfAReadOnly()} onClick={() => setTool('text')} />
+          <RibbonButton id="select-objects" title={t('home.selectObjectsTitle')} icon={selectObjectsIcon} label={t('home.selectObjects')}
+            disabled={noPdf()} active={state.currentTool === 'selectObjects'} onClick={() => setTool('selectObjects')} />
           <RibbonButton id="crop-margins" title={t('home.cropMargins')} icon={cropMarginsIcon} label={t('home.crop')}
             disabled={noPdf() || isPdfAReadOnly()} onClick={() => { const doc = getActiveDocument(); openDialog('crop-margins', { totalPages: doc?.pdfDoc?.numPages, currentPage: doc?.currentPage || 1 }); }} />
         </RibbonGroup>

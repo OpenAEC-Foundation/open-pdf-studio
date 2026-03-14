@@ -9,7 +9,7 @@ import { getTool } from './tool-registry.js';
 import { buildToolContext, resolvePointerCoords } from './tool-context.js';
 
 // Tools that are always allowed (view-only, non-modifying)
-const READONLY_ALLOWED_TOOLS = new Set(['select', 'selectComments', 'hand']);
+const READONLY_ALLOWED_TOOLS = new Set(['select', 'selectComments', 'hand', 'selectObjects']);
 
 // Get cursor for a given tool
 export function getCursorForTool(tool = state.currentTool) {
@@ -18,6 +18,8 @@ export function getCursorForTool(tool = state.currentTool) {
       return 'default';  // Arrow cursor for annotation selection
     case 'selectComments':
       return 'text';     // I-beam cursor for text selection
+    case 'selectObjects':
+      return 'default';
     case 'hand':
       return 'grab';
     case 'text':
@@ -94,6 +96,15 @@ export function setTool(tool) {
     import('./text-edit-tool.js').then(m => m.deactivateEditTextTool());
   }
 
+  // Clear PDF object state when switching away from selectObjects
+  if (state.currentTool === 'selectObjects' && tool !== 'selectObjects') {
+    import('../solid/stores/panels/pdfObjectStore.js').then(store => {
+      store.setHoveredPdfObject(null);
+      store.setSelectedPdfObject(null);
+      store.setSelectedPdfObjects([]);
+    });
+  }
+
   state.currentTool = tool;
   // Don't clear toolOverrides when switching TO stamp — SymbolPalette sets them before setTool
   if (tool !== 'stamp') {
@@ -118,6 +129,22 @@ export function setTool(tool) {
     import('./text-edit-tool.js').then(m => m.activateEditTextTool());
   }
 
+  // When activating selectObjects, trigger lazy extraction for current page
+  if (tool === 'selectObjects') {
+    import('./pdf-object-extractor.js').then(async (extractor) => {
+      const store = await import('../solid/stores/panels/pdfObjectStore.js');
+      if (!store.extractedPage() || store.extractedPage() !== state.currentPage) {
+        store.setIsExtracting(true);
+        const result = await extractor.extractPdfObjects(state.currentPage);
+        const allObjects = [...result.images, ...result.textBlocks, ...result.vectors];
+        store.setPdfObjects(allObjects);
+        store.setExtractedPage(state.currentPage);
+        store.setIsExtracting(false);
+        redrawAnnotations();
+      }
+    });
+  }
+
   // Drop annotation canvas below text layer ONLY for text-related tools
   // select = annotation selection (canvas ABOVE text layer)
   // selectComments/editText = text access (canvas BELOW text layer)
@@ -137,5 +164,14 @@ export function updatePdfAToolState() {
 
 // Reset to hand tool whenever a PDF is loaded (avoids circular dependency with loader.js)
 document.addEventListener('pdf-loaded', () => {
+  // Clear PDF object cache on document switch
+  import('./pdf-object-extractor.js').then(m => m.clearPdfObjectCache());
+  import('../solid/stores/panels/pdfObjectStore.js').then(store => {
+    store.setPdfObjects([]);
+    store.setExtractedPage(null);
+    store.setSelectedPdfObject(null);
+    store.setSelectedPdfObjects([]);
+    store.setHoveredPdfObject(null);
+  });
   setTool('select');
 });

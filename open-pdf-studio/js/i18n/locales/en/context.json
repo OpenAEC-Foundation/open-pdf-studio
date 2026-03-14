@@ -111,5 +111,12 @@
   "deleteAnnotation": {
     "confirmSingle": "Delete this annotation?",
     "title": "Delete Annotation"
+  },
+  "pdfObject": {
+    "delete": "Delete Object",
+    "deleteConfirm": "Delete this PDF object?",
+    "image": "Image",
+    "textBlock": "Text Block",
+    "vectorShape": "Vector Shape"
   }
 }
