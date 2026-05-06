@@ -132,6 +132,8 @@
     "autoSelectAfterCreation": "Automaticky vybrat anotaci po vytvoření",
     "deletion": "Mazání",
     "confirmBeforeDeleting": "Potvrdit před smazáním anotací",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "snapToPdfContent": "Snap to PDF Drawing Content"
   },
   "fileAssoc": {

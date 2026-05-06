@@ -132,6 +132,8 @@
     "autoSelectAfterCreation": "Välj anteckning automatiskt efter skapande",
     "deletion": "Borttagning",
     "confirmBeforeDeleting": "Bekräfta innan anteckningar raderas",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "snapToPdfContent": "Snap to PDF Drawing Content"
   },
   "fileAssoc": {

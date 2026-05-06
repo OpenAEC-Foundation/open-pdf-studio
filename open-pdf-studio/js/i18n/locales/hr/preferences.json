@@ -132,6 +132,8 @@
     "autoSelectAfterCreation": "Automatski odaberi oznaku nakon stvaranja",
     "deletion": "Brisanje",
     "confirmBeforeDeleting": "Potvrdi prije brisanja oznaka",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "snapToPdfContent": "Snap to PDF Drawing Content"
   },
   "fileAssoc": {

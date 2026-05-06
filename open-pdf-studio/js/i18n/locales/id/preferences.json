@@ -132,6 +132,8 @@
     "autoSelectAfterCreation": "Pilih otomatis anotasi setelah pembuatan",
     "deletion": "Penghapusan",
     "confirmBeforeDeleting": "Konfirmasi sebelum menghapus anotasi",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "snapToPdfContent": "Snap to PDF Drawing Content"
   },
   "fileAssoc": {

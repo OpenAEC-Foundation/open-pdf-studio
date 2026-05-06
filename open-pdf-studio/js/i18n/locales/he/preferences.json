@@ -132,6 +132,8 @@
     "autoSelectAfterCreation": "בחירה אוטומטית של הערה לאחר יצירה",
     "deletion": "מחיקה",
     "confirmBeforeDeleting": "אישור לפני מחיקת הערות",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "snapToPdfContent": "Snap to PDF Drawing Content"
   },
   "fileAssoc": {

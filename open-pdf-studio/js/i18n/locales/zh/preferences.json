@@ -115,7 +115,9 @@
     "creation": "创建",
     "autoSelectAfterCreation": "创建后自动选择批注",
     "deletion": "删除",
-    "confirmBeforeDeleting": "删除批注前确认"
+    "confirmBeforeDeleting": "删除批注前确认",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)"
   },
   "fileAssoc": {
     "defaultPdfApplication": "默认 PDF 应用程序",

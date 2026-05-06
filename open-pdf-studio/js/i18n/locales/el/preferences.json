@@ -132,6 +132,8 @@
     "autoSelectAfterCreation": "Αυτόματη επιλογή σχολιασμού μετά τη δημιουργία",
     "deletion": "Διαγραφή",
     "confirmBeforeDeleting": "Επιβεβαίωση πριν τη διαγραφή σχολιασμών",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "snapToPdfContent": "Snap to PDF Drawing Content"
   },
   "fileAssoc": {

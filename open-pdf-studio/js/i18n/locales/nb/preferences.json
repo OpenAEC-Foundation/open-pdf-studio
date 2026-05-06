@@ -132,6 +132,8 @@
     "autoSelectAfterCreation": "Velg merknad automatisk etter opprettelse",
     "deletion": "Sletting",
     "confirmBeforeDeleting": "Bekreft før sletting av merknader",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "snapToPdfContent": "Snap to PDF Drawing Content"
   },
   "fileAssoc": {

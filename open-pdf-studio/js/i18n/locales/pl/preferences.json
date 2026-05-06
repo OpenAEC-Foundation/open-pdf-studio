@@ -115,7 +115,9 @@
     "creation": "Tworzenie",
     "autoSelectAfterCreation": "Automatycznie zaznacz adnotację po utworzeniu",
     "deletion": "Usuwanie",
-    "confirmBeforeDeleting": "Potwierdzenie przed usunięciem adnotacji"
+    "confirmBeforeDeleting": "Potwierdzenie przed usunięciem adnotacji",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Domyślna aplikacja PDF",

@@ -181,7 +181,9 @@
     "creation": "Creation",
     "autoSelectAfterCreation": "Auto-select annotation after creation",
     "deletion": "Deletion",
-    "confirmBeforeDeleting": "Confirm before deleting annotations"
+    "confirmBeforeDeleting": "Confirm before deleting annotations",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)"
   },
   "pageDisplay": {
     "rendering": "Rendering",

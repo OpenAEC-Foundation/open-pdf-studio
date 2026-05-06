@@ -132,6 +132,8 @@
     "autoSelectAfterCreation": "Selectare automata a adnotarii dupa creare",
     "deletion": "Stergere",
     "confirmBeforeDeleting": "Confirmare inainte de stergerea adnotarilor",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "snapToPdfContent": "Snap to PDF Drawing Content"
   },
   "fileAssoc": {

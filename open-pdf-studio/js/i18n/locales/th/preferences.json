@@ -132,6 +132,8 @@
     "autoSelectAfterCreation": "เลือกคำอธิบายประกอบอัตโนมัติหลังสร้าง",
     "deletion": "การลบ",
     "confirmBeforeDeleting": "ยืนยันก่อนลบคำอธิบายประกอบ",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "snapToPdfContent": "Snap to PDF Drawing Content"
   },
   "fileAssoc": {

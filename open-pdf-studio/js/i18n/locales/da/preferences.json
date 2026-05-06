@@ -132,6 +132,8 @@
     "autoSelectAfterCreation": "Vælg annotation automatisk efter oprettelse",
     "deletion": "Sletning",
     "confirmBeforeDeleting": "Bekræft før sletning af annotationer",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "snapToPdfContent": "Snap to PDF Drawing Content"
   },
   "fileAssoc": {

@@ -132,6 +132,8 @@
     "autoSelectAfterCreation": "Tự động chọn chú thích sau khi tạo",
     "deletion": "Xóa",
     "confirmBeforeDeleting": "Xác nhận trước khi xóa chú thích",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "snapToPdfContent": "Snap to PDF Drawing Content"
   },
   "fileAssoc": {

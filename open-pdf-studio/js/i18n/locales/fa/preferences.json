@@ -115,7 +115,9 @@
     "creation": "ایجاد",
     "autoSelectAfterCreation": "انتخاب خودکار حاشیه‌نویسی پس از ایجاد",
     "deletion": "حذف",
-    "confirmBeforeDeleting": "تایید قبل از حذف حاشیه‌نویسی‌ها"
+    "confirmBeforeDeleting": "تایید قبل از حذف حاشیه‌نویسی‌ها",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)"
   },
   "fileAssoc": {
     "defaultPdfApplication": "برنامه PDF پیش‌فرض",

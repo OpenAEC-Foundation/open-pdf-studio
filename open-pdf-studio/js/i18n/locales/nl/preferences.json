@@ -115,7 +115,9 @@
     "creation": "Aanmaken",
     "autoSelectAfterCreation": "Annotatie automatisch selecteren na aanmaken",
     "deletion": "Verwijderen",
-    "confirmBeforeDeleting": "Bevestigen voordat annotaties worden verwijderd"
+    "confirmBeforeDeleting": "Bevestigen voordat annotaties worden verwijderd",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Standaard PDF-toepassing",

@@ -115,7 +115,9 @@
     "creation": "Erstellung",
     "autoSelectAfterCreation": "Anmerkung nach Erstellung automatisch auswählen",
     "deletion": "Löschen",
-    "confirmBeforeDeleting": "Vor dem Löschen von Anmerkungen bestätigen"
+    "confirmBeforeDeleting": "Vor dem Löschen von Anmerkungen bestätigen",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Standard-PDF-Anwendung",

@@ -132,6 +132,8 @@
     "autoSelectAfterCreation": "Автоматически выделять аннотацию после создания",
     "deletion": "Удаление",
     "confirmBeforeDeleting": "Подтверждать перед удалением аннотаций",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "snapToPdfContent": "Snap to PDF Drawing Content"
   },
   "fileAssoc": {

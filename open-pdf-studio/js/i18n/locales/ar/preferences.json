@@ -115,7 +115,9 @@
     "creation": "الإنشاء",
     "autoSelectAfterCreation": "تحديد التعليق تلقائيًا بعد الإنشاء",
     "deletion": "الحذف",
-    "confirmBeforeDeleting": "التأكيد قبل حذف التعليقات"
+    "confirmBeforeDeleting": "التأكيد قبل حذف التعليقات",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)"
   },
   "fileAssoc": {
     "defaultPdfApplication": "تطبيق PDF الافتراضي",

@@ -132,6 +132,8 @@
     "autoSelectAfterCreation": "உருவாக்கிய பின் குறிப்புரையைத் தானாகத் தேர்வுசெய்",
     "deletion": "நீக்கம்",
     "confirmBeforeDeleting": "குறிப்புரைகளை நீக்கும் முன் உறுதிப்படுத்து",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "snapToPdfContent": "Snap to PDF Drawing Content"
   },
   "fileAssoc": {

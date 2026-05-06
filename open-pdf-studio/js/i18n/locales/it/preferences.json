@@ -115,7 +115,9 @@
     "creation": "Creazione",
     "autoSelectAfterCreation": "Seleziona automaticamente l'annotazione dopo la creazione",
     "deletion": "Eliminazione",
-    "confirmBeforeDeleting": "Conferma prima di eliminare le annotazioni"
+    "confirmBeforeDeleting": "Conferma prima di eliminare le annotazioni",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Applicazione PDF predefinita",

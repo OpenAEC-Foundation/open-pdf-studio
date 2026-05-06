@@ -115,7 +115,9 @@
     "creation": "생성",
     "autoSelectAfterCreation": "생성 후 주석 자동 선택",
     "deletion": "삭제",
-    "confirmBeforeDeleting": "주석 삭제 전 확인"
+    "confirmBeforeDeleting": "주석 삭제 전 확인",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)"
   },
   "fileAssoc": {
     "defaultPdfApplication": "기본 PDF 응용 프로그램",

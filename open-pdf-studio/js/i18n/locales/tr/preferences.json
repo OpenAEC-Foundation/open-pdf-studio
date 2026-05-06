@@ -115,7 +115,9 @@
     "creation": "Oluşturma",
     "autoSelectAfterCreation": "Oluşturduktan sonra açıklamayı otomatik seç",
     "deletion": "Silme",
-    "confirmBeforeDeleting": "Açıklamaları silmeden önce onayla"
+    "confirmBeforeDeleting": "Açıklamaları silmeden önce onayla",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Varsayılan PDF Uygulaması",

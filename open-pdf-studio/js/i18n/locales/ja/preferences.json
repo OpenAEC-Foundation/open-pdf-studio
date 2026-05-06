@@ -115,7 +115,9 @@
     "creation": "作成",
     "autoSelectAfterCreation": "作成後に注釈を自動選択する",
     "deletion": "削除",
-    "confirmBeforeDeleting": "注釈を削除する前に確認する"
+    "confirmBeforeDeleting": "注釈を削除する前に確認する",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)"
   },
   "fileAssoc": {
     "defaultPdfApplication": "既定の PDF アプリケーション",

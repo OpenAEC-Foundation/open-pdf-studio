@@ -132,6 +132,8 @@
     "autoSelectAfterCreation": "Valitse merkintä automaattisesti luonnin jälkeen",
     "deletion": "Poistaminen",
     "confirmBeforeDeleting": "Vahvista ennen merkintöjen poistamista",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "snapToPdfContent": "Snap to PDF Drawing Content"
   },
   "fileAssoc": {

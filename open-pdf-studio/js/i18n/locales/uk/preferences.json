@@ -132,6 +132,8 @@
     "autoSelectAfterCreation": "Автовибір анотації після створення",
     "deletion": "Видалення",
     "confirmBeforeDeleting": "Підтверджувати перед видаленням анотацій",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "snapToPdfContent": "Snap to PDF Drawing Content"
   },
   "fileAssoc": {

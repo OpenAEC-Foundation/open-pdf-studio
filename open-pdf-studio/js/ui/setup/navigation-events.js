@@ -50,7 +50,9 @@ export function setupWheelZoom() {
     }
 
     // Ctrl+wheel = zoom (snaps to discrete preset levels at the cursor).
-    if (e.ctrlKey || e.metaKey) {
+    // When wheelZoomWithoutCtrl is enabled, plain wheel also zooms.
+    const _wheelZoomWithoutCtrl = state.preferences.wheelZoomWithoutCtrl;
+    if (e.ctrlKey || e.metaKey || _wheelZoomWithoutCtrl) {
       e.preventDefault();
       // Blank docs (no filePath) bypass the vector viewport entirely; their
       // zoom path is doc.scale + renderPage. Route ctrl+wheel through the

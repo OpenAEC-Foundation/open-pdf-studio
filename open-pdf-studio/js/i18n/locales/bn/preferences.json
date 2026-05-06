@@ -132,6 +132,8 @@
     "autoSelectAfterCreation": "তৈরির পরে স্বয়ংক্রিয়ভাবে টীকা নির্বাচন করুন",
     "deletion": "মুছে ফেলা",
     "confirmBeforeDeleting": "টীকা মুছে ফেলার আগে নিশ্চিত করুন",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "snapToPdfContent": "Snap to PDF Drawing Content"
   },
   "fileAssoc": {

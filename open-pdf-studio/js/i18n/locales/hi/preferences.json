@@ -132,6 +132,8 @@
     "autoSelectAfterCreation": "निर्माण के बाद एनोटेशन स्वतः चुनें",
     "deletion": "हटाना",
     "confirmBeforeDeleting": "एनोटेशन हटाने से पहले पुष्टि करें",
+    "navigation": "Navigation",
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "snapToPdfContent": "Snap to PDF Drawing Content"
   },
   "fileAssoc": {
