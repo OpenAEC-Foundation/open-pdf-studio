@@ -1,0 +1,10 @@
+{
+	"$schema": "https://schema.tauri.app/config/2",
+	"bundle": {
+		"resources": {
+			"../../target/runtime-deps/windows/pdfium.dll": "pdfium.dll",
+			"WebView2Loader.dll": "WebView2Loader.dll"
+		},
+		"externalBin": ["../../target/runtime-deps/pdfium-worker.exe"]
+	}
+}

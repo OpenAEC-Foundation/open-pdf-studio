@@ -1,122 +1,102 @@
 {
-  "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Open PDF Studio",
-  "version": "1.69.0",
-  "identifier": "org.openaec.openpdfstudio",
-  "build": {
-    "frontendDist": "../dist",
-    "devUrl": "http://localhost:3041",
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build"
-  },
-  "app": {
-    "withGlobalTauri": true,
-    "windows": [
-      {
-        "title": "Open PDF Studio",
-        "width": 1200,
-        "height": 800,
-        "minWidth": 800,
-        "minHeight": 600,
-        "resizable": true,
-        "fullscreen": false,
-        "decorations": false,
-        "transparent": false,
-        "visible": false,
-        "backgroundColor": "#f5f5f5",
-        "devtools": true
-      }
-    ],
-    "security": {
-      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob:; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost https:",
-      "dangerousDisableAssetCspModification": true
-    }
-  },
-  "bundle": {
-    "active": true,
-    "targets": [
-      "nsis",
-      "dmg",
-      "deb",
-      "appimage"
-    ],
-    "createUpdaterArtifacts": "v1Compatible",
-    "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns",
-      "icons/icon.ico"
-    ],
-    "windows": {
-      "nsis": {
-        "template": "./nsis/installer.nsi",
-        "installerHooks": "./nsis/hooks.nsh",
-        "installMode": "perMachine",
-        "installerIcon": "icons/icon.ico"
-      },
-      "webviewInstallMode": {
-        "type": "embedBootstrapper",
-        "silent": true
-      }
-    },
-    "linux": {
-      "deb": {
-        "depends": [
-          "libwebkit2gtk-4.1-0",
-          "libgtk-3-0",
-          "cups-bsd"
-        ]
-      }
-    },
-    "resources": {
-      "icons/file-icon.ico": "file-icon.ico",
-      "binaries/win-x64/pdfium.dll": "pdfium.dll",
-      "WebView2Loader.dll": "WebView2Loader.dll",
-      "resources/kaders": "kaders"
-    },
-    "externalBin": [
-      "binaries/pdfium-worker"
-    ],
-    "fileAssociations": [
-      {
-        "ext": [
-          "pdf"
-        ],
-        "mimeType": "application/pdf",
-        "name": "PDF Document",
-        "description": "Portable Document Format",
-        "role": "Editor"
-      }
-    ]
-  },
-  "plugins": {
-    "fs": {
-      "requireLiteralLeadingDot": false
-    },
-    "shell": {
-      "open": true
-    },
-    "updater": {
-      "endpoints": [
-        "https://github.com/OpenAEC-Foundation/OpenPDFStudio/releases/latest/download/latest.json"
-      ],
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDU4N0ZBNjRBREVFNDE2M0EKUldRNkZ1VGVTcVovV0xkNk53STYvdXExbWtkTThIdDdzS0JFdG5VTXBqUlpFOUYrcm1rYTA0eTYK"
-    },
-    "deep-link": {
-      "mobile": [
-        {
-          "host": "open",
-          "pathPrefix": [
-            "/"
-          ]
-        }
-      ],
-      "desktop": {
-        "schemes": [
-          "openpdfstudio"
-        ]
-      }
-    }
-  }
+	"$schema": "https://schema.tauri.app/config/2",
+	"productName": "Open PDF Studio",
+	"version": "1.69.0",
+	"identifier": "org.openaec.openpdfstudio",
+	"build": {
+		"frontendDist": "../dist",
+		"devUrl": "http://localhost:3041",
+		"beforeDevCommand": "npm run dev",
+		"beforeBuildCommand": "npm run build"
+	},
+	"app": {
+		"withGlobalTauri": true,
+		"windows": [
+			{
+				"title": "Open PDF Studio",
+				"width": 1200,
+				"height": 800,
+				"minWidth": 800,
+				"minHeight": 600,
+				"resizable": true,
+				"fullscreen": false,
+				"decorations": false,
+				"transparent": false,
+				"visible": false,
+				"backgroundColor": "#f5f5f5",
+				"devtools": true
+			}
+		],
+		"security": {
+			"csp": "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob:; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost https:",
+			"dangerousDisableAssetCspModification": true
+		}
+	},
+	"bundle": {
+		"active": true,
+		"targets": ["nsis", "dmg", "deb", "appimage"],
+		"createUpdaterArtifacts": "v1Compatible",
+		"icon": [
+			"icons/32x32.png",
+			"icons/128x128.png",
+			"icons/128x128@2x.png",
+			"icons/icon.icns",
+			"icons/icon.ico"
+		],
+		"windows": {
+			"nsis": {
+				"template": "./nsis/installer.nsi",
+				"installerHooks": "./nsis/hooks.nsh",
+				"installMode": "perMachine",
+				"installerIcon": "icons/icon.ico"
+			},
+			"webviewInstallMode": {
+				"type": "embedBootstrapper",
+				"silent": true
+			}
+		},
+		"linux": {
+			"deb": {
+				"depends": ["libwebkit2gtk-4.1-0", "libgtk-3-0", "cups-bsd"]
+			}
+		},
+		"resources": {
+			"icons/file-icon.ico": "file-icon.ico",
+			"resources/kaders": "kaders"
+		},
+		"fileAssociations": [
+			{
+				"ext": ["pdf"],
+				"mimeType": "application/pdf",
+				"name": "PDF Document",
+				"description": "Portable Document Format",
+				"role": "Editor"
+			}
+		]
+	},
+	"plugins": {
+		"fs": {
+			"requireLiteralLeadingDot": false
+		},
+		"shell": {
+			"open": true
+		},
+		"updater": {
+			"endpoints": [
+				"https://github.com/OpenAEC-Foundation/OpenPDFStudio/releases/latest/download/latest.json"
+			],
+			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDU4N0ZBNjRBREVFNDE2M0EKUldRNkZ1VGVTcVovV0xkNk53STYvdXExbWtkTThIdDdzS0JFdG5VTXBqUlpFOUYrcm1rYTA0eTYK"
+		},
+		"deep-link": {
+			"mobile": [
+				{
+					"host": "open",
+					"pathPrefix": ["/"]
+				}
+			],
+			"desktop": {
+				"schemes": ["openpdfstudio"]
+			}
+		}
+	}
 }
