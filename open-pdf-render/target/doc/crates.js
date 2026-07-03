@@ -1,2 +1,0 @@
-window.ALL_CRATES = ["adler2","arrayref","arrayvec","bitflags","bytemuck","byteorder_lite","cfg_if","crc32fast","crossbeam_utils","deranged","either","encoding_rs","equivalent","hashbrown","itoa","log","memchr","minimal_lexical","num_conv","num_traits","powerfmt","pxfm","rangemap","simd_adler32","strict_num","time_core","typenum","weezl","windows_link","zune_core"];
-//{"start":21,"fragment_lengths":[8,11,11,11,11,17,9,12,18,11,9,14,13,12,7,6,9,18,11,13,11,7,11,15,13,12,10,8,15,12]}
