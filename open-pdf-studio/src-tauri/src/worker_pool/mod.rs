@@ -17,6 +17,8 @@ use tokio::io::{AsyncBufReadExt, AsyncWriteExt};
 
 pub use state::{Status, WorkerState};
 
+use crate::PDFIUM_WORKER_EXE;
+
 pub struct WorkerPool {
     pub workers: Vec<Arc<WorkerState>>,
     next_request_id: std::sync::atomic::AtomicU64,
@@ -66,8 +68,8 @@ impl WorkerPool {
         // First attempt failed → mark crash, retry on a DIFFERENT live slot
         let exe = std::env::current_exe()
             .ok()
-            .and_then(|p| p.parent().map(|d| d.join("pdfium-worker.exe")))
-            .unwrap_or_else(|| std::path::PathBuf::from("pdfium-worker.exe"));
+            .and_then(|p| p.parent().map(|d| d.join(PDFIUM_WORKER_EXE)))
+            .unwrap_or_else(|| std::path::PathBuf::from(PDFIUM_WORKER_EXE));
         let recover_task = recovery::handle_worker_crash(worker.clone(), exe);
         tokio::spawn(recover_task);
 
