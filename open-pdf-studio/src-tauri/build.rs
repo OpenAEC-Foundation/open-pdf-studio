@@ -93,7 +93,7 @@ fn main() -> Result<()> {
     //
     // Build and copy pdfium-worker to binaries
     //
-    let worker_build_path = build_worker(&root)?;
+    let worker_build_path = build_worker(&root, &target_str)?;
 
     let mut worker_bin_name = OsString::from(
         worker_build_path
@@ -226,7 +226,7 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn build_worker(root: &Path) -> Result<PathBuf> {
+fn build_worker(root: &Path, target_str: &str) -> Result<PathBuf> {
     let worker_cmd = {
         let mut cmd = Command::new("cargo");
 
@@ -241,6 +241,8 @@ fn build_worker(root: &Path) -> Result<PathBuf> {
             "--locked",
             "--target-dir",
             root.join("pdfium-worker").to_str().unwrap(),
+            "--target",
+            target_str,
         ]);
 
         if let Some(arg) = std::env::var("PROFILE")
