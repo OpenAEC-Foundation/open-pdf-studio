@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use anyhow::{anyhow, Context, Result};
 use pdfium_render::prelude::*;
 
@@ -13,10 +15,31 @@ pub struct Renderer {
 
 impl Renderer {
     pub fn new() -> Result<Self> {
+        #[cfg(target_os = "linux")]
+        let search_path: &Path = match std::env::var_os("APPDIR") {
+            // Inside an AppImage: resources are under the mounted APPDIR.
+            Some(appdir) => &Path::new(&appdir).join("usr/lib/Open PDF Studio/"),
+            None => &std::path::PathBuf::from("/usr/lib/Open PDF Studio/"),
+        };
+        #[cfg(target_os = "macos")]
+        let search_path: &Path = &core_foundation::bundle::CFBundle::main_bundle()
+            .path()
+            .unwrap_or_default()
+            .join("Contents/Resources");
+        #[cfg(target_os = "windows")]
+        let search_path: &Path = Path::new("./");
+
         let bindings = Pdfium::bind_to_system_library()
-            .or_else(|_| Pdfium::bind_to_library(Pdfium::pdfium_platform_library_name_at_path("./")))
-            .context("PDFium DLL not found (system or ./)")?;
-        Ok(Self { pdfium: Pdfium::new(bindings) })
+            .or_else(|_| {
+                Pdfium::bind_to_library(Pdfium::pdfium_platform_library_name_at_path(&search_path))
+            })
+            .context(format!(
+                "PDFium DLL not found (system or {})",
+                search_path.display()
+            ))?;
+        Ok(Self {
+            pdfium: Pdfium::new(bindings),
+        })
     }
 
     pub fn render(

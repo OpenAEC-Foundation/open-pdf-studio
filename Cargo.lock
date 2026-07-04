@@ -3513,6 +3513,7 @@ name = "pdfium-worker"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "core-foundation",
  "memmap2",
  "pdfium-render",
  "serde",
