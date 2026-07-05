@@ -138,43 +138,6 @@ jobs:
       - name: Install frontend dependencies
         run: npm install
 
-      # The PDFium worker pool runs as a Tauri sidecar (bundle.externalBin).
-      # Tauri requires binaries/pdfium-worker-<target-triple> to exist at build
-      # time on EVERY desktop platform, so build the workspace crate first and
-      # drop it in with the right triple suffix. Without these steps build.rs /
-      # tauri_build fails the validation — the cause of the failing nightlies.
-      - name: Build pdfium-worker sidecar (Windows)
-        if: contains(matrix.target, 'windows')
-        shell: pwsh
-        working-directory: .
-        run: |
-          cargo build --release -p pdfium-worker
-          New-Item -ItemType Directory -Force open-pdf-studio/src-tauri/binaries | Out-Null
-          Copy-Item target/release/pdfium-worker.exe open-pdf-studio/src-tauri/binaries/pdfium-worker-x86_64-pc-windows-msvc.exe -Force
-
-      - name: Build pdfium-worker sidecar (Linux)
-        if: matrix.target == 'linux'
-        working-directory: .
-        run: |
-          cargo build --release -p pdfium-worker
-          mkdir -p open-pdf-studio/src-tauri/binaries
-          cp target/release/pdfium-worker open-pdf-studio/src-tauri/binaries/pdfium-worker-x86_64-unknown-linux-gnu
-
-      - name: Build pdfium-worker sidecar (macOS universal)
-        if: matrix.target == 'macos'
-        working-directory: .
-        run: |
-          cargo build --release -p pdfium-worker --target aarch64-apple-darwin
-          cargo build --release -p pdfium-worker --target x86_64-apple-darwin
-          mkdir -p open-pdf-studio/src-tauri/binaries
-          # tauri-build validates the sidecar PER ARCH during the per-target
-          # cargo builds of a universal bundle, so all three names must exist.
-          cp target/aarch64-apple-darwin/release/pdfium-worker open-pdf-studio/src-tauri/binaries/pdfium-worker-aarch64-apple-darwin
-          cp target/x86_64-apple-darwin/release/pdfium-worker open-pdf-studio/src-tauri/binaries/pdfium-worker-x86_64-apple-darwin
-          lipo -create -output open-pdf-studio/src-tauri/binaries/pdfium-worker-universal-apple-darwin \
-            target/aarch64-apple-darwin/release/pdfium-worker \
-            target/x86_64-apple-darwin/release/pdfium-worker
-
       - name: Set user install mode (Windows user installer)
         if: matrix.target == 'windows-user'
         shell: pwsh
@@ -182,18 +145,6 @@ jobs:
           $conf = Get-Content src-tauri/tauri.conf.json -Raw | ConvertFrom-Json
           $conf.bundle.windows.nsis.installMode = "currentUser"
           $conf | ConvertTo-Json -Depth 10 | Set-Content src-tauri/tauri.conf.json
-
-      # Linux uses in-proc PDFium (the worker sidecar is Windows-only), so the
-      # AppImage must bundle libpdfium.so — referenced by tauri.linux.conf.json.
-      # Fetch the same pdfium release as the committed win-x64/pdfium.dll
-      # (bblanchon chromium/7834) before bundling.
-      - name: Fetch libpdfium.so (Linux)
-        if: matrix.target == 'linux'
-        run: |
-          mkdir -p src-tauri/binaries/linux-x64
-          curl -L "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F7834/pdfium-linux-x64.tgz" -o /tmp/pdfium-linux.tgz
-          tar xzf /tmp/pdfium-linux.tgz -C /tmp lib/libpdfium.so
-          cp /tmp/lib/libpdfium.so src-tauri/binaries/linux-x64/libpdfium.so
 
       - name: Build Tauri app
         if: matrix.target != 'windows-user'

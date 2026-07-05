@@ -1,7 +1,0 @@
-C:\Users\rickd\Documents\GitHub\open-pdf-studio\open-pdf-render\target\debug\deps\strict_num-343d00b251385bea.d: C:\Users\rickd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\strict-num-0.1.1\src\lib.rs
-
-C:\Users\rickd\Documents\GitHub\open-pdf-studio\open-pdf-render\target\debug\deps\libstrict_num-343d00b251385bea.rlib: C:\Users\rickd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\strict-num-0.1.1\src\lib.rs
-
-C:\Users\rickd\Documents\GitHub\open-pdf-studio\open-pdf-render\target\debug\deps\libstrict_num-343d00b251385bea.rmeta: C:\Users\rickd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\strict-num-0.1.1\src\lib.rs
-
-C:\Users\rickd\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\strict-num-0.1.1\src\lib.rs:

@@ -12,6 +12,11 @@ pub mod render_to_png;
 pub mod window_mgmt;
 pub mod worker_pool;
 
+#[cfg(target_os = "windows")]
+const PDFIUM_WORKER_EXE: &str = "pdfium-worker.exe";
+#[cfg(target_family = "unix")]
+const PDFIUM_WORKER_EXE: &str = "pdfium-worker";
+
 pub struct StartupOpts {
     pub mcp_server: bool,
     pub mcp_port: u16,
@@ -1948,10 +1953,10 @@ pub fn run(opts: StartupOpts) {
         let exe_dir = std::env::current_exe().ok()
             .and_then(|p| p.parent().map(|d| d.to_path_buf()))
             .unwrap_or_else(|| std::path::PathBuf::from("."));
-        let worker_exe = exe_dir.join("pdfium-worker.exe");
+        let worker_exe = exe_dir.join(PDFIUM_WORKER_EXE);
 
         if !worker_exe.exists() {
-            eprintln!("[pool] pdfium-worker.exe not found at {:?} — pool disabled, using in-proc PDFium", worker_exe);
+            eprintln!("[pool] {PDFIUM_WORKER_EXE} not found at {:?} — pool disabled, using in-proc PDFium", worker_exe);
             return;
         }
 

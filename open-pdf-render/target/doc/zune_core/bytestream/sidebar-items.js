@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["ZByteIoError","ZSeekFrom"],"struct":["ZCursor","ZReader","ZWriter"],"trait":["ZByteReaderTrait","ZByteWriterTrait"]};
