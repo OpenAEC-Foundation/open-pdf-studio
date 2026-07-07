@@ -84,7 +84,7 @@
           "pdf"
         ],
         "mimeType": "application/pdf",
-        "name": "PDF Document",
+        "name": "OpenPDFStudio.pdf",
         "description": "Portable Document Format",
         "role": "Editor"
       }
