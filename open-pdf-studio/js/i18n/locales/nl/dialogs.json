@@ -76,7 +76,18 @@
     "firstPage": "Eerste pagina",
     "prevPage": "Vorige pagina",
     "nextPage": "Volgende pagina",
-    "lastPage": "Laatste pagina"
+    "lastPage": "Laatste pagina",
+    "progress": {
+      "preparing": "Afdrukken voorbereiden…",
+      "renderingPage": "Pagina {{page}} renderen… ({{current}}/{{total}})",
+      "saving": "Afdrukgegevens opslaan…",
+      "sendingCopy": "Kopie {{current}} van {{total}} verzenden…",
+      "sending": "Verzenden naar printer…",
+      "sent": "Afdruktaak verzonden",
+      "failed": "Afdrukken mislukt: {{error}}",
+      "errNoDocument": "geen document",
+      "errTempFile": "kon tijdelijk bestand niet maken"
+    }
   },
   "insertPage": {
     "title": "Pagina's invoegen",

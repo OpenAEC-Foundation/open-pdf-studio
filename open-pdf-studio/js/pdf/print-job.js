@@ -3,6 +3,7 @@
 // dialog can close immediately and the user keeps working.
 
 import { PDFDocument } from 'pdf-lib';
+import i18next from '../i18n/config.js';
 import { getActiveDocument, getPageRotation } from '../core/state.js';
 import { invoke } from '../core/platform.js';
 import { renderPageOffscreen, canvasToBytes } from './exporter.js';
@@ -16,10 +17,10 @@ import {
  * @param {{ pages:number[], copies:number, printer:string }} opts
  */
 export async function runPrintJob({ pages, copies, printer }) {
-  startPrintProgress('Afdrukken voorbereiden…');
+  startPrintProgress(i18next.t('dialogs:print.progress.preparing'));
   try {
     const doc = getActiveDocument();
-    if (!doc?.pdfDoc) throw new Error('geen document');
+    if (!doc?.pdfDoc) throw new Error(i18next.t('dialogs:print.progress.errNoDocument'));
     const exportScale = 300 / 72;
     const newPdf = await PDFDocument.create();
     // Reserve the last slice of the bar for the spool step.
@@ -27,7 +28,7 @@ export async function runPrintJob({ pages, copies, printer }) {
 
     for (let i = 0; i < pages.length; i++) {
       const pageNum = pages[i];
-      updatePrintProgress(`Pagina ${pageNum} renderen… (${i + 1}/${pages.length})`, i / total);
+      updatePrintProgress(i18next.t('dialogs:print.progress.renderingPage', { page: pageNum, current: i + 1, total: pages.length }), i / total);
       const canvas = await renderPageOffscreen(pageNum, exportScale);
       const jpegBytes = await canvasToBytes(canvas, 'jpeg', 0.92);
       const jpegImage = await newPdf.embedJpg(jpegBytes);
@@ -42,25 +43,27 @@ export async function runPrintJob({ pages, copies, printer }) {
       pdfPage.drawImage(jpegImage, { x: 0, y: 0, width: origViewport.width, height: origViewport.height });
     }
 
-    updatePrintProgress('Afdrukgegevens opslaan…', pages.length / total);
+    updatePrintProgress(i18next.t('dialogs:print.progress.saving'), pages.length / total);
     const pdfBytes = await newPdf.save();
     const tempPath = await invoke('write_temp_pdf', { data: Array.from(pdfBytes) });
-    if (!tempPath) throw new Error('kon tijdelijk bestand niet maken');
+    if (!tempPath) throw new Error(i18next.t('dialogs:print.progress.errTempFile'));
 
     const numCopies = Math.max(1, copies);
     for (let c = 0; c < numCopies; c++) {
       updatePrintProgress(
-        numCopies > 1 ? `Kopie ${c + 1} van ${numCopies} verzenden…` : 'Verzenden naar printer…',
+        numCopies > 1
+          ? i18next.t('dialogs:print.progress.sendingCopy', { current: c + 1, total: numCopies })
+          : i18next.t('dialogs:print.progress.sending'),
         (pages.length + c / numCopies) / total
       );
       await invoke('print_pdf', { path: tempPath, printer });
     }
 
-    finishPrintProgress('Afdruktaak verzonden');
+    finishPrintProgress(i18next.t('dialogs:print.progress.sent'));
     // delete_file (not delete_temp_file — that command does not exist).
     setTimeout(async () => { try { await invoke('delete_file', { path: tempPath }); } catch (_) {} }, 30000);
   } catch (e) {
     console.error('Print job failed:', e);
-    failPrintProgress('Afdrukken mislukt: ' + (e?.message ?? e));
+    failPrintProgress(i18next.t('dialogs:print.progress.failed', { error: e?.message ?? e }));
   }
 }

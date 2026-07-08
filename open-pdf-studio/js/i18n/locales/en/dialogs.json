@@ -76,7 +76,18 @@
     "firstPage": "First Page",
     "prevPage": "Previous Page",
     "nextPage": "Next Page",
-    "lastPage": "Last Page"
+    "lastPage": "Last Page",
+    "progress": {
+      "preparing": "Preparing to print…",
+      "renderingPage": "Rendering page {{page}}… ({{current}}/{{total}})",
+      "saving": "Saving print data…",
+      "sendingCopy": "Sending copy {{current}} of {{total}}…",
+      "sending": "Sending to printer…",
+      "sent": "Print job sent",
+      "failed": "Printing failed: {{error}}",
+      "errNoDocument": "no document open",
+      "errTempFile": "could not create temporary file"
+    }
   },
   "insertPage": {
     "title": "Insert Pages",
