@@ -660,8 +660,29 @@ Section Install
        ; ShellExecute callers (classic Outlook resolves the association but
        ; the launch dies silently). Matches the protocol registration below.
        !insertmacro APP_ASSOCIATE "{{ext}}" "{{or association.name ext}}" "{{association-description association.description ext}}" "$INSTDIR\${MAINBINARYNAME}.exe,0" "Open with ${PRODUCTNAME}" "$\"$INSTDIR\${MAINBINARYNAME}.exe$\" $\"%1$\""
+       ; APP_ASSOCIATE only writes the ProgId and the extension's default
+       ; value. On a clean machine that is not enough for the app to appear
+       ; in Explorer's "Open with > Choose another app" picker or the
+       ; Settings > Default apps page; those read OpenWithProgids, the
+       ; Applications key, and RegisteredApplications/Capabilities.
+       WriteRegStr SHCTX "Software\Classes\.{{ext}}\OpenWithProgids" "{{or association.name ext}}" ""
     {{/each}}
   {{/each}}
+
+  ; Applications registration (feeds the "Open with" picker)
+  WriteRegStr SHCTX "Software\Classes\Applications\${MAINBINARYNAME}.exe\shell\open\command" "" "$\"$INSTDIR\${MAINBINARYNAME}.exe$\" $\"%1$\""
+  WriteRegStr SHCTX "Software\Classes\Applications\${MAINBINARYNAME}.exe" "FriendlyAppName" "${PRODUCTNAME}"
+  WriteRegStr SHCTX "Software\Classes\Applications\${MAINBINARYNAME}.exe\DefaultIcon" "" "$INSTDIR\${MAINBINARYNAME}.exe,0"
+
+  ; RegisteredApplications + Capabilities (feeds Settings > Default apps)
+  WriteRegStr SHCTX "Software\${PRODUCTNAME}\Capabilities" "ApplicationName" "${PRODUCTNAME}"
+  WriteRegStr SHCTX "Software\${PRODUCTNAME}\Capabilities" "ApplicationDescription" "${PRODUCTNAME}"
+  {{#each file_associations as |association| ~}}
+    {{#each association.ext as |ext| ~}}
+      WriteRegStr SHCTX "Software\${PRODUCTNAME}\Capabilities\FileAssociations" ".{{ext}}" "{{or association.name ext}}"
+    {{/each}}
+  {{/each}}
+  WriteRegStr SHCTX "Software\RegisteredApplications" "${PRODUCTNAME}" "Software\${PRODUCTNAME}\Capabilities"
 
   ; Register deep links
   {{#each deep_link_protocols as |protocol| ~}}
@@ -791,8 +812,12 @@ Section Uninstall
   {{#each file_associations as |association| ~}}
     {{#each association.ext as |ext| ~}}
       !insertmacro APP_UNASSOCIATE "{{ext}}" "{{or association.name ext}}"
+      DeleteRegValue SHCTX "Software\Classes\.{{ext}}\OpenWithProgids" "{{or association.name ext}}"
     {{/each}}
   {{/each}}
+  DeleteRegKey SHCTX "Software\Classes\Applications\${MAINBINARYNAME}.exe"
+  DeleteRegValue SHCTX "Software\RegisteredApplications" "${PRODUCTNAME}"
+  DeleteRegKey SHCTX "Software\${PRODUCTNAME}\Capabilities"
 
   ; Delete deep links
   {{#each deep_link_protocols as |protocol| ~}}
