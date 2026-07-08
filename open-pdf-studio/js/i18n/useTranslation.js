@@ -1,5 +1,5 @@
 import { createSignal } from 'solid-js';
-import i18next, { isRTL } from './config.js';
+import i18next, { isRTL, loadLocale, LANGUAGES } from './config.js';
 
 const [language, setLanguage] = createSignal(i18next.language || 'en');
 
@@ -34,16 +34,18 @@ export function useTranslation(ns = 'common') {
   return { t, i18n: i18next, language };
 }
 
-export function changeLanguage(lang) {
+export async function changeLanguage(lang) {
+  let finalLang = lang;
   if (lang === 'auto') {
     const detected = i18next.services.languageDetector.detect();
     const resolvedLang = Array.isArray(detected) ? detected[0] : detected;
     const baseLang = resolvedLang ? resolvedLang.split('-')[0] : 'en';
-    const supported = i18next.options.resources ? Object.keys(i18next.options.resources) : ['en'];
-    const finalLang = supported.includes(baseLang) ? baseLang : 'en';
-    return i18next.changeLanguage(finalLang);
+    finalLang = LANGUAGES.some((l) => l.code === baseLang) ? baseLang : 'en';
   }
-  return i18next.changeLanguage(lang);
+  // Locales load lazily; make sure the target language's bundles are in
+  // before switching so there is no flash of untranslated keys.
+  await loadLocale(finalLang);
+  return i18next.changeLanguage(finalLang);
 }
 
 export { language };
