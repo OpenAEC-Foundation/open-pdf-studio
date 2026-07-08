@@ -194,8 +194,11 @@ async function getSystemFonts() {
   return systemFonts;
 }
 
-// Detect which fonts from the list are actually available on the system
-function detectAvailableFonts(fontList) {
+// Detect which fonts from the list are actually available on the system.
+// Probing the full list with measureText in one pass blocks the main thread
+// for up to ~1s on slower machines, so probe in batches spread across idle
+// slices and yield between them.
+async function detectAvailableFonts(fontList) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   const testString = 'mmmmmmmmmmlli';
@@ -206,13 +209,22 @@ function detectAvailableFonts(fontList) {
   ctx.font = `${testSize} ${baselineFont}`;
   const baselineWidth = ctx.measureText(testString).width;
 
+  const idle = window.requestIdleCallback
+    || ((cb) => setTimeout(() => cb({ timeRemaining: () => 8 }), 16));
+
   const available = [];
-  for (const font of fontList) {
-    ctx.font = `${testSize} '${font}', ${baselineFont}`;
-    const width = ctx.measureText(testString).width;
-    if (width !== baselineWidth) {
-      available.push(font);
-    }
+  let i = 0;
+  while (i < fontList.length) {
+    await new Promise((resolve) => idle((deadline) => {
+      do {
+        const font = fontList[i++];
+        ctx.font = `${testSize} '${font}', ${baselineFont}`;
+        if (ctx.measureText(testString).width !== baselineWidth) {
+          available.push(font);
+        }
+      } while (i < fontList.length && deadline.timeRemaining() > 4);
+      resolve();
+    }));
   }
   return available;
 }
