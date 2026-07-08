@@ -341,8 +341,11 @@ fn no_window_command(program: &str) -> std::process::Command {
 
 /// Enumerate installed printers via PowerShell CIM.
 /// Returns a JSON array of printer objects.
+/// async: sync commands run on the main event-loop thread, and this one
+/// blocks on a PowerShell subprocess for ~1s — long enough to freeze window
+/// show and input processing at startup. Async moves it to the runtime pool.
 #[tauri::command]
-fn get_printers() -> Result<String, String> {
+async fn get_printers() -> Result<String, String> {
     #[cfg(target_os = "windows")]
     {
         let output = no_window_command("powershell")
@@ -440,8 +443,10 @@ fn get_printers() -> Result<String, String> {
 /// ASSOCIATION-INDEPENDENT — the previous ShellExecuteW("printto") approach
 /// broke with SE_ERR_NOASSOC (code 31) whenever this app itself is the
 /// default .pdf handler, because our ProgID registers no printto verb.
+/// async for the same reason as get_printers: GDI spooling is slow blocking
+/// work and must not run on the main event-loop thread.
 #[tauri::command]
-fn print_pdf(path: String, printer: String) -> Result<bool, String> {
+async fn print_pdf(path: String, printer: String) -> Result<bool, String> {
     #[cfg(target_os = "windows")]
     {
         use windows_sys::Win32::Graphics::Gdi::{
