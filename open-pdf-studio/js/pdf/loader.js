@@ -240,7 +240,17 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
         if (_skipPre) console.log('[prog-guard] zware pagina → cold-open pre-render overgeslagen');
       } catch {}
     }
+    // The pre-render is an optimisation, not a requirement: when the PDFium
+    // worker pool hasn't finished spawning (cold start via file association),
+    // it would fall back to an in-process parse in the main process while
+    // PDF.js parses the same bytes — on large documents that doubles peak
+    // memory during boot and can take the whole load down. Skip it then.
+    let _poolReady = false;
     if (filePath && isTauri() && !_skipPre) {
+      try { _poolReady = await invoke('worker_pool_ready'); } catch { _poolReady = false; }
+      if (!_poolReady) console.log('[prog-guard] worker pool not ready → cold-open pre-render skipped');
+    }
+    if (filePath && isTauri() && !_skipPre && _poolReady) {
       const { renderPdfPage: _renderPdfPage } = await import('./engine-router.js');
       _renderPdfPage({
         path: filePath,
