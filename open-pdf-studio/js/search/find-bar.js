@@ -3,7 +3,7 @@
  */
 
 import { state, getActiveDocument } from '../core/state.js';
-import { executeSearch, executeProgressiveSearch, findNext, findPrevious, getCurrentResult, clearSearch, getResultsForPage } from './find-controller.js';
+import { executeSearch, executeProgressiveSearch, findNext, findPrevious, getCurrentResult, clearSearch, getResultsForPage, findDomSpanForItem } from './find-controller.js';
 import { renderPage, renderContinuous } from '../pdf/renderer.js';
 import {
   setFindBarVisible as setVisible, setFindBarResultsText as setResultsText,
@@ -303,7 +303,7 @@ async function navigateToResult(result) {
 
     if (getActiveDocument()?.viewMode === 'continuous') {
       // Scroll to page in continuous mode
-      const pageWrapper = document.querySelector(`[data-page-num="${result.pageNum}"]`);
+      const pageWrapper = document.querySelector(`.page-wrapper[data-page="${result.pageNum}"]`);
       if (pageWrapper) {
         pageWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
@@ -502,40 +502,59 @@ function findAllMatchPositions(textLayer, searchText, matchCase, wholeWord) {
  * Highlight search results on a page
  */
 function highlightMatch(result, isCurrent) {
-  if (!result || !result.matchText) return;
+  if (!result || !result.items || result.items.length === 0) return;
 
   const pageNum = result.pageNum;
+  const doc = getActiveDocument();
 
   // Get the text layer for this page
   let textLayer;
-  if (getActiveDocument()?.viewMode === 'continuous') {
-    textLayer = document.querySelector(`[data-page-num="${pageNum}"] .textLayer`);
+  if (doc?.viewMode === 'continuous') {
+    const wrapper = document.querySelector(`.page-wrapper[data-page="${pageNum}"]`);
+    textLayer = wrapper?.querySelector('.textLayer');
   } else {
     textLayer = document.querySelector('.textLayer');
   }
 
   if (!textLayer) return;
+  const layerRect = textLayer.getBoundingClientRect();
 
-  // Find all match positions in the text layer
-  const positions = findAllMatchPositions(textLayer, result.matchText, state.search.matchCase, state.search.wholeWord);
+  // Highlight exactly the matched glyphs. The search result already knows
+  // which text items it covers (result.items, with page-text offsets and
+  // itemIndex mapping to span[data-item-index]); positioning from those is
+  // correct regardless of the page's content-stream order. The previous
+  // approach re-scanned the DOM for the match text and paired the Nth
+  // stream-order result with the Nth visual-order occurrence, which lands
+  // on the wrong occurrence whenever those orders differ (multi-column
+  // layouts, tables, headers drawn last, ...).
+  for (const item of result.items) {
+    const span = findDomSpanForItem(item, pageNum, doc);
+    const textNode = span?.firstChild;
+    if (!textNode || textNode.nodeType !== Node.TEXT_NODE) continue;
 
-  // Count which occurrence this result is on this page
-  const pageResults = state.search.results.filter(r => r.pageNum === pageNum);
-  const occurrenceIndex = pageResults.findIndex(r => r.index === result.index);
+    const nodeLen = textNode.textContent.length;
+    const startInItem = Math.max(0, result.startPos - item.startPos);
+    const endInItem = Math.min(item.str.length, result.endPos - item.startPos);
+    if (endInItem <= startInItem) continue;
 
-  if (occurrenceIndex >= 0 && occurrenceIndex < positions.length) {
-    const pos = positions[occurrenceIndex];
+    let rect;
+    try {
+      const range = document.createRange();
+      range.setStart(textNode, Math.min(startInItem, nodeLen));
+      range.setEnd(textNode, Math.min(endInItem, nodeLen));
+      rect = range.getBoundingClientRect();
+    } catch (_) {
+      rect = span.getBoundingClientRect();
+    }
+    if (!rect || rect.width <= 0) continue;
 
     const highlight = document.createElement('div');
     highlight.className = 'search-highlight' + (isCurrent ? ' current' : '');
     highlight.dataset.resultIndex = result.index;
-
-    // Position using calculated visual coordinates
-    highlight.style.left = pos.highlightLeft + 'px';
-    highlight.style.top = pos.highlightTop + 'px';
-    highlight.style.width = pos.matchWidth + 'px';
-    highlight.style.height = pos.matchHeight + 'px';
-
+    highlight.style.left = (rect.left - layerRect.left) + 'px';
+    highlight.style.top = (rect.top - layerRect.top) + 'px';
+    highlight.style.width = rect.width + 'px';
+    highlight.style.height = rect.height + 'px';
     textLayer.appendChild(highlight);
   }
 }

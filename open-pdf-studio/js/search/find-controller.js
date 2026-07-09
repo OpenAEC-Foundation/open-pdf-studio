@@ -390,7 +390,7 @@ function replaceInTextEdit(doc, result, replaceText) {
  * Find the DOM span for a search result item by matching dataset.itemIndex.
  * This is the ONLY reliable way to map search results to DOM spans.
  */
-function findDomSpanForItem(item, pageNum, doc) {
+export function findDomSpanForItem(item, pageNum, doc) {
   if (item.itemIndex < 0) return null; // synthetic item (text edit)
 
   let textLayer;
