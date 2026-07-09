@@ -26,11 +26,14 @@ Function FileAssocPageCreate
     Abort
   ${EndIf}
 
-  ${NSD_CreateCheckBox} 10u 10u 100% 12u "Associate .pdf files with ${PRODUCTNAME}"
+  ${NSD_CreateCheckBox} 10u 10u 100% 12u "Register ${PRODUCTNAME} as a PDF app"
   Pop $AssocPDFCheckbox
   ${NSD_SetState} $AssocPDFCheckbox ${BST_CHECKED}
 
-  ${NSD_CreateLabel} 25u 27u 100% 20u "Double-clicking a PDF file will open it in this application.$\n(You can change this later in Windows Settings.)"
+  ; Windows does not let installers set the default PDF app (the user's
+  ; choice is protected); registration only makes the app available.
+  ; Promise exactly what happens so the checkbox doesn't over-claim.
+  ${NSD_CreateLabel} 25u 27u 100% 36u "Adds ${PRODUCTNAME} to the apps Windows offers for PDF files.$\nTo make it the default: right-click any PDF > Open with >$\nChoose another app > ${PRODUCTNAME} > Always."
   Pop $0
 
   nsDialogs::Show
