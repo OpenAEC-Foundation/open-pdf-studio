@@ -142,6 +142,16 @@ export async function savePDF(saveAsPath = null) {
     return await savePDFAs();
   }
 
+  // Files opened from an email attachment live in Outlook's secure temp
+  // cache. Outlook keeps a lock on that copy (in-place saves fail with a
+  // sharing violation), and anything written there is invisible to the email
+  // and cleaned up with the cache anyway. Route straight to "Save As", same
+  // as untitled documents.
+  const OUTLOOK_TEMP = /[\\/]INetCache[\\/]Content\.Outlook[\\/]|Microsoft\.OutlookForWindows/i;
+  if (!saveAsPath && OUTLOOK_TEMP.test(currentPath)) {
+    return await savePDFAs();
+  }
+
   try {
     showLoading('Saving PDF...');
 
