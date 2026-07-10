@@ -395,110 +395,6 @@ export function highlightResults() {
 }
 
 /**
- * Find all occurrences of search text in the text layer and return their positions
- */
-function findAllMatchPositions(textLayer, searchText, matchCase, wholeWord) {
-  const positions = [];
-  const textSpans = textLayer.querySelectorAll('span');
-  const compareSearchText = matchCase ? searchText : searchText.toLowerCase();
-
-  for (const span of textSpans) {
-    const spanText = span.textContent;
-    if (!spanText) continue;
-
-    const compareSpanText = matchCase ? spanText : spanText.toLowerCase();
-    let startIndex = 0;
-
-    while (true) {
-      const matchIndex = compareSpanText.indexOf(compareSearchText, startIndex);
-      if (matchIndex === -1) break;
-
-      // Whole word check: verify word boundaries in the span text
-      if (wholeWord) {
-        const before = matchIndex > 0 ? compareSpanText[matchIndex - 1] : ' ';
-        const after = matchIndex + compareSearchText.length < compareSpanText.length
-          ? compareSpanText[matchIndex + compareSearchText.length] : ' ';
-        const isWordChar = (c) => /\w/.test(c);
-        if (isWordChar(before) || isWordChar(after)) {
-          startIndex = matchIndex + 1;
-          continue;
-        }
-      }
-
-      const textNode = span.firstChild;
-      if (textNode && textNode.nodeType === Node.TEXT_NODE) {
-        try {
-          // Get span's position within the text layer (from its style)
-          const spanLeft = parseFloat(span.style.left) || 0;
-          const spanTop = parseFloat(span.style.top) || 0;
-
-          // Get the scaleX factor from transform if present
-          let scaleX = 1;
-          const transform = span.style.transform;
-          if (transform) {
-            const scaleMatch = transform.match(/scaleX\(([^)]+)\)/);
-            if (scaleMatch) {
-              scaleX = parseFloat(scaleMatch[1]) || 1;
-            }
-          }
-
-          // Measure the width of text before the match (in original coordinates)
-          let preWidth = 0;
-          if (matchIndex > 0) {
-            const preRange = document.createRange();
-            preRange.setStart(textNode, 0);
-            preRange.setEnd(textNode, matchIndex);
-            preWidth = preRange.getBoundingClientRect().width;
-          }
-
-          // Measure the width of the match itself
-          const matchRange = document.createRange();
-          matchRange.setStart(textNode, matchIndex);
-          matchRange.setEnd(textNode, matchIndex + searchText.length);
-          const matchRect = matchRange.getBoundingClientRect();
-
-          // Get span's visual bounding rect
-          const spanRect = span.getBoundingClientRect();
-          const textLayerRect = span.parentElement.getBoundingClientRect();
-
-          // Calculate position relative to text layer using visual coordinates
-          const highlightLeft = matchRect.left - textLayerRect.left;
-          const highlightTop = matchRect.top - textLayerRect.top;
-
-          // Store position data
-          positions.push({
-            span,
-            highlightLeft,
-            highlightTop,
-            matchWidth: matchRect.width,
-            matchHeight: matchRect.height,
-            matchIndex,
-            spanText,
-            // Also store viewport rect for sorting
-            viewportTop: matchRect.top,
-            viewportLeft: matchRect.left
-          });
-        } catch (e) {
-          console.warn('Range error:', e);
-        }
-      }
-
-      startIndex = matchIndex + 1;
-    }
-  }
-
-  // Sort by position (top to bottom, left to right)
-  positions.sort((a, b) => {
-    if (Math.abs(a.viewportTop - b.viewportTop) > 5) {
-      return a.viewportTop - b.viewportTop;
-    }
-    return a.viewportLeft - b.viewportLeft;
-  });
-
-  return positions;
-}
-
-/**
  * Highlight search results on a page
  */
 function highlightMatch(result, isCurrent) {
@@ -518,6 +414,14 @@ function highlightMatch(result, isCurrent) {
 
   if (!textLayer) return;
   const layerRect = textLayer.getBoundingClientRect();
+
+  // The textLayer is laid out in unscaled PDF points and zoomed via a CSS
+  // transform on the layer itself (pdf-viewport.js). Range/element rects are
+  // visual (post-transform) pixels, so offsets must be divided by the
+  // effective scale before being used as child left/top — the layer's
+  // transform is applied to the highlight divs on top of whatever we set.
+  const scaleX = textLayer.offsetWidth ? layerRect.width / textLayer.offsetWidth : 1;
+  const scaleY = textLayer.offsetHeight ? layerRect.height / textLayer.offsetHeight : 1;
 
   // Highlight exactly the matched glyphs. The search result already knows
   // which text items it covers (result.items, with page-text offsets and
@@ -551,10 +455,10 @@ function highlightMatch(result, isCurrent) {
     const highlight = document.createElement('div');
     highlight.className = 'search-highlight' + (isCurrent ? ' current' : '');
     highlight.dataset.resultIndex = result.index;
-    highlight.style.left = (rect.left - layerRect.left) + 'px';
-    highlight.style.top = (rect.top - layerRect.top) + 'px';
-    highlight.style.width = rect.width + 'px';
-    highlight.style.height = rect.height + 'px';
+    highlight.style.left = ((rect.left - layerRect.left) / scaleX) + 'px';
+    highlight.style.top = ((rect.top - layerRect.top) / scaleY) + 'px';
+    highlight.style.width = (rect.width / scaleX) + 'px';
+    highlight.style.height = (rect.height / scaleY) + 'px';
     textLayer.appendChild(highlight);
   }
 }
