@@ -128,18 +128,41 @@ function searchPage(pageData, pattern, query) {
     );
 
     if (matchItems.length > 0) {
+      // Visual anchor (PDF space, Y-up) of the first geometric item, used
+      // to order results top-to-bottom on the page rather than in
+      // content-stream order.
+      const anchor = matchItems.find(item => item.transform);
       results.push({
         pageNum,
         startPos,
         endPos,
         matchText: text.substring(startPos, endPos),
         items: matchItems,
+        anchorX: anchor ? anchor.transform[4] : null,
+        anchorY: anchor ? anchor.transform[5] : null,
         index: 0 // will be re-indexed later
       });
     }
   }
 
   return results;
+}
+
+/**
+ * Order results the way a reader scans the page: by page, then top to
+ * bottom (PDF Y is up, so larger anchorY first), then left to right.
+ * Content-stream order (startPos) is only the tiebreaker — streams often
+ * draw headers/footers/cards out of visual order.
+ */
+function compareResultsVisually(a, b) {
+  if (a.pageNum !== b.pageNum) return a.pageNum - b.pageNum;
+  if (a.anchorY != null && b.anchorY != null) {
+    if (Math.abs(a.anchorY - b.anchorY) > 2) return b.anchorY - a.anchorY;
+    if (a.anchorX != null && b.anchorX != null && a.anchorX !== b.anchorX) {
+      return a.anchorX - b.anchorX;
+    }
+  }
+  return a.startPos - b.startPos;
 }
 
 /**
@@ -167,12 +190,11 @@ export async function performSearch(query, options = {}) {
     const results = [];
 
     for (const pageData of pagesText) {
-      const pageResults = searchPage(pageData, pattern, query);
-      for (const r of pageResults) {
-        r.index = results.length;
-        results.push(r);
-      }
+      results.push(...searchPage(pageData, pattern, query));
     }
+
+    results.sort(compareResultsVisually);
+    results.forEach((r, i) => r.index = i);
 
     return results;
   } finally {
@@ -251,7 +273,7 @@ export function executeProgressiveSearch(onProgress) {
       textCache.set(docId, pagesText);
     }
 
-    allResults.sort((a, b) => a.pageNum - b.pageNum || a.startPos - b.startPos);
+    allResults.sort(compareResultsVisually);
     allResults.forEach((r, i) => r.index = i);
 
     onProgress(allResults, totalPages, totalPages, true);
@@ -384,29 +406,6 @@ function replaceInTextEdit(doc, result, replaceText) {
   edit.newText = edit.newText.substring(0, idx) + replaceText + edit.newText.substring(idx + matchText.length);
 
   return { type: 'textEdit', id: edit.id, oldText, newText: edit.newText };
-}
-
-/**
- * Find the DOM span for a search result item by matching dataset.itemIndex.
- * This is the ONLY reliable way to map search results to DOM spans.
- */
-export function findDomSpanForItem(item, pageNum, doc) {
-  if (item.itemIndex < 0) return null; // synthetic item (text edit)
-
-  let textLayer;
-  if (doc.viewMode === 'continuous') {
-    const wrapper = document.querySelector(`.page-wrapper[data-page="${pageNum}"]`);
-    textLayer = wrapper?.querySelector('.textLayer');
-  } else {
-    // In single-page mode, verify we're on the correct page
-    if (doc.currentPage !== pageNum) return null;
-    textLayer = document.querySelector('.textLayer');
-  }
-  if (!textLayer) return null;
-
-  // Direct lookup by data-item-index attribute
-  const span = textLayer.querySelector(`span[data-item-index="${item.itemIndex}"]`);
-  return span || null;
 }
 
 /**

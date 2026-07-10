@@ -3,7 +3,7 @@
  */
 
 import { state, getActiveDocument } from '../core/state.js';
-import { executeSearch, executeProgressiveSearch, findNext, findPrevious, getCurrentResult, clearSearch, getResultsForPage, findDomSpanForItem } from './find-controller.js';
+import { executeSearch, executeProgressiveSearch, findNext, findPrevious, getCurrentResult, clearSearch, getResultsForPage } from './find-controller.js';
 import { renderPage, renderContinuous } from '../pdf/renderer.js';
 import {
   setFindBarVisible as setVisible, setFindBarResultsText as setResultsText,
@@ -395,7 +395,17 @@ export function highlightResults() {
 }
 
 /**
- * Highlight search results on a page
+ * Highlight search results on a page.
+ *
+ * Highlights are positioned from the matched items' own PDF-space geometry
+ * (transform/width/height captured at text extraction), NOT from measuring
+ * DOM spans. The three text-layer builders (custom single-page PDF.js,
+ * stock PDF.js TextLayer in continuous mode, Rust-extracted spans in vector
+ * mode) produce different span structures — only one of them carries
+ * data-item-index — so any DOM-based lookup breaks on the other two.
+ * Item geometry is layer-type independent, and because the rects live in
+ * layer-local coordinates they ride along with the viewport's zoom
+ * transform instead of needing re-measurement.
  */
 function highlightMatch(result, isCurrent) {
   if (!result || !result.items || result.items.length === 0) return;
@@ -409,56 +419,47 @@ function highlightMatch(result, isCurrent) {
     const wrapper = document.querySelector(`.page-wrapper[data-page="${pageNum}"]`);
     textLayer = wrapper?.querySelector('.textLayer');
   } else {
+    if (doc && doc.currentPage !== pageNum) return;
     textLayer = document.querySelector('.textLayer');
   }
-
   if (!textLayer) return;
-  const layerRect = textLayer.getBoundingClientRect();
 
-  // The textLayer is laid out in unscaled PDF points and zoomed via a CSS
-  // transform on the layer itself (pdf-viewport.js). Range/element rects are
-  // visual (post-transform) pixels, so offsets must be divided by the
-  // effective scale before being used as child left/top — the layer's
-  // transform is applied to the highlight divs on top of whatever we set.
-  const scaleX = textLayer.offsetWidth ? layerRect.width / textLayer.offsetWidth : 1;
-  const scaleY = textLayer.offsetHeight ? layerRect.height / textLayer.offsetHeight : 1;
+  // Layer-local px per PDF point. Every layer builder sets
+  // --total-scale-factor on the layer or an ancestor: 1 in vector mode
+  // (layout px = PDF pt, zoom applied via CSS transform), viewport.scale
+  // for the PDF.js-built layers (laid out at scaled size).
+  const scale = parseFloat(
+    getComputedStyle(textLayer).getPropertyValue('--total-scale-factor')
+  ) || 1;
+  const pageHeightPt = textLayer.offsetHeight / scale;
 
-  // Highlight exactly the matched glyphs. The search result already knows
-  // which text items it covers (result.items, with page-text offsets and
-  // itemIndex mapping to span[data-item-index]); positioning from those is
-  // correct regardless of the page's content-stream order. The previous
-  // approach re-scanned the DOM for the match text and paired the Nth
-  // stream-order result with the Nth visual-order occurrence, which lands
-  // on the wrong occurrence whenever those orders differ (multi-column
-  // layouts, tables, headers drawn last, ...).
   for (const item of result.items) {
-    const span = findDomSpanForItem(item, pageNum, doc);
-    const textNode = span?.firstChild;
-    if (!textNode || textNode.nodeType !== Node.TEXT_NODE) continue;
+    const t = item.transform;
+    if (!t) continue; // synthetic (Add Text) items carry no geometry
 
-    const nodeLen = textNode.textContent.length;
     const startInItem = Math.max(0, result.startPos - item.startPos);
     const endInItem = Math.min(item.str.length, result.endPos - item.startPos);
     if (endInItem <= startInItem) continue;
 
-    let rect;
-    try {
-      const range = document.createRange();
-      range.setStart(textNode, Math.min(startInItem, nodeLen));
-      range.setEnd(textNode, Math.min(endInItem, nodeLen));
-      rect = range.getBoundingClientRect();
-    } catch (_) {
-      rect = span.getBoundingClientRect();
-    }
-    if (!rect || rect.width <= 0) continue;
+    // Partial matches inside an item: slice the run width proportionally
+    // by character count. Approximate for proportional fonts, but close
+    // enough for a highlight and independent of DOM/font availability.
+    const len = item.str.length || 1;
+    const itemH = item.height || Math.abs(t[3]) || 10;
+    const itemW = item.width || 0;
+    const x0 = t[4] + itemW * (startInItem / len);
+    const x1 = t[4] + itemW * (endInItem / len);
+    // t[5] is the baseline; ascent ≈ 0.8em above it (same convention the
+    // vector-mode span builder uses), Y flipped into top-left space.
+    const topPt = pageHeightPt - t[5] - itemH * 0.8;
 
     const highlight = document.createElement('div');
     highlight.className = 'search-highlight' + (isCurrent ? ' current' : '');
     highlight.dataset.resultIndex = result.index;
-    highlight.style.left = ((rect.left - layerRect.left) / scaleX) + 'px';
-    highlight.style.top = ((rect.top - layerRect.top) / scaleY) + 'px';
-    highlight.style.width = (rect.width / scaleX) + 'px';
-    highlight.style.height = (rect.height / scaleY) + 'px';
+    highlight.style.left = (x0 * scale) + 'px';
+    highlight.style.top = (topPt * scale) + 'px';
+    highlight.style.width = (Math.max(x1 - x0, 2) * scale) + 'px';
+    highlight.style.height = (itemH * scale) + 'px';
     textLayer.appendChild(highlight);
   }
 }
