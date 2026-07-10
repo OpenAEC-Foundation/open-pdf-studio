@@ -145,6 +145,11 @@ function searchPage(pageData, pattern, query) {
     }
   }
 
+  // Sort visually at discovery time, not just in the final pass: the
+  // progressive search picks the initial current match from a page's raw
+  // results, and stream order would make "1 of N" land mid-page.
+  results.sort(compareResultsVisually);
+
   return results;
 }
 
