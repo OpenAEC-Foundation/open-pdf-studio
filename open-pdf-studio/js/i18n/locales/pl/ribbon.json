@@ -76,7 +76,9 @@
     "lastPage": "Ostatnia strona",
     "last": "Ostatnia",
     "find": "Znajdź",
-    "findCtrlF": "Znajdź (Ctrl+F)"
+    "findCtrlF": "Znajdź (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "Rysowanie",

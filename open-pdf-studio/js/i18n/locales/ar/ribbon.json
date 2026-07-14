@@ -76,7 +76,9 @@
     "lastPage": "الصفحة الأخيرة",
     "last": "الأخيرة",
     "find": "بحث",
-    "findCtrlF": "بحث (Ctrl+F)"
+    "findCtrlF": "بحث (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "رسم",

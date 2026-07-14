@@ -76,7 +76,9 @@
     "lastPage": "Viimeinen sivu",
     "last": "Viimeinen",
     "find": "Etsi",
-    "findCtrlF": "Etsi (Ctrl+F)"
+    "findCtrlF": "Etsi (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "Piirros",

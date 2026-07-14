@@ -76,7 +76,9 @@
     "lastPage": "עמוד אחרון",
     "last": "אחרון",
     "find": "חיפוש",
-    "findCtrlF": "חיפוש (Ctrl+F)"
+    "findCtrlF": "חיפוש (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "ציור",

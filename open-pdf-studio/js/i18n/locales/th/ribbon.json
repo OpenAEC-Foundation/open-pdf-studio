@@ -76,7 +76,9 @@
     "lastPage": "หน้าสุดท้าย",
     "last": "สุดท้าย",
     "find": "ค้นหา",
-    "findCtrlF": "ค้นหา (Ctrl+F)"
+    "findCtrlF": "ค้นหา (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "การวาด",

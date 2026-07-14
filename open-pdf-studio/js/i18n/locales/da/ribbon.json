@@ -76,7 +76,9 @@
     "lastPage": "Sidste side",
     "last": "Sidste",
     "find": "Find",
-    "findCtrlF": "Find (Ctrl+F)"
+    "findCtrlF": "Find (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "Tegning",

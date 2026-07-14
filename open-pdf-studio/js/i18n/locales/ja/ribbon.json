@@ -76,7 +76,9 @@
     "lastPage": "最後のページ",
     "last": "最後",
     "find": "検索",
-    "findCtrlF": "検索 (Ctrl+F)"
+    "findCtrlF": "検索 (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "描画",

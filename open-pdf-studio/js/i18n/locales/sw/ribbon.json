@@ -76,7 +76,9 @@
     "lastPage": "Ukurasa wa Mwisho",
     "last": "Mwisho",
     "find": "Tafuta",
-    "findCtrlF": "Tafuta (Ctrl+F)"
+    "findCtrlF": "Tafuta (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "Kuchora",

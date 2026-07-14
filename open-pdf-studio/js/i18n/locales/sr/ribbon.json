@@ -76,7 +76,9 @@
     "lastPage": "Последња страница",
     "last": "Последња",
     "find": "Пронађи",
-    "findCtrlF": "Пронађи (Ctrl+F)"
+    "findCtrlF": "Пронађи (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "Цртање",

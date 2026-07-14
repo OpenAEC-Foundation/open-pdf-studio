@@ -2,7 +2,7 @@ import RibbonGroup from './RibbonGroup.jsx';
 import AdaptiveGroups from './AdaptiveGroups.jsx';
 import RibbonButton from './RibbonButton.jsx';
 import RibbonButtonStack from './RibbonButtonStack.jsx';
-import { insertPageIcon, deletePageIcon, extractPagesIcon, mergePdfsIcon, watermarkIcon, headerFooterIcon, manageWatermarksIcon, editTextIcon, addTextIcon, cropMarginsIcon, rotateLeftIcon, rotateRightIcon } from '../../data/ribbonIcons.js';
+import { insertPageIcon, deletePageIcon, extractPagesIcon, mergePdfsIcon, watermarkIcon, headerFooterIcon, manageWatermarksIcon, editTextIcon, addTextIcon, cropMarginsIcon, resizePagesIcon, rotateLeftIcon, rotateRightIcon } from '../../data/ribbonIcons.js';
 import { state, noPdf, getActiveDocument, getPageRotation } from '../../../core/state.js';
 import { isPdfAReadOnly } from '../../../pdf/loader.js';
 import { showInsertPageDialog, showExtractPagesDialog, showMergePdfsDialog } from '../../../ui/chrome/dialogs.js';
@@ -56,6 +56,11 @@ export default function OrganizeTab() {
             disabled={ro()} onClick={() => {
               const doc = getActiveDocument();
               openDialog('crop-margins', { totalPages: doc?.pdfDoc?.numPages, currentPage: doc?.currentPage || 1 });
+            }} />
+          <RibbonButton id="ep-resize-pages" title={t('home.resizePages')} icon={resizePagesIcon} label={t('home.resize')}
+            disabled={ro()} onClick={() => {
+              const doc = getActiveDocument();
+              openDialog('resize-pages', { totalPages: doc?.pdfDoc?.numPages, currentPage: doc?.currentPage || 1 });
             }} />
           <RibbonButton id="ep-compress-pdf" title={t('organize.compressPdf')} icon={compressIcon} label={t('organize.compressLabel')}
             disabled={noPdf()} onClick={async () => {

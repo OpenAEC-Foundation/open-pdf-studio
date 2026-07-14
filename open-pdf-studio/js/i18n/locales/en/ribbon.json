@@ -93,7 +93,9 @@
     "lastPage": "Last Page",
     "last": "Last",
     "find": "Find",
-    "findCtrlF": "Find (Ctrl+F)"
+    "findCtrlF": "Find (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "scaleRegion": "Scale Region",

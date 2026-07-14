@@ -76,7 +76,9 @@
     "lastPage": "Τελευταία σελίδα",
     "last": "Τελευταία",
     "find": "Εύρεση",
-    "findCtrlF": "Εύρεση (Ctrl+F)"
+    "findCtrlF": "Εύρεση (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "Σχέδιο",

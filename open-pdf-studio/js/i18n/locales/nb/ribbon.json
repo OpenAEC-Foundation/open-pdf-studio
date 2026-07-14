@@ -76,7 +76,9 @@
     "lastPage": "Siste side",
     "last": "Siste",
     "find": "Finn",
-    "findCtrlF": "Finn (Ctrl+F)"
+    "findCtrlF": "Finn (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "Tegning",

@@ -93,7 +93,9 @@
     "find": "Zoeken",
     "findCtrlF": "Zoeken (Ctrl+F)",
     "basic": "Basis",
-    "select": "Selecteren"
+    "select": "Selecteren",
+    "resizePages": "Paginaformaat",
+    "resize": "Formaat"
   },
   "comment": {
     "scaleRegion": "Schaalgebied",

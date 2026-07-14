@@ -289,5 +289,26 @@
     "setAsDefault": "Varsayılan Olarak Ayarla",
     "dontAskAgain": "Bir Daha Sorma",
     "notNow": "Şimdi Değil"
+  },
+  "resizePages": {
+    "title": "Resize Pages",
+    "applyTo": "Apply to:",
+    "currentPage": "Current page",
+    "allPages": "All pages",
+    "pageRange": "Page range",
+    "pages": "Pages:",
+    "pagesPlaceholder": "e.g. 1-3, 5, 8-10",
+    "size": "Size:",
+    "letter": "Letter (215.9 × 279.4 mm)",
+    "legal": "Legal (215.9 × 355.6 mm)",
+    "tabloid": "Tabloid (279.4 × 431.8 mm)",
+    "custom": "Custom",
+    "orientation": "Orientation:",
+    "portrait": "Portrait",
+    "landscape": "Landscape",
+    "width": "Width (mm):",
+    "height": "Height (mm):",
+    "info": "{{count}} page(s) in document. Content is centred at its original size — no scaling. Reversible with Undo.",
+    "nothingResized": "No pages were resized."
   }
 }

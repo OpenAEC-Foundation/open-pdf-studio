@@ -368,6 +368,27 @@
     "noContent": "Geen inhoud gedetecteerd — alle geselecteerde pagina's lijken leeg te zijn.",
     "resultWithSkipped": "{{cropped}} pagina('s) bijgesneden. {{skipped}} lege pagina('s) overgeslagen."
   },
+  "resizePages": {
+    "title": "Paginaformaat wijzigen",
+    "applyTo": "Toepassen op:",
+    "currentPage": "Huidige pagina",
+    "allPages": "Alle pagina's",
+    "pageRange": "Paginabereik",
+    "pages": "Pagina's:",
+    "pagesPlaceholder": "bijv. 1-3, 5, 8-10",
+    "size": "Formaat:",
+    "letter": "Letter (215,9 × 279,4 mm)",
+    "legal": "Legal (215,9 × 355,6 mm)",
+    "tabloid": "Tabloid (279,4 × 431,8 mm)",
+    "custom": "Aangepast",
+    "orientation": "Oriëntatie:",
+    "portrait": "Staand",
+    "landscape": "Liggend",
+    "width": "Breedte (mm):",
+    "height": "Hoogte (mm):",
+    "info": "{{count}} pagina('s) in document. Inhoud wordt gecentreerd op oorspronkelijke grootte — geen schaling. Omkeerbaar met Ongedaan maken.",
+    "nothingResized": "Er zijn geen pagina's gewijzigd."
+  },
   "compress": {
     "title": "PDF comprimeren",
     "quality": "Kwaliteit:",

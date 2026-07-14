@@ -76,7 +76,9 @@
     "lastPage": "آخری صفحہ",
     "last": "آخری",
     "find": "تلاش",
-    "findCtrlF": "تلاش کریں (Ctrl+F)"
+    "findCtrlF": "تلاش کریں (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "ڈرائنگ",

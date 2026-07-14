@@ -76,7 +76,9 @@
     "lastPage": "শেষ পৃষ্ঠা",
     "last": "শেষ",
     "find": "খুঁজুন",
-    "findCtrlF": "খুঁজুন (Ctrl+F)"
+    "findCtrlF": "খুঁজুন (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "অঙ্কন",

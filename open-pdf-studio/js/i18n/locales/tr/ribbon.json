@@ -76,7 +76,9 @@
     "lastPage": "Son Sayfa",
     "last": "Son",
     "find": "Bul",
-    "findCtrlF": "Bul (Ctrl+F)"
+    "findCtrlF": "Bul (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "Çizim",

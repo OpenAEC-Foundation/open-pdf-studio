@@ -76,7 +76,9 @@
     "lastPage": "Posledná strana",
     "last": "Posledná",
     "find": "Nájsť",
-    "findCtrlF": "Nájsť (Ctrl+F)"
+    "findCtrlF": "Nájsť (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "Kreslenie",

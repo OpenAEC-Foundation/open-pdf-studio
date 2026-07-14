@@ -76,7 +76,9 @@
     "lastPage": "最后一页",
     "last": "最后一页",
     "find": "查找",
-    "findCtrlF": "查找 (Ctrl+F)"
+    "findCtrlF": "查找 (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "绘图",

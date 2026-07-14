@@ -76,7 +76,9 @@
     "lastPage": "Остання сторінка",
     "last": "Остання",
     "find": "Знайти",
-    "findCtrlF": "Знайти (Ctrl+F)"
+    "findCtrlF": "Знайти (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "Малювання",

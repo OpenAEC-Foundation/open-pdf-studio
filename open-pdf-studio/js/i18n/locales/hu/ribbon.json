@@ -76,7 +76,9 @@
     "lastPage": "Utolsó oldal",
     "last": "Utolsó",
     "find": "Keresés",
-    "findCtrlF": "Keresés (Ctrl+F)"
+    "findCtrlF": "Keresés (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "Rajzolás",

@@ -76,7 +76,9 @@
     "lastPage": "마지막 페이지",
     "last": "마지막",
     "find": "찾기",
-    "findCtrlF": "찾기 (Ctrl+F)"
+    "findCtrlF": "찾기 (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "그리기",

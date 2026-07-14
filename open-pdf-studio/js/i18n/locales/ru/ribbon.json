@@ -76,7 +76,9 @@
     "lastPage": "Последняя страница",
     "last": "Последняя",
     "find": "Найти",
-    "findCtrlF": "Найти (Ctrl+F)"
+    "findCtrlF": "Найти (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "Рисование",

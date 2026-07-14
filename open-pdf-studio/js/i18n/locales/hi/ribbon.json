@@ -76,7 +76,9 @@
     "lastPage": "अंतिम पृष्ठ",
     "last": "अंतिम",
     "find": "ढूंढें",
-    "findCtrlF": "ढूंढें (Ctrl+F)"
+    "findCtrlF": "ढूंढें (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "आरेखण",

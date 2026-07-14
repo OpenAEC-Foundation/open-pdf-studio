@@ -48,6 +48,8 @@ export const addTextIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 
 
 export const cropMarginsIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 2v4H2m20 0h-4M6 22v-4H2m20 0h-4"/><rect x="6" y="6" width="12" height="12" stroke-width="2" stroke-dasharray="3 2" fill="none"/></svg>`;
 
+export const resizePagesIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" stroke-width="2" fill="none"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h6m0 0v6m0-6l-7 7"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H4"/></svg>`;
+
 // --- Home tab: Navigate ---
 
 export const firstPageIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/></svg>`;

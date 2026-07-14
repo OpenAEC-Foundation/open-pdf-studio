@@ -76,7 +76,9 @@
     "lastPage": "Última pàgina",
     "last": "Última",
     "find": "Cerca",
-    "findCtrlF": "Cerca (Ctrl+F)"
+    "findCtrlF": "Cerca (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "Dibuix",

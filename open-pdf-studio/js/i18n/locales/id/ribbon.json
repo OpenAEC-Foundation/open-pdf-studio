@@ -76,7 +76,9 @@
     "lastPage": "Halaman Terakhir",
     "last": "Terakhir",
     "find": "Temukan",
-    "findCtrlF": "Temukan (Ctrl+F)"
+    "findCtrlF": "Temukan (Ctrl+F)",
+    "resizePages": "Resize Pages",
+    "resize": "Resize"
   },
   "comment": {
     "drawing": "Gambar",
