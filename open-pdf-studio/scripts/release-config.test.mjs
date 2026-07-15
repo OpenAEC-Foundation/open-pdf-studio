@@ -45,6 +45,13 @@ test('render regression caches the workspace target and allows cold CI builds', 
   assert.match(runner, /process\.env\.OPS_STARTUP_TIMEOUT_MS/);
 });
 
+test('render regression prepares a deterministic CI corpus', async () => {
+  const workflow = await readFile(path.join(repoDir, '.github', 'workflows', 'render-regression.yml'), 'utf8');
+  assert.match(workflow, /name: Prepare deterministic render corpus/);
+  assert.match(workflow, /scripts\/render_test\/tests\/fixtures\/tiny\.pdf/);
+  assert.match(workflow, /open-pdf-studio\/test pdf-bestanden\/Originele bestanden/);
+});
+
 test('Windows installers retain the embedded WebView2 bootstrapper and loader', async () => {
   const config = await readJson('src-tauri/tauri.conf.json');
   assert.deepEqual(config.bundle.windows.webviewInstallMode, {

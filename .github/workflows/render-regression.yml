@@ -52,6 +52,13 @@ jobs:
           scripts/.venv-test/Scripts/python.exe -m pip install -U pip
           scripts/.venv-test/Scripts/python.exe -m pip install -r scripts/requirements-test.txt
 
+      - name: Prepare deterministic render corpus
+        shell: pwsh
+        run: |
+          $corpus = 'open-pdf-studio/test pdf-bestanden/Originele bestanden'
+          New-Item -ItemType Directory -Force -Path $corpus | Out-Null
+          Copy-Item -LiteralPath 'scripts/render_test/tests/fixtures/tiny.pdf' -Destination (Join-Path $corpus 'render-fixture.pdf')
+
       - name: Run render regression
         working-directory: open-pdf-studio
         env:
