@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { PDFDocument } from 'pdf-lib';
+import { createRenderFixture } from './create-render-fixture.mjs';
 
 const projectDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const repoDir = path.resolve(projectDir, '..');
@@ -52,10 +55,24 @@ test('render regression prepares a deterministic CI corpus', async () => {
   const workflow = await readFile(path.join(repoDir, '.github', 'workflows', 'render-regression.yml'), 'utf8');
   const app = await readFile(path.join(projectDir, 'src-tauri', 'src', 'lib.rs'), 'utf8');
   assert.match(workflow, /name: Prepare deterministic render corpus/);
-  assert.match(workflow, /scripts\/render_test\/tests\/fixtures\/tiny\.pdf/);
+  assert.match(workflow, /open-pdf-studio\/scripts\/create-render-fixture\.mjs/);
   assert.match(workflow, /\$corpus = 'test pdf-bestanden\/Originele bestanden'/);
   assert.match(app, /env!\("CARGO_MANIFEST_DIR"\)/);
   assert.doesNotMatch(app, /std::env::current_dir\(\)/);
+});
+
+test('generated render fixture is a complete one-page PDF', async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'open-pdf-studio-render-'));
+  const output = path.join(dir, 'render-fixture.pdf');
+  try {
+    await createRenderFixture(output);
+    const bytes = await readFile(output);
+    const pdf = await PDFDocument.load(bytes);
+    assert.equal(pdf.getPageCount(), 1);
+    assert.match(Buffer.from(bytes).subarray(-32).toString('latin1'), /%%EOF/);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
 });
 
 test('Windows installers retain the embedded WebView2 bootstrapper and loader', async () => {

@@ -57,7 +57,7 @@ jobs:
         run: |
           $corpus = 'test pdf-bestanden/Originele bestanden'
           New-Item -ItemType Directory -Force -Path $corpus | Out-Null
-          Copy-Item -LiteralPath 'scripts/render_test/tests/fixtures/tiny.pdf' -Destination (Join-Path $corpus 'render-fixture.pdf')
+          node open-pdf-studio/scripts/create-render-fixture.mjs (Join-Path $corpus 'render-fixture.pdf')
 
       - name: Run render regression
         working-directory: open-pdf-studio
