@@ -1,0 +1,96 @@
+name: Windows ARM64 (experimental)
+
+# Native Windows-on-ARM build, produced on GitHub's windows-11-arm runners
+# (free for public repositories). Kept as a standalone manually-triggered
+# workflow so it can be exercised and stabilised before being folded into
+# the release matrix. Remaining integration steps for release.yml are
+# listed in the PR description: user-mode variant, Authenticode signing
+# steps, and windows-aarch64 entries in the updater's latest.json.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-windows-arm64:
+    runs-on: windows-11-arm
+    defaults:
+      run:
+        working-directory: open-pdf-studio
+    env:
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: 'tauri2026'
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+
+      - name: Install Rust stable (aarch64 host)
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install frontend dependencies
+        run: npm install
+
+      - name: Select win-arm64 bundled resources
+        shell: pwsh
+        run: |
+          # tauri.windows.conf.json pins the x64 pdfium.dll and
+          # WebView2Loader.dll — and, as a platform override, Tauri merges it
+          # OVER tauri.conf.json, so the swap must happen HERE. Rewriting
+          # bundle.resources in the base tauri.conf.json is silently undone by
+          # this override and ships the x64 pdfium.dll in the arm64 bundle;
+          # init_pdfium can't load a wrong-arch DLL, PDFium stays uninitialised,
+          # and every page renders blank. Replace the whole resources object so
+          # the win-x64 key is dropped (no colliding pdfium.dll destination).
+          # (win-arm64 DLL provenance: src-tauri/binaries/win-arm64/README.md.)
+          $conf = Get-Content src-tauri/tauri.windows.conf.json -Raw | ConvertFrom-Json
+          $conf.bundle.resources = [ordered]@{
+            'binaries/win-arm64/pdfium.dll'         = 'pdfium.dll'
+            'binaries/win-arm64/WebView2Loader.dll' = 'WebView2Loader.dll'
+          }
+          $conf | ConvertTo-Json -Depth 10 | Set-Content src-tauri/tauri.windows.conf.json
+
+      # npm run tauri:build = prebuild hook (cargo build --release -p
+      # pdfium-worker) + vite build + tauri build. src-tauri/build.rs derives
+      # the sidecar's target-triple suffix from $TARGET, which is
+      # aarch64-pc-windows-msvc on these runners - no manual copy needed.
+      - name: Build Tauri app (native ARM64)
+        run: npm run tauri:build
+
+      - name: Verify installer architecture
+        shell: pwsh
+        working-directory: .
+        run: |
+          $setup = Get-ChildItem target/release/bundle/nsis/*-setup.exe | Select-Object -First 1
+          if (-not $setup) { Write-Error "No NSIS installer produced"; exit 1 }
+          Write-Output "Installer: $($setup.Name) ($([math]::Round($setup.Length/1MB,1)) MB)"
+          $bytes = [System.IO.File]::ReadAllBytes("target/release/open-pdf-studio.exe")
+          $peOffset = [BitConverter]::ToInt32($bytes, 0x3C)
+          $machine = [BitConverter]::ToUInt16($bytes, $peOffset + 4)
+          Write-Output ("PE machine type: 0x{0:X4}" -f $machine)
+          if ($machine -ne 0xAA64) { Write-Error "Main exe is not ARM64"; exit 1 }
+
+          # The bundled pdfium.dll must be ARM64 too. An x64 DLL here loads-fails
+          # at runtime, PDFium stays uninitialised, and pages render blank while
+          # the app otherwise runs — so the main-exe check above passes with
+          # rendering silently dead. Fail the build instead.
+          $dlls = Get-ChildItem -Path target/release -Recurse -Filter pdfium.dll -ErrorAction SilentlyContinue
+          if (-not $dlls) { Write-Warning "No bundled pdfium.dll found under target/release to verify" }
+          foreach ($dll in $dlls) {
+            $db = [System.IO.File]::ReadAllBytes($dll.FullName)
+            $dpe = [BitConverter]::ToInt32($db, 0x3C)
+            $dm = [BitConverter]::ToUInt16($db, $dpe + 4)
+            Write-Output ("pdfium.dll ($($dll.FullName)): 0x{0:X4}" -f $dm)
+            if ($dm -ne 0xAA64) { Write-Error "Bundled pdfium.dll is not ARM64"; exit 1 }
+          }
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: open-pdf-studio-windows-arm64-setup
+          path: target/release/bundle/nsis/*-setup.exe
+          if-no-files-found: error
+          retention-days: 30
