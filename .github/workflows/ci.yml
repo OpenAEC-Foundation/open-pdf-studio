@@ -101,7 +101,7 @@ jobs:
         if: matrix.platform == 'macos-26'
         env:
           APPLE_SIGNING_IDENTITY: '-'
-        run: npm run tauri build -- --target universal-apple-darwin --bundles app
+        run: npm run tauri build -- --target universal-apple-darwin --bundles app --config '{"bundle":{"createUpdaterArtifacts":false}}'
 
       - name: Verify and launch macOS app
         if: matrix.platform == 'macos-26'

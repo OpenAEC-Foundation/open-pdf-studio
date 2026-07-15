@@ -60,6 +60,7 @@ test('CI exercises macOS 26 startup and frontend readiness', async () => {
   assert.match(workflow, /macos-26/);
   assert.match(workflow, /npm run prepare:native-runtime/);
   assert.match(workflow, /macos-startup-smoke\.sh/);
+  assert.match(workflow, /createUpdaterArtifacts\\?"?:false/);
   assert.match(smoke, /survival_seconds=10/);
   assert.match(smoke, /kill -0 "\$pid"/);
   assert.match(smoke, /new_crash_report/);
