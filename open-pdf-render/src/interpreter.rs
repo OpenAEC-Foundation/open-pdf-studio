@@ -1252,7 +1252,7 @@ impl Interpreter {
         let img = image::load_from_memory_with_format(jpeg_data, image::ImageFormat::Jpeg).ok()?;
         let img = img.to_rgba8();
         let (w, h) = (img.width(), img.height());
-        let mut rgba = img.into_raw();
+        let rgba = img.into_raw();
 
         // Downsample if over budget
         if max_pixels > 0 && w * h > max_pixels {
@@ -2608,17 +2608,6 @@ impl Interpreter {
         }
     }
 
-    fn handle_do_extract(
-        operands: &[Object],
-        buf: &mut DrawCommandBuffer,
-        state: &mut GraphicsStateStack,
-        doc: &Document,
-        resources: &Dictionary,
-        font_registry: &mut crate::fonts::FontRegistry,
-    ) {
-        Self::handle_do_extract_with_text(operands, buf, state, doc, resources, font_registry, None);
-    }
-
     fn handle_do_extract_with_text(
         operands: &[Object],
         buf: &mut DrawCommandBuffer,
@@ -3348,7 +3337,8 @@ impl Interpreter {
     /// Walk a content stream and emit one TextSpan per Tj/TJ run.
     /// Lighter than extract_commands — only the operators that affect text
     /// position or content are processed; path/color/image ops are skipped.
-    pub fn extract_text_only(
+    #[cfg(test)]
+    fn extract_text_only(
         content_bytes: &[u8],
         spans: &mut Vec<TextSpan>,
         state: &mut GraphicsStateStack,
@@ -3497,6 +3487,7 @@ impl Interpreter {
     /// then computes the final user-space bbox by transforming through the
     /// current CTM. Decodes bytes to text via the font's ToUnicode CMap
     /// (falls back to Latin-1 / WinAnsi for fonts without ToUnicode).
+    #[cfg(test)]
     fn emit_text_span(
         bytes: &[u8],
         text_state: &mut TextState,
@@ -3612,6 +3603,7 @@ impl Interpreter {
     }
 
     /// Recurse into a Form XObject for text-only extraction.
+    #[cfg(test)]
     fn handle_do_text_only(
         operands: &[Object],
         spans: &mut Vec<TextSpan>,
@@ -3672,6 +3664,27 @@ impl Interpreter {
 #[cfg(test)]
 mod inline_image_tests {
     use super::*;
+
+    #[test]
+    fn text_only_extractor_accepts_an_empty_stream() {
+        let doc = Document::with_version("1.5");
+        let resources = Dictionary::new();
+        let mut spans = Vec::new();
+        let mut state = crate::graphics_state::GraphicsStateStack::new();
+        let mut registry = crate::fonts::FontRegistry::new();
+
+        Interpreter::extract_text_only(
+            b"",
+            &mut spans,
+            &mut state,
+            &doc,
+            &resources,
+            &mut registry,
+        )
+        .expect("empty text stream");
+
+        assert!(spans.is_empty());
+    }
 
     /// Draai extract_commands over een synthetische content-stream en geef de
     /// rauwe commandbuffer terug (zonder 16-byte pagina-header).

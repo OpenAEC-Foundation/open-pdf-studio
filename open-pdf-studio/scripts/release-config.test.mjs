@@ -39,6 +39,9 @@ test('render regression caches the workspace target and allows cold CI builds', 
   const workflow = await readFile(path.join(repoDir, '.github', 'workflows', 'render-regression.yml'), 'utf8');
   const runner = await readFile(path.join(repoDir, 'scripts', 'run-render-regression.mjs'), 'utf8');
   assert.match(workflow, /^\s+target\s*$/m);
+  assert.match(workflow, /uses: actions\/cache\/restore@v4/);
+  assert.match(workflow, /uses: actions\/cache\/save@v4/);
+  assert.match(workflow, /name: Save cargo cache after render\s+if: always\(\)/);
   assert.doesNotMatch(workflow, /open-pdf-studio\/src-tauri\/target/);
   assert.doesNotMatch(workflow, /open-pdf-render\/target/);
   assert.match(workflow, /OPS_STARTUP_TIMEOUT_MS:\s*'1200000'/);
@@ -47,9 +50,12 @@ test('render regression caches the workspace target and allows cold CI builds', 
 
 test('render regression prepares a deterministic CI corpus', async () => {
   const workflow = await readFile(path.join(repoDir, '.github', 'workflows', 'render-regression.yml'), 'utf8');
+  const app = await readFile(path.join(projectDir, 'src-tauri', 'src', 'lib.rs'), 'utf8');
   assert.match(workflow, /name: Prepare deterministic render corpus/);
   assert.match(workflow, /scripts\/render_test\/tests\/fixtures\/tiny\.pdf/);
-  assert.match(workflow, /open-pdf-studio\/test pdf-bestanden\/Originele bestanden/);
+  assert.match(workflow, /\$corpus = 'test pdf-bestanden\/Originele bestanden'/);
+  assert.match(app, /env!\("CARGO_MANIFEST_DIR"\)/);
+  assert.doesNotMatch(app, /std::env::current_dir\(\)/);
 });
 
 test('Windows installers retain the embedded WebView2 bootstrapper and loader', async () => {

@@ -5,7 +5,6 @@ mod graphics_state;
 mod interpreter;
 mod renderer;
 mod color;
-mod image_decode;
 pub mod draw_commands;
 pub mod encoding;
 pub mod font_parser;

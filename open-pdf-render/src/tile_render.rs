@@ -24,7 +24,7 @@
 
 use rayon::prelude::*;
 use tiny_skia::{
-    FillRule, LineCap, LineJoin, Paint, PathBuilder, Pixmap, PixmapPaint, Rect, Stroke,
+    FillRule, LineCap, LineJoin, Paint, PathBuilder, Pixmap, PixmapPaint, Stroke,
     StrokeDash, Transform,
 };
 

@@ -2422,10 +2422,15 @@ pub fn run(opts: StartupOpts) {
             // inside `mcp_server::start`).
             if mcp_enabled {
                 let app_handle = app.handle().clone();
-                let test_pdfs_dir = std::env::current_dir()
-                    .unwrap_or_else(|_| std::path::PathBuf::from("."))
-                    .join("test pdf-bestanden")
-                    .join("Originele bestanden");
+                let test_pdfs_dir = std::env::var_os("OPS_TEST_PDFS_DIR")
+                    .map(std::path::PathBuf::from)
+                    .unwrap_or_else(|| {
+                        std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                            .join("..")
+                            .join("..")
+                            .join("test pdf-bestanden")
+                            .join("Originele bestanden")
+                    });
                 tauri::async_runtime::spawn(async move {
                     if let Err(e) = mcp_server::start(mcp_port, test_pdfs_dir, Some(app_handle)).await {
                         eprintln!("[mcp] server failed: {e}");

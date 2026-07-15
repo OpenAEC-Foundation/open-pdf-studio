@@ -32,8 +32,8 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
-      - name: Cache cargo registry + target
-        uses: actions/cache@v4
+      - name: Restore cargo registry + target
+        uses: actions/cache/restore@v4
         with:
           path: |
             ~/.cargo/registry
@@ -55,7 +55,7 @@ jobs:
       - name: Prepare deterministic render corpus
         shell: pwsh
         run: |
-          $corpus = 'open-pdf-studio/test pdf-bestanden/Originele bestanden'
+          $corpus = 'test pdf-bestanden/Originele bestanden'
           New-Item -ItemType Directory -Force -Path $corpus | Out-Null
           Copy-Item -LiteralPath 'scripts/render_test/tests/fixtures/tiny.pdf' -Destination (Join-Path $corpus 'render-fixture.pdf')
 
@@ -65,6 +65,16 @@ jobs:
           OPS_ENABLE_MCP: '1'
           OPS_STARTUP_TIMEOUT_MS: '1200000'
         run: npm run test:render:auto
+
+      - name: Save cargo cache after render
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: render-regression-${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Upload regression report
         if: always()
