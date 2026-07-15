@@ -41,7 +41,7 @@ test('render regression caches the workspace target and allows cold CI builds', 
   assert.match(workflow, /^\s+target\s*$/m);
   assert.doesNotMatch(workflow, /open-pdf-studio\/src-tauri\/target/);
   assert.doesNotMatch(workflow, /open-pdf-render\/target/);
-  assert.match(workflow, /OPS_STARTUP_TIMEOUT_MS:\s*'600000'/);
+  assert.match(workflow, /OPS_STARTUP_TIMEOUT_MS:\s*'1200000'/);
   assert.match(runner, /process\.env\.OPS_STARTUP_TIMEOUT_MS/);
 });
 

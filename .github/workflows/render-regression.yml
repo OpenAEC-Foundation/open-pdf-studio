@@ -56,7 +56,7 @@ jobs:
         working-directory: open-pdf-studio
         env:
           OPS_ENABLE_MCP: '1'
-          OPS_STARTUP_TIMEOUT_MS: '600000'
+          OPS_STARTUP_TIMEOUT_MS: '1200000'
         run: npm run test:render:auto
 
       - name: Upload regression report
