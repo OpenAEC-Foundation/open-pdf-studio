@@ -23,6 +23,18 @@ test('macOS native runtime preparation is wired into local and release builds', 
   assert.equal(pkg.scripts['prepare:native-runtime'], 'node scripts/native-runtime.mjs');
 });
 
+test('quality tests do not depend on shell glob expansion', async () => {
+  const pkg = await readJson('package.json');
+  assert.doesNotMatch(pkg.scripts['test:quality'], /\*/);
+  for (const name of [
+    'native-runtime.test.mjs',
+    'release-config.test.mjs',
+    'square-image-annotation.test.mjs',
+  ]) {
+    assert.match(pkg.scripts['test:quality'], new RegExp(name.replaceAll('.', '\\.')));
+  }
+});
+
 test('Windows installers retain the embedded WebView2 bootstrapper and loader', async () => {
   const config = await readJson('src-tauri/tauri.conf.json');
   assert.deepEqual(config.bundle.windows.webviewInstallMode, {

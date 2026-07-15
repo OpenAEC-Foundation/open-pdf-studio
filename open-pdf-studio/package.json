@@ -17,7 +17,7 @@
     "typecheck": "tsc --noEmit",
     "test:render": "..\\scripts\\.venv-test\\Scripts\\python.exe ../scripts/render-regression-test.py",
     "test:render:auto": "node ../scripts/run-render-regression.mjs",
-    "test:quality": "node --test scripts/*.test.mjs"
+    "test:quality": "node --test scripts/native-runtime.test.mjs scripts/release-config.test.mjs scripts/square-image-annotation.test.mjs"
   },
   "keywords": [
     "tauri",
