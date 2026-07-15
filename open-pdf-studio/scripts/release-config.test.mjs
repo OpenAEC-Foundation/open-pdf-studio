@@ -35,6 +35,16 @@ test('quality tests do not depend on shell glob expansion', async () => {
   }
 });
 
+test('render regression caches the workspace target and allows cold CI builds', async () => {
+  const workflow = await readFile(path.join(repoDir, '.github', 'workflows', 'render-regression.yml'), 'utf8');
+  const runner = await readFile(path.join(repoDir, 'scripts', 'run-render-regression.mjs'), 'utf8');
+  assert.match(workflow, /^\s+target\s*$/m);
+  assert.doesNotMatch(workflow, /open-pdf-studio\/src-tauri\/target/);
+  assert.doesNotMatch(workflow, /open-pdf-render\/target/);
+  assert.match(workflow, /OPS_STARTUP_TIMEOUT_MS:\s*'600000'/);
+  assert.match(runner, /process\.env\.OPS_STARTUP_TIMEOUT_MS/);
+});
+
 test('Windows installers retain the embedded WebView2 bootstrapper and loader', async () => {
   const config = await readJson('src-tauri/tauri.conf.json');
   assert.deepEqual(config.bundle.windows.webviewInstallMode, {

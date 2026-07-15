@@ -17,7 +17,11 @@ const HARNESS_PY = path.join(__dirname, 'render-regression-test.py');
 const VENV_PY    = path.join(__dirname, '.venv-test', 'Scripts', 'python.exe');
 
 const PORT = 9223;
-const MAX_WAIT_MS = 180_000;
+const DEFAULT_WAIT_MS = 180_000;
+const requestedWaitMs = Number.parseInt(process.env.OPS_STARTUP_TIMEOUT_MS || '', 10);
+const MAX_WAIT_MS = Number.isFinite(requestedWaitMs) && requestedWaitMs > 0
+  ? requestedWaitMs
+  : DEFAULT_WAIT_MS;
 
 function waitForPort(port, timeoutMs) {
   const start = Date.now();
