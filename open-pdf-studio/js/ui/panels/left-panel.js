@@ -684,10 +684,16 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
   if (doc?.filePath && window.__TAURI__) {
     try {
       const { invoke } = window.__TAURI__.core;
+      // Pass the in-session user rotation so the Rust render matches the main
+      // view. Without it, a rotated page's thumbnail stayed unrotated until the
+      // rotation was baked into the PDF (save + reload) — the other thumbnail
+      // paths (vector replay, prog-bitmap, PDF.js fallback) already rotate.
+      const extraRot = getPageRotation(pageNum);
       const result = await invoke('render_thumbnail', {
         path: doc.filePath,
         pageIndex: pageNum - 1,
         maxWidth: 140,
+        rotation: extraRot || 0,
         skipImages: true,
       });
       const data = JSON.parse(result);
@@ -696,7 +702,11 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
       // Scale = thumbnail-pixels / PDF-pt = data.width / pageWidthPt.
       try {
         const page = await pdfDoc.getPage(pageNum);
-        const viewport = page.getViewport({ scale: 1 });
+        // Rotated render → rotated dims; match the viewport so the overlay
+        // scale stays correct (PDF.js rotation overrides the page default).
+        const vpOpts = { scale: 1 };
+        if (extraRot) vpOpts.rotation = (page.rotate + extraRot) % 360;
+        const viewport = page.getViewport(vpOpts);
         const scale = data.width / viewport.width;
         const composited = await overlayAnnotationsOnDataURL(data.dataURL, pageNum, data.width, data.height, scale, doc);
         return { dataURL: composited, width: data.width, height: data.height };
