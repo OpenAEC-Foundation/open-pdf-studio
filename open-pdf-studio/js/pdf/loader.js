@@ -15,7 +15,7 @@ import { showMessage } from '../bridge.js';
 
 // Sub-module imports
 import { extractAnnotationColors } from './loader/color-extraction.js';
-import { extractStampImagesViaPdfJs, extractStampImages, extractStampImagesHybrid } from './loader/image-extraction.js';
+import { extractStampImagesHybrid } from './loader/image-extraction.js';
 import { convertPdfAnnotation } from './loader/annotation-converter.js';
 
 
@@ -876,6 +876,7 @@ async function loadAnnotationsForSinglePage(doc, pageNum, waitForColors = false)
   if (annotations.length === 0) return;
 
   const stampAnnots = annotations.filter(a => a.subtype === 'Stamp');
+  const hasSquareAnnotations = annotations.some(a => a.subtype === 'Square');
   const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp'].includes(a.subtype));
 
   let stampImageMap = null;
@@ -883,13 +884,13 @@ async function loadAnnotationsForSinglePage(doc, pageNum, waitForColors = false)
 
   // Resolve pdf-lib doc early so both stamp images and colors can use it
   let pdfLibDoc = doc._sharedPdfLibDoc || null;
-  if (!pdfLibDoc && waitForColors) {
+  if (!pdfLibDoc && (waitForColors || hasSquareAnnotations)) {
     const _pl0 = performance.now();
     pdfLibDoc = await getSharedPdfLibDoc(doc);
     console.log(`[PERF] page ${pageNum}: getSharedPdfLibDoc: ${(performance.now() - _pl0).toFixed(0)}ms`);
   }
 
-  if (stampAnnots.length > 0) {
+  if (stampAnnots.length > 0 || hasSquareAnnotations) {
     const _st0 = performance.now();
     try {
       const pdfPage = await doc.pdfDoc.getPage(pageNum);
@@ -1004,12 +1005,13 @@ export async function loadExistingAnnotations(doc) {
       if (annotations.length === 0) continue;
 
       const stampAnnots = annotations.filter(a => a.subtype === 'Stamp');
+      const hasSquareAnnotations = annotations.some(a => a.subtype === 'Square');
       const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp'].includes(a.subtype));
 
       let stampImageMap = null;
       let annotColorMap = null;
 
-      if (stampAnnots.length > 0) {
+      if (stampAnnots.length > 0 || hasSquareAnnotations) {
         try {
           stampImageMap = await extractStampImagesHybrid(
             pages[i], viewport, stampAnnots, pageNum, pdfLibDoc,
@@ -1053,12 +1055,13 @@ export async function loadExistingAnnotations(doc) {
         if (annotations.length === 0) continue;
 
         const stampAnnots = annotations.filter(a => a.subtype === 'Stamp');
+        const hasSquareAnnotations = annotations.some(a => a.subtype === 'Square');
         const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp'].includes(a.subtype));
 
         let stampImageMap = null;
         let annotColorMap = null;
 
-        if (stampAnnots.length > 0) {
+        if (stampAnnots.length > 0 || hasSquareAnnotations) {
           try {
             stampImageMap = await extractStampImagesHybrid(
               page, viewport, stampAnnots, pageNum, pdfLibDoc,

@@ -6,7 +6,7 @@ export type AnnotationType =
   | 'arc' | 'spline' | 'splineArrow' | 'redaction'
   | 'measureDistance' | 'measureArea' | 'measurePerimeter' | 'measureAngle'
   | 'filledArea'
-  | 'scaleBar'
+  | 'mask' | 'viewport' | 'scheduleTable' | 'scaleBar'
   | 'scaleRegion'
   | 'parametricSymbol';
 

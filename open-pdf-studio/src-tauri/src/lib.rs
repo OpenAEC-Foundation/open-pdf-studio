@@ -10,6 +10,7 @@ pub mod mcp_server;
 pub mod pdfium_renderer;
 pub mod render_to_png;
 pub mod window_mgmt;
+pub mod startup_diagnostics;
 pub mod worker_pool;
 
 pub struct StartupOpts {
@@ -2391,6 +2392,15 @@ pub fn run(opts: StartupOpts) {
 
     builder
         .setup(move |app| {
+            let diagnostics_path = app
+                .path()
+                .app_log_dir()
+                .map_err(|e| format!("Cannot resolve app log directory: {e}"))?
+                .join("startup-diagnostics.jsonl");
+            let diagnostics = startup_diagnostics::StartupDiagnostics::new(diagnostics_path);
+            diagnostics.record("native-created", None);
+            app.manage(diagnostics);
+
             // Grant FS plugin scope for command-line files (file association)
             for path in app.state::<OpenedFiles>().0.lock().unwrap().iter() {
                 let _ = app.fs_scope().allow_file(path);
@@ -2584,6 +2594,8 @@ pub fn run(opts: StartupOpts) {
             window_mgmt::exit_detached_process,
             window_mgmt::drag_icon_path,
             window_mgmt::detach_diag,
+            startup_diagnostics::startup_diagnostic,
+            startup_diagnostics::startup_diagnostics_path,
             read_clipboard_image_png,
             set_prtscn_hotkey,
         ])

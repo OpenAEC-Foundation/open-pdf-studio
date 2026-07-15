@@ -33,6 +33,15 @@ const files = [
     }
   },
   {
+    path: path.join(root, 'package-lock.json'),
+    update: (content) => {
+      const lock = JSON.parse(content);
+      lock.version = version;
+      if (lock.packages && lock.packages['']) lock.packages[''].version = version;
+      return `${JSON.stringify(lock, null, 2)}\n`;
+    }
+  },
+  {
     path: path.join(root, 'src-tauri', 'tauri.conf.json'),
     update: (content) => {
       return content.replace(/"version":\s*"[^"]*"/, `"version": "${version}"`);
@@ -42,6 +51,15 @@ const files = [
     path: path.join(root, 'src-tauri', 'Cargo.toml'),
     update: (content) => {
       return content.replace(/^version\s*=\s*"[^"]*"/m, `version = "${version}"`);
+    }
+  },
+  {
+    path: path.join(repoRoot, 'Cargo.lock'),
+    update: (content) => {
+      return content.replace(
+        /(name = "open-pdf-studio"\r?\nversion = ")[^"]+("\r?\n)/,
+        `$1${version}$2`
+      );
     }
   },
   {

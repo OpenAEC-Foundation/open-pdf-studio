@@ -1,6 +1,6 @@
 [package]
 name = "open-pdf-studio"
-version = "1.77.0"
+version = "1.78.0"
 description = "A free, open-source PDF annotation editor"
 authors = ["OpenAEC Foundation"]
 license = "MIT"
@@ -77,22 +77,3 @@ tauri-plugin-global-shortcut = "2"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 windows-sys = { version = "0.59", features = ["Win32_Graphics_Printing", "Win32_Graphics_Gdi", "Win32_Storage_Xps", "Win32_Foundation", "Win32_System_Com", "Win32_UI_Shell"] }
-
-# Compile open-pdf-render with optimizations even in dev mode (rendering is 100x slower without)
-[profile.dev.package.open-pdf-render]
-opt-level = 3
-
-[profile.dev.package.tiny-skia]
-opt-level = 3
-
-[profile.dev.package.tiny-skia-path]
-opt-level = 3
-
-[profile.dev.package.lopdf]
-opt-level = 3
-
-[profile.dev.package.image]
-opt-level = 3
-
-[profile.dev.package.pdfium-render]
-opt-level = 3

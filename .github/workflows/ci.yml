@@ -18,7 +18,7 @@ jobs:
         include:
           - platform: 'ubuntu-22.04'
           - platform: 'windows-latest'
-          - platform: 'macos-latest'
+          - platform: 'macos-26'
 
     runs-on: ${{ matrix.platform }}
     defaults:
@@ -37,7 +37,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Install Rust targets (macOS universal)
-        if: matrix.platform == 'macos-latest'
+        if: matrix.platform == 'macos-26'
         run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
 
       - name: Install dependencies (Ubuntu only)
@@ -47,7 +47,13 @@ jobs:
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: Install frontend dependencies
-        run: npm install
+        run: npm ci
+
+      - name: Run quality regression tests
+        run: npm run test:quality
+
+      - name: Prepare native runtime
+        run: npm run prepare:native-runtime
 
       # The PDFium worker pool runs as a Tauri sidecar (bundle.externalBin).
       # Tauri requires binaries/pdfium-worker-<target-triple> to exist at
@@ -73,7 +79,7 @@ jobs:
           cp target/release/pdfium-worker open-pdf-studio/src-tauri/binaries/pdfium-worker-x86_64-unknown-linux-gnu
 
       - name: Build pdfium-worker sidecar (macOS universal)
-        if: matrix.platform == 'macos-latest'
+        if: matrix.platform == 'macos-26'
         working-directory: .
         run: |
           cargo build --release -p pdfium-worker --target aarch64-apple-darwin
@@ -88,4 +94,18 @@ jobs:
             target/x86_64-apple-darwin/release/pdfium-worker
 
       - name: Build Tauri app
+        if: matrix.platform != 'macos-26'
         run: npm run tauri build -- --no-bundle
+
+      - name: Build ad-hoc signed macOS app
+        if: matrix.platform == 'macos-26'
+        env:
+          APPLE_SIGNING_IDENTITY: '-'
+        run: npm run tauri build -- --target universal-apple-darwin --bundles app
+
+      - name: Verify and launch macOS app
+        if: matrix.platform == 'macos-26'
+        run: |
+          APP_PATH="../target/universal-apple-darwin/release/bundle/macos/Open PDF Studio.app"
+          codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+          bash scripts/macos-startup-smoke.sh "$APP_PATH"

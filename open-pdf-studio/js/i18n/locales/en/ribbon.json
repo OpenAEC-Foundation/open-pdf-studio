@@ -278,6 +278,8 @@
     "help": "Help",
     "checkForUpdates": "Check for Updates",
     "updatesLabel": "Updates",
+    "startupDiagnosticsTitle": "Reveal the privacy-safe startup diagnostics file",
+    "startupDiagnostics": "Diagnostics",
     "setDefaultPdf": "Set Default PDF Application",
     "fileAssociations": "File Assoc."
   },

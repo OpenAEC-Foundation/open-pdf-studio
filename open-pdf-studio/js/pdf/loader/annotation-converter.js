@@ -4,6 +4,7 @@ import { generateImageId } from '../../utils/helpers.js';
 import { colorArrayToHex } from '../../utils/colors.js';
 import { mapPdfFontName, mapBorderStyle } from './pdf-helpers.js';
 import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement } from '../../annotations/measurement.js';
+import { findImageForAnnotation } from './annotation-image-sources.mjs';
 
 // Convert PDF annotation to our format
 export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageMap, annotColorMap) {
@@ -138,6 +139,28 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
     }
 
     case 'Square': {
+      const squareImageData = findImageForAnnotation(stampImageMap, annot, 'square-image');
+      if (squareImageData) {
+        const imageRect = convertRect(rect);
+        const imageId = generateImageId();
+        const img = new Image();
+        img.src = squareImageData;
+        imageCache.set(imageId, img);
+        return createAnnotation({
+          ...baseProps,
+          type: 'image',
+          x: imageRect.x,
+          y: imageRect.y,
+          width: imageRect.width,
+          height: imageRect.height,
+          imageId,
+          imageData: squareImageData,
+          originalWidth: imageRect.width,
+          originalHeight: imageRect.height,
+          lockAspectRatio: true,
+        });
+      }
+
       // Parametric symbol: stored as Square + private OPS metadata
       if (extraColors.opsSubtype === 'parametricSymbol') {
         const psRect = convertRect(annot.rect);
@@ -1125,24 +1148,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
       const w = stRect.width;
       const h = stRect.height;
 
-      // Find matching stamp image by rect
-      let dataUrl = null;
-      if (stampImageMap) {
-        // Try exact match first
-        const key = `${rect[0]},${rect[1]},${rect[2]},${rect[3]}`;
-        dataUrl = stampImageMap.get(key);
-        // Fuzzy match fallback
-        if (!dataUrl) {
-          for (const [k, v] of stampImageMap.entries()) {
-            const parts = k.split(',').map(Number);
-            if (Math.abs(parts[0] - rect[0]) < 1 && Math.abs(parts[1] - rect[1]) < 1 &&
-                Math.abs(parts[2] - rect[2]) < 1 && Math.abs(parts[3] - rect[3]) < 1) {
-              dataUrl = v;
-              break;
-            }
-          }
-        }
-      }
+      const dataUrl = findImageForAnnotation(stampImageMap, annot, 'stamp');
 
       let stRotation = 0;
       if (extraColors.rotation !== undefined && extraColors.rotation !== 0) {

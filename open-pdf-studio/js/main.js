@@ -5,24 +5,21 @@
  * Canvas/PDF operations remain vanilla JS.
  */
 
-// Boot diagnostics: fatal boot errors surface on the Rust stderr (and the
-// %TEMP% diag file) via detach_diag, so headless/test instances can report
-// WHAT broke even when the webview console is unreachable.
-window.addEventListener('error', (e) => {
+// Local startup diagnostics use allowlisted phases and Rust-side redaction.
+// They contain no document names or full local paths.
+function recordStartupDiagnostic(phase, detail) {
   try {
-    window.__TAURI__?.core?.invoke?.('detach_diag', {
-      label: 'boot-error',
-      msg: `${e.message} @ ${e.filename}:${e.lineno}`,
-    });
+    window.__TAURI__?.core?.invoke?.('startup_diagnostic', { phase, detail });
   } catch { /* diagnostics must never throw */ }
+}
+
+recordStartupDiagnostic('frontend-boot-start');
+
+window.addEventListener('error', (e) => {
+  recordStartupDiagnostic('frontend-error', e.message);
 });
 window.addEventListener('unhandledrejection', (e) => {
-  try {
-    window.__TAURI__?.core?.invoke?.('detach_diag', {
-      label: 'boot-rejection',
-      msg: String(e.reason?.stack || e.reason?.message || e.reason),
-    });
-  } catch { /* diagnostics must never throw */ }
+  recordStartupDiagnostic('frontend-rejection', String(e.reason?.message || e.reason));
 });
 
 // Core modules
@@ -195,6 +192,7 @@ async function init() {
     try { await loadPreferences(); } catch (_) {}
     const { default: PrintQueueWindow } = await import('./solid/components/PrintQueueWindow.jsx');
     render(() => PrintQueueWindow(), document.getElementById('app-root'));
+    recordStartupDiagnostic('frontend-ready');
     return;
   }
 
@@ -219,6 +217,7 @@ async function init() {
   // Single render call — mounts the entire UI tree
   // render() is synchronous, so DOM elements exist immediately after
   render(() => App(), document.getElementById('app-root'));
+  recordStartupDiagnostic('frontend-rendered');
 
   // Restore properties panel visibility from preferences
   initPropertiesPanel();
@@ -241,12 +240,11 @@ async function init() {
     .then(m => m.initScreenshotAnnotate())
     .catch(() => {});
 
-  // Wire MCP <-> WebView bridge BEFORE show()/setFocus(). The bridge is just
+  // Wire the MCP <-> WebView bridge early. The bridge is just
   // event-listener registration on window.__TAURI__.event — it does not need
   // the window to be visible or DOM-ready. Wiring it here means the in-process
-  // MCP server's `app_*` tools work even if `appWindow.show()` later stalls
-  // (observed: window remains created but `Visible: False`, blocking the
-  // entire downstream init chain). Inert outside Tauri.
+  // MCP server's `app_*` tools are available during the remaining startup.
+  // Inert outside Tauri.
   initMcpBridge().catch(e => console.warn('initMcpBridge failed:', e));
 
   // "Open PDF Printer" job queue: watch the spool so prints from ANY
@@ -262,17 +260,8 @@ async function init() {
     .then(m => m.loadPrinters())
     .catch(() => {});
 
-  // Show the window after frontend init. The previous double-rAF paint-wait
-  // gate permanently hides the window on WebKitGTK builds where accelerated
-  // compositing stalls before the first paint (observed on Linux Mint 22.3 +
-  // Mesa + Intel CML iGPU); rAF never resolves so show() is never called.
-  if (isTauri() && window.__TAURI__?.window) {
-    const appWindow = window.__TAURI__.window.getCurrentWindow();
-    await appWindow.show();
-    await appWindow.setFocus();
-  }
-
-  // Now that Solid has rendered, grab canvas and container refs
+  // The native window is visible from creation; frontend startup cannot keep
+  // it hidden. Now that Solid has rendered, grab canvas and container refs.
   initDomElements();
 
   // Wire the reactive cursor — runs once, then updates the .main-view cursor
@@ -400,6 +389,8 @@ async function init() {
         .catch(() => { /* offline / network error — silently skip */ });
     }, 1500);
   }
+
+  recordStartupDiagnostic('frontend-ready');
 }
 
 // Check for PDF files passed as command line arguments
