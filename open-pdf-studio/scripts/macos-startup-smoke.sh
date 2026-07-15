@@ -71,9 +71,10 @@ for _ in 0..<30 {
     let ownerPid = (window[kCGWindowOwnerPID as String] as? NSNumber)?.intValue
     let layer = (window[kCGWindowLayer as String] as? NSNumber)?.intValue
     guard ownerPid == expectedPid, layer == 0,
-          let rawBounds = window[kCGWindowBounds as String] as? CFDictionary,
-          let bounds = CGRect(dictionaryRepresentation: rawBounds) else { return false }
-    return bounds.width >= 400 && bounds.height >= 300
+          let bounds = window[kCGWindowBounds as String] as? [String: Any],
+          let width = (bounds["Width"] as? NSNumber)?.doubleValue,
+          let height = (bounds["Height"] as? NSNumber)?.doubleValue else { return false }
+    return width >= 400 && height >= 300
   }
   if visible { exit(0) }
   Thread.sleep(forTimeInterval: 1)

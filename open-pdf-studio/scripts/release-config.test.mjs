@@ -64,6 +64,7 @@ test('CI exercises macOS 26 startup and frontend readiness', async () => {
   assert.match(smoke, /survival_seconds=10/);
   assert.match(smoke, /kill -0 "\$pid"/);
   assert.match(smoke, /new_crash_report/);
+  assert.doesNotMatch(smoke, /CFDictionary/);
 });
 
 test('release workflows verify macOS signatures and notarization', async () => {
