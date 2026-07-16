@@ -53,6 +53,8 @@ test('CI builds and starts the AppImage on Debian 13', async () => {
   assert.match(workflow, /find \.\.\/target\/release\/bundle\/appimage/);
   assert.match(workflow, /appimage=\$\(realpath "\$appimage"\)/);
   assert.match(workflow, /debian:13-slim/);
+  assert.match(workflow, /libfontconfig1/);
+  assert.match(workflow, /gvfs/);
   assert.match(workflow, /linux-appimage-smoke\.sh/);
 });
 

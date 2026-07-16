@@ -130,7 +130,7 @@ jobs:
             -v "$appimage:/input/open-pdf-studio.AppImage:ro" \
             -v "$PWD/scripts/linux-appimage-smoke.sh:/input/linux-appimage-smoke.sh:ro" \
             debian:13-slim \
-            bash -lc 'apt-get update && apt-get install -y --no-install-recommends dbus-x11 xauth xvfb && cp /input/open-pdf-studio.AppImage /tmp/open-pdf-studio.AppImage && bash /input/linux-appimage-smoke.sh /tmp/open-pdf-studio.AppImage 10'
+            bash -lc 'apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends dbus-x11 gvfs libfontconfig1 xauth xvfb && cp /input/open-pdf-studio.AppImage /tmp/open-pdf-studio.AppImage && bash /input/linux-appimage-smoke.sh /tmp/open-pdf-studio.AppImage 10'
 
       - name: Build ad-hoc signed macOS app
         if: matrix.platform == 'macos-26'
