@@ -90,5 +90,13 @@ jobs:
             target/aarch64-apple-darwin/release/pdfium-worker \
             target/x86_64-apple-darwin/release/pdfium-worker
 
+      - name: Fetch libpdfium.dylib (macOS)
+        if: matrix.platform == 'macos-latest'
+        run: |
+          mkdir -p src-tauri/binaries/macos-universal
+          curl -L "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F7834/pdfium-mac-univ.tgz" -o /tmp/pdfium-mac.tgz
+          tar xzf /tmp/pdfium-mac.tgz -C /tmp lib/libpdfium.dylib
+          cp /tmp/lib/libpdfium.dylib src-tauri/binaries/macos-universal/libpdfium.dylib
+
       - name: Build Tauri app
         run: npm run tauri build -- --no-bundle
