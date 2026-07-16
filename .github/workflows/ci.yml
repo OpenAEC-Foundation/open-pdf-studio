@@ -49,6 +49,9 @@ jobs:
       - name: Install frontend dependencies
         run: npm install
 
+      - name: Run unit tests
+        run: npm run test:unit
+
       # The PDFium worker pool runs as a Tauri sidecar (bundle.externalBin).
       # Tauri requires binaries/pdfium-worker-<target-triple> to exist at
       # build time on EVERY desktop platform, so build the workspace crate
@@ -86,6 +89,14 @@ jobs:
           lipo -create -output open-pdf-studio/src-tauri/binaries/pdfium-worker-universal-apple-darwin \
             target/aarch64-apple-darwin/release/pdfium-worker \
             target/x86_64-apple-darwin/release/pdfium-worker
+
+      - name: Fetch libpdfium.dylib (macOS)
+        if: matrix.platform == 'macos-latest'
+        run: |
+          mkdir -p src-tauri/binaries/macos-universal
+          curl -L "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F7834/pdfium-mac-univ.tgz" -o /tmp/pdfium-mac.tgz
+          tar xzf /tmp/pdfium-mac.tgz -C /tmp lib/libpdfium.dylib
+          cp /tmp/lib/libpdfium.dylib src-tauri/binaries/macos-universal/libpdfium.dylib
 
       - name: Build Tauri app
         run: npm run tauri build -- --no-bundle

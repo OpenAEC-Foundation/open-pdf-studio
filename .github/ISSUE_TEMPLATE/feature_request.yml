@@ -1,0 +1,51 @@
+name: Feature / change request
+description: Describe an implementation-ready improvement.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: "Please keep one topic per issue and split unrelated requests into separate reports."
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: State in one sentence what should be possible after this change.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behaviour
+    attributes:
+      label: Expected behaviour
+      description: Describe step by step what the user does, what happens, and the relevant edge cases.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: List the observable conditions that show the request is complete.
+      placeholder: |
+        - [ ] When I do X, Y happens.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Add screenshots, example files, and where in the UI you expect the outcome.
+    validations:
+      required: false
+
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+      description: State anything that should explicitly not change.
+    validations:
+      required: false

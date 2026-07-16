@@ -1,4 +1,4 @@
-import { state, getActiveDocument, imageCache } from '../core/state.js';
+import { state, getActiveDocument, getPageRotation, imageCache } from '../core/state.js';
 import { annotationCanvas, annotationCtx, textHighlightCanvas, textHighlightCtx } from '../ui/dom-elements.js';
 import { updateStatusAnnotations } from '../ui/chrome/status-bar.js';
 import { updateAnnotationsList } from '../ui/panels/annotations-list.js';
@@ -25,6 +25,7 @@ import { drawImageAlignGuides } from '../tools/image-align-snap.js';
 import { getTemplate } from '../symbols/registry.js';
 import { hasFill } from './fill-utils.js';
 import { hiddenTypes as evHiddenTypes, halftoneTypes as evHalftoneTypes } from '../solid/stores/elementVisibilityStore.js';
+import { getPageRotationMatrix } from '../text/text-edit-appearance.js';
 
 // Re-export everything that external code needs
 export { drawPolygonShape, drawCloudShape, buildPolygonPath, buildCloudPath } from './rendering/shapes.js';
@@ -2130,15 +2131,16 @@ function drawTextEdits(ctx, pageNum) {
   if (pageEdits.length === 0) return;
 
   const canvasEl = ctx.canvas;
-  const docForScale = state.documents[state.activeDocumentIndex];
-  // In viewport mode the annotation canvas is the CONTAINER (not the page), so
-  // canvas.height/scale is NOT the page height — that broke the Y-flip below and
-  // drew the cover/new text ~hundreds of pt off (text edits "did nothing"). Use
-  // the viewport's real page height; fall back to the canvas math for blank/legacy docs.
-  const _vpTE = window.__pdfViewport;
-  const pageHeight = (_vpTE && _vpTE.active && docForScale?.filePath && _vpTE.pageH)
-    ? _vpTE.pageH
-    : canvasEl.height / (docForScale ? docForScale.scale : 1);
+  const dims = doc.pageDims?.[pageNum];
+  // Text-edit records stay in the page's unrotated PDF frame. Apply the page
+  // matrix only while painting so save coordinates remain stable across turns.
+  const fallbackScale = doc.scale || 1;
+  const pageWidth = dims?.widthPt || canvasEl.width / fallbackScale;
+  const pageHeight = dims?.heightPt || canvasEl.height / fallbackScale;
+  const totalRotation = (Number(dims?.rotation) || 0) + getPageRotation(pageNum);
+
+  ctx.save();
+  ctx.transform(...getPageRotationMatrix(pageWidth, pageHeight, totalRotation));
 
   for (const edit of pageEdits) {
     const fontSize = edit.fontSize;
@@ -2184,6 +2186,7 @@ function drawTextEdits(ctx, pageNum) {
     }
     ctx.restore();
   }
+  ctx.restore();
 }
 
 // Redraw all annotations (single page mode)

@@ -14,6 +14,7 @@
     "tauri:build": "npm run build && tauri build",
     "bump": "node scripts/bump-version.js",
     "typecheck": "tsc --noEmit",
+    "test:unit": "node --test js/pdf/progressive-render.test.mjs js/quantities/engine.test.mjs js/quantities/schedule-image.test.mjs js/quantities/takeoff.test.mjs js/text/text-edit-appearance.test.mjs js/tools/embedded-image-parser.test.mjs",
     "test:render": "..\\scripts\\.venv-test\\Scripts\\python.exe ../scripts/render-regression-test.py",
     "test:render:auto": "node ../scripts/run-render-regression.mjs"
   },
