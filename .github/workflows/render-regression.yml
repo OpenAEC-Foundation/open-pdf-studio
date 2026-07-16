@@ -38,9 +38,8 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            open-pdf-studio/src-tauri/target
-            open-pdf-render/target
-          key: render-regression-${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+            target
+          key: render-regression-v2-${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install npm deps (open-pdf-studio)
         working-directory: open-pdf-studio
