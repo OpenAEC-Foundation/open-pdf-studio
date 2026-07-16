@@ -123,10 +123,11 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         shell: bash
         run: |
-          appimage=$(find target/release/bundle/appimage -maxdepth 1 -type f -name '*.AppImage' -print -quit)
+          appimage=$(find ../target/release/bundle/appimage -maxdepth 1 -type f -name '*.AppImage' -print -quit)
           test -n "$appimage"
+          appimage=$(realpath "$appimage")
           docker run --rm \
-            -v "$PWD/$appimage:/input/open-pdf-studio.AppImage:ro" \
+            -v "$appimage:/input/open-pdf-studio.AppImage:ro" \
             -v "$PWD/scripts/linux-appimage-smoke.sh:/input/linux-appimage-smoke.sh:ro" \
             debian:13-slim \
             bash -lc 'apt-get update && apt-get install -y --no-install-recommends dbus-x11 xauth xvfb && cp /input/open-pdf-studio.AppImage /tmp/open-pdf-studio.AppImage && bash /input/linux-appimage-smoke.sh /tmp/open-pdf-studio.AppImage 10'

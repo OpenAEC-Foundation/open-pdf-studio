@@ -50,6 +50,8 @@ test('CI builds and starts the AppImage on Debian 13', async () => {
     workflow,
     /tauri build -- --bundles appimage --config '\{"bundle":\{"createUpdaterArtifacts":false\}\}'/,
   );
+  assert.match(workflow, /find \.\.\/target\/release\/bundle\/appimage/);
+  assert.match(workflow, /appimage=\$\(realpath "\$appimage"\)/);
   assert.match(workflow, /debian:13-slim/);
   assert.match(workflow, /linux-appimage-smoke\.sh/);
 });
