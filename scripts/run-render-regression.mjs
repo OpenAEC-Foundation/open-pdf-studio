@@ -17,7 +17,10 @@ const HARNESS_PY = path.join(__dirname, 'render-regression-test.py');
 const VENV_PY    = path.join(__dirname, '.venv-test', 'Scripts', 'python.exe');
 
 const PORT = 9223;
-const MAX_WAIT_MS = 180_000;
+// A cold Windows runner may need several minutes to compile the desktop app.
+// Keep readiness separate from compilation speed; the workflow-level timeout
+// remains the hard upper bound for hung starts.
+const MAX_WAIT_MS = 600_000;
 
 function waitForPort(port, timeoutMs) {
   const start = Date.now();

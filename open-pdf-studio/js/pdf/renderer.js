@@ -205,7 +205,11 @@ async function _renderPageImpl(pageNum) {
   // vector path is gated off by the filePath check).
   if (!doc.pageDims) doc.pageDims = {};
   const [vx0, vy0, vx1, vy1] = page.view;
-  doc.pageDims[pageNum] = { widthPt: vx1 - vx0, heightPt: vy1 - vy0 };
+  doc.pageDims[pageNum] = {
+    widthPt: vx1 - vx0,
+    heightPt: vy1 - vy0,
+    rotation: page.rotate || 0,
+  };
 
   const pdfCanvas = getPdfCanvas();
   const annotationCanvas = getAnnotationCanvas();
@@ -1182,6 +1186,13 @@ export async function renderContinuous(forceRebuild) {
   // First pass: create all page wrappers with correct dimensions (no rendering)
   for (const pageNum of _pageList) {
     const page = await pdfDoc.getPage(pageNum);
+    if (!doc.pageDims) doc.pageDims = {};
+    const [pageX0, pageY0, pageX1, pageY1] = page.view;
+    doc.pageDims[pageNum] = {
+      widthPt: pageX1 - pageX0,
+      heightPt: pageY1 - pageY0,
+      rotation: page.rotate || 0,
+    };
     const extraRotation = getPageRotation(pageNum);
     const vpOpts = { scale };
     if (extraRotation) {
