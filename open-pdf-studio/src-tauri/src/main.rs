@@ -21,6 +21,8 @@ struct Cli {
 }
 
 fn main() {
+    app_lib::linux_runtime::configure_appimage_gio_modules();
+
     // Tauri swallows unrecognized args (e.g. file-association launches), so we
     // try_parse rather than parse so unknown args don't abort startup.
     let args: Vec<String> = std::env::args().collect();

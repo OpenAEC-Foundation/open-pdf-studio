@@ -5,6 +5,7 @@
 
 mod accounts;
 mod email;
+pub mod linux_runtime;
 pub mod mcp_app_bridge;
 pub mod mcp_server;
 pub mod pdfium_renderer;

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "bundle": {
+    "resources": {
+      "binaries/win-x64/pdfium.dll": "pdfium.dll",
+      "WebView2Loader.dll": "WebView2Loader.dll"
+    }
+  }
+}
