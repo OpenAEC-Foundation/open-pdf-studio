@@ -300,26 +300,30 @@ Download the APK from [Releases](https://github.com/OpenAEC-Foundation/OpenPDFSt
 ### Prerequisites
 - [Node.js](https://nodejs.org/) 20+
 - [Rust](https://www.rust-lang.org/tools/install) (stable)
+- [CMake](https://cmake.org/download/) and a C/C++ toolchain
 - System dependencies:
   - **Linux:** `libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf`
-  - **macOS:** Xcode Command Line Tools
+  - **macOS:** Xcode Command Line Tools; universal release builds also need the `aarch64-apple-darwin` and `x86_64-apple-darwin` Rust targets
   - **Windows:** Visual Studio Build Tools with C++ workload
 
 ### Build
 
 ```bash
 cd open-pdf-studio
-npm install
+npm ci
 npx tauri build
 ```
 
-The built application will be in `open-pdf-studio/src-tauri/target/release/bundle/`.
+The build automatically downloads the pinned macOS PDFium runtime and verifies
+its SHA-256 checksum. Build artifacts are written to the workspace-level
+`target/release/bundle/` directory, or `target/universal-apple-darwin/release/bundle/`
+for a universal macOS build.
 
 ### Development
 
 ```bash
 cd open-pdf-studio
-npm install
+npm ci
 npx tauri dev
 ```
 

@@ -17,3 +17,20 @@ opt-level = 3
 # gecachet); workspace-crates behouden snelle debug-compiles.
 [profile.dev.package."*"]
 opt-level = 2
+
+# Rendering hot paths get full optimization in development. These profiles
+# must be declared at the workspace root; Cargo ignores them in member crates.
+[profile.dev.package.tiny-skia]
+opt-level = 3
+
+[profile.dev.package.tiny-skia-path]
+opt-level = 3
+
+[profile.dev.package.lopdf]
+opt-level = 3
+
+[profile.dev.package.image]
+opt-level = 3
+
+[profile.dev.package.pdfium-render]
+opt-level = 3

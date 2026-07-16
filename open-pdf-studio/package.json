@@ -1,11 +1,12 @@
 {
   "name": "open-pdf-studio",
-  "version": "1.77.0",
+  "version": "1.78.0",
   "description": "A free, open-source PDF annotation editor built with Tauri",
   "scripts": {
-    "predev": "cargo build -p pdfium-worker",
+    "prepare:native-runtime": "node scripts/native-runtime.mjs",
+    "predev": "npm run prepare:native-runtime && cargo build -p pdfium-worker",
     "dev": "vite",
-    "prebuild": "cargo build --release -p pdfium-worker",
+    "prebuild": "npm run prepare:native-runtime && cargo build --release -p pdfium-worker",
     "build": "vite build",
     "preview": "vite preview",
     "tauri": "tauri",
@@ -16,7 +17,8 @@
     "typecheck": "tsc --noEmit",
     "test:unit": "node --test js/pdf/progressive-render.test.mjs js/quantities/engine.test.mjs js/quantities/schedule-image.test.mjs js/quantities/takeoff.test.mjs js/text/text-edit-appearance.test.mjs js/tools/embedded-image-parser.test.mjs",
     "test:render": "..\\scripts\\.venv-test\\Scripts\\python.exe ../scripts/render-regression-test.py",
-    "test:render:auto": "node ../scripts/run-render-regression.mjs"
+    "test:render:auto": "node ../scripts/run-render-regression.mjs",
+    "test:quality": "node --test scripts/native-runtime.test.mjs scripts/release-config.test.mjs scripts/square-image-annotation.test.mjs"
   },
   "keywords": [
     "tauri",

@@ -92,7 +92,7 @@ jobs:
           - platform: 'ubuntu-22.04'
             args: ''
             target: 'linux'
-          - platform: 'macos-latest'
+          - platform: 'macos-26'
             args: '--target universal-apple-darwin'
             target: 'macos'
           - platform: 'windows-latest'
@@ -136,7 +136,7 @@ jobs:
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: Install frontend dependencies
-        run: npm install
+        run: npm ci
 
       # The PDFium worker pool runs as a Tauri sidecar (bundle.externalBin).
       # Tauri requires binaries/pdfium-worker-<target-triple> to exist at build
@@ -199,14 +199,9 @@ jobs:
       # verwijst naar binaries/macos-universal/libpdfium.dylib. Universal
       # (arm64+x86_64) via bblanchon/pdfium-binaries (zelfde chromium-release als
       # Linux/Windows), met SHA-256-verificatie.
-      - name: Fetch libpdfium.dylib (macOS)
+      - name: Prepare libpdfium.dylib (macOS)
         if: matrix.target == 'macos'
-        run: |
-          mkdir -p src-tauri/binaries/macos-universal
-          curl -L "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F7834/pdfium-mac-univ.tgz" -o /tmp/pdfium-mac.tgz
-          echo "659e2f647ffd667b36487375165563e58f961db9cf75a45104dc59b9407ccbdf  /tmp/pdfium-mac.tgz" | shasum -a 256 -c -
-          tar xzf /tmp/pdfium-mac.tgz -C /tmp lib/libpdfium.dylib
-          cp /tmp/lib/libpdfium.dylib src-tauri/binaries/macos-universal/libpdfium.dylib
+        run: npm run prepare:native-runtime
 
       - name: Build Tauri app
         if: matrix.target != 'windows-user'
@@ -226,6 +221,18 @@ jobs:
           args: ${{ matrix.args }}
           releaseId: ${{ needs.prepare-release.outputs.release_id }}
           includeUpdaterJson: false
+
+      - name: Verify macOS signature and notarization
+        if: matrix.target == 'macos'
+        run: |
+          APP_PATH="../target/universal-apple-darwin/release/bundle/macos/Open PDF Studio.app"
+          DMG_PATH="$(find ../target/universal-apple-darwin/release/bundle/dmg -name '*.dmg' -print -quit)"
+          test -n "$DMG_PATH"
+          codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+          spctl --assess --type execute --verbose=4 "$APP_PATH"
+          xcrun stapler validate "$APP_PATH"
+          xcrun stapler validate "$DMG_PATH"
+          bash scripts/macos-startup-smoke.sh "$APP_PATH"
 
       - name: Build Tauri app (Windows user installer)
         if: matrix.target == 'windows-user'

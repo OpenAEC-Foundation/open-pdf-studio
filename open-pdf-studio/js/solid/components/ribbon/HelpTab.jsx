@@ -9,6 +9,13 @@ import { openDialog } from '../../stores/dialogStore.js';
 export default function HelpTab() {
   const { t } = useTranslation('ribbon');
 
+  const revealStartupDiagnostics = async () => {
+    const invoke = window.__TAURI__?.core?.invoke;
+    if (!invoke) return;
+    const path = await invoke('startup_diagnostics_path');
+    await invoke('reveal_in_file_manager', { path });
+  };
+
   return (
     <div class="ribbon-content active" id="tab-help">
       <AdaptiveGroups>
@@ -57,6 +64,13 @@ export default function HelpTab() {
             icon={updatesIcon}
             label={t('help.updatesLabel')}
             onClick={() => import('../../../ui/chrome/updater.js').then(m => m.checkForUpdates(false))}
+          />
+          <RibbonButton
+            id="ribbon-startup-diagnostics"
+            title={t('help.startupDiagnosticsTitle')}
+            icon={updatesIcon}
+            label={t('help.startupDiagnostics')}
+            onClick={revealStartupDiagnostics}
           />
         </RibbonGroup>
       </AdaptiveGroups>

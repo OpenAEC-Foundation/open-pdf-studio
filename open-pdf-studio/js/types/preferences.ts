@@ -33,8 +33,10 @@ export interface Preferences {
   showSnapTypeLabel: boolean;
   objectSnapRadius: number;
   snapToPdfContent: boolean;
+  enableImageAlignSnap: boolean;
   keepToolActive: boolean;
   lineContinue: boolean;
+  ribbonCollapsed: boolean;
 
   // Appearance
   defaultAnnotationColor: string;
@@ -102,13 +104,19 @@ export interface Preferences {
   highlightColor: string;
 
   // Polygon defaults
+  polygonFillColor: string;
+  polygonFillNone: boolean;
   polygonStrokeColor: string;
   polygonLineWidth: number;
+  polygonBorderStyle: string;
   polygonOpacity: number;
 
   // Cloud defaults
+  cloudFillColor: string;
+  cloudFillNone: boolean;
   cloudStrokeColor: string;
   cloudLineWidth: number;
+  cloudBorderStyle: string;
   cloudOpacity: number;
 
   // Cloud Polyline defaults
@@ -123,7 +131,23 @@ export interface Preferences {
   // Polyline defaults
   polylineStrokeColor: string;
   polylineLineWidth: number;
+  polylineBorderStyle: string;
   polylineOpacity: number;
+
+  // Filled Area defaults
+  filledAreaStrokeColor: string;
+  filledAreaFillColor: string;
+  filledAreaFillNone: boolean;
+  filledAreaLineWidth: number;
+  filledAreaBorderStyle: string;
+  filledAreaOpacity: number;
+  filledAreaHatchPattern: string;
+  filledAreaHatchColor: string;
+  filledAreaHatchScale: number;
+  filledAreaHatchAngle: number;
+
+  // Symbol customisation
+  symbolTypeOverrides: Record<string, { svg: string; name: string }>;
 
   // Redaction defaults
   redactionOverlayColor: string;

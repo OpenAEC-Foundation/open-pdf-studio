@@ -1,9 +1,9 @@
+use memmap2::Mmap;
 use std::sync::atomic::{AtomicBool, AtomicU64, AtomicU8, AtomicUsize, Ordering};
 use std::sync::Arc;
-use tokio::io::{BufReader, AsyncBufReadExt};
+use tokio::io::BufReader;
 use tokio::process::{Child, ChildStdin, ChildStdout};
 use tokio::sync::Mutex;
-use memmap2::Mmap;
 
 /// Status of a single worker slot.
 #[repr(u8)]

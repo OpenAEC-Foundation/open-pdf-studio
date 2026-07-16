@@ -2,7 +2,7 @@
 // Unconditional (also debug builds): the app must run fully in the
 // background with only its own window. Dev logs stay visible when launched
 // from a terminal (`tauri dev` pipes stdio); double-click runs log nothing,
-// boot errors still land in %TEMP%\opds-detach-diag.log via detach_diag.
+// startup failures still land in the app-local startup diagnostics file.
 #![windows_subsystem = "windows"]
 
 use clap::Parser;

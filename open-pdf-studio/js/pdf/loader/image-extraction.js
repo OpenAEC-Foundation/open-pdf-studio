@@ -1,5 +1,6 @@
 import { PDFName, PDFArray } from 'pdf-lib';
 import { pdfNum, inflateBytes } from './pdf-helpers.js';
+import { findImageAnnotationSources, findImageForAnnotation } from './annotation-image-sources.mjs';
 
 // Hybrid stamp image extraction. Tries to extract each stamp via pdf-lib's
 // XObject reader first (clean — never bakes in overlapping annotations),
@@ -16,7 +17,7 @@ import { pdfNum, inflateBytes } from './pdf-helpers.js';
 // with it. The bake-in happens because page.render() with annotationMode:1
 // rasterizes ALL annotations onto the temp canvas before cropping.
 export async function extractStampImagesHybrid(page, viewport, stampAnnots, pageNum, pdfLibDoc) {
-  if (stampAnnots.length === 0) return new Map();
+  if (stampAnnots.length === 0 && !pdfLibDoc) return new Map();
 
   // First pass: pdf-lib extraction (clean, no bake-in)
   let imageMap = new Map();
@@ -33,7 +34,7 @@ export async function extractStampImagesHybrid(page, viewport, stampAnnots, page
   const missing = stampAnnots.filter(s => {
     const rect = s.rect;
     if (!rect) return false;
-    return !imageMap.has(`${rect[0]},${rect[1]},${rect[2]},${rect[3]}`);
+    return !findImageForAnnotation(imageMap, s, 'stamp');
   });
 
   // Second pass: PDF.js render+crop for the leftovers (still bakes in
@@ -117,8 +118,10 @@ export async function extractStampImagesViaPdfJs(page, viewport, stampAnnots) {
         cropCtx.drawImage(tempCanvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
 
         const dataUrl = cropCanvas.toDataURL('image/png');
-        const key = `${rect[0]},${rect[1]},${rect[2]},${rect[3]}`;
-        imageMap.set(key, dataUrl);
+        const key = stamp.id
+          ? `id:${stamp.id}`
+          : `rect:${rect[0]},${rect[1]},${rect[2]},${rect[3]}`;
+        imageMap.set(key, { kind: 'stamp', dataUrl });
       }
     }
   } catch (e) {
@@ -133,45 +136,14 @@ export async function extractStampImages(pageNum, pdfDoc) {
   const imageMap = new Map();
 
   try {
-    const page = pdfDoc.getPages()[pageNum - 1];
-    if (!page) return imageMap;
-
     const context = pdfDoc.context;
-    const annotsRaw = page.node.get(PDFName.of('Annots'));
-    if (!annotsRaw) return imageMap;
-    const annots = context.lookup(annotsRaw);
-    if (!annots) return imageMap;
-
-    for (let i = 0; i < annots.size(); i++) {
-      const annotDict = context.lookup(annots.get(i));
-      if (!annotDict) continue;
-
-      const subtype = annotDict.get(PDFName.of('Subtype'));
-      if (!subtype || subtype.toString() !== '/Stamp') continue;
-
-      // Get appearance: /AP -> /N
-      const apRaw = annotDict.get(PDFName.of('AP'));
-      if (!apRaw) { console.warn('Stamp has no /AP'); continue; }
-      const apDict = context.lookup(apRaw);
-      if (!apDict) continue;
-
-      const normalRaw = apDict.get(PDFName.of('N'));
-      if (!normalRaw) { console.warn('Stamp has no /AP/N'); continue; }
-      const normalStream = context.lookup(normalRaw);
-      if (!normalStream) continue;
-
-      // Extract image from the Form XObject
-      const dataUrl = await extractImageFromFormXObject(context, normalStream);
+    for (const source of findImageAnnotationSources(pageNum, pdfDoc)) {
+      const dataUrl = await extractImageFromFormXObject(context, source.stream);
       if (dataUrl) {
-        // Build rect key for matching with pdf.js annotations
-        const rectArr = annotDict.get(PDFName.of('Rect'));
-        if (rectArr) {
-          const r0 = pdfNum(context.lookup(rectArr.get(0)) || rectArr.get(0));
-          const r1 = pdfNum(context.lookup(rectArr.get(1)) || rectArr.get(1));
-          const r2 = pdfNum(context.lookup(rectArr.get(2)) || rectArr.get(2));
-          const r3 = pdfNum(context.lookup(rectArr.get(3)) || rectArr.get(3));
-          imageMap.set(`${r0},${r1},${r2},${r3}`, dataUrl);
-        }
+        const key = source.annotationId
+          ? `id:${source.annotationId}`
+          : `rect:${source.rectKey}`;
+        imageMap.set(key, { kind: source.kind, dataUrl });
       }
     }
   } catch (e) {
