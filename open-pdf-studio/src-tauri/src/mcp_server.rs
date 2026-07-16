@@ -58,6 +58,19 @@ pub struct AppState {
     pub app_handle: Option<AppHandle>,
 }
 
+/// Resolve the corpus independently of the process working directory.
+/// CI can point at a small committed fixture set; local runs default to the
+/// repository corpus next to the workspace root.
+pub fn resolve_test_pdfs_dir(override_dir: Option<PathBuf>) -> PathBuf {
+    override_dir.unwrap_or_else(|| {
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .join("..")
+            .join("test pdf-bestanden")
+            .join("Originele bestanden")
+    })
+}
+
 /// Standard JSON-RPC error codes used by this server. Codes not yet
 /// dispatched in handler bodies are kept available for tool handlers added
 /// in tasks 7-9.
@@ -1269,6 +1282,23 @@ mod tests {
             .expect("descriptor present");
         assert_eq!(tool["inputSchema"]["type"], "object");
         assert_eq!(tool["inputSchema"]["additionalProperties"], false);
+    }
+
+    #[test]
+    fn resolve_test_pdfs_dir_prefers_explicit_override() {
+        let fixture = PathBuf::from("render-fixtures");
+        assert_eq!(resolve_test_pdfs_dir(Some(fixture.clone())), fixture);
+    }
+
+    #[test]
+    fn resolve_test_pdfs_dir_defaults_to_repository_corpus() {
+        let expected = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .join("..")
+            .join("test pdf-bestanden")
+            .join("Originele bestanden");
+
+        assert_eq!(resolve_test_pdfs_dir(None), expected);
     }
 
     /// Exercises the real `tool_list_test_pdfs` over a fixture directory.

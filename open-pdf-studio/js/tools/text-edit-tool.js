@@ -1,4 +1,4 @@
-import { state, getActiveDocument } from '../core/state.js';
+import { state, getActiveDocument, getPageRotation } from '../core/state.js';
 import { execute } from '../core/undo-manager.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { showTextEditProperties, hideProperties } from '../ui/panels/properties-panel.js';
@@ -7,6 +7,14 @@ import { canvasContainer, continuousContainer, pdfCanvas } from '../ui/dom-eleme
 import { showPdfTextEditor, hidePdfTextEditor, getPdfEditorText as getEditorText,
   updatePdfEditorStyle, shiftPdfEditorPosition } from '../bridge.js';
 import { injectSyntheticTextSpans } from '../text/text-layer.js';
+import {
+  applyPageRotation,
+  getPageRotationMatrix,
+  invertPageRotation,
+  restoreTextEditSnapshot,
+  resolveTextEditPageGeometry,
+  sampleTextColor,
+} from '../text/text-edit-appearance.js';
 
 let activeEditor = null;
 let hoverListeners = [];
@@ -14,13 +22,6 @@ let textLayerObserver = null;
 let blockGroupsCache = new Map();
 // WeakMap: span -> block group, for fast lookup on hover/click
 let spanToBlock = new WeakMap();
-
-function rgbToHex(rgbStr) {
-  const m = rgbStr.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-  if (!m) return '#000000';
-  const r = parseInt(m[1]), g = parseInt(m[2]), b = parseInt(m[3]);
-  return '#' + ((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1);
-}
 
 // ── Font mapping shared by the text-edit sessions ──
 // Map a display / actual font name + bold/italic flags to a pdf-lib StandardFont
@@ -94,6 +95,20 @@ function applyStyleStateToEditor(st) {
     'font-style': st.italic ? 'italic' : 'normal',
     'font-family': cssFamilyFor(st.family),
   });
+}
+
+function getTextEditGeometry(pageNum, canvasEl) {
+  const doc = getActiveDocument();
+  const scale = doc?.scale || 1;
+  const dpr = window.devicePixelRatio || 1;
+  const displayWidth = canvasEl?.width ? canvasEl.width / (scale * dpr) : 0;
+  const displayHeight = canvasEl?.height ? canvasEl.height / (scale * dpr) : 0;
+  return resolveTextEditPageGeometry(
+    doc?.pageDims?.[pageNum],
+    displayWidth,
+    displayHeight,
+    getPageRotation(pageNum),
+  );
 }
 
 export function activateEditTextTool() {
@@ -262,7 +277,6 @@ function getBlockGroups(layer) {
   // Find the PDF canvas to sample text colors
   const pdfCanvasEl = layer.parentElement?.querySelector('canvas.pdf-canvas')
     || pdfCanvas || document.getElementById('pdf-canvas');
-  const canvasCtx = pdfCanvasEl?.getContext('2d', { willReadFrequently: true });
 
   const groups = blocks.map(block => {
     const allItems = block.flat();
@@ -284,19 +298,7 @@ function getBlockGroups(layer) {
       const isBold = firstSpan.dataset.pdfBold === 'true';
       const isItalic = firstSpan.dataset.pdfItalic === 'true';
 
-      // Sample text color from the rendered canvas
-      let color = '#000000';
-      if (canvasCtx) {
-        const sampleX = Math.round(lineItems[0].domLeft + 2);
-        const sampleY = Math.round((lineItems[0].domTop + lineItems[0].domBottom) / 2);
-        if (sampleX >= 0 && sampleY >= 0 && sampleX < pdfCanvasEl.width && sampleY < pdfCanvasEl.height) {
-          const pixel = canvasCtx.getImageData(sampleX, sampleY, 1, 1).data;
-          // Only use sampled color if it's not white/near-white (background)
-          if (pixel[0] < 240 || pixel[1] < 240 || pixel[2] < 240) {
-            color = '#' + ((1 << 24) | (pixel[0] << 16) | (pixel[1] << 8) | pixel[2]).toString(16).slice(1);
-          }
-        }
-      }
+      const color = sampleTextColor(pdfCanvasEl, firstSpan.getBoundingClientRect());
 
       return {
         text: lineItems.map(it => it.span.textContent).join(''),
@@ -676,6 +678,11 @@ function finishPdfTextEditing() {
 function cancelPdfTextEditing() {
   if (!activeEditor) return;
 
+  if (activeEditor._cancelEditing) {
+    activeEditor._cancelEditing();
+    return;
+  }
+
   const { block } = activeEditor;
   hidePdfTextEditor();
   for (const s of block.spans) s.style.visibility = '';
@@ -741,28 +748,10 @@ export function createReplaceTextEdit(pageNum, originalText, newText, matchSpan)
       : 'Helvetica';
   }
 
-  // Sample text color from the canvas at the span's position
-  let color = '#000000';
   const textLayer = matchSpan.closest('.textLayer');
-  if (textLayer) {
-    const canvasEl = textLayer.parentElement?.querySelector('canvas.pdf-canvas')
-      || document.getElementById('pdf-canvas');
-    if (canvasEl) {
-      try {
-        const ctx = canvasEl.getContext('2d');
-        const spanRect = matchSpan.getBoundingClientRect();
-        const canvasRect = canvasEl.getBoundingClientRect();
-        const sampleX = Math.round(spanRect.left - canvasRect.left + 2);
-        const sampleY = Math.round((spanRect.top + spanRect.bottom) / 2 - canvasRect.top);
-        if (sampleX >= 0 && sampleY >= 0 && sampleX < canvasEl.width && sampleY < canvasEl.height) {
-          const pixel = ctx.getImageData(sampleX, sampleY, 1, 1).data;
-          if (pixel[0] < 240 || pixel[1] < 240 || pixel[2] < 240) {
-            color = '#' + ((1 << 24) | (pixel[0] << 16) | (pixel[1] << 8) | pixel[2]).toString(16).slice(1);
-          }
-        }
-      } catch (_) {}
-    }
-  }
+  const canvasEl = textLayer?.parentElement?.querySelector('canvas.pdf-canvas')
+    || document.getElementById('pdf-canvas');
+  const color = sampleTextColor(canvasEl, matchSpan.getBoundingClientRect());
 
   const editRecord = {
     id: Date.now() + Math.random().toString(36).substr(2, 9),
@@ -795,8 +784,15 @@ export function findTextEditAtPosition(x, y, pageNum, canvasEl) {
   const pageEdits = doc.textEdits.filter(e => e.page === pageNum);
   if (pageEdits.length === 0) return null;
 
-  const _dpr = window.devicePixelRatio || 1;
-  const pageHeight = canvasEl.height / ((doc.scale || 1.5) * _dpr);
+  const geometry = getTextEditGeometry(pageNum, canvasEl);
+  const unrotatedPoint = invertPageRotation(
+    x,
+    y,
+    geometry.pageWidth,
+    geometry.pageHeight,
+    geometry.rotation,
+  );
+  const pageHeight = geometry.pageHeight;
 
   for (const edit of pageEdits) {
     const fontSize = edit.fontSize;
@@ -811,8 +807,8 @@ export function findTextEditAtPosition(x, y, pageNum, canvasEl) {
     const maxCharCount = Math.max(...newLines.map(l => l.length), 1);
     const editWidth = Math.max(edit.pdfWidth || 0, fontSize * 0.6 * maxCharCount) + fontSize * 0.5;
 
-    if (x >= editLeft && x <= editLeft + editWidth &&
-        y >= editTop && y <= editTop + editHeight) {
+    if (unrotatedPoint.x >= editLeft && unrotatedPoint.x <= editLeft + editWidth &&
+        unrotatedPoint.y >= editTop && unrotatedPoint.y <= editTop + editHeight) {
       return edit;
     }
   }
@@ -824,8 +820,8 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
 
   const editDoc = getActiveDocument();
   const editScale = editDoc?.scale || 1.5;
-  const editDpr = window.devicePixelRatio || 1;
-  const pageHeight = canvasEl.height / (editScale * editDpr);
+  const geometry = getTextEditGeometry(pageNum, canvasEl);
+  const pageHeight = geometry.pageHeight;
   const fontSize = textEdit.fontSize;
   const ls = textEdit.lineSpacing || fontSize * 1.2;
   const newLines = textEdit.newText.split('\n');
@@ -847,12 +843,23 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
 
   const padX = 4;
   const padY = 4;
-  const scaledLeft = textEdit.pdfX * editScale;
-  const scaledTop = editTop * editScale;
+  const rotatedTopLeft = applyPageRotation(
+    textEdit.pdfX,
+    editTop,
+    geometry.pageWidth,
+    geometry.pageHeight,
+    geometry.rotation,
+  );
+  const scaledLeft = rotatedTopLeft.x * editScale;
+  const scaledTop = rotatedTopLeft.y * editScale;
   const scaledWidth = editWidth * editScale;
   const scaledHeight = editHeight * editScale;
   const editorFontSize = Math.round(fontSize * editScale * 0.82);
   const visualLineHeight = (scaledHeight / numLines);
+  const activeViewport = window.__pdfViewport;
+  const useViewport = activeViewport?.active && editDoc?.filePath;
+  const pageOffsetX = useViewport ? activeViewport.offsetX : offsetX;
+  const pageOffsetY = useViewport ? activeViewport.offsetY : offsetY;
 
   // Map font family to CSS
   const ff = (textEdit.fontFamily || 'Helvetica').toLowerCase();
@@ -868,14 +875,16 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
   // Build style object using fixed positioning
   const styleObj = {
     position: 'fixed',
-    left: `${containerRect.left + scaledLeft + offsetX - padX}px`,
-    top: `${containerRect.top + scaledTop + offsetY - padY}px`,
+    left: `${containerRect.left + scaledLeft + pageOffsetX - padX}px`,
+    top: `${containerRect.top + scaledTop + pageOffsetY - padY}px`,
     width: `${Math.max(scaledWidth + padX * 2 + 4, 80)}px`,
     height: `${Math.max(scaledHeight + padY * 2 + 6, 24)}px`,
     'font-size': `${editorFontSize}px`,
     'line-height': `${visualLineHeight}px`,
     'font-family': cssFontFamily,
     color: textEdit.color || '#000000',
+    transform: `rotate(${geometry.rotation}deg)`,
+    'transform-origin': '0 0',
     'z-index': '1000'
   };
   if (ff.includes('bold')) styleObj['font-weight'] = 'bold';
@@ -914,7 +923,9 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
   };
 
   const cancelEditing = () => {
+    restoreTextEditSnapshot(textEdit, oldTextEdit);
     hidePdfTextEditor();
+    reRenderAddedText(pageNum);
     activeEditor = null;
     state.pdfTextEditState = null;
     hideProperties();
@@ -1057,8 +1068,19 @@ export function deleteActiveTextEdit() {
 function nudgeActiveTextEdit(dxPdf, dyPdf) {
   if (!activeEditor) return;
   const scale = activeEditor.scale || (getActiveDocument()?.scale || 1.5);
-  // +pdfX → right; +pdfY → up (screen top decreases), so flip Y for the editor.
-  shiftPdfEditorPosition(dxPdf * scale, -dyPdf * scale);
+  // Convert the PDF-space nudge into the rotated display frame.
+  const canvasEl = pdfCanvas || document.getElementById('pdf-canvas');
+  const geometry = getTextEditGeometry(activeEditor.pageNum, canvasEl);
+  const [a, b, c, d] = getPageRotationMatrix(
+    geometry.pageWidth,
+    geometry.pageHeight,
+    geometry.rotation,
+  );
+  const unrotatedDy = -dyPdf;
+  shiftPdfEditorPosition(
+    (a * dxPdf + c * unrotatedDy) * scale,
+    (b * dxPdf + d * unrotatedDy) * scale,
+  );
   if (activeEditor._recordRef) {
     activeEditor._recordRef.pdfX += dxPdf;
     activeEditor._recordRef.pdfY += dyPdf;
