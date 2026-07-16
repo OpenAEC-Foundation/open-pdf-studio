@@ -209,12 +209,28 @@ jobs:
           }
 
       - name: Build Tauri app (with release upload)
-        if: matrix.target != 'windows-user'
+        if: matrix.target != 'windows-user' && matrix.target != 'macos'
         uses: tauri-apps/tauri-action@action-v0.6.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # macOS code signing (Developer ID) + notarization — ignored on
-          # Windows/Linux runners. Empty on forks without the secrets.
+        with:
+          projectPath: open-pdf-studio
+          args: ${{ matrix.args }}
+          releaseId: ${{ needs.create-release.outputs.release_id }}
+          includeUpdaterJson: true
+
+      # Compile once. Bundling is a separate phase so a temporary failure in
+      # the external notarization service can be retried without rebuilding
+      # both macOS architectures.
+      - name: Build macOS app without bundles
+        if: matrix.target == 'macos'
+        run: npm run tauri -- build --target universal-apple-darwin --no-bundle
+
+      - name: Upload macOS release assets
+        if: matrix.target == 'macos'
+        uses: tauri-apps/tauri-action@action-v0.6.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
           APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
@@ -223,9 +239,11 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         with:
           projectPath: open-pdf-studio
-          args: ${{ matrix.args }}
+          tauriScript: node scripts/macos-notarization-retry.mjs
+          args: --target universal-apple-darwin
           releaseId: ${{ needs.create-release.outputs.release_id }}
           includeUpdaterJson: true
+          retryAttempts: 2
 
       - name: Verify macOS signature and notarization
         if: matrix.target == 'macos'

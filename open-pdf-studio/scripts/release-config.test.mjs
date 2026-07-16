@@ -126,6 +126,67 @@ test('release workflows verify macOS signatures and notarization', async () => {
   }
 });
 
+test('macOS bundling retries transient notarization service failures', async () => {
+  let retryModule;
+  try {
+    retryModule = await import('./macos-notarization-retry.mjs');
+  } catch {
+    retryModule = null;
+  }
+  assert.equal(typeof retryModule?.bundleMacOSWithRetry, 'function');
+
+  const results = [
+    { code: 1, output: 'failed to notarize app: HTTP status code: 500. Please try again later.' },
+    { code: 0, output: 'bundle complete' },
+  ];
+  const attempts = [];
+  const cleanups = [];
+  const waits = [];
+  const result = await retryModule.bundleMacOSWithRetry({
+    runBundle: async (attempt) => {
+      attempts.push(attempt);
+      return results.shift();
+    },
+    cleanBundleOutput: async () => cleanups.push('clean'),
+    wait: async (milliseconds) => waits.push(milliseconds),
+    logger: { error() {}, log() {} },
+    retryDelayMs: 25,
+  });
+
+  assert.deepEqual(attempts, [1, 2]);
+  assert.deepEqual(cleanups, ['clean', 'clean']);
+  assert.deepEqual(waits, [25]);
+  assert.deepEqual(result, { attempts: 2 });
+});
+
+test('macOS bundling does not retry non-transient failures', async () => {
+  const { bundleMacOSWithRetry } = await import('./macos-notarization-retry.mjs');
+  let attempts = 0;
+  await assert.rejects(
+    bundleMacOSWithRetry({
+      runBundle: async () => {
+        attempts += 1;
+        return { code: 2, output: 'configuration file is invalid' };
+      },
+      cleanBundleOutput: async () => {},
+      wait: async () => {},
+      logger: { error() {}, log() {} },
+    }),
+    /configuration file is invalid/,
+  );
+  assert.equal(attempts, 1);
+});
+
+test('release workflows compile macOS once and retry only the bundle phase', async () => {
+  for (const name of ['release.yml', 'nightly.yml']) {
+    const workflow = await readFile(path.join(repoDir, '.github', 'workflows', name), 'utf8');
+    assert.match(workflow, /Build macOS app without bundles/);
+    assert.match(workflow, /--target universal-apple-darwin --no-bundle/);
+    assert.match(workflow, /node scripts\/macos-notarization-retry\.mjs/);
+    assert.match(workflow, /Upload macOS release assets/);
+  }
+});
+
 test('all release metadata targets version 1.78.0', async () => {
   const pkg = await readJson('package.json');
   const packageLock = await readJson('package-lock.json');
