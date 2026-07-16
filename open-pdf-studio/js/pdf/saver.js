@@ -6,6 +6,7 @@ import { layoutTextboxForExport } from '../annotations/rendering/shapes.js';
 import { markDocumentSaved, updateWindowTitle } from '../ui/chrome/tabs.js';
 import { isTauri, invoke, readBinaryFile, writeBinaryFile, saveFileDialog, unlockFile, lockFile } from '../core/platform.js';
 import { getCachedPdfBytes, setCachedPdfBytes, hidePdfABar } from './loader.js';
+import { shouldSaveAsForTransientSourcePath } from './save-path-policy.mjs';
 import { PDFDocument, PDFString, PDFHexString, PDFName, PDFArray, PDFStream, degrees,
   PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup, PDFOptionList } from 'pdf-lib';
 import { getAnnotationStorage, getAnnotIdToFieldName } from './form-layer.js';
@@ -142,13 +143,8 @@ export async function savePDF(saveAsPath = null) {
     return await savePDFAs();
   }
 
-  // Files opened from an email attachment live in Outlook's secure temp
-  // cache. Outlook keeps a lock on that copy (in-place saves fail with a
-  // sharing violation), and anything written there is invisible to the email
-  // and cleaned up with the cache anyway. Route straight to "Save As", same
-  // as untitled documents.
-  const OUTLOOK_TEMP = /[\\/]INetCache[\\/]Content\.Outlook[\\/]|Microsoft\.OutlookForWindows/i;
-  if (!saveAsPath && OUTLOOK_TEMP.test(currentPath)) {
+  // Attachment caches are transient and may be locked by the source app.
+  if (!saveAsPath && shouldSaveAsForTransientSourcePath(currentPath)) {
     return await savePDFAs();
   }
 
