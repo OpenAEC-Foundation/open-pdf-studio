@@ -119,7 +119,7 @@ jobs:
 
       - name: Build Tauri AppImage
         if: matrix.platform == 'ubuntu-22.04'
-        run: npm run tauri build -- --bundles appimage
+        run: npm run tauri build -- --bundles appimage --config '{"bundle":{"createUpdaterArtifacts":false}}'
 
       - name: Verify AppImage on Debian 13
         if: matrix.platform == 'ubuntu-22.04'

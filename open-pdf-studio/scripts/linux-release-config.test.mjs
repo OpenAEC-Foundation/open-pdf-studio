@@ -46,7 +46,10 @@ test('CI builds and starts the AppImage on Debian 13', async () => {
   );
 
   assert.match(workflow, /Fetch libpdfium\.so \(Linux\)/);
-  assert.match(workflow, /tauri build -- --bundles appimage/);
+  assert.match(
+    workflow,
+    /tauri build -- --bundles appimage --config '\{"bundle":\{"createUpdaterArtifacts":false\}\}'/,
+  );
   assert.match(workflow, /debian:13-slim/);
   assert.match(workflow, /linux-appimage-smoke\.sh/);
 });
