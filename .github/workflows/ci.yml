@@ -49,6 +49,9 @@ jobs:
       - name: Install frontend dependencies
         run: npm install
 
+      - name: Run unit tests
+        run: npm run test:unit
+
       # The PDFium worker pool runs as a Tauri sidecar (bundle.externalBin).
       # Tauri requires binaries/pdfium-worker-<target-triple> to exist at
       # build time on EVERY desktop platform, so build the workspace crate

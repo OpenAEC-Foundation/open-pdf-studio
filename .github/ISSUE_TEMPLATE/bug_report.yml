@@ -1,0 +1,49 @@
+name: Bug report
+description: Report reproducible behaviour that is not working as expected.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: "Please keep one topic per issue and split unrelated problems into separate reports."
+
+  - type: textarea
+    id: whats-wrong
+    attributes:
+      label: What's wrong
+      description: Describe the expected behaviour and what actually happens.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to reproduce
+      description: List the exact actions, in order.
+      placeholder: |
+        1. Open ...
+        2. Click ...
+        3. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: sample-screenshots
+    attributes:
+      label: Sample / screenshots
+      description: Attach a minimal PDF, screenshots, or a short screen recording when possible.
+    validations:
+      required: false
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include the operating system, app version, and the full crash log for crashes.
+      placeholder: |
+        Operating system:
+        App version:
+        Crash log (if applicable):
+    validations:
+      required: true
