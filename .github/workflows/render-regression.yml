@@ -15,7 +15,7 @@ on:
 jobs:
   render-regression:
     runs-on: windows-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
       - uses: actions/checkout@v4
@@ -32,19 +32,37 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
-      - name: Cache cargo registry + target
-        uses: actions/cache@v4
+      - name: Restore cargo registry + target
+        id: cargo-cache
+        uses: actions/cache/restore@v4
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            open-pdf-studio/src-tauri/target
-            open-pdf-render/target
-          key: render-regression-${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+            target
+          key: render-regression-v2-${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install npm deps (open-pdf-studio)
         working-directory: open-pdf-studio
         run: npm ci
+
+      - name: Prebuild desktop app
+        shell: pwsh
+        run: |
+          cargo build -p pdfium-worker
+          New-Item -ItemType Directory -Force open-pdf-studio/src-tauri/binaries | Out-Null
+          Copy-Item target/debug/pdfium-worker.exe open-pdf-studio/src-tauri/binaries/pdfium-worker-x86_64-pc-windows-msvc.exe -Force
+          cargo build -p open-pdf-studio
+
+      - name: Save cargo registry + target
+        if: steps.cargo-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: render-regression-v2-${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Set up python venv
         shell: bash
@@ -57,7 +75,8 @@ jobs:
         working-directory: open-pdf-studio
         env:
           OPS_ENABLE_MCP: '1'
-        run: npm run test:render:auto
+          OPS_TEST_PDFS_DIR: ${{ github.workspace }}/open-pdf-studio/src-tauri/resources/kaders
+        run: npm run test:render:auto -- --pdf grootformaat_a1_liggend.pdf --out-root "../test pdf-bestanden/render-regression-runs"
 
       - name: Upload regression report
         if: always()
