@@ -83,11 +83,23 @@ test('generated render fixture is a complete one-page PDF', async () => {
 
 test('Windows installers retain the embedded WebView2 bootstrapper and loader', async () => {
   const config = await readJson('src-tauri/tauri.conf.json');
+  const windows = await readJson('src-tauri/tauri.windows.conf.json');
+  const resources = { ...config.bundle.resources, ...windows.bundle.resources };
   assert.deepEqual(config.bundle.windows.webviewInstallMode, {
     type: 'embedBootstrapper',
     silent: true,
   });
-  assert.equal(config.bundle.resources['WebView2Loader.dll'], 'WebView2Loader.dll');
+  assert.equal(resources['WebView2Loader.dll'], 'WebView2Loader.dll');
+  assert.equal(resources['binaries/win-x64/pdfium.dll'], 'pdfium.dll');
+});
+
+test('Linux resources exclude Windows-only runtime files', async () => {
+  const config = await readJson('src-tauri/tauri.conf.json');
+  const linux = await readJson('src-tauri/tauri.linux.conf.json');
+  const resources = { ...config.bundle.resources, ...linux.bundle.resources };
+
+  assert.equal(resources['WebView2Loader.dll'], undefined);
+  assert.equal(resources['binaries/win-x64/pdfium.dll'], undefined);
 });
 
 test('CI exercises macOS 26 startup and frontend readiness', async () => {

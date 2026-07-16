@@ -75,8 +75,6 @@
     },
     "resources": {
       "icons/file-icon.ico": "file-icon.ico",
-      "binaries/win-x64/pdfium.dll": "pdfium.dll",
-      "WebView2Loader.dll": "WebView2Loader.dll",
       "resources/kaders": "kaders"
     },
     "externalBin": [
