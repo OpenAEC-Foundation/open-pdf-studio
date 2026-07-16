@@ -15,7 +15,7 @@ on:
 jobs:
   render-regression:
     runs-on: windows-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
       - uses: actions/checkout@v4
@@ -44,6 +44,14 @@ jobs:
       - name: Install npm deps (open-pdf-studio)
         working-directory: open-pdf-studio
         run: npm ci
+
+      - name: Prebuild desktop app
+        shell: pwsh
+        run: |
+          cargo build -p pdfium-worker
+          New-Item -ItemType Directory -Force open-pdf-studio/src-tauri/binaries | Out-Null
+          Copy-Item target/debug/pdfium-worker.exe open-pdf-studio/src-tauri/binaries/pdfium-worker-x86_64-pc-windows-msvc.exe -Force
+          cargo build -p open-pdf-studio
 
       - name: Set up python venv
         shell: bash
