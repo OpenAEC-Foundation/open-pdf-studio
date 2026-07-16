@@ -1,4 +1,4 @@
-import { state, getActiveDocument } from '../core/state.js';
+import { state, getActiveDocument, getPageRotation } from '../core/state.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { hasFill } from '../annotations/fill-utils.js';
 import { showProperties } from '../ui/panels/properties-panel.js';
@@ -6,6 +6,7 @@ import { recordAdd, recordModify, execute } from '../core/undo-manager.js';
 import { cloneAnnotation } from '../annotations/factory.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import { injectSyntheticTextSpans } from '../text/text-layer.js';
+import { invertPageRotation, resolveTextEditPageGeometry } from '../text/text-edit-appearance.js';
 import { annotationCanvas } from '../ui/dom-elements.js';
 import { viewport as vpState } from '../pdf/pdf-viewport.js';
 import {
@@ -264,21 +265,25 @@ export async function addTextAnnotation(x, y, pageNum, canvasEl) {
   // Determine page height for coordinate conversion
   const addTextScale = doc?.scale || 1.5;
   const dpr = window.devicePixelRatio || 1;
-  let pageHeight;
-  if (canvasEl) {
-    pageHeight = canvasEl.height / (addTextScale * dpr);
-  } else {
-    const canvas = annotationCanvas || document.getElementById('annotation-canvas');
-    if (canvas) {
-      pageHeight = canvas.height / (addTextScale * dpr);
-    } else {
-      return;
-    }
-  }
+  const activeCanvas = canvasEl || annotationCanvas || document.getElementById('annotation-canvas');
+  if (!activeCanvas) return;
+  const geometry = resolveTextEditPageGeometry(
+    doc?.pageDims?.[page],
+    activeCanvas.width / (addTextScale * dpr),
+    activeCanvas.height / (addTextScale * dpr),
+    getPageRotation(page),
+  );
+  const unrotatedPoint = invertPageRotation(
+    x,
+    y,
+    geometry.pageWidth,
+    geometry.pageHeight,
+    geometry.rotation,
+  );
 
-  // Convert canvas coords to PDF user-space (origin at bottom-left)
-  const pdfX = x;
-  const pdfY = pageHeight - y;
+  // Convert visual page coordinates to PDF user-space (origin at bottom-left).
+  const pdfX = unrotatedPoint.x;
+  const pdfY = geometry.pageHeight - unrotatedPoint.y;
 
   // Map dialog font family + bold/italic to standard PDF font name
   const fn = (result.fontFamily || 'Arial').toLowerCase();
@@ -334,7 +339,6 @@ export async function addTextAnnotation(x, y, pageNum, canvasEl) {
   const textLayer = document.querySelector(`.textLayer[data-page="${page}"]`)
     || document.querySelector('.textLayer');
   if (textLayer) {
-    const activeCanvas = canvasEl || annotationCanvas || document.getElementById('annotation-canvas');
     if (activeCanvas) {
       const pw = activeCanvas.width / addTextScale;
       const ph = activeCanvas.height / addTextScale;
