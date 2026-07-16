@@ -38,27 +38,33 @@ test('quality tests do not depend on shell glob expansion', async () => {
   }
 });
 
-test('render regression caches the workspace target and allows cold CI builds', async () => {
+test('render regression caches the workspace target and prebuilds cold CI jobs', async () => {
   const workflow = await readFile(path.join(repoDir, '.github', 'workflows', 'render-regression.yml'), 'utf8');
   const runner = await readFile(path.join(repoDir, 'scripts', 'run-render-regression.mjs'), 'utf8');
   assert.match(workflow, /^\s+target\s*$/m);
   assert.match(workflow, /uses: actions\/cache\/restore@v4/);
   assert.match(workflow, /uses: actions\/cache\/save@v4/);
-  assert.match(workflow, /name: Save cargo cache after render\s+if: always\(\)/);
+  assert.match(workflow, /id: cargo-cache/);
+  assert.match(workflow, /key: render-regression-v2-/);
+  assert.match(workflow, /name: Prebuild desktop app/);
+  assert.match(workflow, /cargo build -p open-pdf-studio/);
+  assert.match(workflow, /name: Save cargo registry \+ target\s+if: steps\.cargo-cache\.outputs\.cache-hit != 'true'/);
   assert.doesNotMatch(workflow, /open-pdf-studio\/src-tauri\/target/);
   assert.doesNotMatch(workflow, /open-pdf-render\/target/);
-  assert.match(workflow, /OPS_STARTUP_TIMEOUT_MS:\s*'1200000'/);
-  assert.match(runner, /process\.env\.OPS_STARTUP_TIMEOUT_MS/);
+  assert.match(workflow, /timeout-minutes: 45/);
+  assert.match(runner, /const MAX_WAIT_MS = 600_000/);
 });
 
-test('render regression prepares a deterministic CI corpus', async () => {
+test('render regression uses the bundled deterministic PDF fixture', async () => {
   const workflow = await readFile(path.join(repoDir, '.github', 'workflows', 'render-regression.yml'), 'utf8');
   const app = await readFile(path.join(projectDir, 'src-tauri', 'src', 'lib.rs'), 'utf8');
-  assert.match(workflow, /name: Prepare deterministic render corpus/);
-  assert.match(workflow, /open-pdf-studio\/scripts\/create-render-fixture\.mjs/);
-  assert.match(workflow, /\$corpus = 'test pdf-bestanden\/Originele bestanden'/);
-  assert.match(app, /env!\("CARGO_MANIFEST_DIR"\)/);
-  assert.doesNotMatch(app, /std::env::current_dir\(\)/);
+  const mcpServer = await readFile(path.join(projectDir, 'src-tauri', 'src', 'mcp_server.rs'), 'utf8');
+  assert.match(workflow, /OPS_TEST_PDFS_DIR: \$\{\{ github\.workspace \}\}\/open-pdf-studio\/src-tauri\/resources\/kaders/);
+  assert.match(workflow, /--pdf grootformaat_a1_liggend\.pdf/);
+  assert.doesNotMatch(workflow, /Prepare deterministic render corpus/);
+  assert.match(app, /mcp_server::resolve_test_pdfs_dir/);
+  assert.match(mcpServer, /env!\("CARGO_MANIFEST_DIR"\)/);
+  assert.doesNotMatch(mcpServer, /std::env::current_dir\(\)/);
 });
 
 test('generated render fixture is a complete one-page PDF', async () => {

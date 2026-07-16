@@ -69,6 +69,7 @@ export interface DocumentState {
   modified: boolean;
   scrollPosition: ScrollPosition;
   pageRotations: Record<number, number>;
+  pageDims?: Record<number, { widthPt: number; heightPt: number; rotation?: number }>;
   pdfaCompliance: string | null;
   pdfADismissed: boolean;
   measureScale: MeasureScale | null;

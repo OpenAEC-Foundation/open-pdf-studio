@@ -21,6 +21,20 @@
   --min-font-size-inv: calc(1 / var(--min-font-size));
 }
 
+/* PDF.js lays out text in the page's original coordinate frame. Rotate the
+   complete layer so native and synthetic text share the rendered page frame. */
+.textLayer[data-main-rotation="90"] {
+  transform: rotate(90deg) translateY(-100%);
+}
+
+.textLayer[data-main-rotation="180"] {
+  transform: rotate(180deg) translate(-100%, -100%);
+}
+
+.textLayer[data-main-rotation="270"] {
+  transform: rotate(270deg) translateX(-100%);
+}
+
 .textLayer :is(span, br) {
   color: transparent;
   position: absolute;

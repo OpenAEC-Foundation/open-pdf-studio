@@ -1,6 +1,7 @@
-import { state, getActiveDocument } from '../core/state.js';
+import { state, getActiveDocument, getPageRotation } from '../core/state.js';
 import { isTauri, invoke } from '../core/platform.js';
 import * as pdfjsLib from 'pdfjs-dist';
+import { resolveTextEditPageGeometry } from './text-edit-appearance.js';
 
 /**
  * Text Layer Management Module
@@ -314,6 +315,13 @@ export function injectSyntheticTextSpans(textLayerDiv, pageNum, pageWidth, pageH
   const doc = getActiveDocument();
   if (!doc || !doc.textEdits || doc.textEdits.length === 0) return;
 
+  const geometry = resolveTextEditPageGeometry(
+    doc.pageDims?.[pageNum],
+    pageWidth,
+    pageHeight,
+    getPageRotation(pageNum),
+  );
+
   // Remove previously injected synthetic spans
   textLayerDiv.querySelectorAll('span[data-synthetic]').forEach(s => s.remove());
 
@@ -356,14 +364,9 @@ export function injectSyntheticTextSpans(textLayerDiv, pageNum, pageWidth, pageH
       const linePdfX = edit.pdfX;
       const linePdfY = edit.pdfY - i * ls;
 
-      // Convert to text layer positioning (percentages of unscaled page)
-      // left = pdfX (assuming pageX = 0)
-      // top = (pageHeight - pdfY) - fontSize * ascentRatio
-      const left = linePdfX;
-      const top = (pageHeight - linePdfY) - fontSize * ascentRatio;
-
-      const leftPct = (100 * left / pageWidth).toFixed(2);
-      const topPct = (100 * top / pageHeight).toFixed(2);
+      const unrotatedTop = (geometry.pageHeight - linePdfY) - fontSize * ascentRatio;
+      const leftPct = (100 * linePdfX / geometry.pageWidth).toFixed(2);
+      const topPct = (100 * unrotatedTop / geometry.pageHeight).toFixed(2);
 
       // Create span
       const span = document.createElement('span');

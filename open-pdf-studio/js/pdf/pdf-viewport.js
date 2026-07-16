@@ -5,6 +5,7 @@
 import { renderVectorPage } from './vector-renderer.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { findAnnotationAt as _findAnnotationAt } from '../annotations/geometry.js';
+import { getTextLayerCssMatrix, resolveTextEditPageGeometry } from '../text/text-edit-appearance.js';
 import {
   computeZoomBucket,
   getBestAvailableBitmap,
@@ -786,6 +787,21 @@ function _render() {
   if (textLayer) {
     const tx = viewport.offsetX;
     const ty = viewport.offsetY;
+    const doc = getActiveDocument();
+    const geometry = resolveTextEditPageGeometry(
+      doc?.pageDims?.[viewport.pageNum],
+      viewport.pageW,
+      viewport.pageH,
+      viewport.rotation,
+    );
+    const matrix = getTextLayerCssMatrix(
+      geometry.pageWidth,
+      geometry.pageHeight,
+      geometry.rotation,
+      viewport.zoom,
+      tx,
+      ty,
+    );
     // The text layer lives in PDF user space (origin top-left after Y flip).
     // We size spans with --font-height in PDF points and let CSS compute
     // font-size = --total-scale-factor * --font-height. Setting the factor
@@ -797,9 +813,9 @@ function _render() {
     textLayer.style.position = 'absolute';
     textLayer.style.left = '0';
     textLayer.style.top = '0';
-    textLayer.style.width = `${viewport.pageW}px`;
-    textLayer.style.height = `${viewport.pageH}px`;
-    textLayer.style.transform = `matrix(${viewport.zoom}, 0, 0, ${viewport.zoom}, ${tx}, ${ty})`;
+    textLayer.style.width = `${geometry.pageWidth}px`;
+    textLayer.style.height = `${geometry.pageHeight}px`;
+    textLayer.style.transform = `matrix(${matrix.join(', ')})`;
     textLayer.style.transformOrigin = '0 0';
     // Text layer: keep pointer-events as set by tool manager (don't override)
     // The tool manager sets pointer-events based on active tool (text select = auto, other = none)
