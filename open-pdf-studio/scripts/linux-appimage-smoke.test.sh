@@ -17,7 +17,7 @@ printf '%s\n' \
   '  fi' \
   '  exit 0' \
   'fi' \
-  'if [[ -f "${BASH_SOURCE[0]}.log-gvfs" ]]; then' \
+  'if [[ "${BASH_SOURCE[0]}" == *"-gvfs.AppImage" ]]; then' \
   '  echo "Failed to load module: libgvfsdbus.so: undefined symbol: g_task_set_static_name" >&2' \
   'fi' \
   'while true; do sleep 1; done' \
@@ -32,8 +32,9 @@ if FAKE_MISSING_PDFIUM=1 bash "$smoke" "$fake" 1 >"$tmp/missing.log" 2>&1; then
 fi
 grep -q 'libpdfium.so is missing' "$tmp/missing.log"
 
-: > "$fake.log-gvfs"
-if bash "$smoke" "$fake" 1 >"$tmp/gvfs.log" 2>&1; then
+gvfs_fake="$tmp/fake-gvfs.AppImage"
+cp "$fake" "$gvfs_fake"
+if bash "$smoke" "$gvfs_fake" 1 >"$tmp/gvfs.log" 2>&1; then
   echo "smoke unexpectedly accepted a GVFS symbol failure" >&2
   exit 1
 fi
