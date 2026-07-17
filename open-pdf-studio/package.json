@@ -1,6 +1,6 @@
 {
   "name": "open-pdf-studio",
-  "version": "1.78.0",
+  "version": "1.79.0",
   "description": "A free, open-source PDF annotation editor built with Tauri",
   "scripts": {
     "prepare:native-runtime": "node scripts/native-runtime.mjs",

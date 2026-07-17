@@ -9,7 +9,7 @@ on:
       version:
         description: 'Version tag (e.g., v1.0.0)'
         required: true
-        default: 'v1.78.0'
+        default: 'v1.79.0'
 
 jobs:
   create-release:
