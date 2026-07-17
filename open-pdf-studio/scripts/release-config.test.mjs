@@ -207,7 +207,7 @@ test('release workflows compile macOS once and retry only the bundle phase', asy
   }
 });
 
-test('all release metadata targets version 1.78.0', async () => {
+test('all release metadata targets version 1.79.0', async () => {
   const pkg = await readJson('package.json');
   const packageLock = await readJson('package-lock.json');
   const config = await readJson('src-tauri/tauri.conf.json');
@@ -215,13 +215,13 @@ test('all release metadata targets version 1.78.0', async () => {
   const release = await readFile(path.join(repoDir, '.github', 'workflows', 'release.yml'), 'utf8');
   const cargoLock = await readFile(path.join(repoDir, 'Cargo.lock'), 'utf8');
 
-  assert.equal(pkg.version, '1.78.0');
-  assert.equal(packageLock.version, '1.78.0');
-  assert.equal(packageLock.packages[''].version, '1.78.0');
-  assert.equal(config.version, '1.78.0');
-  assert.match(cargo, /^version = "1\.78\.0"$/m);
-  assert.match(release, /default: 'v1\.78\.0'/);
-  assert.match(cargoLock, /name = "open-pdf-studio"\r?\nversion = "1\.78\.0"/);
+  assert.equal(pkg.version, '1.79.0');
+  assert.equal(packageLock.version, '1.79.0');
+  assert.equal(packageLock.packages[''].version, '1.79.0');
+  assert.equal(config.version, '1.79.0');
+  assert.match(cargo, /^version = "1\.79\.0"$/m);
+  assert.match(release, /default: 'v1\.79\.0'/);
+  assert.match(cargoLock, /name = "open-pdf-studio"\r?\nversion = "1\.79\.0"/);
 });
 
 test('development optimization profiles live at the workspace root', async () => {
