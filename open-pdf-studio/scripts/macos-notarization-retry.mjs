@@ -27,6 +27,13 @@ export async function bundleMacOSWithRetry({
   maxAttempts = 4,
   retryDelayMs = 30_000,
 }) {
+  if (!Number.isInteger(maxAttempts) || maxAttempts < 1 || maxAttempts > 10) {
+    throw new TypeError('maxAttempts must be a positive integer no greater than 10');
+  }
+  if (!Number.isInteger(retryDelayMs) || retryDelayMs < 0 || retryDelayMs > 300_000) {
+    throw new TypeError('retryDelayMs must be a non-negative integer no greater than 300000');
+  }
+
   for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     await cleanBundleOutput();
     logger.log(`macOS bundle/notarization attempt ${attempt}/${maxAttempts}`);

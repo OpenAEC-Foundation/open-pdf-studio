@@ -243,7 +243,6 @@ jobs:
           args: --target universal-apple-darwin
           releaseId: ${{ needs.create-release.outputs.release_id }}
           includeUpdaterJson: true
-          retryAttempts: 2
 
       - name: Verify macOS signature and notarization
         if: matrix.target == 'macos'

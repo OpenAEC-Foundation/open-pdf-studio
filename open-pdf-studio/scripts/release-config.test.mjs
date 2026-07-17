@@ -177,6 +177,25 @@ test('macOS bundling does not retry non-transient failures', async () => {
   assert.equal(attempts, 1);
 });
 
+test('macOS bundling rejects invalid retry configuration', async () => {
+  const { bundleMacOSWithRetry } = await import('./macos-notarization-retry.mjs');
+  const options = {
+    runBundle: async () => ({ code: 0, output: '' }),
+    cleanBundleOutput: async () => {},
+    wait: async () => {},
+    logger: { error() {}, log() {} },
+  };
+
+  await assert.rejects(
+    bundleMacOSWithRetry({ ...options, maxAttempts: 0 }),
+    /maxAttempts must be a positive integer/,
+  );
+  await assert.rejects(
+    bundleMacOSWithRetry({ ...options, retryDelayMs: Number.NaN }),
+    /retryDelayMs must be a non-negative integer/,
+  );
+});
+
 test('release workflows compile macOS once and retry only the bundle phase', async () => {
   for (const name of ['release.yml', 'nightly.yml']) {
     const workflow = await readFile(path.join(repoDir, '.github', 'workflows', name), 'utf8');
@@ -184,6 +203,7 @@ test('release workflows compile macOS once and retry only the bundle phase', asy
     assert.match(workflow, /--target universal-apple-darwin --no-bundle/);
     assert.match(workflow, /node scripts\/macos-notarization-retry\.mjs/);
     assert.match(workflow, /Upload macOS release assets/);
+    assert.doesNotMatch(workflow, /retryAttempts:/);
   }
 });
 
