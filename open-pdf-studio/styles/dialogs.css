@@ -3974,7 +3974,7 @@
   z-index: 1;
 }
 .whats-new-dialog .wn-tab:hover:not(.active) {
-  background: #eaeaea;
+  background: var(--theme-hover, #eaeaea);
 }
 .whats-new-dialog .wn-content {
   flex: 1 1 auto;
@@ -3990,7 +3990,7 @@
 .whats-new-dialog .wn-error,
 .whats-new-dialog .wn-empty {
   text-align: center;
-  color: #888;
+  color: var(--theme-text-secondary, #888);
   padding: 40px 0;
   font-style: italic;
 }
@@ -3998,14 +3998,14 @@
    en de Engelse tekst als fallback wordt getoond (#240). */
 .whats-new-dialog .wn-lang-fallback {
   margin: 0 0 6px 0;
-  color: #888;
+  color: var(--theme-text-secondary, #888);
   font-size: 11px;
   font-style: italic;
 }
 .whats-new-dialog .wn-release {
   margin-bottom: 22px;
   padding-bottom: 14px;
-  border-bottom: 1px dashed #d4d4d4;
+  border-bottom: 1px dashed var(--theme-border, #d4d4d4);
 }
 .whats-new-dialog .wn-release:last-child {
   border-bottom: none;
@@ -4026,7 +4026,7 @@
   border-radius: 0;
 }
 .whats-new-dialog .wn-release-date {
-  color: #888;
+  color: var(--theme-text-secondary, #888);
   font-size: 11px;
 }
 .whats-new-dialog .wn-release-body h1,
@@ -4059,14 +4059,16 @@
   text-decoration: underline;
 }
 .whats-new-dialog .wn-release-body .wn-inline-code {
-  background: #f0f0f0;
+  background: var(--theme-hover, #f0f0f0);
+  color: var(--theme-text, #333);
   padding: 1px 4px;
   font-family: Consolas, "Courier New", monospace;
   font-size: 11px;
 }
 .whats-new-dialog .wn-release-body .wn-code {
-  background: #f6f8fa;
-  border: 1px solid #e0e0e0;
+  background: var(--theme-bg, #f6f8fa);
+  color: var(--theme-text, #333);
+  border: 1px solid var(--theme-border, #e0e0e0);
   padding: 8px 10px;
   margin: 6px 0;
   font-family: Consolas, "Courier New", monospace;
@@ -4076,7 +4078,7 @@
 }
 .whats-new-dialog .wn-release-body hr {
   border: none;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--theme-border, #e0e0e0);
   margin: 8px 0;
 }
 .whats-new-footer {
@@ -4101,7 +4103,7 @@
   cursor: pointer;
 }
 .whats-new-footer .wn-close-btn:hover {
-  background: #eaeaea;
+  background: var(--theme-hover, #eaeaea);
 }
 
 /* ===== Style-Type Editor Dialog ===== */

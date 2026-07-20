@@ -1,8 +1,9 @@
 import RibbonGroup from './RibbonGroup.jsx';
 import AdaptiveGroups from './AdaptiveGroups.jsx';
 import RibbonButton from './RibbonButton.jsx';
+import RibbonButtonStack from './RibbonButtonStack.jsx';
 import ThemePicker from './ThemePicker.jsx';
-import { singlePageIcon, continuousIcon, bookViewIcon, facingPagesIcon, navigationIcon, propertiesIcon, annotationsListIcon, toolPaletteIcon, fullscreenIcon, fullscreenExitIcon, elementVisibilityIcon } from '../../data/ribbonIcons.js';
+import { singlePageIcon, continuousIcon, bookViewIcon, facingPagesIcon, navigationIcon, propertiesIcon, annotationsListIcon, toolPaletteIcon, fullscreenIcon, fullscreenExitIcon, elementVisibilityIcon, rotateLeftIcon, rotateRightIcon } from '../../data/ribbonIcons.js';
 import { isFullscreen } from '../../stores/ribbonStore.js';
 import { toggleFullscreen } from '../../../ui/chrome/fullscreen.js';
 import { toggleSymbolPalette } from '../SymbolPalette.jsx';
@@ -16,13 +17,26 @@ import { togglePropertiesPanel } from '../../../ui/panels/properties-panel.js';
 import { panelVisible, panelCollapsed } from '../../stores/propertiesStore.js';
 import { panelVisible as elementVisibilityPanelVisible, toggleElementVisibilityPanel } from '../../stores/elementVisibilityStore.js';
 import { collapsed as leftPanelCollapsed } from '../../stores/leftPanelStore.js';
-import { state, noPdf } from '../../../core/state.js';
+import { state, noPdf, getActiveDocument, getPageRotation } from '../../../core/state.js';
+import { isPdfAReadOnly } from '../../../pdf/loader.js';
+import { rotatePage } from '../../../pdf/renderer.js';
+import { recordPageRotation } from '../../../core/undo-manager.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { openDialog } from '../../stores/dialogStore.js';
 import { compareActive, exitCompare } from '../../../compare/compare-store.js';
 
 export default function ViewTab() {
   const { t } = useTranslation('ribbon');
+
+  // Zelfde undo-bare paginarotatie als op de Organiseren-tab; hier ook
+  // aangeboden omdat draaien tijdens het bekijken een veelgebruikte actie is.
+  function rotateCurrentPage(delta) {
+    const doc = getActiveDocument();
+    const pg = doc ? doc.currentPage : 1;
+    const oldRot = getPageRotation(pg);
+    rotatePage(delta);
+    recordPageRotation(pg, oldRot, getPageRotation(pg));
+  }
 
   return (
     <div class="ribbon-content active" id="tab-view">
@@ -50,6 +64,12 @@ export default function ViewTab() {
             active={(state.documents[state.activeDocumentIndex]?.viewMode === 'continuous')
               && !!state.documents[state.activeDocumentIndex]?.facingSpread}
             disabled={noPdf()} onClick={() => setViewMode('facing')} />
+          <RibbonButtonStack>
+            <RibbonButton size="small" id="view-rotate-left" title={t('home.rotateLeft')} icon={rotateLeftIcon} label={t('home.rotateLeft')}
+              disabled={noPdf() || isPdfAReadOnly()} onClick={() => rotateCurrentPage(-90)} />
+            <RibbonButton size="small" id="view-rotate-right" title={t('home.rotateRight')} icon={rotateRightIcon} label={t('home.rotateRight')}
+              disabled={noPdf() || isPdfAReadOnly()} onClick={() => rotateCurrentPage(90)} />
+          </RibbonButtonStack>
         </RibbonGroup>
 
         <RibbonGroup label={t('view.display') || 'Display'}>

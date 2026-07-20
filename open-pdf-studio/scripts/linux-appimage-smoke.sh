@@ -29,11 +29,18 @@ if ! find "$tmp/squashfs-root" -type f -name libpdfium.so -print -quit | grep -q
 fi
 
 launcher=("$appimage")
-if command -v xvfb-run >/dev/null 2>&1; then
-  launcher=(xvfb-run -a "$appimage")
-fi
-if command -v dbus-run-session >/dev/null 2>&1; then
-  launcher=(dbus-run-session -- "${launcher[@]}")
+# SMOKE_NO_DISPLAY_WRAPPERS=1 slaat xvfb-run/dbus-run-session over. De
+# zelftest (linux-appimage-smoke.test.sh) gebruikt dit: zijn fake-AppImage
+# heeft geen X nodig, en Xvfb-opstart kan langer duren dan het 1s-venster —
+# dan wordt de fake gekilld vóór hij zijn foutregel print en keurt de smoke
+# een GVFS-faal onterecht goed.
+if [[ "${SMOKE_NO_DISPLAY_WRAPPERS:-0}" != "1" ]]; then
+  if command -v xvfb-run >/dev/null 2>&1; then
+    launcher=(xvfb-run -a "$appimage")
+  fi
+  if command -v dbus-run-session >/dev/null 2>&1; then
+    launcher=(dbus-run-session -- "${launcher[@]}")
+  fi
 fi
 
 set +e

@@ -24,9 +24,9 @@ printf '%s\n' \
   > "$fake"
 chmod +x "$fake"
 
-bash "$smoke" "$fake" 1
+SMOKE_NO_DISPLAY_WRAPPERS=1 bash "$smoke" "$fake" 1
 
-if FAKE_MISSING_PDFIUM=1 bash "$smoke" "$fake" 1 >"$tmp/missing.log" 2>&1; then
+if FAKE_MISSING_PDFIUM=1 SMOKE_NO_DISPLAY_WRAPPERS=1 bash "$smoke" "$fake" 1 >"$tmp/missing.log" 2>&1; then
   echo "smoke unexpectedly accepted an AppImage without libpdfium.so" >&2
   exit 1
 fi
@@ -34,7 +34,7 @@ grep -q 'libpdfium.so is missing' "$tmp/missing.log"
 
 gvfs_fake="$tmp/fake-gvfs.AppImage"
 cp "$fake" "$gvfs_fake"
-if bash "$smoke" "$gvfs_fake" 1 >"$tmp/gvfs.log" 2>&1; then
+if SMOKE_NO_DISPLAY_WRAPPERS=1 bash "$smoke" "$gvfs_fake" 1 >"$tmp/gvfs.log" 2>&1; then
   echo "smoke unexpectedly accepted a GVFS symbol failure" >&2
   exit 1
 fi

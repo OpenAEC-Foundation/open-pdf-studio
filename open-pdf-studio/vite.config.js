@@ -13,6 +13,12 @@ export default defineConfig({
     port: 3041,
     strictPort: true,
     host: '0.0.0.0',
+    fs: {
+      // Sta /@fs/-requests binnen de hele repo toe (dev-project + workspace-
+      // crates). Zonder dit weigert Vite o.a. de PDF.js-worker-URL met 403 in
+      // een verse webview — het document laadt dan nooit (zie js/pdf/loader.js).
+      allow: ['..'],
+    },
     watch: {
       ignored: ['**/src-tauri/**'],
     },

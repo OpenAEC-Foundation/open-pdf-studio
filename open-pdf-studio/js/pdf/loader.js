@@ -90,7 +90,16 @@ export function clearCachedPdfBytes(filePath) {
 }
 
 // Set worker source (path relative to HTML file, not this module)
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).href;
+// Dev: Vite herschrijft de new URL(...)-vorm naar een /@fs/-URL en die valt
+// onder server.fs.allow — een verse webview (zonder cache) krijgt daar 403 op,
+// waarna PDF.js' fake-worker-fallback op dezelfde 403 strandt en getDocument
+// nooit resolvet (document laadt nooit). Het kale /node_modules/-pad wordt
+// altijd geserveerd, dus gebruik dat in dev; prod houdt de asset-URL (de
+// worker wordt door rollup als asset geëmit — zie assetFileNames in
+// vite.config.js).
+pdfjsLib.GlobalWorkerOptions.workerSrc = import.meta.env?.DEV
+  ? '/node_modules/pdfjs-dist/build/pdf.worker.mjs'
+  : new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).href;
 
 /**
  * Wrap doc.pdfDoc.getPage with a recovery layer that re-loads the doc when

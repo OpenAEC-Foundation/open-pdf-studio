@@ -564,13 +564,32 @@ async function renderThumbnailToDataURL(pdfDoc, pageNum, doc) {
           // — caller transform is just (scale, scale) with zero translation.
           vr.renderVectorPage(ctx, doc.filePath, pageNum, { a: scale, b: 0, c: 0, d: scale, e: 0, f: 0 }, rotation);
           console.log(`[thumb] p${pageNum} JS-replay rendered: canvas=${w}x${h} scale=${scale.toFixed(4)}`);
-          const dataURL = canvas.toDataURL('image/jpeg', 0.7);
-          // Overlay annotations on top (same as Rust path).
+          // Blanco-vangnet: op pagina's met een gecentreerde MediaBox
+          // (x0/y0 negatief, AutoCAD/InDesign-export) plaatst de replay de
+          // content buiten het canvas — de hoofdweergave maskeert dat met een
+          // PDFium-bitmap eronder, maar de thumbnail blijft dan wit. Sample de
+          // canvas; is hij (vrijwel) leeg terwijl er wél commando's waren, val
+          // dan door naar het Rust-pad dat via PDFium correct rendert.
+          let _blank = true;
           try {
-            const composited = await overlayAnnotationsOnDataURL(dataURL, pageNum, w, h, scale, doc);
-            return { dataURL: composited, width: w, height: h };
-          } catch {
-            return { dataURL, width: w, height: h };
+            const _d = ctx.getImageData(0, 0, w, h).data;
+            let _ink = 0;
+            for (let k = 0; k < _d.length; k += 4 * 7) {
+              if (!(_d[k] > 245 && _d[k + 1] > 245 && _d[k + 2] > 245)) { _ink++; if (_ink > 8) break; }
+            }
+            _blank = _ink <= 8;
+          } catch { _blank = false; /* sampling faalt → vertrouw de replay */ }
+          if (_blank) {
+            console.log(`[thumb] p${pageNum} JS-replay leeg → val terug op Rust-pad`);
+          } else {
+            const dataURL = canvas.toDataURL('image/jpeg', 0.7);
+            // Overlay annotations on top (same as Rust path).
+            try {
+              const composited = await overlayAnnotationsOnDataURL(dataURL, pageNum, w, h, scale, doc);
+              return { dataURL: composited, width: w, height: h };
+            } catch {
+              return { dataURL, width: w, height: h };
+            }
           }
         }
       }
