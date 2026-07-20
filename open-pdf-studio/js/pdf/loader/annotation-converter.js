@@ -963,13 +963,18 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
       const borderWidth = extraColors.borderWidth !== undefined ? extraColors.borderWidth : (annot.borderStyle?.width || 1);
 
       // Derive rotation. Priority:
-      // 1. OPS_Rotation (our custom key, exact value)
+      // 1. OPS_Rotation (our custom key, exact value). An EXPLICIT 0 counts
+      //    too: our saver always writes the key, because on pages with
+      //    /Rotate the AP content carries a page-compensation transform that
+      //    the matrix heuristic below would misread as annotation rotation.
+      //    Files without the key keep the heuristic behaviour unchanged.
       // 2. AP/N Matrix angle, with convention detection based on BBox orientation
       let ftRotation = 0;
-      if (extraColors.rotation !== undefined && extraColors.rotation !== 0) {
+      const hasOpsRotation = extraColors.rotation !== undefined;
+      if (hasOpsRotation) {
         ftRotation = Math.round(extraColors.rotation);
       }
-      if (ftRotation === 0 && extraColors.matrixAngle !== undefined) {
+      if (!hasOpsRotation && extraColors.matrixAngle !== undefined) {
         const ma = extraColors.matrixAngle;
         // Combined formula: visual rotation = -(annot.rotation + matrixAngle - pageRotate).
         // - annot.rotation comes from PDF.js (parses /Rotate / /Rotation key).
@@ -991,6 +996,17 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
         while (ftRotation < -180) ftRotation += 360;
         ftRotation = Math.round(ftRotation);
         if (Math.abs(ftRotation) <= 1) ftRotation = 0;
+      }
+      // Self-healing: files written by an OLDER version of our saver drew the
+      // AP content unrotated in PDF space on /Rotate'd pages (no OPS_Rotation
+      // key, translation-only matrices, our own text-state signature — see
+      // color-extraction.js). The heuristic above then reports the page
+      // rotation as annotation rotation and the text renders sideways. Treat
+      // those as visually unrotated; the next save rewrites the file with the
+      // proper page-compensated appearance.
+      if (!hasOpsRotation && ftRotation !== 0 && extraColors.apLegacyUnrotated) {
+        const pageRotHeal = (((viewport.rotation || 0) % 360) + 360) % 360;
+        if (pageRotHeal !== 0) ftRotation = 0;
       }
 
       // Rotation-aware viewport rect — its width/height already account for the

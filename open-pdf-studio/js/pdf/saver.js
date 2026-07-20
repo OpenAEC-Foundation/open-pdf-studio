@@ -982,7 +982,10 @@ export async function savePDF(saveAsPath = null) {
             // below), so we do NOT set the standard /Rotation key — that would make
             // spec-compliant viewers rotate the already-rotated AP a second time.
             // The exact angle round-trips via our private /OPS_Rotation key, which
-            // is written once (for any non-zero rotation) after annotDict is built.
+            // is ALWAYS written (including 0) after annotDict is built: on pages
+            // with /Rotate the AP content carries a page-compensation transform,
+            // and without an explicit key the loader's matrix heuristic would
+            // misread that compensation as annotation rotation.
 
             annotDict = context.obj(annDictObj);
 
@@ -1068,6 +1071,22 @@ export async function savePDF(saveAsPath = null) {
               const ftFill = hasFill(ann.fillColor);
               // Rect paint operator: B=fill+stroke, f=fill only, S=stroke only, n=neither.
               const ftRectOp = (ftFill && ftHasBorder) ? 'B' : ftFill ? 'f' : ftHasBorder ? 'S' : 'n';
+              // The AP content lives in UNROTATED PDF page space, but the page
+              // may carry /Rotate: viewers rotate the whole page — including
+              // this appearance — for display. The content therefore needs the
+              // page rotation compensated ON TOP of the annotation's own
+              // visual rotation. Without this, text saved on a /Rotate 90/270
+              // page reads sideways in every viewer after reopen.
+              // Effective CCW angle in PDF space = pageRot - ftRotation (the
+              // loader heuristic derives visual = -(angle - pageRot), which
+              // round-trips back to ftRotation).
+              const apRotation = (((ftRotation - pageRot) % 360) + 360) % 360;
+              // Visual box dimensions: on 90/270-rotated pages the remapped
+              // ftW/ftH are the PDF-space (swapped) dims; the drawn box and
+              // the text layout must use the on-screen ones.
+              const pageSwapsDims = pageRot === 90 || pageRot === 270;
+              const visW = pageSwapsDims ? ftH : ftW;
+              const visH = pageSwapsDims ? ftW : ftH;
               const emitFtBox = (bx, by) => {
                 if (ftFill) {
                   const [fr, fg, fb] = hexToRgb(ann.fillColor);
@@ -1076,20 +1095,26 @@ export async function savePDF(saveAsPath = null) {
                 if (ftHasBorder) {
                   ftStreamContent += `${ftBorderWidth} w\n${ftDashOp}${sr} ${sg} ${sb} RG\n`;
                 }
-                ftStreamContent += `${bx} ${by} ${ftW} ${ftH} re ${ftRectOp}\n`;
+                ftStreamContent += `${bx} ${by} ${visW} ${visH} re ${ftRectOp}\n`;
               };
-              // For non-callout with rotation, wrap in transform (every angle).
-              const needsRotationInAP = ftRotation !== 0;
+              // Wrap in a transform whenever the content is rotated in PDF
+              // space OR the page itself is rotated (then the visual box dims
+              // differ from the PDF-space Rect even at effective angle 0,
+              // e.g. visual rotation 90 on a /Rotate 90 page).
+              const needsRotationInAP = apRotation !== 0 || pageRot !== 0;
               if (needsRotationInAP) {
-                const rad = -ftRotation * Math.PI / 180;
-                const cosR = Math.cos(rad);
-                const sinR = Math.sin(rad);
+                const rad = -apRotation * Math.PI / 180;
+                // Round: right angles must serialise as exact 0/±1 — raw
+                // Math.cos(±270°) yields 6.1e-17 and exponent notation is not
+                // a valid number in PDF content streams.
+                const cosR = Math.round(Math.cos(rad) * 1e6) / 1e6;
+                const sinR = Math.round(Math.sin(rad) * 1e6) / 1e6;
                 const bboxCX = tbX1 + ftW / 2;
                 const bboxCY = tbY1 + ftH / 2;
                 ftStreamContent += 'q\n';
                 ftStreamContent += `1 0 0 1 ${bboxCX} ${bboxCY} cm\n`;
                 ftStreamContent += `${cosR} ${sinR} ${-sinR} ${cosR} 0 0 cm\n`;
-                ftStreamContent += `1 0 0 1 ${-ftW / 2} ${-ftH / 2} cm\n`;
+                ftStreamContent += `1 0 0 1 ${-visW / 2} ${-visH / 2} cm\n`;
                 emitFtBox(0, 0);
               } else {
                 emitFtBox(tbX1, tbY1);
@@ -1105,13 +1130,17 @@ export async function savePDF(saveAsPath = null) {
                 const ftFontSize = ann.fontSize || 14;
                 const [tr, tg, tb] = ann.textColor ? hexToRgb(ann.textColor) : [0, 0, 0];
                 const pdfFont = mapFontToPdfName(ann.fontFamily, ann.fontBold, ann.fontItalic);
-                const layout = layoutTextboxForExport(ann);
+                // Word-wrap against the on-screen (visual) box width — on
+                // 90/270-rotated pages ann.width/height were remapped into
+                // PDF space and would wrap against the wrong dimension.
+                const layout = layoutTextboxForExport(
+                  pageSwapsDims ? { ...ann, width: visW, height: visH } : ann);
                 const pad = layout.padding;
                 const lineHeight = layout.lineHeight;
                 const align = ann.textAlign || 'left';
                 // Frame: local 0,0 bottom-left when rotated, else absolute coords.
                 const boxLeft = needsRotationInAP ? 0 : tbX1;
-                const boxTop = needsRotationInAP ? ftH : tbY2;
+                const boxTop = needsRotationInAP ? visH : tbY2;
                 const bottomLimit = needsRotationInAP ? 0 : tbY1;
                 let textY = boxTop - pad - layout.halfLeading - layout.ascent;
 
@@ -1122,7 +1151,7 @@ export async function savePDF(saveAsPath = null) {
                   if (textY < bottomLimit) break;
                   let textX = boxLeft + pad;
                   if (align === 'center') textX = boxLeft + pad + (layout.maxWidth - ln.width) / 2;
-                  else if (align === 'right') textX = boxLeft + ftW - pad - ln.width;
+                  else if (align === 'right') textX = boxLeft + visW - pad - ln.width;
                   const escaped = ln.text.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
                   ftStreamContent += `${textX} ${textY} Td\n(${escaped}) Tj\n`;
                   ftStreamContent += `${-textX} ${-textY} Td\n`;
@@ -1160,10 +1189,12 @@ export async function savePDF(saveAsPath = null) {
               const ftApDict = context.obj({ N: ftApRef });
               annotDict.set(PDFName.of('AP'), ftApDict);
 
-              // Store the exact angle for our loader to recover (all angles).
-              if (ftRotation !== 0) {
-                annotDict.set(PDFName.of('OPS_Rotation'), context.obj(ftRotation));
-              }
+              // Store the exact VISUAL angle for our loader to recover.
+              // ALWAYS written — including 0: on /Rotate'd pages the AP
+              // content above carries a page-compensation transform, and
+              // without an explicit key the loader's matrix heuristic would
+              // misread that compensation as annotation rotation.
+              annotDict.set(PDFName.of('OPS_Rotation'), context.obj(ftRotation));
             }
 
             break;

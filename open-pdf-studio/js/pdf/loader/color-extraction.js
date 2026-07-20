@@ -887,25 +887,55 @@ const result = {};
                   }
                 }
 
+                // Decode the AP/N content once — used for the stroke-color
+                // fallback below AND for the legacy-appearance detection.
+                const decodeStream = async (stream) => {
+                  let bytes;
+                  if (typeof stream.getContents === 'function') bytes = stream.getContents();
+                  else if (typeof stream.contents === 'function') bytes = stream.contents();
+                  else if (stream.contentsCache?.value) bytes = stream.contentsCache.value;
+                  if (!bytes) return null;
+                  const dict = stream.dict || stream;
+                  const filterRaw = dict.get(PDFName.of('Filter'));
+                  const filterName = filterRaw?.toString();
+                  if (filterName === '/FlateDecode') {
+                    const dec = await inflateBytes(bytes);
+                    return dec ? new TextDecoder().decode(dec) : null;
+                  }
+                  return new TextDecoder().decode(bytes);
+                };
+                const content = await decodeStream(nStream);
+
+                // Legacy-appearance detection (self-healing for files saved by
+                // an older version of this app). Those appearances contain our
+                // exact text-state signature but NO rotation in any cm/Tm
+                // operator and a translation-only /Matrix: on a page with
+                // /Rotate the text then renders sideways, and the loader's
+                // matrix heuristic misreads the page rotation as annotation
+                // rotation. Flag them so the converter can treat the
+                // annotation as visually unrotated; the next save rewrites the
+                // appearance with proper page-rotation compensation. Only for
+                // annotations WITHOUT our explicit /OPS_Rotation key.
+                if (colors.rotation === undefined && content &&
+                    content.includes('0 Tc 0 Tw 100 Tz 0 Tr') &&
+                    (colors.matrixAngle === undefined || Math.abs(colors.matrixAngle) <= 0.01)) {
+                  const opRe = /(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(cm|Tm)\b/g;
+                  let hasRotationOp = false;
+                  let opMatch;
+                  while ((opMatch = opRe.exec(content)) !== null) {
+                    // b or c ≠ 0 ⇒ the matrix rotates/skews (identity,
+                    // translation and pure scaling all have b = c = 0).
+                    if (Math.abs(parseFloat(opMatch[2])) > 0.001 ||
+                        Math.abs(parseFloat(opMatch[3])) > 0.001) {
+                      hasRotationOp = true;
+                      break;
+                    }
+                  }
+                  if (!hasRotationOp) colors.apLegacyUnrotated = true;
+                }
+
                 // Extract stroke color from content stream (or referenced XObjects)
                 if (!colors.ic) {
-                  const decodeStream = async (stream) => {
-                    let bytes;
-                    if (typeof stream.getContents === 'function') bytes = stream.getContents();
-                    else if (typeof stream.contents === 'function') bytes = stream.contents();
-                    else if (stream.contentsCache?.value) bytes = stream.contentsCache.value;
-                    if (!bytes) return null;
-                    const dict = stream.dict || stream;
-                    const filterRaw = dict.get(PDFName.of('Filter'));
-                    const filterName = filterRaw?.toString();
-                    if (filterName === '/FlateDecode') {
-                      const dec = await inflateBytes(bytes);
-                      return dec ? new TextDecoder().decode(dec) : null;
-                    }
-                    return new TextDecoder().decode(bytes);
-                  };
-
-                  let content = await decodeStream(nStream);
                   let rgMatch = content ? content.match(/([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+RG/) : null;
 
                   // If not found, follow XObject form references (e.g. /Fm0 Do)
