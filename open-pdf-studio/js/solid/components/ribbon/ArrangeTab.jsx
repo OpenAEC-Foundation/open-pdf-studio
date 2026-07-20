@@ -164,24 +164,24 @@ export default function ArrangeTab() {
         <RibbonGroup label={t('arrange.zOrder')}>
           <div class="ribbon-grid-col">
             <button class="ribbon-row-btn" id="arr-bring-forward" title={t('arrange.bringForward')}
-              disabled={isPdfAReadOnly()} onClick={() => { for (const ann of (getActiveDocument()?.selectedAnnotations || [])) bringForward(ann); }}>
+              disabled={isPdfAReadOnly()} onClick={() => bringForward(getActiveDocument()?.selectedAnnotations || [])}>
               <span ref={el => { el.innerHTML = bringForwardIcon; }} />
               <span>{t('arrange.bringForward')}</span>
             </button>
             <button class="ribbon-row-btn" id="arr-bring-front" title={t('arrange.bringToFront')}
-              disabled={isPdfAReadOnly()} onClick={() => { for (const ann of (getActiveDocument()?.selectedAnnotations || [])) bringToFront(ann); }}>
+              disabled={isPdfAReadOnly()} onClick={() => bringToFront(getActiveDocument()?.selectedAnnotations || [])}>
               <span ref={el => { el.innerHTML = bringToFrontIcon; }} />
               <span>{t('arrange.bringToFront')}</span>
             </button>
           </div>
           <div class="ribbon-grid-col">
             <button class="ribbon-row-btn" id="arr-send-backward" title={t('arrange.sendBackward')}
-              disabled={isPdfAReadOnly()} onClick={() => { for (const ann of [...(getActiveDocument()?.selectedAnnotations || [])].reverse()) sendBackward(ann); }}>
+              disabled={isPdfAReadOnly()} onClick={() => sendBackward(getActiveDocument()?.selectedAnnotations || [])}>
               <span ref={el => { el.innerHTML = sendBackwardIcon; }} />
               <span>{t('arrange.sendBackward')}</span>
             </button>
             <button class="ribbon-row-btn" id="arr-send-back" title={t('arrange.sendToBack')}
-              disabled={isPdfAReadOnly()} onClick={() => { for (const ann of [...(getActiveDocument()?.selectedAnnotations || [])].reverse()) sendToBack(ann); }}>
+              disabled={isPdfAReadOnly()} onClick={() => sendToBack(getActiveDocument()?.selectedAnnotations || [])}>
               <span ref={el => { el.innerHTML = sendToBackIcon; }} />
               <span>{t('arrange.sendToBack')}</span>
             </button>

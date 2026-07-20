@@ -1,6 +1,7 @@
 import { Show, For, onMount, onCleanup } from 'solid-js';
 import { getActiveDocument } from '../../core/state.js';
 import { createAnnotation } from '../../annotations/factory.js';
+import { recordAdd } from '../../core/undo-manager.js';
 import {
   scheduleVisible, setScheduleVisible,
   scheduleResult, grandTotals, appearance,
@@ -95,6 +96,7 @@ export default function SchedulePanel() {
       color: '#000000', lineWidth: 0.5, opacity: 1,
     });
     doc.annotations.push(ann);
+    recordAdd(ann);
     import('../../annotations/rendering.js').then(m => m.redrawAnnotations());
   }
 

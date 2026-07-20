@@ -1,0 +1,595 @@
+{
+  "git_sha": "7227b503",
+  "timestamp": "2026-05-09T13:43:02",
+  "config": {
+    "width": 2000,
+    "blur_sigma": 1.0,
+    "pixel_tol": 30,
+    "fail_pct": 2.0
+  },
+  "pdfs": [
+    {
+      "path": "C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\test pdf-bestanden\\Originele bestanden\\Text pdf gecombineerd.pdf",
+      "version": "1.7",
+      "pages": [
+        {
+          "index": 0,
+          "diff_pct": 50.469547543301516,
+          "passed": false
+        },
+        {
+          "index": 1,
+          "diff_pct": 1.5703782255213856,
+          "passed": true
+        },
+        {
+          "index": 2,
+          "diff_pct": 3.604736656062213,
+          "passed": false
+        },
+        {
+          "index": 3,
+          "diff_pct": 0.7449452103216684,
+          "passed": true
+        },
+        {
+          "index": 4,
+          "diff_pct": 4.86147048427006,
+          "passed": false
+        },
+        {
+          "index": 5,
+          "diff_pct": 1.9341463414634146,
+          "passed": true
+        },
+        {
+          "index": 6,
+          "diff_pct": 3.7348356309650055,
+          "passed": false
+        },
+        {
+          "index": 7,
+          "diff_pct": 5.960321668434076,
+          "passed": false
+        },
+        {
+          "index": 8,
+          "diff_pct": 8.965341109932838,
+          "passed": false
+        },
+        {
+          "index": 9,
+          "diff_pct": 6.846129374337222,
+          "passed": false
+        },
+        {
+          "index": 10,
+          "diff_pct": 3.152209261223047,
+          "passed": false
+        },
+        {
+          "index": 11,
+          "diff_pct": 8.714775539059739,
+          "passed": false
+        },
+        {
+          "index": 12,
+          "diff_pct": 0.9004772004241781,
+          "passed": true
+        },
+        {
+          "index": 13,
+          "diff_pct": 6.750795334040297,
+          "passed": false
+        },
+        {
+          "index": 14,
+          "diff_pct": 2.3668964298338637,
+          "passed": false
+        },
+        {
+          "index": 15,
+          "diff_pct": 4.525892541534111,
+          "passed": false
+        },
+        {
+          "index": 16,
+          "diff_pct": 4.79220572640509,
+          "passed": false
+        },
+        {
+          "index": 17,
+          "diff_pct": 7.463237893248498,
+          "passed": false
+        },
+        {
+          "index": 18,
+          "diff_pct": 5.316790385295158,
+          "passed": false
+        },
+        {
+          "index": 19,
+          "diff_pct": 2.36175326970661,
+          "passed": false
+        },
+        {
+          "index": 20,
+          "diff_pct": 6.26797454931071,
+          "passed": false
+        },
+        {
+          "index": 21,
+          "diff_pct": 6.413078826440438,
+          "passed": false
+        },
+        {
+          "index": 22,
+          "diff_pct": 6.599010250972075,
+          "passed": false
+        },
+        {
+          "index": 23,
+          "diff_pct": 7.67423117709438,
+          "passed": false
+        },
+        {
+          "index": 24,
+          "diff_pct": 6.701060445387062,
+          "passed": false
+        },
+        {
+          "index": 25,
+          "diff_pct": 2.5730116648992576,
+          "passed": false
+        },
+        {
+          "index": 26,
+          "diff_pct": 0.2581654294803818,
+          "passed": true
+        },
+        {
+          "index": 27,
+          "diff_pct": 61.84133969600566,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\test pdf-bestanden\\Originele bestanden\\rapport-constructie.pdf",
+      "version": "1.7",
+      "pages": [
+        {
+          "index": 0,
+          "diff_pct": 50.469547543301516,
+          "passed": false
+        },
+        {
+          "index": 1,
+          "diff_pct": 1.5703782255213856,
+          "passed": true
+        },
+        {
+          "index": 2,
+          "diff_pct": 3.604736656062213,
+          "passed": false
+        },
+        {
+          "index": 3,
+          "diff_pct": 0.7449452103216684,
+          "passed": true
+        },
+        {
+          "index": 4,
+          "diff_pct": 4.86147048427006,
+          "passed": false
+        },
+        {
+          "index": 5,
+          "diff_pct": 1.9341463414634146,
+          "passed": true
+        },
+        {
+          "index": 6,
+          "diff_pct": 3.7348356309650055,
+          "passed": false
+        },
+        {
+          "index": 7,
+          "diff_pct": 5.960321668434076,
+          "passed": false
+        },
+        {
+          "index": 8,
+          "diff_pct": 8.965341109932838,
+          "passed": false
+        },
+        {
+          "index": 9,
+          "diff_pct": 6.846129374337222,
+          "passed": false
+        },
+        {
+          "index": 10,
+          "diff_pct": 3.152209261223047,
+          "passed": false
+        },
+        {
+          "index": 11,
+          "diff_pct": 8.714775539059739,
+          "passed": false
+        },
+        {
+          "index": 12,
+          "diff_pct": 0.9004772004241781,
+          "passed": true
+        },
+        {
+          "index": 13,
+          "diff_pct": 6.750795334040297,
+          "passed": false
+        },
+        {
+          "index": 14,
+          "diff_pct": 2.3668964298338637,
+          "passed": false
+        },
+        {
+          "index": 15,
+          "diff_pct": 4.525892541534111,
+          "passed": false
+        },
+        {
+          "index": 16,
+          "diff_pct": 4.79220572640509,
+          "passed": false
+        },
+        {
+          "index": 17,
+          "diff_pct": 7.463237893248498,
+          "passed": false
+        },
+        {
+          "index": 18,
+          "diff_pct": 5.316790385295158,
+          "passed": false
+        },
+        {
+          "index": 19,
+          "diff_pct": 2.36175326970661,
+          "passed": false
+        },
+        {
+          "index": 20,
+          "diff_pct": 6.26797454931071,
+          "passed": false
+        },
+        {
+          "index": 21,
+          "diff_pct": 6.413078826440438,
+          "passed": false
+        },
+        {
+          "index": 22,
+          "diff_pct": 6.599010250972075,
+          "passed": false
+        },
+        {
+          "index": 23,
+          "diff_pct": 7.67423117709438,
+          "passed": false
+        },
+        {
+          "index": 24,
+          "diff_pct": 6.701060445387062,
+          "passed": false
+        },
+        {
+          "index": 25,
+          "diff_pct": 2.5730116648992576,
+          "passed": false
+        },
+        {
+          "index": 26,
+          "diff_pct": 0.2581654294803818,
+          "passed": true
+        },
+        {
+          "index": 27,
+          "diff_pct": 61.84133969600566,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\test pdf-bestanden\\Originele bestanden\\2885 Demo project.pdf",
+      "version": "1.4",
+      "pages": [
+        {
+          "index": 0,
+          "diff_pct": 96.46882062146894,
+          "passed": false
+        },
+        {
+          "index": 1,
+          "diff_pct": 5.982450564971751,
+          "passed": false
+        },
+        {
+          "index": 2,
+          "diff_pct": 6.848481638418079,
+          "passed": false
+        },
+        {
+          "index": 3,
+          "diff_pct": 12.097316384180791,
+          "passed": false
+        },
+        {
+          "index": 4,
+          "diff_pct": 11.388347457627118,
+          "passed": false
+        },
+        {
+          "index": 5,
+          "diff_pct": 7.054766949152542,
+          "passed": false
+        },
+        {
+          "index": 6,
+          "diff_pct": 7.194597457627119,
+          "passed": false
+        },
+        {
+          "index": 7,
+          "diff_pct": 41.76108757062147,
+          "passed": false
+        },
+        {
+          "index": 8,
+          "diff_pct": 7.988700564971751,
+          "passed": false
+        },
+        {
+          "index": 9,
+          "diff_pct": 98.05007062146892,
+          "passed": false
+        },
+        {
+          "index": 10,
+          "diff_pct": 2.947069209039548,
+          "passed": false
+        },
+        {
+          "index": 11,
+          "diff_pct": 3.199364406779661,
+          "passed": false
+        },
+        {
+          "index": 12,
+          "diff_pct": 3.7896892655367234,
+          "passed": false
+        },
+        {
+          "index": 13,
+          "diff_pct": 7.959957627118644,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\test pdf-bestanden\\Originele bestanden\\Zware vector PDF.pdf",
+      "version": "1.6",
+      "pages": [
+        {
+          "index": 0,
+          "diff_pct": 2.2390191897654583,
+          "passed": false
+        },
+        {
+          "index": 1,
+          "diff_pct": 1.0028429282160625,
+          "passed": true
+        },
+        {
+          "index": 2,
+          "diff_pct": 4.448621908127208,
+          "passed": false
+        },
+        {
+          "index": 3,
+          "diff_pct": 4.892186201163757,
+          "passed": false
+        },
+        {
+          "index": 4,
+          "diff_pct": 3.375583038869258,
+          "passed": false
+        },
+        {
+          "index": 5,
+          "diff_pct": 5.057896924355777,
+          "passed": false
+        },
+        {
+          "index": 6,
+          "diff_pct": 2.848239436619718,
+          "passed": false
+        },
+        {
+          "index": 7,
+          "diff_pct": 0.8451590106007068,
+          "passed": true
+        },
+        {
+          "index": 8,
+          "diff_pct": 1.5226501766784453,
+          "passed": true
+        },
+        {
+          "index": 9,
+          "diff_pct": 1.1786925795053003,
+          "passed": true
+        },
+        {
+          "index": 10,
+          "diff_pct": 1.5461484098939928,
+          "passed": true
+        },
+        {
+          "index": 11,
+          "diff_pct": 1.5429929577464787,
+          "passed": true
+        },
+        {
+          "index": 12,
+          "diff_pct": 0.8875618374558305,
+          "passed": true
+        },
+        {
+          "index": 13,
+          "diff_pct": 0.9595759717314488,
+          "passed": true
+        },
+        {
+          "index": 14,
+          "diff_pct": 1.2825088339222614,
+          "passed": true
+        },
+        {
+          "index": 15,
+          "diff_pct": 1.3763732394366197,
+          "passed": true
+        },
+        {
+          "index": 16,
+          "diff_pct": 1.6143661971830987,
+          "passed": true
+        },
+        {
+          "index": 17,
+          "diff_pct": 1.3298939929328621,
+          "passed": true
+        },
+        {
+          "index": 18,
+          "diff_pct": 2.90172972972973,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\test pdf-bestanden\\Originele bestanden\\20260316 - Barn Relocation - 389 E Hemenway Lane - for Permit.pdf",
+      "version": "1.4",
+      "pages": [
+        {
+          "index": 0,
+          "diff_pct": 2.1856756756756757,
+          "passed": false
+        },
+        {
+          "index": 1,
+          "diff_pct": 1.1133976833976833,
+          "passed": true
+        },
+        {
+          "index": 2,
+          "diff_pct": 4.640656370656371,
+          "passed": false
+        },
+        {
+          "index": 3,
+          "diff_pct": 2.7688030888030886,
+          "passed": false
+        },
+        {
+          "index": 4,
+          "diff_pct": 0.8992277992277993,
+          "passed": true
+        },
+        {
+          "index": 5,
+          "diff_pct": 2.7765637065637065,
+          "passed": false
+        },
+        {
+          "index": 6,
+          "diff_pct": 13.592895752895753,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\test pdf-bestanden\\Originele bestanden\\Technische tekening.pdf",
+      "version": "1.7",
+      "pages": [
+        {
+          "index": 0,
+          "diff_pct": 12.819214437367304,
+          "passed": false
+        },
+        {
+          "index": 1,
+          "diff_pct": 18.41939136588818,
+          "passed": false
+        },
+        {
+          "index": 2,
+          "diff_pct": 15.89692144373673,
+          "passed": false
+        },
+        {
+          "index": 3,
+          "diff_pct": 11.482448690728946,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\test pdf-bestanden\\Originele bestanden\\Tekst.pdf",
+      "version": "1.7",
+      "pages": [
+        {
+          "index": 0,
+          "diff_pct": 3.8841816896429835,
+          "passed": false
+        },
+        {
+          "index": 1,
+          "diff_pct": 3.761311417462001,
+          "passed": false
+        },
+        {
+          "index": 2,
+          "diff_pct": 4.892576882290562,
+          "passed": false
+        },
+        {
+          "index": 3,
+          "diff_pct": 6.58202545068929,
+          "passed": false
+        },
+        {
+          "index": 4,
+          "diff_pct": 0.8472958642629905,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "path": "C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\test pdf-bestanden\\Originele bestanden\\Combinatie Raster, vector, tekening images.pdf",
+      "version": "1.4",
+      "pages": [
+        {
+          "index": 0,
+          "diff_pct": 3.4652296819787987,
+          "passed": false
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "pages": 106,
+    "passed": 25,
+    "failed": 81
+  }
+}

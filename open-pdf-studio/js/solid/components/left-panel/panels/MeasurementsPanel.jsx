@@ -5,6 +5,7 @@ import { getScaleForPoint } from '../../../../annotations/scale-bar.js';
 import { redrawAnnotations, redrawContinuous } from '../../../../annotations/rendering.js';
 import { showProperties } from '../../../../ui/panels/properties-panel.js';
 import { goToPage } from '../../../../pdf/renderer.js';
+import { recordDelete } from '../../../../core/undo-manager.js';
 import { useTranslation } from '../../../../i18n/useTranslation.js';
 
 function redraw() {
@@ -106,6 +107,7 @@ export default function MeasurementsPanel() {
     if (!doc) return;
     const idx = doc.annotations.indexOf(ann);
     if (idx !== -1) {
+      recordDelete(ann, idx);
       doc.annotations.splice(idx, 1);
       redraw();
     }

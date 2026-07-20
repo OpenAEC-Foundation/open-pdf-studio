@@ -18,6 +18,7 @@ import { state, getActiveDocument } from '../core/state.js';
 import { cloneAnnotation } from './factory.js';
 import {
   recordBulkModify, recordBulkDelete, recordBulkAdd,
+  beginUndoTransaction, endUndoTransaction,
 } from '../core/undo-manager.js';
 import { redrawAnnotations, redrawContinuous } from './rendering.js';
 
@@ -107,6 +108,7 @@ export function explodeSelection() {
 
   // Record deletions while the originals are still present (valid indices),
   // then remove them and add the new segments.
+  beginUndoTransaction();
   recordBulkDelete(exploded);
   const ids = new Set(exploded.map(a => a.id));
   doc.annotations = doc.annotations.filter(a => !ids.has(a.id));
@@ -115,6 +117,7 @@ export function explodeSelection() {
 
   doc.selectedAnnotations = created;
   doc.selectedAnnotation = created[0] || null;
+  endUndoTransaction();
   _redraw();
   return exploded.length;
 }
@@ -182,6 +185,7 @@ export function joinSelection(tol = 2.0) {
     points: chain.map(p => ({ x: p.x, y: p.y })),
   };
 
+  beginUndoTransaction();
   recordBulkDelete(members);
   const ids = new Set(members.map(a => a.id));
   doc.annotations = doc.annotations.filter(a => !ids.has(a.id));
@@ -190,6 +194,7 @@ export function joinSelection(tol = 2.0) {
 
   doc.selectedAnnotations = [joined];
   doc.selectedAnnotation = joined;
+  endUndoTransaction();
   _redraw();
   return members.length;
 }

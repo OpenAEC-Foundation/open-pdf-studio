@@ -1,7 +1,15 @@
 import { createSignal } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { state, getActiveDocument } from '../../core/state.js';
-import { recordPropertyChange } from '../../core/undo-manager.js';
+import {
+  recordPropertyChange,
+  recordModify,
+  recordBulkModify,
+  recordMeasureScale,
+  beginUndoTransaction,
+  endUndoTransaction,
+} from '../../core/undo-manager.js';
+import { cloneAnnotation } from '../../annotations/factory.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { computeTextboxContentHeight } from '../../annotations/rendering/shapes.js';
 import { formatDate, getTypeDisplayName } from '../../utils/helpers.js';
@@ -566,6 +574,7 @@ export function storeShowTextEditProperties(info) {
     let cleaned = info.fontFamily || 'Arial';
     cleaned = cleaned.replace(/[-,](Bold|Italic|Oblique|Regular|Medium|Light|Book|Roman|PSMT|MT|PS).*$/i, '');
     cleaned = cleaned.replace(/PSMT$|MT$/i, '');
+    cleaned = cleaned.replace(/([a-z0-9])([A-Z])/g, '$1 $2');
     displayFontFamily = cleaned || 'Arial';
   }
 
@@ -579,8 +588,8 @@ export function storeShowTextEditProperties(info) {
     color: info.color || '#000000',
     fontBold: info.isBold || false,
     fontItalic: info.isItalic || false,
-    fontUnderline: false,
-    fontStrikethrough: false,
+    fontUnderline: info.isUnderline || false,
+    fontStrikethrough: info.isStrikethrough || false,
     textAlign: 'left',
     lineSpacing: '1.5',
     lineWidth: 0,
@@ -832,10 +841,9 @@ export function updateAnnotProp(key, value) {
     // Block all edits except lock toggle when any annotation is locked
     if (annotProps.locked !== false && key !== 'locked') return;
 
-    for (const ann of selected) {
-      recordPropertyChange(ann);
-      applyPropToAnnotation(ann, key, value);
-    }
+    const originals = selected.map(annotation => cloneAnnotation(annotation));
+    for (const ann of selected) applyPropToAnnotation(ann, key, value);
+    recordBulkModify(selected, originals);
     setAnnotProps(key, value);
 
     // After toggling lock, refresh the panel to update locked state
@@ -883,6 +891,7 @@ export function updateAnnotProp(key, value) {
 
   // Special handling for locked toggle
   if (key === 'locked' && currentAnnotation.locked && value === false) {
+    recordPropertyChange(currentAnnotation);
     currentAnnotation.locked = false;
     currentAnnotation.modifiedAt = new Date().toISOString();
     storeShowProperties(currentAnnotation);
@@ -892,7 +901,32 @@ export function updateAnnotProp(key, value) {
 
   if (currentAnnotation.locked) return;
 
-  recordPropertyChange(currentAnnotation);
+  const scaleDependentKeys = new Set([
+    'scaleBarUnit', 'scaleBarTotalUnits', 'scaleBarPixelsPerUnit',
+    'viewportScaleRatio', 'viewportUnit',
+    'scaleRegionScale', 'scaleRegionUnits', 'scaleRegionWidth', 'scaleRegionHeight',
+  ]);
+  let scaleUndo = null;
+  if (scaleDependentKeys.has(key)) {
+    const doc = getActiveDocument();
+    const affected = [
+      currentAnnotation,
+      ...(doc?.annotations || []).filter(annotation =>
+        annotation !== currentAnnotation &&
+        ['measureDistance', 'measureArea', 'measurePerimeter', 'measureAngle'].includes(annotation.type)
+      ),
+    ];
+    scaleUndo = {
+      affected,
+      originals: affected.map(annotation => cloneAnnotation(annotation)),
+      oldMeasureScale: doc?.measureScale == null
+        ? doc?.measureScale
+        : JSON.parse(JSON.stringify(doc.measureScale)),
+      tracksDocumentScale: key.startsWith('scaleBar'),
+    };
+  } else {
+    recordPropertyChange(currentAnnotation);
+  }
   currentAnnotation.modifiedAt = new Date().toISOString();
 
   // Write to annotation object
@@ -1153,6 +1187,16 @@ export function updateAnnotProp(key, value) {
   // Update store (skip custom fields — they read directly from annotation)
   // Skip dot-paths too: plugin-nested writes don't need to mirror into the
   // flat Solid store; plugin panels read from their own form-state.
+  if (scaleUndo) {
+    const doc = getActiveDocument();
+    beginUndoTransaction();
+    recordBulkModify(scaleUndo.affected, scaleUndo.originals);
+    if (scaleUndo.tracksDocumentScale) {
+      recordMeasureScale(scaleUndo.oldMeasureScale, doc?.measureScale);
+    }
+    endUndoTransaction();
+  }
+
   if (!key.startsWith('tb') && !key.includes('.')) {
     setAnnotProps(key, value);
   }
@@ -1184,11 +1228,12 @@ export async function applyStyleType(typeId) {
   if (annotProps.multiCount > 0) {
     const _doc = getActiveDocument();
     const selected = (_doc ? _doc.selectedAnnotations : []).filter(a => a.type === annType && !a.locked);
+    const originals = selected.map(annotation => cloneAnnotation(annotation));
     for (const ann of selected) {
-      recordPropertyChange(ann);
       applyAll(ann);
       if (annType === 'measureDistance') recomputeMeasureText(ann); // unit may change with type
     }
+    recordBulkModify(selected, originals);
     mirrorAll();
     redraw();
     return;
@@ -1235,6 +1280,7 @@ export function toggleSection(name) {
 // Add a reply to current annotation
 export function addReply(text) {
   if (!currentAnnotation || !text.trim()) return;
+  const before = cloneAnnotation(currentAnnotation);
   if (!currentAnnotation.replies) currentAnnotation.replies = [];
   currentAnnotation.replies.push({
     id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
@@ -1243,6 +1289,7 @@ export function addReply(text) {
     createdAt: new Date().toISOString()
   });
   currentAnnotation.modifiedAt = new Date().toISOString();
+  recordModify(currentAnnotation.id, before, currentAnnotation);
   setAnnotProps('replies', [...currentAnnotation.replies]);
   setAnnotProps('modified', formatDate(currentAnnotation.modifiedAt));
 }
@@ -1250,8 +1297,10 @@ export function addReply(text) {
 // Delete a reply
 export function deleteReply(index) {
   if (!currentAnnotation || !currentAnnotation.replies) return;
+  const before = cloneAnnotation(currentAnnotation);
   currentAnnotation.replies.splice(index, 1);
   currentAnnotation.modifiedAt = new Date().toISOString();
+  recordModify(currentAnnotation.id, before, currentAnnotation);
   setAnnotProps('replies', [...currentAnnotation.replies]);
   setAnnotProps('modified', formatDate(currentAnnotation.modifiedAt));
 }

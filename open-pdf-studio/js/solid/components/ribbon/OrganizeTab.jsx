@@ -67,6 +67,12 @@ export default function OrganizeTab() {
               const { getCurrentDocumentSize } = await import('../../../pdf/compress.js');
               openDialog('compress', { currentSize: getCurrentDocumentSize() });
             }} />
+          <RibbonButtonStack>
+            <RibbonButton size="small" id="rotate-left" title={t('home.rotateLeft')} icon={rotateLeftIcon} label={t('home.rotateLeft')}
+              disabled={ro()} onClick={() => rotateCurrentPage(-90)} />
+            <RibbonButton size="small" id="rotate-right" title={t('home.rotateRight')} icon={rotateRightIcon} label={t('home.rotateRight')}
+              disabled={ro()} onClick={() => rotateCurrentPage(90)} />
+          </RibbonButtonStack>
         </RibbonGroup>
 
         <RibbonGroup label={t('organize.pages')}>
@@ -82,12 +88,6 @@ export default function OrganizeTab() {
             icon={reorderIcon}
             label={t('organize.reorderPages') || 'Volgorde'}
             disabled={noPdf()} onClick={openPageReorder} />
-          <RibbonButtonStack>
-            <RibbonButton size="small" id="rotate-left" title={t('home.rotateLeft')} icon={rotateLeftIcon} label={t('home.rotateLeft')}
-              disabled={ro()} onClick={() => rotateCurrentPage(-90)} />
-            <RibbonButton size="small" id="rotate-right" title={t('home.rotateRight')} icon={rotateRightIcon} label={t('home.rotateRight')}
-              disabled={ro()} onClick={() => rotateCurrentPage(90)} />
-          </RibbonButtonStack>
         </RibbonGroup>
 
         <RibbonGroup label={t('organize.combine')}>

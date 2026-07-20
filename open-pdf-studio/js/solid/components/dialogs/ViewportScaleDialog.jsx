@@ -3,7 +3,13 @@ import Dialog from '../Dialog.jsx';
 import PrefSelect from '../preferences/PrefSelect.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { getActiveDocument } from '../../../core/state.js';
-import { recordAdd } from '../../../core/undo-manager.js';
+import {
+  recordAdd,
+  recordBulkModify,
+  beginUndoTransaction,
+  endUndoTransaction,
+} from '../../../core/undo-manager.js';
+import { cloneAnnotation } from '../../../annotations/factory.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import { recalculateAllMeasurements } from '../../../annotations/measurement.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
@@ -45,17 +51,25 @@ function findAnnotation(id) {
 export default function ViewportScaleDialog(props) {
   const { t } = useTranslation('ribbon');
   const data = props.data || {};
-  const [mode, setMode] = createSignal('preset');
-  const [presetRatio, setPresetRatio] = createSignal('100');
-  const [customValue, setCustomValue] = createSignal('');
-  const [customUnit, setCustomUnit] = createSignal('mm');
-  const [refPixels, setRefPixels] = createSignal('');
-  const [viewportName, setViewportName] = createSignal('');
+  const initialAnnotation = findAnnotation(data.annotationId);
+  const initialSnapshot = initialAnnotation ? cloneAnnotation(initialAnnotation) : null;
+  const initialRatio = String(initialAnnotation?.scaleRatio || '').match(/^1:(\d+)$/)?.[1] || '100';
+  const [mode, setMode] = createSignal(data.isNew || initialAnnotation?.scaleRatio ? 'preset' : 'custom');
+  const [presetRatio, setPresetRatio] = createSignal(initialRatio);
+  const hasCustomScale = !!initialAnnotation && !initialAnnotation.scaleRatio && initialAnnotation.pixelsPerUnit > 0;
+  const [customValue, setCustomValue] = createSignal(hasCustomScale ? '1' : '');
+  const [customUnit, setCustomUnit] = createSignal(initialAnnotation?.unit || 'mm');
+  const [refPixels, setRefPixels] = createSignal(hasCustomScale ? String(initialAnnotation.pixelsPerUnit) : '');
+  const [viewportName, setViewportName] = createSignal(initialAnnotation?.name || '');
 
   function handleApply() {
     const doc = getActiveDocument();
     const ann = findAnnotation(data.annotationId);
     if (!doc || !ann) return;
+    const existingAnnotations = doc.annotations.filter(annotation =>
+      annotation !== ann && ['measureDistance', 'measureArea', 'measurePerimeter', 'measureAngle'].includes(annotation.type)
+    );
+    const existingOriginals = existingAnnotations.map(annotation => cloneAnnotation(annotation));
 
     let pixelsPerUnit, unit, scaleRatio = '';
 
@@ -78,9 +92,14 @@ export default function ViewportScaleDialog(props) {
     ann.unit = unit;
     ann.scaleRatio = scaleRatio;
     ann.name = viewportName() || scaleRatio || 'Viewport';
+    ann.modifiedAt = new Date().toISOString();
 
-    recordAdd(ann);
     recalculateAllMeasurements();
+    beginUndoTransaction();
+    if (data.isNew) recordAdd(ann);
+    else if (initialSnapshot) recordBulkModify([ann], [initialSnapshot]);
+    recordBulkModify(existingAnnotations, existingOriginals);
+    endUndoTransaction();
     closeDialog('viewport-scale');
   }
 
@@ -88,7 +107,7 @@ export default function ViewportScaleDialog(props) {
     // Remove the placeholder annotation
     const doc = getActiveDocument();
     const ann = findAnnotation(data.annotationId);
-    if (doc && ann) {
+    if (data.isNew && doc && ann) {
       const idx = doc.annotations.indexOf(ann);
       if (idx !== -1) doc.annotations.splice(idx, 1);
       redraw();

@@ -8,6 +8,7 @@ import { resolvePointerCoords } from '../tools/tool-context.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { scheduleResultToTable } from './schedule-templates.js';
 import { getScheduleById, buildResultForSchedule } from '../solid/stores/schedulesStore.js';
+import { recordAdd } from '../core/undo-manager.js';
 
 export const SCHEDULE_DND_MIME = 'application/x-opds-schedule';
 
@@ -44,6 +45,7 @@ export function placeScheduleAt(scheduleId, x, y, pageNum) {
     opacity: 1,
   });
   doc.annotations.push(ann);
+  recordAdd(ann);
   redraw();
   return ann;
 }

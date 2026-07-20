@@ -6,7 +6,7 @@ import { markDocumentModified } from '../ui/chrome/tabs.js';
 import { canvasContainer, continuousContainer, pdfCanvas } from '../ui/dom-elements.js';
 import { showPdfTextEditor, hidePdfTextEditor, getPdfEditorText as getEditorText,
   updatePdfEditorStyle, shiftPdfEditorPosition } from '../bridge.js';
-import { injectSyntheticTextSpans } from '../text/text-layer.js';
+import { injectSyntheticTextSpans, resolveTextLayerFonts } from '../text/text-layer.js';
 import {
   applyPageRotation,
   getPageRotationMatrix,
@@ -56,6 +56,44 @@ function cssFamilyFor(name) {
   return 'Helvetica, Arial, sans-serif';
 }
 
+function isInternalPdfFontName(name) {
+  return /^g_d\d+_f\d+$/i.test(name || '');
+}
+
+function editableFontName(line, cssFallbackFont) {
+  if (line.actualFontName) return line.actualFontName;
+  if (line.pdfFontName && !isInternalPdfFontName(line.pdfFontName)) return line.pdfFontName;
+  if ((line.fontFamily || '').toLowerCase() === 'monospace') return 'Courier New';
+  if ((line.fontFamily || '').toLowerCase() === 'serif') return 'Times New Roman';
+  return cssFallbackFont.includes('Courier') ? 'Courier New'
+    : cssFallbackFont.includes('Times') ? 'Times New Roman'
+    : 'Arial';
+}
+
+let fontMetricsContext = null;
+
+// Return the browser baseline offset inside a CSS line box. Canvas and CSS use
+// the same font metrics, so anchoring the textarea by its baseline keeps its
+// glyphs on top of the PDF canvas glyphs instead of relying on a magic offset.
+function cssBaselineOffset(fontFamily, fontSize, lineHeight, isBold = false, isItalic = false) {
+  if (!fontMetricsContext) {
+    fontMetricsContext = document.createElement('canvas').getContext('2d');
+  }
+  if (!fontMetricsContext) return fontSize * 0.8 + (lineHeight - fontSize) / 2;
+
+  const fontWeight = isBold ? 'bold ' : '';
+  const fontStyle = isItalic ? 'italic ' : '';
+  fontMetricsContext.font = `${fontStyle}${fontWeight}${fontSize}px ${fontFamily}`;
+  const metrics = fontMetricsContext.measureText('Mg');
+  const ascent = Number.isFinite(metrics.fontBoundingBoxAscent)
+    ? metrics.fontBoundingBoxAscent
+    : (metrics.actualBoundingBoxAscent || fontSize * 0.8);
+  const descent = Number.isFinite(metrics.fontBoundingBoxDescent)
+    ? metrics.fontBoundingBoxDescent
+    : (metrics.actualBoundingBoxDescent || fontSize * 0.2);
+  return ascent + (lineHeight - ascent - descent) / 2;
+}
+
 // Re-inject the synthetic text-layer spans for added text on a page (after the
 // record's content/style/position changed) and repaint the annotation canvas.
 function reRenderAddedText(pageNum) {
@@ -64,9 +102,12 @@ function reRenderAddedText(pageNum) {
   const canvasEl = textLayer?.parentElement?.querySelector('canvas.pdf-canvas')
     || pdfCanvas || document.getElementById('pdf-canvas');
   if (textLayer && canvasEl) {
-    const sc = getActiveDocument()?.scale || 1.5;
-    const pw = canvasEl.width / sc;
-    const ph = canvasEl.height / sc;
+    const doc = getActiveDocument();
+    const vp = window.__pdfViewport;
+    const useViewport = vp?.active && doc?.filePath && vp.pageW > 0 && vp.pageH > 0;
+    const sc = doc?.scale || 1.5;
+    const pw = useViewport ? vp.pageW : canvasEl.width / sc;
+    const ph = useViewport ? vp.pageH : canvasEl.height / sc;
     injectSyntheticTextSpans(textLayer, pageNum, pw, ph);
   }
   if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
@@ -80,21 +121,53 @@ function applyStyleStateToRecord(rec, st) {
   let changed = false;
   if (st.size != null && rec.fontSize !== st.size) { rec.fontSize = st.size; rec.lineSpacing = st.size * 1.2; changed = true; }
   if (st.color != null && rec.color !== st.color) { rec.color = st.color; changed = true; }
+  if (st.underline != null && rec.fontUnderline !== st.underline) { rec.fontUnderline = st.underline; changed = true; }
+  if (st.strikethrough != null && rec.fontStrikethrough !== st.strikethrough) { rec.fontStrikethrough = st.strikethrough; changed = true; }
   const std = toStandardFontName(st.family, st.bold, st.italic);
   if (rec.fontFamily !== std) { rec.fontFamily = std; changed = true; }
   return changed;
 }
 
-// Live-update the open editor's CSS from the style state (colour/weight/style/
-// family — size is left to the record re-render so the box geometry stays put).
+// Live-update the open editor's CSS and keep its baseline anchored while font
+// metrics or line height change.
 function applyStyleStateToEditor(st) {
   if (!st) return;
-  updatePdfEditorStyle({
+  const decorations = [];
+  if (st.underline) decorations.push('underline');
+  if (st.strikethrough) decorations.push('line-through');
+  const family = !st.fontFaceChanged && st.cssFamily
+    ? st.cssFamily
+    : cssFamilyFor(st.family);
+  const style = {
     color: st.color || '#000000',
     'font-weight': st.bold ? 'bold' : 'normal',
     'font-style': st.italic ? 'italic' : 'normal',
-    'font-family': cssFamilyFor(st.family),
-  });
+    'font-family': family,
+    'text-decoration-line': decorations.length ? decorations.join(' ') : 'none',
+    'text-decoration-thickness': '0.06em',
+    'text-underline-offset': '0.08em',
+  };
+
+  if (activeEditor && st.size > 0) {
+    const visualScale = activeEditor.visualScale || activeEditor.scale || 1;
+    const fontSizePx = st.size * visualScale;
+    const lineHeightPx = (activeEditor.lineSpacing || st.size * 1.2) * visualScale;
+    style['font-size'] = `${fontSizePx}px`;
+    style['line-height'] = `${lineHeightPx}px`;
+    style.height = `${Math.max(getEditorText().split('\n').length * lineHeightPx, 24)}px`;
+    const baselineOffset = cssBaselineOffset(
+      family, fontSizePx, lineHeightPx, st.bold, st.italic
+    );
+    if (Number.isFinite(activeEditor.editorBaseline)) {
+      style.top = `${activeEditor.editorBaseline - baselineOffset}px`;
+    } else if (activeEditor.editorBaseline) {
+      const baseline = activeEditor.editorBaseline;
+      style.left = `${baseline.left - baseline.rotationC * baselineOffset}px`;
+      style.top = `${baseline.top - baseline.rotationD * baselineOffset}px`;
+    }
+  }
+
+  updatePdfEditorStyle(style);
 }
 
 function getTextEditGeometry(pageNum, canvasEl) {
@@ -302,6 +375,8 @@ function getBlockGroups(layer) {
 
       return {
         text: lineItems.map(it => it.span.textContent).join(''),
+        domTop: Math.min(...lineItems.map(it => it.domTop)),
+        domBottom: Math.max(...lineItems.map(it => it.domBottom)),
         pdfX: lineItems[0].pdfX,
         pdfY: lineItems[0].pdfY,
         pdfWidth: lineItems.reduce((s, it) => s + it.pdfWidth, 0),
@@ -369,9 +444,20 @@ function enableTextLayerHover() {
         const block = spanToBlock.get(span);
         if (block) block.spans.forEach(s => s.classList.remove('edit-text-block-hover'));
       };
-      const clickHandler = (e) => {
+      const clickHandler = async (e) => {
         e.preventDefault();
         e.stopPropagation();
+        const doc = getActiveDocument();
+        try {
+          const page = await doc?.pdfDoc?.getPage(pageNum);
+          if (page) await resolveTextLayerFonts(page, layer);
+        } catch (_) {
+          // Keep editing available with a standard fallback if a font cannot
+          // be resolved (damaged or unsupported embedded font).
+        }
+        if (!state.isEditingPdfText || state.currentTool !== 'editText') return;
+        blockGroupsCache.delete(layer);
+        getBlockGroups(layer);
         startPdfTextEditing(span, pageNum);
       };
       span.addEventListener('mouseenter', enterHandler);
@@ -442,11 +528,13 @@ function startPdfTextEditing(span, pageNum) {
   const pdfWidth = Math.max(...lineData.map(l => l.pdfWidth));
   const groupRect = block.rect;
 
-  // Derive font size from the visual height of the block, not from span CSS
-  // (spans use scaleX transforms that a textarea doesn't have)
+  // Match the PDF.js line box exactly. The previous 0.82 multiplier made the
+  // live text visibly shrink and move as soon as editing started.
   const numLines = lineData.length;
-  const visualLineHeight = groupRect.height / numLines;
-  const editorFontSize = Math.round(visualLineHeight * 0.82);
+  const editorFontSize = Math.max(1, lineData[0].domBottom - lineData[0].domTop);
+  const visualLineHeight = numLines > 1
+    ? Math.abs(lineData[1].domTop - lineData[0].domTop)
+    : editorFontSize * (lineSpacing / fontSize);
 
   // Place editor in the textLayer's parent container (not in the textLayer itself)
   // because .textLayer has opacity: 0.25 which makes all children semi-transparent
@@ -455,9 +543,6 @@ function startPdfTextEditing(span, pageNum) {
   const layerRect = textLayer.getBoundingClientRect();
   const offsetX = layerRect.left - containerRect.left;
   const offsetY = layerRect.top - containerRect.top;
-
-  const padX = 4;
-  const padY = 4;
 
   // Use PDF.js loaded font if available (exact visual match), else map to standard CSS font
   const loadedFont = lineData[0].loadedFontName || '';
@@ -474,23 +559,30 @@ function startPdfTextEditing(span, pageNum) {
     cssFallbackFont = 'Helvetica, Arial, sans-serif';
   }
   const editorFont = loadedFont ? `"${loadedFont}", ${cssFallbackFont}` : cssFallbackFont;
+  const displayFontName = editableFontName(lineData[0], cssFallbackFont);
+  const editorBold = lineData[0].isBold || false;
+  const editorItalic = lineData[0].isItalic || false;
+  const targetBaseline = containerRect.top + groupRect.top + offsetY
+    + cssBaselineOffset(editorFont, editorFontSize, editorFontSize, editorBold, editorItalic);
+  const editorTop = targetBaseline
+    - cssBaselineOffset(editorFont, editorFontSize, visualLineHeight, editorBold, editorItalic);
 
   // Build style object for the Solid overlay
   // Use fixed positioning based on container's viewport position
   const styleObj = {
     position: 'fixed',
-    left: `${containerRect.left + groupRect.left + offsetX - padX}px`,
-    top: `${containerRect.top + groupRect.top + offsetY - padY}px`,
-    width: `${Math.max(groupRect.width + padX * 2 + 4, 80)}px`,
-    height: `${Math.max(groupRect.height + padY * 2 + 6, 24)}px`,
+    left: `${containerRect.left + groupRect.left + offsetX}px`,
+    top: `${editorTop}px`,
+    width: `${Math.max(groupRect.width + 4, 80)}px`,
+    height: `${Math.max(numLines * visualLineHeight, 24)}px`,
     'font-size': `${editorFontSize}px`,
     'line-height': `${visualLineHeight}px`,
     'font-family': editorFont,
     color: lineData[0].color || '#000000',
     'z-index': '1000'
   };
-  if (lineData[0].isBold) styleObj['font-weight'] = 'bold';
-  if (lineData[0].isItalic) styleObj['font-style'] = 'italic';
+  if (editorBold) styleObj['font-weight'] = 'bold';
+  if (editorItalic) styleObj['font-style'] = 'italic';
 
   // Hide all spans BEFORE showing editor so text doesn't double-render
   for (const s of block.spans) s.style.visibility = 'hidden';
@@ -507,14 +599,20 @@ function startPdfTextEditing(span, pageNum) {
     lineSpacing,
     numOriginalLines: lineData.length,
     scale: getActiveDocument()?.scale || 1.5,
+    visualScale: editorFontSize / fontSize,
+    editorBaseline: targetBaseline,
     // Accumulated style state edited via the properties panel; seeded from the
     // block's detected formatting. Persisted onto the edit record on commit.
     styleState: {
-      family: lineData[0].actualFontName || lineData[0].pdfFontName || cssFallbackFont,
+      family: displayFontName,
+      cssFamily: editorFont,
+      fontFaceChanged: false,
       size: fontSize,
       color: lineData[0].color || '#000000',
       bold: lineData[0].isBold || false,
       italic: lineData[0].isItalic || false,
+      underline: false,
+      strikethrough: false,
     },
   };
 
@@ -524,10 +622,12 @@ function startPdfTextEditing(span, pageNum) {
   showTextEditProperties({
     text: combinedText,
     fontSize,
-    fontFamily: lineData[0].actualFontName || lineData[0].pdfFontName || cssFallbackFont,
+    fontFamily: displayFontName,
     color: lineData[0].color || '#000000',
     isBold: lineData[0].isBold || false,
     isItalic: lineData[0].isItalic || false,
+    isUnderline: false,
+    isStrikethrough: false,
     page: pageNum
   });
 
@@ -538,11 +638,16 @@ function startPdfTextEditing(span, pageNum) {
       cancelPdfTextEditing();
       return;
     }
-    // Enter commits only if single-line block; otherwise allow newlines
-    if (e.key === 'Enter' && !e.shiftKey && lineData.length === 1) {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       e.stopPropagation();
       finishPdfTextEditing();
+      return;
+    }
+    if (e.key === 'Enter') {
+      // A normal Enter always creates a real PDF line break. Ctrl/Cmd+Enter
+      // commits; blur still commits as before.
+      e.stopPropagation();
     }
   };
 
@@ -595,7 +700,10 @@ function finishPdfTextEditing() {
     (st.size != null && st.size !== fontSize) ||
     (st.color != null && st.color !== (block.lineData[0].color || '#000000')) ||
     (st.bold != null && st.bold !== (block.lineData[0].isBold || false)) ||
-    (st.italic != null && st.italic !== (block.lineData[0].isItalic || false));
+    (st.italic != null && st.italic !== (block.lineData[0].isItalic || false)) ||
+    st.fontFaceChanged === true ||
+    st.underline === true ||
+    st.strikethrough === true;
 
   // Persist when the text OR the formatting changed (a pure re-style of
   // existing PDF text must be saveable too).
@@ -609,6 +717,9 @@ function finishPdfTextEditing() {
     const finalColor = st.color != null ? st.color : (lineData[0].color || '#000000');
     const finalBold = st.bold != null ? st.bold : (lineData[0].isBold || false);
     const finalItalic = st.italic != null ? st.italic : (lineData[0].isItalic || false);
+    const finalUnderline = st.underline === true;
+    const finalStrikethrough = st.strikethrough === true;
+    const finalLineSpacing = finalSize !== fontSize ? finalSize * 1.2 : lineSpacing;
     const fontFamily = toStandardFontName(
       st.family != null ? st.family : (lineData[0].actualFontName || lineData[0].fontFamily),
       finalBold, finalItalic
@@ -621,8 +732,7 @@ function finishPdfTextEditing() {
     // Store the PDF.js loaded font name for canvas rendering (exact visual
     // match). Drop it when the family/weight was changed in the panel so the
     // new StandardFont is used instead of the stale embedded font.
-    const loadedFontName = (st.family != null || finalBold !== (lineData[0].isBold || false)
-      || finalItalic !== (lineData[0].isItalic || false)) ? '' : (lineData[0].loadedFontName || '');
+    const loadedFontName = st.fontFaceChanged ? '' : (lineData[0].loadedFontName || '');
 
     const editRecord = {
       id: Date.now() + Math.random().toString(36).substr(2, 9),
@@ -633,12 +743,14 @@ function finishPdfTextEditing() {
       pdfY,
       pdfWidth,
       fontSize: finalSize,
-      lineSpacing,
+      lineSpacing: finalLineSpacing,
       numOriginalLines,
       fontFamily,
       loadedFontName,
       pdfFontName,
       color: finalColor,
+      fontUnderline: finalUnderline,
+      fontStrikethrough: finalStrikethrough,
       originalSpanTexts
     };
 
@@ -777,6 +889,27 @@ export function createReplaceTextEdit(pageNum, originalText, newText, matchSpan)
   return { editRecord };
 }
 
+function getTextEditViewGeometry(canvasEl, doc) {
+  const vp = window.__pdfViewport;
+  if (vp?.active && doc?.filePath && vp.pageH > 0 && vp.zoom > 0) {
+    return {
+      pageHeight: vp.pageH,
+      visualScale: vp.zoom,
+      offsetX: vp.offsetX || 0,
+      offsetY: vp.offsetY || 0,
+    };
+  }
+
+  const dpr = window.devicePixelRatio || 1;
+  const visualScale = doc?.scale || 1.5;
+  return {
+    pageHeight: canvasEl.height / (visualScale * dpr),
+    visualScale,
+    offsetX: 0,
+    offsetY: 0,
+  };
+}
+
 export function findTextEditAtPosition(x, y, pageNum, canvasEl) {
   const doc = getActiveDocument();
   if (!doc || !doc.textEdits || doc.textEdits.length === 0) return null;
@@ -819,17 +952,16 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
   finishPdfTextEditing();
 
   const editDoc = getActiveDocument();
-  const editScale = editDoc?.scale || 1.5;
   const geometry = getTextEditGeometry(pageNum, canvasEl);
   const pageHeight = geometry.pageHeight;
+  const viewGeometry = getTextEditViewGeometry(canvasEl, editDoc);
+  const editScale = viewGeometry.visualScale;
   const fontSize = textEdit.fontSize;
   const ls = textEdit.lineSpacing || fontSize * 1.2;
   const newLines = textEdit.newText.split('\n');
   const numLines = newLines.length;
 
   const firstBaseY = pageHeight - textEdit.pdfY;
-  const editTop = firstBaseY - fontSize;
-  const editHeight = (numLines - 1) * ls + fontSize * 1.3;
   const maxCharCount = Math.max(...newLines.map(l => l.length), 1);
   const editWidth = Math.max(textEdit.pdfWidth || 0, fontSize * 0.6 * maxCharCount) + fontSize * 0.5;
 
@@ -841,21 +973,16 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
   const offsetX = canvasRect.left - containerRect.left;
   const offsetY = canvasRect.top - containerRect.top;
 
-  const padX = 4;
-  const padY = 4;
-  const rotatedTopLeft = applyPageRotation(
+  const rotatedBaseline = applyPageRotation(
     textEdit.pdfX,
-    editTop,
+    firstBaseY,
     geometry.pageWidth,
     geometry.pageHeight,
     geometry.rotation,
   );
-  const scaledLeft = rotatedTopLeft.x * editScale;
-  const scaledTop = rotatedTopLeft.y * editScale;
   const scaledWidth = editWidth * editScale;
-  const scaledHeight = editHeight * editScale;
-  const editorFontSize = Math.round(fontSize * editScale * 0.82);
-  const visualLineHeight = (scaledHeight / numLines);
+  const editorFontSize = fontSize * editScale;
+  const visualLineHeight = ls * editScale;
   const activeViewport = window.__pdfViewport;
   const useViewport = activeViewport?.active && editDoc?.filePath;
   const pageOffsetX = useViewport ? activeViewport.offsetX : offsetX;
@@ -871,24 +998,48 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
   } else {
     cssFontFamily = 'Helvetica, Arial, sans-serif';
   }
+  const editorFontFamily = textEdit.loadedFontName
+    ? `"${textEdit.loadedFontName}", ${cssFontFamily}`
+    : cssFontFamily;
+
+  const editorBold = ff.includes('bold');
+  const editorItalic = ff.includes('italic') || ff.includes('oblique');
+  const baselineOffset = cssBaselineOffset(
+    editorFontFamily, editorFontSize, visualLineHeight, editorBold, editorItalic
+  );
+  const [, , rotationC, rotationD] = getPageRotationMatrix(
+    geometry.pageWidth,
+    geometry.pageHeight,
+    geometry.rotation,
+  );
+  const baselineLeft = containerRect.left + pageOffsetX + rotatedBaseline.x * editScale;
+  const baselineTop = containerRect.top + pageOffsetY + rotatedBaseline.y * editScale;
+  const editorLeft = baselineLeft - rotationC * baselineOffset;
+  const editorTop = baselineTop - rotationD * baselineOffset;
 
   // Build style object using fixed positioning
   const styleObj = {
     position: 'fixed',
-    left: `${containerRect.left + scaledLeft + pageOffsetX - padX}px`,
-    top: `${containerRect.top + scaledTop + pageOffsetY - padY}px`,
-    width: `${Math.max(scaledWidth + padX * 2 + 4, 80)}px`,
-    height: `${Math.max(scaledHeight + padY * 2 + 6, 24)}px`,
+    left: `${editorLeft}px`,
+    top: `${editorTop}px`,
+    width: `${Math.max(scaledWidth + 4, 80)}px`,
+    height: `${Math.max(numLines * visualLineHeight, 24)}px`,
     'font-size': `${editorFontSize}px`,
     'line-height': `${visualLineHeight}px`,
-    'font-family': cssFontFamily,
+    'font-family': editorFontFamily,
     color: textEdit.color || '#000000',
     transform: `rotate(${geometry.rotation}deg)`,
     'transform-origin': '0 0',
     'z-index': '1000'
   };
-  if (ff.includes('bold')) styleObj['font-weight'] = 'bold';
-  if (ff.includes('italic') || ff.includes('oblique')) styleObj['font-style'] = 'italic';
+  if (editorBold) styleObj['font-weight'] = 'bold';
+  if (editorItalic) styleObj['font-style'] = 'italic';
+  const decorations = [];
+  if (textEdit.fontUnderline) decorations.push('underline');
+  if (textEdit.fontStrikethrough) decorations.push('line-through');
+  styleObj['text-decoration-line'] = decorations.length ? decorations.join(' ') : 'none';
+  styleObj['text-decoration-thickness'] = '0.06em';
+  styleObj['text-underline-offset'] = '0.08em';
 
   const oldTextEdit = { ...textEdit };
   const isAddedText = oldTextEdit.originalText === '';
@@ -944,12 +1095,23 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
     lineSpacing: ls,
     numOriginalLines: numLines,
     scale: editScale,
+    visualScale: editScale,
+    editorBaseline: {
+      left: baselineLeft,
+      top: baselineTop,
+      rotationC,
+      rotationD,
+    },
     styleState: {
       family: textEdit.fontFamily || 'Helvetica',
+      cssFamily: editorFontFamily,
+      fontFaceChanged: false,
       size: textEdit.fontSize,
       color: textEdit.color || '#000000',
       bold: ff.includes('bold'),
       italic: ff.includes('italic') || ff.includes('oblique'),
+      underline: textEdit.fontUnderline === true,
+      strikethrough: textEdit.fontStrikethrough === true,
     },
     _finishEditing: finishEditing,
     _cancelEditing: cancelEditing
@@ -965,6 +1127,8 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
     color: textEdit.color || '#000000',
     isBold: ffLower.includes('bold'),
     isItalic: ffLower.includes('italic') || ffLower.includes('oblique'),
+    isUnderline: textEdit.fontUnderline === true,
+    isStrikethrough: textEdit.fontStrikethrough === true,
     page: pageNum
   });
 
@@ -986,10 +1150,14 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
       );
       return;
     }
-    if (e.key === 'Enter' && !e.shiftKey && numLines === 1) {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       e.stopPropagation();
       finishEditing();
+      return;
+    }
+    if (e.key === 'Enter') {
+      e.stopPropagation();
     }
   };
 
@@ -1025,13 +1193,31 @@ export function applyActiveTextEditStyle(key, value) {
   if (!activeEditor || !activeEditor.styleState) return;
   const st = activeEditor.styleState;
   switch (key) {
-    case 'fontFamily': st.family = value; break;
+    case 'fontFamily':
+      if (st.family !== value) st.fontFaceChanged = true;
+      st.family = value;
+      break;
     case 'textFontSize':
-    case 'fontSize': { const n = parseInt(value); if (!isNaN(n) && n > 0) st.size = n; break; }
+    case 'fontSize': {
+      const n = parseInt(value);
+      if (!isNaN(n) && n > 0) {
+        st.size = n;
+        activeEditor.lineSpacing = n * 1.2;
+      }
+      break;
+    }
     case 'textColor':
     case 'color': st.color = value; break;
-    case 'fontBold': st.bold = !!value; break;
-    case 'fontItalic': st.italic = !!value; break;
+    case 'fontBold':
+      if (st.bold !== !!value) st.fontFaceChanged = true;
+      st.bold = !!value;
+      break;
+    case 'fontItalic':
+      if (st.italic !== !!value) st.fontFaceChanged = true;
+      st.italic = !!value;
+      break;
+    case 'fontUnderline': st.underline = !!value; break;
+    case 'fontStrikethrough': st.strikethrough = !!value; break;
     default: return;
   }
   applyStyleStateToEditor(st);
@@ -1039,6 +1225,7 @@ export function applyActiveTextEditStyle(key, value) {
   // the user sees the restyle immediately.
   if (activeEditor._recordRef) {
     applyStyleStateToRecord(activeEditor._recordRef, st);
+    if (st.fontFaceChanged) activeEditor._recordRef.loadedFontName = '';
     reRenderAddedText(activeEditor._recordRef.page);
   }
 }
@@ -1077,10 +1264,15 @@ function nudgeActiveTextEdit(dxPdf, dyPdf) {
     geometry.rotation,
   );
   const unrotatedDy = -dyPdf;
-  shiftPdfEditorPosition(
-    (a * dxPdf + c * unrotatedDy) * scale,
-    (b * dxPdf + d * unrotatedDy) * scale,
-  );
+  const shiftX = (a * dxPdf + c * unrotatedDy) * scale;
+  const shiftY = (b * dxPdf + d * unrotatedDy) * scale;
+  shiftPdfEditorPosition(shiftX, shiftY);
+  if (Number.isFinite(activeEditor.editorBaseline)) {
+    activeEditor.editorBaseline += shiftY;
+  } else if (activeEditor.editorBaseline) {
+    activeEditor.editorBaseline.left += shiftX;
+    activeEditor.editorBaseline.top += shiftY;
+  }
   if (activeEditor._recordRef) {
     activeEditor._recordRef.pdfX += dxPdf;
     activeEditor._recordRef.pdfY += dyPdf;

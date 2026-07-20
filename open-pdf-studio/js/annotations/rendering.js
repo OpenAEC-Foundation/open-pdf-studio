@@ -2182,7 +2182,28 @@ function drawTextEdits(ctx, pageNum) {
 
     const newLines = edit.newText.split('\n');
     for (let i = 0; i < newLines.length; i++) {
-      ctx.fillText(newLines[i], edit.pdfX, firstBaseY + i * ls);
+      const line = newLines[i];
+      const baselineY = firstBaseY + i * ls;
+      ctx.fillText(line, edit.pdfX, baselineY);
+
+      if (line && (edit.fontUnderline || edit.fontStrikethrough)) {
+        const textWidth = ctx.measureText(line).width;
+        ctx.strokeStyle = edit.color || '#000000';
+        ctx.lineWidth = Math.max(0.5, fontSize * 0.06);
+        ctx.lineCap = 'butt';
+        ctx.beginPath();
+        if (edit.fontUnderline) {
+          const underlineY = baselineY + fontSize * 0.1;
+          ctx.moveTo(edit.pdfX, underlineY);
+          ctx.lineTo(edit.pdfX + textWidth, underlineY);
+        }
+        if (edit.fontStrikethrough) {
+          const strikeY = baselineY - fontSize * 0.3;
+          ctx.moveTo(edit.pdfX, strikeY);
+          ctx.lineTo(edit.pdfX + textWidth, strikeY);
+        }
+        ctx.stroke();
+      }
     }
     ctx.restore();
   }

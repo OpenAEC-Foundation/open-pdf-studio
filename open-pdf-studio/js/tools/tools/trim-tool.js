@@ -1,7 +1,7 @@
 import { state, getActiveDocument } from '../../core/state.js';
 import { lineLineIntersection } from '../../annotations/geometry.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
-import { recordModify } from '../../core/undo-manager.js';
+import { recordModify, beginUndoTransaction, endUndoTransaction } from '../../core/undo-manager.js';
 import { redrawAnnotations } from '../../annotations/rendering.js';
 
 const _trimState = { cuttingEdge: null };
@@ -77,8 +77,10 @@ export const trimTool = {
 
     target.modifiedAt = new Date().toISOString();
     cutter.modifiedAt = new Date().toISOString();
+    beginUndoTransaction();
     recordModify(target.id, oldState, target);
     recordModify(cutter.id, oldCutter, cutter);
+    endUndoTransaction();
     redrawAnnotations();
     _trimState.cuttingEdge = null;
     import("../../tools/manager.js").then(m => m.maybeRevertToSelect && m.maybeRevertToSelect());

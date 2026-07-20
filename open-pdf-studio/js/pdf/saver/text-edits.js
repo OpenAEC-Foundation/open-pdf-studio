@@ -40,6 +40,7 @@ export async function saveTextEditsToPages(pdfDocLib, pages) {
     const ls = edit.lineSpacing || fontSize * 1.2;
     const numOrig = edit.numOriginalLines || 1;
     const [r, g, b] = hexToRgb(edit.color || '#000000');
+    const editColor = rgb(r, g, b);
 
     // Cover rectangle spanning all original lines (skip for newly added text)
     if (edit.originalText) {
@@ -69,8 +70,32 @@ export async function saveTextEditsToPages(pdfDocLib, pages) {
         y: edit.pdfY - i * ls,
         size: fontSize,
         font: editFont,
-        color: rgb(r, g, b)
+        color: editColor
       });
+
+      if (edit.fontUnderline || edit.fontStrikethrough) {
+        const textWidth = editFont.widthOfTextAtSize(newLines[i], fontSize);
+        const thickness = Math.max(0.5, fontSize * 0.06);
+        const baselineY = edit.pdfY - i * ls;
+        if (edit.fontUnderline) {
+          const underlineY = baselineY - fontSize * 0.1;
+          page.drawLine({
+            start: { x: edit.pdfX, y: underlineY },
+            end: { x: edit.pdfX + textWidth, y: underlineY },
+            thickness,
+            color: editColor,
+          });
+        }
+        if (edit.fontStrikethrough) {
+          const strikeY = baselineY + fontSize * 0.3;
+          page.drawLine({
+            start: { x: edit.pdfX, y: strikeY },
+            end: { x: edit.pdfX + textWidth, y: strikeY },
+            thickness,
+            color: editColor,
+          });
+        }
+      }
     }
   }
 }

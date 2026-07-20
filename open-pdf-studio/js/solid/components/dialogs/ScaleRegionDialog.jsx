@@ -4,7 +4,13 @@ import PrefSelect from '../preferences/PrefSelect.jsx';
 import { closeDialog, openDialog } from '../../stores/dialogStore.js';
 import { getActiveDocument } from '../../../core/state.js';
 import { startScaleMeasureFlow } from '../../../tools/tools/scale-measure-tool.js';
-import { recordAdd } from '../../../core/undo-manager.js';
+import {
+  recordAdd,
+  recordBulkModify,
+  beginUndoTransaction,
+  endUndoTransaction,
+} from '../../../core/undo-manager.js';
+import { cloneAnnotation } from '../../../annotations/factory.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import { recalculateAllMeasurements } from '../../../annotations/measurement.js';
 import { invalidateScaleRegionCache } from '../../../annotations/scale-region.js';
@@ -30,10 +36,12 @@ function findAnnotation(id) {
 export default function ScaleRegionDialog(props) {
   const { t } = useTranslation('properties');
   const data = props.data || {};
+  const initialAnnotation = findAnnotation(data.annotationId);
+  const initialSnapshot = initialAnnotation ? cloneAnnotation(initialAnnotation) : null;
   // The "Meet op tekening" flow closes this dialog, lets the user measure a
   // distance and reopens it with data.initial (previous values + computed
   // scale) so nothing the user typed is lost.
-  const initial = data.initial || {};
+  const initial = data.initial || initialSnapshot || {};
   const initialScale = initial.scaleString || '1:100';
   const [scaleString, setScaleString] = createSignal(initialScale);
   const [units, setUnits] = createSignal(initial.units || 'mm');
@@ -63,6 +71,7 @@ export default function ScaleRegionDialog(props) {
     const payload = {
       annotationId: data.annotationId,
       pageNum: data.pageNum,
+      isNew: data.isNew,
       restore: { label: label(), units: units(), scaleString: scaleString() },
     };
     closeDialog('scale-region');
@@ -77,6 +86,7 @@ export default function ScaleRegionDialog(props) {
         openDialog('scale-region', {
           annotationId: payload.annotationId,
           pageNum: payload.pageNum,
+          isNew: payload.isNew,
           initial: payload.restore,
         });
       },
@@ -84,15 +94,25 @@ export default function ScaleRegionDialog(props) {
   }
 
   function handleApply() {
+    const doc = getActiveDocument();
     const ann = findAnnotation(data.annotationId);
-    if (!ann) return;
+    if (!doc || !ann) return;
+    const measurements = doc.annotations.filter(annotation =>
+      ['measureDistance', 'measureArea', 'measurePerimeter', 'measureAngle'].includes(annotation.type)
+    );
+    const measurementOriginals = measurements.map(annotation => cloneAnnotation(annotation));
     ann.scaleString = normalizeScaleString(scaleString());
     ann.units = units() || 'mm';
     ann.label = label() || '';
+    ann.modifiedAt = new Date().toISOString();
 
     invalidateScaleRegionCache();
-    recordAdd(ann);
     recalculateAllMeasurements();
+    beginUndoTransaction();
+    if (data.isNew) recordAdd(ann);
+    else if (initialSnapshot) recordBulkModify([ann], [initialSnapshot]);
+    recordBulkModify(measurements, measurementOriginals);
+    endUndoTransaction();
     redraw();
     closeDialog('scale-region');
   }
@@ -100,7 +120,7 @@ export default function ScaleRegionDialog(props) {
   function handleCancel() {
     const doc = getActiveDocument();
     const ann = findAnnotation(data.annotationId);
-    if (doc && ann) {
+    if (data.isNew && doc && ann) {
       const idx = doc.annotations.indexOf(ann);
       if (idx !== -1) doc.annotations.splice(idx, 1);
       invalidateScaleRegionCache();

@@ -10,6 +10,7 @@ import { resolveTextEditPageGeometry } from './text-edit-appearance.js';
 
 // Store references to text layers for cleanup
 const textLayers = new Map();
+const pageFontResolutionPromises = new WeakMap();
 
 /**
  * Strip subset prefix from PDF font name (e.g., "NDPKKA+TimesNewRomanPSMT" → "TimesNewRomanPSMT")
@@ -35,6 +36,27 @@ function parseFontWeight(cleanFontName) {
   return { bold, italic };
 }
 
+function getResolvedFontInfo(page, fontName) {
+  if (!page?.commonObjs || !fontName) return null;
+  try {
+    const fontObj = page.commonObjs.get(fontName);
+    if (!fontObj) return null;
+    const cleanName = stripSubsetPrefix(fontObj.name || '');
+    const weight = parseFontWeight(cleanName);
+    const loadedName = fontObj.loadedName || fontName;
+    return {
+      name: cleanName,
+      bold: fontObj.bold === true || weight.bold,
+      italic: fontObj.italic === true || weight.italic,
+      loadedName: loadedName && document.fonts.check(`12px "${loadedName}"`)
+        ? loadedName
+        : '',
+    };
+  } catch (_) {
+    return null;
+  }
+}
+
 /**
  * Build font info cache from page.commonObjs for actual font name detection
  */
@@ -45,25 +67,54 @@ function buildFontInfoCache(textContent, page) {
   for (const item of textContent.items) {
     const fontName = item.fontName;
     if (fontName && !fontInfoCache[fontName]) {
-      try {
-        const fontObj = page.commonObjs.get(fontName);
-        if (fontObj && fontObj.name) {
-          const cleanName = stripSubsetPrefix(fontObj.name);
-          const weight = parseFontWeight(cleanName);
-          const isFontAvailable = document.fonts.check(`12px "${fontName}"`);
-          fontInfoCache[fontName] = {
-            name: cleanName,
-            bold: weight.bold,
-            italic: weight.italic,
-            loadedName: isFontAvailable ? fontName : '',
-          };
-        }
-      } catch (e) {
-        // Font not yet available in commonObjs
-      }
+      const info = getResolvedFontInfo(page, fontName);
+      if (info) fontInfoCache[fontName] = info;
     }
   }
   return fontInfoCache;
+}
+
+function applyResolvedFontInfo(textLayerDiv, page) {
+  let changed = false;
+  const spans = textLayerDiv?.querySelectorAll('span[data-pdf-font-name]') || [];
+  for (const span of spans) {
+    const info = getResolvedFontInfo(page, span.dataset.pdfFontName);
+    if (!info) continue;
+    span.dataset.pdfActualFontName = info.name;
+    span.dataset.pdfLoadedFontName = info.loadedName;
+    span.dataset.pdfBold = String(info.bold);
+    span.dataset.pdfItalic = String(info.italic);
+    changed = true;
+  }
+  return changed;
+}
+
+/**
+ * Resolve embedded PDF fonts on demand before native text editing starts.
+ * The vector renderer does not call PDF.js page.render(), so commonObjs can
+ * still be unresolved even though the text layer already exists.
+ */
+export async function resolveTextLayerFonts(page, textLayerDiv) {
+  if (!page || !textLayerDiv) return false;
+  const needsResolution = [...textLayerDiv.querySelectorAll('span[data-pdf-font-name]')]
+    .some(span => span.dataset.pdfFontName && !span.dataset.pdfLoadedFontName);
+  if (!needsResolution) return true;
+
+  let resolution = pageFontResolutionPromises.get(page);
+  if (!resolution) {
+    resolution = page.getOperatorList().catch((error) => {
+      pageFontResolutionPromises.delete(page);
+      throw error;
+    });
+    pageFontResolutionPromises.set(page, resolution);
+  }
+
+  try {
+    await resolution;
+  } catch (_) {
+    return false;
+  }
+  return applyResolvedFontInfo(textLayerDiv, page);
 }
 
 /**
@@ -168,7 +219,11 @@ export function tagWhitespaceSpans(textLayerDiv) {
   const spans = textLayerDiv.querySelectorAll('span:not(.markedContent)');
   spans.forEach(span => {
     const text = span.textContent;
-    if (text === '' || text.trim() === '') {
+    // PDF generators also use zero-width formatting/control characters for
+    // positioning. They render no glyph but Chromium still paints a native
+    // selection rectangle for them unless they are treated as whitespace.
+    const isVisuallyEmpty = text === '' || /^[\p{White_Space}\p{Cf}\p{Cc}]*$/u.test(text);
+    if (isVisuallyEmpty) {
       span.dataset.ws = '1';
     } else if (span.dataset.ws) {
       delete span.dataset.ws;
@@ -378,6 +433,12 @@ export function injectSyntheticTextSpans(textLayerDiv, pageNum, pageWidth, pageH
       span.style.left = `${leftPct}%`;
       span.style.top = `${topPct}%`;
       span.style.fontFamily = cssFontFamily;
+      const decorations = [];
+      if (edit.fontUnderline) decorations.push('underline');
+      if (edit.fontStrikethrough) decorations.push('line-through');
+      span.style.textDecorationLine = decorations.length ? decorations.join(' ') : 'none';
+      span.style.textDecorationThickness = '0.06em';
+      span.style.textUnderlineOffset = '0.08em';
       span.style.setProperty('--font-height', `${fontSize.toFixed(2)}px`);
 
       // Compute --scale-x

@@ -239,7 +239,7 @@ export function DrawingGroups() {
               const doc = getActiveDocument();
               if (doc?.viewMode === 'continuous') redrawContinuous();
               else redrawAnnotations();
-              openDialog('scale-region', { annotationId: ann.id, pageNum: ann.page });
+              openDialog('scale-region', { annotationId: ann.id, pageNum: ann.page, isNew: true });
             }} />
         </RibbonGroup>
 

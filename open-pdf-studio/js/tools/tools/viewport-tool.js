@@ -70,7 +70,7 @@ export const viewportTool = {
     redraw();
 
     // Open dialog to set scale
-    openDialog('viewport-scale', { annotationId: ann.id, pageNum });
+    openDialog('viewport-scale', { annotationId: ann.id, pageNum, isNew: true });
 
     // Auto-reset to select tool
     import("../../tools/manager.js").then(m => m.maybeRevertToSelect && m.maybeRevertToSelect());

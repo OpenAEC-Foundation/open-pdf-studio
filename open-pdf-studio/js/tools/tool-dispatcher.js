@@ -11,7 +11,15 @@ import { findAnnotationAt } from '../annotations/geometry.js';
 import { startPan, startContinuousPan, handlePanEnd, handleMiddleButtonPanEnd } from './pan-handler.js';
 import { performSnap, drawSnapIndicator, drawAlignmentGuides, setPolarAnchor, clearPolarAnchor } from './snap-engine.js';
 import { collectImageAlignRefs, snapImageMove, snapImageResize, drawImageAlignGuides } from './image-align-snap.js';
-import { recordAdd, recordModify, recordBulkModify } from '../core/undo-manager.js';
+import {
+  recordAdd,
+  recordModify,
+  recordBulkModify,
+  recordBulkAdd,
+  recordMeasureScale,
+  beginUndoTransaction,
+  endUndoTransaction,
+} from '../core/undo-manager.js';
 import { cloneForInsert } from './edit-ops.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import { isPdfAReadOnly } from '../pdf/loader.js';
@@ -773,9 +781,12 @@ function _finishDragResize(ctx, e, coords) {
   const _fDoc = getActiveDocument();
   const _fSel = _fDoc ? _fDoc.selectedAnnotations : [];
   if (state._ctrlDragCopy && state._ctrlCopiesCreated) {
-    for (const ann of _fSel) recordAdd(ann);
+    recordBulkAdd(_fSel);
     markDocumentModified();
   } else {
+    const modifiedScaleBars = _fSel.filter(a => a.type === 'scaleBar');
+    const hasScaleBarChange = modifiedScaleBars.length > 0;
+    if (hasScaleBarChange) beginUndoTransaction();
     const upAnn = _fSel.length === 1 ? _fSel[0] : null;
     if (_fSel.length > 1 && state.originalAnnotations.length > 0) {
       // Only record if at least one annotation actually changed
@@ -795,8 +806,14 @@ function _finishDragResize(ctx, e, coords) {
 
     // If a scaleBar was modified, recalculate pixelsPerUnit from the new width,
     // sync doc.measureScale, and recalculate all measurement annotations.
-    const modifiedScaleBars = _fSel.filter(a => a.type === 'scaleBar');
-    if (modifiedScaleBars.length > 0) {
+    if (hasScaleBarChange) {
+      const oldMeasureScale = _fDoc.measureScale == null
+        ? _fDoc.measureScale
+        : JSON.parse(JSON.stringify(_fDoc.measureScale));
+      const measurements = _fDoc.annotations.filter(annotation =>
+        ['measureDistance', 'measureArea', 'measurePerimeter', 'measureAngle'].includes(annotation.type)
+      );
+      const measurementOriginals = measurements.map(annotation => cloneAnnotation(annotation));
       for (const sb of modifiedScaleBars) {
         if (sb.totalUnits > 0) {
           sb.pixelsPerUnit = sb.width / sb.totalUnits;
@@ -804,6 +821,9 @@ function _finishDragResize(ctx, e, coords) {
         syncDocScale(sb);
       }
       recalculateAllMeasurements();
+      recordBulkModify(measurements, measurementOriginals);
+      recordMeasureScale(oldMeasureScale, _fDoc.measureScale);
+      endUndoTransaction();
     }
   }
 

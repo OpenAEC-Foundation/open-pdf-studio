@@ -1113,8 +1113,7 @@ export async function savePDF(saveAsPath = null) {
                 const boxLeft = needsRotationInAP ? 0 : tbX1;
                 const boxTop = needsRotationInAP ? ftH : tbY2;
                 const bottomLimit = needsRotationInAP ? 0 : tbY1;
-                const halfLeading = (lineHeight - ftFontSize) / 2;
-                let textY = boxTop - pad - halfLeading - layout.ascent;
+                let textY = boxTop - pad - layout.halfLeading - layout.ascent;
 
                 ftStreamContent += 'BT\n';
                 ftStreamContent += `${ann.textColor ? `${tr} ${tg} ${tb}` : '0 0 0'} rg 0 Tc 0 Tw 100 Tz 0 Tr\n`;

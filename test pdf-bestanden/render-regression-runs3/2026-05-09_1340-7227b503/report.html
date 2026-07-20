@@ -1,0 +1,966 @@
+<!doctype html>
+<html><head>
+<meta charset="utf-8">
+<title>Render Regression Report — 7227b503</title>
+<style>
+body { font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 24px; background: #1e1e1e; color: #ddd; }
+h1 { margin: 0 0 8px; font-size: 20px; }
+h2 { margin: 24px 0 8px; font-size: 16px; border-bottom: 1px solid #333; padding-bottom: 4px; }
+.config { color: #888; font-size: 12px; margin-bottom: 16px; }
+.totals { padding: 8px 12px; background: #2a2a2a; border-radius: 4px; display: inline-block; }
+.totals .pass { color: #2ecc71; }
+.totals .fail { color: #e74c3c; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 6px 8px; vertical-align: top; border-bottom: 1px solid #2a2a2a; text-align: left; }
+.row.fail { background: rgba(231, 76, 60, 0.07); }
+.diff-pct.fail { color: #e74c3c; font-weight: bold; }
+.diff-pct.pass { color: #888; }
+img.thumb { width: 220px; height: auto; border: 1px solid #333; cursor: zoom-in; }
+img.thumb:hover { outline: 2px solid #f3a847; }
+</style></head><body>
+<h1>Render Regression — 7227b503</h1>
+<div class="config">Config: width=2000, fail_pct=2.0, blur_sigma=1.0, pixel_tol=30</div>
+<div class="totals">
+  <span class="pass">25 passed</span> /
+  <span class="fail">81 failed</span> /
+  total 106
+</div>
+
+
+<h2>C:\Users\rickd\Documents\GitHub\open-pdf-studio\test pdf-bestanden\Originele bestanden\Text pdf gecombineerd.pdf <small style="color:#888">v1.7</small></h2>
+<table>
+  <thead><tr>
+    <th>Page</th><th>Diff %</th>
+    <th>Reference</th><th>App</th><th>Diff overlay</th>
+  </tr></thead>
+  <tbody>
+  
+    <tr class="row fail">
+      <td>0</td>
+      <td class="diff-pct fail">50.47 %</td>
+      <td><a href="Text_pdf_gecombineerd_p0_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p0_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p0_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p0_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p0_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p0_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>1</td>
+      <td class="diff-pct pass">1.57 %</td>
+      <td><a href="Text_pdf_gecombineerd_p1_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p1_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p1_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p1_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p1_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p1_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>2</td>
+      <td class="diff-pct fail">3.60 %</td>
+      <td><a href="Text_pdf_gecombineerd_p2_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p2_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p2_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p2_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p2_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p2_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>3</td>
+      <td class="diff-pct pass">0.74 %</td>
+      <td><a href="Text_pdf_gecombineerd_p3_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p3_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p3_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p3_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p3_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p3_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>4</td>
+      <td class="diff-pct fail">4.86 %</td>
+      <td><a href="Text_pdf_gecombineerd_p4_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p4_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p4_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p4_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p4_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p4_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>5</td>
+      <td class="diff-pct pass">1.93 %</td>
+      <td><a href="Text_pdf_gecombineerd_p5_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p5_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p5_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p5_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p5_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p5_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>6</td>
+      <td class="diff-pct fail">3.73 %</td>
+      <td><a href="Text_pdf_gecombineerd_p6_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p6_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p6_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p6_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p6_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p6_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>7</td>
+      <td class="diff-pct fail">5.96 %</td>
+      <td><a href="Text_pdf_gecombineerd_p7_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p7_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p7_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p7_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p7_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p7_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>8</td>
+      <td class="diff-pct fail">8.97 %</td>
+      <td><a href="Text_pdf_gecombineerd_p8_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p8_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p8_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p8_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p8_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p8_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>9</td>
+      <td class="diff-pct fail">6.85 %</td>
+      <td><a href="Text_pdf_gecombineerd_p9_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p9_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p9_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p9_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p9_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p9_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>10</td>
+      <td class="diff-pct fail">3.15 %</td>
+      <td><a href="Text_pdf_gecombineerd_p10_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p10_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p10_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p10_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p10_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p10_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>11</td>
+      <td class="diff-pct fail">8.71 %</td>
+      <td><a href="Text_pdf_gecombineerd_p11_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p11_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p11_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p11_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p11_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p11_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>12</td>
+      <td class="diff-pct pass">0.90 %</td>
+      <td><a href="Text_pdf_gecombineerd_p12_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p12_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p12_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p12_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p12_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p12_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>13</td>
+      <td class="diff-pct fail">6.75 %</td>
+      <td><a href="Text_pdf_gecombineerd_p13_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p13_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p13_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p13_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p13_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p13_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>14</td>
+      <td class="diff-pct fail">2.37 %</td>
+      <td><a href="Text_pdf_gecombineerd_p14_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p14_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p14_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p14_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p14_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p14_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>15</td>
+      <td class="diff-pct fail">4.53 %</td>
+      <td><a href="Text_pdf_gecombineerd_p15_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p15_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p15_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p15_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p15_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p15_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>16</td>
+      <td class="diff-pct fail">4.79 %</td>
+      <td><a href="Text_pdf_gecombineerd_p16_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p16_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p16_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p16_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p16_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p16_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>17</td>
+      <td class="diff-pct fail">7.46 %</td>
+      <td><a href="Text_pdf_gecombineerd_p17_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p17_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p17_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p17_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p17_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p17_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>18</td>
+      <td class="diff-pct fail">5.32 %</td>
+      <td><a href="Text_pdf_gecombineerd_p18_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p18_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p18_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p18_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p18_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p18_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>19</td>
+      <td class="diff-pct fail">2.36 %</td>
+      <td><a href="Text_pdf_gecombineerd_p19_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p19_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p19_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p19_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p19_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p19_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>20</td>
+      <td class="diff-pct fail">6.27 %</td>
+      <td><a href="Text_pdf_gecombineerd_p20_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p20_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p20_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p20_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p20_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p20_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>21</td>
+      <td class="diff-pct fail">6.41 %</td>
+      <td><a href="Text_pdf_gecombineerd_p21_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p21_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p21_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p21_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p21_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p21_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>22</td>
+      <td class="diff-pct fail">6.60 %</td>
+      <td><a href="Text_pdf_gecombineerd_p22_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p22_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p22_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p22_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p22_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p22_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>23</td>
+      <td class="diff-pct fail">7.67 %</td>
+      <td><a href="Text_pdf_gecombineerd_p23_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p23_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p23_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p23_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p23_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p23_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>24</td>
+      <td class="diff-pct fail">6.70 %</td>
+      <td><a href="Text_pdf_gecombineerd_p24_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p24_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p24_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p24_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p24_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p24_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>25</td>
+      <td class="diff-pct fail">2.57 %</td>
+      <td><a href="Text_pdf_gecombineerd_p25_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p25_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p25_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p25_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p25_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p25_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>26</td>
+      <td class="diff-pct pass">0.26 %</td>
+      <td><a href="Text_pdf_gecombineerd_p26_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p26_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p26_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p26_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p26_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p26_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>27</td>
+      <td class="diff-pct fail">61.84 %</td>
+      <td><a href="Text_pdf_gecombineerd_p27_ref.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p27_ref.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p27_app.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p27_app.png"></a></td>
+      <td><a href="Text_pdf_gecombineerd_p27_diff.png" target="_blank"><img class="thumb" src="Text_pdf_gecombineerd_p27_diff.png"></a></td>
+    </tr>
+  
+  </tbody>
+</table>
+
+<h2>C:\Users\rickd\Documents\GitHub\open-pdf-studio\test pdf-bestanden\Originele bestanden\rapport-constructie.pdf <small style="color:#888">v1.7</small></h2>
+<table>
+  <thead><tr>
+    <th>Page</th><th>Diff %</th>
+    <th>Reference</th><th>App</th><th>Diff overlay</th>
+  </tr></thead>
+  <tbody>
+  
+    <tr class="row fail">
+      <td>0</td>
+      <td class="diff-pct fail">50.47 %</td>
+      <td><a href="rapport-constructie_p0_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p0_ref.png"></a></td>
+      <td><a href="rapport-constructie_p0_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p0_app.png"></a></td>
+      <td><a href="rapport-constructie_p0_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p0_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>1</td>
+      <td class="diff-pct pass">1.57 %</td>
+      <td><a href="rapport-constructie_p1_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p1_ref.png"></a></td>
+      <td><a href="rapport-constructie_p1_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p1_app.png"></a></td>
+      <td><a href="rapport-constructie_p1_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p1_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>2</td>
+      <td class="diff-pct fail">3.60 %</td>
+      <td><a href="rapport-constructie_p2_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p2_ref.png"></a></td>
+      <td><a href="rapport-constructie_p2_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p2_app.png"></a></td>
+      <td><a href="rapport-constructie_p2_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p2_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>3</td>
+      <td class="diff-pct pass">0.74 %</td>
+      <td><a href="rapport-constructie_p3_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p3_ref.png"></a></td>
+      <td><a href="rapport-constructie_p3_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p3_app.png"></a></td>
+      <td><a href="rapport-constructie_p3_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p3_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>4</td>
+      <td class="diff-pct fail">4.86 %</td>
+      <td><a href="rapport-constructie_p4_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p4_ref.png"></a></td>
+      <td><a href="rapport-constructie_p4_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p4_app.png"></a></td>
+      <td><a href="rapport-constructie_p4_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p4_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>5</td>
+      <td class="diff-pct pass">1.93 %</td>
+      <td><a href="rapport-constructie_p5_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p5_ref.png"></a></td>
+      <td><a href="rapport-constructie_p5_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p5_app.png"></a></td>
+      <td><a href="rapport-constructie_p5_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p5_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>6</td>
+      <td class="diff-pct fail">3.73 %</td>
+      <td><a href="rapport-constructie_p6_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p6_ref.png"></a></td>
+      <td><a href="rapport-constructie_p6_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p6_app.png"></a></td>
+      <td><a href="rapport-constructie_p6_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p6_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>7</td>
+      <td class="diff-pct fail">5.96 %</td>
+      <td><a href="rapport-constructie_p7_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p7_ref.png"></a></td>
+      <td><a href="rapport-constructie_p7_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p7_app.png"></a></td>
+      <td><a href="rapport-constructie_p7_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p7_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>8</td>
+      <td class="diff-pct fail">8.97 %</td>
+      <td><a href="rapport-constructie_p8_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p8_ref.png"></a></td>
+      <td><a href="rapport-constructie_p8_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p8_app.png"></a></td>
+      <td><a href="rapport-constructie_p8_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p8_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>9</td>
+      <td class="diff-pct fail">6.85 %</td>
+      <td><a href="rapport-constructie_p9_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p9_ref.png"></a></td>
+      <td><a href="rapport-constructie_p9_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p9_app.png"></a></td>
+      <td><a href="rapport-constructie_p9_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p9_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>10</td>
+      <td class="diff-pct fail">3.15 %</td>
+      <td><a href="rapport-constructie_p10_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p10_ref.png"></a></td>
+      <td><a href="rapport-constructie_p10_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p10_app.png"></a></td>
+      <td><a href="rapport-constructie_p10_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p10_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>11</td>
+      <td class="diff-pct fail">8.71 %</td>
+      <td><a href="rapport-constructie_p11_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p11_ref.png"></a></td>
+      <td><a href="rapport-constructie_p11_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p11_app.png"></a></td>
+      <td><a href="rapport-constructie_p11_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p11_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>12</td>
+      <td class="diff-pct pass">0.90 %</td>
+      <td><a href="rapport-constructie_p12_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p12_ref.png"></a></td>
+      <td><a href="rapport-constructie_p12_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p12_app.png"></a></td>
+      <td><a href="rapport-constructie_p12_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p12_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>13</td>
+      <td class="diff-pct fail">6.75 %</td>
+      <td><a href="rapport-constructie_p13_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p13_ref.png"></a></td>
+      <td><a href="rapport-constructie_p13_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p13_app.png"></a></td>
+      <td><a href="rapport-constructie_p13_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p13_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>14</td>
+      <td class="diff-pct fail">2.37 %</td>
+      <td><a href="rapport-constructie_p14_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p14_ref.png"></a></td>
+      <td><a href="rapport-constructie_p14_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p14_app.png"></a></td>
+      <td><a href="rapport-constructie_p14_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p14_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>15</td>
+      <td class="diff-pct fail">4.53 %</td>
+      <td><a href="rapport-constructie_p15_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p15_ref.png"></a></td>
+      <td><a href="rapport-constructie_p15_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p15_app.png"></a></td>
+      <td><a href="rapport-constructie_p15_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p15_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>16</td>
+      <td class="diff-pct fail">4.79 %</td>
+      <td><a href="rapport-constructie_p16_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p16_ref.png"></a></td>
+      <td><a href="rapport-constructie_p16_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p16_app.png"></a></td>
+      <td><a href="rapport-constructie_p16_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p16_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>17</td>
+      <td class="diff-pct fail">7.46 %</td>
+      <td><a href="rapport-constructie_p17_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p17_ref.png"></a></td>
+      <td><a href="rapport-constructie_p17_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p17_app.png"></a></td>
+      <td><a href="rapport-constructie_p17_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p17_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>18</td>
+      <td class="diff-pct fail">5.32 %</td>
+      <td><a href="rapport-constructie_p18_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p18_ref.png"></a></td>
+      <td><a href="rapport-constructie_p18_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p18_app.png"></a></td>
+      <td><a href="rapport-constructie_p18_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p18_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>19</td>
+      <td class="diff-pct fail">2.36 %</td>
+      <td><a href="rapport-constructie_p19_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p19_ref.png"></a></td>
+      <td><a href="rapport-constructie_p19_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p19_app.png"></a></td>
+      <td><a href="rapport-constructie_p19_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p19_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>20</td>
+      <td class="diff-pct fail">6.27 %</td>
+      <td><a href="rapport-constructie_p20_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p20_ref.png"></a></td>
+      <td><a href="rapport-constructie_p20_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p20_app.png"></a></td>
+      <td><a href="rapport-constructie_p20_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p20_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>21</td>
+      <td class="diff-pct fail">6.41 %</td>
+      <td><a href="rapport-constructie_p21_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p21_ref.png"></a></td>
+      <td><a href="rapport-constructie_p21_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p21_app.png"></a></td>
+      <td><a href="rapport-constructie_p21_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p21_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>22</td>
+      <td class="diff-pct fail">6.60 %</td>
+      <td><a href="rapport-constructie_p22_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p22_ref.png"></a></td>
+      <td><a href="rapport-constructie_p22_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p22_app.png"></a></td>
+      <td><a href="rapport-constructie_p22_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p22_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>23</td>
+      <td class="diff-pct fail">7.67 %</td>
+      <td><a href="rapport-constructie_p23_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p23_ref.png"></a></td>
+      <td><a href="rapport-constructie_p23_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p23_app.png"></a></td>
+      <td><a href="rapport-constructie_p23_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p23_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>24</td>
+      <td class="diff-pct fail">6.70 %</td>
+      <td><a href="rapport-constructie_p24_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p24_ref.png"></a></td>
+      <td><a href="rapport-constructie_p24_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p24_app.png"></a></td>
+      <td><a href="rapport-constructie_p24_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p24_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>25</td>
+      <td class="diff-pct fail">2.57 %</td>
+      <td><a href="rapport-constructie_p25_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p25_ref.png"></a></td>
+      <td><a href="rapport-constructie_p25_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p25_app.png"></a></td>
+      <td><a href="rapport-constructie_p25_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p25_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>26</td>
+      <td class="diff-pct pass">0.26 %</td>
+      <td><a href="rapport-constructie_p26_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p26_ref.png"></a></td>
+      <td><a href="rapport-constructie_p26_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p26_app.png"></a></td>
+      <td><a href="rapport-constructie_p26_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p26_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>27</td>
+      <td class="diff-pct fail">61.84 %</td>
+      <td><a href="rapport-constructie_p27_ref.png" target="_blank"><img class="thumb" src="rapport-constructie_p27_ref.png"></a></td>
+      <td><a href="rapport-constructie_p27_app.png" target="_blank"><img class="thumb" src="rapport-constructie_p27_app.png"></a></td>
+      <td><a href="rapport-constructie_p27_diff.png" target="_blank"><img class="thumb" src="rapport-constructie_p27_diff.png"></a></td>
+    </tr>
+  
+  </tbody>
+</table>
+
+<h2>C:\Users\rickd\Documents\GitHub\open-pdf-studio\test pdf-bestanden\Originele bestanden\2885 Demo project.pdf <small style="color:#888">v1.4</small></h2>
+<table>
+  <thead><tr>
+    <th>Page</th><th>Diff %</th>
+    <th>Reference</th><th>App</th><th>Diff overlay</th>
+  </tr></thead>
+  <tbody>
+  
+    <tr class="row fail">
+      <td>0</td>
+      <td class="diff-pct fail">96.47 %</td>
+      <td><a href="2885_Demo_project_p0_ref.png" target="_blank"><img class="thumb" src="2885_Demo_project_p0_ref.png"></a></td>
+      <td><a href="2885_Demo_project_p0_app.png" target="_blank"><img class="thumb" src="2885_Demo_project_p0_app.png"></a></td>
+      <td><a href="2885_Demo_project_p0_diff.png" target="_blank"><img class="thumb" src="2885_Demo_project_p0_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>1</td>
+      <td class="diff-pct fail">5.98 %</td>
+      <td><a href="2885_Demo_project_p1_ref.png" target="_blank"><img class="thumb" src="2885_Demo_project_p1_ref.png"></a></td>
+      <td><a href="2885_Demo_project_p1_app.png" target="_blank"><img class="thumb" src="2885_Demo_project_p1_app.png"></a></td>
+      <td><a href="2885_Demo_project_p1_diff.png" target="_blank"><img class="thumb" src="2885_Demo_project_p1_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>2</td>
+      <td class="diff-pct fail">6.85 %</td>
+      <td><a href="2885_Demo_project_p2_ref.png" target="_blank"><img class="thumb" src="2885_Demo_project_p2_ref.png"></a></td>
+      <td><a href="2885_Demo_project_p2_app.png" target="_blank"><img class="thumb" src="2885_Demo_project_p2_app.png"></a></td>
+      <td><a href="2885_Demo_project_p2_diff.png" target="_blank"><img class="thumb" src="2885_Demo_project_p2_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>3</td>
+      <td class="diff-pct fail">12.10 %</td>
+      <td><a href="2885_Demo_project_p3_ref.png" target="_blank"><img class="thumb" src="2885_Demo_project_p3_ref.png"></a></td>
+      <td><a href="2885_Demo_project_p3_app.png" target="_blank"><img class="thumb" src="2885_Demo_project_p3_app.png"></a></td>
+      <td><a href="2885_Demo_project_p3_diff.png" target="_blank"><img class="thumb" src="2885_Demo_project_p3_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>4</td>
+      <td class="diff-pct fail">11.39 %</td>
+      <td><a href="2885_Demo_project_p4_ref.png" target="_blank"><img class="thumb" src="2885_Demo_project_p4_ref.png"></a></td>
+      <td><a href="2885_Demo_project_p4_app.png" target="_blank"><img class="thumb" src="2885_Demo_project_p4_app.png"></a></td>
+      <td><a href="2885_Demo_project_p4_diff.png" target="_blank"><img class="thumb" src="2885_Demo_project_p4_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>5</td>
+      <td class="diff-pct fail">7.05 %</td>
+      <td><a href="2885_Demo_project_p5_ref.png" target="_blank"><img class="thumb" src="2885_Demo_project_p5_ref.png"></a></td>
+      <td><a href="2885_Demo_project_p5_app.png" target="_blank"><img class="thumb" src="2885_Demo_project_p5_app.png"></a></td>
+      <td><a href="2885_Demo_project_p5_diff.png" target="_blank"><img class="thumb" src="2885_Demo_project_p5_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>6</td>
+      <td class="diff-pct fail">7.19 %</td>
+      <td><a href="2885_Demo_project_p6_ref.png" target="_blank"><img class="thumb" src="2885_Demo_project_p6_ref.png"></a></td>
+      <td><a href="2885_Demo_project_p6_app.png" target="_blank"><img class="thumb" src="2885_Demo_project_p6_app.png"></a></td>
+      <td><a href="2885_Demo_project_p6_diff.png" target="_blank"><img class="thumb" src="2885_Demo_project_p6_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>7</td>
+      <td class="diff-pct fail">41.76 %</td>
+      <td><a href="2885_Demo_project_p7_ref.png" target="_blank"><img class="thumb" src="2885_Demo_project_p7_ref.png"></a></td>
+      <td><a href="2885_Demo_project_p7_app.png" target="_blank"><img class="thumb" src="2885_Demo_project_p7_app.png"></a></td>
+      <td><a href="2885_Demo_project_p7_diff.png" target="_blank"><img class="thumb" src="2885_Demo_project_p7_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>8</td>
+      <td class="diff-pct fail">7.99 %</td>
+      <td><a href="2885_Demo_project_p8_ref.png" target="_blank"><img class="thumb" src="2885_Demo_project_p8_ref.png"></a></td>
+      <td><a href="2885_Demo_project_p8_app.png" target="_blank"><img class="thumb" src="2885_Demo_project_p8_app.png"></a></td>
+      <td><a href="2885_Demo_project_p8_diff.png" target="_blank"><img class="thumb" src="2885_Demo_project_p8_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>9</td>
+      <td class="diff-pct fail">98.05 %</td>
+      <td><a href="2885_Demo_project_p9_ref.png" target="_blank"><img class="thumb" src="2885_Demo_project_p9_ref.png"></a></td>
+      <td><a href="2885_Demo_project_p9_app.png" target="_blank"><img class="thumb" src="2885_Demo_project_p9_app.png"></a></td>
+      <td><a href="2885_Demo_project_p9_diff.png" target="_blank"><img class="thumb" src="2885_Demo_project_p9_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>10</td>
+      <td class="diff-pct fail">2.95 %</td>
+      <td><a href="2885_Demo_project_p10_ref.png" target="_blank"><img class="thumb" src="2885_Demo_project_p10_ref.png"></a></td>
+      <td><a href="2885_Demo_project_p10_app.png" target="_blank"><img class="thumb" src="2885_Demo_project_p10_app.png"></a></td>
+      <td><a href="2885_Demo_project_p10_diff.png" target="_blank"><img class="thumb" src="2885_Demo_project_p10_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>11</td>
+      <td class="diff-pct fail">3.20 %</td>
+      <td><a href="2885_Demo_project_p11_ref.png" target="_blank"><img class="thumb" src="2885_Demo_project_p11_ref.png"></a></td>
+      <td><a href="2885_Demo_project_p11_app.png" target="_blank"><img class="thumb" src="2885_Demo_project_p11_app.png"></a></td>
+      <td><a href="2885_Demo_project_p11_diff.png" target="_blank"><img class="thumb" src="2885_Demo_project_p11_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>12</td>
+      <td class="diff-pct fail">3.79 %</td>
+      <td><a href="2885_Demo_project_p12_ref.png" target="_blank"><img class="thumb" src="2885_Demo_project_p12_ref.png"></a></td>
+      <td><a href="2885_Demo_project_p12_app.png" target="_blank"><img class="thumb" src="2885_Demo_project_p12_app.png"></a></td>
+      <td><a href="2885_Demo_project_p12_diff.png" target="_blank"><img class="thumb" src="2885_Demo_project_p12_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>13</td>
+      <td class="diff-pct fail">7.96 %</td>
+      <td><a href="2885_Demo_project_p13_ref.png" target="_blank"><img class="thumb" src="2885_Demo_project_p13_ref.png"></a></td>
+      <td><a href="2885_Demo_project_p13_app.png" target="_blank"><img class="thumb" src="2885_Demo_project_p13_app.png"></a></td>
+      <td><a href="2885_Demo_project_p13_diff.png" target="_blank"><img class="thumb" src="2885_Demo_project_p13_diff.png"></a></td>
+    </tr>
+  
+  </tbody>
+</table>
+
+<h2>C:\Users\rickd\Documents\GitHub\open-pdf-studio\test pdf-bestanden\Originele bestanden\Zware vector PDF.pdf <small style="color:#888">v1.6</small></h2>
+<table>
+  <thead><tr>
+    <th>Page</th><th>Diff %</th>
+    <th>Reference</th><th>App</th><th>Diff overlay</th>
+  </tr></thead>
+  <tbody>
+  
+    <tr class="row fail">
+      <td>0</td>
+      <td class="diff-pct fail">2.24 %</td>
+      <td><a href="Zware_vector_PDF_p0_ref.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p0_ref.png"></a></td>
+      <td><a href="Zware_vector_PDF_p0_app.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p0_app.png"></a></td>
+      <td><a href="Zware_vector_PDF_p0_diff.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p0_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>1</td>
+      <td class="diff-pct pass">1.00 %</td>
+      <td><a href="Zware_vector_PDF_p1_ref.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p1_ref.png"></a></td>
+      <td><a href="Zware_vector_PDF_p1_app.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p1_app.png"></a></td>
+      <td><a href="Zware_vector_PDF_p1_diff.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p1_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>2</td>
+      <td class="diff-pct fail">4.45 %</td>
+      <td><a href="Zware_vector_PDF_p2_ref.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p2_ref.png"></a></td>
+      <td><a href="Zware_vector_PDF_p2_app.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p2_app.png"></a></td>
+      <td><a href="Zware_vector_PDF_p2_diff.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p2_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>3</td>
+      <td class="diff-pct fail">4.89 %</td>
+      <td><a href="Zware_vector_PDF_p3_ref.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p3_ref.png"></a></td>
+      <td><a href="Zware_vector_PDF_p3_app.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p3_app.png"></a></td>
+      <td><a href="Zware_vector_PDF_p3_diff.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p3_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>4</td>
+      <td class="diff-pct fail">3.38 %</td>
+      <td><a href="Zware_vector_PDF_p4_ref.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p4_ref.png"></a></td>
+      <td><a href="Zware_vector_PDF_p4_app.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p4_app.png"></a></td>
+      <td><a href="Zware_vector_PDF_p4_diff.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p4_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>5</td>
+      <td class="diff-pct fail">5.06 %</td>
+      <td><a href="Zware_vector_PDF_p5_ref.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p5_ref.png"></a></td>
+      <td><a href="Zware_vector_PDF_p5_app.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p5_app.png"></a></td>
+      <td><a href="Zware_vector_PDF_p5_diff.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p5_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>6</td>
+      <td class="diff-pct fail">2.85 %</td>
+      <td><a href="Zware_vector_PDF_p6_ref.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p6_ref.png"></a></td>
+      <td><a href="Zware_vector_PDF_p6_app.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p6_app.png"></a></td>
+      <td><a href="Zware_vector_PDF_p6_diff.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p6_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>7</td>
+      <td class="diff-pct pass">0.85 %</td>
+      <td><a href="Zware_vector_PDF_p7_ref.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p7_ref.png"></a></td>
+      <td><a href="Zware_vector_PDF_p7_app.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p7_app.png"></a></td>
+      <td><a href="Zware_vector_PDF_p7_diff.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p7_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>8</td>
+      <td class="diff-pct pass">1.52 %</td>
+      <td><a href="Zware_vector_PDF_p8_ref.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p8_ref.png"></a></td>
+      <td><a href="Zware_vector_PDF_p8_app.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p8_app.png"></a></td>
+      <td><a href="Zware_vector_PDF_p8_diff.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p8_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>9</td>
+      <td class="diff-pct pass">1.18 %</td>
+      <td><a href="Zware_vector_PDF_p9_ref.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p9_ref.png"></a></td>
+      <td><a href="Zware_vector_PDF_p9_app.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p9_app.png"></a></td>
+      <td><a href="Zware_vector_PDF_p9_diff.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p9_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>10</td>
+      <td class="diff-pct pass">1.55 %</td>
+      <td><a href="Zware_vector_PDF_p10_ref.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p10_ref.png"></a></td>
+      <td><a href="Zware_vector_PDF_p10_app.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p10_app.png"></a></td>
+      <td><a href="Zware_vector_PDF_p10_diff.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p10_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>11</td>
+      <td class="diff-pct pass">1.54 %</td>
+      <td><a href="Zware_vector_PDF_p11_ref.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p11_ref.png"></a></td>
+      <td><a href="Zware_vector_PDF_p11_app.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p11_app.png"></a></td>
+      <td><a href="Zware_vector_PDF_p11_diff.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p11_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>12</td>
+      <td class="diff-pct pass">0.89 %</td>
+      <td><a href="Zware_vector_PDF_p12_ref.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p12_ref.png"></a></td>
+      <td><a href="Zware_vector_PDF_p12_app.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p12_app.png"></a></td>
+      <td><a href="Zware_vector_PDF_p12_diff.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p12_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>13</td>
+      <td class="diff-pct pass">0.96 %</td>
+      <td><a href="Zware_vector_PDF_p13_ref.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p13_ref.png"></a></td>
+      <td><a href="Zware_vector_PDF_p13_app.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p13_app.png"></a></td>
+      <td><a href="Zware_vector_PDF_p13_diff.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p13_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>14</td>
+      <td class="diff-pct pass">1.28 %</td>
+      <td><a href="Zware_vector_PDF_p14_ref.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p14_ref.png"></a></td>
+      <td><a href="Zware_vector_PDF_p14_app.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p14_app.png"></a></td>
+      <td><a href="Zware_vector_PDF_p14_diff.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p14_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>15</td>
+      <td class="diff-pct pass">1.38 %</td>
+      <td><a href="Zware_vector_PDF_p15_ref.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p15_ref.png"></a></td>
+      <td><a href="Zware_vector_PDF_p15_app.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p15_app.png"></a></td>
+      <td><a href="Zware_vector_PDF_p15_diff.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p15_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>16</td>
+      <td class="diff-pct pass">1.61 %</td>
+      <td><a href="Zware_vector_PDF_p16_ref.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p16_ref.png"></a></td>
+      <td><a href="Zware_vector_PDF_p16_app.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p16_app.png"></a></td>
+      <td><a href="Zware_vector_PDF_p16_diff.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p16_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>17</td>
+      <td class="diff-pct pass">1.33 %</td>
+      <td><a href="Zware_vector_PDF_p17_ref.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p17_ref.png"></a></td>
+      <td><a href="Zware_vector_PDF_p17_app.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p17_app.png"></a></td>
+      <td><a href="Zware_vector_PDF_p17_diff.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p17_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>18</td>
+      <td class="diff-pct fail">2.90 %</td>
+      <td><a href="Zware_vector_PDF_p18_ref.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p18_ref.png"></a></td>
+      <td><a href="Zware_vector_PDF_p18_app.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p18_app.png"></a></td>
+      <td><a href="Zware_vector_PDF_p18_diff.png" target="_blank"><img class="thumb" src="Zware_vector_PDF_p18_diff.png"></a></td>
+    </tr>
+  
+  </tbody>
+</table>
+
+<h2>C:\Users\rickd\Documents\GitHub\open-pdf-studio\test pdf-bestanden\Originele bestanden\20260316 - Barn Relocation - 389 E Hemenway Lane - for Permit.pdf <small style="color:#888">v1.4</small></h2>
+<table>
+  <thead><tr>
+    <th>Page</th><th>Diff %</th>
+    <th>Reference</th><th>App</th><th>Diff overlay</th>
+  </tr></thead>
+  <tbody>
+  
+    <tr class="row fail">
+      <td>0</td>
+      <td class="diff-pct fail">2.19 %</td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p0_ref.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p0_ref.png"></a></td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p0_app.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p0_app.png"></a></td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p0_diff.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p0_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>1</td>
+      <td class="diff-pct pass">1.11 %</td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p1_ref.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p1_ref.png"></a></td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p1_app.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p1_app.png"></a></td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p1_diff.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p1_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>2</td>
+      <td class="diff-pct fail">4.64 %</td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p2_ref.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p2_ref.png"></a></td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p2_app.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p2_app.png"></a></td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p2_diff.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p2_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>3</td>
+      <td class="diff-pct fail">2.77 %</td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p3_ref.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p3_ref.png"></a></td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p3_app.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p3_app.png"></a></td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p3_diff.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p3_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>4</td>
+      <td class="diff-pct pass">0.90 %</td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p4_ref.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p4_ref.png"></a></td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p4_app.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p4_app.png"></a></td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p4_diff.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p4_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>5</td>
+      <td class="diff-pct fail">2.78 %</td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p5_ref.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p5_ref.png"></a></td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p5_app.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p5_app.png"></a></td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p5_diff.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p5_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>6</td>
+      <td class="diff-pct fail">13.59 %</td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p6_ref.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p6_ref.png"></a></td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p6_app.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p6_app.png"></a></td>
+      <td><a href="20260316_-_Barn_Relocation_-_389_E_Hemen_p6_diff.png" target="_blank"><img class="thumb" src="20260316_-_Barn_Relocation_-_389_E_Hemen_p6_diff.png"></a></td>
+    </tr>
+  
+  </tbody>
+</table>
+
+<h2>C:\Users\rickd\Documents\GitHub\open-pdf-studio\test pdf-bestanden\Originele bestanden\Technische tekening.pdf <small style="color:#888">v1.7</small></h2>
+<table>
+  <thead><tr>
+    <th>Page</th><th>Diff %</th>
+    <th>Reference</th><th>App</th><th>Diff overlay</th>
+  </tr></thead>
+  <tbody>
+  
+    <tr class="row fail">
+      <td>0</td>
+      <td class="diff-pct fail">12.82 %</td>
+      <td><a href="Technische_tekening_p0_ref.png" target="_blank"><img class="thumb" src="Technische_tekening_p0_ref.png"></a></td>
+      <td><a href="Technische_tekening_p0_app.png" target="_blank"><img class="thumb" src="Technische_tekening_p0_app.png"></a></td>
+      <td><a href="Technische_tekening_p0_diff.png" target="_blank"><img class="thumb" src="Technische_tekening_p0_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>1</td>
+      <td class="diff-pct fail">18.42 %</td>
+      <td><a href="Technische_tekening_p1_ref.png" target="_blank"><img class="thumb" src="Technische_tekening_p1_ref.png"></a></td>
+      <td><a href="Technische_tekening_p1_app.png" target="_blank"><img class="thumb" src="Technische_tekening_p1_app.png"></a></td>
+      <td><a href="Technische_tekening_p1_diff.png" target="_blank"><img class="thumb" src="Technische_tekening_p1_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>2</td>
+      <td class="diff-pct fail">15.90 %</td>
+      <td><a href="Technische_tekening_p2_ref.png" target="_blank"><img class="thumb" src="Technische_tekening_p2_ref.png"></a></td>
+      <td><a href="Technische_tekening_p2_app.png" target="_blank"><img class="thumb" src="Technische_tekening_p2_app.png"></a></td>
+      <td><a href="Technische_tekening_p2_diff.png" target="_blank"><img class="thumb" src="Technische_tekening_p2_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>3</td>
+      <td class="diff-pct fail">11.48 %</td>
+      <td><a href="Technische_tekening_p3_ref.png" target="_blank"><img class="thumb" src="Technische_tekening_p3_ref.png"></a></td>
+      <td><a href="Technische_tekening_p3_app.png" target="_blank"><img class="thumb" src="Technische_tekening_p3_app.png"></a></td>
+      <td><a href="Technische_tekening_p3_diff.png" target="_blank"><img class="thumb" src="Technische_tekening_p3_diff.png"></a></td>
+    </tr>
+  
+  </tbody>
+</table>
+
+<h2>C:\Users\rickd\Documents\GitHub\open-pdf-studio\test pdf-bestanden\Originele bestanden\Tekst.pdf <small style="color:#888">v1.7</small></h2>
+<table>
+  <thead><tr>
+    <th>Page</th><th>Diff %</th>
+    <th>Reference</th><th>App</th><th>Diff overlay</th>
+  </tr></thead>
+  <tbody>
+  
+    <tr class="row fail">
+      <td>0</td>
+      <td class="diff-pct fail">3.88 %</td>
+      <td><a href="Tekst_p0_ref.png" target="_blank"><img class="thumb" src="Tekst_p0_ref.png"></a></td>
+      <td><a href="Tekst_p0_app.png" target="_blank"><img class="thumb" src="Tekst_p0_app.png"></a></td>
+      <td><a href="Tekst_p0_diff.png" target="_blank"><img class="thumb" src="Tekst_p0_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>1</td>
+      <td class="diff-pct fail">3.76 %</td>
+      <td><a href="Tekst_p1_ref.png" target="_blank"><img class="thumb" src="Tekst_p1_ref.png"></a></td>
+      <td><a href="Tekst_p1_app.png" target="_blank"><img class="thumb" src="Tekst_p1_app.png"></a></td>
+      <td><a href="Tekst_p1_diff.png" target="_blank"><img class="thumb" src="Tekst_p1_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>2</td>
+      <td class="diff-pct fail">4.89 %</td>
+      <td><a href="Tekst_p2_ref.png" target="_blank"><img class="thumb" src="Tekst_p2_ref.png"></a></td>
+      <td><a href="Tekst_p2_app.png" target="_blank"><img class="thumb" src="Tekst_p2_app.png"></a></td>
+      <td><a href="Tekst_p2_diff.png" target="_blank"><img class="thumb" src="Tekst_p2_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row fail">
+      <td>3</td>
+      <td class="diff-pct fail">6.58 %</td>
+      <td><a href="Tekst_p3_ref.png" target="_blank"><img class="thumb" src="Tekst_p3_ref.png"></a></td>
+      <td><a href="Tekst_p3_app.png" target="_blank"><img class="thumb" src="Tekst_p3_app.png"></a></td>
+      <td><a href="Tekst_p3_diff.png" target="_blank"><img class="thumb" src="Tekst_p3_diff.png"></a></td>
+    </tr>
+  
+    <tr class="row ">
+      <td>4</td>
+      <td class="diff-pct pass">0.85 %</td>
+      <td><a href="Tekst_p4_ref.png" target="_blank"><img class="thumb" src="Tekst_p4_ref.png"></a></td>
+      <td><a href="Tekst_p4_app.png" target="_blank"><img class="thumb" src="Tekst_p4_app.png"></a></td>
+      <td><a href="Tekst_p4_diff.png" target="_blank"><img class="thumb" src="Tekst_p4_diff.png"></a></td>
+    </tr>
+  
+  </tbody>
+</table>
+
+<h2>C:\Users\rickd\Documents\GitHub\open-pdf-studio\test pdf-bestanden\Originele bestanden\Combinatie Raster, vector, tekening images.pdf <small style="color:#888">v1.4</small></h2>
+<table>
+  <thead><tr>
+    <th>Page</th><th>Diff %</th>
+    <th>Reference</th><th>App</th><th>Diff overlay</th>
+  </tr></thead>
+  <tbody>
+  
+    <tr class="row fail">
+      <td>0</td>
+      <td class="diff-pct fail">3.47 %</td>
+      <td><a href="Combinatie_Raster,_vector,_tekening_imag_p0_ref.png" target="_blank"><img class="thumb" src="Combinatie_Raster,_vector,_tekening_imag_p0_ref.png"></a></td>
+      <td><a href="Combinatie_Raster,_vector,_tekening_imag_p0_app.png" target="_blank"><img class="thumb" src="Combinatie_Raster,_vector,_tekening_imag_p0_app.png"></a></td>
+      <td><a href="Combinatie_Raster,_vector,_tekening_imag_p0_diff.png" target="_blank"><img class="thumb" src="Combinatie_Raster,_vector,_tekening_imag_p0_diff.png"></a></td>
+    </tr>
+  
+  </tbody>
+</table>
+
+</body></html>

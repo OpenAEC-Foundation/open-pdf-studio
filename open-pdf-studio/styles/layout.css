@@ -722,16 +722,16 @@ body.pdf-cursor-override #canvas-container * {
 
 .pdf-text-editor {
   box-sizing: border-box;
-  border: 1px solid #0078d7;
+  border: 0;
+  outline: 1px solid #0078d7;
   background: #ffffff;
-  padding: 4px 4px;
+  padding: 0;
   margin: 0;
   resize: none;
   overflow: hidden;
-  outline: none;
   color: #000;
-  white-space: pre-wrap;
-  word-break: break-word;
+  white-space: pre;
+  word-break: normal;
   box-shadow: 0 0 0 1px rgba(0, 120, 215, 0.3);
 }
 

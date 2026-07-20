@@ -5,7 +5,7 @@ import { showPreferencesDialog, setAsDefaultStyle } from '../core/preferences.js
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { copyAndMove } from './edit-ops.js';
 import { showDocPropertiesDialog, showNewDocDialog } from '../ui/chrome/dialogs.js';
-import { copyAnnotation, copyAnnotations } from '../annotations/clipboard.js';
+import { copyAnnotation, copyAnnotations, pasteAnnotation, pasteAnnotations } from '../annotations/clipboard.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { applyMove } from '../annotations/transforms.js';
 import { createMeasureAreaAnnotation, createMeasurePerimeterAnnotation } from './annotation-creators.js';
@@ -215,10 +215,25 @@ function _cadChordTry(letter) {
 export async function handleKeydown(e) {
   const ctrl = e.ctrlKey || e.metaKey;
   const shift = e.shiftKey;
+  const shortcutKey = typeof e.key === 'string' ? e.key.toLowerCase() : '';
 
   // Allow certain shortcuts even when in input fields
   const isInInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
   const isFindInput = e.target.id === 'find-input';
+
+  // Keep Select All scoped to an active text-edit session, even when focus
+  // temporarily moved to the properties panel or the document itself.
+  if (ctrl && !shift && !e.altKey && shortcutKey === 'a'
+      && (state.isEditingText || state.pdfTextEditState)) {
+    const editor = document.querySelector('.inline-text-editor, .pdf-text-editor');
+    if (editor && typeof editor.select === 'function') {
+      e.preventDefault();
+      e.stopPropagation();
+      editor.focus();
+      editor.select();
+      return;
+    }
+  }
 
   // Handle find-related shortcuts even in inputs
   if (ctrl && e.key === 'f') {
@@ -375,13 +390,13 @@ export async function handleKeydown(e) {
   // dialog; handling it here as well would open ours twice.
 
   // Edit shortcuts
-  else if (ctrl && !shift && e.key === 'z') {
+  else if (ctrl && !shift && shortcutKey === 'z') {
     e.preventDefault();
     undo();
-  } else if (ctrl && e.key === 'y') {
+  } else if (ctrl && shortcutKey === 'y') {
     e.preventDefault();
     redo();
-  } else if (ctrl && shift && e.key === 'Z') {
+  } else if (ctrl && shift && shortcutKey === 'z') {
     e.preventDefault();
     redo();
   } else if (ctrl && !shift && e.key === 'a') {
@@ -511,6 +526,18 @@ export async function handleKeydown(e) {
     if (isPdfAReadOnly()) return;
     import('../annotations/clipboard.js').then(({ pasteAnnotationsInPlace }) => pasteAnnotationsInPlace());
   } else if (ctrl && !shift && e.key === 'v') {
+    // An annotation copied inside the app must be pasted directly. Asking the
+    // native Clipboard API first can open a WebView permission prompt and
+    // indefinitely postpone the internal paste (notably for line annotations).
+    const internalClips = state.clipboardAnnotations;
+    if ((internalClips && internalClips.length > 0) || state.clipboardAnnotation) {
+      e.preventDefault();
+      if (!getActiveDocument()?.pdfDoc) return;
+      if (isPdfAReadOnly()) return;
+      if (internalClips && internalClips.length > 1) pasteAnnotations();
+      else pasteAnnotation();
+      return;
+    }
     // Don't preventDefault — let native paste event fire so handlePaste can
     // read clipboardData.items (required on Linux/WebKitGTK where the async
     // Clipboard API is unavailable).

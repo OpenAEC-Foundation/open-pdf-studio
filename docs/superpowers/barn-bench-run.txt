@@ -1,0 +1,69 @@
+File: C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/20260316 - Barn Relocation - 389 E Hemenway Lane - for Permit.pdf
+Bytes: 26767844
+Load+parse:  11 ms (7 pages)
+
+=== Cold renders at scale=1.5 ===
+  [img-stages n=20] deref=   58us flate=37744us predictor=23187us jpeg=    0us raw=74551us premul=    0us draw=67772us
+  [img-uniq] total_refs=20 unique_xobj=14 max_reuse=2
+[bench-rust]   interp content_decode=56.7958ms predecode_parallel=43.6108ms serial_walk=201.1871ms TOTAL_INTERP=301.5937ms ops=126312 imgs_cached=14
+[fonts] Loaded system font:  → C:\Windows\Fonts\AcadEref.ttf
+[bench-rust]   interp content_decode=109.4µs predecode_parallel=500ns serial_walk=14.721ms TOTAL_INTERP=14.8309ms ops=115 imgs_cached=0
+[bench-rust] p0 cache-miss-path: setup=34µs resources=15.6063ms interpret=323.4921ms annot=15.5032ms into_rgba=7.8345ms cache-store=6.2905ms TOTAL=368.7609ms (3672x2376)
+
+p0 TOTAL OUTER = 369 ms (w=3672 h=2376)
+  [img-stages n=62] deref= 4647us flate=60107us predictor=13656us jpeg=    0us raw=88003us premul=    0us draw=138256us
+  [img-uniq] total_refs=62 unique_xobj=48 max_reuse=6
+[bench-rust]   interp content_decode=17.2993ms predecode_parallel=31.0125ms serial_walk=386.867ms TOTAL_INTERP=435.1788ms ops=53519 imgs_cached=48
+[bench-rust] p1 cache-miss-path: setup=38.2µs resources=8.4434ms interpret=444.2915ms annot=14.4µs into_rgba=7.3885ms cache-store=7.4412ms TOTAL=467.6174ms (3672x2376)
+
+p1 TOTAL OUTER = 467 ms (w=3672 h=2376)
+  [img-stages n=12] deref=   26us flate=138692us predictor=82238us jpeg=    0us raw=271461us premul=    0us draw=62483us
+  [img-uniq] total_refs=12 unique_xobj=12 max_reuse=1
+[bench-rust]   interp content_decode=1.1468ms predecode_parallel=70.7467ms serial_walk=106.1682ms TOTAL_INTERP=178.0617ms ops=4169 imgs_cached=12
+[bench-rust] p2 cache-miss-path: setup=34.8µs resources=5.733ms interpret=182.6971ms annot=16µs into_rgba=7.924ms cache-store=7.9336ms TOTAL=204.3388ms (3672x2376)
+
+p2 TOTAL OUTER = 204 ms (w=3672 h=2376)
+  [img-stages n=14] deref=  224us flate=212368us predictor=91888us jpeg=    0us raw=360975us premul=    0us draw=75843us
+  [img-uniq] total_refs=14 unique_xobj=14 max_reuse=1
+[bench-rust]   interp content_decode=1.2941ms predecode_parallel=102.0553ms serial_walk=126.9926ms TOTAL_INTERP=230.342ms ops=4187 imgs_cached=14
+[bench-rust] p3 cache-miss-path: setup=21.4µs resources=6.2112ms interpret=235.583ms annot=19.3µs into_rgba=8.5933ms cache-store=7.0992ms TOTAL=257.5275ms (3672x2376)
+
+p3 TOTAL OUTER = 257 ms (w=3672 h=2376)
+  [img-stages n=12] deref=   26us flate= 7415us predictor= 4213us jpeg=    0us raw=14536us premul=    0us draw=28077us
+  [img-uniq] total_refs=12 unique_xobj=11 max_reuse=2
+[bench-rust]   interp content_decode=4.8881ms predecode_parallel=4.2406ms serial_walk=115.7787ms TOTAL_INTERP=124.9074ms ops=16474 imgs_cached=11
+[bench-rust] p4 cache-miss-path: setup=32.2µs resources=6.243ms interpret=127.9345ms annot=15.6µs into_rgba=8.5879ms cache-store=8.5848ms TOTAL=151.3984ms (3672x2376)
+
+p4 TOTAL OUTER = 151 ms (w=3672 h=2376)
+  [img-stages n=10] deref=   21us flate=113811us predictor=80290us jpeg=    0us raw=241609us premul=    0us draw=71595us
+  [img-uniq] total_refs=10 unique_xobj=10 max_reuse=1
+[bench-rust]   interp content_decode=1.1999ms predecode_parallel=99.9109ms serial_walk=121.9611ms TOTAL_INTERP=223.0719ms ops=4101 imgs_cached=10
+[bench-rust] p5 cache-miss-path: setup=35µs resources=6.4951ms interpret=227.5399ms annot=16.5µs into_rgba=8.487ms cache-store=6.9318ms TOTAL=249.5053ms (3672x2376)
+
+p5 TOTAL OUTER = 249 ms (w=3672 h=2376)
+  [img-stages n=73] deref=   16us flate=    0us predictor=    0us jpeg=28564us raw=    0us premul=    0us draw=189753us
+  [img-uniq] total_refs=73 unique_xobj=16 max_reuse=33
+[bench-rust]   interp content_decode=31.7799ms predecode_parallel=14.5119ms serial_walk=576.7724ms TOTAL_INTERP=623.0642ms ops=100582 imgs_cached=16
+[bench-rust] p6 cache-miss-path: setup=24.1µs resources=10.1761ms interpret=639.4722ms annot=17µs into_rgba=8.7744ms cache-store=7.0408ms TOTAL=665.5047ms (3672x2376)
+
+p6 TOTAL OUTER = 665 ms (w=3672 h=2376)
+
+=== Summary ===
+Total over 7 pages: 2362 ms (avg 337 ms/page)
+
+=== Second pass (pixmap-cache HITS expected) ===
+[bench-rust] p0 CACHE-HIT total=24.4µs
+p0 HOT = 7 ms
+[bench-rust] p1 CACHE-HIT total=24.2µs
+p1 HOT = 7 ms
+[bench-rust] p2 CACHE-HIT total=62.8µs
+p2 HOT = 7 ms
+[bench-rust] p3 CACHE-HIT total=31.8µs
+p3 HOT = 6 ms
+[bench-rust] p4 CACHE-HIT total=25.8µs
+p4 HOT = 7 ms
+[bench-rust] p5 CACHE-HIT total=22.5µs
+p5 HOT = 7 ms
+[bench-rust] p6 CACHE-HIT total=30.5µs
+p6 HOT = 6 ms
+HOT total: 47 ms (7 ms avg)

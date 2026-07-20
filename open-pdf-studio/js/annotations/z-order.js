@@ -1,87 +1,106 @@
-import { state, getActiveDocument } from '../core/state.js';
+import { getActiveDocument } from '../core/state.js';
+import {
+  recordAnnotationOrder,
+  recordBulkModify,
+  beginUndoTransaction,
+  endUndoTransaction,
+} from '../core/undo-manager.js';
+import { cloneAnnotation } from './factory.js';
 import { redrawAnnotations, redrawContinuous } from './rendering.js';
 import { showProperties, showMultiSelectionProperties } from '../ui/panels/properties-panel.js';
 
+function normalizeTargets(annotationOrAnnotations, doc) {
+  const requested = Array.isArray(annotationOrAnnotations)
+    ? annotationOrAnnotations
+    : [annotationOrAnnotations];
+  const requestedSet = new Set(requested.filter(Boolean));
+  return doc.annotations.filter(annotation => requestedSet.has(annotation));
+}
+
+function commitOrderChange(doc, oldOrder, targets, originals) {
+  const newOrder = doc.annotations.map(annotation => annotation.id);
+  if (oldOrder.every((id, index) => id === newOrder[index])) return false;
+  const modifiedAt = new Date().toISOString();
+  for (const annotation of targets) annotation.modifiedAt = modifiedAt;
+  beginUndoTransaction();
+  recordAnnotationOrder(oldOrder, newOrder);
+  recordBulkModify(targets, originals);
+  endUndoTransaction();
+  if (doc.viewMode === 'continuous') redrawContinuous();
+  else redrawAnnotations();
+  return true;
+}
+
 // Bring annotation to front (top of z-order)
-export function bringToFront(annotation) {
-  if (!annotation) return;
+export function bringToFront(annotationOrAnnotations) {
   const doc = getActiveDocument();
   if (!doc) return;
-
-  const index = doc.annotations.indexOf(annotation);
-  if (index > -1) {
-    doc.annotations.splice(index, 1);
-    doc.annotations.push(annotation);
-    annotation.modifiedAt = new Date().toISOString();
-
-    if (doc.viewMode === 'continuous') {
-      redrawContinuous();
-    } else {
-      redrawAnnotations();
-    }
-  }
+  const targets = normalizeTargets(annotationOrAnnotations, doc);
+  if (targets.length === 0) return;
+  const originals = targets.map(annotation => cloneAnnotation(annotation));
+  const targetSet = new Set(targets);
+  const oldOrder = doc.annotations.map(annotation => annotation.id);
+  doc.annotations.splice(
+    0,
+    doc.annotations.length,
+    ...doc.annotations.filter(annotation => !targetSet.has(annotation)),
+    ...targets,
+  );
+  commitOrderChange(doc, oldOrder, targets, originals);
 }
 
 // Send annotation to back (bottom of z-order)
-export function sendToBack(annotation) {
-  if (!annotation) return;
+export function sendToBack(annotationOrAnnotations) {
   const doc = getActiveDocument();
   if (!doc) return;
-
-  const index = doc.annotations.indexOf(annotation);
-  if (index > -1) {
-    doc.annotations.splice(index, 1);
-    doc.annotations.unshift(annotation);
-    annotation.modifiedAt = new Date().toISOString();
-
-    if (doc.viewMode === 'continuous') {
-      redrawContinuous();
-    } else {
-      redrawAnnotations();
-    }
-  }
+  const targets = normalizeTargets(annotationOrAnnotations, doc);
+  if (targets.length === 0) return;
+  const originals = targets.map(annotation => cloneAnnotation(annotation));
+  const targetSet = new Set(targets);
+  const oldOrder = doc.annotations.map(annotation => annotation.id);
+  doc.annotations.splice(
+    0,
+    doc.annotations.length,
+    ...targets,
+    ...doc.annotations.filter(annotation => !targetSet.has(annotation)),
+  );
+  commitOrderChange(doc, oldOrder, targets, originals);
 }
 
 // Move annotation forward (one step up in z-order)
-export function bringForward(annotation) {
-  if (!annotation) return;
+export function bringForward(annotationOrAnnotations) {
   const doc = getActiveDocument();
   if (!doc) return;
-
-  const index = doc.annotations.indexOf(annotation);
-  if (index > -1 && index < doc.annotations.length - 1) {
-    // Swap with next annotation
-    [doc.annotations[index], doc.annotations[index + 1]] =
-    [doc.annotations[index + 1], doc.annotations[index]];
-    annotation.modifiedAt = new Date().toISOString();
-
-    if (doc.viewMode === 'continuous') {
-      redrawContinuous();
-    } else {
-      redrawAnnotations();
+  const targets = normalizeTargets(annotationOrAnnotations, doc);
+  if (targets.length === 0) return;
+  const originals = targets.map(annotation => cloneAnnotation(annotation));
+  const targetSet = new Set(targets);
+  const oldOrder = doc.annotations.map(annotation => annotation.id);
+  for (let index = doc.annotations.length - 2; index >= 0; index--) {
+    if (targetSet.has(doc.annotations[index]) && !targetSet.has(doc.annotations[index + 1])) {
+      [doc.annotations[index], doc.annotations[index + 1]] =
+        [doc.annotations[index + 1], doc.annotations[index]];
     }
   }
+  commitOrderChange(doc, oldOrder, targets, originals);
 }
 
 // Move annotation backward (one step down in z-order)
-export function sendBackward(annotation) {
-  if (!annotation) return;
+export function sendBackward(annotationOrAnnotations) {
   const doc = getActiveDocument();
   if (!doc) return;
-
-  const index = doc.annotations.indexOf(annotation);
-  if (index > 0) {
-    // Swap with previous annotation
-    [doc.annotations[index], doc.annotations[index - 1]] =
-    [doc.annotations[index - 1], doc.annotations[index]];
-    annotation.modifiedAt = new Date().toISOString();
-
-    if (doc.viewMode === 'continuous') {
-      redrawContinuous();
-    } else {
-      redrawAnnotations();
+  const targets = normalizeTargets(annotationOrAnnotations, doc);
+  if (targets.length === 0) return;
+  const originals = targets.map(annotation => cloneAnnotation(annotation));
+  const targetSet = new Set(targets);
+  const oldOrder = doc.annotations.map(annotation => annotation.id);
+  for (let index = 1; index < doc.annotations.length; index++) {
+    if (targetSet.has(doc.annotations[index]) && !targetSet.has(doc.annotations[index - 1])) {
+      [doc.annotations[index], doc.annotations[index - 1]] =
+        [doc.annotations[index - 1], doc.annotations[index]];
     }
   }
+  commitOrderChange(doc, oldOrder, targets, originals);
 }
 
 // Rotate a point around a center by degrees

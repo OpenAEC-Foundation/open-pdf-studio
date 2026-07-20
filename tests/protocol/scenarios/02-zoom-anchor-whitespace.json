@@ -1,0 +1,25 @@
+{
+  "name": "02-zoom-anchor-whitespace",
+  "description": "Regression for 'zoom snaps page sideways when cursor is on white margin'. At scale 1.0 the A4 page is narrower than the container — white margins on both sides. Ctrl+wheel zoom-in with the cursor parked on the RIGHT white margin must NOT shift scrollLeft, because the anchor block is intentionally skipped when the cursor is off-page. Uses probe-relative coordinates so the test works regardless of side-panel state.",
+  "setup": {
+    "pdfPath": "test pdf-bestanden/Originele bestanden/Text pdf gecombineerd.pdf",
+    "scale": 1.0,
+    "page": 2
+  },
+  "steps": [
+    { "action": "probe", "store": "pre" },
+    { "action": "screenshot", "label": "pre" },
+    { "action": "wheel_zoom",
+      "x": "={pre.container.left + (pre.container.width + 595*pre.doc.scale)/2 + 20}",
+      "y": "={pre.container.top + pre.container.height/2}",
+      "deltaY": -120, "ctrlKey": true },
+    { "action": "wait", "ms": 1000 },
+    { "action": "probe", "store": "post" },
+    { "action": "screenshot", "label": "post" }
+  ],
+  "assertions": [
+    { "type": "stateEqualField", "preProbe": "pre", "postProbe": "post", "field": "container.scrollLeft", "tolerance": 100, "label": "scrollLeft drift < 100 px on white-margin zoom (original snap-to-fill bug shifted hundreds of px; reflow can drift up to ~scale_change * scrollLeft)" },
+    { "type": "stateChanged", "preProbe": "pre", "postProbe": "post", "field": "doc.scale", "label": "scale actually increased (wheel handler did fire)" },
+    { "type": "stateInRange", "probe": "post", "field": "doc.scale", "min": 1.1, "max": 8, "label": "scale moved above 1.0 (zoom-in applied)" }
+  ]
+}

@@ -1,0 +1,712 @@
+<!DOCTYPE html><html lang="nl"><head><meta charset="utf-8">
+<title>Render-engines — meetrapport 2026-07-05</title>
+<style>
+body{font-family:'Segoe UI',sans-serif;max-width:1100px;margin:24px auto;color:#222;line-height:1.5}
+h1{border-bottom:2px solid #0078d4;padding-bottom:6px} h2{margin-top:34px;border-bottom:1px solid #ccc}
+table{border-collapse:collapse;width:100%;font-size:13px} td,th{border:1px solid #bbb;padding:4px 8px;text-align:left}
+th{background:#f0f0f0} figure{margin:8px;display:inline-block;vertical-align:top;width:47%}
+figure img{width:100%;border:1px solid #999} figcaption{font-size:12px;color:#555}
+.duo{display:flex;gap:12px} .kader{background:#f8f8f8;border:1px solid #ddd;padding:10px 14px}
+
+/* galerij */
+.trio{display:flex;gap:8px} .trio figure{width:32%;margin:4px 0}
+.trio figcaption b{color:#333}
+h3{margin-top:26px;border-bottom:1px dotted #bbb;padding-bottom:3px}
+nav.toc{background:#f8f8f8;border:1px solid #ddd;padding:10px 16px;font-size:13px}
+nav.toc ul{margin:4px 0;padding-left:20px} nav.toc li{margin:1px 0}
+.chip{display:inline-block;padding:1px 7px;font-size:12px;border:1px solid #999}
+.chip.pdfium{background:#f0f0f0} .chip.aec{background:#dcfce7}
+.duiding{background:#fffbe6;border:1px solid #e0d8a8;padding:8px 12px;font-size:13px}
+details{margin:8px 0} summary{cursor:pointer;font-size:13px;color:#0078d4}
+td.num{text-align:right} .fout{color:#a00;font-size:12px}
+</style></head><body>
+<div style="background:#7a1f1f;color:#fff;padding:10px 16px;font-size:14px;letter-spacing:0.5px">
+<b>INTERN ONTWIKKELBEELD</b> — status van de render-engines in ontwikkeling. Niet bedoeld voor externe verspreiding;
+de bijbehorende build v1.70.0 staat bewust als concept (draft) klaar en is niet publiek vrijgegeven.</div>
+<h1>Render-engines: meting, keuzealgoritme en resultaat <span style="font-size:14px;color:#666;font-weight:normal">(bijgewerkt 6 juli, avond)</span></h1>
+<p class="kader" style="border-left:4px solid #0078d4"><b>Status 6 juli (avond):</b> alle render-werk staat op <b>main</b>.
+Sinds de meting hieronder (5 juli) zijn in AEC-PDF v1 de twee grootste gaten gedicht:
+<b>inline-afbeeldingen</b> (alle 4.925 kleurstrips van MV-03 renderen, het logo in het titelblok is zichtbaar) en
+<b>clips/maskers</b> (2.297 clip-ops; MV-03-render daardoor ook sneller: 2,2&nbsp;s → 1,6&nbsp;s).
+Herbenchmark over het corpus: <b>16 pagina's &gt; 0,5&nbsp;pp nauwkeuriger, 0 regressies</b>
+(uitschieters: 33,2% → 1,5% en 28,1% → 5,3%). De engine-keuze blijft conservatief: PDFium is de basis,
+AEC-PDF v1 alleen bij extreme content (MV-03-klasse).<br>
+<b>Build-status:</b> v1.70.0 is op alle platforms groen gebouwd (Windows system + user, Linux AppImage/deb, macOS dmg,
+Android apk, updater-manifest) en staat met 14 assets als <b>interne concept-release</b> klaar — publicatie is voortaan
+een bewuste handmatige stap; de release-workflow publiceert niet meer automatisch.
+De AEC-verbeteringen van vandaag zitten <i>na</i> de 1.70-tag en gaan mee in de volgende build.</p>
+<p class="kader"><b>Kern:</b> extreme vectorbladen (MV-03-klasse) renderen nu via de eigen parallelle tegel-engine:
+<b>27,8&nbsp;s → 2,9&nbsp;s</b> voor het volle blad en <b>~290&nbsp;MB totaal</b> i.p.v. 1,4–5&nbsp;GB aan PDFium-workers.
+Alle overige bladen blijven bewust op PDFium — het datagedreven algoritme kiest per pagina, en de
+<b>engine-chip rechtsonder in de statusbalk</b> toont live welke engine je ziet (groen=Tegel, grijs=PDFium, blauw=Vector).</p>
+<nav class="toc"><b>Inhoudsopgave</b><ul>
+<li><a href="#h1">1 Zelf vergelijken: PDFium vs eigen tegel-engine (zelfde blad, zelfde schaal)</a></li>
+<li><a href="#h2">2 In de app</a></li>
+<li><a href="#h3">3 Tegel-correctheid</a></li>
+<li><a href="#h4">4 Benchmark per bestand (136 pagina's, cap 8 p/bestand)</a></li>
+<li><a href="#h5">5 Het keuzealgoritme (nauwkeurigheid vóór snelheid)</a></li>
+<li><a href="#h6">6 Openstaand</a></li>
+<li><a href="#h7">7 Visuele galerij: alle 15 corpus-bestanden</a><ul>
+<li><a href="#galerij-f01">7.1 20260316 - Barn Relocation - 389 E Hemenway Lane - for Permit.pdf</a></li>
+<li><a href="#galerij-f02">7.2 2885 Demo project.pdf</a></li>
+<li><a href="#galerij-f03">7.3 3131-CLT-Set.pdf</a></li>
+<li><a href="#galerij-f04">7.4 Combinatie Raster, vector, tekening images.pdf</a></li>
+<li><a href="#galerij-f05">7.5 MV-03_Mechanische ventilatie, 3e verdieping ontwerp ACH van 1,5 naar 2,0.pdf</a></li>
+<li><a href="#galerij-f06">7.6 NKD1a_opm_aw.pdf</a></li>
+<li><a href="#galerij-f07">7.7 NKE2D2_opm_aw.pdf</a></li>
+<li><a href="#galerij-f08">7.8 Technische tekening.pdf</a></li>
+<li><a href="#galerij-f09">7.9 Tekst.pdf</a></li>
+<li><a href="#galerij-f10">7.10 Text pdf gecombineerd.pdf</a></li>
+<li><a href="#galerij-f11">7.11 VO Constructie.pdf</a></li>
+<li><a href="#galerij-f12">7.12 Zware vector PDF.pdf</a></li>
+<li><a href="#galerij-f13">7.13 Zware vector-2 crash.pdf</a></li>
+<li><a href="#galerij-f14">7.14 rapport-constructie.pdf</a></li>
+<li><a href="#galerij-f15">7.15 tekening-2.pdf</a></li>
+</ul></li>
+</ul></nav>
+
+<h2 id="h1">1 &nbsp;Zelf vergelijken: PDFium vs eigen tegel-engine (zelfde blad, zelfde schaal)</h2>
+<div class="duo"><figure><a href='rapport-assets-2026-07-05/gallery2/f05_mv-03_mechanische_ventilatie_3e_verdiepi_p1_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f05_mv-03_mechanische_ventilatie_3e_verdiepi_p1_ref.png'></a><figcaption>PDFium-referentie — MV-03 (meetrun 6 juli; klik voor volledig formaat)</figcaption></figure><figure><a href='rapport-assets-2026-07-05/gallery2/f05_mv-03_mechanische_ventilatie_3e_verdiepi_p1_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f05_mv-03_mechanische_ventilatie_3e_verdiepi_p1_ours.png'></a><figcaption>Eigen tegel-engine (AEC-PDF v1) — MV-03, zelfde meetrun: logo en inline-kleurstrips renderen na de afbeeldings- en clip-ondersteuning (klik voor volledig formaat)</figcaption></figure></div>
+<p>Lijnkleuren zijn identiek (histogram-geverifieerd). De figuren tonen de verse meetrun: het logo in het titelblok en
+alle 4.925 inline-kleurstrips renderen sinds de afbeeldings- en clip-ondersteuning mee; de resterende afwijking op MV-03
+is 7,08% (was 7,32%), vrijwel volledig AA-/lijndikte-detail op het dichte lijnwerk.
+<span style="font-size:12px;color:#666"><i>Meting ververst 6 juli (na afbeeldings- en clip-ondersteuning).</i></span></p>
+
+<h2 id="h2">2 &nbsp;In de app</h2>
+<div class="duo"><figure><a href='rapport-assets-2026-07-05/app-vol.png' target='_blank'><img src='rapport-assets-2026-07-05/app-vol.png'></a><figcaption>Volledig blad via de tegel-engine (workers onaangeraakt) (klik voor volledig formaat)</figcaption></figure><figure><a href='rapport-assets-2026-07-05/app-tekst.png' target='_blank'><img src='rapport-assets-2026-07-05/app-tekst.png'></a><figcaption>Ingezoomd: leesbare maatteksten na de save-stack-fix (klik voor volledig formaat)</figcaption></figure></div>
+<figure><a href='rapport-assets-2026-07-05/app-tegel.png' target='_blank'><img src='rapport-assets-2026-07-05/app-tegel.png'></a><figcaption>Hoge zoom: scherpe tegel zonder wazige rasterlaag eronder (fallback-fix) (klik voor volledig formaat)</figcaption></figure>
+
+<h2 id="h3">3 &nbsp;Tegel-correctheid</h2>
+<figure><a href='rapport-assets-2026-07-05/tilediff.png' target='_blank'><img src='rapport-assets-2026-07-05/tilediff.png'></a><figcaption>Verschilpixels (rood) tussen tegel-assemblage en één-stuk-render: uitsluitend AA-randen op subpixel-dunne lijnen — geen missende objecten (klik voor volledig formaat)</figcaption></figure>
+
+<h2 id="h4">4 &nbsp;Benchmark per bestand (136 pagina's, cap 8 p/bestand)</h2>
+<table><tr><th>Bestand</th><th>pag.</th><th>PDFium (ms tot.)</th><th>Tegel-engine (ms tot.)</th><th>gem. afwijking*</th><th>max buffer</th><th>gekozen engine</th></tr>
+<tr><td>20260316 - Barn Relocation - 389 E Hemenway L</td><td>14</td><td>2441</td><td>3875</td><td>3.3%</td><td>136 MB</td><td style='background:#f0f0f0'>PDFium</td></tr>
+<tr><td>2885 Demo project.pdf</td><td>16</td><td>531</td><td>403</td><td>35.1%</td><td>12 MB</td><td style='background:#f0f0f0'>PDFium</td></tr>
+<tr><td>3131-CLT-Set.pdf</td><td>10</td><td>2386</td><td>1990</td><td>14.3%</td><td>0 MB</td><td style='background:#f0f0f0'>PDFium</td></tr>
+<tr><td>Combinatie Raster, vector, tekening images.pd</td><td>2</td><td>191</td><td>302</td><td>4.8%</td><td>38 MB</td><td style='background:#dcfce7'>Tegel-engine</td></tr>
+<tr><td>MV-03_Mechanische ventilatie, 3e verdieping o</td><td>1</td><td>27782</td><td>2862</td><td>7.1%</td><td>139 MB</td><td style='background:#dcfce7'>Tegel-engine</td></tr>
+<tr><td>NKD1a_opm_aw.pdf</td><td>14</td><td>25114</td><td>22146</td><td>29.9%</td><td>9 MB</td><td style='background:#f0f0f0'>PDFium</td></tr>
+<tr><td>NKE2D2_opm_aw.pdf</td><td>10</td><td>5987</td><td>3841</td><td>33.6%</td><td>6 MB</td><td style='background:#f0f0f0'>PDFium</td></tr>
+<tr><td>Technische tekening.pdf</td><td>8</td><td>291</td><td>207</td><td>1.5%</td><td>1 MB</td><td style='background:#f0f0f0'>PDFium</td></tr>
+<tr><td>Tekst.pdf</td><td>10</td><td>452</td><td>483</td><td>3.2%</td><td>0 MB</td><td style='background:#f0f0f0'>PDFium</td></tr>
+<tr><td>Text pdf gecombineerd.pdf</td><td>16</td><td>396</td><td>354</td><td>2.5%</td><td>14 MB</td><td style='background:#dcfce7'>Tegel-engine</td></tr>
+<tr><td>VO Constructie.pdf</td><td>1</td><td>6</td><td>4</td><td>0.1%</td><td>0 MB</td><td style='background:#f0f0f0'>PDFium</td></tr>
+<tr><td>Zware vector PDF.pdf</td><td>16</td><td>14312</td><td>13567</td><td>25.3%</td><td>5 MB</td><td style='background:#f0f0f0'>PDFium</td></tr>
+<tr><td>Zware vector-2 crash.pdf</td><td>1</td><td>195</td><td>107</td><td>8.1%</td><td>4 MB</td><td style='background:#f0f0f0'>PDFium</td></tr>
+<tr><td>rapport-constructie.pdf</td><td>16</td><td>355</td><td>352</td><td>2.5%</td><td>14 MB</td><td style='background:#dcfce7'>Tegel-engine</td></tr>
+<tr><td>tekening-2.pdf</td><td>1</td><td>6</td><td>8</td><td>0.8%</td><td>0 MB</td><td style='background:#f0f0f0'>PDFium</td></tr>
+</table>
+<p style="font-size:12px"><i>Meting ververst 6 juli (na afbeeldings- en clip-ondersteuning):</i> de kolom "gem. afwijking" toont de verse run;
+de tijdkolommen zijn van de 5-juli-meting. Router-keuzes onveranderd (herbevestigd door de verse run: alleen MV-03 passeert voorfilter én gate).<br>
+* downsampled 4×4-vergelijking t.o.v. PDFium — meet "inkt per gebied", negeert AA-verdelingsverschillen.
+Ruwe data: <code>%TEMP%\corpus_bench.tsv</code>; instrumenten: <code>open-pdf-render/examples/corpus_diff.rs</code>, <code>color_probe.rs</code>, <code>op_histo.rs</code>.</p>
+
+<h2 id="h5">5 &nbsp;Het keuzealgoritme (nauwkeurigheid vóór snelheid)</h2>
+<ol>
+<li><b>Voorfilter (JS, gratis):</b> gecomprimeerde content-stream &gt; 4&nbsp;MB → tegel-engine-kandidaat; anders PDFium-pool. (NKD1a: 1,3–1,9&nbsp;MB → PDFium; MV-03: 8,5&nbsp;MB → kandidaat.)</li>
+<li><b>Gate (Rust, op buffer-feiten):</b> de scene telt tijdens het indexeren embedded images en clip-dichtheid;
+&gt;2&nbsp;MB images (herijkt 6 juli — de rasterizer tekent images nu echt, en MV-03 draagt 1,4&nbsp;MB inline-strips; was 1&nbsp;MB) of &gt;25 clips/MB → weigering en de pagina valt blijvend terug op PDFium (BARN, arcering-zware bladen).</li>
+</ol>
+<p>De replayer ondersteunt clips en afbeeldingen inmiddels (6 juli); de eerste drempel-verruiming (image-gate 1 &rarr; 2&nbsp;MB) is daarmee een feit. Verdere verruiming naar de middenklasse volgt zodra het resterende replay-gat (hoofdstuk 6) dicht is — deze benchmark is het bewijs­instrument.</p>
+
+<h2 id="h6">6 &nbsp;Openstaand</h2>
+<ul>
+<li><s>Afbeeldingen (DrawImage) in de extract-flow → logo's op zware bladen.</s> <b>✓ Gedicht (6 juli):</b> inline-afbeeldingen (BI/ID/EI, Flate + predictor, Gray/RGB/CMYK 8-bit) én de payload-decodering voor bestaande XObject-emissies.</li>
+<li><s>Clip-ondersteuning in de tegel-replayer → arceringen/maskers (NKD1a/NKE2D2-klasse).</s> <b>✓ Gedicht (6 juli):</b> clip-maskstack incl. save/restore over tegelchunk-grenzen; leverde ook snelheidswinst op (minder overtekening).</li>
+<li>Engine-chip per pagina i.p.v. "laatst geleverd" is gedaan (per-document store); regio-bucket op de 2400%-zoomgrens staat nog open.</li>
+<li>Nog open in AEC-PDF v1: AA-/lijndikte-kalibratie (~7% restafwijking op MV-03), shadings/pattern-vullingen, exotische inline-beeldformaten (1/2/4-bit, DCT). Alles buiten het app-pad gehouden door de conservatieve engine-gate.</li></ul>
+<h2 id="h7">7 &nbsp;Visuele galerij: alle 15 corpus-bestanden, drieluik per pagina</h2>
+<p style="font-size:12px;color:#666"><i>Meting ververst 6 juli (na afbeeldings- en clip-ondersteuning): alle drieluiken, cijfers en duidingen hieronder
+tonen de verse run (assets in <code>gallery2/</code>); de 5-juli-run blijft onaangeroerd bewaard in <code>gallery/</code>.
+De 5-juli-waarde staat per bestand en per pagina grijs tussen haakjes.</i></p>
+<p>Per bestand hieronder: drieluiken van de <b>slechtste</b> pagina (hoogste downsampled-afwijking) en de <b>beste</b> pagina,
+de cijfers per gemeten pagina en een duiding van de zichtbare oorzaak. Leeswijzer drieluik:
+<b>links</b> de PDFium-referentie (&quot;hoe het hoort&quot;), <b>midden</b> de AEC-PDF v1-render (&quot;wat hij toont&quot;),
+<b>rechts</b> de diff-visualisatie (&quot;waar het probleem zit&quot;: origineel gedimd, verschilpixels &Delta;&gt;16 felrood).
+Afbeeldingen staan op halve meetresolutie; bij de uitgelichte pagina&#39;s opent de klik het volle formaat (lange zijde ~1400&nbsp;px, meetschaal).
+De <b>router-keuze</b> per pagina volgt het algoritme uit hoofdstuk 5: voorfilter gecomprimeerde content-stream &ge; 6&nbsp;MB,
+daarna de Rust-gate (&gt; 2&nbsp;MB embedded images — herijkt 6 juli — of &gt; 25 clips/MB &rarr; PDFium). PDFium blijft de basis-engine;
+<span class="chip aec">AEC-PDF v1</span> verschijnt alleen waar performance dat afdwingt.</p>
+<p class="kader"><b>Eerlijke samenvatting van de galerij (meting 6 juli):</b> op <b>23 van de 70</b> gemeten pagina&#39;s
+blijft de AEC-PDF v1-render (vrijwel) leeg (inktdekking &lt; 25% van de referentie) — op 5 juli waren dat er <b>30</b>.
+De 7 herstelde pagina&#39;s (het voorblad van rapport-constructie/Text pdf gecombineerd, de situatie- en gevelbladen van het
+Barn-permit-set, de illustratiepagina&#39;s van 2885 Demo project) renderen nu compleet dankzij de beeld-payload; in totaal
+werden <b>16 pagina&#39;s &gt; 0,5&nbsp;pp nauwkeuriger, zonder één regressie &gt; 0,5&nbsp;pp</b>.
+De 23 resterende lege pagina&#39;s zitten geconcentreerd in vier bestanden (3131-CLT-Set, NKD1a, NKE2D2, Zware vector PDF):
+daar draagt de display-list het lijnwerk wél (tienduizenden tot honderdduizenden segmenten), maar de replay zet het niet
+zichtbaar op het doek — dat valt buiten het image-/clippad en is nu het grootste openstaande gat (hoofdstuk 6).
+Stuk voor stuk bladen die de router op PDFium houdt, dus de gebruiker ziet dit niet. De router stuurt in dit corpus
+1 pagina (MV-03 p1) naar AEC-PDF v1; daar is de tekeningstructuur intact, renderen logo en inline-kleurstrips inmiddels mee
+en blijft het restverschil beperkt tot AA-/lijndikte-detail (7,08%, was 7,32%).</p>
+<h3 id="galerij-f01">7.1 &nbsp;20260316 - Barn Relocation - 389 E Hemenway Lane - for Permit.pdf</h3>
+<p>25,5 MB &middot; 7 pagina&#39;s in het bestand, 7 gemeten (cap 8) &middot; gemiddelde downsampled-afwijking 3,31% <span style="color:#666">(5 juli: 12,72%)</span></p>
+<p style="margin:10px 0 0"><b>Slechtste pagina: p3</b> — downsampled-afwijking 5,74% <span style="color:#666">(5 juli: 21,52%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p3_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p3_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p3_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p3_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p3_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p3_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Beste pagina: p5</b> — downsampled-afwijking 0,82% <span style="color:#666">(5 juli: 2,19%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p5_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p5_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p5_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p5_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p5_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p5_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<table><tr><th>pag.</th><th>PDFium (ms)</th><th>AEC extract</th><th>AEC index</th><th>AEC render</th><th>AEC totaal</th><th>per-pixel &Delta;&gt;16</th><th>downsampled 4&times;4</th><th>inkt % ref/AEC</th><th>router-keuze</th></tr>
+<tr><td>p1</td><td class="num">163</td><td class="num">228</td><td class="num">0</td><td class="num">45</td><td class="num">273</td><td class="num">3,11%</td><td class="num">2,28%</td><td class="num">11,0 / 10,2</td><td><span class="chip pdfium" title="voorfilter: content 1.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p2</td><td class="num">86</td><td class="num">116</td><td class="num">0</td><td class="num">33</td><td class="num">149</td><td class="num">2,74%</td><td class="num">1,23%</td><td class="num">13,6 / 13,0</td><td><span class="chip pdfium" title="voorfilter: content 0.2 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p3</td><td class="num">195</td><td class="num">554</td><td class="num">0</td><td class="num">85</td><td class="num">639</td><td class="num">5,77%</td><td class="num">5,74%</td><td class="num">26,7 / 25,0</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p4</td><td class="num">282</td><td class="num">649</td><td class="num">0</td><td class="num">74</td><td class="num">723</td><td class="num">4,19%</td><td class="num">5,32%</td><td class="num">27,9 / 26,9</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p5</td><td class="num">23</td><td class="num">22</td><td class="num">0</td><td class="num">11</td><td class="num">33</td><td class="num">2,27%</td><td class="num">0,82%</td><td class="num">5,9 / 5,6</td><td><span class="chip pdfium" title="voorfilter: content 0.1 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p6</td><td class="num">167</td><td class="num">651</td><td class="num">0</td><td class="num">81</td><td class="num">732</td><td class="num">3,82%</td><td class="num">5,05%</td><td class="num">8,4 / 6,8</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p7</td><td class="num">253</td><td class="num">26</td><td class="num">1</td><td class="num">317</td><td class="num">344</td><td class="num">3,54%</td><td class="num">2,71%</td><td class="num">14,3 / 13,8</td><td><span class="chip pdfium" title="voorfilter: content 0.4 MB &lt; 6 MB">PDFium</span></td></tr></table>
+<p class="duiding"><b>Duiding (meting 6 juli):</b> <b>De grote sprong van deze update:</b> de beeld-payload (tot 136&nbsp;MB rasterdata per blad) rendert nu echt. De situatie- en gevelbladen (p3/p4/p6) gingen van (vrijwel) leeg (1,9% inktdekking) naar compleet (26,9% vs 27,9% referentie); het bestand als geheel van 12,72% naar 3,31%. Wat rest is AA-/lijndikte- en tekst-detail op de dichtste bladen. De router houdt alle gemeten pagina&#39;s op <b>PDFium</b> (voorfilter: content &le; 1,0 MB &lt; 6 MB) — de winst is hier dus pure engine-rijpheid, nog geen gebruikerswinst.</p>
+<details><summary>Alle 5 overige gemeten pagina&#39;s tonen (drieluiken)</summary>
+<p style="margin:10px 0 0"><b>Pagina p1</b> — downsampled-afwijking 2,28% <span style="color:#666">(5 juli: 5,75%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p1_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p1_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p1_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p1_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p1_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p1_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p2</b> — downsampled-afwijking 1,23% <span style="color:#666">(5 juli: 5,85%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p2_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p2_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p2_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p2_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p2_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p2_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p4</b> — downsampled-afwijking 5,32% <span style="color:#666">(5 juli: 28,13%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p4_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p4_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p4_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p4_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p4_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p4_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p6</b> — downsampled-afwijking 5,05% <span style="color:#666">(5 juli: 10,70%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p6_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p6_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p6_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p6_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p6_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p6_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p7</b> — downsampled-afwijking 2,71% <span style="color:#666">(5 juli: 14,87%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p7_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p7_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p7_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p7_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p7_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f01_20260316_-_barn_relocation_-_389_e_hemen_p7_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+</details>
+<h3 id="galerij-f02">7.2 &nbsp;2885 Demo project.pdf</h3>
+<p>37,7 MB &middot; 14 pagina&#39;s in het bestand, 8 gemeten (cap 8) &middot; gemiddelde downsampled-afwijking 35,15% <span style="color:#666">(5 juli: 40,27%)</span></p>
+<p style="margin:10px 0 0"><b>Slechtste pagina: p1</b> — downsampled-afwijking 90,28% <span style="color:#666">(5 juli: 90,72%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p1_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p1_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p1_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p1_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p1_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p1_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Beste pagina: p4</b> — downsampled-afwijking 8,57% <span style="color:#666">(5 juli: 8,52%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p4_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p4_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p4_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p4_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p4_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p4_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<table><tr><th>pag.</th><th>PDFium (ms)</th><th>AEC extract</th><th>AEC index</th><th>AEC render</th><th>AEC totaal</th><th>per-pixel &Delta;&gt;16</th><th>downsampled 4&times;4</th><th>inkt % ref/AEC</th><th>router-keuze</th></tr>
+<tr><td>p1</td><td class="num">80</td><td class="num">9</td><td class="num">0</td><td class="num">59</td><td class="num">68</td><td class="num">76,92%</td><td class="num">90,28%</td><td class="num">100,0 / 48,6</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p2</td><td class="num">37</td><td class="num">17</td><td class="num">0</td><td class="num">26</td><td class="num">43</td><td class="num">8,78%</td><td class="num">11,67%</td><td class="num">21,9 / 19,9</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p3</td><td class="num">13</td><td class="num">7</td><td class="num">0</td><td class="num">31</td><td class="num">38</td><td class="num">16,83%</td><td class="num">25,32%</td><td class="num">13,3 / 11,9</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p4</td><td class="num">29</td><td class="num">13</td><td class="num">0</td><td class="num">26</td><td class="num">39</td><td class="num">6,71%</td><td class="num">8,57%</td><td class="num">9,0 / 8,3</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p5</td><td class="num">17</td><td class="num">12</td><td class="num">0</td><td class="num">37</td><td class="num">49</td><td class="num">24,37%</td><td class="num">36,55%</td><td class="num">21,3 / 19,0</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p6</td><td class="num">107</td><td class="num">90</td><td class="num">0</td><td class="num">32</td><td class="num">122</td><td class="num">42,93%</td><td class="num">46,11%</td><td class="num">89,7 / 80,9</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p7</td><td class="num">13</td><td class="num">12</td><td class="num">0</td><td class="num">29</td><td class="num">41</td><td class="num">16,20%</td><td class="num">24,47%</td><td class="num">14,0 / 12,6</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p8</td><td class="num">90</td><td class="num">77</td><td class="num">0</td><td class="num">33</td><td class="num">110</td><td class="num">34,38%</td><td class="num">38,24%</td><td class="num">46,2 / 45,0</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr></table>
+<p class="duiding"><b>Duiding (meting 6 juli):</b> de afbeeldingen renderen sinds 6 juli: p6 (aquarel-illustratie) ging van leeg naar compleet beeld (75,93% &rarr; 46,11%), p8 idem (45,82% &rarr; 38,24%). Wat rest op de beeldpagina&#39;s is <b>soft-mask-/transparantie-verzachting</b>: de paginavullende foto op p1 rendert nu wél maar te hard en te donker (90,28% — vrijwel elke pixel wijkt in toon af). Op de tekstbladen (p3/p5/p7) is de inktdekking vrijwel gelijk maar landen de tekstregels enkele pixels verschoven (dubbelbeeld in de diff) — tekst-plaatsing, geen beeldgat. De router houdt alle gemeten pagina&#39;s op <b>PDFium</b> (voorfilter: content 0.0 MB &lt; 6 MB) — deze afwijking bereikt de gebruiker dus niet.</p>
+<details><summary>Alle 6 overige gemeten pagina&#39;s tonen (drieluiken)</summary>
+<p style="margin:10px 0 0"><b>Pagina p2</b> — downsampled-afwijking 11,67% <span style="color:#666">(5 juli: 11,67%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p2_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p2_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p2_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p2_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p2_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p2_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p3</b> — downsampled-afwijking 25,32% <span style="color:#666">(5 juli: 25,74%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p3_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p3_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p3_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p3_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p3_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p3_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p5</b> — downsampled-afwijking 36,55% <span style="color:#666">(5 juli: 38,19%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p5_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p5_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p5_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p5_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p5_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p5_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p6</b> — downsampled-afwijking 46,11% <span style="color:#666">(5 juli: 75,93%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p6_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p6_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p6_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p6_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p6_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p6_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p7</b> — downsampled-afwijking 24,47% <span style="color:#666">(5 juli: 25,54%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p7_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p7_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p7_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p7_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p7_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p7_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p8</b> — downsampled-afwijking 38,24% <span style="color:#666">(5 juli: 45,82%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p8_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p8_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p8_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p8_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p8_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f02_2885_demo_project_p8_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+</details>
+<h3 id="galerij-f03">7.3 &nbsp;3131-CLT-Set.pdf</h3>
+<p>1,4 MB &middot; 5 pagina&#39;s in het bestand, 5 gemeten (cap 8) &middot; gemiddelde downsampled-afwijking 14,30% <span style="color:#666">(5 juli: 14,30%)</span></p>
+<p style="margin:10px 0 0"><b>Slechtste pagina: p4</b> — downsampled-afwijking 20,35% <span style="color:#666">(5 juli: 20,35%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p4_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p4_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p4_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p4_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p4_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p4_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Beste pagina: p2</b> — downsampled-afwijking 9,32% <span style="color:#666">(5 juli: 9,32%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p2_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p2_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p2_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p2_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p2_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p2_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<table><tr><th>pag.</th><th>PDFium (ms)</th><th>AEC extract</th><th>AEC index</th><th>AEC render</th><th>AEC totaal</th><th>per-pixel &Delta;&gt;16</th><th>downsampled 4&times;4</th><th>inkt % ref/AEC</th><th>router-keuze</th></tr>
+<tr><td>p1</td><td class="num">415</td><td class="num">4</td><td class="num">0</td><td class="num">246</td><td class="num">250</td><td class="num">11,84%</td><td class="num">14,86%</td><td class="num">12,0 / 0,0</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p2</td><td class="num">406</td><td class="num">5</td><td class="num">0</td><td class="num">277</td><td class="num">282</td><td class="num">6,24%</td><td class="num">9,32%</td><td class="num">6,9 / 0,1</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p3</td><td class="num">396</td><td class="num">1</td><td class="num">0</td><td class="num">317</td><td class="num">318</td><td class="num">8,49%</td><td class="num">10,31%</td><td class="num">8,9 / 0,1</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p4</td><td class="num">17</td><td class="num">1</td><td class="num">0</td><td class="num">3</td><td class="num">4</td><td class="num">17,38%</td><td class="num">20,35%</td><td class="num">17,6 / 0,1</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p5</td><td class="num">15</td><td class="num">1</td><td class="num">0</td><td class="num">2</td><td class="num">3</td><td class="num">13,40%</td><td class="num">16,67%</td><td class="num">13,6 / 0,1</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr></table>
+<p class="duiding"><b>Duiding (meting 6 juli):</b> <b>ongewijzigd t.o.v. 5 juli</b> (14,30%): de AEC-render blijft (vrijwel) leeg — 0,0–0,1% inktdekking waar de referentie tot 17,6% toont. De display-list draagt het lijnwerk wél (6.000–17.000 segmenten per blad), maar de replay zet het niet zichtbaar op het doek; dat valt buiten het image-/clippad van de juli-verbeteringen en is onderdeel van het grootste openstaande gat (hoofdstuk 6). De router houdt alle gemeten pagina&#39;s op <b>PDFium</b> (voorfilter: content 0.0 MB &lt; 6 MB) — deze afwijking bereikt de gebruiker dus niet.</p>
+<details><summary>Alle 3 overige gemeten pagina&#39;s tonen (drieluiken)</summary>
+<p style="margin:10px 0 0"><b>Pagina p1</b> — downsampled-afwijking 14,86% <span style="color:#666">(5 juli: 14,86%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p1_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p1_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p1_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p1_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p1_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p1_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p3</b> — downsampled-afwijking 10,31% <span style="color:#666">(5 juli: 10,31%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p3_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p3_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p3_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p3_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p3_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p3_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p5</b> — downsampled-afwijking 16,67% <span style="color:#666">(5 juli: 16,67%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p5_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p5_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p5_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p5_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p5_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f03_3131-clt-set_p5_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+</details>
+<h3 id="galerij-f04">7.4 &nbsp;Combinatie Raster, vector, tekening images.pdf</h3>
+<p>0,7 MB &middot; 1 pagina&#39;s in het bestand, 1 gemeten (cap 8) &middot; gemiddelde downsampled-afwijking 4,84% <span style="color:#666">(5 juli: 8,88%)</span></p>
+<p style="margin:10px 0 0"><b>Enige gemeten pagina: p1</b> — downsampled-afwijking 4,84% <span style="color:#666">(5 juli: 8,88%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f04_combinatie_raster_vector_tekening_images_p1_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f04_combinatie_raster_vector_tekening_images_p1_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f04_combinatie_raster_vector_tekening_images_p1_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f04_combinatie_raster_vector_tekening_images_p1_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f04_combinatie_raster_vector_tekening_images_p1_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f04_combinatie_raster_vector_tekening_images_p1_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<table><tr><th>pag.</th><th>PDFium (ms)</th><th>AEC extract</th><th>AEC index</th><th>AEC render</th><th>AEC totaal</th><th>per-pixel &Delta;&gt;16</th><th>downsampled 4&times;4</th><th>inkt % ref/AEC</th><th>router-keuze</th></tr>
+<tr><td>p1</td><td class="num">102</td><td class="num">191</td><td class="num">0</td><td class="num">43</td><td class="num">234</td><td class="num">4,63%</td><td class="num">4,84%</td><td class="num">9,3 / 8,4</td><td><span class="chip pdfium" title="voorfilter: content 0.1 MB &lt; 6 MB">PDFium</span></td></tr></table>
+<p class="duiding"><b>Duiding (meting 6 juli):</b> 8,88% &rarr; 4,84%: de rasterlagen (38,2&nbsp;MB beeld-payload) tekenen nu mee en zijn uit de diff verdwenen; wat rest is tekst-rendering en lijndikte-detail (zichtbaar als rode tekstregels in het titelblok). De router houdt alle gemeten pagina&#39;s op <b>PDFium</b> (voorfilter: content 0.1 MB &lt; 6 MB) — deze afwijking bereikt de gebruiker dus niet.</p>
+<h3 id="galerij-f05">7.5 &nbsp;MV-03_Mechanische ventilatie, 3e verdieping ontwerp ACH van 1,5 naar 2,0.pdf</h3>
+<p>8,7 MB &middot; 1 pagina&#39;s in het bestand, 1 gemeten (cap 8) &middot; gemiddelde downsampled-afwijking 7,08% <span style="color:#666">(5 juli: 7,32%)</span></p>
+<p style="margin:10px 0 0"><b>Enige gemeten pagina: p1</b> — downsampled-afwijking 7,08% <span style="color:#666">(5 juli: 7,32%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f05_mv-03_mechanische_ventilatie_3e_verdiepi_p1_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f05_mv-03_mechanische_ventilatie_3e_verdiepi_p1_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f05_mv-03_mechanische_ventilatie_3e_verdiepi_p1_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f05_mv-03_mechanische_ventilatie_3e_verdiepi_p1_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f05_mv-03_mechanische_ventilatie_3e_verdiepi_p1_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f05_mv-03_mechanische_ventilatie_3e_verdiepi_p1_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<table><tr><th>pag.</th><th>PDFium (ms)</th><th>AEC extract</th><th>AEC index</th><th>AEC render</th><th>AEC totaal</th><th>per-pixel &Delta;&gt;16</th><th>downsampled 4&times;4</th><th>inkt % ref/AEC</th><th>router-keuze</th></tr>
+<tr><td>p1</td><td class="num">16.710</td><td class="num">1.260</td><td class="num">106</td><td class="num">3.506</td><td class="num">4.872</td><td class="num">8,57%</td><td class="num">7,08%</td><td class="num">23,8 / 23,6</td><td><span class="chip aec" title="content 9.0 MB ≥ 6 MB en gate ok">AEC-PDF v1</span></td></tr></table>
+<p class="duiding"><b>Duiding (meting 6 juli):</b> het titelblok is nu compleet: het logo en alle 4.925 inline-kleurstrips renderen sinds de afbeeldings- en clip-ondersteuning (de engine-gate is daarvoor herijkt: image-drempel 1 &rarr; 2&nbsp;MB; dit blad draagt 1,4&nbsp;MB inline-beelddata). De restafwijking (7,08%, was 7,32%) is AA-/lijndikte-detail op het extreem dichte lijnwerk (10&nbsp;M segmenten) — structuur en inktdekking (23,6% vs 23,8%) zijn intact. Het meetekenen van de strips kost render-tijd (raster-fase 1,7 &rarr; 3,5&nbsp;s in dit meet-instrument), maar het blad blijft ruim 3&times; sneller dan de 16,7&nbsp;s referentie. De router kiest hier bewust <b>AEC-PDF v1</b> (content 9.0 MB &ge; 6 MB en gate ok): de tijdwinst is de kern van dit blad, de restafwijking is bekend en klein op kijkafstand.</p>
+<h3 id="galerij-f06">7.6 &nbsp;NKD1a_opm_aw.pdf</h3>
+<p>23,7 MB &middot; 7 pagina&#39;s in het bestand, 7 gemeten (cap 8) &middot; gemiddelde downsampled-afwijking 29,86% <span style="color:#666">(5 juli: 29,86%)</span></p>
+<p style="margin:10px 0 0"><b>Slechtste pagina: p6</b> — downsampled-afwijking 39,10% <span style="color:#666">(5 juli: 39,10%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p6_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p6_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p6_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p6_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p6_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p6_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Beste pagina: p1</b> — downsampled-afwijking 0,00% <span style="color:#666">(5 juli: 0,00%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p1_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p1_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p1_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p1_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p1_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p1_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<table><tr><th>pag.</th><th>PDFium (ms)</th><th>AEC extract</th><th>AEC index</th><th>AEC render</th><th>AEC totaal</th><th>per-pixel &Delta;&gt;16</th><th>downsampled 4&times;4</th><th>inkt % ref/AEC</th><th>router-keuze</th></tr>
+<tr><td>p1</td><td class="num">4</td><td class="num">0</td><td class="num">0</td><td class="num">1</td><td class="num">1</td><td class="num">0,00%</td><td class="num">0,00%</td><td class="num">0,0 / 0,0</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p2</td><td class="num">2.376</td><td class="num">104</td><td class="num">4</td><td class="num">1.516</td><td class="num">1.624</td><td class="num">24,09%</td><td class="num">34,38%</td><td class="num">26,1 / 0,3</td><td><span class="chip pdfium" title="voorfilter: content 1.8 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p3</td><td class="num">1.059</td><td class="num">68</td><td class="num">2</td><td class="num">494</td><td class="num">564</td><td class="num">23,28%</td><td class="num">30,38%</td><td class="num">24,3 / 0,1</td><td><span class="chip pdfium" title="voorfilter: content 1.4 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p4</td><td class="num">2.277</td><td class="num">77</td><td class="num">3</td><td class="num">1.458</td><td class="num">1.538</td><td class="num">22,91%</td><td class="num">32,18%</td><td class="num">24,3 / 0,3</td><td><span class="chip pdfium" title="voorfilter: content 1.5 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p5</td><td class="num">2.553</td><td class="num">97</td><td class="num">3</td><td class="num">1.486</td><td class="num">1.586</td><td class="num">26,21%</td><td class="num">35,83%</td><td class="num">28,3 / 0,3</td><td><span class="chip pdfium" title="voorfilter: content 1.9 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p6</td><td class="num">2.353</td><td class="num">84</td><td class="num">3</td><td class="num">1.496</td><td class="num">1.583</td><td class="num">29,15%</td><td class="num">39,10%</td><td class="num">30,8 / 0,3</td><td><span class="chip pdfium" title="voorfilter: content 1.7 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p7</td><td class="num">2.284</td><td class="num">49</td><td class="num">2</td><td class="num">1.456</td><td class="num">1.507</td><td class="num">27,04%</td><td class="num">37,12%</td><td class="num">28,3 / 0,3</td><td><span class="chip pdfium" title="voorfilter: content 1.1 MB &lt; 6 MB">PDFium</span></td></tr></table>
+<p class="duiding"><b>Duiding (meting 6 juli):</b> <b>ongewijzigd t.o.v. 5 juli</b> (29,86%): de bladen blijven (vrijwel) leeg (0,1–0,3% inktdekking waar de referentie tot 30,8% toont), hoewel de display-list per blad 230.000–460.000 segmenten draagt. Het lijnwerk bereikt het doek niet zichtbaar — de oorzaak zit dieper in de scene-replay dan het image-/clippad van deze update en staat als grootste gat in hoofdstuk 6. De router houdt alle gemeten pagina&#39;s op <b>PDFium</b> (voorfilter: content &le; 1,9 MB &lt; 6 MB) — deze afwijking bereikt de gebruiker dus niet.</p>
+<details><summary>Alle 5 overige gemeten pagina&#39;s tonen (drieluiken)</summary>
+<p style="margin:10px 0 0"><b>Pagina p2</b> — downsampled-afwijking 34,38% <span style="color:#666">(5 juli: 34,38%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p2_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p2_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p2_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p2_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p2_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p2_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p3</b> — downsampled-afwijking 30,38% <span style="color:#666">(5 juli: 30,38%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p3_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p3_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p3_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p3_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p3_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p3_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p4</b> — downsampled-afwijking 32,18% <span style="color:#666">(5 juli: 32,18%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p4_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p4_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p4_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p4_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p4_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p4_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p5</b> — downsampled-afwijking 35,83% <span style="color:#666">(5 juli: 35,83%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p5_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p5_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p5_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p5_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p5_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p5_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p7</b> — downsampled-afwijking 37,12% <span style="color:#666">(5 juli: 37,12%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p7_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p7_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p7_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p7_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p7_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f06_nkd1a_opm_aw_p7_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+</details>
+<h3 id="galerij-f07">7.7 &nbsp;NKE2D2_opm_aw.pdf</h3>
+<p>5,7 MB &middot; 5 pagina&#39;s in het bestand, 5 gemeten (cap 8) &middot; gemiddelde downsampled-afwijking 33,58% <span style="color:#666">(5 juli: 33,58%)</span></p>
+<p style="margin:10px 0 0"><b>Slechtste pagina: p4</b> — downsampled-afwijking 46,37% <span style="color:#666">(5 juli: 46,37%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p4_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p4_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p4_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p4_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p4_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p4_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Beste pagina: p1</b> — downsampled-afwijking 0,00% <span style="color:#666">(5 juli: 0,00%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p1_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p1_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p1_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p1_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p1_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p1_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<table><tr><th>pag.</th><th>PDFium (ms)</th><th>AEC extract</th><th>AEC index</th><th>AEC render</th><th>AEC totaal</th><th>per-pixel &Delta;&gt;16</th><th>downsampled 4&times;4</th><th>inkt % ref/AEC</th><th>router-keuze</th></tr>
+<tr><td>p1</td><td class="num">5</td><td class="num">0</td><td class="num">0</td><td class="num">1</td><td class="num">1</td><td class="num">0,00%</td><td class="num">0,00%</td><td class="num">0,0 / 0,0</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p2</td><td class="num">184</td><td class="num">28</td><td class="num">1</td><td class="num">1</td><td class="num">30</td><td class="num">22,39%</td><td class="num">34,33%</td><td class="num">24,5 / 0,3</td><td><span class="chip pdfium" title="voorfilter: content 0.5 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p3</td><td class="num">411</td><td class="num">52</td><td class="num">2</td><td class="num">1</td><td class="num">55</td><td class="num">30,67%</td><td class="num">44,48%</td><td class="num">33,0 / 0,3</td><td><span class="chip pdfium" title="voorfilter: content 1.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p4</td><td class="num">215</td><td class="num">29</td><td class="num">1</td><td class="num">1</td><td class="num">31</td><td class="num">29,23%</td><td class="num">46,37%</td><td class="num">32,0 / 0,3</td><td><span class="chip pdfium" title="voorfilter: content 0.5 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p5</td><td class="num">2.193</td><td class="num">59</td><td class="num">2</td><td class="num">1.390</td><td class="num">1.451</td><td class="num">29,92%</td><td class="num">42,71%</td><td class="num">32,1 / 0,1</td><td><span class="chip pdfium" title="voorfilter: content 1.1 MB &lt; 6 MB">PDFium</span></td></tr></table>
+<p class="duiding"><b>Duiding (meting 6 juli):</b> <b>ongewijzigd t.o.v. 5 juli</b> (33,58%): zelfde beeld als NKD1a — de render blijft (vrijwel) leeg (0,1–0,3% inktdekking) terwijl de display-list 176.000–285.000 segmenten draagt. Buiten het image-/clippad; zie hoofdstuk 6. De router houdt alle gemeten pagina&#39;s op <b>PDFium</b> (voorfilter: content &le; 1,1 MB &lt; 6 MB) — deze afwijking bereikt de gebruiker dus niet.</p>
+<details><summary>Alle 3 overige gemeten pagina&#39;s tonen (drieluiken)</summary>
+<p style="margin:10px 0 0"><b>Pagina p2</b> — downsampled-afwijking 34,33% <span style="color:#666">(5 juli: 34,33%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p2_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p2_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p2_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p2_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p2_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p2_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p3</b> — downsampled-afwijking 44,48% <span style="color:#666">(5 juli: 44,48%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p3_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p3_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p3_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p3_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p3_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p3_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p5</b> — downsampled-afwijking 42,71% <span style="color:#666">(5 juli: 42,71%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p5_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p5_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p5_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p5_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p5_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f07_nke2d2_opm_aw_p5_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+</details>
+<h3 id="galerij-f08">7.8 &nbsp;Technische tekening.pdf</h3>
+<p>1,0 MB &middot; 4 pagina&#39;s in het bestand, 4 gemeten (cap 8) &middot; gemiddelde downsampled-afwijking 1,49% <span style="color:#666">(5 juli: 1,47%)</span></p>
+<p style="margin:10px 0 0"><b>Slechtste pagina: p2</b> — downsampled-afwijking 2,02% <span style="color:#666">(5 juli: 1,98%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p2_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p2_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p2_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p2_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p2_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p2_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Beste pagina: p4</b> — downsampled-afwijking 1,01% <span style="color:#666">(5 juli: 0,99%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p4_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p4_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p4_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p4_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p4_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p4_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<table><tr><th>pag.</th><th>PDFium (ms)</th><th>AEC extract</th><th>AEC index</th><th>AEC render</th><th>AEC totaal</th><th>per-pixel &Delta;&gt;16</th><th>downsampled 4&times;4</th><th>inkt % ref/AEC</th><th>router-keuze</th></tr>
+<tr><td>p1</td><td class="num">30</td><td class="num">22</td><td class="num">0</td><td class="num">56</td><td class="num">78</td><td class="num">2,09%</td><td class="num">1,03%</td><td class="num">9,6 / 9,5</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p2</td><td class="num">47</td><td class="num">18</td><td class="num">0</td><td class="num">65</td><td class="num">83</td><td class="num">3,01%</td><td class="num">2,02%</td><td class="num">14,0 / 13,8</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p3</td><td class="num">49</td><td class="num">19</td><td class="num">0</td><td class="num">62</td><td class="num">81</td><td class="num">2,97%</td><td class="num">1,90%</td><td class="num">13,1 / 13,1</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p4</td><td class="num">26</td><td class="num">15</td><td class="num">0</td><td class="num">52</td><td class="num">67</td><td class="num">2,07%</td><td class="num">1,01%</td><td class="num">9,3 / 9,3</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr></table>
+<p class="duiding"><b>Duiding (meting 6 juli):</b> het verschil blijft binnen AA-ruis op dun lijnwerk — geen zichtbare afwijking op kijkafstand; dit bestand draagt geen beeld- of clip-inhoud van betekenis, dus de meting is (verwacht) gelijk aan 5 juli. De router houdt alle gemeten pagina&#39;s op <b>PDFium</b> (voorfilter: content 0.0 MB &lt; 6 MB) — deze afwijking bereikt de gebruiker dus niet.</p>
+<details><summary>Alle 2 overige gemeten pagina&#39;s tonen (drieluiken)</summary>
+<p style="margin:10px 0 0"><b>Pagina p1</b> — downsampled-afwijking 1,03% <span style="color:#666">(5 juli: 0,99%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p1_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p1_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p1_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p1_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p1_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p1_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p3</b> — downsampled-afwijking 1,90% <span style="color:#666">(5 juli: 1,89%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p3_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p3_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p3_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p3_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p3_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f08_technische_tekening_p3_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+</details>
+<h3 id="galerij-f09">7.9 &nbsp;Tekst.pdf</h3>
+<p>0,2 MB &middot; 5 pagina&#39;s in het bestand, 5 gemeten (cap 8) &middot; gemiddelde downsampled-afwijking 3,16% <span style="color:#666">(5 juli: 3,16%)</span></p>
+<p style="margin:10px 0 0"><b>Slechtste pagina: p3</b> — downsampled-afwijking 4,03% <span style="color:#666">(5 juli: 4,03%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f09_tekst_p3_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f09_tekst_p3_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f09_tekst_p3_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f09_tekst_p3_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f09_tekst_p3_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f09_tekst_p3_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Beste pagina: p5</b> — downsampled-afwijking 1,57% <span style="color:#666">(5 juli: 1,57%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f09_tekst_p5_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f09_tekst_p5_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f09_tekst_p5_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f09_tekst_p5_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f09_tekst_p5_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f09_tekst_p5_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<table><tr><th>pag.</th><th>PDFium (ms)</th><th>AEC extract</th><th>AEC index</th><th>AEC render</th><th>AEC totaal</th><th>per-pixel &Delta;&gt;16</th><th>downsampled 4&times;4</th><th>inkt % ref/AEC</th><th>router-keuze</th></tr>
+<tr><td>p1</td><td class="num">51</td><td class="num">29</td><td class="num">0</td><td class="num">56</td><td class="num">85</td><td class="num">3,66%</td><td class="num">3,27%</td><td class="num">9,4 / 8,8</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p2</td><td class="num">48</td><td class="num">0</td><td class="num">0</td><td class="num">51</td><td class="num">51</td><td class="num">3,10%</td><td class="num">3,11%</td><td class="num">10,9 / 10,4</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p3</td><td class="num">49</td><td class="num">0</td><td class="num">0</td><td class="num">56</td><td class="num">56</td><td class="num">4,35%</td><td class="num">4,03%</td><td class="num">10,7 / 9,9</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p4</td><td class="num">45</td><td class="num">1</td><td class="num">0</td><td class="num">61</td><td class="num">62</td><td class="num">5,39%</td><td class="num">3,84%</td><td class="num">11,5 / 10,6</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p5</td><td class="num">41</td><td class="num">0</td><td class="num">0</td><td class="num">46</td><td class="num">46</td><td class="num">1,48%</td><td class="num">1,57%</td><td class="num">5,9 / 5,8</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr></table>
+<p class="duiding"><b>Duiding (meting 6 juli):</b> identiek aan 5 juli (3,16%): AA-detail op tekstregels domineert; het kleine paginalogo (38&nbsp;kB) renderde al. De router houdt alle gemeten pagina&#39;s op <b>PDFium</b> (voorfilter: content 0.0 MB &lt; 6 MB) — deze afwijking bereikt de gebruiker dus niet.</p>
+<details><summary>Alle 3 overige gemeten pagina&#39;s tonen (drieluiken)</summary>
+<p style="margin:10px 0 0"><b>Pagina p1</b> — downsampled-afwijking 3,27% <span style="color:#666">(5 juli: 3,27%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f09_tekst_p1_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f09_tekst_p1_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f09_tekst_p1_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f09_tekst_p1_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f09_tekst_p1_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f09_tekst_p1_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p2</b> — downsampled-afwijking 3,11% <span style="color:#666">(5 juli: 3,11%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f09_tekst_p2_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f09_tekst_p2_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f09_tekst_p2_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f09_tekst_p2_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f09_tekst_p2_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f09_tekst_p2_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p4</b> — downsampled-afwijking 3,84% <span style="color:#666">(5 juli: 3,84%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f09_tekst_p4_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f09_tekst_p4_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f09_tekst_p4_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f09_tekst_p4_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f09_tekst_p4_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f09_tekst_p4_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+</details>
+<h3 id="galerij-f10">7.10 &nbsp;Text pdf gecombineerd.pdf</h3>
+<p>1,6 MB &middot; 28 pagina&#39;s in het bestand, 8 gemeten (cap 8) &middot; gemiddelde downsampled-afwijking 2,45% <span style="color:#666">(5 juli: 6,42%)</span></p>
+<p style="margin:10px 0 0"><b>Slechtste pagina: p8</b> — downsampled-afwijking 6,86% <span style="color:#666">(5 juli: 6,89%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p8_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p8_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p8_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p8_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p8_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p8_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Beste pagina: p4</b> — downsampled-afwijking 0,31% <span style="color:#666">(5 juli: 0,33%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p4_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p4_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p4_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p4_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p4_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p4_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<table><tr><th>pag.</th><th>PDFium (ms)</th><th>AEC extract</th><th>AEC index</th><th>AEC render</th><th>AEC totaal</th><th>per-pixel &Delta;&gt;16</th><th>downsampled 4&times;4</th><th>inkt % ref/AEC</th><th>router-keuze</th></tr>
+<tr><td>p1</td><td class="num">106</td><td class="num">83</td><td class="num">0</td><td class="num">22</td><td class="num">105</td><td class="num">1,04%</td><td class="num">1,48%</td><td class="num">32,7 / 32,7</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p2</td><td class="num">24</td><td class="num">21</td><td class="num">0</td><td class="num">27</td><td class="num">48</td><td class="num">1,43%</td><td class="num">1,06%</td><td class="num">9,4 / 9,1</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p3</td><td class="num">12</td><td class="num">2</td><td class="num">0</td><td class="num">40</td><td class="num">42</td><td class="num">3,09%</td><td class="num">1,29%</td><td class="num">11,3 / 10,7</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p4</td><td class="num">9</td><td class="num">0</td><td class="num">0</td><td class="num">17</td><td class="num">17</td><td class="num">0,62%</td><td class="num">0,31%</td><td class="num">8,1 / 7,9</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p5</td><td class="num">15</td><td class="num">2</td><td class="num">0</td><td class="num">31</td><td class="num">33</td><td class="num">5,34%</td><td class="num">4,21%</td><td class="num">20,9 / 20,2</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p6</td><td class="num">30</td><td class="num">0</td><td class="num">0</td><td class="num">37</td><td class="num">37</td><td class="num">2,28%</td><td class="num">1,78%</td><td class="num">50,3 / 49,8</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p7</td><td class="num">17</td><td class="num">1</td><td class="num">0</td><td class="num">34</td><td class="num">35</td><td class="num">3,33%</td><td class="num">2,61%</td><td class="num">25,0 / 24,5</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p8</td><td class="num">16</td><td class="num">12</td><td class="num">0</td><td class="num">43</td><td class="num">55</td><td class="num">5,00%</td><td class="num">6,86%</td><td class="num">16,1 / 15,7</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr></table>
+<p class="duiding"><b>Duiding (meting 6 juli):</b> 6,42% &rarr; 2,45%: het voorblad (p1) ging van (vrijwel) leeg naar compleet — logo en kleurvlakken renderen nu (14,7&nbsp;MB beeld-payload; 33,21% &rarr; 1,48%, inktdekking exact op referentie-niveau). De slechtste pagina is daardoor verschoven naar p8 (6,86%): arcering-/tekstdetail op een blad met 336 clip-ops die nu wél worden toegepast — het restverschil is dunne-lijn-AA. De router houdt alle gemeten pagina&#39;s op <b>PDFium</b> (voorfilter: content 0.0 MB &lt; 6 MB) — deze afwijking bereikt de gebruiker dus niet.</p>
+<details><summary>Alle 6 overige gemeten pagina&#39;s tonen (drieluiken)</summary>
+<p style="margin:10px 0 0"><b>Pagina p1</b> — downsampled-afwijking 1,48% <span style="color:#666">(5 juli: 33,21%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p1_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p1_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p1_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p1_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p1_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p1_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p2</b> — downsampled-afwijking 1,06% <span style="color:#666">(5 juli: 1,16%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p2_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p2_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p2_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p2_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p2_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p2_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p3</b> — downsampled-afwijking 1,29% <span style="color:#666">(5 juli: 1,31%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p3_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p3_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p3_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p3_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p3_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p3_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p5</b> — downsampled-afwijking 4,21% <span style="color:#666">(5 juli: 4,18%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p5_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p5_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p5_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p5_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p5_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p5_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p6</b> — downsampled-afwijking 1,78% <span style="color:#666">(5 juli: 1,61%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p6_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p6_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p6_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p6_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p6_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p6_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p7</b> — downsampled-afwijking 2,61% <span style="color:#666">(5 juli: 2,64%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p7_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p7_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p7_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p7_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p7_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f10_text_pdf_gecombineerd_p7_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+</details>
+<h3 id="galerij-f11">7.11 &nbsp;VO Constructie.pdf</h3>
+<p>2,5 MB &middot; 1 pagina&#39;s in het bestand, 1 gemeten (cap 8) &middot; gemiddelde downsampled-afwijking 0,13% <span style="color:#666">(5 juli: 0,80%)</span></p>
+<p style="margin:10px 0 0"><b>Enige gemeten pagina: p1</b> — downsampled-afwijking 0,13% <span style="color:#666">(5 juli: 0,80%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f11_vo_constructie_p1_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f11_vo_constructie_p1_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f11_vo_constructie_p1_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f11_vo_constructie_p1_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f11_vo_constructie_p1_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f11_vo_constructie_p1_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<table><tr><th>pag.</th><th>PDFium (ms)</th><th>AEC extract</th><th>AEC index</th><th>AEC render</th><th>AEC totaal</th><th>per-pixel &Delta;&gt;16</th><th>downsampled 4&times;4</th><th>inkt % ref/AEC</th><th>router-keuze</th></tr>
+<tr><td>p1</td><td class="num">6</td><td class="num">2</td><td class="num">0</td><td class="num">5</td><td class="num">7</td><td class="num">0,46%</td><td class="num">0,13%</td><td class="num">1,1 / 1,1</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr></table>
+<p class="duiding"><b>Duiding (meting 6 juli):</b> 0,80% &rarr; 0,13%: de clip-ondersteuning ruimt de laatste niet-weggeclipte vlakranden op — de inktdekking staat nu exact op referentie-niveau (1,1%) en het blad is op AA-randen na pixelgelijk. De router houdt alle gemeten pagina&#39;s op <b>PDFium</b> (voorfilter: content 0.0 MB &lt; 6 MB) — deze afwijking bereikt de gebruiker dus niet.</p>
+<h3 id="galerij-f12">7.12 &nbsp;Zware vector PDF.pdf</h3>
+<p>17,1 MB &middot; 19 pagina&#39;s in het bestand, 8 gemeten (cap 8) &middot; gemiddelde downsampled-afwijking 25,30% <span style="color:#666">(5 juli: 25,30%)</span></p>
+<p style="margin:10px 0 0"><b>Slechtste pagina: p3</b> — downsampled-afwijking 33,20% <span style="color:#666">(5 juli: 33,20%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p3_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p3_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p3_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p3_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p3_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p3_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Beste pagina: p2</b> — downsampled-afwijking 6,89% <span style="color:#666">(5 juli: 6,89%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p2_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p2_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p2_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p2_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p2_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p2_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<table><tr><th>pag.</th><th>PDFium (ms)</th><th>AEC extract</th><th>AEC index</th><th>AEC render</th><th>AEC totaal</th><th>per-pixel &Delta;&gt;16</th><th>downsampled 4&times;4</th><th>inkt % ref/AEC</th><th>router-keuze</th></tr>
+<tr><td>p1</td><td class="num">440</td><td class="num">7</td><td class="num">0</td><td class="num">266</td><td class="num">273</td><td class="num">22,05%</td><td class="num">25,97%</td><td class="num">22,6 / 0,1</td><td><span class="chip pdfium" title="voorfilter: content 0.1 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p2</td><td class="num">25</td><td class="num">2</td><td class="num">0</td><td class="num">2</td><td class="num">4</td><td class="num">4,20%</td><td class="num">6,89%</td><td class="num">4,7 / 0,1</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p3</td><td class="num">1.598</td><td class="num">16</td><td class="num">0</td><td class="num">1.070</td><td class="num">1.086</td><td class="num">27,02%</td><td class="num">33,20%</td><td class="num">27,3 / 0,2</td><td><span class="chip pdfium" title="voorfilter: content 0.2 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p4</td><td class="num">1.678</td><td class="num">13</td><td class="num">1</td><td class="num">1.184</td><td class="num">1.198</td><td class="num">21,58%</td><td class="num">27,06%</td><td class="num">21,7 / 0,1</td><td><span class="chip pdfium" title="voorfilter: content 0.1 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p5</td><td class="num">1.462</td><td class="num">16</td><td class="num">0</td><td class="num">1.014</td><td class="num">1.030</td><td class="num">26,58%</td><td class="num">32,27%</td><td class="num">26,9 / 0,2</td><td><span class="chip pdfium" title="voorfilter: content 0.3 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p6</td><td class="num">1.645</td><td class="num">12</td><td class="num">1</td><td class="num">1.206</td><td class="num">1.219</td><td class="num">23,06%</td><td class="num">28,29%</td><td class="num">23,2 / 0,1</td><td><span class="chip pdfium" title="voorfilter: content 0.1 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p7</td><td class="num">740</td><td class="num">6</td><td class="num">0</td><td class="num">525</td><td class="num">531</td><td class="num">24,56%</td><td class="num">28,88%</td><td class="num">24,7 / 0,1</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p8</td><td class="num">61</td><td class="num">9</td><td class="num">0</td><td class="num">2</td><td class="num">11</td><td class="num">13,62%</td><td class="num">19,86%</td><td class="num">13,8 / 0,2</td><td><span class="chip pdfium" title="voorfilter: content 0.1 MB &lt; 6 MB">PDFium</span></td></tr></table>
+<p class="duiding"><b>Duiding (meting 6 juli):</b> <b>ongewijzigd t.o.v. 5 juli</b> (25,30%): de render blijft (vrijwel) leeg (0,1–0,2% inktdekking) terwijl de display-list 13.000–115.000 segmenten per blad draagt — zelfde diepere replay-oorzaak als 3131-CLT-Set en NKD1a/NKE2D2, buiten het image-/clippad van deze update (hoofdstuk 6). De router houdt alle gemeten pagina&#39;s op <b>PDFium</b> (voorfilter: content &le; 0,3 MB &lt; 6 MB) — deze afwijking bereikt de gebruiker dus niet.</p>
+<details><summary>Alle 6 overige gemeten pagina&#39;s tonen (drieluiken)</summary>
+<p style="margin:10px 0 0"><b>Pagina p1</b> — downsampled-afwijking 25,97% <span style="color:#666">(5 juli: 25,97%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p1_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p1_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p1_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p1_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p1_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p1_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p4</b> — downsampled-afwijking 27,06% <span style="color:#666">(5 juli: 27,06%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p4_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p4_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p4_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p4_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p4_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p4_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p5</b> — downsampled-afwijking 32,27% <span style="color:#666">(5 juli: 32,27%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p5_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p5_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p5_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p5_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p5_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p5_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p6</b> — downsampled-afwijking 28,29% <span style="color:#666">(5 juli: 28,29%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p6_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p6_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p6_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p6_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p6_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p6_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p7</b> — downsampled-afwijking 28,88% <span style="color:#666">(5 juli: 28,88%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p7_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p7_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p7_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p7_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p7_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p7_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p8</b> — downsampled-afwijking 19,86% <span style="color:#666">(5 juli: 19,86%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p8_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p8_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p8_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p8_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p8_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f12_zware_vector_pdf_p8_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+</details>
+<h3 id="galerij-f13">7.13 &nbsp;Zware vector-2 crash.pdf</h3>
+<p>0,8 MB &middot; 1 pagina&#39;s in het bestand, 1 gemeten (cap 8) &middot; gemiddelde downsampled-afwijking 8,13% <span style="color:#666">(5 juli: 12,18%)</span></p>
+<p style="margin:10px 0 0"><b>Enige gemeten pagina: p1</b> — downsampled-afwijking 8,13% <span style="color:#666">(5 juli: 12,18%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f13_zware_vector-2_crash_p1_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f13_zware_vector-2_crash_p1_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f13_zware_vector-2_crash_p1_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f13_zware_vector-2_crash_p1_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f13_zware_vector-2_crash_p1_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f13_zware_vector-2_crash_p1_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<table><tr><th>pag.</th><th>PDFium (ms)</th><th>AEC extract</th><th>AEC index</th><th>AEC render</th><th>AEC totaal</th><th>per-pixel &Delta;&gt;16</th><th>downsampled 4&times;4</th><th>inkt % ref/AEC</th><th>router-keuze</th></tr>
+<tr><td>p1</td><td class="num">216</td><td class="num">91</td><td class="num">3</td><td class="num">351</td><td class="num">445</td><td class="num">9,21%</td><td class="num">8,13%</td><td class="num">24,5 / 19,9</td><td><span class="chip pdfium" title="voorfilter: content 0.7 MB &lt; 6 MB">PDFium</span></td></tr></table>
+<p class="duiding"><b>Duiding (meting 6 juli):</b> 12,18% &rarr; 8,13%: de 1.203 clip-ops worden nu toegepast — arceringen en maskers zijn netjes begrensd en het lijnwerk staat compleet. Wat rest zijn <b>pattern-vullingen</b> (materiaal-arceringen op de gevelvlakken renderen nog als egale vlakken) en tekst-detail; pattern-/shading-support staat in hoofdstuk 6 open. De router houdt alle gemeten pagina&#39;s op <b>PDFium</b> (voorfilter: content 0.7 MB &lt; 6 MB) — deze afwijking bereikt de gebruiker dus niet.</p>
+<h3 id="galerij-f14">7.14 &nbsp;rapport-constructie.pdf</h3>
+<p>1,6 MB &middot; 28 pagina&#39;s in het bestand, 8 gemeten (cap 8) &middot; gemiddelde downsampled-afwijking 2,45% <span style="color:#666">(5 juli: 6,42%)</span></p>
+<p style="margin:10px 0 0"><b>Slechtste pagina: p8</b> — downsampled-afwijking 6,86% <span style="color:#666">(5 juli: 6,89%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p8_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p8_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p8_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p8_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p8_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p8_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Beste pagina: p4</b> — downsampled-afwijking 0,31% <span style="color:#666">(5 juli: 0,33%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p4_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p4_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p4_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p4_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p4_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p4_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<table><tr><th>pag.</th><th>PDFium (ms)</th><th>AEC extract</th><th>AEC index</th><th>AEC render</th><th>AEC totaal</th><th>per-pixel &Delta;&gt;16</th><th>downsampled 4&times;4</th><th>inkt % ref/AEC</th><th>router-keuze</th></tr>
+<tr><td>p1</td><td class="num">69</td><td class="num">77</td><td class="num">0</td><td class="num">21</td><td class="num">98</td><td class="num">1,04%</td><td class="num">1,48%</td><td class="num">32,7 / 32,7</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p2</td><td class="num">15</td><td class="num">21</td><td class="num">0</td><td class="num">27</td><td class="num">48</td><td class="num">1,43%</td><td class="num">1,06%</td><td class="num">9,4 / 9,1</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p3</td><td class="num">11</td><td class="num">2</td><td class="num">0</td><td class="num">40</td><td class="num">42</td><td class="num">3,09%</td><td class="num">1,29%</td><td class="num">11,3 / 10,7</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p4</td><td class="num">9</td><td class="num">0</td><td class="num">0</td><td class="num">16</td><td class="num">16</td><td class="num">0,62%</td><td class="num">0,31%</td><td class="num">8,1 / 7,9</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p5</td><td class="num">15</td><td class="num">1</td><td class="num">0</td><td class="num">30</td><td class="num">31</td><td class="num">5,34%</td><td class="num">4,21%</td><td class="num">20,9 / 20,2</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p6</td><td class="num">29</td><td class="num">0</td><td class="num">0</td><td class="num">35</td><td class="num">35</td><td class="num">2,28%</td><td class="num">1,78%</td><td class="num">50,3 / 49,8</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p7</td><td class="num">17</td><td class="num">1</td><td class="num">0</td><td class="num">33</td><td class="num">34</td><td class="num">3,33%</td><td class="num">2,61%</td><td class="num">25,0 / 24,5</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr>
+<tr><td>p8</td><td class="num">15</td><td class="num">12</td><td class="num">0</td><td class="num">45</td><td class="num">57</td><td class="num">5,00%</td><td class="num">6,86%</td><td class="num">16,1 / 15,7</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr></table>
+<p class="duiding"><b>Duiding (meting 6 juli):</b> 6,42% &rarr; 2,45%: identiek aan 7.10 (zelfde document onder andere naam) — het voorblad ging van (vrijwel) leeg naar compleet (33,21% &rarr; 1,48%) dankzij de beeld-payload; slechtste pagina is nu p8 (6,86%, dunne-lijn-AA op arceringen). De router houdt alle gemeten pagina&#39;s op <b>PDFium</b> (voorfilter: content 0.0 MB &lt; 6 MB) — deze afwijking bereikt de gebruiker dus niet.</p>
+<details><summary>Alle 6 overige gemeten pagina&#39;s tonen (drieluiken)</summary>
+<p style="margin:10px 0 0"><b>Pagina p1</b> — downsampled-afwijking 1,48% <span style="color:#666">(5 juli: 33,21%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p1_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p1_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p1_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p1_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p1_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p1_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p2</b> — downsampled-afwijking 1,06% <span style="color:#666">(5 juli: 1,16%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p2_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p2_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p2_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p2_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p2_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p2_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p3</b> — downsampled-afwijking 1,29% <span style="color:#666">(5 juli: 1,31%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p3_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p3_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p3_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p3_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p3_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p3_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p5</b> — downsampled-afwijking 4,21% <span style="color:#666">(5 juli: 4,18%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p5_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p5_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p5_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p5_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p5_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p5_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p6</b> — downsampled-afwijking 1,78% <span style="color:#666">(5 juli: 1,61%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p6_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p6_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p6_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p6_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p6_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p6_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<p style="margin:10px 0 0"><b>Pagina p7</b> — downsampled-afwijking 2,61% <span style="color:#666">(5 juli: 2,64%)</span> (klik voor PNG)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p7_ref.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p7_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p7_ours.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p7_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p7_diff.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f14_rapport-constructie_p7_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+</details>
+<h3 id="galerij-f15">7.15 &nbsp;tekening-2.pdf</h3>
+<p>0,2 MB &middot; 1 pagina&#39;s in het bestand, 1 gemeten (cap 8) &middot; gemiddelde downsampled-afwijking 0,78% <span style="color:#666">(5 juli: 1,10%)</span></p>
+<p style="margin:10px 0 0"><b>Enige gemeten pagina: p1</b> — downsampled-afwijking 0,78% <span style="color:#666">(5 juli: 1,10%)</span> (klik voor volledig formaat)</p>
+<div class="trio">
+<figure><a href='rapport-assets-2026-07-05/gallery2/f15_tekening-2_p1_ref_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f15_tekening-2_p1_ref.png' loading='lazy'></a><figcaption><b>PDFium-referentie</b> — hoe het hoort</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f15_tekening-2_p1_ours_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f15_tekening-2_p1_ours.png' loading='lazy'></a><figcaption><b>AEC-PDF v1</b> — wat hij toont</figcaption></figure>
+<figure><a href='rapport-assets-2026-07-05/gallery2/f15_tekening-2_p1_diff_full.png' target='_blank'><img src='rapport-assets-2026-07-05/gallery2/f15_tekening-2_p1_diff.png' loading='lazy'></a><figcaption><b>Diff</b> — waar het probleem zit (rood = &Delta;&gt;16, rest gedimd)</figcaption></figure>
+</div>
+<table><tr><th>pag.</th><th>PDFium (ms)</th><th>AEC extract</th><th>AEC index</th><th>AEC render</th><th>AEC totaal</th><th>per-pixel &Delta;&gt;16</th><th>downsampled 4&times;4</th><th>inkt % ref/AEC</th><th>router-keuze</th></tr>
+<tr><td>p1</td><td class="num">8</td><td class="num">6</td><td class="num">0</td><td class="num">6</td><td class="num">12</td><td class="num">1,03%</td><td class="num">0,78%</td><td class="num">2,8 / 2,6</td><td><span class="chip pdfium" title="voorfilter: content 0.0 MB &lt; 6 MB">PDFium</span></td></tr></table>
+<p class="duiding"><b>Duiding (meting 6 juli):</b> 1,10% &rarr; 0,78%: AA-ruis op dun lijnwerk; de clip-ondersteuning nam de laatste vlakrandjes mee. De router houdt alle gemeten pagina&#39;s op <b>PDFium</b> (voorfilter: content 0.0 MB &lt; 6 MB) — deze afwijking bereikt de gebruiker dus niet.</p>
+</body></html>

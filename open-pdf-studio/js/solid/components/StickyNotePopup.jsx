@@ -5,6 +5,8 @@ import { storeShowProperties, updateAnnotProp } from '../stores/propertiesStore.
 import { state, getActiveDocument } from '../../core/state.js';
 import { annotationCanvas } from '../../ui/dom-elements.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
+import { cloneAnnotation } from '../../annotations/factory.js';
+import { recordModify } from '../../core/undo-manager.js';
 
 // Icon name to label mapping
 const ICON_LABELS = {
@@ -98,6 +100,7 @@ function StickyNotePopup(props) {
   const handleMouseDown = (e) => {
     if (e.button !== 0) return;
     e.preventDefault();
+    const before = cloneAnnotation(ann());
     setDragging(true);
     const pos = localPos();
     setDragOffset({ x: e.clientX - pos.x, y: e.clientY - pos.y });
@@ -129,6 +132,11 @@ function StickyNotePopup(props) {
       setDragging(false);
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      const a = ann();
+      if (a && (a.popupX !== before.popupX || a.popupY !== before.popupY)) {
+        a.modifiedAt = new Date().toISOString();
+        recordModify(a.id, before, a);
+      }
 
       // Final redraw (non-lightweight)
       if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
@@ -148,6 +156,8 @@ function StickyNotePopup(props) {
     const startY = e.clientY;
     const startSize = size();
     const startPos = localPos();
+    const before = cloneAnnotation(ann());
+    let resized = false;
 
     const handleMouseMove = (e) => {
       const dx = e.clientX - startX;
@@ -168,6 +178,8 @@ function StickyNotePopup(props) {
 
       setSize({ w: newW, h: newH });
       setLocalPos({ x: newX, y: newY });
+      resized = newW !== startSize.w || newH !== startSize.h ||
+        newX !== startPos.x || newY !== startPos.y;
     };
 
     const handleMouseUp = () => {
@@ -176,9 +188,11 @@ function StickyNotePopup(props) {
       // Save dimensions to annotation for next open
       const s = size();
       const a = ann();
-      if (a) {
+      if (a && resized) {
         a.popupWidth = s.w;
         a.popupHeight = s.h;
+        a.modifiedAt = new Date().toISOString();
+        recordModify(a.id, before, a);
       }
     };
 

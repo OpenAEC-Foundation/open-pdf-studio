@@ -1,0 +1,49 @@
+<!doctype html>
+<html><head>
+<meta charset="utf-8">
+<title>Render Regression Report — 7227b503</title>
+<style>
+body { font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 24px; background: #1e1e1e; color: #ddd; }
+h1 { margin: 0 0 8px; font-size: 20px; }
+h2 { margin: 24px 0 8px; font-size: 16px; border-bottom: 1px solid #333; padding-bottom: 4px; }
+.config { color: #888; font-size: 12px; margin-bottom: 16px; }
+.totals { padding: 8px 12px; background: #2a2a2a; border-radius: 4px; display: inline-block; }
+.totals .pass { color: #2ecc71; }
+.totals .fail { color: #e74c3c; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 6px 8px; vertical-align: top; border-bottom: 1px solid #2a2a2a; text-align: left; }
+.row.fail { background: rgba(231, 76, 60, 0.07); }
+.diff-pct.fail { color: #e74c3c; font-weight: bold; }
+.diff-pct.pass { color: #888; }
+img.thumb { width: 220px; height: auto; border: 1px solid #333; cursor: zoom-in; }
+img.thumb:hover { outline: 2px solid #f3a847; }
+</style></head><body>
+<h1>Render Regression — 7227b503</h1>
+<div class="config">Config: width=2000, fail_pct=2.0, blur_sigma=1.0, pixel_tol=30</div>
+<div class="totals">
+  <span class="pass">0 passed</span> /
+  <span class="fail">1 failed</span> /
+  total 1
+</div>
+
+
+<h2>C:\Users\rickd\Documents\GitHub\open-pdf-studio\test pdf-bestanden\Originele bestanden\Combinatie Raster, vector, tekening images.pdf <small style="color:#888">v1.4</small></h2>
+<table>
+  <thead><tr>
+    <th>Page</th><th>Diff %</th>
+    <th>Reference</th><th>App</th><th>Diff overlay</th>
+  </tr></thead>
+  <tbody>
+  
+    <tr class="row fail">
+      <td>0</td>
+      <td class="diff-pct fail">3.47 %</td>
+      <td><a href="Combinatie_Raster,_vector,_tekening_imag_p0_ref.png" target="_blank"><img class="thumb" src="Combinatie_Raster,_vector,_tekening_imag_p0_ref.png"></a></td>
+      <td><a href="Combinatie_Raster,_vector,_tekening_imag_p0_app.png" target="_blank"><img class="thumb" src="Combinatie_Raster,_vector,_tekening_imag_p0_app.png"></a></td>
+      <td><a href="Combinatie_Raster,_vector,_tekening_imag_p0_diff.png" target="_blank"><img class="thumb" src="Combinatie_Raster,_vector,_tekening_imag_p0_diff.png"></a></td>
+    </tr>
+  
+  </tbody>
+</table>
+
+</body></html>

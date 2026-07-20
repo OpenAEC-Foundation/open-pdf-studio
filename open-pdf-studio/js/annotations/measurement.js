@@ -4,6 +4,13 @@ import { redrawAnnotations, redrawContinuous } from './rendering.js';
 import { savePreferences } from '../core/preferences.js';
 import { getScaleForPoint } from './scale-bar.js';
 import { getScaleFromRegion } from './scale-region.js';
+import { cloneAnnotation } from './factory.js';
+import {
+  recordBulkModify,
+  recordMeasureScale,
+  beginUndoTransaction,
+  endUndoTransaction,
+} from '../core/undo-manager.js';
 
 // Scale calibration: pixels per unit
 // Priority: scaleRegion (innermost containing point) → scaleBar/viewport →
@@ -297,6 +304,10 @@ export function setScaleFromLine(pixelLength, realValue, unit, sourceAnnotation)
   const pixelsPerUnit = pixelLength / realValue;
   const doc = getActiveDocument();
   if (!doc) return;
+  const oldMeasureScale = doc.measureScale == null
+    ? doc.measureScale
+    : JSON.parse(JSON.stringify(doc.measureScale));
+  const sourceOriginal = sourceAnnotation ? cloneAnnotation(sourceAnnotation) : null;
   doc.measureScale = { pixelsPerUnit, unit, method: 'quick-scale', scaleRatio: 0 };
   saveDocumentScale();
 
@@ -316,6 +327,7 @@ export function setScaleFromLine(pixelLength, realValue, unit, sourceAnnotation)
     sourceAnnotation.measureUnit = unit;
     const prec = sourceAnnotation.measurePrecision !== undefined ? sourceAnnotation.measurePrecision : 2;
     sourceAnnotation.measureText = `${realValue.toFixed(prec)} ${unit}`;
+    sourceAnnotation.modifiedAt = new Date().toISOString();
 
     // Redraw canvas
     if (getActiveDocument()?.viewMode === 'continuous') {
@@ -329,6 +341,12 @@ export function setScaleFromLine(pixelLength, realValue, unit, sourceAnnotation)
       import('../bridge.js').then(m => m.storeShowProperties(sourceAnnotation));
     }
   }
+  beginUndoTransaction();
+  if (sourceAnnotation && sourceOriginal) {
+    recordBulkModify([sourceAnnotation], [sourceOriginal]);
+  }
+  recordMeasureScale(oldMeasureScale, doc.measureScale);
+  endUndoTransaction();
 }
 
 // Get the representative point of a measurement annotation (for scale lookup)

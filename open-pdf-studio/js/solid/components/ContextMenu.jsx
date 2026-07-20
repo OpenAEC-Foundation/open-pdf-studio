@@ -22,6 +22,7 @@ import { showProperties, hideProperties } from '../../ui/panels/properties-panel
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { copyAnnotation, copyAnnotations, pasteFromClipboard, pasteAnnotationsInPlace, duplicateAnnotation } from '../../annotations/clipboard.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
+import { commitAnnotationMutation } from '../../annotations/mutations.js';
 import { recordDelete, recordBulkDelete, recordModify } from '../../core/undo-manager.js';
 import { bringToFront, sendToBack, bringForward, sendBackward, rotateAnnotation, flipHorizontal, flipVertical } from '../../annotations/z-order.js';
 import { startTextEditing } from '../../tools/text-editing.js';
@@ -223,8 +224,10 @@ function AnnotationMenuContent() {
       <MenuItem icon={resetPopupIcon} label={t('annotation.resetPopUpLocation')} onClick={() => {
         const a = ann();
         if (a) {
-          a.popupX = undefined;
-          a.popupY = undefined;
+          commitAnnotationMutation(a, annotation => {
+            annotation.popupX = undefined;
+            annotation.popupY = undefined;
+          });
           // Re-open if currently open
           closeStickyPopup(a.id);
           openStickyPopup(a);
@@ -286,7 +289,10 @@ function AnnotationMenuContent() {
       }} />
       <MenuItem icon={flattenIcon} label={tCommon('flatten')} disabled={isLocked()} onClick={() => {
         const a = ann();
-        if (a) { a.flattened = true; redraw(); }
+        if (a) {
+          commitAnnotationMutation(a, annotation => { annotation.flattened = true; });
+          redraw();
+        }
       }} />
 
       <Separator />
@@ -294,9 +300,11 @@ function AnnotationMenuContent() {
       <MenuItem icon={addReplyIcon} label={t('annotation.addReply')} onClick={() => {
         const a = ann();
         if (a) {
-          if (!a.replies) a.replies = [];
-          a.replies.push({ author: state.preferences?.author || 'User', date: new Date().toISOString(), text: '' });
-          a.popupOpen = true;
+          commitAnnotationMutation(a, annotation => {
+            if (!annotation.replies) annotation.replies = [];
+            annotation.replies.push({ author: state.preferences?.author || 'User', date: new Date().toISOString(), text: '' });
+            annotation.popupOpen = true;
+          });
           redraw();
         }
       }} />
@@ -306,18 +314,17 @@ function AnnotationMenuContent() {
       <MenuItem icon={isLocked() ? lockedIcon : unlockedIcon} label={t('annotation.locked')} checkbox={true} checked={isLocked()} onClick={() => {
         const a = ann();
         if (a) {
-          a.locked = !a.locked;
-          a.modifiedAt = new Date().toISOString();
+          commitAnnotationMutation(a, annotation => { annotation.locked = !annotation.locked; });
           if (getActiveDocument()?.selectedAnnotation === a) showProperties(a);
         }
       }} />
       <MenuItem icon={markedIcon} label={t('annotation.marked')} checkbox={true} checked={ann()?.marked || false} onClick={() => {
         const a = ann();
-        if (a) { a.marked = !a.marked; a.modifiedAt = new Date().toISOString(); }
+        if (a) commitAnnotationMutation(a, annotation => { annotation.marked = !annotation.marked; });
       }} />
       <MenuItem icon={printableIcon} label={t('annotation.printable')} checkbox={true} checked={ann()?.printable !== false} onClick={() => {
         const a = ann();
-        if (a) { a.printable = a.printable === false; a.modifiedAt = new Date().toISOString(); }
+        if (a) commitAnnotationMutation(a, annotation => { annotation.printable = annotation.printable === false; });
       }} />
 
       <Separator />
@@ -327,7 +334,9 @@ function AnnotationMenuContent() {
           {(s) => (
             <MenuItem label={s.label()} checkbox={true} checked={ann()?.status === s.key || (!ann()?.status && s.key === 'None')} onClick={() => {
               const a = ann();
-              if (a) { a.status = s.key === 'None' ? undefined : s.key; a.modifiedAt = new Date().toISOString(); }
+              if (a) commitAnnotationMutation(a, annotation => {
+                annotation.status = s.key === 'None' ? undefined : s.key;
+              });
             }} />
           )}
         </For>
@@ -392,32 +401,48 @@ function AnnotationMenuContent() {
         <MenuItem icon={flipLineIcon} label={t('annotation.flipLine')} onClick={() => {
           const a = ann();
           if (a) {
-            const tmp = { x1: a.x1, y1: a.y1 };
-            a.x1 = a.x2; a.y1 = a.y2;
-            a.x2 = tmp.x1; a.y2 = tmp.y1;
+            commitAnnotationMutation(a, annotation => {
+              const startX = annotation.startX;
+              const startY = annotation.startY;
+              annotation.startX = annotation.endX;
+              annotation.startY = annotation.endY;
+              annotation.endX = startX;
+              annotation.endY = startY;
+            });
             redraw();
           }
         }} />
         <Separator />
         <MenuItem icon={convertMeasurementIcon} label={t('annotation.convertToMeasurement')} onClick={() => {
           const a = ann();
-          if (a) { a.type = 'measureDistance'; a.modifiedAt = new Date().toISOString(); redraw(); }
+          if (a) {
+            commitAnnotationMutation(a, annotation => { annotation.type = 'measureDistance'; });
+            redraw();
+          }
         }} />
         <MenuItem icon={convertPolylineIcon} label={t('annotation.convertToPolyline')} onClick={() => {
           const a = ann();
           if (a) {
-            a.type = 'polyline';
-            a.points = [{ x: a.x1, y: a.y1 }, { x: a.x2, y: a.y2 }];
-            a.modifiedAt = new Date().toISOString();
+            commitAnnotationMutation(a, annotation => {
+              annotation.type = 'polyline';
+              annotation.points = [
+                { x: annotation.startX, y: annotation.startY },
+                { x: annotation.endX, y: annotation.endY },
+              ];
+            });
             redraw();
           }
         }} />
         <MenuItem icon={convertPolygonIcon} label={t('annotation.convertToPolygon')} onClick={() => {
           const a = ann();
           if (a) {
-            a.type = 'polygon';
-            a.points = [{ x: a.x1, y: a.y1 }, { x: a.x2, y: a.y2 }];
-            a.modifiedAt = new Date().toISOString();
+            commitAnnotationMutation(a, annotation => {
+              annotation.type = 'polygon';
+              annotation.points = [
+                { x: annotation.startX, y: annotation.startY },
+                { x: annotation.endX, y: annotation.endY },
+              ];
+            });
             redraw();
           }
         }} />
@@ -465,7 +490,7 @@ function AnnotationMenuContent() {
         <MenuItem label={t('annotation.applyDefaultStyle')} onClick={() => {
           const a = ann();
           if (a) {
-            applyDefaultStyle(a);
+            commitAnnotationMutation(a, annotation => applyDefaultStyle(annotation));
             redraw();
           }
         }} />
@@ -514,11 +539,11 @@ function MultiAnnotationMenuContent() {
 
       <MenuItem label={t('multiSelect.bringAllToFront')} onClick={() => {
         const _d = getActiveDocument();
-        for (const a of (_d ? _d.selectedAnnotations : [])) bringToFront(a);
+        bringToFront(_d ? _d.selectedAnnotations : []);
       }} />
       <MenuItem label={t('multiSelect.sendAllToBack')} onClick={() => {
         const _d = getActiveDocument();
-        for (const a of [...(_d ? _d.selectedAnnotations : [])].reverse()) sendToBack(a);
+        sendToBack(_d ? _d.selectedAnnotations : []);
       }} />
 
       <Separator />

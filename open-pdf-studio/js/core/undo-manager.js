@@ -1,6 +1,15 @@
 import { state, getActiveDocument, getPageRotation, setPageRotation } from './state.js';
 import { cloneAnnotation } from '../annotations/factory.js';
 const MAX_UNDO_STACK = 100;
+let undoTransactionDepth = 0;
+let undoTransactionCommands = null;
+let undoTransactionDocumentId = null;
+let undoTransactionBeforeSelectionIds = null;
+
+function clonePlainValue(value) {
+  if (value == null) return value;
+  return JSON.parse(JSON.stringify(value));
+}
 
 // Sync the modified flag based on whether the undo stack matches the saved clean point
 function syncModifiedState() {
@@ -81,6 +90,11 @@ function pagesForCommand(cmd) {
       addFrom(it.newState);
     });
   }
+  if (Array.isArray(cmd.commands)) {
+    for (const command of cmd.commands) {
+      for (const page of pagesForCommand(command)) pages.add(page);
+    }
+  }
 
   // Watermark/bookmark commands don't carry a page and don't affect the page
   // thumbnail composite — skip them entirely (empty set = no refresh).
@@ -121,8 +135,36 @@ function scheduleThumbnailRefresh(cmd) {
   }, 250);
 }
 
+function commandPreservesSelection(cmd) {
+  if (!cmd) return false;
+  if (cmd.type === 'modifyAnnotation' || cmd.type === 'bulkModify' ||
+      cmd.type === 'reorderAnnotations' || cmd.type === 'modifyMeasureScale') {
+    return true;
+  }
+  if (cmd.type !== 'compound') return false;
+  if (Array.isArray(cmd.beforeSelectionIds) && Array.isArray(cmd.afterSelectionIds)) return true;
+  return cmd.commands.length > 0 && cmd.commands.every(commandPreservesSelection);
+}
+
+function commandChangesMeasureScale(cmd) {
+  if (!cmd) return false;
+  if (cmd.type === 'modifyMeasureScale') return true;
+  return cmd.type === 'compound' && cmd.commands.some(commandChangesMeasureScale);
+}
+
+async function persistMeasureScaleIfNeeded(cmd) {
+  if (!commandChangesMeasureScale(cmd)) return;
+  const { saveDocumentScale } = await import('../annotations/measurement.js');
+  saveDocumentScale();
+}
+
 // Execute a command: push to undo, clear redo, sync modified state
 export function execute(cmd) {
+  if (pendingPropertyChange) flushPropertyChange();
+  if (undoTransactionDepth > 0) {
+    undoTransactionCommands.push(cmd);
+    return;
+  }
   const doc = getActiveDocument();
   // If clean point was beyond current position, it's now unreachable (divergent edit)
   if (doc && doc.savedUndoStackLength > (doc.undoStack || []).length) {
@@ -137,6 +179,7 @@ export function execute(cmd) {
 
 // Undo
 export async function undo() {
+  flushPropertyChange();
   const undoStack = getUndoStack();
   if (undoStack.length === 0) return;
 
@@ -154,10 +197,11 @@ export async function undo() {
   }
 
   applyUndo(cmd);
+  await persistMeasureScaleIfNeeded(cmd);
   syncModifiedState();
 
   // For modify operations, keep selection intact and refresh properties
-  if (cmd.type === 'modifyAnnotation' || cmd.type === 'bulkModify') {
+  if (commandPreservesSelection(cmd)) {
     const { showProperties, showMultiSelectionProperties } = await import('../ui/panels/properties-panel.js');
     const _uDoc = getActiveDocument();
     const _uSel = _uDoc ? _uDoc.selectedAnnotations : [];
@@ -184,6 +228,7 @@ export async function undo() {
 
 // Redo
 export async function redo() {
+  flushPropertyChange();
   const redoStack = getRedoStack();
   if (redoStack.length === 0) return;
 
@@ -201,10 +246,11 @@ export async function redo() {
   }
 
   applyRedo(cmd);
+  await persistMeasureScaleIfNeeded(cmd);
   syncModifiedState();
 
   // For modify operations, keep selection intact and refresh properties
-  if (cmd.type === 'modifyAnnotation' || cmd.type === 'bulkModify') {
+  if (commandPreservesSelection(cmd)) {
     const { showProperties, showMultiSelectionProperties } = await import('../ui/panels/properties-panel.js');
     const _uDoc = getActiveDocument();
     const _uSel = _uDoc ? _uDoc.selectedAnnotations : [];
@@ -237,6 +283,35 @@ export function canRedo() {
   return getRedoStack().length > 0;
 }
 
+function restoreAnnotationOrder(doc, orderedIds) {
+  const byId = new Map(doc.annotations.map(annotation => [annotation.id, annotation]));
+  const restored = [];
+  const restoredIds = new Set();
+  for (const id of orderedIds) {
+    const annotation = byId.get(id);
+    if (!annotation) continue;
+    restored.push(annotation);
+    restoredIds.add(id);
+  }
+  for (const annotation of doc.annotations) {
+    if (!restoredIds.has(annotation.id)) restored.push(annotation);
+  }
+  doc.annotations.splice(0, doc.annotations.length, ...restored);
+}
+
+function restoreAnnotationState(annotation, snapshot) {
+  for (const key of Object.keys(annotation)) {
+    if (!Object.prototype.hasOwnProperty.call(snapshot, key)) delete annotation[key];
+  }
+  Object.assign(annotation, cloneAnnotation(snapshot));
+}
+
+function restoreSelectionByIds(doc, ids) {
+  const byId = new Map(doc.annotations.map(annotation => [annotation.id, annotation]));
+  doc.selectedAnnotations = (ids || []).map(id => byId.get(id)).filter(Boolean);
+  doc.selectedAnnotation = doc.selectedAnnotations[0] || null;
+}
+
 // Apply undo for a command
 function applyUndo(cmd) {
   const doc = getActiveDocument();
@@ -264,7 +339,7 @@ function applyUndo(cmd) {
     case 'modifyAnnotation': {
       const idx = doc.annotations.findIndex(a => a.id === cmd.id);
       if (idx !== -1) {
-        Object.assign(doc.annotations[idx], cmd.oldState);
+        restoreAnnotationState(doc.annotations[idx], cmd.oldState);
       }
       break;
     }
@@ -272,15 +347,33 @@ function applyUndo(cmd) {
       setPageRotation(cmd.pageNum, cmd.oldRotation);
       break;
     }
+    case 'modifyMeasureScale': {
+      doc.measureScale = clonePlainValue(cmd.oldState);
+      break;
+    }
     case 'bulkModify': {
       for (const item of cmd.items) {
         const idx = doc.annotations.findIndex(a => a.id === item.id);
-        if (idx !== -1) Object.assign(doc.annotations[idx], item.oldState);
+        if (idx !== -1) restoreAnnotationState(doc.annotations[idx], item.oldState);
+      }
+      break;
+    }
+    case 'reorderAnnotations': {
+      restoreAnnotationOrder(doc, cmd.oldOrder);
+      break;
+    }
+    case 'compound': {
+      for (let index = cmd.commands.length - 1; index >= 0; index--) {
+        applyUndo(cmd.commands[index]);
+      }
+      if (Array.isArray(cmd.beforeSelectionIds)) {
+        restoreSelectionByIds(doc, cmd.beforeSelectionIds);
       }
       break;
     }
     case 'bulkDelete': {
-      for (const item of cmd.items) {
+      const itemsByOriginalIndex = [...cmd.items].sort((a, b) => a.index - b.index);
+      for (const item of itemsByOriginalIndex) {
         const insertIdx = Math.min(item.index, doc.annotations.length);
         doc.annotations.splice(insertIdx, 0, item.annotation);
       }
@@ -428,7 +521,7 @@ function applyRedo(cmd) {
     case 'modifyAnnotation': {
       const idx = doc.annotations.findIndex(a => a.id === cmd.id);
       if (idx !== -1) {
-        Object.assign(doc.annotations[idx], cmd.newState);
+        restoreAnnotationState(doc.annotations[idx], cmd.newState);
       }
       break;
     }
@@ -436,10 +529,25 @@ function applyRedo(cmd) {
       setPageRotation(cmd.pageNum, cmd.newRotation);
       break;
     }
+    case 'modifyMeasureScale': {
+      doc.measureScale = clonePlainValue(cmd.newState);
+      break;
+    }
     case 'bulkModify': {
       for (const item of cmd.items) {
         const idx = doc.annotations.findIndex(a => a.id === item.id);
-        if (idx !== -1) Object.assign(doc.annotations[idx], item.newState);
+        if (idx !== -1) restoreAnnotationState(doc.annotations[idx], item.newState);
+      }
+      break;
+    }
+    case 'reorderAnnotations': {
+      restoreAnnotationOrder(doc, cmd.newOrder);
+      break;
+    }
+    case 'compound': {
+      for (const command of cmd.commands) applyRedo(command);
+      if (Array.isArray(cmd.afterSelectionIds)) {
+        restoreSelectionByIds(doc, cmd.afterSelectionIds);
       }
       break;
     }
@@ -615,6 +723,54 @@ export function recordBulkAdd(annotations) {
   execute({ type: 'bulkAdd', items });
 }
 
+export function recordAnnotationOrder(oldOrder, newOrder) {
+  if (!Array.isArray(oldOrder) || !Array.isArray(newOrder)) return;
+  if (oldOrder.length !== newOrder.length) return;
+  if (oldOrder.every((id, index) => id === newOrder[index])) return;
+  execute({
+    type: 'reorderAnnotations',
+    oldOrder: [...oldOrder],
+    newOrder: [...newOrder],
+  });
+}
+
+export function recordMeasureScale(oldState, newState) {
+  if (JSON.stringify(oldState) === JSON.stringify(newState)) return;
+  execute({
+    type: 'modifyMeasureScale',
+    oldState: clonePlainValue(oldState),
+    newState: clonePlainValue(newState),
+  });
+}
+
+export function beginUndoTransaction() {
+  if (undoTransactionDepth === 0) {
+    const doc = getActiveDocument();
+    undoTransactionCommands = [];
+    undoTransactionDocumentId = doc?.id || null;
+    undoTransactionBeforeSelectionIds = (doc?.selectedAnnotations || []).map(annotation => annotation.id);
+  }
+  undoTransactionDepth++;
+}
+
+export function endUndoTransaction() {
+  if (undoTransactionDepth === 0) return;
+  undoTransactionDepth--;
+  if (undoTransactionDepth > 0) return;
+  const commands = undoTransactionCommands || [];
+  const targetDoc = state.documents.find(doc => doc.id === undoTransactionDocumentId);
+  const beforeSelectionIds = undoTransactionBeforeSelectionIds || [];
+  const afterSelectionIds = (targetDoc?.selectedAnnotations || []).map(annotation => annotation.id);
+  undoTransactionCommands = null;
+  undoTransactionDocumentId = null;
+  undoTransactionBeforeSelectionIds = null;
+  if (commands.length === 0) return;
+  const selectionChanged = beforeSelectionIds.length !== afterSelectionIds.length ||
+    beforeSelectionIds.some((id, index) => id !== afterSelectionIds[index]);
+  if (commands.length === 1 && !selectionChanged) execute(commands[0]);
+  else execute({ type: 'compound', commands, beforeSelectionIds, afterSelectionIds });
+}
+
 // Debounced property change recording (for rapid slider/input changes)
 let propertyChangeTimer = null;
 let pendingPropertyChange = null;
@@ -639,6 +795,16 @@ export function recordPropertyChange(annotation) {
   }
 
   clearTimeout(propertyChangeTimer);
+  const pendingId = annotation.id;
+  const pendingDocId = doc.id;
+  queueMicrotask(() => {
+    if (!pendingPropertyChange ||
+        pendingPropertyChange.id !== pendingId ||
+        pendingPropertyChange.docId !== pendingDocId) return;
+    const targetDoc = state.documents.find(candidate => candidate.id === pendingDocId);
+    const current = targetDoc?.annotations.find(candidate => candidate.id === pendingId);
+    if (current) pendingPropertyChange.newState = cloneAnnotation(current);
+  });
   propertyChangeTimer = setTimeout(() => {
     flushPropertyChange();
   }, 400);
@@ -656,7 +822,7 @@ export function flushPropertyChange() {
       type: 'modifyAnnotation',
       id: pendingPropertyChange.id,
       oldState: pendingPropertyChange.oldState,
-      newState: cloneAnnotation(current)
+      newState: pendingPropertyChange.newState || cloneAnnotation(current)
     };
     if (!targetDoc.undoStack) targetDoc.undoStack = [];
     // If clean point was beyond current position, it's now unreachable

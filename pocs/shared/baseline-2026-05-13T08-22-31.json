@@ -1,0 +1,554 @@
+{
+  "timestamp": "2026-05-13T08:22:31.435Z",
+  "git_sha": "ee2139a8",
+  "baseline_runs": [
+    {
+      "fixture": "barn",
+      "scenario": "cold_open_p1",
+      "pdfPath": "test pdf-bestanden\\Originele bestanden\\20260316 - Barn Relocation - 389 E Hemenway Lane - for Permit.pdf",
+      "runs": [
+        {
+          "run": 0,
+          "warmup": true,
+          "totalMs": 705,
+          "width": 2448,
+          "height": 1584
+        },
+        {
+          "run": 1,
+          "warmup": false,
+          "totalMs": 748.3000000119209,
+          "width": 2448,
+          "height": 1584
+        },
+        {
+          "run": 2,
+          "warmup": false,
+          "totalMs": 733,
+          "width": 2448,
+          "height": 1584
+        },
+        {
+          "run": 3,
+          "warmup": false,
+          "totalMs": 738.1999999880791,
+          "width": 2448,
+          "height": 1584
+        },
+        {
+          "run": 4,
+          "warmup": false,
+          "totalMs": 721.4000000357628,
+          "width": 2448,
+          "height": 1584
+        },
+        {
+          "run": 5,
+          "warmup": false,
+          "totalMs": 720.3999999761581,
+          "width": 2448,
+          "height": 1584
+        }
+      ],
+      "stats": {
+        "n": 5,
+        "median_ms": 733,
+        "mean_ms": 732.3,
+        "p95_ms": 748.3,
+        "min_ms": 720.4,
+        "max_ms": 748.3
+      },
+      "expected_baseline_ms": {
+        "open_to_first_page": 1000,
+        "cold_page_render": 670,
+        "scroll_3_pages": 1200,
+        "zoom_change": 670
+      },
+      "timestamp": "2026-05-13T08:22:37.887Z"
+    },
+    {
+      "fixture": "barn",
+      "scenario": "scroll_p1_to_p7",
+      "error": "FATAL: Error: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.\n    at assertMaxArguments (C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\open-pdf-studio\\node_modules\\playwright-core\\lib\\client\\jsHandle.js:97:11)\n    at Page.evaluate (C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\open-pdf-studio\\node_modules\\playwright-core\\lib\\client\\page.js:399:44)\n    at scenarioScrollAll (file:///C:/Users/rickd/Documents/GitHub/open-pdf-studio/pocs/shared/bench-harness.mjs:137:26)\n    at main (file:///C:/Users/rickd/Documents/GitHub/open-pdf-studio/pocs/shared/bench-harness.mjs:74:45)\n",
+      "status": 99
+    },
+    {
+      "fixture": "barn",
+      "scenario": "zoom_in_revisit",
+      "pdfPath": "test pdf-bestanden\\Originele bestanden\\20260316 - Barn Relocation - 389 E Hemenway Lane - for Permit.pdf",
+      "runs": [
+        {
+          "run": 0,
+          "warmup": true,
+          "totalMs": 1317.3999999761581,
+          "zoomIn_ms": 769.1999999880791,
+          "zoomBack_ms": 548.1999999880791
+        },
+        {
+          "run": 1,
+          "warmup": false,
+          "totalMs": 1290.1000000238419,
+          "zoomIn_ms": 758.2000000476837,
+          "zoomBack_ms": 531.8999999761581
+        },
+        {
+          "run": 2,
+          "warmup": false,
+          "totalMs": 1245.2000000476837,
+          "zoomIn_ms": 724.7000000476837,
+          "zoomBack_ms": 520.5
+        },
+        {
+          "run": 3,
+          "warmup": false,
+          "totalMs": 1264.6000000238419,
+          "zoomIn_ms": 745.5,
+          "zoomBack_ms": 519.1000000238419
+        },
+        {
+          "run": 4,
+          "warmup": false,
+          "totalMs": 1241.7000000476837,
+          "zoomIn_ms": 734.6000000238419,
+          "zoomBack_ms": 507.10000002384186
+        },
+        {
+          "run": 5,
+          "warmup": false,
+          "totalMs": 1261.3999999761581,
+          "zoomIn_ms": 745.8999999761581,
+          "zoomBack_ms": 515.5
+        }
+      ],
+      "stats": {
+        "n": 5,
+        "median_ms": 1261.4,
+        "mean_ms": 1260.6,
+        "p95_ms": 1290.1,
+        "min_ms": 1241.7,
+        "max_ms": 1290.1
+      },
+      "expected_baseline_ms": {
+        "open_to_first_page": 1000,
+        "cold_page_render": 670,
+        "scroll_3_pages": 1200,
+        "zoom_change": 670
+      },
+      "timestamp": "2026-05-13T08:22:50.159Z"
+    },
+    {
+      "fixture": "barn",
+      "scenario": "scroll_back_revisit",
+      "error": "FATAL: Error: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.\n    at assertMaxArguments (C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\open-pdf-studio\\node_modules\\playwright-core\\lib\\client\\jsHandle.js:97:11)\n    at Page.evaluate (C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\open-pdf-studio\\node_modules\\playwright-core\\lib\\client\\page.js:399:44)\n    at scenarioScrollBackRevisit (file:///C:/Users/rickd/Documents/GitHub/open-pdf-studio/pocs/shared/bench-harness.mjs:170:26)\n    at main (file:///C:/Users/rickd/Documents/GitHub/open-pdf-studio/pocs/shared/bench-harness.mjs:76:45)\n",
+      "status": 99
+    },
+    {
+      "fixture": "nkd1a",
+      "scenario": "cold_open_p1",
+      "pdfPath": "test pdf-bestanden\\Originele bestanden\\NKD1a_opm_aw.pdf",
+      "runs": [
+        {
+          "run": 0,
+          "warmup": true,
+          "totalMs": 108.10000002384186,
+          "width": 1191,
+          "height": 1684
+        },
+        {
+          "run": 1,
+          "warmup": false,
+          "totalMs": 87,
+          "width": 1191,
+          "height": 1684
+        },
+        {
+          "run": 2,
+          "warmup": false,
+          "totalMs": 92.60000002384186,
+          "width": 1191,
+          "height": 1684
+        },
+        {
+          "run": 3,
+          "warmup": false,
+          "totalMs": 99.80000001192093,
+          "width": 1191,
+          "height": 1684
+        },
+        {
+          "run": 4,
+          "warmup": false,
+          "totalMs": 96.89999997615814,
+          "width": 1191,
+          "height": 1684
+        },
+        {
+          "run": 5,
+          "warmup": false,
+          "totalMs": 81,
+          "width": 1191,
+          "height": 1684
+        }
+      ],
+      "stats": {
+        "n": 5,
+        "median_ms": 92.6,
+        "mean_ms": 91.5,
+        "p95_ms": 99.8,
+        "min_ms": 81,
+        "max_ms": 99.8
+      },
+      "expected_baseline_ms": {
+        "open_to_first_page": 1100,
+        "cold_page_render": 700
+      },
+      "timestamp": "2026-05-13T08:22:53.617Z"
+    },
+    {
+      "fixture": "nkd1a",
+      "scenario": "scroll_p1_to_p7",
+      "error": "FATAL: Error: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.\n    at assertMaxArguments (C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\open-pdf-studio\\node_modules\\playwright-core\\lib\\client\\jsHandle.js:97:11)\n    at Page.evaluate (C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\open-pdf-studio\\node_modules\\playwright-core\\lib\\client\\page.js:399:44)\n    at scenarioScrollAll (file:///C:/Users/rickd/Documents/GitHub/open-pdf-studio/pocs/shared/bench-harness.mjs:137:26)\n    at main (file:///C:/Users/rickd/Documents/GitHub/open-pdf-studio/pocs/shared/bench-harness.mjs:74:45)\n",
+      "status": 99
+    },
+    {
+      "fixture": "nkd1a",
+      "scenario": "zoom_in_revisit",
+      "pdfPath": "test pdf-bestanden\\Originele bestanden\\NKD1a_opm_aw.pdf",
+      "runs": [
+        {
+          "run": 0,
+          "warmup": true,
+          "totalMs": 209.10000002384186,
+          "zoomIn_ms": 147.60000002384186,
+          "zoomBack_ms": 61.5
+        },
+        {
+          "run": 1,
+          "warmup": false,
+          "totalMs": 219.80000001192093,
+          "zoomIn_ms": 155.10000002384186,
+          "zoomBack_ms": 64.69999998807907
+        },
+        {
+          "run": 2,
+          "warmup": false,
+          "totalMs": 197.89999997615814,
+          "zoomIn_ms": 138.89999997615814,
+          "zoomBack_ms": 59
+        },
+        {
+          "run": 3,
+          "warmup": false,
+          "totalMs": 227.79999995231628,
+          "zoomIn_ms": 153.89999997615814,
+          "zoomBack_ms": 73.89999997615814
+        },
+        {
+          "run": 4,
+          "warmup": false,
+          "totalMs": 197.80000001192093,
+          "zoomIn_ms": 136.60000002384186,
+          "zoomBack_ms": 61.19999998807907
+        },
+        {
+          "run": 5,
+          "warmup": false,
+          "totalMs": 197.39999997615814,
+          "zoomIn_ms": 134.69999998807907,
+          "zoomBack_ms": 62.69999998807907
+        }
+      ],
+      "stats": {
+        "n": 5,
+        "median_ms": 197.9,
+        "mean_ms": 208.1,
+        "p95_ms": 227.8,
+        "min_ms": 197.4,
+        "max_ms": 227.8
+      },
+      "expected_baseline_ms": {
+        "open_to_first_page": 1100,
+        "cold_page_render": 700
+      },
+      "timestamp": "2026-05-13T08:22:56.692Z"
+    },
+    {
+      "fixture": "nkd1a",
+      "scenario": "scroll_back_revisit",
+      "error": "FATAL: Error: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.\n    at assertMaxArguments (C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\open-pdf-studio\\node_modules\\playwright-core\\lib\\client\\jsHandle.js:97:11)\n    at Page.evaluate (C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\open-pdf-studio\\node_modules\\playwright-core\\lib\\client\\page.js:399:44)\n    at scenarioScrollBackRevisit (file:///C:/Users/rickd/Documents/GitHub/open-pdf-studio/pocs/shared/bench-harness.mjs:170:26)\n    at main (file:///C:/Users/rickd/Documents/GitHub/open-pdf-studio/pocs/shared/bench-harness.mjs:76:45)\n",
+      "status": 99
+    },
+    {
+      "fixture": "zware-vector",
+      "scenario": "cold_open_p1",
+      "pdfPath": "test pdf-bestanden\\Originele bestanden\\Zware vector PDF.pdf",
+      "runs": [
+        {
+          "run": 0,
+          "warmup": true,
+          "totalMs": 207.79999995231628,
+          "width": 1693,
+          "height": 1191
+        },
+        {
+          "run": 1,
+          "warmup": false,
+          "totalMs": 207.30000001192093,
+          "width": 1693,
+          "height": 1191
+        },
+        {
+          "run": 2,
+          "warmup": false,
+          "totalMs": 199,
+          "width": 1693,
+          "height": 1191
+        },
+        {
+          "run": 3,
+          "warmup": false,
+          "totalMs": 205.19999998807907,
+          "width": 1693,
+          "height": 1191
+        },
+        {
+          "run": 4,
+          "warmup": false,
+          "totalMs": 198.9000000357628,
+          "width": 1693,
+          "height": 1191
+        },
+        {
+          "run": 5,
+          "warmup": false,
+          "totalMs": 198.69999998807907,
+          "width": 1693,
+          "height": 1191
+        }
+      ],
+      "stats": {
+        "n": 5,
+        "median_ms": 199,
+        "mean_ms": 201.8,
+        "p95_ms": 207.3,
+        "min_ms": 198.7,
+        "max_ms": 207.3
+      },
+      "expected_baseline_ms": {
+        "open_to_first_page": 800,
+        "cold_page_render": 400
+      },
+      "timestamp": "2026-05-13T08:23:00.695Z"
+    },
+    {
+      "fixture": "zware-vector",
+      "scenario": "scroll_p1_to_p7",
+      "error": "FATAL: Error: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.\n    at assertMaxArguments (C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\open-pdf-studio\\node_modules\\playwright-core\\lib\\client\\jsHandle.js:97:11)\n    at Page.evaluate (C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\open-pdf-studio\\node_modules\\playwright-core\\lib\\client\\page.js:399:44)\n    at scenarioScrollAll (file:///C:/Users/rickd/Documents/GitHub/open-pdf-studio/pocs/shared/bench-harness.mjs:137:26)\n    at main (file:///C:/Users/rickd/Documents/GitHub/open-pdf-studio/pocs/shared/bench-harness.mjs:74:45)\n",
+      "status": 99
+    },
+    {
+      "fixture": "zware-vector",
+      "scenario": "zoom_in_revisit",
+      "pdfPath": "test pdf-bestanden\\Originele bestanden\\Zware vector PDF.pdf",
+      "runs": [
+        {
+          "run": 0,
+          "warmup": true,
+          "totalMs": 475.60000002384186,
+          "zoomIn_ms": 300.4000000357628,
+          "zoomBack_ms": 175.19999998807907
+        },
+        {
+          "run": 1,
+          "warmup": false,
+          "totalMs": 461.10000002384186,
+          "zoomIn_ms": 292.7000000476837,
+          "zoomBack_ms": 168.39999997615814
+        },
+        {
+          "run": 2,
+          "warmup": false,
+          "totalMs": 469.60000002384186,
+          "zoomIn_ms": 295.80000001192093,
+          "zoomBack_ms": 173.80000001192093
+        },
+        {
+          "run": 3,
+          "warmup": false,
+          "totalMs": 534.0999999642372,
+          "zoomIn_ms": 353.30000001192093,
+          "zoomBack_ms": 180.79999995231628
+        },
+        {
+          "run": 4,
+          "warmup": false,
+          "totalMs": 458.89999997615814,
+          "zoomIn_ms": 290.5999999642372,
+          "zoomBack_ms": 168.30000001192093
+        },
+        {
+          "run": 5,
+          "warmup": false,
+          "totalMs": 457.5999999642372,
+          "zoomIn_ms": 282,
+          "zoomBack_ms": 175.5999999642372
+        }
+      ],
+      "stats": {
+        "n": 5,
+        "median_ms": 461.1,
+        "mean_ms": 476.3,
+        "p95_ms": 534.1,
+        "min_ms": 457.6,
+        "max_ms": 534.1
+      },
+      "expected_baseline_ms": {
+        "open_to_first_page": 800,
+        "cold_page_render": 400
+      },
+      "timestamp": "2026-05-13T08:23:06.149Z"
+    },
+    {
+      "fixture": "zware-vector",
+      "scenario": "scroll_back_revisit",
+      "error": "FATAL: Error: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.\n    at assertMaxArguments (C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\open-pdf-studio\\node_modules\\playwright-core\\lib\\client\\jsHandle.js:97:11)\n    at Page.evaluate (C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\open-pdf-studio\\node_modules\\playwright-core\\lib\\client\\page.js:399:44)\n    at scenarioScrollBackRevisit (file:///C:/Users/rickd/Documents/GitHub/open-pdf-studio/pocs/shared/bench-harness.mjs:170:26)\n    at main (file:///C:/Users/rickd/Documents/GitHub/open-pdf-studio/pocs/shared/bench-harness.mjs:76:45)\n",
+      "status": 99
+    },
+    {
+      "fixture": "tekst",
+      "scenario": "cold_open_p1",
+      "pdfPath": "test pdf-bestanden\\Originele bestanden\\Tekst.pdf",
+      "runs": [
+        {
+          "run": 0,
+          "warmup": true,
+          "totalMs": 368.5999999642372,
+          "width": 596,
+          "height": 842
+        },
+        {
+          "run": 1,
+          "warmup": false,
+          "totalMs": 382.30000001192093,
+          "width": 596,
+          "height": 842
+        },
+        {
+          "run": 2,
+          "warmup": false,
+          "totalMs": 422.9000000357628,
+          "width": 596,
+          "height": 842
+        },
+        {
+          "run": 3,
+          "warmup": false,
+          "totalMs": 367.69999998807907,
+          "width": 596,
+          "height": 842
+        },
+        {
+          "run": 4,
+          "warmup": false,
+          "totalMs": 378.0999999642372,
+          "width": 596,
+          "height": 842
+        },
+        {
+          "run": 5,
+          "warmup": false,
+          "totalMs": 369.39999997615814,
+          "width": 596,
+          "height": 842
+        }
+      ],
+      "stats": {
+        "n": 5,
+        "median_ms": 378.1,
+        "mean_ms": 384.1,
+        "p95_ms": 422.9,
+        "min_ms": 367.7,
+        "max_ms": 422.9
+      },
+      "expected_baseline_ms": {
+        "open_to_first_page": 150,
+        "cold_page_render": 80
+      },
+      "timestamp": "2026-05-13T08:23:11.301Z"
+    },
+    {
+      "fixture": "tekst",
+      "scenario": "scroll_p1_to_p7",
+      "error": "FATAL: Error: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.\n    at assertMaxArguments (C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\open-pdf-studio\\node_modules\\playwright-core\\lib\\client\\jsHandle.js:97:11)\n    at Page.evaluate (C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\open-pdf-studio\\node_modules\\playwright-core\\lib\\client\\page.js:399:44)\n    at scenarioScrollAll (file:///C:/Users/rickd/Documents/GitHub/open-pdf-studio/pocs/shared/bench-harness.mjs:137:26)\n    at main (file:///C:/Users/rickd/Documents/GitHub/open-pdf-studio/pocs/shared/bench-harness.mjs:74:45)\n",
+      "status": 99
+    },
+    {
+      "fixture": "tekst",
+      "scenario": "zoom_in_revisit",
+      "pdfPath": "test pdf-bestanden\\Originele bestanden\\Tekst.pdf",
+      "runs": [
+        {
+          "run": 0,
+          "warmup": true,
+          "totalMs": 142.89999997615814,
+          "zoomIn_ms": 94.59999996423721,
+          "zoomBack_ms": 48.30000001192093
+        },
+        {
+          "run": 1,
+          "warmup": false,
+          "totalMs": 152.30000001192093,
+          "zoomIn_ms": 103.30000001192093,
+          "zoomBack_ms": 49
+        },
+        {
+          "run": 2,
+          "warmup": false,
+          "totalMs": 149.60000002384186,
+          "zoomIn_ms": 98.10000002384186,
+          "zoomBack_ms": 51.5
+        },
+        {
+          "run": 3,
+          "warmup": false,
+          "totalMs": 146.30000001192093,
+          "zoomIn_ms": 94.40000003576279,
+          "zoomBack_ms": 51.89999997615814
+        },
+        {
+          "run": 4,
+          "warmup": false,
+          "totalMs": 143.5999999642372,
+          "zoomIn_ms": 94.69999998807907,
+          "zoomBack_ms": 48.89999997615814
+        },
+        {
+          "run": 5,
+          "warmup": false,
+          "totalMs": 141,
+          "zoomIn_ms": 93.69999998807907,
+          "zoomBack_ms": 47.30000001192093
+        }
+      ],
+      "stats": {
+        "n": 5,
+        "median_ms": 146.3,
+        "mean_ms": 146.6,
+        "p95_ms": 152.3,
+        "min_ms": 141,
+        "max_ms": 152.3
+      },
+      "expected_baseline_ms": {
+        "open_to_first_page": 150,
+        "cold_page_render": 80
+      },
+      "timestamp": "2026-05-13T08:23:14.049Z"
+    },
+    {
+      "fixture": "tekst",
+      "scenario": "scroll_back_revisit",
+      "error": "FATAL: Error: Too many arguments. If you need to pass more than 1 argument to the function wrap them in an object.\n    at assertMaxArguments (C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\open-pdf-studio\\node_modules\\playwright-core\\lib\\client\\jsHandle.js:97:11)\n    at Page.evaluate (C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\open-pdf-studio\\node_modules\\playwright-core\\lib\\client\\page.js:399:44)\n    at scenarioScrollBackRevisit (file:///C:/Users/rickd/Documents/GitHub/open-pdf-studio/pocs/shared/bench-harness.mjs:170:26)\n    at main (file:///C:/Users/rickd/Documents/GitHub/open-pdf-studio/pocs/shared/bench-harness.mjs:76:45)\n",
+      "status": 99
+    }
+  ]
+}

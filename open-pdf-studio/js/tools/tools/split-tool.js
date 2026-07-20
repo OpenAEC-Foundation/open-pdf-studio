@@ -12,7 +12,7 @@
 
 import { getActiveDocument } from '../../core/state.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
-import { recordModify, recordAdd } from '../../core/undo-manager.js';
+import { recordModify, recordAdd, beginUndoTransaction, endUndoTransaction } from '../../core/undo-manager.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 
 function _redraw() {
@@ -85,13 +85,14 @@ export const splitTool = {
     delete clicked.measurePixels; delete clicked.leaderStartX; delete clicked.leaderStartY;
     delete clicked.leaderEndX; delete clicked.leaderEndY;
     clicked.modifiedAt = new Date().toISOString();
-    recordModify(clicked.id, oldState, clicked);
-
     const second = _lineFrom(oldState, cut, b);
     if (doc) doc.annotations.push(second);
+    beginUndoTransaction();
+    recordModify(clicked.id, oldState, clicked);
     recordAdd(second);
 
     if (doc) { doc.selectedAnnotations = [clicked, second]; doc.selectedAnnotation = clicked; }
+    endUndoTransaction();
     _redraw();
     import('../../tools/manager.js').then(m => m.maybeRevertToSelect && m.maybeRevertToSelect());
   },
@@ -147,13 +148,14 @@ export const breakTool = {
     delete line.measurePixels; delete line.leaderStartX; delete line.leaderStartY;
     delete line.leaderEndX; delete line.leaderEndY;
     line.modifiedAt = new Date().toISOString();
-    recordModify(line.id, oldState, line);
-
     const tail = _lineFrom(oldState, p2, b);
     if (doc) doc.annotations.push(tail);
+    beginUndoTransaction();
+    recordModify(line.id, oldState, line);
     recordAdd(tail);
 
     if (doc) { doc.selectedAnnotations = [line, tail]; doc.selectedAnnotation = line; }
+    endUndoTransaction();
     _reset();
     _redraw();
     import('../../tools/manager.js').then(m => m.maybeRevertToSelect && m.maybeRevertToSelect());

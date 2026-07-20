@@ -125,6 +125,7 @@ export function drawSelectionHandles(ctx, annotation) {
   const isPointBased = ((annotation.type === 'measureArea' || annotation.type === 'measurePerimeter' ||
     annotation.type === 'polyline' || annotation.type === 'cloudPolyline' || annotation.type === 'splineArrow') ||
     (annotation.type === 'filledArea' && isEditingContour)) && annotation.points && annotation.points.length >= 2;
+  const usesGripOnlySelection = annotation.type === 'line' || annotation.type === 'arrow' || annotation.type === 'wall';
   if (isMeasureAngle) {
     ctx.save();
     ctx.strokeStyle = '#0066cc';
@@ -185,7 +186,7 @@ export function drawSelectionHandles(ctx, annotation) {
     }
     ctx.setLineDash([]);
     ctx.restore();
-  } else {
+  } else if (!usesGripOnlySelection) {
     const bounds = getAnnotationBounds(annotation);
     if (bounds) {
       ctx.save();

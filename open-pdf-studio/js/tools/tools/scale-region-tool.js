@@ -103,7 +103,7 @@ export const scaleRegionTool = {
     invalidateScaleRegionCache();
     redraw();
 
-    openDialog('scale-region', { annotationId: ann.id, pageNum });
+    openDialog('scale-region', { annotationId: ann.id, pageNum, isNew: true });
 
     import('../../tools/manager.js').then(m => m.maybeRevertToSelect && m.maybeRevertToSelect());
   },

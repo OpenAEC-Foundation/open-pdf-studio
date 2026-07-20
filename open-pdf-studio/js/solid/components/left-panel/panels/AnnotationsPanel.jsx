@@ -3,6 +3,7 @@ import { activeTab } from '../../../stores/leftPanelStore.js';
 import { items, countText, emptyMessage, sortMode, setSortMode, filterMode, setFilterMode, hiddenStatuses, toggleHiddenStatus, collapsedGroups, toggleGroup, expandAllGroups, collapseAllGroups } from '../../../stores/panels/annotationsStore.js';
 import { useTranslation } from '../../../../i18n/useTranslation.js';
 import { state, clearSelection, getActiveDocument } from '../../../../core/state.js';
+import { commitAnnotationMutation } from '../../../../annotations/mutations.js';
 import {
   cutIcon, copyIcon, deleteIcon, flattenIcon, exportIcon, deselectIcon, propertiesIcon
 } from '../../../data/contextMenuIcons.js';
@@ -142,7 +143,7 @@ export default function AnnotationsPanel() {
     const doc = getActiveDocument();
     const ann = doc?.selectedAnnotation;
     if (ann) {
-      ann.flattened = true;
+      commitAnnotationMutation(ann, annotation => { annotation.flattened = true; });
       import('../../../../annotations/rendering.js').then(({ redrawAnnotations }) => redrawAnnotations());
     }
   };

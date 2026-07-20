@@ -330,12 +330,13 @@ export function findDocumentByPath(filePath: string): number {
 
 export function getPageRotation(pageNum: number): number {
   const doc = state.documents[state.activeDocumentIndex];
-  return doc ? (doc.pageRotations[pageNum] || 0) : 0;
+  return doc?.pageRotations?.[pageNum] || 0;
 }
 
 export function setPageRotation(pageNum: number, degrees: number): void {
   const doc = state.documents[state.activeDocumentIndex];
   if (doc) {
+    doc.pageRotations ||= {};
     doc.pageRotations[pageNum] = ((degrees % 360) + 360) % 360;
   }
 }

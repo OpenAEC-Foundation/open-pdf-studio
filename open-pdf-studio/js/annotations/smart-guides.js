@@ -1,5 +1,14 @@
-import { state, getActiveDocument } from '../core/state.js';
-import { getAnnotationBounds } from '../core/state.js';
+import { getActiveDocument, getAnnotationBounds } from '../core/state.js';
+import {
+  alignLeft,
+  alignCenter,
+  alignRight,
+  alignTop,
+  alignMiddle,
+  alignBottom,
+  distributeSpaceH,
+  distributeSpaceV,
+} from './alignment.js';
 
 const SNAP_THRESHOLD = 6; // pixels
 
@@ -90,69 +99,15 @@ export function drawAlignmentGuides(ctx, guides, canvasWidth, canvasHeight) {
 
 // Multi-selection alignment operations
 export function alignAnnotations(alignment) {
-  const _alignDoc = getActiveDocument();
-  const _alignSel = _alignDoc ? _alignDoc.selectedAnnotations : [];
-  if (_alignSel.length < 2) return;
-
-  const annotations = _alignSel;
-  const bounds = annotations.map(a => getAnnotationBounds(a)).filter(Boolean);
-  if (bounds.length < 2) return;
-
-  const minX = Math.min(...bounds.map(b => b.x));
-  const maxX = Math.max(...bounds.map(b => b.x + b.width));
-  const minY = Math.min(...bounds.map(b => b.y));
-  const maxY = Math.max(...bounds.map(b => b.y + b.height));
-
-  annotations.forEach((ann, i) => {
-    const b = bounds[i];
-    if (!b) return;
-
-    switch (alignment) {
-      case 'left':
-        ann.x = minX;
-        break;
-      case 'right':
-        ann.x = maxX - b.width;
-        break;
-      case 'center':
-        ann.x = (minX + maxX) / 2 - b.width / 2;
-        break;
-      case 'top':
-        ann.y = minY;
-        break;
-      case 'bottom':
-        ann.y = maxY - b.height;
-        break;
-      case 'middle':
-        ann.y = (minY + maxY) / 2 - b.height / 2;
-        break;
-      case 'distribute-h': {
-        // Distribute evenly horizontally
-        if (annotations.length < 3) break;
-        const sorted = [...annotations].sort((a, b2) => (a.x || 0) - (b2.x || 0));
-        const totalWidth = sorted.reduce((s, a2) => s + (getAnnotationBounds(a2)?.width || 0), 0);
-        const spacing = (maxX - minX - totalWidth) / (sorted.length - 1);
-        let currentX = minX;
-        sorted.forEach(a2 => {
-          const ab = getAnnotationBounds(a2);
-          a2.x = currentX;
-          currentX += (ab?.width || 0) + spacing;
-        });
-        break;
-      }
-      case 'distribute-v': {
-        if (annotations.length < 3) break;
-        const sorted = [...annotations].sort((a, b2) => (a.y || 0) - (b2.y || 0));
-        const totalHeight = sorted.reduce((s, a2) => s + (getAnnotationBounds(a2)?.height || 0), 0);
-        const spacing = (maxY - minY - totalHeight) / (sorted.length - 1);
-        let currentY = minY;
-        sorted.forEach(a2 => {
-          const ab = getAnnotationBounds(a2);
-          a2.y = currentY;
-          currentY += (ab?.height || 0) + spacing;
-        });
-        break;
-      }
-    }
-  });
+  const actions = {
+    left: alignLeft,
+    center: alignCenter,
+    right: alignRight,
+    top: alignTop,
+    middle: alignMiddle,
+    bottom: alignBottom,
+    'distribute-h': distributeSpaceH,
+    'distribute-v': distributeSpaceV,
+  };
+  actions[alignment]?.();
 }

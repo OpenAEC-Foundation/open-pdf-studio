@@ -1,0 +1,210 @@
+{
+  "afterBurst": {
+    "scale": 2.25,
+    "bw": 2448,
+    "bh": 1584,
+    "cssW": "2448px",
+    "cssH": "1584px",
+    "scrollLeft": 0,
+    "scrollTop": 0,
+    "rectLeft": 204,
+    "rectTop": 181,
+    "rectW": 2448,
+    "rectH": 1584
+  },
+  "final": {
+    "scale": 2.25,
+    "bw": 5508,
+    "bh": 3564,
+    "cssW": "5508px",
+    "cssH": "3564px",
+    "scrollLeft": 50,
+    "scrollTop": 27,
+    "rectLeft": 154,
+    "rectTop": 154,
+    "rectW": 5508,
+    "rectH": 3564
+  },
+  "consoleLogRelevant": [
+    {
+      "deltaMs": 6,
+      "type": "log",
+      "text": "[PERF] renderPage(1) START"
+    },
+    {
+      "deltaMs": 6,
+      "type": "log",
+      "text": "[PERF] renderPage(1) trying vector path: 1ms"
+    },
+    {
+      "deltaMs": 7,
+      "type": "log",
+      "text": "[PERF] renderPage(1) analyze_page_type START: 2ms"
+    },
+    {
+      "deltaMs": 46,
+      "type": "log",
+      "text": "[PERF] renderPage(1) START"
+    },
+    {
+      "deltaMs": 46,
+      "type": "log",
+      "text": "[PERF] renderPage(1) trying vector path: 1ms"
+    },
+    {
+      "deltaMs": 48,
+      "type": "log",
+      "text": "[PERF] renderPage(1) analyze_page_type START: 3ms"
+    },
+    {
+      "deltaMs": 76,
+      "type": "log",
+      "text": "[PERF] renderPage(1) START"
+    },
+    {
+      "deltaMs": 76,
+      "type": "log",
+      "text": "[PERF] renderPage(1) trying vector path: 0ms"
+    },
+    {
+      "deltaMs": 76,
+      "type": "log",
+      "text": "[PERF] renderPage(1) analyze_page_type START: 1ms"
+    },
+    {
+      "deltaMs": 107,
+      "type": "log",
+      "text": "[PERF] renderPage(1) START"
+    },
+    {
+      "deltaMs": 107,
+      "type": "log",
+      "text": "[PERF] renderPage(1) trying vector path: 0ms"
+    },
+    {
+      "deltaMs": 107,
+      "type": "log",
+      "text": "[PERF] renderPage(1) analyze_page_type START: 1ms"
+    },
+    {
+      "deltaMs": 138,
+      "type": "log",
+      "text": "[PERF] renderPage(1) START"
+    },
+    {
+      "deltaMs": 138,
+      "type": "log",
+      "text": "[PERF] renderPage(1) trying vector path: 0ms"
+    },
+    {
+      "deltaMs": 139,
+      "type": "log",
+      "text": "[PERF] renderPage(1) analyze_page_type START: 1ms"
+    },
+    {
+      "deltaMs": 1259,
+      "type": "log",
+      "text": "[PERF] renderPage(1) analyze_page_type=tile: 1254ms"
+    },
+    {
+      "deltaMs": 1260,
+      "type": "log",
+      "text": "[render] STALE bitmap-path gen 2 (current 6) @ scale=1.25 — skipping entirely"
+    },
+    {
+      "deltaMs": 1260,
+      "type": "log",
+      "text": "[wheel-zoom] STALE gen 1 (current 5) — skipping scroll adjustment"
+    },
+    {
+      "deltaMs": 1374,
+      "type": "log",
+      "text": "[pre-render] warmed: p1 @ 0.8 in 1354ms"
+    },
+    {
+      "deltaMs": 1375,
+      "type": "log",
+      "text": "[PERF] renderPage(1) analyze_page_type=tile: 1330ms"
+    },
+    {
+      "deltaMs": 1375,
+      "type": "log",
+      "text": "[render] STALE bitmap-path gen 3 (current 6) @ scale=1.5 — skipping entirely"
+    },
+    {
+      "deltaMs": 1375,
+      "type": "log",
+      "text": "[wheel-zoom] STALE gen 2 (current 5) — skipping scroll adjustment"
+    },
+    {
+      "deltaMs": 1376,
+      "type": "log",
+      "text": "[PERF] renderPage(1) analyze_page_type=tile: 1299ms"
+    },
+    {
+      "deltaMs": 1376,
+      "type": "log",
+      "text": "[render] STALE bitmap-path gen 4 (current 6) @ scale=1.75 — skipping entirely"
+    },
+    {
+      "deltaMs": 1376,
+      "type": "log",
+      "text": "[wheel-zoom] STALE gen 3 (current 5) — skipping scroll adjustment"
+    },
+    {
+      "deltaMs": 1376,
+      "type": "log",
+      "text": "[PERF] renderPage(1) analyze_page_type=tile: 1269ms"
+    },
+    {
+      "deltaMs": 1376,
+      "type": "log",
+      "text": "[render] STALE bitmap-path gen 5 (current 6) @ scale=2 — skipping entirely"
+    },
+    {
+      "deltaMs": 1376,
+      "type": "log",
+      "text": "[wheel-zoom] STALE gen 4 (current 5) — skipping scroll adjustment"
+    },
+    {
+      "deltaMs": 1376,
+      "type": "log",
+      "text": "[PERF] renderPage(1) analyze_page_type=tile: 1237ms"
+    },
+    {
+      "deltaMs": 1376,
+      "type": "log",
+      "text": "[render] Rust render: page=1, scale=2.25, dpr=1, path=C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden/20260316 - Barn Relocation - 389 E Hemenway Lane - for Permit.pdf"
+    },
+    {
+      "deltaMs": 2424,
+      "type": "log",
+      "text": "[render] ✅ Rust OK: 5508x3564, cmd=2272ms, read=0ms, total=2272ms"
+    },
+    {
+      "deltaMs": 2588,
+      "type": "log",
+      "text": "[PERF] renderPage(1) ensureAnnotations START: 2450ms"
+    },
+    {
+      "deltaMs": 2589,
+      "type": "log",
+      "text": "[PERF] renderPage(1) ensureAnnotations DONE: 2450ms"
+    },
+    {
+      "deltaMs": 2590,
+      "type": "log",
+      "text": "[PERF] renderPage(1) TOTAL: 2452ms"
+    },
+    {
+      "deltaMs": 4514,
+      "type": "log",
+      "text": "[pre-render] warmed: p1 @ 2.5 in 1415ms"
+    },
+    {
+      "deltaMs": 5802,
+      "type": "log",
+      "text": "[pre-render] warmed: p2 @ 2.25 in 1244ms"
+    }
+  ]
+}

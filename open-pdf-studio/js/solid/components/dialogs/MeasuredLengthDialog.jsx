@@ -9,6 +9,8 @@ import { redrawAnnotations, redrawContinuous } from '../../../annotations/render
 import { pointsToPaperMm, scaleStringFromMeasurement } from '../../../annotations/scale-from-measurement.js';
 import { showProperties } from '../../../ui/panels/properties-panel.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { cloneAnnotation } from '../../../annotations/factory.js';
+import { recordBulkModify } from '../../../core/undo-manager.js';
 
 function redraw() {
   const doc = getActiveDocument();
@@ -50,6 +52,7 @@ export default function MeasuredLengthDialog(props) {
     openDialog('scale-region', {
       annotationId: target.annotationId,
       pageNum: target.pageNum,
+      isNew: target.isNew,
       initial,
     });
   }
@@ -73,10 +76,16 @@ export default function MeasuredLengthDialog(props) {
       const doc = getActiveDocument();
       const ann = doc?.annotations.find(a => a.id === target.annotationId);
       if (!ann) return;
+      const affected = [ann, ...doc.annotations.filter(annotation =>
+        annotation !== ann && ['measureDistance', 'measureArea', 'measurePerimeter', 'measureAngle'].includes(annotation.type)
+      )];
+      const originals = affected.map(annotation => cloneAnnotation(annotation));
       ann.scaleString = scaleStr;
       ann.units = unit();
+      ann.modifiedAt = new Date().toISOString();
       invalidateScaleRegionCache();
       recalculateAllMeasurements();
+      recordBulkModify(affected, originals);
       redraw();
       // Re-select so the properties panel shows the updated scale.
       clearSelection();

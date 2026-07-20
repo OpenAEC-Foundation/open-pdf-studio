@@ -24,7 +24,7 @@
 import { state, getActiveDocument } from '../core/state.js';
 import { cloneAnnotation } from '../annotations/factory.js';
 import { findAnnotationAt } from '../annotations/geometry.js';
-import { recordAdd } from '../core/undo-manager.js';
+import { recordBulkAdd } from '../core/undo-manager.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { tryStartGMove } from './g-move-mode.js';
 
@@ -89,15 +89,13 @@ export function cloneForInsert(ann) {
  * Duplicate the current targets in place (clones become the selection).
  * Returns the clones ([] when nothing to duplicate). Undo-recorded.
  */
-export function duplicateTargets() {
+export function duplicateTargets({ recordUndo = true } = {}) {
   const doc = getActiveDocument();
   const targets = getEditTargets();
   if (!doc || targets.length === 0) return [];
   const clones = targets.map(cloneForInsert);
-  for (const c of clones) {
-    doc.annotations.push(c);
-    recordAdd(c);
-  }
+  doc.annotations.push(...clones);
+  if (recordUndo) recordBulkAdd(clones);
   doc.selectedAnnotations = clones;
   doc.selectedAnnotation = clones[0];
   _redraw();
@@ -113,8 +111,17 @@ export function moveTargets() {
  *  first click picks the (object-snapped) BASE point, the second click (or
  *  a typed distance) drops the copies. One interactive session. */
 export function copyAndMove() {
-  const clones = duplicateTargets();
+  const doc = getActiveDocument();
+  const sourceSelection = doc?.selectedAnnotations?.slice() || [];
+  const clones = duplicateTargets({ recordUndo: false });
   if (clones.length === 0) return false;
-  tryStartGMove({ basePoint: true });
+  if (!tryStartGMove({ basePoint: true, insertedCopies: true, restoreSelection: sourceSelection })) {
+    const cloneIds = new Set(clones.map(annotation => annotation.id));
+    doc.annotations = doc.annotations.filter(annotation => !cloneIds.has(annotation.id));
+    doc.selectedAnnotations = sourceSelection;
+    doc.selectedAnnotation = sourceSelection[0] || null;
+    _redraw();
+    return false;
+  }
   return true;
 }

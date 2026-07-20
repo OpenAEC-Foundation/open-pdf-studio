@@ -5,6 +5,13 @@ import { state, getActiveDocument } from '../../../core/state.js';
 import { savePreferences } from '../../../core/preferences.js';
 import { recalculateAllMeasurements, saveDocumentScale } from '../../../annotations/measurement.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { cloneAnnotation } from '../../../annotations/factory.js';
+import {
+  recordBulkModify,
+  recordMeasureScale,
+  beginUndoTransaction,
+  endUndoTransaction,
+} from '../../../core/undo-manager.js';
 
 const SCALE_PRESETS = [
   '1:1', '1:2', '1:5', '1:10', '1:20', '1:25', '1:50',
@@ -220,18 +227,44 @@ export default function CalibrationDialog(props) {
 
     if (scaleData) {
       const doc = getActiveDocument();
-      if (doc) doc.measureScale = scaleData;
+      if (doc) {
+        const oldMeasureScale = doc.measureScale == null
+          ? doc.measureScale
+          : JSON.parse(JSON.stringify(doc.measureScale));
+        const measurements = doc.annotations.filter(annotation =>
+          ['measureDistance', 'measureArea', 'measurePerimeter', 'measureAngle'].includes(annotation.type)
+        );
+        const originals = measurements.map(annotation => cloneAnnotation(annotation));
+        doc.measureScale = scaleData;
+        recalculateAllMeasurements();
+        beginUndoTransaction();
+        recordBulkModify(measurements, originals);
+        recordMeasureScale(oldMeasureScale, doc.measureScale);
+        endUndoTransaction();
+      }
       saveDocumentScale();
-      recalculateAllMeasurements();
     }
     closeDialog('calibration');
   }
 
   function handleReset() {
     const doc = getActiveDocument();
-    if (doc) doc.measureScale = null;
+    if (doc) {
+      const oldMeasureScale = doc.measureScale == null
+        ? doc.measureScale
+        : JSON.parse(JSON.stringify(doc.measureScale));
+      const measurements = doc.annotations.filter(annotation =>
+        ['measureDistance', 'measureArea', 'measurePerimeter', 'measureAngle'].includes(annotation.type)
+      );
+      const originals = measurements.map(annotation => cloneAnnotation(annotation));
+      doc.measureScale = null;
+      recalculateAllMeasurements();
+      beginUndoTransaction();
+      recordBulkModify(measurements, originals);
+      recordMeasureScale(oldMeasureScale, doc.measureScale);
+      endUndoTransaction();
+    }
     saveDocumentScale();
-    recalculateAllMeasurements();
     closeDialog('calibration');
   }
 

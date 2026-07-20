@@ -1,5 +1,5 @@
 import { state, getActiveDocument } from '../../core/state.js';
-import { recordAdd } from '../../core/undo-manager.js';
+import { recordBulkAdd } from '../../core/undo-manager.js';
 import { redrawAnnotations } from '../../annotations/rendering.js';
 // Edit-ops contract: duplication via cloneForInsert, translation via the
 // generic applyMove field-walker — NO per-type offset code in tools.
@@ -33,15 +33,17 @@ export const arrayTool = {
       return;
     }
 
+    const created = [];
     for (const srcAnn of selected) {
       for (let i = 1; i < count; i++) {
         const frac = i / (count - 1 || 1);
         const copy = cloneForInsert(srcAnn);
         applyMoveGeneric(copy, dx * frac, dy * frac);
-        doc.annotations.push(copy);
-        recordAdd(copy);
+        created.push(copy);
       }
     }
+    doc.annotations.push(...created);
+    recordBulkAdd(created);
 
     redrawAnnotations();
     _arrayState.basePoint = null;

@@ -237,7 +237,8 @@ export function computeTextboxContentHeight(annotation) {
 // same padding/lineHeight/ascent). Used by the PDF saver to build a FreeText
 // /AP appearance stream whose line breaks + vertical placement match what OPDS
 // draws on screen — so other viewers show the same thing (no overflow).
-// Returns { lines:[{text,width}], fontSize, lineHeight, padding, ascent, maxWidth }.
+// Returns { lines:[{text,width}], fontSize, lineHeight, padding,
+//           ascent, descent, halfLeading, maxWidth }.
 export function layoutTextboxForExport(annotation) {
   const text = annotation.text || '';
   const width = annotation.width || 150;
@@ -262,6 +263,8 @@ export function layoutTextboxForExport(annotation) {
   ctx.font = `${fontStyle}${fontSize}px ${fontFamily}`;
   const sample = ctx.measureText('Mg');
   const ascent = sample.fontBoundingBoxAscent || sample.actualBoundingBoxAscent || (fontSize * 0.8);
+  const descent = sample.fontBoundingBoxDescent || sample.actualBoundingBoxDescent || (fontSize * 0.2);
+  const halfLeading = (lineHeight - ascent - descent) / 2;
 
   const lines = [];
   for (const para of text.split('\n')) {
@@ -279,7 +282,7 @@ export function layoutTextboxForExport(annotation) {
     }
     if (line !== '') lines.push({ text: line, width: ctx.measureText(line).width });
   }
-  return { lines, fontSize, lineHeight, padding, ascent, maxWidth };
+  return { lines, fontSize, lineHeight, padding, ascent, descent, halfLeading, maxWidth };
 }
 
 // Draw textbox content with word wrap
@@ -366,11 +369,17 @@ export function drawTextboxContent(ctx, annotation, padding) {
   // (font-level — preferred but not on all browsers). Sample 'Mg' to
   // measure both the tall ascent (M) and a descender (g) so we get the
   // full font box, then fall back to 0.8 × fontSize if metrics unavailable.
-  const halfLeading = (lineHeight - fontSize) / 2;
   const _sample = ctx.measureText('Mg');
   const ascent = _sample.fontBoundingBoxAscent
               || _sample.actualBoundingBoxAscent
               || (fontSize * 0.8);
+  const descent = _sample.fontBoundingBoxDescent
+               || _sample.actualBoundingBoxDescent
+               || (fontSize * 0.2);
+  // CSS distributes line-height around the font's actual line box, not around
+  // the nominal font-size. Using fontSize here moved edit-mode text upward by
+  // several pixels for fonts whose ascender + descender exceeds the em size.
+  const halfLeading = (lineHeight - ascent - descent) / 2;
   const paragraphs = annotation.text.split('\n');
   let y = annotation.y + padding + halfLeading + ascent;
 

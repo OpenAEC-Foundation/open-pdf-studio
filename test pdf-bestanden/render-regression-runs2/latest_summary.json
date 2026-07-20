@@ -1,0 +1,28 @@
+{
+  "git_sha": "7227b503",
+  "timestamp": "2026-05-09T13:40:43",
+  "config": {
+    "width": 2000,
+    "blur_sigma": 1.0,
+    "pixel_tol": 30,
+    "fail_pct": 2.0
+  },
+  "pdfs": [
+    {
+      "path": "C:\\Users\\rickd\\Documents\\GitHub\\open-pdf-studio\\test pdf-bestanden\\Originele bestanden\\Combinatie Raster, vector, tekening images.pdf",
+      "version": "1.4",
+      "pages": [
+        {
+          "index": 0,
+          "diff_pct": 3.4652296819787987,
+          "passed": false
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "pages": 1,
+    "passed": 0,
+    "failed": 1
+  }
+}

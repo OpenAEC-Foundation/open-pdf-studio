@@ -1,6 +1,7 @@
 import { state, getActiveDocument } from '../../core/state.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { savePreferences } from '../../core/preferences.js';
+import { clearTextSelection } from '../../text/text-selection.js';
 import {
   storeShowProperties,
   storeHideProperties,
@@ -23,6 +24,7 @@ function redraw() {
 
 // Show properties panel for a single annotation
 export function showProperties(annotation) {
+  clearTextSelection();
   const doc = state.documents[state.activeDocumentIndex];
   if (doc) {
     doc.selectedAnnotation = annotation;
@@ -73,6 +75,7 @@ export function initPropertiesPanel() {
 
 // Show properties panel for multi-selection
 export function showMultiSelectionProperties() {
+  clearTextSelection();
   const _multiDoc = getActiveDocument();
   const selected = _multiDoc ? _multiDoc.selectedAnnotations : [];
   if (!selected || selected.length < 2) return;

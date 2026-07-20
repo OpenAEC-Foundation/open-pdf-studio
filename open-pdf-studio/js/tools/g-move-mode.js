@@ -36,7 +36,7 @@ import { state, getActiveDocument } from '../core/state.js';
 import { cloneAnnotation } from '../annotations/factory.js';
 import { applyMove } from './../annotations/transforms.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
-import { recordModify, recordBulkModify } from '../core/undo-manager.js';
+import { recordModify, recordBulkModify, recordBulkAdd } from '../core/undo-manager.js';
 import { isPdfAReadOnly } from '../pdf/loader.js';
 import { annotationCanvas } from '../ui/dom-elements.js';
 import { applyTemplateRealSize } from '../symbols/real-size.js';
@@ -476,7 +476,9 @@ export function commitMove() {
   const changed = targets.some((ann, i) =>
     originals[i] && JSON.stringify(ann) !== JSON.stringify(originals[i])
   );
-  if (changed) {
+  if (mode.insertedCopies) {
+    recordBulkAdd(targets);
+  } else if (changed) {
     if (targets.length > 1) {
       recordBulkModify(targets, originals);
     } else if (targets.length === 1) {
@@ -489,6 +491,16 @@ export function commitMove() {
 
 export function cancelMove() {
   if (!mode) return;
+  if (mode.insertedCopies) {
+    const doc = getActiveDocument();
+    const insertedIds = new Set(mode.targets.map(annotation => annotation.id));
+    doc.annotations = doc.annotations.filter(annotation => !insertedIds.has(annotation.id));
+    doc.selectedAnnotations = mode.restoreSelection || [];
+    doc.selectedAnnotation = doc.selectedAnnotations[0] || null;
+    endMode();
+    redraw();
+    return;
+  }
   // Restore originals (identity-safe: re-bind by id first)
   for (let i = 0; i < mode.targets.length; i++) {
     const ann = _liveTarget(i);
@@ -548,6 +560,8 @@ export function tryStartGMove(options = {}) {
     startSeeded: hasTracker,
     awaitingBase: !!options.basePoint,
     basePointFlow: !!options.basePoint,
+    insertedCopies: !!options.insertedCopies,
+    restoreSelection: options.restoreSelection?.slice() || [],
     lastDx: 0,
     lastDy: 0,
     lastCursor: hasTracker ? { x: startX, y: startY } : null,
