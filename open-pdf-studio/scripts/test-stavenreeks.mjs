@@ -562,5 +562,139 @@ console.log('\n14. Uitloop aanhaallijn');
     S.resolveParams({ lineTail: 42 }).lineTail === 42);
 }
 
+// ── 15. Grijppunten op de wapeningspunten + sleep-omrekening ─────────────
+console.log('\n15. Grijppunten en slepen');
+{
+  const base = { startX: 40, startY: 120, endX: 240, endY: 120, count: 4, legLength: 36 };
+
+  // (a) De handles liggen op de PUNTEN, niet op de lijn-uiteinden.
+  for (const legDir of S.STAVENREEKS_LEG_DIRS) {
+    const b = S.buildStavenreeks({ ...base, legDir });
+    const h = S.handleAnchors({ ...base, legDir });
+    check(`${legDir}: LINE_START-handle ligt op het EERSTE punt`,
+      near(h.start.x, b.dots[0].x, 1e-9) && near(h.start.y, b.dots[0].y, 1e-9),
+      `${h.start.x},${h.start.y} vs ${b.dots[0].x},${b.dots[0].y}`);
+    const last = b.dots[b.dots.length - 1];
+    check(`${legDir}: LINE_END-handle ligt op het LAATSTE punt`,
+      near(h.end.x, last.x, 1e-9) && near(h.end.y, last.y, 1e-9));
+    check(`${legDir}: midden-grip ligt tussen beide punten`,
+      near(h.mid.x, (h.start.x + h.end.x) / 2, 1e-9) &&
+      near(h.mid.y, (h.start.y + h.end.y) / 2, 1e-9));
+    check(`${legDir}: handles liggen NIET op de lijn-uiteinden`,
+      Math.hypot(h.start.x - base.startX, h.start.y - base.startY) > 1);
+  }
+
+  // (b) count === 1: het enige punt ligt in het midden. De handles mogen niet
+  // samenvallen; ze staan op de virtuele punten bij beide lijn-uiteinden en
+  // het echte punt ligt precies op de midden-grip.
+  {
+    const one = { ...base, count: 1 };
+    const h = S.handleAnchors(one);
+    const b = S.buildStavenreeks(one);
+    check('count=1: start- en eind-handle vallen NIET samen',
+      Math.hypot(h.start.x - h.end.x, h.start.y - h.end.y) > 1,
+      Math.hypot(h.start.x - h.end.x, h.start.y - h.end.y));
+    check('count=1: het enige punt ligt op de midden-grip',
+      near(b.dots[0].x, h.mid.x, 1e-9) && near(b.dots[0].y, h.mid.y, 1e-9));
+  }
+
+  // (c) Sleep-omrekening: het PUNT komt exact onder de cursor.
+  const dropsOnTarget = (ann, which, tx, ty) => {
+    const p = S.resolveParams(ann);
+    const fixed = which === 'start'
+      ? { x: ann.endX, y: ann.endY } : { x: ann.startX, y: ann.startY };
+    const solved = S.lineEndForDotTarget(fixed, { x: tx, y: ty }, which, p.legDir, p.legLength);
+    if (!solved) return null;
+    const moved = which === 'start'
+      ? { ...ann, startX: solved.x, startY: solved.y }
+      : { ...ann, endX: solved.x, endY: solved.y };
+    const h = S.handleAnchors(moved);
+    const got = which === 'start' ? h.start : h.end;
+    return Math.hypot(got.x - tx, got.y - ty);
+  };
+
+  for (const legDir of S.STAVENREEKS_LEG_DIRS) {
+    const ann = { ...base, legDir };
+    for (const [tx, ty] of [[300, 200], [300, 60], [90, 260], [-40, 40], [240, 400]]) {
+      const eEnd = dropsOnTarget(ann, 'end', tx, ty);
+      check(`${legDir}: eind-punt landt exact op (${tx},${ty})`, eEnd !== null && eEnd < 1e-6, eEnd);
+      const eStart = dropsOnTarget(ann, 'start', tx, ty);
+      check(`${legDir}: start-punt landt exact op (${tx},${ty})`, eStart !== null && eStart < 1e-6, eStart);
+    }
+  }
+  // Ook bij count === 1 (virtuele punten) klopt de omrekening.
+  {
+    const one = { ...base, count: 1 };
+    const e = dropsOnTarget(one, 'end', 320, 240);
+    check('count=1: sleep-omrekening blijft kloppen (geen deling door nul)',
+      e !== null && e < 1e-6, e);
+  }
+
+  // (d) Het VASTE uiteinde blijft staan; de reeks draait dus om dat punt.
+  {
+    const p = S.resolveParams(base);
+    const solved = S.lineEndForDotTarget({ x: base.startX, y: base.startY },
+      { x: 300, y: 300 }, 'end', p.legDir, p.legLength);
+    check('slepen laat het vaste uiteinde ongemoeid', solved !== null);
+    const moved = { ...base, endX: solved.x, endY: solved.y };
+    check('startpunt van de lijn onveranderd',
+      moved.startX === base.startX && moved.startY === base.startY);
+    check('pootlengte blijft gerespecteerd na het slepen',
+      near(Math.hypot(
+        S.buildStavenreeks(moved).legs[0].x2 - S.buildStavenreeks(moved).legs[0].x1,
+        S.buildStavenreeks(moved).legs[0].y2 - S.buildStavenreeks(moved).legs[0].y1), 36, 1e-9));
+  }
+
+  // (e) Degeneratie: doel te dicht op het vaste uiteinde → null (aanroeper
+  // valt terug op het directe gedrag, geen sprong).
+  {
+    const p = S.resolveParams(base);
+    const none = S.lineEndForDotTarget({ x: base.startX, y: base.startY },
+      { x: base.startX, y: base.startY }, 'end', p.legDir, p.legLength);
+    check('doel op het vaste uiteinde → null (geen sprong)', none === null, JSON.stringify(none));
+  }
+
+  // (f) De pootrotor is een zuivere rotatie en stemt overeen met legUnitVector.
+  {
+    const frame = { ux: 1, uy: 0, nx: 0, ny: 1, len: 100 };
+    for (const legDir of S.STAVENREEKS_LEG_DIRS) {
+      const c = S.legRotor(legDir);
+      check(`${legDir}: rotor is een eenheidsgetal`,
+        near(Math.hypot(c.re, c.im), 1, 1e-12), Math.hypot(c.re, c.im));
+      const v = S.legUnitVector(frame, legDir);
+      // u = (1,0) → v = u·c = (c.re, c.im)
+      check(`${legDir}: rotor komt overeen met legUnitVector`,
+        near(v.x, c.re, 1e-12) && near(v.y, c.im, 1e-12), `${v.x},${v.y} vs ${c.re},${c.im}`);
+    }
+  }
+
+  // (g) Verplaatsen van het HELE object (LINE_MID / gewone move) verandert de
+  // vorm niet: alle handles schuiven mee met dezelfde verplaatsing.
+  {
+    const h0 = S.handleAnchors(base);
+    const moved = { ...base, startX: base.startX + 37, startY: base.startY - 19,
+      endX: base.endX + 37, endY: base.endY - 19 };
+    const h1 = S.handleAnchors(moved);
+    check('hele object verplaatsen: start-handle schuift 1-op-1 mee',
+      near(h1.start.x - h0.start.x, 37, 1e-9) && near(h1.start.y - h0.start.y, -19, 1e-9));
+    check('hele object verplaatsen: eind-handle schuift 1-op-1 mee',
+      near(h1.end.x - h0.end.x, 37, 1e-9) && near(h1.end.y - h0.end.y, -19, 1e-9));
+    check('hele object verplaatsen: midden-grip schuift 1-op-1 mee',
+      near(h1.mid.x - h0.mid.x, 37, 1e-9) && near(h1.mid.y - h0.mid.y, -19, 1e-9));
+    const g0 = S.buildStavenreeks(base), g1 = S.buildStavenreeks(moved);
+    check('hele object verplaatsen: AABB behoudt zijn afmetingen',
+      near(g0.aabb.width, g1.aabb.width, 1e-9) && near(g0.aabb.height, g1.aabb.height, 1e-9));
+  }
+
+  // (h) De uitloop heeft GEEN invloed op de grijppunten (die hangen aan de
+  // staafposities, niet aan de getekende lijn).
+  {
+    const a = S.handleAnchors({ ...base, lineTail: 0 });
+    const b = S.handleAnchors({ ...base, lineTail: 60 });
+    check('uitloop verplaatst de grijppunten niet',
+      near(a.start.x, b.start.x, 1e-9) && near(a.end.x, b.end.x, 1e-9));
+  }
+}
+
 console.log(`\n${failures === 0 ? 'GESLAAGD' : 'GEFAALD'}: ${checks - failures}/${checks} controles`);
 process.exit(failures === 0 ? 0 : 1);

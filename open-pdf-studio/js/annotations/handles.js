@@ -2,6 +2,7 @@ import { HANDLE_SIZE, HANDLE_TYPES } from '../core/constants.js';
 import { annotationCtx } from '../ui/dom-elements.js';
 import { state } from '../core/state.js';
 import { getTemplate } from '../symbols/registry.js';
+import { handleAnchors } from './stavenreeks.js';
 
 // Rotate a point around a center point
 function rotatePoint(x, y, centerX, centerY, rotationDegrees) {
@@ -208,7 +209,25 @@ export function getAnnotationHandles(annotation, scale = 1) {
       handles.push({ type: HANDLE_TYPES.ROTATE, x: circX + circW/2 - hs/2, y: circY - 25 / scale - hs/2 });
       break;
 
-    case 'stavenreeks':
+    case 'stavenreeks': {
+      // De grijppunten zitten op de WAPENINGSPUNTEN (de staven), niet op de
+      // uiteinden van de aanhaallijn: dat is wat de gebruiker ziet en wil
+      // vastpakken. handleAnchors() levert het punt bij het lijn-startpunt,
+      // het punt bij het lijn-eindpunt en het midden daartussen. Het slepen
+      // rekent in transforms.js terug naar het bijbehorende lijn-uiteinde.
+      const sr = handleAnchors(annotation);
+      handles.push({ type: HANDLE_TYPES.LINE_START, x: sr.start.x - hs/2, y: sr.start.y - hs/2, isGrip: true });
+      handles.push({ type: HANDLE_TYPES.LINE_END, x: sr.end.x - hs/2, y: sr.end.y - hs/2, isGrip: true });
+      handles.push({
+        type: HANDLE_TYPES.LINE_MID,
+        x: sr.mid.x - hs/2,
+        y: sr.mid.y - hs/2,
+        isGrip: true,
+        isCenterGrip: true,
+      });
+      break;
+    }
+
     case 'wall':
     case 'line':
       // Endpoint handles + midpoint grip (move whole line)

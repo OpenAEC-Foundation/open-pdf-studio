@@ -163,6 +163,130 @@ export function legUnitVector(frame, legDir, angleDeg = STAVENREEKS_LEG_ANGLE_DE
 }
 
 /**
+ * Rotatie-getal `c` waarmee de POOTVECTOR uit de lijnrichting volgt.
+ *
+ * De poot is niets anders dan de lijnrichting `u`, gedraaid over een vaste
+ * hoek. In complexe notatie (x + i·y, met y omlaag zoals op het canvas) geldt
+ * n = i·u, en dus
+ *
+ *     v = leanSign·cos θ · u + perpSign·sin θ · n = u · c,
+ *     c = leanSign·cos θ + i · perpSign·sin θ,   |c| = 1.
+ *
+ * Dat maakt de omrekening "punt onder de cursor → lijn-uiteinde" (zie
+ * lineEndForDotTarget) een eenvoudige complexe deling in plaats van een
+ * iteratie. `legUnitVector` blijft de vector-variant van exact dezelfde
+ * formule.
+ *
+ * @returns {{re:number, im:number}}
+ */
+export function legRotor(legDir, angleDeg = STAVENREEKS_LEG_ANGLE_DEG) {
+  const dir = STAVENREEKS_LEG_DIRS.includes(legDir) ? legDir : STAVENREEKS_DEFAULTS.legDir;
+  const perpSign = dir.startsWith('down') ? 1 : -1;
+  const leanSign = dir.endsWith('right') ? 1 : -1;
+  const th = (Number(angleDeg) || 0) * Math.PI / 180;
+  return { re: leanSign * Math.cos(th), im: perpSign * Math.sin(th) };
+}
+
+/**
+ * Aangrijppunten van de bewerk-handles: de WAPENINGSPUNTEN, niet de uiteinden
+ * van de aanhaallijn.
+ *
+ * `start` ligt op het punt dat bij het lijn-startpunt hoort, `end` op het punt
+ * dat bij het lijn-eindpunt hoort, en `mid` precies daartussenin.
+ *
+ * Bij count >= 2 zijn `start` en `end` letterlijk het eerste en het laatste
+ * punt uit buildStavenreeks().dots (de staafposities lopen immers t/m beide
+ * uiteinden). Bij count === 1 ligt het enige echte punt in het midden; dan
+ * zouden drie handles op elkaar vallen. Daarom worden de aangrijppunten
+ * ALTIJD berekend als "lijn-uiteinde + pootvector × pootlengte": bij count >= 2
+ * is dat exact het punt, bij count === 1 zijn het twee onderscheidbare
+ * virtuele punten in dezelfde stand. De sleep-omrekening werkt in beide
+ * gevallen identiek.
+ *
+ * @returns {{start:{x,y}, end:{x,y}, mid:{x,y}, offset:{x,y}}}
+ */
+export function handleAnchors(ann) {
+  const startX = Number(ann?.startX) || 0;
+  const startY = Number(ann?.startY) || 0;
+  const endX = Number(ann?.endX) || 0;
+  const endY = Number(ann?.endY) || 0;
+  const p = resolveParams(ann);
+  const frame = lineFrame(startX, startY, endX, endY);
+  const lv = legUnitVector(frame, p.legDir);
+  const offset = { x: lv.x * p.legLength, y: lv.y * p.legLength };
+  const start = { x: startX + offset.x, y: startY + offset.y };
+  const end = { x: endX + offset.x, y: endY + offset.y };
+  return {
+    start, end, offset,
+    mid: { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 },
+  };
+}
+
+/**
+ * Omrekening voor het SLEPEN van een punt-handle.
+ *
+ * De handle zit op een wapeningspunt, dus het punt moet onder de cursor
+ * terechtkomen — niet het lijn-uiteinde. Omdat
+ *
+ *     punt = lijn-uiteinde + pootvector × pootlengte
+ *
+ * en de pootvector zelf uit de LIJNRICHTING volgt, is dit géén simpele
+ * aftrekking: verplaats je het uiteinde, dan draait de pootvector mee. Naïef
+ * "cursor − pootvector(oude richting)" laat het punt daarom wegdrijven van de
+ * cursor zodra de reeks tijdens het slepen draait.
+ *
+ * Hier wordt de vergelijking exact opgelost. Met het vaste uiteinde F, het
+ * bewegende uiteinde E = F ± r·u (r > 0, |u| = 1), de pootrotor c uit
+ * legRotor() en L = pootlengte geldt voor het doelpunt T:
+ *
+ *   - eindpunt slepen (F = start):  T = F + u·(r + L·c)
+ *   - startpunt slepen (F = eind):  T = F + u·(L·c − r)
+ *
+ * Neem de modulus: |w| = |T − F| levert een vierkantsvergelijking in r met de
+ * gesloten oplossing
+ *
+ *     r = ∓L·Re(c) + √(L²·Re(c)² + |w|² − L²),
+ *
+ * waarna u = w / (r + L·c) resp. u = w / (L·c − r). Het punt landt daarmee
+ * EXACT onder de cursor, hoe ver de reeks tijdens het slepen ook draait.
+ *
+ * Ligt de cursor te dicht bij het vaste uiteinde (discriminant < 0, of r <= 0),
+ * dan bestaat er geen reeks met deze pootlengte die het punt daar krijgt;
+ * er wordt dan `null` teruggegeven zodat de aanroeper op het oude, directe
+ * gedrag kan terugvallen in plaats van te springen.
+ *
+ * @param {{x:number,y:number}} fixed   Het uiteinde dat NIET meebeweegt.
+ * @param {{x:number,y:number}} target  Gewenste puntpositie (de cursor).
+ * @param {'start'|'end'} which         Welk uiteinde gesleept wordt.
+ * @returns {{x:number,y:number}|null}  Nieuwe positie van dat uiteinde.
+ */
+export function lineEndForDotTarget(fixed, target, which, legDir, legLength,
+                                    angleDeg = STAVENREEKS_LEG_ANGLE_DEG) {
+  const c = legRotor(legDir, angleDeg);
+  const L = Math.max(0, Number(legLength) || 0);
+  const wx = (Number(target?.x) || 0) - (Number(fixed?.x) || 0);
+  const wy = (Number(target?.y) || 0) - (Number(fixed?.y) || 0);
+  const W2 = wx * wx + wy * wy;
+  const disc = L * L * c.re * c.re + W2 - L * L;
+  if (!(disc >= 0)) return null;
+  const s = Math.sqrt(disc);
+  const movingEnd = which !== 'start';
+  const r = movingEnd ? (s - L * c.re) : (s + L * c.re);
+  if (!(r > 0)) return null;
+  // Noemer z: (r + L·c) bij het eindpunt, (L·c − r) bij het startpunt.
+  const zr = movingEnd ? (r + L * c.re) : (L * c.re - r);
+  const zi = L * c.im;
+  const den = zr * zr + zi * zi;
+  if (!(den > 0)) return null;
+  // u = w / z (complexe deling).
+  const ux = (wx * zr + wy * zi) / den;
+  const uy = (wy * zr - wx * zi) / den;
+  return movingEnd
+    ? { x: fixed.x + r * ux, y: fixed.y + r * uy }
+    : { x: fixed.x - r * ux, y: fixed.y - r * uy };
+}
+
+/**
  * Breedte-schatter voor labeltekst zonder canvas. Wordt gebruikt in node-tests
  * en als fallback; de renderer geeft een echte ctx.measureText-meter mee.
  */

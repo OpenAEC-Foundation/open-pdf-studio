@@ -2,6 +2,7 @@ import { HANDLE_TYPES } from '../core/constants.js';
 import { state } from '../core/state.js';
 import { snapAngle } from '../utils/helpers.js';
 import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement, formatDimensionText, snapDistanceTo10 } from './measurement.js';
+import { handleAnchors, lineEndForDotTarget, resolveParams } from './stavenreeks.js';
 
 // Compute measurement text for a dimension annotation, using its own scale if available
 function computeDimensionText(ann) {
@@ -391,9 +392,58 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
       }
       break;
 
-    // De stavenreeks bewerkt exact als een lijn: de twee uiteinden bepalen de
-    // reekslijn, alle overige geometrie wordt bij het renderen afgeleid.
-    case 'stavenreeks':
+    // De stavenreeks bewerkt als een lijn — met één verschil: de grijppunten
+    // zitten op de WAPENINGSPUNTEN (zie handles.js), niet op de uiteinden van
+    // de aanhaallijn. Slepen moet dus het PUNT onder de cursor krijgen, en het
+    // bijbehorende lijn-uiteinde daaruit terugrekenen. Omdat het punt via de
+    // pootvector aan de LIJNRICHTING hangt, is dat geen simpele aftrekking:
+    // lineEndForDotTarget() lost de vergelijking exact op (gesloten vorm), zodat
+    // het punt onder de cursor blijft ook als de reeks tijdens het slepen draait.
+    case 'stavenreeks': {
+      if (handleType !== HANDLE_TYPES.LINE_START && handleType !== HANDLE_TYPES.LINE_END) break;
+      const movingStart = handleType === HANDLE_TYPES.LINE_START;
+      const anchors = handleAnchors(originalAnn);
+      const srp = resolveParams(originalAnn);
+      // Doelpositie van het punt = waar het bij drag-start stond + de sleep.
+      const anchor = movingStart ? anchors.start : anchors.end;
+      const target = { x: anchor.x + deltaX, y: anchor.y + deltaY };
+      // Het andere lijn-uiteinde blijft staan.
+      const fixed = movingStart
+        ? { x: originalAnn.endX, y: originalAnn.endY }
+        : { x: originalAnn.startX, y: originalAnn.startY };
+      let solved = lineEndForDotTarget(
+        fixed, target, movingStart ? 'start' : 'end', srp.legDir, srp.legLength,
+      );
+      // Geen oplossing (cursor te dicht op het vaste uiteinde): val terug op
+      // het directe gedrag — het uiteinde volgt de sleep — zodat de vorm niet
+      // wegspringt.
+      if (!solved) {
+        solved = movingStart
+          ? { x: originalAnn.startX + deltaX, y: originalAnn.startY + deltaY }
+          : { x: originalAnn.endX + deltaX, y: originalAnn.endY + deltaY };
+      }
+      if (shiftKey && state.preferences.enableAngleSnap) {
+        // Snap de REEKSLIJN op vaste hoeken rond het stilstaande uiteinde,
+        // met behoud van de zojuist bepaalde lengte.
+        const sdx = solved.x - fixed.x;
+        const sdy = solved.y - fixed.y;
+        const slen = Math.sqrt(sdx * sdx + sdy * sdy);
+        const snapped = snapAngle(
+          Math.atan2(sdy, sdx) * (180 / Math.PI),
+          state.preferences.angleSnapDegrees,
+        ) * (Math.PI / 180);
+        solved = { x: fixed.x + slen * Math.cos(snapped), y: fixed.y + slen * Math.sin(snapped) };
+      }
+      if (movingStart) {
+        annotation.startX = solved.x;
+        annotation.startY = solved.y;
+      } else {
+        annotation.endX = solved.x;
+        annotation.endY = solved.y;
+      }
+      break;
+    }
+
     case 'wall':
     case 'line':
     case 'arrow':
