@@ -38,6 +38,19 @@ export const STAVENREEKS_DEFAULTS = {
   fontSize: 12,
 };
 
+/**
+ * Hoek van een poot t.o.v. de REEKSLIJN, in graden.
+ *
+ * 90° = loodrecht op de reekslijn, 45° = de oude "diagonaal". In het
+ * wapeningsdetail waar de vorm op gemodelleerd is lopen de poten duidelijk
+ * steiler dan 45°, maar niet loodrecht: de poot moet zichtbaar "achterover"
+ * hellen zodat de reeks een richting houdt. 68° is de gekozen middenweg —
+ * de tangentiële component is dan cos68° ≈ 0.37 (bij pootlengte 36 dus ~13 px
+ * horizontaal tegenover ~33 px loodrecht), wat de referentie het dichtst
+ * benadert zonder dat de poten loodrecht ogen.
+ */
+export const STAVENREEKS_LEG_ANGLE_DEG = 68;
+
 function clamp(v, lo, hi) {
   return v < lo ? lo : (v > hi ? hi : v);
 }
@@ -105,15 +118,33 @@ export function barPositions(startX, startY, endX, endY, count) {
 }
 
 /**
- * Eenheidsvector van een poot: 45° t.o.v. de reekslijn, samengesteld uit de
- * loodrechte (boven/onder) en de tangent (links/rechts hellend).
+ * Tangentiële component van een poot: |cos θ| met θ de pootbouw uit
+ * STAVENREEKS_LEG_ANGLE_DEG. Dit is de fractie van de pootlengte die LANGS de
+ * reekslijn wordt afgelegd — gebruikt voor de vrijloop van het label.
  */
-export function legUnitVector(frame, legDir) {
+export function legTangentFraction(angleDeg = STAVENREEKS_LEG_ANGLE_DEG) {
+  return Math.abs(Math.cos((Number(angleDeg) || 0) * Math.PI / 180));
+}
+
+/**
+ * Eenheidsvector van een poot: θ graden t.o.v. de reekslijn, samengesteld uit
+ * de loodrechte (boven/onder) en de tangent (links/rechts hellend).
+ *
+ * De loodrechte krijgt gewicht sin θ en de tangent cos θ, zodat de hoek tussen
+ * poot en reekslijn exact θ is. Bij θ = 45° zijn beide gewichten gelijk (het
+ * oude gedrag); bij de huidige default 68° overheerst de loodrechte en staat
+ * de poot dus steiler. De vier richtingen spiegelen via de twee tekens en
+ * blijven daardoor onderling symmetrisch.
+ */
+export function legUnitVector(frame, legDir, angleDeg = STAVENREEKS_LEG_ANGLE_DEG) {
   const dir = STAVENREEKS_LEG_DIRS.includes(legDir) ? legDir : STAVENREEKS_DEFAULTS.legDir;
   const perpSign = dir.startsWith('down') ? 1 : -1;
   const leanSign = dir.endsWith('right') ? 1 : -1;
-  const vx = perpSign * frame.nx + leanSign * frame.ux;
-  const vy = perpSign * frame.ny + leanSign * frame.uy;
+  const th = (Number(angleDeg) || 0) * Math.PI / 180;
+  const wPerp = Math.sin(th);
+  const wTan = Math.cos(th);
+  const vx = perpSign * frame.nx * wPerp + leanSign * frame.ux * wTan;
+  const vy = perpSign * frame.ny * wPerp + leanSign * frame.uy * wTan;
   const m = Math.hypot(vx, vy) || 1;
   return { x: vx / m, y: vy / m };
 }
@@ -283,12 +314,14 @@ export function buildStavenreeks(ann, opts = {}) {
   if (frame.len === 0) { dx = 1; dy = 0; }
   // Vrijloop langs de lijn. Standaard een halve tekengrootte. Hellen de poten
   // NAAR de labelzijde toe, dan steken de poot en zijn punt langs de
-  // lijnrichting voorbij het ankerpunt (legLength·cos45° + puntstraal); het
-  // label schuift dan precies zoveel op, zodat het nooit tegen de eerste poot
-  // of punt botst. In de referentie hellen de poten van het label WEG en is
-  // die extra vrijloop dus nul: het label staat net voorbij het uiteinde.
+  // lijnrichting voorbij het ankerpunt (legLength × de TANGENTIËLE component
+  // van de pootrichting + puntstraal); het label schuift dan precies zoveel
+  // op, zodat het nooit tegen de eerste poot of punt botst. Die component
+  // beweegt mee met STAVENREEKS_LEG_ANGLE_DEG: bij een steilere poot is de
+  // benodigde vrijloop kleiner. In de referentie hellen de poten van het label
+  // WEG en is de extra vrijloop nul: het label staat net voorbij het uiteinde.
   const leansToLabel = atEnd === params.legDir.endsWith('right');
-  const legReach = leansToLabel ? params.legLength * Math.SQRT1_2 + r : 0;
+  const legReach = leansToLabel ? params.legLength * legTangentFraction() + r : 0;
   const gap = fontSize * 0.5 + legReach;
   const labelX = anchorX + dx * gap;
   const labelY = anchorY + dy * gap;

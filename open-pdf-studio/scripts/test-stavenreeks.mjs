@@ -123,8 +123,45 @@ console.log('\n5. Pootrichting');
   check('down-right: punt onder en naar rechts', dr.dots[1].y > 0 && dr.dots[1].x > 50);
   check('up-left: punt boven en naar links', ul.dots[1].y < 0 && ul.dots[1].x < 50);
   check('up-right: punt boven en naar rechts', ur.dots[1].y < 0 && ur.dots[1].x > 50);
-  check('poot staat onder 45° (gelijke x/y-component)',
-    near(Math.abs(dl.dots[1].x - 50), Math.abs(dl.dots[1].y), 1e-9));
+  // Hoek poot ↔ reekslijn: exact STAVENREEKS_LEG_ANGLE_DEG, voor alle vier
+  // de richtingen. De reekslijn is hier horizontaal (u = (1,0)).
+  const angleToLine = (b, i) => {
+    const l = b.legs[i];
+    const vx = l.x2 - l.x1, vy = l.y2 - l.y1;
+    const m = Math.hypot(vx, vy);
+    // |cos| t.o.v. de lijnrichting → hoek in [0, 90°].
+    return Math.acos(Math.min(1, Math.abs(vx / m))) * 180 / Math.PI;
+  };
+  for (const [name, b] of [['down-left', dl], ['down-right', dr], ['up-left', ul], ['up-right', ur]]) {
+    for (const i of [0, 1, 2]) {
+      check(`${name}: poot ${i} staat onder ${S.STAVENREEKS_LEG_ANGLE_DEG}° t.o.v. de reekslijn`,
+        near(angleToLine(b, i), S.STAVENREEKS_LEG_ANGLE_DEG, 1e-9), angleToLine(b, i));
+    }
+  }
+  check('standaard poothoek ligt tussen 65° en 70° (steiler dan de oude 45°)',
+    S.STAVENREEKS_LEG_ANGLE_DEG >= 65 && S.STAVENREEKS_LEG_ANGLE_DEG <= 70,
+    S.STAVENREEKS_LEG_ANGLE_DEG);
+  check('steiler dan 45°: loodrechte component groter dan de tangentiële',
+    Math.abs(dl.dots[1].y) > Math.abs(dl.dots[1].x - 50),
+    `${Math.abs(dl.dots[1].y)} vs ${Math.abs(dl.dots[1].x - 50)}`);
+  check('tangentiële fractie = cos(hoek)',
+    near(S.legTangentFraction(), Math.cos(S.STAVENREEKS_LEG_ANGLE_DEG * Math.PI / 180), 1e-12),
+    S.legTangentFraction());
+  // Spiegelsymmetrie: de vier richtingen zijn elkaars spiegelbeeld.
+  check('down/up spiegelen loodrecht', near(dl.dots[1].y, -ul.dots[1].y, 1e-9) &&
+    near(dl.dots[1].x, ul.dots[1].x, 1e-9));
+  check('left/right spiegelen langs de lijn', near(dl.dots[1].x - 50, -(dr.dots[1].x - 50), 1e-9) &&
+    near(dl.dots[1].y, dr.dots[1].y, 1e-9));
+  // Een expliciete hoek moet doorwerken in legUnitVector.
+  {
+    const frame = { ux: 1, uy: 0, nx: 0, ny: 1, len: 100 };
+    const v90 = S.legUnitVector(frame, 'down-left', 90);
+    check('90° → poot exact loodrecht op de reekslijn',
+      near(v90.x, 0, 1e-12) && near(v90.y, 1, 1e-12), `${v90.x},${v90.y}`);
+    const v45 = S.legUnitVector(frame, 'down-left', 45);
+    check('45° → gelijke x/y-component (oud gedrag blijft opvraagbaar)',
+      near(Math.abs(v45.x), Math.abs(v45.y), 1e-12));
+  }
   check('pootlengte gerespecteerd',
     near(Math.hypot(dl.legs[1].x2 - dl.legs[1].x1, dl.legs[1].y2 - dl.legs[1].y1), 20));
   check('alle 4 richtingen geldig', S.STAVENREEKS_LEG_DIRS.length === 4);
@@ -374,6 +411,20 @@ console.log('\n12. Standaardwaarden');
     Math.hypot(d.legs[0].x2 - d.legs[0].x1, d.legs[0].y2 - d.legs[0].y1));
   check('poot is duidelijk langer dan de punt (zichtbaar segment)',
     36 > 4 * S.pointRadius(d.params.diameter));
+  // AABB moet de (steilere) poot-tippen omvatten: de loodrechte reikwijdte is
+  // legLength·sin θ, en die bepaalt bij een horizontale reeks de hoogte.
+  const th = S.STAVENREEKS_LEG_ANGLE_DEG * Math.PI / 180;
+  const perpReach = 36 * Math.sin(th);
+  const tipsInside = d.legs.every(l =>
+    l.x2 >= d.aabb.x - 1e-9 && l.x2 <= d.aabb.x + d.aabb.width + 1e-9 &&
+    l.y2 >= d.aabb.y - 1e-9 && l.y2 <= d.aabb.y + d.aabb.height + 1e-9);
+  check('AABB omvat de poot-tippen bij de nieuwe hoek', tipsInside);
+  check('AABB-hoogte dekt de loodrechte reikwijdte legLength·sin θ',
+    d.aabb.height >= perpReach - 1e-9, `${d.aabb.height} >= ${perpReach}`);
+  check('poot-tip ligt legLength·sin θ onder de reekslijn',
+    near(d.legs[0].y2 - d.legs[0].y1, perpReach, 1e-9), d.legs[0].y2 - d.legs[0].y1);
+  check('poot-tip ligt legLength·cos θ terug langs de lijn',
+    near(d.legs[0].x1 - d.legs[0].x2, 36 * Math.cos(th), 1e-9), d.legs[0].x1 - d.legs[0].x2);
   check('standaard labelzijde = end', S.STAVENREEKS_DEFAULTS.labelSide === 'end');
   check('standaard pootrichting = down-left', S.STAVENREEKS_DEFAULTS.legDir === 'down-left');
 }
