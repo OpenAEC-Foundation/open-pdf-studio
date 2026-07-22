@@ -18,6 +18,7 @@ import { getPropertyPanel } from '../../plugins/property-panel-registry.js';
 import { fireSelectionChange } from '../../plugins/selection-listener-registry.js';
 import i18next from '../../i18n/config.js';
 import { syncDocScale } from '../../annotations/scale-bar.js';
+import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
 import { recalculateAllMeasurements, calculateArea, calculatePerimeter, calculateDistance, formatMeasurement, formatDimensionText, getMeasureScale } from '../../annotations/measurement.js';
 
 // Types whose single 'color' control IS their stroke colour and which render
@@ -348,7 +349,7 @@ export function storeShowProperties(annotation) {
     srDiameter: annotation.diameter ?? 12,
     srBarLengthMm: annotation.barLengthMm ?? 0,
     srLegDir: annotation.legDir || 'down-left',
-    srLegLength: annotation.legLength ?? 24,
+    srLegLength: annotation.legLength ?? STAVENREEKS_DEFAULTS.legLength,
     srLabelSide: annotation.labelSide || 'end',
     symbolId: annotation.symbolId || '',
     params: annotation.params ? { ...annotation.params } : {},
@@ -781,7 +782,7 @@ function applyPropToAnnotation(ann, key, value) {
     case 'srDiameter': ann.diameter = parseFloat(value) || 12; break;
     case 'srBarLengthMm': ann.barLengthMm = Math.max(0, parseFloat(value) || 0); break;
     case 'srLegDir': ann.legDir = value; break;
-    case 'srLegLength': ann.legLength = Math.max(1, parseFloat(value) || 24); break;
+    case 'srLegLength': ann.legLength = Math.max(1, parseFloat(value) || STAVENREEKS_DEFAULTS.legLength); break;
     case 'srLabelSide': ann.labelSide = value; break;
     case 'viewportName': ann.name = value; break;
     case 'viewportScaleRatio': {
@@ -1149,7 +1150,7 @@ export function updateAnnotProp(key, value) {
       break;
     }
     case 'srLegLength': {
-      currentAnnotation.legLength = Math.max(1, parseFloat(value) || 24);
+      currentAnnotation.legLength = Math.max(1, parseFloat(value) || STAVENREEKS_DEFAULTS.legLength);
       break;
     }
     case 'srLabelSide': {

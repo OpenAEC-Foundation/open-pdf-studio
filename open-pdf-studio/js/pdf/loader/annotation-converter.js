@@ -6,6 +6,7 @@ import { mapPdfFontName, mapBorderStyle } from './pdf-helpers.js';
 import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement } from '../../annotations/measurement.js';
 import { findImageForAnnotation } from './annotation-image-sources.mjs';
 import { ifcCategoryForAnnotationType } from '../../solid/data/ifcCategoryMap.js';
+import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
 
 // Convert PDF annotation to our format
 export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageMap, annotColorMap) {
@@ -1223,7 +1224,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           diameter: extraColors.srDiameter ?? 12,
           barLengthMm: extraColors.srBarLengthMm ?? 0,
           legDir: extraColors.srLegDir || 'down-left',
-          legLength: extraColors.srLegLength ?? 24,
+          legLength: extraColors.srLegLength ?? STAVENREEKS_DEFAULTS.legLength,
           labelSide: extraColors.srLabelSide === 'start' ? 'start' : 'end',
           ifcCategory: ifcCategoryForAnnotationType('stavenreeks'),
           color: srColor,

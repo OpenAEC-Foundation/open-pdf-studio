@@ -1592,6 +1592,12 @@ export function drawAnnotation(ctx, annotation) {
         if (part.kind === 'text') {
           ctx.fillText(part.text, x0 + part.dx, 0);
         } else {
+          // Wapenings-diameterteken: cirkel + schuine streep + twee
+          // vlaggetjes. De lijnstukken komen uit de GEDEELDE module
+          // (diameterSignSegments via labelLayout), zodat het canvas en de
+          // PDF-appearance exact hetzelfde symbool tekenen. Die segmenten
+          // staan in een y-OMHOOG frame; het canvas heeft y omlaag, dus de
+          // y-waarden worden gespiegeld.
           const r = lbl.signRadius;
           const cx = x0 + part.dx + part.w / 2;
           ctx.save();
@@ -1600,11 +1606,11 @@ export function drawAnnotation(ctx, annotation) {
           ctx.beginPath();
           ctx.arc(cx, 0, r, 0, Math.PI * 2);
           ctx.stroke();
-          // Schuine streep door de cirkel (linksonder → rechtsboven).
-          const d = r * 1.25;
           ctx.beginPath();
-          ctx.moveTo(cx - d * 0.707, d * 0.707);
-          ctx.lineTo(cx + d * 0.707, -d * 0.707);
+          for (const seg of (lbl.signSegments || [])) {
+            ctx.moveTo(cx + seg.x1, -seg.y1);
+            ctx.lineTo(cx + seg.x2, -seg.y2);
+          }
           ctx.stroke();
           ctx.restore();
         }

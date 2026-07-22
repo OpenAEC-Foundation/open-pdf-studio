@@ -295,5 +295,149 @@ console.log('\n10. Labelindeling');
     near(txtS.startOffset, -bs.label.width), txtS.startOffset);
 }
 
+// ── 11. Wapenings-diameterteken (2 vlaggetjes) ───────────────────────────
+console.log('\n11. Wapeningssymbool');
+{
+  const fontSize = 12;
+  const r = S.labelLayout(3, 12, fontSize).signRadius;
+  const sign = S.diameterSignSegments(r);
+  check('straal wordt doorgegeven', near(sign.r, r));
+  check('drie lijnstukken: streep + 2 vlaggetjes', sign.segments.length === 3, sign.segments.length);
+
+  const [slash, f1, f2] = sign.segments;
+  const dirOf = (s) => {
+    const dx = s.x2 - s.x1, dy = s.y2 - s.y1, m = Math.hypot(dx, dy);
+    return { x: dx / m, y: dy / m, len: m };
+  };
+  const midOf = (s) => ({ x: (s.x1 + s.x2) / 2, y: (s.y1 + s.y2) / 2 });
+
+  const ds = dirOf(slash);
+  check('schuine streep staat onder 45° (linksonder → rechtsboven)',
+    near(ds.x, Math.SQRT1_2, 1e-9) && near(ds.y, Math.SQRT1_2, 1e-9), `${ds.x},${ds.y}`);
+  check('streep steekt aan weerszijden buiten de cirkel uit',
+    near(ds.len, 2 * S.DIAMETER_SIGN_METRICS.slashHalfLength * r, 1e-9) &&
+    S.DIAMETER_SIGN_METRICS.slashHalfLength > 1, ds.len);
+  check('streep ligt gecentreerd op het cirkelmidden',
+    near(midOf(slash).x, 0, 1e-9) && near(midOf(slash).y, 0, 1e-9));
+
+  for (const [i, fl] of [f1, f2].entries()) {
+    const d = dirOf(fl);
+    check(`vlaggetje ${i + 1} staat LOODRECHT op de streep`,
+      near(d.x * ds.x + d.y * ds.y, 0, 1e-9), d.x * ds.x + d.y * ds.y);
+    check(`vlaggetje ${i + 1} is kort (0,25–0,35 × tekengrootte)`,
+      d.len >= fontSize * 0.25 && d.len <= fontSize * 0.35, d.len);
+    const m = midOf(fl);
+    const dist = Math.hypot(m.x, m.y);
+    check(`vlaggetje ${i + 1} zit net buiten de cirkelrand`,
+      dist > r + 1e-9 && dist <= r * 1.5, dist / r);
+    check(`vlaggetje ${i + 1} zit op de schuine streep, niet erbuiten`,
+      dist <= r * S.DIAMETER_SIGN_METRICS.slashHalfLength + 1e-9, dist);
+    check(`vlaggetje ${i + 1} zit ÓP de schuine streep`,
+      near(m.x * ds.y - m.y * ds.x, 0, 1e-9));
+  }
+  const m1 = midOf(f1), m2 = midOf(f2);
+  check('vlaggetjes liggen symmetrisch aan weerszijden van de cirkel',
+    near(m1.x, -m2.x, 1e-9) && near(m1.y, -m2.y, 1e-9), `${m1.x},${m1.y} vs ${m2.x},${m2.y}`);
+  check('vlaggetjes zijn even lang', near(dirOf(f1).len, dirOf(f2).len, 1e-9));
+  check('symbool schaalt mee met de tekengrootte',
+    near(S.diameterSignSegments(2 * r).segments[1].x1, 2 * sign.segments[1].x1, 1e-9));
+
+  // Gedeeld: dezelfde segmenten belanden in de labelindeling, de geometrie én
+  // de AP-primitieven — canvas en PDF-appearance kunnen dus niet uiteenlopen.
+  const lay = S.labelLayout(3, 12, fontSize);
+  check('labelindeling levert de segmenten mee', Array.isArray(lay.signSegments) &&
+    lay.signSegments.length === 3);
+  check('labelindeling gebruikt dezelfde geometrie',
+    JSON.stringify(lay.signSegments) === JSON.stringify(sign.segments));
+  const bb = S.buildStavenreeks({ startX: 0, startY: 0, endX: 100, endY: 0 });
+  check('geometrie draagt de segmenten mee',
+    JSON.stringify(bb.label.signSegments) === JSON.stringify(sign.segments));
+  const tp = bb.primitives.find(p => p.kind === 'text');
+  check('tekst-primitief (AP-bron) draagt de segmenten mee',
+    JSON.stringify(tp.signSegments) === JSON.stringify(sign.segments));
+  const lp = S.toLocalPrimitives(bb.primitives, bb.aabb, { flipY: true })
+    .find(p => p.kind === 'text');
+  check('lokale AP-primitief behoudt de segmenten',
+    JSON.stringify(lp.signSegments) === JSON.stringify(sign.segments));
+}
+
+// ── 12. Standaardwaarden ─────────────────────────────────────────────────
+console.log('\n12. Standaardwaarden');
+{
+  check('standaard pootlengte = 36', S.STAVENREEKS_DEFAULTS.legLength === 36,
+    S.STAVENREEKS_DEFAULTS.legLength);
+  check('standaard pootlengte valt binnen het paneelbereik 1–200',
+    S.STAVENREEKS_DEFAULTS.legLength >= 1 && S.STAVENREEKS_DEFAULTS.legLength <= 200);
+  const d = S.buildStavenreeks({ startX: 0, startY: 0, endX: 200, endY: 0 });
+  check('verse tekening gebruikt pootlengte 36',
+    near(Math.hypot(d.legs[0].x2 - d.legs[0].x1, d.legs[0].y2 - d.legs[0].y1), 36),
+    Math.hypot(d.legs[0].x2 - d.legs[0].x1, d.legs[0].y2 - d.legs[0].y1));
+  check('poot is duidelijk langer dan de punt (zichtbaar segment)',
+    36 > 4 * S.pointRadius(d.params.diameter));
+  check('standaard labelzijde = end', S.STAVENREEKS_DEFAULTS.labelSide === 'end');
+  check('standaard pootrichting = down-left', S.STAVENREEKS_DEFAULTS.legDir === 'down-left');
+}
+
+// ── 13. Labelvrijloop t.o.v. de poten ────────────────────────────────────
+console.log('\n13. Labelvrijloop');
+{
+  // Referentie-opstelling: poten hellen WEG van het label (down-left + end).
+  const ref = S.buildStavenreeks({ startX: 0, startY: 0, endX: 200, endY: 0 },
+    { measureText: (t, fs) => t.length * fs * 0.55 });
+  check('label staat net voorbij het eindpunt', ref.label.x > 200 && ref.label.x < 210,
+    ref.label.x);
+  check('label staat rechtop (niet op zijn kop)', near(ref.label.angle, 0));
+
+  // Het labelvak mag geen enkele poot snijden.
+  const boxClearOfLegs = (b) => {
+    const half = b.label.fontSize * 0.6;
+    const px = -b.label.dirY, py = b.label.dirX;
+    // Het labelvak loopt FYSIEK vanaf het ankerpunt `width` ver in dirX/dirY
+    // (ook bij align 'right': daar is de tekenrichting 180° gedraaid, zodat de
+    // tekst vanaf het anker dezelfde kant op vult). Bemonster dat vak en meet
+    // de afstand tot elk pootsegment.
+    let minD = Infinity;
+    for (let t = 0; t <= b.label.width; t += 1) {
+      for (const s of [-half, 0, half]) {
+        const X = b.label.x + b.label.dirX * t + px * s;
+        const Y = b.label.y + b.label.dirY * t + py * s;
+        for (const l of b.legs) {
+          const vx = l.x2 - l.x1, vy = l.y2 - l.y1;
+          const L2 = vx * vx + vy * vy;
+          let u = L2 > 0 ? ((X - l.x1) * vx + (Y - l.y1) * vy) / L2 : 0;
+          u = u < 0 ? 0 : (u > 1 ? 1 : u);
+          minD = Math.min(minD, Math.hypot(X - (l.x1 + vx * u), Y - (l.y1 + vy * u)));
+        }
+      }
+    }
+    return minD;
+  };
+  check('referentie-opstelling: labelvak raakt geen poot', boxClearOfLegs(ref) > 0,
+    boxClearOfLegs(ref));
+
+  // Alle 4 pootrichtingen × beide labelzijden: nooit overlap, nooit op de kop.
+  for (const legDir of S.STAVENREEKS_LEG_DIRS) {
+    for (const labelSide of ['start', 'end']) {
+      const b = S.buildStavenreeks(
+        { startX: 0, startY: 0, endX: 200, endY: 0, legDir, labelSide },
+        { measureText: (t, fs) => t.length * fs * 0.55 });
+      check(`${legDir}/${labelSide}: labelvak vrij van de poten`, boxClearOfLegs(b) > 0.5,
+        boxClearOfLegs(b));
+      check(`${legDir}/${labelSide}: tekst niet op zijn kop`,
+        Math.abs(b.label.angle) <= Math.PI / 2 + 1e-9, b.label.angle);
+      check(`${legDir}/${labelSide}: label ligt in de AABB`,
+        b.label.x >= b.aabb.x - 1e-6 && b.label.x <= b.aabb.x + b.aabb.width + 1e-6);
+    }
+  }
+
+  // Ook bij een naar links getekende reeks blijft de tekst leesbaar.
+  const back = S.buildStavenreeks({ startX: 200, startY: 0, endX: 0, endY: 0 });
+  check('rechts-naar-links getekend: tekst niet op zijn kop',
+    Math.abs(back.label.angle) <= Math.PI / 2 + 1e-9, back.label.angle);
+  check('rechts-naar-links getekend: label loopt fysiek naar links', back.label.dirX < 0);
+  check('rechts-naar-links getekend: label steekt voorbij het eindpunt uit',
+    back.aabb.x < 0, back.aabb.x);
+}
+
 console.log(`\n${failures === 0 ? 'GESLAAGD' : 'GEFAALD'}: ${checks - failures}/${checks} controles`);
 process.exit(failures === 0 ? 0 : 1);

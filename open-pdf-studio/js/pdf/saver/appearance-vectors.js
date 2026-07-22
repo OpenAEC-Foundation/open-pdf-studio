@@ -509,8 +509,10 @@ export function buildStavenreeksAP({ geom, local, strokeColorHex, lineWidth }) {
   }
 
   // Label "N ⌀ D". De tekstdelen gaan door Helvetica; het diameterteken wordt
-  // als VECTOR getekend (cirkel + schuine streep), omdat U+2300 niet in
-  // WinAnsiEncoding zit. Identiek aan wat het canvas tekent.
+  // als VECTOR getekend (cirkel + schuine streep + twee vlaggetjes — het
+  // wapeningssymbool), omdat U+2300 niet in WinAnsiEncoding zit en het
+  // wapeningssymbool in geen enkel standaardfont bestaat. Identiek aan wat
+  // het canvas tekent: de geometrie komt uit dezelfde gedeelde module.
   let needsFont = false;
   const lbl = local.find(p => p.kind === 'text');
   if (lbl && Array.isArray(lbl.parts)) {
@@ -542,9 +544,15 @@ export function buildStavenreeksAP({ geom, local, strokeColorHex, lineWidth }) {
         s += `${f(cx - r)} ${f(-k)} ${f(cx - k)} ${f(-r)} ${f(cx)} ${f(-r)} c\n`;
         s += `${f(cx + k)} ${f(-r)} ${f(cx + r)} ${f(-k)} ${f(cx + r)} 0 c\n`;
         s += 'S\n';
-        // Schuine streep door de cirkel (linksonder → rechtsboven).
-        const d = r * 1.25 * 0.707;
-        s += `${f(cx - d)} ${f(-d)} m ${f(cx + d)} ${f(d)} l S\n`;
+        // Schuine streep + de twee vlaggetjes van het wapeningssymbool. De
+        // lijnstukken komen uit de GEDEELDE module (diameterSignSegments via
+        // labelLayout) en staan al in een y-OMHOOG frame — precies de
+        // PDF-conventie, dus ze worden ongewijzigd overgenomen. Het canvas
+        // spiegelt dezelfde segmenten; zo kunnen scherm en PDF niet
+        // uiteenlopen.
+        for (const seg of (lbl.signSegments || [])) {
+          s += `${f(cx + seg.x1)} ${f(seg.y1)} m ${f(cx + seg.x2)} ${f(seg.y2)} l S\n`;
+        }
       }
     }
     s += 'Q\n';

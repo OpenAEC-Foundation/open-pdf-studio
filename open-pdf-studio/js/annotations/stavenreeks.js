@@ -29,7 +29,11 @@ export const STAVENREEKS_DEFAULTS = {
   diameter: 12,
   barLengthMm: 0,
   legDir: 'down-left',
-  legLength: 24,
+  // Pootlengte in app-px (schaal 1). 36 ≈ 1,5× de oude 24: de poot moet
+  // duidelijk zichtbaar zijn tussen de reekslijn en de punt, zoals in het
+  // wapeningsdetail waarnaar de vorm gemodelleerd is. Instelbaar in het
+  // eigenschappen-paneel (bereik 1–200).
+  legLength: 36,
   labelSide: 'end',
   fontSize: 12,
 };
@@ -123,15 +127,81 @@ export function approxTextWidth(text, fontSize) {
 }
 
 /**
+ * Maatvoering van het WAPENINGS-diameterteken, uitgedrukt in eenheden van de
+ * cirkelstraal `r` (= 0.28 × fontSize, zie labelLayout).
+ *
+ * Het teken is de gebruikelijke doorstreepte cirkel, maar met TWEE korte
+ * dwarsstreepjes ("vlaggetjes") op de schuine streep — het symbool dat in
+ * wapeningsdetails de staafdiameter aanduidt.
+ *
+ * Keuze van de maten (bij de standaard fontSize 12 is r = 3.36 px):
+ *  - `slashHalfLength` 1.7·r — de streep steekt duidelijk buiten de cirkel uit,
+ *    zodat de vlaggetjes er nog vóór het uiteinde op passen.
+ *  - `flagDistance` 1.35·r — de vlaggetjes zitten NET BUITEN de cirkelrand,
+ *    symmetrisch aan weerszijden van het middelpunt. Precies ÓP de rand (1.0·r)
+ *    is geprobeerd maar valt visueel weg tegen de cirkellijn: de streepjes
+ *    lezen dan als bobbels op de cirkel in plaats van als losse vlaggetjes.
+ *  - `flagHalfLength` 0.5·r — volle streepjeslengte 1.0·r = 0.28 × fontSize,
+ *    binnen de bandbreedte 0,25–0,35 × tekengrootte uit de referentie.
+ *    Bij fontSize 12 is dat ~3.4 px: kort, maar duidelijk herkenbaar.
+ */
+export const DIAMETER_SIGN_METRICS = {
+  slashHalfLength: 1.7,
+  flagDistance: 1.35,
+  flagHalfLength: 0.5,
+};
+
+/**
+ * Lijnstukken van het wapenings-diameterteken t.o.v. het MIDDELPUNT van de
+ * cirkel, in een frame met y OMHOOG (PDF-conventie). Het canvas (y omlaag)
+ * spiegelt de y-waarden; daardoor tekenen canvas en PDF-appearance per
+ * definitie exact hetzelfde symbool.
+ *
+ * De cirkel zelf zit niet in deze lijst (die tekenen beide consumenten als
+ * boog/Bézier); `r` wordt wel meegeleverd.
+ *
+ * Volgorde: [0] = de schuine streep, [1] en [2] = de twee vlaggetjes.
+ *
+ * @param {number} signRadius  Cirkelstraal (labelLayout().signRadius).
+ * @returns {{r:number, segments: Array<{x1:number,y1:number,x2:number,y2:number}>}}
+ */
+export function diameterSignSegments(signRadius) {
+  const r = Number(signRadius) > 0 ? Number(signRadius) : 0;
+  const M = DIAMETER_SIGN_METRICS;
+  // Richting van de schuine streep: 45°, linksonder → rechtsboven.
+  const ux = Math.SQRT1_2, uy = Math.SQRT1_2;
+  // Loodrecht daarop (de richting van de vlaggetjes).
+  const px = -uy, py = ux;
+
+  const d = r * M.slashHalfLength;
+  const segments = [
+    { x1: -ux * d, y1: -uy * d, x2: ux * d, y2: uy * d },
+  ];
+  const fd = r * M.flagDistance;
+  const fh = r * M.flagHalfLength;
+  for (const sign of [-1, 1]) {
+    const cx = ux * fd * sign;
+    const cy = uy * fd * sign;
+    segments.push({
+      x1: cx - px * fh, y1: cy - py * fh,
+      x2: cx + px * fh, y2: cy + py * fh,
+    });
+  }
+  return { r, segments };
+}
+
+/**
  * Indeling van het label "N ⌀ D" in losse onderdelen.
  *
- * Het diameterteken wordt als VECTOR getekend (cirkel + schuine streep), niet
- * als glyph. Reden: U+2300 zit niet in WinAnsiEncoding, dus een standaard
- * Helvetica in de PDF-appearance kan hem niet weergeven. Door hem in ZOWEL het
- * canvas als de PDF-stream als vector te tekenen, zijn scherm en PDF identiek
- * en is er geen font-afhankelijkheid.
+ * Het diameterteken wordt als VECTOR getekend (cirkel + schuine streep met
+ * twee vlaggetjes — het wapeningssymbool), niet als glyph. Reden: U+2300 zit
+ * niet in WinAnsiEncoding, dus een standaard Helvetica in de PDF-appearance
+ * kan hem niet weergeven, en het wapeningssymbool bestaat sowieso in geen
+ * enkel standaardfont. Door hem in ZOWEL het canvas als de PDF-stream als
+ * vector te tekenen, zijn scherm en PDF identiek en is er geen
+ * font-afhankelijkheid.
  *
- * @returns {{parts: Array, width: number, signRadius: number}}
+ * @returns {{parts: Array, width: number, signRadius: number, signSegments: Array}}
  *   parts: [{kind:'text'|'dia', text?, dx, w}] — dx is de x-offset vanaf het
  *   begin van het label, langs de tekstrichting.
  */
@@ -140,7 +210,9 @@ export function labelLayout(count, diameter, fontSize, measure = approxTextWidth
   const left = String(p.count);
   const right = String(p.diameter);
   const gap = fontSize * 0.22;
-  const signW = fontSize * 0.62;
+  // Vak voor het diameterteken: breed genoeg voor de schuine streep met
+  // vlaggetjes (2·1.7·r·cos45° ≈ 0.67 × fontSize) plus wat lucht.
+  const signW = fontSize * 0.72;
   const wl = measure(left, fontSize);
   const wr = measure(right, fontSize);
   const parts = [
@@ -148,10 +220,13 @@ export function labelLayout(count, diameter, fontSize, measure = approxTextWidth
     { kind: 'dia', dx: wl + gap, w: signW },
     { kind: 'text', text: right, dx: wl + gap + signW + gap, w: wr },
   ];
+  const signRadius = fontSize * 0.28;
   return {
     parts,
     width: wl + gap + signW + gap + wr,
-    signRadius: fontSize * 0.28,
+    signRadius,
+    // Streep + twee vlaggetjes, gedeeld door canvas én PDF-appearance.
+    signSegments: diameterSignSegments(signRadius).segments,
   };
 }
 
@@ -206,7 +281,15 @@ export function buildStavenreeks(ann, opts = {}) {
   let dx = atEnd ? frame.ux : -frame.ux;
   let dy = atEnd ? frame.uy : -frame.uy;
   if (frame.len === 0) { dx = 1; dy = 0; }
-  const gap = fontSize * 0.5;
+  // Vrijloop langs de lijn. Standaard een halve tekengrootte. Hellen de poten
+  // NAAR de labelzijde toe, dan steken de poot en zijn punt langs de
+  // lijnrichting voorbij het ankerpunt (legLength·cos45° + puntstraal); het
+  // label schuift dan precies zoveel op, zodat het nooit tegen de eerste poot
+  // of punt botst. In de referentie hellen de poten van het label WEG en is
+  // die extra vrijloop dus nul: het label staat net voorbij het uiteinde.
+  const leansToLabel = atEnd === params.legDir.endsWith('right');
+  const legReach = leansToLabel ? params.legLength * Math.SQRT1_2 + r : 0;
+  const gap = fontSize * 0.5 + legReach;
   const labelX = anchorX + dx * gap;
   const labelY = anchorY + dy * gap;
 
@@ -220,12 +303,18 @@ export function buildStavenreeks(ann, opts = {}) {
     angle += Math.PI;
     align = 'right';
   }
+  // Normaliseer naar (-π, π]. Zonder dit levert een exact naar links wijzende
+  // uitloop (atan2 = +π) na de flip 2π op: rekenkundig hetzelfde, maar een
+  // verwarrende waarde voor controles en voor de AP-stream.
+  while (angle > Math.PI) angle -= 2 * Math.PI;
+  while (angle <= -Math.PI) angle += 2 * Math.PI;
 
   const label = {
     text, x: labelX, y: labelY, angle, align,
     fontSize, width: textW,
     // Onderdelen (tekst + vector-⌀) — gedeeld door canvas en PDF-appearance.
     parts: layout.parts, signRadius: layout.signRadius,
+    signSegments: layout.signSegments,
     // Fysieke uitlooprichting van de tekst (onafhankelijk van de flip).
     dirX: dx, dirY: dy,
   };
@@ -272,6 +361,7 @@ export function buildStavenreeks(ann, opts = {}) {
       // Onderdelen + de x-offset waar het label in het geroteerde frame begint
       // ('right' laat het label vóór het ankerpunt eindigen).
       parts: layout.parts, signRadius: layout.signRadius,
+      signSegments: layout.signSegments,
       startOffset: align === 'right' ? -textW : 0,
       width: textW,
     },
