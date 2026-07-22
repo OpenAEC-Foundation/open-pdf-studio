@@ -253,18 +253,8 @@ export function DrawingGroups() {
             }} />
         </RibbonGroup>
 
-        {/* CONSTRUCTIE — parametrische constructie-objecten. De stavenreeks
-            (wapeningsstaven-reeks) tekent een reekslijn met N schuine poten
-            die elk in een punt eindigen, plus het label "N ⌀ D". */}
-        <RibbonGroup label={t('drawing.structural') || 'Constructie'}>
-          <RibbonButton id="dr-stavenreeks"
-            title={t('drawing.rebarSeriesTitle') || 'Wapeningsstaven-reeks tekenen'}
-            icon={`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="9" x2="5" y2="15"/><line x1="14" y1="9" x2="11" y2="15"/><line x1="20" y1="9" x2="17" y2="15"/><circle cx="5" cy="15" r="1.7" fill="currentColor" stroke="none"/><circle cx="11" cy="15" r="1.7" fill="currentColor" stroke="none"/><circle cx="17" cy="15" r="1.7" fill="currentColor" stroke="none"/></svg>`}
-            label={t('drawing.rebarSeries') || 'Stavenreeks'}
-            disabled={ro()}
-            active={state.currentTool === 'stavenreeks'}
-            onClick={() => setTool('stavenreeks')} />
-        </RibbonGroup>
+        {/* De stavenreeks staat bewust NIET op de ribbon maar in het
+            toolpalette (NL IFC Bouw), bij de andere constructieve objecten. */}
 
         {/* ANNOTATE */}
         <RibbonGroup label={t('drawing.annotate')}>
