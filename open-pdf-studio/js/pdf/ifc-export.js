@@ -13,20 +13,12 @@
 // "entities + attributes" shape) so downstream tooling can read the report
 // without needing the original PDF next to it.
 
-import { state, getActiveDocument } from '../core/state.js';
+import { getActiveDocument } from '../core/state.js';
 import { getTemplate } from '../symbols/registry.js';
+import { ifcCategoryForAnnotation } from '../solid/data/ifcCategoryMap.js';
 
 function _ifcClassFor(ann) {
-  if (ann.type === 'wall') return 'IfcWall';
-  if (ann.type === 'parametricSymbol') {
-    const id = ann.symbolId || '';
-    if (id === 'ifc-space') return 'IfcSpace';
-    if (id.startsWith('vloer-')) return 'IfcSlab';
-    if (id.startsWith('staal-')) return 'IfcMember';
-    if (id === 'stramien') return 'IfcGrid';
-    return 'IfcBuildingElementProxy';
-  }
-  return 'IfcAnnotation';
+  return ifcCategoryForAnnotation(ann);
 }
 
 function _geometryOf(ann) {

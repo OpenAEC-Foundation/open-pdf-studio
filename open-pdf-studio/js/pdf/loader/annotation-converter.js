@@ -5,7 +5,7 @@ import { colorArrayToHex } from '../../utils/colors.js';
 import { mapPdfFontName, mapBorderStyle } from './pdf-helpers.js';
 import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement } from '../../annotations/measurement.js';
 import { findImageForAnnotation } from './annotation-image-sources.mjs';
-import { ifcCategoryForAnnotationType } from '../../solid/data/ifcCategoryMap.js';
+import { ifcCategoryForAnnotationType, ifcCategoryForParametric } from '../../solid/data/ifcCategoryMap.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
 
 // Convert PDF annotation to our format
@@ -166,6 +166,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
       // Parametric symbol: stored as Square + private OPS metadata
       if (extraColors.opsSubtype === 'parametricSymbol') {
         const psRect = convertRect(annot.rect);
+        const symbolId = extraColors.opsSymbolId || '';
         let params = {};
         try { if (extraColors.opsParams) params = JSON.parse(extraColors.opsParams); } catch (_) {}
         return createAnnotation({
@@ -175,8 +176,9 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           y: psRect.y,
           width: psRect.width,
           height: psRect.height,
-          symbolId: extraColors.opsSymbolId || '',
+          symbolId,
           params,
+          ifcCategory: extraColors.opsIfcCategory || ifcCategoryForParametric(symbolId),
           color: colorArrayToHex(annot.color, '#000000'),
           strokeColor: colorArrayToHex(annot.color, '#000000'),
           lineWidth: annot.borderStyle?.width || 1,

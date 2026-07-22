@@ -253,6 +253,12 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         if (p && typeof p.value === 'string') colors.opsParams = p.value;
         else if (p && typeof p.decodeText === 'function') colors.opsParams = p.decodeText();
       }
+      const opsIfcRaw = annotDict.get(PDFName.of('OPS_IfcCategory'));
+      if (opsIfcRaw) {
+        const c = context.lookup(opsIfcRaw) || opsIfcRaw;
+        if (c && typeof c.value === 'string') colors.opsIfcCategory = c.value;
+        else if (c && typeof c.decodeText === 'function') colors.opsIfcCategory = c.decodeText();
+      }
 
       // ── Stavenreeks (wapeningsstaven-reeks) ─────────────────────────────
       // Onze eigen parameters + de reekslijn-coördinaten. `OPS_SRRect` is de

@@ -2210,6 +2210,7 @@ export async function savePDF(saveAsPath = null) {
               OPS_Subtype: PDFString.of('parametricSymbol'),
               OPS_SymbolId: PDFString.of(ann.symbolId || ''),
               OPS_Params: PDFString.of(JSON.stringify(ann.params || {})),
+              OPS_IfcCategory: PDFString.of(ann.ifcCategory || ''),
             };
             psDict.BS = buildBorderStyle(context, borderWidth, ann.borderStyle);
             if (ann.rotation) psDict.OPS_Rotation = ann.rotation;

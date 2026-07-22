@@ -6,6 +6,7 @@ import { updateStatusMessage } from '../ui/chrome/status-bar.js';
 import { isTauri, readBinaryFile, writeBinaryFile, saveFileDialog, openFileDialog } from '../core/platform.js';
 import i18next from '../i18n/config.js';
 import { showMessage } from '../bridge.js';
+import { ifcCategoryForParametric } from '../solid/data/ifcCategoryMap.js';
 
 // Export annotations to XFDF XML format
 export function exportToXFDF() {
@@ -266,6 +267,7 @@ function annotationToXFDF(ann) {
              ` width="${ann.lineWidth ?? 1}"` +
              ` opstype="parametricSymbol"` +
              ` opssymbolid="${escapeXml(ann.symbolId || '')}"` +
+             ` opsifccategory="${escapeXml(ann.ifcCategory || ifcCategoryForParametric(ann.symbolId))}"` +
              ` opsparams="${escapeXml(paramsJson)}">\n` +
              `      <contents>${escapeXml(ann.subject || '')}</contents>\n` +
              `    </square>\n`;
@@ -334,6 +336,7 @@ function xfdfElementToAnnotation(el) {
         });
       }
       if (opstype === 'parametricSymbol') {
+        const symbolId = el.getAttribute('opssymbolid') || '';
         let params = {};
         try {
           const raw = el.getAttribute('opsparams');
@@ -343,8 +346,9 @@ function xfdfElementToAnnotation(el) {
           ...baseProps,
           type: 'parametricSymbol',
           x: rect.x, y: rect.y, width: rect.w, height: rect.h,
-          symbolId: el.getAttribute('opssymbolid') || '',
+          symbolId,
           params,
+          ifcCategory: el.getAttribute('opsifccategory') || ifcCategoryForParametric(symbolId),
           color, strokeColor: color, lineWidth: width,
           subject: contents,
           replies: replies.length > 0 ? replies : undefined

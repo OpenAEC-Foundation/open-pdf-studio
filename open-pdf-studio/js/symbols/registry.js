@@ -19,6 +19,10 @@ import { houtBalkTemplate } from './templates/hout-balk.js';
 import { paalType1Template, paalType2Template } from './templates/paal-aanzicht.js';
 import { boutTemplate } from './templates/bout.js';
 import { wapeningskorfTemplate } from './templates/wapeningskorf.js';
+import { wapeningsstaafTemplate, netwapeningTemplate } from './templates/wapening-lijn.js';
+import { sonderingTemplate } from './templates/sondering.js';
+import { paalpuntniveauTemplate } from './templates/paalpuntniveau.js';
+import { overspanningspijlVloerTemplate } from './templates/overspanningspijl-vloer.js';
 
 const templates = new Map();
 
@@ -47,6 +51,11 @@ register(paalType1Template);
 register(paalType2Template);
 register(boutTemplate);
 register(wapeningskorfTemplate);
+register(wapeningsstaafTemplate);
+register(netwapeningTemplate);
+register(sonderingTemplate);
+register(paalpuntniveauTemplate);
+register(overspanningspijlVloerTemplate);
 
 // Runtime registration for catalog-driven templates (downloaded steel
 // catalogs from the online symbol library — see symbols/steel-catalog-store.js).

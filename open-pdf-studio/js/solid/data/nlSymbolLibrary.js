@@ -57,6 +57,12 @@ const boutPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-w
 // de doorsnede zoals het sjabloon hem tekent.
 const wapeningskorfPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="4" y="10" width="34" height="44"/><rect x="8" y="14" width="26" height="36" stroke-width="1.4"/><rect x="10" y="16" width="22" height="32" stroke-width="1.4"/><line x1="32" y1="16" x2="27" y2="21" stroke-width="1.4"/><line x1="34" y1="14" x2="29" y2="19" stroke-width="1.4"/><g fill="#000" stroke="none"><circle cx="13" cy="19" r="2.4"/><circle cx="21" cy="19" r="2.4"/><circle cx="29" cy="19" r="2.4"/><circle cx="13" cy="45" r="2.6"/><circle cx="21" cy="45" r="2.6"/><circle cx="29" cy="45" r="2.6"/><circle cx="13" cy="32" r="2"/><circle cx="29" cy="32" r="2"/></g><line x1="29" y1="19" x2="44" y2="10" stroke-width="1.2"/><line x1="29" y1="45" x2="44" y2="52" stroke-width="1.2"/><g stroke-width="1.2"><circle cx="52" cy="12" r="2.6"/><line x1="50" y1="17" x2="55" y2="6"/><line x1="52" y1="9" x2="56" y2="9"/><line x1="53.5" y1="7" x2="57.5" y2="7"/></g><text x="45" y="15" font-size="9" fill="#000" stroke="none">3</text><text x="56" y="15" font-size="9" fill="#000" stroke="none">12</text></svg>`;
 
+const wapeningsstaafPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.7"><text x="32" y="23" font-size="10" text-anchor="middle" fill="#000" stroke="none">3 Ø8, lg=1600</text><line x1="4" y1="38" x2="60" y2="38"/><path d="M14 38 19 31 24 38Z" fill="#000"/></svg>`;
+const netwapeningPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.7"><text x="32" y="23" font-size="9" text-anchor="middle" fill="#000" stroke="none">Ø8-150, lg=1600</text><line x1="4" y1="38" x2="60" y2="38"/><path d="M14 38 19 31 24 38Z" fill="#000"/></svg>`;
+const sonderingPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.7"><path d="M12 24 H36 L24 53 Z" fill="#000"/><line x1="8" y1="53" x2="40" y2="53"/><text x="47" y="25" font-size="19" font-weight="bold" text-anchor="middle" fill="#000" stroke="none">1</text></svg>`;
+const paalpuntniveauPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.5"><rect x="3" y="18" width="58" height="28"/><text x="32" y="35" font-size="7" font-weight="bold" text-anchor="middle" fill="#000" stroke="none">PUNTNIVEAU: 14.0 m+</text></svg>`;
+const overspanningspijlPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.5"><text x="32" y="24" font-size="8" text-anchor="middle" fill="#000" stroke="none">Overspanning vloer</text><line x1="8" y1="40" x2="56" y2="40"/><polyline points="14,36 8,40 14,44"/><polyline points="50,36 56,40 50,44"/></svg>`;
+
 export const NL_CATEGORIES = [
   {
     // ONE building category, IFC-georiënteerd: wanden, vloeren en
@@ -84,6 +90,11 @@ export const NL_CATEGORIES = [
       { id: 'param-paal-type-2', name: 'Paal aanzicht type 2', parametricId: 'paal-aanzicht-type-2', svg: paalPreview },
       { id: 'param-bout', name: 'Bout / anker (M6–M24)', parametricId: 'bout', svg: boutPreview },
       { id: 'param-wapeningskorf', name: 'Wapeningskorf (doorsnede)', parametricId: 'wapeningskorf', svg: wapeningskorfPreview },
+      { id: 'param-wapeningsstaaf', name: 'Wapeningsstaaf', parametricId: 'wapeningsstaaf', svg: wapeningsstaafPreview },
+      { id: 'param-netwapening', name: 'Netwapening', parametricId: 'netwapening', svg: netwapeningPreview },
+      { id: 'param-sondering', name: 'Sondering', parametricId: 'sondering', svg: sonderingPreview },
+      { id: 'param-paalpuntniveau', name: 'Paalpuntniveau', parametricId: 'paalpuntniveau', svg: paalpuntniveauPreview },
+      { id: 'param-overspanningspijl-vloer', name: 'Overspanningspijl vloer', parametricId: 'overspanningspijl-vloer', svg: overspanningspijlPreview },
       // Stavenreeks: geen parametrisch symbool maar een eigen gereedschap —
       // je sleept de reekslijn, net als bij Maskeer hieronder.
       { id: 'stavenreeks', name: 'Stavenreeks (wapening)', tool: 'stavenreeks', svg: stavenreeksPreview },

@@ -103,6 +103,12 @@ const PARAMETRIC_ID_DEFAULT = {
   'wandarcering': 'IfcWall',
   'wapening-verdeling': 'IfcReinforcingBar',
   'beugel': 'IfcReinforcingBar',
+  'wapeningskorf': 'IfcReinforcingBar',
+  'wapeningsstaaf': 'IfcReinforcingBar',
+  'netwapening': 'IfcReinforcingBar',
+  'sondering': 'IfcAnnotation',
+  'paalpuntniveau': 'IfcAnnotation',
+  'overspanningspijl-vloer': 'IfcAnnotation',
 };
 
 function keywordMatch(text) {
@@ -186,6 +192,23 @@ export function ifcCategoryForParametric(parametricId) {
   // het 'steel-'-prefix -> zelfde categorie als de NL staalprofielen.
   if (/^steel-/.test(id)) return 'IfcMember';
   return keywordMatch(id.toLowerCase()) || IFC_DEFAULT;
+}
+
+/**
+ * IFC-categorie voor een opgeslagen annotatie. Een expliciet gekozen waarde
+ * heeft voorrang; oudere documenten zonder dat veld worden via type/symbolId
+ * opnieuw geclassificeerd. Gewone tekenannotaties vallen terug op
+ * IfcAnnotation in plaats van op een bouwelement-proxy.
+ */
+export function ifcCategoryForAnnotation(annotation) {
+  if (!annotation || typeof annotation !== 'object') return 'IfcAnnotation';
+  const explicit = String(annotation.ifcCategory || '').trim();
+  if (explicit) return explicit;
+  if (annotation.type === 'parametricSymbol') {
+    return ifcCategoryForParametric(annotation.symbolId);
+  }
+  const byType = ifcCategoryForAnnotationType(annotation.type);
+  return byType === IFC_DEFAULT ? 'IfcAnnotation' : byType;
 }
 
 // --- Leesbare NL-omschrijving per IFC-categorie, alleen voor weergave.
