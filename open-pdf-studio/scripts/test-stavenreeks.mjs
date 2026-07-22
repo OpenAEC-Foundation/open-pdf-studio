@@ -264,5 +264,36 @@ console.log('\n9. Hoeveelheden-register');
     near(byKey('length').get(el), 100));
 }
 
+// ── 10. Labelindeling (gedeeld door canvas én PDF-appearance) ────────────
+console.log('\n10. Labelindeling');
+{
+  const lay = S.labelLayout(5, 16, 12);
+  check('drie onderdelen: tekst, ⌀-vector, tekst', lay.parts.length === 3, lay.parts.length);
+  check('eerste deel is het aantal', lay.parts[0].kind === 'text' && lay.parts[0].text === '5');
+  check('middendeel is de ⌀-vector (geen glyph)', lay.parts[1].kind === 'dia');
+  check('laatste deel is de diameter', lay.parts[2].kind === 'text' && lay.parts[2].text === '16');
+  check('onderdelen staan in oplopende volgorde',
+    lay.parts[0].dx < lay.parts[1].dx && lay.parts[1].dx < lay.parts[2].dx);
+  check('totale breedte omvat het laatste deel',
+    near(lay.width, lay.parts[2].dx + lay.parts[2].w), `${lay.width}`);
+  check('⌀-straal positief en past in zijn vak',
+    lay.signRadius > 0 && lay.signRadius * 2 <= lay.parts[1].w + 1e-9);
+  check('grotere fontgrootte → breder label', S.labelLayout(5, 16, 24).width > lay.width);
+
+  // De opgebouwde geometrie gebruikt exact deze indeling.
+  const b = S.buildStavenreeks({ startX: 0, startY: 0, endX: 100, endY: 0, count: 5, diameter: 16 });
+  check('geometrie gebruikt dezelfde labelbreedte', near(b.label.width, lay.width));
+  check('label-onderdelen aanwezig in de geometrie', b.label.parts.length === 3);
+  const txtPrim = b.primitives.find(p => p.kind === 'text');
+  check('tekst-primitief draagt de onderdelen mee', Array.isArray(txtPrim.parts));
+  check('startOffset 0 bij links uitgelijnd label', txtPrim.startOffset === 0);
+
+  // Bij een label aan de startzijde (align 'right') schuift het label naar links.
+  const bs = S.buildStavenreeks({ startX: 0, startY: 0, endX: 100, endY: 0, count: 5, diameter: 16, labelSide: 'start' });
+  const txtS = bs.primitives.find(p => p.kind === 'text');
+  check('startOffset negatief bij rechts uitgelijnd label',
+    near(txtS.startOffset, -bs.label.width), txtS.startOffset);
+}
+
 console.log(`\n${failures === 0 ? 'GESLAAGD' : 'GEFAALD'}: ${checks - failures}/${checks} controles`);
 process.exit(failures === 0 ? 0 : 1);

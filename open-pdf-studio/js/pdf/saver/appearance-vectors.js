@@ -462,5 +462,96 @@ export function buildSplineArrowAP({ points, X, Y, strokeColorHex, fillColorHex,
   return { content: s, needsFont: false };
 }
 
+// ── stavenreeks (wapeningsstaven-reeks) ────────────────────────────────────
+// AFWIJKEND van de builders hierboven: deze levert content in LOKALE
+// coördinaten (0..w, 0..h, y omhoog), relatief aan de annotatie-/Rect.
+// De caller schrijft daarom:
+//     /BBox   [0 0 w h]      (= /Rect-afmeting)
+//     /Matrix [1 0 0 1 0 0]  (= IDENTITEIT)
+// Dat is de canonieke conventie uit docs/superpowers/
+// research-pdf-rotatie-mechanica.md §12.5.5: de getransformeerde appearance-box
+// is dan exact de BBox, dus matrix A uit stap (b) wordt een zuivere translatie
+// met sx = sy = 1. Geen vervorming, en verplaatsen in een andere editor
+// (die alleen /Rect verschuift) laat de tekening netjes meeschuiven.
+//
+// Een SCHUINE reeks wordt getekend via de coördinaten IN de stream — er komt
+// geen rotatie-matrix aan te pas.
+//
+// `geom` is het resultaat van buildStavenreeks() en `local` het resultaat van
+// toLocalPrimitives(geom.primitives, geom.aabb, { flipY: true }).
+export function buildStavenreeksAP({ geom, local, strokeColorHex, lineWidth }) {
+  if (!geom || !local) return null;
+  const rgb = hexToRgb(strokeColorHex || '#000000');
+  const lw = lineWidth ?? 1;
+  const col = `${f(rgb[0])} ${f(rgb[1])} ${f(rgb[2])}`;
+
+  let s = `${col} RG\n${col} rg\n${f(lw)} w\n1 J\n1 j\n`;
+
+  // Reekslijn + poten (alle 'line'-primitieven) in één pad.
+  const lines = local.filter(p => p.kind === 'line');
+  if (lines.length) {
+    for (const l of lines) {
+      s += `${f(l.x1)} ${f(l.y1)} m ${f(l.x2)} ${f(l.y2)} l\n`;
+    }
+    s += 'S\n';
+  }
+
+  // Gevulde punten (staafposities). Cirkel via vier Bézier-segmenten.
+  const K = 0.5522847498;
+  for (const d of local.filter(p => p.kind === 'dot')) {
+    const r = d.r, cx = d.x, cy = d.y, k = r * K;
+    s += `${f(cx + r)} ${f(cy)} m\n`;
+    s += `${f(cx + r)} ${f(cy + k)} ${f(cx + k)} ${f(cy + r)} ${f(cx)} ${f(cy + r)} c\n`;
+    s += `${f(cx - k)} ${f(cy + r)} ${f(cx - r)} ${f(cy + k)} ${f(cx - r)} ${f(cy)} c\n`;
+    s += `${f(cx - r)} ${f(cy - k)} ${f(cx - k)} ${f(cy - r)} ${f(cx)} ${f(cy - r)} c\n`;
+    s += `${f(cx + k)} ${f(cy - r)} ${f(cx + r)} ${f(cy - k)} ${f(cx + r)} ${f(cy)} c\n`;
+    s += 'f\n';
+  }
+
+  // Label "N ⌀ D". De tekstdelen gaan door Helvetica; het diameterteken wordt
+  // als VECTOR getekend (cirkel + schuine streep), omdat U+2300 niet in
+  // WinAnsiEncoding zit. Identiek aan wat het canvas tekent.
+  let needsFont = false;
+  const lbl = local.find(p => p.kind === 'text');
+  if (lbl && Array.isArray(lbl.parts)) {
+    const fs = lbl.size;
+    const ca = Math.cos(lbl.angle), sa = Math.sin(lbl.angle);
+    const x0 = lbl.startOffset || 0;
+    // Roteer het label mee met de lijnrichting via een cm-transform binnen
+    // q/Q. Dit is een LOKALE tekst-oriëntatie in de stream, geen annotatie-
+    // rotatie: /Matrix blijft identiteit.
+    s += `q\n${f(ca)} ${f(sa)} ${f(-sa)} ${f(ca)} ${f(lbl.x)} ${f(lbl.y)} cm\n`;
+    for (const part of lbl.parts) {
+      if (part.kind === 'text') {
+        needsFont = true;
+        s += 'BT\n';
+        s += `/Helv ${f(fs)} Tf\n`;
+        s += `${col} rg\n`;
+        // Baseline ligt iets onder het midden (canvas gebruikt 'middle').
+        s += `${f(x0 + part.dx)} ${f(-fs * 0.34)} Td\n`;
+        s += `(${escapePdfText(part.text)}) Tj\n`;
+        s += 'ET\n';
+      } else {
+        const r = lbl.signRadius;
+        const cx = x0 + part.dx + part.w / 2;
+        const k = r * K;
+        s += `${col} RG\n${f(Math.max(0.4, fs * 0.07))} w\n`;
+        s += `${f(cx + r)} 0 m\n`;
+        s += `${f(cx + r)} ${f(k)} ${f(cx + k)} ${f(r)} ${f(cx)} ${f(r)} c\n`;
+        s += `${f(cx - k)} ${f(r)} ${f(cx - r)} ${f(k)} ${f(cx - r)} 0 c\n`;
+        s += `${f(cx - r)} ${f(-k)} ${f(cx - k)} ${f(-r)} ${f(cx)} ${f(-r)} c\n`;
+        s += `${f(cx + k)} ${f(-r)} ${f(cx + r)} ${f(-k)} ${f(cx + r)} 0 c\n`;
+        s += 'S\n';
+        // Schuine streep door de cirkel (linksonder → rechtsboven).
+        const d = r * 1.25 * 0.707;
+        s += `${f(cx - d)} ${f(-d)} m ${f(cx + d)} ${f(d)} l S\n`;
+      }
+    }
+    s += 'Q\n';
+  }
+
+  return { content: s, needsFont };
+}
+
 // Exposed for the caller to build the font resource dict only when needed.
 export const HELV_FONT_NAME = 'Helv';

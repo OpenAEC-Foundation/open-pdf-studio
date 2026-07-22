@@ -1576,15 +1576,39 @@ export function drawAnnotation(ctx, annotation) {
         ctx.fill();
       }
 
-      // Label "N ⌀ D", uitgelijnd langs de lijnrichting.
+      // Label "N ⌀ D", uitgelijnd langs de lijnrichting. Het diameterteken
+      // wordt als VECTOR getekend (cirkel + schuine streep) — exact zoals in
+      // de PDF-appearance, zodat scherm en PDF identiek zijn en er geen
+      // font-afhankelijkheid voor U+2300 bestaat.
       const lbl = geom.label;
       ctx.save();
       ctx.translate(lbl.x, lbl.y);
       ctx.rotate(lbl.angle);
       ctx.font = `${lbl.fontSize}px Arial`;
-      ctx.textAlign = lbl.align;
+      ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
-      ctx.fillText(lbl.text, 0, 0);
+      const x0 = lbl.align === 'right' ? -lbl.width : 0;
+      for (const part of lbl.parts) {
+        if (part.kind === 'text') {
+          ctx.fillText(part.text, x0 + part.dx, 0);
+        } else {
+          const r = lbl.signRadius;
+          const cx = x0 + part.dx + part.w / 2;
+          ctx.save();
+          ctx.lineWidth = Math.max(0.4, lbl.fontSize * 0.07);
+          ctx.strokeStyle = strokeColor;
+          ctx.beginPath();
+          ctx.arc(cx, 0, r, 0, Math.PI * 2);
+          ctx.stroke();
+          // Schuine streep door de cirkel (linksonder → rechtsboven).
+          const d = r * 1.25;
+          ctx.beginPath();
+          ctx.moveTo(cx - d * 0.707, d * 0.707);
+          ctx.lineTo(cx + d * 0.707, -d * 0.707);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
       ctx.restore();
 
       ctx.restore();

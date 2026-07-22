@@ -5,6 +5,7 @@ import { colorArrayToHex } from '../../utils/colors.js';
 import { mapPdfFontName, mapBorderStyle } from './pdf-helpers.js';
 import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement } from '../../annotations/measurement.js';
 import { findImageForAnnotation } from './annotation-image-sources.mjs';
+import { ifcCategoryForAnnotationType } from '../../solid/data/ifcCategoryMap.js';
 
 // Convert PDF annotation to our format
 export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageMap, annotColorMap) {
@@ -1188,6 +1189,49 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
     }
 
     case 'Stamp': {
+      // Stavenreeks (wapeningsstaven-reeks): een /Stamp met onze eigen
+      // OPS_SR*-parameters. De reekslijn komt uit OPS_SRGeom; alle overige
+      // geometrie (poten, punten, label) wordt bij het renderen opnieuw
+      // afgeleid uit die twee punten.
+      //
+      // VERPLAATST IN EEN ANDERE EDITOR: zo'n editor verschuift alleen /Rect
+      // (en laat onze custom keys staan). Door de actuele /Rect te vergelijken
+      // met de /Rect die WIJ schreven (OPS_SRRect) kennen we de verschuiving
+      // exact en passen we die op de reekslijn toe.
+      //
+      // Ontbreken de custom keys — bijvoorbeeld omdat een andere editor de
+      // annotatie herschreef — dan valt dit blok stil en wordt het gewoon een
+      // stamp die zijn appearance toont. Nooit crashen.
+      if (extraColors.opsSubtype === 'stavenreeks' && Array.isArray(extraColors.srGeom)) {
+        const g = extraColors.srGeom;
+        let dx = 0, dy = 0;
+        const savedRect = extraColors.srRect;
+        if (Array.isArray(savedRect) && savedRect.length === 4 && Array.isArray(annot.rect)) {
+          // PDF-ruimte: verschuiving van de linkeronderhoek.
+          dx = annot.rect[0] - savedRect[0];
+          dy = annot.rect[1] - savedRect[1];
+        }
+        const [srSX, srSY] = convertPoint(g[0] + dx, g[1] + dy);
+        const [srEX, srEY] = convertPoint(g[2] + dx, g[3] + dy);
+        const srColor = colorArrayToHex(annot.color, '#000000');
+        return createAnnotation({
+          ...baseProps,
+          type: 'stavenreeks',
+          startX: srSX, startY: srSY,
+          endX: srEX, endY: srEY,
+          count: extraColors.srCount ?? 3,
+          diameter: extraColors.srDiameter ?? 12,
+          barLengthMm: extraColors.srBarLengthMm ?? 0,
+          legDir: extraColors.srLegDir || 'down-left',
+          legLength: extraColors.srLegLength ?? 24,
+          labelSide: extraColors.srLabelSide === 'start' ? 'start' : 'end',
+          ifcCategory: ifcCategoryForAnnotationType('stavenreeks'),
+          color: srColor,
+          strokeColor: srColor,
+          lineWidth: extraColors.srLineWidth ?? 1,
+        });
+      }
+
       // Image stamp - extracted from PDF structure via pdf-lib
       const stRect = convertRect(annot.rect);
       const x = stRect.x;

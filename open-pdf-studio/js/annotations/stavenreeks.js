@@ -123,6 +123,39 @@ export function approxTextWidth(text, fontSize) {
 }
 
 /**
+ * Indeling van het label "N ⌀ D" in losse onderdelen.
+ *
+ * Het diameterteken wordt als VECTOR getekend (cirkel + schuine streep), niet
+ * als glyph. Reden: U+2300 zit niet in WinAnsiEncoding, dus een standaard
+ * Helvetica in de PDF-appearance kan hem niet weergeven. Door hem in ZOWEL het
+ * canvas als de PDF-stream als vector te tekenen, zijn scherm en PDF identiek
+ * en is er geen font-afhankelijkheid.
+ *
+ * @returns {{parts: Array, width: number, signRadius: number}}
+ *   parts: [{kind:'text'|'dia', text?, dx, w}] — dx is de x-offset vanaf het
+ *   begin van het label, langs de tekstrichting.
+ */
+export function labelLayout(count, diameter, fontSize, measure = approxTextWidth) {
+  const p = resolveParams({ count, diameter });
+  const left = String(p.count);
+  const right = String(p.diameter);
+  const gap = fontSize * 0.22;
+  const signW = fontSize * 0.62;
+  const wl = measure(left, fontSize);
+  const wr = measure(right, fontSize);
+  const parts = [
+    { kind: 'text', text: left, dx: 0, w: wl },
+    { kind: 'dia', dx: wl + gap, w: signW },
+    { kind: 'text', text: right, dx: wl + gap + signW + gap, w: wr },
+  ];
+  return {
+    parts,
+    width: wl + gap + signW + gap + wr,
+    signRadius: fontSize * 0.28,
+  };
+}
+
+/**
  * Bouw de volledige stavenreeks-geometrie.
  *
  * @param {object} ann  Annotatie met startX/startY/endX/endY + parameters.
@@ -164,7 +197,8 @@ export function buildStavenreeks(ann, opts = {}) {
   // Label: net voorbij het gekozen uiteinde, uitgelijnd langs de lijnrichting.
   const text = labelText(params.count, params.diameter);
   const fontSize = params.fontSize;
-  const textW = measure(text, fontSize);
+  const layout = labelLayout(params.count, params.diameter, fontSize, measure);
+  const textW = layout.width;
   const atEnd = params.labelSide === 'end';
   const anchorX = atEnd ? endX : startX;
   const anchorY = atEnd ? endY : startY;
@@ -190,6 +224,8 @@ export function buildStavenreeks(ann, opts = {}) {
   const label = {
     text, x: labelX, y: labelY, angle, align,
     fontSize, width: textW,
+    // Onderdelen (tekst + vector-⌀) — gedeeld door canvas en PDF-appearance.
+    parts: layout.parts, signRadius: layout.signRadius,
     // Fysieke uitlooprichting van de tekst (onafhankelijk van de flip).
     dirX: dx, dirY: dy,
   };
@@ -231,7 +267,14 @@ export function buildStavenreeks(ann, opts = {}) {
     { kind: 'line', ...line },
     ...legs.map(l => ({ kind: 'line', ...l })),
     ...dots.map(d => ({ kind: 'dot', ...d })),
-    { kind: 'text', text, x: labelX, y: labelY, size: fontSize, angle, align },
+    {
+      kind: 'text', text, x: labelX, y: labelY, size: fontSize, angle, align,
+      // Onderdelen + de x-offset waar het label in het geroteerde frame begint
+      // ('right' laat het label vóór het ankerpunt eindigen).
+      parts: layout.parts, signRadius: layout.signRadius,
+      startOffset: align === 'right' ? -textW : 0,
+      width: textW,
+    },
   ];
 
   return { params, frame, line, legs, dots, label, primitives, aabb };

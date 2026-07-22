@@ -24,7 +24,9 @@ import { catmullRomSpline } from '../tools/tools/spline-tool.js';
 import { catmullRomToBezier, splineArrowEndTangent } from '../annotations/spline-arrow-geometry.js';
 import { buildFilledAreaAP, buildMeasureAreaAP, buildPolylineMeasureAP,
   buildMeasureDistanceAP, buildWallAP, buildCloudAP, buildSplineArrowAP,
+  buildStavenreeksAP,
   cloudRectOutlinePts, cloudPolyOutlinePts } from './saver/appearance-vectors.js';
+import { buildStavenreeks, toLocalPrimitives, labelText } from '../annotations/stavenreeks.js';
 import { computeWallShape, resolveWallMaterial } from '../annotations/rendering/walls.js';
 
 // Wrap a vector /AP builder result (absolute-PDF-coord content + needsFont flag)
@@ -1607,6 +1609,101 @@ export async function savePDF(saveAsPath = null) {
               stDict.OPS_GroupBy = PDFString.of(ann.groupByMode);
             }
             annotDict = context.obj(stDict);
+            break;
+          }
+
+          case 'stavenreeks': {
+            // ── Wapeningsstaven-reeks ──────────────────────────────────────
+            // HARDE EIS: zichtbaar én als ÉÉN object verplaatsbaar in elke
+            // andere PDF-editor. Daarom één /Stamp-annotatie met een eigen
+            // /AP /N Form-XObject dat de HELE reeks tekent.
+            //
+            // Canonieke conventie (research-pdf-rotatie-mechanica.md §12.5.5):
+            //   /Rect   = AABB van het volledige element (incl. poten, punten
+            //             én label)
+            //   /BBox   = [0 0 w h]  (= /Rect-afmeting)
+            //   /Matrix = identiteit
+            //   geen top-level /Rotate
+            // Zo is de getransformeerde appearance-box exact gelijk aan de
+            // BBox en wordt matrix A uit stap (b) een zuivere translatie met
+            // sx = sy = 1 — geen vervorming, en een editor die alleen /Rect
+            // verschuift laat de tekening correct meeschuiven.
+            //
+            // De geometrie komt UITSLUITEND uit de gedeelde pure module, met
+            // de deterministische breedte-schatter (geen canvas bij het
+            // opslaan), zodat de PDF exact tekent wat de module beschrijft.
+            const srGeom = buildStavenreeks(ann);
+            const srA = srGeom.aabb;
+            const srX1 = convertX(srA.x);
+            const srY1 = convertY(srA.y + srA.height);
+            const srX2 = convertX(srA.x + srA.width);
+            const srY2 = convertY(srA.y);
+            const srW = srX2 - srX1;
+            const srH = srY2 - srY1;
+
+            const srLocal = toLocalPrimitives(srGeom.primitives, srA, { flipY: true });
+            const srStroke = ann.strokeColor || ann.color || '#000000';
+            const srBuilt = buildStavenreeksAP({
+              geom: srGeom, local: srLocal,
+              strokeColorHex: srStroke,
+              lineWidth: ann.lineWidth ?? 1,
+            });
+
+            const srDict = {
+              Type: 'Annot',
+              Subtype: 'Stamp',
+              Rect: [srX1, srY1, srX2, srY2],
+              C: hexToColorArray(srStroke),
+              CA: opacity,
+              T: PDFString.of(ann.author || 'User'),
+              // Leesbare tekst voor de annotatielijst van andere editors.
+              // Hex-string zodat het ⌀-teken (U+2300) als Unicode overleeft.
+              Contents: PDFHexString.fromText(labelText(ann.count, ann.diameter)),
+              M: PDFString.of(new Date().toISOString()),
+              F: computeAnnotFlags(ann),
+              // Eigen parameters, zodat wij het parametrische object exact
+              // kunnen herstellen. Ontbreken ze (andere editor heeft de
+              // annotatie herschreven), dan valt de loader terug op de
+              // appearance zonder te crashen.
+              OPS_Subtype: PDFString.of('stavenreeks'),
+              OPS_SRCount: srGeom.params.count,
+              OPS_SRDiameter: srGeom.params.diameter,
+              OPS_SRBarLengthMm: srGeom.params.barLengthMm,
+              OPS_SRLegDir: PDFString.of(srGeom.params.legDir),
+              OPS_SRLegLength: srGeom.params.legLength,
+              OPS_SRLabelSide: PDFString.of(srGeom.params.labelSide),
+              OPS_SRLineWidth: ann.lineWidth ?? 1,
+              // Reekslijn in PDF-coördinaten + de /Rect zoals WIJ hem schreven.
+              // Bij heropenen vergelijken we OPS_SRRect met de actuele /Rect:
+              // een verschil betekent dat een andere editor het object heeft
+              // verplaatst, en die verschuiving passen we op de geometrie toe.
+              OPS_SRGeom: context.obj([
+                convertX(ann.startX), convertY(ann.startY),
+                convertX(ann.endX), convertY(ann.endY),
+              ]),
+              OPS_SRRect: context.obj([srX1, srY1, srX2, srY2]),
+            };
+
+            annotDict = context.obj(srDict);
+
+            if (srBuilt && srBuilt.content) {
+              const srRes = {};
+              if (srBuilt.needsFont) {
+                srRes.Font = context.obj({
+                  Helv: context.obj({
+                    Type: 'Font', Subtype: 'Type1',
+                    BaseFont: 'Helvetica', Encoding: 'WinAnsiEncoding',
+                  }),
+                });
+              }
+              const srAp = context.stream(srBuilt.content, {
+                Type: 'XObject', Subtype: 'Form',
+                BBox: [0, 0, srW, srH],
+                Matrix: [1, 0, 0, 1, 0, 0],   // IDENTITEIT — bewust
+                Resources: context.obj(srRes),
+              });
+              annotDict.set(PDFName.of('AP'), context.obj({ N: context.register(srAp) }));
+            }
             break;
           }
 

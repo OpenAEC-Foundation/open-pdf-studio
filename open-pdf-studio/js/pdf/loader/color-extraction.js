@@ -254,6 +254,59 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         else if (p && typeof p.decodeText === 'function') colors.opsParams = p.decodeText();
       }
 
+      // ── Stavenreeks (wapeningsstaven-reeks) ─────────────────────────────
+      // Onze eigen parameters + de reekslijn-coördinaten. `OPS_SRRect` is de
+      // /Rect zoals WIJ hem schreven: wijkt de actuele /Rect daarvan af, dan
+      // heeft een andere editor het object verplaatst en past de converter die
+      // verschuiving toe op de geometrie. Ontbreken deze keys, dan blijft het
+      // een gewone stamp (tonen-zoals-de-appearance) — nooit crashen.
+      {
+        const srNum = (k) => {
+          const raw = annotDict.get(PDFName.of(k));
+          if (!raw) return null;
+          return pdfNum(context.lookup(raw) || raw);
+        };
+        const srStr = (k) => {
+          const raw = annotDict.get(PDFName.of(k));
+          if (!raw) return null;
+          const v = context.lookup(raw) || raw;
+          if (v && typeof v.value === 'string') return v.value;
+          if (v && typeof v.decodeText === 'function') return v.decodeText();
+          return null;
+        };
+        const srArr = (k) => {
+          const raw = annotDict.get(PDFName.of(k));
+          if (!raw) return null;
+          const arr = context.lookup(raw) || raw;
+          if (!arr || typeof arr.size !== 'function') return null;
+          const out = [];
+          for (let ai = 0; ai < arr.size(); ai++) {
+            const val = arr.get(ai);
+            const num = pdfNum(context.lookup(val) || val);
+            if (num !== null) out.push(num);
+          }
+          return out;
+        };
+        const srCount = srNum('OPS_SRCount');
+        if (srCount !== null) colors.srCount = srCount;
+        const srDia = srNum('OPS_SRDiameter');
+        if (srDia !== null) colors.srDiameter = srDia;
+        const srBl = srNum('OPS_SRBarLengthMm');
+        if (srBl !== null) colors.srBarLengthMm = srBl;
+        const srLl = srNum('OPS_SRLegLength');
+        if (srLl !== null) colors.srLegLength = srLl;
+        const srLw = srNum('OPS_SRLineWidth');
+        if (srLw !== null) colors.srLineWidth = srLw;
+        const srLd = srStr('OPS_SRLegDir');
+        if (srLd) colors.srLegDir = srLd;
+        const srLs = srStr('OPS_SRLabelSide');
+        if (srLs) colors.srLabelSide = srLs;
+        const srGeom = srArr('OPS_SRGeom');
+        if (srGeom && srGeom.length === 4) colors.srGeom = srGeom;
+        const srRect = srArr('OPS_SRRect');
+        if (srRect && srRect.length === 4) colors.srRect = srRect;
+      }
+
       const opsArRaw = annotDict.get(PDFName.of('OPS_ArcRadius'));
       if (opsArRaw) {
         const ar = pdfNum(context.lookup(opsArRaw) || opsArRaw);
