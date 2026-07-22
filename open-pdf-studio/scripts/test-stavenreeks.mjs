@@ -349,32 +349,31 @@ console.log('\n11. Wapeningssymbool');
   const midOf = (s) => ({ x: (s.x1 + s.x2) / 2, y: (s.y1 + s.y2) / 2 });
 
   const ds = dirOf(slash);
-  check('schuine streep staat onder 45° (linksonder → rechtsboven)',
-    near(ds.x, Math.SQRT1_2, 1e-9) && near(ds.y, Math.SQRT1_2, 1e-9), `${ds.x},${ds.y}`);
-  check('streep steekt aan weerszijden buiten de cirkel uit',
-    near(ds.len, 2 * S.DIAMETER_SIGN_METRICS.slashHalfLength * r, 1e-9) &&
-    S.DIAMETER_SIGN_METRICS.slashHalfLength > 1, ds.len);
-  check('streep ligt gecentreerd op het cirkelmidden',
-    near(midOf(slash).x, 0, 1e-9) && near(midOf(slash).y, 0, 1e-9));
+  const M = S.DIAMETER_SIGN_METRICS;
+  const th = (M.slashAngleDeg * Math.PI) / 180;
+  check('schuine streep staat steil (70°, linksonder → rechtsboven)',
+    near(ds.x, Math.cos(th), 1e-9) && near(ds.y, Math.sin(th), 1e-9), `${ds.x},${ds.y}`);
+  check('streep steekt VER boven de cirkel uit en kort eronder',
+    near(ds.len, (M.slashUp + M.slashDown) * r, 1e-9) && M.slashUp > M.slashDown, ds.len);
+  check('streep loopt door het cirkelmidden',
+    near(slash.x1 * ds.y - slash.y1 * ds.x, 0, 1e-9));
 
   for (const [i, fl] of [f1, f2].entries()) {
     const d = dirOf(fl);
-    check(`vlaggetje ${i + 1} staat LOODRECHT op de streep`,
-      near(d.x * ds.x + d.y * ds.y, 0, 1e-9), d.x * ds.x + d.y * ds.y);
-    check(`vlaggetje ${i + 1} is kort (0,25–0,35 × tekengrootte)`,
-      d.len >= fontSize * 0.25 && d.len <= fontSize * 0.35, d.len);
+    check(`vlaggetje ${i + 1} staat HORIZONTAAL (evenwijdig aan de tekstregel)`,
+      near(d.y, 0, 1e-9), d.y);
+    check(`vlaggetje ${i + 1} heeft de referentielengte (1,6 r)`,
+      near(d.len, 2 * M.flagHalfLength * r, 1e-9), d.len);
     const m = midOf(fl);
-    const dist = Math.hypot(m.x, m.y);
-    check(`vlaggetje ${i + 1} zit net buiten de cirkelrand`,
-      dist > r + 1e-9 && dist <= r * 1.5, dist / r);
-    check(`vlaggetje ${i + 1} zit op de schuine streep, niet erbuiten`,
-      dist <= r * S.DIAMETER_SIGN_METRICS.slashHalfLength + 1e-9, dist);
-    check(`vlaggetje ${i + 1} zit ÓP de schuine streep`,
+    check(`vlaggetje ${i + 1} zit BOVEN de cirkel`, m.y > r, m.y / r);
+    check(`vlaggetje ${i + 1} is gecentreerd op de schuine streep`,
       near(m.x * ds.y - m.y * ds.x, 0, 1e-9));
+    check(`vlaggetje ${i + 1} valt binnen het bovenstuk van de streep`,
+      Math.hypot(m.x, m.y) <= M.slashUp * r + 1e-9, Math.hypot(m.x, m.y) / r);
   }
   const m1 = midOf(f1), m2 = midOf(f2);
-  check('vlaggetjes liggen symmetrisch aan weerszijden van de cirkel',
-    near(m1.x, -m2.x, 1e-9) && near(m1.y, -m2.y, 1e-9), `${m1.x},${m1.y} vs ${m2.x},${m2.y}`);
+  check('beide vlaggetjes zitten aan DEZELFDE kant (boven), op verschillende hoogte',
+    m1.y > 0 && m2.y > 0 && !near(m1.y, m2.y, 1e-9), `${m1.y} vs ${m2.y}`);
   check('vlaggetjes zijn even lang', near(dirOf(f1).len, dirOf(f2).len, 1e-9));
   check('symbool schaalt mee met de tekengrootte',
     near(S.diameterSignSegments(2 * r).segments[1].x1, 2 * sign.segments[1].x1, 1e-9));

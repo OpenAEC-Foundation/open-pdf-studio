@@ -176,10 +176,19 @@ export function approxTextWidth(text, fontSize) {
  *    binnen de bandbreedte 0,25–0,35 × tekengrootte uit de referentie.
  *    Bij fontSize 12 is dat ~3.4 px: kort, maar duidelijk herkenbaar.
  */
+// Maatvoering van het wapenings-diameterteken, in eenheden van de cirkelstraal
+// r. Afgemeten aan het referentiesymbool:
+//  - de schuine streep staat STEIL (70° t.o.v. de tekstregel) en is asymmetrisch:
+//    hij steekt ver boven de cirkel uit en maar kort eronder;
+//  - de twee vlaggetjes zitten ALLEBEI op dat bovenstuk, staan HORIZONTAAL
+//    (evenwijdig aan de tekstregel, niet loodrecht op de streep) en zijn
+//    gecentreerd op de streep.
 export const DIAMETER_SIGN_METRICS = {
-  slashHalfLength: 1.7,
-  flagDistance: 1.35,
-  flagHalfLength: 0.5,
+  slashAngleDeg: 70,
+  slashUp: 3.45,      // hoever de streep boven het middelpunt uitsteekt
+  slashDown: 2.2,     // en hoever eronder
+  flagAt: [2.4, 3.05], // afstanden langs de streep waar de vlaggetjes kruisen
+  flagHalfLength: 0.8, // halve lengte; volle vlaggetjeslengte = 1.6 r
 };
 
 /**
@@ -199,24 +208,24 @@ export const DIAMETER_SIGN_METRICS = {
 export function diameterSignSegments(signRadius) {
   const r = Number(signRadius) > 0 ? Number(signRadius) : 0;
   const M = DIAMETER_SIGN_METRICS;
-  // Richting van de schuine streep: 45°, linksonder → rechtsboven.
-  const ux = Math.SQRT1_2, uy = Math.SQRT1_2;
-  // Loodrecht daarop (de richting van de vlaggetjes).
-  const px = -uy, py = ux;
+  // Richting van de schuine streep: steil, linksonder → rechtsboven.
+  const th = (M.slashAngleDeg * Math.PI) / 180;
+  const ux = Math.cos(th), uy = Math.sin(th);
 
-  const d = r * M.slashHalfLength;
+  // De streep loopt asymmetrisch door het middelpunt: kort naar beneden,
+  // ver naar boven (daar zitten de vlaggetjes op).
+  const up = r * M.slashUp;
+  const down = r * M.slashDown;
   const segments = [
-    { x1: -ux * d, y1: -uy * d, x2: ux * d, y2: uy * d },
+    { x1: -ux * down, y1: -uy * down, x2: ux * up, y2: uy * up },
   ];
-  const fd = r * M.flagDistance;
+  // Vlaggetjes: horizontaal (evenwijdig aan de tekstregel), gecentreerd op de
+  // streep, allebei op het bovenstuk.
   const fh = r * M.flagHalfLength;
-  for (const sign of [-1, 1]) {
-    const cx = ux * fd * sign;
-    const cy = uy * fd * sign;
-    segments.push({
-      x1: cx - px * fh, y1: cy - py * fh,
-      x2: cx + px * fh, y2: cy + py * fh,
-    });
+  for (const t of M.flagAt) {
+    const cx = ux * r * t;
+    const cy = uy * r * t;
+    segments.push({ x1: cx - fh, y1: cy, x2: cx + fh, y2: cy });
   }
   return { r, segments };
 }
@@ -243,7 +252,9 @@ export function labelLayout(count, diameter, fontSize, measure = approxTextWidth
   const gap = fontSize * 0.22;
   // Vak voor het diameterteken: breed genoeg voor de schuine streep met
   // vlaggetjes (2·1.7·r·cos45° ≈ 0.67 × fontSize) plus wat lucht.
-  const signW = fontSize * 0.72;
+  // Horizontale ruimte: van de cirkelrand links (-1 r) tot het uiteinde van
+  // het bovenste vlaggetje (+1,84 r) = 2,84 r, plus wat lucht.
+  const signW = fontSize * 0.68;
   const wl = measure(left, fontSize);
   const wr = measure(right, fontSize);
   const parts = [
@@ -251,7 +262,10 @@ export function labelLayout(count, diameter, fontSize, measure = approxTextWidth
     { kind: 'dia', dx: wl + gap, w: signW },
     { kind: 'text', text: right, dx: wl + gap + signW + gap, w: wr },
   ];
-  const signRadius = fontSize * 0.28;
+  // Kleinere cirkel dan een gewoon diameterteken: de steile streep steekt ver
+  // boven de cirkel uit, dus bij r = 0.28 zou het teken de cijfers ver
+  // overheersen. Bij 0.22 is de totale hoogte ~1,2 x de tekengrootte.
+  const signRadius = fontSize * 0.22;
   return {
     parts,
     width: wl + gap + signW + gap + wr,
