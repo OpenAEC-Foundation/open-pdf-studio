@@ -1409,6 +1409,7 @@ export function drawAnnotation(ctx, annotation) {
         switch (c.kind) {
           case 'line': {
             ctx.save();
+            ctx.lineWidth = c.lineWidth ?? lw;
             if (Array.isArray(c.dash)) ctx.setLineDash(c.dash);
             ctx.beginPath();
             ctx.moveTo(c.x1, c.y1);
@@ -1432,6 +1433,7 @@ export function drawAnnotation(ctx, annotation) {
           case 'polyline': {
             if (!Array.isArray(c.points) || c.points.length < 2) break;
             ctx.save();
+            ctx.lineWidth = c.lineWidth ?? lw;
             if (Array.isArray(c.dash)) ctx.setLineDash(c.dash);
             ctx.beginPath();
             ctx.moveTo(c.points[0].x, c.points[0].y);

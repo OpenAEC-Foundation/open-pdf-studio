@@ -109,6 +109,7 @@ const PARAMETRIC_ID_DEFAULT = {
   'sondering': 'IfcAnnotation',
   'paalpuntniveau': 'IfcAnnotation',
   'overspanningspijl-vloer': 'IfcAnnotation',
+  'stenenrij': 'IfcWall',
 };
 
 function keywordMatch(text) {

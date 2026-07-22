@@ -62,6 +62,7 @@ const netwapeningPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" s
 const sonderingPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.7"><path d="M12 24 H36 L24 53 Z" fill="#000"/><line x1="8" y1="53" x2="40" y2="53"/><text x="47" y="25" font-size="19" font-weight="bold" text-anchor="middle" fill="#000" stroke="none">1</text></svg>`;
 const paalpuntniveauPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.5"><rect x="3" y="18" width="58" height="28"/><text x="32" y="35" font-size="7" font-weight="bold" text-anchor="middle" fill="#000" stroke="none">PUNTNIVEAU: 14.0 m+</text></svg>`;
 const overspanningspijlPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.5"><text x="32" y="24" font-size="8" text-anchor="middle" fill="#000" stroke="none">Overspanning vloer</text><line x1="8" y1="40" x2="56" y2="40"/><polyline points="14,36 8,40 14,44"/><polyline points="50,36 56,40 50,44"/></svg>`;
+const stenenrijPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.4"><rect x="22" y="3" width="20" height="10"/><rect x="22" y="15" width="20" height="10"/><rect x="22" y="27" width="20" height="10"/><rect x="22" y="39" width="20" height="10"/><rect x="22" y="51" width="20" height="10"/></svg>`;
 
 export const NL_CATEGORIES = [
   {
@@ -95,6 +96,7 @@ export const NL_CATEGORIES = [
       { id: 'param-sondering', name: 'Sondering', parametricId: 'sondering', svg: sonderingPreview },
       { id: 'param-paalpuntniveau', name: 'Paalpuntniveau', parametricId: 'paalpuntniveau', svg: paalpuntniveauPreview },
       { id: 'param-overspanningspijl-vloer', name: 'Overspanningspijl vloer', parametricId: 'overspanningspijl-vloer', svg: overspanningspijlPreview },
+      { id: 'param-stenenrij', name: 'Stenenrij (lagen-/koppenmaat)', parametricId: 'stenenrij', svg: stenenrijPreview },
       // Stavenreeks: geen parametrisch symbool maar een eigen gereedschap —
       // je sleept de reekslijn, net als bij Maskeer hieronder.
       { id: 'stavenreeks', name: 'Stavenreeks (wapening)', tool: 'stavenreeks', svg: stavenreeksPreview },

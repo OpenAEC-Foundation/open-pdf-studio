@@ -23,6 +23,7 @@ import { wapeningsstaafTemplate, netwapeningTemplate } from './templates/wapenin
 import { sonderingTemplate } from './templates/sondering.js';
 import { paalpuntniveauTemplate } from './templates/paalpuntniveau.js';
 import { overspanningspijlVloerTemplate } from './templates/overspanningspijl-vloer.js';
+import { stenenrijTemplate } from './templates/stenenrij.js';
 
 const templates = new Map();
 
@@ -56,6 +57,7 @@ register(netwapeningTemplate);
 register(sonderingTemplate);
 register(paalpuntniveauTemplate);
 register(overspanningspijlVloerTemplate);
+register(stenenrijTemplate);
 
 // Runtime registration for catalog-driven templates (downloaded steel
 // catalogs from the online symbol library — see symbols/steel-catalog-store.js).
