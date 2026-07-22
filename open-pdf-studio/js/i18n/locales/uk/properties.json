@@ -336,5 +336,23 @@
     "le": "less than or equal",
     "has": "has a value",
     "empty": "has no value"
+  },
+  "stavenreeks": {
+    "title": "Rebar Series",
+    "label": "Label",
+    "count": "Number of bars",
+    "diameter": "Diameter",
+    "barLength": "Bar length (mm)",
+    "legDirection": "Leg direction",
+    "legLength": "Leg length",
+    "labelSide": "Label side",
+    "labelSideStart": "At start",
+    "labelSideEnd": "At end",
+    "legDir": {
+      "up-left": "Up, leaning left",
+      "up-right": "Up, leaning right",
+      "down-left": "Down, leaning left",
+      "down-right": "Down, leaning right"
+    }
   }
 }

@@ -4,6 +4,7 @@ import { distanceToLine, isPointNearRect, isPointNearEllipse } from '../utils/ma
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { catmullRomSpline } from '../tools/tools/spline-tool.js';
 import { wallHalfWidthPx as isPointOnWallHalfWidth } from './rendering/walls.js';
+import { buildStavenreeks } from './stavenreeks.js';
 
 /**
  * Find intersection of two infinite lines defined by (p1,p2) and (p3,p4).
@@ -188,6 +189,19 @@ export function findAnnotationAt(x, y) {
         const dist = distanceToLine(x, y, ann.startX, ann.startY, ann.endX, ann.endY);
         if (dist < tol) return ann;
         break;
+      case 'stavenreeks': {
+        // Raak de reekslijn OF een van de poten/punten — alle drie horen bij
+        // hetzelfde object, dus de hele figuur is aanklikbaar.
+        if (distanceToLine(x, y, ann.startX, ann.startY, ann.endX, ann.endY) < tol) return ann;
+        const sr = buildStavenreeks(ann);
+        for (const leg of sr.legs) {
+          if (distanceToLine(x, y, leg.x1, leg.y1, leg.x2, leg.y2) < tol) return ann;
+        }
+        for (const dot of sr.dots) {
+          if (Math.hypot(x - dot.x, y - dot.y) < tol + dot.r) return ann;
+        }
+        break;
+      }
       case 'wall': {
         // Anywhere inside the band (centreline ± half real-world thickness)
         const wd = distanceToLine(x, y, ann.startX, ann.startY, ann.endX, ann.endY);

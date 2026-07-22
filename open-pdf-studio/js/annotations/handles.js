@@ -208,6 +208,7 @@ export function getAnnotationHandles(annotation, scale = 1) {
       handles.push({ type: HANDLE_TYPES.ROTATE, x: circX + circW/2 - hs/2, y: circY - 25 / scale - hs/2 });
       break;
 
+    case 'stavenreeks':
     case 'wall':
     case 'line':
       // Endpoint handles + midpoint grip (move whole line)

@@ -22,6 +22,7 @@ import CustomFieldsSection from './CustomFieldsSection.jsx';
 import CustomPluginPanel from './CustomPluginPanel.jsx';
 import CollapsibleSection from './CollapsibleSection.jsx';
 import ParametricSymbolSection from './ParametricSymbolSection.jsx';
+import StavenreeksSection from './StavenreeksSection.jsx';
 import WallSection from './WallSection.jsx';
 
 // "Meet op tekening" for an EXISTING scale region: temporary 2-click
@@ -225,6 +226,7 @@ export default function PropertiesPanel() {
               </CollapsibleSection>
             </Show>
             <ParametricSymbolSection />
+            <StavenreeksSection />
             <WallSection />
             <TextFormatSection />
             <ParagraphSection />

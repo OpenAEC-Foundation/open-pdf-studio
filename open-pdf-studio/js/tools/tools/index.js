@@ -51,6 +51,9 @@ export function registerAllTools() {
   registerTool('callout', shapeTool);
   registerTool('parametricSymbol', shapeTool);
   registerTool('count', shapeTool);
+  // Stavenreeks (wapeningsstaven-reeks): sleep begin→eind bepaalt de
+  // reekslijn; een klik zonder sleep plaatst een standaardlengte.
+  registerTool('stavenreeks', shapeTool);
   // L-shaped outline — drag-to-create like the other shapes (buildAnnotationProps
   // emits a closed polyline for the 'lshape' tool).
   registerTool('lshape', shapeTool);

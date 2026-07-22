@@ -125,7 +125,8 @@ export function drawSelectionHandles(ctx, annotation) {
   const isPointBased = ((annotation.type === 'measureArea' || annotation.type === 'measurePerimeter' ||
     annotation.type === 'polyline' || annotation.type === 'cloudPolyline' || annotation.type === 'splineArrow') ||
     (annotation.type === 'filledArea' && isEditingContour)) && annotation.points && annotation.points.length >= 2;
-  const usesGripOnlySelection = annotation.type === 'line' || annotation.type === 'arrow' || annotation.type === 'wall';
+  const usesGripOnlySelection = annotation.type === 'line' || annotation.type === 'arrow' || annotation.type === 'wall'
+    || annotation.type === 'stavenreeks';
   if (isMeasureAngle) {
     ctx.save();
     ctx.strokeStyle = '#0066cc';

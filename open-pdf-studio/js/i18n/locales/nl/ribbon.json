@@ -447,7 +447,10 @@
     "cut": "Knippen",
     "delete": "Verwijderen",
     "collectionCreate": "Aanmaken",
-    "collectionExplode": "Ontleden"
+    "collectionExplode": "Ontleden",
+    "structural": "Constructie",
+    "rebarSeries": "Stavenreeks",
+    "rebarSeriesTitle": "Wapeningsstaven-reeks tekenen (reekslijn met staafposities en label N ⌀ D)"
   },
   "theme": {
     "system": "Systeem (Automatisch)",

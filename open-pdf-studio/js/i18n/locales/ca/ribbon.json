@@ -298,5 +298,10 @@
   "common": {
     "collapseRibbon": "Collapse ribbon",
     "expandRibbon": "Expand ribbon"
+  },
+  "drawing": {
+    "structural": "Structural",
+    "rebarSeries": "Rebar Series",
+    "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)"
   }
 }

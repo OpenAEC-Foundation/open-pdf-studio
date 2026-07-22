@@ -160,6 +160,14 @@
     },
     {
       "action": "clickButton",
+      "id": "dr-stavenreeks"
+    },
+    {
+      "action": "probe",
+      "store": "pt16b_dr_stavenreeks"
+    },
+    {
+      "action": "clickButton",
       "id": "dr-image"
     },
     {

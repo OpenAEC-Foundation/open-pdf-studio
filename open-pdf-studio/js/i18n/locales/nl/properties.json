@@ -428,5 +428,23 @@
     "le": "kleiner of gelijk aan",
     "has": "heeft waarde",
     "empty": "heeft geen waarde"
+  },
+  "stavenreeks": {
+    "title": "Stavenreeks",
+    "label": "Label",
+    "count": "Aantal staven",
+    "diameter": "Diameter",
+    "barLength": "Staaflengte (mm)",
+    "legDirection": "Pootrichting",
+    "legLength": "Pootlengte",
+    "labelSide": "Labelzijde",
+    "labelSideStart": "Aan begin",
+    "labelSideEnd": "Aan eind",
+    "legDir": {
+      "up-left": "Omhoog, naar links hellend",
+      "up-right": "Omhoog, naar rechts hellend",
+      "down-left": "Omlaag, naar links hellend",
+      "down-right": "Omlaag, naar rechts hellend"
+    }
   }
 }

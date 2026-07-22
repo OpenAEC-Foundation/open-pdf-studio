@@ -9,7 +9,8 @@ import { getTemplate, defaultParams } from '../symbols/registry.js';
 import { pxPerMmAt } from '../symbols/real-size.js';
 import { pendingSymbolId } from '../solid/stores/parametricSymbolStore.js';
 import { activeCountCategory as _activeCountCategory, nextCountNumber as _nextCountNumber } from '../solid/stores/countStore.js';
-import { ifcCategoryForParametric } from '../solid/data/ifcCategoryMap.js';
+import { ifcCategoryForParametric, ifcCategoryForAnnotationType } from '../solid/data/ifcCategoryMap.js';
+import { STAVENREEKS_DEFAULTS } from '../annotations/stavenreeks.js';
 
 /**
  * Build raw annotation properties from tool + coordinates.
@@ -385,6 +386,39 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         strokeColor: '#000000',
         lineWidth: getLineWidthValue() || 1,
         rotation: 0,
+        opacity: 1,
+      };
+    }
+
+    case 'stavenreeks': {
+      // Wapeningsstaven-reeks: de sleep bepaalt richting + lengte van de
+      // reekslijn. Alle overige geometrie (poten, punten, label) wordt bij het
+      // renderen afgeleid uit deze vier coördinaten — er is bewust GEEN
+      // rotation-veld (voorkomt de rotatie-regressieklasse).
+      const end = snap(startX, startY, endX, endY);
+      let sEndX = end.x, sEndY = end.y;
+      // Klik zonder sleep: standaardlengte van 120 px horizontaal naar rechts.
+      if (Math.abs(sEndX - startX) < 5 && Math.abs(sEndY - startY) < 5) {
+        sEndX = startX + 120;
+        sEndY = startY;
+      }
+      // NL constructie-componenten zijn standaard ZWART, net als de wand- en
+      // symbool-tools; herkleuren kan achteraf in het eigenschappen-paneel.
+      return {
+        type: 'stavenreeks',
+        page: getActiveDocument()?.currentPage || 1,
+        startX, startY,
+        endX: sEndX, endY: sEndY,
+        count: o.stavenreeksCount ?? STAVENREEKS_DEFAULTS.count,
+        diameter: o.stavenreeksDiameter ?? STAVENREEKS_DEFAULTS.diameter,
+        barLengthMm: o.stavenreeksBarLengthMm ?? STAVENREEKS_DEFAULTS.barLengthMm,
+        legDir: o.stavenreeksLegDir ?? STAVENREEKS_DEFAULTS.legDir,
+        legLength: o.stavenreeksLegLength ?? STAVENREEKS_DEFAULTS.legLength,
+        labelSide: o.stavenreeksLabelSide ?? STAVENREEKS_DEFAULTS.labelSide,
+        ifcCategory: ifcCategoryForAnnotationType('stavenreeks'),
+        color: '#000000',
+        strokeColor: '#000000',
+        lineWidth: getLineWidthValue() || 1,
         opacity: 1,
       };
     }

@@ -1,3 +1,5 @@
+import { buildStavenreeks } from './stavenreeks.js';
+
 const CELL_SIZE = 200; // pixels per grid cell
 
 /**
@@ -224,6 +226,20 @@ class SpatialIndex {
    */
   _getBounds(annotation) {
     const type = annotation.type;
+
+    // Stavenreeks: the legs, dots and label extend well beyond the series
+    // line, so the generic line-based branch below (4 px padding) would make
+    // them unselectable. Use the element's full AABB instead.
+    if (type === 'stavenreeks') {
+      const { aabb } = buildStavenreeks(annotation);
+      const pad = Math.max(annotation.lineWidth || 2, 4);
+      return {
+        x: aabb.x - pad,
+        y: aabb.y - pad,
+        width: aabb.width + pad * 2,
+        height: aabb.height + pad * 2,
+      };
+    }
 
     // Rect-based annotations (most common)
     if (

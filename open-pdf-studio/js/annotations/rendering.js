@@ -12,6 +12,7 @@ import { catmullRomToBezier, splineArrowEndTangent } from './spline-arrow-geomet
 import { drawDimension, drawMeasureAreaShape, drawCentroidLabel, drawMeasurePerimeterShape } from './rendering/measurements.js';
 import { applyHatchFill, applyHatchFillPolygon } from './rendering/hatch-patterns.js';
 import { drawWall } from './rendering/walls.js';
+import { buildStavenreeks } from './stavenreeks.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { drawSelectionHandles } from './rendering/selection.js';
 import { drawImageCropOverlay } from './image-crop-overlay.js';
@@ -1525,6 +1526,67 @@ export function drawAnnotation(ctx, annotation) {
           }
         }
       }
+      ctx.restore();
+      break;
+    }
+
+    case 'stavenreeks': {
+      // Wapeningsstaven-reeks: reekslijn + N schuine poten die elk in een
+      // gevulde punt eindigen + label "N ⌀ D".
+      //
+      // ROTATIE-VEILIG: de volledige geometrie komt uit buildStavenreeks(),
+      // dat alles afleidt uit startX/startY/endX/endY. Er wordt hier GEEN
+      // ctx.rotate()/translate() toegepast en er is geen `rotation`-veld — een
+      // schuine reeks ontstaat doordat de coördinaten schuin liggen. Dezelfde
+      // functie voedt straks de PDF-appearance, zodat scherm en PDF niet uit
+      // elkaar kunnen lopen.
+      const lw = thinLw(annotation.lineWidth ?? 1);
+      const geom = buildStavenreeks(annotation, {
+        measureText: (text, size) => {
+          ctx.save();
+          ctx.font = `${size}px Arial`;
+          const w = ctx.measureText(text).width;
+          ctx.restore();
+          return w;
+        },
+      });
+
+      ctx.save();
+      ctx.strokeStyle = strokeColor;
+      ctx.fillStyle = strokeColor;
+      ctx.lineWidth = lw;
+      ctx.lineCap = 'butt';
+      ctx.lineJoin = 'miter';
+      ctx.setLineDash([]);
+
+      // Reekslijn + poten in één pad.
+      ctx.beginPath();
+      ctx.moveTo(geom.line.x1, geom.line.y1);
+      ctx.lineTo(geom.line.x2, geom.line.y2);
+      for (const leg of geom.legs) {
+        ctx.moveTo(leg.x1, leg.y1);
+        ctx.lineTo(leg.x2, leg.y2);
+      }
+      ctx.stroke();
+
+      // Gevulde punten (staafposities); straal schaalt met de diameter.
+      for (const dot of geom.dots) {
+        ctx.beginPath();
+        ctx.arc(dot.x, dot.y, dot.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Label "N ⌀ D", uitgelijnd langs de lijnrichting.
+      const lbl = geom.label;
+      ctx.save();
+      ctx.translate(lbl.x, lbl.y);
+      ctx.rotate(lbl.angle);
+      ctx.font = `${lbl.fontSize}px Arial`;
+      ctx.textAlign = lbl.align;
+      ctx.textBaseline = 'middle';
+      ctx.fillText(lbl.text, 0, 0);
+      ctx.restore();
+
       ctx.restore();
       break;
     }

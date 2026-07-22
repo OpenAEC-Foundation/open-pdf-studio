@@ -154,6 +154,25 @@ export function ifcCategoryForSymbol(symbol) {
   return IFC_DEFAULT;
 }
 
+// --- Annotatie-TYPE → IFC-categorie. Voor niet-parametrische constructie-
+// objecten die hun eigen annotatietype hebben (dus geen symbolId dragen). ---
+const ANNOTATION_TYPE_DEFAULT = {
+  // Wapeningsstaven-reeks → generieke wapening (label: "Wapening").
+  stavenreeks: 'IfcReinforcingBar',
+  wall: 'IfcWall',
+};
+
+/**
+ * IFC-categorie voor een annotatie op basis van zijn `type`.
+ * Gebruikt door creators van constructie-objecten die geen template-id hebben
+ * (bv. de stavenreeks), zodat de hoeveelheden-engine de categorie kan uitlezen.
+ * @param {string} annotationType  Annotatietype (bv. 'stavenreeks').
+ * @returns {string} IFC-categorienaam.
+ */
+export function ifcCategoryForAnnotationType(annotationType) {
+  return ANNOTATION_TYPE_DEFAULT[String(annotationType || '')] || IFC_DEFAULT;
+}
+
 /**
  * IFC-categorie voor een parametrisch symbool op basis van zijn template-id
  * (gebruikt door de parametricSymbol-creator, die alleen de symbolId kent).

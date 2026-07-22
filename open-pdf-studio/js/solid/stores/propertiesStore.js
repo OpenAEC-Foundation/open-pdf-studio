@@ -111,6 +111,12 @@ const [annotProps, setAnnotProps] = createStore({
   scaleBarTotalUnits: 5000,
   scaleBarDivisions: 5,
   scaleBarHeight: 14,
+  srCount: 3,
+  srDiameter: 12,
+  srBarLengthMm: 0,
+  srLegDir: 'down-left',
+  srLegLength: 24,
+  srLabelSide: 'end',
   symbolId: '',
   params: {},
   replies: [],
@@ -337,6 +343,13 @@ export function storeShowProperties(annotation) {
     scaleRegionHeight: annotation.type === 'scaleRegion'
       ? Math.round(((annotation.height || 0) / _scaleRegionPpu(annotation)) * 10) / 10 : 0,
     annotationType: annotation.type,
+    // Stavenreeks (wapeningsstaven-reeks)
+    srCount: annotation.count ?? 3,
+    srDiameter: annotation.diameter ?? 12,
+    srBarLengthMm: annotation.barLengthMm ?? 0,
+    srLegDir: annotation.legDir || 'down-left',
+    srLegLength: annotation.legLength ?? 24,
+    srLabelSide: annotation.labelSide || 'end',
     symbolId: annotation.symbolId || '',
     params: annotation.params ? { ...annotation.params } : {},
     dikteMm: annotation.dikteMm ?? 100,
@@ -762,6 +775,14 @@ function applyPropToAnnotation(ann, key, value) {
     case 'scaleBarTotalUnits': ann.totalUnits = parseFloat(value) || 1; break;
     case 'scaleBarDivisions': ann.divisions = Math.max(1, Math.min(20, parseInt(value) || 5)); break;
     case 'scaleBarHeight': ann.height = Math.max(4, parseInt(value) || 14); break;
+    // Stavenreeks — parameters; de geometrie wordt bij het renderen afgeleid
+    // uit start/eind + deze waarden (geen coördinaten herberekenen hier).
+    case 'srCount': ann.count = Math.max(1, Math.min(999, parseInt(value) || 1)); break;
+    case 'srDiameter': ann.diameter = parseFloat(value) || 12; break;
+    case 'srBarLengthMm': ann.barLengthMm = Math.max(0, parseFloat(value) || 0); break;
+    case 'srLegDir': ann.legDir = value; break;
+    case 'srLegLength': ann.legLength = Math.max(1, parseFloat(value) || 24); break;
+    case 'srLabelSide': ann.labelSide = value; break;
     case 'viewportName': ann.name = value; break;
     case 'viewportScaleRatio': {
       const ratio = parseInt(value);
@@ -1106,6 +1127,33 @@ export function updateAnnotProp(key, value) {
     case 'scaleBarHeight': {
       const newH = Math.max(4, parseInt(value) || 14);
       currentAnnotation.height = newH;
+      break;
+    }
+    // ── Stavenreeks ────────────────────────────────────────────────────
+    // Alleen parameters; de reekslijn (start/eind) blijft ongemoeid. De
+    // poten, punten en het label worden bij het renderen afgeleid.
+    case 'srCount': {
+      currentAnnotation.count = Math.max(1, Math.min(999, parseInt(value) || 1));
+      break;
+    }
+    case 'srDiameter': {
+      currentAnnotation.diameter = parseFloat(value) || 12;
+      break;
+    }
+    case 'srBarLengthMm': {
+      currentAnnotation.barLengthMm = Math.max(0, parseFloat(String(value).replace(',', '.')) || 0);
+      break;
+    }
+    case 'srLegDir': {
+      currentAnnotation.legDir = String(value || 'down-left');
+      break;
+    }
+    case 'srLegLength': {
+      currentAnnotation.legLength = Math.max(1, parseFloat(value) || 24);
+      break;
+    }
+    case 'srLabelSide': {
+      currentAnnotation.labelSide = value === 'start' ? 'start' : 'end';
       break;
     }
     case 'scaleBarPixelsPerUnit': {

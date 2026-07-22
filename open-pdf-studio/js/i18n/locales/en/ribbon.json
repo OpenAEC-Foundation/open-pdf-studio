@@ -447,7 +447,10 @@
     "cut": "Cut",
     "delete": "Delete",
     "collectionCreate": "Create",
-    "collectionExplode": "Explode"
+    "collectionExplode": "Explode",
+    "structural": "Structural",
+    "rebarSeries": "Rebar Series",
+    "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)"
   },
   "theme": {
     "system": "System (Auto Detect)",

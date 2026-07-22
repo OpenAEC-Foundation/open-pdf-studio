@@ -391,6 +391,9 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
       }
       break;
 
+    // De stavenreeks bewerkt exact als een lijn: de twee uiteinden bepalen de
+    // reekslijn, alle overige geometrie wordt bij het renderen afgeleid.
+    case 'stavenreeks':
     case 'wall':
     case 'line':
     case 'arrow':

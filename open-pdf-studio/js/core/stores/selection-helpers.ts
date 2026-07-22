@@ -1,5 +1,6 @@
 import type { Annotation, AnnotationBounds } from '../../types/annotation.js';
 import { state, getActiveDocument } from '../state.js';
+import { buildStavenreeks } from '../../annotations/stavenreeks.js';
 
 export function clearSelection(): void {
   const doc = getActiveDocument();
@@ -84,6 +85,12 @@ export function getAnnotationBounds(ann: Annotation): AnnotationBounds | null {
       const plMaxX = Math.max(...ann.points.map(p => p.x));
       const plMaxY = Math.max(...ann.points.map(p => p.y));
       return { x: plMinX, y: plMinY, width: plMaxX - plMinX, height: plMaxY - plMinY };
+    case 'stavenreeks': {
+      // Volledige omhullende: reekslijn + poten + punten + label. Dezelfde
+      // AABB die straks de PDF-/Rect wordt (één bron van waarheid).
+      const sr = buildStavenreeks(ann as any);
+      return { x: sr.aabb.x, y: sr.aabb.y, width: sr.aabb.width, height: sr.aabb.height };
+    }
     case 'measureDistance': {
       const mdXs = [ann.startX!, ann.endX!];
       const mdYs = [ann.startY!, ann.endY!];

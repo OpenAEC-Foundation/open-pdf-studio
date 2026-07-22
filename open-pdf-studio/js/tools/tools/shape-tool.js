@@ -76,6 +76,9 @@ export const shapeTool = {
     } else if (isClick && tool === 'parametricSymbol') {
       // Single click: use template default size
       // (handled inside buildAnnotationProps via b.width/height fallback)
+    } else if (isClick && tool === 'stavenreeks') {
+      // Single click: place a default-length series (the creator falls back to
+      // 120 px horizontally when start and end coincide).
     } else if (isClick) {
       // Other shapes: too small to be useful, skip creation
       ctx.redraw();

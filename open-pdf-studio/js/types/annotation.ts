@@ -8,7 +8,8 @@ export type AnnotationType =
   | 'filledArea'
   | 'mask' | 'viewport' | 'scheduleTable' | 'scaleBar'
   | 'scaleRegion'
-  | 'parametricSymbol';
+  | 'parametricSymbol'
+  | 'stavenreeks';
 
 export interface Point {
   x: number;
@@ -209,6 +210,16 @@ export type Annotation = AnnotationBase & {
   // Viewport
   name?: string;
   scaleRatio?: string;
+
+  // Stavenreeks (wapeningsstaven-reeks). Alle geometrie volgt uit
+  // startX/startY/endX/endY — er is bewust GEEN rotation-veld.
+  count?: number;              // aantal staven (= poten/punten)
+  diameter?: number;           // staafdiameter in mm (6..40)
+  barLengthMm?: number;        // staaflengte in mm (0 = onbekend)
+  legDir?: 'down-left' | 'down-right' | 'up-left' | 'up-right';
+  legLength?: number;          // pootlengte in px (canvas)
+  labelSide?: 'start' | 'end'; // uiteinde waar het label "N ⌀ D" staat
+  ifcCategory?: string;        // IFC-categorie (mapping-laag → hoeveelheden)
 
   // Scale Region (per-region calibration)
   scaleString?: string;  // e.g. "1:100"

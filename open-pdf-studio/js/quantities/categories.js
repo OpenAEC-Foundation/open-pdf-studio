@@ -2,6 +2,8 @@
 // Elk element (annotatie of native pseudo-element) krijgt een categorie en een
 // set uitleesbare velden. Eén register, géén per-type code elders.
 
+import { totalBarLengthM } from '../annotations/stavenreeks.js';
+
 export const CATEGORY_LABELS = {
   'text-annotation': 'Tekst (annotatie)',
   'text-built-in': 'Tekst (native)',
@@ -23,6 +25,7 @@ const TYPE_TO_CATEGORY = {
   polygon: 'area', cloud: 'area', cloudPolyline: 'area', scaleRegion: 'area', redaction: 'area', highlight: 'area',
   measureDistance: 'line-based', measurePerimeter: 'line-based', line: 'line-based', arrow: 'line-based',
   polyline: 'line-based', wall: 'line-based', spline: 'line-based', arc: 'line-based', draw: 'line-based', measureAngle: 'line-based',
+  stavenreeks: 'line-based',
   count: 'count', parametricSymbol: 'symbol', stamp: 'symbol', signature: 'symbol', image: 'image',
 };
 
@@ -42,10 +45,15 @@ export const TYPE_NAMES = {
   parametricSymbol: 'Symbool', count: 'Telmarkering',
   measureDistance: 'Afstand', measureArea: 'Oppervlakte', measurePerimeter: 'Omtrek',
   measureAngle: 'Hoek', scaleRegion: 'Schaalgebied', viewport: 'Viewport',
+  stavenreeks: 'Stavenreeks',
   scheduleTable: 'Hoeveelheden-tabel', builtinText: 'Tekst',
 };
 
 const F = (key, label, kind, get, unit = '', dec) => ({ key, label, kind, unit, get, dec });
+
+// Wrapper voor stavenreeks-specifieke velden binnen de gedeelde 'line-based'-
+// categorie: geeft null (lege cel) voor elk ander lijnvormig element.
+const srField = (get) => (el) => (el.type === 'stavenreeks' ? get(el) : null);
 
 function areaValue(el) {
   return (el.type === 'measureArea' && typeof el.measureValue === 'number') ? el.measureValue : null;
@@ -125,6 +133,12 @@ export const FIELD_REGISTRY = {
   ],
   'line-based': [...COMMON,
     F('length', 'Lengte', 'number', lengthValue, 'm'),
+    // Wapening (stavenreeks): stuks + strekkende meter. Deze getters geven
+    // null voor gewone lijnvormige elementen, zodat die cellen leeg blijven.
+    F('barCount', 'Aantal staven', 'number', srField(el => el.count || 0), '', 0),
+    F('barDiameter', 'Diameter', 'number', srField(el => el.diameter || 0), 'mm', 0),
+    F('barLength', 'Staaflengte', 'number', srField(el => el.barLengthMm || 0), 'mm', 0),
+    F('totalBarLength', 'Totale staaflengte', 'number', srField(totalBarLengthM), 'm'),
   ],
   'count': [...COMMON,
     F('countCat', 'Telcategorie', 'text', el => el.__countCatName || el.categoryId || ''),
