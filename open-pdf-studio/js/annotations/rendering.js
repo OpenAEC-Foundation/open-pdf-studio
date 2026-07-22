@@ -13,6 +13,7 @@ import { drawDimension, drawMeasureAreaShape, drawCentroidLabel, drawMeasurePeri
 import { applyHatchFill, applyHatchFillPolygon } from './rendering/hatch-patterns.js';
 import { drawWall } from './rendering/walls.js';
 import { buildStavenreeks } from './stavenreeks.js';
+import { stavenreeksPxPerMm } from './stavenreeks-scale.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { drawSelectionHandles } from './rendering/selection.js';
 import { drawImageCropOverlay } from './image-crop-overlay.js';
@@ -1542,6 +1543,8 @@ export function drawAnnotation(ctx, annotation) {
       // elkaar kunnen lopen.
       const lw = thinLw(annotation.lineWidth ?? 1);
       const geom = buildStavenreeks(annotation, {
+        // Alleen de puntstraal volgt de plaatselijke tekeningschaal.
+        pxPerMm: stavenreeksPxPerMm(annotation),
         measureText: (text, size) => {
           ctx.save();
           ctx.font = `${size}px Arial`;

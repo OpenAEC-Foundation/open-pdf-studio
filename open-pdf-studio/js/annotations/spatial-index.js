@@ -1,4 +1,5 @@
 import { buildStavenreeks } from './stavenreeks.js';
+import { stavenreeksPxPerMm } from './stavenreeks-scale.js';
 
 const CELL_SIZE = 200; // pixels per grid cell
 
@@ -231,7 +232,7 @@ class SpatialIndex {
     // line, so the generic line-based branch below (4 px padding) would make
     // them unselectable. Use the element's full AABB instead.
     if (type === 'stavenreeks') {
-      const { aabb } = buildStavenreeks(annotation);
+      const { aabb } = buildStavenreeks(annotation, { pxPerMm: stavenreeksPxPerMm(annotation) });
       const pad = Math.max(annotation.lineWidth || 2, 4);
       return {
         x: aabb.x - pad,

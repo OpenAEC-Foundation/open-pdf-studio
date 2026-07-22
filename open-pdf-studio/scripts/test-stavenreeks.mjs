@@ -304,7 +304,10 @@ console.log('\n9. Hoeveelheden-register');
 // ── 10. Labelindeling (gedeeld door canvas én PDF-appearance) ────────────
 console.log('\n10. Labelindeling');
 {
-  const lay = S.labelLayout(5, 16, 12);
+  // Gebruik de standaard-tekstgrootte, zodat de vergelijking met de opgebouwde
+  // geometrie (die dezelfde default hanteert) klopt.
+  const defFs = S.STAVENREEKS_DEFAULTS.fontSize;
+  const lay = S.labelLayout(5, 16, defFs);
   check('drie onderdelen: tekst, ⌀-vector, tekst', lay.parts.length === 3, lay.parts.length);
   check('eerste deel is het aantal', lay.parts[0].kind === 'text' && lay.parts[0].text === '5');
   check('middendeel is de ⌀-vector (geen glyph)', lay.parts[1].kind === 'dia');
@@ -315,7 +318,7 @@ console.log('\n10. Labelindeling');
     near(lay.width, lay.parts[2].dx + lay.parts[2].w), `${lay.width}`);
   check('⌀-straal positief en past in zijn vak',
     lay.signRadius > 0 && lay.signRadius * 2 <= lay.parts[1].w + 1e-9);
-  check('grotere fontgrootte → breder label', S.labelLayout(5, 16, 24).width > lay.width);
+  check('grotere fontgrootte → breder label', S.labelLayout(5, 16, defFs + 8).width > lay.width);
 
   // De opgebouwde geometrie gebruikt exact deze indeling.
   const b = S.buildStavenreeks({ startX: 0, startY: 0, endX: 100, endY: 0, count: 5, diameter: 16 });
@@ -335,7 +338,9 @@ console.log('\n10. Labelindeling');
 // ── 11. Wapenings-diameterteken (2 vlaggetjes) ───────────────────────────
 console.log('\n11. Wapeningssymbool');
 {
-  const fontSize = 12;
+  // Standaard-tekstgrootte, zodat de segmenten overeenkomen met wat de
+  // opgebouwde geometrie (met dezelfde default) meedraagt.
+  const fontSize = S.STAVENREEKS_DEFAULTS.fontSize;
   const r = S.labelLayout(3, 12, fontSize).signRadius;
   const sign = S.diameterSignSegments(r);
   check('straal wordt doorgegeven', near(sign.r, r));
@@ -426,6 +431,8 @@ console.log('\n12. Standaardwaarden');
     near(d.legs[0].x1 - d.legs[0].x2, 36 * Math.cos(th), 1e-9), d.legs[0].x1 - d.legs[0].x2);
   check('standaard labelzijde = end', S.STAVENREEKS_DEFAULTS.labelSide === 'end');
   check('standaard pootrichting = down-left', S.STAVENREEKS_DEFAULTS.legDir === 'down-left');
+  check('standaard tekstgrootte = 16 (groter dan de oude 12)',
+    S.STAVENREEKS_DEFAULTS.fontSize === 16, S.STAVENREEKS_DEFAULTS.fontSize);
 }
 
 // ── 13. Labelvrijloop t.o.v. de poten ────────────────────────────────────
@@ -694,6 +701,180 @@ console.log('\n15. Grijppunten en slepen');
     check('uitloop verplaatst de grijppunten niet',
       near(a.start.x, b.start.x, 1e-9) && near(a.end.x, b.end.x, 1e-9));
   }
+}
+
+// ── 16. Validatie van de inline invoer (aantal + diameter) ───────────────
+console.log('\n16. Inline invoer');
+{
+  const R = S.STAVENREEKS_COUNT_RANGE;
+  check('bereik van de inline invoer = 1..100', R.min === 1 && R.max === 100,
+    `${R.min}..${R.max}`);
+
+  // Aantal.
+  check('gewoon getal wordt overgenomen', S.sanitizeCountInput('7', 3) === 7);
+  check('getal als number werkt ook', S.sanitizeCountInput(12, 3) === 12);
+  check('spaties worden genegeerd', S.sanitizeCountInput('  9 ', 3) === 9);
+  check('komma als decimaalteken wordt gelezen', S.sanitizeCountInput('4,6', 3) === 5);
+  check('afronding op hele staven', S.sanitizeCountInput('4.2', 3) === 4);
+  check('boven het bereik klemt op 100', S.sanitizeCountInput('250', 3) === 100);
+  check('onder het bereik klemt op 1', S.sanitizeCountInput('0', 3) === 1);
+  check('negatief klemt op 1', S.sanitizeCountInput('-8', 3) === 1);
+  check('lege invoer valt terug op de huidige waarde', S.sanitizeCountInput('', 6) === 6);
+  check('onzin valt terug op de huidige waarde', S.sanitizeCountInput('abc', 6) === 6);
+  check('null valt terug op de huidige waarde', S.sanitizeCountInput(null, 6) === 6);
+  check('ongeldige terugval valt terug op de standaard',
+    S.sanitizeCountInput('', 'x') === S.STAVENREEKS_DEFAULTS.count);
+  check('terugval buiten het bereik wordt zelf ook geklemd',
+    S.sanitizeCountInput('', 5000) === 100);
+  check('uitkomst is altijd geldig voor buildStavenreeks', (() => {
+    for (const v of ['', 'abc', '-3', '9999', '2.4', null, undefined, '1']) {
+      const n = S.sanitizeCountInput(v, 3);
+      if (!Number.isInteger(n) || n < R.min || n > R.max) return false;
+      if (S.buildStavenreeks({ startX: 0, startY: 0, endX: 100, endY: 0, count: n }).dots.length !== n) return false;
+    }
+    return true;
+  })());
+
+  // Diameter.
+  check('standaarddiameter wordt overgenomen', S.sanitizeDiameterInput('16', 12) === 16);
+  check('diameter als number werkt ook', S.sanitizeDiameterInput(25, 12) === 25);
+  check('afwijkende maat gaat naar de dichtstbijzijnde standaard',
+    S.sanitizeDiameterInput('14', 12) === 12 || S.sanitizeDiameterInput('14', 12) === 16,
+    S.sanitizeDiameterInput('14', 12));
+  // 18 ligt precies tussen 16 en 20; bij gelijke afstand wint de kleinste.
+  check('18 → 16 (gelijkspel: kleinste wint)', S.sanitizeDiameterInput('18', 12) === 16,
+    S.sanitizeDiameterInput('18', 12));
+  check('22 → 20 (dichtstbijzijnde omlaag)', S.sanitizeDiameterInput('22', 12) === 20,
+    S.sanitizeDiameterInput('22', 12));
+  check('30 → 32 (dichtstbijzijnde omhoog)', S.sanitizeDiameterInput('30', 12) === 32,
+    S.sanitizeDiameterInput('30', 12));
+  check('1000 → 40 (bovenste standaard)', S.sanitizeDiameterInput('1000', 12) === 40);
+  check('1 → 6 (onderste standaard)', S.sanitizeDiameterInput('1', 12) === 6);
+  check('lege invoer valt terug op de huidige diameter', S.sanitizeDiameterInput('', 20) === 20);
+  check('onzin valt terug op de huidige diameter', S.sanitizeDiameterInput('n.v.t.', 20) === 20);
+  check('nul of negatief valt terug op de huidige diameter',
+    S.sanitizeDiameterInput('0', 20) === 20 && S.sanitizeDiameterInput('-6', 20) === 20);
+  check('afwijkende terugval wordt zelf ook op de lijst gezet',
+    S.STAVENREEKS_DIAMETERS.includes(S.sanitizeDiameterInput('', 18)),
+    S.sanitizeDiameterInput('', 18));
+  check('uitkomst zit altijd in STAVENREEKS_DIAMETERS',
+    ['', 'x', '0', '7', '33', '99', null, 16]
+      .every(v => S.STAVENREEKS_DIAMETERS.includes(S.sanitizeDiameterInput(v, 12))));
+
+  // De ingevoerde waarden komen 1-op-1 in het label terug.
+  {
+    const n = S.sanitizeCountInput('12', 3);
+    const d = S.sanitizeDiameterInput('25', 12);
+    check('label toont de bevestigde waarden', S.labelText(n, d) === '12 ⌀ 25', S.labelText(n, d));
+  }
+}
+
+// ── 17. Tekstgrootte: default, meeschalen en validatie ───────────────────
+console.log('\n17. Tekstgrootte');
+{
+  const R = S.STAVENREEKS_FONT_SIZE_RANGE;
+  check('bereik tekstgrootte = 6..72', R.min === 6 && R.max === 72, `${R.min}..${R.max}`);
+
+  const small = S.buildStavenreeks({ startX: 0, startY: 0, endX: 200, endY: 0, fontSize: 10 },
+    { measureText: (t, fs) => t.length * fs * 0.55 });
+  const big = S.buildStavenreeks({ startX: 0, startY: 0, endX: 200, endY: 0, fontSize: 28 },
+    { measureText: (t, fs) => t.length * fs * 0.55 });
+  check('label draagt de ingestelde tekstgrootte', small.label.fontSize === 10 && big.label.fontSize === 28);
+  check('grotere tekst → breder label', big.label.width > small.label.width,
+    `${big.label.width} vs ${small.label.width}`);
+  check('wapeningsteken schaalt mee (signRadius = 0,22 × fontSize)',
+    near(small.label.signRadius, 10 * 0.22, 1e-9) && near(big.label.signRadius, 28 * 0.22, 1e-9),
+    `${small.label.signRadius} / ${big.label.signRadius}`);
+  check('grotere tekst → grotere AABB', big.aabb.width > small.aabb.width && big.aabb.height >= small.aabb.height);
+  // Labelvrijloop blijft kloppen: label mag geen poot snijden, ook bij grote tekst.
+  {
+    const b = big;
+    const half = b.label.fontSize * 0.6;
+    const px = -b.label.dirY, py = b.label.dirX;
+    let minD = Infinity;
+    for (let t = 0; t <= b.label.width; t += 1) {
+      for (const s of [-half, 0, half]) {
+        const X = b.label.x + b.label.dirX * t + px * s;
+        const Y = b.label.y + b.label.dirY * t + py * s;
+        for (const l of b.legs) {
+          const vx = l.x2 - l.x1, vy = l.y2 - l.y1;
+          const L2 = vx * vx + vy * vy;
+          let u = L2 > 0 ? ((X - l.x1) * vx + (Y - l.y1) * vy) / L2 : 0;
+          u = u < 0 ? 0 : (u > 1 ? 1 : u);
+          minD = Math.min(minD, Math.hypot(X - (l.x1 + vx * u), Y - (l.y1 + vy * u)));
+        }
+      }
+    }
+    check('grote tekst: labelvak raakt geen poot', minD > 0.5, minD);
+  }
+
+  // Validatie / klem.
+  check('gewone tekstgrootte overgenomen', S.sanitizeFontSizeInput('20', 16) === 20);
+  check('boven het bereik klemt op 72', S.sanitizeFontSizeInput('200', 16) === 72);
+  check('onder het bereik klemt op 6', S.sanitizeFontSizeInput('3', 16) === 6);
+  check('afronding op hele punten', S.sanitizeFontSizeInput('14.6', 16) === 15);
+  check('komma-decimaal werkt', S.sanitizeFontSizeInput('11,2', 16) === 11);
+  check('lege invoer valt terug op de huidige waarde', S.sanitizeFontSizeInput('', 18) === 18);
+  check('onzin valt terug op de huidige waarde', S.sanitizeFontSizeInput('abc', 18) === 18);
+  check('nul/negatief valt terug op de huidige waarde',
+    S.sanitizeFontSizeInput('0', 18) === 18 && S.sanitizeFontSizeInput('-5', 18) === 18);
+  check('terugval buiten het bereik wordt zelf ook geklemd', S.sanitizeFontSizeInput('', 500) === 72);
+  check('uitkomst zit altijd binnen 6..72',
+    ['', 'x', '0', '4', '500', '30', null].every(v => {
+      const n = S.sanitizeFontSizeInput(v, 16);
+      return n >= 6 && n <= 72 && Number.isInteger(n);
+    }));
+}
+
+// ── 18. Schaal-bewuste puntstraal (staaf in doorsnede) ───────────────────
+console.log('\n18. Schaal-bewuste puntstraal');
+{
+  const L = S.POINT_RADIUS_LIMITS;
+  check('puntstraal-grenzen = 1,5 .. 30', L.min === 1.5 && L.max === 30, `${L.min}..${L.max}`);
+
+  // Fallback: zonder px-per-mm de oude, papier-constante formule.
+  check('geen schaal → oude formule (⌀12 = 3.44)', near(S.pointRadius(12), 3.44, 1e-9), S.pointRadius(12));
+  check('px-per-mm 0 → fallback', near(S.pointRadius(12, 0), 3.44, 1e-9));
+  check('px-per-mm negatief → fallback', near(S.pointRadius(12, -2), 3.44, 1e-9));
+  check('px-per-mm NaN → fallback', near(S.pointRadius(12, NaN), 3.44, 1e-9));
+
+  // Schaal-bewust: straal = (diameter/2) × pxPerMm.
+  // Bij 1:20 en mm is pxPerMm = (72/25.4)/20 ≈ 0.1417; ⌀32 → 16·0.1417 ≈ 2.27.
+  const k20 = (72 / 25.4) / 20;
+  check('⌀32 @ 1:20 volgt de werkelijke maat', near(S.pointRadius(32, k20), (32 / 2) * k20, 1e-9),
+    S.pointRadius(32, k20));
+  const k100 = (72 / 25.4) / 100;
+  check('⌀32 @ 1:100 is dunner dan @ 1:20', S.pointRadius(32, k100) < S.pointRadius(32, k20));
+
+  // Klemming: heel kleine schaal → ondergrens, heel grote schaal → bovengrens.
+  check('minuscule schaal klemt op 1,5', near(S.pointRadius(6, 0.0001), L.min));
+  check('enorme schaal klemt op 30', near(S.pointRadius(40, 100), L.max));
+
+  // Doorwerking in buildStavenreeks via opts.pxPerMm — ALLEEN de punten.
+  const plain = S.buildStavenreeks({ startX: 0, startY: 0, endX: 200, endY: 0, diameter: 32 },
+    { measureText: (t, fs) => t.length * fs * 0.55 });
+  const scaled = S.buildStavenreeks({ startX: 0, startY: 0, endX: 200, endY: 0, diameter: 32 },
+    { measureText: (t, fs) => t.length * fs * 0.55, pxPerMm: 0.6 });
+  check('opts.pxPerMm verandert de puntstraal',
+    !near(plain.dots[0].r, scaled.dots[0].r), `${plain.dots[0].r} vs ${scaled.dots[0].r}`);
+  check('puntstraal = (diameter/2) × pxPerMm', near(scaled.dots[0].r, 16 * 0.6, 1e-9), scaled.dots[0].r);
+
+  // BEPERKING (harde eis): ALLEEN de puntstraal is schaal-bewust. Pootlengte,
+  // uitloop, labelgrootte en lijndikte blijven papier-constant.
+  const measure = (t, fs) => t.length * fs * 0.55;
+  const a = S.buildStavenreeks({ startX: 0, startY: 0, endX: 200, endY: 0, diameter: 32 },
+    { measureText: measure });
+  const b = S.buildStavenreeks({ startX: 0, startY: 0, endX: 200, endY: 0, diameter: 32 },
+    { measureText: measure, pxPerMm: 0.6 });
+  const legLen = (g, i) => Math.hypot(g.legs[i].x2 - g.legs[i].x1, g.legs[i].y2 - g.legs[i].y1);
+  check('pootlengte blijft papier-constant', near(legLen(a, 0), legLen(b, 0), 1e-9),
+    `${legLen(a, 0)} vs ${legLen(b, 0)}`);
+  check('uitloop blijft papier-constant', near(a.tail.x, b.tail.x, 1e-9) && near(a.tail.y, b.tail.y, 1e-9));
+  check('labelgrootte blijft papier-constant', a.label.fontSize === b.label.fontSize);
+  check('labelbreedte blijft papier-constant', near(a.label.width, b.label.width, 1e-9));
+  check('wapenings-signRadius blijft papier-constant', near(a.label.signRadius, b.label.signRadius, 1e-9));
+  check('staafposities (poot-ankers) blijven papier-constant',
+    near(a.legs[0].x1, b.legs[0].x1, 1e-9) && near(a.legs[1].x1, b.legs[1].x1, 1e-9));
 }
 
 console.log(`\n${failures === 0 ? 'GESLAAGD' : 'GEFAALD'}: ${checks - failures}/${checks} controles`);

@@ -5,6 +5,7 @@ import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { catmullRomSpline } from '../tools/tools/spline-tool.js';
 import { wallHalfWidthPx as isPointOnWallHalfWidth } from './rendering/walls.js';
 import { buildStavenreeks } from './stavenreeks.js';
+import { stavenreeksPxPerMm } from './stavenreeks-scale.js';
 
 /**
  * Find intersection of two infinite lines defined by (p1,p2) and (p3,p4).
@@ -195,7 +196,7 @@ export function findAnnotationAt(x, y) {
         // De GETEKENDE aanhaallijn (sr.line) loopt aan de labelzijde verder
         // door dan het laatste staafpunt (de uitloop) — die uitloop hoort bij
         // het object en moet dus ook raakbaar zijn.
-        const sr = buildStavenreeks(ann);
+        const sr = buildStavenreeks(ann, { pxPerMm: stavenreeksPxPerMm(ann) });
         if (distanceToLine(x, y, sr.line.x1, sr.line.y1, sr.line.x2, sr.line.y2) < tol) return ann;
         for (const leg of sr.legs) {
           if (distanceToLine(x, y, leg.x1, leg.y1, leg.x2, leg.y2) < tol) return ann;

@@ -4377,3 +4377,47 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
   white-space: nowrap;
 }
 .scale-region-dialog .ai-login-field > div { font-size: 12px; }
+
+/* Inline invoer van aantal + diameter, direct op een stavenreeks.
+   Compact Windows-uiterlijk: rechte hoeken, dunne rand, geen animatie.
+   Kleuren via dezelfde thema-variabelen als het eigenschappen-paneel, zodat
+   het venstertje in elk thema leesbaar blijft. */
+.stavenreeks-inline-editor {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+  padding: 5px 6px;
+  background: var(--theme-panel-bg, #f5f5f5);
+  border: 1px solid var(--theme-border, #808080);
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.35);
+  border-radius: 0;
+  font-size: 11px;
+  font-family: inherit;
+  color: var(--theme-text, #1f1f1f);
+}
+.stavenreeks-inline-editor .sr-inline-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.stavenreeks-inline-editor .sr-inline-field > span {
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--theme-text-secondary, #555);
+}
+.stavenreeks-inline-editor input,
+.stavenreeks-inline-editor select {
+  font-size: 12px;
+  font-family: inherit;
+  height: 22px;
+  padding: 1px 4px;
+  border: 1px solid var(--theme-border, #7a7a7a);
+  border-radius: 0;
+  background-color: var(--theme-surface, #ffffff);
+  color: var(--theme-text, #1f1f1f);
+  box-sizing: border-box;
+  margin: 0;
+}
+.stavenreeks-inline-editor input { width: 58px; }
+.stavenreeks-inline-editor select { width: 76px; cursor: pointer; }

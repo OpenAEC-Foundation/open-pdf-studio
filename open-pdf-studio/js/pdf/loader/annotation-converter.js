@@ -1226,6 +1226,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           legDir: extraColors.srLegDir || 'down-left',
           legLength: extraColors.srLegLength ?? STAVENREEKS_DEFAULTS.legLength,
           lineTail: extraColors.srLineTail ?? STAVENREEKS_DEFAULTS.lineTail,
+          fontSize: extraColors.srFontSize ?? STAVENREEKS_DEFAULTS.fontSize,
           labelSide: extraColors.srLabelSide === 'start' ? 'start' : 'end',
           ifcCategory: ifcCategoryForAnnotationType('stavenreeks'),
           color: srColor,

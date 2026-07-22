@@ -297,6 +297,8 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         if (srLl !== null) colors.srLegLength = srLl;
         const srLt = srNum('OPS_SRLineTail');
         if (srLt !== null) colors.srLineTail = srLt;
+        const srFs = srNum('OPS_SRFontSize');
+        if (srFs !== null) colors.srFontSize = srFs;
         const srLw = srNum('OPS_SRLineWidth');
         if (srLw !== null) colors.srLineWidth = srLw;
         const srLd = srStr('OPS_SRLegDir');

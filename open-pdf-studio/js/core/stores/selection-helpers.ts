@@ -1,6 +1,7 @@
 import type { Annotation, AnnotationBounds } from '../../types/annotation.js';
 import { state, getActiveDocument } from '../state.js';
 import { buildStavenreeks } from '../../annotations/stavenreeks.js';
+import { stavenreeksPxPerMm } from '../../annotations/stavenreeks-scale.js';
 
 export function clearSelection(): void {
   const doc = getActiveDocument();
@@ -88,7 +89,7 @@ export function getAnnotationBounds(ann: Annotation): AnnotationBounds | null {
     case 'stavenreeks': {
       // Volledige omhullende: reekslijn + poten + punten + label. Dezelfde
       // AABB die straks de PDF-/Rect wordt (één bron van waarheid).
-      const sr = buildStavenreeks(ann as any);
+      const sr = buildStavenreeks(ann as any, { pxPerMm: stavenreeksPxPerMm(ann as any) });
       return { x: sr.aabb.x, y: sr.aabb.y, width: sr.aabb.width, height: sr.aabb.height };
     }
     case 'measureDistance': {

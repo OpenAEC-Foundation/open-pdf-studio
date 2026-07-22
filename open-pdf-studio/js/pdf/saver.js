@@ -27,6 +27,7 @@ import { buildFilledAreaAP, buildMeasureAreaAP, buildPolylineMeasureAP,
   buildStavenreeksAP,
   cloudRectOutlinePts, cloudPolyOutlinePts } from './saver/appearance-vectors.js';
 import { buildStavenreeks, toLocalPrimitives, labelText } from '../annotations/stavenreeks.js';
+import { stavenreeksPxPerMm } from '../annotations/stavenreeks-scale.js';
 import { computeWallShape, resolveWallMaterial } from '../annotations/rendering/walls.js';
 
 // Wrap a vector /AP builder result (absolute-PDF-coord content + needsFont flag)
@@ -1632,7 +1633,9 @@ export async function savePDF(saveAsPath = null) {
             // De geometrie komt UITSLUITEND uit de gedeelde pure module, met
             // de deterministische breedte-schatter (geen canvas bij het
             // opslaan), zodat de PDF exact tekent wat de module beschrijft.
-            const srGeom = buildStavenreeks(ann);
+            // Schaal-bewuste puntstraal: dezelfde px-per-mm als het canvas,
+            // zodat de PDF-appearance exact dezelfde staafdikte tekent.
+            const srGeom = buildStavenreeks(ann, { pxPerMm: stavenreeksPxPerMm(ann) });
             const srA = srGeom.aabb;
             const srX1 = convertX(srA.x);
             const srY1 = convertY(srA.y + srA.height);
@@ -1672,6 +1675,7 @@ export async function savePDF(saveAsPath = null) {
               OPS_SRLegDir: PDFString.of(srGeom.params.legDir),
               OPS_SRLegLength: srGeom.params.legLength,
               OPS_SRLineTail: srGeom.params.lineTail,
+              OPS_SRFontSize: srGeom.params.fontSize,
               OPS_SRLabelSide: PDFString.of(srGeom.params.labelSide),
               OPS_SRLineWidth: ann.lineWidth ?? 1,
               // Reekslijn in PDF-coördinaten + de /Rect zoals WIJ hem schreven.

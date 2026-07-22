@@ -415,6 +415,7 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         legDir: o.stavenreeksLegDir ?? STAVENREEKS_DEFAULTS.legDir,
         legLength: o.stavenreeksLegLength ?? STAVENREEKS_DEFAULTS.legLength,
         lineTail: o.stavenreeksLineTail ?? STAVENREEKS_DEFAULTS.lineTail,
+        fontSize: o.stavenreeksFontSize ?? STAVENREEKS_DEFAULTS.fontSize,
         labelSide: o.stavenreeksLabelSide ?? STAVENREEKS_DEFAULTS.labelSide,
         ifcCategory: ifcCategoryForAnnotationType('stavenreeks'),
         color: '#000000',

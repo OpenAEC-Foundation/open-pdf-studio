@@ -133,7 +133,7 @@ def main():
 
     for key in ("/OPS_SRCount", "/OPS_SRDiameter", "/OPS_SRBarLengthMm",
                 "/OPS_SRLegDir", "/OPS_SRLegLength", "/OPS_SRLineTail",
-                "/OPS_SRLabelSide",
+                "/OPS_SRFontSize", "/OPS_SRLabelSide",
                 "/OPS_SRGeom", "/OPS_SRRect"):
         check(f"custom key {key} aanwezig", key in sr)
 
@@ -143,7 +143,7 @@ def main():
     print(f"       /Contents = {ctext!r}")
     print(f"       count={sr.get('/OPS_SRCount')} diameter={sr.get('/OPS_SRDiameter')} "
           f"legDir={sr.get('/OPS_SRLegDir')} lineTail={sr.get('/OPS_SRLineTail')} "
-          f"labelSide={sr.get('/OPS_SRLabelSide')}")
+          f"fontSize={sr.get('/OPS_SRFontSize')} labelSide={sr.get('/OPS_SRLabelSide')}")
     pdf.close()
 
     # ── 2. Zichtbaarheid in twee engines ─────────────────────────────────

@@ -114,6 +114,7 @@ const [annotProps, setAnnotProps] = createStore({
   scaleBarHeight: 14,
   srCount: 3,
   srLineTail: STAVENREEKS_DEFAULTS.lineTail,
+  srFontSize: STAVENREEKS_DEFAULTS.fontSize,
   srDiameter: 12,
   srBarLengthMm: 0,
   srLegDir: 'down-left',
@@ -352,6 +353,7 @@ export function storeShowProperties(annotation) {
     srLegDir: annotation.legDir || 'down-left',
     srLegLength: annotation.legLength ?? STAVENREEKS_DEFAULTS.legLength,
     srLineTail: annotation.lineTail ?? STAVENREEKS_DEFAULTS.lineTail,
+    srFontSize: annotation.fontSize ?? STAVENREEKS_DEFAULTS.fontSize,
     srLabelSide: annotation.labelSide || 'end',
     symbolId: annotation.symbolId || '',
     params: annotation.params ? { ...annotation.params } : {},
@@ -732,6 +734,14 @@ function _clampLineTail(value) {
   return Math.max(0, Math.min(200, n));
 }
 
+// Tekstgrootte van het stavenreeks-label: 6..72, ongeldige invoer valt terug
+// op de standaardwaarde.
+function _clampFontSize(value) {
+  const n = parseFloat(String(value).replace(',', '.'));
+  if (!Number.isFinite(n) || !(n > 0)) return STAVENREEKS_DEFAULTS.fontSize;
+  return Math.max(6, Math.min(72, Math.round(n)));
+}
+
 function applyPropToAnnotation(ann, key, value) {
   ann.modifiedAt = new Date().toISOString();
   switch (key) {
@@ -795,6 +805,7 @@ function applyPropToAnnotation(ann, key, value) {
     case 'srLegDir': ann.legDir = value; break;
     case 'srLegLength': ann.legLength = Math.max(1, parseFloat(value) || STAVENREEKS_DEFAULTS.legLength); break;
     case 'srLineTail': ann.lineTail = _clampLineTail(value); break;
+    case 'srFontSize': ann.fontSize = _clampFontSize(value); break;
     case 'srLabelSide': ann.labelSide = value; break;
     case 'viewportName': ann.name = value; break;
     case 'viewportScaleRatio': {
@@ -1167,6 +1178,10 @@ export function updateAnnotProp(key, value) {
     }
     case 'srLineTail': {
       currentAnnotation.lineTail = _clampLineTail(value);
+      break;
+    }
+    case 'srFontSize': {
+      currentAnnotation.fontSize = _clampFontSize(value);
       break;
     }
     case 'srLabelSide': {

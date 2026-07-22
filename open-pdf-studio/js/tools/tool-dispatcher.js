@@ -327,6 +327,16 @@ export function handleDblClick(e) {
       if (dblDoc) { dblDoc.selectedAnnotations = [clicked]; dblDoc.selectedAnnotation = clicked; }
       showProperties(clicked);
       startTextEditing(clicked);
+    } else if (clicked.type === 'stavenreeks') {
+      // Aantal en diameter direct op het object invullen (compacte inline
+      // invoer bij het label). showProperties() eerst: de invoer schrijft via
+      // updateAnnotProp, dat op de annotatie werkt die de paneelstore kent.
+      state.isDrawing = false;
+      if (dblDoc) { dblDoc.selectedAnnotations = [clicked]; dblDoc.selectedAnnotation = clicked; }
+      showProperties(clicked);
+      import('./stavenreeks-editing.js')
+        .then(m => m.startStavenreeksInput(clicked))
+        .catch(err => console.error('[dispatcher] stavenreeks inline input error', err));
     } else if (clicked.type === 'comment') {
       state.isDrawing = false;
       if (dblDoc) { dblDoc.selectedAnnotations = [clicked]; dblDoc.selectedAnnotation = clicked; }

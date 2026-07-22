@@ -17,6 +17,85 @@
 /** Standaard wapeningsstaaf-diameters (mm). */
 export const STAVENREEKS_DIAMETERS = [6, 8, 10, 12, 16, 20, 25, 32, 40];
 
+/**
+ * Bereik van het aantal staven in de INLINE invoer op het canvas.
+ * Het eigenschappen-paneel staat 1–999 toe; de snelle invoer op het object is
+ * bedoeld voor realistische reeksen en klemt op 1–100.
+ */
+export const STAVENREEKS_COUNT_RANGE = { min: 1, max: 100 };
+
+/**
+ * Aantal uit een inline invoerveld normaliseren.
+ *
+ * Puur en zonder DOM, zodat de klem-logica los te testen is. Lege of
+ * onzinnige invoer wordt GENEGEERD (terugval op `fallback`, de huidige
+ * waarde); een getal buiten het bereik wordt GEKLEMD op 1..100. Komma's
+ * worden als decimaalteken geaccepteerd en er wordt op hele staven afgerond.
+ *
+ * @returns {number} Altijd een geldig aantal.
+ */
+export function sanitizeCountInput(value, fallback = STAVENREEKS_DEFAULTS.count) {
+  const back = Math.round(Number(fallback));
+  const safeBack = Number.isFinite(back)
+    ? Math.max(STAVENREEKS_COUNT_RANGE.min, Math.min(STAVENREEKS_COUNT_RANGE.max, back))
+    : STAVENREEKS_DEFAULTS.count;
+  if (value === null || value === undefined) return safeBack;
+  const raw = String(value).trim().replace(',', '.');
+  if (raw === '') return safeBack;
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return safeBack;
+  return clamp(Math.round(n), STAVENREEKS_COUNT_RANGE.min, STAVENREEKS_COUNT_RANGE.max);
+}
+
+/**
+ * Diameter uit een inline keuzelijst normaliseren.
+ *
+ * De keuzelijst biedt alleen STAVENREEKS_DIAMETERS aan, maar de waarde komt
+ * als string binnen en een bestaande annotatie kan (uit een andere editor) een
+ * afwijkende diameter dragen. Onzin valt terug op `fallback`; een getal buiten
+ * de lijst wordt op de DICHTSTBIJZIJNDE standaarddiameter gezet, zodat de
+ * invoer nooit een onbekende maat introduceert.
+ *
+ * @returns {number} Altijd een diameter uit STAVENREEKS_DIAMETERS.
+ */
+export function sanitizeDiameterInput(value, fallback = STAVENREEKS_DEFAULTS.diameter) {
+  const nearest = (n) => STAVENREEKS_DIAMETERS.reduce(
+    (best, d) => (Math.abs(d - n) < Math.abs(best - n) ? d : best),
+    STAVENREEKS_DIAMETERS[0]);
+  const backNum = Number(fallback);
+  const safeBack = Number.isFinite(backNum) && backNum > 0
+    ? nearest(backNum) : STAVENREEKS_DEFAULTS.diameter;
+  if (value === null || value === undefined) return safeBack;
+  const raw = String(value).trim().replace(',', '.');
+  if (raw === '') return safeBack;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || !(n > 0)) return safeBack;
+  return nearest(n);
+}
+
+/**
+ * Tekstgrootte uit een inline invoerveld normaliseren.
+ *
+ * Puur en zonder DOM (los testbaar). Lege/onzinnige invoer valt terug op
+ * `fallback` (de huidige waarde); een getal buiten STAVENREEKS_FONT_SIZE_RANGE
+ * wordt geklemd op 6..72. Komma als decimaalteken toegestaan, afronding op
+ * hele punten.
+ *
+ * @returns {number} Altijd een geldige tekstgrootte.
+ */
+export function sanitizeFontSizeInput(value, fallback = STAVENREEKS_DEFAULTS.fontSize) {
+  const R = STAVENREEKS_FONT_SIZE_RANGE;
+  const back = Math.round(Number(fallback));
+  const safeBack = Number.isFinite(back)
+    ? clamp(back, R.min, R.max) : STAVENREEKS_DEFAULTS.fontSize;
+  if (value === null || value === undefined) return safeBack;
+  const raw = String(value).trim().replace(',', '.');
+  if (raw === '') return safeBack;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || !(n > 0)) return safeBack;
+  return clamp(Math.round(n), R.min, R.max);
+}
+
 /** Toegestane pootrichtingen: {boven|onder} × {links|rechts hellend}. */
 export const STAVENREEKS_LEG_DIRS = ['down-left', 'down-right', 'up-left', 'up-right'];
 
@@ -43,8 +122,17 @@ export const STAVENREEKS_DEFAULTS = {
   // Instelbaar in het eigenschappen-paneel (bereik 0–200).
   lineTail: 20,
   labelSide: 'end',
-  fontSize: 12,
+  // Tekstgrootte van het label "N ⌀ D" (app-px, schaal 1). 16 i.p.v. de oude
+  // 12: bij 12 verdween het label naast de forsere poten (lengte 36) en het
+  // wapeningsteken (signRadius = 0,22 × fontSize) in het niet. Bij 16 is het
+  // label in de rig-referentie duidelijk leesbaar en in verhouding met de
+  // poten, zonder de reeks te overheersen. Instelbaar op het object én in het
+  // paneel (bereik 6–72).
+  fontSize: 16,
 };
+
+/** Grenzen van de instelbare tekstgrootte van het label (app-px). */
+export const STAVENREEKS_FONT_SIZE_RANGE = { min: 6, max: 72 };
 
 /**
  * Hoek van een poot t.o.v. de REEKSLIJN, in graden.
@@ -64,12 +152,46 @@ function clamp(v, lo, hi) {
 }
 
 /**
- * Puntstraal als functie van de staafdiameter (app-px op schaal 1).
- * ⌀12 → 3.44, ⌀40 → 6.8; begrensd op [2, 9].
+ * Grenzen van de puntstraal in de SCHAAL-BEWUSTE modus (app-px op schaal 1).
+ *
+ *  - ondergrens 1,5 px: bij een kleine tekeningschaal (bv. 1:500) zou een ⌀12
+ *    op 0,05 px uitkomen en dus onzichtbaar worden. 1,5 px is het kleinste
+ *    dat als gevulde punt nog leest.
+ *  - bovengrens 30 px: bij een grote schaal (bv. 1:5) zou een ⌀40 tot ver
+ *    over de poot uitdijen en het symbool onherkenbaar maken. 30 px is
+ *    ruwweg de pootlengte (36) en dus de praktische limiet.
  */
-export function pointRadius(diameter) {
+export const POINT_RADIUS_LIMITS = { min: 1.5, max: 30 };
+
+/**
+ * Puntstraal als functie van de staafdiameter.
+ *
+ * De punten zijn STAVEN IN DOORSNEDE. Is er een tekeningschaal bekend op de
+ * plek van het punt, dan volgt de getekende grootte de WERKELIJKE diameter:
+ *
+ *     straal = (diameter_mm / 2) × pxPerMm,   geklemd op POINT_RADIUS_LIMITS
+ *
+ * Een ⌀32 in een 1:20-gebied is daarmee op papier dikker dan dezelfde ⌀32 in
+ * een 1:100-gebied — net zoals bij de op ware grootte geplaatste symbolen.
+ *
+ * `pxPerMm` komt als PARAMETER binnen (net als `measureText`): deze module
+ * blijft daardoor vrij van app-state en dus los testbaar. De aanroepers halen
+ * de waarde uit de schaalgebied-bewuste helper (annotations/stavenreeks-scale.js).
+ *
+ * FALLBACK: ontbreekt de schaal (geen kalibratie) of is hij ≤ 0, dan geldt de
+ * oorspronkelijke, schaal-onafhankelijke formule 2 + d·0,12 begrensd op [2, 9]
+ * — ongekalibreerde tekeningen zien er dus precies zo uit als voorheen.
+ *
+ * @param {number} diameter  Staafdiameter in mm.
+ * @param {number} [pxPerMm] Pagina-pixels per werkelijke millimeter.
+ */
+export function pointRadius(diameter, pxPerMm) {
   const d = Number(diameter);
   if (!Number.isFinite(d)) return 2;
+  const k = Number(pxPerMm);
+  if (Number.isFinite(k) && k > 0) {
+    return clamp((d / 2) * k, POINT_RADIUS_LIMITS.min, POINT_RADIUS_LIMITS.max);
+  }
   return clamp(2 + d * 0.12, 2, 9);
 }
 
@@ -435,7 +557,11 @@ export function buildStavenreeks(ann, opts = {}) {
 
   const params = resolveParams(ann);
   const frame = lineFrame(startX, startY, endX, endY);
-  const r = pointRadius(params.diameter);
+  // Alleen de puntstraal (de staaf in doorsnede) volgt de plaatselijke
+  // tekeningschaal. `opts.pxPerMm` komt van de aanroeper (schaalgebied-bewust);
+  // ontbreekt hij, dan valt pointRadius terug op de papier-constante formule.
+  // Pootlengte, uitloop, labelgrootte en lijndikte blijven papier-constant.
+  const r = pointRadius(params.diameter, opts.pxPerMm);
 
   // ── Aanhaallijn met UITLOOP ──────────────────────────────────────────────
   // De GETEKENDE lijn loopt van het ene uiteinde tot het andere uiteinde PLUS

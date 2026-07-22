@@ -132,6 +132,13 @@ export {
   getHeightGrowth as getTextEditHeightGrowth,
 } from './solid/stores/textEditOverlayStore.js';
 
+// ============= STAVENREEKS INLINE INVOER =============
+export {
+  showStavenreeksInput,
+  hideStavenreeksInput,
+  stavenreeksInputActive,
+} from './solid/stores/stavenreeksInputStore.js';
+
 // ============= PDF TEXT EDITOR =============
 export {
   showPdfTextEditor,

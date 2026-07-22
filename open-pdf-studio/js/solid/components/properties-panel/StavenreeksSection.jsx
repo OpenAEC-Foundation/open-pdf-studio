@@ -99,6 +99,16 @@ export default function StavenreeksSection() {
           />
         </div>
 
+        {/* Tekstgrootte van het label "N ⌀ D" (papier-constant, app-px). */}
+        <div class="property-group">
+          <label>{t('stavenreeks.fontSize')}</label>
+          <input type="number" id="prop-sr-fontsize" step="1" min="6" max="72"
+            value={annotProps.srFontSize}
+            disabled={locked()}
+            onChange={(e) => updateAnnotProp('srFontSize', e.target.value)}
+          />
+        </div>
+
         <div class="property-group">
           <label>{t('stavenreeks.labelSide')}</label>
           <select id="prop-sr-labelside"

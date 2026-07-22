@@ -221,6 +221,10 @@ export function setTool(tool) {
     }
   }
 
+  // Een openstaande inline stavenreeks-invoer hoort niet te blijven zweven
+  // wanneer de gebruiker van gereedschap wisselt.
+  import('./stavenreeks-editing.js').then(m => m.cancelStavenreeksInput()).catch(() => {});
+
   // Deactivate PDF text editing when switching away
   if (state.currentTool === 'editText' && tool !== 'editText') {
     import('./text-edit-tool.js').then(m => m.deactivateEditTextTool());
