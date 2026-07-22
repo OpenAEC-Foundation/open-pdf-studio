@@ -86,12 +86,43 @@ Puntstraal = `f(diameter)`: `2 + diameter * 0.12` px op scale 1 (⌀12 → ~3.4p
   "Wapening" (IfcReinforcingBar-achtig, generiek label — géén productnamen).
 - IFC-report/take-off pikken het via de bestaande veld-mapping op.
 
-## Persistentie
+## Persistentie — HARDE EIS: zichtbaar én verplaatsbaar in andere PDF-editors
 
-Round-trip zoals `parametricSymbol`: opslaan via de app-specifieke
-annotatie-serialisatie (zie hoe `saver.js`/`xfdf.js` parametricSymbol/scaleBar
-wegschrijven en teruglezen — alle parameters mee). Rotatie-veilig: geen
-gebakken /Rotate nodig; het is een vector-getekend overlay-object.
+De stavenreeks moet in elke andere PDF-editor (a) **zichtbaar** zijn en (b) als
+**één object selecteerbaar en verplaatsbaar** zijn. Dat sluit "in de
+pagina-content bakken" uit: het moet een echte PDF-annotatie zijn met een
+eigen appearance-stream.
+
+**Vorm:** ÉÉN annotatie per stavenreeks (subtype `/Stamp` — het gangbare
+subtype voor samengestelde vectorgrafiek dat editors als één verplaatsbaar
+object behandelen), met:
+
+- `/AP` `/N` = Form-XObject dat de HELE reeks tekent (reekslijn + poten +
+  punten + label `N ⌀ D`) — daardoor zichtbaar in elke viewer.
+- `/Rect` = de assen-uitgelijnde omhullende (AABB) van het volledige element,
+  inclusief poten, punten én label. Verplaatsen in een andere editor verschuift
+  `/Rect`; de appearance schuift mee.
+- `/BBox` = `/Rect`-afmeting, `/Matrix` = **identiteit**, en **géén** top-level
+  `/Rotate`. Dit is de canonieke conventie uit
+  `docs/superpowers/research-pdf-rotatie-mechanica.md` (§12.5.5): zo wordt de
+  appearance-mapping A = identiteit en renderen alle viewers identiek. Een
+  schuine reekslijn wordt dus getekend via de coördinaten binnen de stream,
+  niet via een matrix-rotatie.
+- Parameters voor onze eigen parametrische bewerking in custom keys
+  (`OPS_Stavenreeks` o.i.d.: count, diameter, barLengthMm, legDir, legLength,
+  labelSide) + `/Contents` met een leesbare tekst (`"5 ⌀ 16"`) zodat andere
+  editors iets zinnigs tonen in hun annotatielijst.
+
+**Round-trip-eis:** openen → verplaatsen in een andere editor → heropenen in
+onze app moet de reeks op de nieuwe plek tonen met alle parameters intact
+(positie volgt uit `/Rect`; de interne geometrie wordt relatief aan `/Rect`
+gereconstrueerd). Bij ontbrekende custom keys (bewerkt door een andere editor)
+val je terug op tonen-zoals-de-appearance, niet crashen.
+
+**Verificatie (verplicht):** na opslaan de kopie openen in pypdfium2 én
+PyMuPDF → element zichtbaar op de juiste plek; annotatie-dict tonen aan dat
+subtype/Rect/BBox/Matrix conform bovenstaande zijn; daarna in onze app
+heropenen → parameters identiek.
 
 ## i18n
 
