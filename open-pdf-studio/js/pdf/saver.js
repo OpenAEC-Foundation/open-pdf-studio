@@ -29,6 +29,7 @@ import { buildFilledAreaAP, buildMeasureAreaAP, buildPolylineMeasureAP,
 import { buildStavenreeks, toLocalPrimitives, labelText } from '../annotations/stavenreeks.js';
 import { stavenreeksPxPerMm } from '../annotations/stavenreeks-scale.js';
 import { computeWallShape, resolveWallMaterial } from '../annotations/rendering/walls.js';
+import { syncTwoPointGeometry } from '../symbols/two-point.js';
 
 // Wrap a vector /AP builder result (absolute-PDF-coord content + needsFont flag)
 // into a Form XObject and set it as the annotation's /AP /N — same BBox/Matrix
@@ -2177,12 +2178,19 @@ export async function savePDF(saveAsPath = null) {
             // Persist as /Square with private OPS metadata so the bbox is
             // visible in non-supporting viewers and the symbol can be
             // reconstructed when re-opened in this app.
-            let psx1 = convertX(ann.x);
-            let psy1 = convertY(ann.y + ann.height);
-            let psx2 = convertX(ann.x + ann.width);
-            let psy2 = convertY(ann.y);
-            if (ann.rotation) {
-              const rad = ann.rotation * Math.PI / 180;
+            let psAnn = ann;
+            if ([ann.startX, ann.startY, ann.endX, ann.endY].every(Number.isFinite)) {
+              psAnn = { ...ann };
+              syncTwoPointGeometry(
+                psAnn, ann.startX, ann.startY, ann.endX, ann.endY, annRaw.height,
+              );
+            }
+            let psx1 = convertX(psAnn.x);
+            let psy1 = convertY(psAnn.y + psAnn.height);
+            let psx2 = convertX(psAnn.x + psAnn.width);
+            let psy2 = convertY(psAnn.y);
+            if (psAnn.rotation) {
+              const rad = psAnn.rotation * Math.PI / 180;
               const cos = Math.abs(Math.cos(rad));
               const sin = Math.abs(Math.sin(rad));
               const pw = Math.abs(psx2 - psx1);
@@ -2213,7 +2221,16 @@ export async function savePDF(saveAsPath = null) {
               OPS_IfcCategory: PDFString.of(ann.ifcCategory || ''),
             };
             psDict.BS = buildBorderStyle(context, borderWidth, ann.borderStyle);
-            if (ann.rotation) psDict.OPS_Rotation = ann.rotation;
+            if (psAnn.rotation) psDict.OPS_Rotation = psAnn.rotation;
+            if ([psAnn.startX, psAnn.startY, psAnn.endX, psAnn.endY].every(Number.isFinite)) {
+              psDict.OPS_TwoPoint = context.obj([
+                convertX(psAnn.startX), convertY(psAnn.startY),
+                convertX(psAnn.endX), convertY(psAnn.endY),
+              ]);
+              // The point coordinates use the page-rotation remap above; the
+              // local band thickness itself must not swap with the line length.
+              psDict.OPS_TwoPointBand = annRaw.height;
+            }
             annotDict = context.obj(psDict);
             // Embed a raster appearance stream (/AP) of the symbol so OTHER PDF
             // viewers — which can't read the OPS_* private keys — render the
@@ -2221,7 +2238,7 @@ export async function savePDF(saveAsPath = null) {
             // raster reuses the exact on-screen draw path, so it looks the same.
             try {
               const { renderParametricSymbolToPng } = await import('../annotations/rendering.js');
-              const png = renderParametricSymbolToPng(ann, 4);
+              const png = renderParametricSymbolToPng(psAnn, 4);
               if (png && png.dataUrl) {
                 const base64 = png.dataUrl.split(',')[1];
                 const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));

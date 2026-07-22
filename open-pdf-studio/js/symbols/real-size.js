@@ -10,6 +10,7 @@
 
 import { getTemplate } from './registry.js';
 import { getMeasureScale } from '../annotations/measurement.js';
+import { resizeTwoPointGeometry } from './two-point.js';
 
 const UNIT_TO_MM = { mm: 1, cm: 10, m: 1000, in: 25.4, ft: 304.8 };
 
@@ -46,6 +47,9 @@ export function applyTemplateRealSize(ann, anchor = 'center') {
     // Free length: keep the current width; seed a workable beam length when
     // the bbox comes from a doorsnede or a bare click.
     w = ann.width && ann.width > h * 1.05 ? ann.width : h * 4;
+  }
+  if (tpl.placement === 'two-point') {
+    return resizeTwoPointGeometry(ann, w, h);
   }
   if (anchor === 'center') {
     ann.x = cx - w / 2;

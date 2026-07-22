@@ -7,6 +7,7 @@ import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { applyDynamicScaling } from '../annotations/dynamic-scaling.js';
 import { getTemplate, defaultParams } from '../symbols/registry.js';
 import { pxPerMmAt } from '../symbols/real-size.js';
+import { syncTwoPointGeometry, syncTwoPointLengthParam } from '../symbols/two-point.js';
 import { pendingSymbolId } from '../solid/stores/parametricSymbolStore.js';
 import { activeCountCategory as _activeCountCategory, nextCountNumber as _nextCountNumber } from '../solid/stores/countStore.js';
 import { ifcCategoryForParametric, ifcCategoryForAnnotationType } from '../solid/data/ifcCategoryMap.js';
@@ -347,15 +348,52 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
     case 'parametricSymbol': {
       const symbolId = pendingSymbolId() || 'door';
       const template = getTemplate(symbolId);
+      const page = getActiveDocument()?.currentPage || 1;
+      const params = template ? defaultParams(template) : {};
+
+      if (template?.placement === 'two-point') {
+        const snappedEnd = snap(startX, startY, endX, endY);
+        let pointEndX = snappedEnd.x;
+        let pointEndY = snappedEnd.y;
+        const k = pxPerMmAt(page, startX, startY);
+        const realSize = typeof template.realSizeMm === 'function'
+          ? template.realSizeMm(params) : null;
+        const bandHeight = realSize?.height > 0
+          ? realSize.height * k
+          : (template.defaultSize?.height || 48);
+        if (Math.hypot(pointEndX - startX, pointEndY - startY) < 5) {
+          const defaultLength = realSize?.width > 0
+            ? realSize.width * k
+            : (template.defaultSize?.width || 320);
+          pointEndX = startX + defaultLength;
+          pointEndY = startY;
+        }
+        const annotation = {
+          type: 'parametricSymbol',
+          page,
+          symbolId,
+          params,
+          ifcCategory: ifcCategoryForParametric(symbolId),
+          color: '#000000',
+          strokeColor: '#000000',
+          lineWidth: getLineWidthValue() || 1,
+          opacity: 1,
+        };
+        syncTwoPointGeometry(
+          annotation, startX, startY, pointEndX, pointEndY, bandHeight,
+        );
+        syncTwoPointLengthParam(annotation, k);
+        return annotation;
+      }
+
       let b = bbox(startX, startY, endX, endY);
       // Click (no real drag): use the template's defaultSize — or, for
       // templates with a real-world size (steel profiles), the REAL
       // dimensions at the click point (scale-region aware), centred on the
       // click like a CAD block insert.
       if (b.width < 5 || b.height < 5) {
-        const page = getActiveDocument()?.currentPage || 1;
         const mm = typeof template?.realSizeMm === 'function'
-          ? template.realSizeMm(defaultParams(template)) : null;
+          ? template.realSizeMm(params) : null;
         if (mm && mm.height > 0) {
           const k = pxPerMmAt(page, startX, startY);
           const hPx = mm.height * k;
@@ -376,10 +414,10 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
       // current colour-picker swatch); recolour afterwards via the panel.
       return {
         type: 'parametricSymbol',
-        page: getActiveDocument()?.currentPage || 1,
+        page,
         ...b,
         symbolId,
-        params: template ? defaultParams(template) : {},
+        params,
         // IFC-categorie afgeleid van het template-id (mapping-laag) → hoeveelheden.
         ifcCategory: ifcCategoryForParametric(symbolId),
         color: '#000000',

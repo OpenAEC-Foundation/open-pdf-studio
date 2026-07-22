@@ -35,9 +35,9 @@ export function wapeningsLabel(params = {}) {
   return `${integer(params.aantal, 3, 1)} Ø${diameter}, lg=${lengte}`;
 }
 
-function lineLayout(params, bbox) {
+function lineLayout(params, bbox, centerLine = false) {
   const { x, y, width, height } = bbox;
-  const lineY = y + height * 0.68;
+  const lineY = y + height * (centerLine ? 0.5 : 0.68);
   const direction = params.markerRichting === 'onder' ? 1 : -1;
   const markerHeight = Math.min(height * 0.14, width * 0.025);
   const markerHalfWidth = markerHeight * 0.9;
@@ -50,8 +50,8 @@ function lineLayout(params, bbox) {
     markerTipY: lineY + direction * markerHeight,
     markerBaseY: lineY,
     markerHalfWidth,
-    textY: y + height * 0.30,
-    textSize: Math.min(height * 0.28, width * 0.045),
+    textY: y + height * (centerLine ? 0.22 : 0.30),
+    textSize: Math.min(height * (centerLine ? 0.20 : 0.28), width * 0.045),
   };
 }
 
@@ -108,8 +108,8 @@ function rebarLabelCommands(params, layout, isNet, bbox) {
   return commands;
 }
 
-function renderLine(params, bbox, isNet) {
-  const layout = lineLayout(params, bbox);
+function renderLine(params, bbox, isNet, centerLine = false) {
+  const layout = lineLayout(params, bbox, centerLine);
   return [
     {
       kind: 'line',
@@ -164,15 +164,18 @@ export const wapeningsstaafTemplate = {
   category: 'NL Constructie',
   defaultSize: { width: 320, height: 48 },
   fixedSize: true,
+  placement: 'two-point',
   params: [
     { key: 'aantal', label: 'Aantal', labelEn: 'Quantity', type: 'number', default: 3, min: 1, step: 1 },
     { key: 'diameter', label: 'Diameter (mm)', labelEn: 'Diameter (mm)', type: 'number', default: 8, min: 1, step: 1 },
     { key: 'lengte', label: 'Lengte (mm)', labelEn: 'Length (mm)', type: 'number', default: 1600, min: 1, step: 10 },
     ...markerParams,
   ],
-  layout: lineLayout,
+  layout(params, bbox) {
+    return lineLayout(params || {}, bbox, true);
+  },
   render(params, bbox) {
-    return renderLine(params || {}, bbox, false);
+    return renderLine(params || {}, bbox, false, true);
   },
   realSizeMm(params) {
     return { width: positiveNumber(params?.lengte, 1600, 1), height: 240 };

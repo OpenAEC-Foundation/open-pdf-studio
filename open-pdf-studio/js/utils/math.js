@@ -60,3 +60,24 @@ export function isPointNearEllipse(px, py, x, y, w, h, threshold = 10) {
   // Point is near the ellipse outline if inside outer boundary but outside inner boundary
   return outerDist <= 1 && innerDist > 1;
 }
+
+/** Axis-aligned bounds of a rectangle rotated around its own centre. */
+export function rotatedRectAabb(rect) {
+  const x = Number(rect?.x) || 0;
+  const y = Number(rect?.y) || 0;
+  const width = Math.abs(Number(rect?.width) || 0);
+  const height = Math.abs(Number(rect?.height) || 0);
+  const angle = (Number(rect?.rotation) || 0) * Math.PI / 180;
+  const cos = Math.abs(Math.cos(angle));
+  const sin = Math.abs(Math.sin(angle));
+  const aabbWidth = width * cos + height * sin;
+  const aabbHeight = width * sin + height * cos;
+  const cx = x + width / 2;
+  const cy = y + height / 2;
+  return {
+    x: cx - aabbWidth / 2,
+    y: cy - aabbHeight / 2,
+    width: aabbWidth,
+    height: aabbHeight,
+  };
+}

@@ -20,6 +20,7 @@ import i18next from '../../i18n/config.js';
 import { syncDocScale } from '../../annotations/scale-bar.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
 import { recalculateAllMeasurements, calculateArea, calculatePerimeter, calculateDistance, formatMeasurement, formatDimensionText, getMeasureScale } from '../../annotations/measurement.js';
+import { applyTemplateRealSize } from '../../symbols/real-size.js';
 
 // Types whose single 'color' control IS their stroke colour and which render
 // via `strokeColor || color`. For these, the 'color' control must mirror onto
@@ -1263,10 +1264,9 @@ export function updateAnnotProp(key, value) {
       // their bbox around the centre when a size-driving param changes.
       currentAnnotation.params = value;
       if (currentAnnotation.type === 'parametricSymbol') {
-        const ann = currentAnnotation;
-        import('../../symbols/real-size.js').then(m => {
-          if (m.applyTemplateRealSize(ann, 'center')) redraw();
-        }).catch(() => {});
+        // Keep geometry synchronous: recordPropertyChange captures newState in
+        // a microtask, so endpoints/bbox must be final before this stack ends.
+        applyTemplateRealSize(currentAnnotation, 'center');
       }
       break;
     }

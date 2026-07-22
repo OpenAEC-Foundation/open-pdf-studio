@@ -2,6 +2,7 @@ import { HANDLE_SIZE, HANDLE_TYPES } from '../core/constants.js';
 import { annotationCtx } from '../ui/dom-elements.js';
 import { state } from '../core/state.js';
 import { getTemplate } from '../symbols/registry.js';
+import { twoPointEndpoints } from '../symbols/two-point.js';
 import { handleAnchors } from './stavenreeks.js';
 
 // Rotate a point around a center point
@@ -422,6 +423,32 @@ export function getAnnotationHandles(annotation, scale = 1) {
       // LEFT/RIGHT grips so the beam LENGTH is draggable.
       if (annotation.type === 'parametricSymbol') {
         const _tpl = getTemplate(annotation.symbolId);
+        if (_tpl?.placement === 'two-point') {
+          const _points = twoPointEndpoints(annotation);
+          handles.push({
+            type: HANDLE_TYPES.LINE_START,
+            x: _points.startX - hs / 2,
+            y: _points.startY - hs / 2,
+            isGrip: true,
+            isTwoPoint: true,
+          });
+          handles.push({
+            type: HANDLE_TYPES.LINE_END,
+            x: _points.endX - hs / 2,
+            y: _points.endY - hs / 2,
+            isGrip: true,
+            isTwoPoint: true,
+          });
+          handles.push({
+            type: HANDLE_TYPES.LINE_MID,
+            x: (_points.startX + _points.endX) / 2 - hs / 2,
+            y: (_points.startY + _points.endY) / 2 - hs / 2,
+            isGrip: true,
+            isCenterGrip: true,
+            isTwoPoint: true,
+          });
+          break;
+        }
         if (_tpl?.fixedSize) {
           const _free = typeof _tpl.freeAxis === 'function'
             ? _tpl.freeAxis(annotation.params || {})
@@ -505,7 +532,7 @@ export function getAnnotationHandles(annotation, scale = 1) {
     if (center) {
       for (const handle of handles) {
         // Leader UI / handles live in absolute (unrotated) document space
-        if (handle.isLeaderUI || handle.isLeaderHandle) continue;
+        if (handle.isLeaderUI || handle.isLeaderHandle || handle.isTwoPoint) continue;
         const handleCenterX = handle.x + hs / 2;
         const handleCenterY = handle.y + hs / 2;
         const rotated = rotatePoint(handleCenterX, handleCenterY, center.x, center.y, annotation.rotation);

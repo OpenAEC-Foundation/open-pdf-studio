@@ -3,6 +3,13 @@ import { state } from '../core/state.js';
 import { snapAngle } from '../utils/helpers.js';
 import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement, formatDimensionText, snapDistanceTo10 } from './measurement.js';
 import { handleAnchors, lineEndForDotTarget, resolveParams } from './stavenreeks.js';
+import { getTemplate } from '../symbols/registry.js';
+import { pxPerMmAt } from '../symbols/real-size.js';
+import {
+  syncTwoPointGeometry,
+  syncTwoPointLengthParam,
+  twoPointEndpoints,
+} from '../symbols/two-point.js';
 
 // Compute measurement text for a dimension annotation, using its own scale if available
 function computeDimensionText(ann) {
@@ -841,6 +848,49 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
     case 'scaleBar':
     case 'scheduleTable':
     case 'parametricSymbol': {
+      if (annotation.type === 'parametricSymbol'
+          && getTemplate(annotation.symbolId)?.placement === 'two-point') {
+        const points = twoPointEndpoints(originalAnn);
+        let startX = points.startX;
+        let startY = points.startY;
+        let endX = points.endX;
+        let endY = points.endY;
+        const movingStart = handleType === HANDLE_TYPES.LINE_START;
+        const movingEnd = handleType === HANDLE_TYPES.LINE_END;
+        if (!movingStart && !movingEnd) break;
+        if (movingStart) {
+          startX += deltaX;
+          startY += deltaY;
+        } else {
+          endX += deltaX;
+          endY += deltaY;
+        }
+        if (shiftKey && state.preferences.enableAngleSnap) {
+          const fixedX = movingStart ? endX : startX;
+          const fixedY = movingStart ? endY : startY;
+          const movingX = movingStart ? startX : endX;
+          const movingY = movingStart ? startY : endY;
+          const length = Math.hypot(movingX - fixedX, movingY - fixedY);
+          const angle = snapAngle(
+            Math.atan2(movingY - fixedY, movingX - fixedX) * 180 / Math.PI,
+            state.preferences.angleSnapDegrees,
+          ) * Math.PI / 180;
+          if (movingStart) {
+            startX = fixedX + length * Math.cos(angle);
+            startY = fixedY + length * Math.sin(angle);
+          } else {
+            endX = fixedX + length * Math.cos(angle);
+            endY = fixedY + length * Math.sin(angle);
+          }
+        }
+        syncTwoPointGeometry(
+          annotation, startX, startY, endX, endY, originalAnn.height,
+        );
+        const midX = (startX + endX) / 2;
+        const midY = (startY + endY) / 2;
+        syncTwoPointLengthParam(annotation, pxPerMmAt(annotation.page, midX, midY));
+        break;
+      }
       const lockRatio = shiftKey || annotation.lockAspectRatio;
       if (originalAnn.rotation) {
         applyRotatedResize(annotation, handleType, deltaX, deltaY, originalAnn, lockRatio);

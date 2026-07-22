@@ -7,6 +7,7 @@ import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement
 import { findImageForAnnotation } from './annotation-image-sources.mjs';
 import { ifcCategoryForAnnotationType, ifcCategoryForParametric } from '../../solid/data/ifcCategoryMap.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
+import { syncTwoPointGeometry } from '../../symbols/two-point.js';
 
 // Convert PDF annotation to our format
 export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageMap, annotColorMap) {
@@ -169,7 +170,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
         const symbolId = extraColors.opsSymbolId || '';
         let params = {};
         try { if (extraColors.opsParams) params = JSON.parse(extraColors.opsParams); } catch (_) {}
-        return createAnnotation({
+        const symbol = createAnnotation({
           ...baseProps,
           type: 'parametricSymbol',
           x: psRect.x,
@@ -182,7 +183,21 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           color: colorArrayToHex(annot.color, '#000000'),
           strokeColor: colorArrayToHex(annot.color, '#000000'),
           lineWidth: annot.borderStyle?.width || 1,
+          rotation: extraColors.rotation || 0,
         });
+        if (extraColors.opsTwoPoint?.length === 4) {
+          const [startX, startY] = convertPoint(
+            extraColors.opsTwoPoint[0], extraColors.opsTwoPoint[1],
+          );
+          const [endX, endY] = convertPoint(
+            extraColors.opsTwoPoint[2], extraColors.opsTwoPoint[3],
+          );
+          syncTwoPointGeometry(
+            symbol, startX, startY, endX, endY,
+            extraColors.opsTwoPointBand || psRect.height,
+          );
+        }
+        return symbol;
       }
       // Maskeer (wipeout): Square + OPS_Subtype 'mask' — restore as the
       // dedicated type so the fixed white-cover rendering applies again.

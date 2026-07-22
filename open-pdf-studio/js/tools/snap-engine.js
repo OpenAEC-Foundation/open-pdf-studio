@@ -271,7 +271,21 @@ function extractSnapPoints(ann, points, prefs, annotations) {
         // Dynamic require avoided — registry is a leaf module, safe to import
         // at top would also work, but keep the lazy pattern consistent here.
         const tpl = _getTemplateForSnap(ann.symbolId);
-        if (tpl && typeof tpl.snapPoints === 'function') {
+        if (tpl?.placement === 'two-point') {
+          const p = _twoPointEndpoints(ann);
+          if (doEndpoints) {
+            points.push({ x: p.startX, y: p.startY, type: 'endpoint', annotation: ann });
+            points.push({ x: p.endX, y: p.endY, type: 'endpoint', annotation: ann });
+          }
+          if (doMidpoints) {
+            points.push({
+              x: (p.startX + p.endX) / 2,
+              y: (p.startY + p.endY) / 2,
+              type: 'midpoint',
+              annotation: ann,
+            });
+          }
+        } else if (tpl && typeof tpl.snapPoints === 'function') {
           const pts = tpl.snapPoints(ann.params || {}, {
             x: ann.x, y: ann.y, width: ann.width, height: ann.height,
           }) || [];
@@ -294,6 +308,7 @@ function extractSnapPoints(ann, points, prefs, annotations) {
 // Lazy template lookup for snap candidates (sync import — registry has no
 // heavy deps and no cycles back into the tools layer).
 import { getTemplate as _getTemplateForSnap } from '../symbols/registry.js';
+import { twoPointEndpoints as _twoPointEndpoints } from '../symbols/two-point.js';
 // Wall band outline (mitred corners) for corner snapping.
 import { computeWallShape as _computeWallShapeForSnap } from '../annotations/rendering/walls.js';
 

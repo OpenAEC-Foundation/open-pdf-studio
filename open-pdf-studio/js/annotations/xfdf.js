@@ -7,6 +7,7 @@ import { isTauri, readBinaryFile, writeBinaryFile, saveFileDialog, openFileDialo
 import i18next from '../i18n/config.js';
 import { showMessage } from '../bridge.js';
 import { ifcCategoryForParametric } from '../solid/data/ifcCategoryMap.js';
+import { syncTwoPointGeometry } from '../symbols/two-point.js';
 
 // Export annotations to XFDF XML format
 export function exportToXFDF() {
@@ -263,12 +264,17 @@ function annotationToXFDF(ann) {
       // Stored as <square> with private OPS attributes so non-supporting viewers
       // see at least the bbox. The symbol shape is reconstructed on load.
       const paramsJson = JSON.stringify(ann.params || {});
+      const twoPoint = [ann.startX, ann.startY, ann.endX, ann.endY].every(Number.isFinite)
+        ? ` opstwopoint="${ann.startX},${ann.startY},${ann.endX},${ann.endY}"` +
+          ` opstwopointband="${ann.height}"`
+        : '';
       return `    <square ${attrs} color="${colorToXFDF(ann.strokeColor || ann.color)}"` +
              ` width="${ann.lineWidth ?? 1}"` +
              ` opstype="parametricSymbol"` +
              ` opssymbolid="${escapeXml(ann.symbolId || '')}"` +
              ` opsifccategory="${escapeXml(ann.ifcCategory || ifcCategoryForParametric(ann.symbolId))}"` +
-             ` opsparams="${escapeXml(paramsJson)}">\n` +
+             ` opsparams="${escapeXml(paramsJson)}"` +
+             ` opsrotation="${ann.rotation || 0}"${twoPoint}>\n` +
              `      <contents>${escapeXml(ann.subject || '')}</contents>\n` +
              `    </square>\n`;
     }
@@ -342,7 +348,7 @@ function xfdfElementToAnnotation(el) {
           const raw = el.getAttribute('opsparams');
           if (raw) params = JSON.parse(raw);
         } catch (_) { /* ignore */ }
-        return createAnnotation({
+        const symbol = createAnnotation({
           ...baseProps,
           type: 'parametricSymbol',
           x: rect.x, y: rect.y, width: rect.w, height: rect.h,
@@ -350,9 +356,18 @@ function xfdfElementToAnnotation(el) {
           params,
           ifcCategory: el.getAttribute('opsifccategory') || ifcCategoryForParametric(symbolId),
           color, strokeColor: color, lineWidth: width,
+          rotation: parseFloat(el.getAttribute('opsrotation')) || 0,
           subject: contents,
           replies: replies.length > 0 ? replies : undefined
         });
+        const twoPoint = el.getAttribute('opstwopoint')?.split(',').map(Number);
+        if (twoPoint?.length === 4 && twoPoint.every(Number.isFinite)) {
+          syncTwoPointGeometry(
+            symbol, twoPoint[0], twoPoint[1], twoPoint[2], twoPoint[3],
+            parseFloat(el.getAttribute('opstwopointband')) || rect.h,
+          );
+        }
+        return symbol;
       }
       return createAnnotation({ ...baseProps, type: 'box', x: rect.x, y: rect.y, width: rect.w, height: rect.h, color, strokeColor: color, fillColor: interiorColor, lineWidth: width, subject: contents, replies: replies.length > 0 ? replies : undefined });
     }

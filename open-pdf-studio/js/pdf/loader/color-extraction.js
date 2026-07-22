@@ -259,6 +259,24 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         if (c && typeof c.value === 'string') colors.opsIfcCategory = c.value;
         else if (c && typeof c.decodeText === 'function') colors.opsIfcCategory = c.decodeText();
       }
+      const opsTwoPointRaw = annotDict.get(PDFName.of('OPS_TwoPoint'));
+      if (opsTwoPointRaw) {
+        const arr = context.lookup(opsTwoPointRaw) || opsTwoPointRaw;
+        if (arr && typeof arr.size === 'function' && arr.size() === 4) {
+          const points = [];
+          for (let i = 0; i < 4; i++) {
+            const value = arr.get(i);
+            const number = pdfNum(context.lookup(value) || value);
+            if (number !== null) points.push(number);
+          }
+          if (points.length === 4) colors.opsTwoPoint = points;
+        }
+      }
+      const opsTwoPointBandRaw = annotDict.get(PDFName.of('OPS_TwoPointBand'));
+      if (opsTwoPointBandRaw) {
+        const band = pdfNum(context.lookup(opsTwoPointBandRaw) || opsTwoPointBandRaw);
+        if (band !== null && band > 0) colors.opsTwoPointBand = band;
+      }
 
       // ── Stavenreeks (wapeningsstaven-reeks) ─────────────────────────────
       // Onze eigen parameters + de reekslijn-coördinaten. `OPS_SRRect` is de

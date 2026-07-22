@@ -28,6 +28,7 @@ import { getTemplate } from '../symbols/registry.js';
 import { hasFill } from './fill-utils.js';
 import { hiddenTypes as evHiddenTypes, halftoneTypes as evHalftoneTypes } from '../solid/stores/elementVisibilityStore.js';
 import { getPageRotationMatrix } from '../text/text-edit-appearance.js';
+import { rotatedRectAabb } from '../utils/math.js';
 
 // Re-export everything that external code needs
 export { drawPolygonShape, drawCloudShape, buildPolygonPath, buildCloudPath } from './rendering/shapes.js';
@@ -2439,8 +2440,9 @@ export function redrawAnnotations(lightweight = false) {
     if (annotation.page !== curPage) return;
     // Quick bounding box check for viewport culling
     if (annotation.x != null && annotation.width != null) {
-      const ax = annotation.x, ay = annotation.y;
-      const aw = annotation.width || 0, ah = annotation.height || 0;
+      const bounds = annotation.rotation ? rotatedRectAabb(annotation) : annotation;
+      const ax = bounds.x, ay = bounds.y;
+      const aw = bounds.width || 0, ah = bounds.height || 0;
       if (ax + aw < vpX || ax > vpX + vpW || ay + ah < vpY || ay > vpY + vpH) return;
     }
     const targetCtx = (annotation.type === 'textHighlight' && textHighlightCtx)
