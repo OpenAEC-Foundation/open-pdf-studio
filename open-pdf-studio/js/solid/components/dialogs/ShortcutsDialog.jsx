@@ -35,6 +35,8 @@ const SHORTCUT_CATEGORIES = [
       { action: 'Actual Size', keys: ['Ctrl', '0'] },
       { action: 'Fit Width', keys: ['Ctrl', '1'] },
       { action: 'Fit Page', keys: ['Ctrl', '2'] },
+      { action: 'Rotate Page Right', keys: ['Ctrl', 'Shift', '+'] },
+      { action: 'Rotate Page Left', keys: ['Ctrl', 'Shift', '-'] },
       { action: 'Thin Lines', keys: ['Ctrl', '5'] },
       { action: 'Find', keys: ['Ctrl', 'F'] },
       { action: 'Toggle Left Panel', keys: ['F9'] },

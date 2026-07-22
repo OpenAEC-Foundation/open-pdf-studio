@@ -30,11 +30,13 @@ export default function ViewTab() {
 
   // Zelfde undo-bare paginarotatie als op de Organiseren-tab; hier ook
   // aangeboden omdat draaien tijdens het bekijken een veelgebruikte actie is.
-  function rotateCurrentPage(delta) {
+  // rotatePage() is async en zet de nieuwe stand pas NA een await; zonder
+  // await legt de undo-stap oud==nieuw vast en doet Ctrl+Z niets.
+  async function rotateCurrentPage(delta) {
     const doc = getActiveDocument();
     const pg = doc ? doc.currentPage : 1;
     const oldRot = getPageRotation(pg);
-    rotatePage(delta);
+    await rotatePage(delta);
     recordPageRotation(pg, oldRot, getPageRotation(pg));
   }
 
