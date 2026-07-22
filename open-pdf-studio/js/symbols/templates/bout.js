@@ -1,12 +1,14 @@
 // Parametric BOLTS / ANCHORS (bouten) — dynamic-block style, metric sizes.
 //
-// One template, four drawing views (aanzicht param):
+// One template, five drawing views (aanzicht param):
 //   'bout'       — side elevation: hex head + washer + threaded shaft
 //                  (dashed core lines), parametric length
 //   'doorsteek'  — through-bolt / concrete anchor: same shaft but with a
 //                  washer + nut + protruding thread stub at the far end
 //   'moer-boven' — nut top view: hexagon + inscribed circle + bore
 //   'zeskant'    — plain hexagon top view with bore
+//
+//   'plattegrond' — bolt-head top view, optionally with a washer ring
 //
 // Sizes follow the common DIN/ISO hex dimensions (mm):
 //   d = nominal Ø, s = width across flats, k = head height, m = nut height.
@@ -51,10 +53,14 @@ function _lengteOf(params, g) {
 
 // Local-space (mm, y-down) drawing size per view. Side views run along x:
 // head/washer at the left, shaft to the right.
-function _localSize(view, g, L) {
+function _localSize(view, g, L, ringPlattegrond = true) {
   const ringD = 2.2 * g.d;       // washer outer Ø
   const e = g.s / Math.cos(Math.PI / 6); // hexagon across corners
   switch (view) {
+    case 'plattegrond': {
+      const size = ringPlattegrond ? Math.max(e, ringD) : e;
+      return { w: size, h: size };
+    }
     case 'moer-boven':
     case 'zeskant':
       return { w: e, h: e };
@@ -120,8 +126,18 @@ export const boutTemplate = {
     { key: 'maat', label: 'Maat', labelEn: 'Size', type: 'enum', options: Object.keys(_MATEN), default: 'M12' },
     {
       key: 'aanzicht', label: 'Aanzicht', labelEn: 'View', type: 'enum',
-      options: ['bout', 'doorsteek', 'moer-boven', 'zeskant'],
+      options: [
+        { value: 'bout', label: 'Zijaanzicht bout' },
+        { value: 'doorsteek', label: 'Doorsteekbout' },
+        { value: 'plattegrond', label: 'Plattegrond' },
+        { value: 'moer-boven', label: 'Moer bovenaanzicht' },
+        { value: 'zeskant', label: 'Zeskant bovenaanzicht' },
+      ],
       default: 'bout',
+    },
+    {
+      key: 'ringPlattegrond', label: 'Ring in plattegrond', labelEn: 'Washer in plan view',
+      type: 'boolean', default: true,
     },
     { key: 'lengte', label: 'Lengte (mm)', labelEn: 'Length (mm)', type: 'number', default: 120, min: 10, step: 5 },
     { key: 'schaal', label: 'Schaal', labelEn: 'Scale', type: 'number', default: 1, min: 0.1, step: 0.1 },
@@ -130,7 +146,9 @@ export const boutTemplate = {
     const g = _maatOf(params);
     const L = _lengteOf(params, g);
     const f = _schaalOf(params);
-    const { w, h } = _localSize(params?.aanzicht || 'bout', g, L);
+    const { w, h } = _localSize(
+      params?.aanzicht || 'bout', g, L, params?.ringPlattegrond !== false,
+    );
     return { width: w * f, height: h * f };
   },
   snapPoints: _snapPoints,
@@ -138,13 +156,30 @@ export const boutTemplate = {
     const g = _maatOf(params);
     const L = _lengteOf(params, g);
     const view = params?.aanzicht || 'bout';
-    const { w, h } = _localSize(view, g, L);
+    const ringPlattegrond = params?.ringPlattegrond !== false;
+    const { w, h } = _localSize(view, g, L, ringPlattegrond);
     const S = Math.min(bbox.width / w, bbox.height / h);
     const x0 = bbox.x + (bbox.width - w * S) / 2;
     const yMid = bbox.y + bbox.height / 2;
     const X = (v) => x0 + v * S;          // local x (mm) → canvas
     const Y = (v) => yMid + v * S;        // local y centred on the axis
     const cmds = [];
+
+    if (view === 'plattegrond') {
+      const e = g.s / Math.cos(Math.PI / 6);
+      const cx = w / 2, cy = 0;
+      if (ringPlattegrond) {
+        cmds.push({
+          kind: 'circle', role: 'ring',
+          cx: X(cx), cy: Y(cy), r: (1.1 * g.d) * S,
+        });
+      }
+      cmds.push({
+        kind: 'polyline', close: true, role: 'boutkop',
+        points: _hexPts(0, 0, e).map(p => ({ x: X(cx + p.x), y: Y(cy + p.y) })),
+      });
+      return cmds;
+    }
 
     if (view === 'moer-boven' || view === 'zeskant') {
       const e = g.s / Math.cos(Math.PI / 6);
