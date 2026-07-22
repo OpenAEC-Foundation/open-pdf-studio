@@ -203,12 +203,6 @@ jobs:
         if: matrix.target == 'macos'
         run: npm run prepare:native-runtime
 
-      - name: Write App Store Connect API key (macOS)
-        if: matrix.target == 'macos'
-        shell: bash
-        run: |
-          printf '%s' "${{ secrets.APPLE_API_KEY_CONTENT }}" > "${{ runner.temp }}/apple-api-key.p8"
-
       - name: Build Tauri app
         if: matrix.target != 'windows-user' && matrix.target != 'macos'
         uses: tauri-apps/tauri-action@action-v0.6.1
@@ -239,9 +233,7 @@ jobs:
           # wachtwoord gaf een permanente HTTP 500 op de notary-API (bekend
           # probleem met die auth-methode); de API-key-route is de door Apple
           # aanbevolen en betrouwbare CI-methode.
-          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
-          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
-          APPLE_API_KEY_PATH: ${{ runner.temp }}/apple-api-key.p8
+          # Tijdelijk signeer-alleen: API-key-secrets nog niet gezet.
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         with:
           projectPath: open-pdf-studio
