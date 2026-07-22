@@ -178,6 +178,10 @@ export const boutTemplate = {
         kind: 'polyline', close: true, role: 'boutkop',
         points: _hexPts(0, 0, e).map(p => ({ x: X(cx + p.x), y: Y(cy + p.y) })),
       });
+      cmds.push({
+        kind: 'circle', role: 'boutschacht',
+        cx: X(cx), cy: Y(cy), r: (g.d / 2) * S,
+      });
       return cmds;
     }
 
