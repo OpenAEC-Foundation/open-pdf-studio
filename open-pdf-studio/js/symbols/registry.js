@@ -18,6 +18,7 @@ import { ifcSpaceTemplate } from './templates/ifc-space.js';
 import { houtBalkTemplate } from './templates/hout-balk.js';
 import { paalType1Template, paalType2Template } from './templates/paal-aanzicht.js';
 import { boutTemplate } from './templates/bout.js';
+import { wapeningskorfTemplate } from './templates/wapeningskorf.js';
 
 const templates = new Map();
 
@@ -45,6 +46,7 @@ register(houtBalkTemplate);
 register(paalType1Template);
 register(paalType2Template);
 register(boutTemplate);
+register(wapeningskorfTemplate);
 
 // Runtime registration for catalog-driven templates (downloaded steel
 // catalogs from the online symbol library — see symbols/steel-catalog-store.js).

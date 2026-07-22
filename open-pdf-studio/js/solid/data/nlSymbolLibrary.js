@@ -52,6 +52,10 @@ const stavenreeksPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" s
 const paalPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><line x1="24" y1="10" x2="24" y2="4" stroke-dasharray="3 2"/><line x1="24" y1="4" x2="40" y2="4" stroke-dasharray="3 2"/><line x1="40" y1="4" x2="40" y2="10" stroke-dasharray="3 2"/><line x1="24" y1="10" x2="24" y2="50"/><line x1="40" y1="10" x2="40" y2="50"/><path d="M24 50 Q28 56 32 50"/><path d="M32 50 Q36 56 40 50 Q36 44 32 50 Z" fill="#000"/></svg>`;
 // Bout: zeskantkop + ring + schacht met schroefdraad-streepjes.
 const boutPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.6"><rect x="4" y="24" width="8" height="16"/><line x1="4" y1="29" x2="12" y2="29"/><line x1="4" y1="35" x2="12" y2="35"/><line x1="12" y1="20" x2="12" y2="44"/><line x1="15" y1="20" x2="15" y2="44"/><line x1="12" y1="20" x2="15" y2="20"/><line x1="12" y1="44" x2="15" y2="44"/><line x1="15" y1="27" x2="58" y2="27"/><line x1="15" y1="37" x2="58" y2="37"/><line x1="15" y1="30" x2="60" y2="30" stroke-dasharray="4 3"/><line x1="15" y1="34" x2="60" y2="34" stroke-dasharray="4 3"/><line x1="58" y1="27" x2="60" y2="30"/><line x1="58" y1="37" x2="60" y2="34"/></svg>`;
+// Wapeningskorf: betonomtrek met beugel (dubbele lijn + haak rechtsboven),
+// gevulde staafpunten boven/onder/zij en een label met het wapeningsteken —
+// de doorsnede zoals het sjabloon hem tekent.
+const wapeningskorfPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="4" y="10" width="34" height="44"/><rect x="8" y="14" width="26" height="36" stroke-width="1.4"/><rect x="10" y="16" width="22" height="32" stroke-width="1.4"/><line x1="32" y1="16" x2="27" y2="21" stroke-width="1.4"/><line x1="34" y1="14" x2="29" y2="19" stroke-width="1.4"/><g fill="#000" stroke="none"><circle cx="13" cy="19" r="2.4"/><circle cx="21" cy="19" r="2.4"/><circle cx="29" cy="19" r="2.4"/><circle cx="13" cy="45" r="2.6"/><circle cx="21" cy="45" r="2.6"/><circle cx="29" cy="45" r="2.6"/><circle cx="13" cy="32" r="2"/><circle cx="29" cy="32" r="2"/></g><line x1="29" y1="19" x2="44" y2="10" stroke-width="1.2"/><line x1="29" y1="45" x2="44" y2="52" stroke-width="1.2"/><g stroke-width="1.2"><circle cx="52" cy="12" r="2.6"/><line x1="50" y1="17" x2="55" y2="6"/><line x1="52" y1="9" x2="56" y2="9"/><line x1="53.5" y1="7" x2="57.5" y2="7"/></g><text x="45" y="15" font-size="9" fill="#000" stroke="none">3</text><text x="56" y="15" font-size="9" fill="#000" stroke="none">12</text></svg>`;
 
 export const NL_CATEGORIES = [
   {
@@ -79,6 +83,7 @@ export const NL_CATEGORIES = [
       { id: 'param-paal-type-1', name: 'Paal aanzicht type 1', parametricId: 'paal-aanzicht-type-1', svg: paalPreview },
       { id: 'param-paal-type-2', name: 'Paal aanzicht type 2', parametricId: 'paal-aanzicht-type-2', svg: paalPreview },
       { id: 'param-bout', name: 'Bout / anker (M6–M24)', parametricId: 'bout', svg: boutPreview },
+      { id: 'param-wapeningskorf', name: 'Wapeningskorf (doorsnede)', parametricId: 'wapeningskorf', svg: wapeningskorfPreview },
       // Stavenreeks: geen parametrisch symbool maar een eigen gereedschap —
       // je sleept de reekslijn, net als bij Maskeer hieronder.
       { id: 'stavenreeks', name: 'Stavenreeks (wapening)', tool: 'stavenreeks', svg: stavenreeksPreview },
