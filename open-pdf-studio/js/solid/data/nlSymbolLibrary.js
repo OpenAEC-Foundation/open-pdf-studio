@@ -44,6 +44,9 @@ const ifcSpacePreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stro
 // eronder maken zichtbaar dat het vlak afdekt), streep-punt-rand.
 const maskeerPreview = `<svg viewBox="0 0 64 64"><g stroke="#9a9a9a" stroke-width="1.4"><line x1="4" y1="12" x2="60" y2="12"/><line x1="4" y1="20" x2="60" y2="20"/><line x1="4" y1="28" x2="60" y2="28"/><line x1="4" y1="36" x2="60" y2="36"/><line x1="4" y1="44" x2="60" y2="44"/><line x1="4" y1="52" x2="60" y2="52"/></g><rect x="14" y="18" width="36" height="28" fill="#fff"/><line x1="14" y1="18" x2="14" y2="46" stroke="#555" stroke-width="1.6" stroke-dasharray="7 3 2 3"/></svg>`;
 const houtBalkPreview = `<svg viewBox="0 0 64 64"><rect x="12" y="10" width="40" height="44" fill="#ead9b0" stroke="#000" stroke-width="2"/><line x1="14" y1="26" x2="28" y2="12" stroke="#b8a37a" stroke-width="1"/><line x1="14" y1="44" x2="46" y2="12" stroke="#b8a37a" stroke-width="1"/><line x1="22" y1="52" x2="50" y2="24" stroke="#b8a37a" stroke-width="1"/><text x="32" y="36" font-size="9" text-anchor="middle" fill="#000">45x70</text></svg>`;
+// Stavenreeks: aanhaallijn met uitloop, drie steile poten naar gevulde punten
+// (de staven) en het wapeningsteken — de vorm zoals het gereedschap tekent.
+const stavenreeksPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><line x1="8" y1="20" x2="56" y2="20"/><line x1="10" y1="20" x2="4" y2="40"/><line x1="26" y1="20" x2="20" y2="40"/><line x1="42" y1="20" x2="36" y2="40"/><circle cx="4" cy="41" r="3.2" fill="#000" stroke="none"/><circle cx="20" cy="41" r="3.2" fill="#000" stroke="none"/><circle cx="36" cy="41" r="3.2" fill="#000" stroke="none"/><g stroke-width="1.6"><circle cx="48" cy="50" r="5"/><line x1="43" y1="60" x2="55" y2="39"/><line x1="49" y1="45" x2="57" y2="45"/><line x1="51" y1="41" x2="59" y2="41"/></g></svg>`;
 // Paal-aanzicht: schacht met gestreepte kop boven maaiveld en gebogen punt
 // met half-gevulde lens — het klassieke heipaal-symbool in het klein.
 const paalPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><line x1="24" y1="10" x2="24" y2="4" stroke-dasharray="3 2"/><line x1="24" y1="4" x2="40" y2="4" stroke-dasharray="3 2"/><line x1="40" y1="4" x2="40" y2="10" stroke-dasharray="3 2"/><line x1="24" y1="10" x2="24" y2="50"/><line x1="40" y1="10" x2="40" y2="50"/><path d="M24 50 Q28 56 32 50"/><path d="M32 50 Q36 56 40 50 Q36 44 32 50 Z" fill="#000"/></svg>`;
@@ -76,6 +79,9 @@ export const NL_CATEGORIES = [
       { id: 'param-paal-type-1', name: 'Paal aanzicht type 1', parametricId: 'paal-aanzicht-type-1', svg: paalPreview },
       { id: 'param-paal-type-2', name: 'Paal aanzicht type 2', parametricId: 'paal-aanzicht-type-2', svg: paalPreview },
       { id: 'param-bout', name: 'Bout / anker (M6–M24)', parametricId: 'bout', svg: boutPreview },
+      // Stavenreeks: geen parametrisch symbool maar een eigen gereedschap —
+      // je sleept de reekslijn, net als bij Maskeer hieronder.
+      { id: 'stavenreeks', name: 'Stavenreeks (wapening)', tool: 'stavenreeks', svg: stavenreeksPreview },
       // NL tekenwerk-symbolen horen er ook gewoon bij (één bouw-categorie).
       { id: 'param-stramien', name: 'Stramien', parametricId: 'stramien', svg: stramienPreview },
       { id: 'param-peilmaat', name: 'Peilmaat (spot elevation)', parametricId: 'peilmaat', svg: peilmaatPreview },
