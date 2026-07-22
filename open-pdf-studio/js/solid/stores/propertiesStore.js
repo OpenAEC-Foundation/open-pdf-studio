@@ -113,6 +113,7 @@ const [annotProps, setAnnotProps] = createStore({
   scaleBarDivisions: 5,
   scaleBarHeight: 14,
   srCount: 3,
+  srLineTail: STAVENREEKS_DEFAULTS.lineTail,
   srDiameter: 12,
   srBarLengthMm: 0,
   srLegDir: 'down-left',
@@ -350,6 +351,7 @@ export function storeShowProperties(annotation) {
     srBarLengthMm: annotation.barLengthMm ?? 0,
     srLegDir: annotation.legDir || 'down-left',
     srLegLength: annotation.legLength ?? STAVENREEKS_DEFAULTS.legLength,
+    srLineTail: annotation.lineTail ?? STAVENREEKS_DEFAULTS.lineTail,
     srLabelSide: annotation.labelSide || 'end',
     symbolId: annotation.symbolId || '',
     params: annotation.params ? { ...annotation.params } : {},
@@ -721,6 +723,15 @@ function _stampStatusMeta(ann, value) {
   }
 }
 
+// Uitloop van de stavenreeks-aanhaallijn: 0 is geldig (lijn stopt op de
+// laatste poot), bovengrens 200 zoals het paneelbereik. Ongeldige invoer valt
+// terug op de standaardwaarde.
+function _clampLineTail(value) {
+  const n = parseFloat(String(value).replace(',', '.'));
+  if (!Number.isFinite(n)) return STAVENREEKS_DEFAULTS.lineTail;
+  return Math.max(0, Math.min(200, n));
+}
+
 function applyPropToAnnotation(ann, key, value) {
   ann.modifiedAt = new Date().toISOString();
   switch (key) {
@@ -783,6 +794,7 @@ function applyPropToAnnotation(ann, key, value) {
     case 'srBarLengthMm': ann.barLengthMm = Math.max(0, parseFloat(value) || 0); break;
     case 'srLegDir': ann.legDir = value; break;
     case 'srLegLength': ann.legLength = Math.max(1, parseFloat(value) || STAVENREEKS_DEFAULTS.legLength); break;
+    case 'srLineTail': ann.lineTail = _clampLineTail(value); break;
     case 'srLabelSide': ann.labelSide = value; break;
     case 'viewportName': ann.name = value; break;
     case 'viewportScaleRatio': {
@@ -1151,6 +1163,10 @@ export function updateAnnotProp(key, value) {
     }
     case 'srLegLength': {
       currentAnnotation.legLength = Math.max(1, parseFloat(value) || STAVENREEKS_DEFAULTS.legLength);
+      break;
+    }
+    case 'srLineTail': {
+      currentAnnotation.lineTail = _clampLineTail(value);
       break;
     }
     case 'srLabelSide': {

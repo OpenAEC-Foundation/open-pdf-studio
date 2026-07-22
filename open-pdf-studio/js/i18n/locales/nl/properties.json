@@ -437,6 +437,7 @@
     "barLength": "Staaflengte (mm)",
     "legDirection": "Pootrichting",
     "legLength": "Pootlengte",
+    "lineTail": "Uitloop lijn",
     "labelSide": "Labelzijde",
     "labelSideStart": "Aan begin",
     "labelSideEnd": "Aan eind",

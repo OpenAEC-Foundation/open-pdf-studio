@@ -434,8 +434,11 @@ console.log('\n13. Labelvrijloop');
   // Referentie-opstelling: poten hellen WEG van het label (down-left + end).
   const ref = S.buildStavenreeks({ startX: 0, startY: 0, endX: 200, endY: 0 },
     { measureText: (t, fs) => t.length * fs * 0.55 });
-  check('label staat net voorbij het eindpunt', ref.label.x > 200 && ref.label.x < 210,
-    ref.label.x);
+  // Het label begint na de UITLOOP van de aanhaallijn (lineTail) plus de
+  // vrijloop; bij de standaardwaarden is dat 200 + 20 + 6 = 226.
+  const refTail = S.STAVENREEKS_DEFAULTS.lineTail;
+  check('label staat net voorbij de uitloop',
+    ref.label.x > 200 + refTail && ref.label.x < 200 + refTail + 10, ref.label.x);
   check('label staat rechtop (niet op zijn kop)', near(ref.label.angle, 0));
 
   // Het labelvak mag geen enkele poot snijden.
@@ -487,6 +490,76 @@ console.log('\n13. Labelvrijloop');
   check('rechts-naar-links getekend: label loopt fysiek naar links', back.label.dirX < 0);
   check('rechts-naar-links getekend: label steekt voorbij het eindpunt uit',
     back.aabb.x < 0, back.aabb.x);
+}
+
+// ── 14. Uitloop van de aanhaallijn ───────────────────────────────────────
+console.log('\n14. Uitloop aanhaallijn');
+{
+  const T = S.STAVENREEKS_DEFAULTS.lineTail;
+  check('standaard uitloop = 20', T === 20, T);
+  check('uitloop ≈ 0,55 × pootlengte',
+    Math.abs(T - 0.55 * S.STAVENREEKS_DEFAULTS.legLength) <= 1,
+    `${T} vs ${0.55 * S.STAVENREEKS_DEFAULTS.legLength}`);
+  check('standaard uitloop valt binnen het paneelbereik 0–200', T >= 0 && T <= 200);
+
+  const g = { startX: 0, startY: 0, endX: 200, endY: 0, count: 3 };
+  const b = S.buildStavenreeks(g, { measureText: (t, fs) => t.length * fs * 0.55 });
+  check('lijn loopt voorbij het eindpunt door', near(b.line.x2, 200 + T), b.line.x2);
+  check('lijn begint nog steeds op het startpunt', near(b.line.x1, 0) && near(b.line.y1, 0));
+  check('uitlooppunt uitleesbaar via .tail', near(b.tail.x, 200 + T) && near(b.tail.y, 0));
+
+  // De staafposities blijven over start..eind verdeeld — NIET over de uitloop.
+  check('laatste punt hoort bij het eindpunt, niet bij de uitloop',
+    near(b.legs[b.legs.length - 1].x1, 200), b.legs[b.legs.length - 1].x1);
+  check('eerste poot hangt aan het startpunt', near(b.legs[0].x1, 0));
+  check('aantal poten ongewijzigd door de uitloop', b.legs.length === 3);
+
+  // Label begint NA de uitloop (huidige vrijloop komt daar bovenop).
+  const noTail = S.buildStavenreeks({ ...g, lineTail: 0 },
+    { measureText: (t, fs) => t.length * fs * 0.55 });
+  check('lineTail 0 → lijn stopt op de laatste poot', near(noTail.line.x2, 200));
+  check('label schuift precies de uitloop op', near(b.label.x - noTail.label.x, T),
+    b.label.x - noTail.label.x);
+  check('label begint voorbij het uitlooppunt', b.label.x > b.tail.x, `${b.label.x} > ${b.tail.x}`);
+
+  // AABB neemt de uitloop mee.
+  check('AABB groeit mee met de uitloop', b.aabb.width > noTail.aabb.width,
+    `${b.aabb.width} vs ${noTail.aabb.width}`);
+  check('AABB omvat het uitlooppunt',
+    b.tail.x <= b.aabb.x + b.aabb.width + 1e-9 && b.tail.x >= b.aabb.x - 1e-9);
+
+  // AP-primitieven: de reekslijn-primitief draagt de uitloop.
+  const localP = S.toLocalPrimitives(b.primitives, b.aabb, { flipY: true });
+  const lineP = localP.find(p => p.kind === 'line');
+  check('AP-lijnprimitief is de reekslijn INCLUSIEF uitloop',
+    near(lineP.x2 - lineP.x1, 200 + T, 1e-9), lineP.x2 - lineP.x1);
+  check('AP-lijnprimitief valt binnen /BBox',
+    lineP.x2 >= -1e-9 && lineP.x2 <= b.aabb.width + 1e-9);
+
+  // labelSide 'start': de uitloop wisselt mee naar de andere kant.
+  const st = S.buildStavenreeks({ ...g, labelSide: 'start' },
+    { measureText: (t, fs) => t.length * fs * 0.55 });
+  check('labelSide=start → uitloop vóór het startpunt', near(st.line.x1, -T), st.line.x1);
+  check('labelSide=start → lijn eindigt op het eindpunt', near(st.line.x2, 200));
+  check('labelSide=start → eerste poot blijft op het startpunt', near(st.legs[0].x1, 0));
+
+  // Schuine reeks: de uitloop volgt de lijnrichting (rotatie-veilig).
+  const diag = S.buildStavenreeks({ startX: 0, startY: 0, endX: 60, endY: 80, count: 2 });
+  check('schuine reeks: uitloop ligt in het verlengde van de lijn',
+    near(diag.tail.x, 60 + 0.6 * T, 1e-9) && near(diag.tail.y, 80 + 0.8 * T, 1e-9),
+    `${diag.tail.x},${diag.tail.y}`);
+  check('schuine reeks: uitlooplengte = lineTail',
+    near(Math.hypot(diag.tail.x - 60, diag.tail.y - 80), T, 1e-9));
+
+  // Parameter-validatie.
+  check('negatieve uitloop valt terug op de standaard',
+    S.resolveParams({ lineTail: -5 }).lineTail === T);
+  check('onzin-uitloop valt terug op de standaard',
+    S.resolveParams({ lineTail: 'abc' }).lineTail === T);
+  check('uitloop 0 wordt gerespecteerd (niet als "leeg" gelezen)',
+    S.resolveParams({ lineTail: 0 }).lineTail === 0);
+  check('expliciete uitloop wordt overgenomen',
+    S.resolveParams({ lineTail: 42 }).lineTail === 42);
 }
 
 console.log(`\n${failures === 0 ? 'GESLAAGD' : 'GEFAALD'}: ${checks - failures}/${checks} controles`);

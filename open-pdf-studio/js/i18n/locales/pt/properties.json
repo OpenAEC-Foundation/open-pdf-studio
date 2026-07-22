@@ -345,6 +345,7 @@
     "barLength": "Bar length (mm)",
     "legDirection": "Leg direction",
     "legLength": "Leg length",
+    "lineTail": "Line tail",
     "labelSide": "Label side",
     "labelSideStart": "At start",
     "labelSideEnd": "At end",

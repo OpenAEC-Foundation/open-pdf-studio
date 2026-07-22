@@ -1671,6 +1671,7 @@ export async function savePDF(saveAsPath = null) {
               OPS_SRBarLengthMm: srGeom.params.barLengthMm,
               OPS_SRLegDir: PDFString.of(srGeom.params.legDir),
               OPS_SRLegLength: srGeom.params.legLength,
+              OPS_SRLineTail: srGeom.params.lineTail,
               OPS_SRLabelSide: PDFString.of(srGeom.params.labelSide),
               OPS_SRLineWidth: ann.lineWidth ?? 1,
               // Reekslijn in PDF-coördinaten + de /Rect zoals WIJ hem schreven.

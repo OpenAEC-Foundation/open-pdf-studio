@@ -34,6 +34,14 @@ export const STAVENREEKS_DEFAULTS = {
   // wapeningsdetail waarnaar de vorm gemodelleerd is. Instelbaar in het
   // eigenschappen-paneel (bereik 1–200).
   legLength: 36,
+  // UITLOOP van de aanhaallijn (app-px, schaal 1). In het wapeningsdetail
+  // waarnaar de vorm gemodelleerd is stopt de aanhaallijn niet op de laatste
+  // poot: hij loopt aan de LABELZIJDE nog een stukje door voordat het label
+  // begint. Afgemeten aan de referentie is die uitloop ongeveer 0,55 × de
+  // pootlengte; bij de standaard pootlengte 36 is dat ~20 px. De uitloop is
+  // PUUR lijn — de N staafposities blijven verdeeld over start..eind.
+  // Instelbaar in het eigenschappen-paneel (bereik 0–200).
+  lineTail: 20,
   labelSide: 'end',
   fontSize: 12,
 };
@@ -73,9 +81,14 @@ export function resolveParams(ann) {
   const barLengthMm = Number(a.barLengthMm) || 0;
   const legDir = STAVENREEKS_LEG_DIRS.includes(a.legDir) ? a.legDir : STAVENREEKS_DEFAULTS.legDir;
   const legLength = Number(a.legLength) > 0 ? Number(a.legLength) : STAVENREEKS_DEFAULTS.legLength;
+  // Uitloop mag expliciet 0 zijn (lijn stopt op de laatste poot), dus hier
+  // geen `> 0`-test maar een eindigheids-/ondergrenstest.
+  const lineTailRaw = Number(a.lineTail);
+  const lineTail = Number.isFinite(lineTailRaw) && lineTailRaw >= 0
+    ? lineTailRaw : STAVENREEKS_DEFAULTS.lineTail;
   const labelSide = a.labelSide === 'start' ? 'start' : 'end';
   const fontSize = Number(a.fontSize) > 0 ? Number(a.fontSize) : STAVENREEKS_DEFAULTS.fontSize;
-  return { count, diameter, barLengthMm, legDir, legLength, labelSide, fontSize };
+  return { count, diameter, barLengthMm, legDir, legLength, lineTail, labelSide, fontSize };
 }
 
 /** Labeltekst "N ⌀ D" (bv. "5 ⌀ 16"). */
@@ -300,7 +313,21 @@ export function buildStavenreeks(ann, opts = {}) {
   const frame = lineFrame(startX, startY, endX, endY);
   const r = pointRadius(params.diameter);
 
-  const line = { x1: startX, y1: startY, x2: endX, y2: endY };
+  // ── Aanhaallijn met UITLOOP ──────────────────────────────────────────────
+  // De GETEKENDE lijn loopt van het ene uiteinde tot het andere uiteinde PLUS
+  // de uitloop, in de richting van de LABELZIJDE. De staafposities blijven
+  // verdeeld over start..eind — de uitloop draagt geen poten.
+  const atEnd = params.labelSide === 'end';
+  // Richting waarin de lijn voorbij het label-uiteinde doorloopt (en waarin
+  // het label van de reeks wegloopt).
+  let dx = atEnd ? frame.ux : -frame.ux;
+  let dy = atEnd ? frame.uy : -frame.uy;
+  if (frame.len === 0) { dx = 1; dy = 0; }
+  const tailX = (atEnd ? endX : startX) + dx * params.lineTail;
+  const tailY = (atEnd ? endY : startY) + dy * params.lineTail;
+  const line = atEnd
+    ? { x1: startX, y1: startY, x2: tailX, y2: tailY }
+    : { x1: tailX, y1: tailY, x2: endX, y2: endY };
 
   // Poten + punten
   const positions = barPositions(startX, startY, endX, endY, params.count);
@@ -319,13 +346,10 @@ export function buildStavenreeks(ann, opts = {}) {
   const fontSize = params.fontSize;
   const layout = labelLayout(params.count, params.diameter, fontSize, measure);
   const textW = layout.width;
-  const atEnd = params.labelSide === 'end';
-  const anchorX = atEnd ? endX : startX;
-  const anchorY = atEnd ? endY : startY;
-  // Richting waarin het label van de lijn wegloopt.
-  let dx = atEnd ? frame.ux : -frame.ux;
-  let dy = atEnd ? frame.uy : -frame.uy;
-  if (frame.len === 0) { dx = 1; dy = 0; }
+  // Het label begint NA de uitloop: het ankerpunt is het uiteinde van de
+  // getekende lijn, niet dat van de staafreeks.
+  const anchorX = tailX;
+  const anchorY = tailY;
   // Vrijloop langs de lijn. Standaard een halve tekengrootte. Hellen de poten
   // NAAR de labelzijde toe, dan steken de poot en zijn punt langs de
   // lijnrichting voorbij het ankerpunt (legLength × de TANGENTIËLE component
@@ -378,6 +402,9 @@ export function buildStavenreeks(ann, opts = {}) {
   };
   grow(startX, startY);
   grow(endX, endY);
+  // Uiteinden van de GETEKENDE lijn (inclusief de uitloop).
+  grow(line.x1, line.y1);
+  grow(line.x2, line.y2);
   for (const l of legs) grow(l.x2, l.y2);
   for (const d of dots) {
     grow(d.x - d.r, d.y - d.r);
@@ -414,7 +441,11 @@ export function buildStavenreeks(ann, opts = {}) {
     },
   ];
 
-  return { params, frame, line, legs, dots, label, primitives, aabb };
+  // `tail` = het uiteinde van de UITLOOP (waar de lijn stopt en het label
+  // begint). Bij lineTail 0 valt het samen met het label-uiteinde zelf.
+  const tail = { x: tailX, y: tailY };
+
+  return { params, frame, line, tail, legs, dots, label, primitives, aabb };
 }
 
 /**

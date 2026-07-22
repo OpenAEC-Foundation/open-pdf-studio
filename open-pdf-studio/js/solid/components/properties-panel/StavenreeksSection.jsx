@@ -88,6 +88,17 @@ export default function StavenreeksSection() {
           />
         </div>
 
+        {/* Uitloop: hoever de aanhaallijn aan de labelzijde voorbij de laatste
+            poot doorloopt vóórdat het label begint. 0 = lijn stopt op de poot. */}
+        <div class="property-group">
+          <label>{t('stavenreeks.lineTail')}</label>
+          <input type="number" id="prop-sr-linetail" step="1" min="0" max="200"
+            value={annotProps.srLineTail}
+            disabled={locked()}
+            onChange={(e) => updateAnnotProp('srLineTail', e.target.value)}
+          />
+        </div>
+
         <div class="property-group">
           <label>{t('stavenreeks.labelSide')}</label>
           <select id="prop-sr-labelside"

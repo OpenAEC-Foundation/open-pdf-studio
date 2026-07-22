@@ -192,8 +192,11 @@ export function findAnnotationAt(x, y) {
       case 'stavenreeks': {
         // Raak de reekslijn OF een van de poten/punten — alle drie horen bij
         // hetzelfde object, dus de hele figuur is aanklikbaar.
-        if (distanceToLine(x, y, ann.startX, ann.startY, ann.endX, ann.endY) < tol) return ann;
+        // De GETEKENDE aanhaallijn (sr.line) loopt aan de labelzijde verder
+        // door dan het laatste staafpunt (de uitloop) — die uitloop hoort bij
+        // het object en moet dus ook raakbaar zijn.
         const sr = buildStavenreeks(ann);
+        if (distanceToLine(x, y, sr.line.x1, sr.line.y1, sr.line.x2, sr.line.y2) < tol) return ann;
         for (const leg of sr.legs) {
           if (distanceToLine(x, y, leg.x1, leg.y1, leg.x2, leg.y2) < tol) return ann;
         }

@@ -132,7 +132,8 @@ def main():
     check("GEEN top-level /Rotate", "/Rotate" not in sr, str(sr.get("/Rotate")))
 
     for key in ("/OPS_SRCount", "/OPS_SRDiameter", "/OPS_SRBarLengthMm",
-                "/OPS_SRLegDir", "/OPS_SRLegLength", "/OPS_SRLabelSide",
+                "/OPS_SRLegDir", "/OPS_SRLegLength", "/OPS_SRLineTail",
+                "/OPS_SRLabelSide",
                 "/OPS_SRGeom", "/OPS_SRRect"):
         check(f"custom key {key} aanwezig", key in sr)
 
@@ -141,7 +142,8 @@ def main():
     check("/Contents bevat leesbare tekst", len(ctext) > 0, repr(ctext))
     print(f"       /Contents = {ctext!r}")
     print(f"       count={sr.get('/OPS_SRCount')} diameter={sr.get('/OPS_SRDiameter')} "
-          f"legDir={sr.get('/OPS_SRLegDir')} labelSide={sr.get('/OPS_SRLabelSide')}")
+          f"legDir={sr.get('/OPS_SRLegDir')} lineTail={sr.get('/OPS_SRLineTail')} "
+          f"labelSide={sr.get('/OPS_SRLabelSide')}")
     pdf.close()
 
     # ── 2. Zichtbaarheid in twee engines ─────────────────────────────────

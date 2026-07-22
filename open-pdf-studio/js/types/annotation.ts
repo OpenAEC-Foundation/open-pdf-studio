@@ -218,6 +218,7 @@ export type Annotation = AnnotationBase & {
   barLengthMm?: number;        // staaflengte in mm (0 = onbekend)
   legDir?: 'down-left' | 'down-right' | 'up-left' | 'up-right';
   legLength?: number;          // pootlengte in px (canvas)
+  lineTail?: number;           // uitloop van de aanhaallijn voorbij de laatste poot (px)
   labelSide?: 'start' | 'end'; // uiteinde waar het label "N ⌀ D" staat
   ifcCategory?: string;        // IFC-categorie (mapping-laag → hoeveelheden)
 
