@@ -1009,6 +1009,24 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
         if (pageRotHeal !== 0) ftRotation = 0;
       }
 
+      // AP-consistency guard. The appearance stream is what every PDF engine
+      // actually paints, so it — not a rotation key — decides whether a label
+      // is rotated. Older saver generations left a STALE rotation key next to
+      // an UNROTATED appearance: e.g. /Rotation 270 + /OPS_Rotation -90 while
+      // the AP draws a horizontal box with horizontal text. External engines
+      // render such a label horizontally; honouring the key rotated it in this
+      // app only — and a re-save would then bake that error into the file for
+      // everyone. If the appearance contains no rotation transform at all, the
+      // label IS visually unrotated.
+      //
+      // Deliberately narrow: it needs apInnerRect, i.e. the appearance draws
+      // exactly one box and we demonstrably understood its structure. An
+      // appearance we could not parse (rotation hidden in a nested XObject,
+      // say) leaves apInnerRect unset and keeps the key-derived angle.
+      if (ftRotation !== 0 && extraColors.apHasRotationOp === false && extraColors.apInnerRect) {
+        ftRotation = 0;
+      }
+
       // Rotation-aware viewport rect — its width/height already account for the
       // page /Rotate (they SWAP vs the raw PDF Rect on 90/270 pages).
       const ftRectVp = convertRect(annot.rect);
@@ -1017,26 +1035,39 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
       const rectH = rect[3] - rect[1];
       let ftWidth, ftHeight;
       if (ftRotation !== 0) {
-        // Any rotation: Rect is the (possibly expanded) axis-aligned bounding box.
-        // Recover original dims via inverse rotation: rectW = |w*cos| + |h*sin|, rectH = |w*sin| + |h*cos|
-        const c = Math.abs(Math.cos(ftRotation * Math.PI / 180));
-        const s = Math.abs(Math.sin(ftRotation * Math.PI / 180));
-        const det = c * c - s * s;
-        if (Math.abs(det) > 0.01) {
-          ftWidth = Math.round((rectW * c - rectH * s) / det);
-          ftHeight = Math.round((rectH * c - rectW * s) / det);
-          if (ftWidth <= 0 || ftHeight <= 0) {
-            ftWidth = rectW;
-            ftHeight = rectH;
-          }
+        // PREFERRED: read the unrotated dims straight from the appearance
+        // stream. The AP draws the textbox plane with one `x y w h re`
+        // operator INSIDE the rotation transform, so its w/h ARE the original
+        // box dims — no reconstruction needed. See color-extraction.js.
+        const apInner = extraColors.apInnerRect;
+        if (apInner && apInner.w > 1 && apInner.h > 1) {
+          ftWidth = apInner.w;
+          ftHeight = apInner.h;
         } else {
-          if (extraColors.bboxWidth && extraColors.bboxHeight &&
-              (Math.abs(extraColors.bboxWidth - rectW) > 1 || Math.abs(extraColors.bboxHeight - rectH) > 1)) {
-            ftWidth = extraColors.bboxWidth;
-            ftHeight = extraColors.bboxHeight;
+          // FALLBACK (no unambiguous `re` in the AP): recover the dims from the
+          // axis-aligned bounding box /Rect via inverse rotation:
+          //   rectW = |w*cos| + |h*sin|, rectH = |w*sin| + |h*cos|
+          // This is lossy — singular at 45° (det = cos²−sin² = 0) and it swaps
+          // W/H at 90° — hence it is only used when the AP tells us nothing.
+          const c = Math.abs(Math.cos(ftRotation * Math.PI / 180));
+          const s = Math.abs(Math.sin(ftRotation * Math.PI / 180));
+          const det = c * c - s * s;
+          if (Math.abs(det) > 0.01) {
+            ftWidth = Math.round((rectW * c - rectH * s) / det);
+            ftHeight = Math.round((rectH * c - rectW * s) / det);
+            if (ftWidth <= 0 || ftHeight <= 0) {
+              ftWidth = rectW;
+              ftHeight = rectH;
+            }
           } else {
-            ftWidth = rectW;
-            ftHeight = rectH;
+            if (extraColors.bboxWidth && extraColors.bboxHeight &&
+                (Math.abs(extraColors.bboxWidth - rectW) > 1 || Math.abs(extraColors.bboxHeight - rectH) > 1)) {
+              ftWidth = extraColors.bboxWidth;
+              ftHeight = extraColors.bboxHeight;
+            } else {
+              ftWidth = rectW;
+              ftHeight = rectH;
+            }
           }
         }
       } else {

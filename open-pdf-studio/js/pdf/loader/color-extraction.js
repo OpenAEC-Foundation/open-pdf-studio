@@ -906,6 +906,46 @@ const result = {};
                 };
                 const content = await decodeStream(nStream);
 
+                // Inner box rectangle from the AP content stream — the TRUE,
+                // UNROTATED textbox dimensions.
+                //
+                // The appearance stream draws the textbox plane (the coloured
+                // background) with a single `x y w h re` operator, in the local
+                // space *inside* the rotation `cm`. Its w/h are therefore the
+                // unrotated box dims, written literally by the saver.
+                //
+                // The /BBox above is NOT that: it is the axis-aligned bounding
+                // box of the ROTATED result. Reconstructing the box dims from
+                // /Rect + angle (as the converter used to do) is lossy — it is
+                // singular at 45° (cos²−sin² = 0) and swaps W/H at 90°. Reading
+                // the `re` operator instead gives the exact values.
+                //
+                // Robustness: only accept an UNAMBIGUOUS result — exactly one
+                // DISTINCT rectangle with a substantial area. The same
+                // rectangle may legitimately appear more than once: the
+                // appearance paints the box (`re B`/`re f`) and then reuses the
+                // identical rect as a text clip (`re W n`). Genuinely different
+                // rectangles mean we cannot tell which one is the textbox, so
+                // we leave apInnerRect unset and the converter keeps to its
+                // previous reconstruction path.
+                if (content) {
+                  const reOpRe = /(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+re(?![A-Za-z0-9])/g;
+                  const distinct = new Map();
+                  let reMatch;
+                  while ((reMatch = reOpRe.exec(content)) !== null) {
+                    const rx = parseFloat(reMatch[1]);
+                    const ry = parseFloat(reMatch[2]);
+                    const rw = Math.abs(parseFloat(reMatch[3]));
+                    const rh = Math.abs(parseFloat(reMatch[4]));
+                    // Skip degenerate/hairline rects (separators, zero-area ops).
+                    if (rw > 1 && rh > 1) {
+                      const k = `${rx.toFixed(2)},${ry.toFixed(2)},${rw.toFixed(2)},${rh.toFixed(2)}`;
+                      if (!distinct.has(k)) distinct.set(k, { x: rx, y: ry, w: rw, h: rh });
+                    }
+                  }
+                  if (distinct.size === 1) colors.apInnerRect = distinct.values().next().value;
+                }
+
                 // Legacy-appearance detection (self-healing for files saved by
                 // an older version of this app). Those appearances contain our
                 // exact text-state signature but NO rotation in any cm/Tm
@@ -916,22 +956,30 @@ const result = {};
                 // annotation as visually unrotated; the next save rewrites the
                 // appearance with proper page-rotation compensation. Only for
                 // annotations WITHOUT our explicit /OPS_Rotation key.
-                if (colors.rotation === undefined && content &&
-                    content.includes('0 Tc 0 Tw 100 Tz 0 Tr') &&
-                    (colors.matrixAngle === undefined || Math.abs(colors.matrixAngle) <= 0.01)) {
+                // Does the appearance bake in ANY rotation/skew? b or c ≠ 0 in a
+                // cm/Tm matrix means it rotates/skews (identity, translation and
+                // pure scaling all have b = c = 0). This is what every PDF engine
+                // actually paints, so it is the authority on whether the label
+                // sits rotated on the page.
+                let apHasRotationOp = false;
+                if (content) {
                   const opRe = /(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(cm|Tm)\b/g;
-                  let hasRotationOp = false;
                   let opMatch;
                   while ((opMatch = opRe.exec(content)) !== null) {
-                    // b or c ≠ 0 ⇒ the matrix rotates/skews (identity,
-                    // translation and pure scaling all have b = c = 0).
                     if (Math.abs(parseFloat(opMatch[2])) > 0.001 ||
                         Math.abs(parseFloat(opMatch[3])) > 0.001) {
-                      hasRotationOp = true;
+                      apHasRotationOp = true;
                       break;
                     }
                   }
-                  if (!hasRotationOp) colors.apLegacyUnrotated = true;
+                  colors.apHasRotationOp = apHasRotationOp;
+                }
+
+                if (colors.rotation === undefined && content &&
+                    content.includes('0 Tc 0 Tw 100 Tz 0 Tr') &&
+                    (colors.matrixAngle === undefined || Math.abs(colors.matrixAngle) <= 0.01) &&
+                    !apHasRotationOp) {
+                  colors.apLegacyUnrotated = true;
                 }
 
                 // Extract stroke color from content stream (or referenced XObjects)
