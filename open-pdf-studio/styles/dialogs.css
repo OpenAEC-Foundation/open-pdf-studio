@@ -4382,7 +4382,8 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
    Compact Windows-uiterlijk: rechte hoeken, dunne rand, geen animatie.
    Kleuren via dezelfde thema-variabelen als het eigenschappen-paneel, zodat
    het venstertje in elk thema leesbaar blijft. */
-.stavenreeks-inline-editor {
+.stavenreeks-inline-editor,
+.parametric-label-inline-editor {
   display: flex;
   gap: 6px;
   align-items: flex-end;
@@ -4395,19 +4396,22 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
   font-family: inherit;
   color: var(--theme-text, #1f1f1f);
 }
-.stavenreeks-inline-editor .sr-inline-field {
+.stavenreeks-inline-editor .sr-inline-field,
+.parametric-label-inline-editor .parametric-label-inline-field {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
-.stavenreeks-inline-editor .sr-inline-field > span {
+.stavenreeks-inline-editor .sr-inline-field > span,
+.parametric-label-inline-editor .parametric-label-inline-field > span {
   font-size: 10px;
   font-weight: 500;
   white-space: nowrap;
   color: var(--theme-text-secondary, #555);
 }
 .stavenreeks-inline-editor input,
-.stavenreeks-inline-editor select {
+.stavenreeks-inline-editor select,
+.parametric-label-inline-editor input {
   font-size: 12px;
   font-family: inherit;
   height: 22px;
@@ -4421,3 +4425,9 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
 }
 .stavenreeks-inline-editor input { width: 58px; }
 .stavenreeks-inline-editor select { width: 76px; cursor: pointer; }
+.parametric-label-inline-editor {
+  transform: translate(-50%, 8px);
+}
+.parametric-label-inline-editor input {
+  width: 82px;
+}

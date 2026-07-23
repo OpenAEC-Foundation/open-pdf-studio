@@ -295,6 +295,69 @@ export const wapeningskorfTemplate = {
     ];
   },
 
+  editableLabels(params, bbox) {
+    const L = layoutMm(params);
+    const W = L.footprint.width;
+    const H = L.footprint.height;
+    const S = Math.min((bbox.width || 1) / W, (bbox.height || 1) / H);
+    const ox = bbox.x + ((bbox.width || 0) - W * S) / 2;
+    const oy = bbox.y + ((bbox.height || 0) - H * S) / 2;
+    const textRect = (x, y, width, font = L.font) => ({
+      x: ox + x * S,
+      y: oy + (y - font * 0.6) * S,
+      width: Math.max(font * 0.5, width) * S,
+      height: font * 1.2 * S,
+    });
+    return [
+      {
+        id: 'boven',
+        fields: ['bovenAantal', 'bovenDiameter'],
+        rect: textRect(
+          L.labels.boven.x, L.labels.boven.y,
+          _barLabelWidth(L.bovenAantal, L.bovenDiameter, L.font),
+        ),
+      },
+      {
+        id: 'zij',
+        fields: ['zijAantal', 'zijDiameter'],
+        rect: textRect(
+          L.labels.zij.x, L.labels.zij.y,
+          _barLabelWidth(L.zijAantal, L.zijDiameter, L.font),
+        ),
+      },
+      {
+        id: 'onder',
+        fields: ['onderAantal', 'onderDiameter'],
+        rect: textRect(
+          L.labels.onder.x, L.labels.onder.y,
+          _barLabelWidth(L.onderAantal, L.onderDiameter, L.font),
+        ),
+      },
+      {
+        id: 'beugel',
+        fields: ['beugelDiameter', 'beugelAfstand'],
+        rect: textRect(
+          L.labels.beugel.x, L.labels.beugel.y,
+          _stirrupLabelWidth(
+            L.prefix, L.beugelDiameter, L.beugelAfstand, L.font,
+          ),
+        ),
+      },
+      {
+        id: 'naam',
+        fields: ['naam'],
+        rect: {
+          ...textRect(
+            L.caption.x, L.caption.y,
+            approxTextWidth(L.naam, L.font * 1.1), L.font * 1.1,
+          ),
+          x: ox + (L.caption.x
+            - approxTextWidth(L.naam, L.font * 1.1) / 2) * S,
+        },
+      },
+    ];
+  },
+
   render(params, bbox) {
     const L = layoutMm(params);
     const W = L.footprint.width;

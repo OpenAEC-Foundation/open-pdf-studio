@@ -139,6 +139,13 @@ export {
   stavenreeksInputActive,
 } from './solid/stores/stavenreeksInputStore.js';
 
+// ============= PARAMETRISCH LABEL INLINE INVOER =============
+export {
+  showParametricLabelInput,
+  hideParametricLabelInput,
+  parametricLabelInputActive,
+} from './solid/stores/parametricLabelInputStore.js';
+
 // ============= PDF TEXT EDITOR =============
 export {
   showPdfTextEditor,

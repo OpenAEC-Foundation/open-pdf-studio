@@ -39,6 +39,7 @@ import TitleBlockDialog from './dialogs/TitleBlockDialog.jsx';
 import CompareDialog from './compare/CompareDialog.jsx';
 import TextEditOverlay from './TextEditOverlay.jsx';
 import StavenreeksInlineEditor from './StavenreeksInlineEditor.jsx';
+import ParametricLabelInlineEditor from './ParametricLabelInlineEditor.jsx';
 import PdfTextEditOverlay from './PdfTextEditOverlay.jsx';
 import StickyNotePopupHost from './StickyNotePopup.jsx';
 import ParametricSymbolPicker from './dialogs/ParametricSymbolPicker.jsx';
@@ -98,6 +99,7 @@ export default function DialogHost() {
       </For>
       <TextEditOverlay />
       <StavenreeksInlineEditor />
+      <ParametricLabelInlineEditor />
       <PdfTextEditOverlay />
       <StickyNotePopupHost />
       <ParametricSymbolPicker />

@@ -337,6 +337,18 @@ export function handleDblClick(e) {
       import('./stavenreeks-editing.js')
         .then(m => m.startStavenreeksInput(clicked))
         .catch(err => console.error('[dispatcher] stavenreeks inline input error', err));
+    } else if (clicked.type === 'parametricSymbol') {
+      state.isDrawing = false;
+      if (dblDoc) {
+        dblDoc.selectedAnnotations = [clicked];
+        dblDoc.selectedAnnotation = clicked;
+      }
+      showProperties(clicked);
+      import('./parametric-symbol-editing.js')
+        .then((module) =>
+          module.startParametricSymbolInput(clicked, coords.x, coords.y))
+        .catch((error) =>
+          console.error('[dispatcher] parametric label input error', error));
     } else if (clicked.type === 'comment') {
       state.isDrawing = false;
       if (dblDoc) { dblDoc.selectedAnnotations = [clicked]; dblDoc.selectedAnnotation = clicked; }

@@ -55,11 +55,10 @@ function lineLayout(params, bbox, centerLine = false) {
   };
 }
 
-function rebarLabelCommands(params, layout, isNet, bbox) {
+function rebarLabelLayout(params, layout, isNet, bbox) {
   const font = layout.textSize;
   const gap = font * 0.20;
   const signWidth = font * 0.68;
-  const signRadius = font * 0.22;
   const left = isNet ? '' : String(integer(params.aantal, 3, 1));
   const diameter = compactNumber(positiveNumber(params.diameter, 8, 1));
   const lengte = compactNumber(positiveNumber(params.lengte, 1600, 1));
@@ -71,10 +70,23 @@ function rebarLabelCommands(params, layout, isNet, bbox) {
   const leftGap = left ? gap : 0;
   const totalWidth = leftWidth + leftGap + signWidth + gap + rightWidth;
   const desiredX = layout.markerX - totalWidth / 2;
-  let cursor = Math.max(
+  const x = Math.max(
     bbox.x,
     Math.min(desiredX, bbox.x + Math.max(0, bbox.width - totalWidth)),
   );
+  return {
+    font, gap, signWidth, signRadius: font * 0.22,
+    left, right, leftWidth, rightWidth, leftGap, totalWidth, x,
+  };
+}
+
+function rebarLabelCommands(params, layout, isNet, bbox) {
+  const metrics = rebarLabelLayout(params, layout, isNet, bbox);
+  const {
+    font, gap, signWidth, signRadius,
+    left, right, leftWidth, rightWidth, leftGap,
+  } = metrics;
+  let cursor = metrics.x;
   const commands = [];
 
   if (left) {
@@ -106,6 +118,23 @@ function rebarLabelCommands(params, layout, isNet, bbox) {
     text: right, size: font, role: 'label',
   });
   return commands;
+}
+
+function editableLineLabels(params, bbox, isNet, centerLine) {
+  const layout = lineLayout(params, bbox, centerLine);
+  const metrics = rebarLabelLayout(params, layout, isNet, bbox);
+  return [{
+    id: 'label',
+    rect: {
+      x: metrics.x,
+      y: layout.textY - metrics.font * 0.6,
+      width: metrics.totalWidth,
+      height: metrics.font * 1.2,
+    },
+    fields: isNet
+      ? ['diameter', 'afstand', 'lengte']
+      : ['aantal', 'diameter', 'lengte'],
+  }];
 }
 
 function markerCommands(params, layout, bbox, enabled) {
@@ -195,6 +224,9 @@ export const wapeningsstaafTemplate = {
   render(params, bbox) {
     return renderLine(params || {}, bbox, false, true);
   },
+  editableLabels(params, bbox) {
+    return editableLineLabels(params || {}, bbox, false, true);
+  },
   realSizeMm(params) {
     return { width: positiveNumber(params?.lengte, 1600, 1), height: 240 };
   },
@@ -217,6 +249,9 @@ export const netwapeningTemplate = {
   layout: lineLayout,
   render(params, bbox) {
     return renderLine(params || {}, bbox, true);
+  },
+  editableLabels(params, bbox) {
+    return editableLineLabels(params || {}, bbox, true, false);
   },
   realSizeMm(params) {
     return { width: positiveNumber(params?.lengte, 1600, 1), height: 240 };
