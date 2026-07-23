@@ -348,8 +348,9 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
     case 'parametricSymbol': {
       const symbolId = pendingSymbolId() || 'door';
       const template = getTemplate(symbolId);
+      if (!template) return null;
       const page = getActiveDocument()?.currentPage || 1;
-      const params = template ? pendingParams() : {};
+      const params = pendingParams();
 
       if (template?.placement === 'two-point') {
         const snappedEnd = snap(startX, startY, endX, endY);

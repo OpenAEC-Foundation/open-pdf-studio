@@ -12,6 +12,7 @@ import { cancelParametricSymbolInput } from './parametric-symbol-editing.js';
 
 // Tools that are always allowed (view-only, non-modifying)
 const READONLY_ALLOWED_TOOLS = new Set(['select', 'hand']);
+let toolDefaultsRequestToken = 0;
 
 // Get cursor for a given tool
 export function getCursorForTool(tool = state.currentTool) {
@@ -234,6 +235,9 @@ export function setTool(tool) {
   }
 
   state.currentTool = tool;
+  const defaultsRequest = ++toolDefaultsRequestToken;
+  const isCurrentDefaultsRequest = () =>
+    defaultsRequest === toolDefaultsRequestToken && state.currentTool === tool;
   // Don't clear toolOverrides when switching TO stamp or wall — the
   // SymbolPalette sets them (stamp SVG / wall material+dikte) before setTool.
   if (tool !== 'stamp' && tool !== 'wall') {
@@ -293,30 +297,39 @@ export function setTool(tool) {
   // (synthetic annotation) so the user can see them BEFORE drawing.
   // Otherwise hide the panel (e.g. hand, editText). Select keeps its
   // own state (selected annotation or none).
-  if (tool !== 'select') {
+  if (tool === 'select') {
+    import('../solid/stores/propertiesStore.js')
+      .then((propStore) => {
+        if (isCurrentDefaultsRequest()) propStore.hideToolDefaults?.();
+      })
+      .catch(() => {});
+  } else {
     (async () => {
       try {
         if (tool === 'parametricSymbol') {
           const symbolStore = await import('../solid/stores/parametricSymbolStore.js');
           const propStore = await import('../solid/stores/propertiesStore.js');
+          if (!isCurrentDefaultsRequest()) return;
           await propStore.showToolDefaults(tool, {
             symbolId: symbolStore.pendingSymbolId(),
             params: symbolStore.pendingParams(),
-          });
+          }, isCurrentDefaultsRequest);
           return;
         }
         const prefMod = await import('../core/preferences.js');
+        if (!isCurrentDefaultsRequest()) return;
         const hasStyle = prefMod && typeof prefMod.getStyleMapping === 'function'
           && prefMod.getStyleMapping(tool) != null;
         if (hasStyle) {
           const propMod = await import('../solid/stores/propertiesStore.js');
+          if (!isCurrentDefaultsRequest()) return;
           if (propMod && typeof propMod.showToolDefaults === 'function') {
-            await propMod.showToolDefaults(tool);
+            await propMod.showToolDefaults(tool, {}, isCurrentDefaultsRequest);
             return;
           }
         }
       } catch (_) { /* fall through to hide */ }
-      hideProperties();
+      if (isCurrentDefaultsRequest()) hideProperties();
     })();
   }
 

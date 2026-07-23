@@ -1464,6 +1464,12 @@ export function getCurrentAnnotation() {
   return currentAnnotation;
 }
 
+export function hideToolDefaults() {
+  if (currentAnnotation?.id !== '__tool-defaults__') return false;
+  storeHideProperties();
+  return true;
+}
+
 // Show the properties panel populated with the current style defaults for
 // the active drawing tool. Builds a SYNTHETIC annotation tagged with id
 // '__tool-defaults__' so the rest of the panel pipeline treats it like a
@@ -1471,7 +1477,7 @@ export function getCurrentAnnotation() {
 // Edits made by the user via panel inputs update the synthetic object for
 // visual feedback; persistent default changes still flow through the
 // Format ribbon's `setAsDefaultStyle` path.
-export async function showToolDefaults(toolName, overrides = {}) {
+export async function showToolDefaults(toolName, overrides = {}, shouldShow = null) {
   if (!toolName) return;
   // Map tool name → annotation type. Most are 1:1; exceptions go here.
   const TOOL_TO_TYPE = {
@@ -1524,8 +1530,10 @@ export async function showToolDefaults(toolName, overrides = {}) {
     // Non-fatal — synthetic will just show the bare defaults above.
   }
 
+  if (typeof shouldShow === 'function' && !shouldShow()) return false;
   Object.assign(synthetic, overrides);
   storeShowProperties(synthetic);
+  return true;
 }
 
 export {

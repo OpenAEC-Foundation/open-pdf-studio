@@ -308,7 +308,7 @@ export const wapeningskorfTemplate = {
       width: Math.max(font * 0.5, width) * S,
       height: font * 1.2 * S,
     });
-    return [
+    const labels = [
       {
         id: 'boven',
         fields: ['bovenAantal', 'bovenDiameter'],
@@ -356,6 +356,15 @@ export const wapeningskorfTemplate = {
         },
       },
     ];
+    const toonLabels = params?.toonLabels !== false;
+    return labels.filter(({ id }) => {
+      if (id === 'naam') return !!L.naam;
+      if (!toonLabels) return false;
+      if (id === 'boven') return L.bovenAantal > 0;
+      if (id === 'zij') return L.zijAantal > 0;
+      if (id === 'onder') return L.onderAantal > 0;
+      return true;
+    });
   },
 
   render(params, bbox) {

@@ -4,10 +4,22 @@ import {
   onCommit, onCancel, locator, hideParametricLabelInput,
 } from '../stores/parametricLabelInputStore.js';
 import { createOutsideCommitController } from './parametric-label-outside-events.js';
+import {
+  captureParametricLabelReturnFocus,
+  restoreParametricLabelFocus,
+} from './parametric-label-focus.js';
 
 export default function ParametricLabelInlineEditor() {
   let rootRef;
   let firstInputRef;
+  let returnFocusTarget = null;
+
+  const scheduleFocusRestore = () => {
+    const target = returnFocusTarget;
+    if (!target) return;
+    returnFocusTarget = null;
+    queueMicrotask(() => restoreParametricLabelFocus(target));
+  };
 
   const commit = () => {
     if (!active()) return;
@@ -15,6 +27,7 @@ export default function ParametricLabelInlineEditor() {
     const nextValues = { ...values() };
     hideParametricLabelInput();
     if (callback) callback(nextValues);
+    scheduleFocusRestore();
   };
 
   const cancel = () => {
@@ -22,6 +35,7 @@ export default function ParametricLabelInlineEditor() {
     const callback = onCancel();
     hideParametricLabelInput();
     if (callback) callback();
+    scheduleFocusRestore();
   };
 
   const handleKeyDown = (e) => {
@@ -40,6 +54,7 @@ export default function ParametricLabelInlineEditor() {
   createEffect(() => {
     if (!active()) return;
 
+    returnFocusTarget = captureParametricLabelReturnFocus();
     queueMicrotask(() => {
       firstInputRef?.focus();
       firstInputRef?.select();
@@ -81,6 +96,7 @@ export default function ParametricLabelInlineEditor() {
       document.removeEventListener('pointerdown', onOutsidePointerDown, true);
       window.removeEventListener('click', onOutsideClick);
       if (raf) cancelAnimationFrame(raf);
+      scheduleFocusRestore();
     });
   });
 

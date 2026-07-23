@@ -17,6 +17,8 @@ function activeCanvas(annotation) {
       `.annotation-canvas[data-page="${annotation.page || documentState.currentPage}"]`,
     );
   }
+  const annotationPage = annotation.page ?? documentState?.currentPage;
+  if (annotationPage !== documentState?.currentPage) return null;
   return annotationCanvas || document.getElementById('annotation-canvas');
 }
 
@@ -81,18 +83,22 @@ export function startParametricSymbolInput(annotation, x, y) {
       annotation.params?.[definition.key] ?? definition.default ?? '',
     ]),
   );
+  const locate = () => {
+    if (!editingAnnotation || !stillAlive(editingAnnotation)) return null;
+    return labelScreenPosition(editingAnnotation, label);
+  };
   showParametricLabelInput({
     anchor,
     fields: fieldDefinitions,
     values,
-    locate: () => {
-      if (!editingAnnotation || !stillAlive(editingAnnotation)) return null;
-      return labelScreenPosition(editingAnnotation, label);
-    },
+    locate,
     commit: (inputValues) => {
       const current = editingAnnotation;
+      if (!current || current.locked || locate() === null) {
+        editingAnnotation = null;
+        return;
+      }
       editingAnnotation = null;
-      if (!current || !stillAlive(current) || current.locked) return;
       const nextParams = {
         ...(current.params || {}),
         ...inputValues,

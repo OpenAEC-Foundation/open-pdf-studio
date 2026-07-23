@@ -1,9 +1,12 @@
 // Gerichte regressietest voor de tweepuntsplaatsing van Wapeningsstaaf.
 // Draaien: node scripts/test-wapeningsstaaf-two-point.mjs
 
-import { existsSync, readFileSync } from 'node:fs';
+import {
+  existsSync, readFileSync, writeFileSync, mkdtempSync, rmSync,
+} from 'node:fs';
 import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { tmpdir } from 'node:os';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const appRoot = join(here, '..');
@@ -115,6 +118,200 @@ ok(colorsSource.includes("PDFName.of('OPS_TwoPoint')"), 'PDF-loader leest beide 
 ok(converterSource.includes('extraColors.opsTwoPoint'), 'PDF-converter herstelt beide punten');
 ok(xfdfSource.includes('opstwopoint='), 'XFDF bewaart beide punten');
 ok(xfdfSource.includes("getAttribute('opstwopoint')"), 'XFDF-loader herstelt beide punten');
+
+console.log('\n== Werkelijke parameter-rondreis');
+const markerFixture = {
+  aantal: 3,
+  diameter: 8,
+  lengte: 1600,
+  markerAantal: 4,
+  markerPositie: 50,
+  markerRichting: 'onder',
+};
+const persistenceTmp = mkdtempSync(join(tmpdir(), 'opds-parametric-persistence-'));
+
+function stageWithDependencies(name, relPath, dependencies, append = '') {
+  const depsPath = join(persistenceTmp, `${name}-deps.mjs`);
+  const modulePath = join(persistenceTmp, `${name}.mjs`);
+  writeFileSync(depsPath, dependencies);
+  const staged = readFileSync(join(appRoot, relPath), 'utf8')
+    .replace(/from\s+['"][^'"]+['"]/g, `from '${pathToFileURL(depsPath).href}'`);
+  writeFileSync(modulePath, `${staged}${append}`);
+  return modulePath;
+}
+
+try {
+  const converterPath = stageWithDependencies(
+    'annotation-converter',
+    'js/pdf/loader/annotation-converter.js',
+    `
+export const state = {};
+export const imageCache = new Map();
+export function createAnnotation(props) { return { id: 'pdf-restored', ...props }; }
+export function generateImageId() { return 'image-id'; }
+export function colorArrayToHex(_value, fallback) { return fallback; }
+export function mapPdfFontName(value) { return value; }
+export function mapBorderStyle(value) { return value; }
+export function calculateDistance() { return { value: 0, unit: 'mm', pixels: 0 }; }
+export function calculateArea() { return { value: 0, unit: 'mm2' }; }
+export function calculatePerimeter() { return { value: 0, unit: 'mm' }; }
+export function formatMeasurement() { return '0 mm'; }
+export function findImageForAnnotation() { return null; }
+export function ifcCategoryForAnnotationType() { return ''; }
+export function ifcCategoryForParametric() { return 'IfcReinforcingBar'; }
+export const STAVENREEKS_DEFAULTS = {};
+export function syncTwoPointGeometry(annotation, startX, startY, endX, endY, height) {
+  Object.assign(annotation, { startX, startY, endX, endY, height });
+}
+`,
+  );
+  const converter = await import(pathToFileURL(converterPath).href);
+  const pdfMetadata = {
+    opsSubtype: 'parametricSymbol',
+    opsSymbolId: 'wapeningsstaaf',
+    opsParams: JSON.stringify(markerFixture),
+    opsIfcCategory: 'IfcReinforcingBar',
+  };
+  const pdfRestored = await converter.convertPdfAnnotation(
+    {
+      subtype: 'Square',
+      rect: [0, 0, 320, 48],
+      color: [0, 0, 0],
+      annotationFlags: 4,
+      borderStyle: { width: 1 },
+    },
+    1,
+    {
+      convertToViewportPoint: (x, y) => [x, y],
+      convertToViewportRectangle: (rect) => rect,
+    },
+    new Map(),
+    new Map([['0,0,320,48', pdfMetadata]]),
+  );
+  ok(pdfRestored.params.markerAantal === 4,
+    'PDF-metadataherstel bewaart markerAantal 4');
+  ok(pdfRestored.params.markerRichting === 'onder',
+    'PDF-metadataherstel bewaart markerRichting onder');
+
+  globalThis.__xfdfDocument = {
+    filePath: 'wapening.pdf',
+    annotations: [{
+      id: 'staaf-1',
+      type: 'parametricSymbol',
+      page: 1,
+      x: 0,
+      y: 0,
+      width: 320,
+      height: 48,
+      symbolId: 'wapeningsstaaf',
+      params: { ...markerFixture },
+      strokeColor: '#000000',
+      lineWidth: 1,
+      rotation: 0,
+      opacity: 1,
+      printable: true,
+    }],
+  };
+  const xfdfPath = stageWithDependencies(
+    'xfdf',
+    'js/annotations/xfdf.js',
+    `
+export const state = {};
+export function getActiveDocument() { return globalThis.__xfdfDocument; }
+export function createAnnotation(props) { return { id: 'xfdf-restored', ...props }; }
+export function cloneAnnotation(value) { return JSON.parse(JSON.stringify(value)); }
+export function recordBulkAdd() {}
+export function redrawAnnotations() {}
+export function redrawContinuous() {}
+export function updateStatusMessage() {}
+export const isTauri = false;
+export async function readBinaryFile() { return null; }
+export async function writeBinaryFile() {}
+export async function saveFileDialog() { return null; }
+export async function openFileDialog() { return null; }
+export default { t(key) { return key; } }
+export function showMessage() {}
+export function ifcCategoryForParametric() { return 'IfcReinforcingBar'; }
+export function syncTwoPointGeometry(annotation, startX, startY, endX, endY, height) {
+  Object.assign(annotation, { startX, startY, endX, endY, height });
+}
+`,
+    '\nexport { xfdfElementToAnnotation };\n',
+  );
+  const xfdf = await import(pathToFileURL(xfdfPath).href);
+  const xml = xfdf.exportToXFDF();
+  const squareTag = xml.match(/<square\s+[^>]*opstype="parametricSymbol"[^>]*>/)?.[0] || '';
+  const attrs = {};
+  for (const match of squareTag.matchAll(/([\w-]+)="([^"]*)"/g)) {
+    attrs[match[1]] = match[2]
+      .replaceAll('&quot;', '"')
+      .replaceAll('&apos;', "'")
+      .replaceAll('&lt;', '<')
+      .replaceAll('&gt;', '>')
+      .replaceAll('&amp;', '&');
+  }
+  const xfdfRestored = xfdf.xfdfElementToAnnotation({
+    localName: 'square',
+    getAttribute: (name) => attrs[name] ?? null,
+    querySelector: (name) => (name === 'contents' ? { textContent: '' } : null),
+    querySelectorAll: () => [],
+  });
+  ok(xfdfRestored.params.markerAantal === 4,
+    'XFDF-export en -import bewaren markerAantal 4');
+  ok(xfdfRestored.params.markerRichting === 'onder',
+    'XFDF-export en -import bewaren markerRichting onder');
+
+  globalThis.__clipboardState = {
+    defaultAuthor: 'Test',
+    clipboardAnnotation: null,
+    clipboardAnnotations: null,
+    _pasteSeq: 0,
+  };
+  globalThis.__clipboardDocument = {
+    pdfDoc: {},
+    currentPage: 1,
+    viewMode: 'single',
+    annotations: [],
+    selectedAnnotation: null,
+    selectedAnnotations: [],
+  };
+  const clipboardPath = stageWithDependencies(
+    'clipboard',
+    'js/annotations/clipboard.js',
+    `
+export const state = globalThis.__clipboardState;
+export function getActiveDocument() { return globalThis.__clipboardDocument; }
+export const imageCache = new Map();
+export function cloneAnnotation(value) { return JSON.parse(JSON.stringify(value)); }
+export function cloneAnnotationsInPlace(values) {
+  return values.map((value) => JSON.parse(JSON.stringify(value)));
+}
+export function generateImageId() { return 'image-id'; }
+export function updateStatusMessage() {}
+export function showProperties() {}
+export function showMultiSelectionProperties() {}
+export function redrawAnnotations() {}
+export function redrawContinuous() {}
+export const annotationCanvas = null;
+export const pdfContainer = null;
+export function recordAdd() {}
+export function recordBulkAdd() {}
+`,
+  );
+  const clipboard = await import(pathToFileURL(clipboardPath).href);
+  clipboard.copyAnnotation(globalThis.__xfdfDocument.annotations[0]);
+  clipboard.pasteAnnotation();
+  const pasted = globalThis.__clipboardDocument.annotations[0];
+  ok(pasted.params.markerAantal === 4,
+    'kopiëren en plakken bewaren markerAantal 4');
+  ok(pasted.params.markerRichting === 'onder',
+    'kopiëren en plakken bewaren markerRichting onder');
+} finally {
+  delete globalThis.__xfdfDocument;
+  delete globalThis.__clipboardState;
+  delete globalThis.__clipboardDocument;
+  rmSync(persistenceTmp, { recursive: true, force: true });
+}
 
 if (failures) {
   console.error(`\n${failures} van ${checks} controles mislukt.`);
