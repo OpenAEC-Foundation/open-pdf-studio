@@ -59,6 +59,37 @@ export function pasteFromClipboard() {
   }
 }
 
+// Middelpunt van het ZICHTBARE deel van een pagina, in app-annotatie-
+// coördinaten (scale = 1, oorsprong linksboven op die pagina).
+//
+// Plakken rekende voorheen met `pdfContainer.scrollTop/scrollLeft` opgeteld bij
+// de canvas-rect. In de doorlopende weergave is die scroll document-breed: op
+// pagina 5 leverde dat een y van duizenden punten op, ver buiten een pagina van
+// ~842 pt — de geplakte afbeelding landde onzichtbaar naast het papier. Ook in
+// enkelpagina-weergave klopte het niet bij zoom ≠ 100%, omdat CSS-pixels niet
+// door de schaal werden gedeeld. Positioneren t.o.v. de pagina zelf lost beide
+// op en houdt het plakken per pagina correct.
+function visibleCenterOnPage(pageNum) {
+  const doc = getActiveDocument();
+  const scale = doc?.scale || 1;
+  let canvas = annotationCanvas;
+  if (doc?.viewMode === 'continuous') {
+    canvas = document.querySelector(`.page-wrapper[data-page="${pageNum}"] .annotation-canvas`) || canvas;
+  }
+  if (!canvas?.getBoundingClientRect || !pdfContainer?.getBoundingClientRect) return null;
+  const cr = canvas.getBoundingClientRect();
+  const vr = pdfContainer.getBoundingClientRect();
+  // Doorsnede van pagina en kijkvenster; valt de pagina buiten beeld, dan het
+  // midden van de pagina zelf.
+  const left = Math.max(cr.left, vr.left);
+  const right = Math.min(cr.right, vr.right);
+  const top = Math.max(cr.top, vr.top);
+  const bottom = Math.min(cr.bottom, vr.bottom);
+  const cx = right > left ? (left + right) / 2 : (cr.left + cr.right) / 2;
+  const cy = bottom > top ? (top + bottom) / 2 : (cr.top + cr.bottom) / 2;
+  return { x: (cx - cr.left) / scale, y: (cy - cr.top) / scale };
+}
+
 // Paste image from blob
 export async function pasteImageFromBlob(blob) {
   const imageId = generateImageId();
@@ -83,11 +114,6 @@ export async function pasteImageFromBlob(blob) {
   // Store in cache
   imageCache.set(imageId, img);
 
-  // Calculate position (center of visible area)
-  const rect = annotationCanvas.getBoundingClientRect();
-  const scrollX = pdfContainer.scrollLeft;
-  const scrollY = pdfContainer.scrollTop;
-
   // Default annotation size — only cap when the image is REALLY huge so
   // the user isn't surprised by a paste covering the entire page. The old
   // 400px cap aggressively downscaled even modest screenshots (e.g. a
@@ -105,14 +131,17 @@ export async function pasteImageFromBlob(blob) {
     height *= ratio;
   }
 
-  const x = scrollX + (rect.width / 2) - (width / 2);
-  const y = scrollY + (rect.height / 2) - (height / 2);
+  // Plaats op de pagina die de gebruiker op dat moment bekijkt.
+  const targetPage = getActiveDocument()?.currentPage || 1;
+  const center = visibleCenterOnPage(targetPage);
+  const x = center ? center.x - (width / 2) : 10;
+  const y = center ? center.y - (height / 2) : 10;
 
   // Create image annotation
   const annotation = {
     id: Date.now().toString(36) + Math.random().toString(36).substr(2, 9),
     type: 'image',
-    page: getActiveDocument()?.currentPage || 1,
+    page: targetPage,
     x: Math.max(10, x),
     y: Math.max(10, y),
     width: width,

@@ -531,6 +531,31 @@ export async function handleKeydown(e) {
       hideProperties();
       redraw();
     }
+  } else if (ctrl && !shift && (e.key === 'x' || e.key === 'X')) {
+    // Knippen: kopieer de selectie naar het interne klembord (en, voor
+    // afbeeldingen, naar het systeemklembord) en verwijder haar daarna.
+    // Zonder deze tak deed Ctrl+X niets — knippen bestond alleen als naam.
+    // Geen bevestigingsdialoog: het geknipte zit op het klembord en de
+    // verwijdering loopt via het gewone undo-pad.
+    const cutDoc = getActiveDocument();
+    const cutSel = cutDoc ? [...(cutDoc.selectedAnnotations || [])] : [];
+    if (cutSel.length > 0) {
+      e.preventDefault();
+      if (isPdfAReadOnly()) return;
+      if (cutSel.some(a => a.locked)) return;
+      if (cutSel.length > 1) copyAnnotations(cutSel);
+      else copyAnnotation(cutSel[0]);
+      if (cutSel.length > 1) {
+        recordBulkDelete(cutSel);
+      } else {
+        recordDelete(cutSel[0], (cutDoc?.annotations || []).indexOf(cutSel[0]));
+      }
+      const cutSet = new Set(cutSel);
+      if (cutDoc) cutDoc.annotations = cutDoc.annotations.filter(a => !cutSet.has(a));
+      clearSelection();
+      hideProperties();
+      redraw();
+    }
   } else if (ctrl && !shift && e.key === 'c') {
     // Copy selected annotations (if none selected, let native copy handle text selection)
     const _copyDoc = getActiveDocument();

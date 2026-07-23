@@ -2598,6 +2598,18 @@ export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDp
   // Draw watermarks in front of content
   renderWatermarksInFront(ctx, pageNum, width / effectiveScale, height / effectiveScale);
 
+  // Selectie-omranding en grippunten. Dit pad tekende ze niet, waardoor een
+  // selectie in de doorlopende weergave onzichtbaar bleef: geen grippunten op
+  // tekstblokken en geen visuele bevestiging na knippen/plakken. Zelfde bron
+  // (selectedAnnotations) en zelfde volgorde als de enkelpagina-render.
+  const selected = doc ? doc.selectedAnnotations : [];
+  if (selected && selected.length > 0) {
+    for (const ann of selected) {
+      if (ann.page !== pageNum) continue;
+      drawSelectionHandles(ctx, ann);
+    }
+  }
+
   // Rubber-band selection marquee on the page the drag started on (continuous).
   if (state.isRubberBanding && state.rubberBandPage === pageNum) {
     drawRubberBand(ctx, effectiveScale);

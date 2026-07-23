@@ -150,8 +150,14 @@ export function setupWheelZoom() {
       const dy = e.deltaY || 0;
       const pageScreenH = viewport.pageH * viewport.zoom;
       const pageScreenW = viewport.pageW * viewport.zoom;
-      const canvasH = pdfCanvas.height;
-      const canvasW = pdfCanvas.width;
+      // CSS-pixels, niet de backing-store. viewport.offsetY/zoom rekenen in
+      // CSS-pixels; `pdfCanvas.height` is dpr maal zo groot. Op een scherm met
+      // dpr > 1 maakte dat het kijkvenster kunstmatig hoog, waardoor "onderaan
+      // de pagina" te vroeg waar was en de pan-onderdrukking hieronder ook
+      // pagina's blokkeerde die wél scrollruimte hadden.
+      const canvasRect = pdfCanvas.getBoundingClientRect();
+      const canvasH = canvasRect.height;
+      const canvasW = canvasRect.width;
 
       // Where the page edges sit on the visible canvas right now
       const pageTop = viewport.offsetY;
@@ -231,24 +237,46 @@ export function setupWheelZoom() {
   }, { passive: false });
 }
 
+// Verticale uitlijning van een pagina na wiel-navigatie.
+//
+// Past de pagina volledig in het kijkvenster, dan is er niets uit te lijnen:
+// boven- én onderrand zijn al zichtbaar. In dat geval hoort de pagina gewoon
+// gecentreerd te staan, precies zoals na Pagina passend.
+//
+// Deze twee functies leunden daarvoor op clampAndCenter(), die een passende
+// pagina elke frame hercentreerde. Die functie is later leeggemaakt (vrije
+// pan/zoom), waardoor het vangnet wegviel: sindsdien bleef een passende pagina
+// staan waar hier neergezet — boven-uitgelijnd bij naar beneden scrollen,
+// onder-uitgelijnd bij naar boven scrollen. De pagina leek daardoor bij elke
+// wielrol een stukje op en neer te springen terwijl er niets te scrollen viel.
+//
+// Rekenen in CSS-pixels; viewport.offsetY doet dat ook.
+function _viewportHeightCss() {
+  const pdfCanvas = document.getElementById('pdf-canvas');
+  if (!pdfCanvas) return 0;
+  return pdfCanvas.getBoundingClientRect().height;
+}
+
 // After advancing forward via wheel, snap the new page so its TOP is at the
 // top of the viewport (so the user can keep scrolling down through it).
-// If the new page fits the viewport entirely it will be centered instead —
-// the viewport's clampAndCenter() in _render() handles that automatically,
-// but we set offsetY = 0 here so the FIRST paint is already correct (no
-// one-frame flash to a stale position).
 function alignPageToTop() {
-  viewport.offsetY = 0;
+  const vpH = _viewportHeightCss();
+  const pageScreenH = viewport.pageH * viewport.zoom;
+  viewport.offsetY = (vpH > 0 && pageScreenH <= vpH)
+    ? (vpH - pageScreenH) / 2
+    : 0;
   viewport.dirty = true;
 }
 
 // After going back via wheel, snap the new page so its BOTTOM is at the
-// bottom of the viewport. clampAndCenter() will center it later if it fits.
+// bottom of the viewport.
 function alignPageToBottom() {
-  const pdfCanvas = document.getElementById('pdf-canvas');
-  if (!pdfCanvas) return;
+  const vpH = _viewportHeightCss();
+  if (!vpH) return;
   const pageScreenH = viewport.pageH * viewport.zoom;
-  viewport.offsetY = pdfCanvas.height - pageScreenH;
+  viewport.offsetY = (pageScreenH <= vpH)
+    ? (vpH - pageScreenH) / 2
+    : vpH - pageScreenH;
   viewport.dirty = true;
 }
 
