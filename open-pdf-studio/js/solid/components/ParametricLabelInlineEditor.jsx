@@ -3,6 +3,7 @@ import {
   active, anchor, setAnchor, fields, values, setFieldValue,
   onCommit, onCancel, locator, hideParametricLabelInput,
 } from '../stores/parametricLabelInputStore.js';
+import { createOutsideCommitController } from './parametric-label-outside-events.js';
 
 export default function ParametricLabelInlineEditor() {
   let rootRef;
@@ -44,12 +45,19 @@ export default function ParametricLabelInlineEditor() {
       firstInputRef?.select();
     });
 
-    const onOutside = (event) => {
-      if (rootRef && event.target instanceof Node && rootRef.contains(event.target)) return;
-      commit();
-    };
-    document.addEventListener('pointerdown', onOutside, true);
-    document.addEventListener('mousedown', onOutside, true);
+    const outsideController = createOutsideCommitController({
+      isActive: active,
+      commit,
+      isCanvasTarget: (target) =>
+        target instanceof Element
+        && !!target.closest('#annotation-canvas, .annotation-canvas'),
+    });
+    const onOutsidePointerDown = (event) =>
+      outsideController.pointerDown(event, rootRef);
+    const onOutsideClick = (event) =>
+      outsideController.click(event, rootRef);
+    document.addEventListener('pointerdown', onOutsidePointerDown, true);
+    window.addEventListener('click', onOutsideClick);
 
     let raf = 0;
     const tick = () => {
@@ -69,8 +77,9 @@ export default function ParametricLabelInlineEditor() {
     raf = requestAnimationFrame(tick);
 
     onCleanup(() => {
-      document.removeEventListener('pointerdown', onOutside, true);
-      document.removeEventListener('mousedown', onOutside, true);
+      outsideController.reset();
+      document.removeEventListener('pointerdown', onOutsidePointerDown, true);
+      window.removeEventListener('click', onOutsideClick);
       if (raf) cancelAnimationFrame(raf);
     });
   });

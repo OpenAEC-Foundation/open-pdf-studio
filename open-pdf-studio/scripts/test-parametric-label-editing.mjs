@@ -130,6 +130,41 @@ ok(findEditableLabel(annotation, annotation.x - 100, annotation.y - 100) === nul
 ok(findEditableLabel({ ...annotation, type: 'line' }, rotated.x, rotated.y) === null,
   'niet-parametrische annotatie levert null');
 
+console.log('\n== Buitenklik- en toolwisseleventvolgorde');
+const { createOutsideCommitController } = await import(pathToFileURL(
+  stageMjs('js/solid/components/parametric-label-outside-events.js'),
+).href);
+let editorActive = true;
+let commitCount = 0;
+const editorRoot = {
+  contains(target) {
+    return target?.area === 'editor';
+  },
+};
+const outsideController = createOutsideCommitController({
+  isActive: () => editorActive,
+  commit: () => { commitCount++; },
+  isCanvasTarget: (target) => target?.area === 'canvas',
+});
+const toolbarTarget = { area: 'toolbar' };
+outsideController.pointerDown({ target: toolbarTarget }, editorRoot);
+editorActive = false; // setTool annuleert tijdens de toolbar-clickhandler.
+outsideController.click({ target: toolbarTarget }, editorRoot);
+ok(commitCount === 0,
+  'pointerdown gevolgd door toolwissel annuleert zonder voorafgaande commit');
+
+editorActive = true;
+const panelTarget = { area: 'panel' };
+outsideController.pointerDown({ target: panelTarget }, editorRoot);
+outsideController.click({ target: panelTarget }, editorRoot);
+ok(commitCount === 1, 'gewone niet-canvas-buitenklik commit na de clickhandler');
+
+const canvasTarget = { area: 'canvas' };
+outsideController.pointerDown({ target: canvasTarget }, editorRoot);
+ok(commitCount === 2, 'canvas-buitenklik commit vóór de canvashandler');
+outsideController.click({ target: canvasTarget }, editorRoot);
+ok(commitCount === 2, 'canvas-buitenklik commit niet dubbel op click');
+
 console.log('\n== Editor- en lifecyclecontract');
 const source = (relPath) => readFileSync(join(appRoot, relPath), 'utf8');
 const storeSource = source('js/solid/stores/parametricLabelInputStore.js');
@@ -150,8 +185,9 @@ ok(editorSource.includes("e.key === 'Enter'") && editorSource.includes('commit()
 ok(editorSource.includes("e.key === 'Escape'") && editorSource.includes('cancel()'),
   'Escape annuleert de editor');
 ok(editorSource.includes('e.stopPropagation()'), 'toetsen lekken niet naar canvassneltoetsen');
-ok(editorSource.includes("document.addEventListener('pointerdown', onOutside, true)"),
-  'klik buiten bevestigt vóór canvashandlers');
+ok(editorSource.includes("document.addEventListener('pointerdown', onOutsidePointerDown, true)")
+  && editorSource.includes("window.addEventListener('click', onOutsideClick)"),
+'editor onderscheidt directe canvascommit van toolwisselgevoelige click');
 ok(editorSource.includes('requestAnimationFrame(tick)') && editorSource.includes('if (!pos)'),
   'editor volgt de locator en sluit als die verdwijnt');
 ok(bridgeSource.includes('findEditableLabel(annotation, x, y)'),
@@ -165,6 +201,9 @@ ok(dispatcherSource.includes("clicked.type === 'parametricSymbol'")
 'dubbelklik opent parametrische labelinvoer');
 ok(managerSource.includes('cancelParametricSymbolInput()'),
   'toolwissel annuleert parametrische labelinvoer');
+ok(managerSource.includes(
+  "import { cancelParametricSymbolInput } from './parametric-symbol-editing.js';",
+), 'toolwissel heeft een synchrone cancelimport');
 ok(dialogHostSource.includes('<ParametricLabelInlineEditor />'),
   'generieke editor is in DialogHost gemonteerd');
 ok(cssSource.includes('.parametric-label-inline-editor'),
@@ -172,6 +211,11 @@ ok(cssSource.includes('.parametric-label-inline-editor'),
 ok(solidBridgeSource.includes('showParametricLabelInput')
   && solidBridgeSource.includes('hideParametricLabelInput'),
 'Solid-store is via de vanilla bridge ontsloten');
+ok(solidBridgeSource.includes('validateSymbolParams'),
+  'parametervalidatie is via de vanilla bridge ontsloten');
+ok(!bridgeSource.includes(
+  "from '../solid/stores/parametricSymbolStore.js'",
+), 'vanilla editing importeert geen Solid-store rechtstreeks');
 
 if (failures) {
   console.error(`\n${failures} van ${checks} controles mislukt.`);

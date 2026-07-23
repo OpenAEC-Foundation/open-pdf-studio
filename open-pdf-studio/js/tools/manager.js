@@ -8,6 +8,7 @@ import { getTool } from './tool-registry.js';
 import { buildToolContext, resolvePointerCoords } from './tool-context.js';
 import { findAnnotationAt } from '../annotations/geometry.js';
 import { findHandleAt } from '../annotations/handles.js';
+import { cancelParametricSymbolInput } from './parametric-symbol-editing.js';
 
 // Tools that are always allowed (view-only, non-modifying)
 const READONLY_ALLOWED_TOOLS = new Set(['select', 'hand']);
@@ -221,12 +222,11 @@ export function setTool(tool) {
     }
   }
 
-  // Een openstaande inline stavenreeks-invoer hoort niet te blijven zweven
-  // wanneer de gebruiker van gereedschap wisselt.
+  // Openstaande inline invoer hoort niet te blijven zweven wanneer de
+  // gebruiker van gereedschap wisselt. Parametrische invoer moet synchroon
+  // sluiten: de window-click van de editor volgt pas na deze toolhandler.
   import('./stavenreeks-editing.js').then(m => m.cancelStavenreeksInput()).catch(() => {});
-  import('./parametric-symbol-editing.js')
-    .then((module) => module.cancelParametricSymbolInput())
-    .catch(() => {});
+  cancelParametricSymbolInput();
 
   // Deactivate PDF text editing when switching away
   if (state.currentTool === 'editText' && tool !== 'editText') {

@@ -146,6 +146,10 @@ export {
   parametricLabelInputActive,
 } from './solid/stores/parametricLabelInputStore.js';
 
+export {
+  validateSymbolParams,
+} from './solid/stores/parametricSymbolStore.js';
+
 // ============= PDF TEXT EDITOR =============
 export {
   showPdfTextEditor,

@@ -3,10 +3,9 @@ import { annotationCanvas } from '../ui/dom-elements.js';
 import { viewport as viewportState } from '../pdf/pdf-viewport.js';
 import { getTemplate } from '../symbols/registry.js';
 import { findEditableLabel } from '../symbols/editable-labels.js';
-import { validateSymbolParams } from '../solid/stores/parametricSymbolStore.js';
 import {
   showParametricLabelInput, hideParametricLabelInput,
-  parametricLabelInputActive, updateAnnotProp,
+  parametricLabelInputActive, updateAnnotProp, validateSymbolParams,
 } from '../bridge.js';
 
 let editingAnnotation = null;
