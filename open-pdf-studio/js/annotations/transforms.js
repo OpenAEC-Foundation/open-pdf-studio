@@ -909,7 +909,19 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
           // and let the size go negative when a handle was dragged past its
           // anchor. Position is computed from the fixed anchor AFTER the clamp
           // so the box never drifts.
-          const MIN = 20;
+          //
+          // The floor bounds the LONGEST axis, not both axes independently
+          // (issue #315). A single 20-unit floor on width AND height freezes a
+          // very wide (or very tall) image long before it looks small: a
+          // 188 x 24 pt scale-bar image hits the 20-unit height floor while it
+          // is still 159 pt wide, and from there every further drag re-derives
+          // the exact same 159 x 20 box — the annotation appears stuck. With
+          // the floor on the long axis the ratio can always be honored; for a
+          // square-ish image (ratio 1) MIN_W/MIN_H are both 20, identical to
+          // the previous behavior.
+          const MIN_LONG = 20;
+          const MIN_W = aspectRatio >= 1 ? MIN_LONG : MIN_LONG * aspectRatio;
+          const MIN_H = MIN_W / aspectRatio;
           const ox = originalAnn.x, oy = originalAnn.y;
           const ow = originalAnn.width, oh = originalAnn.height;
 
@@ -942,10 +954,12 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
           }
 
           // 2. Proportional clamp. A width <= 0 (dragged past the anchor) is
-          //    below MIN, so it collapses to the minimum rather than flipping.
+          //    below the floor, so it collapses to the minimum rather than
+          //    flipping. Both tests describe the same box, the second only
+          //    catches float residue from the division above.
           let newHeight = newWidth / aspectRatio;
-          if (newWidth < MIN)  { newWidth = MIN;  newHeight = newWidth / aspectRatio; }
-          if (newHeight < MIN) { newHeight = MIN; newWidth = newHeight * aspectRatio; }
+          if (newWidth < MIN_W)  { newWidth = MIN_W;  newHeight = newWidth / aspectRatio; }
+          if (newHeight < MIN_H) { newHeight = MIN_H; newWidth = newHeight * aspectRatio; }
 
           // 3. Place from the fixed anchor using the final size.
           let nx = ox, ny = oy;

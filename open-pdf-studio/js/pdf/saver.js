@@ -300,6 +300,12 @@ export async function savePDF(saveAsPath = null) {
         const ann = pageRot ? remapAnnotationForRotatedPage(annRaw, pageRot, cropBox.width, cropBox.height) : annRaw;
         const colorArr = hexToColorArray(ann.color || '#000000');
         const opacity = ann.opacity !== undefined ? ann.opacity : 1;
+        // Aparte vul-doorzichtigheid (PDF /ca). De annotatie-dict kent alleen
+        // /CA voor het geheel; een afwijkende vul-alfa leeft normaal in de
+        // graphics-state van de appearance-stream. Om hem niet te verliezen bij
+        // opslaan bewaren we hem in een eigen sleutel, net als OPS_Subtype en
+        // OPS_StampName elders in deze saver.
+        const fillOpacity = ann.fillOpacity;
         const borderWidth = ann.lineWidth ?? 2;
 
         let annotDict;
@@ -2303,6 +2309,12 @@ export async function savePDF(saveAsPath = null) {
         // Add annotation to page
         let parentAnnotRef = null;
         if (annotDict) {
+          // Vul-alfa bewaren (zie fillOpacity hierboven) — één plek voor elke
+          // annotatiesoort, vlak voordat de dict de pagina in gaat.
+          if (fillOpacity !== undefined && fillOpacity !== null && fillOpacity !== opacity
+              && typeof annotDict.set === 'function') {
+            annotDict.set(PDFName.of('OPS_FillOpacity'), context.obj(fillOpacity));
+          }
           parentAnnotRef = context.register(annotDict);
           annotsArray.push(parentAnnotRef);
         }

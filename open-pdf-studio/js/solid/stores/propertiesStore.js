@@ -1074,8 +1074,10 @@ export function updateAnnotProp(key, value) {
       currentAnnotation.width = newW;
       if (currentAnnotation.lockAspectRatio && currentAnnotation.originalWidth && currentAnnotation.originalHeight) {
         const ratio = currentAnnotation.originalWidth / currentAnnotation.originalHeight;
-        const newH = Math.round(newW / ratio);
-        currentAnnotation.height = Math.max(20, newH);
+        // Floor of 1 unit, not 20: on a very wide image (ratio ≈ 8) the
+        // partner axis is legitimately far below 20 and a 20-unit floor
+        // would silently break the locked ratio (issue #315).
+        currentAnnotation.height = Math.max(1, Math.round(newW / ratio));
         setAnnotProps('imageHeight', currentAnnotation.height);
       }
       break;
@@ -1085,8 +1087,7 @@ export function updateAnnotProp(key, value) {
       currentAnnotation.height = newH;
       if (currentAnnotation.lockAspectRatio && currentAnnotation.originalWidth && currentAnnotation.originalHeight) {
         const ratio = currentAnnotation.originalWidth / currentAnnotation.originalHeight;
-        const newW = Math.round(newH * ratio);
-        currentAnnotation.width = Math.max(20, newW);
+        currentAnnotation.width = Math.max(1, Math.round(newH * ratio));
         setAnnotProps('imageWidth', currentAnnotation.width);
       }
       break;
@@ -1098,8 +1099,7 @@ export function updateAnnotProp(key, value) {
       currentAnnotation.lockAspectRatio = value;
       if (value && currentAnnotation.type === 'image' && currentAnnotation.originalWidth && currentAnnotation.originalHeight) {
         const ratio = currentAnnotation.originalWidth / currentAnnotation.originalHeight;
-        const newH = Math.round(currentAnnotation.width / ratio);
-        currentAnnotation.height = Math.max(20, newH);
+        currentAnnotation.height = Math.max(1, Math.round(currentAnnotation.width / ratio));
         setAnnotProps('imageHeight', currentAnnotation.height);
       }
       break;

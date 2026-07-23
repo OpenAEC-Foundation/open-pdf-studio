@@ -334,6 +334,35 @@ export function imageFilterString(annotation) {
   return parts.join(' ');
 }
 
+/**
+ * Geef een vulkleur terug waarin een afwijkende vul-doorzichtigheid verrekend
+ * is ten opzichte van de globalAlpha die straks actief is.
+ *
+ * De canvas kent één globalAlpha voor lijn én vlak; PDF kent er twee (/CA voor
+ * de lijn, /ca voor de vulling). Door de verhouding in de alfa van een
+ * rgba()-kleur te zetten, komt globalAlpha × kleur-alfa precies uit op de
+ * gevraagde vul-alfa, zonder dat elke vorm apart de globalAlpha moet omzetten.
+ *
+ * Zonder `fillOpacity` (verreweg de meeste annotaties) komt de kleur
+ * ongewijzigd terug — dit pad is dan een enkele vergelijking.
+ */
+function withFillAlpha(color, fillOpacity, baseOpacity) {
+  if (fillOpacity === undefined || fillOpacity === null) return color;
+  if (!color || color === 'none' || color === 'transparent') return color;
+  if (!(baseOpacity > 0)) return color;
+  const ratio = Math.max(0, Math.min(1, fillOpacity / baseOpacity));
+  if (ratio >= 1) return color;
+  // Alleen hex-kleuren omzetten; andere notaties laten we met rust.
+  const m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(color).trim());
+  if (!m) return color;
+  let hex = m[1];
+  if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${ratio})`;
+}
+
 export function drawAnnotation(ctx, annotation) {
   // Skip hidden annotations
   if (annotation.hidden) return;
@@ -365,6 +394,16 @@ export function drawAnnotation(ctx, annotation) {
       fillColor = _evHalftone.color;
     }
   }
+
+  // Vulling met een eigen doorzichtigheid (PDF /ca in de graphics-state van de
+  // appearance-stream, los van de lijn-alfa /CA). Komt veel voor bij kaart- en
+  // GIS-exports: een gebied op 20% met een volledig dekkende rand. De canvas
+  // heeft maar één globalAlpha, dus verrekenen we het verschil in de vulkleur
+  // zelf: globalAlpha (= baseOpacity) maal de alfa in de rgba-kleur levert
+  // precies de gevraagde vul-alfa op. Zonder eigen fillOpacity verandert er
+  // niets — dan blijft de kleur de kale hex.
+  const annFill = withFillAlpha(annotation.fillColor, annotation.fillOpacity, baseOpacity);
+  fillColor = withFillAlpha(fillColor, annotation.fillOpacity, baseOpacity);
 
   ctx.strokeStyle = strokeColor;
   ctx.fillStyle = fillColor;
@@ -558,7 +597,7 @@ export function drawAnnotation(ctx, annotation) {
       if (saPts && saPts.length >= 2) {
         const segs = catmullRomToBezier(saPts);
         ctx.strokeStyle = strokeColor;
-        ctx.fillStyle = annotation.fillColor || strokeColor;
+        ctx.fillStyle = annFill || strokeColor;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         applyBorderStyle(ctx, annotation.borderStyle);
@@ -608,7 +647,7 @@ export function drawAnnotation(ctx, annotation) {
 
       // Fill if fillColor is set and not 'none'
       if (annotation.fillColor && annotation.fillColor !== 'none' && annotation.fillColor !== null) {
-        ctx.fillStyle = annotation.fillColor;
+        ctx.fillStyle = annFill;
         ctx.fill();
       }
 
@@ -676,7 +715,7 @@ export function drawAnnotation(ctx, annotation) {
 
       // Fill if fillColor is set and not 'none'
       if (annotation.fillColor && annotation.fillColor !== 'none' && annotation.fillColor !== null) {
-        ctx.fillStyle = annotation.fillColor;
+        ctx.fillStyle = annFill;
         ctx.fillRect(annotation.x, annotation.y, annotation.width, annotation.height);
       }
 
@@ -718,7 +757,7 @@ export function drawAnnotation(ctx, annotation) {
       // Fill if fillColor is set
       if (annotation.fillColor && annotation.fillColor !== 'none' && annotation.fillColor !== null) {
         buildPolyPath();
-        ctx.fillStyle = annotation.fillColor;
+        ctx.fillStyle = annFill;
         ctx.fill();
       }
 
@@ -749,7 +788,7 @@ export function drawAnnotation(ctx, annotation) {
       // Fill if fillColor is set
       if (annotation.fillColor && annotation.fillColor !== 'none' && annotation.fillColor !== null) {
         buildCloudPath(ctx, annotation.x, annotation.y, annotation.width, annotation.height);
-        ctx.fillStyle = annotation.fillColor;
+        ctx.fillStyle = annFill;
         ctx.fill();
       }
 
@@ -769,7 +808,7 @@ export function drawAnnotation(ctx, annotation) {
         // Fill if fillColor is set
         if (annotation.fillColor && annotation.fillColor !== 'none' && annotation.fillColor !== null) {
           buildCloudPolylinePath(ctx, annotation.points, true);
-          ctx.fillStyle = annotation.fillColor;
+          ctx.fillStyle = annFill;
           ctx.fill();
         }
         // Hatch pattern fill
@@ -958,7 +997,7 @@ export function drawAnnotation(ctx, annotation) {
       // Draw fill (wolkrand-annotaties vullen het scallop-pad i.p.v. de rect)
       const tbPuff = cloudPuffSize(annotation);
       if (hasFill(annotation.fillColor)) {
-        ctx.fillStyle = annotation.fillColor;
+        ctx.fillStyle = annFill;
         if (annotation.borderEffect === 'cloudy') {
           buildCloudPath(ctx, annotation.x, annotation.y, tbWidth, tbHeight, tbPuff);
           ctx.fill();
@@ -1079,7 +1118,7 @@ export function drawAnnotation(ctx, annotation) {
       // Draw fill (wolkrand-callouts vullen het scallop-pad i.p.v. de rect)
       const coPuff = cloudPuffSize(annotation);
       if (hasFill(annotation.fillColor)) {
-        ctx.fillStyle = annotation.fillColor;
+        ctx.fillStyle = annFill;
         if (annotation.borderEffect === 'cloudy') {
           buildCloudPath(ctx, annotation.x, annotation.y, coWidth, coHeight, coPuff);
           ctx.fill();

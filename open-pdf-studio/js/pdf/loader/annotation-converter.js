@@ -79,6 +79,10 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
     createdAt: parsePdfDate(annot.creationDate),
     modifiedAt: parsePdfDate(annot.modificationDate),
     opacity: annot.opacity !== undefined ? annot.opacity : (extraColors.opacity !== undefined ? extraColors.opacity : 1.0),
+    // Aparte vul-doorzichtigheid (/ca uit de appearance-graphics-state). Alleen
+    // gezet als de PDF hem echt apart opgeeft; anders volgt de vulling gewoon
+    // `opacity`. Zie extractApAlphas() in color-extraction.js.
+    ...(extraColors.fillOpacity !== undefined ? { fillOpacity: extraColors.fillOpacity } : {}),
     locked: !!(annot.annotationFlags & 128),      // Bit 8: Locked
     printable: !!(annot.annotationFlags & 4),       // Bit 3: Print
     readOnly: !!(annot.annotationFlags & 64),       // Bit 7: ReadOnly

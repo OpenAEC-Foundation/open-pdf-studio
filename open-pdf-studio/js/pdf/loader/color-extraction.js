@@ -1,6 +1,88 @@
 import { PDFName, PDFDict, PDFArray } from 'pdf-lib';
 import { pdfNum, pdfColorToHex, mapPdfFontName, inflateBytes } from './pdf-helpers.js';
 
+// Decode an appearance stream to text (handles /FlateDecode).
+async function decodeApStream(stream) {
+  let bytes;
+  if (typeof stream.getContents === 'function') bytes = stream.getContents();
+  else if (typeof stream.contents === 'function') bytes = stream.contents();
+  else if (stream.contentsCache?.value) bytes = stream.contentsCache.value;
+  if (!bytes) return null;
+  const dict = stream.dict || stream;
+  const filterRaw = dict.get(PDFName.of('Filter'));
+  if (filterRaw?.toString() === '/FlateDecode') {
+    const dec = await inflateBytes(bytes);
+    return dec ? new TextDecoder().decode(dec) : null;
+  }
+  return new TextDecoder().decode(bytes);
+}
+
+/**
+ * Alfa's uit de graphics-state van een appearance-stream.
+ *
+ * PDF kent twee soorten doorzichtigheid voor een annotatie. De annotatie-dict
+ * heeft /CA, maar dat is één waarde voor het geheel. Fijnmaziger — en heel
+ * gebruikelijk bij GIS- en kaart-exports — zet de appearance-stream zelf een
+ * ExtGState met /ca (vulling) en /CA (lijn), bijvoorbeeld een vlak op 20%
+ * met een volledig dekkende rand. Die staat NIET in de annotatie-dict.
+ *
+ * De app tekent annotaties op een eigen overlay (PDF.js-annotatierendering is
+ * uitgeschakeld), dus zo'n ExtGState wordt nooit vanzelf toegepast: zonder
+ * deze functie kwam zo'n vlak volledig dekkend op het scherm en verdween de
+ * kaart eronder.
+ *
+ * Alleen de ExtGStates die de stream ook echt met `gs` aanroept tellen mee;
+ * ongebruikte resources mogen het beeld niet beïnvloeden. Vindt de stream
+ * meerdere verschillende alfa's, dan is er geen enkele waarde die de
+ * annotatie als geheel beschrijft en geven we niets terug.
+ *
+ * @returns {Promise<{fillAlpha: number|null, strokeAlpha: number|null}>}
+ */
+async function extractApAlphas(context, nStream) {
+  const empty = { fillAlpha: null, strokeAlpha: null };
+  try {
+    const nDict = nStream.dict || nStream;
+    const resRaw = nDict.get(PDFName.of('Resources'));
+    if (!resRaw) return empty;
+    const res = context.lookup(resRaw) || resRaw;
+    const egsRaw = res?.get?.(PDFName.of('ExtGState'));
+    if (!egsRaw) return empty;
+    const egs = context.lookup(egsRaw) || egsRaw;
+    if (!egs || typeof egs.get !== 'function') return empty;
+
+    const content = await decodeApStream(nStream);
+    if (!content) return empty;
+
+    // Namen die de stream daadwerkelijk activeert: `/Naam gs`.
+    const used = new Set();
+    const gsRe = /\/([^\s/<>[\]()]+)\s+gs(?![A-Za-z0-9])/g;
+    let m;
+    while ((m = gsRe.exec(content)) !== null) used.add(m[1]);
+    if (used.size === 0) return empty;
+
+    const fills = new Set();
+    const strokes = new Set();
+    for (const name of used) {
+      const gsRefRaw = egs.get(PDFName.of(name));
+      if (!gsRefRaw) continue;
+      const gs = context.lookup(gsRefRaw) || gsRefRaw;
+      if (!gs || typeof gs.get !== 'function') continue;
+      const caRaw = gs.get(PDFName.of('ca'));
+      const CARaw = gs.get(PDFName.of('CA'));
+      const ca = caRaw !== undefined ? pdfNum(context.lookup(caRaw) || caRaw) : null;
+      const CA = CARaw !== undefined ? pdfNum(context.lookup(CARaw) || CARaw) : null;
+      if (ca !== null && ca >= 0 && ca <= 1) fills.add(ca);
+      if (CA !== null && CA >= 0 && CA <= 1) strokes.add(CA);
+    }
+    return {
+      fillAlpha: fills.size === 1 ? [...fills][0] : null,
+      strokeAlpha: strokes.size === 1 ? [...strokes][0] : null,
+    };
+  } catch (_) {
+    return empty;
+  }
+}
+
 // Extract colors (IC, appearance stream) from annotations using pdf-lib
 // Returns Map<rectKey, { ic, apStrokeColor }> where ic = Interior Color hex, apStrokeColor = stroke from appearance stream
 export async function extractAnnotationColors(pageNum, pdfDoc) {
@@ -37,6 +119,31 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         if (caVal !== null && caVal >= 0 && caVal <= 1) {
           colors.opacity = caVal;
         }
+      }
+
+      // Doorzichtigheid uit de graphics-state van de appearance-stream — zie
+      // extractApAlphas(). Geldt voor ALLE annotatiesoorten. De annotatie-dict
+      // /CA hierboven wint: die is expliciet voor deze annotatie gezet.
+      try {
+        const apForAlpha = annotDict.get(PDFName.of('AP'));
+        if (apForAlpha) {
+          const apDict = context.lookup(apForAlpha) || apForAlpha;
+          const nForAlpha = apDict?.get?.(PDFName.of('N'));
+          const nStreamForAlpha = nForAlpha ? context.lookup(nForAlpha) : null;
+          if (nStreamForAlpha) {
+            const { fillAlpha, strokeAlpha } = await extractApAlphas(context, nStreamForAlpha);
+            if (fillAlpha !== null) colors.fillOpacity = fillAlpha;
+            if (strokeAlpha !== null && colors.opacity === undefined) colors.opacity = strokeAlpha;
+          }
+        }
+      } catch (_) { /* appearance zonder bruikbare graphics-state */ }
+
+      // Eigen sleutel van deze app (zie saver.js): wint van de afgeleide
+      // waarde hierboven, want die is expliciet bij het opslaan bewaard.
+      const ofoRaw = annotDict.get(PDFName.of('OPS_FillOpacity'));
+      if (ofoRaw !== undefined) {
+        const ofo = pdfNum(context.lookup(ofoRaw) || ofoRaw);
+        if (ofo !== null && ofo >= 0 && ofo <= 1) colors.fillOpacity = ofo;
       }
 
       // Read /BE (border effect) — { /S /C } = cloudy border ("wolkjes", zoals

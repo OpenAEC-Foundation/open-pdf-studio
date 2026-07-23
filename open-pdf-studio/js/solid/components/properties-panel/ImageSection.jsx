@@ -51,14 +51,14 @@ export default function ImageSection() {
       <CollapsibleSection title={t('image.title')} name="image" id="prop-image-section">
         <div class="property-group">
           <label>{t('image.width')}</label>
-          <input type="number" min="20" max="2000"
+          <input type="number" min="1" max="2000"
             value={annotProps.imageWidth} disabled={isLocked()}
             onInput={(e) => updateAnnotProp('imageWidth', e.target.value)} />
         </div>
 
         <div class="property-group">
           <label>{t('image.height')}</label>
-          <input type="number" min="20" max="2000"
+          <input type="number" min="1" max="2000"
             value={annotProps.imageHeight} disabled={isLocked()}
             onInput={(e) => updateAnnotProp('imageHeight', e.target.value)} />
         </div>
