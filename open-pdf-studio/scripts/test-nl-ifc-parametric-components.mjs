@@ -78,7 +78,7 @@ const templates = [
 console.log('\n== Identiteit en parameters');
 ok(new Set(templates.map((t) => t.id)).size === 5, 'vijf unieke template-id\'s');
 ok(paramKeys(wapeningsstaafTemplate).join(',') ===
-  'aantal,diameter,lengte,markerPositie,markerRichting',
+  'aantal,diameter,lengte,markerAantal,markerPositie,markerRichting',
   'wapeningsstaaf heeft alle instelbare waarden');
 ok(paramKeys(netwapeningTemplate).join(',') ===
   'diameter,afstand,lengte,markerPositie,markerRichting',
@@ -126,6 +126,18 @@ near(boven.markerX, 100, 1e-9, 'markerpositie 20%');
 near(onder.markerX, 400, 1e-9, 'markerpositie 80%');
 ok(boven.markerTipY < boven.lineY && onder.markerTipY > onder.lineY,
   'marker kan boven en onder de lijn staan');
+for (const markerAantal of [1, 2, 3, 4]) {
+  for (const markerRichting of ['boven', 'onder']) {
+    const commands = wapeningsstaafTemplate.render({
+      aantal: 3, diameter: 8, lengte: 1600,
+      markerAantal, markerPositie: 50, markerRichting,
+    }, { x: 0, y: 0, width: 320, height: 48 });
+    const markers = commands.filter((command) => command.role === 'marker');
+    ok(markers.length === markerAantal, `${markerAantal} vlaggen ${markerRichting}`);
+    ok(markers.every((command) => command.points.every((point) => point.x >= 0 && point.x <= 320)),
+      'vlaggen blijven binnen de staaf');
+  }
+}
 function commandExtents(command) {
   if (command.kind === 'line') {
     return { minX: Math.min(command.x1, command.x2), maxX: Math.max(command.x1, command.x2),

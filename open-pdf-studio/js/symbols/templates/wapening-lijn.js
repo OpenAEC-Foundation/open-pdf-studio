@@ -108,6 +108,30 @@ function rebarLabelCommands(params, layout, isNet, bbox) {
   return commands;
 }
 
+function markerCommands(params, layout, bbox, enabled) {
+  const count = enabled
+    ? Math.min(4, Math.max(1, Math.round(Number(params.markerAantal) || 1)))
+    : 1;
+  const gap = layout.markerHalfWidth * 0.35;
+  const step = layout.markerHalfWidth * 2 + gap;
+  const groupWidth = step * (count - 1) + layout.markerHalfWidth * 2;
+  const center = Math.max(
+    bbox.x + groupWidth / 2,
+    Math.min(layout.markerX, bbox.x + bbox.width - groupWidth / 2),
+  );
+  return Array.from({ length: count }, (_, index) => {
+    const markerX = center + (index - (count - 1) / 2) * step;
+    return {
+      kind: 'polyline', close: true, fill: true, role: 'marker',
+      points: [
+        { x: markerX - layout.markerHalfWidth, y: layout.markerBaseY },
+        { x: markerX, y: layout.markerTipY },
+        { x: markerX + layout.markerHalfWidth, y: layout.markerBaseY },
+      ],
+    };
+  });
+}
+
 function renderLine(params, bbox, isNet, centerLine = false) {
   const layout = lineLayout(params, bbox, centerLine);
   return [
@@ -118,17 +142,7 @@ function renderLine(params, bbox, isNet, centerLine = false) {
       x2: bbox.x + bbox.width,
       y2: layout.lineY,
     },
-    {
-      kind: 'polyline',
-      close: true,
-      fill: true,
-      role: 'marker',
-      points: [
-        { x: layout.markerX - layout.markerHalfWidth, y: layout.markerBaseY },
-        { x: layout.markerX, y: layout.markerTipY },
-        { x: layout.markerX + layout.markerHalfWidth, y: layout.markerBaseY },
-      ],
-    },
+    ...markerCommands(params, layout, bbox, !isNet),
     ...rebarLabelCommands(params, layout, isNet, bbox),
   ];
 }
@@ -169,6 +183,10 @@ export const wapeningsstaafTemplate = {
     { key: 'aantal', label: 'Aantal', labelEn: 'Quantity', type: 'number', default: 3, min: 1, step: 1 },
     { key: 'diameter', label: 'Diameter (mm)', labelEn: 'Diameter (mm)', type: 'number', default: 8, min: 1, step: 1 },
     { key: 'lengte', label: 'Lengte (mm)', labelEn: 'Length (mm)', type: 'number', default: 1600, min: 1, step: 10 },
+    {
+      key: 'markerAantal', label: 'Aantal vlaggen', labelEn: 'Marker count',
+      type: 'number', default: 1, min: 1, max: 4, step: 1,
+    },
     ...markerParams,
   ],
   layout(params, bbox) {
