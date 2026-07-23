@@ -7,6 +7,7 @@ const [values, setValues] = createSignal({});
 const [onCommit, setOnCommit] = createSignal(null);
 const [onCancel, setOnCancel] = createSignal(null);
 const [locator, setLocator] = createSignal(null);
+const [returnFocusTarget, setReturnFocusTarget] = createSignal(null);
 
 export function showParametricLabelInput(options = {}) {
   setAnchor(options.anchor || { left: 0, top: 0 });
@@ -15,6 +16,7 @@ export function showParametricLabelInput(options = {}) {
   setOnCommit(() => (typeof options.commit === 'function' ? options.commit : null));
   setOnCancel(() => (typeof options.cancel === 'function' ? options.cancel : null));
   setLocator(() => (typeof options.locate === 'function' ? options.locate : null));
+  setReturnFocusTarget(options.returnFocusTarget || null);
   setActive(true);
 }
 
@@ -23,6 +25,7 @@ export function hideParametricLabelInput() {
   setLocator(() => null);
   setOnCommit(() => null);
   setOnCancel(() => null);
+  setReturnFocusTarget(null);
 }
 
 export function setFieldValue(key, value) {
@@ -35,5 +38,5 @@ export function parametricLabelInputActive() {
 
 export {
   active, anchor, setAnchor,
-  fields, values, onCommit, onCancel, locator,
+  fields, values, onCommit, onCancel, locator, returnFocusTarget,
 };

@@ -345,28 +345,59 @@ if (existsSync(focusHelperPath)) {
     stageMjs('js/solid/components/parametric-label-focus.js'),
   ).href);
   let previousFocusCount = 0;
+  const focusDocument = {
+    activeElement: null,
+    body: {},
+    querySelector: () => fallbackCanvas,
+  };
   const previousFocus = {
     isConnected: true,
+    ownerDocument: focusDocument,
     focus(options) {
       if (options?.preventScroll) previousFocusCount++;
+      focusDocument.activeElement = previousFocus;
     },
   };
   const fallbackCanvas = {
     isConnected: true,
-    focus() {},
+    ownerDocument: focusDocument,
+    focus() {
+      focusDocument.activeElement = fallbackCanvas;
+    },
   };
-  const focusDocument = {
-    activeElement: previousFocus,
-    body: {},
-    querySelector: () => fallbackCanvas,
+  const activePageAttributes = new Map();
+  const activePageCanvas = {
+    isConnected: true,
+    ownerDocument: focusDocument,
+    hasAttribute: (name) => activePageAttributes.has(name),
+    setAttribute: (name, value) => activePageAttributes.set(name, value),
+    focus() {
+      focusDocument.activeElement = activePageCanvas;
+    },
   };
+  focusDocument.activeElement = previousFocus;
   const rememberedFocus = focusModule.captureParametricLabelReturnFocus(focusDocument);
-  focusModule.restoreParametricLabelFocus(rememberedFocus);
+  ok(focusModule.restoreParametricLabelFocus(rememberedFocus),
+    'focusherstel meldt succes wanneer het vorige element focus ontvangt');
   ok(previousFocusCount === 1,
     'sluiten na Enter of Escape geeft focus terug aan het vorige element');
   focusDocument.activeElement = focusDocument.body;
-  ok(focusModule.captureParametricLabelReturnFocus(focusDocument) === fallbackCanvas,
-    'zonder bruikbare vorige focus wordt het annotatiecanvas onthouden');
+  const pageFocus = focusModule.captureParametricLabelReturnFocus(
+    focusDocument,
+    activePageCanvas,
+  );
+  ok(pageFocus === activePageCanvas,
+    'zonder bruikbare vorige focus wordt het annotatiecanvas van de bewerkte pagina onthouden');
+  ok(activePageAttributes.get('tabindex') === '-1',
+    'het annotatiecanvas wordt programmatisch focusbaar zonder een tabstop toe te voegen');
+  const refusesFocus = {
+    isConnected: true,
+    ownerDocument: focusDocument,
+    focus() {},
+  };
+  focusDocument.activeElement = focusDocument.body;
+  ok(!focusModule.restoreParametricLabelFocus(refusesFocus),
+    'focusherstel meldt geen succes wanneer de browser focus weigert');
 }
 
 console.log('\n== Editor- en lifecyclecontract');
@@ -380,7 +411,10 @@ const dialogHostSource = source('js/solid/components/DialogHost.jsx');
 const cssSource = source('styles/dialogs.css');
 const solidBridgeSource = source('js/bridge.ts');
 
-for (const signal of ['active', 'anchor', 'fields', 'values', 'onCommit', 'onCancel', 'locator']) {
+for (const signal of [
+  'active', 'anchor', 'fields', 'values', 'onCommit', 'onCancel', 'locator',
+  'returnFocusTarget',
+]) {
   ok(storeSource.includes(`const [${signal},`), `store bewaart ${signal}`);
 }
 ok(editorSource.includes('<For each={fields()}>'), 'editor rendert generieke velddefinities');
@@ -399,6 +433,8 @@ ok(editorSource.includes('requestAnimationFrame(tick)') && editorSource.includes
   'editor volgt de locator en sluit als die verdwijnt');
 ok(bridgeSource.includes('findEditableLabel(annotation, x, y)'),
   'vanilla brug zoekt het aangeklikte label');
+ok(bridgeSource.includes('returnFocusTarget: activeCanvas(annotation)'),
+  'vanilla brug bewaart het annotatiecanvas van de bewerkte pagina');
 ok(bridgeSource.includes('validateSymbolParams(annotation.symbolId, nextParams)'),
   'commit normaliseert alle parameters');
 ok((bridgeSource.match(/updateAnnotProp\('params',/g) || []).length === 1,

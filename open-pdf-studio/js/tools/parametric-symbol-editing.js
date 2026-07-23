@@ -92,6 +92,7 @@ export function startParametricSymbolInput(annotation, x, y) {
     fields: fieldDefinitions,
     values,
     locate,
+    returnFocusTarget: activeCanvas(annotation),
     commit: (inputValues) => {
       const current = editingAnnotation;
       if (!current || current.locked || locate() === null) {

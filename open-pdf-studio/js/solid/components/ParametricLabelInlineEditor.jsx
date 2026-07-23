@@ -2,6 +2,7 @@ import { For, Show, createEffect, onCleanup } from 'solid-js';
 import {
   active, anchor, setAnchor, fields, values, setFieldValue,
   onCommit, onCancel, locator, hideParametricLabelInput,
+  returnFocusTarget as requestedReturnFocusTarget,
 } from '../stores/parametricLabelInputStore.js';
 import { createOutsideCommitController } from './parametric-label-outside-events.js';
 import {
@@ -12,12 +13,12 @@ import {
 export default function ParametricLabelInlineEditor() {
   let rootRef;
   let firstInputRef;
-  let returnFocusTarget = null;
+  let capturedReturnFocusTarget = null;
 
   const scheduleFocusRestore = () => {
-    const target = returnFocusTarget;
+    const target = capturedReturnFocusTarget;
     if (!target) return;
-    returnFocusTarget = null;
+    capturedReturnFocusTarget = null;
     queueMicrotask(() => restoreParametricLabelFocus(target));
   };
 
@@ -54,7 +55,10 @@ export default function ParametricLabelInlineEditor() {
   createEffect(() => {
     if (!active()) return;
 
-    returnFocusTarget = captureParametricLabelReturnFocus();
+    capturedReturnFocusTarget = captureParametricLabelReturnFocus(
+      document,
+      requestedReturnFocusTarget(),
+    );
     queueMicrotask(() => {
       firstInputRef?.focus();
       firstInputRef?.select();

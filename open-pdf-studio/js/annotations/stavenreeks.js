@@ -541,6 +541,7 @@ export function labelLayout(count, diameter, fontSize, measure = approxTextWidth
  * @param {object} [opts]
  * @param {(text:string,fontSize:number)=>number} [opts.measureText]
  *        Echte tekstbreedte-meter (canvas of PDF-fontmetriek). Default: schatting.
+ * @param {number} [opts.pxPerMm] Pagina-pixels per werkelijke millimeter.
  * @returns {{
  *   params: object, frame: object, line: object,
  *   legs: Array, dots: Array, label: object,

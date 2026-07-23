@@ -1,9 +1,34 @@
-export function captureParametricLabelReturnFocus(documentRef = document) {
+function makeProgrammaticallyFocusable(target) {
+  if (
+    target
+    && typeof target.hasAttribute === 'function'
+    && typeof target.setAttribute === 'function'
+    && !target.hasAttribute('tabindex')
+  ) {
+    target.setAttribute('tabindex', '-1');
+  }
+  return target;
+}
+
+export function captureParametricLabelReturnFocus(
+  documentRef = document,
+  preferredCanvas = null,
+) {
   const activeElement = documentRef?.activeElement;
-  if (activeElement !== documentRef?.body && typeof activeElement?.focus === 'function') {
+  if (
+    activeElement
+    && activeElement !== documentRef?.body
+    && activeElement !== documentRef?.documentElement
+    && typeof activeElement.focus === 'function'
+  ) {
     return activeElement;
   }
-  return documentRef?.querySelector?.('#annotation-canvas, .annotation-canvas') || null;
+  const canvas = preferredCanvas?.isConnected === false
+    ? null
+    : preferredCanvas;
+  return makeProgrammaticallyFocusable(
+    canvas || documentRef?.querySelector?.('#annotation-canvas, .annotation-canvas') || null,
+  );
 }
 
 export function restoreParametricLabelFocus(target) {
@@ -15,5 +40,7 @@ export function restoreParametricLabelFocus(target) {
   } catch (_) {
     target.focus();
   }
-  return true;
+  const documentRef = target.ownerDocument
+    || (typeof document !== 'undefined' ? document : null);
+  return !documentRef?.activeElement || documentRef.activeElement === target;
 }
