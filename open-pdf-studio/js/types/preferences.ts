@@ -229,6 +229,7 @@ export interface Preferences {
   symbolPaletteFloatY: number;
   customSymbolGroups: Array<{ id: string; name: string; symbols: Array<{ id: string; name: string; svg: string }> }>;
   disabledSymbolGroups: string[];
+  parametricSymbolDefaults: Record<string, Record<string, string | number | boolean>>;
 
   // Schedule
   scheduleTemplates: Array<{ name: string; groupBy: string; filterType: string; filterPage: number; created: number }>;

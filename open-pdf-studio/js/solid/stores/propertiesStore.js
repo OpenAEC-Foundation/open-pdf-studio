@@ -21,6 +21,7 @@ import { syncDocScale } from '../../annotations/scale-bar.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
 import { recalculateAllMeasurements, calculateArea, calculatePerimeter, calculateDistance, formatMeasurement, formatDimensionText, getMeasureScale } from '../../annotations/measurement.js';
 import { applyTemplateRealSize } from '../../symbols/real-size.js';
+import { pendingParams, setPendingParams } from './parametricSymbolStore.js';
 
 // Types whose single 'color' control IS their stroke colour and which render
 // via `strokeColor || color`. For these, the 'color' control must mirror onto
@@ -923,6 +924,15 @@ export function updateAnnotProp(key, value) {
 
   if (!currentAnnotation) return;
 
+  if (currentAnnotation.id === '__tool-defaults__'
+      && currentAnnotation.type === 'parametricSymbol'
+      && key === 'params') {
+    setPendingParams(value);
+    currentAnnotation.params = pendingParams();
+    setAnnotProps('params', currentAnnotation.params);
+    return;
+  }
+
   // Tool-defaults mode: user is editing the synthetic annotation that
   // showToolDefaults() created. Route writes to state.preferences via
   // setAsDefaultStyle so the NEXT annotation drawn picks up the changes,
@@ -1461,7 +1471,7 @@ export function getCurrentAnnotation() {
 // Edits made by the user via panel inputs update the synthetic object for
 // visual feedback; persistent default changes still flow through the
 // Format ribbon's `setAsDefaultStyle` path.
-export async function showToolDefaults(toolName) {
+export async function showToolDefaults(toolName, overrides = {}) {
   if (!toolName) return;
   // Map tool name → annotation type. Most are 1:1; exceptions go here.
   const TOOL_TO_TYPE = {
@@ -1514,6 +1524,7 @@ export async function showToolDefaults(toolName) {
     // Non-fatal — synthetic will just show the bare defaults above.
   }
 
+  Object.assign(synthetic, overrides);
   storeShowProperties(synthetic);
 }
 

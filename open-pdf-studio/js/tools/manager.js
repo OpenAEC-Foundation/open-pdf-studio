@@ -293,6 +293,15 @@ export function setTool(tool) {
   if (tool !== 'select') {
     (async () => {
       try {
+        if (tool === 'parametricSymbol') {
+          const symbolStore = await import('../solid/stores/parametricSymbolStore.js');
+          const propStore = await import('../solid/stores/propertiesStore.js');
+          await propStore.showToolDefaults(tool, {
+            symbolId: symbolStore.pendingSymbolId(),
+            params: symbolStore.pendingParams(),
+          });
+          return;
+        }
         const prefMod = await import('../core/preferences.js');
         const hasStyle = prefMod && typeof prefMod.getStyleMapping === 'function'
           && prefMod.getStyleMapping(tool) != null;

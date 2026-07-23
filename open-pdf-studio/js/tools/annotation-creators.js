@@ -5,10 +5,10 @@ import { snapAngle } from '../utils/helpers.js';
 import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement, snapDistanceTo10 } from '../annotations/measurement.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { applyDynamicScaling } from '../annotations/dynamic-scaling.js';
-import { getTemplate, defaultParams } from '../symbols/registry.js';
+import { getTemplate } from '../symbols/registry.js';
 import { pxPerMmAt } from '../symbols/real-size.js';
 import { syncTwoPointGeometry, syncTwoPointLengthParam } from '../symbols/two-point.js';
-import { pendingSymbolId } from '../solid/stores/parametricSymbolStore.js';
+import { pendingParams, pendingSymbolId } from '../solid/stores/parametricSymbolStore.js';
 import { activeCountCategory as _activeCountCategory, nextCountNumber as _nextCountNumber } from '../solid/stores/countStore.js';
 import { ifcCategoryForParametric, ifcCategoryForAnnotationType } from '../solid/data/ifcCategoryMap.js';
 import { STAVENREEKS_DEFAULTS } from '../annotations/stavenreeks.js';
@@ -349,7 +349,7 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
       const symbolId = pendingSymbolId() || 'door';
       const template = getTemplate(symbolId);
       const page = getActiveDocument()?.currentPage || 1;
-      const params = template ? defaultParams(template) : {};
+      const params = template ? pendingParams() : {};
 
       if (template?.placement === 'two-point') {
         const snappedEnd = snap(startX, startY, endX, endY);

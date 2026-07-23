@@ -291,6 +291,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   symbolPaletteFloatY: 150,
   customSymbolGroups: [],
   disabledSymbolGroups: [],
+  parametricSymbolDefaults: {},
   // User-edited symbol type geometry overrides, keyed by a hash of the
   // original symbol SVG. Each entry: { svg, name }. Applied whenever a stamp
   // of that type is placed or re-rendered.

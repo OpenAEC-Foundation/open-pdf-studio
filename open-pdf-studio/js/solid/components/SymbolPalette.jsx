@@ -25,6 +25,7 @@ import {
 import { registerPaletteDock, unregisterPaletteDock } from '../stores/paletteOrder.js';
 import { ifcCategoryForSymbol } from '../data/ifcCategoryMap.js';
 import { SYMBOL_STAMP_DEFAULT_SIZE } from '../../annotations/stamp-defaults.js';
+import { setPendingSymbolId } from '../stores/parametricSymbolStore.js';
 
 const DOCK_SNAP = 60;
 
@@ -89,10 +90,8 @@ function selectSymbol(symbol) {
   // click on the page goes through the parametricSymbol tool and the params
   // stay editable in the properties panel.
   if (symbol.parametricId) {
-    import('../stores/parametricSymbolStore.js').then(m => {
-      m.setPendingSymbolId(symbol.parametricId);
-      setTool('parametricSymbol');
-    });
+    setPendingSymbolId(symbol.parametricId);
+    setTool('parametricSymbol');
     return;
   }
   // Generic tool entries: palette items that simply activate a drawing tool
