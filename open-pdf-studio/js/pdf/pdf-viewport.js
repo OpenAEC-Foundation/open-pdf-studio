@@ -721,7 +721,21 @@ function _render() {
     _ctx.fillStyle = '#ffffff';
     _ctx.fillRect(destX, destY, destW, destH);
     if (!tileCoversVisible) {
+      // Wanneer de whole-page bitmap GROTER is dan het bestemmingsvlak (bijv.
+      // een scale-1.0 raster op "pagina passend"), doet de canvas een
+      // verkleining. De standaard 'low'-resampler (2-tap bilineair) laat dan
+      // dunne zwarte haarlijnen — kadastrale/topografische achtergrondvoering
+      // op CAD-plots — vervagen tot lichtgrijs omdat de sub-pixel-dekking
+      // wordt uitgemiddeld met wit. 'high' gebruikt een breder (mipmap-achtig)
+      // filter dat de lijndekking behoudt, waardoor de achtergrond even scherp
+      // wordt als een directe PDFium-render op weergaveresolutie. Alleen bij
+      // verkleinen inschakelen: bij vergroten (ingezoomd, bitmap kleiner dan
+      // beeld) helpt het niet en kost het extra per frame.
+      const _downscale = destW < viewport.currentBitmap.width;
+      const _prevQ = _ctx.imageSmoothingQuality;
+      if (_downscale) _ctx.imageSmoothingQuality = 'high';
       _ctx.drawImage(viewport.currentBitmap, destX, destY, destW, destH);
+      if (_downscale) _ctx.imageSmoothingQuality = _prevQ;
     }
     _ctx.restore();
   } else {
