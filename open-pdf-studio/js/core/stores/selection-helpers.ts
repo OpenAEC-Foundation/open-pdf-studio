@@ -2,6 +2,7 @@ import type { Annotation, AnnotationBounds } from '../../types/annotation.js';
 import { state, getActiveDocument } from '../state.js';
 import { buildStavenreeks } from '../../annotations/stavenreeks.js';
 import { stavenreeksPxPerMm } from '../../annotations/stavenreeks-scale.js';
+import { betonbalkHalfWidthPx } from '../../annotations/betonbalk-scale.js';
 
 export function clearSelection(): void {
   const doc = getActiveDocument();
@@ -91,6 +92,21 @@ export function getAnnotationBounds(ann: Annotation): AnnotationBounds | null {
       // AABB die straks de PDF-/Rect wordt (één bron van waarheid).
       const sr = buildStavenreeks(ann as any, { pxPerMm: stavenreeksPxPerMm(ann as any) });
       return { x: sr.aabb.x, y: sr.aabb.y, width: sr.aabb.width, height: sr.aabb.height };
+    }
+    case 'betonbalk': {
+      // Hartlijnpunten ± halve balkbreedte (schaalgebied-bewust): de band
+      // steekt loodrecht buiten de punten uit.
+      if (!ann.points || ann.points.length === 0) return null;
+      const bbHalf = betonbalkHalfWidthPx(ann as any);
+      const bbXs = ann.points.map(p => p.x);
+      const bbYs = ann.points.map(p => p.y);
+      const bbMinX = Math.min(...bbXs) - bbHalf;
+      const bbMinY = Math.min(...bbYs) - bbHalf;
+      return {
+        x: bbMinX, y: bbMinY,
+        width: Math.max(...bbXs) + bbHalf - bbMinX,
+        height: Math.max(...bbYs) + bbHalf - bbMinY,
+      };
     }
     case 'measureDistance': {
       const mdXs = [ann.startX!, ann.endX!];

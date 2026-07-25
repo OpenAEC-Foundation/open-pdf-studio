@@ -1,5 +1,6 @@
 import { buildStavenreeks } from './stavenreeks.js';
 import { stavenreeksPxPerMm } from './stavenreeks-scale.js';
+import { betonbalkHalfWidthPx } from './betonbalk-scale.js';
 
 const CELL_SIZE = 200; // pixels per grid cell
 
@@ -239,6 +240,20 @@ class SpatialIndex {
         y: aabb.y - pad,
         width: aabb.width + pad * 2,
         height: aabb.height + pad * 2,
+      };
+    }
+
+    // Betonbalk: de band steekt een halve (schaalbewuste) balkbreedte buiten
+    // de hartlijnpunten uit — de generieke points-branch hieronder zou het
+    // balklijf onaanklikbaar maken.
+    if (type === 'betonbalk' && Array.isArray(annotation.points) && annotation.points.length >= 2) {
+      const bbBase = this._boundsFromPoints(annotation.points, annotation.lineWidth);
+      const bbHalf = betonbalkHalfWidthPx(annotation);
+      return {
+        x: bbBase.x - bbHalf,
+        y: bbBase.y - bbHalf,
+        width: bbBase.width + bbHalf * 2,
+        height: bbBase.height + bbHalf * 2,
       };
     }
 

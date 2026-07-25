@@ -8,6 +8,7 @@ import { drawTool } from './draw-tool.js';
 import { shapeTool } from './shape-tool.js';
 import { lineTool } from './line-tool.js';
 import { polylineTool, cloudPolylineTool } from './polyline-tool.js';
+import { betonbalkTool } from './betonbalk-tool.js';
 import { arcTool } from './arc-tool.js';
 import { splineTool } from './spline-tool.js';
 import { splineArrowTool } from './spline-arrow-tool.js';
@@ -71,6 +72,9 @@ export function registerAllTools() {
   // Multi-click tools
   registerTool('polyline', polylineTool);
   registerTool('cloudPolyline', cloudPolylineTool);
+  // Betonbalk (plattegrond): hartlijn klik-voor-klik, band met verstek-joins
+  // en automatische T-/hoekaansluiting op andere balken.
+  registerTool('betonbalk', betonbalkTool);
 
   // Measurements
   registerTool('measureDistance', measureDistanceTool);

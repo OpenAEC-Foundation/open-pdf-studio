@@ -24,10 +24,12 @@ import { catmullRomSpline } from '../tools/tools/spline-tool.js';
 import { catmullRomToBezier, splineArrowEndTangent } from '../annotations/spline-arrow-geometry.js';
 import { buildFilledAreaAP, buildMeasureAreaAP, buildPolylineMeasureAP,
   buildMeasureDistanceAP, buildWallAP, buildCloudAP, buildSplineArrowAP,
-  buildStavenreeksAP,
+  buildStavenreeksAP, buildBetonbalkAP,
   cloudRectOutlinePts, cloudPolyOutlinePts } from './saver/appearance-vectors.js';
 import { buildStavenreeks, toLocalPrimitives, labelText } from '../annotations/stavenreeks.js';
 import { stavenreeksPxPerMm } from '../annotations/stavenreeks-scale.js';
+import { buildBetonbalk } from '../annotations/betonbalk.js';
+import { betonbalkBuildOpts } from '../annotations/betonbalk-scale.js';
 import { computeWallShape, resolveWallMaterial } from '../annotations/rendering/walls.js';
 import { syncTwoPointGeometry } from '../symbols/two-point.js';
 
@@ -1716,6 +1718,77 @@ export async function savePDF(saveAsPath = null) {
               });
               annotDict.set(PDFName.of('AP'), context.obj({ N: context.register(srAp) }));
             }
+            break;
+          }
+
+          case 'betonbalk': {
+            // ── Betonbalk (plattegrond) ────────────────────────────────────
+            // Opslaan als /Polygon met /Vertices = de balkomtrek, zodat een
+            // extern PDF-programma iets redelijks toont en het object als één
+            // geheel verplaatsbaar is. De eigen appearance-stream tekent de
+            // exacte lijnvoering (verstek-joins, eindkappen, hartlijn én de
+            // inter-balk-trims van dit moment). Privésleutels herstellen het
+            // object bij heropenen als bewerkbare betonbalk.
+            //
+            // Canonieke conventie (§12.5.5): BBox = /Rect-maat, Matrix zuivere
+            // translatie (attachVectorAP), geen top-level rotatie — alle
+            // geometrie zit in de hartlijnpunten zelf.
+            if (!ann.points || ann.points.length < 2) continue;
+            const bbGeom = buildBetonbalk(ann, betonbalkBuildOpts(ann, docAnnotations));
+            if (!bbGeom) continue;
+
+            const bbVertices = [];
+            let bbMinX = Infinity, bbMinY = Infinity, bbMaxX = -Infinity, bbMaxY = -Infinity;
+            for (const pt of bbGeom.outline) {
+              const px = convertX(pt.x);
+              const py = convertY(pt.y);
+              bbVertices.push(px, py);
+              bbMinX = Math.min(bbMinX, px); bbMaxX = Math.max(bbMaxX, px);
+              bbMinY = Math.min(bbMinY, py); bbMaxY = Math.max(bbMaxY, py);
+            }
+            const bbPad = borderWidth + 2;
+            const bbRect = [bbMinX - bbPad, bbMinY - bbPad, bbMaxX + bbPad, bbMaxY + bbPad];
+            const bbStroke = ann.strokeColor || ann.color || '#000000';
+
+            const bbHartlijn = [];
+            for (const pt of ann.points) {
+              bbHartlijn.push(convertX(pt.x), convertY(pt.y));
+            }
+
+            const bbDict = {
+              Type: 'Annot',
+              Subtype: 'Polygon',
+              Rect: bbRect,
+              Vertices: bbVertices,
+              C: hexToColorArray(bbStroke),
+              CA: opacity,
+              T: PDFString.of(ann.author || 'User'),
+              Contents: PDFString.of(ann.subject || ''),
+              M: PDFString.of(new Date().toISOString()),
+              F: computeAnnotFlags(ann),
+              // Eigen parameters voor het herstellen als bewerkbare balk.
+              // Ontbreken ze (extern PDF-programma heeft de annotatie
+              // herschreven), dan laadt hij als gewone polygon — nooit crashen.
+              OPS_Subtype: PDFString.of('betonbalk'),
+              OPS_BreedteMm: bbGeom.params.breedteMm,
+              OPS_Lijnstijl: PDFString.of(bbGeom.params.lijnstijl),
+              OPS_BbLineWidth: ann.lineWidth ?? 1,
+              // Hartlijn in PDF-coördinaten + de /Rect zoals WIJ hem schreven:
+              // wijkt de actuele /Rect daarvan af, dan heeft een ander
+              // programma het object verplaatst en past de loader die
+              // verschuiving op de hartlijn toe (zelfde patroon als de
+              // stavenreeks).
+              OPS_Hartlijn: context.obj(bbHartlijn),
+              OPS_BbRect: context.obj(bbRect),
+            };
+            annotDict = context.obj(bbDict);
+            annotDict.set(PDFName.of('BS'), buildBorderStyle(context, borderWidth, 'solid'));
+
+            attachVectorAP(context, annotDict, buildBetonbalkAP({
+              geom: bbGeom, X: convertX, Y: convertY,
+              strokeColorHex: bbStroke,
+              lineWidth: ann.lineWidth ?? 1,
+            }), bbRect);
             break;
           }
 

@@ -440,6 +440,23 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         if (srGeom && srGeom.length === 4) colors.srGeom = srGeom;
         const srRect = srArr('OPS_SRRect');
         if (srRect && srRect.length === 4) colors.srRect = srRect;
+
+        // ── Betonbalk ─────────────────────────────────────────────────────
+        // Eigen parameters + de hartlijn-coördinaten. `OPS_BbRect` is de
+        // /Rect zoals WIJ hem schreven: wijkt de actuele /Rect daarvan af,
+        // dan heeft een ander programma het object verplaatst en past de
+        // converter die verschuiving toe op de hartlijn. Ontbreken deze
+        // keys, dan blijft het een gewone polygon — nooit crashen.
+        const bbBreedte = srNum('OPS_BreedteMm');
+        if (bbBreedte !== null) colors.bbBreedteMm = bbBreedte;
+        const bbStijl = srStr('OPS_Lijnstijl');
+        if (bbStijl) colors.bbLijnstijl = bbStijl;
+        const bbLw = srNum('OPS_BbLineWidth');
+        if (bbLw !== null) colors.bbLineWidth = bbLw;
+        const bbHart = srArr('OPS_Hartlijn');
+        if (bbHart && bbHart.length >= 4) colors.bbHartlijn = bbHart;
+        const bbRect = srArr('OPS_BbRect');
+        if (bbRect && bbRect.length === 4) colors.bbRect = bbRect;
       }
 
       const opsArRaw = annotDict.get(PDFName.of('OPS_ArcRadius'));

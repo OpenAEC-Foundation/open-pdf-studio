@@ -384,6 +384,31 @@ export function buildWallAP({ bandPoints, X, Y, strokeColorHex, lineWidth,
   return { content: s, needsFont: false };
 }
 
+// betonbalk: twee randpolylijnen (verstek-joins al in de geometrie verwerkt),
+// eindkappen op vrije uiteinden en een dunne hartlijn. `geom` komt uit
+// buildBetonbalk() (annotations/betonbalk.js) — dezelfde bron als het canvas,
+// inclusief de inter-balk-trims van het moment van opslaan. Dash-patronen
+// volgen geom.styles (lijnstijl 'doorgetrokken'/'gestippeld').
+export function buildBetonbalkAP({ geom, X, Y, strokeColorHex, lineWidth }) {
+  if (!geom || !geom.edges || !geom.edges.left || geom.edges.left.length < 2) return null;
+  const stroke = hexToRgb(strokeColorHex || '#000000');
+  const lw = lineWidth ?? 1;
+  const edgeDash = geom.styles && geom.styles.edgeDash;
+  const centerDash = geom.styles && geom.styles.centerDash;
+  let s = `${f(stroke[0])} ${f(stroke[1])} ${f(stroke[2])} RG\n${f(lw)} w\n0 J 0 j\n`;
+  s += edgeDash ? `[${edgeDash.map(f).join(' ')}] 0 d\n` : '[] 0 d\n';
+  s += pathOps(geom.edges.left, X, Y, false) + 'S\n';
+  s += pathOps(geom.edges.right, X, Y, false) + 'S\n';
+  for (const c of geom.caps || []) {
+    s += `${f(X(c.x1))} ${f(Y(c.y1))} m ${f(X(c.x2))} ${f(Y(c.y2))} l S\n`;
+  }
+  // Hartlijn: dun (zelfde factor als het canvas — betonbalk-draw.js).
+  s += `${f(Math.max(0.3, lw * 0.5))} w\n`;
+  s += centerDash ? `[${centerDash.map(f).join(' ')}] 0 d\n` : '[] 0 d\n';
+  s += pathOps(geom.center, X, Y, false) + 'S\n';
+  return { content: s, needsFont: false };
+}
+
 // cloud / cloudPolyline: scalloped outline (optional fill).
 export function buildCloudAP({ kind, x, y, w, h, points, puff, X, Y,
   fillColorHex, strokeColorHex, lineWidth, borderStyle }) {

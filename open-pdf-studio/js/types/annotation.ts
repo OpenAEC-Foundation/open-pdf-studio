@@ -9,7 +9,8 @@ export type AnnotationType =
   | 'mask' | 'viewport' | 'scheduleTable' | 'scaleBar'
   | 'scaleRegion'
   | 'parametricSymbol'
-  | 'stavenreeks';
+  | 'stavenreeks'
+  | 'betonbalk';
 
 export interface Point {
   x: number;

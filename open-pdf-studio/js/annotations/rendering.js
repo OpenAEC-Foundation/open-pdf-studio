@@ -14,6 +14,9 @@ import { applyHatchFill, applyHatchFillPolygon } from './rendering/hatch-pattern
 import { drawWall } from './rendering/walls.js';
 import { buildStavenreeks } from './stavenreeks.js';
 import { stavenreeksPxPerMm } from './stavenreeks-scale.js';
+import { buildBetonbalk } from './betonbalk.js';
+import { betonbalkBuildOpts } from './betonbalk-scale.js';
+import { drawBetonbalkGeom } from './rendering/betonbalk-draw.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { drawSelectionHandles } from './rendering/selection.js';
 import { drawImageCropOverlay } from './image-crop-overlay.js';
@@ -1663,6 +1666,26 @@ export function drawAnnotation(ctx, annotation) {
       ctx.restore();
 
       ctx.restore();
+      break;
+    }
+
+    case 'betonbalk': {
+      // Betonbalk in plattegrond: twee randlijnen met verstek-joins op de
+      // knikken, eindkappen op vrije uiteinden en een dunne hartlijn. De
+      // volledige geometrie komt uit buildBetonbalk() — dezelfde bron als de
+      // PDF-appearance. Aansluitingen op ANDERE balken (T/hoek) worden hier
+      // per render opnieuw berekend uit de sibling-annotaties; de doelbalk
+      // zelf wordt nooit gemuteerd.
+      const _bbDoc = state.documents[state.activeDocumentIndex];
+      const bbGeom = buildBetonbalk(
+        annotation,
+        betonbalkBuildOpts(annotation, _bbDoc ? _bbDoc.annotations : [])
+      );
+      if (!bbGeom) break;
+      drawBetonbalkGeom(ctx, bbGeom, {
+        strokeColor,
+        lineWidth: thinLw(annotation.lineWidth ?? 1),
+      });
       break;
     }
 

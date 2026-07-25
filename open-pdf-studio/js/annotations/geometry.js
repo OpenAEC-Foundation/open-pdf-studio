@@ -6,6 +6,7 @@ import { catmullRomSpline } from '../tools/tools/spline-tool.js';
 import { wallHalfWidthPx as isPointOnWallHalfWidth } from './rendering/walls.js';
 import { buildStavenreeks } from './stavenreeks.js';
 import { stavenreeksPxPerMm } from './stavenreeks-scale.js';
+import { betonbalkHalfWidthPx } from './betonbalk-scale.js';
 
 /**
  * Find intersection of two infinite lines defined by (p1,p2) and (p3,p4).
@@ -210,6 +211,19 @@ export function findAnnotationAt(x, y) {
         // Anywhere inside the band (centreline ± half real-world thickness)
         const wd = distanceToLine(x, y, ann.startX, ann.startY, ann.endX, ann.endY);
         if (wd < tol + isPointOnWallHalfWidth(ann)) return ann;
+        break;
+      }
+      case 'betonbalk': {
+        // Overal binnen het balklijf: hartlijnsegmenten ± halve breedte
+        // (schaalgebied-bewust), zoals bij de wand.
+        if (ann.points && ann.points.length >= 2) {
+          const bbHalf = betonbalkHalfWidthPx(ann);
+          for (let i = 0; i < ann.points.length - 1; i++) {
+            const bd = distanceToLine(x, y, ann.points[i].x, ann.points[i].y,
+              ann.points[i + 1].x, ann.points[i + 1].y);
+            if (bd < tol + bbHalf) return ann;
+          }
+        }
         break;
       }
       case 'polyline':
@@ -657,6 +671,7 @@ export function isPointInsideAnnotation(x, y, annotation) {
 
     case 'polyline':
     case 'cloudPolyline':
+    case 'betonbalk':
       if (annotation.points && annotation.points.length > 0) {
         const plMinX = Math.min(...annotation.points.map(p => p.x));
         const plMinY = Math.min(...annotation.points.map(p => p.y));

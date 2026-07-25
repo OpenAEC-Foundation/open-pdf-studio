@@ -63,6 +63,9 @@ const sonderingPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" str
 const paalpuntniveauPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.5"><rect x="3" y="18" width="58" height="28"/><text x="32" y="35" font-size="7" font-weight="bold" text-anchor="middle" fill="#000" stroke="none">PUNTNIVEAU: 14.0 m+</text></svg>`;
 const overspanningspijlPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.5"><text x="32" y="24" font-size="8" text-anchor="middle" fill="#000" stroke="none">Overspanning vloer</text><line x1="8" y1="40" x2="56" y2="40"/><polyline points="14,36 8,40 14,44"/><polyline points="50,36 56,40 50,44"/></svg>`;
 const stenenrijPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.4"><rect x="22" y="3" width="20" height="10"/><rect x="22" y="15" width="20" height="10"/><rect x="22" y="27" width="20" height="10"/><rect x="22" y="39" width="20" height="10"/><rect x="22" y="51" width="20" height="10"/></svg>`;
+// Betonbalk: balk met knik in plattegrond — twee randlijnen met verstek,
+// dunne streep-punt-hartlijn en een haakse eindkap links.
+const betonbalkPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M4 22 H36 L52 38 V61"/><path d="M4 42 H28 L38 52 V61"/><line x1="4" y1="22" x2="4" y2="42"/><path d="M4 32 H32 L45 45 V61" stroke-width="0.9" stroke-dasharray="6 3 1.5 3"/></svg>`;
 
 export const NL_CATEGORIES = [
   {
@@ -100,6 +103,9 @@ export const NL_CATEGORIES = [
       // Stavenreeks: geen parametrisch symbool maar een eigen gereedschap —
       // je sleept de reekslijn, net als bij Maskeer hieronder.
       { id: 'stavenreeks', name: 'Stavenreeks (wapening)', tool: 'stavenreeks', svg: stavenreeksPreview },
+      // Betonbalk: eigen klik-voor-klik-gereedschap (hartlijn zoals een
+      // polylijn); breedte/lijnstijl daarna in het eigenschappen-paneel.
+      { id: 'betonbalk', name: 'Betonbalk (IfcBeam)', tool: 'betonbalk', svg: betonbalkPreview },
       // NL tekenwerk-symbolen horen er ook gewoon bij (één bouw-categorie).
       { id: 'param-stramien', name: 'Stramien', parametricId: 'stramien', svg: stramienPreview },
       { id: 'param-peilmaat', name: 'Peilmaat (spot elevation)', parametricId: 'peilmaat', svg: peilmaatPreview },

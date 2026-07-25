@@ -177,6 +177,7 @@ function extractSnapPoints(ann, points, prefs, annotations) {
     }
 
     case 'polyline':
+    case 'betonbalk':
     case 'measureArea':
     case 'measurePerimeter': {
       const pts = ann.points;
@@ -425,6 +426,7 @@ function getEdgeSegments(ann) {
     }
 
     case 'polyline':
+    case 'betonbalk':
     case 'measureArea':
     case 'measurePerimeter': {
       const pts = ann.points;

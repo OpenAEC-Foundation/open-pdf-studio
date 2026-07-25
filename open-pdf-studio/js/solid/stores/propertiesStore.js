@@ -19,6 +19,7 @@ import { fireSelectionChange } from '../../plugins/selection-listener-registry.j
 import i18next from '../../i18n/config.js';
 import { syncDocScale } from '../../annotations/scale-bar.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
+import { BETONBALK_DEFAULTS, BETONBALK_BREEDTE_RANGE, BETONBALK_LIJNSTIJLEN } from '../../annotations/betonbalk.js';
 import { recalculateAllMeasurements, calculateArea, calculatePerimeter, calculateDistance, formatMeasurement, formatDimensionText, getMeasureScale } from '../../annotations/measurement.js';
 import { applyTemplateRealSize } from '../../symbols/real-size.js';
 import { pendingParams, setPendingParams } from './parametricSymbolStore.js';
@@ -361,6 +362,9 @@ export function storeShowProperties(annotation) {
     params: annotation.params ? { ...annotation.params } : {},
     dikteMm: annotation.dikteMm ?? 100,
     isolatieType: annotation.isolatieType || 'steenwol',
+    // Betonbalk
+    breedteMm: annotation.breedteMm ?? BETONBALK_DEFAULTS.breedteMm,
+    lijnstijl: annotation.lijnstijl || BETONBALK_DEFAULTS.lijnstijl,
     replies: annotation.replies || [],
     multiCount: 0,
   });
@@ -809,6 +813,18 @@ function applyPropToAnnotation(ann, key, value) {
     case 'srLineTail': ann.lineTail = _clampLineTail(value); break;
     case 'srFontSize': ann.fontSize = _clampFontSize(value); break;
     case 'srLabelSide': ann.labelSide = value; break;
+    // Betonbalk — parameters; de band wordt bij het renderen opnieuw uit de
+    // hartlijn + breedte afgeleid (geen coördinaten herberekenen hier).
+    case 'breedteMm': {
+      const bw = parseFloat(String(value).replace(',', '.'));
+      ann.breedteMm = Number.isFinite(bw) && bw > 0
+        ? Math.max(BETONBALK_BREEDTE_RANGE.min, Math.min(BETONBALK_BREEDTE_RANGE.max, bw))
+        : BETONBALK_DEFAULTS.breedteMm;
+      break;
+    }
+    case 'lijnstijl':
+      ann.lijnstijl = BETONBALK_LIJNSTIJLEN.includes(value) ? value : BETONBALK_DEFAULTS.lijnstijl;
+      break;
     case 'viewportName': ann.name = value; break;
     case 'viewportScaleRatio': {
       const ratio = parseInt(value);

@@ -760,6 +760,44 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           maxY = Math.max(maxY, pvy);
         }
 
+        // Betonbalk: /Polygon (omtrek in /Vertices) met onze OPS-hartlijn —
+        // herstel als bewerkbare balk. De omtrek zelf wordt bij het renderen
+        // opnieuw uit de hartlijn + breedte afgeleid (incl. verse
+        // inter-balk-trims). Verplaatst in een ander programma? Dan wijkt de
+        // actuele /Rect af van OPS_BbRect en schuift de hartlijn exact mee
+        // (zelfde patroon als de stavenreeks). Ontbreken de keys, dan valt
+        // dit blok stil en laadt hij als gewone polygon — nooit crashen.
+        if (extraColors.opsSubtype === 'betonbalk'
+            && Array.isArray(extraColors.bbHartlijn) && extraColors.bbHartlijn.length >= 4) {
+          let bbDx = 0, bbDy = 0;
+          const bbSavedRect = extraColors.bbRect;
+          if (Array.isArray(bbSavedRect) && bbSavedRect.length === 4 && Array.isArray(annot.rect)) {
+            // PDF-ruimte: verschuiving van de linkeronderhoek.
+            bbDx = annot.rect[0] - bbSavedRect[0];
+            bbDy = annot.rect[1] - bbSavedRect[1];
+          }
+          const bbPts = [];
+          for (let i = 0; i + 1 < extraColors.bbHartlijn.length; i += 2) {
+            const [bx, by] = convertPoint(
+              extraColors.bbHartlijn[i] + bbDx,
+              extraColors.bbHartlijn[i + 1] + bbDy
+            );
+            bbPts.push({ x: bx, y: by });
+          }
+          const bbColor = colorArrayToHex(annot.color, '#000000');
+          return createAnnotation({
+            ...baseProps,
+            type: 'betonbalk',
+            points: bbPts,
+            breedteMm: extraColors.bbBreedteMm ?? 300,
+            lijnstijl: extraColors.bbLijnstijl === 'gestippeld' ? 'gestippeld' : 'doorgetrokken',
+            ifcCategory: ifcCategoryForAnnotationType('betonbalk'),
+            color: bbColor,
+            strokeColor: bbColor,
+            lineWidth: extraColors.bbLineWidth ?? extraColors.borderWidth ?? 1,
+          });
+        }
+
         // Check if this is a filled-area annotation (our private subtype).
         if (extraColors.opsSubtype === 'filledArea') {
           // Re-attach arc/bulge metadata to the outer points so rendering and

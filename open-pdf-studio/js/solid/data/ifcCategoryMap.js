@@ -167,6 +167,8 @@ const ANNOTATION_TYPE_DEFAULT = {
   // Wapeningsstaven-reeks → generieke wapening (label: "Wapening").
   stavenreeks: 'IfcReinforcingBar',
   wall: 'IfcWall',
+  // Betonbalk (plattegrond) → balk/ligger.
+  betonbalk: 'IfcBeam',
 };
 
 /**
