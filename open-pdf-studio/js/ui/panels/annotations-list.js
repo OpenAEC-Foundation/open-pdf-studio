@@ -2,6 +2,7 @@ import { state, getActiveDocument, isSelected, getAnnotationBounds, addToSelecti
 import { getTypeDisplayName, formatDate } from '../../utils/helpers.js';
 import { showProperties, showMultiSelectionProperties } from './properties-panel.js';
 import { goToPage } from '../../pdf/renderer.js';
+import { viewport, markAnchored, stopPanMomentum } from '../../pdf/pdf-viewport.js';
 import { redrawAnnotations } from '../../annotations/rendering.js';
 import { switchLeftPanelTab } from './left-panel.js';
 import {
@@ -294,6 +295,31 @@ function scrollToAnnotation(annotation) {
 
   const centerX = (bounds.x + bounds.width / 2) * scale;
   const centerY = (bounds.y + bounds.height / 2) * scale;
+
+  // Enkelpagina met de vector-viewport (issue #318): daar scrollt de
+  // container NIET — het canvas staat vast en pannen/zoomen gebeurt via
+  // viewport.offsetX/Y in de RAF-render. `pdfContainer.scrollTo()` verschoof
+  // dan het vaste canvas-element zelf, waardoor de hele pagina uit beeld
+  // verdween zodra een opmerking buiten het zichtbare deel lag. Centreer in
+  // plaats daarvan de viewport op de annotatie.
+  if (viewport.active && doc?.viewMode !== 'continuous') {
+    const canvas = document.getElementById('pdf-canvas');
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const vpW = canvas.width / dpr;   // CSS-px
+    const vpH = canvas.height / dpr;
+    // Annotatie-coördinaten (app-ruimte, punten, oorsprong linksboven) zijn
+    // dezelfde wereld-ruimte als de viewport gebruikt.
+    const cx = bounds.x + bounds.width / 2;
+    const cy = bounds.y + bounds.height / 2;
+    stopPanMomentum();
+    viewport.offsetX = vpW / 2 - cx * viewport.zoom;
+    viewport.offsetY = vpH / 2 - cy * viewport.zoom;
+    // Door de gebruiker (indirect) gepositioneerd → niet automatisch her-fitten.
+    markAnchored();
+    viewport.dirty = true;
+    return;
+  }
 
   if (getActiveDocument()?.viewMode === 'continuous') {
     const pageWrapper = document.querySelector(`.page-wrapper[data-page="${annotation.page}"]`);
