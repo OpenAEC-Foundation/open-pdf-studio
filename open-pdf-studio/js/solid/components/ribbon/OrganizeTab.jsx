@@ -12,6 +12,7 @@ import { setTool } from '../../../tools/manager.js';
 import { setLeftPanelActiveTab, setLeftPanelCollapsed } from '../../../bridge.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { openDialog } from '../../stores/dialogStore.js';
+import { compareActive, exitCompare } from '../../../compare/compare-store.js';
 
 const reorderIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="6" height="4"/><rect x="3" y="10" width="6" height="4"/><rect x="3" y="17" width="6" height="4"/><path d="M14 5l4 4-4 4M14 13l4 4-4 4M18 9H10M18 17H10" stroke-linecap="round"/></svg>`;
 const compressIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="M9.5 14.5L12 12l2.5 2.5"/></svg>`;
@@ -95,6 +96,19 @@ export default function OrganizeTab() {
         <RibbonGroup label={t('organize.combine')}>
           <RibbonButton id="merge-pdfs" title={t('organize.mergePdfs')} icon={mergePdfsIcon} label={t('organize.mergeLabel')}
             disabled={noPdf() || isPdfAReadOnly()} onClick={() => showMergePdfsDialog()} />
+          {/* Zelfde knop als op het Beeld-tabblad (ribbon-compare); hier met
+              een eigen id zodat beide instanties onafhankelijk in de
+              knoppen-rooktest meetellen. */}
+          <RibbonButton id="organize-compare"
+            title={t('compare.title') || 'Compare PDFs'}
+            icon={`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="8" height="16"/><rect x="13" y="4" width="8" height="16"/><line x1="11" y1="12" x2="13" y2="12"/></svg>`}
+            label={t('compare.title') || 'Compare'}
+            disabled={(state.documents?.length || 0) < 2}
+            active={compareActive()}
+            onClick={() => {
+              if (compareActive()) exitCompare();
+              else openDialog('compare', {});
+            }} />
         </RibbonGroup>
 
         <RibbonGroup label={t('organize.watermark')}>
