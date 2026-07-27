@@ -452,6 +452,7 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
     }
 
     case 'wall':
+    case 'betonbalk':
     case 'line':
     case 'arrow':
       if (handleType === HANDLE_TYPES.LINE_START) {

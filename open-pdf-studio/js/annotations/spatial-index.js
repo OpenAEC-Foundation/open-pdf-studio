@@ -244,16 +244,18 @@ class SpatialIndex {
     }
 
     // Betonbalk: de band steekt een halve (schaalbewuste) balkbreedte buiten
-    // de hartlijnpunten uit — de generieke points-branch hieronder zou het
-    // balklijf onaanklikbaar maken.
-    if (type === 'betonbalk' && Array.isArray(annotation.points) && annotation.points.length >= 2) {
-      const bbBase = this._boundsFromPoints(annotation.points, annotation.lineWidth);
-      const bbHalf = betonbalkHalfWidthPx(annotation);
+    // start/eind uit — de generieke lijn-branch (4 px marge) zou het balklijf
+    // onaanklikbaar maken. Een eventuele tag krijgt een tekstregel-marge.
+    if (type === 'betonbalk'
+        && [annotation.startX, annotation.startY, annotation.endX, annotation.endY].every(Number.isFinite)) {
+      const bbHalf = betonbalkHalfWidthPx(annotation)
+        + (annotation.tagTonen ? (annotation.tagFontSize || 12) * 1.6 : 0)
+        + Math.max(annotation.lineWidth || 1, 2);
       return {
-        x: bbBase.x - bbHalf,
-        y: bbBase.y - bbHalf,
-        width: bbBase.width + bbHalf * 2,
-        height: bbBase.height + bbHalf * 2,
+        x: Math.min(annotation.startX, annotation.endX) - bbHalf,
+        y: Math.min(annotation.startY, annotation.endY) - bbHalf,
+        width: Math.abs(annotation.endX - annotation.startX) + bbHalf * 2,
+        height: Math.abs(annotation.endY - annotation.startY) + bbHalf * 2,
       };
     }
 

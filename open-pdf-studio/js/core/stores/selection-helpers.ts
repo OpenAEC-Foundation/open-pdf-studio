@@ -94,18 +94,17 @@ export function getAnnotationBounds(ann: Annotation): AnnotationBounds | null {
       return { x: sr.aabb.x, y: sr.aabb.y, width: sr.aabb.width, height: sr.aabb.height };
     }
     case 'betonbalk': {
-      // Hartlijnpunten ± halve balkbreedte (schaalgebied-bewust): de band
-      // steekt loodrecht buiten de punten uit.
-      if (!ann.points || ann.points.length === 0) return null;
-      const bbHalf = betonbalkHalfWidthPx(ann as any);
-      const bbXs = ann.points.map(p => p.x);
-      const bbYs = ann.points.map(p => p.y);
-      const bbMinX = Math.min(...bbXs) - bbHalf;
-      const bbMinY = Math.min(...bbYs) - bbHalf;
+      // Lijnstuk ± halve balkbreedte (schaalgebied-bewust): de band steekt
+      // loodrecht buiten start/eind uit. Een eventuele tag valt binnen een
+      // extra tekstregel-marge.
+      const bbHalf = betonbalkHalfWidthPx(ann as any)
+        + ((ann as any).tagTonen ? ((ann as any).tagFontSize || 12) * 1.6 : 0);
+      const bbMinX = Math.min(ann.startX!, ann.endX!) - bbHalf;
+      const bbMinY = Math.min(ann.startY!, ann.endY!) - bbHalf;
       return {
         x: bbMinX, y: bbMinY,
-        width: Math.max(...bbXs) + bbHalf - bbMinX,
-        height: Math.max(...bbYs) + bbHalf - bbMinY,
+        width: Math.max(ann.startX!, ann.endX!) + bbHalf - bbMinX,
+        height: Math.max(ann.startY!, ann.endY!) + bbHalf - bbMinY,
       };
     }
     case 'measureDistance': {

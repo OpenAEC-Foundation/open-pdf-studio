@@ -38,13 +38,33 @@ export function drawBetonbalkGeom(ctx, geom, style) {
   }
   ctx.stroke();
 
-  // Hartlijn: dun; streep-punt bij 'doorgetrokken', doorgetrokken dun bij
-  // 'gestippeld' (NL-conventie, zie betonbalkLineStyles).
-  ctx.lineWidth = Math.max(0.3, lw * CENTERLINE_WIDTH_FACTOR);
-  ctx.setLineDash(geom.styles?.centerDash || []);
-  ctx.beginPath();
-  trace(geom.center);
-  ctx.stroke();
+  // Hartlijn (optioneel, toonHartlijn): dun; streep-punt bij 'doorgetrokken',
+  // doorgetrokken dun bij 'gestippeld' (NL-conventie, zie
+  // betonbalkLineStyles). Bij een T-join is geom.center al ingekort tot de
+  // nabije doelrand.
+  if (geom.params?.toonHartlijn !== false) {
+    ctx.lineWidth = Math.max(0.3, lw * CENTERLINE_WIDTH_FACTOR);
+    ctx.setLineDash(geom.styles?.centerDash || []);
+    ctx.beginPath();
+    trace(geom.center);
+    ctx.stroke();
+  }
+
+  // Tag: gecentreerd boven de hartlijn, meegeroteerd (nooit ondersteboven —
+  // de flip zit al in geom.tag.angle).
+  if (geom.tag) {
+    const t = geom.tag;
+    ctx.setLineDash([]);
+    ctx.save();
+    ctx.translate(t.x, t.y);
+    ctx.rotate(t.angle);
+    ctx.fillStyle = stroke;
+    ctx.font = `${t.fontSize}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText(t.text, 0, 0);
+    ctx.restore();
+  }
 
   ctx.setLineDash([]);
   ctx.restore();

@@ -48,6 +48,13 @@ async function _convertAndPushAnnotations(annots, pageNum, viewport, stampImageM
     }
     if (annot.id) byPdfId.set(annot.id, converted);
     doc.annotations.push(converted);
+    // Sommige converters leveren EXTRA annotaties naast de hoofdannotatie
+    // (bv. een legacy meerpunts-betonbalk die in losse tweepunts-balken
+    // gesplitst wordt). Die worden hier mee-gepusht.
+    if (Array.isArray(converted.__extraAnnotations)) {
+      for (const extra of converted.__extraAnnotations) doc.annotations.push(extra);
+      delete converted.__extraAnnotations;
+    }
   }
   for (const pl of pendingLeaders) {
     const parent = textboxByRect.get(pl.irtRectKey);

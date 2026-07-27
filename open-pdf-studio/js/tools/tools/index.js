@@ -8,7 +8,6 @@ import { drawTool } from './draw-tool.js';
 import { shapeTool } from './shape-tool.js';
 import { lineTool } from './line-tool.js';
 import { polylineTool, cloudPolylineTool } from './polyline-tool.js';
-import { betonbalkTool } from './betonbalk-tool.js';
 import { arcTool } from './arc-tool.js';
 import { splineTool } from './spline-tool.js';
 import { splineArrowTool } from './spline-arrow-tool.js';
@@ -65,6 +64,10 @@ export function registerAllTools() {
   // Walls share the click-click line flow (incl. type-length + ortho); the
   // band rendering/joins live in annotations/rendering/walls.js.
   registerTool('wall', lineTool);
+  // Betonbalk: één balk = één lijnstuk — zelfde klik-klik-flow als de wand
+  // (type-length, Shift-hoeksnap, doortekenen); band + verstek-/T-joins in
+  // annotations/betonbalk.js.
+  registerTool('betonbalk', lineTool);
   registerTool('arc', arcTool);
   registerTool('spline', splineTool);
   registerTool('splineArrow', splineArrowTool);
@@ -72,9 +75,6 @@ export function registerAllTools() {
   // Multi-click tools
   registerTool('polyline', polylineTool);
   registerTool('cloudPolyline', cloudPolylineTool);
-  // Betonbalk (plattegrond): hartlijn klik-voor-klik, band met verstek-joins
-  // en automatische T-/hoekaansluiting op andere balken.
-  registerTool('betonbalk', betonbalkTool);
 
   // Measurements
   registerTool('measureDistance', measureDistanceTool);

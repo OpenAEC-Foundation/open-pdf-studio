@@ -97,7 +97,8 @@ function extractSnapPoints(ann, points, prefs, annotations) {
   switch (ann.type) {
     case 'line':
     case 'arrow':
-    case 'wall': {
+    case 'wall':
+    case 'betonbalk': {
       const sx = ann.startX, sy = ann.startY, ex = ann.endX, ey = ann.endY;
       if (doEndpoints) {
         points.push({ x: sx, y: sy, type: 'endpoint', annotation: ann });
@@ -177,7 +178,6 @@ function extractSnapPoints(ann, points, prefs, annotations) {
     }
 
     case 'polyline':
-    case 'betonbalk':
     case 'measureArea':
     case 'measurePerimeter': {
       const pts = ann.points;
@@ -388,6 +388,7 @@ function getEdgeSegments(ann) {
     case 'line':
     case 'arrow':
     case 'wall':
+    case 'betonbalk':
       segments.push({ x1: ann.startX, y1: ann.startY, x2: ann.endX, y2: ann.endY });
       break;
 
@@ -426,7 +427,6 @@ function getEdgeSegments(ann) {
     }
 
     case 'polyline':
-    case 'betonbalk':
     case 'measureArea':
     case 'measurePerimeter': {
       const pts = ann.points;

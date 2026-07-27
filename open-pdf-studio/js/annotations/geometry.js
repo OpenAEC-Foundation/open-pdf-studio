@@ -214,16 +214,10 @@ export function findAnnotationAt(x, y) {
         break;
       }
       case 'betonbalk': {
-        // Overal binnen het balklijf: hartlijnsegmenten ± halve breedte
+        // Overal binnen het balklijf: hartlijn ± halve breedte
         // (schaalgebied-bewust), zoals bij de wand.
-        if (ann.points && ann.points.length >= 2) {
-          const bbHalf = betonbalkHalfWidthPx(ann);
-          for (let i = 0; i < ann.points.length - 1; i++) {
-            const bd = distanceToLine(x, y, ann.points[i].x, ann.points[i].y,
-              ann.points[i + 1].x, ann.points[i + 1].y);
-            if (bd < tol + bbHalf) return ann;
-          }
-        }
+        const bd = distanceToLine(x, y, ann.startX, ann.startY, ann.endX, ann.endY);
+        if (bd < tol + betonbalkHalfWidthPx(ann)) return ann;
         break;
       }
       case 'polyline':
@@ -669,9 +663,18 @@ export function isPointInsideAnnotation(x, y, annotation) {
       }
       return false;
 
+    case 'betonbalk': {
+      // Lijnstuk-band: raak binnen de bbox van start/eind ± halve breedte.
+      const bbH = betonbalkHalfWidthPx(annotation);
+      const bMinX = Math.min(annotation.startX, annotation.endX) - bbH;
+      const bMaxX = Math.max(annotation.startX, annotation.endX) + bbH;
+      const bMinY = Math.min(annotation.startY, annotation.endY) - bbH;
+      const bMaxY = Math.max(annotation.startY, annotation.endY) + bbH;
+      return x >= bMinX && x <= bMaxX && y >= bMinY && y <= bMaxY;
+    }
+
     case 'polyline':
     case 'cloudPolyline':
-    case 'betonbalk':
       if (annotation.points && annotation.points.length > 0) {
         const plMinX = Math.min(...annotation.points.map(p => p.x));
         const plMinY = Math.min(...annotation.points.map(p => p.y));

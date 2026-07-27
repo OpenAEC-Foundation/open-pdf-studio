@@ -7,38 +7,68 @@
 // buildBetonbalk(). Zo kunnen scherm en PDF per definitie niet uit elkaar
 // lopen.
 //
-// Model: de gebruiker tekent een HARTLIJN (points, klik-voor-klik zoals een
-// polylijn). De twee randlijnen liggen op ± halve breedte loodrecht op elk
-// segment en worden per knik in VERSTEK gejoined (snijpunt van de twee
-// offset-lijnen). Bij bijna-parallelle of zeer scherpe hoeken (uitschieter
-// groter dan MITER_LIMIT_FACTOR × halve breedte) valt de join terug op een
-// afgeschuinde (bevel) join. Vrije uiteinden krijgen een haakse eindkap.
+// Model: één balk = één LIJNSTUK (startX/startY/endX/endY, zoals 'line' en
+// 'wall'). Daardoor werken de CAD-gereedschappen (trim/extend/split, G/MV,
+// eindpunt-grips, object-snap) automatisch. Een doorgaande ligger met
+// knikken teken je als losse, aansluitende balken; de hoeken worden bij het
+// renderen opgeschoond:
 //
-// Inter-balk-join (T-/hoekaansluiting): eindigt of begint de hartlijn op het
-// lijf of een uiteinde van een ANDERE betonbalk, dan worden de eigen
-// randlijnen doorgetrokken/afgekort tot de randlijn van die doelbalk en
-// vervalt de eindkap op het aansluitvlak. De doelbalk zelf wordt NOOIT
-// gemuteerd: het opschonen gebeurt puur bij het (her)berekenen van de eigen
-// geometrie (render- en AP-tijd), zodat verplaatsen/verwijderen altijd
-// omkeerbaar blijft.
+//  * L-/hoekaansluiting (uiteinde op uiteinde): beide randen worden in
+//    VERSTEK gesneden met de randen van de aansluitende balk (zelfde
+//    randparing als de wand-joins), en de eindkap vervalt.
+//  * T-aansluiting (uiteinde op het lijf): de eigen randen én de hartlijn
+//    worden doorgetrokken/afgekort tot de NABIJE rand van de doelbalk, en
+//    de eindkap vervalt — de doorgaande balk houdt zijn eigen rand.
 //
-// Rotatie-veiligheid: ALLE geometrie wordt afgeleid uit de hartlijnpunten
-// zelf. Er is GEEN rotation-veld en geen losse transform; een schuine balk
-// ontstaat doordat de punten schuin liggen. De AP-stream kan daardoor
-// /Matrix = (translatie-)identiteit en BBox = /Rect-maat houden.
+// De doelbalk wordt daarbij NOOIT gemuteerd: het opschonen gebeurt puur bij
+// het (her)berekenen van de eigen geometrie (render- en AP-tijd), zodat
+// verplaatsen/verwijderen altijd omkeerbaar blijft.
+//
+// Rotatie-veiligheid: ALLE geometrie wordt afgeleid uit start/eind zelf.
+// Er is GEEN rotation-veld; een schuine balk ontstaat doordat de punten
+// schuin liggen. De AP-stream houdt /Matrix = (translatie-)identiteit en
+// BBox = /Rect-maat.
 
 /** Toegestane lijnstijlen. 'gestippeld' = balk boven het aanzichtvlak
  *  (NL-conventie): randen onderbroken, hartlijn doorgetrokken dun. */
 export const BETONBALK_LIJNSTIJLEN = ['doorgetrokken', 'gestippeld'];
 
+/**
+ * Gangbare betonbalk-doorsneden (b × h in mm) voor de profielkeuzelijst.
+ * De BREEDTE bepaalt de getekende bandbreedte in plattegrond; de HOOGTE is
+ * administratief (paneel + tag).
+ */
+export const BETONBALK_PROFIELEN = [
+  { breedteMm: 200, hoogteMm: 300 },
+  { breedteMm: 250, hoogteMm: 350 },
+  { breedteMm: 300, hoogteMm: 400 },
+  { breedteMm: 350, hoogteMm: 400 },
+  { breedteMm: 350, hoogteMm: 500 },
+  { breedteMm: 400, hoogteMm: 400 },
+  { breedteMm: 400, hoogteMm: 500 },
+  { breedteMm: 400, hoogteMm: 600 },
+  { breedteMm: 500, hoogteMm: 500 },
+  { breedteMm: 500, hoogteMm: 600 },
+];
+
+/** Profielnaam "bxh" zoals in de keuzelijst en de standaard-tag. */
+export function betonbalkProfielNaam(breedteMm, hoogteMm) {
+  return `${Math.round(Number(breedteMm) || 0)}x${Math.round(Number(hoogteMm) || 0)}`;
+}
+
 /** Defaults, één plek — gebruikt door de creator én als fallback bij render. */
 export const BETONBALK_DEFAULTS = {
   breedteMm: 300,
+  hoogteMm: 400,
   lijnstijl: 'doorgetrokken',
+  toonHartlijn: true,
+  tagTonen: false,
+  tagFontSize: 12,
 };
 
-/** Bereik van de instelbare balkbreedte (mm). */
+/** Bereik van de instelbare doorsnedematen (mm). */
 export const BETONBALK_BREEDTE_RANGE = { min: 10, max: 2000 };
+export const BETONBALK_HOOGTE_RANGE = { min: 10, max: 3000 };
 
 /**
  * Vaste omrekening als er GEEN schaal(gebied) bekend is: 1:100.
@@ -48,10 +78,13 @@ export const PX_PER_MM_1_100 = 72 / 25.4 / 100;
 
 /**
  * Miter-limiet als factor × halve breedte: een verstekpunt dat verder dan
- * dit van de knik ligt wordt een bevel (voorkomt extreme uitschieters bij
- * scherpe hoeken).
+ * dit van de knik ligt wordt niet gesneden (voorkomt extreme uitschieters
+ * bij zeer scherpe hoeken).
  */
 export const MITER_LIMIT_FACTOR = 4;
+
+/** Tolerantie (app-px ≈ pt) waarbinnen twee uiteinden als HOEK gelden. */
+export const CORNER_TOL = 1.5;
 
 function clamp(v, lo, hi) {
   return v < lo ? lo : (v > hi ? hi : v);
@@ -64,9 +97,22 @@ export function resolveBetonbalkParams(ann) {
   const breedteMm = Number.isFinite(wRaw) && wRaw > 0
     ? clamp(wRaw, BETONBALK_BREEDTE_RANGE.min, BETONBALK_BREEDTE_RANGE.max)
     : BETONBALK_DEFAULTS.breedteMm;
+  const hRaw = Number(a.hoogteMm);
+  const hoogteMm = Number.isFinite(hRaw) && hRaw > 0
+    ? clamp(hRaw, BETONBALK_HOOGTE_RANGE.min, BETONBALK_HOOGTE_RANGE.max)
+    : BETONBALK_DEFAULTS.hoogteMm;
   const lijnstijl = BETONBALK_LIJNSTIJLEN.includes(a.lijnstijl)
     ? a.lijnstijl : BETONBALK_DEFAULTS.lijnstijl;
-  return { breedteMm, lijnstijl };
+  // Hartlijn tonen: standaard AAN — alleen een expliciete false zet hem uit.
+  const toonHartlijn = a.toonHartlijn !== false;
+  const tagTonen = a.tagTonen === true;
+  const tagTekstRaw = a.tagTekst != null ? String(a.tagTekst) : '';
+  const tagTekst = tagTekstRaw.trim() !== ''
+    ? tagTekstRaw : betonbalkProfielNaam(breedteMm, hoogteMm);
+  const tfRaw = Number(a.tagFontSize);
+  const tagFontSize = Number.isFinite(tfRaw) && tfRaw > 0
+    ? clamp(tfRaw, 4, 72) : BETONBALK_DEFAULTS.tagFontSize;
+  return { breedteMm, hoogteMm, lijnstijl, toonHartlijn, tagTonen, tagTekst, tagFontSize };
 }
 
 /**
@@ -97,6 +143,14 @@ export function betonbalkLineStyles(lijnstijl) {
 /** Factor voor de hartlijn-dikte t.o.v. de rand-lijndikte. */
 export const CENTERLINE_WIDTH_FACTOR = 0.5;
 
+/**
+ * Breedte-schatter voor de tag zonder canvas (zelfde heuristiek als de
+ * stavenreeks); de renderer mag een echte meter meegeven.
+ */
+export function approxTextWidth(text, fontSize) {
+  return String(text).length * fontSize * 0.55;
+}
+
 // ── basis-vectorhulpjes (lokaal; bewust geen import uit utils) ─────────────
 
 function _unit(dx, dy) {
@@ -105,7 +159,8 @@ function _unit(dx, dy) {
   return { x: dx / len, y: dy / len };
 }
 
-/** Snijpunt van twee ONEINDIGE lijnen (p langs richting d). Null = parallel. */
+/** Snijpunt van twee ONEINDIGE lijnen (p langs richting d). Null = parallel.
+ *  `t` is de parameter langs (p1, d1). */
 export function lineIntersection(p1, d1, p2, d2) {
   const denom = d1.x * d2.y - d1.y * d2.x;
   if (Math.abs(denom) < 1e-9) return null;
@@ -122,7 +177,33 @@ function _distToSegment(px, py, x1, y1, x2, y2) {
   return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
 }
 
-// Geldige (niet-samenvallende) opeenvolgende punten van de hartlijn.
+/**
+ * Hartlijn van een balk-annotatie: [start, eind]. Accepteert het huidige
+ * tweepunts-model (startX/…/endY) én — als vangnet — een legacy points-array
+ * (waarvan alleen de eerste twee punten tellen; de loader splitst oude
+ * meerpunts-exemplaren al in losse balken).
+ */
+export function betonbalkCenterline(ann) {
+  const a = ann || {};
+  if ([a.startX, a.startY, a.endX, a.endY].every(Number.isFinite)) {
+    const pts = [
+      { x: a.startX, y: a.startY },
+      { x: a.endX, y: a.endY },
+    ];
+    if (Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y) < 1e-6) return null;
+    return pts;
+  }
+  if (Array.isArray(a.points) && a.points.length >= 2) {
+    const p0 = a.points[0], p1 = a.points[1];
+    if ([p0?.x, p0?.y, p1?.x, p1?.y].every(Number.isFinite)
+        && Math.hypot(p1.x - p0.x, p1.y - p0.y) > 1e-6) {
+      return [{ x: p0.x, y: p0.y }, { x: p1.x, y: p1.y }];
+    }
+  }
+  return null;
+}
+
+// Geldige (niet-samenvallende) opeenvolgende punten van een hartlijn-array.
 function _cleanPoints(points) {
   const out = [];
   for (const p of points || []) {
@@ -136,25 +217,19 @@ function _cleanPoints(points) {
 }
 
 /**
- * De twee randpolylijnen van een balk-hartlijn, met verstek-join per knik.
+ * De twee randpolylijnen van een hartlijn (algemeen, ≥ 2 punten), met
+ * verstek-join per knik en miter-limiet → bevel. Voor het tweepunts-model is
+ * dit gewoon het rechte band-paar; de knik-logica blijft beschikbaar voor
+ * hulpberekeningen en tests.
  *
- * Per knik worden de offset-lijnen van de twee aangrenzende segmenten
- * gesneden (exact verstekpunt). Ligt dat snijpunt verder dan
- * MITER_LIMIT_FACTOR × halve breedte van de knik (scherpe hoek), of zijn de
- * segmenten (bijna) parallel, dan komen er TWEE hoekpunten (bevel).
- *
- * @param {Array<{x:number,y:number}>} points  Hartlijnpunten (≥ 2).
- * @param {number} halfWidth                   Halve balkbreedte (app-px).
- * @returns {{left:Array, right:Array}|null}   Randen op +n resp. −n zijde
- *   (n = linksdraaiende loodrechte op de segmentrichting), of null bij een
- *   gedegenereerde hartlijn.
+ * @returns {{left:Array, right:Array}|null}  Randen op +n resp. −n zijde
+ *   (n = (-uy, ux) van de segmentrichting u).
  */
 export function beamOutline(points, halfWidth, miterLimitFactor = MITER_LIMIT_FACTOR) {
   const pts = _cleanPoints(points);
   if (pts.length < 2) return null;
   const h = Number(halfWidth) > 0 ? Number(halfWidth) : 1;
 
-  // Richting + loodrechte per segment.
   const dirs = [];
   for (let i = 0; i < pts.length - 1; i++) {
     dirs.push(_unit(pts[i + 1].x - pts[i].x, pts[i + 1].y - pts[i].y));
@@ -171,15 +246,13 @@ export function beamOutline(points, halfWidth, miterLimitFactor = MITER_LIMIT_FA
       const n2 = { x: -d2.y, y: d2.x };
       const p1 = { x: pts[k].x + sigma * n1.x * h, y: pts[k].y + sigma * n1.y * h };
       const p2 = { x: pts[k].x + sigma * n2.x * h, y: pts[k].y + sigma * n2.y * h };
-      // (Bijna) rechtdoor: offsets vallen samen — één punt volstaat.
       if (Math.hypot(p1.x - p2.x, p1.y - p2.y) < 1e-6) {
         edge.push(p1);
         continue;
       }
       const X = lineIntersection(p1, d1, p2, d2);
       if (!X || Math.hypot(X.x - pts[k].x, X.y - pts[k].y) > limit) {
-        // Parallel (180°-knik) of voorbij de miter-limiet → bevel.
-        edge.push(p1, p2);
+        edge.push(p1, p2); // parallel of voorbij de miter-limiet → bevel
       } else {
         edge.push({ x: X.x, y: X.y });
       }
@@ -193,108 +266,149 @@ export function beamOutline(points, halfWidth, miterLimitFactor = MITER_LIMIT_FA
   return { left: side(1), right: side(-1) };
 }
 
-// Dichtstbijzijnde segment-index van een hartlijn t.o.v. een punt.
-function _nearestSegment(points, px, py) {
-  let best = -1, bestD = Infinity;
-  for (let i = 0; i < points.length - 1; i++) {
-    const d = _distToSegment(px, py, points[i].x, points[i].y, points[i + 1].x, points[i + 1].y);
-    if (d < bestD) { bestD = d; best = i; }
-  }
-  return { index: best, dist: bestD };
-}
-
 /**
- * Zoek de doelbalk waarop een hartlijn-uiteinde aansluit.
+ * Zoek de aansluiting van een balk-uiteinde P op een andere balk.
  *
- * Aansluiting = het uiteinde ligt op het LIJF (binnen de band) of op een
- * uiteinde van een andere balk, met als tolerantie de halve breedte van de
- * DUNSTE van de twee balken.
+ *  - 'corner': P valt (binnen CORNER_TOL) samen met een uiteinde van de
+ *    andere balk → L-/hoekverstek.
+ *  - 'tee': P ligt op het lijf van de andere balk (afstand tot de hartlijn
+ *    ≤ halve doelbreedte + tolerantie = halve breedte van de dunste balk).
  *
- * @param {{x:number,y:number}} P     Hartlijn-uiteinde van de eigen balk.
- * @param {number} ownHalfWidth       Eigen halve breedte.
- * @param {Array<{points:Array,halfWidth:number}>} others  Andere balken.
- * @returns {{beam:object, segIndex:number}|null}
+ * @param {{x:number,y:number}} P
+ * @param {number} ownHalfWidth
+ * @param {Array<{points:Array<{x,y}>, halfWidth:number}>} others
+ * @returns {{kind:'corner'|'tee', beam:object, far?:{x,y}}|null}
  */
 export function findJoinTarget(P, ownHalfWidth, others) {
-  let best = null, bestD = Infinity;
+  let bestCorner = null, bestCornerD = Infinity;
+  let bestTee = null, bestTeeD = Infinity;
   for (const ob of others || []) {
     const pts = _cleanPoints(ob?.points);
     if (pts.length < 2 || !(ob.halfWidth > 0)) continue;
+    const S = pts[0], E = pts[pts.length - 1];
+    // Hoek: uiteinde op uiteinde.
+    for (const [end, far] of [[S, E], [E, S]]) {
+      const d = Math.hypot(P.x - end.x, P.y - end.y);
+      if (d <= CORNER_TOL && d < bestCornerD) {
+        bestCornerD = d;
+        bestCorner = { kind: 'corner', beam: { points: pts, halfWidth: ob.halfWidth }, far };
+      }
+    }
+    // T: uiteinde op het lijf.
     const tol = Math.min(Number(ownHalfWidth) || 0, ob.halfWidth);
-    const near = _nearestSegment(pts, P.x, P.y);
-    if (near.index < 0) continue;
-    if (near.dist <= ob.halfWidth + tol && near.dist < bestD) {
-      bestD = near.dist;
-      best = { beam: { points: pts, halfWidth: ob.halfWidth }, segIndex: near.index };
+    const d = _distToSegment(P.x, P.y, S.x, S.y, E.x, E.y);
+    if (d <= ob.halfWidth + tol && d < bestTeeD) {
+      bestTeeD = d;
+      bestTee = { kind: 'tee', beam: { points: pts, halfWidth: ob.halfWidth } };
     }
   }
-  return best;
+  return bestCorner || bestTee;
 }
 
-// Trim één rand-uiteinde tegen de twee randlijnen van het doelsegment.
-// `edge` wordt IN PLACE aangepast; retourneert true als er getrimd is.
-// which: 'start' (edge[0] beweegt) of 'end' (edge[laatste] beweegt).
-function _trimEdgeEnd(edge, which, target, ownHalfWidth) {
-  if (!edge || edge.length < 2) return false;
-  const endIdx = which === 'start' ? 0 : edge.length - 1;
-  const prevIdx = which === 'start' ? 1 : edge.length - 2;
-  const B = edge[endIdx], A = edge[prevIdx];
+// Snijpunt van de (oneindige) lijn A→B met de NABIJE randlijn van de
+// doelbalk: de kandidaat met de KLEINSTE parameter t (de eerste doelrand die
+// de lijn in uitgaande richting kruist), binnen een redelijke afstand van
+// het huidige uiteinde B. Bewust niet "dichtst bij B": een uiteinde dat al
+// vóórbij de doel-hartlijn geklikt is zou dan op de VERRE rand belanden en
+// dwars door de doelbalk steken (de oorspronkelijke T-bug).
+function _nearFaceIntersection(A, B, target, ownHalfWidth) {
   const d = _unit(B.x - A.x, B.y - A.y);
-  if (!d) return false;
+  if (!d) return null;
   const tPts = target.beam.points;
-  const s = tPts[target.segIndex];
-  const e = tPts[target.segIndex + 1];
+  const s = tPts[0];
+  const e = tPts[tPts.length - 1];
   const u = _unit(e.x - s.x, e.y - s.y);
-  if (!u) return false;
+  if (!u) return null;
   const n = { x: -u.y, y: u.x };
   const hT = target.beam.halfWidth;
-  const tB = Math.hypot(B.x - A.x, B.y - A.y); // parameter van het huidige uiteinde
-  // Sanity-grens: trims horen in de buurt van het aansluitvlak te blijven.
-  const maxShift = (hT + Math.min(ownHalfWidth, hT)) * MITER_LIMIT_FACTOR;
-  let best = null, bestShift = Infinity;
+  const tB = Math.hypot(B.x - A.x, B.y - A.y);
+  const maxShift = (hT + Math.min(Number(ownHalfWidth) || 0, hT)) * MITER_LIMIT_FACTOR;
+  let best = null;
   for (const sigma of [1, -1]) {
     const q = { x: s.x + sigma * n.x * hT, y: s.y + sigma * n.y * hT };
     const X = lineIntersection(A, d, q, u);
     if (!X) continue;
-    const shift = Math.abs(X.t - tB);
-    if (shift > maxShift) continue;
-    // Dichtstbijzijnde doelrand wint; bij gelijke afstand de KORTSTE balk
-    // (kleinste t), zodat een T-aansluiting op de nabije rand eindigt.
-    if (shift < bestShift - 1e-9 || (Math.abs(shift - bestShift) <= 1e-9 && best && X.t < best.t)) {
-      bestShift = shift;
-      best = X;
-    }
+    if (Math.abs(X.t - tB) > maxShift) continue;
+    if (!best || X.t < best.t) best = X;
   }
-  if (!best) return false;
-  edge[endIdx] = { x: best.x, y: best.y };
+  return best;
+}
+
+// Trim één rand-uiteinde tegen de nabije randlijn van de doelbalk (T-join).
+// `edge` wordt IN PLACE aangepast; retourneert true als er getrimd is.
+function _trimEdgeEnd(edge, which, target, ownHalfWidth) {
+  if (!edge || edge.length < 2) return false;
+  const endIdx = which === 'start' ? 0 : edge.length - 1;
+  const prevIdx = which === 'start' ? 1 : edge.length - 2;
+  const cut = _nearFaceIntersection(edge[prevIdx], edge[endIdx], target, ownHalfWidth);
+  if (!cut) return false;
+  edge[endIdx] = { x: cut.x, y: cut.y };
   return true;
 }
 
+// L-/hoekverstek op uiteinde P: beide randen worden gesneden met de
+// overeenkomstige rand van de aansluitende balk (zelfde randparing als de
+// wand-joins: onze +σ-rand tegen de −σ-rand van de partner, in het frame
+// van de naar-binnen-wijzende richting dirIn).
+function _cornerJoin(edges, which, P, dirIn, h, target) {
+  const d2 = _unit(target.far.x - P.x, target.far.y - P.y);
+  if (!d2) return;
+  const n = { x: -dirIn.y, y: dirIn.x };
+  const n2 = { x: -d2.y, y: d2.x };
+  const h2 = target.beam.halfWidth;
+  const lim = MITER_LIMIT_FACTOR * Math.max(h, h2);
+  // σ (in het dirIn-frame) ↔ rand: bij 'start' is dirIn = +u en ligt de
+  // left-rand (+n(u)) op σ=+1; bij 'end' is dirIn = −u en ligt de left-rand
+  // op σ=−1.
+  const map = which === 'start' ? { left: 1, right: -1 } : { left: -1, right: 1 };
+  for (const side of ['left', 'right']) {
+    const sigma = map[side];
+    const e1 = { x: P.x + sigma * n.x * h, y: P.y + sigma * n.y * h };
+    const e2 = { x: P.x - sigma * n2.x * h2, y: P.y - sigma * n2.y * h2 };
+    const X = lineIntersection(e1, dirIn, e2, d2);
+    if (!X || Math.hypot(X.x - P.x, X.y - P.y) > lim) continue; // butt-terugval
+    const arr = edges[side];
+    arr[which === 'start' ? 0 : arr.length - 1] = { x: X.x, y: X.y };
+  }
+}
+
 /**
- * Inter-balk-join: trim/verleng de randen van `outline` op de uiteinden die
- * op een andere balk aansluiten, en meld welke uiteinden gejoined zijn.
- * Muteert ALLEEN de meegegeven outline (nooit de doelbalken).
+ * Inter-balk-joins: verstek (hoek) of trim (T) op de uiteinden die op een
+ * andere balk aansluiten. Muteert ALLEEN de meegegeven edges/center — nooit
+ * de doelbalken.
  *
- * @param {{left:Array,right:Array}} outline  Eigen randen (uit beamOutline).
- * @param {Array<{x,y}>} centerPts            Eigen (opgeschoonde) hartlijn.
+ * @param {{left:Array,right:Array}} edges  Eigen randen (uit beamOutline).
+ * @param {Array<{x,y}>} center             Eigen TEKEN-hartlijn [S, E]; bij
+ *        een T-join wordt het betreffende uiteinde ingekort tot de nabije
+ *        doelrand (alleen de tekenlengte — nooit de annotatie-data).
  * @param {number} ownHalfWidth
  * @param {Array<{points:Array,halfWidth:number}>} others
  * @returns {{joinedStart:boolean, joinedEnd:boolean}}
  */
-export function trimAgainstBeams(outline, centerPts, ownHalfWidth, others) {
+export function trimAgainstBeams(edges, center, ownHalfWidth, others) {
   const res = { joinedStart: false, joinedEnd: false };
-  if (!outline || !centerPts || centerPts.length < 2 || !others || others.length === 0) return res;
+  if (!edges || !center || center.length < 2 || !others || others.length === 0) return res;
+  const S = center[0], E = center[center.length - 1];
+  const u = _unit(E.x - S.x, E.y - S.y);
+  if (!u) return res;
   const ends = [
-    { which: 'start', P: centerPts[0], flag: 'joinedStart' },
-    { which: 'end', P: centerPts[centerPts.length - 1], flag: 'joinedEnd' },
+    { which: 'start', P: S, dirIn: u, flag: 'joinedStart' },
+    { which: 'end', P: E, dirIn: { x: -u.x, y: -u.y }, flag: 'joinedEnd' },
   ];
   for (const end of ends) {
     const target = findJoinTarget(end.P, ownHalfWidth, others);
     if (!target) continue;
-    // Beide randen naar de doelrand trekken; het aansluitvlak krijgt geen
-    // eindkap, ook als één rand (parallel geval) niet te snijden was.
-    _trimEdgeEnd(outline.left, end.which, target, ownHalfWidth);
-    _trimEdgeEnd(outline.right, end.which, target, ownHalfWidth);
+    if (target.kind === 'corner') {
+      _cornerJoin(edges, end.which, end.P, end.dirIn, ownHalfWidth, target);
+    } else {
+      // T: beide randen én de hartlijn stoppen op de NABIJE doelrand.
+      _trimEdgeEnd(edges.left, end.which, target, ownHalfWidth);
+      _trimEdgeEnd(edges.right, end.which, target, ownHalfWidth);
+      const idx = end.which === 'start' ? 0 : center.length - 1;
+      const prev = end.which === 'start' ? center[1] : center[center.length - 2];
+      const cut = _nearFaceIntersection(prev, center[idx], target, ownHalfWidth);
+      if (cut) center[idx] = { x: cut.x, y: cut.y };
+    }
     res[end.flag] = true;
   }
   return res;
@@ -303,32 +417,38 @@ export function trimAgainstBeams(outline, centerPts, ownHalfWidth, others) {
 /**
  * Bouw de volledige betonbalk-geometrie.
  *
- * @param {object} ann  Annotatie met points + breedteMm + lijnstijl.
+ * @param {object} ann  Annotatie met startX/startY/endX/endY + parameters.
  * @param {object} [opts]
  * @param {number} [opts.halfWidth]  Halve breedte in app-px (schaalbewust,
- *        van betonbalk-scale.js). Ontbreekt hij, dan wordt hij uit
- *        breedteMm × 1:100 afgeleid.
+ *        van betonbalk-scale.js). Ontbreekt hij, dan volgt hij uit
+ *        breedteMm × 1:100.
  * @param {Array<{points:Array,halfWidth:number}>} [opts.others]
- *        Andere betonbalken op dezelfde pagina (voor de inter-balk-join).
+ *        Andere betonbalken op dezelfde pagina (voor de inter-balk-joins).
+ * @param {(text:string,size:number)=>number} [opts.measureText]
+ *        Echte tekstbreedte-meter voor de tag. Default: schatting.
  * @returns {{
  *   params:object, halfWidth:number,
- *   center:Array, edges:{left:Array,right:Array},
+ *   center:Array, rawCenter:Array, edges:{left:Array,right:Array},
  *   caps:Array<{x1,y1,x2,y2}>, joinedStart:boolean, joinedEnd:boolean,
  *   outline:Array, styles:{edgeDash:Array|null,centerDash:Array|null},
+ *   tag:{text,x,y,angle,fontSize,width}|null,
  *   aabb:{x:number,y:number,width:number,height:number}
  * }|null}
  */
 export function buildBetonbalk(ann, opts = {}) {
   const params = resolveBetonbalkParams(ann);
-  const center = _cleanPoints(ann?.points);
-  if (center.length < 2) return null;
+  const rawCenter = betonbalkCenterline(ann);
+  if (!rawCenter) return null;
   const halfWidth = Number(opts.halfWidth) > 0
     ? Number(opts.halfWidth)
     : halfWidthFromMm(params.breedteMm, 0);
 
-  const edges = beamOutline(center, halfWidth);
+  const edges = beamOutline(rawCenter, halfWidth);
   if (!edges) return null;
 
+  // Teken-hartlijn: kopie — een T-join kort het betreffende uiteinde in,
+  // de annotatie-data (rawCenter) blijft onaangetast.
+  const center = rawCenter.map(p => ({ x: p.x, y: p.y }));
   const { joinedStart, joinedEnd } = trimAgainstBeams(edges, center, halfWidth, opts.others);
 
   // Eindkappen: alleen op vrije (niet-gejoinede) uiteinden, haaks dichtgezet.
@@ -345,30 +465,70 @@ export function buildBetonbalk(ann, opts = {}) {
     caps.push({ x1: li.x, y1: li.y, x2: ri.x, y2: ri.y });
   }
 
+  // Tag: gecentreerd langs de balk, boven de hartlijn, meegeroteerd met de
+  // balkrichting en nooit ondersteboven (flip bij > 90°).
+  let tag = null;
+  if (params.tagTonen) {
+    const measure = typeof opts.measureText === 'function' ? opts.measureText : approxTextWidth;
+    const u = _unit(rawCenter[1].x - rawCenter[0].x, rawCenter[1].y - rawCenter[0].y);
+    if (u) {
+      let angle = Math.atan2(u.y, u.x);
+      let dx = u.x, dy = u.y;
+      if (angle > Math.PI / 2 || angle < -Math.PI / 2) {
+        angle += angle > 0 ? -Math.PI : Math.PI;
+        dx = -dx; dy = -dy;
+      }
+      const midX = (rawCenter[0].x + rawCenter[1].x) / 2;
+      const midY = (rawCenter[0].y + rawCenter[1].y) / 2;
+      // "Boven" in leesrichting: −perp(d) (schermassen, y omlaag).
+      const upX = dy, upY = -dx;
+      const off = halfWidth + params.tagFontSize * 0.45;
+      const width = measure(params.tagTekst, params.tagFontSize);
+      tag = {
+        text: params.tagTekst,
+        x: midX + upX * off,
+        y: midY + upY * off,
+        angle,
+        fontSize: params.tagFontSize,
+        width,
+      };
+    }
+  }
+
   // Gesloten omtrek (voor hit-test en de /Vertices in de PDF).
   const outline = [...edges.left, ...edges.right.slice().reverse()];
 
-  // AABB over randen + hartlijn (de hartlijn ligt per definitie binnen de
-  // randen, maar bij een getrimde rand kan een hartlijnpunt er net buiten
-  // steken — meenemen dus).
+  // AABB over randen + hartlijn + tagvak.
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-  for (const p of [...outline, ...center]) {
-    if (p.x < minX) minX = p.x;
-    if (p.x > maxX) maxX = p.x;
-    if (p.y < minY) minY = p.y;
-    if (p.y > maxY) maxY = p.y;
+  const grow = (x, y) => {
+    if (x < minX) minX = x;
+    if (x > maxX) maxX = x;
+    if (y < minY) minY = y;
+    if (y > maxY) maxY = y;
+  };
+  for (const p of [...outline, ...center, ...rawCenter]) grow(p.x, p.y);
+  if (tag) {
+    const c = Math.cos(tag.angle), s = Math.sin(tag.angle);
+    const half = tag.fontSize * 0.6;
+    for (const t of [-tag.width / 2, tag.width / 2]) {
+      for (const v of [-half, half]) {
+        grow(tag.x + c * t - s * v, tag.y + s * t + c * v);
+      }
+    }
   }
 
   return {
     params,
     halfWidth,
     center,
+    rawCenter,
     edges,
     caps,
     joinedStart,
     joinedEnd,
     outline,
     styles: betonbalkLineStyles(params.lijnstijl),
+    tag,
     aabb: { x: minX, y: minY, width: maxX - minX, height: maxY - minY },
   };
 }

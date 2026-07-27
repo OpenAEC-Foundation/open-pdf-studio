@@ -224,6 +224,7 @@ function _commitLineAt(ctx, e, endX, endY) {
   // onPointerDown / onDeactivate).
   const chainThisSegment =
     tool === 'wall' ||
+    tool === 'betonbalk' ||
     (tool === 'line' && state.preferences?.lineContinue === true);
   if (chainThisSegment && ann) {
     _lineState.startX = endX;

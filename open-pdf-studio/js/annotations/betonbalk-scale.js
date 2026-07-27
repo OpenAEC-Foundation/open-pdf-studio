@@ -17,26 +17,17 @@
 // ongekalibreerde tekening een verdedigbare papierbreedte houdt.
 import { getScaleFromRegion } from './scale-region.js';
 import { getScaleForPoint } from './scale-bar.js';
-import { resolveBetonbalkParams, halfWidthFromMm } from './betonbalk.js';
+import { resolveBetonbalkParams, halfWidthFromMm, betonbalkCenterline } from './betonbalk.js';
 
 const UNIT_TO_MM = { mm: 1, cm: 10, m: 1000, in: 25.4, ft: 304.8 };
 
-// Referentiepunt van een balk: het midden van de bounding box van de
-// hartlijnpunten — valt altijd binnen (of het dichtst bij) een schaalgebied
-// dat de balk overlapt en is stabiel bij het bijtekenen van punten.
+// Referentiepunt van een balk: het midden van het lijnstuk — valt altijd
+// binnen (of het dichtst bij) een schaalgebied dat de balk overlapt en is
+// rotatie-onafhankelijk (zelfde keuze als stavenreeksPxPerMm).
 function _anchor(ann) {
-  const pts = Array.isArray(ann?.points) ? ann.points : [];
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-  for (const p of pts) {
-    const x = Number(p?.x), y = Number(p?.y);
-    if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
-    if (x < minX) minX = x;
-    if (x > maxX) maxX = x;
-    if (y < minY) minY = y;
-    if (y > maxY) maxY = y;
-  }
-  if (!Number.isFinite(minX)) return null;
-  return { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
+  const c = betonbalkCenterline(ann);
+  if (!c) return null;
+  return { x: (c[0].x + c[1].x) / 2, y: (c[0].y + c[1].y) / 2 };
 }
 
 /**
@@ -64,7 +55,7 @@ export function betonbalkHalfWidthPx(ann) {
 
 /**
  * opts voor buildBetonbalk(): eigen halve breedte + de andere betonbalken op
- * dezelfde pagina (voor de inter-balk-join), elk met hun eigen schaalbewuste
+ * dezelfde pagina (voor de inter-balk-joins), elk met hun eigen schaalbewuste
  * halve breedte. De doelbalken worden hier alleen GELEZEN — nooit gemuteerd.
  */
 export function betonbalkBuildOpts(ann, annotations) {
@@ -73,8 +64,9 @@ export function betonbalkBuildOpts(ann, annotations) {
     if (!o || o.type !== 'betonbalk' || o === ann) continue;
     if (o.id != null && ann?.id != null && o.id === ann.id) continue;
     if (o.page !== ann?.page) continue;
-    if (!Array.isArray(o.points) || o.points.length < 2) continue;
-    others.push({ points: o.points, halfWidth: betonbalkHalfWidthPx(o) });
+    const c = betonbalkCenterline(o);
+    if (!c) continue;
+    others.push({ points: c, halfWidth: betonbalkHalfWidthPx(o) });
   }
   return { halfWidth: betonbalkHalfWidthPx(ann), others };
 }

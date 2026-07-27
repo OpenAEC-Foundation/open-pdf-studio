@@ -12,6 +12,8 @@ import { pendingParams, pendingSymbolId } from '../solid/stores/parametricSymbol
 import { activeCountCategory as _activeCountCategory, nextCountNumber as _nextCountNumber } from '../solid/stores/countStore.js';
 import { ifcCategoryForParametric, ifcCategoryForAnnotationType } from '../solid/data/ifcCategoryMap.js';
 import { STAVENREEKS_DEFAULTS } from '../annotations/stavenreeks.js';
+import { BETONBALK_DEFAULTS } from '../annotations/betonbalk.js';
+import { betonbalkLastProfiel } from '../solid/stores/betonbalkStore.js';
 
 /**
  * Build raw annotation properties from tool + coordinates.
@@ -105,6 +107,31 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         color: '#000000',
         strokeColor: '#000000',
         lineWidth: 0.7,
+        opacity: 1,
+      };
+    }
+
+    case 'betonbalk': {
+      // Betonbalk: lijnstuk-geometrie (zoals de wand) + doorsnede in mm.
+      // De laatst gekozen doorsnede (paneel-keuzelijst) geldt als
+      // voorinstelling; toolOverrides kunnen haar per activatie overschrijven.
+      const end = snap(startX, startY, endX, endY);
+      const profiel = betonbalkLastProfiel();
+      return {
+        type: 'betonbalk',
+        page: getActiveDocument()?.currentPage || 1,
+        startX, startY,
+        endX: end.x, endY: end.y,
+        breedteMm: o.betonbalkBreedteMm ?? profiel.breedteMm ?? BETONBALK_DEFAULTS.breedteMm,
+        hoogteMm: o.betonbalkHoogteMm ?? profiel.hoogteMm ?? BETONBALK_DEFAULTS.hoogteMm,
+        lijnstijl: o.betonbalkLijnstijl ?? BETONBALK_DEFAULTS.lijnstijl,
+        tagTonen: BETONBALK_DEFAULTS.tagTonen,
+        ifcCategory: ifcCategoryForAnnotationType('betonbalk'),
+        // NL constructie-componenten zijn standaard ZWART, net als wand en
+        // stavenreeks; herkleuren kan achteraf in het eigenschappen-paneel.
+        color: '#000000',
+        strokeColor: '#000000',
+        lineWidth: getLineWidthValue() || 1,
         opacity: 1,
       };
     }

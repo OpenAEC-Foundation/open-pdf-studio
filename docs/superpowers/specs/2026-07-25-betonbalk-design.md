@@ -1,87 +1,113 @@
-# Betonbalk — doortekenbaar balkobject in plattegrond (ontwerp)
+# Betonbalk — tweepunts balkobject in plattegrond (ontwerp, herzien)
 
-**Doel:** een constructieve betonbalk voor plattegronden die je als hartlijn
-doortekent (klik-klik-klik, zoals de polylijn), met een instelbare breedte.
-De twee randlijnen worden op elke knik in verstek gejoined, en aansluitingen
-tussen áparte balken worden automatisch opgeschoond (T- en hoekaansluiting).
+**Doel:** een constructieve betonbalk voor plattegronden. Eén balk = één
+LIJNSTUK (zoals lijn en wand), met een instelbare doorsnede (b×h in mm).
+Hoek- en T-aansluitingen tussen losse balken worden automatisch opgeschoond.
+
+> Herziening t.o.v. het eerste ontwerp: geen polyline-hartlijn meer maar
+> losse lijnstukken (gebruikerswens), volledige maatvoering/ortho zoals de
+> lijn/wand, profielkeuzelijst, optionele tag en optionele hartlijn.
 
 ## Interactie
 
 1. Gereedschap `betonbalk` activeren vanuit het toolpalette (NL IFC Bouw).
-2. Elke klik voegt een hartlijnpunt toe; het segment-in-wording toont een
-   live voorbeeld met randen op de huidige breedte. Snap-engine doet mee
-   (eindpunten, haaks, polair) zoals bij de bestaande tekengereedschappen.
-3. Enter of dubbelklik sluit de balk af; Escape annuleert het laatste punt,
-   nogmaals Escape annuleert de balk.
-4. Grippunten op de hartlijnpunten; verslepen van een punt hertekent de
-   verstekken. Verplaatsen van de hele balk zoals elk object.
+2. Klik-klik zoals de lijn/wand (gedeelde line-tool): eerste klik = start,
+   tweede klik = eind. De tool blijft actief en KETENT: het eindpunt wordt
+   meteen het startpunt van de volgende balk (doortekenen). Rechtsklik/Escape
+   beëindigt de reeks.
+3. Volledige maatvoering van de line-tool: type-length-invoer (lengte,
+   `dx,dy`, `lengte<hoek`, `=x,y`; Enter commit via `state._typeLengthCommit`)
+   en Shift = hoek-snap (prefs `enableAngleSnap`/`angleSnapDegrees`).
+   Object-snap/polair doen mee zoals bij elk tekengereedschap.
+4. Eindpunt-grips (LINE_START/LINE_END) + midden-grip; verplaatsen zoals elk
+   object. Trim-, extend- en split-gereedschap werken op de balk zoals op een
+   lijn; split levert TWEE betonbalken op (type blijft behouden).
 
 ## Datamodel
 
-Eigen annotatietype `betonbalk` (precedent: stavenreeks — eigen type, geen
-sjabloon, want sjablonen kennen geen klik-voor-klik-invoer):
+Eigen annotatietype `betonbalk` (lijnstuk-vorm, zoals `wall`):
 
 | Veld | Betekenis | Default |
 |---|---|---|
-| `points` | hartlijnpunten (app-ruimte) | — |
-| `breedteMm` | balkbreedte in mm, schaalgebied-bewust | 300 |
+| `startX/startY/endX/endY` | hartlijn-lijnstuk (app-ruimte) | — |
+| `breedteMm` | balkbreedte in mm (plan-breedte, schaalgebied-bewust) | 300 |
+| `hoogteMm` | balkhoogte in mm (administratief; paneel + tag) | 400 |
 | `lijnstijl` | `'doorgetrokken'` \| `'gestippeld'` | doorgetrokken |
+| `toonHartlijn` | hartlijn tekenen | true |
+| `tagTonen` | tag tekenen | false |
+| `tagTekst` | tagtekst (leeg = profielnaam "b×h") | '' |
 | `strokeColor`, `lineWidth`, `opacity` | zoals elders | |
 
-`realSizeMm`-gedrag: bij plaatsing in een schaalgebied wordt `breedteMm`
-omgerekend naar papierpunten via de plaatselijke schaal; buiten een
-schaalgebied geldt een vaste omrekening (1:100) zoals bij de staalprofielen.
-De hartlijn zelf volgt de klikpunten (die zijn al in papierruimte).
+Profielkeuze: keuzelijst met gangbare doorsneden (200x300, 250x350, 300x400,
+350x400, 350x500, 400x400, 400x500, 400x600, 500x500, 500x600) plus
+"Aangepast…" (vrije breedte + hoogte). De laatst gekozen doorsnede geldt als
+voorinstelling voor de volgende geplaatste balk (betonbalkStore, zoals
+pendingParams bij parametrische symbolen).
+
+`realSizeMm`-gedrag: `breedteMm` wordt via de plaatselijke schaal
+(schaalgebied → schaalbalk/doc-schaal) omgerekend naar papierpunten; buiten
+elke kalibratie geldt een vaste 1:100-omrekening.
 
 ## Geometrie (kern, testbaar in Node)
 
-Nieuw module `js/annotations/betonbalk.js` — één bron voor canvas én PDF-AP:
+Module `js/annotations/betonbalk.js` — één bron voor canvas én PDF-AP:
 
-- `beamOutline(points, halfWidthPt)` → de twee randpolylijnen, met
-  **verstek-join** per knik: randsegmenten van aangrenzende segmenten
-  worden gesneden; bij bijna-parallelle of zeer scherpe hoeken (miter-limiet
-  ~4× halve breedte) terugvallen op afgeschuinde (bevel) join zodat geen
-  extreme uitschieters ontstaan.
-- `trimAgainstBeams(outline, andereBalken)` → **inter-balk-join**: eindigt of
-  begint een hartlijn op (het lijf of een uiteinde van) een andere betonbalk
-  op dezelfde pagina (tolerantie: halve breedte van de dunste balk), dan:
-  - worden de eigen randlijnen doorgetrokken/afgekort tot de randlijn van de
-    doelbalk (T-aansluiting), en
-  - wordt op het aansluitvlak géén eindkap getekend, zodat de balken visueel
-    één geheel vormen.
-  De doelbalk zelf blijft ongewijzigd in data; het opschonen is puur
-  render-tijd (en AP-tijd), zodat verplaatsen/verwijderen altijd
-  omkeerbaar blijft en er geen verborgen mutaties in andere annotaties
-  ontstaan.
+- `beamOutline(points, halfWidthPt)` → de twee randlijnen; op knikken (alleen
+  van belang voor hulpberekeningen/legacy) verstek-join met miter-limiet
+  (~4× halve breedte) → bevel.
+- `trimAgainstBeams(edges, center, halfWidth, andereBalken)` → inter-balk-join
+  per uiteinde:
+  - **Hoek** (uiteinde op uiteinde, tolerantie 1,5 pt): beide randen worden in
+    VERSTEK gesneden met de overeenkomstige rand van de aansluitende balk
+    (randparing zoals de wand-joins); geen eindkap.
+  - **T** (uiteinde op het lijf, tolerantie: halve breedte van de dunste
+    balk): de eigen randen én de teken-hartlijn worden doorgetrokken/afgekort
+    tot de NABIJE rand van de doelbalk (de eerste rand die de eigen lijn in
+    uitgaande richting kruist — expliciet NIET de rand die het dichtst bij
+    het uiteinde ligt, anders schiet een voorbij de doel-hartlijn geklikt
+    uiteinde door naar de verre rand); geen eindkap op het aansluitvlak.
+  De doelbalk blijft ongewijzigd in data; het opschonen is puur render-/AP-
+  tijd, dus altijd omkeerbaar en zonder verborgen mutaties.
 - Eindkappen: haaks dichtgezet op vrije uiteinden.
+- Tag: gecentreerd langs de balk, boven de hartlijn, meegeroteerd met de
+  balkrichting en nooit ondersteboven (flip bij > 90°).
 
 ## Weergave
 
-- Twee randlijnen (kleur/lijndikte uit het object), hartlijn optioneel als
-  dunne streep-punt-lijn (stijl `'gestippeld'`: randen onderbroken — balk
-  boven het aanzichtvlak, NL-conventie; hartlijn dan doorgetrokken dun).
+- Twee randlijnen (kleur/lijndikte uit het object). Hartlijn optioneel
+  (`toonHartlijn`): dun; streep-punt bij 'doorgetrokken', doorgetrokken dun
+  bij 'gestippeld' (balk boven het aanzichtvlak — randen dan onderbroken).
+  Bij een T-join stopt de hartlijn op de nabije doelrand.
 - Geen vulling/arcering in v1.
-- Selectie: bestaande selectiehandvatten; hit-test op het balklijf
-  (polygon-contains op de outline).
+- Selectie: eindpunt-grips zoals lijn/wand; hit-test op het balklijf
+  (hartlijn ± halve breedte).
 
 ## Persistentie
 
-Opslaan als `/Polygon`-annotatie met `/Vertices` = outline (zodat externe
-programma's iets redelijks tonen en het object verplaatsbaar is), eigen
-appearance-stream met de exacte lijnvoering (incl. verstek en inter-balk-trim
-op het moment van opslaan), en privésleutels `OPS_Subtype: 'betonbalk'`,
-`OPS_Hartlijn` (punten), `OPS_BreedteMm`, `OPS_Lijnstijl` zodat de app hem
-bij heropenen weer als bewerkbare betonbalk laadt. Canonieke conventie:
-Matrix identiteit, BBox = Rect-maat, geen top-level rotatie.
+Opslaan als `/Polygon` met `/Vertices` = balkomtrek (extern redelijk zichtbaar
+en als één object verplaatsbaar), eigen appearance-stream met de exacte
+lijnvoering (verstek/T-trims van het opslagmoment, optionele hartlijn en tag)
+en privésleutels: `OPS_Subtype: 'betonbalk'`, `OPS_BbGeom` (lijnstuk),
+`OPS_BreedteMm`, `OPS_HoogteMm`, `OPS_Lijnstijl`, `OPS_BbHartlijnTonen`,
+`OPS_BbTagTonen`, `OPS_BbTagTekst`, `OPS_BbLineWidth`, `OPS_BbRect`
+(verplaatsings-compensatie). Canoniek: Matrix (translatie-)identiteit,
+BBox = Rect-maat, geen top-level rotatie.
+
+**Legacy:** de eerste release schreef `OPS_Hartlijn` (polyline, mogelijk > 2
+punten). De loader leest die vorm nog en splitst meerpunts-exemplaren in
+losse tweepunts-balken.
 
 ## Verificatie
 
-1. Node-unittest `scripts/test-betonbalk.mjs`: verstek op 90°- en 45°-knik
-   (exacte snijpunten), miter-limiet → bevel bij scherpe hoek, T-aansluiting
-   (rand eindigt op doelrand, geen eindkap), vrije einden wel kap,
-   round-trip hartlijn → outline → zelfde bij herberekening.
-2. Rig: balk met 3 knikken tekenen, breedte wijzigen in het paneel,
-   lijnstijl wisselen, tweede balk T-vormig laten aansluiten — screenshots.
+1. Node-unittest `scripts/test-betonbalk.mjs`: verstek 90°/45° (exact),
+   miter-limiet → bevel, L-hoekverstek tussen losse balken (exacte
+   verstekpunten, ook bij ongelijke breedtes), T-aansluiting met exacte
+   eindcoördinaten op de nabije doelrand + regressietest tegen
+   verre-rand-doorschieten, hartlijn-trim en -schakelaar, eindkappen, tag,
+   round-trip-determinisme.
+2. Rig: twee losse balken haaks (L-verstek), derde balk als T, profiel
+   wijzigen via de keuzelijst, tag aan, hartlijn uit/aan, trim-tool op een
+   balk — screenshots (ingezoomd op de aansluitingen).
 3. Opslaan naar kopie → heropenen: nog steeds bewerkbaar; pypdfium2-render
-   van de kopie toont dezelfde lijnvoering.
+   toont dezelfde lijnvoering.
 4. Rooktest `a-drawing` groen; `npm run build` groen.

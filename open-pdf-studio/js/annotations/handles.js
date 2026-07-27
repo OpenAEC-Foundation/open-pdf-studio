@@ -230,6 +230,7 @@ export function getAnnotationHandles(annotation, scale = 1) {
     }
 
     case 'wall':
+    case 'betonbalk':
     case 'line':
       // Endpoint handles + midpoint grip (move whole line)
       handles.push({ type: HANDLE_TYPES.LINE_START, x: annotation.startX - hs/2, y: annotation.startY - hs/2, isGrip: true });

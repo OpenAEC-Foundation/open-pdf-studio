@@ -1670,17 +1670,23 @@ export function drawAnnotation(ctx, annotation) {
     }
 
     case 'betonbalk': {
-      // Betonbalk in plattegrond: twee randlijnen met verstek-joins op de
-      // knikken, eindkappen op vrije uiteinden en een dunne hartlijn. De
+      // Betonbalk in plattegrond: één lijnstuk-band met twee randlijnen,
+      // eindkappen op vrije uiteinden, dunne hartlijn en optionele tag. De
       // volledige geometrie komt uit buildBetonbalk() — dezelfde bron als de
-      // PDF-appearance. Aansluitingen op ANDERE balken (T/hoek) worden hier
-      // per render opnieuw berekend uit de sibling-annotaties; de doelbalk
-      // zelf wordt nooit gemuteerd.
+      // PDF-appearance. Aansluitingen op ANDERE balken (hoek-verstek / T)
+      // worden per render opnieuw berekend uit de sibling-annotaties; de
+      // doelbalk zelf wordt nooit gemuteerd.
       const _bbDoc = state.documents[state.activeDocumentIndex];
-      const bbGeom = buildBetonbalk(
-        annotation,
-        betonbalkBuildOpts(annotation, _bbDoc ? _bbDoc.annotations : [])
-      );
+      const bbGeom = buildBetonbalk(annotation, {
+        ...betonbalkBuildOpts(annotation, _bbDoc ? _bbDoc.annotations : []),
+        measureText: (text, size) => {
+          ctx.save();
+          ctx.font = `${size}px Arial`;
+          const w = ctx.measureText(text).width;
+          ctx.restore();
+          return w;
+        },
+      });
       if (!bbGeom) break;
       drawBetonbalkGeom(ctx, bbGeom, {
         strokeColor,

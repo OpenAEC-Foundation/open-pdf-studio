@@ -449,10 +449,23 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         // keys, dan blijft het een gewone polygon — nooit crashen.
         const bbBreedte = srNum('OPS_BreedteMm');
         if (bbBreedte !== null) colors.bbBreedteMm = bbBreedte;
+        const bbHoogte = srNum('OPS_HoogteMm');
+        if (bbHoogte !== null) colors.bbHoogteMm = bbHoogte;
         const bbStijl = srStr('OPS_Lijnstijl');
         if (bbStijl) colors.bbLijnstijl = bbStijl;
         const bbLw = srNum('OPS_BbLineWidth');
         if (bbLw !== null) colors.bbLineWidth = bbLw;
+        const bbHl = srNum('OPS_BbHartlijnTonen');
+        if (bbHl !== null) colors.bbHartlijnTonen = bbHl === 1;
+        const bbTagT = srNum('OPS_BbTagTonen');
+        if (bbTagT !== null) colors.bbTagTonen = bbTagT === 1;
+        const bbTagS = srStr('OPS_BbTagTekst');
+        if (bbTagS) colors.bbTagTekst = bbTagS;
+        // Huidige vorm: lijnstuk [x1,y1,x2,y2].
+        const bbGeom = srArr('OPS_BbGeom');
+        if (bbGeom && bbGeom.length === 4) colors.bbGeom = bbGeom;
+        // Legacy (eerste vorm): hartlijn-polyline [x1,y1,...] — de converter
+        // splitst meerpunts-exemplaren in losse tweepunts-balken.
         const bbHart = srArr('OPS_Hartlijn');
         if (bbHart && bbHart.length >= 4) colors.bbHartlijn = bbHart;
         const bbRect = srArr('OPS_BbRect');

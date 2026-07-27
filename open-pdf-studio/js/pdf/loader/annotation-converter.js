@@ -760,15 +760,22 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           maxY = Math.max(maxY, pvy);
         }
 
-        // Betonbalk: /Polygon (omtrek in /Vertices) met onze OPS-hartlijn —
-        // herstel als bewerkbare balk. De omtrek zelf wordt bij het renderen
-        // opnieuw uit de hartlijn + breedte afgeleid (incl. verse
-        // inter-balk-trims). Verplaatst in een ander programma? Dan wijkt de
-        // actuele /Rect af van OPS_BbRect en schuift de hartlijn exact mee
-        // (zelfde patroon als de stavenreeks). Ontbreken de keys, dan valt
-        // dit blok stil en laadt hij als gewone polygon — nooit crashen.
-        if (extraColors.opsSubtype === 'betonbalk'
-            && Array.isArray(extraColors.bbHartlijn) && extraColors.bbHartlijn.length >= 4) {
+        // Betonbalk: /Polygon (omtrek in /Vertices) met ons OPS-lijnstuk —
+        // herstel als bewerkbare balk. De band wordt bij het renderen opnieuw
+        // uit start/eind + breedte afgeleid (incl. verse inter-balk-joins).
+        // Verplaatst in een ander programma? Dan wijkt de actuele /Rect af
+        // van OPS_BbRect en schuift het lijnstuk exact mee (zelfde patroon
+        // als de stavenreeks). LEGACY: de eerste vorm sloeg een
+        // hartlijn-polyline op (OPS_Hartlijn, mogelijk > 2 punten) — die
+        // wordt gesplitst in losse tweepunts-balken (extra exemplaren via
+        // __extraAnnotations, door de loader mee-gepusht). Ontbreken de
+        // keys, dan valt dit blok stil en laadt hij als gewone polygon.
+        const bbGeomSrc = (Array.isArray(extraColors.bbGeom) && extraColors.bbGeom.length === 4)
+          ? extraColors.bbGeom
+          : (Array.isArray(extraColors.bbHartlijn) && extraColors.bbHartlijn.length >= 4)
+            ? extraColors.bbHartlijn
+            : null;
+        if (extraColors.opsSubtype === 'betonbalk' && bbGeomSrc) {
           let bbDx = 0, bbDy = 0;
           const bbSavedRect = extraColors.bbRect;
           if (Array.isArray(bbSavedRect) && bbSavedRect.length === 4 && Array.isArray(annot.rect)) {
@@ -777,25 +784,44 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
             bbDy = annot.rect[1] - bbSavedRect[1];
           }
           const bbPts = [];
-          for (let i = 0; i + 1 < extraColors.bbHartlijn.length; i += 2) {
-            const [bx, by] = convertPoint(
-              extraColors.bbHartlijn[i] + bbDx,
-              extraColors.bbHartlijn[i + 1] + bbDy
-            );
+          for (let i = 0; i + 1 < bbGeomSrc.length; i += 2) {
+            const [bx, by] = convertPoint(bbGeomSrc[i] + bbDx, bbGeomSrc[i + 1] + bbDy);
             bbPts.push({ x: bx, y: by });
           }
+          if (bbPts.length < 2) break;
           const bbColor = colorArrayToHex(annot.color, '#000000');
-          return createAnnotation({
-            ...baseProps,
+          const bbShared = {
             type: 'betonbalk',
-            points: bbPts,
             breedteMm: extraColors.bbBreedteMm ?? 300,
+            hoogteMm: extraColors.bbHoogteMm ?? 400,
             lijnstijl: extraColors.bbLijnstijl === 'gestippeld' ? 'gestippeld' : 'doorgetrokken',
+            toonHartlijn: extraColors.bbHartlijnTonen !== false,
+            tagTonen: extraColors.bbTagTonen === true,
+            ...(extraColors.bbTagTekst ? { tagTekst: extraColors.bbTagTekst } : {}),
             ifcCategory: ifcCategoryForAnnotationType('betonbalk'),
             color: bbColor,
             strokeColor: bbColor,
             lineWidth: extraColors.bbLineWidth ?? extraColors.borderWidth ?? 1,
+          };
+          const bbFirst = createAnnotation({
+            ...baseProps,
+            ...bbShared,
+            startX: bbPts[0].x, startY: bbPts[0].y,
+            endX: bbPts[1].x, endY: bbPts[1].y,
           });
+          // Legacy meerpunts-hartlijn → elk vervolg-segment een eigen balk.
+          if (bbPts.length > 2) {
+            bbFirst.__extraAnnotations = [];
+            for (let i = 1; i < bbPts.length - 1; i++) {
+              bbFirst.__extraAnnotations.push(createAnnotation({
+                ...baseProps,
+                ...bbShared,
+                startX: bbPts[i].x, startY: bbPts[i].y,
+                endX: bbPts[i + 1].x, endY: bbPts[i + 1].y,
+              }));
+            }
+          }
+          return bbFirst;
         }
 
         // Check if this is a filled-area annotation (our private subtype).

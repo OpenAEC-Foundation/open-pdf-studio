@@ -1732,28 +1732,35 @@ export async function savePDF(saveAsPath = null) {
             //
             // Canonieke conventie (§12.5.5): BBox = /Rect-maat, Matrix zuivere
             // translatie (attachVectorAP), geen top-level rotatie — alle
-            // geometrie zit in de hartlijnpunten zelf.
-            if (!ann.points || ann.points.length < 2) continue;
+            // geometrie zit in start/eind zelf.
             const bbGeom = buildBetonbalk(ann, betonbalkBuildOpts(ann, docAnnotations));
             if (!bbGeom) continue;
 
             const bbVertices = [];
-            let bbMinX = Infinity, bbMinY = Infinity, bbMaxX = -Infinity, bbMaxY = -Infinity;
             for (const pt of bbGeom.outline) {
-              const px = convertX(pt.x);
-              const py = convertY(pt.y);
-              bbVertices.push(px, py);
-              bbMinX = Math.min(bbMinX, px); bbMaxX = Math.max(bbMaxX, px);
-              bbMinY = Math.min(bbMinY, py); bbMaxY = Math.max(bbMaxY, py);
+              bbVertices.push(convertX(pt.x), convertY(pt.y));
             }
+            // /Rect uit de VOLLEDIGE AABB (incl. tagvak en hartlijn): de
+            // appearance-BBox clipt op /Rect, dus een tag boven de band zou
+            // anders wegvallen in externe viewers.
+            const bbA = bbGeom.aabb;
+            const bbCorners = [
+              [convertX(bbA.x), convertY(bbA.y)],
+              [convertX(bbA.x + bbA.width), convertY(bbA.y + bbA.height)],
+            ];
+            const bbMinX = Math.min(bbCorners[0][0], bbCorners[1][0]);
+            const bbMaxX = Math.max(bbCorners[0][0], bbCorners[1][0]);
+            const bbMinY = Math.min(bbCorners[0][1], bbCorners[1][1]);
+            const bbMaxY = Math.max(bbCorners[0][1], bbCorners[1][1]);
             const bbPad = borderWidth + 2;
             const bbRect = [bbMinX - bbPad, bbMinY - bbPad, bbMaxX + bbPad, bbMaxY + bbPad];
             const bbStroke = ann.strokeColor || ann.color || '#000000';
 
-            const bbHartlijn = [];
-            for (const pt of ann.points) {
-              bbHartlijn.push(convertX(pt.x), convertY(pt.y));
-            }
+            // Lijnstuk (start→eind) in PDF-coördinaten.
+            const bbGeomArr = [
+              convertX(bbGeom.rawCenter[0].x), convertY(bbGeom.rawCenter[0].y),
+              convertX(bbGeom.rawCenter[1].x), convertY(bbGeom.rawCenter[1].y),
+            ];
 
             const bbDict = {
               Type: 'Annot',
@@ -1771,14 +1778,18 @@ export async function savePDF(saveAsPath = null) {
               // herschreven), dan laadt hij als gewone polygon — nooit crashen.
               OPS_Subtype: PDFString.of('betonbalk'),
               OPS_BreedteMm: bbGeom.params.breedteMm,
+              OPS_HoogteMm: bbGeom.params.hoogteMm,
               OPS_Lijnstijl: PDFString.of(bbGeom.params.lijnstijl),
               OPS_BbLineWidth: ann.lineWidth ?? 1,
-              // Hartlijn in PDF-coördinaten + de /Rect zoals WIJ hem schreven:
-              // wijkt de actuele /Rect daarvan af, dan heeft een ander
-              // programma het object verplaatst en past de loader die
-              // verschuiving op de hartlijn toe (zelfde patroon als de
+              OPS_BbHartlijnTonen: bbGeom.params.toonHartlijn ? 1 : 0,
+              OPS_BbTagTonen: bbGeom.params.tagTonen ? 1 : 0,
+              OPS_BbTagTekst: PDFString.of(bbGeom.params.tagTekst),
+              // Lijnstuk in PDF-coördinaten + de /Rect zoals WIJ hem
+              // schreven: wijkt de actuele /Rect daarvan af, dan heeft een
+              // ander programma het object verplaatst en past de loader die
+              // verschuiving op start/eind toe (zelfde patroon als de
               // stavenreeks).
-              OPS_Hartlijn: context.obj(bbHartlijn),
+              OPS_BbGeom: context.obj(bbGeomArr),
               OPS_BbRect: context.obj(bbRect),
             };
             annotDict = context.obj(bbDict);

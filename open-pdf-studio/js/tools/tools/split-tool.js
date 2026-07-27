@@ -24,10 +24,18 @@ function _newId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 11);
 }
 
-// A straight line annotation exposes start/end endpoints.
+// A straight line annotation exposes start/end endpoints. Betonbalk is
+// line-shaped too; its pieces keep their own type (a split beam yields two
+// beams, not two plain lines).
 function _isLine(ann) {
   return ann && ann.startX !== undefined && ann.endX !== undefined &&
-    (ann.type === 'line' || ann.type === 'arrow' || ann.type === 'measureDistance');
+    (ann.type === 'line' || ann.type === 'arrow' || ann.type === 'measureDistance' ||
+     ann.type === 'betonbalk');
+}
+
+// Types whose split/break pieces keep their own annotation type.
+function _pieceType(srcType) {
+  return srcType === 'betonbalk' ? 'betonbalk' : 'line';
 }
 
 // Project point p onto the infinite line through a→b; returns { x, y, t }
@@ -44,7 +52,7 @@ function _project(p, a, b) {
 function _lineFrom(src, p1, p2) {
   const c = cloneAnnotation(src);
   c.id = _newId();
-  c.type = 'line';                 // a broken piece is a plain line segment
+  c.type = _pieceType(src.type);   // broken piece: plain line, or same type (betonbalk)
   c.startX = p1.x; c.startY = p1.y;
   c.endX = p2.x; c.endY = p2.y;
   // Drop measurement-specific fields so a split measureDistance doesn't carry
@@ -78,8 +86,8 @@ export const splitTool = {
     const oldState = cloneAnnotation(clicked);
 
     // First half stays in the original annotation; drop measure fields so a
-    // split dimension becomes two neutral lines.
-    clicked.type = 'line';
+    // split dimension becomes two neutral lines (a betonbalk stays betonbalk).
+    clicked.type = _pieceType(clicked.type);
     clicked.endX = cut.x; clicked.endY = cut.y;
     delete clicked.measureText; delete clicked.measureValue; delete clicked.measureUnit;
     delete clicked.measurePixels; delete clicked.leaderStartX; delete clicked.leaderStartY;
@@ -142,7 +150,7 @@ export const breakTool = {
     const oldState = cloneAnnotation(line);
 
     // Keep the head (start → p1) in the original; add the tail (p2 → end).
-    line.type = 'line';
+    line.type = _pieceType(line.type);
     line.endX = p1.x; line.endY = p1.y;
     delete line.measureText; delete line.measureValue; delete line.measureUnit;
     delete line.measurePixels; delete line.leaderStartX; delete line.leaderStartY;

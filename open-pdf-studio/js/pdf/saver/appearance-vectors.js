@@ -402,11 +402,31 @@ export function buildBetonbalkAP({ geom, X, Y, strokeColorHex, lineWidth }) {
   for (const c of geom.caps || []) {
     s += `${f(X(c.x1))} ${f(Y(c.y1))} m ${f(X(c.x2))} ${f(Y(c.y2))} l S\n`;
   }
-  // Hartlijn: dun (zelfde factor als het canvas — betonbalk-draw.js).
-  s += `${f(Math.max(0.3, lw * 0.5))} w\n`;
-  s += centerDash ? `[${centerDash.map(f).join(' ')}] 0 d\n` : '[] 0 d\n';
-  s += pathOps(geom.center, X, Y, false) + 'S\n';
-  return { content: s, needsFont: false };
+  // Hartlijn (optioneel, toonHartlijn): dun — zelfde factor als het canvas
+  // (betonbalk-draw.js). Bij een T-join is geom.center al ingekort tot de
+  // nabije doelrand.
+  if (geom.params && geom.params.toonHartlijn !== false) {
+    s += `${f(Math.max(0.3, lw * 0.5))} w\n`;
+    s += centerDash ? `[${centerDash.map(f).join(' ')}] 0 d\n` : '[] 0 d\n';
+    s += pathOps(geom.center, X, Y, false) + 'S\n';
+  }
+
+  // Tag: gecentreerd boven de hartlijn, meegeroteerd met de balkrichting.
+  // App-hoek is y-omlaag; PDF y-omhoog → hoek spiegelen.
+  let needsFont = false;
+  if (geom.tag) {
+    const t = geom.tag;
+    const phi = -t.angle;
+    const c = Math.cos(phi), sn = Math.sin(phi);
+    const cx = X(t.x), cy = Y(t.y);
+    const bx = cx - (t.width / 2) * c;
+    const by = cy - (t.width / 2) * sn;
+    s += `BT\n/Helv ${f(t.fontSize)} Tf\n${f(stroke[0])} ${f(stroke[1])} ${f(stroke[2])} rg\n`;
+    s += `${f(c)} ${f(sn)} ${f(-sn)} ${f(c)} ${f(bx)} ${f(by)} Tm\n`;
+    s += `(${escapePdfText(t.text)}) Tj\nET\n`;
+    needsFont = true;
+  }
+  return { content: s, needsFont };
 }
 
 // cloud / cloudPolyline: scalloped outline (optional fill).
