@@ -185,6 +185,39 @@ jobs:
         if: matrix.target == 'macos'
         run: npm run prepare:native-runtime
 
+      # Onderteken de dylib VÓÓR het bundelen. Tauri ondertekent de app-binary
+      # en sidecars, maar niet een losse dylib onder bundle.resources — de
+      # notarisatie keurt de hele bundel daarop af ("The binary is not
+      # signed", status Invalid). De handtekening zit in het Mach-O-bestand
+      # zelf en reist mee wanneer de bundler hem naar Contents/Resources
+      # kopieert. Eigen tijdelijke keychain; tauri-action maakt daarna zijn
+      # eigen import — geen conflict.
+      - name: Sign libpdfium.dylib (macOS)
+        if: matrix.target == 'macos'
+        shell: bash
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+        run: |
+          set -euo pipefail
+          KEYCHAIN="$RUNNER_TEMP/dylib-sign.keychain-db"
+          KEYCHAIN_PW="$(uuidgen)"
+          printf '%s' "$APPLE_CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/dylib-cert.p12"
+          security create-keychain -p "$KEYCHAIN_PW" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PW" "$KEYCHAIN"
+          security import "$RUNNER_TEMP/dylib-cert.p12" -P "$APPLE_CERTIFICATE_PASSWORD" \
+            -A -t cert -f pkcs12 -k "$KEYCHAIN"
+          security set-key-partition-list -S "apple-tool:,apple:,codesign:" \
+            -k "$KEYCHAIN_PW" "$KEYCHAIN" > /dev/null
+          security list-keychains -d user -s "$KEYCHAIN" login.keychain-db
+          codesign --force --options runtime --timestamp \
+            --sign "$APPLE_SIGNING_IDENTITY" \
+            src-tauri/binaries/macos-universal/libpdfium.dylib
+          codesign -dv --verbose=2 src-tauri/binaries/macos-universal/libpdfium.dylib
+          rm -f "$RUNNER_TEMP/dylib-cert.p12"
+
       - name: Set user install mode
         if: matrix.target == 'windows-user'
         shell: pwsh
