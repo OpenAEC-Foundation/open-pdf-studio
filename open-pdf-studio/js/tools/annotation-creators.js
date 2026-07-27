@@ -125,6 +125,7 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         breedteMm: o.betonbalkBreedteMm ?? profiel.breedteMm ?? BETONBALK_DEFAULTS.breedteMm,
         hoogteMm: o.betonbalkHoogteMm ?? profiel.hoogteMm ?? BETONBALK_DEFAULTS.hoogteMm,
         lijnstijl: o.betonbalkLijnstijl ?? BETONBALK_DEFAULTS.lijnstijl,
+        toonHartlijn: BETONBALK_DEFAULTS.toonHartlijn,
         tagTonen: BETONBALK_DEFAULTS.tagTonen,
         ifcCategory: ifcCategoryForAnnotationType('betonbalk'),
         // NL constructie-componenten zijn standaard ZWART, net als wand en

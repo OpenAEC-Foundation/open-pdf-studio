@@ -4,6 +4,8 @@ import { state } from '../core/state.js';
 import { getTemplate } from '../symbols/registry.js';
 import { twoPointEndpoints } from '../symbols/two-point.js';
 import { handleAnchors } from './stavenreeks.js';
+import { betonbalkTagAnchor } from './betonbalk.js';
+import { betonbalkHalfWidthPx } from './betonbalk-scale.js';
 
 // Rotate a point around a center point
 function rotatePoint(x, y, centerX, centerY, rotationDegrees) {
@@ -242,6 +244,16 @@ export function getAnnotationHandles(annotation, scale = 1) {
         isGrip: true,
         isCenterGrip: true,
       });
+      // Betonbalk-tag: eigen grippunt op de tag zodat die vrij te verslepen
+      // is (tagOffsetX/Y) zonder de balk zelf te bewegen. Het anker komt uit
+      // dezelfde helper als de tekenroutine, dus de grip ligt exact op de
+      // getekende tekst.
+      if (annotation.type === 'betonbalk' && annotation.tagTonen === true) {
+        const bbTag = betonbalkTagAnchor(annotation, betonbalkHalfWidthPx(annotation));
+        if (bbTag) {
+          handles.push({ type: 'betonbalk_tag', x: bbTag.x - hs/2, y: bbTag.y - hs/2, isGrip: true });
+        }
+      }
       break;
 
     case 'arrow':

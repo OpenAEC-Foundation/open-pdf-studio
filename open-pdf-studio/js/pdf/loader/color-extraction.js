@@ -461,6 +461,10 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         if (bbTagT !== null) colors.bbTagTonen = bbTagT === 1;
         const bbTagS = srStr('OPS_BbTagTekst');
         if (bbTagS) colors.bbTagTekst = bbTagS;
+        const bbTagDx = srNum('OPS_BbTagDx');
+        if (bbTagDx !== null) colors.bbTagDx = bbTagDx;
+        const bbTagDy = srNum('OPS_BbTagDy');
+        if (bbTagDy !== null) colors.bbTagDy = bbTagDy;
         // Huidige vorm: lijnstuk [x1,y1,x2,y2].
         const bbGeom = srArr('OPS_BbGeom');
         if (bbGeom && bbGeom.length === 4) colors.bbGeom = bbGeom;

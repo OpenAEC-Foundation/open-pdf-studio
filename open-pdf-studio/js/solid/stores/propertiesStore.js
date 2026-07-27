@@ -367,7 +367,7 @@ export function storeShowProperties(annotation) {
     breedteMm: annotation.breedteMm ?? BETONBALK_DEFAULTS.breedteMm,
     hoogteMm: annotation.hoogteMm ?? BETONBALK_DEFAULTS.hoogteMm,
     lijnstijl: annotation.lijnstijl || BETONBALK_DEFAULTS.lijnstijl,
-    toonHartlijn: annotation.toonHartlijn !== false,
+    toonHartlijn: annotation.toonHartlijn === true,
     tagTonen: annotation.tagTonen === true,
     tagTekst: annotation.tagTekst || '',
     replies: annotation.replies || [],
@@ -839,7 +839,7 @@ function applyPropToAnnotation(ann, key, value) {
     case 'lijnstijl':
       ann.lijnstijl = BETONBALK_LIJNSTIJLEN.includes(value) ? value : BETONBALK_DEFAULTS.lijnstijl;
       break;
-    case 'toonHartlijn': ann.toonHartlijn = value !== false && value !== 'false'; break;
+    case 'toonHartlijn': ann.toonHartlijn = value === true || value === 'true'; break;
     case 'tagTonen': ann.tagTonen = value === true || value === 'true'; break;
     case 'tagTekst': ann.tagTekst = String(value ?? ''); break;
     case 'viewportName': ann.name = value; break;

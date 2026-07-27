@@ -22,7 +22,9 @@ export function drawBetonbalkGeom(ctx, geom, style) {
   ctx.lineCap = 'butt';
   ctx.lineJoin = 'miter';
 
-  // Randen + eindkappen (zelfde dash: de kap hoort bij de contour).
+  // Randen + eindkappen (zelfde dash: de kap hoort bij de contour). De
+  // randen komen als RUNS: deelsegmenten mét de open T-aansluitingen er al
+  // uitgeknipt (edgeCutouts). Terugval op de volle randen voor oude geoms.
   ctx.lineWidth = lw;
   ctx.setLineDash(geom.styles?.edgeDash || []);
   ctx.beginPath();
@@ -30,8 +32,17 @@ export function drawBetonbalkGeom(ctx, geom, style) {
     ctx.moveTo(pts[0].x, pts[0].y);
     for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
   };
-  trace(geom.edges.left);
-  trace(geom.edges.right);
+  if (geom.edgeRuns) {
+    for (const side of ['left', 'right']) {
+      for (const r of geom.edgeRuns[side]) {
+        ctx.moveTo(r.x1, r.y1);
+        ctx.lineTo(r.x2, r.y2);
+      }
+    }
+  } else {
+    trace(geom.edges.left);
+    trace(geom.edges.right);
+  }
   for (const c of geom.caps || []) {
     ctx.moveTo(c.x1, c.y1);
     ctx.lineTo(c.x2, c.y2);

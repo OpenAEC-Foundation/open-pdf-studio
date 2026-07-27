@@ -61,7 +61,7 @@ export const BETONBALK_DEFAULTS = {
   breedteMm: 300,
   hoogteMm: 400,
   lijnstijl: 'doorgetrokken',
-  toonHartlijn: true,
+  toonHartlijn: false,
   tagTonen: false,
   tagFontSize: 12,
 };
@@ -103,16 +103,27 @@ export function resolveBetonbalkParams(ann) {
     : BETONBALK_DEFAULTS.hoogteMm;
   const lijnstijl = BETONBALK_LIJNSTIJLEN.includes(a.lijnstijl)
     ? a.lijnstijl : BETONBALK_DEFAULTS.lijnstijl;
-  // Hartlijn tonen: standaard AAN — alleen een expliciete false zet hem uit.
-  const toonHartlijn = a.toonHartlijn !== false;
+  // Hartlijn tonen: standaard UIT — alleen een expliciete true zet hem aan.
+  const toonHartlijn = a.toonHartlijn === true;
   const tagTonen = a.tagTonen === true;
+  // Vrije tag-verplaatsing: offset in paginaruimte t.o.v. de standaardpositie
+  // (gecentreerd boven het balkmidden). Bewust een paginaruimte-offset en
+  // geen balk-lokale: robuust bij draaien/verslepen van de balk en één-op-één
+  // hetzelfde in canvas en AP.
+  const dxRaw = Number(a.tagOffsetX);
+  const tagOffsetX = Number.isFinite(dxRaw) ? dxRaw : 0;
+  const dyRaw = Number(a.tagOffsetY);
+  const tagOffsetY = Number.isFinite(dyRaw) ? dyRaw : 0;
   const tagTekstRaw = a.tagTekst != null ? String(a.tagTekst) : '';
   const tagTekst = tagTekstRaw.trim() !== ''
     ? tagTekstRaw : betonbalkProfielNaam(breedteMm, hoogteMm);
   const tfRaw = Number(a.tagFontSize);
   const tagFontSize = Number.isFinite(tfRaw) && tfRaw > 0
     ? clamp(tfRaw, 4, 72) : BETONBALK_DEFAULTS.tagFontSize;
-  return { breedteMm, hoogteMm, lijnstijl, toonHartlijn, tagTonen, tagTekst, tagFontSize };
+  return {
+    breedteMm, hoogteMm, lijnstijl, toonHartlijn,
+    tagTonen, tagTekst, tagFontSize, tagOffsetX, tagOffsetY,
+  };
 }
 
 /**
@@ -415,6 +426,146 @@ export function trimAgainstBeams(edges, center, ownHalfWidth, others) {
 }
 
 /**
+ * Onderbrekingen ("cutouts") van de EIGEN randen waar een ANDERE balk met
+ * een T op deze balk eindigt: de rand van de doorgaande balk wordt over
+ * precies de aansluitbreedte opengelaten, zodat de aansluiting open is
+ * (geen randlijn dwars over het aansluitvlak). Puur render-/AP-tijd — de
+ * eigen én de andermans data blijven onaangetast.
+ *
+ * Het interval per aansluiting is de PROJECTIE van het aansluitvlak op de
+ * rand: de snijpunten van de twee randlijnen van de aansluitende balk met
+ * de eigen randlijn (dus ook correct bij schuine aansluitingen).
+ *
+ * @param {{left:Array,right:Array}} edges  Eigen randen (na joins; per rand
+ *        een 2-punts segment).
+ * @param {Array<{x,y}>} rawCenter          Eigen hartlijn [S, E].
+ * @param {number} halfWidth
+ * @param {Array<{points:Array,halfWidth:number}>} others
+ * @returns {{left:Array<[number,number]>, right:Array<[number,number]>}}
+ *        Gesorteerde, samengevoegde intervallen in afstand langs de rand
+ *        (vanaf het rand-startpunt).
+ */
+export function edgeCutouts(edges, rawCenter, halfWidth, others) {
+  const out = { left: [], right: [] };
+  if (!edges || !rawCenter || rawCenter.length < 2 || !others || others.length === 0) return out;
+  const S = rawCenter[0], E = rawCenter[rawCenter.length - 1];
+  const u = _unit(E.x - S.x, E.y - S.y);
+  if (!u) return out;
+  const n = { x: -u.y, y: u.x };
+  const self = { points: rawCenter, halfWidth };
+
+  for (const ob of others) {
+    const pts = _cleanPoints(ob?.points);
+    if (pts.length < 2 || !(ob.halfWidth > 0)) continue;
+    for (const [P, F] of [[pts[0], pts[pts.length - 1]], [pts[pts.length - 1], pts[0]]]) {
+      // Alleen een T-aansluiting VAN die balk OP deze balk telt; hoeken
+      // worden door de wederzijdse verstek-join afgehandeld.
+      const join = findJoinTarget(P, ob.halfWidth, [self]);
+      if (!join || join.kind !== 'tee') continue;
+      const d = _unit(P.x - F.x, P.y - F.y);
+      if (!d) continue;
+      // Aankomstzijde: een stukje terug langs de aansluitende balk ligt
+      // buiten de eigen band — het teken van de loodrechte component kiest
+      // de rand (left = +n, right = −n).
+      const back = halfWidth + ob.halfWidth;
+      const q = { x: P.x - d.x * back - S.x, y: P.y - d.y * back - S.y };
+      const sideSign = q.x * n.x + q.y * n.y;
+      if (Math.abs(sideSign) < 1e-9) continue;
+      const side = sideSign > 0 ? 'left' : 'right';
+      const edge = edges[side];
+      if (!edge || edge.length < 2) continue;
+      const E0 = edge[0], E1 = edge[edge.length - 1];
+      const eDir = _unit(E1.x - E0.x, E1.y - E0.y);
+      if (!eDir) continue;
+      const eLen = Math.hypot(E1.x - E0.x, E1.y - E0.y);
+      const nO = { x: -d.y, y: d.x };
+      const ts = [];
+      for (const sigma of [1, -1]) {
+        const q2 = { x: P.x + sigma * nO.x * ob.halfWidth, y: P.y + sigma * nO.y * ob.halfWidth };
+        const X = lineIntersection(E0, eDir, q2, d);
+        if (X) ts.push(X.t);
+      }
+      if (ts.length < 2) continue;
+      const t1 = Math.max(0, Math.min(ts[0], ts[1]));
+      const t2 = Math.min(eLen, Math.max(ts[0], ts[1]));
+      if (t2 - t1 > 1e-6) out[side].push([t1, t2]);
+    }
+  }
+
+  // Sorteren + overlappende intervallen samenvoegen.
+  for (const side of ['left', 'right']) {
+    const list = out[side].sort((a, b) => a[0] - b[0]);
+    const merged = [];
+    for (const iv of list) {
+      const last = merged[merged.length - 1];
+      if (last && iv[0] <= last[1] + 1e-6) last[1] = Math.max(last[1], iv[1]);
+      else merged.push([iv[0], iv[1]]);
+    }
+    out[side] = merged;
+  }
+  return out;
+}
+
+// Zichtbare deelsegmenten van een 2-punts rand na aftrek van de cutouts.
+function _edgeRuns(edge, cutouts) {
+  const E0 = edge[0], E1 = edge[edge.length - 1];
+  const len = Math.hypot(E1.x - E0.x, E1.y - E0.y);
+  if (!(len > 1e-9)) return [];
+  const dir = { x: (E1.x - E0.x) / len, y: (E1.y - E0.y) / len };
+  const at = (t) => ({ x: E0.x + dir.x * t, y: E0.y + dir.y * t });
+  const runs = [];
+  let cur = 0;
+  for (const [t1, t2] of cutouts || []) {
+    if (t1 - cur > 1e-6) runs.push({ x1: at(cur).x, y1: at(cur).y, x2: at(t1).x, y2: at(t1).y });
+    cur = Math.max(cur, t2);
+  }
+  if (len - cur > 1e-6) runs.push({ x1: at(cur).x, y1: at(cur).y, x2: at(len).x, y2: at(len).y });
+  return runs;
+}
+
+/**
+ * Ankerpunt (baseline-midden) + hoek van de tag, inclusief de vrije
+ * paginaruimte-offset. Gedeeld door buildBetonbalk() en de tag-grip in
+ * handles.js, zodat het grippunt exact op de getekende tekst ligt.
+ *
+ * Aanroepbaar met een kant-en-klaar frame ({rawCenter, halfWidth, params})
+ * óf met (ann, halfWidth) — dan wordt het frame hier afgeleid.
+ *
+ * @returns {{x:number,y:number,angle:number}|null}
+ */
+export function betonbalkTagAnchor(frameOrAnn, halfWidthArg) {
+  let rawCenter, halfWidth, params;
+  if (frameOrAnn && Array.isArray(frameOrAnn.rawCenter)) {
+    ({ rawCenter, halfWidth, params } = frameOrAnn);
+  } else {
+    params = resolveBetonbalkParams(frameOrAnn);
+    rawCenter = betonbalkCenterline(frameOrAnn);
+    halfWidth = Number(halfWidthArg) > 0
+      ? Number(halfWidthArg)
+      : halfWidthFromMm(params.breedteMm, 0);
+  }
+  if (!rawCenter) return null;
+  const u = _unit(rawCenter[1].x - rawCenter[0].x, rawCenter[1].y - rawCenter[0].y);
+  if (!u) return null;
+  let angle = Math.atan2(u.y, u.x);
+  let dx = u.x, dy = u.y;
+  if (angle > Math.PI / 2 || angle < -Math.PI / 2) {
+    angle += angle > 0 ? -Math.PI : Math.PI;
+    dx = -dx; dy = -dy;
+  }
+  const midX = (rawCenter[0].x + rawCenter[1].x) / 2;
+  const midY = (rawCenter[0].y + rawCenter[1].y) / 2;
+  // "Boven" in leesrichting: −perp(d) (schermassen, y omlaag).
+  const upX = dy, upY = -dx;
+  const off = halfWidth + params.tagFontSize * 0.45;
+  return {
+    x: midX + upX * off + params.tagOffsetX,
+    y: midY + upY * off + params.tagOffsetY,
+    angle,
+  };
+}
+
+/**
  * Bouw de volledige betonbalk-geometrie.
  *
  * @param {object} ann  Annotatie met startX/startY/endX/endY + parameters.
@@ -465,35 +616,32 @@ export function buildBetonbalk(ann, opts = {}) {
     caps.push({ x1: li.x, y1: li.y, x2: ri.x, y2: ri.y });
   }
 
-  // Tag: gecentreerd langs de balk, boven de hartlijn, meegeroteerd met de
-  // balkrichting en nooit ondersteboven (flip bij > 90°).
+  // Tag: standaard gecentreerd langs de balk, boven de hartlijn, meegeroteerd
+  // met de balkrichting en nooit ondersteboven; daarna de vrije
+  // paginaruimte-offset (versleepbaar grippunt) erbij.
   let tag = null;
   if (params.tagTonen) {
     const measure = typeof opts.measureText === 'function' ? opts.measureText : approxTextWidth;
-    const u = _unit(rawCenter[1].x - rawCenter[0].x, rawCenter[1].y - rawCenter[0].y);
-    if (u) {
-      let angle = Math.atan2(u.y, u.x);
-      let dx = u.x, dy = u.y;
-      if (angle > Math.PI / 2 || angle < -Math.PI / 2) {
-        angle += angle > 0 ? -Math.PI : Math.PI;
-        dx = -dx; dy = -dy;
-      }
-      const midX = (rawCenter[0].x + rawCenter[1].x) / 2;
-      const midY = (rawCenter[0].y + rawCenter[1].y) / 2;
-      // "Boven" in leesrichting: −perp(d) (schermassen, y omlaag).
-      const upX = dy, upY = -dx;
-      const off = halfWidth + params.tagFontSize * 0.45;
-      const width = measure(params.tagTekst, params.tagFontSize);
+    const anchor = betonbalkTagAnchor({ rawCenter, halfWidth, params });
+    if (anchor) {
       tag = {
         text: params.tagTekst,
-        x: midX + upX * off,
-        y: midY + upY * off,
-        angle,
+        x: anchor.x,
+        y: anchor.y,
+        angle: anchor.angle,
         fontSize: params.tagFontSize,
-        width,
+        width: measure(params.tagTekst, params.tagFontSize),
       };
     }
   }
+
+  // Open T-aansluitingen: eigen randen onderbreken waar een andere balk op
+  // deze balk eindigt (render-/AP-tijd; muteert niets).
+  const cutouts = edgeCutouts(edges, rawCenter, halfWidth, opts.others);
+  const edgeRuns = {
+    left: _edgeRuns(edges.left, cutouts.left),
+    right: _edgeRuns(edges.right, cutouts.right),
+  };
 
   // Gesloten omtrek (voor hit-test en de /Vertices in de PDF).
   const outline = [...edges.left, ...edges.right.slice().reverse()];
@@ -523,6 +671,8 @@ export function buildBetonbalk(ann, opts = {}) {
     center,
     rawCenter,
     edges,
+    edgeRuns,
+    cutouts,
     caps,
     joinedStart,
     joinedEnd,

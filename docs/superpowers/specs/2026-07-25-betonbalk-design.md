@@ -33,9 +33,10 @@ Eigen annotatietype `betonbalk` (lijnstuk-vorm, zoals `wall`):
 | `breedteMm` | balkbreedte in mm (plan-breedte, schaalgebied-bewust) | 300 |
 | `hoogteMm` | balkhoogte in mm (administratief; paneel + tag) | 400 |
 | `lijnstijl` | `'doorgetrokken'` \| `'gestippeld'` | doorgetrokken |
-| `toonHartlijn` | hartlijn tekenen | true |
+| `toonHartlijn` | hartlijn tekenen | false |
 | `tagTonen` | tag tekenen | false |
 | `tagTekst` | tagtekst (leeg = profielnaam "b×h") | '' |
+| `tagOffsetX/Y` | vrije tag-verplaatsing (paginaruimte, via grippunt) | 0 |
 | `strokeColor`, `lineWidth`, `opacity` | zoals elders | |
 
 Profielkeuze: keuzelijst met gangbare doorsneden (200x300, 250x350, 300x400,
@@ -69,8 +70,19 @@ Module `js/annotations/betonbalk.js` — één bron voor canvas én PDF-AP:
   De doelbalk blijft ongewijzigd in data; het opschonen is puur render-/AP-
   tijd, dus altijd omkeerbaar en zonder verborgen mutaties.
 - Eindkappen: haaks dichtgezet op vrije uiteinden.
-- Tag: gecentreerd langs de balk, boven de hartlijn, meegeroteerd met de
-  balkrichting en nooit ondersteboven (flip bij > 90°).
+- **Open T-aansluiting** (`edgeCutouts`): de rand van de DOORGAANDE balk
+  wordt onderbroken over precies de breedte waar een aansluitende balk hem
+  raakt — het interval is de projectie van het aansluitvlak op de rand
+  (snijpunten van de twee randlijnen van de aansluitende balk met de eigen
+  randlijn; correct bij schuine aansluitingen). Puur render-/AP-tijd, per
+  balk uit de siblings berekend; niets wordt gemuteerd. Hoek-aansluitingen
+  snijden géén rand weg (die lopen via het wederzijdse verstek).
+- Tag: standaard gecentreerd langs de balk, boven de hartlijn, meegeroteerd
+  met de balkrichting en nooit ondersteboven (flip bij > 90°); daarna een
+  VRIJE paginaruimte-offset (`tagOffsetX/Y`) — versleepbaar via een eigen
+  grippunt op de tag (`betonbalk_tag`-handle; verslepen raakt de
+  balkgeometrie niet). De offset is bewust paginaruimte (niet balk-lokaal):
+  robuust bij draaien/verslepen en identiek in canvas en AP.
 
 ## Weergave
 
@@ -89,7 +101,8 @@ en als één object verplaatsbaar), eigen appearance-stream met de exacte
 lijnvoering (verstek/T-trims van het opslagmoment, optionele hartlijn en tag)
 en privésleutels: `OPS_Subtype: 'betonbalk'`, `OPS_BbGeom` (lijnstuk),
 `OPS_BreedteMm`, `OPS_HoogteMm`, `OPS_Lijnstijl`, `OPS_BbHartlijnTonen`,
-`OPS_BbTagTonen`, `OPS_BbTagTekst`, `OPS_BbLineWidth`, `OPS_BbRect`
+`OPS_BbTagTonen`, `OPS_BbTagTekst`, `OPS_BbTagDx`/`OPS_BbTagDy`,
+`OPS_BbLineWidth`, `OPS_BbRect`
 (verplaatsings-compensatie). Canoniek: Matrix (translatie-)identiteit,
 BBox = Rect-maat, geen top-level rotatie.
 

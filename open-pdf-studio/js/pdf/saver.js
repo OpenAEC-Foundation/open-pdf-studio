@@ -1784,6 +1784,8 @@ export async function savePDF(saveAsPath = null) {
               OPS_BbHartlijnTonen: bbGeom.params.toonHartlijn ? 1 : 0,
               OPS_BbTagTonen: bbGeom.params.tagTonen ? 1 : 0,
               OPS_BbTagTekst: PDFString.of(bbGeom.params.tagTekst),
+              OPS_BbTagDx: bbGeom.params.tagOffsetX,
+              OPS_BbTagDy: bbGeom.params.tagOffsetY,
               // Lijnstuk in PDF-coördinaten + de /Rect zoals WIJ hem
               // schreven: wijkt de actuele /Rect daarvan af, dan heeft een
               // ander programma het object verplaatst en past de loader die

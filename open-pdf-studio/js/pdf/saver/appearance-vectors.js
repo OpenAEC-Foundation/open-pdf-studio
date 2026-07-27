@@ -397,8 +397,17 @@ export function buildBetonbalkAP({ geom, X, Y, strokeColorHex, lineWidth }) {
   const centerDash = geom.styles && geom.styles.centerDash;
   let s = `${f(stroke[0])} ${f(stroke[1])} ${f(stroke[2])} RG\n${f(lw)} w\n0 J 0 j\n`;
   s += edgeDash ? `[${edgeDash.map(f).join(' ')}] 0 d\n` : '[] 0 d\n';
-  s += pathOps(geom.edges.left, X, Y, false) + 'S\n';
-  s += pathOps(geom.edges.right, X, Y, false) + 'S\n';
+  // Randen als RUNS (open T-aansluitingen zijn er al uitgeknipt).
+  if (geom.edgeRuns) {
+    for (const side of ['left', 'right']) {
+      for (const r of geom.edgeRuns[side]) {
+        s += `${f(X(r.x1))} ${f(Y(r.y1))} m ${f(X(r.x2))} ${f(Y(r.y2))} l S\n`;
+      }
+    }
+  } else {
+    s += pathOps(geom.edges.left, X, Y, false) + 'S\n';
+    s += pathOps(geom.edges.right, X, Y, false) + 'S\n';
+  }
   for (const c of geom.caps || []) {
     s += `${f(X(c.x1))} ${f(Y(c.y1))} m ${f(X(c.x2))} ${f(Y(c.y2))} l S\n`;
   }

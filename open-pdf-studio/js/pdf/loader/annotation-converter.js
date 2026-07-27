@@ -795,9 +795,14 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
             breedteMm: extraColors.bbBreedteMm ?? 300,
             hoogteMm: extraColors.bbHoogteMm ?? 400,
             lijnstijl: extraColors.bbLijnstijl === 'gestippeld' ? 'gestippeld' : 'doorgetrokken',
-            toonHartlijn: extraColors.bbHartlijnTonen !== false,
+            // Hartlijn: alleen een EXPLICIETE OPS-waarde 1 zet hem aan.
+            // Oude exemplaren zonder sleutel volgen de nieuwe default (uit) —
+            // consistent met nieuw getekende balken in dezelfde tekening.
+            toonHartlijn: extraColors.bbHartlijnTonen === true,
             tagTonen: extraColors.bbTagTonen === true,
             ...(extraColors.bbTagTekst ? { tagTekst: extraColors.bbTagTekst } : {}),
+            tagOffsetX: extraColors.bbTagDx ?? 0,
+            tagOffsetY: extraColors.bbTagDy ?? 0,
             ifcCategory: ifcCategoryForAnnotationType('betonbalk'),
             color: bbColor,
             strokeColor: bbColor,

@@ -455,6 +455,13 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
     case 'betonbalk':
     case 'line':
     case 'arrow':
+      // Betonbalk-tag verslepen: alleen de vrije paginaruimte-offset van de
+      // tag verschuift — de balkgeometrie zelf blijft onaangeroerd.
+      if (handleType === 'betonbalk_tag') {
+        annotation.tagOffsetX = (originalAnn.tagOffsetX || 0) + deltaX;
+        annotation.tagOffsetY = (originalAnn.tagOffsetY || 0) + deltaY;
+        break;
+      }
       if (handleType === HANDLE_TYPES.LINE_START) {
         let newStartX = originalAnn.startX + deltaX;
         let newStartY = originalAnn.startY + deltaY;

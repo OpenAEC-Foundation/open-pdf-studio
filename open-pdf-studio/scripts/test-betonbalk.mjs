@@ -14,6 +14,8 @@ import {
   betonbalkCenterline,
   betonbalkLineStyles,
   betonbalkProfielNaam,
+  betonbalkTagAnchor,
+  edgeCutouts,
   resolveBetonbalkParams,
   halfWidthFromMm,
   PX_PER_MM_1_100,
@@ -45,12 +47,16 @@ test('resolveBetonbalkParams: defaults en klemmen', () => {
   assert.equal(p.breedteMm, 300);
   assert.equal(p.hoogteMm, 400);
   assert.equal(p.lijnstijl, 'doorgetrokken');
-  assert.equal(p.toonHartlijn, true);
+  // Hartlijn is standaard UIT; alleen expliciete true zet hem aan.
+  assert.equal(p.toonHartlijn, false);
   assert.equal(p.tagTonen, false);
+  assert.equal(p.tagOffsetX, 0);
+  assert.equal(p.tagOffsetY, 0);
   assert.equal(resolveBetonbalkParams({ breedteMm: 5000 }).breedteMm, 2000);
   assert.equal(resolveBetonbalkParams({ hoogteMm: -3 }).hoogteMm, 400);
   assert.equal(resolveBetonbalkParams({ lijnstijl: 'onzin' }).lijnstijl, 'doorgetrokken');
-  assert.equal(resolveBetonbalkParams({ toonHartlijn: false }).toonHartlijn, false);
+  assert.equal(resolveBetonbalkParams({ toonHartlijn: true }).toonHartlijn, true);
+  assert.equal(resolveBetonbalkParams({ toonHartlijn: 'ja' }).toonHartlijn, false);
 });
 
 test('profielen: naamgeving en standaard-tagtekst', () => {
@@ -219,17 +225,100 @@ test('L-hoek met ongelijke breedtes: snijpunt op beide bandranden', () => {
 
 // ── hartlijn-schakelaar en tag ──────────────────────────────────────────────
 
-test('toonHartlijn: schakelaar landt in params (default aan)', () => {
-  const aan = buildBetonbalk({ startX: 0, startY: 0, endX: 100, endY: 0 }, { halfWidth: 10 });
-  assert.equal(aan.params.toonHartlijn, true);
-  const uit = buildBetonbalk(
-    { startX: 0, startY: 0, endX: 100, endY: 0, toonHartlijn: false },
+test('toonHartlijn: schakelaar landt in params (default UIT)', () => {
+  const uit = buildBetonbalk({ startX: 0, startY: 0, endX: 100, endY: 0 }, { halfWidth: 10 });
+  assert.equal(uit.params.toonHartlijn, false);
+  const aan = buildBetonbalk(
+    { startX: 0, startY: 0, endX: 100, endY: 0, toonHartlijn: true },
     { halfWidth: 10 }
   );
-  assert.equal(uit.params.toonHartlijn, false);
+  assert.equal(aan.params.toonHartlijn, true);
   // Randen/outline identiek met en zonder hartlijn.
   assert.deepEqual(aan.edges, uit.edges);
   assert.deepEqual(aan.outline, uit.outline);
+});
+
+test('tag-offset: grip-anker verschuift vrij in paginaruimte', () => {
+  const base = { startX: 0, startY: 0, endX: 100, endY: 0, tagTonen: true };
+  const g0 = buildBetonbalk(base, { halfWidth: 10 });
+  const g1 = buildBetonbalk({ ...base, tagOffsetX: 25, tagOffsetY: -40 }, { halfWidth: 10 });
+  close(g1.tag.x - g0.tag.x, 25);
+  close(g1.tag.y - g0.tag.y, -40);
+  close(g1.tag.angle, g0.tag.angle); // hoek blijft langs de balk
+  // De grip-helper levert exact hetzelfde anker als de tekenroutine.
+  const a = betonbalkTagAnchor({ ...base, tagOffsetX: 25, tagOffsetY: -40 }, 10);
+  closePt(a, g1.tag.x, g1.tag.y);
+  // De AABB groeit mee met de verplaatste tag.
+  assert.ok(g1.aabb.y <= g1.tag.y - g1.tag.fontSize * 0.6 + 1e-9);
+});
+
+// ── open T-aansluiting: rand van de DOORGAANDE balk onderbroken ────────────
+
+test('open T: haakse aansluiting midden op de balk → exact interval', () => {
+  // Eigen balk (0,0)-(200,0) h=10; aansluitende balk komt van boven
+  // (y omlaag: van (100,-100) naar (100,0)... nadert van -y-zijde) — kies
+  // van onder: (100,100) → (100,0), raakt de LEFT-rand (y=+10).
+  const edges = beamOutline([{ x: 0, y: 0 }, { x: 200, y: 0 }], 10);
+  const cut = edgeCutouts(edges, [{ x: 0, y: 0 }, { x: 200, y: 0 }], 10,
+    [{ points: [{ x: 100, y: 100 }, { x: 100, y: 0 }], halfWidth: 8 }]);
+  assert.equal(cut.left.length, 1);
+  close(cut.left[0][0], 92);
+  close(cut.left[0][1], 108);
+  assert.equal(cut.right.length, 0);
+  // En de zichtbare runs: twee stukken links, één rechts.
+  const g = buildBetonbalk({ startX: 0, startY: 0, endX: 200, endY: 0 }, {
+    halfWidth: 10,
+    others: [{ points: [{ x: 100, y: 100 }, { x: 100, y: 0 }], halfWidth: 8 }],
+  });
+  assert.equal(g.edgeRuns.left.length, 2);
+  assert.equal(g.edgeRuns.right.length, 1);
+  close(g.edgeRuns.left[0].x2, 92);
+  close(g.edgeRuns.left[1].x1, 108);
+});
+
+test('open T: aansluiting bij het uiteinde → interval geklemd op de rand', () => {
+  const edges = beamOutline([{ x: 0, y: 0 }, { x: 200, y: 0 }], 10);
+  const cut = edgeCutouts(edges, [{ x: 0, y: 0 }, { x: 200, y: 0 }], 10,
+    [{ points: [{ x: 198, y: 100 }, { x: 198, y: 0 }], halfWidth: 8 }]);
+  assert.equal(cut.left.length, 1);
+  close(cut.left[0][0], 190);
+  close(cut.left[0][1], 200); // geklemd op het rand-einde
+});
+
+test('open T: twee aansluitingen naast elkaar → drie zichtbare runs', () => {
+  const others = [
+    { points: [{ x: 50, y: 100 }, { x: 50, y: 0 }], halfWidth: 8 },
+    { points: [{ x: 150, y: 100 }, { x: 150, y: 0 }], halfWidth: 8 },
+  ];
+  const g = buildBetonbalk({ startX: 0, startY: 0, endX: 200, endY: 0 }, { halfWidth: 10, others });
+  assert.equal(g.edgeRuns.left.length, 3);
+  close(g.edgeRuns.left[0].x2, 42);
+  close(g.edgeRuns.left[1].x1, 58);
+  close(g.edgeRuns.left[1].x2, 142);
+  close(g.edgeRuns.left[2].x1, 158);
+  assert.equal(g.edgeRuns.right.length, 1);
+});
+
+test('open T: schuine aansluiting → interval is de projectie van het vlak', () => {
+  // 45°-aansluiting: interval = 2·h_o / sin(45°) = 2√2·h_o.
+  const hO = 8;
+  const edges = beamOutline([{ x: 0, y: 0 }, { x: 200, y: 0 }], 10);
+  const cut = edgeCutouts(edges, [{ x: 0, y: 0 }, { x: 200, y: 0 }], 10,
+    [{ points: [{ x: 0, y: 100 }, { x: 100, y: 0 }], halfWidth: hO }]);
+  assert.equal(cut.left.length, 1);
+  close(cut.left[0][1] - cut.left[0][0], 2 * Math.SQRT2 * hO, 1e-9);
+  // Centrum ligt waar de AS van de aansluitende balk de rand kruist: de as
+  // bereikt de nabije rand (y=+10) een stukje vóór het hartlijn-eindpunt,
+  // dus x = 100 − h_eigen·cot(45°) = 90.
+  close((cut.left[0][0] + cut.left[0][1]) / 2, 100 - 10, 1e-9);
+});
+
+test('open T: hoek-aansluiting (uiteinde op uiteinde) snijdt GEEN rand weg', () => {
+  const g = buildBetonbalk({ startX: 0, startY: 0, endX: 200, endY: 0 }, {
+    halfWidth: 10,
+    others: [{ points: [{ x: 200, y: 0 }, { x: 200, y: 100 }], halfWidth: 10 }],
+  });
+  assert.equal(g.cutouts.left.length + g.cutouts.right.length, 0);
 });
 
 test('tag: gecentreerd boven de balk, meegeroteerd, nooit ondersteboven', () => {

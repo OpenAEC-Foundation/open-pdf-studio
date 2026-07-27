@@ -90,7 +90,7 @@ export default function BetonbalkSection() {
         <div class="property-group">
           <label>
             <input type="checkbox" id="prop-bb-hartlijn"
-              checked={annotProps.toonHartlijn !== false}
+              checked={annotProps.toonHartlijn === true}
               disabled={locked()}
               onChange={(e) => updateAnnotProp('toonHartlijn', e.target.checked)}
             /> Hartlijn tonen
