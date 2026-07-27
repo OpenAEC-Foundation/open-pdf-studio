@@ -1077,6 +1077,23 @@ export function continuousZoomBy(factor, anchorY = null) {
   }, 130);
 }
 
+// Absolute variant voor setZoom/fit/actualSize in de doorlopende weergave:
+// doc.scale is al op de nieuwe waarde gezet door de aanroeper; pas de
+// instant-zoom toe vanaf oldScale en plan dezelfde debounced crisp re-render
+// als continuousZoomBy. (Was een dangling verwijzing: de drie aanroepers
+// gooiden een ReferenceError zodat absolute zoom/ware grootte in de
+// doorlopende weergave helemaal niets deed.)
+async function _continuousRezoom(oldScale) {
+  _applyContinuousZoomInstant(oldScale);
+  updateAllStatus();
+  if (_contRerenderTimer) clearTimeout(_contRerenderTimer);
+  _contRerenderTimer = setTimeout(() => {
+    _contRerenderTimer = null;
+    if (getActiveDocument()?.viewMode !== 'continuous') return;
+    reRenderVisibleContinuousPages();
+  }, 130);
+}
+
 // One discrete zoom step (zoom buttons / keyboard) anchored at anchorY.
 export function continuousZoomStep(direction, anchorY = null) {
   continuousZoomBy(direction > 0 ? 1.25 : 0.8, anchorY);

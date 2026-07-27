@@ -69,7 +69,7 @@ export function pasteFromClipboard() {
 // enkelpagina-weergave klopte het niet bij zoom ≠ 100%, omdat CSS-pixels niet
 // door de schaal werden gedeeld. Positioneren t.o.v. de pagina zelf lost beide
 // op en houdt het plakken per pagina correct.
-function visibleCenterOnPage(pageNum) {
+export function visibleCenterOnPage(pageNum) {
   const doc = getActiveDocument();
   const scale = doc?.scale || 1;
   let canvas = annotationCanvas;

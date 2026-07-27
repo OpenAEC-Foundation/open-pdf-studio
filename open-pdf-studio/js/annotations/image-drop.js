@@ -4,7 +4,7 @@ import { recordAdd } from '../core/undo-manager.js';
 import { showProperties } from '../ui/panels/properties-panel.js';
 import { redrawAnnotations, redrawContinuous } from './rendering.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
-import { annotationCanvas, pdfContainer } from '../ui/dom-elements.js';
+import { visibleCenterOnPage } from './clipboard.js';
 import { readBinaryFile } from '../core/platform.js';
 
 const MIME_BY_EXT = {
@@ -78,11 +78,6 @@ export async function addImageFromFile(filePath, opts = {}) {
     const imageId = generateImageId();
     imageCache.set(imageId, img);
 
-    // Calculate position (center of visible area)
-    const rect = annotationCanvas.getBoundingClientRect();
-    const scrollX = pdfContainer.scrollLeft;
-    const scrollY = pdfContainer.scrollTop;
-
     let width = img.naturalWidth;
     let height = img.naturalHeight;
     const maxSize = 400;
@@ -92,8 +87,15 @@ export async function addImageFromFile(filePath, opts = {}) {
       height *= ratio;
     }
 
-    const x = scrollX + (rect.width / 2) - (width / 2);
-    const y = scrollY + (rect.height / 2) - (height / 2);
+    // Midden van het zichtbare deel van de HUIDIGE pagina, in app-coördinaten.
+    // De oude formule (scrollTop + canvas-rect van het enkelpagina-canvas)
+    // rekende in de doorlopende weergave met een document-brede scroll en een
+    // 0×0-canvas: de afbeelding landde duizenden punten onder de pagina,
+    // onzichtbaar. Zelfde patroon-fix als plakken (clipboard.js).
+    const pageNum = getActiveDocument()?.currentPage || 1;
+    const center = visibleCenterOnPage(pageNum);
+    const x = center ? center.x - width / 2 : 10;
+    const y = center ? center.y - height / 2 : 10;
 
     const annotation = {
       id: Date.now().toString(36) + Math.random().toString(36).substr(2, 9),

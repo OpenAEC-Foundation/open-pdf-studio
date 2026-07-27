@@ -31,6 +31,20 @@ function darken(hex, amount = 0.15) {
   return `rgb(${Math.round(r * f)},${Math.round(g * f)},${Math.round(b * f)})`;
 }
 
+// Canvas waartegen popup-posities gerekend worden. In de doorlopende
+// weergave is het enkelpagina-#annotation-canvas 0×0 op de vensteroorsprong;
+// dan moet het canvas van de PAGINA van de notitie gebruikt worden, anders
+// verschijnt de popup linksboven in het venster en schrijft slepen verkeerde
+// popupX/popupY terug.
+function popupCanvas(a) {
+  const doc = getActiveDocument();
+  if (doc?.viewMode === 'continuous' && a?.page != null) {
+    const c = document.querySelector(`.page-wrapper[data-page="${a.page}"] .annotation-canvas`);
+    if (c) return c;
+  }
+  return annotationCanvas || document.getElementById('annotation-canvas');
+}
+
 function StickyNotePopup(props) {
   let headerRef;
   let textareaRef;
@@ -52,7 +66,7 @@ function StickyNotePopup(props) {
   createEffect(() => {
     const a = ann();
     if (!a) return;
-    const canvas = annotationCanvas || document.getElementById('annotation-canvas');
+    const canvas = popupCanvas(a);
     if (!canvas) return;
     const canvasRect = canvas.getBoundingClientRect();
     const scale = state.documents?.[state.activeDocumentIndex]?.scale || 1.5;
@@ -114,7 +128,7 @@ function StickyNotePopup(props) {
       setLocalPos(newPos);
 
       // Update annotation position live so leader line follows during drag
-      const canvas = annotationCanvas || document.getElementById('annotation-canvas');
+      const canvas = popupCanvas(ann());
       if (canvas) {
         const canvasRect = canvas.getBoundingClientRect();
         const scale = state.documents?.[state.activeDocumentIndex]?.scale || 1.5;

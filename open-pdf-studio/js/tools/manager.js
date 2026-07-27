@@ -87,13 +87,28 @@ function _setSelectFallthroughEnabled(enabled) {
         return;
       }
 
-      const canvas = document.getElementById('annotation-canvas') ||
-                     document.querySelector('.annotation-canvas');
+      // Doorlopende weergave: het enkelpagina-#annotation-canvas is daar 0×0,
+      // dus 'insidePageArea' was altijd false en deze fall-through deed niets —
+      // het paginacanvas hield pointer-events 'none' en klikken op annotaties
+      // vielen door naar de tekstlaag. Pak het canvas van de pagina onder de
+      // aanwijzer (zelfde aanpak als g-move-mode.getCanvasAndScale).
+      const doc = getActiveDocument();
+      if (!doc?.pdfDoc) return;
+      let canvas = null;
+      let hoverPage = null;
+      if (doc.viewMode === 'continuous') {
+        const el = document.elementFromPoint(e.clientX, e.clientY);
+        const wrapper = el && el.closest ? el.closest('.page-wrapper') : null;
+        canvas = wrapper ? wrapper.querySelector('.annotation-canvas') : null;
+        const p = canvas ? parseInt(canvas.dataset.page, 10) : NaN;
+        if (!isNaN(p)) hoverPage = p;
+      } else {
+        canvas = document.getElementById('annotation-canvas') ||
+                 document.querySelector('.annotation-canvas');
+      }
       if (!canvas || !canvas.getBoundingClientRect) return;
 
       // Resolve app-space coords using the same logic as resolvePointerCoords
-      const doc = getActiveDocument();
-      if (!doc?.pdfDoc) return;
       const scale = doc.scale || 1.5;
       const rect = canvas.getBoundingClientRect();
 
@@ -105,7 +120,7 @@ function _setSelectFallthroughEnabled(enabled) {
       let appX, appY;
       const vp = window.__pdfViewport;
       // Blank docs bypass the viewport — same guard as resolvePointerCoords.
-      const _useVp = vp && vp.active && doc?.filePath;
+      const _useVp = doc.viewMode !== 'continuous' && vp && vp.active && doc?.filePath;
       if (_useVp) {
         appX = (e.clientX - rect.left - vp.offsetX) / vp.zoom;
         appY = (e.clientY - rect.top - vp.offsetY) / vp.zoom;
@@ -114,7 +129,7 @@ function _setSelectFallthroughEnabled(enabled) {
         appY = (e.clientY - rect.top) / scale;
       }
 
-      const ann = findAnnotationAt(appX, appY);
+      const ann = findAnnotationAt(appX, appY, hoverPage);
       let overAnnotation = !!ann;
 
       // Also treat resize/rotate handles of the (single) selected annotation
@@ -124,7 +139,7 @@ function _setSelectFallthroughEnabled(enabled) {
       // approaches the handle, blocking resize/rotate clicks entirely.
       if (!overAnnotation) {
         const selAnns = doc.selectedAnnotations || [];
-        if (selAnns.length === 1) {
+        if (selAnns.length === 1 && (hoverPage == null || selAnns[0].page === hoverPage)) {
           const effScale = _useVp ? vp.zoom : scale;
           const handleHit = findHandleAt(appX, appY, selAnns[0], effScale);
           if (handleHit) overAnnotation = true;

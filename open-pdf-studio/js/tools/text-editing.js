@@ -30,7 +30,19 @@ export function startTextEditing(annotation) {
   if (!['textbox', 'callout'].includes(annotation.type)) return;
   if (annotation.locked) return;
 
-  const canvas = annotationCanvas || document.getElementById('annotation-canvas');
+  // In de doorlopende weergave is het enkelpagina-canvas 0x0 op de
+  // vensteroorsprong; de overlay moet daar tegen het canvas van de PAGINA
+  // van de annotatie gepositioneerd worden. Anders verschijnt de editor op
+  // kale vensterco-ordinaten — als een leeg "spook-tekstvak" over het
+  // linkerpaneel — terwijl de echte annotatie op de pagina staat.
+  const _editDoc = getActiveDocument();
+  const isContinuous = _editDoc?.viewMode === 'continuous';
+  let canvas = null;
+  if (isContinuous) {
+    canvas = document.querySelector(
+      `.page-wrapper[data-page="${annotation.page}"] .annotation-canvas`);
+  }
+  if (!canvas) canvas = annotationCanvas || document.getElementById('annotation-canvas');
   if (!canvas) return;
 
   state.isEditingText = true;
@@ -47,8 +59,12 @@ export function startTextEditing(annotation) {
   //   screen = canvasRect + ann_pos * scale
   // The textarea overlay must use the SAME math the annotation canvas uses,
   // otherwise it appears off-screen and the user can't find/edit the text.
+  // In de doorlopende weergave geldt: scherm = paginacanvas-rect + pos * doc.scale
+  // (zelfde formule als clipboard/visibleCenterOnPage). Het viewport-singleton
+  // (vpState) hoort bij de ENKELpagina-weergave en blijft na een moduswissel
+  // `active` staan; zijn zoom/offsets meenemen zet de overlay naast het scherm.
   const doc = getActiveDocument();
-  const useViewport = vpState && vpState.active;
+  const useViewport = !isContinuous && vpState && vpState.active;
   const scale = useViewport ? vpState.zoom : (doc?.scale || 1.5);
   const offX = useViewport ? vpState.offsetX : 0;
   const offY = useViewport ? vpState.offsetY : 0;

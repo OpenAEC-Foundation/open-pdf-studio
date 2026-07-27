@@ -1,6 +1,6 @@
 import { state, getActiveDocument, isSelected } from '../../core/state.js';
-import { annotationCanvas } from '../dom-elements.js';
 import { setTool } from '../../tools/manager.js';
+import { resolvePointerCoords } from '../../tools/tool-context.js';
 import { recordAdd } from '../../core/undo-manager.js';
 import {
   showAnnotationMenu, showMultiAnnotationMenu, showPageMenu,
@@ -53,8 +53,16 @@ export function initContextMenus() {
     }
   }, true);
 
-  if (annotationCanvas) {
-    annotationCanvas.addEventListener('contextmenu', (e) => {
+  // Gedelegeerd op document-niveau: de doorlopende weergave heeft per pagina
+  // een eigen `.annotation-canvas` die pas na init bestaat — een listener op
+  // alleen het enkelpagina-canvas betekent dat rechtsklikken op een annotatie
+  // in de doorlopende weergave helemaal geen menu geeft.
+  {
+    document.addEventListener('contextmenu', (e) => {
+      const canvasEl = e.target instanceof Element
+        ? e.target.closest('#annotation-canvas, .annotation-canvas')
+        : null;
+      if (!canvasEl) return;
       if (!getActiveDocument()?.pdfDoc) return;
       // Shift+right-click = 2D-cursor placement, no context menu.
       if (e.shiftKey) {
@@ -81,11 +89,20 @@ export function initContextMenus() {
         return;
       }
 
-      const rect = annotationCanvas.getBoundingClientRect();
+      // Zelfde scherm→app-mapping als alle tools (enkelpagina-viewport-
+      // transform + doorlopende per-pagina-canvassen). De oude inline-formule
+      // negeerde de viewport-offsets, waardoor de hit-test bij gepande/
+      // gezoomde enkelpagina-weergave naast de annotatie prikte.
+      const coords = resolvePointerCoords(e);
       const doc = getActiveDocument();
       const scale = doc?.scale || 1.5;
-      const x = (e.clientX - rect.left) / scale;
-      const y = (e.clientY - rect.top) / scale;
+      if (doc?.viewMode === 'continuous' && coords.pageNum) {
+        // findAnnotationAt filtert op doc.currentPage — zelfde afspraak als de
+        // dubbelklik-dispatcher.
+        doc.currentPage = coords.pageNum;
+      }
+      const x = coords.x;
+      const y = coords.y;
 
       import('../../annotations/geometry.js').then(async ({ findAnnotationAt }) => {
         const annotation = findAnnotationAt(x, y);

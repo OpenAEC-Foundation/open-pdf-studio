@@ -164,18 +164,21 @@ function getAnnotationCenterAndSize(ann) {
   }
 }
 
-// Find annotation at coordinates
-export function findAnnotationAt(x, y) {
+// Find annotation at coordinates. Optioneel pageNum voor de doorlopende
+// weergave, waar de aanwijzer boven een ANDERE pagina dan doc.currentPage
+// kan staan (hover/contextmenu); zonder pageNum geldt doc.currentPage.
+export function findAnnotationAt(x, y, pageNum = null) {
   // Scale-aware hit tolerance: stay ~10 screen pixels at any zoom level
   const doc = getActiveDocument();
   const scale = doc?.scale || 1.5;
   const tol = Math.max(10 / scale, 2);
+  const targetPage = pageNum ?? (doc ? doc.currentPage : 1);
 
   // Search in reverse order (top annotations first)
   const annotations = doc?.annotations || [];
   for (let i = annotations.length - 1; i >= 0; i--) {
     const ann = annotations[i];
-    if (ann.page !== (doc ? doc.currentPage : 1)) continue;
+    if (ann.page !== targetPage) continue;
 
     switch (ann.type) {
       case 'draw':

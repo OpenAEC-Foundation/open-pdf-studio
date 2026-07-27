@@ -34,11 +34,21 @@ let editingAnnotation = null;
  * @returns {{left:number, top:number}|null}
  */
 function labelScreenPos(ann) {
-  const canvas = annotationCanvas || document.getElementById('annotation-canvas');
+  // Doorlopende weergave: reken tegen het canvas van de PAGINA van de
+  // annotatie (scherm = paginacanvas-rect + pos × doc.scale). Het enkelpagina-
+  // canvas is daar 0×0 op de vensteroorsprong, en het viewport-singleton
+  // (vpState) blijft na een moduswissel 'active' met stale zoom/offsets.
+  const doc = getActiveDocument();
+  const isContinuous = doc?.viewMode === 'continuous';
+  let canvas = null;
+  if (isContinuous) {
+    canvas = document.querySelector(
+      `.page-wrapper[data-page="${ann.page}"] .annotation-canvas`);
+  }
+  if (!canvas) canvas = annotationCanvas || document.getElementById('annotation-canvas');
   if (!canvas) return null;
   const rect = canvas.getBoundingClientRect();
-  const doc = getActiveDocument();
-  const useViewport = vpState && vpState.active;
+  const useViewport = !isContinuous && vpState && vpState.active;
   const scale = useViewport ? vpState.zoom : (doc?.scale || 1.5);
   const offX = useViewport ? vpState.offsetX : 0;
   const offY = useViewport ? vpState.offsetY : 0;
