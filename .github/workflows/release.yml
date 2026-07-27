@@ -291,13 +291,26 @@ jobs:
       - name: Verify macOS signature and notarization
         if: matrix.target == 'macos'
         run: |
-          APP_PATH="../target/universal-apple-darwin/release/bundle/macos/Open PDF Studio.app"
+          set -euo pipefail
           DMG_PATH="$(find ../target/universal-apple-darwin/release/bundle/dmg -name '*.dmg' -print -quit)"
           test -n "$DMG_PATH"
+          # Tauri ruimt de .app op nadat de dmg gebouwd is ("Cleaning ..." in
+          # het bundel-log) — de losse bundle/macos-map bestaat hier dus niet
+          # meer. Verifieer daarom wat gebruikers echt krijgen: mount de dmg,
+          # kopieer de app eruit en controleer die. De dmg zelf is ondertekend
+          # maar niet apart genotariseerd (het ticket zit aan de app), dus op
+          # de dmg draaien we geen stapler-validatie.
+          MOUNT_DIR="$(mktemp -d)"
+          hdiutil attach -nobrowse -readonly -mountpoint "$MOUNT_DIR" "$DMG_PATH"
+          APP_SRC="$(find "$MOUNT_DIR" -maxdepth 1 -name '*.app' -print -quit)"
+          test -n "$APP_SRC"
+          APP_PATH="$RUNNER_TEMP/verify-app/Open PDF Studio.app"
+          mkdir -p "$RUNNER_TEMP/verify-app"
+          cp -R "$APP_SRC" "$APP_PATH"
+          hdiutil detach "$MOUNT_DIR"
           codesign --verify --deep --strict --verbose=2 "$APP_PATH"
           spctl --assess --type execute --verbose=4 "$APP_PATH"
           xcrun stapler validate "$APP_PATH"
-          xcrun stapler validate "$DMG_PATH"
           bash scripts/macos-startup-smoke.sh "$APP_PATH"
 
       - name: Build Tauri app (user installer)
