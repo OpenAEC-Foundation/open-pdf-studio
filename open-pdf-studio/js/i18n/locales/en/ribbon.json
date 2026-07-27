@@ -236,7 +236,9 @@
     "added": "Added",
     "removed": "Removed",
     "modified": "Modified",
-    "noChanges": "No changes"
+    "noChanges": "No changes",
+    "textTab": "Text",
+    "noTextChanges": "No text differences"
   },
   "organize": {
     "pages": "Pages",

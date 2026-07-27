@@ -84,6 +84,12 @@ async function _getDoc(filePath) {
   return doc;
 }
 
+// Het compare-eigen pdf.js-document voor een pad — ook gebruikt door de
+// tekstvergelijking (text-compare.js) zodat die geen tweede kopie laadt.
+export function getCompareDoc(filePath) {
+  return _getDoc(filePath);
+}
+
 export function clearCompareDocCache() {
   for (const d of _docCache.values()) {
     try { d.destroy?.(); } catch {}

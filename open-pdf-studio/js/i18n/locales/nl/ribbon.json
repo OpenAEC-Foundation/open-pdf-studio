@@ -236,7 +236,9 @@
     "added": "Toegevoegd",
     "removed": "Verwijderd",
     "modified": "Gewijzigd",
-    "noChanges": "Geen wijzigingen"
+    "noChanges": "Geen wijzigingen",
+    "textTab": "Tekst",
+    "noTextChanges": "Geen tekstverschillen"
   },
   "organize": {
     "pages": "Pagina's",

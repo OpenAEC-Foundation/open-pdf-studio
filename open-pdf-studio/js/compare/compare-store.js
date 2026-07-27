@@ -41,6 +41,11 @@ const [focused, setFocused] = createSignal(false);
 // (jump to exactly 100%). We use {kind,seq} so two consecutive identical
 // requests still trigger the effect.
 const [fitRequest, setFitRequest] = createSignal({ kind: null, seq: 0 });
+// Rechterpaneel-tab: 'changes' (visuele wijzigingen) of 'text' (tekst-diff).
+const [panelTab, setPanelTabSignal] = createSignal('changes');
+// Tekstvergelijkings-resultaat: null = nog niet uitgevoerd voor dit paar.
+const [textChanges, setTextChangesSignal] = createSignal(null);
+const [textComparing, setTextComparingSignal] = createSignal(false);
 
 export {
   active as compareActive,
@@ -68,7 +73,20 @@ export {
   focused as compareFocused,
   fitRequest as compareFitRequest,
   detecting as compareDetecting,
+  panelTab as comparePanelTab,
+  textChanges as compareTextChanges,
+  textComparing as compareTextComparing,
 };
+
+export function setComparePanelTab(tab) {
+  setPanelTabSignal(tab === 'text' ? 'text' : 'changes');
+}
+export function setCompareTextChanges(list) {
+  setTextChangesSignal(Array.isArray(list) ? list : null);
+}
+export function setCompareTextComparing(v) {
+  setTextComparingSignal(!!v);
+}
 
 // Detectie-status (gezet door compare-viewport rond scheduleChangeDetection).
 export function setCompareDetecting(v) {
@@ -148,6 +166,8 @@ export function startCompare({ oldFilePath, newFilePath, mode: m, oldPage: op = 
   setOffset({ dx: 0, dy: 0, rotation: 0 });
   setZoom(1);
   _resetPairDiff(); // clean slate — geen selectie en geen lijst van een vorige sessie
+  setTextChangesSignal(null); // tekst-diff hoort bij een documentpaar — opnieuw bij nieuwe sessie
+  setPanelTabSignal('changes');
   setActive(true);
   setFocused(true); // open the compare tab in front
 }
@@ -158,6 +178,9 @@ export function exitCompare() {
   setOldPath(null);
   setNewPath(null);
   _resetPairDiff();
+  setTextChangesSignal(null);
+  setTextComparingSignal(false);
+  setPanelTabSignal('changes');
 }
 
 export function setCompareMode(m) {

@@ -35,6 +35,13 @@ import {
   setCompareOffset,
   requestCompareFit,
   requestCompareReset,
+  comparePanelTab,
+  setComparePanelTab,
+  compareTextChanges,
+  compareTextComparing,
+  setCompareTextChanges,
+  setCompareTextComparing,
+  setPagePair,
 } from '../../../compare/compare-store.js';
 import {
   renderCompareSideBySide,
@@ -42,6 +49,8 @@ import {
   paintHighlights,
   clearCompareDocCache,
 } from '../../../compare/compare-viewport.js';
+import { runTextCompare, clearTextCompareCache } from '../../../compare/text-compare.js';
+import { diffWords } from '../../../compare/text-diff.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { state } from '../../../core/state.js';
 import { diffAnnotationsForPair } from '../../../compare/compare-annotations.js';
@@ -168,7 +177,60 @@ export default function CompareView() {
   const allChanges = createMemo(() => [...(compareChanges() || []), ...annotationChanges()]);
   // Navigatie/flash-ratio: annotatie-records staan in pagina-coördinaten
   // (× visualScale), inhouds-records in detectie-px (× highlightRatio).
-  const changeRatio = (c) => (c && c.source === 'annotation') ? (1.5 * renderedZoom) : highlightRatio();
+  const changeRatio = (c) => (c && (c.source === 'annotation' || c.source === 'text'))
+    ? (1.5 * renderedZoom)
+    : highlightRatio();
+
+  // ── Tekstmodus-arcering ────────────────────────────────────────────────
+  // Met de Tekst-tab actief vervangt de tekststroom-diff de pixel-diff op de
+  // pagina's: pixel-detectie slaat op tekstdocumenten vals af op elke
+  // sub-pixel-verschuiving, terwijl de tekst-diff exact weet welke regels
+  // veranderd zijn. Rects staan in pagina-weergaveruimte (schaal 1, oorsprong
+  // linksboven) → ratio 1.5 × renderedZoom, gelijk aan de pagina-bitmap.
+  const textModeActive = () => comparePanelTab() === 'text' && Array.isArray(compareTextChanges());
+  // Pseudo-change-records (drawHighlights-vorm) voor één zijde/pagina.
+  const textPaneChanges = (side) => {
+    const page = side === 'old' ? compareOldPage() : compareNewPage();
+    const out = [];
+    for (const c of compareTextChanges() || []) {
+      const rects = side === 'old' ? c.oldRects : c.newRects;
+      for (const r of rects || []) {
+        if (r.page !== page) continue;
+        out.push({ type: c.type, x: r.x, y: r.y, width: r.w, height: r.h, _rec: c });
+      }
+    }
+    return out;
+  };
+  // Omsluitende bbox van de rects van een tekst-record op één zijde/pagina —
+  // voor het selectie-accent en het inzoomen bij klik.
+  const textChangeBBox = (c, side) => {
+    const page = side === 'old' ? compareOldPage() : compareNewPage();
+    const rects = (side === 'old' ? c.oldRects : c.newRects) || [];
+    let bb = null;
+    for (const r of rects) {
+      if (r.page !== page) continue;
+      if (!bb) bb = { x1: r.x, y1: r.y, x2: r.x + r.w, y2: r.y + r.h };
+      else {
+        bb.x1 = Math.min(bb.x1, r.x);
+        bb.y1 = Math.min(bb.y1, r.y);
+        bb.x2 = Math.max(bb.x2, r.x + r.w);
+        bb.y2 = Math.max(bb.y2, r.y + r.h);
+      }
+    }
+    return bb ? { type: c.type, source: 'text', x: bb.x1, y: bb.y1, width: bb.x2 - bb.x1, height: bb.y2 - bb.y1 } : null;
+  };
+  const paintTextHighlights = (canvas, side) => {
+    const sel = compareFocusedChange();
+    const selBBox = sel && sel.source === 'text' ? textChangeBBox(sel, side) : null;
+    paintHighlights(canvas, textPaneChanges(side), {
+      ratio: 1.5 * renderedZoom,
+      visibleTypes: { added: true, removed: true, modified: true },
+      showBox: true,
+      showContour: false,
+      selected: selBBox,
+      clear: true,
+    });
+  };
 
   // Paint one highlight canvas restricted to a subset of change types. Used by
   // both modes: overlay shows all three; side-by-side shows removed+modified on
@@ -207,21 +269,29 @@ export default function CompareView() {
   // Keep every highlight canvas the same pixel size as its page canvas, then
   // repaint. Runs after a render and whenever the change list/toggles change.
   const repaintHighlights = () => {
+    // Tekstmodus: alléén de tekststroom-diff arceren (rood = verwijderd op
+    // OUD, groen = toegevoegd op NIEUW, amber = gewijzigd op beide zijden);
+    // de pixel-diff-laag blijft in deze modus onzichtbaar zodat er geen twee
+    // tegenstrijdige markeringen door elkaar lopen.
+    const textMode = textModeActive();
     if (compareMode() === 'overlay') {
       if (!overlayHighlightCanvasRef || !overlayNewCanvasRef) return;
       overlayHighlightCanvasRef.width = overlayNewCanvasRef.width;
       overlayHighlightCanvasRef.height = overlayNewCanvasRef.height;
-      paintPaneHighlights(overlayHighlightCanvasRef, { added: true, removed: true, modified: true });
+      if (textMode) paintTextHighlights(overlayHighlightCanvasRef, 'new');
+      else paintPaneHighlights(overlayHighlightCanvasRef, { added: true, removed: true, modified: true });
     } else {
       if (oldHiCanvasRef && oldCanvasRef) {
         oldHiCanvasRef.width = oldCanvasRef.width;
         oldHiCanvasRef.height = oldCanvasRef.height;
-        paintPaneHighlights(oldHiCanvasRef, { added: false, removed: true, modified: true });
+        if (textMode) paintTextHighlights(oldHiCanvasRef, 'old');
+        else paintPaneHighlights(oldHiCanvasRef, { added: false, removed: true, modified: true });
       }
       if (newHiCanvasRef && newCanvasRef) {
         newHiCanvasRef.width = newCanvasRef.width;
         newHiCanvasRef.height = newCanvasRef.height;
-        paintPaneHighlights(newHiCanvasRef, { added: true, removed: false, modified: true });
+        if (textMode) paintTextHighlights(newHiCanvasRef, 'new');
+        else paintPaneHighlights(newHiCanvasRef, { added: true, removed: false, modified: true });
       }
     }
   };
@@ -439,6 +509,10 @@ export default function CompareView() {
     compareShowContour();
     compareFocusedChange();
     compareMode();
+    comparePanelTab();
+    compareTextChanges();
+    compareOldPage();
+    compareNewPage();
     if (compareActive()) {
       queueMicrotask(repaintHighlights);
     }
@@ -487,7 +561,46 @@ export default function CompareView() {
       zoomDebounceTimer = null;
     }
     clearCompareDocCache();
+    clearTextCompareCache();
   });
+
+  // Tekstvergelijking: draait één keer per documentpaar zodra de gebruiker de
+  // Tekst-tab opent (lazy — extractie van alle pagina's is niet gratis).
+  let _textRunSeq = 0;
+  createEffect(() => {
+    if (comparePanelTab() !== 'text' || !compareActive()) return;
+    if (compareTextChanges() !== null || compareTextComparing()) return;
+    const oldP = compareOldPath();
+    const newP = compareNewPath();
+    if (!oldP || !newP) return;
+    const seq = ++_textRunSeq;
+    setCompareTextComparing(true);
+    runTextCompare(oldP, newP)
+      .then((list) => { if (seq === _textRunSeq) setCompareTextChanges(list); })
+      .catch((err) => {
+        // eslint-disable-next-line no-console
+        console.warn('[compare] text compare failed', err);
+        if (seq === _textRunSeq) setCompareTextChanges([]);
+      })
+      .finally(() => { if (seq === _textRunSeq) setCompareTextComparing(false); });
+  });
+
+  // Klik op een tekstverschil → spring naar de betreffende pagina('s), licht
+  // de bijbehorende arcering op (selectie-accent) en centreer/zoom erop.
+  const gotoTextChange = (c) => {
+    const op = c.oldPage != null ? c.oldPage : c.newPage;
+    const np = c.newPage != null ? c.newPage : c.oldPage;
+    setPagePair(op, np);
+    setFocusedChange(c);
+    // Na de paginawissel (render is async, maar de rect-coördinaten zijn
+    // schaal-onafhankelijk) centreren op de nieuwe zijde als die bestaat,
+    // anders op de oude.
+    queueMicrotask(() => {
+      const bb = textChangeBBox(c, c.newRects?.length ? 'new' : 'old');
+      if (bb) zoomToChange(bb);
+      repaintHighlights();
+    });
+  };
 
   // Esc closes compare mode (capture phase so it wins over other Esc handlers).
   // PageDown/PageUp bladert door de pagina-paren — met 28 pagina's is alleen
@@ -560,14 +673,67 @@ export default function CompareView() {
     return clientX < oldPaneRef.getBoundingClientRect().right ? oldPaneRef : newPaneRef;
   };
 
+  // Wiel-paginanavigatie zoals de enkelpagina-weergave (navigation-events.js):
+  // gewoon scrollen beweegt binnen de pagina; onderaan + verder scrollen →
+  // volgend pagina-paar, bovenaan + terugscrollen → vorig paar. Beide zijden
+  // wisselen samen (nextPagePair/prevPagePair — de scroll-sync spiegelt de
+  // scrollpositie al). Ctrl+wiel (of de wheelZoomWithoutCtrl-voorkeur) zoomt
+  // cursor-veranker(d), net als de hoofd-viewer.
+  let _wheelNavCooldown = false;
+  const WHEEL_EDGE_SLACK = 2;
+  const _navPanes = () => (compareMode() === 'side' ? [oldPaneRef, newPaneRef] : [bodyRef]);
+  const _alignAfterNav = (toTop) => {
+    const apply = () => {
+      _scrollSyncing = true;
+      for (const p of _navPanes()) {
+        if (!p) continue;
+        p.scrollTop = toTop ? 0 : Math.max(0, p.scrollHeight - p.clientHeight);
+      }
+      requestAnimationFrame(() => { _scrollSyncing = false; });
+    };
+    apply();
+    // Na de (async) render van de nieuwe pagina kan de hoogte anders zijn —
+    // nog één keer uitlijnen zodra de nieuwe bitmap er staat.
+    setTimeout(apply, 250);
+  };
+  const tryWheelPageNav = (pane, deltaY) => {
+    if (!pane || _wheelNavCooldown || !deltaY) return false;
+    const canScroll = pane.scrollHeight > pane.clientHeight + 1;
+    const atBottom = !canScroll
+      || pane.scrollTop + pane.clientHeight >= pane.scrollHeight - WHEEL_EDGE_SLACK;
+    const atTop = !canScroll || pane.scrollTop <= WHEEL_EDGE_SLACK;
+    if (deltaY > 0 && atBottom && canNextPagePair()) {
+      _wheelNavCooldown = true;
+      nextPagePair();
+      _alignAfterNav(true);
+      setTimeout(() => { _wheelNavCooldown = false; }, 350);
+      return true;
+    }
+    if (deltaY < 0 && atTop && canPrevPagePair()) {
+      _wheelNavCooldown = true;
+      prevPagePair();
+      _alignAfterNav(false);
+      setTimeout(() => { _wheelNavCooldown = false; }, 350);
+      return true;
+    }
+    return false;
+  };
+
   const handleWheel = (e) => {
     // Wheels over the change-list side panel scroll that list natively.
     if (e.target?.closest?.('.compare-change-list')) return;
     // Shift+wheel: let the browser scroll natively (horizontal), don't zoom.
     if (e.shiftKey) return;
-    e.preventDefault();
-    const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
-    zoomAnchored(activePane(e.clientX), e.clientX, e.clientY, factor);
+    if (e.ctrlKey || e.metaKey || state.preferences?.wheelZoomWithoutCtrl) {
+      e.preventDefault();
+      const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+      zoomAnchored(activePane(e.clientX), e.clientX, e.clientY, factor);
+      return;
+    }
+    // Gewoon wiel: native scroll binnen het paneel (de onScroll-sync spiegelt
+    // de andere zijde); op de rand → doorbladeren naar het volgende/vorige
+    // pagina-paar.
+    if (tryWheelPageNav(activePane(e.clientX), e.deltaY)) e.preventDefault();
   };
 
   // +/− buttons zoom around the centre of the (first) pane so the view doesn't
@@ -774,6 +940,7 @@ export default function CompareView() {
             changes={allChanges}
             onFocus={focusOnChange}
             focused={compareFocusedChange}
+            onTextFocus={gotoTextChange}
           />
         </div>
       </div>
@@ -840,11 +1007,25 @@ function ChangeListPanel(props) {
       onClick={(e) => e.stopPropagation()}
       style="width:260px; background:#f5f5f5; border-left:1px solid #d4d4d4; display:flex; flex-direction:column; color:#222; font-size:12px;"
     >
-      <div
-        style="padding:6px 10px; background:linear-gradient(#ffffff, #f5f5f5); border-bottom:1px solid #d4d4d4; font-weight:bold;"
-      >
-        {(props.t('compare.changes') || 'Wijzigingen')}: {compareDetecting() ? '…' : total()}
+      {/* Tab-strip: visuele wijzigingen vs. tekstvergelijking. */}
+      <div style="display:flex; background:linear-gradient(#ffffff, #f5f5f5); border-bottom:1px solid #d4d4d4;">
+        <For each={['changes', 'text']}>
+          {(tab) => (
+            <button
+              onClick={() => setComparePanelTab(tab)}
+              style={`flex:1; padding:6px 8px; font-size:12px; font-weight:${comparePanelTab() === tab ? 'bold' : 'normal'}; border:none; border-bottom:2px solid ${comparePanelTab() === tab ? '#0078d4' : 'transparent'}; background:${comparePanelTab() === tab ? '#ffffff' : 'transparent'}; color:#222; cursor:pointer;`}
+            >
+              {tab === 'changes'
+                ? `${props.t('compare.changes') || 'Wijzigingen'} (${compareDetecting() ? '…' : total()})`
+                : `${props.t('compare.textTab') || 'Tekst'}${compareTextChanges() ? ` (${compareTextChanges().length})` : ''}`}
+            </button>
+          )}
+        </For>
       </div>
+      <Show when={comparePanelTab() === 'text'}>
+        <TextDiffList t={props.t} onFocus={props.onTextFocus} focused={props.focused} />
+      </Show>
+      <Show when={comparePanelTab() === 'changes'}>
       <div style="display:flex; gap:4px; padding:6px 8px; border-bottom:1px solid #d4d4d4; background:#fafafa;">
         <TypeToggle type="added" count={groupedByType().added.length} />
         <TypeToggle type="removed" count={groupedByType().removed.length} />
@@ -913,6 +1094,97 @@ function ChangeListPanel(props) {
           </For>
         </Show>
       </div>
+      </Show>
+    </div>
+  );
+}
+
+// Lijst van tekstverschillen (Tekst-tab). Elk record toont paginanummer(s),
+// soort en de tekst oud → nieuw; klik springt naar het betreffende
+// pagina-paar. Bij 'modified' worden de gewijzigde woorden geaccentueerd.
+function TextDiffList(props) {
+  const typeColor = (type) => type === 'added' ? '#16a34a' : type === 'removed' ? '#dc2626' : '#ca8a04';
+  const typeIcon = (type) => type === 'added' ? '+' : type === 'removed' ? '−' : 'Δ';
+  const typeLabel = (type) => props.t(
+    type === 'added' ? 'compare.added' : type === 'removed' ? 'compare.removed' : 'compare.modified'
+  ) || type;
+  const pageLabel = (c) => {
+    const pg = props.t('compare.page') || 'Pagina';
+    if (c.type === 'added') return `${pg} ${c.newPage}`;
+    if (c.type === 'removed') return `${pg} ${c.oldPage}`;
+    return c.oldPage === c.newPage ? `${pg} ${c.oldPage}` : `${pg} ${c.oldPage} → ${c.newPage}`;
+  };
+  // Accentueer de gewijzigde woorden binnen een modified-record.
+  const renderParts = (parts, color) => (
+    <For each={parts}>
+      {(p, idx) => (
+        <>
+          {idx() > 0 ? ' ' : ''}
+          {p.changed
+            ? <span style={`background:${color}; color:#fff; padding:0 1px;`}>{p.text}</span>
+            : <span>{p.text}</span>}
+        </>
+      )}
+    </For>
+  );
+  const textStyle = 'font-size:11px; white-space:pre-wrap; word-break:break-word; max-height:88px; overflow:hidden;';
+  return (
+    <div style="flex:1; overflow:auto;">
+      <Show
+        when={!compareTextComparing()}
+        fallback={<div style="padding:14px; color:#666; font-style:italic;">…</div>}
+      >
+        <Show
+          when={(compareTextChanges() || []).length > 0}
+          fallback={
+            <div style="padding:14px; color:#666; font-style:italic;">
+              {props.t('compare.noTextChanges') || 'Geen tekstverschillen'}
+            </div>
+          }
+        >
+          <For each={compareTextChanges()}>
+            {(c, i) => {
+              const words = () => c.type === 'modified' ? diffWords(c.oldText, c.newText) : null;
+              const isFocused = () => props.focused?.() === c;
+              return (
+                <div
+                  onClick={(e) => { e.stopPropagation(); props.onFocus?.(c); }}
+                  style={`padding:6px 10px; border-bottom:1px solid #e0e0e0; cursor:pointer; background:${isFocused() ? '#dbeafe' : '#ffffff'};`}
+                  onMouseEnter={(e) => { if (!isFocused()) e.currentTarget.style.background = '#eaf3ff'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = isFocused() ? '#dbeafe' : '#ffffff'; }}
+                >
+                  <div style="display:flex; align-items:center; gap:6px; margin-bottom:3px;">
+                    <span
+                      style={`width:16px; height:16px; flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center; background:${typeColor(c.type)}; color:#fff; font-weight:bold; font-size:11px;`}
+                    >
+                      {typeIcon(c.type)}
+                    </span>
+                    <span style="font-weight:bold;">{i() + 1}. {typeLabel(c.type)}</span>
+                    <span style="margin-left:auto; color:#666; font-size:11px;">{pageLabel(c)}</span>
+                  </div>
+                  <Show when={c.oldText}>
+                    <div style={`${textStyle} color:#991b1b;`}>
+                      <Show when={words()} fallback={c.oldText}>
+                        {renderParts(words().oldParts, '#dc2626')}
+                      </Show>
+                    </div>
+                  </Show>
+                  <Show when={c.oldText && c.newText}>
+                    <div style="color:#888; font-size:10px; line-height:1; padding:1px 0;">↓</div>
+                  </Show>
+                  <Show when={c.newText}>
+                    <div style={`${textStyle} color:#14532d;`}>
+                      <Show when={words()} fallback={c.newText}>
+                        {renderParts(words().newParts, '#16a34a')}
+                      </Show>
+                    </div>
+                  </Show>
+                </div>
+              );
+            }}
+          </For>
+        </Show>
+      </Show>
     </div>
   );
 }
