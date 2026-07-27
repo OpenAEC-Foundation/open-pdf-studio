@@ -60,8 +60,9 @@ export const shapeTool = {
     const isClick = dx < 5 && dy < 5;
 
     if (isClick && tool === 'textbox') {
-      endX = state.startX + 150;
-      endY = state.startY + 30;
+      // Compact standaardvak, passend bij de 8pt-standaardtekst.
+      endX = state.startX + 100;
+      endY = state.startY + 20;
     } else if (isClick && tool === 'mask') {
       // Maskeer: a single click PLACES a default-size cover (the user thinks
       // "plaatsen", not "drag a rectangle"); dragging still sets a custom size.

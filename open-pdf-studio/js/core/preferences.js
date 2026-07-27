@@ -29,6 +29,16 @@ export async function loadPreferences() {
       // Angle snap: old default 30° → 45° (Shift snapt dan ook diagonaal).
       // Only the stale default is rewritten; a custom value stays.
       if (loaded.angleSnapDegrees === 30) loaded.angleSnapDegrees = 45;
+      // Tekstvak: oude default was géén vulling (crèmekleur ongebruikt) —
+      // nieuwe default is wit. Alleen de onaangeroerde oude default-combinatie
+      // wordt herschreven; wie zelf een kleur of vulling koos, behoudt die.
+      if (loaded.textboxFillNone === true && loaded.textboxFillColor === '#FFFBEB') {
+        loaded.textboxFillNone = false;
+        loaded.textboxFillColor = '#FFFFFF';
+      }
+      // Tekstvak: oude standaard-tekstgrootte 14 → 8 (alleen de onaangeroerde
+      // oude default; een zelfgekozen grootte blijft staan).
+      if (loaded.textboxFontSize === 14) loaded.textboxFontSize = 8;
       // Merge with defaults to ensure all keys exist
       state.preferences = { ...DEFAULT_PREFERENCES, ...loaded };
     }

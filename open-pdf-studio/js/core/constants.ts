@@ -104,14 +104,15 @@ export const DEFAULT_PREFERENCES: Preferences = {
   defaultFontSize: 16,
   highlightOpacity: 50,
 
-  // TextBox defaults
-  textboxFillColor: '#FFFBEB',
-  textboxFillNone: true,
+  // TextBox defaults — witte achtergrond, zodat een tekstvak op een drukke
+  // (CAD-)ondergrond leesbaar is zonder eerst een vulling aan te zetten.
+  textboxFillColor: '#FFFFFF',
+  textboxFillNone: false,
   textboxStrokeColor: '#FF0000',
   textboxBorderWidth: 1,
   textboxBorderStyle: 'solid',
   textboxOpacity: 100,
-  textboxFontSize: 14,
+  textboxFontSize: 8,
 
   // Callout defaults
   calloutFillColor: '#FFFBEB',

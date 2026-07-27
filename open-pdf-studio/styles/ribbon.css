@@ -1301,7 +1301,11 @@
 .ribbon-group-icon-only .ribbon-btn.medium {
   min-width: 26px;
   width: 26px;
-  height: 26px;
+  /* 24px, niet 26: drie gestapelde knoppen + 2px tussenruimte = 74px, precies
+     de contentruimte van de 90px-ribbonrij minus het 16px-groepslabel. Bij
+     26px werd de stapel 80px en duwde hij het label ("KLEMBORD") half onder
+     de rand van de ribbon uit. */
+  height: 24px;
   padding: 1px;
   gap: 0;
   justify-content: center;
