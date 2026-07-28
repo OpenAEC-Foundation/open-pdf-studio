@@ -271,6 +271,8 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           height: srRect.height,
           scaleString: extraColors.opsScaleString || '1:100',
           units: extraColors.opsUnits || 'mm',
+          // Toegewezen tekeningtype (regelset-id); undefined = standaard.
+          tekeningtypeId: extraColors.opsTekeningtype || undefined,
           label: extraColors.opsLabel || annot.contentsObj?.str || '',
           color: colorArrayToHex(annot.color, '#ff9800'),
           lineWidth: extraColors.opsLineWidth || 1.5,

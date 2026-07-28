@@ -17,6 +17,7 @@ import { stavenreeksPxPerMm } from './stavenreeks-scale.js';
 import { buildBetonbalk } from './betonbalk.js';
 import { betonbalkBuildOpts } from './betonbalk-scale.js';
 import { drawBetonbalkGeom } from './rendering/betonbalk-draw.js';
+import { effectiveDraftingLineWidth } from './drafting-rules.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { drawSelectionHandles } from './rendering/selection.js';
 import { drawImageCropOverlay } from './image-crop-overlay.js';
@@ -1455,7 +1456,8 @@ export function drawAnnotation(ctx, annotation) {
         ctx.rotate(rot);
         ctx.translate(-cx, -cy);
       }
-      const lw = thinLw(annotation.lineWidth ?? 1);
+      // Lijndikte: eigen waarde of geërfd uit het tekeningtype (regelset).
+      const lw = thinLw(effectiveDraftingLineWidth(annotation));
       ctx.lineWidth = lw;
       ctx.strokeStyle = strokeColor;
       ctx.fillStyle = strokeColor;
@@ -1619,7 +1621,9 @@ export function drawAnnotation(ctx, annotation) {
       // schuine reeks ontstaat doordat de coördinaten schuin liggen. Dezelfde
       // functie voedt straks de PDF-appearance, zodat scherm en PDF niet uit
       // elkaar kunnen lopen.
-      const lw = thinLw(annotation.lineWidth ?? 1);
+      // Lijndikte: eigen waarde of geërfd uit het tekeningtype van het
+      // schaalgebied (drafting-rules.js).
+      const lw = thinLw(effectiveDraftingLineWidth(annotation));
       const geom = buildStavenreeks(annotation, {
         // Alleen de puntstraal volgt de plaatselijke tekeningschaal.
         pxPerMm: stavenreeksPxPerMm(annotation),
@@ -1741,7 +1745,7 @@ export function drawAnnotation(ctx, annotation) {
       if (!bbGeom) break;
       drawBetonbalkGeom(ctx, bbGeom, {
         strokeColor,
-        lineWidth: thinLw(annotation.lineWidth ?? 1),
+        lineWidth: thinLw(effectiveDraftingLineWidth(annotation)),
         // Blauwe tag bij selectie: klik-affordance van de inline bewerking.
         tagColor: inlineNumberHighlight(annotation) ? EDITABLE_NUMBER_COLOR : null,
       });

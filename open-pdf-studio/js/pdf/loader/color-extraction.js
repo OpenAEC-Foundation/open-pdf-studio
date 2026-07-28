@@ -315,6 +315,12 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         if (ss && typeof ss.value === 'string') colors.opsScaleString = ss.value;
         else if (ss && typeof ss.decodeText === 'function') colors.opsScaleString = ss.decodeText();
       }
+      const opsTekeningtypeRaw = annotDict.get(PDFName.of('OPS_Tekeningtype'));
+      if (opsTekeningtypeRaw) {
+        const tt = context.lookup(opsTekeningtypeRaw) || opsTekeningtypeRaw;
+        if (tt && typeof tt.value === 'string') colors.opsTekeningtype = tt.value;
+        else if (tt && typeof tt.decodeText === 'function') colors.opsTekeningtype = tt.decodeText();
+      }
       const opsUnitsRaw = annotDict.get(PDFName.of('OPS_Units'));
       if (opsUnitsRaw) {
         const u = context.lookup(opsUnitsRaw) || opsUnitsRaw;

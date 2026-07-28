@@ -1,4 +1,5 @@
 import { createSignal } from 'solid-js';
+import { DRAFTING_RULE_TYPES, effectiveDraftingLineWidth } from '../../annotations/drafting-rules.js';
 import { createStore } from 'solid-js/store';
 import { state, getActiveDocument } from '../../core/state.js';
 import {
@@ -280,7 +281,11 @@ export function storeShowProperties(annotation) {
     fillColor: annotation.fillColor || null,
     strokeColor: annotation.strokeColor || annotation.color || '#000000',
     textColor: annotation.textColor || annotation.color || '#000000',
-    lineWidth: annotation.lineWidth !== undefined ? annotation.lineWidth : 3,
+    // NL-tekenwerkcomponenten zonder eigen lineWidth tonen hun GEËRFDE
+    // (tekeningtype-)dikte in plaats van de generieke 3.
+    lineWidth: annotation.lineWidth !== undefined ? annotation.lineWidth
+      : (DRAFTING_RULE_TYPES.has(annotation.type)
+        ? Math.round(effectiveDraftingLineWidth(annotation) * 100) / 100 : 3),
     opacity: annotation.opacity !== undefined ? Math.round(annotation.opacity * 100) : 100,
     icon: annotation.icon || 'comment',
     borderStyle: annotation.borderStyle || 'solid',
@@ -459,7 +464,9 @@ export function storeShowMultiSelection(selected) {
   const sharedFillColor = sharedValue(selected, a => a.fillColor || null, 'mixed');
   const sharedStrokeColor = sharedValue(selected, a => a.strokeColor || a.color || '#000000', 'mixed');
   const sharedTextColor = sharedValue(selected, a => a.textColor || a.color || '#000000', 'mixed');
-  const sharedLineWidth = sharedValue(selected, a => a.lineWidth !== undefined ? a.lineWidth : 3, 'mixed');
+  const sharedLineWidth = sharedValue(selected, a => a.lineWidth !== undefined ? a.lineWidth
+    : (DRAFTING_RULE_TYPES.has(a.type)
+      ? Math.round(effectiveDraftingLineWidth(a) * 100) / 100 : 3), 'mixed');
   const sharedOpacity = sharedValue(selected, a => a.opacity !== undefined ? Math.round(a.opacity * 100) : 100, 'mixed');
   const sharedBorderStyle = sharedValue(selected, a => a.borderStyle || 'solid', 'mixed');
   const sharedHatchPattern = sharedValue(selected, a => a.hatchPattern || (a.type === 'measureArea' ? 'diagonal-left' : 'none'), 'mixed');

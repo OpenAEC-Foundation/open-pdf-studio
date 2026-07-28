@@ -14,7 +14,7 @@ import { ifcCategoryForParametric, ifcCategoryForAnnotationType } from '../solid
 import { STAVENREEKS_DEFAULTS } from '../annotations/stavenreeks.js';
 import { BETONBALK_DEFAULTS } from '../annotations/betonbalk.js';
 import { betonbalkLastProfiel } from '../solid/stores/betonbalkStore.js';
-import { DRAFTING_LINE_WIDTH } from '../annotations/drafting.js';
+import { labelFontSizeAt } from '../annotations/drafting-rules.js';
 
 /**
  * Build raw annotation properties from tool + coordinates.
@@ -128,15 +128,22 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         lijnstijl: o.betonbalkLijnstijl ?? BETONBALK_DEFAULTS.lijnstijl,
         toonHartlijn: BETONBALK_DEFAULTS.toonHartlijn,
         tagTonen: BETONBALK_DEFAULTS.tagTonen,
+        // Tag-teksthoogte ('labels') uit het tekeningtype op het
+        // plaatsingspunt; component-default als terugval. Bij plaatsing
+        // gestempeld (zie stavenreeks-fontSize hieronder voor de reden).
+        tagFontSize: labelFontSizeAt(
+          getActiveDocument()?.currentPage || 1, startX, startY,
+          BETONBALK_DEFAULTS.tagFontSize,
+        ),
         ifcCategory: ifcCategoryForAnnotationType('betonbalk'),
         // NL constructie-componenten zijn standaard ZWART, net als wand en
         // stavenreeks; herkleuren kan achteraf in het eigenschappen-paneel.
         color: '#000000',
         strokeColor: '#000000',
-        // Tekenwerkcomponent: vaste dunne tekenpen, losgekoppeld van de
-        // lint-lijndikte (zie annotations/drafting.js — dikke lintwaarden
-        // maakten de fijne mm-details klodders).
-        lineWidth: DRAFTING_LINE_WIDTH,
+        // Tekenwerkcomponent: GEEN lineWidth stempelen — de lijndikte erft
+        // live uit het tekeningtype van het schaalgebied (annotations/
+        // drafting-rules.js), met DRAFTING_LINE_WIDTH als vaste terugval.
+        // Een via het paneel gezette waarde wordt de "eigen instelling".
         opacity: 1,
       };
     }
@@ -409,10 +416,8 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
           ifcCategory: ifcCategoryForParametric(symbolId),
           color: '#000000',
           strokeColor: '#000000',
-          // Tekenwerkcomponent: vaste dunne tekenpen, losgekoppeld van de
-        // lint-lijndikte (zie annotations/drafting.js — dikke lintwaarden
-        // maakten de fijne mm-details klodders).
-        lineWidth: DRAFTING_LINE_WIDTH,
+          // Lijndikte erft uit het tekeningtype (drafting-rules.js);
+          // terugval DRAFTING_LINE_WIDTH. Bewust niet gestempeld.
           opacity: 1,
         };
         syncTwoPointGeometry(
@@ -458,10 +463,8 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         ifcCategory: ifcCategoryForParametric(symbolId),
         color: '#000000',
         strokeColor: '#000000',
-        // Tekenwerkcomponent: vaste dunne tekenpen, losgekoppeld van de
-        // lint-lijndikte (zie annotations/drafting.js — dikke lintwaarden
-        // maakten de fijne mm-details klodders).
-        lineWidth: DRAFTING_LINE_WIDTH,
+        // Lijndikte erft uit het tekeningtype (drafting-rules.js);
+        // terugval DRAFTING_LINE_WIDTH. Bewust niet gestempeld.
         rotation: 0,
         opacity: 1,
       };
@@ -492,15 +495,19 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         legDir: o.stavenreeksLegDir ?? STAVENREEKS_DEFAULTS.legDir,
         legLength: o.stavenreeksLegLength ?? STAVENREEKS_DEFAULTS.legLength,
         lineTail: o.stavenreeksLineTail ?? STAVENREEKS_DEFAULTS.lineTail,
-        fontSize: o.stavenreeksFontSize ?? STAVENREEKS_DEFAULTS.fontSize,
+        // Label-teksthoogte: override → anders de 'labels'-teksthoogte uit
+        // het tekeningtype op het plaatsingspunt (drafting-rules.js), met de
+        // component-default als laatste terugval. Bij plaatsing gestempeld
+        // zodat render, hit-test en saver dezelfde maat zien.
+        fontSize: o.stavenreeksFontSize
+          ?? labelFontSizeAt(getActiveDocument()?.currentPage || 1, startX, startY,
+                             STAVENREEKS_DEFAULTS.fontSize),
         labelSide: o.stavenreeksLabelSide ?? STAVENREEKS_DEFAULTS.labelSide,
         ifcCategory: ifcCategoryForAnnotationType('stavenreeks'),
         color: '#000000',
         strokeColor: '#000000',
-        // Tekenwerkcomponent: vaste dunne tekenpen, losgekoppeld van de
-        // lint-lijndikte (zie annotations/drafting.js — dikke lintwaarden
-        // maakten de fijne mm-details klodders).
-        lineWidth: DRAFTING_LINE_WIDTH,
+        // Lijndikte erft uit het tekeningtype (drafting-rules.js);
+        // terugval DRAFTING_LINE_WIDTH. Bewust niet gestempeld.
         opacity: 1,
       };
     }

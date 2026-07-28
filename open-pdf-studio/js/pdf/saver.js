@@ -30,6 +30,7 @@ import { buildStavenreeks, toLocalPrimitives, labelText } from '../annotations/s
 import { stavenreeksPxPerMm } from '../annotations/stavenreeks-scale.js';
 import { buildBetonbalk } from '../annotations/betonbalk.js';
 import { betonbalkBuildOpts } from '../annotations/betonbalk-scale.js';
+import { effectiveDraftingLineWidth } from '../annotations/drafting-rules.js';
 import { computeWallShape, resolveWallMaterial } from '../annotations/rendering/walls.js';
 import { syncTwoPointGeometry } from '../symbols/two-point.js';
 
@@ -1533,6 +1534,10 @@ export async function savePDF(saveAsPath = null) {
               F: computeAnnotFlags(ann)
             };
             if (ann.label) srDict.OPS_Label = PDFString.of(ann.label);
+            // Toegewezen tekeningtype (regelset-id) reist mee met het gebied.
+            if (ann.tekeningtypeId) {
+              srDict.OPS_Tekeningtype = PDFString.of(ann.tekeningtypeId);
+            }
             // Numeric ratio for forward-compat (denominator of 1:N)
             const m = String(ann.scaleString || '').match(/1\s*[:/]\s*(\d+(?:\.\d+)?)/);
             if (m) srDict.OPS_ScaleRatio = 1 / parseFloat(m[1]);
@@ -1658,7 +1663,8 @@ export async function savePDF(saveAsPath = null) {
             const srBuilt = buildStavenreeksAP({
               geom: srGeom, local: srLocal,
               strokeColorHex: srStroke,
-              lineWidth: ann.lineWidth ?? 1,
+              // Eigen waarde of geërfd uit het tekeningtype (drafting-rules).
+              lineWidth: effectiveDraftingLineWidth(ann),
             });
 
             const srDict = {
@@ -1686,7 +1692,7 @@ export async function savePDF(saveAsPath = null) {
               OPS_SRLineTail: srGeom.params.lineTail,
               OPS_SRFontSize: srGeom.params.fontSize,
               OPS_SRLabelSide: PDFString.of(srGeom.params.labelSide),
-              OPS_SRLineWidth: ann.lineWidth ?? 1,
+              OPS_SRLineWidth: effectiveDraftingLineWidth(ann),
               // Reekslijn in PDF-coördinaten + de /Rect zoals WIJ hem schreven.
               // Bij heropenen vergelijken we OPS_SRRect met de actuele /Rect:
               // een verschil betekent dat een andere editor het object heeft
@@ -1780,7 +1786,7 @@ export async function savePDF(saveAsPath = null) {
               OPS_BreedteMm: bbGeom.params.breedteMm,
               OPS_HoogteMm: bbGeom.params.hoogteMm,
               OPS_Lijnstijl: PDFString.of(bbGeom.params.lijnstijl),
-              OPS_BbLineWidth: ann.lineWidth ?? 1,
+              OPS_BbLineWidth: effectiveDraftingLineWidth(ann),
               OPS_BbHartlijnTonen: bbGeom.params.toonHartlijn ? 1 : 0,
               OPS_BbTagTonen: bbGeom.params.tagTonen ? 1 : 0,
               OPS_BbTagTekst: PDFString.of(bbGeom.params.tagTekst),
@@ -1800,7 +1806,8 @@ export async function savePDF(saveAsPath = null) {
             attachVectorAP(context, annotDict, buildBetonbalkAP({
               geom: bbGeom, X: convertX, Y: convertY,
               strokeColorHex: bbStroke,
-              lineWidth: ann.lineWidth ?? 1,
+              // Eigen waarde of geërfd uit het tekeningtype (drafting-rules).
+              lineWidth: effectiveDraftingLineWidth(ann),
             }), bbRect);
             break;
           }
