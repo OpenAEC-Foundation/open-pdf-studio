@@ -21,7 +21,9 @@ eq(ifcCategoryForSymbol({ id: 'elektra-aansluitpunt-bel', name: 'Deurbel (BEL)' 
 eq(ifcCategoryForSymbol({ id: 'nen1414-Tb4.021', name: 'Sprinklerinstallatie' }), 'IfcFireSuppressionTerminal', 'sprinkler → IfcFireSuppressionTerminal');
 eq(ifcCategoryForSymbol({ id: 'nen1414-Td01', name: 'Enkele deur' }), 'IfcDoor', 'nen deur → IfcDoor');
 eq(ifcCategoryForSymbol({ id: 'nen1414-Tn01', name: 'Noodverlichting armatuur' }), 'IfcLightFixture', 'noodverlichting → IfcLightFixture');
-eq(ifcCategoryForSymbol({ id: 'nen1414-Tb01', name: 'Brandmeldcentrale (BMC)' }), 'IfcAlarm', 'BMC → IfcAlarm');
+// Sinds de expliciete NEN-mapping (nenIfcMap.js) is de brandmeldcentrale een
+// paneel/regelaar in plaats van een signaalgever.
+eq(ifcCategoryForSymbol({ id: 'nen1414-Tb01', name: 'Brandmeldcentrale (BMC)' }), 'IfcController', 'BMC → IfcController');
 // Wand + parametrisch
 eq(ifcCategoryForSymbol({ id: 'wand', name: 'Wand (IfcWall)', wall: { pattern: 'x' } }), 'IfcWall', 'wand → IfcWall');
 eq(ifcCategoryForSymbol({ id: 'param-staal-hea', name: 'HEA', parametricId: 'staal-hea' }), 'IfcMember', 'HEA → IfcMember');
