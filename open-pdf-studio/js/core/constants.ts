@@ -293,6 +293,10 @@ export const DEFAULT_PREFERENCES: Preferences = {
   customSymbolGroups: [],
   disabledSymbolGroups: [],
   parametricSymbolDefaults: {},
+
+  // NL IFC-tekenlaag: tekeningtypen worden lazy geseed door
+  // annotations/drafting-rules.js (migratieketen in js/drafting/tekeningtype.js).
+  tekeningtypen: null,
   // User-edited symbol type geometry overrides, keyed by a hash of the
   // original symbol SVG. Each entry: { svg, name }. Applied whenever a stamp
   // of that type is placed or re-rendered.

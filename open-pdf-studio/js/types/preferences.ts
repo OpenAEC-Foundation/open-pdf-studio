@@ -231,6 +231,20 @@ export interface Preferences {
   disabledSymbolGroups: string[];
   parametricSymbolDefaults: Record<string, Record<string, string | number | boolean>>;
 
+  // NL IFC-tekenlaag: tekeningtypen (geversioneerde regelsets, zie
+  // js/drafting/tekeningtype.js). null = nog niet geseed (lazy default).
+  tekeningtypen: {
+    version: number;
+    defaultId: string;
+    regelsets: Array<{
+      id: string;
+      name: string;
+      textHeightsMm: Record<string, number>;
+      lineWidthsMm: Record<string, Record<string, number>>;
+      hatchByCategory?: Record<string, unknown>;
+    }>;
+  } | null;
+
   // Schedule
   scheduleTemplates: Array<{ name: string; groupBy: string; filterType: string; filterPage: number; created: number }>;
 
