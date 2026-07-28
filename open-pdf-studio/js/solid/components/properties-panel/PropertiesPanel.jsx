@@ -25,6 +25,7 @@ import ParametricSymbolSection from './ParametricSymbolSection.jsx';
 import StavenreeksSection from './StavenreeksSection.jsx';
 import WallSection from './WallSection.jsx';
 import BetonbalkSection from './BetonbalkSection.jsx';
+import SysteemrasterSection from './SysteemrasterSection.jsx';
 
 // "Meet op tekening" for an EXISTING scale region: temporary 2-click
 // distance pick → small "real length" dialog → the region's scale is
@@ -230,6 +231,7 @@ export default function PropertiesPanel() {
             <StavenreeksSection />
             <WallSection />
             <BetonbalkSection />
+            <SysteemrasterSection />
             <TextFormatSection />
             <ParagraphSection />
             <ContentSection />

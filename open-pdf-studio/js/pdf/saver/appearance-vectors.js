@@ -438,6 +438,40 @@ export function buildBetonbalkAP({ geom, X, Y, strokeColorHex, lineWidth }) {
   return { content: s, needsFont };
 }
 
+// systeemraster: gesloten contour + rasterlijnen (al geclipt op de contour)
+// en de plaatmaat-tag. `geom` komt uit buildSysteemraster()
+// (annotations/systeemraster.js) — dezelfde bron als het canvas
+// (systeemraster-draw.js), dus scherm en PDF zijn per definitie gelijk.
+export function buildSysteemrasterAP({ geom, X, Y, strokeColorHex, lineWidth }) {
+  if (!geom || !geom.contour || geom.contour.length < 3) return null;
+  const stroke = hexToRgb(strokeColorHex || '#000000');
+  const lw = lineWidth ?? 1;
+  let s = `${f(stroke[0])} ${f(stroke[1])} ${f(stroke[2])} RG\n${f(lw)} w\n0 J 0 j\n[] 0 d\n`;
+  // Contour (gesloten).
+  s += pathOps(geom.contour, X, Y, true) + 'S\n';
+  // Rasterlijnen: verticaal (x, y-interval) en horizontaal (x-interval, y).
+  for (const l of geom.linesV || []) {
+    for (const seg of l.segs) {
+      s += `${f(X(l.x))} ${f(Y(seg.a))} m ${f(X(l.x))} ${f(Y(seg.b))} l S\n`;
+    }
+  }
+  for (const l of geom.linesH || []) {
+    for (const seg of l.segs) {
+      s += `${f(X(seg.a))} ${f(Y(l.y))} m ${f(X(seg.b))} ${f(Y(l.y))} l S\n`;
+    }
+  }
+  // Tag (plaatmaat "B×H"), horizontaal, links uitgelijnd op het anker.
+  let needsFont = false;
+  if (geom.tag) {
+    const t = geom.tag;
+    s += `BT\n/Helv ${f(t.fontSize)} Tf\n${f(stroke[0])} ${f(stroke[1])} ${f(stroke[2])} rg\n`;
+    s += `1 0 0 1 ${f(X(t.x))} ${f(Y(t.y))} Tm\n`;
+    s += `(${escapePdfText(t.text)}) Tj\nET\n`;
+    needsFont = true;
+  }
+  return { content: s, needsFont };
+}
+
 // cloud / cloudPolyline: scalloped outline (optional fill).
 export function buildCloudAP({ kind, x, y, w, h, points, puff, X, Y,
   fillColorHex, strokeColorHex, lineWidth, borderStyle }) {

@@ -22,6 +22,9 @@ import { syncDocScale } from '../../annotations/scale-bar.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
 import { BETONBALK_DEFAULTS, BETONBALK_BREEDTE_RANGE, BETONBALK_HOOGTE_RANGE, BETONBALK_LIJNSTIJLEN } from '../../annotations/betonbalk.js';
 import { setBetonbalkLastProfiel } from './betonbalkStore.js';
+import {
+  SYSTEEMRASTER_DEFAULTS, SYSTEEMRASTER_PLAAT_RANGE, SYSTEEMRASTER_RANDCONDITIES,
+} from '../../annotations/systeemraster.js';
 import { recalculateAllMeasurements, calculateArea, calculatePerimeter, calculateDistance, formatMeasurement, formatDimensionText, getMeasureScale } from '../../annotations/measurement.js';
 import { applyTemplateRealSize } from '../../symbols/real-size.js';
 import { pendingParams, setPendingParams } from './parametricSymbolStore.js';
@@ -375,6 +378,20 @@ export function storeShowProperties(annotation) {
     toonHartlijn: annotation.toonHartlijn === true,
     tagTonen: annotation.tagTonen === true,
     tagTekst: annotation.tagTekst || '',
+    // Systeemraster
+    plaatBreedteMm: annotation.plaatBreedteMm ?? SYSTEEMRASTER_DEFAULTS.plaatBreedteMm,
+    plaatHoogteMm: annotation.plaatHoogteMm ?? SYSTEEMRASTER_DEFAULTS.plaatHoogteMm,
+    equalizeX: annotation.equalizeX === true,
+    equalizeY: annotation.equalizeY === true,
+    randConditie: annotation.randConditie || SYSTEEMRASTER_DEFAULTS.randConditie,
+    minRandMm: annotation.minRandMm ?? SYSTEEMRASTER_DEFAULTS.minRandMm,
+    // Contour + parameters voor de randstuk-maten in het paneel: de sectie
+    // herbouwt de geometrie reactief uit deze kopie (zie SysteemrasterSection).
+    sgPoints: annotation.type === 'systeemraster' && Array.isArray(annotation.points)
+      ? annotation.points.map(p => ({ x: p.x, y: p.y })) : null,
+    sgOriginXMm: annotation.originXMm ?? 0,
+    sgOriginYMm: annotation.originYMm ?? 0,
+    sgPage: annotation.page ?? 1,
     replies: annotation.replies || [],
     multiCount: 0,
   });
@@ -849,6 +866,33 @@ function applyPropToAnnotation(ann, key, value) {
     case 'toonHartlijn': ann.toonHartlijn = value === true || value === 'true'; break;
     case 'tagTonen': ann.tagTonen = value === true || value === 'true'; break;
     case 'tagTekst': ann.tagTekst = String(value ?? ''); break;
+    // Systeemraster — parameters; het raster wordt bij het renderen opnieuw
+    // uit de contour + deze waarden afgeleid (geen coördinaten herrekenen).
+    case 'plaatBreedteMm': {
+      const spb = parseFloat(String(value).replace(',', '.'));
+      ann.plaatBreedteMm = Number.isFinite(spb) && spb > 0
+        ? Math.max(SYSTEEMRASTER_PLAAT_RANGE.min, Math.min(SYSTEEMRASTER_PLAAT_RANGE.max, spb))
+        : SYSTEEMRASTER_DEFAULTS.plaatBreedteMm;
+      break;
+    }
+    case 'plaatHoogteMm': {
+      const sph = parseFloat(String(value).replace(',', '.'));
+      ann.plaatHoogteMm = Number.isFinite(sph) && sph > 0
+        ? Math.max(SYSTEEMRASTER_PLAAT_RANGE.min, Math.min(SYSTEEMRASTER_PLAAT_RANGE.max, sph))
+        : SYSTEEMRASTER_DEFAULTS.plaatHoogteMm;
+      break;
+    }
+    case 'equalizeX': ann.equalizeX = value === true || value === 'true'; break;
+    case 'equalizeY': ann.equalizeY = value === true || value === 'true'; break;
+    case 'randConditie':
+      ann.randConditie = SYSTEEMRASTER_RANDCONDITIES.includes(value)
+        ? value : SYSTEEMRASTER_DEFAULTS.randConditie;
+      break;
+    case 'minRandMm': {
+      const smr = parseFloat(String(value).replace(',', '.'));
+      ann.minRandMm = Number.isFinite(smr) && smr >= 0 ? smr : SYSTEEMRASTER_DEFAULTS.minRandMm;
+      break;
+    }
     case 'viewportName': ann.name = value; break;
     case 'viewportScaleRatio': {
       const ratio = parseInt(value);

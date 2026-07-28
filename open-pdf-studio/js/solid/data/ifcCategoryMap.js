@@ -169,6 +169,11 @@ const ANNOTATION_TYPE_DEFAULT = {
   wall: 'IfcWall',
   // Betonbalk (plattegrond) → balk/ligger.
   betonbalk: 'IfcBeam',
+  // Systeemraster (platenveld: systeemplafond, stelconplaten) → afwerklaag.
+  // Keuze: IfcCovering — de meest voorkomende toepassing is een plafond-/
+  // vloerafwerking in plaatvorm; specifiekere subtypes (CEILING/FLOORING)
+  // volgen desgewenst later via een eigenschap.
+  systeemraster: 'IfcCovering',
 };
 
 /**

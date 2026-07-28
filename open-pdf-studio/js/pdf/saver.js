@@ -24,13 +24,15 @@ import { catmullRomSpline } from '../tools/tools/spline-tool.js';
 import { catmullRomToBezier, splineArrowEndTangent } from '../annotations/spline-arrow-geometry.js';
 import { buildFilledAreaAP, buildMeasureAreaAP, buildPolylineMeasureAP,
   buildMeasureDistanceAP, buildWallAP, buildCloudAP, buildSplineArrowAP,
-  buildStavenreeksAP, buildBetonbalkAP,
+  buildStavenreeksAP, buildBetonbalkAP, buildSysteemrasterAP,
   cloudRectOutlinePts, cloudPolyOutlinePts } from './saver/appearance-vectors.js';
 import { buildStavenreeks, toLocalPrimitives, labelText } from '../annotations/stavenreeks.js';
 import { stavenreeksPxPerMm } from '../annotations/stavenreeks-scale.js';
 import { buildBetonbalk } from '../annotations/betonbalk.js';
 import { betonbalkBuildOpts } from '../annotations/betonbalk-scale.js';
 import { effectiveDraftingLineWidth } from '../annotations/drafting-rules.js';
+import { buildSysteemraster } from '../annotations/systeemraster.js';
+import { systeemrasterBuildOpts } from '../annotations/systeemraster-scale.js';
 import { computeWallShape, resolveWallMaterial } from '../annotations/rendering/walls.js';
 import { syncTwoPointGeometry } from '../symbols/two-point.js';
 
@@ -1809,6 +1811,75 @@ export async function savePDF(saveAsPath = null) {
               // Eigen waarde of geërfd uit het tekeningtype (drafting-rules).
               lineWidth: effectiveDraftingLineWidth(ann),
             }), bbRect);
+            break;
+          }
+
+          case 'systeemraster': {
+            // ── Systeemraster (platenveld) ─────────────────────────────────
+            // Opslaan als /Polygon met /Vertices = de contour, zodat een
+            // extern PDF-programma iets redelijks toont en het object als
+            // één geheel verplaatsbaar is. De appearance-stream tekent de
+            // exacte lijnvoering (contour + geclipt raster + tag).
+            // Privésleutels herstellen het object bij heropenen als
+            // bewerkbaar systeemraster; de contour komt dan uit /Vertices
+            // zelf, dus een verplaatsing in een ander programma reist mee.
+            const sgGeom = buildSysteemraster(ann, systeemrasterBuildOpts(ann));
+            if (!sgGeom) continue;
+
+            const sgVertices = [];
+            for (const pt of sgGeom.contour) {
+              sgVertices.push(convertX(pt.x), convertY(pt.y));
+            }
+            const sgA = sgGeom.aabb;
+            const sgCorners = [
+              [convertX(sgA.x), convertY(sgA.y)],
+              [convertX(sgA.x + sgA.width), convertY(sgA.y + sgA.height)],
+            ];
+            const sgMinX = Math.min(sgCorners[0][0], sgCorners[1][0]);
+            const sgMaxX = Math.max(sgCorners[0][0], sgCorners[1][0]);
+            const sgMinY = Math.min(sgCorners[0][1], sgCorners[1][1]);
+            const sgMaxY = Math.max(sgCorners[0][1], sgCorners[1][1]);
+            const sgPad = borderWidth + 2;
+            const sgRect = [sgMinX - sgPad, sgMinY - sgPad, sgMaxX + sgPad, sgMaxY + sgPad];
+            const sgStroke = ann.strokeColor || ann.color || '#000000';
+            const sgP = sgGeom.params;
+
+            const sgDict = {
+              Type: 'Annot',
+              Subtype: 'Polygon',
+              Rect: sgRect,
+              Vertices: sgVertices,
+              C: hexToColorArray(sgStroke),
+              CA: opacity,
+              T: PDFString.of(ann.author || 'User'),
+              Contents: PDFString.of(ann.subject || ''),
+              M: PDFString.of(new Date().toISOString()),
+              F: computeAnnotFlags(ann),
+              // Eigen parameters voor het herstellen als bewerkbaar raster.
+              // Ontbreken ze (extern herschreven), dan laadt hij als gewone
+              // polygon — nooit crashen.
+              OPS_Subtype: PDFString.of('systeemraster'),
+              OPS_SgPlaatB: sgP.plaatBreedteMm,
+              OPS_SgPlaatH: sgP.plaatHoogteMm,
+              OPS_SgOrigX: sgP.originXMm,
+              OPS_SgOrigY: sgP.originYMm,
+              OPS_SgEqX: sgP.equalizeX ? 1 : 0,
+              OPS_SgEqY: sgP.equalizeY ? 1 : 0,
+              OPS_SgRand: PDFString.of(sgP.randConditie),
+              OPS_SgMinRand: sgP.minRandMm,
+              OPS_SgHoek: sgP.rasterHoek,
+              OPS_SgTagTonen: sgP.tagTonen ? 1 : 0,
+              OPS_SgFontSize: sgP.tagFontSize,
+              OPS_SgLineWidth: ann.lineWidth ?? 1,
+            };
+            annotDict = context.obj(sgDict);
+            annotDict.set(PDFName.of('BS'), buildBorderStyle(context, borderWidth, 'solid'));
+
+            attachVectorAP(context, annotDict, buildSysteemrasterAP({
+              geom: sgGeom, X: convertX, Y: convertY,
+              strokeColorHex: sgStroke,
+              lineWidth: ann.lineWidth ?? 1,
+            }), sgRect);
             break;
           }
 

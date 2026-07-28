@@ -65,6 +65,9 @@ const overspanningspijlPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#
 const stenenrijPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.4"><rect x="22" y="3" width="20" height="10"/><rect x="22" y="15" width="20" height="10"/><rect x="22" y="27" width="20" height="10"/><rect x="22" y="39" width="20" height="10"/><rect x="22" y="51" width="20" height="10"/></svg>`;
 // Betonbalk: balk met knik in plattegrond — twee randlijnen met verstek,
 // dunne streep-punt-hartlijn en een haakse eindkap links.
+// Systeemraster: contourveld gevuld met een geclipt platenraster.
+const systeemrasterPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M6 10 H58 V54 H30 V38 H6 Z"/><g stroke-width="0.9"><line x1="19" y1="10" x2="19" y2="38"/><line x1="32" y1="10" x2="32" y2="54"/><line x1="45" y1="10" x2="45" y2="54"/><line x1="6" y1="24" x2="58" y2="24"/><line x1="30" y1="38" x2="58" y2="38"/></g></svg>`;
+
 const betonbalkPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M4 22 H36 L52 38 V61"/><path d="M4 42 H28 L38 52 V61"/><line x1="4" y1="22" x2="4" y2="42"/><path d="M4 32 H32 L45 45 V61" stroke-width="0.9" stroke-dasharray="6 3 1.5 3"/></svg>`;
 
 export const NL_CATEGORIES = [
@@ -106,6 +109,10 @@ export const NL_CATEGORIES = [
       // Betonbalk: eigen klik-voor-klik-gereedschap (hartlijn zoals een
       // polylijn); breedte/lijnstijl daarna in het eigenschappen-paneel.
       { id: 'betonbalk', name: 'Betonbalk (IfcBeam)', tool: 'betonbalk', svg: betonbalkPreview },
+      // Systeemraster: klik-voor-klik contour die automatisch gevuld wordt
+      // met een platenraster (systeemplafond, stelconplaten 2000×2000);
+      // plaatmaat/equalize/randconditie daarna in het eigenschappen-paneel.
+      { id: 'systeemraster', name: 'Systeemraster (IfcCovering)', tool: 'systeemraster', svg: systeemrasterPreview },
       // NL tekenwerk-symbolen horen er ook gewoon bij (één bouw-categorie).
       { id: 'param-stramien', name: 'Stramien', parametricId: 'stramien', svg: stramienPreview },
       { id: 'param-peilmaat', name: 'Peilmaat (spot elevation)', parametricId: 'peilmaat', svg: peilmaatPreview },

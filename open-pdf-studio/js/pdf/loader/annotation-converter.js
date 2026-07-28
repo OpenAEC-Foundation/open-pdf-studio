@@ -762,6 +762,35 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           maxY = Math.max(maxY, pvy);
         }
 
+        // Systeemraster: /Polygon waarvan de /Vertices de CONTOUR zelf zijn —
+        // herstel als bewerkbaar raster. Het raster wordt bij het renderen
+        // opnieuw uit contour + parameters afgeleid; een verplaatsing in een
+        // ander programma zit al in de vertices verwerkt.
+        if (extraColors.opsSubtype === 'systeemraster' && polyPoints.length >= 3) {
+          const sgColor = colorArrayToHex(annot.color, '#000000');
+          return createAnnotation({
+            ...baseProps,
+            type: 'systeemraster',
+            points: polyPoints,
+            x: minX, y: minY, width: maxX - minX, height: maxY - minY,
+            plaatBreedteMm: extraColors.sgPlaatBreedteMm ?? 2000,
+            plaatHoogteMm: extraColors.sgPlaatHoogteMm ?? 2000,
+            originXMm: extraColors.sgOriginXMm ?? 0,
+            originYMm: extraColors.sgOriginYMm ?? 0,
+            equalizeX: extraColors.sgEqualizeX === true,
+            equalizeY: extraColors.sgEqualizeY === true,
+            randConditie: extraColors.sgRandConditie === 'minmaat' ? 'minmaat' : 'tonen',
+            minRandMm: extraColors.sgMinRandMm ?? 300,
+            rasterHoek: extraColors.sgRasterHoek ?? 0,
+            tagTonen: extraColors.sgTagTonen !== false,
+            tagFontSize: extraColors.sgTagFontSize ?? 10,
+            ifcCategory: ifcCategoryForAnnotationType('systeemraster'),
+            color: sgColor,
+            strokeColor: sgColor,
+            lineWidth: extraColors.sgLineWidth ?? extraColors.borderWidth ?? 1,
+          });
+        }
+
         // Betonbalk: /Polygon (omtrek in /Vertices) met ons OPS-lijnstuk —
         // herstel als bewerkbare balk. De band wordt bij het renderen opnieuw
         // uit start/eind + breedte afgeleid (incl. verse inter-balk-joins).

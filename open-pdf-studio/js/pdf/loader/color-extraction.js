@@ -474,6 +474,35 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         // Huidige vorm: lijnstuk [x1,y1,x2,y2].
         const bbGeom = srArr('OPS_BbGeom');
         if (bbGeom && bbGeom.length === 4) colors.bbGeom = bbGeom;
+
+        // ── Systeemraster ─────────────────────────────────────────────────
+        // Rasterparameters; de contour zelf komt uit /Vertices (dus een
+        // verplaatsing in een ander programma reist vanzelf mee). Ontbreken
+        // de keys, dan blijft het een gewone polygon — nooit crashen.
+        const sgPlB = srNum('OPS_SgPlaatB');
+        if (sgPlB !== null) colors.sgPlaatBreedteMm = sgPlB;
+        const sgPlH = srNum('OPS_SgPlaatH');
+        if (sgPlH !== null) colors.sgPlaatHoogteMm = sgPlH;
+        const sgOx = srNum('OPS_SgOrigX');
+        if (sgOx !== null) colors.sgOriginXMm = sgOx;
+        const sgOy = srNum('OPS_SgOrigY');
+        if (sgOy !== null) colors.sgOriginYMm = sgOy;
+        const sgEqX = srNum('OPS_SgEqX');
+        if (sgEqX !== null) colors.sgEqualizeX = sgEqX === 1;
+        const sgEqY = srNum('OPS_SgEqY');
+        if (sgEqY !== null) colors.sgEqualizeY = sgEqY === 1;
+        const sgRand = srStr('OPS_SgRand');
+        if (sgRand) colors.sgRandConditie = sgRand;
+        const sgMinR = srNum('OPS_SgMinRand');
+        if (sgMinR !== null) colors.sgMinRandMm = sgMinR;
+        const sgHoek = srNum('OPS_SgHoek');
+        if (sgHoek !== null) colors.sgRasterHoek = sgHoek;
+        const sgTag = srNum('OPS_SgTagTonen');
+        if (sgTag !== null) colors.sgTagTonen = sgTag === 1;
+        const sgFs = srNum('OPS_SgFontSize');
+        if (sgFs !== null) colors.sgTagFontSize = sgFs;
+        const sgLw = srNum('OPS_SgLineWidth');
+        if (sgLw !== null) colors.sgLineWidth = sgLw;
         // Legacy (eerste vorm): hartlijn-polyline [x1,y1,...] — de converter
         // splitst meerpunts-exemplaren in losse tweepunts-balken.
         const bbHart = srArr('OPS_Hartlijn');
