@@ -181,9 +181,10 @@ export function korfLabelText(n, d) {
 
 // ─── Tekenhulpjes (lokale mm → canvas) ───────────────────────────────────
 
-function _rect(cmds, X, Y, r) {
+function _rect(cmds, X, Y, r, lineWidth) {
   cmds.push({
     kind: 'polyline', close: true,
+    ...(lineWidth ? { lineWidth } : {}),
     points: [
       { x: X(r.x), y: Y(r.y) },
       { x: X(r.x + r.w), y: Y(r.y) },
@@ -191,6 +192,30 @@ function _rect(cmds, X, Y, r) {
       { x: X(r.x), y: Y(r.y + r.h) },
     ],
   });
+}
+
+// ─── Fijnwerk-lijndiktes (px, ONAFHANKELIJK van annotation.lineWidth) ─────
+// De fijne onderdelen van de korf (diameterteken, staafpunt-omtrek, beugel-
+// dubbellijn) hebben details van maar enkele px zodra de mm-footprint in de
+// bbox wordt gepast. Met de generieke annotatie-lijndikte (lint-keuze,
+// historisch 2–3 px) liepen ze dicht tot klodders. Daarom krijgen ze een
+// EIGEN dikte, proportioneel aan hun eigen maat — zoals een tekenpen die met
+// de tekengrootte meeschaalt (~0,16 × de tekenstraal ≈ pen 0,18 bij 2,5 mm
+// teksthoogte) — met een ondergrens zodat ze zichtbaar blijven.
+
+/** Lijndikte van het diameterteken, uit zijn cirkelstraal in px. */
+export function diaSignLineWidth(radiusPx) {
+  return Math.max(0.3, Math.min(1.2, 0.16 * radiusPx));
+}
+
+/** Omtrek-dikte van een gevulde staafpunt, uit zijn straal in px. */
+export function dotLineWidth(radiusPx) {
+  return Math.max(0.3, Math.min(0.9, 0.2 * radiusPx));
+}
+
+/** Dikte van de beugel-dubbellijn, uit de beugelstaafdikte in px. */
+export function stirrupLineWidth(barPx) {
+  return Math.max(0.3, Math.min(1.2, 0.3 * barPx));
 }
 
 /** Gevulde staafpunt (de kwast tekent 'circle' alleen als omtrek). */
@@ -201,7 +226,10 @@ function _dot(cmds, X, Y, S, cx, cy, rMm) {
     const a = (Math.PI * 2 * i) / 16;
     pts.push({ x: X(cx) + r * Math.cos(a), y: Y(cy) + r * Math.sin(a) });
   }
-  cmds.push({ kind: 'polyline', close: true, fill: true, points: pts });
+  cmds.push({
+    kind: 'polyline', close: true, fill: true, points: pts,
+    lineWidth: dotLineWidth(r),
+  });
 }
 
 /**
@@ -209,13 +237,15 @@ function _dot(cmds, X, Y, S, cx, cy, rMm) {
  * exact de segmenten uit stavenreeks.js. Middelpunt op (cx, cy) in lokale mm.
  */
 function _diaSign(cmds, X, Y, S, cx, cy, rMm) {
-  cmds.push({ kind: 'circle', cx: X(cx), cy: Y(cy), r: rMm * S });
+  const lw = diaSignLineWidth(rMm * S);
+  cmds.push({ kind: 'circle', cx: X(cx), cy: Y(cy), r: rMm * S, lineWidth: lw });
   for (const s of diameterSignSegments(rMm).segments) {
     // y-spiegeling: de segmenten staan in een y-OMHOOG-frame (PDF-conventie).
     cmds.push({
       kind: 'line',
       x1: X(cx + s.x1), y1: Y(cy - s.y1),
       x2: X(cx + s.x2), y2: Y(cy - s.y2),
+      lineWidth: lw,
     });
   }
 }
@@ -386,15 +416,23 @@ export const wapeningskorfTemplate = {
 
     // 2. Beugel — dubbele lijn (buiten- en binnenkant van de beugelstaaf) met
     //    de haak rechtsboven, 135° naar binnen.
-    _rect(cmds, X, Y, L.stirrupOuter);
-    if (L.stirrupInner.w > 0 && L.stirrupInner.h > 0) _rect(cmds, X, Y, L.stirrupInner);
+    // De dubbellijn ligt maar `beugelDiameter × S` px uit elkaar — de eigen
+    // dunne beugel-pen voorkomt dat de twee lijnen tot één balk samenvloeien.
+    const stirLw = stirrupLineWidth(L.beugelDiameter * S);
+    _rect(cmds, X, Y, L.stirrupOuter, stirLw);
+    if (L.stirrupInner.w > 0 && L.stirrupInner.h > 0) {
+      _rect(cmds, X, Y, L.stirrupInner, stirLw);
+    }
     const hook = Math.max(4 * L.beugelDiameter, 0.10 * Math.min(L.breedte, L.hoogte));
     const k = hook / Math.SQRT2;
     for (const c of [
       { x: L.stirrupOuter.x + L.stirrupOuter.w, y: L.stirrupOuter.y },
       { x: L.stirrupInner.x + L.stirrupInner.w, y: L.stirrupInner.y },
     ]) {
-      cmds.push({ kind: 'line', x1: X(c.x), y1: Y(c.y), x2: X(c.x - k), y2: Y(c.y + k) });
+      cmds.push({
+        kind: 'line', x1: X(c.x), y1: Y(c.y), x2: X(c.x - k), y2: Y(c.y + k),
+        lineWidth: stirLw,
+      });
     }
 
     // 3. Staven als gevulde punten.
@@ -430,11 +468,13 @@ export const wapeningskorfTemplate = {
     // 5. Maatlijnen breedte (boven) en hoogte (links), met ronde eindmarkering.
     if (toonMaat) {
       const dot = F_DIM_DOT * Math.min(L.breedte, L.hoogte);
+      // Eindmarkeringen zijn ~1–2 px groot — ook fijnwerk, eigen dunne pen.
+      const dotLw = dotLineWidth(dot * S);
       const dimFont = L.font * 0.9;
       const dy = sec.y - F_DIM_OFF * L.hoogte;
       cmds.push({ kind: 'line', x1: X(sec.x), y1: Y(dy), x2: X(sec.x + L.breedte), y2: Y(dy) });
-      cmds.push({ kind: 'circle', cx: X(sec.x), cy: Y(dy), r: dot * S });
-      cmds.push({ kind: 'circle', cx: X(sec.x + L.breedte), cy: Y(dy), r: dot * S });
+      cmds.push({ kind: 'circle', cx: X(sec.x), cy: Y(dy), r: dot * S, lineWidth: dotLw });
+      cmds.push({ kind: 'circle', cx: X(sec.x + L.breedte), cy: Y(dy), r: dot * S, lineWidth: dotLw });
       cmds.push({ kind: 'line', x1: X(sec.x), y1: Y(sec.y), x2: X(sec.x), y2: Y(dy - 0.02 * L.hoogte) });
       cmds.push({
         kind: 'line', x1: X(sec.x + L.breedte), y1: Y(sec.y),
@@ -447,8 +487,8 @@ export const wapeningskorfTemplate = {
 
       const dx = sec.x - F_DIM_OFF * L.breedte;
       cmds.push({ kind: 'line', x1: X(dx), y1: Y(sec.y), x2: X(dx), y2: Y(sec.y + L.hoogte) });
-      cmds.push({ kind: 'circle', cx: X(dx), cy: Y(sec.y), r: dot * S });
-      cmds.push({ kind: 'circle', cx: X(dx), cy: Y(sec.y + L.hoogte), r: dot * S });
+      cmds.push({ kind: 'circle', cx: X(dx), cy: Y(sec.y), r: dot * S, lineWidth: dotLw });
+      cmds.push({ kind: 'circle', cx: X(dx), cy: Y(sec.y + L.hoogte), r: dot * S, lineWidth: dotLw });
       cmds.push({ kind: 'line', x1: X(sec.x), y1: Y(sec.y), x2: X(dx - 0.02 * L.breedte), y2: Y(sec.y) });
       cmds.push({
         kind: 'line', x1: X(sec.x), y1: Y(sec.y + L.hoogte),

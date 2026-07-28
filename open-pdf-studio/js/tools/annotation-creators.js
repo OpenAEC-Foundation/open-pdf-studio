@@ -14,6 +14,7 @@ import { ifcCategoryForParametric, ifcCategoryForAnnotationType } from '../solid
 import { STAVENREEKS_DEFAULTS } from '../annotations/stavenreeks.js';
 import { BETONBALK_DEFAULTS } from '../annotations/betonbalk.js';
 import { betonbalkLastProfiel } from '../solid/stores/betonbalkStore.js';
+import { DRAFTING_LINE_WIDTH } from '../annotations/drafting.js';
 
 /**
  * Build raw annotation properties from tool + coordinates.
@@ -132,7 +133,10 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         // stavenreeks; herkleuren kan achteraf in het eigenschappen-paneel.
         color: '#000000',
         strokeColor: '#000000',
-        lineWidth: getLineWidthValue() || 1,
+        // Tekenwerkcomponent: vaste dunne tekenpen, losgekoppeld van de
+        // lint-lijndikte (zie annotations/drafting.js — dikke lintwaarden
+        // maakten de fijne mm-details klodders).
+        lineWidth: DRAFTING_LINE_WIDTH,
         opacity: 1,
       };
     }
@@ -405,7 +409,10 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
           ifcCategory: ifcCategoryForParametric(symbolId),
           color: '#000000',
           strokeColor: '#000000',
-          lineWidth: getLineWidthValue() || 1,
+          // Tekenwerkcomponent: vaste dunne tekenpen, losgekoppeld van de
+        // lint-lijndikte (zie annotations/drafting.js — dikke lintwaarden
+        // maakten de fijne mm-details klodders).
+        lineWidth: DRAFTING_LINE_WIDTH,
           opacity: 1,
         };
         syncTwoPointGeometry(
@@ -451,7 +458,10 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         ifcCategory: ifcCategoryForParametric(symbolId),
         color: '#000000',
         strokeColor: '#000000',
-        lineWidth: getLineWidthValue() || 1,
+        // Tekenwerkcomponent: vaste dunne tekenpen, losgekoppeld van de
+        // lint-lijndikte (zie annotations/drafting.js — dikke lintwaarden
+        // maakten de fijne mm-details klodders).
+        lineWidth: DRAFTING_LINE_WIDTH,
         rotation: 0,
         opacity: 1,
       };
@@ -487,7 +497,10 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         ifcCategory: ifcCategoryForAnnotationType('stavenreeks'),
         color: '#000000',
         strokeColor: '#000000',
-        lineWidth: getLineWidthValue() || 1,
+        // Tekenwerkcomponent: vaste dunne tekenpen, losgekoppeld van de
+        // lint-lijndikte (zie annotations/drafting.js — dikke lintwaarden
+        // maakten de fijne mm-details klodders).
+        lineWidth: DRAFTING_LINE_WIDTH,
         opacity: 1,
       };
     }
