@@ -1677,8 +1677,16 @@ export function drawAnnotation(ctx, annotation) {
       // worden per render opnieuw berekend uit de sibling-annotaties; de
       // doelbalk zelf wordt nooit gemuteerd.
       const _bbDoc = state.documents[state.activeDocumentIndex];
+      // Tijdens het tekenen doet het voorbeeld-lijnstuk (shape-preview) mee
+      // als sibling, zodat een BESTAANDE balk zijn verstek/open-T al toont
+      // vóór de tweede klik — anders ziet de gebruiker een rauwe overlap met
+      // eindkap op het aansluitpunt die na het vastleggen ineens verspringt.
+      const _bbAnns = _bbDoc ? (_bbDoc.annotations || []) : [];
+      const _bbSibs = (state._previewJoinAnn && state._previewJoinAnn !== annotation)
+        ? [..._bbAnns, state._previewJoinAnn]
+        : _bbAnns;
       const bbGeom = buildBetonbalk(annotation, {
-        ...betonbalkBuildOpts(annotation, _bbDoc ? _bbDoc.annotations : []),
+        ...betonbalkBuildOpts(annotation, _bbSibs),
         measureText: (text, size) => {
           ctx.save();
           ctx.font = `${size}px Arial`;

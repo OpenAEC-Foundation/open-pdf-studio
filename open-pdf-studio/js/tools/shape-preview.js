@@ -14,6 +14,19 @@ import { getAnnotationType } from '../plugins/annotation-type-registry.js';
  * hatch patterns, border styles, etc.).
  */
 export function drawShapePreview(currentX, currentY, e) {
+  // Het voorbeeld VOOR de basisredraw bouwen: voor de betonbalk doet het
+  // voorbeeld als sibling mee (state._previewJoinAnn), zodat bestaande
+  // balken hun verstek/open-T al tonen tijdens het tekenen — zie de
+  // betonbalk-case in annotations/rendering.js.
+  state._isPreview = true;
+  let tempAnn;
+  try {
+    tempAnn = buildAnnotationProps(state.currentTool, state.startX, state.startY, currentX, currentY, e);
+  } finally {
+    state._isPreview = false;
+  }
+  if (tempAnn && tempAnn.type === 'betonbalk') state._previewJoinAnn = tempAnn;
+  try {
   redrawAnnotations();
   const doc = getActiveDocument();
   const vp = window.__pdfViewport;
@@ -32,17 +45,6 @@ export function drawShapePreview(currentX, currentY, e) {
 
   const tool = state.currentTool;
 
-  // Build a temporary annotation from current tool + coordinates.
-  // Set _isPreview flag so plugin handlers (Symitech SP2) skip counter-bumps
-  // during the per-pointer-move preview-render-loop.
-  state._isPreview = true;
-  let tempAnn;
-  try {
-    tempAnn = buildAnnotationProps(tool, state.startX, state.startY, currentX, currentY, e);
-  } finally {
-    state._isPreview = false;
-  }
-
   if (tempAnn) {
     drawAnnotation(annotationCtx, tempAnn);
   } else {
@@ -60,4 +62,7 @@ export function drawShapePreview(currentX, currentY, e) {
   }
 
   annotationCtx.restore();
+  } finally {
+    state._previewJoinAnn = null;
+  }
 }
