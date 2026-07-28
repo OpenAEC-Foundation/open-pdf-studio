@@ -10,7 +10,8 @@ export type AnnotationType =
   | 'scaleRegion'
   | 'parametricSymbol'
   | 'stavenreeks'
-  | 'betonbalk';
+  | 'betonbalk'
+  | 'systeemraster';
 
 export interface Point {
   x: number;

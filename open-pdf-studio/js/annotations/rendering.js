@@ -18,6 +18,9 @@ import { buildBetonbalk } from './betonbalk.js';
 import { betonbalkBuildOpts } from './betonbalk-scale.js';
 import { drawBetonbalkGeom } from './rendering/betonbalk-draw.js';
 import { effectiveDraftingLineWidth } from './drafting-rules.js';
+import { buildSysteemraster } from './systeemraster.js';
+import { systeemrasterBuildOpts } from './systeemraster-scale.js';
+import { drawSysteemrasterGeom } from './rendering/systeemraster-draw.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { drawSelectionHandles } from './rendering/selection.js';
 import { drawImageCropOverlay } from './image-crop-overlay.js';
@@ -1746,6 +1749,30 @@ export function drawAnnotation(ctx, annotation) {
       drawBetonbalkGeom(ctx, bbGeom, {
         strokeColor,
         lineWidth: thinLw(effectiveDraftingLineWidth(annotation)),
+        // Blauwe tag bij selectie: klik-affordance van de inline bewerking.
+        tagColor: inlineNumberHighlight(annotation) ? EDITABLE_NUMBER_COLOR : null,
+      });
+      break;
+    }
+
+    case 'systeemraster': {
+      // Systeemraster: contour gevuld met een geclipt platenraster. De
+      // volledige geometrie komt uit buildSysteemraster() — dezelfde bron
+      // als de PDF-appearance (schaalgebied-bewuste plaatmaat in mm).
+      const srGeomG = buildSysteemraster(annotation, {
+        ...systeemrasterBuildOpts(annotation),
+        measureText: (text, size) => {
+          ctx.save();
+          ctx.font = `${size}px Arial`;
+          const w = ctx.measureText(text).width;
+          ctx.restore();
+          return w;
+        },
+      });
+      if (!srGeomG) break;
+      drawSysteemrasterGeom(ctx, srGeomG, {
+        strokeColor,
+        lineWidth: thinLw(annotation.lineWidth ?? 1),
         // Blauwe tag bij selectie: klik-affordance van de inline bewerking.
         tagColor: inlineNumberHighlight(annotation) ? EDITABLE_NUMBER_COLOR : null,
       });

@@ -13,6 +13,7 @@ import { splineTool } from './spline-tool.js';
 import { splineArrowTool } from './spline-arrow-tool.js';
 import { measureDistanceTool, measureAreaTool, measurePerimeterTool, addHoleTool } from './measurement-tool.js';
 import { filledAreaTool } from './filled-area-tool.js';
+import { systeemrasterTool } from './systeemraster-tool.js';
 import { measureAngleTool } from './angle-tool.js';
 import { commentTool, textTool, stampTool, signatureTool, editTextTool } from './text-tool.js';
 import { calibrationPickTool } from './calibration-pick-tool.js';
@@ -85,6 +86,11 @@ export function registerAllTools() {
 
   // Filled area (contour with arcs and optional holes; solid or hatched fill)
   registerTool('filledArea', filledAreaTool);
+
+  // Systeemraster: klik-voor-klik contour, automatisch gevuld met een
+  // platenraster (systeemplafond / stelconplaten); geometrie in
+  // annotations/systeemraster.js.
+  registerTool('systeemraster', systeemrasterTool);
 
   // Calibration
   registerTool('calibrationPick', calibrationPickTool);

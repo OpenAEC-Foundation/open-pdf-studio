@@ -23,6 +23,8 @@ import '../annotations/editable-numbers-providers.js';
 import { stavenreeksPxPerMm } from '../annotations/stavenreeks-scale.js';
 import { betonbalkBuildOpts } from '../annotations/betonbalk-scale.js';
 import { buildBetonbalk, resolveBetonbalkParams } from '../annotations/betonbalk.js';
+import { systeemrasterBuildOpts } from '../annotations/systeemraster-scale.js';
+import { buildSysteemraster, resolveSysteemrasterParams } from '../annotations/systeemraster.js';
 import { startStavenreeksInput } from './stavenreeks-editing.js';
 import { startParametricSymbolInput } from './parametric-symbol-editing.js';
 import {
@@ -37,6 +39,9 @@ function providerOpts(annotation) {
   if (annotation.type === 'betonbalk') {
     const doc = getActiveDocument();
     return betonbalkBuildOpts(annotation, doc ? (doc.annotations || []) : []);
+  }
+  if (annotation.type === 'systeemraster') {
+    return systeemrasterBuildOpts(annotation);
   }
   return {};
 }
@@ -106,6 +111,64 @@ function startBetonbalkTagInput(annotation) {
   return true;
 }
 
+// ── Systeemraster-plaatmaat: schermpositie + editor ───────────────────────
+
+// Zelfde rekenwijze als betonbalkTagScreenPos hierboven.
+function systeemrasterMaatScreenPos(ann) {
+  const doc = getActiveDocument();
+  const isContinuous = doc?.viewMode === 'continuous';
+  let canvas = null;
+  if (isContinuous) {
+    canvas = document.querySelector(
+      `.page-wrapper[data-page="${ann.page}"] .annotation-canvas`);
+  }
+  if (!canvas) canvas = annotationCanvas || document.getElementById('annotation-canvas');
+  if (!canvas) return null;
+  const rect = canvas.getBoundingClientRect();
+  const useViewport = !isContinuous && vpState && vpState.active;
+  const scale = useViewport ? vpState.zoom : (doc?.scale || 1.5);
+  const offX = useViewport ? vpState.offsetX : 0;
+  const offY = useViewport ? vpState.offsetY : 0;
+  const geom = buildSysteemraster(ann, providerOpts(ann));
+  if (!geom || !geom.tag) return null;
+  return {
+    left: rect.left + offX + geom.tag.x * scale,
+    top: rect.top + offY + geom.tag.y * scale + 10,
+  };
+}
+
+function startSysteemrasterMaatInput(annotation) {
+  const anchor = systeemrasterMaatScreenPos(annotation);
+  if (!anchor) return false;
+  const params = resolveSysteemrasterParams(annotation);
+  showParametricLabelInput({
+    anchor,
+    fields: [
+      { key: 'plaatBreedteMm', label: 'Breedte (mm)', type: 'number' },
+      { key: 'plaatHoogteMm', label: 'Hoogte (mm)', type: 'number' },
+    ],
+    values: {
+      plaatBreedteMm: params.plaatBreedteMm,
+      plaatHoogteMm: params.plaatHoogteMm,
+    },
+    locate: () => (stillAlive(annotation) ? systeemrasterMaatScreenPos(annotation) : null),
+    commit: (values) => {
+      if (!stillAlive(annotation) || annotation.locked) return;
+      // Zelfde pad als het eigenschappen-paneel → één undo-stap en de
+      // paneelvelden lopen automatisch mee.
+      if (values?.plaatBreedteMm != null) {
+        updateAnnotProp('plaatBreedteMm', values.plaatBreedteMm);
+      }
+      if (values?.plaatHoogteMm != null) {
+        updateAnnotProp('plaatHoogteMm', values.plaatHoogteMm);
+      }
+      storeShowProperties(annotation);
+    },
+    cancel: () => {},
+  });
+  return true;
+}
+
 /**
  * Klik op een bewerkbaar getal? Dan de bijpassende inline invoer openen.
  * @returns {boolean} true = afgehandeld (aanroeper mag géén sleep starten).
@@ -126,6 +189,9 @@ export function tryStartInlineNumberEdit(annotation, x, y) {
   }
   if (annotation.type === 'betonbalk') {
     return startBetonbalkTagInput(annotation);
+  }
+  if (annotation.type === 'systeemraster') {
+    return startSysteemrasterMaatInput(annotation);
   }
   return false;
 }

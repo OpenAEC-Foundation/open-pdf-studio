@@ -505,6 +505,16 @@ export function findAnnotationAt(x, y, pageNum = null) {
         }
         break;
       }
+      case 'systeemraster':
+        // Klik ergens binnen de contour (of op de rand) raakt het raster.
+        if (ann.points && ann.points.length >= 3) {
+          if (pointInPolygon(x, y, ann.points)) return ann;
+          for (let i = 0; i < ann.points.length; i++) {
+            const p = ann.points[i], q = ann.points[(i + 1) % ann.points.length];
+            if (distanceToLine(x, y, p.x, p.y, q.x, q.y) < tol) return ann;
+          }
+        }
+        break;
       case 'measureArea':
       case 'measurePerimeter':
       case 'filledArea':
@@ -761,6 +771,17 @@ export function isPointInsideAnnotation(x, y, annotation) {
       }
       return false;
     }
+
+    case 'systeemraster':
+      if (annotation.points && annotation.points.length >= 3) {
+        if (pointInPolygon(x, y, annotation.points)) return true;
+        for (let i = 0; i < annotation.points.length; i++) {
+          const sp = annotation.points[i];
+          const sq = annotation.points[(i + 1) % annotation.points.length];
+          if (distanceToLine(x, y, sp.x, sp.y, sq.x, sq.y) < 8) return true;
+        }
+      }
+      return false;
 
     case 'measureArea':
     case 'measurePerimeter':

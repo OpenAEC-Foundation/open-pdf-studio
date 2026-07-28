@@ -78,6 +78,7 @@ export function getAnnotationBounds(ann: Annotation): AnnotationBounds | null {
     case 'measureArea':
     case 'measurePerimeter':
     case 'filledArea':
+    case 'systeemraster':
       // filledArea moves by shifting its points — bounds must derive from
       // the points too, NOT the static x/y/width/height captured at creation
       // (those don't update on move, leaving the selection box behind).

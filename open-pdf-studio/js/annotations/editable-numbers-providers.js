@@ -14,6 +14,7 @@ import {
 } from './editable-numbers.js';
 import { buildStavenreeks, resolveParams } from './stavenreeks.js';
 import { buildBetonbalk, resolveBetonbalkParams } from './betonbalk.js';
+import { buildSysteemraster } from './systeemraster.js';
 import { getTemplate } from '../symbols/registry.js';
 
 /**
@@ -88,6 +89,33 @@ registerEditableNumbers('betonbalk', (annotation, opts = {}) => {
       w: t.width + pad * 2,
       h: t.fontSize * 1.2 + pad,
       angle: t.angle,
+    },
+  }];
+});
+
+/**
+ * Systeemraster: de plaatmaat-tag "BxH" naast de rasteroorsprong — twee
+ * bewerkbare getallen (breedte en hoogte). De tekst is links uitgelijnd op
+ * het anker (textAlign 'left', baseline 'alphabetic'), horizontaal.
+ */
+registerEditableNumbers('systeemraster', (annotation, opts = {}) => {
+  const geom = buildSysteemraster(annotation, {
+    measureText: opts.measureText,
+    pxPerMm: opts.pxPerMm,
+  });
+  if (!geom || !geom.tag) return [];
+  const t = geom.tag;
+  const pad = t.fontSize * 0.25;
+  return [{
+    id: 'plaatmaat',
+    prop: 'plaatBreedteMm',
+    value: geom.params.plaatBreedteMm,
+    box: {
+      cx: t.x + t.width / 2,
+      cy: t.y - t.fontSize * 0.3,
+      w: t.width + pad * 2,
+      h: t.fontSize * 1.2 + pad,
+      angle: 0,
     },
   }];
 });

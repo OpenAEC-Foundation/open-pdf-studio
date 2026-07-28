@@ -6,6 +6,8 @@ import { twoPointEndpoints } from '../symbols/two-point.js';
 import { handleAnchors } from './stavenreeks.js';
 import { betonbalkTagAnchor } from './betonbalk.js';
 import { betonbalkHalfWidthPx } from './betonbalk-scale.js';
+import { buildSysteemraster } from './systeemraster.js';
+import { systeemrasterBuildOpts } from './systeemraster-scale.js';
 
 // Rotate a point around a center point
 function rotatePoint(x, y, centerX, centerY, rotationDegrees) {
@@ -325,6 +327,29 @@ export function getAnnotationHandles(annotation, scale = 1) {
         handles.push({ type: HANDLE_TYPES.TOP_RIGHT, x: maxX - hs/2, y: minY - hs/2 });
         handles.push({ type: HANDLE_TYPES.BOTTOM_LEFT, x: minX - hs/2, y: maxY - hs/2 });
         handles.push({ type: HANDLE_TYPES.BOTTOM_RIGHT, x: maxX - hs/2, y: maxY - hs/2 });
+      }
+      break;
+
+    case 'systeemraster':
+      // Contour-nodes + oorsprongsgrip: de rasteroorsprong (eerste
+      // rasterkruising) is een eigen grippunt waarmee je het raster binnen
+      // de contour verschuift (originXMm/originYMm) zonder de contour zelf
+      // te bewegen. Het anker komt uit dezelfde geometrie als de rendering.
+      if (annotation.points && annotation.points.length > 0) {
+        annotation.points.forEach((p, i) => {
+          handles.push({ type: HANDLE_TYPES.POLYLINE_NODE, x: p.x - hs/2, y: p.y - hs/2, nodeIndex: i });
+        });
+      }
+      {
+        const srgGeom = buildSysteemraster(annotation, systeemrasterBuildOpts(annotation));
+        if (srgGeom) {
+          handles.push({
+            type: 'systeemraster_origin',
+            x: srgGeom.originGrip.x - hs/2,
+            y: srgGeom.originGrip.y - hs/2,
+            isGrip: true,
+          });
+        }
       }
       break;
 

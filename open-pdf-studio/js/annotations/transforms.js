@@ -4,6 +4,8 @@ import { snapAngle } from '../utils/helpers.js';
 import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement, formatDimensionText, snapDistanceTo10 } from './measurement.js';
 import { handleAnchors, lineEndForDotTarget, resolveParams } from './stavenreeks.js';
 import { getTemplate } from '../symbols/registry.js';
+import { systeemrasterPxPerMm } from './systeemraster-scale.js';
+import { PX_PER_MM_1_100 as SR_PX_PER_MM_1_100 } from './systeemraster.js';
 import { pxPerMmAt } from '../symbols/real-size.js';
 import {
   syncTwoPointGeometry,
@@ -238,6 +240,19 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
   // Caller has already reset `annotation` from `originalAnn` before invoking
   // applyResize (see _handleResize in tool-dispatcher.js), so applyMove can
   // operate directly on the original-relative state.
+  // Systeemraster-oorsprong: verschuift alleen de rasteroorsprong
+  // (originXMm/originYMm, in werkelijke mm via de plaatselijke schaal) —
+  // de contour blijft onaangeroerd. Verslepen op een as zet equalize op die
+  // as uit, anders zou de sleep geen zichtbaar effect hebben.
+  if (handleType === 'systeemraster_origin' && annotation.type === 'systeemraster') {
+    const srK = systeemrasterPxPerMm(annotation) || SR_PX_PER_MM_1_100;
+    annotation.originXMm = (Number(originalAnn.originXMm) || 0) + deltaX / srK;
+    annotation.originYMm = (Number(originalAnn.originYMm) || 0) + deltaY / srK;
+    if (Math.abs(deltaX) > 1e-9) annotation.equalizeX = false;
+    if (Math.abs(deltaY) > 1e-9) annotation.equalizeY = false;
+    return;
+  }
+
   if (handleType === HANDLE_TYPES.LINE_MID ||
       handleType === HANDLE_TYPES.RECT_CENTER ||
       handleType === HANDLE_TYPES.CIRCLE_CENTER) {
@@ -722,6 +737,7 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
     case 'measureArea':
     case 'measurePerimeter':
     case 'filledArea':
+    case 'systeemraster':
       // Label drag for measureArea
       if (handleType === HANDLE_TYPES.LABEL_MOVE && annotation.type === 'measureArea') {
         // Compute centroid as default if no label position set
