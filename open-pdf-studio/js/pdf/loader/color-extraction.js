@@ -372,6 +372,12 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         if (c && typeof c.value === 'string') colors.opsIfcCategory = c.value;
         else if (c && typeof c.decodeText === 'function') colors.opsIfcCategory = c.decodeText();
       }
+      const opsIfcPreRaw = annotDict.get(PDFName.of('OPS_IfcPredefined'));
+      if (opsIfcPreRaw) {
+        const c = context.lookup(opsIfcPreRaw) || opsIfcPreRaw;
+        if (c && typeof c.value === 'string') colors.opsIfcPredefined = c.value;
+        else if (c && typeof c.decodeText === 'function') colors.opsIfcPredefined = c.decodeText();
+      }
       const opsTwoPointRaw = annotDict.get(PDFName.of('OPS_TwoPoint'));
       if (opsTwoPointRaw) {
         const arr = context.lookup(opsTwoPointRaw) || opsTwoPointRaw;

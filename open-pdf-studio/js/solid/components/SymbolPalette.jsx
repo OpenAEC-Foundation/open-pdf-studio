@@ -24,6 +24,7 @@ import {
 } from '../stores/symbolLibraryOnlineStore.js';
 import { registerPaletteDock, unregisterPaletteDock } from '../stores/paletteOrder.js';
 import { ifcCategoryForSymbol } from '../data/ifcCategoryMap.js';
+import { nenIfcForSymbolId } from '../data/nenIfcMap.js';
 import { SYMBOL_STAMP_DEFAULT_SIZE } from '../../annotations/stamp-defaults.js';
 import { setPendingSymbolId } from '../stores/parametricSymbolStore.js';
 import { openDialog } from '../stores/dialogStore.js';
@@ -125,6 +126,10 @@ function selectSymbol(symbol) {
     stampHeight: SYMBOL_STAMP_DEFAULT_SIZE,
     lockAspectRatio: true,
     ifcCategory: ifcCategoryForSymbol(symbol),
+    // Symbool-id + IFC PredefinedType meegeven zodat de geplaatste stempel
+    // (en de saver/loader-roundtrip) de herkomst kent — zie nenIfcMap.js.
+    symbolId: symbol.id,
+    ifcPredefinedType: nenIfcForSymbolId(symbol.id)?.ifcPredefinedType,
   };
   // Pre-cache rasterized preview image for cursor preview
   const blob = new Blob([effectiveSvg], { type: 'image/svg+xml' });

@@ -16,6 +16,8 @@
 // zodat de `ifcCategory` op de geplaatste annotatie terechtkomt en de
 // hoeveelheden-engine hem kan uitlezen.
 
+import { nenIfcForSymbolId, nenIfcForStamp } from './nenIfcMap.js';
+
 export const IFC_DEFAULT = 'IfcBuildingElementProxy';
 
 // --- Trefwoord-regels (NL), eerste match wint. Werken op de KLEINE-letter
@@ -139,6 +141,11 @@ export function ifcCategoryForSymbol(symbol) {
   // 1. Wand-entry → altijd IfcWall (materiaal/dikte doen er niet toe).
   if (symbol.wall) return 'IfcWall';
 
+  // 1b. NEN 1414-stempel: expliciete per-symbool-mapping (nenIfcMap.js)
+  //     gaat vóór de trefwoord-heuristiek.
+  const nenExplicit = nenIfcForSymbolId(id);
+  if (nenExplicit) return nenExplicit.ifcCategory;
+
   // 2. Parametrisch template: eerst fijnmazige id-default, dan trefwoord.
   if (symbol.parametricId) {
     const byId = ifcCategoryForParametric(symbol.parametricId);
@@ -215,6 +222,12 @@ export function ifcCategoryForAnnotation(annotation) {
   if (annotation.type === 'parametricSymbol') {
     return ifcCategoryForParametric(annotation.symbolId);
   }
+  // NEN 1414-stempel zonder expliciet veld (ouder document): herclassificeer
+  // via symbool-id of — bij nóg oudere bestanden — via de stempelnaam.
+  if (annotation.type === 'stamp') {
+    const nenStamp = nenIfcForStamp(annotation.symbolId, annotation.stampName);
+    if (nenStamp) return nenStamp.ifcCategory;
+  }
   const byType = ifcCategoryForAnnotationType(annotation.type);
   return byType === IFC_DEFAULT ? 'IfcAnnotation' : byType;
 }
@@ -249,6 +262,18 @@ export const IFC_LABELS = {
   IfcAnnotation: 'Annotatie / maatvoering',
   IfcReinforcingBar: 'Wapening',
   IfcBuildingElementProxy: 'Overig bouwelement',
+  // NEN 1414-klassen (nenIfcMap.js)
+  IfcController: 'Centrale / paneel / regelaar',
+  IfcActuator: 'Actuator (houdmagneet / dranger)',
+  IfcDamper: 'Klep (brand/rook/overdruk)',
+  IfcFan: 'Ventilator',
+  IfcValve: 'Afsluiter / klep (water)',
+  IfcPump: 'Pomp',
+  IfcTank: 'Tank / watervoorziening',
+  IfcPipeSegment: 'Leiding(net)',
+  IfcAudioVisualAppliance: 'Spraak-/geluidsinstallatie',
+  IfcElectricFlowStorageDevice: 'Noodvoeding / accu / UPS',
+  IfcElectricGenerator: 'Aggregaat / generator',
 };
 
 /** Leesbare NL-omschrijving voor een IFC-categorie (lege string als onbekend). */

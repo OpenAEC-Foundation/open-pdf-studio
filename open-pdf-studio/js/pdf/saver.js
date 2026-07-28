@@ -1277,6 +1277,12 @@ export async function savePDF(saveAsPath = null) {
 
             if (ann.rotation) stampDictObj.OPS_Rotation = ann.rotation;
             if (ann.stampName) stampDictObj.OPS_StampName = PDFString.of(ann.stampName);
+            // Palette-symbool-id + IFC-classificatie (NEN 1414-stempels e.d.)
+            // — roundtrip zodat het eigenschappenpaneel en het IFC-report de
+            // categorie na heropenen behouden.
+            if (ann.symbolId) stampDictObj.OPS_SymbolId = PDFString.of(ann.symbolId);
+            if (ann.ifcCategory) stampDictObj.OPS_IfcCategory = PDFString.of(ann.ifcCategory);
+            if (ann.ifcPredefinedType) stampDictObj.OPS_IfcPredefined = PDFString.of(ann.ifcPredefinedType);
             // Linked image (an image that round-tripped as a stamp keeps
             // its source path across saves). Hex string: literal PDFString
             // would corrupt Windows backslashes (\r, \n... are escapes).

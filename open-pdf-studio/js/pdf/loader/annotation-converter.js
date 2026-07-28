@@ -6,6 +6,7 @@ import { mapPdfFontName, mapBorderStyle } from './pdf-helpers.js';
 import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement } from '../../annotations/measurement.js';
 import { findImageForAnnotation } from './annotation-image-sources.mjs';
 import { ifcCategoryForAnnotationType, ifcCategoryForParametric } from '../../solid/data/ifcCategoryMap.js';
+import { nenIfcForStamp } from '../../solid/data/nenIfcMap.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
 import { syncTwoPointGeometry } from '../../symbols/two-point.js';
 
@@ -1394,6 +1395,14 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
         strokeColor: stampColor,
         rotation: stRotation
       };
+
+      // IFC-classificatie van symboolstempels (NEN 1414 e.d.). Voorkeur:
+      // de opgeslagen OPS-sleutels; oudere bestanden zonder die sleutels
+      // worden via symbool-id of stempelnaam alsnog geclassificeerd.
+      if (extraColors.opsSymbolId) stampProps.symbolId = extraColors.opsSymbolId;
+      const nenStampInfo = nenIfcForStamp(extraColors.opsSymbolId, appStampName);
+      stampProps.ifcCategory = extraColors.opsIfcCategory || nenStampInfo?.ifcCategory || undefined;
+      stampProps.ifcPredefinedType = extraColors.opsIfcPredefined || nenStampInfo?.ifcPredefinedType || undefined;
 
       // Attach AP stream image if available
       if (dataUrl) {

@@ -219,6 +219,10 @@ export async function placeOverrideStamp(x, y) {
     lockAspectRatio: overrides.lockAspectRatio !== false,
     // IFC-categorie uit de symbool-metadata (mapping-laag) → hoeveelheden.
     ifcCategory: overrides.ifcCategory || undefined,
+    // Palette-symbool-id (bv. 'nen1414-Tb1.003') + IFC PredefinedType,
+    // zodat saver/loader en het IFC-report de herkomst behouden.
+    symbolId: overrides.symbolId || undefined,
+    ifcPredefinedType: overrides.ifcPredefinedType || undefined,
   });
 
   // Store image reference directly on annotation for rendering

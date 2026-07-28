@@ -45,6 +45,12 @@ function _entityFor(ann) {
     if (tpl) props.templateNaam = tpl.name;
     if (ann.params) props.params = { ...ann.params };
   }
+  // Symboolstempels (NEN 1414 e.d.): herkomst + IFC PredefinedType.
+  if (ann.type === 'stamp') {
+    if (ann.symbolId) props.symbol = ann.symbolId;
+    if (ann.stampName) props.symbolNaam = ann.stampName;
+  }
+  if (ann.ifcPredefinedType) props.predefinedType = ann.ifcPredefinedType;
   if (ann.measureText) props.measureText = ann.measureText;
   if (ann.text) props.text = ann.text;
   if (ann.subject) props.subject = ann.subject;
