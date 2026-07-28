@@ -29,6 +29,10 @@ import { drawSnapIndicator } from '../tools/snap-engine.js';
 import { drawImageAlignGuides } from '../tools/image-align-snap.js';
 import { getTemplate } from '../symbols/registry.js';
 import { hasFill } from './fill-utils.js';
+import { EDITABLE_NUMBER_COLOR, shouldHighlightNumbers } from './editable-numbers.js';
+// Side-effect: meldt de providers voor bewerkbare getallen aan
+// (stavenreeks, betonbalk, parametricSymbol).
+import { labelHasNumericField } from './editable-numbers-providers.js';
 import { hiddenTypes as evHiddenTypes, halftoneTypes as evHalftoneTypes } from '../solid/stores/elementVisibilityStore.js';
 import { getPageRotationMatrix } from '../text/text-edit-appearance.js';
 import { rotatedRectAabb } from '../utils/math.js';
@@ -163,6 +167,14 @@ function _drawPolarOverlay(ctx, snapResult, scale) {
 // strokes — the ones that made dragging lag — are bounded while the gesture
 // is in flight. Full weight is restored on the post-gesture repaint.
 const DRAG_LOD_MAX_SCREEN_PX = 6;
+
+// Blauwe klik-affordance voor bewerkbare getallen: alleen wanneer de
+// annotatie de ENIGE selectie is (zie annotations/editable-numbers.js) —
+// precies dan opent een klik op zo'n getal de inline invoer.
+function inlineNumberHighlight(annotation) {
+  const doc = state.documents[state.activeDocumentIndex];
+  return shouldHighlightNumbers(annotation, doc ? doc.selectedAnnotations : null);
+}
 
 function thinLw(width) {
   if (width === 0) return 0;
@@ -1447,6 +1459,21 @@ export function drawAnnotation(ctx, annotation) {
       ctx.lineWidth = lw;
       ctx.strokeStyle = strokeColor;
       ctx.fillStyle = strokeColor;
+      // Bij selectie kleuren de bewerkbare GETAL-labels blauw (klik opent de
+      // inline invoer). De rects komen uit template.editableLabels in
+      // ONgeroteerde coördinaten — hetzelfde frame als de cmds hier (de
+      // rotatie zit al op de ctx), dus een simpele bevat-test volstaat.
+      let hotLabelRects = null;
+      if (inlineNumberHighlight(annotation)
+          && typeof template.editableLabels === 'function') {
+        try {
+          hotLabelRects = (template.editableLabels(annotation.params || {}, annotation) || [])
+            .filter(l => l?.rect && labelHasNumericField(template, l))
+            .map(l => l.rect);
+        } catch (_) { hotLabelRects = null; }
+      }
+      const inHotLabel = (x, y) => !!hotLabelRects && hotLabelRects.some(r =>
+        x >= r.x && x <= r.x + r.width && y >= r.y && y <= r.y + r.height);
       for (const c of cmds) {
         if (!c) continue;
         switch (c.kind) {
@@ -1468,9 +1495,14 @@ export function drawAnnotation(ctx, annotation) {
             break;
           }
           case 'circle': {
+            ctx.save();
+            // Per-cmd dikte (fijnwerk zoals het diameterteken van de
+            // wapeningskorf); zonder eigen waarde geldt de annotatie-dikte.
+            ctx.lineWidth = c.lineWidth ?? lw;
             ctx.beginPath();
             ctx.arc(c.cx, c.cy, c.r, 0, Math.PI * 2);
             ctx.stroke();
+            ctx.restore();
             break;
           }
           case 'polyline': {
@@ -1564,6 +1596,7 @@ export function drawAnnotation(ctx, annotation) {
             ctx.font = `${c.bold ? 'bold ' : ''}${c.size || 12}px Arial`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
+            if (inHotLabel(c.x, c.y)) ctx.fillStyle = EDITABLE_NUMBER_COLOR;
             ctx.fillText(c.text || '', c.x, c.y);
             ctx.textAlign = 'left';
             ctx.textBaseline = 'alphabetic';
@@ -1636,9 +1669,19 @@ export function drawAnnotation(ctx, annotation) {
       ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
       const x0 = lbl.align === 'right' ? -lbl.width : 0;
+      // Bij selectie kleuren het AANTAL en de DIAMETER blauw: de klik-
+      // affordance van de inline getalbewerking (klik opent het invoerveld).
+      const srNumbersHot = inlineNumberHighlight(annotation);
       for (const part of lbl.parts) {
         if (part.kind === 'text') {
-          ctx.fillText(part.text, x0 + part.dx, 0);
+          if (srNumbersHot) {
+            ctx.save();
+            ctx.fillStyle = EDITABLE_NUMBER_COLOR;
+            ctx.fillText(part.text, x0 + part.dx, 0);
+            ctx.restore();
+          } else {
+            ctx.fillText(part.text, x0 + part.dx, 0);
+          }
         } else {
           // Wapenings-diameterteken: cirkel + schuine streep + twee
           // vlaggetjes. De lijnstukken komen uit de GEDEELDE module
@@ -1699,6 +1742,8 @@ export function drawAnnotation(ctx, annotation) {
       drawBetonbalkGeom(ctx, bbGeom, {
         strokeColor,
         lineWidth: thinLw(annotation.lineWidth ?? 1),
+        // Blauwe tag bij selectie: klik-affordance van de inline bewerking.
+        tagColor: inlineNumberHighlight(annotation) ? EDITABLE_NUMBER_COLOR : null,
       });
       break;
     }
@@ -2673,6 +2718,13 @@ export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDp
 
   // Draw watermarks in front of content
   renderWatermarksInFront(ctx, pageNum, width / effectiveScale, height / effectiveScale);
+
+  // Blender-achtige 2D-cursor (Shift+rechtsklik). Werd alleen in het
+  // enkelpagina-pad getekend; in de doorlopende weergave plaatste de klik hem
+  // dus onzichtbaar. Zelfde gate op de pagina als de enkelpagina-render.
+  if (doc?.cursor2D && doc.cursor2D.page === pageNum) {
+    _draw2DCursor(ctx, doc.cursor2D.x, doc.cursor2D.y, effectiveScale);
+  }
 
   // Selectie-omranding en grippunten. Dit pad tekende ze niet, waardoor een
   // selectie in de doorlopende weergave onzichtbaar bleef: geen grippunten op

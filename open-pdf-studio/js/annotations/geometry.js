@@ -7,6 +7,10 @@ import { wallHalfWidthPx as isPointOnWallHalfWidth } from './rendering/walls.js'
 import { buildStavenreeks } from './stavenreeks.js';
 import { stavenreeksPxPerMm } from './stavenreeks-scale.js';
 import { betonbalkHalfWidthPx } from './betonbalk-scale.js';
+import {
+  resolveBetonbalkParams, betonbalkTagAnchor,
+  approxTextWidth as bbApproxTextWidth,
+} from './betonbalk.js';
 
 /**
  * Find intersection of two infinite lines defined by (p1,p2) and (p3,p4).
@@ -208,6 +212,22 @@ export function findAnnotationAt(x, y, pageNum = null) {
         for (const dot of sr.dots) {
           if (Math.hypot(x - dot.x, y - dot.y) < tol + dot.r) return ann;
         }
+        // Het LABEL "N ⌀ D" hoort ook bij het object — en draagt de
+        // inline-bewerkbare getallen (aantal/diameter): een klik erop moet
+        // dus het object raken, anders start er een rubber band i.p.v. de
+        // inline invoer. Punt terugdraaien naar het labelframe en tegen het
+        // (licht opgevulde) tekstvak testen.
+        {
+          const lbl = sr.label;
+          const ca = Math.cos(-lbl.angle), sa = Math.sin(-lbl.angle);
+          const px = x - lbl.x, py = y - lbl.y;
+          const lx = px * ca - py * sa;
+          const ly = px * sa + py * ca;
+          const x0 = lbl.align === 'right' ? -lbl.width : 0;
+          const half = lbl.fontSize * 0.75;
+          if (lx >= x0 - tol && lx <= x0 + lbl.width + tol
+              && ly >= -half && ly <= half) return ann;
+        }
         break;
       }
       case 'wall': {
@@ -221,6 +241,24 @@ export function findAnnotationAt(x, y, pageNum = null) {
         // (schaalgebied-bewust), zoals bij de wand.
         const bd = distanceToLine(x, y, ann.startX, ann.startY, ann.endX, ann.endY);
         if (bd < tol + betonbalkHalfWidthPx(ann)) return ann;
+        // De TAG (indien getoond) hoort ook bij het object en is inline
+        // bewerkbaar — klik erop moet de balk raken.
+        if (resolveBetonbalkParams(ann).tagTonen) {
+          const p = resolveBetonbalkParams(ann);
+          const anchor = betonbalkTagAnchor(ann, betonbalkHalfWidthPx(ann));
+          if (anchor) {
+            const w = bbApproxTextWidth(p.tagTekst, p.tagFontSize);
+            const ca = Math.cos(-anchor.angle), sa = Math.sin(-anchor.angle);
+            const px = x - anchor.x, py = y - anchor.y;
+            const lx = px * ca - py * sa;
+            const ly = px * sa + py * ca;
+            // textAlign 'center', baseline 'alphabetic': vak [−w/2, w/2] ×
+            // [−0.8·font, +0.25·font] rond het anker.
+            if (Math.abs(lx) <= w / 2 + tol
+                && ly >= -p.tagFontSize * 0.8 - tol
+                && ly <= p.tagFontSize * 0.25 + tol) return ann;
+          }
+        }
         break;
       }
       case 'polyline':

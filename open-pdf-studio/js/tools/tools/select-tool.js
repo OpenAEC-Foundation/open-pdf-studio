@@ -2,6 +2,7 @@ import { getActiveDocument } from '../../core/state.js';
 import { applyToolTransform, getEffectiveScale } from '../tool-context.js';
 import { HANDLE_TYPES } from '../../core/constants.js';
 import { recordModify } from '../../core/undo-manager.js';
+import { tryStartInlineNumberEdit } from '../inline-number-editing.js';
 
 /**
  * Select tool — click-select, rubber band, drag, resize, Ctrl+drag copy
@@ -191,6 +192,23 @@ export const selectTool = {
         }
         ctx.redraw();
       } else {
+        // Inline getalbewerking: klik op een (blauw gemarkeerd) bewerkbaar
+        // getal van de reeds geselecteerde annotatie opent direct het
+        // invoerveld — géén sleep starten. Alleen bij een enkelvoudige
+        // selectie: dat is precies de situatie waarin rendering.js de
+        // getallen blauw kleurt (zie annotations/editable-numbers.js).
+        if (!pdfaLocked && ctx.isSelected(clickedAnnotation) && selAnns.length === 1) {
+          let inlineHandled = false;
+          try {
+            inlineHandled = tryStartInlineNumberEdit(clickedAnnotation, x, y);
+          } catch (err) {
+            console.error('[select] inline number edit error', err);
+          }
+          if (inlineHandled) {
+            ctx.redraw();
+            return;
+          }
+        }
         const isTextMarkup = ['textHighlight', 'textStrikethrough', 'textUnderline'].includes(clickedAnnotation.type);
         if (ctx.isSelected(clickedAnnotation) && selAnns.length > 1) {
           if (!pdfaLocked && !isTextMarkup) {

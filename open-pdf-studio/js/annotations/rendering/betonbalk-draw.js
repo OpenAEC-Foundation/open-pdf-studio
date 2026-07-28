@@ -69,7 +69,9 @@ export function drawBetonbalkGeom(ctx, geom, style) {
     ctx.save();
     ctx.translate(t.x, t.y);
     ctx.rotate(t.angle);
-    ctx.fillStyle = stroke;
+    // tagColor: blauwe klik-affordance wanneer de balk geselecteerd is
+    // (inline getalbewerking); anders de gewone lijnkleur.
+    ctx.fillStyle = style?.tagColor || stroke;
     ctx.font = `${t.fontSize}px Arial`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';

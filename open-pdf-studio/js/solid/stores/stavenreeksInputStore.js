@@ -19,9 +19,14 @@ const [onCancel, setOnCancel] = createSignal(null);
 // null, dan is de annotatie weg (verwijderd of ander document) en sluit de
 // editor zichzelf.
 const [locator, setLocator] = createSignal(null);
+// Veld dat bij openen focus krijgt: 'count' (default), 'diameter' of
+// 'fontSize' — gezet door de inline getalbewerking (klik op een getal).
+const [focusField, setFocusField] = createSignal('count');
 
 export function showStavenreeksInput(opts) {
   const o = opts || {};
+  setFocusField(o.focusField === 'diameter' || o.focusField === 'fontSize'
+    ? o.focusField : 'count');
   setCountValue(String(o.count ?? ''));
   setDiameterValue(String(o.diameter ?? ''));
   setFontSizeValue(String(o.fontSize ?? ''));
@@ -49,5 +54,5 @@ export {
   countValue, setCountValue,
   diameterValue, setDiameterValue,
   fontSizeValue, setFontSizeValue,
-  onCommit, onCancel, locator,
+  onCommit, onCancel, locator, focusField,
 };

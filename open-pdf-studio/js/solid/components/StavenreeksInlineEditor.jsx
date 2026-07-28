@@ -17,15 +17,18 @@ import { Show, createEffect, onCleanup } from 'solid-js';
 import {
   active, anchor, setAnchor, countValue, setCountValue,
   diameterValue, setDiameterValue, fontSizeValue, setFontSizeValue,
-  onCommit, onCancel, locator, hideStavenreeksInput,
+  onCommit, onCancel, locator, focusField, hideStavenreeksInput,
 } from '../stores/stavenreeksInputStore.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 import { STAVENREEKS_DIAMETERS } from '../../annotations/stavenreeks.js';
+import { createOutsideCommitController } from './parametric-label-outside-events.js';
 
 export default function StavenreeksInlineEditor() {
   const { t } = useTranslation('properties');
   let rootRef;
   let countRef;
+  let diameterRef;
+  let fontSizeRef;
 
   const commit = () => {
     if (!active()) return;
@@ -55,19 +58,36 @@ export default function StavenreeksInlineEditor() {
   createEffect(() => {
     if (!active()) return;
 
-    // Focus op het aantal-veld, met de bestaande waarde geselecteerd.
-    queueMicrotask(() => { countRef?.focus(); countRef?.select(); });
+    // Focus op het AANGEKLIKTE veld (inline getalbewerking geeft 'count',
+    // 'diameter' of 'fontSize' door; dubbelklik houdt de oude default:
+    // het aantal-veld), met de bestaande waarde geselecteerd.
+    queueMicrotask(() => {
+      const target = focusField() === 'diameter' ? diameterRef
+        : (focusField() === 'fontSize' ? fontSizeRef : countRef);
+      target?.focus();
+      target?.select?.();
+    });
 
-    // Klik buiten het venstertje bevestigt. Zowel pointerdown als mousedown:
-    // niet elke invoerbron levert allebei (synthetische events en sommige
-    // pen-/aanraakpaden vuren er maar één).
-    const onOutside = (ev) => {
-      if (rootRef && ev.target instanceof Node && rootRef.contains(ev.target)) return;
-      commit();
-    };
+    // Klik buiten het venstertje bevestigt — via dezelfde race-vrije
+    // controller als de parametrische label-editor. Belangrijk sinds de
+    // inline getalbewerking: het venstertje opent al op de POINTERDOWN van
+    // een enkele klik, en de trailing mousedown/click van diezelfde klik
+    // mag de editor niet meteen weer sluiten. De controller ziet die
+    // trailing events niet als "buiten-klik" (de pointerdown viel vóór het
+    // aankoppelen; de losse click zonder voorafgaande pending wordt
+    // genegeerd).
+    const outsideController = createOutsideCommitController({
+      isActive: active,
+      commit,
+      isCanvasTarget: (target) =>
+        target instanceof Element
+        && !!target.closest('#annotation-canvas, .annotation-canvas'),
+    });
+    const onOutsidePointerDown = (ev) => outsideController.pointerDown(ev, rootRef);
+    const onOutsideClick = (ev) => outsideController.click(ev, rootRef);
     // capture: de canvas-tools luisteren ook op pointerdown; wij zijn eerst.
-    document.addEventListener('pointerdown', onOutside, true);
-    document.addEventListener('mousedown', onOutside, true);
+    document.addEventListener('pointerdown', onOutsidePointerDown, true);
+    window.addEventListener('click', onOutsideClick);
 
     // Meebewegen met zoom en pan.
     let raf = 0;
@@ -85,8 +105,9 @@ export default function StavenreeksInlineEditor() {
     raf = requestAnimationFrame(tick);
 
     onCleanup(() => {
-      document.removeEventListener('pointerdown', onOutside, true);
-      document.removeEventListener('mousedown', onOutside, true);
+      outsideController.reset();
+      document.removeEventListener('pointerdown', onOutsidePointerDown, true);
+      window.removeEventListener('click', onOutsideClick);
       if (raf) cancelAnimationFrame(raf);
     });
   });
@@ -121,6 +142,7 @@ export default function StavenreeksInlineEditor() {
         <label class="sr-inline-field">
           <span>{t('stavenreeks.diameter')}</span>
           <select
+            ref={diameterRef}
             id="sr-inline-diameter"
             value={diameterValue()}
             onInput={(e) => setDiameterValue(e.target.value)}
@@ -133,6 +155,7 @@ export default function StavenreeksInlineEditor() {
         <label class="sr-inline-field">
           <span>{t('stavenreeks.fontSize')}</span>
           <input
+            ref={fontSizeRef}
             id="sr-inline-fontsize"
             type="number"
             min="6"

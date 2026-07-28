@@ -73,7 +73,7 @@ function stillAlive(ann) {
  * roept showProperties() vlak ervoor aan) — updateAnnotProp schrijft immers
  * naar de annotatie die de paneelstore als 'huidige' kent.
  */
-export function startStavenreeksInput(annotation) {
+export function startStavenreeksInput(annotation, opts = {}) {
   if (!annotation || annotation.type !== 'stavenreeks') return;
   if (annotation.locked) return;
   // Al open voor dezelfde annotatie? Niets doen (dubbel afvurende handlers).
@@ -91,6 +91,9 @@ export function startStavenreeksInput(annotation) {
     count: params.count,
     diameter: params.diameter,
     fontSize: params.fontSize,
+    // Welk veld focus krijgt ('count' | 'diameter' | 'fontSize') — de inline
+    // getalbewerking geeft het AANGEKLIKTE getal door zodat je meteen typt.
+    focusField: opts.focusField,
     // Elke frame opgevraagd door de component: meebewegen met zoom/pan, en
     // null zodra de annotatie is verdwenen (verwijderd of ander document).
     locate: () => {
