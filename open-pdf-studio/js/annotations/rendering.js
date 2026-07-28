@@ -1624,8 +1624,8 @@ export function drawAnnotation(ctx, annotation) {
       // schuine reeks ontstaat doordat de coördinaten schuin liggen. Dezelfde
       // functie voedt straks de PDF-appearance, zodat scherm en PDF niet uit
       // elkaar kunnen lopen.
-      // Lijndikte: eigen waarde of geërfd uit het tekeningtype van het
-      // schaalgebied (drafting-rules.js).
+      // Lijndikte + label-teksthoogte: eigen waarde of geërfd uit het
+      // tekeningtype van het schaalgebied (drafting-rules.js).
       const lw = thinLw(effectiveDraftingLineWidth(annotation));
       const geom = buildStavenreeks(annotation, {
         // Alleen de puntstraal volgt de plaatselijke tekeningschaal.
