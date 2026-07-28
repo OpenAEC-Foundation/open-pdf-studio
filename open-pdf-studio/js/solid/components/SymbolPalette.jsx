@@ -26,6 +26,7 @@ import { registerPaletteDock, unregisterPaletteDock } from '../stores/paletteOrd
 import { ifcCategoryForSymbol } from '../data/ifcCategoryMap.js';
 import { SYMBOL_STAMP_DEFAULT_SIZE } from '../../annotations/stamp-defaults.js';
 import { setPendingSymbolId } from '../stores/parametricSymbolStore.js';
+import { openDialog } from '../stores/dialogStore.js';
 
 const DOCK_SNAP = 60;
 
@@ -195,6 +196,17 @@ function SymbolContent() {
                   <div class={`sp-cat-arrow${isCategoryExpanded(cat.id) ? ' expanded' : ''}`} innerHTML={arrowSvg} />
                   <div class="sp-cat-icon" style={{ color: cat.color || '#333' }} innerHTML={cat.icon} />
                   <span class="sp-cat-name">{cat.name}</span>
+                  {/* Tekeninstellingen (tekeningtypen/regelsets) — alleen bij
+                      de NL IFC Bouw-categorie. Vast knop-id voor tests/rig. */}
+                  <Show when={cat.id === 'nl-ifc-bouw'}>
+                    <button
+                      id="btn-tekeninstellingen"
+                      class="sp-settings-btn"
+                      title="Tekeninstellingen"
+                      onClick={(e) => { e.stopPropagation(); openDialog('tekeninstellingen'); }}
+                      innerHTML={settingsSvg}
+                    />
+                  </Show>
                   <span class="sp-cat-count">{cat.symbols.length}</span>
                 </div>
                 <Show when={isCategoryExpanded(cat.id)}>

@@ -357,5 +357,27 @@
       "down-left": "Down, leaning left",
       "down-right": "Down, leaning right"
     }
+  },
+  "tekeninstellingen": {
+    "title": "Drawing settings",
+    "regelset": "Drawing type (rule set)",
+    "standard": "default",
+    "duplicate": "Duplicate",
+    "rename": "Rename",
+    "delete": "Delete",
+    "copy": "copy",
+    "makeDefault": "Use as default (outside scale regions)",
+    "textHeights": "Text heights (paper mm)",
+    "labels": "Labels",
+    "maatvoering": "Dimensions",
+    "titels": "Titles",
+    "lineWidths": "Line width per IFC category (paper mm, 1:100)",
+    "defaultCategory": "Other (default)",
+    "regions": "Drawing type per scale region",
+    "noRegions": "No scale regions in this document.",
+    "standardOption": "(default rule set)",
+    "region": "Region",
+    "page": "p.",
+    "close": "Close"
   }
 }

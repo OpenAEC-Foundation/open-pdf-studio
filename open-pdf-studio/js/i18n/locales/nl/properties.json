@@ -449,5 +449,27 @@
       "down-left": "Omlaag, naar links hellend",
       "down-right": "Omlaag, naar rechts hellend"
     }
+  },
+  "tekeninstellingen": {
+    "title": "Tekeninstellingen",
+    "regelset": "Tekeningtype (regelset)",
+    "standard": "standaard",
+    "duplicate": "Dupliceren",
+    "rename": "Hernoemen",
+    "delete": "Verwijderen",
+    "copy": "kopie",
+    "makeDefault": "Als standaard gebruiken (buiten schaalgebieden)",
+    "textHeights": "Teksthoogtes (papier-mm)",
+    "labels": "Labels",
+    "maatvoering": "Maatvoering",
+    "titels": "Titels",
+    "lineWidths": "Lijndikte per IFC-categorie (papier-mm, 1:100)",
+    "defaultCategory": "Overig (default)",
+    "regions": "Tekeningtype per schaalgebied",
+    "noRegions": "Geen schaalgebieden in dit document.",
+    "standardOption": "(standaard-regelset)",
+    "region": "Gebied",
+    "page": "pag.",
+    "close": "Sluiten"
   }
 }
