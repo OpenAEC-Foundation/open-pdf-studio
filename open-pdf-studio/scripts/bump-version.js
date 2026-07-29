@@ -63,6 +63,21 @@ const files = [
     }
   },
   {
+    // src-tauri is een workspace-lid, dus cargo onderhoudt ALLEEN de lockfile
+    // in de repo-root; deze tweede lockfile wordt door cargo nooit bijgewerkt.
+    // Hij wordt wel gelezen door de versie-consistentietest en dient als
+    // cache-sleutel in de Android-build, dus hij moet mee met elke bump —
+    // anders rot hij weg en valt de CI om op een versie die niemand ziet
+    // (gebeurd bij 1.83.0 en 1.84.0: bleef op 1.82.0 staan).
+    path: path.join(root, 'src-tauri', 'Cargo.lock'),
+    update: (content) => {
+      return content.replace(
+        /(name = "open-pdf-studio"\r?\nversion = ")[^"]+("\r?\n)/,
+        `$1${version}$2`
+      );
+    }
+  },
+  {
     path: path.join(repoRoot, '.github', 'workflows', 'release.yml'),
     update: (content) => {
       return content.replace(/default:\s*'v[^']*'/, `default: 'v${version}'`);
