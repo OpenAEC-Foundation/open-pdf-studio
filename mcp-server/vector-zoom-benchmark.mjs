@@ -80,9 +80,8 @@ class McpClient {
 
 function processSnapshot() {
   const command = [
-    "$names = @('open-pdf-studio','pdfium-worker');",
-    '$items = Get-Process -Name $names -ErrorAction SilentlyContinue |',
-    "Select-Object Id,ProcessName,@{n='ParentProcessId';e={(Get-CimInstance Win32_Process -Filter \"ProcessId=$($_.Id)\").ParentProcessId}},@{n='rssMb';e={[math]::Round($_.WorkingSet64/1MB,1)}};",
+    `$items = Get-CimInstance Win32_Process -Filter "Name='open-pdf-studio.exe' OR Name='pdfium-worker.exe'" |`,
+    "Select-Object @{n='Id';e={[int]$_.ProcessId}},@{n='ProcessName';e={[IO.Path]::GetFileNameWithoutExtension($_.Name)}},ParentProcessId,@{n='rssMb';e={[math]::Round([double]$_.WorkingSetSize/1MB,1)}};",
     'if ($items) { $items | ConvertTo-Json -Compress } else { "[]" }',
   ].join(' ');
 
@@ -123,6 +122,7 @@ async function waitForStableZoom(client, scale, since, appPid, timeoutMs = 120_0
   let completionSeen = false;
   let latestEntries = [];
   const rssSamples = [];
+  let nextRssSampleAt = started;
 
   while (performance.now() - started < timeoutMs) {
     const [viewport, entries] = await Promise.all([
@@ -130,7 +130,10 @@ async function waitForStableZoom(client, scale, since, appPid, timeoutMs = 120_0
       recentEntries(client, since),
     ]);
     latestEntries = entries;
-    rssSamples.push({ atMs: Math.round(performance.now() - started), processes: processSnapshot() });
+    if (performance.now() >= nextRssSampleAt) {
+      rssSamples.push({ atMs: Math.round(performance.now() - started), processes: processSnapshot() });
+      nextRssSampleAt = performance.now() + 1_000;
+    }
 
     const relevant = entries.filter((entry) => RELEVANT_LOG.test(entry.text));
     const signature = relevant.map((entry) => `${entry.t}:${entry.text}`).join('\n');
@@ -150,9 +153,16 @@ async function waitForStableZoom(client, scale, since, appPid, timeoutMs = 120_0
       viewport,
     });
     if (zoomMatches && stableEvidence && quietForMs >= 800) {
+      const tileZoom = Number(viewport?.tile?.meta?.zoom);
+      const reason = completionSeen
+        ? 'completion-log'
+        : Number.isFinite(tileZoom)
+          ? 'matching-sharp-tile'
+          : 'quiet-cache-hit';
       return {
         ok: true,
         elapsedMs: Math.round(performance.now() - started),
+        reason,
         viewport,
         entries: latestEntries,
         rssSamples,

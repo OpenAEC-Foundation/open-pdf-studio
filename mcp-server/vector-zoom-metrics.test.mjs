@@ -140,3 +140,12 @@ test('hasStableZoomEvidence accepts completion, matching sharp tile, or a quiet 
     viewport: { tile: { meta: { zoom: 1.5 } } },
   }), false);
 });
+
+test('hasStableZoomEvidence rejects a quiet viewport with a stale tile from another zoom', () => {
+  assert.equal(hasStableZoomEvidence({
+    scale: 3,
+    completionSeen: false,
+    quietForMs: 8_000,
+    viewport: { tile: { meta: { zoom: 1.5 } } },
+  }), false);
+});

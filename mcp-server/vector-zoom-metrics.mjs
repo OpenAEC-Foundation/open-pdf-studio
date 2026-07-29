@@ -77,6 +77,6 @@ export function hasStableZoomEvidence({
 }) {
   const tileZoom = Number(viewport?.tile?.meta?.zoom);
   const matchingSharpTile = Number.isFinite(tileZoom) && Math.abs(tileZoom - scale) < 0.001;
-  const quietCacheHit = quietForMs >= 1_500;
+  const quietCacheHit = !Number.isFinite(tileZoom) && quietForMs >= 1_500;
   return completionSeen || matchingSharpTile || quietCacheHit;
 }
