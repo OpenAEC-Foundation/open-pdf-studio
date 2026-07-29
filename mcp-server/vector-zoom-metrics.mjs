@@ -47,3 +47,24 @@ export function extractZoomPhases(entries, sinceMs) {
     raw,
   };
 }
+
+export function aggregatePeak(samples, appPid) {
+  let mainPeakMb = 0;
+  let workerPeakMb = 0;
+  let workerTotalPeakMb = 0;
+
+  for (const sample of samples) {
+    const main = sample.processes.filter((item) => item.Id === appPid);
+    const workers = sample.processes.filter(
+      (item) => item.ProcessName === 'pdfium-worker' && item.ParentProcessId === appPid,
+    );
+    mainPeakMb = Math.max(mainPeakMb, ...main.map((item) => item.rssMb), 0);
+    workerPeakMb = Math.max(workerPeakMb, ...workers.map((item) => item.rssMb), 0);
+    workerTotalPeakMb = Math.max(
+      workerTotalPeakMb,
+      workers.reduce((sum, item) => sum + item.rssMb, 0),
+    );
+  }
+
+  return { mainPeakMb, workerPeakMb, workerTotalPeakMb };
+}

@@ -5,7 +5,11 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { basename, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { extractZoomPhases, summarizeRuns } from './vector-zoom-metrics.mjs';
+import {
+  aggregatePeak,
+  extractZoomPhases,
+  summarizeRuns,
+} from './vector-zoom-metrics.mjs';
 
 const DEFAULT_MCP = 'http://127.0.0.1:9223/mcp';
 const ZOOM_SEQUENCE = [1, 1.5, 2, 3];
@@ -77,7 +81,7 @@ function processSnapshot() {
   const command = [
     "$names = @('open-pdf-studio','pdfium-worker');",
     '$items = Get-Process -Name $names -ErrorAction SilentlyContinue |',
-    "Select-Object Id,ProcessName,@{n='rssMb';e={[math]::Round($_.WorkingSet64/1MB,1)}};",
+    "Select-Object Id,ProcessName,@{n='ParentProcessId';e={(Get-CimInstance Win32_Process -Filter \"ProcessId=$($_.Id)\").ParentProcessId}},@{n='rssMb';e={[math]::Round($_.WorkingSet64/1MB,1)}};",
     'if ($items) { $items | ConvertTo-Json -Compress } else { "[]" }',
   ].join(' ');
 
@@ -94,21 +98,16 @@ function processSnapshot() {
   }
 }
 
-function aggregatePeak(samples) {
-  let mainPeakMb = 0;
-  let workerPeakMb = 0;
-  let workerTotalPeakMb = 0;
-  for (const sample of samples) {
-    const main = sample.processes.filter((item) => item.ProcessName === 'open-pdf-studio');
-    const workers = sample.processes.filter((item) => item.ProcessName === 'pdfium-worker');
-    mainPeakMb = Math.max(mainPeakMb, ...main.map((item) => item.rssMb), 0);
-    workerPeakMb = Math.max(workerPeakMb, ...workers.map((item) => item.rssMb), 0);
-    workerTotalPeakMb = Math.max(
-      workerTotalPeakMb,
-      workers.reduce((sum, item) => sum + item.rssMb, 0),
-    );
-  }
-  return { mainPeakMb, workerPeakMb, workerTotalPeakMb };
+function mcpOwnerPid(port) {
+  const command = `(Get-NetTCPConnection -LocalPort ${port} -State Listen -ErrorAction Stop | Select-Object -First 1 -ExpandProperty OwningProcess)`;
+  const value = execFileSync('powershell', ['-NoProfile', '-Command', command], {
+    encoding: 'utf8',
+    timeout: 8_000,
+    windowsHide: true,
+  }).trim();
+  const pid = Number(value);
+  if (!Number.isInteger(pid) || pid <= 0) throw new Error(`cannot resolve MCP owner PID on port ${port}`);
+  return pid;
 }
 
 async function recentEntries(client, since) {
@@ -116,7 +115,7 @@ async function recentEntries(client, since) {
   return Array.isArray(response) ? response : (response?.entries ?? []);
 }
 
-async function waitForStableZoom(client, scale, since, timeoutMs = 120_000) {
+async function waitForStableZoom(client, scale, since, appPid, timeoutMs = 120_000) {
   const started = performance.now();
   let lastRelevantSignature = '';
   let lastRelevantAt = performance.now();
@@ -180,7 +179,7 @@ async function captureScreenshot(client, outputDir, stem) {
   return { ok: true, sha256: hash, bytes: bytes.length };
 }
 
-async function measureZoom(client, scale, runIndex, outputDir) {
+async function measureZoom(client, scale, runIndex, outputDir, appPid) {
   const since = Date.now();
   const wallStarted = performance.now();
   const setResult = await client.tool('app_set_zoom', { scale });
@@ -188,7 +187,7 @@ async function measureZoom(client, scale, runIndex, outputDir) {
     return { scale, ok: false, error: setResult?.error ?? 'app_set_zoom failed' };
   }
 
-  const stable = await waitForStableZoom(client, scale, since);
+  const stable = await waitForStableZoom(client, scale, since, appPid);
   const visibleSharpMs = Math.round(performance.now() - wallStarted);
   const screenshot = stable.ok
     ? await captureScreenshot(client, outputDir, `run-${runIndex}-zoom-${String(scale).replace('.', '_')}`)
@@ -200,7 +199,7 @@ async function measureZoom(client, scale, runIndex, outputDir) {
     visibleSharpMs: stable.ok ? visibleSharpMs : null,
     stabilization: stable,
     phases: extractZoomPhases(stable.entries ?? [], since),
-    rss: aggregatePeak(stable.rssSamples ?? []),
+    rss: aggregatePeak(stable.rssSamples ?? [], appPid),
     screenshot,
   };
 }
@@ -239,6 +238,8 @@ async function runBenchmark(args) {
   if (outputDir) await mkdir(outputDir, { recursive: true });
 
   const client = new McpClient(process.env.OPS_MCP_URL || DEFAULT_MCP);
+  const endpointPort = Number(new URL(client.endpoint).port || 80);
+  const appPid = mcpOwnerPid(endpointPort);
   const tools = await client.rpc('tools/list');
   const names = new Set((tools?.tools ?? []).map((tool) => tool.name));
   for (const required of [
@@ -271,6 +272,7 @@ async function runBenchmark(args) {
     pdfName: basename(args.pdf),
     page: args.page,
     gitCommit: gitIdentity(),
+    appPid,
     startedAt: new Date().toISOString(),
     openMs,
     runs: [],
@@ -279,10 +281,10 @@ async function runBenchmark(args) {
   for (let runIndex = 1; runIndex <= args.runs; runIndex += 1) {
     const run = { index: runIndex, zooms: [] };
     for (const scale of ZOOM_SEQUENCE) {
-      run.zooms.push(await measureZoom(client, scale, runIndex, outputDir));
+      run.zooms.push(await measureZoom(client, scale, runIndex, outputDir, appPid));
     }
     run.pan = await measurePan(client);
-    run.returnTo100 = await measureZoom(client, 1, runIndex, outputDir);
+    run.returnTo100 = await measureZoom(client, 1, runIndex, outputDir, appPid);
     run.visibleSharpMs = run.zooms
       .filter((zoom) => zoom.scale > 1 && Number.isFinite(zoom.visibleSharpMs))
       .reduce((sum, zoom) => sum + zoom.visibleSharpMs, 0);

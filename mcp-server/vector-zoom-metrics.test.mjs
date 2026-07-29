@@ -5,6 +5,7 @@ import {
   percentile,
   summarizeRuns,
   extractZoomPhases,
+  aggregatePeak,
 } from './vector-zoom-metrics.mjs';
 import { parseArgs } from './vector-zoom-benchmark.mjs';
 
@@ -92,4 +93,22 @@ test('parseArgs defaults to five runs and rejects a missing PDF', () => {
     output: null,
   });
   assert.throws(() => parseArgs([]), /--pdf is required/);
+});
+
+test('aggregatePeak isolates the measured app and its workers', () => {
+  const samples = [{
+    processes: [
+      { Id: 10, ParentProcessId: 1, ProcessName: 'open-pdf-studio', rssMb: 500 },
+      { Id: 11, ParentProcessId: 10, ProcessName: 'pdfium-worker', rssMb: 300 },
+      { Id: 12, ParentProcessId: 10, ProcessName: 'pdfium-worker', rssMb: 200 },
+      { Id: 20, ParentProcessId: 2, ProcessName: 'open-pdf-studio', rssMb: 900 },
+      { Id: 21, ParentProcessId: 20, ProcessName: 'pdfium-worker', rssMb: 800 },
+    ],
+  }];
+
+  assert.deepEqual(aggregatePeak(samples, 10), {
+    mainPeakMb: 500,
+    workerPeakMb: 300,
+    workerTotalPeakMb: 500,
+  });
 });
