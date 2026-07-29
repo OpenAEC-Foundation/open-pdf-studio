@@ -6,6 +6,7 @@ import {
   summarizeRuns,
   extractZoomPhases,
 } from './vector-zoom-metrics.mjs';
+import { parseArgs } from './vector-zoom-benchmark.mjs';
 
 test('percentile selects deterministic nearest-rank values', () => {
   const values = [900, 100, 700, 300, 500];
@@ -61,4 +62,34 @@ test('extractZoomPhases does not turn missing timings into zeroes', () => {
     bitmapOrchestratorMs: null,
     raw: [{ t: 2_000, text: '[bo] render gestart' }],
   });
+});
+
+test('parseArgs preserves PDF paths with spaces and commas', () => {
+  const pdf = 'C:/PDF-bestanden/MV-03 Mechanische ventilatie, ontwerp.pdf';
+  const args = parseArgs([
+    '--pdf', pdf,
+    '--label', 'baseline-mv03',
+    '--page', '2',
+    '--runs', '7',
+    '--output', 'C:/metingen/vector zoom',
+  ]);
+
+  assert.deepEqual(args, {
+    pdf,
+    label: 'baseline-mv03',
+    page: 2,
+    runs: 7,
+    output: 'C:/metingen/vector zoom',
+  });
+});
+
+test('parseArgs defaults to five runs and rejects a missing PDF', () => {
+  assert.deepEqual(parseArgs(['--pdf', 'C:/test.pdf']), {
+    pdf: 'C:/test.pdf',
+    label: 'baseline',
+    page: 1,
+    runs: 5,
+    output: null,
+  });
+  assert.throws(() => parseArgs([]), /--pdf is required/);
 });
