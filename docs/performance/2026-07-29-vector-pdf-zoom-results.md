@@ -202,3 +202,40 @@ Deze varianten zijn niet behouden:
 
 Alleen de klassebeperkte HiDPI-zichttegel en de aangescherpte meetcontrole
 zijn daarom behouden.
+
+## GIS-style coverage-cache voor herhaald zoomen
+
+De volgende fase richt zich specifiek op de gebruikssituatie waarin een
+zichtregio eenmaal scherp is opgebouwd en daarna vaak tussen 150% en 300%
+wordt gezoomd.
+
+De wijziging:
+
+- selecteert tegels op volledige dekking van de zichtbare PDF-regio in plaats
+  van alleen op een exacte zoombucket;
+- bouwt de brede 150%-regio, wanneer die binnen de 4096px-aslimiet past, op
+  met voldoende pixeldichtheid voor 300%;
+- houdt zo'n scherpe coverage-tegel actief bij zowel in- als uitzoomen;
+- slaat de 150ms beeldbevriezing over wanneer de bestaande tegel de
+  toekomstige viewport aantoonbaar scherp en volledig dekt;
+- valt bij grotere viewports terug op het bestaande, begrensde renderpad.
+
+De bestaande end-to-endbenchmark vereist per zoomstap minimaal 800ms zonder
+nieuwe renderactiviteit. Daardoor kan die benchmark geen interactietijd onder
+100ms onderscheiden. Voor deze fase is aanvullend een warme live-meting
+uitgevoerd: na het gereedkomen van de eerste scherpe coverage-tegel zijn per
+bestand twintig opeenvolgende sprongen 150% â†” 300% uitgevoerd. Een stap telt
+alleen als de juiste zoom actief is en de zichtbare PDF-regio volledig wordt
+gedekt op minstens `zoom Ã— devicePixelRatio`; daarna wordt nog een frame van
+17ms afgewacht.
+
+| Bestand | Stappen | Mediaan | p95 | Minimum | Maximum | Cachemissers |
+|---|---:|---:|---:|---:|---:|---:|
+| MV-03, pagina 1 | 20 | 38,9 ms | 47,2 ms | 27,2 ms | 62,1 ms | 0 |
+| NKD1a, pagina 2 | 20 | 31,4 ms | 32,4 ms | 30,5 ms | 67,6 ms | 0 |
+
+In beide metingen bleef exact dezelfde coverage-tegel actief over alle
+zoomstappen. De warme in- en uitzoominteractie blijft daarmee ruim onder de
+doelgrens van 100ms. De eerste render van een nog niet gecachte zichtregio
+blijft afhankelijk van de complexiteit van de PDF; deze fase verplaatst dat
+werk niet naar iedere volgende zoomstap.

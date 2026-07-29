@@ -51,3 +51,21 @@ export function visiblePdfRegion(viewport, cssWidth, cssHeight) {
     h: Math.max(0, visibleScreenBottom - visibleScreenTop) / viewport.zoom,
   };
 }
+
+export function tileCoversViewport(
+  tileMeta,
+  viewport,
+  cssWidth,
+  cssHeight,
+  devicePixelRatio,
+) {
+  if (!tileMeta) return false;
+  const region = visiblePdfRegion(viewport, cssWidth, cssHeight);
+  return findBestCoveringTile([{ regionMeta: tileMeta }], {
+    regionXpt: region.x,
+    regionYpt: region.y,
+    regionWpt: region.w,
+    regionHpt: region.h,
+    requiredScale: viewport.zoom * devicePixelRatio,
+  }) !== null;
+}

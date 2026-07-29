@@ -17,7 +17,7 @@
 import { viewport } from './pdf-viewport.js';
 import { computeZoomBucket, ensureBitmap, getBestAvailableBitmap } from './page-bitmap-cache.js';
 import { tileCacheFindCovering, tileCacheGet, tileCacheSet } from './tile-cache.js';
-import { visiblePdfRegion } from './tile-coverage.js';
+import { tileCoversViewport, visiblePdfRegion } from './tile-coverage.js';
 import { state } from '../core/state.js';
 import {
     ensureProgressiveBitmapForCurrentView,
@@ -27,7 +27,9 @@ import {
 import { createInflightKeyGate } from './inflight-key-gate.js';
 import {
     needsVisibleTile,
+    prewarmCoveragePlan,
     prewarmTileRenderScale,
+    tileCoverageRenderScale,
     tileRenderScaleForZoom,
     tileSupportsZoom,
 } from './tile-render-policy.js';
@@ -175,6 +177,92 @@ export async function prewarmZoomTiles(filePath, pageNum) {
     const centerXpt = (cssW / 2 - viewport.offsetX) / viewport.zoom;
     const centerYpt = (cssH / 2 - viewport.offsetY) / viewport.zoom;
 
+    // Eén brede 150%-regio op 300%-resolutie dekt alle tussenliggende
+    // zoomstanden in beide richtingen. Gebruik deze route zolang de bitmap
+    // binnen de bestaande aslimiet past. De tweeregio-route hieronder blijft
+    // de terugval voor bredere schermen totdat de vaste tegelmatrix gereed is.
+    const coveragePlan = prewarmCoveragePlan({
+        zooms: [1.5, 2, 3],
+        devicePixelRatio: dpr,
+    });
+    if (coveragePlan && needsVisibleTile(coveragePlan.supportZoom, dpr, capScale)) {
+        const zoom = coveragePlan.regionZoom;
+        const visW = Math.min(viewport.pageW, cssW / zoom);
+        const visH = Math.min(viewport.pageH, cssH / zoom);
+        const visX = Math.max(0, Math.min(viewport.pageW - visW, centerXpt - visW / 2));
+        const visY = Math.max(0, Math.min(viewport.pageH - visH, centerYpt - visH / 2));
+        const bufW = visW * TILE_BUFFER_FRACTION;
+        const bufH = visH * TILE_BUFFER_FRACTION;
+        const region = {
+            x: Math.max(0, visX - bufW),
+            y: Math.max(0, visY - bufH),
+            w: Math.min(viewport.pageW, visW + 2 * bufW),
+            h: Math.min(viewport.pageH, visH + 2 * bufH),
+        };
+        const renderScale = coveragePlan.renderScale;
+        const outputW = Math.ceil(region.w * renderScale);
+        const outputH = Math.ceil(region.h * renderScale);
+
+        if (outputW <= MAX_BITMAP_AXIS_PX && outputH <= MAX_BITMAP_AXIS_PX) {
+            const zoomBucket = computeZoomBucket(renderScale);
+            const stepX = viewport.pageW * TILE_BUFFER_FRACTION;
+            const stepY = viewport.pageH * TILE_BUFFER_FRACTION;
+            const regionBucket = `${Math.round(Math.floor(region.x / stepX) * stepX * 100)},${Math.round(Math.floor(region.y / stepY) * stepY * 100)}`;
+            const covering = tileCacheFindCovering(filePath, pageNum, viewport.rotation, {
+                regionXpt: region.x,
+                regionYpt: region.y,
+                regionWpt: region.w,
+                regionHpt: region.h,
+                requiredScale: renderScale,
+            });
+            if (covering) return;
+
+            try {
+                const { invokeTileRegion, perfMark } = await import('./progressive-render.js');
+                const started = performance.now();
+                const raw = await invokeTileRegion({
+                    path: filePath,
+                    pageIndex: pageNum - 1,
+                    scale: renderScale,
+                    rotation: viewport.rotation || 0,
+                    regionXPt: region.x,
+                    regionYPt: region.y,
+                    regionWPt: region.w,
+                    regionHPt: region.h,
+                });
+                if (!viewport.active || viewport.filePath !== filePath || viewport.pageNum !== pageNum) return;
+                const bytes = raw instanceof Uint8Array ? raw : new Uint8Array(raw);
+                perfMark(`prewarm-coverage-invoke z=${zoom}-${coveragePlan.supportZoom} ${Math.round(performance.now() - started)}ms (${(bytes.length / 1048576).toFixed(1)}MB)`);
+                if (bytes?.length > 8) {
+                    const dv = new DataView(bytes.buffer, bytes.byteOffset, 8);
+                    const w = dv.getUint32(0, true);
+                    const h = dv.getUint32(4, true);
+                    if (w * h * 4 === bytes.length - 8) {
+                        const cacheStarted = performance.now();
+                        const imageData = new ImageData(
+                            new Uint8ClampedArray(bytes.buffer, bytes.byteOffset + 8, w * h * 4),
+                            w,
+                            h,
+                        );
+                        await tileCacheSet(filePath, pageNum, zoomBucket, viewport.rotation, regionBucket, imageData, {
+                            regionXpt: region.x,
+                            regionYpt: region.y,
+                            regionWpt: region.w,
+                            regionHpt: region.h,
+                            zoom,
+                            renderScale,
+                        });
+                        perfMark(`prewarm-coverage-cacheSet ${w}x${h} ${Math.round(performance.now() - cacheStarted)}ms`);
+                        console.log(`[tile-orch] prewarm coverage z=${zoom}-${coveragePlan.supportZoom} bucket=${zoomBucket} reg=${regionBucket} (${w}x${h})`);
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.warn('[tile-orch] prewarm coverage faalde:', e);
+            }
+        }
+    }
+
     // 1.5 en 3.0 landen (met dpr ~1.25) in zoom-buckets 2 en 4 — dat dekt
     // inzoomen tot ruim 300%.
     for (const zoom of [1.5, 3.0]) {
@@ -286,6 +374,19 @@ export async function ensureTileForCurrentView(canvas) {
         return;
     }
 
+    // Houd een al zichtbare scherpe tegel vast. De algemene cache-selector
+    // kiest terecht de minst oversamplede kandidaat, maar tijdens herhaald
+    // zoomen zou dat een brede 300%-coverage bij 150% vervangen door een
+    // smallere tegel die de volgende zoomstap niet meer aankan.
+    if (
+        viewport.currentTile
+        && tileCoversViewport(viewport.currentTileMeta, viewport, cssW, cssH, dpr)
+    ) {
+        _tileRequests.cancel();
+        viewport.dirty = true;
+        return;
+    }
+
     // Add buffer for pan-within-buffer cache hits.
     const bufW = visRegion.w * TILE_BUFFER_FRACTION;
     const bufH = visRegion.h * TILE_BUFFER_FRACTION;
@@ -344,7 +445,13 @@ export async function ensureTileForCurrentView(canvas) {
     if (!requestToken) return;
     try {
         const { invokeTileRegion } = await import('./progressive-render.js');
-        const renderScale = tileRenderScaleForZoom(requestedZoom, dpr);
+        const renderScale = tileCoverageRenderScale({
+            zoom: requestedZoom,
+            devicePixelRatio: dpr,
+            regionWpt: bufferedRegion.w,
+            regionHpt: bufferedRegion.h,
+            maxBitmapAxisPx: MAX_BITMAP_AXIS_PX,
+        });
         const rgbaData = await invokeTileRegion({
             path: filePath,
             pageIndex: pageNum - 1,

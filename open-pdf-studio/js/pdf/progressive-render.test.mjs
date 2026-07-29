@@ -10,7 +10,9 @@ import {
 import { createInflightKeyGate } from './inflight-key-gate.js';
 import {
   needsVisibleTile,
+  prewarmCoveragePlan,
   prewarmTileRenderScale,
+  tileCoverageRenderScale,
   tileRenderScaleForZoom,
   tileSupportsZoom,
 } from './tile-render-policy.js';
@@ -162,4 +164,42 @@ test('prewarm dekt 200% alleen mee wanneer 150% dezelfde bucket gebruikt', () =>
     devicePixelRatio: 1.25,
     zoomBucket: 2,
   }), 1.875);
+});
+
+test('coverage-prewarm rendert één brede lage-zoomregio op de hoogste zoomresolutie', () => {
+  assert.deepEqual(prewarmCoveragePlan({
+    zooms: [1.5, 2, 3],
+    devicePixelRatio: 1.5,
+  }), {
+    regionZoom: 1.5,
+    supportZoom: 3,
+    renderScale: 4.5,
+  });
+});
+
+test('interactive 150% tile covers 300% sharply when the bitmap fits', () => {
+  assert.equal(tileCoverageRenderScale({
+    zoom: 1.5,
+    devicePixelRatio: 1.5,
+    regionWpt: 615,
+    regionHpt: 597,
+  }), 4.5);
+});
+
+test('interactive coverage falls back at the bitmap axis limit', () => {
+  assert.equal(tileCoverageRenderScale({
+    zoom: 1.5,
+    devicePixelRatio: 1.5,
+    regionWpt: 1000,
+    regionHpt: 1000,
+  }), 2.25);
+});
+
+test('interactive coverage does not cap zoom above its support range', () => {
+  assert.equal(tileCoverageRenderScale({
+    zoom: 4,
+    devicePixelRatio: 1.5,
+    regionWpt: 400,
+    regionHpt: 400,
+  }), 6);
 });

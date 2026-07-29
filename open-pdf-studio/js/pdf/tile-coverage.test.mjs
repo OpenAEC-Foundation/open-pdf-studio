@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { findBestCoveringTile, visiblePdfRegion } from './tile-coverage.js';
+import {
+  findBestCoveringTile,
+  tileCoversViewport,
+  visiblePdfRegion,
+} from './tile-coverage.js';
 
 test('reuses a high-resolution tile when zooming out to a covered viewport', () => {
   const entries = [{
@@ -174,4 +178,40 @@ test('clips the visible PDF region to the page bounds', () => {
     w: 550,
     h: 375,
   });
+});
+
+test('recognizes that the current sharp tile covers the future zoom viewport', () => {
+  const covered = tileCoversViewport({
+    regionXpt: 0,
+    regionYpt: 0,
+    regionWpt: 1000,
+    regionHpt: 700,
+    renderScale: 4.5,
+  }, {
+    pageW: 1000,
+    pageH: 700,
+    zoom: 3,
+    offsetX: -900,
+    offsetY: -600,
+  }, 1200, 750, 1.5);
+
+  assert.equal(covered, true);
+});
+
+test('rejects freeze bypass when the current tile misses part of the future viewport', () => {
+  const covered = tileCoversViewport({
+    regionXpt: 400,
+    regionYpt: 250,
+    regionWpt: 200,
+    regionHpt: 150,
+    renderScale: 8,
+  }, {
+    pageW: 1000,
+    pageH: 700,
+    zoom: 3,
+    offsetX: -900,
+    offsetY: -600,
+  }, 1200, 750, 1.5);
+
+  assert.equal(covered, false);
 });
