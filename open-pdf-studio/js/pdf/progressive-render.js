@@ -245,6 +245,14 @@ export async function isHeavyPage(filePath, pageNum) {
 // (examples/corpus_diff.rs) dat per bladklasse aantoont.
 const SCENE_CONTENT_BYTES = 6_000_000;
 
+export function isSceneCandidateBytes(bytes) {
+  return typeof bytes === 'number' && bytes > SCENE_CONTENT_BYTES;
+}
+
+export async function isExtremePage(filePath, pageNum) {
+  return isSceneCandidateBytes(await pageContentBytes(filePath, pageNum));
+}
+
 export function shouldSpreadPdfiumFallback(sceneWorthIt) {
   return !sceneWorthIt;
 }

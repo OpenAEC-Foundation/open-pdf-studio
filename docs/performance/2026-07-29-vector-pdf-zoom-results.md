@@ -133,3 +133,72 @@ Voor het zware MV-bestand is het vastlopende 200%-pad teruggebracht tot ongeveer
 de totale scherpe zoomreeks met circa 11%. Het openen van MV blijft met ongeveer
 13,4 seconden de grootste resterende kandidaat voor een volgende, afzonderlijke
 hypothese.
+
+## Vervolgmeting: HiDPI-grens en extreme pagina's
+
+De volgende afzonderlijke fase vond een fout in zowel productroute als
+benchmark. De 4096px-limiet van de whole-page-bitmap werd alleen met de
+CSS-zoom vergeleken. Op een scherm met device-pixel-ratio 1,5 kon een
+whole-page-bitmap daardoor bij 100% als scherp gelden, terwijl daarvoor
+renderschaal 1,5 nodig was.
+
+De aanpassing:
+
+- vergelijkt `zoom × devicePixelRatio` met de whole-page-limiet;
+- gebruikt boven die grens een zichttegel in plaats van nog een volledige,
+  maar onvermijdelijk te laag bemonsterde pagina op te bouwen;
+- slaat de extra whole-page-run alleen over voor de bestaande extreme
+  contentklasse boven 6 MB;
+- laat middelzware pagina's op het bestaande progressieve pad;
+- past dezelfde HiDPI-eis toe in de benchmark, zodat een onscherpe
+  whole-page-bitmap niet meer als voltooid wordt geteld.
+
+### MV-03
+
+Drie verse processen gaven:
+
+| Metriek | Mediaan |
+|---|---:|
+| Openen | 13.621 ms |
+| Scherp op 100% | 4.539 ms |
+| Scherpe zoomreeks 150–300% | 3.215 ms |
+
+De 100%-tijd bevat de conservatieve stabilisatiewacht van de benchmark.
+De workertrace laat voor het eigenlijke renderwerk één zichtregio van circa
+1,65 s zien. Het oude pad bouwde twaalf whole-page-regio's op in circa 3,2 s
+en bereikte desondanks niet de vereiste HiDPI-renderschaal. Het renderwerk is
+daarmee ongeveer 48% korter en het resultaat haalt nu aantoonbaar
+renderschaal 1,5.
+
+De 150–300%-reeks blijft praktisch gelijk aan de vorige geldige MV-mediaan:
+3.215 ms tegenover 3.225 ms.
+
+### NKD1a
+
+Voor NKD is een directe A/B met drie verse processen per variant uitgevoerd,
+onder exact dezelfde aangescherpte HiDPI-eis:
+
+| Variant | Openen | Scherpe zoomreeks 150–300% |
+|---|---:|---:|
+| Ongewijzigde productroute | 1.075 ms | 7.287 ms |
+| Klassebeperkte HiDPI-route | 1.068 ms | 7.298 ms |
+
+Het verschil in de zoomreeks is 0,15% en daarmee praktisch nul. De
+productroute voor dit middelzware bestand is bewust ongewijzigd. De eerder
+genoemde 5.041 ms is niet rechtstreeks vergelijkbaar: die meting kon op
+HiDPI een te laag bemonsterde whole-page-bitmap accepteren.
+
+### Onderzochte maar verworpen varianten
+
+Deze varianten zijn niet behouden:
+
+- semantische lagen uitstellen: sneller terugkeren uit openen, maar de eerste
+  zoomreeks liep op tot 8–11 s;
+- de twee annotatie-opvragen delen: openen daalde in een probe van circa
+  13,4 s naar 9,3 s, maar de zoomreeks liep op tot circa 9,2 s en een
+  heropen-run kon een leeg tussenbeeld vastleggen;
+- ook 100% voorverwarmen: dit schoof de 300%-voorwarming naar achteren en
+  verslechterde de 150–300%-reeks naar 4.929 ms.
+
+Alleen de klassebeperkte HiDPI-zichttegel en de aangescherpte meetcontrole
+zijn daarom behouden.

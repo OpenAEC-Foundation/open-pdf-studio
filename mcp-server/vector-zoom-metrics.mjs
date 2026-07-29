@@ -113,7 +113,7 @@ export function hasStableZoomEvidence({
   const wholePageCap = Number.isFinite(maxAxisPt) && maxAxisPt > 0
     ? 4_096 / maxAxisPt
     : 1;
-  const wholePageIsSharp = scale <= wholePageCap + 0.001;
+  const wholePageIsSharp = scale * devicePixelRatio <= wholePageCap + 0.001;
   const quietCacheHit =
     !Number.isFinite(tileZoom)
     && wholePageIsSharp

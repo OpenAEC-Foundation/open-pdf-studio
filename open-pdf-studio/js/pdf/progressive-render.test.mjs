@@ -2,12 +2,14 @@ import { test } from 'node:test';
 import assert from 'node:assert';
 import {
   isHeavyBytes,
+  isSceneCandidateBytes,
   computeTileGrid,
   createSceneAttemptCoordinator,
   shouldSpreadPdfiumFallback,
 } from './progressive-render.js';
 import { createInflightKeyGate } from './inflight-key-gate.js';
 import {
+  needsVisibleTile,
   prewarmTileRenderScale,
   tileRenderScaleForZoom,
   tileSupportsZoom,
@@ -20,6 +22,12 @@ test('isHeavyBytes: drempel = 1MB gecomprimeerde content', () => {
   assert.equal(isHeavyBytes(500_000), false);
   assert.equal(isHeavyBytes(undefined), false);
   assert.equal(isHeavyBytes(NaN), false);
+});
+
+test('scene-kandidaat begint pas boven de extreme-contentgrens', () => {
+  assert.equal(isSceneCandidateBytes(6_000_000), false);
+  assert.equal(isSceneCandidateBytes(6_000_001), true);
+  assert.equal(isSceneCandidateBytes(undefined), false);
 });
 
 test('computeTileGrid dekt de hele bitmap aaneensluitend, laatste kolom/rij = rest', () => {
@@ -132,6 +140,13 @@ test('tegelcache bewaakt de werkelijke schermresolutie', () => {
   assert.equal(tileRenderScaleForZoom(2, 1.5), 3);
   assert.equal(tileSupportsZoom(3, 2, 1.5), true);
   assert.equal(tileSupportsZoom(2, 2, 1.5), false);
+});
+
+test('zichttegelgrens houdt rekening met schermresolutie', () => {
+  assert.equal(needsVisibleTile(1, 1.5, 1.215), true);
+  assert.equal(needsVisibleTile(0.8, 1.5, 1.215), false);
+  assert.equal(needsVisibleTile(1.3, 1, 1.215), true);
+  assert.equal(needsVisibleTile(0.81, 1.5, 1.215), false);
 });
 
 test('prewarm dekt 200% alleen mee wanneer 150% dezelfde bucket gebruikt', () => {

@@ -145,6 +145,16 @@ test('hasStableZoomEvidence accepts completion, matching sharp tile, or a quiet 
     },
   }), true);
   assert.equal(hasStableZoomEvidence({
+    scale: 1,
+    completionSeen: true,
+    quietForMs: 8_000,
+    viewport: {
+      devicePixelRatio: 1.5,
+      viewport: { pageW: 3_370, pageH: 2_384 },
+      tile: null,
+    },
+  }), false);
+  assert.equal(hasStableZoomEvidence({
     scale: 1.5,
     completionSeen: false,
     quietForMs: 8_000,

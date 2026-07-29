@@ -2,6 +2,10 @@ export function tileRenderScaleForZoom(zoom, devicePixelRatio) {
   return zoom * devicePixelRatio;
 }
 
+export function needsVisibleTile(zoom, devicePixelRatio, wholePageCapScale) {
+  return tileRenderScaleForZoom(zoom, devicePixelRatio) > wholePageCapScale + 0.001;
+}
+
 export function prewarmTileRenderScale({
   regionZoom,
   supportZoom = regionZoom,

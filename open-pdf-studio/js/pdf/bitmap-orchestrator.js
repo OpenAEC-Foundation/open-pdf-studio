@@ -18,9 +18,14 @@ import { viewport } from './pdf-viewport.js';
 import { computeZoomBucket, ensureBitmap, getBestAvailableBitmap } from './page-bitmap-cache.js';
 import { tileCacheGet, tileCacheSet } from './tile-cache.js';
 import { state } from '../core/state.js';
-import { isHeavyPage, ensureProgressiveBitmapForCurrentView } from './progressive-render.js';
+import {
+    ensureProgressiveBitmapForCurrentView,
+    isExtremePage,
+    isHeavyPage,
+} from './progressive-render.js';
 import { createInflightKeyGate } from './inflight-key-gate.js';
 import {
+    needsVisibleTile,
     prewarmTileRenderScale,
     tileRenderScaleForZoom,
     tileSupportsZoom,
@@ -50,19 +55,8 @@ export async function ensureBitmapForCurrentView() {
     // Additief pad: een ZWARE raster-pagina (grote content-stream) met de voorkeur
     // aan, vullen we progressief tegel-voor-tegel in i.p.v. één trage whole-page
     // render. Niet-zware pagina's of voorkeur uit → exact het bestaande pad hieronder.
-    const _prefOn = !!(state.preferences && state.preferences.progressiveRender);
-    const _heavy = _prefOn ? await isHeavyPage(viewport.filePath, viewport.pageNum) : false;
-    if (_prefOn && _heavy) {
-        console.log(`[prog-guard] zware pagina p${viewport.pageNum} → progressief pad`);
-        _bitmapGen++; // maak een eventuele in-flight gewone render stale
-        return ensureProgressiveBitmapForCurrentView();
-    }
-
-    const myGen = ++_bitmapGen;
     const dpr = window.devicePixelRatio || 1;
     const targetScale = viewport.zoom * dpr;
-
-    // Cap so PDFium never has to render above the 4096 px axis limit.
     const maxAxisPt = Math.max(viewport.pageW, viewport.pageH);
     if (maxAxisPt <= 0) {
         viewport.currentBitmap = null;
@@ -70,6 +64,34 @@ export async function ensureBitmapForCurrentView() {
         return;
     }
     const capScale = MAX_BITMAP_AXIS_PX / maxAxisPt;
+
+    const _prefOn = !!(state.preferences && state.preferences.progressiveRender);
+    const _heavy = _prefOn ? await isHeavyPage(viewport.filePath, viewport.pageNum) : false;
+    const _extreme = _heavy ? await isExtremePage(viewport.filePath, viewport.pageNum) : false;
+    if (_prefOn && _heavy && (!_extreme || !needsVisibleTile(viewport.zoom, dpr, capScale))) {
+        console.log(`[prog-guard] zware pagina p${viewport.pageNum} → progressief pad`);
+        _bitmapGen++; // maak een eventuele in-flight gewone render stale
+        return ensureProgressiveBitmapForCurrentView();
+    }
+
+    if (_prefOn && _extreme) {
+        _bitmapGen++;
+        const fallback = getBestAvailableBitmap(
+            viewport.filePath,
+            viewport.pageNum,
+            viewport.rotation,
+            computeZoomBucket(capScale),
+        );
+        if (fallback) {
+            viewport.currentBitmap = fallback.bitmap;
+            viewport.dirty = true;
+        }
+        return;
+    }
+
+    const myGen = ++_bitmapGen;
+
+    // Cap so PDFium never has to render above the 4096 px axis limit.
     const cappedBucket = computeZoomBucket(Math.min(targetScale, capScale));
     // computeZoomBucket is monotonic, so the capped bucket is always <= the requested one
     const useBucket = cappedBucket;
@@ -155,7 +177,7 @@ export async function prewarmZoomTiles(filePath, pageNum) {
     // 1.5 en 3.0 landen (met dpr ~1.25) in zoom-buckets 2 en 4 — dat dekt
     // inzoomen tot ruim 300%.
     for (const zoom of [1.5, 3.0]) {
-        if (zoom <= capScale) continue; // whole-page bitmap dekt dit bereik al
+        if (!needsVisibleTile(zoom, dpr, capScale)) continue;
         if (!viewport.active || viewport.filePath !== filePath || viewport.pageNum !== pageNum) return;
         // Gebruiker weer bezig (view gewijzigd of nieuwe progressieve run)?
         // Dan direct stoppen — de interactie-render heeft voorrang op de
@@ -243,7 +265,8 @@ export async function ensureTileForCurrentView(canvas) {
     const maxAxisPt = Math.max(viewport.pageW, viewport.pageH);
     if (maxAxisPt <= 0) return;
     const capScale = MAX_BITMAP_AXIS_PX / maxAxisPt;
-    if (viewport.zoom <= capScale) {
+    const dpr = window.devicePixelRatio || 1;
+    if (!needsVisibleTile(viewport.zoom, dpr, capScale)) {
         _tileRequests.cancel();
         // Whole-page bitmap is sufficient; clear any stale tile so the
         // renderer doesn't draw a low-zoom tile on top of a fresh raster.
@@ -252,7 +275,6 @@ export async function ensureTileForCurrentView(canvas) {
         return;
     }
 
-    const dpr = window.devicePixelRatio || 1;
     const cssW = canvas.width / dpr;
     const cssH = canvas.height / dpr;
 
