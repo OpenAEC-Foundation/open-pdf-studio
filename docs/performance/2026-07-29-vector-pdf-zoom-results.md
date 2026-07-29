@@ -2,124 +2,134 @@
 
 ## Scope
 
-Onderzocht op branch `codex/research-improvement-vector` met verse
-app-processen en de live MCP-interface:
+Onderzocht op branch `codex/research-improvement-vector` met:
 
-- `MV-03_Mechanische ventilatie, 3e verdieping ontwerp ACH van 1,5 naar 2,0.pdf`,
-  pagina 1;
-- `NKD1a_opm_aw.pdf`, pagina 2.
-
-Elke geldige run gebruikt de reeks 100%, 150%, 200% en 300%, controleert de
-zichtbare screenshot en meet app- en worker-RSS. Een run telt niet mee als een
-zoomstap time-out, als een screenshot ontbreekt of als alle zoomscreenshots
-hetzelfde beeld bevatten.
+- `MV-03_Mechanische ventilatie, 3e verdieping ontwerp ACH van 1,5 naar 2,0.pdf`, pagina 1;
+- `NKD1a_opm_aw.pdf`, pagina 2;
+- een vers app-proces per run;
+- de zoomreeks 100%, 150%, 200% en 300%;
+- screenshot-hashes, renderlogboek en app-/worker-RSS per stap.
 
 De ruwe JSON-resultaten en PNG's staan buiten de repository in:
 
 `C:\Users\rickd\Documents\GitHub\verification-files\performance\vector-zoom-baseline`
 
-## Nulmeting
+## Correctie van de meetmethode
 
-### MV-03
+Een deel van de vroege verkennende runs is niet gebruikt voor de conclusies.
+Daar waren twee redenen voor:
 
-Vijf verse processen:
+1. een rechtstreeks gestart debugproces kon nog aan een andere lokale
+   dev-frontend gekoppeld zijn;
+2. een tegel met dezelfde CSS-zoom is niet automatisch schermscherp. Bij een
+   device-pixel-ratio van 1,5 moet een 200%-weergave bijvoorbeeld minstens op
+   renderschaal 3 zijn opgebouwd.
 
-- slechts 1 van 5 zoomreeksen volledig geldig;
-- 200% liep in 4 van 5 runs langer dan 120 seconden vast;
-- enige geldige zoomreeks: 12.991 ms;
-- 150% mediaan: 3.004 ms;
-- 200% enige geslaagde meting: 9.043 ms;
-- 300% mediaan: 1.214 ms;
-- worker-RSS mediaan: circa 5.159 MB;
-- `app_open_pdf` mediaan: 14.738 ms.
+De definitieve benchmark:
 
-De console liet vier gelijktijdige scene-extracties voor dezelfde pagina zien.
-Alle vier overschreden hetzelfde 128 MB-commandobudget en vielen daarna terug
-op vier afzonderlijke PDFium-workers. Elke worker hield ongeveer 1,29 GB vast.
+- draait uitsluitend tegen de research-frontend op poort 3042;
+- bepaalt het app-proces via de MCP-poort;
+- accepteert boven de 4096-pixelgrens alleen een tegel waarvan de vastgelegde
+  `renderScale` de gevraagde zoom maal device-pixel-ratio dekt;
+- verwerpt time-outs, ontbrekende screenshots en visueel identieke zoombeelden.
 
-### NKD1a pagina 2
+Daarom zijn alleen de hieronder genoemde gecontroleerde runs beslissend.
 
-Vijf verse processen, alle vijf geldig:
+## Bevindingen en wijzigingen
 
-- zoomreeks mediaan: 5.194 ms;
-- p95: 7.943 ms;
-- 150% mediaan: 1.085 ms;
-- 200% mediaan: 2.869 ms;
-- 300% mediaan: 1.118 ms;
-- worker-RSS tijdens zoom: circa 239–265 MB.
-
-## Fase 1 — één scene-probe per pagina
+### 1. Eén scene-probe per zware pagina
 
 Commit: `a3f619f4`
 
-Gelijktijdige tegels delen nu de eerste scene-probe. Bij een bekende
-extractiefout slaan de overige tegels dezelfde kostbare probe over.
+Voor dezelfde pagina startten vier tegels gelijktijdig dezelfde scene-extractie.
+Na overschrijding van het commandobudget vielen alle vier terug op een volledige
+PDFium-parse. De scene-coördinator deelt nu één probe en één bekende foutstatus
+per pagina.
 
-Vijf verse openmetingen:
+Resultaat: vier gelijktijdige probes zijn teruggebracht tot één.
 
-- vóór: 14.252 / 14.380 / 14.738 / 14.819 / 16.472 ms;
-- na: 6.161 / 6.375 / 6.642 / 6.656 / 6.692 ms;
-- mediaan: 14.738 → 6.642 ms, 54,9% lagere `app_open_pdf`-latency;
-- scene-fallbacks per pagina: 4 → 1.
-
-Deze callback-latency is niet hetzelfde als volledig zichtbare cold-ready-tijd.
-De definitieve benchmark wacht daarom vanaf fase 2 expliciet op `[prog] klaar`.
-
-## Fase 2 — extreme PDFium-fallback op één affinity-worker
+### 2. Extreme fallback op één affinity-worker
 
 Commit: `bad13f56`
 
-Als een pagina boven de scene-drempel wordt afgewezen, gaan de PDFium-tegels
-niet meer naar vier processen die elk de volledige extreme content-stream
-parsen. Ze blijven op één affinity-worker. Gematigde pagina's, waaronder
-NKD1a, behouden het bestaande parallelle `spread: true`-pad.
+Een extreme pagina werd door vier workers afzonderlijk geparsed. De fallback
+voor zulke pagina's blijft nu op één worker. Normale en middelzware pagina's
+houden het bestaande gespreide workerpad.
 
-Vijf verse MV-03-runs na volledige cold-ready:
+Het oorspronkelijke diagnoseprofiel piekte rond 5,16 GB worker-RSS. De
+definitieve MV-runs blijven rond 1,33 GB: ongeveer 74% minder workergeheugen.
 
-| Metriek | Resultaat |
-|---|---:|
-| Geldige zoomreeksen | 5/5 |
-| Volledig zichtbare cold-ready mediaan | 14.549 ms |
-| Zoomreeks mediaan | 6.075 ms |
-| Zoomreeks p95 | 6.117 ms |
-| 150% mediaan | 1.666 ms |
-| 200% mediaan | 1.621 ms |
-| 300% mediaan | 2.749 ms |
-| Worker-RSS mediaan | 1.321,8 MB |
+### 3. Resolutiebewuste zoomtegelcache
 
-Ten opzichte van de nulmeting:
+Commit: `c1496f84`
 
-- geldige reeksen: 1/5 → 5/5;
-- zoomreeks: 12.991 → 6.075 ms, 53,2% sneller dan de enige geldige
-  nulmeting;
-- 200%: 9.043 → 1.621 ms, 82,1% sneller, zonder time-outs;
-- worker-RSS: 5.159 → 1.321,8 MB, 74,4% lager;
-- volledig zichtbare cold-ready blijft rond 14,5 seconden.
+150% en 200% kunnen op een scherm met schaalfactor 1,5 dezelfde power-of-two
+cachebucket krijgen. Voorheen kon de eerste tegel op renderschaal 1,5 onder die
+bucket worden opgeslagen en later op 200% worden hergebruikt. Dat beeld was te
+laag in resolutie en kon de nieuwe aanvraag bovendien steeds `stale` maken.
 
-## NKD1a-regressiecontrole
+De cache:
 
-Met dezelfde verbeterde benchmark zijn control en fase 2 apart gemeten.
-Door een prewarm-race verschuift tijd tussen `initialReadyMs` en de eerste
-zoomstap. Daarom is ook het volledige interval ready+zoom vergeleken:
+- registreert nu de werkelijke `renderScale`;
+- hergebruikt een tegel alleen als die de gevraagde schermresolutie dekt;
+- dedupliceert identieke gelijktijdige aanvragen zonder de actieve aanvraag
+  ongeldig te maken;
+- vervangt een te kleine tegel veilig en sluit de oude bitmap;
+- prewarmt adaptief: voldoende voor de volgende gebruikelijke zoom, zonder
+  altijd de volledige bovengrens van de bucket te renderen.
 
-- control ready+zoom mediaan: 7.898 ms;
-- fase 2 ready+zoom mediaan: 7.712 ms;
-- verschil: 2,4% sneller binnen normale meetspreiding;
-- geen time-outs of gelijke/lege screenshots;
-- het NKD1a-workerpad blijft ongewijzigd en verspreid.
+## Definitieve resultaten
 
-Conclusie: geen aantoonbare NKD1a-regressie.
+Alle tijden zijn medianen van verse processen. De adaptieve eindvariant is
+vergeleken met een eveneens scherpe referentie die altijd de volledige
+power-of-two-bucket rendert.
 
-## Besluit en volgende geïsoleerde hypothese
+### MV-03, pagina 1
 
-Beide wijzigingen blijven behouden: ze leveren meetbare winst op en de
-regressietests blijven groen.
+| Metriek | Volledige bucket (5 runs) | Adaptief (3 runs) | Verschil |
+|---|---:|---:|---:|
+| Openen | 13.845 ms | 13.425 ms | 3,0% sneller |
+| Volledig initial-ready | 13.853 ms | 13.434 ms | 3,0% sneller |
+| Scherp op 150% | 1.149 ms | 1.072 ms | 6,7% sneller |
+| Scherp op 200% | 956 ms | 941 ms | 1,6% sneller |
+| Scherp op 300% | 1.178 ms | 1.169 ms | 0,8% sneller |
+| Zoomreeks 150–300% | 3.272 ms | 3.225 ms | 1,4% sneller |
+| Worker-RSS | 1.339,7 MB | 1.329,7 MB | 0,7% lager |
 
-De eerstvolgende kandidaat is uitsluitend de 300%-prewarm van extreme
-fallbackpagina's. Na het pinnen is 300% langzamer geworden, terwijl 150%,
-200%, stabiliteit en geheugen sterk verbeterden. Een vervolgwijziging moet:
+In de gecontroleerde toestand vóór de resolutiefix liep 200% reproduceerbaar
+tegen de limiet van 120 seconden. De eindvariant levert die stap mediaan in
+941 ms: meer dan 99% minder wachttijd voor dit concrete foutpad.
 
-1. de 300%-mediaan verlagen zonder worker-RSS opnieuw te vermenigvuldigen;
-2. 150%, 200% en cold-ready niet vertragen;
-3. opnieuw vijf verse MV-03-runs en een NKD1a-control doorstaan;
-4. worden verwijderd als die meetbare winst uitblijft.
+Eén van de drie eindruns had op 300% een cold-renderuitschieter van 4.919 ms.
+De andere twee waren 1.169 en 1.163 ms. Dit blijft zichtbaar in de ruwe
+resultaten en wordt niet weggefilterd.
+
+### NKD1a, pagina 2
+
+| Metriek | Volledige bucket (5 runs) | Adaptief (3 runs) | Verschil |
+|---|---:|---:|---:|
+| Openen | 1.025 ms | 1.013 ms | 1,2% sneller |
+| Volledig initial-ready | 1.062 ms | 1.054 ms | 0,8% sneller |
+| Scherp op 150% | 2.901 ms | 2.759 ms | 4,9% sneller |
+| Scherp op 200% | 917 ms | 942 ms | 2,7% langzamer |
+| Scherp op 300% | 1.301 ms | 1.172 ms | 9,9% sneller |
+| Zoomreeks 150–300% | 5.651 ms | 5.041 ms | 10,8% sneller |
+| Worker-RSS | 508,3 MB | 492,4 MB | 3,1% lager |
+
+De kleine afwijking op de afzonderlijke 200%-stap valt binnen de runspreiding.
+Over de volledige scherpe zoomreeks is de eindvariant 10,8% sneller en gebruikt
+zij minder geheugen. Er is dus geen meetbare regressie op dit bestand.
+
+## Conclusie
+
+De drie productwijzigingen blijven behouden:
+
+- de dubbele scene-analyse is verwijderd;
+- extreme pagina's vermenigvuldigen hun parsegeheugen niet meer over vier workers;
+- zoomtegels worden alleen hergebruikt als hun echte pixeldichtheid volstaat.
+
+Voor het zware MV-bestand is het vastlopende 200%-pad teruggebracht tot ongeveer
+één seconde en het workergeheugen met circa 74% verlaagd. Voor NKD1a verbetert
+de totale scherpe zoomreeks met circa 11%. Het openen van MV blijft met ongeveer
+13,4 seconden de grootste resterende kandidaat voor een volgende, afzonderlijke
+hypothese.
