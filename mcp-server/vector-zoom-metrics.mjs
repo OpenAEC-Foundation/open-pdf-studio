@@ -1,0 +1,49 @@
+export function percentile(values, fraction) {
+  const sorted = values.filter(Number.isFinite).toSorted((a, b) => a - b);
+  if (!sorted.length) return null;
+  const rank = Math.ceil(fraction * sorted.length) - 1;
+  return sorted[Math.max(0, Math.min(sorted.length - 1, rank))];
+}
+
+export function summarizeRuns(runs) {
+  const values = runs
+    .map((run) => run.visibleSharpMs)
+    .filter(Number.isFinite);
+
+  return {
+    count: values.length,
+    medianMs: percentile(values, 0.5),
+    p95Ms: percentile(values, 0.95),
+  };
+}
+
+function firstNumber(entries, pattern) {
+  for (const entry of entries) {
+    const match = entry.text.match(pattern);
+    if (match) return Number(match[1]);
+  }
+  return null;
+}
+
+export function extractZoomPhases(entries, sinceMs) {
+  const raw = entries
+    .filter((entry) => entry.t >= sinceMs)
+    .filter((entry) => /\[prog-perf]|\[prog]|\[bo]|\[bitmap-orch]|\[pbc]/.test(entry.text));
+
+  const tileDurations = raw
+    .map((entry) => entry.text.match(/tegel-invoke\b.*?\b(\d+)ms\b/))
+    .filter(Boolean)
+    .map((match) => Number(match[1]));
+
+  return {
+    firstTileMs: firstNumber(raw, /\[prog]\s+eerste tegel\s+@(\d+)ms/),
+    completeMs: firstNumber(raw, /\[prog]\s+klaar\b.*?@(\d+)ms/),
+    firstPublishMs: firstNumber(raw, /publish createImageBitmap\b.*?\b(\d+)ms/),
+    maxTileInvokeMs: tileDurations.length ? Math.max(...tileDurations) : null,
+    bitmapOrchestratorMs: firstNumber(
+      raw,
+      /(?:\[bo]|\[bitmap-orch]).*?(?:klaar|done|paint).*?\b(\d+)ms\b/i,
+    ),
+    raw,
+  };
+}
