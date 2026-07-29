@@ -7,6 +7,7 @@ import {
   extractZoomPhases,
   aggregatePeak,
   hasStableZoomEvidence,
+  totalSuccessfulZoomMs,
 } from './vector-zoom-metrics.mjs';
 import { parseArgs } from './vector-zoom-benchmark.mjs';
 
@@ -148,4 +149,25 @@ test('hasStableZoomEvidence rejects a quiet viewport with a stale tile from anot
     quietForMs: 8_000,
     viewport: { tile: { meta: { zoom: 1.5 } } },
   }), false);
+});
+
+test('totalSuccessfulZoomMs rejects failed or visually stale zoom runs', () => {
+  const valid = [
+    { scale: 1, ok: true, visibleSharpMs: 100, screenshot: { ok: true, sha256: 'base' } },
+    { scale: 1.5, ok: true, visibleSharpMs: 200, screenshot: { ok: true, sha256: 'zoom-a' } },
+    { scale: 2, ok: true, visibleSharpMs: 300, screenshot: { ok: true, sha256: 'zoom-b' } },
+    { scale: 3, ok: true, visibleSharpMs: 400, screenshot: { ok: true, sha256: 'zoom-c' } },
+  ];
+  assert.equal(totalSuccessfulZoomMs(valid), 900);
+
+  const failed = structuredClone(valid);
+  failed[2].ok = false;
+  failed[2].visibleSharpMs = null;
+  assert.equal(totalSuccessfulZoomMs(failed), null);
+
+  const stale = structuredClone(valid);
+  stale.slice(1).forEach((zoom) => {
+    zoom.screenshot.sha256 = 'same-blank-frame';
+  });
+  assert.equal(totalSuccessfulZoomMs(stale), null);
 });

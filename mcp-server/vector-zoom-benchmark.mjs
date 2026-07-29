@@ -9,7 +9,9 @@ import {
   aggregatePeak,
   extractZoomPhases,
   hasStableZoomEvidence,
+  percentile,
   summarizeRuns,
+  totalSuccessfulZoomMs,
 } from './vector-zoom-metrics.mjs';
 
 const DEFAULT_MCP = 'http://127.0.0.1:9223/mcp';
@@ -237,6 +239,30 @@ async function measurePan(client) {
   };
 }
 
+async function openIsolatedRun(client, args) {
+  const listed = await client.tool('app_list_tabs', {});
+  const targetPath = resolve(args.pdf).toLowerCase();
+  const matchingTabs = (listed?.tabs ?? [])
+    .filter((tab) => resolve(tab.filePath ?? '').toLowerCase() === targetPath)
+    .toSorted((left, right) => right.index - left.index);
+  for (const tab of matchingTabs) {
+    const closed = await client.tool('app_close_tab', { index: tab.index, force: true });
+    if (!closed?.ok) throw new Error(closed?.error ?? `could not close benchmark tab ${tab.index}`);
+  }
+
+  await client.tool('app_clear_caches', {});
+  await sleep(250);
+  const openStarted = performance.now();
+  const opened = await client.tool('app_open_pdf', { path: args.pdf });
+  const openMs = Math.round(performance.now() - openStarted);
+  if (!opened?.ok) throw new Error(opened?.error ?? 'app_open_pdf failed');
+  if (args.page !== 1) {
+    const pageResult = await client.tool('app_go_to_page', { page: args.page });
+    if (!pageResult?.ok) throw new Error(pageResult?.error ?? 'app_go_to_page failed');
+  }
+  return openMs;
+}
+
 function gitIdentity() {
   try {
     return execFileSync('git', ['rev-parse', 'HEAD'], {
@@ -268,22 +294,14 @@ async function runBenchmark(args) {
     'app_get_viewport_state',
     'app_get_recent_console',
     'app_screenshot_view',
+    'app_list_tabs',
+    'app_close_tab',
   ]) {
     if (!names.has(required)) throw new Error(`MCP tool unavailable: ${required}`);
   }
 
-  await client.tool('app_clear_caches', {});
-  const openStarted = performance.now();
-  const opened = await client.tool('app_open_pdf', { path: args.pdf });
-  const openMs = Math.round(performance.now() - openStarted);
-  if (!opened?.ok) throw new Error(opened?.error ?? 'app_open_pdf failed');
-  if (args.page !== 1) {
-    const pageResult = await client.tool('app_go_to_page', { page: args.page });
-    if (!pageResult?.ok) throw new Error(pageResult?.error ?? 'app_go_to_page failed');
-  }
-
   const result = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     label: args.label,
     pdf: resolve(args.pdf),
     pdfName: basename(args.pdf),
@@ -291,23 +309,24 @@ async function runBenchmark(args) {
     gitCommit: gitIdentity(),
     appPid,
     startedAt: new Date().toISOString(),
-    openMs,
     runs: [],
   };
 
   for (let runIndex = 1; runIndex <= args.runs; runIndex += 1) {
-    const run = { index: runIndex, zooms: [] };
+    const run = {
+      index: runIndex,
+      openMs: await openIsolatedRun(client, args),
+      zooms: [],
+    };
     for (const scale of ZOOM_SEQUENCE) {
       run.zooms.push(await measureZoom(client, scale, runIndex, outputDir, appPid));
     }
     run.pan = await measurePan(client);
-    run.returnTo100 = await measureZoom(client, 1, runIndex, outputDir, appPid);
-    run.visibleSharpMs = run.zooms
-      .filter((zoom) => zoom.scale > 1 && Number.isFinite(zoom.visibleSharpMs))
-      .reduce((sum, zoom) => sum + zoom.visibleSharpMs, 0);
+    run.visibleSharpMs = totalSuccessfulZoomMs(run.zooms);
     result.runs.push(run);
   }
 
+  result.openMs = percentile(result.runs.map((run) => run.openMs), 0.5);
   result.summary = summarizeRuns(result.runs);
   result.finishedAt = new Date().toISOString();
   if (outputDir) {

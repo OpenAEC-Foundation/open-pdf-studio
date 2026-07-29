@@ -17,6 +17,22 @@ export function summarizeRuns(runs) {
   };
 }
 
+export function totalSuccessfulZoomMs(zooms) {
+  const targets = zooms.filter((zoom) => zoom.scale > 1);
+  if (
+    targets.length === 0
+    || targets.some((zoom) => !zoom.ok || !Number.isFinite(zoom.visibleSharpMs))
+    || targets.some((zoom) => !zoom.screenshot?.ok || !zoom.screenshot.sha256)
+  ) {
+    return null;
+  }
+
+  const screenshotHashes = new Set(targets.map((zoom) => zoom.screenshot.sha256));
+  if (screenshotHashes.size < 2) return null;
+
+  return targets.reduce((sum, zoom) => sum + zoom.visibleSharpMs, 0);
+}
+
 function firstNumber(entries, pattern) {
   for (const entry of entries) {
     const match = entry.text.match(pattern);
