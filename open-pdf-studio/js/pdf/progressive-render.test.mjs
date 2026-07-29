@@ -4,6 +4,7 @@ import {
   isHeavyBytes,
   computeTileGrid,
   createSceneAttemptCoordinator,
+  shouldSpreadPdfiumFallback,
 } from './progressive-render.js';
 
 test('isHeavyBytes: drempel = 1MB gecomprimeerde content', () => {
@@ -95,4 +96,9 @@ test('scene coordinator laat na een geslaagde probe de overige regio’s door', 
   assert.equal(await first, 'regio-1');
   assert.equal(await second, 'regio-2');
   assert.deepEqual(calls, [1, 2]);
+});
+
+test('PDFium-fallback spreidt normale pagina’s maar pint extreme scene-fallbacks', () => {
+  assert.equal(shouldSpreadPdfiumFallback(false), true);
+  assert.equal(shouldSpreadPdfiumFallback(true), false);
 });

@@ -169,15 +169,14 @@ export async function invokeTileRegion(args) {
       return res;
     }
   }
-  // Tegels SPREIDEN over de pool (parallel). Het pinnen-op-één-worker was
-  // bedoeld voor extreme bladen waar een koude worker seconden aan
-  // content-stream moet parsen — MAAR die (MV-03-klasse, content > 6 MB) gaan
-  // hierboven al naar de scene-engine. Dit PDFium-tegelpad wordt dus alleen
-  // geraakt door gematigde bladen (content 1-6 MB, bv. NKD1a) waar het openen
-  // van de pagina goedkoop is (~0,2 s) en de rendertijd per tegel domineert;
-  // daar wint parallelisme over 4 workers ruim van serieel pinnen (gemeten
-  // NKD1a p2: ~6 s serieel -> ~1,5 s gespreid).
-  const res = await invoke('render_pdf_page_region', { ...args, spread: true });
+  // Gematigde bladen spreiden over de pool. Extreme bladen die door de
+  // scene-engine zijn afgewezen pinnen juist op één affinity-worker: anders
+  // parsen vier processen elk dezelfde enorme content-stream en groeit de
+  // worker-RSS tot meerdere gigabytes.
+  const res = await invoke('render_pdf_page_region', {
+    ...args,
+    spread: shouldSpreadPdfiumFallback(sceneWorthIt),
+  });
   try {
     const { reportActiveEngine } = await import('../solid/stores/engineStatusStore.js');
     reportActiveEngine('pdfium', args.path, args.pageIndex + 1);
@@ -245,6 +244,10 @@ export async function isHeavyPage(filePath, pageNum) {
 // randgevallen) en de drempel zakt pas wanneer de corpus-benchmark
 // (examples/corpus_diff.rs) dat per bladklasse aantoont.
 const SCENE_CONTENT_BYTES = 6_000_000;
+
+export function shouldSpreadPdfiumFallback(sceneWorthIt) {
+  return !sceneWorthIt;
+}
 
 // Generatie-teller voor stale-guards: elke start bumpt hem; na elke await checken
 // we of onze generatie nog actueel is voor we viewport-state muteren. Zo kan een
