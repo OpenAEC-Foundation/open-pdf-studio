@@ -8,6 +8,7 @@ import { pathToFileURL } from 'node:url';
 import {
   aggregatePeak,
   extractZoomPhases,
+  hasRenderCompletion,
   hasStableZoomEvidence,
   percentile,
   summarizeRuns,
@@ -17,7 +18,6 @@ import {
 const DEFAULT_MCP = 'http://127.0.0.1:9223/mcp';
 const ZOOM_SEQUENCE = [1, 1.5, 2, 3];
 const RELEVANT_LOG = /\[render]|\[tile]|\[wheel-zoom]|\[PERF]|\[bitmap-orch]|\[tile-orch]|\[prog]|\[prog-perf]|\[pbc]|\[bo]|STALE|JANK/i;
-const COMPLETION_LOG = /\[prog]\s+klaar|\[pbc]\s+whole-page\s+KLAAR|\[tile-orch]\s+cached|cache-hit-direct|cache-hit bucket/i;
 
 export function parseArgs(argv) {
   const values = new Map();
@@ -143,7 +143,7 @@ async function waitForStableZoom(client, scale, since, appPid, timeoutMs = 120_0
       lastRelevantSignature = signature;
       lastRelevantAt = performance.now();
     }
-    completionSeen ||= relevant.some((entry) => COMPLETION_LOG.test(entry.text));
+    completionSeen ||= hasRenderCompletion(relevant);
 
     const actualZoom = Number(viewport?.viewport?.zoom ?? viewport?.doc?.scale);
     const zoomMatches = Number.isFinite(actualZoom) && Math.abs(actualZoom - scale) < 0.001;
@@ -239,6 +239,28 @@ async function measurePan(client) {
   };
 }
 
+async function waitForInitialRender(client, since, timeoutMs = 120_000) {
+  const started = performance.now();
+  let latestEntries = [];
+  while (performance.now() - started < timeoutMs) {
+    latestEntries = await recentEntries(client, since);
+    if (hasRenderCompletion(latestEntries)) {
+      return {
+        ok: true,
+        elapsedMs: Math.round(performance.now() - started),
+        entries: latestEntries,
+      };
+    }
+    await sleep(200);
+  }
+  return {
+    ok: false,
+    elapsedMs: Math.round(performance.now() - started),
+    error: `initial render did not complete within ${timeoutMs}ms`,
+    entries: latestEntries,
+  };
+}
+
 async function openIsolatedRun(client, args) {
   const listed = await client.tool('app_list_tabs', {});
   const targetPath = resolve(args.pdf).toLowerCase();
@@ -252,15 +274,23 @@ async function openIsolatedRun(client, args) {
 
   await client.tool('app_clear_caches', {});
   await sleep(250);
+  const openSince = Date.now();
   const openStarted = performance.now();
   const opened = await client.tool('app_open_pdf', { path: args.pdf });
   const openMs = Math.round(performance.now() - openStarted);
   if (!opened?.ok) throw new Error(opened?.error ?? 'app_open_pdf failed');
+  let readySince = openSince;
   if (args.page !== 1) {
+    readySince = Date.now();
     const pageResult = await client.tool('app_go_to_page', { page: args.page });
     if (!pageResult?.ok) throw new Error(pageResult?.error ?? 'app_go_to_page failed');
   }
-  return openMs;
+  const initialRender = await waitForInitialRender(client, readySince);
+  if (!initialRender.ok) throw new Error(initialRender.error);
+  return {
+    openMs,
+    initialReadyMs: openMs + initialRender.elapsedMs,
+  };
 }
 
 function gitIdentity() {
@@ -313,9 +343,11 @@ async function runBenchmark(args) {
   };
 
   for (let runIndex = 1; runIndex <= args.runs; runIndex += 1) {
+    const opened = await openIsolatedRun(client, args);
     const run = {
       index: runIndex,
-      openMs: await openIsolatedRun(client, args),
+      openMs: opened.openMs,
+      initialReadyMs: opened.initialReadyMs,
       zooms: [],
     };
     for (const scale of ZOOM_SEQUENCE) {

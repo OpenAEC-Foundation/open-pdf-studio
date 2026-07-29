@@ -7,6 +7,7 @@ import {
   extractZoomPhases,
   aggregatePeak,
   hasStableZoomEvidence,
+  hasRenderCompletion,
   totalSuccessfulZoomMs,
 } from './vector-zoom-metrics.mjs';
 import { parseArgs } from './vector-zoom-benchmark.mjs';
@@ -170,4 +171,17 @@ test('totalSuccessfulZoomMs rejects failed or visually stale zoom runs', () => {
     zoom.screenshot.sha256 = 'same-blank-frame';
   });
   assert.equal(totalSuccessfulZoomMs(stale), null);
+});
+
+test('hasRenderCompletion herkent alleen een afgeronde render of cache-hit', () => {
+  assert.equal(hasRenderCompletion([
+    { text: '[prog] eerste tegel @500ms' },
+    { text: '[prog] klaar @2400ms (12 tegels)' },
+  ]), true);
+  assert.equal(hasRenderCompletion([
+    { text: '[tile-orch] cached visible tile' },
+  ]), true);
+  assert.equal(hasRenderCompletion([
+    { text: '[prog-guard] zware pagina → progressief pad' },
+  ]), false);
 });

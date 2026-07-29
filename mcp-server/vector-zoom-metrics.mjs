@@ -33,6 +33,13 @@ export function totalSuccessfulZoomMs(zooms) {
   return targets.reduce((sum, zoom) => sum + zoom.visibleSharpMs, 0);
 }
 
+const RENDER_COMPLETION_LOG =
+  /\[prog]\s+klaar|\[pbc]\s+whole-page\s+KLAAR|\[tile-orch]\s+cached|cache-hit-direct|cache-hit bucket/i;
+
+export function hasRenderCompletion(entries) {
+  return entries.some((entry) => RENDER_COMPLETION_LOG.test(entry.text));
+}
+
 function firstNumber(entries, pattern) {
   for (const entry of entries) {
     const match = entry.text.match(pattern);
