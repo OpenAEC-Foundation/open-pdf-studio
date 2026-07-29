@@ -77,9 +77,68 @@ export async function perfDump(reason) {
 }
 // ── einde instrumentatie ──
 
+/**
+ * Coördineert de eerste scene-aanroep per pagina. Tegels voor dezelfde nieuwe
+ * pagina arriveren parallel; zonder deze poort starten ze allemaal tegelijk
+ * dezelfde dure scene-extractie. Eén tegel voert de probe uit. De overige
+ * tegels wachten en gaan na succes via de gecachete scene verder, of vallen na
+ * één gedeelde fout meteen terug op PDFium.
+ */
+export function createSceneAttemptCoordinator() {
+  const broken = new Set();
+  const ready = new Set();
+  const probes = new Map();
+
+  const markBroken = (key, error, onFailure) => {
+    const firstFailure = !broken.has(key);
+    broken.add(key);
+    ready.delete(key);
+    if (firstFailure) onFailure(error);
+  };
+
+  const renderKnownScene = async (key, args, render, onFailure) => {
+    try {
+      return await render(args);
+    } catch (error) {
+      markBroken(key, error, onFailure);
+      return null;
+    }
+  };
+
+  return {
+    async tryRegion(key, args, render, onFailure) {
+      if (broken.has(key)) return null;
+      if (ready.has(key)) return renderKnownScene(key, args, render, onFailure);
+
+      const existing = probes.get(key);
+      if (existing) {
+        const outcome = await existing;
+        if (!outcome.ok || broken.has(key)) return null;
+        return renderKnownScene(key, args, render, onFailure);
+      }
+
+      const probe = (async () => {
+        try {
+          const value = await render(args);
+          ready.add(key);
+          return { ok: true, value };
+        } catch (error) {
+          markBroken(key, error, onFailure);
+          return { ok: false, value: null };
+        } finally {
+          probes.delete(key);
+        }
+      })();
+      probes.set(key, probe);
+      const outcome = await probe;
+      return outcome.ok ? outcome.value : null;
+    },
+  };
+}
+
 // Route A: pagina's waarvoor de display-list-scene niet werkt (image-zwaar,
 // exotische features) vallen blijvend terug op het PDFium-pool-pad.
-const _sceneBroken = new Set();
+const _sceneAttempts = createSceneAttemptCoordinator();
 
 /**
  * Tegel-invoke met scene-first en per-pagina PDFium-fallback. De eigen
@@ -92,18 +151,22 @@ export async function invokeTileRegion(args) {
   const { invoke } = await import('../core/platform.js');
   const key = `${args.path}|${args.pageIndex}|${args.rotation || 0}`;
   const sceneWorthIt = (await pageContentBytes(args.path, args.pageIndex + 1)) > SCENE_CONTENT_BYTES;
-  if (sceneWorthIt && !_sceneBroken.has(key)) {
-    try {
-      const res = await invoke('render_tile_scene_region', args);
+  if (sceneWorthIt) {
+    const res = await _sceneAttempts.tryRegion(
+      key,
+      args,
+      (regionArgs) => invoke('render_tile_scene_region', regionArgs),
+      (error) => {
+        perfMark(`scene-fallback p${args.pageIndex + 1}: ${String(error).slice(0, 80)}`);
+        console.log(`[prog] scene-fallback p${args.pageIndex + 1}: ${String(error).slice(0, 140)}`);
+      },
+    );
+    if (res !== null) {
       try {
         const { reportActiveEngine } = await import('../solid/stores/engineStatusStore.js');
         reportActiveEngine('scene', args.path, args.pageIndex + 1);
       } catch {}
       return res;
-    } catch (e) {
-      _sceneBroken.add(key);
-      perfMark(`scene-fallback p${args.pageIndex + 1}: ${String(e).slice(0, 80)}`);
-      console.log(`[prog] scene-fallback p${args.pageIndex + 1}: ${String(e).slice(0, 140)}`);
     }
   }
   // Tegels SPREIDEN over de pool (parallel). Het pinnen-op-één-worker was

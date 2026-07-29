@@ -1,6 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { isHeavyBytes, computeTileGrid } from './progressive-render.js';
+import {
+  isHeavyBytes,
+  computeTileGrid,
+  createSceneAttemptCoordinator,
+} from './progressive-render.js';
 
 test('isHeavyBytes: drempel = 1MB gecomprimeerde content', () => {
   assert.equal(isHeavyBytes(2_000_000), true);
@@ -37,4 +41,58 @@ test('computeTileGrid: kleiner dan één tegel = één tegel', () => {
   const tiles = computeTileGrid(100, 80, 256);
   assert.equal(tiles.length, 1);
   assert.deepEqual(tiles[0], { px: 0, py: 0, pw: 100, ph: 80 });
+});
+
+test('scene coordinator voert een falende eerste extractiepoging maar één keer uit', async () => {
+  let rejectProbe;
+  const probe = new Promise((resolve, reject) => {
+    rejectProbe = reject;
+  });
+  const calls = [];
+  const failures = [];
+  const render = async (args) => {
+    calls.push(args.tile);
+    return probe;
+  };
+  const coordinator = createSceneAttemptCoordinator();
+
+  const first = coordinator.tryRegion('document|0|0', { tile: 1 }, render, (error) => failures.push(error.message));
+  const second = coordinator.tryRegion('document|0|0', { tile: 2 }, render, (error) => failures.push(error.message));
+  await Promise.resolve();
+  assert.deepEqual(calls, [1]);
+
+  rejectProbe(new Error('commandobudget overschreden'));
+  assert.equal(await first, null);
+  assert.equal(await second, null);
+  assert.deepEqual(failures, ['commandobudget overschreden']);
+
+  assert.equal(
+    await coordinator.tryRegion('document|0|0', { tile: 3 }, render, () => {}),
+    null,
+  );
+  assert.deepEqual(calls, [1]);
+});
+
+test('scene coordinator laat na een geslaagde probe de overige regio’s door', async () => {
+  let resolveProbe;
+  const probe = new Promise((resolve) => {
+    resolveProbe = resolve;
+  });
+  const calls = [];
+  const render = async (args) => {
+    calls.push(args.tile);
+    if (args.tile === 1) return probe;
+    return `regio-${args.tile}`;
+  };
+  const coordinator = createSceneAttemptCoordinator();
+
+  const first = coordinator.tryRegion('document|0|0', { tile: 1 }, render, () => {});
+  const second = coordinator.tryRegion('document|0|0', { tile: 2 }, render, () => {});
+  await Promise.resolve();
+  assert.deepEqual(calls, [1]);
+
+  resolveProbe('regio-1');
+  assert.equal(await first, 'regio-1');
+  assert.equal(await second, 'regio-2');
+  assert.deepEqual(calls, [1, 2]);
 });
