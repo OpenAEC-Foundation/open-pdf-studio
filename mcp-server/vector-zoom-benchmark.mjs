@@ -8,6 +8,7 @@ import { pathToFileURL } from 'node:url';
 import {
   aggregatePeak,
   extractZoomPhases,
+  hasStableZoomEvidence,
   summarizeRuns,
 } from './vector-zoom-metrics.mjs';
 
@@ -142,7 +143,13 @@ async function waitForStableZoom(client, scale, since, appPid, timeoutMs = 120_0
     const actualZoom = Number(viewport?.viewport?.zoom ?? viewport?.doc?.scale);
     const zoomMatches = Number.isFinite(actualZoom) && Math.abs(actualZoom - scale) < 0.001;
     const quietForMs = performance.now() - lastRelevantAt;
-    if (zoomMatches && completionSeen && quietForMs >= 800) {
+    const stableEvidence = hasStableZoomEvidence({
+      scale,
+      completionSeen,
+      quietForMs,
+      viewport,
+    });
+    if (zoomMatches && stableEvidence && quietForMs >= 800) {
       return {
         ok: true,
         elapsedMs: Math.round(performance.now() - started),

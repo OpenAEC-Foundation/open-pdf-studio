@@ -6,6 +6,7 @@ import {
   summarizeRuns,
   extractZoomPhases,
   aggregatePeak,
+  hasStableZoomEvidence,
 } from './vector-zoom-metrics.mjs';
 import { parseArgs } from './vector-zoom-benchmark.mjs';
 
@@ -111,4 +112,31 @@ test('aggregatePeak isolates the measured app and its workers', () => {
     workerPeakMb: 300,
     workerTotalPeakMb: 500,
   });
+});
+
+test('hasStableZoomEvidence accepts completion, matching sharp tile, or a quiet cache hit', () => {
+  assert.equal(hasStableZoomEvidence({
+    scale: 2,
+    completionSeen: true,
+    quietForMs: 800,
+    viewport: { tile: null },
+  }), true);
+  assert.equal(hasStableZoomEvidence({
+    scale: 1.5,
+    completionSeen: false,
+    quietForMs: 800,
+    viewport: { tile: { meta: { zoom: 1.5 } } },
+  }), true);
+  assert.equal(hasStableZoomEvidence({
+    scale: 1,
+    completionSeen: false,
+    quietForMs: 1_500,
+    viewport: { tile: null },
+  }), true);
+  assert.equal(hasStableZoomEvidence({
+    scale: 3,
+    completionSeen: false,
+    quietForMs: 900,
+    viewport: { tile: { meta: { zoom: 1.5 } } },
+  }), false);
 });
