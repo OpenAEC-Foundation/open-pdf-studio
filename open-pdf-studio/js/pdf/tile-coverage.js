@@ -31,3 +31,23 @@ export function findBestCoveringTile(entries, request, epsilon = BOUNDS_EPSILON_
 
   return candidates[0] || null;
 }
+
+export function visiblePdfRegion(viewport, cssWidth, cssHeight) {
+  const visibleScreenLeft = Math.max(0, -viewport.offsetX);
+  const visibleScreenTop = Math.max(0, -viewport.offsetY);
+  const visibleScreenRight = Math.min(
+    viewport.pageW * viewport.zoom,
+    cssWidth - viewport.offsetX,
+  );
+  const visibleScreenBottom = Math.min(
+    viewport.pageH * viewport.zoom,
+    cssHeight - viewport.offsetY,
+  );
+
+  return {
+    x: visibleScreenLeft / viewport.zoom,
+    y: visibleScreenTop / viewport.zoom,
+    w: Math.max(0, visibleScreenRight - visibleScreenLeft) / viewport.zoom,
+    h: Math.max(0, visibleScreenBottom - visibleScreenTop) / viewport.zoom,
+  };
+}

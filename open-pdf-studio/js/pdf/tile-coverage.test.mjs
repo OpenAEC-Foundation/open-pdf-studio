@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { findBestCoveringTile } from './tile-coverage.js';
+import { findBestCoveringTile, visiblePdfRegion } from './tile-coverage.js';
 
 test('reuses a high-resolution tile when zooming out to a covered viewport', () => {
   const entries = [{
@@ -140,4 +140,38 @@ test('chooses the smallest covering area when render scales match', () => {
   });
 
   assert.equal(hit?.id, 'viewport');
+});
+
+test('computes the larger PDF cover after zooming out around the same center', () => {
+  const region = visiblePdfRegion({
+    pageW: 1200,
+    pageH: 800,
+    zoom: 1.5,
+    offsetX: -300,
+    offsetY: -150,
+  }, 1200, 750);
+
+  assert.deepEqual(region, {
+    x: 200,
+    y: 100,
+    w: 800,
+    h: 500,
+  });
+});
+
+test('clips the visible PDF region to the page bounds', () => {
+  const region = visiblePdfRegion({
+    pageW: 1000,
+    pageH: 600,
+    zoom: 2,
+    offsetX: 100,
+    offsetY: 50,
+  }, 1200, 800);
+
+  assert.deepEqual(region, {
+    x: 0,
+    y: 0,
+    w: 550,
+    h: 375,
+  });
 });

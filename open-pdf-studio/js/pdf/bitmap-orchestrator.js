@@ -16,7 +16,8 @@
 
 import { viewport } from './pdf-viewport.js';
 import { computeZoomBucket, ensureBitmap, getBestAvailableBitmap } from './page-bitmap-cache.js';
-import { tileCacheGet, tileCacheSet } from './tile-cache.js';
+import { tileCacheFindCovering, tileCacheGet, tileCacheSet } from './tile-cache.js';
+import { visiblePdfRegion } from './tile-coverage.js';
 import { state } from '../core/state.js';
 import {
     ensureProgressiveBitmapForCurrentView,
@@ -278,27 +279,14 @@ export async function ensureTileForCurrentView(canvas) {
     const cssW = canvas.width / dpr;
     const cssH = canvas.height / dpr;
 
-    // Visible page region in CSS pixels.
-    const visScreenLeft = Math.max(0, -viewport.offsetX);
-    const visScreenTop = Math.max(0, -viewport.offsetY);
-    const visScreenRight = Math.min(viewport.pageW * viewport.zoom, cssW - viewport.offsetX);
-    const visScreenBottom = Math.min(viewport.pageH * viewport.zoom, cssH - viewport.offsetY);
-    const visW = visScreenRight - visScreenLeft;
-    const visH = visScreenBottom - visScreenTop;
-    if (visW < 1 || visH < 1) {
+    const visRegion = visiblePdfRegion(viewport, cssW, cssH);
+    if (visRegion.w * viewport.zoom < 1 || visRegion.h * viewport.zoom < 1) {
         viewport.currentTile = null;
         viewport.currentTileMeta = null;
         return;
     }
 
-    // Convert visible region to PDF points and add buffer for pan-within-
-    // buffer cache hits.
-    const visRegion = {
-        x: visScreenLeft / viewport.zoom,
-        y: visScreenTop / viewport.zoom,
-        w: visW / viewport.zoom,
-        h: visH / viewport.zoom,
-    };
+    // Add buffer for pan-within-buffer cache hits.
     const bufW = visRegion.w * TILE_BUFFER_FRACTION;
     const bufH = visRegion.h * TILE_BUFFER_FRACTION;
     const bufferedRegion = {
@@ -321,6 +309,25 @@ export async function ensureTileForCurrentView(canvas) {
     const rotation = viewport.rotation || 0;
     const requestedZoom = viewport.zoom;
     const requestKey = `${filePath}|${pageNum}|${zoomBucket}|${rotation}|${regionBucket}`;
+
+    // GIS-style tile-cover lookup: zoom buckets describe how a tile was
+    // produced, not where it may be reused. A tile from another zoom level is
+    // immediately valid when it covers the complete visible PDF region and
+    // has enough physical pixels for the current screen.
+    const covering = tileCacheFindCovering(filePath, pageNum, rotation, {
+        regionXpt: visRegion.x,
+        regionYpt: visRegion.y,
+        regionWpt: visRegion.w,
+        regionHpt: visRegion.h,
+        requiredScale: requestedZoom * dpr,
+    });
+    if (covering?.bitmap) {
+        _tileRequests.cancel();
+        viewport.currentTile = covering.bitmap;
+        viewport.currentTileMeta = covering.regionMeta;
+        viewport.dirty = true;
+        return;
+    }
 
     // Cache hit?
     const hit = tileCacheGet(filePath, pageNum, zoomBucket, rotation, regionBucket);
