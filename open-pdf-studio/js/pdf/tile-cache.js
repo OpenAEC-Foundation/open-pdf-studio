@@ -22,7 +22,8 @@ export function tileCacheGet(filePath, pageNum, zoomBucket, rotation, regionBuck
 
 export async function tileCacheSet(filePath, pageNum, zoomBucket, rotation, regionBucket, imageData, regionMeta) {
   const key = makeKey(filePath, pageNum, zoomBucket, rotation, regionBucket);
-  while (CACHE.size >= MAX) {
+  const replaced = CACHE.get(key);
+  while (!replaced && CACHE.size >= MAX) {
     const firstKey = CACHE.keys().next().value;
     if (!firstKey) break;
     const old = CACHE.get(firstKey);
@@ -31,6 +32,8 @@ export async function tileCacheSet(filePath, pageNum, zoomBucket, rotation, regi
   }
   try {
     const bitmap = await createImageBitmap(imageData);
+    try { replaced?.bitmap?.close?.(); } catch {}
+    CACHE.delete(key);
     CACHE.set(key, { bitmap, w: imageData.width, h: imageData.height, regionMeta });
   } catch (e) {
     console.warn('[tile-cache] createImageBitmap failed:', e);

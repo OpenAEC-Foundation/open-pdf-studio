@@ -6,6 +6,12 @@ import {
   createSceneAttemptCoordinator,
   shouldSpreadPdfiumFallback,
 } from './progressive-render.js';
+import { createInflightKeyGate } from './inflight-key-gate.js';
+import {
+  prewarmTileRenderScale,
+  tileRenderScaleForZoom,
+  tileSupportsZoom,
+} from './tile-render-policy.js';
 
 test('isHeavyBytes: drempel = 1MB gecomprimeerde content', () => {
   assert.equal(isHeavyBytes(2_000_000), true);
@@ -101,4 +107,44 @@ test('scene coordinator laat na een geslaagde probe de overige regio’s door', 
 test('PDFium-fallback spreidt normale pagina’s maar pint extreme scene-fallbacks', () => {
   assert.equal(shouldSpreadPdfiumFallback(false), true);
   assert.equal(shouldSpreadPdfiumFallback(true), false);
+});
+
+test('in-flight key gate dedupliceert dezelfde tegel en maakt alleen oudere keys stale', () => {
+  const gate = createInflightKeyGate();
+  const first = gate.begin('doc|p1|z2|region-a');
+  assert.ok(first);
+  assert.equal(gate.begin('doc|p1|z2|region-a'), null);
+  assert.equal(gate.isCurrent(first), true);
+
+  const second = gate.begin('doc|p1|z3|region-a');
+  assert.ok(second);
+  assert.equal(gate.isCurrent(first), false);
+  assert.equal(gate.finish(first), false);
+  assert.equal(gate.isCurrent(second), true);
+  assert.equal(gate.finish(second), true);
+
+  const third = gate.begin('doc|p1|z3|region-b');
+  gate.cancel();
+  assert.equal(gate.isCurrent(third), false);
+});
+
+test('tegelcache bewaakt de werkelijke schermresolutie', () => {
+  assert.equal(tileRenderScaleForZoom(2, 1.5), 3);
+  assert.equal(tileSupportsZoom(3, 2, 1.5), true);
+  assert.equal(tileSupportsZoom(2, 2, 1.5), false);
+});
+
+test('prewarm dekt 200% alleen mee wanneer 150% dezelfde bucket gebruikt', () => {
+  assert.equal(prewarmTileRenderScale({
+    regionZoom: 1.5,
+    supportZoom: 2,
+    devicePixelRatio: 1.5,
+    zoomBucket: 4,
+  }), 3);
+  assert.equal(prewarmTileRenderScale({
+    regionZoom: 1.5,
+    supportZoom: 2,
+    devicePixelRatio: 1.25,
+    zoomBucket: 2,
+  }), 1.875);
 });
