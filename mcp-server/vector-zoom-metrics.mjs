@@ -99,7 +99,24 @@ export function hasStableZoomEvidence({
   viewport,
 }) {
   const tileZoom = Number(viewport?.tile?.meta?.zoom);
-  const matchingSharpTile = Number.isFinite(tileZoom) && Math.abs(tileZoom - scale) < 0.001;
-  const quietCacheHit = !Number.isFinite(tileZoom) && quietForMs >= 1_500;
-  return completionSeen || matchingSharpTile || quietCacheHit;
+  const tileRenderScale = Number(viewport?.tile?.meta?.renderScale);
+  const devicePixelRatio = Number(viewport?.devicePixelRatio) || 1;
+  const effectiveRenderScale = Number.isFinite(tileRenderScale)
+    ? tileRenderScale
+    : tileZoom;
+  const bucketTileSupportsZoom =
+    Number.isFinite(effectiveRenderScale)
+    && effectiveRenderScale + 0.001 >= scale * devicePixelRatio;
+  const pageW = Number(viewport?.viewport?.pageW);
+  const pageH = Number(viewport?.viewport?.pageH);
+  const maxAxisPt = Math.max(pageW, pageH);
+  const wholePageCap = Number.isFinite(maxAxisPt) && maxAxisPt > 0
+    ? 4_096 / maxAxisPt
+    : 1;
+  const wholePageIsSharp = scale <= wholePageCap + 0.001;
+  const quietCacheHit =
+    !Number.isFinite(tileZoom)
+    && wholePageIsSharp
+    && quietForMs >= 1_500;
+  return bucketTileSupportsZoom || (wholePageIsSharp && completionSeen) || quietCacheHit;
 }

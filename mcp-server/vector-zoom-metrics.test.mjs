@@ -118,22 +118,69 @@ test('aggregatePeak isolates the measured app and its workers', () => {
 
 test('hasStableZoomEvidence accepts completion, matching sharp tile, or a quiet cache hit', () => {
   assert.equal(hasStableZoomEvidence({
-    scale: 2,
+    scale: 1,
     completionSeen: true,
     quietForMs: 800,
-    viewport: { tile: null },
+    viewport: {
+      viewport: { pageW: 3_370, pageH: 2_384 },
+      tile: null,
+    },
   }), true);
   assert.equal(hasStableZoomEvidence({
     scale: 1.5,
     completionSeen: false,
     quietForMs: 800,
-    viewport: { tile: { meta: { zoom: 1.5 } } },
+    viewport: {
+      devicePixelRatio: 1.5,
+      tile: { meta: { zoom: 1.5, renderScale: 2.25 } },
+    },
   }), true);
   assert.equal(hasStableZoomEvidence({
     scale: 1,
     completionSeen: false,
     quietForMs: 1_500,
-    viewport: { tile: null },
+    viewport: {
+      viewport: { pageW: 3_370, pageH: 2_384 },
+      tile: null,
+    },
+  }), true);
+  assert.equal(hasStableZoomEvidence({
+    scale: 1.5,
+    completionSeen: false,
+    quietForMs: 8_000,
+    viewport: {
+      viewport: { pageW: 3_370, pageH: 2_384 },
+      tile: null,
+    },
+  }), false);
+  assert.equal(hasStableZoomEvidence({
+    scale: 2,
+    completionSeen: true,
+    quietForMs: 8_000,
+    viewport: {
+      viewport: { pageW: 3_370, pageH: 2_384 },
+      tile: { meta: { zoom: 1.5 } },
+    },
+  }), false);
+  assert.equal(hasStableZoomEvidence({
+    scale: 1.5,
+    completionSeen: false,
+    quietForMs: 8_000,
+    viewport: {
+      devicePixelRatio: 1.5,
+      viewport: { pageW: 3_370, pageH: 2_384 },
+      tile: { meta: { zoom: 1.5 } },
+    },
+  }), false);
+  assert.equal(hasStableZoomEvidence({
+    scale: 2,
+    completionSeen: false,
+    quietForMs: 800,
+    viewport: {
+      devicePixelRatio: 1.5,
+      viewport: { pageW: 3_370, pageH: 2_384 },
+      tile: { meta: { zoom: 1.5, renderScale: 4 } },
+    },
   }), true);
   assert.equal(hasStableZoomEvidence({
     scale: 3,
