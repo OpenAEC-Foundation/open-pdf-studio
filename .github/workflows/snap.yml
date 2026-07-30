@@ -18,7 +18,12 @@ jobs:
       contents: write
 
     steps:
+      # Zonder expliciete `ref:` checkt workflow_dispatch altijd de default
+      # branch uit, niet de opgegeven versie-tag — dat bouwde tot nu toe
+      # stilzwijgend de hoofdbranch i.p.v. de gevraagde historische release.
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version || github.ref }}
 
       - name: Get version
         id: get-version
@@ -58,7 +63,11 @@ jobs:
       - name: Prepare snap build
         run: |
           # Find the built deb
-          DEB_FILE=$(find open-pdf-studio/src-tauri/target/release/bundle/deb -name "*.deb" | head -1)
+          # De Tauri-bundle landt op de workspace-root ($GITHUB_WORKSPACE/open-pdf-studio/target/...),
+          # NIET onder src-tauri/ — dat extra path-segment liet deze stap de deb
+          # nooit vinden, ongeacht credentials (root cause van de vastgelopen
+          # Snap Store-versie).
+          DEB_FILE=$(find open-pdf-studio/target/release/bundle/deb -name "*.deb" | head -1)
           echo "Found deb: $DEB_FILE"
 
           # Copy deb to repo root for snapcraft
