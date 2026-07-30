@@ -1,0 +1,6 @@
+[mcp_servers.open-pdf-studio]
+command = "node"
+args = ["mcp-stdio/server.mjs"]
+
+[mcp_servers.open-pdf-studio.env]
+OPS_MCP_PORT = "9223"
