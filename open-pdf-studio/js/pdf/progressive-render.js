@@ -77,68 +77,9 @@ export async function perfDump(reason) {
 }
 // ── einde instrumentatie ──
 
-/**
- * Coördineert de eerste scene-aanroep per pagina. Tegels voor dezelfde nieuwe
- * pagina arriveren parallel; zonder deze poort starten ze allemaal tegelijk
- * dezelfde dure scene-extractie. Eén tegel voert de probe uit. De overige
- * tegels wachten en gaan na succes via de gecachete scene verder, of vallen na
- * één gedeelde fout meteen terug op PDFium.
- */
-export function createSceneAttemptCoordinator() {
-  const broken = new Set();
-  const ready = new Set();
-  const probes = new Map();
-
-  const markBroken = (key, error, onFailure) => {
-    const firstFailure = !broken.has(key);
-    broken.add(key);
-    ready.delete(key);
-    if (firstFailure) onFailure(error);
-  };
-
-  const renderKnownScene = async (key, args, render, onFailure) => {
-    try {
-      return await render(args);
-    } catch (error) {
-      markBroken(key, error, onFailure);
-      return null;
-    }
-  };
-
-  return {
-    async tryRegion(key, args, render, onFailure) {
-      if (broken.has(key)) return null;
-      if (ready.has(key)) return renderKnownScene(key, args, render, onFailure);
-
-      const existing = probes.get(key);
-      if (existing) {
-        const outcome = await existing;
-        if (!outcome.ok || broken.has(key)) return null;
-        return renderKnownScene(key, args, render, onFailure);
-      }
-
-      const probe = (async () => {
-        try {
-          const value = await render(args);
-          ready.add(key);
-          return { ok: true, value };
-        } catch (error) {
-          markBroken(key, error, onFailure);
-          return { ok: false, value: null };
-        } finally {
-          probes.delete(key);
-        }
-      })();
-      probes.set(key, probe);
-      const outcome = await probe;
-      return outcome.ok ? outcome.value : null;
-    },
-  };
-}
-
 // Route A: pagina's waarvoor de display-list-scene niet werkt (image-zwaar,
 // exotische features) vallen blijvend terug op het PDFium-pool-pad.
-const _sceneAttempts = createSceneAttemptCoordinator();
+const _sceneBroken = new Set();
 
 /**
  * Tegel-invoke met scene-first en per-pagina PDFium-fallback. De eigen
@@ -151,32 +92,29 @@ export async function invokeTileRegion(args) {
   const { invoke } = await import('../core/platform.js');
   const key = `${args.path}|${args.pageIndex}|${args.rotation || 0}`;
   const sceneWorthIt = (await pageContentBytes(args.path, args.pageIndex + 1)) > SCENE_CONTENT_BYTES;
-  if (sceneWorthIt) {
-    const res = await _sceneAttempts.tryRegion(
-      key,
-      args,
-      (regionArgs) => invoke('render_tile_scene_region', regionArgs),
-      (error) => {
-        perfMark(`scene-fallback p${args.pageIndex + 1}: ${String(error).slice(0, 80)}`);
-        console.log(`[prog] scene-fallback p${args.pageIndex + 1}: ${String(error).slice(0, 140)}`);
-      },
-    );
-    if (res !== null) {
+  if (sceneWorthIt && !_sceneBroken.has(key)) {
+    try {
+      const res = await invoke('render_tile_scene_region', args);
       try {
         const { reportActiveEngine } = await import('../solid/stores/engineStatusStore.js');
         reportActiveEngine('scene', args.path, args.pageIndex + 1);
       } catch {}
       return res;
+    } catch (e) {
+      _sceneBroken.add(key);
+      perfMark(`scene-fallback p${args.pageIndex + 1}: ${String(e).slice(0, 80)}`);
+      console.log(`[prog] scene-fallback p${args.pageIndex + 1}: ${String(e).slice(0, 140)}`);
     }
   }
-  // Gematigde bladen spreiden over de pool. Extreme bladen die door de
-  // scene-engine zijn afgewezen pinnen juist op één affinity-worker: anders
-  // parsen vier processen elk dezelfde enorme content-stream en groeit de
-  // worker-RSS tot meerdere gigabytes.
-  const res = await invoke('render_pdf_page_region', {
-    ...args,
-    spread: shouldSpreadPdfiumFallback(sceneWorthIt),
-  });
+  // Tegels SPREIDEN over de pool (parallel). Het pinnen-op-één-worker was
+  // bedoeld voor extreme bladen waar een koude worker seconden aan
+  // content-stream moet parsen — MAAR die (MV-03-klasse, content > 6 MB) gaan
+  // hierboven al naar de scene-engine. Dit PDFium-tegelpad wordt dus alleen
+  // geraakt door gematigde bladen (content 1-6 MB, bv. NKD1a) waar het openen
+  // van de pagina goedkoop is (~0,2 s) en de rendertijd per tegel domineert;
+  // daar wint parallelisme over 4 workers ruim van serieel pinnen (gemeten
+  // NKD1a p2: ~6 s serieel -> ~1,5 s gespreid).
+  const res = await invoke('render_pdf_page_region', { ...args, spread: true });
   try {
     const { reportActiveEngine } = await import('../solid/stores/engineStatusStore.js');
     reportActiveEngine('pdfium', args.path, args.pageIndex + 1);
@@ -244,18 +182,6 @@ export async function isHeavyPage(filePath, pageNum) {
 // randgevallen) en de drempel zakt pas wanneer de corpus-benchmark
 // (examples/corpus_diff.rs) dat per bladklasse aantoont.
 const SCENE_CONTENT_BYTES = 6_000_000;
-
-export function isSceneCandidateBytes(bytes) {
-  return typeof bytes === 'number' && bytes > SCENE_CONTENT_BYTES;
-}
-
-export async function isExtremePage(filePath, pageNum) {
-  return isSceneCandidateBytes(await pageContentBytes(filePath, pageNum));
-}
-
-export function shouldSpreadPdfiumFallback(sceneWorthIt) {
-  return !sceneWorthIt;
-}
 
 // Generatie-teller voor stale-guards: elke start bumpt hem; na elke await checken
 // we of onze generatie nog actueel is voor we viewport-state muteren. Zo kan een
