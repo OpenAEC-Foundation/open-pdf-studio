@@ -6,6 +6,7 @@
     "drawing": "Tekenen",
     "view": "Beeld",
     "organize": "PDF bewerken & samenvoegen",
+    "ai": "AI",
     "help": "Help",
     "format": "Opmaak",
     "arrange": "Schikken",
@@ -476,5 +477,29 @@
     "contrast": "Contrast",
     "resetAdjust": "Herstellen",
     "resetAdjustHint": "Grijswaarden, helderheid en contrast terugzetten"
+  },
+  "ai": {
+    "assistant": "AI-assistent",
+    "openPanel": "Open de AI-assistent",
+    "panel": "Paneel",
+    "document": "Document",
+    "text": "Tekst",
+    "chat": "Chat",
+    "summarize": "Samenvatten",
+    "summarizeDoc": "Document samenvatten",
+    "explain": "Uitleggen",
+    "explainDoc": "Dit document uitleggen",
+    "extract": "Gegevens",
+    "extractData": "Belangrijke gegevens ophalen",
+    "translate": "Vertalen",
+    "translateDoc": "Document vertalen",
+    "rewrite": "Herschrijven",
+    "rewriteText": "Herschrijven voor leesbaarheid",
+    "ask": "Vragen",
+    "askQuestion": "Stel een vraag over dit document",
+    "openChat": "Open de AI-chat",
+    "signInToUseAI": "Meld je aan om AI-functies te gebruiken",
+    "signInSub": "PDF-bewerken werkt offline. AI-functies (samenvatten, vertalen, gegevens ophalen, chat) gebruiken je OpenAEC-account.",
+    "recheck": "Opnieuw controleren"
   }
 }

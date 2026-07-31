@@ -1,17 +1,21 @@
-// Assistant — floating chat panel (bottom-right) + launcher button. Two ways to
-// answer, tried in order:
-//   1. Claude (Anthropic) -> direct API with a locally stored API key
+// Assistant — floating chat panel (bottom-right) + launcher button. Three ways
+// to answer, tried in order:
+//   1. OpenAEC AI-server  -> POST /v1/chat via de Rust-command accounts_fetch
+//                            (token blijft in de keyring); vereist aanmelding
 //   2. MCP relay          -> an external MCP client answers via the app server
-import { createSignal, For, Show, createEffect } from 'solid-js';
+import { createSignal, For, Show, createEffect, onMount, onCleanup } from 'solid-js';
 import { registerAssistantSubmit, registerAssistantMessages, enqueueAssistantQuestion, relayClientActive } from '../../assistant-mcp-relay.js';
-import { ASSISTANT_SKILLS, SKILLS_SYSTEM_PROMPT } from '../../assistant-skills.js';
+import { ASSISTANT_SKILLS, skillsSystemPrompt } from '../../assistant-skills.js';
 import { getActiveDocument } from '../../core/state.js';
+import { askAiServer, AiServerError } from '../../services/ai-client.js';
+// Aanmeldstatus komt uit DEZELFDE store als de titelbalk. Had het paneel een
+// eigen kopie (een lokaal signaal, ververst bij mount/openen), dan merkte het
+// niet dat je zojuist via de titelbalk was ingelogd — twee bronnen van waarheid
+// die uit elkaar liepen.
+import { openaecUser, openaecSignIn, openaecLoadUser } from '../stores/openaecStore.js';
+import { collectActiveDocumentText, guessTranslationTarget } from '../../services/document-text.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
-
-const GREETING =
-  'Hallo! Ik ben de **OpenAEC-assistent**. Ik kan: 🌐 vertalen, 📝 samenvatten, ✏️ tekenen op de tekening, en 🚪 deuren herkennen. Kies hieronder een vaardigheid of stel je vraag.';
-const ANTHROPIC_KEY_LS = 'opds-anthropic-key';
-const CLAUDE_MODEL = 'claude-sonnet-4-6';
+import { LANGUAGES } from '../../i18n/config.js';
 
 // Minimal markdown-lite rendering (bold, inline code, line breaks). The AI text
 // is HTML-escaped first so it can never inject markup.
@@ -26,32 +30,93 @@ function renderContent(text) {
     .replace(/\n/g, '<br>');
 }
 
-function describeAiError(err) {
+function describeAiError(err, t) {
   const raw = String(err?.message ?? err ?? '').trim();
-  if (/Claude API 401|invalid x-api-key|authentication_error/i.test(raw)) {
-    return '⚠️ Ongeldige Claude (Anthropic) API-sleutel. Controleer de sleutel via het 🔑-knopje rechtsboven in het paneel.';
+  // Getypte fouten van de OpenAEC AI-server eerst — die verdienen een
+  // begrijpelijke boodschap in plaats van een ruwe dump.
+  const code = err?.code;
+  if (code === 'INSUFFICIENT_CREDITS' || /INSUFFICIENT_CREDITS|(?:Accounts API|AI-server) returned 402/i.test(raw)) {
+    return t('assistant.errors.insufficientCredits');
   }
-  if (/Claude API 4\d\d|Claude API 5\d\d/i.test(raw)) {
-    return `⚠️ De Claude-API gaf een fout.\n\n_Detail: ${raw}_`;
+  if (code === 'NOT_SIGNED_IN' || /not signed in|no refresh token|(?:Accounts API|AI-server) returned 401/i.test(raw)) {
+    return t('assistant.errors.notSignedIn');
   }
-  if (/onbereikbaar|connection|econn|refused|failed to connect|timed out|failed to fetch/i.test(raw)) {
-    return '⚠️ Geen verbinding met de AI-dienst.';
+  if (code === 'RATE_LIMITED' || /(?:Accounts API|AI-server) returned 429/i.test(raw)) {
+    return t('assistant.errors.rateLimited');
   }
-  return `⚠️ AI-aanroep mislukt.\n\n_Detail: ${raw || 'onbekende fout'}_`;
+  if (code === 'NO_DOCUMENT_TEXT') {
+    return t('assistant.errors.noDocumentText');
+  }
+  if (/unreachable|connection|econn|refused|failed to connect|failed to fetch/i.test(raw)) {
+    return t('assistant.errors.offline');
+  }
+  // Verbinding kwam tot stand maar de dienst antwoordde niet op tijd, of gaf
+  // een 5xx (bv. vLLM plat). Dat is iets anders dan "geen internet".
+  if (/timed out|timeout|operation timed out/i.test(raw)) {
+    return t('assistant.errors.timeout');
+  }
+  if (err?.code === 'SERVER' || /returned 5\d{2}/i.test(raw)) {
+    return t('assistant.errors.serverDown');
+  }
+  return `${t('assistant.errors.failed')}\n\n_${t('assistant.errors.detail')}: ${raw || t('assistant.errors.unknown')}_`;
 }
 
 export default function AssistantPanel() {
-  const { t } = useTranslation('common');
+  const { t, language } = useTranslation('common');
+  // English name of the active UI language, for the model's 'answer in X'.
+  const responseLanguage = () =>
+    LANGUAGES.find((l) => l.code === language())?.englishName || 'English';
   const [open, setOpen] = createSignal(false);
-  const [messages, setMessages] = createSignal([{ role: 'assistant', content: GREETING }]);
+  const [messages, setMessages] = createSignal([]);
   const [input, setInput] = createSignal('');
   const [loading, setLoading] = createSignal(false);
-  const readKey = () => { try { return localStorage.getItem(ANTHROPIC_KEY_LS) || ''; } catch (_) { return ''; } };
-  const [apiKey, setApiKey] = createSignal(readKey());
-  const [showKey, setShowKey] = createSignal(false);
-  let messagesEnd, inputEl, keyEl;
+  // OpenAEC-sessie: bepaalt of de eigen AI-server als eerste provider meedoet.
+  // Reactief afgeleid van de store, dus in- of uitloggen via de titelbalk werkt
+  // meteen door in dit paneel.
+  const signedIn = () => !!openaecUser();
+  // Luistert er een MCP-client? Als signaal, want de UI hangt ervan af: zonder
+  // sessie én zonder client is er geen enkele provider en heeft versturen geen
+  // zin. relayClientActive() zelf is een gewone functie, dus we pollen 'm licht.
+  const [relayUp, setRelayUp] = createSignal(relayClientActive());
+  // Kan er überhaupt iets verstuurd worden?
+  const canSend = () => signedIn() || relayUp();
+  const [signingIn, setSigningIn] = createSignal(false);
+
+  // Aanmelden vanuit het paneel zelf: opent de systeembrowser (accounts.rs) en
+  // ververst daarna de status, zodat de chips meteen verschijnen.
+  const doSignIn = async () => {
+    if (signingIn()) return;
+    setSigningIn(true);
+    // Via de store, zodat de titelbalk hetzelfde resultaat ziet.
+    try { await openaecSignIn(); }
+    catch (e) { setMessages((m) => [...m, { role: 'assistant', content: describeAiError(e, t) }]); }
+    finally { setSigningIn(false); }
+  };
+  let messagesEnd, inputEl;
 
   const activeDocName = () => getActiveDocument()?.fileName || null;
+
+  // Aanmeldstatus verversen: bij mount, telkens als het paneel opengaat en vlak
+  // voor elke vraag (de gebruiker kan tussendoor in-/uitloggen via de titelbalk).
+  const refreshSignedIn = async () => {
+    await openaecLoadUser();
+    return signedIn();
+  };
+  // De begroeting wordt bij mount gezet in plaats van als constante, zodat hij
+  // de taal volgt die op dat moment actief is. Alleen zolang er nog niets
+  // gezegd is: een lopend gesprek mag niet opeens van taal wisselen.
+  createEffect(() => {
+    const greeting = t('assistant.greeting');
+    setMessages((m) => (m.length <= 1 ? [{ role: 'assistant', content: greeting }] : m));
+  });
+
+  onMount(() => {
+    refreshSignedIn();
+    // Goedkope in-memory check (een timestamp-vergelijking), geen IO.
+    const id = setInterval(() => setRelayUp(relayClientActive()), 3000);
+    onCleanup(() => clearInterval(id));
+  });
+  createEffect(() => { if (open()) { refreshSignedIn(); setRelayUp(relayClientActive()); } });
 
   createEffect(() => {
     messages();
@@ -59,47 +124,58 @@ export default function AssistantPanel() {
   });
 
   function systemPrompt() {
-    return 'Je bent de OpenAEC-assistent in Open PDF Studio (een PDF-annotatie-editor). Help de gebruiker met vragen over het geopende PDF-document en algemene taken.\n\n' + SKILLS_SYSTEM_PROMPT;
+    return 'You are the OpenAEC assistant inside Open PDF Studio (a PDF annotation editor). '
+      + 'Help the user with questions about the open PDF document and with general tasks.\n\n'
+      + skillsSystemPrompt(responseLanguage());
   }
 
-  function saveKey() {
-    const v = (keyEl?.value || '').trim();
-    try {
-      if (v) localStorage.setItem(ANTHROPIC_KEY_LS, v);
-      else localStorage.removeItem(ANTHROPIC_KEY_LS);
-    } catch (_) { /* private mode — ignore */ }
-    setApiKey(v);
-    setShowKey(false);
-  }
-
-  async function send(explicitText) {
+  /**
+   * @param {string} [explicitText] bericht (anders het invoerveld)
+   * @param {object} [opts]
+   * @param {string} [opts.action]   serveractie (summarize/translate/…). Zonder
+   *                                 actie gaat een getypt bericht als 'chat'.
+   * @param {boolean} [opts.useServer=true] false voor skills die MCP-tools
+   *                                 nodig hebben (tekenen, deuren herkennen).
+   */
+  async function send(explicitText, opts = {}) {
     const text = (typeof explicitText === 'string' ? explicitText : input()).trim();
     if (!text || loading()) return;
-    const key = apiKey();
+    const action = opts.action || 'chat';
+    const serverAllowed = opts.useServer !== false;
 
     setMessages((m) => [...m, { role: 'user', content: text }]);
     setInput('');
     setLoading(true);
-    // Claude (Anthropic) direct call — the default when a personal Anthropic key
-    // is set via the 🔑 button.
-    const claudeDirect = async () => {
-      const msgs = messages().slice(1).map((m) => ({ role: m.role, content: m.content }));
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': key,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true',
-        },
-        body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 1024, system: systemPrompt(), messages: msgs }),
-      });
-      if (!res.ok) {
-        const tx = await res.text().catch(() => '');
-        throw new Error(`Claude API ${res.status}: ${tx.slice(0, 200)}`);
+
+    // OpenAEC AI-server — POST /v1/chat via ai_fetch (eigen host, niet de
+    // Accounts-API; zie js/services/ai-client.js). Bij een skill-actie
+    // (samenvatten/vertalen) gaat de ECHTE documenttekst mee; voor een getypt
+    // bericht is `text` het bericht zelf (action 'chat'), zoals het contract wil.
+    const aiServer = async () => {
+      const doc = getActiveDocument();
+      let payloadText = text;
+      let language = opts.language || null;
+      if (action !== 'chat') {
+        payloadText = await collectActiveDocumentText();
+        if (!payloadText) throw new AiServerError('NO_DOCUMENT_TEXT', 'no text layer in this document');
+        if (action === 'translate' && !language) language = guessTranslationTarget(payloadText);
       }
-      const data = await res.json();
-      return data?.content?.[0]?.text || 'Geen antwoord ontvangen.';
+      // Geschiedenis zonder de begroeting en zonder het zojuist toegevoegde bericht.
+      const history = messages().slice(1, -1).map((m) => ({ role: m.role, content: m.content }));
+      return await askAiServer({
+        action,
+        text: payloadText,
+        question: action === 'qa' ? text : null,
+        language,
+        fileName: doc?.fileName || null,
+        pageCount: doc?.pdfDoc?.numPages ?? null,
+        currentPage: doc?.currentPage ?? null,
+        history: history.length ? history : null,
+        // De server schrijft het antwoord in de UI-taal, ook als het document
+        // in een andere taal is. Bij 'translate' negeert de server dit, want
+        // daar is de doeltaal juist het onderwerp van de vraag.
+        responseLanguage: responseLanguage(),
+      });
     };
 
     // MCP relay — an external MCP client (e.g. Claude Code, with working Claude
@@ -114,29 +190,49 @@ export default function AssistantPanel() {
       return await enqueueAssistantQuestion({ prompt, system: systemPrompt(), docName });
     };
 
-    // Provider order. When a Claude Code/Desktop MCP client is connected (it
-    // polled recently), route to the relay FIRST so it answers instantly — no
-    // Anthropic API, no key. Otherwise: Claude key -> relay (fallback).
+    // Provider order. De eigen AI-server gaat voorop zodra de gebruiker is
+    // aangemeld (server-side credits); de MCP-relay is het vangnet en het enige
+    // pad dat op de tekening kan handelen (tekenen, deuren herkennen).
+    // Al aangemeld? Dan niet opnieuw checken — accounts_get_user kan een
+    // userinfo-round-trip kosten. Is de sessie intussen verlopen, dan geeft de
+    // server een 401 en valt de keten alsnog terug op de relay.
+    const serverReady = serverAllowed && (signedIn() || await refreshSignedIn());
+    // De relay telt alleen mee als er ook echt een MCP-client luistert (recent
+    // gepolld). Deed hij dat onvoorwaardelijk, dan belandde de vraag in een
+    // wachtrij die niemand leest en bleef er 10 MINUTEN "Denken…" staan voordat
+    // de timeout toesloeg — precies wat een uitgelogde gebruiker te zien kreeg.
     const relayActive = relayClientActive();
     const providers = [];
+    if (serverReady) providers.push(aiServer);
     if (relayActive) providers.push(mcpRelay);
-    if (key) providers.push(claudeDirect);
-    if (!relayActive) providers.push(mcpRelay);
+
+    // Geen enkele provider beschikbaar: meteen zeggen wat eraan schort in plaats
+    // van een spinner tonen die nooit iets oplevert.
+    if (providers.length === 0) {
+      const why = serverAllowed ? 'assistant.errors.notSignedIn' : 'assistant.errors.needsRelay';
+      setMessages((m) => [...m, { role: 'assistant', content: t(why) }]);
+      setLoading(false);
+      return;
+    }
 
     let answer = null;
-    let lastErr = null;
+    const errors = [];
     for (const provider of providers) {
       try { answer = await provider(); break; }
-      catch (e) { lastErr = e; console.warn('[assistant] provider faalde, volgende proberen:', e?.message ?? e); }
+      catch (e) { errors.push(e); console.warn('[assistant] provider faalde, volgende proberen:', e?.message ?? e); }
     }
-    setMessages((m) => [...m, { role: 'assistant', content: answer == null ? describeAiError(lastErr) : answer }]);
+    // Faalt alles, meld dan bij voorkeur de fout die de gebruiker kan oplossen
+    // (credits op / niet aangemeld) in plaats van de fout van de laatste fallback.
+    const ACTIONABLE = ['INSUFFICIENT_CREDITS', 'NOT_SIGNED_IN', 'RATE_LIMITED', 'NO_DOCUMENT_TEXT'];
+    const primaryErr = errors.find((e) => ACTIONABLE.includes(e?.code)) ?? errors[errors.length - 1];
+    setMessages((m) => [...m, { role: 'assistant', content: answer == null ? describeAiError(primaryErr, t) : answer }]);
     setLoading(false);
   }
 
   // Expose the assistant to the in-app MCP server: an external MCP client can
   // drive it (app_assistant_ask) and act as its AI brain (app_assistant_pending
   // / app_assistant_answer). Registered once when the panel mounts.
-  registerAssistantSubmit((text) => { setOpen(true); send(text); });
+  registerAssistantSubmit((text, opts) => { setOpen(true); send(text, opts || {}); });
   registerAssistantMessages(() => messages().map((m) => ({ role: m.role, content: m.content })));
 
   function onKeyDown(e) {
@@ -146,47 +242,45 @@ export default function AssistantPanel() {
   // Skill set: one-click capabilities. Clicking sends the skill's instruction
   // through the assistant (and thus the relay to the brain), which executes it
   // via MCP tools. 'draw' needs the user to specify what, so it pre-fills.
+  //
+  // Skills MET een serverAction (samenvatten, vertalen) mogen naar de AI-server:
+  // send() haalt dan de documenttekst op en stuurt die als `text` mee — dat was
+  // de bug waardoor 'Vat samen' nooit de inhoud meestuurde. Skills ZONDER
+  // serverAction moeten op de tekening handelen via MCP-tools en slaan de server
+  // over.
   function runSkill(skill) {
-    if (skill.needsInput) { setInput(skill.invoke); inputEl?.focus(); }
-    else send(skill.invoke);
+    // De prompt komt uit i18n, dus wat de gebruiker in het gesprek ziet staan
+    // is in zijn eigen taal — net als het label op de chip.
+    const prompt = t(`assistant.prompts.${skill.id}`);
+    if (skill.needsInput) { setInput(prompt); inputEl?.focus(); return; }
+    if (skill.serverAction) send(prompt, { action: skill.serverAction });
+    else send(prompt, { useServer: false });
   }
 
   // Subtitle shows the active provider so the user knows where answers come from.
-  const providerLabel = () => (apiKey() ? 'via Claude' : 'niet verbonden');
+  const providerLabel = () => {
+    if (signedIn()) return t('assistant.viaServer');
+    return t('assistant.notConnected');
+  };
 
   return (
     <Show
       when={open()}
       fallback={
-        <button class="chat-fab" title={t('assistantTitle') || 'OpenAEC-assistent'} onClick={() => setOpen(true)}>💬</button>
+        <button class="chat-fab" title={t('assistant.title')} onClick={() => setOpen(true)}>💬</button>
       }
     >
       <div class="chat-floating">
         <div class="chat-panel">
           <div class="chat-header">
             <div class="chat-header-titles">
-              <span class="chat-title">✨ OpenAEC-assistent</span>
+              <span class="chat-title">✨ {t('assistant.title')}</span>
               <span class="chat-subtitle" title={activeDocName() || ''}>
-                {activeDocName() ? `werkt in: ${activeDocName()} · ${providerLabel()}` : providerLabel()}
+                {activeDocName() ? `${t('assistant.workingIn')}: ${activeDocName()} · ${providerLabel()}` : providerLabel()}
               </span>
             </div>
-            <button class="chat-close" title="Claude (Anthropic) API-sleutel instellen" onClick={() => setShowKey(!showKey())}>🔑</button>
-            <button class="chat-close" title={t('close') || 'Close'} onClick={() => setOpen(false)}>✕</button>
+            <button class="chat-close" title={t('assistant.close')} onClick={() => setOpen(false)}>✕</button>
           </div>
-
-          <Show when={showKey()}>
-            <div class="chat-keyrow">
-              <input
-                ref={keyEl}
-                type="password"
-                class="chat-keyinput"
-                placeholder="Claude (Anthropic) API-sleutel — sk-ant-…"
-                value={apiKey()}
-                onKeyDown={(e) => { if (e.key === 'Enter') saveKey(); }}
-              />
-              <button class="chat-keysave" onClick={saveKey}>Opslaan</button>
-            </div>
-          </Show>
 
           <div class="chat-messages">
             <For each={messages()}>
@@ -197,31 +291,53 @@ export default function AssistantPanel() {
               )}
             </For>
             <Show when={loading()}>
-              <div class="chat-message chat-assistant"><div class="chat-bubble chat-typing">Denken…</div></div>
+              <div class="chat-message chat-assistant"><div class="chat-bubble chat-typing">{t('assistant.thinking')}</div></div>
             </Show>
             <div ref={messagesEnd} />
           </div>
 
-          <Show when={!loading()}>
-            <div class="chat-chips">
-              <For each={ASSISTANT_SKILLS}>
-                {(skill) => <button class="chat-chip" title={skill.hint} onClick={() => runSkill(skill)}>{skill.icon} {skill.label}</button>}
-              </For>
+          {/* Geen provider beschikbaar? Dan geen chips en geen invoerveld, maar
+              een uitleg met een aanmeldknop. Beter dan knoppen aanbieden die
+              gegarandeerd op een foutmelding uitlopen. */}
+          <Show
+            when={canSend()}
+            fallback={
+              <div class="chat-signin">
+                <div class="chat-signin-title">{t('assistant.signInTitle')}</div>
+                <div class="chat-signin-sub">{t('assistant.signInSub')}</div>
+                <button class="chat-signin-btn" disabled={signingIn()} onClick={doSignIn}>
+                  {signingIn() ? t('assistant.signingIn') : t('assistant.signIn')}
+                </button>
+              </div>
+            }
+          >
+            <Show when={!loading()}>
+              <div class="chat-chips">
+                <For each={ASSISTANT_SKILLS}>
+                  {(skill) => (
+                    <button class="chat-chip"
+                      title={t(`assistant.skills.${skill.id}.hint`)}
+                      onClick={() => runSkill(skill)}>
+                      {skill.icon} {t(`assistant.skills.${skill.id}.label`)}
+                    </button>
+                  )}
+                </For>
+              </div>
+            </Show>
+
+            <div class="chat-input-area">
+              <textarea
+                ref={inputEl}
+                class="chat-input"
+                value={input()}
+                onInput={(e) => setInput(e.currentTarget.value)}
+                onKeyDown={onKeyDown}
+                placeholder={t('assistant.inputPlaceholder')}
+                rows={2}
+              />
+              <button class="chat-send" onClick={send} disabled={loading() || !input().trim()}>➤</button>
             </div>
           </Show>
-
-          <div class="chat-input-area">
-            <textarea
-              ref={inputEl}
-              class="chat-input"
-              value={input()}
-              onInput={(e) => setInput(e.currentTarget.value)}
-              onKeyDown={onKeyDown}
-              placeholder="Vraag iets over deze PDF…"
-              rows={2}
-            />
-            <button class="chat-send" onClick={send} disabled={loading() || !input().trim()}>➤</button>
-          </div>
         </div>
       </div>
     </Show>

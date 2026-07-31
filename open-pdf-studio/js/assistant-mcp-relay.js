@@ -22,10 +22,18 @@ export function registerAssistantSubmit(fn) { _submit = fn; }
 /** AssistantPanel registers how to read the current conversation. */
 export function registerAssistantMessages(fn) { _getMessages = fn; }
 
-/** app_assistant_ask — submit a message as if the user typed it in the window. */
-export function submitAssistantMessage(text) {
+/**
+ * app_assistant_ask — submit a message as if the user typed it in the window.
+ *
+ * `opts` gaat ongewijzigd door naar de send() van het paneel, zodat een
+ * aanroeper (AI-lint, MCP-client) ook een serveractie kan kiezen in plaats van
+ * een vrij chatbericht: `{ action: 'summarize' }`, `{ action: 'translate',
+ * language: 'English' }`, `{ useServer: false }`. Zonder opts is het gedrag
+ * exact als voorheen.
+ */
+export function submitAssistantMessage(text, opts) {
   if (typeof _submit !== 'function') return { ok: false, error: 'assistent nog niet gereed' };
-  _submit(String(text ?? ''));
+  _submit(String(text ?? ''), opts || {});
   return { ok: true };
 }
 

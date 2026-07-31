@@ -1815,24 +1815,25 @@ async function handleSetMeasureScale(params) {
   return { ok: true, measureScale: { pixelsPerUnit, unit } };
 }
 
-/** Ask the assistant's AI (Claude/Anthropic direct) — lets an MCP client test
- *  the assistant end-to-end without the chat UI. Uses the personal key set via
- *  the 🔑 button. */
+/** Ask the OpenAEC AI-server — lets an MCP client test the assistant
+ *  end-to-end without driving the chat UI.
+ *
+ *  Used to call api.anthropic.com with a personal key from localStorage, set
+ *  via a 🔑 field in the panel. That field is gone (the server handles this
+ *  now, metered against the user's credits), so nothing could set the key any
+ *  more and this tool would always have failed. It now takes the same path as
+ *  the panel: POST /v1/chat over ai_fetch, requiring an OpenAEC sign-in. */
 async function handleAiComplete(params) {
   const prompt = params?.prompt;
   if (typeof prompt !== 'string' || !prompt) return { ok: false, error: 'missing params.prompt' };
-  let key = '';
-  try { key = localStorage.getItem('opds-anthropic-key') || ''; } catch { /* no localStorage */ }
-  // Claude (Anthropic) direct — uses the personal key set via the 🔑 button.
-  if (!key) return { ok: false, error: 'geen Claude-key gezet (🔑)' };
-  const r = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
-    body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 512, system: params?.system || undefined, messages: [{ role: 'user', content: prompt }] }),
-  });
-  if (!r.ok) { const tx = await r.text().catch(() => ''); return { ok: false, error: `Claude API ${r.status}: ${tx.slice(0, 200)}` }; }
-  const data = await r.json();
-  return { ok: true, via: 'claude-direct', text: data?.content?.[0]?.text || '' };
+  const { askAiServer, isSignedIn } = await import('./services/ai-client.js');
+  if (!(await isSignedIn())) return { ok: false, error: 'not signed in to OpenAEC' };
+  try {
+    const text = await askAiServer({ action: 'chat', text: prompt });
+    return { ok: true, via: 'openaec-ai-server', text };
+  } catch (e) {
+    return { ok: false, error: String(e?.message ?? e), code: e?.code ?? null };
+  }
 }
 
 /** Accounts sign-in state — deactivated (cloud accounts feature removed from

@@ -3,7 +3,6 @@
 // default limit of 128 once the tool count grew past ~30.
 #![recursion_limit = "256"]
 
-mod accounts;
 mod email;
 pub mod linux_runtime;
 pub mod mcp_app_bridge;
@@ -2230,6 +2229,28 @@ pub fn run(opts: StartupOpts) {
         opts.mcp_server, opts.mcp_port
     );
 
+    // Gedeelde OpenAEC-login configureren. Deze waarden stonden vroeger in
+    // src/accounts.rs; ze horen bij DEZE app, niet bij de gedeelde crate.
+    // Overschrijven per omgeving kan via OPENAEC_ACCOUNTS_CONFIG (JSON-bestand).
+    openaec_accounts_client::init(openaec_accounts_client::Setup {
+        // Uniek per app — anders delen twee Impertio-apps dezelfde
+        // keyring-entries en overschrijven ze elkaars tokens.
+        keyring_service: "open-pdf-studio-openaec".into(),
+        config_env_var: "OPENAEC_ACCOUNTS_CONFIG".into(),
+        app_name: "Open PDF Studio".into(),
+        defaults: openaec_accounts_client::AccountsConfig {
+            issuer: "http://kubernetes.docker.internal:8088".into(),
+            client_id: "376959313148641285".into(),
+            // 127.0.0.1, niet `localhost`: accounts-impertio past de
+            // poort-onafhankelijke loopback-uitzondering van RFC 8252 §7.3
+            // alleen toe op 127.0.0.1 / [::1].
+            redirect_uri: "http://127.0.0.1:53682/callback".into(),
+            scopes: "openid profile email offline_access".into(),
+            accounts_api_url: "http://localhost:4000".into(),
+            ai_api_url: "http://localhost:3000".into(),
+        },
+    });
+
     // Capture the MCP options for `setup()` — we now spawn the MCP server
     // *after* Tauri has produced an `AppHandle` so the new `app_*` tools
     // can emit events into the live WebView. Previously the server was
@@ -2592,13 +2613,15 @@ pub fn run(opts: StartupOpts) {
             allow_fs_scope,
             mcp_app_bridge::app_response,
             mcp_app_bridge::mcp_bridge_ready,
-            accounts::accounts_sign_in,
-            accounts::accounts_get_user,
-            accounts::accounts_sign_out,
-            accounts::accounts_fetch,
-            accounts::accounts_upload_file,
-            accounts::accounts_download_file,
-            accounts::accounts_brand_logo,
+            openaec_accounts_client::client::accounts_sign_in,
+            openaec_accounts_client::client::accounts_portal_url,
+            openaec_accounts_client::client::accounts_get_user,
+            openaec_accounts_client::client::accounts_sign_out,
+            openaec_accounts_client::client::accounts_fetch,
+            openaec_accounts_client::client::ai_fetch,
+            openaec_accounts_client::client::accounts_upload_file,
+            openaec_accounts_client::client::accounts_download_file,
+            openaec_accounts_client::client::accounts_brand_logo,
             email::email_pdf,
             window_mgmt::spawn_window_with_pdf,
             window_mgmt::try_dock_pdf_at_screen,

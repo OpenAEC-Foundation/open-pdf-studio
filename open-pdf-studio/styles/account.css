@@ -1,0 +1,122 @@
+/* OpenAEC account widget in the title bar (sign-in button when signed out;
+   avatar with initials + name and a dropdown when signed in).
+   Windows Forms / Visual Studio look: squared corners, flat fills, no
+   animations. */
+
+/* OpenAEC house accent. A signed-in company brand overrides --openaec-accent
+   at runtime (openaecStore.js). Scoped to this widget on purpose — the rest of
+   the app keeps the Windows-Forms theme (--theme-*). */
+:root { --openaec-accent: #d97706; }
+
+.openaec-signin-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 20px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 1px solid var(--openaec-accent, #d97706);
+  border-radius: 0;
+  background: transparent;
+  color: var(--openaec-accent, #d97706);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  align-self: center;
+  -webkit-app-region: no-drag;
+}
+.openaec-signin-btn:hover { background: var(--openaec-accent, #d97706); color: #fff; }
+.openaec-signin-btn:disabled { opacity: 0.5; pointer-events: none; }
+
+.openaec-account {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+  -webkit-app-region: no-drag;
+}
+
+.openaec-avatar-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 6px 0 2px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--theme-titlebar-text, var(--theme-text, #1e1e1e));
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  align-self: center;
+}
+.openaec-avatar-btn:hover { background: var(--theme-titlebar-btn-hover, var(--theme-hover, rgba(127, 127, 127, 0.18))); }
+
+.openaec-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 0;
+  background: var(--openaec-accent, #d97706);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  flex: 0 0 auto;
+}
+
+.openaec-account-name {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.openaec-account-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 200px;
+  background: var(--theme-surface, var(--theme-bg, #ffffff));
+  border: 1px solid var(--theme-border, #c0c0c0);
+  border-radius: 0;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+  padding: 2px 0;
+  z-index: 10000;
+  font-size: 12px;
+  user-select: none;
+}
+
+.openaec-account-menu-header {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--theme-border, #c0c0c0);
+  margin-bottom: 2px;
+}
+.openaec-brand-logo {
+  display: block;
+  max-height: 24px;
+  max-width: 150px;
+  object-fit: contain;
+  margin-bottom: 6px;
+}
+.openaec-account-menu-name { font-size: 12px; font-weight: 600; color: var(--theme-text, #1e1e1e); }
+.openaec-account-menu-email { font-size: 11px; color: var(--theme-text-secondary, #6b6b6b); }
+
+.openaec-account-menu-item {
+  display: block;
+  width: 100%;
+  padding: 4px 12px 4px 8px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--theme-text, #1e1e1e);
+  font-size: 12px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.openaec-account-menu-item:hover { background: var(--theme-hover, #e5f3ff); }

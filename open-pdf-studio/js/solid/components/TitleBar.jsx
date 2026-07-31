@@ -3,6 +3,7 @@ import { state } from '../../core/state.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 import { openDialog, getDialogs } from '../stores/dialogStore.js';
 import { isTauri } from '../../core/platform.js';
+import OpenAecAccount from './OpenAecAccount.jsx';
 
 async function handleClose() {
   const { closeActiveTab } = await import('../../ui/chrome/tabs.js');
@@ -163,6 +164,7 @@ export default function TitleBar() {
       </div>
 
       <div class="window-controls">
+        <OpenAecAccount />
         <button class="send-feedback-btn" onClick={() => openDialog('feedback')}>
           {tCommon('sendFeedback')}
         </button>
