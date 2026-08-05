@@ -2231,7 +2231,10 @@ pub fn run(opts: StartupOpts) {
 
     // Gedeelde OpenAEC-login configureren. Deze waarden stonden vroeger in
     // src/accounts.rs; ze horen bij DEZE app, niet bij de gedeelde crate.
-    // Overschrijven per omgeving kan via OPENAEC_ACCOUNTS_CONFIG (JSON-bestand).
+    // These are the PRODUCTION endpoints: they are compiled in and therefore
+    // apply to every installer. To develop against your own identity server,
+    // use OPENAEC_ACCOUNTS_CONFIG (path to a JSON file with camelCase keys)
+    // instead of editing these values.
     openaec_accounts_client::init(openaec_accounts_client::Setup {
         // Uniek per app — anders delen twee Impertio-apps dezelfde
         // keyring-entries en overschrijven ze elkaars tokens.
@@ -2239,15 +2242,15 @@ pub fn run(opts: StartupOpts) {
         config_env_var: "OPENAEC_ACCOUNTS_CONFIG".into(),
         app_name: "Open PDF Studio".into(),
         defaults: openaec_accounts_client::AccountsConfig {
-            issuer: "http://kubernetes.docker.internal:8088".into(),
-            client_id: "376959313148641285".into(),
+            issuer: "https://account.impertio.app".into(),
+            client_id: "impertio_GslOx5SpnGLy".into(),
             // 127.0.0.1, niet `localhost`: accounts-impertio past de
             // poort-onafhankelijke loopback-uitzondering van RFC 8252 §7.3
             // alleen toe op 127.0.0.1 / [::1].
             redirect_uri: "http://127.0.0.1:53682/callback".into(),
             scopes: "openid profile email offline_access".into(),
-            accounts_api_url: "http://localhost:4000".into(),
-            ai_api_url: "http://localhost:3000".into(),
+            accounts_api_url: "https://account.impertio.app".into(),
+            ai_api_url: "https://open-pdf-studio-ai.impertio.app".into(),
         },
     });
 
