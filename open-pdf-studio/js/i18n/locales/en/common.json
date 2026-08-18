@@ -91,6 +91,10 @@
   "minimize": "Minimize",
   "maximize": "Maximize",
   "sendFeedback": "Send Feedback",
+  "openaecSignIn": "Sign in with OpenAEC",
+  "openaecSigningIn": "Signing in via the browser…",
+  "openaecPortal": "Open Portal",
+  "openaecSignOut": "Sign out",
   "loading": "Loading...",
   "leftPanel": {
     "noDocumentOpen": "No document open",
@@ -137,5 +141,67 @@
   "bcfExportFailed": "BCF export failed.",
   "bcfImportFailed": "Could not read BCF file.",
   "bcfInvalidFile": "Invalid or unsupported BCF file.",
-  "bcfNoTopics": "No topics found in BCF file."
+  "bcfNoTopics": "No topics found in BCF file.",
+  "assistant": {
+    "title": "OpenAEC Assistant",
+    "greeting": "Hello! I am the **OpenAEC Assistant**. I can: 🌐 translate, 📝 summarize, ✏️ draw on the drawing, and 🚪 detect doors. Pick a skill below or ask your question.",
+    "workingIn": "working in",
+    "viaServer": "via OpenAEC AI server",
+    "notConnected": "not connected",
+    "thinking": "Thinking…",
+    "inputPlaceholder": "Ask something about this PDF…",
+    "send": "Send",
+    "close": "Close",
+    "noAnswer": "No answer received.",
+    "skills": {
+      "translate": {
+        "label": "Translate",
+        "hint": "Translate the document text"
+      },
+      "summarize": {
+        "label": "Summarize",
+        "hint": "Summarize the document or drawing"
+      },
+      "draw": {
+        "label": "Draw",
+        "hint": "Draw an element or annotation on the drawing"
+      },
+      "detect-doors": {
+        "label": "Detect doors",
+        "hint": "Detect the doors in the floor plan and mark them"
+      }
+    },
+    "prompts": {
+      "translate": "Translate the text of the open document and present the translation clearly.",
+      "summarize": "Summarize the open document or drawing concisely: what it is about, the main parts and any points of attention.",
+      "draw": "Draw on the drawing: ",
+      "detect-doors": "Look at the floor plan, identify the doors and mark each one on the drawing with a marker and a short label.",
+      "explain": "Explain this document in plain language and unpack the jargon.",
+      "extract": "Extract the key data from this document: names, dates, amounts, addresses and tables.",
+      "rewrite": "Rewrite the text of this document for better readability."
+    },
+    "errors": {
+      "insufficientCredits": "⚠️ Out of credits. Top up your balance in the OpenAEC portal.",
+      "notSignedIn": "⚠️ Not signed in. Sign in with your OpenAEC account, top right.",
+      "rateLimited": "⚠️ Too many requests in a short time. Try again in a minute.",
+      "noDocumentText": "⚠️ This document has no text layer, so there is nothing to send.",
+      "offline": "⚠️ No connection to the AI service.",
+      "failed": "⚠️ AI call failed.",
+      "detail": "Detail",
+      "unknown": "unknown error",
+      "needsRelay": "⚠️ This skill acts on the drawing itself, which needs a connected MCP client (for example Claude Code). None is connected right now.",
+      "timeout": "⚠️ The AI service did not respond in time. It may be busy — try again in a moment.",
+      "serverDown": "⚠️ The AI service is temporarily unavailable. Try again shortly; your credits were not charged."
+    },
+    "signInTitle": "Sign in to use the assistant",
+    "signInSub": "Summarizing, translating and Q&A run on your OpenAEC AI server and are billed to your credits. PDF editing keeps working offline.",
+    "signIn": "Sign in with OpenAEC",
+    "signingIn": "Signing in…"
+  },
+  "account": {
+    "callbackOkTitle": "Signed in to OpenAEC",
+    "callbackOkBody": "You can close this window and return to Open PDF Studio.",
+    "callbackCancelledTitle": "Sign-in cancelled",
+    "callbackCancelledBody": "You can close this window."
+  }
 }

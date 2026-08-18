@@ -69,6 +69,10 @@
   "previousView": "Vorige weergave",
   "nextView": "Volgende weergave",
   "minimize": "Minimaliseren",
+  "openaecSignIn": "Inloggen bij OpenAEC",
+  "openaecSigningIn": "Inloggen via de browser…",
+  "openaecPortal": "Portaal openen",
+  "openaecSignOut": "Afmelden",
   "maximize": "Maximaliseren",
   "sendFeedback": "Feedback versturen",
   "loading": "Laden...",
@@ -137,5 +141,67 @@
   "bcfExportFailed": "BCF-export mislukt.",
   "bcfImportFailed": "BCF-bestand kon niet worden gelezen.",
   "bcfInvalidFile": "Ongeldig of niet-ondersteund BCF-bestand.",
-  "bcfNoTopics": "Geen topics gevonden in BCF-bestand."
+  "bcfNoTopics": "Geen topics gevonden in BCF-bestand.",
+  "assistant": {
+    "title": "OpenAEC-assistent",
+    "greeting": "Hallo! Ik ben de **OpenAEC-assistent**. Ik kan: 🌐 vertalen, 📝 samenvatten, ✏️ tekenen op de tekening, en 🚪 deuren herkennen. Kies hieronder een vaardigheid of stel je vraag.",
+    "workingIn": "werkt in",
+    "viaServer": "via OpenAEC AI-server",
+    "notConnected": "niet verbonden",
+    "thinking": "Denken…",
+    "inputPlaceholder": "Vraag iets over deze PDF…",
+    "send": "Versturen",
+    "close": "Sluiten",
+    "noAnswer": "Geen antwoord ontvangen.",
+    "skills": {
+      "translate": {
+        "label": "Vertaal",
+        "hint": "Vertaal de tekst van het document"
+      },
+      "summarize": {
+        "label": "Vat samen",
+        "hint": "Vat het document of de tekening samen"
+      },
+      "draw": {
+        "label": "Teken",
+        "hint": "Teken een element of annotatie op de tekening"
+      },
+      "detect-doors": {
+        "label": "Herken deuren",
+        "hint": "Detecteer de deuren in de plattegrond en markeer ze"
+      }
+    },
+    "prompts": {
+      "translate": "Vertaal de tekst van het geopende document en geef de vertaling overzichtelijk terug.",
+      "summarize": "Vat het geopende document of de tekening bondig samen: waar gaat het over, de belangrijkste onderdelen en eventuele aandachtspunten.",
+      "draw": "Teken op de tekening: ",
+      "detect-doors": "Bekijk de plattegrond, herken de deuren en markeer elke deur op de tekening met een markering en een korte label.",
+      "explain": "Leg dit document uit in eenvoudige taal en ontrafel het vakjargon.",
+      "extract": "Haal de belangrijkste gegevens uit dit document: namen, data, bedragen, adressen en tabellen.",
+      "rewrite": "Herschrijf de tekst van dit document voor betere leesbaarheid."
+    },
+    "errors": {
+      "insufficientCredits": "⚠️ Geen credits meer. Vul je saldo aan in de OpenAEC-portal.",
+      "notSignedIn": "⚠️ Niet aangemeld. Meld je rechtsboven aan met je OpenAEC-account.",
+      "rateLimited": "⚠️ Te veel aanvragen kort na elkaar. Probeer het over een minuut opnieuw.",
+      "noDocumentText": "⚠️ Dit document heeft geen tekstlaag, er valt niets mee te sturen.",
+      "offline": "⚠️ Geen verbinding met de AI-dienst.",
+      "failed": "⚠️ AI-aanroep mislukt.",
+      "detail": "Detail",
+      "unknown": "onbekende fout",
+      "needsRelay": "⚠️ Deze vaardigheid werkt op de tekening zelf en heeft daarvoor een verbonden MCP-client nodig (bijvoorbeeld Claude Code). Die is nu niet verbonden.",
+      "timeout": "⚠️ De AI-dienst reageerde niet op tijd. Mogelijk is hij druk — probeer het zo nog eens.",
+      "serverDown": "⚠️ De AI-dienst is tijdelijk niet beschikbaar. Probeer het zo opnieuw; je credits zijn niet belast."
+    },
+    "signInTitle": "Meld je aan om de assistent te gebruiken",
+    "signInSub": "Samenvatten, vertalen en vragen stellen draaien op je OpenAEC AI-server en gaan van je credits af. PDF-bewerken blijft offline werken.",
+    "signIn": "Aanmelden met OpenAEC",
+    "signingIn": "Bezig met aanmelden…"
+  },
+  "account": {
+    "callbackOkTitle": "Ingelogd bij OpenAEC",
+    "callbackOkBody": "Je kunt dit venster sluiten en teruggaan naar Open PDF Studio.",
+    "callbackCancelledTitle": "Inloggen geannuleerd",
+    "callbackCancelledBody": "Je kunt dit venster sluiten."
+  }
 }

@@ -159,18 +159,20 @@
 .chat-send:hover { background: #b45309; }
 .chat-send:disabled { background: var(--theme-border, #d4d4d4); cursor: not-allowed; }
 
-/* Claude (Anthropic) API-key row — toggled via the key button in the header. */
-.chat-keyrow { display: flex; gap: 6px; padding: 8px 12px; border-bottom: 1px solid var(--theme-border, #d4d4d4); background: var(--theme-surface, #f5f5f5); }
-.chat-keyinput {
-  flex: 1;
+/* Signed-out state: replaces the chips + input when no provider can serve a
+   request, so the user gets an explanation and a way out instead of buttons
+   that would only produce an error. Flat, squared — house style. */
+.chat-signin { padding: 14px 16px; border-top: 1px solid var(--theme-border, #d4d4d4); background: var(--theme-surface, #f5f5f5); }
+.chat-signin-title { font-size: 13px; font-weight: 600; color: var(--theme-text, #1e1e1e); margin-bottom: 4px; }
+.chat-signin-sub { font-size: 11px; line-height: 1.45; color: var(--theme-text-muted, #666); margin-bottom: 10px; }
+.chat-signin-btn {
   border: 1px solid var(--theme-border, #d4d4d4);
-  border-radius: 6px;
-  padding: 6px 8px;
-  font-size: 12px;
   background: var(--theme-bg, #fff);
   color: var(--theme-text, #1e1e1e);
-  outline: none;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
 }
-.chat-keyinput:focus { border-color: #d97706; }
-.chat-keysave { border: none; background: #d97706; color: #fff; border-radius: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer; flex-shrink: 0; }
-.chat-keysave:hover { background: #b45309; }
+.chat-signin-btn:hover:not(:disabled) { background: #e5f3ff; border-color: #0078d4; }
+.chat-signin-btn:disabled { opacity: 0.6; cursor: default; }

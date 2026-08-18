@@ -44,13 +44,11 @@ image = { version = "0.25", default-features = false, features = ["jpeg", "png"]
 pdfium-render = { version = "0.9", features = ["thread_safe", "image_025"] }
 clap = { version = "4", features = ["derive"] }
 
-# OpenAEC Accounts ("Sign in with OpenAEC", accounts.rs): PKCE + OS-keyring
-# token storage + multipart uploads to the Accounts API.
-keyring = { version = "3", features = ["windows-native"] }
-sha2 = "0.10"
-rand = "0.8"
-url = "2"
-urlencoding = "2"
+# Gedeelde OpenAEC-login (OIDC + keyring + geauthenticeerde calls). Stond eerder
+# als src/accounts.rs in deze app; verhuisd zodat de andere Impertio-apps
+# dezelfde, al gefixte code gebruiken in plaats van een kopie.
+# Pinned to a tag so a build is reproducible; bump deliberately.
+openaec-accounts-client = { git = "https://github.com/OpenAEC-Foundation/openaec-accounts-client", tag = "v0.1.0" }
 tokio = { version = "1", features = ["sync", "macros", "rt-multi-thread", "net", "process", "io-util", "time"] }
 memmap2 = "0.9"
 anyhow = "1"

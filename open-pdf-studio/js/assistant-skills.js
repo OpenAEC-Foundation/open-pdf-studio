@@ -1,45 +1,44 @@
 // OpenAEC-assistent skill set.
 //
 // Each skill is a capability the assistant can perform on the open PDF. Clicking
-// a skill chip sends `invoke` as a user message; via the provider chain it reaches
-// the brain (Claude Code over the MCP relay, or any AI provider) which executes
-// it using the app's MCP tools. SKILLS_SYSTEM_PROMPT teaches the brain how.
+// a skill chip sends its prompt as a user message; via the provider chain it
+// reaches the brain (the OpenAEC AI server, Claude Code over the MCP relay, or
+// any AI provider) which executes it.
+//
+// This module holds only what is language-INDEPENDENT: the id, the icon, and
+// how the skill is routed. Every user-visible string (label, hint) and the
+// prompt itself live in i18n under `common:assistant.skills.<id>` and
+// `common:assistant.prompts.<id>`, so the panel follows the app's language.
+// Hardcoding them here is what made the chips Dutch in every locale.
+//
+// `serverAction` maps a skill onto an action of the OpenAEC AI-server
+// (POST /v1/chat: summarize | qa | translate | rewrite | explain | extract |
+// chat). Skills WITH a serverAction get the extracted document text attached
+// and can be answered by the server. Skills WITHOUT one (draw, detect doors)
+// need the app's MCP tools to act on the drawing — the server cannot call
+// those, so they always go to the relay/Claude.
 
 export const ASSISTANT_SKILLS = [
-  {
-    id: 'translate',
-    icon: '🌐',
-    label: 'Vertaal',
-    hint: 'Vertaal de tekst van het document',
-    invoke: 'Vertaal de tekst van het geopende document. Is het Nederlands, vertaal dan naar het Engels; anders naar het Nederlands. Geef de vertaling overzichtelijk terug.',
-  },
-  {
-    id: 'summarize',
-    icon: '📝',
-    label: 'Vat samen',
-    hint: 'Vat het document of de tekening samen',
-    invoke: 'Vat het geopende document of de tekening bondig samen: waar gaat het over, de belangrijkste onderdelen en eventuele aandachtspunten.',
-  },
-  {
-    id: 'draw',
-    icon: '✏️',
-    label: 'Teken',
-    hint: 'Teken een element of annotatie op de tekening',
-    invoke: 'Teken op de tekening: ',
-    needsInput: true,
-  },
-  {
-    id: 'detect-doors',
-    icon: '🚪',
-    label: 'Herken deuren',
-    hint: 'Detecteer de deuren in de plattegrond en markeer ze',
-    invoke: 'Bekijk de plattegrond, herken de deuren en markeer elke deur op de tekening met een markering en een korte label.',
-  },
+  { id: 'translate',    icon: '🌐', serverAction: 'translate' },
+  { id: 'summarize',    icon: '📝', serverAction: 'summarize' },
+  { id: 'draw',         icon: '✏️', needsInput: true },
+  { id: 'detect-doors', icon: '🚪' },
 ];
 
-export const SKILLS_SYSTEM_PROMPT =
-  'Je beschikt over een vaardigheden-set en kunt ACTIES uitvoeren op het geopende PDF-document via de MCP-tools van de app:\n' +
-  '- Vertalen / samenvatten: gebruik app_screenshot_view (width 2000) om de pagina te bekijken en te lezen; geef het resultaat als tekst terug.\n' +
-  '- Tekenen: gebruik app_create_annotation. Coordinaten zijn paginapunten op 100% zoom; haal de paginamaat op met app_get_viewport_state (pageW/pageH).\n' +
-  '- Deuren herkennen: doe eerst app_fit_page, maak dan app_screenshot_view (width 2000), herken de deuren visueel en markeer elke deur met app_create_annotation (bijvoorbeeld een box of cloud rond de deur + een textbox-label). Reken screenshot-pixels om naar paginapunten via pageW/pageH.\n' +
-  'Antwoord in het Nederlands, bondig en praktisch. Voer gevraagde acties direct uit en meld kort wat je gedaan hebt.';
+/**
+ * System prompt for the MCP-relay/Claude path, which drives the app's own
+ * tools. English because the instructions are for the model, not the user;
+ * the final line pins the ANSWER to the app's language.
+ *
+ * @param {string} [responseLanguage] English name of the UI language, e.g. 'Dutch'.
+ */
+export function skillsSystemPrompt(responseLanguage) {
+  return (
+    'You have a skill set and can perform ACTIONS on the open PDF document via the app\'s MCP tools:\n' +
+    '- Translate / summarize: use app_screenshot_view (width 2000) to look at and read the page; return the result as text.\n' +
+    '- Draw: use app_create_annotation. Coordinates are page points at 100% zoom; get the page size with app_get_viewport_state (pageW/pageH).\n' +
+    '- Detect doors: first app_fit_page, then app_screenshot_view (width 2000), recognise the doors visually and mark each one with app_create_annotation (for example a box or cloud around the door plus a textbox label). Convert screenshot pixels to page points via pageW/pageH.\n' +
+    'Be concise and practical. Carry out requested actions directly and briefly report what you did.' +
+    (responseLanguage ? `\nAlways write your answer in ${responseLanguage}.` : '')
+  );
+}

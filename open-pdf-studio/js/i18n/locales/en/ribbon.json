@@ -6,6 +6,7 @@
     "drawing": "Drawing",
     "view": "View",
     "organize": "Edit & Combine PDFs",
+    "ai": "AI",
     "help": "Settings",
     "format": "Format",
     "arrange": "Arrange",
@@ -476,5 +477,29 @@
     "contrast": "Contrast",
     "resetAdjust": "Reset",
     "resetAdjustHint": "Reset grayscale, brightness and contrast"
+  },
+  "ai": {
+    "assistant": "AI Assistant",
+    "openPanel": "Open AI Assistant",
+    "panel": "Panel",
+    "document": "Document",
+    "text": "Text",
+    "chat": "Chat",
+    "summarize": "Summarize",
+    "summarizeDoc": "Summarize document",
+    "explain": "Explain",
+    "explainDoc": "Explain this document",
+    "extract": "Extract",
+    "extractData": "Extract key data",
+    "translate": "Translate",
+    "translateDoc": "Translate document",
+    "rewrite": "Rewrite",
+    "rewriteText": "Rewrite for readability",
+    "ask": "Ask",
+    "askQuestion": "Ask a question about this document",
+    "openChat": "Open AI chat",
+    "signInToUseAI": "Sign in to use AI features",
+    "signInSub": "PDF editing works offline. AI features (summarize, translate, extract, chat) use your OpenAEC account.",
+    "recheck": "Check again"
   }
 }
