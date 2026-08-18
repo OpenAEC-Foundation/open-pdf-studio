@@ -261,7 +261,9 @@
     "manageWatermarks": "Watermerken beheren",
     "manage": "Beheren",
     "compressPdf": "PDF comprimeren (bestandsgrootte verkleinen)",
-    "compressLabel": "Comprimeren"
+    "compressLabel": "Comprimeren",
+    "reorderPages": "Volgorde",
+    "reorderPagesTitle": "Open miniaturen om pagina’s in een nieuwe volgorde te slepen"
   },
   "help": {
     "information": "Informatie",

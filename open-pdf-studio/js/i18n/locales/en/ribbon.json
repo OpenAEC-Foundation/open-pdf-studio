@@ -261,7 +261,9 @@
     "manageWatermarks": "Manage Watermarks",
     "manage": "Manage",
     "compressPdf": "Compress PDF (reduce file size)",
-    "compressLabel": "Compress"
+    "compressLabel": "Compress",
+    "reorderPages": "Reorder",
+    "reorderPagesTitle": "Open thumbnails to drag pages into a new order"
   },
   "help": {
     "settings": "Settings",

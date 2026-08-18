@@ -185,7 +185,8 @@
     "deletion": "Deletion",
     "confirmBeforeDeleting": "Confirm before deleting annotations",
     "navigation": "Navigation",
-    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)"
+    "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
+    "dynamicScaling": "Auto-scale markups"
   },
   "pageDisplay": {
     "rendering": "Rendering",

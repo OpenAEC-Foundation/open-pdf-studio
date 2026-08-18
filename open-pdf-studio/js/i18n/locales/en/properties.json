@@ -152,7 +152,9 @@
     "precision": "Precision (Decimals)",
     "dimType": "Type",
     "dimTypeCustom": "Custom",
-    "extension": "Extension"
+    "extension": "Extension",
+    "searchType": "Search…",
+    "editTypes": "Edit types"
   },
   "scaleBar": {
     "title": "Scale Bar",
@@ -360,7 +362,8 @@
     "expandAll": "Expand All",
     "collapseAll": "Collapse All",
     "annotationsMenu": "Menu",
-    "schedules": "Schedules"
+    "schedules": "Schedules",
+    "addPage": "Add page"
   },
   "schedules": {
     "title": "Schedules",

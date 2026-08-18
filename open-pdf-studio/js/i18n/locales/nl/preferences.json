@@ -157,7 +157,8 @@
     "objectSnapRadius": "Uitlijnstraal (pixels)",
     "snapToPdfContent": "Uitlijnen op PDF-tekeninhoud",
     "navigation": "Navigatie",
-    "wheelZoomWithoutCtrl": "Zoomen met muiswiel (zonder Ctrl ingedrukt)"
+    "wheelZoomWithoutCtrl": "Zoomen met muiswiel (zonder Ctrl ingedrukt)",
+    "dynamicScaling": "Markeringen automatisch schalen"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Standaard PDF-toepassing",

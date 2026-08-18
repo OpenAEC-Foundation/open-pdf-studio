@@ -320,7 +320,8 @@
     "exportComments": "Opmerkingen exporteren naar gegevensbestand...",
     "exportSelectedComments": "Geselecteerde opmerkingen exporteren naar gegevensbestand...",
     "measurements": "Metingen",
-    "schedules": "Staten"
+    "schedules": "Staten",
+    "addPage": "Pagina toevoegen"
   },
   "scaleBar": {
     "title": "Scale Bar",
@@ -352,7 +353,9 @@
     "precision": "Precisie (decimalen)",
     "dimType": "Type",
     "dimTypeCustom": "Aangepast",
-    "extension": "Extensie"
+    "extension": "Extensie",
+    "searchType": "Zoeken…",
+    "editTypes": "Typen bewerken"
   },
   "measurements": {
     "scale": "Schaal",
