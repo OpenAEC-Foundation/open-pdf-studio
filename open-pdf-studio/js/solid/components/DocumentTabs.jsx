@@ -1,6 +1,7 @@
 import { For, Show, createSignal, onCleanup } from 'solid-js';
 import { state } from '../../core/state.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
+import i18next from '../../i18n/config.js';
 import { invoke } from '../../core/platform.js';
 import {
   revealInFileManager,
@@ -46,7 +47,7 @@ async function detachTabToNewWindow(index) {
   // on close — handing it to another process would leave a dangling reference.
   // Require an explicit save first.
   if (!pdfPath || doc.isUntitled) {
-    alert('Sla het document eerst op voor je het naar een ander venster sleept.');
+    alert(i18next.t('tabs.saveBeforeDetach'));
     return;
   }
   try {
@@ -57,7 +58,7 @@ async function detachTabToNewWindow(index) {
     await closeTabAndMaybeCloseWindow(index);
   } catch (e) {
     console.error('[detach] spawn_window_with_pdf failed:', e);
-    alert('Window losmaken mislukt: ' + (e?.message || e));
+    alert(i18next.t('tabs.detachFailed', { error: e?.message || e }));
   }
 }
 
@@ -238,7 +239,7 @@ async function startNativeTabDrag(index) {
   // Untitled docs live in a temp file this window owns — don't drag them to
   // other instances (the temp file would be deleted out from under them).
   if (!pdfPath || doc.isUntitled) {
-    alert('Sla het document eerst op voor je het naar een ander venster sleept.');
+    alert(i18next.t('tabs.saveBeforeDetach'));
     return;
   }
   // Mark THIS instance as the drag source so our own drop handler ignores a
@@ -323,6 +324,7 @@ function onDocMouseUp(e) {
 export default function DocumentTabs() {
   const { t } = useTranslation('statusbar');
   const { t: tCtx } = useTranslation('context');
+  const { t: tCommon } = useTranslation('common');
 
   const baseName = (p) => ((p || '').split(/[\\/]/).pop() || '').replace(/\.pdf$/i, '');
   const compareTabTip = () => {
@@ -430,7 +432,7 @@ export default function DocumentTabs() {
             onMouseEnter={(e) => e.currentTarget.style.background = '#cce4f7'}
             onMouseLeave={(e) => e.currentTarget.style.background = ''}
             onClick={() => { const idx = ctxMenu().index; hideCtxMenu(); detachTabToNewWindow(idx); }}
-          >Open in nieuw venster</div>
+          >{tCommon('tabs.openInNewWindow')}</div>
           {/* Alleen tonen voor documenten met een echt bestandspad — naamloze/
               nieuwe documenten leven in een temp-bestand dat je de gebruiker
               niet wilt laten zien. Label is platform-specifiek (Verkenner/
@@ -452,7 +454,7 @@ export default function DocumentTabs() {
             onMouseEnter={(e) => e.currentTarget.style.background = '#cce4f7'}
             onMouseLeave={(e) => e.currentTarget.style.background = ''}
             onClick={() => { const idx = ctxMenu().index; hideCtxMenu(); import('../../ui/chrome/tabs.js').then(m => m.closeTab(idx)); }}
-          >Tab sluiten</div>
+          >{tCommon('tabs.closeTab')}</div>
         </div>
       </Show>
     </div>

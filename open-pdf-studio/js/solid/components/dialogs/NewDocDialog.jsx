@@ -272,13 +272,13 @@ export default function NewDocDialog() {
             onChange={(e) => setStijl(e.target.value)}
             style="flex:1"
           >
-            <option value="">Geen (blanco pagina)</option>
+            <option value="">{t('newDoc.noFrame')}</option>
             <For each={frameIndex()?.stijlen || []}>{(s) => (
               <option value={s}>{_cap(s)}</option>
             )}</For>
           </select>
           <button
-            title="Kaders-map openen — eigen kaders (zelfde naamgeving) verschijnen hier automatisch"
+            title={t('newDoc.openFramesFolder')}
             style="margin-left:6px;padding:2px 8px;border:1px solid var(--theme-border,#acacac);background:var(--theme-surface,#fff);color:var(--theme-text,#333);cursor:pointer;height:24px"
             onClick={() => openFramesFolder()}
           >&#128193;</button>

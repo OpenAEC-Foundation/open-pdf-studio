@@ -6,6 +6,7 @@ import { redrawAnnotations, redrawContinuous } from './rendering.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
 import { visibleCenterOnPage } from './clipboard.js';
 import { readBinaryFile } from '../core/platform.js';
+import i18next from '../i18n/config.js';
 
 const MIME_BY_EXT = {
   png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg',
@@ -45,10 +46,10 @@ export async function refreshLinkedImage(annotation, { silent = false } = {}) {
     annotation.originalHeight = img.naturalHeight;
     if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
     else redrawAnnotations();
-    if (!silent) updateStatusMessage(`Gelinkte afbeelding vernieuwd: ${annotation.linkedPath.split(/[\\/]/).pop()}`);
+    if (!silent) updateStatusMessage(i18next.t('linkedImage.refreshed', { filename: annotation.linkedPath.split(/[\\/]/).pop() }));
     return true;
   } catch (e) {
-    if (!silent) updateStatusMessage('Gelinkt bestand niet leesbaar — ingesloten versie blijft staan');
+    if (!silent) updateStatusMessage(i18next.t('linkedImage.unreadable'));
     console.warn('[linked-image] refresh failed:', annotation.linkedPath, e);
     return false;
   }

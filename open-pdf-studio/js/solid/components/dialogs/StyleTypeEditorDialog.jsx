@@ -5,6 +5,7 @@ import { state } from '../../../core/state.js';
 import { savePreferences } from '../../../core/preferences.js';
 import { styleTypesFor, STYLE_TYPES } from '../../../annotations/style-types.js';
 import { PreviewSwatch } from '../properties-panel/DimensionTypeSection.jsx';
+import { useTranslation } from '../../../i18n/useTranslation.js';
 
 // Style-type editor — "Bewerken…" from the type picker. Edits are stored as
 // per-id OVERRIDES on top of the built-in presets (preferences
@@ -14,12 +15,13 @@ import { PreviewSwatch } from '../properties-panel/DimensionTypeSection.jsx';
 // Windows dialog pattern (scale-btn footer buttons, surface inputs).
 
 const MM_TO_PT = 72 / 25.4;
-const KIND_TITLES = {
-  line: 'Lijn-typen', arrow: 'Pijl-typen',
-  measureDistance: 'Maatlijn-typen', filledArea: 'Arcering-typen',
+const KIND_TITLE_KEYS = {
+  line: 'styleType.lineTypes', arrow: 'styleType.arrowTypes',
+  measureDistance: 'styleType.dimensionTypes', filledArea: 'styleType.hatchTypes',
 };
 
 export default function StyleTypeEditorDialog(props) {
+  const { t } = useTranslation('dialogs');
   const annType = props.data?.annType || 'line';
   const [version, setVersion] = createSignal(0); // bump to refresh list
 
@@ -81,7 +83,7 @@ export default function StyleTypeEditorDialog(props) {
     const id = `custom-${Date.now().toString(36)}`;
     p.customStyleTypesExtra[annType].push({
       id,
-      label: 'Nieuw type',
+      label: t('styleType.newType'),
       color: base?.color || '#000000',
       props: { ...(base?.props || {}), styleType: undefined },
     });
@@ -99,33 +101,35 @@ export default function StyleTypeEditorDialog(props) {
       ? '68px 1fr 44px 64px 60px 28px' // preview | naam | kleur | tekst | unit | acties
       : '68px 1fr 44px 64px 92px 28px'; // preview | naam | kleur | dikte | stijl | acties
 
+  const kindTitle = () => (KIND_TITLE_KEYS[annType] ? t(KIND_TITLE_KEYS[annType]) : t('styleType.genericTypes'));
+
   return (
     <Dialog
-      title={`${KIND_TITLES[annType] || 'Typen'} bewerken`}
+      title={t('styleType.editTitle', { kind: kindTitle() })}
       dialogClass="style-type-editor-dialog"
       onClose={() => closeDialog('style-type-editor')}
       footer={
         <>
-          <button class="scale-btn" onClick={addNew}>+ Nieuw type</button>
+          <button class="scale-btn" onClick={addNew}>{t('styleType.addNewType')}</button>
           <button class="scale-btn scale-btn-ok"
-            onClick={() => closeDialog('style-type-editor')}>Sluiten</button>
+            onClick={() => closeDialog('style-type-editor')}>{t('styleType.close')}</button>
         </>
       }
     >
       <div class="ste-table">
         {/* Column headers */}
         <div class="ste-row ste-head" style={`grid-template-columns:${gridCols}`}>
-          <span class="ste-col-lbl">Voorbeeld</span>
-          <span class="ste-col-lbl">Naam</span>
-          <span class="ste-col-lbl">Kleur</span>
+          <span class="ste-col-lbl">{t('styleType.preview')}</span>
+          <span class="ste-col-lbl">{t('styleType.name')}</span>
+          <span class="ste-col-lbl">{t('styleType.color')}</span>
           <Show when={annType === 'line' || annType === 'arrow'}>
-            <span class="ste-col-lbl">Dikte (mm)</span><span class="ste-col-lbl">Stijl</span>
+            <span class="ste-col-lbl">{t('styleType.thicknessMm')}</span><span class="ste-col-lbl">{t('styleType.style')}</span>
           </Show>
           <Show when={annType === 'measureDistance'}>
-            <span class="ste-col-lbl">Tekst (mm)</span><span class="ste-col-lbl">Eenheid</span>
+            <span class="ste-col-lbl">{t('styleType.textMm')}</span><span class="ste-col-lbl">{t('styleType.unit')}</span>
           </Show>
           <Show when={annType === 'filledArea'}>
-            <span class="ste-col-lbl">Achtergr.</span><span class="ste-col-lbl">Schaal</span>
+            <span class="ste-col-lbl">{t('styleType.background')}</span><span class="ste-col-lbl">{t('styleType.scale')}</span>
           </Show>
           <span />
         </div>
@@ -136,7 +140,7 @@ export default function StyleTypeEditorDialog(props) {
               <PreviewSwatch annType={annType} entry={d} />
               <input type="text" class="ste-field" value={d.label}
                 onChange={(e) => writeEntry(d.id, { label: e.target.value })} />
-              <input type="color" class="ste-color" value={(d.color || '#000000').slice(0, 7)} title="Kleur"
+              <input type="color" class="ste-color" value={(d.color || '#000000').slice(0, 7)} title={t('styleType.color')}
                 onChange={(e) => {
                   const c = e.target.value;
                   const props = annType === 'filledArea'
@@ -169,9 +173,9 @@ export default function StyleTypeEditorDialog(props) {
 
               <Show when={annType === 'filledArea'}>
                 <div class="ste-bg-cell">
-                  <input type="color" class="ste-color" value={(d.props?.fillColor || '#ffffff').slice(0, 7)} title="Achtergrondkleur"
+                  <input type="color" class="ste-color" value={(d.props?.fillColor || '#ffffff').slice(0, 7)} title={t('styleType.backgroundColor')}
                     onChange={(e) => writeEntry(d.id, { props: { fillColor: e.target.value } })} />
-                  <input type="checkbox" title="Geen achtergrond" checked={!d.props?.fillColor}
+                  <input type="checkbox" title={t('styleType.noBackground')} checked={!d.props?.fillColor}
                     onChange={(e) => writeEntry(d.id, { props: { fillColor: e.target.checked ? null : '#ffffff' } })} />
                 </div>
                 <input type="number" class="ste-field" step="5" min="10" max="600" value={d.props?.hatchScale ?? 100}
@@ -179,11 +183,11 @@ export default function StyleTypeEditorDialog(props) {
               </Show>
 
               <Show when={builtinIds.has(d.id)} fallback={
-                <button class="ste-action-btn ste-delete" title="Type verwijderen"
+                <button class="ste-action-btn ste-delete" title={t('styleType.deleteType')}
                   onClick={() => deleteExtra(d.id)}>✕</button>
               }>
                 <Show when={(state.preferences.customStyleTypes?.[annType] || {})[d.id]} fallback={<span />}>
-                  <button class="ste-action-btn" title="Terug naar standaard"
+                  <button class="ste-action-btn" title={t('styleType.resetDefault')}
                     onClick={() => resetEntry(d.id)}>↺</button>
                 </Show>
               </Show>

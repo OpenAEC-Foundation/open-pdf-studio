@@ -221,7 +221,9 @@
     "refreshLink": "Vernieuwen",
     "unlink": "Ontkoppelen",
     "tint": "Kleurtint",
-    "tintNone": "Geen"
+    "tintNone": "Geen",
+    "linkImageTitle": "Afbeelding koppelen",
+    "imageFilter": "Afbeeldingen"
   },
   "multiSelect": "{{count}} annotaties geselecteerd",
   "pdfText": "PDF-tekst",
@@ -355,7 +357,8 @@
     "dimTypeCustom": "Aangepast",
     "extension": "Extensie",
     "searchType": "Zoeken…",
-    "editTypes": "Typen bewerken"
+    "editTypes": "Typen bewerken",
+    "noTypesFound": "Geen typen gevonden"
   },
   "measurements": {
     "scale": "Schaal",

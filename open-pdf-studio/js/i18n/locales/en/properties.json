@@ -154,7 +154,8 @@
     "dimTypeCustom": "Custom",
     "extension": "Extension",
     "searchType": "Search…",
-    "editTypes": "Edit types"
+    "editTypes": "Edit types",
+    "noTypesFound": "No types found"
   },
   "scaleBar": {
     "title": "Scale Bar",
@@ -263,7 +264,9 @@
     "refreshLink": "Refresh",
     "unlink": "Unlink",
     "tint": "Color Tint",
-    "tintNone": "None"
+    "tintNone": "None",
+    "linkImageTitle": "Link image",
+    "imageFilter": "Images"
   },
   "multiSelect": "{{count}} annotations selected",
   "pdfText": "PDF Text",

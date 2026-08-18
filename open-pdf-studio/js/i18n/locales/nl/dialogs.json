@@ -10,7 +10,10 @@
     "isoBSeries": "ISO B-reeks",
     "northAmerican": "Noord-Amerikaans",
     "other": "Overig",
-    "customSize": "Aangepast..."
+    "customSize": "Aangepast...",
+    "frameFailed": "Kon document niet aanmaken van kader: {{error}}",
+    "noFrame": "Geen (blanco pagina)",
+    "openFramesFolder": "Kaders-map openen — eigen kaders (zelfde naamgeving) verschijnen hier automatisch"
   },
   "printQueue": {
     "save": "Opslaan",
@@ -24,7 +27,16 @@
     "moveDown": "Omlaag",
     "merging": "Samenvoegen…",
     "opening": "Openen…",
-    "mergedName": "Samengevoegd.pdf"
+    "mergedName": "Samengevoegd.pdf",
+    "adding": "Toevoegen…",
+    "selectAll": "Alles selecteren",
+    "addFile": "+ Bestand toevoegen…",
+    "delete": "Verwijderen",
+    "close": "Sluiten",
+    "dragToReorder": "Sleep om te ordenen",
+    "dropToAdd": "Laat los om toe te voegen",
+    "mergeAndSave": "Samenvoegen & opslaan",
+    "mergeAndOpen": "Samenvoegen & openen"
   },
   "print": {
     "title": "Afdrukken",
@@ -85,6 +97,7 @@
       "sending": "Verzenden naar printer…",
       "sent": "Afdruktaak verzonden",
       "failed": "Afdrukken mislukt: {{error}}",
+        "failedGeneric": "Afdrukken mislukt",
       "errNoDocument": "geen document",
       "errTempFile": "kon tijdelijk bestand niet maken"
     }
@@ -411,7 +424,10 @@
     "action": "Comprimeren",
     "done": "Gecomprimeerd: {{before}} → {{after}} ({{pct}}% kleiner).",
     "doneNoGain": "Comprimeren voltooid: {{after}} (geen verkleining behaald).",
-    "failed": "Comprimeren mislukt: {{error}}"
+    "failed": "Comprimeren mislukt: {{error}}",
+    "progressPreparing": "PDF comprimeren…",
+    "progressPage": "Pagina {{page}} van {{total}} comprimeren…",
+    "fileSuffix": "_gecomprimeerd"
   },
   "scale": {
     "title": "Schaal instellen",
@@ -423,5 +439,33 @@
     "invalidLine": "Ongeldige meetlijn.",
     "ok": "OK",
     "cancel": "Annuleren"
+  },
+  "ifcExport": {
+    "saveTitle": "Opslaan als IFC-report",
+    "failed": "IFC-report opslaan mislukt: {{error}}"
+  },
+  "styleType": {
+    "lineTypes": "Lijn-typen",
+    "arrowTypes": "Pijl-typen",
+    "dimensionTypes": "Maatlijn-typen",
+    "hatchTypes": "Arcering-typen",
+    "close": "Sluiten",
+    "preview": "Voorbeeld",
+    "color": "Kleur",
+    "textMm": "Tekst (mm)",
+    "unit": "Eenheid",
+    "background": "Achtergr.",
+    "scale": "Schaal",
+    "noBackground": "Geen achtergrond",
+    "deleteType": "Type verwijderen",
+    "resetDefault": "Terug naar standaard",
+    "name": "Naam",
+    "thicknessMm": "Dikte (mm)",
+    "style": "Stijl",
+    "backgroundColor": "Achtergrondkleur",
+    "newType": "Nieuw type",
+    "addNewType": "+ Nieuw type",
+    "editTitle": "{{kind}} bewerken",
+    "genericTypes": "Typen"
   }
 }
