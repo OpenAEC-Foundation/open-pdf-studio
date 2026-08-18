@@ -1033,7 +1033,7 @@ Set-Printer -Name 'Open PDF Printer' -PortName $port"#,
     }
     #[cfg(not(target_os = "windows"))]
     {
-        Err("alleen op Windows".into())
+        Err("Windows only".into())
     }
 }
 
@@ -1163,7 +1163,7 @@ fn open_pdf_in_default_viewer(path: String) -> Result<bool, String> {
     #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
     {
         let _ = &path;
-        return Err("Openen in externe viewer wordt op dit platform niet ondersteund".into());
+        return Err("Opening in an external viewer is not supported on this platform".into());
     }
     #[cfg(target_os = "windows")]
     {
@@ -1211,7 +1211,7 @@ fn reveal_in_file_manager(path: String) -> Result<bool, String> {
     #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
     {
         let _ = &path;
-        return Err("Tonen in bestandsbeheer wordt op dit platform niet ondersteund".into());
+        return Err("Showing in the file manager is not supported on this platform".into());
     }
     #[cfg(target_os = "windows")]
     {
