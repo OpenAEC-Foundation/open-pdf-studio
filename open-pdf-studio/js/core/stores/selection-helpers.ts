@@ -3,6 +3,8 @@ import { state, getActiveDocument } from '../state.js';
 import { buildStavenreeks } from '../../annotations/stavenreeks.js';
 import { stavenreeksPxPerMm } from '../../annotations/stavenreeks-scale.js';
 import { betonbalkHalfWidthPx } from '../../annotations/betonbalk-scale.js';
+// @ts-ignore — pure JS-module zonder typedeclaraties
+import { systeemrasterFlatContour } from '../../annotations/systeemraster.js';
 
 export function clearSelection(): void {
   const doc = getActiveDocument();
@@ -77,8 +79,19 @@ export function getAnnotationBounds(ann: Annotation): AnnotationBounds | null {
     case 'cloudPolyline':
     case 'measureArea':
     case 'measurePerimeter':
+    case 'systeemraster': {
+      // Boog-bewust: het selectiekader moet de boog-uitstulping omvatten,
+      // dus de bounds komen uit de VLAKKE contour (flattenContour) en niet
+      // uit de kale hoekpunten (de koorde zou de boog afsnijden).
+      const srFlat = systeemrasterFlatContour(ann);
+      if (!srFlat || srFlat.length < 3) return null;
+      const srMinX = Math.min(...srFlat.map((p: { x: number }) => p.x));
+      const srMinY = Math.min(...srFlat.map((p: { y: number }) => p.y));
+      const srMaxX = Math.max(...srFlat.map((p: { x: number }) => p.x));
+      const srMaxY = Math.max(...srFlat.map((p: { y: number }) => p.y));
+      return { x: srMinX, y: srMinY, width: srMaxX - srMinX, height: srMaxY - srMinY };
+    }
     case 'filledArea':
-    case 'systeemraster':
       // filledArea moves by shifting its points — bounds must derive from
       // the points too, NOT the static x/y/width/height captured at creation
       // (those don't update on move, leaving the selection box behind).

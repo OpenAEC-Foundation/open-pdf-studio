@@ -19,11 +19,17 @@ import { systeemrasterBuildOpts } from '../../annotations/systeemraster-scale.js
 import { drawSysteemrasterGeom } from '../../annotations/rendering/systeemraster-draw.js';
 import { DRAFTING_LINE_WIDTH } from '../../annotations/drafting.js';
 import { ifcCategoryForAnnotationType } from '../../solid/data/ifcCategoryMap.js';
+import { getSysteemTypeById, getSysteemTypenData } from '../../annotations/systeem-typen-registry.js';
 
 // Punten-tot-nu-toe van de contour in aanbouw.
 let _pts = null;
 
-export const systeemrasterTool = {
+// Actieve variant: 'raster' (stelconplaten 2000×2000) of 'plafond'
+// (systeemplafond 600×600 mét system-datamodel). Wordt gezet door de
+// wrapper-tools onderaan; er is altijd maar één tekentool tegelijk actief.
+let _variant = 'raster';
+
+const _baseTool = {
   name: 'systeemraster',
   cursor: 'crosshair',
 
@@ -164,8 +170,11 @@ export const systeemrasterTool = {
 };
 
 // Annotatie-eigenschappen voor een contour (ook voor het live voorbeeld).
+// Variant 'plafond': systeemplafond — celmaat 600×600 mm, system-datamodel
+// (v1: één laag met paneel-overrides en randprofiel) en IFC-subtype CEILING.
 function _annProps(points) {
   const D = SYSTEEMRASTER_DEFAULTS;
+  const plafond = _variant === 'plafond';
   const xs = points.map(p => p.x), ys = points.map(p => p.y);
   return {
     type: 'systeemraster',
@@ -176,8 +185,21 @@ function _annProps(points) {
     // Tekenpen van de NL-tekenwerkcomponenten (drafting.js) als terugval;
     // wordt later per IFC-categorie instelbaar via de tekenlaag.
     lineWidth: DRAFTING_LINE_WIDTH,
-    plaatBreedteMm: D.plaatBreedteMm,
-    plaatHoogteMm: D.plaatHoogteMm,
+    plaatBreedteMm: plafond ? 600 : D.plaatBreedteMm,
+    plaatHoogteMm: plafond ? 600 : D.plaatHoogteMm,
+    ...(plafond ? (() => {
+      // SYSTEEMTYPE: de instance verwijst naar de herbruikbare definitie
+      // uit de registry (celmaat/randprofiel/IFC komen uit het TYPE); de
+      // instance draagt alleen contour, oorsprong, hoek en overrides.
+      const st = getSysteemTypeById('st-plafond-600x600')
+        || getSysteemTypenData().typen[0];
+      return {
+        systeemTypeId: st ? st.id : undefined,
+        system: { type: 'plafond', layers: [{ panels: {}, edge: { profiel: 'geen' } }] },
+        ifcCategory: st?.ifcCategory || ifcCategoryForAnnotationType('systeemraster'),
+        ifcPredefinedType: st?.ifcPredefinedType || 'CEILING',
+      };
+    })() : {}),
     originXMm: D.originXMm,
     originYMm: D.originYMm,
     equalizeX: D.equalizeX,
@@ -206,3 +228,25 @@ function _finish(ctx) {
   ctx.redraw();
   import('../manager.js').then(m => m.maybeRevertToSelect && m.maybeRevertToSelect());
 }
+
+// Wrapper-tools: zelfde klik-flow, andere defaults. De wrapper zet de
+// variant vlak vóór elke gedelegeerde aanroep (er is één tool tegelijk
+// actief, dus dit is race-vrij).
+function _makeVariantTool(name, variant) {
+  const wrap = (fn) => function (...args) {
+    _variant = variant;
+    return fn.apply(_baseTool, args);
+  };
+  return {
+    name,
+    cursor: _baseTool.cursor,
+    onPointerDown: wrap(_baseTool.onPointerDown),
+    onPointerMove: wrap(_baseTool.onPointerMove),
+    onKeyDown: wrap(_baseTool.onKeyDown),
+    onEscape: wrap(_baseTool.onEscape),
+    onDeactivate: wrap(_baseTool.onDeactivate),
+  };
+}
+
+export const systeemrasterTool = _makeVariantTool('systeemraster', 'raster');
+export const systeemplafondTool = _makeVariantTool('systeemplafond', 'plafond');

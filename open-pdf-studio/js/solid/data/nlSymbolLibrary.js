@@ -70,6 +70,10 @@ const systeemrasterPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000"
 
 const betonbalkPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M4 22 H36 L52 38 V61"/><path d="M4 42 H28 L38 52 V61"/><line x1="4" y1="22" x2="4" y2="42"/><path d="M4 32 H32 L45 45 V61" stroke-width="0.9" stroke-dasharray="6 3 1.5 3"/></svg>`;
 
+// Systeemplafond: contour met boograndje, tegelraster, één ventilatiepaneel
+// (kruis) en één lichtpaneel (arcering).
+const systeemplafondPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M6 8 H58 V44 Q44 58 30 56 Q16 54 6 44 Z"/><g stroke-width="0.9"><line x1="19" y1="8" x2="19" y2="50"/><line x1="32" y1="8" x2="32" y2="56"/><line x1="45" y1="8" x2="45" y2="52"/><line x1="6" y1="22" x2="58" y2="22"/><line x1="6" y1="36" x2="58" y2="36"/><path d="M19 8 32 22 M32 8 19 22"/><path d="M45 25 55 35 M48 22 58 32 M45 31 50 36"/></g></svg>`;
+
 export const NL_CATEGORIES = [
   {
     // ONE building category, IFC-georiënteerd: wanden, vloeren en
@@ -113,6 +117,10 @@ export const NL_CATEGORIES = [
       // met een platenraster (systeemplafond, stelconplaten 2000×2000);
       // plaatmaat/equalize/randconditie daarna in het eigenschappen-paneel.
       { id: 'systeemraster', name: 'Systeemraster (IfcCovering)', tool: 'systeemraster', svg: systeemrasterPreview },
+      // Systeemplafond: zelfde contour-flow, celmaat 600×600, panelen
+      // individueel inwisselbaar (tegel/ventilatie/licht) en randprofiel;
+      // IFC: IfcCovering met PredefinedType CEILING.
+      { id: 'systeemplafond', name: 'Systeemplafond (IfcCovering.CEILING)', tool: 'systeemplafond', svg: systeemplafondPreview },
       // NL tekenwerk-symbolen horen er ook gewoon bij (één bouw-categorie).
       { id: 'param-stramien', name: 'Stramien', parametricId: 'stramien', svg: stramienPreview },
       { id: 'param-peilmaat', name: 'Peilmaat (spot elevation)', parametricId: 'peilmaat', svg: peilmaatPreview },

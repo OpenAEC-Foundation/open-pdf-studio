@@ -21,6 +21,7 @@ import { effectiveDraftingLineWidth } from './drafting-rules.js';
 import { buildSysteemraster } from './systeemraster.js';
 import { systeemrasterBuildOpts } from './systeemraster-scale.js';
 import { drawSysteemrasterGeom } from './rendering/systeemraster-draw.js';
+import { getSysteemSymbolImage, registerSysteemSymbolRedraw } from './rendering/systeem-symbol-cache.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { drawSelectionHandles } from './rendering/selection.js';
 import { drawImageCropOverlay } from './image-crop-overlay.js';
@@ -1770,11 +1771,20 @@ export function drawAnnotation(ctx, annotation) {
         },
       });
       if (!srGeomG) break;
+      // Sub-element-selectie en -hover (tweede klik binnen het component)
+      // alléén tonen als dit de enige geselecteerde annotatie is — zelfde
+      // regel als de blauwe inline-getallen.
+      const srSubShow = inlineNumberHighlight(annotation);
       drawSysteemrasterGeom(ctx, srGeomG, {
         strokeColor,
         lineWidth: thinLw(annotation.lineWidth ?? 1),
         // Blauwe tag bij selectie: klik-affordance van de inline bewerking.
-        tagColor: inlineNumberHighlight(annotation) ? EDITABLE_NUMBER_COLOR : null,
+        tagColor: srSubShow ? EDITABLE_NUMBER_COLOR : null,
+        selectedSub: srSubShow && annotation.selectedSub ? annotation.selectedSub : null,
+        hoverSub: srSubShow && annotation._hoverSub ? annotation._hoverSub : null,
+        // Component-in-cel: symboolbeeld uit de bibliotheek-cache (laadt
+        // async; na het laden volgt automatisch een redraw).
+        getSymbolImage: getSysteemSymbolImage,
       });
       break;
     }
@@ -2471,6 +2481,14 @@ export function rebuildSpatialIndex() {
   spatialIndex.rebuild(annotations);
   _lastIndexedCount = annotations.length;
 }
+
+// Ná het async laden van een component-in-cel-symboolbeeld: hertekenen
+// zodat de placeholder door het echte symbool vervangen wordt.
+registerSysteemSymbolRedraw(() => {
+  const doc = state.documents[state.activeDocumentIndex];
+  if (doc?.viewMode === 'continuous') redrawContinuous();
+  else redrawAnnotations();
+});
 
 export function redrawAnnotations(lightweight = false) {
   if (!annotationCtx || !annotationCanvas) return;

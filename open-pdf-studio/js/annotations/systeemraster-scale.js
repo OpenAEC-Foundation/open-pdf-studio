@@ -14,6 +14,7 @@
 import { getScaleFromRegion } from './scale-region.js';
 import { getScaleForPoint } from './scale-bar.js';
 import { systeemrasterContour } from './systeemraster.js';
+import { getSysteemTypeById } from './systeem-typen-registry.js';
 
 const UNIT_TO_MM = { mm: 1, cm: 10, m: 1000, in: 25.4, ft: 304.8 };
 
@@ -44,7 +45,13 @@ export function systeemrasterPxPerMm(ann) {
   return Number.isFinite(k) && k > 0 ? k : 0;
 }
 
-/** opts voor buildSysteemraster(): schaalbewuste px-per-mm. */
+/** opts voor buildSysteemraster(): schaalbewuste px-per-mm + de
+ *  SYSTEEMTYPE-definitie uit de registry (ann.systeemTypeId → typeDef).
+ *  Eén plek, zodat álle aanroepers (render, saver, grips, tools, panelen)
+ *  dezelfde type-resolutie zien. */
 export function systeemrasterBuildOpts(ann) {
-  return { pxPerMm: systeemrasterPxPerMm(ann) };
+  return {
+    pxPerMm: systeemrasterPxPerMm(ann),
+    typeDef: ann && ann.systeemTypeId ? getSysteemTypeById(ann.systeemTypeId) : null,
+  };
 }

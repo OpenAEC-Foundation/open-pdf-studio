@@ -8,6 +8,7 @@ import { showDocPropertiesDialog, showNewDocDialog } from '../ui/chrome/dialogs.
 import { copyAnnotation, copyAnnotations, pasteAnnotation, pasteAnnotations } from '../annotations/clipboard.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { applyMove } from '../annotations/transforms.js';
+import { cloneAnnotation } from '../annotations/factory.js';
 import { createMeasureAreaAnnotation, createMeasurePerimeterAnnotation } from './annotation-creators.js';
 import { openPDFFile, isPdfAReadOnly } from '../pdf/loader.js';
 import { actualSize, fitWidth, fitPage, goToPage, rotatePage } from '../pdf/renderer.js';
@@ -442,6 +443,33 @@ export async function handleKeydown(e) {
     if (isPdfAReadOnly()) { /* block */ }
     else if ((getActiveDocument()?.selectedAnnotations || []).length > 0) {
       const selected = [...getActiveDocument().selectedAnnotations];
+      // Systeem-sub-element geselecteerd: Delete reset het ONDERDEEL naar
+      // het type-default (paneel-override weg = tegel/typedefault; rand-
+      // override weg = profiel van het type) en verwijdert NOOIT per
+      // ongeluk het hele component. Rasterlijn: niets te resetten —
+      // consumeren zodat het component blijft staan.
+      if (selected.length === 1 && selected[0].type === 'systeemraster'
+          && selected[0].selectedSub) {
+        const subAnn = selected[0];
+        const sub = subAnn.selectedSub;
+        if (!subAnn.locked) {
+          const { setPaneelType, setRandProfiel, removeSparing } =
+            await import('../annotations/systeemraster.js');
+          const before = cloneAnnotation(subAnn);
+          if (sub.kind === 'paneel') setPaneelType(subAnn, sub.ix, sub.iy, 'tegel');
+          else if (sub.kind === 'rand') setRandProfiel(subAnn, sub.seg, null);
+          else if (sub.kind === 'sparing') {
+            // Delete op een sparing VERWIJDERT de sparing zelf.
+            removeSparing(subAnn, sub.id);
+            subAnn.selectedSub = null;
+          }
+          subAnn.modifiedAt = new Date().toISOString();
+          recordModify(subAnn.id, before, cloneAnnotation(subAnn));
+          showProperties(subAnn);
+          redraw();
+        }
+        return;
+      }
       // Single locked check
       if (selected.length === 1 && selected[0].locked) return;
 
@@ -698,6 +726,20 @@ export async function handleKeydown(e) {
       state._editArcMode = false;
       redraw();
       return;
+    }
+    // Systeem-sub-element (paneel/rand/rasterlijn) geselecteerd? Escape gaat
+    // dan EERST één niveau terug: sub-element → component; de volgende
+    // Escape wist zoals altijd de hele selectie.
+    {
+      const escSel = getActiveDocument()?.selectedAnnotations || [];
+      const escAnn = escSel.length === 1 ? escSel[0] : null;
+      if (escAnn && escAnn.type === 'systeemraster' && escAnn.selectedSub) {
+        escAnn.selectedSub = null;
+        escAnn._hoverSub = null;
+        showProperties(escAnn);
+        redraw();
+        return;
+      }
     }
     // Trede 2: actieve tekening/bewerking van de huidige tool → afronden of
     // annuleren via de tool's onEscape-hook. Elke hook roept EXACT dezelfde

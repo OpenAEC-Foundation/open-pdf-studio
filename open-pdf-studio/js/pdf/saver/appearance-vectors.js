@@ -17,6 +17,11 @@
 import { hexToRgb } from './utils.js';
 import { getHatchLineFamilies } from './hatch-catalog.js';
 import { catmullRomToBezier, splineArrowEndTangent } from '../../annotations/spline-arrow-geometry.js';
+import {
+  rotToWorld as srRotToWorld,
+  SYSTEEM_RAVEEL_OFFSET_MM as srRaveelOffsetMm,
+  SYSTEEM_RAVEEL_STREEP_MM as srRaveelStreepMm,
+} from '../../annotations/systeemraster.js';
 
 // ── number / string formatting ──────────────────────────────────────────────
 const f = (n) => {
@@ -442,26 +447,168 @@ export function buildBetonbalkAP({ geom, X, Y, strokeColorHex, lineWidth }) {
 // en de plaatmaat-tag. `geom` komt uit buildSysteemraster()
 // (annotations/systeemraster.js) — dezelfde bron als het canvas
 // (systeemraster-draw.js), dus scherm en PDF zijn per definitie gelijk.
+// Systeemraster-contourpad met echte bogen: kwadratische Béziers (controle-
+// punt loodrecht op de koorde, offset = bulge × koorde — zie arcControl in
+// annotations/systeemraster.js) omgezet naar kubische (c-operator) met
+// c1 = a + 2/3·(cp−a), c2 = b + 2/3·(cp−b). Zelfde beeld als het canvas.
+function systeemrasterContourOps(nodes, X, Y) {
+  const n = nodes.length;
+  let s = `${f(X(nodes[0].x))} ${f(Y(nodes[0].y))} m\n`;
+  for (let i = 0; i < n; i++) {
+    const a = nodes[i], b = nodes[(i + 1) % n];
+    if (b.arc === true) {
+      const bulge = typeof b.bulge === 'number' ? b.bulge : 0.3;
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const dist = Math.hypot(dx, dy) || 1;
+      const cpx = (a.x + b.x) / 2 + (-dy / dist) * bulge * dist;
+      const cpy = (a.y + b.y) / 2 + (dx / dist) * bulge * dist;
+      const c1x = a.x + (2 / 3) * (cpx - a.x), c1y = a.y + (2 / 3) * (cpy - a.y);
+      const c2x = b.x + (2 / 3) * (cpx - b.x), c2y = b.y + (2 / 3) * (cpy - b.y);
+      s += `${f(X(c1x))} ${f(Y(c1y))} ${f(X(c2x))} ${f(Y(c2y))} ${f(X(b.x))} ${f(Y(b.y))} c\n`;
+    } else {
+      s += `${f(X(b.x))} ${f(Y(b.y))} l\n`;
+    }
+  }
+  s += 'h\n';
+  return s;
+}
+
 export function buildSysteemrasterAP({ geom, X, Y, strokeColorHex, lineWidth }) {
   if (!geom || !geom.contour || geom.contour.length < 3) return null;
   const stroke = hexToRgb(strokeColorHex || '#000000');
   const lw = lineWidth ?? 1;
+  const nodes = geom.nodes || geom.contour;
+  // Rasterhoek: lijnen/panelen zijn rasterruimte-coördinaten; per punt naar
+  // de wereld draaien vóór de X()/Y()-conversie (zelfde beeld als canvas).
+  const W = (x, y) => srRotToWorld(geom.rot || null, { x, y });
+  const ln = (x1, y1, x2, y2) => {
+    const a = W(x1, y1), b = W(x2, y2);
+    return `${f(X(a.x))} ${f(Y(a.y))} m ${f(X(b.x))} ${f(Y(b.y))} l S\n`;
+  };
   let s = `${f(stroke[0])} ${f(stroke[1])} ${f(stroke[2])} RG\n${f(lw)} w\n0 J 0 j\n[] 0 d\n`;
-  // Contour (gesloten).
-  s += pathOps(geom.contour, X, Y, true) + 'S\n';
-  // Rasterlijnen: verticaal (x, y-interval) en horizontaal (x-interval, y).
+  // Contour (gesloten, met echte bogen).
+  s += systeemrasterContourOps(nodes, X, Y) + 'S\n';
+  // Rasterlijnen: verticaal (x, y-interval) en horizontaal (x-interval, y)
+  // in rasterruimte — per eindpunt naar de wereld gedraaid.
   for (const l of geom.linesV || []) {
     for (const seg of l.segs) {
-      s += `${f(X(l.x))} ${f(Y(seg.a))} m ${f(X(l.x))} ${f(Y(seg.b))} l S\n`;
+      s += ln(l.x, seg.a, l.x, seg.b);
     }
   }
   for (const l of geom.linesH || []) {
     for (const seg of l.segs) {
-      s += `${f(X(seg.a))} ${f(Y(l.y))} m ${f(X(seg.b))} ${f(Y(l.y))} l S\n`;
+      s += ln(seg.a, l.y, seg.b, l.y);
+    }
+  }
+  // Pas-markeringen (strook-layout): dunne extra lijn aan de paszijde.
+  if ((geom.pasLijnen || []).length > 0) {
+    s += `${f(Math.max(lw * 0.5, 0.35))} w\n`;
+    for (const pl of geom.pasLijnen) {
+      for (const seg of pl.segs) {
+        s += ln(pl.x, seg.a, pl.x, seg.b);
+      }
+    }
+    s += `${f(lw)} w\n`;
+  }
+  // Sparing-rechthoek (rasterruimte) als PDF-pad via de W()-transform.
+  const sparingRectOps = (sp) => {
+    const c1 = W(sp.x, sp.y), c2 = W(sp.x + sp.w, sp.y);
+    const c3 = W(sp.x + sp.w, sp.y + sp.h), c4 = W(sp.x, sp.y + sp.h);
+    return `${f(X(c1.x))} ${f(Y(c1.y))} m ${f(X(c2.x))} ${f(Y(c2.y))} l `
+      + `${f(X(c3.x))} ${f(Y(c3.y))} l ${f(X(c4.x))} ${f(Y(c4.y))} l h\n`;
+  };
+  // Paneel-overrides — render-STIJL uit het paneeltype-assortiment
+  // (ventilatie = diagonaal kruis, licht = 45°-arcering) én COMPONENT-in-
+  // cel. Componenten tekenen als herkenbare placeholder (vierkant +
+  // diagonalen + naamlabel): de bibliotheeksymbolen zijn PNG-/SVG-beelden
+  // zonder vector-AP-bouwer — gedocumenteerde terugval, zelfde beeld als
+  // het canvas vóór het symboolbeeld geladen is. Alles geclipt op de
+  // contour zodat randpanelen netjes afgesneden worden.
+  let needsFont = false;
+  const decorated = (geom.panels || []).filter(p => p.stijl !== 'tegel' || p.component);
+  if (decorated.length > 0) {
+    // Clip: contour mét de sparingen als gaten (even-odd, W* n) — de
+    // decoraties stoppen dus op de sparingsrand; de onderliggende tekening
+    // blijft in het gat zichtbaar (uitsparing i.p.v. witte vlek).
+    let clipOps = systeemrasterContourOps(nodes, X, Y);
+    for (const sp of geom.sparingen || []) clipOps += sparingRectOps(sp);
+    s += 'q\n' + clipOps + ((geom.sparingen || []).length > 0 ? 'W* n\n' : 'W n\n');
+    s += `${f(Math.max(lw * 0.6, 0.4))} w\n`;
+    for (const p of decorated) {
+      if (p.component) {
+        // Placeholder gecentreerd, 80% van de kleinste celmaat — draait
+        // mee met de rasterhoek via de per-punt W()-transform.
+        const maat = Math.min(p.w, p.h) * 0.8;
+        const cx = p.x + p.w / 2, cy = p.y + p.h / 2;
+        const q1 = W(cx - maat / 2, cy - maat / 2), q2 = W(cx + maat / 2, cy - maat / 2);
+        const q3 = W(cx + maat / 2, cy + maat / 2), q4 = W(cx - maat / 2, cy + maat / 2);
+        s += `${f(X(q1.x))} ${f(Y(q1.y))} m ${f(X(q2.x))} ${f(Y(q2.y))} l `
+          + `${f(X(q3.x))} ${f(Y(q3.y))} l ${f(X(q4.x))} ${f(Y(q4.y))} l h\nS\n`;
+        s += ln(cx - maat / 2, cy - maat / 2, cx + maat / 2, cy + maat / 2);
+        s += ln(cx + maat / 2, cy - maat / 2, cx - maat / 2, cy + maat / 2);
+        const label = p.component.naam || p.component.symbolId;
+        const fs = Math.max(4, maat * 0.18);
+        const anker = W(cx - maat / 2, cy + maat * 0.72);
+        s += `BT\n/Helv ${f(fs)} Tf\n${f(stroke[0])} ${f(stroke[1])} ${f(stroke[2])} rg\n`;
+        s += `1 0 0 1 ${f(X(anker.x))} ${f(Y(anker.y))} Tm\n`;
+        s += `(${escapePdfText(label)}) Tj\nET\n`;
+        needsFont = true;
+      } else if (p.stijl === 'ventilatie') {
+        s += ln(p.x, p.y, p.x + p.w, p.y + p.h);
+        s += ln(p.x + p.w, p.y, p.x, p.y + p.h);
+      } else if (p.stijl === 'licht') {
+        const pitch = Math.max(2, Math.min(p.w, p.h) / 5);
+        // Paneel-clip: de vier (gedraaide) hoekpunten als polygoon.
+        const c1 = W(p.x, p.y), c2 = W(p.x + p.w, p.y);
+        const c3 = W(p.x + p.w, p.y + p.h), c4 = W(p.x, p.y + p.h);
+        s += `q\n${f(X(c1.x))} ${f(Y(c1.y))} m ${f(X(c2.x))} ${f(Y(c2.y))} l `
+          + `${f(X(c3.x))} ${f(Y(c3.y))} l ${f(X(c4.x))} ${f(Y(c4.y))} l h\nW n\n`;
+        for (let c = p.x - p.h; c <= p.x + p.w; c += pitch) {
+          s += ln(c, p.y + p.h, c + p.h, p.y);
+        }
+        s += 'Q\n';
+      }
+    }
+    s += 'Q\n';
+  }
+  // Sparingsranden (per regime) + raveelijzers — zelfde beeld als canvas.
+  for (const sp of geom.sparingen || []) {
+    s += `${f(sp.regime === 'verzwaard' ? lw * 2.2 : Math.max(lw * 0.6, 0.4))} w\n`;
+    s += sparingRectOps(sp) + 'S\n';
+  }
+  if ((geom.raveels || []).length > 0) {
+    const kAp = geom.pxPerMm || 1;
+    const off = srRaveelOffsetMm * kAp;
+    const steek = srRaveelStreepMm * kAp;
+    for (const r of geom.raveels) {
+      s += `${f(lw * 1.8)} w\n`;
+      s += ln(r.x1, r.y - off, r.x2, r.y - off);
+      s += ln(r.x1, r.y + off, r.x2, r.y + off);
+      s += `${f(Math.max(lw * 0.8, 0.5))} w\n`;
+      for (let xx = r.x1 + steek / 2; xx < r.x2; xx += steek) {
+        s += ln(xx, r.y - off, xx, r.y + off);
+      }
+    }
+    s += `${f(lw)} w\n`;
+  }
+  // Randprofiel per CONTOURSEGMENT (type-basis + instantie-overrides):
+  // hoeklijn = zwaardere lijn óp het segment; schaduwvoeg = dunne
+  // gestreepte binnenlijn; 'geen' = niets. Zelfde beeld als het canvas.
+  const openPad = (pts) => {
+    let o = `${f(X(pts[0].x))} ${f(Y(pts[0].y))} m\n`;
+    for (let i = 1; i < pts.length; i++) o += `${f(X(pts[i].x))} ${f(Y(pts[i].y))} l\n`;
+    return o;
+  };
+  for (const es of geom.edgeSegs || []) {
+    if (es.profiel === 'hoeklijn' && es.pts.length >= 2) {
+      s += `${f(lw * 2.5)} w\n` + openPad(es.pts) + 'S\n' + `${f(lw)} w\n`;
+    } else if (es.profiel === 'schaduwvoeg' && es.insetPts && es.insetPts.length >= 2) {
+      s += `${f(Math.max(lw * 0.6, 0.4))} w\n[4 3] 0 d\n`;
+      s += openPad(es.insetPts) + 'S\n';
+      s += `[] 0 d\n${f(lw)} w\n`;
     }
   }
   // Tag (plaatmaat "B×H"), horizontaal, links uitgelijnd op het anker.
-  let needsFont = false;
   if (geom.tag) {
     const t = geom.tag;
     s += `BT\n/Helv ${f(t.fontSize)} Tf\n${f(stroke[0])} ${f(stroke[1])} ${f(stroke[2])} rg\n`;

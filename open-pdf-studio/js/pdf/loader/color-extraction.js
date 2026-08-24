@@ -509,6 +509,27 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         if (sgFs !== null) colors.sgTagFontSize = sgFs;
         const sgLw = srNum('OPS_SgLineWidth');
         if (sgLw !== null) colors.sgLineWidth = sgLw;
+        // Systeem (v1: systeemplafond): type, randprofiel, boogsegmenten
+        // (parallelle arrays per contour-node) en paneel-overrides (JSON).
+        const sgSys = srStr('OPS_SgSysType');
+        if (sgSys) colors.sgSysType = sgSys;
+        const sgEdge = srStr('OPS_SgEdge');
+        if (sgEdge) colors.sgEdgeProfiel = sgEdge;
+        const sgArcF = srArr('OPS_SgArcFlags');
+        if (sgArcF) colors.sgArcFlags = sgArcF;
+        const sgArcB = srArr('OPS_SgArcBulges');
+        if (sgArcB) colors.sgArcBulges = sgArcB;
+        const sgPanels = srStr('OPS_SgPanels');
+        if (sgPanels) colors.sgPanelsJson = sgPanels;
+        const sgEdges = srStr('OPS_SgEdges');
+        if (sgEdges) colors.sgEdgesJson = sgEdges;
+        const sgSpar = srStr('OPS_SgSparingen');
+        if (sgSpar) colors.sgSparingenJson = sgSpar;
+        // Systeemtype: verwijzing + meegereisd JSON-snapshot van de definitie.
+        const sgTypeId = srStr('OPS_SgTypeId');
+        if (sgTypeId) colors.sgTypeId = sgTypeId;
+        const sgTypeDef = srStr('OPS_SgTypeDef');
+        if (sgTypeDef) colors.sgTypeDefJson = sgTypeDef;
         // Legacy (eerste vorm): hartlijn-polyline [x1,y1,...] — de converter
         // splitst meerpunts-exemplaren in losse tweepunts-balken.
         const bbHart = srArr('OPS_Hartlijn');

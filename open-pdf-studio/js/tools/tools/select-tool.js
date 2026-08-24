@@ -3,6 +3,9 @@ import { applyToolTransform, getEffectiveScale } from '../tool-context.js';
 import { HANDLE_TYPES } from '../../core/constants.js';
 import { recordModify } from '../../core/undo-manager.js';
 import { tryStartInlineNumberEdit } from '../inline-number-editing.js';
+import { buildSysteemraster, subElementAt } from '../../annotations/systeemraster.js';
+import { systeemrasterBuildOpts } from '../../annotations/systeemraster-scale.js';
+import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
 
 /**
  * Select tool — click-select, rubber band, drag, resize, Ctrl+drag copy
@@ -208,6 +211,27 @@ export const selectTool = {
             ctx.redraw();
             return;
           }
+          // Systeemraster/-plafond: tweede klik binnen het geselecteerde
+          // component selecteert het SUB-ELEMENT onder de cursor — rand
+          // vóór rasterlijn vóór paneel (subElementAt). De selectie is
+          // transient (selectedSub wordt niet opgeslagen); de sleep start
+          // gewoon mee — klik-zonder-beweging selecteert, klik-en-sleep
+          // verplaatst het component zoals altijd.
+          if (clickedAnnotation.type === 'systeemraster') {
+            try {
+              const geom = buildSysteemraster(clickedAnnotation,
+                systeemrasterBuildOpts(clickedAnnotation));
+              const sub = geom
+                ? subElementAt(geom, x, y, 6 / (ctx.scale || 1)) : null;
+              const prev = clickedAnnotation.selectedSub || null;
+              if (JSON.stringify(sub) !== JSON.stringify(prev)) {
+                clickedAnnotation.selectedSub = sub;
+                ctx.showProperties(clickedAnnotation);
+              }
+            } catch (err) {
+              console.error('[select] sub-element-selectie', err);
+            }
+          }
         }
         const isTextMarkup = ['textHighlight', 'textStrikethrough', 'textUnderline'].includes(clickedAnnotation.type);
         if (ctx.isSelected(clickedAnnotation) && selAnns.length > 1) {
@@ -220,6 +244,21 @@ export const selectTool = {
           // Collection: clicking any grouped member selects the WHOLE group so
           // the collection moves and edits as a single unit. Ungroup via the
           // "Ontbinden" button in the Verzameling ribbon group.
+          // Verse selectie van een systeemraster: sub-element-selectie
+          // wissen — die hoort bij de "tweede klik" op een al geselecteerd
+          // component. ALLEEN bij een écht verse selectie: bij een herhaalde
+          // klik op het al geselecteerde component loopt deze tak óók
+          // (herselectie vóór de sleepstart) en zou de zojuist gezette
+          // selectie meteen weer gewist worden.
+          if (clickedAnnotation.type === 'systeemraster'
+              && !ctx.isSelected(clickedAnnotation)) {
+            clickedAnnotation.selectedSub = null;
+            clickedAnnotation._hoverSub = null;
+            // Ontdekbaarheid: statusbalk-hint voor de tweede klik.
+            try {
+              updateStatusMessage('Klik nogmaals om een onderdeel te selecteren (paneel, rand of rasterlijn)');
+            } catch (_) { /* statusbalk optioneel */ }
+          }
           let toSelect = [clickedAnnotation];
           if (clickedAnnotation.groupId && doc) {
             const members = doc.annotations.filter(a => a.groupId === clickedAnnotation.groupId);
@@ -297,16 +336,53 @@ export const selectTool = {
       hoverHandle = ctx.findHandleAt(x, y, hoverAnn);
     }
     state.hoverHandle = hoverHandle;
+    // Sub-element-hover op een geselecteerd systeemraster: licht oplichten
+    // van het onderdeel dat een tweede klik zou pakken (ontdekbaarheid).
+    const setHoverSub = (ann, sub) => {
+      if (!ann) return;
+      if (JSON.stringify(ann._hoverSub || null) !== JSON.stringify(sub)) {
+        ann._hoverSub = sub;
+        ctx.redraw();
+      }
+    };
     if (hoverHandle) {
       // Hovering a resize handle — clear annotation hover so the handle wins.
+      if (hoverAnn?.type === 'systeemraster') setHoverSub(hoverAnn, null);
       state.hoverAnnotation = null;
       canvas.title = '';
       return;
     }
     const hoverAnnotation = ctx.findAnnotationAt(x, y);
+    if (hoverAnn?.type === 'systeemraster') {
+      let sub = null;
+      if (hoverAnnotation === hoverAnn) {
+        try {
+          const geom = buildSysteemraster(hoverAnn, systeemrasterBuildOpts(hoverAnn));
+          sub = geom ? subElementAt(geom, x, y, 6 / (ctx.scale || 1)) : null;
+        } catch (_) { sub = null; }
+      }
+      setHoverSub(hoverAnn, sub);
+    }
     state.hoverAnnotation = hoverAnnotation || null;
     canvas.title = (hoverAnnotation?.type === 'comment' && !hoverAnnotation.popupOpen && hoverAnnotation.text)
       ? hoverAnnotation.text.split('\n').slice(0, 5).join('\n') : '';
+  },
+
+  // Escape: één niveau terug — sub-element → component → (dispatcher wist
+  // daarna de selectie zelf). Alleen handelen als er echt een sub-element
+  // geselecteerd is; anders valt Escape door naar het standaardgedrag.
+  onEscape(ctx) {
+    const doc = getActiveDocument();
+    const selAnns = doc ? doc.selectedAnnotations : [];
+    const ann = selAnns.length === 1 ? selAnns[0] : null;
+    if (ann && ann.type === 'systeemraster' && ann.selectedSub) {
+      ann.selectedSub = null;
+      ann._hoverSub = null;
+      ctx.showProperties(ann);
+      ctx.redraw();
+      return true;
+    }
+    return false;
   },
 
   onPointerUp(ctx, e) {

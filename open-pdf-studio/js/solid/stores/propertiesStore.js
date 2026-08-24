@@ -24,7 +24,15 @@ import { BETONBALK_DEFAULTS, BETONBALK_BREEDTE_RANGE, BETONBALK_HOOGTE_RANGE, BE
 import { setBetonbalkLastProfiel } from './betonbalkStore.js';
 import {
   SYSTEEMRASTER_DEFAULTS, SYSTEEMRASTER_PLAAT_RANGE, SYSTEEMRASTER_RANDCONDITIES,
+  resolveSysteem, paneelKey, setEdgeProfiel, setPaneelType, setPaneelComponent,
+  setRandProfiel, updateSparing, addSparing, systeemSparingen, sparingRegime,
+  buildSysteemraster,
 } from '../../annotations/systeemraster.js';
+import { systeemrasterBuildOpts } from '../../annotations/systeemraster-scale.js';
+import { createDefaultPaneelTypen } from '../../annotations/systeem-typen.js';
+import {
+  getSysteemTypeById, getSysteemTypenData, updateSysteemType,
+} from '../../annotations/systeem-typen-registry.js';
 import { recalculateAllMeasurements, calculateArea, calculatePerimeter, calculateDistance, formatMeasurement, formatDimensionText, getMeasureScale } from '../../annotations/measurement.js';
 import { applyTemplateRealSize } from '../../symbols/real-size.js';
 import { pendingParams, setPendingParams } from './parametricSymbolStore.js';
@@ -378,9 +386,11 @@ export function storeShowProperties(annotation) {
     toonHartlijn: annotation.toonHartlijn === true,
     tagTonen: annotation.tagTonen === true,
     tagTekst: annotation.tagTekst || '',
-    // Systeemraster
-    plaatBreedteMm: annotation.plaatBreedteMm ?? SYSTEEMRASTER_DEFAULTS.plaatBreedteMm,
-    plaatHoogteMm: annotation.plaatHoogteMm ?? SYSTEEMRASTER_DEFAULTS.plaatHoogteMm,
+    // Systeemraster — bij een gekoppeld systeemtype gelden de TYPE-celmaten.
+    plaatBreedteMm: getSysteemTypeById(annotation.systeemTypeId)?.celXMm
+      ?? annotation.plaatBreedteMm ?? SYSTEEMRASTER_DEFAULTS.plaatBreedteMm,
+    plaatHoogteMm: getSysteemTypeById(annotation.systeemTypeId)?.celYMm
+      ?? annotation.plaatHoogteMm ?? SYSTEEMRASTER_DEFAULTS.plaatHoogteMm,
     equalizeX: annotation.equalizeX === true,
     equalizeY: annotation.equalizeY === true,
     randConditie: annotation.randConditie || SYSTEEMRASTER_DEFAULTS.randConditie,
@@ -388,10 +398,66 @@ export function storeShowProperties(annotation) {
     // Contour + parameters voor de randstuk-maten in het paneel: de sectie
     // herbouwt de geometrie reactief uit deze kopie (zie SysteemrasterSection).
     sgPoints: annotation.type === 'systeemraster' && Array.isArray(annotation.points)
-      ? annotation.points.map(p => ({ x: p.x, y: p.y })) : null,
+      ? annotation.points.map(p => (p.arc === true
+        ? { x: p.x, y: p.y, arc: true, bulge: p.bulge }
+        : { x: p.x, y: p.y })) : null,
     sgOriginXMm: annotation.originXMm ?? 0,
     sgOriginYMm: annotation.originYMm ?? 0,
     sgPage: annotation.page ?? 1,
+    // Systeem: TYPE-verwijzing (systeemTypeId) + de type-bibliotheek voor de
+    // dropdown, rasterhoek, randprofiel en het geselecteerde paneel (tweede
+    // klik binnen het component) + zijn huidige paneeltype. Bij een gekoppeld
+    // type tonen de celmaat-/randprofiel-velden de TYPE-waarden (bewerken
+    // schrijft op het type → alle instanties veranderen mee).
+    sgSysType: annotation.type === 'systeemraster'
+      ? resolveSysteem(annotation).type : null,
+    sgTypeId: annotation.type === 'systeemraster'
+      ? (annotation.systeemTypeId || null) : null,
+    sgTypeList: annotation.type === 'systeemraster'
+      ? getSysteemTypenData().typen.map(t => ({ id: t.id, naam: t.naam })) : [],
+    sgRasterHoek: annotation.type === 'systeemraster'
+      ? (Number(annotation.rasterHoek) || 0) : 0,
+    // Layout-vorm van het type ('raster'|'strook') — stuurt de labels en
+    // sub-secties (strook/paneel) in de Systeem-sectie.
+    sgLayout: annotation.type === 'systeemraster'
+      ? (getSysteemTypeById(annotation.systeemTypeId)?.layout || 'raster') : 'raster',
+    sgEdgeProfiel: annotation.type === 'systeemraster'
+      ? (getSysteemTypeById(annotation.systeemTypeId)?.edgeProfiel
+        || resolveSysteem(annotation).layers[0].edge.profiel) : 'geen',
+    // Geselecteerd SUB-ELEMENT (tweede klik): paneel, randsegment of
+    // rasterlijn — met de weergavedata voor de "Onderdeel"-sub-sectie.
+    sgSelectedSub: annotation.type === 'systeemraster' && annotation.selectedSub
+      ? JSON.parse(JSON.stringify(annotation.selectedSub)) : null,
+    sgPaneelType: (() => {
+      if (annotation.type !== 'systeemraster') return 'tegel';
+      const sub = annotation.selectedSub;
+      if (!sub || sub.kind !== 'paneel') return 'tegel';
+      const ov = resolveSysteem(annotation).layers[0].panels[paneelKey(sub.ix, sub.iy)];
+      if (!ov) return 'tegel';
+      return typeof ov === 'string' ? ov : 'component';
+    })(),
+    sgPaneelComponent: (() => {
+      if (annotation.type !== 'systeemraster' || !annotation.selectedSub
+          || annotation.selectedSub.kind !== 'paneel') return null;
+      const ov = resolveSysteem(annotation).layers[0]
+        .panels[paneelKey(annotation.selectedSub.ix, annotation.selectedSub.iy)];
+      return ov && typeof ov === 'object' ? { ...ov } : null;
+    })(),
+    // Paneel-assortiment van het systeemtype (dropdown in de sub-sectie).
+    sgPaneelTypen: annotation.type === 'systeemraster'
+      ? (getSysteemTypeById(annotation.systeemTypeId)?.paneelTypen
+        || createDefaultPaneelTypen()).map(p => ({ id: p.id, naam: p.naam }))
+      : [],
+    // Rand-override (raw) van het geselecteerde randsegment ('' = erft).
+    sgRandOverride: annotation.type === 'systeemraster' && annotation.selectedSub
+      && annotation.selectedSub.kind === 'rand'
+      ? (resolveSysteem(annotation).layers[0].edges[String(annotation.selectedSub.seg)] || '')
+      : '',
+    // IFC-pad van het component (onderdelen erven dit pad).
+    sgIfcPad: annotation.type === 'systeemraster'
+      ? `${annotation.ifcCategory || 'IfcCovering'}${annotation.ifcPredefinedType
+        ? ` (${annotation.ifcPredefinedType})` : ''}`
+      : '',
     replies: annotation.replies || [],
     multiCount: 0,
   });
@@ -777,6 +843,126 @@ function _clampFontSize(value) {
   return Math.max(6, Math.min(72, Math.round(n)));
 }
 
+// Systeem-eigenschappen (systeemraster/-plafond). TYPE-sleutels (sgType*)
+// schrijven op de HERBRUIKBARE type-definitie in de registry — alle
+// instanties met dat type veranderen mee; instance-sleutels (rasterhoek,
+// centreren, paneeltype) muteren alleen de annotatie.
+function _applySysteemProp(ann, key, value) {
+  const num = (v) => parseFloat(String(v).replace(',', '.'));
+  switch (key) {
+    case 'sgTypeId': {
+      ann.systeemTypeId = value || undefined;
+      const st = getSysteemTypeById(ann.systeemTypeId);
+      if (st) {
+        ann.ifcCategory = st.ifcCategory;
+        ann.ifcPredefinedType = st.ifcPredefinedType;
+      }
+      break;
+    }
+    case 'sgTypeCelX': case 'sgTypeCelY': {
+      const n = num(value);
+      if (!Number.isFinite(n) || !(n > 0)) break;
+      const clamped = Math.max(SYSTEEMRASTER_PLAAT_RANGE.min,
+        Math.min(SYSTEEMRASTER_PLAAT_RANGE.max, n));
+      if (ann.systeemTypeId) {
+        // Strook-layout: het X-veld ís de strookbreedte (celXMm loopt mee
+        // zodat de tag/legacy-weergave consistent blijft).
+        const strook = key === 'sgTypeCelX'
+          && getSysteemTypeById(ann.systeemTypeId)?.layout === 'strook';
+        updateSysteemType(ann.systeemTypeId,
+          key === 'sgTypeCelX'
+            ? (strook ? { celXMm: clamped, strookBreedteMm: clamped } : { celXMm: clamped })
+            : { celYMm: clamped });
+      } else if (key === 'sgTypeCelX') ann.plaatBreedteMm = clamped;
+      else ann.plaatHoogteMm = clamped;
+      break;
+    }
+    case 'sgTypeEdge':
+      if (ann.systeemTypeId) updateSysteemType(ann.systeemTypeId, { edgeProfiel: value });
+      else setEdgeProfiel(ann, value);
+      break;
+    case 'rasterHoek': {
+      const n = num(value);
+      ann.rasterHoek = Number.isFinite(n) ? ((n % 360) + 360) % 360 : 0;
+      break;
+    }
+    case 'sgCentreer':
+      ann.equalizeX = true;
+      ann.equalizeY = true;
+      break;
+    case 'sgEdgeProfiel': setEdgeProfiel(ann, value); break;
+    // Paneeltype (paneeltype-id uit het assortiment) van het geselecteerde
+    // paneel-sub-element.
+    case 'sgPaneelType':
+      if (ann.selectedSub && ann.selectedSub.kind === 'paneel') {
+        setPaneelType(ann, ann.selectedSub.ix, ann.selectedSub.iy, value);
+      }
+      break;
+    // Paneel vervangen door een COMPONENT uit de symbolenbibliotheek:
+    // value = { symbolId, naam } (uit de component-kiezer).
+    case 'sgPaneelComponent':
+      if (ann.selectedSub && ann.selectedSub.kind === 'paneel'
+          && value && value.symbolId) {
+        setPaneelComponent(ann, ann.selectedSub.ix, ann.selectedSub.iy,
+          value.symbolId, value.naam);
+      }
+      break;
+    // Randprofiel-override van het geselecteerde randsegment ('' = erven
+    // van het type; 'geen' = expliciet géén rand op dit segment).
+    case 'sgRandSegProfiel':
+      if (ann.selectedSub && ann.selectedSub.kind === 'rand') {
+        setRandProfiel(ann, ann.selectedSub.seg, value === '' ? null : value);
+      }
+      break;
+    // Sparing-afmetingen/-positie (mm) van de geselecteerde sparing.
+    case 'sgSparingB': case 'sgSparingH': case 'sgSparingX': case 'sgSparingY': {
+      const sub = ann.selectedSub;
+      if (!sub || sub.kind !== 'sparing') break;
+      const n = parseFloat(String(value).replace(',', '.'));
+      if (!Number.isFinite(n)) break;
+      const veld = { sgSparingB: 'bMm', sgSparingH: 'hMm',
+        sgSparingX: 'xMm', sgSparingY: 'yMm' }[key];
+      if ((veld === 'bMm' || veld === 'hMm') && !(n > 0)) break;
+      updateSparing(ann, sub.id, { [veld]: n });
+      _syncSparingSub(ann);
+      break;
+    }
+    // Nieuwe sparing (600×600 mm), gecentreerd in de contour; wordt meteen
+    // het geselecteerde sub-element.
+    case 'sgSparingToevoegen': {
+      const geom = buildSysteemraster(ann, systeemrasterBuildOpts(ann));
+      if (!geom || !(geom.pxPerMm > 0)) break;
+      const k = geom.pxPerMm;
+      const sp = addSparing(ann, {
+        xMm: geom.rasterAabb.width / 2 / k - 300,
+        yMm: geom.rasterAabb.height / 2 / k - 300,
+        bMm: 600, hMm: 600,
+      });
+      if (sp) {
+        ann.selectedSub = { kind: 'sparing', id: sp.id,
+          xMm: sp.xMm, yMm: sp.yMm, bMm: sp.bMm, hMm: sp.hMm };
+        _syncSparingSub(ann);
+      }
+      break;
+    }
+  }
+}
+
+// Houd ann.selectedSub in de pas met de actuele sparing-waarden (incl. het
+// regime volgens de sparingsregels/layout van het type).
+function _syncSparingSub(ann) {
+  const sub = ann.selectedSub;
+  if (!sub || sub.kind !== 'sparing') return;
+  const sp = systeemSparingen(ann).find(s => s.id === sub.id);
+  if (!sp) { ann.selectedSub = null; return; }
+  const st = getSysteemTypeById(ann.systeemTypeId);
+  ann.selectedSub = {
+    kind: 'sparing', id: sp.id,
+    xMm: sp.xMm, yMm: sp.yMm, bMm: sp.bMm, hMm: sp.hMm,
+    regime: sparingRegime(sp.bMm, sp.hMm, st?.sparingRegels, st?.layout || 'raster'),
+  };
+}
+
 function applyPropToAnnotation(ann, key, value) {
   ann.modifiedAt = new Date().toISOString();
   switch (key) {
@@ -893,6 +1079,15 @@ function applyPropToAnnotation(ann, key, value) {
       ann.minRandMm = Number.isFinite(smr) && smr >= 0 ? smr : SYSTEEMRASTER_DEFAULTS.minRandMm;
       break;
     }
+    // Systeem — type-verwijzing, type-bewerking, rasterhoek, centreren,
+    // randprofiel en sub-element-eigenschappen (zie _applySysteemProp).
+    case 'sgTypeId': case 'sgTypeCelX': case 'sgTypeCelY': case 'sgTypeEdge':
+    case 'rasterHoek': case 'sgCentreer': case 'sgEdgeProfiel': case 'sgPaneelType':
+    case 'sgPaneelComponent': case 'sgRandSegProfiel':
+    case 'sgSparingB': case 'sgSparingH': case 'sgSparingX': case 'sgSparingY':
+    case 'sgSparingToevoegen':
+      _applySysteemProp(ann, key, value);
+      break;
     case 'viewportName': ann.name = value; break;
     case 'viewportScaleRatio': {
       const ratio = parseInt(value);
@@ -1364,6 +1559,18 @@ export function updateAnnotProp(key, value) {
       }
       break;
     }
+    // Systeem: dezelfde helper als in applyPropToAnnotation — de default-tak
+    // zou anders losse velden op de annotatie zetten i.p.v. type/registry of
+    // ann.system te muteren. Na een TYPE-bewerking het paneel verversen zodat
+    // de afgeleide waarden (celmaat, randprofiel, randstukken) meedraaien.
+    case 'sgTypeId': case 'sgTypeCelX': case 'sgTypeCelY': case 'sgTypeEdge':
+    case 'rasterHoek': case 'sgCentreer': case 'sgEdgeProfiel': case 'sgPaneelType':
+    case 'sgPaneelComponent': case 'sgRandSegProfiel':
+    case 'sgSparingB': case 'sgSparingH': case 'sgSparingX': case 'sgSparingY':
+    case 'sgSparingToevoegen':
+      _applySysteemProp(currentAnnotation, key, value);
+      storeShowProperties(currentAnnotation);
+      break;
     default: {
       // Dot-path support for plugin nested writes (e.g., 'data.address.email').
       // Walks the chain creating intermediate objects when missing.

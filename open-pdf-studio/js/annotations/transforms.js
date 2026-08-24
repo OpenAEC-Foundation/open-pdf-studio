@@ -4,8 +4,8 @@ import { snapAngle } from '../utils/helpers.js';
 import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement, formatDimensionText, snapDistanceTo10 } from './measurement.js';
 import { handleAnchors, lineEndForDotTarget, resolveParams } from './stavenreeks.js';
 import { getTemplate } from '../symbols/registry.js';
-import { systeemrasterPxPerMm } from './systeemraster-scale.js';
-import { PX_PER_MM_1_100 as SR_PX_PER_MM_1_100 } from './systeemraster.js';
+import { systeemrasterPxPerMm, systeemrasterBuildOpts } from './systeemraster-scale.js';
+import { PX_PER_MM_1_100 as SR_PX_PER_MM_1_100, segmentPoint as srSegmentPoint, flattenContour as srFlattenContour, copyPointKeepArc, buildSysteemraster, updateSparing as srUpdateSparing } from './systeemraster.js';
 import { pxPerMmAt } from '../symbols/real-size.js';
 import {
   syncTwoPointGeometry,
@@ -246,10 +246,92 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
   // as uit, anders zou de sleep geen zichtbaar effect hebben.
   if (handleType === 'systeemraster_origin' && annotation.type === 'systeemraster') {
     const srK = systeemrasterPxPerMm(annotation) || SR_PX_PER_MM_1_100;
-    annotation.originXMm = (Number(originalAnn.originXMm) || 0) + deltaX / srK;
-    annotation.originYMm = (Number(originalAnn.originYMm) || 0) + deltaY / srK;
-    if (Math.abs(deltaX) > 1e-9) annotation.equalizeX = false;
-    if (Math.abs(deltaY) > 1e-9) annotation.equalizeY = false;
+    // Rasterhoek-bewust: de sleep-delta (wereld) naar de rasterruimte
+    // draaien, want originXMm/-YMm leven op de (gedraaide) rasterassen.
+    const srTheta = ((Number(originalAnn.rasterHoek) || 0) * Math.PI) / 180;
+    const srCos = Math.cos(srTheta), srSin = Math.sin(srTheta);
+    const srDx = deltaX * srCos + deltaY * srSin;
+    const srDy = -deltaX * srSin + deltaY * srCos;
+    annotation.originXMm = (Number(originalAnn.originXMm) || 0) + srDx / srK;
+    annotation.originYMm = (Number(originalAnn.originYMm) || 0) + srDy / srK;
+    if (Math.abs(srDx) > 1e-9) annotation.equalizeX = false;
+    if (Math.abs(srDy) > 1e-9) annotation.equalizeY = false;
+    return;
+  }
+
+  // Systeemraster-hoekgrip: slepen zet de RASTERHOEK — de hoek van de
+  // sleeppositie t.o.v. de rasteroorsprong (wereld). Shift snapt op 15°.
+  if (handleType === 'systeemraster_hoek' && annotation.type === 'systeemraster') {
+    const srGeom = buildSysteemraster(originalAnn, systeemrasterBuildOpts(originalAnn));
+    if (srGeom && srGeom.hoekGrip && srGeom.originGrip) {
+      const tx = srGeom.hoekGrip.x + deltaX, ty = srGeom.hoekGrip.y + deltaY;
+      const dx = tx - srGeom.originGrip.x, dy = ty - srGeom.originGrip.y;
+      if (Math.hypot(dx, dy) > 1e-6) {
+        let deg = Math.atan2(dy, dx) * (180 / Math.PI);
+        if (shiftKey) deg = Math.round(deg / 15) * 15;
+        // Vrijwel 0° → exact 0 (recht raster, geen rot-tak in de geometrie).
+        if (Math.abs(deg) < 0.5 || Math.abs(Math.abs(deg) - 360) < 0.5) deg = 0;
+        annotation.rasterHoek = ((deg % 360) + 360) % 360;
+      }
+    }
+    return;
+  }
+
+  // Sparing-grip: verplaatst de sparing. De wereld-delta wordt naar de
+  // rasterruimte gedraaid (sparingen leven op de gedraaide rasterassen) en
+  // in werkelijke mm op xMm/yMm gezet.
+  if (typeof handleType === 'string' && handleType.startsWith('systeemraster_sparing_')
+      && annotation.type === 'systeemraster') {
+    const spId = handleType.substring('systeemraster_sparing_'.length);
+    const orig = (originalAnn.sparingen || []).find(s => s && s.id === spId);
+    if (orig) {
+      const srK2 = systeemrasterPxPerMm(annotation) || SR_PX_PER_MM_1_100;
+      const th = ((Number(originalAnn.rasterHoek) || 0) * Math.PI) / 180;
+      const c = Math.cos(th), sn = Math.sin(th);
+      const dxR = deltaX * c + deltaY * sn;
+      const dyR = -deltaX * sn + deltaY * c;
+      srUpdateSparing(annotation, spId, {
+        xMm: (Number(orig.xMm) || 0) + dxR / srK2,
+        yMm: (Number(orig.yMm) || 0) + dyR / srK2,
+      });
+    }
+    return;
+  }
+
+  // Systeemraster-segmentgrip: buigt het contoursegment. De boogdiepte volgt
+  // de sleepafstand loodrecht op de koorde (kwadratische Bézier: doorzakking
+  // op t=0,5 = bulge·koorde/2 → bulge = 2·afstand/koorde). Vrijwel op de
+  // koorde terugslepen maakt het segment weer recht — dat is meteen de
+  // recht↔boog-toggle. De boogdata staat op het EINDpunt van het segment
+  // (zelfde conventie als filledArea, zie arcControlPoint in measurement.js).
+  if (typeof handleType === 'string' && handleType.startsWith('systeemraster_seg_')
+      && annotation.type === 'systeemraster') {
+    const s = parseInt(handleType.substring('systeemraster_seg_'.length), 10);
+    const pts = annotation.points || [];
+    const opts = originalAnn.points || [];
+    if (!isNaN(s) && s >= 0 && s < pts.length && pts.length >= 3) {
+      const a = opts[s], b = opts[(s + 1) % opts.length];
+      const base = srSegmentPoint(opts, s, 0.5);
+      const tx = base.x + deltaX, ty = base.y + deltaY;
+      const dx = b.x - a.x, dy = b.y - a.y;
+      const chord = Math.hypot(dx, dy);
+      if (chord > 1e-9) {
+        // Loodrechte (getekende) afstand van de sleeppositie tot de koorde,
+        // in dezelfde normaalrichting als arcControl (-dy, dx).
+        const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+        const h = ((tx - mx) * (-dy) + (ty - my) * dx) / chord;
+        let bulge = (2 * h) / chord;
+        bulge = Math.max(-1.5, Math.min(1.5, bulge));
+        const end = pts[(s + 1) % pts.length];
+        if (Math.abs(bulge) < 0.03) {
+          delete end.arc;
+          delete end.bulge;
+        } else {
+          end.arc = true;
+          end.bulge = bulge;
+        }
+      }
+    }
     return;
   }
 
@@ -756,6 +838,10 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
         break;
       }
       // Drag individual node
+      // Punt-kopie die de boogvelden (arc/bulge — filledArea én
+      // systeemraster) BEHOUDT: de node-sleep herbouwde points[] eerder met
+      // kale {x,y}, waardoor een eerder gebogen segment weer recht werd.
+      const keepArc = copyPointKeepArc;
       if (typeof handleType === 'string' && handleType.startsWith(HANDLE_TYPES.POLYLINE_NODE + '_')) {
         // Check if this is a hole node: polyline_node_hole_<holeIdx>_<nodeIdx>
         const holeMatch = handleType.match(/^polyline_node_hole_(\d+)_(\d+)$/);
@@ -764,9 +850,9 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
           const nodeIdx = parseInt(holeMatch[2], 10);
           if (holeIdx < originalAnn.holes.length && nodeIdx < originalAnn.holes[holeIdx].length) {
             annotation.holes = originalAnn.holes.map((hole, hi) => {
-              if (hi !== holeIdx) return hole.map(p => ({ x: p.x, y: p.y }));
+              if (hi !== holeIdx) return hole.map(p => keepArc(p, p.x, p.y));
               return hole.map((p, ni) => {
-                if (ni !== nodeIdx) return { x: p.x, y: p.y };
+                if (ni !== nodeIdx) return keepArc(p, p.x, p.y);
                 let nx = p.x + deltaX, ny = p.y + deltaY;
                 if (shiftKey) {
                   const len = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -776,7 +862,7 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
                     ny = p.y + len * Math.sin(ang);
                   }
                 }
-                return { x: nx, y: ny };
+                return keepArc(p, nx, ny);
               });
             });
             // Recalculate measurement text with holes
@@ -815,13 +901,18 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
                   if (Math.abs(ny - sp.y) < alignTol) ny = sp.y;
                   if (Math.abs(nx - sp.x) < alignTol) nx = sp.x;
                 }
-                return { x: nx, y: ny };
+                return keepArc(p, nx, ny);
               }
-              return { x: p.x, y: p.y };
+              return keepArc(p, p.x, p.y);
             });
-            // Recalculate bounding box
-            const xs = annotation.points.map(p => p.x);
-            const ys = annotation.points.map(p => p.y);
+            // Recalculate bounding box — boog-bewust: bij boogsegmenten
+            // (arc/bulge op de punten) moet de bbox de uitstulping omvatten,
+            // dus rekenen we op de vlakke uitslag i.p.v. de kale hoekpunten.
+            const bboxPts = annotation.points.some(p => p.arc === true)
+              ? srFlattenContour(annotation.points)
+              : annotation.points;
+            const xs = bboxPts.map(p => p.x);
+            const ys = bboxPts.map(p => p.y);
             annotation.x = Math.min(...xs);
             annotation.y = Math.min(...ys);
             annotation.width = Math.max(...xs) - annotation.x;

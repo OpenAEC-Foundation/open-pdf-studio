@@ -73,6 +73,14 @@ export function findImageAnnotationSources(pageNum, pdfDoc) {
 }
 
 export function findImageForAnnotation(imageMap, annotation, expectedKind, tolerance = 1) {
+  return findImageEntryForAnnotation(imageMap, annotation, expectedKind, tolerance)?.dataUrl ?? null;
+}
+
+// Volledige map-entry ({dataUrl, kind, space}) i.p.v. alleen de dataUrl.
+// `space` zegt in welke ruimte de pixels staan: 'pdf' (rauwe XObject-pixels,
+// ongedraaide PDF-ruimte) of 'visual' (gerenderd inclusief pagina-/Rotate) —
+// de saver kiest daarop of hij pagina-compensatie in de appearance schrijft.
+export function findImageEntryForAnnotation(imageMap, annotation, expectedKind, tolerance = 1) {
   if (!imageMap || !annotation) return null;
 
   // PDF.js exposes indirect annotation references as ids such as "131R".
@@ -80,19 +88,19 @@ export function findImageForAnnotation(imageMap, annotation, expectedKind, toler
   // could attach an image to a different annotation with identical bounds.
   if (annotation.id) {
     const match = imageMap.get(`id:${annotation.id}`);
-    return match?.kind === expectedKind ? match.dataUrl : null;
+    return match?.kind === expectedKind ? match : null;
   }
 
   const rect = annotation.rect;
   if (!rect || rect.length < 4) return null;
   const exact = imageMap.get(`rect:${rect[0]},${rect[1]},${rect[2]},${rect[3]}`);
-  if (exact?.kind === expectedKind) return exact.dataUrl;
+  if (exact?.kind === expectedKind) return exact;
 
   for (const [key, value] of imageMap.entries()) {
     if (!key.startsWith('rect:') || value?.kind !== expectedKind) continue;
     const candidate = key.slice(5).split(',').map(Number);
     if (candidate.length === 4 && candidate.every((number, index) => Math.abs(number - rect[index]) < tolerance)) {
-      return value.dataUrl;
+      return value;
     }
   }
   return null;

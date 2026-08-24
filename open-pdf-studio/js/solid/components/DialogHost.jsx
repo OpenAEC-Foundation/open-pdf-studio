@@ -45,6 +45,8 @@ import StickyNotePopupHost from './StickyNotePopup.jsx';
 import ParametricSymbolPicker from './dialogs/ParametricSymbolPicker.jsx';
 import StyleTypeEditorDialog from './dialogs/StyleTypeEditorDialog.jsx';
 import TekeninstellingenDialog from './dialogs/TekeninstellingenDialog.jsx';
+import SysteemtypenDialog from './dialogs/SysteemtypenDialog.jsx';
+import SysteemPaneelComponentDialog from './dialogs/SysteemPaneelComponentDialog.jsx';
 import PrintProgressToast from './PrintProgressToast.jsx';
 
 const DIALOG_MAP = {
@@ -54,6 +56,8 @@ const DIALOG_MAP = {
   'insert-page': InsertPageDialog,
   'style-type-editor': StyleTypeEditorDialog,
   'tekeninstellingen': TekeninstellingenDialog,
+  'systeemtypen': SysteemtypenDialog,
+  'systeem-paneel-component': SysteemPaneelComponentDialog,
   'delete-pages': DeletePagesDialog,
   'page-properties': PagePropertiesDialog,
   'extract-pages': ExtractPagesDialog,

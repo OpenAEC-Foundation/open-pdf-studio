@@ -133,7 +133,28 @@ export function initContextMenus() {
           }
         }
         if (annotation) {
-          showContextMenu(e, annotation);
+          // Systeem (raster/plafond): rechtsklik op een PANEEL geeft het
+          // menu paneel-context mee, zodat het paneeltype (tegel/
+          // ventilatie/licht) direct via het contextmenu wisselbaar is —
+          // ontdekbaar naast de tweede-klik-selectie.
+          let sgVertex = null;
+          if (annotation.type === 'systeemraster') {
+            try {
+              const [{ buildSysteemraster, paneelAt }, { systeemrasterBuildOpts }] =
+                await Promise.all([
+                  import('../../annotations/systeemraster.js'),
+                  import('../../annotations/systeemraster-scale.js'),
+                ]);
+              const sgGeom = buildSysteemraster(annotation, systeemrasterBuildOpts(annotation));
+              const cel = sgGeom ? paneelAt(sgGeom, x, y) : null;
+              // Paneel-context (raster-layout) of algemene systeem-context;
+              // beide dragen de klikpositie mee voor "Sparing toevoegen".
+              sgVertex = cel
+                ? { kind: 'paneel', ix: cel.ix, iy: cel.iy, annotationId: annotation.id, appX: x, appY: y }
+                : { kind: 'systeem', annotationId: annotation.id, appX: x, appY: y };
+            } catch (_) { /* systeem-context optioneel — menu opent gewoon */ }
+          }
+          showContextMenu(e, annotation, sgVertex);
         } else {
           showPageContextMenu(e);
         }

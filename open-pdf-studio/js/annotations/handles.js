@@ -6,7 +6,7 @@ import { twoPointEndpoints } from '../symbols/two-point.js';
 import { handleAnchors } from './stavenreeks.js';
 import { betonbalkTagAnchor } from './betonbalk.js';
 import { betonbalkHalfWidthPx } from './betonbalk-scale.js';
-import { buildSysteemraster } from './systeemraster.js';
+import { buildSysteemraster, segmentPoint, rotToWorld } from './systeemraster.js';
 import { systeemrasterBuildOpts } from './systeemraster-scale.js';
 
 // Rotate a point around a center point
@@ -349,6 +349,44 @@ export function getAnnotationHandles(annotation, scale = 1) {
             y: srgGeom.originGrip.y - hs/2,
             isGrip: true,
           });
+          // Hoekgrip: op de (gedraaide) raster-x-as — slepen draait het
+          // raster om het contour-midden (rasterHoek).
+          if (srgGeom.hoekGrip) {
+            handles.push({
+              type: 'systeemraster_hoek',
+              x: srgGeom.hoekGrip.x - hs/2,
+              y: srgGeom.hoekGrip.y - hs/2,
+              isGrip: true,
+            });
+          }
+          // Sparing-grips: middelpunt van elke sparing (rasterruimte →
+          // wereld) — slepen verplaatst de sparing (xMm/yMm).
+          for (const sp of srgGeom.sparingen || []) {
+            const c = rotToWorld(srgGeom.rot,
+              { x: sp.x + sp.w / 2, y: sp.y + sp.h / 2 });
+            handles.push({
+              type: `systeemraster_sparing_${sp.id}`,
+              x: c.x - hs/2,
+              y: c.y - hs/2,
+              isGrip: true,
+            });
+          }
+          // Middengrip per contoursegment: verslepen buigt het segment
+          // (recht ↔ boog, boogdiepte = sleepafstand loodrecht op de koorde;
+          // terugslepen naar de koorde maakt het weer recht). Segment s loopt
+          // van node s naar node s+1; de boogdata staat op het EINDpunt.
+          // Op ann.points (niet geom.nodes) zodat de segment-index één-op-één
+          // bij de node-grips en bij transforms.js past.
+          const srgNodes = annotation.points || [];
+          for (let s = 0; s < srgNodes.length; s++) {
+            const mid = segmentPoint(srgNodes, s, 0.5);
+            handles.push({
+              type: `systeemraster_seg_${s}`,
+              x: mid.x - hs/2,
+              y: mid.y - hs/2,
+              isGrip: true,
+            });
+          }
         }
       }
       break;

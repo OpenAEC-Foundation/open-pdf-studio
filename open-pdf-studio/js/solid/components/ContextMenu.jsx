@@ -31,6 +31,13 @@ import { createTextMarkupAnnotation, createCalloutFromSelection } from '../../te
 import { setAsDefaultStyle, applyDefaultStyle } from '../../core/preferences.js';
 import { setTool } from '../../tools/manager.js';
 import { alignAnnotations } from '../../annotations/smart-guides.js';
+import {
+  resolveSysteem, paneelKey, setPaneelType, addSparing, rotToRaster,
+  buildSysteemraster,
+} from '../../annotations/systeemraster.js';
+import { systeemrasterBuildOpts } from '../../annotations/systeemraster-scale.js';
+import { createDefaultPaneelTypen } from '../../annotations/systeem-typen.js';
+import { getSysteemTypeById } from '../../annotations/systeem-typen-registry.js';
 import { getSelectedText, clearTextSelection } from '../../text/text-selection.js';
 import { showCalibrationDialog } from '../../annotations/measurement.js';
 import { openDialog } from '../stores/dialogStore.js';
@@ -128,6 +135,90 @@ function AnnotationMenuContent() {
     const v = vertexContext();
     const a = ann();
     if (!v || !a || a.id !== v.annotationId) return null;
+    // Systeem-paneel (rechtsklik op een cel van een systeemraster/-plafond):
+    // paneeltype direct wisselen — het ASSORTIMENT komt als data van het
+    // systeemtype (typeDef.paneelTypen) — of het paneel vervangen door een
+    // COMPONENT uit de symbolenbibliotheek. Zelfde kern-helpers als het
+    // eigenschappenpaneel.
+    // "Sparing toevoegen" — voor elke klik binnen een systeem (paneel- of
+    // systeem-context): rechthoekige sparing van 600×600 mm gecentreerd op
+    // de klikpositie; regime volgt de sparingsregels van het type.
+    const sparingToevoegen = (v.kind === 'paneel' || v.kind === 'systeem')
+      && Number.isFinite(v.appX) ? () => {
+        try {
+          const before = cloneAnnotation(a);
+          const geom = buildSysteemraster(a, systeemrasterBuildOpts(a));
+          if (!geom) { hideMenu(); return; }
+          const q = rotToRaster(geom.rot, { x: v.appX, y: v.appY });
+          const k = geom.pxPerMm;
+          const sp = addSparing(a, {
+            xMm: (q.x - geom.rasterAabb.x) / k - 300,
+            yMm: (q.y - geom.rasterAabb.y) / k - 300,
+            bMm: 600, hMm: 600,
+          });
+          a.modifiedAt = new Date().toISOString();
+          recordModify(a.id, before, cloneAnnotation(a));
+          const d = getActiveDocument();
+          if (d) { d.selectedAnnotations = [a]; d.selectedAnnotation = a; }
+          if (sp) {
+            a.selectedSub = { kind: 'sparing', id: sp.id, xMm: sp.xMm, yMm: sp.yMm,
+              bMm: sp.bMm, hMm: sp.hMm };
+          }
+          showProperties(a);
+          redraw();
+        } catch (err) { console.error('[contextmenu] sparing toevoegen', err); }
+        hideMenu();
+      } : null;
+    if (v.kind === 'systeem') {
+      return (
+        <>
+          <MenuItem label="Sparing toevoegen" onClick={sparingToevoegen} />
+          <Separator />
+        </>
+      );
+    }
+    if (v.kind === 'paneel') {
+      const rawOv = resolveSysteem(a).layers[0].panels[paneelKey(v.ix, v.iy)];
+      const huidig = !rawOv ? 'tegel' : (typeof rawOv === 'string' ? rawOv : 'component');
+      const zet = (type) => {
+        const before = cloneAnnotation(a);
+        setPaneelType(a, v.ix, v.iy, type);
+        a.selectedSub = { kind: 'paneel', ix: v.ix, iy: v.iy };
+        a.modifiedAt = new Date().toISOString();
+        recordModify(a.id, before, cloneAnnotation(a));
+        redraw();
+        hideMenu();
+      };
+      const assortiment = getSysteemTypeById(a.systeemTypeId)?.paneelTypen
+        || createDefaultPaneelTypen();
+      const anderComponent = () => {
+        // Paneel selecteren zodat de kiezer (via updateAnnotProp) op het
+        // juiste sub-element schrijft, dan de kiezer openen.
+        const d = getActiveDocument();
+        if (d) { d.selectedAnnotations = [a]; d.selectedAnnotation = a; }
+        a.selectedSub = { kind: 'paneel', ix: v.ix, iy: v.iy };
+        showProperties(a);
+        openDialog('systeem-paneel-component');
+        hideMenu();
+      };
+      return (
+        <>
+          {assortiment.map((pt) => (
+            <MenuItem label={`Paneel: ${pt.naam}`} checkbox checked={huidig === pt.id}
+              onClick={() => zet(pt.id)} />
+          ))}
+          <MenuItem label={huidig === 'component'
+            ? `Ander component… (nu: ${rawOv?.naam || rawOv?.symbolId})`
+            : 'Ander component…'}
+            checkbox checked={huidig === 'component'}
+            onClick={anderComponent} />
+          <Show when={sparingToevoegen}>
+            <MenuItem label="Sparing toevoegen" onClick={sparingToevoegen} />
+          </Show>
+          <Separator />
+        </>
+      );
+    }
     const isVertex = v.kind === 'vertex';
     const isEdge = v.kind === 'edge';
     const deleteLabel = t('contextMenu.deleteVertex') || 'Delete vertex';

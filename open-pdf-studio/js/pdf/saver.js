@@ -31,7 +31,9 @@ import { stavenreeksPxPerMm } from '../annotations/stavenreeks-scale.js';
 import { buildBetonbalk } from '../annotations/betonbalk.js';
 import { betonbalkBuildOpts } from '../annotations/betonbalk-scale.js';
 import { effectiveDraftingLineWidth } from '../annotations/drafting-rules.js';
-import { buildSysteemraster } from '../annotations/systeemraster.js';
+import { buildSysteemraster, systeemToOps, sparingenToJson } from '../annotations/systeemraster.js';
+import { systeemTypeToJson } from '../annotations/systeem-typen.js';
+import { getSysteemTypeById } from '../annotations/systeem-typen-registry.js';
 import { systeemrasterBuildOpts } from '../annotations/systeemraster-scale.js';
 import { computeWallShape, resolveWallMaterial } from '../annotations/rendering/walls.js';
 import { syncTwoPointGeometry } from '../symbols/two-point.js';
@@ -49,6 +51,15 @@ function attachVectorAP(context, annotDict, built, rect) {
   if (built.needsFont) {
     resources.Font = context.obj({
       Helv: context.obj({ Type: 'Font', Subtype: 'Type1', BaseFont: 'Helvetica', Encoding: 'WinAnsiEncoding' }),
+    });
+  }
+  // Aparte vul-doorzichtigheid: de content refereert /GSf gs rond de
+  // vul-operator; de graphics-state zelf hoort in de Resources. Zonder deze
+  // ExtGState verloor een polygoon met transparante vulling zijn vlak bij
+  // opslaan (The.Map-regressie in de opslag-rondgang).
+  if (built.fillAlpha !== undefined && built.fillAlpha !== null && built.fillAlpha < 1) {
+    resources.ExtGState = context.obj({
+      GSf: context.obj({ Type: 'ExtGState', ca: built.fillAlpha }),
     });
   }
   const apStream = context.stream(built.content, {
@@ -137,6 +148,34 @@ function remapAnnotationForRotatedPage(annRaw, rot, cw, ch) {
     });
   }
   return ann;
+}
+
+// Pagina-/Rotate-compensatie voor beeldvullende AP-inhoud (stempels en
+// afbeeldingen). De AP leeft in ongedraaide PDF-ruimte, maar de viewer draait
+// de hele pagina — inclusief de AP — mee met /Rotate. De inhoud moet dus
+// tegengesteld voorgedraaid worden, met dezelfde conventie als het
+// FreeText-pad (één rotatie-cm rond het BBox-midden, /Matrix blijft
+// identiteit). Zonder deze compensatie stond een afbeeldingsstempel op een
+// /Rotate-90-blad na opslaan een kwartslag gedraaid in elke andere viewer.
+// Geeft { prefix, visW, visH }: cm-prefix binnen q…Q en de visuele
+// afmetingen waarop de inhoud getekend moet worden. Bij /Rotate 0 is de
+// prefix leeg en zijn visW/visH gelijk aan w/h — de uitvoer verandert dan
+// niet.
+function pageCompensationForAp(w, h, pageRot) {
+  const apRotation = (((-pageRot) % 360) + 360) % 360;
+  const pageSwapsDims = pageRot === 90 || pageRot === 270;
+  const visW = pageSwapsDims ? h : w;
+  const visH = pageSwapsDims ? w : h;
+  if (apRotation === 0) return { prefix: '', visW, visH };
+  const rad = -apRotation * Math.PI / 180;
+  // Afronden: rechte hoeken moeten als exact 0/±1 serialiseren — rauwe
+  // Math.cos geeft 6.1e-17 en exponent-notatie is geen geldig PDF-getal.
+  const cosR = Math.round(Math.cos(rad) * 1e6) / 1e6;
+  const sinR = Math.round(Math.sin(rad) * 1e6) / 1e6;
+  const prefix = `1 0 0 1 ${w / 2} ${h / 2} cm\n` +
+    `${cosR} ${sinR} ${-sinR} ${cosR} 0 0 cm\n` +
+    `1 0 0 1 ${-visW / 2} ${-visH / 2} cm\n`;
+  return { prefix, visW, visH };
 }
 
 // Save PDF with annotations
@@ -844,10 +883,45 @@ export async function savePDF(saveAsPath = null) {
 
             annotDict = context.obj(polygonDict);
 
+            // Vector /AP voor GEWONE polygonen: viewers die zelf uit /Vertices
+            // synthetiseren tekenen alleen de rand en laten /IC-vulling (en al
+            // helemaal een transparante vulling) weg. Het origineel van
+            // The.Map had een AP met gevuld vlak + ExtGState-alfa; zonder
+            // her-generatie verdween dat vlak bij elke opslag. De vertices
+            // staan in absolute PDF-coordinaten en draaien vanzelf met de
+            // pagina mee — geen /Rotate-compensatie nodig, anders dan bij
+            // tekst- en beeldinhoud.
+            if (ann.type === 'polygon' && polyVertices.length >= 6) {
+              const pgFill = hasFill(ann.fillColor);
+              const pgStroke = borderWidth > 0 && ann.strokeColor !== 'none' && ann.strokeColor !== 'transparent';
+              let pad = '';
+              for (let vi = 0; vi < polyVertices.length; vi += 2) {
+                pad += `${polyVertices[vi]} ${polyVertices[vi + 1]} ${vi === 0 ? 'm' : 'l'}\n`;
+              }
+              pad += 'h\n';
+              const pgFillAlpha = (fillOpacity !== undefined && fillOpacity !== null) ? fillOpacity : 1;
+              let pgContent = '';
+              if (pgFill) {
+                const [fr, fg, fb] = hexToRgb(ann.fillColor);
+                // Vulling apart binnen q…Q zodat de vul-alfa de rand niet raakt.
+                pgContent += `q\n${pgFillAlpha < 1 ? '/GSf gs\n' : ''}${fr} ${fg} ${fb} rg\n${pad}f\nQ\n`;
+              }
+              if (pgStroke) {
+                const [psr, psg, psb] = hexToRgb(ann.strokeColor || ann.color || '#000000');
+                const pgDash = ann.borderStyle === 'dashed' ? '[8 4] 0 d\n' : ann.borderStyle === 'dotted' ? '[2 2] 0 d\n' : '';
+                pgContent += `q\n${borderWidth} w\n${pgDash}${psr} ${psg} ${psb} RG\n${pad}S\nQ\n`;
+              }
+              if (pgContent) {
+                attachVectorAP(context, annotDict, {
+                  content: pgContent,
+                  fillAlpha: pgFill ? pgFillAlpha : undefined,
+                }, polygonDict.Rect);
+              }
+            }
+
             // Vector /AP so the SCALLOPED cloud outline shows in other viewers.
             // Without it they synthesise a straight-edged polygon from /Vertices
-            // and the cloud bumps are lost — issue #256. (Plain polygons keep
-            // their native synthesis; only cloud types get the scallop AP.)
+            // and the cloud bumps are lost — issue #256.
             if (ann.type === 'cloud' || ann.type === 'cloudPolyline') {
               const canRect = ann.width != null && ann.height != null;
               const hasPts = Array.isArray(ann.points) && ann.points.length >= 3;
@@ -1294,14 +1368,18 @@ export async function savePDF(saveAsPath = null) {
             if (!ann.imageData && ann.stampText) {
               const w = ann.width;
               const h = ann.height;
+              // Op /Rotate-pagina's tekent de stempel in visuele afmetingen
+              // binnen een compensatie-transform; bij /Rotate 0 is dit een
+              // no-op (lege prefix, visW/visH == w/h).
+              const { prefix: stPrefix, visW, visH } = pageCompensationForAp(w, h, pageRot);
               const [sr, sg, sb] = hexToRgb(ann.stampColor || ann.color || '#ef4444');
-              const fontSize = Math.min(h * 0.45, 22);
+              const fontSize = Math.min(visH * 0.45, 22);
               const textW = ann.stampText.length * fontSize * 0.58;
-              const textX = (w - textW) / 2;
-              const textY = (h - fontSize) / 2.4;
+              const textX = (visW - textW) / 2;
+              const textY = (visH - fontSize) / 2.4;
               const escaped = ann.stampText.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
               const k = 0.5522847498;
-              const r = Math.min(w, h) * 0.15;
+              const r = Math.min(visW, visH) * 0.15;
               const rrect = (rx, ry, rw, rh, cr) => {
                 const kr = cr * k;
                 return `${rx+cr} ${ry} m ${rx+rw-cr} ${ry} l ${rx+rw-cr+kr} ${ry} ${rx+rw} ${ry+cr-kr} ${rx+rw} ${ry+cr} c ` +
@@ -1309,7 +1387,7 @@ export async function savePDF(saveAsPath = null) {
                   `${rx+cr} ${ry+rh} l ${rx+cr-kr} ${ry+rh} ${rx} ${ry+rh-cr+kr} ${rx} ${ry+rh-cr} c ` +
                   `${rx} ${ry+cr} l ${rx} ${ry+cr-kr} ${rx+cr-kr} ${ry} ${rx+cr} ${ry} c h\n`;
               };
-              let s = `q\n2 w ${sr} ${sg} ${sb} RG\n${rrect(0, 0, w, h, r)}S\n`;
+              let s = `q\n${stPrefix}2 w ${sr} ${sg} ${sb} RG\n${rrect(0, 0, visW, visH, r)}S\n`;
               s += `BT\n/F1 ${fontSize} Tf\n${sr} ${sg} ${sb} rg\n${textX} ${textY} Td\n(${escaped}) Tj\nET\nQ\n`;
               const fontDict = context.obj({ Type: 'Font', Subtype: 'Type1', BaseFont: 'Helvetica-Bold', Encoding: 'WinAnsiEncoding' });
               const apStream = context.stream(s, {
@@ -1338,6 +1416,14 @@ export async function savePDF(saveAsPath = null) {
                 const imageRef = embeddedImage.ref;
                 const w = ann.width;
                 const h = ann.height;
+                // Compensatie alleen voor bitmaps in SCHERMruimte (in de app
+                // geplaatst of via de render-fallback geëxtraheerd). Rauwe
+                // XObject-pixels (apImageSpace 'pdf') staan al in ongedraaide
+                // PDF-ruimte en moeten zonder compensatie terug, anders
+                // draait de inhoud dubbel.
+                const { prefix: imgPrefix, visW, visH } = ann.apImageSpace === 'pdf'
+                  ? { prefix: '', visW: w, visH: h }
+                  : pageCompensationForAp(w, h, pageRot);
                 const alpha = ann.opacity !== undefined ? ann.opacity : 1;
                 let apContent;
                 const resources = { XObject: context.obj({ Img: imageRef }) };
@@ -1346,9 +1432,9 @@ export async function savePDF(saveAsPath = null) {
                   const gsDict = context.obj({ Type: 'ExtGState', ca: alpha, CA: alpha });
                   const gsRef = context.register(gsDict);
                   resources.ExtGState = context.obj({ GS0: gsRef });
-                  apContent = `q\n/GS0 gs\n${w} 0 0 ${h} 0 0 cm\n/Img Do\nQ\n`;
+                  apContent = `q\n/GS0 gs\n${imgPrefix}${visW} 0 0 ${visH} 0 0 cm\n/Img Do\nQ\n`;
                 } else {
-                  apContent = `q\n${w} 0 0 ${h} 0 0 cm\n/Img Do\nQ\n`;
+                  apContent = `q\n${imgPrefix}${visW} 0 0 ${visH} 0 0 cm\n/Img Do\nQ\n`;
                 }
 
                 const apStream = context.stream(
@@ -1456,24 +1542,30 @@ export async function savePDF(saveAsPath = null) {
 
                 // Build AP stream content with opacity via ExtGState
                 const alpha = ann.opacity !== undefined ? ann.opacity : 1;
+                // Pagina-/Rotate-compensatie alleen voor schermruimte-bitmaps;
+                // rauwe XObject-pixels (apImageSpace 'pdf') gaan ongedraaid
+                // terug — zie het stempel-pad hierboven.
+                const { prefix: imgPrefix, visW, visH } = ann.apImageSpace === 'pdf'
+                  ? { prefix: '', visW: w, visH: h }
+                  : pageCompensationForAp(w, h, pageRot);
                 let apContent;
                 const resources = { XObject: context.obj({ Img: imageRef }) };
                 const extGStates = {};
 
                 // Crop-aware image matrix: scale the full image up so the
-                // visible source window maps exactly onto [0,w]x[0,h], then
-                // clip to that rect. Image space: top row sits at v=1, so
+                // visible source window maps exactly onto [0,visW]x[0,visH],
+                // then clip to that rect. Image space: top row sits at v=1, so
                 // cropTop trims from the v=1 side and cropBottom from v=0.
                 let imgOps;
                 if (hasCrop) {
                   const r4 = (n) => Number(n.toFixed(4));
-                  const sw = w / (1 - cropL - cropR);
-                  const sh = h / (1 - cropT - cropB);
+                  const sw = visW / (1 - cropL - cropR);
+                  const sh = visH / (1 - cropT - cropB);
                   const ox = -cropL * sw;
                   const oy = -cropB * sh;
-                  imgOps = `0 0 ${r4(w)} ${r4(h)} re W n\n${r4(sw)} 0 0 ${r4(sh)} ${r4(ox)} ${r4(oy)} cm\n/Img Do`;
+                  imgOps = `0 0 ${r4(visW)} ${r4(visH)} re W n\n${r4(sw)} 0 0 ${r4(sh)} ${r4(ox)} ${r4(oy)} cm\n/Img Do`;
                 } else {
-                  imgOps = `${w} 0 0 ${h} 0 0 cm\n/Img Do`;
+                  imgOps = `${visW} 0 0 ${visH} 0 0 cm\n/Img Do`;
                 }
 
                 if (alpha < 1) {
@@ -1482,9 +1574,9 @@ export async function savePDF(saveAsPath = null) {
                   // resources.ExtGState wordt na afloop uit `extGStates` gezet.
                   // Crop-bewuste `imgOps` i.p.v. de volledige-beeld-cm.
                   extGStates.GS0 = context.register(gsDict);
-                  apContent = `q\n/GS0 gs\n${imgOps}\nQ\n`;
+                  apContent = `q\n/GS0 gs\n${imgPrefix}${imgOps}\nQ\n`;
                 } else {
-                  apContent = `q\n${imgOps}\nQ\n`;
+                  apContent = `q\n${imgPrefix}${imgOps}\nQ\n`;
                 }
 
                 // Colour tint: Multiply-blend fill over the image, so other
@@ -1496,7 +1588,7 @@ export async function savePDF(saveAsPath = null) {
                     Type: 'ExtGState', BM: PDFName.of('Multiply'), ca: alpha, CA: alpha,
                   });
                   extGStates.GS1 = context.register(tintGs);
-                  apContent += `q\n/GS1 gs\n${tintR} ${tintG} ${tintB} rg\n0 0 ${w} ${h} re f\nQ\n`;
+                  apContent += `q\n/GS1 gs\n${imgPrefix}${tintR} ${tintG} ${tintB} rg\n0 0 ${visW} ${visH} re f\nQ\n`;
                 }
                 if (Object.keys(extGStates).length > 0) {
                   resources.ExtGState = context.obj(extGStates);
@@ -1832,10 +1924,17 @@ export async function savePDF(saveAsPath = null) {
             const sgGeom = buildSysteemraster(ann, systeemrasterBuildOpts(ann));
             if (!sgGeom) continue;
 
+            // /Vertices = de contour-NODES (niet de vlakke boog-uitslag):
+            // dat zijn de bewerkbare hoekpunten bij heropenen; de bogen
+            // reizen mee via de parallelle arrays OPS_SgArcFlags/-Bulges.
+            const sgNodes = sgGeom.nodes || sgGeom.contour;
             const sgVertices = [];
-            for (const pt of sgGeom.contour) {
+            for (const pt of sgNodes) {
               sgVertices.push(convertX(pt.x), convertY(pt.y));
             }
+            // Systeem-metadata (bogen, type, randprofiel, paneel-overrides)
+            // via de pure vertaalhelper — zelfde bron als de unittests.
+            const sgOps = systeemToOps({ ...ann, points: sgNodes });
             const sgA = sgGeom.aabb;
             const sgCorners = [
               [convertX(sgA.x), convertY(sgA.y)],
@@ -1877,7 +1976,43 @@ export async function savePDF(saveAsPath = null) {
               OPS_SgTagTonen: sgP.tagTonen ? 1 : 0,
               OPS_SgFontSize: sgP.tagFontSize,
               OPS_SgLineWidth: ann.lineWidth ?? 1,
+              // Systeem (v1: systeemplafond) — type, randprofiel en IFC.
+              OPS_SgSysType: PDFString.of(sgOps.sysType),
+              OPS_SgEdge: PDFString.of(sgOps.edgeProfiel),
+              OPS_IfcCategory: PDFString.of(ann.ifcCategory || ''),
             };
+            if (ann.ifcPredefinedType) {
+              sgDict.OPS_IfcPredefined = PDFString.of(ann.ifcPredefinedType);
+            }
+            // Boogsegmenten: parallelle arrays per contour-node (vlag +
+            // bulge), zelfde conventie als filledArea.
+            if (sgOps.hasArcs) {
+              sgDict.OPS_SgArcFlags = sgOps.arcFlags;
+              sgDict.OPS_SgArcBulges = sgOps.arcBulges;
+            }
+            // Paneel-overrides (alleen niet-default): compacte JSON —
+            // paneeltype-id's én component-in-cel-verwijzingen.
+            if (sgOps.panelsJson) {
+              sgDict.OPS_SgPanels = PDFString.of(sgOps.panelsJson);
+            }
+            // Randprofiel-overrides per contoursegment.
+            if (sgOps.edgesJson) {
+              sgDict.OPS_SgEdges = PDFString.of(sgOps.edgesJson);
+            }
+            // Sparingen (rechthoekige gaten, mm t.o.v. de raster-AABB).
+            const sgSparingenJson = sparingenToJson(ann);
+            if (sgSparingenJson) {
+              sgDict.OPS_SgSparingen = PDFString.of(sgSparingenJson);
+            }
+            // SYSTEEMTYPE: verwijzing + JSON-snapshot van de definitie,
+            // zodat de PDF zijn typen meebrengt naar andere machines (de
+            // loader registreert onbekende typen bij in de registry).
+            if (ann.systeemTypeId) {
+              sgDict.OPS_SgTypeId = PDFString.of(String(ann.systeemTypeId));
+              const sgTypeJson = systeemTypeToJson(sgGeom.typeDef
+                || getSysteemTypeById(ann.systeemTypeId));
+              if (sgTypeJson) sgDict.OPS_SgTypeDef = PDFString.of(sgTypeJson);
+            }
             annotDict = context.obj(sgDict);
             annotDict.set(PDFName.of('BS'), buildBorderStyle(context, borderWidth, 'solid'));
 

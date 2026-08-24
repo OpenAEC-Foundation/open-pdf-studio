@@ -121,7 +121,10 @@ export async function extractStampImagesViaPdfJs(page, viewport, stampAnnots) {
         const key = stamp.id
           ? `id:${stamp.id}`
           : `rect:${rect[0]},${rect[1]},${rect[2]},${rect[3]}`;
-        imageMap.set(key, { kind: 'stamp', dataUrl });
+        // space:'visual' — dit pad rendert via een pdf.js-viewport dat de
+        // pagina-/Rotate al bevat; de pixels staan dus zoals op het scherm.
+        // De saver moet zulke bitmaps met pagina-compensatie wegschrijven.
+        imageMap.set(key, { kind: 'stamp', dataUrl, space: 'visual' });
       }
     }
   } catch (e) {
@@ -129,6 +132,30 @@ export async function extractStampImagesViaPdfJs(page, viewport, stampAnnots) {
   }
 
   return imageMap;
+}
+
+// Draait de content van deze appearance zijn beeld? Een cm/Tm met b of c ≠ 0
+// rotereert/schuint (identiteit, translatie en schaling hebben b = c = 0).
+async function formContentRotates(formStream) {
+  try {
+    let bytes;
+    if (typeof formStream.getContents === 'function') bytes = formStream.getContents();
+    else if (typeof formStream.contents === 'function') bytes = formStream.contents();
+    else if (formStream.contentsCache?.value) bytes = formStream.contentsCache.value;
+    if (!bytes) return false;
+    const dict = formStream.dict || formStream;
+    if (dict.get(PDFName.of('Filter'))?.toString() === '/FlateDecode') {
+      bytes = await inflateBytes(bytes);
+      if (!bytes) return false;
+    }
+    const content = new TextDecoder().decode(bytes);
+    const opRe = /(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+cm\b/g;
+    let m;
+    while ((m = opRe.exec(content)) !== null) {
+      if (Math.abs(parseFloat(m[2])) > 0.001 || Math.abs(parseFloat(m[3])) > 0.001) return true;
+    }
+  } catch (_) { /* onleesbare content: behandel als niet-roterend */ }
+  return false;
 }
 
 // Extract stamp images from PDF using pdf-lib (fallback)
@@ -143,7 +170,17 @@ export async function extractStampImages(pageNum, pdfDoc) {
         const key = source.annotationId
           ? `id:${source.annotationId}`
           : `rect:${source.rectKey}`;
-        imageMap.set(key, { kind: source.kind, dataUrl });
+        // In welke ruimte staan deze rauwe XObject-pixels?
+        // - Appearance ZONDER rotatie-cm: de pixels liggen zoals de AP ze in
+        //   ongedraaide PDF-ruimte tekent → space:'pdf'. De saver schrijft ze
+        //   dan zonder pagina-compensatie terug, anders draait de inhoud
+        //   dubbel (VO Constructie-regressie in de opslag-rondgang).
+        // - Appearance MET rotatie-cm (o.a. onze eigen gecompenseerde saves):
+        //   de pixels zijn schermgericht → space:'visual', en de saver moet
+        //   de compensatie opnieuw aanbrengen. Zo blijft ook een tweede
+        //   opslagronde stabiel.
+        const space = (await formContentRotates(source.stream)) ? 'visual' : 'pdf';
+        imageMap.set(key, { kind: source.kind, dataUrl, space });
       }
     }
   } catch (e) {

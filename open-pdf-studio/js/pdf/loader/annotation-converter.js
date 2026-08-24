@@ -4,11 +4,14 @@ import { generateImageId } from '../../utils/helpers.js';
 import { colorArrayToHex } from '../../utils/colors.js';
 import { mapPdfFontName, mapBorderStyle } from './pdf-helpers.js';
 import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement } from '../../annotations/measurement.js';
-import { findImageForAnnotation } from './annotation-image-sources.mjs';
+import { findImageForAnnotation, findImageEntryForAnnotation } from './annotation-image-sources.mjs';
 import { ifcCategoryForAnnotationType, ifcCategoryForParametric } from '../../solid/data/ifcCategoryMap.js';
 import { nenIfcForStamp } from '../../solid/data/nenIfcMap.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
 import { syncTwoPointGeometry } from '../../symbols/two-point.js';
+import { systeemFromOps, sparingenFromJson } from '../../annotations/systeemraster.js';
+import { systeemTypeFromJson } from '../../annotations/systeem-typen.js';
+import { ensureSysteemType, getSysteemTypeById } from '../../annotations/systeem-typen-registry.js';
 
 // Convert PDF annotation to our format
 export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageMap, annotColorMap) {
@@ -147,7 +150,8 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
     }
 
     case 'Square': {
-      const squareImageData = findImageForAnnotation(stampImageMap, annot, 'square-image');
+      const squareImgEntry = findImageEntryForAnnotation(stampImageMap, annot, 'square-image');
+      const squareImageData = squareImgEntry?.dataUrl ?? null;
       if (squareImageData) {
         const imageRect = convertRect(rect);
         const imageId = generateImageId();
@@ -157,6 +161,9 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
         return createAnnotation({
           ...baseProps,
           type: 'image',
+          // In welke ruimte de pixels staan ('pdf' of 'visual') — bepaalt of
+          // de saver pagina-/Rotate-compensatie in de appearance schrijft.
+          apImageSpace: squareImgEntry.space,
           x: imageRect.x,
           y: imageRect.y,
           width: imageRect.width,
@@ -769,10 +776,35 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
         // ander programma zit al in de vertices verwerkt.
         if (extraColors.opsSubtype === 'systeemraster' && polyPoints.length >= 3) {
           const sgColor = colorArrayToHex(annot.color, '#000000');
+          // Boogsegmenten + systeem (plafond: panelen/randprofiel) via de
+          // pure vertaalhelper; muteert polyPoints (arc/bulge per node).
+          const sgSystem = systeemFromOps(polyPoints, {
+            arcFlags: extraColors.sgArcFlags,
+            arcBulges: extraColors.sgArcBulges,
+            sysType: extraColors.sgSysType,
+            edgeProfiel: extraColors.sgEdgeProfiel,
+            panelsJson: extraColors.sgPanelsJson,
+            edgesJson: extraColors.sgEdgesJson,
+          });
+          // Systeemtype: meegereisd snapshot bijregistreren (bestaand lokaal
+          // type met hetzelfde id wint) en de instance eraan koppelen.
+          let sgTypeId;
+          const sgTypeDef = systeemTypeFromJson(extraColors.sgTypeDefJson);
+          if (sgTypeDef) ensureSysteemType(sgTypeDef);
+          if (extraColors.sgTypeId || sgTypeDef) {
+            sgTypeId = extraColors.sgTypeId || sgTypeDef.id;
+          }
+          const sgResolvedType = sgTypeId ? getSysteemTypeById(sgTypeId) : null;
           return createAnnotation({
             ...baseProps,
             type: 'systeemraster',
             points: polyPoints,
+            system: sgSystem,
+            sparingen: sparingenFromJson(extraColors.sgSparingenJson),
+            systeemTypeId: sgTypeId,
+            ifcPredefinedType: sgResolvedType?.ifcPredefinedType
+              || extraColors.opsIfcPredefined
+              || (sgSystem.type === 'plafond' ? 'CEILING' : undefined),
             x: minX, y: minY, width: maxX - minX, height: maxY - minY,
             plaatBreedteMm: extraColors.sgPlaatBreedteMm ?? 2000,
             plaatHoogteMm: extraColors.sgPlaatHoogteMm ?? 2000,
@@ -785,7 +817,8 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
             rasterHoek: extraColors.sgRasterHoek ?? 0,
             tagTonen: extraColors.sgTagTonen !== false,
             tagFontSize: extraColors.sgTagFontSize ?? 10,
-            ifcCategory: ifcCategoryForAnnotationType('systeemraster'),
+            ifcCategory: sgResolvedType?.ifcCategory
+              || ifcCategoryForAnnotationType('systeemraster'),
             color: sgColor,
             strokeColor: sgColor,
             lineWidth: extraColors.sgLineWidth ?? extraColors.borderWidth ?? 1,
@@ -1364,13 +1397,23 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
       const w = stRect.width;
       const h = stRect.height;
 
-      const dataUrl = findImageForAnnotation(stampImageMap, annot, 'stamp');
+      const stampImgEntry = findImageEntryForAnnotation(stampImageMap, annot, 'stamp');
+      const dataUrl = stampImgEntry?.dataUrl ?? null;
 
       let stRotation = 0;
       if (extraColors.rotation !== undefined && extraColors.rotation !== 0) {
         stRotation = Math.round(extraColors.rotation);
       } else if (extraColors.matrixAngle !== undefined && Math.abs(extraColors.matrixAngle) > 1) {
-        stRotation = -Math.round(extraColors.matrixAngle);
+        // Zelfde conventie als het FreeText-pad hierboven: de /Matrix-hoek is
+        // een hoek in PDF-ruimte, en de pagina-/Rotate draait het hele blad
+        // mee. Zichtbaar is dus het verschil van die twee. Zonder deze
+        // verrekening stond een stempel met matrix +90 op een /Rotate-90-blad
+        // (extern rechtop) hier een kwartslag gedraaid.
+        const stPageRot = (((viewport.rotation || 0) % 360) + 360) % 360;
+        stRotation = -(Math.round(extraColors.matrixAngle) - stPageRot);
+        while (stRotation > 180) stRotation -= 360;
+        while (stRotation < -180) stRotation += 360;
+        if (Math.abs(stRotation) <= 1) stRotation = 0;
       }
 
       // Reverse-map PDF standard names back to app stamp names
@@ -1393,7 +1436,10 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
         stampColor: stampColor,
         color: stampColor,
         strokeColor: stampColor,
-        rotation: stRotation
+        rotation: stRotation,
+        // Pixelruimte van de geëxtraheerde bitmap ('pdf' of 'visual') — de
+        // saver kiest daarop of hij pagina-/Rotate-compensatie schrijft.
+        apImageSpace: stampImgEntry?.space
       };
 
       // IFC-classificatie van symboolstempels (NEN 1414 e.d.). Voorkeur:

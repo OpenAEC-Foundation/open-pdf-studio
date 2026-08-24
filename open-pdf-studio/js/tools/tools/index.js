@@ -13,7 +13,7 @@ import { splineTool } from './spline-tool.js';
 import { splineArrowTool } from './spline-arrow-tool.js';
 import { measureDistanceTool, measureAreaTool, measurePerimeterTool, addHoleTool } from './measurement-tool.js';
 import { filledAreaTool } from './filled-area-tool.js';
-import { systeemrasterTool } from './systeemraster-tool.js';
+import { systeemrasterTool, systeemplafondTool } from './systeemraster-tool.js';
 import { measureAngleTool } from './angle-tool.js';
 import { commentTool, textTool, stampTool, signatureTool, editTextTool } from './text-tool.js';
 import { calibrationPickTool } from './calibration-pick-tool.js';
@@ -91,6 +91,9 @@ export function registerAllTools() {
   // platenraster (systeemplafond / stelconplaten); geometrie in
   // annotations/systeemraster.js.
   registerTool('systeemraster', systeemrasterTool);
+  // Systeemplafond: zelfde contour-flow, celmaat 600×600 en het
+  // system-datamodel (panelen + randprofiel) — zie systeemraster-tool.js.
+  registerTool('systeemplafond', systeemplafondTool);
 
   // Calibration
   registerTool('calibrationPick', calibrationPickTool);

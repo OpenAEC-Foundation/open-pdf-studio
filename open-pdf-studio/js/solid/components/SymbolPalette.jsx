@@ -211,6 +211,15 @@ function SymbolContent() {
                       onClick={(e) => { e.stopPropagation(); openDialog('tekeninstellingen'); }}
                       innerHTML={settingsSvg}
                     />
+                    {/* Systeemtypen (systeemplafond/-raster) beheren — ook
+                        bereikbaar zonder geselecteerde instantie. */}
+                    <button
+                      id="btn-systeemtypen"
+                      class="sp-settings-btn"
+                      title="Systeemtypen beheren"
+                      onClick={(e) => { e.stopPropagation(); openDialog('systeemtypen'); }}
+                      innerHTML={`<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="1" y="1" width="10" height="10"/><line x1="4.3" y1="1" x2="4.3" y2="11"/><line x1="7.6" y1="1" x2="7.6" y2="11"/><line x1="1" y1="4.3" x2="11" y2="4.3"/><line x1="1" y1="7.6" x2="11" y2="7.6"/></svg>`}
+                    />
                   </Show>
                   <span class="sp-cat-count">{cat.symbols.length}</span>
                 </div>
