@@ -137,5 +137,20 @@
   "bcfExportFailed": "BCF-export mislukt.",
   "bcfImportFailed": "BCF-bestand kon niet worden gelezen.",
   "bcfInvalidFile": "Ongeldig of niet-ondersteund BCF-bestand.",
-  "bcfNoTopics": "Geen topics gevonden in BCF-bestand."
+  "bcfNoTopics": "Geen topics gevonden in BCF-bestand.",
+  "emailBody": "Zie bijlage: {{filename}}\n\n(Voeg het bestand toe als bijlage: {{path}})",
+  "emailFailed": "E-mailen mislukt: {{error}}",
+  "linkedImage": {
+    "refreshed": "Gelinkte afbeelding vernieuwd: {{filename}}",
+    "unreadable": "Gelinkt bestand niet leesbaar — ingesloten versie blijft staan"
+  },
+  "tabs": {
+    "saveBeforeDetach": "Sla het document eerst op voor je het naar een ander venster sleept.",
+    "detachFailed": "Window losmaken mislukt: {{error}}",
+    "openInNewWindow": "Open in nieuw venster",
+    "closeTab": "Tab sluiten"
+  },
+  "quickAccess": {
+    "exportRaster": "Exporteer als raster-PDF (opent in nieuw tabblad)"
+  }
 }

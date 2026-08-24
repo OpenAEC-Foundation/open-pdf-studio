@@ -137,5 +137,20 @@
   "bcfExportFailed": "BCF export failed.",
   "bcfImportFailed": "Could not read BCF file.",
   "bcfInvalidFile": "Invalid or unsupported BCF file.",
-  "bcfNoTopics": "No topics found in BCF file."
+  "bcfNoTopics": "No topics found in BCF file.",
+  "emailBody": "See attached: {{filename}}\n\n(Attach the file: {{path}})",
+  "emailFailed": "Sending the email failed: {{error}}",
+  "linkedImage": {
+    "refreshed": "Linked image refreshed: {{filename}}",
+    "unreadable": "Linked file could not be read \u2014 the embedded version is kept"
+  },
+  "tabs": {
+    "saveBeforeDetach": "Save the document before dragging it to another window.",
+    "detachFailed": "Could not detach the window: {{error}}",
+    "openInNewWindow": "Open in new window",
+    "closeTab": "Close tab"
+  },
+  "quickAccess": {
+    "exportRaster": "Export as raster PDF (opens in a new tab)"
+  }
 }

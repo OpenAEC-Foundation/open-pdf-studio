@@ -95,7 +95,9 @@
     "basic": "Basis",
     "select": "Selecteren",
     "resizePages": "Paginaformaat",
-    "resize": "Formaat"
+    "resize": "Formaat",
+    "ifcExport": "Opslaan als IFC-report (.ifcreport)",
+    "emailPdf": "Verzenden per e-mail (PDF als bijlage)"
   },
   "comment": {
     "scaleRegion": "Schaalgebied",
@@ -186,7 +188,9 @@
     "thinLinesTitle": "Dunne lijnen (Ctrl+5)",
     "thinLines": "Dunne lijnen",
     "fullscreen": "Volledig scherm",
-    "display": "Weergave"
+    "display": "Weergave",
+    "keystrokes": "Sneltoetsen",
+    "keystrokesHint": "Toon ingedrukte sneltoetsen links onderin (voor video-opnames)"
   },
   "elementVisibility": {
     "buttonTitle": "Zichtbaarheid Elementen — toon/verberg en dim annotatie-soorten",
@@ -261,7 +265,9 @@
     "manageWatermarks": "Watermerken beheren",
     "manage": "Beheren",
     "compressPdf": "PDF comprimeren (bestandsgrootte verkleinen)",
-    "compressLabel": "Comprimeren"
+    "compressLabel": "Comprimeren",
+    "reorderPages": "Volgorde",
+    "reorderPagesTitle": "Open miniaturen om pagina’s in een nieuwe volgorde te slepen"
   },
   "help": {
     "information": "Informatie",
@@ -476,5 +482,27 @@
     "contrast": "Contrast",
     "resetAdjust": "Herstellen",
     "resetAdjustHint": "Grijswaarden, helderheid en contrast terugzetten"
+  },
+  "compareAnnType": {
+    "line": "Lijn",
+    "arrow": "Pijl",
+    "draw": "Vrije tekening",
+    "box": "Rechthoek",
+    "circle": "Ellips",
+    "polygon": "Polygoon",
+    "polyline": "Polylijn",
+    "cloud": "Wolk",
+    "highlight": "Markering",
+    "text": "Tekst",
+    "textbox": "Tekstvak",
+    "callout": "Bijschrift",
+    "comment": "Notitie",
+    "image": "Afbeelding",
+    "stamp": "Stempel",
+    "signature": "Handtekening",
+    "measureDistance": "Afstand",
+    "measureArea": "Oppervlak",
+    "measurePerimeter": "Omtrek",
+    "annotation": "Annotatie"
   }
 }

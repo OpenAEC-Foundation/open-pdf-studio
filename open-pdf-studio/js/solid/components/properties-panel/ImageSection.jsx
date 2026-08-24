@@ -3,6 +3,7 @@ import { annotProps, sectionVis, updateAnnotProp, resetImageSize, cycleSelectNex
 import CollapsibleSection from './CollapsibleSection.jsx';
 import PrefComboBox from '../preferences/PrefComboBox.jsx';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import i18next from '../../../i18n/config.js';
 import { getActiveDocument } from '../../../core/state.js';
 
 // Linked image actions — the annotation refreshes its bitmap from this file
@@ -20,8 +21,8 @@ async function _linkImageFile() {
     const dlg = window.__TAURI__?.dialog;
     if (!dlg) return;
     const file = await dlg.open({
-      title: 'Afbeelding koppelen',
-      filters: [{ name: 'Afbeeldingen', extensions: ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'svg'] }],
+      title: i18next.t('image.linkImageTitle', { ns: 'properties' }),
+      filters: [{ name: i18next.t('image.imageFilter', { ns: 'properties' }), extensions: ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'svg'] }],
       multiple: false,
     });
     if (!file) return;

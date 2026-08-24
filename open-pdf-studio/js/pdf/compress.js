@@ -26,6 +26,7 @@ import { renderPageOffscreen, canvasToBytes } from './exporter.js';
 import { getCachedPdfBytes } from './loader.js';
 import { getCacheKey } from './page-manager.js';
 import { PDFDocument } from 'pdf-lib';
+import i18next from '../i18n/config.js';
 
 // Quality presets. Each maps to a render resolution (DPI) and a JPEG quality.
 // Lower DPI + lower quality => smaller file, less detail.
@@ -84,20 +85,21 @@ export async function compressPDF({ level = 'medium', dpi, quality } = {}) {
   const origSize = getCurrentDocumentSize();
 
   const baseName = getPdfBaseName();
-  const outputPath = await saveFileDialog(`${baseName}_gecomprimeerd.pdf`, [
+  const suffix = i18next.t('compress.fileSuffix', { ns: 'dialogs' });
+  const outputPath = await saveFileDialog(`${baseName}${suffix}.pdf`, [
     { name: 'PDF Files', extensions: ['pdf'] },
   ]);
   if (!outputPath) return null;
 
   const totalPages = doc.pdfDoc.numPages;
-  showLoading('PDF comprimeren...');
+  showLoading(i18next.t('compress.progressPreparing', { ns: 'dialogs' }));
 
   try {
     const exportScale = targetDpi / 72;
     const newPdf = await PDFDocument.create();
 
     for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
-      showLoading(`Pagina ${pageNum} van ${totalPages} comprimeren...`);
+      showLoading(i18next.t('compress.progressPage', { ns: 'dialogs', page: pageNum, total: totalPages }));
 
       // Re-render the page (with any annotations baked in) at the target DPI,
       // then re-encode as JPEG — this is where the downsampling happens.

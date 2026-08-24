@@ -45,7 +45,8 @@
     "addHole": "Sparing toevoegen",
     "properties": "Eigenschappen...",
     "calibrateFromLine": "Kalibreren vanuit deze lijn...",
-    "setScale": "Schaal instellen..."
+    "setScale": "Schaal instellen...",
+    "editViewportScale": "Viewport-schaal bewerken"
   },
   "multiSelect": {
     "copyAnnotations": "{{count}} annotaties kopiëren",

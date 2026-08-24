@@ -136,9 +136,9 @@ export default function ViewTab() {
             active={isFullscreen()}
             onClick={() => toggleFullscreen()} />
           <RibbonButton id="ribbon-keystroke-overlay"
-            title="Toon ingedrukte sneltoetsen links onderin (voor video-opnames)"
+            title={t('view.keystrokesHint')}
             icon={`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="6" width="20" height="12" rx="1"/><line x1="6" y1="10" x2="6" y2="10.01"/><line x1="10" y1="10" x2="10" y2="10.01"/><line x1="14" y1="10" x2="14" y2="10.01"/><line x1="18" y1="10" x2="18" y2="10.01"/><line x1="7" y1="14" x2="17" y2="14"/></svg>`}
-            label="Sneltoetsen"
+            label={t('view.keystrokes')}
             active={keystrokeOverlayVisible()}
             onClick={toggleKeystrokeOverlay} />
         </RibbonGroup>

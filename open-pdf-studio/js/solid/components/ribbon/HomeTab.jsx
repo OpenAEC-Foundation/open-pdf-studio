@@ -39,13 +39,13 @@ export default function HomeTab() {
           <RibbonButton id="btn-home-new" title={t('home.newDocument') || 'Nieuw document (kader of blanco)'}
             icon={newDocIcon} label={t('home.new') || 'Nieuw'}
             onClick={() => openDialog('new-doc')} />
-          <RibbonButton id="btn-home-ifc-export" title="Opslaan als IFC-report (.ifcreport)"
+          <RibbonButton id="btn-home-ifc-export" title={t('home.ifcExport')}
             icon={ifcExportIcon} label="IFC-report" disabled={noPdf()}
             onClick={async () => {
               const m = await import('../../../pdf/ifc-export.js');
               m.exportIfcReport();
             }} />
-          <RibbonButton id="btn-home-email" title="Verzenden per e-mail (PDF als bijlage)"
+          <RibbonButton id="btn-home-email" title={t('home.emailPdf')}
             icon={emailIcon} label="E-mail" disabled={noPdf()}
             onClick={async () => {
               const m = await import('../../../pdf/email-pdf.js');

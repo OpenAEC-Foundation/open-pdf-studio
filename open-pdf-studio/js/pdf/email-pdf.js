@@ -28,7 +28,7 @@ export function buildMailtoUrl(subject, body) {
 export async function emailCurrentPdf() {
   const doc = getActiveDocument();
   if (!doc?.pdfDoc) {
-    showMessage(i18next.t('noPdfLoaded', { defaultValue: 'Geen PDF geopend.' }));
+    showMessage(i18next.t('noPdfLoaded'));
     return;
   }
   // Eerst opslaan zodat er een actueel bestand op schijf staat om bij te
@@ -39,14 +39,11 @@ export async function emailCurrentPdf() {
   if (!path) return;
 
   const subject = basename(path);
-  const body = i18next.t('emailBody', {
-    path,
-    defaultValue: `Zie bijlage: ${basename(path)}\n\n(Voeg het bestand toe als bijlage: ${path})`,
-  });
+  const body = i18next.t('emailBody', { filename: basename(path), path });
   try {
     await openExternal(buildMailtoUrl(subject, body));
   } catch (e) {
     const msg = String(e?.message ?? e);
-    showMessage(i18next.t('emailFailed', { error: msg, defaultValue: `E-mailen mislukt: ${msg}` }));
+    showMessage(i18next.t('emailFailed', { error: msg }));
   }
 }

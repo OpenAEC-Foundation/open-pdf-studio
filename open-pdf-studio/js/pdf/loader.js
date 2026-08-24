@@ -738,7 +738,7 @@ export async function createDocFromTemplate(templatePath) {
     updateWindowTitle();
   } catch (e) {
     console.error('[template-pdf] failed:', e);
-    alert('Kon document niet aanmaken van kader: ' + (e?.message ?? e));
+    alert(i18next.t('newDoc.frameFailed', { ns: 'dialogs', error: e?.message ?? e }));
   } finally {
     hideLoading();
   }

@@ -16,6 +16,7 @@
 import { getActiveDocument } from '../core/state.js';
 import { getTemplate } from '../symbols/registry.js';
 import { ifcCategoryForAnnotation } from '../solid/data/ifcCategoryMap.js';
+import i18next from '../i18n/config.js';
 
 function _ifcClassFor(ann) {
   return ifcCategoryForAnnotation(ann);
@@ -84,7 +85,7 @@ function _b64(bytes) {
 export async function exportIfcReport() {
   const doc = getActiveDocument();
   if (!doc?.pdfDoc) {
-    alert('Geen document geopend.');
+    alert(i18next.t('noDocumentOpen'));
     return;
   }
 
@@ -134,7 +135,7 @@ export async function exportIfcReport() {
     if (!dlg) throw new Error('dialog API unavailable');
     const suggested = (doc.fileName || 'document').replace(/\.pdf$/i, '') + '.ifcreport';
     const target = await dlg.save({
-      title: 'Opslaan als IFC-report',
+      title: i18next.t('ifcExport.saveTitle', { ns: 'dialogs' }),
       defaultPath: suggested,
       filters: [{ name: 'IFC report', extensions: ['ifcreport'] }],
     });
@@ -144,6 +145,6 @@ export async function exportIfcReport() {
     console.log('[ifc-export] geschreven:', target, `(${entities.length} entiteiten)`);
   } catch (e) {
     console.error('[ifc-export] save failed:', e);
-    alert('IFC-report opslaan mislukt: ' + (e?.message ?? e));
+    alert(i18next.t('ifcExport.failed', { ns: 'dialogs', error: e?.message ?? e }));
   }
 }

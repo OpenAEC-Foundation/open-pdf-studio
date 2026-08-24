@@ -152,7 +152,10 @@
     "precision": "Precision (Decimals)",
     "dimType": "Type",
     "dimTypeCustom": "Custom",
-    "extension": "Extension"
+    "extension": "Extension",
+    "searchType": "Search…",
+    "editTypes": "Edit types",
+    "noTypesFound": "No types found"
   },
   "scaleBar": {
     "title": "Scale Bar",
@@ -261,7 +264,9 @@
     "refreshLink": "Refresh",
     "unlink": "Unlink",
     "tint": "Color Tint",
-    "tintNone": "None"
+    "tintNone": "None",
+    "linkImageTitle": "Link image",
+    "imageFilter": "Images"
   },
   "multiSelect": "{{count}} annotations selected",
   "pdfText": "PDF Text",
@@ -360,7 +365,8 @@
     "expandAll": "Expand All",
     "collapseAll": "Collapse All",
     "annotationsMenu": "Menu",
-    "schedules": "Schedules"
+    "schedules": "Schedules",
+    "addPage": "Add page"
   },
   "schedules": {
     "title": "Schedules",

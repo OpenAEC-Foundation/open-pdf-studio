@@ -105,7 +105,7 @@ export default function TitleBar() {
             </svg>
           </button>
 
-          <button class="quick-access-btn" title="Exporteer als raster-PDF (opent in nieuw tabblad)" disabled={!hasPdf()}
+          <button class="quick-access-btn" title={tCommon('quickAccess.exportRaster')} disabled={!hasPdf()}
             onClick={handleExportRaster}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
               <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>

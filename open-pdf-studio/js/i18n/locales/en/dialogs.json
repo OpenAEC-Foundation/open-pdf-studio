@@ -10,7 +10,10 @@
     "isoBSeries": "ISO B Series",
     "northAmerican": "North American",
     "other": "Other",
-    "customSize": "Custom..."
+    "customSize": "Custom...",
+    "frameFailed": "Could not create a document from the frame: {{error}}",
+    "noFrame": "None (blank page)",
+    "openFramesFolder": "Open the frames folder — your own frames (same naming) appear here automatically"
   },
   "printQueue": {
     "save": "Save",
@@ -24,7 +27,16 @@
     "moveDown": "Move down",
     "merging": "Merging…",
     "opening": "Opening…",
-    "mergedName": "Merged.pdf"
+    "mergedName": "Merged.pdf",
+    "adding": "Adding…",
+    "selectAll": "Select all",
+    "addFile": "+ Add file…",
+    "delete": "Delete",
+    "close": "Close",
+    "dragToReorder": "Drag to reorder",
+    "dropToAdd": "Drop to add",
+    "mergeAndSave": "Merge & save",
+    "mergeAndOpen": "Merge & open"
   },
   "print": {
     "title": "Print",
@@ -85,6 +97,7 @@
       "sending": "Sending to printer…",
       "sent": "Print job sent",
       "failed": "Printing failed: {{error}}",
+        "failedGeneric": "Printing failed",
       "errNoDocument": "no document open",
       "errTempFile": "could not create temporary file"
     }
@@ -403,7 +416,10 @@
     "action": "Compress",
     "done": "Compressed: {{before}} → {{after}} ({{pct}}% smaller).",
     "doneNoGain": "Compression finished: {{after}} (no size reduction achieved).",
-    "failed": "Compression failed: {{error}}"
+    "failed": "Compression failed: {{error}}",
+    "progressPreparing": "Compressing PDF…",
+    "progressPage": "Compressing page {{page}} of {{total}}…",
+    "fileSuffix": "_compressed"
   },
   "scale": {
     "title": "Set Scale",
@@ -422,5 +438,33 @@
     "setAsDefault": "Set as Default",
     "dontAskAgain": "Don't Ask Again",
     "notNow": "Not Now"
+  },
+  "ifcExport": {
+    "saveTitle": "Save as IFC report",
+    "failed": "Saving the IFC report failed: {{error}}"
+  },
+  "styleType": {
+    "lineTypes": "Line types",
+    "arrowTypes": "Arrow types",
+    "dimensionTypes": "Dimension types",
+    "hatchTypes": "Hatch types",
+    "close": "Close",
+    "preview": "Preview",
+    "color": "Color",
+    "textMm": "Text (mm)",
+    "unit": "Unit",
+    "background": "Backgr.",
+    "scale": "Scale",
+    "noBackground": "No background",
+    "deleteType": "Delete type",
+    "resetDefault": "Reset to default",
+    "name": "Name",
+    "thicknessMm": "Thickness (mm)",
+    "style": "Style",
+    "backgroundColor": "Background color",
+    "newType": "New type",
+    "addNewType": "+ New type",
+    "editTitle": "Edit {{kind}}",
+    "genericTypes": "Types"
   }
 }

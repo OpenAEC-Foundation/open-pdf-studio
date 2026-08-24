@@ -12,7 +12,7 @@ pub async fn email_pdf(path: String, subject: Option<String>) -> Result<(), Stri
     // it off the async runtime.
     tokio::task::spawn_blocking(move || email_impl(&path, &subject))
         .await
-        .map_err(|e| format!("e-mailtaak mislukt: {e}"))?
+        .map_err(|e| format!("email task failed: {e}"))?
 }
 
 #[cfg(target_os = "windows")]
@@ -101,7 +101,7 @@ fn email_impl(path: &str, subject: &str) -> Result<(), String> {
         Ok(())
     } else {
         Err(format!(
-            "Geen standaard e-mailprogramma gevonden (MAPI-code {r}). Stel een MAPI-mailclient in (bv. Outlook/Thunderbird)."
+            "No default email program found (MAPI code {r}). Set up a MAPI mail client (e.g. Outlook/Thunderbird)."
         ))
     }
 }
@@ -115,7 +115,7 @@ fn email_impl(path: &str, subject: &str) -> Result<(), String> {
         .arg(path)
         .spawn()
         .map(|_| ())
-        .map_err(|e| format!("xdg-email niet beschikbaar: {e}"))
+        .map_err(|e| format!("xdg-email is not available: {e}"))
 }
 
 #[cfg(target_os = "macos")]
@@ -135,10 +135,10 @@ fn email_impl(path: &str, subject: &str) -> Result<(), String> {
         .arg(script)
         .spawn()
         .map(|_| ())
-        .map_err(|e| format!("Mail openen mislukt: {e}"))
+        .map_err(|e| format!("Could not open the mail client: {e}"))
 }
 
 #[cfg(not(any(target_os = "windows", target_os = "linux", target_os = "macos")))]
 fn email_impl(_path: &str, _subject: &str) -> Result<(), String> {
-    Err("E-mailen wordt op dit platform niet ondersteund.".to_string())
+    Err("Email is not supported on this platform.".to_string())
 }

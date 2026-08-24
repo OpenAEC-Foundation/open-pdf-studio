@@ -10,6 +10,7 @@
 
 import { state } from '../core/state.js';
 import { getAnnotationBounds } from '../core/stores/selection-helpers.js';
+import i18next from '../i18n/config.js';
 
 // Twee annotaties "matchen" als ze hetzelfde type hebben én hun middelpunt
 // binnen deze tolerantie ligt (in pagina-eenheden/punten). Ruim genoeg voor
@@ -42,15 +43,8 @@ function _sig(ann, b) {
 }
 
 function _label(ann) {
-  const t = ann.type || 'annotatie';
-  const nl = {
-    line: 'Lijn', arrow: 'Pijl', draw: 'Vrije tekening', box: 'Rechthoek',
-    circle: 'Ellips', polygon: 'Polygoon', polyline: 'Polylijn', cloud: 'Wolk',
-    highlight: 'Markering', text: 'Tekst', textbox: 'Tekstvak', callout: 'Bijschrift',
-    comment: 'Notitie', image: 'Afbeelding', stamp: 'Stempel', signature: 'Handtekening',
-    measureDistance: 'Afstand', measureArea: 'Oppervlak', measurePerimeter: 'Omtrek',
-  };
-  const base = nl[t] || t;
+  const t = ann.type || 'annotation';
+  const base = i18next.t(`compareAnnType.${t}`, { ns: 'ribbon', defaultValue: t });
   const txt = (ann.text || ann.content || '').trim();
   return txt ? `${base}: ${txt.slice(0, 30)}` : base;
 }

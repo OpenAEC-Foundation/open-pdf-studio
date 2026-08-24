@@ -4,6 +4,7 @@
 // signals, so the user keeps working meanwhile.
 
 import { createSignal } from 'solid-js';
+import i18next from '../../i18n/config.js';
 
 const [active, setActive] = createSignal(false);
 const [label, setLabel] = createSignal('');
@@ -37,7 +38,7 @@ export function finishPrintProgress(l) {
 
 export function failPrintProgress(msg) {
   setIsError(true);
-  setLabel(msg || 'Afdrukken mislukt');
+  setLabel(msg || i18next.t('print.progress.failedGeneric', { ns: 'dialogs' }));
   setValue(1);
   setTimeout(() => { setActive(false); setIsError(false); }, 6000);
 }

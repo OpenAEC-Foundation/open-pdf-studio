@@ -106,7 +106,7 @@ function createLinkElement(ann, viewport, pageNum) {
   } else if (ann.dest) {
     // Internal destination (named destination or page reference)
     linkEl.href = '#';
-    linkEl.title = i18next.t('goToPageLink', { ns: 'common' });
+    linkEl.title = i18next.t('leftPanel.goToPageLink', { ns: 'common' });
     linkEl.addEventListener('click', async (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -192,7 +192,7 @@ function setupActionLink(linkEl, action) {
     case 'GoTo':
       if (action.dest) {
         linkEl.href = '#';
-        linkEl.title = i18next.t('goToPageLink', { ns: 'common' });
+        linkEl.title = i18next.t('leftPanel.goToPageLink', { ns: 'common' });
         linkEl.addEventListener('click', async (e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -205,7 +205,7 @@ function setupActionLink(linkEl, action) {
       // GoToR is "Go to Remote" - opens another PDF file
       // For now, just show a tooltip
       if (action.filename) {
-        linkEl.title = i18next.t('openExternalFile', { ns: 'common', filename: action.filename });
+        linkEl.title = i18next.t('leftPanel.openExternalFile', { ns: 'common', filename: action.filename });
         linkEl.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();

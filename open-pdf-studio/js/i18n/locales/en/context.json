@@ -45,7 +45,8 @@
     "exportSubmenu": "Export",
     "exportAsImage": "Export as Image...",
     "addHole": "Add Hole",
-    "properties": "Properties..."
+    "properties": "Properties...",
+    "editViewportScale": "Edit Viewport Scale"
   },
   "multiSelect": {
     "copyAnnotations": "Copy {{count}} Annotations",

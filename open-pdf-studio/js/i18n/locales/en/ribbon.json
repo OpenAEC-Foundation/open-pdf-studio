@@ -95,7 +95,9 @@
     "find": "Find",
     "findCtrlF": "Find (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "ifcExport": "Save as IFC report (.ifcreport)",
+    "emailPdf": "Send by email (PDF as attachment)"
   },
   "comment": {
     "scaleRegion": "Scale Region",
@@ -186,7 +188,9 @@
     "compareGroup": "Compare",
     "fullscreen": "Fullscreen",
     "window": "Window",
-    "display": "Display"
+    "display": "Display",
+    "keystrokes": "Keystrokes",
+    "keystrokesHint": "Show pressed keyboard shortcuts at the bottom left (for screen recordings)"
   },
   "elementVisibility": {
     "buttonTitle": "Element Visibility — show/hide and dim annotation types",
@@ -261,7 +265,9 @@
     "manageWatermarks": "Manage Watermarks",
     "manage": "Manage",
     "compressPdf": "Compress PDF (reduce file size)",
-    "compressLabel": "Compress"
+    "compressLabel": "Compress",
+    "reorderPages": "Reorder",
+    "reorderPagesTitle": "Open thumbnails to drag pages into a new order"
   },
   "help": {
     "settings": "Settings",
@@ -476,5 +482,27 @@
     "contrast": "Contrast",
     "resetAdjust": "Reset",
     "resetAdjustHint": "Reset grayscale, brightness and contrast"
+  },
+  "compareAnnType": {
+    "line": "Line",
+    "arrow": "Arrow",
+    "draw": "Freehand",
+    "box": "Rectangle",
+    "circle": "Ellipse",
+    "polygon": "Polygon",
+    "polyline": "Polyline",
+    "cloud": "Cloud",
+    "highlight": "Highlight",
+    "text": "Text",
+    "textbox": "Text box",
+    "callout": "Callout",
+    "comment": "Note",
+    "image": "Image",
+    "stamp": "Stamp",
+    "signature": "Signature",
+    "measureDistance": "Distance",
+    "measureArea": "Area",
+    "measurePerimeter": "Perimeter",
+    "annotation": "Annotation"
   }
 }

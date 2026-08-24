@@ -227,7 +227,7 @@ export default function DimensionTypeSection() {
                 )}
               </For>
               <Show when={filtered().length === 0}>
-                <div style={{ padding: '10px', 'font-size': '12px', opacity: 0.7 }}>Geen typen gevonden</div>
+                <div style={{ padding: '10px', 'font-size': '12px', opacity: 0.7 }}>{t('measurement.noTypesFound')}</div>
               </Show>
             </div>
             <div style={{ 'border-top': '1px solid var(--theme-border, #bbb)', padding: '6px' }}>

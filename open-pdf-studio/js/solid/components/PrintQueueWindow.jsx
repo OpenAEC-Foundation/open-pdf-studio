@@ -8,6 +8,7 @@
 import { createSignal, createEffect, For, Show, onMount, onCleanup } from 'solid-js';
 import { printQueueJobs as queueJobs, refreshPrintQueue, deletePrintJob } from '../stores/printQueueStore.js';
 import { isTauri, invoke, readBinaryFile, writeBinaryFile, saveFileDialog } from '../../core/platform.js';
+import { useTranslation } from '../../i18n/useTranslation.js';
 
 const POLL_MS = 2500;
 
@@ -41,6 +42,7 @@ async function getPdfjs() {
 }
 
 export default function PrintQueueWindow() {
+  const { t } = useTranslation('dialogs');
   const [order, setOrder] = createSignal([]);
   const [checked, setChecked] = createSignal(new Set());
   const [thumbs, setThumbs] = createSignal({});   // file -> dataURL
@@ -156,7 +158,7 @@ export default function PrintQueueWindow() {
   async function ingestPaths(paths) {
     const pdfs = (paths || []).filter(p => typeof p === 'string' && /\.pdf$/i.test(p));
     if (!pdfs.length) return;
-    setBusyMsg('Toevoegen…');
+    setBusyMsg(t('printQueue.adding'));
     try {
       const dir = await spoolDir();
       const P = window.__TAURI__?.path;
@@ -189,7 +191,7 @@ export default function PrintQueueWindow() {
 
   async function saveJob(job) {
     if (!isTauri()) return;
-    setBusyMsg('Opslaan…');
+    setBusyMsg(t('printQueue.saving'));
     try {
       const dest = await saveFileDialog(displayName(job), [{ name: 'PDF', extensions: ['pdf'] }]);
       if (!dest) { setBusyMsg(''); return; }
@@ -204,7 +206,7 @@ export default function PrintQueueWindow() {
   async function mergeAndSave() {
     const targets = checkedJobs();
     if (targets.length === 0) return;
-    setBusyMsg('Samenvoegen…');
+    setBusyMsg(t('printQueue.merging'));
     try {
       const { PDFDocument } = await import('pdf-lib');
       const out = await PDFDocument.create();
@@ -227,7 +229,7 @@ export default function PrintQueueWindow() {
   async function mergeOpen() {
     const targets = checkedJobs();
     if (targets.length === 0) return;
-    setBusyMsg('Samenvoegen…');
+    setBusyMsg(t('printQueue.merging'));
     try {
       const { PDFDocument } = await import('pdf-lib');
       const out = await PDFDocument.create();
@@ -256,12 +258,12 @@ export default function PrintQueueWindow() {
         <span class="pq-title">Open PDF Printer</span>
       </div>
       <div class="pq-toolbar">
-        <label class="pq-selectall" title="Alles selecteren">
+        <label class="pq-selectall" title={t('printQueue.selectAll')}>
           <input type="checkbox" checked={allChecked()} onChange={toggleAll} />
-          Alles selecteren
+          {t('printQueue.selectAll')}
         </label>
         <div class="pq-toolbar-spacer" />
-        <button class="pref-btn" onClick={addFile}>+ Bestand toevoegen…</button>
+        <button class="pref-btn" onClick={addFile}>{t('printQueue.addFile')}</button>
       </div>
       <div class="pq-body">
         <Show when={ordered().length > 0} fallback={
@@ -282,7 +284,7 @@ export default function PrintQueueWindow() {
                   onDrop={(e) => onDropRow(job.file, e)}
                   onDragEnd={() => { setDragFile(null); setOverFile(null); }}
                 >
-                  <span class="pq-grip" title="Sleep om te ordenen">⠿</span>
+                  <span class="pq-grip" title={t('printQueue.dragToReorder')}>⠿</span>
                   <input type="checkbox" checked={checked().has(job.file)} onChange={() => toggle(job.file)} />
                   <div class="pq-tile">
                     <Show when={thumbs()[job.file]} fallback={<span class="pq-tile-ph">PDF</span>}>
@@ -291,14 +293,14 @@ export default function PrintQueueWindow() {
                   </div>
                   <div class="pq-info">
                     <div class="pq-name">{displayName(job)}</div>
-                    <div class="pq-meta">Bladzijden: {job.pages || '?'} · {fmtSize(job.size)} · {fmtTime(job.modifiedMs)}</div>
+                    <div class="pq-meta">{t('printQueue.pages')}: {job.pages || '?'} · {fmtSize(job.size)} · {fmtTime(job.modifiedMs)}</div>
                   </div>
                   <div class="pq-actions">
-                    <button class="pref-btn" title="Omhoog" onClick={() => move(job.file, -1)}>▲</button>
-                    <button class="pref-btn" title="Omlaag" onClick={() => move(job.file, 1)}>▼</button>
-                    <button class="pref-btn" onClick={() => openInStudio(job)}>Openen</button>
-                    <button class="pref-btn" onClick={() => saveJob(job)}>Opslaan</button>
-                    <button class="pref-btn" title="Verwijderen" onClick={() => deletePrintJob(job.file)}>🗑</button>
+                    <button class="pref-btn" title={t('printQueue.moveUp')} onClick={() => move(job.file, -1)}>▲</button>
+                    <button class="pref-btn" title={t('printQueue.moveDown')} onClick={() => move(job.file, 1)}>▼</button>
+                    <button class="pref-btn" onClick={() => openInStudio(job)}>{t('printQueue.open')}</button>
+                    <button class="pref-btn" onClick={() => saveJob(job)}>{t('printQueue.save')}</button>
+                    <button class="pref-btn" title={t('printQueue.delete')} onClick={() => deletePrintJob(job.file)}>🗑</button>
                   </div>
                 </div>
               )}
@@ -306,19 +308,19 @@ export default function PrintQueueWindow() {
           </div>
         </Show>
         <Show when={extHover()}>
-          <div class="pq-drop-overlay">Laat los om toe te voegen</div>
+          <div class="pq-drop-overlay">{t('printQueue.dropToAdd')}</div>
         </Show>
       </div>
       <div class="pq-footer">
         <span class="pq-status">{busyMsg()}</span>
         <div class="pq-footer-btns">
           <button class="pref-btn" disabled={checkedJobs().length === 0} onClick={mergeOpen}>
-            Samenvoegen &amp; openen
+            {t('printQueue.mergeAndOpen')}
           </button>
           <button class="pref-btn pref-btn-primary" disabled={checkedJobs().length === 0} onClick={mergeAndSave}>
-            Samenvoegen &amp; opslaan{checkedJobs().length > 1 ? ` (${checkedJobs().length})` : ''}
+            {t('printQueue.mergeAndSave')}{checkedJobs().length > 1 ? ` (${checkedJobs().length})` : ''}
           </button>
-          <button class="pref-btn pref-btn-secondary" onClick={closeWindow}>Sluiten</button>
+          <button class="pref-btn pref-btn-secondary" onClick={closeWindow}>{t('printQueue.close')}</button>
         </div>
       </div>
     </div>
