@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "open-pdf-studio": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["mcp-stdio/server.mjs"],
+      "env": {
+        "OPS_MCP_PORT": "9223"
+      }
+    }
+  }
+}
