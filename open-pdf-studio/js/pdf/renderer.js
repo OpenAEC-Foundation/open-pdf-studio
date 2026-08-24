@@ -487,8 +487,15 @@ async function _renderPageImpl(pageNum) {
   }
 
   // Text/link/form layers: skip during vector zoom (expensive PDF.js operations)
-  // Only create on first load or page change, not on every zoom
-  if (!_skipBitmapRender || !document.querySelector('.textLayer')) {
+  // Only create on first load or page change, not on every zoom.
+  // PAGE-AWARE: a text layer left over from a DIFFERENT page must be rebuilt,
+  // otherwise text selection and Edit Text keep operating on the spans of the
+  // previously visited page after navigation (raster viewport path sets
+  // _skipBitmapRender=true on every render, including page changes).
+  const _existingTextLayer = document.querySelector('.textLayer');
+  const _textLayerStale = !_existingTextLayer
+    || parseInt(_existingTextLayer.dataset.page) !== pageNum;
+  if (!_skipBitmapRender || _textLayerStale) {
     try {
       await createSinglePageTextLayer(page, viewport);
       if (_isStaleDoc(doc)) return;
@@ -532,8 +539,10 @@ async function _renderPageImpl(pageNum) {
   }
 
   // Ensure annotations for this page are loaded (on-demand if background hasn't reached it yet)
-  // Skip heavy operations during vector zoom (only needed on first load / page change)
-  if (!_skipBitmapRender || !document.querySelector('.textLayer')) {
+  // Skip heavy operations during vector zoom (only needed on first load / page change).
+  // Uses the same page-aware staleness check as the text-layer block above
+  // (evaluated BEFORE that block rebuilt the layer, so page changes pass).
+  if (!_skipBitmapRender || _textLayerStale) {
     console.log(`[PERF] renderPage(${pageNum}) ensureAnnotations START: ${(performance.now() - _rp0).toFixed(0)}ms`);
     await ensureAnnotationsForPage(pageNum);
     if (_isStaleDoc(doc)) return;

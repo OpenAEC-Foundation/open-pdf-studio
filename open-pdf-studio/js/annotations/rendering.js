@@ -39,7 +39,11 @@ import { EDITABLE_NUMBER_COLOR, shouldHighlightNumbers } from './editable-number
 // (stavenreeks, betonbalk, parametricSymbol).
 import { labelHasNumericField } from './editable-numbers-providers.js';
 import { hiddenTypes as evHiddenTypes, halftoneTypes as evHalftoneTypes } from '../solid/stores/elementVisibilityStore.js';
-import { getPageRotationMatrix } from '../text/text-edit-appearance.js';
+import {
+  getPageRotationMatrix,
+  resolveTextEditLineStyle,
+  textEditLineAnchor,
+} from '../text/text-edit-appearance.js';
 import { rotatedRectAabb } from '../utils/math.js';
 
 // Re-export everything that external code needs
@@ -2406,6 +2410,10 @@ function drawTextEdits(ctx, pageNum) {
     const fontSize = edit.fontSize;
     const ls = edit.lineSpacing || fontSize * 1.2;
     const numOrig = edit.numOriginalLines || 1;
+    // Richting van de originele run (graden CCW in PDF-ruimte). Canvas heeft
+    // y-omlaag, dus een CCW-PDF-hoek is -angle op de context.
+    const angle = Number(edit.textAngle) || 0;
+    const angleRad = angle * Math.PI / 180;
 
     // First line baseline in canvas coordinates
     const firstBaseY = pageHeight - edit.pdfY;
@@ -2414,56 +2422,70 @@ function drawTextEdits(ctx, pageNum) {
     // Skip cover rect for newly added text (no original text to cover)
     ctx.save();
     if (edit.originalText) {
-      const coverTop = firstBaseY - fontSize;
       const coverHeight = (numOrig - 1) * ls + fontSize * 1.3;
       const origLines = edit.originalText.split('\n');
       const maxOrigLen = Math.max(...origLines.map(l => l.length));
       const coverWidth = Math.max(edit.pdfWidth, fontSize * 0.6 * maxOrigLen) + fontSize * 0.5;
 
+      ctx.save();
+      ctx.translate(edit.pdfX, firstBaseY);
+      if (angle) ctx.rotate(-angleRad);
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(edit.pdfX, coverTop, coverWidth, coverHeight);
+      ctx.fillRect(0, -fontSize, coverWidth, coverHeight);
+      ctx.restore();
     }
 
-    // Draw new text line by line
-    ctx.fillStyle = edit.color || '#000000';
-    const ff = (edit.fontFamily || 'Helvetica').toLowerCase();
-    const cssFallback = ff.includes('courier') ? '"Courier New", Courier, monospace'
-      : ff.includes('times') ? '"Times New Roman", Times, serif'
-      : 'Helvetica, Arial, sans-serif';
-    const fontWeight = ff.includes('bold') ? 'bold ' : '';
-    const fontStyle = ff.includes('italic') || ff.includes('oblique') ? 'italic ' : '';
-    // Use PDF.js loaded font for exact visual match on canvas, with standard font fallback
-    const fontFamily = edit.loadedFontName
-      ? `"${edit.loadedFontName}", ${cssFallback}`
-      : cssFallback;
-    const canvasFont = `${fontStyle}${fontWeight}${fontSize}px ${fontFamily}`;
-    ctx.font = canvasFont;
     ctx.textBaseline = 'alphabetic';
 
     const newLines = edit.newText.split('\n');
     for (let i = 0; i < newLines.length; i++) {
       const line = newLines[i];
-      const baselineY = firstBaseY + i * ls;
-      ctx.fillText(line, edit.pdfX, baselineY);
+      if (!line) continue;
 
-      if (line && (edit.fontUnderline || edit.fontStrikethrough)) {
+      // Stijl per regel (kop blijft kop, broodtekst blijft broodtekst); valt
+      // terug op de record-brede stijl voor oudere records/panel-overrides.
+      const lineStyle = resolveTextEditLineStyle(edit, i);
+      const lineFontSize = lineStyle.fontSize || fontSize;
+      const ff = (lineStyle.fontFamily || 'Helvetica').toLowerCase();
+      const cssFallback = ff.includes('courier') ? '"Courier New", Courier, monospace'
+        : ff.includes('times') ? '"Times New Roman", Times, serif'
+        : 'Helvetica, Arial, sans-serif';
+      const fontWeight = ff.includes('bold') ? 'bold ' : '';
+      const fontStyle = ff.includes('italic') || ff.includes('oblique') ? 'italic ' : '';
+      // Use PDF.js loaded font for exact visual match on canvas, with standard font fallback
+      const fontFamily = lineStyle.loadedFontName
+        ? `"${lineStyle.loadedFontName}", ${cssFallback}`
+        : cssFallback;
+      ctx.font = `${fontStyle}${fontWeight}${lineFontSize}px ${fontFamily}`;
+      ctx.fillStyle = lineStyle.color || '#000000';
+
+      // Regel-anker in user-space (regels verschuiven loodrecht op de
+      // baseline-richting), dan naar canvas-frame via de y-flip.
+      const anchor = textEditLineAnchor(edit.pdfX, edit.pdfY, i, ls, angle);
+      ctx.save();
+      ctx.translate(anchor.x, pageHeight - anchor.y);
+      if (angle) ctx.rotate(-angleRad);
+      ctx.fillText(line, 0, 0);
+
+      if (edit.fontUnderline || edit.fontStrikethrough) {
         const textWidth = ctx.measureText(line).width;
-        ctx.strokeStyle = edit.color || '#000000';
-        ctx.lineWidth = Math.max(0.5, fontSize * 0.06);
+        ctx.strokeStyle = lineStyle.color || '#000000';
+        ctx.lineWidth = Math.max(0.5, lineFontSize * 0.06);
         ctx.lineCap = 'butt';
         ctx.beginPath();
         if (edit.fontUnderline) {
-          const underlineY = baselineY + fontSize * 0.1;
-          ctx.moveTo(edit.pdfX, underlineY);
-          ctx.lineTo(edit.pdfX + textWidth, underlineY);
+          const underlineY = lineFontSize * 0.1;
+          ctx.moveTo(0, underlineY);
+          ctx.lineTo(textWidth, underlineY);
         }
         if (edit.fontStrikethrough) {
-          const strikeY = baselineY - fontSize * 0.3;
-          ctx.moveTo(edit.pdfX, strikeY);
-          ctx.lineTo(edit.pdfX + textWidth, strikeY);
+          const strikeY = -lineFontSize * 0.3;
+          ctx.moveTo(0, strikeY);
+          ctx.lineTo(textWidth, strikeY);
         }
         ctx.stroke();
       }
+      ctx.restore();
     }
     ctx.restore();
   }

@@ -156,6 +156,126 @@ export function selectTextColor(pixels, fallback = '#000000', width = 0, height 
   return `#${componentHex(r)}${componentHex(g)}${componentHex(b)}`;
 }
 
+// ── WinAnsi-sanering ──
+// pdf-lib's Standard-14-fonts encoderen via WinAnsi (cp1252). Eén teken
+// daarbuiten (≤, Cyrillisch, ligaturen, U+FFFD …) liet voorheen de HELE
+// savePDF() falen. Deze helper vervangt per teken door een naaste
+// WinAnsi-equivalent, of '?' als er geen zinvolle vervanging is.
+
+// Unicode-codepoints van de cp1252-tekens boven 0x7F (het 0x80–0x9F-blok).
+const WINANSI_EXTRA = new Set([
+  0x20AC, 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021, 0x02C6, 0x2030,
+  0x0160, 0x2039, 0x0152, 0x017D, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022,
+  0x2013, 0x2014, 0x02DC, 0x2122, 0x0161, 0x203A, 0x0153, 0x017E, 0x0178,
+]);
+
+// Naaste-equivalent-vervangingen voor veelvoorkomende niet-WinAnsi-tekens.
+const WINANSI_REPLACEMENTS = new Map([
+  ['≤', '<='], // less-than or equal
+  ['≥', '>='], // greater-than or equal
+  ['≠', '!='], // not equal
+  ['−', '-'],  // minus sign
+  ['→', '->'], // rightwards arrow
+  ['←', '<-'], // leftwards arrow
+  ['➔', '->'], // heavy rightwards arrow
+  ['⇒', '=>'], // rightwards double arrow
+  ['⁄', '/'],  // fraction slash
+  ['∕', '/'],  // division slash
+  ['‑', '-'],  // non-breaking hyphen
+  [' ', ' '],  // thin space
+  [' ', ' '],  // hair space
+  [' ', ' '],  // narrow no-break space
+  [' ', ' '],  // figure space
+  ['​', ''],   // zero-width space
+  ['﻿', ''],   // BOM / zero-width no-break space
+  ['ﬀ', 'ff'],  // ff-ligatuur
+  ['ﬁ', 'fi'],  // fi-ligatuur
+  ['ﬂ', 'fl'],  // fl-ligatuur
+  ['ﬃ', 'ffi'], // ffi-ligatuur
+  ['ﬄ', 'ffl'], // ffl-ligatuur
+  ['′', "'"],  // prime
+  ['″', '"'],  // double prime
+  ['ʼ', "'"],  // modifier apostrophe
+]);
+
+export function isWinAnsiCodePoint(cp) {
+  if (cp === 0x0A || cp === 0x0D || cp === 0x09) return true; // regelstructuur
+  if (cp >= 0x20 && cp <= 0x7E) return true;
+  if (cp >= 0xA0 && cp <= 0xFF) return true;
+  return WINANSI_EXTRA.has(cp);
+}
+
+// Vervangt niet-WinAnsi-tekens door een naaste equivalent (of '?').
+// Retourneert { text, replaced } waarbij replaced de originele tekens bevat.
+export function sanitizeWinAnsiText(text) {
+  const input = String(text ?? '');
+  let out = '';
+  const replaced = [];
+  for (const ch of input) {
+    const cp = ch.codePointAt(0);
+    if (isWinAnsiCodePoint(cp)) {
+      out += ch;
+      continue;
+    }
+    const repl = WINANSI_REPLACEMENTS.has(ch) ? WINANSI_REPLACEMENTS.get(ch) : '?';
+    out += repl;
+    replaced.push(ch);
+  }
+  return { text: out, replaced };
+}
+
+// ── Tekst-richting (glyph-hoek) ──
+// De span-matrix [a,b,c,d,e,f] bevat de baseline-richting van de originele
+// tekstrun. Tekst die authored is voor een /Rotate-pagina — of intrinsiek
+// geroteerde labels — heeft a/b ≠ [1,0]. De hoek (graden, CCW in PDF-ruimte)
+// moet mee in het edit-record zodat painter én saver de vervangtekst in
+// dezelfde richting zetten als het origineel.
+export function textEditAngleFromTransform(transform) {
+  if (!Array.isArray(transform) || transform.length < 4) return 0;
+  const [a, b] = transform;
+  if (!Number.isFinite(a) || !Number.isFinite(b) || (a === 0 && b === 0)) return 0;
+  const deg = Math.atan2(b, a) * 180 / Math.PI;
+  // Snap vrijwel-rechte hoeken zodat float-ruis geen schuine tekst geeft.
+  const snapped = Math.round(deg / 90) * 90;
+  return Math.abs(deg - snapped) <= 1 ? ((snapped % 360) + 360) % 360 : ((deg % 360) + 360) % 360;
+}
+
+// Ankerpunt (PDF-user-space) van regel i van een edit, rekening houdend met
+// de tekst-richting: regels verschuiven loodrecht op de baseline.
+export function textEditLineAnchor(pdfX, pdfY, lineIndex, lineSpacing, angleDeg = 0) {
+  if (!angleDeg) return { x: pdfX, y: pdfY - lineIndex * lineSpacing };
+  const rad = angleDeg * Math.PI / 180;
+  const down = lineIndex * lineSpacing;
+  return {
+    x: pdfX + down * Math.sin(rad),
+    y: pdfY - down * Math.cos(rad),
+  };
+}
+
+// ── Per-regel stijl ──
+// Het edit-record kan per regel de oorspronkelijke stijl bewaren
+// (lineStyles[i] = { fontFamily, fontSize, color, loadedFontName }).
+// Deze resolver valt terug op de record-brede stijl; extra regels (meer
+// nieuwe dan originele regels) krijgen de stijl van de laatste bekende regel.
+export function resolveTextEditLineStyle(edit, lineIndex) {
+  const base = {
+    fontFamily: edit?.fontFamily || 'Helvetica',
+    fontSize: edit?.fontSize,
+    color: edit?.color || '#000000',
+    loadedFontName: edit?.loadedFontName || '',
+  };
+  const styles = edit?.lineStyles;
+  if (!Array.isArray(styles) || styles.length === 0) return base;
+  const entry = styles[Math.min(lineIndex, styles.length - 1)];
+  if (!entry) return base;
+  return {
+    fontFamily: entry.fontFamily || base.fontFamily,
+    fontSize: Number(entry.fontSize) > 0 ? Number(entry.fontSize) : base.fontSize,
+    color: entry.color || base.color,
+    loadedFontName: entry.loadedFontName ?? base.loadedFontName,
+  };
+}
+
 export function restoreTextEditSnapshot(record, snapshot) {
   if (!record || !snapshot) return;
   for (const key of Object.keys(record)) {

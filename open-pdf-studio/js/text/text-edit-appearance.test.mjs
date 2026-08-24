@@ -8,8 +8,12 @@ import {
   getTextLayerCssMatrix,
   invertPageRotation,
   restoreTextEditSnapshot,
+  resolveTextEditLineStyle,
   resolveTextEditPageGeometry,
+  sanitizeWinAnsiText,
   selectTextColor,
+  textEditAngleFromTransform,
+  textEditLineAnchor,
 } from './text-edit-appearance.js';
 
 test('page rotation matrix keeps PDF text attached for every quarter turn', () => {
@@ -111,4 +115,70 @@ test('page geometry combines intrinsic and user rotation', () => {
     resolveTextEditPageGeometry({ widthPt: 600, heightPt: 800, rotation: 90 }, 800, 600, 90),
     { pageWidth: 600, pageHeight: 800, rotation: 180, displayWidth: 600, displayHeight: 800 },
   );
+});
+
+test('WinAnsi sanitizer keeps encodable text untouched', () => {
+  const { text, replaced } = sanitizeWinAnsiText('Prijs € 1.200,00 — "citaat" … één ligne');
+  assert.equal(text, 'Prijs € 1.200,00 — "citaat" … één ligne');
+  assert.deepEqual(replaced, []);
+});
+
+test('WinAnsi sanitizer replaces non-encodable characters with close equivalents', () => {
+  const { text, replaced } = sanitizeWinAnsiText('u ≤ h/300 → ok ﬁjn');
+  assert.equal(text, 'u <= h/300 -> ok fijn');
+  assert.deepEqual(replaced, ['≤', '→', 'ﬁ']);
+});
+
+test('WinAnsi sanitizer falls back to ? for unmapped characters', () => {
+  const { text, replaced } = sanitizeWinAnsiText('hobЬi �');
+  assert.equal(text, 'hob?i ?');
+  assert.deepEqual(replaced, ['Ь', '�']);
+  // Newlines survive (line splitting happens before drawing)
+  assert.equal(sanitizeWinAnsiText('a\nb').text, 'a\nb');
+});
+
+test('text angle is derived from the span matrix and snapped to right angles', () => {
+  assert.equal(textEditAngleFromTransform([11, 0, 0, 11, 100, 200]), 0);
+  // 90° CCW authored text (as on /Rotate 90 pages): [0, fs, -fs, 0]
+  assert.equal(textEditAngleFromTransform([0, 10.017, -10.017, 0, 538, 971]), 90);
+  assert.equal(textEditAngleFromTransform([-9, 0, 0, -9, 0, 0]), 180);
+  assert.equal(textEditAngleFromTransform([0, -12, 12, 0, 0, 0]), 270);
+  // Garbage in, safe default out
+  assert.equal(textEditAngleFromTransform(null), 0);
+  assert.equal(textEditAngleFromTransform([0, 0, 0, 0]), 0);
+});
+
+test('line anchors follow the text direction for rotated runs', () => {
+  // Horizontal text: next line straight down (PDF y decreases)
+  assert.deepEqual(textEditLineAnchor(100, 500, 1, 12, 0), { x: 100, y: 488 });
+  // 90° CCW text: next line moves in +x (perpendicular to reading direction)
+  const a = textEditLineAnchor(538, 971, 1, 12, 90);
+  assert.ok(Math.abs(a.x - 550) < 1e-9 && Math.abs(a.y - 971) < 1e-9);
+  const b = textEditLineAnchor(100, 500, 2, 10, 180);
+  assert.ok(Math.abs(b.x - 100) < 1e-9 && Math.abs(b.y - 520) < 1e-9);
+});
+
+test('per-line styles resolve with record-level fallback', () => {
+  const edit = {
+    fontFamily: 'Helvetica-Bold',
+    fontSize: 11,
+    color: '#3399cc',
+    loadedFontName: 'g_d0_f1',
+    lineStyles: [
+      { fontFamily: 'Helvetica-Bold', fontSize: 11, color: '#3399cc', loadedFontName: 'g_d0_f1' },
+      { fontFamily: 'Helvetica', fontSize: 9.96, color: '#000000', loadedFontName: 'g_d0_f2' },
+    ],
+  };
+  // Line 0: heading style; line 1: body style
+  assert.equal(resolveTextEditLineStyle(edit, 0).color, '#3399cc');
+  assert.equal(resolveTextEditLineStyle(edit, 1).fontFamily, 'Helvetica');
+  assert.equal(resolveTextEditLineStyle(edit, 1).fontSize, 9.96);
+  // Extra lines beyond the original block reuse the last known line style
+  assert.equal(resolveTextEditLineStyle(edit, 5).color, '#000000');
+  // Records without lineStyles keep the uniform record style (old records,
+  // panel overrides)
+  const uniform = { fontFamily: 'TimesRoman', fontSize: 12, color: '#112233' };
+  assert.deepEqual(resolveTextEditLineStyle(uniform, 3), {
+    fontFamily: 'TimesRoman', fontSize: 12, color: '#112233', loadedFontName: '',
+  });
 });

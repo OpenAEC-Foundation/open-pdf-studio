@@ -14,6 +14,7 @@ import {
   restoreTextEditSnapshot,
   resolveTextEditPageGeometry,
   sampleTextColor,
+  textEditAngleFromTransform,
 } from '../text/text-edit-appearance.js';
 
 let activeEditor = null;
@@ -125,6 +126,9 @@ function applyStyleStateToRecord(rec, st) {
   if (st.strikethrough != null && rec.fontStrikethrough !== st.strikethrough) { rec.fontStrikethrough = st.strikethrough; changed = true; }
   const std = toStandardFontName(st.family, st.bold, st.italic);
   if (rec.fontFamily !== std) { rec.fontFamily = std; changed = true; }
+  // Een record-brede stijlwijziging vervangt de per-regel stijlen — anders
+  // zouden de oude lineStyles de nieuwe uniforme stijl blijven overrulen.
+  if (changed && rec.lineStyles) delete rec.lineStyles;
   return changed;
 }
 
@@ -260,7 +264,11 @@ function getBlockGroups(layer) {
       pdfX: transform[4],
       pdfY: transform[5],
       pdfWidth: parseFloat(span.dataset.pdfWidth) || 0,
-      fontSize
+      fontSize,
+      // Baseline-richting (graden CCW) van de originele run — nodig om de
+      // vervangtekst in dezelfde richting terug te schrijven (/Rotate-pagina's
+      // en intrinsiek geroteerde labels).
+      angle: textEditAngleFromTransform(transform)
     };
   });
 
@@ -381,6 +389,7 @@ function getBlockGroups(layer) {
         pdfY: lineItems[0].pdfY,
         pdfWidth: lineItems.reduce((s, it) => s + it.pdfWidth, 0),
         fontSize: lineItems[0].fontSize,
+        angle: lineItems[0].angle || 0,
         spans: lineItems.map(it => it.span),
         fontFamily: pdfFontFamily,
         pdfFontName,
@@ -734,6 +743,21 @@ function finishPdfTextEditing() {
     // new StandardFont is used instead of the stale embedded font.
     const loadedFontName = st.fontFaceChanged ? '' : (lineData[0].loadedFontName || '');
 
+    // Per-regel stijl: zolang het panel de opmaak NIET overschreef, behoudt
+    // elke regel zijn eigen gedetecteerde font/grootte/kleur. Zonder dit werd
+    // een heel blok hertekend in de stijl van regel 1 (kop-kleur/vetheid over
+    // de hele alinea). Bij een panel-override wint de uniforme record-stijl.
+    const lineStyles = styleChanged ? undefined : lineData.map(ld => ({
+      fontFamily: toStandardFontName(
+        ld.actualFontName || ld.fontFamily,
+        ld.isBold || false,
+        ld.isItalic || false,
+      ),
+      fontSize: ld.fontSize,
+      color: ld.color || '#000000',
+      loadedFontName: ld.loadedFontName || '',
+    }));
+
     const editRecord = {
       id: Date.now() + Math.random().toString(36).substr(2, 9),
       page: pageNum,
@@ -751,6 +775,8 @@ function finishPdfTextEditing() {
       color: finalColor,
       fontUnderline: finalUnderline,
       fontStrikethrough: finalStrikethrough,
+      textAngle: lineData[0].angle || 0,
+      ...(lineStyles ? { lineStyles } : {}),
       originalSpanTexts
     };
 
@@ -880,6 +906,7 @@ export function createReplaceTextEdit(pageNum, originalText, newText, matchSpan)
     loadedFontName,
     pdfFontName,
     color,
+    textAngle: textEditAngleFromTransform(transform),
     originalSpanTexts: [[originalText]]
   };
 
