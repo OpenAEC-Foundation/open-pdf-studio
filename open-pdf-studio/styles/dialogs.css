@@ -2330,6 +2330,14 @@
   font-size: 10px;
   color: #bbb;
 }
+/* Reason the printer list is empty — shown instead of leaving the user to
+   guess whether the machine has no printers or the query itself failed. */
+.print-printer-error {
+  font-size: 10px;
+  color: #c42b1c;
+  margin-top: 2px;
+  word-break: break-word;
+}
 
 /* Page range toggle buttons */
 .print-page-btns,

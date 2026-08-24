@@ -65,7 +65,8 @@
         "depends": [
           "libwebkit2gtk-4.1-0",
           "libgtk-3-0",
-          "cups-bsd"
+          "cups-bsd",
+          "cups-client"
         ]
       }
     },

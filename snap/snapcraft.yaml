@@ -58,6 +58,11 @@ apps:
       - home
       - removable-media
       - network
+      # Printing goes through the CUPS command line (lpstat to enumerate
+      # queues, lp to spool). Under strict confinement AppArmor blocks the
+      # CUPS socket without this plug, so the printer list stays empty and
+      # printing fails — see issue #326.
+      - cups
     slots:
       - single-instance
 
@@ -73,6 +78,9 @@ parts:
     stage-packages:
       - libwebkit2gtk-4.1-0
       - libjavascriptcoregtk-4.1-0
+      # Provides lpstat and lp; without them the snap has no way to reach
+      # CUPS at all, however the interfaces are connected.
+      - cups-client
     override-build: |
       craftctl default
       mkdir -p $CRAFT_PART_INSTALL/usr/share/applications

@@ -5,7 +5,7 @@ import { state, getActiveDocument, getPageRotation } from '../../../core/state.j
 import { invoke } from '../../../core/platform.js';
 import { parsePageRange, renderPageOffscreen } from '../../../pdf/exporter.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
-import { loadPrinters, printerList as cachedPrinters, defaultPrinterName } from '../../stores/printerStore.js';
+import { loadPrinters, printerList as cachedPrinters, defaultPrinterName, printerErrorMessage } from '../../stores/printerStore.js';
 import { runPrintJob } from '../../../pdf/print-job.js';
 
 export default function PrintDialog(props) {
@@ -328,6 +328,11 @@ export default function PrintDialog(props) {
                 <span class="print-printer-sep">|</span>
                 <span class="print-printer-type">{printerType()}</span>
               </div>
+              {/* Without this the user cannot tell "no printers installed"
+                  from "the query failed", and neither can a bug report. */}
+              <Show when={printerErrorMessage()}>
+                <div class="print-row print-printer-error">{printerErrorMessage()}</div>
+              </Show>
             </div>
             <div class="print-printer-right">
               <button class="print-printer-action-btn" onClick={openPrinterProperties}>

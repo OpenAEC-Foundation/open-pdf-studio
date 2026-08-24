@@ -592,9 +592,42 @@ async fn print_pdf(path: String, printer: String) -> Result<bool, String> {
         Ok(true)
     }
 
-    #[cfg(not(target_os = "windows"))]
+    // Linux/macOS: spool through CUPS. The JS side has already rasterised the
+    // selected pages into a temp PDF at the right size and rotation, and calls
+    // this once per copy — so `lp` only has to hand one document to one queue
+    // and needs no page-range, scaling or copy options of its own.
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     {
-        Err("Printing is only supported on Windows".to_string())
+        let queue = printer.trim();
+        let mut cmd = std::process::Command::new("lp");
+        // No queue name means "system default", which is what lp does without -d.
+        if !queue.is_empty() {
+            cmd.arg("-d").arg(queue);
+        }
+        // The caller always passes an absolute temp path, so the filename can
+        // never be mistaken for an option; `--` is not portable across lp
+        // implementations and is deliberately left out.
+        let output = cmd
+            .arg(&path)
+            .output()
+            .map_err(|e| format!("Failed to run lp — is CUPS installed (cups-client)? {}", e))?;
+
+        if !output.status.success() {
+            // lp reports rejected jobs on stderr, but a few builds use stdout.
+            let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
+            let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
+            let detail = if stderr.is_empty() { stdout } else { stderr };
+            let detail = if detail.is_empty() { "no output".to_string() } else { detail };
+            return Err(format!("lp could not queue the job: {}", detail));
+        }
+
+        Ok(true)
+    }
+
+    #[cfg(not(any(target_os = "windows", target_os = "linux", target_os = "macos")))]
+    {
+        let _ = (&path, &printer);
+        Err("Printing is not supported on this platform".to_string())
     }
 }
 
@@ -647,10 +680,42 @@ fn open_printer_properties(window: tauri::WebviewWindow, printer: String) -> Res
         Ok(true)
     }
 
-    #[cfg(not(target_os = "windows"))]
+    // CUPS has no per-driver properties dialog that an application can call the
+    // way Windows can, so the closest equivalent is the system's own printer
+    // settings for that queue. Each candidate is tried in turn; the first one
+    // that launches wins.
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     {
         let _ = window;
-        Err("Printer properties dialog is only supported on Windows".to_string())
+        let queue = printer.trim();
+
+        #[cfg(target_os = "linux")]
+        // CUPS queue names cannot contain spaces or slashes, so the name is
+        // safe to drop into the local CUPS URL unencoded.
+        let candidates: Vec<(&str, Vec<String>)> = vec![
+            ("system-config-printer", vec![format!("--printer={}", queue)]),
+            ("xdg-open", vec![format!("http://localhost:631/printers/{}", queue)]),
+        ];
+
+        #[cfg(target_os = "macos")]
+        let candidates: Vec<(&str, Vec<String>)> = vec![
+            ("open", vec!["x-apple.systempreferences:com.apple.Print-Scan-Settings.extension".to_string()]),
+            ("open", vec!["/System/Library/PreferencePanes/PrintAndScan.prefPane".to_string()]),
+        ];
+
+        for (program, args) in candidates {
+            if std::process::Command::new(program).args(&args).spawn().is_ok() {
+                return Ok(true);
+            }
+        }
+
+        Err("Could not open the system printer settings".to_string())
+    }
+
+    #[cfg(not(any(target_os = "windows", target_os = "linux", target_os = "macos")))]
+    {
+        let _ = (window, &printer);
+        Err("Printer properties are not supported on this platform".to_string())
     }
 }
 
