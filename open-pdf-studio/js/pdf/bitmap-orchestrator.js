@@ -16,23 +16,9 @@
 
 import { viewport } from './pdf-viewport.js';
 import { computeZoomBucket, ensureBitmap, getBestAvailableBitmap } from './page-bitmap-cache.js';
-import { tileCacheFindCovering, tileCacheGet, tileCacheSet } from './tile-cache.js';
-import { tileCoversViewport, visiblePdfRegion } from './tile-coverage.js';
+import { tileCacheGet, tileCacheSet } from './tile-cache.js';
 import { state } from '../core/state.js';
-import {
-    ensureProgressiveBitmapForCurrentView,
-    isExtremePage,
-    isHeavyPage,
-} from './progressive-render.js';
-import { createInflightKeyGate } from './inflight-key-gate.js';
-import {
-    needsVisibleTile,
-    prewarmCoveragePlan,
-    prewarmTileRenderScale,
-    tileCoverageRenderScale,
-    tileRenderScaleForZoom,
-    tileSupportsZoom,
-} from './tile-render-policy.js';
+import { isHeavyPage, ensureProgressiveBitmapForCurrentView } from './progressive-render.js';
 
 
 // PDFium / browser canvas axis limit. Above this, we cap the whole-page
@@ -46,7 +32,7 @@ const MAX_BITMAP_AXIS_PX = 4096;
 const TILE_BUFFER_FRACTION = 0.25;
 
 let _bitmapGen = 0;
-const _tileRequests = createInflightKeyGate();
+let _tileGen = 0;
 
 export async function ensureBitmapForCurrentView() {
     if (!viewport.active || !viewport.filePath || viewport.pageType !== 'raster') {
@@ -58,8 +44,19 @@ export async function ensureBitmapForCurrentView() {
     // Additief pad: een ZWARE raster-pagina (grote content-stream) met de voorkeur
     // aan, vullen we progressief tegel-voor-tegel in i.p.v. één trage whole-page
     // render. Niet-zware pagina's of voorkeur uit → exact het bestaande pad hieronder.
+    const _prefOn = !!(state.preferences && state.preferences.progressiveRender);
+    const _heavy = _prefOn ? await isHeavyPage(viewport.filePath, viewport.pageNum) : false;
+    if (_prefOn && _heavy) {
+        console.log(`[prog-guard] zware pagina p${viewport.pageNum} → progressief pad`);
+        _bitmapGen++; // maak een eventuele in-flight gewone render stale
+        return ensureProgressiveBitmapForCurrentView();
+    }
+
+    const myGen = ++_bitmapGen;
     const dpr = window.devicePixelRatio || 1;
     const targetScale = viewport.zoom * dpr;
+
+    // Cap so PDFium never has to render above the 4096 px axis limit.
     const maxAxisPt = Math.max(viewport.pageW, viewport.pageH);
     if (maxAxisPt <= 0) {
         viewport.currentBitmap = null;
@@ -67,34 +64,6 @@ export async function ensureBitmapForCurrentView() {
         return;
     }
     const capScale = MAX_BITMAP_AXIS_PX / maxAxisPt;
-
-    const _prefOn = !!(state.preferences && state.preferences.progressiveRender);
-    const _heavy = _prefOn ? await isHeavyPage(viewport.filePath, viewport.pageNum) : false;
-    const _extreme = _heavy ? await isExtremePage(viewport.filePath, viewport.pageNum) : false;
-    if (_prefOn && _heavy && (!_extreme || !needsVisibleTile(viewport.zoom, dpr, capScale))) {
-        console.log(`[prog-guard] zware pagina p${viewport.pageNum} → progressief pad`);
-        _bitmapGen++; // maak een eventuele in-flight gewone render stale
-        return ensureProgressiveBitmapForCurrentView();
-    }
-
-    if (_prefOn && _extreme) {
-        _bitmapGen++;
-        const fallback = getBestAvailableBitmap(
-            viewport.filePath,
-            viewport.pageNum,
-            viewport.rotation,
-            computeZoomBucket(capScale),
-        );
-        if (fallback) {
-            viewport.currentBitmap = fallback.bitmap;
-            viewport.dirty = true;
-        }
-        return;
-    }
-
-    const myGen = ++_bitmapGen;
-
-    // Cap so PDFium never has to render above the 4096 px axis limit.
     const cappedBucket = computeZoomBucket(Math.min(targetScale, capScale));
     // computeZoomBucket is monotonic, so the capped bucket is always <= the requested one
     const useBucket = cappedBucket;
@@ -177,96 +146,10 @@ export async function prewarmZoomTiles(filePath, pageNum) {
     const centerXpt = (cssW / 2 - viewport.offsetX) / viewport.zoom;
     const centerYpt = (cssH / 2 - viewport.offsetY) / viewport.zoom;
 
-    // Eén brede 150%-regio op 300%-resolutie dekt alle tussenliggende
-    // zoomstanden in beide richtingen. Gebruik deze route zolang de bitmap
-    // binnen de bestaande aslimiet past. De tweeregio-route hieronder blijft
-    // de terugval voor bredere schermen totdat de vaste tegelmatrix gereed is.
-    const coveragePlan = prewarmCoveragePlan({
-        zooms: [1.5, 2, 3],
-        devicePixelRatio: dpr,
-    });
-    if (coveragePlan && needsVisibleTile(coveragePlan.supportZoom, dpr, capScale)) {
-        const zoom = coveragePlan.regionZoom;
-        const visW = Math.min(viewport.pageW, cssW / zoom);
-        const visH = Math.min(viewport.pageH, cssH / zoom);
-        const visX = Math.max(0, Math.min(viewport.pageW - visW, centerXpt - visW / 2));
-        const visY = Math.max(0, Math.min(viewport.pageH - visH, centerYpt - visH / 2));
-        const bufW = visW * TILE_BUFFER_FRACTION;
-        const bufH = visH * TILE_BUFFER_FRACTION;
-        const region = {
-            x: Math.max(0, visX - bufW),
-            y: Math.max(0, visY - bufH),
-            w: Math.min(viewport.pageW, visW + 2 * bufW),
-            h: Math.min(viewport.pageH, visH + 2 * bufH),
-        };
-        const renderScale = coveragePlan.renderScale;
-        const outputW = Math.ceil(region.w * renderScale);
-        const outputH = Math.ceil(region.h * renderScale);
-
-        if (outputW <= MAX_BITMAP_AXIS_PX && outputH <= MAX_BITMAP_AXIS_PX) {
-            const zoomBucket = computeZoomBucket(renderScale);
-            const stepX = viewport.pageW * TILE_BUFFER_FRACTION;
-            const stepY = viewport.pageH * TILE_BUFFER_FRACTION;
-            const regionBucket = `${Math.round(Math.floor(region.x / stepX) * stepX * 100)},${Math.round(Math.floor(region.y / stepY) * stepY * 100)}`;
-            const covering = tileCacheFindCovering(filePath, pageNum, viewport.rotation, {
-                regionXpt: region.x,
-                regionYpt: region.y,
-                regionWpt: region.w,
-                regionHpt: region.h,
-                requiredScale: renderScale,
-            });
-            if (covering) return;
-
-            try {
-                const { invokeTileRegion, perfMark } = await import('./progressive-render.js');
-                const started = performance.now();
-                const raw = await invokeTileRegion({
-                    path: filePath,
-                    pageIndex: pageNum - 1,
-                    scale: renderScale,
-                    rotation: viewport.rotation || 0,
-                    regionXPt: region.x,
-                    regionYPt: region.y,
-                    regionWPt: region.w,
-                    regionHPt: region.h,
-                });
-                if (!viewport.active || viewport.filePath !== filePath || viewport.pageNum !== pageNum) return;
-                const bytes = raw instanceof Uint8Array ? raw : new Uint8Array(raw);
-                perfMark(`prewarm-coverage-invoke z=${zoom}-${coveragePlan.supportZoom} ${Math.round(performance.now() - started)}ms (${(bytes.length / 1048576).toFixed(1)}MB)`);
-                if (bytes?.length > 8) {
-                    const dv = new DataView(bytes.buffer, bytes.byteOffset, 8);
-                    const w = dv.getUint32(0, true);
-                    const h = dv.getUint32(4, true);
-                    if (w * h * 4 === bytes.length - 8) {
-                        const cacheStarted = performance.now();
-                        const imageData = new ImageData(
-                            new Uint8ClampedArray(bytes.buffer, bytes.byteOffset + 8, w * h * 4),
-                            w,
-                            h,
-                        );
-                        await tileCacheSet(filePath, pageNum, zoomBucket, viewport.rotation, regionBucket, imageData, {
-                            regionXpt: region.x,
-                            regionYpt: region.y,
-                            regionWpt: region.w,
-                            regionHpt: region.h,
-                            zoom,
-                            renderScale,
-                        });
-                        perfMark(`prewarm-coverage-cacheSet ${w}x${h} ${Math.round(performance.now() - cacheStarted)}ms`);
-                        console.log(`[tile-orch] prewarm coverage z=${zoom}-${coveragePlan.supportZoom} bucket=${zoomBucket} reg=${regionBucket} (${w}x${h})`);
-                        return;
-                    }
-                }
-            } catch (e) {
-                console.warn('[tile-orch] prewarm coverage faalde:', e);
-            }
-        }
-    }
-
     // 1.5 en 3.0 landen (met dpr ~1.25) in zoom-buckets 2 en 4 — dat dekt
     // inzoomen tot ruim 300%.
     for (const zoom of [1.5, 3.0]) {
-        if (!needsVisibleTile(zoom, dpr, capScale)) continue;
+        if (zoom <= capScale) continue; // whole-page bitmap dekt dit bereik al
         if (!viewport.active || viewport.filePath !== filePath || viewport.pageNum !== pageNum) return;
         // Gebruiker weer bezig (view gewijzigd of nieuwe progressieve run)?
         // Dan direct stoppen — de interactie-render heeft voorrang op de
@@ -290,19 +173,7 @@ export async function prewarmZoomTiles(filePath, pageNum) {
         const stepY = viewport.pageH * TILE_BUFFER_FRACTION;
         const regionBucket = `${Math.round(Math.floor(region.x / stepX) * stepX * 100)},${Math.round(Math.floor(region.y / stepY) * stepY * 100)}`;
         const zoomBucket = computeZoomBucket(zoom * dpr);
-        const cached = tileCacheGet(filePath, pageNum, zoomBucket, viewport.rotation, regionBucket);
-        if (cached && tileSupportsZoom(cached.regionMeta?.renderScale, zoom, dpr)) continue;
-
-        // The 150% and 200% views often share one power-of-two bucket. Render
-        // the wider 150%-region once at enough density for 200%, but only when
-        // both zoom levels actually belong to the same bucket at this DPR.
-        const supportZoom = zoom === 1.5 ? 2 : zoom;
-        const renderScale = prewarmTileRenderScale({
-            regionZoom: zoom,
-            supportZoom,
-            devicePixelRatio: dpr,
-            zoomBucket,
-        });
+        if (tileCacheGet(filePath, pageNum, zoomBucket, viewport.rotation, regionBucket)) continue;
 
         try {
             const { invokeTileRegion, perfMark } = await import('./progressive-render.js');
@@ -310,7 +181,7 @@ export async function prewarmZoomTiles(filePath, pageNum) {
             const raw = await invokeTileRegion({
                 path: filePath,
                 pageIndex: pageNum - 1,
-                scale: renderScale,
+                scale: zoom,
                 rotation: viewport.rotation || 0,
                 regionXPt: region.x,
                 regionYPt: region.y,
@@ -333,7 +204,6 @@ export async function prewarmZoomTiles(filePath, pageNum) {
                 regionWpt: region.w,
                 regionHpt: region.h,
                 zoom,
-                renderScale,
             });
             perfMark(`prewarm-cacheSet z=${zoom} ${w}x${h} ${Math.round(performance.now() - _pw1)}ms`);
             console.log(`[tile-orch] prewarm z=${zoom} bucket=${zoomBucket} reg=${regionBucket} (${w}x${h})`);
@@ -346,7 +216,6 @@ export async function prewarmZoomTiles(filePath, pageNum) {
 
 export async function ensureTileForCurrentView(canvas) {
     if (!viewport.active || !viewport.filePath || viewport.pageType !== 'raster' || !canvas) {
-        _tileRequests.cancel();
         viewport.currentTile = null;
         viewport.currentTileMeta = null;
         return;
@@ -354,9 +223,7 @@ export async function ensureTileForCurrentView(canvas) {
     const maxAxisPt = Math.max(viewport.pageW, viewport.pageH);
     if (maxAxisPt <= 0) return;
     const capScale = MAX_BITMAP_AXIS_PX / maxAxisPt;
-    const dpr = window.devicePixelRatio || 1;
-    if (!needsVisibleTile(viewport.zoom, dpr, capScale)) {
-        _tileRequests.cancel();
+    if (viewport.zoom <= capScale) {
         // Whole-page bitmap is sufficient; clear any stale tile so the
         // renderer doesn't draw a low-zoom tile on top of a fresh raster.
         viewport.currentTile = null;
@@ -364,30 +231,32 @@ export async function ensureTileForCurrentView(canvas) {
         return;
     }
 
+    const myGen = ++_tileGen;
+    const dpr = window.devicePixelRatio || 1;
     const cssW = canvas.width / dpr;
     const cssH = canvas.height / dpr;
 
-    const visRegion = visiblePdfRegion(viewport, cssW, cssH);
-    if (visRegion.w * viewport.zoom < 1 || visRegion.h * viewport.zoom < 1) {
+    // Visible page region in CSS pixels.
+    const visScreenLeft = Math.max(0, -viewport.offsetX);
+    const visScreenTop = Math.max(0, -viewport.offsetY);
+    const visScreenRight = Math.min(viewport.pageW * viewport.zoom, cssW - viewport.offsetX);
+    const visScreenBottom = Math.min(viewport.pageH * viewport.zoom, cssH - viewport.offsetY);
+    const visW = visScreenRight - visScreenLeft;
+    const visH = visScreenBottom - visScreenTop;
+    if (visW < 1 || visH < 1) {
         viewport.currentTile = null;
         viewport.currentTileMeta = null;
         return;
     }
 
-    // Houd een al zichtbare scherpe tegel vast. De algemene cache-selector
-    // kiest terecht de minst oversamplede kandidaat, maar tijdens herhaald
-    // zoomen zou dat een brede 300%-coverage bij 150% vervangen door een
-    // smallere tegel die de volgende zoomstap niet meer aankan.
-    if (
-        viewport.currentTile
-        && tileCoversViewport(viewport.currentTileMeta, viewport, cssW, cssH, dpr)
-    ) {
-        _tileRequests.cancel();
-        viewport.dirty = true;
-        return;
-    }
-
-    // Add buffer for pan-within-buffer cache hits.
+    // Convert visible region to PDF points and add buffer for pan-within-
+    // buffer cache hits.
+    const visRegion = {
+        x: visScreenLeft / viewport.zoom,
+        y: visScreenTop / viewport.zoom,
+        w: visW / viewport.zoom,
+        h: visH / viewport.zoom,
+    };
     const bufW = visRegion.w * TILE_BUFFER_FRACTION;
     const bufH = visRegion.h * TILE_BUFFER_FRACTION;
     const bufferedRegion = {
@@ -405,35 +274,10 @@ export async function ensureTileForCurrentView(canvas) {
     const regionBucket = `${Math.round(snappedX * 100)},${Math.round(snappedY * 100)}`;
 
     const zoomBucket = computeZoomBucket(viewport.zoom * dpr);
-    const filePath = viewport.filePath;
-    const pageNum = viewport.pageNum;
-    const rotation = viewport.rotation || 0;
-    const requestedZoom = viewport.zoom;
-    const requestKey = `${filePath}|${pageNum}|${zoomBucket}|${rotation}|${regionBucket}`;
-
-    // GIS-style tile-cover lookup: zoom buckets describe how a tile was
-    // produced, not where it may be reused. A tile from another zoom level is
-    // immediately valid when it covers the complete visible PDF region and
-    // has enough physical pixels for the current screen.
-    const covering = tileCacheFindCovering(filePath, pageNum, rotation, {
-        regionXpt: visRegion.x,
-        regionYpt: visRegion.y,
-        regionWpt: visRegion.w,
-        regionHpt: visRegion.h,
-        requiredScale: requestedZoom * dpr,
-    });
-    if (covering?.bitmap) {
-        _tileRequests.cancel();
-        viewport.currentTile = covering.bitmap;
-        viewport.currentTileMeta = covering.regionMeta;
-        viewport.dirty = true;
-        return;
-    }
 
     // Cache hit?
-    const hit = tileCacheGet(filePath, pageNum, zoomBucket, rotation, regionBucket);
-    if (hit && tileSupportsZoom(hit.regionMeta?.renderScale, requestedZoom, dpr)) {
-        _tileRequests.cancel();
+    const hit = tileCacheGet(viewport.filePath, viewport.pageNum, zoomBucket, viewport.rotation, regionBucket);
+    if (hit) {
         viewport.currentTile = hit.bitmap;
         viewport.currentTileMeta = hit.regionMeta;
         viewport.dirty = true;
@@ -441,28 +285,19 @@ export async function ensureTileForCurrentView(canvas) {
     }
 
     // Cache miss: async Rust render of the region at the requested zoom.
-    const requestToken = _tileRequests.begin(requestKey);
-    if (!requestToken) return;
     try {
         const { invokeTileRegion } = await import('./progressive-render.js');
-        const renderScale = tileCoverageRenderScale({
-            zoom: requestedZoom,
-            devicePixelRatio: dpr,
-            regionWpt: bufferedRegion.w,
-            regionHpt: bufferedRegion.h,
-            maxBitmapAxisPx: MAX_BITMAP_AXIS_PX,
-        });
         const rgbaData = await invokeTileRegion({
-            path: filePath,
-            pageIndex: pageNum - 1,
-            scale: renderScale,
-            rotation,
+            path: viewport.filePath,
+            pageIndex: viewport.pageNum - 1,
+            scale: viewport.zoom,
+            rotation: viewport.rotation || 0,
             regionXPt: bufferedRegion.x,
             regionYPt: bufferedRegion.y,
             regionWPt: bufferedRegion.w,
             regionHPt: bufferedRegion.h,
         });
-        if (!_tileRequests.isCurrent(requestToken)) return;
+        if (myGen !== _tileGen) return;
         const bytes = rgbaData instanceof Uint8Array ? rgbaData : new Uint8Array(rgbaData);
         if (!bytes || bytes.length <= 8) return;
         const view = new DataView(bytes.buffer, bytes.byteOffset, 8);
@@ -479,21 +314,18 @@ export async function ensureTileForCurrentView(canvas) {
             regionYpt: bufferedRegion.y,
             regionWpt: bufferedRegion.w,
             regionHpt: bufferedRegion.h,
-            zoom: requestedZoom,
-            renderScale,
+            zoom: viewport.zoom,
         };
-        await tileCacheSet(filePath, pageNum, zoomBucket, rotation, regionBucket, imageData, regionMeta);
-        if (!_tileRequests.isCurrent(requestToken)) return;
-        const cached = tileCacheGet(filePath, pageNum, zoomBucket, rotation, regionBucket);
+        await tileCacheSet(viewport.filePath, viewport.pageNum, zoomBucket, viewport.rotation, regionBucket, imageData, regionMeta);
+        if (myGen !== _tileGen) return;
+        const cached = tileCacheGet(viewport.filePath, viewport.pageNum, zoomBucket, viewport.rotation, regionBucket);
         if (cached && cached.bitmap) {
             viewport.currentTile = cached.bitmap;
             viewport.currentTileMeta = cached.regionMeta;
             viewport.dirty = true;
-            console.log(`[tile-orch] cached p${pageNum} @ z=${requestedZoom.toFixed(2)} reg=${regionBucket}`);
+            console.log(`[tile-orch] cached p${viewport.pageNum} @ z=${viewport.zoom.toFixed(2)} reg=${regionBucket}`);
         }
     } catch (e) {
         console.warn('[tile-orch] render failed:', e);
-    } finally {
-        _tileRequests.finish(requestToken);
     }
 }

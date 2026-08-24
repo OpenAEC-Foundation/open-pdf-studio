@@ -12,7 +12,6 @@ import {
   ensureBitmap,
   getCachedBitmap,
 } from './page-bitmap-cache.js';
-import { tileCoversViewport } from './tile-coverage.js';
 
 // ─── Viewport State (singleton via window to survive HMR/dynamic imports) ───
 if (!window.__pdfViewport) {
@@ -1073,42 +1072,17 @@ function nextZoomStep(current, direction) {
 // for fit / center-anchored zooms where keeping the page fully visible is
 // preferable.
 function _anchorAt(screenX, screenY, oldZoom, newZoom, strict = false) {
-  // Bereken eerst de toekomstige viewport. Als de huidige tegel die al scherp
-  // dekt, tekenen we hem direct. Alleen een echte cache-miss gebruikt de
-  // uitgerekte snapshot als tijdelijk vangnet.
+  // Snapshot BEFORE mutating viewport.zoom/offset so the freeze-render below
+  // can stretch the captured pixels per the new transform. Idempotent —
+  // additional zoom steps within the debounce window reuse the same snapshot
+  // (so the page still anchors to its ORIGINAL appearance, not the previous
+  // stretched freeze frame, which would compound rounding drift).
+  _captureZoomFreeze();
+
   const wx = (screenX - viewport.offsetX) / oldZoom;
   const wy = (screenY - viewport.offsetY) / oldZoom;
-  const nextOffsetX = screenX - wx * newZoom;
-  const nextOffsetY = screenY - wy * newZoom;
-  const dpr = _getDpr();
-  const sharpTileReady =
-    viewport.pageType === 'raster'
-    && viewport.currentTile
-    && _canvas
-    && tileCoversViewport(
-      viewport.currentTileMeta,
-      {
-        pageW: viewport.pageW,
-        pageH: viewport.pageH,
-        zoom: newZoom,
-        offsetX: nextOffsetX,
-        offsetY: nextOffsetY,
-      },
-      _canvas.width / dpr,
-      _canvas.height / dpr,
-      dpr,
-    );
-
-  if (sharpTileReady) {
-    if (_zoomFreezeTimer) clearTimeout(_zoomFreezeTimer);
-    _zoomFreezeTimer = null;
-    _zoomFreezeBitmap = null;
-  } else {
-    _captureZoomFreeze();
-  }
-
-  viewport.offsetX = nextOffsetX;
-  viewport.offsetY = nextOffsetY;
+  viewport.offsetX = screenX - wx * newZoom;
+  viewport.offsetY = screenY - wy * newZoom;
   viewport.zoom = newZoom;
   // The user has explicitly placed the view at this anchor point.
   // Tell clampAndCenter() not to override it with auto-centering even if
@@ -1119,9 +1093,7 @@ function _anchorAt(screenX, screenY, oldZoom, newZoom, strict = false) {
 
   // Extend the freeze window for another 150 ms (debounce). Final cleanup
   // (drop snapshot, force one fresh render) happens in the scheduled timer.
-  if (!sharpTileReady) {
-    _scheduleZoomFreezeRelease();
-  }
+  _scheduleZoomFreezeRelease();
 
   // For raster pages, kick the orchestrator so the new zoom-bucket's bitmap
   // and (if zoom > cap) tile get async-fetched. ensureBitmap dedups
