@@ -1,5 +1,5 @@
 // Hoeveelheden — schedule-engine (puur). filter → sorteer → groepeer → totaliseer.
-import { categoryOf, fieldsForCategories } from './categories.js';
+import { categoryOf, fieldsForCategories, qLabel } from './categories.js';
 
 const OPS = {
   '=':   (a, b) => String(a ?? '') === String(b ?? ''),
@@ -61,7 +61,7 @@ function groupBy(rows, fieldKey, colDefs) {
   const map = new Map();
   for (const r of rows) {
     const k = r.vals[fieldKey];
-    const kk = (k == null || k === '') ? '(geen)' : String(k);
+    const kk = (k == null || k === '') ? qLabel('quantities.none', '(none)') : String(k);
     if (!map.has(kk)) map.set(kk, []);
     map.get(kk).push(r);
   }

@@ -4,16 +4,52 @@
 
 import { totalBarLengthM } from '../annotations/stavenreeks.js';
 
-export const CATEGORY_LABELS = {
-  'text-annotation': 'Tekst (annotatie)',
-  'text-built-in': 'Tekst (native)',
-  'area': 'Oppervlakte',
-  'line-based': 'Lijnvormig',
-  'count': 'Telling',
-  'symbol': 'Symbool',
-  'image': 'Afbeelding',
-  'other': 'Overig',
+// --- Vertaalhaak -----------------------------------------------------------
+// Deze module blijft puur: hij kent i18next niet. De UI-laag injecteert via
+// setQuantityLabelResolver() een resolver die de sleutel opzoekt in de
+// 'properties'-namespace. Zonder resolver (tests, pure aanroepen) valt elk
+// label terug op de Engelse basistekst.
+let translate = (_key, fallback) => fallback;
+
+export function setQuantityLabelResolver(fn) {
+  translate = typeof fn === 'function' ? fn : ((_k, f) => f);
+}
+
+/** Vertaal één hoeveelheden-sleutel met Engelse fallback. */
+export function qLabel(key, fallback) {
+  const out = translate(key, fallback);
+  return (out == null || out === '') ? fallback : out;
+}
+
+// Engelse basisteksten per categorie + de i18n-sleutel die erbij hoort.
+const CATEGORY_KEYS = {
+  'text-annotation': 'textAnnotation',
+  'text-built-in': 'textBuiltIn',
+  'area': 'area',
+  'line-based': 'lineBased',
+  'count': 'count',
+  'symbol': 'symbol',
+  'image': 'image',
+  'other': 'other',
 };
+
+export const CATEGORY_FALLBACKS = {
+  'text-annotation': 'Text (annotation)',
+  'text-built-in': 'Text (native)',
+  'area': 'Area',
+  'line-based': 'Linear',
+  'count': 'Count',
+  'symbol': 'Symbol',
+  'image': 'Image',
+  'other': 'Other',
+};
+
+/** Weergavenaam van een categorie in de actieve taal. */
+export function categoryLabel(cat) {
+  const sub = CATEGORY_KEYS[cat];
+  if (!sub) return cat;
+  return qLabel(`quantities.cat.${sub}`, CATEGORY_FALLBACKS[cat]);
+}
 
 export const CATEGORY_ORDER = [
   'area', 'line-based', 'count', 'text-annotation', 'text-built-in', 'symbol', 'image', 'other',
@@ -34,22 +70,35 @@ export function categoryOf(el) {
   return el.__category || TYPE_TO_CATEGORY[el.type] || 'other';
 }
 
-// Vriendelijke type-namen (parallel aan scheduleStore ELEMENT_TYPE_NAMES).
+// Vriendelijke type-namen (Engelse basistekst; vertaald via quantities.type.*).
 export const TYPE_NAMES = {
-  line: 'Lijn', arrow: 'Pijl', wall: 'Wand', box: 'Rechthoek', mask: 'Maskeer',
-  redaction: 'Redactie', circle: 'Cirkel', ellipse: 'Ellips', highlight: 'Markering',
-  cloud: 'Wolk', polygon: 'Polygoon', polyline: 'Polylijn', cloudPolyline: 'Wolk-polylijn',
-  spline: 'Spline', arc: 'Boog', draw: 'Pen', filledArea: 'Gevuld vlak',
-  textbox: 'Tekstvak', callout: 'Tekstballon', comment: 'Notitie', text: 'Tekst',
-  stamp: 'Stempel', signature: 'Handtekening', image: 'Afbeelding',
-  parametricSymbol: 'Symbool', count: 'Telmarkering',
-  measureDistance: 'Afstand', measureArea: 'Oppervlakte', measurePerimeter: 'Omtrek',
-  measureAngle: 'Hoek', scaleRegion: 'Schaalgebied', viewport: 'Viewport',
-  stavenreeks: 'Stavenreeks',
-  scheduleTable: 'Hoeveelheden-tabel', builtinText: 'Tekst',
+  line: 'Line', arrow: 'Arrow', wall: 'Wall', box: 'Rectangle', mask: 'Mask',
+  redaction: 'Redaction', circle: 'Circle', ellipse: 'Ellipse', highlight: 'Highlight',
+  cloud: 'Cloud', polygon: 'Polygon', polyline: 'Polyline', cloudPolyline: 'Cloud polyline',
+  spline: 'Spline', arc: 'Arc', draw: 'Freehand', filledArea: 'Filled area',
+  textbox: 'Text box', callout: 'Callout', comment: 'Sticky note', text: 'Text',
+  stamp: 'Stamp', signature: 'Signature', image: 'Image',
+  parametricSymbol: 'Symbol', count: 'Count marker',
+  measureDistance: 'Distance', measureArea: 'Area', measurePerimeter: 'Perimeter',
+  measureAngle: 'Angle', scaleRegion: 'Scale region', viewport: 'Viewport',
+  stavenreeks: 'Bar series',
+  scheduleTable: 'Quantities table', builtinText: 'Text',
 };
 
-const F = (key, label, kind, get, unit = '', dec) => ({ key, label, kind, unit, get, dec });
+/** Weergavenaam van een elementtype in de actieve taal. */
+export function typeName(type) {
+  const fallback = TYPE_NAMES[type];
+  if (!fallback) return type;
+  return qLabel(`quantities.type.${type}`, fallback);
+}
+
+// Velddefinitie. `label` is een getter zodat de tekst bij elke uitlezing in de
+// actieve taal komt (en binnen een Solid-memo/render reactief blijft).
+const F = (key, fallback, kind, get, unit = '', dec) => ({
+  key, kind, unit, get, dec,
+  labelKey: `quantities.field.${key}`,
+  get label() { return qLabel(`quantities.field.${key}`, fallback); },
+});
 
 // Wrapper voor stavenreeks-specifieke velden binnen de gedeelde 'line-based'-
 // categorie: geeft null (lege cel) voor elk ander lijnvormig element.
@@ -116,51 +165,51 @@ function realArea(el) {
 // Gemeenschappelijke velden voor élke categorie. 'count' (=1 per rij) levert
 // Revit-stijl tellingen via groeperen + subtotalen.
 const COMMON = [
-  F('category', 'Categorie', 'text', el => CATEGORY_LABELS[categoryOf(el)]),
-  F('type', 'Type', 'text', el => TYPE_NAMES[el.type] || el.type),
-  F('page', 'Pagina', 'number', el => el.page || 1, '', 0),
+  F('category', 'Category', 'text', el => categoryLabel(categoryOf(el))),
+  F('type', 'Type', 'text', el => typeName(el.type)),
+  F('page', 'Page', 'number', el => el.page || 1, '', 0),
   F('label', 'Label', 'text', el => el.label || el.subject || ''),
-  F('color', 'Kleur', 'text', el => el.color || el.strokeColor || el.fillColor || ''),
-  F('ifcCategory', 'IFC-categorie', 'text', el => el.ifcCategory || ''),
-  F('count', 'Aantal', 'number', () => 1, '', 0),
+  F('color', 'Color', 'text', el => el.color || el.strokeColor || el.fillColor || ''),
+  F('ifcCategory', 'IFC category', 'text', el => el.ifcCategory || ''),
+  F('count', 'Count', 'number', () => 1, '', 0),
 ];
 
 export const FIELD_REGISTRY = {
   'area': [...COMMON,
-    F('area', 'Oppervlakte', 'number', areaValue, 'm²'),
-    F('dakhoek', 'Dakhoek', 'number', el => el.dakhoek || 0, '°', 0),
-    F('realArea', 'Werkelijk opp.', 'number', realArea, 'm²'),
+    F('area', 'Area', 'number', areaValue, 'm²'),
+    F('dakhoek', 'Roof pitch', 'number', el => el.dakhoek || 0, '°', 0),
+    F('realArea', 'Actual area', 'number', realArea, 'm²'),
   ],
   'line-based': [...COMMON,
-    F('length', 'Lengte', 'number', lengthValue, 'm'),
+    F('length', 'Length', 'number', lengthValue, 'm'),
     // Wapening (stavenreeks): stuks + strekkende meter. Deze getters geven
     // null voor gewone lijnvormige elementen, zodat die cellen leeg blijven.
-    F('barCount', 'Aantal staven', 'number', srField(el => el.count || 0), '', 0),
+    F('barCount', 'Bar count', 'number', srField(el => el.count || 0), '', 0),
     F('barDiameter', 'Diameter', 'number', srField(el => el.diameter || 0), 'mm', 0),
-    F('barLength', 'Staaflengte', 'number', srField(el => el.barLengthMm || 0), 'mm', 0),
-    F('totalBarLength', 'Totale staaflengte', 'number', srField(totalBarLengthM), 'm'),
+    F('barLength', 'Bar length', 'number', srField(el => el.barLengthMm || 0), 'mm', 0),
+    F('totalBarLength', 'Total bar length', 'number', srField(totalBarLengthM), 'm'),
   ],
   'count': [...COMMON,
-    F('countCat', 'Telcategorie', 'text', el => el.__countCatName || el.categoryId || ''),
+    F('countCat', 'Count category', 'text', el => el.__countCatName || el.categoryId || ''),
   ],
   'text-annotation': [...COMMON,
-    F('text', 'Inhoud', 'text', el => el.text || ''),
-    F('fontSize', 'Grootte', 'number', el => el.fontSize || 0, 'pt', 0),
-    F('fontFamily', 'Lettertype', 'text', el => el.fontFamily || ''),
+    F('text', 'Content', 'text', el => el.text || ''),
+    F('fontSize', 'Size', 'number', el => el.fontSize || 0, 'pt', 0),
+    F('fontFamily', 'Font', 'text', el => el.fontFamily || ''),
   ],
   'text-built-in': [...COMMON,
-    F('text', 'Inhoud', 'text', el => el.text || ''),
-    F('fontSize', 'Grootte', 'number', el => Math.round((el.fontSize || 0) * 10) / 10, 'pt', 1),
+    F('text', 'Content', 'text', el => el.text || ''),
+    F('fontSize', 'Size', 'number', el => Math.round((el.fontSize || 0) * 10) / 10, 'pt', 1),
   ],
   'symbol': [...COMMON,
-    F('thumbnail', 'Voorbeeld', 'image', el => el.imageData || null),
-    F('symbolId', 'Symbool', 'text', el => el.symbolId || el.stampType || el.stampName || ''),
+    F('thumbnail', 'Preview', 'image', el => el.imageData || null),
+    F('symbolId', 'Symbol', 'text', el => el.symbolId || el.stampType || el.stampName || ''),
   ],
   'image': [...COMMON,
-    F('thumbnail', 'Voorbeeld', 'image', el => el.imageData || null),
-    F('imageName', 'Bestandsnaam', 'text', imageName),
-    F('width', 'Breedte', 'number', el => el.originalWidth || el.width || 0, 'px', 0),
-    F('height', 'Hoogte', 'number', el => el.originalHeight || el.height || 0, 'px', 0),
+    F('thumbnail', 'Preview', 'image', el => el.imageData || null),
+    F('imageName', 'File name', 'text', imageName),
+    F('width', 'Width', 'number', el => el.originalWidth || el.width || 0, 'px', 0),
+    F('height', 'Height', 'number', el => el.originalHeight || el.height || 0, 'px', 0),
   ],
   'other': [...COMMON],
 };

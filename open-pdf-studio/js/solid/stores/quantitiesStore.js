@@ -3,6 +3,8 @@
 import { createSignal, createMemo } from 'solid-js';
 import { getActiveDocument } from '../../core/state.js';
 import { buildSchedule } from '../../quantities/engine.js';
+// Koppelt de label-hook van quantities/categories.js aan i18next (side-effect).
+import '../../quantities/label-i18n.js';
 import { getMeasureScale } from '../../annotations/measurement.js';
 import { countTallies } from './countStore.js';
 import { scheduleVisible, setScheduleVisible, toggleSchedule } from './scheduleStore.js';

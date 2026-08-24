@@ -37,7 +37,8 @@ eq(ifcCategoryForSymbol({ id: 'onbekend-xyz', name: 'Iets vaags' }), 'IfcBuildin
 // --- B. ifcCategory is een selecteerbaar veld in alle categorieën ---
 check(!!fieldByKey(['line-based'], 'ifcCategory'), 'ifcCategory veld beschikbaar (line-based)');
 check(!!fieldByKey(['symbol'], 'ifcCategory'), 'ifcCategory veld beschikbaar (symbol)');
-check(fieldsForCategories(['symbol']).find(f => f.key === 'ifcCategory').label === 'IFC-categorie', 'ifcCategory label = IFC-categorie');
+// Zonder geïnjecteerde vertaal-resolver valt het label terug op de Engelse basistekst.
+check(fieldsForCategories(['symbol']).find(f => f.key === 'ifcCategory').label === 'IFC category', 'ifcCategory label = IFC category');
 
 // --- C. LENGTE voor line/arrow uit coördinaten + schaal ---
 // Lijn (0,0)→(300,400) = 500 px. Bij 100 px/m → 5.0 m.

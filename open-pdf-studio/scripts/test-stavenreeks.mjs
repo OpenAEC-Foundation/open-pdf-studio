@@ -274,7 +274,8 @@ console.log('\n9. Hoeveelheden-register');
     startX: 0, startY: 0, endX: 100, endY: 0, __pxPerUnit: 1,
   };
   check('stavenreeks valt in categorie line-based', Q.categoryOf(el) === 'line-based', Q.categoryOf(el));
-  check('type-naam = Stavenreeks', Q.TYPE_NAMES.stavenreeks === 'Stavenreeks', Q.TYPE_NAMES.stavenreeks);
+  // Basistekst (Engels); de UI vertaalt via quantities.type.stavenreeks.
+  check('type-naam = Bar series', Q.typeName('stavenreeks') === 'Bar series', Q.typeName('stavenreeks'));
 
   const fields = Q.fieldsForCategories(['line-based']);
   const byKey = (k) => fields.find(f => f.key === k);

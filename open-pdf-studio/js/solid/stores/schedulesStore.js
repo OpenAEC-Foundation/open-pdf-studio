@@ -6,6 +6,8 @@ import { createSignal } from 'solid-js';
 import { state, getActiveDocument } from '../../core/state.js';
 import { savePreferences } from '../../core/preferences.js';
 import { buildSchedule } from '../../quantities/engine.js';
+// Koppelt de label-hook van quantities/categories.js aan i18next (side-effect).
+import '../../quantities/label-i18n.js';
 import { getMeasureScale } from '../../annotations/measurement.js';
 import { countTallies } from './countStore.js';
 import { STANDARD_SCHEDULE_TEMPLATES, getTemplateById } from '../../quantities/schedule-templates.js';
@@ -98,7 +100,7 @@ export function updateScheduleConfig(id, config) {
 export function addBlankSchedule(name) {
   const item = {
     id: newId(),
-    name: name || 'Staat',
+    name: name || 'Schedule',
     templateId: null,
     config: { categories: [], fields: [], filters: [], sort: [], itemize: true, format: {} },
   };

@@ -2,6 +2,7 @@
 // Kolommen → koppen, groepen → subtotaal-regels, eindtotaal. Beeldkolommen
 // exporteren geen (enorme) data-URL maar een korte placeholder.
 import { formatCell, fmtTotal, isImageCell } from './schedule-templates.js';
+import { qLabel } from './categories.js';
 
 function csvCell(s) {
   s = String(s ?? '');
@@ -13,7 +14,7 @@ function csvCell(s) {
 function textCell(row, col) {
   if (col.kind === 'image') {
     const v = row.vals[col.key];
-    return isImageCell(v) ? '[afbeelding]' : '';
+    return isImageCell(v) ? qLabel('quantities.imageCell', '[image]') : '';
   }
   return formatCell(row.vals[col.key], col);
 }
@@ -34,8 +35,8 @@ export function scheduleResultToCsv(r) {
         lines.push(cols.map(c => csvCell(textCell(row, c))).join(','));
       }
     }
-    lines.push(cols.map((c, i) => i === 0 ? 'Subtotaal' : csvCell(fmtTotal(g.subtotals[c.key], c))).join(','));
+    lines.push(cols.map((c, i) => i === 0 ? csvCell(qLabel('quantities.subtotal', 'Subtotal')) : csvCell(fmtTotal(g.subtotals[c.key], c))).join(','));
   }
-  lines.push(cols.map((c, i) => i === 0 ? 'Eindtotaal' : csvCell(fmtTotal(r.grandTotals[c.key], c))).join(','));
+  lines.push(cols.map((c, i) => i === 0 ? csvCell(qLabel('quantities.grandTotal', 'Grand total')) : csvCell(fmtTotal(r.grandTotals[c.key], c))).join(','));
   return lines.join('\n');
 }

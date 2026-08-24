@@ -1,5 +1,6 @@
 import { Show, For, createSignal, onMount, onCleanup } from 'solid-js';
-import { CATEGORY_ORDER, CATEGORY_LABELS, fieldsForCategories } from '../../quantities/categories.js';
+import { CATEGORY_ORDER, categoryLabel, fieldsForCategories } from '../../quantities/categories.js';
+import { useTranslation } from '../../i18n/useTranslation.js';
 import {
   propertiesVisible, setPropertiesVisible,
   selectedCategories, setSelectedCategories,
@@ -14,29 +15,30 @@ import {
 } from '../stores/quantitiesStore.js';
 
 const TABS = [
-  { id: 'fields', label: 'Velden' },
-  { id: 'filter', label: 'Filter' },
-  { id: 'sort', label: 'Sorteren/Groeperen' },
-  { id: 'format', label: 'Opmaak' },
-  { id: 'appearance', label: 'Weergave' },
+  { id: 'fields', key: 'quantities.tabFields' },
+  { id: 'filter', key: 'quantities.tabFilter' },
+  { id: 'sort', key: 'quantities.tabSort' },
+  { id: 'format', key: 'quantities.tabFormat' },
+  { id: 'appearance', key: 'quantities.tabAppearance' },
 ];
 
 const OPERATORS = [
-  { v: '', l: '(geen)' },
-  { v: '=', l: 'is gelijk aan' },
-  { v: '!=', l: 'is niet gelijk aan' },
-  { v: '>', l: 'groter dan' },
-  { v: '>=', l: 'groter of gelijk aan' },
-  { v: '<', l: 'kleiner dan' },
-  { v: '<=', l: 'kleiner of gelijk aan' },
-  { v: 'has', l: 'heeft waarde' },
-  { v: 'none', l: 'heeft geen waarde' },
+  { v: '', l: 'op.none' },
+  { v: '=', l: 'op.eq' },
+  { v: '!=', l: 'op.ne' },
+  { v: '>', l: 'op.gt' },
+  { v: '>=', l: 'op.ge' },
+  { v: '<', l: 'op.lt' },
+  { v: '<=', l: 'op.le' },
+  { v: 'has', l: 'op.has' },
+  { v: 'none', l: 'op.empty' },
 ];
 
 const SLOTS8 = [0, 1, 2, 3, 4, 5, 6, 7];
 const SLOTS4 = [0, 1, 2, 3];
 
 export default function QuantitiesProperties() {
+  const { t } = useTranslation('properties');
   const [activeTab, setActiveTab] = createSignal('fields');
   const [availSel, setAvailSel] = createSignal(null);
   const [schedSel, setSchedSel] = createSignal(null);
@@ -140,10 +142,10 @@ export default function QuantitiesProperties() {
 
   return (
     <Show when={propertiesVisible()}>
-      <div ref={dialogRef} class="modal-dialog q-props-dialog" role="dialog" aria-label="Hoeveelheden-eigenschappen">
+      <div ref={dialogRef} class="modal-dialog q-props-dialog" role="dialog" aria-label={t('quantities.propertiesTitle')}>
         <div class="modal-header" onMouseDown={onHeaderMouseDown}>
-          <h2>Eigenschappen — Hoeveelheden</h2>
-          <button class="modal-close-btn" onClick={() => setPropertiesVisible(false)}>
+          <h2>{t('quantities.propertiesTitle')}</h2>
+          <button class="modal-close-btn" title={t('quantities.close')} onClick={() => setPropertiesVisible(false)}>
             <svg width="10" height="10" viewBox="0 0 10 10"><line x1="0" y1="0" x2="10" y2="10" stroke="currentColor" stroke-width="1.2" /><line x1="10" y1="0" x2="0" y2="10" stroke="currentColor" stroke-width="1.2" /></svg>
           </button>
         </div>
@@ -151,7 +153,7 @@ export default function QuantitiesProperties() {
         <div class="q-tabs">
           <For each={TABS}>
             {(tab) => (
-              <button class="q-tab" classList={{ active: activeTab() === tab.id }} onClick={() => setActiveTab(tab.id)}>{tab.label}</button>
+              <button class="q-tab" classList={{ active: activeTab() === tab.id }} onClick={() => setActiveTab(tab.id)}>{t(tab.key)}</button>
             )}
           </For>
         </div>
@@ -159,20 +161,20 @@ export default function QuantitiesProperties() {
         <div class="q-tab-body">
           {/* ---- Velden ---- */}
           <Show when={activeTab() === 'fields'}>
-            <div class="q-row-label">Categorieën:</div>
+            <div class="q-row-label">{t('quantities.categories')}</div>
             <div class="q-cats">
               <For each={CATEGORY_ORDER}>
                 {(cat) => (
                   <label class="q-check">
                     <input type="checkbox" checked={selectedCategories().includes(cat)} onChange={() => toggleCat(cat)} />
-                    {CATEGORY_LABELS[cat]}
+                    {categoryLabel(cat)}
                   </label>
                 )}
               </For>
             </div>
             <div class="q-fields-grid">
               <div>
-                <div class="q-row-label">Beschikbare velden:</div>
+                <div class="q-row-label">{t('quantities.available')}</div>
                 <div class="q-listbox">
                   <For each={availableFields()}>
                     {(f) => (
@@ -185,13 +187,13 @@ export default function QuantitiesProperties() {
                 </div>
               </div>
               <div class="q-fields-arrows">
-                <button class="schedule-btn-sm" title="Toevoegen" onClick={addField}>→</button>
-                <button class="schedule-btn-sm" title="Verwijderen" onClick={removeField}>←</button>
-                <button class="schedule-btn-sm" title="Omhoog" onClick={() => moveSched(-1)}>↑</button>
-                <button class="schedule-btn-sm" title="Omlaag" onClick={() => moveSched(1)}>↓</button>
+                <button class="schedule-btn-sm" title={t('quantities.add')} onClick={addField}>→</button>
+                <button class="schedule-btn-sm" title={t('quantities.remove')} onClick={removeField}>←</button>
+                <button class="schedule-btn-sm" title={t('quantities.up')} onClick={() => moveSched(-1)}>↑</button>
+                <button class="schedule-btn-sm" title={t('quantities.down')} onClick={() => moveSched(1)}>↓</button>
               </div>
               <div>
-                <div class="q-row-label">Ingeplande velden (volgorde):</div>
+                <div class="q-row-label">{t('quantities.scheduled')}</div>
                 <div class="q-listbox">
                   <For each={scheduledFieldDefs()}>
                     {(f) => (
@@ -208,17 +210,17 @@ export default function QuantitiesProperties() {
 
           {/* ---- Filter ---- */}
           <Show when={activeTab() === 'filter'}>
-            <div class="q-row-label">Filter op (alle regels gecombineerd met EN):</div>
+            <div class="q-row-label">{t('quantities.filterHint')}</div>
             <For each={SLOTS8}>
               {(i) => (
                 <div class="q-filter-row">
-                  <span class="q-and">{i === 0 ? 'Filter:' : 'en:'}</span>
+                  <span class="q-and">{i === 0 ? t('quantities.filterLabel') : t('quantities.andLabel')}</span>
                   <select class="schedule-select" value={filterAt(i).field} onChange={(e) => setFilterAt(i, { field: e.target.value })}>
-                    <option value="">(geen)</option>
+                    <option value="">{t('op.none')}</option>
                     <For each={allFields()}>{(f) => <option value={f.key}>{f.label}</option>}</For>
                   </select>
                   <select class="schedule-select" value={filterAt(i).op} onChange={(e) => setFilterAt(i, { op: e.target.value })}>
-                    <For each={OPERATORS}>{(o) => <option value={o.v}>{o.l}</option>}</For>
+                    <For each={OPERATORS}>{(o) => <option value={o.v}>{t(o.l)}</option>}</For>
                   </select>
                   <input class="schedule-input" value={filterAt(i).value ?? ''}
                     disabled={filterAt(i).op === 'has' || filterAt(i).op === 'none' || !filterAt(i).op}
@@ -233,30 +235,30 @@ export default function QuantitiesProperties() {
             <For each={SLOTS4}>
               {(i) => (
                 <div class="q-filter-row">
-                  <span class="q-and">{i === 0 ? 'Sorteer op:' : 'dan op:'}</span>
+                  <span class="q-and">{i === 0 ? t('quantities.sortLabel') : t('quantities.thenLabel')}</span>
                   <select class="schedule-select" value={sortAt(i).field} onChange={(e) => setSortAt(i, { field: e.target.value })}>
-                    <option value="">(geen)</option>
+                    <option value="">{t('op.none')}</option>
                     <For each={allFields()}>{(f) => <option value={f.key}>{f.label}</option>}</For>
                   </select>
                   <select class="schedule-select" value={sortAt(i).dir} onChange={(e) => setSortAt(i, { dir: e.target.value })}>
-                    <option value="asc">Oplopend</option>
-                    <option value="desc">Aflopend</option>
+                    <option value="asc">{t('quantities.asc')}</option>
+                    <option value="desc">{t('quantities.desc')}</option>
                   </select>
                   <label class="q-check"><input type="checkbox" checked={!!sortAt(i).group}
-                    onChange={(e) => setSortAt(i, { group: e.target.checked, header: e.target.checked, footer: e.target.checked })} /> Groeperen</label>
+                    onChange={(e) => setSortAt(i, { group: e.target.checked, header: e.target.checked, footer: e.target.checked })} /> {t('quantities.group')}</label>
                 </div>
               )}
             </For>
             <div class="q-sep"></div>
-            <label class="q-check"><input type="checkbox" checked={itemize()} onChange={(e) => setItemize(e.target.checked)} /> Elke instantie afzonderlijk tonen</label>
-            <label class="q-check"><input type="checkbox" checked={grandTotals()} onChange={(e) => setGrandTotals(e.target.checked)} /> Eindtotalen tonen</label>
+            <label class="q-check"><input type="checkbox" checked={itemize()} onChange={(e) => setItemize(e.target.checked)} /> {t('quantities.itemize')}</label>
+            <label class="q-check"><input type="checkbox" checked={grandTotals()} onChange={(e) => setGrandTotals(e.target.checked)} /> {t('quantities.grandTotals')}</label>
           </Show>
 
           {/* ---- Opmaak ---- */}
           <Show when={activeTab() === 'format'}>
-            <Show when={scheduledFieldDefs().length > 0} fallback={<div class="schedule-empty">Voeg eerst velden toe (tab Velden).</div>}>
+            <Show when={scheduledFieldDefs().length > 0} fallback={<div class="schedule-empty">{t('quantities.addFieldsFirst')}</div>}>
               <table class="q-format-table">
-                <thead><tr><th>Veld</th><th>Kop</th><th>Eenheid</th><th>Dec.</th><th>Uitlijn</th><th>Totaal</th></tr></thead>
+                <thead><tr><th>{t('quantities.colField')}</th><th>{t('quantities.colHeading')}</th><th>{t('quantities.colUnit')}</th><th>{t('quantities.colDecimals')}</th><th>{t('quantities.colAlign')}</th><th>{t('quantities.colTotal')}</th></tr></thead>
                 <tbody>
                   <For each={scheduledFieldDefs()}>
                     {(f) => (
@@ -267,8 +269,8 @@ export default function QuantitiesProperties() {
                         <td><input class="schedule-input q-narrow" type="number" min="0" max="6" value={fmtAt(f.key).decimals ?? (f.dec ?? (f.kind === 'number' ? 2 : 0))} onInput={(e) => setFmtAt(f.key, { decimals: parseInt(e.target.value, 10) })} disabled={f.kind !== 'number'} /></td>
                         <td>
                           <select class="schedule-select" value={fmtAt(f.key).align ?? (f.kind === 'number' ? 'right' : 'left')} onChange={(e) => setFmtAt(f.key, { align: e.target.value })}>
-                            <option value="left">Links</option>
-                            <option value="right">Rechts</option>
+                            <option value="left">{t('quantities.alignLeft')}</option>
+                            <option value="right">{t('quantities.alignRight')}</option>
                           </select>
                         </td>
                         <td style={{ 'text-align': 'center' }}><input type="checkbox" disabled={f.kind !== 'number'} checked={fmtAt(f.key).total !== false} onChange={(e) => setFmtAt(f.key, { total: e.target.checked })} /></td>
@@ -282,16 +284,16 @@ export default function QuantitiesProperties() {
 
           {/* ---- Weergave ---- */}
           <Show when={activeTab() === 'appearance'}>
-            <label class="q-check"><input type="checkbox" checked={appearance().showTitle} onChange={(e) => setApp({ showTitle: e.target.checked })} /> Titel tonen</label>
-            <label class="q-check"><input type="checkbox" checked={appearance().showHeaders} onChange={(e) => setApp({ showHeaders: e.target.checked })} /> Kolomkoppen tonen</label>
-            <label class="q-check"><input type="checkbox" checked={appearance().gridlines} onChange={(e) => setApp({ gridlines: e.target.checked })} /> Rasterlijnen</label>
-            <label class="q-check"><input type="checkbox" checked={appearance().outline} onChange={(e) => setApp({ outline: e.target.checked })} /> Buitenrand</label>
-            <label class="q-check"><input type="checkbox" checked={appearance().stripe} onChange={(e) => setApp({ stripe: e.target.checked })} /> Streep-rijen</label>
+            <label class="q-check"><input type="checkbox" checked={appearance().showTitle} onChange={(e) => setApp({ showTitle: e.target.checked })} /> {t('quantities.showTitle')}</label>
+            <label class="q-check"><input type="checkbox" checked={appearance().showHeaders} onChange={(e) => setApp({ showHeaders: e.target.checked })} /> {t('quantities.showHeaders')}</label>
+            <label class="q-check"><input type="checkbox" checked={appearance().gridlines} onChange={(e) => setApp({ gridlines: e.target.checked })} /> {t('quantities.gridlines')}</label>
+            <label class="q-check"><input type="checkbox" checked={appearance().outline} onChange={(e) => setApp({ outline: e.target.checked })} /> {t('quantities.outline')}</label>
+            <label class="q-check"><input type="checkbox" checked={appearance().stripe} onChange={(e) => setApp({ stripe: e.target.checked })} /> {t('quantities.stripe')}</label>
           </Show>
         </div>
 
         <div class="q-props-footer">
-          <button class="schedule-btn-sm" onClick={() => setPropertiesVisible(false)}>Sluiten</button>
+          <button class="schedule-btn-sm" onClick={() => setPropertiesVisible(false)}>{t('quantities.close')}</button>
         </div>
       </div>
     </Show>

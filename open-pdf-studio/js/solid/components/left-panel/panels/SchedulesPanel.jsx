@@ -62,7 +62,7 @@ export default function SchedulesPanel() {
     const r = buildResultForSchedule(s);
     if (!r || !r.columns.length) return;
     const csv = '﻿' + scheduleResultToCsv(r); // BOM voor Excel/UTF-8
-    const safe = (s.name || 'staat').replace(/[\\/:*?"<>|]/g, '_');
+    const safe = (s.name || t('schedules.newName')).replace(/[\\/:*?"<>|]/g, '_');
     const path = await saveFileDialog(`${safe}.csv`, [{ name: 'CSV', extensions: ['csv'] }]);
     if (!path) return;
     await writeBinaryFile(path, new TextEncoder().encode(csv));

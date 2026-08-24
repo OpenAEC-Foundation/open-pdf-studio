@@ -2,6 +2,7 @@ import { Show, For, onMount, onCleanup } from 'solid-js';
 import { getActiveDocument } from '../../core/state.js';
 import { createAnnotation } from '../../annotations/factory.js';
 import { recordAdd } from '../../core/undo-manager.js';
+import { useTranslation } from '../../i18n/useTranslation.js';
 import {
   scheduleVisible, setScheduleVisible,
   scheduleResult, grandTotals, appearance,
@@ -24,6 +25,7 @@ function csvCell(s) {
 }
 
 export default function SchedulePanel() {
+  const { t } = useTranslation('properties');
   let dialogRef;
   let isDragging = false;
   let dragOffsetX = 0;
@@ -66,13 +68,13 @@ export default function SchedulePanel() {
     for (const g of r.groups) {
       if (g.key !== null) lines.push(csvCell(`${g.key} (${g.rows.length})`));
       if (r.itemize) for (const row of g.rows) lines.push(r.columns.map(c => csvCell(formatCell(row.vals[c.key], c))).join(','));
-      lines.push(r.columns.map((c, i) => i === 0 ? 'Subtotaal' : csvCell(fmtTotal(g.subtotals[c.key], c))).join(','));
+      lines.push(r.columns.map((c, i) => i === 0 ? csvCell(t('quantities.subtotal')) : csvCell(fmtTotal(g.subtotals[c.key], c))).join(','));
     }
-    lines.push(r.columns.map((c, i) => i === 0 ? 'Eindtotaal' : csvCell(fmtTotal(r.grandTotals[c.key], c))).join(','));
+    lines.push(r.columns.map((c, i) => i === 0 ? csvCell(t('quantities.grandTotal')) : csvCell(fmtTotal(r.grandTotals[c.key], c))).join(','));
     const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = 'hoeveelheden.csv'; a.click();
+    a.href = url; a.download = t('quantities.csvFileName'); a.click();
     URL.revokeObjectURL(url);
   }
 
@@ -85,12 +87,12 @@ export default function SchedulePanel() {
     for (const g of r.groups) {
       if (g.key !== null) rows.push({ group: true, cells: [`${g.key} (${g.rows.length})`] });
       if (r.itemize) for (const row of g.rows) rows.push({ cells: r.columns.map(c => formatCell(row.vals[c.key], c)) });
-      rows.push({ total: true, cells: r.columns.map((c, i) => i === 0 ? 'Subtotaal' : fmtTotal(g.subtotals[c.key], c)) });
+      rows.push({ total: true, cells: r.columns.map((c, i) => i === 0 ? t('quantities.subtotal') : fmtTotal(g.subtotals[c.key], c)) });
     }
     const ann = createAnnotation({
       type: 'scheduleTable', page: doc.currentPage, x: 50, y: 50,
       width: Math.max(300, r.columns.length * 90), height: 24 + (rows.length + 1) * 18,
-      title: 'Hoeveelheden',
+      title: t('quantities.title'),
       columns: r.columns.map(c => c.label + (c.unit ? ` (${c.unit})` : '')),
       rows,
       color: '#000000', lineWidth: 0.5, opacity: 1,
@@ -102,15 +104,15 @@ export default function SchedulePanel() {
 
   return (
     <Show when={scheduleVisible()}>
-      <div ref={dialogRef} class="modal-dialog schedule-modeless" role="dialog" aria-label="Hoeveelheden">
+      <div ref={dialogRef} class="modal-dialog schedule-modeless" role="dialog" aria-label={t('quantities.title')}>
         {/* Header */}
         <div class="modal-header" onMouseDown={onHeaderMouseDown}>
-          <h2>Hoeveelheden</h2>
+          <h2>{t('quantities.title')}</h2>
           <div style={{ display: 'flex', gap: '0', 'align-items': 'center', height: '100%' }}>
-            <button class="schedule-header-btn" title="Eigenschappen" onClick={() => setPropertiesVisible(true)}>⚙ Eigenschappen</button>
-            <button class="schedule-header-btn" title="Plaats op PDF" onClick={placeOnPdf}>PDF</button>
-            <button class="schedule-header-btn" title="Exporteer CSV" onClick={exportCSV}>CSV</button>
-            <button class="modal-close-btn" onClick={() => setScheduleVisible(false)}>
+            <button class="schedule-header-btn" title={t('quantities.properties')} onClick={() => setPropertiesVisible(true)}>⚙ {t('quantities.properties')}</button>
+            <button class="schedule-header-btn" title={t('quantities.placeOnPdf')} onClick={placeOnPdf}>PDF</button>
+            <button class="schedule-header-btn" title={t('quantities.exportCsv')} onClick={exportCSV}>CSV</button>
+            <button class="modal-close-btn" title={t('quantities.close')} onClick={() => setScheduleVisible(false)}>
               <svg width="10" height="10" viewBox="0 0 10 10"><line x1="0" y1="0" x2="10" y2="10" stroke="currentColor" stroke-width="1.2" /><line x1="10" y1="0" x2="0" y2="10" stroke="currentColor" stroke-width="1.2" /></svg>
             </button>
           </div>
@@ -119,12 +121,12 @@ export default function SchedulePanel() {
         {/* Schedule */}
         <div class="schedule-body">
           <Show when={appearance().showTitle}>
-            <div class="q-title">Hoeveelheden</div>
+            <div class="q-title">{t('quantities.title')}</div>
           </Show>
           <Show when={scheduleResult().columns.length > 0}
-            fallback={<div class="schedule-empty">Geen velden gekozen — open Eigenschappen.</div>}>
+            fallback={<div class="schedule-empty">{t('quantities.noFields')}</div>}>
             <Show when={scheduleResult().count > 0}
-              fallback={<div class="schedule-empty">Geen elementen in de gekozen categorieën.</div>}>
+              fallback={<div class="schedule-empty">{t('quantities.noElements')}</div>}>
               <table class="schedule-table q-table"
                 classList={{ 'q-gridlines': appearance().gridlines, 'q-outline': appearance().outline }}>
                 <Show when={appearance().showHeaders}>
@@ -157,7 +159,7 @@ export default function SchedulePanel() {
                         <For each={scheduleResult().columns}>
                           {(col, i) => (
                             <td class={col.align === 'right' ? 'schedule-val' : ''}>
-                              {i() === 0 ? (group.key !== null ? `Σ ${group.key}` : 'Subtotaal') : fmtTotal(group.subtotals[col.key], col)}
+                              {i() === 0 ? (group.key !== null ? `Σ ${group.key}` : t('quantities.subtotal')) : fmtTotal(group.subtotals[col.key], col)}
                             </td>
                           )}
                         </For>
@@ -171,7 +173,7 @@ export default function SchedulePanel() {
                       <For each={scheduleResult().columns}>
                         {(col, i) => (
                           <td class={col.align === 'right' ? 'schedule-val' : ''}>
-                            {i() === 0 ? 'Eindtotaal' : fmtTotal(scheduleResult().grandTotals[col.key], col)}
+                            {i() === 0 ? t('quantities.grandTotal') : fmtTotal(scheduleResult().grandTotals[col.key], col)}
                           </td>
                         )}
                       </For>
@@ -185,7 +187,7 @@ export default function SchedulePanel() {
 
         {/* Footer */}
         <div class="schedule-footer">
-          <span>{scheduleResult().count} elementen</span>
+          <span>{scheduleResult().count} {t('quantities.elements')}</span>
         </div>
       </div>
 

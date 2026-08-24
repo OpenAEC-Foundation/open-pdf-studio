@@ -5,7 +5,7 @@
 // het staten-paneel de tabel meteen bijwerkt. De 6 standaard-sjablonen vullen
 // deze config voor (via addScheduleFromTemplate) en blijven zo werken.
 import { Show, For, createSignal, createMemo, createEffect, onMount, onCleanup } from 'solid-js';
-import { CATEGORY_ORDER, CATEGORY_LABELS, fieldsForCategories } from '../../quantities/categories.js';
+import { CATEGORY_ORDER, categoryLabel, fieldsForCategories } from '../../quantities/categories.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 import {
   schedules, configuringId, setConfiguringId, updateScheduleConfig,
@@ -170,7 +170,7 @@ export default function ScheduleWizard() {
                 {(cat) => (
                   <label class="q-check">
                     <input type="checkbox" checked={categories().includes(cat)} onChange={() => toggleCat(cat)} />
-                    {CATEGORY_LABELS[cat]}
+                    {categoryLabel(cat)}
                   </label>
                 )}
               </For>

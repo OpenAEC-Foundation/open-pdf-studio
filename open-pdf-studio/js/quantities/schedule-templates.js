@@ -2,6 +2,7 @@
 // naar een tabel-annotatie. Puur, geen UI-deps. De sjablonen leiden hun
 // categorieën/velden af uit categories.js zodat ze consistent blijven met de
 // bestaande hoeveelheden-functionaliteit.
+import { qLabel } from './categories.js';
 
 // Elk sjabloon levert een config die 1-op-1 aan quantities/engine.buildSchedule
 // gevoerd kan worden. `nameKey` verwijst naar i18n (namespace 'properties').
@@ -115,11 +116,11 @@ export function scheduleResultToTable(r, title) {
         rows.push({ cells: r.columns.map(c => formatCell(row.vals[c.key], c)) });
       }
     }
-    rows.push({ total: true, cells: r.columns.map((c, i) => i === 0 ? 'Subtotaal' : fmtTotal(g.subtotals[c.key], c)) });
+    rows.push({ total: true, cells: r.columns.map((c, i) => i === 0 ? qLabel('quantities.subtotal', 'Subtotal') : fmtTotal(g.subtotals[c.key], c)) });
   }
-  rows.push({ total: true, grand: true, cells: r.columns.map((c, i) => i === 0 ? 'Eindtotaal' : fmtTotal(r.grandTotals[c.key], c)) });
+  rows.push({ total: true, grand: true, cells: r.columns.map((c, i) => i === 0 ? qLabel('quantities.grandTotal', 'Grand total') : fmtTotal(r.grandTotals[c.key], c)) });
 
   const width = Math.max(300, columns.length * 90);
   const height = 24 + (rows.length + 1) * 18;
-  return { columns, rows, width, height, title: title || 'Hoeveelheden' };
+  return { columns, rows, width, height, title: title || qLabel('quantities.title', 'Quantities') };
 }

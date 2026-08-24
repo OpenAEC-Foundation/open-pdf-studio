@@ -53,7 +53,8 @@ eq(formatCell(PNG, thumbCol), PNG, 'formatCell geeft beeldkolom rauw door');
 
 // D. CSV: geen enorme data-URL maar een placeholder
 const csv = scheduleResultToCsv(r);
-check(csv.includes('[afbeelding]'), 'CSV bevat [afbeelding]-placeholder');
+// Zonder geïnjecteerde vertaal-resolver valt de placeholder terug op Engels.
+check(csv.includes('[image]'), 'CSV bevat [image]-placeholder');
 check(!csv.includes('data:image'), 'CSV bevat GEEN rauwe data-URL');
 check(csv.includes('gevel.png'), 'CSV bevat de bestandsnaam-kolom');
 
