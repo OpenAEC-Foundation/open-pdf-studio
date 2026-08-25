@@ -39,6 +39,10 @@ export async function loadPreferences() {
       // Tekstvak: oude standaard-tekstgrootte 14 → 8 (alleen de onaangeroerde
       // oude default; een zelfgekozen grootte blijft staan).
       if (loaded.textboxFontSize === 14) loaded.textboxFontSize = 8;
+      // Doorlopende leesmodus werd de standaard voor NIEUWE installaties.
+      // Een bestaande installatie (er zijn al opgeslagen voorkeuren, maar
+      // nog zonder defaultViewMode) behoudt eenmalig het oude gedrag.
+      if (loaded.defaultViewMode === undefined) loaded.defaultViewMode = 'single';
       // Merge with defaults to ensure all keys exist
       state.preferences = { ...DEFAULT_PREFERENCES, ...loaded };
     }

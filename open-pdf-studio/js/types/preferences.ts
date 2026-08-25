@@ -2,6 +2,10 @@ export interface Preferences {
   // Theme
   theme: string;
 
+  // Weergavemodus waarmee een document opent: 'continuous' (doorlopend,
+  // de standaard voor nieuwe installaties) of 'single' (één pagina).
+  defaultViewMode: 'continuous' | 'single';
+
   // General
   authorName: string;
 

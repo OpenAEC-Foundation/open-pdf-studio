@@ -31,6 +31,10 @@ export function createTab(filePath = null, autoSwitch = true) {
 
   // Create new document
   const doc = createDocument(filePath);
+  // Weergavemodus uit de voorkeuren: doorlopend is de standaard voor nieuwe
+  // installaties; bestaande installaties zijn bij het laden van de voorkeuren
+  // eenmalig op 'single' gezet (createDocument zelf blijft een pure helper).
+  doc.viewMode = state.preferences?.defaultViewMode === 'single' ? 'single' : 'continuous';
   state.documents.push(doc);
 
   // Switch to the new tab
