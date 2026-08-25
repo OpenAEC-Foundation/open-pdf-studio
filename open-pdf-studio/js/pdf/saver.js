@@ -304,6 +304,15 @@ export async function savePDF(saveAsPath = null) {
 
       const pageAnnotations = annotationsByPage[pageNum] || [];
 
+      // DATAVERLIES-WACHTER: annotaties laden lui per pagina, en bij zware
+      // bestanden (stempel-extractie) kan dat tientallen seconden duren. Het
+      // model is voor zo'n pagina dan nog leeg; de vervang-logica hieronder
+      // zou alle bestaande annotaties van die pagina strippen en er niets
+      // voor terugzetten. Zolang een pagina niet geladen is, is het BESTAND
+      // de waarheid: alles ongemoeid laten.
+      const pageAnnotsLoaded = activeDoc._loadedAnnotationPages
+        ? activeDoc._loadedAnnotationPages.has(pageNum) : true;
+
       // Build annotations array: keep existing annotations we don't handle (widgets, links, etc.)
       // and replace the ones we do with our document annotations (which is the source of truth)
       const handledSubtypes = new Set([
@@ -317,6 +326,10 @@ export async function savePDF(saveAsPath = null) {
         const lookedUp = context.lookup(annotsRef);
         if (lookedUp instanceof PDFArray) {
           for (const ref of lookedUp.asArray()) {
+            if (!pageAnnotsLoaded) {
+              annotsArray.push(ref); // Pagina niet geladen: bestand is de waarheid
+              continue;
+            }
             const dict = context.lookup(ref);
             const subtype = dict?.get?.(PDFName.of('Subtype'))?.toString();
             if (!subtype || !handledSubtypes.has(subtype)) {
@@ -2751,6 +2764,63 @@ export async function savePDF(saveAsPath = null) {
 
     // Mark document as saved
     markDocumentSaved();
+
+    // Ingebakken text-edits zijn nu deel van het bestand: markeer ze als
+    // 'baked' zodat een volgende save ze niet NOGMAALS inbakt (dubbele
+    // tekstlagen in het bestand, oud/nieuw dat bij zoomen door elkaar
+    // glitcht). De painter blijft ze tekenen (identieke pixels bovenop de
+    // ingebakken versie) en bij herbewerken vervalt de markering zodat de
+    // wijziging weer meegaat in de volgende save.
+    let textEditsGebakken = false;
+    if (activeDoc && Array.isArray(activeDoc.textEdits)) {
+      for (const te of activeDoc.textEdits) {
+        te.baked = true;
+        // Bake-administratie van de text-edit-saver pas na een GESLAAGDE save
+        // promoveren: bakedNewText (wat er nu in het bestand staat) en
+        // inplaceBaked (regels + ankers van de in-place-route, zodat een
+        // her-bewerking ze bij de volgende save opnieuw kan knippen).
+        if (te._pendingBakeInfo) {
+          te.bakedNewText = te._pendingBakeInfo.bakedNewText;
+          if (te._pendingBakeInfo.inplaceBaked) te.inplaceBaked = te._pendingBakeInfo.inplaceBaked;
+          else delete te.inplaceBaked;
+          delete te._pendingBakeInfo;
+          textEditsGebakken = true;
+        }
+      }
+    }
+
+    // ── Structurele verversing na het inbakken van text-edits ──
+    // Na de save staat de bewerkte tekst ÍN het bestand, maar de in-memory
+    // PDF.js-doc en alle bitmap-/tegelcaches renderen nog de OUDE content
+    // stream; elke zoom/scroll levert dan vers "oud" beeld dat de painter
+    // moet afdekken — een blijvende glitchbron. Herlaad daarom het document
+    // uit de zojuist geschreven bytes via hetzelfde beproefde pad als
+    // pagina-invoegen/-verwijderen/bijsnijden (reloadFromBytes; issue-#247-
+    // patroon: verse temp-werkkopie → alle path-keyed caches koud, Ctrl+S
+    // blijft via saveTargetPath naar het echte bestand schrijven). De
+    // gebakken text-edit-records zijn daarna overbodig — pixels én tekst
+    // zitten in het bestand — en de tekstlaag toont de nieuwe tekst als
+    // gewone paginatekst, direct opnieuw bewerkbaar.
+    if (textEditsGebakken && !saveAsPath && activeDoc) {
+      try {
+        const { reloadFromBytes } = await import('./page-manager.js');
+        activeDoc.textEdits = [];
+        await reloadFromBytes(
+          savedBytes,
+          activeDoc.annotations,
+          activeDoc.pageRotations,
+          activeDoc.currentPage,
+        );
+        // reloadFromBytes is voor structurele edits en markeert het document
+        // als gewijzigd; deze save heeft alles net weggeschreven.
+        markDocumentSaved();
+      } catch (reloadErr) {
+        console.warn(
+          '[saver] Verversing na text-edit-save mislukt (weergave kan de oude ' +
+          'render tonen tot heropenen):', reloadErr,
+        );
+      }
+    }
 
     return true;
   } catch (error) {

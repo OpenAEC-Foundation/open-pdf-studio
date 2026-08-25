@@ -2450,14 +2450,22 @@ function drawTextEdits(ctx, pageNum) {
       const cssFallback = ff.includes('courier') ? '"Courier New", Courier, monospace'
         : ff.includes('times') ? '"Times New Roman", Times, serif'
         : 'Helvetica, Arial, sans-serif';
-      const fontWeight = ff.includes('bold') ? 'bold ' : '';
-      const fontStyle = ff.includes('italic') || ff.includes('oblique') ? 'italic ' : '';
       // Use PDF.js loaded font for exact visual match on canvas, with standard font fallback
       const fontFamily = lineStyle.loadedFontName
         ? `"${lineStyle.loadedFontName}", ${cssFallback}`
         : cssFallback;
-      ctx.font = `${fontStyle}${fontWeight}${lineFontSize}px ${fontFamily}`;
       ctx.fillStyle = lineStyle.color || '#000000';
+
+      // Canvas-fontstring voor een bold/italic-variant binnen de familie-
+      // klasse van de regelstijl (embedded loadedFontName blijft de basis;
+      // de browser synthetiseert weight/style erbovenop).
+      const fontStringFor = (runBold, runItalic) => {
+        const w = runBold ? 'bold ' : '';
+        const st = runItalic ? 'italic ' : '';
+        return `${st}${w}${lineFontSize}px ${fontFamily}`;
+      };
+      const baseBold = ff.includes('bold');
+      const baseItalic = ff.includes('italic') || ff.includes('oblique');
 
       // Regel-anker in user-space (regels verschuiven loodrecht op de
       // baseline-richting), dan naar canvas-frame via de y-flip.
@@ -2465,25 +2473,56 @@ function drawTextEdits(ctx, pageNum) {
       ctx.save();
       ctx.translate(anchor.x, pageHeight - anchor.y);
       if (angle) ctx.rotate(-angleRad);
-      ctx.fillText(line, 0, 0);
 
-      if (edit.fontUnderline || edit.fontStrikethrough) {
-        const textWidth = ctx.measureText(line).width;
+      // Uitgevulde regel: dezelfde woordspatie-verdeling als de saver (Tw),
+      // zodat het canvas toont wat er bij opslaan in het bestand komt.
+      const jtw = Array.isArray(edit.lineJustifyTw) ? edit.lineJustifyTw[i] : null;
+      if (jtw != null && 'wordSpacing' in ctx) ctx.wordSpacing = `${jtw}px`;
+
+      const decorate = (fromX, toX) => {
+        if (!(edit.fontUnderline || edit.fontStrikethrough) || toX <= fromX) return;
         ctx.strokeStyle = lineStyle.color || '#000000';
         ctx.lineWidth = Math.max(0.5, lineFontSize * 0.06);
         ctx.lineCap = 'butt';
         ctx.beginPath();
         if (edit.fontUnderline) {
           const underlineY = lineFontSize * 0.1;
-          ctx.moveTo(0, underlineY);
-          ctx.lineTo(textWidth, underlineY);
+          ctx.moveTo(fromX, underlineY);
+          ctx.lineTo(toX, underlineY);
         }
         if (edit.fontStrikethrough) {
           const strikeY = -lineFontSize * 0.3;
-          ctx.moveTo(0, strikeY);
-          ctx.lineTo(textWidth, strikeY);
+          ctx.moveTo(fromX, strikeY);
+          ctx.lineTo(toX, strikeY);
         }
         ctx.stroke();
+      };
+
+      const segs = Array.isArray(edit.lineSegments) ? edit.lineSegments[i] : null;
+      if (segs && segs.length) {
+        // Kolom-segmenten: elk segment op zijn eigen x langs de baseline;
+        // binnen een segment optioneel runs met eigen vet/cursief.
+        for (const sg of segs) {
+          let penX = Number(sg.dx) || 0;
+          const segStart = penX;
+          const chunks = (Array.isArray(sg.runs) && sg.runs.length)
+            ? sg.runs
+            : [{ text: sg.text, bold: baseBold, italic: baseItalic }];
+          for (const run of chunks) {
+            const t = String(run.text ?? '').replace(/\t/g, ' ');
+            if (!t) continue;
+            ctx.font = fontStringFor(!!run.bold, !!run.italic);
+            ctx.fillStyle = run.color || lineStyle.color || '#000000';
+            ctx.fillText(t, penX, 0);
+            penX += ctx.measureText(t).width;
+          }
+          decorate(segStart, penX);
+        }
+      } else {
+        ctx.font = fontStringFor(baseBold, baseItalic);
+        const t = line.replace(/\t/g, ' ');
+        ctx.fillText(t, 0, 0);
+        decorate(0, ctx.measureText(t).width);
       }
       ctx.restore();
     }

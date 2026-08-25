@@ -145,9 +145,13 @@ function disableBrowserShortcuts() {
     const ctrl = e.ctrlKey || e.metaKey;
     if (!ctrl) return;
 
+    // In een tekstinvoer (input/textarea/contenteditable zoals de PDF-tekst-
+    // editor) horen Ctrl+I (cursief) en co bij het bewerken — niet blokkeren.
+    const inTekstinvoer = e.target.matches('input, textarea') || e.target.isContentEditable;
+
     // Browser shortcuts to block: inspect (I/Shift+I), view source (U), find (G/Shift+G), console (J)
     const blocked = ['i', 'u', 'g', 'j'];
-    if (blocked.includes(e.key.toLowerCase()) && !e.target.matches('input, textarea')) {
+    if (blocked.includes(e.key.toLowerCase()) && !inTekstinvoer) {
       e.preventDefault();
     }
     // Ctrl+P: suppress the WebView2 NATIVE print dialog (it fires as a

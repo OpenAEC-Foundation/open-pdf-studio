@@ -5,6 +5,7 @@ import { showTextEditProperties, hideProperties } from '../ui/panels/properties-
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import { canvasContainer, continuousContainer, pdfCanvas } from '../ui/dom-elements.js';
 import { showPdfTextEditor, hidePdfTextEditor, getPdfEditorText as getEditorText,
+  getPdfEditorLineRuns as getEditorLineRuns,
   updatePdfEditorStyle, shiftPdfEditorPosition } from '../bridge.js';
 import { injectSyntheticTextSpans, resolveTextLayerFonts } from '../text/text-layer.js';
 import {
@@ -14,15 +15,29 @@ import {
   restoreTextEditSnapshot,
   resolveTextEditPageGeometry,
   sampleTextColor,
+  buildLineSegments,
+  DEFAULT_TAB_GRID_PT,
+  layoutSegmentsOnTabGrid,
+  normalizeBulletText,
+  resolveTextEditLineStyle,
+  splitRunsIntoSegments,
   textEditAngleFromTransform,
+  reflowBlockLines,
+  detectBlockAlignment,
+  normalizeRuns,
 } from '../text/text-edit-appearance.js';
 
 let activeEditor = null;
 let hoverListeners = [];
 let textLayerObserver = null;
-let blockGroupsCache = new Map();
-// WeakMap: span -> block group, for fast lookup on hover/click
-let spanToBlock = new WeakMap();
+// Cache per laag en per groeperingsmodus. 'strict' (standaard klik) groepeert
+// behoudend: harde grens bij font-/vetheidswissel (kop vs broodtekst), bij een
+// regelafstand-sprong en bij tabelachtige structuren (opeenvolgende regels met
+// kolom-segmenten worden per rij gegroepeerd). 'loose' is de ruime, oude
+// groepering — bereikbaar met Ctrl/Cmd+klik voor wie het hele blok wil pakken.
+let blockGroupsCache = new Map(); // layer -> { strict: groups|null, loose: groups|null }
+// WeakMap per modus: span -> blokgroep, voor snelle lookup bij hover/klik
+let spanToBlockByMode = { strict: new WeakMap(), loose: new WeakMap() };
 
 // ── Font mapping shared by the text-edit sessions ──
 // Map a display / actual font name + bold/italic flags to a pdf-lib StandardFont
@@ -69,6 +84,130 @@ function editableFontName(line, cssFallbackFont) {
   return cssFallbackFont.includes('Courier') ? 'Courier New'
     : cssFallbackFont.includes('Times') ? 'Times New Roman'
     : 'Arial';
+}
+
+// Meest voorkomende kolomoffset (afgerond op 0.5pt-clusters) — één CSS
+// tab-size kan maar één raster aan; de dominante kolom laat de meeste regels
+// exact uitlijnen. Bij gelijkspel wint de kleinste offset.
+function dominantColumnOffset(offsets) {
+  if (!offsets || offsets.length === 0) return 0;
+  const telling = new Map();
+  for (const v of offsets) {
+    const key = Math.round(v * 2) / 2;
+    telling.set(key, (telling.get(key) || 0) + 1);
+  }
+  let beste = 0;
+  let besteN = 0;
+  for (const [key, n] of telling) {
+    if (n > besteN || (n === besteN && key < beste)) { beste = key; besteN = n; }
+  }
+  return beste;
+}
+
+// CSS-fallback-keten voor een familie-klasse (zelfde mapping als de editor).
+function cssFallbackFor(actualNameLower, fallbackLower) {
+  if (actualNameLower.includes('courier') || actualNameLower.includes('consolas')
+      || actualNameLower.includes('mono') || fallbackLower === 'monospace') {
+    return '"Courier New", Courier, monospace';
+  }
+  if (actualNameLower.includes('times') || actualNameLower.includes('garamond')
+      || actualNameLower.includes('georgia') || actualNameLower.includes('palatino')
+      || actualNameLower.includes('cambria') || actualNameLower.includes('bookman')
+      || fallbackLower === 'serif') {
+    return '"Times New Roman", Times, serif';
+  }
+  return 'Helvetica, Arial, sans-serif';
+}
+
+// Font-family-keten voor een tekstlaag-regel: het door PDF.js geladen
+// (embedded) font eerst, met de standaardfamilie als nette terugval.
+function lineEditorFontFamily(ld) {
+  const loaded = ld?.loadedFontName || '';
+  const fb = cssFallbackFor(
+    String(ld?.actualFontName || '').toLowerCase(),
+    String(ld?.fontFamily || 'sans-serif').toLowerCase(),
+  );
+  return loaded ? `"${loaded}", ${fb}` : fb;
+}
+
+// Tekstbreedte in PDF-punten, gemeten met dezelfde font-keten als de editor
+// toont (canvas-px bij font-size in punten == punten).
+function measureTextWidthPt(text, family, sizePt, bold, italic) {
+  if (!fontMetricsContext) {
+    fontMetricsContext = document.createElement('canvas').getContext('2d');
+  }
+  if (!fontMetricsContext) return String(text || '').length * sizePt * 0.5;
+  const w = bold ? 'bold ' : '';
+  const st = italic ? 'italic ' : '';
+  fontMetricsContext.font = `${st}${w}${sizePt}px ${family}`;
+  return fontMetricsContext.measureText(String(text || '')).width;
+}
+
+// Laatste pointerdown-doel in het document: het blur-commit-pad gebruikt dit
+// om kliks op opmaak-UI (paneel, kleurkiezers, ribbon) NIET als 'klik buiten'
+// te behandelen. Een blur zonder voorafgaande pointerdown (bv. een native
+// kleur-dialoog die focus steelt) commit evenmin.
+// Laatste (niet-collapsed) selectie binnen de tekst-editor: een klik op het
+// eigenschappenpaneel laat de live selectie collapsen voordat de kleurkeuze
+// binnenkomt; met deze snapshot kleuren we alsnog precies de woorden die de
+// gebruiker geselecteerd had.
+let lastEditorSelectionRange = null;
+let lastEditorSelectionAt = 0;
+let lastEditorCaretRange = null;
+let lastEditorCaretAt = 0;
+if (typeof document !== 'undefined') {
+  document.addEventListener('selectionchange', () => {
+    const ed = document.querySelector('.pdf-text-editor');
+    if (!ed) return;
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    const range = sel.getRangeAt(0);
+    if (!ed.contains(range.commonAncestorContainer)) return;
+    if (range.collapsed) {
+      lastEditorCaretRange = range.cloneRange();
+      lastEditorCaretAt = Date.now();
+    } else {
+      lastEditorSelectionRange = range.cloneRange();
+      lastEditorSelectionAt = Date.now();
+    }
+  });
+}
+
+let lastPointerDownTarget = null;
+let lastPointerDownAt = 0;
+if (typeof document !== 'undefined') {
+  document.addEventListener('pointerdown', (e) => {
+    lastPointerDownTarget = e.target;
+    lastPointerDownAt = Date.now();
+  }, true);
+}
+
+const KEEP_EDITOR_SELECTOR = [
+  '#properties-panel-root',
+  '.properties-panel-outer',
+  '.properties-panel',
+  '.pdf-text-editor',
+  '.ribbon',
+  '[class*="ribbon"]',
+  '[class*="color-picker"]',
+  '[class*="color-palette"]',
+  '[class*="colorPicker"]',
+  'input[type="color"]',
+  '[data-keep-text-editor]',
+].join(', ');
+
+// Mag het blur-commit-pad de editor sluiten? Nee wanneer de focus of de
+// laatste klik in opmaak-UI ligt, of wanneer er helemaal geen klik was
+// (native dialoog).
+function blurShouldCommit() {
+  const activeEl = document.activeElement;
+  if (activeEl && activeEl !== document.body && activeEl.closest
+      && activeEl.closest(KEEP_EDITOR_SELECTOR)) return false;
+  const recentClick = Date.now() - lastPointerDownAt < 1500;
+  if (!recentClick) return false;
+  const t = lastPointerDownTarget;
+  if (t && t.closest && t.closest(KEEP_EDITOR_SELECTOR)) return false;
+  return true;
 }
 
 let fontMetricsContext = null;
@@ -129,6 +268,10 @@ function applyStyleStateToRecord(rec, st) {
   // Een record-brede stijlwijziging vervangt de per-regel stijlen — anders
   // zouden de oude lineStyles de nieuwe uniforme stijl blijven overrulen.
   if (changed && rec.lineStyles) delete rec.lineStyles;
+  if (changed && rec.baked) delete rec.baked;
+  // Stijl geldt record-breed: eerder als 'ongewijzigd' gemarkeerde regels
+  // moeten nu wél hertekend worden.
+  if (changed && rec.unchangedLines) delete rec.unchangedLines;
   return changed;
 }
 
@@ -201,7 +344,7 @@ export function deactivateEditTextTool() {
   disableTextLayerHover();
   stopObservingTextLayers();
   blockGroupsCache.clear();
-  spanToBlock = new WeakMap();
+  spanToBlockByMode = { strict: new WeakMap(), loose: new WeakMap() };
   state.isEditingPdfText = false;
   state.pdfTextEditState = null;
   // Overlay layers are restored by setAnnotationCanvasForTextAccess() in manager.js
@@ -219,7 +362,7 @@ function startObservingTextLayers() {
   textLayerObserver = new MutationObserver(() => {
     if (state.isEditingPdfText && state.currentTool === 'editText') {
       blockGroupsCache.clear();
-      spanToBlock = new WeakMap();
+      spanToBlockByMode = { strict: new WeakMap(), loose: new WeakMap() };
       enableTextLayerHover();
     }
   });
@@ -241,11 +384,15 @@ function stopObservingTextLayers() {
 // matrix stored on each span).  DOM measurements are only used at the end
 // to build the bounding rect the editor needs for positioning.
 
-function getBlockGroups(layer) {
-  if (blockGroupsCache.has(layer)) return blockGroupsCache.get(layer);
+function getBlockGroups(layer, mode = 'strict') {
+  const cached = blockGroupsCache.get(layer);
+  if (cached && cached[mode]) return cached[mode];
 
   const spans = Array.from(layer.querySelectorAll('span[data-pdf-transform]'));
-  if (spans.length === 0) { blockGroupsCache.set(layer, []); return []; }
+  if (spans.length === 0) {
+    blockGroupsCache.set(layer, { strict: [], loose: [] });
+    return [];
+  }
 
   const layerRect = layer.getBoundingClientRect();
 
@@ -314,18 +461,69 @@ function getBlockGroups(layer) {
     splitLines.push(segment);
   }
 
+  // ── Step 1c (alleen strict): zelfde-rij-fragmenten weer samenvoegen ──
+  // Een tabelrij is bij het bewerken één eenheid: fragmenten op dezelfde
+  // baseline met een beperkte tussenruimte (≤ 6× fontgrootte) worden weer
+  // samengevoegd; de kolomstructuur blijft via buildLineSegments behouden.
+  // Echte pagina-kolommen (grote goot) blijven gescheiden.
+  let groupLines = splitLines;
+  if (mode === 'strict') {
+    const rowUnits = [];
+    for (const frag of splitLines) {
+      const prev = rowUnits[rowUnits.length - 1];
+      if (prev) {
+        const sameRow = Math.abs(frag[0].pdfY - prev[0].pdfY) <= prev[0].fontSize * 0.3;
+        const last = prev[prev.length - 1];
+        const gap = frag[0].pdfX - (last.pdfX + last.pdfWidth);
+        const avgFs = (last.fontSize + frag[0].fontSize) / 2;
+        if (sameRow && gap <= avgFs * 6) { prev.push(...frag); continue; }
+      }
+      rowUnits.push([...frag]);
+    }
+    groupLines = rowUnits;
+  }
+
+  // Per regel-eenheid: kolomachtig? en de dominante font-identiteit (voor de
+  // strikte kop-vs-broodtekst-grens).
+  const lineMeta = groupLines.map(li => {
+    const seg = buildLineSegments(
+      li.map(it => ({
+        text: it.span.textContent,
+        pdfX: it.pdfX,
+        pdfY: it.pdfY,
+        pdfWidth: it.pdfWidth,
+        fontSize: it.fontSize,
+      })),
+      li[0].angle || 0,
+    );
+    const dom = li.reduce((beste, it) => {
+      const len = (it.span.textContent || '').trim().length;
+      return len > beste.len ? { it, len } : beste;
+    }, { it: li[0], len: (li[0].span.textContent || '').trim().length }).it;
+    return {
+      kolomachtig: Array.isArray(seg.segments) && seg.segments.length >= 2,
+      fontKey: `${dom.span.dataset.pdfFontName || ''}|${dom.span.dataset.pdfBold || ''}|${dom.span.dataset.pdfItalic || ''}`,
+    };
+  });
+
   // ── Step 2: group consecutive lines into blocks ──
   //
   // Two adjacent lines belong to the same block only when ALL of:
   //   a) font sizes match closely   (ratio > 0.92)
   //   b) baseline gap is reasonable  (0.5× – 1.8× fontSize)
   //   c) left edges are aligned      (within 1× fontSize)
+  // In de strikte modus komen daar harde grenzen bij:
+  //   d) geen stapeling van twee kolomachtige regels (tabel → per rij)
+  //   e) zelfde dominante font-identiteit (kop vs broodtekst splitst)
+  //   f) consistente regelafstand binnen het blok (sprong = grens)
   const blocks = [];
-  let curBlock = [splitLines[0]];
+  let curBlock = [groupLines[0]];
+  let curBlockMeta = [0];
+  let prevGap = null;
 
-  for (let i = 1; i < splitLines.length; i++) {
+  for (let i = 1; i < groupLines.length; i++) {
     const prevLine = curBlock[curBlock.length - 1];
-    const nextLine = splitLines[i];
+    const nextLine = groupLines[i];
 
     const prevFs = prevLine[0].fontSize;
     const nextFs = nextLine[0].fontSize;
@@ -339,17 +537,34 @@ function getBlockGroups(layer) {
     const prevLeft = Math.min(...prevLine.map(it => it.pdfX));
     const nextLeft = Math.min(...nextLine.map(it => it.pdfX));
 
-    const sameBlock =
+    let sameBlock =
       fontRatio > 0.92 &&
       baselineGap > avgFs * 0.5 &&
       baselineGap < avgFs * 1.8 &&
       Math.abs(nextLeft - prevLeft) < avgFs * 1.0;
 
+    if (sameBlock && mode === 'strict') {
+      const mPrev = lineMeta[curBlockMeta[curBlockMeta.length - 1]];
+      const mNext = lineMeta[i];
+      if (mPrev.kolomachtig && mNext.kolomachtig) {
+        sameBlock = false; // tabel: per rij groeperen
+      } else if (mPrev.fontKey !== mNext.fontKey) {
+        sameBlock = false; // kop vs broodtekst (ander font/vetheid)
+      } else if (prevGap != null
+          && Math.abs(baselineGap - prevGap) > Math.max(1, prevGap * 0.25)) {
+        sameBlock = false; // regelafstand-sprong
+      }
+    }
+
     if (sameBlock) {
       curBlock.push(nextLine);
+      curBlockMeta.push(i);
+      prevGap = baselineGap;
     } else {
       blocks.push(curBlock);
       curBlock = [nextLine];
+      curBlockMeta = [i];
+      prevGap = null;
     }
   }
   blocks.push(curBlock);
@@ -371,18 +586,45 @@ function getBlockGroups(layer) {
 
     const lineData = block.map(lineItems => {
       const firstSpan = lineItems[0].span;
+      // Regelstijl van de DOMINANTE span (meeste tekst) i.p.v. blind de
+      // eerste: een bullet-glyph uit een Symbol/Dingbats-font mag de
+      // fontkeuze van de hele regel niet laten omslaan.
+      const styleSpan = lineItems.reduce((beste, it) => {
+        const len = (it.span.textContent || '').trim().length;
+        return len > beste.len ? { span: it.span, len } : beste;
+      }, { span: firstSpan, len: (firstSpan.textContent || '').trim().length }).span;
       // Use actual font name from commonObjs (stored on dataset by text-layer.js)
-      const pdfFontFamily = firstSpan.dataset.pdfFontFamily || 'sans-serif';
-      const pdfFontName = firstSpan.dataset.pdfFontName || '';
-      const actualFontName = firstSpan.dataset.pdfActualFontName || '';
-      const loadedFontName = firstSpan.dataset.pdfLoadedFontName || '';
-      const isBold = firstSpan.dataset.pdfBold === 'true';
-      const isItalic = firstSpan.dataset.pdfItalic === 'true';
+      const pdfFontFamily = styleSpan.dataset.pdfFontFamily || 'sans-serif';
+      const pdfFontName = styleSpan.dataset.pdfFontName || '';
+      const actualFontName = styleSpan.dataset.pdfActualFontName || '';
+      const loadedFontName = styleSpan.dataset.pdfLoadedFontName || '';
+      const isBold = styleSpan.dataset.pdfBold === 'true';
+      const isItalic = styleSpan.dataset.pdfItalic === 'true';
 
-      const color = sampleTextColor(pdfCanvasEl, firstSpan.getBoundingClientRect());
+      const color = sampleTextColor(pdfCanvasEl, styleSpan.getBoundingClientRect());
 
+      // Kolomstructuur binnen de regel (tab-uitlijning) detecteren: de
+      // regeltekst krijgt een TAB op elke duidelijke horizontale sprong en de
+      // segment-startposities blijven bewaard voor painter en saver.
+      const lineSeg = buildLineSegments(
+        lineItems.map(it => ({
+          text: normalizeBulletText(it.span.textContent),
+          pdfX: it.pdfX,
+          pdfY: it.pdfY,
+          pdfWidth: it.pdfWidth,
+          fontSize: it.fontSize,
+        })),
+        lineItems[0].angle || 0,
+      );
       return {
-        text: lineItems.map(it => it.span.textContent).join(''),
+        text: lineSeg.text,
+        segments: lineSeg.segments,
+        // Stukken per bron-span (concat == text): basis voor de per-woord-
+        // opmaak-reconstructie bij het openen van de editor.
+        pieces: (lineSeg.pieces || []).map(pc => ({
+          text: pc.text,
+          span: lineItems[pc.item]?.span || null,
+        })),
         domTop: Math.min(...lineItems.map(it => it.domTop)),
         domBottom: Math.max(...lineItems.map(it => it.domBottom)),
         pdfX: lineItems[0].pdfX,
@@ -418,11 +660,13 @@ function getBlockGroups(layer) {
       rect: { left: minLeft, top: minTop, width: maxRight - minLeft, height: maxBottom - minTop }
     };
 
-    for (const sp of allSpans) spanToBlock.set(sp, group);
+    for (const sp of allSpans) spanToBlockByMode[mode].set(sp, group);
     return group;
   });
 
-  blockGroupsCache.set(layer, groups);
+  const entry = blockGroupsCache.get(layer) || { strict: null, loose: null };
+  entry[mode] = groups;
+  blockGroupsCache.set(layer, entry);
   return groups;
 }
 
@@ -446,11 +690,11 @@ function enableTextLayerHover() {
       span.classList.add('edit-text-hoverable');
 
       const enterHandler = () => {
-        const block = spanToBlock.get(span);
+        const block = spanToBlockByMode.strict.get(span);
         if (block) block.spans.forEach(s => s.classList.add('edit-text-block-hover'));
       };
       const leaveHandler = () => {
-        const block = spanToBlock.get(span);
+        const block = spanToBlockByMode.strict.get(span);
         if (block) block.spans.forEach(s => s.classList.remove('edit-text-block-hover'));
       };
       const clickHandler = async (e) => {
@@ -465,9 +709,12 @@ function enableTextLayerHover() {
           // be resolved (damaged or unsupported embedded font).
         }
         if (!state.isEditingPdfText || state.currentTool !== 'editText') return;
+        // Gewone klik: strikte groep (kop/tabelrij apart). Ctrl/Cmd+klik:
+        // het ruime blok (oude gedrag) voor wie alles ineens wil bewerken.
+        const groupMode = (e.ctrlKey || e.metaKey) ? 'loose' : 'strict';
         blockGroupsCache.delete(layer);
-        getBlockGroups(layer);
-        startPdfTextEditing(span, pageNum);
+        getBlockGroups(layer, groupMode);
+        startPdfTextEditing(span, pageNum, groupMode);
       };
       span.addEventListener('mouseenter', enterHandler);
       span.addEventListener('mouseleave', leaveHandler);
@@ -499,7 +746,7 @@ function disableTextLayerHover() {
 
 // ── Inline editor ──
 
-function startPdfTextEditing(span, pageNum) {
+function startPdfTextEditing(span, pageNum, groupMode = 'strict') {
   finishPdfTextEditing();
 
   const textLayer = span.closest('.textLayer');
@@ -519,7 +766,9 @@ function startPdfTextEditing(span, pageNum) {
     }
   }
 
-  const block = spanToBlock.get(span);
+  const block = spanToBlockByMode[groupMode].get(span)
+    || spanToBlockByMode.strict.get(span)
+    || spanToBlockByMode.loose.get(span);
   if (!block || block.spans.length === 0) return;
 
   // Remove block hover highlight (we're now editing)
@@ -590,8 +839,80 @@ function startPdfTextEditing(span, pageNum) {
     color: lineData[0].color || '#000000',
     'z-index': '1000'
   };
-  if (editorBold) styleObj['font-weight'] = 'bold';
-  if (editorItalic) styleObj['font-style'] = 'italic';
+  // NB: geen container-brede font-weight/style meer — de per-regel runs
+  // (initialLines met <b>/<i>) bepalen de weergave, zodat een blok met een
+  // vette kop en gewone broodtekst beide correct toont en de DOM-parse de
+  // absolute bold/italic-vlaggen teruggeeft.
+
+  // Kolom-tab-stops: laat de TAB in de editor naar de werkelijke kolom-x
+  // springen. CSS tab-size (px) zet stops op veelvouden; met de kleinste
+  // kolomoffset klopt het gangbare geval (labels + waarden op één kolom-x).
+  const columnOffsets = lineData
+    .filter(l => Array.isArray(l.segments) && l.segments.length > 1)
+    .map(l => l.segments[1].start)
+    .filter(v => Number.isFinite(v) && v > 0);
+  const dominantOffset = dominantColumnOffset(columnOffsets) || DEFAULT_TAB_GRID_PT;
+  {
+    // Ook zonder bestaande kolom een vast raster tonen: een nieuw getypte
+    // tab springt dan in de editor naar dezelfde stop als bij commit.
+    const tabPx = dominantOffset * (editorFontSize / fontSize);
+    if (tabPx > 1) styleObj['tab-size'] = `${tabPx.toFixed(2)}px`;
+  }
+
+  // Bestaande inline opmaak als beginweergave in de editor — per SPAN-RUN,
+  // niet per regel: een regel kan runs in andere font-varianten (vet/cursief)
+  // en kleuren bevatten die al als echte paginatekst in het bestand staan
+  // (bv. na een eerdere in-place-save). Opeenvolgende stukken met gelijke
+  // stijl worden samengevoegd; witruimte is stijl-neutraal en plakt aan de
+  // vorige run. Zo toont de editor de opmaak en behoudt het record de runs
+  // bij commit — herbewerken zonder opmaakverlies.
+  const kleurCanvas = textLayer.parentElement?.querySelector('canvas.pdf-canvas')
+    || pdfCanvas || document.getElementById('pdf-canvas');
+  const bouwSpanRuns = (l) => {
+    const basisBold = l.isBold || false;
+    const basisItalic = l.isItalic || false;
+    const basisKleur = (l.color || '#000000').toLowerCase();
+    const stukken = Array.isArray(l.pieces) ? l.pieces : null;
+    if (!stukken || stukken.length === 0) {
+      return [{ text: l.text, bold: basisBold, italic: basisItalic }];
+    }
+    const runs = [];
+    for (const stuk of stukken) {
+      if (!stuk.text) continue;
+      let bold = basisBold;
+      let italic = basisItalic;
+      let kleur = null;
+      const sp = stuk.span;
+      if (sp && stuk.text.trim()) {
+        bold = sp.dataset.pdfBold === 'true';
+        italic = sp.dataset.pdfItalic === 'true';
+        const c = sampleTextColor(kleurCanvas, sp.getBoundingClientRect());
+        if (c && c.toLowerCase() !== basisKleur) kleur = c;
+      } else if (runs.length) {
+        const vorige = runs[runs.length - 1];
+        bold = vorige.bold;
+        italic = vorige.italic;
+        kleur = vorige.color || null;
+      }
+      const vorige = runs[runs.length - 1];
+      if (vorige && vorige.bold === bold && vorige.italic === italic
+          && (vorige.color || null) === (kleur || null)) {
+        vorige.text += stuk.text;
+      } else {
+        runs.push({ text: stuk.text, bold, italic, ...(kleur ? { color: kleur } : {}) });
+      }
+    }
+    return runs.length ? runs : [{ text: l.text, bold: basisBold, italic: basisItalic }];
+  };
+  const initialLineRuns = lineData.map(bouwSpanRuns);
+  const editorInitialLines = lineData.map((l, li) => ({
+    runs: initialLineRuns[li],
+    style: {
+      fontFamily: lineEditorFontFamily(l),
+      fontSizePx: l.fontSize * (editorFontSize / fontSize),
+      color: l.color || '#000000',
+    },
+  }));
 
   // Hide all spans BEFORE showing editor so text doesn't double-render
   for (const s of block.spans) s.style.visibility = 'hidden';
@@ -601,6 +922,9 @@ function startPdfTextEditing(span, pageNum) {
     pageNum,
     kind: 'existingText',
     originalText: combinedText,
+    // Gedetecteerde beginopmaak per regel: referentie voor de commit —
+    // alleen ECHT gewijzigde opmaak telt als wijziging.
+    initialLineRuns,
     pdfX,
     pdfY,
     pdfWidth,
@@ -663,13 +987,9 @@ function startPdfTextEditing(span, pageNum) {
   const handleBlur = () => {
     setTimeout(() => {
       if (activeEditor) {
-        // Don't close if focus moved to the properties panel.
-        // Use the static mount point from index.html (not the Solid-rendered element).
-        const activeEl = document.activeElement;
-        const propsRoot = document.getElementById('properties-panel-root');
-        if (activeEl && propsRoot && propsRoot.contains(activeEl)) {
-          return;
-        }
+        // Kliks in opmaak-UI (paneel, kleurkiezers, ribbon) of een native
+        // dialoog die focus steelt sluiten de editor niet.
+        if (!blurShouldCommit()) return;
         finishPdfTextEditing();
       }
     }, 150);
@@ -679,7 +999,8 @@ function startPdfTextEditing(span, pageNum) {
     onCommit: null,
     onCancel: null,
     onKeyDown: handleKeyDown,
-    onBlur: handleBlur
+    onBlur: handleBlur,
+    initialLines: editorInitialLines,
   });
 }
 
@@ -694,7 +1015,8 @@ function finishPdfTextEditing() {
 
   const {
     block, pageNum, originalText,
-    pdfX, pdfY, pdfWidth, fontSize, lineSpacing, numOriginalLines, styleState
+    pdfX, pdfY, pdfWidth, fontSize, lineSpacing, numOriginalLines, styleState,
+    initialLineRuns: initialRuns,
   } = activeEditor;
   const newText = getEditorText();
 
@@ -714,9 +1036,36 @@ function finishPdfTextEditing() {
     st.underline === true ||
     st.strikethrough === true;
 
+  // Inline opmaak (vet/cursief per woord via Ctrl+B/I) telt ook als
+  // wijziging — anders gaat een pure opmaak-edit zonder tekstwijziging
+  // verloren bij commit. Vergelijk tegen de GEDETECTEERDE beginopmaak
+  // (initialLineRuns): bestaande per-woord-runs die de editor toont zijn
+  // geen wijziging; alleen daadwerkelijk aangepaste opmaak telt.
+  const _runsGelijk = (a, b) => {
+    const na = normalizeRuns(a || []);
+    const nb = normalizeRuns(b || []);
+    if (na.length !== nb.length) return false;
+    return na.every((r, k) => r.text === nb[k].text
+      && !!r.bold === !!nb[k].bold
+      && !!r.italic === !!nb[k].italic
+      && (r.color || null) === (nb[k].color || null));
+  };
+  const _peekRuns = getEditorLineRuns();
+  const inlineFormattingChanged = Array.isArray(_peekRuns) && _peekRuns.some((runs, i) => {
+    if (!Array.isArray(runs) || runs.length === 0) return false;
+    if (Array.isArray(initialRuns) && initialRuns[i]) {
+      return !_runsGelijk(runs, initialRuns[i]);
+    }
+    const baseBold = block.lineData[i]?.isBold || false;
+    const baseItalic = block.lineData[i]?.isItalic || false;
+    return runs.length > 1
+      || runs[0].bold !== baseBold
+      || runs[0].italic !== baseItalic;
+  });
+
   // Persist when the text OR the formatting changed (a pure re-style of
   // existing PDF text must be saveable too).
-  if ((newText !== originalText || styleChanged) && newText.trim() !== '') {
+  if ((newText !== originalText || styleChanged || inlineFormattingChanged) && newText.trim() !== '') {
     const { lineData } = block;
     const pdfFontName = lineData[0].pdfFontName || '';
 
@@ -758,11 +1107,148 @@ function finishPdfTextEditing() {
       loadedFontName: ld.loadedFontName || '',
     }));
 
+    // ── Kolom-segmenten en inline opmaak-runs per regel ──
+    // Segmenten behouden hun oorspronkelijke x-positie (langs de baseline)
+    // zolang de gebruiker de tab-structuur niet doorbrak; runs bewaren
+    // vet/cursief per woord. Regels zonder beide krijgen null (fallback op
+    // het bestaande doorlopende gedrag).
+    const blockAngleRad = (lineData[0].angle || 0) * Math.PI / 180;
+    const projDx = (x, y) =>
+      ((Number(x) || 0) - pdfX) * Math.cos(blockAngleRad)
+      + ((Number(y) || 0) - pdfY) * Math.sin(blockAngleRad);
+    const blockTabGrid = dominantColumnOffset(
+      lineData.flatMap(l => (Array.isArray(l.segments) && l.segments.length > 1)
+        ? [l.segments[1].start] : [])
+    ) || DEFAULT_TAB_GRID_PT;
+    const editorRuns = getEditorLineRuns();
+
+    // ── C2: reflow binnen het bewerkte blok ──
+    // Alleen voor gewone alinea's (geen kolom-segmenten, geen tabs, geen
+    // inline opmaak-runs): als een bewerkte regel breder wordt dan het blok,
+    // herverdeel de woorden vanaf de eerste gewijzigde regel over de regels
+    // van het blok. Loopt het resultaat buiten het blok: waarschuwen, nooit
+    // stilletjes afkappen.
+    let finalNewText = newText;
+    let lineJustifyTw = null;
+    let justifyWidth = 0;
+    let alignSegsOverride = null;
+    const origLinesArr = originalText.split('\n');
+    const isPlainParagraph = !newText.includes('\t')
+      && !inlineFormattingChanged
+      && numOriginalLines >= 2
+      && lineData.every(l => !l.segments)
+      // Gemengde per-woord-opmaak (meerdere runs op een regel): niet
+      // reflowen — het herverdelen van woorden over regels zou de
+      // run-indeling verhaspelen (runs zijn per oorspronkelijke regel).
+      && (!Array.isArray(initialLineRuns)
+        || initialLineRuns.every(r => !Array.isArray(r) || r.length <= 1));
+    if (isPlainParagraph) {
+      const blockLeft = Math.min(...lineData.map(l => l.pdfX));
+      const blockRight = Math.max(...lineData.map(l => l.pdfX + (l.pdfWidth || 0)));
+      const blockWidth = blockRight - blockLeft;
+      const meet = (t) => measureTextWidthPt(
+        t, lineEditorFontFamily(lineData[0]), finalSize, finalBold, finalItalic,
+      );
+      const reflow = reflowBlockLines(origLinesArr, newText.split('\n'), {
+        maxWidth: blockWidth,
+        measure: meet,
+      });
+      if (reflow.changed) {
+        finalNewText = reflow.lines.join('\n');
+        if (reflow.overflow > 0) {
+          console.warn(
+            `[text-edit] Bewerkte tekst is ${reflow.overflow} regel(s) hoger dan ` +
+            'het originele blok; de tekst wordt volledig getoond (niet afgekapt).',
+          );
+        }
+      }
+      // Uitlijning van het originele blok benaderen: rechts via segment-dx,
+      // uitgevuld via woordspatie-verdeling (Tw) op de gewijzigde regels.
+      const align = detectBlockAlignment(
+        lineData.map(l => ({ x: l.pdfX, width: l.pdfWidth || 0 })),
+        { tol: Math.max(1.5, fontSize * 0.25) },
+      );
+      const finalLines = finalNewText.split('\n');
+      if (align === 'right') {
+        alignSegsOverride = finalLines.map(ln => ([{
+          text: ln,
+          dx: (blockRight - meet(ln)) - pdfX,
+        }]));
+      } else if (align === 'justify') {
+        justifyWidth = blockWidth;
+        lineJustifyTw = finalLines.map((ln, li) => {
+          if (li === finalLines.length - 1) return null; // laatste regel niet uitvullen
+          if (li < origLinesArr.length && ln === origLinesArr[li]) return null;
+          const spaties = (ln.match(/ /g) || []).length;
+          if (!spaties) return null;
+          const tw = (blockWidth - meet(ln)) / spaties;
+          return (tw > 0.05 && tw < finalSize * 2) ? tw : null;
+        });
+        if (!lineJustifyTw.some(v => v != null)) { lineJustifyTw = null; justifyWidth = 0; }
+      }
+    }
+    // ── C3: welke regels zijn écht ongewijzigd? ──
+    // Ongewijzigde regels van het blok worden bij een geslaagde in-place-save
+    // fysiek met rust gelaten (behoudt o.a. de oorspronkelijke uitvulling).
+    // Een record-brede stijl-/opmaakwijziging maakt alle regels 'gewijzigd'.
+    const unchangedLines = (styleChanged || inlineFormattingChanged)
+      ? null
+      : finalNewText.split('\n').map((ln, li) =>
+        li < origLinesArr.length && ln === origLinesArr[li]);
+
+    const recordNewLines = finalNewText.split('\n');
+    const lineSegments = alignSegsOverride || recordNewLines.map((ln, i) => {
+      const origSegs = lineData[i]?.segments || null;
+      const baseBold = lineData[i]?.isBold || false;
+      const baseItalic = lineData[i]?.isItalic || false;
+      const rawRuns = Array.isArray(editorRuns?.[i]) ? editorRuns[i] : null;
+      const interestingRuns = rawRuns && (
+        rawRuns.length > 1
+        || (rawRuns[0] && (rawRuns[0].bold !== baseBold || rawRuns[0].italic !== baseItalic))
+        || rawRuns.some(r => r && r.color)
+      );
+
+      const parts = ln.split('\t');
+      const segRuns = rawRuns ? splitRunsIntoSegments(rawRuns, parts.length) : null;
+      const withRuns = (arr) => arr.map((sg, j) => ({
+        ...sg,
+        ...(segRuns && segRuns[j] && interestingRuns ? { runs: segRuns[j] } : {}),
+      }));
+      const lineDx = origSegs
+        ? projDx(origSegs[0].x, origSegs[0].y)
+        : (lineData[i] ? projDx(lineData[i].pdfX, lineData[i].pdfY) : 0);
+      if (parts.length > 1) {
+        if (origSegs && parts.length === origSegs.length) {
+          // Tab-aantal ongewijzigd: originele kolom-x-posities behouden.
+          return withRuns(origSegs.map((sg, j) => ({ text: parts[j], dx: projDx(sg.x, sg.y) })));
+        }
+        // Nieuwe of extra tabs: leg de segmenten op het tab-stop-raster,
+        // precies zoals de editor ze toont (getypte tab = kolomscheiding).
+        const ldRef = lineData[i] || lineData[0];
+        const laid = layoutSegmentsOnTabGrid(parts, {
+          grid: blockTabGrid,
+          baseDx: lineDx,
+          measure: (t) => measureTextWidthPt(
+            t, lineEditorFontFamily(ldRef), ldRef.fontSize || fontSize,
+            ldRef.isBold, ldRef.isItalic,
+          ),
+        });
+        return withRuns(laid);
+      }
+      if (origSegs) {
+        // Tab verwijderd: segmenten samengevoegd, doorlopend vanaf segment 1.
+        return withRuns([{ text: ln, dx: lineDx }]);
+      }
+      if (interestingRuns) return [{ text: ln, dx: lineDx, runs: rawRuns }];
+      return null;
+    });
+    const hasLineSegments = lineSegments.some(Boolean);
+
     const editRecord = {
       id: Date.now() + Math.random().toString(36).substr(2, 9),
       page: pageNum,
       originalText,
-      newText,
+      newText: finalNewText,
       pdfX,
       pdfY,
       pdfWidth,
@@ -777,6 +1263,20 @@ function finishPdfTextEditing() {
       fontStrikethrough: finalStrikethrough,
       textAngle: lineData[0].angle || 0,
       ...(lineStyles ? { lineStyles } : {}),
+      ...(hasLineSegments ? { lineSegments } : {}),
+      ...(lineJustifyTw ? { lineJustifyTw, justifyWidth } : {}),
+      ...(unchangedLines ? { unchangedLines } : {}),
+      // Per-regel origineel anker + ruwe tekst: hiermee kan de saver de
+      // originele show-text-operatoren in de content stream terugvinden om
+      // ze in-place te vervangen (het échte bewerken).
+      originalLineInfo: lineData.map((ld, li) => ({
+        x: ld.pdfX,
+        y: ld.pdfY,
+        width: ld.pdfWidth,
+        fontSize: ld.fontSize,
+        angle: ld.angle || 0,
+        text: (originalSpanTexts[li] || []).join(''),
+      })),
       originalSpanTexts
     };
 
@@ -785,12 +1285,27 @@ function finishPdfTextEditing() {
       if (!doc.textEdits) doc.textEdits = [];
       doc.textEdits.push(editRecord);
 
-      // Update span text visually: put all new text in first span, blank the rest
+      // Update span text visually: put all new text in first span, blank the rest.
+      // Regels met behouden kolomstructuur verdelen hun segment-teksten over de
+      // oorspronkelijke segment-spans zodat de selectie-uitlijning blijft kloppen.
+      // Koppel de spans ook aan het record via dataset.editId: een volgende
+      // klik heropent dan HET record (incl. kolom-segmenten en vet/cursief-
+      // runs) via startTextEditEditing, in plaats van een verse block-edit.
+      for (const sp of block.spans) sp.dataset.editId = String(editRecord.id);
       const newLines = newText.split('\n');
       for (let li = 0; li < lineData.length; li++) {
         const lineSpans = lineData[li].spans;
-        if (li < newLines.length) {
-          lineSpans[0].textContent = newLines[li];
+        const origSegs = lineData[li].segments;
+        const savedSegs = li < newLines.length ? lineSegments[li] : null;
+        if (li < newLines.length && origSegs && savedSegs && savedSegs.length === origSegs.length) {
+          lineSpans.forEach((sp, idx) => {
+            const segK = origSegs.findIndex(sg => sg.spanStart === idx);
+            if (segK >= 0) sp.textContent = savedSegs[segK].text;
+            else if (sp.textContent.trim()) sp.textContent = '';
+            // witruimte-spans blijven staan: zij houden de kolomruimte selecteerbaar
+          });
+        } else if (li < newLines.length) {
+          lineSpans[0].textContent = newLines[li].replace(/\t/g, ' ');
           for (let si = 1; si < lineSpans.length; si++) lineSpans[si].textContent = '';
         } else {
           for (const s of lineSpans) s.textContent = '';
@@ -907,6 +1422,15 @@ export function createReplaceTextEdit(pageNum, originalText, newText, matchSpan)
     pdfFontName,
     color,
     textAngle: textEditAngleFromTransform(transform),
+    // Anker + ruwe tekst voor de in-place-route van de saver.
+    originalLineInfo: [{
+      x: pdfX,
+      y: pdfY,
+      width: pdfWidth,
+      fontSize,
+      angle: textEditAngleFromTransform(transform),
+      text: originalText,
+    }],
     originalSpanTexts: [[originalText]]
   };
 
@@ -1059,8 +1583,18 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
     'transform-origin': '0 0',
     'z-index': '1000'
   };
-  if (editorBold) styleObj['font-weight'] = 'bold';
-  if (editorItalic) styleObj['font-style'] = 'italic';
+  // Container-brede font-weight/style vervalt: de per-regel initialLines
+  // (met <b>/<i>-runs) bepalen de weergave in de contenteditable.
+  // Kolom-tab-stops uit de opgeslagen segmentstructuur.
+  const segTabOffsets = (textEdit.lineSegments || [])
+    .filter(sg => Array.isArray(sg) && sg.length > 1)
+    .map(sg => (Number(sg[1].dx) || 0) - (Number(sg[0].dx) || 0))
+    .filter(v => v > 0);
+  const segDominant = dominantColumnOffset(segTabOffsets) || DEFAULT_TAB_GRID_PT;
+  {
+    const tabPx = segDominant * editScale;
+    if (tabPx > 1) styleObj['tab-size'] = `${tabPx.toFixed(2)}px`;
+  }
   const decorations = [];
   if (textEdit.fontUnderline) decorations.push('underline');
   if (textEdit.fontStrikethrough) decorations.push('line-through');
@@ -1085,10 +1619,72 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
       return;
     }
 
-    if (newText.trim() !== '') textEdit.newText = newText;
+    if (newText.trim() !== '') {
+      if (textEdit.newText !== newText) {
+        delete textEdit.unchangedLines;
+        delete textEdit.lineJustifyTw;
+        delete textEdit.justifyWidth;
+      }
+      textEdit.newText = newText;
+    }
+    // Segment- en run-structuur meesynchroniseren met de bewerkte tekst:
+    // kolommen behouden zolang de tab-structuur intact is; inline opmaak
+    // (vet/cursief per woord) uit de editor overnemen.
+    {
+      const edRuns = getEditorLineRuns();
+      const lines = textEdit.newText.split('\n');
+      const oudeSegs = Array.isArray(textEdit.lineSegments) ? textEdit.lineSegments : null;
+      const reopenTabGrid = dominantColumnOffset(
+        (oudeSegs || []).filter(sg => Array.isArray(sg) && sg.length > 1)
+          .map(sg => (Number(sg[1].dx) || 0) - (Number(sg[0].dx) || 0))
+          .filter(v => v > 0)
+      ) || DEFAULT_TAB_GRID_PT;
+      const nieuw = lines.map((ln, i) => {
+        const segs = oudeSegs?.[i] || null;
+        const runs = Array.isArray(edRuns?.[i]) ? edRuns[i] : null;
+        const st = resolveTextEditLineStyle(textEdit, i);
+        const baseBold = /bold/i.test(st.fontFamily || '');
+        const baseItalic = /oblique|italic/i.test(st.fontFamily || '');
+        const interesting = runs && (
+          runs.length > 1
+          || (runs[0] && (runs[0].bold !== baseBold || runs[0].italic !== baseItalic))
+          || runs.some(r => r && r.color)
+        );
+        const parts = ln.split('\t');
+        const segRuns = runs ? splitRunsIntoSegments(runs, parts.length) : null;
+        const withRuns = (arr) => arr.map((sg, j) => ({
+          ...sg,
+          ...(segRuns && segRuns[j] && interesting ? { runs: segRuns[j] } : {}),
+        }));
+        const lineDx = Number(segs?.[0]?.dx) || 0;
+        if (parts.length > 1) {
+          if (segs && parts.length === segs.length) {
+            return withRuns(segs.map((sg, j) => ({ text: parts[j], dx: sg.dx })));
+          }
+          // Nieuwe/extra tab tijdens herbewerken: raster-layout zoals de
+          // editor toont.
+          const fam = cssFamilyFor(st.fontFamily);
+          const sizePt = st.fontSize || textEdit.fontSize || 12;
+          const laid = layoutSegmentsOnTabGrid(parts, {
+            grid: reopenTabGrid,
+            baseDx: lineDx,
+            measure: (t) => measureTextWidthPt(t, fam, sizePt, baseBold, baseItalic),
+          });
+          return withRuns(laid);
+        }
+        if (segs && segs.length) return withRuns([{ text: ln, dx: lineDx }]);
+        if (interesting) return [{ text: ln, dx: lineDx, runs }];
+        return null;
+      });
+      if (nieuw.some(Boolean)) textEdit.lineSegments = nieuw;
+      else if (oudeSegs) delete textEdit.lineSegments;
+    }
     // Persist when content, style, or position changed. Style/position edits
     // were applied live to `textEdit`, so compare the whole record.
     const changed = JSON.stringify({ ...textEdit }) !== JSON.stringify(oldTextEdit);
+    // Een gewijzigd, eerder ingebakken record moet bij de volgende save
+    // opnieuw meegebakken worden (de nieuwe versie dekt de oude af).
+    if (changed && textEdit.baked) delete textEdit.baked;
     if (changed) {
       execute({ type: 'modifyTextEdit', oldTextEdit, newTextEdit: { ...textEdit } });
       markDocumentModified();
@@ -1191,23 +1787,58 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
   const handleBlur = () => {
     setTimeout(() => {
       if (activeEditor && activeEditor._finishEditing === finishEditing) {
-        // Don't close if focus moved to the properties panel.
-        // Use the static mount point from index.html (not the Solid-rendered element).
-        const activeEl = document.activeElement;
-        const propsRoot = document.getElementById('properties-panel-root');
-        if (activeEl && propsRoot && propsRoot.contains(activeEl)) {
-          return;
-        }
+        // Kliks in opmaak-UI (paneel, kleurkiezers, ribbon) of een native
+        // dialoog die focus steelt sluiten de editor niet.
+        if (!blurShouldCommit()) return;
         finishEditing();
       }
     }, 150);
   };
 
+  // Beginweergave: opgeslagen segmenten/runs terug de editor in, zodat
+  // eerder aangebrachte vet/cursief-opmaak bij herbewerken zichtbaar blijft.
+  const reopenBaseFlags = (i) => {
+    const st = resolveTextEditLineStyle(textEdit, i);
+    return {
+      bold: /bold/i.test(st.fontFamily || ''),
+      italic: /oblique|italic/i.test(st.fontFamily || ''),
+    };
+  };
+  const reopenInitialLines = textEdit.newText.split('\n').map((ln, i) => {
+    const { bold, italic } = reopenBaseFlags(i);
+    const segs = Array.isArray(textEdit.lineSegments) ? textEdit.lineSegments[i] : null;
+    const st = resolveTextEditLineStyle(textEdit, i);
+    const rowStyle = {
+      fontFamily: cssFamilyFor(st.fontFamily),
+      fontSizePx: (st.fontSize || textEdit.fontSize || 12) * editScale,
+      color: st.color || textEdit.color || '#000000',
+    };
+    if (segs && segs.length) {
+      const runs = [];
+      segs.forEach((sg, j) => {
+        if (j > 0) runs.push({ text: '\t', bold, italic });
+        if (Array.isArray(sg.runs) && sg.runs.length) {
+          runs.push(...sg.runs.map(r => ({
+            text: r.text,
+            bold: !!r.bold,
+            italic: !!r.italic,
+            ...(r.color ? { color: r.color } : {}),
+          })));
+        } else if (sg.text) {
+          runs.push({ text: sg.text, bold, italic });
+        }
+      });
+      if (runs.length) return { runs, style: rowStyle };
+    }
+    return { runs: [{ text: ln, bold, italic }], style: rowStyle };
+  });
+
   showPdfTextEditor(styleObj, textEdit.newText, {
     onCommit: null,
     onCancel: null,
     onKeyDown: handleKeyDown,
-    onBlur: handleBlur
+    onBlur: handleBlur,
+    initialLines: reopenInitialLines,
   });
 }
 
@@ -1216,6 +1847,61 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
 // Apply a formatting change from the properties panel to the text edit that is
 // currently open in the inline editor. Works for both inserted text (a live
 // textEdit record) and existing PDF text (persisted on commit).
+// Pas een kleur uit het eigenschappenpaneel toe op de actieve selectie in de
+// tekst-editor (per-run, zoals Ctrl+B/I). Retourneert false wanneer er geen
+// niet-lege selectie in de editor staat; de aanroeper valt dan terug op de
+// record-brede kleur.
+function applyColorToEditorSelection(color) {
+  const ed = document.querySelector('.pdf-text-editor');
+  if (!ed || !ed.isContentEditable) return false;
+  const sel = window.getSelection();
+  // 1) live selectie; 2) bewaarde selectie (paneel-klik liet hem collapsen);
+  // 3) alleen een cursor: kleur de hele regel waar hij staat; 4) geen
+  // caret-informatie: alle regels (via runs, nooit record-breed).
+  let range = null;
+  if (sel && sel.rangeCount > 0) {
+    const live = sel.getRangeAt(0);
+    if (!live.collapsed && ed.contains(live.commonAncestorContainer)) range = live.cloneRange();
+  }
+  // De bewaarde selectie geldt alleen als er sindsdien geen NIEUWERE caret
+  // is gezet: wie het laatst klikte bepaalt het doel (woorden vs regel).
+  if (!range && lastEditorSelectionRange
+      && lastEditorSelectionAt >= lastEditorCaretAt
+      && ed.contains(lastEditorSelectionRange.commonAncestorContainer)) {
+    range = lastEditorSelectionRange.cloneRange();
+  }
+  if (!range) {
+    let regel = null;
+    const caret = (sel && sel.rangeCount > 0 && ed.contains(sel.getRangeAt(0).commonAncestorContainer))
+      ? sel.getRangeAt(0)
+      : (lastEditorCaretRange && ed.contains(lastEditorCaretRange.commonAncestorContainer)
+        ? lastEditorCaretRange : null);
+    if (caret) {
+      let el = caret.commonAncestorContainer;
+      if (el.nodeType !== Node.ELEMENT_NODE) el = el.parentElement;
+      regel = el ? el.closest('div') : null;
+    }
+    range = document.createRange();
+    if (regel && ed.contains(regel)) range.selectNodeContents(regel);
+    else range.selectNodeContents(ed);
+  }
+  if (range.collapsed) return false;
+  // Focus- en selectieherstel: de paneel-klik nam de focus; zet de cursor
+  // terug waar hij stond en kleur de selectie.
+  ed.focus();
+  sel.removeAllRanges();
+  sel.addRange(range);
+  try { document.execCommand('styleWithCSS', false, true); } catch (_) { /* best effort */ }
+  document.execCommand('foreColor', false, color);
+  try { document.execCommand('styleWithCSS', false, false); } catch (_) { /* best effort */ }
+  ed.dispatchEvent(new Event('input', { bubbles: true }));
+  try {
+    lastEditorSelectionRange = window.getSelection().getRangeAt(0).cloneRange();
+    lastEditorSelectionAt = Date.now();
+  } catch (_) { /* selectie optioneel */ }
+  return true;
+}
+
 export function applyActiveTextEditStyle(key, value) {
   if (!activeEditor || !activeEditor.styleState) return;
   const st = activeEditor.styleState;
@@ -1234,7 +1920,17 @@ export function applyActiveTextEditStyle(key, value) {
       break;
     }
     case 'textColor':
-    case 'color': st.color = value; break;
+    case 'color': {
+      // Editor open: kleur ALTIJD via het run-/regelmechanisme (selectie,
+      // anders de cursorregel) — nooit record-breed, dat zou lineStyles en
+      // runs wissen en het hele blok kleuren.
+      if (document.querySelector('.pdf-text-editor')) {
+        applyColorToEditorSelection(value);
+        return;
+      }
+      st.color = value;
+      break;
+    }
     case 'fontBold':
       if (st.bold !== !!value) st.fontFaceChanged = true;
       st.bold = !!value;

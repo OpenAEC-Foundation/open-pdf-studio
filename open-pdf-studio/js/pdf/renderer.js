@@ -634,7 +634,11 @@ export async function renderPageOffscreen(pageNum) {
     pdfCanvas.style.height = Math.floor(viewport.height) + 'px';
     const imageData = new ImageData(rgba, rustW, rustH);
     pdfCanvas.getContext('2d').putImageData(imageData, 0, 0);
+    // Resize wist het overlay-canvas: direct synchron hertekenen zodat
+    // afdekbeelden van text-edits/annotaties geen frame verdwijnen (zelfde
+    // "no blink"-regel als verderop in renderPage).
     setupCanvasHiDPI(annotationCanvas, viewport.width, viewport.height);
+    redrawAnnotations();
     state.renderEngine = 'Raster (PDFium)';
   } catch (e) {
     state.renderEngine = 'ERROR';
@@ -801,12 +805,22 @@ async function renderContinuousPage(pageNum) {
     canvasContainer.appendChild(annotationCanvasEl);
   }
 
-  // Update canvas dimensions for new scale. The annotation canvas may resize
-  // immediately (it is redrawn below anyway), but a REUSED pdf-canvas keeps
-  // its old bitmap as a CSS-stretched placeholder until the new render lands:
-  // resizing a canvas wipes it, and that wipe was exactly the white flash
-  // that made zooming in continuous mode unusable.
+  // Update canvas dimensions for new scale. A REUSED pdf-canvas keeps its old
+  // bitmap as a CSS-stretched placeholder until the new render lands: resizing
+  // a canvas wipes it, and that wipe was exactly the white flash that made
+  // zooming in continuous mode unusable.
+  //
+  // Het annotation-canvas WORDT hier geresized (en dus gewist) — daarom moet
+  // het in HETZELFDE synchrone blok direct hertekend worden (zelfde regel als
+  // het single-page-pad: "resize and redraw in one synchronous block — no
+  // blink"). Zonder die directe hertekening stonden afdek-/vervangbeelden van
+  // text-edits en alle annotaties frames-lang niet op het scherm terwijl de
+  // paginarender async liep — de oude tekst onder een text-edit flitste dan
+  // zichtbaar door bij zoomen/scrollen in doorlopende weergave.
   setupCanvasHiDPI(annotationCanvasEl, viewport.width, viewport.height);
+  renderAnnotationsForPage(
+    annotationCanvasEl.getContext('2d'), pageNum, viewport.width, viewport.height,
+  );
   if (isNewPage) {
     setupCanvasHiDPI(pdfCanvasEl, viewport.width, viewport.height);
   } else {

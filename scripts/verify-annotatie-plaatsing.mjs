@@ -96,6 +96,15 @@ for (const naam of bestanden) {
       rij.fout = JSON.stringify(r).slice(0, 100);
     } else {
       await sleep(4000);
+      // Documenten openen sinds 1.88 standaard in de doorlopende weergave,
+      // maar deze meting leest het enkelpagina-annotatiecanvas uit. Expliciet
+      // naar enkelpagina schakelen; zonder deze stap meet alles 0% dekking.
+      await cdpEval(`(() => {
+        const b = [...document.querySelectorAll('button,[role=button]')].find(x => (x.title || '') === 'Enkele pagina');
+        if (b) b.click();
+        return true;
+      })()`).catch(() => {});
+      await sleep(1500);
       await mcp('app_fit_page', {});
       await sleep(3500);
       const a = await mcp('app_list_annotations', {});

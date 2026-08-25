@@ -252,6 +252,247 @@ export function textEditLineAnchor(pdfX, pdfY, lineIndex, lineSpacing, angleDeg 
   };
 }
 
+// ── Regel-segmenten (tab-/kolomstructuur) ──
+// Een regel in de tekstlaag bestaat vaak uit meerdere spans; een duidelijke
+// horizontale sprong ertussen (tab-uitlijning: "Offerte:    AC294") ging
+// verloren doordat de teksten met join('') werden samengevoegd. Deze helper
+// bouwt de regel op als segmenten met hun eigen startpositie, gescheiden door
+// een TAB-teken, zodat de kolom tijdens het bewerken zichtbaar blijft en bij
+// het opslaan gereconstrueerd kan worden.
+//
+// items: [{ text, pdfX, pdfY?, pdfWidth, fontSize }] — spans van één regel,
+//        gesorteerd in leesvolgorde.
+// angleDeg: baseline-richting (zie textEditAngleFromTransform) — afstanden
+//        worden langs de leesrichting geprojecteerd.
+// Retour: { text, segments } waarbij segments null is als er geen kolom-
+//        structuur is (dan is text de ongewijzigde join zoals voorheen).
+//        segments[j] = { text, x, y, start, spanStart } met start = afstand
+//        langs de baseline vanaf het eerste regel-item (PDF-punten) en
+//        spanStart = index van de eerste span van het segment.
+export function buildLineSegments(items, angleDeg = 0, gapFactor = 0.5) {
+  const plainText = (items || []).map(it => it?.text ?? '').join('');
+  if (!Array.isArray(items) || items.length < 2) {
+    return {
+      text: plainText,
+      segments: null,
+      pieces: (items || []).map((it, i) => ({ text: it?.text ?? '', item: i })).filter(p => p.text !== ''),
+    };
+  }
+  const rad = (Number(angleDeg) || 0) * Math.PI / 180;
+  const cos = Math.cos(rad);
+  const sin = Math.sin(rad);
+  const x0 = Number(items[0].pdfX) || 0;
+  const y0 = Number(items[0].pdfY) || 0;
+  const project = (it) => {
+    const dx = (Number(it.pdfX) || 0) - x0;
+    const dy = (Number(it.pdfY) || 0) - y0;
+    return dx * cos + dy * sin;
+  };
+
+  const segments = [];
+  let cur = null;
+  let lastContentEnd = 0;
+  let pendingWs = '';
+  for (let i = 0; i < items.length; i++) {
+    const it = items[i];
+    const text = it?.text ?? '';
+    const isWs = !text.trim();
+    const start = project(it);
+    const end = start + (Number(it.pdfWidth) || 0);
+    if (cur === null) {
+      if (isWs) continue; // leading witruimte: de segment-x vangt de positie op
+      cur = { text, x: it.pdfX, y: it.pdfY ?? 0, start, spanStart: i, pieces: [{ text, item: i }] };
+      lastContentEnd = end;
+      continue;
+    }
+    if (isWs) {
+      // Witruimte-spans onder de gap-drempel horen bij het lopende segment
+      // (gewone woordspaties); erboven worden ze de tab.
+      pendingWs += text;
+      continue;
+    }
+    const gap = start - lastContentEnd;
+    const threshold = (Number(it.fontSize) || 10) * gapFactor;
+    if (gap > threshold) {
+      cur.end = lastContentEnd;
+      segments.push(cur);
+      cur = { text, x: it.pdfX, y: it.pdfY ?? 0, start, spanStart: i, pieces: [{ text, item: i }] };
+    } else {
+      cur.text += pendingWs + text;
+      // Voor de run-reconstructie: witruimte plakt aan het volgende stuk
+      // (witruimte is stijl-neutraal).
+      cur.pieces.push({ text: pendingWs + text, item: i });
+    }
+    pendingWs = '';
+    lastContentEnd = end;
+  }
+  if (cur !== null) { cur.end = lastContentEnd; segments.push(cur); }
+
+  // Stukken (per bron-span) waarvan de concatenatie exact de regeltekst is —
+  // nodig om bij heropenen per-woord-opmaak (vet/cursief/kleur) uit de spans
+  // te reconstrueren. Scheidingstekens tussen segmenten plakken aan het
+  // eerste stuk van het volgende segment.
+  const piecesMet = (sep) => segments.flatMap((sg, j) => (
+    j === 0 ? sg.pieces : [{ text: sep + sg.pieces[0].text, item: sg.pieces[0].item },
+      ...sg.pieces.slice(1)]
+  ));
+
+  if (segments.length < 2) {
+    return { text: plainText, segments: null, pieces: piecesMet('') };
+  }
+
+  // Gespatieerde tekst herkennen (uitgevulde regels, brede woordspatiëring):
+  // veel segmenten met vrijwel uniforme tussenruimtes zijn géén kolommen maar
+  // woorden. Die regel wordt als gewone tekst (met spaties) teruggegeven,
+  // zodat de alinea normaal groepeert, reflowt en uitgevuld kan blijven.
+  if (segments.length >= 4) {
+    const gaps = [];
+    for (let j = 1; j < segments.length; j++) {
+      gaps.push(segments[j].start - segments[j - 1].end);
+    }
+    const gem = gaps.reduce((s, g) => s + g, 0) / gaps.length;
+    const fs = Number(items[0].fontSize) || 10;
+    const uniform = gem > 0 && gem < fs * 2.5
+      && gaps.every(g => Math.abs(g - gem) <= Math.max(1.5, gem * 0.5));
+    if (uniform) {
+      return { text: segments.map(s => s.text).join(' '), segments: null, pieces: piecesMet(' ') };
+    }
+  }
+  return { text: segments.map(s => s.text).join('\t'), segments, pieces: piecesMet('\t') };
+}
+
+// Standaard tab-raster (PDF-punten) voor blokken zonder bestaande kolom.
+export const DEFAULT_TAB_GRID_PT = 36;
+
+// Leg segment-teksten van één regel op een tab-stop-raster, zoals de editor
+// (CSS tab-size) dat toont: segment j>0 begint op de eerstvolgende raster-stop
+// ná het einde van de voorgaande tekst. Een in de editor getypte tab wordt zo
+// een volwaardige kolomscheiding — wat de gebruiker ziet is wat er gecommit
+// wordt.
+// parts: segment-teksten (regel gesplitst op \t); grid: rasterafstand in
+// punten; baseDx: dx van de regelstart t.o.v. het blok-anker; measure(text):
+// tekstbreedte in punten.
+export function layoutSegmentsOnTabGrid(parts, { grid, baseDx = 0, measure }) {
+  const g = Number(grid) > 0 ? Number(grid) : DEFAULT_TAB_GRID_PT;
+  const out = [];
+  let pen = 0; // positie t.o.v. de regelstart
+  for (let j = 0; j < parts.length; j++) {
+    if (j > 0) {
+      pen = (Math.floor(pen / g) + 1) * g; // strikt volgende stop
+    }
+    out.push({ text: parts[j], dx: baseDx + pen });
+    pen += Math.max(0, Number(measure(parts[j])) || 0);
+  }
+  return out;
+}
+
+// ── Inline opmaak-runs ──
+// Een regel kan uit runs bestaan: { text, bold, italic }. Runs zijn absoluut
+// (de vlag beschrijft de gewenste weergave, niet een omkering t.o.v. de
+// basisstijl) en leven binnen segmenten: lineSegments[i][j].runs.
+
+// Voeg aangrenzende runs met gelijke stijl samen en verwijder lege runs.
+// Runs kunnen optioneel een color dragen (hex, '#rrggbb'); alleen runs met
+// gelijke kleur worden samengevoegd.
+export function normalizeRuns(runs) {
+  const out = [];
+  for (const run of runs || []) {
+    const text = String(run?.text ?? '');
+    if (!text) continue;
+    const bold = !!run?.bold;
+    const italic = !!run?.italic;
+    const color = run?.color || null;
+    const prev = out[out.length - 1];
+    if (prev && prev.bold === bold && prev.italic === italic && (prev.color || null) === color) {
+      prev.text += text;
+    } else {
+      out.push({ text, bold, italic, ...(color ? { color } : {}) });
+    }
+  }
+  return out;
+}
+
+// ── Opsommings-glyfs ──
+// Bullets komen in PDF's vaak uit Symbol/ZapfDingbats(-subsets); de tekstlaag
+// levert dan een PUA-codepoint (U+F0xx) of een geometrisch teken dat in de
+// editor-font als blokje of vreemd glyph rendert. Map bekende varianten naar
+// een leesbare bullet (WinAnsi-veilig: • = 0x95 in WinAnsi).
+const BULLET_CHAR_MAP = new Map([
+  ['', '•'], // Symbol/Wingdings 0xB7: bullet
+  ['', '•'], // Wingdings 0xA7: klein zwart vierkant
+  ['', '•'], // Wingdings 0x6C: filled circle
+  ['', '•'],
+  ['', '•'], // Wingdings 0xFC: vinkje, in lijsten als bullet gebruikt
+  ['', '•'],
+  ['', '•'],
+  ['∙', '•'], // bullet operator
+  ['●', '•'], // black circle
+  ['▪', '•'], // black small square (geen WinAnsi)
+  ['⚫', '•'],
+  ['⬤', '•'],
+]);
+
+// Vervang bekende bullet-glyfvarianten door een leesbare bullet.
+export function normalizeBulletText(text) {
+  let s = String(text ?? '');
+  for (const [van, naar] of BULLET_CHAR_MAP) {
+    if (s.includes(van)) s = s.split(van).join(naar);
+  }
+  return s;
+}
+
+// Platte tekst van een run-reeks.
+export function runsPlainText(runs) {
+  return (runs || []).map(r => String(r?.text ?? '')).join('');
+}
+
+// Splits de runs van één regel op TAB-tekens in segment-run-reeksen.
+// Retourneert een array met per segment zijn runs (tabs zelf vervallen),
+// of null wanneer het aantal gevonden segmenten niet gelijk is aan
+// expectedCount (de gebruiker heeft de tab-structuur doorbroken).
+export function splitRunsIntoSegments(runs, expectedCount) {
+  const parts = [[]];
+  for (const run of runs || []) {
+    const chunks = String(run?.text ?? '').split('\t');
+    for (let c = 0; c < chunks.length; c++) {
+      if (c > 0) parts.push([]);
+      if (chunks[c]) {
+        parts[parts.length - 1].push({
+          text: chunks[c],
+          bold: !!run?.bold,
+          italic: !!run?.italic,
+          ...(run?.color ? { color: run.color } : {}),
+        });
+      }
+    }
+  }
+  if (expectedCount != null && parts.length !== expectedCount) return null;
+  return parts.map(normalizeRuns);
+}
+
+// Kies de Standard-14-variant voor een basisfamilie plus bold/italic-vlaggen.
+// baseName mag elke eerder opgeslagen Standard-14-naam zijn (variant-suffix
+// wordt genegeerd): 'Helvetica-Bold' + italic → 'Helvetica-BoldOblique'.
+export function standardFontVariant(baseName, bold, italic) {
+  const n = String(baseName || '').toLowerCase();
+  if (n.includes('courier')) {
+    return bold && italic ? 'Courier-BoldOblique'
+      : bold ? 'Courier-Bold'
+      : italic ? 'Courier-Oblique'
+      : 'Courier';
+  }
+  if (n.includes('times')) {
+    return bold && italic ? 'TimesRoman-BoldItalic'
+      : bold ? 'TimesRoman-Bold'
+      : italic ? 'TimesRoman-Italic'
+      : 'TimesRoman';
+  }
+  return bold && italic ? 'Helvetica-BoldOblique'
+    : bold ? 'Helvetica-Bold'
+    : italic ? 'Helvetica-Oblique'
+    : 'Helvetica';
+}
+
 // ── Per-regel stijl ──
 // Het edit-record kan per regel de oorspronkelijke stijl bewaren
 // (lineStyles[i] = { fontFamily, fontSize, color, loadedFontName }).
@@ -301,4 +542,82 @@ export function sampleTextColor(canvas, elementRect, fallback = '#000000') {
   } catch (_) {
     return fallback;
   }
+}
+
+// ── Reflow binnen het bewerkte blok (fase C) ──
+//
+// Herverdeelt de woorden van een alinea-blok over de regels wanneer een
+// bewerkte regel breder werd dan het blok toelaat. Alleen de regels vanaf de
+// EERSTE gewijzigde regel worden herverdeeld; eerdere (ongewijzigde) regels
+// behouden hun oorspronkelijke inhoud en lay-out.
+//
+// origLines/newLines: regel-arrays (zonder \n); maxWidth in PDF-punten;
+// measure(text) → breedte in punten. Retour: { lines, changed, overflow } —
+// overflow = aantal regels dat buiten het originele blok valt (waarschuwen,
+// niet afkappen).
+export function reflowBlockLines(origLines, newLines, { maxWidth, measure, tolerance = 1.02 } = {}) {
+  const geen = { lines: newLines, changed: false, overflow: 0 };
+  if (!Array.isArray(origLines) || !Array.isArray(newLines)) return geen;
+  if (!(Number(maxWidth) > 0) || typeof measure !== 'function') return geen;
+
+  // eerste gewijzigde regel
+  let k = -1;
+  const minLen = Math.min(origLines.length, newLines.length);
+  for (let i = 0; i < minLen; i++) {
+    if (origLines[i] !== newLines[i]) { k = i; break; }
+  }
+  if (k === -1 && origLines.length !== newLines.length) k = minLen;
+  if (k === -1) return geen;
+
+  // alleen reflowen als een gewijzigde regel te breed is
+  const teBreed = newLines.slice(k).some(l => measure(l) > maxWidth * tolerance);
+  if (!teBreed) return geen;
+  // lege regels in de staart zijn alinea-scheidingen: niet samenvoegen
+  if (newLines.slice(k).some(l => l.trim() === '')) return geen;
+
+  const head = newLines.slice(0, k);
+  const words = newLines.slice(k).join(' ').split(/\s+/).filter(Boolean);
+  const wrapped = [];
+  let cur = '';
+  for (const w of words) {
+    const cand = cur ? `${cur} ${w}` : w;
+    if (cur && measure(cand) > maxWidth) {
+      wrapped.push(cur);
+      cur = w;
+    } else {
+      cur = cand;
+    }
+  }
+  if (cur) wrapped.push(cur);
+
+  const lines = head.concat(wrapped);
+  const gelijk = lines.length === newLines.length && lines.every((l, i) => l === newLines[i]);
+  return {
+    lines,
+    changed: !gelijk,
+    overflow: Math.max(0, lines.length - origLines.length),
+  };
+}
+
+// Detecteert de uitlijning van een blok uit de originele regel-geometrie.
+// lineInfos: [{ x, width }] per regel. Retour: 'left' | 'right' | 'justify'.
+// 'justify' vergt ≥3 regels waarvan alle behalve de laatste zowel links als
+// rechts uitlijnen; 'right' vergt rechts-uitlijning zonder links-uitlijning.
+export function detectBlockAlignment(lineInfos, { tol = 2 } = {}) {
+  if (!Array.isArray(lineInfos) || lineInfos.length < 2) return 'left';
+  const lefts = lineInfos.map(l => Number(l.x) || 0);
+  const rights = lineInfos.map(l => (Number(l.x) || 0) + (Number(l.width) || 0));
+  const L = Math.min(...lefts);
+  const R = Math.max(...rights);
+  const leftAligned = (idxs) => idxs.every(i => Math.abs(lefts[i] - L) <= tol);
+  const rightAligned = (idxs) => idxs.every(i => Math.abs(rights[i] - R) <= tol);
+  const alle = lineInfos.map((_, i) => i);
+  const nietLaatste = alle.slice(0, -1);
+
+  if (lineInfos.length >= 3 && leftAligned(nietLaatste) && rightAligned(nietLaatste)
+      && Math.abs(lefts[lefts.length - 1] - L) <= tol) {
+    return 'justify';
+  }
+  if (rightAligned(alle) && !leftAligned(alle)) return 'right';
+  return 'left';
 }

@@ -237,13 +237,24 @@ function _cadChordTry(letter) {
 }
 
 // Handle keydown events
+// Typt de gebruiker in een tekstinvoer? Naast INPUT/TEXTAREA tellen ook
+// contenteditable-editors mee (o.a. de PDF-tekst-editor, die geen textarea
+// meer is). Losse letter-/cijfer-sneltoetsen en spatie mogen een lopende
+// tekstbewerking nooit onderbreken — een toolwissel sluit de editor.
+function isTextEntryTarget(t) {
+  if (!t) return false;
+  if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA') return true;
+  if (t.isContentEditable) return true;
+  return typeof t.closest === 'function' && !!t.closest('[contenteditable="true"]');
+}
+
 export async function handleKeydown(e) {
   const ctrl = e.ctrlKey || e.metaKey;
   const shift = e.shiftKey;
   const shortcutKey = typeof e.key === 'string' ? e.key.toLowerCase() : '';
 
   // Allow certain shortcuts even when in input fields
-  const isInInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
+  const isInInput = isTextEntryTarget(e.target);
   const isFindInput = e.target.id === 'find-input';
 
   // Keep Select All scoped to an active text-edit session, even when focus
@@ -251,11 +262,19 @@ export async function handleKeydown(e) {
   if (ctrl && !shift && !e.altKey && shortcutKey === 'a'
       && (state.isEditingText || state.pdfTextEditState)) {
     const editor = document.querySelector('.inline-text-editor, .pdf-text-editor');
-    if (editor && typeof editor.select === 'function') {
+    if (editor) {
       e.preventDefault();
       e.stopPropagation();
       editor.focus();
-      editor.select();
+      if (typeof editor.select === 'function') {
+        editor.select();
+      } else {
+        // contenteditable: selecteer de volledige editor-inhoud
+        const range = document.createRange();
+        range.selectNodeContents(editor);
+        const sel = window.getSelection();
+        if (sel) { sel.removeAllRanges(); sel.addRange(range); }
+      }
       return;
     }
   }
@@ -901,7 +920,7 @@ export async function handleKeydown(e) {
 function handlePaste(e) {
   if (!getActiveDocument()?.pdfDoc) return;
   if (isPdfAReadOnly()) return;
-  const isInInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
+  const isInInput = isTextEntryTarget(e.target);
   if (isInInput) return;
 
   // Mark that the native paste fired so the Ctrl+V keydown fallback skips itself.

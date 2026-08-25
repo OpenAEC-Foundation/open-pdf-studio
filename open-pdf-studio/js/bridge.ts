@@ -155,6 +155,7 @@ export {
   showPdfTextEditor,
   hidePdfTextEditor,
   getEditorText as getPdfEditorText,
+  getEditorLineRuns as getPdfEditorLineRuns,
   updateEditorStyle as updatePdfEditorStyle,
   shiftEditorPosition as shiftPdfEditorPosition,
 } from './solid/stores/pdfTextEditStore.js';
