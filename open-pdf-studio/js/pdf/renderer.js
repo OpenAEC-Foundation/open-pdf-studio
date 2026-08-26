@@ -492,7 +492,11 @@ async function _renderPageImpl(pageNum) {
   // otherwise text selection and Edit Text keep operating on the spans of the
   // previously visited page after navigation (raster viewport path sets
   // _skipBitmapRender=true on every render, including page changes).
-  const _existingTextLayer = document.querySelector('.textLayer');
+  // SCOPED op #canvas-container: een globale query vond ook de (verborgen)
+  // continuous-lagen van dezelfde pagina, waardoor na een weergavewissel de
+  // single-modus nooit een eigen tekstlaag bouwde — tekst (incl. nieuw
+  // toegevoegde blokken) was dan niet meer selecteerbaar of bewerkbaar.
+  const _existingTextLayer = document.querySelector('#canvas-container .textLayer');
   const _textLayerStale = !_existingTextLayer
     || parseInt(_existingTextLayer.dataset.page) !== pageNum;
   if (!_skipBitmapRender || _textLayerStale) {
@@ -949,6 +953,13 @@ async function renderContinuousPage(pageNum) {
       return;
     }
   }
+
+  // Oude lagen van deze pagina eerst opruimen: createTextLayer/createLinkLayer
+  // voegen alleen toe, en zonder deze sweep stapelde elke zoom-herbouw een
+  // complete extra tekst-/link-/formlaag op de wrapper (duplicaat-spans,
+  // verouderde klikdoelen).
+  canvasContainer.querySelectorAll('.textLayer, .linkLayer, .formLayer')
+    .forEach(l => l.remove());
 
   // Create text layer
   try {

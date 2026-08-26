@@ -621,3 +621,42 @@ export function detectBlockAlignment(lineInfos, { tol = 2 } = {}) {
   if (rightAligned(alle) && !leftAligned(alle)) return 'right';
   return 'left';
 }
+
+// ── Verplaatsen: scherm-delta → PDF-delta ──
+// Inverse van de nudge-mapping in text-edit-tool (shiftX/shiftY berekening):
+// een sleep-delta in schermpixels wordt een delta in PDF-user-space-punten,
+// rekening houdend met paginarotatie (rotationMatrix = getPageRotationMatrix)
+// en zoom. De rotatiematrix is orthonormaal, dus de inverse is de transpose.
+export function pdfDeltaFromScreenDelta(shiftX, shiftY, scale, rotationMatrix) {
+  const [a, b, c, d] = rotationMatrix || [1, 0, 0, 1];
+  const s = Number(scale) > 0 ? Number(scale) : 1;
+  return {
+    dx: (a * shiftX + b * shiftY) / s,
+    dy: -((c * shiftX + d * shiftY) / s),
+  };
+}
+
+// ── Nieuw tekstblok: record-fabriek ──
+// Het lege edit-record waarmee een nieuw blok paginatekst begint
+// (originalText '' → geen knip/afdekvlak; de saver emitteert een vers
+// BT/ET-blok op het anker). Puur zodat de vorm unit-getest is.
+export function nieuwTekstblokRecord({ page, pdfX, pdfY, fontSize = 12, color = '#000000' }) {
+  return {
+    id: Date.now() + Math.random().toString(36).substr(2, 9),
+    page,
+    originalText: '',
+    newText: '',
+    pdfX,
+    pdfY,
+    pdfWidth: 0,
+    fontSize,
+    lineSpacing: fontSize * 1.2,
+    numOriginalLines: 0,
+    fontFamily: 'Helvetica',
+    loadedFontName: '',
+    pdfFontName: '',
+    color,
+    originalSpanTexts: [],
+    _pendingNew: true,
+  };
+}

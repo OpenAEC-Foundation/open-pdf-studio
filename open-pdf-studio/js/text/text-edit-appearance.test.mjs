@@ -447,3 +447,39 @@ test('buildLineSegments: pieces-concatenatie == regeltekst (alle modi)', async (
   const enkel = buildLineSegments([{ text: 'solo', pdfX: 1, pdfY: 2, pdfWidth: 20, fontSize: 10 }]);
   assert.equal(concat(enkel), 'solo');
 });
+
+test('pdfDeltaFromScreenDelta: inverse van de nudge-mapping bij alle rotaties', async () => {
+  const { pdfDeltaFromScreenDelta, getPageRotationMatrix } = await import('./text-edit-appearance.js');
+  const scale = 1.5;
+  for (const rot of [0, 90, 180, 270]) {
+    const m = getPageRotationMatrix(595, 842, rot);
+    const [a, b, c, d] = m;
+    for (const [dxPdf, dyPdf] of [[3, 0], [0, 4], [-2, 7]]) {
+      // voorwaartse mapping zoals nudgeActiveTextEdit
+      const unrotDy = -dyPdf;
+      const sx = (a * dxPdf + c * unrotDy) * scale;
+      const sy = (b * dxPdf + d * unrotDy) * scale;
+      const terug = pdfDeltaFromScreenDelta(sx, sy, scale, m);
+      assert.ok(Math.abs(terug.dx - dxPdf) < 1e-9, `rot ${rot} dx`);
+      assert.ok(Math.abs(terug.dy - dyPdf) < 1e-9, `rot ${rot} dy`);
+    }
+  }
+  // rotatie 0: scherm-y omlaag = pdf-y omlaag (dy negatief bij sy positief)
+  const r0 = pdfDeltaFromScreenDelta(15, 30, 1.5, getPageRotationMatrix(595, 842, 0));
+  assert.equal(r0.dx, 10);
+  assert.equal(r0.dy, -20);
+});
+
+test('nieuwTekstblokRecord: vorm van een nieuw-blok-record', async () => {
+  const { nieuwTekstblokRecord, textEditLineAnchor } = await import('./text-edit-appearance.js');
+  const r = nieuwTekstblokRecord({ page: 3, pdfX: 120, pdfY: 500, fontSize: 14 });
+  assert.equal(r.originalText, ''); // geen origineel → geen knip/afdekvlak
+  assert.equal(r.numOriginalLines, 0);
+  assert.equal(r._pendingNew, true);
+  assert.equal(r.fontFamily, 'Helvetica');
+  assert.equal(r.lineSpacing, 14 * 1.2);
+  // meerregelige emissie gebruikt de bestaande regelafstand-ankers
+  const l1 = textEditLineAnchor(r.pdfX, r.pdfY, 1, r.lineSpacing, 0);
+  assert.equal(l1.x, 120);
+  assert.ok(Math.abs(l1.y - (500 - 16.8)) < 1e-9);
+});

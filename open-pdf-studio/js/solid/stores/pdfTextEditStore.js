@@ -14,6 +14,10 @@ const [cancelHandler, setCancelHandler] = createSignal(null);
 const [keyDownHandler, setKeyDownHandler] = createSignal(null);
 const [blurHandler, setBlurHandler] = createSignal(null);
 const [selectOnFocus, setSelectOnFocus] = createSignal(false);
+// Versleep-grip: { onDragBy(dxPx, dyPx), onDragEnd(), onDragCancel() } —
+// gezet door de tool; de overlay stuurt scherm-deltas, de tool rekent om
+// naar PDF-punten en verplaatst record + editor (nudge).
+const [dragHandlers, setDragHandlers] = createSignal(null);
 
 // handlers.initialLines (optioneel): [[{ text, bold, italic }]] per regel —
 // toont bestaande inline opmaak (vet/cursief) in de editor.
@@ -27,6 +31,7 @@ export function showPdfTextEditor(style, initialText, handlers) {
   setCancelHandler(() => handlers.onCancel || null);
   setKeyDownHandler(() => handlers.onKeyDown || null);
   setBlurHandler(() => handlers.onBlur || null);
+  setDragHandlers(handlers.dragHandlers || null);
   setSelectOnFocus(true);
   setInitRevision(r => r + 1);
   setActive(true);
@@ -69,5 +74,5 @@ export function shiftEditorPosition(dxPx, dyPx) {
 export {
   active, editorStyle, text, setText, lineRuns, setLineRuns, initialLines,
   initRevision, commitHandler, cancelHandler, keyDownHandler, blurHandler,
-  selectOnFocus, setSelectOnFocus,
+  selectOnFocus, setSelectOnFocus, dragHandlers,
 };

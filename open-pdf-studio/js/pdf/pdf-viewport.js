@@ -537,7 +537,7 @@ export function clampAndCenterUnused_keptForReference() {
   // Over-pan slack: how far the page can be positioned past the viewport
   // edge on an overflow axis. Half-viewport means the user can scroll/pan
   // until at most 50% of the viewport is gray (page-left at viewport-middle,
-  // or page-right at viewport-middle). Matches Edge/Chrome/Acrobat behavior
+  // or page-right at viewport-middle). Matches gangbaar viewer-gedrag
   // where you can scroll past page edges to see surrounding gray space.
   const OVERPAN_FRACTION = 0.5;
 
@@ -798,7 +798,11 @@ function _render() {
   // Sync text layer with viewport.
   // PDF.js text layer (0,0) = page top-left at scale=1.
   // Page top-left on screen = (offsetX, offsetY).
-  const textLayer = document.querySelector('.textLayer');
+  // SCOPED op #canvas-container: de globale query kon de (verborgen)
+  // continuous-laag van dezelfde pagina pakken, waardoor de echte single-
+  // page-laag zijn viewport-transform nooit kreeg en tekst onklikbaar op
+  // (0,0) bleef staan na een weergavewissel.
+  const textLayer = document.querySelector('#canvas-container .textLayer');
   if (textLayer) {
     const tx = viewport.offsetX;
     const ty = viewport.offsetY;
