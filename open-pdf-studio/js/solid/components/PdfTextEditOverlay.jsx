@@ -1,9 +1,10 @@
 import { Show, createEffect, untrack } from 'solid-js';
 import {
   active, editorStyle, text, setText, setLineRuns, initialLines, initRevision,
-  keyDownHandler, blurHandler, selectOnFocus, setSelectOnFocus,
+  keyDownHandler, blurHandler, selectOnFocus, setSelectOnFocus, dragHandlers,
 } from '../stores/pdfTextEditStore.js';
 import { normalizeRuns, runsPlainText } from '../../text/text-edit-appearance.js';
+import { parseEditorDom } from '../../text/editor-dom-parse.js';
 
 // Contenteditable overlay voor het bewerken van bestaande PDF-tekst.
 // Contenteditable (i.p.v. textarea) zodat inline opmaak — losse woorden vet of
@@ -16,13 +17,34 @@ function escapeHtml(s) {
 }
 
 // Bouw de initiële DOM: één <div> per regel; runs in <b>/<i>; lege regel <br>.
+// Atomische tab-spacer: representeert een TAB-teken in de contenteditable.
+// contenteditable="false" maakt hem 1 caret-eenheid (Backspace/Delete
+// verwijdert de hele tab); de breedte wordt per spacer berekend zodat elke
+// kolom exact op zijn eigen doel-x ligt (data-stop, in editor-px vanaf de
+// regelrand) - het uniforme CSS-tab-size-raster kon maar 1 kolomafstand aan.
+function tabSpacerHtml(stop) {
+  const stopAttr = Number.isFinite(stop) ? ` data-stop="${Math.round(stop * 100) / 100}"` : '';
+  return `<span class="pdf-tab-spacer" contenteditable="false"`
+    + ` style="display:inline-block;min-width:4px"${stopAttr}></span>`;
+}
+
 function buildInitialHtml(lines, plainText) {
   const rows = lines || String(plainText ?? '').split('\n').map(t => [{ text: t, bold: false, italic: false }]);
   return rows.map(row => {
     const runs = Array.isArray(row) ? row : (row?.runs || []);
     const style = Array.isArray(row) ? null : (row?.style || null);
+    const stops = (!Array.isArray(row) && Array.isArray(row?.tabStops)) ? row.tabStops : null;
+    let tabIndex = 0;
     const inner = (runs || []).map(r => {
-      let h = escapeHtml(String(r?.text ?? ''));
+      const delen = String(r?.text ?? '').split('\t');
+      let h = '';
+      delen.forEach((deel, k) => {
+        if (k > 0) {
+          h += tabSpacerHtml(stops ? stops[tabIndex] : null);
+          tabIndex += 1;
+        }
+        h += escapeHtml(deel);
+      });
       if (r?.italic) h = `<i>${h}</i>`;
       if (r?.bold) h = `<b>${h}</b>`;
       if (r?.color) h = `<span style="color: ${escapeHtml(r.color)}">${h}</span>`;
@@ -40,75 +62,6 @@ function buildInitialHtml(lines, plainText) {
   }).join('');
 }
 
-// Parse de contenteditable-DOM naar runs per regel.
-function parseEditorDom(root) {
-  const lines = [[]];
-  const pushRun = (text, bold, italic, color) => {
-    if (text) lines[lines.length - 1].push({ text, bold, italic, ...(color ? { color } : {}) });
-  };
-  const isBlockTag = (t) => t === 'DIV' || t === 'P';
-  const walk = (node, bold, italic, color) => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      const parts = node.data.split('\n');
-      for (let i = 0; i < parts.length; i++) {
-        if (i > 0) lines.push([]);
-        pushRun(parts[i], bold, italic, color);
-      }
-      return;
-    }
-    if (node.nodeType !== Node.ELEMENT_NODE) return;
-    const tag = node.tagName;
-    if (tag === 'BR') {
-      // In een leeg blok is <br> slechts de placeholder: het blok zelf heeft
-      // de regel al geopend.
-      const p = node.parentElement;
-      const soleInBlock = p && p !== root && isBlockTag(p.tagName)
-        && !node.previousSibling && !node.nextSibling;
-      if (!soleInBlock) lines.push([]);
-      return;
-    }
-    let b = bold;
-    let i = italic;
-    let c = color;
-    if (tag === 'B' || (tag === 'STRONG')) b = true;
-    if (tag === 'I' || (tag === 'EM')) i = true;
-    const st = node.style;
-    if (st && st.fontWeight) {
-      if (st.fontWeight === 'bold' || parseInt(st.fontWeight, 10) >= 600) b = true;
-      else if (st.fontWeight === 'normal') b = false;
-    }
-    if (st && st.fontStyle) {
-      if (st.fontStyle === 'italic' || st.fontStyle === 'oblique') i = true;
-      else if (st.fontStyle === 'normal') i = false;
-    }
-    const isBlock = isBlockTag(tag);
-    // Kleur op de regel-div is de per-regel basisstijl (geen run-kleur);
-    // kleur op inline elementen (span/font/b/i) is wel een run-kleur.
-    if (tag === 'FONT' && node.getAttribute('color')) c = cssColorToHex(node.getAttribute('color')) || c;
-    if (!isBlock && st && st.color) c = cssColorToHex(st.color) || c;
-    if (isBlock && !(lines.length === 1 && lines[0].length === 0)) {
-      lines.push([]);
-    }
-    for (const child of node.childNodes) walk(child, b, i, c);
-  };
-  for (const child of root.childNodes) walk(child, false, false, null);
-  return lines.map(normalizeRuns);
-}
-
-// 'rgb(r, g, b)' of '#rgb'/'#rrggbb' -> '#rrggbb' (lowercase).
-function cssColorToHex(css) {
-  const v = String(css || '').trim();
-  if (!v) return null;
-  const m = v.match(/^rgba?\((\d+)[,\s]+(\d+)[,\s]+(\d+)/);
-  if (m) {
-    const h = (n) => Math.max(0, Math.min(255, parseInt(n, 10))).toString(16).padStart(2, '0');
-    return `#${h(m[1])}${h(m[2])}${h(m[3])}`;
-  }
-  if (/^#[0-9a-fA-F]{6}$/.test(v)) return v.toLowerCase();
-  if (/^#[0-9a-fA-F]{3}$/.test(v)) return `#${v[1]}${v[1]}${v[2]}${v[2]}${v[3]}${v[3]}`.toLowerCase();
-  return null;
-}
-
 export default function PdfTextEditOverlay() {
   let editorRef;
 
@@ -117,6 +70,32 @@ export default function PdfTextEditOverlay() {
     const lines = parseEditorDom(editorRef);
     setLineRuns(lines);
     setText(lines.map(runsPlainText).join('\n'));
+  };
+
+  // Per-spacer-breedtes leggen: elke tab krijgt precies de breedte die het
+  // volgende segment op zijn doel-x (data-stop) brengt. Spacers zonder
+  // doel-x (nieuw getypte tab) springen naar de eerstvolgende raster-stop en
+  // leggen die vast. Volgorde links-naar-rechts: latere spacers meten de
+  // positie inclusief eerdere breedtes. Minimum 4px zodat hij klikbaar
+  // blijft; loopt een segment over zijn kolom heen, dan schuift de volgende
+  // kolom op (zelfde gedrag als de saver met de kolom-overloop-warn).
+  const layoutTabSpacers = () => {
+    if (!editorRef) return;
+    const spacers = editorRef.querySelectorAll('.pdf-tab-spacer');
+    if (!spacers.length) return;
+    const st = editorStyle() || {};
+    const grid = parseFloat(st['tab-size']) || 0;
+    for (const sp of spacers) {
+      const lijn = sp.closest('div') || editorRef;
+      sp.style.width = '0px';
+      const x = sp.getBoundingClientRect().left - lijn.getBoundingClientRect().left;
+      let doel = Number(sp.dataset.stop);
+      if (!Number.isFinite(doel)) {
+        doel = grid > 1 ? (Math.floor(x / grid) + 1) * grid : x + 24;
+        sp.dataset.stop = String(Math.round(doel * 100) / 100);
+      }
+      sp.style.width = `${Math.max(4, doel - x)}px`;
+    }
   };
 
   const resizeToContent = () => {
@@ -143,7 +122,7 @@ export default function PdfTextEditOverlay() {
     // eigen sync mag dit effect niet opnieuw laten draaien.
     editorRef.innerHTML = buildInitialHtml(initialLines(), untrack(text));
     syncFromDom();
-    queueMicrotask(resizeToContent);
+    queueMicrotask(() => { layoutTabSpacers(); resizeToContent(); });
     editorRef.focus();
     if (selectOnFocus()) {
       try { document.execCommand('selectAll', false, null); } catch (_) { /* selectie is best effort */ }
@@ -186,7 +165,8 @@ export default function PdfTextEditOverlay() {
     if (e.key === 'Tab' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
       e.preventDefault();
       e.stopPropagation();
-      document.execCommand('insertText', false, '\t');
+      document.execCommand('insertHTML', false, tabSpacerHtml(null));
+      layoutTabSpacers();
       syncFromDom();
       return;
     }
@@ -204,6 +184,70 @@ export default function PdfTextEditOverlay() {
     if (handler) handler();
   };
 
+  // ── Versleep-grip ──
+  // Klein handvat linksboven naast de editor: slepen verplaatst het hele
+  // tekstblok (live, via de tool-nudge die record én editor meebeweegt);
+  // Escape tijdens het slepen breekt af en zet alles terug. Het handvat telt
+  // als opmaak-UI (data-keep-text-editor) zodat pointerdown erop de editor
+  // niet commit.
+  const startGripDrag = (e) => {
+    const h = dragHandlers();
+    if (!h) return;
+    e.preventDefault();
+    e.stopPropagation();
+    let lastX = e.clientX;
+    let lastY = e.clientY;
+    const move = (ev) => {
+      const dx = ev.clientX - lastX;
+      const dy = ev.clientY - lastY;
+      if (!dx && !dy) return;
+      lastX = ev.clientX;
+      lastY = ev.clientY;
+      try { h.onDragBy?.(dx, dy); } catch (_) { /* verplaatsing is best effort */ }
+    };
+    const cleanup = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', stop);
+      window.removeEventListener('keydown', key, true);
+    };
+    const stop = () => {
+      cleanup();
+      try { h.onDragEnd?.(); } catch (_) { /* best effort */ }
+    };
+    const key = (ev) => {
+      if (ev.key !== 'Escape') return;
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+      cleanup();
+      try { h.onDragCancel?.(); } catch (_) { /* best effort */ }
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', stop);
+    window.addEventListener('keydown', key, true);
+  };
+
+  const gripStyle = () => {
+    const st = editorStyle() || {};
+    const left = (parseFloat(st.left) || 0) - 16;
+    const top = (parseFloat(st.top) || 0) - 2;
+    return {
+      position: st.position || 'fixed',
+      left: `${left}px`,
+      top: `${top}px`,
+      width: '12px',
+      height: '20px',
+      cursor: 'move',
+      background: '#e8e8e8',
+      border: '1px solid #999999',
+      'box-sizing': 'border-box',
+      'z-index': st['z-index'] || '1000',
+      // drie streepjes als grip-indicatie
+      'background-image': 'repeating-linear-gradient(to bottom, #999 0 1px, transparent 1px 4px)',
+      'background-clip': 'content-box',
+      padding: '3px 2px',
+    };
+  };
+
   return (
     <Show when={active()}>
       <div
@@ -215,11 +259,20 @@ export default function PdfTextEditOverlay() {
         style={{ 'white-space': 'pre', ...editorStyle() }}
         onInput={() => {
           syncFromDom();
-          queueMicrotask(resizeToContent);
+          queueMicrotask(() => { layoutTabSpacers(); resizeToContent(); });
         }}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
       />
+      <Show when={dragHandlers()}>
+        <div
+          class="pdf-text-editor-grip"
+          data-keep-text-editor="1"
+          title="Sleep om het tekstblok te verplaatsen (Esc annuleert)"
+          style={gripStyle()}
+          onPointerDown={startGripDrag}
+        />
+      </Show>
     </Show>
   );
 }

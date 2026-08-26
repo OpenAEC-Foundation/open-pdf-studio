@@ -119,6 +119,29 @@ async function saveOneTextEdit(pdfDocLib, pages, edit, getEditFont, inplace) {
   const readDir = { x: Math.cos(rad), y: Math.sin(rad) };   // leesrichting
   const ascDir = { x: -Math.sin(rad), y: Math.cos(rad) };   // ascender-richting
 
+  // Een VERPLAATST blok mag alleen doorgaan als de originele runs eenduidig
+  // geknipt konden worden: een afdekvlak-surrogaat zou de tekst op de oude
+  // plek onder een wit vlak laten staan (dubbel in extractie, half verplaatst
+  // in beeld). Liever weigeren met een duidelijke melding.
+  if (edit.moved && edit.originalText && !inplace) {
+    console.warn(
+      `[text-edits] Edit ${edit.id ?? '?'} (pagina ${edit.page}): verplaatsing ` +
+      'kon niet veilig in-place worden uitgevoerd; de verplaatsing is NIET ' +
+      'toegepast in het bestand.',
+    );
+    delete edit._pendingBakeInfo;
+    return;
+  }
+
+  // Anker van het afdekvlak: de ORIGINELE positie van de tekst (bij een
+  // verplaatst blok wijkt die af van het tekst-anker pdfX/pdfY). Prioriteit:
+  // wat er nu in het bestand staat (inplaceBaked van een eerdere save),
+  // anders de vastgelegde originele regelpositie, anders het record-anker.
+  const orig0 = (Array.isArray(edit.inplaceBaked?.lines) && edit.inplaceBaked.lines[0])
+    || (Array.isArray(edit.originalLineInfo) && edit.originalLineInfo[0]) || null;
+  const coverX = orig0 && Number.isFinite(Number(orig0.x)) ? Number(orig0.x) : edit.pdfX;
+  const coverY = orig0 && Number.isFinite(Number(orig0.y)) ? Number(orig0.y) : edit.pdfY;
+
   // Afdekvlak over alle originele regels — op het terugval-pad, én wanneer
   // er een afbeelding (scan-achtergrond) onder de run ligt: de geknipte
   // vector-tekst staat dan ook als pixels in de afbeelding en die dekt
@@ -133,7 +156,19 @@ async function saveOneTextEdit(pdfDocLib, pages, edit, getEditFont, inplace) {
     const coverLines = coverSources.flatMap(t => String(t).split('\n'));
     const numCover = Math.max(numOrig, ...coverSources.map(t => String(t).split('\n').length));
     const maxOrigLen = Math.max(...coverLines.map(l => l.length));
-    const coverWidth = Math.max(edit.pdfWidth, fontSize * 0.6 * maxOrigLen) + fontSize * 0.5;
+    // Kolom-segmenten en de werkelijke uitgestrektheid van de originele runs
+    // meenemen: de tekenaantal-schatting telt kolom-gaten NIET mee, waardoor
+    // het vlak vóór de laatste kolom kon eindigen en (bij een scan-onderlaag)
+    // het slotcijfer van een buurgetal zichtbaar bleef.
+    const segExtent = Math.max(0, ...((Array.isArray(edit.lineSegments) ? edit.lineSegments : [])
+      .flatMap(segs => (Array.isArray(segs) ? segs : []).map(sg =>
+        (Number(sg.dx) || 0) + String(sg.text ?? '').length * fontSize * 0.6))));
+    const coverWidth = Math.max(
+      edit.pdfWidth,
+      fontSize * 0.6 * maxOrigLen,
+      segExtent,
+      Number(inplace?.coverExtent) || 0,
+    ) + fontSize * 0.5;
     const rectHeight = (numCover - 1) * ls + fontSize * 1.3;
     // Rechthoek-oorsprong in het lokale tekstframe: v0 onder de laatste
     // baseline; naar user-space via de ascender-richting zodat de cover bij
@@ -141,8 +176,8 @@ async function saveOneTextEdit(pdfDocLib, pages, edit, getEditFont, inplace) {
     const v0 = -((numCover - 1) * ls + fontSize * 0.3);
 
     page.drawRectangle({
-      x: edit.pdfX + ascDir.x * v0,
-      y: edit.pdfY + ascDir.y * v0,
+      x: coverX + ascDir.x * v0,
+      y: coverY + ascDir.y * v0,
       width: coverWidth,
       height: rectHeight,
       rotate: degrees(angle),
@@ -222,7 +257,7 @@ async function saveOneTextEdit(pdfDocLib, pages, edit, getEditFont, inplace) {
     // Eén tekst-run tekenen op offset penX langs de baseline; retourneert de
     // opgeschoven penpositie.
     const drawRun = async (text, bold, italic, penX, runColor) => {
-      const cleaned = String(text ?? '').replace(/\t/g, ' ');
+      const cleaned = String(text ?? '').replace(/\t/g, ' ').replace(/\r/g, '');
       const { text: safe, replaced } = sanitizeWinAnsiText(cleaned);
       if (replaced.length > 0) {
         console.warn(
@@ -266,7 +301,7 @@ async function saveOneTextEdit(pdfDocLib, pages, edit, getEditFont, inplace) {
         ? sg.runs
         : [{ text: sg.text, bold: baseBold, italic: baseItalic }];
       for (const run of chunks) {
-        const cleanedRun = String(run.text ?? '').replace(/\t/g, ' ');
+        const cleanedRun = String(run.text ?? '').replace(/\t/g, ' ').replace(/\r/g, '');
         let enc = null;
         if (lineMayUseOriginalFont && cleanedRun) {
           enc = inplace.encodeRun(cleanedRun, i, lineFontSize, {

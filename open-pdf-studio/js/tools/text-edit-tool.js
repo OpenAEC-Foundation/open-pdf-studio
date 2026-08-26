@@ -25,6 +25,8 @@ import {
   reflowBlockLines,
   detectBlockAlignment,
   normalizeRuns,
+  pdfDeltaFromScreenDelta,
+  nieuwTekstblokRecord,
 } from '../text/text-edit-appearance.js';
 
 let activeEditor = null;
@@ -179,6 +181,19 @@ if (typeof document !== 'undefined') {
   document.addEventListener('pointerdown', (e) => {
     lastPointerDownTarget = e.target;
     lastPointerDownAt = Date.now();
+    // Klik buiten de editor en buiten de opmaak-UI = COMMIT — direct op de
+    // pointerdown, want op blur is niet te vertrouwen: het canvas-mousedown-
+    // pad doet preventDefault, waardoor de contenteditable zijn focus (en
+    // dus zijn blur-event) nooit verliest en een zojuist getypte wijziging
+    // "nergens verscheen" bij wegklikken. Kliks op een ander tekstblok
+    // committen hier ook eerst; de klik opent daarna gewoon het volgende
+    // blok. Kliks in het paneel/ribbon/kleurkiezers (KEEP_EDITOR_SELECTOR)
+    // laten de editor met rust, net als voorheen.
+    if (activeEditor) {
+      const t = e.target;
+      const inEditorOfOpmaak = t && t.closest && t.closest(KEEP_EDITOR_SELECTOR);
+      if (!inEditorOfOpmaak) finishPdfTextEditing();
+    }
   }, true);
 }
 
@@ -502,7 +517,12 @@ function getBlockGroups(layer, mode = 'strict') {
     }, { it: li[0], len: (li[0].span.textContent || '').trim().length }).it;
     return {
       kolomachtig: Array.isArray(seg.segments) && seg.segments.length >= 2,
-      fontKey: `${dom.span.dataset.pdfFontName || ''}|${dom.span.dataset.pdfBold || ''}|${dom.span.dataset.pdfItalic || ''}`,
+      // Fontidentiteit op de OPGELOSTE basisnaam (actualFontName): het ruwe
+      // resource-naam-alternatief bevat per pdf-lib-tekenactie een uniek
+      // suffix (Helvetica-123…), waardoor regels van één blok onterecht als
+      // verschillende fonts zouden splitsen.
+      fontKey: `${dom.span.dataset.pdfActualFontName || dom.span.dataset.pdfFontName || ''}`
+        + `|${dom.span.dataset.pdfBold || ''}|${dom.span.dataset.pdfItalic || ''}`,
     };
   });
 
@@ -682,6 +702,22 @@ function enableTextLayerHover() {
     getBlockGroups(layer);
 
     const pageNum = parseInt(layer.dataset.page) || (getActiveDocument()?.currentPage || 1);
+
+    // Klik op een LEGE plek (de laag zelf, geen span) opent een leeg
+    // tekstblok op die positie: nieuwe paginatekst toevoegen met dezelfde
+    // inline editor. De guard slaat de klik over die zojuist een open editor
+    // gecommit heeft (klik-buiten = alleen sluiten, niet meteen een nieuw
+    // blok beginnen).
+    if (!layer._opdsLeegKlik) {
+      layer._opdsLeegKlik = true;
+      layer.addEventListener('click', (e) => {
+        if (e.target !== layer) return;
+        if (!state.isEditingPdfText || state.currentTool !== 'editText') return;
+        if (activeEditor) return;
+        if (Date.now() - _laatsteFinishOp < 400) return;
+        startNewTextBlockAt(e, layer, pageNum);
+      });
+    }
     const spans = layer.querySelectorAll('span');
     spans.forEach(span => {
       if (alreadyAttached.has(span)) return;
@@ -905,8 +941,18 @@ function startPdfTextEditing(span, pageNum, groupMode = 'strict') {
     return runs.length ? runs : [{ text: l.text, bold: basisBold, italic: basisItalic }];
   };
   const initialLineRuns = lineData.map(bouwSpanRuns);
+  // Kolom-doelposities per tab, in editor-px vanaf de blok-linkerrand: de
+  // editor legt elke tab-spacer precies zo breed dat het volgende segment op
+  // zijn ECHTE kolom-x staat (een tabelrij heeft meerdere, verschillende
+  // kolomafstanden — het uniforme tab-size-raster kon er maar één leggen).
+  const blockMinPdfX = Math.min(...lineData.map(l => l.pdfX));
+  const editorPxPerPt = editorFontSize / fontSize;
   const editorInitialLines = lineData.map((l, li) => ({
     runs: initialLineRuns[li],
+    ...(Array.isArray(l.segments) && l.segments.length > 1 ? {
+      tabStops: l.segments.slice(1).map(sg =>
+        ((l.pdfX - blockMinPdfX) + sg.start) * editorPxPerPt),
+    } : {}),
     style: {
       fontFamily: lineEditorFontFamily(l),
       fontSizePx: l.fontSize * (editorFontSize / fontSize),
@@ -971,6 +1017,18 @@ function startPdfTextEditing(span, pageNum, groupMode = 'strict') {
       cancelPdfTextEditing();
       return;
     }
+    // Alt+Arrow verplaatst ook een bestaand-tekst-blok (pariteit met het
+    // record-pad); de commit leest de verplaatste coords uit activeEditor.
+    if (e.altKey && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+      e.preventDefault();
+      e.stopPropagation();
+      const step = e.shiftKey ? 5 : 1;
+      nudgeActiveTextEdit(
+        e.key === 'ArrowLeft' ? -step : e.key === 'ArrowRight' ? step : 0,
+        e.key === 'ArrowUp' ? step : e.key === 'ArrowDown' ? -step : 0
+      );
+      return;
+    }
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       e.stopPropagation();
@@ -1001,11 +1059,15 @@ function startPdfTextEditing(span, pageNum, groupMode = 'strict') {
     onKeyDown: handleKeyDown,
     onBlur: handleBlur,
     initialLines: editorInitialLines,
+    dragHandlers: maakDragHandlers(),
   });
 }
 
+let _laatsteFinishOp = 0;
+
 function finishPdfTextEditing() {
   if (!activeEditor) return;
+  _laatsteFinishOp = Date.now();
 
   // If this editor was started via startTextEditEditing, delegate to its own finish handler
   if (activeEditor._finishEditing) {
@@ -1026,6 +1088,11 @@ function finishPdfTextEditing() {
   for (const s of block.spans) s.style.visibility = '';
 
   const st = styleState || {};
+  // Verplaatst (grip of Alt+pijltjes)? De commit-anker (activeEditor.pdfX/Y)
+  // wijkt dan af van het gedetecteerde blok-anker. Een pure verplaatsing
+  // zonder tekst-/stijlwijziging moet OOK persisteren.
+  const moved = Math.abs(pdfX - block.lineData[0].pdfX) > 0.01
+    || Math.abs(pdfY - block.lineData[0].pdfY) > 0.01;
   // Did the panel change any formatting relative to the detected block style?
   const styleChanged =
     (st.size != null && st.size !== fontSize) ||
@@ -1065,7 +1132,7 @@ function finishPdfTextEditing() {
 
   // Persist when the text OR the formatting changed (a pure re-style of
   // existing PDF text must be saveable too).
-  if ((newText !== originalText || styleChanged || inlineFormattingChanged) && newText.trim() !== '') {
+  if ((newText !== originalText || styleChanged || inlineFormattingChanged || moved) && newText.trim() !== '') {
     const { lineData } = block;
     const pdfFontName = lineData[0].pdfFontName || '';
 
@@ -1191,7 +1258,9 @@ function finishPdfTextEditing() {
     // Ongewijzigde regels van het blok worden bij een geslaagde in-place-save
     // fysiek met rust gelaten (behoudt o.a. de oorspronkelijke uitvulling).
     // Een record-brede stijl-/opmaakwijziging maakt alle regels 'gewijzigd'.
-    const unchangedLines = (styleChanged || inlineFormattingChanged)
+    // Bij een verplaatsing moeten ALLE regels geknipt en op het nieuwe anker
+    // hertekend worden — 'tekstueel ongewijzigd' telt dan niet.
+    const unchangedLines = (styleChanged || inlineFormattingChanged || moved)
       ? null
       : finalNewText.split('\n').map((ln, li) =>
         li < origLinesArr.length && ln === origLinesArr[li]);
@@ -1266,6 +1335,7 @@ function finishPdfTextEditing() {
       ...(hasLineSegments ? { lineSegments } : {}),
       ...(lineJustifyTw ? { lineJustifyTw, justifyWidth } : {}),
       ...(unchangedLines ? { unchangedLines } : {}),
+      ...(moved ? { moved: true } : {}),
       // Per-regel origineel anker + ruwe tekst: hiermee kan de saver de
       // originele show-text-operatoren in de content stream terugvinden om
       // ze in-place te vervangen (het échte bewerken).
@@ -1612,7 +1682,16 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
     // Clearing all the text of an INSERTED edit deletes it entirely — this is
     // how the user removes inserted text (issue #264).
     if (isAddedText && newText.trim() === '') {
-      removeTextEditRecord(textEdit);
+      if (textEdit._pendingNew) {
+        // Nieuw blok dat nooit inhoud kreeg: stilletjes opruimen (er is nog
+        // geen undo-stap voor aangemaakt).
+        const docNu = getActiveDocument();
+        const idx = docNu?.textEdits?.findIndex(e => e.id === textEdit.id) ?? -1;
+        if (idx >= 0) docNu.textEdits.splice(idx, 1);
+        reRenderAddedText(pageNum);
+      } else {
+        removeTextEditRecord(textEdit);
+      }
       activeEditor = null;
       state.pdfTextEditState = null;
       hideProperties();
@@ -1679,14 +1758,27 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
       if (nieuw.some(Boolean)) textEdit.lineSegments = nieuw;
       else if (oudeSegs) delete textEdit.lineSegments;
     }
+    // Verplaatst tijdens deze sessie (grip of Alt+pijltjes)? Markeer het
+    // record: de saver weigert dan het afdekvlak-surrogaat en alle regels
+    // worden op het nieuwe anker hertekend.
+    if (textEdit.pdfX !== oldTextEdit.pdfX || textEdit.pdfY !== oldTextEdit.pdfY) {
+      if (textEdit.originalText) textEdit.moved = true;
+      delete textEdit.unchangedLines;
+    }
     // Persist when content, style, or position changed. Style/position edits
     // were applied live to `textEdit`, so compare the whole record.
     const changed = JSON.stringify({ ...textEdit }) !== JSON.stringify(oldTextEdit);
     // Een gewijzigd, eerder ingebakken record moet bij de volgende save
     // opnieuw meegebakken worden (de nieuwe versie dekt de oude af).
     if (changed && textEdit.baked) delete textEdit.baked;
-    if (changed) {
-      execute({ type: 'modifyTextEdit', oldTextEdit, newTextEdit: { ...textEdit } });
+    if (changed || textEdit._pendingNew) {
+      if (textEdit._pendingNew) {
+        // Eerste echte commit van een nieuw tekstblok: nu pas de undo-stap.
+        delete textEdit._pendingNew;
+        execute({ type: 'addTextEdit', textEdit: { ...textEdit } });
+      } else {
+        execute({ type: 'modifyTextEdit', oldTextEdit, newTextEdit: { ...textEdit } });
+      }
       markDocumentModified();
       reRenderAddedText(pageNum);
     }
@@ -1697,7 +1789,14 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
   };
 
   const cancelEditing = () => {
-    restoreTextEditSnapshot(textEdit, oldTextEdit);
+    if (textEdit._pendingNew) {
+      // Nieuw blok geannuleerd vóór de eerste commit: record verwijderen.
+      const docNu = getActiveDocument();
+      const idx = docNu?.textEdits?.findIndex(e => e.id === textEdit.id) ?? -1;
+      if (idx >= 0) docNu.textEdits.splice(idx, 1);
+    } else {
+      restoreTextEditSnapshot(textEdit, oldTextEdit);
+    }
     hidePdfTextEditor();
     reRenderAddedText(pageNum);
     activeEditor = null;
@@ -1828,7 +1927,15 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
           runs.push({ text: sg.text, bold, italic });
         }
       });
-      if (runs.length) return { runs, style: rowStyle };
+      if (runs.length) {
+        return {
+          runs,
+          style: rowStyle,
+          // Doel-x per tab in editor-px (dx is al relatief aan het
+          // record-anker = linkerrand van de editor).
+          tabStops: segs.slice(1).map(sg => (Number(sg.dx) || 0) * editScale),
+        };
+      }
     }
     return { runs: [{ text: ln, bold, italic }], style: rowStyle };
   });
@@ -1839,6 +1946,7 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
     onKeyDown: handleKeyDown,
     onBlur: handleBlur,
     initialLines: reopenInitialLines,
+    dragHandlers: maakDragHandlers(),
   });
 }
 
@@ -1972,6 +2080,72 @@ export function deleteActiveTextEdit() {
   activeEditor = null;
   state.pdfTextEditState = null;
   hideProperties();
+}
+
+// ── Nieuw tekstblok toevoegen (klik op lege plek met de Tekst bewerken-tool) ──
+// Maakt een leeg edit-record (originalText '') op het aangeklikte punt en
+// opent daar de bestaande record-editor. De eerste commit met inhoud maakt de
+// undo-stap aan; leeg committen of Escape ruimt het record stilletjes op.
+// De saver schrijft het blok als echte paginatekst (BT/ET, Standard-14) en na
+// save/heropenen is het gewone, opnieuw bewerk- en verplaatsbare tekst.
+function startNewTextBlockAt(e, layer, pageNum) {
+  const doc = getActiveDocument();
+  if (!doc) return;
+  const canvasEl = layer.parentElement?.querySelector('canvas.pdf-canvas')
+    || pdfCanvas || document.getElementById('pdf-canvas');
+  if (!canvasEl) return;
+
+  // Klikpunt → onggeroteerde paginacoördinaten (pt, oorsprong linksboven),
+  // daarna naar PDF-user-space (oorsprong linksonder).
+  const rect = layer.getBoundingClientRect();
+  const geometry = getTextEditGeometry(pageNum, canvasEl);
+  const dispW = (geometry.rotation === 90 || geometry.rotation === 270)
+    ? geometry.pageHeight : geometry.pageWidth;
+  const dispH = (geometry.rotation === 90 || geometry.rotation === 270)
+    ? geometry.pageWidth : geometry.pageHeight;
+  const vx = (e.clientX - rect.left) / rect.width * dispW;
+  const vy = (e.clientY - rect.top) / rect.height * dispH;
+  const punt = invertPageRotation(vx, vy, geometry.pageWidth, geometry.pageHeight, geometry.rotation);
+  const pdfX = punt.x;
+  const pdfY = geometry.pageHeight - punt.y;
+
+  const record = nieuwTekstblokRecord({ page: pageNum, pdfX, pdfY });
+  // Op een /Rotate-pagina moet nieuwe tekst met de paginarotatie mee
+  // geschreven worden, anders staat hij op het scherm (en op papier) gekanteld
+  // — dezelfde conventie als bestaande tekst op zulke pagina's (textAngle).
+  if (geometry.rotation) record.textAngle = geometry.rotation;
+  if (!doc.textEdits) doc.textEdits = [];
+  doc.textEdits.push(record);
+  startTextEditEditing(record, pageNum, canvasEl);
+}
+
+// Versleep-grip-handlers voor de editor-overlay: scherm-deltas omrekenen
+// naar PDF-punten en via de bestaande nudge record + editor live meebewegen.
+// Escape tijdens het slepen draait de totale verplaatsing terug.
+function maakDragHandlers() {
+  return {
+    onDragBy: (sxPx, syPx) => {
+      if (!activeEditor) return;
+      const canvasEl = pdfCanvas || document.getElementById('pdf-canvas');
+      const geometry = getTextEditGeometry(activeEditor.pageNum, canvasEl);
+      const m = getPageRotationMatrix(
+        geometry.pageWidth, geometry.pageHeight, geometry.rotation,
+      );
+      const scale = activeEditor.scale || (getActiveDocument()?.scale || 1.5);
+      const { dx, dy } = pdfDeltaFromScreenDelta(sxPx, syPx, scale, m);
+      const tot = activeEditor._dragTotaal || { x: 0, y: 0 };
+      activeEditor._dragTotaal = { x: tot.x + dx, y: tot.y + dy };
+      nudgeActiveTextEdit(dx, dy);
+    },
+    onDragEnd: () => {
+      if (activeEditor) activeEditor._dragTotaal = null;
+    },
+    onDragCancel: () => {
+      const tot = activeEditor?._dragTotaal;
+      if (tot && (tot.x || tot.y)) nudgeActiveTextEdit(-tot.x, -tot.y);
+      if (activeEditor) activeEditor._dragTotaal = null;
+    },
+  };
 }
 
 // Move the active text edit by a PDF-unit delta (Alt+Arrow keys).

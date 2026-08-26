@@ -333,6 +333,7 @@ function applyForPage(pdfDocLib, page, pageEdits, results) {
     const d = decodeShowOpText(op, fi);
     op.text = d.text;
     op.ok = d.ok;
+    op.codes = d.codes;
     if (fi && fi.map) {
       let set = usedCodes.get(op.font);
       if (!set) { set = new Set(); usedCodes.set(op.font, set); }
@@ -457,9 +458,44 @@ function applyForPage(pdfDocLib, page, pageEdits, results) {
       if (fi.hasGlyph) return fi.hasGlyph(code);
       return !fi.subset;
     };
+    // Werkelijke uitgestrektheid van de ORIGINELE runs langs de baseline,
+    // t.o.v. het anker van de eerste regel: het afdekvlak moet ook verre
+    // kolommen (en de scan-pixels eronder) volledig dekken. De oude
+    // tekenaantal-schatting telde kolom-gaten niet mee, waardoor het laatste
+    // cijfer van een buurgetal buiten het vlak kon vallen en als 'extra'
+    // cijfer zichtbaar bleef.
+    let coverExtent = 0;
+    {
+      const l0 = (m.matchedLines || [])[0];
+      if (l0) {
+        const rad0 = ((Number(l0.angle) || 0) * Math.PI) / 180;
+        const cos0 = Math.cos(rad0);
+        const sin0 = Math.sin(rad0);
+        const u0 = (Number(l0.x) || 0) * cos0 + (Number(l0.y) || 0) * sin0;
+        for (const win of m.lineMatches) {
+          if (!win) continue;
+          for (const oi of win) {
+            const op = ops[oi];
+            const fi2 = fontInfos.get(op.font);
+            let w;
+            if (fi2 && fi2.widthOf && Array.isArray(op.codes) && op.codes.length) {
+              w = computeRunWidth(op.codes, fi2.widthOf, {
+                size: op.sizeEff, tc: op.tc, tw: op.tw, tz: op.tz,
+                bytesPerCode: fi2.bytesPerCode,
+              });
+            } else {
+              w = (op.text ? op.text.length : 0) * (op.sizeEff || 10) * 0.6;
+            }
+            const u = op.x * cos0 + op.y * sin0;
+            coverExtent = Math.max(coverExtent, (u - u0) + w);
+          }
+        }
+      }
+    }
     results.set(m.edit, {
       removedOriginal: true,
       needsCover: m.needsCover,
+      coverExtent,
       lineTextState,
       // Codeert één run naar het originele font van de regel — of naar een
       // vet/cursief-variant uit dezelfde familie als het document die draagt.

@@ -2425,10 +2425,21 @@ function drawTextEdits(ctx, pageNum) {
       const coverHeight = (numOrig - 1) * ls + fontSize * 1.3;
       const origLines = edit.originalText.split('\n');
       const maxOrigLen = Math.max(...origLines.map(l => l.length));
-      const coverWidth = Math.max(edit.pdfWidth, fontSize * 0.6 * maxOrigLen) + fontSize * 0.5;
+      // Kolom-segmenten meenemen in de dekbreedte (zelfde regel als de
+      // saver): de tekenaantal-schatting telt kolom-gaten niet mee.
+      const segExtent = Math.max(0, ...((Array.isArray(edit.lineSegments) ? edit.lineSegments : [])
+        .flatMap(segs => (Array.isArray(segs) ? segs : []).map(sg =>
+          (Number(sg.dx) || 0) + String(sg.text ?? '').length * fontSize * 0.6))));
+      const coverWidth = Math.max(edit.pdfWidth, fontSize * 0.6 * maxOrigLen, segExtent) + fontSize * 0.5;
 
+      // Anker van het afdekvlak = de ORIGINELE tekstpositie (bij een
+      // verplaatst blok wijkt die af van het tekst-anker pdfX/pdfY).
+      const orig0 = (Array.isArray(edit.inplaceBaked?.lines) && edit.inplaceBaked.lines[0])
+        || (Array.isArray(edit.originalLineInfo) && edit.originalLineInfo[0]) || null;
+      const coverX = orig0 && Number.isFinite(Number(orig0.x)) ? Number(orig0.x) : edit.pdfX;
+      const coverY = orig0 && Number.isFinite(Number(orig0.y)) ? Number(orig0.y) : edit.pdfY;
       ctx.save();
-      ctx.translate(edit.pdfX, firstBaseY);
+      ctx.translate(coverX, pageHeight - coverY);
       if (angle) ctx.rotate(-angleRad);
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, -fontSize, coverWidth, coverHeight);
