@@ -9,7 +9,7 @@ import { updateAllStatus } from '../ui/chrome/status-bar.js';
 import { hideProperties } from '../ui/panels/properties-panel.js';
 import { updateActiveThumbnail, pauseThumbnails, resumeThumbnails, isThumbnailPipelineIdle } from '../ui/panels/left-panel.js';
 import { createSinglePageTextLayer, clearSinglePageTextLayer, createTextLayer, clearTextLayers, createTextLayerFromRust } from '../text/text-layer.js';
-import { createSinglePageLinkLayer, clearSinglePageLinkLayer, createLinkLayer, clearLinkLayers } from './link-layer.js';
+import { createSinglePageLinkLayer, clearSinglePageLinkLayer, createLinkLayer, clearLinkLayers, applyOverlayPointerEvents } from './link-layer.js';
 import { createSinglePageFormLayer, clearSinglePageFormLayer, createFormLayer, clearFormLayers, hideFormFieldsBar } from './form-layer.js';
 import { clearPdfVectorCache, prefetchPdfVectorGeometry } from '../tools/pdf-snap-extractor.js';
 import { clearDetectionCache } from '../tools/pdf-element-detector.js';
@@ -208,6 +208,11 @@ async function _renderPageImpl(pageNum) {
   doc.pageDims[pageNum] = {
     widthPt: vx1 - vx0,
     heightPt: vy1 - vy0,
+    // Oorsprong van de pagina-box: CAD-plots hebben vaak een MediaBox rond
+    // (0,0) (bv. [-846 -595 846 595]). Zonder deze offset landt tekst-
+    // bewerking (painter én klik→record) buiten de pagina.
+    offsetXPt: vx0,
+    offsetYPt: vy0,
     rotation: page.rotate || 0,
   };
 
@@ -497,8 +502,15 @@ async function _renderPageImpl(pageNum) {
   // single-modus nooit een eigen tekstlaag bouwde — tekst (incl. nieuw
   // toegevoegde blokken) was dan niet meer selecteerbaar of bewerkbaar.
   const _existingTextLayer = document.querySelector('#canvas-container .textLayer');
+  // De linklaag bevat rechthoeken die bij ÉÉN rotatiestand horen (PDF.js heeft
+  // de draaiing al in de pixels verwerkt). Draait de gebruiker de pagina, dan
+  // moet de laag opnieuw worden opgebouwd, anders liggen de klikvlakken scheef.
+  const _existingLinkLayer = document.querySelector('#canvas-container .linkLayer');
+  const _linkLayerRotationStale = !!_existingLinkLayer
+    && Number(_existingLinkLayer.dataset.rotation || 0) !== ((viewport.rotation || 0) % 360);
   const _textLayerStale = !_existingTextLayer
-    || parseInt(_existingTextLayer.dataset.page) !== pageNum;
+    || parseInt(_existingTextLayer.dataset.page) !== pageNum
+    || _linkLayerRotationStale;
   if (!_skipBitmapRender || _textLayerStale) {
     try {
       await createSinglePageTextLayer(page, viewport);
@@ -533,13 +545,11 @@ async function _renderPageImpl(pageNum) {
     if (state.currentTool === 'editText') {
       annotationCanvas.style.zIndex = '2';
       annotationCanvas.style.pointerEvents = 'none';
-      const container = document.getElementById('canvas-container');
-      if (container) {
-        container.querySelectorAll('.formLayer section, .linkLayer .pdf-link').forEach(el => {
-          el.style.pointerEvents = 'none';
-        });
-      }
     }
+    // Link-/formulierlagen volgen dezelfde regel als bij een
+    // gereedschapswissel: klikbaar bij select/hand, uit bij editText en de
+    // tekengereedschappen. Eén bron van waarheid — zie link-layer.js.
+    applyOverlayPointerEvents(document.getElementById('canvas-container'));
   }
 
   // Ensure annotations for this page are loaded (on-demand if background hasn't reached it yet)
@@ -671,13 +681,7 @@ export async function renderPageOffscreen(pageNum) {
     annotationCanvas.style.zIndex = '2';
     annotationCanvas.style.pointerEvents = 'none';
   }
-  if (state.currentTool === 'select' || state.currentTool === 'editText') {
-    if (container) {
-      container.querySelectorAll('.formLayer section, .linkLayer .pdf-link').forEach(el => {
-        el.style.pointerEvents = 'none';
-      });
-    }
-  }
+  applyOverlayPointerEvents(container);
 
   await ensureAnnotationsForPage(pageNum);
   if (_isStaleDoc(doc)) return;
@@ -986,11 +990,7 @@ async function renderContinuousPage(pageNum) {
   if (_isStaleDoc(doc)) return;
 
   // Re-apply overlay state for newly created form/link layers
-  if (state.currentTool === 'select' || state.currentTool === 'editText') {
-    canvasContainer.querySelectorAll('.formLayer section, .linkLayer .pdf-link').forEach(el => {
-      el.style.pointerEvents = 'none';
-    });
-  }
+  applyOverlayPointerEvents(canvasContainer);
 
   // Render annotations
   const annotationCtxEl = annotationCanvasEl.getContext('2d');
@@ -1242,6 +1242,8 @@ export async function renderContinuous(forceRebuild) {
     doc.pageDims[pageNum] = {
       widthPt: pageX1 - pageX0,
       heightPt: pageY1 - pageY0,
+      offsetXPt: pageX0,
+      offsetYPt: pageY0,
       rotation: page.rotate || 0,
     };
     const extraRotation = getPageRotation(pageNum);
@@ -1519,8 +1521,12 @@ async function _prefetchOnePage(doc, pageNum, centerPage) {
   console.log(`[prefetch] primed page ${pageNum}`);
 }
 
-// Go to specific page
-export async function goToPage(pageNum) {
+// Go to specific page.
+// `options.skipScroll` laat het scrollen aan de aanroeper over. Een hyperlink
+// met een /XYZ- of /FitH-bestemming wil naar een positie MIDDEN op de pagina;
+// de standaard scrollIntoView({behavior:'smooth'}) hieronder loopt door nadat
+// deze functie is teruggekeerd en zou die positie weer overschrijven.
+export async function goToPage(pageNum, options = {}) {
   const doc = getActiveDocument();
   if (!doc?.pdfDoc) return;
 
@@ -1569,7 +1575,7 @@ export async function goToPage(pageNum) {
       hidePagePlaceholderWhenReady(_phGen);
     }
     const pdfContainer = document.getElementById('pdf-container');
-    if (pdfContainer) {
+    if (pdfContainer && !options.skipScroll) {
       pdfContainer.scrollTop = 0;
     }
     // Prime the neighbouring pages while the backend is idle so the next
@@ -1578,7 +1584,7 @@ export async function goToPage(pageNum) {
   } else {
     // Scroll to page in continuous mode
     const pageWrapper = document.querySelector(`.page-wrapper[data-page="${pageNum}"]`);
-    if (pageWrapper) {
+    if (pageWrapper && !options.skipScroll) {
       pageWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }

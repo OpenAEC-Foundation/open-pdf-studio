@@ -852,6 +852,25 @@ function _render() {
     }
   }
 
+  // Sync link layer with viewport.
+  // De linklaag wordt door PDF.js opgebouwd in de pixelruimte van de
+  // render-viewport (dataset.scale = punten → pixels). De zichtbare pagina
+  // staat echter op viewport.zoom met oorsprong (offsetX, offsetY). Zonder
+  // deze sync bleef de laag op de bouwschaal staan: de klikvlakken lagen dan
+  // ergens anders dan de tekst en hyperlinks (bv. een Word-inhoudsopgave)
+  // leken doodgewoon niet te werken.
+  const linkLayer = document.querySelector('#canvas-container .linkLayer');
+  if (linkLayer) {
+    const buildScale = Number(linkLayer.dataset.scale) || 1;
+    const ratio = viewport.zoom / buildScale;
+    linkLayer.style.position = 'absolute';
+    linkLayer.style.left = '0';
+    linkLayer.style.top = '0';
+    linkLayer.style.transformOrigin = '0 0';
+    linkLayer.style.transform =
+      `matrix(${ratio}, 0, 0, ${ratio}, ${viewport.offsetX}, ${viewport.offsetY})`;
+  }
+
   // Annotation overlay — sync with viewport transform
   const annCanvas = document.getElementById('annotation-canvas');
   if (annCanvas) {

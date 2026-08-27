@@ -9,6 +9,7 @@ import { buildToolContext, resolvePointerCoords } from './tool-context.js';
 import { findAnnotationAt } from '../annotations/geometry.js';
 import { findHandleAt } from '../annotations/handles.js';
 import { cancelParametricSymbolInput } from './parametric-symbol-editing.js';
+import { applyOverlayPointerEvents } from '../pdf/link-layer.js';
 
 // Tools that are always allowed (view-only, non-modifying)
 const READONLY_ALLOWED_TOOLS = new Set(['select', 'hand']);
@@ -206,9 +207,9 @@ function setAnnotationCanvasForTextAccess(enabled) {
     el.style.zIndex = enabled ? '2' : '6';
     el.style.pointerEvents = enabled ? 'none' : 'auto';
   });
-  document.querySelectorAll('.formLayer section, .linkLayer .pdf-link').forEach(el => {
-    el.style.pointerEvents = enabled ? 'none' : '';
-  });
+  // Link-/formulierlagen volgen het actieve gereedschap (zie link-layer.js);
+  // setTool() heeft state.currentTool al bijgewerkt voordat dit draait.
+  applyOverlayPointerEvents(document);
 }
 
 // Some tools call setTool('select') after committing one annotation. With
@@ -295,16 +296,7 @@ export function setTool(tool) {
     document.querySelectorAll('.annotation-canvas, #annotation-canvas')
       .forEach(c => { c.style.cursor = ''; });
 
-    const isDrawTool = tool !== 'select' && tool !== 'hand'
-                    && tool !== 'editText' && tool !== 'selectComments';
-    const linkPe = isDrawTool ? 'none' : '';
-    document.querySelectorAll('.linkLayer .pdf-link').forEach(el => {
-      el.style.pointerEvents = linkPe;
-      el.style.cursor = isDrawTool ? 'inherit' : '';
-    });
-    document.querySelectorAll('.formLayer section').forEach(el => {
-      el.style.pointerEvents = linkPe;
-    });
+    applyOverlayPointerEvents(document, tool);
   } catch (_) { /* DOM not ready yet */ }
 
   // When switching to a drawing tool that has style preferences,
