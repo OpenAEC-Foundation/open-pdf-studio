@@ -2671,6 +2671,7 @@ pub fn run(opts: StartupOpts) {
             window_mgmt::current_window_label,
             window_mgmt::exit_detached_process,
             window_mgmt::drag_icon_path,
+            window_mgmt::tab_drag_preflight,
             window_mgmt::detach_diag,
             startup_diagnostics::startup_diagnostic,
             startup_diagnostics::startup_diagnostics_path,

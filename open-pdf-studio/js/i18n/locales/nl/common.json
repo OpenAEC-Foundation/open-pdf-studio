@@ -147,6 +147,8 @@
   "tabs": {
     "saveBeforeDetach": "Sla het document eerst op voor je het naar een ander venster sleept.",
     "detachFailed": "Window losmaken mislukt: {{error}}",
+    "dragFileGone": "Dit bestand bestaat niet meer op schijf — de tab kan niet verplaatst worden.",
+    "dragNotStarted": "De tab kon niet naar een ander venster gesleept worden. Probeer het opnieuw, of gebruik rechtsklik → openen in nieuw venster.",
     "openInNewWindow": "Open in nieuw venster",
     "closeTab": "Tab sluiten"
   },

@@ -172,10 +172,85 @@ pub fn current_window_label(window: tauri::WebviewWindow) -> String {
     window.label().to_string()
 }
 
+/// Is de primaire muisknop op DIT moment fysiek ingedrukt?
+///
+/// Cruciaal voor `tab_drag_preflight`: de OS-drag (`DoDragDrop` op Windows) neemt
+/// aan dat de gebruiker de knop vasthoudt. Wordt hij zonder ingedrukte knop
+/// gestart, dan krijgt de drag-bron-thread nooit de muisberichten die de
+/// modale drag-lus nodig heeft om te eindigen — de lus loopt oneindig door en
+/// BLOKKEERT de hele event-loop van de app (venster bevriest permanent, alleen
+/// nog af te breken met "taak beëindigen", waarbij niet-opgeslagen werk
+/// verloren gaat). Dat is precies het scenario dat gebruikers als "crash"
+/// rapporteren bij het slepen van een tab tussen twee vensters.
+///
+/// Op niet-Windows-platforms bestaat die valkuil niet in deze vorm; daar geven
+/// we `true` terug zodat het gedrag ongewijzigd blijft.
+#[cfg(target_os = "windows")]
+fn primary_pointer_down() -> bool {
+    use windows_sys::Win32::UI::Input::KeyboardAndMouse::GetAsyncKeyState;
+    use windows_sys::Win32::UI::WindowsAndMessaging::{GetSystemMetrics, SM_SWAPBUTTON};
+    // VK_LBUTTON = 0x01, VK_RBUTTON = 0x02. Met omgewisselde muisknoppen is de
+    // rechterknop de primaire.
+    let swapped = unsafe { GetSystemMetrics(SM_SWAPBUTTON) } != 0;
+    let vk = if swapped { 0x02 } else { 0x01 };
+    // Hoogste bit = knop is op dit moment ingedrukt.
+    (unsafe { GetAsyncKeyState(vk) } as u16 & 0x8000) != 0
+}
+
+#[cfg(not(target_os = "windows"))]
+fn primary_pointer_down() -> bool {
+    true
+}
+
+/// Uitkomst van `tab_drag_preflight` — of een OS-drag nu veilig gestart kan
+/// worden, en zo niet: waarom niet.
+#[derive(serde::Serialize, Clone)]
+pub struct TabDragPreflight {
+    /// `true` → de frontend mag `startDrag` aanroepen.
+    pub ok: bool,
+    /// Machine-leesbare reden bij `ok == false`:
+    /// `"no-path"` | `"missing-file"` | `"button-released"`.
+    pub reason: Option<String>,
+}
+
+/// Laatste controle vlak vóór de frontend een native OS-filedrag start.
+///
+/// ACHTERGROND (issue #335). `tauri-plugin-drag` voert `DoDragDrop` uit in een
+/// closure op de MAIN thread van de app. Die Win32-API gaat ervan uit dat de
+/// gebruiker de muisknop vasthoudt: hij vertrouwt op de muis-capture van de
+/// drag-bron om zijn modale lus te voeden. Start de drag zónder ingedrukte
+/// knop, dan komen die berichten nooit binnen, eindigt de lus nooit, en staat
+/// de complete Tauri-event-loop stil. Het venster tekent nog, maar geen enkel
+/// `invoke` keert nog terug — de gebruiker kan alleen nog "taak beëindigen"
+/// doen en raakt niet-opgeslagen werk kwijt. Dat is lokaal gereproduceerd.
+///
+/// Daarnaast paniekt de onderliggende drag-crate met `unwrap()` als het pad
+/// niet naar een bestaand bestand wijst (`ILCreateFromPathW` geeft dan NULL en
+/// de shell-item-array faalt). Zo'n paniek ontrolt door de vensterprocedure —
+/// een `extern "system"`-grens — en Rust breekt het proces dan hard af
+/// (`FAST_FAIL_FATAL_APP_EXIT`, uitzonderingscode `0xC0000409`). Vandaar dat we
+/// het bestaan van het bestand hier óók afvangen.
+///
+/// Beide situaties worden hier gedetecteerd zodat de frontend kan terugvallen
+/// op het losse-venster-pad in plaats van de app te verliezen.
+#[tauri::command]
+pub fn tab_drag_preflight(pdf_path: String) -> TabDragPreflight {
+    if pdf_path.is_empty() {
+        return TabDragPreflight { ok: false, reason: Some("no-path".to_string()) };
+    }
+    if !std::path::Path::new(&pdf_path).is_file() {
+        return TabDragPreflight { ok: false, reason: Some("missing-file".to_string()) };
+    }
+    if !primary_pointer_down() {
+        return TabDragPreflight { ok: false, reason: Some("button-released".to_string()) };
+    }
+    TabDragPreflight { ok: true, reason: None }
+}
+
 /// Materialise the drag-preview icon (a PDF-file glyph) to a temp file and
-/// return its absolute path. `tauri-plugin-drag`'s `startDrag` needs a real
-/// filesystem path for the drag image; the icon is embedded at compile time
-/// so this works in dev AND in the bundled app.
+/// return its absolute path. The drag layer needs a real filesystem path for
+/// the drag image; the icon is embedded at compile time so this works in dev
+/// AND in the bundled app.
 #[tauri::command]
 pub fn drag_icon_path() -> Result<String, String> {
     let path = std::env::temp_dir().join("opds-drag-icon.png");

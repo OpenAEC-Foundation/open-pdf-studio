@@ -116,5 +116,9 @@
   "bcfExportFailed": "BCF export failed.",
   "bcfImportFailed": "Could not read BCF file.",
   "bcfInvalidFile": "Invalid or unsupported BCF file.",
-  "bcfNoTopics": "No topics found in BCF file."
+  "bcfNoTopics": "No topics found in BCF file.",
+  "tabs": {
+    "dragFileGone": "This file no longer exists on disk — the tab cannot be moved.",
+    "dragNotStarted": "The tab could not be dragged to another window. Try again, or use right-click → open in new window."
+  }
 }

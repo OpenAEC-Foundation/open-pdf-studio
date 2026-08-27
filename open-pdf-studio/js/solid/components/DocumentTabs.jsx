@@ -167,6 +167,11 @@ function handleMouseDown(e, index) {
     started: false,
   };
 
+  // Alvast laden zodat er straks geen asynchroon gat zit tussen "cursor
+  // verlaat de tabbalk" en het daadwerkelijk starten van de OS-drag — zie
+  // preloadDragDeps().
+  preloadDragDeps();
+
   document.addEventListener('mousemove', onDocMouseMove);
   document.addEventListener('mouseup', onDocMouseUp);
 }
@@ -227,6 +232,52 @@ function onDocMouseMove(e) {
   }
 }
 
+// Voorladen van alles wat `startNativeTabDrag` nodig heeft.
+//
+// WAAROM (issue #335): de OS-drag moet starten TERWIJL de muisknop nog
+// ingedrukt is. Werd `startDrag` pas aangeroepen na een dynamische import en
+// een `invoke`, dan zat daar een asynchroon gat van tientallen ms tot (in dev,
+// bij een koude module-load) veel langer. Liet de gebruiker in dat gat de knop
+// los, dan startte `DoDragDrop` zonder ingedrukte knop en liep zijn modale lus
+// nooit af — de complete event-loop van de app stond dan permanent stil.
+// Daarom laden we module en drag-icoon één keer voor, zodra de gebruiker een
+// tab aanraakt (handleMouseDown) — ruim voordat ze nodig zijn.
+let _dragModulePromise = null;
+let _dragIconPromise = null;
+function preloadDragDeps() {
+  if (!_dragModulePromise) {
+    _dragModulePromise = import('@crabnebula/tauri-plugin-drag').catch(() => null);
+  }
+  if (!_dragIconPromise) {
+    _dragIconPromise = invoke('drag_icon_path').catch(() => '');
+  }
+}
+
+// Synchrone spiegel van de primaire-muisknopstatus. De Rust-preflight kost een
+// IPC-rondgang; deze check kost niets en dekt het laatste stukje van het gat
+// tussen "preflight zegt ok" en "startDrag is aangeroepen".
+let _primaryDown = false;
+if (typeof document !== 'undefined') {
+  const down = (e) => { if (e.button === 0 || e.buttons & 1) _primaryDown = true; };
+  const up = () => { _primaryDown = false; };
+  document.addEventListener('pointerdown', down, true);
+  document.addEventListener('mousedown', down, true);
+  document.addEventListener('pointerup', up, true);
+  document.addEventListener('mouseup', up, true);
+  document.addEventListener('pointercancel', up, true);
+  window.addEventListener('blur', up, true);
+}
+
+// Nette melding wanneer de tab-overdracht niet veilig gestart kan worden.
+// Liever een uitleg dan een bevroren of verdwenen venster.
+function explainDragUnavailable(reason) {
+  const key = reason === 'missing-file' ? 'tabs.dragFileGone' : 'tabs.dragNotStarted';
+  const msg = i18next.t(key, { defaultValue: reason === 'missing-file'
+    ? 'Dit bestand bestaat niet meer op schijf — de tab kan niet verplaatst worden.'
+    : 'De tab kon niet naar een ander venster gesleept worden. Probeer het opnieuw, of gebruik rechtsklik → openen in nieuw venster.' });
+  alert(msg);
+}
+
 // Start a native OS file-drag of a tab's PDF. The OS handles where it lands:
 //   * dropped on another OPDS instance  → that instance docks it as a tab
 //     (its onDragDropEvent), and we close our tab here;
@@ -242,34 +293,90 @@ async function startNativeTabDrag(index) {
     alert(i18next.t('tabs.saveBeforeDetach'));
     return;
   }
+
+  preloadDragDeps();
+  const mod = await _dragModulePromise;
+  const icon = await _dragIconPromise;
+  if (!mod?.startDrag) {
+    // Geen drag-backend beschikbaar → gewoon losmaken in een eigen venster.
+    detachTabToNewWindow(index);
+    return;
+  }
+
+  // Laatste controle vlak vóór we de OS-drag starten: bestaat het bestand nog
+  // en houdt de gebruiker de muisknop nog vast? Zonder ingedrukte knop hangt
+  // `DoDragDrop` de hele app op; zonder bestaand bestand paniekt de OS-laag en
+  // wordt het proces hard afgebroken. Zie window_mgmt::tab_drag_preflight.
+  let pre = { ok: false, reason: 'preflight-failed' };
+  try {
+    pre = await invoke('tab_drag_preflight', { pdfPath });
+  } catch (e) {
+    console.warn('[tab-drag] preflight faalde:', e);
+  }
+  if (!pre?.ok) {
+    if (pre?.reason === 'button-released') {
+      // Knop al losgelaten — de gebruiker bedoelde "losmaken in eigen venster".
+      detachTabToNewWindow(index);
+    } else {
+      explainDragUnavailable(pre?.reason);
+    }
+    return;
+  }
+
+  // Allerlaatste synchrone check: knop in de tussentijd toch losgelaten?
+  if (!_primaryDown) {
+    detachTabToNewWindow(index);
+    return;
+  }
+
   // Mark THIS instance as the drag source so our own drop handler ignores a
   // drop that lands back on us (no duplicate tab).
   window.__OPDS_DRAGGING_OUT__ = pdfPath;
   window.__OPDS_SELF_DROP__ = false;
+  // De callback mag maar één keer werk doen: de OS-laag kan hem in theorie
+  // vaker afvuren, en dubbel sluiten zou een al gesloten tab-index raken.
+  let settled = false;
   try {
-    const [{ startDrag }, { invoke }] = await Promise.all([
-      import('@crabnebula/tauri-plugin-drag'),
-      import('../../core/platform.js'),
-    ]);
-    const icon = await invoke('drag_icon_path').catch(() => '');
-    await startDrag({ item: [pdfPath], icon }, (payload) => {
-      const result = payload?.result;
-      const wasSelf = !!window.__OPDS_SELF_DROP__;
-      window.__OPDS_DRAGGING_OUT__ = null;
-      window.__OPDS_SELF_DROP__ = false;
-      if (result === 'Dropped' && !wasSelf) {
-        // Accepted by another instance/app → the tab moved; remove it here.
-        closeTabAndMaybeCloseWindow(index);
-      } else if (result === 'Cancelled') {
-        // Dropped on empty space → classic detach into its own new window.
-        detachTabToNewWindow(index);
+    await mod.startDrag({ item: [pdfPath], icon }, (payload) => {
+      // DEFENSIEF: deze callback loopt vanuit Rust, op de hoofdthread, terwijl
+      // de OS-drag nog wordt afgerond. Gooit hij een fout, dan ontrolt die door
+      // de Rust/Win32-grens en breekt het proces hard af. Dus: alles in een
+      // try/catch, en het echte werk (tab sluiten, venster sluiten) pas ná
+      // een tick, zodat de OS-drag eerst netjes afloopt en we nooit een venster
+      // vernietigen terwijl de drag-lus er nog op staat.
+      try {
+        if (settled) return;
+        settled = true;
+        const result = payload?.result;
+        const wasSelf = !!window.__OPDS_SELF_DROP__;
+        window.__OPDS_DRAGGING_OUT__ = null;
+        window.__OPDS_SELF_DROP__ = false;
+        setTimeout(() => {
+          try {
+            if (result === 'Dropped' && !wasSelf) {
+              // Accepted by another instance/app → the tab moved; remove it here.
+              closeTabAndMaybeCloseWindow(index);
+            } else if (result === 'Cancelled') {
+              // Dropped on empty space → classic detach into its own new window.
+              detachTabToNewWindow(index);
+            }
+            // 'Dropped' + wasSelf → dropped back on us; keep the tab as-is.
+          } catch (err) {
+            console.error('[tab-drag] afhandeling na drop faalde:', err);
+          }
+        }, 0);
+      } catch (err) {
+        console.error('[tab-drag] drop-callback faalde:', err);
       }
-      // 'Dropped' + wasSelf → dropped back on us; keep the tab as-is.
     });
   } catch (e) {
     window.__OPDS_DRAGGING_OUT__ = null;
+    window.__OPDS_SELF_DROP__ = false;
     console.warn('native tab drag failed, falling back to detach:', e);
-    detachTabToNewWindow(index);
+    if (!settled) {
+      settled = true;
+      detachTabToNewWindow(index);
+    }
   }
 }
 

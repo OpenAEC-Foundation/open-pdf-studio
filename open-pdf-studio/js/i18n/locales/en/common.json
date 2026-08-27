@@ -147,6 +147,8 @@
   "tabs": {
     "saveBeforeDetach": "Save the document before dragging it to another window.",
     "detachFailed": "Could not detach the window: {{error}}",
+    "dragFileGone": "This file no longer exists on disk — the tab cannot be moved.",
+    "dragNotStarted": "The tab could not be dragged to another window. Try again, or use right-click → open in new window.",
     "openInNewWindow": "Open in new window",
     "closeTab": "Close tab"
   },
