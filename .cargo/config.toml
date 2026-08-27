@@ -1,0 +1,16 @@
+# Windows-releases worden met de MSVC-toolchain gebouwd, die standaard
+# dynamisch tegen de VC++-runtime linkt (VCRUNTIME140.dll). Op een schone
+# Windows zonder de Visual C++ redistributable — bijvoorbeeld in Windows
+# Sandbox — start de app dan niet met de melding dat die DLL ontbreekt
+# (#337). Statisch linken maakt de binaries zelfvoorzienend; de meegeleverde
+# pdfium.dll en WebView2Loader.dll hebben zelf geen VC-runtime nodig, dus
+# hiermee is het hele bundel onafhankelijk van een geïnstalleerde runtime.
+#
+# Deze instelling staat op workspace-niveau zodat hij zowel voor de app
+# (gebouwd vanuit src-tauri) als voor de pdfium-worker-sidecar (gebouwd
+# vanaf de repo-root) geldt.
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
+
+[target.aarch64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
