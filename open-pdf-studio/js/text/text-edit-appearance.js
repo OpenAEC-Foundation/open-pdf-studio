@@ -71,13 +71,40 @@ export function resolveTextEditPageGeometry(dims, displayWidth, displayHeight, e
     ? Number(dims.heightPt)
     : (rotation % 180 ? displayWidth : displayHeight);
   const displaySize = getRotatedPageSize(pageWidth, pageHeight, rotation);
+  // Oorsprong van de pagina-box in user-space. Meestal (0,0), maar CAD-plots
+  // hebben vaak een MediaBox rond de oorsprong (bv. [-846 -595 846 595]).
+  // PDF.js-tekstposities staan in ECHTE user-space (dus met die offset),
+  // terwijl de tekenlagen in app-ruimte 0..breedte/hoogte werken — zonder
+  // deze offset landt tekst-bewerking buiten beeld.
+  const offsetXPt = Number.isFinite(Number(dims?.offsetXPt)) ? Number(dims.offsetXPt) : 0;
+  const offsetYPt = Number.isFinite(Number(dims?.offsetYPt)) ? Number(dims.offsetYPt) : 0;
   return {
     pageWidth,
     pageHeight,
     rotation,
+    offsetXPt,
+    offsetYPt,
     displayWidth: displaySize.width,
     displayHeight: displaySize.height,
   };
+}
+
+// User-space (PDF, oorsprong linksonder van de pagina-BOX) → app-ruimte
+// (oorsprong linksboven van de pagina, 0..breedte/hoogte). Neemt de
+// box-oorsprong mee; bij de gebruikelijke (0,0)-box is dit de oude formule.
+export function userSpaceToApp(pdfX, pdfY, geometry) {
+  const offX = Number(geometry?.offsetXPt) || 0;
+  const offY = Number(geometry?.offsetYPt) || 0;
+  const h = Number(geometry?.pageHeight) || 0;
+  return { x: pdfX - offX, y: (offY + h) - pdfY };
+}
+
+// App-ruimte → user-space (inverse van userSpaceToApp).
+export function appToUserSpace(appX, appY, geometry) {
+  const offX = Number(geometry?.offsetXPt) || 0;
+  const offY = Number(geometry?.offsetYPt) || 0;
+  const h = Number(geometry?.pageHeight) || 0;
+  return { x: appX + offX, y: (offY + h) - appY };
 }
 
 export function elementRectToCanvasPixels(elementRect, canvasRect, canvasWidth, canvasHeight) {

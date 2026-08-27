@@ -2399,6 +2399,11 @@ function drawTextEdits(ctx, pageNum) {
   // Text-edit records stay in the page's unrotated PDF frame. Apply the page
   // matrix only while painting so save coordinates remain stable across turns.
   const fallbackScale = doc.scale || 1;
+  // Oorsprong van de pagina-box (meestal 0,0; CAD-plots hebben vaak een
+  // MediaBox rond de oorsprong). PDF-tekstcoördinaten staan in ECHTE
+  // user-space, de tekenlaag werkt in app-ruimte 0..breedte/hoogte.
+  const offXPt = Number.isFinite(Number(dims?.offsetXPt)) ? Number(dims.offsetXPt) : 0;
+  const offYPt = Number.isFinite(Number(dims?.offsetYPt)) ? Number(dims.offsetYPt) : 0;
   const pageWidth = dims?.widthPt || canvasEl.width / fallbackScale;
   const pageHeight = dims?.heightPt || canvasEl.height / fallbackScale;
   const totalRotation = (Number(dims?.rotation) || 0) + getPageRotation(pageNum);
@@ -2416,7 +2421,7 @@ function drawTextEdits(ctx, pageNum) {
     const angleRad = angle * Math.PI / 180;
 
     // First line baseline in canvas coordinates
-    const firstBaseY = pageHeight - edit.pdfY;
+    const firstBaseY = (offYPt + pageHeight) - edit.pdfY;
 
     // Cover rectangle: extends from above first baseline to below last baseline
     // Skip cover rect for newly added text (no original text to cover)
@@ -2439,7 +2444,7 @@ function drawTextEdits(ctx, pageNum) {
       const coverX = orig0 && Number.isFinite(Number(orig0.x)) ? Number(orig0.x) : edit.pdfX;
       const coverY = orig0 && Number.isFinite(Number(orig0.y)) ? Number(orig0.y) : edit.pdfY;
       ctx.save();
-      ctx.translate(coverX, pageHeight - coverY);
+      ctx.translate(coverX - offXPt, (offYPt + pageHeight) - coverY);
       if (angle) ctx.rotate(-angleRad);
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, -fontSize, coverWidth, coverHeight);
@@ -2482,7 +2487,7 @@ function drawTextEdits(ctx, pageNum) {
       // baseline-richting), dan naar canvas-frame via de y-flip.
       const anchor = textEditLineAnchor(edit.pdfX, edit.pdfY, i, ls, angle);
       ctx.save();
-      ctx.translate(anchor.x, pageHeight - anchor.y);
+      ctx.translate(anchor.x - offXPt, (offYPt + pageHeight) - anchor.y);
       if (angle) ctx.rotate(-angleRad);
 
       // Uitgevulde regel: dezelfde woordspatie-verdeling als de saver (Tw),

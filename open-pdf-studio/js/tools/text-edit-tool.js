@@ -1554,8 +1554,8 @@ export function findTextEditAtPosition(x, y, pageNum, canvasEl) {
     const newLines = edit.newText.split('\n');
     const numLines = newLines.length;
 
-    const firstBaseY = pageHeight - edit.pdfY;
-    const editLeft = edit.pdfX;
+    const firstBaseY = (geometry.offsetYPt || 0) + pageHeight - edit.pdfY;
+    const editLeft = edit.pdfX - (geometry.offsetXPt || 0);
     const editTop = firstBaseY - fontSize;
     const editHeight = (numLines - 1) * ls + fontSize * 1.3;
     const maxCharCount = Math.max(...newLines.map(l => l.length), 1);
@@ -1582,7 +1582,7 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
   const newLines = textEdit.newText.split('\n');
   const numLines = newLines.length;
 
-  const firstBaseY = pageHeight - textEdit.pdfY;
+  const firstBaseY = (geometry.offsetYPt || 0) + pageHeight - textEdit.pdfY;
   const maxCharCount = Math.max(...newLines.map(l => l.length), 1);
   const editWidth = Math.max(textEdit.pdfWidth || 0, fontSize * 0.6 * maxCharCount) + fontSize * 0.5;
 
@@ -1595,7 +1595,7 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
   const offsetY = canvasRect.top - containerRect.top;
 
   const rotatedBaseline = applyPageRotation(
-    textEdit.pdfX,
+    textEdit.pdfX - (geometry.offsetXPt || 0),
     firstBaseY,
     geometry.pageWidth,
     geometry.pageHeight,
@@ -2106,8 +2106,10 @@ function startNewTextBlockAt(e, layer, pageNum) {
   const vx = (e.clientX - rect.left) / rect.width * dispW;
   const vy = (e.clientY - rect.top) / rect.height * dispH;
   const punt = invertPageRotation(vx, vy, geometry.pageWidth, geometry.pageHeight, geometry.rotation);
-  const pdfX = punt.x;
-  const pdfY = geometry.pageHeight - punt.y;
+  // App-ruimte → ECHTE user-space: de box-oorsprong meenemen, anders landt een
+  // nieuw blok op een CAD-plot (MediaBox rond de oorsprong) volledig mis.
+  const pdfX = punt.x + (geometry.offsetXPt || 0);
+  const pdfY = (geometry.offsetYPt || 0) + geometry.pageHeight - punt.y;
 
   const record = nieuwTekstblokRecord({ page: pageNum, pdfX, pdfY });
   // Op een /Rotate-pagina moet nieuwe tekst met de paginarotatie mee

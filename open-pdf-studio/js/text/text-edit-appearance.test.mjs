@@ -120,7 +120,8 @@ test('DOM text bounds are converted to canvas backing pixels', () => {
 test('page geometry combines intrinsic and user rotation', () => {
   assert.deepEqual(
     resolveTextEditPageGeometry({ widthPt: 600, heightPt: 800, rotation: 90 }, 800, 600, 90),
-    { pageWidth: 600, pageHeight: 800, rotation: 180, displayWidth: 600, displayHeight: 800 },
+    { pageWidth: 600, pageHeight: 800, rotation: 180, displayWidth: 600, displayHeight: 800,
+      offsetXPt: 0, offsetYPt: 0 },
   );
 });
 
@@ -482,4 +483,34 @@ test('nieuwTekstblokRecord: vorm van een nieuw-blok-record', async () => {
   const l1 = textEditLineAnchor(r.pdfX, r.pdfY, 1, r.lineSpacing, 0);
   assert.equal(l1.x, 120);
   assert.ok(Math.abs(l1.y - (500 - 16.8)) < 1e-9);
+});
+
+test('userSpaceToApp/appToUserSpace: verschoven MediaBox (CAD-plot)', async () => {
+  const { resolveTextEditPageGeometry, userSpaceToApp, appToUserSpace } =
+    await import('./text-edit-appearance.js');
+  // MediaBox [-846.24 -595.26 846.24 595.26] → breedte 1692.48, hoogte 1190.52
+  const g = resolveTextEditPageGeometry(
+    { widthPt: 1692.48, heightPt: 1190.52, rotation: 0, offsetXPt: -846.24, offsetYPt: -595.26 },
+    1692.48, 1190.52, 0,
+  );
+  assert.equal(g.offsetXPt, -846.24);
+  // tekst op user-space (-146.43, 217.32) ligt binnen de pagina in app-ruimte
+  const a = userSpaceToApp(-146.4306, 217.32151, g);
+  assert.ok(a.x > 0 && a.x < g.pageWidth, `app x binnen pagina: ${a.x}`);
+  assert.ok(a.y > 0 && a.y < g.pageHeight, `app y binnen pagina: ${a.y}`);
+  assert.ok(Math.abs(a.x - 699.81) < 0.01);
+  assert.ok(Math.abs(a.y - 377.94) < 0.01);
+  // round-trip
+  const u = appToUserSpace(a.x, a.y, g);
+  assert.ok(Math.abs(u.x - (-146.4306)) < 1e-6);
+  assert.ok(Math.abs(u.y - 217.32151) < 1e-6);
+});
+
+test('userSpaceToApp: gewone (0,0)-pagina blijft de oude formule', async () => {
+  const { resolveTextEditPageGeometry, userSpaceToApp } = await import('./text-edit-appearance.js');
+  const g = resolveTextEditPageGeometry({ widthPt: 595, heightPt: 842, rotation: 0 }, 595, 842, 0);
+  assert.equal(g.offsetXPt, 0);
+  const a = userSpaceToApp(100, 700, g);
+  assert.equal(a.x, 100);
+  assert.equal(a.y, 142);
 });

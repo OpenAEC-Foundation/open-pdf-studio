@@ -419,8 +419,12 @@ export function injectSyntheticTextSpans(textLayerDiv, pageNum, pageWidth, pageH
       const linePdfX = edit.pdfX;
       const linePdfY = edit.pdfY - i * ls;
 
-      const unrotatedTop = (geometry.pageHeight - linePdfY) - fontSize * ascentRatio;
-      const leftPct = (100 * linePdfX / geometry.pageWidth).toFixed(2);
+      // Box-oorsprong meenemen (CAD-plots met MediaBox rond de oorsprong):
+      // de span-percentages gelden in app-ruimte 0..breedte/hoogte.
+      const offX = Number(geometry.offsetXPt) || 0;
+      const offY = Number(geometry.offsetYPt) || 0;
+      const unrotatedTop = ((offY + geometry.pageHeight) - linePdfY) - fontSize * ascentRatio;
+      const leftPct = (100 * (linePdfX - offX) / geometry.pageWidth).toFixed(2);
       const topPct = (100 * unrotatedTop / geometry.pageHeight).toFixed(2);
 
       // Create span
