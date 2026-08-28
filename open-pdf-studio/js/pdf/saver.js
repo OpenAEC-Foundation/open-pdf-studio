@@ -310,8 +310,15 @@ export async function savePDF(saveAsPath = null) {
       // zou alle bestaande annotaties van die pagina strippen en er niets
       // voor terugzetten. Zolang een pagina niet geladen is, is het BESTAND
       // de waarheid: alles ongemoeid laten.
-      const pageAnnotsLoaded = activeDoc._loadedAnnotationPages
-        ? activeDoc._loadedAnnotationPages.has(pageNum) : true;
+      // _annotationPagesReady wordt pas ná de conversie gezet;
+      // _loadedAnnotationPages markeert al bij de start van het laden
+      // (dedupe) en is hier dus NIET betrouwbaar: onder belasting kan het
+      // laden tientallen seconden duren en zou een save in dat venster de
+      // pagina alsnog wissen.
+      const pageAnnotsLoaded = activeDoc._annotationPagesReady
+        ? activeDoc._annotationPagesReady.has(pageNum)
+        : (activeDoc._loadedAnnotationPages
+          ? activeDoc._loadedAnnotationPages.has(pageNum) : true);
 
       // Build annotations array: keep existing annotations we don't handle (widgets, links, etc.)
       // and replace the ones we do with our document annotations (which is the source of truth)

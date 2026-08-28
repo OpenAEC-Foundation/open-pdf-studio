@@ -77,6 +77,7 @@ export interface DocumentState {
   stylePresets: StylePreset[];
   // Internal loader state
   _loadedAnnotationPages: Set<number>;
+  _annotationPagesReady: Set<number>;
   _sharedPdfLibDoc: any;
   _sharedPdfLibDocPromise: Promise<any> | null;
   _pagesNeedingColorUpdate: Set<number>;

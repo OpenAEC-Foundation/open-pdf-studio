@@ -411,6 +411,7 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
     // Reset annotation state (per-document)
     doc.annotations = [];
     doc._loadedAnnotationPages.clear();
+    if (doc._annotationPagesReady) doc._annotationPagesReady.clear();
     doc._pagesNeedingColorUpdate.clear();
     doc._sharedPdfLibDoc = null;
     doc._sharedPdfLibDocPromise = null;
@@ -871,6 +872,7 @@ export function cancelAnnotationLoading(doc) {
   if (!doc) return;
   doc._annotationLoadId++;
   doc._loadedAnnotationPages.clear();
+  if (doc._annotationPagesReady) doc._annotationPagesReady.clear();
   doc._pagesNeedingColorUpdate.clear();
   doc._sharedPdfLibDoc = null;
   doc._sharedPdfLibDocPromise = null;
@@ -884,6 +886,7 @@ export function markAllAnnotationPagesLoaded(numPages, doc) {
   if (!doc) return;
   for (let i = 1; i <= numPages; i++) {
     doc._loadedAnnotationPages.add(i);
+    if (doc._annotationPagesReady) doc._annotationPagesReady.add(i);
   }
 }
 
@@ -982,6 +985,9 @@ export async function ensureAnnotationsForPage(pageNum, doc) {
   const _ea0 = performance.now();
   console.log(`[PERF] ensureAnnotationsForPage(${pageNum}) START`);
   await loadAnnotationsForSinglePage(doc, pageNum, false);
+  // Pas nu staan de annotaties echt in het model; eerder mag de saver
+  // deze pagina niet als 'geladen' behandelen (dataverlies-wachter).
+  if (doc._annotationPagesReady) doc._annotationPagesReady.add(pageNum);
   console.log(`[PERF] ensureAnnotationsForPage(${pageNum}) DONE: ${(performance.now() - _ea0).toFixed(0)}ms`);
 }
 
@@ -1050,7 +1056,10 @@ export async function loadExistingAnnotations(doc) {
       const viewport = page.getViewport({ scale: 1 });
       const annotations = annotResults[i];
 
-      if (annotations.length === 0) continue;
+      if (annotations.length === 0) {
+        if (doc._annotationPagesReady) doc._annotationPagesReady.add(pageNum);
+        continue;
+      }
 
       const stampAnnots = annotations.filter(a => a.subtype === 'Stamp');
       const hasSquareAnnotations = annotations.some(a => a.subtype === 'Square');
@@ -1076,6 +1085,7 @@ export async function loadExistingAnnotations(doc) {
       }
 
       await _convertAndPushAnnotations(annotations, pageNum, viewport, stampImageMap, annotColorMap, doc);
+      if (doc._annotationPagesReady) doc._annotationPagesReady.add(pageNum);
     }
   }
 

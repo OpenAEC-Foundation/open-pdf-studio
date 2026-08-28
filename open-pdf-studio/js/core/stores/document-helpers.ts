@@ -29,6 +29,10 @@ export function createDocument(filePath: string | null = null): DocumentState {
     measureScale: null,
     stylePresets: [],
     _loadedAnnotationPages: new Set(),
+    // Pagina's waarvan de annotaties ECHT in het model staan (pas na
+    // conversie gezet). _loadedAnnotationPages markeert al bij de start
+    // van het laden (dedupe); de saver mag alleen op deze set vertrouwen.
+    _annotationPagesReady: new Set(),
     _sharedPdfLibDoc: null,
     _sharedPdfLibDocPromise: null,
     _pagesNeedingColorUpdate: new Set(),
