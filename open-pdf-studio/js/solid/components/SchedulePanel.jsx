@@ -3,6 +3,9 @@ import { getActiveDocument } from '../../core/state.js';
 import { createAnnotation } from '../../annotations/factory.js';
 import { recordAdd } from '../../core/undo-manager.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
+import { scheduleResultToCsv } from '../../quantities/schedule-csv.js';
+import { isTauri, saveFileDialog, writeBinaryFile } from '../../core/platform.js';
+import { showMessage } from '../stores/dialogStore.js';
 import {
   scheduleVisible, setScheduleVisible,
   scheduleResult, grandTotals, appearance,
@@ -18,10 +21,6 @@ function formatCell(val, col) {
 function fmtTotal(val, col) {
   if (val == null) return '';
   return val.toFixed(col.decimals ?? 2) + (col.unit ? ` ${col.unit}` : '');
-}
-function csvCell(s) {
-  s = String(s ?? '');
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
 export default function SchedulePanel() {
@@ -61,28 +60,43 @@ export default function SchedulePanel() {
     document.removeEventListener('mouseup', onMouseUp);
   });
 
-  function exportCSV() {
+  // Lege staat → duidelijke melding in plaats van stilte. Retourneert het
+  // resultaat als er iets te exporteren valt, anders null.
+  function exportableResult() {
     const r = scheduleResult();
-    if (!r.columns.length) return;
-    const lines = [r.columns.map(c => csvCell(c.label + (c.unit ? ` (${c.unit})` : ''))).join(',')];
-    for (const g of r.groups) {
-      if (g.key !== null) lines.push(csvCell(`${g.key} (${g.rows.length})`));
-      if (r.itemize) for (const row of g.rows) lines.push(r.columns.map(c => csvCell(formatCell(row.vals[c.key], c))).join(','));
-      lines.push(r.columns.map((c, i) => i === 0 ? csvCell(t('quantities.subtotal')) : csvCell(fmtTotal(g.subtotals[c.key], c))).join(','));
+    if (!r.columns.length) { showMessage(t('quantities.noFields'), t('quantities.title')); return null; }
+    if (!r.count) { showMessage(t('quantities.noElements'), t('quantities.title')); return null; }
+    return r;
+  }
+
+  async function exportCSV() {
+    const r = exportableResult();
+    if (!r) return;
+    // BOM zodat Excel het bestand als UTF-8 opent.
+    const csv = '﻿' + scheduleResultToCsv(r);
+    const bytes = new TextEncoder().encode(csv);
+    const fileName = t('quantities.csvFileName');
+    if (!isTauri()) {
+      // Web-fallback: browser-download via blob-anchor.
+      const blob = new Blob([bytes], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = fileName; a.click();
+      URL.revokeObjectURL(url);
+      return;
     }
-    lines.push(r.columns.map((c, i) => i === 0 ? csvCell(t('quantities.grandTotal')) : csvCell(fmtTotal(r.grandTotals[c.key], c))).join(','));
-    const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = t('quantities.csvFileName'); a.click();
-    URL.revokeObjectURL(url);
+    // Tauri: blob-anchor-downloads doen niets in WebView2 — gebruik de
+    // save-dialoog + fs-plugin (zelfde pad als de andere exports).
+    const path = await saveFileDialog(fileName, [{ name: 'CSV', extensions: ['csv'] }]);
+    if (!path) return;
+    await writeBinaryFile(path, bytes);
   }
 
   function placeOnPdf() {
     const doc = getActiveDocument();
     if (!doc) return;
-    const r = scheduleResult();
-    if (!r.columns.length) return;
+    const r = exportableResult();
+    if (!r) return;
     const rows = [];
     for (const g of r.groups) {
       if (g.key !== null) rows.push({ group: true, cells: [`${g.key} (${g.rows.length})`] });
