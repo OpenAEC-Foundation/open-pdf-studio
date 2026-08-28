@@ -583,11 +583,34 @@
   gap: 20px;
   align-items: center;
   padding-top: 20px;
-  width: 100%;
+  /* Issue #336: bij gemengde paginaformaten moet de container meegroeien met
+     de BREEDSTE pagina i.p.v. vast op de viewportbreedte te blijven. Met een
+     vaste `width: 100%` centreerde flexbox een bredere pagina met overloop
+     naar BEIDE kanten — en het deel links van de scroll-oorsprong is met
+     scrollLeft onbereikbaar, dus de linkerrand viel definitief buiten beeld.
+     max-content laat de breedste pagina de containerbreedte bepalen (de
+     horizontale scrollbar van #pdf-container reikt dan tot beide randen);
+     min-width houdt smallere inhoud op viewportbreedte zodat het centreren
+     van smallere pagina's blijft werken. */
+  width: max-content;
+  min-width: 100%;
 }
 
 .continuous-container.active {
   display: flex !important;
+}
+
+/* Zelfde verhaal één niveau hoger: #canvas-wrapper (width: 100%, centrerend)
+   zou anders de te brede continuous-container zelf weer gecentreerd laten
+   overlopen. De klasse wordt door renderer.js gezet zodra de doorlopende
+   weergave actief is (zie _setContinuousLayoutActive); de enkelpagina-
+   weergave behoudt zijn bestaande layout. flex-shrink: 0 voorkomt dat de
+   flex-parent (#pdf-container) de wrapper alsnog onder max-content
+   samendrukt. */
+#canvas-wrapper.continuous-mode {
+  width: max-content;
+  min-width: 100%;
+  flex-shrink: 0;
 }
 
 /* Boekweergave (issue #201): 2-koloms spread als layout-variant van de

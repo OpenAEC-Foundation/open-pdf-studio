@@ -1179,6 +1179,15 @@ function _syncCurrentPageFromScroll(container) {
   }
 }
 
+// Issue #336: in de doorlopende weergave moet #canvas-wrapper met de
+// BREEDSTE pagina kunnen meegroeien (width: max-content via de klasse
+// .continuous-mode in layout.css), anders centreert flexbox een bredere
+// pagina met onbereikbare overloop links. In de enkelpagina-weergave
+// behoudt de wrapper zijn vaste 100%-breedte.
+function _setContinuousLayoutActive(on) {
+  document.getElementById('canvas-wrapper')?.classList.toggle('continuous-mode', !!on);
+}
+
 // Render all pages (continuous mode) — creates placeholders, lazily renders visible pages
 export async function renderContinuous(forceRebuild) {
   // Clear search highlights immediately to prevent stale positions during re-render
@@ -1213,6 +1222,7 @@ export async function renderContinuous(forceRebuild) {
   if (continuousContainer.style.display !== 'none') {
     continuousContainer.style.display = (doc.bookSpread || doc.facingSpread) ? 'grid' : 'flex';
   }
+  _setContinuousLayoutActive(continuousContainer.style.display !== 'none');
 
   // Cleanup previous observer
   if (_continuousObserver) {
@@ -1427,10 +1437,12 @@ export async function setViewMode(mode) {
   if (doc.viewMode === 'single') {
     singleContainer.style.display = 'inline-block';
     continuousContainer.style.display = 'none';
+    _setContinuousLayoutActive(false);
     await renderPage(doc.currentPage);
   } else {
     singleContainer.style.display = 'none';
     continuousContainer.style.display = (doc.bookSpread || doc.facingSpread) ? 'grid' : 'flex';
+    _setContinuousLayoutActive(true);
     // CRUCIAAL: single-/rasterweergave zet #pdf-container inline op
     // `overflow:hidden` (het viewport-singleton bezit dan de pan/zoom).
     // Doorlopende/boekweergave scrollt juist NATIEF via deze container
@@ -1714,7 +1726,7 @@ async function _getFitInputs() {
   const pageViewport = page.getViewport(opts);
   const container = document.getElementById('pdf-container');
   if (!container) return null;
-  return {
+  const fit = {
     mode: 'legacy',
     pageW: pageViewport.width,
     pageH: pageViewport.height,
@@ -1722,6 +1734,40 @@ async function _getFitInputs() {
     canvasH: container.clientHeight,
     doc,
   };
+  // Doorlopende weergave (issue #336): alle pagina's delen één schaal, dus
+  // fit-breedte moet op de BREEDSTE pagina van het document passen — niet op
+  // de huidige. Anders bepaalt een smallere (bv. eerste) pagina de zoom en
+  // valt een bredere pagina deels buiten beeld.
+  if (doc.viewMode === 'continuous') {
+    fit.maxPageW = await _maxContinuousPageWidthPt(doc);
+  }
+  return fit;
+}
+
+// Breedste effectieve paginabreedte (PDF-punten, ná intrinsieke rotatie +
+// eventuele gebruikersrotatie) over alle pagina's. Gebruikt per pagina de door
+// renderContinuous() gevulde doc.pageDims-cache en valt voor ontbrekende
+// pagina's terug op getPage().
+async function _maxContinuousPageWidthPt(doc) {
+  let maxW = 0;
+  for (let p = 1; p <= doc.pdfDoc.numPages; p++) {
+    const dims = doc.pageDims?.[p];
+    let wPt, hPt, baseRot;
+    if (dims) {
+      wPt = dims.widthPt;
+      hPt = dims.heightPt;
+      baseRot = dims.rotation || 0;
+    } else {
+      const page = await doc.pdfDoc.getPage(p);
+      const [x0, y0, x1, y1] = page.view;
+      wPt = x1 - x0;
+      hPt = y1 - y0;
+      baseRot = page.rotate || 0;
+    }
+    const totalRot = (((baseRot + getPageRotation(p)) % 360) + 360) % 360;
+    maxW = Math.max(maxW, (totalRot === 90 || totalRot === 270) ? hPt : wPt);
+  }
+  return maxW;
 }
 
 // Apply a computed zoom value, dispatching to the right renderer for the
@@ -1756,7 +1802,11 @@ export async function fitWidth() {
     m.fitToViewport('width');
     return;
   }
-  const newZoom = m.computeFitZoom('width', fit.pageW, fit.pageH, fit.canvasW, fit.canvasH, 0);
+  // Doorlopende weergave: fit op de breedste pagina (zie _getFitInputs,
+  // issue #336) zodat elke pagina volledig binnen de breedte past; smallere
+  // pagina's worden door de flex-layout gecentreerd.
+  const fitW = fit.maxPageW || fit.pageW;
+  const newZoom = m.computeFitZoom('width', fitW, fit.pageH, fit.canvasW, fit.canvasH, 0);
   await _applyZoom(fit, newZoom);
 }
 
