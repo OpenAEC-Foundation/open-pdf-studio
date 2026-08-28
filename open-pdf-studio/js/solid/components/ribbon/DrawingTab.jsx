@@ -19,7 +19,7 @@ import { alignLeft } from '../../../annotations/alignment.js';
 import { explodeSelection, joinSelection, createCollection, explodeCollection } from '../../../annotations/segment-ops.js';
 import {
   handIcon, selectCommentsIcon, findIcon,
-  lineIcon, arrowIcon, drawIcon, rectIcon, polylineIcon, textboxIcon, noteIcon, ellipseIcon, circleIcon,
+  lineIcon, arrowIcon, drawIcon, eraserIcon, rectIcon, polylineIcon, textboxIcon, noteIcon, ellipseIcon, circleIcon,
   calloutIcon, cloudIcon,
   measureDistanceIcon, measureAngleIcon, measurePerimeterIcon, measureAreaIcon,
   alignLeftIcon, alignTopIcon, alignBottomIcon,
@@ -181,6 +181,8 @@ export function DrawingGroups() {
             disabled={ro()} active={state.currentTool === 'splineArrow'} onClick={() => setTool('splineArrow')} />
           <RibbonButton size="small" id="dr-draw" title={t('comment.freehand')} icon={drawIcon}
             disabled={ro()} active={state.currentTool === 'draw'} onClick={() => setTool('draw')} />
+          <RibbonButton size="small" id="dr-eraser" title={t('drawing.eraser')} icon={eraserIcon}
+            disabled={ro()} active={state.currentTool === 'eraser'} onClick={() => setTool('eraser')} />
           <RibbonButton size="small" id="dr-rect" title={t('comment.rectangle')} icon={rectIcon}
             disabled={ro()} active={state.currentTool === 'box'} onClick={() => setTool('box')} />
           <RibbonButton size="small" id="dr-arc" title="Arc" icon={arcIcon}

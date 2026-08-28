@@ -399,6 +399,7 @@
   "drawing": {
     "selection": "Selection",
     "draw": "Draw",
+    "eraser": "Eraser (removes freehand ink)",
     "annotate": "Annotate",
     "modify": "Modify",
     "edit": "Edit",

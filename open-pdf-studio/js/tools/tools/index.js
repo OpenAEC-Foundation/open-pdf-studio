@@ -5,6 +5,7 @@ import { registerTool } from '../tool-registry.js';
 import { handTool } from './hand-tool.js';
 import { selectTool } from './select-tool.js';
 import { drawTool } from './draw-tool.js';
+import { eraserTool } from './eraser-tool.js';
 import { shapeTool } from './shape-tool.js';
 import { lineTool } from './line-tool.js';
 import { polylineTool, cloudPolylineTool } from './polyline-tool.js';
@@ -38,6 +39,8 @@ export function registerAllTools() {
 
   // Freehand
   registerTool('draw', drawTool);
+  // Ink eraser: drag to remove whole freehand strokes (issue #329)
+  registerTool('eraser', eraserTool);
 
   // Shapes (all use the same drag-to-create pattern)
   registerTool('box', shapeTool);

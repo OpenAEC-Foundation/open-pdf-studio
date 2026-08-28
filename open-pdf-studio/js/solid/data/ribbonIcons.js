@@ -77,6 +77,8 @@ export const arrowIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24
 // Freehand / sketch draw — wavy pencil stroke
 export const drawIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 18 Q 7 8 11 14 T 19 6"/></svg>`;
 
+export const eraserIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21H7Z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M22 21H13M5.5 10.5l8 8"/></svg>`;
+
 export const polylineIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 18L9 10L14 14L20 6"/></svg>`;
 
 // --- Comment tab: Shapes ---

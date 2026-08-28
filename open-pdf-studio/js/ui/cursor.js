@@ -10,7 +10,7 @@
 // state.dragCursor, state.isPanning, state.busy, state.snapPick) and the
 // cursor follows automatically.
 //
-// Why .main-view and not document.body: per CLAUDE.md the cursor must remain
+// Why .main-view and not document.body: per projectregel the cursor must remain
 // the system default outside the PDF area. Setting body cursor would change
 // the cursor over the toolbar, sidebar, dialogs, etc.
 
@@ -21,10 +21,24 @@ import { getAnnotationHoverCursor } from './cursors/annotation-cursors.js';
 import { getCursorForHandle } from '../annotations/handles.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 
+// Ink-eraser cursor: a circle exactly the eraser's screen radius (8px, see
+// ERASER_RADIUS_PX in tools/tools/eraser-tool.js), white halo + dark ring so
+// it reads on light and dark pages. Hotspot = circle centre. Only applied to
+// .main-view (the PDF area), per the project cursor rule.
+const _eraserCursor = (() => {
+  const svg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20">' +
+    '<circle cx="10" cy="10" r="8" fill="none" stroke="white" stroke-width="3"/>' +
+    '<circle cx="10" cy="10" r="8" fill="none" stroke="black" stroke-width="1.4"/>' +
+    '</svg>';
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}") 10 10, crosshair`;
+})();
+
 // Resolve the default cursor for a tool (no hover, no drag, no override).
 function _toolCursor(tool) {
   switch (tool) {
     case 'select':         return 'default';
+    case 'eraser':         return _eraserCursor;
     case 'selectComments': return 'text';
     case 'hand':           return 'grab';
     case 'text':

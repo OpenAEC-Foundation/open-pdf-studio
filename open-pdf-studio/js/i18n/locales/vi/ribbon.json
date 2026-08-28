@@ -302,6 +302,7 @@
   "drawing": {
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
-    "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)"
+    "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
+    "eraser": "Eraser (removes freehand ink)"
   }
 }

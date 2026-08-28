@@ -399,6 +399,7 @@
   "drawing": {
     "selection": "Selectie",
     "draw": "Tekenen",
+    "eraser": "Gum (verwijdert vrije-handlijnen)",
     "annotate": "Annoteren",
     "modify": "Wijzigen",
     "edit": "Bewerken",
