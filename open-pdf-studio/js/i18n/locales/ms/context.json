@@ -9,6 +9,7 @@
     "marked": "Ditandakan",
     "printable": "Boleh Dicetak",
     "status": "Status",
+    "showByStatus": "Show by Status",
     "statusNone": "Tiada",
     "statusAccepted": "Diterima",
     "statusCancelled": "Dibatalkan",

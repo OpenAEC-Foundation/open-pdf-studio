@@ -9,6 +9,7 @@
     "marked": "Отмечено",
     "printable": "Печатаемое",
     "status": "Статус",
+    "showByStatus": "Show by Status",
     "statusNone": "Нет",
     "statusAccepted": "Принято",
     "statusCancelled": "Отменено",

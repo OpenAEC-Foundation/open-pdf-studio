@@ -9,6 +9,7 @@
     "marked": "Позначено",
     "printable": "Для друку",
     "status": "Стан",
+    "showByStatus": "Show by Status",
     "statusNone": "Немає",
     "statusAccepted": "Прийнято",
     "statusCancelled": "Скасовано",

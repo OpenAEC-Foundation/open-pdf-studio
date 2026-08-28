@@ -9,6 +9,7 @@
     "marked": "চিহ্নিত",
     "printable": "মুদ্রণযোগ্য",
     "status": "স্থিতি",
+    "showByStatus": "Show by Status",
     "statusNone": "কোনোটি নয়",
     "statusAccepted": "গৃহীত",
     "statusCancelled": "বাতিল করা হয়েছে",

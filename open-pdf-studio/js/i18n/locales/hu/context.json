@@ -9,6 +9,7 @@
     "marked": "Megjelölve",
     "printable": "Nyomtatható",
     "status": "Állapot",
+    "showByStatus": "Show by Status",
     "statusNone": "Nincs",
     "statusAccepted": "Elfogadva",
     "statusCancelled": "Lemondva",

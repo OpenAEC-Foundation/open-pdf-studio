@@ -9,6 +9,7 @@
     "marked": "Σημειωμένο",
     "printable": "Εκτυπώσιμο",
     "status": "Κατάσταση",
+    "showByStatus": "Show by Status",
     "statusNone": "Καμία",
     "statusAccepted": "Αποδεκτό",
     "statusCancelled": "Ακυρωμένο",

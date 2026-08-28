@@ -9,6 +9,7 @@
     "marked": "Merkitty",
     "printable": "Tulostettava",
     "status": "Tila",
+    "showByStatus": "Show by Status",
     "statusNone": "Ei mitään",
     "statusAccepted": "Hyväksytty",
     "statusCancelled": "Peruutettu",

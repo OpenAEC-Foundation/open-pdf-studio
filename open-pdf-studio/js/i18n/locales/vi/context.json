@@ -9,6 +9,7 @@
     "marked": "Đã đánh dấu",
     "printable": "In được",
     "status": "Trạng thái",
+    "showByStatus": "Show by Status",
     "statusNone": "Không có",
     "statusAccepted": "Chấp nhận",
     "statusCancelled": "Đã hủy",

@@ -9,6 +9,7 @@
     "marked": "علامت‌گذاری‌شده",
     "printable": "قابل چاپ",
     "status": "وضعیت",
+    "showByStatus": "Show by Status",
     "statusNone": "هیچ",
     "statusAccepted": "پذیرفته‌شده",
     "statusCancelled": "لغوشده",

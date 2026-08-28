@@ -9,6 +9,7 @@
     "marked": "Označeno",
     "printable": "Za ispis",
     "status": "Status",
+    "showByStatus": "Show by Status",
     "statusNone": "Ništa",
     "statusAccepted": "Prihvaćeno",
     "statusCancelled": "Otkazano",

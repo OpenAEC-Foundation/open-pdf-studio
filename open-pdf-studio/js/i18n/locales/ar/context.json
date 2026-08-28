@@ -9,6 +9,7 @@
     "marked": "مُعلَّم",
     "printable": "قابل للطباعة",
     "status": "الحالة",
+    "showByStatus": "Show by Status",
     "statusNone": "بلا",
     "statusAccepted": "مقبول",
     "statusCancelled": "ملغي",

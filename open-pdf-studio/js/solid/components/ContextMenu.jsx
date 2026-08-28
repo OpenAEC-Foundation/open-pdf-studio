@@ -42,6 +42,7 @@ import { getSelectedText, clearTextSelection } from '../../text/text-selection.j
 import { showCalibrationDialog } from '../../annotations/measurement.js';
 import { openDialog } from '../stores/dialogStore.js';
 import { getSelectedPagesArray, formatPageRangeString, selectAllPages, clearPageSelection } from '../stores/panels/thumbnailStore.js';
+import { hiddenStatuses, toggleHiddenStatus } from '../stores/panels/annotationsStore.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 import {
   revealInFileManager,
@@ -428,6 +429,21 @@ function AnnotationMenuContent() {
               if (a) commitAnnotationMutation(a, annotation => {
                 annotation.status = s.key === 'None' ? undefined : s.key;
               });
+            }} />
+          )}
+        </For>
+      </Submenu>
+      {/* Statusfilter (Tonen > Status, #333): dezelfde zichtbaarheids-
+          toggles als het lijstmenu, bereikbaar vanaf het canvas. Vinkje =
+          zichtbaar; de store hertekent het canvas, de lijst gaat mee via
+          updateAnnotationsList. Sleutels zijn kleine letters — zelfde
+          afspraak als het paneelmenu (#236). */}
+      <Submenu icon={statusIcon} label={t('annotation.showByStatus')}>
+        <For each={statusItems}>
+          {(s) => (
+            <MenuItem label={s.label()} checkbox={true} checked={!hiddenStatuses().has(s.key.toLowerCase())} onClick={() => {
+              toggleHiddenStatus(s.key.toLowerCase());
+              import('../../ui/panels/annotations-list.js').then(m => m.updateAnnotationsList());
             }} />
           )}
         </For>

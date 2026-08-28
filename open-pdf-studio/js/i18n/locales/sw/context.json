@@ -9,6 +9,7 @@
     "marked": "Imewekwa alama",
     "printable": "Inachapishika",
     "status": "Hali",
+    "showByStatus": "Show by Status",
     "statusNone": "Hakuna",
     "statusAccepted": "Imekubaliwa",
     "statusCancelled": "Imeghairiwa",

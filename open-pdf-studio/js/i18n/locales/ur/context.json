@@ -9,6 +9,7 @@
     "marked": "نشان زدہ",
     "printable": "قابل پرنٹ",
     "status": "حیثیت",
+    "showByStatus": "Show by Status",
     "statusNone": "کوئی نہیں",
     "statusAccepted": "قبول شدہ",
     "statusCancelled": "منسوخ",

@@ -4,6 +4,7 @@ import { HANDLE_TYPES } from '../../core/constants.js';
 import { recordModify } from '../../core/undo-manager.js';
 import { tryStartInlineNumberEdit } from '../inline-number-editing.js';
 import { buildSysteemraster, subElementAt } from '../../annotations/systeemraster.js';
+import { isAnnotationHiddenInView } from '../../annotations/view-filters.js';
 import { systeemrasterBuildOpts } from '../../annotations/systeemraster-scale.js';
 import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
 
@@ -404,6 +405,9 @@ export const selectTool = {
         const doc = state.documents[state.activeDocumentIndex];
         for (const ann of (doc?.annotations || [])) {
           if (ann.page !== ctx.pageNum) continue;
+          // Onzichtbaar door een weergavefilter (hidden-vlag, Zichtbaarheid
+          // Elementen, statusfilter #333) = ook niet marquee-selecteerbaar.
+          if (isAnnotationHiddenInView(ann)) continue;
           const bounds = ctx.getAnnotationBounds(ann);
           if (!bounds) continue;
           const fullyInside =

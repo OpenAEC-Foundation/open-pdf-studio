@@ -9,6 +9,7 @@
     "marked": "Marcado",
     "printable": "Imprimível",
     "status": "Status",
+    "showByStatus": "Show by Status",
     "statusNone": "Nenhum",
     "statusAccepted": "Aceito",
     "statusCancelled": "Cancelado",

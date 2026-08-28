@@ -9,6 +9,7 @@
     "marked": "Означено",
     "printable": "За штампу",
     "status": "Статус",
+    "showByStatus": "Show by Status",
     "statusNone": "Ништа",
     "statusAccepted": "Прихваћено",
     "statusCancelled": "Отказано",

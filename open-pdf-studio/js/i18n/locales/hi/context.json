@@ -9,6 +9,7 @@
     "marked": "चिह्नित",
     "printable": "प्रिंट करने योग्य",
     "status": "स्थिति",
+    "showByStatus": "Show by Status",
     "statusNone": "कोई नहीं",
     "statusAccepted": "स्वीकृत",
     "statusCancelled": "रद्द",

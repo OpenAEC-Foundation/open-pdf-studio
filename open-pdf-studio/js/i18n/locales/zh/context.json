@@ -9,6 +9,7 @@
     "marked": "已标记",
     "printable": "可打印",
     "status": "状态",
+    "showByStatus": "Show by Status",
     "statusNone": "无",
     "statusAccepted": "已接受",
     "statusCancelled": "已取消",

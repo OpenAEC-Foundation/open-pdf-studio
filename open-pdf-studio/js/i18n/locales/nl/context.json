@@ -15,6 +15,7 @@
     "marked": "Gemarkeerd",
     "printable": "Afdrukbaar",
     "status": "Status",
+    "showByStatus": "Tonen op status",
     "statusNone": "Geen",
     "statusAccepted": "Geaccepteerd",
     "statusCancelled": "Geannuleerd",

@@ -9,6 +9,7 @@
     "marked": "표시됨",
     "printable": "인쇄 가능",
     "status": "상태",
+    "showByStatus": "Show by Status",
     "statusNone": "없음",
     "statusAccepted": "수락됨",
     "statusCancelled": "취소됨",

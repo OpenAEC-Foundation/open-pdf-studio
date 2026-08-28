@@ -9,6 +9,7 @@
     "marked": "Markeret",
     "printable": "Kan udskrives",
     "status": "Status",
+    "showByStatus": "Show by Status",
     "statusNone": "Ingen",
     "statusAccepted": "Accepteret",
     "statusCancelled": "Annulleret",

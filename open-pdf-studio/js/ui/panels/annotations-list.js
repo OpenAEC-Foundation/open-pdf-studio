@@ -10,7 +10,7 @@ import {
   setAnnotationItems as setItems, setAnnotationCountText as setCountText,
   setAnnotationEmptyMessage as setEmptyMessage, annotationSortMode as sortMode,
   annotationFilterMode as filterMode, setAnnotationFilterMode as setFilterMode,
-  annotationHiddenStatuses as hiddenStatuses,
+  isAnnotationStatusHidden,
 } from '../../bridge.js';
 
 const statusColors = {
@@ -72,15 +72,10 @@ export function updateAnnotationsList(filterValue) {
   }
 
   // Statusfilter (Tonen > Status): verberg annotaties waarvan de
-  // review-status door de gebruiker is uitgevinkt. Statussen worden
-  // hoofdletter-ongevoelig vergeleken ('Accepted' en 'accepted' zijn gelijk);
-  // geen status telt als 'none'.
-  const hidden = hiddenStatuses();
-  if (hidden.size > 0) {
-    filteredAnnotations = filteredAnnotations.filter(
-      a => !hidden.has(String(a.status || 'none').toLowerCase())
-    );
-  }
+  // review-status door de gebruiker is uitgevinkt. De berekening leeft op
+  // ÉÉN plek (annotationsStore.isStatusHidden) zodat lijst en canvas (#333)
+  // gegarandeerd hetzelfde filteren.
+  filteredAnnotations = filteredAnnotations.filter(a => !isAnnotationStatusHidden(a));
 
   // Update count text
   setCountText(`${filteredAnnotations.length} annotation${filteredAnnotations.length !== 1 ? 's' : ''}`);

@@ -9,6 +9,7 @@
     "marked": "Označeno",
     "printable": "Tisknutelné",
     "status": "Stav",
+    "showByStatus": "Show by Status",
     "statusNone": "Žádný",
     "statusAccepted": "Přijato",
     "statusCancelled": "Zrušeno",

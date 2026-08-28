@@ -212,6 +212,7 @@ export {
   filterMode as annotationFilterMode,
   setFilterMode as setAnnotationFilterMode,
   hiddenStatuses as annotationHiddenStatuses,
+  isStatusHidden as isAnnotationStatusHidden,
 } from './solid/stores/panels/annotationsStore.js';
 
 export {

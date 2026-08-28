@@ -9,6 +9,7 @@
     "marked": "ทำเครื่องหมาย",
     "printable": "พิมพ์ได้",
     "status": "สถานะ",
+    "showByStatus": "Show by Status",
     "statusNone": "ไม่มี",
     "statusAccepted": "อนุมัติแล้ว",
     "statusCancelled": "ยกเลิกแล้ว",

@@ -9,6 +9,7 @@
     "marked": "Contrassegnato",
     "printable": "Stampabile",
     "status": "Stato",
+    "showByStatus": "Show by Status",
     "statusNone": "Nessuno",
     "statusAccepted": "Accettato",
     "statusCancelled": "Annullato",

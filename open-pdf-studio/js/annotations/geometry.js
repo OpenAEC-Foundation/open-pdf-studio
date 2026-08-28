@@ -5,6 +5,7 @@ import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { catmullRomSpline } from '../tools/tools/spline-tool.js';
 import { wallHalfWidthPx as isPointOnWallHalfWidth } from './rendering/walls.js';
 import { buildStavenreeks } from './stavenreeks.js';
+import { isAnnotationHiddenInView } from './view-filters.js';
 import { stavenreeksPxPerMm } from './stavenreeks-scale.js';
 import { betonbalkHalfWidthPx } from './betonbalk-scale.js';
 import {
@@ -184,6 +185,10 @@ export function findAnnotationAt(x, y, pageNum = null) {
   for (let i = annotations.length - 1; i >= 0; i--) {
     const ann = annotations[i];
     if (ann.page !== targetPage) continue;
+    // Wat de weergavefilters niet tekenen (hidden-vlag, Zichtbaarheid
+    // Elementen, statusfilter #333) is ook niet raakbaar — anders selecteer
+    // of versleep je onzichtbare annotaties.
+    if (isAnnotationHiddenInView(ann)) continue;
 
     switch (ann.type) {
       case 'draw':

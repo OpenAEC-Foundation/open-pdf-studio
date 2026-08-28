@@ -9,6 +9,7 @@
     "marked": "マーク済み",
     "printable": "印刷可能",
     "status": "状態",
+    "showByStatus": "Show by Status",
     "statusNone": "なし",
     "statusAccepted": "承認",
     "statusCancelled": "取消",

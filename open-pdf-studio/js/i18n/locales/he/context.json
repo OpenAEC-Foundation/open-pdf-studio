@@ -9,6 +9,7 @@
     "marked": "מסומן",
     "printable": "ניתן להדפסה",
     "status": "מצב",
+    "showByStatus": "Show by Status",
     "statusNone": "ללא",
     "statusAccepted": "התקבל",
     "statusCancelled": "בוטל",

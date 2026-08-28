@@ -9,6 +9,7 @@
     "marked": "Marcat",
     "printable": "Imprimible",
     "status": "Estat",
+    "showByStatus": "Show by Status",
     "statusNone": "Cap",
     "statusAccepted": "Acceptat",
     "statusCancelled": "Cancel·lat",

@@ -9,6 +9,7 @@
     "marked": "குறிக்கப்பட்டது",
     "printable": "அச்சிடக்கூடியது",
     "status": "நிலை",
+    "showByStatus": "Show by Status",
     "statusNone": "எதுவுமில்லை",
     "statusAccepted": "ஏற்றுக்கொள்ளப்பட்டது",
     "statusCancelled": "ரத்துசெய்யப்பட்டது",

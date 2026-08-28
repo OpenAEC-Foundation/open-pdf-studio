@@ -38,7 +38,8 @@ import { EDITABLE_NUMBER_COLOR, shouldHighlightNumbers } from './editable-number
 // Side-effect: meldt de providers voor bewerkbare getallen aan
 // (stavenreeks, betonbalk, parametricSymbol).
 import { labelHasNumericField } from './editable-numbers-providers.js';
-import { hiddenTypes as evHiddenTypes, halftoneTypes as evHalftoneTypes } from '../solid/stores/elementVisibilityStore.js';
+import { halftoneTypes as evHalftoneTypes } from '../solid/stores/elementVisibilityStore.js';
+import { isAnnotationHiddenInView } from './view-filters.js';
 import {
   getPageRotationMatrix,
   resolveTextEditLineStyle,
@@ -308,7 +309,10 @@ export function renderParametricSymbolToPng(annotation, pxPerUnit = 4) {
     ctx.translate(-(cx - aabbW / 2), -(cy - aabbH / 2));
     // Full opacity here; the saver applies annotation opacity via the AP's
     // ExtGState (same as image stamps) so it isn't applied twice.
-    drawAnnotation(ctx, { ...annotation, opacity: 1, hidden: false });
+    // `_ignoreViewFilters`: dit is de SAVER-route (AP schrijven) — weergave-
+    // filters zoals het statusfilter of "Zichtbaarheid Elementen" mogen hier
+    // nooit een lege appearance opleveren.
+    drawAnnotation(ctx, { ...annotation, opacity: 1, hidden: false, _ignoreViewFilters: true });
     return { dataUrl: canvas.toDataURL('image/png') };
   } catch (e) {
     console.warn('[render] renderParametricSymbolToPng failed:', e);
@@ -388,14 +392,15 @@ function withFillAlpha(color, fillOpacity, baseOpacity) {
 }
 
 export function drawAnnotation(ctx, annotation) {
-  // Skip hidden annotations
-  if (annotation.hidden) return;
-
-  // ── Zichtbaarheid Elementen (per annotatie-SOORT) ──────────────────────
-  // Het "Zichtbaarheid Elementen"-paneel kan een hele annotatie-soort
-  // verbergen of dimmen (halftone) met een optionele kleur-tint. Dit werkt
-  // per ann.type, los van de per-annotatie `hidden`/`opacity`.
-  if (evHiddenTypes().has(annotation.type)) return;
+  // ── Weergavefilters ────────────────────────────────────────────────────
+  // Eén centraal predicaat (annotations/view-filters.js) bundelt de
+  // per-annotatie `hidden`-vlag, het "Zichtbaarheid Elementen"-paneel
+  // (hele soort verborgen) én het statusfilter van de annotatielijst
+  // (Tonen > Status, #333). Dezelfde check slaat de hit-test over, zodat
+  // wat niet getekend wordt ook niet aanklikbaar is.
+  // `_ignoreViewFilters` is voor de saver/AP-raster-route: opslaan is geen
+  // weergave, een verborgen annotatie moet zijn appearance gewoon krijgen.
+  if (!annotation._ignoreViewFilters && isAnnotationHiddenInView(annotation)) return;
   const _evHalftone = evHalftoneTypes().get(annotation.type) || null;
 
   // Use annotation's opacity property

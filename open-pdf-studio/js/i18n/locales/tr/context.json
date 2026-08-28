@@ -9,6 +9,7 @@
     "marked": "İşaretli",
     "printable": "Yazdırılabilir",
     "status": "Durum",
+    "showByStatus": "Show by Status",
     "statusNone": "Yok",
     "statusAccepted": "Kabul Edildi",
     "statusCancelled": "İptal Edildi",

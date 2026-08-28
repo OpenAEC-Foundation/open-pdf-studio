@@ -15,6 +15,7 @@
     "marked": "Marked",
     "printable": "Printable",
     "status": "Status",
+    "showByStatus": "Show by Status",
     "statusNone": "None",
     "statusAccepted": "Accepted",
     "statusCancelled": "Cancelled",
