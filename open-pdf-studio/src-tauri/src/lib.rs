@@ -2678,6 +2678,52 @@ pub fn run(opts: StartupOpts) {
             read_clipboard_image_png,
             set_prtscn_hotkey,
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application")
+        .run(|_app, _event| {
+            // macOS (en iOS) leveren een dubbelklik in Finder NIET als
+            // argv-argument aan (zoals Windows/Linux), maar als Apple Event
+            // dat Tauri doorgeeft als RunEvent::Opened { urls }. Zonder deze
+            // afhandeling opent de app wel, maar het bestand niet (#325).
+            //
+            // Twee gevallen, beide via het bestaande argv-mechanisme:
+            // - Koude start: het event komt binnen vóór de frontend klaar is.
+            //   We bufferen de paden in de OpenedFiles-state; de frontend
+            //   haalt ze bij init op via `get_opened_file` (zelfde pad als
+            //   command-line-bestanden). De emit hieronder gaat dan verloren
+            //   of belandt in pendingOpenFiles — main.js gooit die pending-
+            //   lijst weg zodra get_opened_file al bestanden opleverde, dus
+            //   er ontstaat geen dubbele tab.
+            // - App draait al: de frontend-listener op "open-files" (zelfde
+            //   event als de single-instance-plugin gebruikt) opent de tab
+            //   direct; de state-buffer wordt dan nooit meer gelezen.
+            //
+            // Custom-scheme-URLs (deep-link-plugin) hebben scheme != "file"
+            // en passeren dit filter niet — geen botsing met die plugin.
+            #[cfg(any(target_os = "macos", target_os = "ios"))]
+            if let tauri::RunEvent::Opened { urls } = &_event {
+                let files: Vec<String> = urls
+                    .iter()
+                    .filter(|url| url.scheme() == "file")
+                    .filter_map(|url| url.to_file_path().ok())
+                    .map(|p| p.to_string_lossy().to_string())
+                    .filter(|p| p.to_lowercase().ends_with(".pdf"))
+                    .collect();
+                if !files.is_empty() {
+                    for path in &files {
+                        let _ = _app.fs_scope().allow_file(path);
+                    }
+                    {
+                        let state = _app.state::<OpenedFiles>();
+                        let mut buffered = state.0.lock().unwrap();
+                        buffered.extend(files.iter().cloned());
+                    }
+                    let _ = _app.emit("open-files", &files);
+                    if let Some(window) = _app.get_webview_window("main") {
+                        let _ = window.unminimize();
+                        let _ = window.set_focus();
+                    }
+                }
+            }
+        });
 }
