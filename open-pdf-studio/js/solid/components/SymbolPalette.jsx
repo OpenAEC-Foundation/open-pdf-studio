@@ -13,7 +13,7 @@ import {
   selectedIndustry, setSelectedIndustry,
   selectedCountry, setSelectedCountry,
   toggleGroupEnabled, isGroupEnabled,
-  addCustomGroup, removeCustomGroup, addSymbolToGroup, getCustomGroups,
+  addCustomGroup, removeCustomGroup, addSymbolToGroup, getCustomGroups, upsertCustomGroup,
   resolveSymbolSvg,
 } from '../stores/symbolStore.js';
 import { matchesLocale } from '../data/symbolLocales.js';
@@ -27,7 +27,10 @@ import { ifcCategoryForSymbol } from '../data/ifcCategoryMap.js';
 import { nenIfcForSymbolId } from '../data/nenIfcMap.js';
 import { SYMBOL_STAMP_DEFAULT_SIZE } from '../../annotations/stamp-defaults.js';
 import { setPendingSymbolId } from '../stores/parametricSymbolStore.js';
+import { parseLineworkCatalog, lineworkCatalogToGroup } from '../../symbols/linework-catalog.js';
+import { registerLineworkCatalog } from '../../symbols/linework-catalog-store.js';
 import { openDialog } from '../stores/dialogStore.js';
+import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
 
 const DOCK_SNAP = 60;
 
@@ -228,11 +231,19 @@ function SymbolContent() {
                     <For each={cat.symbols}>
                       {(sym) => (
                         <button
-                          class={`sp-symbol-btn${state.toolOverrides?.stampSvg === sym.svg ? ' active' : ''}`}
+                          class={`sp-symbol-btn${state.toolOverrides?.stampSvg === sym.svg ? ' active' : ''}${sym.parametricId ? ' sp-symbol-named' : ''}`}
                           title={sym.name}
                           onClick={() => selectSymbol(sym)}
-                          innerHTML={colorizeSvg(sym.svg, cat.color)}
-                        />
+                        >
+                          <span class="sp-symbol-icon" innerHTML={colorizeSvg(sym.svg, cat.color)} />
+                          {/* Catalogus-ingangen zijn families met een maat-keuze,
+                              geen pictogrammen: aan de miniatuur alleen zie je niet
+                              welk aanzicht je aanklikt. Platte symboolsets houden
+                              hun compacte raster. */}
+                          <Show when={sym.parametricId}>
+                            <span class="sp-symbol-name">{sym.name}</span>
+                          </Show>
+                        </button>
                       )}
                     </For>
                   </div>
@@ -368,8 +379,33 @@ export function SymbolSettingsDialog() {
     try {
       const text = await file.text();
       const data = JSON.parse(text);
+
+      // Parametrische catalogus met vaste fabrikantgeometrie: registreer de
+      // families als templates in plaats van als losse platte symbolen. Eén
+      // palet-ingang per productlijn, maat te kiezen in het
+      // eigenschappenpaneel. Zelfde behandeling als een gedownloade
+      // collectie, maar dan vanaf schijf.
+      const catalog = parseLineworkCatalog(data);
+      if (catalog) {
+        const collectionId = String(data.id || file.name.replace(/\.json$/i, ''))
+          .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        registerLineworkCatalog(collectionId, catalog);
+        upsertCustomGroup(lineworkCatalogToGroup(collectionId, data, catalog));
+        // Melden wat er binnenkwam. Een catalogus zonder previews krijgt een
+        // generiek icoon, en dat is aan het palet niet te onderscheiden van
+        // een fout in de app — dus benoemen we het.
+        const maten = catalog.families.reduce((n, f) => n + f.variants.length, 0);
+        const zonderPreview = catalog.families.filter(f => !f.preview).length;
+        updateStatusMessage(
+          `Catalogus '${collectionId}' geladen: ${catalog.families.length} families, ${maten} maten`
+          + (zonderPreview ? ` — ${zonderPreview} zonder preview in het bestand` : '')
+        );
+        return;
+      }
+
       if (!data.name || !Array.isArray(data.symbols)) {
         console.warn('Invalid symbol group file: missing name or symbols array');
+        updateStatusMessage('Bestand niet herkend: geen symboolgroep en geen catalogus');
         return;
       }
       const groupId = addCustomGroup(data.name);
@@ -381,6 +417,10 @@ export function SymbolSettingsDialog() {
       }
     } catch (err) {
       console.error('Failed to import symbol group:', err);
+      // Een catalogus die zichzelf wel als linework-variants aankondigt maar
+      // niet klopt, gooit uit parseLineworkCatalog. Die reden hoort de
+      // gebruiker te zien in plaats van alleen in de console te belanden.
+      updateStatusMessage(`Import mislukt: ${err?.message || err}`, 6000);
     }
     e.target.value = '';
   }

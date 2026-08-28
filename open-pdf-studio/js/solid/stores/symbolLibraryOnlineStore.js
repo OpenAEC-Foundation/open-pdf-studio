@@ -25,7 +25,9 @@ import {
   parametricJsonUrl, collectionToGroup,
 } from '../data/symbolLibraryOnline.js';
 import { parseSteelSectionCatalog, steelCatalogToGroup } from '../../symbols/steel-catalog.js';
+import { parseLineworkCatalog, lineworkCatalogToGroup } from '../../symbols/linework-catalog.js';
 import { registerSteelCatalog } from '../../symbols/steel-catalog-store.js';
+import { registerLineworkCatalog } from '../../symbols/linework-catalog-store.js';
 
 const INDEX_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 1 dag; daarna stille refresh
 const FETCH_TIMEOUT_MS = 20000;
@@ -188,6 +190,14 @@ async function downloadCollection(collectionId, indexMeta, lang) {
       if (catalog) {
         registerSteelCatalog(collectionId, catalog);
         return steelCatalogToGroup(collectionId, meta, catalog, lang);
+      }
+      // Vaste fabrikantgeometrie met maat-varianten (schroeven, beugels,
+      // connectoren): zelfde gedrag, maar het lijnwerk komt uit de catalogus
+      // in plaats van uit een formule.
+      const linework = parseLineworkCatalog(raw);
+      if (linework) {
+        registerLineworkCatalog(collectionId, linework, { lang });
+        return lineworkCatalogToGroup(collectionId, meta, linework, lang);
       }
     } catch (e) {
       // Onbekend/kapot parametrisch formaat → val terug op de SVG-symbolen.
