@@ -1,5 +1,8 @@
 import { applyToolTransform } from '../tool-context.js';
 import { SYMBOL_STAMP_DEFAULT_SIZE } from '../../annotations/stamp-defaults.js';
+import { svgRealSizeMm, stampPlacementSize } from '../../annotations/svg-real-size.js';
+import { stampPxPerMm } from '../../annotations/stamp-scale.js';
+import { getActiveDocument } from '../../core/state.js';
 
 /**
  * Text tools — comment, text, stamp, signature, editText
@@ -51,8 +54,17 @@ export const stampTool = {
     const previewImg = state.toolOverrides?._previewImg;
     if (!previewImg || !ctx.canvasCtx) return;
 
-    const w = state.toolOverrides.stampWidth || SYMBOL_STAMP_DEFAULT_SIZE;
-    const h = state.toolOverrides.stampHeight || SYMBOL_STAMP_DEFAULT_SIZE;
+    // Zelfde maatbepaling als placeOverrideStamp, zodat de spookafbeelding
+    // onder de cursor precies dekt wat er straks geplaatst wordt.
+    const ov = state.toolOverrides;
+    const page = getActiveDocument()?.currentPage || 1;
+    const { width: w, height: h } = stampPlacementSize({
+      mm: svgRealSizeMm(ov.stampSvg),
+      pxPerMm: stampPxPerMm(page, ctx.x, ctx.y),
+      aspect: previewImg.naturalWidth / previewImg.naturalHeight,
+      defaultWidth: ov.stampWidth,
+      defaultHeight: ov.stampHeight || SYMBOL_STAMP_DEFAULT_SIZE,
+    });
 
     // Redraw existing annotations then overlay the preview
     ctx.redraw();

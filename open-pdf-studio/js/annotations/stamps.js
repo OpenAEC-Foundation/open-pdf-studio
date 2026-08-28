@@ -6,6 +6,8 @@ import { redrawAnnotations, redrawContinuous } from './rendering.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
 import { openDialog } from '../bridge.js';
 import { BUILTIN_STAMP_DEFAULT_WIDTH, BUILTIN_STAMP_DEFAULT_HEIGHT, OVERRIDE_STAMP_DEFAULT_HEIGHT } from './stamp-defaults.js';
+import { svgRealSizeMm, stampPlacementSize } from './svg-real-size.js';
+import { stampPxPerMm } from './stamp-scale.js';
 
 // Built-in stamp definitions
 export const BUILT_IN_STAMPS = [
@@ -182,8 +184,20 @@ export async function placeOverrideStamp(x, y) {
     stampX = margin;
     stampY = margin;
   } else {
-    stampHeight = overrides.stampHeight || OVERRIDE_STAMP_DEFAULT_HEIGHT;
-    stampWidth = overrides.stampWidth || Math.round(stampHeight * aspect);
+    // Declareert de SVG-root een echte eenheid (bv. width="65mm"), dan telt
+    // die maat, omgerekend met de plaatselijke tekeningschaal. Zonder echte
+    // maat (alle meegeleverde symbolen) blijft het bestaande gedrag gelden:
+    // de standaardhoogte, met de breedte uit de beeldverhouding.
+    const page = getActiveDocument()?.currentPage || 1;
+    const size = stampPlacementSize({
+      mm: svgRealSizeMm(overrides.stampSvg),
+      pxPerMm: stampPxPerMm(page, x, y),
+      aspect,
+      defaultWidth: overrides.stampWidth,
+      defaultHeight: overrides.stampHeight || OVERRIDE_STAMP_DEFAULT_HEIGHT,
+    });
+    stampWidth = size.width;
+    stampHeight = size.height;
     stampX = x - stampWidth / 2;
     stampY = y - stampHeight / 2;
   }
