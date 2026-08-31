@@ -223,6 +223,13 @@ const WINANSI_REPLACEMENTS = new Map([
   ['′', "'"],  // prime
   ['″', '"'],  // double prime
   ['ʼ', "'"],  // modifier apostrophe
+  // Doorstreepte/puntloze letters hebben geen NFD-ontbinding, dus die kunnen
+  // niet door stripDiacritics() worden afgehandeld.
+  ['ı', 'i'],  // dotless i (tr)
+  ['ł', 'l'],  // l with stroke (pl)
+  ['Ł', 'L'],
+  ['đ', 'd'],  // d with stroke (hr/vi)
+  ['Đ', 'D'],
 ]);
 
 export function isWinAnsiCodePoint(cp) {
@@ -230,6 +237,19 @@ export function isWinAnsiCodePoint(cp) {
   if (cp >= 0x20 && cp <= 0x7E) return true;
   if (cp >= 0xA0 && cp <= 0xFF) return true;
   return WINANSI_EXTRA.has(cp);
+}
+
+// Ontbindt een letter met diakritisch teken en houdt alleen het basisteken
+// over, mits dat basisteken zelf WinAnsi is: 'ā' -> 'a', 'č' -> 'c'. Dekt heel
+// Latin Extended zonder een tabel per teken. Retourneert null als er niets
+// bruikbaars overblijft.
+function stripDiacritics(ch) {
+  const base = ch.normalize('NFD').replace(/\p{M}/gu, '');
+  if (!base || base === ch) return null;
+  for (const c of base) {
+    if (!isWinAnsiCodePoint(c.codePointAt(0))) return null;
+  }
+  return base;
 }
 
 // Vervangt niet-WinAnsi-tekens door een naaste equivalent (of '?').
@@ -244,7 +264,9 @@ export function sanitizeWinAnsiText(text) {
       out += ch;
       continue;
     }
-    const repl = WINANSI_REPLACEMENTS.has(ch) ? WINANSI_REPLACEMENTS.get(ch) : '?';
+    const repl = WINANSI_REPLACEMENTS.has(ch)
+      ? WINANSI_REPLACEMENTS.get(ch)
+      : (stripDiacritics(ch) ?? '?');
     out += repl;
     replaced.push(ch);
   }
