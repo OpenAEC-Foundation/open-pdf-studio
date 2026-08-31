@@ -17,6 +17,8 @@ const POORT = process.env.MCP_PORT || '9223';
 const MCP = `http://127.0.0.1:${POORT}/mcp`;
 const REFERENTIE = (process.env.ROTATIE_REF
   || 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/tekstrotatie-referentie.pdf').replace(/\\/g, '/');
+const EXTERN = (process.env.ROTATIE_EXTERN
+  || 'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/tekstrotatie-extern.pdf').replace(/\\/g, '/');
 const RONDGANG_UIT = 'C:/Users/rickd/AppData/Local/Temp/tekstrotatie-rondgang-uit.pdf';
 const HOEKEN = [0, 90, -90, 45, -55];
 const TOLERANTIE = 1; // graden
@@ -70,6 +72,36 @@ await mcp('app_open_pdf', { path: REFERENTIE });
 await sleep(3500);
 controleer('referentie', await volledigeLijst(), fouten);
 
+// ── Deel 1b: extern aangemaakt bestand (rotatie in de AP-/Matrix) ───────────
+// Conventie van een externe editor: /Rotation-metadata + rotatie volledig in
+// de appearance-/Matrix (content-stream zonder rotatie-cm, Rect = AABB).
+// Regressie die hierop is gevangen: de AP-guard nulde de rotatie omdat de
+// content geen rotatie-operator bevat — labels kwamen plat binnen.
+console.log('deel 1b: extern bestand openen —', EXTERN.split('/').pop());
+await mcp('app_open_pdf', { path: EXTERN });
+await sleep(3500);
+{
+  const lijst = await volledigeLijst();
+  const verwachtExtern = [
+    { rot: 0, n: 2 },     // twee ongeroteerde vakken
+    { rot: -60, n: 1 },
+    { rot: -120, n: 1 },
+  ];
+  for (const v of verwachtExtern) {
+    const gevonden = lijst.filter((x) => {
+      let d = Math.abs((x.rot || 0) - v.rot) % 360;
+      if (d > 180) d = 360 - d;
+      return d <= TOLERANTIE;
+    }).length;
+    if (gevonden < v.n) fouten.push(`extern: ${v.n}x rotatie ${v.rot} verwacht, ${gevonden} gevonden (${JSON.stringify(lijst.map((x) => x.rot))})`);
+  }
+  // Doosmaten: origineel ~120x18, niet de AABB (~76x113).
+  const geroteerd = lijst.filter((x) => Math.abs(x.rot || 0) > 1);
+  for (const g of geroteerd) {
+    if (g.w != null && Math.abs(g.w - 120) > 5) fouten.push(`extern: rot ${g.rot} breedte ${g.w} (verwacht ~120 — AABB-reconstructie?)`);
+  }
+}
+
 // ── Deel 2: eigen rondgang met de huidige build ─────────────────────────────
 console.log('deel 2: eigen rondgang (aanmaken → opslaan → heropenen)');
 await mcp('app_new_blank_pdf', { pages: 1, widthPt: 595, heightPt: 842 });
@@ -97,5 +129,5 @@ if (fouten.length) {
   console.log(`MISLUKT: ${fouten.length} afwijkingen`);
   process.exit(1);
 }
-console.log('GOED — tekstrotaties intact (referentie + rondgang, hoeken ' + HOEKEN.join('/') + ')');
+console.log('GOED — tekstrotaties intact (referentie + extern bestand + rondgang)');
 process.exit(0);
