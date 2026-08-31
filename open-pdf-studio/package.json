@@ -15,7 +15,7 @@
     "tauri:build": "npm run build && tauri build",
     "bump": "node scripts/bump-version.js",
     "typecheck": "tsc --noEmit",
-    "test:unit": "node --test scripts/test-nen-ifc-map.mjs scripts/test-systeemraster.mjs js/drafting/tekeningtype.test.mjs js/annotations/editable-numbers.test.mjs js/symbols/templates/wapeningskorf.test.mjs js/solid/stores/panels/annotationsStore.test.mjs js/pdf/progressive-render.test.mjs js/pdf/tile-coverage.test.mjs js/pdf/link-destination.test.mjs js/quantities/engine.test.mjs js/quantities/schedule-image.test.mjs js/quantities/takeoff.test.mjs js/text/text-edit-appearance.test.mjs js/text/content-stream-text.test.mjs js/text/editor-dom-parse.test.mjs js/tools/embedded-image-parser.test.mjs js/tools/tools/eraser-hit.test.mjs",
+    "test:unit": "node --test scripts/test-nen-ifc-map.mjs scripts/test-systeemraster.mjs js/drafting/tekeningtype.test.mjs js/annotations/editable-numbers.test.mjs js/symbols/templates/wapeningskorf.test.mjs js/solid/stores/panels/annotationsStore.test.mjs js/pdf/progressive-render.test.mjs js/pdf/tile-coverage.test.mjs js/pdf/continuous-zoom-anchor.test.mjs js/pdf/link-destination.test.mjs js/quantities/engine.test.mjs js/quantities/schedule-image.test.mjs js/quantities/takeoff.test.mjs js/text/text-edit-appearance.test.mjs js/text/content-stream-text.test.mjs js/text/editor-dom-parse.test.mjs js/tools/embedded-image-parser.test.mjs js/tools/tools/eraser-hit.test.mjs",
     "test:render": "..\\scripts\\.venv-test\\Scripts\\python.exe ../scripts/render-regression-test.py",
     "test:render:auto": "node ../scripts/run-render-regression.mjs",
     "test:quality": "node --test scripts/native-runtime.test.mjs scripts/release-config.test.mjs scripts/square-image-annotation.test.mjs"

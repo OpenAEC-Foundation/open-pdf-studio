@@ -15,6 +15,7 @@ import { clearPdfVectorCache, prefetchPdfVectorGeometry } from '../tools/pdf-sna
 import { clearDetectionCache } from '../tools/pdf-element-detector.js';
 import { onPageRendered, clearHighlights } from '../search/find-bar.js';
 import { showPagePlaceholder, hidePagePlaceholderWhenReady } from './page-transition.js';
+import { anchorScrollCorrection, pickAnchorPageIndex } from './continuous-zoom-anchor.js';
 // Hi-DPI support: render canvases at device pixel ratio for sharp text
 export function getCanvasDPR() { return window.devicePixelRatio || 1; }
 
@@ -1058,15 +1059,32 @@ export async function reRenderVisibleContinuousPages() {
 // debounced (see continuousZoomBy) and swaps in once the gesture settles. The
 // old approach awaited a full re-render BEFORE moving the scroll, which made
 // the page lurch and lag a notch behind the wheel (schokkerig + vertraging).
-function _applyContinuousZoomInstant(oldScale, anchorY = null) {
+function _applyContinuousZoomInstant(oldScale, anchorY = null, anchorX = null) {
   const doc = getActiveDocument();
   const container = document.getElementById('pdf-container');
   const cont = document.getElementById('continuous-container');
   if (!doc || !container || !cont || !oldScale) return;
   const newScale = doc.scale;
   const factor = newScale / oldScale;
-  const anchor = anchorY != null ? anchorY : container.clientHeight / 2;
-  const target = (container.scrollTop + anchor) * factor - anchor;
+  // Anker in client-coördinaten; zonder cursor (zoom-knoppen, setZoom) het
+  // midden van de zichtbare container.
+  const contRect = container.getBoundingClientRect();
+  const ax = contRect.left + (anchorX != null ? anchorX : container.clientWidth / 2);
+  const ay = contRect.top + (anchorY != null ? anchorY : container.clientHeight / 2);
+  // Referentie-element: de pagina onder het anker (of de dichtstbijzijnde).
+  // De oude formule `(scrollTop + anker) * factor` nam aan dat de hele
+  // scroll-inhoud met `factor` meeschaalt, maar gaps/padding staan in vaste
+  // px — en horizontaal werd er helemaal niet geankerd, waardoor het punt
+  // onder de cursor bij elke zoomstap opzij dreef (issue: zoom centreert
+  // niet rond de muis). De rect van de pagina vóór/ná de resize geeft een
+  // exacte correctie voor beide assen.
+  const pageEls = [...cont.querySelectorAll('.page-wrapper .canvas-container-cont')];
+  const refIdx = pickAnchorPageIndex(pageEls.map(el => {
+    const r = el.getBoundingClientRect();
+    return { top: r.top, bottom: r.bottom };
+  }), ay);
+  const refEl = refIdx >= 0 ? pageEls[refIdx] : null;
+  const rectBefore = refEl ? refEl.getBoundingClientRect() : null;
   cont.querySelectorAll('.page-wrapper').forEach(wrapper => {
     const cc = wrapper.querySelector('.canvas-container-cont');
     if (!cc) return;
@@ -1085,15 +1103,24 @@ function _applyContinuousZoomInstant(oldScale, anchorY = null) {
       cv.style.height = `${h}px`;
     });
   });
-  container.scrollTop = Math.max(0, target);
+  // Scroll-correctie ná de synchrone resize (getBoundingClientRect forceert
+  // de reflow): zet het content-punt terug onder het anker. De browser
+  // clampt zelf op de scrollranden; als de inhoud smaller is dan de viewport
+  // is er geen scrollruimte en centreert de layout — dat is inherent.
+  if (refEl && rectBefore) {
+    const { dx, dy } = anchorScrollCorrection({ x: ax, y: ay }, rectBefore, refEl.getBoundingClientRect());
+    container.scrollLeft += dx;
+    container.scrollTop += dy;
+  }
 }
 
 let _contRerenderTimer = null;
 
 // Core continuous zoom: multiply scale by `factor`, apply the instant visual
-// zoom, then debounce the crisp re-render. Anchored at anchorY (px within
-// #pdf-container) so content under the cursor stays put.
-export function continuousZoomBy(factor, anchorY = null) {
+// zoom, then debounce the crisp re-render. Anchored at anchorY/anchorX (px
+// within #pdf-container) so content under the cursor stays put; without
+// anchor it zooms around the viewport center.
+export function continuousZoomBy(factor, anchorY = null, anchorX = null) {
   const doc = getActiveDocument();
   if (!doc || doc.viewMode !== 'continuous' || !factor) return;
   const old = doc.scale;
@@ -1101,7 +1128,7 @@ export function continuousZoomBy(factor, anchorY = null) {
   next = Math.round(next * 1000) / 1000;
   if (next === old) return;
   doc.scale = next;
-  _applyContinuousZoomInstant(old, anchorY);
+  _applyContinuousZoomInstant(old, anchorY, anchorX);
   updateAllStatus(); // zoom % tracks the gesture immediately
   if (_contRerenderTimer) clearTimeout(_contRerenderTimer);
   _contRerenderTimer = setTimeout(() => {

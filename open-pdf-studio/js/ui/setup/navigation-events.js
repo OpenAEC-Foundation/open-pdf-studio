@@ -60,9 +60,12 @@ export function setupWheelZoom() {
           const contDy = e.deltaY || 0;
           if (contDy !== 0) {
             const container = document.getElementById('pdf-container');
-            const anchorY = container
-              ? e.clientY - container.getBoundingClientRect().top
-              : null;
+            // Anker op beide assen: ook horizontaal moet het punt onder de
+            // cursor blijven staan (sinds #336 heeft de doorlopende weergave
+            // echte horizontale scrollruimte).
+            const containerRect = container?.getBoundingClientRect();
+            const anchorY = containerRect ? e.clientY - containerRect.top : null;
+            const anchorX = containerRect ? e.clientX - containerRect.left : null;
             // Proportional zoom: scale tracks the wheel delta directly so the
             // page follows the cursor immediately instead of jumping a fixed
             // chunk per notch. Clamp per event so a high-res wheel can't
@@ -70,7 +73,7 @@ export function setupWheelZoom() {
             let zf = Math.pow(1.0012, -contDy);
             zf = Math.max(0.5, Math.min(2.0, zf));
             const m = await import('../../pdf/renderer.js');
-            m.continuousZoomBy(zf, anchorY);
+            m.continuousZoomBy(zf, anchorY, anchorX);
           }
           return;
         }
