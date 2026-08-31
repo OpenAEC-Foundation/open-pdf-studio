@@ -2902,7 +2902,11 @@ export function redrawContinuous() {
     const canvas = wrapper.querySelector('.annotation-canvas');
     if (canvas) {
       const ctx = canvas.getContext('2d');
-      renderAnnotationsForPage(ctx, pageNum, canvas.width, canvas.height);
+      // Gecapte backing store (zie setupContinuousAnnotationCanvas): de
+      // werkelijke backing-schaal meegeven, anders tekent dpr-aanname mis.
+      const backingScale = parseFloat(canvas.dataset.backingScale);
+      renderAnnotationsForPage(ctx, pageNum, canvas.width, canvas.height,
+        Number.isFinite(backingScale) ? backingScale : undefined);
     }
   });
 

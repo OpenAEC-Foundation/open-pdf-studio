@@ -16,6 +16,7 @@ import { clearDetectionCache } from '../tools/pdf-element-detector.js';
 import { onPageRendered, clearHighlights } from '../search/find-bar.js';
 import { showPagePlaceholder, hidePagePlaceholderWhenReady } from './page-transition.js';
 import { anchorScrollCorrection, pickAnchorPageIndex } from './continuous-zoom-anchor.js';
+import { createRerenderGate } from './continuous-rerender-gate.js';
 // Hi-DPI support: render canvases at device pixel ratio for sharp text
 export function getCanvasDPR() { return window.devicePixelRatio || 1; }
 
@@ -88,6 +89,28 @@ function setupCanvasHiDPI(canvas, width, height) {
   canvas.height = Math.floor(height * dpr);
   canvas.style.width = Math.floor(width) + 'px';
   canvas.style.height = Math.floor(height) + 'px';
+}
+
+// Bitmap-axis cap voor de doorlopende weergave (zie renderContinuousPage):
+// render op de grootste schaal die binnen de cap past en laat CSS rekken.
+const CONT_MAX_AXIS_PX = 4096;
+
+// Annotatiecanvas van één doorlopende pagina, met gecapte backing store.
+// Ongecapt groeit hij mee met paginamaat × dpr en sterft hij boven de
+// browserlimieten (as > 32767 of oppervlak > ~268M pixels — op een groot vel
+// al rond 700% zoom): het canvas tekent dan stilletjes niets meer en alle
+// annotaties verdwijnen. Zelfde as-cap als de paginabitmap; CSS rekt de rest.
+// De werkelijke backing-schaal gaat als overrideDpr naar
+// renderAnnotationsForPage zodat de tekening exact op de store past.
+function setupContinuousAnnotationCanvas(canvas, width, height) {
+  const dpr = getCanvasDPR();
+  const backingScale = Math.min(dpr, CONT_MAX_AXIS_PX / Math.max(width, height));
+  canvas.width = Math.max(1, Math.floor(width * backingScale));
+  canvas.height = Math.max(1, Math.floor(height * backingScale));
+  canvas.style.width = Math.floor(width) + 'px';
+  canvas.style.height = Math.floor(height) + 'px';
+  canvas.dataset.backingScale = backingScale;
+  return backingScale;
 }
 
 // Foreground-render generation counter. Bumped on every renderPage() entry;
@@ -694,8 +717,16 @@ export async function renderPageOffscreen(pageNum) {
 
 // Track which pages have been rendered in continuous mode
 const _renderedPages = new Set();
-let _renderedPagesScale = null; // scale at which pages were rendered
+const _contRerenderGate = createRerenderGate();
 let _continuousObserver = null;
+
+// Per-pagina render-generatie voor de doorlopende weergave: de Rust-invoke
+// is niet te annuleren, dus een verouderde render kan ná de verse landen en
+// de bitmap-attrs terugzetten (bv. een fit-schaal-render die de verse
+// 4096-render overschrijft bij snel doorzoomen). Alleen de nieuwste
+// generatie mag de bitmap schrijven — zelfde principe als
+// _foregroundRenderGen in het enkelpagina-pad, maar dan per pagina.
+const _contPageRenderGen = new Map();
 
 // Track active continuous page renders for cancellation
 const _continuousRenderTasks = new Map(); // pageNum -> RenderTask
@@ -777,6 +808,20 @@ async function renderContinuousPage(pageNum) {
     vpOpts.rotation = (page.rotate + extraRotation) % 360;
   }
   const viewport = page.getViewport(vpOpts);
+  const myRenderGen = (_contPageRenderGen.get(pageNum) || 0) + 1;
+  _contPageRenderGen.set(pageNum, myRenderGen);
+
+  // Canvas-CSS-maat op het SCHRIJFMOMENT bepalen, niet uit de hierboven
+  // vastgelegde viewport: doc.scale kan tijdens de async Rust-render
+  // gewijzigd zijn (snel wheelzoomen), en viewport.width zou dan de door
+  // _applyContinuousZoomInstant gezette maat terugdraaien naar de oude
+  // schaal. baseW × doc.scale klopt altijd; de bitmap is hooguit even
+  // gestretcht tot de debounced re-render hem vervangt. Bij ongewijzigde
+  // schaal identiek aan viewport.width/height.
+  const cssSize = () => ({
+    w: Math.floor(parseFloat(pageWrapper.dataset.baseW) * doc.scale) || Math.floor(viewport.width),
+    h: Math.floor(parseFloat(pageWrapper.dataset.baseH) * doc.scale) || Math.floor(viewport.height),
+  });
 
   canvasContainer.style.setProperty('--scale-factor', viewport.scale);
   canvasContainer.style.setProperty('--total-scale-factor', viewport.scale);
@@ -826,15 +871,17 @@ async function renderContinuousPage(pageNum) {
   // text-edits en alle annotaties frames-lang niet op het scherm terwijl de
   // paginarender async liep — de oude tekst onder een text-edit flitste dan
   // zichtbaar door bij zoomen/scrollen in doorlopende weergave.
-  setupCanvasHiDPI(annotationCanvasEl, viewport.width, viewport.height);
+  const annBackingScale = setupContinuousAnnotationCanvas(annotationCanvasEl, viewport.width, viewport.height);
   renderAnnotationsForPage(
-    annotationCanvasEl.getContext('2d'), pageNum, viewport.width, viewport.height,
+    annotationCanvasEl.getContext('2d'), pageNum,
+    annotationCanvasEl.width, annotationCanvasEl.height, annBackingScale,
   );
   if (isNewPage) {
     setupCanvasHiDPI(pdfCanvasEl, viewport.width, viewport.height);
   } else {
-    pdfCanvasEl.style.width = Math.floor(viewport.width) + 'px';
-    pdfCanvasEl.style.height = Math.floor(viewport.height) + 'px';
+    const { w: cssW0, h: cssH0 } = cssSize();
+    pdfCanvasEl.style.width = cssW0 + 'px';
+    pdfCanvasEl.style.height = cssH0 + 'px';
   }
   // Cursor is handled centrally by js/ui/cursor.js — no need to set it here.
 
@@ -883,7 +930,6 @@ async function renderContinuousPage(pageNum) {
   // the bitmap to the logical size — same philosophy as MAX_BITMAP_AXIS_PX in
   // the single-page path. Sharp detail work at high zoom belongs to
   // single-page mode (tiles); continuous trades that for full-document flow.
-  const CONT_MAX_AXIS_PX = 4096;
   const _maxViewAxis = Math.max(viewport.width, viewport.height);
   const renderScale = _maxViewAxis > CONT_MAX_AXIS_PX
     ? doc.scale * (CONT_MAX_AXIS_PX / _maxViewAxis)
@@ -901,8 +947,9 @@ async function renderContinuousPage(pageNum) {
     pdfCanvasEl.height = _cached.h;
     // CSS size = logical page size; differs from the backing store when the
     // axis cap reduced renderScale (CSS upscales the capped bitmap).
-    pdfCanvasEl.style.width = Math.floor(viewport.width) + 'px';
-    pdfCanvasEl.style.height = Math.floor(viewport.height) + 'px';
+    const { w: cssW1, h: cssH1 } = cssSize();
+    pdfCanvasEl.style.width = cssW1 + 'px';
+    pdfCanvasEl.style.height = cssH1 + 'px';
     pdfCtxEl.drawImage(_cached.bitmap, 0, 0);
     console.timeEnd(label + ' canvas-draw-cached');
     state.renderEngine = 'Raster (PDFium · cached)';
@@ -923,6 +970,7 @@ async function renderContinuousPage(pageNum) {
       });
       console.timeEnd(label + ' invoke-render');
       if (_isStaleDoc(doc)) { console.timeEnd(label); return; }
+      if (_contPageRenderGen.get(pageNum) !== myRenderGen) { console.timeEnd(label); return; }
       const _contBytes = rgbaData instanceof Uint8Array ? rgbaData : new Uint8Array(rgbaData);
       if (!_contBytes || _contBytes.length <= 8) {
         state.renderEngine = 'ERROR';
@@ -938,8 +986,9 @@ async function renderContinuousPage(pageNum) {
       pdfCanvasEl.width = rustW;
       pdfCanvasEl.height = rustH;
       // CSS size = logical page size (see the cached branch above).
-      pdfCanvasEl.style.width = Math.floor(viewport.width) + 'px';
-      pdfCanvasEl.style.height = Math.floor(viewport.height) + 'px';
+      const { w: cssW2, h: cssH2 } = cssSize();
+      pdfCanvasEl.style.width = cssW2 + 'px';
+      pdfCanvasEl.style.height = cssH2 + 'px';
       const imageData = new ImageData(rgba, rustW, rustH);
       pdfCtxEl.putImageData(imageData, 0, 0);
       console.timeEnd(label + ' canvas-putImageData');
@@ -957,6 +1006,18 @@ async function renderContinuousPage(pageNum) {
       try { console.timeEnd(label); } catch {}
       return;
     }
+  }
+
+  // Schaal tijdens de async render gewijzigd? De bitmap is getekend (beter
+  // gestretcht dan oud beeld), maar de tekst-/link-/formlagen zouden op de
+  // verouderde viewport gepositioneerd worden. Overslaan: de aankomende
+  // debounced re-render (reRenderVisibleContinuousPages cleart _renderedPages)
+  // herbouwt deze pagina op de juiste schaal. De muis-events moeten bij een
+  // nieuwe pagina wél nu al gekoppeld worden: bij de herkansing is isNewPage
+  // false en zou setupContinuousPageEvents anders nooit draaien.
+  if (doc.scale !== vpOpts.scale) {
+    if (isNewPage) setupContinuousPageEvents(annotationCanvasEl, pageNum);
+    return;
   }
 
   // Oude lagen van deze pagina eerst opruimen: createTextLayer/createLinkLayer
@@ -995,7 +1056,10 @@ async function renderContinuousPage(pageNum) {
 
   // Render annotations
   const annotationCtxEl = annotationCanvasEl.getContext('2d');
-  renderAnnotationsForPage(annotationCtxEl, pageNum, viewport.width, viewport.height);
+  renderAnnotationsForPage(
+    annotationCtxEl, pageNum,
+    annotationCanvasEl.width, annotationCanvasEl.height, annBackingScale,
+  );
 
   // Re-apply search highlights after re-render
   onPageRendered();
@@ -1010,26 +1074,36 @@ async function renderContinuousPage(pageNum) {
 export async function reRenderVisibleContinuousPages() {
   const doc = state.documents[state.activeDocumentIndex];
   if (!doc || !doc.pdfDoc) return;
-  const scale = doc.scale;
+  const token = _contRerenderGate.begin(doc.scale);
+  const scale = token.scale;
 
-  // Mark all pages as needing re-render at new scale
-  _renderedPages.clear();
-  _renderedPagesScale = scale;
-
-  // Update wrapper dimensions for new scale without destroying canvases
   const continuousContainer = document.getElementById('continuous-container');
   if (!continuousContainer) return;
 
+  // Fase 1 (async): viewports verzamelen, nog GEEN DOM-schrijf. Zoomt de
+  // gebruiker tijdens een getPage-await door (of start een nieuwere run),
+  // dan zou de oude lus wrappermaten op de verouderde schaal terugschrijven
+  // — inclusief pagina's bóven het zoomanker, waardoor de scrollpositie
+  // meesleept (verspringen bij snel zoomen). Daarom ná elke await de poort
+  // checken en zo nodig afbreken: de nieuwe debounce-aanroep neemt het over.
+  const jobs = [];
   for (const wrapper of continuousContainer.querySelectorAll('.page-wrapper')) {
     const pageNum = parseInt(wrapper.dataset.page, 10);
     if (!pageNum) continue;
 
     const page = await doc.pdfDoc.getPage(pageNum);
+    if (!_contRerenderGate.isCurrent(token, doc.scale) || _isStaleDoc(doc)) return;
     const extraRotation = getPageRotation(pageNum);
     const vpOpts = { scale };
     if (extraRotation) vpOpts.rotation = (page.rotate + extraRotation) % 360;
-    const viewport = page.getViewport(vpOpts);
+    jobs.push({ wrapper, viewport: page.getViewport(vpOpts) });
+  }
 
+  // Fase 2 (synchroon, atomair): pas hier invalideren en alle maten in één
+  // keer schrijven — dit blok kan niet meer door een wheel-event doorsneden
+  // worden.
+  _renderedPages.clear();
+  for (const { wrapper, viewport } of jobs) {
     // Keep the scale-1 base dims fresh so instant zoom can resize synchronously.
     wrapper.dataset.baseW = viewport.width / scale;
     wrapper.dataset.baseH = viewport.height / scale;
@@ -1079,10 +1153,12 @@ function _applyContinuousZoomInstant(oldScale, anchorY = null, anchorX = null) {
   // niet rond de muis). De rect van de pagina vóór/ná de resize geeft een
   // exacte correctie voor beide assen.
   const pageEls = [...cont.querySelectorAll('.page-wrapper .canvas-container-cont')];
+  // left/right meegeven: in boek-/dubbelepaginaweergave delen twee pagina's
+  // dezelfde verticale grenzen en moet de horizontale positie beslissen.
   const refIdx = pickAnchorPageIndex(pageEls.map(el => {
     const r = el.getBoundingClientRect();
-    return { top: r.top, bottom: r.bottom };
-  }), ay);
+    return { top: r.top, bottom: r.bottom, left: r.left, right: r.right };
+  }), ay, ax);
   const refEl = refIdx >= 0 ? pageEls[refIdx] : null;
   const rectBefore = refEl ? refEl.getBoundingClientRect() : null;
   cont.querySelectorAll('.page-wrapper').forEach(wrapper => {
@@ -1257,7 +1333,6 @@ export async function renderContinuous(forceRebuild) {
     _continuousObserver = null;
   }
   _renderedPages.clear();
-  _renderedPagesScale = scale;
 
   continuousContainer.innerHTML = '';
 
@@ -2087,7 +2162,7 @@ export function clearPdfView() {
   // Clear caches
   _lowResCache.clear();
   _renderedPages.clear();
-  _renderedPagesScale = null;
+  _contPageRenderGen.clear();
 
   // Clear continuous mode container
   const continuousContainer = document.getElementById('continuous-container');

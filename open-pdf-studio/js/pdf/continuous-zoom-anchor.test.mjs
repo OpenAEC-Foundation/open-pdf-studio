@@ -82,3 +82,35 @@ test('pickAnchorPageIndex: anker in de gap kiest de dichtstbijzijnde', () => {
 test('pickAnchorPageIndex: lege lijst geeft -1', () => {
   assert.equal(pickAnchorPageIndex([], 100), -1);
 });
+
+test('spread: anker boven de rechterpagina kiest de rechterpagina', () => {
+  // Twee pagina's naast elkaar met identieke verticale grenzen (boek-/
+  // dubbelepaginaweergave). Puur verticaal is dit onbeslisbaar; de X moet
+  // de doorslag geven.
+  const rects = [
+    { top: 100, bottom: 900, left: 50, right: 640 },
+    { top: 100, bottom: 900, left: 660, right: 1250 },
+  ];
+  assert.equal(pickAnchorPageIndex(rects, 500, 800), 1);
+  assert.equal(pickAnchorPageIndex(rects, 500, 300), 0);
+});
+
+test('spread: anker in de gap tussen de pagina\'s kiest de dichtstbijzijnde', () => {
+  const rects = [
+    { top: 100, bottom: 900, left: 50, right: 640 },
+    { top: 100, bottom: 900, left: 660, right: 1250 },
+  ];
+  assert.equal(pickAnchorPageIndex(rects, 500, 644), 0);
+  assert.equal(pickAnchorPageIndex(rects, 500, 657), 1);
+});
+
+test('zonder left/right of anchorX blijft de keuze puur verticaal', () => {
+  const rects = [
+    { top: 0, bottom: 500 },
+    { top: 520, bottom: 1020 },
+  ];
+  assert.equal(pickAnchorPageIndex(rects, 600), 1);
+  assert.equal(pickAnchorPageIndex(rects, 510), 0);
+  // met anchorX maar zonder left/right: idem verticaal
+  assert.equal(pickAnchorPageIndex(rects, 600, 9999), 1);
+});

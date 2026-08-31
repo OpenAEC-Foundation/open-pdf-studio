@@ -34,6 +34,12 @@ function _resetZoomAccumSoon() {
   }, 200);
 }
 
+// Coalescing-staat voor continu zoomen: factoren binnen een frame worden
+// vermenigvuldigd en 1x per rAF toegepast (zie de continue tak hieronder).
+let _contZoomFactor = 1;
+let _contZoomAnchor = { anchorY: null, anchorX: null };
+let _contZoomRaf = 0;
+
 export function setupWheelZoom() {
   document.querySelector('.main-view')?.addEventListener('wheel', async (e) => {
     const activeDoc = getActiveDocument();
@@ -68,12 +74,27 @@ export function setupWheelZoom() {
             const anchorX = containerRect ? e.clientX - containerRect.left : null;
             // Proportional zoom: scale tracks the wheel delta directly so the
             // page follows the cursor immediately instead of jumping a fixed
-            // chunk per notch. Clamp per event so a high-res wheel can't
-            // slingshot through several zoom levels at once.
-            let zf = Math.pow(1.0012, -contDy);
-            zf = Math.max(0.5, Math.min(2.0, zf));
-            const m = await import('../../pdf/renderer.js');
-            m.continuousZoomBy(zf, anchorY, anchorX);
+            // chunk per notch.
+            //
+            // Coalescing per frame: een high-res wiel levert 60+ events/s en
+            // elke continuousZoomBy doet twee geforceerde layouts over ALLE
+            // pagina's. Daarom accumuleren we de factor en passen we hem 1x
+            // per animatieframe toe met het anker van het laatste event (de
+            // actuele cursorpositie). De clamp verhuist mee naar het
+            // gecombineerde product per frame; de harde schaalgrenzen
+            // (0.05-24) zitten al in continuousZoomBy.
+            _contZoomFactor *= Math.pow(1.0012, -contDy);
+            _contZoomAnchor = { anchorY, anchorX };
+            if (!_contZoomRaf) {
+              _contZoomRaf = requestAnimationFrame(async () => {
+                _contZoomRaf = 0;
+                const zf = Math.max(0.5, Math.min(2.0, _contZoomFactor));
+                _contZoomFactor = 1;
+                const anker = _contZoomAnchor;
+                const m = await import('../../pdf/renderer.js');
+                m.continuousZoomBy(zf, anker.anchorY, anker.anchorX);
+              });
+            }
           }
           return;
         }
