@@ -10,6 +10,9 @@ import { recordAdd, recordBulkAdd } from '../core/undo-manager.js';
 
 // Copy annotation to internal clipboard
 export function copyAnnotation(annotation) {
+  // Voor de plak-voorrangsregel: intern klembord is alleen 'verser' dan het
+  // systeemklembord zolang de app sindsdien niet uit focus is geweest.
+  state._internalCopyAt = Date.now();
   state.clipboardAnnotation = cloneAnnotation(annotation);
   state.clipboardAnnotations = null;
   // Reset the paste cascade so the first paste lands at source+20 and each
@@ -243,6 +246,9 @@ export function duplicateAnnotation() {
 
 // Copy multiple annotations to internal clipboard
 export function copyAnnotations(annotations) {
+  // Voor de plak-voorrangsregel: intern klembord is alleen 'verser' dan het
+  // systeemklembord zolang de app sindsdien niet uit focus is geweest.
+  state._internalCopyAt = Date.now();
   if (!annotations || annotations.length === 0) return;
   state.clipboardAnnotations = annotations.map(a => cloneAnnotation(a));
   state.clipboardAnnotation = state.clipboardAnnotations[0]; // backward compat

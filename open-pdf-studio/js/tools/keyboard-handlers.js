@@ -625,8 +625,16 @@ export async function handleKeydown(e) {
     // An annotation copied inside the app must be pasted directly. Asking the
     // native Clipboard API first can open a WebView permission prompt and
     // indefinitely postpone the internal paste (notably for line annotations).
+    //
+    // MAAR: is de app ná de interne kopie uit focus geweest, dan kan de
+    // gebruiker elders iets nieuwers gekopieerd hebben. Het interne snelpad
+    // zou dan het OUDE exemplaar plakken ("klembord loopt één achter").
+    // In dat geval de native route nemen: die pakt een systeembeeld en valt
+    // anders alsnog terug op het interne annotatie-klembord.
     const internalClips = state.clipboardAnnotations;
-    if ((internalClips && internalClips.length > 0) || state.clipboardAnnotation) {
+    const interneKopieVers = state._internalCopyAt
+      && !(state._appBlurAt && state._appBlurAt > state._internalCopyAt);
+    if ((((internalClips && internalClips.length > 0) || state.clipboardAnnotation)) && interneKopieVers) {
       e.preventDefault();
       if (!getActiveDocument()?.pdfDoc) return;
       if (isPdfAReadOnly()) return;
@@ -960,6 +968,8 @@ function handlePaste(e) {
 export function initKeyboardHandlers() {
   document.addEventListener('keydown', handleKeydown);
   document.addEventListener('paste', handlePaste);
+  // Focusverlies bijhouden voor de plak-voorrangsregel (zie Ctrl+V hierboven).
+  window.addEventListener('blur', () => { state._appBlurAt = Date.now(); });
   // G-move-mode requires knowing the current cursor position when G is pressed,
   // so install a passive tracker that updates state._lastMouseAppX/Y on every
   // mousemove. This is cheap (just two assignments + rect calc).
