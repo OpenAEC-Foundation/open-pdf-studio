@@ -1675,12 +1675,20 @@ async function handleCloseTab(params) {
   if (!Number.isInteger(index) || index < 0 || index >= docs.length) {
     return { ok: false, error: `index out of range (have ${docs.length} tabs)` };
   }
+  const save = params?.save === true;
   // Headless guard: closing a modified document without force would pop the
   // save/discard dialog and stall the bridge. Make the caller decide instead.
-  if (docs[index].modified && !force) {
-    return { ok: false, error: 'document has unsaved changes — pass force:true to discard, or save first' };
+  if (docs[index].modified && !force && !save) {
+    return { ok: false, error: 'document has unsaved changes — pass force:true to discard, save:true to save-and-close, or save first' };
   }
   const tabsMod = await import('./ui/chrome/tabs.js');
+  if (docs[index].modified && save) {
+    // Echte sluitvolgorde met opslaan (zelfde pad als de UI-dialoogkeuze
+    // "Opslaan"), zonder native dialoog.
+    const closed = await tabsMod.closeTab(index, false, 'save');
+    if (!closed) return { ok: false, error: 'closeTab refused (save failed?)' };
+    return { ok: true, remainingTabs: stateMod.state.documents.length };
+  }
   // Always force here: the unsaved-changes policy was already enforced above.
   const closed = await tabsMod.closeTab(index, true);
   if (!closed) return { ok: false, error: 'closeTab refused' };

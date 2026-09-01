@@ -191,17 +191,17 @@ export function switchToTab(index) {
  * @param {boolean} force - Force close without checking for unsaved changes
  * @returns {boolean} True if tab was closed, false if cancelled
  */
-export async function closeTab(index, force = false) {
+export async function closeTab(index, force = false, dialogAction = null) {
   if (index < 0 || index >= state.documents.length) return false;
 
   const doc = state.documents[index];
 
-  // Cancel any in-progress background annotation loading for this document
-  cancelAnnotationLoading(doc);
-
-  // Check for unsaved changes - show Save / Don't Save / Cancel dialog
+  // Check for unsaved changes - show Save / Don't Save / Cancel dialog.
+  // `dialogAction` ('save'|'dontsave') slaat de native dialoog over — voor de
+  // MCP-brug en tests, die geen OS-dialoog kunnen bedienen maar wél de echte
+  // sluitvolgorde (opslaan → opruimen → sluiten) moeten doorlopen.
   if (!force && doc.modified) {
-    const action = await showUnsavedChangesDialog(doc.fileName);
+    const action = dialogAction || await showUnsavedChangesDialog(doc.fileName);
     if (action === 'cancel') return false;
     if (action === 'save') {
       const saved = await savePDF();
@@ -209,6 +209,15 @@ export async function closeTab(index, force = false) {
     }
     // action === 'dontsave' → proceed to close without saving
   }
+
+  // Cancel any in-progress background annotation loading for this document.
+  // PAS NA de opslaan-dialoog: cancelAnnotationLoading wist de
+  // gereedheids-sets maar laat doc.annotations staan, en de saver behandelt
+  // een "niet gereed"-pagina als niet-geladen (bestand = waarheid): hij
+  // behoudt dan alle bestaande annotaties in het bestand EN schrijft het
+  // model er nog eens bij — elke opslag-bij-sluiten verdubbelde zo alle
+  // annotaties.
+  cancelAnnotationLoading(doc);
 
   // Close all open sticky note popups
   closeAllPopups();
