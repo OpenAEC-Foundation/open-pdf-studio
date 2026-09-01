@@ -720,6 +720,102 @@ const _renderedPages = new Set();
 const _contRerenderGate = createRerenderGate();
 let _continuousObserver = null;
 
+// Scherpe pagina-overlay voor GECAPTE zware pagina's in de doorlopende
+// weergave. De paginabitmap is boven de as-cap een CSS-gestretchte 4096px-
+// render (wazig), en een volledige render op hogere resolutie kan op
+// monsterpagina's (A0-vectorwerk) 20+ seconden duren. In plaats daarvan
+// renderen we alleen de ZICHTBARE uitsnede op volle resolutie via het
+// regio-rendercommando (zelfde patroon als de scherpe annotatie-overlay):
+// viewport-groot, dus snel en altijd binnen de canvaslimieten.
+const _pageSharpGen = new Map();
+
+async function updateSharpPageOverlay(pageWrapper, pageNum) {
+  const doc = getActiveDocument();
+  if (!doc || doc.viewMode !== 'continuous' || !doc.filePath) return;
+  const cc = pageWrapper?.querySelector('.canvas-container-cont');
+  const baseCanvas = cc?.querySelector('.pdf-canvas');
+  const container = document.getElementById('pdf-container');
+  if (!cc || !baseCanvas || !container) return;
+  const baseW = parseFloat(pageWrapper.dataset.baseW);
+  const baseH = parseFloat(pageWrapper.dataset.baseH);
+  let sharp = cc.querySelector('.pdf-canvas-sharp');
+  const maxAxisCss = Math.max(baseW || 0, baseH || 0) * doc.scale;
+  if (!Number.isFinite(maxAxisCss) || maxAxisCss <= CONT_MAX_AXIS_PX * 1.02) {
+    if (sharp) sharp.style.display = 'none';
+    return;
+  }
+  const contRect = container.getBoundingClientRect();
+  const ccRect = cc.getBoundingClientRect();
+  const visLinks = Math.max(0, contRect.left - ccRect.left);
+  const visBoven = Math.max(0, contRect.top - ccRect.top);
+  const visB = Math.min(ccRect.width, contRect.right - ccRect.left) - visLinks;
+  const visH = Math.min(ccRect.height, contRect.bottom - ccRect.top) - visBoven;
+  if (visB <= 0 || visH <= 0) {
+    if (sharp) sharp.style.display = 'none';
+    return;
+  }
+  const gen = (_pageSharpGen.get(pageNum) || 0) + 1;
+  _pageSharpGen.set(pageNum, gen);
+  const schaal = doc.scale;
+  try {
+    const { invokeTileRegion } = await import('./progressive-render.js');
+    const raw = await invokeTileRegion({
+      path: doc.filePath,
+      pageIndex: pageNum - 1,
+      scale: schaal,
+      rotation: getPageRotation(pageNum) || 0,
+      regionXPt: visLinks / schaal,
+      regionYPt: visBoven / schaal,
+      regionWPt: visB / schaal,
+      regionHPt: visH / schaal,
+    });
+    // Verouderd (nieuwere aanvraag, andere schaal of tab weg)? Niet tekenen.
+    if (_pageSharpGen.get(pageNum) !== gen || doc.scale !== schaal || _isStaleDoc(doc)) return;
+    const bytes = raw instanceof Uint8Array ? raw : new Uint8Array(raw);
+    if (!bytes || bytes.length <= 8) return;
+    const dv = new DataView(bytes.buffer, bytes.byteOffset, 8);
+    const rw = dv.getUint32(0, true);
+    const rh = dv.getUint32(4, true);
+    if (!rw || !rh) return;
+    if (!sharp) {
+      sharp = document.createElement('canvas');
+      sharp.className = 'pdf-canvas-sharp';
+      sharp.style.position = 'absolute';
+      sharp.style.pointerEvents = 'none';
+      baseCanvas.insertAdjacentElement('afterend', sharp);
+    }
+    sharp.width = rw;
+    sharp.height = rh;
+    sharp.style.left = `${visLinks}px`;
+    sharp.style.top = `${visBoven}px`;
+    sharp.style.width = `${visB}px`;
+    sharp.style.height = `${visH}px`;
+    sharp.style.display = '';
+    const rgba = new Uint8ClampedArray(bytes.buffer, bytes.byteOffset + 8, rw * rh * 4);
+    sharp.getContext('2d').putImageData(new ImageData(rgba, rw, rh), 0, 0);
+  } catch (e) {
+    console.warn(`[scherpe-pagina] regio-render p${pageNum} mislukt:`, e);
+  }
+}
+
+// Alle zichtbare pagina's (na zoom-/scroll-settle).
+function updateSharpPageOverlays() {
+  const container = document.getElementById('pdf-container');
+  if (!container) return;
+  const contRect = container.getBoundingClientRect();
+  document.querySelectorAll('#continuous-container .page-wrapper').forEach((wrapper) => {
+    const pageNum = parseInt(wrapper.dataset.page, 10);
+    if (!pageNum) return;
+    const r = wrapper.getBoundingClientRect();
+    if (r.top < contRect.bottom && r.bottom > contRect.top) {
+      updateSharpPageOverlay(wrapper, pageNum);
+    } else {
+      const sharp = wrapper.querySelector('.pdf-canvas-sharp');
+      if (sharp) sharp.style.display = 'none';
+    }
+  });
+}
+
 // Per-pagina render-generatie voor de doorlopende weergave: de Rust-invoke
 // is niet te annuleren, dus een verouderde render kan ná de verse landen en
 // de bitmap-attrs terugzetten (bv. een fit-schaal-render die de verse
@@ -1078,8 +1174,9 @@ async function renderContinuousPage(pageNum) {
   // Re-apply search highlights after re-render
   onPageRendered();
 
-  // Scherpe overlay bij hoge zoom (gecapte backing store) direct bijwerken.
+  // Scherpe overlays bij hoge zoom (gecapte backing store) direct bijwerken.
   updateContinuousSharpOverlay(pageWrapper, pageNum);
+  updateSharpPageOverlay(pageWrapper, pageNum);
 
   // Setup mouse events only for new pages (not re-renders)
   if (isNewPage) {
@@ -1143,6 +1240,7 @@ export async function reRenderVisibleContinuousPages() {
 
   // Scherpe overlays op de nieuwe schaal zetten (zichtbare pagina's).
   updateAllContinuousSharpOverlays();
+  updateSharpPageOverlays();
 }
 
 // ─── Continuous mode: zoom + scroll/page sync ───────────────────────────────
@@ -1195,7 +1293,7 @@ function _applyContinuousZoomInstant(oldScale, anchorY = null, anchorX = null) {
     // Stretch the already-rendered bitmap(s) to the new box immediately; the
     // debounced re-render replaces them with a crisp render at the new scale.
     cc.querySelectorAll('canvas').forEach(cv => {
-      if (cv.classList.contains('annotation-canvas-sharp')) {
+      if (cv.classList.contains('annotation-canvas-sharp') || cv.classList.contains('pdf-canvas-sharp')) {
         // De viewport-uitsnede schaalt mee met de pagina (maat én positie);
         // de settle-hertekening vervangt hem daarna door een exacte uitsnede.
         cv.style.width = `${(parseFloat(cv.style.width) || 0) * factor}px`;
@@ -1287,6 +1385,7 @@ function _bindContinuousScrollSync() {
       _syncCurrentPageFromScroll(container);
       // Scherpe annotatie-overlays op de nieuwe uitsnede zetten (hoge zoom).
       updateAllContinuousSharpOverlays();
+      updateSharpPageOverlays();
     }, 120);
   }, { passive: true });
 }
