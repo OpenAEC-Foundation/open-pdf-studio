@@ -184,6 +184,9 @@ function disableBrowserShortcuts() {
 
 // Initialize application
 async function init() {
+  // Dev: versienummer live uit package.json zodat de titelbalk na een
+  // versie-bump klopt zonder Vite-herstart.
+  import('./core/app-version.js').then((m) => m.initDevVersionSync()).catch(() => {});
   const mobile = isMobile();
 
   // STANDALONE PRINT-QUEUE WINDOW (?view=printqueue): a separate Tauri window

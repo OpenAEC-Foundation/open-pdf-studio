@@ -1,4 +1,5 @@
 import { state, createDocument, getActiveDocument, findDocumentByPath, clearSelection } from '../../core/state.js';
+import { appVersion } from '../../core/app-version.js';
 import { renderPage, renderContinuous, clearPdfView } from '../../pdf/renderer.js';
 import { hideFormFieldsBar } from '../../pdf/form-layer.js';
 import { redrawAnnotations, redrawContinuous, updateQuickAccessButtons } from '../../annotations/rendering.js';
@@ -406,7 +407,7 @@ export function updateTabBar() {
  */
 export function updateWindowTitle() {
   const doc = getActiveDocument();
-  const baseTitle = `Open PDF Studio v${__APP_VERSION__}`;
+  const baseTitle = `Open PDF Studio v${appVersion()}`;
 
   // Update document.title (browser/OS window title)
   if (doc) {
