@@ -792,18 +792,46 @@ async function updateSharpPageOverlay(pageWrapper, pageNum) {
     sharp.style.height = `${visH}px`;
     sharp.style.display = '';
     const rgba = new Uint8ClampedArray(bytes.buffer, bytes.byteOffset + 8, rw * rh * 4);
-    // Vangnet: een (vrijwel) lege regio-render NIET tonen — hij zou de goede
-    // (wazige) basisbitmap met een wit vlak bedekken. Gezien bij pagina's met
-    // /Rotate: daar klopt de regio-afbeelding (nog) niet.
-    let inktSample = 0;
-    const stap = Math.max(4, Math.floor(rgba.length / 4 / 4096) * 4);
-    for (let i = 0; i < rgba.length; i += stap) {
-      if (rgba[i] < 245 || rgba[i + 1] < 245 || rgba[i + 2] < 245) { inktSample++; if (inktSample > 8) break; }
-    }
-    if (inktSample <= 8) {
+    // Correctheidscheck: de overlay mag nooit LEGER zijn dan de basisbitmap
+    // onder dezelfde uitsnede — anders bedekt hij goede inhoud met wit
+    // (gezien in races vlak na openen/moduswissel: de regio-render leverde
+    // dan een vrijwel leeg beeld terwijl de losse aanroep dicht beeld geeft).
+    // Bij een te lege overlay: verbergen en één keer vertraagd opnieuw.
+    const telInkt = (data) => {
+      let n = 0;
+      const stap = Math.max(4, Math.floor(data.length / 4 / 2048) * 4);
+      for (let i = 0; i < data.length; i += stap) {
+        if (data[i] < 245 || data[i + 1] < 245 || data[i + 2] < 245) n++;
+      }
+      return n;
+    };
+    const overlayInkt = telInkt(rgba);
+    let basisInkt = 0;
+    try {
+      const mini = document.createElement('canvas');
+      mini.width = 64; mini.height = 64;
+      const mctx = mini.getContext('2d');
+      // Zelfde uitsnede uit de basisbitmap (attrs-ruimte via CSS-verhouding).
+      const sx = (visLinks / ccRect.width) * baseCanvas.width;
+      const sy = (visBoven / ccRect.height) * baseCanvas.height;
+      const sw = (visB / ccRect.width) * baseCanvas.width;
+      const sh = (visH / ccRect.height) * baseCanvas.height;
+      mctx.drawImage(baseCanvas, sx, sy, sw, sh, 0, 0, 64, 64);
+      basisInkt = telInkt(mctx.getImageData(0, 0, 64, 64).data);
+    } catch { /* basis niet leesbaar — alleen op absolute leegte toetsen */ }
+    const teLeeg = overlayInkt <= 8 || (basisInkt > 40 && overlayInkt < basisInkt * 0.25);
+    if (teLeeg) {
       sharp.style.display = 'none';
+      if (!sharp.dataset.herkansing) {
+        sharp.dataset.herkansing = '1';
+        setTimeout(() => {
+          delete sharp.dataset.herkansing;
+          updateSharpPageOverlay(pageWrapper, pageNum);
+        }, 2000);
+      }
       return;
     }
+    delete sharp.dataset.herkansing;
     sharp.getContext('2d').putImageData(new ImageData(rgba, rw, rh), 0, 0);
   } catch (e) {
     console.warn(`[scherpe-pagina] regio-render p${pageNum} mislukt:`, e);
