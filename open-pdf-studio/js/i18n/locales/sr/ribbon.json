@@ -185,7 +185,9 @@
     "updatesLabel": "Ажурирања",
     "fileAssociation": "Асоцијација фајлова",
     "setDefaultPdf": "Постави подразумевану PDF апликацију",
-    "fileAssociations": "Асоцијације фајлова"
+    "fileAssociations": "Асоцијације фајлова",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "Црвена",

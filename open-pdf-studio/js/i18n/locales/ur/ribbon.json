@@ -185,7 +185,9 @@
     "updatesLabel": "اپ ڈیٹس",
     "fileAssociation": "فائل ایسوسی ایشن",
     "setDefaultPdf": "پہلے سے طے شدہ PDF ایپلیکیشن مقرر کریں",
-    "fileAssociations": "فائل ایسوسی ایشنز"
+    "fileAssociations": "فائل ایسوسی ایشنز",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "سرخ",

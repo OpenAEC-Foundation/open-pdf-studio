@@ -97,7 +97,7 @@
       "sending": "Verzenden naar printer…",
       "sent": "Afdruktaak verzonden",
       "failed": "Afdrukken mislukt: {{error}}",
-        "failedGeneric": "Afdrukken mislukt",
+      "failedGeneric": "Afdrukken mislukt",
       "errNoDocument": "geen document",
       "errTempFile": "kon tijdelijk bestand niet maken"
     }
@@ -467,5 +467,9 @@
     "addNewType": "+ Nieuw type",
     "editTitle": "{{kind}} bewerken",
     "genericTypes": "Typen"
+  },
+  "previousVersion": {
+    "notFound": "Er is geen oudere gepubliceerde versie beschikbaar.",
+    "error": "Kon de versielijst niet ophalen. Controleer de internetverbinding en probeer opnieuw."
   }
 }

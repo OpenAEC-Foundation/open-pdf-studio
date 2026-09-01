@@ -289,7 +289,9 @@
     "startupDiagnosticsTitle": "Reveal the privacy-safe startup diagnostics file",
     "startupDiagnostics": "Diagnostics",
     "setDefaultPdf": "Set Default PDF Application",
-    "fileAssociations": "File Assoc."
+    "fileAssociations": "File Assoc.",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "Red",

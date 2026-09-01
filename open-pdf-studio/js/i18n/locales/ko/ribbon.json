@@ -185,7 +185,9 @@
     "updatesLabel": "업데이트",
     "fileAssociation": "파일 연결",
     "setDefaultPdf": "기본 PDF 응용 프로그램으로 설정",
-    "fileAssociations": "파일 연결"
+    "fileAssociations": "파일 연결",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "빨강",

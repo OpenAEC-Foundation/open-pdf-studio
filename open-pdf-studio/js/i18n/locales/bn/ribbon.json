@@ -185,7 +185,9 @@
     "updatesLabel": "আপডেট",
     "fileAssociation": "ফাইল সংযুক্তি",
     "setDefaultPdf": "ডিফল্ট PDF অ্যাপ্লিকেশন সেট করুন",
-    "fileAssociations": "ফাইল সংযুক্তি"
+    "fileAssociations": "ফাইল সংযুক্তি",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "লাল",

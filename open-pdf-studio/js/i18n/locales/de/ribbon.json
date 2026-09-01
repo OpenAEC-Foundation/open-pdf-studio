@@ -185,7 +185,9 @@
     "updatesLabel": "Updates",
     "fileAssociation": "Dateizuordnung",
     "setDefaultPdf": "Standard-PDF-Anwendung festlegen",
-    "fileAssociations": "Dateizuordnungen"
+    "fileAssociations": "Dateizuordnungen",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "Rot",

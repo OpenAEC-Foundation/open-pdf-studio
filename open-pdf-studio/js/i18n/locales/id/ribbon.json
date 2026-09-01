@@ -185,7 +185,9 @@
     "updatesLabel": "Pembaruan",
     "fileAssociation": "Asosiasi File",
     "setDefaultPdf": "Atur Aplikasi PDF Bawaan",
-    "fileAssociations": "Asosiasi File"
+    "fileAssociations": "Asosiasi File",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "Merah",

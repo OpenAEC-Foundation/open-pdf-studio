@@ -185,7 +185,9 @@
     "updatesLabel": "עדכונים",
     "fileAssociation": "שיוך קבצים",
     "setDefaultPdf": "הגדרת יישום PDF ברירת מחדל",
-    "fileAssociations": "שיוך קבצים"
+    "fileAssociations": "שיוך קבצים",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "אדום",
