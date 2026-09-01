@@ -3,7 +3,7 @@ import { isTauri, invoke } from '../core/platform.js';
 // Always-fresh DOM refs (never stale regardless of init timing or bundler behavior)
 function getPdfCanvas() { return document.getElementById('pdf-canvas'); }
 function getAnnotationCanvas() { return document.getElementById('annotation-canvas'); }
-import { redrawAnnotations, renderAnnotationsForPage } from '../annotations/rendering.js';
+import { redrawAnnotations, renderAnnotationsForPage, updateContinuousSharpOverlay, updateAllContinuousSharpOverlays } from '../annotations/rendering.js';
 import { ensureAnnotationsForPage, hidePdfABar } from './loader.js';
 import { updateAllStatus } from '../ui/chrome/status-bar.js';
 import { hideProperties } from '../ui/panels/properties-panel.js';
@@ -1064,6 +1064,9 @@ async function renderContinuousPage(pageNum) {
   // Re-apply search highlights after re-render
   onPageRendered();
 
+  // Scherpe overlay bij hoge zoom (gecapte backing store) direct bijwerken.
+  updateContinuousSharpOverlay(pageWrapper, pageNum);
+
   // Setup mouse events only for new pages (not re-renders)
   if (isNewPage) {
     setupContinuousPageEvents(annotationCanvasEl, pageNum);
@@ -1123,6 +1126,9 @@ export async function reRenderVisibleContinuousPages() {
       _continuousObserver.observe(wrapper);
     });
   }
+
+  // Scherpe overlays op de nieuwe schaal zetten (zichtbare pagina's).
+  updateAllContinuousSharpOverlays();
 }
 
 // ─── Continuous mode: zoom + scroll/page sync ───────────────────────────────
@@ -1175,6 +1181,15 @@ function _applyContinuousZoomInstant(oldScale, anchorY = null, anchorX = null) {
     // Stretch the already-rendered bitmap(s) to the new box immediately; the
     // debounced re-render replaces them with a crisp render at the new scale.
     cc.querySelectorAll('canvas').forEach(cv => {
+      if (cv.classList.contains('annotation-canvas-sharp')) {
+        // De viewport-uitsnede schaalt mee met de pagina (maat én positie);
+        // de settle-hertekening vervangt hem daarna door een exacte uitsnede.
+        cv.style.width = `${(parseFloat(cv.style.width) || 0) * factor}px`;
+        cv.style.height = `${(parseFloat(cv.style.height) || 0) * factor}px`;
+        cv.style.left = `${(parseFloat(cv.style.left) || 0) * factor}px`;
+        cv.style.top = `${(parseFloat(cv.style.top) || 0) * factor}px`;
+        return;
+      }
       cv.style.width = `${w}px`;
       cv.style.height = `${h}px`;
     });
@@ -1256,6 +1271,8 @@ function _bindContinuousScrollSync() {
     pending = setTimeout(() => {
       pending = null;
       _syncCurrentPageFromScroll(container);
+      // Scherpe annotatie-overlays op de nieuwe uitsnede zetten (hoge zoom).
+      updateAllContinuousSharpOverlays();
     }, 120);
   }, { passive: true });
 }
