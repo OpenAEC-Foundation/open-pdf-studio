@@ -2907,7 +2907,17 @@ export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDp
 // de canvaslimieten). pointer-events: none — hit-testing blijft op het
 // basiscanvas. Het basiscanvas wordt dan leeggemaakt zodat halftransparante
 // annotaties niet dubbel composieten.
+// UITGESCHAKELD (2026-09-01) — zie SCHERPE_OVERLAYS_ACTIEF in renderer.js:
+// extra overlay-lagen lieten de paginacanvas zelf wit rasteren op zware
+// bladen. Basiscanvas tekent weer gewoon zelf (korrelig boven ~700%, maar
+// altijd correct) tot het herontwerp zonder extra lagen.
+const SCHERPE_ANN_OVERLAY_ACTIEF = false;
+
 export function updateContinuousSharpOverlay(wrapper, pageNum) {
+  if (!SCHERPE_ANN_OVERLAY_ACTIEF) {
+    wrapper?.querySelectorAll('.annotation-canvas-sharp').forEach((c) => c.remove());
+    return;
+  }
   const container = document.getElementById('pdf-container');
   const baseCanvas = wrapper?.querySelector('.annotation-canvas');
   const cc = wrapper?.querySelector('.canvas-container-cont');

@@ -729,7 +729,18 @@ let _continuousObserver = null;
 // viewport-groot, dus snel en altijd binnen de canvaslimieten.
 const _pageSharpGen = new Map();
 
+// UITGESCHAKELD (2026-09-01): de extra overlay-lagen per pagina duwen de
+// GPU-compositing op zware bladen over een grens waardoor de paginacanvas
+// zelf WIT rastert (backing stores aantoonbaar correct; laag verbergen =
+// beeld terug). Tot het herontwerp zonder extra lagen staat de feature uit;
+// boven de cap is de weergave dan wazig maar altijd correct.
+const SCHERPE_OVERLAYS_ACTIEF = false;
+
 async function updateSharpPageOverlay(pageWrapper, pageNum) {
+  if (!SCHERPE_OVERLAYS_ACTIEF) {
+    pageWrapper?.querySelectorAll('.pdf-canvas-sharp').forEach((c) => c.remove());
+    return;
+  }
   const doc = getActiveDocument();
   if (!doc || doc.viewMode !== 'continuous' || !doc.filePath) return;
   const cc = pageWrapper?.querySelector('.canvas-container-cont');
