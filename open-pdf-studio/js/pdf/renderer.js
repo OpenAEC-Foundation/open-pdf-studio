@@ -956,6 +956,15 @@ async function renderContinuousPage(pageNum) {
     console.timeEnd(label);
   } else {
     try {
+      // Schaal alweer veranderd vóór de dure render start? Dan zou dit een
+      // verouderde render worden die de wachtrij verstopt terwijl de pagina
+      // wit blijft. Meteen opnieuw plannen op de actuele schaal.
+      if (doc.scale !== vpOpts.scale) {
+        console.timeEnd(label);
+        _renderedPages.delete(pageNum);
+        setTimeout(() => { renderContinuousPage(pageNum); }, 30);
+        return;
+      }
       console.time(label + ' invoke-render');
       const { renderPdfPage } = await import('./engine-router.js');
       const rgbaData = await renderPdfPage({
@@ -1017,6 +1026,11 @@ async function renderContinuousPage(pageNum) {
   // false en zou setupContinuousPageEvents anders nooit draaien.
   if (doc.scale !== vpOpts.scale) {
     if (isNewPage) setupContinuousPageEvents(annotationCanvasEl, pageNum);
+    // De laatste debounced re-render kan al gedraaid zijn terwijl deze render
+    // nog liep — zonder herplanning blijft de pagina dan permanent op de
+    // (gestretchte) oude bitmap staan. Zelf een verse render inplannen.
+    _renderedPages.delete(pageNum);
+    setTimeout(() => { renderContinuousPage(pageNum); }, 50);
     return;
   }
 
