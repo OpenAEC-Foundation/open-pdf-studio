@@ -20,9 +20,21 @@ export async function initDevVersionSync() {
     const res = await fetch('/package.json', { cache: 'no-store' });
     if (!res.ok) return;
     const pkg = await res.json();
-    if (pkg?.version && pkg.version !== appVersion()) {
-      setAppVersion(pkg.version);
-      window.__APP_VERSION__ = pkg.version;
+    let versie = pkg?.version || appVersion();
+    // Dev-volgnummer: dev-build-nr.json wordt bij elke venster-verversing
+    // opgehoogd, zodat de titelbalk (bv. v1.93.2.4) direct verraadt of het
+    // venster de verse code draait. Bestand is gitignored; releases tonen
+    // gewoon het kale versienummer.
+    try {
+      const nrRes = await fetch('/dev-build-nr.json', { cache: 'no-store' });
+      if (nrRes.ok) {
+        const nr = (await nrRes.json())?.nr;
+        if (Number.isFinite(nr) && nr > 0) versie = `${versie}.${nr}`;
+      }
+    } catch { /* geen volgnummer-bestand — kale versie */ }
+    if (versie && versie !== appVersion()) {
+      setAppVersion(versie);
+      window.__APP_VERSION__ = versie;
       // Venstertitel meteen bijtrekken (documenttabs zetten die imperatief).
       const { updateWindowTitle } = await import('../ui/chrome/tabs.js');
       updateWindowTitle();
