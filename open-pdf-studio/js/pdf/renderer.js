@@ -792,6 +792,18 @@ async function updateSharpPageOverlay(pageWrapper, pageNum) {
     sharp.style.height = `${visH}px`;
     sharp.style.display = '';
     const rgba = new Uint8ClampedArray(bytes.buffer, bytes.byteOffset + 8, rw * rh * 4);
+    // Vangnet: een (vrijwel) lege regio-render NIET tonen — hij zou de goede
+    // (wazige) basisbitmap met een wit vlak bedekken. Gezien bij pagina's met
+    // /Rotate: daar klopt de regio-afbeelding (nog) niet.
+    let inktSample = 0;
+    const stap = Math.max(4, Math.floor(rgba.length / 4 / 4096) * 4);
+    for (let i = 0; i < rgba.length; i += stap) {
+      if (rgba[i] < 245 || rgba[i + 1] < 245 || rgba[i + 2] < 245) { inktSample++; if (inktSample > 8) break; }
+    }
+    if (inktSample <= 8) {
+      sharp.style.display = 'none';
+      return;
+    }
     sharp.getContext('2d').putImageData(new ImageData(rgba, rw, rh), 0, 0);
   } catch (e) {
     console.warn(`[scherpe-pagina] regio-render p${pageNum} mislukt:`, e);
