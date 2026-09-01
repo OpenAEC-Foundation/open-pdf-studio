@@ -109,9 +109,13 @@ function _setSelectFallthroughEnabled(enabled) {
       }
       if (!canvas || !canvas.getBoundingClientRect) return;
 
-      // Resolve app-space coords using the same logic as resolvePointerCoords
+      // Resolve app-space coords using the same logic as resolvePointerCoords.
+      // Doorlopende weergave: het annotatiecanvas is een viewport-uitsnede;
+      // de paginaoorsprong is de container eromheen.
       const scale = doc.scale || 1.5;
-      const rect = canvas.getBoundingClientRect();
+      const paginaEl = (doc.viewMode === 'continuous' && canvas.closest)
+        ? (canvas.closest('.canvas-container-cont') || canvas) : canvas;
+      const rect = paginaEl.getBoundingClientRect();
 
       // Only act when cursor is over the page area (or text layer / canvas)
       const insidePageArea = e.clientX >= rect.left && e.clientX <= rect.right &&

@@ -2825,7 +2825,10 @@ function drawRubberBand(ctx, effectiveScale) {
 // `renderOffset` (optioneel, in schaal-1-paginacoördinaten) verschuift de
 // oorsprong: daarmee tekent een viewport-gebonden canvas alleen zijn eigen
 // uitsnede van de pagina (zie de scherpe overlay hieronder).
-export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDpr, renderOffset) {
+// `pageDims` (optioneel, {w,h} in schaal-1-paginacoördinaten): volledige
+// paginamaat voor de watermerken; zonder deze parameter wordt de canvasmaat
+// gebruikt, wat bij een viewport-uitsnede te klein is.
+export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims) {
   ctx.clearRect(0, 0, width, height);
 
   // Read scale and annotations from the active document directly
@@ -2841,7 +2844,9 @@ export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDp
   if (renderOffset) ctx.translate(-renderOffset.x, -renderOffset.y);
 
   // Draw watermarks behind content
-  renderWatermarksBehind(ctx, pageNum, width / effectiveScale, height / effectiveScale);
+  const wmW = pageDims ? pageDims.w : width / effectiveScale;
+  const wmH = pageDims ? pageDims.h : height / effectiveScale;
+  renderWatermarksBehind(ctx, pageNum, wmW, wmH);
 
   // Draw text edits (cover-and-replace)
   drawTextEdits(ctx, pageNum);
@@ -2852,7 +2857,7 @@ export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDp
   });
 
   // Draw watermarks in front of content
-  renderWatermarksInFront(ctx, pageNum, width / effectiveScale, height / effectiveScale);
+  renderWatermarksInFront(ctx, pageNum, wmW, wmH);
 
   // Blender-achtige 2D-cursor (Shift+rechtsklik). Werd alleen in het
   // enkelpagina-pad getekend; in de doorlopende weergave plaatste de klik hem
@@ -3003,11 +3008,19 @@ export function redrawContinuous() {
     const canvas = wrapper.querySelector('.annotation-canvas');
     if (canvas) {
       const ctx = canvas.getContext('2d');
-      // Gecapte backing store (zie setupContinuousAnnotationCanvas): de
-      // werkelijke backing-schaal meegeven, anders tekent dpr-aanname mis.
+      // Viewport-gebonden uitsnede (zie setupContinuousAnnotationCanvas):
+      // backing-schaal en clip-offset meegeven zodat de tekening exact op de
+      // uitsnede past.
       const backingScale = parseFloat(canvas.dataset.backingScale);
+      const doc = state.documents[state.activeDocumentIndex];
+      const schaal = (doc && doc.scale) || 1;
+      const cc = canvas.parentElement;
+      const ccW = cc ? parseFloat(cc.style.width) || cc.getBoundingClientRect().width : 0;
+      const ccH = cc ? parseFloat(cc.style.height) || cc.getBoundingClientRect().height : 0;
       renderAnnotationsForPage(ctx, pageNum, canvas.width, canvas.height,
-        Number.isFinite(backingScale) ? backingScale : undefined);
+        Number.isFinite(backingScale) ? backingScale : undefined,
+        { x: (parseFloat(canvas.dataset.clipX) || 0) / schaal, y: (parseFloat(canvas.dataset.clipY) || 0) / schaal },
+        ccW > 0 && ccH > 0 ? { w: ccW / schaal, h: ccH / schaal } : undefined);
     }
   });
   updateAllContinuousSharpOverlays();

@@ -102,15 +102,80 @@ const CONT_MAX_AXIS_PX = 4096;
 // annotaties verdwijnen. Zelfde as-cap als de paginabitmap; CSS rekt de rest.
 // De werkelijke backing-schaal gaat als overrideDpr naar
 // renderAnnotationsForPage zodat de tekening exact op de store past.
+// Het annotatiecanvas dekt in de doorlopende weergave alleen de ZICHTBARE
+// uitsnede van de pagina (plus een marge), op volle resolutie — zoals het
+// enkelpagina-pad. Daarmee is het altijd scherp op elk zoomniveau, blijft de
+// backing store klein (viewport-orde) en komen er geen extra lagen bij.
+// De uitsnede (clipX/clipY, CSS-px pagina-relatief) reist mee via dataset;
+// alle tekenroutes geven hem als renderOffset door en alle
+// coordinaatberekeningen meten tegen de paginacontainer
+// (.canvas-container-cont), niet tegen dit canvas.
+const CONT_ANN_MARGE_PX = 256;
+
 function setupContinuousAnnotationCanvas(canvas, width, height) {
   const dpr = getCanvasDPR();
-  const backingScale = Math.min(dpr, CONT_MAX_AXIS_PX / Math.max(width, height));
-  canvas.width = Math.max(1, Math.floor(width * backingScale));
-  canvas.height = Math.max(1, Math.floor(height * backingScale));
-  canvas.style.width = Math.floor(width) + 'px';
-  canvas.style.height = Math.floor(height) + 'px';
-  canvas.dataset.backingScale = backingScale;
-  return backingScale;
+  const container = document.getElementById('pdf-container');
+  const cc = canvas.parentElement;
+  let clipX = 0, clipY = 0, clipW = width, clipH = height;
+  if (container && cc) {
+    const cr = container.getBoundingClientRect();
+    const ccr = cc.getBoundingClientRect();
+    if (ccr.width > 1 && ccr.height > 1) {
+      // Verhouding huidige rect <-> doelmaat (de cc kan net geresized zijn).
+      const fx = width / ccr.width;
+      const fy = height / ccr.height;
+      const zichtL = Math.max(0, (cr.left - ccr.left) * fx - CONT_ANN_MARGE_PX);
+      const zichtT = Math.max(0, (cr.top - ccr.top) * fy - CONT_ANN_MARGE_PX);
+      const zichtR = Math.min(width, (cr.right - ccr.left) * fx + CONT_ANN_MARGE_PX);
+      const zichtB = Math.min(height, (cr.bottom - ccr.top) * fy + CONT_ANN_MARGE_PX);
+      if (zichtR > zichtL && zichtB > zichtT) {
+        clipX = zichtL; clipY = zichtT; clipW = zichtR - zichtL; clipH = zichtB - zichtT;
+      } else {
+        // Pagina (nog) niet in beeld: minimaal canvas linksboven.
+        clipW = Math.min(width, 2); clipH = Math.min(height, 2);
+      }
+    }
+  }
+  canvas.width = Math.max(1, Math.floor(clipW * dpr));
+  canvas.height = Math.max(1, Math.floor(clipH * dpr));
+  canvas.style.width = clipW + 'px';
+  canvas.style.height = clipH + 'px';
+  canvas.style.left = clipX + 'px';
+  canvas.style.top = clipY + 'px';
+  canvas.dataset.backingScale = dpr;
+  canvas.dataset.clipX = clipX;
+  canvas.dataset.clipY = clipY;
+  return dpr;
+}
+
+// Herpositioneer + herteken het annotatiecanvas van een zichtbare pagina
+// (na zoom-/scroll-settle). Goedkoop: vector-hertekening op viewportformaat.
+function reclipContinuousAnnotationCanvas(wrapper, pageNum) {
+  const doc = getActiveDocument();
+  const cc = wrapper && wrapper.querySelector('.canvas-container-cont');
+  const canvas = cc && cc.querySelector('.annotation-canvas');
+  if (!doc || !cc || !canvas) return;
+  const breedte = parseFloat(cc.style.width) || cc.getBoundingClientRect().width;
+  const hoogte = parseFloat(cc.style.height) || cc.getBoundingClientRect().height;
+  setupContinuousAnnotationCanvas(canvas, breedte, hoogte);
+  renderAnnotationsForPage(
+    canvas.getContext('2d'), pageNum, canvas.width, canvas.height,
+    parseFloat(canvas.dataset.backingScale) || undefined,
+    { x: (parseFloat(canvas.dataset.clipX) || 0) / doc.scale, y: (parseFloat(canvas.dataset.clipY) || 0) / doc.scale },
+    { w: breedte / doc.scale, h: hoogte / doc.scale },
+  );
+}
+
+function reclipAllContinuousAnnotationCanvases() {
+  const container = document.getElementById('pdf-container');
+  if (!container) return;
+  const cr = container.getBoundingClientRect();
+  document.querySelectorAll('#continuous-container .page-wrapper').forEach((wrapper) => {
+    const pageNum = parseInt(wrapper.dataset.page, 10);
+    if (!pageNum) return;
+    const r = wrapper.getBoundingClientRect();
+    if (r.top < cr.bottom && r.bottom > cr.top) reclipContinuousAnnotationCanvas(wrapper, pageNum);
+  });
 }
 
 // Foreground-render generation counter. Bumped on every renderPage() entry;
@@ -1019,9 +1084,15 @@ async function renderContinuousPage(pageNum) {
   // paginarender async liep — de oude tekst onder een text-edit flitste dan
   // zichtbaar door bij zoomen/scrollen in doorlopende weergave.
   const annBackingScale = setupContinuousAnnotationCanvas(annotationCanvasEl, viewport.width, viewport.height);
+  const annClipOffset = () => ({
+    x: (parseFloat(annotationCanvasEl.dataset.clipX) || 0) / doc.scale,
+    y: (parseFloat(annotationCanvasEl.dataset.clipY) || 0) / doc.scale,
+  });
   renderAnnotationsForPage(
     annotationCanvasEl.getContext('2d'), pageNum,
     annotationCanvasEl.width, annotationCanvasEl.height, annBackingScale,
+    annClipOffset(),
+    { w: viewport.width / doc.scale, h: viewport.height / doc.scale },
   );
   if (isNewPage) {
     setupCanvasHiDPI(pdfCanvasEl, viewport.width, viewport.height);
@@ -1220,6 +1291,8 @@ async function renderContinuousPage(pageNum) {
   renderAnnotationsForPage(
     annotationCtxEl, pageNum,
     annotationCanvasEl.width, annotationCanvasEl.height, annBackingScale,
+    annClipOffset(),
+    { w: viewport.width / doc.scale, h: viewport.height / doc.scale },
   );
 
   // Re-apply search highlights after re-render
@@ -1289,9 +1362,8 @@ export async function reRenderVisibleContinuousPages() {
     });
   }
 
-  // Scherpe overlays op de nieuwe schaal zetten (zichtbare pagina's).
-  updateAllContinuousSharpOverlays();
-  updateSharpPageOverlays();
+  // Annotatie-uitsnedes op de nieuwe schaal zetten (zichtbare pagina's).
+  reclipAllContinuousAnnotationCanvases();
 }
 
 // ─── Continuous mode: zoom + scroll/page sync ───────────────────────────────
@@ -1344,6 +1416,17 @@ function _applyContinuousZoomInstant(oldScale, anchorY = null, anchorX = null) {
     // Stretch the already-rendered bitmap(s) to the new box immediately; the
     // debounced re-render replaces them with a crisp render at the new scale.
     cc.querySelectorAll('canvas').forEach(cv => {
+      if (cv.classList.contains('annotation-canvas')) {
+        // Viewport-gebonden uitsnede: maat en positie schalen mee met het
+        // gebaar; de settle-hertekening zet hem daarna exact.
+        cv.style.width = ((parseFloat(cv.style.width) || 0) * factor) + 'px';
+        cv.style.height = ((parseFloat(cv.style.height) || 0) * factor) + 'px';
+        cv.style.left = ((parseFloat(cv.style.left) || 0) * factor) + 'px';
+        cv.style.top = ((parseFloat(cv.style.top) || 0) * factor) + 'px';
+        cv.dataset.clipX = (parseFloat(cv.dataset.clipX) || 0) * factor;
+        cv.dataset.clipY = (parseFloat(cv.dataset.clipY) || 0) * factor;
+        return;
+      }
       if (cv.classList.contains('annotation-canvas-sharp') || cv.classList.contains('pdf-canvas-sharp')) {
         // De viewport-uitsnede schaalt mee met de pagina (maat én positie);
         // de settle-hertekening vervangt hem daarna door een exacte uitsnede.
@@ -1434,9 +1517,8 @@ function _bindContinuousScrollSync() {
     pending = setTimeout(() => {
       pending = null;
       _syncCurrentPageFromScroll(container);
-      // Scherpe annotatie-overlays op de nieuwe uitsnede zetten (hoge zoom).
-      updateAllContinuousSharpOverlays();
-      updateSharpPageOverlays();
+      // Annotatie-uitsnedes op de nieuwe scrollpositie zetten.
+      reclipAllContinuousAnnotationCanvases();
     }, 120);
   }, { passive: true });
 }
@@ -1647,12 +1729,28 @@ export async function renderContinuous(forceRebuild) {
 function setupContinuousPageEvents(canvas, pageNum) {
   // Store pageNum in dataset for the dispatcher's resolvePointerCoords
   canvas.dataset.page = pageNum;
+  // Bind op de paginacontainer, niet op het annotatiecanvas: dat canvas is
+  // een viewport-uitsnede en dekt de pagina niet volledig — buiten de
+  // uitsnede zou een klik anders in een dode zone vallen. Het filter
+  // repliceert het oude bereik: lagen die bewust bóven het canvas staan
+  // (tekst/formulier/link) houden hun eigen gedrag, en pointer-events:none
+  // op het canvas (tekst-toegang van het select-/editText-gereedschap)
+  // schakelt de afhandeling uit zoals voorheen.
+  const cc = canvas.closest('.canvas-container-cont') || canvas;
+  cc.dataset.page = pageNum;
+  const magAfhandelen = (e) => {
+    if ((canvas.style.pointerEvents || '') === 'none') return false;
+    const t = e.target;
+    if (t === cc || t === canvas) return true;
+    return !!(t.classList && (t.classList.contains('pdf-canvas') || t.classList.contains('annotation-canvas')));
+  };
   // Import event handlers dynamically to avoid circular dependencies
   import('../tools/tool-dispatcher.js').then(({ handlePointerDown, handlePointerMove, handlePointerUp, handleDblClick }) => {
-    canvas.addEventListener('pointerdown', handlePointerDown);
-    canvas.addEventListener('pointermove', handlePointerMove);
-    canvas.addEventListener('pointerup', handlePointerUp);
-    canvas.addEventListener('dblclick', handleDblClick);
+    const wrap = (fn) => (e) => { if (magAfhandelen(e)) fn(e); };
+    cc.addEventListener('pointerdown', wrap(handlePointerDown));
+    cc.addEventListener('pointermove', wrap(handlePointerMove));
+    cc.addEventListener('pointerup', wrap(handlePointerUp));
+    cc.addEventListener('dblclick', wrap(handleDblClick));
   });
 }
 

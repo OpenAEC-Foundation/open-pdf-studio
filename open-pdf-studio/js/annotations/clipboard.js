@@ -77,7 +77,9 @@ export function visibleCenterOnPage(pageNum) {
   const scale = doc?.scale || 1;
   let canvas = annotationCanvas;
   if (doc?.viewMode === 'continuous') {
-    canvas = document.querySelector(`.page-wrapper[data-page="${pageNum}"] .annotation-canvas`) || canvas;
+    // Paginamaat/-oorsprong = de canvas-container (het annotatiecanvas zelf
+    // is een viewport-uitsnede).
+    canvas = document.querySelector(`.page-wrapper[data-page="${pageNum}"] .canvas-container-cont`) || canvas;
   }
   if (!canvas?.getBoundingClientRect || !pdfContainer?.getBoundingClientRect) return null;
   const cr = canvas.getBoundingClientRect();
