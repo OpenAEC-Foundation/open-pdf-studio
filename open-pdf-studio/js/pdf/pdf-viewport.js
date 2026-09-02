@@ -871,6 +871,26 @@ function _render() {
       `matrix(${ratio}, 0, 0, ${ratio}, ${viewport.offsetX}, ${viewport.offsetY})`;
   }
 
+  // Sync formulierlaag met de viewport — zelfde koppeling als de tekstlaag.
+  // De laag stond op inset:0 over het HELE venster; pdf.js positioneert de
+  // velden als percentages van de laag, dus elk verschil tussen venster en
+  // getekende pagina rekte de velden van het blad af (#332): bovenaan te
+  // hoog, onderaan te laag, alleen het midden klopte. Maat = paginapunten
+  // (post-rotatie), de matrix doet zoom + positie.
+  const formLayer = document.querySelector('#canvas-container .formLayer');
+  if (formLayer) {
+    formLayer.style.setProperty('--total-scale-factor', '1');
+    formLayer.style.position = 'absolute';
+    formLayer.style.inset = '';
+    formLayer.style.left = '0';
+    formLayer.style.top = '0';
+    formLayer.style.width = `${viewport.pageW}px`;
+    formLayer.style.height = `${viewport.pageH}px`;
+    formLayer.style.transformOrigin = '0 0';
+    formLayer.style.transform =
+      `matrix(${viewport.zoom}, 0, 0, ${viewport.zoom}, ${viewport.offsetX}, ${viewport.offsetY})`;
+  }
+
   // Annotation overlay — sync with viewport transform
   const annCanvas = document.getElementById('annotation-canvas');
   if (annCanvas) {
