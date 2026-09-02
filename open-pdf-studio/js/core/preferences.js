@@ -4,6 +4,7 @@ import { setColorPickerValue, setLineWidthValue, setCurrentTheme, openDialog } f
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
 import { changeLanguage } from '../i18n/useTranslation.js';
 import { isTauri, getUsername, savePreferencesFile, loadPreferencesFile } from './platform.js';
+import { preferencesMirrorJson } from './preferences-mirror.js';
 
 // Load preferences from Rust file storage, with localStorage migration fallback
 export async function loadPreferences() {
@@ -50,13 +51,17 @@ export async function loadPreferences() {
       state.preferences = { ...DEFAULT_PREFERENCES, ...loaded };
     }
 
-    // Persist to both storages so they stay in sync
-    const json = JSON.stringify(state.preferences);
-    localStorage.setItem('pdfEditorPreferences', json);
+    // Persist to both storages so they stay in sync — bestand eerst,
+    // spiegel apart en (in Tauri) alleen het thema (#353, zie savePreferences).
     if (isTauri()) {
       savePreferencesFile(state.preferences).catch(e =>
         console.error('Failed to save preferences file:', e)
       );
+    }
+    try {
+      localStorage.setItem('pdfEditorPreferences', preferencesMirrorJson(state.preferences, isTauri()));
+    } catch (e) {
+      console.warn('Voorkeuren-spiegel niet bijgewerkt (localStorage):', e);
     }
   } catch (e) {
     console.error('Failed to load preferences:', e);
@@ -76,21 +81,27 @@ export async function loadPreferences() {
   applyPreferences();
 }
 
-// Save preferences to Rust file storage + localStorage mirror
+// Save preferences to Rust file storage + localStorage mirror.
+// VOLGORDE EN ISOLATIE (#353): het bestand is de echte opslag en gaat
+// eerst; de localStorage-spiegel staat in een eigen try. De spiegel ging
+// eerder vóór het bestand in dezelfde try — bij een QuotaExceededError
+// (spiegel ~5 MB door gedownloade symboolcollecties) werden bestand én
+// applyPreferences dan stil overgeslagen en gingen instellingen bij een
+// herstart verloren. In Tauri spiegelen we bovendien alleen nog het thema
+// (het enige dat het pre-boot-themascript leest) zodat het quotum niet
+// eens in beeld komt.
 export function savePreferences() {
+  if (isTauri()) {
+    savePreferencesFile(state.preferences).catch(e =>
+      console.error('Failed to save preferences file:', e)
+    );
+  }
+  applyPreferences();
   try {
-    const json = JSON.stringify(state.preferences);
-    // localStorage mirror for synchronous theme script in index.html
-    localStorage.setItem('pdfEditorPreferences', json);
-    // Rust-backed persistent storage
-    if (isTauri()) {
-      savePreferencesFile(state.preferences).catch(e =>
-        console.error('Failed to save preferences file:', e)
-      );
-    }
-    applyPreferences();
+    localStorage.setItem('pdfEditorPreferences', preferencesMirrorJson(state.preferences, isTauri()));
   } catch (e) {
-    console.error('Failed to save preferences:', e);
+    // Alleen de pre-boot-themaflits staat op het spel — niet de instellingen.
+    console.warn('Voorkeuren-spiegel niet bijgewerkt (localStorage):', e);
   }
 }
 
