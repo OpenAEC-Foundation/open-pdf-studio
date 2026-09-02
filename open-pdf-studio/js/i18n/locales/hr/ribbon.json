@@ -150,7 +150,8 @@
     "propertiesLabel": "Svojstva",
     "annotationsList": "Popis oznaka (F11)",
     "annotationsLabel": "Oznake",
-    "appearance": "Izgled"
+    "appearance": "Izgled",
+    "keystrokes": "Keystrokes"
   },
   "organize": {
     "pages": "Stranice",

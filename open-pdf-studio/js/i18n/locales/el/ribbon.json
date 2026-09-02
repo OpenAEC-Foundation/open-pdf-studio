@@ -150,7 +150,8 @@
     "propertiesLabel": "Ιδιότητες",
     "annotationsList": "Λίστα σχολιασμών (F11)",
     "annotationsLabel": "Σχολιασμοί",
-    "appearance": "Εμφάνιση"
+    "appearance": "Εμφάνιση",
+    "keystrokes": "Keystrokes"
   },
   "organize": {
     "pages": "Σελίδες",

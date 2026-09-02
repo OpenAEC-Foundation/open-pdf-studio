@@ -150,7 +150,8 @@
     "propertiesLabel": "คุณสมบัติ",
     "annotationsList": "รายการคำอธิบายประกอบ (F11)",
     "annotationsLabel": "คำอธิบายประกอบ",
-    "appearance": "ลักษณะ"
+    "appearance": "ลักษณะ",
+    "keystrokes": "Keystrokes"
   },
   "organize": {
     "pages": "หน้า",

@@ -150,7 +150,8 @@
     "propertiesLabel": "Egenskaber",
     "annotationsList": "Annotationsliste (F11)",
     "annotationsLabel": "Annotationer",
-    "appearance": "Udseende"
+    "appearance": "Udseende",
+    "keystrokes": "Keystrokes"
   },
   "organize": {
     "pages": "Sider",

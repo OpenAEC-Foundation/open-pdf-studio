@@ -150,7 +150,8 @@
     "propertiesLabel": "Sifat",
     "annotationsList": "Senarai Anotasi (F11)",
     "annotationsLabel": "Anotasi",
-    "appearance": "Penampilan"
+    "appearance": "Penampilan",
+    "keystrokes": "Keystrokes"
   },
   "organize": {
     "pages": "Halaman",

@@ -150,7 +150,8 @@
     "propertiesLabel": "Egenskaper",
     "annotationsList": "Anteckningslista (F11)",
     "annotationsLabel": "Anteckningar",
-    "appearance": "Utseende"
+    "appearance": "Utseende",
+    "keystrokes": "Keystrokes"
   },
   "organize": {
     "pages": "Sidor",

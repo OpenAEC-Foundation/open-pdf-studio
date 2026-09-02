@@ -150,7 +150,8 @@
     "propertiesLabel": "속성",
     "annotationsList": "주석 목록 (F11)",
     "annotationsLabel": "주석",
-    "appearance": "모양"
+    "appearance": "모양",
+    "keystrokes": "Keystrokes"
   },
   "organize": {
     "pages": "페이지",

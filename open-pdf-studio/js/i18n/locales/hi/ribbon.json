@@ -150,7 +150,8 @@
     "propertiesLabel": "गुण",
     "annotationsList": "एनोटेशन सूची (F11)",
     "annotationsLabel": "एनोटेशन",
-    "appearance": "दिखावट"
+    "appearance": "दिखावट",
+    "keystrokes": "Keystrokes"
   },
   "organize": {
     "pages": "पृष्ठ",

@@ -150,7 +150,8 @@
     "propertiesLabel": "Egenskaper",
     "annotationsList": "Merknadsliste (F11)",
     "annotationsLabel": "Merknader",
-    "appearance": "Utseende"
+    "appearance": "Utseende",
+    "keystrokes": "Keystrokes"
   },
   "organize": {
     "pages": "Sider",

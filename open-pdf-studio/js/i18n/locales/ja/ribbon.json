@@ -150,7 +150,8 @@
     "propertiesLabel": "プロパティ",
     "annotationsList": "注釈一覧 (F11)",
     "annotationsLabel": "注釈",
-    "appearance": "外観"
+    "appearance": "外観",
+    "keystrokes": "Keystrokes"
   },
   "organize": {
     "pages": "ページ",

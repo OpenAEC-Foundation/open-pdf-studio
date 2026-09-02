@@ -150,7 +150,8 @@
     "propertiesLabel": "Свойства",
     "annotationsList": "Список аннотаций (F11)",
     "annotationsLabel": "Аннотации",
-    "appearance": "Внешний вид"
+    "appearance": "Внешний вид",
+    "keystrokes": "Keystrokes"
   },
   "organize": {
     "pages": "Страницы",

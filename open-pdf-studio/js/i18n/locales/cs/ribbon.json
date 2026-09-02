@@ -150,7 +150,8 @@
     "propertiesLabel": "Vlastnosti",
     "annotationsList": "Seznam anotací (F11)",
     "annotationsLabel": "Anotace",
-    "appearance": "Vzhled"
+    "appearance": "Vzhled",
+    "keystrokes": "Keystrokes"
   },
   "organize": {
     "pages": "Stránky",

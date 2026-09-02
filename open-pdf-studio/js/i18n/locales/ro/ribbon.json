@@ -150,7 +150,8 @@
     "propertiesLabel": "Proprietati",
     "annotationsList": "Lista de adnotari (F11)",
     "annotationsLabel": "Adnotari",
-    "appearance": "Aspect"
+    "appearance": "Aspect",
+    "keystrokes": "Keystrokes"
   },
   "organize": {
     "pages": "Pagini",

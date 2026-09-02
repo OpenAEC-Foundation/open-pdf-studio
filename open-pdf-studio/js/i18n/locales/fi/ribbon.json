@@ -150,7 +150,8 @@
     "propertiesLabel": "Ominaisuudet",
     "annotationsList": "Merkintäluettelo (F11)",
     "annotationsLabel": "Merkinnät",
-    "appearance": "Ulkoasu"
+    "appearance": "Ulkoasu",
+    "keystrokes": "Keystrokes"
   },
   "organize": {
     "pages": "Sivut",

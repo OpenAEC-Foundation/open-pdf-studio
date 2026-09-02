@@ -150,7 +150,8 @@
     "propertiesLabel": "属性",
     "annotationsList": "批注列表 (F11)",
     "annotationsLabel": "批注",
-    "appearance": "外观"
+    "appearance": "外观",
+    "keystrokes": "Keystrokes"
   },
   "organize": {
     "pages": "页面",

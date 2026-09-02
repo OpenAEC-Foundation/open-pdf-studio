@@ -150,7 +150,8 @@
     "propertiesLabel": "Propiedades",
     "annotationsList": "Lista de anotaciones (F11)",
     "annotationsLabel": "Anotaciones",
-    "appearance": "Apariencia"
+    "appearance": "Apariencia",
+    "keystrokes": "Keystrokes"
   },
   "organize": {
     "pages": "Páginas",

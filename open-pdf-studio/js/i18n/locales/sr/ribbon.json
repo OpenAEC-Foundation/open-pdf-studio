@@ -150,7 +150,8 @@
     "propertiesLabel": "Својства",
     "annotationsList": "Листа анотација (F11)",
     "annotationsLabel": "Анотације",
-    "appearance": "Изглед"
+    "appearance": "Изглед",
+    "keystrokes": "Keystrokes"
   },
   "organize": {
     "pages": "Странице",

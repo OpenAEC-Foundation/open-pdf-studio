@@ -150,7 +150,8 @@
     "propertiesLabel": "Vlastnosti",
     "annotationsList": "Zoznam anotácií (F11)",
     "annotationsLabel": "Anotácie",
-    "appearance": "Vzhľad"
+    "appearance": "Vzhľad",
+    "keystrokes": "Keystrokes"
   },
   "organize": {
     "pages": "Strany",

@@ -1,8 +1,9 @@
-import { createSignal, For, Show, onCleanup } from 'solid-js';
+import { createSignal, For, Show, onCleanup, onMount } from 'solid-js';
 
 // Screencast keystroke overlay — shows pressed keys/shortcuts as large chips
-// in the bottom-left corner, so viewers of a recorded video can follow along
-// with what is being typed. Toggled from the Beeld (View) ribbon tab.
+// in the bottom-RIGHT corner OF THE CANVAS AREA, so viewers of a recorded
+// video can follow along with what is being typed without the chips landing
+// on the panels. Toggled from the Beeld (View) ribbon tab.
 //
 // Display rules:
 //   * outside input fields: every key is shown ("G", "X", "Esc", "Ctrl+S");
@@ -81,25 +82,58 @@ function onKeyDown(e) {
   pushKey(label);
 }
 
+// Rechteronderhoek van het CANVASGEBIED (#pdf-container), in fixed-
+// coördinaten. Zo blijven de chips binnen de tekening en vallen ze niet
+// over het eigenschappenpaneel of de statusbalk — ook niet als panelen
+// open/dicht gaan of het venster van maat verandert.
+const RAND = 16;
+const [anker, setAnker] = createSignal({ right: RAND, bottom: RAND + 24 });
+
+function meetAnker() {
+  const el = document.getElementById('pdf-container');
+  if (!el) return;
+  const r = el.getBoundingClientRect();
+  if (!(r.width > 0 && r.height > 0)) return;
+  setAnker({
+    right: Math.max(RAND, window.innerWidth - r.right + RAND),
+    bottom: Math.max(RAND, window.innerHeight - r.bottom + RAND),
+  });
+}
+
 export default function KeystrokeOverlay() {
   document.addEventListener('keydown', onKeyDown, true);
   onCleanup(() => document.removeEventListener('keydown', onKeyDown, true));
 
+  onMount(() => {
+    meetAnker();
+    const el = document.getElementById('pdf-container');
+    // Panelen die open/dicht gaan veranderen de canvasbreedte zonder dat het
+    // venster verandert — vandaar een ResizeObserver naast de resize-listener.
+    const ro = (typeof ResizeObserver !== 'undefined' && el) ? new ResizeObserver(meetAnker) : null;
+    if (ro && el) ro.observe(el);
+    window.addEventListener('resize', meetAnker);
+    onCleanup(() => {
+      if (ro) ro.disconnect();
+      window.removeEventListener('resize', meetAnker);
+    });
+  });
+
   return (
     <Show when={visible()}>
-      <div style={{
+      <div class="keystroke-overlay" style={{
         position: 'fixed',
-        left: '16px',
-        bottom: '40px',
+        right: `${anker().right}px`,
+        bottom: `${anker().bottom}px`,
         'z-index': 4000,
         display: 'flex',
         gap: '8px',
         'align-items': 'flex-end',
+        'justify-content': 'flex-end',
         'pointer-events': 'none',
       }}>
         <For each={keys()}>
           {(chip) => (
-            <div style={{
+            <div class="keystroke-chip" style={{
               background: 'rgba(20, 20, 20, 0.85)',
               color: '#ffffff',
               border: '1px solid rgba(255,255,255,0.25)',
