@@ -1515,6 +1515,15 @@ async function handleUpdateAnnotation(params) {
   Object.assign(ann, patch);
   ann.modifiedAt = new Date().toISOString();
 
+  // Stempel-uiterlijk: kleur en lijndikte leven IN de SVG-bron (drawImage
+  // kent geen tekenkleur/-dikte). Zelfde hooks als het eigenschappenpaneel,
+  // anders zou een update via de brug stil niets doen (#341).
+  if (ann.type === 'stamp' && ('color' in patch || 'lineWidth' in patch)) {
+    const hooks = await import('./annotations/stamp-line-width.js');
+    if ('lineWidth' in patch) hooks.applyStampLineWidth(ann);
+    if ('color' in patch) hooks.applyStampColor(ann);
+  }
+
   const geometryTouched = _GEOMETRY_KEYS.some(k => k in patch);
   const meas = await import('./annotations/measurement.js');
   const isMeasure = ann.type === 'measureDistance' ||
