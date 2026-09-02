@@ -35,6 +35,7 @@ import {
 } from '../../annotations/systeem-typen-registry.js';
 import { recalculateAllMeasurements, calculateArea, calculatePerimeter, calculateDistance, formatMeasurement, formatDimensionText, getMeasureScale } from '../../annotations/measurement.js';
 import { applyTemplateRealSize } from '../../symbols/real-size.js';
+import { applyStampLineWidth, stampLineWidthOf } from '../../annotations/stamp-line-width.js';
 import { pendingParams, setPendingParams } from './parametricSymbolStore.js';
 
 // Types whose single 'color' control IS their stroke colour and which render
@@ -293,10 +294,13 @@ export function storeShowProperties(annotation) {
     strokeColor: annotation.strokeColor || annotation.color || '#000000',
     textColor: annotation.textColor || annotation.color || '#000000',
     // NL-tekenwerkcomponenten zonder eigen lineWidth tonen hun GEËRFDE
-    // (tekeningtype-)dikte in plaats van de generieke 3.
+    // (tekeningtype-)dikte in plaats van de generieke 3. Een stempel toont de
+    // dikte die ZIJN SVG nu werkelijk oplevert, anders springt de lijn zodra
+    // de gebruiker het veld voor het eerst aanraakt.
     lineWidth: annotation.lineWidth !== undefined ? annotation.lineWidth
-      : (DRAFTING_RULE_TYPES.has(annotation.type)
-        ? Math.round(effectiveDraftingLineWidth(annotation) * 100) / 100 : 3),
+      : (annotation.type === 'stamp' ? (stampLineWidthOf(annotation) ?? 3)
+        : DRAFTING_RULE_TYPES.has(annotation.type)
+          ? Math.round(effectiveDraftingLineWidth(annotation) * 100) / 100 : 3),
     opacity: annotation.opacity !== undefined ? Math.round(annotation.opacity * 100) : 100,
     icon: annotation.icon || 'comment',
     borderStyle: annotation.borderStyle || 'solid',
@@ -981,7 +985,13 @@ function applyPropToAnnotation(ann, key, value) {
     case 'color': ann.color = value; break;
     case 'fillColor': ann.fillColor = value; break;
     case 'strokeColor': ann.strokeColor = value; break;
-    case 'lineWidth': ann.lineWidth = parseFloat(value); break;
+    case 'lineWidth':
+      ann.lineWidth = parseFloat(value);
+      // Een stempel wordt als raster getekend en kent geen ctx.lineWidth; de
+      // dikte moet in de SVG worden gezet. Synchroon, zodat undo de gewijzigde
+      // stampSvg meekrijgt.
+      if (ann.type === 'stamp') applyStampLineWidth(ann);
+      break;
     case 'opacity': ann.opacity = parseInt(value) / 100; break;
     case 'icon': ann.icon = value; break;
     case 'borderStyle': ann.borderStyle = value; break;
@@ -1316,7 +1326,11 @@ export function updateAnnotProp(key, value) {
       currentAnnotation.strokeColor = value;
       if (currentAnnotation.type === 'parametricSymbol') currentAnnotation.color = value;
       break;
-    case 'lineWidth': currentAnnotation.lineWidth = parseFloat(value); break;
+    case 'lineWidth':
+      currentAnnotation.lineWidth = parseFloat(value);
+      // Zie applyPropToAnnotation: bij een stempel moet de dikte de SVG in.
+      if (currentAnnotation.type === 'stamp') applyStampLineWidth(currentAnnotation);
+      break;
     case 'opacity':
       currentAnnotation.opacity = parseInt(value) / 100;
       break;
