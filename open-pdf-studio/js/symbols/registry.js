@@ -24,6 +24,13 @@ import { sonderingTemplate } from './templates/sondering.js';
 import { paalpuntniveauTemplate } from './templates/paalpuntniveau.js';
 import { overspanningspijlVloerTemplate } from './templates/overspanningspijl-vloer.js';
 import { stenenrijTemplate } from './templates/stenenrij.js';
+import {
+  opleggingTemplate, puntlastTemplate, qlastTemplate,
+  beddingsverenTemplate, windverbandTemplate, scharnierVerbindingTemplate,
+} from './templates/constructie-symbolen.js';
+import {
+  bouwkraanTemplate, draaicirkelTemplate, parkeervakTemplate, bouwkeetTemplate,
+} from './templates/bouwplaats-symbolen.js';
 
 const templates = new Map();
 
@@ -58,6 +65,16 @@ register(sonderingTemplate);
 register(paalpuntniveauTemplate);
 register(overspanningspijlVloerTemplate);
 register(stenenrijTemplate);
+register(opleggingTemplate);
+register(puntlastTemplate);
+register(qlastTemplate);
+register(beddingsverenTemplate);
+register(windverbandTemplate);
+register(scharnierVerbindingTemplate);
+register(bouwkraanTemplate);
+register(draaicirkelTemplate);
+register(parkeervakTemplate);
+register(bouwkeetTemplate);
 
 // Runtime registration for catalog-driven templates (downloaded steel
 // catalogs from the online symbol library — see symbols/steel-catalog-store.js).

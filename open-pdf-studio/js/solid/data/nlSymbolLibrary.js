@@ -74,6 +74,18 @@ const betonbalkPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" str
 // (kruis) en één lichtpaneel (arcering).
 const systeemplafondPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M6 8 H58 V44 Q44 58 30 56 Q16 54 6 44 Z"/><g stroke-width="0.9"><line x1="19" y1="8" x2="19" y2="50"/><line x1="32" y1="8" x2="32" y2="56"/><line x1="45" y1="8" x2="45" y2="52"/><line x1="6" y1="22" x2="58" y2="22"/><line x1="6" y1="36" x2="58" y2="36"/><path d="M19 8 32 22 M32 8 19 22"/><path d="M45 25 55 35 M48 22 58 32 M45 31 50 36"/></g></svg>`;
 
+// Previews constructie- en bouwplaats-symbolen (#338).
+const opleggingPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M32 12 20 38 H44 Z"/><line x1="12" y1="38" x2="52" y2="38"/><g stroke-width="1.2"><line x1="18" y1="38" x2="13" y2="45"/><line x1="26" y1="38" x2="21" y2="45"/><line x1="34" y1="38" x2="29" y2="45"/><line x1="42" y1="38" x2="37" y2="45"/><line x1="50" y1="38" x2="45" y2="45"/></g></svg>`;
+const puntlastPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><text x="32" y="14" font-size="11" text-anchor="middle" fill="#000" stroke="none">F</text><line x1="32" y1="20" x2="32" y2="52"/><path d="M32 56 27 45 H37 Z" fill="#000"/></svg>`;
+const qlastPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.6"><text x="32" y="12" font-size="10" text-anchor="middle" fill="#000" stroke="none">q</text><line x1="8" y1="20" x2="56" y2="20"/><line x1="8" y1="48" x2="56" y2="48"/><g><line x1="12" y1="20" x2="12" y2="44"/><path d="M12 48 9 41 H15 Z" fill="#000"/><line x1="32" y1="20" x2="32" y2="44"/><path d="M32 48 29 41 H35 Z" fill="#000"/><line x1="52" y1="20" x2="52" y2="44"/><path d="M52 48 49 41 H55 Z" fill="#000"/></g></svg>`;
+const beddingsverenPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.6"><line x1="8" y1="14" x2="56" y2="14" stroke-width="2.4"/><g><path d="M16 14 v4 l4 3 -8 5 8 5 -4 3 v4"/><path d="M32 14 v4 l4 3 -8 5 8 5 -4 3 v4"/><path d="M48 14 v4 l4 3 -8 5 8 5 -4 3 v4"/></g><line x1="10" y1="52" x2="22" y2="52"/><line x1="26" y1="52" x2="38" y2="52"/><line x1="42" y1="52" x2="54" y2="52"/></svg>`;
+const windverbandPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="10" y="14" width="44" height="36"/><line x1="10" y1="14" x2="54" y2="50"/><line x1="10" y1="50" x2="54" y2="14"/></svg>`;
+const scharnierVerbindingPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2.4"><line x1="6" y1="32" x2="25" y2="32"/><circle cx="32" cy="32" r="7" stroke-width="2"/><line x1="39" y1="32" x2="58" y2="32"/></svg>`;
+const bouwkraanPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.6"><circle cx="32" cy="32" r="26" stroke-dasharray="5 4"/><rect x="28" y="28" width="8" height="8"/><line x1="36" y1="32" x2="58" y2="32" stroke-width="2"/><line x1="28" y1="32" x2="22" y2="32" stroke-width="2"/></svg>`;
+const draaicirkelPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.6"><circle cx="32" cy="32" r="24" stroke-dasharray="5 4"/><path d="M52 16 47 13 49 20 Z" fill="#000"/><text x="32" y="36" font-size="10" text-anchor="middle" fill="#000" stroke="none">R</text></svg>`;
+const parkeervakPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="18" y="8" width="28" height="48"/><text x="32" y="38" font-size="18" font-weight="bold" text-anchor="middle" fill="#000" stroke="none">P</text></svg>`;
+const bouwkeetPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="6" y="20" width="52" height="24"/><line x1="6" y1="20" x2="58" y2="44" stroke-width="1"/><text x="32" y="56" font-size="9" text-anchor="middle" fill="#000" stroke="none">KEET</text></svg>`;
+
 export const NL_CATEGORIES = [
   {
     // ONE building category, IFC-georiënteerd: wanden, vloeren en
@@ -128,6 +140,13 @@ export const NL_CATEGORIES = [
       // NL tekenwerk-symbolen horen er ook gewoon bij (één bouw-categorie).
       { id: 'param-stramien', name: 'Stramien', parametricId: 'stramien', svg: stramienPreview },
       { id: 'param-peilmaat', name: 'Peilmaat (spot elevation)', parametricId: 'peilmaat', svg: peilmaatPreview },
+      // Constructie-symbolen (#338): opleggingen, lasten, veren, verband.
+      { id: 'param-oplegging', name: 'Oplegging (steunpunt)', parametricId: 'oplegging', svg: opleggingPreview },
+      { id: 'param-puntlast', name: 'Puntlast', parametricId: 'puntlast', svg: puntlastPreview },
+      { id: 'param-q-last', name: 'q-last (verdeelde belasting)', parametricId: 'q-last', svg: qlastPreview },
+      { id: 'param-beddingsveren', name: 'Beddingsveren', parametricId: 'beddingsveren', svg: beddingsverenPreview },
+      { id: 'param-windverband', name: 'Windverband', parametricId: 'windverband', svg: windverbandPreview },
+      { id: 'param-scharnier-verbinding', name: 'Scharnierverbinding', parametricId: 'scharnier-verbinding', svg: scharnierVerbindingPreview },
       // Maskeer: wit afdekvlak (wipeout) — rechthoek slepen dekt de
       // onderliggende tekening + eerdere annotaties af.
       { id: 'maskeer', name: 'Maskeer (afdekvlak)', tool: 'mask', svg: maskeerPreview },
@@ -147,5 +166,23 @@ export const NL_CATEGORIES = [
     color: 'var(--theme-text, #000000)',
     icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 1 3 9h4l-1 6 6-8H8z"/></svg>`,
     symbols: ELEKTRA_SYMBOLS,
+  },
+  {
+    // Bouwplaats-inrichting (#338): kraan met zwenkstraal, draaicirkel,
+    // parkeervak en bouwkeet — parametrisch, op ware maat via de
+    // tekeningschaal (realSizeMm).
+    id: 'nl-bouwplaats',
+    builtin: true,
+    name: 'NL Bouwplaats',
+    industry: 'aec',
+    country: 'nl',
+    color: 'var(--theme-text, #000000)',
+    icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="9" r="6" stroke-dasharray="2.5 2"/><line x1="8" y1="9" x2="14" y2="9"/><rect x="6.7" y="7.7" width="2.6" height="2.6"/></svg>`,
+    symbols: [
+      { id: 'param-bouwkraan', name: 'Bouwkraan (zwenkstraal)', parametricId: 'bouwkraan', svg: bouwkraanPreview },
+      { id: 'param-draaicirkel', name: 'Draaicirkel vrachtwagen', parametricId: 'draaicirkel', svg: draaicirkelPreview },
+      { id: 'param-parkeervak', name: 'Parkeervak', parametricId: 'parkeervak', svg: parkeervakPreview },
+      { id: 'param-bouwkeet', name: 'Bouwkeet', parametricId: 'bouwkeet', svg: bouwkeetPreview },
+    ],
   },
 ];
