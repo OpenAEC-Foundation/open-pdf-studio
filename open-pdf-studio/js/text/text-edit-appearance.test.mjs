@@ -145,6 +145,24 @@ test('WinAnsi sanitizer falls back to ? for unmapped characters', () => {
   assert.equal(sanitizeWinAnsiText('a\nb').text, 'a\nb');
 });
 
+test('WinAnsi sanitizer keeps the base letter of a diacritic it cannot encode', () => {
+  // Latin Extended letters decompose to a WinAnsi base, so the word stays
+  // readable instead of collapsing to '?'.
+  assert.equal(sanitizeWinAnsiText('M\u0101ori wh\u0101nau').text, 'Maori whanau');
+  assert.equal(sanitizeWinAnsiText('\u0100\u0101 \u0112\u0113 \u012a\u012b \u014c\u014d \u016a\u016b').text, 'Aa Ee Ii Oo Uu');
+  // 'C with caron' has no WinAnsi slot so it degrades to 'C'; 's with caron'
+  // is in WINANSI_EXTRA and survives untouched.
+  assert.equal(sanitizeWinAnsiText('\u010ce\u0161tina').text, 'Ce\u0161tina');
+
+  // Stroke and dotless letters have no decomposition, so they are mapped.
+  assert.equal(sanitizeWinAnsiText('\u0141\u00f3d\u017a').text, 'L\u00f3dz');
+  assert.equal(sanitizeWinAnsiText('\u0110\u00e0 N\u1eb5ng').text, 'D\u00e0 Nang');
+  assert.equal(sanitizeWinAnsiText('\u0131\u011f\u015f').text, 'igs');
+
+  // Non-Latin scripts still have no sensible base letter.
+  assert.equal(sanitizeWinAnsiText('\u042c').text, '?');
+});
+
 test('text angle is derived from the span matrix and snapped to right angles', () => {
   assert.equal(textEditAngleFromTransform([11, 0, 0, 11, 100, 200]), 0);
   // 90° CCW authored text (as on /Rotate 90 pages): [0, fs, -fs, 0]
