@@ -45,8 +45,8 @@ Downloads, commit activity, and star growth for this active open-source project.
 **Star history**
 
 <p align="center">
-  <a href="https://www.star-history.com/?repos=OpenAEC-Foundation%2Fopen-pdf-studio&type=date&legend=top-left">
-    <img src="https://api.star-history.com/svg?repos=OpenAEC-Foundation%2Fopen-pdf-studio&type=date&legend=top-left" alt="Star History Chart" width="100%">
+  <a href="https://www.star-history.com/?repos=openaec-foundation%2Fopen-pdf-studio&type=date&legend=top-left">
+    <img src="https://api.star-history.com/svg?repos=openaec-foundation%2Fopen-pdf-studio&type=date&legend=top-left" alt="Star History Chart" width="100%">
   </a>
 </p>
 
