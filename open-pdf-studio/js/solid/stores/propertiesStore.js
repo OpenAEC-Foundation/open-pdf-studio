@@ -35,7 +35,7 @@ import {
 } from '../../annotations/systeem-typen-registry.js';
 import { recalculateAllMeasurements, calculateArea, calculatePerimeter, calculateDistance, formatMeasurement, formatDimensionText, getMeasureScale } from '../../annotations/measurement.js';
 import { applyTemplateRealSize } from '../../symbols/real-size.js';
-import { applyStampLineWidth, stampLineWidthOf } from '../../annotations/stamp-line-width.js';
+import { applyStampLineWidth, applyStampColor, stampLineWidthOf } from '../../annotations/stamp-line-width.js';
 import { pendingParams, setPendingParams } from './parametricSymbolStore.js';
 
 // Types whose single 'color' control IS their stroke colour and which render
@@ -982,7 +982,12 @@ function applyPropToAnnotation(ann, key, value) {
       _stampStatusMeta(ann, value);
       break;
     case 'ifcCategory': ann.ifcCategory = value || undefined; break;
-    case 'color': ann.color = value; break;
+    case 'color':
+      ann.color = value;
+      // Een stempel wordt als raster getekend; de kleur moet de SVG in en
+      // opnieuw gerasterd worden (#341) — zelfde pad als de lijndikte.
+      if (ann.type === 'stamp') applyStampColor(ann);
+      break;
     case 'fillColor': ann.fillColor = value; break;
     case 'strokeColor': ann.strokeColor = value; break;
     case 'lineWidth':
@@ -1320,6 +1325,8 @@ export function updateAnnotProp(key, value) {
       // the stale strokeColor wins. So when the 'color' control IS the colour
       // for these types, mirror it onto strokeColor too.
       if (_STROKE_COLOR_DRIVEN.has(currentAnnotation.type)) currentAnnotation.strokeColor = value;
+      // Zie applyPropToAnnotation: bij een stempel moet de kleur de SVG in (#341).
+      if (currentAnnotation.type === 'stamp') applyStampColor(currentAnnotation);
       break;
     case 'fillColor': currentAnnotation.fillColor = value; break;
     case 'strokeColor':

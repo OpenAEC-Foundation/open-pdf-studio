@@ -8,6 +8,7 @@ import {
   svgViewBoxWidth, svgBaseStrokeWidth, strokeUnitsForLineWidth,
   lineWidthForStroke, restrokeSvg,
 } from './svg-stroke-width.js';
+import { recolorSvg } from './svg-stroke-color.js';
 import { rasterizeSvg } from './svg-raster.js';
 
 /**
@@ -56,6 +57,29 @@ export function applyStampLineWidth(ann) {
   });
   if (units == null) return false;
   const next = restrokeSvg(ann.stampSvg, units);
+  return _commitStampSvg(ann, next);
+}
+
+/**
+ * Pas de kleur van een geplaatst symbool aan (#341, tweede helft).
+ *
+ * Zelfde mechaniek als de lijndikte hierboven: `drawImage()` kent geen
+ * tekenkleur, dus de kleur moet IN de SVG staan vóór het rasteren. Alle
+ * zichtbare lijn- en vulkleuren krijgen de doelkleur; none en wit
+ * (achtergrond/uitsparing) blijven staan.
+ *
+ * @returns {boolean} of de bron daadwerkelijk is gewijzigd.
+ */
+export function applyStampColor(ann) {
+  if (!ann || ann.type !== 'stamp' || !ann.stampSvg || !ann.color) return false;
+  const next = recolorSvg(ann.stampSvg, ann.color);
+  return _commitStampSvg(ann, next);
+}
+
+// Gewijzigde SVG-bron vastleggen en her-rasteren. De SVG-mutatie zelf is bij
+// de aanroepers SYNCHROON gebeurd (undo/saver zien de nieuwe bron meteen);
+// alleen het rasteren loopt async na.
+function _commitStampSvg(ann, next) {
   if (next === ann.stampSvg) return false;
 
   ann.stampSvg = next;
