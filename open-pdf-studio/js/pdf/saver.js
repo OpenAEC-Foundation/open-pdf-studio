@@ -4,6 +4,7 @@ import { hexToColorArray } from '../utils/colors.js';
 import { hasFill } from '../annotations/fill-utils.js';
 import { layoutTextboxForExport } from '../annotations/rendering/shapes.js';
 import { markDocumentSaved, updateWindowTitle } from '../ui/chrome/tabs.js';
+import { updateStatusMessage } from '../ui/chrome/status-bar.js';
 import { isTauri, invoke, readBinaryFile, writeBinaryFile, saveFileDialog, unlockFile, lockFile } from '../core/platform.js';
 import { getCachedPdfBytes, setCachedPdfBytes, hidePdfABar } from './loader.js';
 import { PDFDocument, PDFString, PDFHexString, PDFName, PDFArray, PDFStream, degrees,
@@ -161,6 +162,23 @@ function remapAnnotationForRotatedPage(annRaw, rot, cw, ch) {
 // afmetingen waarop de inhoud getekend moet worden. Bij /Rotate 0 is de
 // prefix leeg en zijn visW/visH gelijk aan w/h — de uitvoer verandert dan
 // niet.
+// Afbeeldingsbytes uit ann.imageData voor pdf-lib-embedding. Normaal een
+// data:-URL; een blob:-URL (regressie of oude sessie-staat, #352) wordt via
+// fetch gelezen zodat de afbeelding alsnog in het bestand belandt in plaats
+// van een leeg stempel. JPEG wordt aan de magic bytes herkend, want een
+// blob:-URL draagt geen mimetype in zijn tekst.
+async function imageBytesFromDataUrl(dataUrl) {
+  let bytes;
+  if (dataUrl.startsWith('blob:')) {
+    bytes = new Uint8Array(await (await fetch(dataUrl)).arrayBuffer());
+  } else {
+    const base64 = dataUrl.split(',')[1];
+    bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+  }
+  const isJpeg = bytes.length > 2 && bytes[0] === 0xFF && bytes[1] === 0xD8;
+  return { bytes, isJpeg };
+}
+
 function pageCompensationForAp(w, h, pageRot) {
   const apRotation = (((-pageRot) % 360) + 360) % 360;
   const pageSwapsDims = pageRot === 90 || pageRot === 270;
@@ -1430,17 +1448,10 @@ export async function savePDF(saveAsPath = null) {
             // Embed image data if present (e.g. north arrow, custom stamps)
             if (ann.imageData) {
               try {
-                let embeddedImage;
-                const dataUrl = ann.imageData;
-                if (dataUrl.startsWith('data:image/jpeg') || dataUrl.startsWith('data:image/jpg')) {
-                  const base64 = dataUrl.split(',')[1];
-                  const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
-                  embeddedImage = await pdfDocLib.embedJpg(bytes);
-                } else {
-                  const base64 = dataUrl.split(',')[1];
-                  const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
-                  embeddedImage = await pdfDocLib.embedPng(bytes);
-                }
+                const { bytes, isJpeg } = await imageBytesFromDataUrl(ann.imageData);
+                const embeddedImage = isJpeg
+                  ? await pdfDocLib.embedJpg(bytes)
+                  : await pdfDocLib.embedPng(bytes);
 
                 const imageRef = embeddedImage.ref;
                 const w = ann.width;
@@ -1480,6 +1491,9 @@ export async function savePDF(saveAsPath = null) {
                 annotDict.set(PDFName.of('AP'), apDict);
               } catch (imgErr) {
                 console.warn('Failed to embed stamp image:', imgErr);
+                // Zichtbaar melden: een stil verdwenen afbeelding valt pas op
+                // als een ontvanger het bestand opent (#352).
+                updateStatusMessage(i18next.t('saveImageEmbedFailed'));
               }
             }
             break;
@@ -1554,18 +1568,10 @@ export async function savePDF(saveAsPath = null) {
             // Embed the actual image data into the appearance stream
             if (ann.imageData) {
               try {
-                let embeddedImage;
-                const dataUrl = ann.imageData;
-                if (dataUrl.startsWith('data:image/jpeg') || dataUrl.startsWith('data:image/jpg')) {
-                  const base64 = dataUrl.split(',')[1];
-                  const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
-                  embeddedImage = await pdfDocLib.embedJpg(bytes);
-                } else {
-                  // Default to PNG (covers data:image/png and other formats)
-                  const base64 = dataUrl.split(',')[1];
-                  const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
-                  embeddedImage = await pdfDocLib.embedPng(bytes);
-                }
+                const { bytes, isJpeg } = await imageBytesFromDataUrl(ann.imageData);
+                const embeddedImage = isJpeg
+                  ? await pdfDocLib.embedJpg(bytes)
+                  : await pdfDocLib.embedPng(bytes);
 
                 const imageRef = embeddedImage.ref;
 
@@ -1638,6 +1644,9 @@ export async function savePDF(saveAsPath = null) {
                 annotDict.set(PDFName.of('AP'), apDict);
               } catch (imgErr) {
                 console.warn('Failed to embed image in annotation:', imgErr);
+                // Zichtbaar melden: een stil verdwenen afbeelding/handtekening
+                // valt pas op als een ontvanger het bestand opent (#352).
+                updateStatusMessage(i18next.t('saveImageEmbedFailed'));
               }
             }
             break;

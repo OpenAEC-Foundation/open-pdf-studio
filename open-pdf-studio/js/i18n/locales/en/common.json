@@ -142,7 +142,7 @@
   "emailFailed": "Sending the email failed: {{error}}",
   "linkedImage": {
     "refreshed": "Linked image refreshed: {{filename}}",
-    "unreadable": "Linked file could not be read \u2014 the embedded version is kept"
+    "unreadable": "Linked file could not be read — the embedded version is kept"
   },
   "tabs": {
     "saveBeforeDetach": "Save the document before dragging it to another window.",
@@ -154,5 +154,6 @@
   },
   "quickAccess": {
     "exportRaster": "Export as raster PDF (opens in a new tab)"
-  }
+  },
+  "saveImageEmbedFailed": "Warning: an image could not be embedded in the saved file"
 }

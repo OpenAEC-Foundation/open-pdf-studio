@@ -154,5 +154,6 @@
   },
   "quickAccess": {
     "exportRaster": "Exporteer als raster-PDF (opent in nieuw tabblad)"
-  }
+  },
+  "saveImageEmbedFailed": "Let op: een afbeelding kon niet in het opgeslagen bestand worden ingebed"
 }

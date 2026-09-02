@@ -23,11 +23,26 @@ async function _loadImageFromPath(filePath) {
   const data = await readBinaryFile(filePath);
   const ext = filePath.split('.').pop().toLowerCase();
   const blob = new Blob([data], { type: MIME_BY_EXT[ext] || 'image/png' });
+  // imageData moet een data:-URL zijn: de saver leest daar de bytes uit om de
+  // afbeelding in de PDF te embedden (#352). Een blob:-URL is alleen in deze
+  // sessie geldig — de opgeslagen annotatie kwam dan als leeg stempel in het
+  // bestand en andere viewers toonden een plaatsvervanger. Zelfde conventie
+  // als plakken (clipboard.js pasteImageFromBlob).
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
   const url = URL.createObjectURL(blob);
   const img = new Image();
   img.src = url;
-  await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; });
-  return { img, url };
+  try {
+    await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; });
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+  return { img, dataUrl };
 }
 
 /**
@@ -38,10 +53,10 @@ async function _loadImageFromPath(filePath) {
 export async function refreshLinkedImage(annotation, { silent = false } = {}) {
   if (!annotation?.linkedPath) return false;
   try {
-    const { img, url } = await _loadImageFromPath(annotation.linkedPath);
+    const { img, dataUrl } = await _loadImageFromPath(annotation.linkedPath);
     if (!annotation.imageId) annotation.imageId = generateImageId();
     imageCache.set(annotation.imageId, img);
-    annotation.imageData = url;
+    annotation.imageData = dataUrl;
     annotation.originalWidth = img.naturalWidth;
     annotation.originalHeight = img.naturalHeight;
     if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
@@ -74,7 +89,7 @@ export async function addImageFromFile(filePath, opts = {}) {
   }
 
   try {
-    const { img, url } = await _loadImageFromPath(filePath);
+    const { img, dataUrl } = await _loadImageFromPath(filePath);
 
     const imageId = generateImageId();
     imageCache.set(imageId, img);
@@ -108,7 +123,7 @@ export async function addImageFromFile(filePath, opts = {}) {
       height,
       rotation: 0,
       imageId,
-      imageData: url,
+      imageData: dataUrl,
       linkedPath: opts.linked ? filePath : undefined,
       originalWidth: img.naturalWidth,
       originalHeight: img.naturalHeight,
