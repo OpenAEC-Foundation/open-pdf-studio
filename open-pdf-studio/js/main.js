@@ -30,6 +30,7 @@ import { initPropertiesPanel } from './ui/panels/properties-panel.js';
 import { initToolPalette } from './solid/components/ToolPalette.jsx';
 import { initSymbolPalette } from './solid/stores/symbolStore.js';
 import { initSteelCatalogs } from './symbols/steel-catalog-store.js';
+import { initLineworkCatalogs } from './symbols/linework-catalog-store.js';
 import { initPaletteOrder } from './solid/stores/paletteOrder.js';
 import { initPlugins } from './plugins/plugin-manager.js';
 
@@ -236,6 +237,7 @@ async function init() {
   // Re-register downloaded parametric steel catalogs from preferences so the
   // palette entries (parametricId) resolve to templates after a restart.
   initSteelCatalogs();
+  initLineworkCatalogs();
 
   // Load installed plugins (extension palettes, custom annotation types, etc.)
   initPlugins();
