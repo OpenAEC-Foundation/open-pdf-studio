@@ -185,7 +185,9 @@
     "updatesLabel": "Actualitzacions",
     "fileAssociation": "Associació de fitxers",
     "setDefaultPdf": "Estableix l'aplicació PDF per defecte",
-    "fileAssociations": "Associacions de fitxers"
+    "fileAssociations": "Associacions de fitxers",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "Vermell",

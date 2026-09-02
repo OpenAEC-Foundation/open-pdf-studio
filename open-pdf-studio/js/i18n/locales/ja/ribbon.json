@@ -185,7 +185,9 @@
     "updatesLabel": "更新",
     "fileAssociation": "ファイルの関連付け",
     "setDefaultPdf": "既定の PDF アプリケーションに設定",
-    "fileAssociations": "ファイルの関連付け"
+    "fileAssociations": "ファイルの関連付け",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "赤",

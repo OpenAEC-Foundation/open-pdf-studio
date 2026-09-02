@@ -185,7 +185,9 @@
     "updatesLabel": "Päivitykset",
     "fileAssociation": "Tiedostoyhteys",
     "setDefaultPdf": "Aseta oletus-PDF-sovellus",
-    "fileAssociations": "Tiedostoyhteydet"
+    "fileAssociations": "Tiedostoyhteydet",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "Punainen",

@@ -185,7 +185,9 @@
     "updatesLabel": "अपडेट",
     "fileAssociation": "फ़ाइल संबद्धता",
     "setDefaultPdf": "डिफ़ॉल्ट PDF एप्लिकेशन सेट करें",
-    "fileAssociations": "फ़ाइल संबद्धताएं"
+    "fileAssociations": "फ़ाइल संबद्धताएं",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "लाल",

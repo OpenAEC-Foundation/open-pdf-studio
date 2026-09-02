@@ -14,7 +14,7 @@ function activeCanvas(annotation) {
   const documentState = getActiveDocument();
   if (documentState?.viewMode === 'continuous') {
     return document.querySelector(
-      `.annotation-canvas[data-page="${annotation.page || documentState.currentPage}"]`,
+      `.page-wrapper[data-page="${annotation.page || documentState.currentPage}"] .canvas-container-cont`,
     );
   }
   const annotationPage = annotation.page ?? documentState?.currentPage;

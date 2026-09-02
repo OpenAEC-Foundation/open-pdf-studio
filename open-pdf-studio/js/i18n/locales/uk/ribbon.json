@@ -185,7 +185,9 @@
     "updatesLabel": "Оновлення",
     "fileAssociation": "Асоціація файлів",
     "setDefaultPdf": "Встановити програму PDF за замовчуванням",
-    "fileAssociations": "Асоціації файлів"
+    "fileAssociations": "Асоціації файлів",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "Червоний",

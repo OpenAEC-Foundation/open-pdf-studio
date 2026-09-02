@@ -725,16 +725,56 @@ fn get_temp_dir() -> String {
     std::env::temp_dir().to_string_lossy().to_string()
 }
 
+/// Maak van een documentnaam een veilige bestandsnaam (verboden tekens weg,
+/// niet leeg, begrensd in lengte).
+fn sanitize_temp_pdf_name(name: &str) -> String {
+    let vervangen: String = name
+        .chars()
+        .map(|c| match c {
+            '<' | '>' | ':' | '"' | '/' | '\\' | '|' | '?' | '*' => '_',
+            c if (c as u32) < 0x20 => '_',
+            c => c,
+        })
+        .collect();
+    vervangen
+        .trim()
+        .trim_matches('.')
+        .trim()
+        .chars()
+        .take(120)
+        .collect()
+}
+
 /// Write binary data to a temp file and return the path.
 /// This bypasses the FS plugin scope restrictions.
+///
+/// Met `name` krijgt het tempbestand de (opgeschoonde) documentnaam, in een
+/// unieke submap: de printspooler (Windows én CUPS) toont de bestandsnaam als
+/// jobnaam, dus zo heet de printjob naar het pdf-bestand in plaats van naar
+/// een timestamp.
 #[tauri::command]
-fn write_temp_pdf(data: Vec<u8>) -> Result<String, String> {
+fn write_temp_pdf(data: Vec<u8>, name: Option<String>) -> Result<String, String> {
     let temp_dir = std::env::temp_dir();
     let timestamp = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis())
         .unwrap_or(0);
-    let path = temp_dir.join(format!("openstudio_print_{}.pdf", timestamp));
+    let schoon = name
+        .as_deref()
+        .map(sanitize_temp_pdf_name)
+        .filter(|s| !s.is_empty());
+    let path = match schoon {
+        Some(mut n) => {
+            if !n.to_lowercase().ends_with(".pdf") {
+                n.push_str(".pdf");
+            }
+            let job_dir = temp_dir.join(format!("openstudio_print_{}", timestamp));
+            fs::create_dir_all(&job_dir)
+                .map_err(|e| format!("Failed to create temp dir: {}", e))?;
+            job_dir.join(n)
+        }
+        None => temp_dir.join(format!("openstudio_print_{}.pdf", timestamp)),
+    };
     fs::write(&path, &data).map_err(|e| format!("Failed to write temp file: {}", e))?;
     Ok(path.to_string_lossy().to_string())
 }

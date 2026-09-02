@@ -45,10 +45,10 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // Theme
   theme: 'default',
 
-  // Doorlopende leesmodus is de standaard voor nieuwe installaties;
-  // bestaande installaties worden bij het laden eenmalig op 'single'
-  // gezet zodat hun vertrouwde gedrag niet verandert (zie preferences.js).
-  defaultViewMode: 'continuous',
+  // Enkelpagina is de standaard-weergavemodus; opgeslagen 'continuous'
+  // (de kortstondige oude default, nergens instelbaar in de UI) wordt bij
+  // het laden teruggezet (zie preferences.js).
+  defaultViewMode: 'single',
 
   // General — authorName defaults to '' (resolved to OS username at load time)
   authorName: '',

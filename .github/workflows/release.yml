@@ -9,7 +9,7 @@ on:
       version:
         description: 'Version tag (e.g., v1.0.0)'
         required: true
-        default: 'v1.91.0'
+        default: 'v1.93.2'
 
 jobs:
   create-release:
@@ -38,6 +38,21 @@ jobs:
         with:
           script: |
             const version = '${{ steps.get-version.outputs.version }}';
+            // Idempotent: een tag-push nadat de release al bestaat (bv. na
+            // handmatige publicatie van een eerder concept) mag geen tweede
+            // concept-release + dubbele buildrun veroorzaken. Bestaande
+            // release op deze tag (concept of gepubliceerd) wordt hergebruikt;
+            // de artefact-uploads verderop overschrijven met --clobber.
+            const bestaande = await github.paginate(github.rest.repos.listReleases, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100,
+            });
+            const hergebruik = bestaande.find((r) => r.tag_name === version);
+            if (hergebruik) {
+              core.info(`Release voor ${version} bestaat al (id ${hergebruik.id}) — hergebruiken.`);
+              return hergebruik.id;
+            }
             const { data } = await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,

@@ -185,7 +185,9 @@
     "updatesLabel": "Aktualizace",
     "fileAssociation": "Přiřazení souborů",
     "setDefaultPdf": "Nastavit výchozí aplikaci pro PDF",
-    "fileAssociations": "Přiřazení souborů"
+    "fileAssociations": "Přiřazení souborů",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "Červená",

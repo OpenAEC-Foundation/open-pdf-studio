@@ -185,7 +185,9 @@
     "updatesLabel": "புதுப்பிப்புகள்",
     "fileAssociation": "கோப்பு தொடர்பு",
     "setDefaultPdf": "இயல்புநிலை PDF பயன்பாட்டை அமை",
-    "fileAssociations": "கோப்பு தொடர்புகள்"
+    "fileAssociations": "கோப்பு தொடர்புகள்",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "சிவப்பு",

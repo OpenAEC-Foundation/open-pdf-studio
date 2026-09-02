@@ -185,7 +185,9 @@
     "updatesLabel": "Uppdateringar",
     "fileAssociation": "Filassociation",
     "setDefaultPdf": "Ange standard-PDF-program",
-    "fileAssociations": "Filassociationer"
+    "fileAssociations": "Filassociationer",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "Röd",

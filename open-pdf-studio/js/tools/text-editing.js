@@ -40,7 +40,7 @@ export function startTextEditing(annotation) {
   let canvas = null;
   if (isContinuous) {
     canvas = document.querySelector(
-      `.page-wrapper[data-page="${annotation.page}"] .annotation-canvas`);
+      `.page-wrapper[data-page="${annotation.page}"] .canvas-container-cont`);
   }
   if (!canvas) canvas = annotationCanvas || document.getElementById('annotation-canvas');
   if (!canvas) return;

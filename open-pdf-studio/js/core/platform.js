@@ -452,6 +452,11 @@ export async function buildUserAgent() {
 // syncs package.json and tauri.conf.json), so there is no downside. Fall back
 // to the Tauri runtime value only if the build-time define is somehow absent.
 export async function getAppVersion() {
+  // In dev kan de live gesynchroniseerde versie nieuwer zijn dan het
+  // Vite-define (zie core/app-version.js).
+  if (typeof window !== 'undefined' && window.__APP_VERSION__) {
+    return window.__APP_VERSION__;
+  }
   if (typeof __APP_VERSION__ !== 'undefined' && __APP_VERSION__) {
     return __APP_VERSION__;
   }

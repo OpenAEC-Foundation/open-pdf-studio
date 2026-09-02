@@ -468,6 +468,12 @@
   align-items: flex-start;
   justify-content: flex-start;
   position: relative;
+  /* De app ankert de scrollpositie zelf bij zoomen (continuous-zoom-anchor.js
+     voor doorlopend, _anchorAt voor enkelpagina). Chromium's scroll anchoring
+     corrigeert scrollTop dan een tweede keer zodra content boven het door de
+     browser gekozen ankerknooppunt van maat verandert — dubbele correctie =
+     verspringen bij snel zoomen. */
+  overflow-anchor: none;
 }
 
 /* Optional canvas scrollbars (toggled via preference `showScrollbars`).

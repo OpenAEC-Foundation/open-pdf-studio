@@ -185,7 +185,9 @@
     "updatesLabel": "Oppdateringer",
     "fileAssociation": "Filtilknytning",
     "setDefaultPdf": "Angi standard PDF-program",
-    "fileAssociations": "Filtilknytninger"
+    "fileAssociations": "Filtilknytninger",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "Rød",

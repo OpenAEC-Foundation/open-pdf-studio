@@ -319,6 +319,15 @@ export async function savePDF(saveAsPath = null) {
         ? activeDoc._annotationPagesReady.has(pageNum)
         : (activeDoc._loadedAnnotationPages
           ? activeDoc._loadedAnnotationPages.has(pageNum) : true);
+      // Ongeldige toestand: model bevat annotaties voor een pagina die als
+      // "niet geladen" te boek staat. Doorschrijven zou ze verdubbelen
+      // (bestaande blijven staan én het model komt erbij). Dit trad op
+      // wanneer de gereedheids-sets gewist werden terwijl doc.annotations
+      // bleef staan (sluiten-met-opslaan); luid melden zodat een regressie
+      // direct opvalt in plaats van stil dubbele annotaties op te leveren.
+      if (!pageAnnotsLoaded && pageAnnotations.length > 0) {
+        console.warn(`[saver] pagina ${pageNum}: ${pageAnnotations.length} model-annotaties maar pagina niet als geladen gemarkeerd — bestaande bestands-annotaties blijven staan en het model wordt toegevoegd (risico op duplicaten)`);
+      }
 
       // Build annotations array: keep existing annotations we don't handle (widgets, links, etc.)
       // and replace the ones we do with our document annotations (which is the source of truth)

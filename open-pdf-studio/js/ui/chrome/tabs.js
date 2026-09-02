@@ -1,4 +1,5 @@
 import { state, createDocument, getActiveDocument, findDocumentByPath, clearSelection } from '../../core/state.js';
+import { appVersion } from '../../core/app-version.js';
 import { renderPage, renderContinuous, clearPdfView } from '../../pdf/renderer.js';
 import { hideFormFieldsBar } from '../../pdf/form-layer.js';
 import { redrawAnnotations, redrawContinuous, updateQuickAccessButtons } from '../../annotations/rendering.js';
@@ -31,10 +32,9 @@ export function createTab(filePath = null, autoSwitch = true) {
 
   // Create new document
   const doc = createDocument(filePath);
-  // Weergavemodus uit de voorkeuren: doorlopend is de standaard voor nieuwe
-  // installaties; bestaande installaties zijn bij het laden van de voorkeuren
-  // eenmalig op 'single' gezet (createDocument zelf blijft een pure helper).
-  doc.viewMode = state.preferences?.defaultViewMode === 'single' ? 'single' : 'continuous';
+  // Weergavemodus uit de voorkeuren; enkelpagina is de standaard
+  // (createDocument zelf blijft een pure helper).
+  doc.viewMode = state.preferences?.defaultViewMode === 'continuous' ? 'continuous' : 'single';
   state.documents.push(doc);
 
   // Switch to the new tab
@@ -191,17 +191,17 @@ export function switchToTab(index) {
  * @param {boolean} force - Force close without checking for unsaved changes
  * @returns {boolean} True if tab was closed, false if cancelled
  */
-export async function closeTab(index, force = false) {
+export async function closeTab(index, force = false, dialogAction = null) {
   if (index < 0 || index >= state.documents.length) return false;
 
   const doc = state.documents[index];
 
-  // Cancel any in-progress background annotation loading for this document
-  cancelAnnotationLoading(doc);
-
-  // Check for unsaved changes - show Save / Don't Save / Cancel dialog
+  // Check for unsaved changes - show Save / Don't Save / Cancel dialog.
+  // `dialogAction` ('save'|'dontsave') slaat de native dialoog over — voor de
+  // MCP-brug en tests, die geen OS-dialoog kunnen bedienen maar wél de echte
+  // sluitvolgorde (opslaan → opruimen → sluiten) moeten doorlopen.
   if (!force && doc.modified) {
-    const action = await showUnsavedChangesDialog(doc.fileName);
+    const action = dialogAction || await showUnsavedChangesDialog(doc.fileName);
     if (action === 'cancel') return false;
     if (action === 'save') {
       const saved = await savePDF();
@@ -209,6 +209,15 @@ export async function closeTab(index, force = false) {
     }
     // action === 'dontsave' → proceed to close without saving
   }
+
+  // Cancel any in-progress background annotation loading for this document.
+  // PAS NA de opslaan-dialoog: cancelAnnotationLoading wist de
+  // gereedheids-sets maar laat doc.annotations staan, en de saver behandelt
+  // een "niet gereed"-pagina als niet-geladen (bestand = waarheid): hij
+  // behoudt dan alle bestaande annotaties in het bestand EN schrijft het
+  // model er nog eens bij — elke opslag-bij-sluiten verdubbelde zo alle
+  // annotaties.
+  cancelAnnotationLoading(doc);
 
   // Close all open sticky note popups
   closeAllPopups();
@@ -406,7 +415,7 @@ export function updateTabBar() {
  */
 export function updateWindowTitle() {
   const doc = getActiveDocument();
-  const baseTitle = `Open PDF Studio v${__APP_VERSION__}`;
+  const baseTitle = `Open PDF Studio v${appVersion()}`;
 
   // Update document.title (browser/OS window title)
   if (doc) {

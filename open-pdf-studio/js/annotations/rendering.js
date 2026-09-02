@@ -2822,7 +2822,13 @@ function drawRubberBand(ctx, effectiveScale) {
   ctx.restore();
 }
 
-export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDpr) {
+// `renderOffset` (optioneel, in schaal-1-paginacoördinaten) verschuift de
+// oorsprong: daarmee tekent een viewport-gebonden canvas alleen zijn eigen
+// uitsnede van de pagina (zie de scherpe overlay hieronder).
+// `pageDims` (optioneel, {w,h} in schaal-1-paginacoördinaten): volledige
+// paginamaat voor de watermerken; zonder deze parameter wordt de canvasmaat
+// gebruikt, wat bij een viewport-uitsnede te klein is.
+export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims) {
   ctx.clearRect(0, 0, width, height);
 
   // Read scale and annotations from the active document directly
@@ -2835,9 +2841,12 @@ export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDp
   const effectiveScale = scale * dpr;
   ctx.save();
   ctx.scale(effectiveScale, effectiveScale);
+  if (renderOffset) ctx.translate(-renderOffset.x, -renderOffset.y);
 
   // Draw watermarks behind content
-  renderWatermarksBehind(ctx, pageNum, width / effectiveScale, height / effectiveScale);
+  const wmW = pageDims ? pageDims.w : width / effectiveScale;
+  const wmH = pageDims ? pageDims.h : height / effectiveScale;
+  renderWatermarksBehind(ctx, pageNum, wmW, wmH);
 
   // Draw text edits (cover-and-replace)
   drawTextEdits(ctx, pageNum);
@@ -2848,7 +2857,7 @@ export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDp
   });
 
   // Draw watermarks in front of content
-  renderWatermarksInFront(ctx, pageNum, width / effectiveScale, height / effectiveScale);
+  renderWatermarksInFront(ctx, pageNum, wmW, wmH);
 
   // Blender-achtige 2D-cursor (Shift+rechtsklik). Werd alleen in het
   // enkelpagina-pad getekend; in de doorlopende weergave plaatste de klik hem
@@ -2894,6 +2903,103 @@ export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDp
   ctx.globalCompositeOperation = 'source-over';
 }
 
+// ── Scherpe annotatie-overlay (doorlopende weergave, hoge zoom) ─────────────
+// Het basis-annotatiecanvas per pagina is gecapt op een vaste as-limiet (zie
+// setupContinuousAnnotationCanvas in renderer.js): boven ~700% zoom wordt het
+// CSS-opgerekt en dus korrelig. Annotaties zijn vectorwerk, dus we leggen er
+// bij hoge zoom een tweede canvas overheen dat ALLEEN de zichtbare uitsnede
+// van de pagina op volle resolutie tekent (viewport-groot, dus altijd binnen
+// de canvaslimieten). pointer-events: none — hit-testing blijft op het
+// basiscanvas. Het basiscanvas wordt dan leeggemaakt zodat halftransparante
+// annotaties niet dubbel composieten.
+// UITGESCHAKELD (2026-09-01) — zie SCHERPE_OVERLAYS_ACTIEF in renderer.js:
+// extra overlay-lagen lieten de paginacanvas zelf wit rasteren op zware
+// bladen. Basiscanvas tekent weer gewoon zelf (korrelig boven ~700%, maar
+// altijd correct) tot het herontwerp zonder extra lagen.
+const SCHERPE_ANN_OVERLAY_ACTIEF = false;
+
+export function updateContinuousSharpOverlay(wrapper, pageNum) {
+  if (!SCHERPE_ANN_OVERLAY_ACTIEF) {
+    wrapper?.querySelectorAll('.annotation-canvas-sharp').forEach((c) => c.remove());
+    return;
+  }
+  const container = document.getElementById('pdf-container');
+  const baseCanvas = wrapper?.querySelector('.annotation-canvas');
+  const cc = wrapper?.querySelector('.canvas-container-cont');
+  if (!container || !baseCanvas || !cc) return;
+  const dpr = window.devicePixelRatio || 1;
+  const backingScale = parseFloat(baseCanvas.dataset.backingScale);
+  let sharp = cc.querySelector('.annotation-canvas-sharp');
+  // Basiscanvas op volle resolutie? Dan is er niets te verscherpen.
+  if (!Number.isFinite(backingScale) || backingScale >= dpr - 0.01) {
+    if (sharp) sharp.style.display = 'none';
+    return;
+  }
+  const contRect = container.getBoundingClientRect();
+  const ccRect = cc.getBoundingClientRect();
+  // Zichtbare uitsnede van de pagina in CSS-px (relatief aan de pagina).
+  const visLinks = Math.max(0, contRect.left - ccRect.left);
+  const visBoven = Math.max(0, contRect.top - ccRect.top);
+  const visRechts = Math.min(ccRect.width, contRect.right - ccRect.left);
+  const visOnder = Math.min(ccRect.height, contRect.bottom - ccRect.top);
+  const visB = visRechts - visLinks;
+  const visH = visOnder - visBoven;
+  if (visB <= 0 || visH <= 0) {
+    if (sharp) sharp.style.display = 'none';
+    return;
+  }
+  if (!sharp) {
+    sharp = document.createElement('canvas');
+    sharp.className = 'annotation-canvas-sharp';
+    sharp.style.position = 'absolute';
+    sharp.style.pointerEvents = 'none';
+    baseCanvas.insertAdjacentElement('afterend', sharp);
+  }
+  sharp.width = Math.max(1, Math.floor(visB * dpr));
+  sharp.height = Math.max(1, Math.floor(visH * dpr));
+  sharp.style.width = `${visB}px`;
+  sharp.style.height = `${visH}px`;
+  sharp.style.left = `${visLinks}px`;
+  sharp.style.top = `${visBoven}px`;
+  sharp.style.display = '';
+  // z-orde meebewegen met het basiscanvas (editText verlaagt die tijdelijk).
+  sharp.style.zIndex = baseCanvas.style.zIndex || '';
+  const doc = state.documents[state.activeDocumentIndex];
+  const scale = doc ? doc.scale : 1;
+  renderAnnotationsForPage(
+    sharp.getContext('2d'), pageNum, sharp.width, sharp.height, dpr,
+    { x: visLinks / scale, y: visBoven / scale },
+  );
+  // Basis leegmaken: de overlay dekt het zichtbare deel al scherp af.
+  const bctx = baseCanvas.getContext('2d');
+  bctx.clearRect(0, 0, baseCanvas.width, baseCanvas.height);
+}
+
+// Verberg alle scherpe overlays (tijdens een zoomgebaar kloppen positie en
+// uitsnede niet meer; de eerstvolgende settle-hertekening zet ze terug).
+export function hideContinuousSharpOverlays() {
+  document.querySelectorAll('.annotation-canvas-sharp').forEach((c) => { c.style.display = 'none'; });
+}
+
+// Ververs de overlays van alle zichtbare pagina's (na zoom-/scroll-settle en
+// na annotatiewijzigingen).
+export function updateAllContinuousSharpOverlays() {
+  const container = document.getElementById('pdf-container');
+  if (!container) return;
+  const contRect = container.getBoundingClientRect();
+  document.querySelectorAll('#continuous-container .page-wrapper').forEach((wrapper) => {
+    const pageNum = parseInt(wrapper.dataset.page, 10);
+    if (!pageNum) return;
+    const r = wrapper.getBoundingClientRect();
+    if (r.top < contRect.bottom && r.bottom > contRect.top) {
+      updateContinuousSharpOverlay(wrapper, pageNum);
+    } else {
+      const sharp = wrapper.querySelector('.annotation-canvas-sharp');
+      if (sharp) sharp.style.display = 'none';
+    }
+  });
+}
+
 // Redraw all pages in continuous mode
 export function redrawContinuous() {
   const pageWrappers = document.querySelectorAll('.page-wrapper');
@@ -2902,9 +3008,22 @@ export function redrawContinuous() {
     const canvas = wrapper.querySelector('.annotation-canvas');
     if (canvas) {
       const ctx = canvas.getContext('2d');
-      renderAnnotationsForPage(ctx, pageNum, canvas.width, canvas.height);
+      // Viewport-gebonden uitsnede (zie setupContinuousAnnotationCanvas):
+      // backing-schaal en clip-offset meegeven zodat de tekening exact op de
+      // uitsnede past.
+      const backingScale = parseFloat(canvas.dataset.backingScale);
+      const doc = state.documents[state.activeDocumentIndex];
+      const schaal = (doc && doc.scale) || 1;
+      const cc = canvas.parentElement;
+      const ccW = cc ? parseFloat(cc.style.width) || cc.getBoundingClientRect().width : 0;
+      const ccH = cc ? parseFloat(cc.style.height) || cc.getBoundingClientRect().height : 0;
+      renderAnnotationsForPage(ctx, pageNum, canvas.width, canvas.height,
+        Number.isFinite(backingScale) ? backingScale : undefined,
+        { x: (parseFloat(canvas.dataset.clipX) || 0) / schaal, y: (parseFloat(canvas.dataset.clipY) || 0) / schaal },
+        ccW > 0 && ccH > 0 ? { w: ccW / schaal, h: ccH / schaal } : undefined);
     }
   });
+  updateAllContinuousSharpOverlays();
 
   // Update quick access button states
   updateQuickAccessButtons();

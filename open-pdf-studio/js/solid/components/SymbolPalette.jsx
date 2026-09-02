@@ -125,7 +125,10 @@ function selectSymbol(symbol) {
     stampSvg: effectiveSvg,
     stampBaseSvg: symbol.svg,
     stampName: symbol.name,
-    stampWidth: SYMBOL_STAMP_DEFAULT_SIZE,
+    // Alleen de hoogte vastzetten: de breedte volgt uit de beeldverhouding van
+    // de SVG (placeOverrideStamp), zodat een niet-vierkant symbool niet in een
+    // vierkant wordt geduwd. Voor de vierkante meegeleverde symbolen blijft de
+    // uitkomst 400 x 400.
     stampHeight: SYMBOL_STAMP_DEFAULT_SIZE,
     lockAspectRatio: true,
     ifcCategory: ifcCategoryForSymbol(symbol),

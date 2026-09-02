@@ -12,7 +12,7 @@ import {
   zoomInIcon, zoomOutIcon, fitWidthIcon, actualSizeIcon, fitPageIcon,
   editTextIcon, addTextIcon, cropMarginsIcon,
   firstPageIcon, prevPageIcon, nextPageIcon, lastPageIcon, findIcon,
-  preferencesIcon
+  preferencesIcon, previousVersionIcon
 } from '../../data/ribbonIcons.js';
 import { openDialog } from '../../stores/dialogStore.js';
 import { lastCaptureAvailable } from '../../stores/screenshotStore.js';
@@ -169,6 +169,9 @@ export default function HomeTab() {
           <RibbonButton id="ribbon-preferences" title={t('help.preferencesTitle')}
             icon={preferencesIcon} label={t('help.preferences')}
             onClick={() => showPreferencesDialog()} />
+          <RibbonButton id="ribbon-previous-version" title={t('help.previousVersionTitle')}
+            icon={previousVersionIcon} label={t('help.previousVersion')}
+            onClick={() => import('../../../help/previous-version.js').then((m) => m.installPreviousVersion())} />
         </RibbonGroup>
       </AdaptiveGroups>
     </div>

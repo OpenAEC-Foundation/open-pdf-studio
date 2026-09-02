@@ -97,7 +97,7 @@
       "sending": "Sending to printer…",
       "sent": "Print job sent",
       "failed": "Printing failed: {{error}}",
-        "failedGeneric": "Printing failed",
+      "failedGeneric": "Printing failed",
       "errNoDocument": "no document open",
       "errTempFile": "could not create temporary file"
     }
@@ -466,5 +466,9 @@
     "addNewType": "+ New type",
     "editTitle": "Edit {{kind}}",
     "genericTypes": "Types"
+  },
+  "previousVersion": {
+    "notFound": "No older published version is available.",
+    "error": "Could not retrieve the version list. Check your internet connection and try again."
   }
 }

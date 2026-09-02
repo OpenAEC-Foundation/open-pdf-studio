@@ -185,7 +185,9 @@
     "updatesLabel": "به‌روزرسانی‌ها",
     "fileAssociation": "اقتران فایل",
     "setDefaultPdf": "تنظیم برنامه PDF پیش‌فرض",
-    "fileAssociations": "اقتران‌های فایل"
+    "fileAssociations": "اقتران‌های فایل",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "قرمز",

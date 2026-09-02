@@ -185,7 +185,9 @@
     "updatesLabel": "Masasisho",
     "fileAssociation": "Ushirikiano wa Faili",
     "setDefaultPdf": "Weka Programu Chaguo-msingi ya PDF",
-    "fileAssociations": "Ushirikiano wa Faili"
+    "fileAssociations": "Ushirikiano wa Faili",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "Nyekundu",
