@@ -10,7 +10,11 @@
     "isoBSeries": "Seria ISO B",
     "northAmerican": "Nord-american",
     "other": "Altele",
-    "customSize": "Personalizat..."
+    "customSize": "Personalizat...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "Tiparire",

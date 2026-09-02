@@ -10,7 +10,11 @@
     "isoBSeries": "ISO B -sarja",
     "northAmerican": "Pohjoisamerikkalainen",
     "other": "Muu",
-    "customSize": "Mukautettu..."
+    "customSize": "Mukautettu...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "Tulosta",

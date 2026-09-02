@@ -10,7 +10,11 @@
     "isoBSeries": "ISO B সিরিজ",
     "northAmerican": "উত্তর আমেরিকান",
     "other": "অন্যান্য",
-    "customSize": "কাস্টম..."
+    "customSize": "কাস্টম...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "মুদ্রণ",

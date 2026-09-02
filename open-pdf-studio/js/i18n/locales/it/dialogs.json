@@ -10,7 +10,11 @@
     "isoBSeries": "Serie ISO B",
     "northAmerican": "Nordamericano",
     "other": "Altro",
-    "customSize": "Personalizzato..."
+    "customSize": "Personalizzato...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "Stampa",

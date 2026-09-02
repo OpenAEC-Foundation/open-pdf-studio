@@ -10,7 +10,11 @@
     "isoBSeries": "סדרה ISO B",
     "northAmerican": "צפון אמריקאי",
     "other": "אחר",
-    "customSize": "מותאם אישית..."
+    "customSize": "מותאם אישית...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "הדפסה",

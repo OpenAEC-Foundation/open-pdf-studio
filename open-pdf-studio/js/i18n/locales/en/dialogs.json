@@ -13,7 +13,11 @@
     "customSize": "Custom...",
     "frameFailed": "Could not create a document from the frame: {{error}}",
     "noFrame": "None (blank page)",
-    "openFramesFolder": "Open the frames folder — your own frames (same naming) appear here automatically"
+    "openFramesFolder": "Open the frames folder — your own frames (same naming) appear here automatically",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "printQueue": {
     "save": "Save",

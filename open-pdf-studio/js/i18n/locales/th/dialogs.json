@@ -10,7 +10,11 @@
     "isoBSeries": "ISO ซีรีส์ B",
     "northAmerican": "อเมริกาเหนือ",
     "other": "อื่นๆ",
-    "customSize": "กำหนดเอง..."
+    "customSize": "กำหนดเอง...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "พิมพ์",

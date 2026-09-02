@@ -10,7 +10,11 @@
     "isoBSeries": "ISO B (dãy B)",
     "northAmerican": "Bắc Mỹ",
     "other": "Khác",
-    "customSize": "Tùy chỉnh..."
+    "customSize": "Tùy chỉnh...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "In",

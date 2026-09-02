@@ -10,7 +10,11 @@
     "isoBSeries": "ISO B серија",
     "northAmerican": "Северноамерички",
     "other": "Остало",
-    "customSize": "Прилагођено..."
+    "customSize": "Прилагођено...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "Штампање",

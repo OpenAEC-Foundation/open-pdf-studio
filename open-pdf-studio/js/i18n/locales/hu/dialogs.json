@@ -10,7 +10,11 @@
     "isoBSeries": "ISO B sorozat",
     "northAmerican": "Észak-amerikai",
     "other": "Egyéb",
-    "customSize": "Egyedi..."
+    "customSize": "Egyedi...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "Nyomtatás",

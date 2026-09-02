@@ -10,7 +10,11 @@
     "isoBSeries": "ISO B 系列",
     "northAmerican": "北美",
     "other": "其他",
-    "customSize": "自定义..."
+    "customSize": "自定义...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "打印",

@@ -77,7 +77,8 @@
     },
     "resources": {
       "icons/file-icon.ico": "file-icon.ico",
-      "resources/kaders": "kaders"
+      "resources/kaders": "kaders",
+      "resources/onderhoeken": "onderhoeken"
     },
     "externalBin": [
       "binaries/pdfium-worker"

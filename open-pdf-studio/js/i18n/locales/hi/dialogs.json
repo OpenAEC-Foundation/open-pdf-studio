@@ -10,7 +10,11 @@
     "isoBSeries": "ISO B श्रृंखला",
     "northAmerican": "उत्तर अमेरिकी",
     "other": "अन्य",
-    "customSize": "कस्टम..."
+    "customSize": "कस्टम...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "प्रिंट करें",

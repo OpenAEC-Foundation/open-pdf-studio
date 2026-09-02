@@ -10,7 +10,11 @@
     "isoBSeries": "سلسلة ISO B",
     "northAmerican": "أمريكي شمالي",
     "other": "أخرى",
-    "customSize": "مخصص..."
+    "customSize": "مخصص...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "طباعة",

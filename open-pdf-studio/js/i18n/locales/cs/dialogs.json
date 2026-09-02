@@ -10,7 +10,11 @@
     "isoBSeries": "ISO řada B",
     "northAmerican": "Severoamerické",
     "other": "Ostatní",
-    "customSize": "Vlastní..."
+    "customSize": "Vlastní...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "Tisk",

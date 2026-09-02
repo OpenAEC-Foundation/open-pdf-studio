@@ -10,7 +10,11 @@
     "isoBSeries": "ISO B 계열",
     "northAmerican": "북미",
     "other": "기타",
-    "customSize": "사용자 지정..."
+    "customSize": "사용자 지정...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "인쇄",

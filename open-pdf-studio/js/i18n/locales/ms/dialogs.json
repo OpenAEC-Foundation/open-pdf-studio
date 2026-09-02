@@ -10,7 +10,11 @@
     "isoBSeries": "Siri ISO B",
     "northAmerican": "Amerika Utara",
     "other": "Lain-lain",
-    "customSize": "Tersuai..."
+    "customSize": "Tersuai...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "Cetak",

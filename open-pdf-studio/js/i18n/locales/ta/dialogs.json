@@ -10,7 +10,11 @@
     "isoBSeries": "ISO B தொடர்",
     "northAmerican": "வட அமெரிக்கா",
     "other": "மற்றவை",
-    "customSize": "தனிப்பயன்..."
+    "customSize": "தனிப்பயன்...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "அச்சிடு",

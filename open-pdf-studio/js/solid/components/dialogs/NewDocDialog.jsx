@@ -4,6 +4,8 @@ import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { createBlankPDF, createDocFromTemplate } from '../../../pdf/loader.js';
 import { scanFrames, openFramesFolder } from '../../../pdf/frames.js';
+import { scanTitleBlocks, openTitleBlocksFolder, addTitleBlockFile, composeFrameWithTitleBlock }
+  from '../../../pdf/titleblocks.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 
 // Preferred defaults when the dialog opens: OpenAEC Grootformaat frame,
@@ -47,11 +49,22 @@ export default function NewDocDialog() {
   // / any new prefix found on disk); the paper-size + orientation controls
   // below then resolve WHICH frame PDF is used. '' = blanco document.
   const [frameIndex, setFrameIndex] = createSignal(null); // { stijlen, byStijl }
+  // Onderhoek (titelblok): kaders zijn kaal, de onderhoek is een los PDF
+  // dat er rechtsonder op wordt gezet. '' = geen onderhoek.
+  const [titleBlocks, setTitleBlocks] = createSignal([]);
+  const [titleBlock, setTitleBlock] = createSignal('');
   const [stijl, setStijl] = createSignal('');
 
   onMount(async () => {
     try {
       const idx = await scanFrames();
+      try {
+        const tbs = await scanTitleBlocks();
+        setTitleBlocks(tbs);
+        // Standaard de eerste onderhoek, zodat een nieuw vel meteen een
+        // titelblok heeft zoals voorheen (toen het in het kader zat).
+        if (tbs.length && !titleBlock()) setTitleBlock(tbs[0].path);
+      } catch (e) { console.warn('[new-doc] onderhoeken scannen mislukt:', e); }
       setFrameIndex(idx);
       // Default to the Grootformaat frame (A1 liggend) when it exists on
       // disk. If that exact size/orientation isn't available the keep-valid
@@ -188,7 +201,18 @@ export default function NewDocDialog() {
 
     (async () => {
       try {
-        const bytes = await readFrameBytes(frame.path);
+        let bytes = await readFrameBytes(frame.path);
+        if (token !== renderToken) return;
+        // Toon het vel zoals het wordt aangemaakt: kader met de gekozen onderhoek.
+        const tbPad = titleBlock();
+        if (tbPad) {
+          try {
+            const tbBytes = await readFrameBytes(tbPad);
+            bytes = await composeFrameWithTitleBlock(bytes, tbBytes);
+          } catch (e) {
+            console.warn('[new-doc] onderhoek in preview mislukt:', e?.message ?? e);
+          }
+        }
         if (token !== renderToken) return;
         const pdf = await pdfjsLib.getDocument({
           data: bytes,
@@ -227,13 +251,31 @@ export default function NewDocDialog() {
     return f ? `${base} — ${f.fileName}` : base;
   });
 
+  // Eigen onderhoek toevoegen: kies een PDF, kopieer hem naar de
+  // onderhoeken-map en selecteer hem meteen.
+  const pickTitleBlock = async () => {
+    try {
+      const gekozen = await window.__TAURI__?.dialog?.open({
+        multiple: false,
+        filters: [{ name: 'PDF', extensions: ['pdf'] }],
+      });
+      const pad = Array.isArray(gekozen) ? gekozen[0] : gekozen;
+      if (!pad) return;
+      const toegevoegd = await addTitleBlockFile(pad);
+      setTitleBlocks(await scanTitleBlocks());
+      setTitleBlock(toegevoegd.path);
+    } catch (e) {
+      console.warn('[new-doc] onderhoek toevoegen mislukt:', e);
+    }
+  };
+
   const close = () => closeDialog('new-doc');
 
   const handleOk = () => {
     const frame = resolvedFrame();
     if (frame) {
       // New document FROM the OpenAEC frame matching stijl+formaat+richting.
-      createDocFromTemplate(frame.path);
+      createDocFromTemplate(frame.path, titleBlock() || null);
       close();
       return;
     }
@@ -283,6 +325,32 @@ export default function NewDocDialog() {
             onClick={() => openFramesFolder()}
           >&#128193;</button>
         </div>
+        <Show when={stijl()}>
+          <div class="new-doc-row">
+            <label class="new-doc-label">{t('newDoc.titleBlock')}</label>
+            <select
+              class="new-doc-select"
+              value={titleBlock()}
+              onChange={(e) => setTitleBlock(e.target.value)}
+              style="flex:1"
+            >
+              <option value="">{t('newDoc.noTitleBlock')}</option>
+              <For each={titleBlocks()}>{(tb) => (
+                <option value={tb.path}>{tb.label}</option>
+              )}</For>
+            </select>
+            <button
+              title={t('newDoc.addTitleBlock')}
+              style="margin-left:6px;padding:2px 8px;border:1px solid var(--theme-border,#acacac);background:var(--theme-surface,#fff);color:var(--theme-text,#333);cursor:pointer;height:24px"
+              onClick={() => pickTitleBlock()}
+            >+</button>
+            <button
+              title={t('newDoc.openTitleBlocksFolder')}
+              style="margin-left:4px;padding:2px 8px;border:1px solid var(--theme-border,#acacac);background:var(--theme-surface,#fff);color:var(--theme-text,#333);cursor:pointer;height:24px"
+              onClick={() => openTitleBlocksFolder()}
+            >&#128193;</button>
+          </div>
+        </Show>
         <div class="new-doc-row">
           <label class="new-doc-label">{t('newDoc.paperSize')}</label>
           <Show when={availableFormats()} fallback={

@@ -10,7 +10,11 @@
     "isoBSeries": "Sèrie ISO B",
     "northAmerican": "Nord-americà",
     "other": "Altres",
-    "customSize": "Personalitzat..."
+    "customSize": "Personalitzat...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "Imprimeix",

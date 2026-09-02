@@ -712,7 +712,7 @@ export async function openPDFFile() {
 // the template bytes are COPIED to a temp file and opened through the exact
 // same loadPDF flow as createBlankPDF — the original frame file is never
 // touched and Save routes to Save-As.
-export async function createDocFromTemplate(templatePath) {
+export async function createDocFromTemplate(templatePath, titleBlockPath = null) {
   try {
     showLoading('Creating document...');
     if (!(isTauri() && window.__TAURI__?.path && window.__TAURI__?.fs)) {
@@ -720,7 +720,21 @@ export async function createDocFromTemplate(templatePath) {
     }
     try { await invoke('allow_fs_scope', { path: templatePath }); } catch {}
     const bytes = await window.__TAURI__.fs.readFile(templatePath);
-    const typedArray = new Uint8Array(bytes);
+    let typedArray = new Uint8Array(bytes);
+
+    // Kaders zijn kaal; de onderhoek (titelblok) is een los PDF dat hier
+    // rechtsonder op het vel wordt gezet. Mislukt dat, dan krijg je het kale
+    // kader — beter een vel zonder onderhoek dan geen document.
+    if (titleBlockPath) {
+      try {
+        try { await invoke('allow_fs_scope', { path: titleBlockPath }); } catch {}
+        const tbBytes = await window.__TAURI__.fs.readFile(titleBlockPath);
+        const { composeFrameWithTitleBlock } = await import('./titleblocks.js');
+        typedArray = await composeFrameWithTitleBlock(typedArray, new Uint8Array(tbBytes));
+      } catch (e) {
+        console.warn('[onderhoek] samenstellen mislukt, kaal kader gebruikt:', e);
+      }
+    }
 
     const displayName = getNextUntitledName();
     const tempDir = await window.__TAURI__.path.tempDir();

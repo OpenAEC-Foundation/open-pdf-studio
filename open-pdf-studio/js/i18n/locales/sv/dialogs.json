@@ -10,7 +10,11 @@
     "isoBSeries": "ISO B-serien",
     "northAmerican": "Nordamerikansk",
     "other": "Övrigt",
-    "customSize": "Anpassad..."
+    "customSize": "Anpassad...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "Skriv ut",

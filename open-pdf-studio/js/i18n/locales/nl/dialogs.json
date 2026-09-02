@@ -13,7 +13,11 @@
     "customSize": "Aangepast...",
     "frameFailed": "Kon document niet aanmaken van kader: {{error}}",
     "noFrame": "Geen (blanco pagina)",
-    "openFramesFolder": "Kaders-map openen — eigen kaders (zelfde naamgeving) verschijnen hier automatisch"
+    "openFramesFolder": "Kaders-map openen — eigen kaders (zelfde naamgeving) verschijnen hier automatisch",
+    "titleBlock": "Onderhoek",
+    "noTitleBlock": "Geen onderhoek",
+    "addTitleBlock": "Eigen onderhoek toevoegen (PDF)",
+    "openTitleBlocksFolder": "Onderhoeken-map openen"
   },
   "printQueue": {
     "save": "Opslaan",

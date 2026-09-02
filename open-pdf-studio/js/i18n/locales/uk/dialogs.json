@@ -10,7 +10,11 @@
     "isoBSeries": "Серія ISO B",
     "northAmerican": "Північноамериканські",
     "other": "Інше",
-    "customSize": "Користувацький..."
+    "customSize": "Користувацький...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "Друк",

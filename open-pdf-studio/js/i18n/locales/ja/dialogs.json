@@ -10,7 +10,11 @@
     "isoBSeries": "ISO B シリーズ",
     "northAmerican": "北米",
     "other": "その他",
-    "customSize": "カスタム..."
+    "customSize": "カスタム...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "印刷",

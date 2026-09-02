@@ -10,7 +10,11 @@
     "isoBSeries": "ISO seria B",
     "northAmerican": "Północnoamerykańskie",
     "other": "Inne",
-    "customSize": "Niestandardowy..."
+    "customSize": "Niestandardowy...",
+    "titleBlock": "Title block",
+    "noTitleBlock": "No title block",
+    "addTitleBlock": "Add your own title block (PDF)",
+    "openTitleBlocksFolder": "Open title blocks folder"
   },
   "print": {
     "title": "Drukowanie",
