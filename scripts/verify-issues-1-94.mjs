@@ -320,6 +320,32 @@ function pythonApCheck(pdfPad) {
 
   await sluitAlleTabs();
 
+  // ── #353: voorkeuren-spiegel is klein en het bestand gaat vóór ───────────
+  console.log('== #353 voorkeuren-spiegel');
+  {
+    const spiegel = await evalJs(`localStorage.getItem('pdfEditorPreferences') || ''`);
+    let sleutels = null;
+    try { sleutels = Object.keys(JSON.parse(spiegel)); } catch { /* leeg */ }
+    check('#353 spiegel bevat alleen het thema (Tauri)', Array.isArray(sleutels) && sleutels.every((k) => k === 'theme'), `sleutels: ${JSON.stringify(sleutels)} (${spiegel.length} tekens)`);
+    check('#353 spiegel is klein (< 1 kB)', spiegel.length > 0 && spiegel.length < 1024, `${spiegel.length} tekens`);
+  }
+
+  // ── #354: catalogus-bestandsopslag naast preferences.json ────────────────
+  console.log('== #354 catalogus-bestanden');
+  {
+    const r = await evalJs(`(async () => {
+      const inv = window.__TAURI__?.core?.invoke;
+      if (!inv) return JSON.stringify({ fout: 'geen invoke' });
+      await inv('save_catalog', { id: 'protocol-test', data: JSON.stringify({ format: 'linework-variants', families: [] }) });
+      const terug = await inv('load_catalog', { id: 'protocol-test' });
+      const verwijderd = await inv('delete_catalog', { id: 'protocol-test' });
+      const weg = await inv('load_catalog', { id: 'protocol-test' });
+      return JSON.stringify({ rondgang: !!terug && JSON.parse(terug).format === 'linework-variants', verwijderd, weg: weg == null });
+    })()`);
+    const uitkomst = JSON.parse(r);
+    check('#354 catalogus-bestand: schrijven → lezen → verwijderen', !!uitkomst.rondgang && uitkomst.verwijderd === true && uitkomst.weg === true, r);
+  }
+
   console.log('');
   console.log(`RESULTAAT: ${oks.length} OK, ${fouten.length} fout`);
   for (const f of fouten) console.log('FOUT —', f);

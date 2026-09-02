@@ -126,6 +126,55 @@ fn load_preferences() -> Option<String> {
     fs::read_to_string(&path).ok()
 }
 
+// Symboolcatalogi als losse bestanden naast preferences.json (#354): grote
+// gedownloade collecties horen niet in het instellingenbestand — dat wordt
+// bij elke voorkeurswijziging integraal herschreven en de localStorage-
+// spiegel kent een quotum. Kleine catalogi blijven gewoon inline in de
+// voorkeuren; alleen grote landen hier (beide opties bestaan naast elkaar).
+fn get_catalogs_dir() -> std::path::PathBuf {
+    let basis = dirs::data_local_dir().unwrap_or_else(|| std::path::PathBuf::from("."));
+    let dir = basis.join("OpenPDFStudio").join("catalogs");
+    if !dir.exists() {
+        let _ = fs::create_dir_all(&dir);
+    }
+    dir
+}
+
+/// Catalogus-id -> veilige bestandsnaam: alleen alfanumeriek, '-', '_' en
+/// '.'; al het andere wordt '_'. Voorkomt padtrucs via het id.
+fn veilige_catalogus_bestandsnaam(id: &str) -> String {
+    let schoon: String = id
+        .chars()
+        .map(|c| if c.is_ascii_alphanumeric() || c == '-' || c == '_' || c == '.' { c } else { '_' })
+        .collect();
+    let schoon = schoon.trim_matches('.').to_string();
+    let schoon = if schoon.is_empty() { "catalogus".to_string() } else { schoon };
+    format!("{}.json", schoon)
+}
+
+#[tauri::command]
+fn save_catalog(id: String, data: String) -> Result<bool, String> {
+    let path = get_catalogs_dir().join(veilige_catalogus_bestandsnaam(&id));
+    fs::write(&path, data).map_err(|e| e.to_string())?;
+    Ok(true)
+}
+
+#[tauri::command]
+fn load_catalog(id: String) -> Option<String> {
+    let path = get_catalogs_dir().join(veilige_catalogus_bestandsnaam(&id));
+    fs::read_to_string(&path).ok()
+}
+
+#[tauri::command]
+fn delete_catalog(id: String) -> Result<bool, String> {
+    let path = get_catalogs_dir().join(veilige_catalogus_bestandsnaam(&id));
+    match fs::remove_file(&path) {
+        Ok(_) => Ok(true),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(false),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
 #[tauri::command]
 fn get_username() -> String {
     whoami::username()
@@ -2673,6 +2722,9 @@ pub fn run(opts: StartupOpts) {
             list_pdf_files,
             save_preferences,
             load_preferences,
+            save_catalog,
+            load_catalog,
+            delete_catalog,
             play_alert_sound,
             list_plugins,
             install_plugin,

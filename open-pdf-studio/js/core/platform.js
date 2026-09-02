@@ -524,6 +524,24 @@ export async function loadPreferencesFile() {
   return null;
 }
 
+// Symboolcatalogi als losse bestanden naast preferences.json (#354) —
+// alleen in Tauri; de browser-variant houdt catalogi inline in preferences.
+export async function saveCatalogFile(id, data) {
+  return await invoke('save_catalog', { id, data: JSON.stringify(data) });
+}
+
+export async function loadCatalogFile(id) {
+  const result = await invoke('load_catalog', { id });
+  if (result) {
+    try { return JSON.parse(result); } catch { return null; }
+  }
+  return null;
+}
+
+export async function deleteCatalogFile(id) {
+  try { return await invoke('delete_catalog', { id }); } catch { return false; }
+}
+
 // Get system username
 export async function getUsername() {
   const result = await invoke('get_username');
