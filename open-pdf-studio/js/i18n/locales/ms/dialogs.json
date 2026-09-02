@@ -310,5 +310,9 @@
     "height": "Height (mm):",
     "info": "{{count}} page(s) in document. Content is centred at its original size — no scaling. Reversible with Undo.",
     "nothingResized": "No pages were resized."
+  },
+  "previousVersion": {
+    "notFound": "No older published version is available.",
+    "error": "Could not retrieve the version list. Check your internet connection and try again."
   }
 }

@@ -185,7 +185,9 @@
     "updatesLabel": "更新",
     "fileAssociation": "文件关联",
     "setDefaultPdf": "设为默认 PDF 应用程序",
-    "fileAssociations": "文件关联"
+    "fileAssociations": "文件关联",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "红色",

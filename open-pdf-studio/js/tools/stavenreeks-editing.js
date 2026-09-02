@@ -43,7 +43,7 @@ function labelScreenPos(ann) {
   let canvas = null;
   if (isContinuous) {
     canvas = document.querySelector(
-      `.page-wrapper[data-page="${ann.page}"] .annotation-canvas`);
+      `.page-wrapper[data-page="${ann.page}"] .canvas-container-cont`);
   }
   if (!canvas) canvas = annotationCanvas || document.getElementById('annotation-canvas');
   if (!canvas) return null;

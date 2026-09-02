@@ -124,10 +124,13 @@ function selectPages(n) {
     for (let k = 0; k < d.length; k += 4 * 17) { t++; if (d[k + 3] > 0 && !(d[k] > 245 && d[k + 1] > 245 && d[k + 2] > 245)) n++; }
     return +(100 * n / t).toFixed(2);
   });
-  const numPages = () => page.evaluate(async () => {
-    const s = await import('/js/core/state.ts');
-    return s.state.documents[s.state.activeDocumentIndex]?.pdfDoc?.numPages || 0;
-  });
+  // Via de MCP-brug, niet via import() in evaluate: een tweede import van
+  // state.ts (andere module-URL door Vite-HMR-invalidatie) draait de
+  // module-initialisatie opnieuw en crasht op een dubbele defineProperty.
+  const numPages = async () => {
+    const tabs = await tool('app_list_tabs', {});
+    return tabs?.tabs?.find((t) => t.active)?.pageCount || 0;
+  };
   // Wacht tot de canvas-inkt stabiel is: minstens `need` opeenvolgende metingen
   // binnen 0.15 procentpunt, met een langere horizon voor zware bestanden.
   // refBlank: pagina's die volgens de referentie-engine (vrijwel) leeg zijn

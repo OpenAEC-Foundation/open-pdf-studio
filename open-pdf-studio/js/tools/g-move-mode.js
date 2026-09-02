@@ -139,7 +139,10 @@ function getCanvasAndScale(e) {
 export function pointerToAppCoords(e) {
   const { canvas, scale } = getCanvasAndScale(e);
   if (!canvas) return null;
-  const rect = canvas.getBoundingClientRect();
+  // Doorlopend: canvas is een viewport-uitsnede; pagina-oorsprong = container.
+  const meetEl = (getActiveDocument()?.viewMode === 'continuous'
+    && canvas.closest && canvas.closest('.canvas-container-cont')) || canvas;
+  const rect = meetEl.getBoundingClientRect();
   const vp = window.__pdfViewport;
   if (vp && vp.active && getActiveDocument()?.viewMode !== 'continuous') {
     const screenX = e.clientX - rect.left;

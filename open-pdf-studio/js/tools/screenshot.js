@@ -19,7 +19,18 @@ function mergeCanvases(pdfCanvasEl, annotationCanvasEl) {
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, merged.width, merged.height);
   ctx.drawImage(pdfCanvasEl, 0, 0);
-  ctx.drawImage(annotationCanvasEl, 0, 0);
+  // Doorlopende weergave: het annotatiecanvas is een viewport-uitsnede van de
+  // pagina (clipX/clipY in CSS-px, backing op volle resolutie) — teken hem op
+  // zijn eigen plek, geschaald naar de backing-resolutie van het paginacanvas.
+  const clipX = parseFloat(annotationCanvasEl.dataset?.clipX) || 0;
+  const clipY = parseFloat(annotationCanvasEl.dataset?.clipY) || 0;
+  const pdfCssW = parseFloat(pdfCanvasEl.style.width) || pdfCanvasEl.width;
+  const pdfCssH = parseFloat(pdfCanvasEl.style.height) || pdfCanvasEl.height;
+  const annCssW = parseFloat(annotationCanvasEl.style.width) || annotationCanvasEl.width;
+  const annCssH = parseFloat(annotationCanvasEl.style.height) || annotationCanvasEl.height;
+  const sx = merged.width / pdfCssW;
+  const sy = merged.height / pdfCssH;
+  ctx.drawImage(annotationCanvasEl, clipX * sx, clipY * sy, annCssW * sx, annCssH * sy);
   return merged;
 }
 

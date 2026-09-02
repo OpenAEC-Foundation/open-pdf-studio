@@ -45,7 +45,11 @@ export async function runPrintJob({ pages, copies, printer }) {
 
     updatePrintProgress(i18next.t('dialogs:print.progress.saving'), pages.length / total);
     const pdfBytes = await newPdf.save();
-    const tempPath = await invoke('write_temp_pdf', { data: Array.from(pdfBytes) });
+    // Documentnaam meegeven: de spooler toont de bestandsnaam van het
+    // tempbestand als printjob-naam, dus die moet naar de pdf zelf heten.
+    const jobName = doc.fileName
+      || (doc.filePath ? doc.filePath.split(/[\/]/).pop() : null);
+    const tempPath = await invoke('write_temp_pdf', { data: Array.from(pdfBytes), name: jobName });
     if (!tempPath) throw new Error(i18next.t('dialogs:print.progress.errTempFile'));
 
     const numCopies = Math.max(1, copies);

@@ -1,4 +1,5 @@
 import { createSignal, onMount, onCleanup } from 'solid-js';
+import { appVersion } from '../../core/app-version.js';
 import { state } from '../../core/state.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 import { openDialog, getDialogs } from '../stores/dialogStore.js';
@@ -158,7 +159,7 @@ export default function TitleBar() {
       </div>
 
       <div class="title-bar-center">
-        <span class="app-title">{tCommon('appName')} v{__APP_VERSION__}</span>
+        <span class="app-title">{tCommon('appName')} v{appVersion()}</span>
         <span class="file-name">{fileName()}</span>
       </div>
 

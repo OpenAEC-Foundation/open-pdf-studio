@@ -185,7 +185,9 @@
     "updatesLabel": "Aggiornamenti",
     "fileAssociation": "Associazione file",
     "setDefaultPdf": "Imposta applicazione PDF predefinita",
-    "fileAssociations": "Associazioni file"
+    "fileAssociations": "Associazioni file",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "Rosso",

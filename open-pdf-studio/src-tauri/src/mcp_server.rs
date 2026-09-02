@@ -652,12 +652,13 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_close_tab",
-                "description": "Close the document tab at `index` (0-based). If the document has unsaved changes the call fails unless force=true — it never opens a save dialog, so the bridge stays headless-safe.",
+                "description": "Close the document tab at `index` (0-based). If the document has unsaved changes the call fails unless force=true (discard) or save=true (save-and-close) — it never opens a save dialog, so the bridge stays headless-safe.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
                         "index": { "type": "integer", "minimum": 0 },
-                        "force": { "type": "boolean", "default": false, "description": "Discard unsaved changes." }
+                        "force": { "type": "boolean", "default": false, "description": "Discard unsaved changes." },
+                        "save":  { "type": "boolean", "default": false, "description": "Save unsaved changes, then close (same path as the UI dialog's Save choice)." }
                     },
                     "required": ["index"],
                     "additionalProperties": false

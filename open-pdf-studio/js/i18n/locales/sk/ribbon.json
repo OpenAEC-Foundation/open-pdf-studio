@@ -185,7 +185,9 @@
     "updatesLabel": "Aktualizácie",
     "fileAssociation": "Priradenie súborov",
     "setDefaultPdf": "Nastaviť predvolenú PDF aplikáciu",
-    "fileAssociations": "Priradenie súborov"
+    "fileAssociations": "Priradenie súborov",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "Červená",

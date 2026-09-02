@@ -185,7 +185,9 @@
     "updatesLabel": "Cập nhật",
     "fileAssociation": "Liên kết Tệp",
     "setDefaultPdf": "Đặt Ứng dụng PDF Mặc định",
-    "fileAssociations": "Liên kết Tệp"
+    "fileAssociations": "Liên kết Tệp",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "Đỏ",

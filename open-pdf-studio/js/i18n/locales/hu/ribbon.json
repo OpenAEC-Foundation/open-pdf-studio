@@ -185,7 +185,9 @@
     "updatesLabel": "Frissítések",
     "fileAssociation": "Fájltársítás",
     "setDefaultPdf": "Alapértelmezett PDF alkalmazás beállítása",
-    "fileAssociations": "Fájltársítások"
+    "fileAssociations": "Fájltársítások",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "Piros",

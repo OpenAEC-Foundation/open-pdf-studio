@@ -185,7 +185,9 @@
     "updatesLabel": "Kemas Kini",
     "fileAssociation": "Perkaitan Fail",
     "setDefaultPdf": "Tetapkan Aplikasi PDF Lalai",
-    "fileAssociations": "Perkaitan Fail"
+    "fileAssociations": "Perkaitan Fail",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "Merah",

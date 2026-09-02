@@ -185,7 +185,9 @@
     "updatesLabel": "Aktualizacje",
     "fileAssociation": "Skojarzenie plików",
     "setDefaultPdf": "Ustaw domyślną aplikację PDF",
-    "fileAssociations": "Skojarzenia plików"
+    "fileAssociations": "Skojarzenia plików",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "Czerwony",

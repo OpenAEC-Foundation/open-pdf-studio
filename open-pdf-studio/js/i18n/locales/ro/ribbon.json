@@ -185,7 +185,9 @@
     "updatesLabel": "Actualizari",
     "fileAssociation": "Asociere fisiere",
     "setDefaultPdf": "Setare aplicatie PDF implicita",
-    "fileAssociations": "Asocieri fisiere"
+    "fileAssociations": "Asocieri fisiere",
+    "previousVersionTitle": "Install the previous version of Open PDF Studio",
+    "previousVersion": "Previous version"
   },
   "format": {
     "styleRed": "Rosu",

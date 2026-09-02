@@ -51,12 +51,22 @@ export function resolvePointerCoords(e) {
   const docCurrentPage = doc ? doc.currentPage : 1;
   const scale = doc?.scale || 1.5;
   if (doc?.viewMode === 'continuous') {
-    const canvas = e.target.closest ? e.target.closest('.annotation-canvas') || e.target : e.target;
+    // Events komen via de paginacontainer binnen (zie
+    // setupContinuousPageEvents) en kunnen dus ook op het pdf-canvas of de
+    // container zelf landen; het annotatiecanvas van de pagina blijft de
+    // tekencontext van het gereedschap.
+    const ccEl = e.target.closest ? e.target.closest('.canvas-container-cont') : null;
+    const canvas = (ccEl && ccEl.querySelector('.annotation-canvas'))
+      || (e.target.closest ? e.target.closest('.annotation-canvas') : null)
+      || e.target;
     if (!canvas || !canvas.getBoundingClientRect) {
       return { x: 0, y: 0, pageNum: docCurrentPage, canvas: null, canvasCtx: null };
     }
-    const pageNum = parseInt(canvas?.dataset?.page, 10);
-    const rect = canvas.getBoundingClientRect();
+    const pageNum = parseInt(canvas?.dataset?.page ?? ccEl?.dataset?.page, 10);
+    // Het annotatiecanvas is een viewport-uitsnede van de pagina; de
+    // PAGINA-oorsprong is de canvas-container eromheen.
+    const paginaEl = ccEl || (canvas.closest && canvas.closest('.canvas-container-cont')) || canvas;
+    const rect = paginaEl.getBoundingClientRect();
     return {
       x: (e.clientX - rect.left) / scale,
       y: (e.clientY - rect.top) / scale,
@@ -125,8 +135,15 @@ export function applyToolTransform(ctx) {
     ctx.setTransform(vp.zoom, 0, 0, vp.zoom, vp.offsetX, vp.offsetY);
   } else {
     const scale = doc?.scale || 1.5;
-    const dpr = window.devicePixelRatio || 1;
+    const canvas = ctx.canvas;
+    const backing = canvas?.dataset ? parseFloat(canvas.dataset.backingScale) : NaN;
+    const dpr = Number.isFinite(backing) ? backing : (window.devicePixelRatio || 1);
     ctx.setTransform(scale * dpr, 0, 0, scale * dpr, 0, 0);
+    // Doorlopende weergave: het annotatiecanvas is een viewport-uitsnede van
+    // de pagina; (clipX,clipY) is de positie van die uitsnede in CSS-px.
+    const clipX = canvas?.dataset ? parseFloat(canvas.dataset.clipX) || 0 : 0;
+    const clipY = canvas?.dataset ? parseFloat(canvas.dataset.clipY) || 0 : 0;
+    if (clipX || clipY) ctx.translate(-clipX / scale, -clipY / scale);
   }
 }
 

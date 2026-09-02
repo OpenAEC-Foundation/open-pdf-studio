@@ -1180,7 +1180,17 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
       // exactly one box and we demonstrably understood its structure. An
       // appearance we could not parse (rotation hidden in a nested XObject,
       // say) leaves apInnerRect unset and keeps the key-derived angle.
-      if (ftRotation !== 0 && extraColors.apHasRotationOp === false && extraColors.apInnerRect) {
+      //
+      // En de /Matrix telt mee als rotatietransform: sommige externe editors
+      // zetten de volledige rotatie in de AP-/Matrix (content-stream zonder
+      // rotatie-cm, Rect = AABB, /Rotation als metadata). De appearance is
+      // dan wel degelijk geroteerd — de guard mag alleen vuren als zowel de
+      // content als de /Matrix rotatievrij zijn, anders werden zulke labels
+      // plat geladen (tekst horizontaal in een AABB-doos).
+      const ftMatrixHoek = Math.abs(extraColors.matrixAngle || 0) % 360;
+      const ftMatrixRotatievrij = ftMatrixHoek <= 1 || ftMatrixHoek >= 359;
+      if (ftRotation !== 0 && extraColors.apHasRotationOp === false && extraColors.apInnerRect
+          && ftMatrixRotatievrij) {
         ftRotation = 0;
       }
 

@@ -39,7 +39,7 @@ function darken(hex, amount = 0.15) {
 function popupCanvas(a) {
   const doc = getActiveDocument();
   if (doc?.viewMode === 'continuous' && a?.page != null) {
-    const c = document.querySelector(`.page-wrapper[data-page="${a.page}"] .annotation-canvas`);
+    const c = document.querySelector(`.page-wrapper[data-page="${a.page}"] .canvas-container-cont`);
     if (c) return c;
   }
   return annotationCanvas || document.getElementById('annotation-canvas');
