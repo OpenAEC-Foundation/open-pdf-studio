@@ -86,6 +86,23 @@ export const MITER_LIMIT_FACTOR = 4;
 /** Tolerantie (app-px ≈ pt) waarbinnen twee uiteinden als HOEK gelden. */
 export const CORNER_TOL = 1.5;
 
+/**
+ * Reikwijdte voor de KRUISENDE hoek, als factor × de grootste halve
+ * balkbreedte: hoe ver een uiteinde voorbij (of vóór) het snijpunt van de
+ * hartlijnen mag liggen en toch als bedoelde hoek geldt. Schaalt bewust mee
+ * met de balkbreedte — bij dikke balken klikt niemand op de punt nauwkeurig
+ * — en blijft klein genoeg dat een echte kruising midden op een balk niet
+ * per ongeluk wordt afgekapt (daar ligt geen doel-uiteinde bij het snijpunt).
+ */
+export const CROSS_REIK_FACTOR = 4;
+
+/**
+ * Ondergrens voor die reikwijdte in app-px (≈ paginapunten), zodat ook een
+ * dunne balk een werkbare hoek-tolerantie houdt: 12 pt ≈ 4 mm op papier —
+ * de orde van een muisklik naast de bedoelde hoek.
+ */
+export const CROSS_REIK_MIN = 12;
+
 function clamp(v, lo, hi) {
   return v < lo ? lo : (v > hi ? hi : v);
 }
@@ -290,9 +307,11 @@ export function beamOutline(points, halfWidth, miterLimitFactor = MITER_LIMIT_FA
  * @param {Array<{points:Array<{x,y}>, halfWidth:number}>} others
  * @returns {{kind:'corner'|'tee', beam:object, far?:{x,y}}|null}
  */
-export function findJoinTarget(P, ownHalfWidth, others) {
+export function findJoinTarget(P, ownHalfWidth, others, ownFar = null) {
   let bestCorner = null, bestCornerD = Infinity;
+  let bestCross = null, bestCrossD = Infinity;
   let bestTee = null, bestTeeD = Infinity;
+  const eigenHalf = Number(ownHalfWidth) || 0;
   for (const ob of others || []) {
     const pts = _cleanPoints(ob?.points);
     if (pts.length < 2 || !(ob.halfWidth > 0)) continue;
@@ -305,15 +324,44 @@ export function findJoinTarget(P, ownHalfWidth, others) {
         bestCorner = { kind: 'corner', beam: { points: pts, halfWidth: ob.halfWidth }, far };
       }
     }
+    // Kruisende hoek: de hartlijnen snijden elkaar in X, en ZOWEL het eigen
+    // uiteinde ALS een uiteinde van de doelbalk liggen vlak bij X. Dan is
+    // het onmiskenbaar een bedoelde hoek waarbij (één van) beide balken
+    // voorbij het snijpunt doorsteekt of net te kort blijft; beide worden
+    // naar X getrimd en in verstek gezet. Een balk die het MIDDEN van een
+    // andere kruist heeft daar géén uiteinde liggen en blijft dus gewoon
+    // een kruising.
+    if (ownFar) {
+      const X = lineIntersection(
+        P, _unit(P.x - ownFar.x, P.y - ownFar.y) || { x: 1, y: 0 },
+        S, _unit(E.x - S.x, E.y - S.y) || { x: 1, y: 0 },
+      );
+      if (X) {
+        const reik = Math.max(CROSS_REIK_FACTOR * Math.max(eigenHalf, ob.halfWidth), CROSS_REIK_MIN);
+        const dEigen = Math.hypot(P.x - X.x, P.y - X.y);
+        if (dEigen <= reik) {
+          for (const [end, far] of [[S, E], [E, S]]) {
+            const dDoel = Math.hypot(end.x - X.x, end.y - X.y);
+            const score = dEigen + dDoel;
+            if (dDoel <= reik && score < bestCrossD) {
+              bestCrossD = score;
+              bestCross = {
+                kind: 'cross', beam: { points: pts, halfWidth: ob.halfWidth }, far, at: X,
+              };
+            }
+          }
+        }
+      }
+    }
     // T: uiteinde op het lijf.
-    const tol = Math.min(Number(ownHalfWidth) || 0, ob.halfWidth);
+    const tol = Math.min(eigenHalf, ob.halfWidth);
     const d = _distToSegment(P.x, P.y, S.x, S.y, E.x, E.y);
     if (d <= ob.halfWidth + tol && d < bestTeeD) {
       bestTeeD = d;
       bestTee = { kind: 'tee', beam: { points: pts, halfWidth: ob.halfWidth } };
     }
   }
-  return bestCorner || bestTee;
+  return bestCorner || bestCross || bestTee;
 }
 
 // Snijpunt van de (oneindige) lijn A→B met de NABIJE randlijn van de
@@ -407,10 +455,20 @@ export function trimAgainstBeams(edges, center, ownHalfWidth, others) {
     { which: 'end', P: E, dirIn: { x: -u.x, y: -u.y }, flag: 'joinedEnd' },
   ];
   for (const end of ends) {
-    const target = findJoinTarget(end.P, ownHalfWidth, others);
+    const eigenVer = end.which === 'start' ? E : S;
+    const target = findJoinTarget(end.P, ownHalfWidth, others, eigenVer);
     if (!target) continue;
     if (target.kind === 'corner') {
       _cornerJoin(edges, end.which, end.P, end.dirIn, ownHalfWidth, target);
+    } else if (target.kind === 'cross') {
+      // Kruisende hoek: eerst de eigen TEKEN-hartlijn naar het snijpunt
+      // brengen (inkorten of verlengen — de annotatie-data blijft intact),
+      // daarna hetzelfde verstek als bij een gewone hoek. De doelbalk doet
+      // in zijn eigen berekening precies hetzelfde, dus de twee randen
+      // sluiten wederzijds aan.
+      const idx = end.which === 'start' ? 0 : center.length - 1;
+      center[idx] = { x: target.at.x, y: target.at.y };
+      _cornerJoin(edges, end.which, target.at, end.dirIn, ownHalfWidth, target);
     } else {
       // T: beide randen én de hartlijn stoppen op de NABIJE doelrand.
       _trimEdgeEnd(edges.left, end.which, target, ownHalfWidth);
