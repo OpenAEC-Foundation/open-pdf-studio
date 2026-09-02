@@ -20,6 +20,9 @@ finish-args:
   - --share=network
   # IPC (X11 shared memory)
   - --share=ipc
+  # Printing: lpstat/lp praten met de CUPS-socket; zonder deze regel blijft
+  # de printerlijst in de flatpak leeg (#326).
+  - --socket=cups
 
 build-options:
   append-path: /usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/node22/bin
