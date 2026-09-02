@@ -320,6 +320,35 @@ function pythonApCheck(pdfPad) {
 
   await sluitAlleTabs();
 
+  // ── Sluiten-met-opslaan verdubbelt geen annotaties ──────────────────────
+  // De gerapporteerde 2867-bug: bij "sluiten en opslaan" werden alle
+  // annotaties opnieuw in het bestand geschreven NAAST de bestaande, omdat
+  // het opruimen van de laad-administratie vóór de opslag liep. Een
+  // annotatierijk bestand is hier het scherpst: daar duurt het laden lang
+  // genoeg om het venster te raken.
+  console.log('== sluiten-met-opslaan (annotatie-verdubbeling)');
+  {
+    const werkPdf = path.join(WERK, 'sluiten-opslaan.pdf');
+    copyFileSync(path.join(FIXTURES, 'NKD1a_opm_aw.pdf'), werkPdf);
+    const pad = werkPdf.replaceAll('\\', '/');
+    await mcp('app_open_pdf', { path: pad });
+    await sleep(9000); // annotatie-extractie van alle pagina's afwachten
+    const voor = (await mcp('app_list_annotations', {}))?.annotations?.length ?? -1;
+    // Eén wijziging zodat het document als gewijzigd geldt en de
+    // opslaan-bij-sluiten-tak daadwerkelijk doorlopen wordt.
+    await mcp('app_create_annotation', { type: 'box', props: { x: 40, y: 40, width: 60, height: 30 } });
+    await sleep(800);
+    const tabs = await mcp('app_list_tabs', {});
+    const idx = tabs?.tabs?.find((t) => t.active)?.index ?? 0;
+    await mcp('app_close_tab', { index: idx, save: true });
+    await sleep(4000);
+    await mcp('app_open_pdf', { path: pad });
+    await sleep(9000);
+    const na = (await mcp('app_list_annotations', {}))?.annotations?.length ?? -1;
+    check('sluiten-met-opslaan telt +1, verdubbelt niet', na === voor + 1, `voor=${voor} na=${na} (verdubbeld zou ${(voor + 1) * 2} zijn)`);
+    await sluitAlleTabs();
+  }
+
   // ── #353: voorkeuren-spiegel is klein en het bestand gaat vóór ───────────
   console.log('== #353 voorkeuren-spiegel');
   {
