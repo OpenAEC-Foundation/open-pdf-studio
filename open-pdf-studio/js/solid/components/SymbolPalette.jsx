@@ -27,7 +27,14 @@ import { ifcCategoryForSymbol } from '../data/ifcCategoryMap.js';
 import { nenIfcForSymbolId } from '../data/nenIfcMap.js';
 import { SYMBOL_STAMP_DEFAULT_SIZE } from '../../annotations/stamp-defaults.js';
 import { setPendingSymbolId } from '../stores/parametricSymbolStore.js';
-import { parseLineworkCatalog, lineworkCatalogToGroup } from '../../symbols/linework-catalog.js';
+import { parseLineworkCatalog, lineworkCatalogToGroup, LINEWORK_TEMPLATE_PREFIX } from '../../symbols/linework-catalog.js';
+
+// Alleen catalogus-FAMILIES (maat-keuze, geen sprekend pictogram) krijgen de
+// brede tegel met naam; gewone parametrische symbolen houden het compacte
+// pictogrammenraster. Op `parametricId` alleen gaten maakte van elke
+// parametrische groep één lange lijst met grote tegels.
+const isCatalogusFamilie = (sym) =>
+  typeof sym?.parametricId === 'string' && sym.parametricId.startsWith(LINEWORK_TEMPLATE_PREFIX);
 import { registerLineworkCatalog } from '../../symbols/linework-catalog-store.js';
 import { openDialog } from '../stores/dialogStore.js';
 import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
@@ -234,7 +241,7 @@ function SymbolContent() {
                     <For each={cat.symbols}>
                       {(sym) => (
                         <button
-                          class={`sp-symbol-btn${state.toolOverrides?.stampSvg === sym.svg ? ' active' : ''}${sym.parametricId ? ' sp-symbol-named' : ''}`}
+                          class={`sp-symbol-btn${state.toolOverrides?.stampSvg === sym.svg ? ' active' : ''}${isCatalogusFamilie(sym) ? ' sp-symbol-named' : ''}`}
                           title={sym.name}
                           onClick={() => selectSymbol(sym)}
                         >
@@ -243,7 +250,7 @@ function SymbolContent() {
                               geen pictogrammen: aan de miniatuur alleen zie je niet
                               welk aanzicht je aanklikt. Platte symboolsets houden
                               hun compacte raster. */}
-                          <Show when={sym.parametricId}>
+                          <Show when={isCatalogusFamilie(sym)}>
                             <span class="sp-symbol-name">{sym.name}</span>
                           </Show>
                         </button>
