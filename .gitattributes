@@ -1,0 +1,25 @@
+# Binaire bestanden nooit door de regeleinde-normalisatie halen: git zou
+# CRLF injecteren en het bestand daarmee stukmaken. Speelt onder meer bij de
+# tekenkaders en onderhoeken (resources/kaders, resources/onderhoeken) en bij
+# de meegeleverde binaries.
+*.pdf      binary
+*.png      binary
+*.jpg      binary
+*.jpeg     binary
+*.gif      binary
+*.ico      binary
+*.icns     binary
+*.woff     binary
+*.woff2    binary
+*.ttf      binary
+*.otf      binary
+*.dll      binary
+*.exe      binary
+*.so       binary
+*.dylib    binary
+*.zip      binary
+*.apk      binary
+*.dmg      binary
+*.snap     binary
+*.AppImage binary
+*.dxf      binary
