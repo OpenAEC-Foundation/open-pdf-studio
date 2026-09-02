@@ -81,6 +81,10 @@ export const NL_CATEGORIES = [
     // dikte kies je daarna in het eigenschappenvenster.
     id: 'nl-ifc-bouw',
     name: 'NL IFC Bouw',
+    // Meegeleverde groep: zonder deze vlag toonde de bibliotheek-instellingen
+    // "+ Add Symbol"/Export/Remove die stilletjes niets deden — de handlers
+    // werken alleen op preferences.customSymbolGroups (#339).
+    builtin: true,
     industry: 'aec',
     country: 'nl',
     color: 'var(--theme-text, #000000)',
@@ -137,6 +141,8 @@ export const NL_CATEGORIES = [
     // aansluitpunten, bel, meterkast, bewegingsdetector). Statische SVG-stempels
     // die als stempel geplaatst worden; geometrie uit de elektra-renvooi-DXF.
     id: 'nl-elektra',
+    // Zie nl-ifc-bouw hierboven (#339).
+    builtin: true,
     name: 'NL Elektra',
     color: 'var(--theme-text, #000000)',
     icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 1 3 9h4l-1 6 6-8H8z"/></svg>`,
