@@ -29,6 +29,8 @@
 // schuin liggen. De AP-stream houdt /Matrix = (translatie-)identiteit en
 // BBox = /Rect-maat.
 
+import { kruisendeHoek } from './hoek-trim.js';
+
 /** Toegestane lijnstijlen. 'gestippeld' = balk boven het aanzichtvlak
  *  (NL-conventie): randen onderbroken, hartlijn doorgetrokken dun. */
 export const BETONBALK_LIJNSTIJLEN = ['doorgetrokken', 'gestippeld'];
@@ -86,22 +88,8 @@ export const MITER_LIMIT_FACTOR = 4;
 /** Tolerantie (app-px ≈ pt) waarbinnen twee uiteinden als HOEK gelden. */
 export const CORNER_TOL = 1.5;
 
-/**
- * Reikwijdte voor de KRUISENDE hoek, als factor × de grootste halve
- * balkbreedte: hoe ver een uiteinde voorbij (of vóór) het snijpunt van de
- * hartlijnen mag liggen en toch als bedoelde hoek geldt. Schaalt bewust mee
- * met de balkbreedte — bij dikke balken klikt niemand op de punt nauwkeurig
- * — en blijft klein genoeg dat een echte kruising midden op een balk niet
- * per ongeluk wordt afgekapt (daar ligt geen doel-uiteinde bij het snijpunt).
- */
-export const CROSS_REIK_FACTOR = 4;
-
-/**
- * Ondergrens voor die reikwijdte in app-px (≈ paginapunten), zodat ook een
- * dunne balk een werkbare hoek-tolerantie houdt: 12 pt ≈ 4 mm op papier —
- * de orde van een muisklik naast de bedoelde hoek.
- */
-export const CROSS_REIK_MIN = 12;
+// De kruisende-hoek-regel is gedeeld met de wanden — zie hoek-trim.js.
+export { CROSS_REIK_FACTOR, CROSS_REIK_MIN } from './hoek-trim.js';
 
 function clamp(v, lo, hi) {
   return v < lo ? lo : (v > hi ? hi : v);
@@ -332,25 +320,13 @@ export function findJoinTarget(P, ownHalfWidth, others, ownFar = null) {
     // andere kruist heeft daar géén uiteinde liggen en blijft dus gewoon
     // een kruising.
     if (ownFar) {
-      const X = lineIntersection(
-        P, _unit(P.x - ownFar.x, P.y - ownFar.y) || { x: 1, y: 0 },
-        S, _unit(E.x - S.x, E.y - S.y) || { x: 1, y: 0 },
-      );
-      if (X) {
-        const reik = Math.max(CROSS_REIK_FACTOR * Math.max(eigenHalf, ob.halfWidth), CROSS_REIK_MIN);
-        const dEigen = Math.hypot(P.x - X.x, P.y - X.y);
-        if (dEigen <= reik) {
-          for (const [end, far] of [[S, E], [E, S]]) {
-            const dDoel = Math.hypot(end.x - X.x, end.y - X.y);
-            const score = dEigen + dDoel;
-            if (dDoel <= reik && score < bestCrossD) {
-              bestCrossD = score;
-              bestCross = {
-                kind: 'cross', beam: { points: pts, halfWidth: ob.halfWidth }, far, at: X,
-              };
-            }
-          }
-        }
+      const kruis = kruisendeHoek(P, ownFar, S, E, eigenHalf, ob.halfWidth);
+      if (kruis && kruis.score < bestCrossD) {
+        bestCrossD = kruis.score;
+        bestCross = {
+          kind: 'cross', beam: { points: pts, halfWidth: ob.halfWidth },
+          far: kruis.far, at: kruis.at,
+        };
       }
     }
     // T: uiteinde op het lijf.

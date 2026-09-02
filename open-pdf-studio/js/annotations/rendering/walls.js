@@ -14,6 +14,7 @@
 import { getMeasureScale } from '../measurement.js';
 import { getRegionScaleFactor } from '../scale-region.js';
 import { applyHatchFillPolygon } from './hatch-patterns.js';
+import { kruisendeHoek } from '../hoek-trim.js';
 
 const UNIT_TO_MM = { mm: 1, cm: 10, m: 1000, in: 25.4, ft: 304.8 };
 const JOIN_TOL = 1.5;     // page-pt endpoint coincidence tolerance
@@ -90,8 +91,11 @@ function _isect(p1, d1, p2, d2) {
   return { x: p1.x + d1.x * t, y: p1.y + d1.y * t };
 }
 
-// Find another wall whose endpoint coincides with (px,py).
-function _jointPartner(walls, self, px, py) {
+// Find another wall whose endpoint coincides with (px,py), or — when the
+// endpoints only PASS each other — whose centreline crosses ours right by
+// both ends (see hoek-trim.js). The latter returns `at`: the corner point
+// the two walls are trimmed/extended to.
+function _jointPartner(walls, self, px, py, eigenVer, halfW) {
   for (const o of walls) {
     if (o === self || o.id === self.id) continue;
     if (Math.hypot(o.startX - px, o.startY - py) <= JOIN_TOL) {
@@ -101,21 +105,40 @@ function _jointPartner(walls, self, px, py) {
       return { wall: o, far: { x: o.startX, y: o.startY } };
     }
   }
-  return null;
+  // Kruisende hoek: los getekende wanden die elkaar bij de hoek net
+  // passeren (of net te kort blijven) horen óók één nette hoek te vormen.
+  if (!eigenVer) return null;
+  let beste = null;
+  for (const o of walls) {
+    if (o === self || o.id === self.id) continue;
+    const kruis = kruisendeHoek(
+      { x: px, y: py }, eigenVer,
+      { x: o.startX, y: o.startY }, { x: o.endX, y: o.endY },
+      halfW, wallHalfWidthPx(o),
+    );
+    if (kruis && (!beste || kruis.score < beste.score)) {
+      beste = { wall: o, far: kruis.far, at: kruis.at, score: kruis.score };
+    }
+  }
+  return beste;
 }
 
 // Corner pair at endpoint P of `ann`. dirIn = unit vector from P INTO the
 // wall body. Returns { plus, minus, joined } where plus/minus are the band
 // corners on the +perp / -perp side (perp of dirIn).
-function _cornersAt(ann, walls, P, dirIn, halfW) {
+function _cornersAt(ann, walls, P0, dirIn, halfW, eigenVer) {
   const n = { x: -dirIn.y, y: dirIn.x };
   const def = {
-    plus: { x: P.x + n.x * halfW, y: P.y + n.y * halfW },
-    minus: { x: P.x - n.x * halfW, y: P.y - n.y * halfW },
+    plus: { x: P0.x + n.x * halfW, y: P0.y + n.y * halfW },
+    minus: { x: P0.x - n.x * halfW, y: P0.y - n.y * halfW },
     joined: false,
   };
-  const partner = _jointPartner(walls, ann, P.x, P.y);
+  const partner = _jointPartner(walls, ann, P0.x, P0.y, eigenVer, halfW);
   if (!partner) return def;
+  // Bij een kruisende hoek ligt het hoekpunt op het snijpunt van de
+  // hartlijnen — de band wordt daarheen getrimd of doorgetrokken. De
+  // annotatie zelf blijft ongemoeid; dit is puur rendergeometrie.
+  const P = partner.at || P0;
   const dir2 = _unit(partner.far.x - P.x, partner.far.y - P.y);
   if (!dir2) return def;
   const h2 = wallHalfWidthPx(partner.wall);
@@ -150,8 +173,8 @@ export function computeWallShape(ann, annotations) {
   const E = { x: ann.endX, y: ann.endY };
   // dirIn at S is u; at E it is -u. perp(u) = n; perp(-u) = -n — so the
   // band edge on +n is σ=+1 at S and σ=-1 at E.
-  const cs = _cornersAt(ann, walls, S, u, halfW);
-  const ce = _cornersAt(ann, walls, E, { x: -u.x, y: -u.y }, halfW);
+  const cs = _cornersAt(ann, walls, S, u, halfW, E);
+  const ce = _cornersAt(ann, walls, E, { x: -u.x, y: -u.y }, halfW, S);
   return {
     poly: [cs.plus, ce.minus, ce.plus, cs.minus],
     joinedStart: cs.joined,
