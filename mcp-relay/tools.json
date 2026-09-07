@@ -1,0 +1,1009 @@
+{
+  "tools": [
+    {
+      "name": "list_test_pdfs",
+      "description": "List all PDFs in the test corpus directory.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "screenshot_page",
+      "description": "Render a single PDF page to PNG (returned as base64).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "page_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 2000
+          }
+        },
+        "required": [
+          "path",
+          "page_index"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_pdf_metadata",
+      "description": "Read PDF version, producer, and per-page metadata.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "screenshot_all",
+      "description": "Render all pages of a PDF as base64 PNGs. For batch rendering; clients with size constraints should call screenshot_page per page instead.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 2000
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_open_pdf",
+      "description": "Tell the LIVE running app to open a PDF in a new tab. Returns once the document is loaded and the tab is active. Requires the Tauri WebView to be alive (--mcp-server mode).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_set_zoom",
+      "description": "Set the page-view zoom in the LIVE app. scale=1.0 means 100%, 2.0 means 200%, etc.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "scale": {
+            "type": "number",
+            "minimum": 0.05,
+            "maximum": 32
+          }
+        },
+        "required": [
+          "scale"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_zoom_in",
+      "description": "Trigger one zoom-in step in the LIVE app (same as the toolbar +).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_zoom_out",
+      "description": "Trigger one zoom-out step in the LIVE app (same as the toolbar -).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_screenshot_view",
+      "description": "Capture the LIVE app's current page view as a base64 PNG. Composites the PDF canvas with the annotation/highlight overlays (NOT the surrounding chrome — for that use OS-level screenshotting).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "width": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 2000
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_mouse_move",
+      "description": "Dispatch a synthetic mousemove at viewport CSS coordinates (x, y) inside the LIVE WebView. Returns the element under the cursor.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "integer"
+          },
+          "y": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_mouse_click",
+      "description": "Dispatch a synthetic mouse click at (x, y). Sequence: mousemove -> mousedown -> mouseup -> click (or contextmenu for right). button: 'left' (default) | 'middle' | 'right'.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "integer"
+          },
+          "y": {
+            "type": "integer"
+          },
+          "button": {
+            "type": "string",
+            "enum": [
+              "left",
+              "middle",
+              "right"
+            ],
+            "default": "left"
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_mouse_drag",
+      "description": "Dispatch a synthetic drag from (x1,y1) to (x2,y2) using `steps` interpolated mousemove events. Sequence: mousedown(x1,y1) -> N x mousemove -> mouseup(x2,y2). button: 'left' (default) | 'middle' | 'right'.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "x1": {
+            "type": "integer"
+          },
+          "y1": {
+            "type": "integer"
+          },
+          "x2": {
+            "type": "integer"
+          },
+          "y2": {
+            "type": "integer"
+          },
+          "button": {
+            "type": "string",
+            "enum": [
+              "left",
+              "middle",
+              "right"
+            ],
+            "default": "left"
+          },
+          "steps": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "default": 10
+          }
+        },
+        "required": [
+          "x1",
+          "y1",
+          "x2",
+          "y2"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_scroll",
+      "description": "Dispatch a synthetic wheel event at (x, y) with delta (dx, dy) in CSS pixels. Set ctrlKey=true to test ctrl+wheel zoom-to-cursor.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "integer"
+          },
+          "y": {
+            "type": "integer"
+          },
+          "dx": {
+            "type": "integer",
+            "default": 0
+          },
+          "dy": {
+            "type": "integer",
+            "default": 0
+          },
+          "ctrlKey": {
+            "type": "boolean",
+            "default": false
+          },
+          "shiftKey": {
+            "type": "boolean",
+            "default": false
+          },
+          "altKey": {
+            "type": "boolean",
+            "default": false
+          },
+          "metaKey": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_key",
+      "description": "Press a single key (with optional modifiers) on the focused element. Dispatches keydown then keyup. e.g. {key:'Escape'} or {key:'z', ctrl:true} for undo.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "ctrl": {
+            "type": "boolean",
+            "default": false
+          },
+          "shift": {
+            "type": "boolean",
+            "default": false
+          },
+          "alt": {
+            "type": "boolean",
+            "default": false
+          },
+          "meta": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "key"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_type",
+      "description": "Type a string into the focused element. For each character: keydown -> beforeinput -> (value splice) -> input -> keyup. Editable inputs receive value updates; non-editable elements receive only the key events.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_get_viewport_state",
+      "description": "Probe the LIVE viewport state: render engine + timing chip, active document scale/page/viewMode, pdf-viewport singleton transform, pdf-canvas backing-store + CSS rect, high-zoom tile-overlay state (visible/hidden + position+size), pdf-container CSS rect + scroll offsets, and devicePixelRatio. Use this for any case where screen↔world coordinate mapping or zoom-state needs to be validated externally — e.g. after dispatching a zoom or scroll via `app_scroll`/`app_set_zoom`, call this to see where things landed.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_get_recent_console",
+      "description": "Return the most recent matching console messages captured by the in-app observability buffer (mcp-bridge.js). Captures lines matching: [render], [tile], [wheel-zoom], [PERF], [pre-render], STALE, JANK. Buffer holds up to 500 entries; oldest auto-evicted. Filter with `since` (epoch-ms cutoff) or `tail` (last N entries) to limit output volume. Use after dispatching a zoom/scroll action to see exactly which render path fired, in what order, and whether any stale-render bailouts triggered.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "since": {
+            "type": "number",
+            "description": "Only return entries with timestamp >= this epoch-ms. Omit or 0 for all entries."
+          },
+          "tail": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Return only the last N matching entries. Omit for all."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_wheel_zoom",
+      "description": "Dispatch a synthetic ctrl+WheelEvent at (x, y) in the LIVE WebView — exercises the exact same wheel listener the OS hits, so this is a faithful proxy for a user spinning the wheel. `deltaY` < 0 = zoom in, > 0 = zoom out. Use this from an AI-driven debugging loop to reproduce the user's reported zoom problems WITHOUT a human at the mouse.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number",
+            "description": "Cursor clientX in CSS pixels (viewport-relative)."
+          },
+          "y": {
+            "type": "number",
+            "description": "Cursor clientY in CSS pixels (viewport-relative)."
+          },
+          "deltaY": {
+            "type": "number",
+            "description": "WheelEvent.deltaY. Default -120 (one notch zoom-in)."
+          },
+          "ctrlKey": {
+            "type": "boolean",
+            "description": "Whether ctrlKey is set (default true → zoom). Set false to test plain wheel pan/scroll."
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_zoom_anchor_test",
+      "description": "Full cursor-anchor accuracy probe: snapshot pre-zoom canvas+container+tile state at (x, y), dispatch a synthetic ctrl+wheel event, WAIT for renderPage to fully settle (window.__pdfRenderInFlight === 0 + 2 RAFs + 1 setTimeout to drain post-paint tile overlay), then snapshot post-zoom state and compute `anchorErrorPx` — the displacement (in CSS pixels) between where the cursor's world-point WAS before the zoom and where it ENDED UP after. < 3 px = pass (imperceptible), < 8 = acceptable, > 8 = visible spring/drift. This is the AI's primary metric for verifying zoom-anchor fixes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number",
+            "description": "Cursor clientX in CSS pixels."
+          },
+          "y": {
+            "type": "number",
+            "description": "Cursor clientY in CSS pixels."
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "in",
+              "out"
+            ],
+            "description": "Zoom direction. Default `in`."
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_clear_caches",
+      "description": "Force-clear all PDF-related caches: Rust pdfium doc cache, Rust pixmap cache, JS-side ImageBitmap cache. Use to rule out cache-staleness as a cause of any reported zoom/render anomaly. Safe to call any time; the next renderPage will rebuild whatever it needs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_go_to_page",
+      "description": "Navigate the active document to a specific 1-based page number. Wraps `goToPage()` so all the side effects (active-thumbnail update, page-input sync, fire-page-changed event) happen exactly as if the user clicked a thumbnail or pressed the page-input. Required for AI-driven test setups that need a deterministic page (e.g. BARN p.2 for zoom-anchor tests).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "1-based target page number."
+          }
+        },
+        "required": [
+          "page"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_set_tool",
+      "description": "Switch the LIVE app's active tool, exactly like clicking the ribbon button. Accepts any registered tool name, e.g. select, hand, line, arrow, draw, box, circle, polyline, spline, arc, filledArea, textbox, callout, comment, stamp, highlight, editText, measureDistance, measureArea, measurePerimeter, measureAngle, scaleRegion, trim, extend. Returns the tool that is actually active afterwards (PDF/A read-only mode can refuse the switch).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "tool": {
+            "type": "string",
+            "description": "Registered tool name."
+          }
+        },
+        "required": [
+          "tool"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_click_element",
+      "description": "Click an arbitrary DOM element in the LIVE app by CSS selector (usually '#button-id'). If the element lives on an inactive ribbon tab, the matching tab is activated first (the ribbon only renders the active tab's content). Returns { ok, found, disabled, clicked, activatedTab }. Disabled elements are reported but NOT clicked. Set searchTabs=false to probe only the current DOM (e.g. for dialogs) without touching the ribbon tabs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "selector": {
+            "type": "string",
+            "description": "CSS selector of the element to click, e.g. '#dr-line'."
+          },
+          "searchTabs": {
+            "type": "boolean",
+            "default": true,
+            "description": "Walk the ribbon tabs when the selector is not in the current DOM."
+          }
+        },
+        "required": [
+          "selector"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_ui_state",
+      "description": "Probe the UI state of a DOM element by CSS selector: { found, visible, disabled, active ('active' class or aria-pressed), text, tag, activatedTab }. Uses the same ribbon-tab search as app_click_element; set searchTabs=false to probe only the current DOM (e.g. '.modal-dialog' while a dialog is open).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "selector": {
+            "type": "string",
+            "description": "CSS selector of the element to inspect."
+          },
+          "searchTabs": {
+            "type": "boolean",
+            "default": true,
+            "description": "Walk the ribbon tabs when the selector is not in the current DOM."
+          }
+        },
+        "required": [
+          "selector"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_get_current_tool",
+      "description": "Return the LIVE app's currently active tool name (state.currentTool).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_merge_pdf",
+      "description": "Merge one or more external PDF files into the LIVE active document (wraps mergeFiles()). Inserts the source pages at the given position and re-renders. Requires an active document. Returns { ok, position, mergedFiles, pagesBefore, pagesAfter, filePath } — filePath is the temp working copy the edited document now renders from (Issue #247: structural edits move to a fresh temp so the main view shows the merged result and the user's original stays untouched).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "filePaths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "description": "Absolute paths of PDF files to merge into the current document."
+          },
+          "position": {
+            "type": "string",
+            "enum": [
+              "end",
+              "start",
+              "after"
+            ],
+            "description": "Where to insert the merged pages: 'end' (default), 'start', or 'after' the current page."
+          }
+        },
+        "required": [
+          "filePaths"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_ai_complete",
+      "description": "Ask the LIVE app's OpenAEC AI assistant a question (POST /me/ai/complete via the signed-in OpenAEC account). Returns { ok, signedInAs, text, credits }. Tests the assistant end-to-end without driving the chat UI; requires the app to be signed in to OpenAEC.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "description": "The question/prompt for the assistant."
+          },
+          "system": {
+            "type": "string",
+            "description": "Optional system prompt."
+          }
+        },
+        "required": [
+          "prompt"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_accounts_status",
+      "description": "Report the LIVE app's OpenAEC sign-in state: { ok, signedIn, user:{sub,name,email}|null, brand|null }. Use to verify login from outside the WebView.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_accounts_fetch",
+      "description": "Make an authenticated OpenAEC Accounts API call from the LIVE signed-in app (GET/POST/DELETE to /me/* paths, e.g. /me/apps, /me/files, /me/brand, /me/storage, /me/credits). Returns { ok, response }. Requires sign-in. Makes the whole Accounts API drivable/testable via MCP.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "API path, e.g. /me/apps"
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "GET",
+              "POST",
+              "DELETE"
+            ],
+            "description": "HTTP method (default GET)"
+          },
+          "body": {
+            "type": "object",
+            "description": "Optional JSON body for POST."
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_assistant_ask",
+      "description": "Submit a message into the LIVE app's assistant window as if the user typed it (opens the panel, runs the same send() path). Drives/tests the assistant from outside the WebView. Returns { ok }. The answer comes from whichever provider resolves: OpenAEC AI, a personal Claude key, or — when neither is available — the MCP relay (app_assistant_pending + app_assistant_answer).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "The user message to submit."
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_assistant_pending",
+      "description": "Take the oldest assistant question waiting for an MCP client to answer (the relay provider). Returns { ok, question:{ id, prompt, system, docName }|null }. When non-null, compute an answer and deliver it with app_assistant_answer — this is how an external Claude becomes the assistant's AI brain.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_assistant_answer",
+      "description": "Answer a pending assistant question (id from app_assistant_pending). The text appears in the assistant window as the assistant's reply. Returns { ok, id }.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Question id from app_assistant_pending."
+          },
+          "text": {
+            "type": "string",
+            "description": "Answer text to show in the assistant window."
+          }
+        },
+        "required": [
+          "id",
+          "text"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_assistant_history",
+      "description": "Return the LIVE assistant conversation: { ok, messages:[{ role, content }] }. Use to verify a delivered answer landed in the window.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_create_annotation",
+      "description": "Create an annotation on the LIVE app's active document WITHOUT synthetic mouse input. Builds the same object the interactive tool would, pushes it onto the document, records an undo step and redraws. Geometry goes in `props` (page coordinates at 100% zoom): line/arrow/measureDistance need startX/startY/endX/endY; box/circle/highlight/cloud/polygon/textbox/callout/scaleRegion need x/y/width/height; polyline/filledArea/measureArea/measurePerimeter need points:[{x,y},...]; spline needs controlPoints; draw needs path; comment needs x/y. Optional style props (color, strokeColor, fillColor, lineWidth, opacity, text, fontSize, scaleString, units, leaderStartX/Y, leaderEndX/Y, ...) override the tool defaults. measure* annotations get measureText computed from the document scale automatically. Returns the new annotation id.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "line",
+              "arrow",
+              "wall",
+              "box",
+              "mask",
+              "redaction",
+              "viewport",
+              "circle",
+              "highlight",
+              "cloud",
+              "polygon",
+              "polyline",
+              "cloudPolyline",
+              "spline",
+              "draw",
+              "filledArea",
+              "textbox",
+              "callout",
+              "comment",
+              "stamp",
+              "signature",
+              "image",
+              "parametricSymbol",
+              "measureDistance",
+              "measureArea",
+              "measurePerimeter",
+              "scaleRegion",
+              "count"
+            ]
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "1-based target page. Defaults to the current page."
+          },
+          "props": {
+            "type": "object",
+            "description": "Geometry + style properties for the annotation."
+          }
+        },
+        "required": [
+          "type",
+          "props"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_list_annotations",
+      "description": "List the active document's annotations as compact JSON (id, type, page, core geometry, colors, text/measureText). Optionally filter to one page.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Only annotations on this 1-based page."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_get_annotation",
+      "description": "Return the full JSON-safe property set of one annotation by id (functions/DOM refs stripped).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_update_annotation",
+      "description": "Merge `props` onto an existing annotation (geometry, color, lineWidth, text, ...). Records a modify-undo step, recomputes measureText when measurement geometry changed, and redraws. `id` and `type` are immutable.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "props": {
+            "type": "object",
+            "description": "Property patch to merge onto the annotation."
+          }
+        },
+        "required": [
+          "id",
+          "props"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_delete_annotation",
+      "description": "Delete an annotation by id (records a delete-undo step and redraws).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_select_annotation",
+      "description": "Select one annotation by id so the properties panel and selection handles show it, exactly like clicking it with the select tool.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_clear_selection",
+      "description": "Clear the annotation selection and hide the properties panel.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_list_tabs",
+      "description": "List all open document tabs: index, fileName, filePath, modified flag, active flag, pageCount, isUntitled, currentPage, annotationCount.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_switch_tab",
+      "description": "Activate the document tab at `index` (0-based, see app_list_tabs).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "index"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_close_tab",
+      "description": "Close the document tab at `index` (0-based). If the document has unsaved changes the call fails unless force=true (discard) or save=true (save-and-close) — it never opens a save dialog, so the bridge stays headless-safe.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "force": {
+            "type": "boolean",
+            "default": false,
+            "description": "Discard unsaved changes."
+          },
+          "save": {
+            "type": "boolean",
+            "default": false,
+            "description": "Save unsaved changes, then close (same path as the UI dialog's Save choice)."
+          }
+        },
+        "required": [
+          "index"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_new_blank_pdf",
+      "description": "Create a new blank PDF document in a new tab (page size in PDF points; A4 portrait = 595 x 842).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "widthPt": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "heightPt": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "pages": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 1
+          }
+        },
+        "required": [
+          "widthPt",
+          "heightPt"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_save_pdf",
+      "description": "Save the active document with all annotations baked in. With `path`, saves to that file. Without `path`, saves in place — fails (instead of opening a file picker) when the document is untitled or has no real path.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Absolute target path. Omit to save in place."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_set_view_mode",
+      "description": "Switch the active document view: 'single' page, 'continuous' vertical scroll, or 'book' (two-page spread, page 1 on the right). 'book' is a continuous variant.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "single",
+              "continuous",
+              "book"
+            ]
+          }
+        },
+        "required": [
+          "mode"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_fit_page",
+      "description": "Zoom the active document so the whole page fits the viewport (same as the Fit Page button). Returns the resulting zoom.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_fit_width",
+      "description": "Zoom the active document so the page width fills the viewport (same as the Fit Width button). Returns the resulting zoom.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_get_page_count",
+      "description": "Return the active document's page count and current page.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_set_measure_scale",
+      "description": "Set the active document's measurement scale calibration (pixels per unit + unit, e.g. ~2.835 px/mm for 1:1 at 72 dpi) and recalculate every measurement annotation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "pixelsPerUnit": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "unit": {
+            "type": "string",
+            "description": "Unit name, e.g. mm, cm, m, in, ft."
+          }
+        },
+        "required": [
+          "pixelsPerUnit",
+          "unit"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_get_takeoff",
+      "description": "Return take-off totals for the user's named schedules (Staten): per schedule the element count, the numeric column grand totals (e.g. area m2, length m, count), and per-group subtotals. Optionally target one schedule by id or name; otherwise all schedules are returned. Image/thumbnail columns are reported as counts, never as data-URLs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "scheduleId": {
+            "type": "string",
+            "description": "Target one schedule by its id."
+          },
+          "name": {
+            "type": "string",
+            "description": "Target one schedule by its display name."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "app_commit_batch",
+      "description": "Mark everything drawn so far as a settled batch, so the person watching cannot undo back into it with Ctrl-Z. Call this after each coherent unit of work — an elevation, a title block, a schedule. Pass release:true to lift the mark and hand undo of the whole document back to the person.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Optional name for the batch, echoed back."
+          },
+          "release": {
+            "type": "boolean",
+            "description": "Lift the floor instead of setting it.",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  ]
+}

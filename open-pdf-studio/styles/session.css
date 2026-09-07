@@ -1,0 +1,229 @@
+/* Shared-session pairing surfaces.
+ *
+ * Two of them, answering different questions: the status-bar chip shows
+ * connection state continuously, the dialog explains pairing once. Both are
+ * hidden entirely when there is no relay session, which is the normal case
+ * for the desktop build and for an ordinary browser tab.
+ *
+ * Windows-style throughout per CLAUDE.md: squared corners, no border-radius,
+ * default cursor. Colours come from the theme variables so every theme works.
+ */
+
+/* ── State dot, shared by chip, popover and dialog ─────────────────────── */
+
+.pair-dot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  display: inline-block;
+  background: var(--theme-text-secondary);
+}
+.pair-dot[data-state="paired"]    { background: #3ea672; }
+.pair-dot[data-state="waiting"]   { background: #d4a13c; }
+.pair-dot[data-state="lost"]      { background: #e05c4a; }
+.pair-dot[data-state="displaced"] { background: #9a9aa2; }
+
+/* ── Status-bar chip ───────────────────────────────────────────────────── */
+
+.session-chip-root {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.session-chip {
+  gap: 6px;
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--theme-status-border, rgba(255, 255, 255, 0.12));
+  font: inherit;
+  color: var(--theme-status-text-value);
+  cursor: default;
+}
+
+.session-chip:hover {
+  background: var(--theme-hover);
+}
+
+.session-chip:focus-visible {
+  outline: 1px solid var(--theme-accent);
+  outline-offset: -2px;
+}
+
+/* ── Popover, opening upward from the status bar ───────────────────────── */
+
+.session-popover {
+  position: absolute;
+  right: 0;
+  bottom: 26px;
+  width: 300px;
+  /* Above the floating assistant bubble (z-index 1000, assistant.css): this
+     popover is transient and user-invoked, so it wins over an ambient
+     control that would otherwise cover its buttons. */
+  z-index: 1001;
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-border);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+
+.session-popover-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 6px 6px 10px;
+  background: var(--theme-bg);
+  border-bottom: 1px solid var(--theme-border);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--theme-text);
+}
+
+.session-popover-close {
+  width: 20px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--theme-text-secondary);
+  cursor: default;
+}
+
+/* Same red as every other close button in the app (CLAUDE.md). */
+.session-popover-close:hover {
+  background: #e81123;
+  color: #fff;
+}
+
+.session-popover-body {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.session-popover-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  color: var(--theme-text-secondary);
+}
+
+.session-popover-code input {
+  width: 100%;
+  background: var(--theme-bg);
+  border: 1px solid var(--theme-border);
+  color: var(--theme-text);
+  font-family: Consolas, "SF Mono", Menlo, monospace;
+  font-size: 11.5px;
+  padding: 5px 7px;
+  letter-spacing: 0.04em;
+}
+
+.session-popover-more {
+  width: 100%;
+}
+
+/* ── Pairing dialog ────────────────────────────────────────────────────── */
+
+.pair-agent-dialog {
+  width: 460px;
+  max-width: calc(100vw - 40px);
+}
+
+.pair-intro {
+  margin: 0 0 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--theme-text-secondary);
+}
+
+.pair-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  color: var(--theme-text-secondary);
+}
+
+.pair-status-text b {
+  color: var(--theme-text);
+}
+
+.pair-field {
+  margin-bottom: 12px;
+}
+
+.pair-field > label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 10.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--theme-text-secondary);
+}
+
+.pair-row {
+  display: flex;
+}
+
+.pair-row input {
+  flex: 1;
+  min-width: 0;
+  background: var(--theme-bg);
+  border: 1px solid var(--theme-border);
+  color: var(--theme-text);
+  font-family: Consolas, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  padding: 5px 7px;
+  letter-spacing: 0.04em;
+}
+
+.pair-row input:focus {
+  outline: 1px solid var(--theme-accent);
+  outline-offset: -1px;
+}
+
+/* The copy button butts against the field it copies, so it reads as one
+   control rather than two: no shared border, and square on the joined edge
+   (.pref-btn carries a 2px radius that would leave a notch). */
+.pair-row .pair-copy {
+  border-left: none;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  min-width: 62px;
+  white-space: nowrap;
+}
+
+.pair-copy.copied {
+  background: #3ea672;
+  border-color: #3ea672;
+  color: #06231a;
+}
+
+.pair-config {
+  margin: 0;
+  background: var(--theme-bg);
+  border: 1px solid var(--theme-border);
+  color: var(--theme-text);
+  font-family: Consolas, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  padding: 8px;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.pair-note {
+  margin: 6px 0 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--theme-text-secondary);
+}
+
+.pair-warn {
+  color: #e05c4a;
+}

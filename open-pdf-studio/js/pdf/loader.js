@@ -10,6 +10,7 @@ import { PDFDocument } from 'pdf-lib';
 import { resetAnnotationStorage } from './form-layer.js';
 import { addRecentFile, getRecentFiles } from '../mobile/recent-files.js';
 import { extractFileName } from '../core/platform.js';
+import { clampFloor } from '../core/undo-floor.js';
 import i18next from '../i18n/config.js';
 import { showMessage } from '../bridge.js';
 
@@ -872,6 +873,93 @@ export async function createBlankPDF(widthPt, heightPt, numPages) {
   } catch (error) {
     console.error('Error creating blank PDF:', error);
     showMessage(i18next.t('failedToCreateDocument', { error: error.message }));
+  } finally {
+    hideLoading();
+  }
+}
+
+/**
+ * Re-open an in-memory document from a shared-session snapshot after a
+ * browser reload. Mirrors the in-memory branch of createBlankPDF above — same
+ * bytes cache key, same pdf.js options, same manual fit — but seeds the
+ * annotations and the undo floor from the snapshot instead of starting empty.
+ *
+ * Kept here rather than in session-restore.js because pdf.js is bootstrapped
+ * in this module (worker source, cMaps, standard fonts); duplicating that
+ * elsewhere would be a second place to get it subtly wrong.
+ *
+ * @param {object} snapshot see core/session-persistence.js
+ * @param {Uint8Array} bytes the document's PDF bytes
+ * @returns {Promise<boolean>} whether the document was mounted
+ */
+export async function restoreDocumentFromSnapshot(snapshot, bytes) {
+  if (!snapshot || !bytes?.byteLength) return false;
+  try {
+    showLoading('Restoring session...');
+
+    const { index } = createTab(null);
+    const doc = state.documents[index];
+    if (!doc) return false;
+
+    doc.fileName = snapshot.fileName || getNextUntitledName();
+    doc.isUntitled = snapshot.isUntitled !== false;
+    doc.pageDims = snapshot.pageDims || {};
+
+    originalBytesCache.set(`__memory__${doc.id}`, bytes.slice());
+
+    doc.pdfDoc = await pdfjsLib.getDocument({
+      data: bytes.slice(),
+      cMapUrl: '/pdfjs/web/cmaps/',
+      cMapPacked: true,
+      standardFontDataUrl: '/pdfjs/web/standard_fonts/',
+      isEvalSupported: false,
+      verbosity: 0,
+    }).promise;
+
+    resetAnnotationStorage();
+    doc.annotations = Array.isArray(snapshot.annotations) ? snapshot.annotations : [];
+    doc.undoStack = [];
+    doc.redoStack = [];
+    doc.selectedAnnotation = null;
+    doc.selectedAnnotations = [];
+    doc.currentPage = snapshot.currentPage || 1;
+    // The undo FLOOR is a depth into the undo stack, and the stack does not
+    // survive a reload — command history is not persisted, only the resulting
+    // annotations. So everything restored is already unreachable by Ctrl-Z
+    // simply because there are no commands to pop, and the floor must come
+    // back as 0 to match the empty stack.
+    //
+    // Restoring the stored depth instead (3, say) leaves the floor ABOVE the
+    // stack, and the person cannot undo the next mark they make either —
+    // their own new work, silently frozen. clampFloor pins it to reality.
+    doc.undoFloor = clampFloor(snapshot.undoFloor, doc.undoStack.length);
+
+    const placeholder = document.getElementById('placeholder');
+    const pdfContainer = document.getElementById('pdf-container');
+    if (placeholder) placeholder.style.display = 'none';
+    if (pdfContainer) pdfContainer.classList.add('visible');
+
+    // Same manual fit as the in-memory create path: the viewport singleton is
+    // bypassed for memory documents, so fitPage() would be a no-op.
+    const first = doc.pageDims[doc.currentPage] || doc.pageDims[1];
+    if (pdfContainer && first?.widthPt && first?.heightPt) {
+      const r = pdfContainer.getBoundingClientRect();
+      const padding = 20;
+      const availW = Math.max(100, r.width - padding * 2);
+      const availH = Math.max(100, r.height - padding * 2);
+      const fitScale = Math.min(availW / first.widthPt, availH / first.heightPt);
+      doc.scale = Math.max(0.05, Math.min(1.5, fitScale));
+    }
+
+    await setViewMode(doc.viewMode);
+    generateThumbnails();
+    refreshActiveTab();
+    updateAllStatus();
+    updateWindowTitle();
+    return true;
+  } catch (error) {
+    console.warn('[loader] session restore failed:', error);
+    return false;
   } finally {
     hideLoading();
   }

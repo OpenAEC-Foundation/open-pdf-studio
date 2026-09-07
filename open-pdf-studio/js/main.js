@@ -252,8 +252,42 @@ async function init() {
   // event-listener registration on window.__TAURI__.event — it does not need
   // the window to be visible or DOM-ready. Wiring it here means the in-process
   // MCP server's `app_*` tools are available during the remaining startup.
-  // Inert outside Tauri.
-  initMcpBridge().catch(e => console.warn('initMcpBridge failed:', e));
+  // Inert outside Tauri unless a relay is configured (see mcp-transport.js).
+  initMcpBridge()
+    .then(async () => {
+      // Shared session: show the pairing code once, unprompted, the first
+      // time a session exists. Without this the code only reaches the
+      // console and the feature is unusable. A tab that has already been
+      // paired does not get the dialog again on reload — see
+      // shouldAutoOpenPairing().
+      const store = await import('./solid/stores/sessionStore.js');
+      // The relay handshake lands a moment after the socket opens.
+      await new Promise(r => setTimeout(r, 1200));
+      const active = store.session();
+      if (!active) return;
+
+      // A browser tab dies far more easily than a desktop app. If this
+      // session left a snapshot behind, bring the document back before
+      // anything else — losing a morning's redlines to a refresh is the
+      // failure this whole path exists to prevent.
+      try {
+        const { restoreSession } = await import('./core/session-restore.js');
+        const restored = await restoreSession(active.code, active.author);
+        if (restored) {
+          const { noteAgentActivity } = store;
+          noteAgentActivity(`restored ${restored.restored} annotations`);
+          return; // a restored session has been paired before; no dialog
+        }
+      } catch (e) {
+        console.warn('[session] restore failed:', e);
+      }
+
+      if (store.shouldAutoOpenPairing()) {
+        const { openDialog } = await import('./solid/stores/dialogStore.js');
+        openDialog('pair-agent');
+      }
+    })
+    .catch(e => console.warn('initMcpBridge failed:', e));
 
   // "Open PDF Printer" job queue: watch the spool so prints from ANY
   // application pop the in-app sort/merge dialog. No-op when the virtual

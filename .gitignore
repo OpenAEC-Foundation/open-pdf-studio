@@ -10,11 +10,14 @@ out/
 target/
 target-*/
 
-# pdfium-worker-sidecar: build-artefact dat build.rs/CI zelf plaatsen
-binaries/pdfium-worker-*
+# pdfium-worker-sidecar: build-artefact dat build.rs/CI zelf plaatsen.
+# `**/` is nodig: een patroon met een schuine streep erin is anders verankerd
+# aan de map van dit .gitignore-bestand, en de echte map staat onder
+# open-pdf-studio/src-tauri/ — zonder de prefix matcht dit dus nooit.
+**/binaries/pdfium-worker-*
 
 # macOS in-proc PDFium: door CI opgehaald (SHA-256-geverifieerd), niet gecommit
-binaries/macos-universal/
+**/binaries/macos-universal/
 
 # OS files
 .DS_Store
@@ -59,3 +62,4 @@ PROMPTS.md
 test pdf-bestanden/render-regression-runs/
 scripts/.venv-test/
 open-pdf-studio/dev-build-nr.json
+deploy/.env

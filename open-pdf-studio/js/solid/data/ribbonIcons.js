@@ -199,6 +199,9 @@ export const preferencesIcon = `<svg fill="none" stroke="currentColor" viewBox="
 
 export const extensionsIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>`;
 
+// Pair-with-agent: two linked rings, the conventional "paired" mark.
+export const pairAgentIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 13a5 5 0 007.5.5l3-3a5 5 0 00-7-7l-1.7 1.7"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 11a5 5 0 00-7.5-.5l-3 3a5 5 0 007 7l1.7-1.7"/></svg>`;
+
 // --- Format tab: Gallery & Arrows ---
 
 export const styleMoreArrow = `<svg viewBox="0 0 8 14"><path d="M1 1l5 6-5 6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>`;

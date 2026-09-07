@@ -1,6 +1,7 @@
 import { Show } from 'solid-js';
 import { state, getActiveDocument } from '../../core/state.js';
 import { useTranslation, localizeNumber } from '../../i18n/useTranslation.js';
+import SessionChip from './SessionChip.jsx';
 
 // All page navigation goes through goToPage() so the side effects
 // (active thumbnail update, hide properties, fire events) happen in one
@@ -279,6 +280,10 @@ export default function StatusBar() {
             init guard in App.jsx that overwrites any persisted value).
             Vector / Open PDF.rs paths remain in the code for diagnostic
             re-enable via devtools, but no UI affordance exposes them. */}
+        {/* Shared session: visible only when a relay session exists. The
+            desktop build and an ordinary browser tab have none, so this
+            renders nothing there. */}
+        <SessionChip />
       </div>
     </div>
   );

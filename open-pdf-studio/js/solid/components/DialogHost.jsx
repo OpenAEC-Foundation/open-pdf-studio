@@ -31,6 +31,7 @@ import AboutDialog from './dialogs/AboutDialog.jsx';
 import WhatsNewDialog from './dialogs/WhatsNewDialog.jsx';
 import ShortcutsDialog from './dialogs/ShortcutsDialog.jsx';
 import ExtensionsDialog from './dialogs/ExtensionsDialog.jsx';
+import PairAgentDialog from './dialogs/PairAgentDialog.jsx';
 import ConfirmDialog from './dialogs/ConfirmDialog.jsx';
 import ViewportScaleDialog from './dialogs/ViewportScaleDialog.jsx';
 import ScaleRegionDialog from './dialogs/ScaleRegionDialog.jsx';
@@ -85,6 +86,7 @@ const DIALOG_MAP = {
   'whats-new': WhatsNewDialog,
   'shortcuts': ShortcutsDialog,
   'extensions': ExtensionsDialog,
+  'pair-agent': PairAgentDialog,
   'confirm': ConfirmDialog,
   'title-block-edit': TitleBlockDialog,
   'viewport-scale': ViewportScaleDialog,

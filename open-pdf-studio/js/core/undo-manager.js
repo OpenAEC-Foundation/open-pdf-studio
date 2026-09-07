@@ -1,5 +1,6 @@
 import { state, getActiveDocument, getPageRotation, setPageRotation } from './state.js';
 import { cloneAnnotation } from '../annotations/factory.js';
+import { undoableDepth as computeUndoableDepth, clampFloor, floorAfterTrim } from './undo-floor.js';
 const MAX_UNDO_STACK = 100;
 let undoTransactionDepth = 0;
 let undoTransactionCommands = null;
@@ -18,6 +19,50 @@ function syncModifiedState() {
   const isClean = doc.savedUndoStackLength >= 0 &&
                   (doc.undoStack || []).length === doc.savedUndoStackLength;
   doc.modified = !isClean;
+  // Every committed mutation passes through here, which makes it the one
+  // place a shared session needs to snapshot itself. Inert without a session.
+  scheduleSessionSnapshot();
+}
+
+// ---- Shared-session snapshot ----
+// A browser tab dies far more easily than a desktop app, and the relay's
+// journal deliberately cannot see the person's redlines (they never travel
+// through the relay). Debounced so a drag-resize or a run of agent-drawn
+// shapes costs one write, not one per command.
+
+let _snapshotTimer = null;
+
+function scheduleSessionSnapshot() {
+  if (_snapshotTimer) clearTimeout(_snapshotTimer);
+  _snapshotTimer = setTimeout(() => {
+    _snapshotTimer = null;
+    writeSessionSnapshot().catch(() => { /* never breaks drawing */ });
+  }, 1500);
+}
+
+async function writeSessionSnapshot() {
+  const [{ session }, persistence, { getCachedPdfBytes }] = await Promise.all([
+    import('../solid/stores/sessionStore.js'),
+    import('./session-persistence.js'),
+    import('../pdf/loader.js'),
+  ]);
+
+  const code = session()?.code;
+  if (!code || !persistence.isSupported()) return;
+
+  const doc = getActiveDocument();
+  if (!doc) return;
+
+  // In-memory documents (app_new_blank_pdf) cache their bytes under this key;
+  // a document opened from disk uses its path.
+  const bytes = getCachedPdfBytes(doc.filePath || `__memory__${doc.id}`);
+  await persistence.saveSnapshot(code, doc, bytes);
+}
+
+/** Force a snapshot now, skipping the debounce — used before unload. */
+export function flushSessionSnapshot() {
+  if (_snapshotTimer) { clearTimeout(_snapshotTimer); _snapshotTimer = null; }
+  return writeSessionSnapshot().catch(() => {});
 }
 
 // Per-document undo stack stored on the document object
@@ -45,7 +90,47 @@ function pushUndo(cmd) {
       doc.savedUndoStackLength--;
       if (doc.savedUndoStackLength < 0) doc.savedUndoStackLength = -1;
     }
+    // The floor is a stack DEPTH, so dropping the bottom entry shifts it too —
+    // the same correction savedUndoStackLength needs, for the same reason.
+    if (doc) doc.undoFloor = floorAfterTrim(doc.undoFloor);
   }
+}
+
+// ---- Undo floor: a watermark the person's undo cannot pop past ----
+//
+// In a shared session an agent draws through the MCP bridge while a person
+// redlines the same document, and both land on this one stack. Without a
+// floor, someone pressing Ctrl-Z a couple of times out of habit walks
+// straight back through the agent's linework and neither party is told.
+//
+// `setUndoFloor()` is called when the agent finishes a batch: everything
+// below the mark is treated as settled. It is a depth rather than a per-
+// command author tag because the document already tracks stack depth for the
+// modified-state check (`savedUndoStackLength`), so the correction rules for
+// a trimmed stack were already established and tested here.
+//
+// The reverse direction — the agent undoing the person's work — is handled by
+// not giving the agent an undo tool at all. See `js/mcp-bridge.js`.
+
+/** Mark the current stack depth as settled. Pass 0 to clear the floor. */
+export function setUndoFloor(depth) {
+  const doc = getActiveDocument();
+  if (!doc) return 0;
+  doc.undoFloor = clampFloor(depth, getUndoStack().length);
+  updateButtons();
+  return doc.undoFloor;
+}
+
+/** Current floor for the active document. */
+export function getUndoFloor() {
+  return getActiveDocument()?.undoFloor || 0;
+}
+
+/** How many commands sit above the floor — what undo can still reach. */
+function undoableDepth() {
+  const doc = getActiveDocument();
+  if (!doc) return 0;
+  return computeUndoableDepth((doc.undoStack || []).length, doc.undoFloor || 0);
 }
 
 function clearRedo() {
@@ -182,6 +267,8 @@ export async function undo() {
   flushPropertyChange();
   const undoStack = getUndoStack();
   if (undoStack.length === 0) return;
+  // Stop at the floor rather than walking back into a settled agent batch.
+  if (undoableDepth() <= 0) return;
 
   const cmd = undoStack.pop();
   const redoStack = getRedoStack();
@@ -276,7 +363,9 @@ export async function redo() {
 }
 
 export function canUndo() {
-  return getUndoStack().length > 0;
+  // Commands below the undo floor belong to a finished agent batch and are
+  // treated as settled — see setUndoFloor().
+  return undoableDepth() > 0;
 }
 
 export function canRedo() {

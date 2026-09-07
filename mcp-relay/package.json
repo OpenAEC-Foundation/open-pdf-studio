@@ -1,0 +1,21 @@
+{
+  "name": "open-pdf-studio-mcp-relay",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Relays MCP tool calls from a remote agent to an Open PDF Studio tab in the browser, so a person can watch and redline while the agent draws.",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs",
+    "probe": "node server.mjs --probe",
+    "tools": "node scripts/extract-tools.mjs",
+    "tools:check": "node scripts/extract-tools.mjs --check",
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

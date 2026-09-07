@@ -1,10 +1,12 @@
+import { Show } from 'solid-js';
 import RibbonGroup from './RibbonGroup.jsx';
 import AdaptiveGroups from './AdaptiveGroups.jsx';
 import RibbonButton from './RibbonButton.jsx';
-import { aboutIcon, shortcutsIcon, updatesIcon, fileAssocIcon, extensionsIcon } from '../../data/ribbonIcons.js';
+import { aboutIcon, shortcutsIcon, updatesIcon, fileAssocIcon, extensionsIcon, pairAgentIcon } from '../../data/ribbonIcons.js';
 import { showPreferencesDialog } from '../../../core/preferences.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { openDialog } from '../../stores/dialogStore.js';
+import { session } from '../../stores/sessionStore.js';
 
 export default function HelpTab() {
   const { t } = useTranslation('ribbon');
@@ -34,6 +36,17 @@ export default function HelpTab() {
             label={t('help.fileAssociations')}
             onClick={() => showPreferencesDialog('fileassoc')}
           />
+          {/* Shared session only: the desktop build and an ordinary browser
+              tab have no relay, so the button is absent there. */}
+          <Show when={session()}>
+            <RibbonButton
+              id="ribbon-pair-agent"
+              title="Give an agent the code for this shared session"
+              icon={pairAgentIcon}
+              label="Pair agent"
+              onClick={() => openDialog('pair-agent')}
+            />
+          </Show>
         </RibbonGroup>
 
         <RibbonGroup label={t('help.help')}>

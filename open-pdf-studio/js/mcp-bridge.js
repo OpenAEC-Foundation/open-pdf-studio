@@ -65,17 +65,6 @@ function _captureConsole(level, args) {
   console.error = function (...args) { _captureConsole('error', args); ORIG_ERROR.apply(console, args); };
 })();
 
-/** Send the response payload back to the awaiting Rust task. */
-async function respond(requestId, result) {
-  const invoke = tauriInvoke();
-  if (!invoke) return;
-  try {
-    await invoke('app_response', { requestId, result });
-  } catch (e) {
-    console.warn('[mcp-bridge] app_response failed:', e);
-  }
-}
-
 /** Resolve once the active document has its PDF.js doc loaded (or `timeoutMs`
  *  elapses). loadPDF is fire-and-forget here because it goes through the
  *  app's own promise queue — we have to poll for the side effect. */
@@ -980,8 +969,25 @@ function _sanitizeAnnotation(ann) {
 }
 
 /** Compact one-line summary used by app_list_annotations. */
-function _summarizeAnnotation(a) {
+/** The author name the agent stamps on everything it creates, so read-back
+ *  can separate its own work from the person's. Set from the relay session
+ *  (or `?relayAuthor=`); falls back to a literal that is still distinct from
+ *  a human author name. */
+export function agentAuthor() {
+  return window.__opsSession?.author || 'Agent';
+}
+
+export function _summarizeAnnotation(a) {
   const s = { id: a.id, type: a.type, page: a.page ?? 1 };
+  // Attribution — the whole point of the shared session. Without these the
+  // agent cannot tell its own shapes from the person's redlines, and has to
+  // memorise every id it ever created to diff against. The model has carried
+  // these fields all along (annotations/factory.js); only the read-back
+  // dropped them.
+  if (a.author) s.author = a.author;
+  if (a.subject) s.subject = a.subject;
+  if (a.createdAt) s.createdAt = a.createdAt;
+  if (a.modifiedAt) s.modifiedAt = a.modifiedAt;
   if (_isNum(a.x)) { s.x = a.x; s.y = a.y; }
   if (_isNum(a.width)) { s.width = a.width; s.height = a.height; }
   if (_isNum(a.startX)) {
@@ -1420,7 +1426,10 @@ async function handleCreateAnnotation(params) {
   if (built.error) return { ok: false, error: built.error };
 
   // Caller props win over tool defaults; type and the page param are pinned.
-  const merged = { ...built.base, ...props, type, page };
+  // `author` defaults to the agent's name so every shape it draws is
+  // attributable on read-back, but an explicit props.author still wins —
+  // ops_draw sets one per sheet section.
+  const merged = { author: agentAuthor(), ...built.base, ...props, type, page };
   // parametricSymbol without an explicit rect: (x,y) was an INSERT POINT —
   // the builder centred a real-size bbox on it. Keep that computed bbox
   // instead of letting the raw x/y overwrite it as a top-left corner.
@@ -1630,19 +1639,41 @@ async function handleClearSelection() {
   return { ok: true };
 }
 
-async function handleUndo() {
+/** Mark everything drawn so far as settled, so the person's Ctrl-Z stops at
+ *  this point instead of walking back into a finished batch. The agent calls
+ *  this after each coherent unit of work — an elevation, a title block, a
+ *  schedule — which is also the granularity at which interrupting it is
+ *  useful. */
+async function handleCommitBatch(params) {
+  const stateMod = await import('./core/state.js');
+  const doc = stateMod.getActiveDocument();
+  if (!doc) return { ok: false, error: 'no active document' };
+
   const undoMod = await import('./core/undo-manager.js');
-  if (!undoMod.canUndo()) return { ok: false, error: 'nothing to undo' };
-  await undoMod.undo();
-  return { ok: true, canUndo: undoMod.canUndo(), canRedo: undoMod.canRedo() };
+  if (params?.release === true) {
+    return { ok: true, undoFloor: undoMod.setUndoFloor(0), released: true };
+  }
+  const depth = undoMod.setUndoFloor();
+  return {
+    ok: true,
+    undoFloor: depth,
+    label: typeof params?.label === 'string' ? params.label.slice(0, 120) : undefined,
+    annotations: (doc.annotations || []).length,
+  };
 }
 
-async function handleRedo() {
-  const undoMod = await import('./core/undo-manager.js');
-  if (!undoMod.canRedo()) return { ok: false, error: 'nothing to redo' };
-  await undoMod.redo();
-  return { ok: true, canUndo: undoMod.canUndo(), canRedo: undoMod.canRedo() };
-}
+// `handleUndo` / `handleRedo` were removed deliberately.
+//
+// The agent and the person share one `doc.undoStack`, so an agent-issued undo
+// pops whichever command is on top — routinely the person's redline rather
+// than the agent's own last shape, and neither party is told. The agent holds
+// the id of everything it created, so `app_delete_annotation` does the same
+// job precisely and cannot reach the person's work.
+//
+// The other direction — the person's Ctrl-Z reaching back into the agent's
+// linework — is handled by the undo floor in `core/undo-manager.js`.
+// mcp-relay/scripts/extract-tools.mjs withholds both tools from `tools/list`
+// so an agent never learns they exist.
 
 async function handleListTabs() {
   const stateMod = await import('./core/state.js');
@@ -2065,9 +2096,8 @@ const HANDLERS = {
   'mcp:delete-annotation':  handleDeleteAnnotation,
   'mcp:select-annotation':  handleSelectAnnotation,
   'mcp:clear-selection':    handleClearSelection,
-  // App control: editing
-  'mcp:undo':               handleUndo,
-  'mcp:redo':               handleRedo,
+  // App control: batch boundaries (shared-session undo floor)
+  'mcp:commit-batch':       handleCommitBatch,
   // App control: documents / tabs
   'mcp:list-tabs':          handleListTabs,
   'mcp:switch-tab':         handleSwitchTab,
@@ -2095,59 +2125,41 @@ const HANDLERS = {
   'mcp:assistant-history':  handleAssistantHistory,
 };
 
-/** Wire up all `mcp:*` listeners. Safe to call once at startup. Becomes
- *  a no-op when Tauri isn't present (browser dev mode). */
+/** Wire up all `mcp:*` handlers over whichever transport this environment
+ *  offers — Tauri events on the desktop, a WebSocket to mcp-relay in the
+ *  browser. A plain browser tab with no relay configured wires nothing, which
+ *  is the normal case and not an error.
+ *
+ *  Safe to call once at startup. */
 export async function initMcpBridge() {
-  if (!window.__TAURI__?.core?.invoke) {
-    // Definitely not in Tauri.
-    return;
-  }
+  const { selectTransport } = await import('./mcp-transport.js');
+  const transport = selectTransport();
+  if (!transport) return;
 
-  // Resolve the event API. Prefer the global, fall back to the npm
-  // module so we still work if `withGlobalTauri` is ever turned off.
-  let ev = window.__TAURI__?.event;
-  if (!ev) {
-    try {
-      ev = await import('@tauri-apps/api/event');
-    } catch (e) {
-      console.warn('[mcp-bridge] event API unavailable:', e);
-      return;
-    }
-  }
+  // The transport owns delivery; this owns the handler lookup and the
+  // never-throw contract. A handler that throws must still produce a result,
+  // or the agent waits out the full timeout for an answer that never comes.
+  const dispatch = {
+    eventNames: Object.keys(HANDLERS),
+    async run(name, params) {
+      const handler = HANDLERS[name];
+      if (!handler) {
+        console.warn('[mcp-bridge] no handler for', name);
+        return { ok: false, error: `no handler for ${name}` };
+      }
+      try {
+        return await handler(params ?? {});
+      } catch (e) {
+        console.warn('[mcp-bridge] handler threw for', name, e);
+        return { ok: false, error: `${e?.message ?? e}` };
+      }
+    },
+  };
 
-  const wired = [];
-  for (const [name, handler] of Object.entries(HANDLERS)) {
-    try {
-      await ev.listen(name, async (event) => {
-        const payload = event?.payload ?? {};
-        const requestId = payload.request_id;
-        const params = payload.params ?? {};
-        if (typeof requestId !== 'number') {
-          console.warn('[mcp-bridge] missing request_id in', name, payload);
-          return;
-        }
-        let result;
-        try {
-          result = await handler(params);
-        } catch (e) {
-          console.warn('[mcp-bridge] handler threw for', name, e);
-          result = { ok: false, error: `${e?.message ?? e}` };
-        }
-        await respond(requestId, result);
-      });
-      wired.push(name);
-    } catch (e) {
-      console.warn('[mcp-bridge] listen failed for', name, e);
-    }
-  }
+  await transport.start(dispatch);
+
+  window.__mcpBridge = transport;
   window.__mcpBridgeReady = true;
-  window.__mcpBridgeEvents = wired;
-  console.log('[mcp-bridge] ready, events:', wired);
-  // Notify the Rust side so we can confirm wire-up from outside the WebView
-  // (devtools console isn't visible when launched headless).
-  try {
-    await window.__TAURI__.core.invoke('mcp_bridge_ready', { events: wired });
-  } catch {
-    /* harmless when running against an older binary without the cmd */
-  }
+  window.__mcpBridgeEvents = transport.wired;
+  console.log(`[mcp-bridge] ready over ${transport.kind}, events:`, transport.wired.length);
 }

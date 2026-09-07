@@ -1,0 +1,46 @@
+# Open PDF Studio — shared session stack.
+#
+#   web    the built app + the reverse proxy that puts everything on one origin
+#   relay  forwards MCP tool calls from an agent to the browser tab
+#
+# Only `web` publishes a port. The relay is reachable solely through the proxy,
+# so the bearer token is never the single thing standing between the internet
+# and the relay's own port.
+#
+#   cp deploy/.env.example deploy/.env   # then set OPS_RELAY_SECRET
+#   docker compose -f deploy/docker-compose.yml --env-file deploy/.env up -d --build
+
+services:
+  relay:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.relay
+    restart: unless-stopped
+    environment:
+      # Required. The relay refuses to start without it.
+      OPS_RELAY_SECRET: ${OPS_RELAY_SECRET:?set OPS_RELAY_SECRET in deploy/.env}
+      OPS_RELAY_JOURNAL: /data/journal
+      # Same origin behind the proxy, so the browser never makes a cross-origin
+      # request and CORS can stay closed.
+      OPS_RELAY_ORIGIN: ${OPS_RELAY_ORIGIN:-http://localhost:8080}
+    volumes:
+      # The journal is how an agent's work survives a lost tab — keep it.
+      - relay-journal:/data/journal
+    # No `ports:` on purpose. Publishing 9224 would expose the agent endpoint
+    # directly, bypassing the proxy's timeouts and access logs.
+    expose:
+      - "9224"
+
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.web
+    restart: unless-stopped
+    depends_on:
+      relay:
+        condition: service_healthy
+    ports:
+      - "${OPS_WEB_PORT:-8080}:80"
+
+volumes:
+  relay-journal:
