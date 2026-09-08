@@ -27,9 +27,12 @@ export const selectTool = {
     const selAnn = selAnns.length === 1 ? selAnns[0] : null;
     if (!pdfaLocked && selAnn) {
       const handleType = ctx.findHandleAt(x, y, selAnn);
-      // Ctrl op de middengreep (verplaats-greep) is geen verplaatsing maar
-      // een kopie: doorvallen naar de Ctrl-tak bij de annotatie-klik.
-      const ctrlKopieViaGreep = (e.ctrlKey || e.metaKey) && handleType === 'rect_center';
+      // Ctrl op een verplaats-greep (midden van rechthoek/cirkel, midden van
+      // een lijn) is geen verplaatsing maar een kopie: doorvallen naar de
+      // Ctrl-tak bij de annotatie-klik. Op maat-grepen blijft Ctrl
+      // "afstand afronden" (zie applyResize).
+      const VERPLAATS_GREPEN = ['rect_center', 'circle_center', 'line_mid'];
+      const ctrlKopieViaGreep = (e.ctrlKey || e.metaKey) && VERPLAATS_GREPEN.includes(handleType);
       if (handleType && !ctrlKopieViaGreep) {
         // Edit-contour mode: clicking an edge midpoint inserts a new vertex
         // there and immediately enters drag mode for that new vertex.
