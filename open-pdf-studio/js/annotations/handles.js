@@ -56,6 +56,8 @@ function getAnnotationCenter(annotation) {
         x: cx + w / 2,
         y: cy + h / 2
       };
+    case 'count':
+      return { x: annotation.x, y: annotation.y };
     case 'comment':
       const cw = annotation.width || 24;
       const ch = annotation.height || 24;
@@ -300,7 +302,8 @@ export function getAnnotationHandles(annotation, scale = 1) {
       break;
 
     case 'comment':
-      // No resize/rotation handles — sticky note icon is fixed size, move only
+    case 'count':
+      // No resize/rotation handles — fixed-size marker, move only
       break;
 
     case 'text':

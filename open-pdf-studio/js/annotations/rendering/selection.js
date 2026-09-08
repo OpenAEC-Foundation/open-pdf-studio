@@ -76,6 +76,16 @@ export function drawSelectionHandles(ctx, annotation) {
     case 'comment':
       // No selection indicators — fixed-size icon, move only
       break;
+    case 'count':
+      // Telelement: gestippelde ring om de marker zodat de selectie zichtbaar is.
+      ctx.save();
+      ctx.setLineDash([3 / sc, 3 / sc]);
+      ctx.lineWidth = 1 / sc;
+      ctx.beginPath();
+      ctx.arc(annotation.x, annotation.y, 14, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+      break;
     case 'textbox': {
       const selTbWidth = annotation.width || 150;
       const selTbHeight = annotation.height || 50;

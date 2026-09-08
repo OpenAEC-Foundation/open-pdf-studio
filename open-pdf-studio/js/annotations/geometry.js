@@ -152,6 +152,9 @@ function getAnnotationCenterAndSize(ann) {
         width: cw,
         height: ch
       };
+    case 'count':
+      // Telelement: marker gecentreerd op (x, y), vaste maat.
+      return { centerX: ann.x, centerY: ann.y, width: 22, height: 22 };
     default: {
       const typeHandler = getAnnotationType(ann.type);
       if (typeHandler && typeHandler.getBounds) {
@@ -361,6 +364,12 @@ export function findAnnotationAt(x, y, pageNum = null) {
         const hlLocal = transformPointByInverseRotation(x, y, hlCenter.x, hlCenter.y, ann.rotation);
         if (hlLocal.x >= ann.x && hlLocal.x <= ann.x + ann.width && hlLocal.y >= ann.y && hlLocal.y <= ann.y + ann.height) return ann;
         break;
+      case 'count': {
+        // Telelement: cirkelmarker (straal 9) of symbool (22 pt) rond (x, y).
+        const dcx = x - ann.x, dcy = y - ann.y;
+        if (Math.sqrt(dcx * dcx + dcy * dcy) <= 11 + tol / 2) return ann;
+        break;
+      }
       case 'comment':
         const cw = ann.width || 24;
         const ch = ann.height || 24;
@@ -698,6 +707,10 @@ export function isPointInsideAnnotation(x, y, annotation) {
       const lineDist = distanceToLine(x, y, annotation.startX, annotation.startY, annotation.endX, annotation.endY);
       return lineDist < 15;
 
+    case 'count': {
+      const dcx = x - annotation.x, dcy = y - annotation.y;
+      return Math.sqrt(dcx * dcx + dcy * dcy) <= 11;
+    }
     case 'comment':
       const commentW = annotation.width || 24;
       const commentH = annotation.height || 24;
