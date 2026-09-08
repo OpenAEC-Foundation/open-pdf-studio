@@ -1,3 +1,4 @@
+import { parseEditorDom } from '../../text/editor-dom-parse.js';
 import { PDFName, PDFDict, PDFArray } from 'pdf-lib';
 import { pdfNum, pdfColorToHex, mapPdfFontName, inflateBytes } from './pdf-helpers.js';
 
@@ -991,6 +992,25 @@ const result = {};
                   colors.fontItalic = true;
                 }
               }
+              // Inline opmaak (deels vet/cursief) als runs per regel: <p>/<div>
+              // zijn regels, <b>/<i>/font-weight/font-style de opmaak. Alleen
+              // bewaren als er echt gemengde opmaak in zit.
+              try {
+                if (typeof DOMParser !== 'undefined' && /<(b|i|strong|em|span|p|div)\b/i.test(rcStr)) {
+                  // toString() van een PDFString bevat de haakjes/escapes van
+                  // de PDF-notatie; voor het parsen de gedecodeerde tekst.
+                  const rcDecoded = (typeof rcRaw.decodeText === 'function') ? rcRaw.decodeText()
+                    : (typeof rcRaw.asString === 'function') ? rcRaw.asString() : rcStr.replace(/^\(|\)$/g, '');
+                  const rcDoc = new DOMParser().parseFromString(String(rcDecoded).replace(/^\s*<\?xml[^>]*\?>/i, ''), 'text/html');
+                  const rcBody = rcDoc.body;
+                  if (rcBody) {
+                    const rcLines = parseEditorDom(rcBody);
+                    const eersteRun = rcLines.flat()[0];
+                    const gemengd = rcLines.flat().some(r => r.bold !== !!eersteRun?.bold || r.italic !== !!eersteRun?.italic);
+                    if (gemengd) colors.textRuns = rcLines;
+                  }
+                }
+              } catch (_) { /* RC zonder bruikbare structuur */ }
               // Extract line-height from RC (stored as absolute pt value, convert to multiplier)
               const lhMatch = rcStr.match(/line-height\s*:\s*([\d.]+)/i);
               if (lhMatch) {

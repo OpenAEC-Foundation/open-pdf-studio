@@ -9,13 +9,27 @@ import { injectSyntheticTextSpans } from '../text/text-layer.js';
 import { invertPageRotation, resolveTextEditPageGeometry } from '../text/text-edit-appearance.js';
 import { annotationCanvas } from '../ui/dom-elements.js';
 import { viewport as vpState } from '../pdf/pdf-viewport.js';
+import { hasMixedRuns, textboxLineRuns } from '../annotations/rendering/textbox-layout.js';
 import {
   showTextEditOverlay, hideTextEditOverlay,
   getTextEditValue as getTextValue, getTextEditHeightGrowth as getHeightGrowth,
+  getTextEditLineRuns as getLineRuns,
   openStickyPopup,
 } from '../bridge.js';
 
 // Start inline text editing for textbox/callout
+// Inline opmaak (deels vet/cursief) uit de editor overnemen: alleen bewaren
+// als er echt iets afwijkt van de basisstijl; anders blijft het vlak een
+// gewoon plat tekstvlak. Gedeeld door de commit-bij-blur en finishTextEditing.
+function neemInlineOpmaakOver(ann, newText) {
+  const runs = getLineRuns();
+  if (Array.isArray(runs) && runs.length && hasMixedRuns({ ...ann, text: newText, textRuns: runs })) {
+    ann.textRuns = runs;
+  } else {
+    delete ann.textRuns;
+  }
+}
+
 export function startTextEditing(annotation) {
   // Idempotency guard: if already editing this same annotation, do nothing.
   // Without this, double-firing handlers (select-tool dblclick + dispatcher dblclick)
@@ -136,6 +150,8 @@ export function startTextEditing(annotation) {
   styleObj['--text-offset'] = `${halfLeading}px`;
 
   const initialText = annotation.text || '';
+  // Inline opmaak meegeven; alleen geldig als de runs bij de tekst horen.
+  const initialRuns = hasMixedRuns(annotation) ? textboxLineRuns(annotation) : null;
 
   // Commit function: update annotation and refresh display
   const commitFn = (newText) => {
@@ -143,6 +159,7 @@ export function startTextEditing(annotation) {
 
     const ann = state.editingAnnotation;
     ann.text = newText;
+    neemInlineOpmaakOver(ann, newText);
     ann.modifiedAt = new Date().toISOString();
 
     // Apply auto-grown height back to annotation
@@ -205,7 +222,7 @@ export function startTextEditing(annotation) {
     }
   };
 
-  showTextEditOverlay(styleObj, initialText, commitFn, cancelFn);
+  showTextEditOverlay(styleObj, initialText, commitFn, cancelFn, initialRuns);
   state.textEditElement = true;
 }
 
@@ -218,6 +235,7 @@ export function finishTextEditing() {
   // Get the current text value from the Solid store
   const currentText = getTextValue();
   annotation.text = currentText;
+  neemInlineOpmaakOver(annotation, currentText);
   annotation.modifiedAt = new Date().toISOString();
 
   // Apply auto-grown height back to annotation

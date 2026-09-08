@@ -1018,8 +1018,8 @@ function applyPropToAnnotation(ann, key, value) {
       break;
     case 'fontFamily': ann.fontFamily = value; break;
     case 'textFontSize': ann.fontSize = parseInt(value); break;
-    case 'fontBold': ann.fontBold = value; break;
-    case 'fontItalic': ann.fontItalic = value; break;
+    case 'fontBold': ann.fontBold = value; zetRunsStijl(ann, 'bold', value); break;
+    case 'fontItalic': ann.fontItalic = value; zetRunsStijl(ann, 'italic', value); break;
     case 'fontUnderline': ann.fontUnderline = value; break;
     case 'fontStrikethrough': ann.fontStrikethrough = value; break;
     case 'textAlign': ann.textAlign = value; break;
@@ -1198,6 +1198,13 @@ function _scaleRegionPpu(ann) {
   return ((72 / 25.4) * mmPerUnit) / (ratio > 0 ? ratio : 100);
 }
 
+// Vlak-brede vet/cursief vanuit het paneel (niet in bewerking): ook de
+// inline runs meenemen, anders blijft een deels-vet vlak zijn oude runs tonen.
+function zetRunsStijl(ann, veld, waarde) {
+  if (!Array.isArray(ann?.textRuns)) return;
+  ann.textRuns = ann.textRuns.map(line => (line || []).map(r => ({ ...r, [veld]: !!waarde })));
+}
+
 export function updateAnnotProp(key, value) {
   // Multi-selection mode: apply to all selected annotations
   if (annotProps.multiCount > 0) {
@@ -1250,6 +1257,17 @@ export function updateAnnotProp(key, value) {
         }
       } catch (_) { /* preferences module not ready — synthetic still visually updated */ }
     })();
+    return;
+  }
+
+  // Tekstvlak in bewerking: vet/cursief/onderstrepen gaat naar de selectie
+  // in de open editor (deels vet), niet naar het hele vlak.
+  if ((key === 'fontBold' || key === 'fontItalic' || key === 'fontUnderline')
+      && state.isEditingText && state.editingAnnotation === currentAnnotation) {
+    setAnnotProps(key, value === true);
+    import('./textEditOverlayStore.js')
+      .then(m => m.applyEditorFormat && m.applyEditorFormat(key, value))
+      .catch(() => {});
     return;
   }
 
@@ -1362,8 +1380,8 @@ export function updateAnnotProp(key, value) {
       break;
     case 'fontFamily': currentAnnotation.fontFamily = value; break;
     case 'textFontSize': currentAnnotation.fontSize = parseInt(value); break;
-    case 'fontBold': currentAnnotation.fontBold = value; break;
-    case 'fontItalic': currentAnnotation.fontItalic = value; break;
+    case 'fontBold': currentAnnotation.fontBold = value; zetRunsStijl(currentAnnotation, 'bold', value); break;
+    case 'fontItalic': currentAnnotation.fontItalic = value; zetRunsStijl(currentAnnotation, 'italic', value); break;
     case 'fontUnderline': currentAnnotation.fontUnderline = value; break;
     case 'fontStrikethrough': currentAnnotation.fontStrikethrough = value; break;
     case 'textAlign': currentAnnotation.textAlign = value; break;

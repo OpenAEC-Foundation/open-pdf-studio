@@ -89,6 +89,8 @@ export interface Leader {
 }
 
 export interface TextboxAnnotation extends RectAnnotation {
+  /** Inline opmaak per regel: delen van de tekst vet/cursief (zie textbox-layout.js). */
+  textRuns?: Array<Array<{ text: string; bold?: boolean; italic?: boolean; color?: string }>>;
   text?: string;
   fontSize?: number;
   fontFamily?: string;

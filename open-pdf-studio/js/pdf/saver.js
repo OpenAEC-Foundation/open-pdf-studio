@@ -18,6 +18,7 @@ import { showMessage } from '../bridge.js';
 import { hexToRgb, buildBorderStyle, computeAnnotFlags, mapFontToPdfName,
   ensureAcroFormFonts, stripPdfAMetadata, generateAppearanceStream } from './saver/utils.js';
 import { saveTextEditsToPages } from './saver/text-edits.js';
+import { hasMixedRuns, textboxLineRuns } from '../annotations/rendering/textbox-layout.js';
 import { saveWatermarksToPages } from './saver/watermarks.js';
 import { saveBookmarksToOutline } from './saver/bookmarks.js';
 import { saveStylePresetsToCatalog } from './saver/style-presets.js';
@@ -1097,6 +1098,22 @@ async function _savePDFNu(saveAsPath) {
               annDictObj.C = ftFillColorArr;
             }
 
+            // Inline opmaak (deels vet/cursief): standaardconform als /RC
+            // (rich content, XHTML) zodat andere lezers en wijzelf de runs
+            // terugkrijgen; de AP hieronder tekent ze met eigen fonts.
+            if (hasMixedRuns(ann)) {
+              const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+              const rcBody = textboxLineRuns(ann).map(line => '<p>' + (line.map(r => {
+                let h = esc(r.text);
+                if (r.italic) h = `<i>${h}</i>`;
+                if (r.bold) h = `<b>${h}</b>`;
+                return h;
+              }).join('') || '&#160;') + '</p>').join('');
+              annDictObj.RC = PDFString.of(
+                `<?xml version="1.0"?><body xmlns="http://www.w3.org/1999/xhtml" xmlns:xfa="http://www.xfa.org/schema/xfa-data/1.0/" xfa:APIVersion="OpenPDFStudio" xfa:spec="2.0.2" style="font:${fontSize}pt ${dsFontFamily};color:${textColorCss}">${rcBody}</body>`,
+              );
+            }
+
             // Border style
             const ftBorderWidth = ann.lineWidth !== undefined ? ann.lineWidth : 1;
             annDictObj.BS = buildBorderStyle(context, ftBorderWidth, ann.borderStyle);
@@ -1286,6 +1303,7 @@ async function _savePDFNu(saveAsPath) {
               // on-screen layout (same font chain, wrap points, line height and
               // baseline), so other viewers break + place lines identically and
               // long labels no longer overflow the box.
+              const ftUsedFonts = new Set();
               if (ann.text) {
                 const ftFontSize = ann.fontSize || 14;
                 const [tr, tg, tb] = ann.textColor ? hexToRgb(ann.textColor) : [0, 0, 0];
@@ -1307,13 +1325,23 @@ async function _savePDFNu(saveAsPath) {
                 ftStreamContent += 'BT\n';
                 ftStreamContent += `${ann.textColor ? `${tr} ${tg} ${tb}` : '0 0 0'} rg 0 Tc 0 Tw 100 Tz 0 Tr\n`;
                 ftStreamContent += `/${pdfFont} ${ftFontSize} Tf\n`;
+                let huidigFont = pdfFont;
                 for (const ln of layout.lines) {
                   if (textY < bottomLimit) break;
                   let textX = boxLeft + pad;
                   if (align === 'center') textX = boxLeft + pad + (layout.maxWidth - ln.width) / 2;
                   else if (align === 'right') textX = boxLeft + visW - pad - ln.width;
-                  const escaped = ln.text.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
-                  ftStreamContent += `${textX} ${textY} Td\n(${escaped}) Tj\n`;
+                  ftStreamContent += `${textX} ${textY} Td\n`;
+                  // Per chunk zijn eigen font (vet/cursief); de pen loopt in
+                  // PDF-tekstruimte vanzelf door na elke Tj.
+                  const chunks = (ln.chunks && ln.chunks.length) ? ln.chunks : [{ text: ln.text, bold: !!ann.fontBold, italic: !!ann.fontItalic }];
+                  for (const c of chunks) {
+                    const f = mapFontToPdfName(ann.fontFamily, c.bold, c.italic);
+                    ftUsedFonts.add(f);
+                    if (f !== huidigFont) { ftStreamContent += `/${f} ${ftFontSize} Tf\n`; huidigFont = f; }
+                    const escaped = String(c.text).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+                    ftStreamContent += `(${escaped}) Tj\n`;
+                  }
                   ftStreamContent += `${-textX} ${-textY} Td\n`;
                   textY -= lineHeight;
                 }
@@ -1324,14 +1352,19 @@ async function _savePDFNu(saveAsPath) {
                 ftStreamContent += 'Q\n';
               }
 
-              // Create font dict for resources
+              // Font dicts for resources — één per gebruikte variant
+              // (basisstijl plus eventuele vet/cursief-runs).
               const pdfFont = mapFontToPdfName(ann.fontFamily, ann.fontBold, ann.fontItalic);
-              const fontDict = context.obj({
-                Type: 'Font',
-                Subtype: 'Type1',
-                BaseFont: pdfFont,
-                Encoding: 'WinAnsiEncoding'
-              });
+              ftUsedFonts.add(pdfFont);
+              const ftFontResources = {};
+              for (const f of ftUsedFonts) {
+                ftFontResources[f] = context.obj({
+                  Type: 'Font',
+                  Subtype: 'Type1',
+                  BaseFont: f,
+                  Encoding: 'WinAnsiEncoding'
+                });
+              }
 
               // Use absolute BBox (same as Rect) with Matrix to translate origin
               const apStreamDict = {
@@ -1340,7 +1373,7 @@ async function _savePDFNu(saveAsPath) {
                 BBox: [x1, y1, x2, y2],
                 Matrix: [1, 0, 0, 1, -x1, -y1],
                 Resources: context.obj({
-                  Font: context.obj({ [pdfFont]: fontDict })
+                  Font: context.obj(ftFontResources)
                 })
               };
 

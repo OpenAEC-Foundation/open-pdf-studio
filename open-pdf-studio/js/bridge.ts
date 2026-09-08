@@ -130,6 +130,7 @@ export {
   hideTextEditOverlay,
   getTextValue as getTextEditValue,
   getHeightGrowth as getTextEditHeightGrowth,
+  getLineRuns as getTextEditLineRuns,
 } from './solid/stores/textEditOverlayStore.js';
 
 // ============= STAVENREEKS INLINE INVOER =============

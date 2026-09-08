@@ -1097,7 +1097,15 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
       let fontStrikethrough = extraColors.fontStrikethrough || false;
 
       // Text content: prefer textContent array (joined), fallback to contents
-      const text = annot.textContent ? annot.textContent.join('\n') : (annot.contents || '');
+      let text = annot.textContent ? annot.textContent.join('\n') : (annot.contents || '');
+      // Inline opmaak uit /RC: alleen als de platte tekst (op witruimte na)
+      // overeenkomt met Contents — anders zijn de runs niet te vertrouwen.
+      let textRuns;
+      if (Array.isArray(extraColors.textRuns) && extraColors.textRuns.length) {
+        const rcText = extraColors.textRuns.map(l => l.map(r => r.text).join('')).join('\n');
+        const norm = (s) => String(s).replace(/\s+/g, ' ').trim();
+        if (norm(rcText) === norm(text)) { text = rcText; textRuns = extraColors.textRuns; }
+      }
 
       // For FreeText annotations, annot.color (C entry) is the background/fill color per PDF spec
       // Border color: IC entry or appearance stream stroke color (extracted via pdf-lib)
@@ -1290,6 +1298,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           height: coH,
           rotation: ftRotation,
           text: text,
+          ...(textRuns ? { textRuns } : {}),
           color: coStrokeColor,
           strokeColor: coStrokeColor,
           fillColor: coFillColor || '#FFFFD0',
@@ -1327,6 +1336,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
         height: ftHeight,
         rotation: ftRotation,
         text: text,
+        ...(textRuns ? { textRuns } : {}),
         color: borderColor,
         strokeColor: borderColor,
         fillColor: bgColor,

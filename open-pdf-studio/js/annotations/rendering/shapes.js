@@ -1,3 +1,4 @@
+import { layoutTextboxLines } from './textbox-layout.js';
 // First strong-directional character decides the base direction of a text run,
 // mirroring CSS `dir="auto"` (which the free-text/callout editors use, issue #61).
 // Returns true when the first strongly-typed character is RTL (Hebrew, Arabic,
@@ -266,23 +267,14 @@ export function layoutTextboxForExport(annotation) {
   const descent = sample.fontBoundingBoxDescent || sample.actualBoundingBoxDescent || (fontSize * 0.2);
   const halfLeading = (lineHeight - ascent - descent) / 2;
 
-  const lines = [];
-  for (const para of text.split('\n')) {
-    if (para === '') { lines.push({ text: '', width: 0 }); continue; }
-    const words = para.split(' ');
-    let line = '';
-    for (let i = 0; i < words.length; i++) {
-      const candidate = line ? line + ' ' + words[i] : words[i];
-      if (ctx.measureText(candidate).width > maxWidth && line) {
-        lines.push({ text: line, width: ctx.measureText(line).width });
-        line = words[i];
-      } else {
-        line = candidate;
-      }
-    }
-    if (line !== '') lines.push({ text: line, width: ctx.measureText(line).width });
-  }
-  return { lines, fontSize, lineHeight, padding, ascent, descent, halfLeading, maxWidth };
+  // Regelafbraak met inline opmaak (runs): elke regel bestaat uit chunks met
+  // eigen vet/cursief; `text`/`width` blijven voor bestaande aanroepers.
+  const fontFor = (bold, italic) => `${italic ? 'italic ' : ''}${bold ? 'bold ' : ''}${fontSize}px ${fontFamily}`;
+  const measure = (t, bold, italic) => { ctx.font = fontFor(bold, italic); return ctx.measureText(t).width; };
+  const lines = layoutTextboxLines(annotation, maxWidth, measure).map(l => ({
+    text: l.chunks.map(c => c.text).join(''), width: l.width, chunks: l.chunks,
+  }));
+  return { lines, fontSize, lineHeight, padding, ascent, descent, halfLeading, maxWidth, fontFor };
 }
 
 // Draw textbox content with word wrap
@@ -380,104 +372,58 @@ export function drawTextboxContent(ctx, annotation, padding) {
   // the nominal font-size. Using fontSize here moved edit-mode text upward by
   // several pixels for fonts whose ascender + descender exceeds the em size.
   const halfLeading = (lineHeight - ascent - descent) / 2;
-  const paragraphs = annotation.text.split('\n');
   let y = annotation.y + padding + halfLeading + ascent;
 
-  for (let p = 0; p < paragraphs.length; p++) {
+  // Regelafbraak met inline opmaak: chunks per regel met eigen vet/cursief
+  // (zie textbox-layout.js). Zonder runs is dit identiek aan het oude
+  // woord-voor-woord gedrag in de basisstijl.
+  const fontFor = (bold, italic) => `${italic ? 'italic ' : ''}${bold ? 'bold ' : ''}${fontSize}px ${fontFamily}`;
+  const measure = (t, bold, italic) => { ctx.font = fontFor(bold, italic); return ctx.measureText(t).width; };
+  const baseFill = ctx.fillStyle;
+  const lines = layoutTextboxLines(annotation, maxWidth, measure);
+
+  for (const ln of lines) {
     if (y >= annotation.y + height) break;
+    if (!ln.chunks.length) { y += lineHeight; continue; }
 
-    // Empty line: just advance y
-    if (!paragraphs[p]) {
-      y += lineHeight;
-      continue;
+    let textX = annotation.x + padding;
+    const lineWidth = ln.width;
+    if (textAlign === 'center') {
+      textX = annotation.x + padding + (maxWidth - lineWidth) / 2;
+    } else if (textAlign === 'right') {
+      textX = annotation.x + width - padding - lineWidth;
     }
 
-    const words = paragraphs[p].split(' ');
-    let line = '';
-
-    for (let i = 0; i < words.length; i++) {
-      // Measure WITHOUT trailing space — a trailing space contributes ~3-4px
-      // to ctx.measureText().width but is never rendered (canvas doesn't draw
-      // trailing whitespace beyond the last glyph). Including it in the
-      // wrap-trigger comparison made lines wrap one word too early.
-      const candidate = line + words[i];
-      const metrics = ctx.measureText(candidate);
-      if (metrics.width > maxWidth && i > 0) {
-        // Calculate x position based on alignment
-        let textX = annotation.x + padding;
-        const lineWidth = ctx.measureText(line.trim()).width;
-        if (textAlign === 'center') {
-          textX = annotation.x + padding + (maxWidth - lineWidth) / 2;
-        } else if (textAlign === 'right') {
-          textX = annotation.x + width - padding - lineWidth;
-        }
-
-        ctx.fillText(line.trim(), textX, y);
-
-        // Draw underline if enabled
-        if (annotation.fontUnderline) {
-          ctx.beginPath();
-          ctx.moveTo(textX, y + fontSize + 1);
-          ctx.lineTo(textX + lineWidth, y + fontSize + 1);
-          ctx.strokeStyle = ctx.fillStyle;
-          ctx.lineWidth = 1;
-          ctx.stroke();
-        }
-
-        // Draw strikethrough if enabled
-        if (annotation.fontStrikethrough) {
-          ctx.beginPath();
-          ctx.moveTo(textX, y + fontSize * 0.6);
-          ctx.lineTo(textX + lineWidth, y + fontSize * 0.6);
-          ctx.strokeStyle = ctx.fillStyle;
-          ctx.lineWidth = 1;
-          ctx.stroke();
-        }
-
-        line = words[i] + ' ';
-        y += lineHeight;
-        if (y >= annotation.y + height) break;
-      } else {
-        // Trailing space is the inter-word separator for the next concat;
-        // it intentionally lives in `line` but is excluded from the wrap-
-        // measurement (see candidate above).
-        line = candidate + ' ';
-      }
+    let penX = textX;
+    for (const c of ln.chunks) {
+      ctx.font = fontFor(c.bold, c.italic);
+      ctx.fillStyle = c.color || baseFill;
+      ctx.fillText(c.text, penX, y);
+      penX += ctx.measureText(c.text).width;
     }
-    if (y < annotation.y + height && line.trim()) {
-      // Calculate x position based on alignment
-      let textX = annotation.x + padding;
-      const lineWidth = ctx.measureText(line.trim()).width;
-      if (textAlign === 'center') {
-        textX = annotation.x + padding + (maxWidth - lineWidth) / 2;
-      } else if (textAlign === 'right') {
-        textX = annotation.x + width - padding - lineWidth;
-      }
+    ctx.fillStyle = baseFill;
 
-      ctx.fillText(line.trim(), textX, y);
-
-      // Draw underline if enabled
-      if (annotation.fontUnderline) {
-        ctx.beginPath();
-        ctx.moveTo(textX, y + fontSize + 1);
-        ctx.lineTo(textX + lineWidth, y + fontSize + 1);
-        ctx.strokeStyle = ctx.fillStyle;
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-
-      // Draw strikethrough if enabled
-      if (annotation.fontStrikethrough) {
-        ctx.beginPath();
-        ctx.moveTo(textX, y + fontSize * 0.6);
-        ctx.lineTo(textX + lineWidth, y + fontSize * 0.6);
-        ctx.strokeStyle = ctx.fillStyle;
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-
-      y += lineHeight;
+    // Draw underline if enabled
+    if (annotation.fontUnderline) {
+      ctx.beginPath();
+      ctx.moveTo(textX, y + fontSize + 1);
+      ctx.lineTo(textX + lineWidth, y + fontSize + 1);
+      ctx.strokeStyle = ctx.fillStyle;
+      ctx.lineWidth = 1;
+      ctx.stroke();
     }
+
+    // Draw strikethrough if enabled
+    if (annotation.fontStrikethrough) {
+      ctx.beginPath();
+      ctx.moveTo(textX, y + fontSize * 0.6);
+      ctx.lineTo(textX + lineWidth, y + fontSize * 0.6);
+      ctx.strokeStyle = ctx.fillStyle;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    y += lineHeight;
   }
   ctx.textBaseline = 'alphabetic'; // Reset
   ctx.direction = 'ltr'; // Reset base direction for subsequent draws
