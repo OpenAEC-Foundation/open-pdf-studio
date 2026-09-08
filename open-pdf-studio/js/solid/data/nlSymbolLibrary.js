@@ -24,6 +24,7 @@ const heaPreview = `<svg viewBox="0 0 64 64"><path d="M12 10 H52 V18 H37 V46 H52
 const hebPreview = `<svg viewBox="0 0 64 64"><path d="M12 8 H52 V19 H38 V45 H52 V56 H12 V45 H26 V19 H12 Z" fill="#1a1a1a" stroke="#000" stroke-width="1"/></svg>`;
 const ipePreview = `<svg viewBox="0 0 64 64"><path d="M20 8 H44 V14 H34.5 V50 H44 V56 H20 V50 H29.5 V14 H20 Z" fill="#1a1a1a" stroke="#000" stroke-width="1"/></svg>`;
 const kokerPreview = `<svg viewBox="0 0 64 64"><path d="M14 14 h36 v36 h-36 Z M21 21 h22 v22 h-22 Z" fill="#1a1a1a" fill-rule="evenodd" stroke="#000" stroke-width="1"/></svg>`;
+const hoeklijnPreview = `<svg viewBox="0 0 64 64"><path d="M14 10 H22 V46 H54 V54 H14 Z" fill="#1a1a1a" stroke="#000" stroke-width="1"/></svg>`;
 const unpPreview = `<svg viewBox="0 0 64 64"><path d="M22 10 H46 V17 H29 V47 H46 V54 H22 Z" fill="#1a1a1a" stroke="#000" stroke-width="1"/></svg>`;
 
 // NL Vloeren — realistische doorsnede-previews: grijs beton + diagonale
@@ -112,6 +113,7 @@ export const NL_CATEGORIES = [
       { id: 'param-staal-ipe', name: 'IPE', parametricId: 'staal-ipe', svg: ipePreview },
       { id: 'param-staal-unp', name: 'UNP', parametricId: 'staal-unp', svg: unpPreview },
       { id: 'param-staal-koker', name: 'Koker', parametricId: 'staal-koker', svg: kokerPreview },
+      { id: 'param-staal-hoeklijn', name: 'Hoeklijn', parametricId: 'staal-hoeklijn', svg: hoeklijnPreview },
       { id: 'param-hout-balk', name: 'Houten balk', parametricId: 'hout-balk', svg: houtBalkPreview },
       { id: 'param-paal-type-1', name: 'Paal aanzicht type 1', parametricId: 'paal-aanzicht-type-1', svg: paalPreview },
       { id: 'param-paal-type-2', name: 'Paal aanzicht type 2', parametricId: 'paal-aanzicht-type-2', svg: paalPreview },

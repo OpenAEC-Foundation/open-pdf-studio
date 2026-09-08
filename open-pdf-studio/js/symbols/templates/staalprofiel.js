@@ -437,11 +437,128 @@ function _kokerTemplate() {
   };
 }
 
+
+// Hoeklijnen (L-profielen, EN 10056-1): [maat, h, b, t, r] in mm — h = de
+// staande (lange) poot, b = de liggende poot, t = dikte, r = binnenradius.
+// Gelijkzijdig en ongelijkzijdig in één familie; de maat wisselt in het
+// eigenschappenpaneel.
+const HOEKLIJN = [
+  ['L 40x40x4', 40, 40, 4, 6],
+  ['L 45x45x4.5', 45, 45, 4.5, 7],
+  ['L 50x50x5', 50, 50, 5, 7],
+  ['L 60x60x6', 60, 60, 6, 8],
+  ['L 70x70x7', 70, 70, 7, 9],
+  ['L 75x75x8', 75, 75, 8, 9],
+  ['L 80x80x8', 80, 80, 8, 10],
+  ['L 90x90x9', 90, 90, 9, 11],
+  ['L 100x100x10', 100, 100, 10, 12],
+  ['L 110x110x10', 110, 110, 10, 12],
+  ['L 120x120x12', 120, 120, 12, 13],
+  ['L 130x130x12', 130, 130, 12, 14],
+  ['L 150x150x15', 150, 150, 15, 16],
+  ['L 160x160x15', 160, 160, 15, 17],
+  ['L 180x180x18', 180, 180, 18, 18],
+  ['L 200x200x20', 200, 200, 20, 18],
+  ['L 100x50x6', 100, 50, 6, 8],
+  ['L 100x65x7', 100, 65, 7, 10],
+  ['L 100x75x8', 100, 75, 8, 10],
+  ['L 110x70x8', 110, 70, 8, 10],
+  ['L 120x80x10', 120, 80, 10, 11],
+  ['L 125x75x8', 125, 75, 8, 11],
+  ['L 135x65x8', 135, 65, 8, 11],
+  ['L 150x75x10', 150, 75, 10, 11],
+  ['L 150x90x10', 150, 90, 10, 12],
+  ['L 150x100x12', 150, 100, 12, 12],
+  ['L 150x110x10', 150, 110, 10, 12],
+  ['L 200x100x10', 200, 100, 10, 15],
+  ['L 200x110x12', 200, 110, 12, 15],
+  ['L 200x150x12', 200, 150, 12, 15],
+];
+
+// L-doorsnede in lokale coördinaten (0,0 = linksboven van b×h): staande
+// poot links (dikte t, hoogte H), liggende poot onder (lengte B, dikte t),
+// binnenradius r in de oksel.
+function _hoeklijnPts(B, H, t, r) {
+  const rr = Math.max(0, Math.min(r, (B - t) / 2, (H - t) / 2));
+  const pts = [{ x: 0, y: 0 }, { x: t, y: 0 }, { x: t, y: H - t - rr }];
+  if (rr > 0) pts.push(..._arcPts(t + rr, H - t - rr, rr, Math.PI, Math.PI / 2));
+  else pts.push({ x: t, y: H - t });
+  pts.push({ x: B, y: H - t }, { x: B, y: H }, { x: 0, y: H });
+  return pts;
+}
+
+function _hoeklijnTemplate() {
+  const byName = new Map(HOEKLIJN.map(row => [row[0], row]));
+  const defaultMaat = 'L 100x100x10';
+  return {
+    id: 'staal-hoeklijn',
+    name: 'Hoeklijn',
+    nameEn: 'Angle',
+    category: 'NL Constructie',
+    defaultSize: { width: 60, height: 60 },
+    fixedSize: true,
+    params: [
+      {
+        key: 'maat', label: 'Maat', labelEn: 'Size', type: 'enum',
+        options: HOEKLIJN.map(r => r[0]),
+        default: defaultMaat,
+      },
+      ..._COMMON_PARAMS,
+    ],
+    realSizeMm(params) {
+      const row = byName.get(params?.maat) || byName.get(defaultMaat);
+      if (!row) return null;
+      const f = _schaalOf(params);
+      const az = params?.aanzicht || 'doorsnede';
+      if (az === 'boven') return { width: null, height: row[2] * f }; // liggende poot b
+      if (az === 'zij') return { width: null, height: row[1] * f };   // staande poot h
+      return { width: row[2] * f, height: row[1] * f };
+    },
+    freeAxis(params) {
+      return (params?.aanzicht || 'doorsnede') !== 'doorsnede' ? 'x' : null;
+    },
+    snapPoints: _snapPoints,
+    render(params, bbox) {
+      const row = byName.get(params?.maat) || byName.get(defaultMaat);
+      if (!row) return [];
+      const [maat, H, B, t, r] = row;
+      const az = params?.aanzicht || 'doorsnede';
+      if (az === 'boven') {
+        // Van boven: de liggende poot als band, de staande poot tegen één
+        // rand → zichtbare bovenkant, dus een doorgetrokken lijn op t.
+        const cmds = _beamViewCmds(bbox, B, [{ offMm: t, dashed: false }], params?.hartlijn !== false);
+        if (params?.toonLabel) cmds.push(_labelCmd(maat, bbox));
+        return cmds;
+      }
+      if (az === 'zij') {
+        // Van opzij: de staande poot als band, de liggende poot onderaan
+        // zichtbaar → doorgetrokken lijn op H - t.
+        const cmds = _beamViewCmds(bbox, H, [{ offMm: H - t, dashed: false }], params?.hartlijn !== false);
+        if (params?.toonLabel) cmds.push(_labelCmd(maat, bbox));
+        return cmds;
+      }
+      const s = Math.min(bbox.width / B, bbox.height / H);
+      const x0 = bbox.x + (bbox.width - B * s) / 2;
+      const y0 = bbox.y + (bbox.height - H * s) / 2;
+      const cmds = [{
+        kind: 'rings',
+        loops: [_scalePts(_hoeklijnPts(B, H, t, r), x0, y0, s)],
+        fill: true,
+      }];
+      if (params?.hartlijn !== false) cmds.push(..._hartlijnCmds(bbox));
+      if (params?.toonLabel) cmds.push(_labelCmd(maat, bbox));
+      return cmds;
+    },
+  };
+}
+
 export const heaTemplate = _iProfileTemplate('staal-hea', 'HEA', HEA, 'HEA 200');
 export const hebTemplate = _iProfileTemplate('staal-heb', 'HEB', HEB, 'HEB 200');
 export const ipeTemplate = _iProfileTemplate('staal-ipe', 'IPE', IPE, 'IPE 200');
 export const unpTemplate = _iProfileTemplate('staal-unp', 'UNP', UNP, 'UNP 200', _uSectionPts);
 export const kokerTemplate = _kokerTemplate();
+export const hoeklijnTemplate = _hoeklijnTemplate();
+export { _hoeklijnPts as hoeklijnPts, HOEKLIJN as HOEKLIJN_TABEL };
 
 // Geometry/behaviour helpers, reused by the catalog-driven steel templates
 // (js/symbols/steel-catalog.js) so downloaded country catalogs render and
