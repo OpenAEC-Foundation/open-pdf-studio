@@ -15,10 +15,8 @@
 const DEV_DIR =
   'C:\\Users\\rickd\\Documents\\GitHub\\openaec-tenants\\tenants\\openaec_foundation\\title_blocks';
 
-const MM = 72 / 25.4;
-
-/** Kadermarge waar de onderhoek tegenaan wordt gezet (10 mm, NEN-conventie). */
-export const KADER_MARGE_PT = 10 * MM;
+import { composeFrameWithTitleBlock, KADER_MARGE_PT } from './titleblock-compose.js';
+export { composeFrameWithTitleBlock, KADER_MARGE_PT };
 
 function _tauri() {
   return window.__TAURI__ || {};
@@ -143,43 +141,3 @@ export async function addTitleBlockFile(bronPad) {
   return { path: doel, fileName: naam, label: titleBlockLabel(naam) };
 }
 
-/**
- * Zet een onderhoek op een kader: rechtsonder, tegen de kadermarge, op ware
- * grootte (geen schaling — een onderhoek is op maat getekend). Past hij niet
- * op het vel, dan wordt hij verkleind zodat hij binnen de rand blijft.
- *
- * Beide argumenten zijn PDF-bytes; het resultaat zijn nieuwe bytes. Het
- * kaderbestand op schijf blijft ongemoeid.
- *
- * @param {Uint8Array} kaderBytes
- * @param {Uint8Array} onderhoekBytes
- * @returns {Promise<Uint8Array>}
- */
-export async function composeFrameWithTitleBlock(kaderBytes, onderhoekBytes) {
-  const { PDFDocument } = await import('pdf-lib');
-  const kader = await PDFDocument.load(kaderBytes);
-  const bron = await PDFDocument.load(onderhoekBytes);
-  const [ingebed] = await kader.embedPdf(bron, [0]);
-
-  const pagina = kader.getPage(0);
-  const { width: vw, height: vh } = pagina.getSize();
-  const bruikbaar = {
-    w: vw - 2 * KADER_MARGE_PT,
-    h: vh - 2 * KADER_MARGE_PT,
-  };
-  let b = ingebed.width;
-  let h = ingebed.height;
-  // Terugval voor een onderhoek die groter is dan het vel (bv. een A1-blok
-  // op een A3-kader): schaal hem in met behoud van verhouding.
-  const factor = Math.min(1, bruikbaar.w / b, bruikbaar.h / h);
-  b *= factor;
-  h *= factor;
-
-  pagina.drawPage(ingebed, {
-    x: vw - KADER_MARGE_PT - b,
-    y: KADER_MARGE_PT,
-    width: b,
-    height: h,
-  });
-  return await kader.save();
-}
