@@ -332,9 +332,64 @@ export function listHatchPatternsByCategory() {
 // Renderer
 // ---------------------------------------------------------------------------
 
-function drawLineFamily(ctx, family, left, top, right, bottom, scale, baseStrokeColor) {
-  const angleDeg = family.angle;
-  const angleRad = (angleDeg * Math.PI) / 180;
+// AABB van het zichtbare canvasgebied, uitgedrukt in de HUIDIGE
+// gebruikersruimte van de context (dus inclusief zoom, pan en een eventuele
+// arceringsrotatie). Een arcering wordt gevraagd over een gebied dat flink
+// groter is dan de vorm zelf — 1,5x opgerekt bij een rechthoek, ruim een halve
+// diagonaal bij een polygoon — en bij hoge zoom valt daar het meeste buiten
+// beeld. Elke lijn daarbuiten kost tijd en levert geen pixel op.
+function _zichtbaarGebied(ctx) {
+  try {
+    if (typeof ctx.getTransform !== 'function') return null;
+    const m = ctx.getTransform();
+    if (!m || typeof m.invertSelf !== 'function') return null;
+    const cw = ctx.canvas ? ctx.canvas.width : 0;
+    const ch = ctx.canvas ? ctx.canvas.height : 0;
+    if (!cw || !ch) return null;
+    const inv = m.invertSelf();
+    let left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
+    for (const [px, py] of [[0, 0], [cw, 0], [0, ch], [cw, ch]]) {
+      const x = inv.a * px + inv.c * py + inv.e;
+      const y = inv.b * px + inv.d * py + inv.f;
+      if (x < left) left = x;
+      if (x > right) right = x;
+      if (y < top) top = y;
+      if (y > bottom) bottom = y;
+    }
+    if (!Number.isFinite(left) || !Number.isFinite(top)) return null;
+    return { left, top, right, bottom };
+  } catch {
+    return null;
+  }
+}
+
+// Hoeveel apparaatpixels is één eenheid in de huidige gebruikersruimte?
+function _apparaatSchaal(ctx) {
+  try {
+    if (typeof ctx.getTransform !== 'function') return 1;
+    const m = ctx.getTransform();
+    if (!m) return 1;
+    const s = Math.hypot(m.a, m.b);
+    return Number.isFinite(s) && s > 0 ? s : 1;
+  } catch {
+    return 1;
+  }
+}
+
+// Onder deze onderlinge afstand (in apparaatpixels) loopt het vlak volledig
+// dicht: duizenden paden tekenen geeft dan hetzelfde beeld als één fillRect.
+const VERZADIGD_PX = 0.35;
+
+// anker: { cx, cy, diagonal } — hieraan hangt de FASE van het patroon, en dat
+//        anker komt uit het volledige vlak, niet uit het zichtbare deel. Zou
+//        de fase aan het beeld hangen, dan zou de arcering meeschuiven zodra
+//        je scrollt of zoomt.
+// gebied: het gebied dat werkelijk bestreken moet worden (vlak ∩ beeld).
+function drawLineFamily(ctx, family, anker, gebied, scale, baseStrokeColor) {
+  const { cx, cy, diagonal } = anker;
+  const { left, top, right, bottom } = gebied;
+
+  const angleRad = (family.angle * Math.PI) / 180;
   const cosA = Math.cos(angleRad);
   const sinA = Math.sin(angleRad);
 
@@ -344,57 +399,102 @@ function drawLineFamily(ctx, family, left, top, right, bottom, scale, baseStroke
   const originX = (family.originX || 0) * scale;
   const originY = (family.originY || 0) * scale;
 
-  const cx = (left + right) / 2;
-  const cy = (top + bottom) / 2;
-  const diagonal = Math.sqrt((right - left) ** 2 + (bottom - top) ** 2);
-  const halfDiag = diagonal / 2 + spacing * 2;
-  const numLines = Math.ceil((halfDiag * 2) / spacing) + 2;
+  const kleur = family.strokeColor || baseStrokeColor;
+  const isStippen = !!(family.dashPattern && family.dashPattern.includes(0));
+  const stipAfstand = deltaX || spacing;
 
-  ctx.strokeStyle = family.strokeColor || baseStrokeColor;
-  ctx.fillStyle   = family.strokeColor || baseStrokeColor;
-  ctx.lineWidth   = _hatchLineWidth(family.strokeWidth);
-
-  // Dot family (dashPattern contains a 0 — interpreted as "render as dots")
-  if (family.dashPattern && family.dashPattern.includes(0)) {
-    const dotRadius = Math.max(0.5, 1 * scale);
-    const dotSpacing = deltaX || spacing;
-    const dotsPerLine = Math.ceil((halfDiag * 2) / dotSpacing) + 2;
-    for (let i = -numLines; i <= numLines; i++) {
-      const perp = i * spacing;
-      const baseX = cx + perp * (-sinA);
-      const baseY = cy + perp * cosA;
-      for (let j = -dotsPerLine; j <= dotsPerLine; j++) {
-        const along = j * dotSpacing;
-        const dx = baseX + originX + along * cosA;
-        const dy = baseY + originY + along * sinA;
-        ctx.beginPath();
-        ctx.arc(dx, dy, dotRadius, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
+  // Verzadigd patroon: zelfde beeld, één primitief in plaats van duizenden.
+  const fijnste = isStippen ? Math.min(spacing, stipAfstand) : spacing;
+  if (fijnste * _apparaatSchaal(ctx) < VERZADIGD_PX) {
+    ctx.fillStyle = kleur;
+    ctx.fillRect(left, top, right - left, bottom - top);
     return;
   }
 
-  if (family.dashPattern && family.dashPattern.length > 0) {
+  ctx.strokeStyle = kleur;
+  ctx.fillStyle   = kleur;
+  ctx.lineWidth   = _hatchLineWidth(family.strokeWidth);
+
+  // Identiek aan de oude berekening — bepaalt de lengte (en daarmee de
+  // streepfase) van gestreepte lijnen.
+  const halfDiag = diagonal / 2 + spacing * 2;
+
+  // Ankerpunt inclusief de vaste offset van deze familie; alle posities
+  // hieronder hangen hier absoluut aan vast.
+  const ax = cx + originX;
+  const ay = cy + originY;
+
+  // Projecteer de vier hoeken van het gebied op de lijnrichting d = (cos, sin)
+  // en op de loodrechte n = (-sin, cos). Daarmee weten we precies welke
+  // lijnindices het gebied kunnen raken, en over welk stuk ze zichtbaar zijn.
+  let pMin = Infinity, pMax = -Infinity, tMin = Infinity, tMax = -Infinity;
+  for (const X of [left - ax, right - ax]) {
+    for (const Y of [top - ay, bottom - ay]) {
+      const p = X * (-sinA) + Y * cosA;
+      const t = X * cosA + Y * sinA;
+      if (p < pMin) pMin = p;
+      if (p > pMax) pMax = p;
+      if (t < tMin) tMin = t;
+      if (t > tMax) tMax = t;
+    }
+  }
+  if (!Number.isFinite(pMin)) return;
+
+  const iVan = Math.floor(pMin / spacing) - 1;
+  const iTot = Math.ceil(pMax / spacing) + 1;
+  if (iTot < iVan) return;
+
+  // Stippenfamilie (dashPattern bevat een 0). Stippen liggen op absolute
+  // posities, dus het bereik langs de lijn mag vrij ingeperkt worden. Alles
+  // gaat in één pad — voorheen kostte elke stip een eigen beginPath/arc/fill.
+  if (isStippen) {
+    const dotRadius = Math.max(0.5, 1 * scale);
+    const jVan = Math.floor(tMin / stipAfstand) - 1;
+    const jTot = Math.ceil(tMax / stipAfstand) + 1;
+    ctx.beginPath();
+    for (let i = iVan; i <= iTot; i++) {
+      const perp = i * spacing;
+      const baseX = ax + perp * (-sinA);
+      const baseY = ay + perp * cosA;
+      for (let j = jVan; j <= jTot; j++) {
+        const along = j * stipAfstand;
+        const dx = baseX + along * cosA;
+        const dy = baseY + along * sinA;
+        ctx.moveTo(dx + dotRadius, dy);
+        ctx.arc(dx, dy, dotRadius, 0, Math.PI * 2);
+      }
+    }
+    ctx.fill();
+    return;
+  }
+
+  const gestreept = !!(family.dashPattern && family.dashPattern.length > 0);
+  if (gestreept) {
     ctx.setLineDash(family.dashPattern.map(d => Math.abs(d) * scale));
   } else {
     ctx.setLineDash([]);
   }
 
   ctx.beginPath();
-  for (let i = -numLines; i <= numLines; i++) {
+  for (let i = iVan; i <= iTot; i++) {
     const perp = i * spacing;
     const stagger = deltaX !== 0 ? i * deltaX : 0;
-    const baseX = cx + perp * (-sinA);
-    const baseY = cy + perp * cosA;
-    const ox = baseX + originX + stagger * cosA;
-    const oy = baseY + originY + stagger * sinA;
-    const x1 = ox - halfDiag * cosA;
-    const y1 = oy - halfDiag * sinA;
-    const x2 = ox + halfDiag * cosA;
-    const y2 = oy + halfDiag * sinA;
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
+    const ox = ax + perp * (-sinA) + stagger * cosA;
+    const oy = ay + perp * cosA + stagger * sinA;
+    // Ononderbroken lijnen mogen tot precies het zichtbare stuk ingekort
+    // worden. Gestreepte niet: de streepfase begint bij het startpunt, dus
+    // die houden hun oorspronkelijke lengte en daarmee hun streepverdeling.
+    let van, tot;
+    if (gestreept) {
+      van = -halfDiag;
+      tot = halfDiag;
+    } else {
+      van = tMin - stagger;
+      tot = tMax - stagger;
+      if (tot <= van) continue;
+    }
+    ctx.moveTo(ox + van * cosA, oy + van * sinA);
+    ctx.lineTo(ox + tot * cosA, oy + tot * sinA);
   }
   ctx.stroke();
   ctx.setLineDash([]);
@@ -409,8 +509,29 @@ function renderPattern(ctx, patternId, left, top, right, bottom, scale, color) {
     ctx.fillRect(left, top, right - left, bottom - top);
     return;
   }
+
+  // Fase-anker uit het VOLLEDIGE vlak — identiek aan de oude berekening, zodat
+  // de arcering exact op dezelfde plek blijft liggen.
+  const anker = {
+    cx: (left + right) / 2,
+    cy: (top + bottom) / 2,
+    diagonal: Math.sqrt((right - left) ** 2 + (bottom - top) ** 2),
+  };
+
+  // Alleen het stuk dat werkelijk in beeld staat hoeft bestreken te worden.
+  let gLeft = left, gTop = top, gRight = right, gBottom = bottom;
+  const zicht = _zichtbaarGebied(ctx);
+  if (zicht) {
+    gLeft   = Math.max(gLeft, zicht.left);
+    gTop    = Math.max(gTop, zicht.top);
+    gRight  = Math.min(gRight, zicht.right);
+    gBottom = Math.min(gBottom, zicht.bottom);
+    if (gRight <= gLeft || gBottom <= gTop) return;
+  }
+  const gebied = { left: gLeft, top: gTop, right: gRight, bottom: gBottom };
+
   for (const fam of pattern.lineFamilies) {
-    drawLineFamily(ctx, fam, left, top, right, bottom, scale, color);
+    drawLineFamily(ctx, fam, anker, gebied, scale, color);
   }
 }
 

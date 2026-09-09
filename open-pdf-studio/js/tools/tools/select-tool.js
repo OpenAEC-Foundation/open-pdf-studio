@@ -31,7 +31,11 @@ export const selectTool = {
       // een lijn) is geen verplaatsing maar een kopie: doorvallen naar de
       // Ctrl-tak bij de annotatie-klik. Op maat-grepen blijft Ctrl
       // "afstand afronden" (zie applyResize).
-      const VERPLAATS_GREPEN = ['rect_center', 'circle_center', 'line_mid'];
+      // callout_move en label_move zijn eveneens pure verplaats-grepen (de
+      // greep midden in een aanhaal-tekstvak, en de labelgreep van de
+      // maatvoeringen); zonder die vermelding viel Ctrl+klik daar in de
+      // resize-tak en kreeg je een verplaatsing in plaats van een kopie.
+      const VERPLAATS_GREPEN = ['rect_center', 'circle_center', 'line_mid', 'callout_move', 'label_move'];
       const ctrlKopieViaGreep = (e.ctrlKey || e.metaKey) && VERPLAATS_GREPEN.includes(handleType);
       if (handleType && !ctrlKopieViaGreep) {
         // Edit-contour mode: clicking an edge midpoint inserts a new vertex
@@ -140,8 +144,10 @@ export const selectTool = {
         return;
       }
 
-      // Click on comment: open popup
-      if (clickedAnnotation.type === 'comment') {
+      // Click on comment: open popup. Mét Ctrl valt de klik door naar de
+      // kopieertak — anders is een notitie het enige type dat niet met
+      // Ctrl+klik te dupliceren is.
+      if (clickedAnnotation.type === 'comment' && !(e.ctrlKey || e.metaKey)) {
         if (doc) { doc.selectedAnnotations = [clickedAnnotation]; doc.selectedAnnotation = clickedAnnotation; }
         ctx.showProperties(clickedAnnotation);
         ctx.openStickyPopup(clickedAnnotation);

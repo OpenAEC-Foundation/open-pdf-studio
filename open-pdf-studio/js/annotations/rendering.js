@@ -29,7 +29,7 @@ import { fracties as cropFracties, volledigVak as cropVolledigVak } from './crop
 import { drawEmbeddedImageOverlay } from '../tools/tools/remove-image-tool.js';
 import { updateQuickAccessButtons, updateContextualTabs, drawGrid, snapToGrid } from './rendering/ui-state.js';
 import { drawCommentIcon } from './rendering/comment-icons.js';
-import { spatialIndex } from './spatial-index.js';
+import { spatialIndex, annotationBounds } from './spatial-index.js';
 import { invalidateScaleRegionCache, pixelsPerUnitFor, getRegionScaleFactor } from './scale-region.js';
 import { drawSnapIndicator } from '../tools/snap-engine.js';
 import { drawImageAlignGuides } from '../tools/image-align-snap.js';
@@ -46,7 +46,6 @@ import {
   resolveTextEditLineStyle,
   textEditLineAnchor,
 } from '../text/text-edit-appearance.js';
-import { rotatedRectAabb } from '../utils/math.js';
 
 // Re-export everything that external code needs
 export { drawPolygonShape, drawCloudShape, buildPolygonPath, buildCloudPath } from './rendering/shapes.js';
@@ -2579,6 +2578,20 @@ function drawTextEdits(ctx, pageNum) {
 // Track annotation count to know when spatial index needs rebuild
 let _lastIndexedCount = -1;
 
+// Valt deze annotatie volledig buiten het (ruim genomen) zichtbare gebied?
+// De omhullende komt uit annotationBounds — dezelfde definitie die de spatial
+// index hanteert — zodat lijnen, polylijnen, vrije hand, wolken en metingen
+// óók wegvallen. Voorheen keek de tekenlus alleen naar x/width, waardoor elk
+// lijn-achtig object op de pagina altijd volledig getekend werd, hoe ver het
+// ook buiten beeld lag. Typen zonder goedkope omhullende (parametrische
+// figuren) leveren null en worden dus gewoon getekend.
+function _buitenBeeld(annotation, vpX, vpY, vpW, vpH) {
+  const b = annotationBounds(annotation, { goedkoop: true });
+  if (!b) return false;
+  return b.x + b.width < vpX || b.x > vpX + vpW
+      || b.y + b.height < vpY || b.y > vpY + vpH;
+}
+
 export function rebuildSpatialIndex() {
   const doc = state.documents[state.activeDocumentIndex];
   const annotations = doc ? doc.annotations : [];
@@ -2603,9 +2616,12 @@ export function redrawAnnotations(lightweight = false) {
   const scale = doc ? doc.scale : 1;
   const annotations = doc ? doc.annotations : [];
 
-  // Rebuild spatial index when annotation count changes (add/delete)
+  // Bij een gewijzigd aantal (toevoegen/verwijderen) is de index verouderd.
+  // Alleen markeren — de herbouw is O(n) en bouwt parametrische figuren
+  // helemaal opnieuw op, dus die gebeurt pas als er echt bevraagd wordt
+  // (spatialIndex.zorgVoorActueel).
   if (annotations.length !== _lastIndexedCount) {
-    spatialIndex.rebuild(annotations);
+    spatialIndex.markStale();
     _lastIndexedCount = annotations.length;
   }
 
@@ -2712,13 +2728,7 @@ export function redrawAnnotations(lightweight = false) {
   // blend with #pdf-canvas below); everything else goes to #annotation-canvas.
   annotations.forEach(annotation => {
     if (annotation.page !== curPage) return;
-    // Quick bounding box check for viewport culling
-    if (annotation.x != null && annotation.width != null) {
-      const bounds = annotation.rotation ? rotatedRectAabb(annotation) : annotation;
-      const ax = bounds.x, ay = bounds.y;
-      const aw = bounds.width || 0, ah = bounds.height || 0;
-      if (ax + aw < vpX || ax > vpX + vpW || ay + ah < vpY || ay > vpY + vpH) return;
-    }
+    if (_buitenBeeld(annotation, vpX, vpY, vpW, vpH)) return;
     const targetCtx = (annotation.type === 'textHighlight' && textHighlightCtx)
       ? textHighlightCtx
       : annotationCtx;
@@ -2873,8 +2883,18 @@ export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDp
   // Draw text edits (cover-and-replace)
   drawTextEdits(ctx, pageNum);
 
+  // Viewport-culling. Dit canvas dekt alleen de zichtbare uitsnede van de
+  // pagina (zie setupContinuousAnnotationCanvas); alles daarbuiten kostte tot
+  // nu toe wél een volledige drawAnnotation.
+  const cullMarge = 200 / (effectiveScale || 1);
+  const cvX = (renderOffset ? renderOffset.x : 0) - cullMarge;
+  const cvY = (renderOffset ? renderOffset.y : 0) - cullMarge;
+  const cvW = width / effectiveScale + cullMarge * 2;
+  const cvH = height / effectiveScale + cullMarge * 2;
+
   annotations.forEach(annotation => {
     if (annotation.page !== pageNum) return;
+    if (_buitenBeeld(annotation, cvX, cvY, cvW, cvH)) return;
     drawAnnotation(ctx, annotation);
   });
 
@@ -3006,6 +3026,10 @@ export function hideContinuousSharpOverlays() {
 // Ververs de overlays van alle zichtbare pagina's (na zoom-/scroll-settle en
 // na annotatiewijzigingen).
 export function updateAllContinuousSharpOverlays() {
+  // De scherpe-overlaylaag staat uit; zonder deze poort deed elke aanroep
+  // alsnog een getBoundingClientRect per pagina (geforceerde layout-reflow)
+  // voor werk dat direct weer terugkeert.
+  if (!SCHERPE_ANN_OVERLAY_ACTIEF) return;
   const container = document.getElementById('pdf-container');
   if (!container) return;
   const contRect = container.getBoundingClientRect();
@@ -3022,10 +3046,21 @@ export function updateAllContinuousSharpOverlays() {
   });
 }
 
-// Redraw all pages in continuous mode
-export function redrawContinuous() {
+// Redraw all pages in continuous mode.
+// lightweight=true tijdens slepen/resizen: alleen de zichtbare pagina's
+// hertekenen en de ribbon-/knoppen-verversing overslaan. Zonder die vlag
+// draaide elke muisbeweging een volledige annotatie-scan per pagina — op een
+// document van 200 bladen is dat 200x de hele array per frame.
+export function redrawContinuous(lightweight = false) {
+  const _cullContainer = lightweight ? document.getElementById('pdf-container') : null;
+  const _cullRect = _cullContainer ? _cullContainer.getBoundingClientRect() : null;
+  const CULL_MARGE_PX = 200;
   const pageWrappers = document.querySelectorAll('.page-wrapper');
   pageWrappers.forEach(wrapper => {
+    if (_cullRect) {
+      const r = wrapper.getBoundingClientRect();
+      if (r.bottom < _cullRect.top - CULL_MARGE_PX || r.top > _cullRect.bottom + CULL_MARGE_PX) return;
+    }
     const pageNum = parseInt(wrapper.dataset.page);
     const canvas = wrapper.querySelector('.annotation-canvas');
     if (canvas) {
@@ -3047,9 +3082,11 @@ export function redrawContinuous() {
   });
   updateAllContinuousSharpOverlays();
 
-  // Update quick access button states
-  updateQuickAccessButtons();
+  if (!lightweight) {
+    // Update quick access button states
+    updateQuickAccessButtons();
 
-  // Show/hide contextual ribbon tabs based on selection
-  updateContextualTabs();
+    // Show/hide contextual ribbon tabs based on selection
+    updateContextualTabs();
+  }
 }

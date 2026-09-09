@@ -1,6 +1,7 @@
 import { buildStavenreeks } from './stavenreeks.js';
 import { stavenreeksPxPerMm } from './stavenreeks-scale.js';
 import { betonbalkHalfWidthPx } from './betonbalk-scale.js';
+import { rotatedRectAabb } from '../utils/math.js';
 
 const CELL_SIZE = 200; // pixels per grid cell
 
@@ -18,6 +19,7 @@ class SpatialIndex {
     this._cells = new Map();
     /** @type {Map<string, {page: number, minCol: number, maxCol: number, minRow: number, maxRow: number}>} */
     this._annBounds = new Map();
+    this._verouderd = true;
   }
 
   /**
@@ -181,10 +183,30 @@ class SpatialIndex {
    */
   rebuild(annotations) {
     this.clear();
+    this._verouderd = false;
     if (!annotations) return;
     for (const ann of annotations) {
       this.update(ann);
     }
+  }
+
+  /**
+   * Markeer de index als verouderd zonder hem meteen te herbouwen. Een
+   * herbouw is O(n) en bouwt voor parametrische figuren de hele geometrie
+   * opnieuw op; dat hoort niet in de tekenlus thuis als niemand de index
+   * op dat moment bevraagt.
+   */
+  markStale() {
+    this._verouderd = true;
+  }
+
+  /** Herbouw alleen als er sinds de laatste herbouw iets is gewijzigd. */
+  zorgVoorActueel(annotations) {
+    if (this._verouderd) this.rebuild(annotations);
+  }
+
+  get isVerouderd() {
+    return !!this._verouderd;
   }
 
   /**
@@ -227,11 +249,46 @@ class SpatialIndex {
    * @returns {{x: number, y: number, width: number, height: number}|null}
    */
   _getBounds(annotation) {
+    return annotationBounds(annotation);
+  }
+
+  /**
+   * Compute bounding box from an array of {x, y} points with optional line-width padding.
+   */
+  _boundsFromPoints(points, lineWidth) {
+    return boundsFromPoints(points, lineWidth);
+  }
+}
+
+/**
+ * Axis-aligned bounding box van een annotatie — de enige plek waar die
+ * geometrie wordt afgeleid. Wordt gebruikt door de spatial index EN door de
+ * viewport-culling in de tekenlus, zodat beide dezelfde definitie hanteren.
+ *
+ * opties.goedkoop = true levert null voor typen waarvan de omhullende alleen
+ * met een volledige geometrie-opbouw te bepalen is (stavenreeks, betonbalk).
+ * De aanroeper leest dat als "kan ik niet goedkoop bepalen" en slaat het
+ * wegfilteren over — beter een keer te veel tekenen dan per beeldframe een
+ * parametrische figuur opnieuw opbouwen.
+ *
+ * @param {object} annotation
+ * @param {{goedkoop?: boolean}} [opties]
+ * @returns {{x: number, y: number, width: number, height: number}|null}
+ */
+export function annotationBounds(annotation, opties) {
+    if (!annotation) return null;
+    const goedkoop = !!(opties && opties.goedkoop);
     const type = annotation.type;
 
     // Stavenreeks: the legs, dots and label extend well beyond the series
     // line, so the generic line-based branch below (4 px padding) would make
     // them unselectable. Use the element's full AABB instead.
+    // Figuren waarvan het getekende lijf een band rond een hartlijn is:
+    // hun werkelijke omvang volgt pas uit een (dure) schaalbewuste opbouw,
+    // en de generieke lijn-tak eronder zou een veel te krappe omhullende
+    // geven. In goedkope modus dus: geen antwoord, gewoon tekenen.
+    if (goedkoop && (type === 'stavenreeks' || type === 'betonbalk' || type === 'wall')) return null;
+
     if (type === 'stavenreeks') {
       const { aabb } = buildStavenreeks(annotation, { pxPerMm: stavenreeksPxPerMm(annotation) });
       const pad = Math.max(annotation.lineWidth || 2, 4);
@@ -268,12 +325,12 @@ class SpatialIndex {
       annotation.width > 0 &&
       annotation.height > 0
     ) {
-      return {
-        x: annotation.x,
-        y: annotation.y,
-        width: annotation.width,
-        height: annotation.height,
-      };
+      const basis = annotation.rotation
+        ? rotatedRectAabb(annotation)
+        : { x: annotation.x, y: annotation.y, width: annotation.width, height: annotation.height };
+      // Aanhaallijnen (tekstvak/aanhaalvak) steken buiten het tekstvak uit;
+      // zonder die punten zou de omhullende een deel van het object missen.
+      return metAanhaallijnen(basis, annotation);
     }
 
     // Line / arrow / measureDistance: startX, startY, endX, endY
@@ -295,18 +352,18 @@ class SpatialIndex {
 
     // Freehand / draw: path array of {x, y}
     if (Array.isArray(annotation.path) && annotation.path.length > 0) {
-      return this._boundsFromPoints(annotation.path, annotation.lineWidth);
+      return boundsFromPoints(annotation.path, annotation.lineWidth);
     }
 
     // Polygon / polyline / cloud / cloudPolyline / measureArea / measurePerimeter: points array
     if (Array.isArray(annotation.points) && annotation.points.length > 0) {
-      return this._boundsFromPoints(annotation.points, annotation.lineWidth);
+      return boundsFromPoints(annotation.points, annotation.lineWidth);
     }
 
     // Angle measurement: point1, vertex, point2
     if (annotation.point1 && annotation.vertex && annotation.point2) {
       const pts = [annotation.point1, annotation.vertex, annotation.point2];
-      return this._boundsFromPoints(pts, annotation.lineWidth);
+      return boundsFromPoints(pts, annotation.lineWidth);
     }
 
     // Text highlight / strikethrough / underline with quadPoints
@@ -320,7 +377,7 @@ class SpatialIndex {
         }
       }
       if (allPts.length > 0) {
-        return this._boundsFromPoints(allPts, 0);
+        return boundsFromPoints(allPts, 0);
       }
     }
 
@@ -341,14 +398,14 @@ class SpatialIndex {
     return null;
   }
 
-  /**
-   * Compute bounding box from an array of {x, y} points with optional line-width padding.
-   *
-   * @param {Array<{x: number, y: number}>} points
-   * @param {number} [lineWidth=0]
-   * @returns {{x: number, y: number, width: number, height: number}}
-   */
-  _boundsFromPoints(points, lineWidth) {
+/**
+ * Bounding box uit een reeks {x, y}-punten, met een marge voor de lijndikte.
+ *
+ * @param {Array<{x: number, y: number}>} points
+ * @param {number} [lineWidth=0]
+ * @returns {{x: number, y: number, width: number, height: number}|null}
+ */
+export function boundsFromPoints(points, lineWidth) {
     let minX = Infinity, minY = Infinity;
     let maxX = -Infinity, maxY = -Infinity;
 
@@ -369,7 +426,26 @@ class SpatialIndex {
       width: (maxX - minX) + pad * 2,
       height: (maxY - minY) + pad * 2,
     };
+}
+
+// Rekt een omhullende op tot hij ook de knik- en pijlpunten van eventuele
+// aanhaallijnen omvat.
+function metAanhaallijnen(basis, annotation) {
+  const leaders = annotation.leaders;
+  if (!Array.isArray(leaders) || leaders.length === 0) return basis;
+  let left = basis.x, top = basis.y;
+  let right = basis.x + basis.width, bottom = basis.y + basis.height;
+  for (const l of leaders) {
+    if (!l) continue;
+    for (const [px, py] of [[l.kneeX, l.kneeY], [l.tipX, l.tipY]]) {
+      if (!Number.isFinite(px) || !Number.isFinite(py)) continue;
+      if (px < left) left = px;
+      if (px > right) right = px;
+      if (py < top) top = py;
+      if (py > bottom) bottom = py;
+    }
   }
+  return { x: left, y: top, width: right - left, height: bottom - top };
 }
 
 /** Singleton spatial index instance for the application */

@@ -29,15 +29,27 @@ import { hideMenu } from '../bridge.js';
 import { syncDocScale } from '../annotations/scale-bar.js';
 import { recalculateAllMeasurements } from '../annotations/measurement.js';
 
+// Tijdens een lopende sleep- of resize-gesture hoeft alleen het canvas mee te
+// bewegen. De zware UI-staart van een volledige hertekening (annotatielijst
+// opnieuw opbouwen + sorteren, contextuele ribbon-tabs, snelknoppen) hoort
+// daar niet bij: die draaide voorheen bij ELKE muisbeweging en is de
+// hoofdoorzaak van de haperende sleep. Bij het loslaten volgt sowieso nog een
+// volledige hertekening, dus de panelen lopen niet achter.
 function redraw() {
-  if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
-  else redrawAnnotations();
+  // Ook tijdens het opspannen van een selectiekader en tijdens het tekenen van
+  // een vorm verandert de selectie niet, dus hoeft het paneel niet mee te
+  // lopen; beide eindigen met een volledige hertekening.
+  const interactief = state.isDragging || state.isResizing
+    || state.isRubberBanding || state.isDrawing;
+  if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous(interactief);
+  else redrawAnnotations(interactief);
 }
 
 /**
  * Main pointer-down handler (replaces handleMouseDown + handleContinuousMouseDown)
  */
 export function handlePointerDown(e) {
+  flushWachtendeMove();
   if (!getActiveDocument()?.pdfDoc) return;
   if (isModalOpen()) return;
 
@@ -175,7 +187,38 @@ export function handlePointerDown(e) {
 /**
  * Main pointer-move handler (replaces handleMouseMove + handleContinuousMouseMove)
  */
+// Pointermove-coalescing. Moderne muizen en pennen vuren 120-1000 events per
+// seconde; elk event deed een volledige hertekening, dus het canvas liep
+// structureel achter op de cursor. Tijdens een gesture bewaren we alleen het
+// laatste event en verwerken dat één keer per beeldframe.
+let _wachtendeMove = null;
+let _moveRafId = 0;
+
+function _verwerkWachtendeMove() {
+  _moveRafId = 0;
+  const ev = _wachtendeMove;
+  _wachtendeMove = null;
+  if (ev) _handlePointerMoveNu(ev);
+}
+
+// Laat een uitgestelde move alsnog los vóór pointerup/pointerdown, zodat de
+// eindpositie van de gesture niet één frame achterblijft.
+function flushWachtendeMove() {
+  if (!_moveRafId) return;
+  cancelAnimationFrame(_moveRafId);
+  _verwerkWachtendeMove();
+}
+
 export function handlePointerMove(e) {
+  if (state.isDragging || state.isResizing || state.isDrawing || state.isRubberBanding) {
+    _wachtendeMove = e;
+    if (!_moveRafId) _moveRafId = requestAnimationFrame(_verwerkWachtendeMove);
+    return;
+  }
+  _handlePointerMoveNu(e);
+}
+
+function _handlePointerMoveNu(e) {
   if (!getActiveDocument()?.pdfDoc) return;
   if (isModalOpen()) return;
   if (state.isPanning) return;
@@ -236,6 +279,7 @@ export function handlePointerMove(e) {
  * Main pointer-up handler (replaces handleMouseUp + handleContinuousMouseUp)
  */
 export function handlePointerUp(e) {
+  flushWachtendeMove();
   if (!getActiveDocument()?.pdfDoc) return;
   if (isModalOpen()) return;
   // End the 2D-cursor drag on right-button release.
@@ -809,12 +853,27 @@ function _finishDragResize(ctx, e, coords) {
   // Ctrl+klik op een geselecteerd object zónder te slepen: nieuwe instantie
   // op dezelfde plek, die meteen de selectie wordt. Ctrl+klik op een NIET
   // geselecteerd object blijft alleen aan de selectie toevoegen.
+  let _fSelNa = _fSel;
   if (state._ctrlDragCopy && !state._ctrlCopiesCreated && state._ctrlClickOpGeselecteerd) {
     _maakCtrlKopieen(_fDoc, _fSel);
+    if (state._ctrlCopiesCreated) {
+      // _maakCtrlKopieen vervangt doc.selectedAnnotations door een NIEUWE
+      // array; _fSel wijst dan nog naar de originelen. Zonder deze herlezing
+      // registreerde de undo-stap de originelen als "toegevoegd" en haalde
+      // Ctrl+Z dus het verkeerde object weg.
+      _fSelNa = _fDoc ? _fDoc.selectedAnnotations : [];
+      // Klik zonder slepen: de kopie landt exact op het origineel en is dus
+      // onzichtbaar — het voelt alsof er niets gebeurt. Zet hem een vaste
+      // stap opzij (10 schermpixels, dus zoom-onafhankelijk).
+      const _kStap = 10 / (_fDoc?.scale || 1.5);
+      for (const kopie of _fSelNa) applyMove(kopie, _kStap, _kStap);
+      state.originalAnnotations = _fSelNa.map(a => cloneAnnotation(a));
+      state.originalAnnotation = _fSelNa.length === 1 ? cloneAnnotation(_fSelNa[0]) : null;
+    }
   }
   state._ctrlClickOpGeselecteerd = false;
   if (state._ctrlDragCopy && state._ctrlCopiesCreated) {
-    recordBulkAdd(_fSel);
+    recordBulkAdd(_fSelNa);
     markDocumentModified();
   } else {
     const modifiedScaleBars = _fSel.filter(a => a.type === 'scaleBar');
@@ -881,8 +940,8 @@ function _finishDragResize(ctx, e, coords) {
   // is what draws them, so it is also what removes them).
   redraw();
 
-  if (_fSel.length === 1) showProperties(_fSel[0]);
-  else if (_fSel.length > 1) showMultiSelectionProperties();
+  if (_fSelNa.length === 1) showProperties(_fSelNa[0]);
+  else if (_fSelNa.length > 1) showMultiSelectionProperties();
 }
 
 function _finishDrawing(ctx, e, coords) {
