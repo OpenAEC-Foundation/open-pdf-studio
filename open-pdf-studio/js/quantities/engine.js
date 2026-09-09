@@ -18,10 +18,24 @@ function cmp(a, b) {
   return String(a ?? '').localeCompare(String(b ?? ''));
 }
 
-function applyFmt(f, fmt) {
+// Werkelijke eenheid van een kolom: het eerste element dat er een levert wint.
+// Zo staat er "mm" boven millimeters en "m\u00B2" boven vierkante meters, in
+// plaats van de vaste eenheid uit het veldregister.
+function eenheidVoor(f, elements) {
+  if (typeof f.unitOf !== 'function') return f.unit;
+  for (const el of (elements || [])) {
+    let u = null;
+    try { u = f.unitOf(el); } catch { u = null; }
+    if (u) return u;
+  }
+  return f.unit;
+}
+
+function applyFmt(f, fmt, elements) {
   const isImage = f.kind === 'image';
   const base = {
     ...f,
+    unit: eenheidVoor(f, elements),
     decimals: f.dec != null ? f.dec : (f.kind === 'number' ? 2 : 0),
     align: f.kind === 'number' ? 'right' : 'left',
     // Beeldkolommen tellen nooit mee in som/subtotalen.
@@ -32,7 +46,7 @@ function applyFmt(f, fmt) {
   return {
     ...base,
     label: fmt.heading || f.label,
-    unit: fmt.unit != null ? fmt.unit : f.unit,
+    unit: fmt.unit != null ? fmt.unit : base.unit,
     decimals: fmt.decimals != null ? fmt.decimals : base.decimals,
     align: fmt.align || base.align,
     total: fmt.total !== false,
@@ -80,13 +94,16 @@ export function buildSchedule(elements, cfg = {}) {
   const cats = (cfg.categories && cfg.categories.length) ? cfg.categories : [];
   const allFields = fieldsForCategories(cats);
 
+  const relevant = (elements || []).filter(el => cats.includes(categoryOf(el)));
+
+  // Kolommen ná de elementselectie: de eenheid van een meetkolom volgt uit de
+  // elementen zelf (zie eenheidVoor).
   const colDefs = (cfg.fields || [])
     .map(k => allFields.find(f => f.key === k))
     .filter(Boolean)
-    .map(f => applyFmt(f, cfg.format && cfg.format[f.key]));
+    .map(f => applyFmt(f, cfg.format && cfg.format[f.key], relevant));
 
-  let rows = (elements || [])
-    .filter(el => cats.includes(categoryOf(el)))
+  let rows = relevant
     .map(el => ({ el, vals: Object.fromEntries(allFields.map(f => [f.key, safeGet(f, el)])) }));
 
   for (const flt of (cfg.filters || [])) {

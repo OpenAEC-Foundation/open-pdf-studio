@@ -94,8 +94,12 @@ export function typeName(type) {
 
 // Velddefinitie. `label` is een getter zodat de tekst bij elke uitlezing in de
 // actieve taal komt (en binnen een Solid-memo/render reactief blijft).
-const F = (key, fallback, kind, get, unit = '', dec) => ({
-  key, kind, unit, get, dec,
+// `unitOf` is optioneel: een functie die per element de werkelijke eenheid
+// teruggeeft. De engine kiest daarmee de kolomeenheid, zodat een staat niet
+// langer "m²" boven millimeters kan zetten. Levert hij niets op, dan geldt de
+// vaste `unit` als terugval.
+const F = (key, fallback, kind, get, unit = '', dec, unitOf) => ({
+  key, kind, unit, unitOf, get, dec,
   labelKey: `quantities.field.${key}`,
   get label() { return qLabel(`quantities.field.${key}`, fallback); },
 });
@@ -104,8 +108,88 @@ const F = (key, fallback, kind, get, unit = '', dec) => ({
 // categorie: geeft null (lege cel) voor elk ander lijnvormig element.
 const srField = (get) => (el) => (el.type === 'stavenreeks' ? get(el) : null);
 
+const MM2 = 'mm\u00B2';
+const M2 = 'm\u00B2';
+
+/**
+ * Meetwaarden staan in de TEKENEENHEID van het document: bij een mm-schaal dus
+ * millimeters en vierkante millimeters. Op het blad rekent formatMeasurement
+ * mm² door naar m²; de staat deed dat niet en zette er tóch "m²" boven,
+ * waardoor een vlak van 20 m² als 20.000.000 in de lijst kwam. Deze helper
+ * past exact dezelfde omrekening toe en geeft de eenheid die er echt bij hoort.
+ *
+ * Zonder bekende eenheid wordt er niets omgerekend en levert hij `unit: null`
+ * — de kolom houdt dan zijn vaste eenheid.
+ */
+export function normaliseerMeting(value, unit) {
+  if (typeof value !== 'number' || Number.isNaN(value)) return null;
+  if (unit === MM2) return { value: value / 1e6, unit: M2 };
+  return { value, unit: unit || null };
+}
+
+// Getekende vlakken (dus niet de meet-vlakken, die hun exacte waarde al
+// dragen) waarvan de oppervlakte uit de geometrie volgt. scaleRegion valt er
+// bewust buiten: dat is een hulpobject, geen hoeveelheid.
+const GEOMETRISCHE_VLAKKEN = new Set([
+  'filledArea', 'polygon', 'cloud', 'cloudPolyline',
+  'box', 'mask', 'redaction', 'highlight', 'circle', 'ellipse',
+]);
+
+function shoelace(pts) {
+  let s = 0;
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[i], b = pts[(i + 1) % pts.length];
+    if (!a || !b) continue;
+    s += (a.x ?? 0) * (b.y ?? 0) - (b.x ?? 0) * (a.y ?? 0);
+  }
+  return s / 2;
+}
+
+// Oppervlakte in pixels². Boogsegmenten (bulge) worden als rechte segmenten
+// benaderd — de meet-vlakken, waar het op aankomt, gaan niet langs dit pad.
+function pixelArea(el) {
+  const pts = Array.isArray(el.points) ? el.points : null;
+  if (pts && pts.length >= 3) {
+    let a = Math.abs(shoelace(pts));
+    for (const hole of (Array.isArray(el.holes) ? el.holes : [])) {
+      if (Array.isArray(hole) && hole.length >= 3) a -= Math.abs(shoelace(hole));
+    }
+    return Math.max(0, a);
+  }
+  const w = Math.abs(el.width || 0), h = Math.abs(el.height || 0);
+  if (w > 0 && h > 0) {
+    return (el.type === 'circle' || el.type === 'ellipse')
+      ? Math.PI * (w / 2) * (h / 2)
+      : w * h;
+  }
+  return null;
+}
+
+// Oppervlakte + eenheid van een vlak-element.
+function areaMeting(el) {
+  if (el.type === 'measureArea') {
+    return typeof el.measureValue === 'number'
+      ? normaliseerMeting(el.measureValue, el.measureUnit)
+      : null;
+  }
+  // Getekende vormen droegen tot nu toe géén oppervlakte: de kolom bleef leeg.
+  // De store verrijkt ze met de opgeloste schaal (__pxPerUnit/__unit), net als
+  // bij de lengte-kolom, zodat hier een echte hoeveelheid uit komt.
+  if (!GEOMETRISCHE_VLAKKEN.has(el.type)) return null;
+  const px2 = pixelArea(el);
+  if (px2 == null) return null;
+  const ppu = (typeof el.__pxPerUnit === 'number' && el.__pxPerUnit > 0) ? el.__pxPerUnit : 1;
+  return normaliseerMeting(px2 / (ppu * ppu), el.__unit ? el.__unit + '\u00B2' : null);
+}
+
 function areaValue(el) {
-  return (el.type === 'measureArea' && typeof el.measureValue === 'number') ? el.measureValue : null;
+  const m = areaMeting(el);
+  return m ? m.value : null;
+}
+
+function areaUnit(el) {
+  const m = areaMeting(el);
+  return m ? m.unit : null;
 }
 
 // Som van de pixel-lengtes van de segmenten van een element. Ondersteunt zowel
@@ -137,15 +221,25 @@ function pixelLength(el) {
 // De store verrijkt elementen met deze schaal, net zoals de meet-tools dat doen
 // (zie annotations/measurement.js getMeasureScale). Zonder schaal (bv. in tests
 // die 1 px = 1 unit aannemen) valt `__pxPerUnit` terug op 1.
-function lengthValue(el) {
+function lengthMeting(el) {
   if ((el.type === 'measureDistance' || el.type === 'measurePerimeter')
       && typeof el.measureValue === 'number') {
-    return el.measureValue;
+    return normaliseerMeting(el.measureValue, el.measureUnit || el.__unit || null);
   }
   const px = pixelLength(el);
   if (px == null) return null;
   const ppu = (typeof el.__pxPerUnit === 'number' && el.__pxPerUnit > 0) ? el.__pxPerUnit : 1;
-  return px / ppu;
+  return normaliseerMeting(px / ppu, el.__unit || null);
+}
+
+function lengthValue(el) {
+  const m = lengthMeting(el);
+  return m ? m.value : null;
+}
+
+function lengthUnit(el) {
+  const m = lengthMeting(el);
+  return m ? m.unit : null;
 }
 // Leesbare naam voor een afbeelding/stempel: expliciete stempelnaam, anders de
 // bestandsnaam uit een gekoppeld pad, anders het label. Puur (geen IO).
@@ -168,7 +262,10 @@ const COMMON = [
   F('category', 'Category', 'text', el => categoryLabel(categoryOf(el))),
   F('type', 'Type', 'text', el => typeName(el.type)),
   F('page', 'Page', 'number', el => el.page || 1, '', 0),
-  F('label', 'Label', 'text', el => el.label || el.subject || ''),
+  // measureName is de naam die je in het eigenschappenpaneel aan een
+  // meet-vlak geeft ("Woonkamer"). Die stond nergens in de staat, waardoor de
+  // Label-kolom voor oppervlaktes altijd leeg bleef.
+  F('label', 'Label', 'text', el => el.label || el.measureName || el.subject || ''),
   F('color', 'Color', 'text', el => el.color || el.strokeColor || el.fillColor || ''),
   F('ifcCategory', 'IFC category', 'text', el => el.ifcCategory || ''),
   F('count', 'Count', 'number', () => 1, '', 0),
@@ -176,12 +273,12 @@ const COMMON = [
 
 export const FIELD_REGISTRY = {
   'area': [...COMMON,
-    F('area', 'Area', 'number', areaValue, 'm²'),
+    F('area', 'Area', 'number', areaValue, 'm²', undefined, areaUnit),
     F('dakhoek', 'Roof pitch', 'number', el => el.dakhoek || 0, '°', 0),
-    F('realArea', 'Actual area', 'number', realArea, 'm²'),
+    F('realArea', 'Actual area', 'number', realArea, 'm²', undefined, areaUnit),
   ],
   'line-based': [...COMMON,
-    F('length', 'Length', 'number', lengthValue, 'm'),
+    F('length', 'Length', 'number', lengthValue, 'm', undefined, lengthUnit),
     // Wapening (stavenreeks): stuks + strekkende meter. Deze getters geven
     // null voor gewone lijnvormige elementen, zodat die cellen leeg blijven.
     F('barCount', 'Bar count', 'number', srField(el => el.count || 0), '', 0),
