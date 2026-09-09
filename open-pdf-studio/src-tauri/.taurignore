@@ -1,0 +1,7 @@
+# Bestanden die de tauri-dev-watcher NIET als wijziging mag zien.
+#
+# build.rs kopieert bij elke build de pdfium-worker-sidecar naar binaries/.
+# Zonder deze uitzondering ziet de watcher die kopie als een wijziging,
+# herbouwt hij, kopieert build.rs opnieuw — en zo verder (een log van
+# honderdduizenden regels en een dev-venster dat steeds opnieuw start).
+binaries/
