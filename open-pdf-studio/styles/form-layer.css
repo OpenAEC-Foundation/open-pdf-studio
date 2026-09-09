@@ -1,5 +1,10 @@
 /* Form Layer - interactive PDF form fields rendered by pdf.js AnnotationLayer */
 .formLayer {
+  /* Dekkende veldachtergronden (#359): lichtblauw zoals de PDF.js-viewer,
+     wit bij focus (typen), lichtgrijs voor alleen-lezen. */
+  --annotation-field-opaque-bg: #e5eafc;
+  --annotation-field-focus-bg: #ffffff;
+  --annotation-field-disabled-bg: #f3f3f3;
   position: absolute;
   inset: 0;
   z-index: 7;
@@ -30,6 +35,11 @@
 .formLayer .textWidgetAnnotation :is(input, textarea),
 .formLayer .choiceWidgetAnnotation select,
 .formLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) input {
+  /* Dekkend, niet half-doorzichtig: de paginabitmap (PDFium) bevat de
+     veldtekst in het PDF-font al, en die scheen door het veld heen zodat
+     je twee fonts over elkaar zag (#359). Een /MK-achtergrondkleur uit de
+     PDF zet PDF.js inline en wint van deze regel. */
+  background-color: var(--annotation-field-opaque-bg);
   background-image: var(--annotation-unfocused-field-background);
   border: 2px solid var(--input-unfocused-border-color);
   box-sizing: border-box;
@@ -55,7 +65,7 @@
 .formLayer .textWidgetAnnotation [disabled]:is(input, textarea),
 .formLayer .choiceWidgetAnnotation select[disabled],
 .formLayer .buttonWidgetAnnotation:is(.checkBox, .radioButton) input[disabled] {
-  background: none;
+  background: var(--annotation-field-disabled-bg);
   border: 2px solid var(--input-disabled-border-color);
   cursor: not-allowed;
 }
@@ -68,7 +78,7 @@
 
 .formLayer .textWidgetAnnotation :is(input, textarea):focus,
 .formLayer .choiceWidgetAnnotation select:focus {
-  background: none;
+  background: var(--annotation-field-focus-bg);
   border: 2px solid var(--input-focus-border-color);
   border-radius: 2px;
   outline: var(--input-focus-outline);
