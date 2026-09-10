@@ -50,6 +50,8 @@ const pasteInPlaceIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentCo
 const cutIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8 16 L20 4 M16 16 L4 4"/></svg>`;
 const deleteIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M9 6V4h6v2M6 6l1 14h10l1-14M10 10v6M14 10v6"/></svg>`;
 const tableIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16"/><path d="M3 9h18M3 14h18M9 4v16M15 4v16"/></svg>`;
+const knipselIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="13" height="10" stroke-dasharray="3 2"/><path d="M16 9h5v10H9v-4"/></svg>`;
+const knipselPlakIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="7" width="12" height="13"/><path d="M8 7V4h8v3"/><path d="M12 12l4 4-4 4" stroke-linecap="round"/></svg>`;
 const scaleRegionIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" stroke-dasharray="3 2"/><text x="12" y="16" font-size="8" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">1:N</text></svg>`;
 const labelIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12l5-5h13v10H7z"/><circle cx="11" cy="12" r="1.5"/></svg>`;
 // L-shape outline tool
@@ -228,6 +230,32 @@ export function DrawingGroups() {
             </label>
           </RibbonGroup>
         </Show>
+
+        {/* VECTORKNIPSEL — een gebied uit deze tekening knippen en elders
+            vectorieel plakken. Zie js/pdf/vector-embed.js. */}
+        <RibbonGroup label={t('drawing.snippetGroup') || 'Knipsel'}>
+          <RibbonButton id="btn-vector-snippet"
+            title={t('drawing.vectorSnippetTitle') || 'Knip een gebied uit deze tekening; het blijft vector'}
+            icon={knipselIcon}
+            label={t('drawing.vectorSnippet') || 'Vectorknipsel'}
+            disabled={ro()}
+            active={state.currentTool === 'vectorSnippet'}
+            onClick={() => setTool('vectorSnippet')} />
+          <RibbonButton id="btn-vector-snippet-paste"
+            title={t('drawing.vectorSnippetPasteTitle') || 'Plak het geknipte gebied hier, met behoud van vectordata'}
+            icon={knipselPlakIcon}
+            label={t('drawing.vectorSnippetPaste') || 'Plak knipsel'}
+            disabled={ro()}
+            onClick={async () => {
+              const { plakKnipsel, heeftKnipsel } = await import('../../../annotations/vector-snippet-clipboard.js');
+              if (!heeftKnipsel()) { state.statusMessage = 'Geen knipsel op het klembord'; return; }
+              const ann = plakKnipsel({});
+              if (!ann) return;
+              const { redrawAnnotations, redrawContinuous } = await import('../../../annotations/rendering.js');
+              const doc = state.documents[state.activeDocumentIndex];
+              if (doc?.viewMode === 'continuous') redrawContinuous(); else redrawAnnotations();
+            }} />
+        </RibbonGroup>
 
         {/* SCHAAL — moved here from the Opmerkingen tab: full labelled buttons
             for Schaalgebied + Schaalgebied op pagina. */}
