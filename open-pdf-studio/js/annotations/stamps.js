@@ -1,3 +1,4 @@
+import { huidigeSymboolSchaal } from '../symbols/symbol-scale-store.js';
 import { state, getActiveDocument, imageCache } from '../core/state.js';
 import { createAnnotation } from './factory.js';
 import { recordAdd } from '../core/undo-manager.js';
@@ -132,6 +133,7 @@ export async function placeOverrideStamp(x, y) {
       aspect,
       defaultWidth: overrides.stampWidth,
       defaultHeight: overrides.stampHeight || OVERRIDE_STAMP_DEFAULT_HEIGHT,
+      schaal: huidigeSymboolSchaal(),
     });
     stampWidth = size.width;
     stampHeight = size.height;

@@ -1,3 +1,5 @@
+import { huidigeSymboolSchaal } from '../symbols/symbol-scale-store.js';
+import { schaalVakOmMidden } from '../symbols/symbol-scale.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { getColorPickerValue, getLineWidthValue } from '../bridge.js';
 import { createAnnotation } from '../annotations/factory.js';
@@ -398,9 +400,9 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         const k = pxPerMmAt(page, startX, startY);
         const realSize = typeof template.realSizeMm === 'function'
           ? template.realSizeMm(params) : null;
-        const bandHeight = realSize?.height > 0
+        const bandHeight = (realSize?.height > 0
           ? realSize.height * k
-          : (template.defaultSize?.height || 48);
+          : (template.defaultSize?.height || 48)) * huidigeSymboolSchaal();
         if (Math.hypot(pointEndX - startX, pointEndY - startY) < 5) {
           const defaultLength = realSize?.width > 0
             ? realSize.width * k
@@ -427,12 +429,14 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         return annotation;
       }
 
+      const symboolSchaal = huidigeSymboolSchaal();
       let b = bbox(startX, startY, endX, endY);
       // Click (no real drag): use the template's defaultSize — or, for
       // templates with a real-world size (steel profiles), the REAL
       // dimensions at the click point (scale-region aware), centred on the
       // click like a CAD block insert.
-      if (b.width < 5 || b.height < 5) {
+      const geklikt = b.width < 5 || b.height < 5;
+      if (geklikt) {
         const mm = typeof template?.realSizeMm === 'function'
           ? template.realSizeMm(params) : null;
         if (mm && mm.height > 0) {
@@ -451,6 +455,10 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
           b = { x: startX, y: startY, width: ds.width, height: ds.height };
         }
       }
+      // Gekozen symboolschaal (issue #357). Alleen bij een KLIK: heeft de
+      // gebruiker een kader gesleept, dan is dat de maat die hij bedoelde.
+      if (geklikt) b = schaalVakOmMidden(b, symboolSchaal);
+
       // NL drafting components are BLACK by default (independent of the
       // current colour-picker swatch); recolour afterwards via the panel.
       return {

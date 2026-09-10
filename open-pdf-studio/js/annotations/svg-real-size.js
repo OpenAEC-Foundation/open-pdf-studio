@@ -10,6 +10,8 @@
 
 // Alleen ECHTE lengte-eenheden. `px` en eenheidloze waarden zijn schermmaten,
 // geen werkelijke maat, en tellen dus bewust niet mee.
+import { schaalMaat } from '../symbols/symbol-scale.js';
+
 const UNIT_TO_MM = {
   mm: 1,
   cm: 10,
@@ -69,7 +71,15 @@ export function svgRealSizeMm(svg) {
  * @param {number} [defaultWidth] expliciete breedte van de aanroeper
  * @param {number} [defaultHeight] standaardhoogte
  */
-export function stampPlacementSize({ mm, pxPerMm, aspect, defaultWidth, defaultHeight }) {
+export function stampPlacementSize({ mm, pxPerMm, aspect, defaultWidth, defaultHeight, schaal }) {
+  const maat = _basismaat({ mm, pxPerMm, aspect, defaultWidth, defaultHeight });
+  // De door de gebruiker gekozen symboolschaal (issue #357) werkt op de
+  // UITKOMST, niet op de werkelijke maat: een symbool met een echte maat in mm
+  // hoort ook op 2x geplaatst te kunnen worden.
+  return schaalMaat(maat, schaal);
+}
+
+function _basismaat({ mm, pxPerMm, aspect, defaultWidth, defaultHeight }) {
   if (mm && mm.width > 0 && mm.height > 0 && pxPerMm > 0) {
     return { width: tidy(mm.width * pxPerMm), height: tidy(mm.height * pxPerMm) };
   }

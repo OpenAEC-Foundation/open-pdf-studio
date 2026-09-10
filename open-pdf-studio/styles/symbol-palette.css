@@ -657,3 +657,25 @@
 .ste-btn-primary:hover {
   background: #0078d4;
 }
+
+/* Plaatsingsschaal van symbolen (issue #357).
+   Geldt voor het VOLGENDE symbool; wat al op de tekening staat verandert niet. */
+.sp-scale {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px 6px;
+  font-size: 12px;
+}
+
+.sp-scale label {
+  color: var(--text-secondary, #666);
+}
+
+.sp-scale select {
+  flex: 0 0 auto;
+}
+
+.sp-scale .sp-scale-eigen {
+  width: 62px;
+}

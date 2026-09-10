@@ -27,6 +27,8 @@ import { ifcCategoryForSymbol } from '../data/ifcCategoryMap.js';
 import { nenIfcForSymbolId } from '../data/nenIfcMap.js';
 import { SYMBOL_STAMP_DEFAULT_SIZE } from '../../annotations/stamp-defaults.js';
 import { setPendingSymbolId } from '../stores/parametricSymbolStore.js';
+import { symboolSchaal, setSymboolSchaal } from '../../symbols/symbol-scale-store.js';
+import { SCHAAL_STAPPEN, schaalLabel } from '../../symbols/symbol-scale.js';
 import { parseLineworkCatalog, lineworkCatalogToGroup, LINEWORK_TEMPLATE_PREFIX } from '../../symbols/linework-catalog.js';
 
 // Alleen catalogus-FAMILIES (maat-keuze, geen sprekend pictogram) krijgen de
@@ -202,6 +204,29 @@ function SymbolContent() {
             onInput={(e) => setSearchQuery(e.target.value)}
           />
         </div>
+      </div>
+
+      {/* Plaatsingsschaal (issue #357): geldt voor VOLGENDE symbolen; wat al
+          op de tekening staat verandert niet. */}
+      <div class="sp-scale">
+        <label for="sp-scale-select" title="Maat waarop een nieuw symbool geplaatst wordt">Schaal</label>
+        <select
+          id="sp-scale-select"
+          value={String(symboolSchaal())}
+          onChange={(e) => setSymboolSchaal(e.target.value)}
+        >
+          <For each={SCHAAL_STAPPEN}>
+            {(stap) => <option value={String(stap)}>{schaalLabel(stap)}</option>}
+          </For>
+        </select>
+        <input
+          type="number"
+          class="sp-scale-eigen"
+          min="0.1" max="10" step="0.05"
+          value={symboolSchaal()}
+          title="Eigen schaal"
+          onChange={(e) => setSymboolSchaal(e.target.value)}
+        />
       </div>
 
       {/* Categories */}
