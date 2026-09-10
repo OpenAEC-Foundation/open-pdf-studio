@@ -752,6 +752,23 @@ fn handle_tools_list() -> Value {
                     },
                     "additionalProperties": false
                 }
+            },
+            {
+                "name": "app_place_schedule",
+                "description": "Build a quantities schedule (Staat) from the annotations in the open document and place it on the page as a table annotation. Without scheduleId a new schedule is created from a template (default 'area'); `config` then overrides its categories/fields/sort. The table contents are computed by the app from the live annotations - the caller supplies no cell values.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "scheduleId": { "type": "string", "description": "Reuse an existing schedule instead of creating one." },
+                        "templateId": { "type": "string", "description": "Template for a new schedule: area, length, count, symbol, text, image or full. Default: area." },
+                        "name":       { "type": "string", "description": "Display name for the schedule." },
+                        "config":     { "type": "object", "description": "Schedule config: categories, fields, filters, sort, itemize, format. Overrides the template.", "additionalProperties": true },
+                        "page":       { "type": "number", "description": "Page to place the table on (default: current page)." },
+                        "x":          { "type": "number", "description": "Left edge in page points (default 40)." },
+                        "y":          { "type": "number", "description": "Top edge in page points (default 40)." }
+                    },
+                    "additionalProperties": false
+                }
             }
         ]
     })
@@ -822,6 +839,7 @@ async fn handle_tools_call(state: &AppState, params: &Value) -> Result<Value, (i
         "app_get_page_count"     => tool_app_request(state, "mcp:get-page-count",     &arguments, Duration::from_secs(5)).await,
         "app_set_measure_scale"  => tool_app_request(state, "mcp:set-measure-scale",  &arguments, Duration::from_secs(15)).await,
         "app_get_takeoff"        => tool_app_request(state, "mcp:get-takeoff",        &arguments, Duration::from_secs(10)).await,
+        "app_place_schedule"     => tool_app_request(state, "mcp:place-schedule",     &arguments, Duration::from_secs(15)).await,
         other => Err((
             jsonrpc_error::METHOD_NOT_FOUND,
             format!("method not found: {other}"),
@@ -1665,6 +1683,7 @@ mod tests {
             "app_get_page_count",
             "app_set_measure_scale",
             "app_get_takeoff",
+            "app_place_schedule",
         ] {
             assert!(names.contains(&tool), "missing tool: {tool} (got {names:?})");
             let descr = arr.iter().find(|t| t["name"] == tool).unwrap();

@@ -1927,6 +1927,62 @@ async function handleGetTakeoff(params) {
   return { ok: true, schedules: sel.map(wanted) };
 }
 
+/** Maak (of hergebruik) een staat en zet hem als tabel op de tekening.
+ *  Zonder scheduleId wordt er een nieuwe staat uit een sjabloon gemaakt;
+ *  `config` overschrijft daarna de kolommen/groepering. De tabel zelf wordt
+ *  door de app opgebouwd uit de actuele annotaties — de aanroeper levert dus
+ *  geen celwaarden aan, alleen waar de staat over gaat en waar hij komt. */
+async function handlePlaceSchedule(params) {
+  const stateMod = await import('./core/state.js');
+  const doc = stateMod.getActiveDocument();
+  if (!doc?.pdfDoc) return { ok: false, error: 'no active document' };
+
+  const store = await import('./solid/stores/schedulesStore.js');
+  let id = params?.scheduleId || null;
+  if (id && !store.getScheduleById(id)) {
+    return { ok: false, error: `schedule not found: ${id}` };
+  }
+  if (!id) {
+    const templateId = params?.templateId || 'area';
+    const item = store.addScheduleFromTemplate(templateId, params?.name || templateId);
+    if (!item) return { ok: false, error: `unknown template: ${templateId}` };
+    id = item.id;
+  } else if (params?.name) {
+    store.renameSchedule(id, params.name);
+  }
+  if (params?.config && typeof params.config === 'object' && !Array.isArray(params.config)) {
+    store.updateScheduleConfig(id, params.config);
+  }
+
+  let page = doc.currentPage || 1;
+  if (params?.page != null) {
+    page = Number(params.page);
+    const numPages = doc.pdfDoc?.numPages ?? 1;
+    if (!Number.isInteger(page) || page < 1 || page > numPages) {
+      return { ok: false, error: `page ${params.page} out of range (doc has ${numPages} pages)` };
+    }
+  }
+
+  const x = _isNum(params?.x) ? params.x : 40;
+  const y = _isNum(params?.y) ? params.y : 40;
+
+  const drop = await import('./quantities/schedule-drop.js');
+  const ann = drop.placeScheduleAt(id, x, y, page);
+  if (!ann) {
+    return { ok: false, error: 'schedule produced no columns — check its categories/fields' };
+  }
+  return {
+    ok: true,
+    scheduleId: id,
+    annotationId: ann.id,
+    page: ann.page,
+    x: ann.x, y: ann.y, width: ann.width, height: ann.height,
+    title: ann.title,
+    columns: ann.columns,
+    rowCount: Array.isArray(ann.rows) ? ann.rows.length : 0,
+  };
+}
+
 // ─── Generic UI drivers: click / inspect any element by CSS selector ─────
 //
 // The ribbon renders only the ACTIVE tab's content (SolidJS <Match>), so a
@@ -2083,6 +2139,7 @@ const HANDLERS = {
   'mcp:set-measure-scale':  handleSetMeasureScale,
   // Take-off / schedules
   'mcp:get-takeoff':        handleGetTakeoff,
+  'mcp:place-schedule':     handlePlaceSchedule,
   // Assistant — test the AI end-to-end
   'mcp:ai-complete':        handleAiComplete,
   // Accounts introspection — deactivated (cloud accounts feature removed)
