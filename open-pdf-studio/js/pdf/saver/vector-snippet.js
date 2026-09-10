@@ -64,7 +64,7 @@ export async function registreerBron(doelDoc, sleutel, bytes) {
  *
  * @param {import('pdf-lib').PDFDocument} doelDoc
  * @param {{bronBytes: Uint8Array, srcBox: object, rect: number[], sleutel: string, paginaIndex?: number}} opdracht
- * @returns {Promise<{content: string, xobjects: object, breedte: number, hoogte: number, bronRef: object}>}
+ * @returns {Promise<{content: string, xobjects: object, breedte: number, hoogte: number, bronRef: object, ingebed: object}>}
  */
 export async function bouwKnipselAppearance(doelDoc, opdracht) {
   const { bronBytes, srcBox, rect, sleutel, paginaIndex = 0 } = opdracht;
@@ -74,5 +74,5 @@ export async function bouwKnipselAppearance(doelDoc, opdracht) {
   const content = knipselApOps(rect, breedte, hoogte, naam);
   if (!content) throw new Error('knipsel of doelvak heeft geen oppervlak');
   const bronRef = await registreerBron(doelDoc, sleutel, bronBytes);
-  return { content, xobjects: { [naam]: ingebed.ref }, breedte, hoogte, bronRef };
+  return { content, xobjects: { [naam]: ingebed.ref }, breedte, hoogte, bronRef, ingebed };
 }

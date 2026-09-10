@@ -192,6 +192,9 @@ export function findAnnotationAt(x, y, pageNum = null) {
     // Elementen, statusfilter #333) is ook niet raakbaar — anders selecteer
     // of versleep je onzichtbare annotaties.
     if (isAnnotationHiddenInView(ann)) continue;
+    // Een vastgezet vectorknipsel is geen object meer maar pagina-inhoud in
+    // wording: zichtbaar, niet aanklikbaar.
+    if (ann.type === 'vectorSnippet' && ann.flattened) continue;
 
     switch (ann.type) {
       case 'draw':

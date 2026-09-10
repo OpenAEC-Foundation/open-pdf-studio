@@ -580,6 +580,22 @@ async function _savePDFNu(saveAsPath) {
               break;
             }
 
+            // Vastgezet: het XObject gaat de inhoudstroom van de pagina in en er
+            // komt geen annotatie. Daarna is het gewone pagina-inhoud — niet
+            // meer te verplaatsen, wel nog steeds vector.
+            if (ann.flattened) {
+              try {
+                page.drawPage(gebouwd.ingebed, {
+                  x: kx1, y: ky1,
+                  width: kx2 - kx1, height: ky2 - ky1,
+                  opacity,
+                });
+              } catch (err) {
+                console.warn(`[saver] knipsel ${ann.id} vastleggen mislukt:`, err.message);
+              }
+              break;
+            }
+
             annotDict = context.obj({
               Type: 'Annot',
               Subtype: 'Stamp',

@@ -22,6 +22,7 @@ import { scaleMeasureTool } from './scale-measure-tool.js';
 import { pluginClickTool } from './plugin-tool.js';
 import { viewportTool } from './viewport-tool.js';
 import { scaleRegionTool } from './scale-region-tool.js';
+import { vectorSnippetTool } from './vector-snippet-tool.js';
 import { scaleBarTool } from './scalebar-tool.js';
 import { trimTool } from './trim-tool.js';
 import { extendTool } from './extend-tool.js';
@@ -119,6 +120,7 @@ export function registerAllTools() {
 
   // Scale regions (per-region calibration)
   registerTool('scaleRegion', scaleRegionTool);
+  registerTool('vectorSnippet', vectorSnippetTool);
 
   // Plugin fallback
   registerTool('_plugin_click', pluginClickTool);

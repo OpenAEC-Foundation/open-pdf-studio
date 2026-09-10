@@ -30,6 +30,7 @@ import { drawEmbeddedImageOverlay } from '../tools/tools/remove-image-tool.js';
 import { updateQuickAccessButtons, updateContextualTabs, drawGrid, snapToGrid } from './rendering/ui-state.js';
 import { drawCommentIcon } from './rendering/comment-icons.js';
 import { spatialIndex, annotationBounds } from './spatial-index.js';
+import { bitmapVoor, bijNieuweTegel } from './vector-snippet-preview.js';
 import { invalidateScaleRegionCache, pixelsPerUnitFor, getRegionScaleFactor } from './scale-region.js';
 import { drawSnapIndicator } from '../tools/snap-engine.js';
 import { drawImageAlignGuides } from '../tools/image-align-snap.js';
@@ -1183,6 +1184,47 @@ export function drawAnnotation(ctx, annotation) {
       drawTextboxContent(ctx, annotation);
       ctx.restore();
       break;
+
+    // Vectorknipsel: in het bestand vector, op het scherm raster — net als de
+    // paginaweergave zelf. bitmapVoor levert het scherpste niveau dat er nu is
+    // en vraagt op de achtergrond een scherper niveau aan.
+    case 'vectorSnippet': {
+      const vpz = window.__pdfViewport;
+      const zoom = (vpz && vpz.active)
+        ? vpz.zoom
+        : (state.documents[state.activeDocumentIndex]?.scale || 1);
+      const bmp = bitmapVoor(annotation, zoom);
+      ctx.save();
+      const kcx = annotation.x + annotation.width / 2;
+      const kcy = annotation.y + annotation.height / 2;
+      ctx.translate(kcx, kcy);
+      if (annotation.rotation) ctx.rotate((annotation.rotation || 0) * Math.PI / 180);
+      ctx.translate(-kcx, -kcy);
+      if (annotation.opacity !== undefined) ctx.globalAlpha = annotation.opacity;
+      if (bmp) {
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(bmp, annotation.x, annotation.y, annotation.width, annotation.height);
+      } else {
+        // Nog geen tegel: een kader met de herkomst, zodat je ziet dat er iets
+        // staat en waar het vandaan komt.
+        const eenheid = 1 / (zoom || 1);
+        ctx.strokeStyle = '#1565c0';
+        ctx.fillStyle = 'rgba(21, 101, 192, 0.06)';
+        ctx.lineWidth = 1 * eenheid;
+        ctx.setLineDash([5 * eenheid, 3 * eenheid]);
+        ctx.fillRect(annotation.x, annotation.y, annotation.width, annotation.height);
+        ctx.strokeRect(annotation.x, annotation.y, annotation.width, annotation.height);
+        ctx.setLineDash([]);
+        if (annotation.srcLabel) {
+          ctx.fillStyle = '#1565c0';
+          ctx.font = `${11 * eenheid}px sans-serif`;
+          ctx.fillText(annotation.srcLabel, annotation.x + 4 * eenheid, annotation.y + 14 * eenheid);
+        }
+      }
+      ctx.restore();
+      break;
+    }
 
     case 'image':
       // Draw image with rotation and flip
@@ -2601,6 +2643,13 @@ export function rebuildSpatialIndex() {
 
 // Ná het async laden van een component-in-cel-symboolbeeld: hertekenen
 // zodat de placeholder door het echte symbool vervangen wordt.
+// Een net gerasterd vectorknipsel moet meteen zichtbaar worden.
+bijNieuweTegel(() => {
+  const doc = state.documents[state.activeDocumentIndex];
+  if (doc?.viewMode === 'continuous') redrawContinuous();
+  else redrawAnnotations();
+});
+
 registerSysteemSymbolRedraw(() => {
   const doc = state.documents[state.activeDocumentIndex];
   if (doc?.viewMode === 'continuous') redrawContinuous();
