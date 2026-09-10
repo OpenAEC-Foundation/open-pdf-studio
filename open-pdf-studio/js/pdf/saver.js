@@ -9,6 +9,8 @@ import { isTauri, invoke, readBinaryFile, writeBinaryFile, saveFileDialog, unloc
 import { getCachedPdfBytes, setCachedPdfBytes, hidePdfABar } from './loader.js';
 import { PDFDocument, PDFString, PDFHexString, PDFName, PDFArray, PDFStream, degrees,
   PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup, PDFOptionList } from 'pdf-lib';
+import { bouwKnipselAppearance } from './saver/vector-snippet.js';
+import { bytesVan as knipselBytesVan } from '../annotations/vector-snippet-store.js';
 import { getAnnotationStorage, getAnnotIdToFieldName } from './form-layer.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import i18next from '../i18n/config.js';
@@ -63,6 +65,12 @@ function attachVectorAP(context, annotDict, built, rect) {
     resources.ExtGState = context.obj({
       GSf: context.obj({ Type: 'ExtGState', ca: built.fillAlpha }),
     });
+  }
+  // Een appearance die een Form XObject tekent (het vectorknipsel) heeft dat
+  // XObject in zijn eigen resources nodig; zonder deze regel blijft de /Do
+  // zonder doel en is het knipsel leeg.
+  if (built.xobjects) {
+    resources.XObject = context.obj(built.xobjects);
   }
   const apStream = context.stream(built.content, {
     Type: 'XObject', Subtype: 'Form', BBox: [x1, y1, x2, y2],
@@ -539,6 +547,54 @@ async function _savePDFNu(saveAsPath) {
             if (ann.rotation) annDictObj.OPS_Rotation = ann.rotation;
 
             annotDict = context.obj(annDictObj);
+            break;
+          }
+
+          // Vectorknipsel: een gebied uit een andere PDF, vectorieel geplakt.
+          // Zolang het niet is vastgezet leeft het als stempel met een
+          // vectoriele appearance — zichtbaar in elke lezer, en bij heropenen
+          // weer een verplaatsbaar object. Zie saver/vector-snippet.js.
+          case 'vectorSnippet': {
+            const kx1 = convertX(ann.x);
+            const ky1 = convertY(ann.y + ann.height);
+            const kx2 = convertX(ann.x + ann.width);
+            const ky2 = convertY(ann.y);
+            const kRect = [kx1, ky1, kx2, ky2];
+
+            const bronBytes = knipselBytesVan(ann.snippetKey);
+            if (!bronBytes) {
+              console.warn(`[saver] knipsel ${ann.id}: bronbytes ontbreken (sleutel ${ann.snippetKey}) — overgeslagen`);
+              break;
+            }
+            let gebouwd;
+            try {
+              gebouwd = await bouwKnipselAppearance(pdfDocLib, {
+                bronBytes,
+                srcBox: ann.srcBox,
+                rect: kRect,
+                sleutel: ann.snippetKey,
+                paginaIndex: 0,
+              });
+            } catch (err) {
+              console.warn(`[saver] knipsel ${ann.id} kon niet worden ingebed:`, err.message);
+              break;
+            }
+
+            annotDict = context.obj({
+              Type: 'Annot',
+              Subtype: 'Stamp',
+              Rect: kRect,
+              CA: opacity,
+              T: PDFString.of(ann.author || 'User'),
+              Contents: PDFString.of(ann.srcLabel || ''),
+              M: PDFString.of(new Date().toISOString()),
+              F: computeAnnotFlags(ann),
+              OPS_Subtype: PDFString.of('vectorSnippet'),
+              OPS_SnippetKey: PDFString.of(String(ann.snippetKey)),
+              OPS_SrcBox: [ann.srcBox.left, ann.srcBox.bottom, ann.srcBox.right, ann.srcBox.top],
+              OPS_SrcLabel: PDFString.of(ann.srcLabel || ''),
+            });
+            attachVectorAP(context, annotDict, gebouwd, kRect);
             break;
           }
 
