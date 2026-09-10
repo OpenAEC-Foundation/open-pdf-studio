@@ -77,7 +77,15 @@ Gecontroleerd wordt wat een model fout kan doen zonder dat het opvalt:
 - elk vlak ligt binnen het kader van zijn aanzicht;
 - de oriëntatie komt uit een vaste lijst;
 - de helling is plausibel (0–75°);
-- aanzichtkaders overlappen elkaar niet.
+- aanzichtkaders overlappen elkaar niet;
+- tegenoverliggende gevels met gelijke afmetingen wijken niet meer dan 5% van
+  elkaar af.
+
+Die laatste controle komt uit de proef op de schuur-set: noord- en zuidgevel
+zijn dezelfde lange wand, maar kwamen op 461 en 476 ft² netto uit. Dat verschil
+van 3% was afleesfout, geen echt verschil — maar het is precies de fout die je
+verder niet ziet. Een waarschuwing (geen harde fout) in het bevestigings-
+overzicht van fase 1 legt hem bloot.
 
 #### De schaal-omzetting
 
@@ -108,9 +116,29 @@ Zet het plan om in annotaties via de bestaande fabrieken:
 - een `scaleRegion` per aanzicht, met de omgerekende `scaleString` en `units`;
 - een `measureArea` per gevel, met de kozijnen van die gevel als `holes`;
 - een `measureArea` per kozijn;
-- een `measureArea` per dakvlak, met `dakhoek` uit de hellingtekst;
+- een `measureArea` per dakvlak, met `dakhoek` = 90° min de helling (zie
+  hieronder);
 - een staat via `addScheduleFromTemplate` + `updateScheduleConfig`, geplaatst
   met het bestaande `placeScheduleAt`.
+
+#### De dakcorrectie: waarom 90 min de helling
+
+Van een schuin dakvlak zie je in een AANZICHT alleen de rijzing, niet de schuine
+lengte: de werkelijke lengte is rijzing / sin(helling). De `dakhoek` van de app
+rekent met `realArea = area / cos(dakhoek)` — dat is de conventie voor een vlak
+dat je in het BOVENAANZICHT meet. Voor een dakvlak uit een aanzicht geldt dus
+`dakhoek = 90° − helling`, want dan is cos(dakhoek) = sin(helling) en komt er
+exact de schuine oppervlakte uit.
+
+Op de schuur-set nagerekend: het steile noordvlak meet 629,58 ft², helling
+61,7°, dus `dakhoek` 28,3° → 629,58 / cos(28,3°) = 714,9 ft². Dat is 49,7 ft
+gebouwlengte × 14,4 ft schuine hoogte. De vier dakvlakken samen gaan zo van
+1847 ft² gemeten naar 2600 ft² werkelijk.
+
+De hellingen komen bij voorkeur uit de hellingtekst op de tekening (`8:12`).
+Ontbreekt die, dan zijn ze af te leiden uit het dakprofiel in een kopgevel —
+daar staat de doorsnede op ware grootte. Beide wegen leveren een helling; welke
+gebruikt is hoort in het bevestigingsoverzicht van fase 1 te staan.
 
 ## Verloop: twee fasen
 
@@ -152,8 +180,14 @@ gevel, `IfcWindow` voor een kozijn, `IfcRoof` voor een dakvlak. Dat
 is een bestaand annotatieveld én een bestaande staat-kolom, dus er hoeft niets
 nieuws bij om op te kunnen groeperen.
 
-Configuratie: categorie `area`, kolommen `label`, `area`, `realArea`, `dakhoek`,
-`count`, gegroepeerd op `ifcCategory` met subtotalen en eindtotaal. Onderaan lees
+Configuratie: categorie `area`, kolommen `label`, `ifcCategory`, `area`,
+`realArea`, `count`, gegroepeerd op `ifcCategory` met subtotalen en eindtotaal,
+en een filter `area has` erop.
+
+Dat filter is nodig: een `scaleRegion` valt zelf ook in de categorie `area` en
+verschijnt anders als rij zonder oppervlakte in een groep "(geen)". Het is een
+hulpobject, geen hoeveelheid. Met het filter erbij ging de proef op de schuur-set
+van 25 naar 21 rijen — de vier schaalgebieden eruit. Onderaan lees
 je dan per groep de netto geveloppervlakte, het totaal aan kozijnen en het
 werkelijke dakoppervlak.
 
@@ -172,6 +206,11 @@ tekening.
   het blad wordt evenmin geplaatst (alles-of-niets).
 - **Kozijn zonder gevel.** Fout — een kozijn moet binnen precies één gevel van
   hetzelfde aanzicht liggen.
+- **Kozijnen in een dakvlak.** Dakramen zitten in het dak, niet in de gevel. Een
+  opening waarvan het middelpunt binnen een dakvlak valt hoort daar als gat in,
+  niet in de gevel. Op de schuur-set staan drie dakramen in het noorddakvlak; in
+  de proef zijn die nog als gevelkozijn geteld, wat de dakbedekking te hoog
+  maakt.
 
 ## Testen
 
