@@ -316,10 +316,10 @@ git commit -m "feat(knipsel): los knipsel wordt opgeslagen als stempel met vecto
 - Consumes: `bewaar` (Task 2).
 - Produces: een `vectorSnippet`-annotatie met `snippetKey`, `srcBox`, `srcLabel`.
 
-- [ ] **Step 1:** Lees `OPS_VectorSnippets` van de catalogus en zet elke stream met `bewaar()` in de store.
-- [ ] **Step 2:** Voor elke Stamp met `OPS_SnippetKey`: maak een `vectorSnippet` met de Rect als plaatsing en `OPS_SrcBox` als vak.
-- [ ] **Step 3:** Rondgang-test: plaatsen → opslaan → heropenen → nog steeds een verplaatsbaar knipsel op dezelfde plek.
-- [ ] **Step 4: Commit**
+- [x] **Step 1:** Lees `OPS_VectorSnippets` van de catalogus en zet elke stream met `bewaar()` in de store.
+- [x] **Step 2:** Voor elke Stamp met `OPS_SnippetKey`: maak een `vectorSnippet` met de Rect als plaatsing en `OPS_SrcBox` als vak.
+- [x] **Step 3:** Rondgang-test: plaatsen → opslaan → heropenen → nog steeds een verplaatsbaar knipsel op dezelfde plek.
+- [x] **Step 4: Commit**
 
 ```bash
 git commit -m "feat(knipsel): een opgeslagen knipsel wordt weer een verplaatsbaar object"

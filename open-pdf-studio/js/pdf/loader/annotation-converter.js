@@ -8,6 +8,8 @@ import { findImageForAnnotation, findImageEntryForAnnotation } from './annotatio
 import { ifcCategoryForAnnotationType, ifcCategoryForParametric } from '../../solid/data/ifcCategoryMap.js';
 import { nenIfcForStamp } from '../../solid/data/nenIfcMap.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
+import { knipselUitExtra } from './vector-snippet-load.js';
+import { heeft as heeftKnipselBron } from '../../annotations/vector-snippet-store.js';
 import { syncTwoPointGeometry } from '../../symbols/two-point.js';
 import { systeemFromOps, sparingenFromJson } from '../../annotations/systeemraster.js';
 import { systeemTypeFromJson } from '../../annotations/systeem-typen.js';
@@ -1366,6 +1368,20 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
     }
 
     case 'Stamp': {
+      // Vectorknipsel dat de app zelf opsloeg: weer een verplaatsbaar object,
+      // op de plek van de /Rect. De converter rekent die om naar de weergave-
+      // ruimte, dus ook op een gedraaid blad klopt de maat.
+      const knipsel = knipselUitExtra(extraColors, heeftKnipselBron);
+      if (knipsel) {
+        const kr = convertRect(annot.rect);
+        return createAnnotation({
+          ...baseProps,
+          type: 'vectorSnippet',
+          x: kr.x, y: kr.y, width: kr.width, height: kr.height,
+          ...knipsel,
+        });
+      }
+
       // Stavenreeks (wapeningsstaven-reeks): een /Stamp met onze eigen
       // OPS_SR*-parameters. De reekslijn komt uit OPS_SRGeom; alle overige
       // geometrie (poten, punten, label) wordt bij het renderen opnieuw

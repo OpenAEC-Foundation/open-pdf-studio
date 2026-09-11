@@ -8,7 +8,8 @@
 // de mini-PDF gaat één keer per sleutel naar de tijdelijke map. De store
 // onthoudt waar.
 
-import { padVan } from './vector-snippet-store.js';
+import { padVan, bytesVan } from './vector-snippet-store.js';
+import { weergaveVak, paginaRotatie } from '../pdf/vector-embed.js';
 
 /** Zoomniveaus waarop we rasteren. Tussenliggende zoom gebruikt de eerstvolgende. */
 const NIVEAUS = [1, 2, 4, 8, 16];
@@ -19,6 +20,7 @@ const MAX_PIXELS = 4096;
 
 const _bitmaps = new Map();   // `${sleutel}|${vakSleutel}|${niveau}` -> ImageBitmap
 const _bezig = new Map();     // dezelfde sleutel -> lopende belofte (in-flight dedupe)
+const _bladen = new Map();    // snippetKey -> belofte van { cropBox, rotatie } van de mini-PDF
 let _opnieuwTekenen = null;
 
 /** De tekenlaag geeft hier zijn hertekenfunctie af, zodat een net binnengekomen
@@ -87,13 +89,31 @@ async function schrijfNaarTijdelijkeMap(sleutel, bytes) {
   return pad;
 }
 
+/** CropBox en rotatie van de mini-PDF, één keer per knipsel uitgelezen. */
+function bladVan(sleutel) {
+  if (!_bladen.has(sleutel)) {
+    _bladen.set(sleutel, (async () => {
+      const bytes = bytesVan(sleutel);
+      if (!bytes) return null;
+      const { PDFDocument } = await import('pdf-lib');
+      const pagina = (await PDFDocument.load(bytes)).getPage(0);
+      return { cropBox: pagina.getCropBox(), rotatie: paginaRotatie(pagina) };
+    })().catch(() => null));
+  }
+  return _bladen.get(sleutel);
+}
+
 async function render(ann, niveau) {
   const pad = await padVan(ann.snippetKey, schrijfNaarTijdelijkeMap);
   if (!pad) return null;
+  const blad = await bladVan(ann.snippetKey);
+  if (!blad) return null;
 
-  const vak = ann.srcBox;
-  const b = vak.right - vak.left;
-  const h = vak.top - vak.bottom;
+  // De worker wil de regio in WEERGAVE-ruimte (linksboven, y omlaag, ná de
+  // /Rotate) — niet het PDF-vak zelf. Zie pdfium-worker/src/render.rs.
+  const regio = weergaveVak(ann.srcBox, blad.cropBox, blad.rotatie);
+  const b = regio.width;
+  const h = regio.height;
   if (!(b > 0) || !(h > 0)) return null;
 
   // Niet verder verscherpen dan MAX_PIXELS aan de langste zijde.
@@ -106,8 +126,8 @@ async function render(ann, niveau) {
     pageIndex: 0,
     scale: schaal,
     rotation: 0,
-    regionXPt: vak.left,
-    regionYPt: vak.bottom,
+    regionXPt: regio.x,
+    regionYPt: regio.y,
     regionWPt: b,
     regionHPt: h,
   });
@@ -138,4 +158,5 @@ export function leegmaken() {
   for (const bmp of _bitmaps.values()) if (bmp && typeof bmp.close === 'function') bmp.close();
   _bitmaps.clear();
   _bezig.clear();
+  _bladen.clear();
 }

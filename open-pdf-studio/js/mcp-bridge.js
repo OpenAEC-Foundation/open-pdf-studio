@@ -2265,6 +2265,9 @@ async function handleSnippetFlatten(params) {
   const ann = (doc?.annotations || []).find((a) => a.id === id);
   if (!ann) return { ok: false, error: `annotation not found: ${id}` };
   if (ann.type !== 'vectorSnippet') return { ok: false, error: `not a vector snippet: ${ann.type}` };
+  if (params?.flattened === false && ann.gebakkenIn) {
+    return { ok: false, error: 'this snippet is already part of the page content since the last save' };
+  }
   ann.flattened = params?.flattened !== false;
   const tabs = await import('./ui/chrome/tabs.js');
   tabs.markDocumentModified();

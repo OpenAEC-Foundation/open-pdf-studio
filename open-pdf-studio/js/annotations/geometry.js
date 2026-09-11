@@ -194,7 +194,7 @@ export function findAnnotationAt(x, y, pageNum = null) {
     if (isAnnotationHiddenInView(ann)) continue;
     // Een vastgezet vectorknipsel is geen object meer maar pagina-inhoud in
     // wording: zichtbaar, niet aanklikbaar.
-    if (ann.type === 'vectorSnippet' && ann.flattened) continue;
+    if (ann.type === 'vectorSnippet' && (ann.flattened || ann.gebakkenIn)) continue;
 
     switch (ann.type) {
       case 'draw':

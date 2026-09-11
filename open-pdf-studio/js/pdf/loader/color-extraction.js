@@ -1,6 +1,12 @@
 import { parseEditorDom } from '../../text/editor-dom-parse.js';
 import { PDFName, PDFDict, PDFArray } from 'pdf-lib';
 import { pdfNum, pdfColorToHex, mapPdfFontName, inflateBytes } from './pdf-helpers.js';
+import { leesKnipselBronnen, leesKnipselVelden } from './vector-snippet-load.js';
+import { bewaar as bewaarKnipsel } from '../../annotations/vector-snippet-store.js';
+
+// Documenten waarvan de knipsel-bronpagina's al in de store staan: dat
+// uitpakken gebeurt één keer per document, bij het eerste knipsel dat we zien.
+const _knipselBronnenGelezen = new WeakSet();
 
 // Decode an appearance stream to text (handles /FlateDecode).
 async function decodeApStream(stream) {
@@ -256,6 +262,25 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
           colors.opsSubtype = sub.value;
         } else if (sub && typeof sub.decodeText === 'function') {
           colors.opsSubtype = sub.decodeText();
+        }
+      }
+
+      // Vectorknipsel: de knipsel-velden van de stempel, en bij het eerste
+      // knipsel in dit document de bronpagina's van de catalogus in de store.
+      // Zie loader/vector-snippet-load.js; de converter maakt er weer een
+      // verplaatsbaar knipsel van.
+      if (colors.opsSubtype === 'vectorSnippet' && subtypeName === '/Stamp') {
+        try {
+          const velden = await leesKnipselVelden(annotDict, context);
+          if (velden) {
+            if (!_knipselBronnenGelezen.has(pdfDoc)) {
+              _knipselBronnenGelezen.add(pdfDoc);
+              await leesKnipselBronnen(pdfDoc, bewaarKnipsel);
+            }
+            colors.vectorSnippet = velden;
+          }
+        } catch (err) {
+          console.warn('[loader] knipsel niet leesbaar, blijft een stempel:', err?.message || err);
         }
       }
 

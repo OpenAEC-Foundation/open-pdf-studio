@@ -9,7 +9,7 @@ import { isTauri, invoke, readBinaryFile, writeBinaryFile, saveFileDialog, unloc
 import { getCachedPdfBytes, setCachedPdfBytes, hidePdfABar } from './loader.js';
 import { PDFDocument, PDFString, PDFHexString, PDFName, PDFArray, PDFStream, degrees,
   PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup, PDFOptionList } from 'pdf-lib';
-import { bouwKnipselAppearance } from './saver/vector-snippet.js';
+import { bouwKnipselAppearance, tekenKnipselInPagina, alInBasis, markeerGebakken, ruimKnipselRestenOp, CATALOGUS_SLEUTEL as KNIPSEL_CATALOGUS } from './saver/vector-snippet.js';
 import { bytesVan as knipselBytesVan } from '../annotations/vector-snippet-store.js';
 import { getAnnotationStorage, getAnnotIdToFieldName } from './form-layer.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
@@ -261,6 +261,10 @@ async function _savePDFNu(saveAsPath) {
     }
 
     const pdfDocLib = await PDFDocument.load(existingPdfBytes);
+    // Alles met een hoger objectnummer maakt deze save zelf aan — zie het
+    // knipsel-opruimen vlak voor pdfDocLib.save().
+    const eersteNieuwObject = pdfDocLib.context.largestObjectNumber;
+    const oudeKnipselStempels = [];
 
     // Strip PDF/A metadata — saved file no longer conforms to PDF/A
     if (activeDoc && activeDoc.pdfaCompliance) {
@@ -396,6 +400,8 @@ async function _savePDFNu(saveAsPath) {
             const subtype = dict?.get?.(PDFName.of('Subtype'))?.toString();
             if (!subtype || !handledSubtypes.has(subtype)) {
               annotsArray.push(ref); // Keep annotations we don't manage
+            } else if (dict.get(PDFName.of('OPS_SnippetKey'))) {
+              oudeKnipselStempels.push(ref); // wordt vervangen; resten opruimen
             }
           }
         }
@@ -555,6 +561,9 @@ async function _savePDFNu(saveAsPath) {
           // vectoriele appearance — zichtbaar in elke lezer, en bij heropenen
           // weer een verplaatsbaar object. Zie saver/vector-snippet.js.
           case 'vectorSnippet': {
+            // Vastgezet en al opgeslagen: het staat in de basisbytes. Nogmaals
+            // tekenen zou het dubbel in de pagina zetten.
+            if (alInBasis(ann, currentPath)) break;
             const kx1 = convertX(ann.x);
             const ky1 = convertY(ann.y + ann.height);
             const kx2 = convertX(ann.x + ann.width);
@@ -574,6 +583,8 @@ async function _savePDFNu(saveAsPath) {
                 rect: kRect,
                 sleutel: ann.snippetKey,
                 paginaIndex: 0,
+                paginaRot: pageRot,
+                bewaarBron: !ann.flattened,
               });
             } catch (err) {
               console.warn(`[saver] knipsel ${ann.id} kon niet worden ingebed:`, err.message);
@@ -585,11 +596,7 @@ async function _savePDFNu(saveAsPath) {
             // meer te verplaatsen, wel nog steeds vector.
             if (ann.flattened) {
               try {
-                page.drawPage(gebouwd.ingebed, {
-                  x: kx1, y: ky1,
-                  width: kx2 - kx1, height: ky2 - ky1,
-                  opacity,
-                });
+                await tekenKnipselInPagina(page, gebouwd.ingebed.ref, gebouwd.plaatsing, opacity);
               } catch (err) {
                 console.warn(`[saver] knipsel ${ann.id} vastleggen mislukt:`, err.message);
               }
@@ -2888,6 +2895,23 @@ async function _savePDFNu(saveAsPath) {
     // Save named line-style presets into the catalog (travel with the PDF)
     saveStylePresetsToCatalog(pdfDocLib);
 
+    // Vectorknipsels: opruimen wat de vorige stempels en het inbedden achter-
+    // lieten, anders groeit het bestand per save met de hele bronpagina. Eerst
+    // flushen, zodat de ingebedde pagina's echt in het document staan. Alleen
+    // als er knipsels in het spel zijn — andere saves blijven ongemoeid.
+    const heeftKnipsels = oudeKnipselStempels.length > 0
+      || (activeDoc?.annotations || []).some(a => a.type === 'vectorSnippet')
+      || !!pdfDocLib.catalog.get(PDFName.of(KNIPSEL_CATALOGUS));
+    if (heeftKnipsels) {
+      try {
+        await pdfDocLib.flush();
+        const r = ruimKnipselRestenOp(pdfDocLib, oudeKnipselStempels, { nieuwVanaf: eersteNieuwObject });
+        if (r.verwijderd) console.log(`[saver] knipsel-resten opgeruimd: ${r.verwijderd} objecten, bronnen weg: ${r.bronnenWeg.length}`);
+      } catch (err) {
+        console.warn('[saver] knipsel-resten opruimen overgeslagen:', err?.message || err);
+      }
+    }
+
     // Save the PDF
     const pdfBytes = await pdfDocLib.save();
     const outputPath = saveAsPath || activeDoc?.saveTargetPath || currentPath;
@@ -2918,6 +2942,10 @@ async function _savePDFNu(saveAsPath) {
 
     // Mark document as saved
     markDocumentSaved();
+
+    // Vastgezette knipsels staan nu in de pagina-inhoud van outputPath. Zie
+    // alInBasis(): een volgende save op die basis tekent ze niet nogmaals.
+    if (activeDoc) markeerGebakken(activeDoc.annotations, outputPath);
 
     // Ingebakken text-edits zijn nu deel van het bestand: markeer ze als
     // 'baked' zodat een volgende save ze niet NOGMAALS inbakt (dubbele
@@ -2964,6 +2992,9 @@ async function _savePDFNu(saveAsPath) {
           activeDoc.pageRotations,
           activeDoc.currentPage,
         );
+        // De herlaad zet het document op een verse werkkopie met deze bytes
+        // als basis: daar staan de vastgezette knipsels dus ook in.
+        markeerGebakken(activeDoc.annotations, activeDoc.filePath);
         // Pas NA een geslaagde herlaad zijn de records overbodig. Mislukt de
         // herlaad, dan blijven ze (als 'baked') staan: de painter tekent de
         // nieuwe tekst dan nog steeds over de oude render heen, in plaats

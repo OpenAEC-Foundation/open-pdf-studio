@@ -7,7 +7,8 @@ import test from 'node:test';
 import { PDFDocument, PDFName, PDFString } from 'pdf-lib';
 
 import { bouwKnipselAppearance, CATALOGUS_SLEUTEL } from '../saver/vector-snippet.js';
-import { leesKnipselBronnen, leesKnipselVelden } from './vector-snippet-load.js';
+import { leesKnipselBronnen, leesKnipselVelden, knipselUitExtra } from './vector-snippet-load.js';
+import { extractAnnotationColors } from './color-extraction.js';
 import { bewaar, bytesVan, leegmaken, sleutelVoor } from '../../annotations/vector-snippet-store.js';
 
 const VAK = { left: 100, bottom: 80, right: 220, top: 140 };
@@ -113,4 +114,43 @@ test('twee knipsels uit dezelfde bron leveren één bronstream in het bestand', 
   const heropend = await PDFDocument.load(await doc.save());
   const wb = heropend.catalog.lookup(PDFName.of(CATALOGUS_SLEUTEL));
   assert.equal(wb.keys().length, 1, 'ontdubbeld: één bronpagina voor twee knipsels');
+});
+
+// --- aangesloten op de loader ---------------------------------------------
+//
+// De leesfuncties hierboven zijn pas iets waard als de loader ze aanroept.
+// extractAnnotationColors is de plek waar de loader per pagina onze eigen
+// OPS_*-velden van pdf-lib ophaalt; de converter maakt er daarna een
+// annotatie van (knipselUitExtra).
+
+test('extractAnnotationColors levert de knipsel-velden en vult de store', async () => {
+  leegmaken();
+  const { bytes, sleutel } = await documentMetKnipsel();
+  const doc = await PDFDocument.load(bytes);
+  const kaart = await extractAnnotationColors(1, doc);
+  const extra = kaart.get('50,50,290,170');
+  assert.ok(extra, 'geen gegevens voor de knipsel-Rect');
+  assert.equal(extra.opsSubtype, 'vectorSnippet');
+  assert.deepEqual(extra.vectorSnippet, {
+    snippetKey: sleutel, srcBox: VAK, srcLabel: 'Bron.pdf, blad 1',
+  });
+  assert.ok(bytesVan(sleutel), 'de bronpagina staat na het laden in de store');
+});
+
+test('knipselUitExtra maakt er een knipsel van als de bronpagina er is', () => {
+  const extra = {
+    opsSubtype: 'vectorSnippet',
+    vectorSnippet: { snippetKey: 'abc', srcBox: VAK, srcLabel: 'x' },
+  };
+  assert.deepEqual(knipselUitExtra(extra, () => true), { snippetKey: 'abc', srcBox: VAK, srcLabel: 'x' });
+});
+
+test('zonder bronpagina blijft het een stempel die zijn appearance toont', () => {
+  const extra = {
+    opsSubtype: 'vectorSnippet',
+    vectorSnippet: { snippetKey: 'abc', srcBox: VAK, srcLabel: 'x' },
+  };
+  assert.equal(knipselUitExtra(extra, () => false), null);
+  assert.equal(knipselUitExtra({ opsSubtype: 'stavenreeks' }, () => true), null);
+  assert.equal(knipselUitExtra({}, () => true), null);
 });

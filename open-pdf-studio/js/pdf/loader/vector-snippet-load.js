@@ -47,6 +47,21 @@ export async function leesKnipselBronnen(pdfDoc, bewaar) {
 }
 
 /**
+ * Beslist of een ingelezen stempel weer een knipsel wordt. Alleen als de
+ * bronpagina in de store staat: anders kan de app het niet hertekenen of
+ * vastzetten, en blijft het veiliger een gewone stempel die zijn (vectoriële)
+ * appearance toont — dan verdwijnt er nooit iets.
+ * @param {object} extra  de extractAnnotationColors-gegevens van de annotatie
+ * @param {(sleutel: string) => boolean} heeft  de store-functie
+ * @returns {{snippetKey: string, srcBox: object, srcLabel: string}|null}
+ */
+export function knipselUitExtra(extra, heeft) {
+  const v = extra?.opsSubtype === 'vectorSnippet' ? extra.vectorSnippet : null;
+  if (!v?.snippetKey || !v.srcBox) return null;
+  return heeft(v.snippetKey) ? { snippetKey: v.snippetKey, srcBox: { ...v.srcBox }, srcLabel: v.srcLabel || '' } : null;
+}
+
+/**
  * Leest de knipsel-velden van een stempel-annotatiewoordenboek.
  * @returns {{snippetKey: string, srcBox: object, srcLabel: string}|null}
  */

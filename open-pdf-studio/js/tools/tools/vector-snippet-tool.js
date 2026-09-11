@@ -9,11 +9,11 @@
  * omrekening als de saver doet, inclusief de CropBox-verschuiving. Daarna staat
  * het knipsel op het klembord en kun je het in een ander tabblad plakken.
  */
-import { getActiveDocument } from '../../core/state.js';
+import { getActiveDocument, getPageRotation } from '../../core/state.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { annotationCtx } from '../../ui/dom-elements.js';
 import { getCachedPdfBytes } from '../../pdf/loader.js';
-import { knipselAlsMiniPdf, normaliseerVak } from '../../pdf/vector-embed.js';
+import { knipselAlsMiniPdf, appVakNaarPdfVak, paginaRotatie } from '../../pdf/vector-embed.js';
 import { bewaar } from '../../annotations/vector-snippet-store.js';
 import { zetKnipselOpKlembord } from '../../annotations/vector-snippet-clipboard.js';
 import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
@@ -57,22 +57,6 @@ function _tekenVoorbeeld(curX, curY) {
   ctx.restore();
 }
 
-/**
- * Rekent een vak in app-coördinaten (linksboven, y omlaag) om naar de
- * gebruikersruimte van de PDF-pagina (linksonder, y omhoog), inclusief de
- * CropBox-verschuiving — identiek aan convertX/convertY in de saver.
- */
-export function appVakNaarPdfVak(vak, cropBox) {
-  const links = cropBox.x;
-  const boven = cropBox.y + cropBox.height;
-  return normaliseerVak({
-    left: vak.x + links,
-    right: vak.x + vak.width + links,
-    top: boven - vak.y,
-    bottom: boven - (vak.y + vak.height),
-  });
-}
-
 async function _knipsel(vak) {
   return knipselVanVak(vak, null);
 }
@@ -94,20 +78,25 @@ export async function knipselVanVak(vak, paginaNr) {
   const { PDFDocument } = await import('pdf-lib');
   const bron = await PDFDocument.load(bronBytes);
   const pagina = bron.getPage(paginaNr - 1);
-  const srcBox = appVakNaarPdfVak(vak, pagina.getCropBox());
+  // Het vak is getrokken op het blad zoals je het ziet: de /Rotate uit het
+  // bestand plus een draaiing die alleen in de app bestaat.
+  const appRotatie = getPageRotation(paginaNr) || 0;
+  const srcBox = appVakNaarPdfVak(vak, pagina.getCropBox(), paginaRotatie(pagina) + appRotatie);
   if (!srcBox) return { fout: 'vak te klein' };
 
   // De hele bronpagina gaat mee, niet het bijgesneden vak: dat is wat het
   // inbedden nodig heeft. Zie js/pdf/vector-embed.js.
-  const mini = await knipselAlsMiniPdf(bronBytes, paginaNr - 1);
+  const mini = await knipselAlsMiniPdf(bronBytes, paginaNr - 1, appRotatie);
   const sleutel = bewaar(mini);
 
   return {
     snippetKey: sleutel,
     srcBox,
     srcLabel: `${doc.fileName || 'document'}, blad ${paginaNr}`,
-    breedte: srcBox.right - srcBox.left,
-    hoogte: srcBox.top - srcBox.bottom,
+    // Wat je op het scherm trok — bij een kwartgedraaid blad is dat niet de
+    // breedte van het PDF-vak.
+    breedte: vak.width,
+    hoogte: vak.height,
   };
 }
 

@@ -12,6 +12,7 @@ import { PDFDocument, PDFName } from 'pdf-lib';
 
 import {
   normaliseerVak, knipselMatrix, paginaRotatie, bedKnipselIn, knipselAlsMiniPdf, MIN_VAK_PT,
+  appVakNaarPdfVak, weergaveVak,
 } from './vector-embed.js';
 
 const VAK = { left: 100, bottom: 80, right: 220, top: 140 };  // 120 x 60
@@ -170,4 +171,61 @@ test('twee knipsels uit dezelfde bron in één document delen niets stiekem', as
   const heropend = await PDFDocument.load(await doel.save());
   const xobjs = heropend.getPage(0).node.Resources().lookup(PDFName.of('XObject'));
   assert.equal(xobjs.keys().length, 2, 'twee verschillende vakken, twee XObjects');
+});
+
+// --- schermvak <-> PDF-vak ------------------------------------------------
+//
+// Het schermvak leeft in WEERGAVE-ruimte: linksboven, y omlaag, ná de /Rotate
+// van het blad. Het PDF-vak leeft in de ongedraaide gebruikersruimte. Het
+// testblad is 600 x 400 met een rechthoek op x 100..220, y 80..140; per
+// kwartslag staat hieronder waar je die rechthoek op het scherm ziet.
+
+const BLAD = { x: 0, y: 0, width: 600, height: 400 };
+const OP_HET_SCHERM = {
+  0:   { x: 100, y: 260, width: 120, height: 60 },
+  90:  { x: 80,  y: 100, width: 60,  height: 120 },
+  180: { x: 380, y: 80,  width: 120, height: 60 },
+  270: { x: 260, y: 380, width: 60,  height: 120 },
+};
+
+test('appVakNaarPdfVak vindt de rechthoek terug bij elke paginarotatie', () => {
+  for (const [rot, vak] of Object.entries(OP_HET_SCHERM)) {
+    assert.deepEqual(appVakNaarPdfVak(vak, BLAD, Number(rot)), VAK, `rotatie ${rot}`);
+  }
+});
+
+test('weergaveVak zet het PDF-vak terug op de plek waar je het ziet', () => {
+  for (const [rot, vak] of Object.entries(OP_HET_SCHERM)) {
+    assert.deepEqual(weergaveVak(VAK, BLAD, Number(rot)), vak, `rotatie ${rot}`);
+  }
+});
+
+test('een CropBox die niet in de oorsprong begint schuift beide kanten op mee', () => {
+  const kader = { x: 10, y: 20, width: 600, height: 400 };
+  const pdfVak = { left: 110, bottom: 100, right: 230, top: 160 };
+  for (const rot of [0, 90, 180, 270]) {
+    assert.deepEqual(weergaveVak(pdfVak, kader, rot), OP_HET_SCHERM[rot], `rotatie ${rot}`);
+    assert.deepEqual(appVakNaarPdfVak(OP_HET_SCHERM[rot], kader, rot), pdfVak, `rotatie ${rot}`);
+  }
+});
+
+test('zonder rotatie-argument geldt een ongedraaid blad', () => {
+  assert.deepEqual(appVakNaarPdfVak(OP_HET_SCHERM[0], BLAD), VAK);
+  assert.deepEqual(weergaveVak(VAK, BLAD), OP_HET_SCHERM[0]);
+});
+
+test('het ingebedde knipsel heeft de maat van het vak op het scherm', async () => {
+  for (const [rot, vak] of Object.entries(OP_HET_SCHERM)) {
+    const bron = await bronMetVak({ rotatie: Number(rot) });
+    const r = await ingebedXObject(bron, appVakNaarPdfVak(vak, BLAD, Number(rot)));
+    assert.deepEqual([r.breedte, r.hoogte], [vak.width, vak.height], `rotatie ${rot}`);
+    assert.deepEqual(r.bbox, [100, 80, 220, 140], `rotatie ${rot}: dezelfde rechthoek`);
+  }
+});
+
+test('knipselAlsMiniPdf telt een extra rotatie uit de app op bij de /Rotate', async () => {
+  const mini = await knipselAlsMiniPdf(await bronMetVak({ rotatie: 90 }), 0, 180);
+  assert.equal(paginaRotatie((await PDFDocument.load(mini)).getPage(0)), 270);
+  const zonder = await knipselAlsMiniPdf(await bronMetVak({ rotatie: 90 }), 0);
+  assert.equal(paginaRotatie((await PDFDocument.load(zonder)).getPage(0)), 90);
 });

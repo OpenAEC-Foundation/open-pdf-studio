@@ -13,6 +13,11 @@
 // /Rotate van de bronpagina. Knip je uit een blad dat gedraaid wordt getoond,
 // dan staat het knipsel zonder correctie op zijn kant. De rotatie hoort dus in
 // de matrix, niet in het vak.
+//
+// Derde valkuil: het vak dat de gebruiker trekt leeft in WEERGAVE-ruimte
+// (linksboven, y omlaag, ná de /Rotate), het PDF-vak in de ongedraaide
+// gebruikersruimte. appVakNaarPdfVak en weergaveVak rekenen heen en terug;
+// zonder die rotatie knipt een gedraaid blad een heel ander stuk papier.
 
 /** Onder deze maat (in punten) is een selectie geen knipsel maar een misklik. */
 export const MIN_VAK_PT = 1;
@@ -54,6 +59,72 @@ export function knipselMatrix(vak, rotatie = 0) {
   }
 }
 
+const _kwartslag = (r) => ((Math.round((Number(r) || 0) / 90) * 90) % 360 + 360) % 360;
+
+/**
+ * Van weergaveruimte naar de ongedraaide paginaruimte, beide linksboven met y
+ * omlaag, relatief aan de CropBox. Dezelfde afbeelding als de saver gebruikt
+ * voor annotaties op gedraaide bladen (_rotVisualMapper in saver.js).
+ */
+function _naarOngedraaid(rot, cw, ch) {
+  switch (rot) {
+    case 90:  return (x, y) => ({ u: y,      v: ch - x });
+    case 180: return (x, y) => ({ u: cw - x, v: ch - y });
+    case 270: return (x, y) => ({ u: cw - y, v: x });
+    default:  return (x, y) => ({ u: x,      v: y });
+  }
+}
+
+/** De omgekeerde afbeelding: ongedraaide paginaruimte naar weergaveruimte. */
+function _naarWeergave(rot, cw, ch) {
+  switch (rot) {
+    case 90:  return (u, v) => ({ x: ch - v, y: u });
+    case 180: return (u, v) => ({ x: cw - u, y: ch - v });
+    case 270: return (u, v) => ({ x: v,      y: cw - u });
+    default:  return (u, v) => ({ x: u,      y: v });
+  }
+}
+
+/**
+ * Rekent een vak op het scherm (app-punten: linksboven, y omlaag, zoals je het
+ * blad ziet) om naar de gebruikersruimte van de PDF-pagina (linksonder, y
+ * omhoog, ongedraaid), inclusief de CropBox-verschuiving.
+ * @param {{x:number,y:number,width:number,height:number}} vak
+ * @param {{x:number,y:number,width:number,height:number}} cropBox
+ * @param {number} [rotatie]  totale weergaverotatie van het blad
+ * @returns {{left:number,bottom:number,right:number,top:number}|null}
+ */
+export function appVakNaarPdfVak(vak, cropBox, rotatie = 0) {
+  const m = _naarOngedraaid(_kwartslag(rotatie), cropBox.width, cropBox.height);
+  const a = m(vak.x, vak.y);
+  const b = m(vak.x + vak.width, vak.y + vak.height);
+  const boven = cropBox.y + cropBox.height;
+  return normaliseerVak({
+    left: Math.min(a.u, b.u) + cropBox.x,
+    right: Math.max(a.u, b.u) + cropBox.x,
+    top: boven - Math.min(a.v, b.v),
+    bottom: boven - Math.max(a.v, b.v),
+  });
+}
+
+/**
+ * Het omgekeerde van appVakNaarPdfVak: waar een PDF-vak op het scherm staat.
+ * Dat is de ruimte waarin de pdfium-worker een regio verwacht.
+ * @returns {{x:number,y:number,width:number,height:number}}
+ */
+export function weergaveVak(srcBox, cropBox, rotatie = 0) {
+  const m = _naarWeergave(_kwartslag(rotatie), cropBox.width, cropBox.height);
+  const boven = cropBox.y + cropBox.height;
+  const a = m(srcBox.left - cropBox.x, boven - srcBox.top);
+  const b = m(srcBox.right - cropBox.x, boven - srcBox.bottom);
+  return {
+    x: Math.min(a.x, b.x),
+    y: Math.min(a.y, b.y),
+    width: Math.abs(b.x - a.x),
+    height: Math.abs(b.y - a.y),
+  };
+}
+
 /** De /Rotate van een pdf-lib-pagina, genormaliseerd naar 0/90/180/270. */
 export function paginaRotatie(page) {
   const r = typeof page.getRotation === 'function' ? (page.getRotation()?.angle ?? 0) : 0;
@@ -65,13 +136,20 @@ export function paginaRotatie(page) {
  * wat een knipsel bij zich draagt: de héle bronpagina, niet het bijgesneden
  * vak — want dat is wat bedKnipselIn nodig heeft. copyPages neemt alleen de
  * resources mee waar die pagina naar verwijst.
+ *
+ * `extraRotatie` is een draaiing die alleen in de app bestaat (nog niet
+ * opgeslagen): die gaat mee in de /Rotate van de mini-PDF, zodat het knipsel
+ * in dezelfde stand staat als het blad waaruit je knipte.
  * @returns {Promise<Uint8Array>}
  */
-export async function knipselAlsMiniPdf(bronBytes, paginaIndex = 0) {
-  const { PDFDocument } = await import('pdf-lib');
+export async function knipselAlsMiniPdf(bronBytes, paginaIndex = 0, extraRotatie = 0) {
+  const { PDFDocument, degrees } = await import('pdf-lib');
   const bron = await PDFDocument.load(bronBytes);
   const mini = await PDFDocument.create();
   const [pagina] = await mini.copyPages(bron, [paginaIndex]);
+  if (_kwartslag(extraRotatie)) {
+    pagina.setRotation(degrees(_kwartslag(paginaRotatie(pagina) + _kwartslag(extraRotatie))));
+  }
   mini.addPage(pagina);
   return await mini.save();
 }
