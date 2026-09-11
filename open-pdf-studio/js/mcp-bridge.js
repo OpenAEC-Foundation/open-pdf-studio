@@ -2324,12 +2324,6 @@ async function handleTitleblock(params) {
   };
 }
 
-async function _redrawActive() {
-  const stateMod = await import('./core/state.js');
-  const r = await import('./annotations/rendering.js');
-  if (stateMod.getActiveDocument()?.viewMode === 'continuous') r.redrawContinuous();
-  else r.redrawAnnotations();
-}
 
 const HANDLERS = {
   'mcp:open-pdf':           handleOpenPdf,
