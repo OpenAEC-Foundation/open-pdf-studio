@@ -7,6 +7,7 @@ mod accounts;
 mod email;
 pub mod linux_runtime;
 pub mod mcp_app_bridge;
+pub mod mcp_koppeling;
 pub mod mcp_server;
 pub mod mcp_tool_meta;
 pub mod pdfium_renderer;
@@ -2750,6 +2751,8 @@ pub fn run(opts: StartupOpts) {
             allow_fs_scope,
             mcp_app_bridge::app_response,
             mcp_app_bridge::mcp_bridge_ready,
+            mcp_koppeling::mcp_instellen,
+            mcp_koppeling::mcp_status,
             accounts::accounts_sign_in,
             accounts::accounts_get_user,
             accounts::accounts_sign_out,

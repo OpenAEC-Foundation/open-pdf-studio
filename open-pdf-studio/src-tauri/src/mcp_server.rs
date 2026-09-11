@@ -57,6 +57,23 @@ use crate::mcp_tool_meta::{beschikbaar, meta, Profiel};
 pub struct AppState {
     pub test_pdfs_dir: Arc<PathBuf>,
     pub app_handle: Option<AppHandle>,
+    /// Welke gereedschappen deze server aanbiedt — zie mcp_tool_meta.rs.
+    pub profiel: Profiel,
+    /// De poort waarop we luisteren; de Host-kop moet daarbij passen.
+    pub poort: u16,
+}
+
+impl AppState {
+    pub fn nieuw(profiel: Profiel, poort: u16, app_handle: Option<AppHandle>) -> Self {
+        AppState {
+            test_pdfs_dir: Arc::new(resolve_test_pdfs_dir(
+                std::env::var_os("OPS_TEST_PDFS_DIR").map(PathBuf::from),
+            )),
+            app_handle,
+            profiel,
+            poort,
+        }
+    }
 }
 
 /// Resolve the corpus independently of the process working directory.
@@ -1376,15 +1393,52 @@ async fn tool_screenshot_all(
     }))
 }
 
+/// Alleen lokale clients: de Host moet 127.0.0.1/localhost op onze poort zijn
+/// (tegen DNS-rebinding), en een eventuele Origin moet lokaal zijn (tegen een
+/// website die via de browser de app probeert te besturen). De stdio-brug
+/// stuurt geen Origin mee.
+pub fn verzoek_toegestaan(headers: &axum::http::HeaderMap, poort: u16) -> bool {
+    let lokaal = |host: &str| {
+        let host = host.trim().to_ascii_lowercase();
+        host == format!("127.0.0.1:{poort}") || host == format!("localhost:{poort}")
+    };
+    if let Some(h) = headers.get("host").and_then(|v| v.to_str().ok()) {
+        if !lokaal(h) {
+            return false;
+        }
+    }
+    if let Some(o) = headers.get("origin").and_then(|v| v.to_str().ok()) {
+        let o = o.trim().to_ascii_lowercase();
+        let zonder_schema = o.split("://").nth(1).unwrap_or("");
+        let host = zonder_schema.split(['/', ':']).next().unwrap_or("");
+        if host != "127.0.0.1" && host != "localhost" {
+            return false;
+        }
+    }
+    true
+}
+
 /// Axum POST handler for `/mcp`. Parses the JSON-RPC envelope and dispatches
 /// on the `method` field.
 async fn mcp_handler(
     State(state): State<AppState>,
+    headers: axum::http::HeaderMap,
     Json(body): Json<Value>,
 ) -> impl IntoResponse {
     // Pull out the request id; default to null so error responses are still
     // well-formed if the client omitted it.
     let id = body.get("id").cloned().unwrap_or(Value::Null);
+
+    if !verzoek_toegestaan(&headers, state.poort) {
+        return (
+            StatusCode::FORBIDDEN,
+            Json(rpc_error(
+                id,
+                jsonrpc_error::INVALID_REQUEST,
+                "only local clients may use this server",
+            )),
+        );
+    }
 
     let method = match body.get("method").and_then(|v| v.as_str()) {
         Some(m) => m,
@@ -1402,13 +1456,22 @@ async fn mcp_handler(
 
     let response = match method {
         "initialize" => rpc_result(id, handle_initialize()),
-        "tools/list" => rpc_result(id, handle_tools_list()),
+        "tools/list" => rpc_result(id, tools_list_voor(state.profiel)),
         "tools/call" => {
             let empty = Value::Null;
             let params = body.get("params").unwrap_or(&empty);
-            match handle_tools_call(&state, params).await {
-                Ok(value) => rpc_result(id, value),
-                Err((code, msg)) => rpc_error(id, code, msg),
+            let naam = params.get("name").and_then(|v| v.as_str()).unwrap_or("");
+            if !beschikbaar(naam, state.profiel) {
+                rpc_error(
+                    id,
+                    jsonrpc_error::INVALID_PARAMS,
+                    format!("tool '{naam}' is not available in this Open PDF Studio configuration"),
+                )
+            } else {
+                match handle_tools_call(&state, params).await {
+                    Ok(value) => rpc_result(id, value),
+                    Err((code, msg)) => rpc_error(id, code, msg),
+                }
             }
         }
         // `notifications/initialized` and other notification methods carry no
@@ -1445,11 +1508,9 @@ pub async fn start(
     let state = AppState {
         test_pdfs_dir: Arc::new(test_pdfs_dir),
         app_handle,
+        profiel: Profiel::Ontwikkeling,
+        poort: port,
     };
-
-    let app = Router::new()
-        .route("/mcp", post(mcp_handler))
-        .with_state(state);
 
     let addr: SocketAddr = format!("127.0.0.1:{port}")
         .parse()
@@ -1460,17 +1521,51 @@ pub async fn start(
         .map_err(|e| format!("bind {addr}: {e}"))?;
 
     eprintln!("MCP server listening on http://127.0.0.1:{port}/mcp");
+    crate::mcp_koppeling::markeer_startvlag(port);
 
-    axum::serve(listener, app)
-        .await
-        .map_err(|e| format!("MCP server error: {e}"))?;
+    serveer(listener, state, None).await
+}
 
-    Ok(())
+/// Serveert `/mcp` op een al gebonden listener. Met `stop` stopt de server
+/// netjes zodra dat signaal komt (de instelling in de app gaat uit).
+pub async fn serveer(
+    listener: tokio::net::TcpListener,
+    state: AppState,
+    stop: Option<tokio::sync::oneshot::Receiver<()>>,
+) -> Result<(), String> {
+    let app = Router::new()
+        .route("/mcp", post(mcp_handler))
+        .with_state(state);
+    let serve = axum::serve(listener, app);
+    match stop {
+        Some(rx) => serve.with_graceful_shutdown(async { let _ = rx.await; }).await,
+        None => serve.await,
+    }
+    .map_err(|e| format!("MCP server error: {e}"))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn alleen_lokale_verzoeken_worden_toegelaten() {
+        use axum::http::{HeaderMap, HeaderValue};
+        let kop = |paren: &[(&'static str, &'static str)]| {
+            let mut h = HeaderMap::new();
+            for (k, v) in paren {
+                h.insert(*k, HeaderValue::from_static(v));
+            }
+            h
+        };
+        assert!(verzoek_toegestaan(&kop(&[("host", "127.0.0.1:9223")]), 9223));
+        assert!(verzoek_toegestaan(&kop(&[("host", "localhost:9223")]), 9223));
+        assert!(verzoek_toegestaan(&kop(&[]), 9223));
+        assert!(verzoek_toegestaan(&kop(&[("host", "127.0.0.1:9223"), ("origin", "http://localhost:6274")]), 9223));
+        assert!(!verzoek_toegestaan(&kop(&[("host", "evil.example:9223")]), 9223), "DNS-rebinding");
+        assert!(!verzoek_toegestaan(&kop(&[("host", "127.0.0.1:9223"), ("origin", "https://evil.example")]), 9223), "website");
+        assert!(!verzoek_toegestaan(&kop(&[("host", "127.0.0.1:9999")]), 9223));
+    }
 
     #[test]
     fn elk_gereedschap_staat_in_de_metatabel_en_omgekeerd() {
@@ -1588,6 +1683,8 @@ mod tests {
         let state = AppState {
             test_pdfs_dir: Arc::new(corpus),
             app_handle: None,
+            profiel: Profiel::Ontwikkeling,
+            poort: 9223,
         };
         let rt = tokio::runtime::Builder::new_current_thread()
             .enable_all()
@@ -1662,7 +1759,7 @@ mod tests {
         pdfs.sort_by_key(|p| std::fs::metadata(p).map(|m| m.len()).unwrap_or(u64::MAX));
         let smallest = pdfs.first().expect("no pdfs in corpus").clone();
 
-        let state = AppState { test_pdfs_dir: std::sync::Arc::new(corpus), app_handle: None };
+        let state = AppState { test_pdfs_dir: std::sync::Arc::new(corpus), app_handle: None, profiel: Profiel::Ontwikkeling, poort: 9223 };
         let args = serde_json::json!({
             "path": smallest.to_string_lossy(),
             "page_index": 0,
@@ -1713,6 +1810,8 @@ mod tests {
         let state = AppState {
             test_pdfs_dir: std::sync::Arc::new(corpus),
             app_handle: None,
+            profiel: Profiel::Ontwikkeling,
+            poort: 9223,
         };
         let args = serde_json::json!({ "path": pdf.to_string_lossy() });
         let result = tool_get_pdf_metadata(&state, &args).await.expect("metadata ok");
@@ -1765,7 +1864,7 @@ mod tests {
             .expect("no pdfs in corpus")
             .clone();
 
-        let state = AppState { test_pdfs_dir: std::sync::Arc::new(corpus), app_handle: None };
+        let state = AppState { test_pdfs_dir: std::sync::Arc::new(corpus), app_handle: None, profiel: Profiel::Ontwikkeling, poort: 9223 };
         let args = serde_json::json!({
             "path": smallest.to_string_lossy(),
             "width": 200
@@ -1882,6 +1981,8 @@ mod tests {
         let state = AppState {
             test_pdfs_dir: std::sync::Arc::new(std::path::PathBuf::from(".")),
             app_handle: None,
+            profiel: Profiel::Ontwikkeling,
+            poort: 9223,
         };
         for (name, args) in [
             ("app_mouse_move",  serde_json::json!({"x": 100, "y": 100})),
