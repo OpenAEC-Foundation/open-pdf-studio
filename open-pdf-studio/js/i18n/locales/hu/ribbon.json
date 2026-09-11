@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "Kivágás",
+    "vectorSnippet": "Vektoros kivágás",
+    "vectorSnippetTitle": "Terület kivágása ebből a rajzból; vektoros marad",
+    "vectorSnippetPaste": "Kivágás beillesztése",
+    "vectorSnippetPasteTitle": "A kivágott terület beillesztése ide, a vektoradatok megőrzésével",
+    "symbolScale": "Lépték",
+    "symbolScaleTitle": "Az a méret, amelyben az új szimbólum elhelyezésre kerül",
+    "symbolScaleCustom": "Egyéni lépték"
   }
 }

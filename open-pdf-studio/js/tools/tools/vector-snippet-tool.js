@@ -9,13 +9,15 @@
  * omrekening als de saver doet, inclusief de CropBox-verschuiving. Daarna staat
  * het knipsel op het klembord en kun je het in een ander tabblad plakken.
  */
-import { state, getActiveDocument } from '../../core/state.js';
+import { getActiveDocument } from '../../core/state.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { annotationCtx } from '../../ui/dom-elements.js';
 import { getCachedPdfBytes } from '../../pdf/loader.js';
 import { knipselAlsMiniPdf, normaliseerVak } from '../../pdf/vector-embed.js';
 import { bewaar } from '../../annotations/vector-snippet-store.js';
 import { zetKnipselOpKlembord } from '../../annotations/vector-snippet-clipboard.js';
+import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
+import i18next from '../../i18n/config.js';
 
 /** Kleiner dan dit in app-punten is een misklik, geen knipsel. */
 const MIN_SLEEP_PT = 8;
@@ -130,14 +132,14 @@ export const vectorSnippetTool = {
     _knipsel(vak).then((r) => {
       if (r.fout) {
         console.warn('[knipsel] knippen mislukt:', r.fout);
-        state.statusMessage = 'Knippen mislukt';
+        updateStatusMessage(i18next.t('vectorSnippet.failed'));
         return;
       }
       zetKnipselOpKlembord(r);
-      state.statusMessage = 'Knipsel gekopieerd — plak het in een andere tekening';
+      updateStatusMessage(i18next.t('vectorSnippet.copied'));
     }).catch((err) => {
       console.warn('[knipsel] knippen mislukt:', err);
-      state.statusMessage = 'Knippen mislukt';
+      updateStatusMessage(i18next.t('vectorSnippet.failed'));
     });
 
     import('../../tools/manager.js').then(m => m.maybeRevertToSelect && m.maybeRevertToSelect());

@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "Kipande",
+    "vectorSnippet": "Kipande cha vekta",
+    "vectorSnippetTitle": "Kata eneo kutoka mchoro huu; linabaki kuwa vekta",
+    "vectorSnippetPaste": "Bandika kipande",
+    "vectorSnippetPasteTitle": "Bandika eneo lililokatwa hapa, ukihifadhi data ya vekta",
+    "symbolScale": "Kipimo",
+    "symbolScaleTitle": "Ukubwa wa kuweka alama mpya",
+    "symbolScaleCustom": "Kipimo maalum"
   }
 }

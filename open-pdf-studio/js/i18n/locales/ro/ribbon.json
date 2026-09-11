@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "Decupaj",
+    "vectorSnippet": "Decupaj vectorial",
+    "vectorSnippetTitle": "Decupați o zonă din acest desen; rămâne vectorială",
+    "vectorSnippetPaste": "Lipire decupaj",
+    "vectorSnippetPasteTitle": "Lipiți aici zona decupată, păstrând datele vectoriale",
+    "symbolScale": "Scară",
+    "symbolScaleTitle": "Dimensiunea la care este plasat un simbol nou",
+    "symbolScaleCustom": "Scară personalizată"
   }
 }

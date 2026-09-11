@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "स्निपेट",
+    "vectorSnippet": "वेक्टर स्निपेट",
+    "vectorSnippetTitle": "इस ड्रॉइंग से एक क्षेत्र काटें; यह वेक्टर ही रहेगा",
+    "vectorSnippetPaste": "स्निपेट चिपकाएँ",
+    "vectorSnippetPasteTitle": "काटे गए क्षेत्र को यहाँ चिपकाएँ, वेक्टर डेटा बनाए रखते हुए",
+    "symbolScale": "स्केल",
+    "symbolScaleTitle": "वह आकार जिस पर नया प्रतीक रखा जाता है",
+    "symbolScaleCustom": "कस्टम स्केल"
   }
 }

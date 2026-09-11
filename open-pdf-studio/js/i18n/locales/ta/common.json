@@ -121,5 +121,10 @@
     "dragFileGone": "This file no longer exists on disk — the tab cannot be moved.",
     "dragNotStarted": "The tab could not be dragged to another window. Try again, or use right-click → open in new window."
   },
-  "saveImageEmbedFailed": "Warning: an image could not be embedded in the saved file"
+  "saveImageEmbedFailed": "Warning: an image could not be embedded in the saved file",
+  "vectorSnippet": {
+    "copied": "துணுக்கு நகலெடுக்கப்பட்டது — வேறொரு வரைபடத்தில் ஒட்டவும்",
+    "failed": "வெட்டுதல் தோல்வியடைந்தது",
+    "clipboardEmpty": "கிளிப்போர்டில் துணுக்கு இல்லை"
+  }
 }

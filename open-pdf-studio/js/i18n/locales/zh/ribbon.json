@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "剪切片段",
+    "vectorSnippet": "矢量片段",
+    "vectorSnippetTitle": "从此图纸中剪切一个区域；它将保持矢量格式",
+    "vectorSnippetPaste": "粘贴片段",
+    "vectorSnippetPasteTitle": "在此处粘贴剪切的区域，保留矢量数据",
+    "symbolScale": "比例",
+    "symbolScaleTitle": "放置新符号时的尺寸",
+    "symbolScaleCustom": "自定义比例"
   }
 }

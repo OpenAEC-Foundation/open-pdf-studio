@@ -121,5 +121,10 @@
     "dragFileGone": "This file no longer exists on disk — the tab cannot be moved.",
     "dragNotStarted": "The tab could not be dragged to another window. Try again, or use right-click → open in new window."
   },
-  "saveImageEmbedFailed": "Warning: an image could not be embedded in the saved file"
+  "saveImageEmbedFailed": "Warning: an image could not be embedded in the saved file",
+  "vectorSnippet": {
+    "copied": "Ausschnitt kopiert — in eine andere Zeichnung einfügen",
+    "failed": "Ausschneiden fehlgeschlagen",
+    "clipboardEmpty": "Kein Ausschnitt in der Zwischenablage"
+  }
 }

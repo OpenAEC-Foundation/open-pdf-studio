@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "برش",
+    "vectorSnippet": "برش برداری",
+    "vectorSnippetTitle": "بخشی از این نقشه را برش دهید؛ برداری باقی می‌ماند",
+    "vectorSnippetPaste": "چسباندن برش",
+    "vectorSnippetPasteTitle": "بخش بریده‌شده را اینجا بچسبانید، با حفظ داده‌های برداری",
+    "symbolScale": "مقیاس",
+    "symbolScaleTitle": "اندازه‌ای که نماد جدید با آن قرار می‌گیرد",
+    "symbolScaleCustom": "مقیاس سفارشی"
   }
 }

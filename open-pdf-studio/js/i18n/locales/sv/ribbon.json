@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "Utsnitt",
+    "vectorSnippet": "Vektorutsnitt",
+    "vectorSnippetTitle": "Klipp ut ett område ur den här ritningen; det förblir vektor",
+    "vectorSnippetPaste": "Klistra in utsnitt",
+    "vectorSnippetPasteTitle": "Klistra in det urklippta området här med vektordata bevarade",
+    "symbolScale": "Skala",
+    "symbolScaleTitle": "Storlek som en ny symbol placeras i",
+    "symbolScaleCustom": "Anpassad skala"
   }
 }

@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "স্নিপেট",
+    "vectorSnippet": "ভেক্টর স্নিপেট",
+    "vectorSnippetTitle": "এই অঙ্কন থেকে একটি অংশ কাটুন; এটি ভেক্টর থাকবে",
+    "vectorSnippetPaste": "স্নিপেট পেস্ট করুন",
+    "vectorSnippetPasteTitle": "কাটা অংশটি এখানে পেস্ট করুন, ভেক্টর ডেটা অক্ষুণ্ণ রেখে",
+    "symbolScale": "স্কেল",
+    "symbolScaleTitle": "নতুন প্রতীক যে আকারে বসানো হয়",
+    "symbolScaleCustom": "কাস্টম স্কেল"
   }
 }

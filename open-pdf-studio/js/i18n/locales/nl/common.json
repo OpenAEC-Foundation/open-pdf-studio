@@ -155,5 +155,10 @@
   "quickAccess": {
     "exportRaster": "Exporteer als raster-PDF (opent in nieuw tabblad)"
   },
-  "saveImageEmbedFailed": "Let op: een afbeelding kon niet in het opgeslagen bestand worden ingebed"
+  "saveImageEmbedFailed": "Let op: een afbeelding kon niet in het opgeslagen bestand worden ingebed",
+  "vectorSnippet": {
+    "copied": "Knipsel gekopieerd — plak het in een andere tekening",
+    "failed": "Knippen mislukt",
+    "clipboardEmpty": "Geen knipsel op het klembord"
+  }
 }

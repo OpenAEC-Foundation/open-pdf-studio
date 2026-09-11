@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "Ritaglio",
+    "vectorSnippet": "Ritaglio vettoriale",
+    "vectorSnippetTitle": "Ritaglia un'area da questo disegno; resta vettoriale",
+    "vectorSnippetPaste": "Incolla ritaglio",
+    "vectorSnippetPasteTitle": "Incolla qui l'area ritagliata, conservandone i dati vettoriali",
+    "symbolScale": "Scala",
+    "symbolScaleTitle": "Dimensione con cui viene posizionato un nuovo simbolo",
+    "symbolScaleCustom": "Scala personalizzata"
   }
 }

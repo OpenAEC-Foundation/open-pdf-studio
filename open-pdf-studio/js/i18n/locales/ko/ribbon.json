@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "스니펫",
+    "vectorSnippet": "벡터 스니펫",
+    "vectorSnippetTitle": "이 도면에서 영역을 잘라냅니다. 벡터로 유지됩니다",
+    "vectorSnippetPaste": "스니펫 붙여넣기",
+    "vectorSnippetPasteTitle": "잘라낸 영역을 벡터 데이터 그대로 여기에 붙여넣습니다",
+    "symbolScale": "축척",
+    "symbolScaleTitle": "새 기호를 배치할 때의 크기",
+    "symbolScaleCustom": "사용자 지정 축척"
   }
 }

@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "Výrez",
+    "vectorSnippet": "Vektorový výrez",
+    "vectorSnippetTitle": "Vystrihnite oblasť z tohto výkresu; zostane vektorová",
+    "vectorSnippetPaste": "Vložiť výrez",
+    "vectorSnippetPasteTitle": "Vložte sem vystrihnutú oblasť so zachovaním vektorových údajov",
+    "symbolScale": "Mierka",
+    "symbolScaleTitle": "Veľkosť, v ktorej sa umiestni nový symbol",
+    "symbolScaleCustom": "Vlastná mierka"
   }
 }

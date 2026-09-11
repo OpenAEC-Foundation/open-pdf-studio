@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "Leike",
+    "vectorSnippet": "Vektorileike",
+    "vectorSnippetTitle": "Leikkaa alue tästä piirustuksesta; se säilyy vektorina",
+    "vectorSnippetPaste": "Liitä leike",
+    "vectorSnippetPasteTitle": "Liitä leikattu alue tähän vektoritiedot säilyttäen",
+    "symbolScale": "Mittakaava",
+    "symbolScaleTitle": "Koko, jossa uusi symboli sijoitetaan",
+    "symbolScaleCustom": "Mukautettu mittakaava"
   }
 }

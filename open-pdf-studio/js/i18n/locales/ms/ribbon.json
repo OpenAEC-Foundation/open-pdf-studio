@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "Keratan",
+    "vectorSnippet": "Keratan vektor",
+    "vectorSnippetTitle": "Potong kawasan daripada lukisan ini; ia kekal sebagai vektor",
+    "vectorSnippetPaste": "Tampal keratan",
+    "vectorSnippetPasteTitle": "Tampal kawasan yang dipotong di sini, dengan mengekalkan data vektor",
+    "symbolScale": "Skala",
+    "symbolScaleTitle": "Saiz simbol baharu diletakkan",
+    "symbolScaleCustom": "Skala tersuai"
   }
 }

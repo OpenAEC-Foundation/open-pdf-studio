@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "ส่วนตัด",
+    "vectorSnippet": "ส่วนตัดเวกเตอร์",
+    "vectorSnippetTitle": "ตัดพื้นที่จากแบบนี้ โดยยังคงเป็นเวกเตอร์",
+    "vectorSnippetPaste": "วางส่วนตัด",
+    "vectorSnippetPasteTitle": "วางพื้นที่ที่ตัดไว้ที่นี่ โดยคงข้อมูลเวกเตอร์ไว้",
+    "symbolScale": "มาตราส่วน",
+    "symbolScaleTitle": "ขนาดที่ใช้วางสัญลักษณ์ใหม่",
+    "symbolScaleCustom": "มาตราส่วนกำหนดเอง"
   }
 }

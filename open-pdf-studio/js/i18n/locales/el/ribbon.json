@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "Απόσπασμα",
+    "vectorSnippet": "Διανυσματικό απόσπασμα",
+    "vectorSnippetTitle": "Αποκόψτε μια περιοχή από αυτό το σχέδιο· παραμένει διανυσματική",
+    "vectorSnippetPaste": "Επικόλληση αποσπάσματος",
+    "vectorSnippetPasteTitle": "Επικολλήστε εδώ την περιοχή που αποκόψατε, διατηρώντας τα διανυσματικά δεδομένα",
+    "symbolScale": "Κλίμακα",
+    "symbolScaleTitle": "Μέγεθος με το οποίο τοποθετείται ένα νέο σύμβολο",
+    "symbolScaleCustom": "Προσαρμοσμένη κλίμακα"
   }
 }

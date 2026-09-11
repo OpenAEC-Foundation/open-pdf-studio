@@ -461,7 +461,15 @@
     "collectionExplode": "Explode",
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
-    "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)"
+    "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
+    "snippetGroup": "Snippet",
+    "vectorSnippet": "Vector snippet",
+    "vectorSnippetTitle": "Cut an area from this drawing; it stays vector",
+    "vectorSnippetPaste": "Paste snippet",
+    "vectorSnippetPasteTitle": "Paste the cut area here, keeping its vector data",
+    "symbolScale": "Scale",
+    "symbolScaleTitle": "Size at which a new symbol is placed",
+    "symbolScaleCustom": "Custom scale"
   },
   "theme": {
     "system": "System (Auto Detect)",

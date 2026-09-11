@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "Isječak",
+    "vectorSnippet": "Vektorski isječak",
+    "vectorSnippetTitle": "Izrežite područje iz ovog crteža; ostaje vektorsko",
+    "vectorSnippetPaste": "Zalijepi isječak",
+    "vectorSnippetPasteTitle": "Zalijepite ovdje izrezano područje uz očuvanje vektorskih podataka",
+    "symbolScale": "Mjerilo",
+    "symbolScaleTitle": "Veličina u kojoj se postavlja novi simbol",
+    "symbolScaleCustom": "Prilagođeno mjerilo"
   }
 }

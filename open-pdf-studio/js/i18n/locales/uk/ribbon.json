@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "Фрагмент",
+    "vectorSnippet": "Векторний фрагмент",
+    "vectorSnippetTitle": "Виріжте область із цього креслення; вона залишиться векторною",
+    "vectorSnippetPaste": "Вставити фрагмент",
+    "vectorSnippetPasteTitle": "Вставте сюди вирізану область зі збереженням векторних даних",
+    "symbolScale": "Масштаб",
+    "symbolScaleTitle": "Розмір, у якому розміщується новий символ",
+    "symbolScaleCustom": "Власний масштаб"
   }
 }

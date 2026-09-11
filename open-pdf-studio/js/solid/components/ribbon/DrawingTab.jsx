@@ -248,7 +248,12 @@ export function DrawingGroups() {
             disabled={ro()}
             onClick={async () => {
               const { plakKnipsel, heeftKnipsel } = await import('../../../annotations/vector-snippet-clipboard.js');
-              if (!heeftKnipsel()) { state.statusMessage = 'Geen knipsel op het klembord'; return; }
+              if (!heeftKnipsel()) {
+                const { default: i18next } = await import('../../../i18n/config.js');
+                const { updateStatusMessage } = await import('../../../ui/chrome/status-bar.js');
+                updateStatusMessage(i18next.t('vectorSnippet.clipboardEmpty'));
+                return;
+              }
               const ann = plakKnipsel({});
               if (!ann) return;
               const { redrawAnnotations, redrawContinuous } = await import('../../../annotations/rendering.js');

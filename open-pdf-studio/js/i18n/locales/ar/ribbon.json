@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "مقتطف",
+    "vectorSnippet": "مقتطف متجه",
+    "vectorSnippetTitle": "اقتطع منطقة من هذا الرسم؛ تبقى بصيغة متجهة",
+    "vectorSnippetPaste": "لصق المقتطف",
+    "vectorSnippetPasteTitle": "الصق المنطقة المقتطعة هنا مع الحفاظ على بياناتها المتجهة",
+    "symbolScale": "المقياس",
+    "symbolScaleTitle": "الحجم الذي يُوضع به رمز جديد",
+    "symbolScaleCustom": "مقياس مخصص"
   }
 }

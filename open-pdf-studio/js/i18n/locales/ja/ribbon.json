@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "切り抜き",
+    "vectorSnippet": "ベクター切り抜き",
+    "vectorSnippetTitle": "この図面から領域を切り抜きます。ベクターのまま保持されます",
+    "vectorSnippetPaste": "切り抜きを貼り付け",
+    "vectorSnippetPasteTitle": "切り抜いた領域をベクターデータのままここに貼り付けます",
+    "symbolScale": "尺度",
+    "symbolScaleTitle": "新しいシンボルを配置するときのサイズ",
+    "symbolScaleCustom": "カスタム尺度"
   }
 }

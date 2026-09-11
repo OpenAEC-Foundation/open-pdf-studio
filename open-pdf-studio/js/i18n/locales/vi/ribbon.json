@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "Đoạn cắt",
+    "vectorSnippet": "Đoạn cắt vector",
+    "vectorSnippetTitle": "Cắt một vùng từ bản vẽ này; vùng đó vẫn là vector",
+    "vectorSnippetPaste": "Dán đoạn cắt",
+    "vectorSnippetPasteTitle": "Dán vùng đã cắt vào đây, giữ nguyên dữ liệu vector",
+    "symbolScale": "Tỷ lệ",
+    "symbolScaleTitle": "Kích thước khi đặt một ký hiệu mới",
+    "symbolScaleCustom": "Tỷ lệ tùy chỉnh"
   }
 }

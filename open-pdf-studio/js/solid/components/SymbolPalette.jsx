@@ -29,6 +29,7 @@ import { SYMBOL_STAMP_DEFAULT_SIZE } from '../../annotations/stamp-defaults.js';
 import { setPendingSymbolId } from '../stores/parametricSymbolStore.js';
 import { symboolSchaal, setSymboolSchaal } from '../../symbols/symbol-scale-store.js';
 import { SCHAAL_STAPPEN, schaalLabel } from '../../symbols/symbol-scale.js';
+import { useTranslation } from '../../i18n/useTranslation.js';
 import { parseLineworkCatalog, lineworkCatalogToGroup, LINEWORK_TEMPLATE_PREFIX } from '../../symbols/linework-catalog.js';
 
 // Alleen catalogus-FAMILIES (maat-keuze, geen sprekend pictogram) krijgen de
@@ -191,6 +192,7 @@ const arrowSvg = `<svg viewBox="0 0 10 10" width="10" height="10"><path d="M3 1l
 
 // --- Inner content (shared between docked and floating) ---
 function SymbolContent() {
+  const { t } = useTranslation('ribbon');
   return (
     <>
       {/* Search */}
@@ -209,7 +211,7 @@ function SymbolContent() {
       {/* Plaatsingsschaal (issue #357): geldt voor VOLGENDE symbolen; wat al
           op de tekening staat verandert niet. */}
       <div class="sp-scale">
-        <label for="sp-scale-select" title="Maat waarop een nieuw symbool geplaatst wordt">Schaal</label>
+        <label for="sp-scale-select" title={t('drawing.symbolScaleTitle')}>{t('drawing.symbolScale')}</label>
         <select
           id="sp-scale-select"
           value={String(symboolSchaal())}
@@ -224,7 +226,7 @@ function SymbolContent() {
           class="sp-scale-eigen"
           min="0.1" max="10" step="0.05"
           value={symboolSchaal()}
-          title="Eigen schaal"
+          title={t('drawing.symbolScaleCustom')}
           onChange={(e) => setSymboolSchaal(e.target.value)}
         />
       </div>

@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "גזיר",
+    "vectorSnippet": "גזיר וקטורי",
+    "vectorSnippetTitle": "גזור אזור מהשרטוט הזה; הוא נשאר וקטורי",
+    "vectorSnippetPaste": "הדבק גזיר",
+    "vectorSnippetPasteTitle": "הדבק כאן את האזור הגזור, תוך שמירה על הנתונים הווקטוריים",
+    "symbolScale": "קנה מידה",
+    "symbolScaleTitle": "הגודל שבו ממוקם סמל חדש",
+    "symbolScaleCustom": "קנה מידה מותאם"
   }
 }

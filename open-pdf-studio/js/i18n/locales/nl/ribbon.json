@@ -461,7 +461,15 @@
     "collectionExplode": "Ontleden",
     "structural": "Constructie",
     "rebarSeries": "Stavenreeks",
-    "rebarSeriesTitle": "Wapeningsstaven-reeks tekenen (reekslijn met staafposities en label N ⌀ D)"
+    "rebarSeriesTitle": "Wapeningsstaven-reeks tekenen (reekslijn met staafposities en label N ⌀ D)",
+    "snippetGroup": "Knipsel",
+    "vectorSnippet": "Vectorknipsel",
+    "vectorSnippetTitle": "Knip een gebied uit deze tekening; het blijft vector",
+    "vectorSnippetPaste": "Plak knipsel",
+    "vectorSnippetPasteTitle": "Plak het geknipte gebied hier, met behoud van vectordata",
+    "symbolScale": "Schaal",
+    "symbolScaleTitle": "Maat waarop een nieuw symbool geplaatst wordt",
+    "symbolScaleCustom": "Eigen schaal"
   },
   "theme": {
     "system": "Systeem (Automatisch)",

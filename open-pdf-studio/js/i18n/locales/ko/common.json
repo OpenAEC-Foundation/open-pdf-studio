@@ -121,5 +121,10 @@
     "dragFileGone": "This file no longer exists on disk — the tab cannot be moved.",
     "dragNotStarted": "The tab could not be dragged to another window. Try again, or use right-click → open in new window."
   },
-  "saveImageEmbedFailed": "Warning: an image could not be embedded in the saved file"
+  "saveImageEmbedFailed": "Warning: an image could not be embedded in the saved file",
+  "vectorSnippet": {
+    "copied": "스니펫이 복사되었습니다 — 다른 도면에 붙여넣으세요",
+    "failed": "잘라내기에 실패했습니다",
+    "clipboardEmpty": "클립보드에 스니펫이 없습니다"
+  }
 }

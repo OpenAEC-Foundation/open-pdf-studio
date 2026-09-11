@@ -306,6 +306,14 @@
     "structural": "Structural",
     "rebarSeries": "Rebar Series",
     "rebarSeriesTitle": "Draw a rebar series (line with bar positions and an N ⌀ D label)",
-    "eraser": "Eraser (removes freehand ink)"
+    "eraser": "Eraser (removes freehand ink)",
+    "snippetGroup": "துணுக்கு",
+    "vectorSnippet": "வெக்டர் துணுக்கு",
+    "vectorSnippetTitle": "இந்த வரைபடத்திலிருந்து ஒரு பகுதியை வெட்டவும்; அது வெக்டராகவே இருக்கும்",
+    "vectorSnippetPaste": "துணுக்கை ஒட்டு",
+    "vectorSnippetPasteTitle": "வெட்டிய பகுதியை வெக்டர் தரவுடன் இங்கே ஒட்டவும்",
+    "symbolScale": "அளவுகோல்",
+    "symbolScaleTitle": "புதிய குறியீடு வைக்கப்படும் அளவு",
+    "symbolScaleCustom": "தனிப்பயன் அளவுகோல்"
   }
 }

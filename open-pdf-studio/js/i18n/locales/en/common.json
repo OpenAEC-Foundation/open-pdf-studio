@@ -155,5 +155,10 @@
   "quickAccess": {
     "exportRaster": "Export as raster PDF (opens in a new tab)"
   },
-  "saveImageEmbedFailed": "Warning: an image could not be embedded in the saved file"
+  "saveImageEmbedFailed": "Warning: an image could not be embedded in the saved file",
+  "vectorSnippet": {
+    "copied": "Snippet copied — paste it into another drawing",
+    "failed": "Cutting failed",
+    "clipboardEmpty": "No snippet on the clipboard"
+  }
 }
