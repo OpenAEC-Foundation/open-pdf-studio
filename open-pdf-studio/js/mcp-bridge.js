@@ -2090,6 +2090,242 @@ async function handleUiState(params) {
   };
 }
 
+// ─── Commandolaag: elke functie van de app via MCP ───────────────────────
+//
+// Per knop een eigen MCP-tool schrijven schaalt niet (90 lintknoppen, 56
+// gereedschappen, en er komen er steeds bij). Daarom een generieke laag:
+// app_list_commands somt op wat er IS, app_run_command voert het uit. Een AI
+// die niet weet hoe iets heet, vraagt eerst de lijst op.
+//
+// Commando-ids:
+//   ribbon:#<id>          lintknop met een vaste id (stabiel tussen versies)
+//   ribbon:<tab>:<n>      lintknop zonder id, n-de knop op dat tabblad
+//                         (alleen stabiel binnen dezelfde versie)
+//   tool:<naam>           een gereedschap uit het register
+
+function _knopLabel(el) {
+  const lbl = el.querySelector('.ribbon-btn-label');
+  return ((lbl && lbl.textContent) || el.getAttribute('title') || el.getAttribute('aria-label') || '').trim();
+}
+
+async function _lintKnoppenPerTab() {
+  let origineel = null;
+  try {
+    const store = await import('./solid/stores/ribbonStore.js');
+    origineel = store.activeTab();
+  } catch { /* geen store — toch proberen */ }
+  const wacht = (ms) => new Promise((r) => setTimeout(r, ms));
+  const uit = [];
+  for (const tab of RIBBON_TAB_ORDER) {
+    const tabKnop = document.querySelector(`.ribbon-tab[data-tab="${tab}"]`);
+    if (!tabKnop) continue; // contextueel tabblad zonder selectie
+    tabKnop.click();
+    await wacht(150);
+    const knoppen = [...document.querySelectorAll('.ribbon-content .ribbon-btn, .ribbon-panel .ribbon-btn, .ribbon .ribbon-btn')];
+    const gezien = new Set();
+    let n = 0;
+    for (const el of knoppen) {
+      if (gezien.has(el)) continue;
+      gezien.add(el);
+      const r = el.getBoundingClientRect();
+      if (!r.width && !r.height) continue; // verborgen
+      uit.push({
+        command: el.id ? `ribbon:#${el.id}` : `ribbon:${tab}:${n}`,
+        tab,
+        label: _knopLabel(el),
+        title: el.getAttribute('title') || '',
+        disabled: _isElementDisabled(el),
+        active: el.classList.contains('active'),
+        stableId: !!el.id,
+      });
+      n++;
+    }
+  }
+  if (origineel) {
+    const terug = document.querySelector(`.ribbon-tab[data-tab="${origineel}"]`);
+    if (terug) { terug.click(); await wacht(150); }
+  }
+  return uit;
+}
+
+async function handleListCommands(params) {
+  const filter = typeof params?.filter === 'string' ? params.filter.toLowerCase() : '';
+  const lint = await _lintKnoppenPerTab();
+  const registryMod = await import('./tools/tool-registry.js');
+  const gereedschap = registryMod.listToolNames().map((naam) => ({
+    command: `tool:${naam}`, tab: null, label: naam, title: '', disabled: false, active: false, stableId: true,
+  }));
+  let alles = [...lint, ...gereedschap];
+  if (filter) {
+    alles = alles.filter((c) =>
+      (c.command + ' ' + c.label + ' ' + c.title + ' ' + (c.tab || '')).toLowerCase().includes(filter));
+  }
+  return {
+    ok: true,
+    count: alles.length,
+    ribbonCommands: lint.length,
+    toolCommands: gereedschap.length,
+    withoutStableId: lint.filter((c) => !c.stableId).length,
+    commands: alles,
+  };
+}
+
+async function handleRunCommand(params) {
+  const command = params?.command;
+  if (typeof command !== 'string' || !command) {
+    return { ok: false, error: 'missing or invalid params.command — see app_list_commands' };
+  }
+
+  if (command.startsWith('tool:')) {
+    return handleSetTool({ tool: command.slice(5) });
+  }
+
+  if (command.startsWith('ribbon:#')) {
+    return handleClickElement({ selector: `#${CSS.escape(command.slice(8))}` });
+  }
+
+  const m = command.match(/^ribbon:([a-z]+):(\d+)$/);
+  if (m) {
+    const [, tab, nr] = m;
+    const tabKnop = document.querySelector(`.ribbon-tab[data-tab="${tab}"]`);
+    if (!tabKnop) return { ok: false, error: `tab not available: ${tab}` };
+    tabKnop.click();
+    await new Promise((r) => setTimeout(r, 150));
+    const zichtbaar = [...new Set(document.querySelectorAll('.ribbon-content .ribbon-btn, .ribbon-panel .ribbon-btn, .ribbon .ribbon-btn'))]
+      .filter((el) => { const r = el.getBoundingClientRect(); return r.width || r.height; });
+    const el = zichtbaar[Number(nr)];
+    if (!el) return { ok: false, error: `no button #${nr} on tab ${tab} — list again, ids without a stable id shift between versions` };
+    if (_isElementDisabled(el)) return { ok: false, found: true, disabled: true, error: 'button is disabled' };
+    el.click();
+    return { ok: true, clicked: true, command, label: _knopLabel(el) };
+  }
+
+  return { ok: false, error: `unknown command format: ${command}` };
+}
+
+// ─── Vectorknipsel ────────────────────────────────────────────────────────
+
+async function handleSnippetCut(params) {
+  const p = params || {};
+  if (![p.x, p.y, p.width, p.height].every(_isNum)) {
+    return { ok: false, error: 'params x, y, width, height (app points) are required' };
+  }
+  const stateMod = await import('./core/state.js');
+  const doc = stateMod.getActiveDocument();
+  if (!doc?.pdfDoc) return { ok: false, error: 'no active document' };
+  if (_isNum(p.page)) {
+    const numPages = doc.pdfDoc?.numPages ?? 1;
+    if (!Number.isInteger(p.page) || p.page < 1 || p.page > numPages) {
+      return { ok: false, error: `page ${p.page} out of range (doc has ${numPages} pages)` };
+    }
+  }
+  const toolMod = await import('./tools/tools/vector-snippet-tool.js');
+  let r;
+  try {
+    r = await toolMod.knipselVanVak(
+      { x: p.x, y: p.y, width: p.width, height: p.height },
+      _isNum(p.page) ? p.page : null,
+    );
+  } catch (e) {
+    return { ok: false, error: `cut failed: ${e?.message ?? e}` };
+  }
+  if (r.fout) return { ok: false, error: r.fout };
+  const klembord = await import('./annotations/vector-snippet-clipboard.js');
+  klembord.zetKnipselOpKlembord(r);
+  return {
+    ok: true, snippetKey: r.snippetKey, srcBox: r.srcBox, srcLabel: r.srcLabel,
+    width: r.breedte, height: r.hoogte,
+  };
+}
+
+async function handleSnippetPaste(params) {
+  const p = params || {};
+  const klembord = await import('./annotations/vector-snippet-clipboard.js');
+  if (!klembord.heeftKnipsel()) return { ok: false, error: 'no snippet on the clipboard — call app_snippet_cut first' };
+  const ann = klembord.plakKnipsel({
+    x: _isNum(p.x) ? p.x : undefined,
+    y: _isNum(p.y) ? p.y : undefined,
+    page: _isNum(p.page) ? p.page : undefined,
+  });
+  if (!ann) return { ok: false, error: 'paste failed (no active document?)' };
+  await _redrawActive();
+  return { ok: true, annotationId: ann.id, page: ann.page, x: ann.x, y: ann.y, width: ann.width, height: ann.height };
+}
+
+async function handleSnippetFlatten(params) {
+  const id = params?.id;
+  if (typeof id !== 'string' || !id) return { ok: false, error: 'missing params.id' };
+  const stateMod = await import('./core/state.js');
+  const doc = stateMod.getActiveDocument();
+  const ann = (doc?.annotations || []).find((a) => a.id === id);
+  if (!ann) return { ok: false, error: `annotation not found: ${id}` };
+  if (ann.type !== 'vectorSnippet') return { ok: false, error: `not a vector snippet: ${ann.type}` };
+  ann.flattened = params?.flattened !== false;
+  const tabs = await import('./ui/chrome/tabs.js');
+  tabs.markDocumentModified();
+  await _redrawActive();
+  return { ok: true, id, flattened: ann.flattened,
+    note: 'a flattened snippet is drawn into the page content on the next save' };
+}
+
+// ─── Symboolschaal (issue #357) ───────────────────────────────────────────
+
+async function handleSymbolScale(params) {
+  const store = await import('./symbols/symbol-scale-store.js');
+  if (params && params.scale !== undefined && params.scale !== null) {
+    const nieuw = store.setSymboolSchaal(params.scale);
+    return { ok: true, scale: nieuw, note: 'applies to symbols placed from now on; existing symbols are unchanged' };
+  }
+  return { ok: true, scale: store.huidigeSymboolSchaal() };
+}
+
+// ─── Bladhoofd invullen op veldnaam ───────────────────────────────────────
+//
+// De invulvelden van een samengesteld bladhoofd dragen hun naam in /T; de
+// loader zet die in `author`. Zo vul je 'projectnaam' zonder te weten waar
+// het veld op het vel staat.
+
+async function handleTitleblock(params) {
+  const stateMod = await import('./core/state.js');
+  const doc = stateMod.getActiveDocument();
+  if (!doc) return { ok: false, error: 'no active document' };
+  const pagina = _isNum(params?.page) ? params.page : null;
+  const velden = (doc.annotations || []).filter((a) =>
+    a.type === 'textbox' && typeof a.author === 'string' && /^[a-z_]+$/.test(a.author) &&
+    (pagina === null || a.page === pagina));
+
+  const gevuld = [];
+  const onbekend = [];
+  const invullen = params?.fields && typeof params.fields === 'object' ? params.fields : null;
+  if (invullen) {
+    for (const [naam, waarde] of Object.entries(invullen)) {
+      const treffers = velden.filter((v) => v.author === naam);
+      if (!treffers.length) { onbekend.push(naam); continue; }
+      for (const v of treffers) { v.text = String(waarde); gevuld.push(naam); }
+    }
+    if (gevuld.length) {
+      const tabs = await import('./ui/chrome/tabs.js');
+      tabs.markDocumentModified();
+      await _redrawActive();
+    }
+  }
+
+  return {
+    ok: onbekend.length === 0,
+    fields: velden.map((v) => ({ name: v.author, value: v.text, page: v.page, id: v.id })),
+    filled: gevuld,
+    unknown: onbekend,
+    ...(onbekend.length ? { error: `unknown field(s): ${onbekend.join(', ')}` } : {}),
+  };
+}
+
+async function _redrawActive() {
+  const stateMod = await import('./core/state.js');
+  const r = await import('./annotations/rendering.js');
+  if (stateMod.getActiveDocument()?.viewMode === 'continuous') r.redrawContinuous();
+  else r.redrawAnnotations();
+}
+
 const HANDLERS = {
   'mcp:open-pdf':           handleOpenPdf,
   'mcp:set-zoom':           handleSetZoom,
@@ -2140,6 +2376,15 @@ const HANDLERS = {
   // Take-off / schedules
   'mcp:get-takeoff':        handleGetTakeoff,
   'mcp:place-schedule':     handlePlaceSchedule,
+  // Commandolaag: elke lintknop en elk gereedschap
+  'mcp:list-commands':      handleListCommands,
+  'mcp:run-command':        handleRunCommand,
+  // Vectorknipsel, symboolschaal, bladhoofd
+  'mcp:snippet-cut':        handleSnippetCut,
+  'mcp:snippet-paste':      handleSnippetPaste,
+  'mcp:snippet-flatten':    handleSnippetFlatten,
+  'mcp:symbol-scale':       handleSymbolScale,
+  'mcp:titleblock':         handleTitleblock,
   // Assistant — test the AI end-to-end
   'mcp:ai-complete':        handleAiComplete,
   // Accounts introspection — deactivated (cloud accounts feature removed)

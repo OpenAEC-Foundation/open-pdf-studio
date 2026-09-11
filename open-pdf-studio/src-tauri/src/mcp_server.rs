@@ -769,6 +769,94 @@ fn handle_tools_list() -> Value {
                     },
                     "additionalProperties": false
                 }
+            },
+            {
+                "name": "app_list_commands",
+                "description": "List EVERY function the app exposes: each ribbon button on every tab (label, tab, disabled/active state) plus every drawing tool. Use this to discover how a feature is called before running it with app_run_command. Command ids: 'ribbon:#<id>' (stable), 'ribbon:<tab>:<n>' (button without an id, only stable within one version), 'tool:<name>'. Optional `filter` narrows by text (matches id, label, title or tab).",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "filter": { "type": "string", "description": "Case-insensitive text filter, e.g. 'scale', 'snippet', 'export'." }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "app_run_command",
+                "description": "Run any command returned by app_list_commands: clicks the ribbon button (switching to its tab first) or activates the tool. Disabled buttons are refused.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "command": { "type": "string", "description": "Command id from app_list_commands, e.g. 'ribbon:#btn-vector-snippet' or 'tool:measureArea'." }
+                    },
+                    "required": ["command"],
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "app_snippet_cut",
+                "description": "Cut a rectangular area from a page of the active document as a VECTOR snippet (not a raster screenshot) and put it on the app's snippet clipboard. Coordinates are app points (top-left origin, 100% zoom). Paste it into any open document with app_snippet_paste.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "x":      { "type": "number", "description": "Left edge in app points." },
+                        "y":      { "type": "number", "description": "Top edge in app points." },
+                        "width":  { "type": "number", "description": "Width in app points." },
+                        "height": { "type": "number", "description": "Height in app points." },
+                        "page":   { "type": "number", "description": "Page to cut from (default: current page)." }
+                    },
+                    "required": ["x", "y", "width", "height"],
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "app_snippet_paste",
+                "description": "Paste the vector snippet from the snippet clipboard into the active document at real size, as a movable annotation. It stays vector in the saved PDF.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "x":    { "type": "number", "description": "Left edge in app points (default 40)." },
+                        "y":    { "type": "number", "description": "Top edge in app points (default 40)." },
+                        "page": { "type": "number", "description": "Target page (default: current page)." }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "app_snippet_flatten",
+                "description": "Mark a pasted vector snippet as flattened: it stays visible but is no longer selectable, and on the next save it is drawn into the page content instead of being stored as an annotation.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "id":        { "type": "string", "description": "Annotation id of the vectorSnippet." },
+                        "flattened": { "type": "boolean", "description": "false un-flattens it again (default true)." }
+                    },
+                    "required": ["id"],
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "app_symbol_scale",
+                "description": "Get or set the placement scale for symbols from the symbol palette (1 = real size, 2 = twice as large). Applies to symbols placed from now on; symbols already on the drawing are unchanged. Range 0.1 to 10. Without `scale` it returns the current value.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "scale": { "type": "number", "description": "New placement scale." }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "app_titleblock",
+                "description": "Read or fill the title block fields by NAME (projectnaam, adres, opdrachtgever, status, projectnr, fase, auteur, schaal, datum_eerste, wijziging, documenttype, kenmerk — whatever the title block defines). Without `fields` it lists the fields and their current values; with `fields` it fills them, e.g. {\"projectnaam\": \"Woonhuis\", \"schaal\": \"1:50\"}. Unknown names are reported, not silently ignored.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "fields": { "type": "object", "description": "Field name to new value.", "additionalProperties": true },
+                        "page":   { "type": "number", "description": "Limit to one page (default: all pages)." }
+                    },
+                    "additionalProperties": false
+                }
             }
         ]
     })
@@ -840,6 +928,13 @@ async fn handle_tools_call(state: &AppState, params: &Value) -> Result<Value, (i
         "app_set_measure_scale"  => tool_app_request(state, "mcp:set-measure-scale",  &arguments, Duration::from_secs(15)).await,
         "app_get_takeoff"        => tool_app_request(state, "mcp:get-takeoff",        &arguments, Duration::from_secs(10)).await,
         "app_place_schedule"     => tool_app_request(state, "mcp:place-schedule",     &arguments, Duration::from_secs(15)).await,
+        "app_list_commands"      => tool_app_request(state, "mcp:list-commands",      &arguments, Duration::from_secs(30)).await,
+        "app_run_command"        => tool_app_request(state, "mcp:run-command",        &arguments, Duration::from_secs(20)).await,
+        "app_snippet_cut"        => tool_app_request(state, "mcp:snippet-cut",        &arguments, Duration::from_secs(60)).await,
+        "app_snippet_paste"      => tool_app_request(state, "mcp:snippet-paste",      &arguments, Duration::from_secs(15)).await,
+        "app_snippet_flatten"    => tool_app_request(state, "mcp:snippet-flatten",    &arguments, Duration::from_secs(10)).await,
+        "app_symbol_scale"       => tool_app_request(state, "mcp:symbol-scale",       &arguments, Duration::from_secs(10)).await,
+        "app_titleblock"         => tool_app_request(state, "mcp:titleblock",         &arguments, Duration::from_secs(15)).await,
         other => Err((
             jsonrpc_error::METHOD_NOT_FOUND,
             format!("method not found: {other}"),
@@ -1684,6 +1779,13 @@ mod tests {
             "app_set_measure_scale",
             "app_get_takeoff",
             "app_place_schedule",
+            "app_list_commands",
+            "app_run_command",
+            "app_snippet_cut",
+            "app_snippet_paste",
+            "app_snippet_flatten",
+            "app_symbol_scale",
+            "app_titleblock",
         ] {
             assert!(names.contains(&tool), "missing tool: {tool} (got {names:?})");
             let descr = arr.iter().find(|t| t["name"] == tool).unwrap();

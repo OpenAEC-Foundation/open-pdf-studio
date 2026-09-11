@@ -74,13 +74,23 @@ export function appVakNaarPdfVak(vak, cropBox) {
 }
 
 async function _knipsel(vak) {
+  return knipselVanVak(vak, null);
+}
+
+/**
+ * Knipt een vak (app-coördinaten) uit een pagina van het actieve document.
+ * Gedeeld door het gereedschap en de MCP-tool app_snippet_cut.
+ * @param {{x:number,y:number,width:number,height:number}} vak
+ * @param {number|null} paginaNr  null = huidige pagina
+ */
+export async function knipselVanVak(vak, paginaNr) {
   const doc = getActiveDocument();
   if (!doc?.filePath) return { fout: 'geen bestand' };
 
   const bronBytes = getCachedPdfBytes(doc.filePath);
   if (!bronBytes) return { fout: 'bronbytes niet in de cache' };
 
-  const paginaNr = doc.currentPage || 1;
+  paginaNr = paginaNr || doc.currentPage || 1;
   const { PDFDocument } = await import('pdf-lib');
   const bron = await PDFDocument.load(bronBytes);
   const pagina = bron.getPage(paginaNr - 1);
