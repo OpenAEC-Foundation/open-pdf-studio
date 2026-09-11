@@ -2103,6 +2103,11 @@ async function handleUiState(params) {
 //                         (alleen stabiel binnen dezelfde versie)
 //   tool:<naam>           een gereedschap uit het register
 
+// Elke lintknop (RibbonButton, ook in een RibbonButtonStack) zit in een
+// RibbonGroup. List en run gebruiken dezelfde selector, zodat een positioneel
+// commando (ribbon:tab:n) altijd naar dezelfde knop wijst.
+const LINT_KNOP_SELECTOR = '.ribbon-group .ribbon-btn';
+
 function _knopLabel(el) {
   const lbl = el.querySelector('.ribbon-btn-label');
   return ((lbl && lbl.textContent) || el.getAttribute('title') || el.getAttribute('aria-label') || '').trim();
@@ -2121,7 +2126,7 @@ async function _lintKnoppenPerTab() {
     if (!tabKnop) continue; // contextueel tabblad zonder selectie
     tabKnop.click();
     await wacht(150);
-    const knoppen = [...document.querySelectorAll('.ribbon-content .ribbon-btn, .ribbon-panel .ribbon-btn, .ribbon .ribbon-btn')];
+    const knoppen = [...document.querySelectorAll(LINT_KNOP_SELECTOR)];
     const gezien = new Set();
     let n = 0;
     for (const el of knoppen) {
@@ -2191,7 +2196,7 @@ async function handleRunCommand(params) {
     if (!tabKnop) return { ok: false, error: `tab not available: ${tab}` };
     tabKnop.click();
     await new Promise((r) => setTimeout(r, 150));
-    const zichtbaar = [...new Set(document.querySelectorAll('.ribbon-content .ribbon-btn, .ribbon-panel .ribbon-btn, .ribbon .ribbon-btn'))]
+    const zichtbaar = [...new Set(document.querySelectorAll(LINT_KNOP_SELECTOR))]
       .filter((el) => { const r = el.getBoundingClientRect(); return r.width || r.height; });
     const el = zichtbaar[Number(nr)];
     if (!el) return { ok: false, error: `no button #${nr} on tab ${tab} — list again, ids without a stable id shift between versions` };
