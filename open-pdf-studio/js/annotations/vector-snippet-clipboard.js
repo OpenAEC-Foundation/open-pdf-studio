@@ -7,7 +7,7 @@
 import { getActiveDocument } from '../core/state.js';
 import { createAnnotation } from './factory.js';
 import { recordAdd } from '../core/undo-manager.js';
-import { heeft } from './vector-snippet-store.js';
+import { heeft, wisOngebruikt } from './vector-snippet-store.js';
 
 let _knipsel = null;
 
@@ -66,4 +66,15 @@ export function gebruikteSleutels(documenten) {
     }
   }
   return [...uit];
+}
+
+/**
+ * Ruimt bronbytes op waar geen knipsel in een open document en ook het
+ * klembord niet meer naar verwijst. Geheugenhygiene: zonder dit blijft elk ooit
+ * geknipt blad in het geheugen hangen. De BESTANDSGROOTTE verandert hier niet
+ * door — een knipsel dat in het document staat gebruikt zijn bron echt.
+ * @returns {number} aantal opgeruimde bronnen
+ */
+export function ruimKnipselBronnenOp(documenten) {
+  return wisOngebruikt(gebruikteSleutels(documenten));
 }

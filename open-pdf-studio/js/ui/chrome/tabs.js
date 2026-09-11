@@ -256,6 +256,15 @@ export async function closeTab(index, force = false, dialogAction = null) {
   // Remove the document
   state.documents.splice(index, 1);
 
+  // Een gesloten document gebruikt zijn knipsel-bronnen niet meer; wat nergens
+  // anders nodig is, gaat uit het geheugen. Bewust HIER en niet na opslaan: de
+  // undo-geschiedenis houdt verwijderde knipsels vast, en een Ctrl+Z na het
+  // opruimen zou een knipsel zonder bronbytes terugzetten. Bij sluiten gaat die
+  // geschiedenis mee weg.
+  import('../../annotations/vector-snippet-clipboard.js')
+    .then(({ ruimKnipselBronnenOp }) => ruimKnipselBronnenOp(state.documents))
+    .catch(() => {});
+
   // Adjust active index
   if (state.documents.length === 0) {
     state.activeDocumentIndex = -1;
