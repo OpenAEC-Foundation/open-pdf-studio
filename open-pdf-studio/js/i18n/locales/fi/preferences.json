@@ -23,7 +23,15 @@
     "language": "Kieli",
     "interfaceLanguage": "Käyttöliittymän kieli",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "Tekoälyliitäntä (MCP)",
+    "aiLinkAllow": "Salli tekoälyavustajien (kuten Claude Desktop) käyttää tätä sovellusta",
+    "aiLinkPort": "Portti",
+    "aiLinkHint": "Liitäntä toimii vain tällä tietokoneella (127.0.0.1). Tekoälyavustaja voi silloin avata, mitata, merkitä ja tallentaa asiakirjoja. Ota käyttöön vain, jos käytät tekoälyavustajaa.",
+    "aiLinkActive": "Käytössä osoitteessa {{adres}}",
+    "aiLinkViaFlag": "Käytössä käynnistysparametrin kautta ({{adres}})",
+    "aiLinkOff": "Pois",
+    "aiLinkError": "Ei käynnistetty: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "Yleiset oletukset",

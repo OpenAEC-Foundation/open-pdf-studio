@@ -23,7 +23,15 @@
     "language": "Γλώσσα",
     "interfaceLanguage": "Γλώσσα διεπαφής",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "Σύνδεση ΤΝ (MCP)",
+    "aiLinkAllow": "Να επιτρέπεται σε βοηθούς ΤΝ (όπως το Claude Desktop) να χειρίζονται αυτή την εφαρμογή",
+    "aiLinkPort": "Θύρα",
+    "aiLinkHint": "Η σύνδεση λειτουργεί μόνο σε αυτόν τον υπολογιστή (127.0.0.1). Ένας βοηθός ΤΝ μπορεί τότε να ανοίγει, να μετρά, να σχολιάζει και να αποθηκεύει έγγραφα. Ενεργοποιήστε το μόνο αν χρησιμοποιείτε βοηθό ΤΝ.",
+    "aiLinkActive": "Ενεργή στο {{adres}}",
+    "aiLinkViaFlag": "Ενεργή μέσω παραμέτρου εκκίνησης ({{adres}})",
+    "aiLinkOff": "Ανενεργή",
+    "aiLinkError": "Δεν ξεκίνησε: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "Γενικές προεπιλογές",

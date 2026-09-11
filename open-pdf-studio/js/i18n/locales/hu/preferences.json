@@ -23,7 +23,15 @@
     "language": "Nyelv",
     "interfaceLanguage": "Felület nyelve",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "MI-kapcsolat (MCP)",
+    "aiLinkAllow": "MI-asszisztensek (pl. Claude Desktop) vezérelhetik ezt az alkalmazást",
+    "aiLinkPort": "Port",
+    "aiLinkHint": "A kapcsolat csak ezen a számítógépen működik (127.0.0.1). Egy MI-asszisztens ekkor dokumentumokat nyithat meg, mérhet, jegyzetelhet és menthet. Csak akkor kapcsolja be, ha MI-asszisztenst használ.",
+    "aiLinkActive": "Aktív: {{adres}}",
+    "aiLinkViaFlag": "Aktív indítási kapcsolóval ({{adres}})",
+    "aiLinkOff": "Ki",
+    "aiLinkError": "Nem indult el: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "Általános alapértelmezések",

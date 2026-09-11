@@ -23,7 +23,15 @@
     "language": "ภาษา",
     "interfaceLanguage": "ภาษาของส่วนติดต่อ",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "การเชื่อมต่อ AI (MCP)",
+    "aiLinkAllow": "อนุญาตให้ผู้ช่วย AI (เช่น Claude Desktop) ควบคุมแอปนี้",
+    "aiLinkPort": "พอร์ต",
+    "aiLinkHint": "การเชื่อมต่อทำงานเฉพาะบนคอมพิวเตอร์เครื่องนี้ (127.0.0.1) ผู้ช่วย AI จะเปิด วัด ใส่คำอธิบาย และบันทึกเอกสารได้ เปิดใช้เฉพาะเมื่อคุณใช้ผู้ช่วย AI",
+    "aiLinkActive": "ใช้งานที่ {{adres}}",
+    "aiLinkViaFlag": "ใช้งานผ่านพารามิเตอร์ตอนเริ่ม ({{adres}})",
+    "aiLinkOff": "ปิด",
+    "aiLinkError": "ไม่ได้เริ่ม: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "ค่าเริ่มต้นทั่วไป",

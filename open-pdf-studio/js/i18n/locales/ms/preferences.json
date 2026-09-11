@@ -23,7 +23,15 @@
     "language": "Bahasa",
     "interfaceLanguage": "Bahasa Antaramuka",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "Sambungan AI (MCP)",
+    "aiLinkAllow": "Benarkan pembantu AI (seperti Claude Desktop) mengendalikan aplikasi ini",
+    "aiLinkPort": "Port",
+    "aiLinkHint": "Sambungan hanya berfungsi pada komputer ini (127.0.0.1). Pembantu AI boleh membuka, mengukur, menganotasi dan menyimpan dokumen. Hidupkan hanya jika anda menggunakan pembantu AI.",
+    "aiLinkActive": "Aktif di {{adres}}",
+    "aiLinkViaFlag": "Aktif melalui parameter permulaan ({{adres}})",
+    "aiLinkOff": "Mati",
+    "aiLinkError": "Tidak dimulakan: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "Lalai Umum",

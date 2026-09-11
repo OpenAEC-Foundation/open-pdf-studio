@@ -23,7 +23,15 @@
     "language": "Sprache",
     "interfaceLanguage": "Oberflächensprache",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "KI-Anbindung (MCP)",
+    "aiLinkAllow": "KI-Assistenten (z. B. Claude Desktop) die Bedienung dieser App erlauben",
+    "aiLinkPort": "Port",
+    "aiLinkHint": "Die Anbindung funktioniert nur auf diesem Computer (127.0.0.1). Ein KI-Assistent kann dann Dokumente öffnen, messen, kommentieren und speichern. Nur einschalten, wenn Sie einen KI-Assistenten verwenden.",
+    "aiLinkActive": "Aktiv auf {{adres}}",
+    "aiLinkViaFlag": "Aktiv über Startparameter ({{adres}})",
+    "aiLinkOff": "Aus",
+    "aiLinkError": "Nicht gestartet: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "Allgemeine Standardwerte",

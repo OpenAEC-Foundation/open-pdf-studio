@@ -23,7 +23,15 @@
     "language": "Språk",
     "interfaceLanguage": "Gränssnittspråk",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "AI-koppling (MCP)",
+    "aiLinkAllow": "Tillåt AI-assistenter (som Claude Desktop) att styra den här appen",
+    "aiLinkPort": "Port",
+    "aiLinkHint": "Kopplingen fungerar bara på den här datorn (127.0.0.1). En AI-assistent kan då öppna, mäta, kommentera och spara dokument. Aktivera bara om du använder en AI-assistent.",
+    "aiLinkActive": "Aktiv på {{adres}}",
+    "aiLinkViaFlag": "Aktiv via startparameter ({{adres}})",
+    "aiLinkOff": "Av",
+    "aiLinkError": "Inte startad: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "Allmänna standardvärden",

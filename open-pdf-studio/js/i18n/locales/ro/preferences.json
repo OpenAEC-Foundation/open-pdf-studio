@@ -23,7 +23,15 @@
     "language": "Limba",
     "interfaceLanguage": "Limba interfetei",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "Conexiune AI (MCP)",
+    "aiLinkAllow": "Permite asistenților AI (precum Claude Desktop) să controleze această aplicație",
+    "aiLinkPort": "Port",
+    "aiLinkHint": "Conexiunea funcționează doar pe acest computer (127.0.0.1). Un asistent AI poate deschide, măsura, adnota și salva documente. Activați doar dacă folosiți un asistent AI.",
+    "aiLinkActive": "Activă pe {{adres}}",
+    "aiLinkViaFlag": "Activă prin parametru de pornire ({{adres}})",
+    "aiLinkOff": "Oprită",
+    "aiLinkError": "Nepornită: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "Valori implicite generale",

@@ -23,7 +23,15 @@
     "language": "Язык",
     "interfaceLanguage": "Язык интерфейса",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "Связь с ИИ (MCP)",
+    "aiLinkAllow": "Разрешить ИИ-ассистентам (например, Claude Desktop) управлять этим приложением",
+    "aiLinkPort": "Порт",
+    "aiLinkHint": "Связь работает только на этом компьютере (127.0.0.1). ИИ-ассистент сможет открывать, измерять, аннотировать и сохранять документы. Включайте, только если пользуетесь ИИ-ассистентом.",
+    "aiLinkActive": "Активна на {{adres}}",
+    "aiLinkViaFlag": "Активна через параметр запуска ({{adres}})",
+    "aiLinkOff": "Выкл.",
+    "aiLinkError": "Не запущена: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "Общие настройки по умолчанию",

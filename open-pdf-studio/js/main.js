@@ -220,6 +220,8 @@ async function init() {
 
   // Load user preferences (before render so theme is applied)
   await loadPreferences();
+  // AI-koppeling volgens de instelling (niet wachten: bindt alleen een poort).
+  import('./core/mcp-koppeling.js').then(m => m.pasMcpInstellingToe());
 
   // Single render call — mounts the entire UI tree
   // render() is synchronous, so DOM elements exist immediately after

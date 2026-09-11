@@ -23,7 +23,15 @@
     "language": "Ngôn ngữ",
     "interfaceLanguage": "Ngôn ngữ Giao diện",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "Kết nối AI (MCP)",
+    "aiLinkAllow": "Cho phép trợ lý AI (như Claude Desktop) điều khiển ứng dụng này",
+    "aiLinkPort": "Cổng",
+    "aiLinkHint": "Kết nối chỉ hoạt động trên máy tính này (127.0.0.1). Trợ lý AI có thể mở, đo, chú thích và lưu tài liệu. Chỉ bật khi bạn dùng trợ lý AI.",
+    "aiLinkActive": "Đang hoạt động tại {{adres}}",
+    "aiLinkViaFlag": "Đang hoạt động qua tham số khởi động ({{adres}})",
+    "aiLinkOff": "Tắt",
+    "aiLinkError": "Chưa khởi động: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "Mặc định Chung",

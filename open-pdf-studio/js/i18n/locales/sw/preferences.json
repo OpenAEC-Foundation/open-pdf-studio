@@ -23,7 +23,15 @@
     "language": "Lugha",
     "interfaceLanguage": "Lugha ya Kiolesura",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "Muunganisho wa AI (MCP)",
+    "aiLinkAllow": "Ruhusu wasaidizi wa AI (kama Claude Desktop) kuendesha programu hii",
+    "aiLinkPort": "Mlango",
+    "aiLinkHint": "Muunganisho unafanya kazi kwenye kompyuta hii pekee (127.0.0.1). Msaidizi wa AI anaweza kufungua, kupima, kuweka maelezo na kuhifadhi hati. Washa tu ikiwa unatumia msaidizi wa AI.",
+    "aiLinkActive": "Inatumika kwenye {{adres}}",
+    "aiLinkViaFlag": "Inatumika kupitia kigezo cha kuanza ({{adres}})",
+    "aiLinkOff": "Imezimwa",
+    "aiLinkError": "Haijaanzishwa: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "Chaguo-msingi za Jumla",

@@ -23,7 +23,15 @@
     "language": "زبان",
     "interfaceLanguage": "زبان رابط کاربری",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "اتصال هوش مصنوعی (MCP)",
+    "aiLinkAllow": "اجازه به دستیارهای هوش مصنوعی (مانند Claude Desktop) برای کار با این برنامه",
+    "aiLinkPort": "درگاه",
+    "aiLinkHint": "این اتصال فقط روی همین رایانه کار می‌کند (127.0.0.1). دستیار هوش مصنوعی می‌تواند اسناد را باز کند، اندازه بگیرد، حاشیه‌نویسی و ذخیره کند. فقط اگر از دستیار هوش مصنوعی استفاده می‌کنید آن را روشن کنید.",
+    "aiLinkActive": "فعال روی {{adres}}",
+    "aiLinkViaFlag": "فعال از طریق پارامتر اجرا ({{adres}})",
+    "aiLinkOff": "خاموش",
+    "aiLinkError": "راه‌اندازی نشد: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "پیش‌فرض‌های عمومی",

@@ -23,7 +23,15 @@
     "language": "மொழி",
     "interfaceLanguage": "இடைமுகப்பு மொழி",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "AI இணைப்பு (MCP)",
+    "aiLinkAllow": "AI உதவியாளர்கள் (Claude Desktop போன்றவை) இந்தச் செயலியை இயக்க அனுமதி",
+    "aiLinkPort": "போர்ட்",
+    "aiLinkHint": "இந்த இணைப்பு இந்தக் கணினியில் மட்டுமே செயல்படும் (127.0.0.1). AI உதவியாளர் ஆவணங்களைத் திறக்க, அளக்க, குறிப்பிட, சேமிக்க முடியும். AI உதவியாளரைப் பயன்படுத்தினால் மட்டும் இயக்கவும்.",
+    "aiLinkActive": "{{adres}} இல் செயலில்",
+    "aiLinkViaFlag": "தொடக்க அளவுருவின் மூலம் செயலில் ({{adres}})",
+    "aiLinkOff": "முடக்கம்",
+    "aiLinkError": "தொடங்கவில்லை: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "பொது இயல்புநிலைகள்",

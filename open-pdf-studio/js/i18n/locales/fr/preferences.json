@@ -23,7 +23,15 @@
     "language": "Langue",
     "interfaceLanguage": "Langue de l'interface",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "Connexion IA (MCP)",
+    "aiLinkAllow": "Autoriser les assistants IA (comme Claude Desktop) à piloter cette application",
+    "aiLinkPort": "Port",
+    "aiLinkHint": "La connexion ne fonctionne que sur cet ordinateur (127.0.0.1). Un assistant IA peut alors ouvrir, mesurer, annoter et enregistrer des documents. N'activez cette option que si vous utilisez un assistant IA.",
+    "aiLinkActive": "Active sur {{adres}}",
+    "aiLinkViaFlag": "Active via l'option de démarrage ({{adres}})",
+    "aiLinkOff": "Désactivée",
+    "aiLinkError": "Non démarrée : {{fout}}"
   },
   "annotations": {
     "generalDefaults": "Valeurs par défaut générales",

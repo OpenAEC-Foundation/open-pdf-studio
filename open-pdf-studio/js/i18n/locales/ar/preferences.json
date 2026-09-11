@@ -23,7 +23,15 @@
     "language": "اللغة",
     "interfaceLanguage": "لغة الواجهة",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "ربط الذكاء الاصطناعي (MCP)",
+    "aiLinkAllow": "السماح لمساعدي الذكاء الاصطناعي (مثل Claude Desktop) بتشغيل هذا التطبيق",
+    "aiLinkPort": "المنفذ",
+    "aiLinkHint": "يعمل الربط على هذا الحاسوب فقط (127.0.0.1). يمكن لمساعد الذكاء الاصطناعي عندها فتح المستندات وقياسها والتعليق عليها وحفظها. فعّله فقط إذا كنت تستخدم مساعد ذكاء اصطناعي.",
+    "aiLinkActive": "نشط على {{adres}}",
+    "aiLinkViaFlag": "نشط عبر معامل التشغيل ({{adres}})",
+    "aiLinkOff": "متوقف",
+    "aiLinkError": "لم يبدأ: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "الإعدادات الافتراضية العامة",

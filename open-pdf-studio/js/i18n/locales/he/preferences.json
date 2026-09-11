@@ -23,7 +23,15 @@
     "language": "שפה",
     "interfaceLanguage": "שפת ממשק",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "חיבור בינה מלאכותית (MCP)",
+    "aiLinkAllow": "לאפשר לעוזרי בינה מלאכותית (כמו Claude Desktop) להפעיל את היישום",
+    "aiLinkPort": "יציאה",
+    "aiLinkHint": "החיבור פועל רק במחשב זה (127.0.0.1). עוזר בינה מלאכותית יוכל אז לפתוח, למדוד, להוסיף הערות ולשמור מסמכים. הפעילו רק אם אתם משתמשים בעוזר בינה מלאכותית.",
+    "aiLinkActive": "פעיל ב-{{adres}}",
+    "aiLinkViaFlag": "פעיל דרך פרמטר הפעלה ({{adres}})",
+    "aiLinkOff": "כבוי",
+    "aiLinkError": "לא הופעל: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "ברירות מחדל כלליות",

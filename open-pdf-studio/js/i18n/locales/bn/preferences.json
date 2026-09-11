@@ -23,7 +23,15 @@
     "language": "ভাষা",
     "interfaceLanguage": "ইন্টারফেস ভাষা",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "এআই সংযোগ (MCP)",
+    "aiLinkAllow": "এআই সহকারীদের (যেমন Claude Desktop) এই অ্যাপ চালানোর অনুমতি দিন",
+    "aiLinkPort": "পোর্ট",
+    "aiLinkHint": "সংযোগটি শুধু এই কম্পিউটারে কাজ করে (127.0.0.1)। এআই সহকারী তখন নথি খুলতে, মাপতে, টীকা দিতে ও সংরক্ষণ করতে পারবে। শুধু এআই সহকারী ব্যবহার করলে এটি চালু করুন।",
+    "aiLinkActive": "{{adres}}-এ সক্রিয়",
+    "aiLinkViaFlag": "স্টার্টআপ প্যারামিটারের মাধ্যমে সক্রিয় ({{adres}})",
+    "aiLinkOff": "বন্ধ",
+    "aiLinkError": "শুরু হয়নি: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "সাধারণ ডিফল্ট",

@@ -23,7 +23,15 @@
     "language": "भाषा",
     "interfaceLanguage": "इंटरफ़ेस भाषा",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "एआई लिंक (MCP)",
+    "aiLinkAllow": "एआई सहायकों (जैसे Claude Desktop) को यह ऐप चलाने की अनुमति दें",
+    "aiLinkPort": "पोर्ट",
+    "aiLinkHint": "यह लिंक केवल इसी कंप्यूटर पर काम करता है (127.0.0.1)। एआई सहायक दस्तावेज़ खोल, माप, एनोटेट और सहेज सकता है। इसे केवल तभी चालू करें जब आप एआई सहायक का उपयोग करते हों।",
+    "aiLinkActive": "{{adres}} पर सक्रिय",
+    "aiLinkViaFlag": "स्टार्टअप पैरामीटर से सक्रिय ({{adres}})",
+    "aiLinkOff": "बंद",
+    "aiLinkError": "शुरू नहीं हुआ: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "सामान्य डिफ़ॉल्ट",

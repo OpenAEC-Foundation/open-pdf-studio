@@ -23,7 +23,15 @@
     "language": "Мова",
     "interfaceLanguage": "Мова інтерфейсу",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "Зв'язок зі ШІ (MCP)",
+    "aiLinkAllow": "Дозволити ШІ-асистентам (наприклад, Claude Desktop) керувати цим застосунком",
+    "aiLinkPort": "Порт",
+    "aiLinkHint": "Зв'язок працює лише на цьому комп'ютері (127.0.0.1). ШІ-асистент зможе відкривати, вимірювати, анотувати та зберігати документи. Вмикайте, лише якщо користуєтеся ШІ-асистентом.",
+    "aiLinkActive": "Активний на {{adres}}",
+    "aiLinkViaFlag": "Активний через параметр запуску ({{adres}})",
+    "aiLinkOff": "Вимк.",
+    "aiLinkError": "Не запущено: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "Загальні типові значення",

@@ -23,7 +23,15 @@
     "language": "Språk",
     "interfaceLanguage": "Grensesnittspråk",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "AI-kobling (MCP)",
+    "aiLinkAllow": "Tillat AI-assistenter (som Claude Desktop) å betjene denne appen",
+    "aiLinkPort": "Port",
+    "aiLinkHint": "Koblingen fungerer bare på denne datamaskinen (127.0.0.1). En AI-assistent kan da åpne, måle, kommentere og lagre dokumenter. Slå det bare på hvis du bruker en AI-assistent.",
+    "aiLinkActive": "Aktiv på {{adres}}",
+    "aiLinkViaFlag": "Aktiv via oppstartsparameter ({{adres}})",
+    "aiLinkOff": "Av",
+    "aiLinkError": "Ikke startet: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "Generelle standardverdier",

@@ -23,7 +23,15 @@
     "language": "语言",
     "interfaceLanguage": "界面语言",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "AI 连接（MCP）",
+    "aiLinkAllow": "允许 AI 助手（如 Claude Desktop）操作此应用",
+    "aiLinkPort": "端口",
+    "aiLinkHint": "该连接仅在本机上运行（127.0.0.1）。AI 助手可以打开、测量、批注和保存文档。仅在使用 AI 助手时开启。",
+    "aiLinkActive": "已在 {{adres}} 运行",
+    "aiLinkViaFlag": "通过启动参数运行（{{adres}}）",
+    "aiLinkOff": "关闭",
+    "aiLinkError": "未启动：{{fout}}"
   },
   "annotations": {
     "generalDefaults": "常规默认值",

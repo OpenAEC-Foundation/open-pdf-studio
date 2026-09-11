@@ -23,7 +23,15 @@
     "language": "Jazyk",
     "interfaceLanguage": "Jazyk rozhrania",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "Prepojenie s AI (MCP)",
+    "aiLinkAllow": "Povoliť asistentom AI (napr. Claude Desktop) ovládať túto aplikáciu",
+    "aiLinkPort": "Port",
+    "aiLinkHint": "Prepojenie funguje len na tomto počítači (127.0.0.1). Asistent AI potom môže otvárať, merať, anotovať a ukladať dokumenty. Zapnite len vtedy, ak používate asistenta AI.",
+    "aiLinkActive": "Aktívne na {{adres}}",
+    "aiLinkViaFlag": "Aktívne cez spúšťací parameter ({{adres}})",
+    "aiLinkOff": "Vypnuté",
+    "aiLinkError": "Nespustené: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "Všeobecné predvolené nastavenia",

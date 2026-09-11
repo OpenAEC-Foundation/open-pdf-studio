@@ -23,7 +23,15 @@
     "language": "Idioma",
     "interfaceLanguage": "Idioma de la interfaz",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "Conexión de IA (MCP)",
+    "aiLinkAllow": "Permitir que asistentes de IA (como Claude Desktop) controlen esta aplicación",
+    "aiLinkPort": "Puerto",
+    "aiLinkHint": "La conexión solo funciona en este ordenador (127.0.0.1). Un asistente de IA podrá abrir, medir, anotar y guardar documentos. Actívela solo si utiliza un asistente de IA.",
+    "aiLinkActive": "Activa en {{adres}}",
+    "aiLinkViaFlag": "Activa mediante parámetro de inicio ({{adres}})",
+    "aiLinkOff": "Desactivada",
+    "aiLinkError": "No iniciada: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "Valores predeterminados generales",

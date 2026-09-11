@@ -86,6 +86,8 @@ export default function PreferencesDialog(props) {
     }
     savePreferences();
     applyTheme(state.preferences.theme);
+    // AI-koppeling aan/uit of naar een andere poort.
+    import('../../../core/mcp-koppeling.js').then(m => m.pasMcpInstellingToe());
     // Apply properties panel visibility change
     import('../../stores/propertiesStore.js').then(m => m.setPanelVisible(state.preferences.propertiesPanelVisible));
     // Apply tool palette visibility change

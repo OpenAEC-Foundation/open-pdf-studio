@@ -23,7 +23,15 @@
     "language": "زبان",
     "interfaceLanguage": "انٹرفیس کی زبان",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "اے آئی رابطہ (MCP)",
+    "aiLinkAllow": "اے آئی معاونین (جیسے Claude Desktop) کو یہ ایپ چلانے کی اجازت دیں",
+    "aiLinkPort": "پورٹ",
+    "aiLinkHint": "یہ رابطہ صرف اسی کمپیوٹر پر کام کرتا ہے (127.0.0.1)۔ اے آئی معاون دستاویزات کھول، ناپ، تشریح اور محفوظ کر سکتا ہے۔ صرف اس صورت میں آن کریں جب آپ اے آئی معاون استعمال کرتے ہوں۔",
+    "aiLinkActive": "{{adres}} پر فعال",
+    "aiLinkViaFlag": "آغاز کے پیرامیٹر کے ذریعے فعال ({{adres}})",
+    "aiLinkOff": "بند",
+    "aiLinkError": "شروع نہیں ہوا: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "عمومی ڈیفالٹس",

@@ -23,7 +23,15 @@
     "language": "Dil",
     "interfaceLanguage": "Arayüz Dili",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "Yapay zekâ bağlantısı (MCP)",
+    "aiLinkAllow": "Yapay zekâ asistanlarının (Claude Desktop gibi) bu uygulamayı kullanmasına izin ver",
+    "aiLinkPort": "Bağlantı noktası",
+    "aiLinkHint": "Bağlantı yalnızca bu bilgisayarda çalışır (127.0.0.1). Bir yapay zekâ asistanı belgeleri açabilir, ölçebilir, işaretleyebilir ve kaydedebilir. Yalnızca bir yapay zekâ asistanı kullanıyorsanız açın.",
+    "aiLinkActive": "{{adres}} üzerinde etkin",
+    "aiLinkViaFlag": "Başlatma parametresiyle etkin ({{adres}})",
+    "aiLinkOff": "Kapalı",
+    "aiLinkError": "Başlatılmadı: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "Genel Varsayılanlar",

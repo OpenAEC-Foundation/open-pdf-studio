@@ -23,7 +23,15 @@
     "language": "Language",
     "interfaceLanguage": "Interface Language",
     "screenshot": "Screenshot",
-    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation"
+    "interceptPrintScreen": "Intercept PrtScn for screenshot annotation",
+    "aiLink": "AI link (MCP)",
+    "aiLinkAllow": "Allow AI assistants (such as Claude Desktop) to operate this app",
+    "aiLinkPort": "Port",
+    "aiLinkHint": "The link only works on this computer (127.0.0.1). An AI assistant can then open, measure, annotate and save documents. Only turn this on if you use an AI assistant.",
+    "aiLinkActive": "Active on {{adres}}",
+    "aiLinkViaFlag": "Active via command-line flag ({{adres}})",
+    "aiLinkOff": "Off",
+    "aiLinkError": "Not started: {{fout}}"
   },
   "annotations": {
     "generalDefaults": "General Defaults",
