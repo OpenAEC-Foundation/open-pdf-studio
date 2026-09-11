@@ -44,6 +44,7 @@ use serde_json::{json, Value};
 use tauri::{AppHandle, Manager};
 
 use crate::mcp_app_bridge::{self, McpAppBridge};
+use crate::mcp_tool_meta::{beschikbaar, meta, Profiel};
 
 /// Per-server state. Cloned (cheaply, via Arc) into every request handler.
 ///
@@ -862,6 +863,27 @@ fn handle_tools_list() -> Value {
     })
 }
 
+/// De `tools/list` voor een profiel: gefilterd, en elk gereedschap met de
+/// annotaties die Claude gebruikt voor toestemming (lezen gaat zonder vragen,
+/// wijzigen vraagt altijd). Zie mcp_tool_meta.rs.
+pub fn tools_list_voor(profiel: Profiel) -> Value {
+    let mut v = handle_tools_list();
+    if let Some(tools) = v["tools"].as_array_mut() {
+        tools.retain(|t| t["name"].as_str().map_or(false, |n| beschikbaar(n, profiel)));
+        for t in tools.iter_mut() {
+            if let Some(m) = t["name"].as_str().and_then(meta) {
+                t["annotations"] = json!({
+                    "title": m.titel,
+                    "readOnlyHint": m.alleen_lezen,
+                    "destructiveHint": m.wijzigt,
+                    "openWorldHint": false,
+                });
+            }
+        }
+    }
+    v
+}
+
 /// Dispatch a `tools/call` request to the matching tool handler. Returns
 /// the tool's MCP-shaped result (`content[]` + `isError`) on success, or a
 /// `(code, message)` pair that the caller wraps in a JSON-RPC error
@@ -1449,6 +1471,58 @@ pub async fn start(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn elk_gereedschap_staat_in_de_metatabel_en_omgekeerd() {
+        let v = handle_tools_list();
+        let namen: Vec<String> = v["tools"].as_array().unwrap().iter()
+            .map(|t| t["name"].as_str().unwrap().to_string()).collect();
+        for n in &namen {
+            assert!(crate::mcp_tool_meta::meta(n).is_some(), "{n} ontbreekt in mcp_tool_meta.rs");
+        }
+        for m in crate::mcp_tool_meta::TOOLS {
+            assert!(namen.iter().any(|n| n == m.naam), "{} staat in de tabel maar bestaat niet", m.naam);
+        }
+    }
+
+    #[test]
+    fn publiek_profiel_laat_ontwikkelgereedschap_weg_en_annoteert_alles() {
+        use crate::mcp_tool_meta::Profiel;
+        let publiek = tools_list_voor(Profiel::Publiek);
+        let arr = publiek["tools"].as_array().unwrap();
+        assert_eq!(arr.len(), 49);
+        for t in arr {
+            let a = &t["annotations"];
+            assert!(a["title"].as_str().map_or(false, |s| !s.is_empty()), "{} zonder titel", t["name"]);
+            assert!(a["readOnlyHint"].is_boolean() && a["destructiveHint"].is_boolean(), "{} zonder hints", t["name"]);
+            assert_eq!(a["openWorldHint"], false);
+        }
+        for dev in ["app_get_recent_console", "list_test_pdfs", "app_accounts_fetch"] {
+            assert!(!arr.iter().any(|t| t["name"] == dev), "{dev} hoort niet in het publieke profiel");
+        }
+        let alles = tools_list_voor(Profiel::Ontwikkeling);
+        assert_eq!(
+            alles["tools"].as_array().unwrap().len(),
+            handle_tools_list()["tools"].as_array().unwrap().len()
+        );
+    }
+
+    #[test]
+    fn tools_json_van_de_brug_is_actueel() {
+        use crate::mcp_tool_meta::Profiel;
+        let pad = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..").join("..").join("mcp-stdio").join("tools.json");
+        let verwacht = tools_list_voor(Profiel::Publiek)["tools"].clone();
+        if std::env::var("OPDS_MCPB_TOOLS_SCHRIJVEN").as_deref() == Ok("1") {
+            std::fs::write(&pad, serde_json::to_string_pretty(&verwacht).unwrap() + "\n").unwrap();
+        }
+        let op_schijf: Value = serde_json::from_str(
+            &std::fs::read_to_string(&pad)
+                .expect("mcp-stdio/tools.json ontbreekt - draai met OPDS_MCPB_TOOLS_SCHRIJVEN=1"),
+        )
+        .unwrap();
+        assert_eq!(op_schijf, verwacht, "mcp-stdio/tools.json loopt achter - draai met OPDS_MCPB_TOOLS_SCHRIJVEN=1");
+    }
 
     #[test]
     fn initialize_response_shape() {

@@ -8,6 +8,7 @@ mod email;
 pub mod linux_runtime;
 pub mod mcp_app_bridge;
 pub mod mcp_server;
+pub mod mcp_tool_meta;
 pub mod pdfium_renderer;
 pub mod render_to_png;
 pub mod window_mgmt;

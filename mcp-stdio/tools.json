@@ -1,0 +1,1240 @@
+[
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Open PDF"
+    },
+    "description": "Tell the LIVE running app to open a PDF in a new tab. Returns once the document is loaded and the tab is active. Requires the Tauri WebView to be alive (--mcp-server mode).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "name": "app_open_pdf"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Set zoom"
+    },
+    "description": "Set the page-view zoom in the LIVE app. scale=1.0 means 100%, 2.0 means 200%, etc.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "scale": {
+          "maximum": 32.0,
+          "minimum": 0.05,
+          "type": "number"
+        }
+      },
+      "required": [
+        "scale"
+      ],
+      "type": "object"
+    },
+    "name": "app_set_zoom"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Zoom in"
+    },
+    "description": "Trigger one zoom-in step in the LIVE app (same as the toolbar +).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "name": "app_zoom_in"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Zoom out"
+    },
+    "description": "Trigger one zoom-out step in the LIVE app (same as the toolbar -).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "name": "app_zoom_out"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Capture page view"
+    },
+    "description": "Capture the LIVE app's current page view as a base64 PNG. Composites the PDF canvas with the annotation/highlight overlays (NOT the surrounding chrome — for that use OS-level screenshotting).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "width": {
+          "default": 2000,
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "name": "app_screenshot_view"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Move pointer"
+    },
+    "description": "Dispatch a synthetic mousemove at viewport CSS coordinates (x, y) inside the LIVE WebView. Returns the element under the cursor.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "type": "integer"
+        },
+        "y": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "type": "object"
+    },
+    "name": "app_mouse_move"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Click"
+    },
+    "description": "Dispatch a synthetic mouse click at (x, y). Sequence: mousemove -> mousedown -> mouseup -> click (or contextmenu for right). button: 'left' (default) | 'middle' | 'right'.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "button": {
+          "default": "left",
+          "enum": [
+            "left",
+            "middle",
+            "right"
+          ],
+          "type": "string"
+        },
+        "x": {
+          "type": "integer"
+        },
+        "y": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "type": "object"
+    },
+    "name": "app_mouse_click"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Drag"
+    },
+    "description": "Dispatch a synthetic drag from (x1,y1) to (x2,y2) using `steps` interpolated mousemove events. Sequence: mousedown(x1,y1) -> N x mousemove -> mouseup(x2,y2). button: 'left' (default) | 'middle' | 'right'.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "button": {
+          "default": "left",
+          "enum": [
+            "left",
+            "middle",
+            "right"
+          ],
+          "type": "string"
+        },
+        "steps": {
+          "default": 10,
+          "maximum": 200,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "x1": {
+          "type": "integer"
+        },
+        "x2": {
+          "type": "integer"
+        },
+        "y1": {
+          "type": "integer"
+        },
+        "y2": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "x1",
+        "y1",
+        "x2",
+        "y2"
+      ],
+      "type": "object"
+    },
+    "name": "app_mouse_drag"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Scroll"
+    },
+    "description": "Dispatch a synthetic wheel event at (x, y) with delta (dx, dy) in CSS pixels. Set ctrlKey=true to test ctrl+wheel zoom-to-cursor.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "altKey": {
+          "default": false,
+          "type": "boolean"
+        },
+        "ctrlKey": {
+          "default": false,
+          "type": "boolean"
+        },
+        "dx": {
+          "default": 0,
+          "type": "integer"
+        },
+        "dy": {
+          "default": 0,
+          "type": "integer"
+        },
+        "metaKey": {
+          "default": false,
+          "type": "boolean"
+        },
+        "shiftKey": {
+          "default": false,
+          "type": "boolean"
+        },
+        "x": {
+          "type": "integer"
+        },
+        "y": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "type": "object"
+    },
+    "name": "app_scroll"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Press key"
+    },
+    "description": "Press a single key (with optional modifiers) on the focused element. Dispatches keydown then keyup. e.g. {key:'Escape'} or {key:'z', ctrl:true} for undo.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "alt": {
+          "default": false,
+          "type": "boolean"
+        },
+        "ctrl": {
+          "default": false,
+          "type": "boolean"
+        },
+        "key": {
+          "type": "string"
+        },
+        "meta": {
+          "default": false,
+          "type": "boolean"
+        },
+        "shift": {
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "key"
+      ],
+      "type": "object"
+    },
+    "name": "app_key"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Type text"
+    },
+    "description": "Type a string into the focused element. For each character: keydown -> beforeinput -> (value splice) -> input -> keyup. Editable inputs receive value updates; non-editable elements receive only the key events.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    },
+    "name": "app_type"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Get view state"
+    },
+    "description": "Probe the LIVE viewport state: render engine + timing chip, active document scale/page/viewMode, pdf-viewport singleton transform, pdf-canvas backing-store + CSS rect, high-zoom tile-overlay state (visible/hidden + position+size), pdf-container CSS rect + scroll offsets, and devicePixelRatio. Use this for any case where screen↔world coordinate mapping or zoom-state needs to be validated externally — e.g. after dispatching a zoom or scroll via `app_scroll`/`app_set_zoom`, call this to see where things landed.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "name": "app_get_viewport_state"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Go to page"
+    },
+    "description": "Navigate the active document to a specific 1-based page number. Wraps `goToPage()` so all the side effects (active-thumbnail update, page-input sync, fire-page-changed event) happen exactly as if the user clicked a thumbnail or pressed the page-input. Required for AI-driven test setups that need a deterministic page (e.g. BARN p.2 for zoom-anchor tests).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "page": {
+          "description": "1-based target page number.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "page"
+      ],
+      "type": "object"
+    },
+    "name": "app_go_to_page"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Select tool"
+    },
+    "description": "Switch the LIVE app's active tool, exactly like clicking the ribbon button. Accepts any registered tool name, e.g. select, hand, line, arrow, draw, box, circle, polyline, spline, arc, filledArea, textbox, callout, comment, stamp, highlight, editText, measureDistance, measureArea, measurePerimeter, measureAngle, scaleRegion, trim, extend. Returns the tool that is actually active afterwards (PDF/A read-only mode can refuse the switch).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "tool": {
+          "description": "Registered tool name.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tool"
+      ],
+      "type": "object"
+    },
+    "name": "app_set_tool"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Click interface element"
+    },
+    "description": "Click an arbitrary DOM element in the LIVE app by CSS selector (usually '#button-id'). If the element lives on an inactive ribbon tab, the matching tab is activated first (the ribbon only renders the active tab's content). Returns { ok, found, disabled, clicked, activatedTab }. Disabled elements are reported but NOT clicked. Set searchTabs=false to probe only the current DOM (e.g. for dialogs) without touching the ribbon tabs.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "searchTabs": {
+          "default": true,
+          "description": "Walk the ribbon tabs when the selector is not in the current DOM.",
+          "type": "boolean"
+        },
+        "selector": {
+          "description": "CSS selector of the element to click, e.g. '#dr-line'.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "selector"
+      ],
+      "type": "object"
+    },
+    "name": "app_click_element"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Get current tool"
+    },
+    "description": "Return the LIVE app's currently active tool name (state.currentTool).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "name": "app_get_current_tool"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Merge PDF files"
+    },
+    "description": "Merge one or more external PDF files into the LIVE active document (wraps mergeFiles()). Inserts the source pages at the given position and re-renders. Requires an active document. Returns { ok, position, mergedFiles, pagesBefore, pagesAfter, filePath } — filePath is the temp working copy the edited document now renders from (Issue #247: structural edits move to a fresh temp so the main view shows the merged result and the user's original stays untouched).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "filePaths": {
+          "description": "Absolute paths of PDF files to merge into the current document.",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "position": {
+          "description": "Where to insert the merged pages: 'end' (default), 'start', or 'after' the current page.",
+          "enum": [
+            "end",
+            "start",
+            "after"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "filePaths"
+      ],
+      "type": "object"
+    },
+    "name": "app_merge_pdf"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Ask assistant"
+    },
+    "description": "Submit a message into the LIVE app's assistant window as if the user typed it (opens the panel, runs the same send() path). Drives/tests the assistant from outside the WebView. Returns { ok }. The answer comes from whichever provider resolves: OpenAEC AI, a personal Claude key, or — when neither is available — the MCP relay (app_assistant_pending + app_assistant_answer).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "description": "The user message to submit.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "type": "object"
+    },
+    "name": "app_assistant_ask"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Take pending assistant question"
+    },
+    "description": "Take the oldest assistant question waiting for an MCP client to answer (the relay provider). Returns { ok, question:{ id, prompt, system, docName }|null }. When non-null, compute an answer and deliver it with app_assistant_answer — this is how an external Claude becomes the assistant's AI brain.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "name": "app_assistant_pending"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Answer assistant question"
+    },
+    "description": "Answer a pending assistant question (id from app_assistant_pending). The text appears in the assistant window as the assistant's reply. Returns { ok, id }.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "description": "Question id from app_assistant_pending.",
+          "type": "string"
+        },
+        "text": {
+          "description": "Answer text to show in the assistant window.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "text"
+      ],
+      "type": "object"
+    },
+    "name": "app_assistant_answer"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Get assistant conversation"
+    },
+    "description": "Return the LIVE assistant conversation: { ok, messages:[{ role, content }] }. Use to verify a delivered answer landed in the window.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "name": "app_assistant_history"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Create annotation"
+    },
+    "description": "Create an annotation on the LIVE app's active document WITHOUT synthetic mouse input. Builds the same object the interactive tool would, pushes it onto the document, records an undo step and redraws. Geometry goes in `props` (page coordinates at 100% zoom): line/arrow/measureDistance need startX/startY/endX/endY; box/circle/highlight/cloud/polygon/textbox/callout/scaleRegion need x/y/width/height; polyline/filledArea/measureArea/measurePerimeter need points:[{x,y},...]; spline needs controlPoints; draw needs path; comment needs x/y. Optional style props (color, strokeColor, fillColor, lineWidth, opacity, text, fontSize, scaleString, units, leaderStartX/Y, leaderEndX/Y, ...) override the tool defaults. measure* annotations get measureText computed from the document scale automatically. Returns the new annotation id.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "page": {
+          "description": "1-based target page. Defaults to the current page.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "props": {
+          "description": "Geometry + style properties for the annotation.",
+          "type": "object"
+        },
+        "type": {
+          "enum": [
+            "line",
+            "arrow",
+            "wall",
+            "box",
+            "mask",
+            "redaction",
+            "viewport",
+            "circle",
+            "highlight",
+            "cloud",
+            "polygon",
+            "polyline",
+            "cloudPolyline",
+            "spline",
+            "draw",
+            "filledArea",
+            "textbox",
+            "callout",
+            "comment",
+            "stamp",
+            "signature",
+            "image",
+            "parametricSymbol",
+            "measureDistance",
+            "measureArea",
+            "measurePerimeter",
+            "scaleRegion",
+            "count"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "props"
+      ],
+      "type": "object"
+    },
+    "name": "app_create_annotation"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "List annotations"
+    },
+    "description": "List the active document's annotations as compact JSON (id, type, page, core geometry, colors, text/measureText). Optionally filter to one page.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "page": {
+          "description": "Only annotations on this 1-based page.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "name": "app_list_annotations"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Get annotation"
+    },
+    "description": "Return the full JSON-safe property set of one annotation by id (functions/DOM refs stripped).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "name": "app_get_annotation"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Update annotation"
+    },
+    "description": "Merge `props` onto an existing annotation (geometry, color, lineWidth, text, ...). Records a modify-undo step, recomputes measureText when measurement geometry changed, and redraws. `id` and `type` are immutable.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "props": {
+          "description": "Property patch to merge onto the annotation.",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "props"
+      ],
+      "type": "object"
+    },
+    "name": "app_update_annotation"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Delete annotation"
+    },
+    "description": "Delete an annotation by id (records a delete-undo step and redraws).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "name": "app_delete_annotation"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Select annotation"
+    },
+    "description": "Select one annotation by id so the properties panel and selection handles show it, exactly like clicking it with the select tool.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "name": "app_select_annotation"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Clear selection"
+    },
+    "description": "Clear the annotation selection and hide the properties panel.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "name": "app_clear_selection"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Undo"
+    },
+    "description": "Undo the last annotation/page edit on the active document (same as Ctrl+Z).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "name": "app_undo"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Redo"
+    },
+    "description": "Redo the last undone edit on the active document (same as Ctrl+Y).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "name": "app_redo"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "List document tabs"
+    },
+    "description": "List all open document tabs: index, fileName, filePath, modified flag, active flag, pageCount, isUntitled, currentPage, annotationCount.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "name": "app_list_tabs"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Switch document tab"
+    },
+    "description": "Activate the document tab at `index` (0-based, see app_list_tabs).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "index": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "index"
+      ],
+      "type": "object"
+    },
+    "name": "app_switch_tab"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Close document tab"
+    },
+    "description": "Close the document tab at `index` (0-based). If the document has unsaved changes the call fails unless force=true (discard) or save=true (save-and-close) — it never opens a save dialog, so the bridge stays headless-safe.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "force": {
+          "default": false,
+          "description": "Discard unsaved changes.",
+          "type": "boolean"
+        },
+        "index": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "save": {
+          "default": false,
+          "description": "Save unsaved changes, then close (same path as the UI dialog's Save choice).",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "index"
+      ],
+      "type": "object"
+    },
+    "name": "app_close_tab"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "New blank PDF"
+    },
+    "description": "Create a new blank PDF document in a new tab (page size in PDF points; A4 portrait = 595 x 842).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "heightPt": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "pages": {
+          "default": 1,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "widthPt": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "widthPt",
+        "heightPt"
+      ],
+      "type": "object"
+    },
+    "name": "app_new_blank_pdf"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Save PDF"
+    },
+    "description": "Save the active document with all annotations baked in. With `path`, saves to that file. Without `path`, saves in place — fails (instead of opening a file picker) when the document is untitled or has no real path.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "description": "Absolute target path. Omit to save in place.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "app_save_pdf"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Set view mode"
+    },
+    "description": "Switch the active document view: 'single' page, 'continuous' vertical scroll, or 'book' (two-page spread, page 1 on the right). 'book' is a continuous variant.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "enum": [
+            "single",
+            "continuous",
+            "book"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "type": "object"
+    },
+    "name": "app_set_view_mode"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Fit page"
+    },
+    "description": "Zoom the active document so the whole page fits the viewport (same as the Fit Page button). Returns the resulting zoom.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "name": "app_fit_page"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Fit width"
+    },
+    "description": "Zoom the active document so the page width fills the viewport (same as the Fit Width button). Returns the resulting zoom.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "name": "app_fit_width"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Get page count"
+    },
+    "description": "Return the active document's page count and current page.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "name": "app_get_page_count"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Set measurement scale"
+    },
+    "description": "Set the active document's measurement scale calibration (pixels per unit + unit, e.g. ~2.835 px/mm for 1:1 at 72 dpi) and recalculate every measurement annotation.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "pixelsPerUnit": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "unit": {
+          "description": "Unit name, e.g. mm, cm, m, in, ft.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pixelsPerUnit",
+        "unit"
+      ],
+      "type": "object"
+    },
+    "name": "app_set_measure_scale"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Get quantity take-off"
+    },
+    "description": "Return take-off totals for the user's named schedules (Staten): per schedule the element count, the numeric column grand totals (e.g. area m2, length m, count), and per-group subtotals. Optionally target one schedule by id or name; otherwise all schedules are returned. Image/thumbnail columns are reported as counts, never as data-URLs.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "Target one schedule by its display name.",
+          "type": "string"
+        },
+        "scheduleId": {
+          "description": "Target one schedule by its id.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "app_get_takeoff"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Place quantity schedule"
+    },
+    "description": "Build a quantities schedule (Staat) from the annotations in the open document and place it on the page as a table annotation. Without scheduleId a new schedule is created from a template (default 'area'); `config` then overrides its categories/fields/sort. The table contents are computed by the app from the live annotations - the caller supplies no cell values.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "config": {
+          "additionalProperties": true,
+          "description": "Schedule config: categories, fields, filters, sort, itemize, format. Overrides the template.",
+          "type": "object"
+        },
+        "name": {
+          "description": "Display name for the schedule.",
+          "type": "string"
+        },
+        "page": {
+          "description": "Page to place the table on (default: current page).",
+          "type": "number"
+        },
+        "scheduleId": {
+          "description": "Reuse an existing schedule instead of creating one.",
+          "type": "string"
+        },
+        "templateId": {
+          "description": "Template for a new schedule: area, length, count, symbol, text, image or full. Default: area.",
+          "type": "string"
+        },
+        "x": {
+          "description": "Left edge in page points (default 40).",
+          "type": "number"
+        },
+        "y": {
+          "description": "Top edge in page points (default 40).",
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "name": "app_place_schedule"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "List app commands"
+    },
+    "description": "List EVERY function the app exposes: each ribbon button on every tab (label, tab, disabled/active state) plus every drawing tool. Use this to discover how a feature is called before running it with app_run_command. Command ids: 'ribbon:#<id>' (stable), 'ribbon:<tab>:<n>' (button without an id, only stable within one version), 'tool:<name>'. Optional `filter` narrows by text (matches id, label, title or tab).",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "filter": {
+          "description": "Case-insensitive text filter, e.g. 'scale', 'snippet', 'export'.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "app_list_commands"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Run app command"
+    },
+    "description": "Run any command returned by app_list_commands: clicks the ribbon button (switching to its tab first) or activates the tool. Disabled buttons are refused.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "command": {
+          "description": "Command id from app_list_commands, e.g. 'ribbon:#btn-vector-snippet' or 'tool:measureArea'.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "command"
+      ],
+      "type": "object"
+    },
+    "name": "app_run_command"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Cut vector snippet"
+    },
+    "description": "Cut a rectangular area from a page of the active document as a VECTOR snippet (not a raster screenshot) and put it on the app's snippet clipboard. Coordinates are app points (top-left origin, 100% zoom). Paste it into any open document with app_snippet_paste.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "height": {
+          "description": "Height in app points.",
+          "type": "number"
+        },
+        "page": {
+          "description": "Page to cut from (default: current page).",
+          "type": "number"
+        },
+        "width": {
+          "description": "Width in app points.",
+          "type": "number"
+        },
+        "x": {
+          "description": "Left edge in app points.",
+          "type": "number"
+        },
+        "y": {
+          "description": "Top edge in app points.",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
+      "type": "object"
+    },
+    "name": "app_snippet_cut"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Paste vector snippet"
+    },
+    "description": "Paste the vector snippet from the snippet clipboard into the active document at real size, as a movable annotation. It stays vector in the saved PDF.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "page": {
+          "description": "Target page (default: current page).",
+          "type": "number"
+        },
+        "x": {
+          "description": "Left edge in app points (default 40).",
+          "type": "number"
+        },
+        "y": {
+          "description": "Top edge in app points (default 40).",
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "name": "app_snippet_paste"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Flatten vector snippet"
+    },
+    "description": "Mark a pasted vector snippet as flattened: it stays visible but is no longer selectable, and on the next save it is drawn into the page content instead of being stored as an annotation.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "flattened": {
+          "description": "false un-flattens it again (default true).",
+          "type": "boolean"
+        },
+        "id": {
+          "description": "Annotation id of the vectorSnippet.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "name": "app_snippet_flatten"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Symbol placement scale"
+    },
+    "description": "Get or set the placement scale for symbols from the symbol palette (1 = real size, 2 = twice as large). Applies to symbols placed from now on; symbols already on the drawing are unchanged. Range 0.1 to 10. Without `scale` it returns the current value.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "scale": {
+          "description": "New placement scale.",
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "name": "app_symbol_scale"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Fill title block"
+    },
+    "description": "Read or fill the title block fields by NAME (projectnaam, adres, opdrachtgever, status, projectnr, fase, auteur, schaal, datum_eerste, wijziging, documenttype, kenmerk — whatever the title block defines). Without `fields` it lists the fields and their current values; with `fields` it fills them, e.g. {\"projectnaam\": \"Woonhuis\", \"schaal\": \"1:50\"}. Unknown names are reported, not silently ignored.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "fields": {
+          "additionalProperties": true,
+          "description": "Field name to new value.",
+          "type": "object"
+        },
+        "page": {
+          "description": "Limit to one page (default: all pages).",
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "name": "app_titleblock"
+  }
+]
