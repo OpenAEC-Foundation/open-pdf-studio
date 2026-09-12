@@ -58,5 +58,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "Linje",
+    "lineTitle": "Rett segment",
+    "arc": "Bue",
+    "arcTitle": "Buesegment (tast A, musehjul = utbuling)",
+    "closeOuter": "Lukk kontur",
+    "closeOuterTitle": "Lukk ytterkontur (≥ 3 punkter) — deretter kan du tegne åpninger (smultring)",
+    "closeHole": "Lukk åpning",
+    "closeHoleTitle": "Lukk åpning (≥ 3 punkter)",
+    "done": "Ferdig",
+    "doneTitle": "Sjekker at konturene er lukket, tegner skraveringen og forlater modusen (Enter)",
+    "cancelTitle": "Avbryt (Esc)",
+    "outerClosed": "Ytterkontur lukket ✓ · åpninger: {{count}}",
+    "drawingHole": " · tegner åpning ({{count}} punkt(er))",
+    "outerOpenClosable": "Ytterkontur åpen — {{count}} punkter (kan lukkes)",
+    "outerOpen": "Ytterkontur åpen — {{count}} punkt(er)"
+  },
+  "boxWidthAbbr": "B",
+  "boxHeightAbbr": "H"
 }

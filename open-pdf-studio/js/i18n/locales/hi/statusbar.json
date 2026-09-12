@@ -58,5 +58,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "रेखा",
+    "lineTitle": "सीधा खंड",
+    "arc": "चाप",
+    "arcTitle": "चाप खंड (कुंजी A, माउस व्हील = उभार)",
+    "closeOuter": "रूपरेखा बंद करें",
+    "closeOuterTitle": "बाहरी रूपरेखा बंद करें (≥ 3 बिंदु) — फिर आप खुलाव बना सकते हैं",
+    "closeHole": "खुलाव बंद करें",
+    "closeHoleTitle": "खुलाव बंद करें (≥ 3 बिंदु)",
+    "done": "पूर्ण",
+    "doneTitle": "जाँचता है कि रूपरेखाएँ बंद हैं, हैचिंग बनाता है और मोड से बाहर निकलता है (Enter)",
+    "cancelTitle": "रद्द करें (Esc)",
+    "outerClosed": "बाहरी रूपरेखा बंद ✓ · खुलाव: {{count}}",
+    "drawingHole": " · खुलाव बनाया जा रहा है ({{count}} बिंदु)",
+    "outerOpenClosable": "बाहरी रूपरेखा खुली है — {{count}} बिंदु (बंद की जा सकती है)",
+    "outerOpen": "बाहरी रूपरेखा खुली है — {{count}} बिंदु"
+  },
+  "boxWidthAbbr": "च",
+  "boxHeightAbbr": "ऊ"
 }

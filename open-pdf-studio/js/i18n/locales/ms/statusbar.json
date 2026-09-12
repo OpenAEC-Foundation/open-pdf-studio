@@ -58,5 +58,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "Garisan",
+    "lineTitle": "Segmen lurus",
+    "arc": "Lengkok",
+    "arcTitle": "Segmen lengkok (kekunci A, roda tetikus = lengkungan)",
+    "closeOuter": "Tutup kontur",
+    "closeOuterTitle": "Tutup kontur luar (≥ 3 titik) — kemudian anda boleh melukis bukaan",
+    "closeHole": "Tutup bukaan",
+    "closeHoleTitle": "Tutup bukaan (≥ 3 titik)",
+    "done": "Selesai",
+    "doneTitle": "Menyemak sama ada kontur tertutup, melukis lorekan dan keluar dari mod (Enter)",
+    "cancelTitle": "Batal (Esc)",
+    "outerClosed": "Kontur luar tertutup ✓ · bukaan: {{count}}",
+    "drawingHole": " · melukis bukaan ({{count}} titik)",
+    "outerOpenClosable": "Kontur luar terbuka — {{count}} titik (boleh ditutup)",
+    "outerOpen": "Kontur luar terbuka — {{count}} titik"
+  },
+  "boxWidthAbbr": "L",
+  "boxHeightAbbr": "T"
 }

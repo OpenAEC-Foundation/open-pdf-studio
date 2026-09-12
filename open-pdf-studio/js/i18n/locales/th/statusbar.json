@@ -58,5 +58,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "เส้นตรง",
+    "lineTitle": "ส่วนเส้นตรง",
+    "arc": "ส่วนโค้ง",
+    "arcTitle": "ส่วนโค้ง (ปุ่ม A, ล้อเมาส์ = ความโค้งนูน)",
+    "closeOuter": "ปิดเส้นขอบ",
+    "closeOuterTitle": "ปิดเส้นขอบด้านนอก (≥ 3 จุด) — จากนั้นสามารถวาดช่องเปิดได้",
+    "closeHole": "ปิดช่องเปิด",
+    "closeHoleTitle": "ปิดช่องเปิด (≥ 3 จุด)",
+    "done": "เสร็จสิ้น",
+    "doneTitle": "ตรวจสอบว่าเส้นขอบปิดแล้ว วาดลายเส้น และออกจากโหมด (Enter)",
+    "cancelTitle": "ยกเลิก (Esc)",
+    "outerClosed": "เส้นขอบด้านนอกปิดแล้ว ✓ · ช่องเปิด: {{count}}",
+    "drawingHole": " · กำลังวาดช่องเปิด ({{count}} จุด)",
+    "outerOpenClosable": "เส้นขอบด้านนอกเปิดอยู่ — {{count}} จุด (ปิดได้)",
+    "outerOpen": "เส้นขอบด้านนอกเปิดอยู่ — {{count}} จุด"
+  },
+  "boxWidthAbbr": "ก",
+  "boxHeightAbbr": "ส"
 }

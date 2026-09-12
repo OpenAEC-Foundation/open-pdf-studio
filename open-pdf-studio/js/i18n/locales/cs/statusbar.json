@@ -58,5 +58,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "Čára",
+    "lineTitle": "Přímý segment",
+    "arc": "Oblouk",
+    "arcTitle": "Obloukový segment (klávesa A, kolečko myši = vypuklost)",
+    "closeOuter": "Zavřít obrys",
+    "closeOuterTitle": "Zavřít vnější obrys (≥ 3 body) — poté můžete kreslit otvory (donut)",
+    "closeHole": "Zavřít otvor",
+    "closeHoleTitle": "Zavřít otvor (≥ 3 body)",
+    "done": "Hotovo",
+    "doneTitle": "Zkontroluje, zda jsou obrysy uzavřené, nakreslí šrafování a opustí režim (Enter)",
+    "cancelTitle": "Zrušit (Esc)",
+    "outerClosed": "Vnější obrys uzavřen ✓ · otvory: {{count}}",
+    "drawingHole": " · kreslení otvoru ({{count}} bod(y))",
+    "outerOpenClosable": "Vnější obrys otevřen — {{count}} bodů (lze uzavřít)",
+    "outerOpen": "Vnější obrys otevřen — {{count}} bod(y)"
+  },
+  "boxWidthAbbr": "Š",
+  "boxHeightAbbr": "V"
 }

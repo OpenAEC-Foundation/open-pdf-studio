@@ -58,5 +58,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "Γραμμή",
+    "lineTitle": "Ευθύγραμμο τμήμα",
+    "arc": "Τόξο",
+    "arcTitle": "Τμήμα τόξου (πλήκτρο A, τροχός ποντικιού = κύρτωση)",
+    "closeOuter": "Κλείσιμο περιγράμματος",
+    "closeOuterTitle": "Κλείστε το εξωτερικό περίγραμμα (≥ 3 σημεία) — έπειτα μπορείτε να σχεδιάσετε ανοίγματα",
+    "closeHole": "Κλείσιμο ανοίγματος",
+    "closeHoleTitle": "Κλείσιμο ανοίγματος (≥ 3 σημεία)",
+    "done": "Τέλος",
+    "doneTitle": "Ελέγχει αν τα περιγράμματα είναι κλειστά, σχεδιάζει τη διαγράμμιση και βγαίνει από τη λειτουργία (Enter)",
+    "cancelTitle": "Ακύρωση (Esc)",
+    "outerClosed": "Εξωτερικό περίγραμμα κλειστό ✓ · ανοίγματα: {{count}}",
+    "drawingHole": " · σχεδίαση ανοίγματος ({{count}} σημείο/α)",
+    "outerOpenClosable": "Εξωτερικό περίγραμμα ανοιχτό — {{count}} σημεία (κλείνει)",
+    "outerOpen": "Εξωτερικό περίγραμμα ανοιχτό — {{count}} σημείο/α"
+  },
+  "boxWidthAbbr": "Π",
+  "boxHeightAbbr": "Υ"
 }
