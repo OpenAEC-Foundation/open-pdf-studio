@@ -10,7 +10,10 @@ import { readFileSync } from 'node:fs';
 import { bewaar, sleutels, leegmaken, wisOngebruikt } from './vector-snippet-store.js';
 
 // gebruikteSleutels uit de echte bron halen, zonder de app-imports mee te laden.
-const bron = readFileSync(new URL('./vector-snippet-clipboard.js', import.meta.url), 'utf8');
+// Regeleinden gelijktrekken: op een Windows-checkout met autocrlf staat er
+// CRLF in het bestand en vindt het zoeken naar de sluitaccolade hieronder niets.
+const bron = readFileSync(new URL('./vector-snippet-clipboard.js', import.meta.url), 'utf8')
+  .split('\r\n').join('\n');
 const start = bron.indexOf('export function gebruikteSleutels');
 const eind = bron.indexOf('\n}\n', start) + 3;
 const fnTekst = bron.slice(start, eind).replace('export function', 'function');
