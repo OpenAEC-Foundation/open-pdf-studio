@@ -58,5 +58,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "Линија",
+    "lineTitle": "Прав сегмент",
+    "arc": "Лук",
+    "arcTitle": "Сегмент лука (тастер A, точкић миша = испупчење)",
+    "closeOuter": "Затвори контуру",
+    "closeOuterTitle": "Затвори спољну контуру (≥ 3 тачке) — затим можете цртати отворе (донат)",
+    "closeHole": "Затвори отвор",
+    "closeHoleTitle": "Затвори отвор (≥ 3 тачке)",
+    "done": "Готово",
+    "doneTitle": "Проверава да ли су контуре затворене, исцртава шрафуру и излази из режима (Enter)",
+    "cancelTitle": "Откажи (Esc)",
+    "outerClosed": "Спољна контура затворена ✓ · отвори: {{count}}",
+    "drawingHole": " · цртање отвора ({{count}} тачка/е)",
+    "outerOpenClosable": "Спољна контура отворена — {{count}} тачака (може се затворити)",
+    "outerOpen": "Спољна контура отворена — {{count}} тачка/е"
+  },
+  "boxWidthAbbr": "Ш",
+  "boxHeightAbbr": "В"
 }

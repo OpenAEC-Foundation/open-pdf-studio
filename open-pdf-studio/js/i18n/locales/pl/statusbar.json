@@ -57,5 +57,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "Linia",
+    "lineTitle": "Odcinek prosty",
+    "arc": "Łuk",
+    "arcTitle": "Segment łuku (klawisz A, kółko myszy = wybrzuszenie)",
+    "closeOuter": "Zamknij kontur",
+    "closeOuterTitle": "Zamknij kontur zewnętrzny (≥ 3 punkty) — potem można rysować otwory (donut)",
+    "closeHole": "Zamknij otwór",
+    "closeHoleTitle": "Zamknij otwór (≥ 3 punkty)",
+    "done": "Gotowe",
+    "doneTitle": "Sprawdza, czy kontury są zamknięte, rysuje kreskowanie i wychodzi z trybu (Enter)",
+    "cancelTitle": "Anuluj (Esc)",
+    "outerClosed": "Kontur zewnętrzny zamknięty ✓ · otwory: {{count}}",
+    "drawingHole": " · rysowanie otworu ({{count}} punkt(y))",
+    "outerOpenClosable": "Kontur zewnętrzny otwarty — {{count}} punktów (można zamknąć)",
+    "outerOpen": "Kontur zewnętrzny otwarty — {{count}} punkt(y)"
+  },
+  "boxWidthAbbr": "S",
+  "boxHeightAbbr": "W"
 }

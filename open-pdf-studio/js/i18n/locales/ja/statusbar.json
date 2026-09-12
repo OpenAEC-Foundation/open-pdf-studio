@@ -57,5 +57,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "直線",
+    "lineTitle": "直線セグメント",
+    "arc": "円弧",
+    "arcTitle": "円弧セグメント（キー A、マウスホイール＝膨らみ）",
+    "closeOuter": "輪郭を閉じる",
+    "closeOuterTitle": "外側の輪郭を閉じる（3点以上）— その後、開口部（ドーナツ）を描けます",
+    "closeHole": "開口部を閉じる",
+    "closeHoleTitle": "開口部を閉じる（3点以上）",
+    "done": "完了",
+    "doneTitle": "輪郭が閉じているか確認し、ハッチングを描画してモードを終了します（Enter）",
+    "cancelTitle": "キャンセル（Esc）",
+    "outerClosed": "外側輪郭閉鎖済み ✓ · 開口部：{{count}}",
+    "drawingHole": " · 開口部を描画中（{{count}}点）",
+    "outerOpenClosable": "外側輪郭が開いています — {{count}}点（閉じられます）",
+    "outerOpen": "外側輪郭が開いています — {{count}}点"
+  },
+  "boxWidthAbbr": "幅",
+  "boxHeightAbbr": "高"
 }

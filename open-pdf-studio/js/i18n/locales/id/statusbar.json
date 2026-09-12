@@ -58,5 +58,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "Garis",
+    "lineTitle": "Segmen lurus",
+    "arc": "Busur",
+    "arcTitle": "Segmen busur (tombol A, roda mouse = kelengkungan)",
+    "closeOuter": "Tutup kontur",
+    "closeOuterTitle": "Tutup kontur luar (≥ 3 titik) — lalu Anda bisa menggambar bukaan (donat)",
+    "closeHole": "Tutup bukaan",
+    "closeHoleTitle": "Tutup bukaan (≥ 3 titik)",
+    "done": "Selesai",
+    "doneTitle": "Memeriksa apakah kontur sudah tertutup, menggambar arsiran, dan keluar dari mode (Enter)",
+    "cancelTitle": "Batal (Esc)",
+    "outerClosed": "Kontur luar tertutup ✓ · bukaan: {{count}}",
+    "drawingHole": " · menggambar bukaan ({{count}} titik)",
+    "outerOpenClosable": "Kontur luar terbuka — {{count}} titik (bisa ditutup)",
+    "outerOpen": "Kontur luar terbuka — {{count}} titik"
+  },
+  "boxWidthAbbr": "L",
+  "boxHeightAbbr": "T"
 }

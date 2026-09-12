@@ -57,5 +57,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "선",
+    "lineTitle": "직선 세그먼트",
+    "arc": "호",
+    "arcTitle": "호 세그먼트(키 A, 마우스 휠 = 볼록도)",
+    "closeOuter": "윤곽 닫기",
+    "closeOuterTitle": "외곽 윤곽을 닫습니다(3점 이상) — 이후 개구부(도넛)를 그릴 수 있습니다",
+    "closeHole": "개구부 닫기",
+    "closeHoleTitle": "개구부 닫기(3점 이상)",
+    "done": "완료",
+    "doneTitle": "윤곽이 닫혔는지 확인하고 해칭을 그린 후 모드를 종료합니다(Enter)",
+    "cancelTitle": "취소(Esc)",
+    "outerClosed": "외곽 윤곽 닫힘 ✓ · 개구부: {{count}}",
+    "drawingHole": " · 개구부 그리는 중 ({{count}}점)",
+    "outerOpenClosable": "외곽 윤곽 열림 — {{count}}점 (닫을 수 있음)",
+    "outerOpen": "외곽 윤곽 열림 — {{count}}점"
+  },
+  "boxWidthAbbr": "너",
+  "boxHeightAbbr": "높"
 }

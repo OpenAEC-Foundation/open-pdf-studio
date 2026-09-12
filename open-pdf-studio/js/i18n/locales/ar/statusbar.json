@@ -57,5 +57,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "خط",
+    "lineTitle": "مقطع مستقيم",
+    "arc": "قوس",
+    "arcTitle": "مقطع قوس (مفتاح A، عجلة الفأرة = التحدّب)",
+    "closeOuter": "إغلاق المحيط",
+    "closeOuterTitle": "أغلق المحيط الخارجي (≥ 3 نقاط) — يمكنك بعدها رسم فتحات",
+    "closeHole": "إغلاق الفتحة",
+    "closeHoleTitle": "إغلاق الفتحة (≥ 3 نقاط)",
+    "done": "تم",
+    "doneTitle": "يتحقق من إغلاق المحيطات، يرسم التظليل، ويخرج من الوضع (Enter)",
+    "cancelTitle": "إلغاء (Esc)",
+    "outerClosed": "المحيط الخارجي مغلق ✓ · الفتحات: {{count}}",
+    "drawingHole": " · جارٍ رسم الفتحة ({{count}} نقطة)",
+    "outerOpenClosable": "المحيط الخارجي مفتوح — {{count}} نقاط (قابل للإغلاق)",
+    "outerOpen": "المحيط الخارجي مفتوح — {{count}} نقطة"
+  },
+  "boxWidthAbbr": "ع",
+  "boxHeightAbbr": "ا"
 }
