@@ -73,7 +73,10 @@
     "outerClosed": "外側輪郭閉鎖済み ✓ · 開口部：{{count}}",
     "drawingHole": " · 開口部を描画中（{{count}}点）",
     "outerOpenClosable": "外側輪郭が開いています — {{count}}点（閉じられます）",
-    "outerOpen": "外側輪郭が開いています — {{count}}点"
+    "outerOpen": "外側輪郭が開いています — {{count}}点",
+    "undoPoint": "点を元に戻す",
+    "undoPointTitle": "最後の点を削除（Backspace）",
+    "holesPhaseHint": "クリックで開口部を追加 · Enterまたは右クリック＝完了"
   },
   "boxWidthAbbr": "幅",
   "boxHeightAbbr": "高"

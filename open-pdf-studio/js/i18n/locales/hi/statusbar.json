@@ -74,7 +74,10 @@
     "outerClosed": "बाहरी रूपरेखा बंद ✓ · खुलाव: {{count}}",
     "drawingHole": " · खुलाव बनाया जा रहा है ({{count}} बिंदु)",
     "outerOpenClosable": "बाहरी रूपरेखा खुली है — {{count}} बिंदु (बंद की जा सकती है)",
-    "outerOpen": "बाहरी रूपरेखा खुली है — {{count}} बिंदु"
+    "outerOpen": "बाहरी रूपरेखा खुली है — {{count}} बिंदु",
+    "undoPoint": "बिंदु पूर्ववत करें",
+    "undoPointTitle": "अंतिम बिंदु हटाएं (Backspace)",
+    "holesPhaseHint": "खुलाव के लिए क्लिक करें · Enter या राइट-क्लिक = पूर्ण"
   },
   "boxWidthAbbr": "च",
   "boxHeightAbbr": "ऊ"

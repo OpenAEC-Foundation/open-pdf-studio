@@ -74,7 +74,10 @@
     "outerClosed": "Contorn exterior tancat ✓ · obertures: {{count}}",
     "drawingHole": " · dibuixant obertura ({{count}} punt(s))",
     "outerOpenClosable": "Contorn exterior obert — {{count}} punts (tancable)",
-    "outerOpen": "Contorn exterior obert — {{count}} punt(s)"
+    "outerOpen": "Contorn exterior obert — {{count}} punt(s)",
+    "undoPoint": "Desfés punt",
+    "undoPointTitle": "Elimina l'últim punt (Retrocés)",
+    "holesPhaseHint": "Fes clic per a una obertura · Retorn o clic dret = fet"
   },
   "boxWidthAbbr": "A",
   "boxHeightAbbr": "Al"

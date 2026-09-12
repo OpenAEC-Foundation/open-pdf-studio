@@ -82,7 +82,10 @@
     "outerClosed": "Outer contour closed ✓ · openings: {{count}}",
     "drawingHole": " · drawing opening ({{count}} point(s))",
     "outerOpenClosable": "Outer contour open — {{count}} points (closable)",
-    "outerOpen": "Outer contour open — {{count}} point(s)"
+    "outerOpen": "Outer contour open — {{count}} point(s)",
+    "undoPoint": "Undo point",
+    "undoPointTitle": "Remove last point (Backspace)",
+    "holesPhaseHint": "Click for an opening · Enter or right-click = done"
   },
   "boxWidthAbbr": "W",
   "boxHeightAbbr": "H"

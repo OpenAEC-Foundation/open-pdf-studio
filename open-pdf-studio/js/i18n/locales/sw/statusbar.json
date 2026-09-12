@@ -74,7 +74,10 @@
     "outerClosed": "Ukingo wa nje umefungwa ✓ · fursa: {{count}}",
     "drawingHole": " · inachora fursa (pointi {{count}})",
     "outerOpenClosable": "Ukingo wa nje umefunguliwa — pointi {{count}} (unaweza kufungwa)",
-    "outerOpen": "Ukingo wa nje umefunguliwa — pointi {{count}}"
+    "outerOpen": "Ukingo wa nje umefunguliwa — pointi {{count}}",
+    "undoPoint": "Tengua pointi",
+    "undoPointTitle": "Ondoa pointi ya mwisho (Backspace)",
+    "holesPhaseHint": "Bofya kwa fursa · Enter au kubofya kulia = imekamilika"
   },
   "boxWidthAbbr": "U",
   "boxHeightAbbr": "K"

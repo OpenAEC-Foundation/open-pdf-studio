@@ -74,7 +74,10 @@
     "outerClosed": "বাইরের রূপরেখা বন্ধ ✓ · খোলা অংশ: {{count}}",
     "drawingHole": " · খোলা অংশ আঁকা হচ্ছে ({{count}} পয়েন্ট)",
     "outerOpenClosable": "বাইরের রূপরেখা খোলা — {{count}} পয়েন্ট (বন্ধ করা যাবে)",
-    "outerOpen": "বাইরের রূপরেখা খোলা — {{count}} পয়েন্ট"
+    "outerOpen": "বাইরের রূপরেখা খোলা — {{count}} পয়েন্ট",
+    "undoPoint": "পয়েন্ট পূর্বাবস্থায় ফেরান",
+    "undoPointTitle": "শেষ পয়েন্ট সরান (Backspace)",
+    "holesPhaseHint": "খোলা অংশের জন্য ক্লিক করুন · Enter বা ডান-ক্লিক = সম্পন্ন"
   },
   "boxWidthAbbr": "প",
   "boxHeightAbbr": "উ"

@@ -73,7 +73,10 @@
     "outerClosed": "외곽 윤곽 닫힘 ✓ · 개구부: {{count}}",
     "drawingHole": " · 개구부 그리는 중 ({{count}}점)",
     "outerOpenClosable": "외곽 윤곽 열림 — {{count}}점 (닫을 수 있음)",
-    "outerOpen": "외곽 윤곽 열림 — {{count}}점"
+    "outerOpen": "외곽 윤곽 열림 — {{count}}점",
+    "undoPoint": "점 실행 취소",
+    "undoPointTitle": "마지막 점 제거(Backspace)",
+    "holesPhaseHint": "클릭하여 개구부 추가 · Enter 또는 우클릭 = 완료"
   },
   "boxWidthAbbr": "너",
   "boxHeightAbbr": "높"

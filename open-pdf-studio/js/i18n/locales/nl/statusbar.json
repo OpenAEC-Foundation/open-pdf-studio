@@ -82,7 +82,10 @@
     "outerClosed": "Buitenrand gesloten ✓ · openingen: {{count}}",
     "drawingHole": " · bezig met opening ({{count}} punt(en))",
     "outerOpenClosable": "Buitenrand open — {{count}} punten (sluitbaar)",
-    "outerOpen": "Buitenrand open — {{count}} punt(en)"
+    "outerOpen": "Buitenrand open — {{count}} punt(en)",
+    "undoPoint": "Punt ongedaan maken",
+    "undoPointTitle": "Verwijder laatste punt (Backspace)",
+    "holesPhaseHint": "Klik voor een opening · Enter of rechtermuisklik = gereed"
   },
   "boxWidthAbbr": "B",
   "boxHeightAbbr": "H"

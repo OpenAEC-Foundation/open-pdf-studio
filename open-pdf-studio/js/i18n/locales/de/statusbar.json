@@ -73,7 +73,10 @@
     "outerClosed": "Außenkontur geschlossen ✓ · Öffnungen: {{count}}",
     "drawingHole": " · Öffnung wird gezeichnet ({{count}} Punkt(e))",
     "outerOpenClosable": "Außenkontur offen — {{count}} Punkte (schließbar)",
-    "outerOpen": "Außenkontur offen — {{count}} Punkt(e)"
+    "outerOpen": "Außenkontur offen — {{count}} Punkt(e)",
+    "undoPoint": "Punkt zurücknehmen",
+    "undoPointTitle": "Letzten Punkt entfernen (Rücktaste)",
+    "holesPhaseHint": "Klicken für eine Öffnung · Eingabe oder Rechtsklick = fertig"
   },
   "boxWidthAbbr": "B",
   "boxHeightAbbr": "H"

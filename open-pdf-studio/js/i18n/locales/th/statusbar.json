@@ -74,7 +74,10 @@
     "outerClosed": "เส้นขอบด้านนอกปิดแล้ว ✓ · ช่องเปิด: {{count}}",
     "drawingHole": " · กำลังวาดช่องเปิด ({{count}} จุด)",
     "outerOpenClosable": "เส้นขอบด้านนอกเปิดอยู่ — {{count}} จุด (ปิดได้)",
-    "outerOpen": "เส้นขอบด้านนอกเปิดอยู่ — {{count}} จุด"
+    "outerOpen": "เส้นขอบด้านนอกเปิดอยู่ — {{count}} จุด",
+    "undoPoint": "เลิกทำจุด",
+    "undoPointTitle": "ลบจุดล่าสุด (Backspace)",
+    "holesPhaseHint": "คลิกเพื่อเปิดช่อง · Enter หรือคลิกขวา = เสร็จสิ้น"
   },
   "boxWidthAbbr": "ก",
   "boxHeightAbbr": "ส"

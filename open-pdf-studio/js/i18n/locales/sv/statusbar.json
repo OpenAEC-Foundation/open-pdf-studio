@@ -74,7 +74,10 @@
     "outerClosed": "Ytterkontur stängd ✓ · öppningar: {{count}}",
     "drawingHole": " · ritar öppning ({{count}} punkt(er))",
     "outerOpenClosable": "Ytterkontur öppen — {{count}} punkter (kan stängas)",
-    "outerOpen": "Ytterkontur öppen — {{count}} punkt(er)"
+    "outerOpen": "Ytterkontur öppen — {{count}} punkt(er)",
+    "undoPoint": "Ångra punkt",
+    "undoPointTitle": "Ta bort senaste punkten (Backsteg)",
+    "holesPhaseHint": "Klicka för en öppning · Retur eller högerklick = klar"
   },
   "boxWidthAbbr": "B",
   "boxHeightAbbr": "H"

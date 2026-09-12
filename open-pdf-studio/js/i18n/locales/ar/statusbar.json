@@ -73,7 +73,10 @@
     "outerClosed": "المحيط الخارجي مغلق ✓ · الفتحات: {{count}}",
     "drawingHole": " · جارٍ رسم الفتحة ({{count}} نقطة)",
     "outerOpenClosable": "المحيط الخارجي مفتوح — {{count}} نقاط (قابل للإغلاق)",
-    "outerOpen": "المحيط الخارجي مفتوح — {{count}} نقطة"
+    "outerOpen": "المحيط الخارجي مفتوح — {{count}} نقطة",
+    "undoPoint": "تراجع عن النقطة",
+    "undoPointTitle": "إزالة النقطة الأخيرة (Backspace)",
+    "holesPhaseHint": "انقر لإضافة فتحة · Enter أو النقر بزر الفأرة الأيمن = تم"
   },
   "boxWidthAbbr": "ع",
   "boxHeightAbbr": "ا"

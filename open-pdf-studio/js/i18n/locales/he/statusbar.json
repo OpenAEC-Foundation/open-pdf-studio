@@ -74,7 +74,10 @@
     "outerClosed": "מתאר חיצוני סגור ✓ · פתחים: {{count}}",
     "drawingHole": " · מצייר פתח ({{count}} נקודות)",
     "outerOpenClosable": "מתאר חיצוני פתוח — {{count}} נקודות (ניתן לסגור)",
-    "outerOpen": "מתאר חיצוני פתוח — {{count}} נקודות"
+    "outerOpen": "מתאר חיצוני פתוח — {{count}} נקודות",
+    "undoPoint": "בטל נקודה",
+    "undoPointTitle": "הסר את הנקודה האחרונה (Backspace)",
+    "holesPhaseHint": "לחץ לפתח · Enter או קליק ימני = סיום"
   },
   "boxWidthAbbr": "ר",
   "boxHeightAbbr": "ג"

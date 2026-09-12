@@ -74,7 +74,10 @@
     "outerClosed": "Спољна контура затворена ✓ · отвори: {{count}}",
     "drawingHole": " · цртање отвора ({{count}} тачка/е)",
     "outerOpenClosable": "Спољна контура отворена — {{count}} тачака (може се затворити)",
-    "outerOpen": "Спољна контура отворена — {{count}} тачка/е"
+    "outerOpen": "Спољна контура отворена — {{count}} тачка/е",
+    "undoPoint": "Опозови тачку",
+    "undoPointTitle": "Уклони последњу тачку (Backspace)",
+    "holesPhaseHint": "Кликните за отвор · Enter или десни клик = готово"
   },
   "boxWidthAbbr": "Ш",
   "boxHeightAbbr": "В"

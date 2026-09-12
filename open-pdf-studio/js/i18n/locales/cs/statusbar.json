@@ -74,7 +74,10 @@
     "outerClosed": "Vnější obrys uzavřen ✓ · otvory: {{count}}",
     "drawingHole": " · kreslení otvoru ({{count}} bod(y))",
     "outerOpenClosable": "Vnější obrys otevřen — {{count}} bodů (lze uzavřít)",
-    "outerOpen": "Vnější obrys otevřen — {{count}} bod(y)"
+    "outerOpen": "Vnější obrys otevřen — {{count}} bod(y)",
+    "undoPoint": "Zpět bod",
+    "undoPointTitle": "Odebrat poslední bod (Backspace)",
+    "holesPhaseHint": "Klikněte pro otvor · Enter nebo pravé tlačítko = hotovo"
   },
   "boxWidthAbbr": "Š",
   "boxHeightAbbr": "V"

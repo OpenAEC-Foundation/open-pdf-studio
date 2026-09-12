@@ -73,7 +73,10 @@
     "outerClosed": "Contour extérieur fermé ✓ · ouvertures : {{count}}",
     "drawingHole": " · ouverture en cours ({{count}} point(s))",
     "outerOpenClosable": "Contour extérieur ouvert — {{count}} points (fermable)",
-    "outerOpen": "Contour extérieur ouvert — {{count}} point(s)"
+    "outerOpen": "Contour extérieur ouvert — {{count}} point(s)",
+    "undoPoint": "Annuler le point",
+    "undoPointTitle": "Supprimer le dernier point (Retour arrière)",
+    "holesPhaseHint": "Cliquez pour une ouverture · Entrée ou clic droit = terminé"
   },
   "boxWidthAbbr": "L",
   "boxHeightAbbr": "H"

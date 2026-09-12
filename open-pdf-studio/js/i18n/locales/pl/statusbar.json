@@ -73,7 +73,10 @@
     "outerClosed": "Kontur zewnętrzny zamknięty ✓ · otwory: {{count}}",
     "drawingHole": " · rysowanie otworu ({{count}} punkt(y))",
     "outerOpenClosable": "Kontur zewnętrzny otwarty — {{count}} punktów (można zamknąć)",
-    "outerOpen": "Kontur zewnętrzny otwarty — {{count}} punkt(y)"
+    "outerOpen": "Kontur zewnętrzny otwarty — {{count}} punkt(y)",
+    "undoPoint": "Cofnij punkt",
+    "undoPointTitle": "Usuń ostatni punkt (Backspace)",
+    "holesPhaseHint": "Kliknij, aby dodać otwór · Enter lub prawy przycisk = gotowe"
   },
   "boxWidthAbbr": "S",
   "boxHeightAbbr": "W"

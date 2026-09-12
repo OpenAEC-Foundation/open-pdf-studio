@@ -74,7 +74,10 @@
     "outerClosed": "Ulkoääriviiva suljettu ✓ · aukkoja: {{count}}",
     "drawingHole": " · piirretään aukkoa ({{count}} piste(ttä))",
     "outerOpenClosable": "Ulkoääriviiva auki — {{count}} pistettä (suljettavissa)",
-    "outerOpen": "Ulkoääriviiva auki — {{count}} piste(ttä)"
+    "outerOpen": "Ulkoääriviiva auki — {{count}} piste(ttä)",
+    "undoPoint": "Kumoa piste",
+    "undoPointTitle": "Poista viimeisin piste (Askelpalautin)",
+    "holesPhaseHint": "Napsauta aukkoa varten · Enter tai oikea napsautus = valmis"
   },
   "boxWidthAbbr": "L",
   "boxHeightAbbr": "K"

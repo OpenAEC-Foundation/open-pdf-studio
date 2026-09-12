@@ -73,7 +73,10 @@
     "outerClosed": "پیرامون بیرونی بسته شد ✓ · بازشوها: {{count}}",
     "drawingHole": " · در حال کشیدن بازشو ({{count}} نقطه)",
     "outerOpenClosable": "پیرامون بیرونی باز است — {{count}} نقطه (قابل بستن)",
-    "outerOpen": "پیرامون بیرونی باز است — {{count}} نقطه"
+    "outerOpen": "پیرامون بیرونی باز است — {{count}} نقطه",
+    "undoPoint": "واگرد نقطه",
+    "undoPointTitle": "حذف آخرین نقطه (Backspace)",
+    "holesPhaseHint": "برای بازشو کلیک کنید · Enter یا کلیک راست = پایان"
   },
   "boxWidthAbbr": "ع",
   "boxHeightAbbr": "ا"

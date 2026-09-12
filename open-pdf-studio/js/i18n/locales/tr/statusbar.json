@@ -73,7 +73,10 @@
     "outerClosed": "Dış kontur kapalı ✓ · açıklıklar: {{count}}",
     "drawingHole": " · açıklık çiziliyor ({{count}} nokta)",
     "outerOpenClosable": "Dış kontur açık — {{count}} nokta (kapatılabilir)",
-    "outerOpen": "Dış kontur açık — {{count}} nokta"
+    "outerOpen": "Dış kontur açık — {{count}} nokta",
+    "undoPoint": "Noktayı geri al",
+    "undoPointTitle": "Son noktayı kaldır (Backspace)",
+    "holesPhaseHint": "Açıklık için tıklayın · Enter veya sağ tık = bitti"
   },
   "boxWidthAbbr": "G",
   "boxHeightAbbr": "Y"

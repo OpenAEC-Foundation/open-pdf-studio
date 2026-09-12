@@ -74,7 +74,10 @@
     "outerClosed": "Kontur luar tertutup ✓ · bukaan: {{count}}",
     "drawingHole": " · menggambar bukaan ({{count}} titik)",
     "outerOpenClosable": "Kontur luar terbuka — {{count}} titik (bisa ditutup)",
-    "outerOpen": "Kontur luar terbuka — {{count}} titik"
+    "outerOpen": "Kontur luar terbuka — {{count}} titik",
+    "undoPoint": "Batalkan titik",
+    "undoPointTitle": "Hapus titik terakhir (Backspace)",
+    "holesPhaseHint": "Klik untuk bukaan · Enter atau klik kanan = selesai"
   },
   "boxWidthAbbr": "L",
   "boxHeightAbbr": "T"

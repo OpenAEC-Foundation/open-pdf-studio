@@ -74,7 +74,10 @@
     "outerClosed": "Зовнішній контур замкнено ✓ · отвори: {{count}}",
     "drawingHole": " · малювання отвору ({{count}} точ.)",
     "outerOpenClosable": "Зовнішній контур відкрито — {{count}} точок (можна замкнути)",
-    "outerOpen": "Зовнішній контур відкрито — {{count}} точ."
+    "outerOpen": "Зовнішній контур відкрито — {{count}} точ.",
+    "undoPoint": "Скасувати точку",
+    "undoPointTitle": "Видалити останню точку (Backspace)",
+    "holesPhaseHint": "Клацніть для отвору · Enter або права кнопка = готово"
   },
   "boxWidthAbbr": "Ш",
   "boxHeightAbbr": "В"

@@ -73,7 +73,10 @@
     "outerClosed": "Contorno exterior cerrado ✓ · aberturas: {{count}}",
     "drawingHole": " · dibujando abertura ({{count}} punto(s))",
     "outerOpenClosable": "Contorno exterior abierto — {{count}} puntos (se puede cerrar)",
-    "outerOpen": "Contorno exterior abierto — {{count}} punto(s)"
+    "outerOpen": "Contorno exterior abierto — {{count}} punto(s)",
+    "undoPoint": "Deshacer punto",
+    "undoPointTitle": "Eliminar el último punto (Retroceso)",
+    "holesPhaseHint": "Haga clic para una abertura · Intro o clic derecho = hecho"
   },
   "boxWidthAbbr": "A",
   "boxHeightAbbr": "Al"

@@ -73,7 +73,10 @@
     "outerClosed": "Contorno esterno chiuso ✓ · aperture: {{count}}",
     "drawingHole": " · apertura in corso ({{count}} punto/i)",
     "outerOpenClosable": "Contorno esterno aperto — {{count}} punti (chiudibile)",
-    "outerOpen": "Contorno esterno aperto — {{count}} punto/i"
+    "outerOpen": "Contorno esterno aperto — {{count}} punto/i",
+    "undoPoint": "Annulla punto",
+    "undoPointTitle": "Rimuovi ultimo punto (Backspace)",
+    "holesPhaseHint": "Clicca per un'apertura · Invio o clic destro = fatto"
   },
   "boxWidthAbbr": "L",
   "boxHeightAbbr": "A"

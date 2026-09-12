@@ -74,7 +74,10 @@
     "outerClosed": "Εξωτερικό περίγραμμα κλειστό ✓ · ανοίγματα: {{count}}",
     "drawingHole": " · σχεδίαση ανοίγματος ({{count}} σημείο/α)",
     "outerOpenClosable": "Εξωτερικό περίγραμμα ανοιχτό — {{count}} σημεία (κλείνει)",
-    "outerOpen": "Εξωτερικό περίγραμμα ανοιχτό — {{count}} σημείο/α"
+    "outerOpen": "Εξωτερικό περίγραμμα ανοιχτό — {{count}} σημείο/α",
+    "undoPoint": "Αναίρεση σημείου",
+    "undoPointTitle": "Αφαίρεση τελευταίου σημείου (Backspace)",
+    "holesPhaseHint": "Κλικ για άνοιγμα · Enter ή δεξί κλικ = τέλος"
   },
   "boxWidthAbbr": "Π",
   "boxHeightAbbr": "Υ"

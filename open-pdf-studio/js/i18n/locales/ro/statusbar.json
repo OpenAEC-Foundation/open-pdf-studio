@@ -74,7 +74,10 @@
     "outerClosed": "Contur exterior închis ✓ · deschideri: {{count}}",
     "drawingHole": " · se desenează deschiderea ({{count}} punct(e))",
     "outerOpenClosable": "Contur exterior deschis — {{count}} puncte (se poate închide)",
-    "outerOpen": "Contur exterior deschis — {{count}} punct(e)"
+    "outerOpen": "Contur exterior deschis — {{count}} punct(e)",
+    "undoPoint": "Anulează punctul",
+    "undoPointTitle": "Elimină ultimul punct (Backspace)",
+    "holesPhaseHint": "Clic pentru o deschidere · Enter sau clic dreapta = terminat"
   },
   "boxWidthAbbr": "L",
   "boxHeightAbbr": "H"

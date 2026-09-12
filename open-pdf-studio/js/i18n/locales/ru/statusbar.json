@@ -74,7 +74,10 @@
     "outerClosed": "Внешний контур замкнут ✓ · отверстия: {{count}}",
     "drawingHole": " · рисование отверстия ({{count}} точ.)",
     "outerOpenClosable": "Внешний контур открыт — {{count}} точек (можно замкнуть)",
-    "outerOpen": "Внешний контур открыт — {{count}} точ."
+    "outerOpen": "Внешний контур открыт — {{count}} точ.",
+    "undoPoint": "Отменить точку",
+    "undoPointTitle": "Удалить последнюю точку (Backspace)",
+    "holesPhaseHint": "Щёлкните для отверстия · Enter или ПКМ = готово"
   },
   "boxWidthAbbr": "Ш",
   "boxHeightAbbr": "В"

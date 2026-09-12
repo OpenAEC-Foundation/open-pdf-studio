@@ -74,7 +74,10 @@
     "outerClosed": "Đường viền ngoài đã đóng ✓ · lỗ mở: {{count}}",
     "drawingHole": " · đang vẽ lỗ mở ({{count}} điểm)",
     "outerOpenClosable": "Đường viền ngoài đang mở — {{count}} điểm (có thể đóng)",
-    "outerOpen": "Đường viền ngoài đang mở — {{count}} điểm"
+    "outerOpen": "Đường viền ngoài đang mở — {{count}} điểm",
+    "undoPoint": "Hoàn tác điểm",
+    "undoPointTitle": "Xóa điểm cuối cùng (Backspace)",
+    "holesPhaseHint": "Nhấp để tạo lỗ mở · Enter hoặc chuột phải = xong"
   },
   "boxWidthAbbr": "R",
   "boxHeightAbbr": "C"

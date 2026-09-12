@@ -74,7 +74,10 @@
     "outerClosed": "Vanjska kontura zatvorena ✓ · otvori: {{count}}",
     "drawingHole": " · crtanje otvora ({{count}} točka/e)",
     "outerOpenClosable": "Vanjska kontura otvorena — {{count}} točaka (može se zatvoriti)",
-    "outerOpen": "Vanjska kontura otvorena — {{count}} točka/e"
+    "outerOpen": "Vanjska kontura otvorena — {{count}} točka/e",
+    "undoPoint": "Poništi točku",
+    "undoPointTitle": "Ukloni zadnju točku (Backspace)",
+    "holesPhaseHint": "Kliknite za otvor · Enter ili desni klik = gotovo"
   },
   "boxWidthAbbr": "Š",
   "boxHeightAbbr": "V"

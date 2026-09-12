@@ -74,7 +74,10 @@
     "outerClosed": "Външен контур затворен ✓ · отвори: {{count}}",
     "drawingHole": " · чертане на отвор ({{count}} точка/и)",
     "outerOpenClosable": "Външен контур отворен — {{count}} точки (може да се затвори)",
-    "outerOpen": "Външен контур отворен — {{count}} точка/и"
+    "outerOpen": "Външен контур отворен — {{count}} точка/и",
+    "undoPoint": "Отмяна на точка",
+    "undoPointTitle": "Премахни последната точка (Backspace)",
+    "holesPhaseHint": "Кликнете за отвор · Enter или десен бутон = готово"
   },
   "boxWidthAbbr": "Ш",
   "boxHeightAbbr": "В"

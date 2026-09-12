@@ -74,7 +74,10 @@
     "outerClosed": "Ytterkontur lukket ✓ · åpninger: {{count}}",
     "drawingHole": " · tegner åpning ({{count}} punkt(er))",
     "outerOpenClosable": "Ytterkontur åpen — {{count}} punkter (kan lukkes)",
-    "outerOpen": "Ytterkontur åpen — {{count}} punkt(er)"
+    "outerOpen": "Ytterkontur åpen — {{count}} punkt(er)",
+    "undoPoint": "Angre punkt",
+    "undoPointTitle": "Fjern siste punkt (Backspace)",
+    "holesPhaseHint": "Klikk for en åpning · Enter eller høyreklikk = ferdig"
   },
   "boxWidthAbbr": "B",
   "boxHeightAbbr": "H"
