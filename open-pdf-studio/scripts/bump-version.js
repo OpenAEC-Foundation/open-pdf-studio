@@ -82,6 +82,16 @@ const files = [
     update: (content) => {
       return content.replace(/default:\s*'v[^']*'/, `default: 'v${version}'`);
     }
+  },
+  {
+    // Claude Desktop-extensie: de bundelversie volgt de app.
+    path: path.join(repoRoot, 'mcpb', 'manifest.json'),
+    update: (content) => {
+      const manifest = JSON.parse(content);
+      manifest.version = version;
+      return JSON.stringify(manifest, null, 2) + '
+';
+    }
   }
 ];
 

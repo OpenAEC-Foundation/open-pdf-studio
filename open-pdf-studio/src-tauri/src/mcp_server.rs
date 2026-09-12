@@ -192,7 +192,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_open_pdf",
-                "description": "Tell the LIVE running app to open a PDF in a new tab. Returns once the document is loaded and the tab is active. Requires the Tauri WebView to be alive (--mcp-server mode).",
+                "description": "Open a PDF file in a new tab of the running app. Returns once the document is loaded and the tab is active.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -395,7 +395,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_go_to_page",
-                "description": "Navigate the active document to a specific 1-based page number. Wraps `goToPage()` so all the side effects (active-thumbnail update, page-input sync, fire-page-changed event) happen exactly as if the user clicked a thumbnail or pressed the page-input. Required for AI-driven test setups that need a deterministic page (e.g. BARN p.2 for zoom-anchor tests).",
+                "description": "Navigate the active document to a 1-based page number, exactly as if the user picked the page in the page box or clicked its thumbnail.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -467,7 +467,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_merge_pdf",
-                "description": "Merge one or more external PDF files into the LIVE active document (wraps mergeFiles()). Inserts the source pages at the given position and re-renders. Requires an active document. Returns { ok, position, mergedFiles, pagesBefore, pagesAfter, filePath } — filePath is the temp working copy the edited document now renders from (Issue #247: structural edits move to a fresh temp so the main view shows the merged result and the user's original stays untouched).",
+                "description": "Merge one or more PDF files into the active document at the given position. The user's original file is not modified; the merged result opens as a working copy until saved. Returns { ok, position, mergedFiles, pagesBefore, pagesAfter, filePath }.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -512,7 +512,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_assistant_ask",
-                "description": "Submit a message into the LIVE app's assistant window as if the user typed it (opens the panel, runs the same send() path). Drives/tests the assistant from outside the WebView. Returns { ok }. The answer comes from whichever provider resolves: OpenAEC AI, a personal Claude key, or — when neither is available — the MCP relay (app_assistant_pending + app_assistant_answer).",
+                "description": "Submit a message into the app's assistant window as if the user typed it (opens the panel). Returns { ok }. The answer comes from whichever provider is available: OpenAEC AI, a personal Claude key, or the MCP relay (app_assistant_pending + app_assistant_answer).",
                 "inputSchema": {
                     "type": "object",
                     "properties": { "text": { "type": "string", "description": "The user message to submit." } },

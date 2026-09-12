@@ -36,7 +36,9 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const safe = (f) => f.replace(/\.pdf$/i, '').replace(/[^A-Za-z0-9._-]+/g, '_').slice(0, 60);
 
 (async () => {
-  const browser = await playwright.chromium.connectOverCDP('http://localhost:9222');
+  // Zelfde CDP-poort als de andere poortscripts (CDP_PORT, standaard 9345);
+  // 127.0.0.1 i.p.v. localhost, anders probeert Node eerst IPv6 (::1).
+  const browser = await playwright.chromium.connectOverCDP(`http://127.0.0.1:${process.env.CDP_PORT || '9345'}`);
   const page = browser.contexts()[0].pages()[0];
   // Ink-percentage van het zichtbare pdf-canvas (niet-witte, niet-transparante pixels).
   const ink = () => page.evaluate(() => {
@@ -48,10 +50,9 @@ const safe = (f) => f.replace(/\.pdf$/i, '').replace(/[^A-Za-z0-9._-]+/g, '_').s
     for (let k = 0; k < d.length; k += 4 * 17) { t++; if (d[k + 3] > 0 && !(d[k] > 245 && d[k + 1] > 245 && d[k + 2] > 245)) n++; }
     return { i: +(100 * n / t).toFixed(1) };
   });
-  const numPages = () => page.evaluate(async () => {
-    const s = await import('/js/core/state.ts');
-    return s.state.documents[s.state.activeDocumentIndex]?.pdfDoc?.numPages || 0;
-  });
+  // Via MCP i.p.v. een module-import: in een release- of geinstalleerde build
+  // zijn de modules gebundeld en werkt import('/js/...') niet.
+  const numPages = async () => (await tool('app_get_page_count', {}))?.pageCount || 0;
   const waitInk = async (max = 20) => {
     let best = 0;
     for (let i = 0; i < max; i++) { await sleep(1400); const w = await ink(); if (w.i > best) best = w.i; if (w.i > 2.5) break; }

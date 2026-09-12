@@ -1,0 +1,267 @@
+{
+  "manifest_version": "0.3",
+  "name": "open-pdf-studio",
+  "display_name": "Open PDF Studio",
+  "version": "1.99.0",
+  "description": "Open, measure, annotate and save PDF drawings in Open PDF Studio, the free open-source PDF editor for the construction industry.",
+  "long_description": "Connects Claude to Open PDF Studio running on your computer. Claude can open PDF drawings, read and navigate pages, place scale regions, measure areas and lengths, create and edit annotations, cut vector snippets from one drawing into another, fill title blocks, place a quantity schedule on the sheet and save the result.\n\nEverything runs locally: the extension talks to the app on 127.0.0.1 and the PDF file itself is never sent to an external service. Claude only sees what it asks for, such as a picture of the current page view.\n\n**Before you start:** install Open PDF Studio (free, from open-aec.com) and turn on **Settings > General > AI link (MCP)**. Tools that change a document always ask for your permission.",
+  "author": {
+    "name": "OpenAEC Foundation",
+    "url": "https://open-aec.com"
+  },
+  "homepage": "https://open-aec.com/open-pdf-studio/",
+  "documentation": "https://open-aec.com/open-pdf-studio/claude/",
+  "support": "https://github.com/OpenAEC-Foundation/open-pdf-studio/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OpenAEC-Foundation/open-pdf-studio"
+  },
+  "icon": "icon.png",
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.mjs",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/server/index.mjs"
+      ],
+      "env": {
+        "OPS_MCP_PORT": "${user_config.port}"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "app_open_pdf",
+      "description": "Open a PDF file in a new tab of the running app."
+    },
+    {
+      "name": "app_set_zoom",
+      "description": "Set the page-view zoom in the LIVE app."
+    },
+    {
+      "name": "app_zoom_in",
+      "description": "Trigger one zoom-in step in the LIVE app (same as the toolbar +)."
+    },
+    {
+      "name": "app_zoom_out",
+      "description": "Trigger one zoom-out step in the LIVE app (same as the toolbar -)."
+    },
+    {
+      "name": "app_screenshot_view",
+      "description": "Capture the LIVE app's current page view as a base64 PNG."
+    },
+    {
+      "name": "app_mouse_move",
+      "description": "Dispatch a synthetic mousemove at viewport CSS coordinates (x, y) inside the LIVE WebView."
+    },
+    {
+      "name": "app_mouse_click",
+      "description": "Dispatch a synthetic mouse click at (x, y)."
+    },
+    {
+      "name": "app_mouse_drag",
+      "description": "Dispatch a synthetic drag from (x1,y1) to (x2,y2) using `steps` interpolated mousemove events."
+    },
+    {
+      "name": "app_scroll",
+      "description": "Dispatch a synthetic wheel event at (x, y) with delta (dx, dy) in CSS pixels."
+    },
+    {
+      "name": "app_key",
+      "description": "Press a single key (with optional modifiers) on the focused element."
+    },
+    {
+      "name": "app_type",
+      "description": "Type a string into the focused element."
+    },
+    {
+      "name": "app_get_viewport_state",
+      "description": "Probe the LIVE viewport state: render engine + timing chip, active document scale/page/viewMode, pdf-viewport singleton transform, pdf-canvas backing-store + CSS rect, high-zoom tile-overlay state (visible/hidden + position+size), pdf-container CSS rect + scroll offsets, and devicePixelRatio."
+    },
+    {
+      "name": "app_go_to_page",
+      "description": "Navigate the active document to a 1-based page number, exactly as if the user picked the page in the page box or clicked its thumbnail."
+    },
+    {
+      "name": "app_set_tool",
+      "description": "Switch the LIVE app's active tool, exactly like clicking the ribbon button."
+    },
+    {
+      "name": "app_click_element",
+      "description": "Click an arbitrary DOM element in the LIVE app by CSS selector (usually '#button-id')."
+    },
+    {
+      "name": "app_get_current_tool",
+      "description": "Return the LIVE app's currently active tool name (state.currentTool)."
+    },
+    {
+      "name": "app_merge_pdf",
+      "description": "Merge one or more PDF files into the active document at the given position."
+    },
+    {
+      "name": "app_assistant_ask",
+      "description": "Submit a message into the app's assistant window as if the user typed it (opens the panel)."
+    },
+    {
+      "name": "app_assistant_pending",
+      "description": "Take the oldest assistant question waiting for an MCP client to answer (the relay provider)."
+    },
+    {
+      "name": "app_assistant_answer",
+      "description": "Answer a pending assistant question (id from app_assistant_pending)."
+    },
+    {
+      "name": "app_assistant_history",
+      "description": "Return the LIVE assistant conversation: { ok, messages:[{ role, content }] }."
+    },
+    {
+      "name": "app_create_annotation",
+      "description": "Create an annotation on the LIVE app's active document WITHOUT synthetic mouse input."
+    },
+    {
+      "name": "app_list_annotations",
+      "description": "List the active document's annotations as compact JSON (id, type, page, core geometry, colors, text/measureText)."
+    },
+    {
+      "name": "app_get_annotation",
+      "description": "Return the full JSON-safe property set of one annotation by id (functions/DOM refs stripped)."
+    },
+    {
+      "name": "app_update_annotation",
+      "description": "Merge `props` onto an existing annotation (geometry, color, lineWidth, text, ...)."
+    },
+    {
+      "name": "app_delete_annotation",
+      "description": "Delete an annotation by id (records a delete-undo step and redraws)."
+    },
+    {
+      "name": "app_select_annotation",
+      "description": "Select one annotation by id so the properties panel and selection handles show it, exactly like clicking it with the select tool."
+    },
+    {
+      "name": "app_clear_selection",
+      "description": "Clear the annotation selection and hide the properties panel."
+    },
+    {
+      "name": "app_undo",
+      "description": "Undo the last annotation/page edit on the active document (same as Ctrl+Z)."
+    },
+    {
+      "name": "app_redo",
+      "description": "Redo the last undone edit on the active document (same as Ctrl+Y)."
+    },
+    {
+      "name": "app_list_tabs",
+      "description": "List all open document tabs: index, fileName, filePath, modified flag, active flag, pageCount, isUntitled, currentPage, annotationCount."
+    },
+    {
+      "name": "app_switch_tab",
+      "description": "Activate the document tab at `index` (0-based, see app_list_tabs)."
+    },
+    {
+      "name": "app_close_tab",
+      "description": "Close the document tab at `index` (0-based)."
+    },
+    {
+      "name": "app_new_blank_pdf",
+      "description": "Create a new blank PDF document in a new tab (page size in PDF points; A4 portrait = 595 x 842)."
+    },
+    {
+      "name": "app_save_pdf",
+      "description": "Save the active document with all annotations baked in."
+    },
+    {
+      "name": "app_set_view_mode",
+      "description": "Switch the active document view: 'single' page, 'continuous' vertical scroll, or 'book' (two-page spread, page 1 on the right)."
+    },
+    {
+      "name": "app_fit_page",
+      "description": "Zoom the active document so the whole page fits the viewport (same as the Fit Page button)."
+    },
+    {
+      "name": "app_fit_width",
+      "description": "Zoom the active document so the page width fills the viewport (same as the Fit Width button)."
+    },
+    {
+      "name": "app_get_page_count",
+      "description": "Return the active document's page count and current page."
+    },
+    {
+      "name": "app_set_measure_scale",
+      "description": "Set the active document's measurement scale calibration (pixels per unit + unit, e.g."
+    },
+    {
+      "name": "app_get_takeoff",
+      "description": "Return take-off totals for the user's named schedules (Staten): per schedule the element count, the numeric column grand totals (e.g."
+    },
+    {
+      "name": "app_place_schedule",
+      "description": "Build a quantities schedule (Staat) from the annotations in the open document and place it on the page as a table annotation."
+    },
+    {
+      "name": "app_list_commands",
+      "description": "List EVERY function the app exposes: each ribbon button on every tab (label, tab, disabled/active state) plus every drawing tool."
+    },
+    {
+      "name": "app_run_command",
+      "description": "Run any command returned by app_list_commands: clicks the ribbon button (switching to its tab first) or activates the tool."
+    },
+    {
+      "name": "app_snippet_cut",
+      "description": "Cut a rectangular area from a page of the active document as a VECTOR snippet (not a raster screenshot) and put it on the app's snippet clipboard."
+    },
+    {
+      "name": "app_snippet_paste",
+      "description": "Paste the vector snippet from the snippet clipboard into the active document at real size, as a movable annotation."
+    },
+    {
+      "name": "app_snippet_flatten",
+      "description": "Mark a pasted vector snippet as flattened: it stays visible but is no longer selectable, and on the next save it is drawn into the page content instead of being stored as an annotation."
+    },
+    {
+      "name": "app_symbol_scale",
+      "description": "Get or set the placement scale for symbols from the symbol palette (1 = real size, 2 = twice as large)."
+    },
+    {
+      "name": "app_titleblock",
+      "description": "Read or fill the title block fields by NAME (projectnaam, adres, opdrachtgever, status, projectnr, fase, auteur, schaal, datum_eerste, wijziging, documenttype, kenmerk — whatever the title block defines)."
+    }
+  ],
+  "keywords": [
+    "pdf",
+    "construction",
+    "aec",
+    "bim",
+    "drawings",
+    "annotation",
+    "measurement",
+    "takeoff",
+    "open-source"
+  ],
+  "license": "LGPL-3.0-or-later",
+  "privacy_policies": [
+    "https://open-aec.com/open-pdf-studio/privacy/"
+  ],
+  "compatibility": {
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "node": ">=18.0.0"
+    }
+  },
+  "user_config": {
+    "port": {
+      "type": "number",
+      "title": "Port",
+      "description": "Port of the AI link in Open PDF Studio (Settings > General > AI link). Leave at 9223 unless you changed it there.",
+      "default": 9223,
+      "min": 1024,
+      "max": 65535,
+      "required": false
+    }
+  }
+}
