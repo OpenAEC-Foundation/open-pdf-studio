@@ -23,6 +23,8 @@ import { recordAdd } from '../../core/undo-manager.js';
 import i18next from '../../i18n/config.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { getRegionScaleFactor } from '../../annotations/scale-region.js';
+import { viewport } from '../../pdf/pdf-viewport.js';
+import { handlePointerMove } from '../tool-dispatcher.js';
 import {
   enterTypeLengthMode,
   exitTypeLengthMode,
@@ -45,6 +47,96 @@ const _faPreview = { x: 0, y: 0 };
 // where the mouse moves. Cleared when the buffer empties or the vertex is
 // placed.
 const _faDirLock = { x: null, y: null };
+
+// ─── Edge auto-pan while sketching ──────────────────────────────────────
+// A multi-click contour releases the mouse button between clicks, so the
+// browser's own pointer-capture drag-scroll doesn't apply — pointermove
+// simply stops firing once the cursor leaves the canvas. While a sketch is
+// in progress, a document-level listener (the same "track the mouse
+// globally while a mode is active" pattern already used by g-move-mode.js)
+// instead watches for the cursor nearing the edge of '.main-view' and pans
+// the view continuously, so a point beyond what's currently visible can
+// still be reached without leaving sketch mode.
+//
+// This app has two distinct pan mechanisms depending on render mode:
+//   - vector viewport (viewport.active): a JS-managed offsetX/offsetY,
+//     repainted by pdf-viewport's own RAF loop.
+//   - everything else (legacy single-page, continuous): a real DOM
+//     scrollLeft/scrollTop on #pdf-container (pan-handler.js).
+// Auto-pan drives whichever one is actually active directly (not via the
+// wheel handler's momentum/friction accumulator — a coasting pan would
+// fight the precision a sketch needs), so it stays consistent with manual
+// panning in both modes with no new pan mechanism of its own.
+const AUTOPAN_MARGIN = 32; // px from the viewport edge that starts panning
+const AUTOPAN_MAX_SPEED = 16; // px per animation frame at full edge depth
+
+const _autopan = { rafId: null, vx: 0, vy: 0, lastEvent: null };
+
+function _autopanAxisSpeed(pos, min, max) {
+  if (pos < min + AUTOPAN_MARGIN) {
+    const depth = Math.min(AUTOPAN_MARGIN, min + AUTOPAN_MARGIN - pos);
+    return -Math.ceil((depth / AUTOPAN_MARGIN) * AUTOPAN_MAX_SPEED);
+  }
+  if (pos > max - AUTOPAN_MARGIN) {
+    const depth = Math.min(AUTOPAN_MARGIN, pos - (max - AUTOPAN_MARGIN));
+    return Math.ceil((depth / AUTOPAN_MARGIN) * AUTOPAN_MAX_SPEED);
+  }
+  return 0;
+}
+
+function _autopanTrackMove(e) {
+  if (!filledAreaSketch.isActive()) return;
+  _autopan.lastEvent = {
+    clientX: e.clientX, clientY: e.clientY,
+    shiftKey: e.shiftKey, ctrlKey: e.ctrlKey, altKey: e.altKey, metaKey: e.metaKey,
+  };
+  const view = document.querySelector('.main-view');
+  if (!view) { _autopan.vx = 0; _autopan.vy = 0; return; }
+  const rect = view.getBoundingClientRect();
+  _autopan.vx = _autopanAxisSpeed(e.clientX, rect.left, rect.right);
+  _autopan.vy = _autopanAxisSpeed(e.clientY, rect.top, rect.bottom);
+  if ((_autopan.vx || _autopan.vy) && !_autopan.rafId) {
+    _autopan.rafId = requestAnimationFrame(_autopanTick);
+  }
+}
+
+function _autopanTick() {
+  _autopan.rafId = null;
+  if (!filledAreaSketch.isActive() || (!_autopan.vx && !_autopan.vy)) return;
+
+  if (viewport.active) {
+    viewport.offsetX -= _autopan.vx;
+    viewport.offsetY -= _autopan.vy;
+    viewport.dirty = true;
+  } else {
+    const pdfContainer = document.getElementById('pdf-container');
+    if (pdfContainer) {
+      pdfContainer.scrollLeft += _autopan.vx;
+      pdfContainer.scrollTop += _autopan.vy;
+    }
+  }
+
+  // The content just moved under a stationary cursor — replay the last
+  // real pointer position so the rubber-band preview follows it, exactly
+  // as it would from a fresh mousemove at the same screen coordinates.
+  if (_autopan.lastEvent) {
+    handlePointerMove({ ..._autopan.lastEvent, preventDefault() {}, stopPropagation() {} });
+  }
+
+  _autopan.rafId = requestAnimationFrame(_autopanTick);
+}
+
+function _autopanStop() {
+  if (_autopan.rafId) cancelAnimationFrame(_autopan.rafId);
+  _autopan.rafId = null;
+  _autopan.vx = 0;
+  _autopan.vy = 0;
+  _autopan.lastEvent = null;
+}
+
+// Installed once at module load — the inner isActive() check keeps it a
+// no-op the rest of the time, so this costs nothing outside a sketch.
+document.addEventListener('mousemove', _autopanTrackMove, true);
 
 export const filledAreaTool = {
   name: 'filledArea',
@@ -467,6 +559,7 @@ function _resetState() {
   _faDirLock.y = null;
   exitTypeLengthMode();
   state._typeLengthCommit = null;
+  _autopanStop();
 }
 
 // Enter pressed with a typed length: place the next vertex at that distance
