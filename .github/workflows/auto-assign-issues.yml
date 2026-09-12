@@ -2,6 +2,11 @@ name: Auto-assign issues to product owner
 on:
   issues:
     types: [opened]
+# Standaard heeft de workflow-token alleen leesrechten; zonder deze regel
+# faalt het toewijzen met 403 "Resource not accessible by integration".
+permissions:
+  issues: write
+
 jobs:
   assign:
     runs-on: ubuntu-latest
@@ -9,9 +14,15 @@ jobs:
       - uses: actions/github-script@v8
         with:
           script: |
-            await github.rest.issues.addAssignees({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              assignees: ['mojtabakarimi']
-            });
+            // Toewijzen mag alleen aan iemand met toegang tot de repo; een
+            // mislukking mag de workflow niet rood maken bij elk nieuw issue.
+            try {
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                assignees: ['mojtabakarimi']
+              });
+            } catch (err) {
+              core.warning(`Toewijzen mislukt: ${err.status} ${err.message}`);
+            }

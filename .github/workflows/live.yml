@@ -23,7 +23,11 @@ jobs:
       deploy_path: /var/www/open-pdf-studio.open-aec.com
       node_version: "22"
       install_command: cd open-pdf-studio && npm ci
-      build_command: cd open-pdf-studio && npm run build
+      # Rechtstreeks vite: `npm run build` draait via prebuild ook
+      # `cargo build -p pdfium-worker`, en die vindt geen Cargo.toml omdat de
+      # deploy alleen de map open-pdf-studio uitcheckt. De website heeft die
+      # native worker niet nodig.
+      build_command: cd open-pdf-studio && npx vite build
       checkout_sparse: |
         open-pdf-studio
     secrets:
