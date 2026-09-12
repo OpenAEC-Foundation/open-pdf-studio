@@ -7,8 +7,11 @@ import {
   setPendingSymbolId, getAvailableTemplates,
 } from '../../stores/parametricSymbolStore.js';
 import { setTool } from '../../../tools/manager.js';
+import { useTranslation } from '../../../i18n/useTranslation.js';
 
 export default function ParametricSymbolPicker() {
+  const { t } = useTranslation('dialogs');
+
   function pick(id) {
     setPendingSymbolId(id);
     setTool('parametricSymbol');
@@ -24,7 +27,7 @@ export default function ParametricSymbolPicker() {
           style="background:#fff;border:1px solid #d4d4d4;width:420px;max-height:70vh;display:flex;flex-direction:column;box-shadow:0 4px 14px rgba(0,0,0,0.2);font-family:Segoe UI, sans-serif">
           <div class="ops-modal-header"
             style="background:linear-gradient(180deg,#ffffff,#f5f5f5);border-bottom:1px solid #d4d4d4;padding:6px 10px;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600">
-            <span>Parametrisch symbool kiezen</span>
+            <span>{t('parametricSymbolPicker.title')}</span>
             <button type="button" aria-label="Close"
               style="background:transparent;border:none;width:22px;height:20px;font-size:14px;cursor:pointer"
               onMouseEnter={(e) => { e.currentTarget.style.background = '#e81123'; e.currentTarget.style.color = '#fff'; }}

@@ -135,7 +135,8 @@
     "snapToDrawingTitle": "Snap to PDF Drawing",
     "snapActive": "Snap On",
     "loading": "Loading...",
-    "northArrow": "North Arrow"
+    "northArrow": "North Arrow",
+    "parametricSymbol": "প্যারামেট্রিক প্রতীক"
   },
   "view": {
     "pageDisplay": "পৃষ্ঠা প্রদর্শন",

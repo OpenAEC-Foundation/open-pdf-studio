@@ -158,7 +158,8 @@
     "clearPageConfirm": "Clear all annotations on current page?",
     "clearAllAnnotations": "Clear All Annotations",
     "clearAll": "Clear All",
-    "clearAllConfirm": "Clear ALL annotations from ALL pages?"
+    "clearAllConfirm": "Clear ALL annotations from ALL pages?",
+    "parametricSymbol": "Parametric Symbol"
   },
   "view": {
     "pageDisplay": "Page Display",

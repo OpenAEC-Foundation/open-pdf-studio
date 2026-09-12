@@ -135,7 +135,8 @@
     "snapToDrawingTitle": "Accrocher au dessin PDF",
     "snapActive": "Snap Act.",
     "loading": "Chargement...",
-    "northArrow": "North Arrow"
+    "northArrow": "North Arrow",
+    "parametricSymbol": "Symbole paramétrique"
   },
   "view": {
     "pageDisplay": "Affichage de la page",

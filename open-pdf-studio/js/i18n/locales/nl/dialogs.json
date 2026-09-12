@@ -475,5 +475,8 @@
   "previousVersion": {
     "notFound": "Er is geen oudere gepubliceerde versie beschikbaar.",
     "error": "Kon de versielijst niet ophalen. Controleer de internetverbinding en probeer opnieuw."
+  },
+  "parametricSymbolPicker": {
+    "title": "Parametrisch symbool kiezen"
   }
 }
