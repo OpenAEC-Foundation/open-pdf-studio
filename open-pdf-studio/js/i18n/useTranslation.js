@@ -28,7 +28,11 @@ export function useTranslation(ns = 'common') {
   const namespaces = Array.isArray(ns) ? ns : [ns];
   const t = (key, options) => {
     const lang = language();
-    const result = i18next.t(key, { ns: namespaces[0], ...options });
+    // Een string als tweede argument is een standaardtekst (zoals i18next zelf
+    // ook toestaat); zonder deze regel werd hij als optie-object uitgespreid en
+    // toonde de interface de kale sleutel.
+    const opties = typeof options === 'string' ? { defaultValue: options } : options;
+    const result = i18next.t(key, { ns: namespaces[0], ...opties });
     return convertDigits(result, lang);
   };
   return { t, i18n: i18next, language };

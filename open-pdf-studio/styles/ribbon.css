@@ -489,6 +489,8 @@
   gap: 2px;
   overflow: hidden;
   padding: 2px 0;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .ribbon-style-item {
@@ -960,6 +962,12 @@
 .ribbon-style-gallery-wrap {
   position: relative;
   display: flex;
+  /* Nooit breder dan de groep: anders steekt de stijlgalerij bij een smal
+     venster onder de buurgroep door (de groep zelf klipt niet). De galerij
+     krimpt en klipt zelf; het chevron-knopje blijft altijd zichtbaar zodat de
+     verborgen stijlen bereikbaar blijven. */
+  max-width: 100%;
+  min-width: 0;
 }
 
 .ribbon-style-more-popup {

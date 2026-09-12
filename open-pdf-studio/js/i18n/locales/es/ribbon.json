@@ -300,7 +300,8 @@
   },
   "common": {
     "collapseRibbon": "Collapse ribbon",
-    "expandRibbon": "Expand ribbon"
+    "expandRibbon": "Expand ribbon",
+    "more": "Más"
   },
   "drawing": {
     "structural": "Structural",

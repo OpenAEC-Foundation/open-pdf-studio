@@ -300,7 +300,8 @@
   },
   "common": {
     "collapseRibbon": "Collapse ribbon",
-    "expandRibbon": "Expand ribbon"
+    "expandRibbon": "Expand ribbon",
+    "more": "더 보기"
   },
   "drawing": {
     "structural": "Structural",

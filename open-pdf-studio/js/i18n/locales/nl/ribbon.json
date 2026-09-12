@@ -396,7 +396,8 @@
   "common": {
     "comingSoon": "Binnenkort beschikbaar",
     "collapseRibbon": "Lint inklappen",
-    "expandRibbon": "Lint uitklappen"
+    "expandRibbon": "Lint uitklappen",
+    "more": "Meer"
   },
   "drawing": {
     "selection": "Selectie",
