@@ -135,7 +135,8 @@
     "snapToDrawingTitle": "Snap to PDF Drawing",
     "snapActive": "Snap On",
     "loading": "Loading...",
-    "northArrow": "North Arrow"
+    "northArrow": "North Arrow",
+    "parametricSymbol": "Ký hiệu tham số"
   },
   "view": {
     "pageDisplay": "Hiển thị Trang",

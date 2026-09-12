@@ -60,8 +60,8 @@ export function CommentGroups() {
             disabled={noPdf() || isPdfAReadOnly()} active={state.currentTool === 'stamp'} onClick={() => setTool('stamp')} />
           <RibbonButton id="tool-signature" title={t('comment.signature')} icon={signatureIcon} label={t('comment.signature')}
             disabled={noPdf() || isPdfAReadOnly()} active={state.currentTool === 'signature'} onClick={() => setTool('signature')} />
-          <RibbonButton id="tool-parametric-symbol" title="Parametrisch symbool"
-            icon={stampIcon} label="Parametrisch"
+          <RibbonButton id="tool-parametric-symbol" title={t('comment.parametricSymbol')}
+            icon={stampIcon} label={t('comment.parametricSymbol')}
             disabled={noPdf() || isPdfAReadOnly()}
             active={state.currentTool === 'parametricSymbol'}
             onClick={() => setParametricPickerOpen(true)} />
