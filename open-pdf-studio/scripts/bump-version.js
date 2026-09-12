@@ -89,8 +89,7 @@ const files = [
     update: (content) => {
       const manifest = JSON.parse(content);
       manifest.version = version;
-      return JSON.stringify(manifest, null, 2) + '
-';
+      return JSON.stringify(manifest, null, 2) + '\n';
     }
   }
 ];
