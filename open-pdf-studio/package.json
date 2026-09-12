@@ -29,7 +29,7 @@
     "open-source"
   ],
   "author": "OpenAEC Foundation",
-  "license": "MIT",
+  "license": "LGPL-3.0-or-later",
   "devDependencies": {
     "@tauri-apps/cli": "^2.10.0",
     "playwright": "^1.59.1",
