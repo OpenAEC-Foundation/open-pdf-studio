@@ -60,6 +60,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "புள்ளியை மீட்டமை",
+    "undoPointTitle": "கடைசி புள்ளியை அகற்று (Backspace)",
+    "holesPhaseHint": "திறப்புக்கு கிளிக் செய்யவும் · Enter அல்லது வலது கிளிக் = முடிந்தது",
     "line": "கோடு",
     "lineTitle": "நேர்கோட்டுப் பகுதி",
     "arc": "வளைவு",

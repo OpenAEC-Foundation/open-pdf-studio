@@ -59,6 +59,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "Punkt zurücknehmen",
+    "undoPointTitle": "Letzten Punkt entfernen (Rücktaste)",
+    "holesPhaseHint": "Klicken für eine Öffnung · Eingabe oder Rechtsklick = fertig",
     "line": "Linie",
     "lineTitle": "Gerades Segment",
     "arc": "Bogen",

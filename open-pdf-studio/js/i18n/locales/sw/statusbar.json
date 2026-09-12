@@ -60,6 +60,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "Tengua pointi",
+    "undoPointTitle": "Ondoa pointi ya mwisho (Backspace)",
+    "holesPhaseHint": "Bofya kwa fursa · Enter au kubofya kulia = imekamilika",
     "line": "Mstari",
     "lineTitle": "Sehemu iliyonyooka",
     "arc": "Upinde",

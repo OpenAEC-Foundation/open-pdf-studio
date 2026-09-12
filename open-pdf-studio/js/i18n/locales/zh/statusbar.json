@@ -59,6 +59,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "撤销点",
+    "undoPointTitle": "删除最后一个点（退格键）",
+    "holesPhaseHint": "点击添加开孔 · 回车或右键 = 完成",
     "line": "直线",
     "lineTitle": "直线段",
     "arc": "圆弧",

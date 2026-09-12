@@ -60,6 +60,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "Fortryd punkt",
+    "undoPointTitle": "Fjern seneste punkt (Backspace)",
+    "holesPhaseHint": "Klik for en åbning · Enter eller højreklik = færdig",
     "line": "Linje",
     "lineTitle": "Lige segment",
     "arc": "Bue",

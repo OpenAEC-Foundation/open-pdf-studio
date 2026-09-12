@@ -60,6 +60,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "Hoàn tác điểm",
+    "undoPointTitle": "Xóa điểm cuối cùng (Backspace)",
+    "holesPhaseHint": "Nhấp để tạo lỗ mở · Enter hoặc chuột phải = xong",
     "line": "Đường thẳng",
     "lineTitle": "Đoạn thẳng",
     "arc": "Cung",

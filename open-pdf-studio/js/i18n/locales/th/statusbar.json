@@ -60,6 +60,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "เลิกทำจุด",
+    "undoPointTitle": "ลบจุดล่าสุด (Backspace)",
+    "holesPhaseHint": "คลิกเพื่อเปิดช่อง · Enter หรือคลิกขวา = เสร็จสิ้น",
     "line": "เส้นตรง",
     "lineTitle": "ส่วนเส้นตรง",
     "arc": "ส่วนโค้ง",

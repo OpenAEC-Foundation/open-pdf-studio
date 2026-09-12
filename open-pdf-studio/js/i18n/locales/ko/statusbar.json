@@ -59,6 +59,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "점 실행 취소",
+    "undoPointTitle": "마지막 점 제거(Backspace)",
+    "holesPhaseHint": "클릭하여 개구부 추가 · Enter 또는 우클릭 = 완료",
     "line": "선",
     "lineTitle": "직선 세그먼트",
     "arc": "호",

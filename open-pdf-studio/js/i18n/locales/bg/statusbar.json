@@ -60,6 +60,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "Отмяна на точка",
+    "undoPointTitle": "Премахни последната точка (Backspace)",
+    "holesPhaseHint": "Кликнете за отвор · Enter или десен бутон = готово",
     "line": "Линия",
     "lineTitle": "Прав сегмент",
     "arc": "Дъга",

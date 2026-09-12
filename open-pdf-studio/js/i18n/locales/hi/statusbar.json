@@ -60,6 +60,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "बिंदु पूर्ववत करें",
+    "undoPointTitle": "अंतिम बिंदु हटाएं (Backspace)",
+    "holesPhaseHint": "खुलाव के लिए क्लिक करें · Enter या राइट-क्लिक = पूर्ण",
     "line": "रेखा",
     "lineTitle": "सीधा खंड",
     "arc": "चाप",

@@ -20,6 +20,7 @@ import { state, getActiveDocument } from '../../core/state.js';
 import { applyToolTransform } from '../tool-context.js';
 import { createAnnotation } from '../../annotations/factory.js';
 import { recordAdd } from '../../core/undo-manager.js';
+import i18next from '../../i18n/config.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { getRegionScaleFactor } from '../../annotations/scale-region.js';
 import {
@@ -298,6 +299,9 @@ export const filledAreaTool = {
       e.preventDefault();
       arcState.active = !arcState.active;
       ctx.redraw();
+    } else if (e.key === 'Backspace' && state.filledAreaPoints && state.filledAreaPoints.length > 0) {
+      e.preventDefault();
+      _undoLastPoint(ctx);
     } else if (e.key === 'Enter') {
       e.preventDefault();
       if (state.filledAreaPhase === 'holes') {
@@ -415,6 +419,15 @@ export const filledAreaSketch = {
     _resetState();
     ctx.redraw();
   },
+  // Remove the most recently placed point of the CURRENT contour (outer
+  // or the hole being drawn) without discarding the rest of the sketch —
+  // a misclick shouldn't force starting over.
+  undoLastPoint() {
+    return _undoLastPoint(_apiCtx());
+  },
+  canUndoPoint() {
+    return !!(state.filledAreaPoints && state.filledAreaPoints.length > 0);
+  },
 };
 
 function _getAllInProgressPoints() {
@@ -425,6 +438,24 @@ function _getAllInProgressPoints() {
     for (const h of (state.filledAreaHoles || [])) pts.push(...h);
   }
   return pts;
+}
+
+// Backspace / the toolbar's "Undo point" button: drop the last vertex of
+// whichever contour is currently being drawn. No-op with zero points —
+// the outer contour's first click stays a hard commitment (use Cancel/
+// Escape to abandon it entirely).
+function _undoLastPoint(ctx) {
+  if (!state.filledAreaPoints || state.filledAreaPoints.length === 0) return false;
+  state.filledAreaPoints.pop();
+  if (state.filledAreaPoints.length === 0) {
+    // Re-arm type-length capture from scratch, same as the very first click.
+    exitTypeLengthMode();
+    state._typeLengthCommit = null;
+  }
+  arcState.active = false;
+  ctx.redraw();
+  _drawInProgress(ctx);
+  return true;
 }
 
 function _resetState() {
@@ -573,7 +604,7 @@ function _drawHolesPhasePreview(ctx, cursorX, cursorY) {
   canvasCtx.font = '10px Arial';
   canvasCtx.fillStyle = strokeColor;
   canvasCtx.globalAlpha = 0.7;
-  canvasCtx.fillText('Klik voor een opening · Enter of rechtermuisklik = gereed', cursorX + 12 / scale, cursorY - 4 / scale);
+  canvasCtx.fillText(i18next.t('statusbar:filledAreaSketch.holesPhaseHint'), cursorX + 12 / scale, cursorY - 4 / scale);
   canvasCtx.globalAlpha = 1;
   canvasCtx.restore();
 }

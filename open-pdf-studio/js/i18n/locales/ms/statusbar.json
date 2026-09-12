@@ -60,6 +60,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "Buat asal titik",
+    "undoPointTitle": "Buang titik terakhir (Backspace)",
+    "holesPhaseHint": "Klik untuk bukaan · Enter atau klik kanan = selesai",
     "line": "Garisan",
     "lineTitle": "Segmen lurus",
     "arc": "Lengkok",

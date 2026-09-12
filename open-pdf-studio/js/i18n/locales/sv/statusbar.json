@@ -60,6 +60,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "Ångra punkt",
+    "undoPointTitle": "Ta bort senaste punkten (Backsteg)",
+    "holesPhaseHint": "Klicka för en öppning · Retur eller högerklick = klar",
     "line": "Linje",
     "lineTitle": "Rakt segment",
     "arc": "Båge",

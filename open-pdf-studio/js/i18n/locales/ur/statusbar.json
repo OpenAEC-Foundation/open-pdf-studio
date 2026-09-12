@@ -60,6 +60,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "نقطہ واپس لیں",
+    "undoPointTitle": "آخری نقطہ ہٹائیں (Backspace)",
+    "holesPhaseHint": "سوراخ کے لیے کلک کریں · Enter یا دائیں کلک = مکمل",
     "line": "لائن",
     "lineTitle": "سیدھا حصہ",
     "arc": "آرک",

@@ -59,6 +59,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "Annulla punto",
+    "undoPointTitle": "Rimuovi ultimo punto (Backspace)",
+    "holesPhaseHint": "Clicca per un'apertura · Invio o clic destro = fatto",
     "line": "Linea",
     "lineTitle": "Segmento retto",
     "arc": "Arco",

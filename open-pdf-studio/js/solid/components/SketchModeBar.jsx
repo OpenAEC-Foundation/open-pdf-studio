@@ -3,11 +3,12 @@ import { state } from '../../core/state.js';
 import { filledAreaSketch } from '../../tools/tools/filled-area-tool.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 
-// Floating sketch toolbar for the filled-area (arcering) tool — makes the
-// existing sketch machinery VISIBLE: line/arc segments, close-contour with
-// the >=3-points check, donut openings (holes phase) and an explicit
-// "Gereed" that commits and leaves the mode. Mirrors the keyboard flow
-// ('A' = boog, klik bij beginpunt = sluiten, Enter = gereed, Esc = annuleren).
+// Floating sketch toolbar for the filled-area tool — makes the existing
+// sketch machinery VISIBLE: line/arc segments, close-contour with the
+// >=3-points check, donut openings (holes phase), undo the last point, and
+// an explicit "Done" that commits and leaves the mode. Mirrors the keyboard
+// flow ('A' = arc, Backspace = undo point, click near start point = close,
+// Enter = done, Esc = cancel).
 
 const BTN = 'padding:3px 10px;font-size:11px;font-family:inherit;border:1px solid var(--theme-border,#888);background:var(--theme-surface,#fff);color:var(--theme-text,#333);cursor:pointer;border-radius:0';
 const BTN_ACTIVE = BTN + ';background:var(--theme-accent-soft,#cce4f7);box-shadow:inset 0 0 0 1px var(--theme-active,#0078d7)';
@@ -30,6 +31,7 @@ export default function SketchModeBar() {
   const s = () => snap();
   const closeEnabled = () => (s().points || 0) >= 3;
   const finishEnabled = () => s().outerClosed || (s().points || 0) >= 3;
+  const undoEnabled = () => (s().points || 0) > 0;
   const statusText = () => {
     const st = s();
     if (st.phase === 'holes') {
@@ -67,6 +69,12 @@ export default function SketchModeBar() {
         <button style={s().arcMode ? BTN_ACTIVE : BTN} title={t('filledAreaSketch.arcTitle')}
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => filledAreaSketch.setArcMode(true)}>{t('filledAreaSketch.arc')}</button>
+        <button style={BTN + (undoEnabled() ? '' : ';opacity:0.45;cursor:default')}
+          title={t('filledAreaSketch.undoPointTitle')}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => undoEnabled() && filledAreaSketch.undoLastPoint()}>
+          ↩ {t('filledAreaSketch.undoPoint')}
+        </button>
         <button style={BTN + (closeEnabled() ? '' : ';opacity:0.45;cursor:default')}
           title={s().phase === 'holes' ? t('filledAreaSketch.closeHoleTitle') : t('filledAreaSketch.closeOuterTitle')}
           onMouseDown={(e) => e.preventDefault()}

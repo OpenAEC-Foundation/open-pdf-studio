@@ -59,6 +59,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "Noktayı geri al",
+    "undoPointTitle": "Son noktayı kaldır (Backspace)",
+    "holesPhaseHint": "Açıklık için tıklayın · Enter veya sağ tık = bitti",
     "line": "Çizgi",
     "lineTitle": "Düz segment",
     "arc": "Yay",

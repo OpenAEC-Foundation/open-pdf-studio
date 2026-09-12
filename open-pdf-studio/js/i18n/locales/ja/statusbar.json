@@ -59,6 +59,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "点を元に戻す",
+    "undoPointTitle": "最後の点を削除（Backspace）",
+    "holesPhaseHint": "クリックで開口部を追加 · Enterまたは右クリック＝完了",
     "line": "直線",
     "lineTitle": "直線セグメント",
     "arc": "円弧",

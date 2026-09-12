@@ -60,6 +60,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "בטל נקודה",
+    "undoPointTitle": "הסר את הנקודה האחרונה (Backspace)",
+    "holesPhaseHint": "לחץ לפתח · Enter או קליק ימני = סיום",
     "line": "קו",
     "lineTitle": "קטע ישר",
     "arc": "קשת",

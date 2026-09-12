@@ -59,6 +59,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "تراجع عن النقطة",
+    "undoPointTitle": "إزالة النقطة الأخيرة (Backspace)",
+    "holesPhaseHint": "انقر لإضافة فتحة · Enter أو النقر بزر الفأرة الأيمن = تم",
     "line": "خط",
     "lineTitle": "مقطع مستقيم",
     "arc": "قوس",

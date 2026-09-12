@@ -60,6 +60,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "Desfés punt",
+    "undoPointTitle": "Elimina l'últim punt (Retrocés)",
+    "holesPhaseHint": "Fes clic per a una obertura · Retorn o clic dret = fet",
     "line": "Línia",
     "lineTitle": "Segment recte",
     "arc": "Arc",

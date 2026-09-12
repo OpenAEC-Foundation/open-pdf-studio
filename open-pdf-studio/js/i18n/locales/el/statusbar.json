@@ -60,6 +60,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "Αναίρεση σημείου",
+    "undoPointTitle": "Αφαίρεση τελευταίου σημείου (Backspace)",
+    "holesPhaseHint": "Κλικ για άνοιγμα · Enter ή δεξί κλικ = τέλος",
     "line": "Γραμμή",
     "lineTitle": "Ευθύγραμμο τμήμα",
     "arc": "Τόξο",

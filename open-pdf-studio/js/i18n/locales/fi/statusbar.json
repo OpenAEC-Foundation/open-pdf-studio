@@ -60,6 +60,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "Kumoa piste",
+    "undoPointTitle": "Poista viimeisin piste (Askelpalautin)",
+    "holesPhaseHint": "Napsauta aukkoa varten · Enter tai oikea napsautus = valmis",
     "line": "Viiva",
     "lineTitle": "Suora segmentti",
     "arc": "Kaari",

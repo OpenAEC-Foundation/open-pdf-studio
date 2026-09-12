@@ -60,6 +60,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "Pont visszavonása",
+    "undoPointTitle": "Utolsó pont eltávolítása (Backspace)",
+    "holesPhaseHint": "Kattintson nyíláshoz · Enter vagy jobb katt = kész",
     "line": "Vonal",
     "lineTitle": "Egyenes szakasz",
     "arc": "Ív",

@@ -60,6 +60,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "Spať bod",
+    "undoPointTitle": "Odobrať posledný bod (Backspace)",
+    "holesPhaseHint": "Kliknite pre otvor · Enter alebo pravé tlačidlo = hotovo",
     "line": "Čiara",
     "lineTitle": "Priamy segment",
     "arc": "Oblúk",

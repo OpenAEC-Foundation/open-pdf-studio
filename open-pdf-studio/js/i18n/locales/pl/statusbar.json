@@ -59,6 +59,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "Cofnij punkt",
+    "undoPointTitle": "Usuń ostatni punkt (Backspace)",
+    "holesPhaseHint": "Kliknij, aby dodać otwór · Enter lub prawy przycisk = gotowe",
     "line": "Linia",
     "lineTitle": "Odcinek prosty",
     "arc": "Łuk",

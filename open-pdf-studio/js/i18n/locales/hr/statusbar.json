@@ -60,6 +60,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "Poništi točku",
+    "undoPointTitle": "Ukloni zadnju točku (Backspace)",
+    "holesPhaseHint": "Kliknite za otvor · Enter ili desni klik = gotovo",
     "line": "Linija",
     "lineTitle": "Ravni segment",
     "arc": "Luk",

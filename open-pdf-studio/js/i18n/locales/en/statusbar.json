@@ -68,6 +68,9 @@
   "viewFacing": "Two Pages Side by Side",
   "compareTabTitle": "Compare",
   "filledAreaSketch": {
+    "undoPoint": "Undo point",
+    "undoPointTitle": "Remove last point (Backspace)",
+    "holesPhaseHint": "Click for an opening · Enter or right-click = done",
     "line": "Line",
     "lineTitle": "Straight segment",
     "arc": "Arc",

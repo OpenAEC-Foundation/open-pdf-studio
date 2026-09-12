@@ -59,6 +59,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "واگرد نقطه",
+    "undoPointTitle": "حذف آخرین نقطه (Backspace)",
+    "holesPhaseHint": "برای بازشو کلیک کنید · Enter یا کلیک راست = پایان",
     "line": "خط",
     "lineTitle": "پاره‌خط مستقیم",
     "arc": "کمان",

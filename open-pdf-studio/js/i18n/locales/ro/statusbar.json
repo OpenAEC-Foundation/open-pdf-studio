@@ -60,6 +60,9 @@
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
   "filledAreaSketch": {
+    "undoPoint": "Anulează punctul",
+    "undoPointTitle": "Elimină ultimul punct (Backspace)",
+    "holesPhaseHint": "Clic pentru o deschidere · Enter sau clic dreapta = terminat",
     "line": "Linie",
     "lineTitle": "Segment drept",
     "arc": "Arc",
