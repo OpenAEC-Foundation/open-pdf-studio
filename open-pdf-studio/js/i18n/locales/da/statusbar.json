@@ -58,5 +58,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "Linje",
+    "lineTitle": "Lige segment",
+    "arc": "Bue",
+    "arcTitle": "Buesegment (tast A, musehjul = udbulning)",
+    "closeOuter": "Luk kontur",
+    "closeOuterTitle": "Luk yderkontur (≥ 3 punkter) — derefter kan du tegne åbninger (donut)",
+    "closeHole": "Luk åbning",
+    "closeHoleTitle": "Luk åbning (≥ 3 punkter)",
+    "done": "Færdig",
+    "doneTitle": "Kontrollerer at konturerne er lukkede, tegner skraveringen og forlader tilstanden (Enter)",
+    "cancelTitle": "Annuller (Esc)",
+    "outerClosed": "Yderkontur lukket ✓ · åbninger: {{count}}",
+    "drawingHole": " · tegner åbning ({{count}} punkt(er))",
+    "outerOpenClosable": "Yderkontur åben — {{count}} punkter (kan lukkes)",
+    "outerOpen": "Yderkontur åben — {{count}} punkt(er)"
+  },
+  "boxWidthAbbr": "B",
+  "boxHeightAbbr": "H"
 }

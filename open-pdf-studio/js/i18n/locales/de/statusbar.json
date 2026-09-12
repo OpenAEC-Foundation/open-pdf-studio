@@ -57,5 +57,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "Linie",
+    "lineTitle": "Gerades Segment",
+    "arc": "Bogen",
+    "arcTitle": "Bogensegment (Taste A, Mausrad = Wölbung)",
+    "closeOuter": "Kontur schließen",
+    "closeOuterTitle": "Außenkontur schließen (≥ 3 Punkte) — danach können Öffnungen (Donut) gezeichnet werden",
+    "closeHole": "Öffnung schließen",
+    "closeHoleTitle": "Öffnung schließen (≥ 3 Punkte)",
+    "done": "Fertig",
+    "doneTitle": "Prüft, ob die Konturen geschlossen sind, zeichnet die Schraffur und verlässt den Modus (Eingabe)",
+    "cancelTitle": "Abbrechen (Esc)",
+    "outerClosed": "Außenkontur geschlossen ✓ · Öffnungen: {{count}}",
+    "drawingHole": " · Öffnung wird gezeichnet ({{count}} Punkt(e))",
+    "outerOpenClosable": "Außenkontur offen — {{count}} Punkte (schließbar)",
+    "outerOpen": "Außenkontur offen — {{count}} Punkt(e)"
+  },
+  "boxWidthAbbr": "B",
+  "boxHeightAbbr": "H"
 }

@@ -2,6 +2,7 @@ import { Show, createSignal, createEffect, onCleanup } from 'solid-js';
 import { annotProps, updateAnnotProp } from '../stores/propertiesStore.js';
 import { state, getActiveDocument } from '../../core/state.js';
 import { getMeasureScale } from '../../annotations/measurement.js';
+import { useTranslation } from '../../i18n/useTranslation.js';
 
 // Temporary width/height "dimensions" for a selected rectangle — two small
 // editable fields floating next to the selection. Values are in measured
@@ -9,6 +10,7 @@ import { getMeasureScale } from '../../annotations/measurement.js';
 // the rectangle (top-left anchored) through the normal property pipeline
 // (undo + redraw included).
 export default function BoxSizeOverlay() {
+  const { t } = useTranslation('statusbar');
   const [pos, setPos] = createSignal(null); // { x, y } screen px
   const [wVal, setWVal] = createSignal('');
   const [hVal, setHVal] = createSignal('');
@@ -113,7 +115,7 @@ export default function BoxSizeOverlay() {
         'font-size': '12px',
       }}>
         <div style={{ display: 'flex', 'align-items': 'center', gap: '4px' }}>
-          <span style={{ width: '14px', 'font-weight': 600 }}>B</span>
+          <span style={{ width: '14px', 'font-weight': 600 }}>{t('boxWidthAbbr')}</span>
           <input style={inputStyle} value={wVal()}
             onFocus={onDimFocus} onMouseUp={onDimMouseUp}
             onInput={(e) => setWVal(e.target.value)}
@@ -122,7 +124,7 @@ export default function BoxSizeOverlay() {
           <span>{unit()}</span>
         </div>
         <div style={{ display: 'flex', 'align-items': 'center', gap: '4px' }}>
-          <span style={{ width: '14px', 'font-weight': 600 }}>H</span>
+          <span style={{ width: '14px', 'font-weight': 600 }}>{t('boxHeightAbbr')}</span>
           <input style={inputStyle} value={hVal()}
             onFocus={onDimFocus} onMouseUp={onDimMouseUp}
             onInput={(e) => setHVal(e.target.value)}

@@ -58,5 +58,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "Linija",
+    "lineTitle": "Ravni segment",
+    "arc": "Luk",
+    "arcTitle": "Segment luka (tipka A, kotačić miša = ispupčenje)",
+    "closeOuter": "Zatvori konturu",
+    "closeOuterTitle": "Zatvori vanjsku konturu (≥ 3 točke) — zatim možete crtati otvore (donut)",
+    "closeHole": "Zatvori otvor",
+    "closeHoleTitle": "Zatvori otvor (≥ 3 točke)",
+    "done": "Gotovo",
+    "doneTitle": "Provjerava jesu li konture zatvorene, iscrtava šrafuru i izlazi iz načina rada (Enter)",
+    "cancelTitle": "Otkaži (Esc)",
+    "outerClosed": "Vanjska kontura zatvorena ✓ · otvori: {{count}}",
+    "drawingHole": " · crtanje otvora ({{count}} točka/e)",
+    "outerOpenClosable": "Vanjska kontura otvorena — {{count}} točaka (može se zatvoriti)",
+    "outerOpen": "Vanjska kontura otvorena — {{count}} točka/e"
+  },
+  "boxWidthAbbr": "Š",
+  "boxHeightAbbr": "V"
 }

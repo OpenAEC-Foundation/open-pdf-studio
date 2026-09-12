@@ -58,5 +58,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "রেখা",
+    "lineTitle": "সরল অংশ",
+    "arc": "চাপ",
+    "arcTitle": "চাপ অংশ (কী A, মাউস হুইল = স্ফীতি)",
+    "closeOuter": "রূপরেখা বন্ধ করুন",
+    "closeOuterTitle": "বাইরের রূপরেখা বন্ধ করুন (≥ 3 পয়েন্ট) — তারপর আপনি খোলা অংশ আঁকতে পারবেন",
+    "closeHole": "খোলা অংশ বন্ধ করুন",
+    "closeHoleTitle": "খোলা অংশ বন্ধ করুন (≥ 3 পয়েন্ট)",
+    "done": "সম্পন্ন",
+    "doneTitle": "রূপরেখা বন্ধ কিনা যাচাই করে, হ্যাচিং আঁকে এবং মোড থেকে বেরিয়ে যায় (Enter)",
+    "cancelTitle": "বাতিল (Esc)",
+    "outerClosed": "বাইরের রূপরেখা বন্ধ ✓ · খোলা অংশ: {{count}}",
+    "drawingHole": " · খোলা অংশ আঁকা হচ্ছে ({{count}} পয়েন্ট)",
+    "outerOpenClosable": "বাইরের রূপরেখা খোলা — {{count}} পয়েন্ট (বন্ধ করা যাবে)",
+    "outerOpen": "বাইরের রূপরেখা খোলা — {{count}} পয়েন্ট"
+  },
+  "boxWidthAbbr": "প",
+  "boxHeightAbbr": "উ"
 }

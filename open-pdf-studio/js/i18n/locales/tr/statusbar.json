@@ -57,5 +57,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "Çizgi",
+    "lineTitle": "Düz segment",
+    "arc": "Yay",
+    "arcTitle": "Yay segmenti (A tuşu, fare tekerleği = bombe)",
+    "closeOuter": "Konturu kapat",
+    "closeOuterTitle": "Dış konturu kapat (≥ 3 nokta) — ardından açıklık (donut) çizebilirsiniz",
+    "closeHole": "Açıklığı kapat",
+    "closeHoleTitle": "Açıklığı kapat (≥ 3 nokta)",
+    "done": "Bitti",
+    "doneTitle": "Konturların kapalı olup olmadığını kontrol eder, taramayı çizer ve moddan çıkar (Enter)",
+    "cancelTitle": "İptal (Esc)",
+    "outerClosed": "Dış kontur kapalı ✓ · açıklıklar: {{count}}",
+    "drawingHole": " · açıklık çiziliyor ({{count}} nokta)",
+    "outerOpenClosable": "Dış kontur açık — {{count}} nokta (kapatılabilir)",
+    "outerOpen": "Dış kontur açık — {{count}} nokta"
+  },
+  "boxWidthAbbr": "G",
+  "boxHeightAbbr": "Y"
 }

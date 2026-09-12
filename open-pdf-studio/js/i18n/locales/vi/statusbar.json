@@ -58,5 +58,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "Đường thẳng",
+    "lineTitle": "Đoạn thẳng",
+    "arc": "Cung",
+    "arcTitle": "Đoạn cung (phím A, con lăn chuột = độ phồng)",
+    "closeOuter": "Đóng đường viền",
+    "closeOuterTitle": "Đóng đường viền ngoài (≥ 3 điểm) — sau đó bạn có thể vẽ lỗ mở",
+    "closeHole": "Đóng lỗ mở",
+    "closeHoleTitle": "Đóng lỗ mở (≥ 3 điểm)",
+    "done": "Xong",
+    "doneTitle": "Kiểm tra các đường viền đã đóng, vẽ nét gạch và thoát chế độ (Enter)",
+    "cancelTitle": "Hủy (Esc)",
+    "outerClosed": "Đường viền ngoài đã đóng ✓ · lỗ mở: {{count}}",
+    "drawingHole": " · đang vẽ lỗ mở ({{count}} điểm)",
+    "outerOpenClosable": "Đường viền ngoài đang mở — {{count}} điểm (có thể đóng)",
+    "outerOpen": "Đường viền ngoài đang mở — {{count}} điểm"
+  },
+  "boxWidthAbbr": "R",
+  "boxHeightAbbr": "C"
 }

@@ -57,5 +57,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "Linea",
+    "lineTitle": "Segmento retto",
+    "arc": "Arco",
+    "arcTitle": "Segmento ad arco (tasto A, rotella = bombatura)",
+    "closeOuter": "Chiudi contorno",
+    "closeOuterTitle": "Chiudi il contorno esterno (≥ 3 punti) — poi potrai disegnare aperture (donut)",
+    "closeHole": "Chiudi apertura",
+    "closeHoleTitle": "Chiudi apertura (≥ 3 punti)",
+    "done": "Fatto",
+    "doneTitle": "Verifica che i contorni siano chiusi, disegna il retino ed esce dalla modalità (Invio)",
+    "cancelTitle": "Annulla (Esc)",
+    "outerClosed": "Contorno esterno chiuso ✓ · aperture: {{count}}",
+    "drawingHole": " · apertura in corso ({{count}} punto/i)",
+    "outerOpenClosable": "Contorno esterno aperto — {{count}} punti (chiudibile)",
+    "outerOpen": "Contorno esterno aperto — {{count}} punto/i"
+  },
+  "boxWidthAbbr": "L",
+  "boxHeightAbbr": "A"
 }

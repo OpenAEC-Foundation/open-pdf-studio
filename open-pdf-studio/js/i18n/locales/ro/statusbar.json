@@ -58,5 +58,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "Linie",
+    "lineTitle": "Segment drept",
+    "arc": "Arc",
+    "arcTitle": "Segment de arc (tasta A, rotița mouse-ului = bombare)",
+    "closeOuter": "Închide conturul",
+    "closeOuterTitle": "Închide conturul exterior (≥ 3 puncte) — apoi poți desena deschideri (donut)",
+    "closeHole": "Închide deschiderea",
+    "closeHoleTitle": "Închide deschiderea (≥ 3 puncte)",
+    "done": "Terminat",
+    "doneTitle": "Verifică dacă conturile sunt închise, desenează haşura și iese din mod (Enter)",
+    "cancelTitle": "Anulează (Esc)",
+    "outerClosed": "Contur exterior închis ✓ · deschideri: {{count}}",
+    "drawingHole": " · se desenează deschiderea ({{count}} punct(e))",
+    "outerOpenClosable": "Contur exterior deschis — {{count}} puncte (se poate închide)",
+    "outerOpen": "Contur exterior deschis — {{count}} punct(e)"
+  },
+  "boxWidthAbbr": "L",
+  "boxHeightAbbr": "H"
 }

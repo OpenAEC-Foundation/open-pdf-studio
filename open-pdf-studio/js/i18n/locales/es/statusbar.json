@@ -57,5 +57,24 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "line": "Línea",
+    "lineTitle": "Segmento recto",
+    "arc": "Arco",
+    "arcTitle": "Segmento de arco (tecla A, rueda del ratón = curvatura)",
+    "closeOuter": "Cerrar contorno",
+    "closeOuterTitle": "Cerrar contorno exterior (≥ 3 puntos) — después podrás dibujar aberturas (donut)",
+    "closeHole": "Cerrar abertura",
+    "closeHoleTitle": "Cerrar abertura (≥ 3 puntos)",
+    "done": "Hecho",
+    "doneTitle": "Comprueba que los contornos estén cerrados, dibuja la trama y sale del modo (Intro)",
+    "cancelTitle": "Cancelar (Esc)",
+    "outerClosed": "Contorno exterior cerrado ✓ · aberturas: {{count}}",
+    "drawingHole": " · dibujando abertura ({{count}} punto(s))",
+    "outerOpenClosable": "Contorno exterior abierto — {{count}} puntos (se puede cerrar)",
+    "outerOpen": "Contorno exterior abierto — {{count}} punto(s)"
+  },
+  "boxWidthAbbr": "A",
+  "boxHeightAbbr": "Al"
 }
