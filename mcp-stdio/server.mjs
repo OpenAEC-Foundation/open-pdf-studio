@@ -72,11 +72,20 @@ const verwerk = maakBrug({ endpoint: ENDPOINT, tools: TOOLS, versie: VERSIE });
 console.error(`[open-pdf-studio mcp bridge] ready — proxying stdio ⇄ ${ENDPOINT}`);
 
 const rl = readline.createInterface({ input: process.stdin, terminal: false });
+
+// Antwoorden die nog onderweg zijn: bij het sluiten van stdin eerst afmaken,
+// anders valt het laatste antwoord weg en wacht de client op niets.
+const bezig = new Set();
 rl.on('line', (line) => {
-  verwerk(line)
+  const werk = verwerk(line)
     .then((uit) => { if (uit) process.stdout.write(uit + '\n'); })
     .catch((err) => {
       console.error(`[open-pdf-studio mcp bridge] handler error: ${err?.stack || err}`);
-    });
+    })
+    .finally(() => bezig.delete(werk));
+  bezig.add(werk);
 });
-rl.on('close', () => process.exit(0));
+rl.on('close', async () => {
+  await Promise.allSettled([...bezig]);
+  process.exit(0);
+});

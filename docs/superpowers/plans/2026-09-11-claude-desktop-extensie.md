@@ -57,7 +57,7 @@ Spec: `docs/superpowers/specs/2026-09-11-claude-desktop-extensie-design.md`.
 **Interfaces:**
 - Produces: `mcp_tool_meta::{Profiel, ToolMeta, TOOLS, meta(naam) -> Option<&'static ToolMeta>, beschikbaar(naam, Profiel) -> bool}`; `mcp_server::tools_list_voor(Profiel) -> Value`.
 
-- [ ] **Step 1: Tabel schrijven** — `mcp_tool_meta.rs`:
+- [x] **Step 1: Tabel schrijven** — `mcp_tool_meta.rs`:
 
 ```rust
 //! Per MCP-gereedschap: titel, of het alleen leest of iets wijzigt, en in welk
@@ -180,7 +180,7 @@ pub fn beschikbaar(naam: &str, profiel: Profiel) -> bool {
 }
 ```
 
-- [ ] **Step 2: Falende tests schrijven** in `mcp_server.rs` `mod tests`:
+- [x] **Step 2: Falende tests schrijven** in `mcp_server.rs` `mod tests`:
 
 ```rust
     #[test]
@@ -229,9 +229,9 @@ pub fn beschikbaar(naam: &str, profiel: Profiel) -> bool {
     }
 ```
 
-- [ ] **Step 3:** `cd open-pdf-studio/src-tauri && cargo test --lib mcp_server::tests` → FAIL (`tools_list_voor` bestaat niet).
+- [x] **Step 3:** `cd open-pdf-studio/src-tauri && cargo test --lib mcp_server::tests` → FAIL (`tools_list_voor` bestaat niet).
 
-- [ ] **Step 4: Implementeren** in `mcp_server.rs` (na `handle_tools_list`):
+- [x] **Step 4: Implementeren** in `mcp_server.rs` (na `handle_tools_list`):
 
 ```rust
 /// De `tools/list` voor een profiel: gefilterd en met annotaties.
@@ -256,9 +256,9 @@ pub fn tools_list_voor(profiel: Profiel) -> Value {
 
 met `use crate::mcp_tool_meta::{beschikbaar, meta, Profiel};` bovenaan, en `pub mod mcp_tool_meta;` in `lib.rs`.
 
-- [ ] **Step 5:** `OPDS_MCPB_TOOLS_SCHRIJVEN=1 cargo test --lib mcp_server::tests` → PASS; daarna zonder env → PASS. `mcp-stdio/tools.json` bevat 49 gereedschappen.
+- [x] **Step 5:** `OPDS_MCPB_TOOLS_SCHRIJVEN=1 cargo test --lib mcp_server::tests` → PASS; daarna zonder env → PASS. `mcp-stdio/tools.json` bevat 49 gereedschappen.
 
-- [ ] **Step 6: Commit** — `feat(mcp): annotaties en een publiek profiel voor elk gereedschap`.
+- [x] **Step 6: Commit** — `feat(mcp): annotaties en een publiek profiel voor elk gereedschap`.
 
 ### Task 2: Aan/uit tijdens het draaien, profiel en Origin/Host-controle
 
@@ -271,7 +271,7 @@ met `use crate::mcp_tool_meta::{beschikbaar, meta, Profiel};` bovenaan, en `pub 
 - Consumes: `tools_list_voor`, `beschikbaar`, `Profiel` (Task 1).
 - Produces: Tauri-commando's `mcp_instellen(aan: bool, poort: u16) -> Result<Value, String>` en `mcp_status() -> Value`, beide met `{ actief: bool, poort: u16|null, bron: "instelling"|"startvlag"|null, fout: string|null }`.
 
-- [ ] **Step 1: Falende test** voor de verzoekcontrole in `mcp_server.rs`:
+- [x] **Step 1: Falende test** voor de verzoekcontrole in `mcp_server.rs`:
 
 ```rust
     #[test]
@@ -292,9 +292,9 @@ met `use crate::mcp_tool_meta::{beschikbaar, meta, Profiel};` bovenaan, en `pub 
     }
 ```
 
-- [ ] **Step 2:** `cargo test --lib alleen_lokale` → FAIL.
+- [x] **Step 2:** `cargo test --lib alleen_lokale` → FAIL.
 
-- [ ] **Step 3: Implementeren** in `mcp_server.rs`:
+- [x] **Step 3: Implementeren** in `mcp_server.rs`:
 
 ```rust
 /// Alleen lokale clients: de Host moet 127.0.0.1/localhost op onze poort zijn
@@ -430,9 +430,9 @@ pub async fn mcp_instellen(app: AppHandle, aan: bool, poort: u16) -> Result<Valu
 
 `AppState::nieuw(profiel, poort, app_handle)` vult `test_pdfs_dir` met `resolve_test_pdfs_dir(env OPS_TEST_PDFS_DIR)`. `lib.rs`: `pub mod mcp_koppeling;`, en `mcp_koppeling::mcp_instellen, mcp_koppeling::mcp_status` in `generate_handler!`.
 
-- [ ] **Step 4:** `cargo test --lib` → alle MCP-tests PASS (bestaande tests roepen `handle_tools_list()` nog aan; die blijft ongewijzigd).
+- [x] **Step 4:** `cargo test --lib` → alle MCP-tests PASS (bestaande tests roepen `handle_tools_list()` nog aan; die blijft ongewijzigd).
 
-- [ ] **Step 5: Commit** — `feat(mcp): AI-koppeling aan en uit te zetten vanuit de app, alleen lokale clients`.
+- [x] **Step 5: Commit** — `feat(mcp): AI-koppeling aan en uit te zetten vanuit de app, alleen lokale clients`.
 
 ### Task 3: De instelling in de app
 
@@ -444,7 +444,7 @@ pub async fn mcp_instellen(app: AppHandle, aan: bool, poort: u16) -> Result<Valu
 - Consumes: Tauri-commando's uit Task 2.
 - Produces: `pasMcpInstellingToe(): Promise<Status|null>`, `mcpStatus(): Promise<Status|null>`; voorkeuren `mcpEnabled: boolean`, `mcpPort: number`; i18n-sleutels `general.aiLink`, `general.aiLinkAllow`, `general.aiLinkPort`, `general.aiLinkHint`, `general.aiLinkActive` (`{{adres}}`), `general.aiLinkViaFlag` (`{{adres}}`), `general.aiLinkOff`, `general.aiLinkError` (`{{fout}}`).
 
-- [ ] **Step 1:** `mcp-koppeling.js`:
+- [x] **Step 1:** `mcp-koppeling.js`:
 
 ```js
 // De AI-koppeling (MCP-server) volgens de instelling aan- of uitzetten.
@@ -469,12 +469,12 @@ export async function mcpStatus() {
 }
 ```
 
-- [ ] **Step 2:** `DEFAULT_PREFERENCES` + type: `mcpEnabled: false`, `mcpPort: 9223`.
-- [ ] **Step 3:** GeneralTab: nieuwe `<fieldset>` met selectievakje (`p.mcpEnabled`), poortveld (`type="number" min="1024" max="65535"`, `p.mcpPort`), statusregel via `createSignal` gevuld door `mcpStatus()` bij openen, en `general.aiLinkHint` als uitleg. Statusregel: actief + bron `startvlag` → `aiLinkViaFlag`; actief → `aiLinkActive`; fout → `aiLinkError`; anders `aiLinkOff`.
-- [ ] **Step 4:** PreferencesDialog `handleSave`: na `savePreferences()` → `import('../../../core/mcp-koppeling.js').then(m => m.pasMcpInstellingToe())`. `main.js` na `await loadPreferences();` (regel ~222): `import('./core/mcp-koppeling.js').then(m => m.pasMcpInstellingToe());`.
-- [ ] **Step 5:** Vertalingen: 8 sleutels in `general` van elke `preferences.json` (39 talen) via een script met één tabel.
-- [ ] **Step 6:** `npm run test:unit` en `npx vite build` → groen.
-- [ ] **Step 7: Commit** — `feat(voorkeuren): AI-koppeling aanzetten in Instellingen`.
+- [x] **Step 2:** `DEFAULT_PREFERENCES` + type: `mcpEnabled: false`, `mcpPort: 9223`.
+- [x] **Step 3:** GeneralTab: nieuwe `<fieldset>` met selectievakje (`p.mcpEnabled`), poortveld (`type="number" min="1024" max="65535"`, `p.mcpPort`), statusregel via `createSignal` gevuld door `mcpStatus()` bij openen, en `general.aiLinkHint` als uitleg. Statusregel: actief + bron `startvlag` → `aiLinkViaFlag`; actief → `aiLinkActive`; fout → `aiLinkError`; anders `aiLinkOff`.
+- [x] **Step 4:** PreferencesDialog `handleSave`: na `savePreferences()` → `import('../../../core/mcp-koppeling.js').then(m => m.pasMcpInstellingToe())`. `main.js` na `await loadPreferences();` (regel ~222): `import('./core/mcp-koppeling.js').then(m => m.pasMcpInstellingToe());`.
+- [x] **Step 5:** Vertalingen: 8 sleutels in `general` van elke `preferences.json` (39 talen) via een script met één tabel.
+- [x] **Step 6:** `npm run test:unit` en `npx vite build` → groen.
+- [x] **Step 7: Commit** — `feat(voorkeuren): AI-koppeling aanzetten in Instellingen`.
 
 ### Task 4: Terugval in de stdio-brug
 
@@ -486,7 +486,7 @@ export async function mcpStatus() {
 - Consumes: `mcp-stdio/tools.json` (Task 1).
 - Produces: `maakBrug({ endpoint, tools, versie, fetchFn }) -> (regel: string) => Promise<string|null>`; `NIET_BEREIKBAAR` (tekst).
 
-- [ ] **Step 1: Falende tests** (`brug.test.mjs`):
+- [x] **Step 1: Falende tests** (`brug.test.mjs`):
 
 ```js
 import assert from 'node:assert/strict';
@@ -538,8 +538,8 @@ test('ongeldige invoer wordt genegeerd', async () => {
 });
 ```
 
-- [ ] **Step 2:** `node --test mcp-stdio/brug.test.mjs` → FAIL (module ontbreekt).
-- [ ] **Step 3: `brug.mjs`:**
+- [x] **Step 2:** `node --test mcp-stdio/brug.test.mjs` → FAIL (module ontbreekt).
+- [x] **Step 3: `brug.mjs`:**
 
 ```js
 // Logica van de stdio-brug, los van stdin/stdout zodat hij te testen is.
@@ -604,9 +604,9 @@ export function maakBrug({ endpoint, tools, versie, fetchFn = fetch }) {
 }
 ```
 
-- [ ] **Step 4:** `server.mjs` herschrijven tot schil: leest `tools.json` (naast zichzelf, `new URL('./tools.json', import.meta.url)`; ontbreekt hij → `[]`), versie uit env `OPS_MCP_VERSION` of `package.json` naast zichzelf, `maakBrug(...)`, `readline` → `verwerk` → `process.stdout.write(uit + "\n")`. `--probe` blijft.
-- [ ] **Step 5:** tests PASS; `test:unit` uitgebreid met `../mcp-stdio/brug.test.mjs`; `npm run test:unit` groen.
-- [ ] **Step 6: Commit** — `feat(mcp-stdio): brug antwoordt zelf als de app niet draait`.
+- [x] **Step 4:** `server.mjs` herschrijven tot schil: leest `tools.json` (naast zichzelf, `new URL('./tools.json', import.meta.url)`; ontbreekt hij → `[]`), versie uit env `OPS_MCP_VERSION` of `package.json` naast zichzelf, `maakBrug(...)`, `readline` → `verwerk` → `process.stdout.write(uit + "\n")`. `--probe` blijft.
+- [x] **Step 5:** tests PASS; `test:unit` uitgebreid met `../mcp-stdio/brug.test.mjs`; `npm run test:unit` groen.
+- [x] **Step 6: Commit** — `feat(mcp-stdio): brug antwoordt zelf als de app niet draait`.
 
 ### Task 5: De bundel `mcpb/`
 
@@ -618,12 +618,12 @@ export function maakBrug({ endpoint, tools, versie, fetchFn = fetch }) {
 - Consumes: `mcp-stdio/server.mjs`, `brug.mjs`, `tools.json`.
 - Produces: `node mcpb/scripts/pack.mjs` → `mcpb/dist/open-pdf-studio.mcpb`; `node mcpb/scripts/pack.mjs --manifest` werkt alleen `mcpb/manifest.json` bij.
 
-- [ ] **Step 1: Falende test** (`manifest.test.mjs`): manifest heeft `manifest_version "0.3"`, versie = `open-pdf-studio/package.json`, `tools` = namen+beschrijvingen uit `mcp-stdio/tools.json`, `privacy_policies` niet leeg en HTTPS, `server.entry_point` = `server/index.mjs`, `user_config.port.default` = 9223.
-- [ ] **Step 2:** `manifest.json` (tools-lijst gevuld door `pack.mjs --manifest`), `README.md` (installatie, instelling, drie voorbeelden, Privacy Policy), `icon.png` (256×256 uit `src-tauri/icons/128x128@2x.png`).
-- [ ] **Step 3:** `pack.mjs`: `build/` leegmaken → manifest (met actuele versie/tools), `icon.png`, `README.md`, `server/index.mjs` (= `mcp-stdio/server.mjs`), `server/brug.mjs`, `server/tools.json`, `server/package.json` (`{"type":"module","version":…}`) → `npx -y @anthropic-ai/mcpb validate build/manifest.json` → `npx -y @anthropic-ai/mcpb pack build dist/open-pdf-studio.mcpb`.
-- [ ] **Step 4:** `bump-version.js` werkt ook `mcpb/manifest.json` bij.
-- [ ] **Step 5:** tests groen, `node mcpb/scripts/pack.mjs` levert een `.mcpb`.
-- [ ] **Step 6: Commit** — `feat(mcpb): Claude Desktop-extensie als MCP-bundel`.
+- [x] **Step 1: Falende test** (`manifest.test.mjs`): manifest heeft `manifest_version "0.3"`, versie = `open-pdf-studio/package.json`, `tools` = namen+beschrijvingen uit `mcp-stdio/tools.json`, `privacy_policies` niet leeg en HTTPS, `server.entry_point` = `server/index.mjs`, `user_config.port.default` = 9223.
+- [x] **Step 2:** `manifest.json` (tools-lijst gevuld door `pack.mjs --manifest`), `README.md` (installatie, instelling, drie voorbeelden, Privacy Policy), `icon.png` (256×256 uit `src-tauri/icons/128x128@2x.png`).
+- [x] **Step 3:** `pack.mjs`: `build/` leegmaken → manifest (met actuele versie/tools), `icon.png`, `README.md`, `server/index.mjs` (= `mcp-stdio/server.mjs`), `server/brug.mjs`, `server/tools.json`, `server/package.json` (`{"type":"module","version":…}`) → `npx -y @anthropic-ai/mcpb validate build/manifest.json` → `npx -y @anthropic-ai/mcpb pack build dist/open-pdf-studio.mcpb`.
+- [x] **Step 4:** `bump-version.js` werkt ook `mcpb/manifest.json` bij.
+- [x] **Step 5:** tests groen, `node mcpb/scripts/pack.mjs` levert een `.mcpb`.
+- [x] **Step 6: Commit** — `feat(mcpb): Claude Desktop-extensie als MCP-bundel`.
 
 ### Task 6: Uitlevering en indiendossier
 
@@ -631,15 +631,15 @@ export function maakBrug({ endpoint, tools, versie, fetchFn = fetch }) {
 - Modify: `.github/workflows/release.yml` (job `mcpb`)
 - Create: `mcpb/INDIENEN.md`
 
-- [ ] **Step 1:** Job `mcpb` (needs `create-release`, ubuntu, node 22): `node mcpb/scripts/pack.mjs` → `gh release upload "$VERSION" mcpb/dist/open-pdf-studio.mcpb --clobber`.
-- [ ] **Step 2:** `INDIENEN.md`: alle antwoorden voor het indienformulier (naam, tagline ≤ 55 tekens, beschrijving, categorieën, use cases, testinstructies, privacy- en documentatie-URL, contact).
-- [ ] **Step 3:** Bericht aan de website-sessie: privacybeleid- en documentatiepagina met de teksten uit README/INDIENEN.
-- [ ] **Step 4: Commit** — `ci(release): Claude Desktop-extensie aan elke release hangen`.
+- [x] **Step 1:** Job `mcpb` (needs `create-release`, ubuntu, node 22): `node mcpb/scripts/pack.mjs` → `gh release upload "$VERSION" mcpb/dist/open-pdf-studio.mcpb --clobber`.
+- [x] **Step 2:** `INDIENEN.md`: alle antwoorden voor het indienformulier (naam, tagline ≤ 55 tekens, beschrijving, categorieën, use cases, testinstructies, privacy- en documentatie-URL, contact).
+- [x] **Step 3:** Bericht aan de website-sessie: privacybeleid- en documentatiepagina met de teksten uit README/INDIENEN.
+- [x] **Step 4: Commit** — `ci(release): Claude Desktop-extensie aan elke release hangen`.
 
 ### Task 7: Live verificatie
 
-- [ ] Release-build met `CARGO_TARGET_DIR=C:/opds-cargo-target npm run tauri:build`.
-- [ ] Rig zonder startvlag starten; via CDP/JS `invoke('mcp_instellen', {aan:true, poort:9225})` → `tools/list` op 9225 geeft 49 tools met annotaties; `list_test_pdfs` aanroepen → fout; verzoek met `Origin: https://evil.example` → 403; uitzetten → poort dicht; poort bezet → fout in status.
-- [ ] Brug tegen de rig: `node mcp-stdio/server.mjs` met `OPS_MCP_PORT=9225`, `tools/list` en een `tools/call`; zonder app: terugval.
-- [ ] `node mcpb/scripts/pack.mjs` → validate + pack slagen.
-- [ ] Voorkeuren van de gebruiker vergelijken met de back-up (de rig deelt `preferences.json`).
+- [x] Release-build met `CARGO_TARGET_DIR=C:/opds-cargo-target npm run tauri:build`.
+- [x] Rig zonder startvlag starten; via CDP/JS `invoke('mcp_instellen', {aan:true, poort:9225})` → `tools/list` op 9225 geeft 49 tools met annotaties; `list_test_pdfs` aanroepen → fout; verzoek met `Origin: https://evil.example` → 403; uitzetten → poort dicht; poort bezet → fout in status.
+- [x] Brug tegen de rig: `node mcp-stdio/server.mjs` met `OPS_MCP_PORT=9225`, `tools/list` en een `tools/call`; zonder app: terugval.
+- [x] `node mcpb/scripts/pack.mjs` → validate + pack slagen.
+- [x] Voorkeuren van de gebruiker vergelijken met de back-up (de rig deelt `preferences.json`).
