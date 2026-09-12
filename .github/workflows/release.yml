@@ -566,6 +566,32 @@ jobs:
             gh release upload "$VERSION" "$SIGNED_APK" --clobber --repo "${{ github.repository }}"
           fi
 
+  mcpb:
+    # Claude Desktop-extensie (.mcpb): de stdio-brug plus manifest, ingepakt
+    # met de officiele CLI. Hangt niet aan de desktop-builds vast.
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    needs: create-release
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+
+      - name: Extensie bouwen
+        run: node mcpb/scripts/pack.mjs
+
+      - name: Aan de release hangen
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ needs.create-release.outputs.version }}"
+          gh release upload "$VERSION" mcpb/dist/open-pdf-studio.mcpb --clobber --repo "${{ github.repository }}"
+
   publish-release:
     permissions:
       contents: write
