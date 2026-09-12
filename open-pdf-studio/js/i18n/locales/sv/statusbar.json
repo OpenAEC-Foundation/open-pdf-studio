@@ -58,5 +58,27 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "undoPoint": "Ångra punkt",
+    "undoPointTitle": "Ta bort senaste punkten (Backsteg)",
+    "holesPhaseHint": "Klicka för en öppning · Retur eller högerklick = klar",
+    "line": "Linje",
+    "lineTitle": "Rakt segment",
+    "arc": "Båge",
+    "arcTitle": "Bågsegment (tangent A, mushjul = bukt)",
+    "closeOuter": "Stäng konturen",
+    "closeOuterTitle": "Stäng ytterkonturen (≥ 3 punkter) — sedan kan du rita öppningar (munk)",
+    "closeHole": "Stäng öppning",
+    "closeHoleTitle": "Stäng öppning (≥ 3 punkter)",
+    "done": "Klar",
+    "doneTitle": "Kontrollerar att konturerna är stängda, ritar skrafferingen och lämnar läget (Retur)",
+    "cancelTitle": "Avbryt (Esc)",
+    "outerClosed": "Ytterkontur stängd ✓ · öppningar: {{count}}",
+    "drawingHole": " · ritar öppning ({{count}} punkt(er))",
+    "outerOpenClosable": "Ytterkontur öppen — {{count}} punkter (kan stängas)",
+    "outerOpen": "Ytterkontur öppen — {{count}} punkt(er)"
+  },
+  "boxWidthAbbr": "B",
+  "boxHeightAbbr": "H"
 }

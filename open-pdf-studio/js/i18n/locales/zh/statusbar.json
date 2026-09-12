@@ -57,5 +57,27 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "undoPoint": "撤销点",
+    "undoPointTitle": "删除最后一个点（退格键）",
+    "holesPhaseHint": "点击添加开孔 · 回车或右键 = 完成",
+    "line": "直线",
+    "lineTitle": "直线段",
+    "arc": "圆弧",
+    "arcTitle": "圆弧段（按键 A，鼠标滚轮 = 弧度）",
+    "closeOuter": "闭合轮廓",
+    "closeOuterTitle": "闭合外轮廓（≥ 3 个点）— 之后可以绘制开孔（环形）",
+    "closeHole": "闭合开孔",
+    "closeHoleTitle": "闭合开孔（≥ 3 个点）",
+    "done": "完成",
+    "doneTitle": "检查轮廓是否闭合，绘制填充线并退出该模式（回车）",
+    "cancelTitle": "取消（Esc）",
+    "outerClosed": "外轮廓已闭合 ✓ · 开孔：{{count}}",
+    "drawingHole": " · 正在绘制开孔（{{count}} 个点）",
+    "outerOpenClosable": "外轮廓未闭合 — {{count}} 个点（可闭合）",
+    "outerOpen": "外轮廓未闭合 — {{count}} 个点"
+  },
+  "boxWidthAbbr": "宽",
+  "boxHeightAbbr": "高"
 }

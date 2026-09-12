@@ -58,5 +58,27 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "undoPoint": "نقطہ واپس لیں",
+    "undoPointTitle": "آخری نقطہ ہٹائیں (Backspace)",
+    "holesPhaseHint": "سوراخ کے لیے کلک کریں · Enter یا دائیں کلک = مکمل",
+    "line": "لائن",
+    "lineTitle": "سیدھا حصہ",
+    "arc": "آرک",
+    "arcTitle": "آرک حصہ (کلید A، ماؤس وہیل = ابھار)",
+    "closeOuter": "خاکہ بند کریں",
+    "closeOuterTitle": "بیرونی خاکہ بند کریں (≥ 3 پوائنٹس) — پھر آپ سوراخ بنا سکتے ہیں",
+    "closeHole": "سوراخ بند کریں",
+    "closeHoleTitle": "سوراخ بند کریں (≥ 3 پوائنٹس)",
+    "done": "مکمل",
+    "doneTitle": "جانچتا ہے کہ خاکے بند ہیں، ہیچنگ بناتا ہے اور موڈ سے نکل جاتا ہے (Enter)",
+    "cancelTitle": "منسوخ کریں (Esc)",
+    "outerClosed": "بیرونی خاکہ بند ✓ · سوراخ: {{count}}",
+    "drawingHole": " · سوراخ بن رہا ہے ({{count}} پوائنٹس)",
+    "outerOpenClosable": "بیرونی خاکہ کھلا ہے — {{count}} پوائنٹس (بند کیا جا سکتا ہے)",
+    "outerOpen": "بیرونی خاکہ کھلا ہے — {{count}} پوائنٹس"
+  },
+  "boxWidthAbbr": "چ",
+  "boxHeightAbbr": "ا"
 }

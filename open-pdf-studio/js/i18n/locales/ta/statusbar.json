@@ -58,5 +58,27 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "undoPoint": "புள்ளியை மீட்டமை",
+    "undoPointTitle": "கடைசி புள்ளியை அகற்று (Backspace)",
+    "holesPhaseHint": "திறப்புக்கு கிளிக் செய்யவும் · Enter அல்லது வலது கிளிக் = முடிந்தது",
+    "line": "கோடு",
+    "lineTitle": "நேர்கோட்டுப் பகுதி",
+    "arc": "வளைவு",
+    "arcTitle": "வளைவுப் பகுதி (விசை A, மவுஸ் வீல் = குமிழ்)",
+    "closeOuter": "சுற்றுவரையை மூடு",
+    "closeOuterTitle": "வெளிப்புற சுற்றுவரையை மூடவும் (≥ 3 புள்ளிகள்) — பின்னர் திறப்புகளை வரையலாம்",
+    "closeHole": "திறப்பை மூடு",
+    "closeHoleTitle": "திறப்பை மூடு (≥ 3 புள்ளிகள்)",
+    "done": "முடிந்தது",
+    "doneTitle": "சுற்றுவரைகள் மூடப்பட்டுள்ளதா எனச் சரிபார்த்து, சரடு வரைந்து பயன்முறையிலிருந்து வெளியேறும் (Enter)",
+    "cancelTitle": "ரத்து (Esc)",
+    "outerClosed": "வெளிப்புற சுற்றுவரை மூடப்பட்டது ✓ · திறப்புகள்: {{count}}",
+    "drawingHole": " · திறப்பு வரையப்படுகிறது ({{count}} புள்ளிகள்)",
+    "outerOpenClosable": "வெளிப்புற சுற்றுவரை திறந்துள்ளது — {{count}} புள்ளிகள் (மூடலாம்)",
+    "outerOpen": "வெளிப்புற சுற்றுவரை திறந்துள்ளது — {{count}} புள்ளிகள்"
+  },
+  "boxWidthAbbr": "அ",
+  "boxHeightAbbr": "உ"
 }

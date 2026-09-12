@@ -58,5 +58,27 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "undoPoint": "Kumoa piste",
+    "undoPointTitle": "Poista viimeisin piste (Askelpalautin)",
+    "holesPhaseHint": "Napsauta aukkoa varten · Enter tai oikea napsautus = valmis",
+    "line": "Viiva",
+    "lineTitle": "Suora segmentti",
+    "arc": "Kaari",
+    "arcTitle": "Kaarisegmentti (näppäin A, hiiren rulla = pullistuma)",
+    "closeOuter": "Sulje ääriviiva",
+    "closeOuterTitle": "Sulje ulkoääriviiva (≥ 3 pistettä) — sen jälkeen voit piirtää aukkoja",
+    "closeHole": "Sulje aukko",
+    "closeHoleTitle": "Sulje aukko (≥ 3 pistettä)",
+    "done": "Valmis",
+    "doneTitle": "Tarkistaa, että ääriviivat on suljettu, piirtää viivoituksen ja poistuu tilasta (Enter)",
+    "cancelTitle": "Peruuta (Esc)",
+    "outerClosed": "Ulkoääriviiva suljettu ✓ · aukkoja: {{count}}",
+    "drawingHole": " · piirretään aukkoa ({{count}} piste(ttä))",
+    "outerOpenClosable": "Ulkoääriviiva auki — {{count}} pistettä (suljettavissa)",
+    "outerOpen": "Ulkoääriviiva auki — {{count}} piste(ttä)"
+  },
+  "boxWidthAbbr": "L",
+  "boxHeightAbbr": "K"
 }

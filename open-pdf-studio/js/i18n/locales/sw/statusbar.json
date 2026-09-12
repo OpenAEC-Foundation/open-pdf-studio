@@ -58,5 +58,27 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "undoPoint": "Tengua pointi",
+    "undoPointTitle": "Ondoa pointi ya mwisho (Backspace)",
+    "holesPhaseHint": "Bofya kwa fursa · Enter au kubofya kulia = imekamilika",
+    "line": "Mstari",
+    "lineTitle": "Sehemu iliyonyooka",
+    "arc": "Upinde",
+    "arcTitle": "Sehemu ya upinde (kitufe A, gurudumu la panya = uvimbe)",
+    "closeOuter": "Funga ukingo",
+    "closeOuterTitle": "Funga ukingo wa nje (≥ pointi 3) — kisha unaweza kuchora fursa",
+    "closeHole": "Funga fursa",
+    "closeHoleTitle": "Funga fursa (≥ pointi 3)",
+    "done": "Imekamilika",
+    "doneTitle": "Inakagua kama kingo zimefungwa, inachora mistari na kutoka katika hali hii (Enter)",
+    "cancelTitle": "Ghairi (Esc)",
+    "outerClosed": "Ukingo wa nje umefungwa ✓ · fursa: {{count}}",
+    "drawingHole": " · inachora fursa (pointi {{count}})",
+    "outerOpenClosable": "Ukingo wa nje umefunguliwa — pointi {{count}} (unaweza kufungwa)",
+    "outerOpen": "Ukingo wa nje umefunguliwa — pointi {{count}}"
+  },
+  "boxWidthAbbr": "U",
+  "boxHeightAbbr": "K"
 }

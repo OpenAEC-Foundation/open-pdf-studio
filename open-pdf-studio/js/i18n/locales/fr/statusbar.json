@@ -57,5 +57,27 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "undoPoint": "Annuler le point",
+    "undoPointTitle": "Supprimer le dernier point (Retour arrière)",
+    "holesPhaseHint": "Cliquez pour une ouverture · Entrée ou clic droit = terminé",
+    "line": "Ligne",
+    "lineTitle": "Segment droit",
+    "arc": "Arc",
+    "arcTitle": "Segment d'arc (touche A, molette = bombement)",
+    "closeOuter": "Fermer le contour",
+    "closeOuterTitle": "Fermer le contour extérieur (≥ 3 points) — vous pourrez ensuite tracer des ouvertures (donut)",
+    "closeHole": "Fermer l'ouverture",
+    "closeHoleTitle": "Fermer l'ouverture (≥ 3 points)",
+    "done": "Terminé",
+    "doneTitle": "Vérifie que les contours sont fermés, trace la hachure et quitte le mode (Entrée)",
+    "cancelTitle": "Annuler (Échap)",
+    "outerClosed": "Contour extérieur fermé ✓ · ouvertures : {{count}}",
+    "drawingHole": " · ouverture en cours ({{count}} point(s))",
+    "outerOpenClosable": "Contour extérieur ouvert — {{count}} points (fermable)",
+    "outerOpen": "Contour extérieur ouvert — {{count}} point(s)"
+  },
+  "boxWidthAbbr": "L",
+  "boxHeightAbbr": "H"
 }

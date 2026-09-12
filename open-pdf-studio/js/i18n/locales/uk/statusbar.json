@@ -58,5 +58,27 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "undoPoint": "Скасувати точку",
+    "undoPointTitle": "Видалити останню точку (Backspace)",
+    "holesPhaseHint": "Клацніть для отвору · Enter або права кнопка = готово",
+    "line": "Лінія",
+    "lineTitle": "Прямий сегмент",
+    "arc": "Дуга",
+    "arcTitle": "Сегмент дуги (клавіша A, коліщатко миші = випуклість)",
+    "closeOuter": "Замкнути контур",
+    "closeOuterTitle": "Замкнути зовнішній контур (≥ 3 точки) — потім можна малювати отвори (бублик)",
+    "closeHole": "Замкнути отвір",
+    "closeHoleTitle": "Замкнути отвір (≥ 3 точки)",
+    "done": "Готово",
+    "doneTitle": "Перевіряє, чи контури замкнені, малює штрихування і виходить із режиму (Enter)",
+    "cancelTitle": "Скасувати (Esc)",
+    "outerClosed": "Зовнішній контур замкнено ✓ · отвори: {{count}}",
+    "drawingHole": " · малювання отвору ({{count}} точ.)",
+    "outerOpenClosable": "Зовнішній контур відкрито — {{count}} точок (можна замкнути)",
+    "outerOpen": "Зовнішній контур відкрито — {{count}} точ."
+  },
+  "boxWidthAbbr": "Ш",
+  "boxHeightAbbr": "В"
 }

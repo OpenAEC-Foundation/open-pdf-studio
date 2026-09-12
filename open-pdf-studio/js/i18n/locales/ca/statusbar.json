@@ -58,5 +58,27 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "undoPoint": "Desfés punt",
+    "undoPointTitle": "Elimina l'últim punt (Retrocés)",
+    "holesPhaseHint": "Fes clic per a una obertura · Retorn o clic dret = fet",
+    "line": "Línia",
+    "lineTitle": "Segment recte",
+    "arc": "Arc",
+    "arcTitle": "Segment d'arc (tecla A, roda del ratolí = bombament)",
+    "closeOuter": "Tanca el contorn",
+    "closeOuterTitle": "Tanca el contorn exterior (≥ 3 punts) — després pots dibuixar obertures (donut)",
+    "closeHole": "Tanca l'obertura",
+    "closeHoleTitle": "Tanca l'obertura (≥ 3 punts)",
+    "done": "Fet",
+    "doneTitle": "Comprova que els contorns estiguin tancats, dibuixa el ratllat i surt del mode (Retorn)",
+    "cancelTitle": "Cancel·la (Esc)",
+    "outerClosed": "Contorn exterior tancat ✓ · obertures: {{count}}",
+    "drawingHole": " · dibuixant obertura ({{count}} punt(s))",
+    "outerOpenClosable": "Contorn exterior obert — {{count}} punts (tancable)",
+    "outerOpen": "Contorn exterior obert — {{count}} punt(s)"
+  },
+  "boxWidthAbbr": "A",
+  "boxHeightAbbr": "Al"
 }

@@ -58,5 +58,27 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "undoPoint": "Pont visszavonása",
+    "undoPointTitle": "Utolsó pont eltávolítása (Backspace)",
+    "holesPhaseHint": "Kattintson nyíláshoz · Enter vagy jobb katt = kész",
+    "line": "Vonal",
+    "lineTitle": "Egyenes szakasz",
+    "arc": "Ív",
+    "arcTitle": "Ívszakasz (A billentyű, egérgörgő = domborulat)",
+    "closeOuter": "Kontúr lezárása",
+    "closeOuterTitle": "Külső kontúr lezárása (≥ 3 pont) — utána nyílásokat (donut) rajzolhat",
+    "closeHole": "Nyílás lezárása",
+    "closeHoleTitle": "Nyílás lezárása (≥ 3 pont)",
+    "done": "Kész",
+    "doneTitle": "Ellenőrzi, hogy a kontúrok zártak-e, kirajzolja a sraffozást és kilép a módból (Enter)",
+    "cancelTitle": "Mégse (Esc)",
+    "outerClosed": "Külső kontúr lezárva ✓ · nyílások: {{count}}",
+    "drawingHole": " · nyílás rajzolása ({{count}} pont)",
+    "outerOpenClosable": "Külső kontúr nyitva — {{count}} pont (lezárható)",
+    "outerOpen": "Külső kontúr nyitva — {{count}} pont"
+  },
+  "boxWidthAbbr": "Sz",
+  "boxHeightAbbr": "M"
 }

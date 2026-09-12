@@ -58,5 +58,27 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "undoPoint": "Отмяна на точка",
+    "undoPointTitle": "Премахни последната точка (Backspace)",
+    "holesPhaseHint": "Кликнете за отвор · Enter или десен бутон = готово",
+    "line": "Линия",
+    "lineTitle": "Прав сегмент",
+    "arc": "Дъга",
+    "arcTitle": "Сегмент от дъга (клавиш A, колелце на мишката = изпъкналост)",
+    "closeOuter": "Затвори контура",
+    "closeOuterTitle": "Затвори външния контур (≥ 3 точки) — после можете да чертаете отвори (донът)",
+    "closeHole": "Затвори отвора",
+    "closeHoleTitle": "Затвори отвора (≥ 3 точки)",
+    "done": "Готово",
+    "doneTitle": "Проверява дали контурите са затворени, чертае щриховката и излиза от режима (Enter)",
+    "cancelTitle": "Отказ (Esc)",
+    "outerClosed": "Външен контур затворен ✓ · отвори: {{count}}",
+    "drawingHole": " · чертане на отвор ({{count}} точка/и)",
+    "outerOpenClosable": "Външен контур отворен — {{count}} точки (може да се затвори)",
+    "outerOpen": "Външен контур отворен — {{count}} точка/и"
+  },
+  "boxWidthAbbr": "Ш",
+  "boxHeightAbbr": "В"
 }

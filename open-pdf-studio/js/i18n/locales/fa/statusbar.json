@@ -57,5 +57,27 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "undoPoint": "واگرد نقطه",
+    "undoPointTitle": "حذف آخرین نقطه (Backspace)",
+    "holesPhaseHint": "برای بازشو کلیک کنید · Enter یا کلیک راست = پایان",
+    "line": "خط",
+    "lineTitle": "پاره‌خط مستقیم",
+    "arc": "کمان",
+    "arcTitle": "پاره کمان (کلید A، چرخ ماوس = برآمدگی)",
+    "closeOuter": "بستن پیرامون",
+    "closeOuterTitle": "پیرامون بیرونی را ببندید (≥ ۳ نقطه) — سپس می‌توانید بازشوها را بکشید",
+    "closeHole": "بستن بازشو",
+    "closeHoleTitle": "بستن بازشو (≥ ۳ نقطه)",
+    "done": "پایان",
+    "doneTitle": "بررسی می‌کند که پیرامون‌ها بسته باشند، هاشور را می‌کشد و از حالت خارج می‌شود (Enter)",
+    "cancelTitle": "لغو (Esc)",
+    "outerClosed": "پیرامون بیرونی بسته شد ✓ · بازشوها: {{count}}",
+    "drawingHole": " · در حال کشیدن بازشو ({{count}} نقطه)",
+    "outerOpenClosable": "پیرامون بیرونی باز است — {{count}} نقطه (قابل بستن)",
+    "outerOpen": "پیرامون بیرونی باز است — {{count}} نقطه"
+  },
+  "boxWidthAbbr": "ع",
+  "boxHeightAbbr": "ا"
 }

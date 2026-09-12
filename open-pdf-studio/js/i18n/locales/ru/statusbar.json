@@ -58,5 +58,27 @@
   "viewSingle": "Single Page",
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
-  "viewFacing": "Two Pages Side by Side"
+  "viewFacing": "Two Pages Side by Side",
+  "filledAreaSketch": {
+    "undoPoint": "Отменить точку",
+    "undoPointTitle": "Удалить последнюю точку (Backspace)",
+    "holesPhaseHint": "Щёлкните для отверстия · Enter или ПКМ = готово",
+    "line": "Линия",
+    "lineTitle": "Прямой сегмент",
+    "arc": "Дуга",
+    "arcTitle": "Сегмент дуги (клавиша A, колесо мыши = выпуклость)",
+    "closeOuter": "Замкнуть контур",
+    "closeOuterTitle": "Замкнуть внешний контур (≥ 3 точек) — затем можно рисовать отверстия (бублик)",
+    "closeHole": "Замкнуть отверстие",
+    "closeHoleTitle": "Замкнуть отверстие (≥ 3 точек)",
+    "done": "Готово",
+    "doneTitle": "Проверяет, что контуры замкнуты, рисует штриховку и выходит из режима (Enter)",
+    "cancelTitle": "Отмена (Esc)",
+    "outerClosed": "Внешний контур замкнут ✓ · отверстия: {{count}}",
+    "drawingHole": " · рисование отверстия ({{count}} точ.)",
+    "outerOpenClosable": "Внешний контур открыт — {{count}} точек (можно замкнуть)",
+    "outerOpen": "Внешний контур открыт — {{count}} точ."
+  },
+  "boxWidthAbbr": "Ш",
+  "boxHeightAbbr": "В"
 }

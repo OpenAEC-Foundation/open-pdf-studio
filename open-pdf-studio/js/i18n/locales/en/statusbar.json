@@ -66,5 +66,27 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
-  "compareTabTitle": "Compare"
+  "compareTabTitle": "Compare",
+  "filledAreaSketch": {
+    "undoPoint": "Undo point",
+    "undoPointTitle": "Remove last point (Backspace)",
+    "holesPhaseHint": "Click for an opening · Enter or right-click = done",
+    "line": "Line",
+    "lineTitle": "Straight segment",
+    "arc": "Arc",
+    "arcTitle": "Arc segment (key A, mouse wheel = bulge)",
+    "closeOuter": "Close contour",
+    "closeOuterTitle": "Close outer contour (≥ 3 points) — then you can draw openings (donut)",
+    "closeHole": "Close opening",
+    "closeHoleTitle": "Close opening (≥ 3 points)",
+    "done": "Done",
+    "doneTitle": "Checks the contours are closed, draws the hatch, and exits the mode (Enter)",
+    "cancelTitle": "Cancel (Esc)",
+    "outerClosed": "Outer contour closed ✓ · openings: {{count}}",
+    "drawingHole": " · drawing opening ({{count}} point(s))",
+    "outerOpenClosable": "Outer contour open — {{count}} points (closable)",
+    "outerOpen": "Outer contour open — {{count}} point(s)"
+  },
+  "boxWidthAbbr": "W",
+  "boxHeightAbbr": "H"
 }
