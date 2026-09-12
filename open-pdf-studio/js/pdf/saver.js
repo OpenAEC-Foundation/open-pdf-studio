@@ -10,6 +10,7 @@ import { getCachedPdfBytes, setCachedPdfBytes, hidePdfABar } from './loader.js';
 import { PDFDocument, PDFString, PDFHexString, PDFName, PDFArray, PDFStream, degrees,
   PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup, PDFOptionList } from 'pdf-lib';
 import { bouwKnipselAppearance, tekenKnipselInPagina, alInBasis, markeerGebakken, ruimKnipselRestenOp, CATALOGUS_SLEUTEL as KNIPSEL_CATALOGUS } from './saver/vector-snippet.js';
+import { schrijfHatchMeta } from './saver/hatch-meta.js';
 import { bytesVan as knipselBytesVan } from '../annotations/vector-snippet-store.js';
 import { getAnnotationStorage, getAnnotIdToFieldName } from './form-layer.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
@@ -2387,6 +2388,10 @@ async function _savePDFNu(saveAsPath) {
             }
             annotDict = context.obj(maDict);
             annotDict.set(PDFName.of('BS'), buildBorderStyle(context, borderWidth, ann.borderStyle));
+            // Arcering: de parameters mee, niet alleen de lijnen in de
+            // appearance — anders is de arcering na heropenen weg en schrijft
+            // de volgende save een kaal vlak.
+            schrijfHatchMeta(annotDict, ann, context);
             // Save holes as custom OPS_Holes array
             if (ann.holes && ann.holes.length > 0) {
               const holesArray = ann.holes.map(hole => {
@@ -2452,19 +2457,8 @@ async function _savePDFNu(saveAsPath) {
             }
             annotDict = context.obj(faDict);
             annotDict.set(PDFName.of('BS'), buildBorderStyle(context, borderWidth, ann.borderStyle));
-            // Hatch metadata
-            if (ann.hatchPattern && ann.hatchPattern !== 'none') {
-              annotDict.set(PDFName.of('OPS_HatchPattern'), PDFString.of(ann.hatchPattern));
-              if (ann.hatchColor) {
-                annotDict.set(PDFName.of('OPS_HatchColor'), PDFString.of(ann.hatchColor));
-              }
-              if (ann.hatchScale != null) {
-                annotDict.set(PDFName.of('OPS_HatchScale'), context.obj(ann.hatchScale));
-              }
-              if (ann.hatchAngle != null) {
-                annotDict.set(PDFName.of('OPS_HatchAngle'), context.obj(ann.hatchAngle));
-              }
-            }
+            // Arcering: parameters mee, anders is de arcering na heropenen weg.
+            schrijfHatchMeta(annotDict, ann, context);
             // Holes (re-uses existing OPS_Holes loader path).
             // Also persist per-hole arc metadata as parallel arrays
             // /OPS_HoleArcFlags + /OPS_HoleArcBulges (array of sub-arrays,
@@ -2605,12 +2599,7 @@ async function _savePDFNu(saveAsPath) {
             };
             annotDict = context.obj(wDict);
             annotDict.set(PDFName.of('BS'), buildBorderStyle(context, borderWidth, 'solid'));
-            if (ann.hatchPattern && ann.hatchPattern !== 'none') {
-              annotDict.set(PDFName.of('OPS_HatchPattern'), PDFString.of(ann.hatchPattern));
-              if (ann.hatchColor) annotDict.set(PDFName.of('OPS_HatchColor'), PDFString.of(ann.hatchColor));
-              if (ann.hatchScale != null) annotDict.set(PDFName.of('OPS_HatchScale'), context.obj(ann.hatchScale));
-              if (ann.hatchAngle != null) annotDict.set(PDFName.of('OPS_HatchAngle'), context.obj(ann.hatchAngle));
-            }
+            schrijfHatchMeta(annotDict, ann, context);
             if (ann.isolatieType) {
               annotDict.set(PDFName.of('OPS_IsolatieType'), PDFString.of(ann.isolatieType));
             }

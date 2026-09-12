@@ -9,6 +9,7 @@ import { ifcCategoryForAnnotationType, ifcCategoryForParametric } from '../../so
 import { nenIfcForStamp } from '../../solid/data/nenIfcMap.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
 import { knipselUitExtra } from './vector-snippet-load.js';
+import { hatchUitExtra } from '../saver/hatch-meta.js';
 import { heeft as heeftKnipselBron } from '../../annotations/vector-snippet-store.js';
 import { syncTwoPointGeometry } from '../../symbols/two-point.js';
 import { systeemFromOps, sparingenFromJson } from '../../annotations/systeemraster.js';
@@ -922,10 +923,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
             borderStyle: mapBorderStyle(annot, extraColors),
             x: minX, y: minY,
             width: maxX - minX, height: maxY - minY,
-            hatchPattern: extraColors.opsHatchPattern || 'none',
-            hatchColor: extraColors.opsHatchColor || '#000000',
-            hatchScale: extraColors.opsHatchScale ?? 100,
-            hatchAngle: extraColors.opsHatchAngle ?? 0,
+            ...hatchUitExtra(extraColors),
           };
           if (extraColors.holes && extraColors.holes.length > 0) {
             const holeArcFlags = extraColors.opsHoleArcFlags || [];
@@ -968,6 +966,9 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
             lineWidth: extraColors.borderWidth ?? annot.borderStyle?.width ?? 1,
             borderStyle: mapBorderStyle(annot, extraColors),
             measureText: maText,
+            // Arcering terug uit de eigen sleutels; zonder dit verliest een
+            // gearceerd meetvlak zijn arcering bij de volgende save.
+            ...hatchUitExtra(extraColors),
           };
           if (extraColors.measureScale) {
             maProps.measureScale = extraColors.measureScale;
