@@ -135,7 +135,8 @@
     "snapToDrawing": "Snap",
     "snapToDrawingTitle": "An PDF-Zeichnung einrasten",
     "snapActive": "Snap An",
-    "loading": "Laden..."
+    "loading": "Laden...",
+    "parametricSymbol": "Parametrisches Symbol"
   },
   "view": {
     "pageDisplay": "Seitenanzeige",

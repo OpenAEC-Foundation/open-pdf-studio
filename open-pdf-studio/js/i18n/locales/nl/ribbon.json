@@ -158,7 +158,8 @@
     "snapActive": "Snap Aan",
     "loading": "Laden...",
     "northArrow": "North Arrow",
-    "cloudPolyline": "Wolk-polylijn"
+    "cloudPolyline": "Wolk-polylijn",
+    "parametricSymbol": "Parametrisch symbool"
   },
   "view": {
     "pageDisplay": "Paginaweergave",
