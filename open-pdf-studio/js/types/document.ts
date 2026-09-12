@@ -13,6 +13,15 @@ export interface TextEdit {
   original: any;
 }
 
+export interface OcrWord {
+  text: string;
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  confidence: number;
+}
+
 export interface Watermark {
   id: string;
   type: 'text' | 'image';
@@ -60,6 +69,9 @@ export interface DocumentState {
   annotations: Annotation[];
   textEdits: TextEdit[];
   watermarks: Watermark[];
+  /** OCR word results keyed by 1-based page number, written into an invisible
+   *  searchable text layer on save (see js/pdf/ocr.js, saver/ocr-text-layer.js). */
+  ocrResults: Record<number, OcrWord[]>;
   bookmarks: Bookmark[];
   undoStack: UndoCommand[];
   redoStack: UndoCommand[];

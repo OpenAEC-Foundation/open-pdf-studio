@@ -80,5 +80,14 @@
     "outerOpen": "Contur exterior deschis · puncte: {{count}}"
   },
   "boxWidthAbbr": "L",
-  "boxHeightAbbr": "H"
+  "boxHeightAbbr": "H",
+  "ocr": {
+    "progress": {
+      "starting": "Recognizing text...",
+      "page": "Recognizing text on page {{page}}...",
+      "done": "Recognized {{count}} words",
+      "doneAll": "Recognized {{count}} words across {{pages}} pages",
+      "failed": "Text recognition failed"
+    }
+  }
 }

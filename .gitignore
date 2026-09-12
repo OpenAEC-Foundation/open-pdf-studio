@@ -16,6 +16,11 @@ binaries/pdfium-worker-*
 # macOS in-proc PDFium: door CI opgehaald (SHA-256-geverifieerd), niet gecommit
 binaries/macos-universal/
 
+# OCR runtime assets (Tesseract trained-data + CJK font): opgehaald door
+# scripts/ocr-runtime.mjs (SHA-256-geverifieerd), niet gecommit.
+open-pdf-studio/src-tauri/resources/tessdata/
+open-pdf-studio/src-tauri/resources/fonts/
+
 # OS files
 .DS_Store
 Thumbs.db

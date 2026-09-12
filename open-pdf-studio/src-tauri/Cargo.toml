@@ -66,6 +66,11 @@ axum = "0.8"
 # resolver picks a single lopdf in Cargo.lock.
 lopdf = "0.34"
 
+# OCR proof-of-concept (Traditional Chinese + English) — see js/... OCR plan.
+# build-tesseract: compiles Tesseract + Leptonica from source instead of
+# requiring them preinstalled on the build machine.
+tesseract-rs = { version = "0.1", features = ["build-tesseract"] }
+
 [target.'cfg(not(target_os = "android"))'.dependencies]
 tauri-plugin-updater = "2"
 # Drag-out window detach — desktop only (the crate has no mobile platform

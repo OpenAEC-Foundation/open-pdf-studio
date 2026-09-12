@@ -4,9 +4,10 @@
   "description": "A free, open-source PDF annotation editor built with Tauri",
   "scripts": {
     "prepare:native-runtime": "node scripts/native-runtime.mjs",
-    "predev": "npm run prepare:native-runtime && cargo build -p pdfium-worker",
+    "prepare:ocr-runtime": "node scripts/ocr-runtime.mjs",
+    "predev": "npm run prepare:native-runtime && npm run prepare:ocr-runtime && cargo build -p pdfium-worker",
     "dev": "vite",
-    "prebuild": "npm run prepare:native-runtime && cargo build --release -p pdfium-worker",
+    "prebuild": "npm run prepare:native-runtime && npm run prepare:ocr-runtime && cargo build --release -p pdfium-worker",
     "build": "vite build",
     "preview": "vite preview",
     "tauri": "tauri",
@@ -41,6 +42,7 @@
   },
   "dependencies": {
     "@crabnebula/tauri-plugin-drag": "^2.1.0",
+    "@pdf-lib/fontkit": "^1.1.1",
     "@tauri-apps/api": "~2.11",
     "@tauri-apps/plugin-dialog": "~2.7",
     "@tauri-apps/plugin-fs": "~2.5",
