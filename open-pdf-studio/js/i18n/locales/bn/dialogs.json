@@ -320,6 +320,7 @@
     "error": "Could not retrieve the version list. Check your internet connection and try again."
   },
   "parametricSymbolPicker": {
-    "title": "প্যারামেট্রিক প্রতীক নির্বাচন করুন"
+    "title": "প্যারামেট্রিক প্রতীক নির্বাচন করুন",
+    "cancel": "Cancel"
   }
 }

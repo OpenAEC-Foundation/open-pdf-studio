@@ -5,6 +5,7 @@ import { Show, For } from 'solid-js';
 import { annotProps, updateAnnotProp } from '../../stores/propertiesStore.js';
 import CollapsibleSection from './CollapsibleSection.jsx';
 import { getTemplate } from '../../../symbols/registry.js';
+import { useTranslation } from '../../../i18n/useTranslation.js';
 
 function paramValue(key, fallback) {
   // annotProps.params is mirrored from currentAnnotation.params via setAnnotProps
@@ -20,29 +21,38 @@ function setParam(key, value) {
 }
 
 export default function ParametricSymbolSection() {
+  const { t } = useTranslation('properties');
+
   return (
     <Show when={annotProps.annotationType === 'parametricSymbol'}>
       {(() => {
         const template = getTemplate(annotProps.symbolId);
         if (!template) {
           return (
-            <CollapsibleSection title="Parametric symbol" name="parametricSymbol" id="prop-parametric-section">
+            <CollapsibleSection title={t('parametricSymbol.defaultTitle')} name="parametricSymbol" id="prop-parametric-section">
               <div class="property-group">
-                <label>Symbol</label>
+                <label>{t('parametricSymbol.symbolLabel')}</label>
                 <input type="text" readonly value={annotProps.symbolId || '?'} />
-                <small style="color:#a00">Onbekend symbool / unknown symbol</small>
+                <small style="color:#a00">{t('parametricSymbol.unknownSymbol')}</small>
               </div>
             </CollapsibleSection>
           );
         }
         return (
-          <CollapsibleSection title={`Symbool: ${template.name}`} name="parametricSymbol" id="prop-parametric-section">
+          <CollapsibleSection title={t('parametricSymbol.sectionTitle', { name: template.name })} name="parametricSymbol" id="prop-parametric-section">
             <div class="property-group">
-              <label>Type</label>
+              <label>{t('parametricSymbol.typeLabel')}</label>
               <input type="text" readonly value={template.name + (template.nameEn ? ` / ${template.nameEn}` : '')} />
             </div>
             <For each={template.params}>{(p) => (
               <div class="property-group">
+                {/* p.label/p.unit come from the symbol template's own data
+                    (bilingual NL/EN label+labelEn, per symbols/registry.js),
+                    not the i18next resource bundle — units are short
+                    abbreviations (mm, °) that read the same in every
+                    language, so this is intentionally not run through t().
+                    If a template ever spells a unit out in full, it would
+                    need the same per-locale treatment as the labels. */}
                 <label title={p.labelEn || ''}>{p.label}{p.unit ? ` (${p.unit})` : ''}</label>
                 <Show when={p.type === 'number'}>
                   <input type="number"
