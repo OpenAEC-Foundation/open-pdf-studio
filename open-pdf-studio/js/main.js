@@ -354,7 +354,12 @@ async function init() {
   // handling needed. We only skip session-restore so the detached window
   // shows JUST its one document, not the whole previous session.
   if (!hasCommandLineFile) {
-    await restoreLastSession();
+    // Not awaited: the window is already rendered and interactive at this
+    // point (render() ran long before this line) — waiting here just made
+    // the whole app FEEL frozen until every previously-open tab finished
+    // reloading. Tabs still appear and load the same way, just without
+    // blocking "ready" on it. restoreLastSession() has its own try/catch.
+    restoreLastSession();
   }
 
   // Dev convenience: ALWAYS have Desktop\test.pdf open on boot — the standing
@@ -500,17 +505,19 @@ async function restoreLastSession() {
     const sessionData = await loadSession();
 
     if (sessionData && sessionData.openFiles && sessionData.openFiles.length > 0) {
-      // Filter to files that still exist, then open in parallel
-      const validFiles = [];
-      for (const filePath of sessionData.openFiles) {
-        try {
-          if (await fileExists(filePath)) {
-            validFiles.push(filePath);
+      // Filter to files that still exist — checked in parallel (was a
+      // sequential for-await loop, one IPC round-trip at a time).
+      const existenceChecks = await Promise.all(
+        sessionData.openFiles.map(async (filePath) => {
+          try {
+            return (await fileExists(filePath)) ? filePath : null;
+          } catch (e) {
+            console.warn('Failed to check file:', filePath, e);
+            return null;
           }
-        } catch (e) {
-          console.warn('Failed to check file:', filePath, e);
-        }
-      }
+        })
+      );
+      const validFiles = existenceChecks.filter(Boolean);
       if (validFiles.length > 0) {
         await openFiles(validFiles);
       }
