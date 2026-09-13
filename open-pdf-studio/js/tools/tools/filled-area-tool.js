@@ -18,6 +18,7 @@
 
 import { state, getActiveDocument } from '../../core/state.js';
 import { applyToolTransform } from '../tool-context.js';
+import { computeUndoLastPoint } from './filled-area-undo.js';
 import { createAnnotation } from '../../annotations/factory.js';
 import { recordAdd } from '../../core/undo-manager.js';
 import i18next from '../../i18n/config.js';
@@ -445,14 +446,18 @@ function _getAllInProgressPoints() {
 // the outer contour's first click stays a hard commitment (use Cancel/
 // Escape to abandon it entirely).
 function _undoLastPoint(ctx) {
-  if (!state.filledAreaPoints || state.filledAreaPoints.length === 0) return false;
-  state.filledAreaPoints.pop();
-  if (state.filledAreaPoints.length === 0) {
+  const result = computeUndoLastPoint(state.filledAreaPoints);
+  if (!result.changed) return false;
+  state.filledAreaPoints = result.points;
+  if (result.reArmTypeLength) {
     // Re-arm type-length capture from scratch, same as the very first click.
     exitTypeLengthMode();
     state._typeLengthCommit = null;
   }
-  arcState.active = false;
+  // Deliberately NOT touching arcState.active here — undo removes a point,
+  // it isn't a mode reset. Place 3 arc points, misclick the third, press
+  // Backspace: the toolbar should still show Arc as the chosen mode, not
+  // silently fall back to Line.
   ctx.redraw();
   _drawInProgress(ctx);
   return true;

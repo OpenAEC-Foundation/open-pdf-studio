@@ -316,6 +316,11 @@ export async function handleKeydown(e) {
   // point. We forward digits / '.' / ',' / Backspace / Enter / Escape to the
   // capture module. Enter triggers the active tool's _typeLengthCommit hook
   // (set by the tool when it activates the mode).
+  // NOTE: this runs before any tool's own onKeyDown, so while a length is
+  // being typed, Backspace edits the typed digits (handled below) instead
+  // of falling through to a tool's own Backspace binding (e.g. the filled-
+  // area tool's "undo last point"). That's intentional — deleting a typo
+  // in the number you're mid-typing should not also delete a vertex.
   if (typeLengthActive()) {
     const result = typeLengthConsumeKey(e.key);
     if (result.handled) {
