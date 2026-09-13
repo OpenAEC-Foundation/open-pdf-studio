@@ -34,6 +34,13 @@ import {
 // adjusts bulge while active.
 const arcState = { active: false, bulge: 0.3 };
 
+// While the contour is still being sketched, the interior fill is rendered
+// at this fixed low alpha (independent of the annotation's own opacity)
+// so the page underneath stays visible for tracing. The border and hatch
+// keep the normal opacity so the outline being drawn is still crisp. Has
+// no effect on the finished, committed annotation.
+const SKETCH_FILL_PREVIEW_ALPHA = 0.2;
+
 // Last preview point (snap + Shift-ortho applied). Enter-committed typed
 // lengths place the next vertex along THIS direction so what you see in the
 // rubber-band is what you get.
@@ -240,7 +247,7 @@ export const filledAreaTool = {
         ? [...completed, activeHolePreview]
         : completed;
       if (outer.length >= 3) {
-        ctx.drawMeasureAreaShape(canvasCtx, outer, strokeColor, lineWidth, fillColor, borderStyle, allHoles, hatchOpts);
+        ctx.drawMeasureAreaShape(canvasCtx, outer, strokeColor, lineWidth, fillColor, borderStyle, allHoles, hatchOpts, SKETCH_FILL_PREVIEW_ALPHA);
       }
       if (activeHolePreview.length < 3 && activeHolePreview.length >= 2) {
         canvasCtx.setLineDash([2, 4]);
@@ -258,7 +265,7 @@ export const filledAreaTool = {
         : { x: snapX, y: snapY };
       const previewPts = [...state.filledAreaPoints, previewPt];
       if (previewPts.length > 2) {
-        ctx.drawMeasureAreaShape(canvasCtx, previewPts, strokeColor, lineWidth, fillColor, borderStyle, undefined, hatchOpts);
+        ctx.drawMeasureAreaShape(canvasCtx, previewPts, strokeColor, lineWidth, fillColor, borderStyle, undefined, hatchOpts, SKETCH_FILL_PREVIEW_ALPHA);
       } else {
         // Fallback: simple polyline preview
         canvasCtx.beginPath();
@@ -568,7 +575,7 @@ function _drawHolesPhasePreview(ctx, cursorX, cursorY) {
   canvasCtx.lineCap = 'round';
   canvasCtx.lineJoin = 'round';
 
-  ctx.drawMeasureAreaShape(canvasCtx, outer, strokeColor, lineWidth, fillColor, borderStyle, completed.length > 0 ? completed : undefined, hatchOpts);
+  ctx.drawMeasureAreaShape(canvasCtx, outer, strokeColor, lineWidth, fillColor, borderStyle, completed.length > 0 ? completed : undefined, hatchOpts, SKETCH_FILL_PREVIEW_ALPHA);
 
   canvasCtx.font = '10px Arial';
   canvasCtx.fillStyle = strokeColor;
