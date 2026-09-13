@@ -71,9 +71,9 @@
     "doneTitle": "Prüft, ob die Konturen geschlossen sind, zeichnet die Schraffur und verlässt den Modus (Eingabe)",
     "cancelTitle": "Abbrechen (Esc)",
     "outerClosed": "Außenkontur geschlossen ✓ · Öffnungen: {{count}}",
-    "drawingHole": " · Öffnung wird gezeichnet ({{count}} Punkt(e))",
-    "outerOpenClosable": "Außenkontur offen — {{count}} Punkte (schließbar)",
-    "outerOpen": "Außenkontur offen — {{count}} Punkt(e)"
+    "drawingHole": "Öffnung wird gezeichnet, Punkte: {{count}}",
+    "outerOpenClosable": "Außenkontur offen (schließbar) · Punkte: {{count}}",
+    "outerOpen": "Außenkontur offen · Punkte: {{count}}"
   },
   "boxWidthAbbr": "B",
   "boxHeightAbbr": "H"

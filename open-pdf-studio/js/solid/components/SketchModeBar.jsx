@@ -33,7 +33,10 @@ export default function SketchModeBar() {
   const statusText = () => {
     const st = s();
     if (st.phase === 'holes') {
-      const cur = st.points > 0 ? t('filledAreaSketch.drawingHole', { count: st.points }) : '';
+      // The separator lives here in code, not baked into the translated
+      // string — a leading " · " inside a translation is easy for a
+      // translator to lose and hard to notice when they do.
+      const cur = st.points > 0 ? ` · ${t('filledAreaSketch.drawingHole', { count: st.points })}` : '';
       return t('filledAreaSketch.outerClosed', { count: st.holes }) + cur;
     }
     return st.points >= 3

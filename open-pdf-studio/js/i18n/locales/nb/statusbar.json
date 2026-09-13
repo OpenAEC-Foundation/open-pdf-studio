@@ -72,9 +72,9 @@
     "doneTitle": "Sjekker at konturene er lukket, tegner skraveringen og forlater modusen (Enter)",
     "cancelTitle": "Avbryt (Esc)",
     "outerClosed": "Ytterkontur lukket ✓ · åpninger: {{count}}",
-    "drawingHole": " · tegner åpning ({{count}} punkt(er))",
-    "outerOpenClosable": "Ytterkontur åpen — {{count}} punkter (kan lukkes)",
-    "outerOpen": "Ytterkontur åpen — {{count}} punkt(er)"
+    "drawingHole": "tegner åpning, punkter: {{count}}",
+    "outerOpenClosable": "Ytterkontur åpen (kan lukkes) · punkter: {{count}}",
+    "outerOpen": "Ytterkontur åpen · punkter: {{count}}"
   },
   "boxWidthAbbr": "B",
   "boxHeightAbbr": "H"

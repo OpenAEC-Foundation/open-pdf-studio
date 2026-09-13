@@ -71,9 +71,9 @@
     "doneTitle": "Sprawdza, czy kontury są zamknięte, rysuje kreskowanie i wychodzi z trybu (Enter)",
     "cancelTitle": "Anuluj (Esc)",
     "outerClosed": "Kontur zewnętrzny zamknięty ✓ · otwory: {{count}}",
-    "drawingHole": " · rysowanie otworu ({{count}} punkt(y))",
-    "outerOpenClosable": "Kontur zewnętrzny otwarty — {{count}} punktów (można zamknąć)",
-    "outerOpen": "Kontur zewnętrzny otwarty — {{count}} punkt(y)"
+    "drawingHole": "rysowanie otworu, punktów: {{count}}",
+    "outerOpenClosable": "Kontur zewnętrzny otwarty (można zamknąć) · punktów: {{count}}",
+    "outerOpen": "Kontur zewnętrzny otwarty · punktów: {{count}}"
   },
   "boxWidthAbbr": "S",
   "boxHeightAbbr": "W"

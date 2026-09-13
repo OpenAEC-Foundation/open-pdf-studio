@@ -72,9 +72,9 @@
     "doneTitle": "Zkontroluje, zda jsou obrysy uzavřené, nakreslí šrafování a opustí režim (Enter)",
     "cancelTitle": "Zrušit (Esc)",
     "outerClosed": "Vnější obrys uzavřen ✓ · otvory: {{count}}",
-    "drawingHole": " · kreslení otvoru ({{count}} bod(y))",
-    "outerOpenClosable": "Vnější obrys otevřen — {{count}} bodů (lze uzavřít)",
-    "outerOpen": "Vnější obrys otevřen — {{count}} bod(y)"
+    "drawingHole": "kreslení otvoru, bodů: {{count}}",
+    "outerOpenClosable": "Vnější obrys otevřen (lze uzavřít) · bodů: {{count}}",
+    "outerOpen": "Vnější obrys otevřen · bodů: {{count}}"
   },
   "boxWidthAbbr": "Š",
   "boxHeightAbbr": "V"

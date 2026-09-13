@@ -72,9 +72,9 @@
     "doneTitle": "Comprova que els contorns estiguin tancats, dibuixa el ratllat i surt del mode (Retorn)",
     "cancelTitle": "Cancel·la (Esc)",
     "outerClosed": "Contorn exterior tancat ✓ · obertures: {{count}}",
-    "drawingHole": " · dibuixant obertura ({{count}} punt(s))",
-    "outerOpenClosable": "Contorn exterior obert — {{count}} punts (tancable)",
-    "outerOpen": "Contorn exterior obert — {{count}} punt(s)"
+    "drawingHole": "dibuixant obertura, punts: {{count}}",
+    "outerOpenClosable": "Contorn exterior obert (tancable) · punts: {{count}}",
+    "outerOpen": "Contorn exterior obert · punts: {{count}}"
   },
   "boxWidthAbbr": "A",
   "boxHeightAbbr": "Al"

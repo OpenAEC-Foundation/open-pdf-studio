@@ -72,9 +72,9 @@
     "doneTitle": "Kontrollerar att konturerna är stängda, ritar skrafferingen och lämnar läget (Retur)",
     "cancelTitle": "Avbryt (Esc)",
     "outerClosed": "Ytterkontur stängd ✓ · öppningar: {{count}}",
-    "drawingHole": " · ritar öppning ({{count}} punkt(er))",
-    "outerOpenClosable": "Ytterkontur öppen — {{count}} punkter (kan stängas)",
-    "outerOpen": "Ytterkontur öppen — {{count}} punkt(er)"
+    "drawingHole": "ritar öppning, punkter: {{count}}",
+    "outerOpenClosable": "Ytterkontur öppen (kan stängas) · punkter: {{count}}",
+    "outerOpen": "Ytterkontur öppen · punkter: {{count}}"
   },
   "boxWidthAbbr": "B",
   "boxHeightAbbr": "H"
