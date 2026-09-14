@@ -52,3 +52,19 @@ test('runsToText is de inverse van de run-regels', () => {
   const runs = [[{ text: 'x', bold: true }, { text: 'y' }], [], [{ text: 'z' }]];
   assert.equal(runsToText(runs), 'xy\n\nz');
 });
+
+test('CJK-tekst breekt per teken af (geen spaties tussen "woorden")', () => {
+  // Zonder spaties is een hele CJK-zin één onafbreekbaar "woord" tenzij elk
+  // teken zijn eigen afbreekpunt is — anders overschrijdt de regel maxWidth
+  // in plaats van af te breken zoals Acrobat.
+  const lines = layoutTextboxLines({ text: '土壤地面須種植地被植物及灌木以容許車道闊度最多達' }, 100, meet);
+  assert.ok(lines.length > 1, 'CJK-tekst moet over meerdere regels afbreken');
+  for (const l of lines) assert.ok(l.width <= 100, `regel "${tekst([l])}" (${l.width}) overschrijdt maxWidth`);
+});
+
+test('CJK- en Latijnse tekst gemengd: Latijnse woorden blijven heel, CJK breekt per teken', () => {
+  const lines = layoutTextboxLines({ text: 'max 4米車道' }, 45, meet);
+  // "max 4米" = 6 tekens = 60 > 45, dus "max" (30) + "4米" moet apart.
+  assert.ok(lines.length > 1);
+  assert.equal(lines[0].chunks.map(c => c.text).join(''), 'max');
+});
