@@ -15,6 +15,7 @@ import { syncTwoPointGeometry } from '../../symbols/two-point.js';
 import { systeemFromOps, sparingenFromJson } from '../../annotations/systeemraster.js';
 import { systeemTypeFromJson } from '../../annotations/systeem-typen.js';
 import { ensureSysteemType, getSysteemTypeById } from '../../annotations/systeem-typen-registry.js';
+import { computeTextboxContentHeight } from '../../annotations/rendering/shapes.js';
 
 // Convert PDF annotation to our format
 export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageMap, annotColorMap) {
@@ -1286,6 +1287,18 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           coW = rdVp.width;
           coH = rdVp.height;
         }
+        // Some authoring tools bake a Rect/RD box a little too tight for the
+        // annotation's own Contents. Acrobat paints the file's own baked
+        // appearance stream regardless, so the shortfall never shows there;
+        // we reconstruct the layout from Contents/DA and drawTextboxContent
+        // silently drops lines past the box height — grow down to fit instead
+        // of truncating text Acrobat shows in full.
+        const coNeededH = computeTextboxContentHeight({
+          text, textRuns, width: coW, fontSize,
+          lineSpacing: extraColors.lineSpacing, lineWidth: borderWidth,
+          fontFamily: fontFamily || 'Arial'
+        });
+        if (coNeededH > coH) coH = coNeededH;
         // Callout stroke color: IC > AP stroke > borderColor fallback
         const coStrokeColor = extraColors.ic || extraColors.apStrokeColor || borderColor;
         // Fill color: C entry is the background for FreeText
@@ -1337,6 +1350,15 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           } : {})
         });
       }
+
+      // Same grow-to-fit as the callout branch above: don't silently drop
+      // lines Acrobat shows in full just because the authored Rect is tight.
+      const ftNeededH = computeTextboxContentHeight({
+        text, textRuns, width: ftWidth, fontSize,
+        lineSpacing: extraColors.lineSpacing, lineWidth: borderWidth,
+        fontFamily: fontFamily || 'Arial'
+      });
+      if (ftNeededH > ftHeight) ftHeight = ftNeededH;
 
       const _tbAnn = createAnnotation({
         ...baseProps,
