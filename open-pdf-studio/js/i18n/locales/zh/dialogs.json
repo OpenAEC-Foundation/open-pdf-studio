@@ -320,6 +320,7 @@
     "error": "Could not retrieve the version list. Check your internet connection and try again."
   },
   "parametricSymbolPicker": {
-    "title": "选择参数化符号"
+    "title": "选择参数化符号",
+    "cancel": "Cancel"
   }
 }

@@ -50,7 +50,7 @@ export default function ParametricSymbolPicker() {
           <div style="border-top:1px solid #d4d4d4;background:#f5f5f5;padding:6px;display:flex;justify-content:flex-end;gap:6px">
             <button type="button"
               style="padding:4px 12px;border:1px solid #d4d4d4;background:#fff;cursor:pointer;font-size:12px"
-              onClick={() => setPickerOpen(false)}>Annuleren</button>
+              onClick={() => setPickerOpen(false)}>{t('parametricSymbolPicker.cancel')}</button>
           </div>
         </div>
       </div>

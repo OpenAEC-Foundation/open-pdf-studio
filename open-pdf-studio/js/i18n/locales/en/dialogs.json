@@ -476,6 +476,7 @@
     "error": "Could not retrieve the version list. Check your internet connection and try again."
   },
   "parametricSymbolPicker": {
-    "title": "Choose Parametric Symbol"
+    "title": "Choose Parametric Symbol",
+    "cancel": "Cancel"
   }
 }

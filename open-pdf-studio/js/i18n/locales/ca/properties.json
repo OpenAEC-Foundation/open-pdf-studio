@@ -494,5 +494,12 @@
       "scheduleTable": "Quantities table",
       "builtinText": "Text"
     }
+  },
+  "parametricSymbol": {
+    "defaultTitle": "Parametric symbol",
+    "sectionTitle": "Symbol: {{name}}",
+    "symbolLabel": "Symbol",
+    "typeLabel": "Type",
+    "unknownSymbol": "Unknown symbol"
   }
 }
