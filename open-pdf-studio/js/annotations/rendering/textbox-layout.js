@@ -22,12 +22,18 @@ export function runsToText(lines) {
  */
 export function textboxLineRuns(ann) {
   const text = String(ann?.text ?? '');
-  const base = { bold: !!ann?.fontBold, italic: !!ann?.fontItalic };
+  const base = {
+    bold: !!ann?.fontBold, italic: !!ann?.fontItalic,
+    ...(ann?.fontUnderline ? { underline: true } : {}),
+    ...(ann?.fontStrikethrough ? { strikethrough: true } : {}),
+  };
   const runs = ann?.textRuns;
   if (Array.isArray(runs) && runs.length && runsToText(runs) === text) {
     return runs.map(line => (line || []).map(r => ({
       text: String(r?.text ?? ''), bold: !!r?.bold, italic: !!r?.italic,
       ...(r?.color ? { color: r.color } : {}),
+      ...(r?.underline ? { underline: true } : {}),
+      ...(r?.strikethrough ? { strikethrough: true } : {}),
     })));
   }
   return text.split('\n').map(t => (t ? [{ text: t, ...base }] : []));
@@ -37,7 +43,25 @@ export function textboxLineRuns(ann) {
 export function hasMixedRuns(ann) {
   const lines = textboxLineRuns(ann);
   const base = { bold: !!ann?.fontBold, italic: !!ann?.fontItalic };
-  return lines.some(line => line.some(r => r.bold !== base.bold || r.italic !== base.italic || r.color));
+  return lines.some(line => line.some(r => r.bold !== base.bold || r.italic !== base.italic || r.color
+    || r.underline || r.strikethrough));
+}
+
+// CJK text (Chinese/Japanese/Korean) has no spaces between "words" — every
+// character is its own valid break point, unlike space-delimited scripts.
+// Without this, a whole CJK sentence became a single unbreakable "word"
+// below (nothing to split on but a space that never comes), so it just
+// overflowed the box's width instead of wrapping like other editors do.
+function isCJK(ch) {
+  const cp = ch.codePointAt(0);
+  return (
+    (cp >= 0x4E00 && cp <= 0x9FFF) ||   // CJK Unified Ideographs
+    (cp >= 0x3400 && cp <= 0x4DBF) ||   // CJK Unified Ideographs Extension A
+    (cp >= 0x3040 && cp <= 0x30FF) ||   // Hiragana + Katakana
+    (cp >= 0xAC00 && cp <= 0xD7A3) ||   // Hangul syllables
+    (cp >= 0x3000 && cp <= 0x303F) ||   // CJK punctuation
+    (cp >= 0xFF00 && cp <= 0xFFEF)      // Fullwidth forms
+  );
 }
 
 // Splits runs in woorden mét hun stijl. Spaties horen bij het woord ervoor
@@ -51,12 +75,18 @@ function woordenVanRegel(runs) {
       const ch = t[i];
       if (!huidig) huidig = { delen: [], eindigtMetSpatie: false };
       const laatste = huidig.delen[huidig.delen.length - 1];
-      if (laatste && laatste.bold === !!r.bold && laatste.italic === !!r.italic && (laatste.color || null) === (r.color || null)) {
+      if (laatste && laatste.bold === !!r.bold && laatste.italic === !!r.italic && (laatste.color || null) === (r.color || null)
+        && !!laatste.underline === !!r.underline && !!laatste.strikethrough === !!r.strikethrough) {
         laatste.text += ch;
       } else {
-        huidig.delen.push({ text: ch, bold: !!r.bold, italic: !!r.italic, ...(r.color ? { color: r.color } : {}) });
+        huidig.delen.push({
+          text: ch, bold: !!r.bold, italic: !!r.italic, ...(r.color ? { color: r.color } : {}),
+          ...(r.underline ? { underline: true } : {}),
+          ...(r.strikethrough ? { strikethrough: true } : {}),
+        });
       }
       if (ch === ' ') { huidig.eindigtMetSpatie = true; woorden.push(huidig); huidig = null; }
+      else if (isCJK(ch)) { woorden.push(huidig); huidig = null; }
     }
   }
   if (huidig) woorden.push(huidig);
@@ -71,7 +101,8 @@ function voegSamen(delen) {
   for (const d of delen) {
     if (!d.text) continue;
     const p = uit[uit.length - 1];
-    if (p && p.bold === d.bold && p.italic === d.italic && (p.color || null) === (d.color || null)) p.text += d.text;
+    if (p && p.bold === d.bold && p.italic === d.italic && (p.color || null) === (d.color || null)
+      && !!p.underline === !!d.underline && !!p.strikethrough === !!d.strikethrough) p.text += d.text;
     else uit.push({ ...d });
   }
   return uit;
@@ -91,7 +122,7 @@ function trimEinde(delen) {
 
 /**
  * Breekt de regels van een tekstvlak af op `maxWidth`.
- * @returns {Array<{chunks: Array<{text,bold,italic,color?}>, width: number}>}
+ * @returns {Array<{chunks: Array<{text,bold,italic,color?,underline?,strikethrough?}>, width: number}>}
  *   Eén element per uitvoerregel; een lege bronregel geeft { chunks: [], width: 0 }.
  */
 export function layoutTextboxLines(ann, maxWidth, measure) {
@@ -100,15 +131,28 @@ export function layoutTextboxLines(ann, maxWidth, measure) {
     if (!runs.length) { uit.push({ chunks: [], width: 0 }); continue; }
     const woorden = woordenVanRegel(runs);
     let regel = [];      // delen van de lopende regel (inclusief scheidings-spaties)
+    let regelBreedte = 0; // lopende breedte van `regel` — bijgehouden i.p.v.
+    // elke iteratie opnieuw de HELE kandidaat-regel te meten. Voor CJK-tekst
+    // is elk teken een eigen "woord" (zie woordenVanRegel), dus zonder dit
+    // werd de groeiende regel bij ELK teken opnieuw volledig samengevoegd +
+    // gemeten — O(n²) canvas-measureText-aanroepen die een tekstvlak met
+    // een paar honderd Chinese tekens de hoofdthread seconden liet blokkeren.
     let eerste = true;
     for (const w of woorden) {
-      const kandidaat = trimEinde(voegSamen([...regel, ...w.delen]));
-      if (!eerste && meetDelen(kandidaat, measure) > maxWidth) {
+      const woordBreedte = meetDelen(w.delen, measure);
+      // De pas-het-nog-check gebruikt de breedte ZONDER een evt. spatie aan
+      // het eind van dit woord (zoals trimEinde op de hele kandidaat-regel
+      // vroeger deed) — een woord dat alleen dankzij zijn eigen afsluitende
+      // spatie net over maxWidth gaat, hoort niet vroegtijdig af te breken.
+      const woordBreedteVoorPast = meetDelen(trimEinde(w.delen), measure);
+      if (!eerste && regelBreedte + woordBreedteVoorPast > maxWidth) {
         const klaar = trimEinde(voegSamen(regel));
         uit.push({ chunks: klaar, width: meetDelen(klaar, measure) });
         regel = [...w.delen];
+        regelBreedte = woordBreedte;
       } else {
         regel = [...regel, ...w.delen];
+        regelBreedte += woordBreedte;
       }
       eerste = false;
     }

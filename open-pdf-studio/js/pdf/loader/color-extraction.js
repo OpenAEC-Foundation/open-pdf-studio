@@ -1026,13 +1026,38 @@ const result = {};
                   // de PDF-notatie; voor het parsen de gedecodeerde tekst.
                   const rcDecoded = (typeof rcRaw.decodeText === 'function') ? rcRaw.decodeText()
                     : (typeof rcRaw.asString === 'function') ? rcRaw.asString() : rcStr.replace(/^\(|\)$/g, '');
-                  const rcDoc = new DOMParser().parseFromString(String(rcDecoded).replace(/^\s*<\?xml[^>]*\?>/i, ''), 'text/html');
+                  // Some authoring tools (XFA-style RC) end every
+                  // paragraph with BOTH a trailing \r AND its own <p>/<div>
+                  // block — belt-and-suspenders encoding of the same line
+                  // break. parseEditorDom (shared with the live editor, where
+                  // a lone trailing \r is meaningful — see its own contract
+                  // comment) counts each independently, doubling every blank
+                  // line between paragraphs. Drop the redundant \r right
+                  // before a block closes; it carries no information the
+                  // block boundary doesn't already provide.
+                  const rcCleaned = String(rcDecoded).replace(/^\s*<\?xml[^>]*\?>/i, '')
+                    .replace(/(?:&#(?:13|10);|[\r\n])+(?=<\/(?:span|p|div)>)/gi, '');
+                  const rcDoc = new DOMParser().parseFromString(rcCleaned, 'text/html');
                   const rcBody = rcDoc.body;
                   if (rcBody) {
                     const rcLines = parseEditorDom(rcBody);
                     const eersteRun = rcLines.flat()[0];
-                    const gemengd = rcLines.flat().some(r => r.bold !== !!eersteRun?.bold || r.italic !== !!eersteRun?.italic);
-                    if (gemengd) colors.textRuns = rcLines;
+                    const gemengd = rcLines.flat().some(r =>
+                      r.bold !== !!eersteRun?.bold || r.italic !== !!eersteRun?.italic ||
+                      !!r.underline !== !!eersteRun?.underline || !!r.strikethrough !== !!eersteRun?.strikethrough);
+                    if (gemengd) {
+                      colors.textRuns = rcLines;
+                    } else {
+                      // Uniform styling: trust the actual parsed run over the
+                      // naive whole-blob regex above, which matches the FIRST
+                      // "text-decoration:" it finds anywhere in the RC string —
+                      // typically the <body>'s own "text-decoration:none"
+                      // default, appearing before a <p>'s own override. That
+                      // silently dropped an underline/strikethrough applying
+                      // to the whole (single-style) annotation.
+                      colors.fontUnderline = !!eersteRun?.underline;
+                      colors.fontStrikethrough = !!eersteRun?.strikethrough;
+                    }
                   }
                 }
               } catch (_) { /* RC zonder bruikbare structuur */ }

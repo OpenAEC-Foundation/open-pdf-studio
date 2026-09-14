@@ -196,39 +196,20 @@ export function computeTextboxContentHeight(annotation) {
   _chain.push(/[\s"',]/.test(rawFontFamily) ? _cssQuote(rawFontFamily) : rawFontFamily);
   _chain.push('sans-serif');
   const fontFamily = _chain.join(', ');
-  const fontStyle = (annotation.fontItalic ? 'italic ' : '') + (annotation.fontBold ? 'bold ' : '');
-  const font = `${fontStyle}${fontSize}px ${fontFamily}`;
-
   // Use offscreen canvas for text measurement
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
-  ctx.font = font;
 
-  const paragraphs = annotation.text.split('\n');
-  let totalLines = 0;
-
-  for (const para of paragraphs) {
-    if (!para) {
-      // Empty line counts as one line
-      totalLines++;
-      continue;
-    }
-    const words = para.split(' ');
-    let line = '';
-    let paraLines = 0;
-
-    for (let i = 0; i < words.length; i++) {
-      const testLine = line + words[i] + ' ';
-      if (ctx.measureText(testLine).width > maxWidth && i > 0) {
-        paraLines++;
-        line = words[i] + ' ';
-      } else {
-        line = testLine;
-      }
-    }
-    if (line.trim()) paraLines++;
-    totalLines += paraLines;
-  }
+  // Delegate the actual wrapping to the same shared engine drawTextboxContent
+  // uses (layoutTextboxLines / woordenVanRegel in textbox-layout.js) instead
+  // of counting lines with a separate, once-duplicated implementation — this
+  // function used to do its own naive space-based word wrap, which (like the
+  // same bug fixed in textbox-layout.js) undercounted CJK text as a single
+  // unbreakable "word" and never grew the box to fit it. Switches font per
+  // run (bold/italic) same as layoutTextboxForExport, for mixed-style text.
+  const fontFor = (bold, italic) => `${italic ? 'italic ' : ''}${bold ? 'bold ' : ''}${fontSize}px ${fontFamily}`;
+  const measure = (t, bold, italic) => { ctx.font = fontFor(bold, italic); return ctx.measureText(t).width; };
+  const totalLines = layoutTextboxLines(annotation, maxWidth, measure).length;
 
   return padding * 2 + totalLines * lineHeight;
 }
@@ -395,33 +376,45 @@ export function drawTextboxContent(ctx, annotation, padding) {
     }
 
     let penX = textX;
+    // Underline/strikethrough are drawn per chunk (not once for the whole
+    // line): external /RC content commonly decorates just one run — e.g. a
+    // heading line — while the rest of the box is plain, and a single
+    // whole-line flag can't express that.
     for (const c of ln.chunks) {
       ctx.font = fontFor(c.bold, c.italic);
       ctx.fillStyle = c.color || baseFill;
       ctx.fillText(c.text, penX, y);
-      penX += ctx.measureText(c.text).width;
+      const cw = ctx.measureText(c.text).width;
+      if (c.underline || c.strikethrough) {
+        ctx.strokeStyle = ctx.fillStyle;
+        ctx.lineWidth = 1;
+        if (c.underline) {
+          // A fixed "fontSize + 1" offset overshot into the NEXT line
+          // whenever lineHeight was tight (lineSpacing ~1) — the underline
+          // for this line landed on top of the following line's text
+          // instead of just under this one's descenders. Use a fraction of
+          // the box's own descent instead: it scales with the font and
+          // stays well inside this line's own band regardless of spacing.
+          const underlineY = y + descent * 0.5;
+          ctx.beginPath();
+          ctx.moveTo(penX, underlineY);
+          ctx.lineTo(penX + cw, underlineY);
+          ctx.stroke();
+        }
+        if (c.strikethrough) {
+          // Strikethrough crosses the text body, which sits ABOVE the
+          // baseline — not fontSize*0.6 below it (that put the earlier,
+          // effectively-dead code path's stroke under the descenders).
+          const strikeY = y - ascent * 0.3;
+          ctx.beginPath();
+          ctx.moveTo(penX, strikeY);
+          ctx.lineTo(penX + cw, strikeY);
+          ctx.stroke();
+        }
+      }
+      penX += cw;
     }
     ctx.fillStyle = baseFill;
-
-    // Draw underline if enabled
-    if (annotation.fontUnderline) {
-      ctx.beginPath();
-      ctx.moveTo(textX, y + fontSize + 1);
-      ctx.lineTo(textX + lineWidth, y + fontSize + 1);
-      ctx.strokeStyle = ctx.fillStyle;
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    }
-
-    // Draw strikethrough if enabled
-    if (annotation.fontStrikethrough) {
-      ctx.beginPath();
-      ctx.moveTo(textX, y + fontSize * 0.6);
-      ctx.lineTo(textX + lineWidth, y + fontSize * 0.6);
-      ctx.strokeStyle = ctx.fillStyle;
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    }
 
     y += lineHeight;
   }

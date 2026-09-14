@@ -15,6 +15,7 @@ import { syncTwoPointGeometry } from '../../symbols/two-point.js';
 import { systeemFromOps, sparingenFromJson } from '../../annotations/systeemraster.js';
 import { systeemTypeFromJson } from '../../annotations/systeem-typen.js';
 import { ensureSysteemType, getSysteemTypeById } from '../../annotations/systeem-typen-registry.js';
+import { computeTextboxContentHeight } from '../../annotations/rendering/shapes.js';
 
 // Convert PDF annotation to our format
 export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageMap, annotColorMap) {
@@ -990,9 +991,16 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           return createAnnotation(maProps);
         }
 
-        // Determine type from OPS_Subtype custom key
+        // Determine type from OPS_Subtype custom key (this app's own marker,
+        // set when the annotation was created here) — or, for a /Polygon
+        // authored elsewhere (another editor) with a real /BE cloud border
+        // effect and no OPS_Subtype, fall back to extraColors.borderCloudy
+        // (read from /BE in color-extraction.js) so it still renders as a
+        // cloud instead of a plain straight-edged polygon. Square already
+        // does this same borderCloudy fallback above.
         const polyType = extraColors.opsSubtype === 'cloudPolyline' ? 'cloudPolyline'
                        : extraColors.opsSubtype === 'cloud' ? 'cloud'
+                       : extraColors.borderCloudy ? 'cloud'
                        : 'polygon';
 
         const polyProps = {
@@ -1011,7 +1019,8 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           strokeColor: colorArrayToHex(annot.color, '#000000'),
           fillColor: extraColors.ic || null,
           lineWidth: extraColors.borderWidth ?? annot.borderStyle?.width ?? 2,
-          borderStyle: mapBorderStyle(annot, extraColors)
+          borderStyle: mapBorderStyle(annot, extraColors),
+          ...(extraColors.cloudIntensity !== undefined ? { cloudIntensity: extraColors.cloudIntensity } : {})
         };
 
         return createAnnotation(polyProps);
@@ -1106,7 +1115,14 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
       let textRuns;
       if (Array.isArray(extraColors.textRuns) && extraColors.textRuns.length) {
         const rcText = extraColors.textRuns.map(l => l.map(r => r.text).join('')).join('\n');
-        const norm = (s) => String(s).replace(/\s+/g, ' ').trim();
+        // Strip ALL whitespace rather than collapsing it to one space: /Contents
+        // is often the authoring tool's own hand-wrapped plain-text fallback,
+        // which can hard-wrap mid-word with a hyphen ("on-\nsite") where /RC's
+        // unwrapped rich text has none ("on-site"). Collapsing left that lone
+        // wrap-space mismatched and silently discarded otherwise-valid runs
+        // (losing bold/italic/underline for the whole annotation) over a
+        // difference that isn't a real content difference.
+        const norm = (s) => String(s).replace(/\s+/g, '');
         if (norm(rcText) === norm(text)) { text = rcText; textRuns = extraColors.textRuns; }
       }
 
@@ -1278,6 +1294,18 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           coW = rdVp.width;
           coH = rdVp.height;
         }
+        // Some authoring tools bake a Rect/RD box a little too tight for the
+        // annotation's own Contents. Other editors paint the file's own baked
+        // appearance stream regardless, so the shortfall never shows there;
+        // we reconstruct the layout from Contents/DA and drawTextboxContent
+        // silently drops lines past the box height — grow down to fit instead
+        // of truncating text other editors show in full.
+        const coNeededH = computeTextboxContentHeight({
+          text, textRuns, width: coW, fontSize,
+          lineSpacing: extraColors.lineSpacing, lineWidth: borderWidth,
+          fontFamily: fontFamily || 'Arial'
+        });
+        if (coNeededH > coH) coH = coNeededH;
         // Callout stroke color: IC > AP stroke > borderColor fallback
         const coStrokeColor = extraColors.ic || extraColors.apStrokeColor || borderColor;
         // Fill color: C entry is the background for FreeText
@@ -1329,6 +1357,15 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           } : {})
         });
       }
+
+      // Same grow-to-fit as the callout branch above: don't silently drop
+      // lines other editors show in full just because the authored Rect is tight.
+      const ftNeededH = computeTextboxContentHeight({
+        text, textRuns, width: ftWidth, fontSize,
+        lineSpacing: extraColors.lineSpacing, lineWidth: borderWidth,
+        fontFamily: fontFamily || 'Arial'
+      });
+      if (ftNeededH > ftHeight) ftHeight = ftNeededH;
 
       const _tbAnn = createAnnotation({
         ...baseProps,

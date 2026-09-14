@@ -52,3 +52,45 @@ test('runsToText is de inverse van de run-regels', () => {
   const runs = [[{ text: 'x', bold: true }, { text: 'y' }], [], [{ text: 'z' }]];
   assert.equal(runsToText(runs), 'xy\n\nz');
 });
+
+test('CJK-tekst breekt per teken af (geen spaties tussen "woorden")', () => {
+  // Zonder spaties is een hele CJK-zin één onafbreekbaar "woord" tenzij elk
+  // teken zijn eigen afbreekpunt is — anders overschrijdt de regel maxWidth
+  // in plaats van af te breken zoals andere editors doen.
+  const lines = layoutTextboxLines({ text: '土壤地面須種植地被植物及灌木以容許車道闊度最多達' }, 100, meet);
+  assert.ok(lines.length > 1, 'CJK-tekst moet over meerdere regels afbreken');
+  for (const l of lines) assert.ok(l.width <= 100, `regel "${tekst([l])}" (${l.width}) overschrijdt maxWidth`);
+});
+
+test('CJK- en Latijnse tekst gemengd: Latijnse woorden blijven heel, CJK breekt per teken', () => {
+  const lines = layoutTextboxLines({ text: 'max 4米車道' }, 45, meet);
+  // "max 4米" = 6 tekens = 60 > 45, dus "max" (30) + "4米" moet apart.
+  assert.ok(lines.length > 1);
+  assert.equal(lines[0].chunks.map(c => c.text).join(''), 'max');
+});
+
+test('zonder runs: annotation.fontUnderline/fontStrikethrough komen in de basisstijl terecht', () => {
+  const r = textboxLineRuns({ text: 'a', fontUnderline: true });
+  assert.deepEqual(r, [[{ text: 'a', bold: false, italic: false, underline: true }]]);
+  const r2 = textboxLineRuns({ text: 'a', fontStrikethrough: true });
+  assert.deepEqual(r2, [[{ text: 'a', bold: false, italic: false, strikethrough: true }]]);
+});
+
+test('alleen de eerste regel onderstreept (externe /RC-kop): per-chunk underline, geen box-brede vlag', () => {
+  const ann = {
+    text: 'Kop\nrest',
+    textRuns: [[{ text: 'Kop', underline: true }], [{ text: 'rest' }]],
+  };
+  assert.equal(hasMixedRuns(ann), true);
+  const lines = layoutTextboxLines(ann, 1000, meet);
+  assert.equal(lines[0].chunks[0].underline, true);
+  assert.equal(lines[1].chunks[0].underline, undefined);
+});
+
+test('afbreken houdt underline/strikethrough van het afgebroken woord vast', () => {
+  const ann = { text: 'aa bb cc', textRuns: [[{ text: 'aa bb ' }, { text: 'cc', underline: true, strikethrough: true }]] };
+  const lines = layoutTextboxLines(ann, 55, meet);
+  assert.equal(tekst(lines), 'aa bb|cc');
+  assert.equal(lines[1].chunks[0].underline, true);
+  assert.equal(lines[1].chunks[0].strikethrough, true);
+});
