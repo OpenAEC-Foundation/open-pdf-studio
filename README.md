@@ -30,6 +30,11 @@ Open PDF Studio is a lightweight, native desktop application that provides profe
   <img src="docs/screenshots/drawing-tools.jpg" alt="CAD-style drawing, measurement, and markup tools on an architectural elevation" width="100%">
 </p>
 
+<p align="center">
+  <img src="docs/screenshots/plattegrond-demo.gif" alt="Drawing a floor plan with parametric walls: corners trim themselves, doors, windows and rooms snap into place" width="640">
+  <br><sub>Parametric walls with self-trimming corners, doors, windows and rooms — drawn to scale on a blank sheet.</sub>
+</p>
+
 ## Repository activity
 
 Downloads, commit activity, and star growth for this active open-source project.
