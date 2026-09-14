@@ -324,6 +324,18 @@
     "title": "Alege simbol parametric",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Recunoaștere text (OCR)",
+    "run": "Recunoaște",
+    "language": "Limbă:",
+    "info": "{{count}} pagină(i) în document. Adaugă un strat de text invizibil, căutabil — pagina arată la fel. Complet reversibil cu Anulare înainte de salvare.",
+    "options": {
+      "auto": "Detectare automată",
+      "eng": "Engleză",
+      "chi_tra": "Chineză (tradițională)",
+      "chi_tra+eng": "Chineză (tradițională) + engleză"
+    }
+  },
   "straighten": {
     "title": "Îndreaptă Pagina",
     "apply": "Îndreaptă",

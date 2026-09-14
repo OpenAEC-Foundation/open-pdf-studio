@@ -324,6 +324,18 @@
     "title": "Välj parametrisk symbol",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Textigenkänning (OCR)",
+    "run": "Känn igen",
+    "language": "Språk:",
+    "info": "{{count}} sida/sidor i dokumentet. Lägger till ett osynligt, sökbart textlager — sidan ser fortfarande likadan ut. Helt återställningsbart med Ångra innan du sparar.",
+    "options": {
+      "auto": "Automatisk identifiering",
+      "eng": "Engelska",
+      "chi_tra": "Kinesiska (traditionell)",
+      "chi_tra+eng": "Kinesiska (traditionell) + engelska"
+    }
+  },
   "straighten": {
     "title": "Räta Ut Sidan",
     "apply": "Räta ut",

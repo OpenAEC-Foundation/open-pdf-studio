@@ -324,6 +324,18 @@
     "title": "Escolher símbolo paramétrico",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Reconhecimento de texto (OCR)",
+    "run": "Reconhecer",
+    "language": "Idioma:",
+    "info": "{{count}} página(s) no documento. Adiciona uma camada de texto invisível e pesquisável — a página continua com o mesmo aspeto. Totalmente reversível com Desfazer antes de guardar.",
+    "options": {
+      "auto": "Deteção automática",
+      "eng": "Inglês",
+      "chi_tra": "Chinês (Tradicional)",
+      "chi_tra+eng": "Chinês (Tradicional) + Inglês"
+    }
+  },
   "straighten": {
     "title": "Endireitar Página",
     "apply": "Endireitar",

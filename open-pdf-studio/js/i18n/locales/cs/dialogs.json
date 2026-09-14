@@ -324,6 +324,18 @@
     "title": "Vybrat parametrický symbol",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Rozpoznávání textu (OCR)",
+    "run": "Rozpoznat",
+    "language": "Jazyk:",
+    "info": "{{count}} stránka/stránky v dokumentu. Přidá neviditelnou, prohledávatelnou textovou vrstvu — stránka vypadá stejně. Před uložením plně vratné pomocí Zpět.",
+    "options": {
+      "auto": "Automatické rozpoznání",
+      "eng": "Angličtina",
+      "chi_tra": "Čínština (tradiční)",
+      "chi_tra+eng": "Čínština (tradiční) + angličtina"
+    }
+  },
   "straighten": {
     "title": "Narovnat Stránku",
     "apply": "Narovnat",

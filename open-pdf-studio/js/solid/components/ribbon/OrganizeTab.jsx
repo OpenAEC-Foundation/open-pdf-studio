@@ -56,7 +56,10 @@ export default function OrganizeTab() {
           <RibbonButton id="ep-add-text" title={t('home.addText')} icon={addTextIcon} label={t('home.addText')}
             disabled={ro()} onClick={() => setTool('text')} />
           <RibbonButton id="ep-ocr" title={t('organize.ocr')} icon={ocrIcon} label={t('organize.ocr')}
-            disabled={ro()} onClick={() => import('../../../pdf/ocr.js').then(m => m.ocrAllPages())} />
+            disabled={ro()} onClick={() => {
+              const doc = getActiveDocument();
+              openDialog('ocr-language', { totalPages: doc?.pdfDoc?.numPages });
+            }} />
           <RibbonButton id="ep-crop-margins" title={t('home.cropMargins')} icon={cropMarginsIcon} label={t('home.crop')}
             disabled={ro()} onClick={() => {
               const doc = getActiveDocument();

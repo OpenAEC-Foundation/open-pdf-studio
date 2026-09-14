@@ -27,10 +27,27 @@ pub struct OcrWord {
     pub confidence: f32,
 }
 
+/// Recognition languages this build ships trained data for. "auto" is a
+/// sentinel `lang` value (not a real Tesseract spec) that resolves to this.
+///
+/// A per-page script-detection pass (Tesseract's separate OSD model, run
+/// through its own TesseractAPI instance before the real recognition one)
+/// was tried here first, but reliably crashed the whole app on a real
+/// multi-page document — likely some interaction between two TesseractAPI
+/// lifecycles in the same process rather than anything specific to this
+/// document, but not worth the risk without a much deeper investigation.
+/// Recognizing with both languages combined is already proven safe (this is
+/// what the feature shipped with before "auto" existed) and handles the
+/// common case — a CJK document with incidental Latin text/numbers, or vice
+/// versa — without picking wrong; it costs a bit more time per page than a
+/// correctly-targeted single-language pass would.
+const AUTO_LANG: &str = "chi_tra+eng";
+
 /// Run OCR on one page and return its recognized words with bounding boxes.
 ///
 /// `tessdata_dir` must contain the `.traineddata` file(s) for `lang`
-/// (Tesseract's `+`-joined language spec, e.g. "chi_tra+eng").
+/// (Tesseract's `+`-joined language spec, e.g. "chi_tra+eng") — or `lang`
+/// may be the literal string "auto" (see AUTO_LANG).
 pub fn ocr_page_words(
     doc: &PdfDocument<'static>,
     page_index: u32,
@@ -41,9 +58,11 @@ pub fn ocr_page_words(
     let (width_px, height_px, rgba) =
         pdfium_renderer::render_page_to_rgba(doc, page_index, scale, 0)?;
 
+    let resolved_lang = if lang == "auto" { AUTO_LANG } else { lang };
+
     let api = TesseractAPI::new();
-    api.init(tessdata_dir, lang)
-        .map_err(|e| format!("Tesseract init failed for lang '{}': {}", lang, e))?;
+    api.init(tessdata_dir, &resolved_lang)
+        .map_err(|e| format!("Tesseract init failed for lang '{}': {}", resolved_lang, e))?;
     api.set_image(&rgba, width_px as i32, height_px as i32, 4, (width_px * 4) as i32)
         .map_err(|e| format!("Tesseract set_image failed: {}", e))?;
     api.recognize()

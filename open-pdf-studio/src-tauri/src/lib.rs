@@ -1876,7 +1876,7 @@ async fn ocr_pdf_page(
         .to_str()
         .ok_or_else(|| "tessdata path is not valid UTF-8".to_string())?;
 
-    let lang = lang.unwrap_or_else(|| "eng".to_string());
+    let lang = lang.unwrap_or_else(|| "auto".to_string());
 
     // Tesseract inference is synchronous/blocking (and re-inits per call) —
     // run it off the async executor so it doesn't stall other IPC.

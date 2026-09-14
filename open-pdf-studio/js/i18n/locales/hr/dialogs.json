@@ -324,6 +324,18 @@
     "title": "Odaberi parametarski simbol",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Prepoznavanje teksta (OCR)",
+    "run": "Prepoznaj",
+    "language": "Jezik:",
+    "info": "{{count}} stranica u dokumentu. Dodaje nevidljivi, pretraživi tekstualni sloj — stranica izgleda isto. Potpuno poništivo pomoću Poništi prije spremanja.",
+    "options": {
+      "auto": "Automatsko prepoznavanje",
+      "eng": "Engleski",
+      "chi_tra": "Kineski (tradicionalni)",
+      "chi_tra+eng": "Kineski (tradicionalni) + engleski"
+    }
+  },
   "straighten": {
     "title": "Ispravi Stranicu",
     "apply": "Ispravi",
