@@ -307,7 +307,7 @@ export default function NewDocDialog() {
     >
       <div class="new-doc-form">
         <div class="new-doc-row">
-          <label class="new-doc-label">OpenAEC stijl</label>
+          <label class="new-doc-label">{t('newDoc.style')}</label>
           <select
             class="new-doc-select"
             value={stijl()}

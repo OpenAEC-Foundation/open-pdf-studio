@@ -17,7 +17,8 @@
     "titleBlock": "Onderhoek",
     "noTitleBlock": "Geen onderhoek",
     "addTitleBlock": "Eigen onderhoek toevoegen (PDF)",
-    "openTitleBlocksFolder": "Onderhoeken-map openen"
+    "openTitleBlocksFolder": "Onderhoeken-map openen",
+    "style": "Stijl"
   },
   "printQueue": {
     "save": "Opslaan",
