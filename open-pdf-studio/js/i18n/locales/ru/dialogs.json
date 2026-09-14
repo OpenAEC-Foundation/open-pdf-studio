@@ -322,5 +322,12 @@
   "parametricSymbolPicker": {
     "title": "Выбрать параметрический символ",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Выровнять Страницу",
+    "apply": "Выровнять",
+    "angleInfo": "Угол коррекции: {{angle}}°",
+    "done": "Выровнено страниц: {{count}} на {{angle}}°",
+    "alreadyStraight": "Линия уже прямая — коррекция не требуется."
   }
 }

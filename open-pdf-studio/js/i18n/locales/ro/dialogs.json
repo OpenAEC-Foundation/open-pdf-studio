@@ -322,5 +322,12 @@
   "parametricSymbolPicker": {
     "title": "Alege simbol parametric",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Îndreaptă Pagina",
+    "apply": "Îndreaptă",
+    "angleInfo": "Unghi de corecție: {{angle}}°",
+    "done": "{{count}} pagină(i) îndreptată(e) cu {{angle}}°",
+    "alreadyStraight": "Linia este deja dreaptă — nu este nevoie de corecție."
   }
 }

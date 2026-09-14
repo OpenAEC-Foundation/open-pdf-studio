@@ -322,5 +322,12 @@
   "parametricSymbolPicker": {
     "title": "Odaberi parametarski simbol",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Ispravi Stranicu",
+    "apply": "Ispravi",
+    "angleInfo": "Kut korekcije: {{angle}}°",
+    "done": "Ispravljeno {{count}} stranica za {{angle}}°",
+    "alreadyStraight": "Linija je već ravna — korekcija nije potrebna."
   }
 }

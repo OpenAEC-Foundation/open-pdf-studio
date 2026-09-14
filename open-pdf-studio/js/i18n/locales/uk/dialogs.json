@@ -322,5 +322,12 @@
   "parametricSymbolPicker": {
     "title": "Вибрати параметричний символ",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Вирівняти Сторінку",
+    "apply": "Вирівняти",
+    "angleInfo": "Кут корекції: {{angle}}°",
+    "done": "Вирівняно {{count}} стор. на {{angle}}°",
+    "alreadyStraight": "Лінія вже пряма — корекція не потрібна."
   }
 }

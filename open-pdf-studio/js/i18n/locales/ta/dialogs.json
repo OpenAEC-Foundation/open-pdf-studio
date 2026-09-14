@@ -322,5 +322,12 @@
   "parametricSymbolPicker": {
     "title": "அளவுரு குறியீட்டைத் தேர்ந்தெடு",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "பக்கத்தை நேராக்கு",
+    "apply": "நேராக்கு",
+    "angleInfo": "திருத்த கோணம்: {{angle}}°",
+    "done": "{{count}} பக்கங்கள் {{angle}}° நேராக்கப்பட்டன",
+    "alreadyStraight": "கோடு ஏற்கனவே நேராக உள்ளது — திருத்தம் தேவையில்லை."
   }
 }

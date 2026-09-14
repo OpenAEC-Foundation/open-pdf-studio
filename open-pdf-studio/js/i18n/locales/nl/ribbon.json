@@ -268,7 +268,8 @@
     "compressPdf": "PDF comprimeren (bestandsgrootte verkleinen)",
     "compressLabel": "Comprimeren",
     "reorderPages": "Volgorde",
-    "reorderPagesTitle": "Open miniaturen om pagina’s in een nieuwe volgorde te slepen"
+    "reorderPagesTitle": "Open miniaturen om pagina’s in een nieuwe volgorde te slepen",
+    "straighten": "Pagina Rechtzetten"
   },
   "help": {
     "information": "Informatie",

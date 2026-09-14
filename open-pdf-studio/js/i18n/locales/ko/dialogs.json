@@ -322,5 +322,12 @@
   "parametricSymbolPicker": {
     "title": "파라메트릭 기호 선택",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "페이지 똑바로 하기",
+    "apply": "똑바로 하기",
+    "angleInfo": "보정 각도: {{angle}}°",
+    "done": "{{count}}개 페이지를 {{angle}}° 보정했습니다",
+    "alreadyStraight": "선이 이미 똑바릅니다 — 보정이 필요하지 않습니다."
   }
 }

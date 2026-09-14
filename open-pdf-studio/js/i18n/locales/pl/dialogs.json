@@ -322,5 +322,12 @@
   "parametricSymbolPicker": {
     "title": "Wybierz symbol parametryczny",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Wyprostuj Stronę",
+    "apply": "Wyprostuj",
+    "angleInfo": "Kąt korekty: {{angle}}°",
+    "done": "Wyprostowano {{count}} stron(y) o {{angle}}°",
+    "alreadyStraight": "Linia jest już prosta — korekta niepotrzebna."
   }
 }

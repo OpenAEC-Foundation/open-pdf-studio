@@ -322,5 +322,12 @@
   "parametricSymbolPicker": {
     "title": "Paraméteres szimbólum kiválasztása",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Oldal Egyenesítése",
+    "apply": "Egyenesítés",
+    "angleInfo": "Javítási szög: {{angle}}°",
+    "done": "{{count}} oldal kiegyenesítve {{angle}}°-kal",
+    "alreadyStraight": "A vonal már egyenes — nincs szükség javításra."
   }
 }

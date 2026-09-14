@@ -322,5 +322,12 @@
   "parametricSymbolPicker": {
     "title": "Chagua alama ya vigezo",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Nyoosha Ukurasa",
+    "apply": "Nyoosha",
+    "angleInfo": "Pembe ya urekebishaji: {{angle}}°",
+    "done": "Kurasa {{count}} zimenyooshwa kwa {{angle}}°",
+    "alreadyStraight": "Mstari tayari umenyooka — hakuna marekebisho yanayohitajika."
   }
 }

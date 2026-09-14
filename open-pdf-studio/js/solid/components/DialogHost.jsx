@@ -23,6 +23,7 @@ import StampPickerDialog from './dialogs/StampPickerDialog.jsx';
 import CalibrationDialog from './dialogs/CalibrationDialog.jsx';
 import ScaleDialog from './dialogs/ScaleDialog.jsx';
 import CropMarginsDialog from './dialogs/CropMarginsDialog.jsx';
+import StraightenDialog from './dialogs/StraightenDialog.jsx';
 import ResizePagesDialog from './dialogs/ResizePagesDialog.jsx';
 import CompressDialog from './dialogs/CompressDialog.jsx';
 import FeedbackDialog from './dialogs/FeedbackDialog.jsx';
@@ -77,6 +78,7 @@ const DIALOG_MAP = {
   'calibration': CalibrationDialog,
   'scale': ScaleDialog,
   'crop-margins': CropMarginsDialog,
+  'straighten-page': StraightenDialog,
   'resize-pages': ResizePagesDialog,
   'compress': CompressDialog,
   'feedback': FeedbackDialog,

@@ -322,5 +322,12 @@
   "parametricSymbolPicker": {
     "title": "Velg parametrisk symbol",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Rett Opp Siden",
+    "apply": "Rett opp",
+    "angleInfo": "Korreksjonsvinkel: {{angle}}°",
+    "done": "{{count}} side(r) rettet opp med {{angle}}°",
+    "alreadyStraight": "Linjen er allerede rett — ingen korreksjon nødvendig."
   }
 }

@@ -322,5 +322,12 @@
   "parametricSymbolPicker": {
     "title": "Pilih simbol parametrik",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Luruskan Halaman",
+    "apply": "Luruskan",
+    "angleInfo": "Sudut pembetulan: {{angle}}°",
+    "done": "{{count}} halaman diluruskan sebanyak {{angle}}°",
+    "alreadyStraight": "Garisan sudah lurus — tiada pembetulan diperlukan."
   }
 }

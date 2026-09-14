@@ -322,5 +322,12 @@
   "parametricSymbolPicker": {
     "title": "Parametrisches Symbol auswählen",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Seite Begradigen",
+    "apply": "Begradigen",
+    "angleInfo": "Korrekturwinkel: {{angle}}°",
+    "done": "{{count}} Seite(n) um {{angle}}° begradigt",
+    "alreadyStraight": "Linie ist bereits gerade — keine Korrektur nötig."
   }
 }

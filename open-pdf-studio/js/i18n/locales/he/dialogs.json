@@ -322,5 +322,12 @@
   "parametricSymbolPicker": {
     "title": "בחר סמל פרמטרי",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "יישור עמוד",
+    "apply": "יישר",
+    "angleInfo": "זווית תיקון: {{angle}}°",
+    "done": "יושרו {{count}} עמודים בזווית {{angle}}°",
+    "alreadyStraight": "הקו כבר ישר — אין צורך בתיקון."
   }
 }

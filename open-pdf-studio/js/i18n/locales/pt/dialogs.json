@@ -322,5 +322,12 @@
   "parametricSymbolPicker": {
     "title": "Escolher símbolo paramétrico",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Endireitar Página",
+    "apply": "Endireitar",
+    "angleInfo": "Ângulo de correção: {{angle}}°",
+    "done": "{{count}} página(s) endireitada(s) em {{angle}}°",
+    "alreadyStraight": "A linha já está reta — nenhuma correção necessária."
   }
 }

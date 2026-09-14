@@ -322,5 +322,12 @@
   "parametricSymbolPicker": {
     "title": "Valitse parametrinen symboli",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Suorista Sivu",
+    "apply": "Suorista",
+    "angleInfo": "Korjauskulma: {{angle}}°",
+    "done": "{{count}} sivu(a) suoristettu {{angle}}°",
+    "alreadyStraight": "Viiva on jo suora — korjausta ei tarvita."
   }
 }
