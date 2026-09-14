@@ -990,9 +990,16 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           return createAnnotation(maProps);
         }
 
-        // Determine type from OPS_Subtype custom key
+        // Determine type from OPS_Subtype custom key (this app's own marker,
+        // set when the annotation was created here) — or, for a /Polygon
+        // authored elsewhere (e.g. Acrobat) with a real /BE cloud border
+        // effect and no OPS_Subtype, fall back to extraColors.borderCloudy
+        // (read from /BE in color-extraction.js) so it still renders as a
+        // cloud instead of a plain straight-edged polygon. Square already
+        // does this same borderCloudy fallback above.
         const polyType = extraColors.opsSubtype === 'cloudPolyline' ? 'cloudPolyline'
                        : extraColors.opsSubtype === 'cloud' ? 'cloud'
+                       : extraColors.borderCloudy ? 'cloud'
                        : 'polygon';
 
         const polyProps = {
@@ -1011,7 +1018,8 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           strokeColor: colorArrayToHex(annot.color, '#000000'),
           fillColor: extraColors.ic || null,
           lineWidth: extraColors.borderWidth ?? annot.borderStyle?.width ?? 2,
-          borderStyle: mapBorderStyle(annot, extraColors)
+          borderStyle: mapBorderStyle(annot, extraColors),
+          ...(extraColors.cloudIntensity !== undefined ? { cloudIntensity: extraColors.cloudIntensity } : {})
         };
 
         return createAnnotation(polyProps);
