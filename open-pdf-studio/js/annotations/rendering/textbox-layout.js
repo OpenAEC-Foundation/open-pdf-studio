@@ -22,12 +22,18 @@ export function runsToText(lines) {
  */
 export function textboxLineRuns(ann) {
   const text = String(ann?.text ?? '');
-  const base = { bold: !!ann?.fontBold, italic: !!ann?.fontItalic };
+  const base = {
+    bold: !!ann?.fontBold, italic: !!ann?.fontItalic,
+    ...(ann?.fontUnderline ? { underline: true } : {}),
+    ...(ann?.fontStrikethrough ? { strikethrough: true } : {}),
+  };
   const runs = ann?.textRuns;
   if (Array.isArray(runs) && runs.length && runsToText(runs) === text) {
     return runs.map(line => (line || []).map(r => ({
       text: String(r?.text ?? ''), bold: !!r?.bold, italic: !!r?.italic,
       ...(r?.color ? { color: r.color } : {}),
+      ...(r?.underline ? { underline: true } : {}),
+      ...(r?.strikethrough ? { strikethrough: true } : {}),
     })));
   }
   return text.split('\n').map(t => (t ? [{ text: t, ...base }] : []));
@@ -37,7 +43,8 @@ export function textboxLineRuns(ann) {
 export function hasMixedRuns(ann) {
   const lines = textboxLineRuns(ann);
   const base = { bold: !!ann?.fontBold, italic: !!ann?.fontItalic };
-  return lines.some(line => line.some(r => r.bold !== base.bold || r.italic !== base.italic || r.color));
+  return lines.some(line => line.some(r => r.bold !== base.bold || r.italic !== base.italic || r.color
+    || r.underline || r.strikethrough));
 }
 
 // CJK text (Chinese/Japanese/Korean) has no spaces between "words" — every
@@ -68,10 +75,15 @@ function woordenVanRegel(runs) {
       const ch = t[i];
       if (!huidig) huidig = { delen: [], eindigtMetSpatie: false };
       const laatste = huidig.delen[huidig.delen.length - 1];
-      if (laatste && laatste.bold === !!r.bold && laatste.italic === !!r.italic && (laatste.color || null) === (r.color || null)) {
+      if (laatste && laatste.bold === !!r.bold && laatste.italic === !!r.italic && (laatste.color || null) === (r.color || null)
+        && !!laatste.underline === !!r.underline && !!laatste.strikethrough === !!r.strikethrough) {
         laatste.text += ch;
       } else {
-        huidig.delen.push({ text: ch, bold: !!r.bold, italic: !!r.italic, ...(r.color ? { color: r.color } : {}) });
+        huidig.delen.push({
+          text: ch, bold: !!r.bold, italic: !!r.italic, ...(r.color ? { color: r.color } : {}),
+          ...(r.underline ? { underline: true } : {}),
+          ...(r.strikethrough ? { strikethrough: true } : {}),
+        });
       }
       if (ch === ' ') { huidig.eindigtMetSpatie = true; woorden.push(huidig); huidig = null; }
       else if (isCJK(ch)) { woorden.push(huidig); huidig = null; }
@@ -89,7 +101,8 @@ function voegSamen(delen) {
   for (const d of delen) {
     if (!d.text) continue;
     const p = uit[uit.length - 1];
-    if (p && p.bold === d.bold && p.italic === d.italic && (p.color || null) === (d.color || null)) p.text += d.text;
+    if (p && p.bold === d.bold && p.italic === d.italic && (p.color || null) === (d.color || null)
+      && !!p.underline === !!d.underline && !!p.strikethrough === !!d.strikethrough) p.text += d.text;
     else uit.push({ ...d });
   }
   return uit;
@@ -109,7 +122,7 @@ function trimEinde(delen) {
 
 /**
  * Breekt de regels van een tekstvlak af op `maxWidth`.
- * @returns {Array<{chunks: Array<{text,bold,italic,color?}>, width: number}>}
+ * @returns {Array<{chunks: Array<{text,bold,italic,color?,underline?,strikethrough?}>, width: number}>}
  *   Eén element per uitvoerregel; een lege bronregel geeft { chunks: [], width: 0 }.
  */
 export function layoutTextboxLines(ann, maxWidth, measure) {

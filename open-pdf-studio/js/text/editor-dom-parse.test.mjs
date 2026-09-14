@@ -94,6 +94,30 @@ test('cssColorToHex: rgb/hex-vormen', () => {
   assert.equal(cssColorToHex('geenkleur'), null);
 });
 
+test('parse: <u>/<s>-tags geven underline/strikethrough per run', () => {
+  const r = root(el('div', [tekst('gewoon '), el('u', [tekst('onderstreept')])]));
+  const lines = parseEditorDom(r);
+  assert.deepEqual(lines[0].map(x => ({ t: x.text, u: !!x.underline })), [
+    { t: 'gewoon ', u: false }, { t: 'onderstreept', u: true },
+  ]);
+  const r2 = root(el('div', [el('s', [tekst('doorgehaald')])]));
+  assert.equal(!!parseEditorDom(r2)[0][0].strikethrough, true);
+});
+
+test('parse: text-decoration:underline op een blok-<p> (externe /RC-kop) geldt voor die hele regel', () => {
+  // Acrobat's eigen RC zet onderstreping vaak op het <p>-blok zelf i.p.v.
+  // een inline <u>, bv. een onderstreepte kop-regel gevolgd door gewone
+  // tekst — precies het patroon dat eerder stilletjes verloren ging omdat
+  // alleen <u>/<s>-tags telden.
+  const r = root(
+    el('p', [tekst('Kop')], { style: { textDecoration: 'underline' } }),
+    el('p', [tekst('rest')]),
+  );
+  const lines = parseEditorDom(r);
+  assert.equal(lines[0][0].underline, true);
+  assert.equal(!!lines[1][0].underline, false);
+});
+
 test('parse: letterlijke CR/CRLF in een tekstknoop telt als regeleinde', () => {
   const r = root(el('div', [tekst('regel een\rregel twee')]));
   assert.equal(platteTekst(parseEditorDom(r)), 'regel een\nregel twee');

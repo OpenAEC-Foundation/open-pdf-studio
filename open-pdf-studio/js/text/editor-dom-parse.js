@@ -18,11 +18,15 @@ const ELEMENT_NODE = 1;
 
 export function parseEditorDom(root) {
   const lines = [[]];
-  const pushRun = (text, bold, italic, color) => {
-    if (text) lines[lines.length - 1].push({ text, bold, italic, ...(color ? { color } : {}) });
+  const pushRun = (text, bold, italic, color, underline, strikethrough) => {
+    if (text) lines[lines.length - 1].push({
+      text, bold, italic, ...(color ? { color } : {}),
+      ...(underline ? { underline: true } : {}),
+      ...(strikethrough ? { strikethrough: true } : {}),
+    });
   };
   const isBlockTag = (t) => t === 'DIV' || t === 'P';
-  const walk = (node, bold, italic, color) => {
+  const walk = (node, bold, italic, color, underline, strikethrough) => {
     if (node.nodeType === TEXT_NODE) {
       // \r-varianten normaliseren: ook een letterlijke CR (of CRLF) — uit
       // synthetische invoer of geplakte tekst — telt als regeleinde; anders
@@ -31,13 +35,13 @@ export function parseEditorDom(root) {
       const parts = String(node.data ?? '').split(/\r\n?|\n/);
       for (let i = 0; i < parts.length; i++) {
         if (i > 0) lines.push([]);
-        pushRun(parts[i], bold, italic, color);
+        pushRun(parts[i], bold, italic, color, underline, strikethrough);
       }
       return;
     }
     if (node.nodeType !== ELEMENT_NODE) return;
     if (node.classList && node.classList.contains('pdf-tab-spacer')) {
-      pushRun('\t', bold, italic, color);
+      pushRun('\t', bold, italic, color, underline, strikethrough);
       return;
     }
     const tag = node.tagName;
@@ -53,8 +57,12 @@ export function parseEditorDom(root) {
     let b = bold;
     let i = italic;
     let c = color;
+    let u = underline;
+    let s = strikethrough;
     if (tag === 'B' || (tag === 'STRONG')) b = true;
     if (tag === 'I' || (tag === 'EM')) i = true;
+    if (tag === 'U') u = true;
+    if (tag === 'S' || tag === 'STRIKE' || tag === 'DEL') s = true;
     const st = node.style;
     if (st && st.fontWeight) {
       if (st.fontWeight === 'bold' || parseInt(st.fontWeight, 10) >= 600) b = true;
@@ -63,6 +71,16 @@ export function parseEditorDom(root) {
     if (st && st.fontStyle) {
       if (st.fontStyle === 'italic' || st.fontStyle === 'oblique') i = true;
       else if (st.fontStyle === 'normal') i = false;
+    }
+    if (st && st.textDecoration) {
+      // Externe RC (Acrobat e.a.) zet de decoratie vaak op het regel-<p>
+      // zelf i.p.v. op een inline <u>/<s> — bv. een onderstreepte kop-regel
+      // met verder gewone tekst. Zonder deze tak ging die decoratie
+      // stilletjes verloren omdat alleen de <u>/<s>-tags hierboven telden.
+      const deco = String(st.textDecoration).toLowerCase();
+      if (deco.includes('underline')) u = true;
+      if (deco.includes('line-through')) s = true;
+      if (deco === 'none') { u = false; s = false; }
     }
     const isBlock = isBlockTag(tag);
     // Kleur op de regel-div is de per-regel basisstijl (geen run-kleur);
@@ -74,9 +92,9 @@ export function parseEditorDom(root) {
     if (isBlock && !(lines.length === 1 && lines[0].length === 0)) {
       lines.push([]);
     }
-    for (const child of node.childNodes) walk(child, b, i, c);
+    for (const child of node.childNodes) walk(child, b, i, c, u, s);
   };
-  for (const child of root.childNodes) walk(child, false, false, null);
+  for (const child of root.childNodes) walk(child, false, false, null, false, false);
   return lines.map(normalizeRuns);
 }
 

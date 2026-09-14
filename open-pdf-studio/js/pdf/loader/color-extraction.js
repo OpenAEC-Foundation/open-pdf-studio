@@ -1042,8 +1042,22 @@ const result = {};
                   if (rcBody) {
                     const rcLines = parseEditorDom(rcBody);
                     const eersteRun = rcLines.flat()[0];
-                    const gemengd = rcLines.flat().some(r => r.bold !== !!eersteRun?.bold || r.italic !== !!eersteRun?.italic);
-                    if (gemengd) colors.textRuns = rcLines;
+                    const gemengd = rcLines.flat().some(r =>
+                      r.bold !== !!eersteRun?.bold || r.italic !== !!eersteRun?.italic ||
+                      !!r.underline !== !!eersteRun?.underline || !!r.strikethrough !== !!eersteRun?.strikethrough);
+                    if (gemengd) {
+                      colors.textRuns = rcLines;
+                    } else {
+                      // Uniform styling: trust the actual parsed run over the
+                      // naive whole-blob regex above, which matches the FIRST
+                      // "text-decoration:" it finds anywhere in the RC string —
+                      // typically the <body>'s own "text-decoration:none"
+                      // default, appearing before a <p>'s own override. That
+                      // silently dropped an underline/strikethrough applying
+                      // to the whole (single-style) annotation.
+                      colors.fontUnderline = !!eersteRun?.underline;
+                      colors.fontStrikethrough = !!eersteRun?.strikethrough;
+                    }
                   }
                 }
               } catch (_) { /* RC zonder bruikbare structuur */ }

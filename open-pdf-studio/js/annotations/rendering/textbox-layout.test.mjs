@@ -68,3 +68,29 @@ test('CJK- en Latijnse tekst gemengd: Latijnse woorden blijven heel, CJK breekt 
   assert.ok(lines.length > 1);
   assert.equal(lines[0].chunks.map(c => c.text).join(''), 'max');
 });
+
+test('zonder runs: annotation.fontUnderline/fontStrikethrough komen in de basisstijl terecht', () => {
+  const r = textboxLineRuns({ text: 'a', fontUnderline: true });
+  assert.deepEqual(r, [[{ text: 'a', bold: false, italic: false, underline: true }]]);
+  const r2 = textboxLineRuns({ text: 'a', fontStrikethrough: true });
+  assert.deepEqual(r2, [[{ text: 'a', bold: false, italic: false, strikethrough: true }]]);
+});
+
+test('alleen de eerste regel onderstreept (externe /RC-kop): per-chunk underline, geen box-brede vlag', () => {
+  const ann = {
+    text: 'Kop\nrest',
+    textRuns: [[{ text: 'Kop', underline: true }], [{ text: 'rest' }]],
+  };
+  assert.equal(hasMixedRuns(ann), true);
+  const lines = layoutTextboxLines(ann, 1000, meet);
+  assert.equal(lines[0].chunks[0].underline, true);
+  assert.equal(lines[1].chunks[0].underline, undefined);
+});
+
+test('afbreken houdt underline/strikethrough van het afgebroken woord vast', () => {
+  const ann = { text: 'aa bb cc', textRuns: [[{ text: 'aa bb ' }, { text: 'cc', underline: true, strikethrough: true }]] };
+  const lines = layoutTextboxLines(ann, 55, meet);
+  assert.equal(tekst(lines), 'aa bb|cc');
+  assert.equal(lines[1].chunks[0].underline, true);
+  assert.equal(lines[1].chunks[0].strikethrough, true);
+});

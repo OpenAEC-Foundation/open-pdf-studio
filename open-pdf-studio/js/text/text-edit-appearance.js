@@ -451,11 +451,18 @@ export function normalizeRuns(runs) {
     const bold = !!run?.bold;
     const italic = !!run?.italic;
     const color = run?.color || null;
+    const underline = !!run?.underline;
+    const strikethrough = !!run?.strikethrough;
     const prev = out[out.length - 1];
-    if (prev && prev.bold === bold && prev.italic === italic && (prev.color || null) === color) {
+    if (prev && prev.bold === bold && prev.italic === italic && (prev.color || null) === color
+      && !!prev.underline === underline && !!prev.strikethrough === strikethrough) {
       prev.text += text;
     } else {
-      out.push({ text, bold, italic, ...(color ? { color } : {}) });
+      out.push({
+        text, bold, italic, ...(color ? { color } : {}),
+        ...(underline ? { underline: true } : {}),
+        ...(strikethrough ? { strikethrough: true } : {}),
+      });
     }
   }
   return out;
