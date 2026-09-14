@@ -654,6 +654,56 @@
   outline: none;
 }
 
+/* Numeric equivalent of .ribbon-form-select — same box so a row can mix
+   the two, but typeable and with native up/down stepping instead of a
+   fixed preset list (line width needs finer-than-whole-number steps). */
+.ribbon-form-number {
+  height: 20px;
+  font-size: 11px;
+  padding: 0 2px;
+  border: 1px solid var(--theme-ribbon-input-border);
+  background: var(--theme-ribbon-input-bg);
+  color: var(--theme-ribbon-input-text);
+  min-width: 60px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ribbon-form-number:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.ribbon-form-number:focus {
+  border-color: var(--theme-ribbon-input-focus-border);
+  background: var(--theme-ribbon-input-focus-bg);
+  outline: none;
+}
+
+/* Editable readout beside a .ribbon-slider — narrower than
+   .ribbon-form-number since it only ever holds 1-3 digits. */
+.ribbon-slider-number {
+  height: 18px;
+  width: 34px;
+  font-size: 11px;
+  padding: 0 2px;
+  border: 1px solid var(--theme-ribbon-input-border);
+  background: var(--theme-ribbon-input-bg);
+  color: var(--theme-ribbon-input-text);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.ribbon-slider-number:focus {
+  border-color: var(--theme-ribbon-input-focus-border);
+  background: var(--theme-ribbon-input-focus-bg);
+  outline: none;
+}
+
+.ribbon-slider-unit {
+  font-size: 11px;
+  color: var(--theme-ribbon-text);
+}
+
 /* Contextual "Afbeelding" tab — brightness/contrast slider rows */
 .ribbon-slider-grid {
   display: flex;
@@ -827,9 +877,12 @@
 
 .ribbon-color-dropdown {
   display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
+  /* fixed, not absolute: the ribbon tab's adaptive-groups container clips
+     overflow for its own "More" button, which was cutting the bottom rows
+     off this palette whenever it didn't fit inside the ribbon's remaining
+     height. Position is computed in JS (ColorPickerButton.jsx) instead of
+     top/left here — same fix already used for the overflow flyout. */
+  position: fixed;
   z-index: 1000;
   background: var(--theme-surface, #fff);
   border: 1px solid var(--theme-border, #ccc);

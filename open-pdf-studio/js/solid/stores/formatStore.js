@@ -80,19 +80,6 @@ export function applyToSelected(applyFn) {
   redraw();
 }
 
-function closestOption(options, val) {
-  let best = options[0];
-  let bestDiff = Infinity;
-  for (const opt of options) {
-    const diff = Math.abs(parseFloat(opt) - val);
-    if (diff < bestDiff) { bestDiff = diff; best = opt; }
-  }
-  return best;
-}
-
-const LINE_WIDTH_OPTIONS = ['0.5', '1', '2', '3', '4', '6', '8'];
-const OPACITY_OPTIONS = ['100', '90', '75', '50', '25', '10'];
-
 // Sync format store from selected annotations
 export function syncFormatStore(selectedAnnotations) {
   if (!selectedAnnotations || selectedAnnotations.length === 0) {
@@ -120,10 +107,10 @@ export function syncFormatStore(selectedAnnotations) {
   setStrokeColor(sc);
 
   const lw = ann.lineWidth !== undefined ? ann.lineWidth : 1;
-  setFmtLineWidth(closestOption(LINE_WIDTH_OPTIONS, lw));
+  setFmtLineWidth(lw);
 
   const op = ann.opacity !== undefined ? Math.round(ann.opacity * 100) : 100;
-  setOpacity(closestOption(OPACITY_OPTIONS, op));
+  setOpacity(op);
 
   setBorderStyle(ann.borderStyle || 'solid');
   setBlendMode(ann.blendMode || 'normal');

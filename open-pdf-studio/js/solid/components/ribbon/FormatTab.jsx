@@ -229,37 +229,18 @@ export default function FormatTab() {
         </RibbonGroup>
 
         <RibbonGroup label="">
-          <div class="ribbon-form-grid">
+          <div class="ribbon-form-grid ribbon-form-grid-2col">
             <div class="ribbon-form-row">
               <label>{t('format.widthLabel')}</label>
-              <select class="ribbon-form-select" id="fmt-line-width" title={t('format.lineWidth')}
+              <input type="number" class="ribbon-form-number" id="fmt-line-width" title={t('format.lineWidth')}
+                min="0.1" max="50" step="0.1"
                 value={fmtLineWidth()}
-                onChange={(e) => {
-                  applyToSelected(ann => { ann.lineWidth = parseFloat(e.target.value); });
+                onInput={(e) => {
+                  const v = parseFloat(e.currentTarget.value);
+                  if (!Number.isFinite(v) || v <= 0) return;
+                  applyToSelected(ann => { ann.lineWidth = v; });
                   syncFormatStore(getActiveDocument()?.selectedAnnotations || []);
-                }}>
-                <option value="0.5">0.5 pt</option>
-                <option value="1">1 pt</option>
-                <option value="2">2 pt</option>
-                <option value="3">3 pt</option>
-                <option value="4">4 pt</option>
-                <option value="6">6 pt</option>
-                <option value="8">8 pt</option>
-              </select>
-              <label>{t('format.opacityLabel')}</label>
-              <select class="ribbon-form-select" id="fmt-opacity" title={t('format.opacity')}
-                value={opacity()}
-                onChange={(e) => {
-                  applyToSelected(ann => { ann.opacity = parseInt(e.target.value) / 100; });
-                  syncFormatStore(getActiveDocument()?.selectedAnnotations || []);
-                }}>
-                <option value="100">100%</option>
-                <option value="90">90%</option>
-                <option value="75">75%</option>
-                <option value="50">50%</option>
-                <option value="25">25%</option>
-                <option value="10">10%</option>
-              </select>
+                }} />
             </div>
             <div class="ribbon-form-row">
               <label>{t('format.borderLabel')}</label>
@@ -273,6 +254,8 @@ export default function FormatTab() {
                 <option value="dashed">{tc('dashed')}</option>
                 <option value="dotted">{tc('dotted')}</option>
               </select>
+            </div>
+            <div class="ribbon-form-row">
               <label>{t('format.blendLabel')}</label>
               <select class="ribbon-form-select" id="fmt-blend-mode" title={t('format.blendMode')}
                 value={blendMode()}
@@ -284,6 +267,26 @@ export default function FormatTab() {
                 <option value="multiply">{t('format.multiply')}</option>
               </select>
             </div>
+          </div>
+          <div class="ribbon-slider-row">
+            <label>{t('format.opacityLabel')}</label>
+            <input type="range" class="ribbon-slider" id="fmt-opacity" title={t('format.opacity')}
+              min="0" max="100" step="1"
+              value={opacity()}
+              onInput={(e) => {
+                applyToSelected(ann => { ann.opacity = parseInt(e.currentTarget.value, 10) / 100; });
+                syncFormatStore(getActiveDocument()?.selectedAnnotations || []);
+              }} />
+            <input type="number" class="ribbon-slider-number" title={t('format.opacity')}
+              min="0" max="100" step="1"
+              value={opacity()}
+              onInput={(e) => {
+                const v = parseInt(e.currentTarget.value, 10);
+                if (!Number.isFinite(v) || v < 0 || v > 100) return;
+                applyToSelected(ann => { ann.opacity = v / 100; });
+                syncFormatStore(getActiveDocument()?.selectedAnnotations || []);
+              }} />
+            <span class="ribbon-slider-unit">%</span>
           </div>
         </RibbonGroup>
 
