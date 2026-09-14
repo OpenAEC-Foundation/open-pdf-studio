@@ -119,7 +119,11 @@ export function drawDimensionLabel(ctx, startX, startY, endX, endY, text, color,
 
 // Draw a measurement polygon (area) with outline and optional fill, supporting holes (cutouts)
 // hatchOpts: optional { pattern, color, scale, angle } for hatch fill
-export function drawMeasureAreaShape(ctx, points, color, lineWidth, fillColor, borderStyle, holes, hatchOpts) {
+// fillAlpha: optional override for just the interior fill's globalAlpha
+// (border/hatch keep whatever alpha the caller already had set). Used by
+// the Filled Area sketch preview so the shape stays see-through while
+// tracing over the page, without touching the final saved opacity.
+export function drawMeasureAreaShape(ctx, points, color, lineWidth, fillColor, borderStyle, holes, hatchOpts, fillAlpha) {
   // Use actual border style from annotation; default to dashed for backwards compat
   if (borderStyle === 'dashed') {
     ctx.setLineDash([4, 2]);
@@ -147,15 +151,25 @@ export function drawMeasureAreaShape(ctx, points, color, lineWidth, fillColor, b
   }
 
   // Fill using even-odd rule so holes appear as cutouts
-  if (fillColor && fillColor !== 'none' && fillColor !== 'transparent') {
-    ctx.fillStyle = fillColor;
-    ctx.fill('evenodd');
-  } else if (!fillColor) {
-    // No fill specified (created in this app) → semi-transparent default
-    ctx.fillStyle = color + '20';
-    ctx.fill('evenodd');
+  const _doFill = () => {
+    if (fillColor && fillColor !== 'none' && fillColor !== 'transparent') {
+      ctx.fillStyle = fillColor;
+      ctx.fill('evenodd');
+    } else if (!fillColor) {
+      // No fill specified (created in this app) → semi-transparent default
+      ctx.fillStyle = color + '20';
+      ctx.fill('evenodd');
+    }
+    // fillColor === 'none' or 'transparent' → no fill
+  };
+  if (fillAlpha != null) {
+    const _prevAlpha = ctx.globalAlpha;
+    ctx.globalAlpha = fillAlpha;
+    _doFill();
+    ctx.globalAlpha = _prevAlpha;
+  } else {
+    _doFill();
   }
-  // fillColor === 'none' or 'transparent' → no fill
 
   // Apply hatch fill pattern (default: diagonal-left red at 45°)
   if (hatchOpts && hatchOpts.pattern && hatchOpts.pattern !== 'none') {
