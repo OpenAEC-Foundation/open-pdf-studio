@@ -83,9 +83,9 @@
     "doneTitle": "Controleert of de contouren gesloten zijn, tekent de arcering en verlaat de modus (Enter)",
     "cancelTitle": "Annuleren (Esc)",
     "outerClosed": "Buitenrand gesloten ✓ · openingen: {{count}}",
-    "drawingHole": " · bezig met opening ({{count}} punt(en))",
-    "outerOpenClosable": "Buitenrand open — {{count}} punten (sluitbaar)",
-    "outerOpen": "Buitenrand open — {{count}} punt(en)"
+    "drawingHole": "bezig met opening, punten: {{count}}",
+    "outerOpenClosable": "Buitenrand open (sluitbaar) · punten: {{count}}",
+    "outerOpen": "Buitenrand open · punten: {{count}}"
   },
   "boxWidthAbbr": "B",
   "boxHeightAbbr": "H"

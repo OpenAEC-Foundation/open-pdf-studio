@@ -75,9 +75,9 @@
     "doneTitle": "Проверява дали контурите са затворени, чертае щриховката и излиза от режима (Enter)",
     "cancelTitle": "Отказ (Esc)",
     "outerClosed": "Външен контур затворен ✓ · отвори: {{count}}",
-    "drawingHole": " · чертане на отвор ({{count}} точка/и)",
-    "outerOpenClosable": "Външен контур отворен — {{count}} точки (може да се затвори)",
-    "outerOpen": "Външен контур отворен — {{count}} точка/и"
+    "drawingHole": "чертане на отвор, точки: {{count}}",
+    "outerOpenClosable": "Външен контур отворен (може да се затвори) · точки: {{count}}",
+    "outerOpen": "Външен контур отворен · точки: {{count}}"
   },
   "boxWidthAbbr": "Ш",
   "boxHeightAbbr": "В"

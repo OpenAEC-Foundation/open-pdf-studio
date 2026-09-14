@@ -74,9 +74,9 @@
     "doneTitle": "Comprueba que los contornos estén cerrados, dibuja la trama y sale del modo (Intro)",
     "cancelTitle": "Cancelar (Esc)",
     "outerClosed": "Contorno exterior cerrado ✓ · aberturas: {{count}}",
-    "drawingHole": " · dibujando abertura ({{count}} punto(s))",
-    "outerOpenClosable": "Contorno exterior abierto — {{count}} puntos (se puede cerrar)",
-    "outerOpen": "Contorno exterior abierto — {{count}} punto(s)"
+    "drawingHole": "dibujando abertura, puntos: {{count}}",
+    "outerOpenClosable": "Contorno exterior abierto (se puede cerrar) · puntos: {{count}}",
+    "outerOpen": "Contorno exterior abierto · puntos: {{count}}"
   },
   "boxWidthAbbr": "A",
   "boxHeightAbbr": "Al"

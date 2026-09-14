@@ -75,9 +75,9 @@
     "doneTitle": "Verifică dacă conturile sunt închise, desenează haşura și iese din mod (Enter)",
     "cancelTitle": "Anulează (Esc)",
     "outerClosed": "Contur exterior închis ✓ · deschideri: {{count}}",
-    "drawingHole": " · se desenează deschiderea ({{count}} punct(e))",
-    "outerOpenClosable": "Contur exterior deschis — {{count}} puncte (se poate închide)",
-    "outerOpen": "Contur exterior deschis — {{count}} punct(e)"
+    "drawingHole": "se desenează deschiderea, puncte: {{count}}",
+    "outerOpenClosable": "Contur exterior deschis (se poate închide) · puncte: {{count}}",
+    "outerOpen": "Contur exterior deschis · puncte: {{count}}"
   },
   "boxWidthAbbr": "L",
   "boxHeightAbbr": "H"

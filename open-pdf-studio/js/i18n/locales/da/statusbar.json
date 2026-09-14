@@ -75,9 +75,9 @@
     "doneTitle": "Kontrollerer at konturerne er lukkede, tegner skraveringen og forlader tilstanden (Enter)",
     "cancelTitle": "Annuller (Esc)",
     "outerClosed": "Yderkontur lukket ✓ · åbninger: {{count}}",
-    "drawingHole": " · tegner åbning ({{count}} punkt(er))",
-    "outerOpenClosable": "Yderkontur åben — {{count}} punkter (kan lukkes)",
-    "outerOpen": "Yderkontur åben — {{count}} punkt(er)"
+    "drawingHole": "tegner åbning, punkter: {{count}}",
+    "outerOpenClosable": "Yderkontur åben (kan lukkes) · punkter: {{count}}",
+    "outerOpen": "Yderkontur åben · punkter: {{count}}"
   },
   "boxWidthAbbr": "B",
   "boxHeightAbbr": "H"

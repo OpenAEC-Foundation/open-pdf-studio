@@ -83,9 +83,9 @@
     "doneTitle": "Checks the contours are closed, draws the hatch, and exits the mode (Enter)",
     "cancelTitle": "Cancel (Esc)",
     "outerClosed": "Outer contour closed ✓ · openings: {{count}}",
-    "drawingHole": " · drawing opening ({{count}} point(s))",
-    "outerOpenClosable": "Outer contour open — {{count}} points (closable)",
-    "outerOpen": "Outer contour open — {{count}} point(s)"
+    "drawingHole": "drawing opening, points: {{count}}",
+    "outerOpenClosable": "Outer contour open (closable) · points: {{count}}",
+    "outerOpen": "Outer contour open · points: {{count}}"
   },
   "boxWidthAbbr": "W",
   "boxHeightAbbr": "H"

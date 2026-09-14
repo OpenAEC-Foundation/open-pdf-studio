@@ -75,9 +75,9 @@
     "doneTitle": "Tarkistaa, että ääriviivat on suljettu, piirtää viivoituksen ja poistuu tilasta (Enter)",
     "cancelTitle": "Peruuta (Esc)",
     "outerClosed": "Ulkoääriviiva suljettu ✓ · aukkoja: {{count}}",
-    "drawingHole": " · piirretään aukkoa ({{count}} piste(ttä))",
-    "outerOpenClosable": "Ulkoääriviiva auki — {{count}} pistettä (suljettavissa)",
-    "outerOpen": "Ulkoääriviiva auki — {{count}} piste(ttä)"
+    "drawingHole": "piirretään aukkoa, pistettä: {{count}}",
+    "outerOpenClosable": "Ulkoääriviiva auki (suljettavissa) · pistettä: {{count}}",
+    "outerOpen": "Ulkoääriviiva auki · pistettä: {{count}}"
   },
   "boxWidthAbbr": "L",
   "boxHeightAbbr": "K"
