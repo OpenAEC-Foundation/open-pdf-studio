@@ -34,18 +34,26 @@ function tauri() {
 let cjkFontBytesPromise = null;
 
 // Bundled at src-tauri/resources/fonts/NotoSansTC-Regular.ttf (see
-// scripts/ocr-runtime.mjs + tauri.conf.json's bundle.resources) — resolved
-// via the same resourceDir() pattern js/pdf/frames.js uses for kaders/.
-// Kept separate from embedOcrFont so the actual writing logic stays
+// scripts/ocr-runtime.mjs + tauri.conf.json's bundle.resources). Kept
+// separate from embedOcrFont so the actual writing logic stays
 // Tauri-agnostic and directly testable (a test script can pass its own
 // fontBytes straight to embedOcrFont without going through this).
 export async function loadDefaultOcrFontBytes() {
   if (cjkFontBytesPromise) return cjkFontBytesPromise;
   cjkFontBytesPromise = (async () => {
     const t = tauri();
-    const res = await t.path.resourceDir();
-    const sep = res.endsWith('\\') || res.endsWith('/') ? '' : '\\';
-    const fontPath = `${res}${sep}fonts${sep}NotoSansTC-Regular.ttf`;
+    // Tauri's own join() picks the right separator per OS — a hardcoded
+    // '\\' (the pattern js/pdf/frames.js uses for kaders/) produced a
+    // literal backslash INSIDE the path on macOS/Linux (e.g.
+    // ".../resources\fonts\NotoSansTC-Regular.ttf"), which the fs plugin's
+    // scope check then rejected outright as a forbidden path — OCR ran
+    // fine, but every save silently failed to write the text layer.
+    const fontPath = await t.path.join(await t.path.resourceDir(), 'fonts', 'NotoSansTC-Regular.ttf');
+    // The fs plugin's static capability scope doesn't cover the resource
+    // dir by default — js/pdf/frames.js grants it the same way for kaders/
+    // (allow_fs_scope registers the FILE's parent directory), otherwise
+    // readFile rejects even a correctly-joined path as "forbidden".
+    try { await t.core.invoke('allow_fs_scope', { path: fontPath }); } catch { /* best-effort */ }
     return await t.fs.readFile(fontPath);
   })();
   return cjkFontBytesPromise;
