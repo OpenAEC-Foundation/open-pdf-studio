@@ -1115,7 +1115,14 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
       let textRuns;
       if (Array.isArray(extraColors.textRuns) && extraColors.textRuns.length) {
         const rcText = extraColors.textRuns.map(l => l.map(r => r.text).join('')).join('\n');
-        const norm = (s) => String(s).replace(/\s+/g, ' ').trim();
+        // Strip ALL whitespace rather than collapsing it to one space: /Contents
+        // is often the authoring tool's own hand-wrapped plain-text fallback,
+        // which can hard-wrap mid-word with a hyphen ("on-\nsite") where /RC's
+        // unwrapped rich text has none ("on-site"). Collapsing left that lone
+        // wrap-space mismatched and silently discarded otherwise-valid runs
+        // (losing bold/italic/underline for the whole annotation) over a
+        // difference that isn't a real content difference.
+        const norm = (s) => String(s).replace(/\s+/g, '');
         if (norm(rcText) === norm(text)) { text = rcText; textRuns = extraColors.textRuns; }
       }
 

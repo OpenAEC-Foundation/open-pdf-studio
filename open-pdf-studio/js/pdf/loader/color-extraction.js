@@ -1026,7 +1026,18 @@ const result = {};
                   // de PDF-notatie; voor het parsen de gedecodeerde tekst.
                   const rcDecoded = (typeof rcRaw.decodeText === 'function') ? rcRaw.decodeText()
                     : (typeof rcRaw.asString === 'function') ? rcRaw.asString() : rcStr.replace(/^\(|\)$/g, '');
-                  const rcDoc = new DOMParser().parseFromString(String(rcDecoded).replace(/^\s*<\?xml[^>]*\?>/i, ''), 'text/html');
+                  // Some authoring tools (e.g. Acrobat's XFA-style RC) end every
+                  // paragraph with BOTH a trailing \r AND its own <p>/<div>
+                  // block — belt-and-suspenders encoding of the same line
+                  // break. parseEditorDom (shared with the live editor, where
+                  // a lone trailing \r is meaningful — see its own contract
+                  // comment) counts each independently, doubling every blank
+                  // line between paragraphs. Drop the redundant \r right
+                  // before a block closes; it carries no information the
+                  // block boundary doesn't already provide.
+                  const rcCleaned = String(rcDecoded).replace(/^\s*<\?xml[^>]*\?>/i, '')
+                    .replace(/(?:&#(?:13|10);|[\r\n])+(?=<\/(?:span|p|div)>)/gi, '');
+                  const rcDoc = new DOMParser().parseFromString(rcCleaned, 'text/html');
                   const rcBody = rcDoc.body;
                   if (rcBody) {
                     const rcLines = parseEditorDom(rcBody);
