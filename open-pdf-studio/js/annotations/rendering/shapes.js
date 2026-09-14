@@ -196,39 +196,20 @@ export function computeTextboxContentHeight(annotation) {
   _chain.push(/[\s"',]/.test(rawFontFamily) ? _cssQuote(rawFontFamily) : rawFontFamily);
   _chain.push('sans-serif');
   const fontFamily = _chain.join(', ');
-  const fontStyle = (annotation.fontItalic ? 'italic ' : '') + (annotation.fontBold ? 'bold ' : '');
-  const font = `${fontStyle}${fontSize}px ${fontFamily}`;
-
   // Use offscreen canvas for text measurement
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
-  ctx.font = font;
 
-  const paragraphs = annotation.text.split('\n');
-  let totalLines = 0;
-
-  for (const para of paragraphs) {
-    if (!para) {
-      // Empty line counts as one line
-      totalLines++;
-      continue;
-    }
-    const words = para.split(' ');
-    let line = '';
-    let paraLines = 0;
-
-    for (let i = 0; i < words.length; i++) {
-      const testLine = line + words[i] + ' ';
-      if (ctx.measureText(testLine).width > maxWidth && i > 0) {
-        paraLines++;
-        line = words[i] + ' ';
-      } else {
-        line = testLine;
-      }
-    }
-    if (line.trim()) paraLines++;
-    totalLines += paraLines;
-  }
+  // Delegate the actual wrapping to the same shared engine drawTextboxContent
+  // uses (layoutTextboxLines / woordenVanRegel in textbox-layout.js) instead
+  // of counting lines with a separate, once-duplicated implementation — this
+  // function used to do its own naive space-based word wrap, which (like the
+  // same bug fixed in textbox-layout.js) undercounted CJK text as a single
+  // unbreakable "word" and never grew the box to fit it. Switches font per
+  // run (bold/italic) same as layoutTextboxForExport, for mixed-style text.
+  const fontFor = (bold, italic) => `${italic ? 'italic ' : ''}${bold ? 'bold ' : ''}${fontSize}px ${fontFamily}`;
+  const measure = (t, bold, italic) => { ctx.font = fontFor(bold, italic); return ctx.measureText(t).width; };
+  const totalLines = layoutTextboxLines(annotation, maxWidth, measure).length;
 
   return padding * 2 + totalLines * lineHeight;
 }
