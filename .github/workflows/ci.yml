@@ -122,6 +122,23 @@ jobs:
         if: matrix.platform == 'windows-latest'
         run: npm run tauri build -- --no-bundle
 
+      # Tauri 2.10 downloads its own, older linuxdeploy build, which ignores
+      # LINUXDEPLOY_EXCLUDED_LIBRARIES, so the display stack ended up in the
+      # AppImage anyway (issue #362). Tauri only downloads when the file is not
+      # already in its tool cache (~/.cache/tauri), so place a pinned,
+      # checksum-verified linuxdeploy release there first.
+      - name: Provide pinned linuxdeploy (Linux)
+        if: matrix.platform == 'ubuntu-22.04'
+        shell: bash
+        run: |
+          set -euo pipefail
+          tools="${XDG_CACHE_HOME:-$HOME/.cache}/tauri"
+          mkdir -p "$tools"
+          curl -fsSL --retry 3 -o "$tools/linuxdeploy-x86_64.AppImage" \
+            https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20251107-1/linuxdeploy-x86_64.AppImage
+          echo "c20cd71e3a4e3b80c3483cef793cda3f4e990aca14014d23c544ca3ce1270b4d  $tools/linuxdeploy-x86_64.AppImage" | sha256sum -c -
+          chmod +x "$tools/linuxdeploy-x86_64.AppImage"
+
       - name: Build Tauri AppImage
         if: matrix.platform == 'ubuntu-22.04'
         run: npm run tauri build -- --bundles appimage --config '{"bundle":{"createUpdaterArtifacts":false}}'
@@ -141,7 +158,9 @@ jobs:
 
       # Fedora 44 ships Mesa 26, where an AppImage that bundles its own display
       # stack aborts before a window appears (issue #362). Start the same
-      # AppImage against Fedora's own libraries.
+      # AppImage against Fedora's own libraries. The container installs every
+      # display-stack library the AppImage no longer bundles; a desktop Fedora
+      # has them through Mesa and GTK.
       - name: Verify AppImage on Fedora 44
         if: matrix.platform == 'ubuntu-22.04'
         shell: bash
@@ -153,7 +172,7 @@ jobs:
             -v "$appimage:/input/open-pdf-studio.AppImage:ro" \
             -v "$PWD/scripts/linux-appimage-smoke.sh:/input/linux-appimage-smoke.sh:ro" \
             fedora:44 \
-            bash -lc 'dnf install -y --setopt=install_weak_deps=False dbus-daemon dbus-tools findutils gtk3 gvfs libwayland-client libwayland-cursor libwayland-egl libxkbcommon mesa-libEGL libglvnd-gles xorg-x11-server-Xvfb xorg-x11-xauth && cp /input/open-pdf-studio.AppImage /tmp/open-pdf-studio.AppImage && bash /input/linux-appimage-smoke.sh /tmp/open-pdf-studio.AppImage 10'
+            bash -lc 'dnf install -y --setopt=install_weak_deps=False dbus-daemon dbus-tools findutils gtk3 gvfs libwayland-client libwayland-cursor libwayland-egl libwayland-server libxcb libXau libXdmcp libxkbcommon mesa-libEGL libglvnd-gles xorg-x11-server-Xvfb xorg-x11-xauth && cp /input/open-pdf-studio.AppImage /tmp/open-pdf-studio.AppImage && bash /input/linux-appimage-smoke.sh /tmp/open-pdf-studio.AppImage 10'
 
       - name: Build ad-hoc signed macOS app
         if: matrix.platform == 'macos-26'
