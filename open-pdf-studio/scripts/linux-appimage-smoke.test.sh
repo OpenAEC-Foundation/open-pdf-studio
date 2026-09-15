@@ -15,6 +15,10 @@ printf '%s\n' \
   '    mkdir -p "squashfs-root/usr/lib/Open PDF Studio"' \
   '    : > "squashfs-root/usr/lib/Open PDF Studio/libpdfium.so"' \
   '  fi' \
+  '  if [[ "${FAKE_BUNDLED_WAYLAND:-0}" == "1" ]]; then' \
+  '    mkdir -p squashfs-root/usr/lib' \
+  '    : > squashfs-root/usr/lib/libwayland-client.so.0' \
+  '  fi' \
   '  exit 0' \
   'fi' \
   'if [[ "${BASH_SOURCE[0]}" == *"-gvfs.AppImage" ]]; then' \
@@ -39,3 +43,10 @@ if SMOKE_NO_DISPLAY_WRAPPERS=1 bash "$smoke" "$gvfs_fake" 1 >"$tmp/gvfs.log" 2>&
   exit 1
 fi
 grep -q 'forbidden startup diagnostic' "$tmp/gvfs.log"
+
+if FAKE_BUNDLED_WAYLAND=1 SMOKE_NO_DISPLAY_WRAPPERS=1 bash "$smoke" "$fake" 1 >"$tmp/wayland.log" 2>&1; then
+  echo "smoke unexpectedly accepted an AppImage with a bundled libwayland-client" >&2
+  exit 1
+fi
+grep -q 'display-stack libraries are bundled' "$tmp/wayland.log"
+grep -q 'usr/lib/libwayland-client.so.0' "$tmp/wayland.log"

@@ -69,3 +69,34 @@ test('the AppImage GIO guard runs before Tauri setup', async () => {
   assert.notEqual(tauri, -1);
   assert.ok(guard < tauri);
 });
+
+test('every AppImage build excludes the same display-stack libraries (#362)', async () => {
+  const expected = [
+    'libwayland-client.so', 'libwayland-cursor.so', 'libwayland-egl.so', 'libwayland-server.so',
+    'libxkbcommon.so', 'libxcb-randr.so', 'libxcb-render.so', 'libxcb-shm.so',
+    'libXau.so', 'libXdmcp.so',
+  ];
+  const values = [];
+  for (const name of ['ci.yml', 'release.yml', 'nightly.yml']) {
+    const workflow = await readFile(new URL(`.github/workflows/${name}`, repoRoot), 'utf8');
+    const match = workflow.match(/LINUXDEPLOY_EXCLUDED_LIBRARIES: '([^']+)'/);
+    assert.ok(match, `${name} sets LINUXDEPLOY_EXCLUDED_LIBRARIES`);
+    values.push(match[1]);
+  }
+  assert.deepEqual(values[0].split(';'), expected.map((lib) => `${lib}*`));
+  assert.equal(values[1], values[0], 'release.yml matches ci.yml');
+  assert.equal(values[2], values[0], 'nightly.yml matches ci.yml');
+
+  const smoke = await readFile(new URL('scripts/linux-appimage-smoke.sh', appRoot), 'utf8');
+  const smokeLibs = smoke.match(/display_stack_libs=\(([^)]+)\)/);
+  assert.ok(smokeLibs, 'smoke script lists the display-stack libraries');
+  assert.deepEqual(smokeLibs[1].trim().split(/\s+/), expected);
+});
+
+test('CI starts the AppImage on Fedora 44', async () => {
+  const workflow = await readFile(new URL('.github/workflows/ci.yml', repoRoot), 'utf8');
+  assert.match(workflow, /Verify AppImage on Fedora 44/);
+  assert.match(workflow, /fedora:44/);
+  assert.match(workflow, /xorg-x11-server-Xvfb/);
+  assert.match(workflow, /mesa-libEGL/);
+});
