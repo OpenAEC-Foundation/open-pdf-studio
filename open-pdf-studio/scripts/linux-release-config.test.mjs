@@ -99,6 +99,7 @@ test('CI starts the AppImage on Fedora 44', async () => {
   assert.match(workflow, /fedora:44/);
   assert.match(workflow, /xorg-x11-server-Xvfb/);
   assert.match(workflow, /mesa-libEGL/);
+  assert.match(workflow, /libwayland-server/);
 });
 
 test('every AppImage build pins the same checksum-verified linuxdeploy (#362)', async () => {
