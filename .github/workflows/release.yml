@@ -134,29 +134,6 @@ jobs:
           New-Item -ItemType Directory -Force open-pdf-studio/src-tauri/binaries | Out-Null
           Copy-Item target/release/pdfium-worker.exe open-pdf-studio/src-tauri/binaries/pdfium-worker-x86_64-pc-windows-msvc.exe -Force
 
-      # Sign the pdfium-worker sidecar BEFORE Tauri bundles it into the installer.
-      # The installer-signing step below only signs the installer + main exe; the
-      # sidecar is extracted to disk UNSIGNED, which some AV engines flag as a
-      # heuristic false-positive and quarantine (Symantec Heur.AdvML.B, #245).
-      # Signing it here means the extracted worker.exe carries a trusted signature.
-      - name: Authenticode sign pdfium-worker sidecar (Windows)
-        if: contains(matrix.target, 'windows')
-        uses: azure/trusted-signing-action@v1
-        with:
-          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-          endpoint: ${{ secrets.AZURE_ENDPOINT }}
-          signing-account-name: ${{ secrets.AZURE_TRUSTED_SIGNING_ACCOUNT_NAME }}
-          certificate-profile-name: ${{ secrets.AZURE_CERTIFICATE_PROFILE_NAME }}
-          cache-dependencies: false
-          files-folder: ${{ github.workspace }}/open-pdf-studio/src-tauri/binaries
-          files-folder-filter: exe
-          files-folder-depth: 1
-          file-digest: SHA256
-          timestamp-rfc3161: http://timestamp.acs.microsoft.com
-          timestamp-digest: SHA256
-
       - name: Build pdfium-worker sidecar (Linux)
         if: matrix.target == 'linux'
         working-directory: .
@@ -256,6 +233,51 @@ jobs:
             exit 1
           }
 
+      # Windows: first compile without bundling, then sign, only then bundle.
+      # The NSIS bundler takes the main binary from target/release and the
+      # sidecar from src-tauri/binaries/pdfium-worker-<triple>.exe. That sidecar
+      # is rebuilt and re-copied during the build (prebuild + build.rs), so a
+      # signature applied before the build was lost and the INSTALLED exe's
+      # were unsigned (AV false positives such as #245, SmartScreen warnings).
+      # Signing between compile and bundle covers both files.
+      - name: Build Windows app without bundles
+        if: contains(matrix.target, 'windows')
+        run: npm run tauri -- build --no-bundle
+
+      - name: Authenticode sign app binary and sidecar (Windows)
+        if: contains(matrix.target, 'windows')
+        uses: azure/trusted-signing-action@v1
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: ${{ secrets.AZURE_ENDPOINT }}
+          signing-account-name: ${{ secrets.AZURE_TRUSTED_SIGNING_ACCOUNT_NAME }}
+          certificate-profile-name: ${{ secrets.AZURE_CERTIFICATE_PROFILE_NAME }}
+          cache-dependencies: false
+          files: |
+            ${{ github.workspace }}/target/release/open-pdf-studio.exe
+            ${{ github.workspace }}/open-pdf-studio/src-tauri/binaries/pdfium-worker-x86_64-pc-windows-msvc.exe
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Verify app binary and sidecar signatures (Windows)
+        if: contains(matrix.target, 'windows')
+        shell: pwsh
+        run: |
+          $files = @(
+            "$env:GITHUB_WORKSPACE/target/release/open-pdf-studio.exe",
+            "$env:GITHUB_WORKSPACE/open-pdf-studio/src-tauri/binaries/pdfium-worker-x86_64-pc-windows-msvc.exe"
+          )
+          $unsigned = $false
+          foreach ($f in $files) {
+            $sig = Get-AuthenticodeSignature $f
+            Write-Output ("{0}: {1} ({2})" -f $f, $sig.Status, $sig.SignerCertificate.Subject)
+            if ($sig.Status -ne 'Valid') { $unsigned = $true }
+          }
+          if ($unsigned) { Write-Error 'An unsigned binary would be bundled into the installer'; exit 1 }
+
       - name: Write App Store Connect API key (macOS)
         if: matrix.target == 'macos'
         shell: bash
@@ -263,12 +285,25 @@ jobs:
           printf '%s' "${{ secrets.APPLE_API_KEY_CONTENT }}" > "${{ runner.temp }}/apple-api-key.p8"
 
       - name: Build Tauri app (with release upload)
-        if: matrix.target != 'windows-user' && matrix.target != 'macos'
+        if: matrix.target == 'linux'
         uses: tauri-apps/tauri-action@action-v0.6.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectPath: open-pdf-studio
+          args: ${{ matrix.args }}
+          releaseId: ${{ needs.create-release.outputs.release_id }}
+          includeUpdaterJson: true
+
+      - name: Bundle Windows system installer (with release upload)
+        if: matrix.target == 'windows-system'
+        uses: tauri-apps/tauri-action@action-v0.6.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: open-pdf-studio
+          # Bundles the already-built, already-signed binaries (no recompile).
+          tauriScript: node scripts/tauri-bundle-only.mjs
           args: ${{ matrix.args }}
           releaseId: ${{ needs.create-release.outputs.release_id }}
           includeUpdaterJson: true
@@ -328,13 +363,15 @@ jobs:
           xcrun stapler validate "$APP_PATH"
           bash scripts/macos-startup-smoke.sh "$APP_PATH"
 
-      - name: Build Tauri app (user installer)
+      - name: Bundle Windows user installer
         if: matrix.target == 'windows-user'
         uses: tauri-apps/tauri-action@action-v0.6.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectPath: open-pdf-studio
+          # Bundles the already-built, already-signed binaries (no recompile).
+          tauriScript: node scripts/tauri-bundle-only.mjs
           args: ${{ matrix.args }}
 
       - name: Authenticode sign Windows installer
@@ -355,6 +392,56 @@ jobs:
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
+
+      # Proof on what users actually get: install the signed installer silently
+      # on the runner and check the signatures of the installed binaries. A
+      # silent install skips the hook pages, so no printer, file association or
+      # shortcut is set up. uninstall.exe is generated by NSIS during install
+      # and cannot be signed in this pipeline; it is only reported.
+      - name: Verify installed binaries are signed (Windows)
+        if: contains(matrix.target, 'windows')
+        shell: pwsh
+        run: |
+          $nsis = "$env:GITHUB_WORKSPACE/target/release/bundle/nsis"
+          $setup = Get-ChildItem "$nsis/*-setup.exe" | Select-Object -First 1
+          $installerSig = Get-AuthenticodeSignature $setup.FullName
+          Write-Output ("installer {0}: {1}" -f $setup.Name, $installerSig.Status)
+          if ($installerSig.Status -ne 'Valid') { Write-Error 'Installer is not signed'; exit 1 }
+
+          $proc = Start-Process -FilePath $setup.FullName -ArgumentList '/S' -PassThru
+          if (-not $proc.WaitForExit(600000)) { $proc.Kill(); Write-Error 'Silent install timed out'; exit 1 }
+          Write-Output "installer exit code: $($proc.ExitCode)"
+
+          $keys = @(
+            'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Open PDF Studio (User)',
+            'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Open PDF Studio',
+            'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Open PDF Studio'
+          )
+          $dir = $null
+          foreach ($k in $keys) {
+            $loc = (Get-ItemProperty $k -ErrorAction SilentlyContinue).InstallLocation
+            if ($loc) { $dir = $loc.Trim('"'); break }
+          }
+          if (-not $dir) {
+            foreach ($d in @("$env:ProgramFiles\Open PDF Studio", "$env:LOCALAPPDATA\Open PDF Studio")) {
+              if (Test-Path (Join-Path $d 'open-pdf-studio.exe')) { $dir = $d; break }
+            }
+          }
+          if (-not $dir) { Write-Error 'Install location not found'; exit 1 }
+          Write-Output "installed to: $dir"
+
+          $unsigned = $false
+          foreach ($exe in 'open-pdf-studio.exe', 'pdfium-worker.exe') {
+            $sig = Get-AuthenticodeSignature (Join-Path $dir $exe)
+            Write-Output ("{0}: {1} ({2})" -f $exe, $sig.Status, $sig.SignerCertificate.Subject)
+            if ($sig.Status -ne 'Valid') { $unsigned = $true }
+          }
+          $uninstaller = Join-Path $dir 'uninstall.exe'
+          if (Test-Path $uninstaller) {
+            Write-Output ("uninstall.exe: {0} (not signable in this pipeline)" -f (Get-AuthenticodeSignature $uninstaller).Status)
+            Start-Process -FilePath $uninstaller -ArgumentList '/S' -Wait
+          }
+          if ($unsigned) { Write-Error 'Installed binaries are not signed'; exit 1 }
 
       - name: Re-sign updater artifacts after Authenticode signing
         if: matrix.target == 'windows-system'
