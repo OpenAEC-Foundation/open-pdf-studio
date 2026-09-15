@@ -428,6 +428,8 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
             hatchScale: extraColors.opsHatchScale ?? undefined,
             hatchAngle: extraColors.opsHatchAngle ?? 0,
             isolatieType: extraColors.opsIsolatieType || undefined,
+            // Explicit category wins; older files without it are IfcWall.
+            ifcCategory: extraColors.opsIfcCategory || ifcCategoryForAnnotationType('wall'),
             color: colorArrayToHex(annot.color, '#000000'),
             strokeColor: colorArrayToHex(annot.color, '#000000'),
             lineWidth: extraColors.borderWidth ?? annot.borderStyle?.width ?? 0.7,
