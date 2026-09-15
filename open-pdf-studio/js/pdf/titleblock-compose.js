@@ -63,6 +63,7 @@ export function veldTransform({ vak, factor, doelX, doelY }) {
  */
 export async function neemVeldenOver(kaderDoc, kaderPagina, bronPagina, plaatsing) {
   const { PDFName, PDFString } = await import('pdf-lib');
+  const { pdfTextString } = await import('./saver/pdf-text.js');
   const bronContext = bronPagina.doc.context;
   const annots = bronPagina.node.lookup(PDFName.of('Annots'));
   if (!annots || typeof annots.size !== 'function') return 0;
@@ -93,7 +94,8 @@ export async function neemVeldenOver(kaderDoc, kaderPagina, bronPagina, plaatsin
       }
       const tekst = waarde.decodeText ? waarde.decodeText() : (typeof waarde.value === 'string' ? waarde.value : null);
       if (tekst !== null && tekst !== undefined) {
-        nieuw[sleutel] = PDFString.of(tekst);
+        // Niet-ASCII (bijv. é of €) als UTF-16: PDFString.of kapt af op de lage byte.
+        nieuw[sleutel] = pdfTextString(tekst);
       } else if (waarde.asArray) {
         nieuw[sleutel] = waarde.asArray().map((n) => (n.asNumber ? n.asNumber() : 0));
       } else if (waarde.asNumber) {

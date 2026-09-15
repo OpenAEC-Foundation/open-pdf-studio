@@ -17,6 +17,7 @@ import { systeemTypeFromJson } from '../../annotations/systeem-typen.js';
 import { ensureSysteemType, getSysteemTypeById } from '../../annotations/systeem-typen-registry.js';
 import { computeTextboxContentHeight } from '../../annotations/rendering/shapes.js';
 import { pasRegelafstandAanDoos } from '../../annotations/rendering/textbox-layout.js';
+import { toWinAnsiText } from '../saver/pdf-text.js';
 
 // Convert PDF annotation to our format
 export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageMap, annotColorMap) {
@@ -1113,6 +1114,20 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
 
       // Text content: prefer textContent array (joined), fallback to contents
       let text = annot.textContent ? annot.textContent.join('\n') : (annot.contents || '');
+      // De appearance kan alleen WinAnsi tonen: tekens daarbuiten staan er als
+      // '?' of een naaste equivalent in, terwijl /Contents (UTF-16) de echte
+      // tekst bewaart. Is de appearance-tekst precies de WinAnsi-weergave van
+      // /Contents, dan is /Contents de bron; anders legt de volgende save de
+      // vervangingstekens ook in /Contents vast.
+      const contentsTekst = annot.contentsObj?.str || annot.contents || '';
+      if (annot.textContent && contentsTekst) {
+        const zonderWit = (s) => String(s).replace(/\s+/g, '');
+        const appearanceTekst = zonderWit(text);
+        if (appearanceTekst !== zonderWit(contentsTekst)
+          && appearanceTekst === zonderWit(toWinAnsiText(contentsTekst))) {
+          text = contentsTekst;
+        }
+      }
       // Inline opmaak uit /RC: alleen als de platte tekst (op witruimte na)
       // overeenkomt met Contents — anders zijn de runs niet te vertrouwen.
       let textRuns;

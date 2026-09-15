@@ -17,6 +17,7 @@
 import { hexToRgb } from './utils.js';
 import { getHatchLineFamilies } from './hatch-catalog.js';
 import { catmullRomToBezier, splineArrowEndTangent } from '../../annotations/spline-arrow-geometry.js';
+import { toWinAnsiText, winAnsiLiteral } from './pdf-text.js';
 import {
   rotToWorld as srRotToWorld,
   SYSTEEM_RAVEEL_OFFSET_MM as srRaveelOffsetMm,
@@ -29,8 +30,10 @@ const f = (n) => {
   const r = Math.round(n * 1000) / 1000;
   return Object.is(r, -0) ? '0' : String(r);
 };
-const escapePdfText = (s) =>
-  String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)').replace(/[\r\n]+/g, ' ');
+// Tekst voor '(...) Tj' met de WinAnsi-font /Helv: puur ASCII, WinAnsi-codes
+// als octale escape, elke CR/LF-reeks één spatie (zie pdf-text.js). Voor
+// ASCII gelijk aan de oude escapes van \ ( ).
+const escapePdfText = (s) => winAnsiLiteral(s, { newlines: 'space' });
 
 // Dash arrays mirror rendering/decorations.js applyBorderStyle (screen px ==
 // PDF pt at scale 1). Solid → null (no dash operator).
@@ -206,7 +209,10 @@ function labelOps({ text, x, y, fontSize, colorRgb, X, Y }) {
   if (!text) return '';
   const fs = fontSize || 11;
   const px = X(x), py = Y(y);
-  const tw = escapePdfText(text).length * fs * 0.5; // Helvetica avg width estimate
+  // Helvetica avg width estimate over de getoonde tekst. Zoals voorheen telt
+  // de backslash van \\, \( en \) mee; een octale escape telt als één teken.
+  const shown = toWinAnsiText(text, { newlines: 'space' });
+  const tw = (shown.length + (shown.match(/[\\()]/g) || []).length) * fs * 0.5;
   const padX = 2, padY = 2;
   const bx = px - tw / 2 - padX;
   const by = py - fs / 2 - padY;

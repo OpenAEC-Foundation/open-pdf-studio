@@ -180,7 +180,9 @@ export function enrichForPdfX(pdfDocLib, { conformance = 'X-3', title = 'Documen
 
   // 2. XMP metadata stream (uncompressed so preflight tools can read it).
   const xmp = buildPdfxXmp(versionString, title);
-  const metaStream = context.stream(xmp, { Type: 'Metadata', Subtype: 'XML' });
+  // Als UTF-8-bytes: een string kapt pdf-lib per teken af op de lage byte
+  // (niet-ASCII-titel, en U+FEFF in xpacket begin werd 0xFF).
+  const metaStream = context.stream(new TextEncoder().encode(xmp), { Type: 'Metadata', Subtype: 'XML' });
   const metaRef = context.register(metaStream);
   catalog.set(PDFName.of('Metadata'), metaRef);
 

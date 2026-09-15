@@ -22,10 +22,11 @@ import { showMessage } from '../bridge.js';
 import { hexToRgb, buildBorderStyle, computeAnnotFlags, mapFontToPdfName,
   ensureAcroFormFonts, stripPdfAMetadata, generateAppearanceStream } from './saver/utils.js';
 import { saveTextEditsToPages } from './saver/text-edits.js';
-import { hasMixedRuns, textboxLineRuns } from '../annotations/rendering/textbox-layout.js';
+import { hasMixedRuns, textboxLineRuns, runsToText } from '../annotations/rendering/textbox-layout.js';
 import { saveWatermarksToPages } from './saver/watermarks.js';
 import { saveBookmarksToOutline } from './saver/bookmarks.js';
 import { saveStylePresetsToCatalog } from './saver/style-presets.js';
+import { pdfTextString, toWinAnsiText, winAnsiLiteral, asciiPdfName } from './saver/pdf-text.js';
 import { catmullRomSpline } from '../tools/tools/spline-tool.js';
 import { catmullRomToBezier, splineArrowEndTangent } from '../annotations/spline-arrow-geometry.js';
 import { buildFilledAreaAP, buildMeasureAreaAP, buildPolylineMeasureAP,
@@ -34,7 +35,7 @@ import { buildFilledAreaAP, buildMeasureAreaAP, buildPolylineMeasureAP,
   cloudRectOutlinePts, cloudPolyOutlinePts } from './saver/appearance-vectors.js';
 import { buildStavenreeks, toLocalPrimitives, labelText } from '../annotations/stavenreeks.js';
 import { stavenreeksPxPerMm } from '../annotations/stavenreeks-scale.js';
-import { buildBetonbalk } from '../annotations/betonbalk.js';
+import { buildBetonbalk, approxTextWidth as betonbalkApproxTextWidth } from '../annotations/betonbalk.js';
 import { betonbalkBuildOpts } from '../annotations/betonbalk-scale.js';
 import { effectiveDraftingLineWidth } from '../annotations/drafting-rules.js';
 import { buildSysteemraster, systeemToOps, sparingenToJson } from '../annotations/systeemraster.js';
@@ -43,6 +44,22 @@ import { getSysteemTypeById } from '../annotations/systeem-typen-registry.js';
 import { systeemrasterBuildOpts } from '../annotations/systeemraster-scale.js';
 import { computeWallShape, resolveWallMaterial } from '../annotations/rendering/walls.js';
 import { syncTwoPointGeometry } from '../symbols/two-point.js';
+
+// Tekstvak zoals de WinAnsi-appearance het toont: tekst en runs per teken
+// omgezet met toWinAnsiText, zodat afbreekpunten en regelbreedtes over
+// dezelfde tekst gaan als de '(...) Tj'-strings. De omzetting werkt per teken,
+// dus omgezette runs blijven bij de omgezette tekst horen. ASCII verandert niet.
+function winAnsiTekstvak(ann) {
+  const origineel = String(ann.text ?? '');
+  const runsHoren = Array.isArray(ann.textRuns) && runsToText(ann.textRuns) === origineel;
+  return {
+    ...ann,
+    text: toWinAnsiText(origineel),
+    textRuns: runsHoren
+      ? ann.textRuns.map(line => (line || []).map(r => ({ ...r, text: toWinAnsiText(r?.text) })))
+      : undefined,
+  };
+}
 
 // Wrap a vector /AP builder result (absolute-PDF-coord content + needsFont flag)
 // into a Form XObject and set it as the annotation's /AP /N — same BBox/Matrix
@@ -477,8 +494,8 @@ async function _savePDFNu(saveAsPath) {
               QuadPoints: quadPoints,
               C: hexToColorArray(ann.fillColor || ann.color),
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.subject || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.subject || ''),
               M: PDFString.of(new Date().toISOString()),
               F: computeAnnotFlags(ann)
             });
@@ -519,8 +536,8 @@ async function _savePDFNu(saveAsPath) {
               Rect: [bx1, by1, bx2, by2],
               C: strokeColorArr,
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.subject || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.subject || ''),
               M: PDFString.of(new Date().toISOString()),
               F: computeAnnotFlags(ann)
             };
@@ -610,14 +627,14 @@ async function _savePDFNu(saveAsPath) {
               Subtype: 'Stamp',
               Rect: kRect,
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.srcLabel || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.srcLabel || ''),
               M: PDFString.of(new Date().toISOString()),
               F: computeAnnotFlags(ann),
               OPS_Subtype: PDFString.of('vectorSnippet'),
-              OPS_SnippetKey: PDFString.of(String(ann.snippetKey)),
+              OPS_SnippetKey: pdfTextString(String(ann.snippetKey)),
               OPS_SrcBox: [ann.srcBox.left, ann.srcBox.bottom, ann.srcBox.right, ann.srcBox.top],
-              OPS_SrcLabel: PDFString.of(ann.srcLabel || ''),
+              OPS_SrcLabel: pdfTextString(ann.srcLabel || ''),
             });
             attachVectorAP(context, annotDict, gebouwd, kRect);
             break;
@@ -655,8 +672,8 @@ async function _savePDFNu(saveAsPath) {
               Rect: [ccx1, ccy1, ccx2, ccy2],
               C: strokeColorArr,
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.subject || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.subject || ''),
               M: PDFString.of(new Date().toISOString()),
               F: computeAnnotFlags(ann)
             };
@@ -697,8 +714,8 @@ async function _savePDFNu(saveAsPath) {
               L: [x1, y1, x2, y2],
               C: strokeColorArr,
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.subject || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.subject || ''),
               M: PDFString.of(new Date().toISOString()),
               F: computeAnnotFlags(ann)
             };
@@ -762,8 +779,8 @@ async function _savePDFNu(saveAsPath) {
               InkList: [inkList],
               C: strokeColorArr,
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.subject || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.subject || ''),
               M: PDFString.of(new Date().toISOString()),
               F: computeAnnotFlags(ann)
             };
@@ -799,8 +816,8 @@ async function _savePDFNu(saveAsPath) {
               Vertices: arcVertices,
               C: arcStrokeColor,
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.subject || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.subject || ''),
               M: PDFString.of(new Date().toISOString()),
               F: computeAnnotFlags(ann),
               OPS_Subtype: PDFString.of('arc'),
@@ -847,8 +864,8 @@ async function _savePDFNu(saveAsPath) {
               Vertices: splineVertices,
               C: spStrokeColor,
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.subject || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.subject || ''),
               M: PDFString.of(new Date().toISOString()),
               F: computeAnnotFlags(ann),
               OPS_Subtype: PDFString.of('spline'),
@@ -913,8 +930,8 @@ async function _savePDFNu(saveAsPath) {
               C: saStrokeColor,
               CA: opacity,
               LE: [PDFName.of(saMapHead(ann.startHead)), PDFName.of(saMapHead(ann.endHead || 'open'))],
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.subject || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.subject || ''),
               M: PDFString.of(new Date().toISOString()),
               F: computeAnnotFlags(ann),
               OPS_Subtype: PDFString.of('splineArrow'),
@@ -960,8 +977,8 @@ async function _savePDFNu(saveAsPath) {
               Vertices: vertices,
               C: strokeColorArr,
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.subject || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.subject || ''),
               M: PDFString.of(new Date().toISOString()),
               F: computeAnnotFlags(ann)
             };
@@ -1015,8 +1032,8 @@ async function _savePDFNu(saveAsPath) {
               Vertices: polyVertices,
               C: polyStrokeColor,
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.subject || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.subject || ''),
               M: PDFString.of(new Date().toISOString()),
               F: computeAnnotFlags(ann)
             };
@@ -1165,11 +1182,11 @@ async function _savePDFNu(saveAsPath) {
               Type: 'Annot',
               Subtype: 'FreeText',
               Rect: [x1, y1, x2, y2],
-              Contents: PDFString.of(ann.text || ''),
+              Contents: pdfTextString(ann.text || ''),
               DA: PDFString.of(da),
-              DS: PDFString.of(dsStr),
+              DS: pdfTextString(dsStr),
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
+              T: pdfTextString(ann.author || 'User'),
               M: PDFString.of(new Date().toISOString()),
               F: computeAnnotFlags(ann)
             };
@@ -1190,7 +1207,7 @@ async function _savePDFNu(saveAsPath) {
                 if (r.bold) h = `<b>${h}</b>`;
                 return h;
               }).join('') || '&#160;') + '</p>').join('');
-              annDictObj.RC = PDFString.of(
+              annDictObj.RC = pdfTextString(
                 `<?xml version="1.0"?><body xmlns="http://www.w3.org/1999/xhtml" xmlns:xfa="http://www.xfa.org/schema/xfa-data/1.0/" xfa:APIVersion="OpenPDFStudio" xfa:spec="2.0.2" style="font:${fontSize}pt ${dsFontFamily};color:${textColorCss}">${rcBody}</body>`,
               );
             }
@@ -1392,8 +1409,10 @@ async function _savePDFNu(saveAsPath) {
                 // Word-wrap against the on-screen (visual) box width — on
                 // 90/270-rotated pages ann.width/height were remapped into
                 // PDF space and would wrap against the wrong dimension.
+                // Layout over de tekst die de WinAnsi-font echt toont.
+                const apTekstvak = winAnsiTekstvak(ann);
                 const layout = layoutTextboxForExport(
-                  pageSwapsDims ? { ...ann, width: visW, height: visH } : ann);
+                  pageSwapsDims ? { ...apTekstvak, width: visW, height: visH } : apTekstvak);
                 const pad = layout.padding;
                 const lineHeight = layout.lineHeight;
                 const align = ann.textAlign || 'left';
@@ -1420,7 +1439,9 @@ async function _savePDFNu(saveAsPath) {
                     const f = mapFontToPdfName(ann.fontFamily, c.bold, c.italic);
                     ftUsedFonts.add(f);
                     if (f !== huidigFont) { ftStreamContent += `/${f} ${ftFontSize} Tf\n`; huidigFont = f; }
-                    const escaped = String(c.text).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+                    // WinAnsi-codes als octale escapes: pdf-lib zou van '€'
+                    // anders de lage byte (0xAC, '¬') in de stream zetten.
+                    const escaped = winAnsiLiteral(c.text);
                     ftStreamContent += `(${escaped}) Tj\n`;
                   }
                   ftStreamContent += `${-textX} ${-textY} Td\n`;
@@ -1492,10 +1513,10 @@ async function _savePDFNu(saveAsPath) {
               Type: 'Annot',
               Subtype: 'Text',
               Rect: [x, y - 24, x + 24, y],
-              Contents: PDFString.of(ann.text || ann.comment || ''),
+              Contents: pdfTextString(ann.text || ann.comment || ''),
               C: hexToColorArray(ann.color || '#FFFF00'),
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
+              T: pdfTextString(ann.author || 'User'),
               M: PDFString.of(new Date().toISOString()),
               Name: pdfIconName,
               Open: ann.popupOpen || false,
@@ -1523,11 +1544,12 @@ async function _savePDFNu(saveAsPath) {
               Type: 'Annot',
               Subtype: 'Stamp',
               Rect: [x1, y1, x2, y2],
-              Name: pdfStampName,
-              Subj: PDFString.of(ann.stampName || pdfStampName),
+              // /Name is een PDFName: alleen ASCII (de echte naam staat in /Subj en OPS_StampName).
+              Name: asciiPdfName(pdfStampName, 'Draft'),
+              Subj: pdfTextString(ann.stampName || pdfStampName),
               C: colorArr,
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
+              T: pdfTextString(ann.author || 'User'),
               M: PDFString.of(new Date().toISOString()),
               NM: PDFString.of('stamp_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 6)),
               F: computeAnnotFlags(ann)
@@ -1535,13 +1557,13 @@ async function _savePDFNu(saveAsPath) {
             stampDictObj.IT = PDFName.of('Stamp');
 
             if (ann.rotation) stampDictObj.OPS_Rotation = ann.rotation;
-            if (ann.stampName) stampDictObj.OPS_StampName = PDFString.of(ann.stampName);
+            if (ann.stampName) stampDictObj.OPS_StampName = pdfTextString(ann.stampName);
             // Palette-symbool-id + IFC-classificatie (NEN 1414-stempels e.d.)
             // — roundtrip zodat het eigenschappenpaneel en het IFC-report de
             // categorie na heropenen behouden.
-            if (ann.symbolId) stampDictObj.OPS_SymbolId = PDFString.of(ann.symbolId);
-            if (ann.ifcCategory) stampDictObj.OPS_IfcCategory = PDFString.of(ann.ifcCategory);
-            if (ann.ifcPredefinedType) stampDictObj.OPS_IfcPredefined = PDFString.of(ann.ifcPredefinedType);
+            if (ann.symbolId) stampDictObj.OPS_SymbolId = pdfTextString(ann.symbolId);
+            if (ann.ifcCategory) stampDictObj.OPS_IfcCategory = pdfTextString(ann.ifcCategory);
+            if (ann.ifcPredefinedType) stampDictObj.OPS_IfcPredefined = pdfTextString(ann.ifcPredefinedType);
             // Linked image (an image that round-tripped as a stamp keeps
             // its source path across saves). Hex string: literal PDFString
             // would corrupt Windows backslashes (\r, \n... are escapes).
@@ -1559,10 +1581,12 @@ async function _savePDFNu(saveAsPath) {
               const { prefix: stPrefix, visW, visH } = pageCompensationForAp(w, h, pageRot);
               const [sr, sg, sb] = hexToRgb(ann.stampColor || ann.color || '#ef4444');
               const fontSize = Math.min(visH * 0.45, 22);
-              const textW = ann.stampText.length * fontSize * 0.58;
+              // Breedte en string over dezelfde (WinAnsi-)tekst.
+              const stampTekst = toWinAnsiText(ann.stampText);
+              const textW = stampTekst.length * fontSize * 0.58;
               const textX = (visW - textW) / 2;
               const textY = (visH - fontSize) / 2.4;
-              const escaped = ann.stampText.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+              const escaped = winAnsiLiteral(stampTekst);
               const k = 0.5522847498;
               const r = Math.min(visW, visH) * 0.15;
               const rrect = (rx, ry, rw, rh, cr) => {
@@ -1651,11 +1675,11 @@ async function _savePDFNu(saveAsPath) {
               Type: 'Annot',
               Subtype: 'Stamp',
               Rect: [x1, y1, x2, y2],
-              Name: ann.type === 'signature' ? 'Signature' : (ann.stampName || 'Image'),
-              Contents: PDFString.of(ann.type === 'signature' ? 'Signature' : (ann.stampText || ann.subject || '')),
+              Name: ann.type === 'signature' ? 'Signature' : asciiPdfName(ann.stampName, 'Image'),
+              Contents: pdfTextString(ann.type === 'signature' ? 'Signature' : (ann.stampText || ann.subject || '')),
               C: colorArr,
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
+              T: pdfTextString(ann.author || 'User'),
               M: PDFString.of(new Date().toISOString()),
               F: computeAnnotFlags(ann)
             };
@@ -1670,7 +1694,7 @@ async function _savePDFNu(saveAsPath) {
             // the editable tint on reopen; the AP stream below additionally
             // bakes a Multiply fill so other viewers show the tint too.
             const imgTint = (ann.tintColor && ann.tintColor !== 'none') ? ann.tintColor : null;
-            if (imgTint) imgDictObj.OPS_TintColor = PDFString.of(imgTint);
+            if (imgTint) imgDictObj.OPS_TintColor = pdfTextString(imgTint);
 
             // Non-destructive crop (issue #212): fractions 0-1 trimmed per
             // side. Round-trip via OPS_Crop* keys; the AP below draws the
@@ -1801,18 +1825,18 @@ async function _savePDFNu(saveAsPath) {
               Rect: [srx1, sry1, srx2, sry2],
               C: hexToColorArray(ann.color || '#ff9800'),
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.label || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.label || ''),
               M: PDFString.of(new Date().toISOString()),
               OPS_Subtype: PDFString.of('scaleRegion'),
-              OPS_ScaleString: PDFString.of(ann.scaleString || '1:100'),
-              OPS_Units: PDFString.of(ann.units || 'mm'),
+              OPS_ScaleString: pdfTextString(ann.scaleString || '1:100'),
+              OPS_Units: pdfTextString(ann.units || 'mm'),
               F: computeAnnotFlags(ann)
             };
-            if (ann.label) srDict.OPS_Label = PDFString.of(ann.label);
+            if (ann.label) srDict.OPS_Label = pdfTextString(ann.label);
             // Toegewezen tekeningtype (regelset-id) reist mee met het gebied.
             if (ann.tekeningtypeId) {
-              srDict.OPS_Tekeningtype = PDFString.of(ann.tekeningtypeId);
+              srDict.OPS_Tekeningtype = pdfTextString(ann.tekeningtypeId);
             }
             // Numeric ratio for forward-compat (denominator of 1:N)
             const m = String(ann.scaleString || '').match(/1\s*[:/]\s*(\d+(?:\.\d+)?)/);
@@ -1834,15 +1858,15 @@ async function _savePDFNu(saveAsPath) {
               Rect: [vpx1, vpy1, vpx2, vpy2],
               C: hexToColorArray(ann.color || '#0066cc'),
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.name || 'Viewport'),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.name || 'Viewport'),
               M: PDFString.of(new Date().toISOString()),
               OPS_Subtype: PDFString.of('viewport'),
               F: computeAnnotFlags(ann)
             };
             if (ann.pixelsPerUnit) vpDict.OPS_PixelsPerUnit = ann.pixelsPerUnit;
-            if (ann.unit) vpDict.OPS_Unit = PDFString.of(ann.unit);
-            if (ann.scaleRatio) vpDict.OPS_ScaleRatio = PDFString.of(ann.scaleRatio);
+            if (ann.unit) vpDict.OPS_Unit = pdfTextString(ann.unit);
+            if (ann.scaleRatio) vpDict.OPS_ScaleRatio = pdfTextString(ann.scaleRatio);
             if (ann.lineWidth) vpDict.OPS_LineWidth = ann.lineWidth;
             annotDict = context.obj(vpDict);
             annotDict.set(PDFName.of('BS'), buildBorderStyle(context, ann.lineWidth || 1.5, 'dashed'));
@@ -1860,14 +1884,14 @@ async function _savePDFNu(saveAsPath) {
               Rect: [sbx1, sby1, sbx2, sby2],
               C: hexToColorArray(ann.color || '#000000'),
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
+              T: pdfTextString(ann.author || 'User'),
               Contents: PDFString.of('Scale Bar'),
               M: PDFString.of(new Date().toISOString()),
               OPS_Subtype: PDFString.of('scaleBar'),
               F: computeAnnotFlags(ann)
             };
             if (ann.pixelsPerUnit) sbDict.OPS_PixelsPerUnit = ann.pixelsPerUnit;
-            if (ann.unit) sbDict.OPS_Unit = PDFString.of(ann.unit);
+            if (ann.unit) sbDict.OPS_Unit = pdfTextString(ann.unit);
             if (ann.divisions) sbDict.OPS_Divisions = ann.divisions;
             if (ann.totalUnits) sbDict.OPS_TotalUnits = ann.totalUnits;
             if (ann.lineWidth) sbDict.OPS_LineWidth = ann.lineWidth;
@@ -1887,17 +1911,17 @@ async function _savePDFNu(saveAsPath) {
               Rect: [stx1, sty1, stx2, sty2],
               C: [0, 0, 0],
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
+              T: pdfTextString(ann.author || 'User'),
               Contents: PDFString.of('Schedule Table'),
               M: PDFString.of(new Date().toISOString()),
               OPS_Subtype: PDFString.of('scheduleTable'),
               F: computeAnnotFlags(ann)
             };
             if (ann.scheduleData) {
-              stDict.OPS_ScheduleData = PDFString.of(JSON.stringify(ann.scheduleData));
+              stDict.OPS_ScheduleData = pdfTextString(JSON.stringify(ann.scheduleData));
             }
             if (ann.groupByMode) {
-              stDict.OPS_GroupBy = PDFString.of(ann.groupByMode);
+              stDict.OPS_GroupBy = pdfTextString(ann.groupByMode);
             }
             annotDict = context.obj(stDict);
             break;
@@ -1949,7 +1973,7 @@ async function _savePDFNu(saveAsPath) {
               Rect: [srX1, srY1, srX2, srY2],
               C: hexToColorArray(srStroke),
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
+              T: pdfTextString(ann.author || 'User'),
               // Leesbare tekst voor de annotatielijst van andere editors.
               // Hex-string zodat het ⌀-teken (U+2300) als Unicode overleeft.
               Contents: PDFHexString.fromText(labelText(ann.count, ann.diameter)),
@@ -1963,11 +1987,11 @@ async function _savePDFNu(saveAsPath) {
               OPS_SRCount: srGeom.params.count,
               OPS_SRDiameter: srGeom.params.diameter,
               OPS_SRBarLengthMm: srGeom.params.barLengthMm,
-              OPS_SRLegDir: PDFString.of(srGeom.params.legDir),
+              OPS_SRLegDir: pdfTextString(srGeom.params.legDir),
               OPS_SRLegLength: srGeom.params.legLength,
               OPS_SRLineTail: srGeom.params.lineTail,
               OPS_SRFontSize: srGeom.params.fontSize,
-              OPS_SRLabelSide: PDFString.of(srGeom.params.labelSide),
+              OPS_SRLabelSide: pdfTextString(srGeom.params.labelSide),
               OPS_SRLineWidth: effectiveDraftingLineWidth(ann),
               // Reekslijn in PDF-coördinaten + de /Rect zoals WIJ hem schreven.
               // Bij heropenen vergelijken we OPS_SRRect met de actuele /Rect:
@@ -2015,7 +2039,12 @@ async function _savePDFNu(saveAsPath) {
             // Canonieke conventie (§12.5.5): BBox = /Rect-maat, Matrix zuivere
             // translatie (attachVectorAP), geen top-level rotatie — alle
             // geometrie zit in start/eind zelf.
-            const bbGeom = buildBetonbalk(ann, betonbalkBuildOpts(ann, docAnnotations));
+            // Tagbreedte (centrering en AABB) over de tekst die de
+            // WinAnsi-appearance toont; voor ASCII gelijk aan de schatter.
+            const bbGeom = buildBetonbalk(ann, {
+              ...betonbalkBuildOpts(ann, docAnnotations),
+              measureText: (tekst, fs) => betonbalkApproxTextWidth(toWinAnsiText(tekst), fs),
+            });
             if (!bbGeom) continue;
 
             const bbVertices = [];
@@ -2051,8 +2080,8 @@ async function _savePDFNu(saveAsPath) {
               Vertices: bbVertices,
               C: hexToColorArray(bbStroke),
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.subject || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.subject || ''),
               M: PDFString.of(new Date().toISOString()),
               F: computeAnnotFlags(ann),
               // Eigen parameters voor het herstellen als bewerkbare balk.
@@ -2061,11 +2090,11 @@ async function _savePDFNu(saveAsPath) {
               OPS_Subtype: PDFString.of('betonbalk'),
               OPS_BreedteMm: bbGeom.params.breedteMm,
               OPS_HoogteMm: bbGeom.params.hoogteMm,
-              OPS_Lijnstijl: PDFString.of(bbGeom.params.lijnstijl),
+              OPS_Lijnstijl: pdfTextString(bbGeom.params.lijnstijl),
               OPS_BbLineWidth: effectiveDraftingLineWidth(ann),
               OPS_BbHartlijnTonen: bbGeom.params.toonHartlijn ? 1 : 0,
               OPS_BbTagTonen: bbGeom.params.tagTonen ? 1 : 0,
-              OPS_BbTagTekst: PDFString.of(bbGeom.params.tagTekst),
+              OPS_BbTagTekst: pdfTextString(bbGeom.params.tagTekst),
               OPS_BbTagDx: bbGeom.params.tagOffsetX,
               OPS_BbTagDy: bbGeom.params.tagOffsetY,
               // Lijnstuk in PDF-coördinaten + de /Rect zoals WIJ hem
@@ -2132,8 +2161,8 @@ async function _savePDFNu(saveAsPath) {
               Vertices: sgVertices,
               C: hexToColorArray(sgStroke),
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.subject || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.subject || ''),
               M: PDFString.of(new Date().toISOString()),
               F: computeAnnotFlags(ann),
               // Eigen parameters voor het herstellen als bewerkbaar raster.
@@ -2146,19 +2175,19 @@ async function _savePDFNu(saveAsPath) {
               OPS_SgOrigY: sgP.originYMm,
               OPS_SgEqX: sgP.equalizeX ? 1 : 0,
               OPS_SgEqY: sgP.equalizeY ? 1 : 0,
-              OPS_SgRand: PDFString.of(sgP.randConditie),
+              OPS_SgRand: pdfTextString(sgP.randConditie),
               OPS_SgMinRand: sgP.minRandMm,
               OPS_SgHoek: sgP.rasterHoek,
               OPS_SgTagTonen: sgP.tagTonen ? 1 : 0,
               OPS_SgFontSize: sgP.tagFontSize,
               OPS_SgLineWidth: ann.lineWidth ?? 1,
               // Systeem (v1: systeemplafond) — type, randprofiel en IFC.
-              OPS_SgSysType: PDFString.of(sgOps.sysType),
-              OPS_SgEdge: PDFString.of(sgOps.edgeProfiel),
-              OPS_IfcCategory: PDFString.of(ann.ifcCategory || ''),
+              OPS_SgSysType: pdfTextString(sgOps.sysType),
+              OPS_SgEdge: pdfTextString(sgOps.edgeProfiel),
+              OPS_IfcCategory: pdfTextString(ann.ifcCategory || ''),
             };
             if (ann.ifcPredefinedType) {
-              sgDict.OPS_IfcPredefined = PDFString.of(ann.ifcPredefinedType);
+              sgDict.OPS_IfcPredefined = pdfTextString(ann.ifcPredefinedType);
             }
             // Boogsegmenten: parallelle arrays per contour-node (vlag +
             // bulge), zelfde conventie als filledArea.
@@ -2169,25 +2198,25 @@ async function _savePDFNu(saveAsPath) {
             // Paneel-overrides (alleen niet-default): compacte JSON —
             // paneeltype-id's én component-in-cel-verwijzingen.
             if (sgOps.panelsJson) {
-              sgDict.OPS_SgPanels = PDFString.of(sgOps.panelsJson);
+              sgDict.OPS_SgPanels = pdfTextString(sgOps.panelsJson);
             }
             // Randprofiel-overrides per contoursegment.
             if (sgOps.edgesJson) {
-              sgDict.OPS_SgEdges = PDFString.of(sgOps.edgesJson);
+              sgDict.OPS_SgEdges = pdfTextString(sgOps.edgesJson);
             }
             // Sparingen (rechthoekige gaten, mm t.o.v. de raster-AABB).
             const sgSparingenJson = sparingenToJson(ann);
             if (sgSparingenJson) {
-              sgDict.OPS_SgSparingen = PDFString.of(sgSparingenJson);
+              sgDict.OPS_SgSparingen = pdfTextString(sgSparingenJson);
             }
             // SYSTEEMTYPE: verwijzing + JSON-snapshot van de definitie,
             // zodat de PDF zijn typen meebrengt naar andere machines (de
             // loader registreert onbekende typen bij in de registry).
             if (ann.systeemTypeId) {
-              sgDict.OPS_SgTypeId = PDFString.of(String(ann.systeemTypeId));
+              sgDict.OPS_SgTypeId = pdfTextString(String(ann.systeemTypeId));
               const sgTypeJson = systeemTypeToJson(sgGeom.typeDef
                 || getSysteemTypeById(ann.systeemTypeId));
-              if (sgTypeJson) sgDict.OPS_SgTypeDef = PDFString.of(sgTypeJson);
+              if (sgTypeJson) sgDict.OPS_SgTypeDef = pdfTextString(sgTypeJson);
             }
             annotDict = context.obj(sgDict);
             annotDict.set(PDFName.of('BS'), buildBorderStyle(context, borderWidth, 'solid'));
@@ -2216,8 +2245,8 @@ async function _savePDFNu(saveAsPath) {
               Vertices: [ap1x, ap1y, avx, avy, ap2x, ap2y],
               C: hexToColorArray(ann.strokeColor || '#ff0000'),
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.measureText || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.measureText || ''),
               M: PDFString.of(new Date().toISOString()),
               OPS_Subtype: PDFString.of('measureAngle'),
               F: computeAnnotFlags(ann)
@@ -2272,8 +2301,8 @@ async function _savePDFNu(saveAsPath) {
               Subtype: 'Line',
               C: hexToColorArray(ann.strokeColor || '#ff0000'),
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.measureText || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.measureText || ''),
               M: PDFString.of(new Date().toISOString()),
               IT: PDFName.of('LineDimension'),
               OPS_Subtype: PDFString.of('measureDistance'),
@@ -2332,11 +2361,11 @@ async function _savePDFNu(saveAsPath) {
               const numFmt = context.obj({
                 C: ann.measureScale,
                 D: 1,
-                U: PDFString.of(ann.measureUnit || 'mm'),
+                U: pdfTextString(ann.measureUnit || 'mm'),
               });
               const measureDict = context.obj({
                 Subtype: PDFName.of('RL'),
-                R: PDFString.of(`1 pt = ${ann.measureScale} ${ann.measureUnit || 'mm'}`),
+                R: pdfTextString(`1 pt = ${ann.measureScale} ${ann.measureUnit || 'mm'}`),
                 X: context.obj([numFmt]),
               });
               annotDict.set(PDFName.of('Measure'), measureDict);
@@ -2377,8 +2406,8 @@ async function _savePDFNu(saveAsPath) {
               Vertices: maVertices,
               C: hexToColorArray(ann.strokeColor || '#ff0000'),
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.measureText || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.measureText || ''),
               M: PDFString.of(new Date().toISOString()),
               IT: PDFName.of('PolygonDimension'),
               OPS_Subtype: PDFString.of('measureArea'),
@@ -2447,8 +2476,8 @@ async function _savePDFNu(saveAsPath) {
               Vertices: faVertices,
               C: hexToColorArray(ann.strokeColor || ann.color || '#000000'),
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.subject || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.subject || ''),
               M: PDFString.of(new Date().toISOString()),
               OPS_Subtype: PDFString.of('filledArea'),
               F: computeAnnotFlags(ann),
@@ -2532,8 +2561,8 @@ async function _savePDFNu(saveAsPath) {
               Vertices: mpVertices,
               C: hexToColorArray(ann.strokeColor || '#ff0000'),
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.measureText || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.measureText || ''),
               M: PDFString.of(new Date().toISOString()),
               IT: PDFName.of('PolyLineDimension'),
               OPS_Subtype: PDFString.of('measurePerimeter'),
@@ -2591,19 +2620,19 @@ async function _savePDFNu(saveAsPath) {
               L: [wx1, wy1, wx2, wy2],
               C: hexToColorArray(ann.strokeColor || ann.color || '#000000'),
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.subject || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.subject || ''),
               M: PDFString.of(new Date().toISOString()),
               F: computeAnnotFlags(ann),
               OPS_Subtype: PDFString.of('wall'),
               OPS_DikteMm: ann.dikteMm ?? 100,
-              OPS_IfcCategory: PDFString.of(ann.ifcCategory || ifcCategoryForAnnotationType('wall')),
+              OPS_IfcCategory: pdfTextString(ann.ifcCategory || ifcCategoryForAnnotationType('wall')),
             };
             annotDict = context.obj(wDict);
             annotDict.set(PDFName.of('BS'), buildBorderStyle(context, borderWidth, 'solid'));
             schrijfHatchMeta(annotDict, ann, context);
             if (ann.isolatieType) {
-              annotDict.set(PDFName.of('OPS_IsolatieType'), PDFString.of(ann.isolatieType));
+              annotDict.set(PDFName.of('OPS_IsolatieType'), pdfTextString(ann.isolatieType));
             }
             // Vector /AP so the wall BODY (thickness band + material fill/hatch
             // + outline) shows in other viewers instead of just the thin
@@ -2687,14 +2716,14 @@ async function _savePDFNu(saveAsPath) {
               Rect: [psx1, psy1, psx2, psy2],
               C: strokeColorArr,
               CA: opacity,
-              T: PDFString.of(ann.author || 'User'),
-              Contents: PDFString.of(ann.subject || ''),
+              T: pdfTextString(ann.author || 'User'),
+              Contents: pdfTextString(ann.subject || ''),
               M: PDFString.of(new Date().toISOString()),
               F: computeAnnotFlags(ann),
               OPS_Subtype: PDFString.of('parametricSymbol'),
-              OPS_SymbolId: PDFString.of(ann.symbolId || ''),
-              OPS_Params: PDFString.of(JSON.stringify(ann.params || {})),
-              OPS_IfcCategory: PDFString.of(ann.ifcCategory || ''),
+              OPS_SymbolId: pdfTextString(ann.symbolId || ''),
+              OPS_Params: pdfTextString(JSON.stringify(ann.params || {})),
+              OPS_IfcCategory: pdfTextString(ann.ifcCategory || ''),
             };
             psDict.BS = buildBorderStyle(context, borderWidth, ann.borderStyle);
             if (psAnn.rotation) psDict.OPS_Rotation = psAnn.rotation;
@@ -2802,12 +2831,12 @@ async function _savePDFNu(saveAsPath) {
           const stDict = context.obj({
             Type: 'Annot',
             Subtype: 'Text',
-            Contents: PDFString.of(stateStr),
-            T: PDFString.of(ann.statusBy || ann.author || 'User'),
+            Contents: pdfTextString(stateStr),
+            T: pdfTextString(ann.statusBy || ann.author || 'User'),
             M: PDFString.fromDate(stDateObj),
             CreationDate: PDFString.fromDate(stDateObj),
             F: 30, // Hidden + Print + NoZoom + NoRotate — niet los tonen
-            State: PDFString.of(stateStr),
+            State: pdfTextString(stateStr),
             StateModel: PDFString.of('Review'),
           });
           stDict.set(PDFName.of('Rect'), parentRect);
@@ -2855,11 +2884,11 @@ async function _savePDFNu(saveAsPath) {
               Vertices: verts,
               C: _strokeArr,
               CA: ann.opacity !== undefined ? ann.opacity : 1,
-              T: PDFString.of(ann.author || 'User'),
+              T: pdfTextString(ann.author || 'User'),
               M: PDFString.of(new Date().toISOString()),
               F: computeAnnotFlags(ann),
               OPS_Subtype: PDFString.of('textboxLeader'),
-              OPS_LeaderId: PDFString.of(leader.id || ''),
+              OPS_LeaderId: pdfTextString(leader.id || ''),
             });
             ldrDict.set(PDFName.of('LE'), context.obj([PDFName.of('None'), PDFName.of(endStyle)]));
             ldrDict.set(PDFName.of('IRT'), parentAnnotRef);
