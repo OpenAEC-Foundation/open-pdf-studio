@@ -105,6 +105,9 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         dikteMm: o.wallDikteMm || 100,
         hatchPattern: o.wallPattern || 'nen47-metselwerk-baksteen',
         isolatieType: o.wallIsolatieType || undefined,
+        // Every wall is an IfcWall unless the palette entry says otherwise
+        // (quantities, IFC export and the properties panel read this field).
+        ifcCategory: o.ifcCategory || ifcCategoryForAnnotationType('wall'),
         // hatchScale intentionally NOT set: the material's own density
         // (WALL_MATERIALS.dens) applies unless the user overrides it.
         color: '#000000',

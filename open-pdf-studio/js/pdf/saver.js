@@ -1,4 +1,5 @@
 import { state, getPageRotation, getActiveDocument } from '../core/state.js';
+import { ifcCategoryForAnnotationType } from '../solid/data/ifcCategoryMap.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { hexToColorArray } from '../utils/colors.js';
 import { hasFill } from '../annotations/fill-utils.js';
@@ -2596,6 +2597,7 @@ async function _savePDFNu(saveAsPath) {
               F: computeAnnotFlags(ann),
               OPS_Subtype: PDFString.of('wall'),
               OPS_DikteMm: ann.dikteMm ?? 100,
+              OPS_IfcCategory: PDFString.of(ann.ifcCategory || ifcCategoryForAnnotationType('wall')),
             };
             annotDict = context.obj(wDict);
             annotDict.set(PDFName.of('BS'), buildBorderStyle(context, borderWidth, 'solid'));
