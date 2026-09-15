@@ -206,7 +206,7 @@ export function computeTileGrid(w, h, tilePx) {
 // SCENE_CONTENT_BYTES) uit één goedkope meting komen. Onbekend/niet-Tauri => 0.
 const _contentBytesCache = new Map();
 
-async function pageContentBytes(filePath, pageNum) {
+export async function pageContentBytes(filePath, pageNum) {
   if (!filePath) return 0;
   const key = `${filePath}:${pageNum}`;
   if (_contentBytesCache.has(key)) return _contentBytesCache.get(key);
