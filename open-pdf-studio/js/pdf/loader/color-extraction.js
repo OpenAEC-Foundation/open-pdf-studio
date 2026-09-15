@@ -1,6 +1,7 @@
 import { parseEditorDom } from '../../text/editor-dom-parse.js';
 import { PDFName, PDFDict, PDFArray, PDFHexString } from 'pdf-lib';
 import { pdfNum, pdfColorToHex, mapPdfFontName, inflateBytes } from './pdf-helpers.js';
+import { fillAlphaAtFirstFill } from './ap-fill-alpha.js';
 import { leesKnipselBronnen, leesKnipselVelden } from './vector-snippet-load.js';
 import { bewaar as bewaarKnipsel } from '../../annotations/vector-snippet-store.js';
 import { decodePdfTextObject } from '../saver/pdf-text.js';
@@ -54,8 +55,9 @@ async function decodeApStream(stream) {
  *
  * Alleen de ExtGStates die de stream ook echt met `gs` aanroept tellen mee;
  * ongebruikte resources mogen het beeld niet beïnvloeden. Vindt de stream
- * meerdere verschillende alfa's, dan is er geen enkele waarde die de
- * annotatie als geheel beschrijft en geven we niets terug.
+ * meerdere verschillende lijn-alfa's, dan is er geen enkele waarde die de
+ * annotatie als geheel beschrijft en geven we niets terug. Bij meerdere
+ * vul-alfa's telt de alfa van het eerste vlak (zie fillAlphaAtFirstFill).
  *
  * @returns {Promise<{fillAlpha: number|null, strokeAlpha: number|null}>}
  */
@@ -83,6 +85,7 @@ async function extractApAlphas(context, nStream) {
 
     const fills = new Set();
     const strokes = new Set();
+    const fillAlphaByName = new Map();
     for (const name of used) {
       const gsRefRaw = egs.get(PDFName.of(name));
       if (!gsRefRaw) continue;
@@ -92,11 +95,21 @@ async function extractApAlphas(context, nStream) {
       const CARaw = gs.get(PDFName.of('CA'));
       const ca = caRaw !== undefined ? pdfNum(context.lookup(caRaw) || caRaw) : null;
       const CA = CARaw !== undefined ? pdfNum(context.lookup(CARaw) || CARaw) : null;
-      if (ca !== null && ca >= 0 && ca <= 1) fills.add(ca);
+      if (ca !== null && ca >= 0 && ca <= 1) {
+        fills.add(ca);
+        fillAlphaByName.set(name, ca);
+      }
       if (CA !== null && CA >= 0 && CA <= 1) strokes.add(CA);
     }
+    // Meerdere vul-alfa's: geen enkele /ca geldt voor de hele stream. Gangbaar
+    // bij meetvlakken — het vlak op 30%, het maatlabel in een eigen
+    // graphics-state op 100%. Dan telt de alfa van het eerste vlak: dat is de
+    // vulling (/IC) van de annotatie; het label tekent de app zelf.
+    let fillAlpha = null;
+    if (fills.size === 1) fillAlpha = [...fills][0];
+    else if (fills.size > 1) fillAlpha = fillAlphaAtFirstFill(content, fillAlphaByName);
     return {
-      fillAlpha: fills.size === 1 ? [...fills][0] : null,
+      fillAlpha,
       strokeAlpha: strokes.size === 1 ? [...strokes][0] : null,
     };
   } catch (_) {
@@ -158,6 +171,18 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
           }
         }
       } catch (_) { /* appearance zonder bruikbare graphics-state */ }
+
+      // /FillOpacity: niet-standaard sleutel die externe tekenpakketten naast de
+      // appearance zetten. Alleen terugval: de appearance hierboven is wat andere
+      // lezers werkelijk tonen. Zonder (bruikbare) appearance is dit de enige
+      // bron voor de vul-alfa.
+      if (colors.fillOpacity === undefined) {
+        const foRaw = annotDict.get(PDFName.of('FillOpacity'));
+        if (foRaw !== undefined) {
+          const fo = pdfNum(context.lookup(foRaw) || foRaw);
+          if (fo !== null && fo >= 0 && fo <= 1) colors.fillOpacity = fo;
+        }
+      }
 
       // Eigen sleutel van deze app (zie saver.js): wint van de afgeleide
       // waarde hierboven, want die is expliciet bij het opslaan bewaard.

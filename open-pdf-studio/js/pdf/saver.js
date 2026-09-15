@@ -2443,6 +2443,9 @@ async function _savePDFNu(saveAsPath) {
               hatchPattern: ann.hatchPattern, hatchColorHex: ann.hatchColor,
               hatchScale: ann.hatchScale, hatchAngle: ann.hatchAngle,
               text: ann.measureText, labelX: ann.labelX, labelY: ann.labelY,
+              // Eigen vul-alfa (bv. een extern meetvlak op 30%) ook in de
+              // appearance, anders tonen andere lezers het vlak na opslaan dekkend.
+              fillAlpha: fillOpacity,
             }), maDict.Rect);
             break;
           }

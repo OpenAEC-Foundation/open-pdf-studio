@@ -318,14 +318,26 @@ export function buildFilledAreaAP({ points, holes, X, Y, fillColorHex, strokeCol
 }
 
 // measureArea: fill + optional hatch + outline + centroid label.
+// `fillAlpha` (annotation fillOpacity, PDF /ca) applies to the solid fill only,
+// wrapped in q…Q with /GSf so hatch, outline and label stay opaque — the same
+// split as on screen. The result then carries `fillAlpha`, which makes the
+// caller (attachVectorAP) add the /GSf ExtGState to the resources.
 export function buildMeasureAreaAP({ points, holes, X, Y, fillColorHex, strokeColorHex,
   lineWidth, borderStyle, hatchPattern, hatchColorHex, hatchScale, hatchAngle,
-  text, labelX, labelY }) {
+  text, labelX, labelY, fillAlpha }) {
   if (!points || points.length < 3) return null;
   const stroke = hexToRgb(strokeColorHex || '#ff0000');
+  const alpha = (typeof fillAlpha === 'number' && fillAlpha >= 0 && fillAlpha < 1) ? fillAlpha : undefined;
+  let filledWithAlpha = false;
   let s = '';
   if (fillColorHex && fillColorHex !== 'none' && fillColorHex !== 'transparent') {
-    s += solidFillOps(points, holes, hexToRgb(fillColorHex), X, Y);
+    const fillOps = solidFillOps(points, holes, hexToRgb(fillColorHex), X, Y);
+    if (alpha !== undefined) {
+      s += `q\n/GSf gs\n${fillOps}Q\n`;
+      filledWithAlpha = true;
+    } else {
+      s += fillOps;
+    }
   }
   if (hatchPattern && hatchPattern !== 'none') {
     s += hatchFillOps({ points, holes, hatchPattern,
@@ -338,7 +350,9 @@ export function buildMeasureAreaAP({ points, holes, X, Y, fillColorHex, strokeCo
   cx /= points.length; cy /= points.length;
   s += labelOps({ text, x: labelX != null ? labelX : cx, y: labelY != null ? labelY : cy,
     fontSize: 11, colorRgb: stroke, X, Y });
-  return { content: s, needsFont: true };
+  return filledWithAlpha
+    ? { content: s, needsFont: true, fillAlpha: alpha }
+    : { content: s, needsFont: true };
 }
 
 // measurePerimeter / measureAngle: open polyline + label at centroid.

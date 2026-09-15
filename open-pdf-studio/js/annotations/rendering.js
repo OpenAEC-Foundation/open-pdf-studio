@@ -1902,7 +1902,11 @@ export function drawAnnotation(ctx, annotation) {
         : annotation.hatchPattern
           ? { pattern: annotation.hatchPattern, color: annotation.hatchColor || '#ff0000', scale: (annotation.hatchScale ?? 100) * maRegionFactor, angle: annotation.hatchAngle }
           : { pattern: 'diagonal-left', color: annotation.hatchColor || '#ff0000', scale: 100, angle: 0 };  // Default: red 45° hatch
-      drawMeasureAreaShape(ctx, annotation.points, annotation.color || '#ff0000', annotation.lineWidth, annotation.fillColor, annotation.borderStyle, annotation.holes, maHatch);
+      // annFill, niet de kale fillColor: daarin zit een eigen vul-alfa
+      // (fillOpacity, bv. /ca 0.3 van een extern meetvlak) al verrekend, net als
+      // bij de andere vormen. Met de kale hex kwam zo'n vlak dekkend over de
+      // tekening en over het eigen maatlabel heen.
+      drawMeasureAreaShape(ctx, annotation.points, annotation.color || '#ff0000', annotation.lineWidth, annFill, annotation.borderStyle, annotation.holes, maHatch);
       if (annotation.measureText) {
         drawCentroidLabel(ctx, annotation.points, annotation.measureText, strokeColor, annotation);
       }
