@@ -1,6 +1,7 @@
 import { state, getActiveDocument, getPageRotation, setPageRotation } from '../core/state.js';
 import { isTauri, invoke } from '../core/platform.js';
 import { pdfjsFallbackNodig } from './render-route.js';
+import { bepaalOverlayMaat, pasOverlayMaatToe } from './overlay-canvas-size.js';
 // Always-fresh DOM refs (never stale regardless of init timing or bundler behavior)
 function getPdfCanvas() { return document.getElementById('pdf-canvas'); }
 function getAnnotationCanvas() { return document.getElementById('annotation-canvas'); }
@@ -652,8 +653,29 @@ async function _renderPageImpl(pageNum) {
   // overwrite the annotation canvas of the now-active document.
   if (_isStaleDoc(doc)) return;
 
-  // Resize annotation canvas and redraw in one synchronous block — no blink
-  setupCanvasHiDPI(annotationCanvas, viewport.width, viewport.height);
+  // Overlay-canvassen op de maat van de ruimte waarin redrawAnnotations()
+  // tekent: viewportmaat in CSS-px als de viewport de pagina bezit, anders
+  // paginamaat × dpr (zelfde beslisregel als _render() in pdf-viewport.js,
+  // zie overlay-canvas-size.js). Voorheen altijd de paginamaat; na p2 → p3
+  // met gelijke paginamaat kwam er geen _render()-frame meer die dat
+  // herstelde en bleef de overlay te klein (NKE2D2 p3/p4: annotaties
+  // verkleind en verschoven). Resize en hertekenen in één synchroon blok.
+  const vpBezitPagina = !!(window.__pdfViewport && window.__pdfViewport.active);
+  const dprOverlay = getCanvasDPR();
+  const overlayMaat = bepaalOverlayMaat({
+    viewportActief: vpBezitPagina,
+    heeftBestandspad: !!doc.filePath,
+    // De viewport tekent op #pdf-canvas zelf: backing / dpr = CSS-maat.
+    viewportCssW: pdfCanvas.width / dprOverlay,
+    viewportCssH: pdfCanvas.height / dprOverlay,
+    paginaCssW: viewport.width,
+    paginaCssH: viewport.height,
+    dpr: dprOverlay,
+  });
+  if (overlayMaat) {
+    pasOverlayMaatToe(annotationCanvas, overlayMaat);
+    pasOverlayMaatToe(document.getElementById('text-highlight-canvas'), overlayMaat);
+  }
   redrawAnnotations();
 
   // Re-apply search highlights after re-render

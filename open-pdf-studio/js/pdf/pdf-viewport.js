@@ -13,6 +13,7 @@ import {
   getCachedBitmap,
 } from './page-bitmap-cache.js';
 import { tileCoversViewport } from './tile-coverage.js';
+import { bepaalOverlayMaat, pasOverlayMaatToe } from './overlay-canvas-size.js';
 
 // ─── Viewport State (singleton via window to survive HMR/dynamic imports) ───
 if (!window.__pdfViewport) {
@@ -891,32 +892,27 @@ function _render() {
       `matrix(${viewport.zoom}, 0, 0, ${viewport.zoom}, ${viewport.offsetX}, ${viewport.offsetY})`;
   }
 
-  // Annotation overlay — sync with viewport transform
+  // Annotation overlay — sync with viewport transform.
+  // Overlay = viewportmaat in CSS-pixels (no DPR scaling), zonder inline
+  // CSS-maat (die kan nog van het paginamaat-pad komen). Zelfde beslisregel
+  // als aan het eind van renderPage(), zie overlay-canvas-size.js. De maat is
+  // geheel: een fractionele vpW (dpr 1,25 / 1,5) wiste voorheen elke frame
+  // het canvas omdat canvas.width !== vpW altijd waar was.
+  const overlayMaat = bepaalOverlayMaat({
+    viewportActief: true,
+    heeftBestandspad: true,
+    viewportCssW: vpW,
+    viewportCssH: vpH,
+  });
   const annCanvas = document.getElementById('annotation-canvas');
   if (annCanvas) {
-    // Keep annotation canvas same size as pdf canvas
-    if (annCanvas.width !== vpW || annCanvas.height !== vpH) {
-      annCanvas.width = vpW;
-      annCanvas.height = vpH;
-    }
-    // In vector mode: annotation canvas must match PDF canvas exactly (no DPR scaling)
-    // Remove any legacy DPR-based CSS sizing from setupCanvasHiDPI()
-    annCanvas.style.width = '';
-    annCanvas.style.height = '';
+    pasOverlayMaatToe(annCanvas, overlayMaat);
     // Sync doc.scale so legacy code that reads it gets viewport zoom
     const doc = state.documents?.[state.activeDocumentIndex];
     if (doc) doc.scale = viewport.zoom;
   }
   // Keep the text-highlight canvas perfectly mirrored to the annotation canvas
-  const hlCanvas = document.getElementById('text-highlight-canvas');
-  if (hlCanvas) {
-    if (hlCanvas.width !== vpW || hlCanvas.height !== vpH) {
-      hlCanvas.width = vpW;
-      hlCanvas.height = vpH;
-    }
-    hlCanvas.style.width = '';
-    hlCanvas.style.height = '';
-  }
+  pasOverlayMaatToe(document.getElementById('text-highlight-canvas'), overlayMaat);
   if (_annotationRedraw) {
     try { _annotationRedraw(); } catch {}
   }
