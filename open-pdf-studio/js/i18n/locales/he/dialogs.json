@@ -14,7 +14,8 @@
     "titleBlock": "Title block",
     "noTitleBlock": "No title block",
     "addTitleBlock": "Add your own title block (PDF)",
-    "openTitleBlocksFolder": "Open title blocks folder"
+    "openTitleBlocksFolder": "Open title blocks folder",
+    "style": "סגנון"
   },
   "print": {
     "title": "הדפסה",
@@ -322,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "בחר סמל פרמטרי",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "יישור עמוד",
+    "apply": "יישר",
+    "angleInfo": "זווית תיקון: {{angle}}°",
+    "done": "יושרו {{count}} עמודים בזווית {{angle}}°",
+    "alreadyStraight": "הקו כבר ישר — אין צורך בתיקון."
   }
 }

@@ -21,6 +21,13 @@ jobs:
           - platform: 'macos-26'
 
     runs-on: ${{ matrix.platform }}
+    env:
+      # Do not bundle the display stack into the AppImage. Bundled Ubuntu-era
+      # libwayland/xkbcommon/xcb shadow the host copies and abort WebKit with
+      # "Could not create default EGL display: EGL_BAD_PARAMETER" on newer Mesa
+      # (Fedora 44, issue #362). linuxdeploy reads this list; the host provides
+      # these libraries. Keep in sync with scripts/linux-appimage-smoke.sh.
+      LINUXDEPLOY_EXCLUDED_LIBRARIES: 'libwayland-client.so*;libwayland-cursor.so*;libwayland-egl.so*;libwayland-server.so*;libxkbcommon.so*;libxcb-randr.so*;libxcb-render.so*;libxcb-shm.so*;libXau.so*;libXdmcp.so*'
     defaults:
       run:
         working-directory: open-pdf-studio
@@ -131,6 +138,22 @@ jobs:
             -v "$PWD/scripts/linux-appimage-smoke.sh:/input/linux-appimage-smoke.sh:ro" \
             debian:13-slim \
             bash -lc 'apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends dbus-x11 gvfs libegl1 libgles2 libgtk-3-0t64 xauth xvfb && cp /input/open-pdf-studio.AppImage /tmp/open-pdf-studio.AppImage && bash /input/linux-appimage-smoke.sh /tmp/open-pdf-studio.AppImage 10'
+
+      # Fedora 44 ships Mesa 26, where an AppImage that bundles its own display
+      # stack aborts before a window appears (issue #362). Start the same
+      # AppImage against Fedora's own libraries.
+      - name: Verify AppImage on Fedora 44
+        if: matrix.platform == 'ubuntu-22.04'
+        shell: bash
+        run: |
+          appimage=$(find ../target/release/bundle/appimage -maxdepth 1 -type f -name '*.AppImage' -print -quit)
+          test -n "$appimage"
+          appimage=$(realpath "$appimage")
+          docker run --rm \
+            -v "$appimage:/input/open-pdf-studio.AppImage:ro" \
+            -v "$PWD/scripts/linux-appimage-smoke.sh:/input/linux-appimage-smoke.sh:ro" \
+            fedora:44 \
+            bash -lc 'dnf install -y --setopt=install_weak_deps=False dbus-daemon dbus-tools findutils gtk3 gvfs libwayland-client libwayland-cursor libwayland-egl libxkbcommon mesa-libEGL libglvnd-gles xorg-x11-server-Xvfb xorg-x11-xauth && cp /input/open-pdf-studio.AppImage /tmp/open-pdf-studio.AppImage && bash /input/linux-appimage-smoke.sh /tmp/open-pdf-studio.AppImage 10'
 
       - name: Build ad-hoc signed macOS app
         if: matrix.platform == 'macos-26'

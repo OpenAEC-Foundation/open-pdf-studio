@@ -14,7 +14,8 @@
     "titleBlock": "Title block",
     "noTitleBlock": "No title block",
     "addTitleBlock": "Add your own title block (PDF)",
-    "openTitleBlocksFolder": "Open title blocks folder"
+    "openTitleBlocksFolder": "Open title blocks folder",
+    "style": "Stílus"
   },
   "print": {
     "title": "Nyomtatás",
@@ -322,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "Paraméteres szimbólum kiválasztása",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Oldal Egyenesítése",
+    "apply": "Egyenesítés",
+    "angleInfo": "Javítási szög: {{angle}}°",
+    "done": "{{count}} oldal kiegyenesítve {{angle}}°-kal",
+    "alreadyStraight": "A vonal már egyenes — nincs szükség javításra."
   }
 }

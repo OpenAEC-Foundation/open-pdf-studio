@@ -14,7 +14,8 @@
     "titleBlock": "Title block",
     "noTitleBlock": "No title block",
     "addTitleBlock": "Add your own title block (PDF)",
-    "openTitleBlocksFolder": "Open title blocks folder"
+    "openTitleBlocksFolder": "Open title blocks folder",
+    "style": "樣式"
   },
   "print": {
     "title": "打印",
@@ -322,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "选择参数化符号",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "拉直頁面",
+    "apply": "拉直",
+    "angleInfo": "校正角度：{{angle}}°",
+    "done": "已拉直 {{count}} 頁，角度 {{angle}}°",
+    "alreadyStraight": "線條已經是直的，無需校正。"
   }
 }

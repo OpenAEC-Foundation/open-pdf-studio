@@ -14,7 +14,8 @@
     "titleBlock": "Title block",
     "noTitleBlock": "No title block",
     "addTitleBlock": "Add your own title block (PDF)",
-    "openTitleBlocksFolder": "Open title blocks folder"
+    "openTitleBlocksFolder": "Open title blocks folder",
+    "style": "Stil"
   },
   "print": {
     "title": "Skriv ut",
@@ -322,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "Velg parametrisk symbol",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Rett Opp Siden",
+    "apply": "Rett opp",
+    "angleInfo": "Korreksjonsvinkel: {{angle}}°",
+    "done": "{{count}} side(r) rettet opp med {{angle}}°",
+    "alreadyStraight": "Linjen er allerede rett — ingen korreksjon nødvendig."
   }
 }

@@ -28,6 +28,22 @@ if ! find "$tmp/squashfs-root" -type f -name libpdfium.so -print -quit | grep -q
   exit 1
 fi
 
+# Display-stack libraries must come from the host. Bundled copies abort WebKit
+# with "Could not create default EGL display: EGL_BAD_PARAMETER" on newer Mesa
+# (issue #362). Keep in sync with LINUXDEPLOY_EXCLUDED_LIBRARIES in the workflows.
+display_stack_libs=(libwayland-client.so libwayland-cursor.so libwayland-egl.so libwayland-server.so libxkbcommon.so libxcb-randr.so libxcb-render.so libxcb-shm.so libXau.so libXdmcp.so)
+bundled_display_libs=()
+for lib in "${display_stack_libs[@]}"; do
+  while IFS= read -r hit; do
+    bundled_display_libs+=("${hit#"$tmp/squashfs-root/"}")
+  done < <(find "$tmp/squashfs-root" \( -type f -o -type l \) -name "${lib}*")
+done
+if (( ${#bundled_display_libs[@]} > 0 )); then
+  echo "display-stack libraries are bundled in the AppImage (issue #362):" >&2
+  printf '  %s\n' "${bundled_display_libs[@]}" >&2
+  exit 1
+fi
+
 launcher=("$appimage")
 # SMOKE_NO_DISPLAY_WRAPPERS=1 slaat xvfb-run/dbus-run-session over. De
 # zelftest (linux-appimage-smoke.test.sh) gebruikt dit: zijn fake-AppImage
@@ -56,7 +72,7 @@ if [[ $status -ne 124 ]]; then
 fi
 
 if grep -Eiq \
-  'panicked at|PDFium initialisation failed|undefined symbol: g_task_set_static_name|Failed to load module: .*libgvfsdbus\.so' \
+  'panicked at|Could not create default EGL display|PDFium initialisation failed|undefined symbol: g_task_set_static_name|Failed to load module: .*libgvfsdbus\.so' \
   "$tmp/startup.log"; then
   echo "forbidden startup diagnostic detected" >&2
   cat "$tmp/startup.log" >&2

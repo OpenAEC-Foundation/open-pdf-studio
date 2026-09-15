@@ -110,6 +110,12 @@ jobs:
       # FUSE mount on the CI runner (harmless on Windows/macOS — only the
       # AppImage tooling reads it).
       APPIMAGE_EXTRACT_AND_RUN: 1
+      # Do not bundle the display stack into the AppImage. Bundled Ubuntu-era
+      # libwayland/xkbcommon/xcb shadow the host copies and abort WebKit with
+      # "Could not create default EGL display: EGL_BAD_PARAMETER" on newer Mesa
+      # (Fedora 44, issue #362). linuxdeploy reads this list; the host provides
+      # these libraries. Keep in sync with scripts/linux-appimage-smoke.sh.
+      LINUXDEPLOY_EXCLUDED_LIBRARIES: 'libwayland-client.so*;libwayland-cursor.so*;libwayland-egl.so*;libwayland-server.so*;libxkbcommon.so*;libxcb-randr.so*;libxcb-render.so*;libxcb-shm.so*;libXau.so*;libXdmcp.so*'
     defaults:
       run:
         working-directory: open-pdf-studio

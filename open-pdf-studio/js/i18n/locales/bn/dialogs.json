@@ -14,7 +14,8 @@
     "titleBlock": "Title block",
     "noTitleBlock": "No title block",
     "addTitleBlock": "Add your own title block (PDF)",
-    "openTitleBlocksFolder": "Open title blocks folder"
+    "openTitleBlocksFolder": "Open title blocks folder",
+    "style": "শৈলী"
   },
   "print": {
     "title": "মুদ্রণ",
@@ -322,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "প্যারামেট্রিক প্রতীক নির্বাচন করুন",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "পৃষ্ঠা সোজা করুন",
+    "apply": "সোজা করুন",
+    "angleInfo": "সংশোধন কোণ: {{angle}}°",
+    "done": "{{count}}টি পৃষ্ঠা {{angle}}° সোজা করা হয়েছে",
+    "alreadyStraight": "রেখাটি ইতিমধ্যে সোজা — কোনো সংশোধনের প্রয়োজন নেই।"
   }
 }

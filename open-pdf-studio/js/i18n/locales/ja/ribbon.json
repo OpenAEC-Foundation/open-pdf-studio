@@ -173,7 +173,8 @@
     "addHeaderFooter": "ヘッダー/フッターを追加",
     "headerFooter": "ヘッダー/フッター",
     "manageWatermarks": "透かしを管理",
-    "manage": "管理"
+    "manage": "管理",
+    "straighten": "ページを補正"
   },
   "help": {
     "information": "情報",

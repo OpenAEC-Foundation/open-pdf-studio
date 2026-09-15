@@ -485,3 +485,7 @@ export async function placeLastScreenshotAsOverlay() {
     updateStatusMessage('Failed to place overlay');
   }
 }
+
+// Shared with the Straighten Page tool (tools/straighten-select.js): the same
+// canvas lookup and selection-to-page mapping the screenshot tool uses.
+export { getCurrentCanvases, _selectionToAppRect as selectionToAppRect };

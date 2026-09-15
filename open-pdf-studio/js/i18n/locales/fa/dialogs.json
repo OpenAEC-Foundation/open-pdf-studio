@@ -14,7 +14,8 @@
     "titleBlock": "Title block",
     "noTitleBlock": "No title block",
     "addTitleBlock": "Add your own title block (PDF)",
-    "openTitleBlocksFolder": "Open title blocks folder"
+    "openTitleBlocksFolder": "Open title blocks folder",
+    "style": "سبک"
   },
   "print": {
     "title": "چاپ",
@@ -322,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "انتخاب نماد پارامتریک",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "صاف کردن صفحه",
+    "apply": "صاف کردن",
+    "angleInfo": "زاویه اصلاح: {{angle}}°",
+    "done": "{{count}} صفحه با زاویه {{angle}}° صاف شد",
+    "alreadyStraight": "خط از قبل صاف است — نیازی به اصلاح نیست."
   }
 }

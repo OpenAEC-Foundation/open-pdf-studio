@@ -14,7 +14,8 @@
     "titleBlock": "Title block",
     "noTitleBlock": "No title block",
     "addTitleBlock": "Add your own title block (PDF)",
-    "openTitleBlocksFolder": "Open title blocks folder"
+    "openTitleBlocksFolder": "Open title blocks folder",
+    "style": "Стил"
   },
   "print": {
     "title": "Штампање",
@@ -322,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "Изабери параметарски симбол",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Исправи Страницу",
+    "apply": "Исправи",
+    "angleInfo": "Угао корекције: {{angle}}°",
+    "done": "Исправљено {{count}} страница за {{angle}}°",
+    "alreadyStraight": "Линија је већ права — корекција није потребна."
   }
 }

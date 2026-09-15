@@ -14,7 +14,8 @@
     "titleBlock": "Title block",
     "noTitleBlock": "No title block",
     "addTitleBlock": "Add your own title block (PDF)",
-    "openTitleBlocksFolder": "Open title blocks folder"
+    "openTitleBlocksFolder": "Open title blocks folder",
+    "style": "Стиль"
   },
   "print": {
     "title": "Друк",
@@ -322,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "Вибрати параметричний символ",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Вирівняти Сторінку",
+    "apply": "Вирівняти",
+    "angleInfo": "Кут корекції: {{angle}}°",
+    "done": "Вирівняно {{count}} стор. на {{angle}}°",
+    "alreadyStraight": "Лінія вже пряма — корекція не потрібна."
   }
 }

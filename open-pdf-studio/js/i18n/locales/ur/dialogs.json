@@ -14,7 +14,8 @@
     "titleBlock": "Title block",
     "noTitleBlock": "No title block",
     "addTitleBlock": "Add your own title block (PDF)",
-    "openTitleBlocksFolder": "Open title blocks folder"
+    "openTitleBlocksFolder": "Open title blocks folder",
+    "style": "انداز"
   },
   "print": {
     "title": "پرنٹ",
@@ -322,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "پیرامیٹرک علامت منتخب کریں",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "صفحہ سیدھا کریں",
+    "apply": "سیدھا کریں",
+    "angleInfo": "اصلاحی زاویہ: {{angle}}°",
+    "done": "{{count}} صفحات کو {{angle}}° سیدھا کیا گیا",
+    "alreadyStraight": "لائن پہلے سے سیدھی ہے — کسی اصلاح کی ضرورت نہیں۔"
   }
 }

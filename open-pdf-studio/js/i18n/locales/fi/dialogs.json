@@ -14,7 +14,8 @@
     "titleBlock": "Title block",
     "noTitleBlock": "No title block",
     "addTitleBlock": "Add your own title block (PDF)",
-    "openTitleBlocksFolder": "Open title blocks folder"
+    "openTitleBlocksFolder": "Open title blocks folder",
+    "style": "Tyyli"
   },
   "print": {
     "title": "Tulosta",
@@ -322,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "Valitse parametrinen symboli",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Suorista Sivu",
+    "apply": "Suorista",
+    "angleInfo": "Korjauskulma: {{angle}}°",
+    "done": "{{count}} sivu(a) suoristettu {{angle}}°",
+    "alreadyStraight": "Viiva on jo suora — korjausta ei tarvita."
   }
 }

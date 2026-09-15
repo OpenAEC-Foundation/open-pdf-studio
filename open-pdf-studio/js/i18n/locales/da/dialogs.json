@@ -14,7 +14,8 @@
     "titleBlock": "Title block",
     "noTitleBlock": "No title block",
     "addTitleBlock": "Add your own title block (PDF)",
-    "openTitleBlocksFolder": "Open title blocks folder"
+    "openTitleBlocksFolder": "Open title blocks folder",
+    "style": "Stil"
   },
   "print": {
     "title": "Udskriv",
@@ -322,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "Vælg parametrisk symbol",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Ret Side",
+    "apply": "Ret",
+    "angleInfo": "Korrektionsvinkel: {{angle}}°",
+    "done": "{{count}} side(r) rettet med {{angle}}°",
+    "alreadyStraight": "Linjen er allerede lige — ingen korrektion nødvendig."
   }
 }

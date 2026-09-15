@@ -14,7 +14,8 @@
     "titleBlock": "Title block",
     "noTitleBlock": "No title block",
     "addTitleBlock": "Add your own title block (PDF)",
-    "openTitleBlocksFolder": "Open title blocks folder"
+    "openTitleBlocksFolder": "Open title blocks folder",
+    "style": "Kiểu"
   },
   "print": {
     "title": "In",
@@ -322,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "Chọn ký hiệu tham số",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Làm Thẳng Trang",
+    "apply": "Làm Thẳng",
+    "angleInfo": "Góc hiệu chỉnh: {{angle}}°",
+    "done": "Đã làm thẳng {{count}} trang với góc {{angle}}°",
+    "alreadyStraight": "Đường thẳng đã ngay ngắn — không cần hiệu chỉnh."
   }
 }

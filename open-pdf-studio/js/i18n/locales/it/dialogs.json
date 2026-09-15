@@ -14,7 +14,8 @@
     "titleBlock": "Title block",
     "noTitleBlock": "No title block",
     "addTitleBlock": "Add your own title block (PDF)",
-    "openTitleBlocksFolder": "Open title blocks folder"
+    "openTitleBlocksFolder": "Open title blocks folder",
+    "style": "Stile"
   },
   "print": {
     "title": "Stampa",
@@ -322,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "Scegli simbolo parametrico",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Raddrizza Pagina",
+    "apply": "Raddrizza",
+    "angleInfo": "Angolo di correzione: {{angle}}°",
+    "done": "{{count}} pagina/e raddrizzata/e di {{angle}}°",
+    "alreadyStraight": "La linea è già dritta — nessuna correzione necessaria."
   }
 }

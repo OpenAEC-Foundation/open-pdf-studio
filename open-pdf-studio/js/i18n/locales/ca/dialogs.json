@@ -14,7 +14,8 @@
     "titleBlock": "Title block",
     "noTitleBlock": "No title block",
     "addTitleBlock": "Add your own title block (PDF)",
-    "openTitleBlocksFolder": "Open title blocks folder"
+    "openTitleBlocksFolder": "Open title blocks folder",
+    "style": "Estil"
   },
   "print": {
     "title": "Imprimeix",
@@ -322,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "Tria un símbol paramètric",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Redreça la Pàgina",
+    "apply": "Redreça",
+    "angleInfo": "Angle de correcció: {{angle}}°",
+    "done": "{{count}} pàgina(es) redreçada(es) {{angle}}°",
+    "alreadyStraight": "La línia ja és recta — no cal cap correcció."
   }
 }

@@ -14,7 +14,8 @@
     "titleBlock": "Title block",
     "noTitleBlock": "No title block",
     "addTitleBlock": "Add your own title block (PDF)",
-    "openTitleBlocksFolder": "Open title blocks folder"
+    "openTitleBlocksFolder": "Open title blocks folder",
+    "style": "Štýl"
   },
   "print": {
     "title": "Tlač",
@@ -322,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "Vybrať parametrický symbol",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Narovnať Stránku",
+    "apply": "Narovnať",
+    "angleInfo": "Uhol korekcie: {{angle}}°",
+    "done": "Narovnaných {{count}} strán o {{angle}}°",
+    "alreadyStraight": "Čiara je už rovná — korekcia nie je potrebná."
   }
 }
