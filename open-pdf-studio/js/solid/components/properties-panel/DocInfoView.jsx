@@ -1,10 +1,25 @@
-import { Show } from 'solid-js';
-import { panelMode, docInfo } from '../../stores/propertiesStore.js';
+import { Show, createEffect, untrack } from 'solid-js';
+import { panelMode, docInfo, populateDocInfo } from '../../stores/propertiesStore.js';
+import { state } from '../../../core/state.js';
+import { readDocInfoDeps } from '../../stores/doc-info-format.js';
 import CollapsibleSection from './CollapsibleSection.jsx';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 
 export default function DocInfoView() {
   const { t } = useTranslation('properties');
+
+  // De documentinfo werd alleen gevuld bij deselecteren en bij een tabwissel.
+  // Bij direct openen gebeurt dat al voordat pdfDoc geladen is (Pagina's en
+  // Paginaformaat bleven '-'), en een paginawissel door scrollen in de
+  // doorlopende weergave zet alleen doc.currentPage. Volg daarom de relevante
+  // velden van het actieve document reactief; panelMode bewust ongevolgd
+  // (storeHideProperties ververst zelf bij terugkeer naar de documentinfo).
+  createEffect(() => {
+    readDocInfoDeps(state.documents[state.activeDocumentIndex]);
+    untrack(() => {
+      if (panelMode() === 'none') populateDocInfo();
+    });
+  });
 
   return (
     <Show when={panelMode() === 'none'}>
