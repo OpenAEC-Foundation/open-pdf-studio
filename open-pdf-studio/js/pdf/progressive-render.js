@@ -265,6 +265,24 @@ export function shouldSpreadPdfiumFallback(sceneWorthIt) {
   return !sceneWorthIt;
 }
 
+/**
+ * Toont de viewport nog de pagina waarvoor deze run rendert? De generatie-
+ * teller hieronder wordt alleen door een nieuwe progressieve START verhoogd;
+ * wisselt de gebruiker naar een document of pagina die géén progressief pad
+ * neemt (gewone whole-page render), dan bleef een lopende run "actueel" en
+ * publiceerde hij zijn tussenstanden en eindbeeld over de nieuwe pagina heen
+ * (MV-03 → B3: de plattegrond van MV-03 onder de annotaties van B3). Daarom
+ * telt naast de generatie ook het doel van de run zelf. Puur, voor de test.
+ * @param {{filePath: string, pageNum: number, rotation?: number}} run
+ * @param {{active?: boolean, filePath?: string, pageNum?: number, rotation?: number}} vp
+ */
+export function runVolgtViewport(run, vp) {
+  if (!run || !vp || !vp.active) return false;
+  return vp.filePath === run.filePath
+    && vp.pageNum === run.pageNum
+    && (((vp.rotation || 0) % 360) + 360) % 360 === (((run.rotation || 0) % 360) + 360) % 360;
+}
+
 // Generatie-teller voor stale-guards: elke start bumpt hem; na elke await checken
 // we of onze generatie nog actueel is voor we viewport-state muteren. Zo kan een
 // tragere in-flight progressieve render nooit een nieuwere (zoom/pagina/tab) over-
@@ -362,6 +380,9 @@ export async function ensureProgressiveBitmapForCurrentView() {
   }
   const cacheBucket = computeZoomBucket(renderScale);
   const myGen = ++_progGen;
+  // Stale zodra een nieuwere run start (generatie) óf de viewport een andere
+  // pagina/document toont (zie runVolgtViewport).
+  const actueel = () => myGen === _progGen && runVolgtViewport({ filePath, pageNum, rotation }, viewport);
   _inflightKey = runKey;
 
   // Al gerenderd op deze bucket? Meteen tonen en klaar.
@@ -399,7 +420,7 @@ export async function ensureProgressiveBitmapForCurrentView() {
   } catch {
     _inflightKey = null;
     const e = await ensureBitmap(filePath, pageNum, rotation, cacheBucket);
-    if (myGen === _progGen && e && e.bitmap) { viewport.currentBitmap = e.bitmap; viewport.dirty = true; }
+    if (actueel() && e && e.bitmap) { viewport.currentBitmap = e.bitmap; viewport.dirty = true; }
     return;
   }
 
@@ -427,7 +448,7 @@ export async function ensureProgressiveBitmapForCurrentView() {
     const _p0 = performance.now();
     const bmp = await createImageBitmap(acc);
     perfMark(`publish createImageBitmap ${fullW}x${fullH} ${Math.round(performance.now() - _p0)}ms`);
-    if (myGen !== _progGen) { try { bmp.close && bmp.close(); } catch {} return; }
+    if (!actueel()) { try { bmp.close && bmp.close(); } catch {} return; }
     viewport.currentBitmap = bmp;
     viewport.dirty = true;
     if (lastIntermediate) { try { lastIntermediate.close && lastIntermediate.close(); } catch {} }
@@ -435,7 +456,7 @@ export async function ensureProgressiveBitmapForCurrentView() {
   };
 
   const renderTile = async (t) => {
-    if (myGen !== _progGen || failed) return;
+    if (!actueel() || failed) return;
     // output-pixel-tegel -> PDF-punt-regio (scale = renderScale => tegel = t.pw×t.ph px)
     const regionXPt = t.px / renderScale;
     const regionYPt = t.py / renderScale;
@@ -486,13 +507,13 @@ export async function ensureProgressiveBitmapForCurrentView() {
   const CONC = 4;
   let idx = 0;
   const workers = Array.from({ length: CONC }, async () => {
-    while (idx < tiles.length && myGen === _progGen && !failed) {
+    while (idx < tiles.length && actueel() && !failed) {
       const t = tiles[idx++];
       await renderTile(t);
     }
   });
   await Promise.all(workers);
-  if (myGen !== _progGen) { perfMark(`run-STALE na ${tilesDone} tegels (scale=${renderScale.toFixed(3)})`); if (_inflightKey === runKey) _inflightKey = null; return; }
+  if (!actueel()) { perfMark(`run-STALE na ${tilesDone} tegels (scale=${renderScale.toFixed(3)})`); if (_inflightKey === runKey) _inflightKey = null; return; }
 
   if (failed) {
     // Terugval: één gewone whole-page render via de bestaande cache-weg.
@@ -500,7 +521,7 @@ export async function ensureProgressiveBitmapForCurrentView() {
     console.warn('[prog] tegel-fout — terugval naar whole-page render');
     if (_inflightKey === runKey) _inflightKey = null;
     const e = await ensureBitmap(filePath, pageNum, rotation, cacheBucket);
-    if (myGen === _progGen && e && e.bitmap) { viewport.currentBitmap = e.bitmap; viewport.dirty = true; }
+    if (actueel() && e && e.bitmap) { viewport.currentBitmap = e.bitmap; viewport.dirty = true; }
     return;
   }
 
@@ -512,9 +533,16 @@ export async function ensureProgressiveBitmapForCurrentView() {
   if (myGen !== _progGen) { try { finalBmp.close && finalBmp.close(); } catch {} if (_inflightKey === runKey) _inflightKey = null; return; }
   if (lastIntermediate) { try { lastIntermediate.close && lastIntermediate.close(); } catch {} }
   const _c0 = performance.now();
+  // Het eindbeeld is compleet en klopt voor zíjn pagina: altijd cachen (een
+  // terugkeer naar die pagina is dan een cache-hit). Alleen tonen als de
+  // viewport hem nog toont.
   setCachedBitmapEntry(filePath, pageNum, rotation, cacheBucket, finalBmp, fullW, fullH, renderScale);
-  viewport.currentBitmap = finalBmp;
-  viewport.dirty = true;
+  if (actueel()) {
+    viewport.currentBitmap = finalBmp;
+    viewport.dirty = true;
+  } else {
+    perfMark(`run-klaar maar viewport elders (${String(viewport.filePath).split(/[\\/]/).pop()} p${viewport.pageNum}) — niet gepubliceerd`);
+  }
   perfMark(`setCachedBitmapEntry ${Math.round(performance.now() - _c0)}ms`);
   if (_inflightKey === runKey) _inflightKey = null;
   const tEnd = (typeof performance !== 'undefined' && performance.now) ? performance.now() : 0;
