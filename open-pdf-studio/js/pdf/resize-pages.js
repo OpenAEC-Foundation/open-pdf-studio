@@ -15,7 +15,7 @@ const MM_TO_POINTS = 72 / 25.4;
  * when a page is recentred, every part of the annotation moves with the
  * content it belongs to.
  */
-function translateAnnotation(ann, dx, dy) {
+export function translateAnnotation(ann, dx, dy) {
   if (dx === 0 && dy === 0) return;
   if (ann.x !== undefined) ann.x += dx;
   if (ann.y !== undefined) ann.y += dy;

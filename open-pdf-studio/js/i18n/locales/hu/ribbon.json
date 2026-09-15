@@ -174,7 +174,8 @@
     "headerFooter": "Élőfej/élőláb",
     "manageWatermarks": "Vízjelek kezelése",
     "manage": "Kezelés",
-    "straighten": "Oldal Egyenesítése"
+    "straighten": "Oldal Egyenesítése",
+    "shiftPage": "Oldal eltolása"
   },
   "help": {
     "information": "Információ",

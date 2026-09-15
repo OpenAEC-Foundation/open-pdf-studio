@@ -330,5 +330,18 @@
     "angleInfo": "सुधार कोण: {{angle}}°",
     "done": "{{count}} पृष्ठ {{angle}}° से सीधे किए गए",
     "alreadyStraight": "रेखा पहले से ही सीधी है — किसी सुधार की आवश्यकता नहीं।"
+  },
+  "shiftPage": {
+    "title": "Shift Page",
+    "apply": "Shift",
+    "reset": "Reset",
+    "horizontal": "Horizontal (mm):",
+    "vertical": "Vertical (mm):",
+    "allPages": "All pages",
+    "evenPages": "Even pages",
+    "oddPages": "Odd pages",
+    "fromPage": "From page:",
+    "noShift": "No shift entered — nothing to apply.",
+    "dragInfo": "Drag the preview to shift the page, or enter exact millimeter offsets below."
   }
 }

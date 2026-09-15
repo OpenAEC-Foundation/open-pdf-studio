@@ -174,7 +174,8 @@
     "headerFooter": "শিরোনাম/পাদটীকা",
     "manageWatermarks": "ওয়াটারমার্ক পরিচালনা",
     "manage": "পরিচালনা",
-    "straighten": "পৃষ্ঠা সোজা করুন"
+    "straighten": "পৃষ্ঠা সোজা করুন",
+    "shiftPage": "পৃষ্ঠা স্থানান্তর করুন"
   },
   "help": {
     "information": "তথ্য",

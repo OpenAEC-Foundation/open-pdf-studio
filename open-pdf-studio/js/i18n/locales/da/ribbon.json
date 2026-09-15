@@ -174,7 +174,8 @@
     "headerFooter": "Sidehoved/sidefod",
     "manageWatermarks": "Administrer vandmærker",
     "manage": "Administrer",
-    "straighten": "Ret Side"
+    "straighten": "Ret Side",
+    "shiftPage": "Forskyd side"
   },
   "help": {
     "information": "Information",

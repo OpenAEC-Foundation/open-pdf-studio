@@ -174,7 +174,8 @@
     "headerFooter": "Üstbilgi/Altbilgi",
     "manageWatermarks": "Filigranları Yönet",
     "manage": "Yönet",
-    "straighten": "Sayfayı Düzelt"
+    "straighten": "Sayfayı Düzelt",
+    "shiftPage": "Sayfayı kaydır"
   },
   "help": {
     "information": "Bilgi",

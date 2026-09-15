@@ -174,7 +174,8 @@
     "headerFooter": "Ylätunniste/Alatunniste",
     "manageWatermarks": "Hallitse vesileimoja",
     "manage": "Hallitse",
-    "straighten": "Suorista Sivu"
+    "straighten": "Suorista Sivu",
+    "shiftPage": "Siirrä sivua"
   },
   "help": {
     "information": "Tiedot",

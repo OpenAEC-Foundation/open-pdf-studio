@@ -174,7 +174,8 @@
     "headerFooter": "رأس/تذييل",
     "manageWatermarks": "إدارة العلامات المائية",
     "manage": "إدارة",
-    "straighten": "تسوية الصفحة"
+    "straighten": "تسوية الصفحة",
+    "shiftPage": "إزاحة الصفحة"
   },
   "help": {
     "information": "معلومات",

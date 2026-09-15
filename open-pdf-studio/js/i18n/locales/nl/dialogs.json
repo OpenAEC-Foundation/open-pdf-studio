@@ -487,5 +487,18 @@
     "angleInfo": "Correctiehoek: {{angle}}°",
     "done": "{{count}} pagina('s) rechtgezet met {{angle}}°",
     "alreadyStraight": "Lijn staat al recht — geen correctie nodig."
+  },
+  "shiftPage": {
+    "title": "Pagina verschuiven",
+    "apply": "Verschuiven",
+    "reset": "Reset",
+    "horizontal": "Horizontaal (mm):",
+    "vertical": "Verticaal (mm):",
+    "allPages": "Alle pagina's",
+    "evenPages": "Even pagina's",
+    "oddPages": "Oneven pagina's",
+    "fromPage": "Vanaf pagina:",
+    "noShift": "Geen verschuiving ingevoerd — niets om toe te passen.",
+    "dragInfo": "Sleep de voorbeeldweergave om de pagina te verschuiven, of voer hieronder exacte offsets in millimeter in."
   }
 }

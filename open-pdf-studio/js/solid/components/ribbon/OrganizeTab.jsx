@@ -2,7 +2,7 @@ import RibbonGroup from './RibbonGroup.jsx';
 import AdaptiveGroups from './AdaptiveGroups.jsx';
 import RibbonButton from './RibbonButton.jsx';
 import RibbonButtonStack from './RibbonButtonStack.jsx';
-import { insertPageIcon, deletePageIcon, extractPagesIcon, mergePdfsIcon, watermarkIcon, headerFooterIcon, manageWatermarksIcon, editTextIcon, addTextIcon, cropMarginsIcon, straightenIcon, resizePagesIcon, rotateLeftIcon, rotateRightIcon } from '../../data/ribbonIcons.js';
+import { insertPageIcon, deletePageIcon, extractPagesIcon, mergePdfsIcon, watermarkIcon, headerFooterIcon, manageWatermarksIcon, editTextIcon, addTextIcon, cropMarginsIcon, straightenIcon, shiftPageIcon, resizePagesIcon, rotateLeftIcon, rotateRightIcon } from '../../data/ribbonIcons.js';
 import { state, noPdf, getActiveDocument, getPageRotation } from '../../../core/state.js';
 import { isPdfAReadOnly } from '../../../pdf/loader.js';
 import { showInsertPageDialog, showExtractPagesDialog, showMergePdfsDialog } from '../../../ui/chrome/dialogs.js';
@@ -64,6 +64,11 @@ export default function OrganizeTab() {
             disabled={ro()} onClick={async () => {
               const { startStraightenPage } = await import('../../../tools/straighten-select.js');
               startStraightenPage();
+            }} />
+          <RibbonButton id="ep-shift-page" title={t('organize.shiftPage')} icon={shiftPageIcon} label={t('organize.shiftPage')}
+            disabled={ro()} onClick={() => {
+              const doc = getActiveDocument();
+              openDialog('shift-page', { totalPages: doc?.pdfDoc?.numPages || 1, currentPage: doc?.currentPage || 1 });
             }} />
           <RibbonButton id="ep-resize-pages" title={t('home.resizePages')} icon={resizePagesIcon} label={t('home.resize')}
             disabled={ro()} onClick={() => {
