@@ -1,0 +1,199 @@
+import { createSignal, onMount, Show } from 'solid-js';
+import Dialog from '../Dialog.jsx';
+import { closeDialog, showMessage } from '../../stores/dialogStore.js';
+import { useTranslation } from '../../../i18n/useTranslation.js';
+
+const PREVIEW_MAX_WIDTH = 260;
+const MM_TO_POINTS = 72 / 25.4;
+
+export default function ShiftPageDialog(props) {
+  const { t } = useTranslation('dialogs');
+  const { t: tCommon } = useTranslation('common');
+
+  const totalPages = props.data?.totalPages || 1;
+  const currentPage = props.data?.currentPage || 1;
+
+  const [dxMm, setDxMm] = createSignal(0);
+  const [dyMm, setDyMm] = createSignal(0);
+  const [applyTo, setApplyTo] = createSignal('current');
+  const [fromPage, setFromPage] = createSignal(currentPage);
+
+  let previewBoxRef;
+  let previewImgRef;
+  let pxPerMm = 1;
+  let dragging = false;
+  let dragStartX = 0;
+  let dragStartY = 0;
+  let dragStartDx = 0;
+  let dragStartDy = 0;
+
+  const applyPreviewTransform = () => {
+    if (!previewImgRef) return;
+    previewImgRef.style.transform = `translate(${dxMm() * pxPerMm}px, ${-dyMm() * pxPerMm}px)`;
+  };
+
+  const reset = () => {
+    setDxMm(0);
+    setDyMm(0);
+    applyPreviewTransform();
+  };
+
+  onMount(async () => {
+    try {
+      const { renderPageOffscreen } = await import('../../../pdf/exporter.js');
+      const canvas = await renderPageOffscreen(currentPage, 1.5);
+      const displayScale = Math.min(1, PREVIEW_MAX_WIDTH / canvas.width);
+      const dispW = Math.round(canvas.width * displayScale);
+      const dispH = Math.round(canvas.height * displayScale);
+      if (previewBoxRef) {
+        previewBoxRef.style.width = dispW + 'px';
+        previewBoxRef.style.height = dispH + 'px';
+      }
+      if (previewImgRef) {
+        previewImgRef.src = canvas.toDataURL('image/png');
+        previewImgRef.style.width = dispW + 'px';
+        previewImgRef.style.height = dispH + 'px';
+      }
+      // dispW px represents the page's own width in points; convert to mm.
+      const pageWidthMm = (canvas.width / 1.5) / MM_TO_POINTS;
+      pxPerMm = dispW / pageWidthMm;
+      applyPreviewTransform();
+    } catch (e) {
+      console.warn('Shift page preview failed:', e?.message || e);
+    }
+  });
+
+  const onPointerDown = (e) => {
+    dragging = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    dragStartDx = dxMm();
+    dragStartDy = dyMm();
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+  };
+
+  const onPointerMove = (e) => {
+    if (!dragging) return;
+    const dxPx = e.clientX - dragStartX;
+    const dyPx = e.clientY - dragStartY;
+    setDxMm(Math.round((dragStartDx + dxPx / pxPerMm) * 10) / 10);
+    setDyMm(Math.round((dragStartDy - dyPx / pxPerMm) * 10) / 10);
+    applyPreviewTransform();
+  };
+
+  const onPointerUp = () => {
+    dragging = false;
+  };
+
+  const close = () => closeDialog('shift-page');
+
+  const handleApply = async () => {
+    const dx = dxMm();
+    const dy = dyMm();
+    const applyToVal = applyTo();
+    const fromVal = Math.max(1, Math.min(fromPage() || 1, totalPages));
+    close();
+
+    const { shiftPages } = await import('../../../pdf/shift-page.js');
+    const result = await shiftPages(dx, dy, applyToVal, fromVal);
+    if (!result.shifted) {
+      showMessage(t('shiftPage.noShift'));
+    }
+  };
+
+  const footer = (
+    <>
+      <div></div>
+      <div class="crop-margins-footer-right">
+        <button class="pref-btn pref-btn-primary" onClick={handleApply}>{t('shiftPage.apply')}</button>
+        <button class="pref-btn pref-btn-secondary" onClick={close}>{tCommon('cancel')}</button>
+      </div>
+    </>
+  );
+
+  return (
+    <Dialog
+      title={t('shiftPage.title')}
+      overlayClass="crop-margins-overlay"
+      dialogClass="crop-margins-dialog"
+      headerClass="crop-margins-header"
+      bodyClass="crop-margins-content"
+      footerClass="crop-margins-footer"
+      onClose={close}
+      footer={footer}
+    >
+      <div class="crop-margins-form">
+        <div class="crop-margins-info">{t('shiftPage.dragInfo')}</div>
+
+        <div style={{ display: 'flex', 'justify-content': 'center', padding: '8px 0' }}>
+          <div
+            ref={previewBoxRef}
+            style={{
+              position: 'relative',
+              overflow: 'hidden',
+              border: '1px solid #d4d4d4',
+              background: '#f5f5f5',
+              cursor: dragging ? 'grabbing' : 'grab',
+              'touch-action': 'none',
+              'user-select': 'none',
+            }}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerCancel={onPointerUp}
+          >
+            <img ref={previewImgRef} draggable={false} style={{ position: 'absolute', top: 0, left: 0, 'pointer-events': 'none' }} />
+          </div>
+        </div>
+
+        <div class="crop-margins-row">
+          <label class="crop-margins-label">{t('shiftPage.horizontal')}</label>
+          <input
+            type="number"
+            class="crop-margins-input"
+            value={dxMm()}
+            step="0.5"
+            onInput={(e) => { setDxMm(parseFloat(e.target.value) || 0); applyPreviewTransform(); }}
+          />
+        </div>
+        <div class="crop-margins-row">
+          <label class="crop-margins-label">{t('shiftPage.vertical')}</label>
+          <input
+            type="number"
+            class="crop-margins-input"
+            value={dyMm()}
+            step="0.5"
+            onInput={(e) => { setDyMm(parseFloat(e.target.value) || 0); applyPreviewTransform(); }}
+          />
+        </div>
+        <div style={{ display: 'flex', 'justify-content': 'flex-end' }}>
+          <button class="pref-btn" onClick={reset}>{t('shiftPage.reset')}</button>
+        </div>
+
+        <div class="crop-margins-row">
+          <label class="crop-margins-label">{t('cropMargins.applyTo')}</label>
+          <select class="crop-margins-select" value={applyTo()} onChange={(e) => setApplyTo(e.target.value)}>
+            <option value="current">{t('cropMargins.currentPage')}</option>
+            <option value="all">{t('shiftPage.allPages')}</option>
+            <option value="even">{t('shiftPage.evenPages')}</option>
+            <option value="odd">{t('shiftPage.oddPages')}</option>
+          </select>
+        </div>
+        <Show when={applyTo() !== 'current'}>
+          <div class="crop-margins-row">
+            <label class="crop-margins-label">{t('shiftPage.fromPage')}</label>
+            <input
+              type="number"
+              class="crop-margins-input"
+              value={fromPage()}
+              min="1"
+              max={totalPages}
+              step="1"
+              onInput={(e) => setFromPage(parseInt(e.target.value) || 1)}
+            />
+          </div>
+        </Show>
+      </div>
+    </Dialog>
+  );
+}

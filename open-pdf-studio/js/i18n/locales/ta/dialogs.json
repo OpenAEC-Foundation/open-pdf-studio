@@ -330,5 +330,18 @@
     "angleInfo": "திருத்த கோணம்: {{angle}}°",
     "done": "{{count}} பக்கங்கள் {{angle}}° நேராக்கப்பட்டன",
     "alreadyStraight": "கோடு ஏற்கனவே நேராக உள்ளது — திருத்தம் தேவையில்லை."
+  },
+  "shiftPage": {
+    "title": "Shift Page",
+    "apply": "Shift",
+    "reset": "Reset",
+    "horizontal": "Horizontal (mm):",
+    "vertical": "Vertical (mm):",
+    "allPages": "All pages",
+    "evenPages": "Even pages",
+    "oddPages": "Odd pages",
+    "fromPage": "From page:",
+    "noShift": "No shift entered — nothing to apply.",
+    "dragInfo": "Drag the preview to shift the page, or enter exact millimeter offsets below."
   }
 }

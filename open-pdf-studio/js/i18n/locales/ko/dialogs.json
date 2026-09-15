@@ -330,5 +330,18 @@
     "angleInfo": "보정 각도: {{angle}}°",
     "done": "{{count}}개 페이지를 {{angle}}° 보정했습니다",
     "alreadyStraight": "선이 이미 똑바릅니다 — 보정이 필요하지 않습니다."
+  },
+  "shiftPage": {
+    "title": "Shift Page",
+    "apply": "Shift",
+    "reset": "Reset",
+    "horizontal": "Horizontal (mm):",
+    "vertical": "Vertical (mm):",
+    "allPages": "All pages",
+    "evenPages": "Even pages",
+    "oddPages": "Odd pages",
+    "fromPage": "From page:",
+    "noShift": "No shift entered — nothing to apply.",
+    "dragInfo": "Drag the preview to shift the page, or enter exact millimeter offsets below."
   }
 }

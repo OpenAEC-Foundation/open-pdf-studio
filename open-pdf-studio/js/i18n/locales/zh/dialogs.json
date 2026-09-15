@@ -330,5 +330,18 @@
     "angleInfo": "校正角度：{{angle}}°",
     "done": "已拉直 {{count}} 頁，角度 {{angle}}°",
     "alreadyStraight": "線條已經是直的，無需校正。"
+  },
+  "shiftPage": {
+    "title": "Shift Page",
+    "apply": "Shift",
+    "reset": "Reset",
+    "horizontal": "Horizontal (mm):",
+    "vertical": "Vertical (mm):",
+    "allPages": "All pages",
+    "evenPages": "Even pages",
+    "oddPages": "Odd pages",
+    "fromPage": "From page:",
+    "noShift": "No shift entered — nothing to apply.",
+    "dragInfo": "Drag the preview to shift the page, or enter exact millimeter offsets below."
   }
 }

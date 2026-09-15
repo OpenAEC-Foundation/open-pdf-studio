@@ -174,7 +174,8 @@
     "headerFooter": "Encabezado/Pie",
     "manageWatermarks": "Administrar marcas de agua",
     "manage": "Administrar",
-    "straighten": "Enderezar Página"
+    "straighten": "Enderezar Página",
+    "shiftPage": "Desplazar página"
   },
   "help": {
     "information": "Información",

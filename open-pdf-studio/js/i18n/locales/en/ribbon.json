@@ -269,7 +269,8 @@
     "compressLabel": "Compress",
     "reorderPages": "Reorder",
     "reorderPagesTitle": "Open thumbnails to drag pages into a new order",
-    "straighten": "Straighten Page"
+    "straighten": "Straighten Page",
+    "shiftPage": "Shift Page"
   },
   "help": {
     "settings": "Settings",

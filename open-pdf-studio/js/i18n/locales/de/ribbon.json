@@ -174,7 +174,8 @@
     "headerFooter": "Kopf-/Fußzeile",
     "manageWatermarks": "Wasserzeichen verwalten",
     "manage": "Verwalten",
-    "straighten": "Seite Begradigen"
+    "straighten": "Seite Begradigen",
+    "shiftPage": "Seite verschieben"
   },
   "help": {
     "information": "Informationen",

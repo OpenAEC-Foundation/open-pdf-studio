@@ -174,7 +174,8 @@
     "headerFooter": "Κεφαλίδα/Υποσέλιδο",
     "manageWatermarks": "Διαχείριση υδατογραφημάτων",
     "manage": "Διαχείριση",
-    "straighten": "Ισιώστε τη Σελίδα"
+    "straighten": "Ισιώστε τη Σελίδα",
+    "shiftPage": "Μετατόπιση σελίδας"
   },
   "help": {
     "information": "Πληροφορίες",

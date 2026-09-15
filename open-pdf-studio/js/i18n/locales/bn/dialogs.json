@@ -330,5 +330,18 @@
     "angleInfo": "সংশোধন কোণ: {{angle}}°",
     "done": "{{count}}টি পৃষ্ঠা {{angle}}° সোজা করা হয়েছে",
     "alreadyStraight": "রেখাটি ইতিমধ্যে সোজা — কোনো সংশোধনের প্রয়োজন নেই।"
+  },
+  "shiftPage": {
+    "title": "Shift Page",
+    "apply": "Shift",
+    "reset": "Reset",
+    "horizontal": "Horizontal (mm):",
+    "vertical": "Vertical (mm):",
+    "allPages": "All pages",
+    "evenPages": "Even pages",
+    "oddPages": "Odd pages",
+    "fromPage": "From page:",
+    "noShift": "No shift entered — nothing to apply.",
+    "dragInfo": "Drag the preview to shift the page, or enter exact millimeter offsets below."
   }
 }

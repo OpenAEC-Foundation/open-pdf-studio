@@ -174,7 +174,8 @@
     "headerFooter": "ヘッダー/フッター",
     "manageWatermarks": "透かしを管理",
     "manage": "管理",
-    "straighten": "ページを補正"
+    "straighten": "ページを補正",
+    "shiftPage": "ページをシフト"
   },
   "help": {
     "information": "情報",

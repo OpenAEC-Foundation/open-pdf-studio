@@ -174,7 +174,8 @@
     "headerFooter": "머리글/바닥글",
     "manageWatermarks": "워터마크 관리",
     "manage": "관리",
-    "straighten": "페이지 똑바로 하기"
+    "straighten": "페이지 똑바로 하기",
+    "shiftPage": "페이지 이동"
   },
   "help": {
     "information": "정보",
