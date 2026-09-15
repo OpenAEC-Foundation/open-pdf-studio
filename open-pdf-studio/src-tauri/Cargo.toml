@@ -67,9 +67,14 @@ axum = "0.8"
 lopdf = "0.34"
 
 # OCR proof-of-concept (Traditional Chinese + English) — see js/... OCR plan.
-# build-tesseract: compiles Tesseract + Leptonica from source instead of
-# requiring them preinstalled on the build machine.
-tesseract-rs = { version = "0.1", features = ["build-tesseract"] }
+# use-system-tesseract: link against Tesseract/Leptonica already installed on
+# the build machine (pkg-config) instead of compiling them from source. 0.1's
+# build-tesseract pulled in reqwest (default features -> native-tls ->
+# openssl-sys) purely to download the source archives at build time, and its
+# from-source build cached compiled libs in a single non-target-specific
+# directory that went stale across a universal macOS build's two
+# architectures. 0.4 added use-system-tesseract specifically to avoid both.
+tesseract-rs = { version = "0.4", default-features = false, features = ["use-system-tesseract"] }
 
 [target.'cfg(not(target_os = "android"))'.dependencies]
 tauri-plugin-updater = "2"
