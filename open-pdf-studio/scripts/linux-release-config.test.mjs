@@ -100,3 +100,15 @@ test('CI starts the AppImage on Fedora 44', async () => {
   assert.match(workflow, /xorg-x11-server-Xvfb/);
   assert.match(workflow, /mesa-libEGL/);
 });
+
+test('every AppImage build pins the same checksum-verified linuxdeploy (#362)', async () => {
+  const url = 'https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20251107-1/linuxdeploy-x86_64.AppImage';
+  const sha = 'c20cd71e3a4e3b80c3483cef793cda3f4e990aca14014d23c544ca3ce1270b4d';
+  for (const name of ['ci.yml', 'release.yml', 'nightly.yml']) {
+    const workflow = await readFile(new URL(`.github/workflows/${name}`, repoRoot), 'utf8');
+    assert.ok(workflow.includes('Provide pinned linuxdeploy (Linux)'), `${name} provides linuxdeploy`);
+    assert.ok(workflow.includes(url), `${name} downloads the pinned release`);
+    assert.ok(workflow.includes(sha), `${name} verifies the checksum`);
+  }
+});
+
