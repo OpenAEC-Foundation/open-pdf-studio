@@ -1,3 +1,4 @@
+use crate::shm;
 use anyhow::{anyhow, Context, Result};
 use pdfium_render::prelude::*;
 use std::sync::OnceLock;
@@ -182,6 +183,15 @@ impl Renderer {
             let target_w = (w_pt * scale).ceil() as i32;
             let target_h = (h_pt * scale).ceil() as i32;
 
+            // Past de bitmap niet in de SHM-regio, dan meteen een nette fout i.p.v.
+            // eerst volledig rasteren en de uitkomst weggooien. De uitvoer van
+            // set_target_width + set_maximum_height is in elke rotatie
+            // <= target_w x target_h, dus dit is een strakke bovengrens.
+            if let Err(e) = shm::ensure_bitmap_fits(target_w, target_h) {
+                self.release_page_if_cheap(idx);
+                return Err(e);
+            }
+
             let rot = match rotation.rem_euclid(360) {
                 0 => PdfPageRenderRotation::None,
                 90 => PdfPageRenderRotation::Degrees90,
@@ -239,15 +249,17 @@ impl Renderer {
         if region_w_pt <= 0.0 || region_h_pt <= 0.0 {
             return Err(anyhow!("render_region: region must be positive"));
         }
+        // Bitmap-afmetingen hangen alleen van regio + schaal af: valideer ze
+        // (incl. de SHM-grens) voordat het document/de pagina geladen wordt.
+        let bitmap_w = (region_w_pt * scale).ceil() as i32;
+        let bitmap_h = (region_h_pt * scale).ceil() as i32;
+        if bitmap_w <= 0 || bitmap_h <= 0 {
+            return Err(anyhow!("render_region: invalid bitmap {}x{}", bitmap_w, bitmap_h));
+        }
+        shm::ensure_bitmap_fits(bitmap_w, bitmap_h)?;
         let idx = self.get_or_load(path)?;
         let result = {
             let page = self.get_or_load_page(idx, page_index)?;
-
-            let bitmap_w = (region_w_pt * scale).ceil() as i32;
-            let bitmap_h = (region_h_pt * scale).ceil() as i32;
-            if bitmap_w <= 0 || bitmap_h <= 0 {
-                return Err(anyhow!("render_region: invalid bitmap {}x{}", bitmap_w, bitmap_h));
-            }
 
             // De matrix van FPDF_RenderPageBitmapWithMatrix werkt in WEERGAVE-ruimte
             // (ná de intrinsieke /Rotate van de pagina), y-omlaag vanaf linksboven —
