@@ -57,8 +57,8 @@ jobs:
       # use-system-tesseract, non-Windows only) via pkg-config instead of
       # compiling them from source. Native (arm64) covers the
       # aarch64-apple-darwin half of the universal build; x86_64 needs a
-      # second, Rosetta-mode Homebrew prefix at /usr/local (GitHub's Apple
-      # Silicon runners ship one) so pkg-config can find x86_64 .pc files for
+      # second, Rosetta-mode Homebrew prefix at /usr/local, bootstrapped here
+      # if not already present, so pkg-config can find x86_64 .pc files for
       # the x86_64-apple-darwin half. PKG_CONFIG_PATH_x86_64_apple_darwin is
       # the pkg-config crate's target-triple-scoped override, consulted only
       # for the cross (non-host-arch) half of the universal build.
@@ -66,6 +66,9 @@ jobs:
         if: matrix.platform == 'macos-26'
         run: |
           brew install tesseract leptonica
+          if ! arch -x86_64 /usr/local/bin/brew --version >/dev/null 2>&1; then
+            NONINTERACTIVE=1 arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" </dev/null
+          fi
           arch -x86_64 /usr/local/bin/brew install tesseract leptonica
           echo "PKG_CONFIG_PATH_x86_64_apple_darwin=/usr/local/lib/pkgconfig" >> "$GITHUB_ENV"
           echo "PKG_CONFIG_ALLOW_CROSS=1" >> "$GITHUB_ENV"

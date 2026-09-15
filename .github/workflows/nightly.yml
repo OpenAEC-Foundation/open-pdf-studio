@@ -149,6 +149,9 @@ jobs:
         if: matrix.target == 'macos'
         run: |
           brew install tesseract leptonica
+          if ! arch -x86_64 /usr/local/bin/brew --version >/dev/null 2>&1; then
+            NONINTERACTIVE=1 arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" </dev/null
+          fi
           arch -x86_64 /usr/local/bin/brew install tesseract leptonica
           echo "PKG_CONFIG_PATH_x86_64_apple_darwin=/usr/local/lib/pkgconfig" >> "$GITHUB_ENV"
           echo "PKG_CONFIG_ALLOW_CROSS=1" >> "$GITHUB_ENV"
