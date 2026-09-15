@@ -213,6 +213,18 @@ export function invalidatePageBitmaps(filePath, pageNum) {
   }
 }
 
+/// Alle bitmaps van één document weg (tabblad gesloten).
+export function invalidateDocumentBitmaps(filePath) {
+  const prefix = `${filePath}:`;
+  for (const k of Array.from(_cache.keys())) {
+    if (k.startsWith(prefix)) {
+      const e = _cache.get(k);
+      try { e.bitmap.close && e.bitmap.close(); } catch {}
+      _cache.delete(k);
+    }
+  }
+}
+
 export function clearAllBitmaps() {
   for (const e of _cache.values()) {
     try { e.bitmap.close && e.bitmap.close(); } catch {}

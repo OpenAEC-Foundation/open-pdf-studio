@@ -225,6 +225,14 @@ export async function pageContentBytes(filePath, pageNum) {
   return bytes;
 }
 
+/** Content-groottes van één document weg (tabblad gesloten). */
+export function forgetContentBytes(filePath) {
+  const prefix = `${filePath}:`;
+  for (const k of Array.from(_contentBytesCache.keys())) {
+    if (k.startsWith(prefix)) _contentBytesCache.delete(k);
+  }
+}
+
 /**
  * Is deze pagina "zwaar" genoeg voor het progressieve pad? Vraagt de
  * gecomprimeerde content-stream-lengte op via het Tauri-command

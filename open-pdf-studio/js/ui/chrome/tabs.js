@@ -256,6 +256,15 @@ export async function closeTab(index, force = false, dialogAction = null) {
   // Remove the document
   state.documents.splice(index, 1);
 
+  // Geef vrij wat dit document in het geheugen vasthield: de PDF.js-instantie,
+  // de ruwe bestandsbytes, vector-commandobuffers, bitmaps en de documentcaches
+  // aan de Rust-kant — alleen als geen ander tabblad hetzelfde bestand nog
+  // gebruikt (document-release.js). Zonder dit bleef na het sluiten van zware
+  // tekeningen gigabytes aan heap staan tot de app afsloot.
+  import('../../pdf/document-release.js')
+    .then(({ geefDocumentVrij }) => geefDocumentVrij(doc, state.documents))
+    .catch((e) => console.warn('[tabs] vrijgeven van document mislukt:', e));
+
   // Een gesloten document gebruikt zijn knipsel-bronnen niet meer; wat nergens
   // anders nodig is, gaat uit het geheugen. Bewust HIER en niet na opslaan: de
   // undo-geschiedenis houdt verwijderde knipsels vast, en een Ctrl+Z na het

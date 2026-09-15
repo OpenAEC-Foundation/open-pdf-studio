@@ -42,9 +42,25 @@ export function clearVectorCache() {
 /// Drop ALL cached entries for a specific (filePath, pageNum), regardless
 /// of rotation. Use this when the page content changes (e.g. after save).
 export function invalidatePageCache(filePath, pageNum) {
-  const prefix = filePath + ':' + pageNum + ':';
-  for (const k of _cache.keys()) {
+  _dropByPrefix(filePath + ':' + pageNum + ':');
+}
+
+/// Alles van één document weg (tabblad gesloten): de commandobuffers én de
+/// gedecodeerde afbeeldingen van al zijn pagina's. Bij openen worden alle
+/// pagina's voorverwarmd, dus zonder dit bleef per zware tekening honderden
+/// MB staan tot de app afsloot.
+export function invalidateDocumentCache(filePath) {
+  _dropByPrefix(filePath + ':');
+}
+
+function _dropByPrefix(prefix) {
+  for (const k of Array.from(_cache.keys())) {
     if (k.startsWith(prefix)) _cache.delete(k);
+  }
+  for (const k of Array.from(_imageCache.keys())) {
+    if (!k.startsWith(prefix)) continue;
+    try { _imageCache.get(k)?.close?.(); } catch {}
+    _imageCache.delete(k);
   }
 }
 
@@ -81,8 +97,15 @@ function _rgbaToCSS(rgba) {
 const LINE_CAP = ['butt', 'round', 'square'];
 const LINE_JOIN = ['miter', 'round', 'bevel'];
 
-// Image cache: key = byte offset in command buffer → ImageBitmap
+// Image cache: key = "<filePath>:<pageNum>:<rotation>:<byte offset>" → ImageBitmap.
+// Het pad/de pagina zit in de sleutel: alleen de byte-offset botste tussen
+// pagina's en documenten (verkeerde afbeelding) en was per document niet op
+// te ruimen.
 const _imageCache = new Map();
+
+function _imageKey(filePath, pageNum, rotation, imgPos) {
+  return _key(filePath, pageNum, rotation) + ':' + imgPos;
+}
 let _imagePreparing = false;
 
 /// Pre-decode all images in the command buffer before rendering.
@@ -138,9 +161,10 @@ export async function prepareImages(filePath, pageNum, rotation) {
         const imgStart = pos;
         pos += dataLen;
 
-        if (!_imageCache.has(imgPos)) {
+        const imgKey = _imageKey(filePath, pageNum, rotation, imgPos);
+        if (!_imageCache.has(imgKey)) {
           const imgBytes = bytes.slice(imgStart, imgStart + dataLen);
-          promises.push(_decodeImage(imgPos, w, h, imgBytes));
+          promises.push(_decodeImage(imgKey, w, h, imgBytes));
         }
         break;
       }
@@ -350,7 +374,7 @@ export function renderVectorPage(ctx, filePath, pageNum, transform, rotation) {
         const dataLen = dv.getUint32(pos, true); pos += 4;
         pos += dataLen; // skip image data (already decoded in cache)
 
-        const bitmap = _imageCache.get(imgPos);
+        const bitmap = _imageCache.get(_imageKey(filePath, pageNum, rotation, imgPos));
         if (bitmap) {
           // High-quality bilinear/bicubic interpolation for embedded raster images
           const prevSmoothing = ctx.imageSmoothingEnabled;

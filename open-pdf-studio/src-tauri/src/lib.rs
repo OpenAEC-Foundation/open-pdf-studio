@@ -2278,6 +2278,43 @@ fn invalidate_pdf_cache(
     Ok(true)
 }
 
+/// Alles loslaten wat het proces voor een gesloten document vasthoudt: ruwe
+/// bytes, geparsede handles (lopdf én PDFium), thumbnails, paginatypen en
+/// pixmaps. Alleen aanroepen als geen ander open tabblad hetzelfde pad
+/// gebruikt — de JS-kant beslist dat (document-release.js). Lopende renders
+/// houden hun eigen Arc vast en merken hier niets van.
+#[tauri::command]
+fn release_pdf_document(
+    path: String,
+    bytes_cache: tauri::State<PdfBytesCache>,
+    handle_cache: tauri::State<DocHandleCache>,
+    thumb_cache: tauri::State<ThumbnailCache>,
+    page_type_cache: tauri::State<PageTypeCache>,
+    pdfium_cache: tauri::State<pdfium_renderer::PdfiumDocCache>,
+    pixmap_cache: tauri::State<pdfium_renderer::PixmapCacheState>,
+) -> Result<bool, String> {
+    bytes_cache.0.lock().map_err(|e| format!("Bytes cache lock: {}", e))?.remove(&path);
+    handle_cache.0.lock().map_err(|e| format!("Handle cache lock: {}", e))?.remove(&path);
+    if let Ok(mut tc) = thumb_cache.0.lock() {
+        tc.retain(|(p, _, _, _), _| p != &path);
+    }
+    if let Ok(mut pc) = page_type_cache.0.lock() {
+        pc.retain(|(p, _), _| p != &path);
+    }
+    let had_doc = pdfium_cache
+        .0
+        .lock()
+        .map_err(|e| format!("Pdfium doc cache lock: {}", e))?
+        .remove(&path)
+        .is_some();
+    if let Ok(mut guard) = pixmap_cache.0.lock() {
+        if let Some(cache) = guard.as_mut() {
+            cache.remove_path(&path);
+        }
+    }
+    Ok(had_doc)
+}
+
 /// Clear the entire PDF bytes cache AND parsed handle cache (call on app
 /// cleanup or memory pressure).
 #[tauri::command]
@@ -2739,6 +2776,7 @@ pub fn run(opts: StartupOpts) {
             page_content_size,
             get_page_dimensions,
             invalidate_pdf_cache,
+            release_pdf_document,
             clear_pdf_cache,
             analyze_page_type,
             analyze_page_type_batch,

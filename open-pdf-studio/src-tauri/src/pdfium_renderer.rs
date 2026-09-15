@@ -317,6 +317,12 @@ impl PixmapCache {
         self.order.clear();
     }
 
+    /// Alle pixmaps van één document weg (document gesloten).
+    pub fn remove_path(&mut self, path: &str) {
+        self.map.retain(|k, _| k.0 != path);
+        self.order.retain(|k| k.0 != path);
+    }
+
     pub fn stats(&self) -> (usize, usize) {
         let bytes: usize = self.map.values().map(|v| v.rgba.len()).sum();
         (self.map.len(), bytes)
