@@ -139,7 +139,19 @@ jobs:
         if: matrix.target == 'linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libtesseract-dev libleptonica-dev pkg-config
+
+      # OCR links against system Tesseract/Leptonica (src-tauri/Cargo.toml's
+      # use-system-tesseract, non-Windows only) via pkg-config instead of
+      # compiling them from source — see release.yml's identical step for the
+      # full rationale.
+      - name: Install Tesseract/Leptonica (macOS only)
+        if: matrix.target == 'macos'
+        run: |
+          brew install tesseract leptonica
+          arch -x86_64 /usr/local/bin/brew install tesseract leptonica
+          echo "PKG_CONFIG_PATH_x86_64_apple_darwin=/usr/local/lib/pkgconfig" >> "$GITHUB_ENV"
+          echo "PKG_CONFIG_ALLOW_CROSS=1" >> "$GITHUB_ENV"
 
       - name: Install frontend dependencies
         run: npm ci

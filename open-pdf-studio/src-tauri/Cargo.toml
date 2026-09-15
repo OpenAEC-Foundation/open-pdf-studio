@@ -67,14 +67,26 @@ axum = "0.8"
 lopdf = "0.34"
 
 # OCR proof-of-concept (Traditional Chinese + English) — see js/... OCR plan.
-# use-system-tesseract: link against Tesseract/Leptonica already installed on
-# the build machine (pkg-config) instead of compiling them from source. 0.1's
-# build-tesseract pulled in reqwest (default features -> native-tls ->
-# openssl-sys) purely to download the source archives at build time, and its
-# from-source build cached compiled libs in a single non-target-specific
-# directory that went stale across a universal macOS build's two
-# architectures. 0.4 added use-system-tesseract specifically to avoid both.
+#
+# use-system-tesseract (Linux/macOS): link against Tesseract/Leptonica
+# already installed on the build machine (pkg-config) instead of compiling
+# them from source. build-tesseract pulled in reqwest (default features ->
+# native-tls -> openssl-sys) purely to download the source archives at build
+# time, and its from-source build cached compiled libs in a single
+# non-target-specific directory that went stale across a universal macOS
+# build's two architectures — neither applies once we link a system install.
+# CI installs the dev packages (apt/brew); local dev needs them too.
+#
+# build-tesseract (Windows): kept as-is — that CI leg already builds cleanly
+# from source, and there's no equivalent "system-installed Tesseract" story
+# on Windows without adding a vcpkg dependency, so switching it over isn't
+# worth the risk without being able to verify it (no Windows machine to test
+# on here).
+[target.'cfg(not(windows))'.dependencies]
 tesseract-rs = { version = "0.4", default-features = false, features = ["use-system-tesseract"] }
+
+[target.'cfg(windows)'.dependencies]
+tesseract-rs = { version = "0.4", default-features = false, features = ["build-tesseract"] }
 
 [target.'cfg(not(target_os = "android"))'.dependencies]
 tauri-plugin-updater = "2"
