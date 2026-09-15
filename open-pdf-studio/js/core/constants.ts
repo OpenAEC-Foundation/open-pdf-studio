@@ -323,5 +323,8 @@ export const DEFAULT_PREFERENCES: Preferences = {
   language: 'auto',
 
   // What's New dialog — last release version the user has acknowledged
-  lastSeenReleaseVersion: ''
+  lastSeenReleaseVersion: '',
+
+  // Print dialog — settings of the last print action (null = dialog defaults)
+  printSettings: null
 };

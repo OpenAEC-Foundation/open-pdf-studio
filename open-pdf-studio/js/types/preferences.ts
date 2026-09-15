@@ -265,4 +265,23 @@ export interface Preferences {
 
   // What's New dialog — last release version the user has acknowledged
   lastSeenReleaseVersion: string;
+
+  // Print dialog — settings of the last print action (null = dialog defaults)
+  printSettings: PrintSettings | null;
+}
+
+export interface PrintSettings {
+  printer: string;
+  copies: number;
+  collate: boolean;
+  range: 'all' | 'current' | 'custom';
+  customPages: string;
+  subset: 'all' | 'odd' | 'even';
+  reverseOrder: boolean;
+  scaling: 'fit' | 'actual' | 'shrink' | 'custom-scale';
+  zoom: number;
+  autoRotate: boolean;
+  autoCenter: boolean;
+  content: 'doc-and-markups' | 'doc-only';
+  asImage: boolean;
 }

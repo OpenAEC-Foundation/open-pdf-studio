@@ -7,27 +7,35 @@ import { parsePageRange, renderPageOffscreen } from '../../../pdf/exporter.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { loadPrinters, printerList as cachedPrinters, defaultPrinterName, printerErrorMessage } from '../../stores/printerStore.js';
 import { runPrintJob } from '../../../pdf/print-job.js';
+import { savePreferences } from '../../../core/preferences.js';
+import { herstelPrintInstellingen, kiesStartPrinter } from '../../stores/print-instellingen.js';
 
 export default function PrintDialog(props) {
   const { t } = useTranslation('dialogs');
   const { t: tCommon } = useTranslation('common');
 
+  // Settings of the last print action; every field is validated and falls
+  // back to the dialog default (see stores/print-instellingen.js).
+  const bewaard = herstelPrintInstellingen(state.preferences?.printSettings);
+  // Once the user picks a printer, the background refresh must not override it.
+  let gebruikerKoosPrinter = false;
+
   const [printerList, setPrinterList] = createSignal([]);
   const [selectedPrinter, setSelectedPrinter] = createSignal('');
   const [printerStatus, setPrinterStatus] = createSignal(`${t('print.status')} `);
   const [printerType, setPrinterType] = createSignal(`${t('print.type')} `);
-  const [copies, setCopies] = createSignal(1);
-  const [collate, setCollate] = createSignal(false);
-  const [activeRange, setActiveRange] = createSignal('all');
-  const [customPages, setCustomPages] = createSignal('');
-  const [activeSubset, setActiveSubset] = createSignal('all');
-  const [reverseOrder, setReverseOrder] = createSignal(false);
-  const [scaling, setScaling] = createSignal('fit');
-  const [zoom, setZoom] = createSignal(100);
-  const [autoRotate, setAutoRotate] = createSignal(true);
-  const [autoCenter, setAutoCenter] = createSignal(true);
-  const [printContent, setPrintContent] = createSignal('doc-and-markups');
-  const [printAsImage, setPrintAsImage] = createSignal(false);
+  const [copies, setCopies] = createSignal(bewaard.copies);
+  const [collate, setCollate] = createSignal(bewaard.collate);
+  const [activeRange, setActiveRange] = createSignal(bewaard.range);
+  const [customPages, setCustomPages] = createSignal(bewaard.customPages);
+  const [activeSubset, setActiveSubset] = createSignal(bewaard.subset);
+  const [reverseOrder, setReverseOrder] = createSignal(bewaard.reverseOrder);
+  const [scaling, setScaling] = createSignal(bewaard.scaling);
+  const [zoom, setZoom] = createSignal(bewaard.zoom);
+  const [autoRotate, setAutoRotate] = createSignal(bewaard.autoRotate);
+  const [autoCenter, setAutoCenter] = createSignal(bewaard.autoCenter);
+  const [printContent, setPrintContent] = createSignal(bewaard.content);
+  const [printAsImage, setPrintAsImage] = createSignal(bewaard.asImage);
   const [statusMessage, setStatusMessage] = createSignal('');
   const [statusType, setStatusType] = createSignal('');
   const [printDisabled, setPrintDisabled] = createSignal(false);
@@ -228,6 +236,23 @@ export default function PrintDialog(props) {
     // working meanwhile.
     const printer = selectedPrinter();
     const numCopies = Math.max(1, copies());
+    // Remember every choice for the next print action.
+    state.preferences.printSettings = {
+      printer,
+      copies: numCopies,
+      collate: collate(),
+      range: activeRange(),
+      customPages: customPages(),
+      subset: activeSubset(),
+      reverseOrder: reverseOrder(),
+      scaling: scaling(),
+      zoom: zoom(),
+      autoRotate: autoRotate(),
+      autoCenter: autoCenter(),
+      content: printContent(),
+      asImage: printAsImage(),
+    };
+    savePreferences();
     close();
     runPrintJob({ pages, copies: numCopies, printer });
   }
@@ -238,7 +263,7 @@ export default function PrintDialog(props) {
     const cached = cachedPrinters();
     if (cached.length) {
       setPrinterList(cached);
-      const name = defaultPrinterName() || cached[0]?.Name || '';
+      const name = kiesStartPrinter(cached, bewaard.printer, defaultPrinterName());
       setSelectedPrinter(name);
       updatePrinterInfo(name);
     }
@@ -246,8 +271,10 @@ export default function PrintDialog(props) {
     const fresh = await loadPrinters(true);
     if (fresh.length) {
       setPrinterList(fresh);
-      if (!selectedPrinter()) {
-        const name = defaultPrinterName() || fresh[0]?.Name || '';
+      // The last used printer may only show up in the fresh list (first open
+      // before the startup enumeration finished).
+      if (!gebruikerKoosPrinter) {
+        const name = kiesStartPrinter(fresh, bewaard.printer, defaultPrinterName());
         setSelectedPrinter(name);
         updatePrinterInfo(name);
       }
@@ -308,6 +335,7 @@ export default function PrintDialog(props) {
                   class="print-select"
                   value={selectedPrinter()}
                   onChange={(e) => {
+                    gebruikerKoosPrinter = true;
                     setSelectedPrinter(e.target.value);
                     updatePrinterInfo(e.target.value);
                   }}
