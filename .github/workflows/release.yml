@@ -140,12 +140,11 @@ jobs:
           New-Item -ItemType Directory -Force open-pdf-studio/src-tauri/binaries | Out-Null
           Copy-Item target/release/pdfium-worker.exe open-pdf-studio/src-tauri/binaries/pdfium-worker-x86_64-pc-windows-msvc.exe -Force
 
-      # Sign the pdfium-worker sidecar BEFORE Tauri bundles it into the installer.
-      # The installer-signing step below only signs the installer + main exe; the
-      # sidecar is extracted to disk UNSIGNED, which some AV engines flag as a
-      # heuristic false-positive and quarantine (Symantec Heur.AdvML.B, #245).
-      # Signing it here means the extracted worker.exe carries a trusted signature.
-      - name: Authenticode sign pdfium-worker sidecar (Windows)
+      # Installs signtool and the Azure Trusted Signing dlib on the runner (and
+      # signs the freshly built sidecar). The build below re-copies the sidecar,
+      # so the signatures that end up in the installer come from Tauri's
+      # signCommand, configured in the next step.
+      - name: Install Azure signing tools (Windows)
         if: contains(matrix.target, 'windows')
         uses: azure/trusted-signing-action@v1
         with:
@@ -162,6 +161,40 @@ jobs:
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
+
+      # Tauri signs every Windows binary itself once bundle.windows.signCommand
+      # is set: sidecars, the main binary AFTER the bundler has patched the
+      # bundle type into it (signing earlier leaves a HashMismatch), NSIS
+      # resource DLLs, uninstall.exe and the installer. This CI-only config
+      # points signCommand at the signtool + dlib installed above.
+      - name: Configure Tauri sign command (Windows)
+        if: contains(matrix.target, 'windows')
+        shell: pwsh
+        env:
+          AZURE_ENDPOINT: ${{ secrets.AZURE_ENDPOINT }}
+          AZURE_ACCOUNT: ${{ secrets.AZURE_TRUSTED_SIGNING_ACCOUNT_NAME }}
+          AZURE_PROFILE: ${{ secrets.AZURE_CERTIFICATE_PROFILE_NAME }}
+        run: |
+          $root = Join-Path $env:LOCALAPPDATA 'TrustedSigning'
+          $signtool = Get-ChildItem $root -Recurse -Filter signtool.exe -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -match '[\\/]x64[\\/]' } | Select-Object -First 1
+          $dlib = Get-ChildItem $root -Recurse -Filter Azure.CodeSigning.Dlib.dll -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -match '[\\/]x64[\\/]' } | Select-Object -First 1
+          if (-not $signtool -or -not $dlib) { Write-Error "signtool or Trusted Signing dlib not found under $root"; exit 1 }
+          $metadata = Join-Path $env:RUNNER_TEMP 'trusted-signing-metadata.json'
+          @{
+            Endpoint = $env:AZURE_ENDPOINT
+            CodeSigningAccountName = $env:AZURE_ACCOUNT
+            CertificateProfileName = $env:AZURE_PROFILE
+          } | ConvertTo-Json | Set-Content -Path $metadata -Encoding utf8
+          $conf = @{ bundle = @{ windows = @{ signCommand = @{
+            cmd = $signtool.FullName
+            args = @('sign', '/v', '/fd', 'SHA256', '/tr', 'http://timestamp.acs.microsoft.com', '/td', 'SHA256',
+                     '/dlib', $dlib.FullName, '/dmdf', $metadata, '%1')
+          } } } }
+          $conf | ConvertTo-Json -Depth 10 | Set-Content -Path src-tauri/tauri.signing.conf.json -Encoding utf8
+          Write-Output "signtool: $($signtool.FullName)"
+          Write-Output "dlib:     $($dlib.FullName)"
 
       - name: Build pdfium-worker sidecar (Linux)
         if: matrix.target == 'linux'
@@ -286,13 +319,16 @@ jobs:
           chmod +x "$tools/linuxdeploy-x86_64.AppImage"
 
       - name: Build Tauri app (with release upload)
-        if: matrix.target != 'windows-user' && matrix.target != 'macos'
+        if: matrix.target == 'linux' || matrix.target == 'windows-system'
         uses: tauri-apps/tauri-action@action-v0.6.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         with:
           projectPath: open-pdf-studio
-          args: ${{ matrix.args }}
+          args: ${{ matrix.target == 'windows-system' && '--config src-tauri/tauri.signing.conf.json' || matrix.args }}
           releaseId: ${{ needs.create-release.outputs.release_id }}
           includeUpdaterJson: true
 
@@ -356,95 +392,58 @@ jobs:
         uses: tauri-apps/tauri-action@action-v0.6.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         with:
           projectPath: open-pdf-studio
-          args: ${{ matrix.args }}
+          args: --config src-tauri/tauri.signing.conf.json
 
-      - name: Authenticode sign Windows installer
+      # Proof on what users actually get: install the signed installer silently
+      # on the runner and check the signatures of the installed binaries,
+      # including uninstall.exe. A silent install skips the hook pages, so no
+      # printer, file association or shortcut is set up.
+      - name: Verify installed binaries are signed (Windows)
         if: contains(matrix.target, 'windows')
-        uses: azure/trusted-signing-action@v1
-        with:
-          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-          endpoint: ${{ secrets.AZURE_ENDPOINT }}
-          signing-account-name: ${{ secrets.AZURE_TRUSTED_SIGNING_ACCOUNT_NAME }}
-          certificate-profile-name: ${{ secrets.AZURE_CERTIFICATE_PROFILE_NAME }}
-          cache-dependencies: false
-          # Workspace target dir lives at the repo root (src-tauri is a member)
-          files-folder: ${{ github.workspace }}/target/release/bundle/nsis
-          files-folder-filter: exe
-          files-folder-depth: 1
-          file-digest: SHA256
-          timestamp-rfc3161: http://timestamp.acs.microsoft.com
-          timestamp-digest: SHA256
-
-      - name: Re-sign updater artifacts after Authenticode signing
-        if: matrix.target == 'windows-system'
         shell: pwsh
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $VERSION = "${{ needs.create-release.outputs.version }}"
-          # Workspace target dir lives at the repo root (src-tauri is a member)
-          $NSIS_DIR = "$env:GITHUB_WORKSPACE/target/release/bundle/nsis"
+          $nsis = "$env:GITHUB_WORKSPACE/target/release/bundle/nsis"
+          $setup = Get-ChildItem "$nsis/*-setup.exe" | Select-Object -First 1
+          $installerSig = Get-AuthenticodeSignature $setup.FullName
+          Write-Output ("installer {0}: {1}" -f $setup.Name, $installerSig.Status)
+          if ($installerSig.Status -ne 'Valid') { Write-Error 'Installer is not signed'; exit 1 }
 
-          $EXE = Get-ChildItem "$NSIS_DIR/*-setup.exe" | Select-Object -First 1
-          $ZIP = Get-ChildItem "$NSIS_DIR/*.nsis.zip" | Select-Object -First 1
+          $proc = Start-Process -FilePath $setup.FullName -ArgumentList '/S' -PassThru
+          if (-not $proc.WaitForExit(600000)) { $proc.Kill(); Write-Error 'Silent install timed out'; exit 1 }
+          Write-Output "installer exit code: $($proc.ExitCode)"
 
-          Write-Host "Signed exe: $($EXE.Name)"
-          Write-Host "Old zip: $($ZIP.Name)"
-
-          # Re-create .nsis.zip with the Authenticode-signed exe
-          # Use ZipFile API with Deflate compression (Compress-Archive can use
-          # Deflate64 which Tauri's updater does not support)
-          $ZIP_PATH = $ZIP.FullName
-          Remove-Item $ZIP_PATH
-          Add-Type -AssemblyName System.IO.Compression.FileSystem
-          $archive = [System.IO.Compression.ZipFile]::Open($ZIP_PATH, 'Create')
-          [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive, $EXE.FullName, $EXE.Name, [System.IO.Compression.CompressionLevel]::Optimal)
-          $archive.Dispose()
-
-          # Re-generate updater signatures for both files
-          # tauri signer sign writes a .sig file next to the input file
-          npx tauri signer sign "$($EXE.FullName)" --private-key "$env:TAURI_SIGNING_PRIVATE_KEY" --password "$env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD"
-          npx tauri signer sign "$($ZIP.FullName)" --private-key "$env:TAURI_SIGNING_PRIVATE_KEY" --password "$env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD"
-
-          # Read the generated .sig files
-          $EXE_SIG = Get-Content "$($EXE.FullName).sig" -Raw
-          $ZIP_SIG = Get-Content "$($ZIP.FullName).sig" -Raw
-
-          Write-Host "New exe signature: $($EXE_SIG.Substring(0, 50))..."
-          Write-Host "New zip signature: $($ZIP_SIG.Substring(0, 50))..."
-
-          # Download latest.json from release, update Windows signatures
-          gh release download $VERSION --pattern "latest.json" --output latest.json --clobber --repo "${{ github.repository }}"
-
-          $latest = Get-Content latest.json -Raw | ConvertFrom-Json
-
-          foreach ($key in @('windows-x86_64')) {
-            if ($latest.platforms.PSObject.Properties[$key]) {
-              $latest.platforms.$key.signature = $ZIP_SIG
-              Write-Host "Updated signature for $key"
+          $keys = @(
+            'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Open PDF Studio (User)',
+            'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Open PDF Studio',
+            'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Open PDF Studio'
+          )
+          $dir = $null
+          foreach ($k in $keys) {
+            $loc = (Get-ItemProperty $k -ErrorAction SilentlyContinue).InstallLocation
+            if ($loc) { $dir = $loc.Trim('"'); break }
+          }
+          if (-not $dir) {
+            foreach ($d in @("$env:ProgramFiles\Open PDF Studio", "$env:LOCALAPPDATA\Open PDF Studio")) {
+              if (Test-Path (Join-Path $d 'open-pdf-studio.exe')) { $dir = $d; break }
             }
           }
-          foreach ($key in @('windows-x86_64-nsis')) {
-            if ($latest.platforms.PSObject.Properties[$key]) {
-              $latest.platforms.$key.signature = $EXE_SIG
-              Write-Host "Updated signature for $key"
-            }
+          if (-not $dir) { Write-Error 'Install location not found'; exit 1 }
+          Write-Output "installed to: $dir"
+
+          $unsigned = $false
+          foreach ($exe in 'open-pdf-studio.exe', 'pdfium-worker.exe', 'uninstall.exe') {
+            $sig = Get-AuthenticodeSignature (Join-Path $dir $exe)
+            Write-Output ("{0}: {1} ({2})" -f $exe, $sig.Status, $sig.SignerCertificate.Subject)
+            if ($sig.Status -ne 'Valid') { $unsigned = $true }
           }
-
-          $latest | ConvertTo-Json -Depth 10 | Set-Content latest.json -NoNewline
-
-          # Re-upload all modified files
-          gh release upload $VERSION "$($EXE.FullName)" --clobber --repo "${{ github.repository }}"
-          gh release upload $VERSION "$($EXE.FullName).sig" --clobber --repo "${{ github.repository }}"
-          gh release upload $VERSION "$($ZIP.FullName)" --clobber --repo "${{ github.repository }}"
-          gh release upload $VERSION "$($ZIP.FullName).sig" --clobber --repo "${{ github.repository }}"
-          gh release upload $VERSION latest.json --clobber --repo "${{ github.repository }}"
-
-          Write-Host "All Windows artifacts re-uploaded with correct signatures"
+          $uninstaller = Join-Path $dir 'uninstall.exe'
+          if (Test-Path $uninstaller) { Start-Process -FilePath $uninstaller -ArgumentList '/S' -Wait }
+          if ($unsigned) { Write-Error 'Installed binaries are not signed'; exit 1 }
 
       - name: Upload user installer to release
         if: matrix.target == 'windows-user'
