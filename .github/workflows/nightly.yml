@@ -141,21 +141,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libtesseract-dev libleptonica-dev pkg-config
 
-      # OCR links against system Tesseract/Leptonica (src-tauri/Cargo.toml's
-      # use-system-tesseract, non-Windows only) via pkg-config instead of
-      # compiling them from source — see release.yml's identical step for the
-      # full rationale.
-      - name: Install Tesseract/Leptonica (macOS only)
-        if: matrix.target == 'macos'
-        run: |
-          brew install tesseract leptonica
-          if ! arch -x86_64 /usr/local/bin/brew --version >/dev/null 2>&1; then
-            NONINTERACTIVE=1 arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" </dev/null
-          fi
-          arch -x86_64 /usr/local/bin/brew install tesseract leptonica
-          echo "PKG_CONFIG_PATH_x86_64_apple_darwin=/usr/local/lib/pkgconfig" >> "$GITHUB_ENV"
-          echo "PKG_CONFIG_ALLOW_CROSS=1" >> "$GITHUB_ENV"
-
       - name: Install frontend dependencies
         run: npm ci
 
@@ -268,6 +253,18 @@ jobs:
           args: ${{ matrix.args }}
           releaseId: ${{ needs.prepare-release.outputs.release_id }}
           includeUpdaterJson: false
+
+      # tesseract-rs's build-tesseract (source build, see src-tauri/Cargo.toml)
+      # caches its compiled Tesseract/Leptonica static libs in a single,
+      # non-arch-specific directory — see release.yml's identical step for
+      # the full rationale.
+      - name: Pre-build each macOS arch (tesseract-rs cache workaround)
+        if: matrix.target == 'macos'
+        run: |
+          rm -rf ~/Library/"Application Support"/tesseract-rs
+          cargo build --release --target aarch64-apple-darwin -p open-pdf-studio
+          rm -rf ~/Library/"Application Support"/tesseract-rs
+          cargo build --release --target x86_64-apple-darwin -p open-pdf-studio
 
       # Compile once. Bundling is a separate phase so a temporary failure in
       # the external notarization service can be retried without rebuilding

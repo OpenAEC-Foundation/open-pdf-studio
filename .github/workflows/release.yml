@@ -124,26 +124,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libtesseract-dev libleptonica-dev pkg-config
 
-      # OCR links against system Tesseract/Leptonica (src-tauri/Cargo.toml's
-      # use-system-tesseract, non-Windows only) via pkg-config instead of
-      # compiling them from source. Native (arm64) covers the
-      # aarch64-apple-darwin half of the universal build; x86_64 needs a
-      # second, Rosetta-mode Homebrew prefix at /usr/local, bootstrapped here
-      # if not already present, so pkg-config can find x86_64 .pc files for
-      # the x86_64-apple-darwin half. PKG_CONFIG_PATH_x86_64_apple_darwin is
-      # the pkg-config crate's target-triple-scoped override, consulted only
-      # for the cross (non-host-arch) half of the universal build.
-      - name: Install Tesseract/Leptonica (macOS only)
-        if: matrix.target == 'macos'
-        run: |
-          brew install tesseract leptonica
-          if ! arch -x86_64 /usr/local/bin/brew --version >/dev/null 2>&1; then
-            NONINTERACTIVE=1 arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" </dev/null
-          fi
-          arch -x86_64 /usr/local/bin/brew install tesseract leptonica
-          echo "PKG_CONFIG_PATH_x86_64_apple_darwin=/usr/local/lib/pkgconfig" >> "$GITHUB_ENV"
-          echo "PKG_CONFIG_ALLOW_CROSS=1" >> "$GITHUB_ENV"
-
       - name: Install frontend dependencies
         run: npm ci
 
@@ -298,6 +278,27 @@ jobs:
           args: ${{ matrix.args }}
           releaseId: ${{ needs.create-release.outputs.release_id }}
           includeUpdaterJson: true
+
+      # tesseract-rs's build-tesseract (source build, see src-tauri/Cargo.toml)
+      # caches its compiled Tesseract/Leptonica static libs in a single,
+      # non-arch-specific directory (~/Library/Application Support/
+      # tesseract-rs). The universal build below compiles aarch64-apple-darwin
+      # then x86_64-apple-darwin back-to-back inside one `tauri build`
+      # invocation; without this, the second arch's build just copies the
+      # first arch's now-stale cached libs, and the linker fails with
+      # "found architecture 'arm64', required architecture 'x86_64'" (or vice
+      # versa). Pre-build each arch here instead, clearing that cache between
+      # them — once each target's own Cargo OUT_DIR holds the correct
+      # artifacts, Cargo's fingerprinting won't re-run tesseract-rs's build
+      # script for that target again (nothing about its inputs changed), so
+      # the real build below just reuses them without ever hitting the bug.
+      - name: Pre-build each macOS arch (tesseract-rs cache workaround)
+        if: matrix.target == 'macos'
+        run: |
+          rm -rf ~/Library/"Application Support"/tesseract-rs
+          cargo build --release --target aarch64-apple-darwin -p open-pdf-studio
+          rm -rf ~/Library/"Application Support"/tesseract-rs
+          cargo build --release --target x86_64-apple-darwin -p open-pdf-studio
 
       # Compile once. Bundling is a separate phase so a temporary failure in
       # the external notarization service can be retried without rebuilding
