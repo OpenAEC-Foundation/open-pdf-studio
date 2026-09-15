@@ -152,7 +152,9 @@
     "annotationsList": "Anteckningslista (F11)",
     "annotationsLabel": "Anteckningar",
     "appearance": "Utseende",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Läsläge",
+    "readerModeTip": "Kom ihåg sida, rullningsposition och zoom för varje PDF när den stängs och öppnas igen"
   },
   "organize": {
     "pages": "Sidor",

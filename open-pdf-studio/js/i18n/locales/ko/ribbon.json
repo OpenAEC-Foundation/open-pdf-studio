@@ -152,7 +152,9 @@
     "annotationsList": "주석 목록 (F11)",
     "annotationsLabel": "주석",
     "appearance": "모양",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "리더 모드",
+    "readerModeTip": "PDF를 닫았다가 다시 열 때 페이지, 스크롤 위치, 확대/축소를 기억합니다"
   },
   "organize": {
     "pages": "페이지",

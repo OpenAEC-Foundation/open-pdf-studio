@@ -152,7 +152,9 @@
     "annotationsList": "Lista de adnotari (F11)",
     "annotationsLabel": "Adnotari",
     "appearance": "Aspect",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Mod citire",
+    "readerModeTip": "Ține minte pagina, poziția de derulare și zoom-ul fiecărui PDF la închidere și redeschidere"
   },
   "organize": {
     "pages": "Pagini",

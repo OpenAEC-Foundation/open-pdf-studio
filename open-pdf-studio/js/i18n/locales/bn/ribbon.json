@@ -152,7 +152,9 @@
     "annotationsList": "টীকার তালিকা (F11)",
     "annotationsLabel": "টীকা",
     "appearance": "চেহারা",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "রিডার মোড",
+    "readerModeTip": "পিডিএফ বন্ধ এবং পুনরায় খোলার সময় পাতা, স্ক্রল অবস্থান এবং জুম মনে রাখে"
   },
   "organize": {
     "pages": "পৃষ্ঠাসমূহ",
