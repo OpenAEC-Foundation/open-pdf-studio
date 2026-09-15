@@ -323,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "Vybrat parametrický symbol",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Narovnat Stránku",
+    "apply": "Narovnat",
+    "angleInfo": "Úhel korekce: {{angle}}°",
+    "done": "Narovnáno {{count}} stránek o {{angle}}°",
+    "alreadyStraight": "Čára je již rovná — korekce není potřeba."
   }
 }

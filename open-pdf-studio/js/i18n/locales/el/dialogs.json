@@ -323,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "Επιλογή παραμετρικού συμβόλου",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Ισιώστε τη Σελίδα",
+    "apply": "Ισιώστε",
+    "angleInfo": "Γωνία διόρθωσης: {{angle}}°",
+    "done": "Ισιώθηκαν {{count}} σελίδα(ες) κατά {{angle}}°",
+    "alreadyStraight": "Η γραμμή είναι ήδη ίσια — δεν χρειάζεται διόρθωση."
   }
 }

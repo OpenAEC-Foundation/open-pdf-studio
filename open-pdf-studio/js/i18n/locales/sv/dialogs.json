@@ -323,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "Välj parametrisk symbol",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Räta Ut Sidan",
+    "apply": "Räta ut",
+    "angleInfo": "Korrigeringsvinkel: {{angle}}°",
+    "done": "{{count}} sida/sidor rätade med {{angle}}°",
+    "alreadyStraight": "Linjen är redan rak — ingen korrigering behövs."
   }
 }

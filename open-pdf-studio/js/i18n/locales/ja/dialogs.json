@@ -323,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "パラメトリックシンボルを選択",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "ページを補正",
+    "apply": "補正",
+    "angleInfo": "補正角度：{{angle}}°",
+    "done": "{{count}} ページを {{angle}}° 補正しました",
+    "alreadyStraight": "線はすでにまっすぐです。補正の必要はありません。"
   }
 }

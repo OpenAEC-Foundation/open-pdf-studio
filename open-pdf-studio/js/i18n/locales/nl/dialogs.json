@@ -480,5 +480,12 @@
   "parametricSymbolPicker": {
     "title": "Parametrisch symbool kiezen",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Pagina Rechtzetten",
+    "apply": "Rechtzetten",
+    "angleInfo": "Correctiehoek: {{angle}}°",
+    "done": "{{count}} pagina('s) rechtgezet met {{angle}}°",
+    "alreadyStraight": "Lijn staat al recht — geen correctie nodig."
   }
 }

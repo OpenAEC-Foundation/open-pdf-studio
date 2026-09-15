@@ -323,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "पैरामीट्रिक प्रतीक चुनें",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "पृष्ठ सीधा करें",
+    "apply": "सीधा करें",
+    "angleInfo": "सुधार कोण: {{angle}}°",
+    "done": "{{count}} पृष्ठ {{angle}}° से सीधे किए गए",
+    "alreadyStraight": "रेखा पहले से ही सीधी है — किसी सुधार की आवश्यकता नहीं।"
   }
 }

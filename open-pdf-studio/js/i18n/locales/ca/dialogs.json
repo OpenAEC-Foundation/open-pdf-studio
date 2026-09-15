@@ -323,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "Tria un símbol paramètric",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Redreça la Pàgina",
+    "apply": "Redreça",
+    "angleInfo": "Angle de correcció: {{angle}}°",
+    "done": "{{count}} pàgina(es) redreçada(es) {{angle}}°",
+    "alreadyStraight": "La línia ja és recta — no cal cap correcció."
   }
 }

@@ -323,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "Parametrik sembol seç",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Sayfayı Düzelt",
+    "apply": "Düzelt",
+    "angleInfo": "Düzeltme açısı: {{angle}}°",
+    "done": "{{count}} sayfa {{angle}}° düzeltildi",
+    "alreadyStraight": "Çizgi zaten düz — düzeltmeye gerek yok."
   }
 }

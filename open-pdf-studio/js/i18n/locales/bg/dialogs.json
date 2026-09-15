@@ -323,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "Изберете параметричен символ",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "Изправяне на Страница",
+    "apply": "Изправи",
+    "angleInfo": "Ъгъл на корекция: {{angle}}°",
+    "done": "Изправени {{count}} страница(и) с {{angle}}°",
+    "alreadyStraight": "Линията вече е права — не е нужна корекция."
   }
 }

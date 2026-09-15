@@ -323,5 +323,12 @@
   "parametricSymbolPicker": {
     "title": "اختر رمزًا بارامتريًا",
     "cancel": "Cancel"
+  },
+  "straighten": {
+    "title": "تسوية الصفحة",
+    "apply": "تسوية",
+    "angleInfo": "زاوية التصحيح: {{angle}}°",
+    "done": "تم تسوية {{count}} صفحة بزاوية {{angle}}°",
+    "alreadyStraight": "الخط مستقيم بالفعل — لا حاجة للتصحيح."
   }
 }
