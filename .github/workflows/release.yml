@@ -485,6 +485,11 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
+        # The action's default packages are 'tools platform-tools'. The legacy
+        # 'tools' package no longer exists for the cmdline-tools on current
+        # runner images, so sdkmanager exits 1 and the job fails before the build.
+        with:
+          packages: 'platform-tools'
 
       - name: Install Android NDK
         run: sdkmanager --install "ndk;27.0.12077973"
