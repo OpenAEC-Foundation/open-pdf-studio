@@ -152,7 +152,9 @@
     "annotationsList": "Листа анотација (F11)",
     "annotationsLabel": "Анотације",
     "appearance": "Изглед",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Режим читања",
+    "readerModeTip": "Памти страницу, позицију померања и зум сваког PDF-а приликом затварања и поновног отварања"
   },
   "organize": {
     "pages": "Странице",

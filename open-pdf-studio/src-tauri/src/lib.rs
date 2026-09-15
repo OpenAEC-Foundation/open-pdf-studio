@@ -128,6 +128,31 @@ fn load_preferences() -> Option<String> {
     fs::read_to_string(&path).ok()
 }
 
+fn get_reader_positions_file_path() -> String {
+    if let Some(data_dir) = dirs::data_local_dir() {
+        let app_dir = data_dir.join("OpenPDFStudio");
+        if !app_dir.exists() {
+            let _ = fs::create_dir_all(&app_dir);
+        }
+        app_dir.join("reader_positions.json").to_string_lossy().to_string()
+    } else {
+        "reader_positions.json".to_string()
+    }
+}
+
+#[tauri::command]
+fn save_reader_positions(data: String) -> Result<bool, String> {
+    let path = get_reader_positions_file_path();
+    fs::write(&path, data).map_err(|e| e.to_string())?;
+    Ok(true)
+}
+
+#[tauri::command]
+fn load_reader_positions() -> Option<String> {
+    let path = get_reader_positions_file_path();
+    fs::read_to_string(&path).ok()
+}
+
 // Symboolcatalogi als losse bestanden naast preferences.json (#354): grote
 // gedownloade collecties horen niet in het instellingenbestand — dat wordt
 // bij elke voorkeurswijziging integraal herschreven en de localStorage-
@@ -2724,6 +2749,8 @@ pub fn run(opts: StartupOpts) {
             list_pdf_files,
             save_preferences,
             load_preferences,
+            save_reader_positions,
+            load_reader_positions,
             save_catalog,
             load_catalog,
             delete_catalog,

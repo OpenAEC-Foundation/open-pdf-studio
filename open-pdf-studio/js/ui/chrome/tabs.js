@@ -10,6 +10,7 @@ import { savePDF } from '../../pdf/saver.js';
 import { unlockFile, lockFile, renameFile, fileExists } from '../../core/platform.js';
 import { cancelPendingZoom } from '../setup/navigation-events.js';
 import { closeAllPopups } from '../../bridge.js';
+import { saveReaderPosition } from '../../core/reader-mode.js';
 
 /**
  * Create a new tab for a document
@@ -208,6 +209,30 @@ export async function closeTab(index, force = false, dialogAction = null) {
       if (!saved) return false; // Save failed or was cancelled
     }
     // action === 'dontsave' → proceed to close without saving
+  }
+
+  // Reader Mode: remember where we were in this file, before anything below
+  // tears down its rendered state. Skipped for untitled/blank docs — there's
+  // no file path to key the memory on, and nothing meaningful to resume.
+  //
+  // The DOM (#pdf-container scroll) and window.__pdfViewport singleton
+  // always reflect the ACTIVE tab, not necessarily `doc` here (closing a
+  // background tab's [x] doesn't switch to it first) — only read them when
+  // this really is the active document, otherwise we'd silently save a
+  // different tab's position under this file's path. In single-page mode
+  // the real zoom lives in the viewport singleton, not doc.scale (which
+  // setZoom() leaves stale there — see setZoom's early-return for vp.active).
+  if (state.preferences.readerMode && doc.filePath && !doc.isUntitled) {
+    const isActiveDoc = state.documents[state.activeDocumentIndex] === doc;
+    const vp = isActiveDoc ? window.__pdfViewport : null;
+    const container = isActiveDoc ? document.getElementById('pdf-container') : null;
+    saveReaderPosition(doc.filePath, {
+      page: doc.currentPage,
+      scale: (vp && vp.active) ? vp.zoom : doc.scale,
+      scrollTop: container ? container.scrollTop : 0,
+      scrollHeight: container ? container.scrollHeight : 0,
+      viewMode: doc.viewMode,
+    });
   }
 
   // Cancel any in-progress background annotation loading for this document.

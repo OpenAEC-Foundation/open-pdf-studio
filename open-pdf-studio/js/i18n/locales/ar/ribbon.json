@@ -152,7 +152,9 @@
     "annotationsList": "قائمة التعليقات (F11)",
     "annotationsLabel": "التعليقات",
     "appearance": "المظهر",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "وضع القراءة",
+    "readerModeTip": "يتذكر الصفحة وموضع التمرير والتكبير لكل ملف PDF عند إغلاقه وإعادة فتحه"
   },
   "organize": {
     "pages": "صفحات",

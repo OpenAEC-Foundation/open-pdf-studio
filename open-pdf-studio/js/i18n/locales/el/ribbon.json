@@ -152,7 +152,9 @@
     "annotationsList": "Λίστα σχολιασμών (F11)",
     "annotationsLabel": "Σχολιασμοί",
     "appearance": "Εμφάνιση",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Λειτουργία Ανάγνωσης",
+    "readerModeTip": "Θυμάται σελίδα, θέση κύλισης και ζούμ κάθε PDF κατά το κλείσιμο και το ξανάνοιγμα"
   },
   "organize": {
     "pages": "Σελίδες",
