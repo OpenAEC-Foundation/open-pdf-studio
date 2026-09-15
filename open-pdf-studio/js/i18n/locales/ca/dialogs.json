@@ -324,6 +324,18 @@
     "title": "Tria un símbol paramètric",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Reconeixement de text (OCR)",
+    "run": "Reconeix",
+    "language": "Idioma:",
+    "info": "{{count}} pàgina(es) al document. Afegeix una capa de text invisible i cercable — la pàgina té el mateix aspecte. Totalment reversible amb Desfés abans de desar.",
+    "options": {
+      "auto": "Detecció automàtica",
+      "eng": "Anglès",
+      "chi_tra": "Xinès (tradicional)",
+      "chi_tra+eng": "Xinès (tradicional) + Anglès"
+    }
+  },
   "straighten": {
     "title": "Redreça la Pàgina",
     "apply": "Redreça",

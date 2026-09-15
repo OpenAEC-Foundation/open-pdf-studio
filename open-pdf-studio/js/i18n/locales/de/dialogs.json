@@ -324,6 +324,18 @@
     "title": "Parametrisches Symbol auswählen",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Text erkennen (OCR)",
+    "run": "Erkennen",
+    "language": "Sprache:",
+    "info": "{{count}} Seite(n) im Dokument. Fügt eine unsichtbare, durchsuchbare Textebene hinzu — die Seite sieht weiterhin gleich aus. Vor dem Speichern vollständig mit Rückgängig umkehrbar.",
+    "options": {
+      "auto": "Automatisch erkennen",
+      "eng": "Englisch",
+      "chi_tra": "Chinesisch (traditionell)",
+      "chi_tra+eng": "Chinesisch (traditionell) + Englisch"
+    }
+  },
   "straighten": {
     "title": "Seite Begradigen",
     "apply": "Begradigen",

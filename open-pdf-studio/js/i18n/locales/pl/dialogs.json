@@ -324,6 +324,18 @@
     "title": "Wybierz symbol parametryczny",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Rozpoznawanie tekstu (OCR)",
+    "run": "Rozpoznaj",
+    "language": "Język:",
+    "info": "{{count}} stron(y) w dokumencie. Dodaje niewidoczną, przeszukiwalną warstwę tekstu — strona wygląda tak samo. W pełni odwracalne za pomocą Cofnij przed zapisaniem.",
+    "options": {
+      "auto": "Wykrywanie automatyczne",
+      "eng": "Angielski",
+      "chi_tra": "Chiński (tradycyjny)",
+      "chi_tra+eng": "Chiński (tradycyjny) + angielski"
+    }
+  },
   "straighten": {
     "title": "Wyprostuj Stronę",
     "apply": "Wyprostuj",

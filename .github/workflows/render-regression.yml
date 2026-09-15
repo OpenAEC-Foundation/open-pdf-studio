@@ -16,6 +16,26 @@ jobs:
   render-regression:
     runs-on: windows-latest
     timeout-minutes: 45
+    env:
+      # Workspace .cargo/config.toml forces target-feature=+crt-static
+      # (self-contained release binaries, #337) — on a debug Cargo profile
+      # that pulls in the STATIC DEBUG CRT (libcmtd), but tesseract-rs's
+      # Windows build.rs hardcodes CMAKE_BUILD_TYPE=Release (always /MD, the
+      # dynamic RELEASE CRT) regardless of Cargo's own profile. MSVC forbids
+      # mixing debug and release CRT variants in one binary, so linking a
+      # debug `cargo build` against it fails with a wall of
+      # "unresolved external symbol __imp_fgets" (etc.) errors. This job only
+      # ever builds a debug binary for local test runs (nothing here is
+      # distributed to end users), so explicitly negate the feature back to
+      # rustc's default dynamic linking, which — unlike the static case — is
+      # always release-CRT-flavored regardless of debug/release profile,
+      # matching tesseract-rs's own choice. (An empty
+      # CARGO_TARGET_..._RUSTFLAGS does NOT work here — Cargo treats an empty
+      # env var as unset and falls back to config.toml's rustflags, so
+      # /defaultlib:libcmt still got added. RUSTFLAGS takes precedence over
+      # config.toml's target.<triple>.rustflags, and an explicit "-crt-static"
+      # unambiguously overrides rather than relying on emptiness.)
+      RUSTFLAGS: '-C target-feature=-crt-static'
 
     steps:
       - uses: actions/checkout@v4

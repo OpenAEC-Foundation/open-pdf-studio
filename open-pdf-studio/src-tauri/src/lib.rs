@@ -10,6 +10,7 @@ pub mod mcp_app_bridge;
 pub mod mcp_koppeling;
 pub mod mcp_server;
 pub mod mcp_tool_meta;
+pub mod ocr;
 pub mod pdfium_renderer;
 pub mod render_to_png;
 pub mod window_mgmt;
@@ -1836,6 +1837,57 @@ async fn render_pdf_page(
     Ok(tauri::ipc::Response::new(data))
 }
 
+/// Run OCR on one page. `lang` is Tesseract's `+`-joined language spec (e.g.
+/// "chi_tra+eng"); defaults to "eng" if omitted. Tessdata is resolved from
+/// the bundled `tessdata` resource directory — see scripts/ocr-runtime.mjs
+/// and the `resources` map in tauri.conf.json.
+#[tauri::command]
+async fn ocr_pdf_page(
+    app: tauri::AppHandle,
+    path: String,
+    page_index: u32,
+    lang: Option<String>,
+    bytes_cache: tauri::State<'_, PdfBytesCache>,
+    pdfium_cache: tauri::State<'_, pdfium_renderer::PdfiumDocCache>,
+) -> Result<Vec<ocr::OcrWord>, String> {
+    let bytes = {
+        let mut bm = bytes_cache.0.lock().map_err(|e| format!("Bytes cache lock: {}", e))?;
+        if let Some(cached) = bm.get(&path) {
+            cached.clone()
+        } else {
+            let read = std::fs::read(&path).map_err(|e| format!("Read: {}", e))?;
+            bm.insert(path.clone(), read.clone());
+            read
+        }
+    };
+
+    let handle = pdfium_renderer::get_or_load_pdfium_doc_with_bytes(
+        &path,
+        std::sync::Arc::new(bytes),
+        &pdfium_cache,
+    )?;
+
+    let resource_dir = app
+        .path()
+        .resource_dir()
+        .map_err(|e| format!("Cannot resolve resource_dir: {}", e))?;
+    let tessdata_dir = resource_dir.join("tessdata");
+    let tessdata_dir = tessdata_dir
+        .to_str()
+        .ok_or_else(|| "tessdata path is not valid UTF-8".to_string())?;
+
+    let lang = lang.unwrap_or_else(|| "auto".to_string());
+
+    // Tesseract inference is synchronous/blocking (and re-inits per call) —
+    // run it off the async executor so it doesn't stall other IPC.
+    tauri::async_runtime::spawn_blocking({
+        let tessdata_dir = tessdata_dir.to_string();
+        move || ocr::ocr_page_words(handle.document(), page_index, &tessdata_dir, &lang)
+    })
+    .await
+    .map_err(|e| format!("OCR task panicked: {}", e))?
+}
+
 #[tauri::command]
 async fn render_pdf_page_region(
     path: String,
@@ -2733,6 +2785,7 @@ pub fn run(opts: StartupOpts) {
             uninstall_plugin,
             read_plugin_file,
             render_pdf_page,
+            ocr_pdf_page,
             worker_pool_ready,
             render_pdf_page_region,
             render_tile_scene_region,
