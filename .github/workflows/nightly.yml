@@ -254,18 +254,6 @@ jobs:
           releaseId: ${{ needs.prepare-release.outputs.release_id }}
           includeUpdaterJson: false
 
-      # tesseract-rs's build-tesseract (source build, see src-tauri/Cargo.toml)
-      # caches its compiled Tesseract/Leptonica static libs in a single,
-      # non-arch-specific directory — see release.yml's identical step for
-      # the full rationale.
-      - name: Pre-build each macOS arch (tesseract-rs cache workaround)
-        if: matrix.target == 'macos'
-        run: |
-          rm -rf ~/Library/"Application Support"/tesseract-rs
-          cargo build --release --target aarch64-apple-darwin -p open-pdf-studio
-          rm -rf ~/Library/"Application Support"/tesseract-rs
-          cargo build --release --target x86_64-apple-darwin -p open-pdf-studio
-
       # Compile once. Bundling is a separate phase so a temporary failure in
       # the external notarization service can be retried without rebuilding
       # both macOS architectures.

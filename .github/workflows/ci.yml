@@ -155,27 +155,6 @@ jobs:
             fedora:44 \
             bash -lc 'dnf install -y --setopt=install_weak_deps=False dbus-daemon dbus-tools findutils gtk3 gvfs libwayland-client libwayland-cursor libwayland-egl libxkbcommon mesa-libEGL libglvnd-gles xorg-x11-server-Xvfb xorg-x11-xauth && cp /input/open-pdf-studio.AppImage /tmp/open-pdf-studio.AppImage && bash /input/linux-appimage-smoke.sh /tmp/open-pdf-studio.AppImage 10'
 
-      # tesseract-rs's build-tesseract (source build, see src-tauri/Cargo.toml)
-      # caches its compiled Tesseract/Leptonica static libs in a single,
-      # non-arch-specific directory (~/Library/Application Support/
-      # tesseract-rs). The universal build below compiles aarch64-apple-darwin
-      # then x86_64-apple-darwin back-to-back inside one `tauri build`
-      # invocation; without this, the second arch's build just copies the
-      # first arch's now-stale cached libs, and the linker fails with
-      # "found architecture 'arm64', required architecture 'x86_64'" (or vice
-      # versa). Pre-build each arch here instead, clearing that cache between
-      # them — once each target's own Cargo OUT_DIR holds the correct
-      # artifacts, Cargo's fingerprinting won't re-run tesseract-rs's build
-      # script for that target again (nothing about its inputs changed), so
-      # the real build below just reuses them without ever hitting the bug.
-      - name: Pre-build each macOS arch (tesseract-rs cache workaround)
-        if: matrix.platform == 'macos-26'
-        run: |
-          rm -rf ~/Library/"Application Support"/tesseract-rs
-          cargo build --release --target aarch64-apple-darwin -p open-pdf-studio
-          rm -rf ~/Library/"Application Support"/tesseract-rs
-          cargo build --release --target x86_64-apple-darwin -p open-pdf-studio
-
       - name: Build ad-hoc signed macOS app
         if: matrix.platform == 'macos-26'
         env:
