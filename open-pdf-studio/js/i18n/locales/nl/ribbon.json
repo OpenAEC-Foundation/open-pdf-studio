@@ -191,7 +191,9 @@
     "fullscreen": "Volledig scherm",
     "display": "Weergave",
     "keystrokes": "Toetsaanslagen",
-    "keystrokesHint": "Toon ingedrukte sneltoetsen links onderin (voor video-opnames)"
+    "keystrokesHint": "Toon ingedrukte sneltoetsen links onderin (voor video-opnames)",
+    "readerMode": "Leesmodus",
+    "readerModeTip": "Onthoud de pagina, scrollpositie en zoomniveau van elke PDF, ook nadat je hem sluit en weer opent"
   },
   "elementVisibility": {
     "buttonTitle": "Zichtbaarheid Elementen — toon/verberg en dim annotatie-soorten",

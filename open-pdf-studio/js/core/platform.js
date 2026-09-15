@@ -524,6 +524,20 @@ export async function loadPreferencesFile() {
   return null;
 }
 
+// Reader Mode positions (Rust-backed file, same reasoning as preferences —
+// survives WebView2 data clears, unlike localStorage).
+export async function saveReaderPositionsFile(data) {
+  return await invoke('save_reader_positions', { data: JSON.stringify(data) });
+}
+
+export async function loadReaderPositionsFile() {
+  const result = await invoke('load_reader_positions');
+  if (result) {
+    try { return JSON.parse(result); } catch { return null; }
+  }
+  return null;
+}
+
 // Symboolcatalogi als losse bestanden naast preferences.json (#354) —
 // alleen in Tauri; de browser-variant houdt catalogi inline in preferences.
 export async function saveCatalogFile(id, data) {

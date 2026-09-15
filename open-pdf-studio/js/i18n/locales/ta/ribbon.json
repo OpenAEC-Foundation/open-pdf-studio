@@ -152,7 +152,9 @@
     "annotationsList": "குறிப்புரைகள் பட்டியல் (F11)",
     "annotationsLabel": "குறிப்புரைகள்",
     "appearance": "தோற்றம்",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "வாசகர் மோட்",
+    "readerModeTip": "விலகி மற்றும் மீண்டும் திறக்கும் போது ஒவ்வோரு PDF இன் பக்கம், ஸ்க்ரோல் நிலை மற்றும் சூம் நிலையை நினைவில் வைக்கும்"
   },
   "organize": {
     "pages": "பக்கங்கள்",

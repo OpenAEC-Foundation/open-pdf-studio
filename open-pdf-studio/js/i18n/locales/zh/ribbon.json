@@ -152,7 +152,9 @@
     "annotationsList": "批注列表 (F11)",
     "annotationsLabel": "批注",
     "appearance": "外观",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "閱讀模式",
+    "readerModeTip": "在關閉又重新打開時，記住每份 PDF 的頁碼、捲軸位置及縮放比例"
   },
   "organize": {
     "pages": "页面",

@@ -25,6 +25,7 @@ window.addEventListener('unhandledrejection', (e) => {
 // Core modules
 import { state } from './core/state.js';
 import { loadPreferences, savePreferences } from './core/preferences.js';
+import { migrateLegacyReaderPositions } from './core/reader-mode.js';
 import { initDomElements } from './ui/dom-elements.js';
 import { initPropertiesPanel } from './ui/panels/properties-panel.js';
 import { initToolPalette } from './solid/components/ToolPalette.jsx';
@@ -222,6 +223,10 @@ async function init() {
   await loadPreferences();
   // AI-koppeling volgens de instelling (niet wachten: bindt alleen een poort).
   import('./core/mcp-koppeling.js').then(m => m.pasMcpInstellingToe());
+  // One-time move of any pre-existing central reader-mode positions file to
+  // per-PDF sidecars (see reader-mode.js) — fire-and-forget, well ahead of
+  // when a PDF open/close would actually need the result.
+  migrateLegacyReaderPositions();
 
   // Single render call — mounts the entire UI tree
   // render() is synchronous, so DOM elements exist immediately after

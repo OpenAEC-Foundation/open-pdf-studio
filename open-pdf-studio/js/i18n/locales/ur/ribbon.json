@@ -152,7 +152,9 @@
     "annotationsList": "تشریحات کی فہرست (F11)",
     "annotationsLabel": "تشریحات",
     "appearance": "ظاہری شکل",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "ریڈر موڈ",
+    "readerModeTip": "بند کرنے اور دوبارہ کھولنے پر ہر PDF کا صفحہ، اسکرول پوزیشن اور زوم یاد رکھیں"
   },
   "organize": {
     "pages": "صفحات",

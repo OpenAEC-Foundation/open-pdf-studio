@@ -152,7 +152,9 @@
     "annotationsList": "Список анотацій (F11)",
     "annotationsLabel": "Анотації",
     "appearance": "Зовнішній вигляд",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Режим читання",
+    "readerModeTip": "Запам'ятовує сторінку, позицію прокрутки та масштаб кожного PDF під час закриття та повторного відкриття"
   },
   "organize": {
     "pages": "Сторінки",
