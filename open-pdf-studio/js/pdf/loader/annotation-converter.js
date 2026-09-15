@@ -16,6 +16,7 @@ import { systeemFromOps, sparingenFromJson } from '../../annotations/systeemrast
 import { systeemTypeFromJson } from '../../annotations/systeem-typen.js';
 import { ensureSysteemType, getSysteemTypeById } from '../../annotations/systeem-typen-registry.js';
 import { computeTextboxContentHeight } from '../../annotations/rendering/shapes.js';
+import { pasRegelafstandAanDoos } from '../../annotations/rendering/textbox-layout.js';
 
 // Convert PDF annotation to our format
 export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageMap, annotColorMap) {
@@ -1307,7 +1308,13 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           lineSpacing: extraColors.lineSpacing, lineWidth: borderWidth,
           fontFamily: fontFamily || 'Arial'
         });
-        if (coNeededH > coH) coH = coNeededH;
+        // An implausible /DS line-height (e.g. 4pt text with 18.4pt) is fitted
+        // into the authored box instead of growing the box over the drawing.
+        const coPas = pasRegelafstandAanDoos({
+          lineSpacing: extraColors.lineSpacing, fontSize, boxHeight: coH,
+          padding: borderWidth ?? 0, neededHeight: coNeededH,
+        });
+        coH = coPas.height;
         // Callout stroke color: IC > AP stroke > borderColor fallback
         const coStrokeColor = extraColors.ic || extraColors.apStrokeColor || borderColor;
         // Fill color: C entry is the background for FreeText
@@ -1342,7 +1349,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           fontFamily: fontFamily || 'Arial',
           fontBold: fontBold,
           fontItalic: fontItalic,
-          lineSpacing: extraColors.lineSpacing || undefined,
+          lineSpacing: coPas.lineSpacing || undefined,
           fontUnderline: fontUnderline,
           fontStrikethrough: fontStrikethrough,
           arrowX: clArrowVx,
@@ -1367,7 +1374,11 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
         lineSpacing: extraColors.lineSpacing, lineWidth: borderWidth,
         fontFamily: fontFamily || 'Arial'
       });
-      if (ftNeededH > ftHeight) ftHeight = ftNeededH;
+      const ftPas = pasRegelafstandAanDoos({
+        lineSpacing: extraColors.lineSpacing, fontSize, boxHeight: ftHeight,
+        padding: borderWidth ?? 0, neededHeight: ftNeededH,
+      });
+      ftHeight = ftPas.height;
 
       const _tbAnn = createAnnotation({
         ...baseProps,
@@ -1389,7 +1400,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
         fontFamily: fontFamily || 'Arial',
         fontBold: fontBold,
         fontItalic: fontItalic,
-        lineSpacing: extraColors.lineSpacing || undefined,
+        lineSpacing: ftPas.lineSpacing || undefined,
         fontUnderline: fontUnderline,
         fontStrikethrough: fontStrikethrough,
         ...(extraColors.borderCloudy ? {

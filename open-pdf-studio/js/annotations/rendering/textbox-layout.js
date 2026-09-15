@@ -161,3 +161,44 @@ export function layoutTextboxLines(ann, maxWidth, measure) {
   }
   return uit;
 }
+
+// Regelafstand en hoogte bij het inladen van een FreeText/callout.
+//
+// Sommige bestanden geven in /DS een regelhoogte die veel groter is dan de
+// letter (bijvoorbeeld 4pt tekst met line-height:18.4pt). De eerste basislijn
+// ligt een regelhoogte onder de bovenrand, dus zo'n regel valt buiten de doos:
+// vroeger verdween de tekst, en de groei-tot-passend-regel liet de doos daarna
+// meegroeien over de tekening heen. Regel:
+//  1. past de inhoud in de doos, dan verandert er niets;
+//  2. bij een onwaarschijnlijke regelafstand (meer dan 2x de lettergrootte)
+//     wordt de afstand verkleind tot de inhoud in de oorspronkelijke doos
+//     past (minimaal 1x); de doos blijft even groot;
+//  3. anders, of als ook afstand 1x niet past, groeit de doos.
+export const STANDAARD_REGELAFSTAND = 1.2;
+export const MAX_AANNEMELIJKE_REGELAFSTAND = 2;
+
+/**
+ * @param {{ lineSpacing?: number, fontSize: number, boxHeight: number,
+ *           padding?: number, neededHeight: number }} o
+ *   neededHeight is de uitkomst van computeTextboxContentHeight met dezelfde
+ *   lineSpacing en padding: padding*2 + regels*fontSize*lineSpacing.
+ * @returns {{ lineSpacing: (number|undefined), height: number }}
+ */
+export function pasRegelafstandAanDoos({ lineSpacing, fontSize, boxHeight, padding = 0, neededHeight }) {
+  if (!(neededHeight > boxHeight)) return { lineSpacing, height: boxHeight };
+  if (!(fontSize > 0)) return { lineSpacing, height: neededHeight };
+  const ls = lineSpacing > 0 ? lineSpacing : STANDAARD_REGELAFSTAND;
+  const regels = Math.max(1, Math.round((neededHeight - padding * 2) / (fontSize * ls)));
+  if (ls > MAX_AANNEMELIJKE_REGELAFSTAND) {
+    const passend = (boxHeight - padding * 2) / (regels * fontSize);
+    if (passend >= 1) {
+      return { lineSpacing: Math.round(Math.min(ls, passend) * 1000) / 1000, height: boxHeight };
+    }
+    const hoogte = padding * 2 + regels * fontSize * STANDAARD_REGELAFSTAND;
+    return {
+      lineSpacing: STANDAARD_REGELAFSTAND,
+      height: Math.max(boxHeight, Math.round(hoogte * 1000) / 1000),
+    };
+  }
+  return { lineSpacing, height: neededHeight };
+}

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { layoutTextboxLines, textboxLineRuns, hasMixedRuns, runsToText } from './textbox-layout.js';
+import { layoutTextboxLines, textboxLineRuns, hasMixedRuns, runsToText, pasRegelafstandAanDoos } from './textbox-layout.js';
 
 // Meetfunctie: 10 per teken, vet 12 per teken.
 const meet = (t, bold) => t.length * (bold ? 12 : 10);
@@ -93,4 +93,48 @@ test('afbreken houdt underline/strikethrough van het afgebroken woord vast', () 
   assert.equal(tekst(lines), 'aa bb|cc');
   assert.equal(lines[1].chunks[0].underline, true);
   assert.equal(lines[1].chunks[0].strikethrough, true);
+});
+
+test('inladen: onwaarschijnlijke regelafstand wordt passend gemaakt, de doos groeit niet', () => {
+  // Kaartlabel: 4pt met line-height:18.4pt (4,6x) in een doos van 9pt, rand 0,5pt.
+  const r = pasRegelafstandAanDoos({ lineSpacing: 4.6, fontSize: 4, boxHeight: 9, padding: 0.5, neededHeight: 1 + 18.4 });
+  assert.equal(r.height, 9);
+  assert.equal(r.lineSpacing, 2);
+});
+
+test('inladen: past de inhoud al, dan verandert er niets', () => {
+  assert.deepEqual(
+    pasRegelafstandAanDoos({ lineSpacing: undefined, fontSize: 10, boxHeight: 30, padding: 1, neededHeight: 14 }),
+    { lineSpacing: undefined, height: 30 },
+  );
+  assert.deepEqual(
+    pasRegelafstandAanDoos({ lineSpacing: 4.6, fontSize: 4, boxHeight: 30, padding: 0, neededHeight: 18.4 }),
+    { lineSpacing: 4.6, height: 30 },
+  );
+});
+
+test('inladen: normale regelafstand in een te krappe doos groeit zoals voorheen', () => {
+  // Twee regels 12pt x 1,2 plus rand 1 in een doos van 20.
+  assert.deepEqual(
+    pasRegelafstandAanDoos({ lineSpacing: 1.2, fontSize: 12, boxHeight: 20, padding: 1, neededHeight: 30.8 }),
+    { lineSpacing: 1.2, height: 30.8 },
+  );
+  assert.deepEqual(
+    pasRegelafstandAanDoos({ lineSpacing: 2, fontSize: 10, boxHeight: 25, padding: 0, neededHeight: 40 }),
+    { lineSpacing: 2, height: 40 },
+  );
+});
+
+test('inladen: onwaarschijnlijke afstand die ook op 1x niet past, groeit met de standaardafstand', () => {
+  // Drie regels 10pt met afstand 4 hebben 120 nodig; in een doos van 20 past ook 1x (30) niet.
+  const r = pasRegelafstandAanDoos({ lineSpacing: 4, fontSize: 10, boxHeight: 20, padding: 0, neededHeight: 120 });
+  assert.equal(r.lineSpacing, 1.2);
+  assert.equal(r.height, 36);
+});
+
+test('inladen: zonder geldige lettergrootte blijft het oude groeigedrag', () => {
+  assert.deepEqual(
+    pasRegelafstandAanDoos({ lineSpacing: 4.6, fontSize: 0, boxHeight: 9, padding: 0, neededHeight: 19 }),
+    { lineSpacing: 4.6, height: 19 },
+  );
 });
