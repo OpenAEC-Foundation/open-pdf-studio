@@ -152,7 +152,9 @@
     "annotationsList": "Annotationsliste (F11)",
     "annotationsLabel": "Annotationer",
     "appearance": "Udseende",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Læsetilstand",
+    "readerModeTip": "Husker side, rulleposition og zoom for hver PDF, når den lukkes og åbnes igen"
   },
   "organize": {
     "pages": "Sider",

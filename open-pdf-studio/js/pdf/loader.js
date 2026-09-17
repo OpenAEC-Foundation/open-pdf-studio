@@ -1,7 +1,7 @@
 import { state, getNextUntitledName, getActiveDocument } from '../core/state.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { updateAllStatus } from '../ui/chrome/status-bar.js';
-import { setViewMode, fitPage } from './renderer.js';
+import { setViewMode, fitPage, goToPage, setZoom } from './renderer.js';
 import { generateThumbnails, refreshActiveTab } from '../ui/panels/left-panel.js';
 import { createTab, updateWindowTitle, markDocumentModified } from '../ui/chrome/tabs.js';
 import * as pdfjsLib from 'pdfjs-dist';
@@ -9,6 +9,7 @@ import { isTauri, readBinaryFile, openFileDialog, lockFile, invoke } from '../co
 import { PDFDocument } from 'pdf-lib';
 import { resetAnnotationStorage } from './form-layer.js';
 import { addRecentFile, getRecentFiles } from '../mobile/recent-files.js';
+import { getReaderPosition } from '../core/reader-mode.js';
 import { extractFileName } from '../core/platform.js';
 import i18next from '../i18n/config.js';
 import { showMessage } from '../bridge.js';
@@ -444,6 +445,32 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
       if (isClosed()) return;
       console.log(`[PERF] setViewMode DONE: ${(performance.now() - _t0).toFixed(0)}ms`);
       hideLoading();
+
+      // Reader Mode: jump to the saved page/zoom/scroll for this file,
+      // overriding the just-rendered page-1 default. Bookmarks, highlights
+      // and annotations are unaffected — this only ever touches the reading
+      // position. Best-effort: any failure here shouldn't block the rest of
+      // loading, so it's swallowed rather than surfaced.
+      if (state.preferences.readerMode && filePath) {
+        try {
+          const saved = await getReaderPosition(filePath);
+          if (saved) {
+            if (saved.page && saved.page !== doc.currentPage) {
+              await goToPage(saved.page);
+              if (isClosed()) return;
+            }
+            if (saved.scale) {
+              await setZoom(saved.scale);
+              if (isClosed()) return;
+            }
+            if (pdfContainer && saved.scrollHeight > 0) {
+              pdfContainer.scrollTop = (saved.scrollTop / saved.scrollHeight) * pdfContainer.scrollHeight;
+            }
+          }
+        } catch (e) {
+          console.warn('[reader-mode] restore failed:', e);
+        }
+      }
 
       // Check for PDF/A compliance and show info bar if applicable
       checkPdfACompliance(doc);

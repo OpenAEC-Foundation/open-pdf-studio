@@ -152,7 +152,9 @@
     "annotationsList": "فهرست حاشیه‌نویسی‌ها (F11)",
     "annotationsLabel": "حاشیه‌نویسی‌ها",
     "appearance": "ظاهر",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "حالت خواندن",
+    "readerModeTip": "صفحه، موقعیت اسکرول و بزرگنمایی هر سند PDF را هنگام بستن و بازکردن به خاطر می‌سپارد"
   },
   "organize": {
     "pages": "صفحات",

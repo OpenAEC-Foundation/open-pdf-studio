@@ -152,7 +152,9 @@
     "annotationsList": "Anmerkungsliste (F11)",
     "annotationsLabel": "Anmerkungen",
     "appearance": "Darstellung",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Lesemodus",
+    "readerModeTip": "Merkt sich Seite, Scrollposition und Zoom jeder PDF beim Schließen und erneuten Öffnen"
   },
   "organize": {
     "pages": "Seiten",

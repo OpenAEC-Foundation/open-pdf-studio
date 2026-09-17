@@ -152,7 +152,9 @@
     "annotationsList": "Merknadsliste (F11)",
     "annotationsLabel": "Merknader",
     "appearance": "Utseende",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Lesemodus",
+    "readerModeTip": "Husker side, rulleposisjon og zoom for hver PDF når den lukkes og åpnes på nytt"
   },
   "organize": {
     "pages": "Sider",

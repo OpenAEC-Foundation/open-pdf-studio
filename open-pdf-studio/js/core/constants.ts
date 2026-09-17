@@ -263,6 +263,10 @@ export const DEFAULT_PREFERENCES: Preferences = {
   restoreLastSession: false,
   dontAskDefaultPdf: false,
 
+  // Reader Mode: remember each PDF's page/scroll/zoom across close+reopen.
+  // Off by default — opt-in, since some users want every open to start fresh.
+  readerMode: false,
+
   // Screenshot annotate: intercept the system PrtScn key as a global hotkey
   // (opt-in; off by default because a global hotkey is intrusive).
   interceptPrintScreen: false,

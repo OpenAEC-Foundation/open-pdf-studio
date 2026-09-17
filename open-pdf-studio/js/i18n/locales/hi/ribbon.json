@@ -152,7 +152,9 @@
     "annotationsList": "एनोटेशन सूची (F11)",
     "annotationsLabel": "एनोटेशन",
     "appearance": "दिखावट",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "रीडर मोड",
+    "readerModeTip": "हर PDF को बंद और फिर से खोलते समय पृष्ठ, स्क्रोल स्थिति और ज़ूम याद रखता है"
   },
   "organize": {
     "pages": "पृष्ठ",
