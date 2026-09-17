@@ -343,5 +343,113 @@
     "angleInfo": "Angle de correcció: {{angle}}°",
     "done": "{{count}} pàgina(es) redreçada(es) {{angle}}°",
     "alreadyStraight": "La línia ja és recta — no cal cap correcció."
+  },
+  "signatureVerification": {
+    "checking": "S'estan comprovant les signatures digitals…",
+    "barLabel": "Signatures digitals",
+    "listError": "No s'han pogut comprovar les signatures: {{detail}}",
+    "documentTimestamp": "Segell de temps del document",
+    "documentTimestampBy": "Segell de temps del document ({{tsa}})",
+    "unknownSigner": "Signant desconegut",
+    "changedAfterwards": "el document s'ha modificat després",
+    "details": "Detalls",
+    "showSignedVersion": "Mostra la versió signada",
+    "signedVersionTab": "{{name}} (versió signada {{number}})",
+    "signedVersionError": "No s'ha pogut obrir la versió signada: {{detail}}",
+    "listTruncated": "No s'han comprovat tots els camps de signatura: el document en conté massa.",
+    "changedSinceCheck": "El fitxer ha canviat des que es van comprovar les signatures. Les signatures es tornen a comprovar.",
+    "modifiedInApp": "L'estat fa referència al fitxer del disc; des d'aleshores, el document s'ha modificat a l'aplicació.",
+    "errors": {
+      "unreadable": "No s'ha pogut llegir el fitxer.",
+      "noSignature": "No s'ha trobat la signatura al fitxer.",
+      "changedSinceList": "El fitxer ha canviat des que es van comprovar les signatures."
+    },
+    "status": {
+      "valid": "Vàlida",
+      "unknownCertificate": "Certificat desconegut",
+      "modified": "Modificat després de signar",
+      "invalid": "Signatura no vàlida",
+      "notVerifiable": "No es pot comprovar",
+      "unsignedField": "Camp de signatura sense signar"
+    },
+    "reasons": {
+      "noChain": "No hi ha cadena fins a un certificat arrel de confiança",
+      "expired": "Un certificat no era vàlid en el moment rellevant",
+      "keyUsage": "Un certificat no està pensat per a aquest ús",
+      "unsupportedAlgorithm": "Algorisme no compatible",
+      "cmsUnreadable": "Les dades de la signatura no es poden llegir",
+      "noCertificate": "Falta el certificat del signant",
+      "byteRangeInvalid": "L'interval de bytes signat no és vàlid",
+      "pdfUnreadable": "L'estructura del document no es pot llegir",
+      "legacyFormat": "Format de signatura obsolet"
+    },
+    "explanation": {
+      "valid": "El contingut signat no ha canviat i el certificat porta a una arrel de confiança.",
+      "modified": "Els bytes signats s'han modificat després de signar.",
+      "invalid": "Els bytes signats no han canviat, però el valor de la signatura no coincideix."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "L'algorisme de resum de la signatura no és compatible.",
+      "handtekeningalgoritme-niet-ondersteund": "L'algorisme de signatura no és compatible.",
+      "imprintalgoritme-niet-ondersteund": "L'algorisme de resum del segell de temps no és compatible.",
+      "contenttype-ontbreekt-of-meervoudig": "L'atribut de tipus de contingut falta o apareix més d'una vegada.",
+      "contenttype-wijkt-af": "L'atribut de tipus de contingut no coincideix amb el contingut signat.",
+      "messagedigest-ontbreekt-of-meervoudig": "L'atribut de resum del missatge falta o apareix més d'una vegada.",
+      "certificaat-ondertekenaar-ontbreekt": "Falta el certificat del signant o no es pot llegir.",
+      "zonder-attributen-niet-te-onderscheiden": "Sense atributs signats, no es pot distingir una modificació d'una signatura no vàlida.",
+      "cms-structuur-onleesbaar": "Les dades de la signatura no es poden llegir.",
+      "econtent-bij-losse-handtekening": "La signatura separada conté inesperadament el contingut signat.",
+      "econtenttype-geen-id-data": "El contingut signat té un tipus inesperat.",
+      "geen-ondertekenaar": "Les dades de la signatura no contenen cap signant.",
+      "token-zonder-tstinfo": "El segell de temps no conté informació horària.",
+      "tstinfo-onleesbaar": "La informació horària del segell de temps no es pot llegir.",
+      "bytebereik-geen-vier-getallen": "L'interval de bytes no consta de quatre nombres.",
+      "bytebereik-negatief": "L'interval de bytes conté un nombre negatiu.",
+      "bytebereik-begint-niet-bij-nul": "L'interval de bytes no comença al principi del fitxer.",
+      "bytebereik-gat-te-klein": "El buit de l'interval de bytes és massa petit.",
+      "bytebereik-voorbij-einde": "L'interval de bytes sobrepassa el final del fitxer.",
+      "bytebereik-gat-geen-hex-string": "El buit de l'interval de bytes no conté només el valor de la signatura.",
+      "subfilter-niet-ondersteund": "Aquest format de signatura no és compatible.",
+      "zoekbudget-op": "La cerca d'una cadena de certificats s'ha aturat al seu límit; tot i així, pot existir una cadena.",
+      "gat-wijkt-af-van-contents": "El valor de la signatura del fitxer és diferent del del diccionari de signatura.",
+      "interne-fout": "S'ha produït un error intern en comprovar aquesta signatura.",
+      "unknown": "La comprovació ha informat d'un problema addicional."
+    },
+    "detail": {
+      "title": "Detalls de la signatura",
+      "status": "Estat",
+      "explanation": "Explicació",
+      "signer": "Signant",
+      "issuer": "Emès per",
+      "field": "Camp",
+      "time": "Data i hora",
+      "timeFromTimestamp": "{{time}} (del segell de temps)",
+      "timeClaimed": "{{time}} (indicat pel signant)",
+      "timestamp": "Segell de temps",
+      "none": "Cap",
+      "reason": "Motiu",
+      "location": "Lloc",
+      "coverage": "Cobertura",
+      "coversWhole": "Document sencer",
+      "coversPart": "Bytes {{start}} a {{end}} de {{size}}",
+      "chain": "Cadena de certificats",
+      "validFromTo": "Vàlid del {{from}} al {{to}}",
+      "revocationNotChecked": "Revocació no comprovada.",
+      "notCoveredBySignature": "no signat",
+      "weakAlgorithm": "Algorisme feble (SHA-1): menys protecció contra la falsificació",
+      "technicalDetail": "Detall tècnic",
+      "issuedBy": "Emès per {{issuer}}"
+    },
+    "save": {
+      "title": "Document signat",
+      "message": "Aquest document conté signatures digitals. Desar reescriu el fitxer, cosa que invalida les signatures. Voleu desar igualment?",
+      "messageCopy": "Aquest document conté signatures digitals. El fitxer original continua signat, però la nova còpia no tindrà signatures vàlides. Voleu desar la còpia igualment?",
+      "confirm": "Desa igualment"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

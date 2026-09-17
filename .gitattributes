@@ -23,3 +23,13 @@
 *.snap     binary
 *.AppImage binary
 *.dxf      binary
+*.p12      binary
+*.pfx      binary
+*.der      binary
+*.cer      binary
+*.crt      binary
+*.p7s      binary
+*.bin      binary
+
+# Shellscripts altijd met LF, ook bij core.autocrlf=true: bash weigert CRLF.
+*.sh       text eol=lf

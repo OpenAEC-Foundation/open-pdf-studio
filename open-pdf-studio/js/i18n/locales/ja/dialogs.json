@@ -343,5 +343,113 @@
     "angleInfo": "補正角度：{{angle}}°",
     "done": "{{count}} ページを {{angle}}° 補正しました",
     "alreadyStraight": "線はすでにまっすぐです。補正の必要はありません。"
+  },
+  "signatureVerification": {
+    "checking": "デジタル署名を確認しています…",
+    "barLabel": "デジタル署名",
+    "listError": "署名を確認できませんでした: {{detail}}",
+    "documentTimestamp": "文書タイムスタンプ",
+    "documentTimestampBy": "文書タイムスタンプ（{{tsa}}）",
+    "unknownSigner": "不明な署名者",
+    "changedAfterwards": "文書はその後変更されています",
+    "details": "詳細",
+    "showSignedVersion": "署名済みバージョンを表示",
+    "signedVersionTab": "{{name}}（署名済みバージョン {{number}}）",
+    "signedVersionError": "署名済みバージョンを開けませんでした: {{detail}}",
+    "listTruncated": "すべての署名フィールドを確認したわけではありません: 文書に含まれるフィールドが多すぎます。",
+    "changedSinceCheck": "署名の確認後にファイルが変更されました。署名をもう一度確認しています。",
+    "modifiedInApp": "この状態はディスク上のファイルに対するものです。文書はその後アプリ内で変更されています。",
+    "errors": {
+      "unreadable": "ファイルを読み取れませんでした。",
+      "noSignature": "ファイル内に署名が見つかりませんでした。",
+      "changedSinceList": "署名の確認後にファイルが変更されました。"
+    },
+    "status": {
+      "valid": "有効",
+      "unknownCertificate": "不明な証明書",
+      "modified": "署名後に変更されています",
+      "invalid": "無効な署名",
+      "notVerifiable": "確認できません",
+      "unsignedField": "未署名の署名フィールド"
+    },
+    "reasons": {
+      "noChain": "信頼されたルート証明書へのチェーンがありません",
+      "expired": "該当時点で有効でない証明書があります",
+      "keyUsage": "この用途向けではない証明書があります",
+      "unsupportedAlgorithm": "サポートされていないアルゴリズム",
+      "cmsUnreadable": "署名データを読み取れません",
+      "noCertificate": "署名者の証明書がありません",
+      "byteRangeInvalid": "署名されたバイト範囲が無効です",
+      "pdfUnreadable": "文書構造を読み取れません",
+      "legacyFormat": "古い署名形式"
+    },
+    "explanation": {
+      "valid": "署名された内容は変更されておらず、証明書は信頼されたルートにつながっています。",
+      "modified": "署名されたバイトは署名後に変更されました。",
+      "invalid": "署名されたバイトは変更されていませんが、署名値が一致しません。"
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "署名のハッシュアルゴリズムはサポートされていません。",
+      "handtekeningalgoritme-niet-ondersteund": "署名アルゴリズムはサポートされていません。",
+      "imprintalgoritme-niet-ondersteund": "タイムスタンプのハッシュアルゴリズムはサポートされていません。",
+      "contenttype-ontbreekt-of-meervoudig": "コンテンツタイプ属性がないか、複数存在します。",
+      "contenttype-wijkt-af": "コンテンツタイプ属性が署名された内容と一致しません。",
+      "messagedigest-ontbreekt-of-meervoudig": "メッセージダイジェスト属性がないか、複数存在します。",
+      "certificaat-ondertekenaar-ontbreekt": "署名者の証明書がないか、読み取れません。",
+      "zonder-attributen-niet-te-onderscheiden": "署名属性がないため、変更と無効な署名を区別できません。",
+      "cms-structuur-onleesbaar": "署名データを読み取れません。",
+      "econtent-bij-losse-handtekening": "分離署名に、署名された内容が予期せず含まれています。",
+      "econtenttype-geen-id-data": "署名された内容の種類が予期しないものです。",
+      "geen-ondertekenaar": "署名データに署名者が含まれていません。",
+      "token-zonder-tstinfo": "タイムスタンプに時刻情報が含まれていません。",
+      "tstinfo-onleesbaar": "タイムスタンプの時刻情報を読み取れません。",
+      "bytebereik-geen-vier-getallen": "バイト範囲が4つの数値で構成されていません。",
+      "bytebereik-negatief": "バイト範囲に負の数値が含まれています。",
+      "bytebereik-begint-niet-bij-nul": "バイト範囲がファイルの先頭から始まっていません。",
+      "bytebereik-gat-te-klein": "バイト範囲の隙間が小さすぎます。",
+      "bytebereik-voorbij-einde": "バイト範囲がファイルの末尾を超えています。",
+      "bytebereik-gat-geen-hex-string": "バイト範囲の隙間に署名値以外のデータが含まれています。",
+      "subfilter-niet-ondersteund": "この署名形式はサポートされていません。",
+      "zoekbudget-op": "証明書チェーンの検索が上限に達して停止しました。チェーンが存在する可能性はあります。",
+      "gat-wijkt-af-van-contents": "ファイル内の署名値が署名辞書内の署名値と異なります。",
+      "interne-fout": "この署名の確認中に内部エラーが発生しました。",
+      "unknown": "確認で追加の問題が報告されました。"
+    },
+    "detail": {
+      "title": "署名の詳細",
+      "status": "状態",
+      "explanation": "説明",
+      "signer": "署名者",
+      "issuer": "発行者",
+      "field": "フィールド",
+      "time": "日時",
+      "timeFromTimestamp": "{{time}}（タイムスタンプより）",
+      "timeClaimed": "{{time}}（署名者の申告）",
+      "timestamp": "タイムスタンプ",
+      "none": "なし",
+      "reason": "理由",
+      "location": "場所",
+      "coverage": "範囲",
+      "coversWhole": "文書全体",
+      "coversPart": "{{size}} バイト中 {{start}}～{{end}}",
+      "chain": "証明書チェーン",
+      "validFromTo": "有効期間 {{from}}～{{to}}",
+      "revocationNotChecked": "失効は確認していません。",
+      "notCoveredBySignature": "署名されていません",
+      "weakAlgorithm": "脆弱なアルゴリズム (SHA-1): 偽造に対する保護が弱くなります",
+      "technicalDetail": "技術的な詳細",
+      "issuedBy": "発行者: {{issuer}}"
+    },
+    "save": {
+      "title": "署名済み文書",
+      "message": "この文書にはデジタル署名が含まれています。保存するとファイルが書き換えられ、署名は無効になります。保存しますか？",
+      "messageCopy": "この文書にはデジタル署名が含まれています。元のファイルは署名されたままですが、新しいコピーの署名は有効になりません。コピーを保存しますか？",
+      "confirm": "保存する"
+    },
+    "format": {
+      "note": "{{text}}（{{note}}）",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}、{{time}}"
+    }
   }
 }

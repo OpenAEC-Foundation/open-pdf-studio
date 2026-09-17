@@ -47,7 +47,27 @@ clap = { version = "4", features = ["derive"] }
 # OpenAEC Accounts ("Sign in with OpenAEC", accounts.rs): PKCE + OS-keyring
 # token storage + multipart uploads to the Accounts API.
 keyring = { version = "3", features = ["windows-native"] }
-sha2 = "0.10"
+sha2 = { version = "0.10", features = ["oid"] }
+# Digitale handtekeningen (#374): RustCrypto op de der 0.7-lijn. pkcs12 0.1,
+# cms 0.2 en x509-cert 0.2 hangen daar zelf aan; niet mengen met der 0.8.
+pkcs12 = { version = "0.1", features = ["kdf"] }
+pkcs5 = { version = "0.7", features = ["pbes2", "3des", "sha1-insecure"] }
+cms = "0.2"
+der = { version = "0.7", features = ["alloc", "derive", "oid"] }
+spki = "0.7"
+x509-cert = "0.2"
+const-oid = { version = "0.9", features = ["db"] }
+hmac = "0.12"
+sha1 = { version = "0.10", features = ["oid"] }
+des = { version = "0.8", features = ["zeroize"] }
+rc2 = { version = "0.8", features = ["zeroize"] }
+cbc = { version = "0.1", features = ["alloc", "zeroize"] }
+rsa = "0.9"
+# ECDSA-verificatie (handtekeningen en certificaatketens, spec §7.1). 0.13 is de
+# der 0.7-lijn; "pkcs8" levert ook Signature::from_der.
+p256 = { version = "0.13", default-features = false, features = ["ecdsa", "pkcs8"] }
+p384 = { version = "0.13", default-features = false, features = ["ecdsa", "pkcs8"] }
+zeroize = "1"
 rand = "0.8"
 url = "2"
 urlencoding = "2"
@@ -65,6 +85,9 @@ axum = "0.8"
 # count, etc). Pinned to match `open-pdf-render`'s transitive version so the
 # resolver picks a single lopdf in Cargo.lock.
 lopdf = "0.34"
+# Begrensd uitpakken van objectstromen bij het lezen van handtekeningen; zelfde
+# versie als die lopdf al gebruikt.
+flate2 = "1"
 
 # OCR proof-of-concept (Traditional Chinese + English) — see js/... OCR plan.
 #
@@ -103,5 +126,13 @@ tauri-plugin-drag = "2.1.1"
 # Desktop only.
 tauri-plugin-global-shortcut = "2"
 
+# Rootarchief van het besturingssysteem als DER buiten Windows (macOS-sleutelhanger,
+# OpenSSL-paden op Linux). Staat al in Cargo.lock; geen eigen X.509-lijn.
+[target.'cfg(not(windows))'.dependencies]
+rustls-native-certs = "0.8"
+
+# Win32_Security_Cryptography: het Windows-rootarchief en de gewantrouwde
+# certificaten rechtstreeks en alleen-lezen lezen (handtekeningen), met de
+# doelen en uitschakeldata per wortel.
 [target.'cfg(target_os = "windows")'.dependencies]
-windows-sys = { version = "0.59", features = ["Win32_Graphics_Printing", "Win32_Graphics_Gdi", "Win32_Storage_Xps", "Win32_Foundation", "Win32_System_Com", "Win32_UI_Shell", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging"] }
+windows-sys = { version = "0.59", features = ["Win32_Graphics_Printing", "Win32_Graphics_Gdi", "Win32_Storage_Xps", "Win32_Foundation", "Win32_System_Com", "Win32_UI_Shell", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging", "Win32_Security_Cryptography"] }

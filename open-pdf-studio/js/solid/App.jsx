@@ -9,6 +9,7 @@ import ElementVisibilityPanel from './components/left-panel/ElementVisibilityPan
 import FindBar from './components/FindBar.jsx';
 import FormFieldsBar from './components/FormFieldsBar.jsx';
 import PdfABar from './components/PdfABar.jsx';
+import HandtekeningBar from './components/HandtekeningBar.jsx';
 import NotificationBar from './components/NotificationBar.jsx';
 import PropertiesPanel from './components/properties-panel/PropertiesPanel.jsx';
 import StatusBar from './components/StatusBar.jsx';
@@ -102,6 +103,8 @@ function DesktopApp() {
           <FormFieldsBar />
 
           <PdfABar />
+
+          <HandtekeningBar />
 
           <div id="pdf-container">
             <div id="canvas-wrapper">

@@ -343,5 +343,113 @@
     "angleInfo": "Sudut koreksi: {{angle}}°",
     "done": "{{count}} halaman diluruskan sebesar {{angle}}°",
     "alreadyStraight": "Garis sudah lurus — tidak perlu koreksi."
+  },
+  "signatureVerification": {
+    "checking": "Memeriksa tanda tangan digital…",
+    "barLabel": "Tanda tangan digital",
+    "listError": "Tanda tangan tidak dapat diperiksa: {{detail}}",
+    "documentTimestamp": "Stempel waktu dokumen",
+    "documentTimestampBy": "Stempel waktu dokumen ({{tsa}})",
+    "unknownSigner": "Penanda tangan tidak dikenal",
+    "changedAfterwards": "dokumen diubah setelahnya",
+    "details": "Detail",
+    "showSignedVersion": "Tampilkan versi yang ditandatangani",
+    "signedVersionTab": "{{name}} (versi ditandatangani {{number}})",
+    "signedVersionError": "Versi yang ditandatangani tidak dapat dibuka: {{detail}}",
+    "listTruncated": "Tidak semua bidang tanda tangan diperiksa: dokumen berisi terlalu banyak bidang.",
+    "changedSinceCheck": "Berkas telah berubah sejak tanda tangan diperiksa. Tanda tangan sedang diperiksa ulang.",
+    "modifiedInApp": "Status berlaku untuk berkas di disk; dokumen telah diubah di aplikasi sejak saat itu.",
+    "errors": {
+      "unreadable": "Berkas tidak dapat dibaca.",
+      "noSignature": "Tanda tangan tidak ditemukan di berkas.",
+      "changedSinceList": "Berkas telah berubah sejak tanda tangan diperiksa."
+    },
+    "status": {
+      "valid": "Valid",
+      "unknownCertificate": "Sertifikat tidak dikenal",
+      "modified": "Diubah setelah ditandatangani",
+      "invalid": "Tanda tangan tidak valid",
+      "notVerifiable": "Tidak dapat diperiksa",
+      "unsignedField": "Bidang tanda tangan belum ditandatangani"
+    },
+    "reasons": {
+      "noChain": "Tidak ada rantai ke sertifikat akar tepercaya",
+      "expired": "Sebuah sertifikat tidak valid pada waktu yang relevan",
+      "keyUsage": "Sebuah sertifikat tidak ditujukan untuk penggunaan ini",
+      "unsupportedAlgorithm": "Algoritma tidak didukung",
+      "cmsUnreadable": "Data tanda tangan tidak dapat dibaca",
+      "noCertificate": "Sertifikat penanda tangan tidak ada",
+      "byteRangeInvalid": "Rentang byte yang ditandatangani tidak valid",
+      "pdfUnreadable": "Struktur dokumen tidak dapat dibaca",
+      "legacyFormat": "Format tanda tangan usang"
+    },
+    "explanation": {
+      "valid": "Konten yang ditandatangani tidak berubah dan sertifikat mengarah ke akar tepercaya.",
+      "modified": "Byte yang ditandatangani diubah setelah penandatanganan.",
+      "invalid": "Byte yang ditandatangani tidak berubah, tetapi nilai tanda tangan tidak cocok."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "Algoritma hash tanda tangan tidak didukung.",
+      "handtekeningalgoritme-niet-ondersteund": "Algoritma tanda tangan tidak didukung.",
+      "imprintalgoritme-niet-ondersteund": "Algoritma hash stempel waktu tidak didukung.",
+      "contenttype-ontbreekt-of-meervoudig": "Atribut jenis konten tidak ada atau muncul lebih dari sekali.",
+      "contenttype-wijkt-af": "Atribut jenis konten tidak cocok dengan konten yang ditandatangani.",
+      "messagedigest-ontbreekt-of-meervoudig": "Atribut ringkasan pesan tidak ada atau muncul lebih dari sekali.",
+      "certificaat-ondertekenaar-ontbreekt": "Sertifikat penanda tangan tidak ada atau tidak dapat dibaca.",
+      "zonder-attributen-niet-te-onderscheiden": "Tanpa atribut yang ditandatangani, perubahan tidak dapat dibedakan dari tanda tangan yang tidak valid.",
+      "cms-structuur-onleesbaar": "Data tanda tangan tidak dapat dibaca.",
+      "econtent-bij-losse-handtekening": "Tanda tangan terpisah secara tak terduga berisi konten yang ditandatangani.",
+      "econtenttype-geen-id-data": "Konten yang ditandatangani memiliki jenis yang tidak terduga.",
+      "geen-ondertekenaar": "Data tanda tangan tidak berisi penanda tangan.",
+      "token-zonder-tstinfo": "Stempel waktu tidak berisi informasi waktu.",
+      "tstinfo-onleesbaar": "Informasi waktu dalam stempel waktu tidak dapat dibaca.",
+      "bytebereik-geen-vier-getallen": "Rentang byte tidak terdiri dari empat angka.",
+      "bytebereik-negatief": "Rentang byte berisi angka negatif.",
+      "bytebereik-begint-niet-bij-nul": "Rentang byte tidak dimulai dari awal berkas.",
+      "bytebereik-gat-te-klein": "Celah dalam rentang byte terlalu kecil.",
+      "bytebereik-voorbij-einde": "Rentang byte melampaui akhir berkas.",
+      "bytebereik-gat-geen-hex-string": "Celah dalam rentang byte tidak hanya berisi nilai tanda tangan.",
+      "subfilter-niet-ondersteund": "Format tanda tangan ini tidak didukung.",
+      "zoekbudget-op": "Pencarian rantai sertifikat berhenti pada batasnya; rantai mungkin tetap ada.",
+      "gat-wijkt-af-van-contents": "Nilai tanda tangan dalam berkas berbeda dari nilai dalam kamus tanda tangan.",
+      "interne-fout": "Terjadi kesalahan internal saat memeriksa tanda tangan ini.",
+      "unknown": "Pemeriksaan melaporkan masalah tambahan."
+    },
+    "detail": {
+      "title": "Detail tanda tangan",
+      "status": "Status",
+      "explanation": "Penjelasan",
+      "signer": "Penanda tangan",
+      "issuer": "Diterbitkan oleh",
+      "field": "Bidang",
+      "time": "Waktu",
+      "timeFromTimestamp": "{{time}} (dari stempel waktu)",
+      "timeClaimed": "{{time}} (dinyatakan oleh penanda tangan)",
+      "timestamp": "Stempel waktu",
+      "none": "Tidak ada",
+      "reason": "Alasan",
+      "location": "Lokasi",
+      "coverage": "Cakupan",
+      "coversWhole": "Seluruh dokumen",
+      "coversPart": "Byte {{start}} sampai {{end}} dari {{size}}",
+      "chain": "Rantai sertifikat",
+      "validFromTo": "Berlaku dari {{from}} sampai {{to}}",
+      "revocationNotChecked": "Pencabutan tidak diperiksa.",
+      "notCoveredBySignature": "tidak ditandatangani",
+      "weakAlgorithm": "Algoritma lemah (SHA-1): perlindungan terhadap pemalsuan lebih rendah",
+      "technicalDetail": "Detail teknis",
+      "issuedBy": "Diterbitkan oleh {{issuer}}"
+    },
+    "save": {
+      "title": "Dokumen bertanda tangan",
+      "message": "Dokumen ini berisi tanda tangan digital. Menyimpan akan menulis ulang file sehingga tanda tangan menjadi tidak valid. Tetap simpan?",
+      "messageCopy": "Dokumen ini berisi tanda tangan digital. Berkas asli tetap bertanda tangan, tetapi salinan baru tidak akan memiliki tanda tangan yang valid. Tetap simpan salinan?",
+      "confirm": "Tetap simpan"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

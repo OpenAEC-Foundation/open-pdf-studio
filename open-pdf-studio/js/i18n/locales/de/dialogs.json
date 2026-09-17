@@ -343,5 +343,113 @@
     "angleInfo": "Korrekturwinkel: {{angle}}°",
     "done": "{{count}} Seite(n) um {{angle}}° begradigt",
     "alreadyStraight": "Linie ist bereits gerade — keine Korrektur nötig."
+  },
+  "signatureVerification": {
+    "checking": "Digitale Signaturen werden geprüft…",
+    "barLabel": "Digitale Signaturen",
+    "listError": "Die Signaturen konnten nicht geprüft werden: {{detail}}",
+    "documentTimestamp": "Dokumentzeitstempel",
+    "documentTimestampBy": "Dokumentzeitstempel ({{tsa}})",
+    "unknownSigner": "Unbekannter Unterzeichner",
+    "changedAfterwards": "das Dokument wurde danach noch geändert",
+    "details": "Details",
+    "showSignedVersion": "Signierte Version anzeigen",
+    "signedVersionTab": "{{name}} (signierte Version {{number}})",
+    "signedVersionError": "Die signierte Version konnte nicht geöffnet werden: {{detail}}",
+    "listTruncated": "Nicht alle Signaturfelder wurden geprüft: Das Dokument enthält zu viele.",
+    "changedSinceCheck": "Die Datei wurde seit der Prüfung der Signaturen geändert. Die Signaturen werden erneut geprüft.",
+    "modifiedInApp": "Der Status gilt für die Datei auf dem Datenträger; das Dokument wurde seitdem in der Anwendung geändert.",
+    "errors": {
+      "unreadable": "Die Datei konnte nicht gelesen werden.",
+      "noSignature": "Die Signatur wurde in der Datei nicht gefunden.",
+      "changedSinceList": "Die Datei wurde seit der Prüfung der Signaturen geändert."
+    },
+    "status": {
+      "valid": "Gültig",
+      "unknownCertificate": "Unbekanntes Zertifikat",
+      "modified": "Nach dem Signieren geändert",
+      "invalid": "Ungültige Signatur",
+      "notVerifiable": "Nicht prüfbar",
+      "unsignedField": "Nicht signiertes Signaturfeld"
+    },
+    "reasons": {
+      "noChain": "Keine Kette zu einem vertrauenswürdigen Stammzertifikat",
+      "expired": "Ein Zertifikat war zum maßgeblichen Zeitpunkt nicht gültig",
+      "keyUsage": "Ein Zertifikat ist nicht für diese Verwendung vorgesehen",
+      "unsupportedAlgorithm": "Nicht unterstützter Algorithmus",
+      "cmsUnreadable": "Die Signaturdaten sind nicht lesbar",
+      "noCertificate": "Das Zertifikat des Unterzeichners fehlt",
+      "byteRangeInvalid": "Der signierte Bytebereich ist ungültig",
+      "pdfUnreadable": "Die Dokumentstruktur ist nicht lesbar",
+      "legacyFormat": "Veraltetes Signaturformat"
+    },
+    "explanation": {
+      "valid": "Der signierte Inhalt ist unverändert und das Zertifikat führt zu einem vertrauenswürdigen Stammzertifikat.",
+      "modified": "Die signierten Bytes wurden nach dem Signieren verändert.",
+      "invalid": "Die signierten Bytes sind unverändert, aber der Signaturwert stimmt nicht."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "Der Hash-Algorithmus der Signatur wird nicht unterstützt.",
+      "handtekeningalgoritme-niet-ondersteund": "Der Signaturalgorithmus wird nicht unterstützt.",
+      "imprintalgoritme-niet-ondersteund": "Der Hash-Algorithmus des Zeitstempels wird nicht unterstützt.",
+      "contenttype-ontbreekt-of-meervoudig": "Das Inhaltstyp-Attribut fehlt oder kommt mehrfach vor.",
+      "contenttype-wijkt-af": "Das Inhaltstyp-Attribut passt nicht zum signierten Inhalt.",
+      "messagedigest-ontbreekt-of-meervoudig": "Das Hashwert-Attribut fehlt oder kommt mehrfach vor.",
+      "certificaat-ondertekenaar-ontbreekt": "Das Zertifikat des Unterzeichners fehlt oder ist nicht lesbar.",
+      "zonder-attributen-niet-te-onderscheiden": "Ohne signierte Attribute lässt sich eine Änderung nicht von einer ungültigen Signatur unterscheiden.",
+      "cms-structuur-onleesbaar": "Die Signaturdaten sind nicht lesbar.",
+      "econtent-bij-losse-handtekening": "Die abgetrennte Signatur enthält unerwartet den signierten Inhalt.",
+      "econtenttype-geen-id-data": "Der signierte Inhalt hat einen unerwarteten Typ.",
+      "geen-ondertekenaar": "Die Signaturdaten enthalten keinen Unterzeichner.",
+      "token-zonder-tstinfo": "Der Zeitstempel enthält keine Zeitangabe.",
+      "tstinfo-onleesbaar": "Die Zeitangabe im Zeitstempel ist nicht lesbar.",
+      "bytebereik-geen-vier-getallen": "Der Bytebereich besteht nicht aus vier Zahlen.",
+      "bytebereik-negatief": "Der Bytebereich enthält eine negative Zahl.",
+      "bytebereik-begint-niet-bij-nul": "Der Bytebereich beginnt nicht am Anfang der Datei.",
+      "bytebereik-gat-te-klein": "Die Lücke im Bytebereich ist zu klein.",
+      "bytebereik-voorbij-einde": "Der Bytebereich reicht über das Ende der Datei hinaus.",
+      "bytebereik-gat-geen-hex-string": "Die Lücke im Bytebereich enthält nicht nur den Signaturwert.",
+      "subfilter-niet-ondersteund": "Dieses Signaturformat wird nicht unterstützt.",
+      "zoekbudget-op": "Die Suche nach einer Zertifikatskette wurde an ihrer Grenze abgebrochen; eine Kette kann dennoch existieren.",
+      "gat-wijkt-af-van-contents": "Der Signaturwert in der Datei weicht von dem im Signaturverzeichnis ab.",
+      "interne-fout": "Bei der Prüfung dieser Signatur ist ein interner Fehler aufgetreten.",
+      "unknown": "Die Prüfung hat ein weiteres Problem gemeldet."
+    },
+    "detail": {
+      "title": "Signaturdetails",
+      "status": "Status",
+      "explanation": "Erläuterung",
+      "signer": "Unterzeichner",
+      "issuer": "Ausgestellt von",
+      "field": "Feld",
+      "time": "Zeitpunkt",
+      "timeFromTimestamp": "{{time}} (aus Zeitstempel)",
+      "timeClaimed": "{{time}} (vom Unterzeichner angegeben)",
+      "timestamp": "Zeitstempel",
+      "none": "Keiner",
+      "reason": "Grund",
+      "location": "Ort",
+      "coverage": "Abdeckung",
+      "coversWhole": "Gesamtes Dokument",
+      "coversPart": "Bytes {{start}} bis {{end}} von {{size}}",
+      "chain": "Zertifikatskette",
+      "validFromTo": "Gültig von {{from}} bis {{to}}",
+      "revocationNotChecked": "Widerruf nicht geprüft.",
+      "notCoveredBySignature": "nicht signiert",
+      "weakAlgorithm": "Schwacher Algorithmus (SHA-1): geringerer Schutz vor Fälschung",
+      "technicalDetail": "Technisches Detail",
+      "issuedBy": "Ausgestellt von {{issuer}}"
+    },
+    "save": {
+      "title": "Signiertes Dokument",
+      "message": "Dieses Dokument enthält digitale Signaturen. Beim Speichern wird die Datei neu geschrieben, wodurch die Signaturen ungültig werden. Trotzdem speichern?",
+      "messageCopy": "Dieses Dokument enthält digitale Signaturen. Die Originaldatei bleibt signiert, aber die neue Kopie enthält keine gültigen Signaturen. Kopie trotzdem speichern?",
+      "confirm": "Trotzdem speichern"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

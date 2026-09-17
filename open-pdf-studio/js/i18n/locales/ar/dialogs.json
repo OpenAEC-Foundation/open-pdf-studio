@@ -343,5 +343,113 @@
     "angleInfo": "زاوية التصحيح: {{angle}}°",
     "done": "تم تسوية {{count}} صفحة بزاوية {{angle}}°",
     "alreadyStraight": "الخط مستقيم بالفعل — لا حاجة للتصحيح."
+  },
+  "signatureVerification": {
+    "checking": "جارٍ التحقق من التوقيعات الرقمية…",
+    "barLabel": "التوقيعات الرقمية",
+    "listError": "تعذّر التحقق من التوقيعات: {{detail}}",
+    "documentTimestamp": "طابع زمني للمستند",
+    "documentTimestampBy": "طابع زمني للمستند ({{tsa}})",
+    "unknownSigner": "موقّع غير معروف",
+    "changedAfterwards": "تم تعديل المستند لاحقًا",
+    "details": "التفاصيل",
+    "showSignedVersion": "عرض النسخة الموقّعة",
+    "signedVersionTab": "{{name}} (النسخة الموقّعة {{number}})",
+    "signedVersionError": "تعذّر فتح النسخة الموقّعة: {{detail}}",
+    "listTruncated": "لم يتم التحقق من جميع حقول التوقيع: يحتوي المستند على عدد كبير جدًا منها.",
+    "changedSinceCheck": "تغيّر الملف منذ التحقق من التوقيعات. يجري التحقق من التوقيعات مرة أخرى.",
+    "modifiedInApp": "تنطبق الحالة على الملف المحفوظ على القرص؛ وقد تم تعديل المستند في التطبيق منذ ذلك الحين.",
+    "errors": {
+      "unreadable": "تعذّرت قراءة الملف.",
+      "noSignature": "لم يُعثر على التوقيع في الملف.",
+      "changedSinceList": "تغيّر الملف منذ التحقق من التوقيعات."
+    },
+    "status": {
+      "valid": "صالح",
+      "unknownCertificate": "شهادة غير معروفة",
+      "modified": "تم التعديل بعد التوقيع",
+      "invalid": "توقيع غير صالح",
+      "notVerifiable": "لا يمكن التحقق",
+      "unsignedField": "حقل توقيع غير موقّع"
+    },
+    "reasons": {
+      "noChain": "لا توجد سلسلة إلى شهادة جذر موثوقة",
+      "expired": "لم تكن إحدى الشهادات صالحة في الوقت المعني",
+      "keyUsage": "إحدى الشهادات غير مخصصة لهذا الاستخدام",
+      "unsupportedAlgorithm": "خوارزمية غير مدعومة",
+      "cmsUnreadable": "تتعذر قراءة بيانات التوقيع",
+      "noCertificate": "شهادة الموقّع مفقودة",
+      "byteRangeInvalid": "نطاق البايتات الموقّع غير صالح",
+      "pdfUnreadable": "تتعذر قراءة بنية المستند",
+      "legacyFormat": "تنسيق توقيع قديم"
+    },
+    "explanation": {
+      "valid": "المحتوى الموقّع لم يتغير والشهادة تقود إلى جذر موثوق.",
+      "modified": "تم تغيير البايتات الموقّعة بعد التوقيع.",
+      "invalid": "البايتات الموقّعة لم تتغير، لكن قيمة التوقيع غير مطابقة."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "خوارزمية التجزئة الخاصة بالتوقيع غير مدعومة.",
+      "handtekeningalgoritme-niet-ondersteund": "خوارزمية التوقيع غير مدعومة.",
+      "imprintalgoritme-niet-ondersteund": "خوارزمية التجزئة الخاصة بالطابع الزمني غير مدعومة.",
+      "contenttype-ontbreekt-of-meervoudig": "سمة نوع المحتوى مفقودة أو موجودة أكثر من مرة.",
+      "contenttype-wijkt-af": "سمة نوع المحتوى لا تطابق المحتوى الموقّع.",
+      "messagedigest-ontbreekt-of-meervoudig": "سمة ملخص الرسالة مفقودة أو موجودة أكثر من مرة.",
+      "certificaat-ondertekenaar-ontbreekt": "شهادة الموقّع مفقودة أو تتعذر قراءتها.",
+      "zonder-attributen-niet-te-onderscheiden": "بدون سمات موقّعة، لا يمكن التمييز بين التعديل والتوقيع غير الصالح.",
+      "cms-structuur-onleesbaar": "تتعذر قراءة بيانات التوقيع.",
+      "econtent-bij-losse-handtekening": "يحتوي التوقيع المنفصل على المحتوى الموقّع بشكل غير متوقع.",
+      "econtenttype-geen-id-data": "المحتوى الموقّع من نوع غير متوقع.",
+      "geen-ondertekenaar": "لا تحتوي بيانات التوقيع على أي موقّع.",
+      "token-zonder-tstinfo": "لا يحتوي الطابع الزمني على معلومات الوقت.",
+      "tstinfo-onleesbaar": "تتعذر قراءة معلومات الوقت في الطابع الزمني.",
+      "bytebereik-geen-vier-getallen": "لا يتكون نطاق البايتات من أربعة أرقام.",
+      "bytebereik-negatief": "يحتوي نطاق البايتات على رقم سالب.",
+      "bytebereik-begint-niet-bij-nul": "لا يبدأ نطاق البايتات من بداية الملف.",
+      "bytebereik-gat-te-klein": "الفجوة في نطاق البايتات صغيرة جدًا.",
+      "bytebereik-voorbij-einde": "يمتد نطاق البايتات إلى ما بعد نهاية الملف.",
+      "bytebereik-gat-geen-hex-string": "لا تحتوي الفجوة في نطاق البايتات على قيمة التوقيع فقط.",
+      "subfilter-niet-ondersteund": "تنسيق التوقيع هذا غير مدعوم.",
+      "zoekbudget-op": "توقف البحث عن سلسلة شهادات عند حده الأقصى؛ وقد توجد سلسلة رغم ذلك.",
+      "gat-wijkt-af-van-contents": "تختلف قيمة التوقيع في الملف عن القيمة الموجودة في قاموس التوقيع.",
+      "interne-fout": "حدث خطأ داخلي أثناء التحقق من هذا التوقيع.",
+      "unknown": "أبلغ التحقق عن مشكلة إضافية."
+    },
+    "detail": {
+      "title": "تفاصيل التوقيع",
+      "status": "الحالة",
+      "explanation": "الشرح",
+      "signer": "الموقّع",
+      "issuer": "صادرة عن",
+      "field": "الحقل",
+      "time": "الوقت",
+      "timeFromTimestamp": "{{time}} (من الطابع الزمني)",
+      "timeClaimed": "{{time}} (حسب ما ذكره الموقّع)",
+      "timestamp": "الطابع الزمني",
+      "none": "لا يوجد",
+      "reason": "السبب",
+      "location": "الموقع",
+      "coverage": "النطاق المشمول",
+      "coversWhole": "المستند بالكامل",
+      "coversPart": "البايتات من {{start}} إلى {{end}} من {{size}}",
+      "chain": "سلسلة الشهادات",
+      "validFromTo": "صالحة من {{from}} إلى {{to}}",
+      "revocationNotChecked": "لم يتم التحقق من الإبطال.",
+      "notCoveredBySignature": "غير موقّع",
+      "weakAlgorithm": "خوارزمية ضعيفة (SHA-1): حماية أقل من التزوير",
+      "technicalDetail": "تفاصيل تقنية",
+      "issuedBy": "صادرة عن {{issuer}}"
+    },
+    "save": {
+      "title": "مستند موقّع",
+      "message": "يحتوي هذا المستند على توقيعات رقمية. الحفظ يعيد كتابة الملف مما يجعل التوقيعات غير صالحة. هل تريد الحفظ على أي حال؟",
+      "messageCopy": "يحتوي هذا المستند على توقيعات رقمية. يبقى الملف الأصلي موقّعًا، لكن النسخة الجديدة لن تحمل توقيعات صالحة. هل تريد حفظ النسخة على أي حال؟",
+      "confirm": "الحفظ على أي حال"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}، {{time}}"
+    }
   }
 }

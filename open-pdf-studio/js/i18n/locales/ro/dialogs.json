@@ -343,5 +343,113 @@
     "angleInfo": "Unghi de corecție: {{angle}}°",
     "done": "{{count}} pagină(i) îndreptată(e) cu {{angle}}°",
     "alreadyStraight": "Linia este deja dreaptă — nu este nevoie de corecție."
+  },
+  "signatureVerification": {
+    "checking": "Se verifica semnaturile digitale…",
+    "barLabel": "Semnături digitale",
+    "listError": "Semnaturile nu au putut fi verificate: {{detail}}",
+    "documentTimestamp": "Marca temporala a documentului",
+    "documentTimestampBy": "Marca temporala a documentului ({{tsa}})",
+    "unknownSigner": "Semnatar necunoscut",
+    "changedAfterwards": "documentul a fost modificat ulterior",
+    "details": "Detalii",
+    "showSignedVersion": "Afiseaza versiunea semnata",
+    "signedVersionTab": "{{name}} (versiunea semnata {{number}})",
+    "signedVersionError": "Versiunea semnată nu a putut fi deschisă: {{detail}}",
+    "listTruncated": "Nu au fost verificate toate câmpurile de semnătură: documentul conține prea multe.",
+    "changedSinceCheck": "Fișierul a fost modificat de la verificarea semnăturilor. Semnăturile sunt verificate din nou.",
+    "modifiedInApp": "Starea se referă la fișierul de pe disc; între timp, documentul a fost modificat în aplicație.",
+    "errors": {
+      "unreadable": "Fișierul nu a putut fi citit.",
+      "noSignature": "Semnătura nu a fost găsită în fișier.",
+      "changedSinceList": "Fișierul a fost modificat de la verificarea semnăturilor."
+    },
+    "status": {
+      "valid": "Valida",
+      "unknownCertificate": "Certificat necunoscut",
+      "modified": "Modificat dupa semnare",
+      "invalid": "Semnatura nevalida",
+      "notVerifiable": "Nu poate fi verificata",
+      "unsignedField": "Camp de semnatura nesemnat"
+    },
+    "reasons": {
+      "noChain": "Niciun lant catre un certificat radacina de incredere",
+      "expired": "Un certificat nu era valid la momentul relevant",
+      "keyUsage": "Un certificat nu este destinat acestei utilizari",
+      "unsupportedAlgorithm": "Algoritm neacceptat",
+      "cmsUnreadable": "Datele semnaturii nu pot fi citite",
+      "noCertificate": "Lipseste certificatul semnatarului",
+      "byteRangeInvalid": "Intervalul de octeti semnat este nevalid",
+      "pdfUnreadable": "Structura documentului nu poate fi citita",
+      "legacyFormat": "Format de semnatura invechit"
+    },
+    "explanation": {
+      "valid": "Continutul semnat este neschimbat, iar certificatul duce la o radacina de incredere.",
+      "modified": "Octetii semnati au fost modificati dupa semnare.",
+      "invalid": "Octetii semnati sunt neschimbati, dar valoarea semnaturii nu corespunde."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "Algoritmul hash al semnăturii nu este acceptat.",
+      "handtekeningalgoritme-niet-ondersteund": "Algoritmul de semnătură nu este acceptat.",
+      "imprintalgoritme-niet-ondersteund": "Algoritmul hash al mărcii temporale nu este acceptat.",
+      "contenttype-ontbreekt-of-meervoudig": "Atributul tipului de conținut lipsește sau apare de mai multe ori.",
+      "contenttype-wijkt-af": "Atributul tipului de conținut nu corespunde conținutului semnat.",
+      "messagedigest-ontbreekt-of-meervoudig": "Atributul rezumatului mesajului lipsește sau apare de mai multe ori.",
+      "certificaat-ondertekenaar-ontbreekt": "Certificatul semnatarului lipsește sau nu poate fi citit.",
+      "zonder-attributen-niet-te-onderscheiden": "Fără atribute semnate, o modificare nu poate fi deosebită de o semnătură nevalidă.",
+      "cms-structuur-onleesbaar": "Datele semnăturii nu pot fi citite.",
+      "econtent-bij-losse-handtekening": "Semnătura detașată conține în mod neașteptat conținutul semnat.",
+      "econtenttype-geen-id-data": "Conținutul semnat are un tip neașteptat.",
+      "geen-ondertekenaar": "Datele semnăturii nu conțin niciun semnatar.",
+      "token-zonder-tstinfo": "Marca temporală nu conține informații despre timp.",
+      "tstinfo-onleesbaar": "Informațiile despre timp din marca temporală nu pot fi citite.",
+      "bytebereik-geen-vier-getallen": "Intervalul de octeți nu este format din patru numere.",
+      "bytebereik-negatief": "Intervalul de octeți conține un număr negativ.",
+      "bytebereik-begint-niet-bij-nul": "Intervalul de octeți nu începe la începutul fișierului.",
+      "bytebereik-gat-te-klein": "Spațiul liber din intervalul de octeți este prea mic.",
+      "bytebereik-voorbij-einde": "Intervalul de octeți depășește sfârșitul fișierului.",
+      "bytebereik-gat-geen-hex-string": "Spațiul liber din intervalul de octeți nu conține doar valoarea semnăturii.",
+      "subfilter-niet-ondersteund": "Acest format de semnătură nu este acceptat.",
+      "zoekbudget-op": "Căutarea unui lanț de certificate s-a oprit la limita sa; totuși, un lanț poate exista.",
+      "gat-wijkt-af-van-contents": "Valoarea semnăturii din fișier diferă de cea din dicționarul semnăturii.",
+      "interne-fout": "A apărut o eroare internă la verificarea acestei semnături.",
+      "unknown": "Verificarea a raportat o problemă suplimentară."
+    },
+    "detail": {
+      "title": "Detaliile semnaturii",
+      "status": "Stare",
+      "explanation": "Explicatie",
+      "signer": "Semnatar",
+      "issuer": "Emis de",
+      "field": "Camp",
+      "time": "Moment",
+      "timeFromTimestamp": "{{time}} (din marca temporala)",
+      "timeClaimed": "{{time}} (declarat de semnatar)",
+      "timestamp": "Marca temporala",
+      "none": "Niciuna",
+      "reason": "Motiv",
+      "location": "Locatie",
+      "coverage": "Acoperire",
+      "coversWhole": "Intregul document",
+      "coversPart": "Octetii {{start}} - {{end}} din {{size}}",
+      "chain": "Lant de certificate",
+      "validFromTo": "Valabil de la {{from}} pana la {{to}}",
+      "revocationNotChecked": "Revocarea nu a fost verificata.",
+      "notCoveredBySignature": "nesemnat",
+      "weakAlgorithm": "Algoritm slab (SHA-1): protectie mai redusa impotriva falsificarii",
+      "technicalDetail": "Detaliu tehnic",
+      "issuedBy": "Emis de {{issuer}}"
+    },
+    "save": {
+      "title": "Document semnat",
+      "message": "Acest document contine semnaturi digitale. Salvarea rescrie fisierul, ceea ce invalideaza semnaturile. Salvati totusi?",
+      "messageCopy": "Acest document conține semnături digitale. Fișierul original rămâne semnat, dar noua copie nu va avea semnături valide. Salvați totuși copia?",
+      "confirm": "Salveaza totusi"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

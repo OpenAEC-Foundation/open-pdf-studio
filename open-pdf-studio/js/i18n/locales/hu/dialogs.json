@@ -343,5 +343,113 @@
     "angleInfo": "Javítási szög: {{angle}}°",
     "done": "{{count}} oldal kiegyenesítve {{angle}}°-kal",
     "alreadyStraight": "A vonal már egyenes — nincs szükség javításra."
+  },
+  "signatureVerification": {
+    "checking": "Digitális aláírások ellenőrzése…",
+    "barLabel": "Digitális aláírások",
+    "listError": "Az aláírásokat nem sikerült ellenőrizni: {{detail}}",
+    "documentTimestamp": "Dokumentum-időbélyeg",
+    "documentTimestampBy": "Dokumentum-időbélyeg ({{tsa}})",
+    "unknownSigner": "Ismeretlen aláíró",
+    "changedAfterwards": "a dokumentumot később módosították",
+    "details": "Részletek",
+    "showSignedVersion": "Aláírt változat megjelenítése",
+    "signedVersionTab": "{{name}} (aláírt változat {{number}})",
+    "signedVersionError": "Az aláírt változatot nem sikerült megnyitni: {{detail}}",
+    "listTruncated": "Nem minden aláírásmező lett ellenőrizve: a dokumentum túl sokat tartalmaz.",
+    "changedSinceCheck": "A fájl megváltozott az aláírások ellenőrzése óta. Az aláírások ellenőrzése újra folyik.",
+    "modifiedInApp": "Az állapot a lemezen lévő fájlra vonatkozik; a dokumentum azóta módosult az alkalmazásban.",
+    "errors": {
+      "unreadable": "A fájl nem olvasható.",
+      "noSignature": "Az aláírás nem található a fájlban.",
+      "changedSinceList": "A fájl megváltozott az aláírások ellenőrzése óta."
+    },
+    "status": {
+      "valid": "Érvényes",
+      "unknownCertificate": "Ismeretlen tanúsítvány",
+      "modified": "Aláírás után módosítva",
+      "invalid": "Érvénytelen aláírás",
+      "notVerifiable": "Nem ellenőrizhető",
+      "unsignedField": "Aláíratlan aláírásmező"
+    },
+    "reasons": {
+      "noChain": "Nincs lánc megbízható főtanúsítványig",
+      "expired": "Egy tanúsítvány nem volt érvényes a releváns időpontban",
+      "keyUsage": "Egy tanúsítvány nem erre a használatra készült",
+      "unsupportedAlgorithm": "Nem támogatott algoritmus",
+      "cmsUnreadable": "Az aláírás adatai nem olvashatók",
+      "noCertificate": "Hiányzik az aláíró tanúsítványa",
+      "byteRangeInvalid": "Az aláírt bájttartomány érvénytelen",
+      "pdfUnreadable": "A dokumentum szerkezete nem olvasható",
+      "legacyFormat": "Elavult aláírásformátum"
+    },
+    "explanation": {
+      "valid": "Az aláírt tartalom változatlan, és a tanúsítvány megbízható főtanúsítványhoz vezet.",
+      "modified": "Az aláírt bájtok az aláírás után megváltoztak.",
+      "invalid": "Az aláírt bájtok változatlanok, de az aláírás értéke nem egyezik."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "Az aláírás kivonatoló algoritmusa nem támogatott.",
+      "handtekeningalgoritme-niet-ondersteund": "Az aláírási algoritmus nem támogatott.",
+      "imprintalgoritme-niet-ondersteund": "Az időbélyeg kivonatoló algoritmusa nem támogatott.",
+      "contenttype-ontbreekt-of-meervoudig": "A tartalomtípus-attribútum hiányzik vagy többször szerepel.",
+      "contenttype-wijkt-af": "A tartalomtípus-attribútum nem egyezik az aláírt tartalommal.",
+      "messagedigest-ontbreekt-of-meervoudig": "Az üzenetkivonat-attribútum hiányzik vagy többször szerepel.",
+      "certificaat-ondertekenaar-ontbreekt": "Az aláíró tanúsítványa hiányzik vagy nem olvasható.",
+      "zonder-attributen-niet-te-onderscheiden": "Aláírt attribútumok nélkül a módosítás nem különböztethető meg az érvénytelen aláírástól.",
+      "cms-structuur-onleesbaar": "Az aláírás adatai nem olvashatók.",
+      "econtent-bij-losse-handtekening": "A különálló aláírás váratlanul tartalmazza az aláírt tartalmat.",
+      "econtenttype-geen-id-data": "Az aláírt tartalom típusa váratlan.",
+      "geen-ondertekenaar": "Az aláírás adatai nem tartalmaznak aláírót.",
+      "token-zonder-tstinfo": "Az időbélyeg nem tartalmaz időadatokat.",
+      "tstinfo-onleesbaar": "Az időbélyegben lévő időadatok nem olvashatók.",
+      "bytebereik-geen-vier-getallen": "A bájttartomány nem négy számból áll.",
+      "bytebereik-negatief": "A bájttartomány negatív számot tartalmaz.",
+      "bytebereik-begint-niet-bij-nul": "A bájttartomány nem a fájl elején kezdődik.",
+      "bytebereik-gat-te-klein": "A bájttartományban lévő rés túl kicsi.",
+      "bytebereik-voorbij-einde": "A bájttartomány túlnyúlik a fájl végén.",
+      "bytebereik-gat-geen-hex-string": "A bájttartományban lévő rés nem csak az aláírás értékét tartalmazza.",
+      "subfilter-niet-ondersteund": "Ez az aláírásformátum nem támogatott.",
+      "zoekbudget-op": "A tanúsítványlánc keresése elérte a korlátját; lánc ettől még létezhet.",
+      "gat-wijkt-af-van-contents": "A fájlban lévő aláírásérték eltér az aláírásszótárban lévőtől.",
+      "interne-fout": "Belső hiba történt az aláírás ellenőrzése közben.",
+      "unknown": "Az ellenőrzés további problémát jelzett."
+    },
+    "detail": {
+      "title": "Aláírás részletei",
+      "status": "Állapot",
+      "explanation": "Magyarázat",
+      "signer": "Aláíró",
+      "issuer": "Kibocsátó",
+      "field": "Mező",
+      "time": "Időpont",
+      "timeFromTimestamp": "{{time}} (időbélyegből)",
+      "timeClaimed": "{{time}} (az aláíró szerint)",
+      "timestamp": "Időbélyeg",
+      "none": "Nincs",
+      "reason": "Ok",
+      "location": "Hely",
+      "coverage": "Lefedettség",
+      "coversWhole": "Teljes dokumentum",
+      "coversPart": "{{start}}–{{end}}. bájt, összesen {{size}}",
+      "chain": "Tanúsítványlánc",
+      "validFromTo": "Érvényes: {{from}} – {{to}}",
+      "revocationNotChecked": "Visszavonás nincs ellenőrizve.",
+      "notCoveredBySignature": "nincs aláírva",
+      "weakAlgorithm": "Gyenge algoritmus (SHA-1): kisebb védelem a hamisítás ellen",
+      "technicalDetail": "Technikai részlet",
+      "issuedBy": "Kibocsátó: {{issuer}}"
+    },
+    "save": {
+      "title": "Aláírt dokumentum",
+      "message": "Ez a dokumentum digitális aláírásokat tartalmaz. A mentés újraírja a fájlt, így az aláírások érvénytelenné válnak. Mégis menti?",
+      "messageCopy": "Ez a dokumentum digitális aláírásokat tartalmaz. Az eredeti fájl aláírt marad, de az új másolat nem tartalmaz érvényes aláírásokat. Mégis menti a másolatot?",
+      "confirm": "Mentés mégis"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

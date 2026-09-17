@@ -34,6 +34,7 @@ import WhatsNewDialog from './dialogs/WhatsNewDialog.jsx';
 import ShortcutsDialog from './dialogs/ShortcutsDialog.jsx';
 import ExtensionsDialog from './dialogs/ExtensionsDialog.jsx';
 import ConfirmDialog from './dialogs/ConfirmDialog.jsx';
+import HandtekeningDetailDialog from './dialogs/HandtekeningDetailDialog.jsx';
 import ViewportScaleDialog from './dialogs/ViewportScaleDialog.jsx';
 import ScaleRegionDialog from './dialogs/ScaleRegionDialog.jsx';
 import MeasuredLengthDialog from './dialogs/MeasuredLengthDialog.jsx';
@@ -90,6 +91,7 @@ const DIALOG_MAP = {
   'shortcuts': ShortcutsDialog,
   'extensions': ExtensionsDialog,
   'confirm': ConfirmDialog,
+  'handtekening-detail': HandtekeningDetailDialog,
   'title-block-edit': TitleBlockDialog,
   'viewport-scale': ViewportScaleDialog,
   'scale-region': ScaleRegionDialog,
