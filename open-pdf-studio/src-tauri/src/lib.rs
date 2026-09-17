@@ -11,6 +11,7 @@ pub mod mcp_koppeling;
 pub mod mcp_server;
 pub mod mcp_tool_meta;
 pub mod pdfium_renderer;
+pub mod print_instelling;
 pub mod render_to_png;
 pub mod window_mgmt;
 pub mod startup_diagnostics;
