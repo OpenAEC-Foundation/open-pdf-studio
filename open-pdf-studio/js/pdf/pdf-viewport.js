@@ -1271,6 +1271,23 @@ export function worldToScreen(wx, wy) {
 
 // ─── Wire Events (call once after canvas is ready) ──────────────────────────
 
+let _wiredCanvas = null;
+let _wiredMainView = null;
+
+/**
+ * Start een middelmuis-pan in de viewport-weergave (enkele pagina).
+ * @returns {boolean} false als de viewport niet actief of niet bedraad is
+ */
+export function startViewportMiddelmuisPan(e) {
+  if (!viewport.active || !_wiredCanvas || !_wiredMainView) return false;
+  const rect = _wiredCanvas.getBoundingClientRect();
+  startPan(e.clientX - rect.left, e.clientY - rect.top);
+  try { _wiredMainView.setPointerCapture(e.pointerId); } catch (_) {}
+  state.isPanning = true;
+  state.isMiddleButtonPanning = true;
+  return true;
+}
+
 export function wireEvents(canvas) {
   // Wire events on the main-view (above tool dispatcher) for reliable capture
   const mainView = document.querySelector('.main-view') || canvas;
@@ -1285,19 +1302,12 @@ export function wireEvents(canvas) {
   // class `pdf-cursor-override` so a CSS rule forces inheritance through
   // child elements that have their own explicit cursor (text spans, links).
   // No body classes, no !important written from this file.
+  _wiredCanvas = canvas;
+  _wiredMainView = mainView;
   mainView.addEventListener('pointerdown', (e) => {
     if (!viewport.active) return;
-    // Middle button always pans
-    if (e.button === 1) {
-      e.preventDefault();
-      e.stopPropagation();
-      const rect = canvas.getBoundingClientRect();
-      startPan(e.clientX - rect.left, e.clientY - rect.top);
-      mainView.setPointerCapture(e.pointerId);
-      state.isPanning = true;
-      state.isMiddleButtonPanning = true;
-      return;
-    }
+    // De middelknop pant via de centrale middelmuis-pan
+    // (js/tools/middelmuis-pan.js), die startViewportMiddelmuisPan aanroept.
     // Hand-tool left-click: only pan if NOT clicking on an annotation.
     // If the click is on an annotation, let the event fall through to the
     // annotation-canvas listener so hand-tool.onPointerDown can auto-switch
