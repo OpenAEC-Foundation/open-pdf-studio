@@ -325,6 +325,18 @@
     "title": "Chagua alama ya vigezo",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Utambuzi wa Maandishi (OCR)",
+    "run": "Tambua",
+    "language": "Lugha:",
+    "info": "Kuna kurasa {{count}} katika hati. Huongeza safu ya maandishi isiyoonekana inayoweza kutafutwa — ukurasa unaonekana sawa. Inaweza kutenduliwa kikamilifu kabla ya kuhifadhi.",
+    "options": {
+      "auto": "Kugundua kiotomatiki",
+      "eng": "Kiingereza",
+      "chi_tra": "Kichina (cha Jadi)",
+      "chi_tra+eng": "Kichina (cha Jadi) + Kiingereza"
+    }
+  },
   "straighten": {
     "title": "Nyoosha Ukurasa",
     "apply": "Nyoosha",

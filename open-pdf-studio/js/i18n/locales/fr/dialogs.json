@@ -325,6 +325,18 @@
     "title": "Choisir un symbole paramétrique",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Reconnaissance de texte (OCR)",
+    "run": "Reconnaître",
+    "language": "Langue :",
+    "info": "{{count}} page(s) dans le document. Ajoute une couche de texte invisible et consultable — la page reste identique visuellement. Entièrement réversible avec Annuler avant l'enregistrement.",
+    "options": {
+      "auto": "Détection automatique",
+      "eng": "Anglais",
+      "chi_tra": "Chinois (traditionnel)",
+      "chi_tra+eng": "Chinois (traditionnel) + anglais"
+    }
+  },
   "straighten": {
     "title": "Redresser la Page",
     "apply": "Redresser",

@@ -24,6 +24,7 @@ import { hexToRgb, buildBorderStyle, computeAnnotFlags, mapFontToPdfName,
 import { saveTextEditsToPages } from './saver/text-edits.js';
 import { hasMixedRuns, textboxLineRuns, runsToText } from '../annotations/rendering/textbox-layout.js';
 import { saveWatermarksToPages } from './saver/watermarks.js';
+import { writeOcrTextLayer, embedOcrFont, loadDefaultOcrFontBytes } from './saver/ocr-text-layer.js';
 import { saveBookmarksToOutline } from './saver/bookmarks.js';
 import { saveStylePresetsToCatalog } from './saver/style-presets.js';
 import { pdfTextString, toWinAnsiText, winAnsiLiteral, asciiPdfName } from './saver/pdf-text.js';
@@ -2908,6 +2909,19 @@ async function _savePDFNu(saveAsPath) {
 
     // Burn text edits into the PDF (cover-and-replace)
     await saveTextEditsToPages(pdfDocLib, pages);
+
+    // Write out any OCR results as an invisible searchable text layer
+    if (activeDoc && activeDoc.ocrResults && Object.keys(activeDoc.ocrResults).length > 0) {
+      const ocrFontBytes = await loadDefaultOcrFontBytes();
+      const ocrFont = await embedOcrFont(pdfDocLib, ocrFontBytes);
+      for (const [pageNumStr, words] of Object.entries(activeDoc.ocrResults)) {
+        const pageIndex = parseInt(pageNumStr, 10) - 1;
+        const page = pages[pageIndex];
+        if (page && words && words.length > 0) {
+          writeOcrTextLayer(page, words, ocrFont);
+        }
+      }
+    }
 
     // Burn watermarks into the PDF
     await saveWatermarksToPages(pdfDocLib, pages);

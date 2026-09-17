@@ -325,6 +325,18 @@
     "title": "Pilih simbol parametrik",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Pengecaman Teks (OCR)",
+    "run": "Kenal pasti",
+    "language": "Bahasa:",
+    "info": "{{count}} muka surat dalam dokumen. Menambah lapisan teks tersembunyi yang boleh dicari — muka surat kelihatan sama. Boleh dibatalkan sepenuhnya dengan Buat Asal sebelum menyimpan.",
+    "options": {
+      "auto": "Pengesanan automatik",
+      "eng": "Bahasa Inggeris",
+      "chi_tra": "Cina (Tradisional)",
+      "chi_tra+eng": "Cina (Tradisional) + Bahasa Inggeris"
+    }
+  },
   "straighten": {
     "title": "Luruskan Halaman",
     "apply": "Luruskan",

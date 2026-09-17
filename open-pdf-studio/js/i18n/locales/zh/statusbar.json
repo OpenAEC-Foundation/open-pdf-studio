@@ -79,5 +79,14 @@
     "outerOpen": "外轮廓未闭合 — {{count}} 个点"
   },
   "boxWidthAbbr": "宽",
-  "boxHeightAbbr": "高"
+  "boxHeightAbbr": "高",
+  "ocr": {
+    "progress": {
+      "starting": "Recognizing text...",
+      "page": "Recognizing text on page {{page}}...",
+      "done": "Recognized {{count}} words",
+      "doneAll": "Recognized {{count}} words across {{pages}} pages",
+      "failed": "Text recognition failed"
+    }
+  }
 }

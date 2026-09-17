@@ -325,6 +325,18 @@
     "title": "Valitse parametrinen symboli",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Tekstintunnistus (OCR)",
+    "run": "Tunnista",
+    "language": "Kieli:",
+    "info": "{{count}} sivu(a) asiakirjassa. Lisää näkymättömän, haettavan tekstitason — sivu näyttää edelleen samalta. Täysin peruutettavissa Kumoa-toiminnolla ennen tallennusta.",
+    "options": {
+      "auto": "Automaattinen tunnistus",
+      "eng": "Englanti",
+      "chi_tra": "Kiina (perinteinen)",
+      "chi_tra+eng": "Kiina (perinteinen) + englanti"
+    }
+  },
   "straighten": {
     "title": "Suorista Sivu",
     "apply": "Suorista",

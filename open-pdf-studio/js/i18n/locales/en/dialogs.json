@@ -481,6 +481,18 @@
     "title": "Choose Parametric Symbol",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Recognize Text (OCR)",
+    "run": "Recognize",
+    "language": "Language:",
+    "info": "{{count}} page(s) in document. Adds an invisible, searchable text layer — the page still looks the same. Fully reversible with Undo before saving.",
+    "options": {
+      "auto": "Auto-detect",
+      "eng": "English",
+      "chi_tra": "Chinese (Traditional)",
+      "chi_tra+eng": "Chinese (Traditional) + English"
+    }
+  },
   "straighten": {
     "title": "Straighten Page",
     "apply": "Straighten",

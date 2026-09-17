@@ -325,6 +325,18 @@
     "title": "Paraméteres szimbólum kiválasztása",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Szövegfelismerés (OCR)",
+    "run": "Felismerés",
+    "language": "Nyelv:",
+    "info": "{{count}} oldal a dokumentumban. Láthatatlan, kereshető szövegréteget ad hozzá — az oldal ugyanúgy néz ki. Mentés előtt a Visszavonással teljesen visszaállítható.",
+    "options": {
+      "auto": "Automatikus felismerés",
+      "eng": "Angol",
+      "chi_tra": "Kínai (hagyományos)",
+      "chi_tra+eng": "Kínai (hagyományos) + angol"
+    }
+  },
   "straighten": {
     "title": "Oldal Egyenesítése",
     "apply": "Egyenesítés",

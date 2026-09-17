@@ -80,5 +80,14 @@
     "outerOpen": "Εξωτερικό περίγραμμα ανοιχτό — {{count}} σημείο/α"
   },
   "boxWidthAbbr": "Π",
-  "boxHeightAbbr": "Υ"
+  "boxHeightAbbr": "Υ",
+  "ocr": {
+    "progress": {
+      "starting": "Recognizing text...",
+      "page": "Recognizing text on page {{page}}...",
+      "done": "Recognized {{count}} words",
+      "doneAll": "Recognized {{count}} words across {{pages}} pages",
+      "failed": "Text recognition failed"
+    }
+  }
 }

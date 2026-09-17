@@ -325,6 +325,18 @@
     "title": "Chọn ký hiệu tham số",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Nhận dạng văn bản (OCR)",
+    "run": "Nhận dạng",
+    "language": "Ngôn ngữ:",
+    "info": "Tài liệu có {{count}} trang. Thêm một lớp văn bản vô hình, có thể tìm kiếm — trang vẫn trông giống như cũ. Có thể hoàn tác hoàn toàn bằng Hoàn tác trước khi lưu.",
+    "options": {
+      "auto": "Tự động phát hiện",
+      "eng": "Tiếng Anh",
+      "chi_tra": "Tiếng Trung (Phồn thể)",
+      "chi_tra+eng": "Tiếng Trung (Phồn thể) + Tiếng Anh"
+    }
+  },
   "straighten": {
     "title": "Làm Thẳng Trang",
     "apply": "Làm Thẳng",

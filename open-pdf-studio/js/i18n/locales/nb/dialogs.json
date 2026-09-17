@@ -325,6 +325,18 @@
     "title": "Velg parametrisk symbol",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Tekstgjenkjenning (OCR)",
+    "run": "Gjenkjenn",
+    "language": "Språk:",
+    "info": "{{count}} side(r) i dokumentet. Legger til et usynlig, søkbart tekstlag — siden ser fortsatt lik ut. Fullt reverserbart med Angre før lagring.",
+    "options": {
+      "auto": "Automatisk gjenkjenning",
+      "eng": "Engelsk",
+      "chi_tra": "Kinesisk (tradisjonell)",
+      "chi_tra+eng": "Kinesisk (tradisjonell) + engelsk"
+    }
+  },
   "straighten": {
     "title": "Rett Opp Siden",
     "apply": "Rett opp",

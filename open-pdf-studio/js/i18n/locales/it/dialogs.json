@@ -325,6 +325,18 @@
     "title": "Scegli simbolo parametrico",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Riconoscimento testo (OCR)",
+    "run": "Riconosci",
+    "language": "Lingua:",
+    "info": "{{count}} pagina/e nel documento. Aggiunge un livello di testo invisibile e ricercabile — la pagina resta visivamente identica. Completamente reversibile con Annulla prima del salvataggio.",
+    "options": {
+      "auto": "Rilevamento automatico",
+      "eng": "Inglese",
+      "chi_tra": "Cinese (tradizionale)",
+      "chi_tra+eng": "Cinese (tradizionale) + inglese"
+    }
+  },
   "straighten": {
     "title": "Raddrizza Pagina",
     "apply": "Raddrizza",

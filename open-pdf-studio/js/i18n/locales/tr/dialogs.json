@@ -325,6 +325,18 @@
     "title": "Parametrik sembol seç",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Metin Tanıma (OCR)",
+    "run": "Tanı",
+    "language": "Dil:",
+    "info": "Belgede {{count}} sayfa var. Görünmez, aranabilir bir metin katmanı ekler — sayfa aynı görünmeye devam eder. Kaydetmeden önce Geri Al ile tamamen geri alınabilir.",
+    "options": {
+      "auto": "Otomatik algıla",
+      "eng": "İngilizce",
+      "chi_tra": "Çince (Geleneksel)",
+      "chi_tra+eng": "Çince (Geleneksel) + İngilizce"
+    }
+  },
   "straighten": {
     "title": "Sayfayı Düzelt",
     "apply": "Düzelt",

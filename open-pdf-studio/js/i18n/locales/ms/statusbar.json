@@ -80,5 +80,14 @@
     "outerOpen": "Kontur luar terbuka — {{count}} titik"
   },
   "boxWidthAbbr": "L",
-  "boxHeightAbbr": "T"
+  "boxHeightAbbr": "T",
+  "ocr": {
+    "progress": {
+      "starting": "Recognizing text...",
+      "page": "Recognizing text on page {{page}}...",
+      "done": "Recognized {{count}} words",
+      "doneAll": "Recognized {{count}} words across {{pages}} pages",
+      "failed": "Text recognition failed"
+    }
+  }
 }

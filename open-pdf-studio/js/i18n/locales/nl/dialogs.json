@@ -482,6 +482,18 @@
     "title": "Parametrisch symbool kiezen",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Tekst herkennen (OCR)",
+    "run": "Herken",
+    "language": "Taal:",
+    "info": "{{count}} pagina('s) in het document. Voegt een onzichtbare, doorzoekbare tekstlaag toe — de pagina ziet er nog hetzelfde uit. Volledig ongedaan te maken vóór het opslaan.",
+    "options": {
+      "auto": "Automatisch detecteren",
+      "eng": "Engels",
+      "chi_tra": "Chinees (Traditioneel)",
+      "chi_tra+eng": "Chinees (Traditioneel) + Engels"
+    }
+  },
   "straighten": {
     "title": "Pagina Rechtzetten",
     "apply": "Rechtzetten",
