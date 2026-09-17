@@ -83,13 +83,29 @@ function _commitStampSvg(ann, next) {
   if (next === ann.stampSvg) return false;
 
   ann.stampSvg = next;
+  rerasterizeStamp(ann);
+  return true;
+}
+
+/**
+ * Maak het beeld van een symbool opnieuw uit zijn huidige `stampSvg`.
+ *
+ * Ook nodig na ongedaan maken / opnieuw doen: dat zet `stampSvg` terug, maar
+ * de beeldcache houdt het raster van de vorige SVG vast.
+ */
+export function rerasterizeStamp(ann) {
+  if (!ann || ann.type !== 'stamp' || !ann.stampSvg) return;
+  const svg = ann.stampSvg;
   // Oude rasterversie ongeldig maken zodat er geen verouderd beeld blijft
   // staan terwijl het nieuwe nog gerasterd wordt.
   if (ann.imageId) imageCache.delete(ann.imageId);
   ann._cachedImg = null;
 
-  rasterizeSvg(next).then((result) => {
+  rasterizeSvg(svg).then((result) => {
     if (!result) return;
+    // Is de bron intussen weer gewijzigd (snel achter elkaar ongedaan maken),
+    // dan hoort dit raster niet meer bij de annotatie.
+    if (ann.stampSvg !== svg) return;
     const cacheId = ann.imageId || ('stamp_svg_' + ann.id);
     imageCache.set(cacheId, result.img);
     ann.imageId = cacheId;
@@ -98,5 +114,4 @@ function _commitStampSvg(ann, next) {
     redrawAnnotations();
     if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
   });
-  return true;
 }

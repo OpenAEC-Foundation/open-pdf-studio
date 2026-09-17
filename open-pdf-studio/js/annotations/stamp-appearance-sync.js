@@ -47,3 +47,18 @@ export function syncStampAppearance(ann, before, hooks) {
   }
   return geraakt;
 }
+
+/**
+ * Moet het beeld van een symbool opnieuw gemaakt worden nadat de annotatie
+ * van toestand `before` naar `after` is teruggezet (ongedaan maken / opnieuw
+ * doen)? Het raster in de beeldcache hoort bij de oude SVG; zonder nieuw
+ * raster blijft de oude kleur of dikte zichtbaar terwijl de gegevens al
+ * teruggezet zijn.
+ */
+export function stampRasterStale(before, after) {
+  if (!before || !after || after.type !== 'stamp' || !after.stampSvg) return false;
+  return before.stampSvg !== after.stampSvg
+    || before.color !== after.color
+    || before.strokeColor !== after.strokeColor
+    || before.lineWidth !== after.lineWidth;
+}

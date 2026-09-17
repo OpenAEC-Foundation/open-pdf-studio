@@ -93,3 +93,25 @@ test('met de echte herkleurregel: een NL-Elektra-achtige bron krijgt de werkbalk
   assert.ok(ann.stampSvg.includes('stroke="#cc0000"'));
   assert.ok(!ann.stampSvg.includes('stroke="#000"'));
 });
+
+// --- Ongedaan maken / opnieuw doen (restoreAnnotationState) ---
+
+test('rasterVerouderd: gewijzigde stampSvg, kleur of lijndikte van een symbool vraagt een nieuw beeld', async () => {
+  const { stampRasterStale } = await import('./stamp-appearance-sync.js');
+  const rood = symbool({ color: '#ff0000', strokeColor: '#ff0000',
+    stampSvg: '<svg viewBox="0 0 64 64"><g stroke="#ff0000" stroke-width="2"><path d="M0 0"/></g></svg>' });
+  const zwart = symbool({ strokeColor: '#000000' });
+  assert.equal(stampRasterStale(rood, zwart), true);
+  assert.equal(stampRasterStale(symbool(), symbool({ lineWidth: 6 })), true);
+  assert.equal(stampRasterStale(symbool(), symbool({ color: '#00ff00' })), true);
+  assert.equal(stampRasterStale(symbool({ strokeColor: '#000' }), symbool({ strokeColor: '#111' })), true);
+});
+
+test('rasterVerouderd: verplaatsen of een ander type raakt het beeld niet', async () => {
+  const { stampRasterStale } = await import('./stamp-appearance-sync.js');
+  assert.equal(stampRasterStale(symbool({ x: 1 }), symbool({ x: 50 })), false);
+  assert.equal(stampRasterStale({ type: 'line', color: '#000' }, { type: 'line', color: '#f00' }), false);
+  // Stempel zonder SVG-bron (bv. na heropenen): er valt niets opnieuw te rasteren.
+  assert.equal(stampRasterStale({ type: 'stamp', color: '#000' }, { type: 'stamp', color: '#f00' }), false);
+  assert.equal(stampRasterStale(null, symbool()), false);
+});
