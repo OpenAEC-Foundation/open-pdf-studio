@@ -444,6 +444,17 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
           if (points.length === 4) colors.opsTwoPoint = points;
         }
       }
+      // Ongedraaide maat [w h] (PDF-ruimte) van een gedraaide vorm waarvan
+      // /Rect alleen de omhullende is — zie gedraaide-vorm-maat.js.
+      const opsMaatRaw = annotDict.get(PDFName.of('OPS_Maat'));
+      if (opsMaatRaw) {
+        const arr = context.lookup(opsMaatRaw) || opsMaatRaw;
+        if (arr && typeof arr.size === 'function' && arr.size() === 2) {
+          const mw = pdfNum(context.lookup(arr.get(0)) || arr.get(0));
+          const mh = pdfNum(context.lookup(arr.get(1)) || arr.get(1));
+          if (mw > 0 && mh > 0) colors.opsMaat = { width: mw, height: mh };
+        }
+      }
       const opsTwoPointBandRaw = annotDict.get(PDFName.of('OPS_TwoPointBand'));
       if (opsTwoPointBandRaw) {
         const band = pdfNum(context.lookup(opsTwoPointBandRaw) || opsTwoPointBandRaw);

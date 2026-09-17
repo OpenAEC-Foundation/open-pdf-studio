@@ -18,6 +18,7 @@ import { ensureSysteemType, getSysteemTypeById } from '../../annotations/systeem
 import { computeTextboxContentHeight } from '../../annotations/rendering/shapes.js';
 import { pasRegelafstandAanDoos } from '../../annotations/rendering/textbox-layout.js';
 import { toWinAnsiText } from '../saver/pdf-text.js';
+import { maatVanGedraaideVorm } from './gedraaide-vorm-maat.js';
 
 // Convert PDF annotation to our format
 export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageMap, annotColorMap) {
@@ -81,6 +82,21 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
     }
   }
   extraColors = extraColors || {};
+
+  // Echte maat van een gedraaide vorm waarvan /Rect de assen-uitgelijnde
+  // omhullende is (rechthoek, ellips, maskeervlak, parametrisch symbool).
+  // Kandidaten: de eigen /OPS_Maat en de /BBox van de appearance, die de vorm
+  // ongedraaid tekent. Zie gedraaide-vorm-maat.js.
+  const echteVormMaat = (omhullende) => maatVanGedraaideVorm({
+    rotatie: extraColors.rotation,
+    omhullende,
+    kandidaten: [
+      extraColors.opsMaat || null,
+      (extraColors.bboxWidth && extraColors.bboxHeight)
+        ? { width: extraColors.bboxWidth, height: extraColors.bboxHeight } : null,
+    ],
+    paginaRotatie: viewport.rotation || 0,
+  });
 
   const baseProps = {
     page: pageNum,
@@ -184,7 +200,9 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
 
       // Parametric symbol: stored as Square + private OPS metadata
       if (extraColors.opsSubtype === 'parametricSymbol') {
-        const psRect = convertRect(annot.rect);
+        // Gedraaid: /Rect is de omhullende. Met twee punten herstelt
+        // syncTwoPointGeometry hieronder de maat alsnog uit OPS_TwoPoint.
+        const psRect = extraColors.rotation ? echteVormMaat(convertRect(annot.rect)) : convertRect(annot.rect);
         const symbolId = extraColors.opsSymbolId || '';
         let params = {};
         try { if (extraColors.opsParams) params = JSON.parse(extraColors.opsParams); } catch (_) {}
@@ -220,7 +238,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
       // Maskeer (wipeout): Square + OPS_Subtype 'mask' — restore as the
       // dedicated type so the fixed white-cover rendering applies again.
       if (extraColors.opsSubtype === 'mask') {
-        const mkRect = convertRect(annot.rect);
+        const mkRect = extraColors.rotation ? echteVormMaat(convertRect(annot.rect)) : convertRect(annot.rect);
         return createAnnotation({
           ...baseProps,
           type: 'mask',
@@ -338,6 +356,8 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
       let sqRotation = 0;
       if (extraColors.rotation !== undefined && extraColors.rotation !== 0) {
         sqRotation = Math.round(extraColors.rotation);
+        // /Rect is de omhullende van de gedraaide rechthoek, niet zijn maat.
+        ({ x: sqX, y: sqY, width: sqW, height: sqH } = echteVormMaat(sqRect));
       } else if (extraColors.matrixAngle !== undefined && Math.abs(extraColors.matrixAngle) > 1) {
         sqRotation = -Math.round(extraColors.matrixAngle);
         // Rect is the expanded axis-aligned bounding box; recover original size from BBox
@@ -377,6 +397,8 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
       let crRotation = 0;
       if (extraColors.rotation !== undefined && extraColors.rotation !== 0) {
         crRotation = Math.round(extraColors.rotation);
+        // /Rect is de omhullende van de gedraaide ellips, niet zijn maat.
+        ({ x: crX, y: crY, width: crW, height: crH } = echteVormMaat(crRect));
       } else if (extraColors.matrixAngle !== undefined && Math.abs(extraColors.matrixAngle) > 1) {
         crRotation = -Math.round(extraColors.matrixAngle);
         if (extraColors.bboxWidth && extraColors.bboxHeight) {

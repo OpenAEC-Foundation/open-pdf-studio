@@ -2733,7 +2733,12 @@ async function _savePDFNu(saveAsPath) {
               OPS_IfcCategory: pdfTextString(ann.ifcCategory || ''),
             };
             psDict.BS = buildBorderStyle(context, borderWidth, ann.borderStyle);
-            if (psAnn.rotation) psDict.OPS_Rotation = psAnn.rotation;
+            if (psAnn.rotation) {
+              psDict.OPS_Rotation = psAnn.rotation;
+              // /Rect is hierboven de omhullende; de raster-appearance ook.
+              // Zonder de echte maat groeit het symbool bij elke rondgang.
+              psDict.OPS_Maat = [Math.abs(psAnn.width), Math.abs(psAnn.height)];
+            }
             if ([psAnn.startX, psAnn.startY, psAnn.endX, psAnn.endY].every(Number.isFinite)) {
               psDict.OPS_TwoPoint = context.obj([
                 convertX(psAnn.startX), convertY(psAnn.startY),
