@@ -262,7 +262,8 @@
     "left": "שמאל:",
     "right": "ימין:",
     "top": "עליון:",
-    "bottom": "תחתון:"
+    "bottom": "תחתון:",
+    "printerDefault": "ברירת המחדל של המדפסת"
   },
   "docProperties": {
     "title": "מאפייני מסמך",

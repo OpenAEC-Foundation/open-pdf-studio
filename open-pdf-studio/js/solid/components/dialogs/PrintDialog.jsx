@@ -9,6 +9,9 @@ import { loadPrinters, printerList as cachedPrinters, defaultPrinterName, printe
 import { runPrintJob } from '../../../pdf/print-job.js';
 import { savePreferences } from '../../../core/preferences.js';
 import { herstelPrintInstellingen, kiesStartPrinter } from '../../stores/print-instellingen.js';
+import { printArgumenten } from '../../../pdf/print-pagina-instelling.js';
+import { getPageSetupSettings } from './PageSetupDialog.jsx';
+import { viewportOpties } from '../../../pdf/getoonde-pagina.js';
 
 export default function PrintDialog(props) {
   const { t } = useTranslation('dialogs');
@@ -116,11 +119,7 @@ export default function PrintDialog(props) {
     try {
       const page = await doc.pdfDoc.getPage(pageNum);
       const extraRotation = getPageRotation(pageNum);
-      const viewportOpts = { scale: 1 };
-      if (extraRotation) {
-        viewportOpts.rotation = (page.rotate + extraRotation) % 360;
-      }
-      const viewport = page.getViewport(viewportOpts);
+      const viewport = page.getViewport(viewportOpties(page, extraRotation));
 
       const maxW = 300;
       const maxH = 350;
@@ -128,11 +127,7 @@ export default function PrintDialog(props) {
       const scaleH = maxH / viewport.height;
       const previewScale = Math.min(scaleW, scaleH);
 
-      const previewViewportOpts = { scale: previewScale };
-      if (extraRotation) {
-        previewViewportOpts.rotation = (page.rotate + extraRotation) % 360;
-      }
-      const previewViewport = page.getViewport(previewViewportOpts);
+      const previewViewport = page.getViewport(viewportOpties(page, extraRotation, previewScale));
 
       canvasRef.width = Math.floor(previewViewport.width);
       canvasRef.height = Math.floor(previewViewport.height);
@@ -254,7 +249,14 @@ export default function PrintDialog(props) {
     };
     savePreferences();
     close();
-    runPrintJob({ pages, copies: numCopies, printer });
+    // Oriëntatie en papier: Automatisch draaien en de Pagina-instelling
+    // bereiken nu echt de printer (zie print-pagina-instelling.js).
+    const { orientatie, papier } = printArgumenten({
+      autoRotate: autoRotate(),
+      paginaInstelling: getPageSetupSettings(),
+      docId: getActiveDocument()?.id ?? null,
+    });
+    runPrintJob({ pages, copies: numCopies, printer, orientatie, papier });
   }
 
   onMount(async () => {

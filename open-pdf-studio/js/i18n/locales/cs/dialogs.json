@@ -262,7 +262,8 @@
     "left": "Vlevo:",
     "right": "Vpravo:",
     "top": "Nahoře:",
-    "bottom": "Dole:"
+    "bottom": "Dole:",
+    "printerDefault": "Výchozí nastavení tiskárny"
   },
   "docProperties": {
     "title": "Vlastnosti dokumentu",

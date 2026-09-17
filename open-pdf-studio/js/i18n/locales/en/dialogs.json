@@ -326,7 +326,8 @@
     "left": "Left:",
     "right": "Right:",
     "top": "Top:",
-    "bottom": "Bottom:"
+    "bottom": "Bottom:",
+    "printerDefault": "Printer default"
   },
   "docProperties": {
     "title": "Document Properties",

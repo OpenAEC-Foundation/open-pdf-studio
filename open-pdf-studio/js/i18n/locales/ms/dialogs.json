@@ -262,7 +262,8 @@
     "left": "Kiri:",
     "right": "Kanan:",
     "top": "Atas:",
-    "bottom": "Bawah:"
+    "bottom": "Bawah:",
+    "printerDefault": "Lalai pencetak"
   },
   "docProperties": {
     "title": "Sifat Dokumen",

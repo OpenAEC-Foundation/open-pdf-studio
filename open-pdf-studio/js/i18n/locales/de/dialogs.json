@@ -262,7 +262,8 @@
     "left": "Links:",
     "right": "Rechts:",
     "top": "Oben:",
-    "bottom": "Unten:"
+    "bottom": "Unten:",
+    "printerDefault": "Druckerstandard"
   },
   "docProperties": {
     "title": "Dokumenteigenschaften",

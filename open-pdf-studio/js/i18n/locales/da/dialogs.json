@@ -262,7 +262,8 @@
     "left": "Venstre:",
     "right": "Højre:",
     "top": "Top:",
-    "bottom": "Bund:"
+    "bottom": "Bund:",
+    "printerDefault": "Printerens standard"
   },
   "docProperties": {
     "title": "Dokumentegenskaber",

@@ -11,6 +11,7 @@ pub mod mcp_koppeling;
 pub mod mcp_server;
 pub mod mcp_tool_meta;
 pub mod pdfium_renderer;
+pub mod print_instelling;
 pub mod render_to_png;
 pub mod window_mgmt;
 pub mod startup_diagnostics;
@@ -499,14 +500,23 @@ async fn get_printers() -> Result<String, String> {
 /// async for the same reason as get_printers: GDI spooling is slow blocking
 /// work and must not run on the main event-loop thread.
 #[tauri::command]
-async fn print_pdf(path: String, printer: String) -> Result<bool, String> {
+async fn print_pdf(
+    path: String,
+    printer: String,
+    orientatie: Option<String>,
+    papier: Option<String>,
+) -> Result<bool, String> {
+    // Keuzes uit de Pagina-instelling. Zonder argumenten: Auto + printerstandaard,
+    // precies het gedrag van vóór deze parameters.
+    let orientatie = print_instelling::Orientatie::uit_keuze(orientatie.as_deref());
+    let papier = print_instelling::Papier::uit_keuze(papier.as_deref());
     #[cfg(target_os = "windows")]
     {
         use windows_sys::Win32::Graphics::Gdi::{
             CreateDCW, DeleteDC, StretchDIBits, GetDeviceCaps, SetStretchBltMode,
             ResetDCW, DEVMODEW, BITMAPINFO, BITMAPINFOHEADER,
             BI_RGB, DIB_RGB_COLORS, SRCCOPY, HORZRES, VERTRES, LOGPIXELSX, HALFTONE,
-            DM_ORIENTATION, DMORIENT_PORTRAIT, DMORIENT_LANDSCAPE,
+            DM_ORIENTATION, DM_PAPERSIZE, DMORIENT_PORTRAIT, DMORIENT_LANDSCAPE,
         };
         // The StartDoc/EndDoc print-job family lives under Storage::Xps in
         // windows-sys (print spooler document API), not under Graphics::Gdi.
@@ -550,6 +560,12 @@ async fn print_pdf(path: String, printer: String) -> Result<bool, String> {
             let mut devmode: DEVMODEW = std::mem::zeroed();
             devmode.dmSize = std::mem::size_of::<DEVMODEW>() as u16;
             devmode.dmFields = DM_ORIENTATION;
+            // Papierformaat alleen als de gebruiker er een koos; anders blijft
+            // het formaat van de printer staan.
+            if let Some(code) = print_instelling::dmpaper(papier) {
+                devmode.dmFields |= DM_PAPERSIZE;
+                devmode.Anonymous1.Anonymous1.dmPaperSize = code;
+            }
             {
                 let n = printer_w.len().min(31);
                 devmode.dmDeviceName[..n].copy_from_slice(&printer_w[..n]);
@@ -593,8 +609,16 @@ async fn print_pdf(path: String, printer: String) -> Result<bool, String> {
                 // drawing goes on landscape paper, no 90° auto-rotation.
                 // dmOrientation is i16; the DMORIENT_* consts are u32 in windows-sys.
                 devmode.Anonymous1.Anonymous1.dmOrientation =
-                    (if w > h { DMORIENT_LANDSCAPE } else { DMORIENT_PORTRAIT }) as i16;
-                ResetDCW(hdc, &devmode);
+                    (if print_instelling::liggend_voor_pagina(orientatie, w, h) {
+                        DMORIENT_LANDSCAPE
+                    } else {
+                        DMORIENT_PORTRAIT
+                    }) as i16;
+                if ResetDCW(hdc, &devmode).is_null() {
+                    // De driver weigerde de wijziging; de pagina gaat met de
+                    // vorige instelling mee in plaats van de opdracht af te breken.
+                    eprintln!("[print] ResetDC geweigerd voor pagina {} ({:?}, {:?})", i + 1, orientatie, papier);
+                }
                 let dev_w = GetDeviceCaps(hdc, HORZRES as i32);
                 let dev_h = GetDeviceCaps(hdc, VERTRES as i32);
 
@@ -658,6 +682,9 @@ async fn print_pdf(path: String, printer: String) -> Result<bool, String> {
         // The caller always passes an absolute temp path, so the filename can
         // never be mistaken for an option; `--` is not portable across lp
         // implementations and is deliberately left out.
+        for optie in print_instelling::lp_opties(orientatie, papier) {
+            cmd.arg(optie);
+        }
         let output = cmd
             .arg(&path)
             .output()
@@ -677,7 +704,7 @@ async fn print_pdf(path: String, printer: String) -> Result<bool, String> {
 
     #[cfg(not(any(target_os = "windows", target_os = "linux", target_os = "macos")))]
     {
-        let _ = (&path, &printer);
+        let _ = (&path, &printer, &orientatie, &papier);
         Err("Printing is not supported on this platform".to_string())
     }
 }

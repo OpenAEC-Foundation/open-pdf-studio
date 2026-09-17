@@ -262,7 +262,8 @@
     "left": "왼쪽:",
     "right": "오른쪽:",
     "top": "위:",
-    "bottom": "아래:"
+    "bottom": "아래:",
+    "printerDefault": "프린터 기본값"
   },
   "docProperties": {
     "title": "문서 속성",

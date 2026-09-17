@@ -262,7 +262,8 @@
     "left": "Esquerda:",
     "right": "Direita:",
     "top": "Superior:",
-    "bottom": "Inferior:"
+    "bottom": "Inferior:",
+    "printerDefault": "Padrão da impressora"
   },
   "docProperties": {
     "title": "Propriedades do documento",

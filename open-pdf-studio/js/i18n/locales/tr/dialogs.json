@@ -262,7 +262,8 @@
     "left": "Sol:",
     "right": "Sağ:",
     "top": "Üst:",
-    "bottom": "Alt:"
+    "bottom": "Alt:",
+    "printerDefault": "Yazıcı varsayılanı"
   },
   "docProperties": {
     "title": "Belge Özellikleri",

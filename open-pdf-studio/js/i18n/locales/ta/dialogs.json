@@ -262,7 +262,8 @@
     "left": "இடம்:",
     "right": "வலம்:",
     "top": "மேல்:",
-    "bottom": "கீழ்:"
+    "bottom": "கீழ்:",
+    "printerDefault": "அச்சுப்பொறி இயல்புநிலை"
   },
   "docProperties": {
     "title": "ஆவணப் பண்புகள்",
