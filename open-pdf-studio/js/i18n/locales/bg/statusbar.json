@@ -83,11 +83,11 @@
   "boxHeightAbbr": "В",
   "ocr": {
     "progress": {
-      "starting": "Recognizing text...",
-      "page": "Recognizing text on page {{page}}...",
-      "done": "Recognized {{count}} words",
-      "doneAll": "Recognized {{count}} words across {{pages}} pages",
-      "failed": "Text recognition failed"
+      "starting": "Разпознаване на текст...",
+      "page": "Разпознаване на текст на страница {{page}}...",
+      "done": "Разпознати думи: {{count}}",
+      "doneAll": "Разпознати думи: {{count}} в {{pages}} страници",
+      "failed": "Разпознаването на текст е неуспешно"
     }
   }
 }

@@ -83,11 +83,11 @@
   "boxHeightAbbr": "ג",
   "ocr": {
     "progress": {
-      "starting": "Recognizing text...",
-      "page": "Recognizing text on page {{page}}...",
-      "done": "Recognized {{count}} words",
-      "doneAll": "Recognized {{count}} words across {{pages}} pages",
-      "failed": "Text recognition failed"
+      "starting": "מזהה טקסט...",
+      "page": "מזהה טקסט בעמוד {{page}}...",
+      "done": "זוהו {{count}} מילים",
+      "doneAll": "זוהו {{count}} מילים ב-{{pages}} עמודים",
+      "failed": "זיהוי הטקסט נכשל"
     }
   }
 }

@@ -91,11 +91,11 @@
   "boxHeightAbbr": "H",
   "ocr": {
     "progress": {
-      "starting": "Recognizing text...",
-      "page": "Recognizing text on page {{page}}...",
-      "done": "Recognized {{count}} words",
-      "doneAll": "Recognized {{count}} words across {{pages}} pages",
-      "failed": "Text recognition failed"
+      "starting": "Tekst herkennen...",
+      "page": "Tekst herkennen op pagina {{page}}...",
+      "done": "{{count}} woorden herkend",
+      "doneAll": "{{count}} woorden herkend op {{pages}} pagina's",
+      "failed": "Tekstherkenning mislukt"
     }
   }
 }
