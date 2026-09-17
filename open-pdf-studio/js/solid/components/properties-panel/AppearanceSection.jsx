@@ -191,7 +191,7 @@ export default function AppearanceSection() {
           </div>
         </Show>
 
-        {/* Kruis: beide diagonalen in een rechthoek (bijv. 'vervalt' of
+        {/* Kruis: in een rechthoek of cirkel/ellips (bijv. 'vervalt' of
             'sparing' op een tekening). Round-tript via OPS_Cross. */}
         <Show when={sectionVis.crossGroup}>
           <div class="property-group" title={t('appearance.crossHint')}>

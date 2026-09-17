@@ -251,7 +251,7 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         }
       }
 
-      // Kruis in een rechthoek (OPS_Cross, zie saver).
+      // Kruis in een rechthoek of cirkel/ellips (OPS_Cross, zie saver).
       const opsCrossRaw = annotDict.get(PDFName.of('OPS_Cross'));
       if (opsCrossRaw) {
         const cv = context.lookup(opsCrossRaw) || opsCrossRaw;

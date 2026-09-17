@@ -56,7 +56,7 @@
     "opacity": "Opacité",
     "borderStyle": "Border Style",
     "cross": "Cross",
-    "crossHint": "Draws both diagonals inside the rectangle",
+    "crossHint": "Draws a cross inside the rectangle, circle or ellipse (e.g. an opening)",
     "lineWidth": "Largeur de ligne",
     "borderWidth": "Largeur de bordure",
     "hatchPattern": "Hatch Pattern",

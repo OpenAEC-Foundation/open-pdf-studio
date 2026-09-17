@@ -686,6 +686,9 @@ async function _savePDFNu(saveAsPath) {
             }
 
             if (ann.rotation) annDictObj.OPS_Rotation = ann.rotation;
+            // Kruis (rond gat / sparing): zelfde privésleutel als bij de
+            // rechthoek; de AP-stream tekent het kruis voor andere lezers.
+            if (ann.cross) annDictObj.OPS_Cross = true;
 
             annotDict = context.obj(annDictObj);
             break;

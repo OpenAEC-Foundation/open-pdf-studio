@@ -56,7 +56,7 @@
     "opacity": "Opasite",
     "borderStyle": "Border Style",
     "cross": "Cross",
-    "crossHint": "Draws both diagonals inside the rectangle",
+    "crossHint": "Draws a cross inside the rectangle, circle or ellipse (e.g. an opening)",
     "lineWidth": "Çizgi Genişliği",
     "borderWidth": "Kenarlık Genişliği",
     "hatchPattern": "Hatch Pattern",

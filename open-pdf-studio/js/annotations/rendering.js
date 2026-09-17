@@ -42,6 +42,7 @@ import { EDITABLE_NUMBER_COLOR, shouldHighlightNumbers } from './editable-number
 import { labelHasNumericField } from './editable-numbers-providers.js';
 import { halftoneTypes as evHalftoneTypes } from '../solid/stores/elementVisibilityStore.js';
 import { isAnnotationHiddenInView } from './view-filters.js';
+import { kruisEindpuntenEllips } from './kruis-geometrie.js';
 import {
   getPageRotationMatrix,
   resolveTextEditLineStyle,
@@ -693,6 +694,16 @@ export function drawAnnotation(ctx, annotation) {
       ctx.beginPath();
       ctx.ellipse(ellipseCX, ellipseCY, Math.abs(ellipseW / 2), Math.abs(ellipseH / 2), 0, 0, 2 * Math.PI);
       ctx.stroke();
+      // Kruis (rond gat / sparing): lijnen onder ±45° door het middelpunt tot
+      // de omtrek, in dezelfde lijnstijl als de omtrek.
+      if (annotation.cross) {
+        ctx.beginPath();
+        for (const l of kruisEindpuntenEllips(ellipseCX, ellipseCY, ellipseW / 2, ellipseH / 2)) {
+          ctx.moveTo(l.x1, l.y1);
+          ctx.lineTo(l.x2, l.y2);
+        }
+        ctx.stroke();
+      }
       ctx.setLineDash([]);
       ctx.restore();
       break;

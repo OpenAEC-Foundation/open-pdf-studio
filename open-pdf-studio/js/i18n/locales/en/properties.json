@@ -47,7 +47,7 @@
     "borderWidth": "Border Width",
     "borderStyle": "Border Style",
     "cross": "Cross",
-    "crossHint": "Draws both diagonals inside the rectangle",
+    "crossHint": "Draws a cross inside the rectangle, circle or ellipse (e.g. an opening)",
     "lineContinue": "Continue (chained lines)",
     "lineContinueHint": "Each new line starts at the previous endpoint. Esc or right-click stops the chain.",
     "rotation": "Rotation",

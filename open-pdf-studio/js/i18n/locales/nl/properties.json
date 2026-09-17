@@ -45,7 +45,7 @@
     "opacity": "Dekking",
     "borderStyle": "Border Style",
     "cross": "Kruis",
-    "crossHint": "Tekent beide diagonalen in de rechthoek",
+    "crossHint": "Tekent een kruis in de rechthoek, cirkel of ellips (bijv. een sparing)",
     "lineContinue": "Doorgaan (aaneengesloten lijnen)",
     "lineContinueHint": "Na elke lijn begint de volgende op het vorige eindpunt. Esc of rechtsklik stopt de reeks.",
     "lineWidth": "Lijnbreedte",

@@ -404,6 +404,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
         borderStyle: mapBorderStyle(annot, extraColors)
       };
       if (crRotation) crProps.rotation = crRotation;
+      if (extraColors.cross) crProps.cross = true;
       return createAnnotation(crProps);
     }
 
