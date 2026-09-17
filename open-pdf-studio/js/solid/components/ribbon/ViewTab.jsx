@@ -90,20 +90,21 @@ export default function ViewTab() {
               redrawAnnotations();
             }} />
           <RibbonButton id="reader-mode-toggle"
-            title={t('view.readerModeTip') || 'Remember each PDF\'s page, scroll position and zoom across closing and reopening it. Saves a small file next to each PDF you read, so it also appears in cloud-synced folders (OneDrive, Dropbox, etc.)'}
+            title={t('view.readerModeTip') || 'Remember this PDF\'s page, scroll position and zoom across closing and reopening it. Saves a small file next to each PDF you read, so it also appears in cloud-synced folders (OneDrive, Dropbox, etc.)'}
             icon={`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 5.5C4 4.67 4.67 4 5.5 4H12v16H5.5A1.5 1.5 0 014 18.5v-13z"/><path d="M20 5.5c0-.83-.67-1.5-1.5-1.5H12v16h6.5a1.5 1.5 0 001.5-1.5v-13z"/><path d="M12 4v16" stroke-width="1"/></svg>`}
             label={t('view.readerMode') || 'Reader Mode'}
-            active={state.preferences?.readerMode}
-            onClick={async () => {
-              // Nothing to confirm on turning off: positions live as sidecar
-              // files next to each PDF, not a central list that needs a
-              // "clear all" step — turning this off just stops writing new
-              // ones. Existing sidecars are as private as the PDF next to
-              // them; deleting one is a normal file-delete if the user wants
-              // that at all.
-              state.preferences.readerMode = !state.preferences.readerMode;
-              const { savePreferences } = await import('../../../core/preferences.js');
-              savePreferences();
+            disabled={noPdf()}
+            active={!!getActiveDocument()?.readerModeActive}
+            onClick={() => {
+              // Per-document, not global — see loader.js's Reader Mode
+              // restore block. Nothing to confirm on turning off: positions
+              // live as sidecar files next to each PDF, not a central list
+              // that needs a "clear all" step — turning this off just stops
+              // writing new ones. Existing sidecars are as private as the
+              // PDF next to them; deleting one is a normal file-delete if
+              // the user wants that at all.
+              const doc = getActiveDocument();
+              if (doc) doc.readerModeActive = !doc.readerModeActive;
             }} />
         </RibbonGroup>
 

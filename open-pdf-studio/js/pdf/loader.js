@@ -451,10 +451,20 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
       // and annotations are unaffected — this only ever touches the reading
       // position. Best-effort: any failure here shouldn't block the rest of
       // loading, so it's swallowed rather than surfaced.
-      if (state.preferences.readerMode && filePath) {
+      //
+      // Per-file, not global: every newly opened PDF starts with tracking
+      // OFF, regardless of whether Reader Mode is on for whatever document
+      // you had open before — otherwise every PDF you ever open leaves a
+      // permanent .readerpos.json next to it, cluttering folders with files
+      // the user never asked to track individually. A file that already has
+      // a sidecar (from a previous session with tracking on) resumes being
+      // tracked automatically; the ribbon toggle turns it on/off per file.
+      doc.readerModeActive = false;
+      if (filePath) {
         try {
           const saved = await getReaderPosition(filePath);
           if (saved) {
+            doc.readerModeActive = true;
             if (saved.page && saved.page !== doc.currentPage) {
               await goToPage(saved.page);
               if (isClosed()) return;

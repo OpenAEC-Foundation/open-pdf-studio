@@ -222,7 +222,7 @@ export async function closeTab(index, force = false, dialogAction = null) {
   // different tab's position under this file's path. In single-page mode
   // the real zoom lives in the viewport singleton, not doc.scale (which
   // setZoom() leaves stale there — see setZoom's early-return for vp.active).
-  if (state.preferences.readerMode && doc.filePath && !doc.isUntitled) {
+  if (doc.readerModeActive && doc.filePath && !doc.isUntitled) {
     const isActiveDoc = state.documents[state.activeDocumentIndex] === doc;
     const vp = isActiveDoc ? window.__pdfViewport : null;
     const container = isActiveDoc ? document.getElementById('pdf-container') : null;

@@ -1,9 +1,12 @@
 // Reader Mode: per-PDF "where was I" memory — page, scroll position, and
 // zoom — saved on close and restored on the next open of that same file,
-// gated entirely by state.preferences.readerMode. This is NOT a session
-// restore (which files were open, see main.js's restoreLastSession) and
-// NOT a different rendering path — bookmarks/highlights/annotations are
-// completely untouched; it only remembers a reading position per file.
+// gated per-document via doc.readerModeActive (see loader.js's restore
+// block and tabs.js's closeTab): a file starts with tracking off, turns on
+// automatically on open if it already has a sidecar, or manually via the
+// ribbon toggle. This is NOT a session restore (which files were open, see
+// main.js's restoreLastSession) and NOT a different rendering path —
+// bookmarks/highlights/annotations are completely untouched; it only
+// remembers a reading position per file.
 //
 // Stored as a small SIDECAR file next to the PDF itself — e.g.
 // "MyBook.pdf" gets "MyBook.pdf.readerpos.json" in the same folder —

@@ -204,9 +204,6 @@ export interface Preferences {
   restoreLastSession: boolean;
   dontAskDefaultPdf: boolean;
 
-  // Reader Mode: remember each PDF's page/scroll/zoom across close+reopen.
-  readerMode: boolean;
-
   // Screenshot annotate: intercept the system PrtScn key as a global hotkey
   interceptPrintScreen: boolean;
 
