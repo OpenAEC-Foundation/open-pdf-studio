@@ -124,12 +124,23 @@ export default function PageSetupDialog() {
   const doc = getActiveDocument();
   const docId = doc?.id ?? null;
 
-  onMount(async () => {
+  // De startwaarden worden asynchroon uit de paginamaat afgeleid. Kiest de
+  // gebruiker intussen al formaat of oriëntatie (aangeraakt), dan blijft die
+  // keuze staan; OK wacht op de afleiding zodat 'handmatig' tegen de juiste
+  // start wordt beoordeeld.
+  let aangeraakt = false;
+  let afleiding = Promise.resolve();
+
+  onMount(() => {
     updatePreview();
-    const { breedtePt, hoogtePt } = await huidigePaginaMaat(doc);
-    start = startPaginaInstelling({ bewaard: pageSetupSettings, docId, breedtePt, hoogtePt });
-    setSize(start.size);
-    setOrientation(start.orientation);
+    afleiding = (async () => {
+      const { breedtePt, hoogtePt } = await huidigePaginaMaat(doc);
+      start = startPaginaInstelling({ bewaard: pageSetupSettings, docId, breedtePt, hoogtePt });
+      if (!aangeraakt) {
+        setSize(start.size);
+        setOrientation(start.orientation);
+      }
+    })();
   });
 
   createEffect(() => {
@@ -145,7 +156,12 @@ export default function PageSetupDialog() {
 
   const close = () => closeDialog('page-setup');
 
-  const applyPageSetup = () => {
+  const applyPageSetup = async () => {
+    try {
+      await afleiding;
+    } catch {
+      // Afleiding mislukt: OK werkt zoals voorheen met de bewaarde start.
+    }
     const bewaard = bewaarPaginaInstelling({
       start, gekozen: { size: size(), orientation: orientation() }, docId,
     });
@@ -192,7 +208,7 @@ export default function PageSetupDialog() {
           <select
             class="page-setup-select"
             value={size()}
-            onChange={(e) => setSize(e.target.value)}
+            onChange={(e) => { aangeraakt = true; setSize(e.target.value); }}
           >
             <option value="printer">{t('pageSetup.printerDefault')}</option>
             <option value="a2">A2 (420 x 594 mm)</option>
@@ -227,7 +243,7 @@ export default function PageSetupDialog() {
               name="page-setup-orient"
               value="portrait"
               checked={orientation() === 'portrait'}
-              onChange={() => setOrientation('portrait')}
+              onChange={() => { aangeraakt = true; setOrientation('portrait'); }}
             /> {tCommon('portrait')}
           </label>
           <label class="page-setup-radio-label">
@@ -236,7 +252,7 @@ export default function PageSetupDialog() {
               name="page-setup-orient"
               value="landscape"
               checked={orientation() === 'landscape'}
-              onChange={() => setOrientation('landscape')}
+              onChange={() => { aangeraakt = true; setOrientation('landscape'); }}
             /> {tCommon('landscape')}
           </label>
         </fieldset>
