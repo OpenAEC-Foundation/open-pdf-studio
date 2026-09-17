@@ -52,6 +52,9 @@ export function handlePointerDown(e) {
   flushWachtendeMove();
   if (!getActiveDocument()?.pdfDoc) return;
   if (isModalOpen()) return;
+  // Middelknop: de pan loopt via de centrale middelmuis-pan
+  // (middelmuis-pan.js, capture op window) — nooit als gereedschapsklik.
+  if (e.button === 1) return;
 
   // Dismiss context menu on any canvas click (left or right)
   hideMenu();
@@ -83,8 +86,8 @@ export function handlePointerDown(e) {
   // clicking AWAY to commit the text — consume that click so the SAME gesture
   // doesn't also place a brand-new textbox/shape (the old behaviour dropped a
   // fresh textbox every time you clicked away, so editing never "ended").
-  // Middle/right buttons fall through so panning and the 2D-cursor gesture
-  // keep working while a textbox is open.
+  // The right button falls through so the 2D-cursor gesture keeps working
+  // while a textbox is open.
   if (state.isEditingText) {
     finishTextEditing();
     if (e.button === 0) return;
@@ -114,10 +117,6 @@ export function handlePointerDown(e) {
     const __doc = getActiveDocument();
     if (__doc) __doc.currentPage = coords.pageNum;
   }
-
-  // Middelknop: de pan loopt via de centrale middelmuis-pan
-  // (middelmuis-pan.js, capture op window) — nooit als gereedschapsklik.
-  if (e.button === 1) return;
 
   // Blender-style 2D cursor: Shift+RIGHT-click places (or moves) it —
   // regardless of the active tool. Hidden until first placed; drawn in the
