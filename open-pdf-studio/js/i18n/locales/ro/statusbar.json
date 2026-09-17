@@ -83,11 +83,11 @@
   "boxHeightAbbr": "H",
   "ocr": {
     "progress": {
-      "starting": "Recognizing text...",
-      "page": "Recognizing text on page {{page}}...",
-      "done": "Recognized {{count}} words",
-      "doneAll": "Recognized {{count}} words across {{pages}} pages",
-      "failed": "Text recognition failed"
+      "starting": "Se recunoaște textul...",
+      "page": "Se recunoaște textul de pe pagina {{page}}...",
+      "done": "Cuvinte recunoscute: {{count}}",
+      "doneAll": "Cuvinte recunoscute: {{count}} pe {{pages}} pagini",
+      "failed": "Recunoașterea textului a eșuat"
     }
   }
 }

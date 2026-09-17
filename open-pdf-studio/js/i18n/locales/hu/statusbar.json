@@ -83,11 +83,11 @@
   "boxHeightAbbr": "M",
   "ocr": {
     "progress": {
-      "starting": "Recognizing text...",
-      "page": "Recognizing text on page {{page}}...",
-      "done": "Recognized {{count}} words",
-      "doneAll": "Recognized {{count}} words across {{pages}} pages",
-      "failed": "Text recognition failed"
+      "starting": "Szöveg felismerése...",
+      "page": "Szöveg felismerése a(z) {{page}}. oldalon...",
+      "done": "{{count}} szó felismerve",
+      "doneAll": "{{count}} szó felismerve {{pages}} oldalon",
+      "failed": "A szövegfelismerés sikertelen"
     }
   }
 }
