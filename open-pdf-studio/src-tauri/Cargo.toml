@@ -88,10 +88,15 @@ lopdf = "0.34"
 # see the "Build Tauri app / Build macOS app" steps there. Windows has no
 # equivalent "system-installed Tesseract" story without adding a vcpkg
 # dependency, and that CI leg already builds cleanly from source.
+#
+# Android: no OCR. The source build of Tesseract/Leptonica does not work with
+# the NDK (CMake misses CpuFeaturesNdkCompat, the link step misses
+# -lleptonica), so the crate is left out entirely and `ocr_pdf_page` is a
+# stub that returns an error (see src/lib.rs).
 [target.'cfg(target_os = "linux")'.dependencies]
 tesseract-rs = { version = "0.4", default-features = false, features = ["use-system-tesseract"] }
 
-[target.'cfg(not(target_os = "linux"))'.dependencies]
+[target.'cfg(not(any(target_os = "linux", target_os = "android")))'.dependencies]
 tesseract-rs = { version = "0.4", default-features = false, features = ["build-tesseract"] }
 
 [target.'cfg(not(target_os = "android"))'.dependencies]

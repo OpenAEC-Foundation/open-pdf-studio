@@ -10,6 +10,8 @@ pub mod mcp_app_bridge;
 pub mod mcp_koppeling;
 pub mod mcp_server;
 pub mod mcp_tool_meta;
+// OCR (Tesseract) is desktop only; Android has no Tesseract build.
+#[cfg(not(target_os = "android"))]
 pub mod ocr;
 pub mod pdfium_renderer;
 pub mod print_instelling;
@@ -1868,6 +1870,7 @@ async fn render_pdf_page(
 /// "chi_tra+eng"); defaults to "eng" if omitted. Tessdata is resolved from
 /// the bundled `tessdata` resource directory — see scripts/ocr-runtime.mjs
 /// and the `resources` map in tauri.conf.json.
+#[cfg(not(target_os = "android"))]
 #[tauri::command]
 async fn ocr_pdf_page(
     app: tauri::AppHandle,
@@ -1913,6 +1916,15 @@ async fn ocr_pdf_page(
     })
     .await
     .map_err(|e| format!("OCR task panicked: {}", e))?
+}
+
+/// Android has no Tesseract build (see Cargo.toml), so OCR is unavailable
+/// there. The command stays registered so the invoke handler list is the
+/// same on every platform; it only reports that OCR is not available.
+#[cfg(target_os = "android")]
+#[tauri::command]
+async fn ocr_pdf_page() -> Result<(), String> {
+    Err("OCR is op dit platform niet beschikbaar".to_string())
 }
 
 #[tauri::command]
