@@ -262,7 +262,8 @@
     "left": "বাম:",
     "right": "ডান:",
     "top": "উপর:",
-    "bottom": "নিচ:"
+    "bottom": "নিচ:",
+    "printerDefault": "প্রিন্টারের ডিফল্ট"
   },
   "docProperties": {
     "title": "নথির বৈশিষ্ট্য",

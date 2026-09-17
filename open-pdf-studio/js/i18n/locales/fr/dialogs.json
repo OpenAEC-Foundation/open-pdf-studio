@@ -262,7 +262,8 @@
     "left": "Gauche :",
     "right": "Droite :",
     "top": "Haut :",
-    "bottom": "Bas :"
+    "bottom": "Bas :",
+    "printerDefault": "Valeur par défaut de l'imprimante"
   },
   "docProperties": {
     "title": "Propriétés du document",

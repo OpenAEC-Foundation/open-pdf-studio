@@ -262,7 +262,8 @@
     "left": "ซ้าย:",
     "right": "ขวา:",
     "top": "บน:",
-    "bottom": "ล่าง:"
+    "bottom": "ล่าง:",
+    "printerDefault": "ค่าเริ่มต้นของเครื่องพิมพ์"
   },
   "docProperties": {
     "title": "คุณสมบัติเอกสาร",

@@ -262,7 +262,8 @@
     "left": "Esquerra:",
     "right": "Dreta:",
     "top": "Dalt:",
-    "bottom": "Baix:"
+    "bottom": "Baix:",
+    "printerDefault": "Predeterminat de la impressora"
   },
   "docProperties": {
     "title": "Propietats del document",

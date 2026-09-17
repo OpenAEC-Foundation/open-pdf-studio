@@ -262,7 +262,8 @@
     "left": "左：",
     "right": "右：",
     "top": "上：",
-    "bottom": "下："
+    "bottom": "下：",
+    "printerDefault": "プリンターの既定"
   },
   "docProperties": {
     "title": "ドキュメントのプロパティ",

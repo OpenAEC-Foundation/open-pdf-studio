@@ -262,7 +262,8 @@
     "left": "Trái:",
     "right": "Phải:",
     "top": "Trên:",
-    "bottom": "Dưới:"
+    "bottom": "Dưới:",
+    "printerDefault": "Mặc định của máy in"
   },
   "docProperties": {
     "title": "Thuộc tính Tài liệu",

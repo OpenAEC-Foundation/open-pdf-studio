@@ -308,7 +308,8 @@
     "left": "Links:",
     "right": "Rechts:",
     "top": "Boven:",
-    "bottom": "Onder:"
+    "bottom": "Onder:",
+    "printerDefault": "Standaard van de printer"
   },
   "docProperties": {
     "title": "Documenteigenschappen",

@@ -9,6 +9,8 @@ import { loadPrinters, printerList as cachedPrinters, defaultPrinterName, printe
 import { runPrintJob } from '../../../pdf/print-job.js';
 import { savePreferences } from '../../../core/preferences.js';
 import { herstelPrintInstellingen, kiesStartPrinter } from '../../stores/print-instellingen.js';
+import { printArgumenten } from '../../../pdf/print-pagina-instelling.js';
+import { getPageSetupSettings } from './PageSetupDialog.jsx';
 
 export default function PrintDialog(props) {
   const { t } = useTranslation('dialogs');
@@ -254,7 +256,14 @@ export default function PrintDialog(props) {
     };
     savePreferences();
     close();
-    runPrintJob({ pages, copies: numCopies, printer });
+    // Oriëntatie en papier: Automatisch draaien en de Pagina-instelling
+    // bereiken nu echt de printer (zie print-pagina-instelling.js).
+    const { orientatie, papier } = printArgumenten({
+      autoRotate: autoRotate(),
+      paginaInstelling: getPageSetupSettings(),
+      docId: getActiveDocument()?.id ?? null,
+    });
+    runPrintJob({ pages, copies: numCopies, printer, orientatie, papier });
   }
 
   onMount(async () => {

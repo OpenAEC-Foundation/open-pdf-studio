@@ -262,7 +262,8 @@
     "left": "Vänster:",
     "right": "Höger:",
     "top": "Överkant:",
-    "bottom": "Nederkant:"
+    "bottom": "Nederkant:",
+    "printerDefault": "Skrivarens standard"
   },
   "docProperties": {
     "title": "Dokumentegenskaper",

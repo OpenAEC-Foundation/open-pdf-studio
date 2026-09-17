@@ -262,7 +262,8 @@
     "left": "बाएं:",
     "right": "दाएं:",
     "top": "ऊपर:",
-    "bottom": "नीचे:"
+    "bottom": "नीचे:",
+    "printerDefault": "प्रिंटर डिफ़ॉल्ट"
   },
   "docProperties": {
     "title": "दस्तावेज़ गुण",

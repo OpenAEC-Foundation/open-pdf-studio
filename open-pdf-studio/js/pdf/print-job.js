@@ -14,9 +14,10 @@ import {
 /**
  * Run a print job in the background. Fire-and-forget: the caller closes the
  * dialog first, this drives the floating progress bar.
- * @param {{ pages:number[], copies:number, printer:string }} opts
+ * @param {{ pages:number[], copies:number, printer:string,
+ *           orientatie?:'auto'|'portrait'|'landscape', papier?:string }} opts
  */
-export async function runPrintJob({ pages, copies, printer }) {
+export async function runPrintJob({ pages, copies, printer, orientatie = 'auto', papier = 'printer' }) {
   startPrintProgress(i18next.t('dialogs:print.progress.preparing'));
   try {
     const doc = getActiveDocument();
@@ -60,7 +61,7 @@ export async function runPrintJob({ pages, copies, printer }) {
           : i18next.t('dialogs:print.progress.sending'),
         (pages.length + c / numCopies) / total
       );
-      await invoke('print_pdf', { path: tempPath, printer });
+      await invoke('print_pdf', { path: tempPath, printer, orientatie, papier });
     }
 
     finishPrintProgress(i18next.t('dialogs:print.progress.sent'));

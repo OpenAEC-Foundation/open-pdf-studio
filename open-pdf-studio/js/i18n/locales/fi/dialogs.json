@@ -262,7 +262,8 @@
     "left": "Vasen:",
     "right": "Oikea:",
     "top": "Ylä:",
-    "bottom": "Ala:"
+    "bottom": "Ala:",
+    "printerDefault": "Tulostimen oletus"
   },
   "docProperties": {
     "title": "Asiakirjan ominaisuudet",

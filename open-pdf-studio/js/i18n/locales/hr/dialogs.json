@@ -262,7 +262,8 @@
     "left": "Lijevo:",
     "right": "Desno:",
     "top": "Vrh:",
-    "bottom": "Dno:"
+    "bottom": "Dno:",
+    "printerDefault": "Zadano za pisač"
   },
   "docProperties": {
     "title": "Svojstva dokumenta",

@@ -262,7 +262,8 @@
     "left": "Stanga:",
     "right": "Dreapta:",
     "top": "Sus:",
-    "bottom": "Jos:"
+    "bottom": "Jos:",
+    "printerDefault": "Implicit imprimantă"
   },
   "docProperties": {
     "title": "Proprietati document",

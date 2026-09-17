@@ -262,7 +262,8 @@
     "left": "Venstre:",
     "right": "Høyre:",
     "top": "Topp:",
-    "bottom": "Bunn:"
+    "bottom": "Bunn:",
+    "printerDefault": "Skriverens standard"
   },
   "docProperties": {
     "title": "Dokumentegenskaper",

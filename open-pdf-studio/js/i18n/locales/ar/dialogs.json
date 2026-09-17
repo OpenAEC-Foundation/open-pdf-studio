@@ -262,7 +262,8 @@
     "left": "يسار:",
     "right": "يمين:",
     "top": "أعلى:",
-    "bottom": "أسفل:"
+    "bottom": "أسفل:",
+    "printerDefault": "الافتراضي للطابعة"
   },
   "docProperties": {
     "title": "خصائص المستند",

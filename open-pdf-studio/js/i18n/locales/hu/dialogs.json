@@ -262,7 +262,8 @@
     "left": "Bal:",
     "right": "Jobb:",
     "top": "Felső:",
-    "bottom": "Alsó:"
+    "bottom": "Alsó:",
+    "printerDefault": "Nyomtató alapértelmezése"
   },
   "docProperties": {
     "title": "Dokumentum tulajdonságai",

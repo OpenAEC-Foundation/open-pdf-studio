@@ -262,7 +262,8 @@
     "left": "Lewy:",
     "right": "Prawy:",
     "top": "Górny:",
-    "bottom": "Dolny:"
+    "bottom": "Dolny:",
+    "printerDefault": "Domyślne drukarki"
   },
   "docProperties": {
     "title": "Właściwości dokumentu",

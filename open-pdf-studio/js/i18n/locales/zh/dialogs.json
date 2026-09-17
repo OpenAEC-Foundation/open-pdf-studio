@@ -262,7 +262,8 @@
     "left": "左：",
     "right": "右：",
     "top": "上：",
-    "bottom": "下："
+    "bottom": "下：",
+    "printerDefault": "打印机默认"
   },
   "docProperties": {
     "title": "文档属性",

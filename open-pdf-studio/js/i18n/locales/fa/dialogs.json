@@ -262,7 +262,8 @@
     "left": "چپ:",
     "right": "راست:",
     "top": "بالا:",
-    "bottom": "پایین:"
+    "bottom": "پایین:",
+    "printerDefault": "پیش‌فرض چاپگر"
   },
   "docProperties": {
     "title": "ویژگی‌های سند",
