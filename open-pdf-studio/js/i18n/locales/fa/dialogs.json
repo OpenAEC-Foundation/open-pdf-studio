@@ -343,5 +343,113 @@
     "angleInfo": "زاویه اصلاح: {{angle}}°",
     "done": "{{count}} صفحه با زاویه {{angle}}° صاف شد",
     "alreadyStraight": "خط از قبل صاف است — نیازی به اصلاح نیست."
+  },
+  "signatureVerification": {
+    "checking": "در حال بررسی امضاهای دیجیتال…",
+    "barLabel": "امضاهای دیجیتال",
+    "listError": "بررسی امضاها ممکن نشد: {{detail}}",
+    "documentTimestamp": "مهر زمانی سند",
+    "documentTimestampBy": "مهر زمانی سند ({{tsa}})",
+    "unknownSigner": "امضاکننده ناشناس",
+    "changedAfterwards": "سند پس از آن تغییر کرده است",
+    "details": "جزئیات",
+    "showSignedVersion": "نمایش نسخه امضاشده",
+    "signedVersionTab": "{{name}} (نسخه امضاشده {{number}})",
+    "signedVersionError": "نسخهٔ امضاشده باز نشد: {{detail}}",
+    "listTruncated": "همهٔ فیلدهای امضا بررسی نشدند: سند تعداد بیش از حدی از آن‌ها دارد.",
+    "changedSinceCheck": "فایل پس از بررسی امضاها تغییر کرده است. امضاها دوباره بررسی می‌شوند.",
+    "modifiedInApp": "این وضعیت مربوط به فایل روی دیسک است؛ سند از آن زمان در برنامه تغییر کرده است.",
+    "errors": {
+      "unreadable": "خواندن فایل ممکن نشد.",
+      "noSignature": "امضا در فایل پیدا نشد.",
+      "changedSinceList": "فایل پس از بررسی امضاها تغییر کرده است."
+    },
+    "status": {
+      "valid": "معتبر",
+      "unknownCertificate": "گواهی ناشناس",
+      "modified": "پس از امضا تغییر کرده",
+      "invalid": "امضای نامعتبر",
+      "notVerifiable": "قابل بررسی نیست",
+      "unsignedField": "فیلد امضای امضانشده"
+    },
+    "reasons": {
+      "noChain": "زنجیره‌ای تا یک گواهی ریشه مورد اعتماد وجود ندارد",
+      "expired": "یک گواهی در زمان مربوط معتبر نبود",
+      "keyUsage": "یک گواهی برای این کاربرد در نظر گرفته نشده است",
+      "unsupportedAlgorithm": "الگوریتم پشتیبانی‌نشده",
+      "cmsUnreadable": "داده‌های امضا قابل خواندن نیست",
+      "noCertificate": "گواهی امضاکننده وجود ندارد",
+      "byteRangeInvalid": "بازه بایتی امضاشده نامعتبر است",
+      "pdfUnreadable": "ساختار سند قابل خواندن نیست",
+      "legacyFormat": "قالب امضای منسوخ"
+    },
+    "explanation": {
+      "valid": "محتوای امضاشده تغییر نکرده و گواهی به یک ریشه مورد اعتماد می‌رسد.",
+      "modified": "بایت‌های امضاشده پس از امضا تغییر کرده‌اند.",
+      "invalid": "بایت‌های امضاشده تغییر نکرده‌اند، اما مقدار امضا مطابقت ندارد."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "الگوریتم درهم‌سازی امضا پشتیبانی نمی‌شود.",
+      "handtekeningalgoritme-niet-ondersteund": "الگوریتم امضا پشتیبانی نمی‌شود.",
+      "imprintalgoritme-niet-ondersteund": "الگوریتم درهم‌سازی مهر زمانی پشتیبانی نمی‌شود.",
+      "contenttype-ontbreekt-of-meervoudig": "ویژگی نوع محتوا وجود ندارد یا بیش از یک بار آمده است.",
+      "contenttype-wijkt-af": "ویژگی نوع محتوا با محتوای امضاشده مطابقت ندارد.",
+      "messagedigest-ontbreekt-of-meervoudig": "ویژگی چکیدهٔ پیام وجود ندارد یا بیش از یک بار آمده است.",
+      "certificaat-ondertekenaar-ontbreekt": "گواهی امضاکننده وجود ندارد یا قابل خواندن نیست.",
+      "zonder-attributen-niet-te-onderscheiden": "بدون ویژگی‌های امضاشده، تغییر از امضای نامعتبر قابل تشخیص نیست.",
+      "cms-structuur-onleesbaar": "داده‌های امضا قابل خواندن نیست.",
+      "econtent-bij-losse-handtekening": "امضای جداشده به‌طور غیرمنتظره محتوای امضاشده را در خود دارد.",
+      "econtenttype-geen-id-data": "محتوای امضاشده نوع غیرمنتظره‌ای دارد.",
+      "geen-ondertekenaar": "داده‌های امضا هیچ امضاکننده‌ای ندارد.",
+      "token-zonder-tstinfo": "مهر زمانی هیچ اطلاعات زمانی ندارد.",
+      "tstinfo-onleesbaar": "اطلاعات زمانی مهر زمانی قابل خواندن نیست.",
+      "bytebereik-geen-vier-getallen": "بازه بایتی از چهار عدد تشکیل نشده است.",
+      "bytebereik-negatief": "بازه بایتی شامل یک عدد منفی است.",
+      "bytebereik-begint-niet-bij-nul": "بازه بایتی از ابتدای فایل شروع نمی‌شود.",
+      "bytebereik-gat-te-klein": "شکاف در بازه بایتی بیش از حد کوچک است.",
+      "bytebereik-voorbij-einde": "بازه بایتی از انتهای فایل فراتر می‌رود.",
+      "bytebereik-gat-geen-hex-string": "شکاف در بازه بایتی فقط شامل مقدار امضا نیست.",
+      "subfilter-niet-ondersteund": "این قالب امضا پشتیبانی نمی‌شود.",
+      "zoekbudget-op": "جستجوی زنجیره گواهی به سقف خود رسید و متوقف شد؛ ممکن است با این حال زنجیره‌ای وجود داشته باشد.",
+      "gat-wijkt-af-van-contents": "مقدار امضا در فایل با مقدار موجود در دیکشنری امضا متفاوت است.",
+      "interne-fout": "هنگام بررسی این امضا یک خطای داخلی رخ داد.",
+      "unknown": "بررسی یک مشکل دیگر را گزارش کرد."
+    },
+    "detail": {
+      "title": "جزئیات امضا",
+      "status": "وضعیت",
+      "explanation": "توضیح",
+      "signer": "امضاکننده",
+      "issuer": "صادرکننده",
+      "field": "فیلد",
+      "time": "زمان",
+      "timeFromTimestamp": "{{time}} (از مهر زمانی)",
+      "timeClaimed": "{{time}} (اعلام‌شده توسط امضاکننده)",
+      "timestamp": "مهر زمانی",
+      "none": "هیچ",
+      "reason": "دلیل",
+      "location": "مکان",
+      "coverage": "پوشش",
+      "coversWhole": "کل سند",
+      "coversPart": "بایت {{start}} تا {{end}} از {{size}}",
+      "chain": "زنجیره گواهی",
+      "validFromTo": "معتبر از {{from}} تا {{to}}",
+      "revocationNotChecked": "ابطال بررسی نشده است.",
+      "notCoveredBySignature": "امضا نشده",
+      "weakAlgorithm": "الگوریتم ضعیف (SHA-1): محافظت کمتر در برابر جعل",
+      "technicalDetail": "جزئیات فنی",
+      "issuedBy": "صادرشده توسط {{issuer}}"
+    },
+    "save": {
+      "title": "سند امضاشده",
+      "message": "این سند دارای امضای دیجیتال است. ذخیره کردن فایل را بازنویسی می‌کند و امضاها نامعتبر می‌شوند. با این حال ذخیره شود؟",
+      "messageCopy": "این سند دارای امضای دیجیتال است. فایل اصلی امضاشده باقی می‌ماند، اما نسخهٔ جدید امضای معتبر نخواهد داشت. با این حال نسخه ذخیره شود؟",
+      "confirm": "با این حال ذخیره کن"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}، {{time}}"
+    }
   }
 }

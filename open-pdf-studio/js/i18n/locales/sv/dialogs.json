@@ -343,5 +343,113 @@
     "angleInfo": "Korrigeringsvinkel: {{angle}}°",
     "done": "{{count}} sida/sidor rätade med {{angle}}°",
     "alreadyStraight": "Linjen är redan rak — ingen korrigering behövs."
+  },
+  "signatureVerification": {
+    "checking": "Kontrollerar digitala signaturer…",
+    "barLabel": "Digitala signaturer",
+    "listError": "Signaturerna kunde inte kontrolleras: {{detail}}",
+    "documentTimestamp": "Dokumenttidsstämpel",
+    "documentTimestampBy": "Dokumenttidsstämpel ({{tsa}})",
+    "unknownSigner": "Okänd undertecknare",
+    "changedAfterwards": "dokumentet har ändrats därefter",
+    "details": "Detaljer",
+    "showSignedVersion": "Visa signerad version",
+    "signedVersionTab": "{{name}} (signerad version {{number}})",
+    "signedVersionError": "Den signerade versionen kunde inte öppnas: {{detail}}",
+    "listTruncated": "Alla signaturfält kontrollerades inte: dokumentet innehåller för många.",
+    "changedSinceCheck": "Filen har ändrats sedan signaturerna kontrollerades. Signaturerna kontrolleras igen.",
+    "modifiedInApp": "Statusen gäller filen på disken; dokumentet har sedan dess ändrats i appen.",
+    "errors": {
+      "unreadable": "Filen kunde inte läsas.",
+      "noSignature": "Signaturen hittades inte i filen.",
+      "changedSinceList": "Filen har ändrats sedan signaturerna kontrollerades."
+    },
+    "status": {
+      "valid": "Giltig",
+      "unknownCertificate": "Okänt certifikat",
+      "modified": "Ändrad efter signering",
+      "invalid": "Ogiltig signatur",
+      "notVerifiable": "Kan inte kontrolleras",
+      "unsignedField": "Osignerat signaturfält"
+    },
+    "reasons": {
+      "noChain": "Ingen kedja till ett betrott rotcertifikat",
+      "expired": "Ett certifikat var inte giltigt vid den aktuella tidpunkten",
+      "keyUsage": "Ett certifikat är inte avsett för denna användning",
+      "unsupportedAlgorithm": "Algoritmen stöds inte",
+      "cmsUnreadable": "Signaturdata kan inte läsas",
+      "noCertificate": "Undertecknarens certifikat saknas",
+      "byteRangeInvalid": "Det signerade byteintervallet är ogiltigt",
+      "pdfUnreadable": "Dokumentstrukturen kan inte läsas",
+      "legacyFormat": "Föråldrat signaturformat"
+    },
+    "explanation": {
+      "valid": "Det signerade innehållet är oförändrat och certifikatet leder till ett betrott rotcertifikat.",
+      "modified": "De signerade byten ändrades efter signeringen.",
+      "invalid": "De signerade byten är oförändrade, men signaturvärdet stämmer inte."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "Signaturens hashalgoritm stöds inte.",
+      "handtekeningalgoritme-niet-ondersteund": "Signaturalgoritmen stöds inte.",
+      "imprintalgoritme-niet-ondersteund": "Tidsstämpelns hashalgoritm stöds inte.",
+      "contenttype-ontbreekt-of-meervoudig": "Attributet för innehållstyp saknas eller förekommer mer än en gång.",
+      "contenttype-wijkt-af": "Attributet för innehållstyp stämmer inte med det signerade innehållet.",
+      "messagedigest-ontbreekt-of-meervoudig": "Attributet för meddelandesammandrag saknas eller förekommer mer än en gång.",
+      "certificaat-ondertekenaar-ontbreekt": "Undertecknarens certifikat saknas eller kan inte läsas.",
+      "zonder-attributen-niet-te-onderscheiden": "Utan signerade attribut går det inte att skilja en ändring från en ogiltig signatur.",
+      "cms-structuur-onleesbaar": "Signaturdata kan inte läsas.",
+      "econtent-bij-losse-handtekening": "Den fristående signaturen innehåller oväntat det signerade innehållet.",
+      "econtenttype-geen-id-data": "Det signerade innehållet har en oväntad typ.",
+      "geen-ondertekenaar": "Signaturdata innehåller ingen undertecknare.",
+      "token-zonder-tstinfo": "Tidsstämpeln innehåller ingen tidsinformation.",
+      "tstinfo-onleesbaar": "Tidsinformationen i tidsstämpeln kan inte läsas.",
+      "bytebereik-geen-vier-getallen": "Byteintervallet består inte av fyra tal.",
+      "bytebereik-negatief": "Byteintervallet innehåller ett negativt tal.",
+      "bytebereik-begint-niet-bij-nul": "Byteintervallet börjar inte i början av filen.",
+      "bytebereik-gat-te-klein": "Luckan i byteintervallet är för liten.",
+      "bytebereik-voorbij-einde": "Byteintervallet sträcker sig förbi slutet av filen.",
+      "bytebereik-gat-geen-hex-string": "Luckan i byteintervallet innehåller inte enbart signaturvärdet.",
+      "subfilter-niet-ondersteund": "Detta signaturformat stöds inte.",
+      "zoekbudget-op": "Sökningen efter en certifikatkedja stoppades vid sin gräns; en kedja kan ändå finnas.",
+      "gat-wijkt-af-van-contents": "Signaturvärdet i filen skiljer sig från det i signaturordlistan.",
+      "interne-fout": "Ett internt fel uppstod när signaturen kontrollerades.",
+      "unknown": "Kontrollen rapporterade ytterligare ett problem."
+    },
+    "detail": {
+      "title": "Signaturdetaljer",
+      "status": "Status",
+      "explanation": "Förklaring",
+      "signer": "Undertecknare",
+      "issuer": "Utfärdat av",
+      "field": "Fält",
+      "time": "Tidpunkt",
+      "timeFromTimestamp": "{{time}} (från tidsstämpel)",
+      "timeClaimed": "{{time}} (angiven av undertecknaren)",
+      "timestamp": "Tidsstämpel",
+      "none": "Ingen",
+      "reason": "Anledning",
+      "location": "Plats",
+      "coverage": "Täckning",
+      "coversWhole": "Hela dokumentet",
+      "coversPart": "Byte {{start}} till {{end}} av {{size}}",
+      "chain": "Certifikatkedja",
+      "validFromTo": "Giltigt från {{from}} till {{to}}",
+      "revocationNotChecked": "Återkallelse inte kontrollerad.",
+      "notCoveredBySignature": "inte signerad",
+      "weakAlgorithm": "Svag algoritm (SHA-1): sämre skydd mot förfalskning",
+      "technicalDetail": "Teknisk detalj",
+      "issuedBy": "Utfärdat av {{issuer}}"
+    },
+    "save": {
+      "title": "Signerat dokument",
+      "message": "Dokumentet innehåller digitala signaturer. När du sparar skrivs filen om, vilket gör signaturerna ogiltiga. Spara ändå?",
+      "messageCopy": "Dokumentet innehåller digitala signaturer. Originalfilen förblir signerad, men den nya kopian får inga giltiga signaturer. Spara kopian ändå?",
+      "confirm": "Spara ändå"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

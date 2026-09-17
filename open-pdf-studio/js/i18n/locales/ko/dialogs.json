@@ -343,5 +343,113 @@
     "angleInfo": "보정 각도: {{angle}}°",
     "done": "{{count}}개 페이지를 {{angle}}° 보정했습니다",
     "alreadyStraight": "선이 이미 똑바릅니다 — 보정이 필요하지 않습니다."
+  },
+  "signatureVerification": {
+    "checking": "디지털 서명을 확인하는 중…",
+    "barLabel": "디지털 서명",
+    "listError": "서명을 확인할 수 없습니다: {{detail}}",
+    "documentTimestamp": "문서 타임스탬프",
+    "documentTimestampBy": "문서 타임스탬프 ({{tsa}})",
+    "unknownSigner": "알 수 없는 서명자",
+    "changedAfterwards": "이후 문서가 변경됨",
+    "details": "세부 정보",
+    "showSignedVersion": "서명된 버전 표시",
+    "signedVersionTab": "{{name}} (서명된 버전 {{number}})",
+    "signedVersionError": "서명된 버전을 열 수 없습니다: {{detail}}",
+    "listTruncated": "모든 서명 필드를 확인하지 못했습니다: 문서에 서명 필드가 너무 많습니다.",
+    "changedSinceCheck": "서명을 확인한 후 파일이 변경되었습니다. 서명을 다시 확인하는 중입니다.",
+    "modifiedInApp": "이 상태는 디스크에 있는 파일에 대한 것입니다. 이후 앱에서 문서가 변경되었습니다.",
+    "errors": {
+      "unreadable": "파일을 읽을 수 없습니다.",
+      "noSignature": "파일에서 서명을 찾을 수 없습니다.",
+      "changedSinceList": "서명을 확인한 후 파일이 변경되었습니다."
+    },
+    "status": {
+      "valid": "유효함",
+      "unknownCertificate": "알 수 없는 인증서",
+      "modified": "서명 후 변경됨",
+      "invalid": "잘못된 서명",
+      "notVerifiable": "확인할 수 없음",
+      "unsignedField": "서명되지 않은 서명 필드"
+    },
+    "reasons": {
+      "noChain": "신뢰할 수 있는 루트 인증서로 이어지는 체인이 없음",
+      "expired": "관련 시점에 유효하지 않은 인증서가 있음",
+      "keyUsage": "이 용도에 맞지 않는 인증서가 있음",
+      "unsupportedAlgorithm": "지원되지 않는 알고리즘",
+      "cmsUnreadable": "서명 데이터를 읽을 수 없음",
+      "noCertificate": "서명자의 인증서가 없음",
+      "byteRangeInvalid": "서명된 바이트 범위가 잘못됨",
+      "pdfUnreadable": "문서 구조를 읽을 수 없음",
+      "legacyFormat": "오래된 서명 형식"
+    },
+    "explanation": {
+      "valid": "서명된 내용은 변경되지 않았으며 인증서가 신뢰할 수 있는 루트로 이어집니다.",
+      "modified": "서명된 바이트가 서명 후 변경되었습니다.",
+      "invalid": "서명된 바이트는 변경되지 않았지만 서명 값이 일치하지 않습니다."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "서명의 해시 알고리즘이 지원되지 않습니다.",
+      "handtekeningalgoritme-niet-ondersteund": "서명 알고리즘이 지원되지 않습니다.",
+      "imprintalgoritme-niet-ondersteund": "타임스탬프의 해시 알고리즘이 지원되지 않습니다.",
+      "contenttype-ontbreekt-of-meervoudig": "콘텐츠 유형 특성이 없거나 두 번 이상 나타납니다.",
+      "contenttype-wijkt-af": "콘텐츠 유형 특성이 서명된 내용과 일치하지 않습니다.",
+      "messagedigest-ontbreekt-of-meervoudig": "메시지 다이제스트 특성이 없거나 두 번 이상 나타납니다.",
+      "certificaat-ondertekenaar-ontbreekt": "서명자의 인증서가 없거나 읽을 수 없습니다.",
+      "zonder-attributen-niet-te-onderscheiden": "서명된 특성이 없으면 변경과 잘못된 서명을 구별할 수 없습니다.",
+      "cms-structuur-onleesbaar": "서명 데이터를 읽을 수 없습니다.",
+      "econtent-bij-losse-handtekening": "분리 서명에 예기치 않게 서명된 내용이 포함되어 있습니다.",
+      "econtenttype-geen-id-data": "서명된 내용의 유형이 예상과 다릅니다.",
+      "geen-ondertekenaar": "서명 데이터에 서명자가 없습니다.",
+      "token-zonder-tstinfo": "타임스탬프에 시간 정보가 없습니다.",
+      "tstinfo-onleesbaar": "타임스탬프의 시간 정보를 읽을 수 없습니다.",
+      "bytebereik-geen-vier-getallen": "바이트 범위가 네 개의 숫자로 구성되어 있지 않습니다.",
+      "bytebereik-negatief": "바이트 범위에 음수가 포함되어 있습니다.",
+      "bytebereik-begint-niet-bij-nul": "바이트 범위가 파일의 시작 부분에서 시작하지 않습니다.",
+      "bytebereik-gat-te-klein": "바이트 범위의 간격이 너무 작습니다.",
+      "bytebereik-voorbij-einde": "바이트 범위가 파일 끝을 넘어갑니다.",
+      "bytebereik-gat-geen-hex-string": "바이트 범위의 간격에 서명 값 외의 데이터가 포함되어 있습니다.",
+      "subfilter-niet-ondersteund": "이 서명 형식은 지원되지 않습니다.",
+      "zoekbudget-op": "인증서 체인 검색이 한도에 도달하여 중지되었습니다. 체인이 존재할 수도 있습니다.",
+      "gat-wijkt-af-van-contents": "파일의 서명 값이 서명 사전의 서명 값과 다릅니다.",
+      "interne-fout": "이 서명을 확인하는 중 내부 오류가 발생했습니다.",
+      "unknown": "확인 과정에서 추가 문제가 보고되었습니다."
+    },
+    "detail": {
+      "title": "서명 세부 정보",
+      "status": "상태",
+      "explanation": "설명",
+      "signer": "서명자",
+      "issuer": "발급자",
+      "field": "필드",
+      "time": "시간",
+      "timeFromTimestamp": "{{time}} (타임스탬프 기준)",
+      "timeClaimed": "{{time}} (서명자가 입력)",
+      "timestamp": "타임스탬프",
+      "none": "없음",
+      "reason": "사유",
+      "location": "위치",
+      "coverage": "적용 범위",
+      "coversWhole": "문서 전체",
+      "coversPart": "{{size}}바이트 중 {{start}}~{{end}}",
+      "chain": "인증서 체인",
+      "validFromTo": "유효 기간 {{from}} ~ {{to}}",
+      "revocationNotChecked": "해지 여부는 확인하지 않았습니다.",
+      "notCoveredBySignature": "서명되지 않음",
+      "weakAlgorithm": "취약한 알고리즘(SHA-1): 위조에 대한 보호가 약합니다",
+      "technicalDetail": "기술 세부 정보",
+      "issuedBy": "발급자: {{issuer}}"
+    },
+    "save": {
+      "title": "서명된 문서",
+      "message": "이 문서에는 디지털 서명이 포함되어 있습니다. 저장하면 파일이 다시 작성되어 서명이 무효화됩니다. 그래도 저장하시겠습니까?",
+      "messageCopy": "이 문서에는 디지털 서명이 포함되어 있습니다. 원본 파일은 서명된 상태로 유지되지만 새 사본에는 유효한 서명이 포함되지 않습니다. 그래도 사본을 저장하시겠습니까?",
+      "confirm": "그래도 저장"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

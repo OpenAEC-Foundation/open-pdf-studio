@@ -343,5 +343,113 @@
     "angleInfo": "Angle de correction : {{angle}}°",
     "done": "{{count}} page(s) redressée(s) de {{angle}}°",
     "alreadyStraight": "La ligne est déjà droite — aucune correction nécessaire."
+  },
+  "signatureVerification": {
+    "checking": "Vérification des signatures numériques…",
+    "barLabel": "Signatures numériques",
+    "listError": "Les signatures n'ont pas pu être vérifiées : {{detail}}",
+    "documentTimestamp": "Horodatage du document",
+    "documentTimestampBy": "Horodatage du document ({{tsa}})",
+    "unknownSigner": "Signataire inconnu",
+    "changedAfterwards": "le document a été modifié par la suite",
+    "details": "Détails",
+    "showSignedVersion": "Afficher la version signée",
+    "signedVersionTab": "{{name}} (version signée {{number}})",
+    "signedVersionError": "La version signée n'a pas pu être ouverte : {{detail}}",
+    "listTruncated": "Tous les champs de signature n'ont pas été vérifiés : le document en contient trop.",
+    "changedSinceCheck": "Le fichier a été modifié depuis la vérification des signatures. Les signatures sont à nouveau vérifiées.",
+    "modifiedInApp": "L'état concerne le fichier sur le disque ; le document a été modifié dans l'application depuis.",
+    "errors": {
+      "unreadable": "Le fichier n'a pas pu être lu.",
+      "noSignature": "La signature est introuvable dans le fichier.",
+      "changedSinceList": "Le fichier a été modifié depuis la vérification des signatures."
+    },
+    "status": {
+      "valid": "Valide",
+      "unknownCertificate": "Certificat inconnu",
+      "modified": "Modifié après la signature",
+      "invalid": "Signature non valide",
+      "notVerifiable": "Impossible à vérifier",
+      "unsignedField": "Champ de signature non signé"
+    },
+    "reasons": {
+      "noChain": "Aucune chaîne vers un certificat racine de confiance",
+      "expired": "Un certificat n'était pas valide au moment pertinent",
+      "keyUsage": "Un certificat n'est pas destiné à cet usage",
+      "unsupportedAlgorithm": "Algorithme non pris en charge",
+      "cmsUnreadable": "Les données de signature sont illisibles",
+      "noCertificate": "Le certificat du signataire est absent",
+      "byteRangeInvalid": "La plage d'octets signée n'est pas valide",
+      "pdfUnreadable": "La structure du document est illisible",
+      "legacyFormat": "Format de signature obsolète"
+    },
+    "explanation": {
+      "valid": "Le contenu signé est inchangé et le certificat remonte à une racine de confiance.",
+      "modified": "Les octets signés ont été modifiés après la signature.",
+      "invalid": "Les octets signés sont inchangés, mais la valeur de la signature ne correspond pas."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "L'algorithme de hachage de la signature n'est pas pris en charge.",
+      "handtekeningalgoritme-niet-ondersteund": "L'algorithme de signature n'est pas pris en charge.",
+      "imprintalgoritme-niet-ondersteund": "L'algorithme de hachage de l'horodatage n'est pas pris en charge.",
+      "contenttype-ontbreekt-of-meervoudig": "L'attribut de type de contenu est absent ou présent plusieurs fois.",
+      "contenttype-wijkt-af": "L'attribut de type de contenu ne correspond pas au contenu signé.",
+      "messagedigest-ontbreekt-of-meervoudig": "L'attribut d'empreinte du message est absent ou présent plusieurs fois.",
+      "certificaat-ondertekenaar-ontbreekt": "Le certificat du signataire est absent ou illisible.",
+      "zonder-attributen-niet-te-onderscheiden": "Sans attributs signés, une modification ne peut pas être distinguée d'une signature non valide.",
+      "cms-structuur-onleesbaar": "Les données de signature sont illisibles.",
+      "econtent-bij-losse-handtekening": "La signature détachée contient de manière inattendue le contenu signé.",
+      "econtenttype-geen-id-data": "Le contenu signé est d'un type inattendu.",
+      "geen-ondertekenaar": "Les données de signature ne contiennent aucun signataire.",
+      "token-zonder-tstinfo": "L'horodatage ne contient aucune information de temps.",
+      "tstinfo-onleesbaar": "Les informations de temps de l'horodatage sont illisibles.",
+      "bytebereik-geen-vier-getallen": "La plage d'octets ne se compose pas de quatre nombres.",
+      "bytebereik-negatief": "La plage d'octets contient un nombre négatif.",
+      "bytebereik-begint-niet-bij-nul": "La plage d'octets ne commence pas au début du fichier.",
+      "bytebereik-gat-te-klein": "L'espace libre dans la plage d'octets est trop petit.",
+      "bytebereik-voorbij-einde": "La plage d'octets dépasse la fin du fichier.",
+      "bytebereik-gat-geen-hex-string": "L'espace libre dans la plage d'octets ne contient pas uniquement la valeur de signature.",
+      "subfilter-niet-ondersteund": "Ce format de signature n'est pas pris en charge.",
+      "zoekbudget-op": "La recherche d'une chaîne de certificats s'est arrêtée à sa limite ; une chaîne peut néanmoins exister.",
+      "gat-wijkt-af-van-contents": "La valeur de signature dans le fichier diffère de celle du dictionnaire de signature.",
+      "interne-fout": "Une erreur interne s'est produite lors de la vérification de cette signature.",
+      "unknown": "La vérification a signalé un problème supplémentaire."
+    },
+    "detail": {
+      "title": "Détails de la signature",
+      "status": "État",
+      "explanation": "Explication",
+      "signer": "Signataire",
+      "issuer": "Émis par",
+      "field": "Champ",
+      "time": "Date et heure",
+      "timeFromTimestamp": "{{time}} (issu de l'horodatage)",
+      "timeClaimed": "{{time}} (indiqué par le signataire)",
+      "timestamp": "Horodatage",
+      "none": "Aucun",
+      "reason": "Motif",
+      "location": "Lieu",
+      "coverage": "Couverture",
+      "coversWhole": "Document entier",
+      "coversPart": "Octets {{start}} à {{end}} sur {{size}}",
+      "chain": "Chaîne de certificats",
+      "validFromTo": "Valide du {{from}} au {{to}}",
+      "revocationNotChecked": "Révocation non vérifiée.",
+      "notCoveredBySignature": "non signé",
+      "weakAlgorithm": "Algorithme faible (SHA-1) : protection réduite contre la falsification",
+      "technicalDetail": "Détail technique",
+      "issuedBy": "Émis par {{issuer}}"
+    },
+    "save": {
+      "title": "Document signé",
+      "message": "Ce document contient des signatures numériques. L'enregistrement réécrit le fichier, ce qui invalide les signatures. Enregistrer quand même ?",
+      "messageCopy": "Ce document contient des signatures numériques. Le fichier d'origine reste signé, mais la nouvelle copie ne comportera pas de signatures valides. Enregistrer la copie quand même ?",
+      "confirm": "Enregistrer quand même"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

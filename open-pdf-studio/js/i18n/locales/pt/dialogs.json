@@ -343,5 +343,113 @@
     "angleInfo": "Ângulo de correção: {{angle}}°",
     "done": "{{count}} página(s) endireitada(s) em {{angle}}°",
     "alreadyStraight": "A linha já está reta — nenhuma correção necessária."
+  },
+  "signatureVerification": {
+    "checking": "Verificando assinaturas digitais…",
+    "barLabel": "Assinaturas digitais",
+    "listError": "Não foi possível verificar as assinaturas: {{detail}}",
+    "documentTimestamp": "Carimbo de tempo do documento",
+    "documentTimestampBy": "Carimbo de tempo do documento ({{tsa}})",
+    "unknownSigner": "Signatário desconhecido",
+    "changedAfterwards": "o documento foi alterado depois",
+    "details": "Detalhes",
+    "showSignedVersion": "Mostrar versão assinada",
+    "signedVersionTab": "{{name}} (versão assinada {{number}})",
+    "signedVersionError": "Não foi possível abrir a versão assinada: {{detail}}",
+    "listTruncated": "Nem todos os campos de assinatura foram verificados: o documento contém demasiados.",
+    "changedSinceCheck": "O ficheiro foi alterado desde que as assinaturas foram verificadas. As assinaturas estão a ser verificadas novamente.",
+    "modifiedInApp": "O status refere-se ao arquivo no disco; desde então, o documento foi alterado no aplicativo.",
+    "errors": {
+      "unreadable": "Não foi possível ler o arquivo.",
+      "noSignature": "A assinatura não foi encontrada no arquivo.",
+      "changedSinceList": "O arquivo foi alterado desde que as assinaturas foram verificadas."
+    },
+    "status": {
+      "valid": "Válida",
+      "unknownCertificate": "Certificado desconhecido",
+      "modified": "Alterado após a assinatura",
+      "invalid": "Assinatura inválida",
+      "notVerifiable": "Não verificável",
+      "unsignedField": "Campo de assinatura não assinado"
+    },
+    "reasons": {
+      "noChain": "Nenhuma cadeia até um certificado raiz confiável",
+      "expired": "Um certificado não era válido no momento relevante",
+      "keyUsage": "Um certificado não se destina a este uso",
+      "unsupportedAlgorithm": "Algoritmo não suportado",
+      "cmsUnreadable": "Os dados da assinatura não podem ser lidos",
+      "noCertificate": "O certificado do signatário está ausente",
+      "byteRangeInvalid": "O intervalo de bytes assinado é inválido",
+      "pdfUnreadable": "A estrutura do documento não pode ser lida",
+      "legacyFormat": "Formato de assinatura obsoleto"
+    },
+    "explanation": {
+      "valid": "O conteúdo assinado não foi alterado e o certificado leva a uma raiz confiável.",
+      "modified": "Os bytes assinados foram alterados após a assinatura.",
+      "invalid": "Os bytes assinados não foram alterados, mas o valor da assinatura não confere."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "O algoritmo de hash da assinatura não é suportado.",
+      "handtekeningalgoritme-niet-ondersteund": "O algoritmo de assinatura não é suportado.",
+      "imprintalgoritme-niet-ondersteund": "O algoritmo de hash do carimbo de tempo não é suportado.",
+      "contenttype-ontbreekt-of-meervoudig": "O atributo de tipo de conteúdo está ausente ou aparece mais de uma vez.",
+      "contenttype-wijkt-af": "O atributo de tipo de conteúdo não corresponde ao conteúdo assinado.",
+      "messagedigest-ontbreekt-of-meervoudig": "O atributo de resumo da mensagem está ausente ou aparece mais de uma vez.",
+      "certificaat-ondertekenaar-ontbreekt": "O certificado do signatário está ausente ou não pode ser lido.",
+      "zonder-attributen-niet-te-onderscheiden": "Sem atributos assinados, não é possível distinguir uma alteração de uma assinatura inválida.",
+      "cms-structuur-onleesbaar": "Os dados da assinatura não podem ser lidos.",
+      "econtent-bij-losse-handtekening": "A assinatura destacada contém inesperadamente o conteúdo assinado.",
+      "econtenttype-geen-id-data": "O conteúdo assinado tem um tipo inesperado.",
+      "geen-ondertekenaar": "Os dados da assinatura não contêm nenhum signatário.",
+      "token-zonder-tstinfo": "O carimbo de tempo não contém informações de hora.",
+      "tstinfo-onleesbaar": "As informações de hora do carimbo de tempo não podem ser lidas.",
+      "bytebereik-geen-vier-getallen": "O intervalo de bytes não é composto por quatro números.",
+      "bytebereik-negatief": "O intervalo de bytes contém um número negativo.",
+      "bytebereik-begint-niet-bij-nul": "O intervalo de bytes não começa no início do arquivo.",
+      "bytebereik-gat-te-klein": "A lacuna no intervalo de bytes é pequena demais.",
+      "bytebereik-voorbij-einde": "O intervalo de bytes ultrapassa o fim do arquivo.",
+      "bytebereik-gat-geen-hex-string": "A lacuna no intervalo de bytes não contém apenas o valor da assinatura.",
+      "subfilter-niet-ondersteund": "Este formato de assinatura não é suportado.",
+      "zoekbudget-op": "A busca por uma cadeia de certificados parou no seu limite; ainda assim, pode existir uma cadeia.",
+      "gat-wijkt-af-van-contents": "O valor da assinatura no arquivo difere do valor no dicionário de assinatura.",
+      "interne-fout": "Ocorreu um erro interno ao verificar esta assinatura.",
+      "unknown": "A verificação relatou um problema adicional."
+    },
+    "detail": {
+      "title": "Detalhes da assinatura",
+      "status": "Status",
+      "explanation": "Explicação",
+      "signer": "Signatário",
+      "issuer": "Emitido por",
+      "field": "Campo",
+      "time": "Data e hora",
+      "timeFromTimestamp": "{{time}} (do carimbo de tempo)",
+      "timeClaimed": "{{time}} (informado pelo signatário)",
+      "timestamp": "Carimbo de tempo",
+      "none": "Nenhum",
+      "reason": "Motivo",
+      "location": "Local",
+      "coverage": "Cobertura",
+      "coversWhole": "Documento inteiro",
+      "coversPart": "Bytes {{start}} a {{end}} de {{size}}",
+      "chain": "Cadeia de certificados",
+      "validFromTo": "Válido de {{from}} a {{to}}",
+      "revocationNotChecked": "Revogação não verificada.",
+      "notCoveredBySignature": "não assinado",
+      "weakAlgorithm": "Algoritmo fraco (SHA-1): menor proteção contra falsificação",
+      "technicalDetail": "Detalhe técnico",
+      "issuedBy": "Emitido por {{issuer}}"
+    },
+    "save": {
+      "title": "Documento assinado",
+      "message": "Este documento contém assinaturas digitais. Salvar reescreve o arquivo, o que invalida as assinaturas. Salvar mesmo assim?",
+      "messageCopy": "Este documento contém assinaturas digitais. O arquivo original continua assinado, mas a nova cópia não terá assinaturas válidas. Salvar a cópia mesmo assim?",
+      "confirm": "Salvar mesmo assim"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

@@ -343,5 +343,113 @@
     "angleInfo": "校正角度：{{angle}}°",
     "done": "已拉直 {{count}} 頁，角度 {{angle}}°",
     "alreadyStraight": "線條已經是直的，無需校正。"
+  },
+  "signatureVerification": {
+    "checking": "正在检查数字签名…",
+    "barLabel": "数字签名",
+    "listError": "无法检查签名：{{detail}}",
+    "documentTimestamp": "文档时间戳",
+    "documentTimestampBy": "文档时间戳（{{tsa}}）",
+    "unknownSigner": "未知签名者",
+    "changedAfterwards": "文档此后又被修改",
+    "details": "详细信息",
+    "showSignedVersion": "显示已签名版本",
+    "signedVersionTab": "{{name}}（已签名版本 {{number}}）",
+    "signedVersionError": "无法打开已签名版本：{{detail}}",
+    "listTruncated": "并未检查所有签名字段：文档包含的签名字段过多。",
+    "changedSinceCheck": "自检查签名以来，文件已更改。正在重新检查签名。",
+    "modifiedInApp": "此状态针对磁盘上的文件；此后文档已在应用中被更改。",
+    "errors": {
+      "unreadable": "无法读取文件。",
+      "noSignature": "在文件中找不到该签名。",
+      "changedSinceList": "自检查签名以来，文件已更改。"
+    },
+    "status": {
+      "valid": "有效",
+      "unknownCertificate": "未知证书",
+      "modified": "签名后已修改",
+      "invalid": "签名无效",
+      "notVerifiable": "无法验证",
+      "unsignedField": "未签名的签名字段"
+    },
+    "reasons": {
+      "noChain": "没有通往受信任根证书的链",
+      "expired": "某个证书在相关时间点无效",
+      "keyUsage": "某个证书不适用于此用途",
+      "unsupportedAlgorithm": "不支持的算法",
+      "cmsUnreadable": "无法读取签名数据",
+      "noCertificate": "缺少签名者的证书",
+      "byteRangeInvalid": "签名的字节范围无效",
+      "pdfUnreadable": "无法读取文档结构",
+      "legacyFormat": "过时的签名格式"
+    },
+    "explanation": {
+      "valid": "已签名内容未更改，且证书可追溯到受信任的根证书。",
+      "modified": "已签名的字节在签名后被更改。",
+      "invalid": "已签名的字节未更改，但签名值不匹配。"
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "不支持签名的哈希算法。",
+      "handtekeningalgoritme-niet-ondersteund": "不支持该签名算法。",
+      "imprintalgoritme-niet-ondersteund": "不支持时间戳的哈希算法。",
+      "contenttype-ontbreekt-of-meervoudig": "内容类型属性缺失或出现多次。",
+      "contenttype-wijkt-af": "内容类型属性与已签名内容不匹配。",
+      "messagedigest-ontbreekt-of-meervoudig": "消息摘要属性缺失或出现多次。",
+      "certificaat-ondertekenaar-ontbreekt": "签名者的证书缺失或无法读取。",
+      "zonder-attributen-niet-te-onderscheiden": "没有已签名属性，无法区分内容更改和无效签名。",
+      "cms-structuur-onleesbaar": "无法读取签名数据。",
+      "econtent-bij-losse-handtekening": "分离式签名意外包含了已签名内容。",
+      "econtenttype-geen-id-data": "已签名内容的类型不符合预期。",
+      "geen-ondertekenaar": "签名数据中没有签名者。",
+      "token-zonder-tstinfo": "时间戳中没有时间信息。",
+      "tstinfo-onleesbaar": "无法读取时间戳中的时间信息。",
+      "bytebereik-geen-vier-getallen": "字节范围不是由四个数字组成。",
+      "bytebereik-negatief": "字节范围包含负数。",
+      "bytebereik-begint-niet-bij-nul": "字节范围不是从文件开头开始。",
+      "bytebereik-gat-te-klein": "字节范围中的间隙太小。",
+      "bytebereik-voorbij-einde": "字节范围超出了文件末尾。",
+      "bytebereik-gat-geen-hex-string": "字节范围中的间隙不只包含签名值。",
+      "subfilter-niet-ondersteund": "不支持此签名格式。",
+      "zoekbudget-op": "证书链搜索已达到上限并停止；证书链仍可能存在。",
+      "gat-wijkt-af-van-contents": "文件中的签名值与签名字典中的签名值不同。",
+      "interne-fout": "检查此签名时发生内部错误。",
+      "unknown": "检查报告了一个额外问题。"
+    },
+    "detail": {
+      "title": "签名详细信息",
+      "status": "状态",
+      "explanation": "说明",
+      "signer": "签名者",
+      "issuer": "颁发者",
+      "field": "字段",
+      "time": "时间",
+      "timeFromTimestamp": "{{time}}（来自时间戳）",
+      "timeClaimed": "{{time}}（签名者声明）",
+      "timestamp": "时间戳",
+      "none": "无",
+      "reason": "原因",
+      "location": "位置",
+      "coverage": "覆盖范围",
+      "coversWhole": "整个文档",
+      "coversPart": "第 {{start}} 至 {{end}} 字节，共 {{size}}",
+      "chain": "证书链",
+      "validFromTo": "有效期 {{from}} 至 {{to}}",
+      "revocationNotChecked": "未检查吊销状态。",
+      "notCoveredBySignature": "未签名",
+      "weakAlgorithm": "弱算法 (SHA-1)：防伪造保护较弱",
+      "technicalDetail": "技术详情",
+      "issuedBy": "颁发者：{{issuer}}"
+    },
+    "save": {
+      "title": "已签名文档",
+      "message": "此文档包含数字签名。保存会重写文件，导致签名失效。仍要保存吗？",
+      "messageCopy": "此文档包含数字签名。原始文件仍保持签名，但新副本将不带有效签名。仍要保存副本吗？",
+      "confirm": "仍然保存"
+    },
+    "format": {
+      "note": "{{text}}（{{note}}）",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}，{{time}}"
+    }
   }
 }

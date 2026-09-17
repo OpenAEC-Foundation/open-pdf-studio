@@ -12,6 +12,7 @@ pub mod mcp_server;
 pub mod mcp_tool_meta;
 pub mod ocr;
 pub mod pdfium_renderer;
+pub mod handtekening;
 pub mod print_instelling;
 pub mod render_to_png;
 pub mod window_mgmt;
@@ -2686,6 +2687,19 @@ pub fn run(opts: StartupOpts) {
             diagnostics.record("native-created", None);
             app.manage(diagnostics);
 
+            // Ondertekende versies (pdf_signed_revision) ouder dan zeven dagen
+            // opruimen; vangnet naast het opruimen door de UI. Ruim genoeg, zodat
+            // een tabblad dat in een andere, nog draaiende instantie open staat
+            // zijn bestand niet kwijtraakt. Fouten negeren.
+            if let Ok(cachemap) = app.path().app_cache_dir() {
+                std::thread::spawn(move || {
+                    handtekening::verifieer::ruim_ondertekende_versies_op(
+                        &handtekening::verifieer::map_ondertekende_versies(&cachemap),
+                        handtekening::verifieer::OPRUIMEN_NA,
+                    );
+                });
+            }
+
             // Grant FS plugin scope for command-line files (file association)
             for path in app.state::<OpenedFiles>().0.lock().unwrap().iter() {
                 let _ = app.fs_scope().allow_file(path);
@@ -2856,6 +2870,9 @@ pub fn run(opts: StartupOpts) {
             page_content_size,
             get_page_dimensions,
             invalidate_pdf_cache,
+            handtekening::certificaat::pdf_certificate_info,
+            handtekening::verifieer::pdf_signature_list,
+            handtekening::verifieer::pdf_signed_revision,
             release_pdf_document,
             clear_pdf_cache,
             analyze_page_type,

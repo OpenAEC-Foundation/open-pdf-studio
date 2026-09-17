@@ -11,6 +11,7 @@ import { unlockFile, lockFile, renameFile, fileExists } from '../../core/platfor
 import { cancelPendingZoom } from '../setup/navigation-events.js';
 import { closeAllPopups } from '../../bridge.js';
 import { saveReaderPosition } from '../../core/reader-mode.js';
+import { actiefNaSluiten } from '../../pdf/handtekeningen/opslaan.js';
 
 /**
  * Create a new tab for a document
@@ -92,6 +93,7 @@ export function switchToTab(index) {
   // Hide form fields bar and PDF/A bar before rendering (will be re-shown if new doc has them)
   hideFormFieldsBar();
   hidePdfABar();
+  import('../../pdf/handtekeningen/verificatie.js').then(m => m.toonBalkVoorActiefDocument());
 
   // CRITICAL: deactivate the vector viewport singleton BEFORE the new doc's
   // renderPage() runs. Multiple PDFs share #pdf-canvas; the viewport's RAF
@@ -201,12 +203,29 @@ export async function closeTab(index, force = false, dialogAction = null) {
   // `dialogAction` ('save'|'dontsave') slaat de native dialoog over — voor de
   // MCP-brug en tests, die geen OS-dialoog kunnen bedienen maar wél de echte
   // sluitvolgorde (opslaan → opruimen → sluiten) moeten doorlopen.
+  let vorigActief = null;
   if (!force && doc.modified) {
     const action = dialogAction || await showUnsavedChangesDialog(doc.fileName);
     if (action === 'cancel') return false;
     if (action === 'save') {
-      const saved = await savePDF();
-      if (!saved) return false; // Save failed or was cancelled
+      // Opslaan (en de vraag over handtekeningen) werkt op het actieve
+      // document. Sluiten vanaf een achtergrondtabblad wisselt daarom eerst
+      // naar dat tabblad; na het sluiten komt het vorige tabblad terug.
+      if (index !== state.activeDocumentIndex) {
+        vorigActief = state.documents[state.activeDocumentIndex] || null;
+        switchToTab(index);
+      }
+      // Met `dialogAction` (MCP-brug, tests) kan niemand een vraag over
+      // handtekeningen beantwoorden; die keuze is dan al gemaakt.
+      const saved = await savePDF(null, { zonderHandtekeningVraag: !!dialogAction });
+      if (!saved) {
+        // Save failed or was cancelled: terug naar het tabblad van de gebruiker.
+        if (vorigActief) {
+          const terug = state.documents.indexOf(vorigActief);
+          if (terug !== -1) switchToTab(terug);
+        }
+        return false;
+      }
     }
     // action === 'dontsave' → proceed to close without saving
   }
@@ -307,6 +326,10 @@ export async function closeTab(index, force = false, dialogAction = null) {
     refreshAllTabs();
     updateWindowTitle();
     import('../../search/find-bar.js').then(m => m.closeFindBar());
+    import('../../pdf/handtekeningen/verificatie.js').then(m => m.toonBalkVoorActiefDocument());
+  } else if (vorigActief) {
+    state.activeDocumentIndex = actiefNaSluiten(state.documents, index, vorigActief);
+    switchToTab(state.activeDocumentIndex);
   } else if (index <= state.activeDocumentIndex) {
     // If closing current or earlier tab, adjust index
     state.activeDocumentIndex = Math.max(0, state.activeDocumentIndex - 1);

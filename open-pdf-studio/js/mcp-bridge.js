@@ -1692,11 +1692,20 @@ async function handleCloseTab(params) {
   }
   const tabsMod = await import('./ui/chrome/tabs.js');
   if (docs[index].modified && save) {
+    // Zoals app_save_pdf: vooraf vaststellen of opslaan handtekeningen
+    // ongeldig maakt, want de vraag daarover wordt headless overgeslagen.
+    let signaturesInvalidated = false;
+    try {
+      const verificatie = await import('./pdf/handtekeningen/verificatie.js');
+      signaturesInvalidated = await verificatie.opslaanMaaktHandtekeningenOngeldig(docs[index]);
+    } catch { /* best-effort */ }
     // Echte sluitvolgorde met opslaan (zelfde pad als de UI-dialoogkeuze
     // "Opslaan"), zonder native dialoog.
     const closed = await tabsMod.closeTab(index, false, 'save');
     if (!closed) return { ok: false, error: 'closeTab refused (save failed?)' };
-    return { ok: true, remainingTabs: stateMod.state.documents.length };
+    const antwoord = { ok: true, remainingTabs: stateMod.state.documents.length };
+    if (signaturesInvalidated) antwoord.signaturesInvalidated = true;
+    return antwoord;
   }
   // Always force here: the unsaved-changes policy was already enforced above.
   const closed = await tabsMod.closeTab(index, true);
@@ -1746,14 +1755,23 @@ async function handleSavePdf(params) {
     try { await invoke('allow_fs_scope', { path }); } catch { /* best-effort */ }
   }
   const saverMod = await import('./pdf/saver.js');
+  // Headless: geen dialoog mogelijk, dus geen vraag over handtekeningen. Wel
+  // vooraf vaststellen of opslaan ze ongeldig maakt, zodat het antwoord dat meldt.
+  let signaturesInvalidated = false;
+  try {
+    const verificatie = await import('./pdf/handtekeningen/verificatie.js');
+    signaturesInvalidated = await verificatie.opslaanMaaktHandtekeningenOngeldig(doc);
+  } catch { /* best-effort */ }
   let success;
   try {
-    success = await saverMod.savePDF(path);
+    success = await saverMod.savePDF(path, { zonderHandtekeningVraag: true });
   } catch (e) {
     return { ok: false, error: `savePDF: ${e?.message ?? e}` };
   }
   if (!success) return { ok: false, error: 'savePDF reported failure' };
-  return { ok: true, path: path || doc.filePath };
+  const antwoord = { ok: true, path: path || doc.filePath };
+  if (signaturesInvalidated) antwoord.signaturesInvalidated = true;
+  return antwoord;
 }
 
 async function handleSetViewMode(params) {

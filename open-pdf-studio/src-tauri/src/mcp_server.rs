@@ -670,7 +670,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_close_tab",
-                "description": "Close the document tab at `index` (0-based). If the document has unsaved changes the call fails unless force=true (discard) or save=true (save-and-close) — it never opens a save dialog, so the bridge stays headless-safe.",
+                "description": "Close the document tab at `index` (0-based). If the document has unsaved changes the call fails unless force=true (discard) or save=true (save-and-close) — it never opens a save dialog, so the bridge stays headless-safe. When save=true and the document carried digital signatures that no longer hold for the saved file, the result also contains `signaturesInvalidated: true`.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -698,7 +698,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_save_pdf",
-                "description": "Save the active document with all annotations baked in. With `path`, saves to that file. Without `path`, saves in place — fails (instead of opening a file picker) when the document is untitled or has no real path.",
+                "description": "Save the active document with all annotations baked in. With `path`, saves to that file. Without `path`, saves in place — fails (instead of opening a file picker) when the document is untitled or has no real path. When the document carried digital signatures that no longer hold for the saved file, the result also contains `signaturesInvalidated: true`.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {

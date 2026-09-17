@@ -13,6 +13,7 @@ import { getReaderPosition } from '../core/reader-mode.js';
 import { extractFileName } from '../core/platform.js';
 import i18next from '../i18n/config.js';
 import { showMessage } from '../bridge.js';
+import { verifieerHandtekeningen } from './handtekeningen/verificatie.js';
 
 // Sub-module imports
 import { extractAnnotationColors } from './loader/color-extraction.js';
@@ -475,12 +476,16 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
       // Check for PDF/A compliance and show info bar if applicable
       checkPdfACompliance(doc);
 
+      // Handtekeningen op de achtergrond verifiëren; de balk volgt vanzelf.
+      verifieerHandtekeningen(doc);
+
       // Generate thumbnails for left panel
       console.log(`[PERF] generateThumbnails START: ${(performance.now() - _t0).toFixed(0)}ms`);
       generateThumbnails();
     } else {
       // Not active — still check PDF/A but don't show bar
       checkPdfACompliance(doc);
+      verifieerHandtekeningen(doc);
     }
 
     // Load bookmarks from PDF outline (data-only, always run)

@@ -12,6 +12,7 @@ import { getActiveDocument } from '../core/state.js';
 import { openExternal } from '../core/platform.js';
 import { showMessage } from '../bridge.js';
 import { savePDF } from './saver.js';
+import { moetOpslaanVoorVerzenden } from './handtekeningen/opslaan.js';
 import i18next from 'i18next';
 
 function basename(p) {
@@ -32,10 +33,16 @@ export async function emailCurrentPdf() {
     return;
   }
   // Eerst opslaan zodat er een actueel bestand op schijf staat om bij te
-  // voegen (vraagt om een locatie bij naamloze documenten).
-  const ok = await savePDF();
-  if (!ok) return;
-  const path = getActiveDocument()?.filePath;
+  // voegen (vraagt om een locatie bij naamloze documenten). Een ongewijzigd
+  // bestand niet: opslaan herschrijft het en maakt handtekeningen ongeldig.
+  if (moetOpslaanVoorVerzenden(doc)) {
+    const ok = await savePDF();
+    if (!ok) return;
+  }
+  const actief = getActiveDocument();
+  // Na tekstbewerkingen rendert het document uit een werkkopie; het echte
+  // bestand staat dan in saveTargetPath.
+  const path = actief?.saveTargetPath || actief?.filePath;
   if (!path) return;
 
   const subject = basename(path);

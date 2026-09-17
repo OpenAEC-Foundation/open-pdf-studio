@@ -234,7 +234,7 @@ function pageCompensationForAp(w, h, pageRot) {
 // het bijgewerkte document. (#345)
 let _saveBezig = null;
 
-export async function savePDF(saveAsPath = null) {
+export async function savePDF(saveAsPath = null, opties = {}) {
   const activeDoc = getActiveDocument();
   const currentPath = activeDoc?.filePath;
   // Redirect to "Save As" for untitled docs. These now have a temp-file
@@ -255,12 +255,46 @@ export async function savePDF(saveAsPath = null) {
     return await savePDFAs();
   }
 
+  // Loopt er al een save, dan eerst die afwachten: pas daarna is bekend of
+  // dit document nog intacte handtekeningen heeft (anders vroeg een tweede
+  // Ctrl+S tijdens het opslaan nogmaals).
   if (_saveBezig) {
     await _saveBezig.catch(() => {});
-    return savePDF(saveAsPath);
+    return savePDF(saveAsPath, opties);
   }
+
+  // Ondertekend document: gewoon opslaan maakt de handtekeningen ongeldig.
+  // De vraag wacht op een lopende verificatie en staat maar één keer open per
+  // document.
+  if (!opties.zonderHandtekeningVraag) {
+    const { bevestigOpslaanMetHandtekeningen } = await import('./handtekeningen/verificatie.js');
+    if (!(await bevestigOpslaanMetHandtekeningen(activeDoc, saveAsPath))) return false;
+  }
+
+  if (_saveBezig) {
+    await _saveBezig.catch(() => {});
+    return savePDF(saveAsPath, { ...opties, zonderHandtekeningVraag: true });
+  }
+  const doel = saveAsPath || activeDoc?.saveTargetPath || currentPath;
   _saveBezig = _savePDFNu(saveAsPath).finally(() => { _saveBezig = null; });
-  return _saveBezig;
+  const gelukt = await _saveBezig;
+  if (gelukt && activeDoc) {
+    // De vorige uitkomst gold voor het oude bestand: opnieuw verifiëren. Het
+    // nieuwe verzoek maakt lopende en eerdere uitkomsten direct ongeldig en
+    // zet de belofte klaar vóór savePDF terugkeert, zodat een volgende
+    // opslaanvraag erop wacht.
+    try {
+      const { moetOpnieuwVerifieren } = await import('./handtekeningen/opslaan.js');
+      if (moetOpnieuwVerifieren(activeDoc)) {
+        const { verifieerHandtekeningen } = await import('./handtekeningen/verificatie.js');
+        verifieerHandtekeningen(activeDoc, doel)
+          .catch(e => console.warn('[handtekening] opnieuw verifiëren na opslaan mislukt:', e));
+      }
+    } catch (e) {
+      console.warn('[handtekening] opnieuw verifiëren na opslaan mislukt:', e);
+    }
+  }
+  return gelukt;
 }
 
 async function _savePDFNu(saveAsPath) {
@@ -3077,10 +3111,16 @@ export async function savePDFAs() {
     return false;
   }
 
-  // Use current path as default, or the untitled file name
+  // Standaard het eigen pad. Een naamloos document staat in een tijdelijk
+  // bestand: stel dan de tabbladnaam met .pdf voor in een normale map.
   const doc = getActiveDocument();
   const currentPath = doc?.filePath;
-  const defaultPath = currentPath || (doc ? doc.fileName : 'Untitled.pdf');
+  let map = null;
+  if (doc?.isUntitled && !doc._voorgesteldeMap) {
+    try { map = await window.__TAURI__?.path?.documentDir?.(); } catch { map = null; }
+  }
+  const { opslaanAlsStandaardPad } = await import('./handtekeningen/opslaan.js');
+  const defaultPath = opslaanAlsStandaardPad(doc, map);
 
   const savePath = await saveFileDialog(defaultPath);
 
