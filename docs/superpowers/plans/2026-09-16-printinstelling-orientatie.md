@@ -1083,10 +1083,17 @@ Run:
 ```bash
 S="<tijdelijke map>"
 B="C:/Users/rickd/Documents/GitHub/verification-files/PDF-bestanden"
+node "$S/pagina-instelling-proef.mjs" "$B/Technische tekening.pdf"
 node "$S/pagina-instelling-proef.mjs" "$B/a2-staand.pdf"
 node "$S/pagina-instelling-proef.mjs" "$B/Tekst.pdf"
 ```
-Expected: a2-staand → `"orientatie":"landscape"` en `"formaat":"printer"` (A0-achtig blad); Tekst → `"orientatie":"portrait"` en `"formaat":"a4"`.
+Paginamaten van pagina 1 zoals getoond, gemeten met PyMuPDF (niet aangenomen):
+Technische tekening 841×594 mm met /Rotate 90; a2-staand 420×594 mm; Tekst 210×297 mm.
+
+Expected:
+- Technische tekening → `"orientatie":"landscape"`, `"formaat":"printer"` (A1 bestaat niet in Windows; toetst ook de draaiingshelper via /Rotate 90);
+- a2-staand → `"orientatie":"portrait"`, `"formaat":"a2"` (toetst de nieuwe A2-optie);
+- Tekst → `"orientatie":"portrait"`, `"formaat":"a4"`.
 
 - [ ] **Step 4: Uitvoer naar de virtuele PDF-printer**
 
@@ -1117,6 +1124,8 @@ const page = browser.contexts()[0].pages()[0];
 
 await page.keyboard.press('Control+p');
 await page.waitForSelector('.print-printer-action-btn', { timeout: 15000 });
+// Alleen de huidige pagina: alle pagina's van een A1-set op 300 dpi is onnodig zwaar.
+await page.locator('.print-page-btn').nth(1).click();
 // Printer kiezen.
 await page.locator('select', { has: page.locator('option', { hasText: 'Open PDF Printer' }) })
   .first().selectOption({ label: 'Open PDF Printer' });
@@ -1147,9 +1156,10 @@ console.log(JSON.stringify({ autoRotate, orientatie, uitvoer: maat, liggend: w >
 process.exit(0);
 ```
 
-Run (met `a2-staand.pdf` nog actief uit Step 3):
+Run (maak eerst `Technische tekening.pdf` het actieve document — liggend, 841×594 mm):
 ```bash
 S="<tijdelijke map>"
+node -e "fetch('http://127.0.0.1:9223/mcp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/call',params:{name:'app_open_pdf',arguments:{path:'C:/Users/rickd/Documents/GitHub/verification-files/PDF-bestanden/Technische tekening.pdf'}}})}).then(r=>r.text()).then(t=>console.log(t.slice(0,120)))"
 node "$S/print-uitvoer-proef.mjs" aan landscape
 node "$S/print-uitvoer-proef.mjs" uit portrait
 ```
