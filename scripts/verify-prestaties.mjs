@@ -15,6 +15,8 @@
 // faalgrens behalve: nieuwe build > 2x zo traag als oude op een meting).
 
 import { spawn } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 
 const RONDES = 3;
@@ -102,13 +104,28 @@ async function wachtOpInkt(evalJs, maxMs, minInkt = 5) {
   return -1; // niet gehaald
 }
 
+// Elke meetinstantie krijgt een eigen datamap (OPDS_DATA_DIR: voorkeuren,
+// sessie, catalogi, logs) en een eigen WebView2-profiel, zodat een meting
+// niets in het profiel van de gebruiker schrijft en geen sessie van de
+// gebruiker herstelt. LET OP: builds van vóór OPDS_DATA_DIR negeren de
+// variabele en schrijven wél in het echte profiel — meet die niet.
+function isolatieMappen() {
+  const basis = path.join(os.tmpdir(), 'opds-prestatie-isolatie');
+  const data = path.join(basis, 'data');
+  fs.mkdirSync(path.join(data, 'OpenPDFStudio'), { recursive: true });
+  fs.writeFileSync(path.join(data, 'OpenPDFStudio', 'session.json'), '{"openFiles":[],"activeIndex":0}');
+  return { data, webview: path.join(basis, 'webview') };
+}
+
 async function meetRun(exe, bestand) {
+  const iso = isolatieMappen();
   const env = {
     ...process.env,
     OPS_ENABLE_MCP: '1',
     OPDS_DETACHED: '1',
+    OPDS_DATA_DIR: iso.data,
     WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS: `--remote-debugging-port=${CDP_POORT}`,
-    WEBVIEW2_USER_DATA_FOLDER: 'C:/Users/rickd/AppData/Local/Temp/opds-prestatie-webview',
+    WEBVIEW2_USER_DATA_FOLDER: iso.webview,
   };
   const t0 = Date.now();
   const proc = spawn(exe, ['--mcp-server', '--mcp-port', String(MCP_POORT)], { env, detached: true, stdio: 'ignore' });

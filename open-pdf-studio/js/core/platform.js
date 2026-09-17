@@ -353,6 +353,18 @@ export async function invoke(cmd, args = {}) {
   return null;
 }
 
+// App-datamap (kaders, onderhoeken). Gaat via Rust zodat een testinstantie
+// met OPDS_DATA_DIR niet in het profiel van de gebruiker leest of schrijft;
+// terugval op Tauri's appDataDir voor oudere backends.
+export async function getAppDataDir() {
+  const t = typeof window !== 'undefined' ? window.__TAURI__ : null;
+  try {
+    const map = await t?.core?.invoke('app_data_dir_effectief');
+    if (map) return map;
+  } catch { /* commando onbekend: terugval */ }
+  return t.path.appDataDir();
+}
+
 // Resolve raw OS type + version into a human-friendly name
 const WINDOWS_BUILDS = [
   [22000, 'Windows 11'],

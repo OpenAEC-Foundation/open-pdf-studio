@@ -4,6 +4,7 @@
 #![recursion_limit = "256"]
 
 mod accounts;
+pub mod datamap;
 mod email;
 pub mod linux_runtime;
 pub mod mcp_app_bridge;
@@ -82,7 +83,7 @@ fn get_opened_file(state: tauri::State<OpenedFiles>) -> Vec<String> {
 
 #[tauri::command]
 fn get_session_file_path() -> String {
-    if let Some(data_dir) = dirs::data_local_dir() {
+    if let Some(data_dir) = datamap::lokale_datamap() {
         let app_dir = data_dir.join("OpenPDFStudio");
         if !app_dir.exists() {
             let _ = fs::create_dir_all(&app_dir);
@@ -107,7 +108,7 @@ fn load_session() -> Option<String> {
 }
 
 fn get_preferences_file_path() -> String {
-    if let Some(data_dir) = dirs::data_local_dir() {
+    if let Some(data_dir) = datamap::lokale_datamap() {
         let app_dir = data_dir.join("OpenPDFStudio");
         if !app_dir.exists() {
             let _ = fs::create_dir_all(&app_dir);
@@ -137,7 +138,7 @@ fn load_preferences() -> Option<String> {
 // spiegel kent een quotum. Kleine catalogi blijven gewoon inline in de
 // voorkeuren; alleen grote landen hier (beide opties bestaan naast elkaar).
 fn get_catalogs_dir() -> std::path::PathBuf {
-    let basis = dirs::data_local_dir().unwrap_or_else(|| std::path::PathBuf::from("."));
+    let basis = datamap::lokale_datamap().unwrap_or_else(|| std::path::PathBuf::from("."));
     let dir = basis.join("OpenPDFStudio").join("catalogs");
     if !dir.exists() {
         let _ = fs::create_dir_all(&dir);
@@ -1062,6 +1063,8 @@ Get-PrinterPort | Where-Object { $_.Name -like '*OpenPDFStudio*print-capture*' -
 // merge/reorder dialog.
 
 fn vp_spool_dir() -> Result<std::path::PathBuf, String> {
+    // Bewust niet via datamap::lokale_datamap(): de spoolmap is als
+    // Windows-printerpoort vastgelegd en gedeeld met het print-subsysteem.
     let base = dirs::data_local_dir().ok_or("local data dir unknown")?;
     Ok(base.join("OpenPDFPrinter").join("spool"))
 }
@@ -1522,7 +1525,7 @@ fn play_alert_sound() {
 // --- Plugin Management ---
 
 fn get_plugins_dir() -> std::path::PathBuf {
-    let data_dir = dirs::data_local_dir().unwrap_or_else(|| std::path::PathBuf::from("."));
+    let data_dir = datamap::lokale_datamap().unwrap_or_else(|| std::path::PathBuf::from("."));
     let plugins_dir = data_dir.join("OpenPDFStudio").join("plugins");
     if !plugins_dir.exists() {
         let _ = fs::create_dir_all(&plugins_dir);
@@ -2678,9 +2681,7 @@ pub fn run(opts: StartupOpts) {
 
     builder
         .setup(move |app| {
-            let diagnostics_path = app
-                .path()
-                .app_log_dir()
+            let diagnostics_path = datamap::tauri_map(app.handle(), datamap::TauriMap::Logs)
                 .map_err(|e| format!("Cannot resolve app log directory: {e}"))?
                 .join("startup-diagnostics.jsonl");
             let diagnostics = startup_diagnostics::StartupDiagnostics::new(diagnostics_path);
@@ -2691,7 +2692,7 @@ pub fn run(opts: StartupOpts) {
             // opruimen; vangnet naast het opruimen door de UI. Ruim genoeg, zodat
             // een tabblad dat in een andere, nog draaiende instantie open staat
             // zijn bestand niet kwijtraakt. Fouten negeren.
-            if let Ok(cachemap) = app.path().app_cache_dir() {
+            if let Ok(cachemap) = datamap::tauri_map(app.handle(), datamap::TauriMap::Cache) {
                 std::thread::spawn(move || {
                     handtekening::verifieer::ruim_ondertekende_versies_op(
                         &handtekening::verifieer::map_ondertekende_versies(&cachemap),
@@ -2906,6 +2907,7 @@ pub fn run(opts: StartupOpts) {
             window_mgmt::detach_diag,
             startup_diagnostics::startup_diagnostic,
             startup_diagnostics::startup_diagnostics_path,
+            datamap::app_data_dir_effectief,
             read_clipboard_image_png,
             set_prtscn_hotkey,
         ])

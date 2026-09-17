@@ -15,6 +15,7 @@
 const DEV_DIR =
   'C:\\Users\\rickd\\Documents\\GitHub\\openaec-tenants\\tenants\\openaec_foundation\\title_blocks';
 
+import { getAppDataDir } from '../core/platform.js';
 import { composeFrameWithTitleBlock, KADER_MARGE_PT } from './titleblock-compose.js';
 export { composeFrameWithTitleBlock, KADER_MARGE_PT };
 
@@ -37,7 +38,7 @@ export async function getTitleBlockDirs() {
   const t = _tauri();
   const dirs = [];
   try {
-    const appData = await t.path.appDataDir();
+    const appData = await getAppDataDir();
     const sep = appData.endsWith('\\') || appData.endsWith('/') ? '' : '\\';
     const userDir = `${appData}${sep}onderhoeken`;
     await _allowDir(userDir);
@@ -59,7 +60,7 @@ export async function getTitleBlockDirs() {
 export async function getUserTitleBlockDir() {
   if (await _exists(DEV_DIR)) return DEV_DIR;
   const t = _tauri();
-  const appData = await t.path.appDataDir();
+  const appData = await getAppDataDir();
   const sep = appData.endsWith('\\') || appData.endsWith('/') ? '' : '\\';
   const userDir = `${appData}${sep}onderhoeken`;
   await _allowDir(userDir);
