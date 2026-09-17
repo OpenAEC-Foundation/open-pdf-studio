@@ -59,7 +59,12 @@ export async function loadDefaultOcrFontBytes() {
   return cjkFontBytesPromise;
 }
 
-let sharedFontkitRegistered = false;
+let fontkitPromise = null;
+
+function laadFontkit() {
+  if (!fontkitPromise) fontkitPromise = import('@pdf-lib/fontkit').then((m) => m.default);
+  return fontkitPromise;
+}
 
 /**
  * Embed the CJK font into `pdfDocLib` and return the pdf-lib PDFFont, ready
@@ -70,11 +75,10 @@ let sharedFontkitRegistered = false;
  * pass fs.readFileSync(...) bytes directly).
  */
 export async function embedOcrFont(pdfDocLib, fontBytes) {
-  if (!sharedFontkitRegistered) {
-    const fontkit = (await import('@pdf-lib/fontkit')).default;
-    pdfDocLib.registerFontkit(fontkit);
-    sharedFontkitRegistered = true;
-  }
+  // fontkit hoort bij het PDFDocument, niet bij de module: registreer hem bij
+  // elk document. Alleen het laden van de module wordt gedeeld; anders mislukt
+  // elke volgende opslag in dezelfde sessie met "no fontkit instance was found".
+  pdfDocLib.registerFontkit(await laadFontkit());
   return pdfDocLib.embedFont(fontBytes, { subset: true });
 }
 
