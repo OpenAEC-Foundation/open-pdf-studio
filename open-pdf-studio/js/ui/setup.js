@@ -3,6 +3,7 @@ import { annotationCanvas } from './dom-elements.js';
 import { handlePointerDown, handlePointerMove, handlePointerUp, handleDblClick } from '../tools/tool-dispatcher.js';
 import { registerAllTools } from '../tools/tools/index.js';
 import { initKeyboardHandlers } from '../tools/keyboard-handlers.js';
+import { installeerMiddelmuisPan } from '../tools/middelmuis-pan.js';
 import { loadPDF } from '../pdf/loader.js';
 import { isTauri } from '../core/platform.js';
 import { createTab } from './chrome/tabs.js';
@@ -182,6 +183,9 @@ export function setupEventListeners() {
     annotationCanvas.addEventListener('pointerup', handlePointerUp);
     annotationCanvas.addEventListener('dblclick', handleDblClick);
   }
+
+  // Middelmuis-slepen pant bij elk gereedschap en overal in de weergave
+  installeerMiddelmuisPan();
 
   // Catch pointerup outside canvas to stop stuck drawing/shape state
   document.addEventListener('pointerup', handlePointerUp);

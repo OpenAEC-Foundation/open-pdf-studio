@@ -8,7 +8,7 @@ import { showProperties, showMultiSelectionProperties } from '../ui/panels/prope
 import { startTextEditing, finishTextEditing } from './text-editing.js';
 import { openStickyPopup } from '../bridge.js';
 import { findAnnotationAt } from '../annotations/geometry.js';
-import { startPan, startContinuousPan, handlePanEnd, handleMiddleButtonPanEnd } from './pan-handler.js';
+import { handlePanEnd, handleMiddleButtonPanEnd } from './pan-handler.js';
 import { performSnap, drawSnapIndicator, drawAlignmentGuides, setPolarAnchor, clearPolarAnchor } from './snap-engine.js';
 import { collectImageAlignRefs, snapImageMove, snapImageResize, drawImageAlignGuides } from './image-align-snap.js';
 import {
@@ -115,12 +115,9 @@ export function handlePointerDown(e) {
     if (__doc) __doc.currentPage = coords.pageNum;
   }
 
-  // Middle mouse button: panning (works regardless of tool)
-  if (e.button === 1) {
-    if (getActiveDocument()?.viewMode === 'continuous') startContinuousPan(e, true);
-    else startPan(e, true);
-    return;
-  }
+  // Middelknop: de pan loopt via de centrale middelmuis-pan
+  // (middelmuis-pan.js, capture op window) — nooit als gereedschapsklik.
+  if (e.button === 1) return;
 
   // Blender-style 2D cursor: Shift+RIGHT-click places (or moves) it —
   // regardless of the active tool. Hidden until first placed; drawn in the
