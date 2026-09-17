@@ -15,6 +15,8 @@
 // New files (or new subfolders with files in the same convention) appear
 // automatically the next time the New-document dialog opens.
 
+import { getAppDataDir } from '../core/platform.js';
+
 const DEV_FRAMES_DIR =
   'C:\\Users\\rickd\\Documents\\GitHub\\openaec-tenants\\tenants\\openaec_foundation\\drawing_frames';
 
@@ -37,7 +39,7 @@ export async function getFrameDirs() {
   const t = _tauri();
   const dirs = [];
   try {
-    const appData = await t.path.appDataDir();
+    const appData = await getAppDataDir();
     const sep = appData.endsWith('\\') || appData.endsWith('/') ? '' : '\\';
     const userDir = `${appData}${sep}kaders`;
     await _allowDir(userDir);
@@ -60,7 +62,7 @@ export async function getFrameDirs() {
 export async function getUserFramesDir() {
   if (await _exists(DEV_FRAMES_DIR)) return DEV_FRAMES_DIR;
   const t = _tauri();
-  const appData = await t.path.appDataDir();
+  const appData = await getAppDataDir();
   const sep = appData.endsWith('\\') || appData.endsWith('/') ? '' : '\\';
   const userDir = `${appData}${sep}kaders`;
   await _allowDir(userDir);

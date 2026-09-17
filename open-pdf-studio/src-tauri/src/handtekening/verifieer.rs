@@ -904,9 +904,8 @@ pub async fn pdf_signed_revision(
     nummer: usize,
     bereik_einde: Option<u64>,
 ) -> Result<String, LijstFout> {
-    use tauri::Manager;
     use tauri_plugin_fs::FsExt;
-    let cachemap = app.path().app_cache_dir().map_err(io_fout)?;
+    let cachemap = crate::datamap::tauri_map(&app, crate::datamap::TauriMap::Cache).map_err(io_fout)?;
     let doel = tauri::async_runtime::spawn_blocking(move || {
         schrijf_ondertekende_versie(&map_ondertekende_versies(&cachemap), &pad, nummer, bereik_einde)
     })
