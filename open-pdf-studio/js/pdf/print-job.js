@@ -7,6 +7,7 @@ import i18next from '../i18n/config.js';
 import { getActiveDocument, getPageRotation } from '../core/state.js';
 import { invoke } from '../core/platform.js';
 import { renderPageOffscreen, canvasToBytes } from './exporter.js';
+import { viewportOpties } from './getoonde-pagina.js';
 import {
   startPrintProgress, updatePrintProgress, finishPrintProgress, failPrintProgress,
 } from '../solid/stores/printProgressStore.js';
@@ -36,9 +37,7 @@ export async function runPrintJob({ pages, copies, printer, orientatie = 'auto',
 
       const origPage = await doc.pdfDoc.getPage(pageNum);
       const extraRotation = getPageRotation(pageNum);
-      const origViewportOpts = { scale: 1 };
-      if (extraRotation) origViewportOpts.rotation = (origPage.rotate + extraRotation) % 360;
-      const origViewport = origPage.getViewport(origViewportOpts);
+      const origViewport = origPage.getViewport(viewportOpties(origPage, extraRotation));
 
       const pdfPage = newPdf.addPage([origViewport.width, origViewport.height]);
       pdfPage.drawImage(jpegImage, { x: 0, y: 0, width: origViewport.width, height: origViewport.height });

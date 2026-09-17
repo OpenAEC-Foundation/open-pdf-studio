@@ -6,6 +6,7 @@ import { getActiveDocument, getPageRotation } from '../../../core/state.js';
 import {
   PAPIERFORMATEN, startPaginaInstelling, bewaarPaginaInstelling,
 } from '../../../pdf/print-pagina-instelling.js';
+import { viewportOpties } from '../../../pdf/getoonde-pagina.js';
 
 // docId + handmatig: een zelf gekozen oriëntatie/formaat blijft staan zolang
 // je in hetzelfde document werkt (zie print-pagina-instelling.js).
@@ -32,9 +33,7 @@ async function huidigePaginaMaat(doc) {
     const pageNum = doc.currentPage || 1;
     const page = await doc.pdfDoc.getPage(pageNum);
     const extra = getPageRotation(pageNum);
-    const opts = { scale: 1 };
-    if (extra) opts.rotation = (page.rotate + extra) % 360;
-    const vp = page.getViewport(opts);
+    const vp = page.getViewport(viewportOpties(page, extra));
     return { breedtePt: vp.width, hoogtePt: vp.height };
   } catch {
     return { breedtePt: NaN, hoogtePt: NaN };
