@@ -23,11 +23,113 @@ import {
 import { cloneForInsert } from './edit-ops.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import { isPdfAReadOnly } from '../pdf/loader.js';
-import { setTypeLengthCursorScreen } from './type-length-input.js';
+import {
+  setTypeLengthCursorScreen,
+  typeLengthActive,
+  typeLengthHasBuffer,
+  typeLengthBuffer,
+  enterTypeLengthMode,
+  exitTypeLengthMode,
+} from './type-length-input.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { hideMenu } from '../bridge.js';
 import { syncDocScale } from '../annotations/scale-bar.js';
-import { recalculateAllMeasurements } from '../annotations/measurement.js';
+import { recalculateAllMeasurements, getMeasureScale } from '../annotations/measurement.js';
+import { parseCoordBuffer } from './coord-invoer.js';
+import {
+  gripLengteEindpunten,
+  pixelsPerEenheidVoor,
+  nieuwEindpuntVoorInvoer,
+  isGripLengteStartToets,
+} from './grip-lengte.js';
+
+// ── Lengte intypen tijdens het slepen van een eindpunt-handvat ─────────────
+// Hergebruikt de invoer van de tekengereedschappen (type-length-input.js:
+// zelfde buffer, HUD bij de cursor, notatie en schaal). Het vaste eindpunt
+// is het anker; de richting wordt bij het eerste getypte teken vastgezet op
+// de laatst getoonde (gesnapte/orthogonale) sleeprichting, net als bij het
+// tekenen van een maatlijn.
+const _gripLengte = {
+  actief: false,
+  richting: null, // vastgezette richting (punt) zolang er invoer is
+  laatste: null,  // gesleept punt van het laatste frame, vóór de invoer
+};
+
+function _enkeleSelectie() {
+  const doc = getActiveDocument();
+  const sel = doc ? doc.selectedAnnotations : [];
+  return sel.length === 1 ? sel[0] : null;
+}
+
+/** Opent de lengte-invoer als er een eindpunt-handvat gesleept wordt. */
+export function startGripLengteInvoer(key) {
+  if (typeLengthActive() || !isGripLengteStartToets(key)) return false;
+  if (!state.isResizing || !state.originalAnnotation || !_enkeleSelectie()) return false;
+  const orig = gripLengteEindpunten(state.originalAnnotation, state.activeHandle);
+  if (!orig) return false;
+  enterTypeLengthMode(orig.vast.x, orig.vast.y);
+  _gripLengte.actief = true;
+  _gripLengte.richting = _gripLengte.laatste || orig.beweeg;
+  state._typeLengthCommit = () => _commitGripLengte();
+  return true;
+}
+
+/** Sluit de lengte-invoer van het handvat-slepen (idempotent). */
+export function stopGripLengteInvoer() {
+  if (_gripLengte.actief) {
+    exitTypeLengthMode();
+    state._typeLengthCommit = null;
+  }
+  _gripLengte.actief = false;
+  _gripLengte.richting = null;
+  _gripLengte.laatste = null;
+}
+
+// Na applyResize: onthoud de sleeprichting, en leg bij getypte invoer het
+// gesleepte eindpunt op de getypte lengte. Het resultaat gaat opnieuw door
+// applyResize zodat maatlijn-hulplijnen, offset en maattekst meelopen.
+function _pasGripLengteToe(ann) {
+  const orig = state.originalAnnotation;
+  const h = state.activeHandle;
+  const o = gripLengteEindpunten(orig, h);
+  const nu = gripLengteEindpunten(ann, h);
+  if (!o || !nu) return;
+  if (!_gripLengte.actief || !typeLengthHasBuffer()) {
+    _gripLengte.laatste = nu.beweeg;
+    if (_gripLengte.actief) _gripLengte.richting = nu.beweeg;
+    return;
+  }
+  const buffer = typeLengthBuffer();
+  const schaal = getMeasureScale(ann.page, o.vast.x, o.vast.y).pixelsPerUnit;
+  const px = pixelsPerEenheidVoor(orig, schaal);
+  let doel = nieuwEindpuntVoorInvoer(buffer, o.vast, _gripLengte.richting || nu.beweeg, px, o.beweeg);
+  if (!doel) return;
+  const herhaal = parseCoordBuffer(buffer).kind === 'length' ? 2 : 1;
+  for (let i = 0; i < herhaal; i++) {
+    Object.assign(ann, cloneAnnotation(orig));
+    applyResize(ann, h, doel.x - o.beweeg.x, doel.y - o.beweeg.y, orig, false, false);
+    // Uitlijn-snap van de maatlijn kan het punt een fractie verzetten; leg
+    // de lengte dan opnieuw langs de zo ontstane richting.
+    const na = gripLengteEindpunten(ann, h);
+    const volgende = na && nieuwEindpuntVoorInvoer(buffer, o.vast, na.beweeg, px, o.beweeg);
+    if (!volgende || (Math.abs(volgende.x - doel.x) < 1e-9 && Math.abs(volgende.y - doel.y) < 1e-9)) break;
+    doel = volgende;
+  }
+  state.lastSnapResult = null;
+}
+
+// Enter: getypte lengte vastleggen en de sleep afronden (één undo-stap).
+function _commitGripLengte() {
+  flushWachtendeMove();
+  const ann = _enkeleSelectie();
+  if (!state.isResizing || !state.originalAnnotation || !ann) {
+    stopGripLengteInvoer();
+    return;
+  }
+  _pasGripLengteToe(ann);
+  stopGripLengteInvoer();
+  _finishDragResize();
+}
 
 // Tijdens een lopende sleep- of resize-gesture hoeft alleen het canvas mee te
 // bewegen. De zware UI-staart van een volledige hertekening (annotatielijst
@@ -73,6 +175,7 @@ export function handlePointerDown(e) {
   // Safety: reset stuck drag/resize state
   if (state.isDragging || state.isResizing) {
     console.warn('[dispatcher] pointerdown with stuck state — resetting');
+    stopGripLengteInvoer();
     state.isDragging = false;
     state.isResizing = false;
     state.activeHandle = null;
@@ -299,6 +402,13 @@ export function handlePointerUp(e) {
 
   // Handle end of drag/resize (shared logic)
   if (state.isDragging || state.isResizing) {
+    // Loslaten zonder Enter: getypte lengte vervalt, de sleep eindigt gewoon
+    // op de cursorpositie.
+    if (_gripLengte.actief) {
+      const hadInvoer = typeLengthHasBuffer();
+      stopGripLengteInvoer();
+      if (hadInvoer && state.isResizing && state.activeHandle) _handleResize(ctx, e, coords);
+    }
     _finishDragResize(ctx, e, coords);
     return;
   }
@@ -549,6 +659,7 @@ function _handleResize(ctx, e, coords) {
 
   Object.assign(ann, cloneAnnotation(state.originalAnnotation));
   applyResize(ann, state.activeHandle, deltaX, deltaY, state.originalAnnotation, e.shiftKey, e.ctrlKey);
+  _pasGripLengteToe(ann);
 
   // Image "equal width/height" snapping: after the resize is applied, snap the
   // resulting width/height to another image's width/height within tolerance.
@@ -928,6 +1039,7 @@ function _finishDragResize(ctx, e, coords) {
   state._imageAlignGuides = null;
   state._imageAlignGuidesPage = null;
   state.dragCursor = null;
+  stopGripLengteInvoer();
   // Cursor is reactive — clearing the drag flags above causes the cursor
   // module to recompute and revert to the appropriate hover/tool cursor.
 
