@@ -9,6 +9,7 @@
 use crate::pdfium_renderer;
 use pdfium_render::prelude::PdfDocument;
 use serde::Serialize;
+use std::path::Path;
 use tesseract_rs::TesseractAPI;
 
 /// DPI used to rasterize the page for OCR. Higher than screen-render DPI
@@ -42,6 +43,27 @@ pub struct OcrWord {
 /// versa — without picking wrong; it costs a bit more time per page than a
 /// correctly-targeted single-language pass would.
 const AUTO_LANG: &str = "chi_tra+eng";
+
+/// Turn the tessdata directory into the datapath string Tesseract expects.
+///
+/// On Windows Tauri reports the resource directory as a verbatim path
+/// (`\\?\C:\...`). Tesseract appends `/` before `<lang>.traineddata` unless
+/// the datapath already ends in a separator, and Windows cannot open a
+/// verbatim path containing `/` — every language then failed with "Error
+/// opening data file". So the verbatim prefix is stripped where that is
+/// unambiguous (`dunce::simplified` keeps paths that must stay verbatim, such
+/// as `\\?\UNC\...` or reserved device names), and the result always ends in
+/// a separator so Tesseract appends nothing itself.
+pub fn tessdata_path_for_tesseract(dir: &Path) -> Result<String, String> {
+    let mut path = dunce::simplified(dir)
+        .to_str()
+        .ok_or_else(|| "tessdata path is not valid UTF-8".to_string())?
+        .to_string();
+    if !path.ends_with(std::path::is_separator) {
+        path.push(std::path::MAIN_SEPARATOR);
+    }
+    Ok(path)
+}
 
 /// Run OCR on one page and return its recognized words with bounding boxes.
 ///
@@ -111,4 +133,76 @@ fn parse_tsv_words(tsv: &str, scale: f32) -> Vec<OcrWord> {
         });
     }
     words
+}
+
+#[cfg(test)]
+mod tests {
+    use super::tessdata_path_for_tesseract;
+    use std::path::{Path, MAIN_SEPARATOR};
+
+    #[test]
+    fn appends_platform_separator() {
+        let out = tessdata_path_for_tesseract(&Path::new("resources").join("tessdata")).unwrap();
+        assert_eq!(out, format!("resources{0}tessdata{0}", MAIN_SEPARATOR));
+    }
+
+    #[test]
+    fn keeps_existing_trailing_separator() {
+        let input = format!("tessdata{}", MAIN_SEPARATOR);
+        assert_eq!(tessdata_path_for_tesseract(Path::new(&input)).unwrap(), input);
+    }
+
+    #[cfg(not(windows))]
+    #[test]
+    fn unix_absolute_path_only_gets_separator() {
+        let out = tessdata_path_for_tesseract(Path::new("/usr/lib/open-pdf-studio/tessdata")).unwrap();
+        assert_eq!(out, "/usr/lib/open-pdf-studio/tessdata/");
+    }
+
+    #[cfg(not(windows))]
+    #[test]
+    fn unix_leaves_backslash_question_prefix_alone() {
+        // Only meaningful on Windows; elsewhere it is an ordinary file name.
+        let out = tessdata_path_for_tesseract(Path::new(r"\\?\C:\x")).unwrap();
+        assert_eq!(out, "\\\\?\\C:\\x/");
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn strips_verbatim_disk_prefix() {
+        let out = tessdata_path_for_tesseract(Path::new(
+            r"\\?\C:\Program Files\Open PDF Studio\tessdata",
+        ))
+        .unwrap();
+        assert_eq!(out, r"C:\Program Files\Open PDF Studio\tessdata\");
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn plain_disk_path_only_gets_separator() {
+        let out = tessdata_path_for_tesseract(Path::new(r"D:\app\tessdata")).unwrap();
+        assert_eq!(out, r"D:\app\tessdata\");
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn verbatim_path_that_cannot_be_simplified_ends_in_backslash() {
+        // A reserved device name has no plain equivalent, so it stays
+        // verbatim; the trailing backslash still keeps Tesseract from
+        // appending "/" (which a verbatim path cannot contain).
+        let out = tessdata_path_for_tesseract(Path::new(r"\\?\C:\app\CON")).unwrap();
+        assert_eq!(out, r"\\?\C:\app\CON\");
+        let unc = tessdata_path_for_tesseract(Path::new(r"\\?\UNC\server\share\tessdata")).unwrap();
+        assert!(unc.ends_with('\\'));
+        assert!(!unc.contains('/'));
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn result_never_mixes_verbatim_prefix_with_forward_slash_join() {
+        let dir = Path::new(r"\\?\C:\Users\x\AppData\Local\Open PDF Studio").join("tessdata");
+        let out = tessdata_path_for_tesseract(&dir).unwrap();
+        assert!(!out.starts_with(r"\\?\"));
+        assert!(out.ends_with('\\'));
+    }
 }

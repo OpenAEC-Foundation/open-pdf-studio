@@ -27,6 +27,10 @@ tauri-plugin-shell = "2.3.5"
 tauri-plugin-os = "2.3.2"
 tauri-plugin-process = "2"
 dirs = "5"
+# Windows-verbatimpaden (\\?\C:\...) terugzetten naar gewone paden voor
+# C-bibliotheken die er zelf "/" achter plakken (Tesseract-taaldata).
+# Staat al in Cargo.lock; geen nieuwe crate.
+dunce = "1"
 whoami = "1"
 base64 = "0.22"
 open = "5"
