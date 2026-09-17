@@ -3627,6 +3627,7 @@ dependencies = [
  "der",
  "des",
  "dirs 5.0.1",
+ "dunce",
  "flate2",
  "hmac",
  "image",

@@ -1899,17 +1899,15 @@ async fn ocr_pdf_page(
         .path()
         .resource_dir()
         .map_err(|e| format!("Cannot resolve resource_dir: {}", e))?;
-    let tessdata_dir = resource_dir.join("tessdata");
-    let tessdata_dir = tessdata_dir
-        .to_str()
-        .ok_or_else(|| "tessdata path is not valid UTF-8".to_string())?;
+    // Niet rechtstreeks to_str(): op Windows is resource_dir een \\?\-pad en
+    // daar kan Tesseract geen "/<taal>.traineddata" achter plakken.
+    let tessdata_dir = ocr::tessdata_path_for_tesseract(&resource_dir.join("tessdata"))?;
 
     let lang = lang.unwrap_or_else(|| "auto".to_string());
 
     // Tesseract inference is synchronous/blocking (and re-inits per call) —
     // run it off the async executor so it doesn't stall other IPC.
     tauri::async_runtime::spawn_blocking({
-        let tessdata_dir = tessdata_dir.to_string();
         move || ocr::ocr_page_words(handle.document(), page_index, &tessdata_dir, &lang)
     })
     .await
