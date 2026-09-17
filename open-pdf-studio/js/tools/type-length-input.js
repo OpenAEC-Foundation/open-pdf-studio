@@ -39,6 +39,9 @@
 import { createSignal } from 'solid-js';
 import { getMeasureScale } from '../annotations/measurement.js';
 import { getActiveDocument } from '../core/state.js';
+import { parseCoordBuffer, beperkEindpunt } from './coord-invoer.js';
+
+export { parseCoordBuffer };
 
 // ── SolidJS signals exposed to the HUD overlay ─────────────────────────────
 const [_buffer, _setBuffer] = createSignal('');
@@ -106,70 +109,7 @@ export function setTypeLengthCursorScreen(clientX, clientY) {
 }
 
 // ── Parsing ────────────────────────────────────────────────────────────────
-
-/**
- * Parse a buffer string into a structured form.
- * Returns { kind, a, b } where:
- *   kind ∈ 'empty' | 'length' | 'cartesian' | 'polar' | 'absolute' | 'invalid'
- *   a, b are numbers (b unused for length)
- */
-export function parseCoordBuffer(s) {
-  if (!s || s.length === 0) return { kind: 'empty', a: null, b: null };
-
-  // Absolute: starts with '='
-  if (s[0] === '=') {
-    const rest = s.slice(1);
-    if (rest.length === 0) return { kind: 'absolute', a: null, b: null };
-    // require a comma separator (or '<' for polar-absolute, but spec keeps it cartesian-only)
-    const idx = rest.indexOf(',');
-    if (idx < 0) return { kind: 'absolute', a: null, b: null };
-    const xs = rest.slice(0, idx);
-    const ys = rest.slice(idx + 1);
-    const x = _toNum(xs);
-    const y = _toNum(ys);
-    if (x == null || (ys.length > 0 && y == null)) return { kind: 'invalid', a: null, b: null };
-    return { kind: 'absolute', a: x, b: ys.length === 0 ? null : y };
-  }
-
-  // Polar: contains '<'
-  const ltIdx = s.indexOf('<');
-  if (ltIdx >= 0) {
-    const ds = s.slice(0, ltIdx);
-    const ts = s.slice(ltIdx + 1);
-    const d = _toNum(ds);
-    const t = ts.length === 0 ? null : _toNum(ts);
-    if (d == null) return { kind: 'invalid', a: null, b: null };
-    if (ts.length > 0 && t == null) return { kind: 'invalid', a: null, b: null };
-    return { kind: 'polar', a: d, b: t };
-  }
-
-  // Relative XY: contains ','
-  const commaIdx = s.indexOf(',');
-  if (commaIdx >= 0) {
-    const xs = s.slice(0, commaIdx);
-    const ys = s.slice(commaIdx + 1);
-    const x = _toNum(xs);
-    const y = ys.length === 0 ? null : _toNum(ys);
-    if (x == null) return { kind: 'invalid', a: null, b: null };
-    if (ys.length > 0 && y == null) return { kind: 'invalid', a: null, b: null };
-    return { kind: 'cartesian', a: x, b: y };
-  }
-
-  // Length-only: must be numeric
-  const v = _toNum(s);
-  if (v == null) return { kind: 'invalid', a: null, b: null };
-  return { kind: 'length', a: v, b: null };
-}
-
-function _toNum(s) {
-  if (s == null) return null;
-  const t = s.trim();
-  if (t === '' || t === '-' || t === '.' || t === '-.') return null;
-  // Reject anything that isn't a clean signed decimal
-  if (!/^-?(\d+(\.\d*)?|\.\d+)$/.test(t)) return null;
-  const v = parseFloat(t);
-  return isFinite(v) ? v : null;
-}
+// parseCoordBuffer woont in coord-invoer.js (pure, getest).
 
 function _reparse() {
   const r = parseCoordBuffer(_buffer());
@@ -279,62 +219,11 @@ export function applyToEndpoint(startX, startY, cursorX, cursorY) {
   if (!_mode.active || _buffer().length === 0) {
     return { x: cursorX, y: cursorY, constrained: false };
   }
-  const r = parseCoordBuffer(_buffer());
   // Resolve the scale AT THE ANCHOR POINT: when drawing inside a scale region
   // (schaalgebied) the typed value must be interpreted in THAT region's
   // scale/unit, not the document/global scale. getMeasureScale prioritises
   // the innermost region containing the point.
   const _page = getActiveDocument()?.currentPage;
   const pxPerUnit = getMeasureScale(_page, startX, startY).pixelsPerUnit || 1;
-
-  switch (r.kind) {
-    case 'length': {
-      if (r.a == null || r.a <= 0) {
-        return { x: cursorX, y: cursorY, constrained: false };
-      }
-      const dx = cursorX - startX;
-      const dy = cursorY - startY;
-      const len = Math.sqrt(dx * dx + dy * dy);
-      const pixels = r.a * pxPerUnit;
-      if (len === 0) return { x: startX + pixels, y: startY, constrained: true };
-      const k = pixels / len;
-      return { x: startX + dx * k, y: startY + dy * k, constrained: true };
-    }
-    case 'cartesian': {
-      // Need both fields to constrain. If only dx typed, fall back to cursor Y.
-      if (r.a == null) return { x: cursorX, y: cursorY, constrained: false };
-      const dxPx = r.a * pxPerUnit;
-      const dyPx = r.b == null ? (cursorY - startY) : r.b * pxPerUnit;
-      return { x: startX + dxPx, y: startY + dyPx, constrained: true };
-    }
-    case 'polar': {
-      if (r.a == null) return { x: cursorX, y: cursorY, constrained: false };
-      // Angle: if typed, use it; otherwise use cursor angle from anchor.
-      let theta;
-      if (r.b == null) {
-        theta = Math.atan2(cursorY - startY, cursorX - startX);
-      } else {
-        // App Y axis points down; convert mathematical angle (CCW from +X) so
-        // positive angles rotate counter-clockwise on screen.
-        theta = -r.b * Math.PI / 180;
-      }
-      const pixels = r.a * pxPerUnit;
-      return {
-        x: startX + Math.cos(theta) * pixels,
-        y: startY + Math.sin(theta) * pixels,
-        constrained: true,
-      };
-    }
-    case 'absolute': {
-      // =X,Y → raw app-coordinates (already in app-pixel space).
-      if (r.a == null) return { x: cursorX, y: cursorY, constrained: false };
-      const ax = r.a;
-      const ay = r.b == null ? cursorY : r.b;
-      return { x: ax, y: ay, constrained: true };
-    }
-    case 'invalid':
-    case 'empty':
-    default:
-      return { x: cursorX, y: cursorY, constrained: false };
-  }
+  return beperkEindpunt(parseCoordBuffer(_buffer()), startX, startY, cursorX, cursorY, pxPerUnit);
 }

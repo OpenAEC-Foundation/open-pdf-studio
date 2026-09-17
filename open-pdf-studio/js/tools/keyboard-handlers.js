@@ -27,6 +27,7 @@ import { tryStartGMove, isGMoveModeActive } from './g-move-mode.js';
 import { tryStartGRotate, isGRotateModeActive } from './g-rotate-mode.js';
 import { toggleFullscreen, exitFullscreen, getFullscreenState } from '../ui/chrome/fullscreen.js';
 import { typeLengthActive, consumeKey as typeLengthConsumeKey, typeLengthCursor } from './type-length-input.js';
+import { startGripLengteInvoer, stopGripLengteInvoer } from './tool-dispatcher.js';
 
 function redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
@@ -321,6 +322,9 @@ export async function handleKeydown(e) {
   // of falling through to a tool's own Backspace binding (e.g. the filled-
   // area tool's "undo last point"). That's intentional — deleting a typo
   // in the number you're mid-typing should not also delete a vertex.
+  // Tijdens het slepen van een eindpunt-handvat (maatlijn, lijn, pijl) opent
+  // het eerste cijfer dezelfde invoer; het vaste eindpunt is dan het anker.
+  if (!ctrl && !e.altKey) startGripLengteInvoer(e.key);
   if (typeLengthActive()) {
     const result = typeLengthConsumeKey(e.key);
     if (result.handled) {
@@ -724,6 +728,7 @@ export async function handleKeydown(e) {
     // Cancel an in-progress grip-stretch / resize: restore the original
     // annotation snapshot and exit resize mode without recording undo.
     if (state.isResizing && state.originalAnnotation) {
+      stopGripLengteInvoer();
       const _doc = getActiveDocument();
       const _sel = _doc ? _doc.selectedAnnotations : [];
       const ann = _sel.length === 1 ? _sel[0] : null;
