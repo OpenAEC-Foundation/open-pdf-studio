@@ -11,6 +11,7 @@ import {
   endUndoTransaction,
 } from '../../core/undo-manager.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
+import { ondersteuntKruis, kruisZichtbaarVoorSelectie } from '../../annotations/kruis-geometrie.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { computeTextboxContentHeight } from '../../annotations/rendering/shapes.js';
 import { formatDate, getTypeDisplayName } from '../../utils/helpers.js';
@@ -259,7 +260,7 @@ function computeSectionVisibility(type) {
     lineWidthGroup: !hideLineWidth,
     borderStyleGroup: hasBorderStyle,
     hatchPatternGroup: hasHatchPattern,
-    crossGroup: type === 'box',
+    crossGroup: ondersteuntKruis(type),
     textGroup: isTextContent,
     fontSizeGroup: type === 'text',
     opacityGroup: !isScaleBar,
@@ -667,7 +668,7 @@ export function storeShowMultiSelection(selected) {
     lineWidthGroup: allMatch(t => !hideLineWidthTypes.has(t)),
     borderStyleGroup: allMatch(t => borderStyleTypes.has(t)),
     hatchPatternGroup: allMatch(t => hatchPatternTypes.has(t)),
-    crossGroup: allMatch(t => t === 'box'),
+    crossGroup: kruisZichtbaarVoorSelectie(selected),
     textGroup: allSameType && (sharedType === 'text' || sharedType === 'comment'),
     fontSizeGroup: allSameType && sharedType === 'text',
     opacityGroup: true,
