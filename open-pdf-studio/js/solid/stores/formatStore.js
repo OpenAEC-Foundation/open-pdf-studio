@@ -4,6 +4,18 @@ import { recordPropertyChange, recordBulkModify } from '../../core/undo-manager.
 import { cloneAnnotation } from '../../annotations/factory.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { showProperties, showMultiSelectionProperties } from '../../ui/panels/properties-panel.js';
+import { applyStampLineWidth, applyStampColor } from '../../annotations/stamp-line-width.js';
+import { stampAppearanceSnapshot, syncStampAppearance } from '../../annotations/stamp-appearance-sync.js';
+
+// Een symbool (SVG-stempel) wordt als raster getekend: kleur en lijndikte
+// moeten na de wijziging de SVG in, anders heeft de werkbalk geen effect (#398).
+const STAMP_HOOKS = { applyStampLineWidth, applyStampColor };
+
+function applyFnToAnnotation(ann, applyFn) {
+  const before = stampAppearanceSnapshot(ann);
+  applyFn(ann);
+  syncStampAppearance(ann, before, STAMP_HOOKS);
+}
 
 // Format property signals
 const [fillColor, setFillColor] = createSignal('#ffffff');
@@ -64,14 +76,14 @@ export function applyToSelected(applyFn) {
     const ann = selected[0];
     if (ann.locked) return;
     recordPropertyChange(ann);
-    applyFn(ann);
+    applyFnToAnnotation(ann, applyFn);
     ann.modifiedAt = new Date().toISOString();
     showProperties(ann);
   } else {
     const originals = selected.map(a => cloneAnnotation(a));
     for (const ann of selected) {
       if (ann.locked) continue;
-      applyFn(ann);
+      applyFnToAnnotation(ann, applyFn);
       ann.modifiedAt = new Date().toISOString();
     }
     recordBulkModify(selected, originals);

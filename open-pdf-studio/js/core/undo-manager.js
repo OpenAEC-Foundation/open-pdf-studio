@@ -1,5 +1,6 @@
-import { state, getActiveDocument, getPageRotation, setPageRotation } from './state.js';
+import { state, getActiveDocument, getPageRotation, setPageRotation, imageCache } from './state.js';
 import { cloneAnnotation } from '../annotations/factory.js';
+import { stampRasterStale } from '../annotations/stamp-appearance-sync.js';
 const MAX_UNDO_STACK = 100;
 let undoTransactionDepth = 0;
 let undoTransactionCommands = null;
@@ -197,6 +198,7 @@ export async function undo() {
   }
 
   applyUndo(cmd);
+  await rerasterizeStaleStamps();
   await persistMeasureScaleIfNeeded(cmd);
   syncModifiedState();
 
@@ -246,6 +248,7 @@ export async function redo() {
   }
 
   applyRedo(cmd);
+  await rerasterizeStaleStamps();
   await persistMeasureScaleIfNeeded(cmd);
   syncModifiedState();
 
@@ -299,11 +302,34 @@ function restoreAnnotationOrder(doc, orderedIds) {
   doc.annotations.splice(0, doc.annotations.length, ...restored);
 }
 
+// Symbolen waarvan het beeld na het terugzetten niet meer bij de SVG past.
+// Gevuld door restoreAnnotationState, afgehandeld na applyUndo/applyRedo.
+let staleStamps = [];
+
 function restoreAnnotationState(annotation, snapshot) {
+  const stale = stampRasterStale(annotation, snapshot);
   for (const key of Object.keys(annotation)) {
     if (!Object.prototype.hasOwnProperty.call(snapshot, key)) delete annotation[key];
   }
   Object.assign(annotation, cloneAnnotation(snapshot));
+  if (stale) {
+    // Direct het oude raster uit de cache halen, zodat er tussendoor niet
+    // nog de vorige kleur of dikte getekend wordt.
+    if (annotation.imageId) imageCache.delete(annotation.imageId);
+    annotation._cachedImg = null;
+    staleStamps.push(annotation);
+  }
+}
+
+// Nieuw beeld maken voor symbolen die restoreAnnotationState markeerde — via
+// hetzelfde pad als kleur/lijndikte in de eigenschappen (stamp-line-width.js).
+// Dynamische import: die module trekt de render-keten mee.
+async function rerasterizeStaleStamps() {
+  if (staleStamps.length === 0) return;
+  const stamps = staleStamps;
+  staleStamps = [];
+  const { rerasterizeStamp } = await import('../annotations/stamp-line-width.js');
+  for (const annotation of stamps) rerasterizeStamp(annotation);
 }
 
 function restoreSelectionByIds(doc, ids) {
