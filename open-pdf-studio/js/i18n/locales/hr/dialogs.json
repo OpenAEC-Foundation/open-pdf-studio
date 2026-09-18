@@ -63,7 +63,9 @@
     "printJobSent": "Zadatak ispisa uspješno poslan.",
     "printFailed": "Ispis nije uspio:",
     "noPages": "Nema stranica",
-    "pageOf": "Stranica {{current}} od {{total}}"
+    "pageOf": "Stranica {{current}} od {{total}}",
+    "paperLabel": "Papir: {{paper}}",
+    "pageSizeLabel": "Stranica: {{size}}"
   },
   "insertPage": {
     "title": "Umetni stranice",

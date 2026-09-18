@@ -63,7 +63,9 @@
     "printJobSent": "Trabajo de impresión enviado correctamente.",
     "printFailed": "La impresión falló:",
     "noPages": "Sin páginas",
-    "pageOf": "Página {{current}} de {{total}}"
+    "pageOf": "Página {{current}} de {{total}}",
+    "paperLabel": "Papel: {{paper}}",
+    "pageSizeLabel": "Página: {{size}}"
   },
   "insertPage": {
     "title": "Insertar páginas",

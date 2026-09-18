@@ -63,7 +63,9 @@
     "printJobSent": "Η εργασία εκτύπωσης στάλθηκε επιτυχώς.",
     "printFailed": "Η εκτύπωση απέτυχε:",
     "noPages": "Δεν υπάρχουν σελίδες",
-    "pageOf": "Σελίδα {{current}} από {{total}}"
+    "pageOf": "Σελίδα {{current}} από {{total}}",
+    "paperLabel": "Χαρτί: {{paper}}",
+    "pageSizeLabel": "Σελίδα: {{size}}"
   },
   "insertPage": {
     "title": "Εισαγωγή σελίδων",

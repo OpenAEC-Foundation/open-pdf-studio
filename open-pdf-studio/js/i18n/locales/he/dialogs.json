@@ -63,7 +63,9 @@
     "printJobSent": "עבודת ההדפסה נשלחה בהצלחה.",
     "printFailed": "ההדפסה נכשלה:",
     "noPages": "אין עמודים",
-    "pageOf": "עמוד {{current}} מתוך {{total}}"
+    "pageOf": "עמוד {{current}} מתוך {{total}}",
+    "paperLabel": "נייר: {{paper}}",
+    "pageSizeLabel": "עמוד: {{size}}"
   },
   "insertPage": {
     "title": "הוספת עמודים",

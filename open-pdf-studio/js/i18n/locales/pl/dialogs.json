@@ -63,7 +63,9 @@
     "printJobSent": "Zadanie drukowania zostało wysłane pomyślnie.",
     "printFailed": "Drukowanie nie powiodło się:",
     "noPages": "Brak stron",
-    "pageOf": "Strona {{current}} z {{total}}"
+    "pageOf": "Strona {{current}} z {{total}}",
+    "paperLabel": "Papier: {{paper}}",
+    "pageSizeLabel": "Strona: {{size}}"
   },
   "insertPage": {
     "title": "Wstaw strony",

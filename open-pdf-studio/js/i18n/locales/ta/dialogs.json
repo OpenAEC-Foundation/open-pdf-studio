@@ -63,7 +63,9 @@
     "printJobSent": "அச்சுப் பணி வெற்றிகரமாக அனுப்பப்பட்டது.",
     "printFailed": "அச்சிடல் தோல்வியடைந்தது:",
     "noPages": "பக்கங்கள் இல்லை",
-    "pageOf": "பக்கம் {{current}} / {{total}}"
+    "pageOf": "பக்கம் {{current}} / {{total}}",
+    "paperLabel": "தாள்: {{paper}}",
+    "pageSizeLabel": "பக்கம்: {{size}}"
   },
   "insertPage": {
     "title": "பக்கங்களைச் செருகு",

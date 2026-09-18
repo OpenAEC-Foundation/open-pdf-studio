@@ -63,7 +63,9 @@
     "printJobSent": "Tisková úloha byla úspěšně odeslána.",
     "printFailed": "Tisk se nezdařil:",
     "noPages": "Žádné stránky",
-    "pageOf": "Stránka {{current}} z {{total}}"
+    "pageOf": "Stránka {{current}} z {{total}}",
+    "paperLabel": "Papír: {{paper}}",
+    "pageSizeLabel": "Stránka: {{size}}"
   },
   "insertPage": {
     "title": "Vložit stránky",

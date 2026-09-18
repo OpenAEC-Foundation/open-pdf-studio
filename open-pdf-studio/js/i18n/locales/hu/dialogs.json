@@ -63,7 +63,9 @@
     "printJobSent": "Nyomtatási feladat sikeresen elküldve.",
     "printFailed": "Nyomtatás sikertelen:",
     "noPages": "Nincsenek oldalak",
-    "pageOf": "Oldal: {{current}} / {{total}}"
+    "pageOf": "Oldal: {{current}} / {{total}}",
+    "paperLabel": "Papír: {{paper}}",
+    "pageSizeLabel": "Oldal: {{size}}"
   },
   "insertPage": {
     "title": "Oldalak beszúrása",

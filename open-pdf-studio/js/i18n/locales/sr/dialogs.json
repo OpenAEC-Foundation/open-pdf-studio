@@ -63,7 +63,9 @@
     "printJobSent": "Задатак за штампу успешно послат.",
     "printFailed": "Штампање неуспешно:",
     "noPages": "Нема страница",
-    "pageOf": "Страница {{current}} од {{total}}"
+    "pageOf": "Страница {{current}} од {{total}}",
+    "paperLabel": "Папир: {{paper}}",
+    "pageSizeLabel": "Страница: {{size}}"
   },
   "insertPage": {
     "title": "Уметање страница",

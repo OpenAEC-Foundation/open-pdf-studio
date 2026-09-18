@@ -63,7 +63,9 @@
     "printJobSent": "打印任务已成功发送。",
     "printFailed": "打印失败：",
     "noPages": "没有页面",
-    "pageOf": "第 {{current}} 页，共 {{total}} 页"
+    "pageOf": "第 {{current}} 页，共 {{total}} 页",
+    "paperLabel": "纸张：{{paper}}",
+    "pageSizeLabel": "页面：{{size}}"
   },
   "insertPage": {
     "title": "插入页面",
