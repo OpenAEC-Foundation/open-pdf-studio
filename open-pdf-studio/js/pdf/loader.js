@@ -455,16 +455,21 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
       if (state.preferences.readerMode && filePath) {
         try {
           const saved = await getReaderPosition(filePath);
-          if (saved) {
+          // goToPage/setZoom and the scroll container all act on the ACTIVE
+          // tab, so if focus moved to another document while we were awaiting
+          // (user switched tab, or a slow session restore activated its own
+          // tab), applying the saved position would scroll/zoom the wrong PDF.
+          if (isClosed()) return;
+          if (saved && isActive()) {
             if (saved.page && saved.page !== doc.currentPage) {
               await goToPage(saved.page);
               if (isClosed()) return;
             }
-            if (saved.scale) {
+            if (saved.scale && isActive()) {
               await setZoom(saved.scale);
               if (isClosed()) return;
             }
-            if (pdfContainer && saved.scrollHeight > 0) {
+            if (isActive() && pdfContainer && saved.scrollHeight > 0) {
               pdfContainer.scrollTop = (saved.scrollTop / saved.scrollHeight) * pdfContainer.scrollHeight;
             }
           }

@@ -107,7 +107,7 @@ if (window.__TAURI__?.event) {
 }
 
 // Open PDF files: tabs created instantly, loads serialized through global queue
-function openFiles(filePaths) {
+function openFiles(filePaths, { activate = true } = {}) {
   // 1. Create all tabs instantly (synchronous) so the tab bar updates right away
   const pending = [];
   for (const filePath of filePaths) {
@@ -117,7 +117,7 @@ function openFiles(filePaths) {
     }
   }
   // 2. Switch to the last new tab immediately (shows placeholder until load completes)
-  if (pending.length > 0) {
+  if (pending.length > 0 && activate) {
     switchToTab(pending[pending.length - 1].index);
   }
   // 3. Chain loads onto the global queue (serialized even across multiple callers)
@@ -519,7 +519,10 @@ async function restoreLastSession() {
       );
       const validFiles = existenceChecks.filter(Boolean);
       if (validFiles.length > 0) {
-        await openFiles(validFiles);
+        // The existence checks above can take seconds on cloud/network drives.
+        // If the user already opened a document meanwhile, restore the old
+        // tabs in the background instead of yanking focus away from it.
+        await openFiles(validFiles, { activate: state.documents.length === 0 });
       }
     }
   } catch (e) {
