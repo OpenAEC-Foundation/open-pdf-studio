@@ -2,8 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
-  applyOcrShift, normalizeRotation, resolveTargetPages, shiftAnnotation, shiftOcrWords,
-  visualToContentOffset,
+  MAX_SHIFT_MM, MM_TO_POINTS, applyOcrShift, normalizeRotation, resolveTargetPages, shiftAnnotation,
+  shiftOcrWords, shiftOffsetPoints, visualToContentOffset,
 } from "./shift-page-geometry.js";
 
 test("'current' ignores fromPage and returns only the current page", () => {
@@ -195,4 +195,28 @@ test("a command without an OCR shift (insert, delete, reorder) changes nothing",
   applyOcrShift(ocrResults, undefined, -1);
   applyOcrShift(undefined, { pages: [1], dx: 1, dy: 1 }, 1);
   assert.deepEqual(ocrResults[1][0], { text: "a", left: 10, top: 10, width: 5, height: 5 });
+});
+
+// ── The requested offset ──
+
+test("millimetres become a visual offset in points, y down", () => {
+  const offset = shiftOffsetPoints(10, 5); // 10 mm right, 5 mm UP on screen
+  assert.ok(Math.abs(offset.dx - 28.3464567) < 1e-6);
+  assert.ok(Math.abs(offset.dy + 14.1732283) < 1e-6);
+  assert.deepEqual(shiftOffsetPoints(0, -5), { dx: 0, dy: 5 * MM_TO_POINTS });
+});
+
+test("no offset, or no number at all, means there is nothing to do", () => {
+  for (const [dx, dy] of [[0, 0], [undefined, null], [0.0001, 0], [NaN, NaN], ["abc", ""]]) {
+    assert.equal(shiftOffsetPoints(dx, dy), null, `${dx}, ${dy}`);
+  }
+  assert.equal(shiftOffsetPoints(Infinity, 0), null);
+  assert.equal(shiftOffsetPoints(0, -Infinity), null);
+});
+
+test("an absurd offset is bounded and never reaches the file as an exponent", () => {
+  const offset = shiftOffsetPoints(1e308, -1e308);
+  assert.equal(offset.dx, MAX_SHIFT_MM * MM_TO_POINTS);
+  assert.equal(offset.dy, MAX_SHIFT_MM * MM_TO_POINTS);
+  assert.ok(Number.isFinite(offset.dx) && !String(offset.dx).includes("e"));
 });

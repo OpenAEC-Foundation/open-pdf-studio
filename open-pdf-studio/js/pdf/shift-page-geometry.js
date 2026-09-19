@@ -3,6 +3,11 @@
 
 export const MM_TO_POINTS = 72 / 25.4;
 
+// Largest offset accepted, in mm. 5080 mm (200 in) is the largest page
+// dimension the PDF format allows, so a bigger shift can never be useful; the
+// bound also keeps exponent input (1e308) from ever reaching a content stream.
+export const MAX_SHIFT_MM = 5080;
+
 /**
  * Which page numbers `applyTo` + `fromPage` select, out of `totalPages`.
  * @param {'current' | 'all' | 'even' | 'odd'} applyTo
@@ -104,4 +109,23 @@ export function applyOcrShift(ocrResults, ocrShift, direction = 1) {
       ocrResults[pageNum] = shiftOcrWords(words, ocrShift.dx * direction, ocrShift.dy * direction);
     }
   }
+}
+
+/**
+ * The requested shift as a visual offset in points (x right, y DOWN), or
+ * null when there is nothing to do: no offset, or not a number at all.
+ * `dyMm` follows the dialog: positive = up on screen.
+ * @returns {{dx: number, dy: number} | null}
+ */
+export function shiftOffsetPoints(dxMm, dyMm) {
+  const clamp = (mm) => {
+    const value = Number(mm) || 0;
+    if (!Number.isFinite(value)) return NaN;
+    return Math.max(-MAX_SHIFT_MM, Math.min(MAX_SHIFT_MM, value));
+  };
+  const dx = clamp(dxMm) * MM_TO_POINTS;
+  const dy = -clamp(dyMm) * MM_TO_POINTS;
+  if (!Number.isFinite(dx) || !Number.isFinite(dy)) return null;
+  if (!(Math.abs(dx) > 0.001 || Math.abs(dy) > 0.001)) return null;
+  return { dx: dx === 0 ? 0 : dx, dy: dy === 0 ? 0 : dy }; // no negative zero
 }

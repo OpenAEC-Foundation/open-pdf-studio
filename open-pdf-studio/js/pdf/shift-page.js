@@ -10,8 +10,9 @@ import { getCacheKey, reloadFromBytes } from "./page-manager.js";
 import { recordPageStructure } from "../core/undo-manager.js";
 import { showLoading, hideLoading } from "../ui/chrome/dialogs.js";
 import { cloneAnnotation } from "../annotations/factory.js";
+import i18next from "../i18n/config.js";
 import { translateAnnotation } from "./resize-pages.js";
-import { MM_TO_POINTS, applyOcrShift, resolveTargetPages, visualToContentOffset } from "./shift-page-geometry.js";
+import { applyOcrShift, resolveTargetPages, shiftOffsetPoints, visualToContentOffset } from "./shift-page-geometry.js";
 import { assertShiftable, shiftPageContent, shiftPageAnnotations } from "./shift-page-content.js";
 import { PDFDocument } from "pdf-lib";
 
@@ -26,20 +27,23 @@ export { resolveTargetPages };
  * @param {'current' | 'all' | 'even' | 'odd'} applyTo
  * @param {number} [fromPage=1] - first page number eligible, for 'all' /
  *   'even' / 'odd' (ignored for 'current').
- * @returns {Promise<{shifted: number}>}
+ * @returns {Promise<{shifted: number, reason?: 'no-shift' | 'no-pages'}>}
+ *   `reason` says why nothing was shifted: no offset was given, or no page
+ *   matched the selection / the matching pages are empty. Failures (an
+ *   encrypted document, a file pdf-lib cannot read) are thrown to the caller.
  */
 export async function shiftPages(dxMm, dyMm, applyTo, fromPage = 1) {
   const doc = getActiveDocument();
-  if (!doc?.pdfDoc) return { shifted: 0 };
+  if (!doc?.pdfDoc) return { shifted: 0, reason: "no-pages" };
 
   // Visual offset in points: x to the right, y DOWN (app space is Y-down).
-  const dx = (dxMm || 0) * MM_TO_POINTS;
-  const dy = -(dyMm || 0) * MM_TO_POINTS;
-  if (!(Math.abs(dx) > 0.001 || Math.abs(dy) > 0.001)) return { shifted: 0 };
+  const offset = shiftOffsetPoints(dxMm, dyMm);
+  if (!offset) return { shifted: 0, reason: "no-shift" };
+  const { dx, dy } = offset;
 
   const cacheKey = getCacheKey();
   const currentBytes = getCachedPdfBytes(cacheKey);
-  if (!currentBytes) return { shifted: 0 };
+  if (!currentBytes) return { shifted: 0, reason: "no-pages" };
 
   const oldAnnotations = doc.annotations.map((a) => cloneAnnotation(a));
   const oldRotations = { ...doc.pageRotations };
@@ -47,10 +51,10 @@ export async function shiftPages(dxMm, dyMm, applyTo, fromPage = 1) {
 
   const totalPages = doc.pdfDoc.numPages;
   const pageNumbers = resolveTargetPages(applyTo, fromPage, doc.currentPage, totalPages);
-  if (pageNumbers.length === 0) return { shifted: 0 };
+  if (pageNumbers.length === 0) return { shifted: 0, reason: "no-pages" };
   const targetPages = new Set(pageNumbers);
 
-  showLoading("Shifting page...");
+  showLoading(i18next.t("shiftPage.shifting", { ns: "dialogs" }));
   try {
     const pdfDoc = await PDFDocument.load(currentBytes, { ignoreEncryption: true });
     assertShiftable(pdfDoc);
@@ -85,7 +89,7 @@ export async function shiftPages(dxMm, dyMm, applyTo, fromPage = 1) {
       }
       if (contentMoved || moved > 0) shiftedPages.add(pageNum);
     }
-    if (shiftedPages.size === 0) return { shifted: 0 };
+    if (shiftedPages.size === 0) return { shifted: 0, reason: "no-pages" };
 
     const newBytes = new Uint8Array(await pdfDoc.save());
     const newRotations = { ...oldRotations };

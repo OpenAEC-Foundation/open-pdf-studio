@@ -94,10 +94,17 @@ export default function ShiftPageDialog(props) {
     const fromVal = Math.max(1, Math.min(fromPage() || 1, totalPages));
     close();
 
-    const { shiftPages } = await import('../../../pdf/shift-page.js');
-    const result = await shiftPages(dx, dy, applyToVal, fromVal);
-    if (!result.shifted) {
-      showMessage(t('shiftPage.noShift'));
+    try {
+      const { shiftPages } = await import('../../../pdf/shift-page.js');
+      const result = await shiftPages(dx, dy, applyToVal, fromVal);
+      if (!result.shifted) {
+        showMessage(t(result.reason === 'no-pages' ? 'shiftPage.noPages' : 'shiftPage.noShift'));
+      }
+    } catch (e) {
+      // The dialog is already closed: without a message the user would see
+      // the loading overlay vanish and nothing else.
+      console.warn('Shift page failed:', e?.message || e);
+      showMessage(t(e?.code === 'encrypted' ? 'shiftPage.encrypted' : 'shiftPage.failed'));
     }
   };
 
