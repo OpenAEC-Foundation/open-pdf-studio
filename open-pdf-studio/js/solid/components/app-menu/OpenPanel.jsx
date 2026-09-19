@@ -1,6 +1,6 @@
 import { createSignal, createMemo, For, Show, Switch, Match, onMount } from 'solid-js';
 import { closeAppMenu } from '../../stores/appMenuStore.js';
-import { openPDFFile, loadPDF } from '../../../pdf/loader.js';
+import { openPDFFile, loadPDFIfNeeded } from '../../../pdf/loader.js';
 import { getRecentFiles, removeRecentFile, pinRecentFile, unpinRecentFile } from '../../../mobile/recent-files.js';
 import { createTab } from '../../../ui/chrome/tabs.js';
 import { isTauri, fileExists, openFolderDialog, downloadPdfFromUrl, listPdfFiles } from '../../../core/platform.js';
@@ -83,7 +83,7 @@ export default function OpenPanel() {
       }
     }
     const { index } = createTab(file.path);
-    await loadPDF(file.path, index);
+    await loadPDFIfNeeded(file.path, index);
   }
 
   function handlePin(e, file) {
@@ -144,7 +144,7 @@ export default function OpenPanel() {
       if (tempPath) {
         closeAppMenu();
         const { index } = createTab(tempPath);
-        await loadPDF(tempPath, index);
+        await loadPDFIfNeeded(tempPath, index);
         setUrlInput('');
       } else {
         setUrlError(t('openPanel.downloadError'));
@@ -203,7 +203,7 @@ export default function OpenPanel() {
       try { await window.__TAURI__.core.invoke('allow_fs_scope', { path: filePath }); } catch {}
     }
     const { index } = createTab(filePath);
-    await loadPDF(filePath, index);
+    await loadPDFIfNeeded(filePath, index);
   }
 
   function extractFileName(path) {

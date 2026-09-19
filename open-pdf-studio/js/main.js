@@ -51,7 +51,7 @@ import { setupEventListeners } from './ui/setup.js';
 import { initCursor } from './ui/cursor.js';
 
 // PDF operations (for handling file drops from command line args)
-import { loadPDF } from './pdf/loader.js';
+import { loadPDF, loadPDFIfNeeded } from './pdf/loader.js';
 import { queuedLoadTarget } from './pdf/queued-load.js';
 import { fitPage } from './pdf/renderer.js';
 
@@ -332,8 +332,9 @@ async function init() {
               const { index } = createTab(filePath);
               await new Promise(r => setTimeout(r, 0));
               initDomElements();
-              await loadPDF(filePath, index);
-              await fitPage();
+              // The same file tapped again is already open: only show it. A
+              // reload would drop its unsaved annotations and undo history.
+              if (await loadPDFIfNeeded(filePath, index)) await fitPage();
               addRecentFile(filePath, extractFileName(filePath));
             }
           }

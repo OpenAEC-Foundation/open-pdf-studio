@@ -3,10 +3,37 @@
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 
-import { queuedLoadTarget } from './queued-load.js';
+import { queuedLoadTarget, documentNeedsLoad, loadIfNeeded } from './queued-load.js';
 
 const placeholder = (filePath) => ({ filePath, pdfDoc: null, _isLoading: false });
+
+// What loadPDF() does to the document it loads into (loader.js, "Reset
+// annotation state"): the reason a loaded document must never be loaded again.
+const loadLikeLoadPDF = (doc, calls) => async () => {
+  calls.push(doc.filePath);
+  doc._isLoading = true;
+  await new Promise((r) => setTimeout(r, 0));
+  doc.annotations = [];
+  doc.undoStack = [];
+  doc.redoStack = [];
+  doc.currentPage = 1;
+  doc.pdfDoc = { src: doc.filePath };
+  doc._isLoading = false;
+};
+
+// An open document the user has been working in.
+const edited = (filePath) => ({
+  filePath,
+  pdfDoc: { src: filePath },
+  _isLoading: false,
+  modified: true,
+  currentPage: 7,
+  annotations: [{ id: 'a1' }, { id: 'a2' }],
+  undoStack: [{ op: 'add', id: 'a2' }],
+  redoStack: [],
+});
 
 test('a fresh placeholder tab loads into its own index', () => {
   const docs = [placeholder('C:/s/R1.pdf'), placeholder('C:/s/R2.pdf')];
@@ -105,4 +132,109 @@ test('queue run: every file ends up in its own tab, loaded exactly once', async 
   ]);
   assert.equal(loads.filter((f) => f === 'C:/s/R2.pdf').length, 1);
   assert.equal(r2.currentPage, 7);
+});
+
+// --- Every route that opens a file by path -------------------------------
+// createTab() returns the existing tab for a path that is already open, so
+// File > Open, recent files, places, drag and drop and saved sessions all land
+// on a loaded document when the user opens a file a second time.
+
+test('opening a file that is already open keeps its unsaved work', async () => {
+  const docs = [edited('C:/p/plan.pdf')];
+  const calls = [];
+  const ran = await loadIfNeeded(docs, 0, loadLikeLoadPDF(docs[0], calls));
+
+  assert.equal(ran, false);
+  assert.deepEqual(calls, [], 'the file is not read again');
+  assert.equal(docs[0].currentPage, 7);
+  assert.deepEqual(docs[0].annotations.map((a) => a.id), ['a1', 'a2']);
+  assert.equal(docs[0].undoStack.length, 1);
+  assert.equal(docs[0].modified, true);
+});
+
+test('a new tab is loaded, and only once when the route fires twice', async () => {
+  const docs = [placeholder('C:/p/plan.pdf')];
+  const calls = [];
+  const load = loadLikeLoadPDF(docs[0], calls);
+  // Two drops of the same file in a row: the second one finds the first load running.
+  const [first, second] = await Promise.all([loadIfNeeded(docs, 0, load), loadIfNeeded(docs, 0, load)]);
+
+  assert.deepEqual([first, second], [true, false]);
+  assert.deepEqual(calls, ['C:/p/plan.pdf']);
+  assert.equal(await loadIfNeeded(docs, 0, load), false, 'and a third time finds it loaded');
+  assert.deepEqual(calls, ['C:/p/plan.pdf']);
+});
+
+test('a tab whose earlier load failed is loaded again', async () => {
+  const docs = [placeholder('C:/p/plan.pdf')];
+  const calls = [];
+  assert.equal(await loadIfNeeded(docs, 0, loadLikeLoadPDF(docs[0], calls)), true);
+  assert.equal(docs[0].pdfDoc.src, 'C:/p/plan.pdf');
+});
+
+test('no tab at that index means no load', async () => {
+  const calls = [];
+  const load = async () => { calls.push('x'); };
+  assert.equal(await loadIfNeeded([], 0, load), false);
+  assert.equal(await loadIfNeeded(null, 0, load), false);
+  assert.equal(await loadIfNeeded([placeholder('C:/p/a.pdf')], 3, load), false);
+  assert.deepEqual(calls, []);
+});
+
+test('documentNeedsLoad: only an empty tab that is not loading', () => {
+  assert.equal(documentNeedsLoad(placeholder('C:/p/a.pdf')), true);
+  assert.equal(documentNeedsLoad({ ...placeholder('C:/p/a.pdf'), pdfDoc: {} }), false);
+  assert.equal(documentNeedsLoad({ ...placeholder('C:/p/a.pdf'), _isLoading: true }), false);
+  assert.equal(documentNeedsLoad(null), false);
+  assert.equal(documentNeedsLoad(undefined), false);
+});
+
+// The routes themselves live in modules that need the DOM and the Tauri
+// runtime, so their wiring is pinned on the source: a route that opens a file
+// by path goes through loadPDFIfNeeded(), never straight to loadPDF().
+// Line endings evened out: a Windows checkout with autocrlf has CRLF on disk.
+const source = (relative) => readFileSync(new URL(relative, import.meta.url), 'utf8').split('\r\n').join('\n');
+const directLoads = (text) => (text.match(/(?<![\w.])loadPDF\(/g) || []).length;
+
+test('loader.js wraps the guard around loadPDF for the live document list', () => {
+  const loader = source('./loader.js');
+  const start = loader.indexOf('export function loadPDFIfNeeded(');
+  assert.notEqual(start, -1);
+  const body = loader.slice(start, loader.indexOf('\n}\n', start));
+  assert.match(body, /loadIfNeeded\(state\.documents, docIndex, \(\) => loadPDF\(filePath, docIndex, preloadedData\)\)/);
+});
+
+test('File > Open does not reload a file that is already open', () => {
+  const loader = source('./loader.js');
+  const start = loader.indexOf('export async function openPDFFile(');
+  assert.notEqual(start, -1);
+  const body = loader.slice(start, loader.indexOf('\nexport ', start + 1));
+  assert.match(body, /createTab\(path\)/);
+  assert.match(body, /await loadPDFIfNeeded\(path, index\)/);
+  assert.equal(directLoads(body), 0);
+});
+
+for (const [name, file, routes] of [
+  ['recent files, places and open-from-URL', '../solid/components/app-menu/OpenPanel.jsx', 3],
+  ['drag and drop', '../ui/setup.js', 2],
+  ['saved sessions', '../stores/sessions.js', 1],
+]) {
+  test(`${name}: every open route is guarded`, () => {
+    const text = source(file);
+    assert.equal(directLoads(text), 0, 'no direct loadPDF() call left');
+    assert.equal((text.match(/await loadPDFIfNeeded\(/g) || []).length, routes);
+    assert.equal((text.match(/createTab\(/g) || []).length, routes, 'one guarded load per createTab()');
+  });
+}
+
+test('mobile: the picker and the deep link are guarded, the in-memory route is not', () => {
+  const mobile = source('../solid/MobileApp.jsx');
+  assert.match(mobile, /if \(await loadPDFIfNeeded\(path, index\)\) await fitPage\(\);/);
+  // <input type=file> has no path, only a display name and the bytes: two
+  // different files may share that name, so this one always loads.
+  assert.equal(directLoads(mobile), 1);
+  assert.match(mobile, /await loadPDF\(file\.name, index, data\);/);
+
+  const main = source('../main.js');
+  assert.match(main, /if \(await loadPDFIfNeeded\(filePath, index\)\) await fitPage\(\);/);
 });
