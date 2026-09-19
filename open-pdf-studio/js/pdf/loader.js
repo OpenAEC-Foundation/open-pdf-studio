@@ -525,12 +525,14 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
       loadDocumentScale(doc);
     }
 
-    // Auto-detect scale from title block text if no scale is already set (fire-and-forget)
+    // Auto-detect scale from title block text if no scale is already set (fire-and-forget).
+    // Always on THIS document: it may be loading in a background tab, and the
+    // active document is then a different drawing with its own scale.
     if (!doc.measureScale) {
       import('../annotations/scale-bar.js').then(async ({ detectScaleFromPdf }) => {
         if (isClosed() || doc.measureScale) return;
         try {
-          const result = await detectScaleFromPdf(1);
+          const result = await detectScaleFromPdf(1, doc);
           if (isClosed() || doc.measureScale) return;
           if (result && result.ratio > 0) {
             const pixelsPerUnit = 72 / (25.4 * result.ratio);
@@ -541,7 +543,7 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
               scaleRatio: `1:${result.ratio}`,
             };
             const { saveDocumentScale } = await import('../annotations/measurement.js');
-            saveDocumentScale();
+            saveDocumentScale(doc);
             console.log(`Auto-detected scale: 1:${result.ratio} from "${result.scaleText}"`);
           }
         } catch (e) {
@@ -586,7 +588,7 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
       const loadedScaleBar = doc.annotations.find(a => a.type === 'scaleBar');
       if (loadedScaleBar) {
         const { syncDocScale } = await import('../annotations/scale-bar.js');
-        syncDocScale(loadedScaleBar);
+        syncDocScale(loadedScaleBar, doc);
       }
       // Redraw annotations on the current page now that background loading is done
       if (isActive() && doc.pdfDoc) {
