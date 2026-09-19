@@ -6,8 +6,8 @@ import { getReaderPosition, saveReaderPosition, clearReaderPosition } from '../c
 import {
   readerTrackingPath,
   setTracking,
-  shouldSaveReaderPosition,
   snapshotReaderPosition,
+  positionsToSave,
   resumeTracking,
   applyPendingRestore,
 } from '../core/reader-mode-tracking.js';
@@ -48,24 +48,31 @@ function queued(task) {
 /**
  * Write the current position of a tracked document. Does nothing (false) for
  * a document that is not tracked, cannot be tracked, or whose stored position
- * has not been shown yet.
+ * has not been shown yet. The position is taken now, the write is queued.
  * @param {any} doc
  * @returns {Promise<boolean>}
  */
 export function persistReaderPosition(doc) {
-  if (!shouldSaveReaderPosition(doc)) return Promise.resolve(false);
-  const path = readerTrackingPath(doc);
-  const position = snapshotReaderPosition(doc, visibleView(doc));
-  return queued(() => saveReaderPosition(path, position));
+  const [entry] = positionsToSave([doc], visibleView);
+  if (!entry) return Promise.resolve(false);
+  return queued(() => saveReaderPosition(entry.path, entry.position));
 }
 
 /**
- * Write the positions of all tracked documents — for exit paths that do not
- * close the tabs one by one.
- * @returns {Promise<boolean[]>}
+ * Write the positions of all tracked documents — for an exit that does not
+ * close the tabs one by one (File > Exit destroys the window). The wait is
+ * bounded: a folder that does not answer must not keep the app from closing.
+ * @param {number} [maxWaitMs]
+ * @returns {Promise<void>}
  */
-export function persistAllReaderPositions() {
-  return Promise.all(state.documents.map((doc) => persistReaderPosition(doc)));
+export async function persistAllReaderPositions(maxWaitMs = 2000) {
+  const writes = positionsToSave(state.documents, visibleView)
+    .map((entry) => queued(() => saveReaderPosition(entry.path, entry.position)));
+  if (writes.length === 0) return;
+  await Promise.race([
+    Promise.all(writes),
+    new Promise((resolve) => setTimeout(resolve, maxWaitMs)),
+  ]);
 }
 
 /**

@@ -9,6 +9,7 @@ import {
   setTracking,
   shouldSaveReaderPosition,
   snapshotReaderPosition,
+  positionsToSave,
   resumeTracking,
   hasPendingRestore,
   restoredPage,
@@ -87,6 +88,25 @@ test('snapshot of a background tab falls back to the document scale and no scrol
     snapshotReaderPosition(d, { zoom: 0, scrollTop: undefined, scrollHeight: NaN }),
     { page: 3, scale: 1.25, scrollTop: 0, scrollHeight: 0, viewMode: 'single' },
   );
+});
+
+test('exit without closing the tabs: one write per tracked document, and only those', () => {
+  const front = doc({ filePath: 'C:/docs/front.pdf', readerModeActive: true, currentPage: 4 });
+  const background = doc({ filePath: 'C:/docs/back.pdf', readerModeActive: true, currentPage: 8, scale: 1.25 });
+  const edited = doc({ filePath: 'C:/Temp/opds-edit-2.pdf', saveTargetPath: 'C:/docs/edited.pdf', readerModeActive: true, currentPage: 2 });
+  const untracked = doc({ filePath: 'C:/docs/plain.pdf' });
+  const neverShown = doc({ filePath: 'C:/docs/unseen.pdf', readerModeActive: true, _readerRestore: { page: 30 } });
+  const untitled = doc({ filePath: 'C:/Temp/blank.pdf', isUntitled: true, readerModeActive: true });
+  const viewOf = (d) => (d === front ? { zoom: 2, scrollTop: 50, scrollHeight: 500 } : null);
+
+  const writes = positionsToSave([front, background, edited, untracked, neverShown, untitled], viewOf);
+  assert.deepEqual(writes, [
+    { path: 'C:/docs/front.pdf', position: { page: 4, scale: 2, scrollTop: 50, scrollHeight: 500, viewMode: 'single' } },
+    { path: 'C:/docs/back.pdf', position: { page: 8, scale: 1.25, scrollTop: 0, scrollHeight: 0, viewMode: 'single' } },
+    { path: 'C:/docs/edited.pdf', position: { page: 2, scale: 1.5, scrollTop: 0, scrollHeight: 0, viewMode: 'single' } },
+  ]);
+  assert.deepEqual(positionsToSave([], viewOf), []);
+  assert.deepEqual(positionsToSave(undefined), []);
 });
 
 // ── Resuming on open ────────────────────────────────────────────────────────

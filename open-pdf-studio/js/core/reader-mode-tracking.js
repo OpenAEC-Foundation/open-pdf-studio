@@ -70,6 +70,26 @@ export function snapshotReaderPosition(doc, view) {
 }
 
 /**
+ * Everything that has to be written for a set of documents — one entry per
+ * tracked document whose position may be saved. `viewOf(doc)` supplies the
+ * zoom/scroll of the visible tab (null for the others).
+ * @param {any[]} documents
+ * @param {(doc: any) => ({zoom?: number, scrollTop?: number, scrollHeight?: number} | null)} [viewOf]
+ * @returns {{path: string, position: ReturnType<typeof snapshotReaderPosition>}[]}
+ */
+export function positionsToSave(documents, viewOf) {
+  const out = [];
+  for (const doc of documents || []) {
+    if (!shouldSaveReaderPosition(doc)) continue;
+    out.push({
+      path: /** @type {string} */ (readerTrackingPath(doc)),
+      position: snapshotReaderPosition(doc, viewOf ? viewOf(doc) : null),
+    });
+  }
+  return out;
+}
+
+/**
  * The loader found a stored position for this document: tracking resumes,
  * and the position waits until the document is on screen. Runs for every
  * load, also one that finishes in a background tab (multi-file open, session
