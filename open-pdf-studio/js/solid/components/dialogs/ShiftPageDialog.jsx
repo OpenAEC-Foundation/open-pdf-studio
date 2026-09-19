@@ -9,6 +9,9 @@ import {
 
 const PREVIEW_MAX_WIDTH = 260;
 const PREVIEW_MAX_HEIGHT = 400;
+// The shared 80px label column wraps "Horizontal (mm):" onto two lines, and
+// most translations are longer still.
+const LABEL_STYLE = { width: '130px' };
 
 export default function ShiftPageDialog(props) {
   const { t } = useTranslation('dialogs');
@@ -87,6 +90,7 @@ export default function ShiftPageDialog(props) {
   });
 
   const onPointerDown = (e) => {
+    if (e.button !== 0) return; // left button only
     dragging = true;
     dragStartX = e.clientX;
     dragStartY = e.clientY;
@@ -162,9 +166,8 @@ export default function ShiftPageDialog(props) {
             style={{
               position: 'relative',
               overflow: 'hidden',
-              border: '1px solid #d4d4d4',
-              background: '#f5f5f5',
-              cursor: dragging ? 'grabbing' : 'grab',
+              border: '1px solid var(--theme-border, #d4d4d4)',
+              background: 'var(--theme-bg, #f5f5f5)',
               'touch-action': 'none',
               'user-select': 'none',
             }}
@@ -178,7 +181,7 @@ export default function ShiftPageDialog(props) {
         </div>
 
         <div class="crop-margins-row">
-          <label class="crop-margins-label">{t('shiftPage.horizontal')}</label>
+          <label class="crop-margins-label" style={LABEL_STYLE}>{t('shiftPage.horizontal')}</label>
           <input
             ref={dxInputRef}
             type="number"
@@ -192,7 +195,7 @@ export default function ShiftPageDialog(props) {
           />
         </div>
         <div class="crop-margins-row">
-          <label class="crop-margins-label">{t('shiftPage.vertical')}</label>
+          <label class="crop-margins-label" style={LABEL_STYLE}>{t('shiftPage.vertical')}</label>
           <input
             ref={dyInputRef}
             type="number"
@@ -210,9 +213,9 @@ export default function ShiftPageDialog(props) {
         </div>
 
         <div class="crop-margins-row">
-          <label class="crop-margins-label">{t('cropMargins.applyTo')}</label>
+          <label class="crop-margins-label" style={LABEL_STYLE}>{t('shiftPage.applyTo')}</label>
           <select class="crop-margins-select" value={applyTo()} onChange={(e) => setApplyTo(e.target.value)}>
-            <option value="current">{t('cropMargins.currentPage')}</option>
+            <option value="current">{t('shiftPage.currentPage')}</option>
             <option value="all">{t('shiftPage.allPages')}</option>
             <option value="even">{t('shiftPage.evenPages')}</option>
             <option value="odd">{t('shiftPage.oddPages')}</option>
@@ -220,7 +223,7 @@ export default function ShiftPageDialog(props) {
         </div>
         <Show when={applyTo() !== 'current'}>
           <div class="crop-margins-row">
-            <label class="crop-margins-label">{t('shiftPage.fromPage')}</label>
+            <label class="crop-margins-label" style={LABEL_STYLE}>{t('shiftPage.fromPage')}</label>
             <input
               type="number"
               class="crop-margins-input"
