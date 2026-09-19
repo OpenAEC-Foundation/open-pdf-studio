@@ -143,7 +143,7 @@
   },
   "virtualPrinter": {
     "title": "Virtueller Drucker",
-    "description": "Installieren Sie „Open PDF Studio“ als Windows-Drucker. Wenn Sie aus einer Anwendung drucken (Word, Chrome, Editor usw.) und diesen Drucker auswählen, wird die erzeugte PDF automatisch in dieser App geöffnet.",
+    "description": "Installieren Sie „Open PDF Printer“ als Windows-Drucker. Wenn Sie aus einer Anwendung drucken (Word, Chrome, Editor usw.) und diesen Drucker auswählen, wird die erzeugte PDF automatisch in dieser App geöffnet.",
     "status": "Status:",
     "installButton": "Virtuellen Drucker installieren",
     "removeButton": "Virtuellen Drucker entfernen",

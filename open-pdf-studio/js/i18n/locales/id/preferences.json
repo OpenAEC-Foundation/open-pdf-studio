@@ -160,7 +160,7 @@
   },
   "virtualPrinter": {
     "title": "Printer Virtual",
-    "description": "Instal \"Open PDF Studio\" sebagai printer Windows. Ketika Anda mencetak dari aplikasi apa pun (Word, Chrome, Notepad, dll.) dan memilih printer ini, PDF hasil keluaran akan terbuka secara otomatis di aplikasi ini.",
+    "description": "Instal \"Open PDF Printer\" sebagai printer Windows. Ketika Anda mencetak dari aplikasi apa pun (Word, Chrome, Notepad, dll.) dan memilih printer ini, PDF hasil keluaran akan terbuka secara otomatis di aplikasi ini.",
     "status": "Status:",
     "installButton": "Instal Printer Virtual",
     "removeButton": "Hapus Printer Virtual",

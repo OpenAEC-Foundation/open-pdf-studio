@@ -143,7 +143,7 @@
   },
   "virtualPrinter": {
     "title": "가상 프린터",
-    "description": "\"Open PDF Studio\"를 Windows 프린터로 설치합니다. 아무 응용 프로그램(Word, Chrome, 메모장 등)에서 인쇄할 때 이 프린터를 선택하면 출력된 PDF가 이 앱에서 자동으로 열립니다.",
+    "description": "\"Open PDF Printer\"를 Windows 프린터로 설치합니다. 아무 응용 프로그램(Word, Chrome, 메모장 등)에서 인쇄할 때 이 프린터를 선택하면 출력된 PDF가 이 앱에서 자동으로 열립니다.",
     "status": "상태:",
     "installButton": "가상 프린터 설치",
     "removeButton": "가상 프린터 제거",

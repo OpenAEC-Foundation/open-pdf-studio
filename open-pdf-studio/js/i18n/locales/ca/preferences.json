@@ -160,7 +160,7 @@
   },
   "virtualPrinter": {
     "title": "Impressora virtual",
-    "description": "Instal·leu \"Open PDF Studio\" com a impressora de Windows. Quan imprimiu des de qualsevol aplicació (Word, Chrome, Bloc de notes, etc.) i seleccioneu aquesta impressora, el PDF resultant s'obrirà automàticament en aquesta aplicació.",
+    "description": "Instal·leu \"Open PDF Printer\" com a impressora de Windows. Quan imprimiu des de qualsevol aplicació (Word, Chrome, Bloc de notes, etc.) i seleccioneu aquesta impressora, el PDF resultant s'obrirà automàticament en aquesta aplicació.",
     "status": "Estat:",
     "installButton": "Instal·la la impressora virtual",
     "removeButton": "Suprimeix la impressora virtual",

@@ -160,7 +160,7 @@
   },
   "virtualPrinter": {
     "title": "Máy in Ảo",
-    "description": "Cài đặt \"Open PDF Studio\" làm máy in Windows. Khi bạn in từ bất kỳ ứng dụng nào (Word, Chrome, Notepad, v.v.) và chọn máy in này, tệp PDF đầu ra sẽ tự động mở trong ứng dụng này.",
+    "description": "Cài đặt \"Open PDF Printer\" làm máy in Windows. Khi bạn in từ bất kỳ ứng dụng nào (Word, Chrome, Notepad, v.v.) và chọn máy in này, tệp PDF đầu ra sẽ tự động mở trong ứng dụng này.",
     "status": "Trạng thái:",
     "installButton": "Cài đặt Máy in Ảo",
     "removeButton": "Gỡ bỏ Máy in Ảo",

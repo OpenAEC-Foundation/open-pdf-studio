@@ -143,7 +143,7 @@
   },
   "virtualPrinter": {
     "title": "仮想プリンター",
-    "description": "「Open PDF Studio」を Windows プリンターとしてインストールします。任意のアプリケーション（Word、Chrome、メモ帳など）から印刷してこのプリンターを選択すると、出力された PDF がこのアプリで自動的に開きます。",
+    "description": "「Open PDF Printer」を Windows プリンターとしてインストールします。任意のアプリケーション（Word、Chrome、メモ帳など）から印刷してこのプリンターを選択すると、出力された PDF がこのアプリで自動的に開きます。",
     "status": "状態：",
     "installButton": "仮想プリンターをインストール",
     "removeButton": "仮想プリンターを削除",
