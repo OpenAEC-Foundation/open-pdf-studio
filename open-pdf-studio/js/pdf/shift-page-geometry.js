@@ -54,3 +54,20 @@ export function visualToContentOffset(vx, vyDown, rotation) {
       return { cx: vx, cy: -vyDown };
   }
 }
+
+/**
+ * Move one annotation rigidly with the page content it belongs to.
+ * `moveGeneric` is the app's single move primitive (applyMoveGeneric in
+ * annotations/transforms.js), injected so this module stays import-free.
+ * That primitive deliberately leaves a callout's arrow tip and knee alone
+ * (an interactive move keeps the tip anchored); when the whole page moves,
+ * the content under the tip moves too, so those two follow here.
+ */
+export function shiftAnnotation(ann, dx, dy, moveGeneric) {
+  if (!ann || (dx === 0 && dy === 0)) return;
+  moveGeneric(ann, dx, dy);
+  for (const [kx, ky] of [["arrowX", "arrowY"], ["kneeX", "kneeY"]]) {
+    if (typeof ann[kx] === "number") ann[kx] += dx;
+    if (typeof ann[ky] === "number") ann[ky] += dy;
+  }
+}

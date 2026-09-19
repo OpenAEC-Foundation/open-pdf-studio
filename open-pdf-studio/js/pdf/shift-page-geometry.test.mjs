@@ -1,6 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { normalizeRotation, resolveTargetPages, visualToContentOffset } from "./shift-page-geometry.js";
+import { readFileSync } from "node:fs";
+import {
+  normalizeRotation, resolveTargetPages, shiftAnnotation, visualToContentOffset,
+} from "./shift-page-geometry.js";
 
 test("'current' ignores fromPage and returns only the current page", () => {
   assert.deepEqual(resolveTargetPages("current", 5, 3, 10), [3]);
@@ -69,4 +72,93 @@ test("native and in-app rotation add up, in any notation", () => {
   assert.equal(normalizeRotation(360), 0);
   assert.equal(normalizeRotation(undefined), 0);
   assert.equal(normalizeRotation(450), 90);
+});
+
+// ── Annotations move with the page ──
+//
+// The app's move primitive lives in annotations/transforms.js, which cannot be
+// imported under plain node (it pulls in core/state.ts). Its field-walker is
+// self-contained, so the test evaluates that block straight from the source:
+// this way it fails when a position-bearing field is dropped from the real
+// tables, not from a copy of them.
+function loadApplyMoveGeneric() {
+  const source = readFileSync(new URL("../annotations/transforms.js", import.meta.url), "utf8");
+  const start = source.indexOf("const _MOVE_SCALAR_PAIRS");
+  const end = source.indexOf("// Apply move to annotation");
+  assert.ok(start > 0 && end > start,
+    "transforms.js layout changed: update the markers around applyMoveGeneric in this test");
+  const block = source.slice(start, end).replace("export function applyMoveGeneric", "function applyMoveGeneric");
+  return new Function(`${block}
+return applyMoveGeneric;`)();
+}
+
+test("every position-bearing field of an annotation moves with the page", () => {
+  const applyMoveGeneric = loadApplyMoveGeneric();
+  const dx = 28.35, dy = 14.17;
+  const samples = {
+    box: { type: "box", x: 100, y: 100, width: 50, height: 20 },
+    measureAngle: { type: "measureAngle", point1: { x: 10, y: 10 }, vertex: { x: 20, y: 20 }, point2: { x: 30, y: 10 } },
+    spline: { type: "spline", controlPoints: [{ x: 1, y: 2 }, { x: 3, y: 4 }] },
+    measureDistance: {
+      type: "measureDistance", startX: 100, startY: 100, endX: 300, endY: 100,
+      leaderStartX: 100, leaderStartY: 80, leaderEndX: 300, leaderEndY: 80, labelX: 200, labelY: 70,
+    },
+    measureArea: {
+      type: "measureArea", points: [{ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 100, y: 100 }],
+      holes: [[{ x: 10, y: 10 }, { x: 20, y: 10 }, { x: 20, y: 20 }]],
+    },
+    textbox: {
+      type: "textbox", x: 50, y: 50, width: 80, height: 30,
+      leaders: [{ tipX: 10, tipY: 10, kneeX: 30, kneeY: 30 }],
+    },
+    highlight: {
+      type: "highlight", rects: [{ x: 5, y: 5, width: 40, height: 10 }],
+      quadPoints: [[5, 5, 45, 5, 5, 15, 45, 15]],
+    },
+    ink: { type: "draw", path: [{ x: 1, y: 1 }, { x: 2, y: 3 }] },
+    circle: { type: "circle", cx: 40, cy: 60, radius: 10 },
+  };
+
+  // Every number that is a coordinate, as [path, axis] — collected before the move.
+  const coordinates = (value, path = []) => {
+    if (typeof value === "number") return [[path, value]];
+    if (value && typeof value === "object") {
+      return Object.entries(value).flatMap(([k, v]) => coordinates(v, [...path, k]));
+    }
+    return [];
+  };
+  const isSize = (key) => ["width", "height", "radius"].includes(key);
+  const axisOf = (path) => {
+    const key = String(path[path.length - 1]);
+    if (/^\d+$/.test(key)) return Number(key) % 2 === 0 ? "x" : "y"; // flat quadPoints
+    return /x$/i.test(key) ? "x" : "y";
+  };
+
+  for (const [label, original] of Object.entries(samples)) {
+    const moved = structuredClone(original);
+    shiftAnnotation(moved, dx, dy, applyMoveGeneric);
+    const before = coordinates(original);
+    const after = new Map(coordinates(moved).map(([p, v]) => [p.join("."), v]));
+    for (const [path, value] of before) {
+      const expected = isSize(path[path.length - 1]) ? value : value + (axisOf(path) === "x" ? dx : dy);
+      assert.ok(Math.abs(after.get(path.join(".")) - expected) < 1e-9, `${label}: ${path.join(".")} did not move with the page`);
+    }
+  }
+});
+
+test("a callout's arrow tip and knee move too, unlike an interactive move", () => {
+  const calls = [];
+  const callout = { type: "callout", x: 100, y: 100, width: 80, height: 30, arrowX: 20, arrowY: 200, kneeX: 60, kneeY: 150 };
+  shiftAnnotation(callout, 10, -5, (ann, dx, dy) => { calls.push([dx, dy]); ann.x += dx; ann.y += dy; });
+  assert.deepEqual(calls, [[10, -5]], "the generic primitive is used exactly once");
+  assert.deepEqual(
+    [callout.x, callout.y, callout.arrowX, callout.arrowY, callout.kneeX, callout.kneeY],
+    [110, 95, 30, 195, 70, 145],
+  );
+});
+
+test("a zero shift leaves the annotation untouched", () => {
+  const ann = { x: 1, y: 2 };
+  shiftAnnotation(ann, 0, 0, () => { throw new Error("must not be called"); });
+  assert.deepEqual(ann, { x: 1, y: 2 });
 });
