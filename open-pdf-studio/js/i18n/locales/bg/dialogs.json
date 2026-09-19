@@ -63,7 +63,9 @@
     "printJobSent": "Заданието за печат е изпратено успешно.",
     "printFailed": "Печатът е неуспешен:",
     "noPages": "Няма страници",
-    "pageOf": "Страница {{current}} от {{total}}"
+    "pageOf": "Страница {{current}} от {{total}}",
+    "paperLabel": "Хартия: {{paper}}",
+    "pageSizeLabel": "Страница: {{size}}"
   },
   "insertPage": {
     "title": "Вмъкване на страници",

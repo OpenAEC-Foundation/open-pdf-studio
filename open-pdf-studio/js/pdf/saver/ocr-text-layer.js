@@ -16,6 +16,7 @@ import {
   pushGraphicsState, popGraphicsState, beginText, endText,
   setFontAndSize, setTextMatrix, showText,
 } from 'pdf-lib';
+import { metCffHerstel } from './cff-subset-herstel.js';
 
 const INVISIBLE_RENDER_MODE = 3;
 
@@ -61,8 +62,11 @@ export async function loadDefaultOcrFontBytes() {
 
 let fontkitPromise = null;
 
+// Noto Sans TC is a CID-keyed CFF font; fontkit's CFF subsetter writes an
+// invalid header for it and mixes up its Font DICTs. metCffHerstel() corrects
+// that without touching node_modules (see cff-subset-herstel.js).
 function laadFontkit() {
-  if (!fontkitPromise) fontkitPromise = import('@pdf-lib/fontkit').then((m) => m.default);
+  if (!fontkitPromise) fontkitPromise = import('@pdf-lib/fontkit').then((m) => metCffHerstel(m.default));
   return fontkitPromise;
 }
 

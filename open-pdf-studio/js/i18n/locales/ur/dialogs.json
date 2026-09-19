@@ -63,7 +63,9 @@
     "printJobSent": "پرنٹ جاب کامیابی سے بھیج دی گئی۔",
     "printFailed": "پرنٹ ناکام:",
     "noPages": "کوئی صفحات نہیں",
-    "pageOf": "صفحہ {{current}} از {{total}}"
+    "pageOf": "صفحہ {{current}} از {{total}}",
+    "paperLabel": "کاغذ: {{paper}}",
+    "pageSizeLabel": "صفحہ: {{size}}"
   },
   "insertPage": {
     "title": "صفحات داخل کریں",

@@ -63,7 +63,9 @@
     "printJobSent": "Tasca d'impressió enviada correctament.",
     "printFailed": "La impressió ha fallat:",
     "noPages": "Cap pàgina",
-    "pageOf": "Pàgina {{current}} de {{total}}"
+    "pageOf": "Pàgina {{current}} de {{total}}",
+    "paperLabel": "Paper: {{paper}}",
+    "pageSizeLabel": "Pàgina: {{size}}"
   },
   "insertPage": {
     "title": "Insereix pàgines",

@@ -63,7 +63,9 @@
     "printJobSent": "Завдання друку надіслано успішно.",
     "printFailed": "Помилка друку:",
     "noPages": "Немає сторінок",
-    "pageOf": "Сторінка {{current}} з {{total}}"
+    "pageOf": "Сторінка {{current}} з {{total}}",
+    "paperLabel": "Папір: {{paper}}",
+    "pageSizeLabel": "Сторінка: {{size}}"
   },
   "insertPage": {
     "title": "Вставити сторінки",

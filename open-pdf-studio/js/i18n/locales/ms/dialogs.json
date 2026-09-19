@@ -63,7 +63,9 @@
     "printJobSent": "Tugas cetakan berjaya dihantar.",
     "printFailed": "Cetakan gagal:",
     "noPages": "Tiada halaman",
-    "pageOf": "Halaman {{current}} daripada {{total}}"
+    "pageOf": "Halaman {{current}} daripada {{total}}",
+    "paperLabel": "Kertas: {{paper}}",
+    "pageSizeLabel": "Halaman: {{size}}"
   },
   "insertPage": {
     "title": "Sisip Halaman",
