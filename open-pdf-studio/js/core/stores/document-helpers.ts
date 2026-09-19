@@ -24,6 +24,7 @@ export function createDocument(filePath: string | null = null): DocumentState {
     selectedAnnotations: [],
     modified: false,
     scrollPosition: { x: 0, y: 0 },
+    readerModeActive: false,
     pageRotations: {},
     pdfaCompliance: null,
     pdfADismissed: false,

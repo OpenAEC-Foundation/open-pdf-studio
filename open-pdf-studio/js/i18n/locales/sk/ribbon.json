@@ -154,7 +154,8 @@
     "appearance": "Vzhľad",
     "keystrokes": "Keystrokes",
     "readerMode": "Režim Čítania",
-    "readerModeTip": "Zapamätá si stránku, polóhu posuvníka a priblíženie každého PDF pri zatvorení a opätovnom otvorení"
+    "readerModeTip": "Zapamätá si stránku, polohu posúvania a priblíženie tohto PDF pri zatvorení a opätovnom otvorení. Kým je funkcia zapnutá, vedľa tohto PDF je uložený malý súbor, ktorý sa preto zobrazí aj v priečinkoch synchronizovaných s cloudom (OneDrive, Dropbox atď.); vypnutím funkcie sa súbor odstráni.",
+    "readerModeSaveFailed": "Režim čítania nemohol uložiť nastavenie pre toto PDF. Priečinok je možno len na čítanie."
   },
   "organize": {
     "pages": "Strany",

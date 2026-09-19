@@ -154,7 +154,8 @@
     "appearance": "Tampilan",
     "keystrokes": "Keystrokes",
     "readerMode": "Mode Pembaca",
-    "readerModeTip": "Mengingat halaman, posisi gulir, dan zoom setiap PDF saat ditutup dan dibuka kembali"
+    "readerModeTip": "Mengingat halaman, posisi gulir, dan zoom PDF ini saat ditutup dan dibuka kembali. Selama diaktifkan, sebuah file kecil disimpan di samping PDF ini, sehingga juga muncul di folder yang disinkronkan ke cloud (OneDrive, Dropbox, dll.); menonaktifkannya akan menghapus file tersebut.",
+    "readerModeSaveFailed": "Mode Pembaca tidak dapat menyimpan pengaturannya untuk PDF ini. Folder mungkin hanya-baca."
   },
   "organize": {
     "pages": "Halaman",

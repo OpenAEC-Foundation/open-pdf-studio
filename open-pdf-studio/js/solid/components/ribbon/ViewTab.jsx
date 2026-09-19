@@ -22,7 +22,9 @@ import { isPdfAReadOnly } from '../../../pdf/loader.js';
 import { rotatePage } from '../../../pdf/renderer.js';
 import { recordPageRotation } from '../../../core/undo-manager.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
-import { openDialog } from '../../stores/dialogStore.js';
+import { openDialog, showMessage } from '../../stores/dialogStore.js';
+import { readerTrackingPath } from '../../../core/reader-mode-tracking.js';
+import { setReaderTracking } from '../../../pdf/reader-mode-view.js';
 import { compareActive, exitCompare } from '../../../compare/compare-store.js';
 
 export default function ViewTab() {
@@ -90,20 +92,26 @@ export default function ViewTab() {
               redrawAnnotations();
             }} />
           <RibbonButton id="reader-mode-toggle"
-            title={t('view.readerModeTip') || 'Remember each PDF\'s page, scroll position and zoom across closing and reopening it. Saves a small file next to each PDF you read, so it also appears in cloud-synced folders (OneDrive, Dropbox, etc.)'}
+            title={t('view.readerModeTip') || 'Remember this PDF\'s page, scroll position and zoom across closing and reopening it. While switched on, a small file is kept next to this PDF, so it also appears in cloud-synced folders (OneDrive, Dropbox, etc.); switching it off removes that file.'}
             icon={`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 5.5C4 4.67 4.67 4 5.5 4H12v16H5.5A1.5 1.5 0 014 18.5v-13z"/><path d="M20 5.5c0-.83-.67-1.5-1.5-1.5H12v16h6.5a1.5 1.5 0 001.5-1.5v-13z"/><path d="M12 4v16" stroke-width="1"/></svg>`}
             label={t('view.readerMode') || 'Reader Mode'}
-            active={state.preferences?.readerMode}
+            disabled={noPdf() || !readerTrackingPath(getActiveDocument()) || !!getActiveDocument()?._isLoading}
+            active={!!getActiveDocument()?.readerModeActive}
             onClick={async () => {
-              // Nothing to confirm on turning off: positions live as sidecar
-              // files next to each PDF, not a central list that needs a
-              // "clear all" step — turning this off just stops writing new
-              // ones. Existing sidecars are as private as the PDF next to
-              // them; deleting one is a normal file-delete if the user wants
-              // that at all.
-              state.preferences.readerMode = !state.preferences.readerMode;
-              const { savePreferences } = await import('../../../core/preferences.js');
-              savePreferences();
+              // Per-document, not global — see loader.js's Reader Mode
+              // restore block. Nothing to confirm on turning off: positions
+              // live as sidecar files next to each PDF, not a central list
+              // that needs a "clear all" step. The sidecar follows the
+              // toggle at once (written when switched on, removed when
+              // switched off), see setReaderTracking. A document without a
+              // file of its own (untitled, never saved) has nowhere to put
+              // one, so the button is disabled there — and while the
+              // document is still loading, because only then is it known
+              // whether the file already has a stored position.
+              const doc = getActiveDocument();
+              if (!doc) return;
+              const ok = await setReaderTracking(doc, !doc.readerModeActive);
+              if (!ok) showMessage(t('view.readerModeSaveFailed'));
             }} />
         </RibbonGroup>
 

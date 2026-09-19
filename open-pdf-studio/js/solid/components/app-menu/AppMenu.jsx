@@ -10,6 +10,7 @@ import { showPreferencesDialog } from '../../../core/preferences.js';
 import { showDocPropertiesDialog, showNewDocDialog, showPrintDialog } from '../../../ui/chrome/dialogs.js';
 import { hasUnsavedChanges, getUnsavedDocumentNames } from '../../../ui/chrome/tabs.js';
 import { closeWindow } from '../../../core/platform.js';
+import { persistAllReaderPositions } from '../../../pdf/reader-mode-view.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 
 function MenuItem(props) {
@@ -71,6 +72,10 @@ export default function AppMenu() {
       }
       if (!result) return;
     }
+    // closeWindow() destroys the window: no close-requested event, so the
+    // per-tab close that normally saves the Reader Mode positions never
+    // runs. Save them here, for the documents whose tracking is on.
+    await persistAllReaderPositions();
     closeWindow();
   }
 

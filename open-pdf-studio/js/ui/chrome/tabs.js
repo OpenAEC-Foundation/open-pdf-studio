@@ -10,7 +10,8 @@ import { savePDF } from '../../pdf/saver.js';
 import { unlockFile, lockFile, renameFile, fileExists } from '../../core/platform.js';
 import { cancelPendingZoom } from '../setup/navigation-events.js';
 import { closeAllPopups } from '../../bridge.js';
-import { saveReaderPosition } from '../../core/reader-mode.js';
+import { persistReaderPosition, restoreReaderPosition } from '../../pdf/reader-mode-view.js';
+import { hasPendingRestore } from '../../core/reader-mode-tracking.js';
 import { actiefNaSluiten } from '../../pdf/handtekeningen/opslaan.js';
 
 /**
@@ -140,14 +141,25 @@ export function switchToTab(index) {
       newDoc.currentPage = 1;
     }
 
-    if (newDoc.viewMode === 'continuous') {
-      renderContinuous();
-    } else {
-      renderPage(newDoc.currentPage);
+    const firstRender = newDoc.viewMode === 'continuous'
+      ? renderContinuous()
+      : renderPage(newDoc.currentPage);
+
+    // Reader Mode: a tracked document that finished loading while another
+    // tab was in front (multi-file open, session restore, a tab switch
+    // during the load) has not shown its stored position yet. Do that on
+    // this first activation, once the page is up — same order as the loader.
+    const readerRestorePending = hasPendingRestore(newDoc);
+    if (readerRestorePending) {
+      Promise.resolve(firstRender)
+        .then(() => restoreReaderPosition(newDoc))
+        .catch((e) => console.warn('[reader-mode] restore failed:', e));
     }
 
-    // Restore scroll position
-    if (pdfContainer && newDoc.scrollPosition) {
+    // Restore scroll position (not for a document that still has to jump to
+    // its stored reading position: it has no scroll of its own yet, and the
+    // timer could undo the jump).
+    if (pdfContainer && newDoc.scrollPosition && !readerRestorePending) {
       setTimeout(() => {
         pdfContainer.scrollLeft = newDoc.scrollPosition.x;
         pdfContainer.scrollTop = newDoc.scrollPosition.y;
@@ -231,28 +243,11 @@ export async function closeTab(index, force = false, dialogAction = null) {
   }
 
   // Reader Mode: remember where we were in this file, before anything below
-  // tears down its rendered state. Skipped for untitled/blank docs — there's
-  // no file path to key the memory on, and nothing meaningful to resume.
-  //
-  // The DOM (#pdf-container scroll) and window.__pdfViewport singleton
-  // always reflect the ACTIVE tab, not necessarily `doc` here (closing a
-  // background tab's [x] doesn't switch to it first) — only read them when
-  // this really is the active document, otherwise we'd silently save a
-  // different tab's position under this file's path. In single-page mode
-  // the real zoom lives in the viewport singleton, not doc.scale (which
-  // setZoom() leaves stale there — see setZoom's early-return for vp.active).
-  if (state.preferences.readerMode && doc.filePath && !doc.isUntitled) {
-    const isActiveDoc = state.documents[state.activeDocumentIndex] === doc;
-    const vp = isActiveDoc ? window.__pdfViewport : null;
-    const container = isActiveDoc ? document.getElementById('pdf-container') : null;
-    saveReaderPosition(doc.filePath, {
-      page: doc.currentPage,
-      scale: (vp && vp.active) ? vp.zoom : doc.scale,
-      scrollTop: container ? container.scrollTop : 0,
-      scrollHeight: container ? container.scrollHeight : 0,
-      viewMode: doc.viewMode,
-    });
-  }
+  // tears down its rendered state. Only for a document whose tracking is on;
+  // skipped for untitled/blank docs — there's no file path to key the memory
+  // on, and nothing meaningful to resume. Which file, which zoom/scroll and
+  // when not to write: see reader-mode-view.js / reader-mode-tracking.js.
+  persistReaderPosition(doc);
 
   // Cancel any in-progress background annotation loading for this document.
   // PAS NA de opslaan-dialoog: cancelAnnotationLoading wist de

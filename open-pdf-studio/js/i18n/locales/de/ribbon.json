@@ -154,7 +154,8 @@
     "appearance": "Darstellung",
     "keystrokes": "Keystrokes",
     "readerMode": "Lesemodus",
-    "readerModeTip": "Merkt sich Seite, Scrollposition und Zoom jeder PDF beim Schließen und erneuten Öffnen"
+    "readerModeTip": "Merkt sich Seite, Scrollposition und Zoom dieser PDF beim Schließen und erneuten Öffnen. Solange eingeschaltet, liegt eine kleine Datei neben dieser PDF und erscheint daher auch in Cloud-synchronisierten Ordnern (OneDrive, Dropbox usw.); beim Ausschalten wird diese Datei entfernt.",
+    "readerModeSaveFailed": "Der Lesemodus konnte die Einstellung für diese PDF nicht speichern. Der Ordner ist möglicherweise schreibgeschützt."
   },
   "organize": {
     "pages": "Seiten",

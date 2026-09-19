@@ -154,7 +154,8 @@
     "appearance": "Aparça",
     "keystrokes": "Keystrokes",
     "readerMode": "Mode lectura",
-    "readerModeTip": "Recorda la pàgina, la posició de desplacament i el zoom de cada PDF en tancar-lo i tornar-lo a obrir"
+    "readerModeTip": "Recorda la pàgina, la posició de desplaçament i el zoom d'aquest PDF en tancar-lo i tornar-lo a obrir. Mentre està activat, es desa un fitxer petit al costat d'aquest PDF, de manera que també apareix a les carpetes sincronitzades amb el núvol (OneDrive, Dropbox, etc.); en desactivar-lo, aquest fitxer s'elimina.",
+    "readerModeSaveFailed": "El mode lectura no ha pogut desar la configuració d'aquest PDF. És possible que la carpeta sigui només de lectura."
   },
   "organize": {
     "pages": "Pàgines",
