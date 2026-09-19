@@ -154,7 +154,8 @@
     "appearance": "Aspetto",
     "keystrokes": "Keystrokes",
     "readerMode": "Modalità lettura",
-    "readerModeTip": "Ricorda pagina, posizione di scorrimento e zoom di ogni PDF alla chiusura e riapertura"
+    "readerModeTip": "Ricorda pagina, posizione di scorrimento e zoom di ogni PDF alla chiusura e riapertura",
+    "readerModeSaveFailed": "La modalità lettura non ha potuto salvare l'impostazione per questo PDF. La cartella potrebbe essere di sola lettura."
   },
   "organize": {
     "pages": "Pagine",

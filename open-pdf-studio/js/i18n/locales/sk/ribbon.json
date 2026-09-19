@@ -154,7 +154,8 @@
     "appearance": "Vzhľad",
     "keystrokes": "Keystrokes",
     "readerMode": "Režim Čítania",
-    "readerModeTip": "Zapamätá si stránku, polóhu posuvníka a priblíženie každého PDF pri zatvorení a opätovnom otvorení"
+    "readerModeTip": "Zapamätá si stránku, polóhu posuvníka a priblíženie každého PDF pri zatvorení a opätovnom otvorení",
+    "readerModeSaveFailed": "Režim čítania nemohol uložiť nastavenie pre toto PDF. Priečinok je možno len na čítanie."
   },
   "organize": {
     "pages": "Strany",

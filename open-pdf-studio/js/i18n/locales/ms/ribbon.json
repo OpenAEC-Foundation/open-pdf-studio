@@ -154,7 +154,8 @@
     "appearance": "Penampilan",
     "keystrokes": "Keystrokes",
     "readerMode": "Mod Pembaca",
-    "readerModeTip": "Mengingati halaman, kedudukan tatal dan zum setiap PDF apabila ditutup dan dibuka semula"
+    "readerModeTip": "Mengingati halaman, kedudukan tatal dan zum setiap PDF apabila ditutup dan dibuka semula",
+    "readerModeSaveFailed": "Mod Pembaca tidak dapat menyimpan tetapannya untuk PDF ini. Folder mungkin baca sahaja."
   },
   "organize": {
     "pages": "Halaman",

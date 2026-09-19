@@ -154,7 +154,8 @@
     "appearance": "Aparência",
     "keystrokes": "Keystrokes",
     "readerMode": "Modo leitura",
-    "readerModeTip": "Lembra a página, posição de rolagem e zoom de cada PDF ao fechar e reabrir"
+    "readerModeTip": "Lembra a página, posição de rolagem e zoom de cada PDF ao fechar e reabrir",
+    "readerModeSaveFailed": "O modo leitura não conseguiu salvar a configuração deste PDF. A pasta pode ser somente leitura."
   },
   "organize": {
     "pages": "Páginas",

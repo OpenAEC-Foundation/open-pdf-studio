@@ -154,7 +154,8 @@
     "appearance": "Utseende",
     "keystrokes": "Keystrokes",
     "readerMode": "Lesemodus",
-    "readerModeTip": "Husker side, rulleposisjon og zoom for hver PDF når den lukkes og åpnes på nytt"
+    "readerModeTip": "Husker side, rulleposisjon og zoom for hver PDF når den lukkes og åpnes på nytt",
+    "readerModeSaveFailed": "Lesemodus kunne ikke lagre innstillingen for denne PDF-en. Mappen er muligens skrivebeskyttet."
   },
   "organize": {
     "pages": "Sider",

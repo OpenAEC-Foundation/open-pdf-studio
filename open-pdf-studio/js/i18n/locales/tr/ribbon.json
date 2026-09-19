@@ -154,7 +154,8 @@
     "appearance": "Görünüm",
     "keystrokes": "Keystrokes",
     "readerMode": "Okuyucu Modu",
-    "readerModeTip": "Her PDF'nin sayfasını, kaydırma konumunu ve yakınlaştırmasını kapatıp yeniden açtığınızda hatırlar"
+    "readerModeTip": "Her PDF'nin sayfasını, kaydırma konumunu ve yakınlaştırmasını kapatıp yeniden açtığınızda hatırlar",
+    "readerModeSaveFailed": "Okuyucu Modu bu PDF için ayarını kaydedemedi. Klasör salt okunur olabilir."
   },
   "organize": {
     "pages": "Sayfalar",

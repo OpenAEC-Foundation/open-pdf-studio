@@ -193,7 +193,8 @@
     "keystrokes": "Toetsaanslagen",
     "keystrokesHint": "Toon ingedrukte sneltoetsen links onderin (voor video-opnames)",
     "readerMode": "Leesmodus",
-    "readerModeTip": "Onthoud de pagina, scrollpositie en zoomniveau van elke PDF, ook nadat je hem sluit en weer opent"
+    "readerModeTip": "Onthoud de pagina, scrollpositie en zoomniveau van elke PDF, ook nadat je hem sluit en weer opent",
+    "readerModeSaveFailed": "Leesmodus kon de instelling voor deze PDF niet opslaan. De map is mogelijk alleen-lezen."
   },
   "elementVisibility": {
     "buttonTitle": "Zichtbaarheid Elementen — toon/verberg en dim annotatie-soorten",

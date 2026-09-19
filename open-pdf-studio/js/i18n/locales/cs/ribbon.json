@@ -154,7 +154,8 @@
     "appearance": "Vzhled",
     "keystrokes": "Keystrokes",
     "readerMode": "Režim Čtení",
-    "readerModeTip": "Zapamatuje si stránku, pozici posouvání a přiblížení každého PDF při zavření a opětovném otevření"
+    "readerModeTip": "Zapamatuje si stránku, pozici posouvání a přiblížení každého PDF při zavření a opětovném otevření",
+    "readerModeSaveFailed": "Režim čtení nemohl uložit nastavení pro toto PDF. Složka je možná jen pro čtení."
   },
   "organize": {
     "pages": "Stránky",

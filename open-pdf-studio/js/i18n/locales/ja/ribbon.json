@@ -154,7 +154,8 @@
     "appearance": "外観",
     "keystrokes": "Keystrokes",
     "readerMode": "リーダーモード",
-    "readerModeTip": "PDFを閉じて再度開く際に、ページ、スクロール位置、ズームを記憶します"
+    "readerModeTip": "PDFを閉じて再度開く際に、ページ、スクロール位置、ズームを記憶します",
+    "readerModeSaveFailed": "リーダーモードはこのPDFの設定を保存できませんでした。フォルダーが読み取り専用の可能性があります。"
   },
   "organize": {
     "pages": "ページ",

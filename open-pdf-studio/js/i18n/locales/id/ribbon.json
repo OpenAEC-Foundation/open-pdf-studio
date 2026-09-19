@@ -154,7 +154,8 @@
     "appearance": "Tampilan",
     "keystrokes": "Keystrokes",
     "readerMode": "Mode Pembaca",
-    "readerModeTip": "Mengingat halaman, posisi gulir, dan zoom setiap PDF saat ditutup dan dibuka kembali"
+    "readerModeTip": "Mengingat halaman, posisi gulir, dan zoom setiap PDF saat ditutup dan dibuka kembali",
+    "readerModeSaveFailed": "Mode Pembaca tidak dapat menyimpan pengaturannya untuk PDF ini. Folder mungkin hanya-baca."
   },
   "organize": {
     "pages": "Halaman",

@@ -154,7 +154,8 @@
     "appearance": "外观",
     "keystrokes": "Keystrokes",
     "readerMode": "閱讀模式",
-    "readerModeTip": "在關閉又重新打開時，記住每份 PDF 的頁碼、捲軸位置及縮放比例"
+    "readerModeTip": "在關閉又重新打開時，記住每份 PDF 的頁碼、捲軸位置及縮放比例",
+    "readerModeSaveFailed": "閱讀模式無法儲存這份 PDF 的設定。資料夾可能是唯讀的。"
   },
   "organize": {
     "pages": "页面",

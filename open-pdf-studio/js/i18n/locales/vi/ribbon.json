@@ -154,7 +154,8 @@
     "appearance": "Giao diện",
     "keystrokes": "Keystrokes",
     "readerMode": "Chế độ đọc",
-    "readerModeTip": "Ghi nhớ trang, vị trí cuộn và mức thu phóng của mỗi PDF khi đóng và mở lại"
+    "readerModeTip": "Ghi nhớ trang, vị trí cuộn và mức thu phóng của mỗi PDF khi đóng và mở lại",
+    "readerModeSaveFailed": "Chế độ đọc không thể lưu thiết lập cho PDF này. Thư mục có thể ở chế độ chỉ đọc."
   },
   "organize": {
     "pages": "Trang",

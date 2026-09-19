@@ -154,7 +154,8 @@
     "appearance": "Aspect",
     "keystrokes": "Keystrokes",
     "readerMode": "Mod citire",
-    "readerModeTip": "Ține minte pagina, poziția de derulare și zoom-ul fiecărui PDF la închidere și redeschidere"
+    "readerModeTip": "Ține minte pagina, poziția de derulare și zoom-ul fiecărui PDF la închidere și redeschidere",
+    "readerModeSaveFailed": "Modul citire nu a putut salva setarea pentru acest PDF. Este posibil ca folderul să fie doar pentru citire."
   },
   "organize": {
     "pages": "Pagini",

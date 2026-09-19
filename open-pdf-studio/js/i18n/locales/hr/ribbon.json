@@ -154,7 +154,8 @@
     "appearance": "Izgled",
     "keystrokes": "Keystrokes",
     "readerMode": "Način čitanja",
-    "readerModeTip": "Pamti stranicu, položaj pomicanja i zumiranje svakog PDF-a pri zatvaranju i ponovnom otvaranju"
+    "readerModeTip": "Pamti stranicu, položaj pomicanja i zumiranje svakog PDF-a pri zatvaranju i ponovnom otvaranju",
+    "readerModeSaveFailed": "Način čitanja nije mogao spremiti postavku za ovaj PDF. Mapa je možda samo za čitanje."
   },
   "organize": {
     "pages": "Stranice",

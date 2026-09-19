@@ -154,7 +154,8 @@
     "appearance": "Megjelenés",
     "keystrokes": "Keystrokes",
     "readerMode": "Olvasó mód",
-    "readerModeTip": "Megjegyzi minden PDF oldalát, görgetési pozícióját és nagyítását bezárás és újranyitás között"
+    "readerModeTip": "Megjegyzi minden PDF oldalát, görgetési pozícióját és nagyítását bezárás és újranyitás között",
+    "readerModeSaveFailed": "Az olvasó mód nem tudta menteni a PDF beállítását. Lehet, hogy a mappa csak olvasható."
   },
   "organize": {
     "pages": "Oldalak",

@@ -154,7 +154,8 @@
     "appearance": "Ulkoasu",
     "keystrokes": "Keystrokes",
     "readerMode": "Lukutila",
-    "readerModeTip": "Muistaa jokaisen PDF:n sivun, vierityskohdan ja zoomauksen sulkemisen ja uudelleenavaamisen välillä"
+    "readerModeTip": "Muistaa jokaisen PDF:n sivun, vierityskohdan ja zoomauksen sulkemisen ja uudelleenavaamisen välillä",
+    "readerModeSaveFailed": "Lukutila ei voinut tallentaa tämän PDF:n asetusta. Kansio saattaa olla vain luku -tilassa."
   },
   "organize": {
     "pages": "Sivut",

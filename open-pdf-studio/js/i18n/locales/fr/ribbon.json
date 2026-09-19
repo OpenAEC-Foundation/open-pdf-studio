@@ -154,7 +154,8 @@
     "appearance": "Apparence",
     "keystrokes": "Keystrokes",
     "readerMode": "Mode lecture",
-    "readerModeTip": "Mémorise la page, la position de défilement et le zoom de chaque PDF entre deux ouvertures"
+    "readerModeTip": "Mémorise la page, la position de défilement et le zoom de chaque PDF entre deux ouvertures",
+    "readerModeSaveFailed": "Le mode lecture n'a pas pu enregistrer son réglage pour ce PDF. Le dossier est peut-être en lecture seule."
   },
   "organize": {
     "pages": "Pages",

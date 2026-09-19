@@ -154,7 +154,8 @@
     "appearance": "Darstellung",
     "keystrokes": "Keystrokes",
     "readerMode": "Lesemodus",
-    "readerModeTip": "Merkt sich Seite, Scrollposition und Zoom jeder PDF beim Schließen und erneuten Öffnen"
+    "readerModeTip": "Merkt sich Seite, Scrollposition und Zoom jeder PDF beim Schließen und erneuten Öffnen",
+    "readerModeSaveFailed": "Der Lesemodus konnte die Einstellung für diese PDF nicht speichern. Der Ordner ist möglicherweise schreibgeschützt."
   },
   "organize": {
     "pages": "Seiten",

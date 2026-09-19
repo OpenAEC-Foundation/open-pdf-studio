@@ -154,7 +154,8 @@
     "appearance": "Utseende",
     "keystrokes": "Keystrokes",
     "readerMode": "Läsläge",
-    "readerModeTip": "Kom ihåg sida, rullningsposition och zoom för varje PDF när den stängs och öppnas igen"
+    "readerModeTip": "Kom ihåg sida, rullningsposition och zoom för varje PDF när den stängs och öppnas igen",
+    "readerModeSaveFailed": "Läsläget kunde inte spara inställningen för den här PDF-filen. Mappen kan vara skrivskyddad."
   },
   "organize": {
     "pages": "Sidor",

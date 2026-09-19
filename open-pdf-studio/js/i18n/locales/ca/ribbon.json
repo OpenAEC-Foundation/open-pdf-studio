@@ -154,7 +154,8 @@
     "appearance": "Aparça",
     "keystrokes": "Keystrokes",
     "readerMode": "Mode lectura",
-    "readerModeTip": "Recorda la pàgina, la posició de desplacament i el zoom de cada PDF en tancar-lo i tornar-lo a obrir"
+    "readerModeTip": "Recorda la pàgina, la posició de desplacament i el zoom de cada PDF en tancar-lo i tornar-lo a obrir",
+    "readerModeSaveFailed": "El mode lectura no ha pogut desar la configuració d'aquest PDF. És possible que la carpeta sigui només de lectura."
   },
   "organize": {
     "pages": "Pàgines",
