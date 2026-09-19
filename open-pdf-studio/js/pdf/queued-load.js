@@ -65,3 +65,57 @@ export function queuedLoadTarget(documents, doc) {
   if (!documentNeedsLoad(doc)) return -1;
   return index;
 }
+
+/**
+ * The queue behind openFiles(): the tabs appear at once, the files load one by
+ * one. One queue per app, so loads stay serialized across separate calls (the
+ * single-instance plugin sends one open-files event per file).
+ *
+ * Everything that touches the app comes in through `deps`, so this is the loop
+ * that runs in the app AND in the unit test - against a real store.
+ *
+ * @param {object} deps
+ * @param {() => Array<object>} deps.documents - returns the LIVE document list (the store itself, never a copy)
+ * @param {(filePath: string, autoSwitch: boolean) => {index: number}} deps.createTab
+ * @param {(index: number) => void} deps.switchToTab
+ * @param {(filePath: string, index: number) => Promise<void>} deps.loadPDF
+ * @param {(filePath: string) => void} [deps.onLoaded] - after a load that ran
+ * @returns {(filePaths: string[], options?: {activate?: boolean}) => Promise<void>}
+ */
+export function createFileOpenQueue({ documents, createTab, switchToTab, loadPDF, onLoaded }) {
+  let queue = Promise.resolve();
+
+  return function openFiles(filePaths, { activate = true } = {}) {
+    // 1. Create all tabs instantly (synchronous) so the tab bar updates right away
+    const pending = [];
+    for (const filePath of filePaths) {
+      if (filePath && filePath.toLowerCase().endsWith('.pdf')) {
+        const { index } = createTab(filePath, false); // don't auto-switch
+        // Keep the document itself, read back from the live list: tabs can be
+        // closed or reordered while the loads below wait in the queue. NOT the
+        // `doc` createTab() returns - for a new tab that is the raw object, and
+        // the store only ever hands out proxies, so it would never be found
+        // again and no file would open at all.
+        pending.push({ filePath, index, doc: documents()[index] });
+      }
+    }
+    // 2. Switch to the last new tab immediately (shows placeholder until load completes)
+    if (pending.length > 0 && activate) {
+      switchToTab(pending[pending.length - 1].index);
+    }
+    // 3. Chain loads onto the queue (serialized even across multiple callers)
+    for (const { filePath, doc } of pending) {
+      queue = queue.then(async () => {
+        // Resolve the tab when the load actually runs. A tab closed meanwhile is
+        // skipped, and so is a document that is already loaded (or loading via
+        // another route): loading it again would reset it to page 1 and drop
+        // its annotations and undo history.
+        const index = queuedLoadTarget(documents(), doc);
+        if (index === -1) return;
+        await loadPDF(filePath, index);
+        onLoaded?.(filePath);
+      }).catch(e => console.warn('Failed to open file:', filePath, e));
+    }
+    return queue;
+  };
+}

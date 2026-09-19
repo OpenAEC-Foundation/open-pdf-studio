@@ -1,11 +1,14 @@
 // A queued file load resolves its tab when it runs, not when it was queued,
-// and never reloads a document that is already loaded.
+// and no open route reloads a document that is already loaded.
+//
+// Three layers: the pure decisions on plain arrays, the queue the app runs
+// against a real Solid store, and the wiring of the routes pinned on source.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 
-import { queuedLoadTarget, documentNeedsLoad, loadIfNeeded } from './queued-load.js';
+import { queuedLoadTarget, documentNeedsLoad, loadIfNeeded, createFileOpenQueue } from './queued-load.js';
 
 const placeholder = (filePath) => ({ filePath, pdfDoc: null, _isLoading: false });
 
@@ -85,53 +88,187 @@ test('missing arguments never produce an index', () => {
   assert.equal(queuedLoadTarget([], undefined), -1);
 });
 
-// The scenario end to end, with the queue shape openFiles() uses: tabs are
-// created first, loads run one by one, the user acts in between.
-test('queue run: every file ends up in its own tab, loaded exactly once', async () => {
-  const docs = [];
-  const loads = [];
-  const open = (filePath) => {
-    let doc = docs.find((d) => d.filePath === filePath);
-    if (!doc) { doc = placeholder(filePath); docs.push(doc); }
-    return doc;
+// --- The queue itself, against a real store --------------------------------
+// createFileOpenQueue() is the loop the app runs (main.js only hands it the
+// app's functions). Here it gets a real Solid store, the way state.documents
+// is one: the store hands out proxies, and a raw object is never found in it.
+
+// The browser build: the bare specifier resolves to the server build in node,
+// and that one has no proxies.
+const { createMutable } = await import(new URL('../../node_modules/solid-js/store/dist/store.js', import.meta.url).href);
+
+// Tests that wait for a load to start: a queue that never starts it must show
+// up as a failed test, not as a test run that hangs.
+const WAITS = { timeout: 5000 };
+
+const deferred = () => {
+  let resolve;
+  const promise = new Promise((r) => { resolve = r; });
+  return { promise, resolve };
+};
+
+// A small app around the queue: createTab() like tabs.js (existing tab for an
+// open path, otherwise push the RAW document and return it), loadPDF() like
+// loader.js (refuses a loading document, empties the one it loads into).
+function app() {
+  const state = createMutable({ documents: [], activeDocumentIndex: -1 });
+  const log = [];
+  const hold = new Map();     // filePath -> deferred the load waits for
+  const started = new Map();  // filePath -> deferred resolved when the load starts
+  let running = 0;
+  let maxRunning = 0;
+
+  const createTab = (filePath, autoSwitch = true) => {
+    const existing = state.documents.findIndex((d) => d.filePath === filePath);
+    if (existing !== -1) {
+      if (autoSwitch) switchToTab(existing);
+      return { doc: state.documents[existing], index: existing };
+    }
+    const doc = { filePath, pdfDoc: null, _isLoading: false, currentPage: 1, annotations: [], undoStack: [] };
+    state.documents.push(doc);
+    const index = state.documents.length - 1;
+    if (autoSwitch) switchToTab(index);
+    return { doc, index };
   };
-  const load = async (filePath, index) => {
-    const doc = docs[index];
+  const switchToTab = (index) => {
+    state.activeDocumentIndex = index;
+    log.push(`switch:${state.documents[index].filePath}`);
+  };
+  const loadPDF = async (filePath, index) => {
+    const doc = state.documents[index];
+    if (!doc || doc._isLoading) return;
     doc._isLoading = true;
-    await new Promise((r) => setTimeout(r, 0));
-    doc.pdfDoc = { src: filePath };
-    doc._isLoading = false;
-    loads.push(filePath);
+    running++;
+    maxRunning = Math.max(maxRunning, running);
+    log.push(`load:${filePath}`);
+    started.get(filePath)?.resolve();
+    try {
+      if (hold.has(filePath)) await hold.get(filePath).promise;
+      else await new Promise((r) => setTimeout(r, 0));
+      if (filePath.includes('broken')) throw new Error('not a PDF');
+      doc.annotations = [];
+      doc.undoStack = [];
+      doc.currentPage = 1;
+      doc.pdfDoc = { src: filePath };
+    } finally {
+      doc._isLoading = false;
+      running--;
+    }
   };
+  const openFiles = createFileOpenQueue({
+    documents: () => state.documents,
+    createTab,
+    switchToTab,
+    loadPDF,
+    onLoaded: (filePath) => log.push(`recent:${filePath}`),
+  });
+  const tabs = () => state.documents.map((d) => `${d.filePath}=${d.pdfDoc?.src ?? '-'}`);
+  return { state, log, hold, started, createTab, loadPDF, openFiles, tabs, maxRunning: () => maxRunning };
+}
 
-  // The user opened R2 and U before the session restore got to its tabs.
-  const r2 = open('C:/s/R2.pdf');
-  await load('C:/s/R2.pdf', docs.indexOf(r2));
-  r2.currentPage = 7;
-  const u = open('C:/u/U.pdf');
-  await load('C:/u/U.pdf', docs.indexOf(u));
+test('the store never finds the raw document createTab() returns', () => {
+  const { state, createTab } = app();
+  const { doc: raw, index } = createTab('C:/s/R1.pdf', false);
+  assert.notEqual(state.documents[index], raw, 'the store hands out a proxy');
+  assert.equal(queuedLoadTarget(state.documents, raw), -1);
+  assert.equal(queuedLoadTarget(state.documents, state.documents[index]), index);
+});
 
-  // Session restore queues R1, R2 (already open) and R3.
-  const queued = ['C:/s/R1.pdf', 'C:/s/R2.pdf', 'C:/s/R3.pdf'].map((filePath) => ({ filePath, doc: open(filePath) }));
-  let queue = Promise.resolve();
-  for (const { filePath, doc } of queued) {
-    queue = queue.then(async () => {
-      const index = queuedLoadTarget(docs, doc);
-      if (index === -1) return;
-      await load(filePath, index);
-    });
-  }
-  // While R1 loads the user closes U (index 1): R1 and R3 shift down.
-  docs.splice(docs.indexOf(u), 1);
-  await queue;
-
-  assert.deepEqual(docs.map((d) => `${d.filePath}=${d.pdfDoc?.src}`), [
-    'C:/s/R2.pdf=C:/s/R2.pdf',
-    'C:/s/R1.pdf=C:/s/R1.pdf',
-    'C:/s/R3.pdf=C:/s/R3.pdf',
+test('files open from the command line although createTab() returns raw documents', async () => {
+  const { openFiles, tabs, log } = app();
+  await openFiles(['C:/s/R1.pdf', 'C:/s/R2.pdf']);
+  assert.deepEqual(tabs(), ['C:/s/R1.pdf=C:/s/R1.pdf', 'C:/s/R2.pdf=C:/s/R2.pdf']);
+  assert.deepEqual(log, [
+    'switch:C:/s/R2.pdf',
+    'load:C:/s/R1.pdf', 'recent:C:/s/R1.pdf',
+    'load:C:/s/R2.pdf', 'recent:C:/s/R2.pdf',
   ]);
-  assert.equal(loads.filter((f) => f === 'C:/s/R2.pdf').length, 1);
+});
+
+test('session restore behind the user: own tab, loaded once, open work untouched', WAITS, async () => {
+  const { state, openFiles, createTab, loadPDF, hold, started, tabs, log } = app();
+
+  // The user opened R2 and U before the session restore got to its tabs, and
+  // has been working in R2.
+  for (const filePath of ['C:/s/R2.pdf', 'C:/u/U.pdf']) {
+    const { index } = createTab(filePath);
+    await loadPDF(filePath, index);
+  }
+  const r2 = state.documents[0];
+  r2.currentPage = 7;
+  r2.annotations.push({ id: 'a1' });
+  r2.undoStack.push({ op: 'add', id: 'a1' });
+  log.length = 0;
+
+  // Session restore queues R1, R2 (already open) and R3 in the background.
+  hold.set('C:/s/R1.pdf', deferred());
+  started.set('C:/s/R1.pdf', deferred());
+  const restored = openFiles(['C:/s/R1.pdf', 'C:/s/R2.pdf', 'C:/s/R3.pdf'], { activate: state.documents.length === 0 });
+  assert.deepEqual(tabs(), ['C:/s/R2.pdf=C:/s/R2.pdf', 'C:/u/U.pdf=C:/u/U.pdf', 'C:/s/R1.pdf=-', 'C:/s/R3.pdf=-']);
+
+  // While R1 is loading the user closes U (index 1): R1 and R3 shift down.
+  await started.get('C:/s/R1.pdf').promise;
+  assert.equal(state.documents[2]._isLoading, true, 'R1 is mid-load');
+  state.documents.splice(1, 1);
+  hold.get('C:/s/R1.pdf').resolve();
+  await restored;
+
+  assert.deepEqual(tabs(), ['C:/s/R2.pdf=C:/s/R2.pdf', 'C:/s/R1.pdf=C:/s/R1.pdf', 'C:/s/R3.pdf=C:/s/R3.pdf']);
+  // No switch (the user keeps the tab in front), R2 neither loaded nor re-added to the recent files
+  assert.deepEqual(log, ['load:C:/s/R1.pdf', 'recent:C:/s/R1.pdf', 'load:C:/s/R3.pdf', 'recent:C:/s/R3.pdf']);
   assert.equal(r2.currentPage, 7);
+  assert.deepEqual(r2.annotations.map((a) => a.id), ['a1']);
+  assert.equal(r2.undoStack.length, 1);
+});
+
+test('a tab closed while its load waits is skipped, the rest still opens', WAITS, async () => {
+  const { state, openFiles, hold, started, tabs, log } = app();
+  hold.set('C:/s/R1.pdf', deferred());
+  started.set('C:/s/R1.pdf', deferred());
+  const done = openFiles(['C:/s/R1.pdf', 'C:/s/R2.pdf', 'C:/s/R3.pdf']);
+  await started.get('C:/s/R1.pdf').promise;
+  state.documents.splice(1, 1); // R2, still a placeholder
+  hold.get('C:/s/R1.pdf').resolve();
+  await done;
+
+  assert.deepEqual(tabs(), ['C:/s/R1.pdf=C:/s/R1.pdf', 'C:/s/R3.pdf=C:/s/R3.pdf']);
+  assert.equal(log.includes('load:C:/s/R2.pdf'), false);
+});
+
+test('the last new tab comes to the front at once - unless the restore runs behind the user', async () => {
+  const front = app();
+  const done = front.openFiles(['C:/s/R1.pdf', 'C:/s/R2.pdf']);
+  assert.deepEqual(front.log, ['switch:C:/s/R2.pdf'], 'before any load has run');
+  await done;
+
+  const behind = app();
+  await behind.openFiles(['C:/s/R1.pdf', 'C:/s/R2.pdf'], { activate: false });
+  assert.equal(behind.log.some((l) => l.startsWith('switch:')), false);
+  assert.equal(behind.state.activeDocumentIndex, -1);
+});
+
+test('separate calls share one queue: loads never overlap and keep their order', async () => {
+  const { openFiles, log, maxRunning } = app();
+  // The single-instance plugin sends one open-files event per file.
+  const calls = [openFiles(['C:/s/R1.pdf']), openFiles(['C:/s/R2.pdf']), openFiles(['C:/s/R3.pdf'])];
+  await Promise.all(calls);
+  assert.equal(maxRunning(), 1);
+  assert.deepEqual(log.filter((l) => l.startsWith('load:')), ['load:C:/s/R1.pdf', 'load:C:/s/R2.pdf', 'load:C:/s/R3.pdf']);
+});
+
+test('a load that throws does not stall the files behind it', async (t) => {
+  t.mock.method(console, 'warn', () => {});
+  const { openFiles, tabs, log } = app();
+  await openFiles(['C:/s/broken.pdf', 'C:/s/R2.pdf']);
+  assert.deepEqual(tabs(), ['C:/s/broken.pdf=-', 'C:/s/R2.pdf=C:/s/R2.pdf']);
+  assert.equal(log.includes('recent:C:/s/broken.pdf'), false);
+  assert.equal(console.warn.mock.callCount(), 1);
+});
+
+test('only PDF paths get a tab', async () => {
+  const { openFiles, tabs } = app();
+  await openFiles(['C:/s/notes.txt', '', null, 'C:/s/PLAN.PDF']);
+  assert.deepEqual(tabs(), ['C:/s/PLAN.PDF=C:/s/PLAN.PDF']);
 });
 
 // --- Every route that opens a file by path -------------------------------
@@ -237,4 +374,15 @@ test('mobile: the picker and the deep link are guarded, the in-memory route is n
 
   const main = source('../main.js');
   assert.match(main, /if \(await loadPDFIfNeeded\(filePath, index\)\) await fitPage\(\);/);
+});
+
+test('main.js runs the tested queue on the live document list', () => {
+  const main = source('../main.js');
+  const start = main.indexOf('const openFiles = createFileOpenQueue({');
+  assert.notEqual(start, -1);
+  const deps = main.slice(start, main.indexOf('});', start));
+  // A getter on the store, read again at every step: never a copy of the list.
+  assert.match(deps, /documents: \(\) => state\.documents,/);
+  for (const dep of ['createTab', 'switchToTab', 'loadPDF']) assert.match(deps, new RegExp(`\\n  ${dep},\\n`));
+  assert.equal(directLoads(main), 0, 'every load in main.js goes through the queue or the guard');
 });
