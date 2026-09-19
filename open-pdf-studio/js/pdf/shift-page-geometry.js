@@ -17,10 +17,19 @@ export const MAX_SHIFT_MM = 5080;
  * @returns {number[]}
  */
 export function resolveTargetPages(applyTo, fromPage, currentPage, totalPages) {
-  if (applyTo === "current") return [currentPage];
-  const from = Math.max(1, Math.min(fromPage || 1, totalPages));
+  const total = Math.floor(Number(totalPages));
+  if (!(total >= 1)) return [];
+  if (applyTo === "current") {
+    const current = Math.floor(Number(currentPage));
+    return current >= 1 && current <= total ? [current] : [];
+  }
+  // An unknown selection selects nothing, rather than silently meaning "all".
+  if (applyTo !== "all" && applyTo !== "even" && applyTo !== "odd") return [];
+  // Whole page numbers only: a fractional start would yield 2.5, 3.5, ...
+  const requested = Math.floor(Number(fromPage));
+  const from = Math.max(1, Math.min(Number.isFinite(requested) ? requested : 1, total));
   const pages = [];
-  for (let p = from; p <= totalPages; p++) {
+  for (let p = from; p <= total; p++) {
     if (applyTo === "even" && p % 2 !== 0) continue;
     if (applyTo === "odd" && p % 2 !== 1) continue;
     pages.push(p);

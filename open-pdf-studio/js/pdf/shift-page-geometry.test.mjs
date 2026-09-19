@@ -35,6 +35,28 @@ test("fromPage is clamped into [1, totalPages]", () => {
   assert.deepEqual(resolveTargetPages("all", 99, 1, 3), [3]);
 });
 
+test("a selection that matches no page is empty, not an error", () => {
+  assert.deepEqual(resolveTargetPages("odd", 4, 1, 4), []);
+  assert.deepEqual(resolveTargetPages("even", 1, 1, 1), []);
+  assert.deepEqual(resolveTargetPages("all", 1, 1, 0), []);
+  assert.deepEqual(resolveTargetPages("current", 1, 1, 0), []);
+  assert.deepEqual(resolveTargetPages("all", 1, 1, NaN), []);
+});
+
+test("page numbers are always whole numbers inside the document", () => {
+  assert.deepEqual(resolveTargetPages("all", 2.5, 1, 5), [2, 3, 4, 5]);
+  assert.deepEqual(resolveTargetPages("even", 2.5, 1, 6), [2, 4, 6]);
+  assert.deepEqual(resolveTargetPages("all", NaN, 1, 3), [1, 2, 3]);
+  assert.deepEqual(resolveTargetPages("all", "2", 1, 3), [2, 3]);
+  assert.deepEqual(resolveTargetPages("current", 1, 7, 3), [], "a current page outside the document");
+  assert.deepEqual(resolveTargetPages("current", 1, 2.9, 3), [2]);
+});
+
+test("an unknown selection selects nothing instead of silently meaning 'all'", () => {
+  assert.deepEqual(resolveTargetPages("range", 1, 1, 3), []);
+  assert.deepEqual(resolveTargetPages(undefined, 2, 1, 3), []);
+});
+
 // ── Visual offset → content-space offset ──
 //
 // Reference model: a point (x, y) in unrotated content space (y up) on a
