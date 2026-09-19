@@ -1,9 +1,9 @@
 // Shift Page: nudge a page's content left/right/up/down by an exact amount —
 // for a scan whose content drifted off-center (e.g. copied/scanned slightly
 // shifted to one side). This is a plain translation, which the PDF spec CAN
-// express directly via a `cm` transform, so — like
-// Straighten (deskew.js) — the page's content is re-embedded as a form
-// XObject and redrawn at an offset, rather than rasterized.
+// express directly via a `cm` transform, so the page keeps its own object
+// and only its content is wrapped in that transform (shift-page-content.js)
+// — nothing is rasterized and nothing on the page dictionary is lost.
 import { getActiveDocument } from "../core/state.js";
 import { getCachedPdfBytes } from "./loader.js";
 import { getCacheKey, reloadFromBytes } from "./page-manager.js";
@@ -12,28 +12,12 @@ import { showLoading, hideLoading } from "../ui/chrome/dialogs.js";
 import { cloneAnnotation } from "../annotations/factory.js";
 import { translateAnnotation } from "./resize-pages.js";
 import { resolveTargetPages } from "./shift-page-geometry.js";
+import { assertShiftable, shiftPageContent, shiftPageAnnotations } from "./shift-page-content.js";
 import { PDFDocument } from "pdf-lib";
 
 const MM_TO_POINTS = 72 / 25.4;
 
 export { resolveTargetPages };
-
-/**
- * Re-embed a single page's content, redrawn at an (dx, dy) offset in place
- * at the same page-tree position. Mirrors deskew.js's straightenOnePage, but
- * a translation instead of a rotation.
- */
-function shiftOnePage(pdfDoc, pages, pageIndex, dx, dy) {
-  const oldPage = pages[pageIndex];
-  const { width, height } = oldPage.getSize();
-  const embedded = pdfDoc.embedPage(oldPage);
-  return embedded.then((embeddedPage) => {
-    const newPage = pdfDoc.insertPage(pageIndex, [width, height]);
-    pdfDoc.removePage(pageIndex + 1);
-    newPage.drawPage(embeddedPage, { x: dx, y: dy, width, height });
-    return newPage;
-  });
-}
 
 /**
  * Shift the targeted page(s) by a fixed offset.
@@ -69,25 +53,33 @@ export async function shiftPages(dxMm, dyMm, applyTo, fromPage = 1) {
   showLoading("Shifting page...");
   try {
     const pdfDoc = await PDFDocument.load(currentBytes, { ignoreEncryption: true });
+    assertShiftable(pdfDoc);
     const pages = pdfDoc.getPages();
 
     const newAnnotations = doc.annotations.map((a) => cloneAnnotation(a));
+    const shiftedPages = new Set();
+    const movedFileAnnotations = new Set();
 
     for (const pageNum of targetPages) {
-      const pageIndex = pageNum - 1;
-      if (!pages[pageIndex]) continue;
-      await shiftOnePage(pdfDoc, pages, pageIndex, dx, dy);
-      // pdfDoc.getPages() is stale after insertPage/removePage — re-fetch so
-      // the NEXT iteration's embedPage call sees the current page tree.
-      pages.length = 0;
-      pages.push(...pdfDoc.getPages());
+      const page = pages[pageNum - 1];
+      if (!page) continue;
+      // A page without content (an inserted blank page) has no content to
+      // wrap; whatever is annotated on it still moves.
+      const contentMoved = shiftPageContent(pdfDoc, page, dx, dy);
+      // Links, form fields and other annotations stored in the file follow
+      // the content; the app's own annotations follow below.
+      let moved = shiftPageAnnotations(pdfDoc, page, dx, dy, movedFileAnnotations);
 
       // App space is Y-down; content/PDF space (dy above) is Y-up, so an
       // annotation's on-screen offset is (dx, -dy).
       for (const ann of newAnnotations) {
-        if (ann.page === pageNum) translateAnnotation(ann, dx, -dy);
+        if (ann.page !== pageNum) continue;
+        translateAnnotation(ann, dx, -dy);
+        moved++;
       }
+      if (contentMoved || moved > 0) shiftedPages.add(pageNum);
     }
+    if (shiftedPages.size === 0) return { shifted: 0 };
 
     const newBytes = new Uint8Array(await pdfDoc.save());
     const newRotations = { ...oldRotations };
@@ -105,7 +97,7 @@ export async function shiftPages(dxMm, dyMm, applyTo, fromPage = 1) {
       targetPage
     );
 
-    return { shifted: targetPages.size };
+    return { shifted: shiftedPages.size };
   } finally {
     hideLoading();
   }
