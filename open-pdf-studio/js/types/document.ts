@@ -84,6 +84,8 @@ export interface DocumentState {
   readerModeActive: boolean;
   /** Reader Mode: stored position that still has to be shown; blocks saving until applied. */
   _readerRestore?: { page?: number; scale?: number; scrollTop?: number; scrollHeight?: number; viewMode?: string } | null;
+  /** Reader Mode: a jump to the stored position is under way. */
+  _readerRestoring?: boolean;
   pageRotations: Record<number, number>;
   pageDims?: Record<number, { widthPt: number; heightPt: number; rotation?: number }>;
   pdfaCompliance: string | null;
