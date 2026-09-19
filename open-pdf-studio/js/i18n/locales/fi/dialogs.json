@@ -65,6 +65,7 @@
     "noPages": "Ei sivuja",
     "pageOf": "Sivu {{current}} / {{total}}",
     "paperLabel": "Paperi: {{paper}}",
+    "paperFallback": "Paperi: {{paper}} ({{requested}} ei ole käytettävissä tässä tulostimessa)",
     "pageSizeLabel": "Sivu: {{size}}"
   },
   "insertPage": {

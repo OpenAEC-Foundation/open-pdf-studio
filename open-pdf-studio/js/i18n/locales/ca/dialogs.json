@@ -65,6 +65,7 @@
     "noPages": "Cap pàgina",
     "pageOf": "Pàgina {{current}} de {{total}}",
     "paperLabel": "Paper: {{paper}}",
+    "paperFallback": "Paper: {{paper}} ({{requested}} no està disponible en aquesta impressora)",
     "pageSizeLabel": "Pàgina: {{size}}"
   },
   "insertPage": {

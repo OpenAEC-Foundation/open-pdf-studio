@@ -65,6 +65,7 @@
     "noPages": "Nicio pagina",
     "pageOf": "Pagina {{current}} din {{total}}",
     "paperLabel": "Hârtie: {{paper}}",
+    "paperFallback": "Hârtie: {{paper}} ({{requested}} nu este disponibil pe această imprimantă)",
     "pageSizeLabel": "Pagină: {{size}}"
   },
   "insertPage": {

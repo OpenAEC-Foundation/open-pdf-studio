@@ -65,6 +65,7 @@
     "noPages": "페이지 없음",
     "pageOf": "{{current}} / {{total}} 페이지",
     "paperLabel": "용지: {{paper}}",
+    "paperFallback": "용지: {{paper}} (이 프린터에서는 {{requested}} 용지를 사용할 수 없습니다)",
     "pageSizeLabel": "페이지: {{size}}"
   },
   "insertPage": {

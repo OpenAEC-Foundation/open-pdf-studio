@@ -65,6 +65,7 @@
     "noPages": "ไม่มีหน้า",
     "pageOf": "หน้า {{current}} จาก {{total}}",
     "paperLabel": "กระดาษ: {{paper}}",
+    "paperFallback": "กระดาษ: {{paper}} ({{requested}} ไม่พร้อมใช้งานบนเครื่องพิมพ์นี้)",
     "pageSizeLabel": "หน้า: {{size}}"
   },
   "insertPage": {

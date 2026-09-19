@@ -65,6 +65,7 @@
     "noPages": "Tidak ada halaman",
     "pageOf": "Halaman {{current}} dari {{total}}",
     "paperLabel": "Kertas: {{paper}}",
+    "paperFallback": "Kertas: {{paper}} ({{requested}} tidak tersedia di printer ini)",
     "pageSizeLabel": "Halaman: {{size}}"
   },
   "insertPage": {

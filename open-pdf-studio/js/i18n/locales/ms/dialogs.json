@@ -65,6 +65,7 @@
     "noPages": "Tiada halaman",
     "pageOf": "Halaman {{current}} daripada {{total}}",
     "paperLabel": "Kertas: {{paper}}",
+    "paperFallback": "Kertas: {{paper}} ({{requested}} tidak tersedia pada pencetak ini)",
     "pageSizeLabel": "Halaman: {{size}}"
   },
   "insertPage": {

@@ -65,6 +65,7 @@
     "noPages": "Немає сторінок",
     "pageOf": "Сторінка {{current}} з {{total}}",
     "paperLabel": "Папір: {{paper}}",
+    "paperFallback": "Папір: {{paper}} ({{requested}} недоступний на цьому принтері)",
     "pageSizeLabel": "Сторінка: {{size}}"
   },
   "insertPage": {

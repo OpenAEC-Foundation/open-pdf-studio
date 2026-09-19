@@ -91,6 +91,7 @@
     "noPages": "Geen pagina's",
     "pageOf": "Pagina {{current}} van {{total}}",
     "paperLabel": "Papier: {{paper}}",
+    "paperFallback": "Papier: {{paper}} ({{requested}} is niet beschikbaar op deze printer)",
     "pageSizeLabel": "Pagina: {{size}}",
     "firstPage": "Eerste pagina",
     "prevPage": "Vorige pagina",

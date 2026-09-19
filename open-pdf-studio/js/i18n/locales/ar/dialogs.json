@@ -65,6 +65,7 @@
     "noPages": "لا توجد صفحات",
     "pageOf": "الصفحة {{current}} من {{total}}",
     "paperLabel": "الورق: {{paper}}",
+    "paperFallback": "الورق: {{paper}} ({{requested}} غير متاح على هذه الطابعة)",
     "pageSizeLabel": "الصفحة: {{size}}"
   },
   "insertPage": {

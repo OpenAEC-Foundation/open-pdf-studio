@@ -65,6 +65,7 @@
     "noPages": "பக்கங்கள் இல்லை",
     "pageOf": "பக்கம் {{current}} / {{total}}",
     "paperLabel": "தாள்: {{paper}}",
+    "paperFallback": "தாள்: {{paper}} (இந்த அச்சுப்பொறியில் {{requested}} கிடைக்கவில்லை)",
     "pageSizeLabel": "பக்கம்: {{size}}"
   },
   "insertPage": {

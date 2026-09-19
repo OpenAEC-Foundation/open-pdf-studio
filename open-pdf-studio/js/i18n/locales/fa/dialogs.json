@@ -65,6 +65,7 @@
     "noPages": "بدون صفحه",
     "pageOf": "صفحه {{current}} از {{total}}",
     "paperLabel": "کاغذ: {{paper}}",
+    "paperFallback": "کاغذ: {{paper}} ({{requested}} در این چاپگر در دسترس نیست)",
     "pageSizeLabel": "صفحه: {{size}}"
   },
   "insertPage": {

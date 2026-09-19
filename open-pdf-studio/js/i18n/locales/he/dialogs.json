@@ -65,6 +65,7 @@
     "noPages": "אין עמודים",
     "pageOf": "עמוד {{current}} מתוך {{total}}",
     "paperLabel": "נייר: {{paper}}",
+    "paperFallback": "נייר: {{paper}} ({{requested}} אינו זמין במדפסת זו)",
     "pageSizeLabel": "עמוד: {{size}}"
   },
   "insertPage": {

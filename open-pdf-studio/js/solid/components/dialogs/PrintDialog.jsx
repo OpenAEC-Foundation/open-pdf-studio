@@ -14,7 +14,7 @@ import { getPageSetupSettings, stelPaginaInstellingIn, paginaInstellingVersie } 
 import { viewportOpties } from '../../../pdf/getoonde-pagina.js';
 import {
   normaliseerPapierInfo, effectiefPapier, papierTekst, paginaTekst,
-  eigenschappenVooraf, instellingNaEigenschappen, maakPapierVerzoeken,
+  eigenschappenVooraf, instellingNaEigenschappen, maakPapierVerzoeken, papierVerzoekSleutel,
 } from '../../../pdf/print-papier.js';
 
 export default function PrintDialog(props) {
@@ -50,8 +50,9 @@ export default function PrintDialog(props) {
   const [previewIndex, setPreviewIndex] = createSignal(0);
   // Maat van de getoonde voorbeeldpagina in pt (inclusief draaiing), of null.
   const [paginaMaat, setPaginaMaat] = createSignal(null);
-  // Papier per printer zoals Rust het meldt (printer_papier, of het antwoord
-  // uit Eigenschappen). Geen sleutel = nog aan het ophalen, null = onbekend.
+  // Papier per printer en per gevraagd papier (papierVerzoekSleutel) zoals
+  // Rust het meldt (printer_papier, of het antwoord uit Eigenschappen).
+  // Geen sleutel = nog aan het ophalen, null = onbekend.
   const [printerPapier, setPrinterPapier] = createSignal(new Map());
   const papierVerzoeken = maakPapierVerzoeken();
   let eigenschappenOpen = false;
@@ -211,26 +212,41 @@ export default function PrintDialog(props) {
     renderPreview();
   }
 
-  function zetPrinterPapier(printer, info) {
-    setPrinterPapier((oud) => new Map(oud).set(printer, info));
+  // Het papier dat print_pdf nu naar de printer zou sturen ('printer' = het
+  // papier aan de printer laten). Volgt de Pagina-instelling.
+  const gevraagdPapier = createMemo(() => {
+    paginaInstellingVersie();
+    return printArgumenten({
+      autoRotate: autoRotate(),
+      paginaInstelling: getPageSetupSettings(),
+      docId: getActiveDocument()?.id ?? null,
+    }).papier;
+  });
+
+  function zetPrinterPapier(printer, papier, info) {
+    setPrinterPapier((oud) => new Map(oud).set(papierVerzoekSleutel(printer, papier), info));
   }
 
-  // Het papier dat de volgende afdruk op deze printer neemt als de
-  // Pagina-instelling het papier aan de printer laat. Alleen het antwoord
-  // voor de nog gekozen printer telt; een fout of null = onbekend.
-  async function haalPrinterPapier(printer) {
+  // Het vel dat de volgende afdruk op deze printer echt krijgt, gegeven het
+  // papier uit de Pagina-instelling: het papier van de printer als de
+  // Pagina-instelling dat aan de printer laat, of als de driver het gevraagde
+  // formaat niet aankan. Alleen het antwoord voor de nog gekozen printer en
+  // het nog gevraagde papier telt; een fout of null = onbekend.
+  async function haalPrinterPapier(printer, papier) {
     const nr = papierVerzoeken.begin();
     let info = null;
     try {
-      info = normaliseerPapierInfo(await invoke('printer_papier', { printer }));
+      info = normaliseerPapierInfo(await invoke('printer_papier', { printer, papier }));
     } catch (e) {
       console.warn('printer_papier failed:', e);
     }
-    if (papierVerzoeken.actueel(nr, printer, selectedPrinter())) zetPrinterPapier(printer, info);
+    if (papierVerzoeken.actueel(nr, printer, selectedPrinter()) && papier === gevraagdPapier()) {
+      zetPrinterPapier(printer, papier, info);
+    }
   }
 
-  createEffect(on(selectedPrinter, (printer) => {
-    if (printer) haalPrinterPapier(printer);
+  createEffect(on([selectedPrinter, gevraagdPapier], ([printer, papier]) => {
+    if (printer) haalPrinterPapier(printer, papier);
   }));
 
   // Windows: de eigenschappen van de driver, modaal; het antwoord komt pas na
@@ -267,17 +283,26 @@ export default function PrintDialog(props) {
     if (!info) {
       // Annuleren verandert niets; opnieuw vragen kost niets en houdt de
       // kop eerlijk, ook als er toch iets bewaard werd.
-      if (selectedPrinter() === printer) haalPrinterPapier(printer);
+      if (selectedPrinter() === printer) haalPrinterPapier(printer, gevraagdPapier());
       return;
     }
     papierVerzoeken.vervallen();
-    zetPrinterPapier(printer, info);
+    // Wat eerder voor deze printer is gemeld klopt niet meer: Rust bewaart nu
+    // een andere DEVMODE. Het antwoord geldt voor het papier van de printer.
+    setPrinterPapier((oud) => new Map(
+      [...oud].filter(([sleutel]) => !sleutel.startsWith(`${printer}\n`)),
+    ).set(papierVerzoekSleutel(printer, 'printer'), info));
     stelPaginaInstellingIn(instellingNaEigenschappen({
       papierInfo: antwoord,
       docId,
       huidig: getPageSetupSettings(),
       vooraf,
     }));
+    // Blijft de Pagina-instelling op een formaat staan, dan opnieuw vragen wat
+    // de driver daar met de nieuwe eigenschappen van maakt.
+    if (selectedPrinter() === printer && gevraagdPapier() !== 'printer') {
+      haalPrinterPapier(printer, gevraagdPapier());
+    }
   }
 
   async function openPageSetup() {
@@ -369,18 +394,28 @@ export default function PrintDialog(props) {
     paginaInstellingVersie();
     const printer = selectedPrinter();
     const papiers = printerPapier();
+    const gevraagd = gevraagdPapier();
+    const sleutel = papierVerzoekSleutel(printer, gevraagd);
+    // Geen printer of nog niet opgehaald → undefined (nog niets tonen).
+    const antwoord = printer && papiers.has(sleutel) ? papiers.get(sleutel) : undefined;
     const effectief = effectiefPapier({
       paginaInstelling: getPageSetupSettings(),
       docId: getActiveDocument()?.id ?? null,
       autoRotate: autoRotate(),
-      // Geen printer of nog niet opgehaald → undefined (nog niets tonen).
-      printerPapier: printer && papiers.has(printer) ? papiers.get(printer) : undefined,
+      // Het antwoord hoort bij het papier waarmee erom gevraagd is.
+      printerPapier: gevraagd === 'printer' ? antwoord : undefined,
+      opdrachtPapier: gevraagd === 'printer' ? undefined : antwoord,
       pagina: paginaMaat(),
     });
     // Onbekend papier = de standaard van de printer (dezelfde tekst als in de
     // Pagina-instelling).
     const tekst = papierTekst(effectief, t('pageSetup.printerDefault'));
-    return tekst ? t('print.paperLabel', { paper: tekst }) : '';
+    if (!tekst) return '';
+    // De driver kan het gevraagde formaat niet aan: zeggen waarop er wel
+    // geprint wordt, en welk formaat niet beschikbaar is.
+    return effectief.geweigerd
+      ? t('print.paperFallback', { paper: tekst, requested: effectief.geweigerd })
+      : t('print.paperLabel', { paper: tekst });
   });
 
   const paginaKop = createMemo(() => {

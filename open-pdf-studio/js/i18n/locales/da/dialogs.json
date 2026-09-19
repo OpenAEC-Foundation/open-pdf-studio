@@ -65,6 +65,7 @@
     "noPages": "Ingen sider",
     "pageOf": "Side {{current}} af {{total}}",
     "paperLabel": "Papir: {{paper}}",
+    "paperFallback": "Papir: {{paper}} ({{requested}} er ikke tilgængelig på denne printer)",
     "pageSizeLabel": "Side: {{size}}"
   },
   "insertPage": {

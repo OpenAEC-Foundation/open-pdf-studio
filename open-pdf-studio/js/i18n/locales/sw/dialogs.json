@@ -65,6 +65,7 @@
     "noPages": "Hakuna kurasa",
     "pageOf": "Ukurasa {{current}} ya {{total}}",
     "paperLabel": "Karatasi: {{paper}}",
+    "paperFallback": "Karatasi: {{paper}} ({{requested}} haipatikani kwenye printa hii)",
     "pageSizeLabel": "Ukurasa: {{size}}"
   },
   "insertPage": {

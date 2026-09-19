@@ -65,6 +65,7 @@
     "noPages": "Sayfa yok",
     "pageOf": "Sayfa {{current}} / {{total}}",
     "paperLabel": "Kağıt: {{paper}}",
+    "paperFallback": "Kağıt: {{paper}} ({{requested}} bu yazıcıda kullanılamıyor)",
     "pageSizeLabel": "Sayfa: {{size}}"
   },
   "insertPage": {

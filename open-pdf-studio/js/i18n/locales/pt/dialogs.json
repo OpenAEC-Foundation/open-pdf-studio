@@ -65,6 +65,7 @@
     "noPages": "Sem páginas",
     "pageOf": "Página {{current}} de {{total}}",
     "paperLabel": "Papel: {{paper}}",
+    "paperFallback": "Papel: {{paper}} ({{requested}} não está disponível nesta impressora)",
     "pageSizeLabel": "Página: {{size}}"
   },
   "insertPage": {

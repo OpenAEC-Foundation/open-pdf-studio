@@ -65,6 +65,7 @@
     "noPages": "Không có trang",
     "pageOf": "Trang {{current}} / {{total}}",
     "paperLabel": "Giấy: {{paper}}",
+    "paperFallback": "Giấy: {{paper}} ({{requested}} không khả dụng trên máy in này)",
     "pageSizeLabel": "Trang: {{size}}"
   },
   "insertPage": {

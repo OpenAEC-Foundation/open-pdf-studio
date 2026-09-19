@@ -65,6 +65,7 @@
     "noPages": "کوئی صفحات نہیں",
     "pageOf": "صفحہ {{current}} از {{total}}",
     "paperLabel": "کاغذ: {{paper}}",
+    "paperFallback": "کاغذ: {{paper}} ({{requested}} اس پرنٹر پر دستیاب نہیں ہے)",
     "pageSizeLabel": "صفحہ: {{size}}"
   },
   "insertPage": {

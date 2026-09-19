@@ -65,6 +65,7 @@
     "noPages": "Inga sidor",
     "pageOf": "Sida {{current}} av {{total}}",
     "paperLabel": "Papper: {{paper}}",
+    "paperFallback": "Papper: {{paper}} ({{requested}} är inte tillgängligt på den här skrivaren)",
     "pageSizeLabel": "Sida: {{size}}"
   },
   "insertPage": {

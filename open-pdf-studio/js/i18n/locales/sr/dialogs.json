@@ -65,6 +65,7 @@
     "noPages": "Нема страница",
     "pageOf": "Страница {{current}} од {{total}}",
     "paperLabel": "Папир: {{paper}}",
+    "paperFallback": "Папир: {{paper}} ({{requested}} није доступан на овом штампачу)",
     "pageSizeLabel": "Страница: {{size}}"
   },
   "insertPage": {

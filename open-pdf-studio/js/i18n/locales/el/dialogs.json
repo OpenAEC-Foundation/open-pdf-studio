@@ -65,6 +65,7 @@
     "noPages": "Δεν υπάρχουν σελίδες",
     "pageOf": "Σελίδα {{current}} από {{total}}",
     "paperLabel": "Χαρτί: {{paper}}",
+    "paperFallback": "Χαρτί: {{paper}} (το {{requested}} δεν είναι διαθέσιμο σε αυτόν τον εκτυπωτή)",
     "pageSizeLabel": "Σελίδα: {{size}}"
   },
   "insertPage": {

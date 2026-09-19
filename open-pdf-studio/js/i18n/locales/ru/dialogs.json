@@ -65,6 +65,7 @@
     "noPages": "Нет страниц",
     "pageOf": "Страница {{current}} из {{total}}",
     "paperLabel": "Бумага: {{paper}}",
+    "paperFallback": "Бумага: {{paper}} ({{requested}} недоступен на этом принтере)",
     "pageSizeLabel": "Страница: {{size}}"
   },
   "insertPage": {

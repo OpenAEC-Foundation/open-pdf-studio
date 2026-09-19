@@ -65,6 +65,7 @@
     "noPages": "Nincsenek oldalak",
     "pageOf": "Oldal: {{current}} / {{total}}",
     "paperLabel": "Papír: {{paper}}",
+    "paperFallback": "Papír: {{paper}} ({{requested}} nem érhető el ezen a nyomtatón)",
     "pageSizeLabel": "Oldal: {{size}}"
   },
   "insertPage": {

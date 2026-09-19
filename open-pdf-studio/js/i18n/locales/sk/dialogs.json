@@ -65,6 +65,7 @@
     "noPages": "Žiadne strany",
     "pageOf": "Strana {{current}} z {{total}}",
     "paperLabel": "Papier: {{paper}}",
+    "paperFallback": "Papier: {{paper}} ({{requested}} nie je na tejto tlačiarni k dispozícii)",
     "pageSizeLabel": "Strana: {{size}}"
   },
   "insertPage": {
