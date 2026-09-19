@@ -1,7 +1,7 @@
 import { state, getNextUntitledName, getActiveDocument } from '../core/state.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { updateAllStatus } from '../ui/chrome/status-bar.js';
-import { setViewMode, fitPage, goToPage, setZoom } from './renderer.js';
+import { setViewMode, fitPage } from './renderer.js';
 import { generateThumbnails, refreshActiveTab } from '../ui/panels/left-panel.js';
 import { createTab, updateWindowTitle, markDocumentModified } from '../ui/chrome/tabs.js';
 import * as pdfjsLib from 'pdfjs-dist';
@@ -9,7 +9,7 @@ import { isTauri, readBinaryFile, openFileDialog, lockFile, invoke } from '../co
 import { PDFDocument } from 'pdf-lib';
 import { resetAnnotationStorage } from './form-layer.js';
 import { addRecentFile, getRecentFiles } from '../mobile/recent-files.js';
-import { getReaderPosition } from '../core/reader-mode.js';
+import { resumeReaderTracking } from './reader-mode-view.js';
 import { extractFileName } from '../core/platform.js';
 import i18next from '../i18n/config.js';
 import { showMessage } from '../bridge.js';
@@ -454,33 +454,19 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
       // loading, so it's swallowed rather than surfaced.
       //
       // Per-file, not global: every newly opened PDF starts with tracking
-      // OFF, regardless of whether Reader Mode is on for whatever document
-      // you had open before — otherwise every PDF you ever open leaves a
-      // permanent .readerpos.json next to it, cluttering folders with files
-      // the user never asked to track individually. A file that already has
-      // a sidecar (from a previous session with tracking on) resumes being
-      // tracked automatically; the ribbon toggle turns it on/off per file.
-      doc.readerModeActive = false;
-      if (filePath) {
-        try {
-          const saved = await getReaderPosition(filePath);
-          if (saved) {
-            doc.readerModeActive = true;
-            if (saved.page && saved.page !== doc.currentPage) {
-              await goToPage(saved.page);
-              if (isClosed()) return;
-            }
-            if (saved.scale) {
-              await setZoom(saved.scale);
-              if (isClosed()) return;
-            }
-            if (pdfContainer && saved.scrollHeight > 0) {
-              pdfContainer.scrollTop = (saved.scrollTop / saved.scrollHeight) * pdfContainer.scrollHeight;
-            }
-          }
-        } catch (e) {
-          console.warn('[reader-mode] restore failed:', e);
-        }
+      // OFF (createDocument), regardless of whether Reader Mode is on for
+      // whatever document you had open before — otherwise every PDF you
+      // ever open leaves a permanent .readerpos.json next to it, cluttering
+      // folders with files the user never asked to track individually. A
+      // file that already has a sidecar (from a previous session with
+      // tracking on) resumes being tracked automatically; the ribbon toggle
+      // turns it on/off per file. The flag is never reset here: loading the
+      // same file again into its open tab must not undo the toggle.
+      try {
+        await resumeReaderTracking(doc);
+        if (isClosed()) return;
+      } catch (e) {
+        console.warn('[reader-mode] restore failed:', e);
       }
 
       // Check for PDF/A compliance and show info bar if applicable
@@ -496,6 +482,18 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
       // Not active — still check PDF/A but don't show bar
       checkPdfACompliance(doc);
       verifieerHandtekeningen(doc);
+
+      // Reader Mode: a document that finishes loading in a background tab
+      // (multi-file open, session restore) resumes being tracked just the
+      // same; its stored position is shown the first time the tab comes to
+      // the front (switchToTab), and until then closing it leaves the
+      // stored position alone.
+      try {
+        await resumeReaderTracking(doc);
+        if (isClosed()) return;
+      } catch (e) {
+        console.warn('[reader-mode] restore failed:', e);
+      }
     }
 
     // Load bookmarks from PDF outline (data-only, always run)

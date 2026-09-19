@@ -10,7 +10,8 @@ import { savePDF } from '../../pdf/saver.js';
 import { unlockFile, lockFile, renameFile, fileExists } from '../../core/platform.js';
 import { cancelPendingZoom } from '../setup/navigation-events.js';
 import { closeAllPopups } from '../../bridge.js';
-import { persistReaderPosition } from '../../pdf/reader-mode-view.js';
+import { persistReaderPosition, restoreReaderPosition } from '../../pdf/reader-mode-view.js';
+import { hasPendingRestore } from '../../core/reader-mode-tracking.js';
 import { actiefNaSluiten } from '../../pdf/handtekeningen/opslaan.js';
 
 /**
@@ -140,14 +141,25 @@ export function switchToTab(index) {
       newDoc.currentPage = 1;
     }
 
-    if (newDoc.viewMode === 'continuous') {
-      renderContinuous();
-    } else {
-      renderPage(newDoc.currentPage);
+    const firstRender = newDoc.viewMode === 'continuous'
+      ? renderContinuous()
+      : renderPage(newDoc.currentPage);
+
+    // Reader Mode: a tracked document that finished loading while another
+    // tab was in front (multi-file open, session restore, a tab switch
+    // during the load) has not shown its stored position yet. Do that on
+    // this first activation, once the page is up — same order as the loader.
+    const readerRestorePending = hasPendingRestore(newDoc);
+    if (readerRestorePending) {
+      Promise.resolve(firstRender)
+        .then(() => restoreReaderPosition(newDoc))
+        .catch((e) => console.warn('[reader-mode] restore failed:', e));
     }
 
-    // Restore scroll position
-    if (pdfContainer && newDoc.scrollPosition) {
+    // Restore scroll position (not for a document that still has to jump to
+    // its stored reading position: it has no scroll of its own yet, and the
+    // timer could undo the jump).
+    if (pdfContainer && newDoc.scrollPosition && !readerRestorePending) {
       setTimeout(() => {
         pdfContainer.scrollLeft = newDoc.scrollPosition.x;
         pdfContainer.scrollTop = newDoc.scrollPosition.y;

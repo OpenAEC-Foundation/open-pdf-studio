@@ -1,14 +1,17 @@
 // Reader Mode — glue between the tracking rules (core/reader-mode-tracking.js),
-// the storage (core/reader-mode.js) and what is on screen. Used by the ribbon
-// toggle, closeTab() and File > Exit.
+// the storage (core/reader-mode.js) and what is on screen. Used by the loader,
+// switchToTab(), the ribbon toggle, closeTab() and File > Exit.
 import { state } from '../core/state.js';
-import { saveReaderPosition, clearReaderPosition } from '../core/reader-mode.js';
+import { getReaderPosition, saveReaderPosition, clearReaderPosition } from '../core/reader-mode.js';
 import {
   readerTrackingPath,
   setTracking,
   shouldSaveReaderPosition,
   snapshotReaderPosition,
+  resumeTracking,
+  applyPendingRestore,
 } from '../core/reader-mode-tracking.js';
+import { goToPage, setZoom } from './renderer.js';
 
 function isFrontDocument(doc) {
   return !!doc && state.documents[state.activeDocumentIndex] === doc;
@@ -85,4 +88,39 @@ export async function setReaderTracking(doc, on) {
   const ok = await queued(() => saveReaderPosition(path, position));
   if (!ok && doc.readerModeActive) setTracking(doc, false);
   return ok;
+}
+
+/**
+ * Jump to the stored position of a document, if one is still waiting and the
+ * document is in front. Safe to call at any time; see applyPendingRestore.
+ * @param {any} doc
+ * @returns {Promise<boolean>}
+ */
+export function restoreReaderPosition(doc) {
+  const container = () => document.getElementById('pdf-container');
+  return applyPendingRestore(doc, {
+    isActive: () => isFrontDocument(doc),
+    goToPage,
+    setZoom,
+    scrollHeight: () => container()?.scrollHeight || 0,
+    setScrollTop: (top) => { const c = container(); if (c) c.scrollTop = top; },
+  });
+}
+
+/**
+ * Called by the loader for every document, in front or not: a file that
+ * already has a stored position resumes being tracked, and the position is
+ * shown now (document in front) or on its first activation (switchToTab).
+ * A document without one keeps whatever the toggle says.
+ * @param {any} doc
+ * @returns {Promise<boolean>} whether tracking was resumed
+ */
+export async function resumeReaderTracking(doc) {
+  const path = readerTrackingPath(doc);
+  if (!path) return false;
+  const saved = await getReaderPosition(path);
+  if (!state.documents.includes(doc)) return false; // closed in the meantime
+  if (!resumeTracking(doc, saved)) return false;
+  await restoreReaderPosition(doc);
+  return true;
 }

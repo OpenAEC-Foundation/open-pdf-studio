@@ -95,7 +95,7 @@ export default function ViewTab() {
             title={t('view.readerModeTip') || 'Remember this PDF\'s page, scroll position and zoom across closing and reopening it. Saves a small file next to each PDF you read, so it also appears in cloud-synced folders (OneDrive, Dropbox, etc.)'}
             icon={`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 5.5C4 4.67 4.67 4 5.5 4H12v16H5.5A1.5 1.5 0 014 18.5v-13z"/><path d="M20 5.5c0-.83-.67-1.5-1.5-1.5H12v16h6.5a1.5 1.5 0 001.5-1.5v-13z"/><path d="M12 4v16" stroke-width="1"/></svg>`}
             label={t('view.readerMode') || 'Reader Mode'}
-            disabled={noPdf() || !readerTrackingPath(getActiveDocument())}
+            disabled={noPdf() || !readerTrackingPath(getActiveDocument()) || !!getActiveDocument()?._isLoading}
             active={!!getActiveDocument()?.readerModeActive}
             onClick={async () => {
               // Per-document, not global — see loader.js's Reader Mode
@@ -105,7 +105,9 @@ export default function ViewTab() {
               // toggle at once (written when switched on, removed when
               // switched off), see setReaderTracking. A document without a
               // file of its own (untitled, never saved) has nowhere to put
-              // one, so the button is disabled there.
+              // one, so the button is disabled there — and while the
+              // document is still loading, because only then is it known
+              // whether the file already has a stored position.
               const doc = getActiveDocument();
               if (!doc) return;
               const ok = await setReaderTracking(doc, !doc.readerModeActive);
