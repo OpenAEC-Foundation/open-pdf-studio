@@ -49,7 +49,13 @@ export function parsePageRange(rangeStr, totalPages) {
  *   deel: render only this part of the page, in whole pixels of the page
  *   rendered at `exportScale` (the print dialog renders just what lands on
  *   the sheet, see print-plaatsing.js renderDeel); markeringen: false = the
- *   PDF content without annotations.
+ *   document without the annotation layer ("Print: Document") — watermarks
+ *   and text edits stay, they are document content.
+ *
+ * This is output, not screen: the annotation layer is drawn without editing
+ * state — no selection frame or handles, no 2D cursor, rubber band, alignment
+ * guides or crop overlay — and with the real line weights instead of the
+ * screen's minimum-one-pixel rule (annotations/rendering/uitvoer-lagen.js).
  * @returns {Promise<HTMLCanvasElement>} The rendered canvas
  */
 export async function renderPageOffscreen(pageNum, exportScale, { deel = null, markeringen = true } = {}) {
@@ -81,7 +87,6 @@ export async function renderPageOffscreen(pageNum, exportScale, { deel = null, m
 
   const renderTask = page.render(renderContext);
   await renderTask.promise;
-  if (!markeringen) return pdfCanvas;
 
   // Create annotation canvas and render annotations
   const annCanvas = document.createElement('canvas');
@@ -93,13 +98,15 @@ export async function renderPageOffscreen(pageNum, exportScale, { deel = null, m
   const savedScale = state.documents[state.activeDocumentIndex].scale;
   state.documents[state.activeDocumentIndex].scale = exportScale;
 
+  const lagen = { uitvoer: true, markeringen };
   if (deel) {
     // The same shift in page coordinates (scale 1); watermarks keep the whole page.
     renderAnnotationsForPage(annCtx, pageNum, annCanvas.width, annCanvas.height, 1,
       { x: deel.x / exportScale, y: deel.y / exportScale },
-      { w: viewport.width / exportScale, h: viewport.height / exportScale });
+      { w: viewport.width / exportScale, h: viewport.height / exportScale }, lagen);
   } else {
-    renderAnnotationsForPage(annCtx, pageNum, annCanvas.width, annCanvas.height, 1);
+    renderAnnotationsForPage(annCtx, pageNum, annCanvas.width, annCanvas.height, 1,
+      undefined, undefined, lagen);
   }
 
   // Restore original scale
