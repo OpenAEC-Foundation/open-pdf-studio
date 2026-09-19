@@ -9,6 +9,55 @@ Var VPrinterCheckbox
 Var VPrinterState
 
 ; ============================================================
+; Virtual printer "Open PDF Printer"
+;
+; The work is done by two PowerShell scripts that the installer carries:
+; install-printer.ps1 and uninstall-printer.ps1, next to this file. Both are
+; GENERATED from src-tauri/src/print_formulieren.rs (the same source the app
+; uses for its own Install / Remove buttons); do not edit them by hand.
+;
+; - install: adds "Open PDF Printer" when it is not there yet. An existing
+;   one is left exactly as it is: it may be on the silent capture port that
+;   the app sets per user, and an upgrade must never put it back on the Save
+;   As port. Then removes the printer of older versions, "Open PDF Studio",
+;   and adds the extra paper sizes (A3L, A2L, A1L; A1 and A0 where missing) to
+;   the Windows print server. Printers whose driver accepts user-defined
+;   paper sizes then offer them; the built-in PDF driver has a fixed list.
+; - the new printer goes on PORTPROMPT: (Save As dialog). The silent capture
+;   port is a file in the profile of one user, while this installer runs
+;   elevated (possibly as another account) and installs for all users; the
+;   app switches to the capture port per user, without elevation.
+; - only printers that use the "Microsoft Print to PDF" driver are ever
+;   touched, so a printer of the user's own with the same name is safe.
+; ============================================================
+
+; Where this file and the two scripts are. Taken here, while this file is
+; being read: inside a macro the current file is the installer script.
+!define OPDS_HOOKS_DIR "${__FILEDIR__}"
+
+; PowerShell by full path, never through the search path (this installer
+; runs elevated from a downloads folder). The 64-bit one when this 32-bit
+; installer runs on 64-bit Windows.
+!macro OPDS_POWERSHELL_PATH _OUT
+  StrCpy ${_OUT} "$WINDIR\sysnative\WindowsPowerShell\v1.0\powershell.exe"
+  ${IfNot} ${FileExists} "${_OUT}"
+    StrCpy ${_OUT} "$SYSDIR\WindowsPowerShell\v1.0\powershell.exe"
+  ${EndIf}
+!macroend
+
+; Runs one of the printer scripts from the plugins folder (removed again
+; when the installer exits). _ARGS: extra arguments for the script, or "".
+; Leaves the exit code in $0: 0 = done, anything else = failed.
+!macro OPDS_RUN_PRINTER_SCRIPT _FILE _ARGS
+  InitPluginsDir
+  File "/oname=$PLUGINSDIR\${_FILE}" "${OPDS_HOOKS_DIR}\${_FILE}"
+  !insertmacro OPDS_POWERSHELL_PATH $1
+  nsExec::ExecToLog '"$1" -NoProfile -NonInteractive -InputFormat None -ExecutionPolicy Bypass -File "$PLUGINSDIR\${_FILE}" ${_ARGS}'
+  Pop $0
+  Delete "$PLUGINSDIR\${_FILE}"
+!macroend
+
+; ============================================================
 ; Page 1: File Association
 ; ============================================================
 Function FileAssocPageCreate
@@ -71,7 +120,7 @@ Function VPrinterPageCreate
   Pop $VPrinterCheckbox
   ${NSD_SetState} $VPrinterCheckbox ${BST_CHECKED}
 
-  ${NSD_CreateLabel} 25u 27u 100% 36u "Adds 'Open PDF Studio' to your Windows printers list.$\nWhen you print from any application and select this printer,$\na Save As dialog will appear to save the document as PDF."
+  ${NSD_CreateLabel} 25u 27u 100% 68u "Adds 'Open PDF Printer' to your Windows printers list. When you print$\nfrom any application and select this printer, the document is saved$\nas PDF.$\nAlso adds the paper sizes A3L, A2L and A1L (one A4 width longer than$\nA3, A2 and A1), and A1 and A0 where missing, to Windows, for printers$\nthat accept user-defined paper sizes.$\nA printer of an earlier version named 'Open PDF Studio' is replaced;$\nan existing 'Open PDF Printer' is kept as it is."
   Pop $0
 
   nsDialogs::Show
@@ -141,13 +190,20 @@ FunctionEnd
   Pop $0
   ${If} $0 != "Admin"
     DetailPrint "Virtual printer skipped (no admin privileges)."
+  ${ElseIf} $PassiveMode = 1
+  ${OrIf} $UpdateMode = 1
+    ; Silent update: the page with the checkbox was never shown. Bring a
+    ; printer that is already there up to date, never install a new one.
+    DetailPrint "Updating the 'Open PDF Printer' virtual printer, if installed..."
+    !insertmacro OPDS_RUN_PRINTER_SCRIPT "install-printer.ps1" "upgrade"
+    ${If} $0 == 0
+      DetailPrint "Virtual printer is up to date."
+    ${Else}
+      DetailPrint "Virtual printer update failed (exit code: $0)."
+    ${EndIf}
   ${ElseIf} $VPrinterState == ${BST_CHECKED}
-    DetailPrint "Installing Open PDF Studio virtual printer..."
-    nsExec::ExecToLog "powershell -ExecutionPolicy Bypass -NoProfile -Command $\"Remove-Printer -Name 'Open PDF Studio' -ErrorAction SilentlyContinue$\""
-    Pop $0
-    nsExec::ExecToLog "powershell -ExecutionPolicy Bypass -NoProfile -Command $\"Add-Printer -Name 'Open PDF Studio' -DriverName 'Microsoft Print to PDF' -PortName 'PORTPROMPT:'$\""
-    Pop $0
-    DetailPrint "Add-Printer exit code: $0"
+    DetailPrint "Installing the 'Open PDF Printer' virtual printer..."
+    !insertmacro OPDS_RUN_PRINTER_SCRIPT "install-printer.ps1" ""
     ${If} $0 == 0
       DetailPrint "Virtual printer installed successfully."
     ${Else}
@@ -172,17 +228,28 @@ FunctionEnd
   Delete "$INSTDIR\file-icon.ico"
   System::Call 'shell32::SHChangeNotify(i 0x08000000, i 0x0000, p 0, p 0)'
 
-  UserInfo::GetAccountType
-  Pop $0
-  ${If} $0 == "Admin"
-    DetailPrint "Removing Open PDF Studio virtual printer..."
-    nsExec::ExecToLog "powershell -ExecutionPolicy Bypass -NoProfile -Command $\"Remove-Printer -Name 'Open PDF Studio' -ErrorAction Stop$\""
+  ; An installer that uninstalls the previous version only to make room for
+  ; another one passes /KEEPPRINTER (installer.nsi, PageLeaveReinstall), and an
+  ; update passes /UPDATE: the printer then stays, on the port it has. It
+  ; goes only when the user really uninstalls the app.
+  ClearErrors
+  ${GetOptions} $CMDLINE "/KEEPPRINTER" $R0
+  ${IfNot} ${Errors}
+  ${OrIf} $UpdateMode = 1
+    DetailPrint "Keeping the virtual printer (another version is being installed)."
+  ${Else}
+    UserInfo::GetAccountType
     Pop $0
-    ${If} $0 == 0
-      DetailPrint "Virtual printer removed successfully."
-    ${Else}
-      DetailPrint "Virtual printer was not found or already removed."
+    ${If} $0 == "Admin"
+      DetailPrint "Removing the 'Open PDF Printer' virtual printer..."
+      !insertmacro OPDS_RUN_PRINTER_SCRIPT "uninstall-printer.ps1" ""
+      ${If} $0 == 0
+        DetailPrint "Virtual printer removed."
+      ${Else}
+        DetailPrint "Virtual printer could not be removed completely (exit code: $0)."
+      ${EndIf}
     ${EndIf}
   ${EndIf}
+  ClearErrors
 
 !macroend
