@@ -63,7 +63,9 @@
     "printJobSent": "인쇄 작업이 성공적으로 전송되었습니다.",
     "printFailed": "인쇄 실패:",
     "noPages": "페이지 없음",
-    "pageOf": "{{current}} / {{total}} 페이지"
+    "pageOf": "{{current}} / {{total}} 페이지",
+    "paperLabel": "용지: {{paper}}",
+    "pageSizeLabel": "페이지: {{size}}"
   },
   "insertPage": {
     "title": "페이지 삽입",

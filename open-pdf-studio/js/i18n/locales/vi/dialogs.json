@@ -63,7 +63,9 @@
     "printJobSent": "Đã gửi lệnh in thành công.",
     "printFailed": "In thất bại:",
     "noPages": "Không có trang",
-    "pageOf": "Trang {{current}} / {{total}}"
+    "pageOf": "Trang {{current}} / {{total}}",
+    "paperLabel": "Giấy: {{paper}}",
+    "pageSizeLabel": "Trang: {{size}}"
   },
   "insertPage": {
     "title": "Chèn Trang",

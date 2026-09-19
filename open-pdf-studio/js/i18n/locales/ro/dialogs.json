@@ -63,7 +63,9 @@
     "printJobSent": "Comanda de tiparire a fost trimisa cu succes.",
     "printFailed": "Tiparirea a esuat:",
     "noPages": "Nicio pagina",
-    "pageOf": "Pagina {{current}} din {{total}}"
+    "pageOf": "Pagina {{current}} din {{total}}",
+    "paperLabel": "Hârtie: {{paper}}",
+    "pageSizeLabel": "Pagină: {{size}}"
   },
   "insertPage": {
     "title": "Inserare pagini",

@@ -63,7 +63,9 @@
     "printJobSent": "Yazdırma işi başarıyla gönderildi.",
     "printFailed": "Yazdırma başarısız oldu:",
     "noPages": "Sayfa yok",
-    "pageOf": "Sayfa {{current}} / {{total}}"
+    "pageOf": "Sayfa {{current}} / {{total}}",
+    "paperLabel": "Kağıt: {{paper}}",
+    "pageSizeLabel": "Sayfa: {{size}}"
   },
   "insertPage": {
     "title": "Sayfa Ekle",

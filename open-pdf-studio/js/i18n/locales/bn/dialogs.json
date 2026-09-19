@@ -63,7 +63,9 @@
     "printJobSent": "মুদ্রণ কাজ সফলভাবে পাঠানো হয়েছে।",
     "printFailed": "মুদ্রণ ব্যর্থ:",
     "noPages": "কোনো পৃষ্ঠা নেই",
-    "pageOf": "পৃষ্ঠা {{current}} / {{total}}"
+    "pageOf": "পৃষ্ঠা {{current}} / {{total}}",
+    "paperLabel": "কাগজ: {{paper}}",
+    "pageSizeLabel": "পৃষ্ঠা: {{size}}"
   },
   "insertPage": {
     "title": "পৃষ্ঠা সন্নিবেশ",

@@ -63,7 +63,9 @@
     "printJobSent": "ส่งงานพิมพ์สำเร็จ",
     "printFailed": "การพิมพ์ล้มเหลว:",
     "noPages": "ไม่มีหน้า",
-    "pageOf": "หน้า {{current}} จาก {{total}}"
+    "pageOf": "หน้า {{current}} จาก {{total}}",
+    "paperLabel": "กระดาษ: {{paper}}",
+    "pageSizeLabel": "หน้า: {{size}}"
   },
   "insertPage": {
     "title": "แทรกหน้า",

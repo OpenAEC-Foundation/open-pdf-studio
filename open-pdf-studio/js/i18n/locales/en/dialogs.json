@@ -90,6 +90,8 @@
     "printFailed": "Print failed:",
     "noPages": "No pages",
     "pageOf": "Page {{current}} of {{total}}",
+    "paperLabel": "Paper: {{paper}}",
+    "pageSizeLabel": "Page: {{size}}",
     "firstPage": "First Page",
     "prevPage": "Previous Page",
     "nextPage": "Next Page",

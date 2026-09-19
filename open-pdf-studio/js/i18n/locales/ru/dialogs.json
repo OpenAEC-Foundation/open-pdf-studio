@@ -63,7 +63,9 @@
     "printJobSent": "Задание печати успешно отправлено.",
     "printFailed": "Ошибка печати:",
     "noPages": "Нет страниц",
-    "pageOf": "Страница {{current}} из {{total}}"
+    "pageOf": "Страница {{current}} из {{total}}",
+    "paperLabel": "Бумага: {{paper}}",
+    "pageSizeLabel": "Страница: {{size}}"
   },
   "insertPage": {
     "title": "Вставка страниц",
