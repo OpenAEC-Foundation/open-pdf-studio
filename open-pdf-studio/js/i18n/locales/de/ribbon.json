@@ -178,7 +178,8 @@
     "manageWatermarks": "Wasserzeichen verwalten",
     "manage": "Verwalten",
     "ocr": "Text erkennen (OCR)",
-    "straighten": "Seite Begradigen"
+    "straighten": "Seite Begradigen",
+    "shiftPage": "Seite verschieben"
   },
   "help": {
     "information": "Informationen",

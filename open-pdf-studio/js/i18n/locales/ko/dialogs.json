@@ -346,6 +346,25 @@
     "done": "{{count}}개 페이지를 {{angle}}° 보정했습니다",
     "alreadyStraight": "선이 이미 똑바릅니다 — 보정이 필요하지 않습니다."
   },
+  "shiftPage": {
+    "title": "페이지 이동",
+    "apply": "이동",
+    "reset": "초기화",
+    "horizontal": "가로 (mm):",
+    "vertical": "세로 (mm):",
+    "allPages": "모든 페이지",
+    "evenPages": "짝수 페이지",
+    "oddPages": "홀수 페이지",
+    "fromPage": "시작 페이지:",
+    "noShift": "이동 값이 입력되지 않았습니다 — 적용할 내용이 없습니다.",
+    "dragInfo": "미리보기를 드래그하여 페이지를 이동하거나 아래에 정확한 오프셋을 밀리미터 단위로 입력하세요.",
+    "applyTo": "적용 대상:",
+    "currentPage": "현재 페이지",
+    "noPages": "내용이 있는 일치하는 페이지가 없습니다 — 이동된 항목이 없습니다.",
+    "shifting": "페이지 이동 중...",
+    "failed": "페이지를 이동할 수 없습니다.",
+    "encrypted": "이 문서는 암호화되어 있어 페이지를 이동할 수 없습니다."
+  },
   "signatureVerification": {
     "checking": "디지털 서명을 확인하는 중…",
     "barLabel": "디지털 서명",

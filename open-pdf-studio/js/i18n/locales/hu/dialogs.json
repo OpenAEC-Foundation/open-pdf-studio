@@ -346,6 +346,25 @@
     "done": "{{count}} oldal kiegyenesítve {{angle}}°-kal",
     "alreadyStraight": "A vonal már egyenes — nincs szükség javításra."
   },
+  "shiftPage": {
+    "title": "Oldal eltolása",
+    "apply": "Eltolás",
+    "reset": "Visszaállítás",
+    "horizontal": "Vízszintes (mm):",
+    "vertical": "Függőleges (mm):",
+    "allPages": "Összes oldal",
+    "evenPages": "Páros oldalak",
+    "oddPages": "Páratlan oldalak",
+    "fromPage": "Ettől az oldaltól:",
+    "noShift": "Nincs megadva eltolás — nincs mit alkalmazni.",
+    "dragInfo": "Húzza az előnézetet az oldal eltolásához, vagy adja meg alább a pontos eltolást milliméterben.",
+    "applyTo": "Alkalmazás erre:",
+    "currentPage": "Aktuális oldal",
+    "noPages": "Nincs megfelelő, tartalommal rendelkező oldal — semmi sem lett eltolva.",
+    "shifting": "Oldal eltolása...",
+    "failed": "Az oldalt nem sikerült eltolni.",
+    "encrypted": "Ez a dokumentum titkosított, ezért az oldalai nem tolhatók el."
+  },
   "signatureVerification": {
     "checking": "Digitális aláírások ellenőrzése…",
     "barLabel": "Digitális aláírások",

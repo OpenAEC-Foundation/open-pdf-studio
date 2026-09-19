@@ -178,7 +178,8 @@
     "manageWatermarks": "Spravovat vodoznaky",
     "manage": "Spravovat",
     "ocr": "Rozpoznávání textu (OCR)",
-    "straighten": "Narovnat Stránku"
+    "straighten": "Narovnat Stránku",
+    "shiftPage": "Posunout stránku"
   },
   "help": {
     "information": "Informace",

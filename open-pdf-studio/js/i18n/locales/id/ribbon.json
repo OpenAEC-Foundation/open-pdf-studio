@@ -178,7 +178,8 @@
     "manageWatermarks": "Kelola Tanda Air",
     "manage": "Kelola",
     "ocr": "Pengenalan Teks (OCR)",
-    "straighten": "Luruskan Halaman"
+    "straighten": "Luruskan Halaman",
+    "shiftPage": "Geser halaman"
   },
   "help": {
     "information": "Informasi",

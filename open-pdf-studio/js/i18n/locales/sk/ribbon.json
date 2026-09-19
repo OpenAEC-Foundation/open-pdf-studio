@@ -178,7 +178,8 @@
     "manageWatermarks": "Spravovať vodotlače",
     "manage": "Spravovať",
     "ocr": "Rozpoznávanie textu (OCR)",
-    "straighten": "Narovnať Stránku"
+    "straighten": "Narovnať Stránku",
+    "shiftPage": "Posunúť stránku"
   },
   "help": {
     "information": "Informácie",

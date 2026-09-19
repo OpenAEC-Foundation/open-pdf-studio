@@ -178,7 +178,8 @@
     "manageWatermarks": "Gérer les filigranes",
     "manage": "Gérer",
     "ocr": "Reconnaissance de texte (OCR)",
-    "straighten": "Redresser la Page"
+    "straighten": "Redresser la Page",
+    "shiftPage": "Décaler la page"
   },
   "help": {
     "information": "Informations",

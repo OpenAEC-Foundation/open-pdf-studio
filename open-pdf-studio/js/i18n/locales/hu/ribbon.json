@@ -178,7 +178,8 @@
     "manageWatermarks": "Vízjelek kezelése",
     "manage": "Kezelés",
     "ocr": "Szövegfelismerés (OCR)",
-    "straighten": "Oldal Egyenesítése"
+    "straighten": "Oldal Egyenesítése",
+    "shiftPage": "Oldal eltolása"
   },
   "help": {
     "information": "Információ",

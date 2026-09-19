@@ -178,7 +178,8 @@
     "manageWatermarks": "Administrar marcas de agua",
     "manage": "Administrar",
     "ocr": "Reconocimiento de texto (OCR)",
-    "straighten": "Enderezar Página"
+    "straighten": "Enderezar Página",
+    "shiftPage": "Desplazar página"
   },
   "help": {
     "information": "Información",

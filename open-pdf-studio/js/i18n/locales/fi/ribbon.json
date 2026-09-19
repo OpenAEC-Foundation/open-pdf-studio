@@ -178,7 +178,8 @@
     "manageWatermarks": "Hallitse vesileimoja",
     "manage": "Hallitse",
     "ocr": "Tekstintunnistus (OCR)",
-    "straighten": "Suorista Sivu"
+    "straighten": "Suorista Sivu",
+    "shiftPage": "Siirrä sivua"
   },
   "help": {
     "information": "Tiedot",

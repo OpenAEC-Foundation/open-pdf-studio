@@ -5,27 +5,22 @@ import { parsePageRange } from "./exporter.js";
 import { recordPageStructure } from "../core/undo-manager.js";
 import { showLoading, hideLoading } from "../ui/chrome/dialogs.js";
 import { cloneAnnotation } from "../annotations/factory.js";
+import { applyMoveGeneric } from "../annotations/transforms.js";
+import { shiftAnnotation } from "./shift-page-geometry.js";
 import { PDFDocument } from "pdf-lib";
 
 const MM_TO_POINTS = 72 / 25.4;
 
 /**
- * Translate an annotation in place by (dx, dy) in visual PDF points.
- * Mirrors the position models used across the annotation types so that,
- * when a page is recentred, every part of the annotation moves with the
- * content it belongs to.
+ * Translate an annotation in place by (dx, dy) in visual PDF points, so
+ * that every part of it moves with the page content it belongs to.
+ * Goes through the app's single move primitive (applyMoveGeneric), which
+ * knows every position-bearing field — leader lines, angle vertices, spline
+ * control points, hole contours, text-markup quads, textbox leaders — so no
+ * annotation type is left behind or torn apart.
  */
-function translateAnnotation(ann, dx, dy) {
-  if (dx === 0 && dy === 0) return;
-  if (ann.x !== undefined) ann.x += dx;
-  if (ann.y !== undefined) ann.y += dy;
-  if (ann.startX !== undefined) { ann.startX += dx; ann.startY += dy; }
-  if (ann.endX !== undefined) { ann.endX += dx; ann.endY += dy; }
-  if (ann.arrowX !== undefined) { ann.arrowX += dx; ann.arrowY += dy; }
-  if (ann.kneeX !== undefined) { ann.kneeX += dx; ann.kneeY += dy; }
-  if (Array.isArray(ann.path)) ann.path.forEach((p) => { p.x += dx; p.y += dy; });
-  if (Array.isArray(ann.points)) ann.points.forEach((p) => { p.x += dx; p.y += dy; });
-  if (Array.isArray(ann.rects)) ann.rects.forEach((r) => { r.x += dx; r.y += dy; });
+export function translateAnnotation(ann, dx, dy) {
+  shiftAnnotation(ann, dx, dy, applyMoveGeneric);
 }
 
 /**

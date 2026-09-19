@@ -346,6 +346,25 @@
     "done": "已拉直 {{count}} 頁，角度 {{angle}}°",
     "alreadyStraight": "線條已經是直的，無需校正。"
   },
+  "shiftPage": {
+    "title": "移動頁面",
+    "apply": "移動",
+    "reset": "重設",
+    "horizontal": "水平 (mm):",
+    "vertical": "垂直 (mm):",
+    "allPages": "所有頁面",
+    "evenPages": "偶數頁",
+    "oddPages": "奇數頁",
+    "fromPage": "起始頁:",
+    "noShift": "尚未輸入位移量——沒有可套用的內容。",
+    "dragInfo": "拖曳預覽以移動頁面，或在下方輸入精確的毫米位移量。",
+    "applyTo": "套用至:",
+    "currentPage": "目前頁面",
+    "noPages": "沒有符合且含內容的頁面——未移動任何內容。",
+    "shifting": "正在移動頁面...",
+    "failed": "無法移動頁面。",
+    "encrypted": "此文件已加密，因此無法移動其頁面。"
+  },
   "signatureVerification": {
     "checking": "正在检查数字签名…",
     "barLabel": "数字签名",

@@ -346,6 +346,25 @@
     "done": "{{count}} halaman diluruskan sebanyak {{angle}}°",
     "alreadyStraight": "Garisan sudah lurus — tiada pembetulan diperlukan."
   },
+  "shiftPage": {
+    "title": "Alih halaman",
+    "apply": "Alih",
+    "reset": "Tetapkan Semula",
+    "horizontal": "Mendatar (mm):",
+    "vertical": "Menegak (mm):",
+    "allPages": "Semua halaman",
+    "evenPages": "Halaman genap",
+    "oddPages": "Halaman ganjil",
+    "fromPage": "Dari halaman:",
+    "noShift": "Tiada anjakan dimasukkan — tiada apa-apa untuk digunakan.",
+    "dragInfo": "Seret pratonton untuk mengalihkan halaman, atau masukkan ofset tepat dalam milimeter di bawah.",
+    "applyTo": "Gunakan pada:",
+    "currentPage": "Halaman semasa",
+    "noPages": "Tiada halaman sepadan yang mempunyai kandungan — tiada apa-apa yang dialihkan.",
+    "shifting": "Mengalihkan halaman...",
+    "failed": "Halaman tidak dapat dialihkan.",
+    "encrypted": "Dokumen ini disulitkan, jadi halamannya tidak boleh dialihkan."
+  },
   "signatureVerification": {
     "checking": "Menyemak tandatangan digital…",
     "barLabel": "Tandatangan digital",

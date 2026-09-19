@@ -178,7 +178,8 @@
     "manageWatermarks": "إدارة العلامات المائية",
     "manage": "إدارة",
     "ocr": "التعرف على النص (OCR)",
-    "straighten": "تسوية الصفحة"
+    "straighten": "تسوية الصفحة",
+    "shiftPage": "إزاحة الصفحة"
   },
   "help": {
     "information": "معلومات",

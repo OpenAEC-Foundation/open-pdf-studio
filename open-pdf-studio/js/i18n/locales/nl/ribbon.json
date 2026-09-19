@@ -273,7 +273,8 @@
     "reorderPages": "Volgorde",
     "reorderPagesTitle": "Open miniaturen om pagina’s in een nieuwe volgorde te slepen",
     "ocr": "Tekst herkennen (OCR)",
-    "straighten": "Pagina Rechtzetten"
+    "straighten": "Pagina Rechtzetten",
+    "shiftPage": "Pagina verschuiven"
   },
   "help": {
     "information": "Informatie",

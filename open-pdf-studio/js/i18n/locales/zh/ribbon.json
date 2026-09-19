@@ -178,7 +178,8 @@
     "manageWatermarks": "管理水印",
     "manage": "管理",
     "ocr": "文字識別（OCR）",
-    "straighten": "拉直頁面"
+    "straighten": "拉直頁面",
+    "shiftPage": "移動頁面"
   },
   "help": {
     "information": "信息",

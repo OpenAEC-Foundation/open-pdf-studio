@@ -178,7 +178,8 @@
     "manageWatermarks": "Hantera vattenstamplar",
     "manage": "Hantera",
     "ocr": "Textigenkänning (OCR)",
-    "straighten": "Räta Ut Sidan"
+    "straighten": "Räta Ut Sidan",
+    "shiftPage": "Flytta sida"
   },
   "help": {
     "information": "Information",

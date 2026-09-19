@@ -178,7 +178,8 @@
     "manageWatermarks": "Administrer vandmærker",
     "manage": "Administrer",
     "ocr": "Tekstgenkendelse (OCR)",
-    "straighten": "Ret Side"
+    "straighten": "Ret Side",
+    "shiftPage": "Forskyd side"
   },
   "help": {
     "information": "Information",

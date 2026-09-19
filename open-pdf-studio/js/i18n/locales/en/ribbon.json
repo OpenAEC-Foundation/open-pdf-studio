@@ -273,7 +273,8 @@
     "reorderPages": "Reorder",
     "reorderPagesTitle": "Open thumbnails to drag pages into a new order",
     "ocr": "Recognize Text (OCR)",
-    "straighten": "Straighten Page"
+    "straighten": "Straighten Page",
+    "shiftPage": "Shift Page"
   },
   "help": {
     "settings": "Settings",

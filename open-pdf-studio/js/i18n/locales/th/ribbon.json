@@ -178,7 +178,8 @@
     "manageWatermarks": "จัดการลายน้ำ",
     "manage": "จัดการ",
     "ocr": "การจดจำข้อความ (OCR)",
-    "straighten": "จัดหน้าให้ตรง"
+    "straighten": "จัดหน้าให้ตรง",
+    "shiftPage": "เลื่อนหน้า"
   },
   "help": {
     "information": "ข้อมูล",

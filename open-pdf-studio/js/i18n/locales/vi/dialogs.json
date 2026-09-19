@@ -346,6 +346,25 @@
     "done": "Đã làm thẳng {{count}} trang với góc {{angle}}°",
     "alreadyStraight": "Đường thẳng đã ngay ngắn — không cần hiệu chỉnh."
   },
+  "shiftPage": {
+    "title": "Dịch chuyển trang",
+    "apply": "Dịch chuyển",
+    "reset": "Đặt lại",
+    "horizontal": "Ngang (mm):",
+    "vertical": "Dọc (mm):",
+    "allPages": "Tất cả trang",
+    "evenPages": "Trang chẵn",
+    "oddPages": "Trang lẻ",
+    "fromPage": "Từ trang:",
+    "noShift": "Chưa nhập độ dịch chuyển — không có gì để áp dụng.",
+    "dragInfo": "Kéo bản xem trước để dịch chuyển trang, hoặc nhập độ lệch chính xác theo milimét bên dưới.",
+    "applyTo": "Áp dụng cho:",
+    "currentPage": "Trang hiện tại",
+    "noPages": "Không có trang phù hợp nào có nội dung — không có gì được dịch chuyển.",
+    "shifting": "Đang dịch chuyển trang...",
+    "failed": "Không thể dịch chuyển trang.",
+    "encrypted": "Tài liệu này được mã hóa nên không thể dịch chuyển các trang của nó."
+  },
   "signatureVerification": {
     "checking": "Đang kiểm tra chữ ký số…",
     "barLabel": "Chữ ký số",

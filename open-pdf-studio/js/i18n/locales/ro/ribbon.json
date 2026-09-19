@@ -178,7 +178,8 @@
     "manageWatermarks": "Administrare filigrane",
     "manage": "Administrare",
     "ocr": "Recunoaștere text (OCR)",
-    "straighten": "Îndreaptă Pagina"
+    "straighten": "Îndreaptă Pagina",
+    "shiftPage": "Deplasează pagina"
   },
   "help": {
     "information": "Informatii",

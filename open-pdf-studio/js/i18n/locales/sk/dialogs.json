@@ -346,6 +346,25 @@
     "done": "Narovnaných {{count}} strán o {{angle}}°",
     "alreadyStraight": "Čiara je už rovná — korekcia nie je potrebná."
   },
+  "shiftPage": {
+    "title": "Posunúť stránku",
+    "apply": "Posunúť",
+    "reset": "Obnoviť",
+    "horizontal": "Vodorovne (mm):",
+    "vertical": "Zvislo (mm):",
+    "allPages": "Všetky strany",
+    "evenPages": "Párne strany",
+    "oddPages": "Nepárne strany",
+    "fromPage": "Od strany:",
+    "noShift": "Nebol zadaný žiadny posun — nie je čo použiť.",
+    "dragInfo": "Potiahnutím náhľadu posuniete stránku, alebo nižšie zadajte presné posuny v milimetroch.",
+    "applyTo": "Použiť na:",
+    "currentPage": "Aktuálna strana",
+    "noPages": "Žiadna zodpovedajúca strana s obsahom — nič nebolo posunuté.",
+    "shifting": "Posúva sa stránka...",
+    "failed": "Stránku sa nepodarilo posunúť.",
+    "encrypted": "Tento dokument je šifrovaný, preto jeho strany nemožno posunúť."
+  },
   "signatureVerification": {
     "checking": "Kontrola digitálnych podpisov…",
     "barLabel": "Digitálne podpisy",

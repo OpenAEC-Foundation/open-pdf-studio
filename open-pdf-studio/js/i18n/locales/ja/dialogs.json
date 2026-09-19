@@ -346,6 +346,25 @@
     "done": "{{count}} ページを {{angle}}° 補正しました",
     "alreadyStraight": "線はすでにまっすぐです。補正の必要はありません。"
   },
+  "shiftPage": {
+    "title": "ページをシフト",
+    "apply": "シフト",
+    "reset": "リセット",
+    "horizontal": "水平方向 (mm):",
+    "vertical": "垂直方向 (mm):",
+    "allPages": "すべてのページ",
+    "evenPages": "偶数ページ",
+    "oddPages": "奇数ページ",
+    "fromPage": "開始ページ:",
+    "noShift": "シフト量が入力されていません — 適用するものがありません。",
+    "dragInfo": "プレビューをドラッグしてページをシフトするか、下に正確なオフセットをミリメートル単位で入力してください。",
+    "applyTo": "適用先:",
+    "currentPage": "現在のページ",
+    "noPages": "内容のある該当ページがありません — 何もシフトされませんでした。",
+    "shifting": "ページをシフトしています...",
+    "failed": "ページをシフトできませんでした。",
+    "encrypted": "この文書は暗号化されているため、ページをシフトできません。"
+  },
   "signatureVerification": {
     "checking": "デジタル署名を確認しています…",
     "barLabel": "デジタル署名",

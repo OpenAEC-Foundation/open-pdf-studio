@@ -178,7 +178,8 @@
     "manageWatermarks": "Filigranları Yönet",
     "manage": "Yönet",
     "ocr": "Metin Tanıma (OCR)",
-    "straighten": "Sayfayı Düzelt"
+    "straighten": "Sayfayı Düzelt",
+    "shiftPage": "Sayfayı kaydır"
   },
   "help": {
     "information": "Bilgi",

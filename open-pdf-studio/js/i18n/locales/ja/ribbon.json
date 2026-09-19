@@ -178,7 +178,8 @@
     "manageWatermarks": "透かしを管理",
     "manage": "管理",
     "ocr": "文字認識（OCR）",
-    "straighten": "ページを補正"
+    "straighten": "ページを補正",
+    "shiftPage": "ページをシフト"
   },
   "help": {
     "information": "情報",

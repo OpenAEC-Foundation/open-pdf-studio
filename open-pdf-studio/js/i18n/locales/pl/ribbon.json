@@ -178,7 +178,8 @@
     "manageWatermarks": "Zarządzaj znakami wodnymi",
     "manage": "Zarządzaj",
     "ocr": "Rozpoznawanie tekstu (OCR)",
-    "straighten": "Wyprostuj Stronę"
+    "straighten": "Wyprostuj Stronę",
+    "shiftPage": "Przesuń stronę"
   },
   "help": {
     "information": "Informacje",

@@ -178,7 +178,8 @@
     "manageWatermarks": "مدیریت واترمارک‌ها",
     "manage": "مدیریت",
     "ocr": "تشخیص متن (OCR)",
-    "straighten": "صاف کردن صفحه"
+    "straighten": "صاف کردن صفحه",
+    "shiftPage": "جابه‌جایی صفحه"
   },
   "help": {
     "information": "اطلاعات",

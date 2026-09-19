@@ -178,7 +178,8 @@
     "manageWatermarks": "Upravljaj vodenim žigovima",
     "manage": "Upravljaj",
     "ocr": "Prepoznavanje teksta (OCR)",
-    "straighten": "Ispravi Stranicu"
+    "straighten": "Ispravi Stranicu",
+    "shiftPage": "Pomakni stranicu"
   },
   "help": {
     "information": "Informacije",

@@ -178,7 +178,8 @@
     "manageWatermarks": "Quản lý Hình mờ",
     "manage": "Quản lý",
     "ocr": "Nhận dạng văn bản (OCR)",
-    "straighten": "Làm Thẳng Trang"
+    "straighten": "Làm Thẳng Trang",
+    "shiftPage": "Dịch chuyển trang"
   },
   "help": {
     "information": "Thông tin",
