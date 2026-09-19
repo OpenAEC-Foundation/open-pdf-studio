@@ -20,6 +20,7 @@ import { extractAnnotationColors } from './loader/color-extraction.js';
 import { extractStampImagesHybrid } from './loader/image-extraction.js';
 import { convertPdfAnnotation } from './loader/annotation-converter.js';
 import { statusReplyFromPdfAnnotation, applyStatusReplies } from './loader/status-replies.js';
+import { loadIfNeeded } from './queued-load.js';
 
 
 // Convert one batch of pdf.js annotations and push them to doc.annotations,
@@ -711,6 +712,19 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
   }
 }
 
+// Load a file into the tab an open route just got from createTab() - unless
+// that tab already has its document. For a path that is already open
+// createTab() returns the EXISTING tab, and loadPDF() would empty it: back to
+// page 1, unsaved annotations and undo history gone, while doc.modified stays
+// set so the next save writes the emptied model over the file. Such a tab is
+// only shown (createTab switched to it). Returns true when a load ran.
+//
+// The reload after an export wrote a new file to a path that may be open is
+// deliberate and keeps calling loadPDF() directly.
+export function loadPDFIfNeeded(filePath, docIndex, preloadedData = null) {
+  return loadIfNeeded(state.documents, docIndex, () => loadPDF(filePath, docIndex, preloadedData));
+}
+
 // Open file dialog and load PDF
 export async function openPDFFile() {
   try {
@@ -742,7 +756,7 @@ export async function openPDFFile() {
       for (const path of paths) {
         // Create a new tab for the file (will switch to existing tab if already open)
         const { index } = createTab(path);
-        await loadPDF(path, index);
+        await loadPDFIfNeeded(path, index);
       }
     }
   } catch (error) {
