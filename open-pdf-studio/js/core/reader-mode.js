@@ -1,9 +1,11 @@
 // Reader Mode: per-PDF "where was I" memory — page, scroll position, and
 // zoom — saved on close and restored on the next open of that same file,
-// gated per-document via doc.readerModeActive (see loader.js's restore
-// block and tabs.js's closeTab): a file starts with tracking off, turns on
-// automatically on open if it already has a sidecar, or manually via the
-// ribbon toggle. This is NOT a session restore (which files were open, see
+// gated per-document via doc.readerModeActive (rules in
+// reader-mode-tracking.js, view glue in pdf/reader-mode-view.js): a file
+// starts with tracking off, turns on automatically on open if it already has
+// a sidecar, or manually via the ribbon toggle. The sidecar IS the
+// per-document setting: switching tracking on writes it at once, switching
+// it off removes it. This is NOT a session restore (which files were open, see
 // main.js's restoreLastSession) and NOT a different rendering path —
 // bookmarks/highlights/annotations are completely untouched; it only
 // remembers a reading position per file.
@@ -67,23 +69,59 @@ export async function getReaderPosition(filePath) {
  * Save the reading position for a file. No-op if `filePath` is falsy.
  * @param {string} filePath
  * @param {{page: number, scale: number, scrollTop: number, scrollHeight: number, viewMode: string}} position
+ * @returns {Promise<boolean>} false when nothing could be written
  */
 export async function saveReaderPosition(filePath, position) {
-  if (!filePath) return;
+  if (!filePath) return false;
   const data = { ...position, savedAt: Date.now() };
   if (isTauri()) {
     try {
       await writeBinaryFile(sidecarPath(filePath), encoder.encode(JSON.stringify(data)));
+      return true;
     } catch (e) {
-      // Read-only folder, moved/removed file, etc. — losing the reading
-      // position is a minor inconvenience, not worth surfacing to the user.
+      // Read-only folder, moved/removed file, etc. At close, losing the
+      // reading position is a minor inconvenience; the ribbon toggle does
+      // report it, because there it means tracking cannot be switched on.
       console.warn('Failed to save reader-mode position sidecar:', e);
+      return false;
     }
-    return;
   }
   try {
     localStorage.setItem(LOCAL_STORAGE_PREFIX + filePath, JSON.stringify(data));
+    return true;
   } catch (e) {
     console.warn('Failed to save reader-mode position:', e);
+    return false;
+  }
+}
+
+/**
+ * Forget the reading position for a file: removes the sidecar (or the
+ * localStorage entry outside Tauri). This is what makes switching tracking
+ * off stick — a sidecar left behind would switch tracking back on at the
+ * next open and jump to a stale position.
+ * @param {string} filePath
+ * @returns {Promise<boolean>} true when no stored position is left
+ */
+export async function clearReaderPosition(filePath) {
+  if (!filePath) return true;
+  if (isTauri()) {
+    const fs = window.__TAURI__.fs;
+    const target = sidecarPath(filePath);
+    try {
+      if (fs?.exists && !(await fs.exists(target))) return true;
+      await fs.remove(target);
+      return true;
+    } catch (e) {
+      console.warn('Failed to remove reader-mode position sidecar:', e);
+      return false;
+    }
+  }
+  try {
+    localStorage.removeItem(LOCAL_STORAGE_PREFIX + filePath);
+    return true;
+  } catch (e) {
+    console.warn('Failed to remove reader-mode position:', e);
+    return false;
   }
 }
