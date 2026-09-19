@@ -129,3 +129,27 @@ export function shiftOffsetPoints(dxMm, dyMm) {
   if (!(Math.abs(dx) > 0.001 || Math.abs(dy) > 0.001)) return null;
   return { dx: dx === 0 ? 0 : dx, dy: dy === 0 ? 0 : dy }; // no negative zero
 }
+
+/**
+ * The number a millimetre field holds while the user types. A number input
+ * reports an empty value for text that is not a number YET ("-", "", "1e"):
+ * that reads as 0 here, and the caller must not write it back into the field
+ * — doing so wipes the minus sign, and the digits typed next then give the
+ * positive number. Always finite and within ±MAX_SHIFT_MM.
+ */
+export function parseShiftInput(text) {
+  const value = parseFloat(String(text ?? "").trim().replace(",", "."));
+  if (Number.isNaN(value)) return 0;
+  return Math.max(-MAX_SHIFT_MM, Math.min(MAX_SHIFT_MM, value));
+}
+
+/**
+ * The start page a field holds while the user types, or null when the text
+ * is not a page number yet (empty while replacing "3" by "5") — the caller
+ * then keeps the previous value instead of rewriting the field.
+ */
+export function parseFromPageInput(text, totalPages) {
+  const value = parseInt(String(text ?? "").trim(), 10);
+  if (!Number.isFinite(value)) return null;
+  return Math.max(1, Math.min(value, Math.max(1, Math.floor(Number(totalPages)) || 1)));
+}

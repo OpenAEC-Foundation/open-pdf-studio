@@ -2,8 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
-  MAX_SHIFT_MM, MM_TO_POINTS, applyOcrShift, normalizeRotation, resolveTargetPages, shiftAnnotation,
-  shiftOcrWords, shiftOffsetPoints, visualToContentOffset,
+  MAX_SHIFT_MM, MM_TO_POINTS, applyOcrShift, normalizeRotation, parseFromPageInput, parseShiftInput,
+  resolveTargetPages, shiftAnnotation, shiftOcrWords, shiftOffsetPoints, visualToContentOffset,
 } from "./shift-page-geometry.js";
 
 test("'current' ignores fromPage and returns only the current page", () => {
@@ -219,4 +219,35 @@ test("an absurd offset is bounded and never reaches the file as an exponent", ()
   assert.equal(offset.dx, MAX_SHIFT_MM * MM_TO_POINTS);
   assert.equal(offset.dy, MAX_SHIFT_MM * MM_TO_POINTS);
   assert.ok(Number.isFinite(offset.dx) && !String(offset.dx).includes("e"));
+});
+
+// ── What the dialog's number fields hold while typing ──
+
+test("typing a negative offset: the intermediate states read as 0, the result keeps its sign", () => {
+  // Select all, then "-", "5": a number input reports "" after the "-".
+  assert.equal(parseShiftInput(""), 0);
+  assert.equal(parseShiftInput("-"), 0);
+  assert.equal(parseShiftInput("-5"), -5);
+  assert.equal(parseShiftInput("-5.5"), -5.5);
+  assert.equal(parseShiftInput("7.25"), 7.25);
+  assert.equal(parseShiftInput("3,5"), 3.5);
+  assert.equal(parseShiftInput(" 12 "), 12);
+});
+
+test("text that is no number, or an absurd one, never leaves the field as such", () => {
+  assert.equal(parseShiftInput("abc"), 0);
+  assert.equal(parseShiftInput(null), 0);
+  assert.equal(parseShiftInput(undefined), 0);
+  assert.equal(parseShiftInput("1e308"), MAX_SHIFT_MM);
+  assert.equal(parseShiftInput("-1e308"), -MAX_SHIFT_MM);
+  assert.equal(parseShiftInput("Infinity"), MAX_SHIFT_MM);
+});
+
+test("the start page field keeps its value while it is being retyped", () => {
+  assert.equal(parseFromPageInput("", 10), null, "empty while replacing the number: keep the old value");
+  assert.equal(parseFromPageInput("5", 10), 5);
+  assert.equal(parseFromPageInput("0", 10), 1);
+  assert.equal(parseFromPageInput("99", 10), 10);
+  assert.equal(parseFromPageInput("2.7", 10), 2);
+  assert.equal(parseFromPageInput("x", 10), null);
 });

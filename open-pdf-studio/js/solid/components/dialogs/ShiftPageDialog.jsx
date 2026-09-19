@@ -1,10 +1,10 @@
-import { createSignal, onMount, Show } from 'solid-js';
+import { createSignal, onMount, Show, untrack } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog, showMessage } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { MAX_SHIFT_MM, MM_TO_POINTS, parseFromPageInput, parseShiftInput } from '../../../pdf/shift-page-geometry.js';
 
 const PREVIEW_MAX_WIDTH = 260;
-const MM_TO_POINTS = 72 / 25.4;
 
 export default function ShiftPageDialog(props) {
   const { t } = useTranslation('dialogs');
@@ -20,6 +20,8 @@ export default function ShiftPageDialog(props) {
 
   let previewBoxRef;
   let previewImgRef;
+  let dxInputRef;
+  let dyInputRef;
   let pxPerMm = 1;
   let dragging = false;
   let dragStartX = 0;
@@ -32,9 +34,19 @@ export default function ShiftPageDialog(props) {
     previewImgRef.style.transform = `translate(${dxMm() * pxPerMm}px, ${-dyMm() * pxPerMm}px)`;
   };
 
+  // The number fields are NOT bound to the signals: a bound field is
+  // rewritten on every keystroke, and the "" a number input reports after a
+  // typed "-" came back as "0", turning -5 into 5. The fields are written only
+  // when the value changes from outside the field (drag, reset) or on commit.
+  const writeFields = () => {
+    if (dxInputRef) dxInputRef.value = String(dxMm());
+    if (dyInputRef) dyInputRef.value = String(dyMm());
+  };
+
   const reset = () => {
     setDxMm(0);
     setDyMm(0);
+    writeFields();
     applyPreviewTransform();
   };
 
@@ -76,8 +88,9 @@ export default function ShiftPageDialog(props) {
     if (!dragging) return;
     const dxPx = e.clientX - dragStartX;
     const dyPx = e.clientY - dragStartY;
-    setDxMm(Math.round((dragStartDx + dxPx / pxPerMm) * 10) / 10);
-    setDyMm(Math.round((dragStartDy - dyPx / pxPerMm) * 10) / 10);
+    setDxMm(parseShiftInput(Math.round((dragStartDx + dxPx / pxPerMm) * 10) / 10));
+    setDyMm(parseShiftInput(Math.round((dragStartDy - dyPx / pxPerMm) * 10) / 10));
+    writeFields();
     applyPreviewTransform();
   };
 
@@ -156,21 +169,29 @@ export default function ShiftPageDialog(props) {
         <div class="crop-margins-row">
           <label class="crop-margins-label">{t('shiftPage.horizontal')}</label>
           <input
+            ref={dxInputRef}
             type="number"
             class="crop-margins-input"
-            value={dxMm()}
+            value="0"
+            min={-MAX_SHIFT_MM}
+            max={MAX_SHIFT_MM}
             step="0.5"
-            onInput={(e) => { setDxMm(parseFloat(e.target.value) || 0); applyPreviewTransform(); }}
+            onInput={(e) => { setDxMm(parseShiftInput(e.target.value)); applyPreviewTransform(); }}
+            onChange={writeFields}
           />
         </div>
         <div class="crop-margins-row">
           <label class="crop-margins-label">{t('shiftPage.vertical')}</label>
           <input
+            ref={dyInputRef}
             type="number"
             class="crop-margins-input"
-            value={dyMm()}
+            value="0"
+            min={-MAX_SHIFT_MM}
+            max={MAX_SHIFT_MM}
             step="0.5"
-            onInput={(e) => { setDyMm(parseFloat(e.target.value) || 0); applyPreviewTransform(); }}
+            onInput={(e) => { setDyMm(parseShiftInput(e.target.value)); applyPreviewTransform(); }}
+            onChange={writeFields}
           />
         </div>
         <div style={{ display: 'flex', 'justify-content': 'flex-end' }}>
@@ -192,11 +213,15 @@ export default function ShiftPageDialog(props) {
             <input
               type="number"
               class="crop-margins-input"
-              value={fromPage()}
+              value={untrack(fromPage)}
               min="1"
               max={totalPages}
               step="1"
-              onInput={(e) => setFromPage(parseInt(e.target.value) || 1)}
+              onInput={(e) => {
+                const page = parseFromPageInput(e.target.value, totalPages);
+                if (page !== null) setFromPage(page);
+              }}
+              onChange={(e) => { e.target.value = String(fromPage()); }}
             />
           </div>
         </Show>
