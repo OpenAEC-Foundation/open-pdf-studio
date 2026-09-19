@@ -52,6 +52,7 @@ import { initCursor } from './ui/cursor.js';
 
 // PDF operations (for handling file drops from command line args)
 import { loadPDF } from './pdf/loader.js';
+import { queuedLoadTarget } from './pdf/queued-load.js';
 import { fitPage } from './pdf/renderer.js';
 
 // Text selection
@@ -113,7 +114,9 @@ function openFiles(filePaths, { activate = true } = {}) {
   for (const filePath of filePaths) {
     if (filePath && filePath.toLowerCase().endsWith('.pdf')) {
       const { index } = createTab(filePath, false); // don't auto-switch
-      pending.push({ filePath, index });
+      // Keep the document itself (the store proxy), not only its index: tabs
+      // can be closed or reordered while the loads below wait in the queue.
+      pending.push({ filePath, index, doc: state.documents[index] });
     }
   }
   // 2. Switch to the last new tab immediately (shows placeholder until load completes)
@@ -121,8 +124,14 @@ function openFiles(filePaths, { activate = true } = {}) {
     switchToTab(pending[pending.length - 1].index);
   }
   // 3. Chain loads onto the global queue (serialized even across multiple callers)
-  for (const { filePath, index } of pending) {
+  for (const { filePath, doc } of pending) {
     fileOpenQueue = fileOpenQueue.then(async () => {
+      // Resolve the tab when the load actually runs. A tab closed meanwhile is
+      // skipped, and so is a document that is already loaded (or loading via
+      // another route): loading it again would reset it to page 1 and drop
+      // its annotations and undo history.
+      const index = queuedLoadTarget(state.documents, doc);
+      if (index === -1) return;
       await loadPDF(filePath, index);
       addRecentFile(filePath, extractFileName(filePath));
     }).catch(e => console.warn('Failed to open file:', filePath, e));
