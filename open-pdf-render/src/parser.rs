@@ -640,6 +640,22 @@ impl DocumentHandle {
                         .unwrap_or(false);
                     if !is_image { continue; }
 
+                    // The vector replay only implements /SMask soft alpha.
+                    // Explicit stencil masking (/Mask stream), colour-key
+                    // masking (/Mask array) and stencil images (/ImageMask)
+                    // would be painted as opaque rectangles, so a page built
+                    // from them renders wrong (mixed-raster scans, where a
+                    // foreground colour layer is hidden behind a 1-bit mask,
+                    // came out as a solid grey/dark sheet). PDFium handles all
+                    // of these, so send such pages down the Tile/PDFium path.
+                    let has_mask = stream.dict.get(b"Mask").is_ok();
+                    let is_stencil = stream.dict.get(b"ImageMask").ok()
+                        .and_then(|o| o.as_bool().ok())
+                        .unwrap_or(false);
+                    if has_mask || is_stencil {
+                        return Ok(crate::PageType::Tile);
+                    }
+
                     image_count += 1;
                     if image_count > MAX_IMAGE_COUNT {
                         return Ok(crate::PageType::Tile);
