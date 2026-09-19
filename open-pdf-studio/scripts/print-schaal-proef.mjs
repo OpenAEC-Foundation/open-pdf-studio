@@ -98,7 +98,8 @@ for (const [naam, pagina, vel, schaling, zoom, centreren] of GEVALLEN) {
   voegPrintPaginaToe(pdf, plaatsing, deel, await pdf.embedJpg(await paginaBeeld(pagina, pxPerPt, deel.px)));
   const bron = `bron-${naam}.pdf`;
   writeFileSync(join(map, bron), await pdf.save());
-  lijst.push({ naam, bron, plaatsing: plaatsing.bekend ? 'vel' : 'passend' });
+  // Papier voor print_pdf: A3 (bij onbekend papier legt de printer het vel vast).
+  lijst.push({ naam, bron, plaatsing: plaatsing.bekend ? 'vel' : 'passend', papier: 'a3' });
   const r = plaatsing.pagina;
   console.log(
     `${naam.padEnd(28)} vel ${plaatsing.vel.breedteMm} x ${plaatsing.vel.hoogteMm} mm, pagina op`

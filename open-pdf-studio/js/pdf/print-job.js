@@ -14,15 +14,59 @@ import {
 } from '../solid/stores/printProgressStore.js';
 
 /**
+ * The temporary print PDF (not saved yet): every page as a page image. Scale
+ * and position come from print-plaatsing.js, the same rule as the preview:
+ * with a known sheet (`vel`, portrait in mm) each page becomes a page at
+ * paper size with the image at the chosen place and scale (`opVel`);
+ * without a sheet each page keeps its own size, as before the scale choice.
+ * Only the part of a page that lands on the sheet is rendered, at 300 dpi on
+ * paper and never finer than 300 dpi of the page itself. Prints nothing.
+ * @param {{ doc: object, pages:number[], orientatie?:'auto'|'portrait'|'landscape',
+ *           vel?: {breedteMm:number, hoogteMm:number}|null,
+ *           schaling?: string, zoom?: number, centreren?: boolean,
+ *           voortgang?: (index:number, pageNum:number) => void }} opts
+ * @returns {Promise<{ pdf: PDFDocument, opVel: boolean }>}
+ */
+export async function bouwPrintPdf({
+  doc, pages, orientatie = 'auto', vel = null, schaling = 'fit', zoom = 100, centreren = true,
+  voortgang = () => {},
+}) {
+  const pdf = await PDFDocument.create();
+  // Pages laid out on the sheet (the sheet is the same for every page).
+  let opVel = false;
+  for (let i = 0; i < pages.length; i++) {
+    const pageNum = pages[i];
+    voortgang(i, pageNum);
+    const origPage = await doc.pdfDoc.getPage(pageNum);
+    const origViewport = origPage.getViewport(viewportOpties(origPage, getPageRotation(pageNum)));
+    const plaatsing = berekenPlaatsing({
+      papier: vel,
+      orientatie,
+      pagina: { breedtePt: origViewport.width, hoogtePt: origViewport.height },
+      schaling,
+      zoom,
+      centreren,
+    });
+    if (!plaatsing) throw new Error(`page ${pageNum} has no usable size`);
+    opVel = plaatsing.bekend;
+
+    const pxPerPt = printPxPerPt(plaatsing);
+    const deel = renderDeel(plaatsing, pxPerPt);
+    const canvas = await renderPageOffscreen(pageNum, pxPerPt, { deel: deel.px });
+    const jpegBytes = await canvasToBytes(canvas, 'jpeg', 0.92);
+    voegPrintPaginaToe(pdf, plaatsing, deel, await pdf.embedJpg(jpegBytes));
+  }
+  return { pdf, opVel };
+}
+
+/**
  * Run a print job in the background. Fire-and-forget: the caller closes the
  * dialog first, this drives the floating progress bar.
  *
- * Scale and position (print-plaatsing.js, the same rule as the preview): with
- * a known sheet (`vel`, portrait in mm) every page becomes a page at paper
- * size with the page image at the chosen place and scale, and print_pdf gets
- * plaatsing 'vel' (1:1 on the physical sheet, lp without rescaling). Without
- * a sheet the behaviour from before the scale choice: each page at its own
- * size, fitted in by the printer.
+ * The pages come from bouwPrintPdf; with pages laid out on the sheet
+ * print_pdf gets plaatsing 'vel' (1:1 on the physical sheet, lp without
+ * rescaling). Without a known sheet the behaviour from before the scale
+ * choice: each page at its own size, fitted in by the printer.
  * @param {{ pages:number[], copies:number, printer:string,
  *           orientatie?:'auto'|'portrait'|'landscape', papier?:string,
  *           vel?: {breedteMm:number, hoogteMm:number}|null,
@@ -36,37 +80,15 @@ export async function runPrintJob({
   try {
     const doc = getActiveDocument();
     if (!doc?.pdfDoc) throw new Error(i18next.t('dialogs:print.progress.errNoDocument'));
-    const newPdf = await PDFDocument.create();
     // Reserve the last slice of the bar for the spool step.
     const total = pages.length + 1;
-    // Pages laid out on the sheet (the sheet is the same for every page).
-    let opVel = false;
-
-    for (let i = 0; i < pages.length; i++) {
-      const pageNum = pages[i];
-      updatePrintProgress(i18next.t('dialogs:print.progress.renderingPage', { page: pageNum, current: i + 1, total: pages.length }), i / total);
-      const origPage = await doc.pdfDoc.getPage(pageNum);
-      const origViewport = origPage.getViewport(viewportOpties(origPage, getPageRotation(pageNum)));
-      const plaatsing = berekenPlaatsing({
-        papier: vel,
-        orientatie,
-        pagina: { breedtePt: origViewport.width, hoogtePt: origViewport.height },
-        schaling,
-        zoom,
-        centreren,
-      });
-      if (!plaatsing) throw new Error(`page ${pageNum} has no usable size`);
-      opVel = plaatsing.bekend;
-
-      // Only the part of the page that lands on the sheet, at 300 dpi on
-      // paper (never finer than 300 dpi of the page itself).
-      const pxPerPt = printPxPerPt(plaatsing);
-      const deel = renderDeel(plaatsing, pxPerPt);
-      const canvas = await renderPageOffscreen(pageNum, pxPerPt, { deel: deel.px });
-      const jpegBytes = await canvasToBytes(canvas, 'jpeg', 0.92);
-      const jpegImage = await newPdf.embedJpg(jpegBytes);
-      voegPrintPaginaToe(newPdf, plaatsing, deel, jpegImage);
-    }
+    const { pdf: newPdf, opVel } = await bouwPrintPdf({
+      doc, pages, orientatie, vel, schaling, zoom, centreren,
+      voortgang: (i, pageNum) => updatePrintProgress(
+        i18next.t('dialogs:print.progress.renderingPage', { page: pageNum, current: i + 1, total: pages.length }),
+        i / total,
+      ),
+    });
 
     updatePrintProgress(i18next.t('dialogs:print.progress.saving'), pages.length / total);
     const pdfBytes = await newPdf.save();
