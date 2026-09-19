@@ -63,7 +63,9 @@
     "printJobSent": "Processo di stampa inviato con successo.",
     "printFailed": "Stampa non riuscita:",
     "noPages": "Nessuna pagina",
-    "pageOf": "Pagina {{current}} di {{total}}"
+    "pageOf": "Pagina {{current}} di {{total}}",
+    "paperLabel": "Carta: {{paper}}",
+    "pageSizeLabel": "Pagina: {{size}}"
   },
   "insertPage": {
     "title": "Inserisci pagine",
@@ -343,5 +345,113 @@
     "angleInfo": "Angolo di correzione: {{angle}}°",
     "done": "{{count}} pagina/e raddrizzata/e di {{angle}}°",
     "alreadyStraight": "La linea è già dritta — nessuna correzione necessaria."
+  },
+  "signatureVerification": {
+    "checking": "Verifica delle firme digitali in corso…",
+    "barLabel": "Firme digitali",
+    "listError": "Impossibile verificare le firme: {{detail}}",
+    "documentTimestamp": "Marca temporale del documento",
+    "documentTimestampBy": "Marca temporale del documento ({{tsa}})",
+    "unknownSigner": "Firmatario sconosciuto",
+    "changedAfterwards": "il documento è stato modificato in seguito",
+    "details": "Dettagli",
+    "showSignedVersion": "Mostra la versione firmata",
+    "signedVersionTab": "{{name}} (versione firmata {{number}})",
+    "signedVersionError": "Impossibile aprire la versione firmata: {{detail}}",
+    "listTruncated": "Non tutti i campi firma sono stati verificati: il documento ne contiene troppi.",
+    "changedSinceCheck": "Il file è stato modificato dopo la verifica delle firme. Le firme vengono verificate di nuovo.",
+    "modifiedInApp": "Lo stato si riferisce al file su disco; da allora il documento è stato modificato nell'applicazione.",
+    "errors": {
+      "unreadable": "Impossibile leggere il file.",
+      "noSignature": "La firma non è stata trovata nel file.",
+      "changedSinceList": "Il file è stato modificato dopo la verifica delle firme."
+    },
+    "status": {
+      "valid": "Valida",
+      "unknownCertificate": "Certificato sconosciuto",
+      "modified": "Modificato dopo la firma",
+      "invalid": "Firma non valida",
+      "notVerifiable": "Non verificabile",
+      "unsignedField": "Campo firma non firmato"
+    },
+    "reasons": {
+      "noChain": "Nessuna catena verso un certificato radice attendibile",
+      "expired": "Un certificato non era valido al momento rilevante",
+      "keyUsage": "Un certificato non è destinato a questo uso",
+      "unsupportedAlgorithm": "Algoritmo non supportato",
+      "cmsUnreadable": "I dati della firma non sono leggibili",
+      "noCertificate": "Manca il certificato del firmatario",
+      "byteRangeInvalid": "L'intervallo di byte firmato non è valido",
+      "pdfUnreadable": "La struttura del documento non è leggibile",
+      "legacyFormat": "Formato di firma obsoleto"
+    },
+    "explanation": {
+      "valid": "Il contenuto firmato è invariato e il certificato risale a una radice attendibile.",
+      "modified": "I byte firmati sono stati modificati dopo la firma.",
+      "invalid": "I byte firmati sono invariati, ma il valore della firma non corrisponde."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "L'algoritmo di hash della firma non è supportato.",
+      "handtekeningalgoritme-niet-ondersteund": "L'algoritmo di firma non è supportato.",
+      "imprintalgoritme-niet-ondersteund": "L'algoritmo di hash della marca temporale non è supportato.",
+      "contenttype-ontbreekt-of-meervoudig": "L'attributo del tipo di contenuto manca o compare più di una volta.",
+      "contenttype-wijkt-af": "L'attributo del tipo di contenuto non corrisponde al contenuto firmato.",
+      "messagedigest-ontbreekt-of-meervoudig": "L'attributo dell'impronta del messaggio manca o compare più di una volta.",
+      "certificaat-ondertekenaar-ontbreekt": "Il certificato del firmatario manca o non è leggibile.",
+      "zonder-attributen-niet-te-onderscheiden": "Senza attributi firmati, una modifica non può essere distinta da una firma non valida.",
+      "cms-structuur-onleesbaar": "I dati della firma non sono leggibili.",
+      "econtent-bij-losse-handtekening": "La firma separata contiene inaspettatamente il contenuto firmato.",
+      "econtenttype-geen-id-data": "Il contenuto firmato è di un tipo inatteso.",
+      "geen-ondertekenaar": "I dati della firma non contengono alcun firmatario.",
+      "token-zonder-tstinfo": "La marca temporale non contiene informazioni sull'ora.",
+      "tstinfo-onleesbaar": "Le informazioni sull'ora nella marca temporale non sono leggibili.",
+      "bytebereik-geen-vier-getallen": "L'intervallo di byte non è composto da quattro numeri.",
+      "bytebereik-negatief": "L'intervallo di byte contiene un numero negativo.",
+      "bytebereik-begint-niet-bij-nul": "L'intervallo di byte non inizia all'inizio del file.",
+      "bytebereik-gat-te-klein": "Lo spazio vuoto nell'intervallo di byte è troppo piccolo.",
+      "bytebereik-voorbij-einde": "L'intervallo di byte va oltre la fine del file.",
+      "bytebereik-gat-geen-hex-string": "Lo spazio vuoto nell'intervallo di byte non contiene solo il valore della firma.",
+      "subfilter-niet-ondersteund": "Questo formato di firma non è supportato.",
+      "zoekbudget-op": "La ricerca di una catena di certificati si è fermata al suo limite; una catena potrebbe comunque esistere.",
+      "gat-wijkt-af-van-contents": "Il valore della firma nel file è diverso da quello nel dizionario della firma.",
+      "interne-fout": "Si è verificato un errore interno durante la verifica di questa firma.",
+      "unknown": "La verifica ha segnalato un problema aggiuntivo."
+    },
+    "detail": {
+      "title": "Dettagli della firma",
+      "status": "Stato",
+      "explanation": "Spiegazione",
+      "signer": "Firmatario",
+      "issuer": "Emesso da",
+      "field": "Campo",
+      "time": "Data e ora",
+      "timeFromTimestamp": "{{time}} (dalla marca temporale)",
+      "timeClaimed": "{{time}} (dichiarato dal firmatario)",
+      "timestamp": "Marca temporale",
+      "none": "Nessuna",
+      "reason": "Motivo",
+      "location": "Luogo",
+      "coverage": "Copertura",
+      "coversWhole": "Intero documento",
+      "coversPart": "Byte da {{start}} a {{end}} di {{size}}",
+      "chain": "Catena di certificati",
+      "validFromTo": "Valido dal {{from}} al {{to}}",
+      "revocationNotChecked": "Revoca non verificata.",
+      "notCoveredBySignature": "non firmato",
+      "weakAlgorithm": "Algoritmo debole (SHA-1): minore protezione dalla contraffazione",
+      "technicalDetail": "Dettaglio tecnico",
+      "issuedBy": "Emesso da {{issuer}}"
+    },
+    "save": {
+      "title": "Documento firmato",
+      "message": "Questo documento contiene firme digitali. Il salvataggio riscrive il file e rende non valide le firme. Salvare comunque?",
+      "messageCopy": "Questo documento contiene firme digitali. Il file originale resta firmato, ma la nuova copia non avrà firme valide. Salvare comunque la copia?",
+      "confirm": "Salva comunque"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

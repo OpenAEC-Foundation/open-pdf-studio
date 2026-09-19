@@ -63,7 +63,9 @@
     "printJobSent": "ส่งงานพิมพ์สำเร็จ",
     "printFailed": "การพิมพ์ล้มเหลว:",
     "noPages": "ไม่มีหน้า",
-    "pageOf": "หน้า {{current}} จาก {{total}}"
+    "pageOf": "หน้า {{current}} จาก {{total}}",
+    "paperLabel": "กระดาษ: {{paper}}",
+    "pageSizeLabel": "หน้า: {{size}}"
   },
   "insertPage": {
     "title": "แทรกหน้า",
@@ -343,5 +345,113 @@
     "angleInfo": "มุมแก้ไข: {{angle}}°",
     "done": "จัดหน้าให้ตรง {{count}} หน้า ด้วยมุม {{angle}}°",
     "alreadyStraight": "เส้นตรงอยู่แล้ว — ไม่จำเป็นต้องแก้ไข"
+  },
+  "signatureVerification": {
+    "checking": "กำลังตรวจสอบลายเซ็นดิจิทัล…",
+    "barLabel": "ลายเซ็นดิจิทัล",
+    "listError": "ไม่สามารถตรวจสอบลายเซ็นได้: {{detail}}",
+    "documentTimestamp": "การประทับเวลาเอกสาร",
+    "documentTimestampBy": "การประทับเวลาเอกสาร ({{tsa}})",
+    "unknownSigner": "ผู้ลงนามที่ไม่รู้จัก",
+    "changedAfterwards": "เอกสารถูกแก้ไขภายหลัง",
+    "details": "รายละเอียด",
+    "showSignedVersion": "แสดงฉบับที่ลงนาม",
+    "signedVersionTab": "{{name}} (ฉบับที่ลงนาม {{number}})",
+    "signedVersionError": "ไม่สามารถเปิดเวอร์ชันที่ลงนามแล้วได้: {{detail}}",
+    "listTruncated": "ไม่ได้ตรวจสอบช่องลายเซ็นทั้งหมด: เอกสารมีช่องลายเซ็นมากเกินไป",
+    "changedSinceCheck": "ไฟล์มีการเปลี่ยนแปลงหลังจากตรวจสอบลายเซ็นแล้ว กำลังตรวจสอบลายเซ็นอีกครั้ง",
+    "modifiedInApp": "สถานะนี้ใช้กับไฟล์บนดิสก์ เอกสารมีการเปลี่ยนแปลงในแอปหลังจากนั้น",
+    "errors": {
+      "unreadable": "ไม่สามารถอ่านไฟล์ได้",
+      "noSignature": "ไม่พบลายเซ็นในไฟล์",
+      "changedSinceList": "ไฟล์มีการเปลี่ยนแปลงหลังจากตรวจสอบลายเซ็นแล้ว"
+    },
+    "status": {
+      "valid": "ถูกต้อง",
+      "unknownCertificate": "ใบรับรองที่ไม่รู้จัก",
+      "modified": "ถูกแก้ไขหลังการลงนาม",
+      "invalid": "ลายเซ็นไม่ถูกต้อง",
+      "notVerifiable": "ไม่สามารถตรวจสอบได้",
+      "unsignedField": "ช่องลายเซ็นที่ยังไม่ได้ลงนาม"
+    },
+    "reasons": {
+      "noChain": "ไม่มีสายโยงไปยังใบรับรองรากที่เชื่อถือได้",
+      "expired": "ใบรับรองไม่ถูกต้อง ณ เวลาที่เกี่ยวข้อง",
+      "keyUsage": "ใบรับรองไม่ได้มีไว้สำหรับการใช้งานนี้",
+      "unsupportedAlgorithm": "อัลกอริทึมที่ไม่รองรับ",
+      "cmsUnreadable": "ไม่สามารถอ่านข้อมูลลายเซ็นได้",
+      "noCertificate": "ไม่มีใบรับรองของผู้ลงนาม",
+      "byteRangeInvalid": "ช่วงไบต์ที่ลงนามไม่ถูกต้อง",
+      "pdfUnreadable": "ไม่สามารถอ่านโครงสร้างเอกสารได้",
+      "legacyFormat": "รูปแบบลายเซ็นที่ล้าสมัย"
+    },
+    "explanation": {
+      "valid": "เนื้อหาที่ลงนามไม่มีการเปลี่ยนแปลง และใบรับรองเชื่อมโยงไปยังรากที่เชื่อถือได้",
+      "modified": "ไบต์ที่ลงนามถูกเปลี่ยนแปลงหลังการลงนาม",
+      "invalid": "ไบต์ที่ลงนามไม่มีการเปลี่ยนแปลง แต่ค่าลายเซ็นไม่ตรงกัน"
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "ไม่รองรับอัลกอริทึมแฮชของลายเซ็น",
+      "handtekeningalgoritme-niet-ondersteund": "ไม่รองรับอัลกอริทึมลายเซ็น",
+      "imprintalgoritme-niet-ondersteund": "ไม่รองรับอัลกอริทึมแฮชของการประทับเวลา",
+      "contenttype-ontbreekt-of-meervoudig": "แอตทริบิวต์ประเภทเนื้อหาหายไปหรือปรากฏมากกว่าหนึ่งครั้ง",
+      "contenttype-wijkt-af": "แอตทริบิวต์ประเภทเนื้อหาไม่ตรงกับเนื้อหาที่ลงนาม",
+      "messagedigest-ontbreekt-of-meervoudig": "แอตทริบิวต์ข้อมูลสรุปข้อความหายไปหรือปรากฏมากกว่าหนึ่งครั้ง",
+      "certificaat-ondertekenaar-ontbreekt": "ไม่มีใบรับรองของผู้ลงนามหรือไม่สามารถอ่านได้",
+      "zonder-attributen-niet-te-onderscheiden": "หากไม่มีแอตทริบิวต์ที่ลงนาม จะไม่สามารถแยกการเปลี่ยนแปลงออกจากลายเซ็นที่ไม่ถูกต้องได้",
+      "cms-structuur-onleesbaar": "ไม่สามารถอ่านข้อมูลลายเซ็นได้",
+      "econtent-bij-losse-handtekening": "ลายเซ็นแบบแยกมีเนื้อหาที่ลงนามอยู่โดยไม่คาดคิด",
+      "econtenttype-geen-id-data": "เนื้อหาที่ลงนามมีประเภทที่ไม่คาดคิด",
+      "geen-ondertekenaar": "ข้อมูลลายเซ็นไม่มีผู้ลงนาม",
+      "token-zonder-tstinfo": "การประทับเวลาไม่มีข้อมูลเวลา",
+      "tstinfo-onleesbaar": "ไม่สามารถอ่านข้อมูลเวลาในการประทับเวลาได้",
+      "bytebereik-geen-vier-getallen": "ช่วงไบต์ไม่ได้ประกอบด้วยตัวเลขสี่ตัว",
+      "bytebereik-negatief": "ช่วงไบต์มีตัวเลขติดลบ",
+      "bytebereik-begint-niet-bij-nul": "ช่วงไบต์ไม่ได้เริ่มต้นที่จุดเริ่มต้นของไฟล์",
+      "bytebereik-gat-te-klein": "ช่องว่างในช่วงไบต์เล็กเกินไป",
+      "bytebereik-voorbij-einde": "ช่วงไบต์เกินจุดสิ้นสุดของไฟล์",
+      "bytebereik-gat-geen-hex-string": "ช่องว่างในช่วงไบต์มีข้อมูลอื่นนอกเหนือจากค่าลายเซ็น",
+      "subfilter-niet-ondersteund": "ไม่รองรับรูปแบบลายเซ็นนี้",
+      "zoekbudget-op": "การค้นหาสายโยงใบรับรองหยุดลงเมื่อถึงขีดจำกัด อาจยังมีสายโยงอยู่",
+      "gat-wijkt-af-van-contents": "ค่าลายเซ็นในไฟล์แตกต่างจากค่าในพจนานุกรมลายเซ็น",
+      "interne-fout": "เกิดข้อผิดพลาดภายในขณะตรวจสอบลายเซ็นนี้",
+      "unknown": "การตรวจสอบรายงานปัญหาเพิ่มเติม"
+    },
+    "detail": {
+      "title": "รายละเอียดลายเซ็น",
+      "status": "สถานะ",
+      "explanation": "คำอธิบาย",
+      "signer": "ผู้ลงนาม",
+      "issuer": "ออกโดย",
+      "field": "ช่อง",
+      "time": "เวลา",
+      "timeFromTimestamp": "{{time}} (จากการประทับเวลา)",
+      "timeClaimed": "{{time}} (ตามที่ผู้ลงนามระบุ)",
+      "timestamp": "การประทับเวลา",
+      "none": "ไม่มี",
+      "reason": "เหตุผล",
+      "location": "สถานที่",
+      "coverage": "ขอบเขต",
+      "coversWhole": "ทั้งเอกสาร",
+      "coversPart": "ไบต์ {{start}} ถึง {{end}} จาก {{size}}",
+      "chain": "สายใบรับรอง",
+      "validFromTo": "ใช้ได้ตั้งแต่ {{from}} ถึง {{to}}",
+      "revocationNotChecked": "ไม่ได้ตรวจสอบการเพิกถอน",
+      "notCoveredBySignature": "ไม่ได้ลงนาม",
+      "weakAlgorithm": "อัลกอริทึมที่อ่อนแอ (SHA-1): ป้องกันการปลอมแปลงได้น้อยลง",
+      "technicalDetail": "รายละเอียดทางเทคนิค",
+      "issuedBy": "ออกโดย {{issuer}}"
+    },
+    "save": {
+      "title": "เอกสารที่ลงนามแล้ว",
+      "message": "เอกสารนี้มีลายเซ็นดิจิทัล การบันทึกจะเขียนไฟล์ใหม่ ทำให้ลายเซ็นไม่ถูกต้อง ต้องการบันทึกหรือไม่",
+      "messageCopy": "เอกสารนี้มีลายเซ็นดิจิทัล ไฟล์ต้นฉบับยังคงมีลายเซ็นอยู่ แต่สำเนาใหม่จะไม่มีลายเซ็นที่ถูกต้อง ต้องการบันทึกสำเนาต่อไปหรือไม่",
+      "confirm": "บันทึกต่อไป"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}} {{time}}"
+    }
   }
 }

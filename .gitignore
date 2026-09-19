@@ -64,3 +64,4 @@ PROMPTS.md
 test pdf-bestanden/render-regression-runs/
 scripts/.venv-test/
 open-pdf-studio/dev-build-nr.json
+/testdata/

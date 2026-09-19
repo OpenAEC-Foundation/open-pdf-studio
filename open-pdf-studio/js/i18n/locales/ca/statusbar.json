@@ -83,11 +83,11 @@
   "boxHeightAbbr": "Al",
   "ocr": {
     "progress": {
-      "starting": "Recognizing text...",
-      "page": "Recognizing text on page {{page}}...",
-      "done": "Recognized {{count}} words",
-      "doneAll": "Recognized {{count}} words across {{pages}} pages",
-      "failed": "Text recognition failed"
+      "starting": "S'està reconeixent el text...",
+      "page": "S'està reconeixent el text a la pàgina {{page}}...",
+      "done": "S'han reconegut {{count}} paraules",
+      "doneAll": "S'han reconegut {{count}} paraules en {{pages}} pàgines",
+      "failed": "El reconeixement de text ha fallat"
     }
   }
 }

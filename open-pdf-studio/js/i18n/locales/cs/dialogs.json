@@ -63,7 +63,9 @@
     "printJobSent": "Tisková úloha byla úspěšně odeslána.",
     "printFailed": "Tisk se nezdařil:",
     "noPages": "Žádné stránky",
-    "pageOf": "Stránka {{current}} z {{total}}"
+    "pageOf": "Stránka {{current}} z {{total}}",
+    "paperLabel": "Papír: {{paper}}",
+    "pageSizeLabel": "Stránka: {{size}}"
   },
   "insertPage": {
     "title": "Vložit stránky",
@@ -343,5 +345,113 @@
     "angleInfo": "Úhel korekce: {{angle}}°",
     "done": "Narovnáno {{count}} stránek o {{angle}}°",
     "alreadyStraight": "Čára je již rovná — korekce není potřeba."
+  },
+  "signatureVerification": {
+    "checking": "Kontrola digitálních podpisů…",
+    "barLabel": "Digitální podpisy",
+    "listError": "Podpisy se nepodařilo zkontrolovat: {{detail}}",
+    "documentTimestamp": "Časové razítko dokumentu",
+    "documentTimestampBy": "Časové razítko dokumentu ({{tsa}})",
+    "unknownSigner": "Neznámý podepisující",
+    "changedAfterwards": "dokument byl poté ještě změněn",
+    "details": "Podrobnosti",
+    "showSignedVersion": "Zobrazit podepsanou verzi",
+    "signedVersionTab": "{{name}} (podepsaná verze {{number}})",
+    "signedVersionError": "Podepsanou verzi se nepodařilo otevřít: {{detail}}",
+    "listTruncated": "Nebyla zkontrolována všechna podpisová pole: dokument jich obsahuje příliš mnoho.",
+    "changedSinceCheck": "Soubor se od kontroly podpisů změnil. Podpisy se kontrolují znovu.",
+    "modifiedInApp": "Stav platí pro soubor na disku; dokument byl od té doby v aplikaci změněn.",
+    "errors": {
+      "unreadable": "Soubor nelze přečíst.",
+      "noSignature": "Podpis nebyl v souboru nalezen.",
+      "changedSinceList": "Soubor se od kontroly podpisů změnil."
+    },
+    "status": {
+      "valid": "Platný",
+      "unknownCertificate": "Neznámý certifikát",
+      "modified": "Změněno po podepsání",
+      "invalid": "Neplatný podpis",
+      "notVerifiable": "Nelze ověřit",
+      "unsignedField": "Nepodepsané pole podpisu"
+    },
+    "reasons": {
+      "noChain": "Žádný řetězec k důvěryhodnému kořenovému certifikátu",
+      "expired": "Certifikát nebyl v rozhodném okamžiku platný",
+      "keyUsage": "Certifikát není určen pro toto použití",
+      "unsupportedAlgorithm": "Nepodporovaný algoritmus",
+      "cmsUnreadable": "Data podpisu nelze přečíst",
+      "noCertificate": "Chybí certifikát podepisujícího",
+      "byteRangeInvalid": "Podepsaný rozsah bajtů je neplatný",
+      "pdfUnreadable": "Strukturu dokumentu nelze přečíst",
+      "legacyFormat": "Zastaralý formát podpisu"
+    },
+    "explanation": {
+      "valid": "Podepsaný obsah je beze změny a certifikát vede k důvěryhodnému kořenovému certifikátu.",
+      "modified": "Podepsané bajty byly po podepsání změněny.",
+      "invalid": "Podepsané bajty jsou beze změny, ale hodnota podpisu nesouhlasí."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "Hašovací algoritmus podpisu není podporován.",
+      "handtekeningalgoritme-niet-ondersteund": "Podpisový algoritmus není podporován.",
+      "imprintalgoritme-niet-ondersteund": "Hašovací algoritmus časového razítka není podporován.",
+      "contenttype-ontbreekt-of-meervoudig": "Atribut typu obsahu chybí nebo se vyskytuje vícekrát.",
+      "contenttype-wijkt-af": "Atribut typu obsahu neodpovídá podepsanému obsahu.",
+      "messagedigest-ontbreekt-of-meervoudig": "Atribut otisku zprávy chybí nebo se vyskytuje vícekrát.",
+      "certificaat-ondertekenaar-ontbreekt": "Certifikát podepisujícího chybí nebo jej nelze přečíst.",
+      "zonder-attributen-niet-te-onderscheiden": "Bez podepsaných atributů nelze změnu odlišit od neplatného podpisu.",
+      "cms-structuur-onleesbaar": "Data podpisu nelze přečíst.",
+      "econtent-bij-losse-handtekening": "Oddělený podpis neočekávaně obsahuje podepsaný obsah.",
+      "econtenttype-geen-id-data": "Podepsaný obsah má neočekávaný typ.",
+      "geen-ondertekenaar": "Data podpisu neobsahují žádného podepisujícího.",
+      "token-zonder-tstinfo": "Časové razítko neobsahuje žádný údaj o čase.",
+      "tstinfo-onleesbaar": "Údaj o čase v časovém razítku nelze přečíst.",
+      "bytebereik-geen-vier-getallen": "Rozsah bajtů se neskládá ze čtyř čísel.",
+      "bytebereik-negatief": "Rozsah bajtů obsahuje záporné číslo.",
+      "bytebereik-begint-niet-bij-nul": "Rozsah bajtů nezačíná na začátku souboru.",
+      "bytebereik-gat-te-klein": "Mezera v rozsahu bajtů je příliš malá.",
+      "bytebereik-voorbij-einde": "Rozsah bajtů přesahuje konec souboru.",
+      "bytebereik-gat-geen-hex-string": "Mezera v rozsahu bajtů neobsahuje pouze hodnotu podpisu.",
+      "subfilter-niet-ondersteund": "Tento formát podpisu není podporován.",
+      "zoekbudget-op": "Hledání řetězce certifikátů se zastavilo na svém limitu; řetězec přesto může existovat.",
+      "gat-wijkt-af-van-contents": "Hodnota podpisu v souboru se liší od hodnoty ve slovníku podpisu.",
+      "interne-fout": "Při kontrole tohoto podpisu došlo k vnitřní chybě.",
+      "unknown": "Kontrola ohlásila další problém."
+    },
+    "detail": {
+      "title": "Podrobnosti podpisu",
+      "status": "Stav",
+      "explanation": "Vysvětlení",
+      "signer": "Podepisující",
+      "issuer": "Vydal",
+      "field": "Pole",
+      "time": "Čas",
+      "timeFromTimestamp": "{{time}} (z časového razítka)",
+      "timeClaimed": "{{time}} (uvedeno podepisujícím)",
+      "timestamp": "Časové razítko",
+      "none": "Žádné",
+      "reason": "Důvod",
+      "location": "Místo",
+      "coverage": "Rozsah",
+      "coversWhole": "Celý dokument",
+      "coversPart": "Bajty {{start}} až {{end}} z {{size}}",
+      "chain": "Řetězec certifikátů",
+      "validFromTo": "Platný od {{from}} do {{to}}",
+      "revocationNotChecked": "Odvolání nebylo zkontrolováno.",
+      "notCoveredBySignature": "nepodepsáno",
+      "weakAlgorithm": "Slabý algoritmus (SHA-1): menší ochrana proti padělání",
+      "technicalDetail": "Technický detail",
+      "issuedBy": "Vydal {{issuer}}"
+    },
+    "save": {
+      "title": "Podepsaný dokument",
+      "message": "Tento dokument obsahuje digitální podpisy. Uložením se soubor přepíše a podpisy se stanou neplatnými. Přesto uložit?",
+      "messageCopy": "Tento dokument obsahuje digitální podpisy. Původní soubor zůstane podepsaný, ale nová kopie nebude obsahovat platné podpisy. Přesto kopii uložit?",
+      "confirm": "Přesto uložit"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

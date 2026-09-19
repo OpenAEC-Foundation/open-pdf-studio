@@ -183,6 +183,20 @@ pub fn get_or_load_pdfium_doc_with_bytes(
     Ok(handle)
 }
 
+/// Page size in PDF points (width, height) as rendered, i.e. with the page's
+/// /Rotate applied: the same shape `render_page_to_rgba` produces, without
+/// rendering anything. Printing uses it to pick the paper orientation before
+/// the printer DC exists.
+pub fn page_size_pt(doc: &PdfDocument<'static>, page_index: u32) -> Result<(f32, f32), String> {
+    // Same locking rule as render_page_to_rgba: the guard outlives `page`.
+    let _guard = inproc_guard();
+    let pages = doc.pages();
+    let page = pages
+        .get(page_index as i32)
+        .map_err(|e| format!("Page {} not found: {}", page_index, e))?;
+    Ok((page.width().value, page.height().value))
+}
+
 /// Render a single page to RGBA pixel bytes at the requested scale and
 /// rotation. Returns (width, height, rgba) where rgba length is
 /// width * height * 4.

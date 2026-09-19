@@ -62,6 +62,11 @@ jobs:
       - name: Prepare native runtime
         run: npm run prepare:native-runtime
 
+      # The OCR save tests run the real fontkit path with the bundled font, which
+      # is not in git. The build step fetches it later anyway.
+      - name: Prepare OCR runtime
+        run: npm run prepare:ocr-runtime
+
       - name: Run unit tests
         run: npm run test:unit
 

@@ -63,7 +63,9 @@
     "printJobSent": "پرنٹ جاب کامیابی سے بھیج دی گئی۔",
     "printFailed": "پرنٹ ناکام:",
     "noPages": "کوئی صفحات نہیں",
-    "pageOf": "صفحہ {{current}} از {{total}}"
+    "pageOf": "صفحہ {{current}} از {{total}}",
+    "paperLabel": "کاغذ: {{paper}}",
+    "pageSizeLabel": "صفحہ: {{size}}"
   },
   "insertPage": {
     "title": "صفحات داخل کریں",
@@ -343,5 +345,113 @@
     "angleInfo": "اصلاحی زاویہ: {{angle}}°",
     "done": "{{count}} صفحات کو {{angle}}° سیدھا کیا گیا",
     "alreadyStraight": "لائن پہلے سے سیدھی ہے — کسی اصلاح کی ضرورت نہیں۔"
+  },
+  "signatureVerification": {
+    "checking": "ڈیجیٹل دستخطوں کی جانچ ہو رہی ہے…",
+    "barLabel": "ڈیجیٹل دستخط",
+    "listError": "دستخطوں کی جانچ نہیں ہو سکی: {{detail}}",
+    "documentTimestamp": "دستاویز کا ٹائم اسٹیمپ",
+    "documentTimestampBy": "دستاویز کا ٹائم اسٹیمپ ({{tsa}})",
+    "unknownSigner": "نامعلوم دستخط کنندہ",
+    "changedAfterwards": "دستاویز بعد میں تبدیل کی گئی",
+    "details": "تفصیلات",
+    "showSignedVersion": "دستخط شدہ ورژن دکھائیں",
+    "signedVersionTab": "{{name}} (دستخط شدہ ورژن {{number}})",
+    "signedVersionError": "دستخط شدہ ورژن نہیں کھولا جا سکا: {{detail}}",
+    "listTruncated": "دستخط کے تمام خانوں کی جانچ نہیں ہوئی: دستاویز میں بہت زیادہ خانے ہیں۔",
+    "changedSinceCheck": "دستخطوں کی جانچ کے بعد فائل تبدیل ہو گئی ہے۔ دستخطوں کی دوبارہ جانچ کی جا رہی ہے۔",
+    "modifiedInApp": "یہ حیثیت ڈسک پر موجود فائل پر لاگو ہوتی ہے؛ اس کے بعد ایپ میں دستاویز تبدیل کی جا چکی ہے۔",
+    "errors": {
+      "unreadable": "فائل پڑھی نہیں جا سکی۔",
+      "noSignature": "فائل میں دستخط نہیں ملا۔",
+      "changedSinceList": "دستخطوں کی جانچ کے بعد فائل تبدیل ہو گئی ہے۔"
+    },
+    "status": {
+      "valid": "درست",
+      "unknownCertificate": "نامعلوم سرٹیفکیٹ",
+      "modified": "دستخط کے بعد تبدیل کی گئی",
+      "invalid": "غلط دستخط",
+      "notVerifiable": "جانچ نہیں ہو سکتی",
+      "unsignedField": "بغیر دستخط والا دستخطی خانہ"
+    },
+    "reasons": {
+      "noChain": "کسی قابلِ اعتماد روٹ سرٹیفکیٹ تک کوئی زنجیر نہیں",
+      "expired": "ایک سرٹیفکیٹ متعلقہ وقت پر درست نہیں تھا",
+      "keyUsage": "ایک سرٹیفکیٹ اس استعمال کے لیے نہیں ہے",
+      "unsupportedAlgorithm": "غیر معاون الگورتھم",
+      "cmsUnreadable": "دستخط کا ڈیٹا پڑھا نہیں جا سکتا",
+      "noCertificate": "دستخط کنندہ کا سرٹیفکیٹ موجود نہیں",
+      "byteRangeInvalid": "دستخط شدہ بائٹ رینج غلط ہے",
+      "pdfUnreadable": "دستاویز کا ڈھانچہ پڑھا نہیں جا سکتا",
+      "legacyFormat": "پرانا دستخطی فارمیٹ"
+    },
+    "explanation": {
+      "valid": "دستخط شدہ مواد تبدیل نہیں ہوا اور سرٹیفکیٹ ایک قابلِ اعتماد روٹ تک جاتا ہے۔",
+      "modified": "دستخط شدہ بائٹس دستخط کے بعد تبدیل کیے گئے۔",
+      "invalid": "دستخط شدہ بائٹس تبدیل نہیں ہوئے، لیکن دستخط کی قدر میل نہیں کھاتی۔"
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "دستخط کا ہیش الگورتھم معاون نہیں ہے۔",
+      "handtekeningalgoritme-niet-ondersteund": "دستخطی الگورتھم معاون نہیں ہے۔",
+      "imprintalgoritme-niet-ondersteund": "ٹائم اسٹیمپ کا ہیش الگورتھم معاون نہیں ہے۔",
+      "contenttype-ontbreekt-of-meervoudig": "مواد کی قسم کا وصف موجود نہیں یا ایک سے زیادہ بار آیا ہے۔",
+      "contenttype-wijkt-af": "مواد کی قسم کا وصف دستخط شدہ مواد سے میل نہیں کھاتا۔",
+      "messagedigest-ontbreekt-of-meervoudig": "میسج ڈائجسٹ کا وصف موجود نہیں یا ایک سے زیادہ بار آیا ہے۔",
+      "certificaat-ondertekenaar-ontbreekt": "دستخط کنندہ کا سرٹیفکیٹ موجود نہیں یا پڑھا نہیں جا سکتا۔",
+      "zonder-attributen-niet-te-onderscheiden": "دستخط شدہ اوصاف کے بغیر تبدیلی اور غلط دستخط میں فرق نہیں کیا جا سکتا۔",
+      "cms-structuur-onleesbaar": "دستخط کا ڈیٹا پڑھا نہیں جا سکتا۔",
+      "econtent-bij-losse-handtekening": "علیحدہ دستخط میں غیر متوقع طور پر دستخط شدہ مواد شامل ہے۔",
+      "econtenttype-geen-id-data": "دستخط شدہ مواد کی قسم غیر متوقع ہے۔",
+      "geen-ondertekenaar": "دستخط کے ڈیٹا میں کوئی دستخط کنندہ نہیں ہے۔",
+      "token-zonder-tstinfo": "ٹائم اسٹیمپ میں وقت کی کوئی معلومات نہیں ہے۔",
+      "tstinfo-onleesbaar": "ٹائم اسٹیمپ میں وقت کی معلومات پڑھی نہیں جا سکتیں۔",
+      "bytebereik-geen-vier-getallen": "بائٹ رینج چار اعداد پر مشتمل نہیں ہے۔",
+      "bytebereik-negatief": "بائٹ رینج میں ایک منفی عدد ہے۔",
+      "bytebereik-begint-niet-bij-nul": "بائٹ رینج فائل کے آغاز سے شروع نہیں ہوتی۔",
+      "bytebereik-gat-te-klein": "بائٹ رینج میں خلا بہت چھوٹا ہے۔",
+      "bytebereik-voorbij-einde": "بائٹ رینج فائل کے اختتام سے آگے جاتی ہے۔",
+      "bytebereik-gat-geen-hex-string": "بائٹ رینج کے خلا میں صرف دستخط کی قدر نہیں ہے۔",
+      "subfilter-niet-ondersteund": "یہ دستخطی فارمیٹ معاون نہیں ہے۔",
+      "zoekbudget-op": "سرٹیفکیٹ زنجیر کی تلاش اپنی حد پر رک گئی؛ ممکن ہے پھر بھی کوئی زنجیر موجود ہو۔",
+      "gat-wijkt-af-van-contents": "فائل میں دستخط کی قدر دستخطی ڈکشنری والی قدر سے مختلف ہے۔",
+      "interne-fout": "اس دستخط کی جانچ کے دوران ایک اندرونی خرابی پیش آئی۔",
+      "unknown": "جانچ نے ایک اضافی مسئلے کی اطلاع دی۔"
+    },
+    "detail": {
+      "title": "دستخط کی تفصیلات",
+      "status": "حیثیت",
+      "explanation": "وضاحت",
+      "signer": "دستخط کنندہ",
+      "issuer": "جاری کنندہ",
+      "field": "خانہ",
+      "time": "وقت",
+      "timeFromTimestamp": "{{time}} (ٹائم اسٹیمپ سے)",
+      "timeClaimed": "{{time}} (دستخط کنندہ کے مطابق)",
+      "timestamp": "ٹائم اسٹیمپ",
+      "none": "کوئی نہیں",
+      "reason": "وجہ",
+      "location": "مقام",
+      "coverage": "احاطہ",
+      "coversWhole": "پوری دستاویز",
+      "coversPart": "{{size}} میں سے بائٹ {{start}} تا {{end}}",
+      "chain": "سرٹیفکیٹ زنجیر",
+      "validFromTo": "{{from}} سے {{to}} تک درست",
+      "revocationNotChecked": "منسوخی کی جانچ نہیں کی گئی۔",
+      "notCoveredBySignature": "دستخط شدہ نہیں",
+      "weakAlgorithm": "کمزور الگورتھم (SHA-1): جعل سازی سے کم تحفظ",
+      "technicalDetail": "تکنیکی تفصیل",
+      "issuedBy": "جاری کنندہ: {{issuer}}"
+    },
+    "save": {
+      "title": "دستخط شدہ دستاویز",
+      "message": "اس دستاویز میں ڈیجیٹل دستخط ہیں۔ محفوظ کرنے سے فائل دوبارہ لکھی جاتی ہے، جس سے دستخط غلط ہو جاتے ہیں۔ پھر بھی محفوظ کریں؟",
+      "messageCopy": "اس دستاویز میں ڈیجیٹل دستخط ہیں۔ اصل فائل دستخط شدہ رہتی ہے، لیکن نئی کاپی میں درست دستخط نہیں ہوں گے۔ پھر بھی کاپی محفوظ کریں؟",
+      "confirm": "پھر بھی محفوظ کریں"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}، {{time}}"
+    }
   }
 }

@@ -63,7 +63,9 @@
     "printJobSent": "Tugas cetakan berjaya dihantar.",
     "printFailed": "Cetakan gagal:",
     "noPages": "Tiada halaman",
-    "pageOf": "Halaman {{current}} daripada {{total}}"
+    "pageOf": "Halaman {{current}} daripada {{total}}",
+    "paperLabel": "Kertas: {{paper}}",
+    "pageSizeLabel": "Halaman: {{size}}"
   },
   "insertPage": {
     "title": "Sisip Halaman",
@@ -343,5 +345,113 @@
     "angleInfo": "Sudut pembetulan: {{angle}}°",
     "done": "{{count}} halaman diluruskan sebanyak {{angle}}°",
     "alreadyStraight": "Garisan sudah lurus — tiada pembetulan diperlukan."
+  },
+  "signatureVerification": {
+    "checking": "Menyemak tandatangan digital…",
+    "barLabel": "Tandatangan digital",
+    "listError": "Tandatangan tidak dapat disemak: {{detail}}",
+    "documentTimestamp": "Cap masa dokumen",
+    "documentTimestampBy": "Cap masa dokumen ({{tsa}})",
+    "unknownSigner": "Penandatangan tidak diketahui",
+    "changedAfterwards": "dokumen telah diubah selepas itu",
+    "details": "Butiran",
+    "showSignedVersion": "Tunjukkan versi yang ditandatangani",
+    "signedVersionTab": "{{name}} (versi ditandatangani {{number}})",
+    "signedVersionError": "Versi yang ditandatangani tidak dapat dibuka: {{detail}}",
+    "listTruncated": "Tidak semua medan tandatangan disemak: dokumen mengandungi terlalu banyak medan.",
+    "changedSinceCheck": "Fail telah berubah sejak tandatangan disemak. Tandatangan sedang disemak semula.",
+    "modifiedInApp": "Status terpakai pada fail di cakera; dokumen telah diubah dalam aplikasi sejak itu.",
+    "errors": {
+      "unreadable": "Fail tidak dapat dibaca.",
+      "noSignature": "Tandatangan tidak ditemui dalam fail.",
+      "changedSinceList": "Fail telah berubah sejak tandatangan disemak."
+    },
+    "status": {
+      "valid": "Sah",
+      "unknownCertificate": "Sijil tidak diketahui",
+      "modified": "Diubah selepas ditandatangani",
+      "invalid": "Tandatangan tidak sah",
+      "notVerifiable": "Tidak dapat disemak",
+      "unsignedField": "Medan tandatangan belum ditandatangani"
+    },
+    "reasons": {
+      "noChain": "Tiada rantaian ke sijil akar yang dipercayai",
+      "expired": "Sebuah sijil tidak sah pada masa yang berkaitan",
+      "keyUsage": "Sebuah sijil tidak bertujuan untuk kegunaan ini",
+      "unsupportedAlgorithm": "Algoritma tidak disokong",
+      "cmsUnreadable": "Data tandatangan tidak dapat dibaca",
+      "noCertificate": "Sijil penandatangan tiada",
+      "byteRangeInvalid": "Julat bait yang ditandatangani tidak sah",
+      "pdfUnreadable": "Struktur dokumen tidak dapat dibaca",
+      "legacyFormat": "Format tandatangan lapuk"
+    },
+    "explanation": {
+      "valid": "Kandungan yang ditandatangani tidak berubah dan sijil membawa kepada akar yang dipercayai.",
+      "modified": "Bait yang ditandatangani telah diubah selepas ditandatangani.",
+      "invalid": "Bait yang ditandatangani tidak berubah, tetapi nilai tandatangan tidak sepadan."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "Algoritma cincangan tandatangan tidak disokong.",
+      "handtekeningalgoritme-niet-ondersteund": "Algoritma tandatangan tidak disokong.",
+      "imprintalgoritme-niet-ondersteund": "Algoritma cincangan cap masa tidak disokong.",
+      "contenttype-ontbreekt-of-meervoudig": "Atribut jenis kandungan tiada atau muncul lebih daripada sekali.",
+      "contenttype-wijkt-af": "Atribut jenis kandungan tidak sepadan dengan kandungan yang ditandatangani.",
+      "messagedigest-ontbreekt-of-meervoudig": "Atribut ringkasan mesej tiada atau muncul lebih daripada sekali.",
+      "certificaat-ondertekenaar-ontbreekt": "Sijil penandatangan tiada atau tidak dapat dibaca.",
+      "zonder-attributen-niet-te-onderscheiden": "Tanpa atribut yang ditandatangani, perubahan tidak dapat dibezakan daripada tandatangan yang tidak sah.",
+      "cms-structuur-onleesbaar": "Data tandatangan tidak dapat dibaca.",
+      "econtent-bij-losse-handtekening": "Tandatangan berasingan secara tidak dijangka mengandungi kandungan yang ditandatangani.",
+      "econtenttype-geen-id-data": "Kandungan yang ditandatangani mempunyai jenis yang tidak dijangka.",
+      "geen-ondertekenaar": "Data tandatangan tidak mengandungi penandatangan.",
+      "token-zonder-tstinfo": "Cap masa tidak mengandungi maklumat masa.",
+      "tstinfo-onleesbaar": "Maklumat masa dalam cap masa tidak dapat dibaca.",
+      "bytebereik-geen-vier-getallen": "Julat bait tidak terdiri daripada empat nombor.",
+      "bytebereik-negatief": "Julat bait mengandungi nombor negatif.",
+      "bytebereik-begint-niet-bij-nul": "Julat bait tidak bermula pada permulaan fail.",
+      "bytebereik-gat-te-klein": "Jurang dalam julat bait terlalu kecil.",
+      "bytebereik-voorbij-einde": "Julat bait melepasi penghujung fail.",
+      "bytebereik-gat-geen-hex-string": "Jurang dalam julat bait bukan hanya mengandungi nilai tandatangan.",
+      "subfilter-niet-ondersteund": "Format tandatangan ini tidak disokong.",
+      "zoekbudget-op": "Carian rantaian sijil berhenti pada hadnya; rantaian mungkin masih wujud.",
+      "gat-wijkt-af-van-contents": "Nilai tandatangan dalam fail berbeza daripada nilai dalam kamus tandatangan.",
+      "interne-fout": "Ralat dalaman berlaku semasa menyemak tandatangan ini.",
+      "unknown": "Semakan melaporkan isu tambahan."
+    },
+    "detail": {
+      "title": "Butiran tandatangan",
+      "status": "Status",
+      "explanation": "Penjelasan",
+      "signer": "Penandatangan",
+      "issuer": "Dikeluarkan oleh",
+      "field": "Medan",
+      "time": "Masa",
+      "timeFromTimestamp": "{{time}} (daripada cap masa)",
+      "timeClaimed": "{{time}} (dinyatakan oleh penandatangan)",
+      "timestamp": "Cap masa",
+      "none": "Tiada",
+      "reason": "Sebab",
+      "location": "Lokasi",
+      "coverage": "Liputan",
+      "coversWhole": "Seluruh dokumen",
+      "coversPart": "Bait {{start}} hingga {{end}} daripada {{size}}",
+      "chain": "Rantaian sijil",
+      "validFromTo": "Sah dari {{from}} hingga {{to}}",
+      "revocationNotChecked": "Pembatalan tidak disemak.",
+      "notCoveredBySignature": "tidak ditandatangani",
+      "weakAlgorithm": "Algoritma lemah (SHA-1): perlindungan terhadap pemalsuan kurang",
+      "technicalDetail": "Butiran teknikal",
+      "issuedBy": "Dikeluarkan oleh {{issuer}}"
+    },
+    "save": {
+      "title": "Dokumen bertandatangan",
+      "message": "Dokumen ini mengandungi tandatangan digital. Menyimpan akan menulis semula fail, menjadikan tandatangan tidak sah. Simpan juga?",
+      "messageCopy": "Dokumen ini mengandungi tandatangan digital. Fail asal kekal ditandatangani, tetapi salinan baharu tidak akan mempunyai tandatangan yang sah. Simpan salinan juga?",
+      "confirm": "Simpan juga"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

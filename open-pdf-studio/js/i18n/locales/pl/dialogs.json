@@ -63,7 +63,9 @@
     "printJobSent": "Zadanie drukowania zostało wysłane pomyślnie.",
     "printFailed": "Drukowanie nie powiodło się:",
     "noPages": "Brak stron",
-    "pageOf": "Strona {{current}} z {{total}}"
+    "pageOf": "Strona {{current}} z {{total}}",
+    "paperLabel": "Papier: {{paper}}",
+    "pageSizeLabel": "Strona: {{size}}"
   },
   "insertPage": {
     "title": "Wstaw strony",
@@ -343,5 +345,113 @@
     "angleInfo": "Kąt korekty: {{angle}}°",
     "done": "Wyprostowano {{count}} stron(y) o {{angle}}°",
     "alreadyStraight": "Linia jest już prosta — korekta niepotrzebna."
+  },
+  "signatureVerification": {
+    "checking": "Sprawdzanie podpisów cyfrowych…",
+    "barLabel": "Podpisy cyfrowe",
+    "listError": "Nie udało się sprawdzić podpisów: {{detail}}",
+    "documentTimestamp": "Znacznik czasu dokumentu",
+    "documentTimestampBy": "Znacznik czasu dokumentu ({{tsa}})",
+    "unknownSigner": "Nieznany podpisujący",
+    "changedAfterwards": "dokument został później zmieniony",
+    "details": "Szczegóły",
+    "showSignedVersion": "Pokaż podpisaną wersję",
+    "signedVersionTab": "{{name}} (podpisana wersja {{number}})",
+    "signedVersionError": "Nie udało się otworzyć podpisanej wersji: {{detail}}",
+    "listTruncated": "Nie sprawdzono wszystkich pól podpisu: dokument zawiera ich zbyt wiele.",
+    "changedSinceCheck": "Plik zmienił się od czasu sprawdzenia podpisów. Podpisy są sprawdzane ponownie.",
+    "modifiedInApp": "Stan dotyczy pliku na dysku; od tego czasu dokument został zmieniony w aplikacji.",
+    "errors": {
+      "unreadable": "Nie można odczytać pliku.",
+      "noSignature": "Nie znaleziono podpisu w pliku.",
+      "changedSinceList": "Plik zmienił się od czasu sprawdzenia podpisów."
+    },
+    "status": {
+      "valid": "Prawidłowy",
+      "unknownCertificate": "Nieznany certyfikat",
+      "modified": "Zmieniony po podpisaniu",
+      "invalid": "Nieprawidłowy podpis",
+      "notVerifiable": "Nie można sprawdzić",
+      "unsignedField": "Niepodpisane pole podpisu"
+    },
+    "reasons": {
+      "noChain": "Brak łańcucha do zaufanego certyfikatu głównego",
+      "expired": "Certyfikat nie był ważny w istotnym momencie",
+      "keyUsage": "Certyfikat nie jest przeznaczony do tego zastosowania",
+      "unsupportedAlgorithm": "Nieobsługiwany algorytm",
+      "cmsUnreadable": "Nie można odczytać danych podpisu",
+      "noCertificate": "Brak certyfikatu podpisującego",
+      "byteRangeInvalid": "Podpisany zakres bajtów jest nieprawidłowy",
+      "pdfUnreadable": "Nie można odczytać struktury dokumentu",
+      "legacyFormat": "Przestarzały format podpisu"
+    },
+    "explanation": {
+      "valid": "Podpisana treść jest niezmieniona, a certyfikat prowadzi do zaufanego certyfikatu głównego.",
+      "modified": "Podpisane bajty zostały zmienione po podpisaniu.",
+      "invalid": "Podpisane bajty są niezmienione, ale wartość podpisu się nie zgadza."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "Algorytm skrótu podpisu nie jest obsługiwany.",
+      "handtekeningalgoritme-niet-ondersteund": "Algorytm podpisu nie jest obsługiwany.",
+      "imprintalgoritme-niet-ondersteund": "Algorytm skrótu znacznika czasu nie jest obsługiwany.",
+      "contenttype-ontbreekt-of-meervoudig": "Brak atrybutu typu zawartości lub występuje on więcej niż raz.",
+      "contenttype-wijkt-af": "Atrybut typu zawartości nie odpowiada podpisanej zawartości.",
+      "messagedigest-ontbreekt-of-meervoudig": "Brak atrybutu skrótu wiadomości lub występuje on więcej niż raz.",
+      "certificaat-ondertekenaar-ontbreekt": "Brak certyfikatu podpisującego lub nie można go odczytać.",
+      "zonder-attributen-niet-te-onderscheiden": "Bez podpisanych atrybutów nie można odróżnić zmiany od nieprawidłowego podpisu.",
+      "cms-structuur-onleesbaar": "Nie można odczytać danych podpisu.",
+      "econtent-bij-losse-handtekening": "Podpis odłączony nieoczekiwanie zawiera podpisaną zawartość.",
+      "econtenttype-geen-id-data": "Podpisana zawartość ma nieoczekiwany typ.",
+      "geen-ondertekenaar": "Dane podpisu nie zawierają podpisującego.",
+      "token-zonder-tstinfo": "Znacznik czasu nie zawiera informacji o czasie.",
+      "tstinfo-onleesbaar": "Nie można odczytać informacji o czasie w znaczniku czasu.",
+      "bytebereik-geen-vier-getallen": "Zakres bajtów nie składa się z czterech liczb.",
+      "bytebereik-negatief": "Zakres bajtów zawiera liczbę ujemną.",
+      "bytebereik-begint-niet-bij-nul": "Zakres bajtów nie zaczyna się na początku pliku.",
+      "bytebereik-gat-te-klein": "Luka w zakresie bajtów jest za mała.",
+      "bytebereik-voorbij-einde": "Zakres bajtów wykracza poza koniec pliku.",
+      "bytebereik-gat-geen-hex-string": "Luka w zakresie bajtów zawiera nie tylko wartość podpisu.",
+      "subfilter-niet-ondersteund": "Ten format podpisu nie jest obsługiwany.",
+      "zoekbudget-op": "Wyszukiwanie łańcucha certyfikatów zatrzymało się na limicie; łańcuch może mimo to istnieć.",
+      "gat-wijkt-af-van-contents": "Wartość podpisu w pliku różni się od wartości w słowniku podpisu.",
+      "interne-fout": "Podczas sprawdzania tego podpisu wystąpił błąd wewnętrzny.",
+      "unknown": "Sprawdzanie zgłosiło dodatkowy problem."
+    },
+    "detail": {
+      "title": "Szczegóły podpisu",
+      "status": "Stan",
+      "explanation": "Wyjaśnienie",
+      "signer": "Podpisujący",
+      "issuer": "Wystawiony przez",
+      "field": "Pole",
+      "time": "Czas",
+      "timeFromTimestamp": "{{time}} (ze znacznika czasu)",
+      "timeClaimed": "{{time}} (podany przez podpisującego)",
+      "timestamp": "Znacznik czasu",
+      "none": "Brak",
+      "reason": "Powód",
+      "location": "Miejsce",
+      "coverage": "Zakres",
+      "coversWhole": "Cały dokument",
+      "coversPart": "Bajty od {{start}} do {{end}} z {{size}}",
+      "chain": "Łańcuch certyfikatów",
+      "validFromTo": "Ważny od {{from}} do {{to}}",
+      "revocationNotChecked": "Nie sprawdzono unieważnienia.",
+      "notCoveredBySignature": "niepodpisane",
+      "weakAlgorithm": "Słaby algorytm (SHA-1): mniejsza ochrona przed fałszerstwem",
+      "technicalDetail": "Szczegół techniczny",
+      "issuedBy": "Wystawiony przez {{issuer}}"
+    },
+    "save": {
+      "title": "Podpisany dokument",
+      "message": "Ten dokument zawiera podpisy cyfrowe. Zapisanie przepisuje plik, przez co podpisy stają się nieprawidłowe. Zapisać mimo to?",
+      "messageCopy": "Ten dokument zawiera podpisy cyfrowe. Oryginalny plik pozostaje podpisany, ale nowa kopia nie będzie zawierać prawidłowych podpisów. Zapisać kopię mimo to?",
+      "confirm": "Zapisz mimo to"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

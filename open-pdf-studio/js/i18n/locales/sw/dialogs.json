@@ -63,7 +63,9 @@
     "printJobSent": "Kazi ya uchapishaji imetumwa kwa mafanikio.",
     "printFailed": "Uchapishaji umeshindwa:",
     "noPages": "Hakuna kurasa",
-    "pageOf": "Ukurasa {{current}} ya {{total}}"
+    "pageOf": "Ukurasa {{current}} ya {{total}}",
+    "paperLabel": "Karatasi: {{paper}}",
+    "pageSizeLabel": "Ukurasa: {{size}}"
   },
   "insertPage": {
     "title": "Ingiza Kurasa",
@@ -343,5 +345,113 @@
     "angleInfo": "Pembe ya urekebishaji: {{angle}}°",
     "done": "Kurasa {{count}} zimenyooshwa kwa {{angle}}°",
     "alreadyStraight": "Mstari tayari umenyooka — hakuna marekebisho yanayohitajika."
+  },
+  "signatureVerification": {
+    "checking": "Inakagua sahihi za kidijitali…",
+    "barLabel": "Sahihi za kidijitali",
+    "listError": "Sahihi hazikuweza kukaguliwa: {{detail}}",
+    "documentTimestamp": "Muhuri wa muda wa hati",
+    "documentTimestampBy": "Muhuri wa muda wa hati ({{tsa}})",
+    "unknownSigner": "Mtiaji sahihi asiyejulikana",
+    "changedAfterwards": "hati ilibadilishwa baadaye",
+    "details": "Maelezo",
+    "showSignedVersion": "Onyesha toleo lililotiwa sahihi",
+    "signedVersionTab": "{{name}} (toleo lililotiwa sahihi {{number}})",
+    "signedVersionError": "Toleo lililotiwa sahihi halikuweza kufunguliwa: {{detail}}",
+    "listTruncated": "Si sehemu zote za sahihi zilizokaguliwa: hati ina sehemu nyingi mno.",
+    "changedSinceCheck": "Faili limebadilika tangu sahihi zilipokaguliwa. Sahihi zinakaguliwa tena.",
+    "modifiedInApp": "Hali inahusu faili lililo kwenye diski; hati imebadilishwa kwenye programu tangu wakati huo.",
+    "errors": {
+      "unreadable": "Faili halikuweza kusomwa.",
+      "noSignature": "Sahihi haikupatikana kwenye faili.",
+      "changedSinceList": "Faili limebadilika tangu sahihi zilipokaguliwa."
+    },
+    "status": {
+      "valid": "Halali",
+      "unknownCertificate": "Cheti kisichojulikana",
+      "modified": "Imebadilishwa baada ya kutiwa sahihi",
+      "invalid": "Sahihi batili",
+      "notVerifiable": "Haiwezi kukaguliwa",
+      "unsignedField": "Sehemu ya sahihi isiyotiwa sahihi"
+    },
+    "reasons": {
+      "noChain": "Hakuna mnyororo hadi cheti cha mzizi kinachoaminika",
+      "expired": "Cheti hakikuwa halali wakati husika",
+      "keyUsage": "Cheti hakikusudiwi kwa matumizi haya",
+      "unsupportedAlgorithm": "Algorithimu isiyotumika",
+      "cmsUnreadable": "Data ya sahihi haisomeki",
+      "noCertificate": "Cheti cha mtiaji sahihi hakipo",
+      "byteRangeInvalid": "Masafa ya baiti yaliyotiwa sahihi ni batili",
+      "pdfUnreadable": "Muundo wa hati hausomeki",
+      "legacyFormat": "Muundo wa sahihi uliopitwa na wakati"
+    },
+    "explanation": {
+      "valid": "Maudhui yaliyotiwa sahihi hayajabadilika na cheti kinaelekea mzizi unaoaminika.",
+      "modified": "Baiti zilizotiwa sahihi zilibadilishwa baada ya kutiwa sahihi.",
+      "invalid": "Baiti zilizotiwa sahihi hazijabadilika, lakini thamani ya sahihi hailingani."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "Algorithimu ya hashi ya sahihi haitumiki.",
+      "handtekeningalgoritme-niet-ondersteund": "Algorithimu ya sahihi haitumiki.",
+      "imprintalgoritme-niet-ondersteund": "Algorithimu ya hashi ya muhuri wa muda haitumiki.",
+      "contenttype-ontbreekt-of-meervoudig": "Sifa ya aina ya maudhui haipo au inajitokeza zaidi ya mara moja.",
+      "contenttype-wijkt-af": "Sifa ya aina ya maudhui hailingani na maudhui yaliyotiwa sahihi.",
+      "messagedigest-ontbreekt-of-meervoudig": "Sifa ya muhtasari wa ujumbe haipo au inajitokeza zaidi ya mara moja.",
+      "certificaat-ondertekenaar-ontbreekt": "Cheti cha mtiaji sahihi hakipo au hakisomeki.",
+      "zonder-attributen-niet-te-onderscheiden": "Bila sifa zilizotiwa sahihi, badiliko haliwezi kutofautishwa na sahihi batili.",
+      "cms-structuur-onleesbaar": "Data ya sahihi haisomeki.",
+      "econtent-bij-losse-handtekening": "Sahihi iliyotengwa ina maudhui yaliyotiwa sahihi bila kutarajiwa.",
+      "econtenttype-geen-id-data": "Maudhui yaliyotiwa sahihi yana aina isiyotarajiwa.",
+      "geen-ondertekenaar": "Data ya sahihi haina mtiaji sahihi.",
+      "token-zonder-tstinfo": "Muhuri wa muda hauna taarifa za wakati.",
+      "tstinfo-onleesbaar": "Taarifa za wakati katika muhuri wa muda hazisomeki.",
+      "bytebereik-geen-vier-getallen": "Masafa ya baiti hayaundwi na namba nne.",
+      "bytebereik-negatief": "Masafa ya baiti yana namba hasi.",
+      "bytebereik-begint-niet-bij-nul": "Masafa ya baiti hayaanzi mwanzoni mwa faili.",
+      "bytebereik-gat-te-klein": "Pengo katika masafa ya baiti ni dogo mno.",
+      "bytebereik-voorbij-einde": "Masafa ya baiti yanapita mwisho wa faili.",
+      "bytebereik-gat-geen-hex-string": "Pengo katika masafa ya baiti halina thamani ya sahihi pekee.",
+      "subfilter-niet-ondersteund": "Muundo huu wa sahihi hautumiki.",
+      "zoekbudget-op": "Utafutaji wa mnyororo wa vyeti ulisimama kwenye kikomo chake; huenda mnyororo bado upo.",
+      "gat-wijkt-af-van-contents": "Thamani ya sahihi katika faili inatofautiana na ile iliyo katika kamusi ya sahihi.",
+      "interne-fout": "Hitilafu ya ndani ilitokea wakati wa kukagua sahihi hii.",
+      "unknown": "Ukaguzi uliripoti tatizo la ziada."
+    },
+    "detail": {
+      "title": "Maelezo ya sahihi",
+      "status": "Hali",
+      "explanation": "Ufafanuzi",
+      "signer": "Mtiaji sahihi",
+      "issuer": "Imetolewa na",
+      "field": "Sehemu",
+      "time": "Wakati",
+      "timeFromTimestamp": "{{time}} (kutoka muhuri wa muda)",
+      "timeClaimed": "{{time}} (kama alivyotaja mtiaji sahihi)",
+      "timestamp": "Muhuri wa muda",
+      "none": "Hakuna",
+      "reason": "Sababu",
+      "location": "Mahali",
+      "coverage": "Upeo",
+      "coversWhole": "Hati nzima",
+      "coversPart": "Baiti {{start}} hadi {{end}} kati ya {{size}}",
+      "chain": "Mnyororo wa vyeti",
+      "validFromTo": "Halali kuanzia {{from}} hadi {{to}}",
+      "revocationNotChecked": "Ubatilishaji haujakaguliwa.",
+      "notCoveredBySignature": "haijasainiwa",
+      "weakAlgorithm": "Algorithimu dhaifu (SHA-1): ulinzi mdogo dhidi ya kughushi",
+      "technicalDetail": "Maelezo ya kiufundi",
+      "issuedBy": "Imetolewa na {{issuer}}"
+    },
+    "save": {
+      "title": "Hati iliyotiwa sahihi",
+      "message": "Hati hii ina sahihi za kidijitali. Kuhifadhi huandika faili upya, na hivyo sahihi zinakuwa batili. Hifadhi hata hivyo?",
+      "messageCopy": "Hati hii ina sahihi za kidijitali. Faili asili linabaki limetiwa sahihi, lakini nakala mpya haitakuwa na sahihi halali. Hifadhi nakala hata hivyo?",
+      "confirm": "Hifadhi hata hivyo"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

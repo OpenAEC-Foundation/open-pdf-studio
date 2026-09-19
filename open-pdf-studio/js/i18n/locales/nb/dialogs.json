@@ -63,7 +63,9 @@
     "printJobSent": "Utskriftsjobb sendt.",
     "printFailed": "Utskrift mislyktes:",
     "noPages": "Ingen sider",
-    "pageOf": "Side {{current}} av {{total}}"
+    "pageOf": "Side {{current}} av {{total}}",
+    "paperLabel": "Papir: {{paper}}",
+    "pageSizeLabel": "Side: {{size}}"
   },
   "insertPage": {
     "title": "Sett inn sider",
@@ -343,5 +345,113 @@
     "angleInfo": "Korreksjonsvinkel: {{angle}}°",
     "done": "{{count}} side(r) rettet opp med {{angle}}°",
     "alreadyStraight": "Linjen er allerede rett — ingen korreksjon nødvendig."
+  },
+  "signatureVerification": {
+    "checking": "Kontrollerer digitale signaturer…",
+    "barLabel": "Digitale signaturer",
+    "listError": "Signaturene kunne ikke kontrolleres: {{detail}}",
+    "documentTimestamp": "Dokumenttidsstempel",
+    "documentTimestampBy": "Dokumenttidsstempel ({{tsa}})",
+    "unknownSigner": "Ukjent undertegner",
+    "changedAfterwards": "dokumentet er endret senere",
+    "details": "Detaljer",
+    "showSignedVersion": "Vis signert versjon",
+    "signedVersionTab": "{{name}} (signert versjon {{number}})",
+    "signedVersionError": "Den signerte versjonen kunne ikke åpnes: {{detail}}",
+    "listTruncated": "Ikke alle signaturfelt ble kontrollert: dokumentet inneholder for mange.",
+    "changedSinceCheck": "Filen er endret siden signaturene ble kontrollert. Signaturene kontrolleres på nytt.",
+    "modifiedInApp": "Statusen gjelder filen på disken; dokumentet er senere endret i appen.",
+    "errors": {
+      "unreadable": "Filen kunne ikke leses.",
+      "noSignature": "Signaturen ble ikke funnet i filen.",
+      "changedSinceList": "Filen er endret siden signaturene ble kontrollert."
+    },
+    "status": {
+      "valid": "Gyldig",
+      "unknownCertificate": "Ukjent sertifikat",
+      "modified": "Endret etter signering",
+      "invalid": "Ugyldig signatur",
+      "notVerifiable": "Kan ikke kontrolleres",
+      "unsignedField": "Usignert signaturfelt"
+    },
+    "reasons": {
+      "noChain": "Ingen kjede til et klarert rotsertifikat",
+      "expired": "Et sertifikat var ikke gyldig på det aktuelle tidspunktet",
+      "keyUsage": "Et sertifikat er ikke beregnet for denne bruken",
+      "unsupportedAlgorithm": "Algoritmen støttes ikke",
+      "cmsUnreadable": "Signaturdataene kan ikke leses",
+      "noCertificate": "Undertegnerens sertifikat mangler",
+      "byteRangeInvalid": "Det signerte byteområdet er ugyldig",
+      "pdfUnreadable": "Dokumentstrukturen kan ikke leses",
+      "legacyFormat": "Utdatert signaturformat"
+    },
+    "explanation": {
+      "valid": "Det signerte innholdet er uendret, og sertifikatet fører til et klarert rotsertifikat.",
+      "modified": "De signerte bytene ble endret etter signering.",
+      "invalid": "De signerte bytene er uendret, men signaturverdien stemmer ikke."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "Signaturens hashalgoritme støttes ikke.",
+      "handtekeningalgoritme-niet-ondersteund": "Signaturalgoritmen støttes ikke.",
+      "imprintalgoritme-niet-ondersteund": "Tidsstempelets hashalgoritme støttes ikke.",
+      "contenttype-ontbreekt-of-meervoudig": "Attributtet for innholdstype mangler eller forekommer mer enn én gang.",
+      "contenttype-wijkt-af": "Attributtet for innholdstype samsvarer ikke med det signerte innholdet.",
+      "messagedigest-ontbreekt-of-meervoudig": "Attributtet for meldingssammendrag mangler eller forekommer mer enn én gang.",
+      "certificaat-ondertekenaar-ontbreekt": "Undertegnerens sertifikat mangler eller kan ikke leses.",
+      "zonder-attributen-niet-te-onderscheiden": "Uten signerte attributter kan en endring ikke skilles fra en ugyldig signatur.",
+      "cms-structuur-onleesbaar": "Signaturdataene kan ikke leses.",
+      "econtent-bij-losse-handtekening": "Den frittstående signaturen inneholder uventet det signerte innholdet.",
+      "econtenttype-geen-id-data": "Det signerte innholdet har en uventet type.",
+      "geen-ondertekenaar": "Signaturdataene inneholder ingen undertegner.",
+      "token-zonder-tstinfo": "Tidsstempelet inneholder ingen tidsinformasjon.",
+      "tstinfo-onleesbaar": "Tidsinformasjonen i tidsstempelet kan ikke leses.",
+      "bytebereik-geen-vier-getallen": "Byteområdet består ikke av fire tall.",
+      "bytebereik-negatief": "Byteområdet inneholder et negativt tall.",
+      "bytebereik-begint-niet-bij-nul": "Byteområdet starter ikke ved begynnelsen av filen.",
+      "bytebereik-gat-te-klein": "Hullet i byteområdet er for lite.",
+      "bytebereik-voorbij-einde": "Byteområdet strekker seg forbi slutten av filen.",
+      "bytebereik-gat-geen-hex-string": "Hullet i byteområdet inneholder ikke bare signaturverdien.",
+      "subfilter-niet-ondersteund": "Dette signaturformatet støttes ikke.",
+      "zoekbudget-op": "Søket etter en sertifikatkjede stoppet ved grensen; en kjede kan likevel finnes.",
+      "gat-wijkt-af-van-contents": "Signaturverdien i filen avviker fra den i signaturordboken.",
+      "interne-fout": "Det oppstod en intern feil under kontrollen av denne signaturen.",
+      "unknown": "Kontrollen rapporterte et ytterligere problem."
+    },
+    "detail": {
+      "title": "Signaturdetaljer",
+      "status": "Status",
+      "explanation": "Forklaring",
+      "signer": "Undertegner",
+      "issuer": "Utstedt av",
+      "field": "Felt",
+      "time": "Tidspunkt",
+      "timeFromTimestamp": "{{time}} (fra tidsstempel)",
+      "timeClaimed": "{{time}} (oppgitt av undertegneren)",
+      "timestamp": "Tidsstempel",
+      "none": "Ingen",
+      "reason": "Årsak",
+      "location": "Sted",
+      "coverage": "Dekning",
+      "coversWhole": "Hele dokumentet",
+      "coversPart": "Byte {{start}} til {{end}} av {{size}}",
+      "chain": "Sertifikatkjede",
+      "validFromTo": "Gyldig fra {{from}} til {{to}}",
+      "revocationNotChecked": "Tilbakekalling ikke kontrollert.",
+      "notCoveredBySignature": "ikke signert",
+      "weakAlgorithm": "Svak algoritme (SHA-1): mindre beskyttelse mot forfalskning",
+      "technicalDetail": "Teknisk detalj",
+      "issuedBy": "Utstedt av {{issuer}}"
+    },
+    "save": {
+      "title": "Signert dokument",
+      "message": "Dette dokumentet inneholder digitale signaturer. Lagring skriver filen på nytt, slik at signaturene blir ugyldige. Lagre likevel?",
+      "messageCopy": "Dette dokumentet inneholder digitale signaturer. Den opprinnelige filen forblir signert, men den nye kopien får ingen gyldige signaturer. Lagre kopien likevel?",
+      "confirm": "Lagre likevel"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

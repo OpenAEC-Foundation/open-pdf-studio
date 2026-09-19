@@ -63,7 +63,9 @@
     "printJobSent": "Zadatak ispisa uspješno poslan.",
     "printFailed": "Ispis nije uspio:",
     "noPages": "Nema stranica",
-    "pageOf": "Stranica {{current}} od {{total}}"
+    "pageOf": "Stranica {{current}} od {{total}}",
+    "paperLabel": "Papir: {{paper}}",
+    "pageSizeLabel": "Stranica: {{size}}"
   },
   "insertPage": {
     "title": "Umetni stranice",
@@ -343,5 +345,113 @@
     "angleInfo": "Kut korekcije: {{angle}}°",
     "done": "Ispravljeno {{count}} stranica za {{angle}}°",
     "alreadyStraight": "Linija je već ravna — korekcija nije potrebna."
+  },
+  "signatureVerification": {
+    "checking": "Provjera digitalnih potpisa…",
+    "barLabel": "Digitalni potpisi",
+    "listError": "Potpisi se nisu mogli provjeriti: {{detail}}",
+    "documentTimestamp": "Vremenski žig dokumenta",
+    "documentTimestampBy": "Vremenski žig dokumenta ({{tsa}})",
+    "unknownSigner": "Nepoznati potpisnik",
+    "changedAfterwards": "dokument je naknadno izmijenjen",
+    "details": "Pojedinosti",
+    "showSignedVersion": "Prikaži potpisanu verziju",
+    "signedVersionTab": "{{name}} (potpisana verzija {{number}})",
+    "signedVersionError": "Potpisana verzija nije se mogla otvoriti: {{detail}}",
+    "listTruncated": "Nisu provjerena sva polja za potpis: dokument ih sadrži previše.",
+    "changedSinceCheck": "Datoteka je promijenjena nakon provjere potpisa. Potpisi se ponovno provjeravaju.",
+    "modifiedInApp": "Status se odnosi na datoteku na disku; dokument je u međuvremenu izmijenjen u aplikaciji.",
+    "errors": {
+      "unreadable": "Datoteku nije moguće pročitati.",
+      "noSignature": "Potpis nije pronađen u datoteci.",
+      "changedSinceList": "Datoteka je promijenjena nakon provjere potpisa."
+    },
+    "status": {
+      "valid": "Valjan",
+      "unknownCertificate": "Nepoznati certifikat",
+      "modified": "Izmijenjeno nakon potpisivanja",
+      "invalid": "Nevaljan potpis",
+      "notVerifiable": "Nije moguće provjeriti",
+      "unsignedField": "Nepotpisano polje za potpis"
+    },
+    "reasons": {
+      "noChain": "Nema lanca do pouzdanog korijenskog certifikata",
+      "expired": "Certifikat nije bio valjan u relevantnom trenutku",
+      "keyUsage": "Certifikat nije namijenjen za ovu upotrebu",
+      "unsupportedAlgorithm": "Nepodržani algoritam",
+      "cmsUnreadable": "Podaci potpisa nisu čitljivi",
+      "noCertificate": "Nedostaje certifikat potpisnika",
+      "byteRangeInvalid": "Potpisani raspon bajtova nije valjan",
+      "pdfUnreadable": "Struktura dokumenta nije čitljiva",
+      "legacyFormat": "Zastarjeli format potpisa"
+    },
+    "explanation": {
+      "valid": "Potpisani sadržaj nije promijenjen i certifikat vodi do pouzdanog korijenskog certifikata.",
+      "modified": "Potpisani bajtovi promijenjeni su nakon potpisivanja.",
+      "invalid": "Potpisani bajtovi nisu promijenjeni, ali vrijednost potpisa se ne podudara."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "Algoritam sažetka potpisa nije podržan.",
+      "handtekeningalgoritme-niet-ondersteund": "Algoritam potpisa nije podržan.",
+      "imprintalgoritme-niet-ondersteund": "Algoritam sažetka vremenskog žiga nije podržan.",
+      "contenttype-ontbreekt-of-meervoudig": "Atribut vrste sadržaja nedostaje ili se pojavljuje više puta.",
+      "contenttype-wijkt-af": "Atribut vrste sadržaja ne odgovara potpisanom sadržaju.",
+      "messagedigest-ontbreekt-of-meervoudig": "Atribut sažetka poruke nedostaje ili se pojavljuje više puta.",
+      "certificaat-ondertekenaar-ontbreekt": "Certifikat potpisnika nedostaje ili nije čitljiv.",
+      "zonder-attributen-niet-te-onderscheiden": "Bez potpisanih atributa promjena se ne može razlikovati od nevaljanog potpisa.",
+      "cms-structuur-onleesbaar": "Podaci potpisa nisu čitljivi.",
+      "econtent-bij-losse-handtekening": "Odvojeni potpis neočekivano sadrži potpisani sadržaj.",
+      "econtenttype-geen-id-data": "Potpisani sadržaj ima neočekivanu vrstu.",
+      "geen-ondertekenaar": "Podaci potpisa ne sadrže potpisnika.",
+      "token-zonder-tstinfo": "Vremenski žig ne sadrži podatke o vremenu.",
+      "tstinfo-onleesbaar": "Podaci o vremenu u vremenskom žigu nisu čitljivi.",
+      "bytebereik-geen-vier-getallen": "Raspon bajtova ne sastoji se od četiri broja.",
+      "bytebereik-negatief": "Raspon bajtova sadrži negativan broj.",
+      "bytebereik-begint-niet-bij-nul": "Raspon bajtova ne počinje na početku datoteke.",
+      "bytebereik-gat-te-klein": "Praznina u rasponu bajtova premala je.",
+      "bytebereik-voorbij-einde": "Raspon bajtova seže izvan kraja datoteke.",
+      "bytebereik-gat-geen-hex-string": "Praznina u rasponu bajtova ne sadrži samo vrijednost potpisa.",
+      "subfilter-niet-ondersteund": "Ovaj format potpisa nije podržan.",
+      "zoekbudget-op": "Traženje lanca certifikata zaustavljeno je na ograničenju; lanac ipak može postojati.",
+      "gat-wijkt-af-van-contents": "Vrijednost potpisa u datoteci razlikuje se od one u rječniku potpisa.",
+      "interne-fout": "Došlo je do interne pogreške pri provjeri ovog potpisa.",
+      "unknown": "Provjera je prijavila dodatni problem."
+    },
+    "detail": {
+      "title": "Pojedinosti potpisa",
+      "status": "Status",
+      "explanation": "Objašnjenje",
+      "signer": "Potpisnik",
+      "issuer": "Izdao",
+      "field": "Polje",
+      "time": "Vrijeme",
+      "timeFromTimestamp": "{{time}} (iz vremenskog žiga)",
+      "timeClaimed": "{{time}} (naveo potpisnik)",
+      "timestamp": "Vremenski žig",
+      "none": "Nema",
+      "reason": "Razlog",
+      "location": "Mjesto",
+      "coverage": "Obuhvat",
+      "coversWhole": "Cijeli dokument",
+      "coversPart": "Bajtovi {{start}} do {{end}} od {{size}}",
+      "chain": "Lanac certifikata",
+      "validFromTo": "Valjan od {{from}} do {{to}}",
+      "revocationNotChecked": "Opoziv nije provjeren.",
+      "notCoveredBySignature": "nije potpisano",
+      "weakAlgorithm": "Slab algoritam (SHA-1): slabija zaštita od krivotvorenja",
+      "technicalDetail": "Tehnička pojedinost",
+      "issuedBy": "Izdao: {{issuer}}"
+    },
+    "save": {
+      "title": "Potpisani dokument",
+      "message": "Ovaj dokument sadrži digitalne potpise. Spremanje ponovno zapisuje datoteku, zbog čega potpisi postaju nevaljani. Ipak spremiti?",
+      "messageCopy": "Ovaj dokument sadrži digitalne potpise. Izvorna datoteka ostaje potpisana, ali nova kopija neće imati valjane potpise. Ipak spremiti kopiju?",
+      "confirm": "Ipak spremi"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

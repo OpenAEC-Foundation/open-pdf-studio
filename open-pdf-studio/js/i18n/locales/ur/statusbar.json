@@ -83,11 +83,11 @@
   "boxHeightAbbr": "ا",
   "ocr": {
     "progress": {
-      "starting": "Recognizing text...",
-      "page": "Recognizing text on page {{page}}...",
-      "done": "Recognized {{count}} words",
-      "doneAll": "Recognized {{count}} words across {{pages}} pages",
-      "failed": "Text recognition failed"
+      "starting": "متن کی شناخت ہو رہی ہے...",
+      "page": "صفحہ {{page}} پر متن کی شناخت ہو رہی ہے...",
+      "done": "{{count}} الفاظ کی شناخت ہو گئی",
+      "doneAll": "{{pages}} صفحات میں {{count}} الفاظ کی شناخت ہو گئی",
+      "failed": "متن کی شناخت ناکام ہو گئی"
     }
   }
 }

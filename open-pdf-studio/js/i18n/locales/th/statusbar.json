@@ -83,11 +83,11 @@
   "boxHeightAbbr": "ส",
   "ocr": {
     "progress": {
-      "starting": "Recognizing text...",
-      "page": "Recognizing text on page {{page}}...",
-      "done": "Recognized {{count}} words",
-      "doneAll": "Recognized {{count}} words across {{pages}} pages",
-      "failed": "Text recognition failed"
+      "starting": "กำลังจดจำข้อความ...",
+      "page": "กำลังจดจำข้อความในหน้า {{page}}...",
+      "done": "จดจำได้ {{count}} คำ",
+      "doneAll": "จดจำได้ {{count}} คำใน {{pages}} หน้า",
+      "failed": "การจดจำข้อความล้มเหลว"
     }
   }
 }

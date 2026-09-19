@@ -26,6 +26,28 @@ export function getPageSetupSettings() {
   return { ...pageSetupSettings };
 }
 
+// Telt op bij elke wijziging (OK hier, of stelPaginaInstellingIn), zodat een
+// open printdialoog zijn papierkop bijwerkt. pageSetupSettings zelf is geen
+// signaal; lees dit in een memo/effect en daarna getPageSetupSettings().
+const [versie, setVersie] = createSignal(0);
+export const paginaInstellingVersie = versie;
+
+/**
+ * Formaat en oriëntatie van buitenaf zetten (na OK in de eigenschappen van de
+ * printer, zie instellingNaEigenschappen in print-papier.js). Marges en
+ * papierbron blijven staan. null/undefined → niets.
+ */
+export function stelPaginaInstellingIn(instelling) {
+  if (!instelling) return;
+  pageSetupSettings.docId = instelling.docId ?? null;
+  pageSetupSettings.handmatig = Boolean(instelling.handmatig);
+  if (typeof instelling.size === 'string') pageSetupSettings.size = instelling.size;
+  if (instelling.orientation === 'portrait' || instelling.orientation === 'landscape') {
+    pageSetupSettings.orientation = instelling.orientation;
+  }
+  setVersie((v) => v + 1);
+}
+
 // Maat van de huidige pagina zoals getoond (inclusief draaiing), in pt.
 async function huidigePaginaMaat(doc) {
   if (!doc?.pdfDoc) return { breedtePt: NaN, hoogtePt: NaN };
@@ -174,6 +196,7 @@ export default function PageSetupDialog() {
     pageSetupSettings.marginRight = parseInt(marginRight()) || 0;
     pageSetupSettings.marginTop = parseInt(marginTop()) || 0;
     pageSetupSettings.marginBottom = parseInt(marginBottom()) || 0;
+    setVersie((v) => v + 1);
     close();
   };
 

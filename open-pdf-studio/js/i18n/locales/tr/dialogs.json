@@ -63,7 +63,9 @@
     "printJobSent": "Yazdırma işi başarıyla gönderildi.",
     "printFailed": "Yazdırma başarısız oldu:",
     "noPages": "Sayfa yok",
-    "pageOf": "Sayfa {{current}} / {{total}}"
+    "pageOf": "Sayfa {{current}} / {{total}}",
+    "paperLabel": "Kağıt: {{paper}}",
+    "pageSizeLabel": "Sayfa: {{size}}"
   },
   "insertPage": {
     "title": "Sayfa Ekle",
@@ -343,5 +345,113 @@
     "angleInfo": "Düzeltme açısı: {{angle}}°",
     "done": "{{count}} sayfa {{angle}}° düzeltildi",
     "alreadyStraight": "Çizgi zaten düz — düzeltmeye gerek yok."
+  },
+  "signatureVerification": {
+    "checking": "Dijital imzalar denetleniyor…",
+    "barLabel": "Dijital imzalar",
+    "listError": "İmzalar denetlenemedi: {{detail}}",
+    "documentTimestamp": "Belge zaman damgası",
+    "documentTimestampBy": "Belge zaman damgası ({{tsa}})",
+    "unknownSigner": "Bilinmeyen imzalayan",
+    "changedAfterwards": "belge sonradan değiştirildi",
+    "details": "Ayrıntılar",
+    "showSignedVersion": "İmzalı sürümü göster",
+    "signedVersionTab": "{{name}} (imzalı sürüm {{number}})",
+    "signedVersionError": "İmzalı sürüm açılamadı: {{detail}}",
+    "listTruncated": "İmza alanlarının tümü denetlenmedi: belgede çok fazla imza alanı var.",
+    "changedSinceCheck": "Dosya, imzalar denetlendikten sonra değişti. İmzalar yeniden denetleniyor.",
+    "modifiedInApp": "Durum diskteki dosyaya aittir; belge o zamandan beri uygulamada değiştirildi.",
+    "errors": {
+      "unreadable": "Dosya okunamadı.",
+      "noSignature": "İmza dosyada bulunamadı.",
+      "changedSinceList": "Dosya, imzalar denetlendikten sonra değişti."
+    },
+    "status": {
+      "valid": "Geçerli",
+      "unknownCertificate": "Bilinmeyen sertifika",
+      "modified": "İmzalandıktan sonra değiştirildi",
+      "invalid": "Geçersiz imza",
+      "notVerifiable": "Denetlenemiyor",
+      "unsignedField": "İmzalanmamış imza alanı"
+    },
+    "reasons": {
+      "noChain": "Güvenilir bir kök sertifikaya zincir yok",
+      "expired": "Bir sertifika ilgili zamanda geçerli değildi",
+      "keyUsage": "Bir sertifika bu kullanım için tasarlanmamış",
+      "unsupportedAlgorithm": "Desteklenmeyen algoritma",
+      "cmsUnreadable": "İmza verileri okunamıyor",
+      "noCertificate": "İmzalayanın sertifikası eksik",
+      "byteRangeInvalid": "İmzalı bayt aralığı geçersiz",
+      "pdfUnreadable": "Belge yapısı okunamıyor",
+      "legacyFormat": "Eski imza biçimi"
+    },
+    "explanation": {
+      "valid": "İmzalı içerik değişmemiş ve sertifika güvenilir bir köke bağlanıyor.",
+      "modified": "İmzalı baytlar imzalandıktan sonra değiştirildi.",
+      "invalid": "İmzalı baytlar değişmemiş, ancak imza değeri eşleşmiyor."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "İmzanın özet algoritması desteklenmiyor.",
+      "handtekeningalgoritme-niet-ondersteund": "İmza algoritması desteklenmiyor.",
+      "imprintalgoritme-niet-ondersteund": "Zaman damgasının özet algoritması desteklenmiyor.",
+      "contenttype-ontbreekt-of-meervoudig": "İçerik türü özniteliği eksik veya birden fazla kez geçiyor.",
+      "contenttype-wijkt-af": "İçerik türü özniteliği imzalı içerikle eşleşmiyor.",
+      "messagedigest-ontbreekt-of-meervoudig": "İleti özeti özniteliği eksik veya birden fazla kez geçiyor.",
+      "certificaat-ondertekenaar-ontbreekt": "İmzalayanın sertifikası eksik veya okunamıyor.",
+      "zonder-attributen-niet-te-onderscheiden": "İmzalı öznitelikler olmadan bir değişiklik geçersiz bir imzadan ayırt edilemez.",
+      "cms-structuur-onleesbaar": "İmza verileri okunamıyor.",
+      "econtent-bij-losse-handtekening": "Ayrık imza beklenmedik şekilde imzalı içeriği barındırıyor.",
+      "econtenttype-geen-id-data": "İmzalı içeriğin türü beklenmedik.",
+      "geen-ondertekenaar": "İmza verilerinde imzalayan yok.",
+      "token-zonder-tstinfo": "Zaman damgası zaman bilgisi içermiyor.",
+      "tstinfo-onleesbaar": "Zaman damgasındaki zaman bilgisi okunamıyor.",
+      "bytebereik-geen-vier-getallen": "Bayt aralığı dört sayıdan oluşmuyor.",
+      "bytebereik-negatief": "Bayt aralığı negatif bir sayı içeriyor.",
+      "bytebereik-begint-niet-bij-nul": "Bayt aralığı dosyanın başından başlamıyor.",
+      "bytebereik-gat-te-klein": "Bayt aralığındaki boşluk çok küçük.",
+      "bytebereik-voorbij-einde": "Bayt aralığı dosyanın sonunu aşıyor.",
+      "bytebereik-gat-geen-hex-string": "Bayt aralığındaki boşluk yalnızca imza değerini içermiyor.",
+      "subfilter-niet-ondersteund": "Bu imza biçimi desteklenmiyor.",
+      "zoekbudget-op": "Sertifika zinciri araması sınırına ulaşınca durdu; yine de bir zincir olabilir.",
+      "gat-wijkt-af-van-contents": "Dosyadaki imza değeri, imza sözlüğündekinden farklı.",
+      "interne-fout": "Bu imza denetlenirken dahili bir hata oluştu.",
+      "unknown": "Denetim ek bir sorun bildirdi."
+    },
+    "detail": {
+      "title": "İmza ayrıntıları",
+      "status": "Durum",
+      "explanation": "Açıklama",
+      "signer": "İmzalayan",
+      "issuer": "Veren",
+      "field": "Alan",
+      "time": "Zaman",
+      "timeFromTimestamp": "{{time}} (zaman damgasından)",
+      "timeClaimed": "{{time}} (imzalayanın belirttiği)",
+      "timestamp": "Zaman damgası",
+      "none": "Yok",
+      "reason": "Neden",
+      "location": "Konum",
+      "coverage": "Kapsam",
+      "coversWhole": "Belgenin tamamı",
+      "coversPart": "{{size}} baytın {{start}} ile {{end}} arası",
+      "chain": "Sertifika zinciri",
+      "validFromTo": "Geçerlilik: {{from}} - {{to}}",
+      "revocationNotChecked": "İptal durumu denetlenmedi.",
+      "notCoveredBySignature": "imzalanmamış",
+      "weakAlgorithm": "Zayıf algoritma (SHA-1): sahteciliğe karşı daha az koruma",
+      "technicalDetail": "Teknik ayrıntı",
+      "issuedBy": "Veren: {{issuer}}"
+    },
+    "save": {
+      "title": "İmzalı belge",
+      "message": "Bu belge dijital imzalar içeriyor. Kaydetmek dosyayı yeniden yazar ve imzaları geçersiz kılar. Yine de kaydedilsin mi?",
+      "messageCopy": "Bu belge dijital imzalar içeriyor. Özgün dosya imzalı kalır, ancak yeni kopya geçerli imzalar taşımaz. Kopya yine de kaydedilsin mi?",
+      "confirm": "Yine de kaydet"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }
