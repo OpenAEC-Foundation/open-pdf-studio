@@ -11,6 +11,8 @@ import { recordPageStructure } from '../core/undo-manager.js';
 import { PDFDocument } from 'pdf-lib';
 import * as pdfjsLib from 'pdfjs-dist';
 import { resetAnnotationStorage } from './form-layer.js';
+import { clearPdfVectorCache } from '../tools/pdf-snap-extractor.js';
+import { clearTextCache } from '../search/find-controller.js';
 import i18next from '../i18n/config.js';
 import { showMessage } from '../bridge.js';
 
@@ -220,6 +222,15 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
 
   // Reset form field annotation storage
   resetAnnotationStorage();
+
+  // Caches derived from the old bytes that are NOT keyed by file path: the
+  // snap-to-content geometry (keyed by page number) and the search text (keyed
+  // by document id). Neither notices that the bytes were replaced, so after a
+  // shift/straighten/delete the snap points and search highlights would sit at
+  // the old positions, or belong to another page. Cleared before the re-render
+  // below, which prefetches the snap geometry again.
+  clearPdfVectorCache();
+  clearTextCache(doc.id);
 
   // Load new bytes into pdf.js (slice to prevent buffer detachment of the original)
   doc.pdfDoc = await pdfjsLib.getDocument({
