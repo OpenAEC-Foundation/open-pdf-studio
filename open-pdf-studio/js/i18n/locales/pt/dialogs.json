@@ -347,17 +347,23 @@
     "alreadyStraight": "A linha já está reta — nenhuma correção necessária."
   },
   "shiftPage": {
-    "title": "Shift Page",
-    "apply": "Shift",
-    "reset": "Reset",
+    "title": "Deslocar página",
+    "apply": "Deslocar",
+    "reset": "Redefinir",
     "horizontal": "Horizontal (mm):",
     "vertical": "Vertical (mm):",
-    "allPages": "All pages",
-    "evenPages": "Even pages",
-    "oddPages": "Odd pages",
-    "fromPage": "From page:",
-    "noShift": "No shift entered — nothing to apply.",
-    "dragInfo": "Drag the preview to shift the page, or enter exact millimeter offsets below."
+    "allPages": "Todas as páginas",
+    "evenPages": "Páginas pares",
+    "oddPages": "Páginas ímpares",
+    "fromPage": "A partir da página:",
+    "noShift": "Nenhum deslocamento inserido — nada a aplicar.",
+    "dragInfo": "Arraste a pré-visualização para deslocar a página ou insira abaixo os deslocamentos exatos em milímetros.",
+    "applyTo": "Aplicar a:",
+    "currentPage": "Página atual",
+    "noPages": "Nenhuma página correspondente com conteúdo — nada foi deslocado.",
+    "shifting": "Deslocando página...",
+    "failed": "Não foi possível deslocar a página.",
+    "encrypted": "Este documento está criptografado, portanto suas páginas não podem ser deslocadas."
   },
   "signatureVerification": {
     "checking": "Verificando assinaturas digitais…",

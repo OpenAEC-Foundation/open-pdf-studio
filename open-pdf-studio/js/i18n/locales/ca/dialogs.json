@@ -347,17 +347,23 @@
     "alreadyStraight": "La línia ja és recta — no cal cap correcció."
   },
   "shiftPage": {
-    "title": "Shift Page",
-    "apply": "Shift",
-    "reset": "Reset",
-    "horizontal": "Horizontal (mm):",
+    "title": "Desplaça la pàgina",
+    "apply": "Desplaça",
+    "reset": "Reinicia",
+    "horizontal": "Horitzontal (mm):",
     "vertical": "Vertical (mm):",
-    "allPages": "All pages",
-    "evenPages": "Even pages",
-    "oddPages": "Odd pages",
-    "fromPage": "From page:",
-    "noShift": "No shift entered — nothing to apply.",
-    "dragInfo": "Drag the preview to shift the page, or enter exact millimeter offsets below."
+    "allPages": "Totes les pàgines",
+    "evenPages": "Pàgines parells",
+    "oddPages": "Pàgines senars",
+    "fromPage": "Des de la pàgina:",
+    "noShift": "No s'ha introduït cap desplaçament — no hi ha res a aplicar.",
+    "dragInfo": "Arrossegueu la previsualització per desplaçar la pàgina, o introduïu a sota els desplaçaments exactes en mil·límetres.",
+    "applyTo": "Aplica a:",
+    "currentPage": "Pàgina actual",
+    "noPages": "Cap pàgina coincident amb contingut — no s'ha desplaçat res.",
+    "shifting": "S'està desplaçant la pàgina...",
+    "failed": "No s'ha pogut desplaçar la pàgina.",
+    "encrypted": "Aquest document està xifrat, de manera que les seves pàgines no es poden desplaçar."
   },
   "signatureVerification": {
     "checking": "S'estan comprovant les signatures digitals…",

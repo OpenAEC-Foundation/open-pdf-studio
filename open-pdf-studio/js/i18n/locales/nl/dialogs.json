@@ -506,7 +506,7 @@
   "shiftPage": {
     "title": "Pagina verschuiven",
     "apply": "Verschuiven",
-    "reset": "Reset",
+    "reset": "Herstellen",
     "horizontal": "Horizontaal (mm):",
     "vertical": "Verticaal (mm):",
     "allPages": "Alle pagina's",
@@ -514,7 +514,13 @@
     "oddPages": "Oneven pagina's",
     "fromPage": "Vanaf pagina:",
     "noShift": "Geen verschuiving ingevoerd — niets om toe te passen.",
-    "dragInfo": "Sleep de voorbeeldweergave om de pagina te verschuiven, of voer hieronder exacte offsets in millimeter in."
+    "dragInfo": "Sleep de voorbeeldweergave om de pagina te verschuiven, of voer hieronder exacte offsets in millimeter in.",
+    "applyTo": "Toepassen op:",
+    "currentPage": "Huidige pagina",
+    "noPages": "Geen overeenkomende pagina met inhoud — er is niets verschoven.",
+    "shifting": "Pagina verschuiven...",
+    "failed": "De pagina kon niet worden verschoven.",
+    "encrypted": "Dit document is versleuteld, daarom kunnen de pagina's niet worden verschoven."
   },
   "signatureVerification": {
     "checking": "Digitale handtekeningen controleren…",

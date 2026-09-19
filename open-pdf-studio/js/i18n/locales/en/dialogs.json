@@ -513,7 +513,13 @@
     "oddPages": "Odd pages",
     "fromPage": "From page:",
     "noShift": "No shift entered — nothing to apply.",
-    "dragInfo": "Drag the preview to shift the page, or enter exact millimeter offsets below."
+    "dragInfo": "Drag the preview to shift the page, or enter exact millimeter offsets below.",
+    "applyTo": "Apply to:",
+    "currentPage": "Current page",
+    "noPages": "No matching page with content — nothing was shifted.",
+    "shifting": "Shifting page...",
+    "failed": "The page could not be shifted.",
+    "encrypted": "This document is encrypted, so its pages cannot be shifted."
   },
   "signatureVerification": {
     "checking": "Checking digital signatures…",
