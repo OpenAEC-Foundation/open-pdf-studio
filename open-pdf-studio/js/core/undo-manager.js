@@ -1,6 +1,7 @@
 import { state, getActiveDocument, getPageRotation, setPageRotation, imageCache } from './state.js';
 import { cloneAnnotation } from '../annotations/factory.js';
 import { stampRasterStale } from '../annotations/stamp-appearance-sync.js';
+import { applyOcrShift } from '../pdf/shift-page-geometry.js';
 const MAX_UNDO_STACK = 100;
 let undoTransactionDepth = 0;
 let undoTransactionCommands = null;
@@ -192,6 +193,7 @@ export async function undo() {
   if (cmd.type === 'pageStructure') {
     const { restorePageState } = await import('../pdf/page-manager.js');
     await restorePageState(cmd.oldBytes, cmd.oldAnnotations, cmd.oldRotations, cmd.oldPage);
+    applyOcrShift(getActiveDocument()?.ocrResults, cmd.ocrShift, -1);
     syncModifiedState();
     updateButtons();
     return;
@@ -242,6 +244,7 @@ export async function redo() {
   if (cmd.type === 'pageStructure') {
     const { restorePageState } = await import('../pdf/page-manager.js');
     await restorePageState(cmd.newBytes, cmd.newAnnotations, cmd.newRotations, cmd.newPage);
+    applyOcrShift(getActiveDocument()?.ocrResults, cmd.ocrShift, 1);
     syncModifiedState();
     updateButtons();
     return;
@@ -901,8 +904,10 @@ export function recordModifyBookmark(id, oldState, newState) {
   execute({ type: 'modifyBookmark', id, oldState: { ...oldState }, newState: { ...newState } });
 }
 
-// Record a page structure change (insert, delete, reorder) for undo/redo
-export function recordPageStructure(oldBytes, oldAnnotations, oldRotations, oldPage, newBytes, newAnnotations, newRotations, newPage) {
+// Record a page structure change (insert, delete, reorder) for undo/redo.
+// `extra.ocrShift` ({pages, dx, dy}) is set by Shift Page: the pending OCR word
+// boxes of those pages moved with the content and move back on undo.
+export function recordPageStructure(oldBytes, oldAnnotations, oldRotations, oldPage, newBytes, newAnnotations, newRotations, newPage, extra = {}) {
   execute({
     type: 'pageStructure',
     oldBytes: oldBytes,
@@ -913,5 +918,6 @@ export function recordPageStructure(oldBytes, oldAnnotations, oldRotations, oldP
     newAnnotations: newAnnotations.map(a => ({ ...a })),
     newRotations: { ...newRotations },
     newPage: newPage,
+    ...(extra.ocrShift ? { ocrShift: { ...extra.ocrShift, pages: [...extra.ocrShift.pages] } } : {}),
   });
 }

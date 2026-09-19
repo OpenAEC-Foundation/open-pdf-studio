@@ -346,6 +346,25 @@
     "done": "{{count}} halaman diluruskan sebesar {{angle}}°",
     "alreadyStraight": "Garis sudah lurus — tidak perlu koreksi."
   },
+  "shiftPage": {
+    "title": "Geser halaman",
+    "apply": "Geser",
+    "reset": "Atur Ulang",
+    "horizontal": "Horizontal (mm):",
+    "vertical": "Vertikal (mm):",
+    "allPages": "Semua halaman",
+    "evenPages": "Halaman genap",
+    "oddPages": "Halaman ganjil",
+    "fromPage": "Mulai halaman:",
+    "noShift": "Tidak ada pergeseran yang dimasukkan — tidak ada yang diterapkan.",
+    "dragInfo": "Seret pratinjau untuk menggeser halaman, atau masukkan offset yang tepat dalam milimeter di bawah.",
+    "applyTo": "Terapkan ke:",
+    "currentPage": "Halaman saat ini",
+    "noPages": "Tidak ada halaman berisi konten yang cocok — tidak ada yang digeser.",
+    "shifting": "Menggeser halaman...",
+    "failed": "Halaman tidak dapat digeser.",
+    "encrypted": "Dokumen ini dienkripsi, sehingga halamannya tidak dapat digeser."
+  },
   "signatureVerification": {
     "checking": "Memeriksa tanda tangan digital…",
     "barLabel": "Tanda tangan digital",

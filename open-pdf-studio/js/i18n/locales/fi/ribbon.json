@@ -154,7 +154,8 @@
     "appearance": "Ulkoasu",
     "keystrokes": "Keystrokes",
     "readerMode": "Lukutila",
-    "readerModeTip": "Muistaa jokaisen PDF:n sivun, vierityskohdan ja zoomauksen sulkemisen ja uudelleenavaamisen välillä"
+    "readerModeTip": "Muistaa tämän PDF:n sivun, vierityskohdan ja zoomauksen sulkemisen ja uudelleenavaamisen välillä. Kun toiminto on päällä, tämän PDF:n viereen tallennetaan pieni tiedosto, joten se näkyy myös pilveen synkronoiduissa kansioissa (OneDrive, Dropbox jne.); toiminnon poistaminen käytöstä poistaa tiedoston.",
+    "readerModeSaveFailed": "Lukutila ei voinut tallentaa tämän PDF:n asetusta. Kansio saattaa olla vain luku -tilassa."
   },
   "organize": {
     "pages": "Sivut",
@@ -177,7 +178,8 @@
     "manageWatermarks": "Hallitse vesileimoja",
     "manage": "Hallitse",
     "ocr": "Tekstintunnistus (OCR)",
-    "straighten": "Suorista Sivu"
+    "straighten": "Suorista Sivu",
+    "shiftPage": "Siirrä sivua"
   },
   "help": {
     "information": "Tiedot",

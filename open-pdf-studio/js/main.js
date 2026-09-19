@@ -51,7 +51,8 @@ import { setupEventListeners } from './ui/setup.js';
 import { initCursor } from './ui/cursor.js';
 
 // PDF operations (for handling file drops from command line args)
-import { loadPDF } from './pdf/loader.js';
+import { loadPDF, loadPDFIfNeeded } from './pdf/loader.js';
+import { createFileOpenQueue } from './pdf/queued-load.js';
 import { fitPage } from './pdf/renderer.js';
 
 // Text selection
@@ -86,9 +87,17 @@ import { addRecentFile } from './mobile/recent-files.js';
 // Tauri API
 import { isTauri, isMobile, isDevMode, getOpenedFiles, loadSession, saveSession, fileExists, isDefaultPdfApp, openDefaultAppsSettings, extractFileName } from './core/platform.js';
 
-// Global promise queue — serializes all file loads across multiple openFiles() calls
-// (Windows single-instance plugin sends separate open-files events per file)
-let fileOpenQueue = Promise.resolve();
+// Open PDF files: tabs created instantly, loads serialized through ONE global
+// queue - also across separate openFiles() calls (the Windows single-instance
+// plugin sends a separate open-files event per file). The loop itself lives in
+// queued-load.js, where it runs in a unit test against a real store.
+const openFiles = createFileOpenQueue({
+  documents: () => state.documents,
+  createTab,
+  switchToTab,
+  loadPDF,
+  onLoaded: (filePath) => addRecentFile(filePath, extractFileName(filePath)),
+});
 
 // Register open-files listener immediately (before init) so events from the
 // single-instance plugin are never lost. Queue files until the app is ready.
@@ -104,30 +113,6 @@ if (window.__TAURI__?.event) {
       pendingOpenFiles.push(...files);
     }
   });
-}
-
-// Open PDF files: tabs created instantly, loads serialized through global queue
-function openFiles(filePaths) {
-  // 1. Create all tabs instantly (synchronous) so the tab bar updates right away
-  const pending = [];
-  for (const filePath of filePaths) {
-    if (filePath && filePath.toLowerCase().endsWith('.pdf')) {
-      const { index } = createTab(filePath, false); // don't auto-switch
-      pending.push({ filePath, index });
-    }
-  }
-  // 2. Switch to the last new tab immediately (shows placeholder until load completes)
-  if (pending.length > 0) {
-    switchToTab(pending[pending.length - 1].index);
-  }
-  // 3. Chain loads onto the global queue (serialized even across multiple callers)
-  for (const { filePath, index } of pending) {
-    fileOpenQueue = fileOpenQueue.then(async () => {
-      await loadPDF(filePath, index);
-      addRecentFile(filePath, extractFileName(filePath));
-    }).catch(e => console.warn('Failed to open file:', filePath, e));
-  }
-  return fileOpenQueue;
 }
 
 // Disable default browser context menu
@@ -323,8 +308,9 @@ async function init() {
               const { index } = createTab(filePath);
               await new Promise(r => setTimeout(r, 0));
               initDomElements();
-              await loadPDF(filePath, index);
-              await fitPage();
+              // The same file tapped again is already open: only show it. A
+              // reload would drop its unsaved annotations and undo history.
+              if (await loadPDFIfNeeded(filePath, index)) await fitPage();
               addRecentFile(filePath, extractFileName(filePath));
             }
           }
@@ -519,7 +505,10 @@ async function restoreLastSession() {
       );
       const validFiles = existenceChecks.filter(Boolean);
       if (validFiles.length > 0) {
-        await openFiles(validFiles);
+        // The existence checks above can take seconds on cloud/network drives.
+        // If the user already opened a document meanwhile, restore the old
+        // tabs in the background instead of yanking focus away from it.
+        await openFiles(validFiles, { activate: state.documents.length === 0 });
       }
     }
   } catch (e) {

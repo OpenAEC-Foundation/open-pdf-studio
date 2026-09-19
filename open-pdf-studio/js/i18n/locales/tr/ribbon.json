@@ -154,7 +154,8 @@
     "appearance": "Görünüm",
     "keystrokes": "Keystrokes",
     "readerMode": "Okuyucu Modu",
-    "readerModeTip": "Her PDF'nin sayfasını, kaydırma konumunu ve yakınlaştırmasını kapatıp yeniden açtığınızda hatırlar"
+    "readerModeTip": "Bu PDF'nin sayfasını, kaydırma konumunu ve yakınlaştırmasını kapatıp yeniden açtığınızda hatırlar. Açık olduğu sürece bu PDF'nin yanında küçük bir dosya tutulur; bu nedenle bulutla eşitlenen klasörlerde de (OneDrive, Dropbox vb.) görünür. Kapatıldığında bu dosya silinir.",
+    "readerModeSaveFailed": "Okuyucu Modu bu PDF için ayarını kaydedemedi. Klasör salt okunur olabilir."
   },
   "organize": {
     "pages": "Sayfalar",
@@ -177,7 +178,8 @@
     "manageWatermarks": "Filigranları Yönet",
     "manage": "Yönet",
     "ocr": "Metin Tanıma (OCR)",
-    "straighten": "Sayfayı Düzelt"
+    "straighten": "Sayfayı Düzelt",
+    "shiftPage": "Sayfayı kaydır"
   },
   "help": {
     "information": "Bilgi",

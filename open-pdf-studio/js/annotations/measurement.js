@@ -439,9 +439,11 @@ function scaleStorageKey(filePath) {
   return 'ops_measureScale_' + filePath;
 }
 
-// Save the current document's measure scale to localStorage
-export function saveDocumentScale() {
-  const doc = getActiveDocument();
+// Save the measure scale of the given (or active) document to localStorage.
+// A caller that works on a specific document (loadPDF, also for background
+// tabs) must pass it, or the scale of the tab in front is what gets stored.
+export function saveDocumentScale(doc) {
+  if (!doc) doc = getActiveDocument();
   if (!doc || !doc.filePath) return;
   const ms = doc.measureScale;
   if (ms) {

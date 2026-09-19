@@ -346,6 +346,25 @@
     "done": "{{count}} side(r) rettet med {{angle}}°",
     "alreadyStraight": "Linjen er allerede lige — ingen korrektion nødvendig."
   },
+  "shiftPage": {
+    "title": "Forskyd side",
+    "apply": "Forskyd",
+    "reset": "Nulstil",
+    "horizontal": "Vandret (mm):",
+    "vertical": "Lodret (mm):",
+    "allPages": "Alle sider",
+    "evenPages": "Lige sider",
+    "oddPages": "Ulige sider",
+    "fromPage": "Fra side:",
+    "noShift": "Ingen forskydning angivet — intet at anvende.",
+    "dragInfo": "Træk i forhåndsvisningen for at forskyde siden, eller angiv nøjagtige forskydninger i millimeter nedenfor.",
+    "applyTo": "Anvend på:",
+    "currentPage": "Aktuel side",
+    "noPages": "Ingen matchende side med indhold — intet blev forskudt.",
+    "shifting": "Forskyder side...",
+    "failed": "Siden kunne ikke forskydes.",
+    "encrypted": "Dette dokument er krypteret, så dets sider kan ikke forskydes."
+  },
   "signatureVerification": {
     "checking": "Kontrollerer digitale signaturer…",
     "barLabel": "Digitale signaturer",

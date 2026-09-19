@@ -1,5 +1,6 @@
 import { createAnnotation } from './factory.js';
 import { state, getActiveDocument } from '../core/state.js';
+import { detectScaleInDocument, scaleFromScaleBar } from './document-scale.js';
 
 /**
  * Create a scale bar annotation at the given position.
@@ -85,67 +86,26 @@ export function getScaleForPoint(pageNum, x, y) {
  * Try to detect the scale from the PDF's text content (title block).
  * Looks for patterns like "1:100", "SCHAAL 1:50", "SCALE: 1:200", "M 1:500".
  * Returns { ratio: number, scaleText: string } or null if not found.
+ *
+ * Reads the given document, or the active one when none is given. A caller
+ * that works on a specific document (loadPDF, which also runs for background
+ * tabs) MUST pass it: the active document can be a different PDF.
  */
-export async function detectScaleFromPdf(pageNum) {
-  const doc = getActiveDocument();
-  if (!doc?.pdfDoc) return null;
-
-  const page = await doc.pdfDoc.getPage(pageNum || doc.currentPage);
-  const textContent = await page.getTextContent();
-
-  // Patterns ordered from most specific (labelled) to least specific (bare 1:N).
-  // The labelled pattern avoids false positives from dimensions like "2:3".
-  const patterns = [
-    /(?:schaal|scale|maatstaf|maßstab|ma(?:ss|ß)stab|échelle|escala|scala|m)\s*[:=.]?\s*1\s*[:/]\s*(\d+)/i,
-    /\b1\s*[:/]\s*(\d+)\b/i,
-  ];
-
-  // First pass: check the concatenated text of all items
-  const allText = textContent.items.map(item => item.str).join(' ');
-
-  for (const pattern of patterns) {
-    const match = allText.match(pattern);
-    if (match) {
-      const ratio = parseInt(match[1], 10);
-      if (ratio > 0 && ratio <= 10000) {
-        return { ratio, scaleText: match[0].trim() };
-      }
-    }
-  }
-
-  // Second pass: check individual text items for better accuracy
-  // (sometimes the scale sits in a single text element in the title block)
-  for (const item of textContent.items) {
-    const str = item.str.trim();
-    if (!str) continue;
-    for (const pattern of patterns) {
-      const match = str.match(pattern);
-      if (match) {
-        const ratio = parseInt(match[1], 10);
-        if (ratio > 0 && ratio <= 10000) {
-          return { ratio, scaleText: match[0].trim() };
-        }
-      }
-    }
-  }
-
-  return null;
+export async function detectScaleFromPdf(pageNum, doc) {
+  return detectScaleInDocument(doc || getActiveDocument(), pageNum);
 }
 
 /**
  * Sync the document-level measureScale from a scaleBar annotation.
  * Called after placing or modifying a scaleBar so that doc.measureScale
  * stays in sync and legacy code paths that read doc.measureScale still work.
+ *
+ * Writes to the given document, or to the active one when none is given
+ * (placing/editing a scale bar always happens in the active document).
  */
-export function syncDocScale(scaleBar) {
-  const doc = getActiveDocument();
-  if (!doc || !scaleBar) return;
-  if (!scaleBar.pixelsPerUnit || scaleBar.pixelsPerUnit <= 0) return;
-
-  doc.measureScale = {
-    pixelsPerUnit: scaleBar.pixelsPerUnit,
-    unit: scaleBar.unit || 'mm',
-    method: 'scaleBar',
-    scaleRatio: 0,
-  };
+export function syncDocScale(scaleBar, doc) {
+  if (!doc) doc = getActiveDocument();
+  if (!doc) return;
+  const scale = scaleFromScaleBar(scaleBar);
+  if (scale) doc.measureScale = scale;
 }

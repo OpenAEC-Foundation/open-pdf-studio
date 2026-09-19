@@ -3,7 +3,7 @@ const MAX_SESSIONS = 20;
 
 import { state } from '../core/state.js';
 import { createTab } from '../ui/chrome/tabs.js';
-import { loadPDF } from '../pdf/loader.js';
+import { loadPDFIfNeeded } from '../pdf/loader.js';
 
 /**
  * Get all saved sessions from localStorage.
@@ -78,6 +78,6 @@ export function deleteSession(name) {
 export async function restoreSession(session) {
   for (const filePath of session.files) {
     const { index } = createTab(filePath);
-    await loadPDF(filePath, index);
+    await loadPDFIfNeeded(filePath, index);
   }
 }

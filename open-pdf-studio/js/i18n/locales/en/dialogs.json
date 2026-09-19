@@ -502,6 +502,25 @@
     "done": "Straightened {{count}} page(s) by {{angle}}°",
     "alreadyStraight": "Line is already straight — no correction needed."
   },
+  "shiftPage": {
+    "title": "Shift Page",
+    "apply": "Shift",
+    "reset": "Reset",
+    "horizontal": "Horizontal (mm):",
+    "vertical": "Vertical (mm):",
+    "allPages": "All pages",
+    "evenPages": "Even pages",
+    "oddPages": "Odd pages",
+    "fromPage": "From page:",
+    "noShift": "No shift entered — nothing to apply.",
+    "dragInfo": "Drag the preview to shift the page, or enter exact millimeter offsets below.",
+    "applyTo": "Apply to:",
+    "currentPage": "Current page",
+    "noPages": "No matching page with content — nothing was shifted.",
+    "shifting": "Shifting page...",
+    "failed": "The page could not be shifted.",
+    "encrypted": "This document is encrypted, so its pages cannot be shifted."
+  },
   "signatureVerification": {
     "checking": "Checking digital signatures…",
     "barLabel": "Digital signatures",

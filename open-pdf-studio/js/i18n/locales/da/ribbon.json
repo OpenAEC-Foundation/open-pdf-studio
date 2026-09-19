@@ -154,7 +154,8 @@
     "appearance": "Udseende",
     "keystrokes": "Keystrokes",
     "readerMode": "Læsetilstand",
-    "readerModeTip": "Husker side, rulleposition og zoom for hver PDF, når den lukkes og åbnes igen"
+    "readerModeTip": "Husker side, rulleposition og zoom for denne PDF, når den lukkes og åbnes igen. Så længe funktionen er slået til, ligger der en lille fil ved siden af denne PDF, så den også vises i mapper, der synkroniseres med skyen (OneDrive, Dropbox osv.); når du slår den fra, fjernes filen.",
+    "readerModeSaveFailed": "Læsetilstand kunne ikke gemme indstillingen for denne PDF. Mappen er muligvis skrivebeskyttet."
   },
   "organize": {
     "pages": "Sider",
@@ -177,7 +178,8 @@
     "manageWatermarks": "Administrer vandmærker",
     "manage": "Administrer",
     "ocr": "Tekstgenkendelse (OCR)",
-    "straighten": "Ret Side"
+    "straighten": "Ret Side",
+    "shiftPage": "Forskyd side"
   },
   "help": {
     "information": "Information",

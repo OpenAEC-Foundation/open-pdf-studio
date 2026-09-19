@@ -4,7 +4,7 @@ import { handlePointerDown, handlePointerMove, handlePointerUp, handleDblClick }
 import { registerAllTools } from '../tools/tools/index.js';
 import { initKeyboardHandlers } from '../tools/keyboard-handlers.js';
 import { installeerMiddelmuisPan } from '../tools/middelmuis-pan.js';
-import { loadPDF } from '../pdf/loader.js';
+import { loadPDFIfNeeded } from '../pdf/loader.js';
 import { isTauri } from '../core/platform.js';
 import { createTab } from './chrome/tabs.js';
 import { addImageFromFile } from '../annotations/image-drop.js';
@@ -75,7 +75,7 @@ function setupTauriDragDrop() {
         const ext = getFileExtension(filePath);
         if (ext === '.pdf') {
           const { index } = createTab(filePath);
-          await loadPDF(filePath, index);
+          await loadPDFIfNeeded(filePath, index);
         } else if (IMAGE_EXTENSIONS.includes(ext)) {
           await addImageFromFile(filePath);
         }
@@ -120,7 +120,7 @@ function setupHtmlDragDrop() {
       const ext = getFileExtension(file.name);
       if (ext === '.pdf' && file.path) {
         const { index } = createTab(file.path);
-        await loadPDF(file.path, index);
+        await loadPDFIfNeeded(file.path, index);
       } else if (IMAGE_EXTENSIONS.includes(ext)) {
         const blob = file;
         const { pasteImageFromBlob } = await import('../annotations/clipboard.js');

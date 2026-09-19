@@ -346,6 +346,25 @@
     "done": "{{count}} sivu(a) suoristettu {{angle}}°",
     "alreadyStraight": "Viiva on jo suora — korjausta ei tarvita."
   },
+  "shiftPage": {
+    "title": "Siirrä sivua",
+    "apply": "Siirrä",
+    "reset": "Palauta",
+    "horizontal": "Vaakasuunta (mm):",
+    "vertical": "Pystysuunta (mm):",
+    "allPages": "Kaikki sivut",
+    "evenPages": "Parilliset sivut",
+    "oddPages": "Parittomat sivut",
+    "fromPage": "Sivulta alkaen:",
+    "noShift": "Siirtoa ei annettu — ei mitään käytettävää.",
+    "dragInfo": "Siirrä sivua vetämällä esikatselua tai anna alla tarkat siirtymät millimetreinä.",
+    "applyTo": "Käytä kohteeseen:",
+    "currentPage": "Nykyinen sivu",
+    "noPages": "Ei vastaavaa sivua, jolla on sisältöä — mitään ei siirretty.",
+    "shifting": "Siirretään sivua...",
+    "failed": "Sivua ei voitu siirtää.",
+    "encrypted": "Tämä asiakirja on salattu, joten sen sivuja ei voi siirtää."
+  },
   "signatureVerification": {
     "checking": "Tarkistetaan digitaalisia allekirjoituksia…",
     "barLabel": "Digitaaliset allekirjoitukset",

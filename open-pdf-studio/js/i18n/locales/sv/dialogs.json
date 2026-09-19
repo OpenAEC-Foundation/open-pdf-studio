@@ -346,6 +346,25 @@
     "done": "{{count}} sida/sidor rätade med {{angle}}°",
     "alreadyStraight": "Linjen är redan rak — ingen korrigering behövs."
   },
+  "shiftPage": {
+    "title": "Flytta sida",
+    "apply": "Flytta",
+    "reset": "Återställ",
+    "horizontal": "Vågrätt (mm):",
+    "vertical": "Lodrätt (mm):",
+    "allPages": "Alla sidor",
+    "evenPages": "Jämna sidor",
+    "oddPages": "Udda sidor",
+    "fromPage": "Från sida:",
+    "noShift": "Ingen förskjutning angiven — inget att tillämpa.",
+    "dragInfo": "Dra i förhandsgranskningen för att flytta sidan, eller ange exakta förskjutningar i millimeter nedan.",
+    "applyTo": "Tillämpa på:",
+    "currentPage": "Aktuell sida",
+    "noPages": "Ingen matchande sida med innehåll — inget flyttades.",
+    "shifting": "Flyttar sida...",
+    "failed": "Sidan kunde inte flyttas.",
+    "encrypted": "Det här dokumentet är krypterat, så dess sidor kan inte flyttas."
+  },
   "signatureVerification": {
     "checking": "Kontrollerar digitala signaturer…",
     "barLabel": "Digitala signaturer",

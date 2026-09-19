@@ -154,7 +154,8 @@
     "appearance": "Penampilan",
     "keystrokes": "Keystrokes",
     "readerMode": "Mod Pembaca",
-    "readerModeTip": "Mengingati halaman, kedudukan tatal dan zum setiap PDF apabila ditutup dan dibuka semula"
+    "readerModeTip": "Mengingati halaman, kedudukan tatal dan zum PDF ini apabila ditutup dan dibuka semula. Selagi dihidupkan, satu fail kecil disimpan di sebelah PDF ini, jadi ia juga muncul dalam folder yang disegerakkan dengan awan (OneDrive, Dropbox, dsb.); mematikannya akan membuang fail tersebut.",
+    "readerModeSaveFailed": "Mod Pembaca tidak dapat menyimpan tetapannya untuk PDF ini. Folder mungkin baca sahaja."
   },
   "organize": {
     "pages": "Halaman",
@@ -177,7 +178,8 @@
     "manageWatermarks": "Urus Tera Air",
     "manage": "Urus",
     "ocr": "Pengecaman Teks (OCR)",
-    "straighten": "Luruskan Halaman"
+    "straighten": "Luruskan Halaman",
+    "shiftPage": "Alih halaman"
   },
   "help": {
     "information": "Maklumat",

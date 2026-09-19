@@ -346,6 +346,25 @@
     "done": "Wyprostowano {{count}} stron(y) o {{angle}}°",
     "alreadyStraight": "Linia jest już prosta — korekta niepotrzebna."
   },
+  "shiftPage": {
+    "title": "Przesuń stronę",
+    "apply": "Przesuń",
+    "reset": "Resetuj",
+    "horizontal": "Poziomo (mm):",
+    "vertical": "Pionowo (mm):",
+    "allPages": "Wszystkie strony",
+    "evenPages": "Strony parzyste",
+    "oddPages": "Strony nieparzyste",
+    "fromPage": "Od strony:",
+    "noShift": "Nie wprowadzono przesunięcia — nie ma czego zastosować.",
+    "dragInfo": "Przeciągnij podgląd, aby przesunąć stronę, lub wpisz poniżej dokładne przesunięcia w milimetrach.",
+    "applyTo": "Zastosuj do:",
+    "currentPage": "Bieżąca strona",
+    "noPages": "Brak pasującej strony z zawartością — nic nie zostało przesunięte.",
+    "shifting": "Przesuwanie strony...",
+    "failed": "Nie udało się przesunąć strony.",
+    "encrypted": "Ten dokument jest zaszyfrowany, dlatego jego stron nie można przesunąć."
+  },
   "signatureVerification": {
     "checking": "Sprawdzanie podpisów cyfrowych…",
     "barLabel": "Podpisy cyfrowe",

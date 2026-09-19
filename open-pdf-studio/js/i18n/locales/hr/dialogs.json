@@ -346,6 +346,25 @@
     "done": "Ispravljeno {{count}} stranica za {{angle}}°",
     "alreadyStraight": "Linija je već ravna — korekcija nije potrebna."
   },
+  "shiftPage": {
+    "title": "Pomakni stranicu",
+    "apply": "Pomakni",
+    "reset": "Poništi",
+    "horizontal": "Vodoravno (mm):",
+    "vertical": "Okomito (mm):",
+    "allPages": "Sve stranice",
+    "evenPages": "Parne stranice",
+    "oddPages": "Neparne stranice",
+    "fromPage": "Od stranice:",
+    "noShift": "Nije unesen pomak — nema se što primijeniti.",
+    "dragInfo": "Povucite pretpregled da biste pomaknuli stranicu ili ispod unesite točne pomake u milimetrima.",
+    "applyTo": "Primijeni na:",
+    "currentPage": "Trenutna stranica",
+    "noPages": "Nema odgovarajuće stranice sa sadržajem — ništa nije pomaknuto.",
+    "shifting": "Pomicanje stranice...",
+    "failed": "Stranicu nije bilo moguće pomaknuti.",
+    "encrypted": "Ovaj je dokument šifriran pa se njegove stranice ne mogu pomaknuti."
+  },
   "signatureVerification": {
     "checking": "Provjera digitalnih potpisa…",
     "barLabel": "Digitalni potpisi",

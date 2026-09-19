@@ -346,6 +346,25 @@
     "done": "{{count}} sayfa {{angle}}° düzeltildi",
     "alreadyStraight": "Çizgi zaten düz — düzeltmeye gerek yok."
   },
+  "shiftPage": {
+    "title": "Sayfayı kaydır",
+    "apply": "Kaydır",
+    "reset": "Sıfırla",
+    "horizontal": "Yatay (mm):",
+    "vertical": "Dikey (mm):",
+    "allPages": "Tüm sayfalar",
+    "evenPages": "Çift sayfalar",
+    "oddPages": "Tek sayfalar",
+    "fromPage": "Başlangıç sayfası:",
+    "noShift": "Kaydırma değeri girilmedi — uygulanacak bir şey yok.",
+    "dragInfo": "Sayfayı kaydırmak için önizlemeyi sürükleyin veya aşağıya milimetre cinsinden kesin kaydırma değerlerini girin.",
+    "applyTo": "Şuna uygula:",
+    "currentPage": "Geçerli sayfa",
+    "noPages": "İçeriği olan eşleşen sayfa yok — hiçbir şey kaydırılmadı.",
+    "shifting": "Sayfa kaydırılıyor...",
+    "failed": "Sayfa kaydırılamadı.",
+    "encrypted": "Bu belge şifrelenmiş olduğundan sayfaları kaydırılamıyor."
+  },
   "signatureVerification": {
     "checking": "Dijital imzalar denetleniyor…",
     "barLabel": "Dijital imzalar",

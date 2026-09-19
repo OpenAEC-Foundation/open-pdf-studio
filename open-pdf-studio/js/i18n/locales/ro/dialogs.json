@@ -346,6 +346,25 @@
     "done": "{{count}} pagină(i) îndreptată(e) cu {{angle}}°",
     "alreadyStraight": "Linia este deja dreaptă — nu este nevoie de corecție."
   },
+  "shiftPage": {
+    "title": "Deplasează pagina",
+    "apply": "Deplasează",
+    "reset": "Resetare",
+    "horizontal": "Orizontal (mm):",
+    "vertical": "Vertical (mm):",
+    "allPages": "Toate paginile",
+    "evenPages": "Pagini pare",
+    "oddPages": "Pagini impare",
+    "fromPage": "De la pagina:",
+    "noShift": "Nu a fost introdusă nicio deplasare — nimic de aplicat.",
+    "dragInfo": "Trageți previzualizarea pentru a deplasa pagina sau introduceți mai jos deplasările exacte în milimetri.",
+    "applyTo": "Aplică la:",
+    "currentPage": "Pagina curentă",
+    "noPages": "Nicio pagină corespunzătoare cu conținut — nu s-a deplasat nimic.",
+    "shifting": "Se deplasează pagina...",
+    "failed": "Pagina nu a putut fi deplasată.",
+    "encrypted": "Acest document este criptat, așa că paginile sale nu pot fi deplasate."
+  },
   "signatureVerification": {
     "checking": "Se verifica semnaturile digitale…",
     "barLabel": "Semnături digitale",

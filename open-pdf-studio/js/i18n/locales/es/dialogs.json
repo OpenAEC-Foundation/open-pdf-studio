@@ -346,6 +346,25 @@
     "done": "{{count}} página(s) enderezada(s) {{angle}}°",
     "alreadyStraight": "La línea ya está recta — no se necesita corrección."
   },
+  "shiftPage": {
+    "title": "Desplazar página",
+    "apply": "Desplazar",
+    "reset": "Restablecer",
+    "horizontal": "Horizontal (mm):",
+    "vertical": "Vertical (mm):",
+    "allPages": "Todas las páginas",
+    "evenPages": "Páginas pares",
+    "oddPages": "Páginas impares",
+    "fromPage": "Desde la página:",
+    "noShift": "No se ha introducido ningún desplazamiento — no hay nada que aplicar.",
+    "dragInfo": "Arrastre la vista previa para desplazar la página, o introduzca abajo los desplazamientos exactos en milímetros.",
+    "applyTo": "Aplicar a:",
+    "currentPage": "Página actual",
+    "noPages": "Ninguna página coincidente con contenido — no se ha desplazado nada.",
+    "shifting": "Desplazando página...",
+    "failed": "No se pudo desplazar la página.",
+    "encrypted": "Este documento está cifrado, por lo que sus páginas no se pueden desplazar."
+  },
   "signatureVerification": {
     "checking": "Comprobando las firmas digitales…",
     "barLabel": "Firmas digitales",

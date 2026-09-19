@@ -193,7 +193,8 @@
     "keystrokes": "Keystrokes",
     "keystrokesHint": "Show pressed keyboard shortcuts at the bottom left (for screen recordings)",
     "readerMode": "Reader Mode",
-    "readerModeTip": "Remember each PDF's page, scroll position and zoom across closing and reopening it. Saves a small file next to each PDF you read, so it also appears in cloud-synced folders (OneDrive, Dropbox, etc.)"
+    "readerModeTip": "Remember this PDF's page, scroll position and zoom across closing and reopening it. While switched on, a small file is kept next to this PDF, so it also appears in cloud-synced folders (OneDrive, Dropbox, etc.); switching it off removes that file.",
+    "readerModeSaveFailed": "Reader Mode could not save its setting for this PDF. The folder may be read-only."
   },
   "elementVisibility": {
     "buttonTitle": "Element Visibility — show/hide and dim annotation types",
@@ -272,7 +273,8 @@
     "reorderPages": "Reorder",
     "reorderPagesTitle": "Open thumbnails to drag pages into a new order",
     "ocr": "Recognize Text (OCR)",
-    "straighten": "Straighten Page"
+    "straighten": "Straighten Page",
+    "shiftPage": "Shift Page"
   },
   "help": {
     "settings": "Settings",

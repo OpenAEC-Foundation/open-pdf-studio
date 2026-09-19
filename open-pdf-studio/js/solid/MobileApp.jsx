@@ -2,7 +2,7 @@ import { createSignal, onMount, onCleanup, Show, For } from 'solid-js';
 import { useTranslation } from '../i18n/useTranslation.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { isTauri, extractFileName } from '../core/platform.js';
-import { loadPDF } from '../pdf/loader.js';
+import { loadPDF, loadPDFIfNeeded } from '../pdf/loader.js';
 import { fitWidth, fitPage, goToPage, rotatePage, setZoom } from '../pdf/renderer.js';
 import { createTab } from '../ui/chrome/tabs.js';
 import { initDomElements } from '../ui/dom-elements.js';
@@ -89,8 +89,9 @@ export default function MobileApp() {
           const { index } = createTab(path);
           await new Promise(r => setTimeout(r, 0));
           initDomElements();
-          await loadPDF(path, index);
-          await fitPage();
+          // Picking a file that is already open only shows it: a reload
+          // would drop its unsaved annotations and undo history.
+          if (await loadPDFIfNeeded(path, index)) await fitPage();
           addRecentFile(path, extractFileName(path));
           setRecentFiles(getRecentFiles());
           return; // Success — done

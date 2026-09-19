@@ -154,7 +154,8 @@
     "appearance": "外観",
     "keystrokes": "Keystrokes",
     "readerMode": "リーダーモード",
-    "readerModeTip": "PDFを閉じて再度開く際に、ページ、スクロール位置、ズームを記憶します"
+    "readerModeTip": "このPDFを閉じて再度開く際に、ページ、スクロール位置、ズームを記憶します。オンの間は、このPDFの隣に小さなファイルが保存されるため、クラウド同期フォルダー（OneDrive、Dropboxなど）にも表示されます。オフにするとそのファイルは削除されます。",
+    "readerModeSaveFailed": "リーダーモードはこのPDFの設定を保存できませんでした。フォルダーが読み取り専用の可能性があります。"
   },
   "organize": {
     "pages": "ページ",
@@ -177,7 +178,8 @@
     "manageWatermarks": "透かしを管理",
     "manage": "管理",
     "ocr": "文字認識（OCR）",
-    "straighten": "ページを補正"
+    "straighten": "ページを補正",
+    "shiftPage": "ページをシフト"
   },
   "help": {
     "information": "情報",

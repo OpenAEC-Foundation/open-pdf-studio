@@ -346,6 +346,25 @@
     "done": "{{count}} Seite(n) um {{angle}}° begradigt",
     "alreadyStraight": "Linie ist bereits gerade — keine Korrektur nötig."
   },
+  "shiftPage": {
+    "title": "Seite verschieben",
+    "apply": "Verschieben",
+    "reset": "Zurücksetzen",
+    "horizontal": "Waagerecht (mm):",
+    "vertical": "Senkrecht (mm):",
+    "allPages": "Alle Seiten",
+    "evenPages": "Gerade Seiten",
+    "oddPages": "Ungerade Seiten",
+    "fromPage": "Ab Seite:",
+    "noShift": "Keine Verschiebung eingegeben — nichts anzuwenden.",
+    "dragInfo": "Ziehen Sie die Vorschau, um die Seite zu verschieben, oder geben Sie unten exakte Versätze in Millimetern ein.",
+    "applyTo": "Anwenden auf:",
+    "currentPage": "Aktuelle Seite",
+    "noPages": "Keine passende Seite mit Inhalt — es wurde nichts verschoben.",
+    "shifting": "Seite wird verschoben...",
+    "failed": "Die Seite konnte nicht verschoben werden.",
+    "encrypted": "Dieses Dokument ist verschlüsselt, daher können seine Seiten nicht verschoben werden."
+  },
   "signatureVerification": {
     "checking": "Digitale Signaturen werden geprüft…",
     "barLabel": "Digitale Signaturen",

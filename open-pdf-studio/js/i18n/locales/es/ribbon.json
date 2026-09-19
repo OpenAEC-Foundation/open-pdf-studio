@@ -154,7 +154,8 @@
     "appearance": "Apariencia",
     "keystrokes": "Keystrokes",
     "readerMode": "Modo lectura",
-    "readerModeTip": "Recuerda la página, la posición de desplazamiento y el zoom de cada PDF al cerrarlo y volver a abrirlo"
+    "readerModeTip": "Recuerda la página, la posición de desplazamiento y el zoom de este PDF al cerrarlo y volver a abrirlo. Mientras está activado, se guarda un archivo pequeño junto a este PDF, por lo que también aparece en carpetas sincronizadas con la nube (OneDrive, Dropbox, etc.); al desactivarlo, ese archivo se elimina.",
+    "readerModeSaveFailed": "El modo lectura no pudo guardar su ajuste para este PDF. Es posible que la carpeta sea de solo lectura."
   },
   "organize": {
     "pages": "Páginas",
@@ -177,7 +178,8 @@
     "manageWatermarks": "Administrar marcas de agua",
     "manage": "Administrar",
     "ocr": "Reconocimiento de texto (OCR)",
-    "straighten": "Enderezar Página"
+    "straighten": "Enderezar Página",
+    "shiftPage": "Desplazar página"
   },
   "help": {
     "information": "Información",

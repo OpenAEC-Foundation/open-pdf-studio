@@ -346,6 +346,25 @@
     "done": "{{count}} pagina/e raddrizzata/e di {{angle}}°",
     "alreadyStraight": "La linea è già dritta — nessuna correzione necessaria."
   },
+  "shiftPage": {
+    "title": "Sposta pagina",
+    "apply": "Sposta",
+    "reset": "Ripristina",
+    "horizontal": "Orizzontale (mm):",
+    "vertical": "Verticale (mm):",
+    "allPages": "Tutte le pagine",
+    "evenPages": "Pagine pari",
+    "oddPages": "Pagine dispari",
+    "fromPage": "Dalla pagina:",
+    "noShift": "Nessuno spostamento inserito — niente da applicare.",
+    "dragInfo": "Trascina l'anteprima per spostare la pagina, oppure inserisci qui sotto gli spostamenti esatti in millimetri.",
+    "applyTo": "Applica a:",
+    "currentPage": "Pagina corrente",
+    "noPages": "Nessuna pagina corrispondente con contenuto — non è stato spostato nulla.",
+    "shifting": "Spostamento della pagina...",
+    "failed": "Impossibile spostare la pagina.",
+    "encrypted": "Questo documento è crittografato, quindi le sue pagine non possono essere spostate."
+  },
   "signatureVerification": {
     "checking": "Verifica delle firme digitali in corso…",
     "barLabel": "Firme digitali",

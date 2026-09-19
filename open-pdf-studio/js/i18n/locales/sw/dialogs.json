@@ -346,6 +346,25 @@
     "done": "Kurasa {{count}} zimenyooshwa kwa {{angle}}°",
     "alreadyStraight": "Mstari tayari umenyooka — hakuna marekebisho yanayohitajika."
   },
+  "shiftPage": {
+    "title": "Hamisha ukurasa",
+    "apply": "Hamisha",
+    "reset": "Weka upya",
+    "horizontal": "Mlalo (mm):",
+    "vertical": "Wima (mm):",
+    "allPages": "Kurasa zote",
+    "evenPages": "Kurasa shufwa",
+    "oddPages": "Kurasa witiri",
+    "fromPage": "Kuanzia ukurasa:",
+    "noShift": "Hakuna uhamishaji ulioingizwa — hakuna cha kutekeleza.",
+    "dragInfo": "Buruta onyesho la awali ili kuhamisha ukurasa, au weka hapa chini vipimo kamili vya uhamishaji kwa milimita.",
+    "applyTo": "Tekeleza kwa:",
+    "currentPage": "Ukurasa wa sasa",
+    "noPages": "Hakuna ukurasa unaolingana wenye maudhui — hakuna kilichohamishwa.",
+    "shifting": "Inahamisha ukurasa...",
+    "failed": "Ukurasa haukuweza kuhamishwa.",
+    "encrypted": "Hati hii imesimbwa kwa njia fiche, kwa hivyo kurasa zake haziwezi kuhamishwa."
+  },
   "signatureVerification": {
     "checking": "Inakagua sahihi za kidijitali…",
     "barLabel": "Sahihi za kidijitali",

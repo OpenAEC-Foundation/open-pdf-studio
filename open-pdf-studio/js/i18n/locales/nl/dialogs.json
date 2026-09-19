@@ -503,6 +503,25 @@
     "done": "{{count}} pagina('s) rechtgezet met {{angle}}°",
     "alreadyStraight": "Lijn staat al recht — geen correctie nodig."
   },
+  "shiftPage": {
+    "title": "Pagina verschuiven",
+    "apply": "Verschuiven",
+    "reset": "Herstellen",
+    "horizontal": "Horizontaal (mm):",
+    "vertical": "Verticaal (mm):",
+    "allPages": "Alle pagina's",
+    "evenPages": "Even pagina's",
+    "oddPages": "Oneven pagina's",
+    "fromPage": "Vanaf pagina:",
+    "noShift": "Geen verschuiving ingevoerd — niets om toe te passen.",
+    "dragInfo": "Sleep de voorbeeldweergave om de pagina te verschuiven, of voer hieronder exacte offsets in millimeter in.",
+    "applyTo": "Toepassen op:",
+    "currentPage": "Huidige pagina",
+    "noPages": "Geen overeenkomende pagina met inhoud — er is niets verschoven.",
+    "shifting": "Pagina verschuiven...",
+    "failed": "De pagina kon niet worden verschoven.",
+    "encrypted": "Dit document is versleuteld, daarom kunnen de pagina's niet worden verschoven."
+  },
   "signatureVerification": {
     "checking": "Digitale handtekeningen controleren…",
     "barLabel": "Digitale handtekeningen",
