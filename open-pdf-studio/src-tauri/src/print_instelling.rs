@@ -10,6 +10,7 @@ use std::collections::HashMap;
 use std::sync::Mutex;
 
 use crate::print_formulieren::{formulier, Formulier};
+use crate::print_plaatsing::Plaatsing;
 
 /// Gevraagde oriëntatie. `Auto` = per pagina afleiden (breder dan hoog → liggend).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -352,7 +353,15 @@ impl PrinterDevmodes {
 }
 
 /// Extra `lp`-argumenten (CUPS). Bij `Auto` geen oriëntatie-optie, bij `Printer` geen media.
-pub fn lp_opties(orientatie: Orientatie, papier: Papier) -> Vec<String> {
+///
+/// Bij plaatsing `Vel` heeft de printdialoog elke pagina al op papiergrootte
+/// opgemaakt, met de gekozen schaal en plek. Dan `print-scaling=none` (het
+/// IPP-jobattribuut uit PWG 5100.13, dat CUPS en de pdftopdf-filter van
+/// cups-filters kennen): de standaard (`auto`) past een pagina die groter is
+/// dan het bedrukbare gebied nog eens in dat gebied, en een pagina op
+/// papiergrootte is dat altijd. Een printer die het attribuut niet kent,
+/// negeert het.
+pub fn lp_opties(orientatie: Orientatie, papier: Papier, plaatsing: Plaatsing) -> Vec<String> {
     let mut opties = Vec::new();
     match orientatie {
         Orientatie::Auto => {}
@@ -368,6 +377,10 @@ pub fn lp_opties(orientatie: Orientatie, papier: Papier) -> Vec<String> {
     if let Some(m) = lp_media(papier) {
         opties.push("-o".to_string());
         opties.push(format!("media={m}"));
+    }
+    if plaatsing == Plaatsing::Vel {
+        opties.push("-o".to_string());
+        opties.push("print-scaling=none".to_string());
     }
     opties
 }
@@ -792,12 +805,41 @@ mod tests {
 
     #[test]
     fn lp_opties_per_keuze() {
-        assert!(lp_opties(Orientatie::Auto, Papier::Printer).is_empty());
+        assert!(lp_opties(Orientatie::Auto, Papier::Printer, Plaatsing::Passend).is_empty());
         assert_eq!(
-            lp_opties(Orientatie::Liggend, Papier::A3),
+            lp_opties(Orientatie::Liggend, Papier::A3, Plaatsing::Passend),
             vec!["-o", "orientation-requested=4", "-o", "media=A3"]
         );
-        assert_eq!(lp_opties(Orientatie::Staand, Papier::Printer), vec!["-o", "orientation-requested=3"]);
+        assert_eq!(
+            lp_opties(Orientatie::Staand, Papier::Printer, Plaatsing::Passend),
+            vec!["-o", "orientation-requested=3"]
+        );
+    }
+
+    #[test]
+    fn lp_opties_pagina_op_papiergrootte_niet_opnieuw_schalen() {
+        // Plaatsing Vel: de pagina is het vel, CUPS mag niet nog eens passend maken.
+        assert_eq!(
+            lp_opties(Orientatie::Auto, Papier::A3, Plaatsing::Vel),
+            vec!["-o", "media=A3", "-o", "print-scaling=none"]
+        );
+        assert_eq!(
+            lp_opties(Orientatie::Liggend, Papier::A1L, Plaatsing::Vel),
+            vec!["-o", "orientation-requested=4", "-o", "media=Custom.594x1051mm", "-o", "print-scaling=none"]
+        );
+        // Het papier van de printer, maar wel een opgemaakte pagina: alleen de schaaloptie.
+        assert_eq!(lp_opties(Orientatie::Auto, Papier::Printer, Plaatsing::Vel), vec!["-o", "print-scaling=none"]);
+        // Het oude gedrag noemt geen schaaloptie: CUPS beslist zoals altijd.
+        for p in BEKENDE_VELLEN {
+            assert!(!lp_opties(Orientatie::Auto, p, Plaatsing::Passend).iter().any(|o| o.contains("scaling")));
+            // Elke optie staat als los argument na "-o", zonder spaties.
+            let opties = lp_opties(Orientatie::Staand, p, Plaatsing::Vel);
+            assert_eq!(opties.len() % 2, 0);
+            for paar in opties.chunks(2) {
+                assert_eq!(paar[0], "-o");
+                assert!(!paar[1].contains(' ') && paar[1].contains('='), "{p:?}: {}", paar[1]);
+            }
+        }
     }
 
     #[test]
@@ -811,10 +853,13 @@ mod tests {
         assert_eq!(lp_media(Papier::A0L).as_deref(), Some("Custom.841x1399mm"));
         assert_eq!(lp_media(Papier::Printer), None);
         assert_eq!(
-            lp_opties(Orientatie::Liggend, Papier::A1L),
+            lp_opties(Orientatie::Liggend, Papier::A1L, Plaatsing::Passend),
             vec!["-o", "orientation-requested=4", "-o", "media=Custom.594x1051mm"]
         );
-        assert_eq!(lp_opties(Orientatie::Auto, Papier::A3L), vec!["-o", "media=Custom.297x630mm"]);
+        assert_eq!(
+            lp_opties(Orientatie::Auto, Papier::A3L, Plaatsing::Passend),
+            vec!["-o", "media=Custom.297x630mm"]
+        );
         // Elk bekend vel levert een media-optie zonder spaties.
         for p in BEKENDE_VELLEN {
             let m = lp_media(p).unwrap();

@@ -18,15 +18,20 @@
 //! vel dat de DC al heeft, zodat een ResetDC het papier niet kwijtraakt.
 //! Vellen zonder vaste papiercode (A1, A0, de verlengde vellen) kent de
 //! noodweg niet; daar blijft het papier van de printer staan.
+//!
+//! Waar een pagina op het vel komt (`print_plaatsing`): passend in het
+//! bedrukbare gebied (het oude gedrag), of, als de printdialoog de schaal al
+//! in de pagina heeft gezet (plaatsing `Vel`), 1:1 op het hele fysieke vel.
 
 use std::path::Path;
 use std::sync::Arc;
 
+use pdfium_render::prelude::PdfDocument;
 use windows_sys::Win32::Graphics::Gdi::{
     CreateDCW, DeleteDC, GetDeviceCaps, ResetDCW, SetStretchBltMode, StretchDIBits, BITMAPINFO,
     BITMAPINFOHEADER, BI_RGB, DEVMODEW, DIB_RGB_COLORS, DMORIENT_LANDSCAPE, DMORIENT_PORTRAIT,
     DM_ORIENTATION, DM_PAPERSIZE, HALFTONE, HDC, HORZRES, LOGPIXELSX, LOGPIXELSY, PHYSICALHEIGHT,
-    PHYSICALWIDTH, SRCCOPY, VERTRES,
+    PHYSICALOFFSETX, PHYSICALOFFSETY, PHYSICALWIDTH, SRCCOPY, VERTRES,
 };
 // De StartDoc/EndDoc-familie staat in windows-sys onder Storage::Xps.
 use windows_sys::Win32::Storage::Xps::{AbortDoc, EndDoc, EndPage, StartDocW, StartPage, DOCINFOW};
@@ -34,6 +39,10 @@ use windows_sys::Win32::Storage::Xps::{AbortDoc, EndDoc, EndPage, StartDocW, Sta
 use crate::pdfium_renderer;
 use crate::print_devmode::{breed, devmode_voor_opdracht, met_orientatie, DevMode, Printer};
 use crate::print_instelling::{dmpaper, liggend_voor_pagina, papier_uit_maat_mm, Orientatie, Papier};
+use crate::print_plaatsing::{
+    deel_op_vel, fijnste_afbeelding_dpi, inhoud_deel, passend_in_bedrukbaar, render_dpi, DcRechthoek, DcVel,
+    PaginaDeel, Plaatsing,
+};
 
 /// Printer-DC die bij het verlaten van de scope altijd weer vrijkomt.
 struct Dc(HDC);
@@ -104,6 +113,62 @@ fn vel_mm(hdc: HDC) -> (f64, f64) {
     }
 }
 
+/// Het vel van de DC in apparaatpixels: bedrukbaar gebied, fysiek vel,
+/// waar het bedrukbare gebied begint en de resolutie.
+fn dc_vel(hdc: HDC) -> DcVel {
+    let cap = |index: u32| unsafe { GetDeviceCaps(hdc, index as i32) };
+    DcVel {
+        bedrukbaar: (cap(HORZRES), cap(VERTRES)),
+        fysiek: (cap(PHYSICALWIDTH), cap(PHYSICALHEIGHT)),
+        offset: (cap(PHYSICALOFFSETX), cap(PHYSICALOFFSETY)),
+        dpi: (cap(LOGPIXELSX), cap(LOGPIXELSY)),
+    }
+}
+
+/// Een gerenderde pagina (breedte, hoogte, RGBA) en waar hij op de DC komt.
+type PaginaBeeld = (u32, u32, Vec<u8>, DcRechthoek);
+
+/// Plaatsing `Vel`: de pagina is het vel en gaat 1:1 op het fysieke vel.
+///
+/// De printdialoog zet één paginabeeld op een verder leeg vel; alleen het
+/// deel met inhoud wordt gerenderd, en niet fijner dan dat beeld zelf
+/// (`render_dpi`), zodat een A4 op een A0-vel niet een heel A0 aan pixels
+/// kost. `None` = een leeg vel. Een gedraaide pagina (/Rotate) gaat in zijn
+/// geheel, zoals PDFium hem gedraaid rendert.
+fn beeld_op_vel(doc: &PdfDocument<'static>, i: u32, apparaat_dpi: i32, vel: &DcVel) -> Result<Option<PaginaBeeld>, String> {
+    let (pw, ph) = pdfium_renderer::page_size_pt(doc, i)?;
+    let pagina = (pw as f64, ph as f64);
+    let inhoud = match pdfium_renderer::page_content(doc, i) {
+        Ok(inhoud) if !inhoud.gedraaid => Some(inhoud),
+        Ok(_) => None,
+        Err(e) => {
+            log::warn!("[print] objecten van pagina {} onleesbaar: {e}; hele pagina", i + 1);
+            None
+        }
+    };
+    let Some(inhoud) = inhoud else {
+        let schaal = (render_dpi(apparaat_dpi, None) / 72.0) as f32;
+        let (w, h, rgba) = pdfium_renderer::render_page_to_rgba(doc, i, schaal, 0)?;
+        return Ok(Some((w, h, rgba, deel_op_vel(pagina, PaginaDeel::heel(pagina), vel))));
+    };
+    let Some(deel) = inhoud_deel(&inhoud.objecten, inhoud.kader) else {
+        return Ok(None);
+    };
+    let schaal = render_dpi(apparaat_dpi, fijnste_afbeelding_dpi(&inhoud.afbeelding_dpi)) / 72.0;
+    let (w, h, rgba) = pdfium_renderer::render_page_part_for_print(
+        doc,
+        i,
+        schaal as f32,
+        deel.x as f32,
+        deel.y as f32,
+        deel.breedte as f32,
+        deel.hoogte as f32,
+    )?;
+    // Het beeld dekt hele pixels, dus een fractie meer dan het deel.
+    let gedekt = PaginaDeel { breedte: w as f64 / schaal, hoogte: h as f64 / schaal, ..deel };
+    Ok(Some((w, h, rgba, deel_op_vel(pagina, gedekt, vel))))
+}
+
 /// Noodweg als de driver geen DEVMODE geeft: een verder lege `DEVMODEW` voor
 /// `ResetDCW`, zoals vóór issue 406 (alleen het publieke deel,
 /// `dmDriverExtra` 0), met oriëntatie en, als bekend, het papier. Zonder
@@ -134,14 +199,17 @@ enum Stand<'a> {
 
 /// Print het PDF-bestand `pad` op `printer`.
 ///
-/// `opgeslagen` is de in deze sessie in het eigenschappenvenster gekozen
-/// DEVMODE voor deze printer (bytes), `uitvoer` een bestand om naar te
+/// `plaatsing`: `Passend` (elke pagina passend in het bedrukbare gebied) of
+/// `Vel` (de pagina is al op papiergrootte opgemaakt en gaat 1:1 op het
+/// fysieke vel). `opgeslagen` is de in deze sessie in het eigenschappenvenster
+/// gekozen DEVMODE voor deze printer (bytes), `uitvoer` een bestand om naar te
 /// printen (`DOCINFOW.lpszOutput`; de app zelf geeft `None`).
 pub fn print_pdf_bestand(
     pad: &Path,
     printer: &str,
     orientatie: Orientatie,
     papier: Papier,
+    plaatsing: Plaatsing,
     opgeslagen: Option<&[u8]>,
     uitvoer: Option<&Path>,
 ) -> Result<(), String> {
@@ -157,7 +225,7 @@ pub fn print_pdf_bestand(
             None
         }
     };
-    print_met_devmodes(pad, printer, orientatie, papier, devmodes.as_ref(), uitvoer)
+    print_met_devmodes(pad, printer, orientatie, papier, plaatsing, devmodes.as_ref(), uitvoer)
 }
 
 /// De printkern. `devmodes` `None` = de noodweg: DC zonder DEVMODE, papier en
@@ -167,6 +235,7 @@ fn print_met_devmodes(
     printer: &str,
     orientatie: Orientatie,
     papier: Papier,
+    plaatsing: Plaatsing,
     devmodes: Option<&OpdrachtDevmodes>,
     uitvoer: Option<&Path>,
 ) -> Result<(), String> {
@@ -250,59 +319,67 @@ fn print_met_devmodes(
             Some(_) => dc_liggend = liggend,
             None => {}
         }
-        // Printbaar gebied na een eventuele ResetDC opnieuw lezen.
-        let dev_w = unsafe { GetDeviceCaps(hdc, HORZRES as i32) };
-        let dev_h = unsafe { GetDeviceCaps(hdc, VERTRES as i32) };
+        // Het vel na een eventuele ResetDC opnieuw lezen.
+        let vel = dc_vel(hdc);
 
-        let (w, h, mut rgba) = pdfium_renderer::render_page_to_rgba(doc, i, scale, 0)
-            .map_err(|e| format!("Render page {} failed: {e}", i + 1))?;
-        // RGBA -> BGRA (bytevolgorde van een GDI-DIB)
-        for px in rgba.chunks_exact_mut(4) {
-            px.swap(0, 2);
-        }
-
-        // Pagina passend in het printbare gebied, verhouding behouden, gecentreerd.
-        let s = (dev_w as f64 / w as f64).min(dev_h as f64 / h as f64);
-        let dw = ((w as f64) * s).round() as i32;
-        let dh = ((h as f64) * s).round() as i32;
-        let dx = (dev_w - dw) / 2;
-        let dy = (dev_h - dh) / 2;
-
-        let mut bmi: BITMAPINFO = unsafe { std::mem::zeroed() };
-        bmi.bmiHeader = BITMAPINFOHEADER {
-            biSize: std::mem::size_of::<BITMAPINFOHEADER>() as u32,
-            biWidth: w as i32,
-            biHeight: -(h as i32), // top-down DIB
-            biPlanes: 1,
-            biBitCount: 32,
-            biCompression: BI_RGB,
-            biSizeImage: 0,
-            biXPelsPerMeter: 0,
-            biYPelsPerMeter: 0,
-            biClrUsed: 0,
-            biClrImportant: 0,
+        let beeld = match plaatsing {
+            Plaatsing::Passend => {
+                let (w, h, rgba) = pdfium_renderer::render_page_to_rgba(doc, i, scale, 0)
+                    .map_err(|e| format!("Render page {} failed: {e}", i + 1))?;
+                // Pagina passend in het printbare gebied, verhouding behouden, gecentreerd.
+                let doel = passend_in_bedrukbaar((w, h), vel.bedrukbaar);
+                Some((w, h, rgba, doel))
+            }
+            Plaatsing::Vel => {
+                beeld_op_vel(doc, i, dpi, &vel).map_err(|e| format!("Render page {} failed: {e}", i + 1))?
+            }
         };
 
         unsafe {
             if StartPage(hdc) <= 0 {
                 return Err(format!("StartPage failed (page {})", i + 1));
             }
-            SetStretchBltMode(hdc, HALFTONE);
-            StretchDIBits(
-                hdc,
-                dx,
-                dy,
-                dw,
-                dh,
-                0,
-                0,
-                w as i32,
-                h as i32,
-                rgba.as_ptr() as *const std::ffi::c_void,
-                &bmi,
-                DIB_RGB_COLORS,
-                SRCCOPY,
-            );
+        }
+        // Een leeg vel (plaatsing Vel zonder inhoud) krijgt alleen StartPage/EndPage.
+        if let Some((w, h, mut rgba, doel)) = beeld {
+            // RGBA -> BGRA (bytevolgorde van een GDI-DIB)
+            for px in rgba.chunks_exact_mut(4) {
+                px.swap(0, 2);
+            }
+            let mut bmi: BITMAPINFO = unsafe { std::mem::zeroed() };
+            bmi.bmiHeader = BITMAPINFOHEADER {
+                biSize: std::mem::size_of::<BITMAPINFOHEADER>() as u32,
+                biWidth: w as i32,
+                biHeight: -(h as i32), // top-down DIB
+                biPlanes: 1,
+                biBitCount: 32,
+                biCompression: BI_RGB,
+                biSizeImage: 0,
+                biXPelsPerMeter: 0,
+                biYPelsPerMeter: 0,
+                biClrUsed: 0,
+                biClrImportant: 0,
+            };
+            unsafe {
+                SetStretchBltMode(hdc, HALFTONE);
+                StretchDIBits(
+                    hdc,
+                    doel.x,
+                    doel.y,
+                    doel.breedte,
+                    doel.hoogte,
+                    0,
+                    0,
+                    w as i32,
+                    h as i32,
+                    rgba.as_ptr() as *const std::ffi::c_void,
+                    &bmi,
+                    DIB_RGB_COLORS,
+                    SRCCOPY,
+                );
+            }
+        }
+        unsafe {
             if EndPage(hdc) <= 0 {
                 return Err(format!("EndPage failed (page {})", i + 1));
             }
@@ -823,7 +900,7 @@ mod proef {
         };
         let nieuw = |naam: &str, bron: &Path, orientatie: Orientatie, papier: Papier, opgeslagen: Option<&[u8]>| {
             let uit = uitvoerpad(naam);
-            print_pdf_bestand(bron, PROEF_PRINTER, orientatie, papier, opgeslagen, Some(&uit)).expect("printen");
+            print_pdf_bestand(bron, PROEF_PRINTER, orientatie, papier, Plaatsing::Passend, opgeslagen, Some(&uit)).expect("printen");
             wacht_op_pdf(&uit)
         };
 
@@ -899,7 +976,7 @@ mod proef {
         println!("\nNOODWEG (print_met_devmodes zonder DEVMODE) naar {}", proefmap().display());
         let nood = |naam: &str, bron: &Path, orientatie: Orientatie, papier: Papier| {
             let uit = uitvoerpad(naam);
-            print_met_devmodes(bron, PROEF_PRINTER, orientatie, papier, None, Some(&uit)).expect("printen");
+            print_met_devmodes(bron, PROEF_PRINTER, orientatie, papier, Plaatsing::Passend, None, Some(&uit)).expect("printen");
             wacht_op_pdf(&uit)
         };
         controleer(
@@ -977,7 +1054,7 @@ mod proef {
             assert!(uit.parent() == Some(map.as_path()));
             let _ = std::fs::remove_file(&uit);
             let kop = papier_voor_opdracht(PROEF_PRINTER, None, papier).expect("kop");
-            print_pdf_bestand(&bron, PROEF_PRINTER, orientatie, papier, None, Some(&uit)).expect("printen");
+            print_pdf_bestand(&bron, PROEF_PRINTER, orientatie, papier, Plaatsing::Passend, None, Some(&uit)).expect("printen");
             let maten = wacht_op_pdf(&uit);
             let liggend = orientatie == Orientatie::Liggend;
             let in_pt = |(b, h): (f64, f64)| {
@@ -1161,5 +1238,114 @@ mod tests {
         let dm = nood_devmode(&naam, Some(9), false);
         assert!(dm.dmDeviceName[..31].iter().all(|&c| c == 'x' as u16));
         assert_eq!(dm.dmDeviceName[31], 0);
+    }
+
+    /// Een PDF (bytes) met één pagina van `maat` pt en een zwart vlak
+    /// `(x, y, breedte, hoogte)` in pt vanaf de linkerbovenhoek van de pagina.
+    fn pdf_met_vlak(maat: (f32, f32), vlak: (f32, f32, f32, f32)) -> Vec<u8> {
+        use lopdf::content::{Content, Operation};
+        use lopdf::{dictionary, Document, Object, Stream};
+        let (w, h) = maat;
+        let (x, y, b, hoogte) = vlak;
+        let mut doc = Document::with_version("1.5");
+        let pages_id = doc.new_object_id();
+        let inhoud = Content {
+            operations: vec![
+                Operation::new("g", vec![Object::Real(0.0)]),
+                Operation::new(
+                    "re",
+                    vec![Object::Real(x), Object::Real(h - y - hoogte), Object::Real(b), Object::Real(hoogte)],
+                ),
+                Operation::new("f", vec![]),
+            ],
+        };
+        let inhoud_id = doc.add_object(Stream::new(dictionary! {}, inhoud.encode().unwrap()));
+        let pagina = doc.add_object(dictionary! {
+            "Type" => "Page",
+            "Parent" => pages_id,
+            "Contents" => inhoud_id,
+            "MediaBox" => vec![Object::Real(0.0), Object::Real(0.0), Object::Real(w), Object::Real(h)],
+        });
+        doc.objects.insert(
+            pages_id,
+            Object::Dictionary(dictionary! { "Type" => "Pages", "Kids" => vec![pagina.into()], "Count" => 1 }),
+        );
+        let catalog = doc.add_object(dictionary! { "Type" => "Catalog", "Pages" => pages_id });
+        doc.trailer.set("Root", catalog);
+        let mut bytes = Vec::new();
+        doc.save_to(&mut bytes).expect("proef-PDF");
+        bytes
+    }
+
+    /// Omhullende (x0, y0, x1, y1) van de donkere pixels van een RGBA-beeld.
+    fn donker_kader(breedte: u32, rgba: &[u8]) -> Option<(u32, u32, u32, u32)> {
+        let mut kader: Option<(u32, u32, u32, u32)> = None;
+        for (i, px) in rgba.chunks_exact(4).enumerate() {
+            if px[0] < 128 && px[1] < 128 && px[2] < 128 {
+                let (x, y) = (i as u32 % breedte, i as u32 / breedte);
+                kader = Some(match kader {
+                    None => (x, y, x, y),
+                    Some((a, b, c, d)) => (a.min(x), b.min(y), c.max(x), d.max(y)),
+                });
+            }
+        }
+        kader
+    }
+
+    /// Plaatsing Vel rendert een deel van de pagina exact op maat, ook op
+    /// pagina's met gebroken puntmaten (A3 = 841,89 x 1190,55 pt, en een brede
+    /// pagina waar een afgeronde of afgekapte paginamaat twee pixels zou
+    /// schelen), en leest de inhoud van de pagina zonder te renderen. Heeft de
+    /// PDFium-bibliotheek uit binaries/win-x64 nodig; zonder die bibliotheek
+    /// overgeslagen.
+    #[test]
+    fn deel_voor_de_printer_exact_op_maat() {
+        let map = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("binaries").join("win-x64");
+        if let Err(e) = pdfium_renderer::init_pdfium(&map) {
+            eprintln!("PDFium niet beschikbaar ({e}); overgeslagen");
+            return;
+        }
+        // (paginamaat, vlak) in pt; het vlak rechtsonder, waar een afwijking het grootst is.
+        let gevallen = [
+            ((841.89_f32, 1190.55_f32), (780.0_f32, 1100.0_f32, 50.0_f32, 50.0_f32)),
+            ((3000.5_f32, 1190.55_f32), (2900.0_f32, 1100.0_f32, 50.0_f32, 50.0_f32)),
+        ];
+        for (maat, vlak) in gevallen {
+            let handle =
+                pdfium_renderer::PdfiumDocumentHandle::load_from_bytes(Arc::new(pdf_met_vlak(maat, vlak))).unwrap();
+            let doc = handle.document();
+
+            // De inhoud: één object, het vlak, als deel vanaf linksboven.
+            let inhoud = pdfium_renderer::page_content(doc, 0).unwrap();
+            assert!(!inhoud.gedraaid);
+            assert_eq!(inhoud.objecten.len(), 1);
+            assert_eq!(inhoud.afbeelding_dpi, vec![None]);
+            let deel = inhoud_deel(&inhoud.objecten, inhoud.kader).unwrap();
+            let verwacht = [vlak.0 as f64, vlak.1 as f64, vlak.2 as f64, vlak.3 as f64];
+            for (gemeten, verwacht) in [deel.x, deel.y, deel.breedte, deel.hoogte].into_iter().zip(verwacht) {
+                assert!((gemeten - verwacht).abs() < 0.5, "{maat:?}: {deel:?}");
+            }
+
+            // Een deel rond het vlak op 300 dpi: het vlak op de verwachte pixels.
+            let schaal = 300.0_f32 / 72.0;
+            let (x, y) = (vlak.0 - 20.0, vlak.1 - 20.0);
+            let (bw, bh, rgba) =
+                pdfium_renderer::render_page_part_for_print(doc, 0, schaal, x, y, 100.0, 100.0).unwrap();
+            assert_eq!((bw, bh), ((100.0 * schaal).ceil() as u32, (100.0 * schaal).ceil() as u32));
+            let (x0, y0, x1, y1) = donker_kader(bw, &rgba).expect("vlak niet gerenderd");
+            let px = |pt: f32| (pt * schaal) as f64;
+            let meting = [
+                ("links", x0 as f64, px(vlak.0 - x)),
+                ("boven", y0 as f64, px(vlak.1 - y)),
+                ("rechts", x1 as f64 + 1.0, px(vlak.0 + vlak.2 - x)),
+                ("onder", y1 as f64 + 1.0, px(vlak.1 + vlak.3 - y)),
+            ];
+            for (rand, gemeten, verwacht) in meting {
+                assert!(
+                    (gemeten - verwacht).abs() <= 1.0,
+                    "{maat:?} {rand}: {gemeten} px, verwacht {verwacht:.1} px"
+                );
+            }
+        }
     }
 }

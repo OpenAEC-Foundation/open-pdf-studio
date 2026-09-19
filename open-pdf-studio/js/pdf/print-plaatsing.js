@@ -195,6 +195,20 @@ export function renderDeel(plaatsing, pxPerPt) {
   };
 }
 
+/** Resolutie van het paginabeeld in de tijdelijke print-PDF. */
+export const PRINT_DPI = 300;
+
+/**
+ * Pixels per paginapunt voor het paginabeeld van de printopdracht: `dpi` op
+ * papier, maar bij vergroten niet fijner dan `dpi` van de pagina zelf. Zo
+ * kost een vergrote pagina niet meer dan vóór de schaalkeuze (toen elke
+ * pagina op 300 dpi van haar eigen maat ging), en een verkleinde minder.
+ */
+export function printPxPerPt(plaatsing, dpi = PRINT_DPI) {
+  const schaal = plaatsing && geldig(plaatsing.schaal) ? plaatsing.schaal : 1;
+  return (dpi / 72) * Math.min(1, schaal);
+}
+
 /**
  * Pagina voor de tijdelijke print-PDF (pdf-lib): de maat van het vel in pt en
  * waar de gerenderde pixels (`renderDeel`) erop komen, met de oorsprong
@@ -220,4 +234,16 @@ export function pdfPagina(plaatsing, deel) {
       height: r.hoogte * k,
     },
   };
+}
+
+/**
+ * Voeg de pagina toe aan de tijdelijke print-PDF: `pdf` is een pdf-lib
+ * PDFDocument, `beeld` het ingebedde paginabeeld (de pixels van `deel`).
+ * @returns de nieuwe pdf-lib-pagina
+ */
+export function voegPrintPaginaToe(pdf, plaatsing, deel, beeld) {
+  const { maat, afbeelding } = pdfPagina(plaatsing, deel);
+  const pagina = pdf.addPage(maat);
+  pagina.drawImage(beeld, afbeelding);
+  return pagina;
 }

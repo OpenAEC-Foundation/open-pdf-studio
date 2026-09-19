@@ -7,6 +7,7 @@ import test from 'node:test';
 import {
   SCHALINGEN, ZOOM_MIN, ZOOM_MAX, AFSNIJ_SPELING_MM,
   geldigeZoom, velOrientatie, schaalFactor, berekenPlaatsing, renderDeel, pdfPagina,
+  PRINT_DPI, printPxPerPt, voegPrintPaginaToe,
 } from './print-plaatsing.js';
 import { PAPIERFORMATEN } from './print-pagina-instelling.js';
 
@@ -289,6 +290,51 @@ test('pdfPagina: onbekend papier = de pagina op haar eigen maat, beeld vult haar
   bijna(afbeelding.y, 0, 1e-9);
   bijna(afbeelding.width, A4_LIGGEND.breedtePt, 1e-9);
   bijna(afbeelding.height, A4_LIGGEND.hoogtePt, 1e-9);
+});
+
+test('printPxPerPt: 300 dpi op papier, bij vergroten 300 dpi van de pagina', () => {
+  assert.equal(PRINT_DPI, 300);
+  const actual = plaats({ papier: vel('a3'), pagina: A4, schaling: 'actual' });
+  assert.equal(printPxPerPt(actual), 300 / 72);
+  const tiende = plaats({ papier: vel('a1'), pagina: A1_LIGGEND, schaling: 'custom-scale', zoom: 10 });
+  bijna(printPxPerPt(tiende), 30 / 72);
+  const vergroot = plaats({ papier: vel('a1'), pagina: A4, schaling: 'fit' });
+  assert.ok(vergroot.schaal > 2.8);
+  assert.equal(printPxPerPt(vergroot), 300 / 72);
+  // Onbekend papier: zoals altijd, de pagina op 300 dpi.
+  assert.equal(printPxPerPt(plaats({ papier: null, pagina: A4 })), 300 / 72);
+  assert.equal(printPxPerPt(null), 300 / 72);
+});
+
+test('voegPrintPaginaToe: pagina op papiergrootte, beeld op de plek (pdf-lib)', async () => {
+  const { PDFDocument } = await import('pdf-lib');
+  // Nep-document: legt vast wat er gevraagd wordt.
+  const aanroepen = [];
+  const nep = {
+    addPage(maat) {
+      aanroepen.push(['addPage', maat]);
+      return { drawImage: (beeld, opties) => aanroepen.push(['drawImage', beeld, opties]) };
+    },
+  };
+  const p = plaats({ papier: vel('a3'), pagina: A4, schaling: 'custom-scale', zoom: 50 });
+  const d = renderDeel(p, printPxPerPt(p));
+  voegPrintPaginaToe(nep, p, d, 'beeld');
+  const { maat, afbeelding } = pdfPagina(p, d);
+  assert.deepEqual(aanroepen, [['addPage', maat], ['drawImage', 'beeld', afbeelding]]);
+  // Gecentreerd: 96 mm van links en 135,75 mm van onder (A3 staand, 105 x 148,5 mm).
+  bijna(afbeelding.x, pt(96), 1e-6);
+  bijna(afbeelding.y, pt(420 - 135.75 - 148.5), 1e-6);
+
+  // Echt pdf-lib: de pagina heeft de maat van het vel.
+  const pdf = await PDFDocument.create();
+  const png = Uint8Array.from(Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64',
+  ));
+  voegPrintPaginaToe(pdf, p, d, await pdf.embedPng(png));
+  const terug = await PDFDocument.load(await pdf.save());
+  const { width, height } = terug.getPage(0).getSize();
+  bijna(width, pt(297), 1e-3);
+  bijna(height, pt(420), 1e-3);
 });
 
 // --- de melding bij afsnijden ------------------------------------------------------

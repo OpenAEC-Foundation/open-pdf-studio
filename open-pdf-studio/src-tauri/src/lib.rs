@@ -17,6 +17,7 @@ pub mod pdfium_renderer;
 pub mod handtekening;
 pub mod print_formulieren;
 pub mod print_instelling;
+pub mod print_plaatsing;
 // DEVMODE-hulp en de GDI-printkern: alleen Windows.
 #[cfg(target_os = "windows")]
 pub mod print_devmode;
@@ -510,6 +511,11 @@ async fn get_printers() -> Result<String, String> {
 /// Windows: the printer DC is created with a complete, driver-validated
 /// DEVMODE (the Properties choice from this session or the driver default,
 /// plus the Page Setup paper); see print_windows.rs.
+/// `plaatsing`: absent or anything but "vel" = each page fitted and centred
+/// in the printable area (the behaviour before this parameter); "vel" = the
+/// Print dialog has already laid every page out at paper size with the
+/// chosen scale and position, so each page goes 1:1 onto the physical sheet
+/// (see print_plaatsing.rs and js/pdf/print-plaatsing.js).
 /// async for the same reason as get_printers: GDI spooling is slow blocking
 /// work and runs on a blocking thread, not on the main event-loop thread.
 #[tauri::command]
@@ -518,12 +524,14 @@ async fn print_pdf(
     printer: String,
     orientatie: Option<String>,
     papier: Option<String>,
+    plaatsing: Option<String>,
     devmodes: tauri::State<'_, print_instelling::PrinterDevmodes>,
 ) -> Result<bool, String> {
     // Keuzes uit de Pagina-instelling. Zonder argumenten: Auto + printerstandaard,
     // precies het gedrag van vóór deze parameters.
     let orientatie = print_instelling::Orientatie::uit_keuze(orientatie.as_deref());
     let papier = print_instelling::Papier::uit_keuze(papier.as_deref());
+    let plaatsing = print_plaatsing::Plaatsing::uit_keuze(plaatsing.as_deref());
     #[cfg(target_os = "windows")]
     {
         // Wat de gebruiker in deze sessie in het eigenschappenvenster koos.
@@ -534,6 +542,7 @@ async fn print_pdf(
                 &printer,
                 orientatie,
                 papier,
+                plaatsing,
                 opgeslagen.as_deref(),
                 None,
             )
@@ -544,9 +553,10 @@ async fn print_pdf(
     }
 
     // Linux/macOS: spool through CUPS. The JS side has already rasterised the
-    // selected pages into a temp PDF at the right size and rotation, and calls
-    // this once per copy — so `lp` only has to hand one document to one queue
-    // and needs no page-range, scaling or copy options of its own.
+    // selected pages into a temp PDF at the right size and rotation (with
+    // plaatsing "vel": at paper size, scale and position already applied),
+    // and calls this once per copy — so `lp` only has to hand one document to
+    // one queue and needs no page-range or copy options of its own.
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     {
         let _ = &devmodes;
@@ -559,7 +569,7 @@ async fn print_pdf(
         // The caller always passes an absolute temp path, so the filename can
         // never be mistaken for an option; `--` is not portable across lp
         // implementations and is deliberately left out.
-        for optie in print_instelling::lp_opties(orientatie, papier) {
+        for optie in print_instelling::lp_opties(orientatie, papier, plaatsing) {
             cmd.arg(optie);
         }
         let output = cmd
@@ -581,7 +591,7 @@ async fn print_pdf(
 
     #[cfg(not(any(target_os = "windows", target_os = "linux", target_os = "macos")))]
     {
-        let _ = (&path, &printer, &orientatie, &papier, &devmodes);
+        let _ = (&path, &printer, &orientatie, &papier, &plaatsing, &devmodes);
         Err("Printing is not supported on this platform".to_string())
     }
 }

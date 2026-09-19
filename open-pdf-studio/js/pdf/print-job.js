@@ -8,6 +8,7 @@ import { getActiveDocument, getPageRotation } from '../core/state.js';
 import { invoke } from '../core/platform.js';
 import { renderPageOffscreen, canvasToBytes } from './exporter.js';
 import { viewportOpties } from './getoonde-pagina.js';
+import { berekenPlaatsing, renderDeel, printPxPerPt, voegPrintPaginaToe } from './print-plaatsing.js';
 import {
   startPrintProgress, updatePrintProgress, finishPrintProgress, failPrintProgress,
 } from '../solid/stores/printProgressStore.js';
@@ -15,32 +16,56 @@ import {
 /**
  * Run a print job in the background. Fire-and-forget: the caller closes the
  * dialog first, this drives the floating progress bar.
+ *
+ * Scale and position (print-plaatsing.js, the same rule as the preview): with
+ * a known sheet (`vel`, portrait in mm) every page becomes a page at paper
+ * size with the page image at the chosen place and scale, and print_pdf gets
+ * plaatsing 'vel' (1:1 on the physical sheet, lp without rescaling). Without
+ * a sheet the behaviour from before the scale choice: each page at its own
+ * size, fitted in by the printer.
  * @param {{ pages:number[], copies:number, printer:string,
- *           orientatie?:'auto'|'portrait'|'landscape', papier?:string }} opts
+ *           orientatie?:'auto'|'portrait'|'landscape', papier?:string,
+ *           vel?: {breedteMm:number, hoogteMm:number}|null,
+ *           schaling?: string, zoom?: number, centreren?: boolean }} opts
  */
-export async function runPrintJob({ pages, copies, printer, orientatie = 'auto', papier = 'printer' }) {
+export async function runPrintJob({
+  pages, copies, printer, orientatie = 'auto', papier = 'printer',
+  vel = null, schaling = 'fit', zoom = 100, centreren = true,
+}) {
   startPrintProgress(i18next.t('dialogs:print.progress.preparing'));
   try {
     const doc = getActiveDocument();
     if (!doc?.pdfDoc) throw new Error(i18next.t('dialogs:print.progress.errNoDocument'));
-    const exportScale = 300 / 72;
     const newPdf = await PDFDocument.create();
     // Reserve the last slice of the bar for the spool step.
     const total = pages.length + 1;
+    // Pages laid out on the sheet (the sheet is the same for every page).
+    let opVel = false;
 
     for (let i = 0; i < pages.length; i++) {
       const pageNum = pages[i];
       updatePrintProgress(i18next.t('dialogs:print.progress.renderingPage', { page: pageNum, current: i + 1, total: pages.length }), i / total);
-      const canvas = await renderPageOffscreen(pageNum, exportScale);
+      const origPage = await doc.pdfDoc.getPage(pageNum);
+      const origViewport = origPage.getViewport(viewportOpties(origPage, getPageRotation(pageNum)));
+      const plaatsing = berekenPlaatsing({
+        papier: vel,
+        orientatie,
+        pagina: { breedtePt: origViewport.width, hoogtePt: origViewport.height },
+        schaling,
+        zoom,
+        centreren,
+      });
+      if (!plaatsing) throw new Error(`page ${pageNum} has no usable size`);
+      opVel = plaatsing.bekend;
+
+      // Only the part of the page that lands on the sheet, at 300 dpi on
+      // paper (never finer than 300 dpi of the page itself).
+      const pxPerPt = printPxPerPt(plaatsing);
+      const deel = renderDeel(plaatsing, pxPerPt);
+      const canvas = await renderPageOffscreen(pageNum, pxPerPt, { deel: deel.px });
       const jpegBytes = await canvasToBytes(canvas, 'jpeg', 0.92);
       const jpegImage = await newPdf.embedJpg(jpegBytes);
-
-      const origPage = await doc.pdfDoc.getPage(pageNum);
-      const extraRotation = getPageRotation(pageNum);
-      const origViewport = origPage.getViewport(viewportOpties(origPage, extraRotation));
-
-      const pdfPage = newPdf.addPage([origViewport.width, origViewport.height]);
-      pdfPage.drawImage(jpegImage, { x: 0, y: 0, width: origViewport.width, height: origViewport.height });
+      voegPrintPaginaToe(newPdf, plaatsing, deel, jpegImage);
     }
 
     updatePrintProgress(i18next.t('dialogs:print.progress.saving'), pages.length / total);
@@ -60,7 +85,9 @@ export async function runPrintJob({ pages, copies, printer, orientatie = 'auto',
           : i18next.t('dialogs:print.progress.sending'),
         (pages.length + c / numCopies) / total
       );
-      await invoke('print_pdf', { path: tempPath, printer, orientatie, papier });
+      await invoke('print_pdf', {
+        path: tempPath, printer, orientatie, papier, ...(opVel ? { plaatsing: 'vel' } : {}),
+      });
     }
 
     finishPrintProgress(i18next.t('dialogs:print.progress.sent'));

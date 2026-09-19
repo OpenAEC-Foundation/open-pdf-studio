@@ -402,6 +402,9 @@ export default function PrintDialog(props) {
       content: printContent(),
       asImage: printAsImage(),
     };
+    // Schaal en plek zoals het voorbeeld ze toont (vóór close(): de keuzes
+    // komen uit de signalen van deze dialoog).
+    const keuzes = plaatsingKeuzes();
     savePreferences();
     close();
     // Oriëntatie en papier: Automatisch draaien en de Pagina-instelling
@@ -411,7 +414,17 @@ export default function PrintDialog(props) {
       paginaInstelling: getPageSetupSettings(),
       docId: getActiveDocument()?.id ?? null,
     });
-    runPrintJob({ pages, copies: numCopies, printer, orientatie, papier });
+    runPrintJob({
+      pages,
+      copies: numCopies,
+      printer,
+      orientatie,
+      papier,
+      vel: keuzes.papier,
+      schaling: keuzes.schaling,
+      zoom: keuzes.zoom,
+      centreren: keuzes.centreren,
+    });
   }
 
   onMount(async () => {
