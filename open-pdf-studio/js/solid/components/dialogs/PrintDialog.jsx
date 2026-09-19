@@ -1,4 +1,4 @@
-import { createSignal, createMemo, onMount, For, Show } from 'solid-js';
+import { createSignal, createMemo, createEffect, on, onMount, For, Show } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { state, getActiveDocument, getPageRotation } from '../../../core/state.js';
@@ -10,8 +10,12 @@ import { runPrintJob } from '../../../pdf/print-job.js';
 import { savePreferences } from '../../../core/preferences.js';
 import { herstelPrintInstellingen, kiesStartPrinter } from '../../stores/print-instellingen.js';
 import { printArgumenten } from '../../../pdf/print-pagina-instelling.js';
-import { getPageSetupSettings } from './PageSetupDialog.jsx';
+import { getPageSetupSettings, stelPaginaInstellingIn, paginaInstellingVersie } from './PageSetupDialog.jsx';
 import { viewportOpties } from '../../../pdf/getoonde-pagina.js';
+import {
+  normaliseerPapierInfo, effectiefPapier, papierTekst, paginaTekst,
+  eigenschappenVooraf, instellingNaEigenschappen, maakPapierVerzoeken,
+} from '../../../pdf/print-papier.js';
 
 export default function PrintDialog(props) {
   const { t } = useTranslation('dialogs');
@@ -44,7 +48,13 @@ export default function PrintDialog(props) {
   const [printDisabled, setPrintDisabled] = createSignal(false);
   const [previewPages, setPreviewPages] = createSignal([]);
   const [previewIndex, setPreviewIndex] = createSignal(0);
-  const [paperDimensions, setPaperDimensions] = createSignal('');
+  // Maat van de getoonde voorbeeldpagina in pt (inclusief draaiing), of null.
+  const [paginaMaat, setPaginaMaat] = createSignal(null);
+  // Papier per printer zoals Rust het meldt (printer_papier, of het antwoord
+  // uit Eigenschappen). Geen sleutel = nog aan het ophalen, null = onbekend.
+  const [printerPapier, setPrinterPapier] = createSignal(new Map());
+  const papierVerzoeken = maakPapierVerzoeken();
+  let eigenschappenOpen = false;
 
   let canvasRef;
 
@@ -109,7 +119,7 @@ export default function PrintDialog(props) {
       canvasRef.width = 300;
       canvasRef.height = 350;
       ctx.clearRect(0, 0, 300, 350);
-      setPaperDimensions('');
+      setPaginaMaat(null);
       return;
     }
 
@@ -120,6 +130,12 @@ export default function PrintDialog(props) {
       const page = await doc.pdfDoc.getPage(pageNum);
       const extraRotation = getPageRotation(pageNum);
       const viewport = page.getViewport(viewportOpties(page, extraRotation));
+      // Vóór het renderen, zodat de kop ook klopt als het voorbeeld mislukt;
+      // alleen als intussen niet al naar een andere pagina is gebladerd.
+      const nuGetoond = previewPages();
+      if (nuGetoond[Math.min(previewIndex(), nuGetoond.length - 1)] === pageNum) {
+        setPaginaMaat({ breedtePt: viewport.width, hoogtePt: viewport.height });
+      }
 
       const maxW = 300;
       const maxH = 350;
@@ -145,12 +161,6 @@ export default function PrintDialog(props) {
         });
         await renderTask.promise;
       }
-
-      const wIn = (viewport.width / 72).toFixed(2);
-      const hIn = (viewport.height / 72).toFixed(2);
-      const wMm = (viewport.width / 72 * 25.4).toFixed(0);
-      const hMm = (viewport.height / 72 * 25.4).toFixed(0);
-      setPaperDimensions(`${wIn} x ${hIn} in (${wMm} x ${hMm} mm)`);
     } catch (e) {
       console.error('Preview render error:', e);
     }
@@ -201,12 +211,73 @@ export default function PrintDialog(props) {
     renderPreview();
   }
 
-  async function openPrinterProperties() {
+  function zetPrinterPapier(printer, info) {
+    setPrinterPapier((oud) => new Map(oud).set(printer, info));
+  }
+
+  // Het papier dat de volgende afdruk op deze printer neemt als de
+  // Pagina-instelling het papier aan de printer laat. Alleen het antwoord
+  // voor de nog gekozen printer telt; een fout of null = onbekend.
+  async function haalPrinterPapier(printer) {
+    const nr = papierVerzoeken.begin();
+    let info = null;
     try {
-      await invoke('open_printer_properties', { printer: selectedPrinter() });
+      info = normaliseerPapierInfo(await invoke('printer_papier', { printer }));
+    } catch (e) {
+      console.warn('printer_papier failed:', e);
+    }
+    if (papierVerzoeken.actueel(nr, printer, selectedPrinter())) zetPrinterPapier(printer, info);
+  }
+
+  createEffect(on(selectedPrinter, (printer) => {
+    if (printer) haalPrinterPapier(printer);
+  }));
+
+  // Windows: de eigenschappen van de driver, modaal; het antwoord komt pas na
+  // OK/Annuleren. Het venster opent met het papier en de oriëntatie die de
+  // volgende afdruk krijgt (eigenschappenVooraf), zodat het hetzelfde toont
+  // als de kop. OK → Rust bewaart de DEVMODE voor deze printer (alleen deze
+  // sessie); wat de gebruiker aan papier of oriëntatie veranderde wordt de
+  // Pagina-instelling van dit document, zodat kop, Pagina-instelling en
+  // print_pdf hetzelfde bedoelen. OK zonder zo'n wijziging laat de
+  // Pagina-instelling staan. Annuleren, of Linux/macOS
+  // (systeeminstellingen) → null: niets verandert.
+  async function openPrinterProperties() {
+    const printer = selectedPrinter();
+    if (!printer || eigenschappenOpen) return;
+    eigenschappenOpen = true;
+    const docId = getActiveDocument()?.id ?? null;
+    const vooraf = eigenschappenVooraf({
+      paginaInstelling: getPageSetupSettings(),
+      docId,
+      autoRotate: autoRotate(),
+      pagina: paginaMaat(),
+    });
+    let antwoord = null;
+    try {
+      antwoord = await invoke('open_printer_properties', {
+        printer, papier: vooraf.papier, orientatie: vooraf.orientatie,
+      });
     } catch (e) {
       console.error('Failed to open printer properties:', e);
+    } finally {
+      eigenschappenOpen = false;
     }
+    const info = normaliseerPapierInfo(antwoord);
+    if (!info) {
+      // Annuleren verandert niets; opnieuw vragen kost niets en houdt de
+      // kop eerlijk, ook als er toch iets bewaard werd.
+      if (selectedPrinter() === printer) haalPrinterPapier(printer);
+      return;
+    }
+    papierVerzoeken.vervallen();
+    zetPrinterPapier(printer, info);
+    stelPaginaInstellingIn(instellingNaEigenschappen({
+      papierInfo: antwoord,
+      docId,
+      huidig: getPageSetupSettings(),
+      vooraf,
+    }));
   }
 
   async function openPageSetup() {
@@ -290,6 +361,33 @@ export default function PrintDialog(props) {
   });
 
   const currentPageNum = props.data?.currentPage || getActiveDocument()?.currentPage || 1;
+
+  // Kop van het voorbeeld: het papier (zie print-papier.js) naast de maat van
+  // de getoonde pagina. De versie van de Pagina-instelling maakt dit reactief
+  // op OK daar en op een keuze uit Eigenschappen.
+  const papierKop = createMemo(() => {
+    paginaInstellingVersie();
+    const printer = selectedPrinter();
+    const papiers = printerPapier();
+    const effectief = effectiefPapier({
+      paginaInstelling: getPageSetupSettings(),
+      docId: getActiveDocument()?.id ?? null,
+      autoRotate: autoRotate(),
+      // Geen printer of nog niet opgehaald → undefined (nog niets tonen).
+      printerPapier: printer && papiers.has(printer) ? papiers.get(printer) : undefined,
+      pagina: paginaMaat(),
+    });
+    // Onbekend papier = de standaard van de printer (dezelfde tekst als in de
+    // Pagina-instelling).
+    const tekst = papierTekst(effectief, t('pageSetup.printerDefault'));
+    return tekst ? t('print.paperLabel', { paper: tekst }) : '';
+  });
+
+  const paginaKop = createMemo(() => {
+    const maat = paginaMaat();
+    const tekst = maat ? paginaTekst(maat.breedtePt, maat.hoogtePt) : null;
+    return tekst ? t('print.pageSizeLabel', { size: tekst }) : '';
+  });
 
   const footer = (
     <>
@@ -532,7 +630,15 @@ export default function PrintDialog(props) {
 
       <div class="print-preview-panel">
         <div class="print-preview-header">
-          <span>{paperDimensions()}</span>
+          <Show when={papierKop()}>
+            <span class="print-preview-paper">{papierKop()}</span>
+          </Show>
+          <Show when={papierKop() && paginaKop()}>
+            <span class="print-printer-sep">{' | '}</span>
+          </Show>
+          <Show when={paginaKop()}>
+            <span class="print-preview-page">{paginaKop()}</span>
+          </Show>
         </div>
         <div class="print-preview-container">
           <canvas ref={canvasRef} id="print-preview-canvas" />

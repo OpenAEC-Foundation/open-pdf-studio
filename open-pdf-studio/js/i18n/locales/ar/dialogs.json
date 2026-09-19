@@ -63,7 +63,9 @@
     "printJobSent": "تم إرسال مهمة الطباعة بنجاح.",
     "printFailed": "فشلت الطباعة:",
     "noPages": "لا توجد صفحات",
-    "pageOf": "الصفحة {{current}} من {{total}}"
+    "pageOf": "الصفحة {{current}} من {{total}}",
+    "paperLabel": "الورق: {{paper}}",
+    "pageSizeLabel": "الصفحة: {{size}}"
   },
   "insertPage": {
     "title": "إدراج صفحات",

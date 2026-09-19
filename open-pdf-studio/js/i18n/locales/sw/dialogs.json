@@ -63,7 +63,9 @@
     "printJobSent": "Kazi ya uchapishaji imetumwa kwa mafanikio.",
     "printFailed": "Uchapishaji umeshindwa:",
     "noPages": "Hakuna kurasa",
-    "pageOf": "Ukurasa {{current}} ya {{total}}"
+    "pageOf": "Ukurasa {{current}} ya {{total}}",
+    "paperLabel": "Karatasi: {{paper}}",
+    "pageSizeLabel": "Ukurasa: {{size}}"
   },
   "insertPage": {
     "title": "Ingiza Kurasa",

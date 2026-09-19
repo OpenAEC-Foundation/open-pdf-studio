@@ -63,7 +63,9 @@
     "printJobSent": "Druckauftrag erfolgreich gesendet.",
     "printFailed": "Drucken fehlgeschlagen:",
     "noPages": "Keine Seiten",
-    "pageOf": "Seite {{current}} von {{total}}"
+    "pageOf": "Seite {{current}} von {{total}}",
+    "paperLabel": "Papier: {{paper}}",
+    "pageSizeLabel": "Seite: {{size}}"
   },
   "insertPage": {
     "title": "Seiten einfügen",

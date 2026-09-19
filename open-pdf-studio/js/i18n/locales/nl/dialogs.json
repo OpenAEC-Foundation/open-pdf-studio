@@ -90,6 +90,8 @@
     "printFailed": "Afdrukken mislukt:",
     "noPages": "Geen pagina's",
     "pageOf": "Pagina {{current}} van {{total}}",
+    "paperLabel": "Papier: {{paper}}",
+    "pageSizeLabel": "Pagina: {{size}}",
     "firstPage": "Eerste pagina",
     "prevPage": "Vorige pagina",
     "nextPage": "Volgende pagina",

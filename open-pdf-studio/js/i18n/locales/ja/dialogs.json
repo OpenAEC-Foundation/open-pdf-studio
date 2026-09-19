@@ -63,7 +63,9 @@
     "printJobSent": "印刷ジョブが正常に送信されました。",
     "printFailed": "印刷に失敗しました：",
     "noPages": "ページなし",
-    "pageOf": "{{current}} / {{total}} ページ"
+    "pageOf": "{{current}} / {{total}} ページ",
+    "paperLabel": "用紙：{{paper}}",
+    "pageSizeLabel": "ページ：{{size}}"
   },
   "insertPage": {
     "title": "ページの挿入",

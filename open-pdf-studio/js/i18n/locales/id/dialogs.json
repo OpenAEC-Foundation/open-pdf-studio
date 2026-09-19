@@ -63,7 +63,9 @@
     "printJobSent": "Pekerjaan cetak berhasil dikirim.",
     "printFailed": "Cetak gagal:",
     "noPages": "Tidak ada halaman",
-    "pageOf": "Halaman {{current}} dari {{total}}"
+    "pageOf": "Halaman {{current}} dari {{total}}",
+    "paperLabel": "Kertas: {{paper}}",
+    "pageSizeLabel": "Halaman: {{size}}"
   },
   "insertPage": {
     "title": "Sisipkan Halaman",

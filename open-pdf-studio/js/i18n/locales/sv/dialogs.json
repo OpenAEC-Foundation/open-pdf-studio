@@ -63,7 +63,9 @@
     "printJobSent": "Utskriftsjobb skickat.",
     "printFailed": "Utskrift misslyckades:",
     "noPages": "Inga sidor",
-    "pageOf": "Sida {{current}} av {{total}}"
+    "pageOf": "Sida {{current}} av {{total}}",
+    "paperLabel": "Papper: {{paper}}",
+    "pageSizeLabel": "Sida: {{size}}"
   },
   "insertPage": {
     "title": "Infoga sidor",

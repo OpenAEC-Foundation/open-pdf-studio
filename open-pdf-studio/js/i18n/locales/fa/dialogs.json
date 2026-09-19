@@ -63,7 +63,9 @@
     "printJobSent": "کار چاپ با موفقیت ارسال شد.",
     "printFailed": "چاپ ناموفق بود:",
     "noPages": "بدون صفحه",
-    "pageOf": "صفحه {{current}} از {{total}}"
+    "pageOf": "صفحه {{current}} از {{total}}",
+    "paperLabel": "کاغذ: {{paper}}",
+    "pageSizeLabel": "صفحه: {{size}}"
   },
   "insertPage": {
     "title": "درج صفحات",

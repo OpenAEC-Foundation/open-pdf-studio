@@ -63,7 +63,9 @@
     "printJobSent": "Udskriftsjob sendt.",
     "printFailed": "Udskrivning mislykkedes:",
     "noPages": "Ingen sider",
-    "pageOf": "Side {{current}} af {{total}}"
+    "pageOf": "Side {{current}} af {{total}}",
+    "paperLabel": "Papir: {{paper}}",
+    "pageSizeLabel": "Side: {{size}}"
   },
   "insertPage": {
     "title": "Indsæt sider",

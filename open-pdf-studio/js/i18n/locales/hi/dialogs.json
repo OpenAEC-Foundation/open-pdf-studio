@@ -63,7 +63,9 @@
     "printJobSent": "प्रिंट कार्य सफलतापूर्वक भेजा गया।",
     "printFailed": "प्रिंट विफल:",
     "noPages": "कोई पृष्ठ नहीं",
-    "pageOf": "पृष्ठ {{current}} का {{total}}"
+    "pageOf": "पृष्ठ {{current}} का {{total}}",
+    "paperLabel": "कागज़: {{paper}}",
+    "pageSizeLabel": "पृष्ठ: {{size}}"
   },
   "insertPage": {
     "title": "पृष्ठ सम्मिलित करें",

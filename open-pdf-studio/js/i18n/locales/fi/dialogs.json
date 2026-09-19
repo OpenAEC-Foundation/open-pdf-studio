@@ -63,7 +63,9 @@
     "printJobSent": "Tulostustyö lähetetty onnistuneesti.",
     "printFailed": "Tulostus epäonnistui:",
     "noPages": "Ei sivuja",
-    "pageOf": "Sivu {{current}} / {{total}}"
+    "pageOf": "Sivu {{current}} / {{total}}",
+    "paperLabel": "Paperi: {{paper}}",
+    "pageSizeLabel": "Sivu: {{size}}"
   },
   "insertPage": {
     "title": "Lisää sivuja",

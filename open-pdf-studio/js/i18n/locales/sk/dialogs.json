@@ -63,7 +63,9 @@
     "printJobSent": "Tlačová úloha bola úspešne odoslaná.",
     "printFailed": "Tlač zlyhala:",
     "noPages": "Žiadne strany",
-    "pageOf": "Strana {{current}} z {{total}}"
+    "pageOf": "Strana {{current}} z {{total}}",
+    "paperLabel": "Papier: {{paper}}",
+    "pageSizeLabel": "Strana: {{size}}"
   },
   "insertPage": {
     "title": "Vložiť strany",
