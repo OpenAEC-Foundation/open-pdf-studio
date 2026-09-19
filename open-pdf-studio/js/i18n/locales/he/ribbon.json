@@ -152,7 +152,9 @@
     "annotationsList": "רשימת הערות (F11)",
     "annotationsLabel": "הערות",
     "appearance": "מראה",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "מצב קריאה",
+    "readerModeTip": "זוכר את העמוד, מיקום הגלילה והזינוק של כל קובץ PDF בין סגירה לפתיחה מחדש"
   },
   "organize": {
     "pages": "עמודים",
@@ -174,6 +176,7 @@
     "headerFooter": "כותרת עליונה/תחתונה",
     "manageWatermarks": "ניהול סימני מים",
     "manage": "ניהול",
+    "ocr": "זיהוי טקסט (OCR)",
     "straighten": "יישור עמוד",
     "shiftPage": "הזזת עמוד"
   },

@@ -1,12 +1,27 @@
 import { parseEditorDom } from '../../text/editor-dom-parse.js';
-import { PDFName, PDFDict, PDFArray } from 'pdf-lib';
+import { PDFName, PDFDict, PDFArray, PDFHexString } from 'pdf-lib';
 import { pdfNum, pdfColorToHex, mapPdfFontName, inflateBytes } from './pdf-helpers.js';
+import { fillAlphaAtFirstFill } from './ap-fill-alpha.js';
 import { leesKnipselBronnen, leesKnipselVelden } from './vector-snippet-load.js';
 import { bewaar as bewaarKnipsel } from '../../annotations/vector-snippet-store.js';
+import { decodePdfTextObject } from '../saver/pdf-text.js';
 
 // Documenten waarvan de knipsel-bronpagina's al in de store staan: dat
 // uitpakken gebeurt één keer per document, bij het eerste knipsel dat we zien.
 const _knipselBronnenGelezen = new WeakSet();
+
+// Tekst van een eigen sleutel (OPS_*). De saver schrijft niet-ASCII-tekst als
+// UTF-16-hex, waarvan `.value` de hex-cijfers is. decodePdfTextObject decodeert
+// hex en geeft oude literal strings exact terug zoals ze geschreven zijn, zodat
+// JSON-waarden uit eerdere versies heel blijven. Een PDFName (zoals
+// OPS_LeaderStyle) gaat via decodeText.
+function leesPdfTekst(context, raw) {
+  if (!raw) return undefined;
+  const v = context.lookup(raw) || raw;
+  const tekst = decodePdfTextObject(v);
+  if (tekst !== undefined) return tekst;
+  return v && typeof v.decodeText === 'function' ? v.decodeText() : undefined;
+}
 
 // Decode an appearance stream to text (handles /FlateDecode).
 async function decodeApStream(stream) {
@@ -40,8 +55,9 @@ async function decodeApStream(stream) {
  *
  * Alleen de ExtGStates die de stream ook echt met `gs` aanroept tellen mee;
  * ongebruikte resources mogen het beeld niet beïnvloeden. Vindt de stream
- * meerdere verschillende alfa's, dan is er geen enkele waarde die de
- * annotatie als geheel beschrijft en geven we niets terug.
+ * meerdere verschillende lijn-alfa's, dan is er geen enkele waarde die de
+ * annotatie als geheel beschrijft en geven we niets terug. Bij meerdere
+ * vul-alfa's telt de alfa van het eerste vlak (zie fillAlphaAtFirstFill).
  *
  * @returns {Promise<{fillAlpha: number|null, strokeAlpha: number|null}>}
  */
@@ -69,6 +85,7 @@ async function extractApAlphas(context, nStream) {
 
     const fills = new Set();
     const strokes = new Set();
+    const fillAlphaByName = new Map();
     for (const name of used) {
       const gsRefRaw = egs.get(PDFName.of(name));
       if (!gsRefRaw) continue;
@@ -78,11 +95,21 @@ async function extractApAlphas(context, nStream) {
       const CARaw = gs.get(PDFName.of('CA'));
       const ca = caRaw !== undefined ? pdfNum(context.lookup(caRaw) || caRaw) : null;
       const CA = CARaw !== undefined ? pdfNum(context.lookup(CARaw) || CARaw) : null;
-      if (ca !== null && ca >= 0 && ca <= 1) fills.add(ca);
+      if (ca !== null && ca >= 0 && ca <= 1) {
+        fills.add(ca);
+        fillAlphaByName.set(name, ca);
+      }
       if (CA !== null && CA >= 0 && CA <= 1) strokes.add(CA);
     }
+    // Meerdere vul-alfa's: geen enkele /ca geldt voor de hele stream. Gangbaar
+    // bij meetvlakken — het vlak op 30%, het maatlabel in een eigen
+    // graphics-state op 100%. Dan telt de alfa van het eerste vlak: dat is de
+    // vulling (/IC) van de annotatie; het label tekent de app zelf.
+    let fillAlpha = null;
+    if (fills.size === 1) fillAlpha = [...fills][0];
+    else if (fills.size > 1) fillAlpha = fillAlphaAtFirstFill(content, fillAlphaByName);
     return {
-      fillAlpha: fills.size === 1 ? [...fills][0] : null,
+      fillAlpha,
       strokeAlpha: strokes.size === 1 ? [...strokes][0] : null,
     };
   } catch (_) {
@@ -145,6 +172,18 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         }
       } catch (_) { /* appearance zonder bruikbare graphics-state */ }
 
+      // /FillOpacity: niet-standaard sleutel die externe tekenpakketten naast de
+      // appearance zetten. Alleen terugval: de appearance hierboven is wat andere
+      // lezers werkelijk tonen. Zonder (bruikbare) appearance is dit de enige
+      // bron voor de vul-alfa.
+      if (colors.fillOpacity === undefined) {
+        const foRaw = annotDict.get(PDFName.of('FillOpacity'));
+        if (foRaw !== undefined) {
+          const fo = pdfNum(context.lookup(foRaw) || foRaw);
+          if (fo !== null && fo >= 0 && fo <= 1) colors.fillOpacity = fo;
+        }
+      }
+
       // Eigen sleutel van deze app (zie saver.js): wint van de afgeleide
       // waarde hierboven, want die is expliciet bij het opslaan bewaard.
       const ofoRaw = annotDict.get(PDFName.of('OPS_FillOpacity'));
@@ -181,9 +220,8 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         }
         const opsNameRaw = annotDict.get(PDFName.of('OPS_StampName'));
         if (opsNameRaw) {
-          const on = context.lookup(opsNameRaw) || opsNameRaw;
-          if (on && typeof on.value === 'string') colors.stampName = on.value;
-          else if (on && typeof on.decodeText === 'function') colors.stampName = on.decodeText();
+          const on = leesPdfTekst(context, opsNameRaw);
+          if (on !== undefined) colors.stampName = on;
         }
         // Read /OPS_CropLeft.. (non-destructive image crop, fractions 0-1
         // per side — issue #212). The AP embeds the FULL bitmap, so these
@@ -213,7 +251,7 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         }
       }
 
-      // Kruis in een rechthoek (OPS_Cross, zie saver).
+      // Kruis in een rechthoek of cirkel/ellips (OPS_Cross, zie saver).
       const opsCrossRaw = annotDict.get(PDFName.of('OPS_Cross'));
       if (opsCrossRaw) {
         const cv = context.lookup(opsCrossRaw) || opsCrossRaw;
@@ -257,12 +295,8 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
       // Read /OPS_Subtype (our custom subtype for cloud/cloudPolyline/measurements)
       const opsSubRaw = annotDict.get(PDFName.of('OPS_Subtype'));
       if (opsSubRaw) {
-        const sub = context.lookup(opsSubRaw) || opsSubRaw;
-        if (sub && typeof sub.value === 'string') {
-          colors.opsSubtype = sub.value;
-        } else if (sub && typeof sub.decodeText === 'function') {
-          colors.opsSubtype = sub.decodeText();
-        }
+        const sub = leesPdfTekst(context, opsSubRaw);
+        if (sub !== undefined) colors.opsSubtype = sub;
       }
 
       // Vectorknipsel: de knipsel-velden van de stempel, en bij het eerste
@@ -287,17 +321,15 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
       // Callout curved leader flag: /OPS_LeaderStyle ('curved' = ronde aanhaallijn)
       const opsLeaderStyleRaw = annotDict.get(PDFName.of('OPS_LeaderStyle'));
       if (opsLeaderStyleRaw) {
-        const ls = context.lookup(opsLeaderStyleRaw) || opsLeaderStyleRaw;
-        if (ls && typeof ls.value === 'string') colors.opsLeaderStyle = ls.value;
-        else if (ls && typeof ls.decodeText === 'function') colors.opsLeaderStyle = ls.decodeText();
+        const ls = leesPdfTekst(context, opsLeaderStyleRaw);
+        if (ls !== undefined) colors.opsLeaderStyle = ls;
       }
 
       // Textbox leaders: /OPS_LeaderId + /IRT (in-reply-to parent textbox Rect)
       const opsLidRaw = annotDict.get(PDFName.of('OPS_LeaderId'));
       if (opsLidRaw) {
-        const lv = context.lookup(opsLidRaw) || opsLidRaw;
-        if (lv && typeof lv.value === 'string') colors.opsLeaderId = lv.value;
-        else if (lv && typeof lv.decodeText === 'function') colors.opsLeaderId = lv.decodeText();
+        const lv = leesPdfTekst(context, opsLidRaw);
+        if (lv !== undefined) colors.opsLeaderId = lv;
       }
       const irtRaw = annotDict.get(PDFName.of('IRT'));
       if (irtRaw) {
@@ -321,15 +353,13 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
       }
       const opsUnitRaw = annotDict.get(PDFName.of('OPS_Unit'));
       if (opsUnitRaw) {
-        const u = context.lookup(opsUnitRaw) || opsUnitRaw;
-        if (u && typeof u.value === 'string') colors.opsUnit = u.value;
-        else if (u && typeof u.decodeText === 'function') colors.opsUnit = u.decodeText();
+        const u = leesPdfTekst(context, opsUnitRaw);
+        if (u !== undefined) colors.opsUnit = u;
       }
       const opsSrRaw = annotDict.get(PDFName.of('OPS_ScaleRatio'));
       if (opsSrRaw) {
-        const sr = context.lookup(opsSrRaw) || opsSrRaw;
-        if (sr && typeof sr.value === 'string') colors.opsScaleRatio = sr.value;
-        else if (sr && typeof sr.decodeText === 'function') colors.opsScaleRatio = sr.decodeText();
+        const sr = leesPdfTekst(context, opsSrRaw);
+        if (sr !== undefined) colors.opsScaleRatio = sr;
       }
       const opsDivRaw = annotDict.get(PDFName.of('OPS_Divisions'));
       if (opsDivRaw) {
@@ -344,27 +374,23 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
       // Scale region custom keys
       const opsScaleStringRaw = annotDict.get(PDFName.of('OPS_ScaleString'));
       if (opsScaleStringRaw) {
-        const ss = context.lookup(opsScaleStringRaw) || opsScaleStringRaw;
-        if (ss && typeof ss.value === 'string') colors.opsScaleString = ss.value;
-        else if (ss && typeof ss.decodeText === 'function') colors.opsScaleString = ss.decodeText();
+        const ss = leesPdfTekst(context, opsScaleStringRaw);
+        if (ss !== undefined) colors.opsScaleString = ss;
       }
       const opsTekeningtypeRaw = annotDict.get(PDFName.of('OPS_Tekeningtype'));
       if (opsTekeningtypeRaw) {
-        const tt = context.lookup(opsTekeningtypeRaw) || opsTekeningtypeRaw;
-        if (tt && typeof tt.value === 'string') colors.opsTekeningtype = tt.value;
-        else if (tt && typeof tt.decodeText === 'function') colors.opsTekeningtype = tt.decodeText();
+        const tt = leesPdfTekst(context, opsTekeningtypeRaw);
+        if (tt !== undefined) colors.opsTekeningtype = tt;
       }
       const opsUnitsRaw = annotDict.get(PDFName.of('OPS_Units'));
       if (opsUnitsRaw) {
-        const u = context.lookup(opsUnitsRaw) || opsUnitsRaw;
-        if (u && typeof u.value === 'string') colors.opsUnits = u.value;
-        else if (u && typeof u.decodeText === 'function') colors.opsUnits = u.decodeText();
+        const u = leesPdfTekst(context, opsUnitsRaw);
+        if (u !== undefined) colors.opsUnits = u;
       }
       const opsLabelRaw = annotDict.get(PDFName.of('OPS_Label'));
       if (opsLabelRaw) {
-        const l = context.lookup(opsLabelRaw) || opsLabelRaw;
-        if (l && typeof l.value === 'string') colors.opsLabel = l.value;
-        else if (l && typeof l.decodeText === 'function') colors.opsLabel = l.decodeText();
+        const l = leesPdfTekst(context, opsLabelRaw);
+        if (l !== undefined) colors.opsLabel = l;
       }
 
       const opsLwRaw = annotDict.get(PDFName.of('OPS_LineWidth'));
@@ -375,41 +401,35 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
 
       const opsScheduleRaw = annotDict.get(PDFName.of('OPS_ScheduleData'));
       if (opsScheduleRaw) {
-        const sd = context.lookup(opsScheduleRaw) || opsScheduleRaw;
-        if (sd && typeof sd.value === 'string') colors.opsScheduleData = sd.value;
-        else if (sd && typeof sd.decodeText === 'function') colors.opsScheduleData = sd.decodeText();
+        const sd = leesPdfTekst(context, opsScheduleRaw);
+        if (sd !== undefined) colors.opsScheduleData = sd;
       }
       const opsGroupByRaw = annotDict.get(PDFName.of('OPS_GroupBy'));
       if (opsGroupByRaw) {
-        const gb = context.lookup(opsGroupByRaw) || opsGroupByRaw;
-        if (gb && typeof gb.value === 'string') colors.opsGroupBy = gb.value;
-        else if (gb && typeof gb.decodeText === 'function') colors.opsGroupBy = gb.decodeText();
+        const gb = leesPdfTekst(context, opsGroupByRaw);
+        if (gb !== undefined) colors.opsGroupBy = gb;
       }
 
       // Parametric symbol metadata
       const opsSymRaw = annotDict.get(PDFName.of('OPS_SymbolId'));
       if (opsSymRaw) {
-        const s = context.lookup(opsSymRaw) || opsSymRaw;
-        if (s && typeof s.value === 'string') colors.opsSymbolId = s.value;
-        else if (s && typeof s.decodeText === 'function') colors.opsSymbolId = s.decodeText();
+        const s = leesPdfTekst(context, opsSymRaw);
+        if (s !== undefined) colors.opsSymbolId = s;
       }
       const opsParamsRaw = annotDict.get(PDFName.of('OPS_Params'));
       if (opsParamsRaw) {
-        const p = context.lookup(opsParamsRaw) || opsParamsRaw;
-        if (p && typeof p.value === 'string') colors.opsParams = p.value;
-        else if (p && typeof p.decodeText === 'function') colors.opsParams = p.decodeText();
+        const p = leesPdfTekst(context, opsParamsRaw);
+        if (p !== undefined) colors.opsParams = p;
       }
       const opsIfcRaw = annotDict.get(PDFName.of('OPS_IfcCategory'));
       if (opsIfcRaw) {
-        const c = context.lookup(opsIfcRaw) || opsIfcRaw;
-        if (c && typeof c.value === 'string') colors.opsIfcCategory = c.value;
-        else if (c && typeof c.decodeText === 'function') colors.opsIfcCategory = c.decodeText();
+        const c = leesPdfTekst(context, opsIfcRaw);
+        if (c !== undefined) colors.opsIfcCategory = c;
       }
       const opsIfcPreRaw = annotDict.get(PDFName.of('OPS_IfcPredefined'));
       if (opsIfcPreRaw) {
-        const c = context.lookup(opsIfcPreRaw) || opsIfcPreRaw;
-        if (c && typeof c.value === 'string') colors.opsIfcPredefined = c.value;
-        else if (c && typeof c.decodeText === 'function') colors.opsIfcPredefined = c.decodeText();
+        const c = leesPdfTekst(context, opsIfcPreRaw);
+        if (c !== undefined) colors.opsIfcPredefined = c;
       }
       const opsTwoPointRaw = annotDict.get(PDFName.of('OPS_TwoPoint'));
       if (opsTwoPointRaw) {
@@ -422,6 +442,17 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
             if (number !== null) points.push(number);
           }
           if (points.length === 4) colors.opsTwoPoint = points;
+        }
+      }
+      // Ongedraaide maat [w h] (PDF-ruimte) van een gedraaide vorm waarvan
+      // /Rect alleen de omhullende is — zie gedraaide-vorm-maat.js.
+      const opsMaatRaw = annotDict.get(PDFName.of('OPS_Maat'));
+      if (opsMaatRaw) {
+        const arr = context.lookup(opsMaatRaw) || opsMaatRaw;
+        if (arr && typeof arr.size === 'function' && arr.size() === 2) {
+          const mw = pdfNum(context.lookup(arr.get(0)) || arr.get(0));
+          const mh = pdfNum(context.lookup(arr.get(1)) || arr.get(1));
+          if (mw > 0 && mh > 0) colors.opsMaat = { width: mw, height: mh };
         }
       }
       const opsTwoPointBandRaw = annotDict.get(PDFName.of('OPS_TwoPointBand'));
@@ -442,14 +473,7 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
           if (!raw) return null;
           return pdfNum(context.lookup(raw) || raw);
         };
-        const srStr = (k) => {
-          const raw = annotDict.get(PDFName.of(k));
-          if (!raw) return null;
-          const v = context.lookup(raw) || raw;
-          if (v && typeof v.value === 'string') return v.value;
-          if (v && typeof v.decodeText === 'function') return v.decodeText();
-          return null;
-        };
+        const srStr = (k) => leesPdfTekst(context, annotDict.get(PDFName.of(k))) ?? null;
         const srArr = (k) => {
           const raw = annotDict.get(PDFName.of(k));
           if (!raw) return null;
@@ -995,7 +1019,10 @@ const result = {};
         const rcRaw = annotDict.get(PDFName.of('RC'));
         if (rcRaw) {
           try {
-            const rcStr = rcRaw.toString?.() || '';
+            // Een hex-/RC (UTF-16) gaf via toString() '<FEFF...>', waarin de
+            // regexen hieronder niets vinden: dan eerst decoderen.
+            const rcObj = context.lookup(rcRaw) || rcRaw;
+            const rcStr = rcObj instanceof PDFHexString ? rcObj.decodeText() : (rcRaw.toString?.() || '');
             if (rcStr) {
               // Check for text-decoration in style attributes
               const decoMatch = rcStr.match(/text-decoration\s*:\s*([^;"']+)/i);
@@ -1083,7 +1110,9 @@ const result = {};
         const dsRaw = annotDict.get(PDFName.of('DS'));
         if (dsRaw) {
           try {
-            const dsStr = dsRaw.toString?.() || '';
+            // Hex-/DS (UTF-16, bijv. een niet-ASCII-fontnaam): eerst decoderen.
+            const dsObj = context.lookup(dsRaw) || dsRaw;
+            const dsStr = dsObj instanceof PDFHexString ? dsObj.decodeText() : (dsRaw.toString?.() || '');
             const fsSizeMatch = dsStr.match(/font-size\s*:\s*([\d.]+)\s*pt/i);
             if (fsSizeMatch) {
               colors.dsFontSize = parseFloat(fsSizeMatch[1]);

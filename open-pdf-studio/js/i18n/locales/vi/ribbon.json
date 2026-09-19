@@ -152,7 +152,9 @@
     "annotationsList": "Danh sách Chú thích (F11)",
     "annotationsLabel": "Chú thích",
     "appearance": "Giao diện",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Chế độ đọc",
+    "readerModeTip": "Ghi nhớ trang, vị trí cuộn và mức thu phóng của mỗi PDF khi đóng và mở lại"
   },
   "organize": {
     "pages": "Trang",
@@ -174,6 +176,7 @@
     "headerFooter": "Đầu trang/Chân trang",
     "manageWatermarks": "Quản lý Hình mờ",
     "manage": "Quản lý",
+    "ocr": "Nhận dạng văn bản (OCR)",
     "straighten": "Làm Thẳng Trang",
     "shiftPage": "Dịch chuyển trang"
   },

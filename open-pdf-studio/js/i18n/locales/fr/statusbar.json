@@ -79,5 +79,14 @@
     "outerOpen": "Contour extérieur ouvert · points : {{count}}"
   },
   "boxWidthAbbr": "L",
-  "boxHeightAbbr": "H"
+  "boxHeightAbbr": "H",
+  "ocr": {
+    "progress": {
+      "starting": "Reconnaissance du texte...",
+      "page": "Reconnaissance du texte de la page {{page}}...",
+      "done": "{{count}} mots reconnus",
+      "doneAll": "{{count}} mots reconnus sur {{pages}} pages",
+      "failed": "Échec de la reconnaissance de texte"
+    }
+  }
 }

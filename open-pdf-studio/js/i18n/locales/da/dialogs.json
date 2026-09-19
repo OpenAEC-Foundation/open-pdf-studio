@@ -63,7 +63,9 @@
     "printJobSent": "Udskriftsjob sendt.",
     "printFailed": "Udskrivning mislykkedes:",
     "noPages": "Ingen sider",
-    "pageOf": "Side {{current}} af {{total}}"
+    "pageOf": "Side {{current}} af {{total}}",
+    "paperLabel": "Papir: {{paper}}",
+    "pageSizeLabel": "Side: {{size}}"
   },
   "insertPage": {
     "title": "Indsæt sider",
@@ -262,7 +264,8 @@
     "left": "Venstre:",
     "right": "Højre:",
     "top": "Top:",
-    "bottom": "Bund:"
+    "bottom": "Bund:",
+    "printerDefault": "Printerens standard"
   },
   "docProperties": {
     "title": "Dokumentegenskaber",
@@ -324,6 +327,18 @@
     "title": "Vælg parametrisk symbol",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Tekstgenkendelse (OCR)",
+    "run": "Genkend",
+    "language": "Sprog:",
+    "info": "{{count}} side(r) i dokumentet. Tilføjer et usynligt, søgbart tekstlag — siden ser stadig ens ud. Fuldt fortrydelig med Fortryd før du gemmer.",
+    "options": {
+      "auto": "Automatisk registrering",
+      "eng": "Engelsk",
+      "chi_tra": "Kinesisk (traditionel)",
+      "chi_tra+eng": "Kinesisk (traditionel) + engelsk"
+    }
+  },
   "straighten": {
     "title": "Ret Side",
     "apply": "Ret",
@@ -343,5 +358,113 @@
     "fromPage": "From page:",
     "noShift": "No shift entered — nothing to apply.",
     "dragInfo": "Drag the preview to shift the page, or enter exact millimeter offsets below."
+  },
+  "signatureVerification": {
+    "checking": "Kontrollerer digitale signaturer…",
+    "barLabel": "Digitale signaturer",
+    "listError": "Signaturerne kunne ikke kontrolleres: {{detail}}",
+    "documentTimestamp": "Dokumenttidsstempel",
+    "documentTimestampBy": "Dokumenttidsstempel ({{tsa}})",
+    "unknownSigner": "Ukendt underskriver",
+    "changedAfterwards": "dokumentet er ændret efterfølgende",
+    "details": "Detaljer",
+    "showSignedVersion": "Vis underskrevet version",
+    "signedVersionTab": "{{name}} (underskrevet version {{number}})",
+    "signedVersionError": "Den underskrevne version kunne ikke åbnes: {{detail}}",
+    "listTruncated": "Ikke alle signaturfelter blev kontrolleret: dokumentet indeholder for mange.",
+    "changedSinceCheck": "Filen er ændret, siden signaturerne blev kontrolleret. Signaturerne kontrolleres igen.",
+    "modifiedInApp": "Statussen gælder filen på disken; dokumentet er siden ændret i appen.",
+    "errors": {
+      "unreadable": "Filen kunne ikke læses.",
+      "noSignature": "Signaturen blev ikke fundet i filen.",
+      "changedSinceList": "Filen er ændret, siden signaturerne blev kontrolleret."
+    },
+    "status": {
+      "valid": "Gyldig",
+      "unknownCertificate": "Ukendt certifikat",
+      "modified": "Ændret efter underskrivning",
+      "invalid": "Ugyldig signatur",
+      "notVerifiable": "Kan ikke kontrolleres",
+      "unsignedField": "Ikke-underskrevet signaturfelt"
+    },
+    "reasons": {
+      "noChain": "Ingen kæde til et betroet rodcertifikat",
+      "expired": "Et certifikat var ikke gyldigt på det relevante tidspunkt",
+      "keyUsage": "Et certifikat er ikke beregnet til denne brug",
+      "unsupportedAlgorithm": "Algoritme understøttes ikke",
+      "cmsUnreadable": "Signaturdataene kan ikke læses",
+      "noCertificate": "Underskriverens certifikat mangler",
+      "byteRangeInvalid": "Det underskrevne byteområde er ugyldigt",
+      "pdfUnreadable": "Dokumentets struktur kan ikke læses",
+      "legacyFormat": "Forældet signaturformat"
+    },
+    "explanation": {
+      "valid": "Det underskrevne indhold er uændret, og certifikatet fører til et betroet rodcertifikat.",
+      "modified": "De underskrevne bytes er ændret efter underskrivningen.",
+      "invalid": "De underskrevne bytes er uændrede, men signaturværdien stemmer ikke."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "Signaturens hashalgoritme understøttes ikke.",
+      "handtekeningalgoritme-niet-ondersteund": "Signaturalgoritmen understøttes ikke.",
+      "imprintalgoritme-niet-ondersteund": "Tidsstemplets hashalgoritme understøttes ikke.",
+      "contenttype-ontbreekt-of-meervoudig": "Attributten for indholdstype mangler eller forekommer mere end én gang.",
+      "contenttype-wijkt-af": "Attributten for indholdstype stemmer ikke med det underskrevne indhold.",
+      "messagedigest-ontbreekt-of-meervoudig": "Attributten for meddelelsesdigest mangler eller forekommer mere end én gang.",
+      "certificaat-ondertekenaar-ontbreekt": "Underskriverens certifikat mangler eller kan ikke læses.",
+      "zonder-attributen-niet-te-onderscheiden": "Uden underskrevne attributter kan en ændring ikke skelnes fra en ugyldig signatur.",
+      "cms-structuur-onleesbaar": "Signaturdataene kan ikke læses.",
+      "econtent-bij-losse-handtekening": "Den adskilte signatur indeholder uventet det underskrevne indhold.",
+      "econtenttype-geen-id-data": "Det underskrevne indhold har en uventet type.",
+      "geen-ondertekenaar": "Signaturdataene indeholder ingen underskriver.",
+      "token-zonder-tstinfo": "Tidsstemplet indeholder ingen tidsoplysninger.",
+      "tstinfo-onleesbaar": "Tidsoplysningerne i tidsstemplet kan ikke læses.",
+      "bytebereik-geen-vier-getallen": "Byteområdet består ikke af fire tal.",
+      "bytebereik-negatief": "Byteområdet indeholder et negativt tal.",
+      "bytebereik-begint-niet-bij-nul": "Byteområdet starter ikke ved begyndelsen af filen.",
+      "bytebereik-gat-te-klein": "Hullet i byteområdet er for lille.",
+      "bytebereik-voorbij-einde": "Byteområdet rækker ud over slutningen af filen.",
+      "bytebereik-gat-geen-hex-string": "Hullet i byteområdet indeholder ikke kun signaturværdien.",
+      "subfilter-niet-ondersteund": "Dette signaturformat understøttes ikke.",
+      "zoekbudget-op": "Søgningen efter en certifikatkæde stoppede ved sin grænse; en kæde kan stadig findes.",
+      "gat-wijkt-af-van-contents": "Signaturværdien i filen afviger fra den i signaturordbogen.",
+      "interne-fout": "Der opstod en intern fejl under kontrollen af denne signatur.",
+      "unknown": "Kontrollen rapporterede et yderligere problem."
+    },
+    "detail": {
+      "title": "Signaturdetaljer",
+      "status": "Status",
+      "explanation": "Forklaring",
+      "signer": "Underskriver",
+      "issuer": "Udstedt af",
+      "field": "Felt",
+      "time": "Tidspunkt",
+      "timeFromTimestamp": "{{time}} (fra tidsstempel)",
+      "timeClaimed": "{{time}} (angivet af underskriveren)",
+      "timestamp": "Tidsstempel",
+      "none": "Ingen",
+      "reason": "Årsag",
+      "location": "Sted",
+      "coverage": "Dækning",
+      "coversWhole": "Hele dokumentet",
+      "coversPart": "Bytes {{start}} til {{end}} af {{size}}",
+      "chain": "Certifikatkæde",
+      "validFromTo": "Gyldig fra {{from}} til {{to}}",
+      "revocationNotChecked": "Tilbagekaldelse ikke kontrolleret.",
+      "notCoveredBySignature": "ikke signeret",
+      "weakAlgorithm": "Svag algoritme (SHA-1): mindre beskyttelse mod forfalskning",
+      "technicalDetail": "Teknisk detalje",
+      "issuedBy": "Udstedt af {{issuer}}"
+    },
+    "save": {
+      "title": "Underskrevet dokument",
+      "message": "Dette dokument indeholder digitale signaturer. Når du gemmer, skrives filen om, og signaturerne bliver ugyldige. Gem alligevel?",
+      "messageCopy": "Dette dokument indeholder digitale signaturer. Den oprindelige fil forbliver underskrevet, men den nye kopi får ingen gyldige signaturer. Gem kopien alligevel?",
+      "confirm": "Gem alligevel"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

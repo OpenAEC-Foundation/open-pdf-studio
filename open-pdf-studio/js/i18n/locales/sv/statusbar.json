@@ -80,5 +80,14 @@
     "outerOpen": "Ytterkontur öppen · punkter: {{count}}"
   },
   "boxWidthAbbr": "B",
-  "boxHeightAbbr": "H"
+  "boxHeightAbbr": "H",
+  "ocr": {
+    "progress": {
+      "starting": "Känner igen text...",
+      "page": "Känner igen text på sida {{page}}...",
+      "done": "{{count}} ord igenkända",
+      "doneAll": "{{count}} ord igenkända på {{pages}} sidor",
+      "failed": "Textigenkänningen misslyckades"
+    }
+  }
 }

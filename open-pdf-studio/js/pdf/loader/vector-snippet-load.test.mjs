@@ -10,6 +10,7 @@ import { bouwKnipselAppearance, CATALOGUS_SLEUTEL } from '../saver/vector-snippe
 import { leesKnipselBronnen, leesKnipselVelden, knipselUitExtra } from './vector-snippet-load.js';
 import { extractAnnotationColors } from './color-extraction.js';
 import { bewaar, bytesVan, leegmaken, sleutelVoor } from '../../annotations/vector-snippet-store.js';
+import { pdfTextString } from '../saver/pdf-text.js';
 
 const VAK = { left: 100, bottom: 80, right: 220, top: 140 };
 
@@ -39,7 +40,7 @@ async function documentMetKnipsel({ rect = [50, 50, 290, 170], label = 'Bron.pdf
     OPS_Subtype: PDFString.of('vectorSnippet'),
     OPS_SnippetKey: PDFString.of(sleutel),
     OPS_SrcBox: [VAK.left, VAK.bottom, VAK.right, VAK.top],
-    OPS_SrcLabel: PDFString.of(label),
+    OPS_SrcLabel: pdfTextString(label),
     AP: context.obj({ N: context.register(apStream) }),
   });
   pagina.node.set(PDFName.of('Annots'), context.obj([context.register(annot)]));
@@ -53,6 +54,30 @@ test('de bronpagina komt na heropenen terug in de store', async () => {
   const sleutels = await leesKnipselBronnen(heropend, bewaar);
   assert.deepEqual(sleutels, [sleutel], 'sleutel uit het bestand');
   assert.equal(bytesVan(sleutel).length, brongrootte, 'bytes ongewijzigd terug');
+});
+
+test('een niet-ASCII-bronlabel (UTF-16-hex) komt als tekst terug', async () => {
+  leegmaken();
+  const label = 'Plattegrond € 22 – café 中文.pdf, blad 2';
+  const { bytes } = await documentMetKnipsel({ label });
+  const heropend = await PDFDocument.load(bytes);
+  const annots = heropend.getPage(0).node.lookup(PDFName.of('Annots'));
+  const annot = heropend.context.lookup(annots.get(0));
+  const velden = await leesKnipselVelden(annot, heropend.context);
+  assert.equal(velden.srcLabel, label);
+});
+
+test('een oud bronlabel als literal string blijft leesbaar', async () => {
+  const doc = await PDFDocument.create();
+  const context = doc.context;
+  const annot = context.obj({
+    Type: 'Annot', Subtype: 'Stamp', Rect: [0, 0, 10, 10],
+    OPS_SnippetKey: PDFString.of('abc'),
+    OPS_SrcBox: [1, 2, 3, 4],
+    OPS_SrcLabel: PDFString.of('Oud café.pdf, blad 1'),
+  });
+  const velden = await leesKnipselVelden(annot, context);
+  assert.equal(velden.srcLabel, 'Oud café.pdf, blad 1');
 });
 
 test('de knipsel-velden komen terug van de stempel', async () => {

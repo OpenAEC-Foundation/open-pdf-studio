@@ -58,7 +58,7 @@
     "borderWidth": "Upana wa Mpaka",
     "borderStyle": "Border Style",
     "cross": "Cross",
-    "crossHint": "Draws both diagonals inside the rectangle",
+    "crossHint": "Draws a cross inside the rectangle, circle or ellipse (e.g. an opening)",
     "hatchPattern": "Hatch Pattern",
     "hatchColor": "Hatch Color",
     "hatchScale": "Hatch Scale",

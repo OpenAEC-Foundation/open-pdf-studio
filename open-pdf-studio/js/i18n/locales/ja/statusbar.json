@@ -79,5 +79,14 @@
     "outerOpen": "外側輪郭が開いています — {{count}}点"
   },
   "boxWidthAbbr": "幅",
-  "boxHeightAbbr": "高"
+  "boxHeightAbbr": "高",
+  "ocr": {
+    "progress": {
+      "starting": "文字を認識しています...",
+      "page": "{{page}} ページの文字を認識しています...",
+      "done": "{{count}} 語を認識しました",
+      "doneAll": "{{pages}} ページで {{count}} 語を認識しました",
+      "failed": "文字認識に失敗しました"
+    }
+  }
 }

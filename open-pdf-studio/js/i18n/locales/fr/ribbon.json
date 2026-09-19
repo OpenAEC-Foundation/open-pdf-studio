@@ -152,7 +152,9 @@
     "annotationsList": "Liste des annotations (F11)",
     "annotationsLabel": "Annotations",
     "appearance": "Apparence",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Mode lecture",
+    "readerModeTip": "Mémorise la page, la position de défilement et le zoom de chaque PDF entre deux ouvertures"
   },
   "organize": {
     "pages": "Pages",
@@ -174,6 +176,7 @@
     "headerFooter": "En-tête/Pied de page",
     "manageWatermarks": "Gérer les filigranes",
     "manage": "Gérer",
+    "ocr": "Reconnaissance de texte (OCR)",
     "straighten": "Redresser la Page",
     "shiftPage": "Décaler la page"
   },

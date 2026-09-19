@@ -79,5 +79,14 @@
     "outerOpen": "Kontur zewnętrzny otwarty · punktów: {{count}}"
   },
   "boxWidthAbbr": "S",
-  "boxHeightAbbr": "W"
+  "boxHeightAbbr": "W",
+  "ocr": {
+    "progress": {
+      "starting": "Rozpoznawanie tekstu...",
+      "page": "Rozpoznawanie tekstu na stronie {{page}}...",
+      "done": "Rozpoznane słowa: {{count}}",
+      "doneAll": "Rozpoznane słowa: {{count}} na {{pages}} stronach",
+      "failed": "Rozpoznawanie tekstu nie powiodło się"
+    }
+  }
 }

@@ -152,7 +152,9 @@
     "annotationsList": "Orodha ya Maoni (F11)",
     "annotationsLabel": "Maoni",
     "appearance": "Muonekano",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Hali ya Kusoma",
+    "readerModeTip": "Inakumbuka ukurasa, nafasi ya kusogeza na kuza kwa kila PDF unapofunga na kufungua tena"
   },
   "organize": {
     "pages": "Kurasa",
@@ -174,6 +176,7 @@
     "headerFooter": "Kichwa/Kiguu",
     "manageWatermarks": "Simamia Alama za Maji",
     "manage": "Simamia",
+    "ocr": "Utambuzi wa Maandishi (OCR)",
     "straighten": "Nyoosha Ukurasa",
     "shiftPage": "Hamisha ukurasa"
   },

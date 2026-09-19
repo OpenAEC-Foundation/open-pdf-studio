@@ -63,7 +63,9 @@
     "printJobSent": "Trabajo de impresión enviado correctamente.",
     "printFailed": "La impresión falló:",
     "noPages": "Sin páginas",
-    "pageOf": "Página {{current}} de {{total}}"
+    "pageOf": "Página {{current}} de {{total}}",
+    "paperLabel": "Papel: {{paper}}",
+    "pageSizeLabel": "Página: {{size}}"
   },
   "insertPage": {
     "title": "Insertar páginas",
@@ -262,7 +264,8 @@
     "left": "Izquierdo:",
     "right": "Derecho:",
     "top": "Superior:",
-    "bottom": "Inferior:"
+    "bottom": "Inferior:",
+    "printerDefault": "Predeterminado de la impresora"
   },
   "docProperties": {
     "title": "Propiedades del documento",
@@ -324,6 +327,18 @@
     "title": "Elegir símbolo paramétrico",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Reconocimiento de texto (OCR)",
+    "run": "Reconocer",
+    "language": "Idioma:",
+    "info": "{{count}} página(s) en el documento. Añade una capa de texto invisible y buscable — la página se ve igual. Totalmente reversible con Deshacer antes de guardar.",
+    "options": {
+      "auto": "Detección automática",
+      "eng": "Inglés",
+      "chi_tra": "Chino (tradicional)",
+      "chi_tra+eng": "Chino (tradicional) + inglés"
+    }
+  },
   "straighten": {
     "title": "Enderezar Página",
     "apply": "Enderezar",
@@ -343,5 +358,113 @@
     "fromPage": "From page:",
     "noShift": "No shift entered — nothing to apply.",
     "dragInfo": "Drag the preview to shift the page, or enter exact millimeter offsets below."
+  },
+  "signatureVerification": {
+    "checking": "Comprobando las firmas digitales…",
+    "barLabel": "Firmas digitales",
+    "listError": "No se pudieron comprobar las firmas: {{detail}}",
+    "documentTimestamp": "Sello de tiempo del documento",
+    "documentTimestampBy": "Sello de tiempo del documento ({{tsa}})",
+    "unknownSigner": "Firmante desconocido",
+    "changedAfterwards": "el documento se modificó después",
+    "details": "Detalles",
+    "showSignedVersion": "Mostrar la versión firmada",
+    "signedVersionTab": "{{name}} (versión firmada {{number}})",
+    "signedVersionError": "No se pudo abrir la versión firmada: {{detail}}",
+    "listTruncated": "No se han comprobado todos los campos de firma: el documento contiene demasiados.",
+    "changedSinceCheck": "El archivo ha cambiado desde que se comprobaron las firmas. Las firmas se están comprobando de nuevo.",
+    "modifiedInApp": "El estado se refiere al archivo en el disco; el documento se ha modificado en la aplicación desde entonces.",
+    "errors": {
+      "unreadable": "No se ha podido leer el archivo.",
+      "noSignature": "No se ha encontrado la firma en el archivo.",
+      "changedSinceList": "El archivo ha cambiado desde que se comprobaron las firmas."
+    },
+    "status": {
+      "valid": "Válida",
+      "unknownCertificate": "Certificado desconocido",
+      "modified": "Modificado después de firmar",
+      "invalid": "Firma no válida",
+      "notVerifiable": "No se puede comprobar",
+      "unsignedField": "Campo de firma sin firmar"
+    },
+    "reasons": {
+      "noChain": "No hay cadena hasta un certificado raíz de confianza",
+      "expired": "Un certificado no era válido en el momento pertinente",
+      "keyUsage": "Un certificado no está destinado a este uso",
+      "unsupportedAlgorithm": "Algoritmo no compatible",
+      "cmsUnreadable": "Los datos de la firma no se pueden leer",
+      "noCertificate": "Falta el certificado del firmante",
+      "byteRangeInvalid": "El intervalo de bytes firmado no es válido",
+      "pdfUnreadable": "La estructura del documento no se puede leer",
+      "legacyFormat": "Formato de firma obsoleto"
+    },
+    "explanation": {
+      "valid": "El contenido firmado no ha cambiado y el certificado lleva a una raíz de confianza.",
+      "modified": "Los bytes firmados se modificaron después de firmar.",
+      "invalid": "Los bytes firmados no han cambiado, pero el valor de la firma no coincide."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "El algoritmo hash de la firma no es compatible.",
+      "handtekeningalgoritme-niet-ondersteund": "El algoritmo de firma no es compatible.",
+      "imprintalgoritme-niet-ondersteund": "El algoritmo hash del sello de tiempo no es compatible.",
+      "contenttype-ontbreekt-of-meervoudig": "El atributo de tipo de contenido falta o aparece más de una vez.",
+      "contenttype-wijkt-af": "El atributo de tipo de contenido no coincide con el contenido firmado.",
+      "messagedigest-ontbreekt-of-meervoudig": "El atributo de resumen del mensaje falta o aparece más de una vez.",
+      "certificaat-ondertekenaar-ontbreekt": "Falta el certificado del firmante o no se puede leer.",
+      "zonder-attributen-niet-te-onderscheiden": "Sin atributos firmados, no se puede distinguir una modificación de una firma no válida.",
+      "cms-structuur-onleesbaar": "Los datos de la firma no se pueden leer.",
+      "econtent-bij-losse-handtekening": "La firma separada contiene inesperadamente el contenido firmado.",
+      "econtenttype-geen-id-data": "El contenido firmado tiene un tipo inesperado.",
+      "geen-ondertekenaar": "Los datos de la firma no contienen ningún firmante.",
+      "token-zonder-tstinfo": "El sello de tiempo no contiene información de hora.",
+      "tstinfo-onleesbaar": "La información de hora del sello de tiempo no se puede leer.",
+      "bytebereik-geen-vier-getallen": "El intervalo de bytes no consta de cuatro números.",
+      "bytebereik-negatief": "El intervalo de bytes contiene un número negativo.",
+      "bytebereik-begint-niet-bij-nul": "El intervalo de bytes no empieza al principio del archivo.",
+      "bytebereik-gat-te-klein": "El hueco del intervalo de bytes es demasiado pequeño.",
+      "bytebereik-voorbij-einde": "El intervalo de bytes sobrepasa el final del archivo.",
+      "bytebereik-gat-geen-hex-string": "El hueco del intervalo de bytes no contiene solo el valor de la firma.",
+      "subfilter-niet-ondersteund": "Este formato de firma no es compatible.",
+      "zoekbudget-op": "La búsqueda de una cadena de certificados se detuvo en su límite; aun así, puede existir una cadena.",
+      "gat-wijkt-af-van-contents": "El valor de la firma en el archivo difiere del del diccionario de firma.",
+      "interne-fout": "Se ha producido un error interno al comprobar esta firma.",
+      "unknown": "La comprobación ha notificado un problema adicional."
+    },
+    "detail": {
+      "title": "Detalles de la firma",
+      "status": "Estado",
+      "explanation": "Explicación",
+      "signer": "Firmante",
+      "issuer": "Emitido por",
+      "field": "Campo",
+      "time": "Fecha y hora",
+      "timeFromTimestamp": "{{time}} (del sello de tiempo)",
+      "timeClaimed": "{{time}} (indicado por el firmante)",
+      "timestamp": "Sello de tiempo",
+      "none": "Ninguno",
+      "reason": "Motivo",
+      "location": "Ubicación",
+      "coverage": "Cobertura",
+      "coversWhole": "Documento completo",
+      "coversPart": "Bytes {{start}} a {{end}} de {{size}}",
+      "chain": "Cadena de certificados",
+      "validFromTo": "Válido del {{from}} al {{to}}",
+      "revocationNotChecked": "Revocación no comprobada.",
+      "notCoveredBySignature": "sin firmar",
+      "weakAlgorithm": "Algoritmo débil (SHA-1): menor protección contra la falsificación",
+      "technicalDetail": "Detalle técnico",
+      "issuedBy": "Emitido por {{issuer}}"
+    },
+    "save": {
+      "title": "Documento firmado",
+      "message": "Este documento contiene firmas digitales. Al guardar se reescribe el archivo, lo que invalida las firmas. ¿Guardar de todos modos?",
+      "messageCopy": "Este documento contiene firmas digitales. El archivo original sigue firmado, pero la nueva copia no tendrá firmas válidas. ¿Guardar la copia de todos modos?",
+      "confirm": "Guardar de todos modos"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

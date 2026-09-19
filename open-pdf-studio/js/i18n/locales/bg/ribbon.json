@@ -152,7 +152,9 @@
     "annotationsList": "Списък с анотации (F11)",
     "annotationsLabel": "Анотации",
     "appearance": "Външен вид",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Режим четене",
+    "readerModeTip": "Запомня страницата, позицията на превъртане и мащаба на всеки PDF при затваряне и повторно отваряне"
   },
   "organize": {
     "pages": "Страници",
@@ -174,6 +176,7 @@
     "headerFooter": "Горен/Долен колонтитул",
     "manageWatermarks": "Управление на водни знаци",
     "manage": "Управление",
+    "ocr": "Разпознаване на текст (OCR)",
     "straighten": "Изправяне на Страница",
     "shiftPage": "Преместване на страница"
   },

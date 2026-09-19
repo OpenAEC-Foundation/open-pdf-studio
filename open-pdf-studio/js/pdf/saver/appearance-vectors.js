@@ -17,6 +17,7 @@
 import { hexToRgb } from './utils.js';
 import { getHatchLineFamilies } from './hatch-catalog.js';
 import { catmullRomToBezier, splineArrowEndTangent } from '../../annotations/spline-arrow-geometry.js';
+import { toWinAnsiText, winAnsiLiteral } from './pdf-text.js';
 import {
   rotToWorld as srRotToWorld,
   SYSTEEM_RAVEEL_OFFSET_MM as srRaveelOffsetMm,
@@ -29,8 +30,10 @@ const f = (n) => {
   const r = Math.round(n * 1000) / 1000;
   return Object.is(r, -0) ? '0' : String(r);
 };
-const escapePdfText = (s) =>
-  String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)').replace(/[\r\n]+/g, ' ');
+// Tekst voor '(...) Tj' met de WinAnsi-font /Helv: puur ASCII, WinAnsi-codes
+// als octale escape, elke CR/LF-reeks één spatie (zie pdf-text.js). Voor
+// ASCII gelijk aan de oude escapes van \ ( ).
+const escapePdfText = (s) => winAnsiLiteral(s, { newlines: 'space' });
 
 // Dash arrays mirror rendering/decorations.js applyBorderStyle (screen px ==
 // PDF pt at scale 1). Solid → null (no dash operator).
@@ -206,7 +209,10 @@ function labelOps({ text, x, y, fontSize, colorRgb, X, Y }) {
   if (!text) return '';
   const fs = fontSize || 11;
   const px = X(x), py = Y(y);
-  const tw = escapePdfText(text).length * fs * 0.5; // Helvetica avg width estimate
+  // Helvetica avg width estimate over de getoonde tekst. Zoals voorheen telt
+  // de backslash van \\, \( en \) mee; een octale escape telt als één teken.
+  const shown = toWinAnsiText(text, { newlines: 'space' });
+  const tw = (shown.length + (shown.match(/[\\()]/g) || []).length) * fs * 0.5;
   const padX = 2, padY = 2;
   const bx = px - tw / 2 - padX;
   const by = py - fs / 2 - padY;
@@ -312,14 +318,26 @@ export function buildFilledAreaAP({ points, holes, X, Y, fillColorHex, strokeCol
 }
 
 // measureArea: fill + optional hatch + outline + centroid label.
+// `fillAlpha` (annotation fillOpacity, PDF /ca) applies to the solid fill only,
+// wrapped in q…Q with /GSf so hatch, outline and label stay opaque — the same
+// split as on screen. The result then carries `fillAlpha`, which makes the
+// caller (attachVectorAP) add the /GSf ExtGState to the resources.
 export function buildMeasureAreaAP({ points, holes, X, Y, fillColorHex, strokeColorHex,
   lineWidth, borderStyle, hatchPattern, hatchColorHex, hatchScale, hatchAngle,
-  text, labelX, labelY }) {
+  text, labelX, labelY, fillAlpha }) {
   if (!points || points.length < 3) return null;
   const stroke = hexToRgb(strokeColorHex || '#ff0000');
+  const alpha = (typeof fillAlpha === 'number' && fillAlpha >= 0 && fillAlpha < 1) ? fillAlpha : undefined;
+  let filledWithAlpha = false;
   let s = '';
   if (fillColorHex && fillColorHex !== 'none' && fillColorHex !== 'transparent') {
-    s += solidFillOps(points, holes, hexToRgb(fillColorHex), X, Y);
+    const fillOps = solidFillOps(points, holes, hexToRgb(fillColorHex), X, Y);
+    if (alpha !== undefined) {
+      s += `q\n/GSf gs\n${fillOps}Q\n`;
+      filledWithAlpha = true;
+    } else {
+      s += fillOps;
+    }
   }
   if (hatchPattern && hatchPattern !== 'none') {
     s += hatchFillOps({ points, holes, hatchPattern,
@@ -332,7 +350,9 @@ export function buildMeasureAreaAP({ points, holes, X, Y, fillColorHex, strokeCo
   cx /= points.length; cy /= points.length;
   s += labelOps({ text, x: labelX != null ? labelX : cx, y: labelY != null ? labelY : cy,
     fontSize: 11, colorRgb: stroke, X, Y });
-  return { content: s, needsFont: true };
+  return filledWithAlpha
+    ? { content: s, needsFont: true, fillAlpha: alpha }
+    : { content: s, needsFont: true };
 }
 
 // measurePerimeter / measureAngle: open polyline + label at centroid.

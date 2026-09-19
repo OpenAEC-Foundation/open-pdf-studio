@@ -80,5 +80,14 @@
     "outerOpen": "Đường viền ngoài đang mở — {{count}} điểm"
   },
   "boxWidthAbbr": "R",
-  "boxHeightAbbr": "C"
+  "boxHeightAbbr": "C",
+  "ocr": {
+    "progress": {
+      "starting": "Đang nhận dạng văn bản...",
+      "page": "Đang nhận dạng văn bản trên trang {{page}}...",
+      "done": "Đã nhận dạng {{count}} từ",
+      "doneAll": "Đã nhận dạng {{count}} từ trên {{pages}} trang",
+      "failed": "Nhận dạng văn bản thất bại"
+    }
+  }
 }

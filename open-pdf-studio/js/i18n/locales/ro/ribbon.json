@@ -152,7 +152,9 @@
     "annotationsList": "Lista de adnotari (F11)",
     "annotationsLabel": "Adnotari",
     "appearance": "Aspect",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Mod citire",
+    "readerModeTip": "Ține minte pagina, poziția de derulare și zoom-ul fiecărui PDF la închidere și redeschidere"
   },
   "organize": {
     "pages": "Pagini",
@@ -174,6 +176,7 @@
     "headerFooter": "Antet/Subsol",
     "manageWatermarks": "Administrare filigrane",
     "manage": "Administrare",
+    "ocr": "Recunoaștere text (OCR)",
     "straighten": "Îndreaptă Pagina",
     "shiftPage": "Deplasează pagina"
   },

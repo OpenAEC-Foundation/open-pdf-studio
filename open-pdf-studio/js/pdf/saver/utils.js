@@ -1,4 +1,5 @@
 import { PDFName } from 'pdf-lib';
+import { kruisEindpuntenEllips } from '../../annotations/kruis-geometrie.js';
 
 // Convert hex color to RGB values (0-1 range)
 export function hexToRgb(hex) {
@@ -228,6 +229,13 @@ export function generateAppearanceStream(context, ann, convertY) {
         streamContent += `${cx - k*rx} ${cy - ry} ${cx - rx} ${cy - k*ry} ${cx - rx} ${cy} c\n`;
         streamContent += `${cx - rx} ${cy + k*ry} ${cx - k*rx} ${cy + ry} ${cx} ${cy + ry} c\n`;
         streamContent += ann.fillColor ? 'B\n' : 'S\n';
+        // Kruis (rond gat / sparing): ±45° door het middelpunt tot de omtrek.
+        if (ann.cross) {
+          for (const l of kruisEindpuntenEllips(cx, cy, rx, ry)) {
+            streamContent += `${l.x1} ${l.y1} m ${l.x2} ${l.y2} l\n`;
+          }
+          streamContent += 'S\n';
+        }
         break;
       }
       case 'line': {

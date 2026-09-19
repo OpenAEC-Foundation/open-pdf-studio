@@ -80,5 +80,14 @@
     "outerOpen": "Contur exterior deschis · puncte: {{count}}"
   },
   "boxWidthAbbr": "L",
-  "boxHeightAbbr": "H"
+  "boxHeightAbbr": "H",
+  "ocr": {
+    "progress": {
+      "starting": "Se recunoaște textul...",
+      "page": "Se recunoaște textul de pe pagina {{page}}...",
+      "done": "Cuvinte recunoscute: {{count}}",
+      "doneAll": "Cuvinte recunoscute: {{count}} pe {{pages}} pagini",
+      "failed": "Recunoașterea textului a eșuat"
+    }
+  }
 }

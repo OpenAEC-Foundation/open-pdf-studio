@@ -11,6 +11,7 @@ import {
   endUndoTransaction,
 } from '../../core/undo-manager.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
+import { ondersteuntKruis, kruisZichtbaarVoorSelectie } from '../../annotations/kruis-geometrie.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { computeTextboxContentHeight } from '../../annotations/rendering/shapes.js';
 import { formatDate, getTypeDisplayName } from '../../utils/helpers.js';
@@ -18,6 +19,7 @@ import { getAnnotationType } from '../../plugins/annotation-type-registry.js';
 import { getPropertyPanel } from '../../plugins/property-panel-registry.js';
 import { fireSelectionChange } from '../../plugins/selection-listener-registry.js';
 import i18next from '../../i18n/config.js';
+import { DOC_INFO_EMPTY, formatDocPages, formatPageSizeMm, createLatestOnly } from './doc-info-format.js';
 import { syncDocScale } from '../../annotations/scale-bar.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
 import { BETONBALK_DEFAULTS, BETONBALK_BREEDTE_RANGE, BETONBALK_HOOGTE_RANGE, BETONBALK_LIJNSTIJLEN } from '../../annotations/betonbalk.js';
@@ -258,7 +260,7 @@ function computeSectionVisibility(type) {
     lineWidthGroup: !hideLineWidth,
     borderStyleGroup: hasBorderStyle,
     hatchPatternGroup: hasHatchPattern,
-    crossGroup: type === 'box',
+    crossGroup: ondersteuntKruis(type),
     textGroup: isTextContent,
     fontSizeGroup: type === 'text',
     opacityGroup: !isScaleBar,
@@ -666,7 +668,7 @@ export function storeShowMultiSelection(selected) {
     lineWidthGroup: allMatch(t => !hideLineWidthTypes.has(t)),
     borderStyleGroup: allMatch(t => borderStyleTypes.has(t)),
     hatchPatternGroup: allMatch(t => hatchPatternTypes.has(t)),
-    crossGroup: allMatch(t => t === 'box'),
+    crossGroup: kruisZichtbaarVoorSelectie(selected),
     textGroup: allSameType && (sharedType === 'text' || sharedType === 'comment'),
     fontSizeGroup: allSameType && sharedType === 'text',
     opacityGroup: true,
@@ -774,7 +776,15 @@ export function storeShowTextEditProperties(info) {
 }
 
 // Populate document info
+// Wordt aangeroepen bij deselecteren/tabwissel (storeHideProperties) en door
+// het reactieve effect in DocInfoView (document geladen, paginawissel door
+// scrollen in de doorlopende weergave). Aanroepen kunnen overlappen; na elke
+// await schrijft alleen de laatst gestarte aanroep nog weg, zodat een trage
+// oudere getPage() het formaat van een nieuwere pagina niet overschrijft.
+const _docInfoRefresh = createLatestOnly();
+
 export async function populateDocInfo() {
+  const token = _docInfoRefresh.begin();
   const doc = getActiveDocument();
   const filePath = doc?.filePath || '';
   if (filePath) {
@@ -787,19 +797,22 @@ export async function populateDocInfo() {
   }
 
   if (doc?.pdfDoc) {
-    setDocInfo('pages', `${doc.currentPage} / ${doc.pdfDoc.numPages}`);
+    const pdfDoc = doc.pdfDoc;
+    const pageNum = doc.currentPage;
+    setDocInfo('pages', formatDocPages(pageNum, pdfDoc.numPages));
     try {
-      const page = await doc.pdfDoc.getPage(doc.currentPage);
+      const page = await pdfDoc.getPage(pageNum);
+      if (!_docInfoRefresh.isCurrent(token)) return;
       const vp = page.getViewport({ scale: 1 });
-      const wMm = (vp.width / 72 * 25.4).toFixed(1);
-      const hMm = (vp.height / 72 * 25.4).toFixed(1);
-      setDocInfo('pageSize', `${wMm} x ${hMm} mm`);
+      setDocInfo('pageSize', formatPageSizeMm(vp.width, vp.height));
     } catch (e) {
-      setDocInfo('pageSize', '-');
+      if (!_docInfoRefresh.isCurrent(token)) return;
+      setDocInfo('pageSize', DOC_INFO_EMPTY);
     }
 
     try {
-      const metadata = await doc.pdfDoc.getMetadata();
+      const metadata = await pdfDoc.getMetadata();
+      if (!_docInfoRefresh.isCurrent(token)) return;
       const info = metadata.info || {};
       setDocInfo('title', info.Title || '-');
       setDocInfo('author', info.Author || '-');
@@ -808,9 +821,12 @@ export async function populateDocInfo() {
       setDocInfo('producer', info.Producer || '-');
       setDocInfo('version', info.PDFFormatVersion || '-');
     } catch (e) { /* ignore */ }
+    if (!_docInfoRefresh.isCurrent(token)) return;
   } else {
-    setDocInfo('pages', '-');
-    setDocInfo('pageSize', '-');
+    // Document (nog) niet geladen: geen gegevens van een vorig document laten staan.
+    for (const key of ['pages', 'pageSize', 'title', 'author', 'subject', 'creator', 'producer', 'version']) {
+      setDocInfo(key, DOC_INFO_EMPTY);
+    }
   }
 
   const docAnnotations = doc?.annotations || [];

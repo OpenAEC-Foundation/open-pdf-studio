@@ -152,7 +152,9 @@
     "annotationsList": "एनोटेशन सूची (F11)",
     "annotationsLabel": "एनोटेशन",
     "appearance": "दिखावट",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "रीडर मोड",
+    "readerModeTip": "हर PDF को बंद और फिर से खोलते समय पृष्ठ, स्क्रोल स्थिति और ज़ूम याद रखता है"
   },
   "organize": {
     "pages": "पृष्ठ",
@@ -174,6 +176,7 @@
     "headerFooter": "शीर्षलेख/पादलेख",
     "manageWatermarks": "वॉटरमार्क प्रबंधित करें",
     "manage": "प्रबंधित करें",
+    "ocr": "टेक्स्ट पहचान (OCR)",
     "straighten": "पृष्ठ सीधा करें",
     "shiftPage": "पृष्ठ स्थानांतरित करें"
   },

@@ -46,6 +46,8 @@ export const editTextIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0
 
 export const addTextIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m0 14v1m-5-8H4m16 0h-3"/><text x="12" y="16" text-anchor="middle" font-size="14" font-weight="bold" fill="currentColor" stroke="none">T</text></svg>`;
 
+export const ocrIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" stroke-width="2"/><path stroke-linecap="round" stroke-width="2" d="M7 8h.01M17 8h.01M7 16h.01M17 16h.01"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6"/></svg>`;
+
 export const cropMarginsIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 2v4H2m20 0h-4M6 22v-4H2m20 0h-4"/><rect x="6" y="6" width="12" height="12" stroke-width="2" stroke-dasharray="3 2" fill="none"/></svg>`;
 
 export const resizePagesIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" stroke-width="2" fill="none"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h6m0 0v6m0-6l-7 7"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H4"/></svg>`;

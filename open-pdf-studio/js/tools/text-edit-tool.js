@@ -1065,6 +1065,17 @@ function startPdfTextEditing(span, pageNum, groupMode = 'strict') {
 
 let _laatsteFinishOp = 0;
 
+/**
+ * Rondt een openstaande PDF-tekstbewerking af (zoals een klik buiten de
+ * editor). Voor gestes die het pointerdown-event zelf afvangen, zoals de
+ * middelmuis-pan. @returns {boolean} of er een editor open stond
+ */
+export function rondActievePdfTekstBewerkingAf() {
+  if (!activeEditor) return false;
+  finishPdfTextEditing();
+  return true;
+}
+
 function finishPdfTextEditing() {
   if (!activeEditor) return;
   _laatsteFinishOp = Date.now();

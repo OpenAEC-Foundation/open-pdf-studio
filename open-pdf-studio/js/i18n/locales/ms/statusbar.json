@@ -80,5 +80,14 @@
     "outerOpen": "Kontur luar terbuka — {{count}} titik"
   },
   "boxWidthAbbr": "L",
-  "boxHeightAbbr": "T"
+  "boxHeightAbbr": "T",
+  "ocr": {
+    "progress": {
+      "starting": "Mengecam teks...",
+      "page": "Mengecam teks pada halaman {{page}}...",
+      "done": "{{count}} perkataan dikecam",
+      "doneAll": "{{count}} perkataan dikecam merentasi {{pages}} halaman",
+      "failed": "Pengecaman teks gagal"
+    }
+  }
 }

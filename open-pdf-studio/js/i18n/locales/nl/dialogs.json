@@ -90,6 +90,8 @@
     "printFailed": "Afdrukken mislukt:",
     "noPages": "Geen pagina's",
     "pageOf": "Pagina {{current}} van {{total}}",
+    "paperLabel": "Papier: {{paper}}",
+    "pageSizeLabel": "Pagina: {{size}}",
     "firstPage": "Eerste pagina",
     "prevPage": "Vorige pagina",
     "nextPage": "Volgende pagina",
@@ -308,7 +310,8 @@
     "left": "Links:",
     "right": "Rechts:",
     "top": "Boven:",
-    "bottom": "Onder:"
+    "bottom": "Onder:",
+    "printerDefault": "Standaard van de printer"
   },
   "docProperties": {
     "title": "Documenteigenschappen",
@@ -481,6 +484,18 @@
     "title": "Parametrisch symbool kiezen",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Tekst herkennen (OCR)",
+    "run": "Herken",
+    "language": "Taal:",
+    "info": "{{count}} pagina('s) in het document. Voegt een onzichtbare, doorzoekbare tekstlaag toe — de pagina ziet er nog hetzelfde uit. Volledig ongedaan te maken vóór het opslaan.",
+    "options": {
+      "auto": "Automatisch detecteren",
+      "eng": "Engels",
+      "chi_tra": "Chinees (Traditioneel)",
+      "chi_tra+eng": "Chinees (Traditioneel) + Engels"
+    }
+  },
   "straighten": {
     "title": "Pagina Rechtzetten",
     "apply": "Rechtzetten",
@@ -500,5 +515,113 @@
     "fromPage": "Vanaf pagina:",
     "noShift": "Geen verschuiving ingevoerd — niets om toe te passen.",
     "dragInfo": "Sleep de voorbeeldweergave om de pagina te verschuiven, of voer hieronder exacte offsets in millimeter in."
+  },
+  "signatureVerification": {
+    "checking": "Digitale handtekeningen controleren…",
+    "barLabel": "Digitale handtekeningen",
+    "listError": "De handtekeningen konden niet worden gecontroleerd: {{detail}}",
+    "documentTimestamp": "Documenttijdstempel",
+    "documentTimestampBy": "Documenttijdstempel ({{tsa}})",
+    "unknownSigner": "Onbekende ondertekenaar",
+    "changedAfterwards": "het document is daarna nog gewijzigd",
+    "details": "Details",
+    "showSignedVersion": "Toon ondertekende versie",
+    "signedVersionTab": "{{name}} (ondertekende versie {{number}})",
+    "signedVersionError": "De ondertekende versie kon niet worden geopend: {{detail}}",
+    "listTruncated": "Niet alle handtekeningvelden zijn gecontroleerd: het document bevat er te veel.",
+    "changedSinceCheck": "Het bestand is gewijzigd sinds de handtekeningen zijn gecontroleerd. De handtekeningen worden opnieuw gecontroleerd.",
+    "modifiedInApp": "De status geldt voor het bestand op schijf; het document is sindsdien in de app gewijzigd.",
+    "errors": {
+      "unreadable": "Het bestand kon niet worden gelezen.",
+      "noSignature": "De handtekening is niet in het bestand gevonden.",
+      "changedSinceList": "Het bestand is gewijzigd sinds de handtekeningen zijn gecontroleerd."
+    },
+    "status": {
+      "valid": "Geldig",
+      "unknownCertificate": "Onbekend certificaat",
+      "modified": "Gewijzigd na ondertekenen",
+      "invalid": "Ongeldige handtekening",
+      "notVerifiable": "Niet te controleren",
+      "unsignedField": "Niet ondertekend veld"
+    },
+    "reasons": {
+      "noChain": "Geen keten naar een vertrouwd rootcertificaat",
+      "expired": "Een certificaat was niet geldig op het relevante tijdstip",
+      "keyUsage": "Een certificaat is niet bedoeld voor dit gebruik",
+      "unsupportedAlgorithm": "Niet-ondersteund algoritme",
+      "cmsUnreadable": "De handtekeninggegevens zijn niet leesbaar",
+      "noCertificate": "Het certificaat van de ondertekenaar ontbreekt",
+      "byteRangeInvalid": "Het ondertekende bytebereik is ongeldig",
+      "pdfUnreadable": "De documentstructuur is niet leesbaar",
+      "legacyFormat": "Verouderd handtekeningformaat"
+    },
+    "explanation": {
+      "valid": "De ondertekende inhoud is ongewijzigd en het certificaat leidt naar een vertrouwd rootcertificaat.",
+      "modified": "De ondertekende bytes zijn na het ondertekenen veranderd.",
+      "invalid": "De ondertekende bytes zijn ongewijzigd, maar de handtekeningwaarde klopt niet."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "Het hashalgoritme van de handtekening wordt niet ondersteund.",
+      "handtekeningalgoritme-niet-ondersteund": "Het handtekeningalgoritme wordt niet ondersteund.",
+      "imprintalgoritme-niet-ondersteund": "Het hashalgoritme van het tijdstempel wordt niet ondersteund.",
+      "contenttype-ontbreekt-of-meervoudig": "Het attribuut met het inhoudstype ontbreekt of komt meer dan één keer voor.",
+      "contenttype-wijkt-af": "Het attribuut met het inhoudstype past niet bij de ondertekende inhoud.",
+      "messagedigest-ontbreekt-of-meervoudig": "Het attribuut met de berichthash ontbreekt of komt meer dan één keer voor.",
+      "certificaat-ondertekenaar-ontbreekt": "Het certificaat van de ondertekenaar ontbreekt of is niet leesbaar.",
+      "zonder-attributen-niet-te-onderscheiden": "Zonder ondertekende attributen is een wijziging niet te onderscheiden van een ongeldige handtekening.",
+      "cms-structuur-onleesbaar": "De handtekeninggegevens zijn niet leesbaar.",
+      "econtent-bij-losse-handtekening": "De losse handtekening bevat onverwacht de ondertekende inhoud.",
+      "econtenttype-geen-id-data": "De ondertekende inhoud heeft een onverwacht type.",
+      "geen-ondertekenaar": "De handtekeninggegevens bevatten geen ondertekenaar.",
+      "token-zonder-tstinfo": "Het tijdstempel bevat geen tijdgegevens.",
+      "tstinfo-onleesbaar": "De tijdgegevens in het tijdstempel zijn niet leesbaar.",
+      "bytebereik-geen-vier-getallen": "Het bytebereik bestaat niet uit vier getallen.",
+      "bytebereik-negatief": "Het bytebereik bevat een negatief getal.",
+      "bytebereik-begint-niet-bij-nul": "Het bytebereik begint niet aan het begin van het bestand.",
+      "bytebereik-gat-te-klein": "Het gat in het bytebereik is te klein.",
+      "bytebereik-voorbij-einde": "Het bytebereik reikt voorbij het einde van het bestand.",
+      "bytebereik-gat-geen-hex-string": "Het gat in het bytebereik bevat niet alleen de handtekeningwaarde.",
+      "subfilter-niet-ondersteund": "Dit handtekeningformaat wordt niet ondersteund.",
+      "zoekbudget-op": "Het zoeken naar een certificaatketen is op de grens gestopt; er kan toch een keten bestaan.",
+      "gat-wijkt-af-van-contents": "De handtekeningwaarde in het bestand wijkt af van die in het handtekeningwoordenboek.",
+      "interne-fout": "Bij het controleren van deze handtekening is een interne fout opgetreden.",
+      "unknown": "De controle meldde een aanvullend punt."
+    },
+    "detail": {
+      "title": "Handtekeningdetails",
+      "status": "Status",
+      "explanation": "Toelichting",
+      "signer": "Ondertekenaar",
+      "issuer": "Uitgegeven door",
+      "field": "Veld",
+      "time": "Tijdstip",
+      "timeFromTimestamp": "{{time}} (uit tijdstempel)",
+      "timeClaimed": "{{time}} (opgegeven door de ondertekenaar)",
+      "timestamp": "Tijdstempel",
+      "none": "Geen",
+      "reason": "Reden",
+      "location": "Plaats",
+      "coverage": "Dekking",
+      "coversWhole": "Hele document",
+      "coversPart": "Bytes {{start}} tot {{end}} van {{size}}",
+      "chain": "Certificaatketen",
+      "validFromTo": "Geldig van {{from}} tot {{to}}",
+      "revocationNotChecked": "Intrekking niet gecontroleerd.",
+      "notCoveredBySignature": "niet ondertekend",
+      "weakAlgorithm": "Zwak algoritme (SHA-1): minder bescherming tegen vervalsing",
+      "technicalDetail": "Technisch detail",
+      "issuedBy": "Uitgegeven door {{issuer}}"
+    },
+    "save": {
+      "title": "Ondertekend document",
+      "message": "Dit document bevat digitale handtekeningen. Opslaan herschrijft het bestand, waardoor de handtekeningen ongeldig worden. Toch opslaan?",
+      "messageCopy": "Dit document bevat digitale handtekeningen. Het originele bestand blijft ondertekend, maar de nieuwe kopie heeft geen geldige handtekeningen. Kopie toch opslaan?",
+      "confirm": "Toch opslaan"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

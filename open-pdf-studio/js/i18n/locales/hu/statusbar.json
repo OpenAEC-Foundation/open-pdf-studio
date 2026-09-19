@@ -80,5 +80,14 @@
     "outerOpen": "Külső kontúr nyitva — {{count}} pont"
   },
   "boxWidthAbbr": "Sz",
-  "boxHeightAbbr": "M"
+  "boxHeightAbbr": "M",
+  "ocr": {
+    "progress": {
+      "starting": "Szöveg felismerése...",
+      "page": "Szöveg felismerése a(z) {{page}}. oldalon...",
+      "done": "{{count}} szó felismerve",
+      "doneAll": "{{count}} szó felismerve {{pages}} oldalon",
+      "failed": "A szövegfelismerés sikertelen"
+    }
+  }
 }

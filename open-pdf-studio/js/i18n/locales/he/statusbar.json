@@ -80,5 +80,14 @@
     "outerOpen": "מתאר חיצוני פתוח — {{count}} נקודות"
   },
   "boxWidthAbbr": "ר",
-  "boxHeightAbbr": "ג"
+  "boxHeightAbbr": "ג",
+  "ocr": {
+    "progress": {
+      "starting": "מזהה טקסט...",
+      "page": "מזהה טקסט בעמוד {{page}}...",
+      "done": "זוהו {{count}} מילים",
+      "doneAll": "זוהו {{count}} מילים ב-{{pages}} עמודים",
+      "failed": "זיהוי הטקסט נכשל"
+    }
+  }
 }

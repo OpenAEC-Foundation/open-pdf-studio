@@ -79,5 +79,14 @@
     "outerOpen": "Dış kontur açık — {{count}} nokta"
   },
   "boxWidthAbbr": "G",
-  "boxHeightAbbr": "Y"
+  "boxHeightAbbr": "Y",
+  "ocr": {
+    "progress": {
+      "starting": "Metin tanınıyor...",
+      "page": "{{page}}. sayfadaki metin tanınıyor...",
+      "done": "{{count}} sözcük tanındı",
+      "doneAll": "{{pages}} sayfada {{count}} sözcük tanındı",
+      "failed": "Metin tanıma başarısız oldu"
+    }
+  }
 }

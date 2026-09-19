@@ -152,7 +152,9 @@
     "annotationsList": "Popis oznaka (F11)",
     "annotationsLabel": "Oznake",
     "appearance": "Izgled",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Način čitanja",
+    "readerModeTip": "Pamti stranicu, položaj pomicanja i zumiranje svakog PDF-a pri zatvaranju i ponovnom otvaranju"
   },
   "organize": {
     "pages": "Stranice",
@@ -174,6 +176,7 @@
     "headerFooter": "Zaglavlje/Podnožje",
     "manageWatermarks": "Upravljaj vodenim žigovima",
     "manage": "Upravljaj",
+    "ocr": "Prepoznavanje teksta (OCR)",
     "straighten": "Ispravi Stranicu",
     "shiftPage": "Pomakni stranicu"
   },

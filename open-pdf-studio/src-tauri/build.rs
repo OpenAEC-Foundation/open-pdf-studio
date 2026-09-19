@@ -51,5 +51,21 @@ fn main() {
         println!("cargo:rustc-link-lib=mapi32");
     }
 
+    // tauri.conf.json lists resources/tessdata and resources/fonts as bundle
+    // resources (OCR trained-data + the CJK embed font). Those directories are
+    // gitignored and only populated by `npm run prepare:ocr-runtime`
+    // (scripts/ocr-runtime.mjs), which downloads them. tauri_build::build()
+    // below validates every bundle resource path exists, so a plain `cargo
+    // build` run outside the npm predev/prebuild hooks — a bare `cargo build`
+    // on this crate, or a CI job that only runs `cargo build`/`cargo test` —
+    // would otherwise fail before it even reaches OCR code. Create them empty
+    // if missing so the build succeeds; OCR just won't find trained-data at
+    // runtime until the real assets are fetched.
+    for dir in ["resources/tessdata", "resources/fonts"] {
+        if !std::path::Path::new(dir).exists() {
+            let _ = std::fs::create_dir_all(dir);
+        }
+    }
+
     tauri_build::build();
 }

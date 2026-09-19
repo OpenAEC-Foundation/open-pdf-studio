@@ -63,7 +63,9 @@
     "printJobSent": "Đã gửi lệnh in thành công.",
     "printFailed": "In thất bại:",
     "noPages": "Không có trang",
-    "pageOf": "Trang {{current}} / {{total}}"
+    "pageOf": "Trang {{current}} / {{total}}",
+    "paperLabel": "Giấy: {{paper}}",
+    "pageSizeLabel": "Trang: {{size}}"
   },
   "insertPage": {
     "title": "Chèn Trang",
@@ -262,7 +264,8 @@
     "left": "Trái:",
     "right": "Phải:",
     "top": "Trên:",
-    "bottom": "Dưới:"
+    "bottom": "Dưới:",
+    "printerDefault": "Mặc định của máy in"
   },
   "docProperties": {
     "title": "Thuộc tính Tài liệu",
@@ -324,6 +327,18 @@
     "title": "Chọn ký hiệu tham số",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Nhận dạng văn bản (OCR)",
+    "run": "Nhận dạng",
+    "language": "Ngôn ngữ:",
+    "info": "Tài liệu có {{count}} trang. Thêm một lớp văn bản vô hình, có thể tìm kiếm — trang vẫn trông giống như cũ. Có thể hoàn tác hoàn toàn bằng Hoàn tác trước khi lưu.",
+    "options": {
+      "auto": "Tự động phát hiện",
+      "eng": "Tiếng Anh",
+      "chi_tra": "Tiếng Trung (Phồn thể)",
+      "chi_tra+eng": "Tiếng Trung (Phồn thể) + Tiếng Anh"
+    }
+  },
   "straighten": {
     "title": "Làm Thẳng Trang",
     "apply": "Làm Thẳng",
@@ -343,5 +358,113 @@
     "fromPage": "From page:",
     "noShift": "No shift entered — nothing to apply.",
     "dragInfo": "Drag the preview to shift the page, or enter exact millimeter offsets below."
+  },
+  "signatureVerification": {
+    "checking": "Đang kiểm tra chữ ký số…",
+    "barLabel": "Chữ ký số",
+    "listError": "Không thể kiểm tra chữ ký: {{detail}}",
+    "documentTimestamp": "Dấu thời gian tài liệu",
+    "documentTimestampBy": "Dấu thời gian tài liệu ({{tsa}})",
+    "unknownSigner": "Người ký không xác định",
+    "changedAfterwards": "tài liệu đã bị thay đổi sau đó",
+    "details": "Chi tiết",
+    "showSignedVersion": "Hiển thị phiên bản đã ký",
+    "signedVersionTab": "{{name}} (phiên bản đã ký {{number}})",
+    "signedVersionError": "Không thể mở phiên bản đã ký: {{detail}}",
+    "listTruncated": "Không phải tất cả các trường chữ ký đều đã được kiểm tra: tài liệu có quá nhiều trường.",
+    "changedSinceCheck": "Tệp đã thay đổi kể từ khi kiểm tra chữ ký. Chữ ký đang được kiểm tra lại.",
+    "modifiedInApp": "Trạng thái áp dụng cho tệp trên đĩa; tài liệu đã được thay đổi trong ứng dụng kể từ đó.",
+    "errors": {
+      "unreadable": "Không thể đọc tệp.",
+      "noSignature": "Không tìm thấy chữ ký trong tệp.",
+      "changedSinceList": "Tệp đã thay đổi kể từ khi kiểm tra chữ ký."
+    },
+    "status": {
+      "valid": "Hợp lệ",
+      "unknownCertificate": "Chứng chỉ không xác định",
+      "modified": "Đã thay đổi sau khi ký",
+      "invalid": "Chữ ký không hợp lệ",
+      "notVerifiable": "Không thể kiểm tra",
+      "unsignedField": "Trường chữ ký chưa ký"
+    },
+    "reasons": {
+      "noChain": "Không có chuỗi tới chứng chỉ gốc đáng tin cậy",
+      "expired": "Một chứng chỉ không hợp lệ tại thời điểm liên quan",
+      "keyUsage": "Một chứng chỉ không dành cho mục đích này",
+      "unsupportedAlgorithm": "Thuật toán không được hỗ trợ",
+      "cmsUnreadable": "Không thể đọc dữ liệu chữ ký",
+      "noCertificate": "Thiếu chứng chỉ của người ký",
+      "byteRangeInvalid": "Phạm vi byte đã ký không hợp lệ",
+      "pdfUnreadable": "Không thể đọc cấu trúc tài liệu",
+      "legacyFormat": "Định dạng chữ ký lỗi thời"
+    },
+    "explanation": {
+      "valid": "Nội dung đã ký không thay đổi và chứng chỉ dẫn tới gốc đáng tin cậy.",
+      "modified": "Các byte đã ký đã bị thay đổi sau khi ký.",
+      "invalid": "Các byte đã ký không thay đổi, nhưng giá trị chữ ký không khớp."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "Thuật toán băm của chữ ký không được hỗ trợ.",
+      "handtekeningalgoritme-niet-ondersteund": "Thuật toán chữ ký không được hỗ trợ.",
+      "imprintalgoritme-niet-ondersteund": "Thuật toán băm của dấu thời gian không được hỗ trợ.",
+      "contenttype-ontbreekt-of-meervoudig": "Thuộc tính loại nội dung bị thiếu hoặc xuất hiện nhiều hơn một lần.",
+      "contenttype-wijkt-af": "Thuộc tính loại nội dung không khớp với nội dung đã ký.",
+      "messagedigest-ontbreekt-of-meervoudig": "Thuộc tính tóm lược thông điệp bị thiếu hoặc xuất hiện nhiều hơn một lần.",
+      "certificaat-ondertekenaar-ontbreekt": "Chứng chỉ của người ký bị thiếu hoặc không thể đọc.",
+      "zonder-attributen-niet-te-onderscheiden": "Khi không có thuộc tính đã ký, không thể phân biệt thay đổi với chữ ký không hợp lệ.",
+      "cms-structuur-onleesbaar": "Không thể đọc dữ liệu chữ ký.",
+      "econtent-bij-losse-handtekening": "Chữ ký tách rời lại chứa nội dung đã ký, điều này không mong đợi.",
+      "econtenttype-geen-id-data": "Nội dung đã ký có loại không mong đợi.",
+      "geen-ondertekenaar": "Dữ liệu chữ ký không chứa người ký nào.",
+      "token-zonder-tstinfo": "Dấu thời gian không chứa thông tin thời gian.",
+      "tstinfo-onleesbaar": "Không thể đọc thông tin thời gian trong dấu thời gian.",
+      "bytebereik-geen-vier-getallen": "Phạm vi byte không gồm bốn số.",
+      "bytebereik-negatief": "Phạm vi byte chứa số âm.",
+      "bytebereik-begint-niet-bij-nul": "Phạm vi byte không bắt đầu từ đầu tệp.",
+      "bytebereik-gat-te-klein": "Khoảng trống trong phạm vi byte quá nhỏ.",
+      "bytebereik-voorbij-einde": "Phạm vi byte vượt quá cuối tệp.",
+      "bytebereik-gat-geen-hex-string": "Khoảng trống trong phạm vi byte không chỉ chứa giá trị chữ ký.",
+      "subfilter-niet-ondersteund": "Định dạng chữ ký này không được hỗ trợ.",
+      "zoekbudget-op": "Việc tìm chuỗi chứng chỉ đã dừng ở giới hạn; có thể vẫn tồn tại một chuỗi.",
+      "gat-wijkt-af-van-contents": "Giá trị chữ ký trong tệp khác với giá trị trong từ điển chữ ký.",
+      "interne-fout": "Đã xảy ra lỗi nội bộ khi kiểm tra chữ ký này.",
+      "unknown": "Quá trình kiểm tra báo cáo thêm một vấn đề."
+    },
+    "detail": {
+      "title": "Chi tiết chữ ký",
+      "status": "Trạng thái",
+      "explanation": "Giải thích",
+      "signer": "Người ký",
+      "issuer": "Cấp bởi",
+      "field": "Trường",
+      "time": "Thời điểm",
+      "timeFromTimestamp": "{{time}} (từ dấu thời gian)",
+      "timeClaimed": "{{time}} (do người ký khai báo)",
+      "timestamp": "Dấu thời gian",
+      "none": "Không có",
+      "reason": "Lý do",
+      "location": "Địa điểm",
+      "coverage": "Phạm vi",
+      "coversWhole": "Toàn bộ tài liệu",
+      "coversPart": "Byte {{start}} đến {{end}} trong {{size}}",
+      "chain": "Chuỗi chứng chỉ",
+      "validFromTo": "Hiệu lực từ {{from}} đến {{to}}",
+      "revocationNotChecked": "Chưa kiểm tra thu hồi.",
+      "notCoveredBySignature": "chưa được ký",
+      "weakAlgorithm": "Thuật toán yếu (SHA-1): khả năng chống giả mạo thấp hơn",
+      "technicalDetail": "Chi tiết kỹ thuật",
+      "issuedBy": "Cấp bởi {{issuer}}"
+    },
+    "save": {
+      "title": "Tài liệu đã ký",
+      "message": "Tài liệu này chứa chữ ký số. Lưu sẽ ghi lại tệp, khiến các chữ ký không còn hợp lệ. Vẫn lưu?",
+      "messageCopy": "Tài liệu này chứa chữ ký số. Tệp gốc vẫn được ký, nhưng bản sao mới sẽ không có chữ ký hợp lệ. Vẫn lưu bản sao?",
+      "confirm": "Vẫn lưu"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

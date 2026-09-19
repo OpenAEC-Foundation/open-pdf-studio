@@ -79,5 +79,14 @@
     "outerOpen": "外轮廓未闭合 — {{count}} 个点"
   },
   "boxWidthAbbr": "宽",
-  "boxHeightAbbr": "高"
+  "boxHeightAbbr": "高",
+  "ocr": {
+    "progress": {
+      "starting": "正在識別文字...",
+      "page": "正在識別第 {{page}} 頁的文字...",
+      "done": "已識別 {{count}} 個詞",
+      "doneAll": "已在 {{pages}} 頁中識別 {{count}} 個詞",
+      "failed": "文字識別失敗"
+    }
+  }
 }

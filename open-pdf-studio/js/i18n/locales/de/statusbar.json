@@ -79,5 +79,14 @@
     "outerOpen": "Außenkontur offen · Punkte: {{count}}"
   },
   "boxWidthAbbr": "B",
-  "boxHeightAbbr": "H"
+  "boxHeightAbbr": "H",
+  "ocr": {
+    "progress": {
+      "starting": "Text wird erkannt...",
+      "page": "Text auf Seite {{page}} wird erkannt...",
+      "done": "{{count}} Wörter erkannt",
+      "doneAll": "{{count}} Wörter auf {{pages}} Seiten erkannt",
+      "failed": "Texterkennung fehlgeschlagen"
+    }
+  }
 }

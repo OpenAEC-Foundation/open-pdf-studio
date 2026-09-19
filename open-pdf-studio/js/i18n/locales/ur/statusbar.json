@@ -80,5 +80,14 @@
     "outerOpen": "بیرونی خاکہ کھلا ہے — {{count}} پوائنٹس"
   },
   "boxWidthAbbr": "چ",
-  "boxHeightAbbr": "ا"
+  "boxHeightAbbr": "ا",
+  "ocr": {
+    "progress": {
+      "starting": "متن کی شناخت ہو رہی ہے...",
+      "page": "صفحہ {{page}} پر متن کی شناخت ہو رہی ہے...",
+      "done": "{{count}} الفاظ کی شناخت ہو گئی",
+      "doneAll": "{{pages}} صفحات میں {{count}} الفاظ کی شناخت ہو گئی",
+      "failed": "متن کی شناخت ناکام ہو گئی"
+    }
+  }
 }

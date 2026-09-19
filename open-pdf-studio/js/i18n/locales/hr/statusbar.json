@@ -80,5 +80,14 @@
     "outerOpen": "Vanjska kontura otvorena · točaka: {{count}}"
   },
   "boxWidthAbbr": "Š",
-  "boxHeightAbbr": "V"
+  "boxHeightAbbr": "V",
+  "ocr": {
+    "progress": {
+      "starting": "Prepoznavanje teksta...",
+      "page": "Prepoznavanje teksta na stranici {{page}}...",
+      "done": "Prepoznato riječi: {{count}}",
+      "doneAll": "Prepoznato riječi: {{count}} na {{pages}} stranica",
+      "failed": "Prepoznavanje teksta nije uspjelo"
+    }
+  }
 }

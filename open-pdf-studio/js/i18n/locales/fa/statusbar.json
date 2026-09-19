@@ -79,5 +79,14 @@
     "outerOpen": "پیرامون بیرونی باز است — {{count}} نقطه"
   },
   "boxWidthAbbr": "ع",
-  "boxHeightAbbr": "ا"
+  "boxHeightAbbr": "ا",
+  "ocr": {
+    "progress": {
+      "starting": "در حال تشخیص متن...",
+      "page": "در حال تشخیص متن در صفحه {{page}}...",
+      "done": "{{count}} کلمه تشخیص داده شد",
+      "doneAll": "{{count}} کلمه در {{pages}} صفحه تشخیص داده شد",
+      "failed": "تشخیص متن ناموفق بود"
+    }
+  }
 }

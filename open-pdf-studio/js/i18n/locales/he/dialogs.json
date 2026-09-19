@@ -63,7 +63,9 @@
     "printJobSent": "עבודת ההדפסה נשלחה בהצלחה.",
     "printFailed": "ההדפסה נכשלה:",
     "noPages": "אין עמודים",
-    "pageOf": "עמוד {{current}} מתוך {{total}}"
+    "pageOf": "עמוד {{current}} מתוך {{total}}",
+    "paperLabel": "נייר: {{paper}}",
+    "pageSizeLabel": "עמוד: {{size}}"
   },
   "insertPage": {
     "title": "הוספת עמודים",
@@ -262,7 +264,8 @@
     "left": "שמאל:",
     "right": "ימין:",
     "top": "עליון:",
-    "bottom": "תחתון:"
+    "bottom": "תחתון:",
+    "printerDefault": "ברירת המחדל של המדפסת"
   },
   "docProperties": {
     "title": "מאפייני מסמך",
@@ -324,6 +327,18 @@
     "title": "בחר סמל פרמטרי",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "זיהוי טקסט (OCR)",
+    "run": "זהה",
+    "language": "שפה:",
+    "info": "{{count}} עמודים במסמך. מוסיף שכבת טקסט בלתי נראית וניתנת לחיפוש — העמוד עדיין נראה זהה. הפיך במלואו באמצעות ביטול לפני השמירה.",
+    "options": {
+      "auto": "זיהוי אוטומטי",
+      "eng": "אנגלית",
+      "chi_tra": "סינית (מסורתית)",
+      "chi_tra+eng": "סינית (מסורתית) + אנגלית"
+    }
+  },
   "straighten": {
     "title": "יישור עמוד",
     "apply": "יישר",
@@ -343,5 +358,113 @@
     "fromPage": "From page:",
     "noShift": "No shift entered — nothing to apply.",
     "dragInfo": "Drag the preview to shift the page, or enter exact millimeter offsets below."
+  },
+  "signatureVerification": {
+    "checking": "בודק חתימות דיגיטליות…",
+    "barLabel": "חתימות דיגיטליות",
+    "listError": "לא ניתן היה לבדוק את החתימות: {{detail}}",
+    "documentTimestamp": "חותמת זמן של מסמך",
+    "documentTimestampBy": "חותמת זמן של מסמך ({{tsa}})",
+    "unknownSigner": "חותם לא ידוע",
+    "changedAfterwards": "המסמך שונה לאחר מכן",
+    "details": "פרטים",
+    "showSignedVersion": "הצג את הגרסה החתומה",
+    "signedVersionTab": "{{name}} (גרסה חתומה {{number}})",
+    "signedVersionError": "לא ניתן היה לפתוח את הגרסה החתומה: {{detail}}",
+    "listTruncated": "לא כל שדות החתימה נבדקו: המסמך מכיל יותר מדי שדות.",
+    "changedSinceCheck": "הקובץ השתנה מאז שהחתימות נבדקו. החתימות נבדקות מחדש.",
+    "modifiedInApp": "המצב מתייחס לקובץ שבדיסק; המסמך שונה ביישום מאז.",
+    "errors": {
+      "unreadable": "לא ניתן היה לקרוא את הקובץ.",
+      "noSignature": "החתימה לא נמצאה בקובץ.",
+      "changedSinceList": "הקובץ השתנה מאז שהחתימות נבדקו."
+    },
+    "status": {
+      "valid": "תקפה",
+      "unknownCertificate": "אישור לא ידוע",
+      "modified": "שונה לאחר החתימה",
+      "invalid": "חתימה לא תקפה",
+      "notVerifiable": "לא ניתן לבדוק",
+      "unsignedField": "שדה חתימה לא חתום"
+    },
+    "reasons": {
+      "noChain": "אין שרשרת לאישור בסיס מהימן",
+      "expired": "אישור לא היה תקף בזמן הרלוונטי",
+      "keyUsage": "אישור אינו מיועד לשימוש זה",
+      "unsupportedAlgorithm": "אלגוריתם לא נתמך",
+      "cmsUnreadable": "לא ניתן לקרוא את נתוני החתימה",
+      "noCertificate": "חסר האישור של החותם",
+      "byteRangeInvalid": "טווח הבייטים החתום אינו תקף",
+      "pdfUnreadable": "לא ניתן לקרוא את מבנה המסמך",
+      "legacyFormat": "פורמט חתימה מיושן"
+    },
+    "explanation": {
+      "valid": "התוכן החתום לא השתנה והאישור מוביל לבסיס מהימן.",
+      "modified": "הבייטים החתומים שונו לאחר החתימה.",
+      "invalid": "הבייטים החתומים לא השתנו, אך ערך החתימה אינו תואם."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "אלגוריתם הגיבוב של החתימה אינו נתמך.",
+      "handtekeningalgoritme-niet-ondersteund": "אלגוריתם החתימה אינו נתמך.",
+      "imprintalgoritme-niet-ondersteund": "אלגוריתם הגיבוב של חותמת הזמן אינו נתמך.",
+      "contenttype-ontbreekt-of-meervoudig": "מאפיין סוג התוכן חסר או מופיע יותר מפעם אחת.",
+      "contenttype-wijkt-af": "מאפיין סוג התוכן אינו תואם לתוכן החתום.",
+      "messagedigest-ontbreekt-of-meervoudig": "מאפיין תקציר ההודעה חסר או מופיע יותר מפעם אחת.",
+      "certificaat-ondertekenaar-ontbreekt": "האישור של החותם חסר או שלא ניתן לקרוא אותו.",
+      "zonder-attributen-niet-te-onderscheiden": "ללא מאפיינים חתומים, לא ניתן להבחין בין שינוי לבין חתימה לא תקפה.",
+      "cms-structuur-onleesbaar": "לא ניתן לקרוא את נתוני החתימה.",
+      "econtent-bij-losse-handtekening": "החתימה הנפרדת מכילה באופן לא צפוי את התוכן החתום.",
+      "econtenttype-geen-id-data": "לתוכן החתום יש סוג לא צפוי.",
+      "geen-ondertekenaar": "נתוני החתימה אינם מכילים חותם.",
+      "token-zonder-tstinfo": "חותמת הזמן אינה מכילה מידע על הזמן.",
+      "tstinfo-onleesbaar": "לא ניתן לקרוא את מידע הזמן שבחותמת הזמן.",
+      "bytebereik-geen-vier-getallen": "טווח הבייטים אינו מורכב מארבעה מספרים.",
+      "bytebereik-negatief": "טווח הבייטים מכיל מספר שלילי.",
+      "bytebereik-begint-niet-bij-nul": "טווח הבייטים אינו מתחיל בתחילת הקובץ.",
+      "bytebereik-gat-te-klein": "הפער בטווח הבייטים קטן מדי.",
+      "bytebereik-voorbij-einde": "טווח הבייטים חורג מעבר לסוף הקובץ.",
+      "bytebereik-gat-geen-hex-string": "הפער בטווח הבייטים אינו מכיל רק את ערך החתימה.",
+      "subfilter-niet-ondersteund": "פורמט חתימה זה אינו נתמך.",
+      "zoekbudget-op": "החיפוש אחר שרשרת אישורים נעצר במגבלה שלו; ייתכן שבכל זאת קיימת שרשרת.",
+      "gat-wijkt-af-van-contents": "ערך החתימה בקובץ שונה מהערך שבמילון החתימה.",
+      "interne-fout": "אירעה שגיאה פנימית בעת בדיקת החתימה.",
+      "unknown": "הבדיקה דיווחה על בעיה נוספת."
+    },
+    "detail": {
+      "title": "פרטי החתימה",
+      "status": "מצב",
+      "explanation": "הסבר",
+      "signer": "חותם",
+      "issuer": "הונפק על ידי",
+      "field": "שדה",
+      "time": "זמן",
+      "timeFromTimestamp": "{{time}} (מחותמת הזמן)",
+      "timeClaimed": "{{time}} (לפי החותם)",
+      "timestamp": "חותמת זמן",
+      "none": "אין",
+      "reason": "סיבה",
+      "location": "מיקום",
+      "coverage": "כיסוי",
+      "coversWhole": "המסמך כולו",
+      "coversPart": "בייטים {{start}} עד {{end}} מתוך {{size}}",
+      "chain": "שרשרת אישורים",
+      "validFromTo": "תקף מ-{{from}} עד {{to}}",
+      "revocationNotChecked": "ביטול לא נבדק.",
+      "notCoveredBySignature": "לא חתום",
+      "weakAlgorithm": "אלגוריתם חלש (SHA-1): הגנה פחותה מפני זיוף",
+      "technicalDetail": "פרט טכני",
+      "issuedBy": "הונפק על ידי {{issuer}}"
+    },
+    "save": {
+      "title": "מסמך חתום",
+      "message": "מסמך זה מכיל חתימות דיגיטליות. שמירה כותבת את הקובץ מחדש, והחתימות הופכות ללא תקפות. לשמור בכל זאת?",
+      "messageCopy": "מסמך זה מכיל חתימות דיגיטליות. הקובץ המקורי נשאר חתום, אך בעותק החדש לא יהיו חתימות תקפות. לשמור את העותק בכל זאת?",
+      "confirm": "שמור בכל זאת"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

@@ -80,5 +80,14 @@
     "outerOpen": "Vonkajší obrys otvorený · bodov: {{count}}"
   },
   "boxWidthAbbr": "Š",
-  "boxHeightAbbr": "V"
+  "boxHeightAbbr": "V",
+  "ocr": {
+    "progress": {
+      "starting": "Rozpoznávanie textu...",
+      "page": "Rozpoznávanie textu na strane {{page}}...",
+      "done": "Rozpoznané slová: {{count}}",
+      "doneAll": "Rozpoznané slová: {{count}} na {{pages}} stranách",
+      "failed": "Rozpoznávanie textu zlyhalo"
+    }
+  }
 }

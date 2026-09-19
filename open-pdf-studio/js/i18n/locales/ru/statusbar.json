@@ -80,5 +80,14 @@
     "outerOpen": "Внешний контур открыт — {{count}} точ."
   },
   "boxWidthAbbr": "Ш",
-  "boxHeightAbbr": "В"
+  "boxHeightAbbr": "В",
+  "ocr": {
+    "progress": {
+      "starting": "Распознавание текста...",
+      "page": "Распознавание текста на странице {{page}}...",
+      "done": "Распознано слов: {{count}}",
+      "doneAll": "Распознано слов: {{count}}, страниц: {{pages}}",
+      "failed": "Не удалось распознать текст"
+    }
+  }
 }

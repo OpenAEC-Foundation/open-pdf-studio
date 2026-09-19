@@ -63,7 +63,9 @@
     "printJobSent": "Tlačová úloha bola úspešne odoslaná.",
     "printFailed": "Tlač zlyhala:",
     "noPages": "Žiadne strany",
-    "pageOf": "Strana {{current}} z {{total}}"
+    "pageOf": "Strana {{current}} z {{total}}",
+    "paperLabel": "Papier: {{paper}}",
+    "pageSizeLabel": "Strana: {{size}}"
   },
   "insertPage": {
     "title": "Vložiť strany",
@@ -262,7 +264,8 @@
     "left": "Vľavo:",
     "right": "Vpravo:",
     "top": "Hore:",
-    "bottom": "Dole:"
+    "bottom": "Dole:",
+    "printerDefault": "Predvolené nastavenie tlačiarne"
   },
   "docProperties": {
     "title": "Vlastnosti dokumentu",
@@ -324,6 +327,18 @@
     "title": "Vybrať parametrický symbol",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Rozpoznávanie textu (OCR)",
+    "run": "Rozpoznať",
+    "language": "Jazyk:",
+    "info": "{{count}} strana/strany v dokumente. Pridá neviditeľnú, prehľadávateľnú textovú vrstvu — stránka vyzerá rovnako. Pred uložením úplne vratné pomocou Späť.",
+    "options": {
+      "auto": "Automatické rozpoznanie",
+      "eng": "Angličtina",
+      "chi_tra": "Čínština (tradičná)",
+      "chi_tra+eng": "Čínština (tradičná) + angličtina"
+    }
+  },
   "straighten": {
     "title": "Narovnať Stránku",
     "apply": "Narovnať",
@@ -343,5 +358,113 @@
     "fromPage": "From page:",
     "noShift": "No shift entered — nothing to apply.",
     "dragInfo": "Drag the preview to shift the page, or enter exact millimeter offsets below."
+  },
+  "signatureVerification": {
+    "checking": "Kontrola digitálnych podpisov…",
+    "barLabel": "Digitálne podpisy",
+    "listError": "Podpisy sa nepodarilo skontrolovať: {{detail}}",
+    "documentTimestamp": "Časová pečiatka dokumentu",
+    "documentTimestampBy": "Časová pečiatka dokumentu ({{tsa}})",
+    "unknownSigner": "Neznámy podpisujúci",
+    "changedAfterwards": "dokument bol potom ešte zmenený",
+    "details": "Podrobnosti",
+    "showSignedVersion": "Zobraziť podpísanú verziu",
+    "signedVersionTab": "{{name}} (podpísaná verzia {{number}})",
+    "signedVersionError": "Podpísanú verziu sa nepodarilo otvoriť: {{detail}}",
+    "listTruncated": "Neboli skontrolované všetky podpisové polia: dokument ich obsahuje príliš veľa.",
+    "changedSinceCheck": "Súbor sa od kontroly podpisov zmenil. Podpisy sa kontrolujú znova.",
+    "modifiedInApp": "Stav platí pre súbor na disku; dokument bol odvtedy v aplikácii zmenený.",
+    "errors": {
+      "unreadable": "Súbor sa nepodarilo prečítať.",
+      "noSignature": "Podpis sa v súbore nenašiel.",
+      "changedSinceList": "Súbor sa od kontroly podpisov zmenil."
+    },
+    "status": {
+      "valid": "Platný",
+      "unknownCertificate": "Neznámy certifikát",
+      "modified": "Zmenené po podpísaní",
+      "invalid": "Neplatný podpis",
+      "notVerifiable": "Nedá sa overiť",
+      "unsignedField": "Nepodpísané pole podpisu"
+    },
+    "reasons": {
+      "noChain": "Žiadny reťazec k dôveryhodnému koreňovému certifikátu",
+      "expired": "Certifikát nebol v rozhodujúcom čase platný",
+      "keyUsage": "Certifikát nie je určený na toto použitie",
+      "unsupportedAlgorithm": "Nepodporovaný algoritmus",
+      "cmsUnreadable": "Údaje podpisu sa nedajú prečítať",
+      "noCertificate": "Chýba certifikát podpisujúceho",
+      "byteRangeInvalid": "Podpísaný rozsah bajtov je neplatný",
+      "pdfUnreadable": "Štruktúru dokumentu sa nedá prečítať",
+      "legacyFormat": "Zastaraný formát podpisu"
+    },
+    "explanation": {
+      "valid": "Podpísaný obsah je nezmenený a certifikát vedie k dôveryhodnému koreňovému certifikátu.",
+      "modified": "Podpísané bajty boli po podpísaní zmenené.",
+      "invalid": "Podpísané bajty sú nezmenené, ale hodnota podpisu nesúhlasí."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "Hašovací algoritmus podpisu nie je podporovaný.",
+      "handtekeningalgoritme-niet-ondersteund": "Podpisový algoritmus nie je podporovaný.",
+      "imprintalgoritme-niet-ondersteund": "Hašovací algoritmus časovej pečiatky nie je podporovaný.",
+      "contenttype-ontbreekt-of-meervoudig": "Atribút typu obsahu chýba alebo sa vyskytuje viackrát.",
+      "contenttype-wijkt-af": "Atribút typu obsahu nezodpovedá podpísanému obsahu.",
+      "messagedigest-ontbreekt-of-meervoudig": "Atribút odtlačku správy chýba alebo sa vyskytuje viackrát.",
+      "certificaat-ondertekenaar-ontbreekt": "Certifikát podpisujúceho chýba alebo sa nedá prečítať.",
+      "zonder-attributen-niet-te-onderscheiden": "Bez podpísaných atribútov nemožno zmenu odlíšiť od neplatného podpisu.",
+      "cms-structuur-onleesbaar": "Údaje podpisu sa nedajú prečítať.",
+      "econtent-bij-losse-handtekening": "Oddelený podpis neočakávane obsahuje podpísaný obsah.",
+      "econtenttype-geen-id-data": "Podpísaný obsah má neočakávaný typ.",
+      "geen-ondertekenaar": "Údaje podpisu neobsahujú žiadneho podpisujúceho.",
+      "token-zonder-tstinfo": "Časová pečiatka neobsahuje žiadny údaj o čase.",
+      "tstinfo-onleesbaar": "Údaj o čase v časovej pečiatke sa nedá prečítať.",
+      "bytebereik-geen-vier-getallen": "Rozsah bajtov sa neskladá zo štyroch čísel.",
+      "bytebereik-negatief": "Rozsah bajtov obsahuje záporné číslo.",
+      "bytebereik-begint-niet-bij-nul": "Rozsah bajtov nezačína na začiatku súboru.",
+      "bytebereik-gat-te-klein": "Medzera v rozsahu bajtov je príliš malá.",
+      "bytebereik-voorbij-einde": "Rozsah bajtov presahuje koniec súboru.",
+      "bytebereik-gat-geen-hex-string": "Medzera v rozsahu bajtov neobsahuje iba hodnotu podpisu.",
+      "subfilter-niet-ondersteund": "Tento formát podpisu nie je podporovaný.",
+      "zoekbudget-op": "Hľadanie reťazca certifikátov sa zastavilo na svojom limite; reťazec napriek tomu môže existovať.",
+      "gat-wijkt-af-van-contents": "Hodnota podpisu v súbore sa líši od hodnoty v slovníku podpisu.",
+      "interne-fout": "Pri kontrole tohto podpisu došlo k vnútornej chybe.",
+      "unknown": "Kontrola ohlásila ďalší problém."
+    },
+    "detail": {
+      "title": "Podrobnosti podpisu",
+      "status": "Stav",
+      "explanation": "Vysvetlenie",
+      "signer": "Podpisujúci",
+      "issuer": "Vydal",
+      "field": "Pole",
+      "time": "Čas",
+      "timeFromTimestamp": "{{time}} (z časovej pečiatky)",
+      "timeClaimed": "{{time}} (uvedené podpisujúcim)",
+      "timestamp": "Časová pečiatka",
+      "none": "Žiadna",
+      "reason": "Dôvod",
+      "location": "Miesto",
+      "coverage": "Rozsah",
+      "coversWhole": "Celý dokument",
+      "coversPart": "Bajty {{start}} až {{end}} z {{size}}",
+      "chain": "Reťazec certifikátov",
+      "validFromTo": "Platný od {{from}} do {{to}}",
+      "revocationNotChecked": "Odvolanie nebolo skontrolované.",
+      "notCoveredBySignature": "nepodpísané",
+      "weakAlgorithm": "Slabý algoritmus (SHA-1): menšia ochrana pred falšovaním",
+      "technicalDetail": "Technický detail",
+      "issuedBy": "Vydal {{issuer}}"
+    },
+    "save": {
+      "title": "Podpísaný dokument",
+      "message": "Tento dokument obsahuje digitálne podpisy. Uložením sa súbor prepíše a podpisy sa stanú neplatnými. Napriek tomu uložiť?",
+      "messageCopy": "Tento dokument obsahuje digitálne podpisy. Pôvodný súbor zostane podpísaný, ale nová kópia nebude obsahovať platné podpisy. Napriek tomu uložiť kópiu?",
+      "confirm": "Napriek tomu uložiť"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

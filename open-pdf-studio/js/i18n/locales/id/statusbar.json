@@ -80,5 +80,14 @@
     "outerOpen": "Kontur luar terbuka — {{count}} titik"
   },
   "boxWidthAbbr": "L",
-  "boxHeightAbbr": "T"
+  "boxHeightAbbr": "T",
+  "ocr": {
+    "progress": {
+      "starting": "Mengenali teks...",
+      "page": "Mengenali teks di halaman {{page}}...",
+      "done": "{{count}} kata dikenali",
+      "doneAll": "{{count}} kata dikenali di {{pages}} halaman",
+      "failed": "Pengenalan teks gagal"
+    }
+  }
 }

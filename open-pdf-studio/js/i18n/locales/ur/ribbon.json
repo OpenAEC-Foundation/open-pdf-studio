@@ -152,7 +152,9 @@
     "annotationsList": "تشریحات کی فہرست (F11)",
     "annotationsLabel": "تشریحات",
     "appearance": "ظاہری شکل",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "ریڈر موڈ",
+    "readerModeTip": "بند کرنے اور دوبارہ کھولنے پر ہر PDF کا صفحہ، اسکرول پوزیشن اور زوم یاد رکھیں"
   },
   "organize": {
     "pages": "صفحات",
@@ -174,6 +176,7 @@
     "headerFooter": "ہیڈر/فوٹر",
     "manageWatermarks": "واٹر مارکس کا انتظام",
     "manage": "انتظام",
+    "ocr": "متن کی شناخت (OCR)",
     "straighten": "صفحہ سیدھا کریں",
     "shiftPage": "صفحہ منتقل کریں"
   },

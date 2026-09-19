@@ -10,6 +10,7 @@ import { findAnnotationAt } from '../annotations/geometry.js';
 import { findHandleAt } from '../annotations/handles.js';
 import { cancelParametricSymbolInput } from './parametric-symbol-editing.js';
 import { applyOverlayPointerEvents } from '../pdf/link-layer.js';
+import { doorvalVoorSelectie, staatBovenTekst } from './select-doorval.js';
 
 // Tools that are always allowed (view-only, non-modifying)
 const READONLY_ALLOWED_TOOLS = new Set(['select', 'hand']);
@@ -151,24 +152,32 @@ function _setSelectFallthroughEnabled(enabled) {
         }
       }
 
-      // Toggle annotation-canvas pointer-events so events fall through to text layer
-      // when no annotation is under the cursor.
-      const desired = overAnnotation ? 'auto' : 'none';
-      if (canvas.style.pointerEvents !== desired) {
-        canvas.style.pointerEvents = desired;
+      // Alleen boven PDF-tekst valt de aanwijzer door naar de tekstlaag; boven
+      // leeg paginavlak houdt het canvas de events, anders start een tweede
+      // selectierechthoek nooit (zie select-doorval.js).
+      const overTekst = !overAnnotation && staatBovenTekst(
+        typeof document.elementsFromPoint === 'function'
+          ? document.elementsFromPoint(e.clientX, e.clientY) : []);
+      const doorval = doorvalVoorSelectie({
+        overAnnotatie: overAnnotation,
+        overTekst,
+        knopIngedrukt: (e.buttons || 0) !== 0,
+      });
+      if (!doorval) return;
+
+      if (canvas.style.pointerEvents !== doorval.canvas) {
+        canvas.style.pointerEvents = doorval.canvas;
       }
 
-      // Keep the text layer interactive whenever we're falling through.
       const textLayers = document.querySelectorAll('.textLayer');
       textLayers.forEach(layer => {
-        const layerPE = overAnnotation ? 'none' : 'auto';
+        const layerPE = doorval.tekstlaag;
         if (layer.style.pointerEvents !== layerPE) {
           layer.style.pointerEvents = layerPE;
         }
         layer.querySelectorAll('span').forEach(span => {
           if (span.style.pointerEvents !== layerPE) span.style.pointerEvents = layerPE;
-          const cur = overAnnotation ? '' : 'text';
-          if (span.style.cursor !== cur) span.style.cursor = cur;
+          if (span.style.cursor !== doorval.spanCursor) span.style.cursor = doorval.spanCursor;
         });
       });
     };

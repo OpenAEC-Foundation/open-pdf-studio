@@ -80,5 +80,14 @@
     "outerOpen": "बाहरी रूपरेखा खुली है — {{count}} बिंदु"
   },
   "boxWidthAbbr": "च",
-  "boxHeightAbbr": "ऊ"
+  "boxHeightAbbr": "ऊ",
+  "ocr": {
+    "progress": {
+      "starting": "टेक्स्ट पहचाना जा रहा है...",
+      "page": "पृष्ठ {{page}} पर टेक्स्ट पहचाना जा रहा है...",
+      "done": "{{count}} शब्द पहचाने गए",
+      "doneAll": "{{pages}} पृष्ठों में {{count}} शब्द पहचाने गए",
+      "failed": "टेक्स्ट पहचान विफल रही"
+    }
+  }
 }

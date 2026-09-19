@@ -152,7 +152,9 @@
     "annotationsList": "Seznam anotací (F11)",
     "annotationsLabel": "Anotace",
     "appearance": "Vzhled",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Režim Čtení",
+    "readerModeTip": "Zapamatuje si stránku, pozici posouvání a přiblížení každého PDF při zavření a opětovném otevření"
   },
   "organize": {
     "pages": "Stránky",
@@ -174,6 +176,7 @@
     "headerFooter": "Záhlaví/zápatí",
     "manageWatermarks": "Spravovat vodoznaky",
     "manage": "Spravovat",
+    "ocr": "Rozpoznávání textu (OCR)",
     "straighten": "Narovnat Stránku",
     "shiftPage": "Posunout stránku"
   },

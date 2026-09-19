@@ -5,13 +5,14 @@
 // eigen sleutels bij: zonder die sleutels kent het model na heropenen geen
 // arcering meer en schrijft de volgende save het vlak zonder arcering weg.
 
-import { PDFName, PDFString } from 'pdf-lib';
+import { PDFName } from 'pdf-lib';
+import { pdfTextString } from './pdf-text.js';
 
 /** Zet OPS_HatchPattern/Color/Scale/Angle op de annotatie (niets bij 'none'). */
 export function schrijfHatchMeta(annotDict, ann, context) {
   if (!ann?.hatchPattern || ann.hatchPattern === 'none') return false;
-  annotDict.set(PDFName.of('OPS_HatchPattern'), PDFString.of(ann.hatchPattern));
-  if (ann.hatchColor) annotDict.set(PDFName.of('OPS_HatchColor'), PDFString.of(ann.hatchColor));
+  annotDict.set(PDFName.of('OPS_HatchPattern'), pdfTextString(ann.hatchPattern));
+  if (ann.hatchColor) annotDict.set(PDFName.of('OPS_HatchColor'), pdfTextString(ann.hatchColor));
   if (ann.hatchScale != null) annotDict.set(PDFName.of('OPS_HatchScale'), context.obj(ann.hatchScale));
   if (ann.hatchAngle != null) annotDict.set(PDFName.of('OPS_HatchAngle'), context.obj(ann.hatchAngle));
   return true;

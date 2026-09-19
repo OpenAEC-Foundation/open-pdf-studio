@@ -152,7 +152,9 @@
     "annotationsList": "Список аннотаций (F11)",
     "annotationsLabel": "Аннотации",
     "appearance": "Внешний вид",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Режим чтения",
+    "readerModeTip": "Запоминает страницу, позицию прокрутки и масштаб каждого PDF при закрытии и повторном открытии"
   },
   "organize": {
     "pages": "Страницы",
@@ -174,6 +176,7 @@
     "headerFooter": "Колонтитулы",
     "manageWatermarks": "Управление водяными знаками",
     "manage": "Управление",
+    "ocr": "Распознавание текста (OCR)",
     "straighten": "Выровнять Страницу",
     "shiftPage": "Сдвинуть страницу"
   },

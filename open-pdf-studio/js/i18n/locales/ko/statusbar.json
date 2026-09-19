@@ -79,5 +79,14 @@
     "outerOpen": "외곽 윤곽 열림 — {{count}}점"
   },
   "boxWidthAbbr": "너",
-  "boxHeightAbbr": "높"
+  "boxHeightAbbr": "높",
+  "ocr": {
+    "progress": {
+      "starting": "텍스트 인식 중...",
+      "page": "{{page}}페이지의 텍스트 인식 중...",
+      "done": "단어 {{count}}개 인식됨",
+      "doneAll": "{{pages}}페이지에서 단어 {{count}}개 인식됨",
+      "failed": "텍스트 인식 실패"
+    }
+  }
 }

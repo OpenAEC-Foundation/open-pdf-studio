@@ -63,7 +63,9 @@
     "printJobSent": "Tulostustyö lähetetty onnistuneesti.",
     "printFailed": "Tulostus epäonnistui:",
     "noPages": "Ei sivuja",
-    "pageOf": "Sivu {{current}} / {{total}}"
+    "pageOf": "Sivu {{current}} / {{total}}",
+    "paperLabel": "Paperi: {{paper}}",
+    "pageSizeLabel": "Sivu: {{size}}"
   },
   "insertPage": {
     "title": "Lisää sivuja",
@@ -262,7 +264,8 @@
     "left": "Vasen:",
     "right": "Oikea:",
     "top": "Ylä:",
-    "bottom": "Ala:"
+    "bottom": "Ala:",
+    "printerDefault": "Tulostimen oletus"
   },
   "docProperties": {
     "title": "Asiakirjan ominaisuudet",
@@ -324,6 +327,18 @@
     "title": "Valitse parametrinen symboli",
     "cancel": "Cancel"
   },
+  "ocrLanguage": {
+    "title": "Tekstintunnistus (OCR)",
+    "run": "Tunnista",
+    "language": "Kieli:",
+    "info": "{{count}} sivu(a) asiakirjassa. Lisää näkymättömän, haettavan tekstitason — sivu näyttää edelleen samalta. Täysin peruutettavissa Kumoa-toiminnolla ennen tallennusta.",
+    "options": {
+      "auto": "Automaattinen tunnistus",
+      "eng": "Englanti",
+      "chi_tra": "Kiina (perinteinen)",
+      "chi_tra+eng": "Kiina (perinteinen) + englanti"
+    }
+  },
   "straighten": {
     "title": "Suorista Sivu",
     "apply": "Suorista",
@@ -343,5 +358,113 @@
     "fromPage": "From page:",
     "noShift": "No shift entered — nothing to apply.",
     "dragInfo": "Drag the preview to shift the page, or enter exact millimeter offsets below."
+  },
+  "signatureVerification": {
+    "checking": "Tarkistetaan digitaalisia allekirjoituksia…",
+    "barLabel": "Digitaaliset allekirjoitukset",
+    "listError": "Allekirjoituksia ei voitu tarkistaa: {{detail}}",
+    "documentTimestamp": "Asiakirjan aikaleima",
+    "documentTimestampBy": "Asiakirjan aikaleima ({{tsa}})",
+    "unknownSigner": "Tuntematon allekirjoittaja",
+    "changedAfterwards": "asiakirjaa on muutettu myöhemmin",
+    "details": "Tiedot",
+    "showSignedVersion": "Näytä allekirjoitettu versio",
+    "signedVersionTab": "{{name}} (allekirjoitettu versio {{number}})",
+    "signedVersionError": "Allekirjoitettua versiota ei voitu avata: {{detail}}",
+    "listTruncated": "Kaikkia allekirjoituskenttiä ei tarkistettu: asiakirjassa on niitä liikaa.",
+    "changedSinceCheck": "Tiedostoa on muutettu allekirjoitusten tarkistamisen jälkeen. Allekirjoitukset tarkistetaan uudelleen.",
+    "modifiedInApp": "Tila koskee levyllä olevaa tiedostoa; asiakirjaa on sen jälkeen muutettu sovelluksessa.",
+    "errors": {
+      "unreadable": "Tiedostoa ei voitu lukea.",
+      "noSignature": "Allekirjoitusta ei löytynyt tiedostosta.",
+      "changedSinceList": "Tiedosto on muuttunut allekirjoitusten tarkistamisen jälkeen."
+    },
+    "status": {
+      "valid": "Kelvollinen",
+      "unknownCertificate": "Tuntematon varmenne",
+      "modified": "Muutettu allekirjoittamisen jälkeen",
+      "invalid": "Virheellinen allekirjoitus",
+      "notVerifiable": "Ei tarkistettavissa",
+      "unsignedField": "Allekirjoittamaton allekirjoituskenttä"
+    },
+    "reasons": {
+      "noChain": "Ei ketjua luotettuun juurivarmenteeseen",
+      "expired": "Varmenne ei ollut voimassa olennaisena ajankohtana",
+      "keyUsage": "Varmennetta ei ole tarkoitettu tähän käyttöön",
+      "unsupportedAlgorithm": "Algoritmia ei tueta",
+      "cmsUnreadable": "Allekirjoituksen tietoja ei voi lukea",
+      "noCertificate": "Allekirjoittajan varmenne puuttuu",
+      "byteRangeInvalid": "Allekirjoitettu tavualue on virheellinen",
+      "pdfUnreadable": "Asiakirjan rakennetta ei voi lukea",
+      "legacyFormat": "Vanhentunut allekirjoitusmuoto"
+    },
+    "explanation": {
+      "valid": "Allekirjoitettu sisältö on muuttumaton ja varmenne johtaa luotettuun juurivarmenteeseen.",
+      "modified": "Allekirjoitettuja tavuja on muutettu allekirjoittamisen jälkeen.",
+      "invalid": "Allekirjoitetut tavut ovat muuttumattomia, mutta allekirjoituksen arvo ei täsmää."
+    },
+    "signals": {
+      "digestalgoritme-niet-ondersteund": "Allekirjoituksen tiivistealgoritmia ei tueta.",
+      "handtekeningalgoritme-niet-ondersteund": "Allekirjoitusalgoritmia ei tueta.",
+      "imprintalgoritme-niet-ondersteund": "Aikaleiman tiivistealgoritmia ei tueta.",
+      "contenttype-ontbreekt-of-meervoudig": "Sisältötyypin attribuutti puuttuu tai esiintyy useammin kuin kerran.",
+      "contenttype-wijkt-af": "Sisältötyypin attribuutti ei vastaa allekirjoitettua sisältöä.",
+      "messagedigest-ontbreekt-of-meervoudig": "Viestitiivisteen attribuutti puuttuu tai esiintyy useammin kuin kerran.",
+      "certificaat-ondertekenaar-ontbreekt": "Allekirjoittajan varmenne puuttuu tai sitä ei voi lukea.",
+      "zonder-attributen-niet-te-onderscheiden": "Ilman allekirjoitettuja attribuutteja muutosta ei voi erottaa virheellisestä allekirjoituksesta.",
+      "cms-structuur-onleesbaar": "Allekirjoituksen tietoja ei voi lukea.",
+      "econtent-bij-losse-handtekening": "Erillinen allekirjoitus sisältää odottamatta allekirjoitetun sisällön.",
+      "econtenttype-geen-id-data": "Allekirjoitetulla sisällöllä on odottamaton tyyppi.",
+      "geen-ondertekenaar": "Allekirjoituksen tiedoissa ei ole allekirjoittajaa.",
+      "token-zonder-tstinfo": "Aikaleimassa ei ole aikatietoja.",
+      "tstinfo-onleesbaar": "Aikaleiman aikatietoja ei voi lukea.",
+      "bytebereik-geen-vier-getallen": "Tavualue ei koostu neljästä luvusta.",
+      "bytebereik-negatief": "Tavualue sisältää negatiivisen luvun.",
+      "bytebereik-begint-niet-bij-nul": "Tavualue ei ala tiedoston alusta.",
+      "bytebereik-gat-te-klein": "Tavualueen aukko on liian pieni.",
+      "bytebereik-voorbij-einde": "Tavualue ulottuu tiedoston lopun yli.",
+      "bytebereik-gat-geen-hex-string": "Tavualueen aukko ei sisällä pelkkää allekirjoituksen arvoa.",
+      "subfilter-niet-ondersteund": "Tätä allekirjoitusmuotoa ei tueta.",
+      "zoekbudget-op": "Varmenneketjun haku pysähtyi rajaansa; ketju voi silti olla olemassa.",
+      "gat-wijkt-af-van-contents": "Tiedostossa oleva allekirjoituksen arvo poikkeaa allekirjoitussanakirjan arvosta.",
+      "interne-fout": "Allekirjoitusta tarkistettaessa tapahtui sisäinen virhe.",
+      "unknown": "Tarkistus ilmoitti lisäongelmasta."
+    },
+    "detail": {
+      "title": "Allekirjoituksen tiedot",
+      "status": "Tila",
+      "explanation": "Selitys",
+      "signer": "Allekirjoittaja",
+      "issuer": "Myöntäjä",
+      "field": "Kenttä",
+      "time": "Ajankohta",
+      "timeFromTimestamp": "{{time}} (aikaleimasta)",
+      "timeClaimed": "{{time}} (allekirjoittajan ilmoittama)",
+      "timestamp": "Aikaleima",
+      "none": "Ei mitään",
+      "reason": "Syy",
+      "location": "Paikka",
+      "coverage": "Kattavuus",
+      "coversWhole": "Koko asiakirja",
+      "coversPart": "Tavut {{start}}–{{end}} / {{size}}",
+      "chain": "Varmenneketju",
+      "validFromTo": "Voimassa {{from}}–{{to}}",
+      "revocationNotChecked": "Peruutusta ei tarkistettu.",
+      "notCoveredBySignature": "ei allekirjoitettu",
+      "weakAlgorithm": "Heikko algoritmi (SHA-1): heikompi suoja väärentämistä vastaan",
+      "technicalDetail": "Tekninen tieto",
+      "issuedBy": "Myöntäjä: {{issuer}}"
+    },
+    "save": {
+      "title": "Allekirjoitettu asiakirja",
+      "message": "Tämä asiakirja sisältää digitaalisia allekirjoituksia. Tallentaminen kirjoittaa tiedoston uudelleen, jolloin allekirjoitukset mitätöityvät. Tallennetaanko silti?",
+      "messageCopy": "Tämä asiakirja sisältää digitaalisia allekirjoituksia. Alkuperäinen tiedosto pysyy allekirjoitettuna, mutta uudessa kopiossa ei ole kelvollisia allekirjoituksia. Tallennetaanko kopio silti?",
+      "confirm": "Tallenna silti"
+    },
+    "format": {
+      "note": "{{text}} ({{note}})",
+      "joined": "{{first}} — {{second}}",
+      "withTime": "{{text}}, {{time}}"
+    }
   }
 }

@@ -1,5 +1,6 @@
 import { getActiveDocument } from '../../core/state.js';
-import { PDFName, PDFString } from 'pdf-lib';
+import { PDFName } from 'pdf-lib';
+import { pdfTextString } from './pdf-text.js';
 
 // Save bookmarks to PDF outline structure
 export function saveBookmarksToOutline(pdfDocLib) {
@@ -93,7 +94,7 @@ export function saveBookmarksToOutline(pdfDocLib) {
       const flags = (node.italic ? 1 : 0) | (node.bold ? 2 : 0);
 
       const dictObj = {
-        Title: PDFString.of(node.title || 'Untitled'),
+        Title: pdfTextString(node.title || 'Untitled'),
         Parent: parentRef,
         Dest: destArray,
       };

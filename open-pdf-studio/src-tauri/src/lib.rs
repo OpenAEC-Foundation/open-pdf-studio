@@ -10,7 +10,17 @@ pub mod mcp_app_bridge;
 pub mod mcp_koppeling;
 pub mod mcp_server;
 pub mod mcp_tool_meta;
+// OCR (Tesseract) is desktop only; Android has no Tesseract build.
+#[cfg(not(target_os = "android"))]
+pub mod ocr;
 pub mod pdfium_renderer;
+pub mod handtekening;
+pub mod print_instelling;
+// DEVMODE-hulp en de GDI-printkern: alleen Windows.
+#[cfg(target_os = "windows")]
+pub mod print_devmode;
+#[cfg(target_os = "windows")]
+pub mod print_windows;
 pub mod render_to_png;
 pub mod window_mgmt;
 pub mod startup_diagnostics;
@@ -496,150 +506,39 @@ async fn get_printers() -> Result<String, String> {
 /// ASSOCIATION-INDEPENDENT — the previous ShellExecuteW("printto") approach
 /// broke with SE_ERR_NOASSOC (code 31) whenever this app itself is the
 /// default .pdf handler, because our ProgID registers no printto verb.
+/// Windows: the printer DC is created with a complete, driver-validated
+/// DEVMODE (the Properties choice from this session or the driver default,
+/// plus the Page Setup paper); see print_windows.rs.
 /// async for the same reason as get_printers: GDI spooling is slow blocking
-/// work and must not run on the main event-loop thread.
+/// work and runs on a blocking thread, not on the main event-loop thread.
 #[tauri::command]
-async fn print_pdf(path: String, printer: String) -> Result<bool, String> {
+async fn print_pdf(
+    path: String,
+    printer: String,
+    orientatie: Option<String>,
+    papier: Option<String>,
+    devmodes: tauri::State<'_, print_instelling::PrinterDevmodes>,
+) -> Result<bool, String> {
+    // Keuzes uit de Pagina-instelling. Zonder argumenten: Auto + printerstandaard,
+    // precies het gedrag van vóór deze parameters.
+    let orientatie = print_instelling::Orientatie::uit_keuze(orientatie.as_deref());
+    let papier = print_instelling::Papier::uit_keuze(papier.as_deref());
     #[cfg(target_os = "windows")]
     {
-        use windows_sys::Win32::Graphics::Gdi::{
-            CreateDCW, DeleteDC, StretchDIBits, GetDeviceCaps, SetStretchBltMode,
-            ResetDCW, DEVMODEW, BITMAPINFO, BITMAPINFOHEADER,
-            BI_RGB, DIB_RGB_COLORS, SRCCOPY, HORZRES, VERTRES, LOGPIXELSX, HALFTONE,
-            DM_ORIENTATION, DMORIENT_PORTRAIT, DMORIENT_LANDSCAPE,
-        };
-        // The StartDoc/EndDoc print-job family lives under Storage::Xps in
-        // windows-sys (print spooler document API), not under Graphics::Gdi.
-        use windows_sys::Win32::Storage::Xps::{
-            StartDocW, EndDoc, AbortDoc, StartPage, EndPage, DOCINFOW,
-        };
-        use std::os::windows::ffi::OsStrExt;
-        use std::ffi::OsStr;
-        use std::sync::Arc;
-
-        fn to_wide(s: &str) -> Vec<u16> {
-            OsStr::new(s).encode_wide().chain(std::iter::once(0)).collect()
-        }
-
-        let p = std::path::Path::new(&path);
-        if !p.is_file() {
-            return Err("File does not exist".to_string());
-        }
-
-        // Load the document via PDFium (no doc-cache: print is a cold path
-        // and the temp file is deleted shortly after).
-        let bytes = std::fs::read(&path).map_err(|e| format!("Read PDF: {e}"))?;
-        let handle = pdfium_renderer::PdfiumDocumentHandle::load_from_bytes(Arc::new(bytes))?;
-        let page_count = handle.document().pages().len() as u32;
-        if page_count == 0 {
-            return Err("PDF has no pages".to_string());
-        }
-
-        unsafe {
-            let printer_w = to_wide(&printer);
-            let hdc = CreateDCW(std::ptr::null(), printer_w.as_ptr(), std::ptr::null(), std::ptr::null());
-            if hdc.is_null() {
-                return Err(format!("Cannot open printer '{printer}'"));
-            }
-
-            let dpi = GetDeviceCaps(hdc, LOGPIXELSX as i32).max(96);
-
-            // Reusable DEVMODE used to flip the printer DC orientation per page,
-            // so a landscape drawing prints on landscape paper instead of being
-            // rotated 90° by the driver to fit the default (portrait) orientation.
-            let mut devmode: DEVMODEW = std::mem::zeroed();
-            devmode.dmSize = std::mem::size_of::<DEVMODEW>() as u16;
-            devmode.dmFields = DM_ORIENTATION;
-            {
-                let n = printer_w.len().min(31);
-                devmode.dmDeviceName[..n].copy_from_slice(&printer_w[..n]);
-            }
-
-            let doc_name = to_wide(
-                p.file_name().and_then(|n| n.to_str()).unwrap_or("Document"),
-            );
-            let di = DOCINFOW {
-                cbSize: std::mem::size_of::<DOCINFOW>() as i32,
-                lpszDocName: doc_name.as_ptr(),
-                lpszOutput: std::ptr::null(),
-                lpszDatatype: std::ptr::null(),
-                fwType: 0,
-            };
-            if StartDocW(hdc, &di) <= 0 {
-                DeleteDC(hdc);
-                return Err("StartDoc failed (print job rejected)".to_string());
-            }
-
-            // Render at device DPI, capped at 300 to bound memory on plotters.
-            let scale = (dpi.min(300) as f32) / 72.0;
-
-            for i in 0..page_count {
-                let (w, h, mut rgba) =
-                    match pdfium_renderer::render_page_to_rgba(handle.document(), i, scale, 0) {
-                        Ok(r) => r,
-                        Err(e) => {
-                            AbortDoc(hdc);
-                            DeleteDC(hdc);
-                            return Err(format!("Render page {} failed: {e}", i + 1));
-                        }
-                    };
-                // RGBA → BGRA (GDI DIB byte order)
-                for px in rgba.chunks_exact_mut(4) {
-                    px.swap(0, 2);
-                }
-
-                // Match paper orientation to THIS page (done between pages,
-                // before StartPage) so the driver prints it upright: a landscape
-                // drawing goes on landscape paper, no 90° auto-rotation.
-                // dmOrientation is i16; the DMORIENT_* consts are u32 in windows-sys.
-                devmode.Anonymous1.Anonymous1.dmOrientation =
-                    (if w > h { DMORIENT_LANDSCAPE } else { DMORIENT_PORTRAIT }) as i16;
-                ResetDCW(hdc, &devmode);
-                let dev_w = GetDeviceCaps(hdc, HORZRES as i32);
-                let dev_h = GetDeviceCaps(hdc, VERTRES as i32);
-
-                // Fit page into the printable area, preserve aspect, centre.
-                let sx = dev_w as f64 / w as f64;
-                let sy = dev_h as f64 / h as f64;
-                let s = sx.min(sy);
-                let dw = ((w as f64) * s).round() as i32;
-                let dh = ((h as f64) * s).round() as i32;
-                let dx = (dev_w - dw) / 2;
-                let dy = (dev_h - dh) / 2;
-
-                let mut bmi: BITMAPINFO = std::mem::zeroed();
-                bmi.bmiHeader = BITMAPINFOHEADER {
-                    biSize: std::mem::size_of::<BITMAPINFOHEADER>() as u32,
-                    biWidth: w as i32,
-                    biHeight: -(h as i32), // top-down DIB
-                    biPlanes: 1,
-                    biBitCount: 32,
-                    biCompression: BI_RGB as u32,
-                    biSizeImage: 0,
-                    biXPelsPerMeter: 0,
-                    biYPelsPerMeter: 0,
-                    biClrUsed: 0,
-                    biClrImportant: 0,
-                };
-
-                StartPage(hdc);
-                SetStretchBltMode(hdc, HALFTONE as i32);
-                StretchDIBits(
-                    hdc,
-                    dx, dy, dw, dh,
-                    0, 0, w as i32, h as i32,
-                    rgba.as_ptr() as *const std::ffi::c_void,
-                    &bmi,
-                    DIB_RGB_COLORS,
-                    SRCCOPY,
-                );
-                EndPage(hdc);
-            }
-
-            EndDoc(hdc);
-            DeleteDC(hdc);
-        }
-
+        // Wat de gebruiker in deze sessie in het eigenschappenvenster koos.
+        let opgeslagen = devmodes.ophalen(&printer);
+        tauri::async_runtime::spawn_blocking(move || {
+            print_windows::print_pdf_bestand(
+                std::path::Path::new(&path),
+                &printer,
+                orientatie,
+                papier,
+                opgeslagen.as_deref(),
+                None,
+            )
+        })
+        .await
+        .map_err(|e| format!("Print task failed: {e}"))??;
         Ok(true)
     }
 
@@ -649,6 +548,7 @@ async fn print_pdf(path: String, printer: String) -> Result<bool, String> {
     // and needs no page-range, scaling or copy options of its own.
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     {
+        let _ = &devmodes;
         let queue = printer.trim();
         let mut cmd = std::process::Command::new("lp");
         // No queue name means "system default", which is what lp does without -d.
@@ -658,6 +558,9 @@ async fn print_pdf(path: String, printer: String) -> Result<bool, String> {
         // The caller always passes an absolute temp path, so the filename can
         // never be mistaken for an option; `--` is not portable across lp
         // implementations and is deliberately left out.
+        for optie in print_instelling::lp_opties(orientatie, papier) {
+            cmd.arg(optie);
+        }
         let output = cmd
             .arg(&path)
             .output()
@@ -677,58 +580,64 @@ async fn print_pdf(path: String, printer: String) -> Result<bool, String> {
 
     #[cfg(not(any(target_os = "windows", target_os = "linux", target_os = "macos")))]
     {
-        let _ = (&path, &printer);
+        let _ = (&path, &printer, &orientatie, &papier, &devmodes);
         Err("Printing is not supported on this platform".to_string())
     }
 }
 
-/// Open the document properties (printing preferences) dialog for a given printer name.
+/// Open the document properties (printing preferences) dialog for a printer.
+///
+/// Windows: the driver's own dialog, modal to the calling window. It is
+/// pre-filled with what was chosen earlier this session for this printer
+/// (else the driver default), with `papier`/`orientatie` applied on top: the
+/// paper and orientation the next print job gets, as the Print dialog shows
+/// them (same values as print_pdf; 'printer'/'auto' or absent = leave as is).
+/// So OK without changes changes nothing the user chose in Page Setup.
+/// The command waits for the dialog. OK keeps the chosen DEVMODE in memory
+/// for this printer — only for this session, never written to the printer or
+/// system defaults — and returns its PapierInfo plus `papierGewijzigd` /
+/// `orientatieGewijzigd` (what the user changed against the pre-fill); Cancel
+/// returns null and changes nothing. Linux/macOS open the system printer
+/// settings and return null.
 #[tauri::command]
-fn open_printer_properties(window: tauri::WebviewWindow, printer: String) -> Result<bool, String> {
+async fn open_printer_properties(
+    window: tauri::WebviewWindow,
+    printer: String,
+    papier: Option<String>,
+    orientatie: Option<String>,
+    devmodes: tauri::State<'_, print_instelling::PrinterDevmodes>,
+) -> Result<Option<print_instelling::EigenschappenKeuze>, String> {
     #[cfg(target_os = "windows")]
     {
-        use windows_sys::Win32::Graphics::Printing::{
-            OpenPrinterW, ClosePrinter, DocumentPropertiesW,
-        };
-
-        // Get the HWND from the Tauri window so the dialog is modal
+        // The HWND makes the dialog modal to this window; passed on as usize
+        // because a raw handle is not Send.
         let hwnd = window.hwnd().map_err(|e| format!("Failed to get window handle: {}", e))?;
-        let hwnd_raw = hwnd.0 as windows_sys::Win32::Foundation::HWND;
-
-        // Convert printer name to wide string
-        let wide_name: Vec<u16> = printer.encode_utf16().chain(std::iter::once(0)).collect();
-
-        let mut h_printer: windows_sys::Win32::Foundation::HANDLE = std::ptr::null_mut();
-        let opened = unsafe {
-            OpenPrinterW(wide_name.as_ptr(), &mut h_printer, std::ptr::null_mut())
-        };
-
-        if opened == 0 || h_printer.is_null() {
-            return Err(format!("Failed to open printer '{}'", printer));
-        }
-
-        // DocumentPropertiesW is blocking — run on a thread to avoid freezing the event loop.
-        // DM_IN_PROMPT (0x4) tells it to show the dialog to the user.
-        let hwnd_usize = hwnd_raw as usize;
-        let printer_usize = h_printer as usize;
-        let device_name = wide_name;
-
+        let eigenaar = hwnd.0 as usize;
+        let opgeslagen = devmodes.ophalen(&printer);
+        let naam = printer.clone();
+        let papier = print_instelling::Papier::uit_keuze(papier.as_deref());
+        let orientatie = print_instelling::Orientatie::uit_keuze(orientatie.as_deref());
+        // DocumentPropertiesW runs its own modal loop until the user closes
+        // the dialog. It gets a fresh thread of its own (as before: no COM or
+        // other state from a reused pool thread) and the command awaits the
+        // answer instead of returning straight away.
+        let (klaar, antwoord) = tokio::sync::oneshot::channel();
         std::thread::spawn(move || {
-            unsafe {
-                const DM_IN_PROMPT: u32 = 0x4;
-                DocumentPropertiesW(
-                    hwnd_usize as _,
-                    printer_usize as _,
-                    device_name.as_ptr() as _,
-                    std::ptr::null_mut(),   // pDevModeOutput — not capturing changes
-                    std::ptr::null_mut(),   // pDevModeInput
-                    DM_IN_PROMPT,
-                );
-                ClosePrinter(printer_usize as _);
-            }
+            let uitkomst =
+                print_devmode::eigenschappen_kiezen(&naam, eigenaar, opgeslagen.as_deref(), papier, orientatie);
+            let _ = klaar.send(uitkomst);
         });
+        let gekozen = antwoord
+            .await
+            .map_err(|_| "Printer properties dialog ended unexpectedly".to_string())??;
 
-        Ok(true)
+        match gekozen {
+            Some((bytes, keuze)) => {
+                devmodes.bewaren(&printer, bytes);
+                Ok(Some(keuze))
+            }
+            None => Ok(None),
+        }
     }
 
     // CUPS has no per-driver properties dialog that an application can call the
@@ -737,7 +646,7 @@ fn open_printer_properties(window: tauri::WebviewWindow, printer: String) -> Res
     // that launches wins.
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     {
-        let _ = window;
+        let _ = (window, &devmodes, &papier, &orientatie);
         let queue = printer.trim();
 
         #[cfg(target_os = "linux")]
@@ -756,7 +665,7 @@ fn open_printer_properties(window: tauri::WebviewWindow, printer: String) -> Res
 
         for (program, args) in candidates {
             if std::process::Command::new(program).args(&args).spawn().is_ok() {
-                return Ok(true);
+                return Ok(None);
             }
         }
 
@@ -765,8 +674,33 @@ fn open_printer_properties(window: tauri::WebviewWindow, printer: String) -> Res
 
     #[cfg(not(any(target_os = "windows", target_os = "linux", target_os = "macos")))]
     {
-        let _ = (window, &printer);
+        let _ = (window, &printer, &devmodes, &papier, &orientatie);
         Err("Printer properties are not supported on this platform".to_string())
+    }
+}
+
+/// The paper the next job on this printer uses when Page Setup leaves the
+/// paper on "printer": the Properties choice from this session for this
+/// printer, else the driver's current default for this user. Never shows UI
+/// and never changes anything. null on Linux/macOS or when it cannot be
+/// determined.
+#[tauri::command]
+async fn printer_papier(
+    printer: String,
+    devmodes: tauri::State<'_, print_instelling::PrinterDevmodes>,
+) -> Result<Option<print_instelling::PapierInfo>, String> {
+    #[cfg(target_os = "windows")]
+    {
+        let opgeslagen = devmodes.ophalen(&printer);
+        tauri::async_runtime::spawn_blocking(move || print_devmode::huidig_papier(&printer, opgeslagen.as_deref()))
+            .await
+            .map_err(|e| format!("Printer paper task failed: {e}"))
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        let _ = (&printer, &devmodes);
+        Ok(None)
     }
 }
 
@@ -1836,6 +1770,65 @@ async fn render_pdf_page(
     Ok(tauri::ipc::Response::new(data))
 }
 
+/// Run OCR on one page. `lang` is Tesseract's `+`-joined language spec (e.g.
+/// "chi_tra+eng"); defaults to "eng" if omitted. Tessdata is resolved from
+/// the bundled `tessdata` resource directory — see scripts/ocr-runtime.mjs
+/// and the `resources` map in tauri.conf.json.
+#[cfg(not(target_os = "android"))]
+#[tauri::command]
+async fn ocr_pdf_page(
+    app: tauri::AppHandle,
+    path: String,
+    page_index: u32,
+    lang: Option<String>,
+    bytes_cache: tauri::State<'_, PdfBytesCache>,
+    pdfium_cache: tauri::State<'_, pdfium_renderer::PdfiumDocCache>,
+) -> Result<Vec<ocr::OcrWord>, String> {
+    let bytes = {
+        let mut bm = bytes_cache.0.lock().map_err(|e| format!("Bytes cache lock: {}", e))?;
+        if let Some(cached) = bm.get(&path) {
+            cached.clone()
+        } else {
+            let read = std::fs::read(&path).map_err(|e| format!("Read: {}", e))?;
+            bm.insert(path.clone(), read.clone());
+            read
+        }
+    };
+
+    let handle = pdfium_renderer::get_or_load_pdfium_doc_with_bytes(
+        &path,
+        std::sync::Arc::new(bytes),
+        &pdfium_cache,
+    )?;
+
+    let resource_dir = app
+        .path()
+        .resource_dir()
+        .map_err(|e| format!("Cannot resolve resource_dir: {}", e))?;
+    // Niet rechtstreeks to_str(): op Windows is resource_dir een \\?\-pad en
+    // daar kan Tesseract geen "/<taal>.traineddata" achter plakken.
+    let tessdata_dir = ocr::tessdata_path_for_tesseract(&resource_dir.join("tessdata"))?;
+
+    let lang = lang.unwrap_or_else(|| "auto".to_string());
+
+    // Tesseract inference is synchronous/blocking (and re-inits per call) —
+    // run it off the async executor so it doesn't stall other IPC.
+    tauri::async_runtime::spawn_blocking({
+        move || ocr::ocr_page_words(handle.document(), page_index, &tessdata_dir, &lang)
+    })
+    .await
+    .map_err(|e| format!("OCR task panicked: {}", e))?
+}
+
+/// Android has no Tesseract build (see Cargo.toml), so OCR is unavailable
+/// there. The command stays registered so the invoke handler list is the
+/// same on every platform; it only reports that OCR is not available.
+#[cfg(target_os = "android")]
+#[tauri::command]
+async fn ocr_pdf_page() -> Result<(), String> {
+    Err("OCR is op dit platform niet beschikbaar".to_string())
+}
+
 #[tauri::command]
 async fn render_pdf_page_region(
     path: String,
@@ -2278,6 +2271,43 @@ fn invalidate_pdf_cache(
     Ok(true)
 }
 
+/// Alles loslaten wat het proces voor een gesloten document vasthoudt: ruwe
+/// bytes, geparsede handles (lopdf én PDFium), thumbnails, paginatypen en
+/// pixmaps. Alleen aanroepen als geen ander open tabblad hetzelfde pad
+/// gebruikt — de JS-kant beslist dat (document-release.js). Lopende renders
+/// houden hun eigen Arc vast en merken hier niets van.
+#[tauri::command]
+fn release_pdf_document(
+    path: String,
+    bytes_cache: tauri::State<PdfBytesCache>,
+    handle_cache: tauri::State<DocHandleCache>,
+    thumb_cache: tauri::State<ThumbnailCache>,
+    page_type_cache: tauri::State<PageTypeCache>,
+    pdfium_cache: tauri::State<pdfium_renderer::PdfiumDocCache>,
+    pixmap_cache: tauri::State<pdfium_renderer::PixmapCacheState>,
+) -> Result<bool, String> {
+    bytes_cache.0.lock().map_err(|e| format!("Bytes cache lock: {}", e))?.remove(&path);
+    handle_cache.0.lock().map_err(|e| format!("Handle cache lock: {}", e))?.remove(&path);
+    if let Ok(mut tc) = thumb_cache.0.lock() {
+        tc.retain(|(p, _, _, _), _| p != &path);
+    }
+    if let Ok(mut pc) = page_type_cache.0.lock() {
+        pc.retain(|(p, _), _| p != &path);
+    }
+    let had_doc = pdfium_cache
+        .0
+        .lock()
+        .map_err(|e| format!("Pdfium doc cache lock: {}", e))?
+        .remove(&path)
+        .is_some();
+    if let Ok(mut guard) = pixmap_cache.0.lock() {
+        if let Some(cache) = guard.as_mut() {
+            cache.remove_path(&path);
+        }
+    }
+    Ok(had_doc)
+}
+
 /// Clear the entire PDF bytes cache AND parsed handle cache (call on app
 /// cleanup or memory pressure).
 #[tauri::command]
@@ -2478,6 +2508,7 @@ pub fn run(opts: StartupOpts) {
     let mut builder = tauri::Builder::default()
         .manage(OpenedFiles(Mutex::new(opened_files)))
         .manage(LockedFiles(Mutex::new(HashMap::new())))
+        .manage(print_instelling::PrinterDevmodes::default())
         .manage(PdfBytesCache(Mutex::new(HashMap::new())))
         .manage(DocHandleCache(Mutex::new(HashMap::new())))
         .manage(TileSceneCache(Mutex::new(Vec::new())))
@@ -2569,6 +2600,19 @@ pub fn run(opts: StartupOpts) {
             let diagnostics = startup_diagnostics::StartupDiagnostics::new(diagnostics_path);
             diagnostics.record("native-created", None);
             app.manage(diagnostics);
+
+            // Ondertekende versies (pdf_signed_revision) ouder dan zeven dagen
+            // opruimen; vangnet naast het opruimen door de UI. Ruim genoeg, zodat
+            // een tabblad dat in een andere, nog draaiende instantie open staat
+            // zijn bestand niet kwijtraakt. Fouten negeren.
+            if let Ok(cachemap) = app.path().app_cache_dir() {
+                std::thread::spawn(move || {
+                    handtekening::verifieer::ruim_ondertekende_versies_op(
+                        &handtekening::verifieer::map_ondertekende_versies(&cachemap),
+                        handtekening::verifieer::OPRUIMEN_NA,
+                    );
+                });
+            }
 
             // Grant FS plugin scope for command-line files (file association)
             for path in app.state::<OpenedFiles>().0.lock().unwrap().iter() {
@@ -2703,6 +2747,7 @@ pub fn run(opts: StartupOpts) {
             get_printers,
             print_pdf,
             open_printer_properties,
+            printer_papier,
             get_temp_dir,
             write_temp_pdf,
             delete_file,
@@ -2733,12 +2778,17 @@ pub fn run(opts: StartupOpts) {
             uninstall_plugin,
             read_plugin_file,
             render_pdf_page,
+            ocr_pdf_page,
             worker_pool_ready,
             render_pdf_page_region,
             render_tile_scene_region,
             page_content_size,
             get_page_dimensions,
             invalidate_pdf_cache,
+            handtekening::certificaat::pdf_certificate_info,
+            handtekening::verifieer::pdf_signature_list,
+            handtekening::verifieer::pdf_signed_revision,
+            release_pdf_document,
             clear_pdf_cache,
             analyze_page_type,
             analyze_page_type_batch,

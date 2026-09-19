@@ -1,0 +1,829 @@
+{
+  "doel": "testdata/handtekeningen",
+  "bronnen": {
+    "pkcs12": {
+      "repo": "pyca/cryptography",
+      "commit": "2ad2c2b06e1ec374c05f0d8291cadce08eb7d102",
+      "pad": "vectors/cryptography_vectors/pkcs12",
+      "licentie": "Apache-2.0 OR BSD-3-Clause",
+      "wachtwoorden": "volgens tests/hazmat/primitives/test_pkcs12.py in dezelfde commit; de corpusdocumentatie noemt voor *-pwd ten onrechte 'cryptography'",
+      "bestanden": [
+        {
+          "bestand": "cert-aes256cbc-no-key.p12",
+          "bytes": 605,
+          "sha256": "aea2ba682f526f4425c1dd5f3b98b3817e6b1a64d5cb58c3957703bdc1e82b04",
+          "wachtwoord": "cryptography",
+          "sleutel": false,
+          "certificaten": 1,
+          "namen": [],
+          "ondertekenaar": false
+        },
+        {
+          "bestand": "cert-key-aes256cbc.p12",
+          "bytes": 948,
+          "sha256": "a7b8f2cf403ff9054dd7337e0d9bccfb72742b859bd73b1e7833ae800cceb213",
+          "wachtwoord": "cryptography",
+          "sleutel": true,
+          "certificaten": 1,
+          "namen": [],
+          "ondertekenaar": true
+        },
+        {
+          "bestand": "cert-none-key-none.p12",
+          "bytes": 756,
+          "sha256": "de7ea73ece83b8172466ff97f00cae0942a460e63f9a130ccf7d784fe7296b1e",
+          "wachtwoord": "cryptography",
+          "sleutel": true,
+          "certificaten": 1,
+          "namen": [],
+          "ondertekenaar": true
+        },
+        {
+          "bestand": "cert-rc2-key-3des.p12",
+          "bytes": 854,
+          "sha256": "0af54d61e727c41afaa67053ea34251c118cb291de7a57826a37fff9d5ccb4aa",
+          "wachtwoord": "cryptography",
+          "sleutel": true,
+          "certificaten": 1,
+          "namen": [],
+          "ondertekenaar": true
+        },
+        {
+          "bestand": "java-truststore.p12",
+          "bytes": 2845,
+          "sha256": "bffae9d410f390f10444747d3951d22811dab81925bf49321e61e65a5167d790",
+          "wachtwoord": "",
+          "sleutel": false,
+          "certificaten": 2,
+          "namen": [
+            "cert1"
+          ],
+          "ondertekenaar": false
+        },
+        {
+          "bestand": "name-1-no-pwd.p12",
+          "bytes": 3539,
+          "sha256": "5c5aae3adf2fa007f09192fe6993f7429d1b0e22de4f6d728bee6643743ba5ac",
+          "wachtwoord": "",
+          "sleutel": true,
+          "certificaten": 3,
+          "namen": [
+            "name"
+          ],
+          "ondertekenaar": true
+        },
+        {
+          "bestand": "name-1-pwd.p12",
+          "bytes": 3639,
+          "sha256": "c7b1ff964c5f3100ca89b4f45d31734f55683d0acc1e5b9103122436bba5f575",
+          "wachtwoord": "password",
+          "sleutel": true,
+          "certificaten": 3,
+          "namen": [
+            "name"
+          ],
+          "ondertekenaar": true
+        },
+        {
+          "bestand": "name-2-3-no-pwd.p12",
+          "bytes": 3547,
+          "sha256": "0105a8fef5ddc843de0cf838371d53075ce66eb3bba2c0616b02c80404a8c6ed",
+          "wachtwoord": "",
+          "sleutel": true,
+          "certificaten": 3,
+          "namen": [
+            "name2",
+            "name3"
+          ],
+          "ondertekenaar": true
+        },
+        {
+          "bestand": "name-2-3-pwd.p12",
+          "bytes": 3650,
+          "sha256": "2567aefaab51f6dec295a4189d4a0315c88cf3f273b3a1e5622d961f05e9c45d",
+          "wachtwoord": "password",
+          "sleutel": true,
+          "certificaten": 3,
+          "namen": [
+            "name2",
+            "name3"
+          ],
+          "ondertekenaar": true
+        },
+        {
+          "bestand": "name-2-no-pwd.p12",
+          "bytes": 3518,
+          "sha256": "3d69cfd221d2e8eb5e9aa4956ddb9efb895d0403df9fd3679e7a9b0c5eff27cf",
+          "wachtwoord": "",
+          "sleutel": true,
+          "certificaten": 3,
+          "namen": [
+            "name2"
+          ],
+          "ondertekenaar": true
+        },
+        {
+          "bestand": "name-2-pwd.p12",
+          "bytes": 3618,
+          "sha256": "6ff949954ded296da1ec58c3aee5c36b88f0688ede2afad5ef435810edf061d3",
+          "wachtwoord": "password",
+          "sleutel": true,
+          "certificaten": 3,
+          "namen": [
+            "name2"
+          ],
+          "ondertekenaar": true
+        },
+        {
+          "bestand": "name-3-no-pwd.p12",
+          "bytes": 3518,
+          "sha256": "938ef66f16e237515a843e85f0660e34d827a7b601a6ce332d8801d77a9a98ac",
+          "wachtwoord": "",
+          "sleutel": true,
+          "certificaten": 3,
+          "namen": [
+            "name3"
+          ],
+          "ondertekenaar": true
+        },
+        {
+          "bestand": "name-3-pwd.p12",
+          "bytes": 3618,
+          "sha256": "a9bb92d06e039a67a0b1d021763d11f98cd5904259ad6caab4a3ff01d7027976",
+          "wachtwoord": "password",
+          "sleutel": true,
+          "certificaten": 3,
+          "namen": [
+            "name3"
+          ],
+          "ondertekenaar": true
+        },
+        {
+          "bestand": "name-all-no-pwd.p12",
+          "bytes": 3597,
+          "sha256": "c4a0f933f3b68b6d9efdf11725483f637fd9bc8e2074043fa8b9e0e20323fc91",
+          "wachtwoord": "",
+          "sleutel": true,
+          "certificaten": 3,
+          "namen": [
+            "name",
+            "name2",
+            "name3"
+          ],
+          "ondertekenaar": true
+        },
+        {
+          "bestand": "name-all-pwd.p12",
+          "bytes": 3703,
+          "sha256": "4208b92777e31b8efaafa23362491b1990af947693a6dbe000a0670febe56f4c",
+          "wachtwoord": "password",
+          "sleutel": true,
+          "certificaten": 3,
+          "namen": [
+            "name",
+            "name2",
+            "name3"
+          ],
+          "ondertekenaar": true
+        },
+        {
+          "bestand": "name-unicode-no-pwd.p12",
+          "bytes": 3569,
+          "sha256": "a02b0ee6edc706ebe730c952479d158f5f5d7a74e006ed2020f5d76b4a62e345",
+          "wachtwoord": "",
+          "sleutel": true,
+          "certificaten": 3,
+          "namen": [
+            "☺",
+            "ä",
+            "ç"
+          ],
+          "ondertekenaar": true
+        },
+        {
+          "bestand": "name-unicode-pwd.p12",
+          "bytes": 3672,
+          "sha256": "566614621a1c47672437d03f3c3426949bd51720344a36a415f01b3341f0ae75",
+          "wachtwoord": "password",
+          "sleutel": true,
+          "certificaten": 3,
+          "namen": [
+            "☺",
+            "ä",
+            "ç"
+          ],
+          "ondertekenaar": true
+        },
+        {
+          "bestand": "no-cert-key-aes256cbc.p12",
+          "bytes": 353,
+          "sha256": "076c214f982d805ef3cc6670595bc2989694cae98b44ad8f67767dfe10d4ffa8",
+          "wachtwoord": "cryptography",
+          "sleutel": true,
+          "certificaten": 0,
+          "namen": [],
+          "ondertekenaar": false
+        },
+        {
+          "bestand": "no-cert-name-2-no-pwd.p12",
+          "bytes": 2874,
+          "sha256": "7d4c4443b4a63df17e65026b0be144e71c1ae2622b785bca7b9be1892e7dcc5f",
+          "wachtwoord": "",
+          "sleutel": false,
+          "certificaten": 2,
+          "namen": [
+            "name2"
+          ],
+          "ondertekenaar": false
+        },
+        {
+          "bestand": "no-cert-name-2-pwd.p12",
+          "bytes": 2932,
+          "sha256": "7d5d154ea4c57323b4a4922824e85867570e14fa601c0a6d078bc0d2888dd7c6",
+          "wachtwoord": "password",
+          "sleutel": false,
+          "certificaten": 2,
+          "namen": [
+            "name2"
+          ],
+          "ondertekenaar": false
+        },
+        {
+          "bestand": "no-cert-name-3-no-pwd.p12",
+          "bytes": 2874,
+          "sha256": "2397197bf17d842ad6e01e16838921cdf5c4e289044a5b5b4875c14b796b013a",
+          "wachtwoord": "",
+          "sleutel": false,
+          "certificaten": 2,
+          "namen": [
+            "name3"
+          ],
+          "ondertekenaar": false
+        },
+        {
+          "bestand": "no-cert-name-3-pwd.p12",
+          "bytes": 2932,
+          "sha256": "0f75afc6ca7169d899d5490e5a23c804bb2567c41f2471cdedb8e85e6834ffc2",
+          "wachtwoord": "password",
+          "sleutel": false,
+          "certificaten": 2,
+          "namen": [
+            "name3"
+          ],
+          "ondertekenaar": false
+        },
+        {
+          "bestand": "no-cert-name-all-no-pwd.p12",
+          "bytes": 2903,
+          "sha256": "d9375e12fb7da37889fe039f514753c39af90bea1acff8e698b2a3c0f2545a53",
+          "wachtwoord": "",
+          "sleutel": false,
+          "certificaten": 2,
+          "namen": [
+            "name2",
+            "name3"
+          ],
+          "ondertekenaar": false
+        },
+        {
+          "bestand": "no-cert-name-all-pwd.p12",
+          "bytes": 2956,
+          "sha256": "903a5a638d7ebb19fcb4b6c933794d29550b76c918455414e1a98cc275836724",
+          "wachtwoord": "password",
+          "sleutel": false,
+          "certificaten": 2,
+          "namen": [
+            "name2",
+            "name3"
+          ],
+          "ondertekenaar": false
+        },
+        {
+          "bestand": "no-cert-name-unicode-no-pwd.p12",
+          "bytes": 2887,
+          "sha256": "f522b4e2044c70a1c64ac80b861f40740b5fb5dc0074dc71cdc1d675a00022ff",
+          "wachtwoord": "",
+          "sleutel": false,
+          "certificaten": 2,
+          "namen": [
+            "☹",
+            "ï"
+          ],
+          "ondertekenaar": false
+        },
+        {
+          "bestand": "no-cert-name-unicode-pwd.p12",
+          "bytes": 2940,
+          "sha256": "5fde5234970215e68e85f76b644e921eadaf656ae1a1c2206a89caa0353cf86e",
+          "wachtwoord": "password",
+          "sleutel": false,
+          "certificaten": 2,
+          "namen": [
+            "☹",
+            "ï"
+          ],
+          "ondertekenaar": false
+        },
+        {
+          "bestand": "no-cert-no-name-no-pwd.p12",
+          "bytes": 2845,
+          "sha256": "de2550a9bcee2934b6366876d421fd3ea8cedfc8652a6bb904b91aad9148250a",
+          "wachtwoord": "",
+          "sleutel": false,
+          "certificaten": 2,
+          "namen": [],
+          "ondertekenaar": false
+        },
+        {
+          "bestand": "no-cert-no-name-pwd.p12",
+          "bytes": 2900,
+          "sha256": "17615fc3090482251d19fe5d82996a3d5a6b6ef434d342348263c0bfddf69b02",
+          "wachtwoord": "password",
+          "sleutel": false,
+          "certificaten": 2,
+          "namen": [],
+          "ondertekenaar": false
+        },
+        {
+          "bestand": "no-name-no-pwd.p12",
+          "bytes": 3489,
+          "sha256": "f10e2bb83a482429202112da201253d2458e53a50e18124d2615250e618abed7",
+          "wachtwoord": "",
+          "sleutel": true,
+          "certificaten": 3,
+          "namen": [],
+          "ondertekenaar": true
+        },
+        {
+          "bestand": "no-name-pwd.p12",
+          "bytes": 3586,
+          "sha256": "58084a5da72dd02e3a6b8a8d32936b8fd50205a2186a15b0fc863f18250fb2ec",
+          "wachtwoord": "password",
+          "sleutel": true,
+          "certificaten": 3,
+          "namen": [],
+          "ondertekenaar": true
+        },
+        {
+          "bestand": "no-password.p12",
+          "bytes": 948,
+          "sha256": "cc48f8a70f807e6c64cc7e269685ee29ca1d7ed36934bbf882a7f0845515425d",
+          "wachtwoord": "",
+          "sleutel": true,
+          "certificaten": 1,
+          "namen": [
+            "cryptography CA"
+          ],
+          "ondertekenaar": true
+        }
+      ]
+    },
+    "pades": {
+      "repo": "esig/dss",
+      "commit": "c8aea1f90958a851f651fe39f1575fcbd6d4a11d",
+      "pad": "dss-pades/src/test/resources/validation",
+      "licentie": "LGPL-2.1",
+      "bestanden": [
+        {
+          "bestand": "pades-bes.pdf",
+          "bytes": 157068,
+          "sha256": "5ad09bb81479f5a1eca46f17a9e37ee002b0a124f3b0327137d43a2f27e9ce73",
+          "verwacht": "intact",
+          "handtekeningen": [
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "9e3f81463cb8e9fe4d08d3fb1755d098d97cfd90774cdfe85889f07ce46a7f35",
+              "woordenboekOndertekend": true,
+              "opgegevenRedenSha256": "bb4348bfa48068bec3d5a4ea2008c496527fdc2d60fe8ba8e9129294638f988c",
+              "tijdBron": "opgegeven",
+              "bereikEinde": 157068,
+              "dekt": true,
+              "integriteit": "intact"
+            }
+          ]
+        },
+        {
+          "bestand": "pades3_Baseline_B.pdf",
+          "bytes": 387414,
+          "sha256": "da288b9ffa67843790b0f30bffe8a901e5490e5e901413ba99875a992b8e7112",
+          "verwacht": "intact",
+          "handtekeningen": [
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "bbbe9237edab14573a22224129c00bef5a28913069b525db4c68f27709b487b0",
+              "woordenboekOndertekend": true,
+              "tijdBron": "opgegeven",
+              "bereikEinde": 17434,
+              "dekt": false,
+              "integriteit": "intact"
+            },
+            {
+              "soort": "documenttijdstempel",
+              "veldnaamSha256": "43dba7bf87e5000256e548d1fa59bde30fae0e0c8c51de6567970010951ce094",
+              "woordenboekOndertekend": true,
+              "tijdBron": "tijdstempel",
+              "bereikEinde": 191468,
+              "dekt": false,
+              "integriteit": "intact"
+            },
+            {
+              "soort": "documenttijdstempel",
+              "veldnaamSha256": "e678f1801b0c89cd9428b822ef15127858fc626c07b305069bdf1504b0bdf9a8",
+              "woordenboekOndertekend": true,
+              "tijdBron": "tijdstempel",
+              "bereikEinde": 367189,
+              "dekt": false,
+              "integriteit": "intact"
+            },
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "9e3f81463cb8e9fe4d08d3fb1755d098d97cfd90774cdfe85889f07ce46a7f35",
+              "woordenboekOndertekend": true,
+              "tijdBron": "opgegeven",
+              "bereikEinde": 387414,
+              "dekt": true,
+              "integriteit": "intact"
+            }
+          ]
+        },
+        {
+          "bestand": "doc-firmado.pdf",
+          "bytes": 70733,
+          "sha256": "36b4294a34169d769eae02208ca3c1fd738213a73925289e7618d9411ddeaee0",
+          "verwacht": "intact",
+          "handtekeningen": [
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "9e3f81463cb8e9fe4d08d3fb1755d098d97cfd90774cdfe85889f07ce46a7f35",
+              "woordenboekOndertekend": true,
+              "tijdBron": "tijdstempel",
+              "bereikEinde": 28316,
+              "dekt": false,
+              "tijdstempel": "intact",
+              "integriteit": "intact"
+            },
+            {
+              "soort": "documenttijdstempel",
+              "veldnaamSha256": "cf0cb61cdc02186af250729f90c840bbbb25254b139e480e146ae0cd977f4e57",
+              "woordenboekOndertekend": true,
+              "tijdBron": "tijdstempel",
+              "bereikEinde": 70733,
+              "dekt": true,
+              "integriteit": "intact"
+            }
+          ]
+        },
+        {
+          "bestand": "doc-firmado-T.pdf",
+          "bytes": 28316,
+          "sha256": "cdac360bb3f545ecd6dbc6f622511e3d06e5aca7e77ce2243d7806e18721ba35",
+          "verwacht": "intact (met tijdstempel)",
+          "handtekeningen": [
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "9e3f81463cb8e9fe4d08d3fb1755d098d97cfd90774cdfe85889f07ce46a7f35",
+              "woordenboekOndertekend": true,
+              "tijdBron": "tijdstempel",
+              "bereikEinde": 28316,
+              "dekt": true,
+              "tijdstempel": "intact",
+              "integriteit": "intact"
+            }
+          ]
+        },
+        {
+          "bestand": "doc-firmado-LT.pdf",
+          "bytes": 49311,
+          "sha256": "130ff45493c0cff873b44662bf9bb609820fabe4a0e666604ae1ac2795059eaf",
+          "verwacht": "intact (LT)",
+          "handtekeningen": [
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "9e3f81463cb8e9fe4d08d3fb1755d098d97cfd90774cdfe85889f07ce46a7f35",
+              "woordenboekOndertekend": true,
+              "tijdBron": "tijdstempel",
+              "bereikEinde": 28316,
+              "dekt": false,
+              "tijdstempel": "intact",
+              "integriteit": "intact"
+            }
+          ]
+        },
+        {
+          "bestand": "hello_signed_INCSAVE_signed.pdf",
+          "bytes": 235978,
+          "sha256": "af63353c955aaa66612d87e7340d19726b8127a138fd393dd67840c1dc905625",
+          "verwacht": "intact",
+          "handtekeningen": [
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "9e3f81463cb8e9fe4d08d3fb1755d098d97cfd90774cdfe85889f07ce46a7f35",
+              "woordenboekOndertekend": true,
+              "tijdBron": "opgegeven",
+              "bereikEinde": 216121,
+              "dekt": false,
+              "integriteit": "intact"
+            },
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "cf0cb61cdc02186af250729f90c840bbbb25254b139e480e146ae0cd977f4e57",
+              "woordenboekOndertekend": true,
+              "tijdBron": "opgegeven",
+              "bereikEinde": 235978,
+              "dekt": true,
+              "integriteit": "intact"
+            }
+          ]
+        },
+        {
+          "bestand": "hello_signed_INCSAVE_signed_EDITED.pdf",
+          "bytes": 235978,
+          "sha256": "cf1ab7b64dc49ee47d101133a57cc51e604eb23dbabb2075732d41804831aba9",
+          "verwacht": "gewijzigd",
+          "handtekeningen": [
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "9e3f81463cb8e9fe4d08d3fb1755d098d97cfd90774cdfe85889f07ce46a7f35",
+              "woordenboekOndertekend": true,
+              "tijdBron": "opgegeven",
+              "bereikEinde": 216121,
+              "dekt": false,
+              "integriteit": "intact"
+            },
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "cf0cb61cdc02186af250729f90c840bbbb25254b139e480e146ae0cd977f4e57",
+              "woordenboekOndertekend": false,
+              "tijdBron": "opgegeven",
+              "bereikEinde": 216121,
+              "dekt": false,
+              "integriteit": "gewijzigd"
+            }
+          ]
+        },
+        {
+          "bestand": "modified_after_signature.pdf",
+          "bytes": 786071,
+          "sha256": "0e41604c8a394bb2cb7aa402cfa6433ce64e49746668b406764561bfc34fdbcf",
+          "verwacht": "gewijzigd",
+          "handtekeningen": [
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "9e3f81463cb8e9fe4d08d3fb1755d098d97cfd90774cdfe85889f07ce46a7f35",
+              "woordenboekOndertekend": true,
+              "tijdBron": "opgegeven",
+              "bereikEinde": 642689,
+              "dekt": false,
+              "integriteit": "intact"
+            }
+          ]
+        },
+        {
+          "bestand": "pades-signed-annot-added.pdf",
+          "bytes": 85676,
+          "sha256": "cd20365310578663d2f289713de914fb8d5021ed1a801e87ff80c7b7939a1c52",
+          "verwacht": "annotatie na ondertekenen toegevoegd",
+          "handtekeningen": [
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "cf0cb61cdc02186af250729f90c840bbbb25254b139e480e146ae0cd977f4e57",
+              "woordenboekOndertekend": true,
+              "tijdBron": "opgegeven",
+              "bereikEinde": 77558,
+              "dekt": false,
+              "integriteit": "intact"
+            },
+            {
+              "soort": "leeg-veld",
+              "veldnaamSha256": "9e3f81463cb8e9fe4d08d3fb1755d098d97cfd90774cdfe85889f07ce46a7f35"
+            }
+          ]
+        },
+        {
+          "bestand": "pades-5-signatures-and-1-document-timestamp.pdf",
+          "bytes": 335556,
+          "sha256": "962dd61443f8c124aa029bef2d2150712ed2bc895b2646f38af5f0f9d7bedc8e",
+          "verwacht": "meerdere handtekeningen",
+          "handtekeningen": [
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "9e3f81463cb8e9fe4d08d3fb1755d098d97cfd90774cdfe85889f07ce46a7f35",
+              "woordenboekOndertekend": true,
+              "opgegevenRedenSha256": "beeaebef2080c9dd05c41799ecf54731c0dc42cd3664c604aaa4737057f07a67",
+              "tijdBron": "tijdstempel",
+              "bereikEinde": 125240,
+              "dekt": false,
+              "tijdstempel": "intact",
+              "integriteit": "intact"
+            },
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "cf0cb61cdc02186af250729f90c840bbbb25254b139e480e146ae0cd977f4e57",
+              "woordenboekOndertekend": true,
+              "opgegevenRedenSha256": "54f3e4d1f4674e2356c5c35956b365041578dddb13468768f8fa4d60047dc521",
+              "tijdBron": "tijdstempel",
+              "bereikEinde": 159488,
+              "dekt": false,
+              "tijdstempel": "intact",
+              "integriteit": "intact"
+            },
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "8bdb5c3ba081de975947f234fcd81339f1313ac84ae3818ec69aa457ff2d1d2b",
+              "woordenboekOndertekend": true,
+              "opgegevenRedenSha256": "54f3e4d1f4674e2356c5c35956b365041578dddb13468768f8fa4d60047dc521",
+              "tijdBron": "opgegeven",
+              "bereikEinde": 193779,
+              "dekt": false,
+              "integriteit": "intact"
+            },
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "ab35e68c6bb2cea582e65c5383f5e8e34e4fa14427c034bc52c08115eacdd84a",
+              "woordenboekOndertekend": true,
+              "opgegevenRedenSha256": "54f3e4d1f4674e2356c5c35956b365041578dddb13468768f8fa4d60047dc521",
+              "tijdBron": "opgegeven",
+              "bereikEinde": 228100,
+              "dekt": false,
+              "integriteit": "intact"
+            },
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "15d8d0ba96aaa2e7001fc8ff16f29910479d67aeebc9e131f5fc96c601c85d3c",
+              "woordenboekOndertekend": true,
+              "opgegevenRedenSha256": "a826ccdf62c93d84e53d258336a3226920c35ec76c3d45241b026e6f9a99cef6",
+              "tijdBron": "opgegeven",
+              "bereikEinde": 262407,
+              "dekt": false,
+              "integriteit": "intact"
+            },
+            {
+              "soort": "documenttijdstempel",
+              "veldnaamSha256": "7800b74fb21235e14271ac25a6cddc5e938c19aca03cbcc7b84cd13f26d3c640",
+              "woordenboekOndertekend": true,
+              "tijdBron": "tijdstempel",
+              "bereikEinde": 335556,
+              "dekt": true,
+              "integriteit": "intact"
+            }
+          ]
+        },
+        {
+          "bestand": "pades-bes-no-certificates.pdf",
+          "bytes": 157046,
+          "sha256": "5ddf35d7e4268ccb9ead0c49ec0836adb30e2e906ee32e2cef6d4b4d39c0338d",
+          "verwacht": "geen certificaat ingebed",
+          "handtekeningen": [
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "9e3f81463cb8e9fe4d08d3fb1755d098d97cfd90774cdfe85889f07ce46a7f35",
+              "woordenboekOndertekend": true,
+              "tijdBron": "opgegeven",
+              "bereikEinde": 157046,
+              "dekt": true,
+              "integriteit": "niet-te-controleren",
+              "reden": "geen-certificaat"
+            }
+          ]
+        },
+        {
+          "bestand": "pades-unsupported-signature-algorithm.pdf",
+          "bytes": 156916,
+          "sha256": "95bbb8f6017b6df2e00b5972157dbf5ebab09d0cd64c977c816c665564ff73f9",
+          "verwacht": "niet-ondersteund algoritme",
+          "handtekeningen": [
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "9e3f81463cb8e9fe4d08d3fb1755d098d97cfd90774cdfe85889f07ce46a7f35",
+              "woordenboekOndertekend": true,
+              "opgegevenRedenSha256": "bb4348bfa48068bec3d5a4ea2008c496527fdc2d60fe8ba8e9129294638f988c",
+              "tijdBron": "opgegeven",
+              "bereikEinde": 156916,
+              "dekt": true,
+              "integriteit": "niet-te-controleren",
+              "reden": "algoritme-niet-ondersteund"
+            }
+          ]
+        },
+        {
+          "bestand": "BadEncodedCMS.pdf",
+          "bytes": 40272,
+          "sha256": "08a33cdbf5b278673a014dfef524cd029fd13c2a286c1deeb91d9c4b60e5ade1",
+          "verwacht": "misvormd (mag niet crashen)",
+          "handtekeningen": [
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "8bf66249bb05ac4940b2cca075bf93107b0045582edcd92ac41d0929a80a19a1",
+              "woordenboekOndertekend": true,
+              "opgegevenRedenSha256": "5169f23d63e8129c9f9e11c23a08e53d6444e01b119fac57721cd17c374d67d1",
+              "tijdBron": "opgegeven",
+              "bereikEinde": 40272,
+              "dekt": true,
+              "tijdstempel": "niet-te-controleren",
+              "integriteit": "niet-te-controleren",
+              "reden": "geen-certificaat"
+            }
+          ]
+        },
+        {
+          "bestand": "malformed-pades.pdf",
+          "bytes": 151126,
+          "sha256": "d5527730c8d2b8ac138db19f506c3cdfc7c8d00fde56560366bd3083eaa5059e",
+          "verwacht": "misvormd (mag niet crashen)",
+          "handtekeningen": [
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "9e3f81463cb8e9fe4d08d3fb1755d098d97cfd90774cdfe85889f07ce46a7f35",
+              "woordenboekOndertekend": true,
+              "tijdBron": "opgegeven",
+              "bereikEinde": 151126,
+              "dekt": true,
+              "integriteit": "gewijzigd"
+            }
+          ]
+        },
+        {
+          "bestand": "malformed-rsa-digestinfo.pdf",
+          "bytes": 53996,
+          "sha256": "0d79e75f95c6de49a1932c7b50578e46568906f87a3ef6c41a7b327f8b9f0eff",
+          "verwacht": "misvormd (mag niet crashen)",
+          "handtekeningen": [
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "9e3f81463cb8e9fe4d08d3fb1755d098d97cfd90774cdfe85889f07ce46a7f35",
+              "woordenboekOndertekend": true,
+              "opgegevenRedenSha256": "d66a5c7fe61676d4fa8b143145fa7036d94dd47886aaff05fe934bab6133cf71",
+              "tijdBron": "opgegeven",
+              "bereikEinde": 53996,
+              "dekt": true,
+              "integriteit": "ongeldig"
+            }
+          ]
+        },
+        {
+          "bestand": "encrypted.pdf",
+          "bytes": 160397,
+          "sha256": "3548e285787f5b4690202636f904852c84421338200b6b0ccaa9883348c5cb71",
+          "verwacht": "versleuteld document",
+          "handtekeningen": [
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "9e3f81463cb8e9fe4d08d3fb1755d098d97cfd90774cdfe85889f07ce46a7f35",
+              "woordenboekOndertekend": true,
+              "opgegevenRedenSha256": "a6cebea963f32748a3c87ecb2bc8f286726ccfec80b49da2c24ba834364b2809",
+              "tijdBron": "opgegeven",
+              "bereikEinde": 160397,
+              "dekt": true,
+              "integriteit": "intact"
+            }
+          ]
+        },
+        {
+          "bestand": "pades-spoofing-replaced-reason.pdf",
+          "bytes": 177114,
+          "sha256": "14b7f31cda8b6966a162c3639d7cb1f092565b8ee95f84734455c3b595174ac2",
+          "verwacht": "aanval: vervangen reden",
+          "handtekeningen": [
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "9e3f81463cb8e9fe4d08d3fb1755d098d97cfd90774cdfe85889f07ce46a7f35",
+              "woordenboekOndertekend": true,
+              "opgegevenRedenSha256": "bb4348bfa48068bec3d5a4ea2008c496527fdc2d60fe8ba8e9129294638f988c",
+              "tijdBron": "opgegeven",
+              "bereikEinde": 156916,
+              "dekt": false,
+              "integriteit": "intact"
+            }
+          ]
+        },
+        {
+          "bestand": "pades-alter-signature-appearance-modify-stream.pdf",
+          "bytes": 72252,
+          "sha256": "939db0e5f65f743de28b62562730dad8fcede57f5e4596990c8f9fdd1f4f2d5a",
+          "verwacht": "aanval: gewijzigde weergave",
+          "handtekeningen": [
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "9e3f81463cb8e9fe4d08d3fb1755d098d97cfd90774cdfe85889f07ce46a7f35",
+              "woordenboekOndertekend": true,
+              "tijdBron": "opgegeven",
+              "bereikEinde": 62251,
+              "dekt": false,
+              "integriteit": "intact"
+            },
+            {
+              "soort": "handtekening",
+              "veldnaamSha256": "cf0cb61cdc02186af250729f90c840bbbb25254b139e480e146ae0cd977f4e57",
+              "woordenboekOndertekend": true,
+              "tijdBron": "opgegeven",
+              "bereikEinde": 70321,
+              "dekt": false,
+              "integriteit": "intact"
+            }
+          ]
+        }
+      ],
+      "meting": "handtekeningen: gemeten met scripts/pades-orakel.py (PDFium, eigen DER-lezer, cryptography); malformed-pades.pdf via de ruwe scan in dat script, omdat PDFium het bestand weigert"
+    }
+  }
+}

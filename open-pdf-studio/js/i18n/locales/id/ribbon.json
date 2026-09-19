@@ -152,7 +152,9 @@
     "annotationsList": "Daftar Anotasi (F11)",
     "annotationsLabel": "Anotasi",
     "appearance": "Tampilan",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Mode Pembaca",
+    "readerModeTip": "Mengingat halaman, posisi gulir, dan zoom setiap PDF saat ditutup dan dibuka kembali"
   },
   "organize": {
     "pages": "Halaman",
@@ -174,6 +176,7 @@
     "headerFooter": "Header/Footer",
     "manageWatermarks": "Kelola Tanda Air",
     "manage": "Kelola",
+    "ocr": "Pengenalan Teks (OCR)",
     "straighten": "Luruskan Halaman",
     "shiftPage": "Geser halaman"
   },

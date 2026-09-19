@@ -80,5 +80,14 @@
     "outerOpen": "Ulkoääriviiva auki · pistettä: {{count}}"
   },
   "boxWidthAbbr": "L",
-  "boxHeightAbbr": "K"
+  "boxHeightAbbr": "K",
+  "ocr": {
+    "progress": {
+      "starting": "Tunnistetaan tekstiä...",
+      "page": "Tunnistetaan tekstiä sivulla {{page}}...",
+      "done": "Tunnistettuja sanoja: {{count}}",
+      "doneAll": "Tunnistettuja sanoja: {{count}} ({{pages}} sivua)",
+      "failed": "Tekstintunnistus epäonnistui"
+    }
+  }
 }

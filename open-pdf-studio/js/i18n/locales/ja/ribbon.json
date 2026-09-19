@@ -152,7 +152,9 @@
     "annotationsList": "注釈一覧 (F11)",
     "annotationsLabel": "注釈",
     "appearance": "外観",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "リーダーモード",
+    "readerModeTip": "PDFを閉じて再度開く際に、ページ、スクロール位置、ズームを記憶します"
   },
   "organize": {
     "pages": "ページ",
@@ -174,6 +176,7 @@
     "headerFooter": "ヘッダー/フッター",
     "manageWatermarks": "透かしを管理",
     "manage": "管理",
+    "ocr": "文字認識（OCR）",
     "straighten": "ページを補正",
     "shiftPage": "ページをシフト"
   },

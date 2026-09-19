@@ -16,6 +16,9 @@ import { systeemFromOps, sparingenFromJson } from '../../annotations/systeemrast
 import { systeemTypeFromJson } from '../../annotations/systeem-typen.js';
 import { ensureSysteemType, getSysteemTypeById } from '../../annotations/systeem-typen-registry.js';
 import { computeTextboxContentHeight } from '../../annotations/rendering/shapes.js';
+import { pasRegelafstandAanDoos } from '../../annotations/rendering/textbox-layout.js';
+import { toWinAnsiText } from '../saver/pdf-text.js';
+import { maatVanGedraaideVorm } from './gedraaide-vorm-maat.js';
 
 // Convert PDF annotation to our format
 export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageMap, annotColorMap) {
@@ -79,6 +82,21 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
     }
   }
   extraColors = extraColors || {};
+
+  // Echte maat van een gedraaide vorm waarvan /Rect de assen-uitgelijnde
+  // omhullende is (rechthoek, ellips, maskeervlak, parametrisch symbool).
+  // Kandidaten: de eigen /OPS_Maat en de /BBox van de appearance, die de vorm
+  // ongedraaid tekent. Zie gedraaide-vorm-maat.js.
+  const echteVormMaat = (omhullende) => maatVanGedraaideVorm({
+    rotatie: extraColors.rotation,
+    omhullende,
+    kandidaten: [
+      extraColors.opsMaat || null,
+      (extraColors.bboxWidth && extraColors.bboxHeight)
+        ? { width: extraColors.bboxWidth, height: extraColors.bboxHeight } : null,
+    ],
+    paginaRotatie: viewport.rotation || 0,
+  });
 
   const baseProps = {
     page: pageNum,
@@ -182,7 +200,9 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
 
       // Parametric symbol: stored as Square + private OPS metadata
       if (extraColors.opsSubtype === 'parametricSymbol') {
-        const psRect = convertRect(annot.rect);
+        // Gedraaid: /Rect is de omhullende. Met twee punten herstelt
+        // syncTwoPointGeometry hieronder de maat alsnog uit OPS_TwoPoint.
+        const psRect = extraColors.rotation ? echteVormMaat(convertRect(annot.rect)) : convertRect(annot.rect);
         const symbolId = extraColors.opsSymbolId || '';
         let params = {};
         try { if (extraColors.opsParams) params = JSON.parse(extraColors.opsParams); } catch (_) {}
@@ -218,7 +238,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
       // Maskeer (wipeout): Square + OPS_Subtype 'mask' — restore as the
       // dedicated type so the fixed white-cover rendering applies again.
       if (extraColors.opsSubtype === 'mask') {
-        const mkRect = convertRect(annot.rect);
+        const mkRect = extraColors.rotation ? echteVormMaat(convertRect(annot.rect)) : convertRect(annot.rect);
         return createAnnotation({
           ...baseProps,
           type: 'mask',
@@ -336,6 +356,8 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
       let sqRotation = 0;
       if (extraColors.rotation !== undefined && extraColors.rotation !== 0) {
         sqRotation = Math.round(extraColors.rotation);
+        // /Rect is de omhullende van de gedraaide rechthoek, niet zijn maat.
+        ({ x: sqX, y: sqY, width: sqW, height: sqH } = echteVormMaat(sqRect));
       } else if (extraColors.matrixAngle !== undefined && Math.abs(extraColors.matrixAngle) > 1) {
         sqRotation = -Math.round(extraColors.matrixAngle);
         // Rect is the expanded axis-aligned bounding box; recover original size from BBox
@@ -375,6 +397,8 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
       let crRotation = 0;
       if (extraColors.rotation !== undefined && extraColors.rotation !== 0) {
         crRotation = Math.round(extraColors.rotation);
+        // /Rect is de omhullende van de gedraaide ellips, niet zijn maat.
+        ({ x: crX, y: crY, width: crW, height: crH } = echteVormMaat(crRect));
       } else if (extraColors.matrixAngle !== undefined && Math.abs(extraColors.matrixAngle) > 1) {
         crRotation = -Math.round(extraColors.matrixAngle);
         if (extraColors.bboxWidth && extraColors.bboxHeight) {
@@ -402,6 +426,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
         borderStyle: mapBorderStyle(annot, extraColors)
       };
       if (crRotation) crProps.rotation = crRotation;
+      if (extraColors.cross) crProps.cross = true;
       return createAnnotation(crProps);
     }
 
@@ -428,6 +453,8 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
             hatchScale: extraColors.opsHatchScale ?? undefined,
             hatchAngle: extraColors.opsHatchAngle ?? 0,
             isolatieType: extraColors.opsIsolatieType || undefined,
+            // Explicit category wins; older files without it are IfcWall.
+            ifcCategory: extraColors.opsIfcCategory || ifcCategoryForAnnotationType('wall'),
             color: colorArrayToHex(annot.color, '#000000'),
             strokeColor: colorArrayToHex(annot.color, '#000000'),
             lineWidth: extraColors.borderWidth ?? annot.borderStyle?.width ?? 0.7,
@@ -1110,6 +1137,20 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
 
       // Text content: prefer textContent array (joined), fallback to contents
       let text = annot.textContent ? annot.textContent.join('\n') : (annot.contents || '');
+      // De appearance kan alleen WinAnsi tonen: tekens daarbuiten staan er als
+      // '?' of een naaste equivalent in, terwijl /Contents (UTF-16) de echte
+      // tekst bewaart. Is de appearance-tekst precies de WinAnsi-weergave van
+      // /Contents, dan is /Contents de bron; anders legt de volgende save de
+      // vervangingstekens ook in /Contents vast.
+      const contentsTekst = annot.contentsObj?.str || annot.contents || '';
+      if (annot.textContent && contentsTekst) {
+        const zonderWit = (s) => String(s).replace(/\s+/g, '');
+        const appearanceTekst = zonderWit(text);
+        if (appearanceTekst !== zonderWit(contentsTekst)
+          && appearanceTekst === zonderWit(toWinAnsiText(contentsTekst))) {
+          text = contentsTekst;
+        }
+      }
       // Inline opmaak uit /RC: alleen als de platte tekst (op witruimte na)
       // overeenkomt met Contents — anders zijn de runs niet te vertrouwen.
       let textRuns;
@@ -1305,7 +1346,13 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           lineSpacing: extraColors.lineSpacing, lineWidth: borderWidth,
           fontFamily: fontFamily || 'Arial'
         });
-        if (coNeededH > coH) coH = coNeededH;
+        // An implausible /DS line-height (e.g. 4pt text with 18.4pt) is fitted
+        // into the authored box instead of growing the box over the drawing.
+        const coPas = pasRegelafstandAanDoos({
+          lineSpacing: extraColors.lineSpacing, fontSize, boxHeight: coH,
+          padding: borderWidth ?? 0, neededHeight: coNeededH,
+        });
+        coH = coPas.height;
         // Callout stroke color: IC > AP stroke > borderColor fallback
         const coStrokeColor = extraColors.ic || extraColors.apStrokeColor || borderColor;
         // Fill color: C entry is the background for FreeText
@@ -1340,7 +1387,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           fontFamily: fontFamily || 'Arial',
           fontBold: fontBold,
           fontItalic: fontItalic,
-          lineSpacing: extraColors.lineSpacing || undefined,
+          lineSpacing: coPas.lineSpacing || undefined,
           fontUnderline: fontUnderline,
           fontStrikethrough: fontStrikethrough,
           arrowX: clArrowVx,
@@ -1365,7 +1412,11 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
         lineSpacing: extraColors.lineSpacing, lineWidth: borderWidth,
         fontFamily: fontFamily || 'Arial'
       });
-      if (ftNeededH > ftHeight) ftHeight = ftNeededH;
+      const ftPas = pasRegelafstandAanDoos({
+        lineSpacing: extraColors.lineSpacing, fontSize, boxHeight: ftHeight,
+        padding: borderWidth ?? 0, neededHeight: ftNeededH,
+      });
+      ftHeight = ftPas.height;
 
       const _tbAnn = createAnnotation({
         ...baseProps,
@@ -1387,7 +1438,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
         fontFamily: fontFamily || 'Arial',
         fontBold: fontBold,
         fontItalic: fontItalic,
-        lineSpacing: extraColors.lineSpacing || undefined,
+        lineSpacing: ftPas.lineSpacing || undefined,
         fontUnderline: fontUnderline,
         fontStrikethrough: fontStrikethrough,
         ...(extraColors.borderCloudy ? {

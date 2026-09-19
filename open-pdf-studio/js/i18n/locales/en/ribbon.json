@@ -191,7 +191,9 @@
     "window": "Window",
     "display": "Display",
     "keystrokes": "Keystrokes",
-    "keystrokesHint": "Show pressed keyboard shortcuts at the bottom left (for screen recordings)"
+    "keystrokesHint": "Show pressed keyboard shortcuts at the bottom left (for screen recordings)",
+    "readerMode": "Reader Mode",
+    "readerModeTip": "Remember each PDF's page, scroll position and zoom across closing and reopening it. Saves a small file next to each PDF you read, so it also appears in cloud-synced folders (OneDrive, Dropbox, etc.)"
   },
   "elementVisibility": {
     "buttonTitle": "Element Visibility — show/hide and dim annotation types",
@@ -269,6 +271,7 @@
     "compressLabel": "Compress",
     "reorderPages": "Reorder",
     "reorderPagesTitle": "Open thumbnails to drag pages into a new order",
+    "ocr": "Recognize Text (OCR)",
     "straighten": "Straighten Page",
     "shiftPage": "Shift Page"
   },

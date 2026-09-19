@@ -80,5 +80,14 @@
     "outerOpen": "เส้นขอบด้านนอกเปิดอยู่ — {{count}} จุด"
   },
   "boxWidthAbbr": "ก",
-  "boxHeightAbbr": "ส"
+  "boxHeightAbbr": "ส",
+  "ocr": {
+    "progress": {
+      "starting": "กำลังจดจำข้อความ...",
+      "page": "กำลังจดจำข้อความในหน้า {{page}}...",
+      "done": "จดจำได้ {{count}} คำ",
+      "doneAll": "จดจำได้ {{count}} คำใน {{pages}} หน้า",
+      "failed": "การจดจำข้อความล้มเหลว"
+    }
+  }
 }

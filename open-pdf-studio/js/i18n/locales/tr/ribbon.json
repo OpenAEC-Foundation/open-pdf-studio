@@ -152,7 +152,9 @@
     "annotationsList": "Açıklama Listesi (F11)",
     "annotationsLabel": "Açıklamalar",
     "appearance": "Görünüm",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Okuyucu Modu",
+    "readerModeTip": "Her PDF'nin sayfasını, kaydırma konumunu ve yakınlaştırmasını kapatıp yeniden açtığınızda hatırlar"
   },
   "organize": {
     "pages": "Sayfalar",
@@ -174,6 +176,7 @@
     "headerFooter": "Üstbilgi/Altbilgi",
     "manageWatermarks": "Filigranları Yönet",
     "manage": "Yönet",
+    "ocr": "Metin Tanıma (OCR)",
     "straighten": "Sayfayı Düzelt",
     "shiftPage": "Sayfayı kaydır"
   },

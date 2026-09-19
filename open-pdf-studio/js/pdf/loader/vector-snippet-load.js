@@ -67,12 +67,12 @@ export function knipselUitExtra(extra, heeft) {
  */
 export async function leesKnipselVelden(annotDict, context) {
   const { PDFName } = await import('pdf-lib');
+  const { decodePdfTextObject } = await import('../saver/pdf-text.js');
+  // Hex (niet-ASCII-label, UTF-16) wordt gedecodeerd; oude literal strings
+  // komen exact terug zoals ze geschreven zijn.
   const tekstVan = (raw) => {
     if (!raw) return null;
-    const v = context.lookup(raw) || raw;
-    if (v && typeof v.value === 'string') return v.value;
-    if (v && typeof v.decodeText === 'function') return v.decodeText();
-    return null;
+    return decodePdfTextObject(context.lookup(raw) || raw) ?? null;
   };
 
   const sleutel = tekstVan(annotDict.get(PDFName.of('OPS_SnippetKey')));

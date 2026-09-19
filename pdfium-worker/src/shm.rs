@@ -4,6 +4,30 @@ use std::fs::OpenOptions;
 
 pub const SHM_SIZE: usize = 64 * 1024 * 1024; // 64 MB per worker
 pub const HEADER_SIZE: usize = 32;
+/// Largest RGBA payload (bytes) that fits in the SHM region after the header.
+pub const PAYLOAD_CAP: usize = SHM_SIZE - HEADER_SIZE;
+
+/// Check BEFORE rendering whether an RGBA bitmap of `width`x`height` px fits
+/// in the SHM region, so an oversized render becomes a clean error instead of
+/// a full rasterisation whose result is thrown away (pdfium-render's
+/// `as_rgba_bytes` copies the buffer twice: ~2.5x the bitmap size in peak
+/// memory, and a failed Rust allocation aborts the worker process).
+/// Computed in u128 so absurd sizes cannot overflow (an overflow would panic
+/// in a debug build). Non-positive sizes count as 0 bytes; PDFium rejects
+/// those itself with a clean error.
+pub fn ensure_bitmap_fits(width: i32, height: i32) -> Result<()> {
+    let bytes = (width.max(0) as u128) * (height.max(0) as u128) * 4;
+    if bytes > PAYLOAD_CAP as u128 {
+        anyhow::bail!(
+            "bitmap too large for SHM: {}x{} px = {} bytes > {} (cap)",
+            width,
+            height,
+            bytes,
+            PAYLOAD_CAP
+        );
+    }
+    Ok(())
+}
 
 pub struct Shm {
     mmap: MmapMut,
@@ -50,11 +74,11 @@ impl Shm {
     /// Write width + height to header, copy rgba into payload starting at
     /// offset HEADER_SIZE. Returns total payload bytes written.
     pub fn write_bitmap(&mut self, width: u32, height: u32, rgba: &[u8]) -> Result<u64> {
-        if rgba.len() + HEADER_SIZE > SHM_SIZE {
+        if rgba.len() > PAYLOAD_CAP {
             anyhow::bail!(
                 "bitmap too large for SHM: {} bytes > {} (cap)",
                 rgba.len(),
-                SHM_SIZE - HEADER_SIZE
+                PAYLOAD_CAP
             );
         }
         self.mmap[0..4].copy_from_slice(&width.to_le_bytes());
@@ -100,5 +124,52 @@ mod tests {
         let huge = vec![0u8; SHM_SIZE];
         let r = shm.write_bitmap(1, 1, &huge);
         assert!(r.is_err());
+    }
+
+    #[test]
+    fn write_accepts_exactly_the_payload_cap() {
+        let mut shm = Shm::create("test", 997).unwrap();
+        assert!(shm.write_bitmap(1, 1, &vec![0u8; PAYLOAD_CAP]).is_ok());
+        assert!(shm.write_bitmap(1, 1, &vec![0u8; PAYLOAD_CAP + 1]).is_err());
+    }
+
+    #[test]
+    fn bitmap_check_matches_payload_cap() {
+        // Largest square that fits: 4095 x 4095 x 4 <= 64 MiB - 32.
+        assert!(ensure_bitmap_fits(4095, 4095).is_ok());
+        // 4096 x 4095 x 4 = 67_092_480 <= 67_108_832: fits.
+        assert!(ensure_bitmap_fits(4096, 4095).is_ok());
+        // 4096 x 4096 x 4 = 67_108_864: exactly the header (32 bytes) too big.
+        let err = ensure_bitmap_fits(4096, 4096).unwrap_err().to_string();
+        assert!(err.contains("too large for SHM"), "{}", err);
+        assert!(err.contains("67108864 bytes > 67108832"), "{}", err);
+    }
+
+    #[test]
+    fn bitmap_check_rejects_a1_at_250_percent() {
+        // A1 (2384 x 1684 pt) at scale 2.5 = 5960 x 4210 px = 100_366_400 bytes.
+        let err = ensure_bitmap_fits(5960, 4210).unwrap_err().to_string();
+        assert!(err.contains("100366400 bytes"), "{}", err);
+    }
+
+    #[test]
+    fn bitmap_check_does_not_overflow_or_panic() {
+        assert!(ensure_bitmap_fits(i32::MAX, i32::MAX).is_err());
+        assert!(ensure_bitmap_fits(i32::MAX, 1).is_err());
+        // Non-positive sizes are left to PDFium (clean error there).
+        assert!(ensure_bitmap_fits(0, 0).is_ok());
+        assert!(ensure_bitmap_fits(-5, i32::MAX).is_ok());
+    }
+
+    #[test]
+    fn bitmap_check_agrees_with_write_bitmap() {
+        // What the pre-check accepts, write_bitmap must accept too (and v.v.).
+        let mut shm = Shm::create("test", 996).unwrap();
+        for (w, h) in [(4096, 4095), (4096, 4096), (2048, 8191), (2048, 8193)] {
+            let pre = ensure_bitmap_fits(w, h).is_ok();
+            let rgba = vec![0u8; (w as usize) * (h as usize) * 4];
+            let write = shm.write_bitmap(w as u32, h as u32, &rgba).is_ok();
+            assert_eq!(pre, write, "{}x{}", w, h);
+        }
     }
 }

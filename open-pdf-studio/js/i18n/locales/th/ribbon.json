@@ -152,7 +152,9 @@
     "annotationsList": "รายการคำอธิบายประกอบ (F11)",
     "annotationsLabel": "คำอธิบายประกอบ",
     "appearance": "ลักษณะ",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "โหมดการอ่าน",
+    "readerModeTip": "จดจำหน้า ตำแหน่งเลื่อน และการซูมของแต่ละ PDF เมื่อปิดและเปิดใหม่"
   },
   "organize": {
     "pages": "หน้า",
@@ -174,6 +176,7 @@
     "headerFooter": "หัวกระดาษ/ท้ายกระดาษ",
     "manageWatermarks": "จัดการลายน้ำ",
     "manage": "จัดการ",
+    "ocr": "การจดจำข้อความ (OCR)",
     "straighten": "จัดหน้าให้ตรง",
     "shiftPage": "เลื่อนหน้า"
   },

@@ -152,7 +152,9 @@
     "annotationsList": "Merkintäluettelo (F11)",
     "annotationsLabel": "Merkinnät",
     "appearance": "Ulkoasu",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Lukutila",
+    "readerModeTip": "Muistaa jokaisen PDF:n sivun, vierityskohdan ja zoomauksen sulkemisen ja uudelleenavaamisen välillä"
   },
   "organize": {
     "pages": "Sivut",
@@ -174,6 +176,7 @@
     "headerFooter": "Ylätunniste/Alatunniste",
     "manageWatermarks": "Hallitse vesileimoja",
     "manage": "Hallitse",
+    "ocr": "Tekstintunnistus (OCR)",
     "straighten": "Suorista Sivu",
     "shiftPage": "Siirrä sivua"
   },

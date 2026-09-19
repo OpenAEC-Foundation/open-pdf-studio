@@ -152,7 +152,9 @@
     "annotationsList": "Annotációk listája (F11)",
     "annotationsLabel": "Annotációk",
     "appearance": "Megjelenés",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Olvasó mód",
+    "readerModeTip": "Megjegyzi minden PDF oldalát, görgetési pozícióját és nagyítását bezárás és újranyitás között"
   },
   "organize": {
     "pages": "Oldalak",
@@ -174,6 +176,7 @@
     "headerFooter": "Élőfej/élőláb",
     "manageWatermarks": "Vízjelek kezelése",
     "manage": "Kezelés",
+    "ocr": "Szövegfelismerés (OCR)",
     "straighten": "Oldal Egyenesítése",
     "shiftPage": "Oldal eltolása"
   },

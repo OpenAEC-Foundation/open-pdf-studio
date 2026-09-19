@@ -2,17 +2,17 @@ import { createSignal, createEffect, onMount } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { getActiveDocument, getPageRotation } from '../../../core/state.js';
+import {
+  PAPIERFORMATEN, startPaginaInstelling, bewaarPaginaInstelling,
+} from '../../../pdf/print-pagina-instelling.js';
+import { viewportOpties } from '../../../pdf/getoonde-pagina.js';
 
-const PAGE_SETUP_SIZES = {
-  a3:      { width: 297, height: 420, label: 'A3' },
-  a4:      { width: 210, height: 297, label: 'A4' },
-  a5:      { width: 148, height: 210, label: 'A5' },
-  letter:  { width: 216, height: 279, label: 'Letter' },
-  legal:   { width: 216, height: 356, label: 'Legal' },
-  tabloid: { width: 279, height: 432, label: 'Tabloid' },
-};
-
+// docId + handmatig: een zelf gekozen oriëntatie/formaat blijft staan zolang
+// je in hetzelfde document werkt (zie print-pagina-instelling.js).
 export let pageSetupSettings = {
+  docId: null,
+  handmatig: false,
   size: 'a4',
   source: 'auto',
   orientation: 'portrait',
@@ -24,6 +24,42 @@ export let pageSetupSettings = {
 
 export function getPageSetupSettings() {
   return { ...pageSetupSettings };
+}
+
+// Telt op bij elke wijziging (OK hier, of stelPaginaInstellingIn), zodat een
+// open printdialoog zijn papierkop bijwerkt. pageSetupSettings zelf is geen
+// signaal; lees dit in een memo/effect en daarna getPageSetupSettings().
+const [versie, setVersie] = createSignal(0);
+export const paginaInstellingVersie = versie;
+
+/**
+ * Formaat en oriëntatie van buitenaf zetten (na OK in de eigenschappen van de
+ * printer, zie instellingNaEigenschappen in print-papier.js). Marges en
+ * papierbron blijven staan. null/undefined → niets.
+ */
+export function stelPaginaInstellingIn(instelling) {
+  if (!instelling) return;
+  pageSetupSettings.docId = instelling.docId ?? null;
+  pageSetupSettings.handmatig = Boolean(instelling.handmatig);
+  if (typeof instelling.size === 'string') pageSetupSettings.size = instelling.size;
+  if (instelling.orientation === 'portrait' || instelling.orientation === 'landscape') {
+    pageSetupSettings.orientation = instelling.orientation;
+  }
+  setVersie((v) => v + 1);
+}
+
+// Maat van de huidige pagina zoals getoond (inclusief draaiing), in pt.
+async function huidigePaginaMaat(doc) {
+  if (!doc?.pdfDoc) return { breedtePt: NaN, hoogtePt: NaN };
+  try {
+    const pageNum = doc.currentPage || 1;
+    const page = await doc.pdfDoc.getPage(pageNum);
+    const extra = getPageRotation(pageNum);
+    const vp = page.getViewport(viewportOpties(page, extra));
+    return { breedtePt: vp.width, hoogtePt: vp.height };
+  } catch {
+    return { breedtePt: NaN, hoogtePt: NaN };
+  }
 }
 
 export default function PageSetupDialog() {
@@ -45,10 +81,10 @@ export default function PageSetupDialog() {
     const ctx = canvasRef.getContext('2d');
     const sizeKey = size();
     const orient = orientation();
-    const sizeData = PAGE_SETUP_SIZES[sizeKey] || PAGE_SETUP_SIZES.a4;
+    const sizeData = PAPIERFORMATEN[sizeKey] || PAPIERFORMATEN.a4;
 
-    let paperW = sizeData.width;
-    let paperH = sizeData.height;
+    let paperW = sizeData.breedte;
+    let paperH = sizeData.hoogte;
     if (orient === 'landscape') [paperW, paperH] = [paperH, paperW];
 
     const mL = parseInt(marginLeft()) || 0;
@@ -101,8 +137,32 @@ export default function PageSetupDialog() {
     }
   }
 
+  // Waarmee de dialoog begon; bepaalt bij OK of de keuze handmatig was.
+  let start = {
+    size: pageSetupSettings.size,
+    orientation: pageSetupSettings.orientation,
+    handmatig: pageSetupSettings.handmatig,
+  };
+  const doc = getActiveDocument();
+  const docId = doc?.id ?? null;
+
+  // De startwaarden worden asynchroon uit de paginamaat afgeleid. Kiest de
+  // gebruiker intussen al formaat of oriëntatie (aangeraakt), dan blijft die
+  // keuze staan; OK wacht op de afleiding zodat 'handmatig' tegen de juiste
+  // start wordt beoordeeld.
+  let aangeraakt = false;
+  let afleiding = Promise.resolve();
+
   onMount(() => {
     updatePreview();
+    afleiding = (async () => {
+      const { breedtePt, hoogtePt } = await huidigePaginaMaat(doc);
+      start = startPaginaInstelling({ bewaard: pageSetupSettings, docId, breedtePt, hoogtePt });
+      if (!aangeraakt) {
+        setSize(start.size);
+        setOrientation(start.orientation);
+      }
+    })();
   });
 
   createEffect(() => {
@@ -118,14 +178,25 @@ export default function PageSetupDialog() {
 
   const close = () => closeDialog('page-setup');
 
-  const applyPageSetup = () => {
-    pageSetupSettings.size = size();
+  const applyPageSetup = async () => {
+    try {
+      await afleiding;
+    } catch {
+      // Afleiding mislukt: OK werkt zoals voorheen met de bewaarde start.
+    }
+    const bewaard = bewaarPaginaInstelling({
+      start, gekozen: { size: size(), orientation: orientation() }, docId,
+    });
+    pageSetupSettings.docId = bewaard.docId;
+    pageSetupSettings.handmatig = bewaard.handmatig;
+    pageSetupSettings.size = bewaard.size;
     pageSetupSettings.source = source();
-    pageSetupSettings.orientation = orientation();
+    pageSetupSettings.orientation = bewaard.orientation;
     pageSetupSettings.marginLeft = parseInt(marginLeft()) || 0;
     pageSetupSettings.marginRight = parseInt(marginRight()) || 0;
     pageSetupSettings.marginTop = parseInt(marginTop()) || 0;
     pageSetupSettings.marginBottom = parseInt(marginBottom()) || 0;
+    setVersie((v) => v + 1);
     close();
   };
 
@@ -160,8 +231,10 @@ export default function PageSetupDialog() {
           <select
             class="page-setup-select"
             value={size()}
-            onChange={(e) => setSize(e.target.value)}
+            onChange={(e) => { aangeraakt = true; setSize(e.target.value); }}
           >
+            <option value="printer">{t('pageSetup.printerDefault')}</option>
+            <option value="a2">A2 (420 x 594 mm)</option>
             <option value="a3">A3 (297 x 420 mm)</option>
             <option value="a4">A4 (210 x 297 mm)</option>
             <option value="a5">A5 (148 x 210 mm)</option>
@@ -193,7 +266,7 @@ export default function PageSetupDialog() {
               name="page-setup-orient"
               value="portrait"
               checked={orientation() === 'portrait'}
-              onChange={() => setOrientation('portrait')}
+              onChange={() => { aangeraakt = true; setOrientation('portrait'); }}
             /> {tCommon('portrait')}
           </label>
           <label class="page-setup-radio-label">
@@ -202,7 +275,7 @@ export default function PageSetupDialog() {
               name="page-setup-orient"
               value="landscape"
               checked={orientation() === 'landscape'}
-              onChange={() => setOrientation('landscape')}
+              onChange={() => { aangeraakt = true; setOrientation('landscape'); }}
             /> {tCommon('landscape')}
           </label>
         </fieldset>

@@ -88,5 +88,14 @@
     "outerOpen": "Buitenrand open · punten: {{count}}"
   },
   "boxWidthAbbr": "B",
-  "boxHeightAbbr": "H"
+  "boxHeightAbbr": "H",
+  "ocr": {
+    "progress": {
+      "starting": "Tekst herkennen...",
+      "page": "Tekst herkennen op pagina {{page}}...",
+      "done": "{{count}} woorden herkend",
+      "doneAll": "{{count}} woorden herkend op {{pages}} pagina's",
+      "failed": "Tekstherkenning mislukt"
+    }
+  }
 }

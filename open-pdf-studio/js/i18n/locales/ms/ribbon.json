@@ -152,7 +152,9 @@
     "annotationsList": "Senarai Anotasi (F11)",
     "annotationsLabel": "Anotasi",
     "appearance": "Penampilan",
-    "keystrokes": "Keystrokes"
+    "keystrokes": "Keystrokes",
+    "readerMode": "Mod Pembaca",
+    "readerModeTip": "Mengingati halaman, kedudukan tatal dan zum setiap PDF apabila ditutup dan dibuka semula"
   },
   "organize": {
     "pages": "Halaman",
@@ -174,6 +176,7 @@
     "headerFooter": "Pengepala/Pengaki",
     "manageWatermarks": "Urus Tera Air",
     "manage": "Urus",
+    "ocr": "Pengecaman Teks (OCR)",
     "straighten": "Luruskan Halaman",
     "shiftPage": "Alih halaman"
   },

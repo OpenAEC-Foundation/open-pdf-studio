@@ -1,6 +1,7 @@
 import { state, getActiveDocument } from '../core/state.js';
 import { OPS } from 'pdfjs-dist';
 import { getPageRotation } from '../core/state.js';
+import { slaSnapExtractieOver } from './snap-extractie-beleid.js';
 
 /**
  * PDF Vector Geometry Snap Extractor
@@ -226,8 +227,26 @@ export function clearPdfVectorCache() {
  * Transforms all coordinates to annotation-space (CSS pixels at scale=1).
  */
 async function extractPageGeometry(pageNum) {
-  const pdfDoc = getActiveDocument()?.pdfDoc;
+  const doc = getActiveDocument();
+  const pdfDoc = doc?.pdfDoc;
   if (!pdfDoc) return { points: [], edges: [] };
+
+  // Rasterblad zonder vectorinhoud (gescande tekening: één grote JPEG)?
+  // Dan niets uitlezen: getOperatorList() zou de hele afbeelding in
+  // JavaScript decoderen (seconden per pagina) voor een lege snap-set.
+  // Zie snap-extractie-beleid.js voor de smalle regel.
+  if (doc.filePath) {
+    const [{ getCachedPageType }, { pageContentBytes }] = await Promise.all([
+      import('../pdf/page-type-cache.js'),
+      import('../pdf/progressive-render.js'),
+    ]);
+    const pageType = getCachedPageType(doc.filePath, pageNum - 1);
+    const contentBytes = pageType === 'tile' ? await pageContentBytes(doc.filePath, pageNum) : 0;
+    if (slaSnapExtractieOver({ pageType, contentBytes })) {
+      console.log(`[snap] p${pageNum}: rasterblad zonder vectorinhoud (${contentBytes} B) → geometrie-extractie overgeslagen`);
+      return { points: [], edges: [] };
+    }
+  }
 
   const page = await pdfDoc.getPage(pageNum);
 

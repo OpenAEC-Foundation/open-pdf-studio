@@ -10,6 +10,8 @@ import { savePDF } from '../../pdf/saver.js';
 import { unlockFile, lockFile, renameFile, fileExists } from '../../core/platform.js';
 import { cancelPendingZoom } from '../setup/navigation-events.js';
 import { closeAllPopups } from '../../bridge.js';
+import { saveReaderPosition } from '../../core/reader-mode.js';
+import { actiefNaSluiten } from '../../pdf/handtekeningen/opslaan.js';
 
 /**
  * Create a new tab for a document
@@ -91,6 +93,7 @@ export function switchToTab(index) {
   // Hide form fields bar and PDF/A bar before rendering (will be re-shown if new doc has them)
   hideFormFieldsBar();
   hidePdfABar();
+  import('../../pdf/handtekeningen/verificatie.js').then(m => m.toonBalkVoorActiefDocument());
 
   // CRITICAL: deactivate the vector viewport singleton BEFORE the new doc's
   // renderPage() runs. Multiple PDFs share #pdf-canvas; the viewport's RAF
@@ -200,14 +203,55 @@ export async function closeTab(index, force = false, dialogAction = null) {
   // `dialogAction` ('save'|'dontsave') slaat de native dialoog over — voor de
   // MCP-brug en tests, die geen OS-dialoog kunnen bedienen maar wél de echte
   // sluitvolgorde (opslaan → opruimen → sluiten) moeten doorlopen.
+  let vorigActief = null;
   if (!force && doc.modified) {
     const action = dialogAction || await showUnsavedChangesDialog(doc.fileName);
     if (action === 'cancel') return false;
     if (action === 'save') {
-      const saved = await savePDF();
-      if (!saved) return false; // Save failed or was cancelled
+      // Opslaan (en de vraag over handtekeningen) werkt op het actieve
+      // document. Sluiten vanaf een achtergrondtabblad wisselt daarom eerst
+      // naar dat tabblad; na het sluiten komt het vorige tabblad terug.
+      if (index !== state.activeDocumentIndex) {
+        vorigActief = state.documents[state.activeDocumentIndex] || null;
+        switchToTab(index);
+      }
+      // Met `dialogAction` (MCP-brug, tests) kan niemand een vraag over
+      // handtekeningen beantwoorden; die keuze is dan al gemaakt.
+      const saved = await savePDF(null, { zonderHandtekeningVraag: !!dialogAction });
+      if (!saved) {
+        // Save failed or was cancelled: terug naar het tabblad van de gebruiker.
+        if (vorigActief) {
+          const terug = state.documents.indexOf(vorigActief);
+          if (terug !== -1) switchToTab(terug);
+        }
+        return false;
+      }
     }
     // action === 'dontsave' → proceed to close without saving
+  }
+
+  // Reader Mode: remember where we were in this file, before anything below
+  // tears down its rendered state. Skipped for untitled/blank docs — there's
+  // no file path to key the memory on, and nothing meaningful to resume.
+  //
+  // The DOM (#pdf-container scroll) and window.__pdfViewport singleton
+  // always reflect the ACTIVE tab, not necessarily `doc` here (closing a
+  // background tab's [x] doesn't switch to it first) — only read them when
+  // this really is the active document, otherwise we'd silently save a
+  // different tab's position under this file's path. In single-page mode
+  // the real zoom lives in the viewport singleton, not doc.scale (which
+  // setZoom() leaves stale there — see setZoom's early-return for vp.active).
+  if (state.preferences.readerMode && doc.filePath && !doc.isUntitled) {
+    const isActiveDoc = state.documents[state.activeDocumentIndex] === doc;
+    const vp = isActiveDoc ? window.__pdfViewport : null;
+    const container = isActiveDoc ? document.getElementById('pdf-container') : null;
+    saveReaderPosition(doc.filePath, {
+      page: doc.currentPage,
+      scale: (vp && vp.active) ? vp.zoom : doc.scale,
+      scrollTop: container ? container.scrollTop : 0,
+      scrollHeight: container ? container.scrollHeight : 0,
+      viewMode: doc.viewMode,
+    });
   }
 
   // Cancel any in-progress background annotation loading for this document.
@@ -256,6 +300,15 @@ export async function closeTab(index, force = false, dialogAction = null) {
   // Remove the document
   state.documents.splice(index, 1);
 
+  // Geef vrij wat dit document in het geheugen vasthield: de PDF.js-instantie,
+  // de ruwe bestandsbytes, vector-commandobuffers, bitmaps en de documentcaches
+  // aan de Rust-kant — alleen als geen ander tabblad hetzelfde bestand nog
+  // gebruikt (document-release.js). Zonder dit bleef na het sluiten van zware
+  // tekeningen gigabytes aan heap staan tot de app afsloot.
+  import('../../pdf/document-release.js')
+    .then(({ geefDocumentVrij }) => geefDocumentVrij(doc, state.documents))
+    .catch((e) => console.warn('[tabs] vrijgeven van document mislukt:', e));
+
   // Een gesloten document gebruikt zijn knipsel-bronnen niet meer; wat nergens
   // anders nodig is, gaat uit het geheugen. Bewust HIER en niet na opslaan: de
   // undo-geschiedenis houdt verwijderde knipsels vast, en een Ctrl+Z na het
@@ -273,6 +326,10 @@ export async function closeTab(index, force = false, dialogAction = null) {
     refreshAllTabs();
     updateWindowTitle();
     import('../../search/find-bar.js').then(m => m.closeFindBar());
+    import('../../pdf/handtekeningen/verificatie.js').then(m => m.toonBalkVoorActiefDocument());
+  } else if (vorigActief) {
+    state.activeDocumentIndex = actiefNaSluiten(state.documents, index, vorigActief);
+    switchToTab(state.activeDocumentIndex);
   } else if (index <= state.activeDocumentIndex) {
     // If closing current or earlier tab, adjust index
     state.activeDocumentIndex = Math.max(0, state.activeDocumentIndex - 1);

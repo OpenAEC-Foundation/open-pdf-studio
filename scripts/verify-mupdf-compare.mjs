@@ -113,7 +113,7 @@ function selectPages(n) {
 }
 
 (async () => {
-  const browser = await playwright.chromium.connectOverCDP('http://localhost:9222');
+  const browser = await playwright.chromium.connectOverCDP('http://127.0.0.1:' + (process.env.CDP_PORT || '9345'));
   const page = browser.contexts()[0].pages()[0];
   const ink = () => page.evaluate(() => {
     const c = document.getElementById('pdf-canvas');
