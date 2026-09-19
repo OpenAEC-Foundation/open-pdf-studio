@@ -154,7 +154,7 @@
     "appearance": "Aspetto",
     "keystrokes": "Keystrokes",
     "readerMode": "Modalità lettura",
-    "readerModeTip": "Ricorda pagina, posizione di scorrimento e zoom di ogni PDF alla chiusura e riapertura",
+    "readerModeTip": "Ricorda pagina, posizione di scorrimento e zoom di questo PDF alla chiusura e riapertura. Finché è attiva, accanto a questo PDF viene conservato un piccolo file, che compare quindi anche nelle cartelle sincronizzate con il cloud (OneDrive, Dropbox, ecc.); disattivandola il file viene rimosso.",
     "readerModeSaveFailed": "La modalità lettura non ha potuto salvare l'impostazione per questo PDF. La cartella potrebbe essere di sola lettura."
   },
   "organize": {

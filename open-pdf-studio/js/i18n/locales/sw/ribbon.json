@@ -154,7 +154,7 @@
     "appearance": "Muonekano",
     "keystrokes": "Keystrokes",
     "readerMode": "Hali ya Kusoma",
-    "readerModeTip": "Inakumbuka ukurasa, nafasi ya kusogeza na kuza kwa kila PDF unapofunga na kufungua tena",
+    "readerModeTip": "Inakumbuka ukurasa, nafasi ya kusogeza na ukuzaji wa PDF hii unapofunga na kufungua tena. Ikiwa imewashwa, faili ndogo huhifadhiwa kando ya PDF hii, kwa hivyo inaonekana pia katika folda zinazosawazishwa na wingu (OneDrive, Dropbox, n.k.); ukiizima, faili hiyo huondolewa.",
     "readerModeSaveFailed": "Hali ya Kusoma haikuweza kuhifadhi mpangilio wake wa PDF hii. Huenda folda ni ya kusoma tu."
   },
   "organize": {

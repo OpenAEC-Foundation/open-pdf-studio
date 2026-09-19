@@ -154,7 +154,7 @@
     "appearance": "Megjelenés",
     "keystrokes": "Keystrokes",
     "readerMode": "Olvasó mód",
-    "readerModeTip": "Megjegyzi minden PDF oldalát, görgetési pozícióját és nagyítását bezárás és újranyitás között",
+    "readerModeTip": "Megjegyzi ennek a PDF-nek az oldalát, görgetési pozícióját és nagyítását bezárás és újranyitás között. Amíg be van kapcsolva, egy kis fájl található a PDF mellett, ezért az a felhővel szinkronizált mappákban (OneDrive, Dropbox stb.) is megjelenik; kikapcsoláskor a fájl törlődik.",
     "readerModeSaveFailed": "Az olvasó mód nem tudta menteni a PDF beállítását. Lehet, hogy a mappa csak olvasható."
   },
   "organize": {

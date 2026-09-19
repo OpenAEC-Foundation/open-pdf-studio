@@ -154,7 +154,7 @@
     "appearance": "外观",
     "keystrokes": "Keystrokes",
     "readerMode": "閱讀模式",
-    "readerModeTip": "在關閉又重新打開時，記住每份 PDF 的頁碼、捲軸位置及縮放比例",
+    "readerModeTip": "在關閉又重新打開時，記住這份 PDF 的頁碼、捲軸位置及縮放比例。開啟期間，會在這份 PDF 旁邊保存一個小檔案，因此它也會出現在雲端同步資料夾（OneDrive、Dropbox 等）中；關閉後該檔案會被移除。",
     "readerModeSaveFailed": "閱讀模式無法儲存這份 PDF 的設定。資料夾可能是唯讀的。"
   },
   "organize": {

@@ -154,7 +154,7 @@
     "appearance": "Utseende",
     "keystrokes": "Keystrokes",
     "readerMode": "Läsläge",
-    "readerModeTip": "Kom ihåg sida, rullningsposition och zoom för varje PDF när den stängs och öppnas igen",
+    "readerModeTip": "Kom ihåg sida, rullningsposition och zoom för den här PDF-filen när den stängs och öppnas igen. Så länge funktionen är på sparas en liten fil bredvid den här PDF-filen, så den syns även i mappar som synkroniseras med molnet (OneDrive, Dropbox osv.); när du stänger av funktionen tas filen bort.",
     "readerModeSaveFailed": "Läsläget kunde inte spara inställningen för den här PDF-filen. Mappen kan vara skrivskyddad."
   },
   "organize": {

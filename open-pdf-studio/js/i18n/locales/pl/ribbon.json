@@ -154,7 +154,7 @@
     "appearance": "Wygląd",
     "keystrokes": "Keystrokes",
     "readerMode": "Tryb czytnika",
-    "readerModeTip": "Zapamiętuje stronę, pozycję przewijania i powiększenie każdego PDF-a przy zamykaniu i ponownym otwieraniu",
+    "readerModeTip": "Zapamiętuje stronę, pozycję przewijania i powiększenie tego PDF-a przy zamykaniu i ponownym otwieraniu. Dopóki funkcja jest włączona, obok tego PDF-a przechowywany jest mały plik, więc pojawia się on także w folderach synchronizowanych z chmurą (OneDrive, Dropbox itp.); wyłączenie funkcji usuwa ten plik.",
     "readerModeSaveFailed": "Tryb czytnika nie mógł zapisać ustawienia dla tego PDF-a. Folder może być tylko do odczytu."
   },
   "organize": {
