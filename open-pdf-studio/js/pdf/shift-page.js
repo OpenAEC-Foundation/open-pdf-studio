@@ -11,19 +11,18 @@ import { recordPageStructure } from "../core/undo-manager.js";
 import { showLoading, hideLoading } from "../ui/chrome/dialogs.js";
 import { cloneAnnotation } from "../annotations/factory.js";
 import { translateAnnotation } from "./resize-pages.js";
-import { resolveTargetPages } from "./shift-page-geometry.js";
+import { MM_TO_POINTS, resolveTargetPages, visualToContentOffset } from "./shift-page-geometry.js";
 import { assertShiftable, shiftPageContent, shiftPageAnnotations } from "./shift-page-content.js";
 import { PDFDocument } from "pdf-lib";
-
-const MM_TO_POINTS = 72 / 25.4;
 
 export { resolveTargetPages };
 
 /**
- * Shift the targeted page(s) by a fixed offset.
- * @param {number} dxMm - horizontal shift in mm; positive = right.
- * @param {number} dyMm - vertical shift in mm; positive = up (PDF/content
- *   space convention — same sign as the page's own Y axis).
+ * Shift the targeted page(s) by a fixed offset, given the way the page is
+ * DISPLAYED (so including its /Rotate and any in-app rotation) — the same
+ * space the dialog preview and the app's annotations live in.
+ * @param {number} dxMm - horizontal shift in mm; positive = right on screen.
+ * @param {number} dyMm - vertical shift in mm; positive = up on screen.
  * @param {'current' | 'all' | 'even' | 'odd'} applyTo
  * @param {number} [fromPage=1] - first page number eligible, for 'all' /
  *   'even' / 'odd' (ignored for 'current').
@@ -33,8 +32,9 @@ export async function shiftPages(dxMm, dyMm, applyTo, fromPage = 1) {
   const doc = getActiveDocument();
   if (!doc?.pdfDoc) return { shifted: 0 };
 
+  // Visual offset in points: x to the right, y DOWN (app space is Y-down).
   const dx = (dxMm || 0) * MM_TO_POINTS;
-  const dy = (dyMm || 0) * MM_TO_POINTS;
+  const dy = -(dyMm || 0) * MM_TO_POINTS;
   if (!(Math.abs(dx) > 0.001 || Math.abs(dy) > 0.001)) return { shifted: 0 };
 
   const cacheKey = getCacheKey();
@@ -63,18 +63,24 @@ export async function shiftPages(dxMm, dyMm, applyTo, fromPage = 1) {
     for (const pageNum of targetPages) {
       const page = pages[pageNum - 1];
       if (!page) continue;
+      // The content lives in the page's own unrotated space: turn the visual
+      // offset through the total displayed rotation (native /Rotate, own or
+      // inherited, plus the in-app rotation) so the content goes where the
+      // preview showed it and where the annotations go.
+      const rotation = page.getRotation().angle + (oldRotations[pageNum] || 0);
+      const { cx, cy } = visualToContentOffset(dx, dy, rotation);
+
       // A page without content (an inserted blank page) has no content to
       // wrap; whatever is annotated on it still moves.
-      const contentMoved = shiftPageContent(pdfDoc, page, dx, dy);
-      // Links, form fields and other annotations stored in the file follow
-      // the content; the app's own annotations follow below.
-      let moved = shiftPageAnnotations(pdfDoc, page, dx, dy, movedFileAnnotations);
+      const contentMoved = shiftPageContent(pdfDoc, page, cx, cy);
+      // Links, form fields and other annotations stored in the file are in
+      // content space as well; the app's own annotations follow below.
+      let moved = shiftPageAnnotations(pdfDoc, page, cx, cy, movedFileAnnotations);
 
-      // App space is Y-down; content/PDF space (dy above) is Y-up, so an
-      // annotation's on-screen offset is (dx, -dy).
+      // The app's annotations are stored in visual space.
       for (const ann of newAnnotations) {
         if (ann.page !== pageNum) continue;
-        translateAnnotation(ann, dx, -dy);
+        translateAnnotation(ann, dx, dy);
         moved++;
       }
       if (contentMoved || moved > 0) shiftedPages.add(pageNum);
