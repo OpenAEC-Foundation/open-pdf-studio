@@ -15,6 +15,7 @@ pub mod mcp_tool_meta;
 pub mod ocr;
 pub mod pdfium_renderer;
 pub mod handtekening;
+pub mod print_formulieren;
 pub mod print_instelling;
 // DEVMODE-hulp en de GDI-printkern: alleen Windows.
 #[cfg(target_os = "windows")]
@@ -856,8 +857,11 @@ exit 1
 }
 
 /// Install a virtual printer named "Open PDF Printer" using the built-in
-/// "Microsoft Print to PDF" driver. Sets the default paper size to A4.
-/// Requires one-time UAC admin elevation.
+/// "Microsoft Print to PDF" driver. Sets the default paper size to A4 and
+/// adds the extra paper sizes (A3L, A2L, A1L; A1 and A0 where missing; see
+/// print_formulieren.rs) to the print server, so other applications can pick
+/// them on printers whose driver accepts user-defined paper sizes. Requires
+/// one-time UAC admin elevation.
 ///
 /// `use_collection` (DEFAULT true — the "catch and merge" behaviour):
 ///   - `true` (default) → routes the output to a fixed file port pointing at
@@ -873,7 +877,12 @@ exit 1
 ///
 /// Backward compatibility: removes the legacy printer name "Open PDF
 /// Studio" if present, so an existing installation cleanly migrates to
-/// the new name on next install.
+/// the new name on next install. Only printers that use the "Microsoft
+/// Print to PDF" driver are ever removed or replaced: a printer of the
+/// user's own that happens to carry one of these names is left alone.
+///
+/// The script text comes from print_formulieren.rs, the same source as the
+/// scripts the installer ships.
 #[tauri::command]
 fn install_virtual_printer(use_collection: Option<bool>) -> Result<bool, String> {
     #[cfg(target_os = "windows")]
@@ -881,76 +890,45 @@ fn install_virtual_printer(use_collection: Option<bool>) -> Result<bool, String>
         // Default to the silent collection port — the user wants prints
         // CAUGHT for merging, never a Save As dialog.
         let use_collection = use_collection.unwrap_or(true);
-        let (port_setup_block, port_arg) = if use_collection {
-            // Pre-create the spool dir + port pointing at it. Windows
-            // file-ports require the port NAME to be the file path itself.
+        let poort = if use_collection {
+            // Pre-create the spool dir. Windows file-ports require the port
+            // NAME to be the file path itself; the script adds the port.
             let local = std::env::var("LOCALAPPDATA")
                 .map_err(|_| "LOCALAPPDATA not set".to_string())?;
             let spool_dir = std::path::Path::new(&local).join("OpenPDFPrinter").join("spool");
-            let spool_file = spool_dir.join("latest.pdf");
             std::fs::create_dir_all(&spool_dir)
                 .map_err(|e| format!("Failed to create spool dir: {}", e))?;
-            let spool_file_str = spool_file.to_string_lossy().to_string();
-            (
-                format!(
-                    r#"$portPath = '{}'
-# Remove any existing port at this path before re-adding (Add-PrinterPort errors if it exists)
-try {{ Remove-PrinterPort -Name $portPath -ErrorAction SilentlyContinue }} catch {{}}
-Add-PrinterPort -Name $portPath
-"#,
-                    spool_file_str.replace('\'', "''")
-                ),
-                format!("'{}'", spool_file_str.replace('\'', "''")),
-            )
+            spool_dir.join("latest.pdf").to_string_lossy().to_string()
         } else {
-            (String::new(), "'PORTPROMPT:'".to_string())
+            print_formulieren::POORT_DIALOOG.to_string()
         };
 
-        let script = format!(r#"$ErrorActionPreference = 'Stop'
-$printerName = 'Open PDF Printer'
-$legacyName = 'Open PDF Studio'
-
-# Remove the LEGACY-named printer if present (migration from older versions)
-try {{ Remove-Printer -Name $legacyName -ErrorAction SilentlyContinue }} catch {{}}
-try {{ Remove-Printer -Name $printerName -ErrorAction SilentlyContinue }} catch {{}}
-
-{}
-Add-Printer -Name $printerName -DriverName 'Microsoft Print to PDF' -PortName {}
-
-# Default paper size = A4 (don't let driver/locale defaults pick C-size).
-try {{ Set-PrintConfiguration -PrinterName $printerName -PaperSize A4 -ErrorAction Stop }} catch {{
-    Write-Host "Note: could not set default paper size to A4 (install still succeeded). $($_.Exception.Message)"
-}}"#, port_setup_block, port_arg);
-
+        // The user asked for this port, so an existing "Open PDF Printer" of
+        // ours is re-created on it (the installer never does that).
+        let script = print_formulieren::script_installeren(&print_formulieren::Installatie {
+            poort,
+            bestaande_vervangen: true,
+        });
         run_elevated_ps_script(&script)?;
         Ok(true)
     }
 
     #[cfg(not(target_os = "windows"))]
     {
+        let _ = use_collection;
         Err("Virtual printer is only supported on Windows".to_string())
     }
 }
 
 /// Remove the "Open PDF Printer" virtual printer (and the legacy
-/// "Open PDF Studio" name if it exists). Requires UAC admin elevation.
+/// "Open PDF Studio" name if it exists), plus the paper sizes this app or
+/// its installer added to the print server. Requires UAC admin elevation.
+/// Printers with another driver and paper sizes added by someone else stay.
 #[tauri::command]
 fn remove_virtual_printer() -> Result<bool, String> {
     #[cfg(target_os = "windows")]
     {
-        let script = r#"$ErrorActionPreference = 'Stop'
-$printerName = 'Open PDF Printer'
-$legacyName = 'Open PDF Studio'
-
-# Remove BOTH the current and legacy names so the UI status reflects
-# "not installed" regardless of which one the user has.
-try { Remove-Printer -Name $printerName -ErrorAction SilentlyContinue } catch {}
-try { Remove-Printer -Name $legacyName -ErrorAction SilentlyContinue } catch {}
-
-# Clean up any leftover local port from older installations
-Get-PrinterPort | Where-Object { $_.Name -like '*OpenPDFStudio*print-capture*' -or $_.Name -like '*OpenPDFPrinter*print-capture*' } | Remove-PrinterPort"#;
-
-        run_elevated_ps_script(script)?;
+        run_elevated_ps_script(&print_formulieren::script_verwijderen())?;
         Ok(true)
     }
 
