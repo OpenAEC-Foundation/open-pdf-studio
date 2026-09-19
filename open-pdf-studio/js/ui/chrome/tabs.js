@@ -11,6 +11,7 @@ import { unlockFile, lockFile, renameFile, fileExists } from '../../core/platfor
 import { cancelPendingZoom } from '../setup/navigation-events.js';
 import { closeAllPopups } from '../../bridge.js';
 import { saveReaderPosition } from '../../core/reader-mode.js';
+import { shouldSaveReaderPosition } from '../../core/reader-position-policy.js';
 import { actiefNaSluiten } from '../../pdf/handtekeningen/opslaan.js';
 
 /**
@@ -241,7 +242,11 @@ export async function closeTab(index, force = false, dialogAction = null) {
   // different tab's position under this file's path. In single-page mode
   // the real zoom lives in the viewport singleton, not doc.scale (which
   // setZoom() leaves stale there — see setZoom's early-return for vp.active).
-  if (state.preferences.readerMode && doc.filePath && !doc.isUntitled) {
+  //
+  // A tab that never loaded, or loaded behind another tab and was never read,
+  // only has the defaults of a fresh document (page 1, default zoom): those
+  // must not replace the position saved earlier — shouldSaveReaderPosition.
+  if (state.preferences.readerMode && shouldSaveReaderPosition(doc)) {
     const isActiveDoc = state.documents[state.activeDocumentIndex] === doc;
     const vp = isActiveDoc ? window.__pdfViewport : null;
     const container = isActiveDoc ? document.getElementById('pdf-container') : null;

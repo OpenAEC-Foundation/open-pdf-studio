@@ -474,9 +474,20 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
               pdfContainer.scrollTop = (saved.scrollTop / saved.scrollHeight) * pdfContainer.scrollHeight;
             }
           }
+          // From here on the position of this tab is the user's own, so
+          // closeTab() may store it (reader-position-policy.js). Not reached
+          // for a background load, and not set when focus moved away before
+          // the saved position could be applied: those tabs still sit on the
+          // defaults, and storing them would wipe the real position.
+          if (!saved || isActive()) doc._readerPositionApplied = true;
         } catch (e) {
           console.warn('[reader-mode] restore failed:', e);
         }
+      } else {
+        // Reader Mode is off (or there is no file): nothing to apply, and the
+        // document is in front - should the user switch Reader Mode on later,
+        // its position counts as theirs.
+        doc._readerPositionApplied = true;
       }
 
       // Check for PDF/A compliance and show info bar if applicable
