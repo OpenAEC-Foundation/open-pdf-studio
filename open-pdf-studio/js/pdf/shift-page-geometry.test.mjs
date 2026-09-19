@@ -2,7 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
-  normalizeRotation, resolveTargetPages, shiftAnnotation, visualToContentOffset,
+  applyOcrShift, normalizeRotation, resolveTargetPages, shiftAnnotation, shiftOcrWords,
+  visualToContentOffset,
 } from "./shift-page-geometry.js";
 
 test("'current' ignores fromPage and returns only the current page", () => {
@@ -88,8 +89,7 @@ function loadApplyMoveGeneric() {
   assert.ok(start > 0 && end > start,
     "transforms.js layout changed: update the markers around applyMoveGeneric in this test");
   const block = source.slice(start, end).replace("export function applyMoveGeneric", "function applyMoveGeneric");
-  return new Function(`${block}
-return applyMoveGeneric;`)();
+  return new Function(`${block}; return applyMoveGeneric;`)();
 }
 
 test("every position-bearing field of an annotation moves with the page", () => {
@@ -161,4 +161,38 @@ test("a zero shift leaves the annotation untouched", () => {
   const ann = { x: 1, y: 2 };
   shiftAnnotation(ann, 0, 0, () => { throw new Error("must not be called"); });
   assert.deepEqual(ann, { x: 1, y: 2 });
+});
+
+// ── Pending OCR results follow the page ──
+
+test("OCR word boxes move by the visual offset and keep their other fields", () => {
+  const words = [{ text: "MARKER", left: 100, top: 200, width: 60, height: 12, confidence: 91 }];
+  const moved = shiftOcrWords(words, 28.35, 14.17);
+  assert.deepEqual(moved, [{ text: "MARKER", left: 128.35, top: 214.17, width: 60, height: 12, confidence: 91 }]);
+  assert.equal(words[0].left, 100, "the input is not mutated");
+});
+
+test("only the OCR results of shifted pages move, and undo puts them back", () => {
+  const ocrResults = {
+    1: [{ text: "a", left: 10, top: 10, width: 5, height: 5 }],
+    2: [{ text: "b", left: 20, top: 20, width: 5, height: 5 }],
+  };
+  const ocrShift = { pages: [2, 3], dx: 28.35, dy: -14.17 }; // page 3 has no OCR result
+  applyOcrShift(ocrResults, ocrShift, 1);
+  assert.deepEqual(ocrResults[1], [{ text: "a", left: 10, top: 10, width: 5, height: 5 }]);
+  assert.ok(Math.abs(ocrResults[2][0].left - 48.35) < 1e-9 && Math.abs(ocrResults[2][0].top - 5.83) < 1e-9);
+  assert.equal(ocrResults[3], undefined);
+
+  // An OCR run made after the shift must survive the undo (offset, not snapshot).
+  ocrResults[1] = [{ text: "new", left: 1, top: 1, width: 5, height: 5 }];
+  applyOcrShift(ocrResults, ocrShift, -1);
+  assert.ok(Math.abs(ocrResults[2][0].left - 20) < 1e-9 && Math.abs(ocrResults[2][0].top - 20) < 1e-9);
+  assert.equal(ocrResults[1][0].text, "new");
+});
+
+test("a command without an OCR shift (insert, delete, reorder) changes nothing", () => {
+  const ocrResults = { 1: [{ text: "a", left: 10, top: 10, width: 5, height: 5 }] };
+  applyOcrShift(ocrResults, undefined, -1);
+  applyOcrShift(undefined, { pages: [1], dx: 1, dy: 1 }, 1);
+  assert.deepEqual(ocrResults[1][0], { text: "a", left: 10, top: 10, width: 5, height: 5 });
 });

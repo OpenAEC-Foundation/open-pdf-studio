@@ -11,7 +11,7 @@ import { recordPageStructure } from "../core/undo-manager.js";
 import { showLoading, hideLoading } from "../ui/chrome/dialogs.js";
 import { cloneAnnotation } from "../annotations/factory.js";
 import { translateAnnotation } from "./resize-pages.js";
-import { MM_TO_POINTS, resolveTargetPages, visualToContentOffset } from "./shift-page-geometry.js";
+import { MM_TO_POINTS, applyOcrShift, resolveTargetPages, visualToContentOffset } from "./shift-page-geometry.js";
 import { assertShiftable, shiftPageContent, shiftPageAnnotations } from "./shift-page-content.js";
 import { PDFDocument } from "pdf-lib";
 
@@ -91,7 +91,13 @@ export async function shiftPages(dxMm, dyMm, applyTo, fromPage = 1) {
     const newRotations = { ...oldRotations };
     const targetPage = doc.currentPage;
 
+    // Pending OCR results (word boxes in the same visual space as the
+    // annotations) are written as the invisible text layer on Save: they
+    // move with the content now, and back again on undo.
+    const ocrShift = { pages: [...shiftedPages], dx, dy };
+
     await reloadFromBytes(newBytes, newAnnotations, newRotations, targetPage);
+    applyOcrShift(doc.ocrResults, ocrShift, 1);
     recordPageStructure(
       currentBytes,
       oldAnnotations,
@@ -100,7 +106,8 @@ export async function shiftPages(dxMm, dyMm, applyTo, fromPage = 1) {
       newBytes,
       newAnnotations,
       newRotations,
-      targetPage
+      targetPage,
+      { ocrShift }
     );
 
     return { shifted: shiftedPages.size };

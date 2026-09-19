@@ -71,3 +71,37 @@ export function shiftAnnotation(ann, dx, dy, moveGeneric) {
     if (typeof ann[ky] === "number") ann[ky] += dy;
   }
 }
+
+/**
+ * OCR word boxes (left/top/width/height in page points, top-left origin —
+ * the same visual space as annotations) moved by a visual offset. Returns a
+ * new array.
+ */
+export function shiftOcrWords(words, dx, dy) {
+  if (!Array.isArray(words)) return words;
+  return words.map((word) => ({
+    ...word,
+    left: typeof word.left === "number" ? word.left + dx : word.left,
+    top: typeof word.top === "number" ? word.top + dy : word.top,
+  }));
+}
+
+/**
+ * Apply (direction 1) or take back (direction -1) a page shift on the
+ * document's pending OCR results. The saver writes those word boxes as the
+ * invisible text layer, so they have to follow the content they describe —
+ * and go back with it on undo. Stored as an offset rather than a snapshot,
+ * so OCR runs made after the shift survive an undo.
+ *
+ * @param {Record<number, object[]>} ocrResults - doc.ocrResults, changed in place
+ * @param {{pages: number[], dx: number, dy: number} | undefined} ocrShift
+ */
+export function applyOcrShift(ocrResults, ocrShift, direction = 1) {
+  if (!ocrResults || !ocrShift || !Array.isArray(ocrShift.pages)) return;
+  for (const pageNum of ocrShift.pages) {
+    const words = ocrResults[pageNum];
+    if (Array.isArray(words) && words.length > 0) {
+      ocrResults[pageNum] = shiftOcrWords(words, ocrShift.dx * direction, ocrShift.dy * direction);
+    }
+  }
+}
