@@ -67,7 +67,8 @@
     "paperLabel": "Kağıt: {{paper}}",
     "paperFallback": "Kağıt: {{paper}} ({{requested}} bu yazıcıda kullanılamıyor)",
     "pageSizeLabel": "Sayfa: {{size}}",
-    "pageClipped": "Sayfa kağıda sığmıyor ve kırpılacak."
+    "pageClipped": "Sayfa kağıda sığmıyor ve kırpılacak.",
+    "pageOutsidePrintable": "Sayfanın bir kısmı yazıcının yazdırılabilir alanının dışında kalıyor."
   },
   "insertPage": {
     "title": "Sayfa Ekle",

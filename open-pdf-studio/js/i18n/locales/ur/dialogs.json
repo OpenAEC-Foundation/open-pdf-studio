@@ -67,7 +67,8 @@
     "paperLabel": "کاغذ: {{paper}}",
     "paperFallback": "کاغذ: {{paper}} ({{requested}} اس پرنٹر پر دستیاب نہیں ہے)",
     "pageSizeLabel": "صفحہ: {{size}}",
-    "pageClipped": "صفحہ کاغذ پر پورا نہیں آتا اور کٹ جائے گا۔"
+    "pageClipped": "صفحہ کاغذ پر پورا نہیں آتا اور کٹ جائے گا۔",
+    "pageOutsidePrintable": "صفحے کا ایک حصہ پرنٹر کے قابلِ طباعت علاقے سے باہر ہے۔"
   },
   "insertPage": {
     "title": "صفحات داخل کریں",

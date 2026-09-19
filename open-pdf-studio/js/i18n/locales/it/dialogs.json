@@ -67,7 +67,8 @@
     "paperLabel": "Carta: {{paper}}",
     "paperFallback": "Carta: {{paper}} ({{requested}} non è disponibile su questa stampante)",
     "pageSizeLabel": "Pagina: {{size}}",
-    "pageClipped": "La pagina non rientra nel foglio e verrà tagliata."
+    "pageClipped": "La pagina non rientra nel foglio e verrà tagliata.",
+    "pageOutsidePrintable": "Una parte della pagina si trova fuori dall'area stampabile della stampante."
   },
   "insertPage": {
     "title": "Inserisci pagine",

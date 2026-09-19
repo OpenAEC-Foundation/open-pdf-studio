@@ -67,7 +67,8 @@
     "paperLabel": "用紙：{{paper}}",
     "paperFallback": "用紙：{{paper}}（{{requested}} はこのプリンターでは使用できません）",
     "pageSizeLabel": "ページ：{{size}}",
-    "pageClipped": "ページが用紙に収まらないため、はみ出た部分は印刷されません。"
+    "pageClipped": "ページが用紙に収まらないため、はみ出た部分は印刷されません。",
+    "pageOutsidePrintable": "ページの一部がプリンターの印刷可能領域の外にあります。"
   },
   "insertPage": {
     "title": "ページの挿入",

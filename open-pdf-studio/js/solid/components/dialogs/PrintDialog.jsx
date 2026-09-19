@@ -64,14 +64,18 @@ export default function PrintDialog(props) {
   const [previewIndex, setPreviewIndex] = createSignal(0);
   // Maat van de getoonde voorbeeldpagina in pt (inclusief draaiing), of null.
   const [paginaMaat, setPaginaMaat] = createSignal(null);
-  // Steekt de voorbeeldpagina buiten het vel (bij de gekozen schaal)?
-  const [afgesneden, setAfgesneden] = createSignal(false);
+  // Steekt de voorbeeldpagina buiten het vel of buiten het bedrukbare gebied
+  // van de printer? '' = niets aan de hand.
+  const [afsnijMelding, setAfsnijMelding] = createSignal('');
   // Alleen de laatst gestarte voorbeeldrender tekent (zie renderPreview).
   let voorbeeldBeurt = 0;
   // Papier per printer en per gevraagd papier (papierVerzoekSleutel) zoals
   // Rust het meldt (printer_papier, of het antwoord uit Eigenschappen).
   // Geen sleutel = nog aan het ophalen, null = onbekend.
   const [printerPapier, setPrinterPapier] = createSignal(new Map());
+  // Het bedrukbare gebied per printer en per gevraagd papier (zelfde sleutel):
+  // marges in mm per oriëntatie, of null als het onbekend is.
+  const [printerMarges, setPrinterMarges] = createSignal(new Map());
   const papierVerzoeken = maakPapierVerzoeken();
   let eigenschappenOpen = false;
 
@@ -160,7 +164,7 @@ export default function PrintDialog(props) {
       canvasRef.style.height = '';
       ctx.clearRect(0, 0, VOORBEELD_BREEDTE, VOORBEELD_HOOGTE);
       setPaginaMaat(null);
-      setAfgesneden(false);
+      setAfsnijMelding('');
       return;
     }
 
@@ -212,13 +216,30 @@ export default function PrintDialog(props) {
         ctx.drawImage(beeld, r.x * pxPerMm, r.y * pxPerMm, r.breedte * pxPerMm, r.hoogte * pxPerMm);
       }
       if (plaatsing.bekend) {
-        // Dunne rand om het vel (één CSS-pixel).
         const lijn = Math.max(1, Math.round(dpr));
+        // Het bedrukbare gebied van de printer: dunne stippellijn.
+        const g = plaatsing.bedrukbaar;
+        const marge = plaatsing.marges;
+        if (marge.links || marge.boven || marge.rechts || marge.onder) {
+          ctx.save();
+          ctx.strokeStyle = '#9a9a9a';
+          ctx.lineWidth = lijn;
+          ctx.setLineDash([3 * lijn, 3 * lijn]);
+          ctx.strokeRect(
+            g.x * pxPerMm + lijn / 2, g.y * pxPerMm + lijn / 2,
+            Math.max(lijn, g.breedte * pxPerMm - lijn), Math.max(lijn, g.hoogte * pxPerMm - lijn),
+          );
+          ctx.restore();
+        }
+        // Dunne rand om het vel (één CSS-pixel).
         ctx.strokeStyle = '#8c8c8c';
         ctx.lineWidth = lijn;
         ctx.strokeRect(lijn / 2, lijn / 2, breedte - lijn, hoogte - lijn);
       }
-      setAfgesneden(plaatsing.bekend && plaatsing.afgesneden);
+      // Buiten het vel weegt zwaarder dan buiten het bedrukbare gebied.
+      setAfsnijMelding(!plaatsing.bekend ? ''
+        : plaatsing.afgesneden ? t('print.pageClipped')
+          : plaatsing.buitenBedrukbaar ? t('print.pageOutsidePrintable') : '');
     } catch (e) {
       console.error('Preview render error:', e);
     }
@@ -304,8 +325,25 @@ export default function PrintDialog(props) {
     }
   }
 
+  // Het bedrukbare gebied van de printer voor dat vel, per oriëntatie
+  // (printer_bedrukbaar). Apart van het papier: de eerste meting op een
+  // slapende netwerkprinter kan tientallen seconden duren (koude driver) en
+  // de kop mag daar niet op wachten. Onbekend (nog onderweg, Linux/macOS, of
+  // een driver die niets meldt) = marge 0, zoals vóór deze meting.
+  async function haalPrinterBedrukbaar(printer, papier) {
+    let marges = null;
+    try {
+      marges = await invoke('printer_bedrukbaar', { printer, papier });
+    } catch (e) {
+      console.warn('printer_bedrukbaar failed:', e);
+    }
+    setPrinterMarges((oud) => new Map(oud).set(papierVerzoekSleutel(printer, papier), marges || null));
+  }
+
   createEffect(on([selectedPrinter, gevraagdPapier], ([printer, papier]) => {
-    if (printer) haalPrinterPapier(printer, papier);
+    if (!printer) return;
+    haalPrinterPapier(printer, papier);
+    if (!printerMarges().has(papierVerzoekSleutel(printer, papier))) haalPrinterBedrukbaar(printer, papier);
   }));
 
   // Windows: de eigenschappen van de driver, modaal; het antwoord komt pas na
@@ -351,6 +389,8 @@ export default function PrintDialog(props) {
     setPrinterPapier((oud) => new Map(
       [...oud].filter(([sleutel]) => !sleutel.startsWith(`${printer}\n`)),
     ).set(papierVerzoekSleutel(printer, 'printer'), info));
+    // Het bedrukbare gebied hoort bij die DEVMODE en wordt opnieuw gemeten.
+    setPrinterMarges((oud) => new Map([...oud].filter(([sleutel]) => !sleutel.startsWith(`${printer}\n`))));
     stelPaginaInstellingIn(instellingNaEigenschappen({
       papierInfo: antwoord,
       docId,
@@ -359,8 +399,9 @@ export default function PrintDialog(props) {
     }));
     // Blijft de Pagina-instelling op een formaat staan, dan opnieuw vragen wat
     // de driver daar met de nieuwe eigenschappen van maakt.
-    if (selectedPrinter() === printer && gevraagdPapier() !== 'printer') {
-      haalPrinterPapier(printer, gevraagdPapier());
+    if (selectedPrinter() === printer) {
+      if (gevraagdPapier() !== 'printer') haalPrinterPapier(printer, gevraagdPapier());
+      haalPrinterBedrukbaar(printer, gevraagdPapier());
     }
   }
 
@@ -501,8 +542,10 @@ export default function PrintDialog(props) {
   // gebruiken dezelfde keuzes.
   const plaatsingKeuzes = createMemo(() => {
     paginaInstellingVersie();
+    const vel = bekendVel(effectief());
+    const marges = printerMarges().get(papierVerzoekSleutel(selectedPrinter(), gevraagdPapier())) || null;
     return {
-      papier: bekendVel(effectief()),
+      papier: vel && { ...vel, bedrukbaar: marges },
       orientatie: printArgumenten({
         autoRotate: autoRotate(),
         paginaInstelling: getPageSetupSettings(),
@@ -782,8 +825,8 @@ export default function PrintDialog(props) {
         <div class="print-preview-container">
           <canvas ref={canvasRef} id="print-preview-canvas" />
         </div>
-        <Show when={afgesneden()}>
-          <div class="print-preview-warning">{t('print.pageClipped')}</div>
+        <Show when={afsnijMelding()}>
+          <div class="print-preview-warning">{afsnijMelding()}</div>
         </Show>
         <div class="print-preview-footer">
           <span>

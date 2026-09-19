@@ -67,7 +67,8 @@
     "paperLabel": "Giấy: {{paper}}",
     "paperFallback": "Giấy: {{paper}} ({{requested}} không khả dụng trên máy in này)",
     "pageSizeLabel": "Trang: {{size}}",
-    "pageClipped": "Trang không vừa với giấy và sẽ bị cắt bớt."
+    "pageClipped": "Trang không vừa với giấy và sẽ bị cắt bớt.",
+    "pageOutsidePrintable": "Một phần của trang nằm ngoài vùng in được của máy in."
   },
   "insertPage": {
     "title": "Chèn Trang",

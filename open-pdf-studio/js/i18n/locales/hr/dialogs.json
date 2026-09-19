@@ -67,7 +67,8 @@
     "paperLabel": "Papir: {{paper}}",
     "paperFallback": "Papir: {{paper}} ({{requested}} nije dostupan na ovom pisaču)",
     "pageSizeLabel": "Stranica: {{size}}",
-    "pageClipped": "Stranica ne stane na papir i bit će odrezana."
+    "pageClipped": "Stranica ne stane na papir i bit će odrezana.",
+    "pageOutsidePrintable": "Dio stranice nalazi se izvan područja pisača koje se može ispisati."
   },
   "insertPage": {
     "title": "Umetni stranice",

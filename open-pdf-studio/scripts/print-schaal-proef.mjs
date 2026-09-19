@@ -49,7 +49,17 @@ function a2MetBinnenrand(bMm, hMm) {
 const A4 = { breedteMm: 210, hoogteMm: 297, inhoud: randPagina };
 const A4_LIGGEND = { breedteMm: 297, hoogteMm: 210, inhoud: randPagina };
 const A2 = { breedteMm: 420, hoogteMm: 594, inhoud: a2MetBinnenrand };
-const A3 = { breedteMm: PAPIERFORMATEN.a3.breedte, hoogteMm: PAPIERFORMATEN.a3.hoogte };
+const A3 = { breedteMm: PAPIERFORMATEN.a3.breedte, hoogteMm: PAPIERFORMATEN.a3.hoogte, papier: 'a3' };
+// A4-papier met een onbedrukbare rand van 3 mm rondom: precies wat
+// printer_bedrukbaar op de inkjet en op de netwerkprinter van deze machine
+// meldt (zie print_windows::proef::bedrukbaar_gebied_zonder_opdracht).
+const rand = (mm) => ({ links: mm, boven: mm, rechts: mm, onder: mm });
+const A4_RAND3 = {
+  breedteMm: PAPIERFORMATEN.a4.breedte,
+  hoogteMm: PAPIERFORMATEN.a4.hoogte,
+  bedrukbaar: { staand: rand(3), liggend: rand(3) },
+  papier: 'a4',
+};
 
 // naam, bronpagina, vel (null = onbekend papier: het oude gedrag), schaal, zoom, centreren
 const GEVALLEN = [
@@ -61,6 +71,11 @@ const GEVALLEN = [
   ['a4-liggend-a3-werkelijk', A4_LIGGEND, A3, 'actual', 100, true],
   ['a2-a3-werkelijk-afgesneden', A2, A3, 'actual', 100, true],
   ['a4-onbekend-papier', A4, null, 'custom-scale', 10, true],
+  // Met een onbedrukbare rand: passend blijft binnen het gebied, ware grootte
+  // blijft 1:1 op het vel.
+  ['a4-rand3-passend', A4, A4_RAND3, 'fit', 100, true],
+  ['a4-rand3-passend-linksboven', A4, A4_RAND3, 'fit', 100, false],
+  ['a4-rand3-werkelijk', A4, A4_RAND3, 'actual', 100, true],
 ];
 
 /** Het paginabeeld van `deel` (hele pixels van de pagina op pxPerPt), als JPEG. */
@@ -98,14 +113,15 @@ for (const [naam, pagina, vel, schaling, zoom, centreren] of GEVALLEN) {
   voegPrintPaginaToe(pdf, plaatsing, deel, await pdf.embedJpg(await paginaBeeld(pagina, pxPerPt, deel.px)));
   const bron = `bron-${naam}.pdf`;
   writeFileSync(join(map, bron), await pdf.save());
-  // Papier voor print_pdf: A3 (bij onbekend papier legt de printer het vel vast).
-  lijst.push({ naam, bron, plaatsing: plaatsing.bekend ? 'vel' : 'passend', papier: 'a3' });
+  // Papier voor print_pdf; bij onbekend papier legt de printer het vel vast.
+  lijst.push({ naam, bron, plaatsing: plaatsing.bekend ? 'vel' : 'passend', papier: vel?.papier ?? 'a3' });
   const r = plaatsing.pagina;
   console.log(
     `${naam.padEnd(28)} vel ${plaatsing.vel.breedteMm} x ${plaatsing.vel.hoogteMm} mm, pagina op`
     + ` (${r.x.toFixed(2)}; ${r.y.toFixed(2)}) ${r.breedte.toFixed(2)} x ${r.hoogte.toFixed(2)} mm,`
     + ` schaal ${plaatsing.schaal.toFixed(4)}, beeld ${deel.px.breedte} x ${deel.px.hoogte} px`
-    + `${plaatsing.afgesneden ? ', afgesneden' : ''}`,
+    + `${plaatsing.afgesneden ? ', afgesneden' : ''}`
+    + `${!plaatsing.afgesneden && plaatsing.buitenBedrukbaar ? ', buiten het bedrukbare gebied' : ''}`,
   );
 }
 writeFileSync(join(map, 'proef.json'), JSON.stringify(lijst, null, 2));

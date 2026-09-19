@@ -67,7 +67,8 @@
     "paperLabel": "Papier: {{paper}}",
     "paperFallback": "Papier: {{paper}} ({{requested}} nie jest dostępny na tej drukarce)",
     "pageSizeLabel": "Strona: {{size}}",
-    "pageClipped": "Strona nie mieści się na papierze i zostanie przycięta."
+    "pageClipped": "Strona nie mieści się na papierze i zostanie przycięta.",
+    "pageOutsidePrintable": "Część strony znajduje się poza obszarem drukowania drukarki."
   },
   "insertPage": {
     "title": "Wstaw strony",

@@ -11,6 +11,13 @@
 // Rechthoeken op het vel in mm vanaf de linkerbovenhoek van het vel zoals het
 // uit de printer komt; rechthoeken op de pagina in pt vanaf de linkerbovenhoek
 // van de pagina.
+//
+// Bijna elke printer heeft een onbedrukbare rand. Die meldt Rust per
+// oriëntatie (printer_bedrukbaar); "Passend" en "Verkleinen" blijven binnen
+// dat gebied, zodat er niet bij elke afdruk een rand wegvalt. "Werkelijke
+// grootte" en "Aangepaste schaal" blijven 1:1 op het vel — een tekening op
+// schaal moet op papier op schaal blijven — en melden het als de pagina
+// daardoor buiten het bedrukbare gebied valt.
 
 import { paginaOrientatie } from './print-pagina-instelling.js';
 
@@ -53,7 +60,7 @@ export function velOrientatie(orientatie, breedtePt, hoogtePt) {
 
 /**
  * Schaalfactor pagina → vel.
- * - 'fit': passend in het vel, vergroten mag;
+ * - 'fit': passend, waarbij `passend` het bedrukbare gebied volgt (vergroten mag);
  * - 'actual': ware grootte (1);
  * - 'shrink': alleen verkleinen als de pagina niet past;
  * - 'custom-scale': Paginazoom ten opzichte van ware grootte.
@@ -66,6 +73,25 @@ export function schaalFactor(schaling, zoom, passend) {
     case 'custom-scale': return geldigeZoom(zoom) / 100;
     default: return passend;
   }
+}
+
+/** Geen onbedrukbare rand bekend: het hele vel is bedrukbaar. */
+export const GEEN_MARGES = Object.freeze({ links: 0, boven: 0, rechts: 0, onder: 0 });
+
+/**
+ * De onbedrukbare rand (mm) voor het vel in deze oriëntatie, uit het antwoord
+ * van printer_bedrukbaar. Onbekende, negatieve of onmogelijke marges (samen
+ * groter dan het vel, of zo scheef dat er gecentreerd niets overblijft)
+ * tellen als geen rand: dan blijft het gedrag van vóór deze meting.
+ */
+export function margesVoor(bedrukbaar, orientatie, velB, velH) {
+  const m = bedrukbaar && bedrukbaar[orientatie === 'landscape' ? 'liggend' : 'staand'];
+  if (!m || typeof m !== 'object') return GEEN_MARGES;
+  const { links, boven, rechts, onder } = m;
+  const getal = (v) => typeof v === 'number' && Number.isFinite(v) && v >= 0;
+  if (![links, boven, rechts, onder].every(getal)) return GEEN_MARGES;
+  if (velB - 2 * Math.max(links, rechts) <= 0 || velH - 2 * Math.max(boven, onder) <= 0) return GEEN_MARGES;
+  return { links, boven, rechts, onder };
 }
 
 function snijding(a, b) {
@@ -96,11 +122,15 @@ function snijding(a, b) {
  *   zichtbaar: {x:number, y:number, breedte:number, hoogte:number}|null,
  *   bron: {x:number, y:number, breedte:number, hoogte:number}|null,
  *   schaal: number,
- *   afgesneden: boolean }}
+ *   marges: {links:number, boven:number, rechts:number, onder:number},
+ *   bedrukbaar: {x:number, y:number, breedte:number, hoogte:number},
+ *   afgesneden: boolean, buitenBedrukbaar: boolean }}
  *   pagina = de hele pagina op het vel (mm, mag buiten het vel steken);
  *   zichtbaar = het deel daarvan dat op het vel valt (mm);
  *   bron = datzelfde deel in paginacoördinaten (pt);
- *   schaal = mm op het vel per mm op de pagina (1 = ware grootte).
+ *   schaal = mm op het vel per mm op de pagina (1 = ware grootte);
+ *   bedrukbaar = het bedrukbare gebied op het vel (marges van de printer);
+ *   afgesneden = steekt buiten het vel, buitenBedrukbaar = buiten dat gebied.
  *   null als de paginamaat onbruikbaar is.
  */
 export function berekenPlaatsing({
@@ -121,7 +151,10 @@ export function berekenPlaatsing({
       zichtbaar: { ...heel },
       bron: { x: 0, y: 0, breedte: pagina.breedtePt, hoogte: pagina.hoogtePt },
       schaal: 1,
+      marges: GEEN_MARGES,
+      bedrukbaar: { ...heel },
       afgesneden: false,
+      buitenBedrukbaar: false,
     };
   }
 
@@ -131,12 +164,33 @@ export function berekenPlaatsing({
   const velB = or === 'landscape' ? lang : kort;
   const velH = or === 'landscape' ? kort : lang;
 
-  const passend = Math.min(velB / pagB, velH / pagH);
+  // Het bedrukbare gebied van de printer (printer_bedrukbaar); onbekend = het
+  // hele vel, zoals vóór deze meting.
+  const marges = margesVoor(papier.bedrukbaar, or, velB, velH);
+  const gebied = {
+    x: marges.links,
+    y: marges.boven,
+    breedte: velB - marges.links - marges.rechts,
+    hoogte: velH - marges.boven - marges.onder,
+  };
+  // Passend en verkleinen blijven binnen het bedrukbare gebied. Gecentreerd op
+  // het vel moet de pagina aan béide kanten binnen dat gebied blijven, dus
+  // telt per as de grootste marge; anders staat ze op de hoek van het gebied.
+  const vak = centreren
+    ? {
+      breedte: velB - 2 * Math.max(marges.links, marges.rechts),
+      hoogte: velH - 2 * Math.max(marges.boven, marges.onder),
+    }
+    : { breedte: gebied.breedte, hoogte: gebied.hoogte };
+  const passend = Math.min(vak.breedte / pagB, vak.hoogte / pagH);
   const schaal = schaalFactor(schaling, zoom, passend);
+  // Ware grootte en aangepaste schaal blijven 1:1 op het vel: een pagina op
+  // schaal moet op papier op schaal blijven.
+  const binnenGebied = schaling !== 'actual' && schaling !== 'custom-scale';
   const b = pagB * schaal;
   const h = pagH * schaal;
-  const x = centreren ? (velB - b) / 2 : 0;
-  const y = centreren ? (velH - h) / 2 : 0;
+  const x = centreren ? (velB - b) / 2 : (binnenGebied ? gebied.x : 0);
+  const y = centreren ? (velH - h) / 2 : (binnenGebied ? gebied.y : 0);
   const op = { x, y, breedte: b, hoogte: h };
   const zichtbaar = snijding(op, { x: 0, y: 0, breedte: velB, hoogte: velH });
   const bron = zichtbaar && {
@@ -145,8 +199,9 @@ export function berekenPlaatsing({
     breedte: (zichtbaar.breedte / schaal) * PT_PER_MM,
     hoogte: (zichtbaar.hoogte / schaal) * PT_PER_MM,
   };
-  const afgesneden = x < -AFSNIJ_SPELING_MM || y < -AFSNIJ_SPELING_MM
-    || x + b > velB + AFSNIJ_SPELING_MM || y + h > velH + AFSNIJ_SPELING_MM;
+  const buiten = (vak_) => x < vak_.x - AFSNIJ_SPELING_MM || y < vak_.y - AFSNIJ_SPELING_MM
+    || x + b > vak_.x + vak_.breedte + AFSNIJ_SPELING_MM
+    || y + h > vak_.y + vak_.hoogte + AFSNIJ_SPELING_MM;
 
   return {
     bekend: true,
@@ -156,7 +211,10 @@ export function berekenPlaatsing({
     zichtbaar,
     bron,
     schaal,
-    afgesneden,
+    marges,
+    bedrukbaar: gebied,
+    afgesneden: buiten({ x: 0, y: 0, breedte: velB, hoogte: velH }),
+    buitenBedrukbaar: buiten(gebied),
   };
 }
 

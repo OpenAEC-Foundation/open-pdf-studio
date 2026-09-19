@@ -28,7 +28,7 @@ use std::sync::Arc;
 
 use pdfium_render::prelude::PdfDocument;
 use windows_sys::Win32::Graphics::Gdi::{
-    CreateDCW, DeleteDC, GetDeviceCaps, ResetDCW, SetStretchBltMode, StretchDIBits, BITMAPINFO,
+    CreateDCW, CreateICW, DeleteDC, GetDeviceCaps, ResetDCW, SetStretchBltMode, StretchDIBits, BITMAPINFO,
     BITMAPINFOHEADER, BI_RGB, DEVMODEW, DIB_RGB_COLORS, DMORIENT_LANDSCAPE, DMORIENT_PORTRAIT,
     DM_ORIENTATION, DM_PAPERSIZE, HALFTONE, HDC, HORZRES, LOGPIXELSX, LOGPIXELSY, PHYSICALHEIGHT,
     PHYSICALOFFSETX, PHYSICALOFFSETY, PHYSICALWIDTH, SRCCOPY, VERTRES,
@@ -40,8 +40,8 @@ use crate::pdfium_renderer;
 use crate::print_devmode::{breed, devmode_voor_opdracht, met_orientatie, DevMode, Printer};
 use crate::print_instelling::{dmpaper, liggend_voor_pagina, papier_uit_maat_mm, Orientatie, Papier};
 use crate::print_plaatsing::{
-    deel_op_vel, fijnste_afbeelding_dpi, inhoud_deel, passend_in_bedrukbaar, render_dpi, DcRechthoek, DcVel,
-    PaginaDeel, Plaatsing,
+    deel_op_vel, fijnste_afbeelding_dpi, inhoud_deel, marges_uit_dc, passend_in_bedrukbaar, render_dpi, Bedrukbaar,
+    DcRechthoek, DcVel, PaginaDeel, Plaatsing,
 };
 
 /// Printer-DC die bij het verlaten van de scope altijd weer vrijkomt.
@@ -123,6 +123,31 @@ fn dc_vel(hdc: HDC) -> DcVel {
         offset: (cap(PHYSICALOFFSETX), cap(PHYSICALOFFSETY)),
         dpi: (cap(LOGPIXELSX), cap(LOGPIXELSY)),
     }
+}
+
+/// Het bedrukbare gebied van de volgende opdracht, per oriëntatie.
+///
+/// Gemeten op een informatiecontext met precies de DEVMODE die de afdruk
+/// krijgt (`OpdrachtDevmodes`): de eigenschappen uit deze sessie of de
+/// standaard van de driver, met het papier uit de Pagina-instelling. Er start
+/// geen opdracht, er gaat niets naar de printer en er verandert niets.
+/// `None` als de driver geen DEVMODE of geen bruikbare maten geeft; dan
+/// rekent de printdialoog met marge 0, zoals vóór deze meting.
+pub fn bedrukbaar_voor_opdracht(printer: &str, opgeslagen: Option<&[u8]>, papier: Papier) -> Option<Bedrukbaar> {
+    let devmodes = OpdrachtDevmodes::maak(printer, opgeslagen, papier)
+        .map_err(|e| log::warn!("[print] bedrukbaar gebied van '{printer}' onbekend: {e}"))
+        .ok()?;
+    let naam = breed(printer);
+    let meet = |liggend: bool| {
+        let ic = unsafe { CreateICW(std::ptr::null(), naam.as_ptr(), std::ptr::null(), devmodes.voor(liggend).ptr()) };
+        if ic.is_null() {
+            return None;
+        }
+        let vel = dc_vel(ic);
+        unsafe { DeleteDC(ic) };
+        marges_uit_dc(&vel)
+    };
+    Some(Bedrukbaar { staand: meet(false)?, liggend: meet(true)? })
 }
 
 /// Een gerenderde pagina (breedte, hoogte, RGBA) en waar hij op de DC komt.
@@ -403,6 +428,8 @@ fn print_met_devmodes(
 #[cfg(test)]
 mod proef {
     use super::*;
+    use crate::print_devmode;
+    use crate::print_plaatsing::Marges;
     use crate::print_devmode::{eigenschappen_kiezen, huidig_papier, papier_info, papierlijst};
     use crate::print_instelling::dmpaper;
     use std::path::PathBuf;
@@ -727,6 +754,64 @@ mod proef {
         println!("\n{gemeten} pdf-printer(s) van de app gemeten");
         assert!(gemeten > 0, "geen van {PDF_PRINTERS:?} met driver '{PROEF_DRIVER}' gevonden");
         assert!(fouten.is_empty(), "afwijkende vellen:\n{}", fouten.join("\n"));
+    }
+
+    /// (g) Het bedrukbare gebied van elke geïnstalleerde printer, per vel en
+    /// per oriëntatie, ZONDER opdracht: alleen `DocumentProperties` zonder
+    /// venster en informatiecontexten (`CreateIC` + `GetDeviceCaps`). Er gaat
+    /// niets naar een printer. Toont ook hoe lang het meten duurt, want de
+    /// printdialoog vraagt het bij elke printer- en papierwissel.
+    #[test]
+    #[ignore]
+    fn bedrukbaar_gebied_zonder_opdracht() {
+        let vellen = [Papier::Printer, Papier::A4, Papier::A3, Papier::A1];
+        let mut gemeten = 0;
+        for printer in alle_printers() {
+            println!("
+=== {printer}  (driver: {})", drivernaam(&printer).unwrap_or_default());
+            for papier in vellen {
+                let t = std::time::Instant::now();
+                let vel = print_devmode::papier_voor_opdracht(&printer, None, papier);
+                let ms_vel = t.elapsed().as_millis();
+                let t = std::time::Instant::now();
+                let marges = bedrukbaar_voor_opdracht(&printer, None, papier);
+                let ms = t.elapsed().as_millis();
+                let beschrijf = |m: Option<&Marges>| match m {
+                    Some(m) => format!(
+                        "links {:5.1}  boven {:5.1}  rechts {:5.1}  onder {:5.1}",
+                        m.links, m.boven, m.rechts, m.onder
+                    ),
+                    None => "onbekend".to_string(),
+                };
+                println!(
+                    "  {:8} vel {:>21}  staand : {}  (vel {ms_vel} ms, gebied {ms} ms)",
+                    papier.sleutel(),
+                    vel.as_ref().map_or("-".to_string(), |v| format!("{:.1} x {:.1} mm", v.breedte_mm, v.hoogte_mm)),
+                    beschrijf(marges.as_ref().map(|b| &b.staand)),
+                );
+                println!("  {:8} {:25}  liggend: {}", "", "", beschrijf(marges.as_ref().map(|b| &b.liggend)));
+                if let (Some(vel), Some(b)) = (vel.as_ref(), marges.as_ref()) {
+                    gemeten += 1;
+                    // Het bedrukbare gebied ligt binnen het vel, in beide oriëntaties.
+                    for (naam, m, (breedte, hoogte)) in [
+                        ("staand", b.staand, (vel.breedte_mm, vel.hoogte_mm)),
+                        ("liggend", b.liggend, (vel.hoogte_mm, vel.breedte_mm)),
+                    ] {
+                        assert!(
+                            m.links >= 0.0 && m.boven >= 0.0 && m.rechts >= 0.0 && m.onder >= 0.0,
+                            "{printer} {} {naam}: negatieve marge {m:?}",
+                            papier.sleutel()
+                        );
+                        assert!(
+                            m.links + m.rechts < breedte && m.boven + m.onder < hoogte,
+                            "{printer} {} {naam}: marges groter dan het vel {m:?}",
+                            papier.sleutel()
+                        );
+                    }
+                }
+            }
+        }
+        assert!(gemeten > 0, "geen enkele printer gaf een bedrukbaar gebied");
     }
 
     // ---- (b) eind-tot-eind naar een PDF-bestand ----

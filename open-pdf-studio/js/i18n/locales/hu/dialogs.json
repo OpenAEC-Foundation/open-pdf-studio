@@ -67,7 +67,8 @@
     "paperLabel": "Papír: {{paper}}",
     "paperFallback": "Papír: {{paper}} ({{requested}} nem érhető el ezen a nyomtatón)",
     "pageSizeLabel": "Oldal: {{size}}",
-    "pageClipped": "Az oldal nem fér rá a papírra, ezért le lesz vágva."
+    "pageClipped": "Az oldal nem fér rá a papírra, ezért le lesz vágva.",
+    "pageOutsidePrintable": "Az oldal egy része a nyomtató nyomtatható területén kívülre esik."
   },
   "insertPage": {
     "title": "Oldalak beszúrása",

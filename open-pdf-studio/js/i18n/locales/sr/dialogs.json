@@ -67,7 +67,8 @@
     "paperLabel": "Папир: {{paper}}",
     "paperFallback": "Папир: {{paper}} ({{requested}} није доступан на овом штампачу)",
     "pageSizeLabel": "Страница: {{size}}",
-    "pageClipped": "Страница не стаје на папир и биће одсечена."
+    "pageClipped": "Страница не стаје на папир и биће одсечена.",
+    "pageOutsidePrintable": "Део странице је изван области штампе штампача."
   },
   "insertPage": {
     "title": "Уметање страница",

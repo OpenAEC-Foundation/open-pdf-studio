@@ -67,7 +67,8 @@
     "paperLabel": "נייר: {{paper}}",
     "paperFallback": "נייר: {{paper}} ({{requested}} אינו זמין במדפסת זו)",
     "pageSizeLabel": "עמוד: {{size}}",
-    "pageClipped": "הדף אינו נכנס בנייר ויחתך."
+    "pageClipped": "הדף אינו נכנס בנייר ויחתך.",
+    "pageOutsidePrintable": "חלק מהדף נמצא מחוץ לאזור ההדפסה של המדפסת."
   },
   "insertPage": {
     "title": "הוספת עמודים",

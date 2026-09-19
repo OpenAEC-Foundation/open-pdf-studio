@@ -67,7 +67,8 @@
     "paperLabel": "Papir: {{paper}}",
     "paperFallback": "Papir: {{paper}} ({{requested}} er ikke tilgængelig på denne printer)",
     "pageSizeLabel": "Side: {{size}}",
-    "pageClipped": "Siden passer ikke på papiret og bliver beskåret."
+    "pageClipped": "Siden passer ikke på papiret og bliver beskåret.",
+    "pageOutsidePrintable": "En del af siden ligger uden for printerens udskrivbare område."
   },
   "insertPage": {
     "title": "Indsæt sider",

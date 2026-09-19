@@ -67,7 +67,8 @@
     "paperLabel": "Kertas: {{paper}}",
     "paperFallback": "Kertas: {{paper}} ({{requested}} tidak tersedia di printer ini)",
     "pageSizeLabel": "Halaman: {{size}}",
-    "pageClipped": "Halaman tidak muat di kertas dan akan terpotong."
+    "pageClipped": "Halaman tidak muat di kertas dan akan terpotong.",
+    "pageOutsidePrintable": "Sebagian halaman berada di luar area cetak printer."
   },
   "insertPage": {
     "title": "Sisipkan Halaman",

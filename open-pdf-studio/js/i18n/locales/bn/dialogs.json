@@ -67,7 +67,8 @@
     "paperLabel": "কাগজ: {{paper}}",
     "paperFallback": "কাগজ: {{paper}} (এই প্রিন্টারে {{requested}} উপলব্ধ নয়)",
     "pageSizeLabel": "পৃষ্ঠা: {{size}}",
-    "pageClipped": "পৃষ্ঠাটি কাগজে আঁটে না এবং কেটে যাবে।"
+    "pageClipped": "পৃষ্ঠাটি কাগজে আঁটে না এবং কেটে যাবে।",
+    "pageOutsidePrintable": "পৃষ্ঠার একটি অংশ প্রিন্টারের মুদ্রণযোগ্য এলাকার বাইরে পড়ে।"
   },
   "insertPage": {
     "title": "পৃষ্ঠা সন্নিবেশ",

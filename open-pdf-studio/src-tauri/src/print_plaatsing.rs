@@ -82,6 +82,52 @@ pub struct PdfRechthoek {
     pub boven: f64,
 }
 
+/// Onbedrukbare rand van een vel in mm, zoals het vel uit de printer komt.
+/// De veldnamen gaan zo naar de JS-kant (print-papier.js).
+#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize)]
+pub struct Marges {
+    pub links: f64,
+    pub boven: f64,
+    pub rechts: f64,
+    pub onder: f64,
+}
+
+/// Het bedrukbare gebied van een printer voor één vel, per oriëntatie: de
+/// randen verschillen per kant (invoerrand) en draaien met het vel mee.
+#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize)]
+pub struct Bedrukbaar {
+    pub staand: Marges,
+    pub liggend: Marges,
+}
+
+/// De onbedrukbare rand die een DC of informatiecontext meldt, in mm op
+/// 0,1 mm nauwkeurig. `None` als de maten onbruikbaar zijn: een driver zonder
+/// fysiek vel of resolutie, of een bedrukbaar gebied dat buiten het vel valt.
+pub fn marges_uit_dc(vel: &DcVel) -> Option<Marges> {
+    let (dpi_x, dpi_y) = (vel.dpi.0, vel.dpi.1);
+    if dpi_x <= 0
+        || dpi_y <= 0
+        || vel.fysiek.0 <= 0
+        || vel.fysiek.1 <= 0
+        || vel.bedrukbaar.0 <= 0
+        || vel.bedrukbaar.1 <= 0
+    {
+        return None;
+    }
+    let rechts = vel.fysiek.0 - vel.offset.0 - vel.bedrukbaar.0;
+    let onder = vel.fysiek.1 - vel.offset.1 - vel.bedrukbaar.1;
+    if vel.offset.0 < 0 || vel.offset.1 < 0 || rechts < 0 || onder < 0 {
+        return None;
+    }
+    let mm = |px: i32, dpi: i32| (px as f64 * 25.4 / dpi as f64 * 10.0).round() / 10.0;
+    Some(Marges {
+        links: mm(vel.offset.0, dpi_x),
+        boven: mm(vel.offset.1, dpi_y),
+        rechts: mm(rechts, dpi_x),
+        onder: mm(onder, dpi_y),
+    })
+}
+
 /// Het oude gedrag: een bitmap van `bitmap` pixels passend in het bedrukbare
 /// gebied, verhouding behouden, gecentreerd.
 pub fn passend_in_bedrukbaar(bitmap: (u32, u32), bedrukbaar: (i32, i32)) -> DcRechthoek {
@@ -306,6 +352,52 @@ mod tests {
         let deel = PaginaDeel { x: 100.0, y: 100.0, breedte: 0.01, hoogte: 0.01 };
         let r = deel_op_vel(a4(), deel, &laser_a4());
         assert!(r.breedte >= 1 && r.hoogte >= 1);
+    }
+
+    #[test]
+    fn marges_van_een_driver_zonder_rand_zijn_nul() {
+        assert_eq!(
+            marges_uit_dc(&pdf_driver_a3()),
+            Some(Marges { links: 0.0, boven: 0.0, rechts: 0.0, onder: 0.0 })
+        );
+    }
+
+    #[test]
+    fn marges_van_een_laserprinter_in_millimeters() {
+        // 100 px op 600 dpi = 4,2 mm rondom.
+        let m = marges_uit_dc(&laser_a4()).unwrap();
+        assert_eq!(m, Marges { links: 4.2, boven: 4.2, rechts: 4.2, onder: 4.2 });
+    }
+
+    #[test]
+    fn marges_per_kant_en_bij_verschillende_dpi() {
+        // Asymmetrisch: links 3 mm (71 px), boven 5 mm (118 px), rechts 3,4 mm, onder 10 mm.
+        let vel = DcVel {
+            bedrukbaar: (4960 - 71 - 80, 7016 - 118 - 236),
+            fysiek: (4960, 7016),
+            offset: (71, 118),
+            dpi: (600, 600),
+        };
+        let m = marges_uit_dc(&vel).unwrap();
+        assert!((m.links - 3.0).abs() < 0.06 && (m.boven - 5.0).abs() < 0.06, "{m:?}");
+        assert!((m.rechts - 3.4).abs() < 0.06 && (m.onder - 10.0).abs() < 0.06, "{m:?}");
+        // 600 x 1200 dpi: de y-marges rekenen met de y-resolutie.
+        let vel = DcVel { bedrukbaar: (4800, 13832), fysiek: (4960, 14032), offset: (80, 100), dpi: (600, 1200) };
+        let m = marges_uit_dc(&vel).unwrap();
+        assert_eq!((m.links, m.rechts), (3.4, 3.4));
+        assert_eq!((m.boven, m.onder), (2.1, 2.1));
+    }
+
+    #[test]
+    fn onbruikbare_maten_geven_geen_marges() {
+        let leeg = DcVel { bedrukbaar: (0, 0), fysiek: (0, 0), offset: (0, 0), dpi: (0, 0) };
+        assert_eq!(marges_uit_dc(&leeg), None);
+        // Bedrukbaar gebied groter dan het vel: onzin.
+        let onzin = DcVel { bedrukbaar: (5000, 7016), fysiek: (4960, 7016), offset: (100, 0), dpi: (600, 600) };
+        assert_eq!(marges_uit_dc(&onzin), None);
+        // Geen fysieke maat (sommige drivers): niets te zeggen.
+        let zonder = DcVel { bedrukbaar: (4760, 6816), fysiek: (0, 0), offset: (0, 0), dpi: (600, 600) };
+        assert_eq!(marges_uit_dc(&zonder), None);
     }
 
     #[test]

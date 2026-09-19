@@ -67,7 +67,8 @@
     "paperLabel": "Papel: {{paper}}",
     "paperFallback": "Papel: {{paper}} ({{requested}} não está disponível nesta impressora)",
     "pageSizeLabel": "Página: {{size}}",
-    "pageClipped": "A página não cabe no papel e será cortada."
+    "pageClipped": "A página não cabe no papel e será cortada.",
+    "pageOutsidePrintable": "Parte da página fica fora da área imprimível da impressora."
   },
   "insertPage": {
     "title": "Inserir páginas",

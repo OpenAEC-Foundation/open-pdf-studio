@@ -94,6 +94,7 @@
     "paperFallback": "Papier: {{paper}} ({{requested}} is niet beschikbaar op deze printer)",
     "pageSizeLabel": "Pagina: {{size}}",
     "pageClipped": "De pagina past niet op het papier en wordt afgesneden.",
+    "pageOutsidePrintable": "Een deel van de pagina valt buiten het bedrukbare gebied van de printer.",
     "firstPage": "Eerste pagina",
     "prevPage": "Vorige pagina",
     "nextPage": "Volgende pagina",

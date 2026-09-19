@@ -67,7 +67,8 @@
     "paperLabel": "Paper: {{paper}}",
     "paperFallback": "Paper: {{paper}} ({{requested}} no està disponible en aquesta impressora)",
     "pageSizeLabel": "Pàgina: {{size}}",
-    "pageClipped": "La pàgina no cap al paper i es retallarà."
+    "pageClipped": "La pàgina no cap al paper i es retallarà.",
+    "pageOutsidePrintable": "Una part de la pàgina queda fora de l'àrea imprimible de la impressora."
   },
   "insertPage": {
     "title": "Insereix pàgines",

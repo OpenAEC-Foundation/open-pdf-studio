@@ -7,6 +7,7 @@ import test from 'node:test';
 import {
   SCHALINGEN, ZOOM_MIN, ZOOM_MAX, AFSNIJ_SPELING_MM,
   geldigeZoom, velOrientatie, schaalFactor, berekenPlaatsing, renderDeel, pdfPagina,
+  GEEN_MARGES, margesVoor,
   PRINT_DPI, printPxPerPt, voegPrintPaginaToe,
 } from './print-plaatsing.js';
 import { PAPIERFORMATEN } from './print-pagina-instelling.js';
@@ -164,6 +165,109 @@ test('passend met een andere verhouding: de korte kant beslist, de lange blijft 
   const s = 297 / 210;
   bijna(p.schaal, s);
   rechthoek(p.pagina, [0, (630 - 297 * s) / 2, 297, 297 * s]);
+});
+
+// --- het bedrukbare gebied van de printer -------------------------------------
+
+// Marges zoals printer_bedrukbaar ze meldt (gemeten op deze machine:
+// de Brother 3 mm rondom, een netwerkprinter 3 mm op A4 en 4,2 mm op A3).
+const rand = (mm) => ({ links: mm, boven: mm, rechts: mm, onder: mm });
+const MARGES_3MM = { staand: rand(3), liggend: rand(3) };
+const velMet = (sleutel, bedrukbaar) => ({ ...vel(sleutel), bedrukbaar });
+
+test('marges: onbekend, onzin of onmogelijk telt als geen rand', () => {
+  assert.equal(margesVoor(null, 'portrait', 210, 297), GEEN_MARGES);
+  assert.equal(margesVoor({ staand: rand(3) }, 'landscape', 297, 210), GEEN_MARGES);
+  assert.equal(margesVoor({ staand: { links: -1, boven: 0, rechts: 0, onder: 0 } }, 'portrait', 210, 297), GEEN_MARGES);
+  assert.equal(margesVoor({ staand: { links: 3, boven: 3, rechts: 3 } }, 'portrait', 210, 297), GEEN_MARGES);
+  // Zo scheef dat er gecentreerd niets overblijft (2 x 110 > 210).
+  assert.equal(margesVoor({ staand: { links: 0, boven: 3, rechts: 110, onder: 3 } }, 'portrait', 210, 297), GEEN_MARGES);
+  assert.deepEqual(margesVoor(MARGES_3MM, 'portrait', 210, 297), rand(3));
+  assert.deepEqual(margesVoor(MARGES_3MM, 'landscape', 297, 210), rand(3));
+});
+
+test('passend blijft binnen het bedrukbare gebied en staat gecentreerd op het vel', () => {
+  const p = plaats({ papier: velMet('a4', MARGES_3MM), pagina: A4, schaling: 'fit' });
+  const s = Math.min((210 - 6) / 210, (297 - 6) / 297);
+  bijna(p.schaal, s);
+  rechthoek(p.pagina, [(210 - 210 * s) / 2, (297 - 297 * s) / 2, 210 * s, 297 * s]);
+  rechthoek(p.bedrukbaar, [3, 3, 204, 291]);
+  assert.equal(p.afgesneden, false);
+  assert.equal(p.buitenBedrukbaar, false);
+  // De pagina raakt de rand van het gebied, maar blijft erbinnen.
+  assert.ok(p.pagina.x >= 3 - 1e-9 && p.pagina.x + p.pagina.breedte <= 207 + 1e-9);
+  assert.ok(p.pagina.y >= 3 - 1e-9 && p.pagina.y + p.pagina.hoogte <= 294 + 1e-9);
+});
+
+test('passend met een scheve rand blijft aan beide kanten binnen het gebied', () => {
+  // Links 3, rechts 10 mm: gecentreerd op het vel telt de grootste marge.
+  const scheef = { staand: { links: 3, boven: 5, rechts: 10, onder: 12 }, liggend: rand(3) };
+  const p = plaats({ papier: velMet('a4', scheef), pagina: A4, schaling: 'fit' });
+  const s = Math.min((210 - 20) / 210, (297 - 24) / 297);
+  bijna(p.schaal, s);
+  assert.ok(p.pagina.x >= 3 && p.pagina.x + p.pagina.breedte <= 200, JSON.stringify(p.pagina));
+  assert.ok(p.pagina.y >= 5 && p.pagina.y + p.pagina.hoogte <= 285, JSON.stringify(p.pagina));
+  assert.equal(p.buitenBedrukbaar, false);
+});
+
+test('zonder centreren staan passend en verkleinen op de hoek van het bedrukbare gebied', () => {
+  const p = plaats({ papier: velMet('a4', MARGES_3MM), pagina: A4, schaling: 'fit', centreren: false });
+  const s = Math.min(204 / 210, 291 / 297);
+  bijna(p.schaal, s);
+  rechthoek(p.pagina, [3, 3, 210 * s, 297 * s]);
+  assert.equal(p.buitenBedrukbaar, false);
+  // Verkleinen van een pagina die al past: ware grootte, op dezelfde hoek.
+  const klein = plaats({ papier: velMet('a4', MARGES_3MM), pagina: pagina(100, 100), schaling: 'shrink', centreren: false });
+  assert.equal(klein.schaal, 1);
+  rechthoek(klein.pagina, [3, 3, 100, 100]);
+});
+
+test('verkleinen verkleint tot het bedrukbare gebied, niet tot het vel', () => {
+  const p = plaats({ papier: velMet('a4', MARGES_3MM), pagina: A4, schaling: 'shrink' });
+  bijna(p.schaal, Math.min((210 - 6) / 210, (297 - 6) / 297));
+  assert.ok(p.schaal < 1);
+  assert.equal(p.buitenBedrukbaar, false);
+});
+
+test('ware grootte en aangepaste schaal blijven 1:1 op het vel en melden de rand', () => {
+  const echt = plaats({ papier: velMet('a4', MARGES_3MM), pagina: A4, schaling: 'actual' });
+  assert.equal(echt.schaal, 1);
+  rechthoek(echt.pagina, [0, 0, 210, 297]);
+  assert.equal(echt.afgesneden, false);
+  assert.equal(echt.buitenBedrukbaar, true);
+  // Een pagina die wél binnen het gebied past: geen melding.
+  const klein = plaats({ papier: velMet('a4', MARGES_3MM), pagina: pagina(150, 200), schaling: 'actual' });
+  assert.equal(klein.buitenBedrukbaar, false);
+  const zoom = plaats({ papier: velMet('a4', MARGES_3MM), pagina: A4, schaling: 'custom-scale', zoom: 50 });
+  bijna(zoom.schaal, 0.5);
+  rechthoek(zoom.pagina, [52.5, 74.25, 105, 148.5]);
+  assert.equal(zoom.buitenBedrukbaar, false);
+});
+
+test('zonder marges verandert er niets aan de oude uitkomsten', () => {
+  const met = plaats({ papier: velMet('a3', { staand: rand(0), liggend: rand(0) }), pagina: A4, schaling: 'fit' });
+  const zonder = plaats({ papier: vel('a3'), pagina: A4, schaling: 'fit' });
+  assert.deepEqual(met.pagina, zonder.pagina);
+  assert.equal(met.buitenBedrukbaar, false);
+  rechthoek(zonder.bedrukbaar, [0, 0, 297, 420]);
+  assert.deepEqual(zonder.marges, GEEN_MARGES);
+});
+
+test('de marges volgen de oriëntatie van het vel', () => {
+  // Liggend een bredere rand aan de invoerkant.
+  const anders = { staand: rand(3), liggend: { links: 3, boven: 10, rechts: 3, onder: 10 } };
+  const staand = plaats({ papier: velMet('a4', anders), pagina: A4, schaling: 'fit' });
+  const liggend = plaats({ papier: velMet('a4', anders), pagina: A4_LIGGEND, schaling: 'fit' });
+  assert.deepEqual(staand.marges, rand(3));
+  assert.deepEqual(liggend.marges, { links: 3, boven: 10, rechts: 3, onder: 10 });
+  rechthoek(liggend.bedrukbaar, [3, 10, 297 - 6, 210 - 20]);
+});
+
+test('onbekend papier: geen gebied, geen melding', () => {
+  const p = plaats({ papier: null, pagina: A4, schaling: 'fit' });
+  assert.deepEqual(p.marges, GEEN_MARGES);
+  rechthoek(p.bedrukbaar, [0, 0, 210, 297]);
+  assert.equal(p.buitenBedrukbaar, false);
 });
 
 // --- groter dan het vel: afgesneden en gemeld -----------------------------------
@@ -339,19 +443,21 @@ test('voegPrintPaginaToe: pagina op papiergrootte, beeld op de plek (pdf-lib)', 
 
 // --- de melding bij afsnijden ------------------------------------------------------
 
-test('alle locales melden een afgesneden pagina, vertaald en zonder plaatshouders', async () => {
+test('alle locales melden afsnijden en de onbedrukbare rand, vertaald en zonder plaatshouders', async () => {
   const { readFileSync, readdirSync } = await import('node:fs');
   const { dirname, join } = await import('node:path');
   const { fileURLToPath } = await import('node:url');
   const map = join(dirname(fileURLToPath(import.meta.url)), '../i18n/locales');
   const lees = (taal) => JSON.parse(readFileSync(join(map, taal, 'dialogs.json'), 'utf8'));
-  const en = lees('en').print.pageClipped;
+  const en = lees('en').print;
   const talen = readdirSync(map);
   assert.equal(talen.length, 39);
   for (const taal of talen) {
-    const tekst = lees(taal).print?.pageClipped;
-    assert.ok(typeof tekst === 'string' && tekst.trim(), `${taal} print.pageClipped ontbreekt`);
-    assert.doesNotMatch(tekst, /\{\{/, `${taal} print.pageClipped`);
-    if (taal !== 'en') assert.notEqual(tekst, en, `${taal} print.pageClipped is niet vertaald`);
+    for (const sleutel of ['pageClipped', 'pageOutsidePrintable']) {
+      const tekst = lees(taal).print?.[sleutel];
+      assert.ok(typeof tekst === 'string' && tekst.trim(), `${taal} print.${sleutel} ontbreekt`);
+      assert.doesNotMatch(tekst, /\{\{/, `${taal} print.${sleutel}`);
+      if (taal !== 'en') assert.notEqual(tekst, en[sleutel], `${taal} print.${sleutel} is niet vertaald`);
+    }
   }
 });

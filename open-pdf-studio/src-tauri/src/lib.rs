@@ -726,6 +726,44 @@ async fn printer_papier(
     }
 }
 
+/// The printer's unprintable margins for the sheet the next job gets
+/// (`papier`, same values as print_pdf), per orientation and in mm.
+///
+/// Measured on an information context with the very DEVMODE the job gets
+/// (this session's Properties choice or the driver default, plus the Page
+/// Setup paper): no job is started, nothing goes to the printer and nothing
+/// changes. The Print dialog fits "Fit" and "Shrink" inside that area and
+/// draws it in the preview.
+///
+/// Separate from printer_papier on purpose: the first information context on
+/// a sleeping network printer can take tens of seconds (cold driver), and the
+/// paper in the dialog header must not wait for it. null on Linux/macOS or
+/// when the driver does not report usable measurements; the dialog then works
+/// with a zero margin, as before.
+#[tauri::command]
+async fn printer_bedrukbaar(
+    printer: String,
+    papier: Option<String>,
+    devmodes: tauri::State<'_, print_instelling::PrinterDevmodes>,
+) -> Result<Option<print_plaatsing::Bedrukbaar>, String> {
+    #[cfg(target_os = "windows")]
+    {
+        let opgeslagen = devmodes.ophalen(&printer);
+        let papier = print_instelling::Papier::uit_keuze(papier.as_deref());
+        tauri::async_runtime::spawn_blocking(move || {
+            print_windows::bedrukbaar_voor_opdracht(&printer, opgeslagen.as_deref(), papier)
+        })
+        .await
+        .map_err(|e| format!("Printable area task failed: {e}"))
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        let _ = (&printer, &papier, &devmodes);
+        Ok(None)
+    }
+}
+
 /// Get the system temp directory path.
 #[tauri::command]
 fn get_temp_dir() -> String {
@@ -2747,6 +2785,7 @@ pub fn run(opts: StartupOpts) {
             print_pdf,
             open_printer_properties,
             printer_papier,
+            printer_bedrukbaar,
             get_temp_dir,
             write_temp_pdf,
             delete_file,

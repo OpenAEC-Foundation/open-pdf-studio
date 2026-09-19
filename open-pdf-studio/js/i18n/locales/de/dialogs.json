@@ -67,7 +67,8 @@
     "paperLabel": "Papier: {{paper}}",
     "paperFallback": "Papier: {{paper}} ({{requested}} ist auf diesem Drucker nicht verfügbar)",
     "pageSizeLabel": "Seite: {{size}}",
-    "pageClipped": "Die Seite passt nicht auf das Papier und wird abgeschnitten."
+    "pageClipped": "Die Seite passt nicht auf das Papier und wird abgeschnitten.",
+    "pageOutsidePrintable": "Ein Teil der Seite liegt außerhalb des druckbaren Bereichs des Druckers."
   },
   "insertPage": {
     "title": "Seiten einfügen",

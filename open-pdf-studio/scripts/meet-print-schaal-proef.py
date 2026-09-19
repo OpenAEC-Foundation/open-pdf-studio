@@ -24,6 +24,8 @@ TOLERANTIE_MM = 0.5
 DPI = 600
 
 S_PASSEND = min(297 / 210, 420 / 297)  # A4 passend op A3
+# A4 passend binnen een A4-vel met 3 mm onbedrukbare rand rondom.
+S_RAND3 = min((210 - 6) / 210, (297 - 6) / 297)
 # naam: (vel b, vel h, x, y, b, h) in mm, van de inhoud op het vel
 VERWACHT = {
     'a4-a3-werkelijk': (297, 420, 43.5, 61.5, 210, 297),
@@ -36,6 +38,12 @@ VERWACHT = {
     'a2-a3-werkelijk-afgesneden': (297, 420, 50, 50, 197, 320),
     # Onbekend papier: de oude weg, de printer past de A4 in het A3-vel.
     'a4-onbekend-papier': (297, 420, (297 - 210 * S_PASSEND) / 2, 0, 210 * S_PASSEND, 420),
+    # Met een onbedrukbare rand van 3 mm: passend blijft binnen 3 mm (en staat
+    # gecentreerd op het vel), zonder centreren op de hoek van dat gebied,
+    # en werkelijke grootte blijft 1:1 op het vel.
+    'a4-rand3-passend': (210, 297, 3, (297 - 297 * S_RAND3) / 2, 210 * S_RAND3, 297 * S_RAND3),
+    'a4-rand3-passend-linksboven': (210, 297, 3, 3, 210 * S_RAND3, 297 * S_RAND3),
+    'a4-rand3-werkelijk': (210, 297, 0, 0, 210, 297),
 }
 # De tijdelijke print-PDF bij onbekend papier is de pagina zelf.
 VERWACHT_BRON = dict(VERWACHT, **{'a4-onbekend-papier': (210, 297, 0, 0, 210, 297)})

@@ -67,7 +67,8 @@
     "paperLabel": "กระดาษ: {{paper}}",
     "paperFallback": "กระดาษ: {{paper}} ({{requested}} ไม่พร้อมใช้งานบนเครื่องพิมพ์นี้)",
     "pageSizeLabel": "หน้า: {{size}}",
-    "pageClipped": "หน้านี้ไม่พอดีกับกระดาษและจะถูกตัดออก"
+    "pageClipped": "หน้านี้ไม่พอดีกับกระดาษและจะถูกตัดออก",
+    "pageOutsidePrintable": "บางส่วนของหน้าอยู่นอกพื้นที่พิมพ์ได้ของเครื่องพิมพ์"
   },
   "insertPage": {
     "title": "แทรกหน้า",

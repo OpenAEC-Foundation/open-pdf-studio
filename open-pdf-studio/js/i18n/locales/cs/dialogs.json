@@ -67,7 +67,8 @@
     "paperLabel": "Papír: {{paper}}",
     "paperFallback": "Papír: {{paper}} ({{requested}} není na této tiskárně k dispozici)",
     "pageSizeLabel": "Stránka: {{size}}",
-    "pageClipped": "Stránka se nevejde na papír a bude oříznuta."
+    "pageClipped": "Stránka se nevejde na papír a bude oříznuta.",
+    "pageOutsidePrintable": "Část stránky leží mimo tisknutelnou oblast tiskárny."
   },
   "insertPage": {
     "title": "Vložit stránky",
