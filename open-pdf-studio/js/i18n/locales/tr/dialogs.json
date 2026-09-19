@@ -66,7 +66,8 @@
     "pageOf": "Sayfa {{current}} / {{total}}",
     "paperLabel": "Kağıt: {{paper}}",
     "paperFallback": "Kağıt: {{paper}} ({{requested}} bu yazıcıda kullanılamıyor)",
-    "pageSizeLabel": "Sayfa: {{size}}"
+    "pageSizeLabel": "Sayfa: {{size}}",
+    "pageClipped": "Sayfa kağıda sığmıyor ve kırpılacak."
   },
   "insertPage": {
     "title": "Sayfa Ekle",

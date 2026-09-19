@@ -66,7 +66,8 @@
     "pageOf": "صفحہ {{current}} از {{total}}",
     "paperLabel": "کاغذ: {{paper}}",
     "paperFallback": "کاغذ: {{paper}} ({{requested}} اس پرنٹر پر دستیاب نہیں ہے)",
-    "pageSizeLabel": "صفحہ: {{size}}"
+    "pageSizeLabel": "صفحہ: {{size}}",
+    "pageClipped": "صفحہ کاغذ پر پورا نہیں آتا اور کٹ جائے گا۔"
   },
   "insertPage": {
     "title": "صفحات داخل کریں",

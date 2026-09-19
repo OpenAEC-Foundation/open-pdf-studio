@@ -2437,6 +2437,15 @@
   background: #fff;
 }
 
+/* The page sticks out of the sheet at the chosen scale. */
+.print-preview-warning {
+  padding: 3px 8px;
+  font-size: 10px;
+  color: #c42b1c;
+  border-top: 1px solid var(--theme-border, #b0b0b0);
+  background: var(--theme-hover, #d8d8d8);
+}
+
 .print-preview-footer {
   padding: 4px 8px;
   font-size: 10px;

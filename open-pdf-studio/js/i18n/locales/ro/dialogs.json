@@ -66,7 +66,8 @@
     "pageOf": "Pagina {{current}} din {{total}}",
     "paperLabel": "Hârtie: {{paper}}",
     "paperFallback": "Hârtie: {{paper}} ({{requested}} nu este disponibil pe această imprimantă)",
-    "pageSizeLabel": "Pagină: {{size}}"
+    "pageSizeLabel": "Pagină: {{size}}",
+    "pageClipped": "Pagina nu încape pe hârtie și va fi tăiată."
   },
   "insertPage": {
     "title": "Inserare pagini",

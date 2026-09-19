@@ -66,7 +66,8 @@
     "pageOf": "Sida {{current}} av {{total}}",
     "paperLabel": "Papper: {{paper}}",
     "paperFallback": "Papper: {{paper}} ({{requested}} är inte tillgängligt på den här skrivaren)",
-    "pageSizeLabel": "Sida: {{size}}"
+    "pageSizeLabel": "Sida: {{size}}",
+    "pageClipped": "Sidan får inte plats på papperet och beskärs."
   },
   "insertPage": {
     "title": "Infoga sidor",

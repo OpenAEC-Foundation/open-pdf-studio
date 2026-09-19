@@ -66,7 +66,8 @@
     "pageOf": "Pagina {{current}} di {{total}}",
     "paperLabel": "Carta: {{paper}}",
     "paperFallback": "Carta: {{paper}} ({{requested}} non è disponibile su questa stampante)",
-    "pageSizeLabel": "Pagina: {{size}}"
+    "pageSizeLabel": "Pagina: {{size}}",
+    "pageClipped": "La pagina non rientra nel foglio e verrà tagliata."
   },
   "insertPage": {
     "title": "Inserisci pagine",

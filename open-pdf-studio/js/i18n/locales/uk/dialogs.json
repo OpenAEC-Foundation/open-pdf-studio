@@ -66,7 +66,8 @@
     "pageOf": "Сторінка {{current}} з {{total}}",
     "paperLabel": "Папір: {{paper}}",
     "paperFallback": "Папір: {{paper}} ({{requested}} недоступний на цьому принтері)",
-    "pageSizeLabel": "Сторінка: {{size}}"
+    "pageSizeLabel": "Сторінка: {{size}}",
+    "pageClipped": "Сторінка не вміщується на папері й буде обрізана."
   },
   "insertPage": {
     "title": "Вставити сторінки",

@@ -66,7 +66,8 @@
     "pageOf": "หน้า {{current}} จาก {{total}}",
     "paperLabel": "กระดาษ: {{paper}}",
     "paperFallback": "กระดาษ: {{paper}} ({{requested}} ไม่พร้อมใช้งานบนเครื่องพิมพ์นี้)",
-    "pageSizeLabel": "หน้า: {{size}}"
+    "pageSizeLabel": "หน้า: {{size}}",
+    "pageClipped": "หน้านี้ไม่พอดีกับกระดาษและจะถูกตัดออก"
   },
   "insertPage": {
     "title": "แทรกหน้า",

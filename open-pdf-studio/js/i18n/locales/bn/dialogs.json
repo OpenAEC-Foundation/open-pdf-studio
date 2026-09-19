@@ -66,7 +66,8 @@
     "pageOf": "পৃষ্ঠা {{current}} / {{total}}",
     "paperLabel": "কাগজ: {{paper}}",
     "paperFallback": "কাগজ: {{paper}} (এই প্রিন্টারে {{requested}} উপলব্ধ নয়)",
-    "pageSizeLabel": "পৃষ্ঠা: {{size}}"
+    "pageSizeLabel": "পৃষ্ঠা: {{size}}",
+    "pageClipped": "পৃষ্ঠাটি কাগজে আঁটে না এবং কেটে যাবে।"
   },
   "insertPage": {
     "title": "পৃষ্ঠা সন্নিবেশ",

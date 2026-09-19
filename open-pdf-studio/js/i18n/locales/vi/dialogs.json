@@ -66,7 +66,8 @@
     "pageOf": "Trang {{current}} / {{total}}",
     "paperLabel": "Giấy: {{paper}}",
     "paperFallback": "Giấy: {{paper}} ({{requested}} không khả dụng trên máy in này)",
-    "pageSizeLabel": "Trang: {{size}}"
+    "pageSizeLabel": "Trang: {{size}}",
+    "pageClipped": "Trang không vừa với giấy và sẽ bị cắt bớt."
   },
   "insertPage": {
     "title": "Chèn Trang",

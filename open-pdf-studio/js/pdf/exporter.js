@@ -44,9 +44,15 @@ export function parsePageRange(rangeStr, totalPages) {
  * Render a single PDF page + annotations to an off-screen canvas.
  * @param {number} pageNum - 1-based page number
  * @param {number} exportScale - Scale factor (e.g. 300/72 for 300 DPI)
+ * @param {{ deel?: {x:number, y:number, breedte:number, hoogte:number}|null,
+ *           markeringen?: boolean }} [opties]
+ *   deel: render only this part of the page, in whole pixels of the page
+ *   rendered at `exportScale` (the print dialog renders just what lands on
+ *   the sheet, see print-plaatsing.js renderDeel); markeringen: false = the
+ *   PDF content without annotations.
  * @returns {Promise<HTMLCanvasElement>} The rendered canvas
  */
-export async function renderPageOffscreen(pageNum, exportScale) {
+export async function renderPageOffscreen(pageNum, exportScale, { deel = null, markeringen = true } = {}) {
   const page = await getActiveDocument().pdfDoc.getPage(pageNum);
   const extraRotation = getPageRotation(pageNum);
   const viewportOpts = { scale: exportScale };
@@ -54,11 +60,13 @@ export async function renderPageOffscreen(pageNum, exportScale) {
     viewportOpts.rotation = (page.rotate + extraRotation) % 360;
   }
   const viewport = page.getViewport(viewportOpts);
+  const breedte = deel ? deel.breedte : viewport.width;
+  const hoogte = deel ? deel.hoogte : viewport.height;
 
   // Create off-screen canvas for PDF content
   const pdfCanvas = document.createElement('canvas');
-  pdfCanvas.width = viewport.width;
-  pdfCanvas.height = viewport.height;
+  pdfCanvas.width = breedte;
+  pdfCanvas.height = hoogte;
   const pdfCtx = pdfCanvas.getContext('2d');
 
   // Render PDF page
@@ -67,21 +75,32 @@ export async function renderPageOffscreen(pageNum, exportScale) {
     viewport: viewport,
     annotationMode: 0
   };
+  // Part of the page: shifted so the part starts at pixel (0,0); the canvas
+  // clips the rest.
+  if (deel) renderContext.transform = [1, 0, 0, 1, -deel.x, -deel.y];
 
   const renderTask = page.render(renderContext);
   await renderTask.promise;
+  if (!markeringen) return pdfCanvas;
 
   // Create annotation canvas and render annotations
   const annCanvas = document.createElement('canvas');
-  annCanvas.width = viewport.width;
-  annCanvas.height = viewport.height;
+  annCanvas.width = breedte;
+  annCanvas.height = hoogte;
   const annCtx = annCanvas.getContext('2d');
 
   // Temporarily override state.scale so renderAnnotationsForPage uses export scale
   const savedScale = state.documents[state.activeDocumentIndex].scale;
   state.documents[state.activeDocumentIndex].scale = exportScale;
 
-  renderAnnotationsForPage(annCtx, pageNum, annCanvas.width, annCanvas.height, 1);
+  if (deel) {
+    // The same shift in page coordinates (scale 1); watermarks keep the whole page.
+    renderAnnotationsForPage(annCtx, pageNum, annCanvas.width, annCanvas.height, 1,
+      { x: deel.x / exportScale, y: deel.y / exportScale },
+      { w: viewport.width / exportScale, h: viewport.height / exportScale });
+  } else {
+    renderAnnotationsForPage(annCtx, pageNum, annCanvas.width, annCanvas.height, 1);
+  }
 
   // Restore original scale
   state.documents[state.activeDocumentIndex].scale = savedScale;

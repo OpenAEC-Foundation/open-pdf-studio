@@ -66,7 +66,8 @@
     "pageOf": "Σελίδα {{current}} από {{total}}",
     "paperLabel": "Χαρτί: {{paper}}",
     "paperFallback": "Χαρτί: {{paper}} (το {{requested}} δεν είναι διαθέσιμο σε αυτόν τον εκτυπωτή)",
-    "pageSizeLabel": "Σελίδα: {{size}}"
+    "pageSizeLabel": "Σελίδα: {{size}}",
+    "pageClipped": "Η σελίδα δεν χωράει στο χαρτί και θα περικοπεί."
   },
   "insertPage": {
     "title": "Εισαγωγή σελίδων",

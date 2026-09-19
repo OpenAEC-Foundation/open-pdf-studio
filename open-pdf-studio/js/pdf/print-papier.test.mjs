@@ -7,7 +7,7 @@ import test from 'node:test';
 import {
   isPapierFormaat, normaliseerPapierInfo, effectiefPapier, papierTekst,
   paginaTekst, eigenschappenVooraf, instellingNaEigenschappen, maakPapierVerzoeken,
-  papierVerzoekSleutel,
+  papierVerzoekSleutel, bekendVel,
 } from './print-papier.js';
 import {
   startPaginaInstelling, bewaarPaginaInstelling, printArgumenten,
@@ -505,6 +505,27 @@ test('zelfde vel onder een andere sleutel of nog geen antwoord: het formaat blij
   // Zonder maten: alleen een ander bekend formaat is zeker een ander vel.
   assert.equal(vraag(info('overig', 0, 0, 'portrait', 'Iets')).geweigerd, null);
   assert.equal(vraag(info('a4', 0, 0, 'portrait', 'A4')).geweigerd, 'A3L');
+});
+
+// --- Het vel voor de schaal van het voorbeeld en de afdruk ---------------------
+
+test('bekend vel: de maten uit de kop, staand; zonder papier of maten null', () => {
+  const vel = (opties) => bekendVel(effectiefPapier({ docId: 'd1', autoRotate: true, pagina: A4_LIGGEND, ...opties }));
+  // Pagina-instelling met een formaat: dat vel, ook als de printer nog niets meldde.
+  assert.deepEqual(vel({ paginaInstelling: PS('a1'), printerPapier: undefined }), { breedteMm: 594, hoogteMm: 841 });
+  // Het papier van de printer.
+  assert.deepEqual(vel({ printerPapier: PRINTER_A3 }), { breedteMm: 297, hoogteMm: 420 });
+  assert.deepEqual(vel({ printerPapier: info('overig', 700, 500, 'landscape', 'Poster') }), { breedteMm: 500, hoogteMm: 700 });
+  // De driver kan het formaat niet aan: het vel waarop echt geprint wordt.
+  assert.deepEqual(
+    vel({ paginaInstelling: PS('a0l'), printerPapier: undefined, opdrachtPapier: PRINTER_A4 }),
+    { breedteMm: 210, hoogteMm: 297 },
+  );
+  // Nog aan het ophalen, onbekend, of een formulier zonder maten: geen vel.
+  assert.equal(vel({ printerPapier: undefined }), null);
+  assert.equal(vel({ printerPapier: null }), null);
+  assert.equal(vel({ printerPapier: info('overig', 0, 0, 'portrait', 'Envelop C5') }), null);
+  assert.equal(bekendVel(null), null);
 });
 
 test('papier aan de printer gelaten: een antwoord voor een opdracht speelt geen rol', () => {

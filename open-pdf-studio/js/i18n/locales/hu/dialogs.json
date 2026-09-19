@@ -66,7 +66,8 @@
     "pageOf": "Oldal: {{current}} / {{total}}",
     "paperLabel": "Papír: {{paper}}",
     "paperFallback": "Papír: {{paper}} ({{requested}} nem érhető el ezen a nyomtatón)",
-    "pageSizeLabel": "Oldal: {{size}}"
+    "pageSizeLabel": "Oldal: {{size}}",
+    "pageClipped": "Az oldal nem fér rá a papírra, ezért le lesz vágva."
   },
   "insertPage": {
     "title": "Oldalak beszúrása",

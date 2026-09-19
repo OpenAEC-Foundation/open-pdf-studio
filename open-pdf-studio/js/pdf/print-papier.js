@@ -219,6 +219,24 @@ export function papierTekst(effectief, standaardTekst) {
   return standaardTekst;
 }
 
+/**
+ * Het vel waarop het voorbeeld en de printopdracht de schaal en de plek van de
+ * pagina uitrekenen (print-plaatsing.js): het papier uit de kop als het
+ * bekend is en maten heeft. Anders null: Linux/macOS zonder
+ * Pagina-instelling, een driver die niets meldt, een formulier zonder maten,
+ * of het antwoord loopt nog. Dan blijft het gedrag van vóór de schaalkeuze
+ * (de printer past de pagina in).
+ *
+ * @param {ReturnType<typeof effectiefPapier>|null} effectief
+ * @returns {{ breedteMm: number, hoogteMm: number } | null}  staand (kort, lang)
+ */
+export function bekendVel(effectief) {
+  if (!effectief || (effectief.bron !== 'paginaInstelling' && effectief.bron !== 'printer')) return null;
+  const { breedteMm, hoogteMm } = effectief;
+  if (!geldig(breedteMm) || !geldig(hoogteMm)) return null;
+  return { breedteMm: Math.min(breedteMm, hoogteMm), hoogteMm: Math.max(breedteMm, hoogteMm) };
+}
+
 /** Maat van de getoonde pagina: "297 x 210 mm"; null als die onbekend is. */
 export function paginaTekst(breedtePt, hoogtePt) {
   if (!geldig(breedtePt) || !geldig(hoogtePt)) return null;

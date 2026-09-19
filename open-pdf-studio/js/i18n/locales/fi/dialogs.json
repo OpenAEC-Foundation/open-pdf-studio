@@ -66,7 +66,8 @@
     "pageOf": "Sivu {{current}} / {{total}}",
     "paperLabel": "Paperi: {{paper}}",
     "paperFallback": "Paperi: {{paper}} ({{requested}} ei ole käytettävissä tässä tulostimessa)",
-    "pageSizeLabel": "Sivu: {{size}}"
+    "pageSizeLabel": "Sivu: {{size}}",
+    "pageClipped": "Sivu ei mahdu paperille, ja se rajataan."
   },
   "insertPage": {
     "title": "Lisää sivuja",

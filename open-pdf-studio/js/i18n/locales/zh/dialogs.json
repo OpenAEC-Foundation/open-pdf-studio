@@ -66,7 +66,8 @@
     "pageOf": "第 {{current}} 页，共 {{total}} 页",
     "paperLabel": "纸张：{{paper}}",
     "paperFallback": "纸张：{{paper}}（此打印机不支持 {{requested}}）",
-    "pageSizeLabel": "页面：{{size}}"
+    "pageSizeLabel": "页面：{{size}}",
+    "pageClipped": "页面超出纸张，超出部分将被裁掉。"
   },
   "insertPage": {
     "title": "插入页面",

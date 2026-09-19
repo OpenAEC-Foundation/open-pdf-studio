@@ -66,7 +66,8 @@
     "pageOf": "Ukurasa {{current}} ya {{total}}",
     "paperLabel": "Karatasi: {{paper}}",
     "paperFallback": "Karatasi: {{paper}} ({{requested}} haipatikani kwenye printa hii)",
-    "pageSizeLabel": "Ukurasa: {{size}}"
+    "pageSizeLabel": "Ukurasa: {{size}}",
+    "pageClipped": "Ukurasa hautoshei kwenye karatasi na utakatwa."
   },
   "insertPage": {
     "title": "Ingiza Kurasa",

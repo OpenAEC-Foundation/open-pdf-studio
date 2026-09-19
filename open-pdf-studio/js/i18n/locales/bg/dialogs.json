@@ -66,7 +66,8 @@
     "pageOf": "Страница {{current}} от {{total}}",
     "paperLabel": "Хартия: {{paper}}",
     "paperFallback": "Хартия: {{paper}} ({{requested}} не е наличен на този принтер)",
-    "pageSizeLabel": "Страница: {{size}}"
+    "pageSizeLabel": "Страница: {{size}}",
+    "pageClipped": "Страницата не се побира на хартията и ще бъде отрязана."
   },
   "insertPage": {
     "title": "Вмъкване на страници",

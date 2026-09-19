@@ -290,3 +290,22 @@ test('pdfPagina: onbekend papier = de pagina op haar eigen maat, beeld vult haar
   bijna(afbeelding.width, A4_LIGGEND.breedtePt, 1e-9);
   bijna(afbeelding.height, A4_LIGGEND.hoogtePt, 1e-9);
 });
+
+// --- de melding bij afsnijden ------------------------------------------------------
+
+test('alle locales melden een afgesneden pagina, vertaald en zonder plaatshouders', async () => {
+  const { readFileSync, readdirSync } = await import('node:fs');
+  const { dirname, join } = await import('node:path');
+  const { fileURLToPath } = await import('node:url');
+  const map = join(dirname(fileURLToPath(import.meta.url)), '../i18n/locales');
+  const lees = (taal) => JSON.parse(readFileSync(join(map, taal, 'dialogs.json'), 'utf8'));
+  const en = lees('en').print.pageClipped;
+  const talen = readdirSync(map);
+  assert.equal(talen.length, 39);
+  for (const taal of talen) {
+    const tekst = lees(taal).print?.pageClipped;
+    assert.ok(typeof tekst === 'string' && tekst.trim(), `${taal} print.pageClipped ontbreekt`);
+    assert.doesNotMatch(tekst, /\{\{/, `${taal} print.pageClipped`);
+    if (taal !== 'en') assert.notEqual(tekst, en, `${taal} print.pageClipped is niet vertaald`);
+  }
+});

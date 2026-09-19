@@ -1,4 +1,4 @@
-import { createSignal, createMemo, createEffect, on, onMount, For, Show } from 'solid-js';
+import { createSignal, createMemo, createEffect, on, onMount, batch, For, Show } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { state, getActiveDocument, getPageRotation } from '../../../core/state.js';
@@ -13,9 +13,23 @@ import { printArgumenten } from '../../../pdf/print-pagina-instelling.js';
 import { getPageSetupSettings, stelPaginaInstellingIn, paginaInstellingVersie } from './PageSetupDialog.jsx';
 import { viewportOpties } from '../../../pdf/getoonde-pagina.js';
 import {
-  normaliseerPapierInfo, effectiefPapier, papierTekst, paginaTekst,
+  normaliseerPapierInfo, effectiefPapier, papierTekst, paginaTekst, bekendVel,
   eigenschappenVooraf, instellingNaEigenschappen, maakPapierVerzoeken, papierVerzoekSleutel,
 } from '../../../pdf/print-papier.js';
+import {
+  berekenPlaatsing, renderDeel, geldigeZoom, ZOOM_MIN, ZOOM_MAX,
+} from '../../../pdf/print-plaatsing.js';
+
+// Vak waarin het voorbeeld het vel tekent, in CSS-pixels.
+const VOORBEELD_BREEDTE = 300;
+const VOORBEELD_HOOGTE = 340;
+const MM_PER_PT = 25.4 / 72;
+
+// Twee keuzesets voor de plaatsing zijn gelijk als alle waarden gelijk zijn;
+// zo tekent het voorbeeld niet opnieuw als er alleen een nieuw object komt.
+function zelfdeKeuzes(a, b) {
+  return JSON.stringify(a) === JSON.stringify(b);
+}
 
 export default function PrintDialog(props) {
   const { t } = useTranslation('dialogs');
@@ -50,6 +64,10 @@ export default function PrintDialog(props) {
   const [previewIndex, setPreviewIndex] = createSignal(0);
   // Maat van de getoonde voorbeeldpagina in pt (inclusief draaiing), of null.
   const [paginaMaat, setPaginaMaat] = createSignal(null);
+  // Steekt de voorbeeldpagina buiten het vel (bij de gekozen schaal)?
+  const [afgesneden, setAfgesneden] = createSignal(false);
+  // Alleen de laatst gestarte voorbeeldrender tekent (zie renderPreview).
+  let voorbeeldBeurt = 0;
   // Papier per printer en per gevraagd papier (papierVerzoekSleutel) zoals
   // Rust het meldt (printer_papier, of het antwoord uit Eigenschappen).
   // Geen sleutel = nog aan het ophalen, null = onbekend.
@@ -105,111 +123,152 @@ export default function PrintDialog(props) {
     return `${pages.length} ${t('print.pagesToPrint')}`;
   });
 
+  // Het voorbeeld tekent opnieuw zodra de pagina's, de getoonde pagina, de
+  // inhoud of de plaatsing veranderen (effect verderop); de handlers zetten
+  // alleen de signalen.
   function updatePreviewPages() {
     const pages = getPrintPages();
-    setPreviewPages(pages);
-    setPreviewIndex(0);
+    batch(() => {
+      setPreviewPages(pages);
+      setPreviewIndex(0);
+    });
   }
 
+  function zetPaginaMaat(breedtePt, hoogtePt) {
+    const oud = paginaMaat();
+    if (oud && oud.breedtePt === breedtePt && oud.hoogtePt === hoogtePt) return;
+    setPaginaMaat({ breedtePt, hoogtePt });
+  }
+
+  // Het voorbeeld: het vel (wit, dunne rand, de verhouding van het papier)
+  // passend in het vak, met de pagina erop op de plek en de schaal van de
+  // afdruk (print-plaatsing.js, dezelfde regel als de printopdracht). Alleen
+  // het deel van de pagina dat op het vel valt wordt gerenderd, scherp op de
+  // pixeldichtheid van het scherm. Onbekend papier: de pagina zelf, zoals
+  // vóór de schaalkeuze. Alleen de laatst gestarte render tekent; een
+  // eerdere die later klaar is gooit zijn werk weg.
   async function renderPreview() {
+    const beurt = ++voorbeeldBeurt;
     const doc = getActiveDocument();
     if (!canvasRef || !doc?.pdfDoc) return;
     const pages = previewPages();
     if (pages.length === 0) {
       const ctx = canvasRef.getContext('2d');
-      canvasRef.width = 300;
-      canvasRef.height = 350;
-      ctx.clearRect(0, 0, 300, 350);
+      canvasRef.width = VOORBEELD_BREEDTE;
+      canvasRef.height = VOORBEELD_HOOGTE;
+      canvasRef.style.width = '';
+      canvasRef.style.height = '';
+      ctx.clearRect(0, 0, VOORBEELD_BREEDTE, VOORBEELD_HOOGTE);
       setPaginaMaat(null);
+      setAfgesneden(false);
       return;
     }
 
-    const idx = previewIndex();
-    const pageNum = pages[Math.min(idx, pages.length - 1)];
+    const pageNum = pages[Math.min(previewIndex(), pages.length - 1)];
+    const keuzes = plaatsingKeuzes();
+    const markeringen = printContent() === 'doc-and-markups';
 
     try {
       const page = await doc.pdfDoc.getPage(pageNum);
-      const extraRotation = getPageRotation(pageNum);
-      const viewport = page.getViewport(viewportOpties(page, extraRotation));
-      // Vóór het renderen, zodat de kop ook klopt als het voorbeeld mislukt;
-      // alleen als intussen niet al naar een andere pagina is gebladerd.
-      const nuGetoond = previewPages();
-      if (nuGetoond[Math.min(previewIndex(), nuGetoond.length - 1)] === pageNum) {
-        setPaginaMaat({ breedtePt: viewport.width, hoogtePt: viewport.height });
-      }
+      if (beurt !== voorbeeldBeurt) return;
+      const viewport = page.getViewport(viewportOpties(page, getPageRotation(pageNum)));
+      // Vóór het renderen, zodat de kop ook klopt als het voorbeeld mislukt.
+      zetPaginaMaat(viewport.width, viewport.height);
+      const plaatsing = berekenPlaatsing({
+        ...keuzes, pagina: { breedtePt: viewport.width, hoogtePt: viewport.height },
+      });
+      if (!plaatsing) return;
 
-      const maxW = 300;
-      const maxH = 350;
-      const scaleW = maxW / viewport.width;
-      const scaleH = maxH / viewport.height;
-      const previewScale = Math.min(scaleW, scaleH);
+      // CSS-pixels per mm op het vel, en schermpixels voor een scherp beeld.
+      const cssPerMm = Math.min(
+        VOORBEELD_BREEDTE / plaatsing.vel.breedteMm, VOORBEELD_HOOGTE / plaatsing.vel.hoogteMm,
+      );
+      const dpr = window.devicePixelRatio || 1;
+      const cssBreedte = Math.max(1, Math.round(plaatsing.vel.breedteMm * cssPerMm));
+      const cssHoogte = Math.max(1, Math.round(plaatsing.vel.hoogteMm * cssPerMm));
+      const breedte = Math.max(1, Math.round(cssBreedte * dpr));
+      const hoogte = Math.max(1, Math.round(cssHoogte * dpr));
+      const pxPerMm = breedte / plaatsing.vel.breedteMm;
+      const pxPerPt = plaatsing.schaal * MM_PER_PT * pxPerMm;
 
-      const previewViewport = page.getViewport(viewportOpties(page, extraRotation, previewScale));
+      const deel = renderDeel(plaatsing, pxPerPt);
+      const beeld = deel
+        ? await renderPageOffscreen(pageNum, pxPerPt, { deel: deel.px, markeringen })
+        : null;
+      if (beurt !== voorbeeldBeurt) return;
 
-      canvasRef.width = Math.floor(previewViewport.width);
-      canvasRef.height = Math.floor(previewViewport.height);
+      canvasRef.width = breedte;
+      canvasRef.height = hoogte;
+      canvasRef.style.width = `${cssBreedte}px`;
+      canvasRef.style.height = `${cssHoogte}px`;
       const ctx = canvasRef.getContext('2d');
-      ctx.clearRect(0, 0, canvasRef.width, canvasRef.height);
-
-      if (printContent() === 'doc-and-markups') {
-        const rendered = await renderPageOffscreen(pageNum, previewScale);
-        ctx.drawImage(rendered, 0, 0, canvasRef.width, canvasRef.height);
-      } else {
-        const renderTask = page.render({
-          canvasContext: ctx,
-          viewport: previewViewport,
-          annotationMode: 0
-        });
-        await renderTask.promise;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, breedte, hoogte);
+      if (beeld) {
+        const r = deel.opVel;
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(beeld, r.x * pxPerMm, r.y * pxPerMm, r.breedte * pxPerMm, r.hoogte * pxPerMm);
       }
+      if (plaatsing.bekend) {
+        // Dunne rand om het vel (één CSS-pixel).
+        const lijn = Math.max(1, Math.round(dpr));
+        ctx.strokeStyle = '#8c8c8c';
+        ctx.lineWidth = lijn;
+        ctx.strokeRect(lijn / 2, lijn / 2, breedte - lijn, hoogte - lijn);
+      }
+      setAfgesneden(plaatsing.bekend && plaatsing.afgesneden);
     } catch (e) {
       console.error('Preview render error:', e);
     }
   }
 
   function prevPreview() {
-    if (previewIndex() > 0) {
-      setPreviewIndex(previewIndex() - 1);
-      renderPreview();
-    }
+    if (previewIndex() > 0) setPreviewIndex(previewIndex() - 1);
   }
 
   function nextPreview() {
-    if (previewIndex() < previewPages().length - 1) {
-      setPreviewIndex(previewIndex() + 1);
-      renderPreview();
-    }
+    if (previewIndex() < previewPages().length - 1) setPreviewIndex(previewIndex() + 1);
   }
 
   function onRangeChange(range) {
     setActiveRange(range);
     updatePreviewPages();
-    renderPreview();
   }
 
   function onSubsetChange(subset) {
     setActiveSubset(subset);
     updatePreviewPages();
-    renderPreview();
   }
 
   function onReverseChange(checked) {
     setReverseOrder(checked);
     updatePreviewPages();
-    renderPreview();
   }
 
   function onCustomPagesChange(value) {
     setCustomPages(value);
-    if (activeRange() === 'custom') {
-      updatePreviewPages();
-      renderPreview();
-    }
+    if (activeRange() === 'custom') updatePreviewPages();
   }
 
   function onPrintContentChange(value) {
     setPrintContent(value);
-    renderPreview();
+  }
+
+  // Paginazoom: tijdens het typen alleen een geldige waarde overnemen (anders
+  // maakt het tussenstadium "1" van "10" er meteen 10 van en typ je "100");
+  // bij verlaten of Enter begrenzen op 10..400.
+  function onZoomInput(e) {
+    const n = Number.parseInt(e.target.value, 10);
+    if (Number.isFinite(n) && n >= ZOOM_MIN && n <= ZOOM_MAX) setZoom(n);
+  }
+
+  function onZoomChange(e) {
+    const n = Number.parseInt(e.target.value, 10);
+    const geldig = geldigeZoom(Number.isFinite(n) ? n : zoom());
+    setZoom(geldig);
+    e.target.value = String(geldig);
   }
 
   // Het papier dat print_pdf nu naar de printer zou sturen ('printer' = het
@@ -382,15 +441,14 @@ export default function PrintDialog(props) {
     }
 
     updatePreviewPages();
-    renderPreview();
   });
 
   const currentPageNum = props.data?.currentPage || getActiveDocument()?.currentPage || 1;
 
-  // Kop van het voorbeeld: het papier (zie print-papier.js) naast de maat van
-  // de getoonde pagina. De versie van de Pagina-instelling maakt dit reactief
-  // op OK daar en op een keuze uit Eigenschappen.
-  const papierKop = createMemo(() => {
+  // Het papier van de volgende afdruk (zie print-papier.js). De versie van de
+  // Pagina-instelling maakt dit reactief op OK daar en op een keuze uit
+  // Eigenschappen.
+  const effectief = createMemo(() => {
     paginaInstellingVersie();
     const printer = selectedPrinter();
     const papiers = printerPapier();
@@ -398,7 +456,7 @@ export default function PrintDialog(props) {
     const sleutel = papierVerzoekSleutel(printer, gevraagd);
     // Geen printer of nog niet opgehaald → undefined (nog niets tonen).
     const antwoord = printer && papiers.has(sleutel) ? papiers.get(sleutel) : undefined;
-    const effectief = effectiefPapier({
+    return effectiefPapier({
       paginaInstelling: getPageSetupSettings(),
       docId: getActiveDocument()?.id ?? null,
       autoRotate: autoRotate(),
@@ -407,16 +465,48 @@ export default function PrintDialog(props) {
       opdrachtPapier: gevraagd === 'printer' ? undefined : antwoord,
       pagina: paginaMaat(),
     });
+  });
+
+  // Kop van het voorbeeld: het papier naast de maat van de getoonde pagina.
+  const papierKop = createMemo(() => {
+    const e = effectief();
     // Onbekend papier = de standaard van de printer (dezelfde tekst als in de
     // Pagina-instelling).
-    const tekst = papierTekst(effectief, t('pageSetup.printerDefault'));
+    const tekst = papierTekst(e, t('pageSetup.printerDefault'));
     if (!tekst) return '';
     // De driver kan het gevraagde formaat niet aan: zeggen waarop er wel
     // geprint wordt, en welk formaat niet beschikbaar is.
-    return effectief.geweigerd
-      ? t('print.paperFallback', { paper: tekst, requested: effectief.geweigerd })
+    return e.geweigerd
+      ? t('print.paperFallback', { paper: tekst, requested: e.geweigerd })
       : t('print.paperLabel', { paper: tekst });
   });
+
+  // Alles wat het vel en de plek van de pagina bepaalt behalve de pagina zelf
+  // (print-plaatsing.js): het papier als het bekend is, de oriëntatie van het
+  // vel (Automatisch draaien en de Pagina-instelling, zoals print_pdf), het
+  // schaaltype, de zoom en centreren. Het voorbeeld en de printopdracht
+  // gebruiken dezelfde keuzes.
+  const plaatsingKeuzes = createMemo(() => {
+    paginaInstellingVersie();
+    return {
+      papier: bekendVel(effectief()),
+      orientatie: printArgumenten({
+        autoRotate: autoRotate(),
+        paginaInstelling: getPageSetupSettings(),
+        docId: getActiveDocument()?.id ?? null,
+      }).orientatie,
+      schaling: scaling(),
+      zoom: geldigeZoom(zoom()),
+      centreren: autoCenter(),
+    };
+  }, undefined, { equals: zelfdeKeuzes });
+
+  // Voorbeeld opnieuw tekenen bij elke wijziging van de pagina's, de getoonde
+  // pagina, de inhoud (met of zonder markeringen) of de plaatsing: schaaltype,
+  // zoom, centreren, automatisch draaien, Pagina-instelling en printerpapier.
+  createEffect(on([previewPages, previewIndex, printContent, plaatsingKeuzes], () => {
+    renderPreview();
+  }, { defer: true }));
 
   const paginaKop = createMemo(() => {
     const maat = paginaMaat();
@@ -609,11 +699,12 @@ export default function PrintDialog(props) {
             <input
               type="number"
               class="print-input"
-              min="10"
-              max="400"
+              min={ZOOM_MIN}
+              max={ZOOM_MAX}
               value={zoom()}
               disabled={scaling() !== 'custom-scale'}
-              onInput={(e) => setZoom(Math.max(10, parseInt(e.target.value) || 100))}
+              onInput={onZoomInput}
+              onChange={onZoomChange}
             />
             <span>%</span>
           </div>
@@ -678,6 +769,9 @@ export default function PrintDialog(props) {
         <div class="print-preview-container">
           <canvas ref={canvasRef} id="print-preview-canvas" />
         </div>
+        <Show when={afgesneden()}>
+          <div class="print-preview-warning">{t('print.pageClipped')}</div>
+        </Show>
         <div class="print-preview-footer">
           <span>
             {previewPages().length > 0
@@ -688,7 +782,7 @@ export default function PrintDialog(props) {
             <button
               class="print-preview-nav-btn"
               disabled={previewIndex() <= 0}
-              onClick={() => { setPreviewIndex(0); renderPreview(); }}
+              onClick={() => setPreviewIndex(0)}
               title={t('print.firstPage')}
             ><svg width="10" height="10" viewBox="0 0 10 10"><rect x="1" y="1" width="2" height="8" fill="currentColor"/><polygon points="9,1 9,9 3,5" fill="currentColor"/></svg></button>
             <button
@@ -706,7 +800,7 @@ export default function PrintDialog(props) {
             <button
               class="print-preview-nav-btn"
               disabled={previewIndex() >= previewPages().length - 1}
-              onClick={() => { setPreviewIndex(previewPages().length - 1); renderPreview(); }}
+              onClick={() => setPreviewIndex(previewPages().length - 1)}
               title={t('print.lastPage')}
             ><svg width="10" height="10" viewBox="0 0 10 10"><polygon points="1,1 1,9 7,5" fill="currentColor"/><rect x="7" y="1" width="2" height="8" fill="currentColor"/></svg></button>
           </div>

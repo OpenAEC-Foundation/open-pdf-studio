@@ -66,7 +66,8 @@
     "pageOf": "Stranica {{current}} od {{total}}",
     "paperLabel": "Papir: {{paper}}",
     "paperFallback": "Papir: {{paper}} ({{requested}} nije dostupan na ovom pisaču)",
-    "pageSizeLabel": "Stranica: {{size}}"
+    "pageSizeLabel": "Stranica: {{size}}",
+    "pageClipped": "Stranica ne stane na papir i bit će odrezana."
   },
   "insertPage": {
     "title": "Umetni stranice",

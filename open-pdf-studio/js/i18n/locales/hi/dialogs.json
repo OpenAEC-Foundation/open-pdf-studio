@@ -66,7 +66,8 @@
     "pageOf": "पृष्ठ {{current}} का {{total}}",
     "paperLabel": "कागज़: {{paper}}",
     "paperFallback": "कागज़: {{paper}} ({{requested}} इस प्रिंटर पर उपलब्ध नहीं है)",
-    "pageSizeLabel": "पृष्ठ: {{size}}"
+    "pageSizeLabel": "पृष्ठ: {{size}}",
+    "pageClipped": "पृष्ठ कागज़ पर नहीं समाता और काट दिया जाएगा।"
   },
   "insertPage": {
     "title": "पृष्ठ सम्मिलित करें",
