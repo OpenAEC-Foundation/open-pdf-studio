@@ -16,6 +16,8 @@
 //! Geeft een driver geen bruikbare DEVMODE, dan blijft die oude weg over als
 //! noodweg (`nood_devmode`), maar altijd mét papier: het gevraagde, of het
 //! vel dat de DC al heeft, zodat een ResetDC het papier niet kwijtraakt.
+//! Vellen zonder vaste papiercode (A1, A0, de verlengde vellen) kent de
+//! noodweg niet; daar blijft het papier van de printer staan.
 
 use std::path::Path;
 use std::sync::Arc;
@@ -313,11 +315,14 @@ fn print_met_devmodes(
 /// Proeven op echte printers. Allemaal `#[ignore]`: draai ze bewust met
 /// `cargo test --lib print_windows -- --ignored --nocapture`.
 ///
-/// Veiligheid: `papier_per_printer_zonder_opdracht` start op GEEN enkele
-/// printer een opdracht; hij opent DC's alleen om maten te lezen (CreateDC,
+/// Veiligheid: `papier_per_printer_zonder_opdracht` en
+/// `grote_en_verlengde_vellen_zonder_opdracht` starten op GEEN enkele
+/// printer een opdracht; ze openen DC's alleen om maten te lezen (CreateDC,
 /// ResetDC, GetDeviceCaps, DeviceCapabilities, DocumentProperties zonder
-/// venster). Alleen `eind_tot_eind_naar_pdf_bestand` print, en uitsluitend op
-/// de virtuele printer `PROEF_PRINTER` naar een bestand in `proefmap()`.
+/// venster). Alleen `eind_tot_eind_naar_pdf_bestand` en
+/// `grote_en_verlengde_vellen_naar_pdf_bestand` printen, en uitsluitend op de
+/// virtuele printer `PROEF_PRINTER` naar een bestand in `proefmap()` of
+/// `proefmap_formaten()`.
 #[cfg(test)]
 mod proef {
     use super::*;
@@ -512,6 +517,139 @@ mod proef {
             }
         }
         assert!(fouten.is_empty(), "nieuwe weg gaf geen A3:\n{}", fouten.join("\n"));
+    }
+
+    // ---- grote en verlengde vellen (A1, A0, A3L, A2L, A1L, A0L) ----
+    //
+    // Gemeten op "Microsoft Print to PDF" (Windows 11, build 26200): de driver
+    // heeft een VASTE papierlijst (zijn PrintDeviceCapabilities kennen geen
+    // CustomMediaSize). A1 en A0 staan erin als "ISOA1" en "ISOA0"; een eigen
+    // maat in de DEVMODE (DMPAPER_USER met breedte en lengte, in elke variant)
+    // negeert hij en hij geeft zijn standaardvel terug. De verlengde vellen
+    // komen op deze driver dus op het papier van de printer uit, en de kop
+    // van de printdialoog zegt dat. Op drivers die eigen maten of formulieren
+    // van de printserver wel aannemen (plotters) komt het gevraagde vel eruit.
+
+    /// De virtuele pdf-printers van de app: de huidige naam en die van oudere
+    /// versies. Met de pdf-driver van Windows moeten A1 en A0 er exact uitkomen.
+    const PDF_PRINTERS: [&str; 2] = ["Open PDF Studio", "Open PDF Printer"];
+
+    /// Uitvoer van de proef met grote en verlengde vellen. Alleen hierin mag
+    /// `grote_en_verlengde_vellen_naar_pdf_bestand` schrijven.
+    fn proefmap_formaten() -> PathBuf {
+        std::env::temp_dir().join("opds-printer-probe")
+    }
+
+    /// Vellen die de pdf-driver zelf aanbiedt: die moeten er exact uitkomen.
+    const IN_DE_DRIVER: [(Papier, (f64, f64)); 2] = [(Papier::A1, (594.0, 841.0)), (Papier::A0, (841.0, 1189.0))];
+    /// Vellen die alleen als eigen maat of formulier kunnen.
+    const VERLENGD: [(Papier, (f64, f64)); 4] = [
+        (Papier::A3L, (297.0, 630.0)),
+        (Papier::A2L, (420.0, 804.0)),
+        (Papier::A1L, (594.0, 1051.0)),
+        (Papier::A0L, (841.0, 1399.0)),
+    ];
+
+    /// (d) Zonder opdracht, op elke geïnstalleerde printer: het vel van de DC
+    /// voor elk groot of verlengd vel, staand, liggend en na ResetDC, naast
+    /// wat de kop van de printdialoog zal melden (`papier_voor_opdracht`).
+    ///
+    /// - A1 en A0 op de pdf-printers van de app: exact het gevraagde vel.
+    /// - Overal: het gevraagde vel als de driver het aanneemt, anders netjes
+    ///   het papier van de printer; nooit iets daartussenin (een driver die
+    ///   A1L afkapt op zijn grootste breedte telt als niet aangenomen).
+    /// - Altijd: de kop meldt het vel dat de DC ook echt heeft.
+    ///
+    /// Er wordt alleen gelezen (DocumentProperties zonder venster,
+    /// DeviceCapabilities, CreateIC/CreateDC, GetDeviceCaps): geen opdracht.
+    #[test]
+    #[ignore]
+    fn grote_en_verlengde_vellen_zonder_opdracht() {
+        use crate::print_devmode::papier_voor_opdracht;
+        use crate::print_instelling::zelfde_maat_mm;
+        let mut fouten = Vec::new();
+        let mut gemeten = 0;
+        for printer in alle_printers() {
+            let printer = printer.as_str();
+            let driver = drivernaam(printer).unwrap_or_default();
+            let pdf_printer = PDF_PRINTERS.contains(&printer) && driver.eq_ignore_ascii_case(PROEF_DRIVER);
+            if pdf_printer {
+                gemeten += 1;
+            }
+            println!("\n=== {printer}  (driver: {driver})");
+            let Some(standaard) = dc(printer, std::ptr::null()).map(|d| vel_mm(d.0)) else {
+                println!("  geen DC; overgeslagen");
+                continue;
+            };
+            println!("  DC zonder DEVMODE (papier van de printer): {}", mm(Some(standaard)));
+            let lijst = papierlijst(printer);
+            let alle = IN_DE_DRIVER.iter().map(|v| (*v, pdf_printer)).chain(VERLENGD.iter().map(|v| (*v, false)));
+            for ((papier, verwacht), moet_exact) in alle {
+                let in_lijst = lijst.iter().find(|s| {
+                    zelfde_maat_mm(
+                        (s.maat_tiende_mm.0 as f64 / 10.0, s.maat_tiende_mm.1 as f64 / 10.0),
+                        verwacht,
+                        1.0,
+                    )
+                });
+                let dms = match OpdrachtDevmodes::maak(printer, None, papier) {
+                    Ok(d) => d,
+                    Err(e) => {
+                        println!("  {:4} geen DEVMODE: {e}", papier.sleutel());
+                        continue;
+                    }
+                };
+                let staand = dc(printer, dms.voor(false).ptr()).map(|d| vel_mm(d.0));
+                let liggend = dc(printer, dms.voor(true).ptr()).map(|d| vel_mm(d.0));
+                let omgedraaid = dc(printer, dms.voor(false).ptr())
+                    .and_then(|d| (!unsafe { ResetDCW(d.0, dms.voor(true).ptr()) }.is_null()).then(|| vel_mm(d.0)));
+                let kop = papier_voor_opdracht(printer, None, papier);
+                // Drivers ronden af op hun resolutie; 3 mm, net als het printpad zelf.
+                let aangenomen = is_ongeveer(staand, verwacht, 3.0);
+                println!(
+                    "  {:4} {:24} {:9}: staand {} | liggend {} | ResetDC {} | kop {:?}",
+                    papier.sleutel(),
+                    match in_lijst {
+                        Some(s) => format!("driver: code {} '{}'", s.code, s.naam),
+                        None => "niet in de papierlijst".to_string(),
+                    },
+                    if aangenomen { "OK" } else { "TERUGVAL" },
+                    mm(staand),
+                    mm(liggend),
+                    mm(omgedraaid),
+                    kop.as_ref().map(|i| (i.papier, i.naam.as_str(), i.breedte_mm, i.hoogte_mm)),
+                );
+                // Het vel is het gevraagde, of precies het papier van de printer.
+                let doel = if aangenomen { verwacht } else { standaard };
+                if moet_exact && !aangenomen {
+                    fouten.push(format!("{printer}: {} niet aangenomen: {}", papier.sleutel(), mm(staand)));
+                }
+                if !is_ongeveer(staand, doel, 3.0) {
+                    fouten.push(format!("{printer}: {} staand = {}", papier.sleutel(), mm(staand)));
+                }
+                if !is_ongeveer(liggend, (doel.1, doel.0), 3.0) {
+                    fouten.push(format!("{printer}: {} liggend = {}", papier.sleutel(), mm(liggend)));
+                }
+                if !is_ongeveer(omgedraaid, (doel.1, doel.0), 3.0) {
+                    fouten.push(format!("{printer}: {} na ResetDC = {}", papier.sleutel(), mm(omgedraaid)));
+                }
+                // De kop meldt het vel dat de DC heeft, en bij een aangenomen vel ook de sleutel.
+                match &kop {
+                    Some(i) if zelfde_maat_mm((i.breedte_mm, i.hoogte_mm), doel, 3.0) => {
+                        if aangenomen && i.papier != papier.sleutel() {
+                            fouten.push(format!("{printer}: kop voor {} heet {}", papier.sleutel(), i.papier));
+                        }
+                        if !aangenomen && Some(i) != huidig_papier(printer, None).as_ref() {
+                            fouten.push(format!("{printer}: kop voor {} is niet het papier van de printer", papier.sleutel()));
+                        }
+                    }
+                    anders => fouten.push(format!("{printer}: kop voor {} = {anders:?}, DC = {}", papier.sleutel(), mm(staand))),
+                }
+            }
+        }
+        println!("\n{gemeten} pdf-printer(s) van de app gemeten");
+        assert!(gemeten > 0, "geen van {PDF_PRINTERS:?} met driver '{PROEF_DRIVER}' gevonden");
+        assert!(fouten.is_empty(), "afwijkende vellen:\n{}", fouten.join("\n"));
     }
 
     // ---- (b) eind-tot-eind naar een PDF-bestand ----
@@ -800,6 +938,76 @@ mod proef {
         print_oude_weg(&uit, twee.ptr(), None);
         println!("    -> {} pagina('s)", wacht_op_pdf(&uit).len());
 
+        assert!(fouten.is_empty(), "afwijkende paginamaten: {fouten:?}");
+    }
+
+    /// (e) Eind-tot-eind met grote en verlengde vellen, vanaf een A4-pagina:
+    /// A1 liggend en A0 staand moeten er exact uitkomen; A3L staand en A1L
+    /// liggend komen eruit op het vel dat de kop van de printdialoog belooft
+    /// (`papier_voor_opdracht`): het gevraagde vel als de driver het aanneemt,
+    /// anders het papier van de printer. Alleen op de virtuele pdf-printer
+    /// `PROEF_PRINTER`, en alleen naar een bestand in `proefmap_formaten()`.
+    #[test]
+    #[ignore]
+    fn grote_en_verlengde_vellen_naar_pdf_bestand() {
+        use crate::print_devmode::papier_voor_opdracht;
+        let driver = drivernaam(PROEF_PRINTER).unwrap_or_default();
+        assert!(
+            driver.eq_ignore_ascii_case(PROEF_DRIVER),
+            "'{PROEF_PRINTER}' ontbreekt of heeft driver '{driver}'; er wordt niets geprint"
+        );
+        init_pdfium();
+        let map = proefmap_formaten();
+        std::fs::create_dir_all(&map).unwrap();
+        let bron = map.join("bron-a4-staand.pdf");
+        maak_pdf(&bron, &[(595, 842)]);
+
+        let mm_naar_pt = |mm: f64| mm * 72.0 / 25.4;
+        // (bestand, oriëntatie, papier, gevraagd vel staand in mm, moet exact)
+        let gevallen = [
+            ("a1-liggend.pdf", Orientatie::Liggend, Papier::A1, (594.0, 841.0), true),
+            ("a0-staand.pdf", Orientatie::Staand, Papier::A0, (841.0, 1189.0), true),
+            ("a3l-staand.pdf", Orientatie::Staand, Papier::A3L, (297.0, 630.0), false),
+            ("a1l-liggend.pdf", Orientatie::Liggend, Papier::A1L, (594.0, 1051.0), false),
+        ];
+        let mut fouten = Vec::new();
+        for (naam, orientatie, papier, gevraagd, moet_exact) in gevallen {
+            let uit = map.join(naam);
+            // Veiligheid: uitsluitend naar een bestand direct in de proefmap.
+            assert!(uit.parent() == Some(map.as_path()));
+            let _ = std::fs::remove_file(&uit);
+            let kop = papier_voor_opdracht(PROEF_PRINTER, None, papier).expect("kop");
+            print_pdf_bestand(&bron, PROEF_PRINTER, orientatie, papier, None, Some(&uit)).expect("printen");
+            let maten = wacht_op_pdf(&uit);
+            let liggend = orientatie == Orientatie::Liggend;
+            let in_pt = |(b, h): (f64, f64)| {
+                let (b, h) = (mm_naar_pt(b), mm_naar_pt(h));
+                if liggend { (h, b) } else { (b, h) }
+            };
+            let beloofd = in_pt((kop.breedte_mm, kop.hoogte_mm));
+            let aangenomen = kop.papier == papier.sleutel();
+            let ok = maten.len() == 1
+                && ongeveer_pt(maten[0], beloofd)
+                && (!moet_exact || (aangenomen && ongeveer_pt(maten[0], in_pt(gevraagd))));
+            println!(
+                "  {:4} {:8} -> {}: {}  (gevraagd {}, kop belooft {} = {}) {}",
+                papier.sleutel(),
+                if liggend { "liggend" } else { "staand" },
+                naam,
+                maten.iter().map(|m| pt(*m)).collect::<Vec<_>>().join(", "),
+                pt(in_pt(gevraagd)),
+                kop.papier,
+                pt(beloofd),
+                match (ok, aangenomen) {
+                    (true, true) => "OK",
+                    (true, false) => "OK (terugval op het papier van de printer)",
+                    _ => "FOUT",
+                }
+            );
+            if !ok {
+                fouten.push(naam);
+            }
+        }
         assert!(fouten.is_empty(), "afwijkende paginamaten: {fouten:?}");
     }
 

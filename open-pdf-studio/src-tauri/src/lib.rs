@@ -680,27 +680,38 @@ async fn open_printer_properties(
     }
 }
 
-/// The paper the next job on this printer uses when Page Setup leaves the
-/// paper on "printer": the Properties choice from this session for this
-/// printer, else the driver's current default for this user. Never shows UI
-/// and never changes anything. null on Linux/macOS or when it cannot be
-/// determined.
+/// The paper the next job on this printer really uses, given the Page Setup
+/// paper (`papier`, same values as print_pdf).
+///
+/// - 'printer' or absent: the Properties choice from this session for this
+///   printer, else the driver's current default for this user.
+/// - a paper size: what the driver makes of it, exactly as print_pdf builds
+///   the job. A driver that cannot take the size (A0L is longer than the
+///   built-in PDF driver allows) keeps the printer's paper, and that is what
+///   comes back, so the Print dialog can show the sheet that will be used.
+///
+/// Never shows UI, never starts a job and never changes anything. null on
+/// Linux/macOS or when it cannot be determined.
 #[tauri::command]
 async fn printer_papier(
     printer: String,
+    papier: Option<String>,
     devmodes: tauri::State<'_, print_instelling::PrinterDevmodes>,
 ) -> Result<Option<print_instelling::PapierInfo>, String> {
     #[cfg(target_os = "windows")]
     {
         let opgeslagen = devmodes.ophalen(&printer);
-        tauri::async_runtime::spawn_blocking(move || print_devmode::huidig_papier(&printer, opgeslagen.as_deref()))
-            .await
-            .map_err(|e| format!("Printer paper task failed: {e}"))
+        let papier = print_instelling::Papier::uit_keuze(papier.as_deref());
+        tauri::async_runtime::spawn_blocking(move || {
+            print_devmode::papier_voor_opdracht(&printer, opgeslagen.as_deref(), papier)
+        })
+        .await
+        .map_err(|e| format!("Printer paper task failed: {e}"))
     }
 
     #[cfg(not(target_os = "windows"))]
     {
-        let _ = (&printer, &devmodes);
+        let _ = (&printer, &papier, &devmodes);
         Ok(None)
     }
 }
