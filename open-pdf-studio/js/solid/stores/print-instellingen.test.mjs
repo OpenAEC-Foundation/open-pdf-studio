@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { PRINT_STANDAARD, herstelPrintInstellingen, kiesStartPrinter } from './print-instellingen.js';
+import {
+  PRINT_STANDAARD, PRINT_KEUZES, herstelPrintInstellingen, kiesStartPrinter, markeringenVoorInhoud,
+} from './print-instellingen.js';
 
 test('zonder opgeslagen instellingen gelden de standaardwaarden', () => {
   assert.deepEqual(herstelPrintInstellingen(undefined), PRINT_STANDAARD);
@@ -58,4 +60,35 @@ test('startprinter: laatst gebruikte, anders systeemstandaard, anders de eerste'
   assert.equal(kiesStartPrinter(lijst, '', 'Onbekend'), 'PDF');
   assert.equal(kiesStartPrinter([], 'Plotter A0', 'Kantoor A3'), '');
   assert.equal(kiesStartPrinter(null, 'Plotter A0', ''), '');
+});
+
+// --- Afdrukken: Document, of Document en markeringen --------------------------
+
+test('elke waarde van de keuzelijst Afdrukken bepaalt of de markeringen meegaan', () => {
+  assert.deepEqual([...PRINT_KEUZES.content], ['doc-and-markups', 'doc-only']);
+  assert.equal(markeringenVoorInhoud('doc-and-markups'), true);
+  assert.equal(markeringenVoorInhoud('doc-only'), false);
+  // Elke toegestane waarde heeft een antwoord; alleen 'doc-only' laat ze weg.
+  for (const waarde of PRINT_KEUZES.content) {
+    assert.equal(typeof markeringenVoorInhoud(waarde), 'boolean', waarde);
+    assert.equal(markeringenVoorInhoud(waarde), waarde !== 'doc-only', waarde);
+  }
+  // Onzin of niets: de standaard van de dialoog.
+  for (const onzin of [undefined, null, '', 'alles', 42]) {
+    assert.equal(markeringenVoorInhoud(onzin), true, String(onzin));
+  }
+  assert.equal(markeringenVoorInhoud(PRINT_STANDAARD.content), true);
+});
+
+test('de keuzelijst in de printdialoog kent precies deze waarden', async () => {
+  const { readFileSync } = await import('node:fs');
+  const { dirname, join } = await import('node:path');
+  const { fileURLToPath } = await import('node:url');
+  const jsx = readFileSync(
+    join(dirname(fileURLToPath(import.meta.url)), '../components/dialogs/PrintDialog.jsx'), 'utf8',
+  );
+  // Het blok van de keuzelijst Afdrukken (printContent) uit de JSX.
+  const blok = jsx.split('onChange={(e) => onPrintContentChange(e.target.value)}')[1] ?? '';
+  const waarden = [...blok.split('</select>')[0].matchAll(/<option value="([^"]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(waarden, [...PRINT_KEUZES.content]);
 });

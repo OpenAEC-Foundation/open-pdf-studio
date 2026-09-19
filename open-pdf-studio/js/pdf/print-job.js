@@ -9,6 +9,7 @@ import { invoke } from '../core/platform.js';
 import { renderPageOffscreen, canvasToBytes } from './exporter.js';
 import { viewportOpties } from './getoonde-pagina.js';
 import { berekenPlaatsing, renderDeel, printPxPerPt, voegPrintPaginaToe } from './print-plaatsing.js';
+import { markeringenVoorInhoud } from '../solid/stores/print-instellingen.js';
 import {
   startPrintProgress, updatePrintProgress, finishPrintProgress, failPrintProgress,
 } from '../solid/stores/printProgressStore.js';
@@ -21,16 +22,20 @@ import {
  * without a sheet each page keeps its own size, as before the scale choice.
  * Only the part of a page that lands on the sheet is rendered, at 300 dpi on
  * paper and never finer than 300 dpi of the page itself. Prints nothing.
+ * `inhoud` volgt de keuzelijst "Afdrukken": 'doc-only' laat de markeringen
+ * weg, alles anders drukt document én markeringen af
+ * (stores/print-instellingen.js).
  * @param {{ doc: object, pages:number[], orientatie?:'auto'|'portrait'|'landscape',
  *           vel?: {breedteMm:number, hoogteMm:number}|null,
- *           schaling?: string, zoom?: number, centreren?: boolean,
+ *           schaling?: string, zoom?: number, centreren?: boolean, inhoud?: string,
  *           voortgang?: (index:number, pageNum:number) => void }} opts
  * @returns {Promise<{ pdf: PDFDocument, opVel: boolean }>}
  */
 export async function bouwPrintPdf({
   doc, pages, orientatie = 'auto', vel = null, schaling = 'fit', zoom = 100, centreren = true,
-  voortgang = () => {},
+  inhoud = 'doc-and-markups', voortgang = () => {},
 }) {
+  const markeringen = markeringenVoorInhoud(inhoud);
   const pdf = await PDFDocument.create();
   // Pages laid out on the sheet (the sheet is the same for every page).
   let opVel = false;
@@ -52,7 +57,7 @@ export async function bouwPrintPdf({
 
     const pxPerPt = printPxPerPt(plaatsing);
     const deel = renderDeel(plaatsing, pxPerPt);
-    const canvas = await renderPageOffscreen(pageNum, pxPerPt, { deel: deel.px });
+    const canvas = await renderPageOffscreen(pageNum, pxPerPt, { deel: deel.px, markeringen });
     const jpegBytes = await canvasToBytes(canvas, 'jpeg', 0.92);
     voegPrintPaginaToe(pdf, plaatsing, deel, await pdf.embedJpg(jpegBytes));
   }
@@ -70,11 +75,11 @@ export async function bouwPrintPdf({
  * @param {{ pages:number[], copies:number, printer:string,
  *           orientatie?:'auto'|'portrait'|'landscape', papier?:string,
  *           vel?: {breedteMm:number, hoogteMm:number}|null,
- *           schaling?: string, zoom?: number, centreren?: boolean }} opts
+ *           schaling?: string, zoom?: number, centreren?: boolean, inhoud?: string }} opts
  */
 export async function runPrintJob({
   pages, copies, printer, orientatie = 'auto', papier = 'printer',
-  vel = null, schaling = 'fit', zoom = 100, centreren = true,
+  vel = null, schaling = 'fit', zoom = 100, centreren = true, inhoud = 'doc-and-markups',
 }) {
   startPrintProgress(i18next.t('dialogs:print.progress.preparing'));
   try {
@@ -83,7 +88,7 @@ export async function runPrintJob({
     // Reserve the last slice of the bar for the spool step.
     const total = pages.length + 1;
     const { pdf: newPdf, opVel } = await bouwPrintPdf({
-      doc, pages, orientatie, vel, schaling, zoom, centreren,
+      doc, pages, orientatie, vel, schaling, zoom, centreren, inhoud,
       voortgang: (i, pageNum) => updatePrintProgress(
         i18next.t('dialogs:print.progress.renderingPage', { page: pageNum, current: i + 1, total: pages.length }),
         i / total,

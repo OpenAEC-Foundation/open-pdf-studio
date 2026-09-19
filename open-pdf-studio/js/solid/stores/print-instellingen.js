@@ -24,12 +24,25 @@ export const PRINT_STANDAARD = Object.freeze({
   asImage: false,
 });
 
-const KEUZES = Object.freeze({
+/** De toegestane waarden per keuzelijst van de printdialoog. */
+export const PRINT_KEUZES = Object.freeze({
   range: ['all', 'current', 'custom'],
   subset: ['all', 'odd', 'even'],
   scaling: ['fit', 'actual', 'shrink', 'custom-scale'],
   content: ['doc-and-markups', 'doc-only'],
 });
+
+const KEUZES = PRINT_KEUZES;
+
+/**
+ * Tekent de afdruk de markeringen (annotatielaag)? "Afdrukken: Document"
+ * (`doc-only`) laat ze weg; watermerken en tekstbewerkingen blijven, dat is
+ * inhoud van het document. Een onbekende waarde telt als de standaard van de
+ * dialoog: document én markeringen.
+ */
+export function markeringenVoorInhoud(inhoud) {
+  return inhoud !== 'doc-only';
+}
 
 const SCHAKELAARS = ['collate', 'reverseOrder', 'autoRotate', 'autoCenter', 'asImage'];
 

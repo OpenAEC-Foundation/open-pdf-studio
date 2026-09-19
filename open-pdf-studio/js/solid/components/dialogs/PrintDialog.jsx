@@ -465,6 +465,8 @@ export default function PrintDialog(props) {
       schaling: keuzes.schaling,
       zoom: keuzes.zoom,
       centreren: keuzes.centreren,
+      // "Afdrukken: Document" laat de markeringen ook echt weg.
+      inhoud: printContent(),
     });
   }
 
