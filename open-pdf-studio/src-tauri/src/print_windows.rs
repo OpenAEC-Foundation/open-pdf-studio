@@ -1088,6 +1088,52 @@ mod proef {
         assert!(fouten.is_empty(), "afwijkende paginamaten: {fouten:?}");
     }
 
+    /// Uitvoer van de schaalproef. Alleen hierin mag
+    /// `schaal_op_vel_naar_pdf_bestand` lezen en schrijven.
+    fn proefmap_schaal() -> PathBuf {
+        std::env::temp_dir().join("opds-printschaal-probe")
+    }
+
+    /// (f) De schaal uit de printdialoog, eind-tot-eind: de tijdelijke
+    /// print-PDF's die `scripts/print-schaal-proef.mjs` bouwt zoals
+    /// runPrintJob dat doet (A4 op A3 bij werkelijke grootte, 50 %, 10 %,
+    /// passend, ...), met hun plaatsing en papier A3 naar een bestand in
+    /// `proefmap_schaal()`. Meten: `scripts/meet-print-schaal-proef.py`.
+    /// Alleen op de virtuele pdf-printer `PROEF_PRINTER`.
+    #[test]
+    #[ignore]
+    fn schaal_op_vel_naar_pdf_bestand() {
+        let driver = drivernaam(PROEF_PRINTER).unwrap_or_default();
+        assert!(
+            driver.eq_ignore_ascii_case(PROEF_DRIVER),
+            "'{PROEF_PRINTER}' ontbreekt of heeft driver '{driver}'; er wordt niets geprint"
+        );
+        init_pdfium();
+        let map = proefmap_schaal();
+        let lijst = std::fs::read_to_string(map.join("proef.json"))
+            .expect("proef.json ontbreekt: draai eerst node scripts/print-schaal-proef.mjs");
+        let gevallen: Vec<serde_json::Value> = serde_json::from_str(&lijst).expect("proef.json");
+        assert!(!gevallen.is_empty());
+        println!("
+SCHAAL OP HET VEL naar {}", map.display());
+        for geval in gevallen {
+            let naam = geval["naam"].as_str().expect("naam");
+            let bron = map.join(geval["bron"].as_str().expect("bron"));
+            let plaatsing = Plaatsing::uit_keuze(geval["plaatsing"].as_str());
+            let uit = map.join(format!("uit-{naam}.pdf"));
+            // Veiligheid: uitsluitend uit en naar bestanden direct in de proefmap.
+            assert!(uit.parent() == Some(map.as_path()) && bron.parent() == Some(map.as_path()), "{naam}");
+            let _ = std::fs::remove_file(&uit);
+            print_pdf_bestand(&bron, PROEF_PRINTER, Orientatie::Auto, Papier::A3, plaatsing, None, Some(&uit))
+                .expect("printen");
+            let maten = wacht_op_pdf(&uit);
+            println!(
+                "  {naam:28} {plaatsing:?}: {}",
+                maten.iter().map(|m| pt(*m)).collect::<Vec<_>>().join(", ")
+            );
+        }
+    }
+
     /// Drukt in een eigen dialoogvenster van DIT testproces op `knop` (IDOK of
     /// IDCANCEL) zodra het zichtbaar is. Raakt geen vensters van andere processen.
     fn druk_knop_in_eigen_dialoog(knop: i32) -> std::thread::JoinHandle<bool> {
