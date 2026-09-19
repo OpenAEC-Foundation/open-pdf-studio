@@ -153,3 +153,25 @@ export function parseFromPageInput(text, totalPages) {
   if (!Number.isFinite(value)) return null;
   return Math.max(1, Math.min(value, Math.max(1, Math.floor(Number(totalPages)) || 1)));
 }
+
+/**
+ * Size of the dialog preview and the scale to render it at: the page fitted
+ * into `maxWidth` x `maxHeight` CSS pixels (never enlarged), rendered with
+ * just enough pixels for that box. A fixed render scale turns a large-format
+ * sheet into a bitmap of tens of megapixels for a 260 px wide preview.
+ *
+ * @returns {{width: number, height: number, scale: number}} CSS pixel size
+ *   of the preview and the render scale (canvas pixels per PDF point)
+ */
+export function previewLayout(pageWidthPt, pageHeightPt, maxWidth, maxHeight, devicePixelRatio = 1) {
+  const w = Number(pageWidthPt);
+  const h = Number(pageHeightPt);
+  if (!(w > 0) || !(h > 0)) return { width: maxWidth, height: maxHeight, scale: 1 };
+  const fit = Math.min(1, maxWidth / w, maxHeight / h);
+  const dpr = Math.max(1, Math.min(Number(devicePixelRatio) || 1, 3));
+  return {
+    width: Math.max(1, Math.round(w * fit)),
+    height: Math.max(1, Math.round(h * fit)),
+    scale: fit * dpr,
+  };
+}

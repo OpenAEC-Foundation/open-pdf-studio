@@ -2,9 +2,13 @@ import { createSignal, onMount, Show, untrack } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog, showMessage } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
-import { MAX_SHIFT_MM, MM_TO_POINTS, parseFromPageInput, parseShiftInput } from '../../../pdf/shift-page-geometry.js';
+import { getActiveDocument, getPageRotation } from '../../../core/state.js';
+import {
+  MAX_SHIFT_MM, MM_TO_POINTS, parseFromPageInput, parseShiftInput, previewLayout,
+} from '../../../pdf/shift-page-geometry.js';
 
 const PREVIEW_MAX_WIDTH = 260;
+const PREVIEW_MAX_HEIGHT = 400;
 
 export default function ShiftPageDialog(props) {
   const { t } = useTranslation('dialogs');
@@ -54,23 +58,28 @@ export default function ShiftPageDialog(props) {
 
   onMount(async () => {
     try {
-      const { renderPageOffscreen } = await import('../../../pdf/exporter.js');
-      const canvas = await renderPageOffscreen(currentPage, 1.5);
-      const displayScale = Math.min(1, PREVIEW_MAX_WIDTH / canvas.width);
-      const dispW = Math.round(canvas.width * displayScale);
-      const dispH = Math.round(canvas.height * displayScale);
+      // The page as displayed: its own /Rotate plus the in-app rotation.
+      const page = await getActiveDocument().pdfDoc.getPage(currentPage);
+      const rotation = (page.rotate + (getPageRotation(currentPage) || 0)) % 360;
+      const visual = page.getViewport({ scale: 1, rotation });
+      const layout = previewLayout(
+        visual.width, visual.height, PREVIEW_MAX_WIDTH, PREVIEW_MAX_HEIGHT, window.devicePixelRatio,
+      );
+      // Size the box before the render, so the dialog does not grow afterwards.
       if (previewBoxRef) {
-        previewBoxRef.style.width = dispW + 'px';
-        previewBoxRef.style.height = dispH + 'px';
+        previewBoxRef.style.width = layout.width + 'px';
+        previewBoxRef.style.height = layout.height + 'px';
       }
+      // layout.width px represents the page's visual width in points; convert to mm.
+      pxPerMm = layout.width / (visual.width / MM_TO_POINTS);
+
+      const { renderPageOffscreen } = await import('../../../pdf/exporter.js');
+      const canvas = await renderPageOffscreen(currentPage, layout.scale);
       if (previewImgRef) {
         previewImgRef.src = canvas.toDataURL('image/png');
-        previewImgRef.style.width = dispW + 'px';
-        previewImgRef.style.height = dispH + 'px';
+        previewImgRef.style.width = layout.width + 'px';
+        previewImgRef.style.height = layout.height + 'px';
       }
-      // dispW px represents the page's own width in points; convert to mm.
-      const pageWidthMm = (canvas.width / 1.5) / MM_TO_POINTS;
-      pxPerMm = dispW / pageWidthMm;
       applyPreviewTransform();
     } catch (e) {
       console.warn('Shift page preview failed:', e?.message || e);

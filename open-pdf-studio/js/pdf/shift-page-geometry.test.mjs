@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   MAX_SHIFT_MM, MM_TO_POINTS, applyOcrShift, normalizeRotation, parseFromPageInput, parseShiftInput,
-  resolveTargetPages, shiftAnnotation, shiftOcrWords, shiftOffsetPoints, visualToContentOffset,
+  previewLayout, resolveTargetPages, shiftAnnotation, shiftOcrWords, shiftOffsetPoints, visualToContentOffset,
 } from "./shift-page-geometry.js";
 
 test("'current' ignores fromPage and returns only the current page", () => {
@@ -250,4 +250,29 @@ test("the start page field keeps its value while it is being retyped", () => {
   assert.equal(parseFromPageInput("99", 10), 10);
   assert.equal(parseFromPageInput("2.7", 10), 2);
   assert.equal(parseFromPageInput("x", 10), null);
+});
+
+// ── Dialog preview ──
+
+test("the preview is rendered for the box it is shown in, not at a fixed scale", () => {
+  // A4 portrait: 260 px wide, as before.
+  const a4 = previewLayout(595.28, 841.89, 260, 400, 1);
+  assert.deepEqual([a4.width, a4.height], [260, 368]);
+  assert.ok(Math.abs(a4.scale - 260 / 595.28) < 1e-9);
+
+  // A0 sheet (2384 x 3370 pt): the old fixed scale 1.5 gave a 3576 x 5055 canvas (18 MP).
+  const a0 = previewLayout(2384, 3370, 260, 400, 1);
+  assert.deepEqual([a0.width, a0.height], [260, 368]);
+  const pixels = (2384 * a0.scale) * (3370 * a0.scale);
+  assert.ok(pixels < 0.2e6, `A0 preview canvas is ${Math.round(pixels)} px`);
+});
+
+test("the preview fits both ways, is never enlarged, and follows the display density", () => {
+  const banner = previewLayout(300, 3000, 260, 400, 1); // very tall page
+  assert.deepEqual([banner.width, banner.height], [40, 400]);
+  const small = previewLayout(100, 80, 260, 400, 1);
+  assert.deepEqual([small.width, small.height, small.scale], [100, 80, 1]);
+  assert.equal(previewLayout(595.28, 841.89, 260, 400, 2).scale, 2 * (260 / 595.28));
+  assert.equal(previewLayout(595.28, 841.89, 260, 400, 99).scale, 3 * (260 / 595.28), "density is bounded");
+  assert.deepEqual(previewLayout(0, NaN, 260, 400), { width: 260, height: 400, scale: 1 });
 });
