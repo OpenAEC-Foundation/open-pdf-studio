@@ -16,7 +16,9 @@ export default function ShiftPageDialog(props) {
   const [dxMm, setDxMm] = createSignal(0);
   const [dyMm, setDyMm] = createSignal(0);
   const [applyTo, setApplyTo] = createSignal('current');
-  const [fromPage, setFromPage] = createSignal(currentPage);
+  // "All pages" means the whole document, as in the sibling dialogs (Crop,
+  // Straighten, Resize); a later start page is something the user opts into.
+  const [fromPage, setFromPage] = createSignal(1);
 
   let previewBoxRef;
   let previewImgRef;
