@@ -12,6 +12,7 @@ import {
   syncTwoPointLengthParam,
   twoPointEndpoints,
 } from '../symbols/two-point.js';
+import { isPointPolygon, rotatePointPolygon } from './polygon-transform.js';
 
 // Compute measurement text for a dimension annotation, using its own scale if available
 function computeDimensionText(ann) {
@@ -1509,9 +1510,14 @@ export function applyRotateGeneric(annotation, original, pivotX, pivotY, deg) {
 export function applyRotation(annotation, mouseX, mouseY, originalAnn) {
   if (annotation.locked) return;
 
+  // Closed point-based polygons (filledArea/measureArea) have no rotation
+  // field: the drag turns the real points, about the original bbox centre.
+  // The caller restores `annotation` from `originalAnn` before every call.
+  const pointPolygon = isPointPolygon(originalAnn);
+
   // Supported types for rotation
   const rotationTypes = ['image', 'stamp', 'signature', 'comment', 'box', 'mask', 'circle', 'highlight', 'polygon', 'cloud', 'textbox', 'parametricSymbol'];
-  if (!rotationTypes.includes(annotation.type)) return;
+  if (!pointPolygon && !rotationTypes.includes(annotation.type)) return;
 
   // Calculate center of annotation
   let width, height, centerX, centerY;
@@ -1525,21 +1531,27 @@ export function applyRotation(annotation, mouseX, mouseY, originalAnn) {
   // +90 offset because the rotation handle is above the annotation (at -90°)
   const angle = Math.atan2(mouseY - centerY, mouseX - centerX) * (180 / Math.PI) + 90;
 
-  annotation.rotation = Math.round(angle);
+  let degrees = Math.round(angle);
 
   // Snap to 15 degree increments when shift is held
   if (state.shiftKeyPressed && state.preferences.enableAngleSnap) {
-    annotation.rotation = snapAngle(annotation.rotation, state.preferences.angleSnapDegrees);
+    degrees = snapAngle(degrees, state.preferences.angleSnapDegrees);
   } else {
     // Magnetic snap to common angles (0, ±45, ±90, ±135, 180) within ±3° tolerance
     const magnetAngles = [0, 45, 90, 135, 180, -45, -90, -135, -180];
     const magnetTolerance = 3;
     for (const magnet of magnetAngles) {
-      if (Math.abs(annotation.rotation - magnet) <= magnetTolerance) {
-        annotation.rotation = magnet;
+      if (Math.abs(degrees - magnet) <= magnetTolerance) {
+        degrees = magnet;
         break;
       }
     }
+  }
+
+  if (pointPolygon) {
+    rotatePointPolygon(annotation, degrees);
+  } else {
+    annotation.rotation = degrees;
   }
 
   annotation.modifiedAt = new Date().toISOString();

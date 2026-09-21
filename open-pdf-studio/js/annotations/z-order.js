@@ -8,6 +8,7 @@ import {
 import { cloneAnnotation } from './factory.js';
 import { redrawAnnotations, redrawContinuous } from './rendering.js';
 import { showProperties, showMultiSelectionProperties } from '../ui/panels/properties-panel.js';
+import { isPointPolygon, rotatePointPolygon, flipPointPolygon } from './polygon-transform.js';
 
 function normalizeTargets(annotationOrAnnotations, doc) {
   const requested = Array.isArray(annotationOrAnnotations)
@@ -150,6 +151,8 @@ export function rotateAnnotation(annotation, degrees) {
     const { cx, cy } = polylineCenter(annotation.points);
     annotation.points = annotation.points.map(p => rotatePoint(p.x, p.y, cx, cy, degrees));
     updatePolylineBounds(annotation);
+  } else if (isPointPolygon(annotation)) {
+    rotatePointPolygon(annotation, degrees);
   } else {
     annotation.rotation = ((annotation.rotation || 0) + degrees) % 360;
   }
@@ -170,6 +173,8 @@ export function flipHorizontal(annotation) {
     const { cx } = polylineCenter(annotation.points);
     annotation.points = annotation.points.map(p => ({ x: 2 * cx - p.x, y: p.y }));
     updatePolylineBounds(annotation);
+  } else if (isPointPolygon(annotation)) {
+    flipPointPolygon(annotation, 'x');
   } else {
     annotation.flipX = !annotation.flipX;
   }
@@ -190,6 +195,8 @@ export function flipVertical(annotation) {
     const { cy } = polylineCenter(annotation.points);
     annotation.points = annotation.points.map(p => ({ x: p.x, y: 2 * cy - p.y }));
     updatePolylineBounds(annotation);
+  } else if (isPointPolygon(annotation)) {
+    flipPointPolygon(annotation, 'y');
   } else {
     annotation.flipY = !annotation.flipY;
   }

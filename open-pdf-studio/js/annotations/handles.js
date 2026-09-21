@@ -4,6 +4,7 @@ import { state } from '../core/state.js';
 import { getTemplate } from '../symbols/registry.js';
 import { twoPointEndpoints } from '../symbols/two-point.js';
 import { handleAnchors } from './stavenreeks.js';
+import { isPointPolygon } from './polygon-transform.js';
 import { betonbalkTagAnchor } from './betonbalk.js';
 import { betonbalkHalfWidthPx } from './betonbalk-scale.js';
 import { buildSysteemraster, segmentPoint, rotToWorld } from './systeemraster.js';
@@ -405,6 +406,10 @@ export function getAnnotationHandles(annotation, scale = 1) {
         annotation.points.forEach((p, i) => {
           handles.push({ type: HANDLE_TYPES.POLYLINE_NODE, x: p.x - hs/2, y: p.y - hs/2, nodeIndex: i });
         });
+      }
+      // Free-angle rotate handle above closed area polygons (drag to rotate)
+      if (isPointPolygon(annotation) && annotation.height != null) {
+        handles.push({ type: HANDLE_TYPES.ROTATE, x: annotation.x + annotation.width/2 - hs/2, y: annotation.y - 25 / scale - hs/2 });
       }
       // Per-node handles for holes in measureArea / filledArea
       if ((annotation.type === 'measureArea' || annotation.type === 'filledArea') && annotation.holes && annotation.holes.length > 0) {
