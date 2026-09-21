@@ -1,4 +1,4 @@
-import { state, getActiveDocument } from '../core/state.js';
+import { state, getActiveDocument, clearSelection } from '../core/state.js';
 import { hideProperties } from '../ui/panels/properties-panel.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { updateStatusTool } from '../ui/chrome/status-bar.js';
@@ -10,7 +10,11 @@ import { findAnnotationAt } from '../annotations/geometry.js';
 import { findHandleAt } from '../annotations/handles.js';
 import { cancelParametricSymbolInput } from './parametric-symbol-editing.js';
 import { applyOverlayPointerEvents } from '../pdf/link-layer.js';
-import { doorvalVoorSelectie, staatBovenTekst } from './select-doorval.js';
+import {
+  doorvalVoorSelectie, staatBovenTekst, klikDoelSoort, heftKlikSelectieOp,
+} from './select-doorval.js';
+import { isGMoveModeActive } from './g-move-mode.js';
+import { isGRotateModeActive } from './g-rotate-mode.js';
 
 // Tools that are always allowed (view-only, non-modifying)
 const READONLY_ALLOWED_TOOLS = new Set(['select', 'hand']);
@@ -61,6 +65,33 @@ function setTextSelectionEnabled(enabled) {
 // When over an annotation, restore pointer-events: auto so clicks select it.
 let _selectFallthroughInstalled = false;
 let _selectFallthroughHandler = null;
+
+// Klik naast een geselecteerd element. Het selectiegereedschap heft de
+// selectie alleen op wanneer de pointerdown op het annotatiecanvas landt; een
+// klik op PDF-tekst (tekstlaag) of rond/tussen de pagina's komt daar nooit
+// aan. Deze luisteraar vangt precies die klikken (zie select-doorval.js) en
+// laat de gebeurtenis verder ongemoeid: tekst selecteren begint gewoon.
+function _deselecteerBijKlikBuitenCanvas(e) {
+  const doc = getActiveDocument();
+  if (!doc?.pdfDoc) return;
+  const doel = e.target;
+  // Klik op de eigen schuifbalk van een scrollend achtergrondvlak.
+  const opSchuifbalk = !!doel && typeof doel.clientWidth === 'number' && doel.clientWidth > 0 &&
+    (e.offsetX >= doel.clientWidth || e.offsetY >= doel.clientHeight);
+  if (!heftKlikSelectieOp({
+    gereedschap: state.currentTool,
+    knop: e.button,
+    shift: e.shiftKey,
+    ctrl: e.ctrlKey || e.metaKey,
+    soort: klikDoelSoort(doel),
+    heeftSelectie: (doc.selectedAnnotations || []).length > 0,
+    opSchuifbalk,
+    modusBezig: !!state.imageCropMode || isGMoveModeActive() || isGRotateModeActive(),
+  })) return;
+  clearSelection();
+  hideProperties();
+  if (doc.viewMode === 'continuous') redrawContinuous(); else redrawAnnotations();
+}
 
 function _setSelectFallthroughEnabled(enabled) {
   if (enabled && !_selectFallthroughInstalled) {
@@ -182,11 +213,13 @@ function _setSelectFallthroughEnabled(enabled) {
       });
     };
     document.addEventListener('mousemove', _selectFallthroughHandler, true);
+    document.addEventListener('pointerdown', _deselecteerBijKlikBuitenCanvas, true);
     _selectFallthroughInstalled = true;
   } else if (!enabled && _selectFallthroughInstalled) {
     if (_selectFallthroughHandler) {
       document.removeEventListener('mousemove', _selectFallthroughHandler, true);
     }
+    document.removeEventListener('pointerdown', _deselecteerBijKlikBuitenCanvas, true);
     _selectFallthroughHandler = null;
     _selectFallthroughInstalled = false;
     // NOTE: Do NOT touch annotation-canvas pointer-events here. The caller
