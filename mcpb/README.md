@@ -13,9 +13,9 @@ Everything runs on your own computer: the extension talks to the app on
 
 1. Install Open PDF Studio (Windows, macOS, Linux) from
    [open-aec.com](https://open-aec.com/open-pdf-studio/#download).
-2. In Open PDF Studio, open **Settings > General > AI link (MCP)**, tick
-   *Allow AI assistants to operate this app* and click **Save**. The status
-   line shows *Active on 127.0.0.1:9223*.
+2. The AI link is on by default. To check it, open **Settings > General >
+   AI link (MCP)** in Open PDF Studio: *Allow AI assistants to operate this
+   app* is ticked and the status line shows *Active on 127.0.0.1:9223*.
 3. Install this extension in Claude Desktop (double-click
    `open-pdf-studio.mcpb`, or add it under **Settings > Extensions**).
 4. If you changed the port in the app, set the same port in the extension's
@@ -23,7 +23,7 @@ Everything runs on your own computer: the extension talks to the app on
 
 Keep Open PDF Studio running while you work with Claude. When the app is not
 running, the tools still appear in Claude, and a tool call tells you to start
-the app and turn on the AI link.
+the app and check the AI link.
 
 Tools that change a document (for example *Update annotation*, *Save PDF*,
 *Run app command*) are marked as such, so Claude asks for your permission
@@ -59,8 +59,8 @@ title block fields by name and asks before saving.
 
 ## Troubleshooting
 
-- **"Open PDF Studio is not reachable"** — start the app and turn on
-  Settings > General > AI link (MCP). Check that the port matches.
+- **"Open PDF Studio is not reachable"** — start the app and check
+  Settings > General > AI link (MCP) (on by default). Check that the port matches.
 - **"Not started: … address in use"** in the app's status line — another
   program uses the port. Pick another port in the app and in the extension.
 

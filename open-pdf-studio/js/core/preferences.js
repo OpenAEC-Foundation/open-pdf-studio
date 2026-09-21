@@ -5,6 +5,7 @@ import { updateStatusMessage } from '../ui/chrome/status-bar.js';
 import { changeLanguage } from '../i18n/useTranslation.js';
 import { isTauri, getUsername, savePreferencesFile, loadPreferencesFile } from './platform.js';
 import { preferencesMirrorJson } from './preferences-mirror.js';
+import { voegSamenMetStandaarden } from './preferences-merge.js';
 
 // Load preferences from Rust file storage, with localStorage migration fallback
 export async function loadPreferences() {
@@ -48,7 +49,7 @@ export async function loadPreferences() {
         loaded.defaultViewMode = 'single';
       }
       // Merge with defaults to ensure all keys exist
-      state.preferences = { ...DEFAULT_PREFERENCES, ...loaded };
+      state.preferences = voegSamenMetStandaarden(DEFAULT_PREFERENCES, loaded);
     }
 
     // Persist to both storages so they stay in sync — bestand eerst,

@@ -36,8 +36,8 @@ voorwaarden van de bibliotheek.
 >
 > Everything runs locally. The extension talks to the app on 127.0.0.1; the PDF
 > file is never sent to an external service. Claude only sees what it asks for,
-> such as a picture of the current page view. The user turns the connection on
-> in the app (Settings > General > AI link) and it is off by default.
+> such as a picture of the current page view. The connection is on by default
+> and the user can turn it off in the app (Settings > General > AI link).
 
 **Categorieën:** productivity / developer tools (afhankelijk van de keuzelijst;
 het gaat om documenten en technische tekeningen)
@@ -51,7 +51,8 @@ het gaat om documenten en technische tekeningen)
    notities plaatsen, opslaan.
 
 **Wat de gebruiker vooraf nodig heeft:** Open PDF Studio geïnstalleerd (gratis,
-Windows, macOS, Linux) en de AI-koppeling aangezet in Instellingen › Algemeen.
+Windows, macOS, Linux); de AI-koppeling staat standaard aan (controleer
+Instellingen › Algemeen).
 Geen account, geen abonnement, geen sleutel.
 
 **Leest of schrijft de connector gegevens?** Beide. Leesgereedschappen dragen
@@ -67,8 +68,8 @@ computer van de gebruiker.
 **Testinstructies voor de beoordelaar:**
 1. Installeer Open PDF Studio van <https://open-aec.com/open-pdf-studio/#download>
    (Windows, macOS of Linux; geen account nodig).
-2. Start de app en zet **Settings > General > AI link (MCP)** aan. De statusregel
-   toont *Active on 127.0.0.1:9223*.
+2. Start de app; de AI-koppeling staat standaard aan. Controleer **Settings >
+   General > AI link (MCP)**: de statusregel toont *Active on 127.0.0.1:9223*.
 3. Installeer de extensie en laat de poort op 9223 staan.
 4. Open in de app een PDF, of vraag Claude: *"Open C:\…\drawing.pdf and tell me
    how many pages it has."*

@@ -22,7 +22,7 @@ its domain logic in the Node server; here the app already *is* the MCP server.
 
 ## 1. Start the app with the MCP server enabled
 
-The MCP server is **off by default**. For normal use, turn it on in the app:
+The MCP server is **on by default**; check it in the app under
 **Settings > General > AI link (MCP)** (port 9223 by default). That starts the
 server with the public tool set — every user-facing tool, each with MCP
 annotations, without the developer/test tools.
@@ -125,8 +125,8 @@ both Claude Desktop and Claude Code and gives clearer "app not running" errors.
 ## Troubleshooting
 
 - **`Open PDF Studio is not reachable`** — the app isn't running, or the AI
-  link is off, or it's on a different port. Turn on Settings > General > AI
-  link (MCP) and check the port matches. While the app is down the bridge
+  link was turned off, or it's on a different port. Check Settings > General >
+  AI link (MCP) (on by default) and that the port matches. While the app is down the bridge
   still answers `tools/list` (from `tools.json`), so the client keeps its tools.
 - **Tools call but nothing happens in the UI** — `app_*` tools need the live
   WebView; make sure you launched the GUI app (not a headless build).

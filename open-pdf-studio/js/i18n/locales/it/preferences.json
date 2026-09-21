@@ -27,7 +27,7 @@
     "aiLink": "Collegamento IA (MCP)",
     "aiLinkAllow": "Consenti agli assistenti IA (come Claude Desktop) di controllare questa app",
     "aiLinkPort": "Porta",
-    "aiLinkHint": "Il collegamento funziona solo su questo computer (127.0.0.1). Un assistente IA potrà aprire, misurare, annotare e salvare documenti. Attivalo solo se usi un assistente IA.",
+    "aiLinkHint": "Il collegamento funziona solo su questo computer (127.0.0.1). Un assistente IA potrà aprire, misurare, annotare e salvare documenti. È attivo per impostazione predefinita; disattivalo se non usi un assistente IA.",
     "aiLinkActive": "Attivo su {{adres}}",
     "aiLinkViaFlag": "Attivo tramite parametro di avvio ({{adres}})",
     "aiLinkOff": "Disattivato",

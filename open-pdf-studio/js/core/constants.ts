@@ -1,4 +1,5 @@
 import type { Preferences } from '../types/preferences.js';
+import { MCP_STANDAARD } from './mcp-standaard.js';
 
 // Handle types for annotation selection and manipulation
 export const HANDLE_SIZE = 6;
@@ -267,10 +268,11 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // (opt-in; off by default because a global hotkey is intrusive).
   interceptPrintScreen: false,
 
-  // AI-koppeling (MCP): standaard uit — aanzetten is een bewuste keuze, want
-  // daarmee kan een programma op deze computer de app bedienen.
-  mcpEnabled: false,
-  mcpPort: 9223,
+  // AI-koppeling (MCP): standaard aan, zodat een AI-assistent meteen kan
+  // koppelen. De koppeling luistert alleen op deze computer (127.0.0.1) en is
+  // uit te zetten in Instellingen → Algemeen. Wie de koppeling eerder uitzette,
+  // houdt die keuze (opgeslagen waarden winnen van de standaard).
+  ...MCP_STANDAARD,
 
   // Display
   showHandles: true,

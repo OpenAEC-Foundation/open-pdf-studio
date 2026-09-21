@@ -27,7 +27,7 @@
     "aiLink": "Ligação de IA (MCP)",
     "aiLinkAllow": "Permitir que assistentes de IA (como o Claude Desktop) controlem esta aplicação",
     "aiLinkPort": "Porta",
-    "aiLinkHint": "A ligação só funciona neste computador (127.0.0.1). Um assistente de IA poderá abrir, medir, anotar e guardar documentos. Ative apenas se usar um assistente de IA.",
+    "aiLinkHint": "A ligação só funciona neste computador (127.0.0.1). Um assistente de IA poderá abrir, medir, anotar e guardar documentos. Está ativada por predefinição; desative-a se não usar um assistente de IA.",
     "aiLinkActive": "Ativa em {{adres}}",
     "aiLinkViaFlag": "Ativa através de parâmetro de arranque ({{adres}})",
     "aiLinkOff": "Desligada",

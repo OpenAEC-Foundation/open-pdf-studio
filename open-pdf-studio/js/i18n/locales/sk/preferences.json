@@ -27,7 +27,7 @@
     "aiLink": "Prepojenie s AI (MCP)",
     "aiLinkAllow": "Povoliť asistentom AI (napr. Claude Desktop) ovládať túto aplikáciu",
     "aiLinkPort": "Port",
-    "aiLinkHint": "Prepojenie funguje len na tomto počítači (127.0.0.1). Asistent AI potom môže otvárať, merať, anotovať a ukladať dokumenty. Zapnite len vtedy, ak používate asistenta AI.",
+    "aiLinkHint": "Prepojenie funguje len na tomto počítači (127.0.0.1). Asistent AI potom môže otvárať, merať, anotovať a ukladať dokumenty. V predvolenom nastavení je zapnuté; vypnite, ak asistenta AI nepoužívate.",
     "aiLinkActive": "Aktívne na {{adres}}",
     "aiLinkViaFlag": "Aktívne cez spúšťací parameter ({{adres}})",
     "aiLinkOff": "Vypnuté",

@@ -27,7 +27,7 @@
     "aiLink": "Koneksi AI (MCP)",
     "aiLinkAllow": "Izinkan asisten AI (seperti Claude Desktop) mengoperasikan aplikasi ini",
     "aiLinkPort": "Port",
-    "aiLinkHint": "Koneksi hanya berfungsi di komputer ini (127.0.0.1). Asisten AI dapat membuka, mengukur, memberi anotasi, dan menyimpan dokumen. Aktifkan hanya jika Anda menggunakan asisten AI.",
+    "aiLinkHint": "Koneksi hanya berfungsi di komputer ini (127.0.0.1). Asisten AI dapat membuka, mengukur, memberi anotasi, dan menyimpan dokumen. Aktif secara default; nonaktifkan jika Anda tidak menggunakan asisten AI.",
     "aiLinkActive": "Aktif di {{adres}}",
     "aiLinkViaFlag": "Aktif melalui parameter awal ({{adres}})",
     "aiLinkOff": "Mati",

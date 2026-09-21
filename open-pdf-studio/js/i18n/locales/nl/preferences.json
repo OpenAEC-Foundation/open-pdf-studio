@@ -27,7 +27,7 @@
     "aiLink": "AI-koppeling (MCP)",
     "aiLinkAllow": "Sta AI-assistenten (zoals Claude Desktop) toe deze app te bedienen",
     "aiLinkPort": "Poort",
-    "aiLinkHint": "De koppeling werkt alleen op deze computer (127.0.0.1). Een AI-assistent kan dan documenten openen, meten, annoteren en opslaan. Zet dit alleen aan als je een AI-assistent gebruikt.",
+    "aiLinkHint": "De koppeling werkt alleen op deze computer (127.0.0.1). Een AI-assistent kan dan documenten openen, meten, annoteren en opslaan. Staat standaard aan; zet het uit als je geen AI-assistent gebruikt.",
     "aiLinkActive": "Actief op {{adres}}",
     "aiLinkViaFlag": "Actief via startvlag ({{adres}})",
     "aiLinkOff": "Uit",
