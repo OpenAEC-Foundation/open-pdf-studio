@@ -116,7 +116,7 @@ Nieuw:
 - **Terugval als de app niet draait.** `initialize` wordt dan lokaal
   beantwoord, `tools/list` uit het meegeleverde `tools.json`, en een
   `tools/call` geeft een resultaat met `isError: true` en de instructie
-  *Start Open PDF Studio en zet Instellingen › AI-koppeling aan*. Zo is de
+  *Start Open PDF Studio; de AI-koppeling staat standaard aan (controleer Instellingen › Algemeen)*. Zo is de
   extensie niet leeg als Claude Desktop eerder start dan de app, en werkt ze
   zodra de app draait.
 - De logica wordt testbaar opgesplitst: `maakBrug({ endpoint, tools, fetch })`

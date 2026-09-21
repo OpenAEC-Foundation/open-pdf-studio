@@ -20,7 +20,7 @@
  * `tools/list` itself (from tools.json next to this file) and returns an
  * actionable message for tool calls — see brug.mjs.
  *
- * Enable the server in the app: Settings > General > AI link (MCP).
+ * The server is on by default; check it in the app: Settings > General > AI link (MCP).
  * Developers can also start it with `OPS_ENABLE_MCP=1 <app> --mcp-server`
  * (all tools, including test tools) or `npm run tauri -- dev -- -- --mcp-server`.
  *

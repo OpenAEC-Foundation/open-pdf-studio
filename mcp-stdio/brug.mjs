@@ -8,8 +8,8 @@
 // werkt ze zodra de app draait.
 
 export const NIET_BEREIKBAAR =
-  'Open PDF Studio is not reachable. Start Open PDF Studio and turn on ' +
-  'Settings > General > AI link (MCP). The port there must match the port ' +
+  'Open PDF Studio is not reachable. Start Open PDF Studio and check ' +
+  'Settings > General > AI link (MCP) (on by default). The port there must match the port ' +
   "in this extension's settings (default 9223).";
 
 const isNotificatie = (m) => m && typeof m === 'object' && !Array.isArray(m) && !('id' in m);
