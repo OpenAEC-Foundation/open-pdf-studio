@@ -658,7 +658,10 @@ function _handleResize(ctx, e, coords) {
   }
 
   Object.assign(ann, cloneAnnotation(state.originalAnnotation));
-  applyResize(ann, state.activeHandle, deltaX, deltaY, state.originalAnnotation, e.shiftKey, e.ctrlKey);
+  // De zoom gaat mee: ondergrenzen die over het scherm gaan (schaalgebied,
+  // viewport, schaalbalk) rekenen in schermpixels, niet in paginapunten.
+  applyResize(ann, state.activeHandle, deltaX, deltaY, state.originalAnnotation, e.shiftKey, e.ctrlKey,
+    { schaal: resizeScale });
   _pasGripLengteToe(ann);
 
   // Image "equal width/height" snapping: after the resize is applied, snap the
