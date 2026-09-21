@@ -543,6 +543,19 @@ function _handleResize(ctx, e, coords) {
     return;
   }
 
+  // Deadzone van 3 SCHERMpixels, zoals bij verplaatsen. Schalen had er geen:
+  // een klik op een greep met één pixel trilling vervormde de vorm al — bij
+  // een piepkleine vorm is dat meteen een zichtbare maatfout. Getypte
+  // lengte-invoer gaat er langs (die is bewust, geen trilling).
+  if (!state._dragExitedDeadzone) {
+    const dz = 3 / (getEffectiveScale() || 1);
+    const getypt = _gripLengte.actief && typeLengthHasBuffer();
+    if (!getypt
+        && Math.abs(coords.x - state.dragStartX) < dz
+        && Math.abs(coords.y - state.dragStartY) < dz) return;
+    state._dragExitedDeadzone = true;
+  }
+
   // Snap cursor position during resize.
   // Exception: the 8 box-resize handles (corners + edges) of a text box or
   // callout must NOT object-snap. On content-dense drawings object snap

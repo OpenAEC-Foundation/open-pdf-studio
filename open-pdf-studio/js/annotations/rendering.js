@@ -2897,7 +2897,9 @@ function drawRubberBand(ctx, effectiveScale) {
   if (sx == null || sy == null || ex == null || ey == null) return;
   const x = Math.min(sx, ex), y = Math.min(sy, ey);
   const w = Math.abs(ex - sx), h = Math.abs(ey - sy);
-  if (w < 0.5 && h < 0.5) return;
+  // Tekendrempel in schermpixels (was 0,5 paginapunt = 32 px bij 6400 %).
+  const rbTekenMin = 0.5 / (effectiveScale > 0 ? effectiveScale : 1);
+  if (w < rbTekenMin && h < rbTekenMin) return;
   const isCrossing = state.rubberBandMode === 'crossing';
   ctx.save();
   ctx.lineWidth = 1 / effectiveScale;
