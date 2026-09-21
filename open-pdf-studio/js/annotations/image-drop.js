@@ -79,6 +79,63 @@ export async function refreshAllLinkedImages(doc) {
   }
 }
 
+/**
+ * Zet een geladen afbeelding als afbeeldingsannotatie in het actieve document:
+ * in de lijst, in de ongedaan-maken-geschiedenis, geselecteerd en getekend.
+ * Eén plek voor alles wat een afbeelding vanuit een bestand of een omzetting
+ * plaatst (afbeelding invoegen, de CAD-import "als afbeelding" #400).
+ * @param {HTMLImageElement} img  geladen afbeelding
+ * @param {string} dataUrl        data:-URL; de saver leest daar de bytes uit
+ * @param {{page:number, x:number, y:number, width:number, height:number, imageId?:string,
+ *   opacity?:number, linkedPath?:string, subject?:string}} plek
+ * @returns {object|null} de nieuwe annotatie
+ */
+export function plaatsAfbeeldingAnnotatie(img, dataUrl, plek) {
+  const doc = getActiveDocument();
+  if (!doc) return null;
+  const imageId = plek.imageId || generateImageId();
+  imageCache.set(imageId, img);
+  const annotation = {
+    id: Date.now().toString(36) + Math.random().toString(36).substr(2, 9),
+    type: 'image',
+    page: plek.page || doc.currentPage || 1,
+    x: plek.x,
+    y: plek.y,
+    width: plek.width,
+    height: plek.height,
+    rotation: 0,
+    imageId,
+    imageData: dataUrl,
+    linkedPath: plek.linkedPath,
+    originalWidth: img.naturalWidth,
+    originalHeight: img.naturalHeight,
+    lockAspectRatio: true,
+    // Crop (bijsnijden) fractions per side, 0 = no crop. Present from the
+    // start so property-change undo snapshots always contain the keys.
+    cropLeft: 0, cropTop: 0, cropRight: 0, cropBottom: 0,
+    opacity: Number.isFinite(plek.opacity) ? plek.opacity : 1,
+    locked: false,
+    printable: true,
+    author: state.defaultAuthor,
+    subject: plek.subject || '',
+    createdAt: new Date().toISOString(),
+    modifiedAt: new Date().toISOString()
+  };
+
+  doc.annotations.push(annotation);
+  recordAdd(annotation);
+  doc.selectedAnnotation = annotation;
+  doc.selectedAnnotations = [annotation];
+  showProperties(annotation);
+
+  if (doc.viewMode === 'continuous') {
+    redrawContinuous();
+  } else {
+    redrawAnnotations();
+  }
+  return annotation;
+}
+
 // Add an image file as an annotation on the current page (Tauri: reads by
 // path). opts.linked: store the file PATH on the annotation so it refreshes
 // from disk (gelinkte afbeelding) instead of being a one-time embed.
@@ -113,44 +170,15 @@ export async function addImageFromFile(filePath, opts = {}) {
     const x = center ? center.x - width / 2 : 10;
     const y = center ? center.y - height / 2 : 10;
 
-    const annotation = {
-      id: Date.now().toString(36) + Math.random().toString(36).substr(2, 9),
-      type: 'image',
+    plaatsAfbeeldingAnnotatie(img, dataUrl, {
+      imageId,
       page: getActiveDocument()?.currentPage || 1,
       x: Math.max(10, x),
       y: Math.max(10, y),
       width,
       height,
-      rotation: 0,
-      imageId,
-      imageData: dataUrl,
       linkedPath: opts.linked ? filePath : undefined,
-      originalWidth: img.naturalWidth,
-      originalHeight: img.naturalHeight,
-      lockAspectRatio: true,
-      // Crop (bijsnijden) fractions per side, 0 = no crop. Present from the
-      // start so property-change undo snapshots always contain the keys.
-      cropLeft: 0, cropTop: 0, cropRight: 0, cropBottom: 0,
-      opacity: 1,
-      locked: false,
-      printable: true,
-      author: state.defaultAuthor,
-      subject: '',
-      createdAt: new Date().toISOString(),
-      modifiedAt: new Date().toISOString()
-    };
-
-    const doc = getActiveDocument();
-    if (doc) doc.annotations.push(annotation);
-    recordAdd(annotation);
-    if (doc) { doc.selectedAnnotation = annotation; doc.selectedAnnotations = [annotation]; }
-    showProperties(annotation);
-
-    if (doc?.viewMode === 'continuous') {
-      redrawContinuous();
-    } else {
-      redrawAnnotations();
-    }
+    });
 
     const fileName = filePath.split(/[\\/]/).pop();
     updateStatusMessage(`Image added: ${fileName}`);

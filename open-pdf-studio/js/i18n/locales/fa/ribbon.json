@@ -78,7 +78,9 @@
     "find": "یافتن",
     "findCtrlF": "یافتن (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "به CAD",
+    "cadExportTitle": "برون‌بری نقشه برداری به DXF یا DWG"
   },
   "comment": {
     "drawing": "ترسیم",

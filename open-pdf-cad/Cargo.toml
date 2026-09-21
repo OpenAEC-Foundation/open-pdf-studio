@@ -1,0 +1,27 @@
+[package]
+name = "open-pdf-cad"
+version = "0.1.0"
+edition = "2021"
+license = "LGPL-3.0-or-later"
+description = "CAD exchange for PDF pages: exports vector content to DXF and DWG through one shared geometry model"
+publish = false
+
+[dependencies]
+# DXF (ASCII/binair) en DWG schrijven vanuit één documentmodel. Pure Rust,
+# MPL-2.0 (verenigbaar met LGPL-3.0-or-later), geen C-toolchain.
+acadrust = { version = "0.5.5", default-features = false }
+# Zelfde bibliotheek-loader als pdfium-render al in de lock heeft staan.
+libloading = "0.9"
+# De import schrijft de PDF zelf; Flate voor de inhoudsstromen.
+flate2 = "1"
+memmap2 = "0.9"
+serde = { version = "1", features = ["derive"] }
+# Alleen voor de terugweg naar CAD: de opbouw van een PDF lezen
+# (kruisverwijzingen, objectstromen, paginaboom) om /VP met /OPS_ModelMatrix
+# te vinden. De getallen zelf leest `model_space` uit de bytes: deze
+# bibliotheek bewaart reële getallen in 32 bits. Zelfde versie en vlaggen als
+# de app en `open-pdf-render`, zodat er één variant in de lock staat.
+lopdf = "0.34"
+
+[dev-dependencies]
+serde_json = "1"

@@ -132,6 +132,7 @@
   "failedToReplacePage": "Pagina vervangen mislukt: {{error}}",
   "failedToMergeFile": "Samenvoegen mislukt: {{file}}\n{{error}}",
   "failedToInsertPagesFromFile": "Kan pagina's niet invoegen uit bestand: {{error}}",
+  "previewPdfRefused": "Deze PDF is een voorbeeld uit het importvenster en kan onvolledig zijn. Hij kan niet worden ingevoegd of opgeslagen; importeer de tekening opnieuw.",
   "bcfExported": "{{count}} issue(s) geëxporteerd naar BCF",
   "bcfImported": "{{count}} issue(s) geïmporteerd uit BCF",
   "bcfExportFailed": "BCF-export mislukt.",

@@ -68,6 +68,7 @@ pub const TOOLS: &[ToolMeta] = &[
     voegt_toe("app_snippet_paste", "Paste vector snippet"),
     voegt_toe("app_place_schedule", "Place quantity schedule"),
     voegt_toe("app_merge_pdf", "Merge PDF files"),
+    voegt_toe("app_import_cad", "Import CAD drawing"),
     voegt_toe("app_symbol_scale", "Symbol placement scale"),
     voegt_toe("app_assistant_ask", "Ask assistant"),
     voegt_toe("app_assistant_pending", "Take pending assistant question"),

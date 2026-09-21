@@ -4439,3 +4439,269 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
 .parametric-label-inline-editor input {
   width: 82px;
 }
+
+/* CAD-uitwisseling: export naar DXF/DWG en import van DWG/DXF (#400).
+   Windows-Forms-stijl: rechte hoeken, compact, thema-kleuren. */
+.cad-dialog { width: 600px; }
+.cad-dialog.cad-dialog-import { width: 720px; }
+.cad-body { padding: 10px 15px 12px; }
+.cad-footer { gap: 10px; }
+.cad-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--theme-border, #d4d4d4);
+  margin-bottom: 10px;
+}
+.cad-tab {
+  background: none;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 0;
+  padding: 4px 14px;
+  margin-bottom: -1px;
+  font-size: 11px;
+  font-family: inherit;
+  color: var(--theme-text-secondary, #666);
+}
+.cad-tab:hover { color: var(--theme-text, #333); }
+.cad-tab.active {
+  color: var(--theme-text, #333);
+  background: var(--theme-surface, #fff);
+  border-color: var(--theme-border, #d4d4d4);
+}
+.cad-fieldset { border: none; margin: 0; padding: 0; min-width: 0; }
+.cad-tab-content { display: none; flex-direction: column; gap: 8px; min-height: 330px; }
+.cad-tab-content.active { display: flex; }
+.cad-row { display: flex; align-items: center; gap: 8px; }
+.cad-row-top { align-items: flex-start; }
+.cad-row-top > .cad-label { padding-top: 3px; }
+.cad-label {
+  font-size: 11px;
+  color: var(--theme-text, #333);
+  width: 150px;
+  flex-shrink: 0;
+}
+.cad-label-short { width: auto; margin-left: 8px; }
+.cad-stack { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+.cad-radio, .cad-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--theme-text, #333);
+}
+.cad-disabled { color: var(--theme-text-secondary, #888); }
+.cad-select, .cad-input {
+  padding: 3px 6px;
+  border: 1px solid var(--theme-border, #acacac);
+  border-radius: 0;
+  font-size: 11px;
+  font-family: inherit;
+  background: var(--theme-surface, #fff);
+  color: var(--theme-text, inherit);
+}
+.cad-select { flex: 1; min-width: 0; }
+/* Zo breed als de langste keuze, binnen grenzen; wat dan nog niet past krijgt
+   een beletselteken (de volledige tekst staat in de title van het veld). */
+.cad-select-short { flex: 0 0 auto; width: auto; min-width: 90px; max-width: 210px; text-overflow: ellipsis; }
+.cad-input { width: 110px; }
+.cad-input-short { width: 70px; }
+.cad-input-wide { flex: 1; width: auto; min-width: 0; }
+.cad-select:focus, .cad-input:focus { outline: none; border-color: var(--theme-accent, #0078d7); }
+.cad-note {
+  font-size: 10px;
+  color: var(--theme-text-secondary, #777);
+  line-height: 1.5;
+}
+.cad-note-warn { color: var(--theme-warning, #9a6700); }
+.cad-small-btn { min-width: 0; padding: 3px 10px; }
+/* Een uitgeschakelde knop ziet er ook uitgeschakeld uit, zoals elders in de
+   app (halve dekking); de primaire knop verliest daarbij zijn accent. */
+.cad-dialog .pref-btn:disabled { opacity: 0.5; }
+.cad-dialog .pref-btn:disabled:hover { background: var(--theme-hover, #e1e1e1); border-color: var(--theme-border, #acacac); }
+.cad-dialog .pref-btn-primary:disabled,
+.cad-dialog .pref-btn-primary:disabled:hover { border-color: var(--theme-border, #acacac); box-shadow: none; }
+.cad-link-btn { min-width: 0; padding: 2px 8px; margin-left: 6px; white-space: nowrap; flex: none; }
+.cad-layer-tools { gap: 6px; }
+.cad-layer-list {
+  border: 1px solid var(--theme-border, #acacac);
+  background: var(--theme-surface, #fff);
+  height: 190px;
+  overflow-y: auto;
+  font-size: 11px;
+}
+.cad-layer-head, .cad-layer-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px;
+}
+.cad-layer-head {
+  position: sticky;
+  top: 0;
+  background: var(--theme-bg, #f5f5f5);
+  border-bottom: 1px solid var(--theme-border, #d4d4d4);
+  color: var(--theme-text-secondary, #666);
+}
+.cad-layer-row:hover { background: var(--theme-hover, #e5f3ff); }
+.cad-col-check { width: 18px; flex-shrink: 0; display: flex; }
+.cad-col-color { width: 16px; flex-shrink: 0; display: flex; }
+.cad-col-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cad-col-count { width: 70px; text-align: right; flex-shrink: 0; }
+.cad-col-source { width: 90px; flex-shrink: 0; color: var(--theme-text-secondary, #666); }
+.cad-col-state { width: 110px; flex-shrink: 0; color: var(--theme-text-secondary, #666); }
+.cad-swatch {
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--theme-border, #999);
+  display: inline-block;
+}
+.cad-file-row { margin-bottom: 8px; }
+.cad-file-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--theme-text, #333);
+}
+.cad-file-info { flex-shrink: 0; white-space: nowrap; }
+.cad-import-bottom {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--theme-border, #d4d4d4);
+}
+.cad-import-presets { margin-top: 6px; gap: 6px; }
+.cad-select-target { flex: 0 0 auto; width: 260px; }
+.cad-warnings { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 2px 12px; }
+.cad-externals { margin-top: 4px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.cad-externals-row { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Tabblad Weergave: het tabblad schuift zelf, zodat het venster niet hoger
+   wordt dan de andere tabbladen; de tabellen erin hebben een eigen hoogte. */
+.cad-tab-scroll { max-height: 330px; overflow-y: auto; padding-right: 6px; }
+.cad-tab-scroll > * { flex-shrink: 0; }
+/* Voorbeeldweergave naast de tabbladen: het venster wordt er breder van, niet
+   hoger. Het beeld zelf krijgt zijn maat uit de pagina (CadImportPreview). */
+.cad-dialog.cad-dialog-import.cad-dialog-voorbeeld { width: 1040px; }
+.cad-main { display: flex; gap: 12px; align-items: stretch; }
+.cad-panels { flex: 1; min-width: 0; }
+.cad-voorbeeld { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.cad-voorbeeld-kop {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--theme-text, #333);
+}
+.cad-voorbeeld-kop .cad-note { font-weight: 400; }
+.cad-voorbeeld-vak {
+  flex: 1;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid var(--theme-border, #d4d4d4);
+  background: var(--theme-bg, #f0f0f0);
+}
+.cad-voorbeeld-beeld { display: block; border: 1px solid #9a9a9a; box-sizing: content-box; touch-action: none; }
+.cad-voorbeeld-beeld.cad-voorbeeld-leeg { visibility: hidden; }
+.cad-voorbeeld-schakelaar { margin-left: auto; }
+/* Doel "op de huidige pagina": dekking, schaal en de stand "als afbeelding". */
+.cad-import-underlay { margin-top: 6px; gap: 6px 12px; flex-wrap: wrap; }
+.cad-import-underlay .cad-check { white-space: nowrap; }
+.cad-note-indent { margin-left: 158px; }
+.cad-label-wide { width: auto; }
+.cad-subtable { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+.cad-sublist {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 112px;
+  overflow-y: auto;
+  padding: 3px 4px;
+  border: 1px solid var(--theme-border, #d4d4d4);
+  background: var(--theme-surface, #fff);
+}
+.cad-subrow { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--theme-text, #333); min-width: 0; }
+.cad-subhead { padding: 0 5px; font-size: 10px; color: var(--theme-text-secondary, #777); }
+.cad-col-font { width: 170px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cad-color {
+  width: 34px;
+  height: 22px;
+  padding: 0;
+  flex-shrink: 0;
+  border: 1px solid var(--theme-border, #acacac);
+  border-radius: 0;
+  background: var(--theme-surface, #fff);
+}
+.cad-color:disabled { opacity: 0.5; }
+.cad-input-code { width: 66px; font-family: Consolas, 'Courier New', monospace; text-transform: uppercase; }
+/* Een lang pad toont zijn eind: daar staat de map die ertoe doet. */
+.cad-path { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: rtl; text-align: left; }
+.cad-details { border-top: 1px solid var(--theme-border, #d4d4d4); padding-top: 6px; }
+.cad-summary-line { font-size: 11px; color: var(--theme-text, #333); }
+.cad-summary-line:focus-visible { outline: 1px dotted var(--theme-text, #333); }
+.cad-details-body { display: flex; flex-direction: column; gap: 8px; padding: 8px 0 2px 14px; }
+/* Kolomkoppen van de lagenlijst: sorteren bij klikken, eruit als platte tekst. */
+.cad-sort {
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+.cad-sort.cad-col-count { text-align: right; }
+.cad-sort:hover { color: var(--theme-text, #333); text-decoration: underline; }
+.cad-footer-status {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+.cad-status { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cad-status-fout { color: var(--theme-error, #c42b1c); white-space: normal; }
+.cad-status-ok { color: var(--theme-text, #333); white-space: normal; }
+.cad-progress {
+  width: 140px;
+  height: 10px;
+  border: 1px solid var(--theme-border, #acacac);
+  background: var(--theme-surface, #fff);
+  flex-shrink: 0;
+}
+.cad-progress-bar { height: 100%; background: var(--theme-accent, #0078d7); }
+.cad-question {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--theme-border, #acacac);
+  background: var(--theme-bg, #f5f5f5);
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cad-question-title { font-weight: 600; }
+.cad-question-buttons { display: flex; gap: 6px; }
+.cad-preview {
+  border: 1px solid var(--theme-border, #acacac);
+  background: var(--theme-bg, #f0f0f0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.cad-preview img { max-width: 100%; max-height: 100%; display: block; }
+.cad-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; }
+.cad-summary {
+  font-size: 11px;
+  padding: 4px 6px;
+  border: 1px solid var(--theme-border, #d4d4d4);
+  background: var(--theme-bg, #f5f5f5);
+}

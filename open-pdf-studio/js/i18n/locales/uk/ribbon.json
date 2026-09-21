@@ -78,7 +78,9 @@
     "find": "Знайти",
     "findCtrlF": "Знайти (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "До CAD",
+    "cadExportTitle": "Експорт векторного креслення в DXF або DWG"
   },
   "comment": {
     "drawing": "Малювання",

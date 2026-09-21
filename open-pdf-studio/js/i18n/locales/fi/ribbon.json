@@ -78,7 +78,9 @@
     "find": "Etsi",
     "findCtrlF": "Etsi (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "CAD:iin",
+    "cadExportTitle": "Vie vektoripiirustus DXF- tai DWG-muotoon"
   },
   "comment": {
     "drawing": "Piirros",

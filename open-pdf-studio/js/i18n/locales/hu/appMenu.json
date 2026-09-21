@@ -63,7 +63,9 @@
     "importXfdf": "Annotációk importálása (XFDF)",
     "importXfdfDesc": "Annotációk importálása XFDF fájlból az aktuális dokumentumba",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "CAD-rajz (DWG, DXF)",
+    "importCadDesc": "DWG- vagy DXF-rajz importálása méretarányos PDF-oldalként, rétegekkel és méretaránnyal"
   },
   "exportPanel": {
     "title": "Exportálás",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "CAD-rajz (DXF, DWG)",
+    "exportCadDesc": "A vektoros rajz exportálása DXF vagy DWG formátumba rétegekkel, méretaránnyal és területtel"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

@@ -63,7 +63,9 @@
     "importXfdf": "Увези анотације (XFDF)",
     "importXfdfDesc": "Увезите анотације из XFDF фајла у тренутни документ",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "CAD цртеж (DWG, DXF)",
+    "importCadDesc": "Увези DWG или DXF цртеж као PDF страницу у размери, са слојевима и размером"
   },
   "exportPanel": {
     "title": "Извоз",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "CAD цртеж (DXF, DWG)",
+    "exportCadDesc": "Извези векторски цртеж у DXF или DWG са слојевима, размером и облашћу"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

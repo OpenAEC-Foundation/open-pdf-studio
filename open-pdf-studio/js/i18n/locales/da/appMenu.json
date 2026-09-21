@@ -63,7 +63,9 @@
     "importXfdf": "Importer annotationer (XFDF)",
     "importXfdfDesc": "Importer annotationer fra en XFDF-fil til det aktuelle dokument",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "CAD-tegning (DWG, DXF)",
+    "importCadDesc": "Importér en DWG- eller DXF-tegning som en PDF-side i målestok, med lag og en målestok"
   },
   "exportPanel": {
     "title": "Eksporter",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "CAD-tegning (DXF, DWG)",
+    "exportCadDesc": "Eksportér vektortegningen til DXF eller DWG med lag, målestok og område"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

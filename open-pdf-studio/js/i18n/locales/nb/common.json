@@ -111,6 +111,7 @@
     "internalLink": "Intern lenke"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "Denne PDF-en er en forhåndsvisning fra tegningsimporten og kan være ufullstendig. Den kan ikke settes inn eller lagres; importer tegningen på nytt.",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

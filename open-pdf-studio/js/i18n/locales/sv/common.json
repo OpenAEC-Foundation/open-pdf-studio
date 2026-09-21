@@ -111,6 +111,7 @@
     "internalLink": "Intern länk"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "Den här PDF-filen är en förhandsvisning från ritningsimporten och kan vara ofullständig. Den kan inte infogas eller sparas; importera ritningen igen.",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

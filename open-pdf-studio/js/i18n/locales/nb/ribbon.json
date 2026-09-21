@@ -78,7 +78,9 @@
     "find": "Finn",
     "findCtrlF": "Finn (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "Til CAD",
+    "cadExportTitle": "Eksporter vektortegningen til DXF eller DWG"
   },
   "comment": {
     "drawing": "Tegning",

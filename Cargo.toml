@@ -4,6 +4,7 @@ members = [
   "open-pdf-studio/src-tauri",
   "open-pdf-render",
   "pdfium-worker",
+  "open-pdf-cad",
 ]
 
 # Upstream tesseract-rs caches its Windows/macOS build-tesseract source

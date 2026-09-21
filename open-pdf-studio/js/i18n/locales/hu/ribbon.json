@@ -78,7 +78,9 @@
     "find": "Keresés",
     "findCtrlF": "Keresés (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "CAD-be",
+    "cadExportTitle": "A vektoros rajz exportálása DXF vagy DWG formátumba"
   },
   "comment": {
     "drawing": "Rajzolás",

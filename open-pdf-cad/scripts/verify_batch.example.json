@@ -1,0 +1,8 @@
+{
+  "cases": [
+    { "pdf": "voorbeeld-a1.pdf", "page": 1, "name": "a1", "extra": [], "scale": 1 },
+    { "pdf": "voorbeeld-gedraaid.pdf", "page": 1, "name": "rot90", "extra": [], "scale": 1 },
+    { "pdf": "voorbeeld-schaal.pdf", "page": 1, "name": "schaal100", "extra": ["--scale", "100"], "scale": 100 },
+    { "pdf": "voorbeeld-a1.pdf", "page": 1, "name": "a1-spline", "extra": ["--curves", "spline"], "scale": 1 }
+  ]
+}

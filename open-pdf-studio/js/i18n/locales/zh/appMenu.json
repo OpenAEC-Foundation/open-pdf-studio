@@ -63,7 +63,9 @@
     "importXfdf": "导入批注 (XFDF)",
     "importXfdfDesc": "从 XFDF 文件导入批注到当前文档",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "CAD 图纸(DWG, DXF)",
+    "importCadDesc": "按比例将 DWG 或 DXF 图纸导入为 PDF 页面,包含图层和测量比例"
   },
   "exportPanel": {
     "title": "导出",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "CAD 图纸(DXF、DWG)",
+    "exportCadDesc": "将矢量图纸连同图层、比例和范围导出为 DXF 或 DWG"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

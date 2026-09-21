@@ -63,7 +63,9 @@
     "importXfdf": "استيراد التعليقات (XFDF)",
     "importXfdfDesc": "استيراد التعليقات من ملف XFDF إلى المستند الحالي",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "رسم CAD (DWG, DXF)",
+    "importCadDesc": "استيراد رسم DWG أو DXF كصفحة PDF بمقياس رسم، مع طبقات ومقياس قياس"
   },
   "exportPanel": {
     "title": "تصدير",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "رسم CAD (DXF، DWG)",
+    "exportCadDesc": "تصدير الرسم المتجه إلى DXF أو DWG مع الطبقات والمقياس والمنطقة"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

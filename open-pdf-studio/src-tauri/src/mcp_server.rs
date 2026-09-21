@@ -139,6 +139,57 @@ fn handle_initialize() -> Value {
     })
 }
 
+/// Beschrijving van `app_import_cad` (#400). Een eigen functie: binnen de grote
+/// lijst zou dit ene gereedschap de uitvouwdiepte van `json!` overschrijden.
+fn import_cad_tool() -> Value {
+    json!(
+        {
+            "name": "app_import_cad",
+            "description": "Import a DWG or DXF drawing as a vector PDF page, without opening the import dialog. Choose the space (model space or a layout), the scale, the paper size, the layers and what happens with the result: a new document, a new page after the current one, or an underlay on the current page. Settings that are left out take the value the import dialog remembered, otherwise its default. Returns the pages that were made, warnings about anything that could not be converted and the names of external files. Fails while the import dialog is open.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "path":               { "type": "string", "description": "Absolute path of the .dwg or .dxf file." },
+                    "space":              { "type": "string", "description": "\"model\" or the name of a layout (default: what the file suggests)." },
+                    "target":             { "type": "string", "enum": ["new", "append", "underlay"], "description": "new = a new document (default), append = a new page after the current page, underlay = on the current page. append without an open document becomes new." },
+                    "opacity":            { "type": "number", "description": "Opacity of an underlay, 0.05 to 1 (default 0.5). Only with target underlay." },
+                    "scale":              { "type": "number", "description": "Denominator N of 1:N. 0 fits the drawing on the paper." },
+                    "area":               { "type": "string", "enum": ["extents", "limits"], "description": "What part of the model space is converted." },
+                    "window":             { "type": "array", "items": { "type": "number" }, "minItems": 4, "maxItems": 4, "description": "Convert only this window: [x0, y0, x1, y1] in drawing units. Excludes area." },
+                    "paper":              { "type": "string", "enum": ["auto", "A4", "A3", "A3L", "A2", "A2L", "A1", "A1L", "A0", "Letter", "Tabloid", "custom"], "description": "Paper size. A layout keeps its own paper unless this is given." },
+                    "paperWidthMm":       { "type": "number", "description": "Width in mm for paper custom." },
+                    "paperHeightMm":      { "type": "number", "description": "Height in mm for paper custom." },
+                    "orientation":        { "type": "string", "enum": ["auto", "portrait", "landscape"] },
+                    "marginMm":           { "type": "number", "description": "Margin around the drawing in mm, 0 to 200." },
+                    "placement":          { "type": "string", "enum": ["center", "lower_left", "origin"] },
+                    "rotation":           { "type": "number", "description": "Rotate the drawing before placing it, in degrees." },
+                    "units":              { "type": "string", "enum": ["file", "mm", "cm", "m", "in", "ft"], "description": "Drawing unit; file = the unit in the file." },
+                    "layersOff":          { "type": "array", "items": { "type": "string" }, "description": "Layer names to leave out, on top of the layers the file switches off." },
+                    "layersOn":           { "type": "array", "items": { "type": "string" }, "description": "Layer names to include although the file switches them off." },
+                    "layersAsOcg":        { "type": "boolean", "description": "Keep the layers as PDF layers." },
+                    "includeOffLayers":   { "type": "boolean", "description": "Include switched-off layers as hidden PDF layers instead of leaving them out." },
+                    "colors":             { "type": "string", "enum": ["file", "black", "gray", "mono", "single"], "description": "Colour mode." },
+                    "monoThreshold":      { "type": "number", "description": "Brightness threshold in percent for colors mono, 0 to 100." },
+                    "singleColor":        { "type": "string", "description": "Colour #RRGGBB for colors single." },
+                    "lineweight":         { "type": "string", "enum": ["file", "fixed", "pens"], "description": "Line weights from the file, one fixed weight, or the colour table in pens." },
+                    "lineweightMm":       { "type": "number", "description": "Line weight in mm for lineweight fixed." },
+                    "pens":               { "type": "array", "items": { "type": "object" }, "description": "Colour table for lineweight pens: [{ \"color\": \"#RRGGBB\", \"lineweightMm\": 0.35 }]." },
+                    "fonts":              { "type": "array", "items": { "type": "object" }, "description": "Font replacements: [{ \"from\": \"name in the drawing\", \"family\": \"sans\" or \"mono\", \"bold\": false, \"italic\": false }]." },
+                    "hatch":              { "type": "string", "enum": ["all", "solid_only", "outline", "none"] },
+                    "text":               { "type": "boolean", "description": "Convert text." },
+                    "xrefs":              { "type": "boolean", "description": "Load external references." },
+                    "images":             { "type": "boolean", "description": "Embed images." },
+                    "reuseBlocks":        { "type": "boolean", "description": "Store repeated blocks once in the PDF." },
+                    "maxImageMegapixels": { "type": "number", "description": "Largest image that is embedded, in megapixels, 1 to 200." },
+                    "searchPaths":        { "type": "array", "items": { "type": "string" }, "description": "Extra folders to look in for external references and images." }
+                },
+                "required": ["path"],
+                "additionalProperties": false
+            }
+        }
+    )
+}
+
 /// Handle `tools/list`. Tasks 7-9 will append their tool descriptors to
 /// this array.
 fn handle_tools_list() -> Value {
@@ -192,7 +243,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_open_pdf",
-                "description": "Open a PDF file in a new tab of the running app. Returns once the document is loaded and the tab is active.",
+                "description": "Open a PDF file in a new tab of the running app. Returns once the document is loaded and the tab is active. A DWG or DXF opens the CAD import dialog instead (result `dialog: \"cad-import\"`).",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -467,7 +518,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_merge_pdf",
-                "description": "Merge one or more PDF files into the active document at the given position. The user's original file is not modified; the merged result opens as a working copy until saved. Returns { ok, position, mergedFiles, pagesBefore, pagesAfter, filePath }.",
+                "description": "Merge one or more PDF files into the active document at the given position. The user's original file is not modified; the merged result opens as a working copy until saved. Returns { ok, position, mergedFiles, pagesInserted, pagesBefore, pagesAfter, filePath }; mergedFiles counts the files that really went in. A file that stays out makes ok false: a preview PDF of the CAD import is refused (reason preview-pdf), a file without pages is refused (no-pages), an unreadable file fails. Then error names the files, refused [{ file, reason }] and failed [{ file, error }] list them, and mergedFiles and pagesAfter show what did go in.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -840,6 +891,7 @@ fn handle_tools_list() -> Value {
                     "additionalProperties": false
                 }
             },
+            import_cad_tool(),
             {
                 "name": "app_snippet_flatten",
                 "description": "Mark a pasted vector snippet as flattened: it stays visible but is no longer selectable, and on the next save it is drawn into the page content instead of being stored as an annotation.",
@@ -974,6 +1026,7 @@ async fn handle_tools_call(state: &AppState, params: &Value) -> Result<Value, (i
         "app_snippet_flatten"    => tool_app_request(state, "mcp:snippet-flatten",    &arguments, Duration::from_secs(10)).await,
         "app_symbol_scale"       => tool_app_request(state, "mcp:symbol-scale",       &arguments, Duration::from_secs(10)).await,
         "app_titleblock"         => tool_app_request(state, "mcp:titleblock",         &arguments, Duration::from_secs(15)).await,
+        "app_import_cad"         => tool_app_request(state, "mcp:import-cad",         &arguments, Duration::from_secs(300)).await,
         other => Err((
             jsonrpc_error::METHOD_NOT_FOUND,
             format!("method not found: {other}"),
@@ -1585,7 +1638,7 @@ mod tests {
         use crate::mcp_tool_meta::Profiel;
         let publiek = tools_list_voor(Profiel::Publiek);
         let arr = publiek["tools"].as_array().unwrap();
-        assert_eq!(arr.len(), 49);
+        assert_eq!(arr.len(), 50);
         for t in arr {
             let a = &t["annotations"];
             assert!(a["title"].as_str().map_or(false, |s| !s.is_empty()), "{} zonder titel", t["name"]);
@@ -1617,6 +1670,38 @@ mod tests {
         )
         .unwrap();
         assert_eq!(op_schijf, verwacht, "mcp-stdio/tools.json loopt achter - draai met OPDS_MCPB_TOOLS_SCHRIJVEN=1");
+    }
+
+    #[test]
+    fn app_import_cad_beschrijft_de_import_zonder_venster() {
+        let v = handle_tools_list();
+        let tool = v["tools"].as_array().unwrap().iter()
+            .find(|t| t["name"] == "app_import_cad")
+            .expect("app_import_cad staat in de lijst");
+        let schema = &tool["inputSchema"];
+        assert_eq!(schema["type"], "object");
+        assert_eq!(schema["additionalProperties"], false);
+        assert_eq!(schema["required"], json!(["path"]));
+        let props = schema["properties"].as_object().unwrap();
+        for naam in [
+            "path", "space", "scale", "paper", "orientation", "marginMm", "placement", "rotation", "units",
+            "layersOff", "layersOn", "target", "opacity", "colors", "hatch", "text", "xrefs", "images", "searchPaths",
+        ] {
+            assert!(props.contains_key(naam), "{naam} ontbreekt in het schema");
+        }
+        // De opdracht maakt altijd de echte PDF en kiest zelf waar die komt.
+        for naam in ["preview", "outputPath"] {
+            assert!(!props.contains_key(naam), "{naam} hoort niet in het schema");
+        }
+        assert_eq!(props["target"]["enum"], json!(["new", "append", "underlay"]));
+        for (naam, p) in props {
+            assert!(p["type"].is_string(), "{naam} zonder type");
+        }
+        // Voegt iets toe, wijzigt niets bestaands; ook in het publieke profiel.
+        let m = crate::mcp_tool_meta::meta("app_import_cad").unwrap();
+        assert!(!m.alleen_lezen && !m.wijzigt);
+        let publiek = tools_list_voor(crate::mcp_tool_meta::Profiel::Publiek);
+        assert!(publiek["tools"].as_array().unwrap().iter().any(|t| t["name"] == "app_import_cad"));
     }
 
     #[test]
@@ -1959,6 +2044,7 @@ mod tests {
             "app_snippet_flatten",
             "app_symbol_scale",
             "app_titleblock",
+            "app_import_cad",
         ] {
             assert!(names.contains(&tool), "missing tool: {tool} (got {names:?})");
             let descr = arr.iter().find(|t| t["name"] == tool).unwrap();

@@ -328,5 +328,10 @@ export const DEFAULT_PREFERENCES: Preferences = {
   lastSeenReleaseVersion: '',
 
   // Print dialog — settings of the last print action (null = dialog defaults)
-  printSettings: null
+  printSettings: null,
+
+  // CAD export/import (#400) — last used settings (null = dialog defaults)
+  cadExportSettings: null,
+  cadImportSettings: null,
+  cadImportPresets: null
 };

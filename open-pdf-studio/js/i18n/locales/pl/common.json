@@ -111,6 +111,7 @@
     "internalLink": "Łącze wewnętrzne"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "Ten PDF jest podglądem z importu rysunku i może być niekompletny. Nie można go wstawić ani zapisać; zaimportuj rysunek ponownie.",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

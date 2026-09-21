@@ -44,6 +44,7 @@ function getAnnotationCenter(annotation) {
     case 'scheduleTable':
     case 'redaction':
     case 'parametricSymbol':
+    case 'vectorSnippet':
       return {
         x: annotation.x + annotation.width / 2,
         y: annotation.y + annotation.height / 2
@@ -557,6 +558,9 @@ export function getAnnotationHandles(annotation, scale = 1) {
       handles.push({ type: HANDLE_TYPES.ROTATE, x: annotation.x + annotation.width/2 - hs/2, y: annotation.y - 25 / scale - hs/2 });
       break;
 
+    // Vectorknipsel: schalen zoals een afbeelding. Geen draaigreep — de
+    // draaiing van een los knipsel komt niet in het bestand.
+    case 'vectorSnippet':
     case 'redaction':
       // Corner and edge handles for resize (no rotation)
       handles.push({ type: HANDLE_TYPES.TOP_LEFT, x: annotation.x - hs/2, y: annotation.y - hs/2 });

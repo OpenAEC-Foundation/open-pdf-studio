@@ -78,7 +78,9 @@
     "find": "Εύρεση",
     "findCtrlF": "Εύρεση (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "Προς CAD",
+    "cadExportTitle": "Εξαγωγή του διανυσματικού σχεδίου σε DXF ή DWG"
   },
   "comment": {
     "drawing": "Σχέδιο",

@@ -78,7 +78,9 @@
     "find": "ढूंढें",
     "findCtrlF": "ढूंढें (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "CAD में",
+    "cadExportTitle": "वेक्टर ड्राइंग को DXF या DWG में निर्यात करें"
   },
   "comment": {
     "drawing": "आरेखण",

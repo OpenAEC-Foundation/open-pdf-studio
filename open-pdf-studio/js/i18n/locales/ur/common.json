@@ -111,6 +111,7 @@
     "internalLink": "اندرونی لنک"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "یہ PDF ڈرائنگ کی درآمد کا پیش منظر ہے اور نامکمل ہو سکتی ہے۔ اسے نہ شامل کیا جا سکتا ہے نہ محفوظ؛ ڈرائنگ دوبارہ درآمد کریں۔",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

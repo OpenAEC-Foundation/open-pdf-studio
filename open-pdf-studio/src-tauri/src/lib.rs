@@ -4,6 +4,8 @@
 #![recursion_limit = "256"]
 
 mod accounts;
+pub mod cad_export;
+pub mod cad_import;
 mod email;
 pub mod linux_runtime;
 pub mod mcp_app_bridge;
@@ -2516,6 +2518,8 @@ pub fn run(opts: StartupOpts) {
         .manage(PageTypeCache(Mutex::new(HashMap::new())))
         .manage(pdfium_renderer::PdfiumDocCache::default())
         .manage(pdfium_renderer::PixmapCacheState::default())
+        .manage(cad_export::CadExportJobs::default())
+        .manage(cad_import::CadImportState::default())
         .manage(pool.clone())
         .manage(mcp_app_bridge::McpAppBridge::new())
         .plugin(tauri_plugin_fs::init())
@@ -2611,6 +2615,14 @@ pub fn run(opts: StartupOpts) {
                         &handtekening::verifieer::map_ondertekende_versies(&cachemap),
                         handtekening::verifieer::OPRUIMEN_NA,
                     );
+                });
+            }
+            // Voorbeeld-PDF's van het importvenster voor DWG en DXF die van een
+            // vorige keer zijn blijven staan (#400). De import kiest zijn map
+            // zelf, op een plek (cad_import::voorbeeldmap).
+            if let Ok(voorbeelden) = cad_import::voorbeeldmap(app.handle()) {
+                std::thread::spawn(move || {
+                    cad_import::sweep_previews(&voorbeelden, cad_import::PREVIEW_MAX_AGE);
                 });
             }
 
@@ -2798,6 +2810,18 @@ pub fn run(opts: StartupOpts) {
             extract_page_text,
             render_thumbnail,
             render_to_png::render_page_to_png,
+            cad_export::export_page_to_cad,
+            cad_export::cancel_cad_export,
+            cad_export::scan_page_for_cad,
+            cad_import::scan_cad_file,
+            cad_import::import_cad_to_pdf,
+            cad_import::cancel_cad_import,
+            cad_import::release_cad_import,
+            cad_import::locate_cad_externals,
+            cad_import::check_cad_search_paths,
+            cad_import::preview_cad_import,
+            cad_import::discard_cad_preview,
+            cad_import::cad_import_limits,
             allow_fs_scope,
             mcp_app_bridge::app_response,
             mcp_app_bridge::mcp_bridge_ready,

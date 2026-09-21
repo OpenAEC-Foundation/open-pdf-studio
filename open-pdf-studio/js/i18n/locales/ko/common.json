@@ -111,6 +111,7 @@
     "internalLink": "내부 링크"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "이 PDF는 도면 가져오기의 미리 보기이며 내용이 빠져 있을 수 있습니다. 삽입하거나 저장할 수 없습니다. 도면을 다시 가져오십시오.",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

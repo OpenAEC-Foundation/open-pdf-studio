@@ -78,7 +78,9 @@
     "find": "Nájsť",
     "findCtrlF": "Nájsť (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "Do CAD",
+    "cadExportTitle": "Exportovať vektorový výkres do DXF alebo DWG"
   },
   "comment": {
     "drawing": "Kreslenie",

@@ -111,6 +111,7 @@
     "internalLink": "Вътрешна връзка"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "Този PDF е преглед от импортирането на чертежа и може да е непълен. Не може да бъде вмъкнат или записан; импортирайте чертежа отново.",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

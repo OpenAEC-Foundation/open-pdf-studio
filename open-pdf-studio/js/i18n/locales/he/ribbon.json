@@ -78,7 +78,9 @@
     "find": "חיפוש",
     "findCtrlF": "חיפוש (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "ל-CAD",
+    "cadExportTitle": "ייצוא השרטוט הווקטורי ל-DXF או ל-DWG"
   },
   "comment": {
     "drawing": "ציור",

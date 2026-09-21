@@ -4,6 +4,7 @@ import { redrawAnnotations, redrawContinuous } from './rendering.js';
 import { savePreferences } from '../core/preferences.js';
 import { getScaleForPoint } from './scale-bar.js';
 import { getScaleFromRegion } from './scale-region.js';
+import { viewportOp } from '../pdf/pdf-viewports.js';
 import { cloneAnnotation } from './factory.js';
 import {
   recordBulkModify,
@@ -14,6 +15,7 @@ import {
 
 // Scale calibration: pixels per unit
 // Priority: scaleRegion (innermost containing point) → scaleBar/viewport →
+//          PDF viewport (/VP + /Measure in the file itself) →
 //          per-document scale → legacy global → default (px)
 export function getMeasureScale(pageNum, x, y) {
   // 1. Check scaleRegion (innermost) — highest priority when a point is given
@@ -22,6 +24,12 @@ export function getMeasureScale(pageNum, x, y) {
     if (regionScale) return regionScale;
     const sbScale = getScaleForPoint(pageNum, x, y);
     if (sbScale) return sbScale;
+    // Meetschaal die de PDF zelf meebrengt (CAD-plots, de DWG/DXF-import):
+    // de maatvoering klopt dan zonder kalibratie (#400).
+    const vp = viewportOp(getActiveDocument()?.pdfViewports?.[pageNum], x, y);
+    if (vp) {
+      return { pixelsPerUnit: vp.pixelsPerUnit, unit: vp.unit, source: 'pdfViewport', method: 'pdfViewport' };
+    }
   } else {
     // No point specified — check if any scaleBar exists (global fallback)
     const doc = getActiveDocument();

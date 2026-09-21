@@ -111,6 +111,7 @@
     "internalLink": "Belső hivatkozás"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "Ez a PDF a rajzimportálás előnézete, és hiányos lehet. Nem szúrható be és nem menthető; importálja újra a rajzot.",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

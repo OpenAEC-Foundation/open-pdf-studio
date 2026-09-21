@@ -78,7 +78,9 @@
     "find": "Suchen",
     "findCtrlF": "Suchen (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "Nach CAD",
+    "cadExportTitle": "Vektorzeichnung als DXF oder DWG exportieren"
   },
   "comment": {
     "drawing": "Zeichnung",

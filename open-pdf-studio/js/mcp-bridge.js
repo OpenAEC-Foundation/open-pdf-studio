@@ -142,6 +142,15 @@ async function handleOpenPdf(params) {
   if (typeof path !== 'string' || !path) {
     return { ok: false, error: 'missing or invalid params.path' };
   }
+  // Een DWG of DXF opent net als via Bestand > Openen het importvenster (#400).
+  const cadMod = await import('./pdf/cad-import.js');
+  const cad = await cadMod.openAlsCadTekening(path, { wachten: false });
+  if (cad === 'busy') {
+    return { ok: false, error: 'the CAD import dialog is already open for another drawing', file_path: path };
+  }
+  if (cad) {
+    return { ok: true, dialog: 'cad-import', file_path: path };
+  }
   const stateMod = await import('./core/state.js');
   const tabsMod = await import('./ui/chrome/tabs.js');
   const loaderMod = await import('./pdf/loader.js');
@@ -802,20 +811,24 @@ async function handleMergePdf(params) {
   if (!doc?.pdfDoc) return { ok: false, error: 'no active document to merge into' };
   const pagesBefore = doc.pdfDoc.numPages;
   const pm = await import('./pdf/page-manager.js');
+  let verslag;
   try {
-    await pm.mergeFiles(filePaths, position);
+    verslag = await pm.mergeFiles(filePaths, position);
   } catch (e) {
     return { ok: false, error: `merge failed: ${e?.message ?? e}` };
   }
+  // Het samenvoegen slaat een bestand over zonder te falen (een geweigerde
+  // voorbeeld-PDF, een onleesbaar bestand): het antwoord volgt wat er
+  // werkelijk in kwam, niet hoeveel er gevraagd was.
+  const { mergeAntwoord } = await import('./pdf/merge-verslag.js');
   const after = stateMod.getActiveDocument();
-  return {
-    ok: true,
+  return mergeAntwoord(verslag, {
+    filePaths,
     position,
-    mergedFiles: filePaths.length,
     pagesBefore,
     pagesAfter: after?.pdfDoc?.numPages ?? pagesBefore,
     filePath: after?.filePath,
-  };
+  });
 }
 
 async function handleClearCaches() {
@@ -2346,6 +2359,108 @@ async function handleTitleblock(params) {
 }
 
 
+// ─── CAD-import zonder venster (issue #400) ───────────────────────────────
+// De regels (argumenten controleren, ruimte en lagen kiezen, het antwoord)
+// staan in pdf/cad-mcp-opdracht.js; hier alleen het werk zelf, met dezelfde
+// functies als het importvenster.
+
+let cadImportBezig = false;
+
+async function handleImportCad(params) {
+  const opdrachtMod = await import('./pdf/cad-mcp-opdracht.js');
+  const stateMod = await import('./core/state.js');
+  const opdracht = opdrachtMod.leesImportOpdracht(params, stateMod.state.preferences?.cadImportSettings);
+  if (!opdracht.ok) return opdracht;
+  const pad = opdracht.pad;
+
+  // De app houdt één gelezen tekening vast; het venster en de opdracht zouden
+  // elkaars tekening verdringen.
+  const { getDialogs } = await import('./solid/stores/dialogStore.js');
+  const vensterOpen = () => getDialogs().some((d) => d.name === 'cad-import');
+  if (vensterOpen()) {
+    return { ok: false, error: 'the CAD import dialog is open; close it first', file_path: pad };
+  }
+  if (cadImportBezig) {
+    return { ok: false, error: 'another CAD import is still running', file_path: pad };
+  }
+
+  const cad = await import('./pdf/cad-import.js');
+  const logica = await import('./pdf/cad-import-logica.js');
+  const heeftDocument = !!stateMod.getActiveDocument()?.pdfDoc;
+  let doel = opdracht.doel;
+  if (doel === 'underlay') {
+    if (typeof cad.legTekeningOpPagina !== 'function') {
+      return { ok: false, error: 'target "underlay" is not available in this version', file_path: pad };
+    }
+    if (!heeftDocument) {
+      return { ok: false, error: 'target "underlay" needs an open document', file_path: pad };
+    }
+  } else {
+    doel = logica.effectiefDoel(doel, heeftDocument);
+  }
+
+  cadImportBezig = true;
+  let uitvoer = null;
+  try {
+    let scan;
+    try {
+      scan = await cad.verkenTekening(cad.nieuwJobId('scan'), pad, opdracht.inst.searchPaths);
+    } catch (e) {
+      const fout = logica.leesImportFout(e);
+      return { ok: false, error: `scan failed: ${fout.sleutel}`, detail: fout.error || '', file_path: pad };
+    }
+    const keuze = opdrachtMod.kiesRuimte(scan, opdracht.ruimte);
+    if (!keuze.ok) return { ...keuze, file_path: pad };
+    const lagen = opdrachtMod.kiesLagen(scan, keuze.ruimte.id, opdracht);
+
+    let verslag;
+    try {
+      uitvoer = await cad.tijdelijkPdfPad(pad);
+      verslag = await cad.importeerTekening(cad.nieuwJobId('import'), opdrachtMod.opdrachtArgumenten(opdracht, keuze.ruimte, {
+        outputPath: uitvoer,
+        excludedLayers: lagen.excludedLayers,
+        hiddenLayers: lagen.hiddenLayers,
+        limits: await cad.importGrenzen(),
+      }));
+    } catch (e) {
+      await cad.ruimOp(uitvoer);
+      const fout = logica.leesImportFout(e);
+      return { ok: false, error: `import failed: ${fout.sleutel}`, detail: fout.error || '', file_path: pad };
+    }
+    uitvoer = verslag.outputPath || uitvoer;
+
+    try {
+      if (doel === 'underlay') {
+        await cad.legTekeningOpPagina(uitvoer, {
+          tekening: pad,
+          blad: verslag.pages?.[0],
+          isModel: !opdracht.ruimte || /^model$/i.test(opdracht.ruimte),
+          dekking: Math.round((opdracht.dekking ?? 0.5) * 100),
+          onder: true,
+          opSchaal: true,
+        });
+      } else if (doel === 'append') {
+        await cad.voegImportToeAanDocument(uitvoer);
+      } else {
+        await cad.openImportAlsNieuwDocument(uitvoer, pad);
+      }
+    } catch (e) {
+      await cad.ruimOp(uitvoer);
+      return { ok: false, error: `placing the result failed: ${e?.message ?? e}`, file_path: pad };
+    }
+    await _redrawActive();
+    return {
+      ...opdrachtMod.opdrachtUitkomst(opdracht, doel, verslag, lagen.onbekend),
+      page_count: stateMod.getActiveDocument()?.pdfDoc?.numPages ?? 0,
+    };
+  } finally {
+    cadImportBezig = false;
+    // De vastgehouden tekening loslaten, tenzij het venster intussen open ging.
+    if (!vensterOpen()) await cad.laatTekeningLos();
+  }
+}
+
+
 const HANDLERS = {
   'mcp:open-pdf':           handleOpenPdf,
   'mcp:set-zoom':           handleSetZoom,
@@ -2405,6 +2520,8 @@ const HANDLERS = {
   'mcp:snippet-flatten':    handleSnippetFlatten,
   'mcp:symbol-scale':       handleSymbolScale,
   'mcp:titleblock':         handleTitleblock,
+  // CAD-import zonder venster
+  'mcp:import-cad':         handleImportCad,
   // Assistant — test the AI end-to-end
   'mcp:ai-complete':        handleAiComplete,
   // Accounts introspection — deactivated (cloud accounts feature removed)

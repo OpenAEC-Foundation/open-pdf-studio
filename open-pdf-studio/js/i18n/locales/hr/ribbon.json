@@ -78,7 +78,9 @@
     "find": "Pronađi",
     "findCtrlF": "Pronađi (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "U CAD",
+    "cadExportTitle": "Izvezi vektorski crtež u DXF ili DWG"
   },
   "comment": {
     "drawing": "Crtanje",

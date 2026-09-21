@@ -65,3 +65,9 @@ test pdf-bestanden/render-regression-runs/
 scripts/.venv-test/
 open-pdf-studio/dev-build-nr.json
 /testdata/
+
+# Python-bytecode van de verificatiescripts
+__pycache__/
+
+# Lokale manifesten van de verificatiescripts (namen van testbestanden)
+open-pdf-cad/scripts/*.local.json

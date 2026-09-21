@@ -83,6 +83,7 @@ function getAnnotationCenterAndSize(ann) {
     case 'scaleBar':
     case 'scheduleTable':
     case 'parametricSymbol':
+    case 'vectorSnippet':
       return {
         centerX: ann.x + ann.width / 2,
         centerY: ann.y + ann.height / 2,
@@ -464,7 +465,11 @@ export function findAnnotationAt(x, y, pageNum = null) {
       case 'stamp':
       case 'signature':
       case 'redaction':
-      case 'parametricSymbol': {
+      case 'parametricSymbol':
+      // Een los vectorknipsel (ook de tekening die als vector op de pagina
+      // gelegd is) is overal binnen zijn kader te pakken, net als een
+      // afbeelding. Een vastgezet knipsel is hierboven al overgeslagen.
+      case 'vectorSnippet': {
         // Images/stamps/signatures/parametric symbols: selectable ANYWHERE inside the bounding box
         const imgCenter = { x: ann.x + ann.width / 2, y: ann.y + ann.height / 2 };
         const imgLocal = transformPointByInverseRotation(x, y, imgCenter.x, imgCenter.y, ann.rotation);
@@ -768,7 +773,8 @@ export function isPointInsideAnnotation(x, y, annotation) {
     case 'signature':
     case 'redaction':
     case 'scaleBar':
-    case 'scheduleTable': {
+    case 'scheduleTable':
+    case 'vectorSnippet': {
       const inRect = localX >= annotation.x && localX <= annotation.x + annotation.width &&
                      localY >= annotation.y && localY <= annotation.y + annotation.height;
       if (!inRect) return false;

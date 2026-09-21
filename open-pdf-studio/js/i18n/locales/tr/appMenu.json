@@ -63,7 +63,9 @@
     "importXfdf": "Açıklamaları İçe Aktar (XFDF)",
     "importXfdfDesc": "Bir XFDF dosyasından açıklamaları geçerli belgeye aktarın",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "CAD çizimi (DWG, DXF)",
+    "importCadDesc": "DWG veya DXF çizimini ölçekli bir PDF sayfası olarak, katmanlar ve ölçek ile içe aktarın"
   },
   "exportPanel": {
     "title": "Dışa Aktar",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "CAD çizimi (DXF, DWG)",
+    "exportCadDesc": "Vektör çizimi katmanlar, ölçek ve alanla DXF veya DWG olarak dışa aktarın"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

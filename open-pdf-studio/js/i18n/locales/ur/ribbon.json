@@ -78,7 +78,9 @@
     "find": "تلاش",
     "findCtrlF": "تلاش کریں (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "CAD کی طرف",
+    "cadExportTitle": "ویکٹر ڈرائنگ کو DXF یا DWG میں برآمد کریں"
   },
   "comment": {
     "drawing": "ڈرائنگ",
