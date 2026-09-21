@@ -2,6 +2,8 @@
  * Shape tool — handles box, circle, highlight, cloud, polygon, redaction, textbox, callout
  * All use the same drag-to-create pattern via buildAnnotationProps + drawShapePreview
  */
+import { isKlikSleep } from '../../annotations/minimummaat.js';
+
 export const shapeTool = {
   name: 'shape',
   cursor: 'crosshair',
@@ -54,10 +56,13 @@ export const shapeTool = {
 
     const tool = state.currentTool;
 
-    // Single-click detection: if barely dragged, use default size
+    // Single-click detection: if barely dragged, use default size.
+    // Klik of sleep is een SCHERMbegrip: de drempel staat in schermpixels
+    // (px / zoom). Een vaste drempel in paginapunten (5 pt = 176 mm op 1:100)
+    // slokte ingezoomd een bewuste sleep van honderden pixels op.
     const dx = Math.abs(endX - state.startX);
     const dy = Math.abs(endY - state.startY);
-    const isClick = dx < 5 && dy < 5;
+    const isClick = isKlikSleep(dx, dy, ctx.scale);
 
     if (isClick && tool === 'textbox') {
       // Compact standaardvak, passend bij de 8pt-standaardtekst.

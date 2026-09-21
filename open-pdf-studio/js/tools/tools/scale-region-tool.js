@@ -13,6 +13,7 @@ import { createScaleRegion, invalidateScaleRegionCache } from '../../annotations
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { annotationCtx } from '../../ui/dom-elements.js';
 import { openDialog } from '../../bridge.js';
+import { MIN_GEBIED_PX, schermPxNaarPt } from '../../annotations/minimummaat.js';
 
 function redraw() {
   const doc = getActiveDocument();
@@ -85,7 +86,10 @@ export const scaleRegionTool = {
     _reset();
     ctx.redraw();
 
-    if (w < 20 || h < 20) return;
+    // Zelfde ondergrens als bij het slepen aan de grepen, in SCHERMPIXELS
+    // (px / zoom): ingezoomd mag een schaalgebied kleiner zijn.
+    const minPt = schermPxNaarPt(MIN_GEBIED_PX, ctx.scale);
+    if (w < minPt || h < minPt) return;
 
     const doc = getActiveDocument();
     if (!doc) return;

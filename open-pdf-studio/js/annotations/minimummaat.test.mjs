@@ -5,6 +5,7 @@ import {
   klemMaat, isGeldigeMaat, schermPxNaarPt, veiligeVerhouding,
   nietNul, normaliseerRechthoek, schaalRechthoekMetGreep, isKlikSleep,
   raakMarge, wolkUitstulping, saneerMaatVelden, tekstvakMinimum,
+  normaliseerVormMaat,
 } from './minimummaat.js';
 
 const near = (a, b, eps = 1e-9) => Math.abs(a - b) < eps;
@@ -312,4 +313,34 @@ test('tekstvakMinimum volgt de lettergrootte en niet een vast aantal punten', ()
   // Geen of kapotte lettergrootte: nooit onder de technische ondergrens.
   const geen = tekstvakMinimum({ fontSize: NaN });
   assert.ok(geen.minBreedte >= MIN_VORM_MAAT_PT && geen.minHoogte >= MIN_VORM_MAAT_PT);
+});
+
+test('normaliseerVormMaat: een rechthoek-vorm komt nooit met nul, negatief of NaN in het model', () => {
+  // Naar linksboven gesleepte veelhoek: negatieve maat wordt omgeklapt.
+  const p = normaliseerVormMaat({ type: 'polygon', x: 100, y: 80, width: -40, height: -30 });
+  assert.deepEqual({ x: p.x, y: p.y, width: p.width, height: p.height }, { x: 60, y: 50, width: 40, height: 30 });
+  // Sleep met breedte exact 0: technische ondergrens.
+  const b = normaliseerVormMaat({ type: 'box', x: 5, y: 5, width: 0, height: 50 });
+  assert.equal(b.width, MIN_VORM_MAAT_PT);
+  assert.equal(b.height, 50);
+  const n = normaliseerVormMaat({ type: 'image', x: 0, y: 0, width: NaN, height: Infinity });
+  assert.equal(n.width, MIN_VORM_MAAT_PT);
+  assert.equal(n.height, MIN_VORM_MAAT_PT);
+  // 0,05 x 0,05 pt blijft precies zo.
+  const k = normaliseerVormMaat({ type: 'box', x: 1, y: 1, width: 0.05, height: 0.05 });
+  assert.equal(k.width, 0.05);
+  assert.equal(k.height, 0.05);
+});
+
+test('normaliseerVormMaat: laat ontbrekende velden en andere typen met rust', () => {
+  // Aanhaal-tekstvak zonder maat (renderer valt terug op 150 x 50): er komt geen veld bij.
+  const c = normaliseerVormMaat({ type: 'callout', x: 0, y: 0 });
+  assert.equal('width' in c, false);
+  // Oude cirkel met middelpunt + straal.
+  const o = normaliseerVormMaat({ type: 'circle', centerX: 5, centerY: 5, radius: 3 });
+  assert.equal('width' in o, false);
+  // Een lijn met een omhullende van breedte 0 is geen rechthoek-vorm.
+  const l = normaliseerVormMaat({ type: 'line', x: 0, y: 0, width: 0, height: 10 });
+  assert.equal(l.width, 0);
+  assert.equal(normaliseerVormMaat(null), null);
 });

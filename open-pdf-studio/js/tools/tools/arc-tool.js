@@ -5,6 +5,7 @@
  */
 import { state, getActiveDocument } from '../../core/state.js';
 import { applyToolTransform } from '../tool-context.js';
+import { MIN_VORM_MAAT_PT } from '../../annotations/minimummaat.js';
 
 const _arcState = { clicks: [] };
 
@@ -17,7 +18,10 @@ function calculateArcFrom3Points(p1, p2, p3) {
   const ux = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d;
   const uy = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d;
   const radius = Math.sqrt((ax - ux) * (ax - ux) + (ay - uy) * (ay - uy));
-  if (radius < 1) return null;
+  // Alleen een technische wacht: de collineariteitstest hierboven vangt de
+  // ontaarde gevallen al. Een vaste ondergrens van 1 pt verbood bogen met een
+  // werkelijke straal onder 35 mm op een tekening 1:100.
+  if (!Number.isFinite(radius) || radius < MIN_VORM_MAAT_PT) return null;
 
   const startAngle = Math.atan2(p1.y - uy, p1.x - ux);
   const midAngle = Math.atan2(p2.y - uy, p2.x - ux);

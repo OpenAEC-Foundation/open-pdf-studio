@@ -825,7 +825,7 @@ function _handleDrag(ctx, e, coords) {
   const deltaY = coords.y - state.dragStartY;
 
   // Deadzone: don't start moving until cursor exceeds 3 screen-pixels from click point
-  const dragScale = getActiveDocument()?.scale || 1.5;
+  const dragScale = getEffectiveScale();
   const deadzone = 3 / dragScale;
   if (!state._dragExitedDeadzone) {
     if (Math.abs(deltaX) < deadzone && Math.abs(deltaY) < deadzone) return;
@@ -838,7 +838,10 @@ function _handleDrag(ctx, e, coords) {
   // Ctrl+drag copy: create clones on first meaningful move. Duplication
   // goes through the edit-ops primitive (cloneForInsert) — same identity
   // convention as CO and the array tool.
-  if (state._ctrlDragCopy && !state._ctrlCopiesCreated && (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2)) {
+  // De sleep is hier de deadzone van 3 SCHERMpixels al voorbij; een extra
+  // drempel van 2 paginapunten (128 px bij 6400 %) maakte het onmogelijk een
+  // klein vormpje een klein stukje te kopiëren.
+  if (state._ctrlDragCopy && !state._ctrlCopiesCreated) {
     _maakCtrlKopieen(_dDoc, _dSel);
   }
 

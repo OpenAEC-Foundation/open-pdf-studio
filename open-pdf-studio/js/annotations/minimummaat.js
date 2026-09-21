@@ -101,6 +101,34 @@ export function normaliseerRechthoek(r, min = MIN_VORM_MAAT_PT) {
   return { x, y, width: klemMaat(width, min), height: klemMaat(height, min) };
 }
 
+/** Vormen waarvan x/y/width/height samen de geometrie zijn. */
+export const RECHTHOEK_VORMEN = new Set([
+  'box', 'mask', 'circle', 'highlight', 'polygon', 'cloud', 'textbox', 'callout',
+  'image', 'stamp', 'signature', 'scaleBar', 'scheduleTable', 'parametricSymbol',
+  'viewport', 'scaleRegion', 'redaction',
+]);
+
+/**
+ * Laatste wacht op elk aanmaakpad (tools, plakken, MCP, laden): een
+ * rechthoek-vorm komt nooit met nul, negatief of NaN in het model. Alleen
+ * velden die er al zijn worden aangeraakt; andere typen blijven met rust.
+ * Muteert en geeft hetzelfde object terug.
+ */
+export function normaliseerVormMaat(ann) {
+  if (!ann || typeof ann !== 'object' || !RECHTHOEK_VORMEN.has(ann.type)) return ann;
+  if (ann.width !== undefined && ann.width !== null) {
+    const w = _getal(ann.width);
+    if (Number.isFinite(w) && w < 0 && Number.isFinite(ann.x)) { ann.x += w; ann.width = klemMaat(-w); }
+    else ann.width = klemMaat(w);
+  }
+  if (ann.height !== undefined && ann.height !== null) {
+    const h = _getal(ann.height);
+    if (Number.isFinite(h) && h < 0 && Number.isFinite(ann.y)) { ann.y += h; ann.height = klemMaat(-h); }
+    else ann.height = klemMaat(h);
+  }
+  return ann;
+}
+
 const _LINKS = { tl: true, bl: true, l: true };
 const _RECHTS = { tr: true, br: true, r: true };
 const _BOVEN = { tl: true, tr: true, t: true };

@@ -5,6 +5,7 @@ import { redrawAnnotations } from '../../annotations/rendering.js';
 // generic applyMove field-walker — NO per-type offset code in tools.
 import { cloneForInsert } from '../edit-ops.js';
 import { applyMoveGeneric } from '../../annotations/transforms.js';
+import { schermPxNaarPt } from '../../annotations/minimummaat.js';
 
 const _arrayState = { basePoint: null, count: 3, mode: 'linear' };
 
@@ -28,7 +29,9 @@ export const arrayTool = {
     const dx = x - base.x;
     const dy = y - base.y;
     const count = _arrayState.count;
-    if (count < 2 || Math.hypot(dx, dy) < 0.5) {
+    // "Geen verplaatsing" is een schermbegrip: 2 schermpixels (px / zoom) in
+    // plaats van 0,5 pt (17,6 mm op 1:100), zodat een fijne steek ingezoomd kan.
+    if (count < 2 || Math.hypot(dx, dy) < schermPxNaarPt(2, ctx.scale)) {
       _arrayState.basePoint = null;
       return;
     }

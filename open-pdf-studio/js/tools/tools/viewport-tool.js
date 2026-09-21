@@ -7,6 +7,7 @@ import { getActiveDocument } from '../../core/state.js';
 import { createAnnotation } from '../../annotations/factory.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { openDialog } from '../../bridge.js';
+import { MIN_GEBIED_PX, schermPxNaarPt } from '../../annotations/minimummaat.js';
 
 function redraw() {
   const doc = getActiveDocument();
@@ -39,7 +40,11 @@ export const viewportTool = {
     const w = Math.abs(ctx.x - state.startX);
     const h = Math.abs(ctx.y - state.startY);
 
-    if (w < 20 || h < 20) {
+    // Zelfde ondergrens als bij het slepen aan de grepen, in SCHERMPIXELS
+    // (px / zoom): ingezoomd mag een viewport kleiner zijn. Was 20 pt bij
+    // aanmaken tegen 40 pt bij slepen.
+    const minPt = schermPxNaarPt(MIN_GEBIED_PX, ctx.scale);
+    if (w < minPt || h < minPt) {
       ctx.redraw();
       return false;
     }
