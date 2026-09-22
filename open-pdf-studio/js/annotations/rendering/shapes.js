@@ -1,4 +1,5 @@
 import { layoutTextboxLines } from './textbox-layout.js';
+import { klemMaat, MIN_VORM_MAAT_PT } from '../minimummaat.js';
 // First strong-directional character decides the base direction of a text run,
 // mirroring CSS `dir="auto"` (which the free-text/callout editors use, issue #61).
 // Returns true when the first strongly-typed character is RTL (Hebrew, Arabic,
@@ -78,8 +79,11 @@ export function buildPolygonPointsPath(ctx, points, x, y, width, height) {
 // vast i.p.v. boxafhankelijk, zodat grote ballonnen dezelfde wolkjes krijgen
 // als kleine (gedrag van externe editors bij /BE cloudy).
 export function buildCloudPath(ctx, x, y, width, height, puffSize = 15) {
-  const w = Math.max(1, width);
-  const h = Math.max(1, height);
+  // Alleen de technische ondergrens: een wolk kleiner dan 1 pt werd als 1 pt
+  // getekend, groter dan zijn geometrie, grepen en selectiekader. Spiegel:
+  // cloudRectOutlinePts in de saver.
+  const w = klemMaat(width);
+  const h = klemMaat(height);
   // Booghoek per puff: ~252° geeft de diepe krullen met naar binnen wijzende
   // cusps zoals de "grote wolk"-randstijl van externe editors (dunne lijn
   // langs diep ingesneden scallops).
@@ -109,7 +113,9 @@ export function buildCloudPath(ctx, x, y, width, height, puffSize = 15) {
     const dx = x1 - x0;
     const dy = y1 - y0;
     const c = Math.hypot(dx, dy);
-    if (c < 0.01) continue;
+    // Delingswacht: alleen een koorde van exact nul valt weg, zodat ook een
+    // wolk op de ondergrens (koorde = zijde / 2) nog een pad krijgt.
+    if (!(c > 0)) continue;
     // Straal uit koorde + booghoek; middelpunt ligt (voor >180°) aan de
     // binnenzijde van de koorde zodat de boog naar buiten bolt.
     const r = c / (2 * sinHalf);
@@ -143,7 +149,9 @@ export function buildCloudPolylinePath(ctx, points, closed = true) {
     const dx = p2.x - p1.x;
     const dy = p2.y - p1.y;
     const edgeLen = Math.sqrt(dx * dx + dy * dy);
-    if (edgeLen < 1) continue;
+    // Een rand korter dan 1 pt (35 mm op 1:100) werd overgeslagen, zodat een
+    // kleine wolk-polylijn onzichtbaar was. Alleen de technische ondergrens.
+    if (!(edgeLen >= MIN_VORM_MAAT_PT)) continue;
 
     const numBumps = Math.max(1, Math.round(edgeLen / (TARGET_BUMP * 1.5)));
     const bumpRadius = edgeLen / numBumps / 2;
