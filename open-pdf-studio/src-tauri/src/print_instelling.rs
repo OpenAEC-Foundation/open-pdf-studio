@@ -254,11 +254,16 @@ pub fn schrijft_document(stuurprogramma: &str, poort: &str) -> bool {
 
 /// Een regel van de printkern die zichtbaar moet zijn.
 ///
-/// De app zet zelf geen logger op, dus `log::info!` komt nergens aan. Deze
-/// regels gaan daarom ook naar de standaarduitvoer — die vangt `tauri dev`
-/// op — en naar `opds-print.log` in de tijdelijke map, zodat een afdruk ook
-/// vanuit een geïnstalleerde app na te gaan is. Mislukt het schrijven (een
-/// venster zonder console, een volle schijf), dan gebeurt er niets.
+/// De regel gaat naar het logboek van de app: `logboek::registreer` zet bij
+/// het starten een logger op, met `info` als standaardniveau, dus deze regels
+/// komen ook vanuit een geïnstalleerde app in het logbestand.
+///
+/// Daarnaast gaan ze nog naar de standaarduitvoer — die vangt `tauri dev` op —
+/// en naar `opds-print.log` in de tijdelijke map. Dat eigen bestand staat er
+/// alleen nog voor het lopende printonderzoek; zodra dat klaar is mag het weg
+/// (beide `writeln!`-regels hieronder), want het logboek heeft dezelfde
+/// regels. Mislukt het schrijven (een venster zonder console, een volle
+/// schijf), dan gebeurt er niets.
 pub fn meld(regel: &str) {
     use std::io::Write;
     log::info!("{regel}");

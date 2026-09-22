@@ -148,3 +148,9 @@ rustls-native-certs = "0.8"
 # doelen en uitschakeldata per wortel.
 [target.'cfg(target_os = "windows")'.dependencies]
 windows-sys = { version = "0.59", features = ["Win32_Graphics_Printing", "Win32_Graphics_Gdi", "Win32_Storage_Xps", "Win32_Foundation", "Win32_System_Com", "Win32_UI_Shell", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging", "Win32_Security_Cryptography"] }
+
+# De mock-runtime van Tauri, zodat een test een AppHandle kan maken zonder
+# venster (logboek::registreer schrijft daarmee echt een logbestand). Alleen
+# voor `cargo test`: met resolver 2 komt de feature niet in gewone builds.
+[dev-dependencies]
+tauri = { version = "2.10.2", features = ["test"] }
