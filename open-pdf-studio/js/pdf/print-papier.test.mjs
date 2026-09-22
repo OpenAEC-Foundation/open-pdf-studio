@@ -7,7 +7,7 @@ import test from 'node:test';
 import {
   isPapierFormaat, normaliseerPapierInfo, effectiefPapier, papierTekst,
   paginaTekst, eigenschappenVooraf, instellingNaEigenschappen, maakPapierVerzoeken,
-  papierVerzoekSleutel, bekendVel,
+  papierVerzoekSleutel, bekendVel, velTekst, velNaam,
 } from './print-papier.js';
 import {
   startPaginaInstelling, bewaarPaginaInstelling, printArgumenten,
@@ -602,4 +602,43 @@ test('alle locales noemen de virtuele printer bij zijn naam', async () => {
     assert.ok(tekst.includes('Open PDF Printer'), `${taal}: naam van de printer ontbreekt`);
     assert.ok(!tekst.includes('Open PDF Studio'), `${taal}: oude printernaam staat er nog`);
   }
+});
+
+// --- de kop: het vel met zijn stand -------------------------------------------------
+
+// Vertaalfunctie zoals de dialoog hem geeft: de Nederlandse teksten.
+const tNl = (sleutel, o) => ({
+  'print.sheetPortrait': `${o.paper} staand`,
+  'print.sheetLandscape': `${o.paper} liggend`,
+}[sleutel]);
+
+test('velTekst: naam, stand en de maten zoals het vel ligt', () => {
+  const liggendA2 = { bekend: true, vel: { breedteMm: 594, hoogteMm: 420, orientatie: 'landscape' } };
+  assert.equal(velTekst(liggendA2, 'A2', tNl), 'A2 liggend (594 × 420 mm)');
+  const staandA4 = { bekend: true, vel: { breedteMm: 210, hoogteMm: 297, orientatie: 'portrait' } };
+  assert.equal(velTekst(staandA4, 'A4', tNl), 'A4 staand (210 × 297 mm)');
+  // Maten van een vel op paginamaat worden afgerond op hele mm.
+  const eigen = { bekend: true, vel: { breedteMm: 594.02, hoogteMm: 419.98, orientatie: 'landscape' } };
+  assert.equal(velTekst(eigen, 'A2', tNl), 'A2 liggend (594 × 420 mm)');
+});
+
+test('velTekst: zonder naam alleen de maten, een naam met maten niet dubbel', () => {
+  const eigen = { bekend: true, vel: { breedteMm: 500, hoogteMm: 700, orientatie: 'portrait' } };
+  assert.equal(velTekst(eigen, null, tNl), '500 × 700 mm staand');
+  assert.equal(velTekst(eigen, '', tNl), '500 × 700 mm staand');
+  assert.equal(velTekst(eigen, 'Custom 500 x 700 mm', tNl), 'Custom 500 x 700 mm staand');
+});
+
+test('velTekst: onbekend vel toont de naam met de stand, zonder maten; niets zonder plaatsing', () => {
+  const onbekend = { bekend: false, vel: { breedteMm: 297, hoogteMm: 210, orientatie: 'landscape' } };
+  assert.equal(velTekst(onbekend, STANDAARD, tNl), `${STANDAARD} liggend`);
+  assert.equal(velTekst(onbekend, null, tNl), null);
+  assert.equal(velTekst(null, 'A4', tNl), null);
+});
+
+test('velNaam: het formaat dat bij een vel op paginamaat past, anders niets', () => {
+  assert.equal(velNaam(A4_LIGGEND), 'A4');
+  assert.equal(velNaam({ breedtePt: pt(1189), hoogtePt: pt(841) }), 'A0');
+  assert.equal(velNaam({ breedtePt: pt(500), hoogtePt: pt(700) }), null);
+  assert.equal(velNaam(null), null);
 });

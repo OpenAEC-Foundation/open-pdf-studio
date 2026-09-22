@@ -6,7 +6,7 @@ import test from 'node:test';
 
 import {
   PAPIERFORMATEN, VERLENGING_MM, formaatTekst, paginaOrientatie, paginaFormaat,
-  startPaginaInstelling, bewaarPaginaInstelling, printArgumenten,
+  startPaginaInstelling, bewaarPaginaInstelling, printArgumenten, overstemdeStand,
 } from './print-pagina-instelling.js';
 
 const MM = 72 / 25.4; // pt per mm
@@ -204,4 +204,23 @@ test('printer: Pagina-instelling niet voor dit document geopend → nooit een ve
     { orientatie: 'auto', papier: 'printer' });
   assert.deepEqual(printArgumenten({ autoRotate: false, paginaInstelling: null, docId: 'd1' }),
     { orientatie: 'auto', papier: 'printer' });
+});
+
+test('overstemde stand: alleen met Automatisch draaien aan, voor dít document, en als het vel er anders van ligt', () => {
+  const liggend = { breedtePt: pt(297), hoogtePt: pt(210) };
+  const staand = { breedtePt: pt(210), hoogtePt: pt(297) };
+  const p = { docId: 'd1', size: 'a4', orientation: 'portrait', handmatig: true };
+  // Aan, en de pagina zou liggend gaan: de gekozen staande stand vervalt.
+  assert.equal(overstemdeStand({ autoRotate: true, paginaInstelling: p, docId: 'd1', pagina: liggend }), 'portrait');
+  // De pagina staat al zoals gekozen: er vervalt niets.
+  assert.equal(overstemdeStand({ autoRotate: true, paginaInstelling: p, docId: 'd1', pagina: staand }), null);
+  // Uit: de keuze geldt gewoon.
+  assert.equal(overstemdeStand({ autoRotate: false, paginaInstelling: p, docId: 'd1', pagina: liggend }), null);
+  // Niet voor dit document, of geen instelling, of geen pagina: niets te melden.
+  assert.equal(overstemdeStand({ autoRotate: true, paginaInstelling: p, docId: 'ander', pagina: liggend }), null);
+  assert.equal(overstemdeStand({ autoRotate: true, paginaInstelling: null, docId: 'd1', pagina: liggend }), null);
+  assert.equal(overstemdeStand({ autoRotate: true, paginaInstelling: p, docId: 'd1', pagina: null }), null);
+  // Een kapotte stand in een oud voorkeurenbestand telt niet.
+  const kapot = { ...p, orientation: 'schuin' };
+  assert.equal(overstemdeStand({ autoRotate: true, paginaInstelling: kapot, docId: 'd1', pagina: liggend }), null);
 });

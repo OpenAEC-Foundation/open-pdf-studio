@@ -16,7 +16,7 @@
 // daarnaast papierGewijzigd en orientatieGewijzigd: wat de gebruiker in het
 // venster anders zette dan waarmee het werd vooringevuld.
 
-import { PAPIERFORMATEN, paginaOrientatie, printArgumenten } from './print-pagina-instelling.js';
+import { PAPIERFORMATEN, paginaOrientatie, paginaFormaat, printArgumenten } from './print-pagina-instelling.js';
 
 const PT_NAAR_MM = 25.4 / 72;
 
@@ -217,6 +217,39 @@ export function papierTekst(effectief, standaardTekst) {
   if (naam) return naam;
   if (maten) return maten;
   return standaardTekst;
+}
+
+/**
+ * De kop van het voorbeeld: het vel met zijn stand en de maten zoals het
+ * ligt, "A2 liggend (594 × 420 mm)". `plaatsing` komt uit berekenPlaatsing
+ * (print-plaatsing.js): het vel zoals het uit de printer komt of in het
+ * bestand komt te liggen. `naam` is de naam van het vel ("A2", een
+ * formuliernaam, de tekst voor de printerstandaard) of null: dan alleen de
+ * maten. Een onbekend vel (plaatsing.bekend false: de printer past de pagina
+ * zelf in) toont geen maten, want die zijn niet die van het vel.
+ * `t` vertaalt 'print.sheetPortrait' / 'print.sheetLandscape' met {{paper}}.
+ * null = niets te tonen.
+ */
+export function velTekst(plaatsing, naam, t) {
+  if (!plaatsing || !plaatsing.vel) return null;
+  const { breedteMm, hoogteMm, orientatie } = plaatsing.vel;
+  const maten = plaatsing.bekend && geldig(breedteMm) && geldig(hoogteMm)
+    ? `${Math.round(breedteMm)} × ${Math.round(hoogteMm)} mm`
+    : null;
+  const papier = naam || maten;
+  if (!papier) return null;
+  const tekst = t(orientatie === 'landscape' ? 'print.sheetLandscape' : 'print.sheetPortrait', { paper: papier });
+  return naam && maten && !NAAM_MET_MATEN.test(naam) ? `${tekst} (${maten})` : tekst;
+}
+
+/**
+ * De naam van een vel op paginamaat (papier 'pagina' in print-plaatsing.js):
+ * het formaat uit de lijst dat bij de pagina past ("A2"), anders null.
+ */
+export function velNaam(pagina) {
+  if (!pagina) return null;
+  const f = PAPIERFORMATEN[paginaFormaat(pagina.breedtePt, pagina.hoogtePt)];
+  return f ? f.label : null;
 }
 
 /**

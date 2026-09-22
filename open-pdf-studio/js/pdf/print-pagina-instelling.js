@@ -111,3 +111,19 @@ export function printArgumenten({ autoRotate, paginaInstelling, docId }) {
     papier: voorDitDocument ? paginaInstelling.size : 'printer',
   };
 }
+
+/**
+ * Welke gekozen stand "Automatisch draaien" stil overstemt, zodat de
+ * printdialoog dat kan zeggen: de stand uit de voor dít document bevestigde
+ * Pagina-instelling, als Automatisch draaien aan staat (printArgumenten stuurt
+ * dan 'auto') en de getoonde pagina daardoor de andere kant op gaat. Ligt de
+ * pagina al zoals gekozen, dan verandert er niets en is er niets te melden.
+ * @returns {'portrait'|'landscape'|null}
+ */
+export function overstemdeStand({ autoRotate, paginaInstelling, docId, pagina }) {
+  if (!autoRotate || !paginaInstelling || paginaInstelling.docId !== docId) return null;
+  const gekozen = paginaInstelling.orientation;
+  if (gekozen !== 'portrait' && gekozen !== 'landscape') return null;
+  if (!pagina || !geldig(pagina.breedtePt) || !geldig(pagina.hoogtePt)) return null;
+  return paginaOrientatie(pagina.breedtePt, pagina.hoogtePt) === gekozen ? null : gekozen;
+}
