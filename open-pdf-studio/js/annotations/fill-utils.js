@@ -25,3 +25,12 @@ export function hasFill(color) {
 export function hasStroke(strokeColor) {
   return strokeColor !== 'none' && strokeColor !== 'transparent';
 }
+
+// Kleur van wat bij een vorm zonder rand wél getekend wordt: het kruis, de
+// aanhaallijn, het maatlabel. Dat is de eigen kleur van de annotatie, net als
+// in rendering.js (`annotation.color || '#000000'`); de saver gebruikt dezelfde
+// regel, zodat andere lezers hetzelfde te zien krijgen als het scherm.
+export function colorWithoutStroke(annotation) {
+  const c = annotation && annotation.color;
+  return hasFill(c) ? c : '#000000';
+}

@@ -1,5 +1,6 @@
 import { PDFName } from 'pdf-lib';
 import { kruisEindpuntenEllips } from '../../annotations/kruis-geometrie.js';
+import { hasFill, hasStroke, colorWithoutStroke } from '../../annotations/fill-utils.js';
 
 // Convert hex color to RGB values (0-1 range)
 export function hexToRgb(hex) {
@@ -33,6 +34,41 @@ export function buildBorderStyle(context, width, borderStyle) {
   const bs = { Type: 'Border', W: width, S: dash ? 'D' : 'S' };
   if (dash) bs.D = dash;
   return context.obj(bs);
+}
+
+// Vormen waarvan de rand via "geen rand" (strokeColor 'none') weg kan — de
+// soorten waarvoor rendering.js de omtrek met hasStroke() overslaat. De waarde
+// is de sleutel van de randkleur in het annotatie-woordenboek: /C, behalve bij
+// FreeText, waar /C de vulling is en /IC de rand (zie saver.js en de loader).
+const RANDSLEUTEL = {
+  box: 'C', circle: 'C', polygon: 'C', cloud: 'C', filledArea: 'C', measureArea: 'C',
+  textbox: 'IC', callout: 'IC',
+};
+
+// Sleutel van de randkleur als deze annotatie zonder rand opgeslagen moet
+// worden, anders null (vorm mét rand, of een soort zonder weglaatbare rand).
+export function randSleutelZonderRand(ann) {
+  if (!ann || hasStroke(ann.strokeColor)) return null;
+  return RANDSLEUTEL[ann.type] || null;
+}
+
+// Vorm zonder rand in het annotatie-woordenboek (#431). Elke lezer moet hem
+// zonder omtrek tonen: de randkleur gaat eruit en /BS krijgt /W 0 (de lijnstijl
+// /S en /D blijven). Wat de app nodig heeft voor een exacte rondgang staat in
+// de eigen sleutel /OPS_NoStroke << /W lijndikte /C kleur >>: de lijndikte-
+// instelling (de /W die er met rand had gestaan) en de eigen kleur van de
+// annotatie, waarin kruis, aanhaallijn en maatlabel getekend worden.
+export function markeerZonderRand(context, annotDict, ann, randSleutel) {
+  const bewaard = {};
+  const bsRaw = annotDict.get(PDFName.of('BS'));
+  const bs = bsRaw ? context.lookup(bsRaw) : null;
+  const w = bs ? context.lookup(bs.get(PDFName.of('W'))) : null;
+  if (w && typeof w.asNumber === 'function') bewaard.W = w.asNumber();
+  if (bs) bs.set(PDFName.of('W'), context.obj(0));
+  else annotDict.set(PDFName.of('BS'), buildBorderStyle(context, 0, ann.borderStyle));
+  annotDict.delete(PDFName.of(randSleutel));
+  if (hasFill(ann.color)) bewaard.C = hexToRgb(ann.color);
+  annotDict.set(PDFName.of('OPS_NoStroke'), context.obj(bewaard));
 }
 
 // Compute annotation flags (F entry) from annotation properties
@@ -194,8 +230,21 @@ export function generateAppearanceStream(context, ann, convertY) {
         const w = ann.width;
         const h = ann.height;
         bbox = [0, 0, w, h];
-        const [r, g, b] = hexToRgb(ann.strokeColor || ann.color || '#000000');
         const lw = ann.lineWidth ?? 2;
+        // Geen rand (#431): alleen de vulling. Het kruis blijft, in de kleur
+        // waarin het scherm het tekent.
+        if (randSleutelZonderRand(ann)) {
+          if (hasFill(ann.fillColor)) {
+            const [fr, fg, fb] = hexToRgb(ann.fillColor);
+            streamContent += `${fr} ${fg} ${fb} rg\n0 0 ${w} ${h} re f\n`;
+          }
+          if (ann.cross) {
+            const [kr, kg, kb] = hexToRgb(colorWithoutStroke(ann));
+            streamContent += `${lw} w\n${kr} ${kg} ${kb} RG\n0 0 m ${w} ${h} l ${w} 0 m 0 ${h} l S\n`;
+          }
+          break;
+        }
+        const [r, g, b] = hexToRgb(ann.strokeColor || ann.color || '#000000');
         streamContent = `${lw} w\n${r} ${g} ${b} RG\n`;
         if (ann.fillColor) {
           const [fr, fg, fb] = hexToRgb(ann.fillColor);
@@ -215,27 +264,43 @@ export function generateAppearanceStream(context, ann, convertY) {
         const cx = w / 2, cy = h / 2;
         const rx = w / 2, ry = h / 2;
         const k = 0.5522847498; // Bezier approximation of circle
-        const [r, g, b] = hexToRgb(ann.strokeColor || ann.color || '#000000');
         const lw = ann.lineWidth ?? 2;
+        // Ellipse via Bezier curves
+        const ellips = `${cx} ${cy + ry} m\n`
+          + `${cx + k*rx} ${cy + ry} ${cx + rx} ${cy + k*ry} ${cx + rx} ${cy} c\n`
+          + `${cx + rx} ${cy - k*ry} ${cx + k*rx} ${cy - ry} ${cx} ${cy - ry} c\n`
+          + `${cx - k*rx} ${cy - ry} ${cx - rx} ${cy - k*ry} ${cx - rx} ${cy} c\n`
+          + `${cx - rx} ${cy + k*ry} ${cx - k*rx} ${cy + ry} ${cx} ${cy + ry} c\n`;
+        // Kruis (rond gat / sparing): ±45° door het middelpunt tot de omtrek.
+        let kruis = '';
+        if (ann.cross) {
+          for (const l of kruisEindpuntenEllips(cx, cy, rx, ry)) {
+            kruis += `${l.x1} ${l.y1} m ${l.x2} ${l.y2} l\n`;
+          }
+          kruis += 'S\n';
+        }
+        // Geen rand (#431): alleen de vulling; het kruis blijft, in de kleur
+        // waarin het scherm het tekent.
+        if (randSleutelZonderRand(ann)) {
+          if (hasFill(ann.fillColor)) {
+            const [fr, fg, fb] = hexToRgb(ann.fillColor);
+            streamContent += `${fr} ${fg} ${fb} rg\n${ellips}f\n`;
+          }
+          if (kruis) {
+            const [kr, kg, kb] = hexToRgb(colorWithoutStroke(ann));
+            streamContent += `${lw} w\n${kr} ${kg} ${kb} RG\n${kruis}`;
+          }
+          break;
+        }
+        const [r, g, b] = hexToRgb(ann.strokeColor || ann.color || '#000000');
         streamContent = `${lw} w\n${r} ${g} ${b} RG\n`;
         if (ann.fillColor) {
           const [fr, fg, fb] = hexToRgb(ann.fillColor);
           streamContent += `${fr} ${fg} ${fb} rg\n`;
         }
-        // Ellipse via Bezier curves
-        streamContent += `${cx} ${cy + ry} m\n`;
-        streamContent += `${cx + k*rx} ${cy + ry} ${cx + rx} ${cy + k*ry} ${cx + rx} ${cy} c\n`;
-        streamContent += `${cx + rx} ${cy - k*ry} ${cx + k*rx} ${cy - ry} ${cx} ${cy - ry} c\n`;
-        streamContent += `${cx - k*rx} ${cy - ry} ${cx - rx} ${cy - k*ry} ${cx - rx} ${cy} c\n`;
-        streamContent += `${cx - rx} ${cy + k*ry} ${cx - k*rx} ${cy + ry} ${cx} ${cy + ry} c\n`;
+        streamContent += ellips;
         streamContent += ann.fillColor ? 'B\n' : 'S\n';
-        // Kruis (rond gat / sparing): ±45° door het middelpunt tot de omtrek.
-        if (ann.cross) {
-          for (const l of kruisEindpuntenEllips(cx, cy, rx, ry)) {
-            streamContent += `${l.x1} ${l.y1} m ${l.x2} ${l.y2} l\n`;
-          }
-          streamContent += 'S\n';
-        }
+        streamContent += kruis;
         break;
       }
       case 'line': {
