@@ -296,6 +296,18 @@ export function executeProgressiveSearch(onProgress) {
 
       if (cancelled || generation !== _searchGeneration) return;
 
+      // Annotaties worden per pagina op aanvraag geladen; zonder deze stap
+      // mist de zoektocht de annotaties van nog niet bezochte pagina's.
+      if (bronnen.annotaties) {
+        try {
+          const { ensureAnnotationsForPage } = await import('../pdf/loader.js');
+          await ensureAnnotationsForPage(pageNum, doc);
+        } catch (e) {
+          console.warn('[zoeken] annotaties van pagina', pageNum, 'niet geladen:', e);
+        }
+        if (cancelled || generation !== _searchGeneration) return;
+      }
+
       const pageResults = zoekPaginaAlleBronnen(pageData, pattern, query, doc, bronnen);
       for (const r of pageResults) {
         r.index = allResults.length;
