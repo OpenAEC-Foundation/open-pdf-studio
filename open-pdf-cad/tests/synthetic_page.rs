@@ -89,6 +89,11 @@ q 1 w 0 0 m 30 0 60 30 60 60 c S Q\n";
             format!("<< /Type /XObject /Subtype /Form /BBox [0 0 100 50] /Length {} >>\nstream\n{}endstream", square_ap.len(), square_ap),
         ]);
     }
+    assemble(&objects)
+}
+
+/// Bouwt van een rij objectlichamen (object 1 is de catalogus) een geldige PDF.
+fn assemble(objects: &[String]) -> Vec<u8> {
     let mut pdf = b"%PDF-1.5\n".to_vec();
     let mut offsets = Vec::new();
     for (i, body) in objects.iter().enumerate() {
@@ -504,5 +509,91 @@ fn page_out_of_range_is_reported() {
     };
     let error = export_page(&library, &request, None, None).unwrap_err();
     assert_eq!(error, ExportError::PageOutOfRange { page_index: 5, page_count: 1 });
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Blad zoals een tekenpakket het plot: een maatlijn met daarop een dekkend
+/// vlak in papierkleur en daarop de maattekst; verder een grijze vulling, een
+/// wit vlak met een zwarte omtrek, en een wit vlak met een gat.
+fn build_masked_pdf() -> Vec<u8> {
+    let content = "\
+q 0.5 w 0 G 10 50 m 190 50 l S Q\n\
+q 1 1 1 rg 90 44 20 12 re f Q\n\
+BT /F1 6 Tf 1 0 0 1 92 47 Tm (478) Tj ET\n\
+q 0.8 0.8 0.8 rg 10 10 30 20 re f Q\n\
+q 1 1 1 rg 0 G 0.5 w 60 10 30 20 re B Q\n\
+q 1 1 1 rg 120 10 40 30 re 130 15 20 20 re f* Q\n";
+    let objects = vec![
+        "<< /Type /Catalog /Pages 2 0 R >>".to_string(),
+        "<< /Type /Pages /Kids [3 0 R] /Count 1 >>".to_string(),
+        "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 100] /Contents 4 0 R \
+          /Resources << /Font << /F1 5 0 R >> >> >>"
+            .to_string(),
+        format!("<< /Length {} >>\nstream\n{}endstream", content.len(), content),
+        "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>".to_string(),
+    ];
+    assemble(&objects)
+}
+
+#[test]
+fn a_paper_coloured_fill_becomes_a_wipeout_under_the_text_that_it_masks() {
+    let Some(pdfium) = pdfium_path() else { return };
+    let dir = work_dir("masker");
+    let pdf_path = dir.join("pagina.pdf");
+    std::fs::write(&pdf_path, build_masked_pdf()).unwrap();
+    let library = PdfiumLibrary::load(&pdfium).unwrap();
+
+    for (format, name) in [(CadFormat::Dxf, "uit.dxf"), (CadFormat::Dwg, "uit.dwg")] {
+        let mut request = request_for(pdf_path.clone(), dir.join(name), ConvertOptions::default());
+        request.format = format;
+        let report = export_page(&library, &request, None, None).unwrap();
+        // Twee dekkende vlakken in papierkleur worden maskers; de grijze
+        // vulling en het witte vlak met een gat blijven arceringen.
+        assert_eq!((report.convert.masks, report.convert.hatches), (2, 2), "{name}");
+
+        let doc = read_back(&request.output_path);
+        let kinds: Vec<&str> = doc.model_space_entities().map(|e| e.as_entity().entity_type()).collect();
+        assert_eq!(kinds, ["LINE", "WIPEOUT", "TEXT", "HATCH", "WIPEOUT", "LWPOLYLINE", "HATCH"], "{name}");
+
+        // Het masker dekt precies het witte vlak en ligt vóór de tekst, zodat
+        // de tekst er in een CAD-programma bovenop komt.
+        let wipeout = doc
+            .model_space_entities()
+            .find_map(|e| match e {
+                EntityType::Wipeout(w) => Some(w),
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("{name}: masker ontbreekt"));
+        let corners = wipeout.world_boundary_vertices();
+        let xs: Vec<f64> = corners.iter().map(|c| c.x).collect();
+        let ys: Vec<f64> = corners.iter().map(|c| c.y).collect();
+        let min = |v: &[f64]| v.iter().cloned().fold(f64::MAX, f64::min);
+        let max = |v: &[f64]| v.iter().cloned().fold(f64::MIN, f64::max);
+        assert_point((min(&xs), min(&ys)), (90.0 * MM, 44.0 * MM), &format!("{name}: linksonder"));
+        assert_point((max(&xs), max(&ys)), (110.0 * MM, 56.0 * MM), &format!("{name}: rechtsboven"));
+        assert_eq!(wipeout.common.layer, "PDF_FILL_FFFFFF", "{name}");
+        // Het kader van een masker wordt niet getoond of geplot.
+        let frame = doc.objects.values().find_map(|o| match o {
+            acadrust::objects::ObjectType::WipeoutVariables(v) => Some(v.display_frame),
+            _ => None,
+        });
+        assert_eq!(frame, Some(0), "{name}: WIPEOUTFRAME");
+
+        // Geen enkel effen vlak in papierkleur blijft als arcering achter,
+        // behalve het vlak met een gat (dat een masker niet kan uitdrukken).
+        let white_hatches: Vec<usize> = doc
+            .model_space_entities()
+            .filter_map(|e| match e {
+                EntityType::Hatch(h) if h.common.layer == "PDF_FILL_FFFFFF" => Some(h.paths.len()),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(white_hatches, [2], "{name}: alleen het vlak met een gat blijft arcering");
+
+        // Tekenvolgorde: de handles lopen op met de volgorde in het bestand,
+        // dus een CAD-programma tekent het masker vóór de tekst.
+        let handles: Vec<u64> = doc.model_space_entities().map(|e| e.common().handle.value()).collect();
+        assert!(handles.windows(2).all(|w| w[0] < w[1]), "{name}: {handles:?}");
+    }
     let _ = std::fs::remove_dir_all(&dir);
 }

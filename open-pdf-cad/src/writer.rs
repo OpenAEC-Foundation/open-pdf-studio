@@ -5,7 +5,8 @@ use crate::error::ExportError;
 use crate::model::{Drawing, Entity, Geometry, Rgb};
 use crate::page_space::DrawingUnit;
 use acadrust::entities::hatch::{BoundaryEdge, BoundaryPath, BoundaryPathFlags, Hatch, PolylineEdge};
-use acadrust::entities::{EntityType, Line, LwPolyline, Spline, Text};
+use acadrust::entities::{EntityType, Line, LwPolyline, Spline, Text, Wipeout};
+use acadrust::objects::{ObjectType, WipeoutVariables};
 use acadrust::tables::linetype::LineTypeElement;
 use acadrust::tables::{Layer, LineType, TableEntry, TextStyle};
 use acadrust::{CadDocument, Color, DwgWriter, DxfVersion, DxfWriter, LineWeight, Vector2, Vector3};
@@ -108,6 +109,10 @@ pub fn build_document(drawing: Drawing, version: CadVersion, cancel: Option<&Ato
         doc.line_types.add(entry).map_err(ExportError::Write)?;
     }
 
+    if drawing.entities.iter().any(|e| matches!(e.geometry, Geometry::Mask { .. })) {
+        set_wipeout_frame(&mut doc, 0);
+    }
+
     let has_text = drawing.entities.iter().any(|e| matches!(e.geometry, Geometry::Text { .. }));
     if has_text {
         let mut style = TextStyle::new(TEXT_STYLE_NAME);
@@ -147,6 +152,19 @@ pub fn build_document(drawing: Drawing, version: CadVersion, cancel: Option<&Ato
         doc.add_entity(cad).map_err(|e| ExportError::Write(e.to_string()))?;
     }
     Ok(doc)
+}
+
+/// Zet WIPEOUTFRAME van de tekening: 0 = het kader van een maskering wordt niet
+/// getoond en niet geplot. Zonder deze instelling tekent een CAD-programma om
+/// elk masker een randje, en dat staat er in de PDF niet.
+fn set_wipeout_frame(doc: &mut CadDocument, mode: i16) {
+    let root = doc.header.named_objects_dict_handle;
+    let handle = doc.allocate_handle();
+    doc.objects
+        .insert(handle, ObjectType::WipeoutVariables(WipeoutVariables { handle, owner: root, display_frame: mode }));
+    if let Some(ObjectType::Dictionary(dictionary)) = doc.objects.get_mut(&root) {
+        dictionary.add_entry("ACAD_WIPEOUT_VARS", handle);
+    }
 }
 
 fn to_cad_entity(geometry: Geometry) -> EntityType {
@@ -191,6 +209,15 @@ fn to_cad_entity(geometry: Geometry) -> EntityType {
                 hatch.add_path(path);
             }
             EntityType::Hatch(hatch)
+        }
+        Geometry::Mask { outline } => {
+            // De grens van een maskering moet gesloten zijn: het eerste punt
+            // staat ook achteraan, anders weigeren CAD-programma's de entiteit.
+            let mut points: Vec<Vector2> = outline.iter().map(|p| Vector2::new(p.x, p.y)).collect();
+            if points.first() != points.last() {
+                points.push(points[0]);
+            }
+            EntityType::Wipeout(Wipeout::polygonal(&points, 0.0))
         }
         Geometry::Text { insert, height, rotation, width_factor, value } => {
             let mut text = Text::with_value(value, Vector3::new(insert.x, insert.y, 0.0))

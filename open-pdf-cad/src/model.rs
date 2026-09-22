@@ -82,6 +82,12 @@ pub enum Geometry {
     Hatch {
         loops: Vec<Vec<Point>>,
     },
+    /// Maskering: een dekkend vlak in papierkleur, als gesloten omtrek. In CAD
+    /// neemt het de achtergrondkleur aan en dekt het af wat eronder ligt —
+    /// hetzelfde als wat het witte vlak in de PDF doet.
+    Mask {
+        outline: Vec<Point>,
+    },
     Text {
         insert: Point,
         /// Hoogte van hoofdletters in tekeneenheden.
@@ -102,6 +108,7 @@ impl Geometry {
             Geometry::Polyline { .. } => "LWPOLYLINE",
             Geometry::BezierSpline { .. } => "SPLINE",
             Geometry::Hatch { .. } => "HATCH",
+            Geometry::Mask { .. } => "WIPEOUT",
             Geometry::Text { .. } => "TEXT",
         }
     }
@@ -115,6 +122,7 @@ impl Geometry {
             Geometry::Polyline { points, .. } => points.iter().copied().for_each(f),
             Geometry::BezierSpline { control_points } => control_points.iter().copied().for_each(f),
             Geometry::Hatch { loops } => loops.iter().flatten().copied().for_each(f),
+            Geometry::Mask { outline } => outline.iter().copied().for_each(f),
             Geometry::Text { insert, .. } => f(*insert),
         }
     }

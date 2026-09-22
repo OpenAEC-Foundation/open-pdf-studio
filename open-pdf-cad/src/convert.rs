@@ -192,6 +192,8 @@ pub struct ConvertStats {
     pub skipped_page_fills: u64,
     pub skipped_invisible_text: u64,
     pub skipped_degenerate_paths: u64,
+    /// Dekkende vlakken in papierkleur die een maskering (WIPEOUT) werden.
+    pub masks: u64,
 }
 
 /// Hoogste aantal punten in één aaneengeregen polylijn.
@@ -350,7 +352,7 @@ impl Converter {
     /// Totaal aantal entiteiten tot nu toe.
     pub fn entity_count(&self) -> u64 {
         let s = &self.stats;
-        s.lines + s.polylines + s.splines + s.hatches + s.texts
+        s.lines + s.polylines + s.splines + s.hatches + s.masks + s.texts
     }
 
     pub fn push(&mut self, item: RawItem) {
@@ -393,6 +395,7 @@ impl Converter {
                     Geometry::Polyline { points, .. } => points.iter_mut().for_each(&mut map),
                     Geometry::BezierSpline { control_points } => control_points.iter_mut().for_each(&mut map),
                     Geometry::Hatch { loops } => loops.iter_mut().flatten().for_each(&mut map),
+                    Geometry::Mask { outline } => outline.iter_mut().for_each(&mut map),
                     Geometry::Text { insert, rotation, height, .. } => {
                         if mirrored {
                             // Tekst in CAD is niet te spiegelen. Ze blijft
@@ -435,6 +438,15 @@ impl Converter {
                 self.stats.skipped_page_fills += 1;
             } else if let Some((layer, color_override, _)) = self.layer_for(hint.as_ref(), StyleKind::Fill, color, 0) {
                 match self.options.fills {
+                    FillMode::Hatch if is_paper_colour(fill.color) && !has_nested_loops(&loops) => {
+                        // Een dekkend vlak in papierkleur dekt in de PDF af wat
+                        // eronder ligt; als arcering zou het in CAD een massief
+                        // vlak worden dat op een donkere achtergrond wit oplicht
+                        // en de tekst erboven onleesbaar maakt.
+                        for outline in loops {
+                            self.emit(layer, color_override, None, None, Geometry::Mask { outline });
+                        }
+                    }
                     FillMode::Hatch => {
                         self.emit(layer, color_override, None, None, Geometry::Hatch { loops });
                     }
@@ -721,6 +733,12 @@ impl Converter {
                     self.store(layer, color, lineweight, linetype, Geometry::Hatch { loops });
                 }
             }
+            Geometry::Mask { outline } => {
+                let outline = if clip.contains_all(&outline) { outline } else { clip.clip_polygon(&outline) };
+                if outline.len() >= 3 {
+                    self.store(layer, color, lineweight, linetype, Geometry::Mask { outline });
+                }
+            }
             Geometry::Text { insert, .. } => {
                 if clip.contains(insert) {
                     self.store(layer, color, lineweight, linetype, geometry);
@@ -750,6 +768,7 @@ impl Converter {
             Geometry::Polyline { .. } => self.stats.polylines += 1,
             Geometry::BezierSpline { .. } => self.stats.splines += 1,
             Geometry::Hatch { .. } => self.stats.hatches += 1,
+            Geometry::Mask { .. } => self.stats.masks += 1,
             Geometry::Text { .. } => self.stats.texts += 1,
         }
         let (mut min, mut max) = (self.min, self.max);
@@ -851,6 +870,41 @@ impl Converter {
 
 fn rgb(c: Rgba) -> Rgb {
     Rgb { r: c.r, g: c.g, b: c.b }
+}
+
+/// Kleinste waarde per kanaal die nog voor papierkleur doorgaat. Een dekkend
+/// vlak in papierkleur is in een PDF geen zichtbare vorm maar een maskering;
+/// de kleine speling vangt bijna-wit uit kleurbeheer op (#FAFAFA en lichter).
+const PAPER_COLOUR_MIN: u8 = 250;
+
+/// True voor een dekkend vlak in papierkleur. Doorzichtig wit laat eronder iets
+/// doorschemeren en is dus geen maskering.
+fn is_paper_colour(c: Rgba) -> bool {
+    c.a == 255 && c.r >= PAPER_COLOUR_MIN && c.g >= PAPER_COLOUR_MIN && c.b >= PAPER_COLOUR_MIN
+}
+
+/// True als een lus binnen een andere ligt: dan heeft de vulling gaten, en een
+/// maskering (één gesloten omtrek, zonder gaten) kan die niet uitdrukken.
+/// Vergelijkt omhullenden — ruim genomen, want een gat missen weegt zwaarder
+/// dan een vulling die arcering blijft.
+fn has_nested_loops(loops: &[Vec<Point>]) -> bool {
+    if loops.len() < 2 {
+        return false;
+    }
+    let boxes: Vec<(f64, f64, f64, f64)> = loops
+        .iter()
+        .map(|points| {
+            points.iter().fold((f64::MAX, f64::MAX, f64::MIN, f64::MIN), |(x0, y0, x1, y1), p| {
+                (x0.min(p.x), y0.min(p.y), x1.max(p.x), y1.max(p.y))
+            })
+        })
+        .collect();
+    boxes.iter().enumerate().any(|(i, a)| {
+        boxes
+            .iter()
+            .enumerate()
+            .any(|(j, b)| i != j && a.0 >= b.0 && a.1 >= b.1 && a.2 <= b.2 && a.3 <= b.3)
+    })
 }
 
 /// Maakt van een PDF-laagnaam een geldige DXF/DWG-laagnaam: verboden tekens
@@ -1126,6 +1180,113 @@ mod tests {
         assert_eq!(stats.hatches, 1);
         assert!(matches!(&drawing.entities[0].geometry, Geometry::Hatch { loops } if loops.len() == 2));
         assert_eq!(drawing.layers[0].name, "PDF_FILL_C8C8C8");
+    }
+
+    fn fill_path(color: Rgba, subpaths: Vec<SubPath>, stroked: bool) -> RawItem {
+        RawItem::Path(RawPath {
+            subpaths,
+            stroke: stroked.then(|| StrokeStyle { color: Rgba::BLACK, width: 1.0, dash: vec![], dash_phase: 0.0 }),
+            fill: Some(FillStyle { color, rule: FillRule::NonZero }),
+            layer: None,
+        })
+    }
+
+    fn rect(x: f64, y: f64, w: f64, h: f64) -> SubPath {
+        line_path(&[(x, y), (x + w, y), (x + w, y + h), (x, y + h)], true)
+    }
+
+    const WIT: Rgba = Rgba { r: 255, g: 255, b: 255, a: 255 };
+
+    #[test]
+    fn an_opaque_fill_in_paper_colour_becomes_a_mask_that_keeps_its_place_in_the_drawing_order() {
+        // Zoals een tekenpakket een maatlijn plot: lijn, wit vlak eroverheen,
+        // en daarop de maattekst.
+        let line = piece(&[(0.0, 50.0), (200.0, 50.0)], 0.5);
+        let mask = fill_path(WIT, vec![rect(90.0, 44.0, 20.0, 12.0)], false);
+        let text = RawItem::Text(RawText {
+            text: "478".into(),
+            matrix: Matrix::translate(92.0, 47.0),
+            font_size: 6.0,
+            font_name: String::new(),
+            color: Rgba::BLACK,
+            render_mode: 0,
+            layer: None,
+        });
+        let (drawing, stats) = convert(vec![line, mask, text], ConvertOptions::default());
+        let kinds: Vec<&str> = drawing.entities.iter().map(|e| e.geometry.kind()).collect();
+        assert_eq!(kinds, ["LINE", "WIPEOUT", "TEXT"]);
+        assert_eq!((stats.masks, stats.hatches), (1, 0));
+        match &drawing.entities[1].geometry {
+            Geometry::Mask { outline } => {
+                assert_eq!(outline.len(), 4);
+                assert!((outline[0].x - 90.0 * 25.4 / 72.0).abs() < 1e-9, "{outline:?}");
+            }
+            other => panic!("verwachtte een masker, kreeg {other:?}"),
+        }
+    }
+
+    #[test]
+    fn a_white_fill_with_a_stroke_masks_and_keeps_its_outline() {
+        // Een wit vlak met een zwarte omtrek (een dekkend kozijn) dekt in de
+        // PDF net zo goed af; de omtrek blijft een eigen lijn erboven.
+        let (drawing, stats) = convert(vec![fill_path(WIT, vec![rect(60.0, 10.0, 30.0, 20.0)], true)], ConvertOptions::default());
+        let kinds: Vec<&str> = drawing.entities.iter().map(|e| e.geometry.kind()).collect();
+        assert_eq!(kinds, ["WIPEOUT", "LWPOLYLINE"]);
+        assert_eq!(stats.masks, 1);
+    }
+
+    #[test]
+    fn what_is_not_an_opaque_fill_in_paper_colour_stays_a_hatch() {
+        let bijna_wit = Rgba { r: 250, g: 252, b: 255, a: 255 };
+        let lichtgrijs = Rgba { r: 240, g: 240, b: 240, a: 255 };
+        let doorzichtig_wit = Rgba { r: 255, g: 255, b: 255, a: 128 };
+        let vlak = |kleur| fill_path(kleur, vec![rect(10.0, 10.0, 30.0, 20.0)], false);
+        // Bijna-wit uit kleurbeheer telt nog als papierkleur.
+        let (drawing, _) = convert(vec![vlak(bijna_wit)], ConvertOptions::default());
+        assert_eq!(drawing.entities[0].geometry.kind(), "WIPEOUT");
+        // Lichtgrijs is een zichtbare vlakkleur, geen maskering.
+        let (drawing, _) = convert(vec![vlak(lichtgrijs)], ConvertOptions::default());
+        assert_eq!(drawing.entities[0].geometry.kind(), "HATCH");
+        // Doorzichtig wit laat eronder iets doorschemeren.
+        let (drawing, _) = convert(vec![vlak(doorzichtig_wit)], ConvertOptions::default());
+        assert_eq!(drawing.entities[0].geometry.kind(), "HATCH");
+        // Een wit vlak met een gat kan een maskering niet uitdrukken.
+        let met_gat = fill_path(WIT, vec![rect(0.0, 0.0, 100.0, 100.0), rect(40.0, 40.0, 20.0, 20.0)], false);
+        let (drawing, _) = convert(vec![met_gat], ConvertOptions::default());
+        assert!(matches!(&drawing.entities[0].geometry, Geometry::Hatch { loops } if loops.len() == 2));
+        // Twee losse witte vlakken in één pad worden twee maskers.
+        let twee = fill_path(WIT, vec![rect(0.0, 0.0, 20.0, 20.0), rect(50.0, 0.0, 20.0, 20.0)], false);
+        let (drawing, stats) = convert(vec![twee], ConvertOptions::default());
+        assert_eq!(stats.masks, 2);
+        assert!(drawing.entities.iter().all(|e| e.geometry.kind() == "WIPEOUT"));
+    }
+
+    #[test]
+    fn the_choice_for_outlines_or_no_fills_at_all_also_holds_for_paper_colour() {
+        let vlak = || fill_path(WIT, vec![rect(10.0, 10.0, 30.0, 20.0)], false);
+        let options = ConvertOptions { fills: FillMode::Outline, ..ConvertOptions::default() };
+        let (drawing, stats) = convert(vec![vlak()], options);
+        assert_eq!(drawing.entities[0].geometry.kind(), "LWPOLYLINE");
+        assert_eq!(stats.masks, 0);
+        let options = ConvertOptions { fills: FillMode::Skip, ..ConvertOptions::default() };
+        let (drawing, stats) = convert(vec![vlak()], options);
+        assert!(drawing.entities.is_empty());
+        assert_eq!(stats.masks, 0);
+    }
+
+    #[test]
+    fn a_mask_is_clipped_to_the_export_area() {
+        let area = AreaRect { x0: 0.0, y0: 0.0, x1: 72.0, y1: 72.0 };
+        let options = ConvertOptions { area: Some(area), ..ConvertOptions::default() };
+        let buiten = fill_path(WIT, vec![rect(100.0, 100.0, 20.0, 20.0)], false);
+        let kruisend = fill_path(WIT, vec![rect(36.0, 36.0, 100.0, 100.0)], false);
+        let (drawing, stats) = convert(vec![buiten, kruisend], options);
+        assert_eq!(stats.masks, 1);
+        let mm = 25.4;
+        match &drawing.entities[0].geometry {
+            Geometry::Mask { outline } => assert!(outline.iter().all(|p| p.x <= mm + 1e-9 && p.y <= mm + 1e-9), "{outline:?}"),
+            other => panic!("verwachtte een masker, kreeg {other:?}"),
+        }
     }
 
     #[test]
