@@ -224,6 +224,18 @@
       "description": "Export pages of the current document to DXF or DWG, without opening the export dialog."
     },
     {
+      "name": "app_print_to_pdf",
+      "description": "Print the current document to a PDF file, without opening the print dialog."
+    },
+    {
+      "name": "app_print",
+      "description": "Print the current document to a printer, without opening the print dialog."
+    },
+    {
+      "name": "app_list_printers",
+      "description": "List the printers the app knows, with the system default printer and, per printer, the driver, the port and whether it writes to a file instead of to paper."
+    },
+    {
       "name": "app_snippet_flatten",
       "description": "Mark a pasted vector snippet as flattened: it stays visible but is no longer selectable, and on the next save it is drawn into the page content instead of being stored as an annotation."
     },

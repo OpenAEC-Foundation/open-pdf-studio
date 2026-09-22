@@ -157,15 +157,18 @@ async function bronBytesVan(doc) {
  *           orientatie?:'auto'|'portrait'|'landscape',
  *           vel?: {breedteMm:number, hoogteMm:number}|'pagina'|null,
  *           schaling?: string, zoom?: number, centreren?: boolean, inhoud?: string,
- *           openen?: ((pad:string) => void)|null }} opts
+ *           openen?: ((pad:string) => void)|null,
+ *           afgebroken?: () => boolean }} opts
  *   vel 'pagina' = elke pagina haar eigen vel, in de gekozen stand
  *   (print-plaatsing.js); openen: achter de knop "Openen" op de melding na
- *   afloop.
- * @returns {Promise<boolean>}
+ *   afloop; afgebroken: wordt vlak vóór het schrijven gevraagd — zegt hij ja,
+ *   dan komt er geen bestand (de MCP-opdracht `app_print_to_pdf` gebruikt dat
+ *   voor haar eigen tijdgrens, zie print-opdracht.js).
+ * @returns {Promise<{ok:boolean, gerasterd?:boolean, afgebroken?:boolean, error?:string}>}
  */
 export async function slaPrintOpAlsPdf({
   pages, pad, orientatie = 'auto', vel = null, schaling = 'fit', zoom = 100, centreren = true,
-  inhoud = 'doc-and-markups', openen = null,
+  inhoud = 'doc-and-markups', openen = null, afgebroken = () => false,
 }) {
   startPrintProgress(i18next.t('dialogs:print.progress.preparing'));
   try {
@@ -197,6 +200,12 @@ export async function slaPrintOpAlsPdf({
     }
 
     updatePrintProgress(i18next.t('dialogs:print.progress.saving'), pages.length / total);
+    // Afgebroken (de tijdgrens van een MCP-opdracht): niets wegschrijven, want
+    // de aanroeper heeft allang een foutantwoord gekregen.
+    if (afgebroken()) {
+      failPrintProgress(i18next.t('dialogs:print.progress.saveFailed', { error: 'cancelled' }));
+      return { ok: false, afgebroken: true };
+    }
     await writeBinaryFile(pad, await pdf.save());
     finishPrintProgress(
       i18next.t(gerasterd ? 'dialogs:print.progress.savedAsImages' : 'dialogs:print.progress.savedTo', { path: pad }),
@@ -205,11 +214,11 @@ export async function slaPrintOpAlsPdf({
         duur: 9000,
       },
     );
-    return true;
+    return { ok: true, gerasterd };
   } catch (e) {
     console.error('Save as PDF failed:', e);
     failPrintProgress(i18next.t('dialogs:print.progress.saveFailed', { error: e?.message ?? e }));
-    return false;
+    return { ok: false, error: `${e?.message ?? e}` };
   }
 }
 
@@ -224,11 +233,17 @@ export async function slaPrintOpAlsPdf({
  * @param {{ pages:number[], copies:number, printer:string,
  *           orientatie?:'auto'|'portrait'|'landscape', papier?:string,
  *           vel?: {breedteMm:number, hoogteMm:number}|null,
- *           schaling?: string, zoom?: number, centreren?: boolean, inhoud?: string }} opts
+ *           schaling?: string, zoom?: number, centreren?: boolean, inhoud?: string,
+ *           afgebroken?: () => boolean }} opts
+ *   afgebroken: wordt gevraagd vlak vóór het spoolen — zegt hij ja, dan gaat er
+ *   niets naar de printer (de MCP-opdracht `app_print` gebruikt dat voor haar
+ *   eigen tijdgrens, zie print-opdracht.js).
+ * @returns {Promise<{ok:boolean, copies?:number, afgebroken?:boolean, error?:string}>}
  */
 export async function runPrintJob({
   pages, copies, printer, orientatie = 'auto', papier = 'printer',
   vel = null, schaling = 'fit', zoom = 100, centreren = true, inhoud = 'doc-and-markups',
+  afgebroken = () => false,
 }) {
   startPrintProgress(i18next.t('dialogs:print.progress.preparing'));
   try {
@@ -245,6 +260,11 @@ export async function runPrintJob({
     });
 
     updatePrintProgress(i18next.t('dialogs:print.progress.saving'), pages.length / total);
+    // Afgebroken (de tijdgrens van een MCP-opdracht): niets spoolen.
+    if (afgebroken()) {
+      failPrintProgress(i18next.t('dialogs:print.progress.failed', { error: 'cancelled' }));
+      return { ok: false, afgebroken: true };
+    }
     const pdfBytes = await newPdf.save();
     // Documentnaam meegeven: de spooler toont de bestandsnaam van het
     // tempbestand als printjob-naam, dus die moet naar de pdf zelf heten.
@@ -269,8 +289,10 @@ export async function runPrintJob({
     finishPrintProgress(i18next.t('dialogs:print.progress.sent'));
     // delete_file (not delete_temp_file — that command does not exist).
     setTimeout(async () => { try { await invoke('delete_file', { path: tempPath }); } catch (_) {} }, 30000);
+    return { ok: true, copies: numCopies };
   } catch (e) {
     console.error('Print job failed:', e);
     failPrintProgress(i18next.t('dialogs:print.progress.failed', { error: e?.message ?? e }));
+    return { ok: false, error: `${e?.message ?? e}` };
   }
 }

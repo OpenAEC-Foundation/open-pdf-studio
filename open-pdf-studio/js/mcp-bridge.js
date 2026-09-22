@@ -2583,6 +2583,200 @@ async function handleExportCad(params) {
 }
 
 
+// ─── Afdrukken zonder printvenster ────────────────────────────────────────
+// De regels (argumenten controleren, de keuzes van het venster, het antwoord)
+// staan in pdf/print-opdracht.js; hier alleen het werk zelf, met dezelfde
+// functies als de printdialoog: het papier uit print-papier.js, de plaatsing
+// uit print-plaatsing.js en de printroutines uit print-job.js.
+
+let printBezig = false;
+
+/**
+ * Alles wat `app_print_to_pdf` en `app_print` gemeen hebben: de argumenten
+ * lezen, het vel en de plaatsing per pagina uitrekenen zoals de printdialoog
+ * dat doet, en de argumenten voor de printroutine samenstellen.
+ * `controle` krijgt de gelezen opdracht voordat er iets wordt uitgerekend en
+ * mag een fout teruggeven (bijvoorbeeld: deze printer bestaat niet).
+ * @returns {Promise<{ok:false, error:string} | {ok:true, opdracht, pages, plaatsingen, args}>}
+ */
+async function bereidPrintVoor(params, naarBestand, controle = null) {
+  const opdrachtMod = await import('./pdf/print-opdracht.js');
+  const stateMod = await import('./core/state.js');
+  const { getDialogs } = await import('./solid/stores/dialogStore.js');
+  const { printArgumenten } = await import('./pdf/print-pagina-instelling.js');
+  const { getPageSetupSettings } = await import('./solid/components/dialogs/PageSetupDialog.jsx');
+  const { herstelPrintInstellingen } = await import('./solid/stores/print-instellingen.js');
+
+  const onthouden = stateMod.state.preferences?.printSettings;
+  const bewaard = herstelPrintInstellingen(onthouden);
+  const doc = stateMod.getActiveDocument();
+  const docId = doc?.id ?? null;
+  const paginaInstelling = getPageSetupSettings();
+  const venster = {
+    ...printArgumenten({ autoRotate: bewaard.autoRotate, paginaInstelling, docId }),
+    stand: paginaInstelling?.docId === docId ? paginaInstelling.orientation : null,
+  };
+  const opdracht = opdrachtMod.leesPrintOpdracht(params, { onthouden, venster, naarBestand });
+  if (!opdracht.ok) return opdracht;
+
+  if (!doc?.pdfDoc) return { ok: false, error: 'no document open' };
+  // Eén printdialoog en één opdracht tegelijk: ze delen de voortgangsbalk en
+  // de printinstellingen.
+  if (getDialogs().some((d) => d.name === 'print')) {
+    return { ok: false, error: 'the print dialog is open; close it first' };
+  }
+  if (printBezig) return { ok: false, error: 'another print job is still running' };
+  if (controle) {
+    const mis = await controle(opdracht);
+    if (mis) return mis;
+  }
+
+  const { parsePageRange } = await import('./pdf/exporter.js');
+  const keuze = opdrachtMod.kiesPaginas(opdracht, {
+    totaal: doc.pdfDoc.numPages, huidig: doc.currentPage || 1, bereik: parsePageRange,
+  });
+  if (!keuze.ok) return keuze;
+
+  // Het vel dat deze opdracht krijgt, langs dezelfde weg als de kop van de
+  // printdialoog: de Pagina-instelling die de opdracht voorstelt, en bij een
+  // printer wat de driver daarvan maakt (printer_papier/printer_bedrukbaar —
+  // die kijken alleen, ze starten geen opdracht).
+  const { bekendVel, effectiefPapier } = await import('./pdf/print-papier.js');
+  const instelling = opdrachtMod.opdrachtPaginaInstelling(opdracht, docId);
+  const gevraagd = printArgumenten({
+    autoRotate: opdracht.autoRotate, paginaInstelling: instelling, docId,
+  }).papier;
+  let gemeld;
+  let marges = null;
+  if (!naarBestand) {
+    const invoke = tauriInvoke();
+    try { gemeld = invoke ? await invoke('printer_papier', { printer: opdracht.printer, papier: gevraagd }) : null; } catch (e) {
+      console.warn('[mcp-bridge] printer_papier failed:', e);
+      gemeld = null;
+    }
+    try { marges = invoke ? await invoke('printer_bedrukbaar', { printer: opdracht.printer, papier: gevraagd }) : null; } catch (e) {
+      console.warn('[mcp-bridge] printer_bedrukbaar failed:', e);
+      marges = null;
+    }
+  }
+  const effectief = effectiefPapier({
+    paginaInstelling: instelling,
+    docId,
+    autoRotate: opdracht.autoRotate,
+    printerPapier: gevraagd === 'printer' ? gemeld : undefined,
+    opdrachtPapier: gevraagd === 'printer' ? undefined : gemeld,
+    pagina: null,
+  });
+  const keuzes = opdrachtMod.plaatsingKeuzes(opdracht, { vel: bekendVel(effectief), marges: marges || null });
+
+  // De plaatsing per pagina, met dezelfde paginamaat als het voorbeeld.
+  const { berekenPlaatsing } = await import('./pdf/print-plaatsing.js');
+  const { viewportOpties } = await import('./pdf/getoonde-pagina.js');
+  const plaatsingen = [];
+  for (const nr of keuze.pages) {
+    const page = await doc.pdfDoc.getPage(nr);
+    const viewport = page.getViewport(viewportOpties(page, stateMod.getPageRotation(nr)));
+    const plaatsing = berekenPlaatsing({
+      ...keuzes, pagina: { breedtePt: viewport.width, hoogtePt: viewport.height },
+    });
+    if (!plaatsing) return { ok: false, error: `page ${nr} has no usable size` };
+    plaatsingen.push({ page: nr, plaatsing });
+  }
+
+  return {
+    ok: true,
+    opdracht,
+    pages: keuze.pages,
+    plaatsingen,
+    args: opdrachtMod.printOpdrachtArgumenten(opdracht, { pages: keuze.pages, keuzes }),
+  };
+}
+
+async function handlePrintToPdf(params) {
+  const voor = await bereidPrintVoor(params, true);
+  if (!voor.ok) return voor;
+  const { opdracht, args, plaatsingen } = voor;
+  const opdrachtMod = await import('./pdf/print-opdracht.js');
+  const stateMod = await import('./core/state.js');
+  const { doelIsGeopend } = await import('./pdf/print-doel.js');
+  if (doelIsGeopend(opdracht.pad, stateMod.state.documents)) {
+    return { ok: false, error: 'params.path is a file that is open in the app', file_path: opdracht.pad };
+  }
+  const invoke = tauriInvoke();
+  if (invoke) {
+    try { await invoke('allow_fs_scope', { path: opdracht.pad }); } catch { /* best-effort */ }
+  }
+
+  // Eigen tijdgrens, net onder die van de brug (zie TIJDGRENS_MS): daarna
+  // wordt er geen bestand meer weggeschreven — de aanroeper heeft dan al
+  // "timed out" gekregen.
+  let verstreken = false;
+  const wekker = setTimeout(() => { verstreken = true; }, opdrachtMod.TIJDGRENS_MS);
+  printBezig = true;
+  try {
+    const { slaPrintOpAlsPdf } = await import('./pdf/print-job.js');
+    const uit = await slaPrintOpAlsPdf({ ...args, afgebroken: () => verstreken });
+    if (uit?.afgebroken || verstreken) {
+      return opdrachtMod.tijdgrensFout('nothing was written', { file_path: opdracht.pad });
+    }
+    if (!uit?.ok) return { ok: false, error: `print to PDF failed: ${uit?.error ?? 'unknown'}`, file_path: opdracht.pad };
+    return opdrachtMod.printUitkomst(opdracht, plaatsingen, { gerasterd: uit.gerasterd === true });
+  } finally {
+    clearTimeout(wekker);
+    printBezig = false;
+  }
+}
+
+async function handlePrint(params) {
+  // De printer moet bestaan voordat er iets wordt uitgerekend of aan een
+  // driver gevraagd: anders verdwijnt de opdracht in de spooler zonder dat
+  // iemand het merkt.
+  const bestaatPrinter = async (opdracht) => {
+    const { isPdfDoel } = await import('./pdf/print-doel.js');
+    if (isPdfDoel(opdracht.printer)) {
+      return { ok: false, error: 'that is the "Save as PDF" target of the print dialog, not a printer; use app_print_to_pdf' };
+    }
+    const { loadPrinters } = await import('./solid/stores/printerStore.js');
+    const namen = (await loadPrinters(true) || []).map((p) => p?.Name).filter(Boolean);
+    if (!namen.includes(opdracht.printer)) {
+      return { ok: false, error: `printer not found: ${opdracht.printer}`, printers: namen };
+    }
+    return null;
+  };
+  const voor = await bereidPrintVoor(params, false, bestaatPrinter);
+  if (!voor.ok) return voor;
+  const { opdracht, args, plaatsingen } = voor;
+  const opdrachtMod = await import('./pdf/print-opdracht.js');
+
+  let verstreken = false;
+  const wekker = setTimeout(() => { verstreken = true; }, opdrachtMod.TIJDGRENS_MS);
+  printBezig = true;
+  try {
+    const { runPrintJob } = await import('./pdf/print-job.js');
+    const uit = await runPrintJob({ ...args, afgebroken: () => verstreken });
+    if (uit?.afgebroken || verstreken) {
+      return opdrachtMod.tijdgrensFout('nothing was sent to the printer', { printer: opdracht.printer });
+    }
+    if (!uit?.ok) return { ok: false, error: `print failed: ${uit?.error ?? 'unknown'}`, printer: opdracht.printer };
+    return opdrachtMod.printUitkomst(opdracht, plaatsingen);
+  } finally {
+    clearTimeout(wekker);
+    printBezig = false;
+  }
+}
+
+async function handleListPrinters(params) {
+  if (params && typeof params === 'object' && Object.keys(params).length) {
+    return { ok: false, error: `unknown argument: ${Object.keys(params)[0]}` };
+  }
+  const { printerUitkomst } = await import('./pdf/print-opdracht.js');
+  const { isBestandsPrinter } = await import('./pdf/print-doel.js');
+  const store = await import('./solid/stores/printerStore.js');
+  const lijst = await store.loadPrinters(true);
+  return printerUitkomst(lijst, store.defaultPrinterName(), isBestandsPrinter, store.printerErrorMessage());
+}
+
+
 const HANDLERS = {
   'mcp:open-pdf':           handleOpenPdf,
   'mcp:set-zoom':           handleSetZoom,
@@ -2645,6 +2839,10 @@ const HANDLERS = {
   // CAD-import zonder venster
   'mcp:import-cad':         handleImportCad,
   'mcp:export-cad':         handleExportCad,
+  // Afdrukken zonder printvenster
+  'mcp:print-to-pdf':       handlePrintToPdf,
+  'mcp:print':              handlePrint,
+  'mcp:list-printers':      handleListPrinters,
   // Assistant — test the AI end-to-end
   'mcp:ai-complete':        handleAiComplete,
   // Accounts introspection — deactivated (cloud accounts feature removed)

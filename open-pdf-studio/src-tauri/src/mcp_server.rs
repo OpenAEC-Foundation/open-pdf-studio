@@ -220,6 +220,80 @@ fn export_cad_tool() -> Value {
     )
 }
 
+/// De papierformaten die de printgereedschappen kennen; dezelfde lijst en
+/// dezelfde schrijfwijze als de Pagina-instelling (js/pdf/print-pagina-
+/// instelling.js, PAPIERFORMATEN) en als js/pdf/print-opdracht.js.
+const PRINT_PAPIERFORMATEN: &[&str] = &[
+    "A0", "A1", "A2", "A3", "A4", "A5", "A0L", "A1L", "A2L", "A3L", "Letter", "Legal", "Tabloid",
+];
+
+/// De papierkeuzes van een printgereedschap: de formaten plus één keuze die
+/// alleen daar past ("page" zonder printer, "printer" met printer).
+fn print_papier_keuzes(eigen: &str) -> Value {
+    let mut keuzes = vec![Value::from(eigen)];
+    keuzes.extend(PRINT_PAPIERFORMATEN.iter().map(|s| Value::from(*s)));
+    Value::Array(keuzes)
+}
+
+/// De argumenten die `app_print_to_pdf` en `app_print` gemeen hebben: de
+/// pagina's, het vel, de schaal en wat er wordt afgedrukt. Eén functie, zodat
+/// beide gereedschappen dezelfde keuzes en dezelfde teksten houden.
+fn print_gedeelde_eigenschappen(papier: &str) -> serde_json::Map<String, Value> {
+    let papier_tekst = if papier == "page" {
+        "Sheet size. \"page\" = every page on a sheet of its own size. Left out: the paper the Page Setup of this document asks for, otherwise \"page\"."
+    } else {
+        "Sheet size. \"printer\" = the paper that is in the printer. Left out: the paper the Page Setup of this document asks for, otherwise \"printer\"."
+    };
+    let mut props = serde_json::Map::new();
+    props.insert("pages".into(), json!({ "type": "string", "description": "\"all\" (default), \"current\" or a range like \"1-3,5\"." }));
+    props.insert("paper".into(), json!({
+        "type": "string",
+        "enum": print_papier_keuzes(papier),
+        "description": papier_tekst
+    }));
+    props.insert("orientation".into(), json!({ "type": "string", "enum": ["auto", "portrait", "landscape"], "description": "Orientation of the sheet; \"auto\" follows the page, as Auto-rotate in the dialog does. Left out: what the next print would already get." }));
+    props.insert("autoRotate".into(), json!({ "type": "boolean", "description": "true means orientation \"auto\"; false takes the orientation from Page Setup, otherwise portrait. May not contradict orientation." }));
+    props.insert("scaling".into(), json!({ "type": "string", "enum": ["fit", "shrink", "actual", "custom-scale"], "description": "fit = fit on the sheet, shrink = only shrink when the page does not fit, actual = real size, custom-scale = the percentage in zoom." }));
+    props.insert("zoom".into(), json!({ "type": "number", "description": "Page zoom in percent, 10 to 400. Implies scaling \"custom-scale\"." }));
+    props.insert("center".into(), json!({ "type": "boolean", "description": "Centre the page on the sheet." }));
+    props.insert("content".into(), json!({ "type": "string", "enum": ["document", "document-and-markups"], "description": "\"document\" leaves the annotation layer out; watermarks and text edits stay, they are document content." }));
+    props
+}
+
+/// Beschrijving van `app_print_to_pdf`: de afdruk als PDF wegschrijven, langs
+/// het doel "Opslaan als PDF" van het printvenster.
+fn print_to_pdf_tool() -> Value {
+    let mut props = print_gedeelde_eigenschappen("page");
+    props.insert("path".into(), json!({ "type": "string", "description": "Absolute path of the PDF file to write (.pdf). A file that is open in the app is refused." }));
+    json!({
+        "name": "app_print_to_pdf",
+        "description": "Print the current document to a PDF file, without opening the print dialog. Takes the route of the \"Save as PDF\" target in that dialog: no printer and no driver, the app writes the print PDF itself, so text stays text and the sheet lies in the file exactly as chosen. Settings that are left out take the value the print dialog remembered, otherwise its default; `pages` always starts at all pages. Returns the sheet size and orientation per page, the scale that was used and warnings about pages that do not fit. Fails while the print dialog is open.",
+        "inputSchema": {
+            "type": "object",
+            "properties": props,
+            "required": ["path"],
+            "additionalProperties": false
+        }
+    })
+}
+
+/// Beschrijving van `app_print`: dezelfde afdruk, maar naar een printer.
+fn print_tool() -> Value {
+    let mut props = print_gedeelde_eigenschappen("printer");
+    props.insert("printer".into(), json!({ "type": "string", "description": "Name of the print queue, exactly as app_list_printers reports it." }));
+    props.insert("copies".into(), json!({ "type": "number", "description": "Number of copies, 1 to 999 (default: what the print dialog remembered)." }));
+    json!({
+        "name": "app_print",
+        "description": "Print the current document to a printer, without opening the print dialog. Same page selection, paper, scale, position and content as that dialog, and the same background job. Settings that are left out take the value the print dialog remembered, otherwise its default; `pages` always starts at all pages. Returns the printer, the sheet with its orientation, the scale that was used, the number of copies and warnings about pages that do not fit. Paper really comes out of the printer, so ask the user before calling this. Fails on an unknown printer and while the print dialog is open.",
+        "inputSchema": {
+            "type": "object",
+            "properties": props,
+            "required": ["printer"],
+            "additionalProperties": false
+        }
+    })
+}
+
 /// Handle `tools/list`. Tasks 7-9 will append their tool descriptors to
 /// this array.
 fn handle_tools_list() -> Value {
@@ -923,6 +997,17 @@ fn handle_tools_list() -> Value {
             },
             import_cad_tool(),
             export_cad_tool(),
+            print_to_pdf_tool(),
+            print_tool(),
+            {
+                "name": "app_list_printers",
+                "description": "List the printers the app knows, with the system default printer and, per printer, the driver, the port and whether it writes to a file instead of to paper. Reads only: it never starts a job and changes nothing. The \"Save as PDF\" target of the print dialog is not a printer — use app_print_to_pdf for that.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": false
+                }
+            },
             {
                 "name": "app_snippet_flatten",
                 "description": "Mark a pasted vector snippet as flattened: it stays visible but is no longer selectable, and on the next save it is drawn into the page content instead of being stored as an annotation.",
@@ -1059,6 +1144,13 @@ async fn handle_tools_call(state: &AppState, params: &Value) -> Result<Value, (i
         "app_titleblock"         => tool_app_request(state, "mcp:titleblock",         &arguments, Duration::from_secs(15)).await,
         "app_import_cad"         => tool_app_request(state, "mcp:import-cad",         &arguments, Duration::from_secs(300)).await,
         "app_export_cad"         => tool_app_request(state, "mcp:export-cad",         &arguments, Duration::from_secs(300)).await,
+        // Afdrukken: een A0 op 300 dpi renderen duurt minuten, dus dezelfde
+        // ruime grens als de CAD-omzetting. De JS-kant breekt net eerder af
+        // (print-opdracht.js TIJDGRENS_MS), zodat er na "timed out" geen
+        // bestand meer verschijnt en er niets meer naar de printer gaat.
+        "app_print_to_pdf"       => tool_app_request(state, "mcp:print-to-pdf",       &arguments, Duration::from_secs(300)).await,
+        "app_print"              => tool_app_request(state, "mcp:print",              &arguments, Duration::from_secs(300)).await,
+        "app_list_printers"      => tool_app_request(state, "mcp:list-printers",      &arguments, Duration::from_secs(30)).await,
         other => Err((
             jsonrpc_error::METHOD_NOT_FOUND,
             format!("method not found: {other}"),
@@ -1670,7 +1762,7 @@ mod tests {
         use crate::mcp_tool_meta::Profiel;
         let publiek = tools_list_voor(Profiel::Publiek);
         let arr = publiek["tools"].as_array().unwrap();
-        assert_eq!(arr.len(), 51);
+        assert_eq!(arr.len(), 54);
         for t in arr {
             let a = &t["annotations"];
             assert!(a["title"].as_str().map_or(false, |s| !s.is_empty()), "{} zonder titel", t["name"]);
@@ -1760,6 +1852,66 @@ mod tests {
         assert!(!m.alleen_lezen && m.wijzigt);
         let publiek = tools_list_voor(crate::mcp_tool_meta::Profiel::Publiek);
         assert!(publiek["tools"].as_array().unwrap().iter().any(|t| t["name"] == "app_export_cad"));
+    }
+
+    #[test]
+    fn printgereedschappen_beschrijven_het_afdrukken_zonder_venster() {
+        let v = handle_tools_list();
+        let zoek = |naam: &str| {
+            v["tools"].as_array().unwrap().iter()
+                .find(|t| t["name"] == naam)
+                .unwrap_or_else(|| panic!("{naam} staat in de lijst"))
+                .clone()
+        };
+
+        let bestand = zoek("app_print_to_pdf");
+        assert_eq!(bestand["inputSchema"]["required"], json!(["path"]));
+        let printer = zoek("app_print");
+        assert_eq!(printer["inputSchema"]["required"], json!(["printer"]));
+        for tool in [&bestand, &printer] {
+            let schema = &tool["inputSchema"];
+            assert_eq!(schema["type"], "object");
+            assert_eq!(schema["additionalProperties"], false);
+            let props = schema["properties"].as_object().unwrap();
+            for naam in ["pages", "paper", "orientation", "autoRotate", "scaling", "zoom", "center", "content"] {
+                assert!(props.contains_key(naam), "{naam} ontbreekt in {}", tool["name"]);
+            }
+            for (naam, p) in props {
+                assert!(p["type"].is_string(), "{naam} zonder type");
+            }
+            assert_eq!(props["scaling"]["enum"], json!(["fit", "shrink", "actual", "custom-scale"]));
+            assert_eq!(props["content"]["enum"], json!(["document", "document-and-markups"]));
+            assert_eq!(props["orientation"]["enum"], json!(["auto", "portrait", "landscape"]));
+        }
+        // Het aantal exemplaren hoort bij een printer, het doelbestand niet.
+        let naar_bestand = bestand["inputSchema"]["properties"].as_object().unwrap();
+        let naar_printer = printer["inputSchema"]["properties"].as_object().unwrap();
+        assert!(!naar_bestand.contains_key("copies") && !naar_bestand.contains_key("printer"));
+        assert!(naar_printer.contains_key("copies") && !naar_printer.contains_key("path"));
+        // Elk gereedschap kent één eigen velkeuze; de formaten zijn dezelfde.
+        assert_eq!(naar_bestand["paper"]["enum"][0], "page");
+        assert_eq!(naar_printer["paper"]["enum"][0], "printer");
+        let bestand_formaten = &naar_bestand["paper"]["enum"].as_array().unwrap()[1..];
+        let printer_formaten = &naar_printer["paper"]["enum"].as_array().unwrap()[1..];
+        assert_eq!(bestand_formaten, printer_formaten);
+        assert_eq!(bestand_formaten.len(), PRINT_PAPIERFORMATEN.len());
+
+        // Alleen lezen, en geen argumenten.
+        let lijst = zoek("app_list_printers");
+        assert_eq!(lijst["inputSchema"]["additionalProperties"], false);
+        assert!(lijst["inputSchema"]["properties"].as_object().unwrap().is_empty());
+        assert!(crate::mcp_tool_meta::meta("app_list_printers").unwrap().alleen_lezen);
+        // Afdrukken raakt het document niet, maar schrijft een bestand of laat
+        // papier uit een printer komen: wijzigt, dus Claude vraagt erom.
+        for naam in ["app_print_to_pdf", "app_print"] {
+            let m = crate::mcp_tool_meta::meta(naam).unwrap();
+            assert!(!m.alleen_lezen && m.wijzigt, "{naam} moet als wijzigend gelden");
+        }
+        // Alle drie horen in het publieke profiel.
+        let publiek = tools_list_voor(crate::mcp_tool_meta::Profiel::Publiek);
+        for naam in ["app_print_to_pdf", "app_print", "app_list_printers"] {
+            assert!(publiek["tools"].as_array().unwrap().iter().any(|t| t["name"] == naam), "{naam}");
+        }
     }
 
     #[test]
@@ -2104,6 +2256,9 @@ mod tests {
             "app_titleblock",
             "app_import_cad",
             "app_export_cad",
+            "app_print_to_pdf",
+            "app_print",
+            "app_list_printers",
         ] {
             assert!(names.contains(&tool), "missing tool: {tool} (got {names:?})");
             let descr = arr.iter().find(|t| t["name"] == tool).unwrap();
