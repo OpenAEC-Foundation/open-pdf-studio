@@ -2595,9 +2595,11 @@ let printBezig = false;
  * Alles wat `app_print_to_pdf` en `app_print` gemeen hebben: de argumenten
  * lezen, het vel en de plaatsing per pagina uitrekenen zoals de printdialoog
  * dat doet, en de argumenten voor de printroutine samenstellen.
+ * `controle` krijgt de gelezen opdracht voordat er iets wordt uitgerekend en
+ * mag een fout teruggeven (bijvoorbeeld: deze printer bestaat niet).
  * @returns {Promise<{ok:false, error:string} | {ok:true, opdracht, pages, plaatsingen, args}>}
  */
-async function bereidPrintVoor(params, naarBestand) {
+async function bereidPrintVoor(params, naarBestand, controle = null) {
   const opdrachtMod = await import('./pdf/print-opdracht.js');
   const stateMod = await import('./core/state.js');
   const { getDialogs } = await import('./solid/stores/dialogStore.js');
@@ -2624,6 +2626,10 @@ async function bereidPrintVoor(params, naarBestand) {
     return { ok: false, error: 'the print dialog is open; close it first' };
   }
   if (printBezig) return { ok: false, error: 'another print job is still running' };
+  if (controle) {
+    const mis = await controle(opdracht);
+    if (mis) return mis;
+  }
 
   const { parsePageRange } = await import('./pdf/exporter.js');
   const keuze = opdrachtMod.kiesPaginas(opdracht, {
@@ -2722,23 +2728,25 @@ async function handlePrintToPdf(params) {
 }
 
 async function handlePrint(params) {
-  const voor = await bereidPrintVoor(params, false);
+  // De printer moet bestaan voordat er iets wordt uitgerekend of aan een
+  // driver gevraagd: anders verdwijnt de opdracht in de spooler zonder dat
+  // iemand het merkt.
+  const bestaatPrinter = async (opdracht) => {
+    const { isPdfDoel } = await import('./pdf/print-doel.js');
+    if (isPdfDoel(opdracht.printer)) {
+      return { ok: false, error: 'that is the "Save as PDF" target of the print dialog, not a printer; use app_print_to_pdf' };
+    }
+    const { loadPrinters } = await import('./solid/stores/printerStore.js');
+    const namen = (await loadPrinters(true) || []).map((p) => p?.Name).filter(Boolean);
+    if (!namen.includes(opdracht.printer)) {
+      return { ok: false, error: `printer not found: ${opdracht.printer}`, printers: namen };
+    }
+    return null;
+  };
+  const voor = await bereidPrintVoor(params, false, bestaatPrinter);
   if (!voor.ok) return voor;
   const { opdracht, args, plaatsingen } = voor;
   const opdrachtMod = await import('./pdf/print-opdracht.js');
-
-  // De printer moet bestaan: anders verdwijnt de opdracht in de spooler zonder
-  // dat iemand het merkt.
-  const { loadPrinters } = await import('./solid/stores/printerStore.js');
-  const lijst = await loadPrinters(true);
-  const namen = (lijst || []).map((p) => p?.Name).filter(Boolean);
-  const { isPdfDoel } = await import('./pdf/print-doel.js');
-  if (isPdfDoel(opdracht.printer)) {
-    return { ok: false, error: 'that is the "Save as PDF" target of the print dialog, not a printer; use app_print_to_pdf' };
-  }
-  if (!namen.includes(opdracht.printer)) {
-    return { ok: false, error: `printer not found: ${opdracht.printer}`, printers: namen };
-  }
 
   let verstreken = false;
   const wekker = setTimeout(() => { verstreken = true; }, opdrachtMod.TIJDGRENS_MS);
