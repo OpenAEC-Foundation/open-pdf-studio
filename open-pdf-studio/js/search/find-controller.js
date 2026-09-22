@@ -30,6 +30,7 @@ async function extractPageText(pdfDoc, pageNum, doc) {
   // span.dataset.itemIndex = i (position in the filtered array).
   // We must use the SAME index so our itemIndex matches the DOM.
   const textItems = textContent.items.filter(item => item.str !== undefined);
+  const styles = textContent.styles || {};
 
   textItems.forEach((item, i) => {
     if (item.str) {
@@ -41,6 +42,9 @@ async function extractPageText(pdfDoc, pageNum, doc) {
         width: item.width,
         height: item.height,
         fontName: item.fontName || '',
+        // Generic family pdf.js assigns to the font; used to measure the
+        // share of a partial match within the run.
+        fontFamily: styles[item.fontName]?.fontFamily || '',
         // This matches span.dataset.itemIndex in text-layer.js line 212
         itemIndex: i
       });
@@ -74,7 +78,9 @@ async function extractPageText(pdfDoc, pageNum, doc) {
     }
   }
 
-  return { pageNum, text: pageText, items };
+  // Page box (MediaBox/CropBox in user space). The text layers are laid out
+  // in this box, so match highlights are positioned relative to it.
+  return { pageNum, text: pageText, items, view: Array.isArray(page.view) ? [...page.view] : null };
 }
 
 /**
@@ -114,7 +120,7 @@ export function clearTextCache(docId) {
  * Search a single page's text data and return matches
  */
 function searchPage(pageData, pattern, query) {
-  const { pageNum, text, items } = pageData;
+  const { pageNum, text, items, view } = pageData;
   const results = [];
 
   pattern.lastIndex = 0;
@@ -138,6 +144,7 @@ function searchPage(pageData, pattern, query) {
         endPos,
         matchText: text.substring(startPos, endPos),
         items: matchItems,
+        pageView: view || null,
         anchorX: anchor ? anchor.transform[4] : null,
         anchorY: anchor ? anchor.transform[5] : null,
         index: 0 // will be re-indexed later

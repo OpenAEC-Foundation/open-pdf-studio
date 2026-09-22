@@ -5,6 +5,7 @@
 import { state, getActiveDocument } from '../core/state.js';
 import { executeSearch, executeProgressiveSearch, findNext, findPrevious, getCurrentResult, clearSearch, getResultsForPage } from './find-controller.js';
 import { renderPage, renderContinuous } from '../pdf/renderer.js';
+import { matchFractions, matchBoxInPageFrame, boxToLayerPercent } from './match-rect.js';
 import {
   setFindBarVisible as setVisible, setFindBarResultsText as setResultsText,
   setFindBarMessageText as setMessageText, setFindBarNotFound as setNotFound,
@@ -398,17 +399,23 @@ export function highlightResults() {
  * Highlight search results on a page.
  *
  * Highlights are positioned from the matched items' own PDF-space geometry
- * (transform/width/height captured at text extraction), NOT from measuring
- * DOM spans. The three text-layer builders (custom single-page PDF.js,
- * stock PDF.js TextLayer in continuous mode, Rust-extracted spans in vector
- * mode) produce different span structures — only one of them carries
- * data-item-index — so any DOM-based lookup breaks on the other two.
- * Item geometry is layer-type independent, and because the rects live in
- * layer-local coordinates they ride along with the viewport's zoom
- * transform instead of needing re-measurement.
+ * (transform/width captured at text extraction), NOT from measuring DOM
+ * spans: the text-layer builders (PDF.js layer on a single page, stock
+ * PDF.js TextLayer in continuous mode, Rust-extracted spans in vector mode)
+ * produce different span structures.
+ *
+ * All of those layers are laid out in the unrotated page box (origin at the
+ * box's top-left, Y down) and apply rotation + zoom themselves. The rects are
+ * therefore set in PERCENT of that box (see match-rect.js), like PDF.js does
+ * for its spans: no layer scale or layer height is read. Those values were
+ * unreliable right after a (re)build — the scale came from an ancestor and
+ * the height from the container until the viewport sync ran — which put the
+ * highlights at the wrong spot and size.
  */
 function highlightMatch(result, isCurrent) {
   if (!result || !result.items || result.items.length === 0) return;
+  const view = result.pageView;
+  if (!view) return;
 
   const pageNum = result.pageNum;
   const doc = getActiveDocument();
@@ -420,48 +427,50 @@ function highlightMatch(result, isCurrent) {
     textLayer = wrapper?.querySelector('.textLayer');
   } else {
     if (doc && doc.currentPage !== pageNum) return;
-    textLayer = document.querySelector('.textLayer');
+    // Scoped: the hidden continuous layers stay in the DOM after a view switch.
+    textLayer = document.querySelector('#canvas-container .textLayer');
   }
   if (!textLayer) return;
 
-  // Layer-local px per PDF point. Every layer builder sets
-  // --total-scale-factor on the layer or an ancestor: 1 in vector mode
-  // (layout px = PDF pt, zoom applied via CSS transform), viewport.scale
-  // for the PDF.js-built layers (laid out at scaled size).
-  const scale = parseFloat(
-    getComputedStyle(textLayer).getPropertyValue('--total-scale-factor')
-  ) || 1;
-  const pageHeightPt = textLayer.offsetHeight / scale;
-
   for (const item of result.items) {
-    const t = item.transform;
-    if (!t) continue; // synthetic (Add Text) items carry no geometry
+    if (!item.transform) continue; // synthetic (Add Text) items carry no geometry
 
     const startInItem = Math.max(0, result.startPos - item.startPos);
     const endInItem = Math.min(item.str.length, result.endPos - item.startPos);
     if (endInItem <= startInItem) continue;
 
-    // Partial matches inside an item: slice the run width proportionally
-    // by character count. Approximate for proportional fonts, but close
-    // enough for a highlight and independent of DOM/font availability.
-    const len = item.str.length || 1;
-    const itemH = item.height || Math.abs(t[3]) || 10;
-    const itemW = item.width || 0;
-    const x0 = t[4] + itemW * (startInItem / len);
-    const x1 = t[4] + itemW * (endInItem / len);
-    // t[5] is the baseline; ascent ≈ 0.8em above it (same convention the
-    // vector-mode span builder uses), Y flipped into top-left space.
-    const topPt = pageHeightPt - t[5] - itemH * 0.8;
+    const [fracStart, fracEnd] = matchFractions(item.str, startInItem, endInItem, textMeasurer(item));
+    const box = matchBoxInPageFrame(item.transform, item.width, item.height, fracStart, fracEnd, view);
+    if (!box) continue;
+    const pct = boxToLayerPercent(box, view);
 
     const highlight = document.createElement('div');
     highlight.className = 'search-highlight' + (isCurrent ? ' current' : '');
     highlight.dataset.resultIndex = result.index;
-    highlight.style.left = (x0 * scale) + 'px';
-    highlight.style.top = (topPt * scale) + 'px';
-    highlight.style.width = (Math.max(x1 - x0, 2) * scale) + 'px';
-    highlight.style.height = (itemH * scale) + 'px';
+    highlight.style.left = pct.left + '%';
+    highlight.style.top = pct.top + '%';
+    highlight.style.width = pct.width + '%';
+    highlight.style.height = pct.height + '%';
+    // Inline transform: the layer's generic span rule would otherwise apply
+    // its scale/rotate variables to this div as well.
+    highlight.style.transformOrigin = '0 0';
+    highlight.style.transform = pct.angle ? `rotate(${pct.angle}rad)` : 'none';
     textLayer.appendChild(highlight);
   }
+}
+
+// Share of a partial match within its run, measured in the run's (generic)
+// font family instead of by character count.
+let _measureCtx = null;
+function textMeasurer(item) {
+  if (typeof document === 'undefined') return null;
+  if (!_measureCtx) _measureCtx = document.createElement('canvas').getContext('2d');
+  if (!_measureCtx) return null;
+  const family = item.fontFamily || 'sans-serif';
+  return (str) => {
+    _measureCtx.font = `100px ${family}`;
+    return _measureCtx.measureText(str).width;
+  };
 }
 
 /**
