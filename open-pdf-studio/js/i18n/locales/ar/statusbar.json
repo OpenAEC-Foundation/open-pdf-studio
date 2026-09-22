@@ -88,5 +88,12 @@
       "doneAll": "تم التعرف على {{count}} كلمة في {{pages}} صفحات",
       "failed": "فشل التعرف على النص"
     }
-  }
+  },
+  "searchInText": "النص",
+  "searchInAnnotations": "التعليقات",
+  "searchNoSources": "اختر النص أو التعليقات",
+  "searchResultsTitle": "النتائج ({{count}})",
+  "searchResultPage": "صفحة {{page}}",
+  "searchHitsOne": "نتيجة واحدة",
+  "searchHitsMany": "{{count}} نتائج"
 }

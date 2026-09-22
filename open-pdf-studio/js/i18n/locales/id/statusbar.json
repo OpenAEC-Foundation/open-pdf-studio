@@ -89,5 +89,12 @@
       "doneAll": "{{count}} kata dikenali di {{pages}} halaman",
       "failed": "Pengenalan teks gagal"
     }
-  }
+  },
+  "searchInText": "Teks",
+  "searchInAnnotations": "Anotasi",
+  "searchNoSources": "Pilih Teks atau Anotasi",
+  "searchResultsTitle": "Hasil ({{count}})",
+  "searchResultPage": "Halaman {{page}}",
+  "searchHitsOne": "1 hasil",
+  "searchHitsMany": "{{count}} hasil"
 }

@@ -88,5 +88,12 @@
       "doneAll": "{{pages}} sayfada {{count}} sözcük tanındı",
       "failed": "Metin tanıma başarısız oldu"
     }
-  }
+  },
+  "searchInText": "Metin",
+  "searchInAnnotations": "Açıklamalar",
+  "searchNoSources": "Metin veya Açıklamalar seçin",
+  "searchResultsTitle": "Sonuçlar ({{count}})",
+  "searchResultPage": "Sayfa {{page}}",
+  "searchHitsOne": "1 eşleşme",
+  "searchHitsMany": "{{count}} eşleşme"
 }

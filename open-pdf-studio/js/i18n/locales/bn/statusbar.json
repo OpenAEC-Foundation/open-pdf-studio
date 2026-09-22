@@ -89,5 +89,12 @@
       "doneAll": "{{pages}}টি পৃষ্ঠায় {{count}}টি শব্দ শনাক্ত হয়েছে",
       "failed": "টেক্সট শনাক্তকরণ ব্যর্থ হয়েছে"
     }
-  }
+  },
+  "searchInText": "টেক্সট",
+  "searchInAnnotations": "টীকা",
+  "searchNoSources": "টেক্সট বা টীকা নির্বাচন করুন",
+  "searchResultsTitle": "ফলাফল ({{count}})",
+  "searchResultPage": "পৃষ্ঠা {{page}}",
+  "searchHitsOne": "1টি মিল",
+  "searchHitsMany": "{{count}}টি মিল"
 }

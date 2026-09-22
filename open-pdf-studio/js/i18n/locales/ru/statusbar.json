@@ -89,5 +89,12 @@
       "doneAll": "Распознано слов: {{count}}, страниц: {{pages}}",
       "failed": "Не удалось распознать текст"
     }
-  }
+  },
+  "searchInText": "Текст",
+  "searchInAnnotations": "Аннотации",
+  "searchNoSources": "Выберите Текст или Аннотации",
+  "searchResultsTitle": "Результаты ({{count}})",
+  "searchResultPage": "Страница {{page}}",
+  "searchHitsOne": "1 совпадение",
+  "searchHitsMany": "Совпадений: {{count}}"
 }

@@ -89,5 +89,12 @@
       "doneAll": "จดจำได้ {{count}} คำใน {{pages}} หน้า",
       "failed": "การจดจำข้อความล้มเหลว"
     }
-  }
+  },
+  "searchInText": "ข้อความ",
+  "searchInAnnotations": "คำอธิบายประกอบ",
+  "searchNoSources": "เลือกข้อความหรือคำอธิบายประกอบ",
+  "searchResultsTitle": "ผลลัพธ์ ({{count}})",
+  "searchResultPage": "หน้า {{page}}",
+  "searchHitsOne": "1 รายการ",
+  "searchHitsMany": "{{count}} รายการ"
 }

@@ -89,5 +89,12 @@
       "doneAll": "{{count}} szó felismerve {{pages}} oldalon",
       "failed": "A szövegfelismerés sikertelen"
     }
-  }
+  },
+  "searchInText": "Szöveg",
+  "searchInAnnotations": "Annotációk",
+  "searchNoSources": "Válasszon Szöveget vagy Annotációkat",
+  "searchResultsTitle": "Találatok ({{count}})",
+  "searchResultPage": "{{page}}. oldal",
+  "searchHitsOne": "1 találat",
+  "searchHitsMany": "{{count}} találat"
 }

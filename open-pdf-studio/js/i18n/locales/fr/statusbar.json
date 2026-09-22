@@ -88,5 +88,12 @@
       "doneAll": "{{count}} mots reconnus sur {{pages}} pages",
       "failed": "Échec de la reconnaissance de texte"
     }
-  }
+  },
+  "searchInText": "Texte",
+  "searchInAnnotations": "Annotations",
+  "searchNoSources": "Sélectionnez Texte ou Annotations",
+  "searchResultsTitle": "Résultats ({{count}})",
+  "searchResultPage": "Page {{page}}",
+  "searchHitsOne": "1 correspondance",
+  "searchHitsMany": "{{count}} correspondances"
 }

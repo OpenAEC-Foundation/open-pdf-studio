@@ -88,5 +88,12 @@
       "doneAll": "{{pages}}페이지에서 단어 {{count}}개 인식됨",
       "failed": "텍스트 인식 실패"
     }
-  }
+  },
+  "searchInText": "텍스트",
+  "searchInAnnotations": "주석",
+  "searchNoSources": "텍스트 또는 주석을 선택하세요",
+  "searchResultsTitle": "결과 ({{count}})",
+  "searchResultPage": "{{page}} 페이지",
+  "searchHitsOne": "1개 일치",
+  "searchHitsMany": "{{count}}개 일치"
 }

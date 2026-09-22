@@ -97,5 +97,12 @@
       "doneAll": "Recognized {{count}} words across {{pages}} pages",
       "failed": "Text recognition failed"
     }
-  }
+  },
+  "searchInText": "Text",
+  "searchInAnnotations": "Annotations",
+  "searchNoSources": "Select Text or Annotations",
+  "searchResultsTitle": "Results ({{count}})",
+  "searchResultPage": "Page {{page}}",
+  "searchHitsOne": "1 match",
+  "searchHitsMany": "{{count}} matches"
 }

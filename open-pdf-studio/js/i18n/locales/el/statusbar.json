@@ -89,5 +89,12 @@
       "doneAll": "Αναγνωρίστηκαν {{count}} λέξεις σε {{pages}} σελίδες",
       "failed": "Η αναγνώριση κειμένου απέτυχε"
     }
-  }
+  },
+  "searchInText": "Κείμενο",
+  "searchInAnnotations": "Σχολιασμοί",
+  "searchNoSources": "Επιλέξτε Κείμενο ή Σχολιασμούς",
+  "searchResultsTitle": "Αποτελέσματα ({{count}})",
+  "searchResultPage": "Σελίδα {{page}}",
+  "searchHitsOne": "1 αποτέλεσμα",
+  "searchHitsMany": "{{count}} αποτελέσματα"
 }

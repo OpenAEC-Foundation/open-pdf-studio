@@ -89,5 +89,12 @@
       "doneAll": "{{count}} perkataan dikecam merentasi {{pages}} halaman",
       "failed": "Pengecaman teks gagal"
     }
-  }
+  },
+  "searchInText": "Teks",
+  "searchInAnnotations": "Anotasi",
+  "searchNoSources": "Pilih Teks atau Anotasi",
+  "searchResultsTitle": "Keputusan ({{count}})",
+  "searchResultPage": "Halaman {{page}}",
+  "searchHitsOne": "1 padanan",
+  "searchHitsMany": "{{count}} padanan"
 }

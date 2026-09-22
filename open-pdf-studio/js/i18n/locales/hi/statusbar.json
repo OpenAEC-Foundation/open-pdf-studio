@@ -89,5 +89,12 @@
       "doneAll": "{{pages}} पृष्ठों में {{count}} शब्द पहचाने गए",
       "failed": "टेक्स्ट पहचान विफल रही"
     }
-  }
+  },
+  "searchInText": "टेक्स्ट",
+  "searchInAnnotations": "एनोटेशन",
+  "searchNoSources": "टेक्स्ट या एनोटेशन चुनें",
+  "searchResultsTitle": "परिणाम ({{count}})",
+  "searchResultPage": "पृष्ठ {{page}}",
+  "searchHitsOne": "1 मिलान",
+  "searchHitsMany": "{{count}} मिलान"
 }

@@ -89,5 +89,12 @@
       "doneAll": "Cuvinte recunoscute: {{count}} pe {{pages}} pagini",
       "failed": "Recunoașterea textului a eșuat"
     }
-  }
+  },
+  "searchInText": "Text",
+  "searchInAnnotations": "Adnotări",
+  "searchNoSources": "Selectați Text sau Adnotări",
+  "searchResultsTitle": "Rezultate ({{count}})",
+  "searchResultPage": "Pagina {{page}}",
+  "searchHitsOne": "1 potrivire",
+  "searchHitsMany": "Potriviri: {{count}}"
 }

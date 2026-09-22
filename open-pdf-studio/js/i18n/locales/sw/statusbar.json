@@ -89,5 +89,12 @@
       "doneAll": "Maneno {{count}} yametambuliwa katika kurasa {{pages}}",
       "failed": "Utambuzi wa maandishi umeshindwa"
     }
-  }
+  },
+  "searchInText": "Maandishi",
+  "searchInAnnotations": "Maoni",
+  "searchNoSources": "Chagua Maandishi au Maoni",
+  "searchResultsTitle": "Matokeo ({{count}})",
+  "searchResultPage": "Ukurasa {{page}}",
+  "searchHitsOne": "Tokeo 1",
+  "searchHitsMany": "Matokeo {{count}}"
 }

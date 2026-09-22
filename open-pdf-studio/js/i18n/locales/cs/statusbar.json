@@ -89,5 +89,12 @@
       "doneAll": "Rozpoznaná slova: {{count}} na {{pages}} stránkách",
       "failed": "Rozpoznávání textu se nezdařilo"
     }
-  }
+  },
+  "searchInText": "Text",
+  "searchInAnnotations": "Anotace",
+  "searchNoSources": "Vyberte Text nebo Anotace",
+  "searchResultsTitle": "Výsledky ({{count}})",
+  "searchResultPage": "Stránka {{page}}",
+  "searchHitsOne": "1 shoda",
+  "searchHitsMany": "Shod: {{count}}"
 }

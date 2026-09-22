@@ -89,5 +89,12 @@
       "doneAll": "{{pages}} صفحات میں {{count}} الفاظ کی شناخت ہو گئی",
       "failed": "متن کی شناخت ناکام ہو گئی"
     }
-  }
+  },
+  "searchInText": "متن",
+  "searchInAnnotations": "تشریحات",
+  "searchNoSources": "متن یا تشریحات منتخب کریں",
+  "searchResultsTitle": "نتائج ({{count}})",
+  "searchResultPage": "صفحہ {{page}}",
+  "searchHitsOne": "1 مماثلت",
+  "searchHitsMany": "{{count}} مماثلتیں"
 }

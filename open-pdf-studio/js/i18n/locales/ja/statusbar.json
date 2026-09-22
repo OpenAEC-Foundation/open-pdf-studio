@@ -88,5 +88,12 @@
       "doneAll": "{{pages}} ページで {{count}} 語を認識しました",
       "failed": "文字認識に失敗しました"
     }
-  }
+  },
+  "searchInText": "テキスト",
+  "searchInAnnotations": "注釈",
+  "searchNoSources": "テキストまたは注釈を選択してください",
+  "searchResultsTitle": "結果 ({{count}})",
+  "searchResultPage": "{{page}} ページ",
+  "searchHitsOne": "1 件",
+  "searchHitsMany": "{{count}} 件"
 }

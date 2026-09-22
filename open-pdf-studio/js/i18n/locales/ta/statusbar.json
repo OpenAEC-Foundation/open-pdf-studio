@@ -89,5 +89,12 @@
       "doneAll": "{{pages}} பக்கங்களில் {{count}} சொற்கள் அடையாளம் காணப்பட்டன",
       "failed": "உரை அடையாளம் காணல் தோல்வியடைந்தது"
     }
-  }
+  },
+  "searchInText": "உரை",
+  "searchInAnnotations": "குறிப்புரைகள்",
+  "searchNoSources": "உரை அல்லது குறிப்புரைகளைத் தேர்ந்தெடுக்கவும்",
+  "searchResultsTitle": "முடிவுகள் ({{count}})",
+  "searchResultPage": "பக்கம் {{page}}",
+  "searchHitsOne": "1 பொருத்தம்",
+  "searchHitsMany": "{{count}} பொருத்தங்கள்"
 }
