@@ -204,6 +204,10 @@ export interface Preferences {
   restoreLastSession: boolean;
   dontAskDefaultPdf: boolean;
 
+  // Zoeken: doorzoek de PDF-tekst en/of de tekst in annotaties
+  searchInText: boolean;
+  searchInAnnotations: boolean;
+
   // Screenshot annotate: intercept the system PrtScn key as a global hotkey
   interceptPrintScreen: boolean;
 

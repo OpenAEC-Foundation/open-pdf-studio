@@ -46,6 +46,8 @@ export interface SearchState {
   wholeWord: boolean;
   highlightAll: boolean;
   isSearching: boolean;
+  /** Doorzoeken: de PDF-tekst en/of de tekst in annotaties. */
+  sources: { tekst: boolean; annotaties: boolean };
 }
 
 export interface AppState {
@@ -191,7 +193,8 @@ export const state = createMutable<AppState>({
     matchCase: false,
     wholeWord: false,
     highlightAll: true,
-    isSearching: false
+    isSearching: false,
+    sources: { tekst: true, annotaties: true }
   },
 
   // Marching-ants animation phase for pending redaction marks (see AppState).

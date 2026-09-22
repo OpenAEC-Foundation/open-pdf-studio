@@ -6,6 +6,15 @@ import { state, getActiveDocument } from '../core/state.js';
 import { executeSearch, executeProgressiveSearch, findNext, findPrevious, getCurrentResult, clearSearch, getResultsForPage } from './find-controller.js';
 import { renderPage, renderContinuous } from '../pdf/renderer.js';
 import { matchFractions, matchBoxInPageFrame, boxToLayerPercent } from './match-rect.js';
+import { groepeerPerPagina, BRON_ANNOTATIE } from './search-sources.js';
+import { annotationBounds } from '../annotations/spatial-index.js';
+import {
+  setFindBarResultGroups as setResultGroups,
+  setFindBarCurrentResultPage as setCurrentResultPage,
+  setFindBarSourcesOff as setSourcesOff,
+  setFindBarSearchInText as setSearchInText,
+  setFindBarSearchInAnnotations as setSearchInAnnotations,
+} from '../bridge.js';
 import {
   setFindBarVisible as setVisible, setFindBarResultsText as setResultsText,
   setFindBarMessageText as setMessageText, setFindBarNotFound as setNotFound,
@@ -194,6 +203,54 @@ export function onHighlightChange(highlightAll) {
 }
 
 /**
+ * Zoekbronnen aan/uit (tekst en annotaties). De keuze blijft bewaard in de
+ * voorkeuren, zodat hij een herstart overleeft.
+ */
+export function onSourcesChange({ tekst, annotaties }) {
+  state.search.sources = { tekst: !!tekst, annotaties: !!annotaties };
+  setSearchInText(!!tekst);
+  setSearchInAnnotations(!!annotaties);
+  state.preferences.searchInText = !!tekst;
+  state.preferences.searchInAnnotations = !!annotaties;
+  import('../core/preferences.js').then(m => m.savePreferences && m.savePreferences()).catch(() => {});
+
+  if (cancelProgressiveSearch) {
+    cancelProgressiveSearch();
+    cancelProgressiveSearch = null;
+  }
+  state.search.results = [];
+  state.search.totalMatches = 0;
+  state.search.currentIndex = -1;
+  clearHighlights();
+  if (state.search.query) {
+    executeSearchAndUpdate();
+  } else {
+    updateUI();
+  }
+}
+
+/** Zet de opgeslagen bronkeuze terug bij het opstarten. */
+export function applySourcePreferences() {
+  const tekst = state.preferences.searchInText !== false;
+  const annotaties = state.preferences.searchInAnnotations !== false;
+  state.search.sources = { tekst, annotaties };
+  setSearchInText(tekst);
+  setSearchInAnnotations(annotaties);
+}
+
+/**
+ * Spring naar de eerste treffer op een pagina uit de resultatenlijst.
+ */
+export async function goToResultIndex(index) {
+  const results = state.search.results;
+  if (!Number.isInteger(index) || index < 0 || index >= results.length) return;
+  state.search.currentIndex = index;
+  await navigateToResult(results[index]);
+  updateUI();
+  highlightResults();
+}
+
+/**
  * Execute search and update UI progressively
  */
 async function executeSearchAndUpdate() {
@@ -205,6 +262,18 @@ async function executeSearchAndUpdate() {
 
   const query = state.search.query;
   if (!query) return;
+
+  // Geen bron aangevinkt: geen zoekopdracht, wel een duidelijke toestand.
+  const bronnen = state.search.sources;
+  if (bronnen && !bronnen.tekst && !bronnen.annotaties) {
+    state.search.results = [];
+    state.search.totalMatches = 0;
+    state.search.currentIndex = -1;
+    setSearching(false);
+    clearHighlights();
+    updateUI();
+    return;
+  }
 
   // Reset state
   state.search.results = [];
@@ -287,6 +356,9 @@ async function executeSearchAndUpdate() {
       setMessageText(results.length === 0 && query ? 'Phrase not found' : '');
       highlightResults();
     }
+
+    // De lijst onder de zoekbalk groeit mee met de progressieve zoektocht.
+    publiceerResultatenlijst();
   });
 }
 
@@ -363,6 +435,17 @@ function panViewportToElement(el) {
  */
 function updateUI() {
   const { results, currentIndex, totalMatches, query } = state.search;
+  publiceerResultatenlijst();
+  const bronnenUit = state.search.sources
+    && !state.search.sources.tekst && !state.search.sources.annotaties;
+  setSourcesOff(!!bronnenUit);
+  if (bronnenUit) {
+    setResultsText('');
+    setMessageText('');
+    setNotFound(false);
+    setNavDisabled(true);
+    return;
+  }
 
   // Update results count
   if (totalMatches > 0) {
@@ -438,24 +521,36 @@ export function highlightResults() {
  * highlights at the wrong spot and size.
  */
 function highlightMatch(result, isCurrent) {
-  if (!result || !result.items || result.items.length === 0) return;
+  if (!result) return;
   const view = result.pageView;
   if (!view) return;
 
   const pageNum = result.pageNum;
   const doc = getActiveDocument();
-
-  // Get the text layer for this page
-  let textLayer;
-  if (doc?.viewMode === 'continuous') {
-    const wrapper = document.querySelector(`.page-wrapper[data-page="${pageNum}"]`);
-    textLayer = wrapper?.querySelector('.textLayer');
-  } else {
-    if (doc && doc.currentPage !== pageNum) return;
-    // Scoped: the hidden continuous layers stay in the DOM after a view switch.
-    textLayer = document.querySelector('#canvas-container .textLayer');
-  }
+  const textLayer = tekstlaagVanPagina(pageNum, doc);
   if (!textLayer) return;
+
+  // Annotatietreffer: een kader om de annotatie zelf; de tekst ervan staat
+  // niet in de tekstlaag, dus er is geen letterpositie om op te mikken.
+  if (result.bron === BRON_ANNOTATIE) {
+    const ann = doc?.annotations?.find(a => a.id === result.annotationId);
+    const doos = ann ? annotationBounds(ann) : null;
+    if (!doos) return;
+    const el = maakMarkering(result, isCurrent);
+    el.classList.add('search-highlight-annotation');
+    const W = view[2] - view[0];
+    const H = view[3] - view[1];
+    el.style.left = (100 * doos.x) / W + '%';
+    el.style.top = (100 * doos.y) / H + '%';
+    el.style.width = (100 * doos.width) / W + '%';
+    el.style.height = (100 * doos.height) / H + '%';
+    el.style.transformOrigin = '0 0';
+    el.style.transform = 'none';
+    textLayer.appendChild(el);
+    return;
+  }
+
+  if (!result.items || result.items.length === 0) return;
 
   for (const item of result.items) {
     if (!item.transform) continue; // synthetic (Add Text) items carry no geometry
@@ -469,9 +564,7 @@ function highlightMatch(result, isCurrent) {
     if (!box) continue;
     const pct = boxToLayerPercent(box, view);
 
-    const highlight = document.createElement('div');
-    highlight.className = 'search-highlight' + (isCurrent ? ' current' : '');
-    highlight.dataset.resultIndex = result.index;
+    const highlight = maakMarkering(result, isCurrent);
     highlight.style.left = pct.left + '%';
     highlight.style.top = pct.top + '%';
     highlight.style.width = pct.width + '%';
@@ -482,6 +575,25 @@ function highlightMatch(result, isCurrent) {
     highlight.style.transform = pct.angle ? `rotate(${pct.angle}rad)` : 'none';
     textLayer.appendChild(highlight);
   }
+}
+
+/** De tekstlaag van een pagina in de huidige weergave. */
+function tekstlaagVanPagina(pageNum, doc) {
+  if (doc?.viewMode === 'continuous') {
+    const wrapper = document.querySelector(`.page-wrapper[data-page="${pageNum}"]`);
+    return wrapper?.querySelector('.textLayer') || null;
+  }
+  if (doc && doc.currentPage !== pageNum) return null;
+  // Scoped: the hidden continuous layers stay in the DOM after a view switch.
+  return document.querySelector('#canvas-container .textLayer');
+}
+
+/** Leeg markeringselement met de juiste klassen. */
+function maakMarkering(result, isCurrent) {
+  const el = document.createElement('div');
+  el.className = 'search-highlight' + (isCurrent ? ' current' : '');
+  el.dataset.resultIndex = result.index;
+  return el;
 }
 
 // Share of a partial match within its run, measured in the run's (generic)
@@ -588,4 +700,16 @@ export async function onReplaceAll() {
 
 export function handleReplaceInput(value) {
   state.search.replaceQuery = value;
+}
+
+/**
+ * De resultatenlijst onder de zoekbalk: treffers per pagina plus de pagina van
+ * de huidige treffer. Wordt ook tijdens de progressieve zoektocht bijgewerkt,
+ * zodat de lijst meegroeit.
+ */
+function publiceerResultatenlijst() {
+  const { results, currentIndex } = state.search;
+  setResultGroups(groepeerPerPagina(results));
+  const huidig = results[currentIndex];
+  setCurrentResultPage(huidig ? huidig.pageNum : 0);
 }
