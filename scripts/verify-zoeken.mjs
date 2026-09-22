@@ -27,9 +27,11 @@ import { fileURLToPath, pathToFileURL } from 'url';
 
 const require = createRequire(import.meta.url);
 const HIER = path.dirname(fileURLToPath(import.meta.url));
+// Draait dit script vanuit een worktree zonder eigen node_modules, geef dan
+// met OPDS_NODE_MODULES de map van een checkout die ze wel heeft.
 const MODULEMAPPEN = [
   path.join(HIER, '..', 'open-pdf-studio', 'node_modules'),
-  'C:/Users/rickd/Documents/GitHub/open-pdf-studio/open-pdf-studio/node_modules',
+  ...(process.env.OPDS_NODE_MODULES ? [process.env.OPDS_NODE_MODULES] : []),
 ];
 function modulePad(naam) {
   for (const basis of MODULEMAPPEN) {
