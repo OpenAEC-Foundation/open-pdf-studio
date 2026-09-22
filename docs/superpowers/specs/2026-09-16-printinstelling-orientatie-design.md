@@ -149,7 +149,102 @@ mm)" (`velTekst`). Bij een printer die naar een bestand schrijft (poort
 `PORTPROMPT:`/`FILE:`/een bestandspad, of "PDF"/"XPS" als los woord in de
 naam van het stuurprogramma; `isBestandsPrinter`, alleen uit wat de
 printerlijst al meldt) staat erbij dat "Opslaan als PDF" de stand en de
-vectoren behoudt.
+vectoren behoudt. "PDF" telt ook als het aan een woord vastzit in de naam
+van het stuurprogramma (veel PDF-printers heten zo); "XPS" alleen als los
+woord, want ook papieren printers hebben XPS-stuurprogramma's.
+
+### 2.7 Liggend vel als eigen maat bij een printer die een document schrijft
+
+Gemeld: een liggende pagina, liggend afgedrukt naar een PDF-printer op basis
+van een PostScript-stuurprogramma, komt staand uit. De app vraagt het vel
+goed aan (`DM_ORIENTATION` liggend en de papiercode; de DC meldt een liggend
+vel) en tekent per pagina een raster. Zo'n stuurprogramma maakt van
+"liggend" een staand medium met de inhoud een kwartslag gedraaid, de gewone
+PostScript-werkwijze; de omzetter naar PDF neemt het medium als MediaBox
+over. Zijn automatische draaiing kijkt naar de tekstrichting en valt zonder
+tekst terug op de stand uit `setpagedevice` ([AutoRotatePages]); een raster
+heeft geen tekst. Uitkomst: een staande MediaBox met gedraaide inhoud.
+
+Twee routes onderzocht:
+
+- **A. Het liggende vel als eigen maat.** `dmPaperSize` = `DMPAPER_USER`
+  met `dmPaperWidth` > `dmPaperLength` (in 0,1 mm, [DEVMODEW]) en
+  `dmOrientation` staand. Het PostScript-stuurprogramma van Windows zet een
+  eigen maat om in de `*CustomPageSize`-code uit de PPD van de printer
+  (breedte, hoogte, twee verschuivingen en de invoerrichting;
+  [Driver features], met een verwijzing naar par. 5.16 van de
+  PPD-specificatie 4.3). Een PPD van zo'n PDF-printer kent `*CustomPageSize`
+  (tot 14400 pt, alle vier de invoerrichtingen) en zet daarmee `/PageSize`
+  direct: een liggend medium, dus een MediaBox breder dan hoog, en niets om
+  te draaien.
+- **B. Tekst en vectoren naar de printer** (`FPDF_RenderPage` op de
+  printer-DC met `FPDF_SetPrintMode`, [fpdfview.h]). Niet gekozen:
+  - De automatische draaiing van de omzetter werkt alleen op tekst en zet
+    alleen de weergavedraaiing (/Rotate); het medium blijft staand. Een
+    tekening met tekst als lijnen, gangbaar in uitvoer van tekenpakketten,
+    blijft zonder tekst staand: A blijft dan toch nodig.
+  - Of die draaiing aan staat, is een instelling van de PDF-printer.
+  - `pdfium-render` 0.9 bindt deze twee functies niet (ze bestaan alleen op
+    Windows); de meegeleverde `pdfium.dll` exporteert ze wel, dus het kan
+    via `GetProcAddress`. Maar de print-PDF is nu een JPEG per pagina
+    (`bouwPrintPdf`): B vraagt ook de vectorversie (`bouwVectorPrintPdf`)
+    als bron, en verandert het printpad van elke printer (transparantie via
+    GDI, snelheid, grootte van de spool) zonder dat dat zonder printen te
+    testen is. B blijft een mogelijke verbetering van de scherpte, niet van
+    de stand.
+
+Gekozen: **A**, alleen bij een printer die een document schrijft
+(`schrijft_document` in `print_instelling.rs`, uit het stuurprogramma en de
+poort van de printer):
+
+- "pdf" in de naam van het stuurprogramma, waar dan ook; of
+- de poort `PORTPROMPT:` of een pad naar een `.pdf`, `.ps`, `.eps`, `.xps`
+  of `.oxps`.
+
+Niet bij papieren printers (netwerk-, USB- of WSD-poort), ook niet met een
+XPS-stuurprogramma, en niet bij `FILE:` of een `.prn`-pad (ruwe printerdata
+voor een papieren printer). Een papieren printer heeft geen liggend medium
+van bijvoorbeeld A3; een eigen maat zou daar om ander papier vragen. Daar
+blijft `DM_ORIENTATION`, zoals altijd.
+
+Terugval (`liggend_voor_opdracht` en `liggend_als_eigen_maat` in
+`print_devmode.rs`): de maat is het vel van de staande DEVMODE van de
+opdracht, nagemeten op een informatiecontext (dus ook bij papier
+"printer"), een kwartslag gedraaid (`liggende_eigen_maat_tiende_mm`). Het
+stuurprogramma controleert de DEVMODE, en een informatiecontext meet het vel
+opnieuw (`PHYSICALWIDTH`/`PHYSICALHEIGHT`, [GetDeviceCaps]; geen opdracht).
+Alleen als dat de gevraagde maat is, breder dan hoog, en de DEVMODE staand
+bleef (`liggend_vel_aangenomen`), krijgen liggende pagina's deze DEVMODE;
+anders de liggende stand zoals voorheen. De ingebouwde PDF-printer van
+Windows negeert een eigen maat (zie de proeven in `print_windows.rs`) en
+houdt dus de liggende stand; die schrijft een liggend vel al als liggende
+pagina. Tussen staande en liggende pagina's wisselt `ResetDC` nu ook de maat,
+op het moment waarvoor het bedoeld is: tussen pagina's [ResetDC]. Staat de
+pagina toch haaks op het vel dat de DC meldt, dan draait de printkern het
+beeld (2.5). Het bedrukbare gebied in de printdialoog wordt met dezelfde
+DEVMODE gemeten.
+
+Wat de app niet kan nameten: de invoerrichting die het PostScript-
+stuurprogramma meegeeft. Die staat in het eigen deel van zijn DEVMODE en is
+niet via de openbare velden te zetten. Bij de ene richting zet de PPD-code
+een liggend medium (gewenst), bij de andere een staand medium met een
+kwartslag in `/Install`: dan is de uitkomst dezelfde als voorheen, niet
+slechter. De DC meldt in beide gevallen een liggend vel. Dat valt alleen met
+een echte afdruk te controleren.
+
+De printdialoog krijgt geen nieuwe keuze: de kop toont het vel al met zijn
+stand, en bij een bestandsprinter blijft de hint naar "Opslaan als PDF"
+staan (vectoren, en een stand die niet van het stuurprogramma afhangt). Voor
+het geval een stuurprogramma toch iets onverwachts met de eigen maat doet,
+is de hele regel zonder nieuwe versie terug te zetten op de liggende stand:
+`OPDS_LIGGEND_VEL=0` in de omgeving (`liggend_vel_uitgezet`).
+
+[AutoRotatePages]: https://ghostscript.readthedocs.io/en/latest/VectorDevices.html
+[DEVMODEW]: https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-devmodew
+[Driver features]: https://learn.microsoft.com/en-us/windows-hardware/drivers/print/driver-features
+[fpdfview.h]: https://pdfium.googlesource.com/pdfium/+/refs/heads/main/public/fpdfview.h
+[GetDeviceCaps]: https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getdevicecaps
+[ResetDC]: https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-resetdcw
 
 ## 3. Testen
 
@@ -182,6 +277,13 @@ vectoren behoudt.
   onafhankelijke lezer, inclusief een beeldvergelijking met de bron.
   `print-doel.test.mjs`: het doel, het doelbestand, de bestandsprinter en de
   teksten in alle 39 talen.
+- Liggend vel als eigen maat (2.7): Rust `print_instelling.rs`
+  (`schrijft_document` voor document- en papieren printers,
+  `liggende_eigen_maat_tiende_mm` voor elk bekend vel en de grenzen van een
+  DEVMODE, `liggend_vel_aangenomen` voor elke manier waarop een
+  stuurprogramma het vel kan weigeren). De aanroepen van Windows zelf zijn
+  dun en alleen met `cargo check` geborgd; of de PDF-printer het vel liggend
+  wegschrijft, blijkt alleen uit een echte afdruk.
 
 ## 4. Buiten scope en open punten
 
@@ -193,11 +295,11 @@ toegepast; ze vallen buiten deze opdracht en worden apart gemeld:
 
 Open punten:
 
-- Liggend vel als eigen velmaat met staande DEVMODE: een stuurprogramma dat de
-  liggende stand niet overneemt zou een liggend vel kunnen krijgen als eigen
-  papiermaat (breedte > hoogte) met `DMORIENT_PORTRAIT`. Niet gebouwd; de
-  printkern draait in dat geval het beeld (2.5), en "Opslaan als PDF" slaat
-  het stuurprogramma over.
+- Liggend vel als eigen velmaat met staande DEVMODE: gebouwd voor printers
+  die een document schrijven (2.7). Open: of het PostScript-stuurprogramma
+  daarbij een invoerrichting meegeeft die toch weer een staand medium maakt;
+  alleen met een echte afdruk naar zo'n PDF-printer te zien (MediaBox breder
+  dan hoog, inhoud rechtop). Bij papieren printers blijft het ongewijzigd.
 - Terugkoppeling na het echte printen (de velmaat teruglezen zoals
   `papier_voor_opdracht` en melden als het stuurprogramma stand of papier
   niet overnam): niet zonder printer te testen, daarom niet gebouwd.

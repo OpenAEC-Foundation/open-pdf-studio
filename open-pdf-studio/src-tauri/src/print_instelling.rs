@@ -222,6 +222,86 @@ pub fn zelfde_maat_mm(a: (f64, f64), b: (f64, f64), speling: f64) -> bool {
     (a_kort - b_kort).abs() <= speling && (a_lang - b_lang).abs() <= speling
 }
 
+/// Schrijft deze printer een document (PDF, PostScript, XPS) in plaats van
+/// papier? Uit de naam van het stuurprogramma en de poort (`PRINTER_INFO_2`).
+///
+/// - "pdf" waar dan ook in de naam van het stuurprogramma: veel PDF-printers
+///   hebben een eigen poort die niets verraadt;
+/// - de poort vraagt om een bestandsnaam (`PORTPROMPT:`) of is een pad naar
+///   een `.pdf`, `.ps`, `.eps`, `.xps` of `.oxps`.
+///
+/// Niet: `FILE:` en `.prn` (ruwe printerdata, vaak voor een papieren
+/// printer), een stuurprogramma met "XPS" in de naam (ook papieren printers
+/// hebben er een) en de naam van de wachtrij. Alleen zo'n printer krijgt een
+/// liggend vel als eigen maat (`liggende_eigen_maat_tiende_mm`): een papieren
+/// printer heeft geen liggend medium van bijvoorbeeld A3, daar zou een eigen
+/// maat om ander papier vragen.
+pub fn schrijft_document(stuurprogramma: &str, poort: &str) -> bool {
+    if stuurprogramma.to_ascii_lowercase().contains("pdf") {
+        return true;
+    }
+    let poort = poort.trim().to_ascii_lowercase();
+    if poort == "portprompt:" {
+        return true;
+    }
+    let is_pad = poort.starts_with("\\\\") || {
+        let b = poort.as_bytes();
+        b.len() > 2 && b[0].is_ascii_alphabetic() && b[1] == b':' && (b[2] == b'\\' || b[2] == b'/')
+    };
+    let bestand = poort.rsplit(&['\\', '/'][..]).next().unwrap_or("");
+    is_pad && [".pdf", ".ps", ".eps", ".xps", ".oxps"].iter().any(|ext| bestand.ends_with(ext))
+}
+
+/// De omgevingsvariabele waarmee het liggende vel als eigen maat uit gaat.
+pub const LIGGEND_VEL_OMGEVING: &str = "OPDS_LIGGEND_VEL";
+
+/// Staat het liggende vel als eigen maat uit? Zo blijft het terug te zetten
+/// op de liggende stand (het gedrag van vóór deze regel) zonder nieuwe
+/// versie, als een stuurprogramma er iets onverwachts mee doet.
+/// `OPDS_LIGGEND_VEL=0` (of "uit", "off", "false") zet het uit; al het
+/// andere, en een lege of ontbrekende waarde, laat het aan.
+pub fn liggend_vel_uitgezet(waarde: Option<&str>) -> bool {
+    waarde.is_some_and(|v| matches!(v.trim().to_ascii_lowercase().as_str(), "0" | "uit" | "off" | "false"))
+}
+
+/// Het liggende vel als eigen maat voor een staande DEVMODE:
+/// `(dmPaperWidth, dmPaperLength)` in 0,1 mm, de lange zijde als breedte. Uit
+/// het vel `vel_mm` van de staande DEVMODE (zijden in willekeurige volgorde).
+/// Een stuurprogramma dat "liggend" als staand medium met gedraaide inhoud
+/// wegschrijft, krijgt zo een liggend medium en hoeft niets te draaien.
+/// `None` bij een vierkant of onbruikbaar vel, of een vel dat niet in een
+/// DEVMODE past (een `i16` in 0,1 mm: tot 3276,7 mm).
+pub fn liggende_eigen_maat_tiende_mm(vel_mm: (f64, f64)) -> Option<(i16, i16)> {
+    let tiende = |mm: f64| (mm * 10.0).round();
+    let (a, b) = (tiende(vel_mm.0), tiende(vel_mm.1));
+    let bruikbaar = |v: f64| v.is_finite() && v > 0.0 && v <= i16::MAX as f64;
+    if !bruikbaar(a) || !bruikbaar(b) || a == b {
+        return None;
+    }
+    let (kort, lang) = if a < b { (a, b) } else { (b, a) };
+    Some((lang as i16, kort as i16))
+}
+
+/// Nam het stuurprogramma het liggende vel als eigen maat over? `gevraagd`
+/// is de maat uit `liggende_eigen_maat_tiende_mm`, `gemeten_mm` het vel dat
+/// een DC met de gecontroleerde DEVMODE meldt (breedte x hoogte zoals de DC
+/// staat, `None` = niet te meten), `devmode_liggend` of die DEVMODE liggend
+/// werd. Alleen ja als de DC op `speling` mm na precies dat vel meldt, breder
+/// dan hoog, en de DEVMODE staand bleef: een stuurprogramma dat de maat
+/// terugdraait en de stand omzet, draait bij het wegschrijven weer.
+pub fn liggend_vel_aangenomen(
+    gevraagd: (i16, i16),
+    gemeten_mm: Option<(f64, f64)>,
+    devmode_liggend: bool,
+    speling: f64,
+) -> bool {
+    let Some((breedte, hoogte)) = gemeten_mm else {
+        return false;
+    };
+    let (b, h) = (gevraagd.0 as f64 / 10.0, gevraagd.1 as f64 / 10.0);
+    !devmode_liggend && breedte > hoogte && (breedte - b).abs() <= speling && (hoogte - h).abs() <= speling
+}
+
 fn op_tiende(mm: f64) -> f64 {
     (mm * 10.0).round() / 10.0
 }
@@ -840,6 +920,97 @@ mod tests {
                 assert!(!paar[1].contains(' ') && paar[1].contains('='), "{p:?}: {}", paar[1]);
             }
         }
+    }
+
+    #[test]
+    fn document_printers_herkennen_aan_stuurprogramma_en_poort() {
+        // "pdf" waar dan ook in de naam van het stuurprogramma.
+        assert!(schrijft_document("Proefpdfschrijver", "OMZETMON"));
+        assert!(schrijft_document("Een PDF Converter", "USB001"));
+        assert!(schrijft_document("print to pdf", "PORTPROMPT:"));
+        // Een poort die om een bestandsnaam vraagt, of een pad naar een document.
+        assert!(schrijft_document("Algemeen PostScript", "PORTPROMPT:"));
+        assert!(schrijft_document("Algemeen PostScript", " portprompt: "));
+        assert!(schrijft_document("Algemeen PostScript", r"C:\Uitvoer\afdruk.PS"));
+        assert!(schrijft_document("Iets", r"C:\Users\x\spool\latest.pdf"));
+        assert!(schrijft_document("Iets", r"\\server\map\uit.xps"));
+        assert!(schrijft_document("Iets", r"D:/uit/tekening.eps"));
+    }
+
+    #[test]
+    fn papieren_printers_schrijven_geen_document() {
+        assert!(!schrijft_document("Laser PCL6", "IP_192.168.1.20"));
+        assert!(!schrijft_document("Inkjet 5000 series", "USB001"));
+        // Papieren printers met een XPS-stuurprogramma.
+        assert!(!schrijft_document("Kantoor Laser XPS", "WSD-1234"));
+        // FILE: en .prn zijn ruwe printerdata voor een papieren printer.
+        assert!(!schrijft_document("Laser PS", "FILE:"));
+        assert!(!schrijft_document("Laser PCL6", r"C:\Uitvoer\afdruk.prn"));
+        assert!(!schrijft_document("Faxstuurprogramma", "SHRFAX:"));
+        assert!(!schrijft_document("Notitie-stuurprogramma", "nul:"));
+        // Een pad zonder documentextensie, of een extensie in een map.
+        assert!(!schrijft_document("Laser PS", r"C:\pdf\uitvoer"));
+        assert!(!schrijft_document("", ""));
+    }
+
+    #[test]
+    fn liggend_vel_als_eigen_maat_lange_zijde_als_breedte() {
+        // Het vel van de staande DEVMODE, in willekeurige volgorde, afgerond op 0,1 mm.
+        assert_eq!(liggende_eigen_maat_tiende_mm((420.16, 594.09)), Some((5941, 4202)));
+        assert_eq!(liggende_eigen_maat_tiende_mm((594.1, 420.2)), Some((5941, 4202)));
+        assert_eq!(liggende_eigen_maat_tiende_mm((210.0, 297.0)), Some((2970, 2100)));
+        assert_eq!(liggende_eigen_maat_tiende_mm((215.9, 279.4)), Some((2794, 2159)));
+        assert_eq!(liggende_eigen_maat_tiende_mm((841.0, 1399.0)), Some((13990, 8410)));
+        // Elk bekend vel: breedte > lengte, en de maat is die van het vel.
+        for p in BEKENDE_VELLEN {
+            let (k, l) = p.staande_maat_mm().unwrap();
+            let (b, h) = liggende_eigen_maat_tiende_mm((k, l)).unwrap();
+            assert!(b > h, "{p:?}");
+            assert!(((b as f64 / 10.0) - l).abs() <= 0.05 && ((h as f64 / 10.0) - k).abs() <= 0.05, "{p:?}");
+        }
+    }
+
+    #[test]
+    fn geen_liggende_eigen_maat_bij_vierkant_onbruikbaar_of_te_groot() {
+        assert_eq!(liggende_eigen_maat_tiende_mm((500.0, 500.0)), None);
+        assert_eq!(liggende_eigen_maat_tiende_mm((0.0, 297.0)), None);
+        assert_eq!(liggende_eigen_maat_tiende_mm((-210.0, 297.0)), None);
+        assert_eq!(liggende_eigen_maat_tiende_mm((f64::NAN, 297.0)), None);
+        assert_eq!(liggende_eigen_maat_tiende_mm((210.0, f64::INFINITY)), None);
+        // dmPaperWidth is een i16 in 0,1 mm: tot 3276,7 mm.
+        assert_eq!(liggende_eigen_maat_tiende_mm((400.0, 3300.0)), None);
+        assert_eq!(liggende_eigen_maat_tiende_mm((400.0, 3276.7)), Some((32767, 4000)));
+    }
+
+    #[test]
+    fn liggend_vel_is_uit_te_zetten_in_de_omgeving() {
+        for uit in ["0", " 0 ", "uit", "OFF", "False"] {
+            assert!(liggend_vel_uitgezet(Some(uit)), "{uit}");
+        }
+        for aan in ["", "1", "aan", "ja", "onzin"] {
+            assert!(!liggend_vel_uitgezet(Some(aan)), "{aan}");
+        }
+        assert!(!liggend_vel_uitgezet(None));
+    }
+
+    #[test]
+    fn liggend_vel_alleen_aangenomen_als_de_dc_het_liggend_meldt() {
+        let a2 = (5941, 4202);
+        // Aangenomen: de DC meldt het liggende vel, de DEVMODE blijft staand.
+        assert!(liggend_vel_aangenomen(a2, Some((594.1, 420.2)), false, 3.0));
+        assert!(liggend_vel_aangenomen(a2, Some((592.0, 418.0)), false, 3.0));
+        // Het stuurprogramma draaide het vel toch weer (staande DC).
+        assert!(!liggend_vel_aangenomen(a2, Some((420.2, 594.1)), false, 3.0));
+        // Het stuurprogramma negeerde de eigen maat (zijn standaardvel).
+        assert!(!liggend_vel_aangenomen(a2, Some((210.0, 297.0)), false, 3.0));
+        // Een ander liggend vel (teruggevallen of afgekapt).
+        assert!(!liggend_vel_aangenomen(a2, Some((420.0, 297.0)), false, 3.0));
+        assert!(!liggend_vel_aangenomen((13990, 8410), Some((1219.2, 841.0)), false, 3.0));
+        // De DEVMODE werd liggend (maat gewisseld en de stand omgezet): dan
+        // draait het stuurprogramma weer, dus niet aangenomen.
+        assert!(!liggend_vel_aangenomen(a2, Some((594.1, 420.2)), true, 3.0));
+        // Niet te meten: niet aangenomen.
+        assert!(!liggend_vel_aangenomen(a2, None, false, 3.0));
     }
 
     #[test]
