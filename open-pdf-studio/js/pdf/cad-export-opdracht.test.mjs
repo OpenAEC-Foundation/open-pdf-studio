@@ -124,17 +124,17 @@ test("the result names the files, the counts and the warnings, with a code for a
   const verslag = (n) => ({
     output_path: `C:/werk/uit/plan_p${n}.dxf`, file_size: 1000 * n, page_width: 841, page_height: 594, page_rotate: 0,
     scale_denominator: 100,
-    convert: { lines: 10, polylines: 2, splines: 0, hatches: 1, texts: 3, layers: 4, skipped_images: n === 2 ? 1 : 0, skipped_invisible_text: 0 },
+    convert: { lines: 10, polylines: 2, splines: 0, hatches: 1, masks: 2, texts: 3, layers: 4, skipped_images: n === 2 ? 1 : 0, skipped_invisible_text: 0 },
   });
   const uit = exportUitkomst(o, [{ pagina: 1, verslag: verslag(1) }, { pagina: 2, verslag: verslag(2) }], ["a warning"]);
   assert.equal(uit.ok, true);
   assert.equal(uit.format, "dxf");
   assert.equal(uit.files.length, 2);
   assert.deepEqual(uit.files[0], {
-    page: 1, path: "C:/werk/uit/plan_p1.dxf", bytes: 1000, objects: 16, scale: "1:100", width: 841, height: 594,
+    page: 1, path: "C:/werk/uit/plan_p1.dxf", bytes: 1000, objects: 18, scale: "1:100", width: 841, height: 594,
     layers: 4, skipped: { images: 0, invisible_text: 0 },
   });
-  assert.equal(uit.objects, 32);
+  assert.equal(uit.objects, 36);
   assert.equal(uit.bytes, 3000);
   assert.deepEqual(uit.warnings, ["a warning", "page 2: 1 image(s) were skipped"]);
 

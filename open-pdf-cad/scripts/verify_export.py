@@ -118,6 +118,15 @@ def dxf_geometry(path):
                 vertices += pts
                 if len(pts) > 1:
                     segments += list(zip(pts, pts[1:] + pts[:1]))
+        elif kind == "WIPEOUT":
+            # Maskering: een dekkend vlak in papierkleur. De grens is gesloten,
+            # dus het laatste punt is het eerste.
+            pts = [(v.x, v.y) for v in e.boundary_path_wcs()]
+            if len(pts) > 2 and pts[0] == pts[-1]:
+                pts = pts[:-1]
+            vertices += pts
+            if len(pts) > 1:
+                segments += list(zip(pts, pts[1:] + pts[:1]))
         elif kind == "SPLINE":
             pts = [(p[0], p[1]) for p in e.control_points]
             # Alleen de Bézier-eindpunten (elke derde) liggen op de kromme.

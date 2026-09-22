@@ -271,7 +271,7 @@ export default function CadExportDialog() {
           const c = verslag.convert;
           totaal.bestanden += 1;
           totaal.bytes += verslag.file_size;
-          totaal.objecten += c.lines + c.polylines + c.splines + c.hatches + c.texts;
+          totaal.objecten += c.lines + c.polylines + c.splines + c.hatches + (c.masks || 0) + c.texts;
           setLaatstePad(verslag.output_path);
         }
       }

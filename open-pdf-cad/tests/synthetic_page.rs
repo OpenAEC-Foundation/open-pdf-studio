@@ -89,6 +89,11 @@ q 1 w 0 0 m 30 0 60 30 60 60 c S Q\n";
             format!("<< /Type /XObject /Subtype /Form /BBox [0 0 100 50] /Length {} >>\nstream\n{}endstream", square_ap.len(), square_ap),
         ]);
     }
+    assemble(&objects)
+}
+
+/// Bouwt van een rij objectlichamen (object 1 is de catalogus) een geldige PDF.
+fn assemble(objects: &[String]) -> Vec<u8> {
     let mut pdf = b"%PDF-1.5\n".to_vec();
     let mut offsets = Vec::new();
     for (i, body) in objects.iter().enumerate() {
@@ -389,7 +394,7 @@ fn scan_counts_what_the_export_writes() {
 
     let report = export_page(&library, &request_for(pdf_path.clone(), dir.join("uit.dxf"), options), None, None).unwrap();
     let c = &report.convert;
-    assert_eq!(scan.entities, c.lines + c.polylines + c.splines + c.hatches + c.texts);
+    assert_eq!(scan.entities, c.lines + c.polylines + c.splines + c.hatches + c.masks + c.texts);
 
     // Uitgesloten lagen komen niet in het bestand.
     let options = ConvertOptions {
@@ -504,5 +509,160 @@ fn page_out_of_range_is_reported() {
     };
     let error = export_page(&library, &request, None, None).unwrap_err();
     assert_eq!(error, ExportError::PageOutOfRange { page_index: 5, page_count: 1 });
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Blad zoals een tekenpakket het plot: een maatlijn met daarop een dekkend
+/// vlak in papierkleur en daarop de maattekst; verder een grijze vulling, een
+/// wit vlak met een zwarte omtrek, en een wit vlak met een gat.
+fn build_masked_pdf() -> Vec<u8> {
+    let content = "\
+q 0.5 w 0 G 10 50 m 190 50 l S Q\n\
+q 1 1 1 rg 90 44 20 12 re f Q\n\
+BT /F1 6 Tf 1 0 0 1 92 47 Tm (478) Tj ET\n\
+q 0.8 0.8 0.8 rg 10 10 30 20 re f Q\n\
+q 1 1 1 rg 0 G 0.5 w 60 10 30 20 re B Q\n\
+q 1 1 1 rg 120 10 40 30 re 130 15 20 20 re f* Q\n";
+    let objects = vec![
+        "<< /Type /Catalog /Pages 2 0 R >>".to_string(),
+        "<< /Type /Pages /Kids [3 0 R] /Count 1 >>".to_string(),
+        "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 100] /Contents 4 0 R \
+          /Resources << /Font << /F1 5 0 R >> >> >>"
+            .to_string(),
+        format!("<< /Length {} >>\nstream\n{}endstream", content.len(), content),
+        "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>".to_string(),
+    ];
+    assemble(&objects)
+}
+
+#[test]
+fn a_paper_coloured_fill_becomes_a_wipeout_under_the_text_that_it_masks() {
+    let Some(pdfium) = pdfium_path() else { return };
+    let dir = work_dir("masker");
+    let pdf_path = dir.join("pagina.pdf");
+    std::fs::write(&pdf_path, build_masked_pdf()).unwrap();
+    let library = PdfiumLibrary::load(&pdfium).unwrap();
+
+    for (format, name) in [(CadFormat::Dxf, "uit.dxf"), (CadFormat::Dwg, "uit.dwg")] {
+        let mut request = request_for(pdf_path.clone(), dir.join(name), ConvertOptions::default());
+        request.format = format;
+        let report = export_page(&library, &request, None, None).unwrap();
+        // Twee dekkende vlakken in papierkleur worden maskers; de grijze
+        // vulling en het witte vlak met een gat blijven arceringen.
+        assert_eq!((report.convert.masks, report.convert.hatches), (2, 2), "{name}");
+
+        let doc = read_back(&request.output_path);
+        let kinds: Vec<&str> = doc.model_space_entities().map(|e| e.as_entity().entity_type()).collect();
+        assert_eq!(kinds, ["LINE", "WIPEOUT", "TEXT", "HATCH", "WIPEOUT", "LWPOLYLINE", "HATCH"], "{name}");
+
+        // Het masker dekt precies het witte vlak en ligt vóór de tekst, zodat
+        // de tekst er in een CAD-programma bovenop komt.
+        let wipeout = doc
+            .model_space_entities()
+            .find_map(|e| match e {
+                EntityType::Wipeout(w) => Some(w),
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("{name}: masker ontbreekt"));
+        let corners = wipeout.world_boundary_vertices();
+        let xs: Vec<f64> = corners.iter().map(|c| c.x).collect();
+        let ys: Vec<f64> = corners.iter().map(|c| c.y).collect();
+        let min = |v: &[f64]| v.iter().cloned().fold(f64::MAX, f64::min);
+        let max = |v: &[f64]| v.iter().cloned().fold(f64::MIN, f64::max);
+        assert_point((min(&xs), min(&ys)), (90.0 * MM, 44.0 * MM), &format!("{name}: linksonder"));
+        assert_point((max(&xs), max(&ys)), (110.0 * MM, 56.0 * MM), &format!("{name}: rechtsboven"));
+        assert_eq!(wipeout.common.layer, "PDF_FILL_FFFFFF", "{name}");
+        // Het kader van een masker wordt niet getoond of geplot.
+        let frame = doc.objects.values().find_map(|o| match o {
+            acadrust::objects::ObjectType::WipeoutVariables(v) => Some(v.display_frame),
+            _ => None,
+        });
+        assert_eq!(frame, Some(0), "{name}: WIPEOUTFRAME");
+
+        // Geen enkel effen vlak in papierkleur blijft als arcering achter,
+        // behalve het vlak met een gat (dat een masker niet kan uitdrukken).
+        let white_hatches: Vec<usize> = doc
+            .model_space_entities()
+            .filter_map(|e| match e {
+                EntityType::Hatch(h) if h.common.layer == "PDF_FILL_FFFFFF" => Some(h.paths.len()),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(white_hatches, [2], "{name}: alleen het vlak met een gat blijft arcering");
+
+        // Tekenvolgorde: de handles lopen op met de volgorde in het bestand,
+        // dus een CAD-programma tekent het masker vóór de tekst.
+        let handles: Vec<u64> = doc.model_space_entities().map(|e| e.common().handle.value()).collect();
+        assert!(handles.windows(2).all(|w| w[0] < w[1]), "{name}: {handles:?}");
+    }
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Maatgetallen zoals een tekenpakket ze plot: één tekstobject (`TJ`) met
+/// grote verschuivingen tussen de getallen, plus een zin met gewone spaties en
+/// een getallenpaar dat met een kleine verschuiving bij elkaar hoort.
+fn build_dimension_chain_pdf() -> Vec<u8> {
+    let content = "\
+BT /F1 6 Tf 1 0 0 1 20 60 Tm [(3960) -5000 (40) -5000 (3960) -5000 (40)] TJ ET\n\
+BT /F1 6 Tf 1 0 0 1 20 20 Tm (Hart op hart afstand) Tj ET\n\
+BT /F1 6 Tf 0 1 -1 0 180 20 Tm [(2700) -5000 (900)] TJ ET\n\
+BT /F1 6 Tf 1 0 0 1 20 40 Tm [(12) -1000 (34)] TJ ET\n";
+    let objects = vec![
+        "<< /Type /Catalog /Pages 2 0 R >>".to_string(),
+        "<< /Type /Pages /Kids [3 0 R] /Count 1 >>".to_string(),
+        "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 100] /Contents 4 0 R \
+          /Resources << /Font << /F1 5 0 R >> >> >>"
+            .to_string(),
+        format!("<< /Length {} >>\nstream\n{}endstream", content.len(), content),
+        "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>".to_string(),
+    ];
+    assemble(&objects)
+}
+
+#[test]
+fn far_apart_pieces_of_one_text_object_each_get_their_own_place() {
+    let Some(pdfium) = pdfium_path() else { return };
+    let dir = work_dir("maatgetallen");
+    let pdf_path = dir.join("pagina.pdf");
+    std::fs::write(&pdf_path, build_dimension_chain_pdf()).unwrap();
+    let library = PdfiumLibrary::load(&pdfium).unwrap();
+    let request = request_for(pdf_path, dir.join("uit.dxf"), ConvertOptions::default());
+    let report = export_page(&library, &request, None, None).unwrap();
+    // Vier maatgetallen + de zin + twee staande getallen + het paar dat bij
+    // elkaar hoort = 8 teksten uit 4 tekstobjecten.
+    assert_eq!(report.extract.text_objects, 4);
+    assert_eq!(report.convert.texts, 8);
+
+    let doc = read_back(&request.output_path);
+    let texts: Vec<(String, f64, f64, f64)> = doc
+        .model_space_entities()
+        .filter_map(|e| match e {
+            EntityType::Text(t) => Some((t.value.clone(), t.insertion_point.x, t.insertion_point.y, t.rotation.to_degrees())),
+            _ => None,
+        })
+        .collect();
+
+    // De keten: elk getal staat op zijn eigen plek. Breedte van een cijfer in
+    // deze letter is 0,556 em; een verschuiving van 5000 in de TJ-rij is
+    // 5 × lettergrootte.
+    let digit = 0.556 * 6.0;
+    let mut x = 20.0;
+    for value in ["3960", "40", "3960", "40"] {
+        let found = texts
+            .iter()
+            .find(|(v, tx, ty, _)| v == value && (tx - x * MM).abs() < 0.4 && (ty - 60.0 * MM).abs() < 1e-3)
+            .unwrap_or_else(|| panic!("{value} op x = {x:.2} pt ontbreekt; gevonden: {texts:?}"));
+        assert!(found.0 == value, "{found:?}");
+        x += value.len() as f64 * digit + 5.0 * 6.0;
+    }
+    // Een zin met gewone spaties blijft één tekst.
+    assert!(texts.iter().any(|(v, ..)| v == "Hart op hart afstand"), "{texts:?}");
+    // Ook staande tekst valt uiteen, met behoud van de hoek.
+    let staand: Vec<&(String, f64, f64, f64)> = texts.iter().filter(|(v, ..)| v == "2700" || v == "900").collect();
+    assert_eq!(staand.len(), 2, "{texts:?}");
+    assert!(staand.iter().all(|(_, _, _, angle)| (angle - 90.0).abs() < 1e-6), "{staand:?}");
+    assert!((staand[0].2 - staand[1].2).abs() > 20.0 * MM, "de staande getallen staan boven elkaar: {staand:?}");
+    // Een kleine verschuiving (één lettergrootte) hoort nog bij dezelfde regel.
+    assert!(texts.iter().any(|(v, ..)| v == "12 34" || v == "1234"), "{texts:?}");
     let _ = std::fs::remove_dir_all(&dir);
 }

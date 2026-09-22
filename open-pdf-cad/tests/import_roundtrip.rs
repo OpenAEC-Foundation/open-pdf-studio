@@ -290,3 +290,49 @@ fn the_text_fixture_for_the_app_matches_what_the_crate_writes() {
     assert!(content.contains("(Woonkamer 24 m2) Tj"), "tekst ontbreekt:\n{}", &content[..content.len().min(600)]);
     check_fixture("cad-import-tekst.pdf", &written);
 }
+
+/// De rondgang sluit: een maskering uit de export komt bij het importeren
+/// terug als een dekkend vlak in papierkleur op dezelfde plek, en telt niet
+/// als niet-ondersteunde entiteit.
+#[test]
+fn a_mask_comes_back_as_a_fill_in_paper_colour() {
+    for (format, name) in [(CadFormat::Dxf, "masker.dxf"), (CadFormat::Dwg, "masker.dwg")] {
+        let dir = work_dir(&format!("masker-{}", name.split('.').next_back().unwrap()));
+        let outline = vec![
+            Point::new(4000.0, -600.0),
+            Point::new(6000.0, -600.0),
+            Point::new(6000.0, 600.0),
+            Point::new(4000.0, 600.0),
+        ];
+        let model = CadModel {
+            layers: vec![layer("Maten")],
+            linetypes: Vec::new(),
+            entities: vec![
+                entity(0, Geometry::Line { start: Point::new(0.0, 0.0), end: Point::new(10000.0, 0.0) }),
+                entity(0, Geometry::Mask { outline }),
+            ],
+            page_size: (10000.0, 1200.0),
+            extents: Some((Point::new(0.0, -600.0), Point::new(10000.0, 600.0))),
+            units: DrawingUnit::Mm,
+        };
+        let drawing_path = dir.join(name);
+        open_pdf_cad::writer::write_drawing(model, format, CadVersion::R2013, &drawing_path).unwrap();
+
+        let cancel = AtomicBool::new(false);
+        let drawing = read(&drawing_path, &cancel, |_| {}).expect("tekening lezen");
+        let pdf = dir.join("uit.pdf");
+        let options = args(&drawing_path, &pdf, r#","scale":100,"placement":"lower_left","marginMm":10"#).options();
+        let result = convert(&drawing, &options, &pdf, &cancel, |_| {}).expect("omzetten");
+        assert_eq!(result.stats.unsupported, 0, "{name}: {:?}", result.stats.skipped_types);
+        assert!(result.warnings.iter().all(|w| !w.starts_with("unsupported")), "{name}: {:?}", result.warnings);
+
+        // Op 1:100 met 10 mm marge: het masker loopt van 50 tot 70 mm en van
+        // 10 tot 22 mm op papier (141,732–198,425 × 28,346–62,362 pt).
+        let content = streams(&std::fs::read(&pdf).unwrap()).join("\n");
+        assert!(content.contains("1 g"), "{name}: geen vulling in papierkleur:\n{content}");
+        for corner in ["141.732 28.346", "198.425 28.346", "198.425 62.362", "141.732 62.362"] {
+            assert!(content.contains(corner), "{name}: hoek {corner} ontbreekt:\n{content}");
+        }
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+}

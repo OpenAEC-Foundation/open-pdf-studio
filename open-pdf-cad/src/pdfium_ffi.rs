@@ -18,7 +18,7 @@
 //! geen andere PDFium-aanroep in hetzelfde proces loopt.
 
 use libloading::Library;
-use std::ffi::{c_char, c_float, c_int, c_uint, c_ulong, c_ushort, c_void};
+use std::ffi::{c_char, c_double, c_float, c_int, c_uint, c_ulong, c_ushort, c_void};
 use std::path::Path;
 
 pub type FpdfDocument = *mut c_void;
@@ -149,8 +149,8 @@ pdfium_api! {
     fn FPDFText_ClosePage(text_page: FpdfTextPage);
     fn FPDFText_CountChars(text_page: FpdfTextPage) -> c_int;
     fn FPDFText_GetUnicode(text_page: FpdfTextPage, index: c_int) -> c_uint;
-    fn FPDFText_IsGenerated(text_page: FpdfTextPage, index: c_int) -> c_int;
     fn FPDFText_GetTextObject(text_page: FpdfTextPage, index: c_int) -> FpdfPageObject;
+    fn FPDFText_GetCharOrigin(text_page: FpdfTextPage, index: c_int, x: *mut c_double, y: *mut c_double) -> FpdfBool;
     fn FPDFTextObj_GetFontSize(text_object: FpdfPageObject, size: *mut c_float) -> FpdfBool;
     fn FPDFTextObj_GetTextRenderMode(text_object: FpdfPageObject) -> c_int;
     fn FPDFTextObj_GetFont(text_object: FpdfPageObject) -> FpdfFont;
