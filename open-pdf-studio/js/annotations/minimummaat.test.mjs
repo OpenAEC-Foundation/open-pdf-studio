@@ -6,7 +6,7 @@ import {
   nietNul, normaliseerRechthoek, schaalRechthoekMetGreep, isKlikSleep,
   raakMarge, wolkUitstulping, saneerMaatVelden, tekstvakMinimum,
   normaliseerVormMaat, leesMaatInvoer, toonMaat, valideerMaatPatch,
-  symboolRasterPxPerPt, MIN_SYMBOOL_RASTER_PX,
+  symboolRasterPxPerPt, MIN_SYMBOOL_RASTER_PX, plakVerschuivingPt, PLAK_STAP_PX,
 } from './minimummaat.js';
 
 const near = (a, b, eps = 1e-9) => Math.abs(a - b) < eps;
@@ -405,4 +405,14 @@ test('symboolRasterPxPerPt: een klein symbool krijgt genoeg pixels, een groot sy
   for (const v of [0, NaN, undefined, -3]) assert.ok(Number.isFinite(symboolRasterPxPerPt(v)), String(v));
   // Groot symbool van 2000 pt: cap op 4000 px = 2 px per pt.
   assert.equal(symboolRasterPxPerPt(2000), 2);
+});
+
+test('plakVerschuivingPt: de plak-cascade staat in schermpixels, dus ingezoomd blijft de kopie in beeld', () => {
+  assert.equal(plakVerschuivingPt(1, 1), PLAK_STAP_PX);
+  assert.equal(plakVerschuivingPt(3, 1), 3 * PLAK_STAP_PX);
+  // Bij 6400 % is de stap 20 px = 0,3125 pt, niet 20 pt (= 1280 px).
+  assert.ok(near(plakVerschuivingPt(1, 64), PLAK_STAP_PX / 64));
+  // Zonder bekende zoom of met onzin: stap op zoom 1, eerste plak.
+  assert.equal(plakVerschuivingPt(0, undefined), PLAK_STAP_PX);
+  assert.equal(plakVerschuivingPt(NaN, 0), PLAK_STAP_PX);
 });

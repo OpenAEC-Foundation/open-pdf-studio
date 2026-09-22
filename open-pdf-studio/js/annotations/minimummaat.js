@@ -36,6 +36,19 @@ export const MIN_GEBIED_PX = 16;
 /** Een vorm kleiner dan dit op het scherm krijgt een opgerekt raakvlak (schermpixels). */
 export const MIN_RAAKVLAK_PX = 10;
 
+/** Verschuiving per plak-stap (Ctrl+V-cascade), schermpixels. */
+export const PLAK_STAP_PX = 20;
+
+/**
+ * Verschuiving (paginapunten) van de n-de plakactie sinds het kopiëren. In
+ * schermpixels, zodat de kopie bij klein werken naast het origineel in beeld
+ * komt in plaats van (20 pt x 64 = 1280 px) buiten beeld.
+ */
+export function plakVerschuivingPt(volgnummer, schaal, stapPx = PLAK_STAP_PX) {
+  const n = (Number.isFinite(volgnummer) && volgnummer > 0) ? volgnummer : 1;
+  return schermPxNaarPt(stapPx, schaal) * n;
+}
+
 function _ondergrens(min) {
   return (typeof min === 'number' && Number.isFinite(min) && min > MIN_VORM_MAAT_PT)
     ? min : MIN_VORM_MAAT_PT;
