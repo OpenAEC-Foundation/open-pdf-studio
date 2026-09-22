@@ -324,13 +324,38 @@ async function navigateToResult(result) {
  * Scroll to a specific match on the current page
  */
 function scrollToMatch(result) {
-  if (!result || !result.items || result.items.length === 0) return;
+  if (!result) return;
 
   // Find the highlight element for the current match
   const highlights = document.querySelectorAll('.search-highlight.current');
-  if (highlights.length > 0) {
-    highlights[0].scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+  if (highlights.length === 0) return;
+  if (panViewportToElement(highlights[0])) return;
+  highlights[0].scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+}
+
+/**
+ * Enkele pagina: de pagina hangt in de viewport (canvas + eigen verschuiving),
+ * niet in een scrollbare container — scrollIntoView doet daar niets. Ligt de
+ * treffer buiten beeld, dan schuift de viewport hem naar het midden. De
+ * render-lus klemt daarna zelf af op de paginaranden.
+ * @returns {boolean} true als de viewport de verplaatsing heeft afgehandeld
+ */
+function panViewportToElement(el) {
+  const vp = window.__pdfViewport;
+  const canvas = document.getElementById('pdf-canvas');
+  if (!vp || !vp.active || !canvas) return false;
+  const cr = canvas.getBoundingClientRect();
+  const hr = el.getBoundingClientRect();
+  if (!(cr.width > 0 && cr.height > 0)) return false;
+  const marge = 12;
+  const buitenBeeld = hr.left < cr.left + marge || hr.right > cr.right - marge
+    || hr.top < cr.top + marge || hr.bottom > cr.bottom - marge;
+  if (buitenBeeld) {
+    vp.offsetX += (cr.left + cr.width / 2) - (hr.left + hr.width / 2);
+    vp.offsetY += (cr.top + cr.height / 2) - (hr.top + hr.height / 2);
+    vp.dirty = true;
   }
+  return true;
 }
 
 /**
