@@ -141,6 +141,12 @@ function _schaalMetGreep(annotation, handleType, deltaX, deltaY, originalAnn, op
   annotation[hKey] = r.height;
 }
 
+// Notitie-icoon: vaste markering met een vaste ondergrens in paginapunten.
+// Bewust GEEN schermpixel- of epsilon-grens: het icoon wordt op een vaste
+// maat getekend en krijgt van getAnnotationHandles geen maatgrepen; deze tak
+// is alleen nog bereikbaar voor programmatische aanroepen.
+export const COMMENT_MIN_MAAT_PT = 20;
+
 const _MAATGREPEN = new Set([
   HANDLE_TYPES.TOP_LEFT, HANDLE_TYPES.TOP_RIGHT, HANDLE_TYPES.BOTTOM_LEFT, HANDLE_TYPES.BOTTOM_RIGHT,
   HANDLE_TYPES.TOP, HANDLE_TYPES.BOTTOM, HANDLE_TYPES.LEFT, HANDLE_TYPES.RIGHT,
@@ -272,6 +278,7 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
     case 'highlight':
     case 'polygon':
     case 'cloud':
+    case 'redaction':
     case 'textbox':
       // Textbox leader tip/knee drag: update only that point on the matching leader.
       if (annotation.type === 'textbox' && typeof handleType === 'string' &&
@@ -302,8 +309,9 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
         return;
       }
       if (_MAATGREPEN.has(handleType)) {
-        // Rechthoek, ellips, wolk, maskeer- en markeringsvlak mogen willekeurig
-        // klein worden (alleen de technische ondergrens). Een TEKSTVAK houdt
+        // Rechthoek, ellips, wolk, maskeer-, markerings- en redactievlak mogen
+        // willekeurig klein worden (alleen de technische ondergrens; de
+        // redactiemarkering had wel grepen maar geen tak). Een TEKSTVAK houdt
         // een eigen ondergrens: er moet één teken op één regel in passen —
         // afgeleid van de lettergrootte, niet een vast aantal punten.
         const tbMin = annotation.type === 'textbox' ? tekstvakMinimum(originalAnn) : null;
@@ -930,8 +938,8 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
           break;
       }
       // Ensure minimum size
-      if (annotation.width < 20) annotation.width = 20;
-      if (annotation.height < 20) annotation.height = 20;
+      if (annotation.width < COMMENT_MIN_MAAT_PT) annotation.width = COMMENT_MIN_MAAT_PT;
+      if (annotation.height < COMMENT_MIN_MAAT_PT) annotation.height = COMMENT_MIN_MAAT_PT;
       break;
 
     default:

@@ -34,7 +34,7 @@ const bron = readFileSync(new URL('./transforms.js', import.meta.url), 'utf8')
     return '';
   });
 
-const { applyResize } =
+const { applyResize, COMMENT_MIN_MAAT_PT } =
   await import('data:text/javascript;base64,' + Buffer.from(stubs + bron, 'utf8').toString('base64'));
 
 const GREPEN = ['tl', 'tr', 'bl', 'br', 't', 'b', 'l', 'r'];
@@ -152,4 +152,22 @@ test('vrije hand: een omhullende van exact 0 springt niet naar 1 pt en geeft gee
 test('vergrendelde vorm verandert niet', () => {
   const r = sleep({ type: 'box', x: 0, y: 0, width: 50, height: 50, locked: true }, 'br', -40, -40);
   assert.equal(r.width, 50);
+});
+
+test('redactiemarkering: heeft grepen en is er nu ook mee te schalen, willekeurig klein', () => {
+  const r = sleep({ type: 'redaction', x: 100, y: 100, width: 50, height: 50 }, 'br', -49.8, -49.9);
+  assert.ok(near(r.width, 0.2) && near(r.height, 0.1), `${r.width}x${r.height}`);
+  assert.equal(r.x, 100);
+  assert.equal(r.y, 100);
+  // Linkerboven-greep voorbij het vaste punt: rechteronderhoek blijft staan, geen omklap.
+  const tl = sleep({ type: 'redaction', x: 100, y: 100, width: 50, height: 50 }, 'tl', 500, 500);
+  assert.ok(near(tl.x + tl.width, 150) && near(tl.y + tl.height, 150));
+  assert.ok(tl.width >= MIN_VORM_MAAT_PT && tl.height >= MIN_VORM_MAAT_PT);
+});
+
+test('notitie-icoon: houdt zijn vaste ondergrens (benoemde constante)', () => {
+  assert.equal(typeof COMMENT_MIN_MAAT_PT, 'number');
+  const r = sleep({ type: 'comment', x: 0, y: 0, width: 24, height: 24 }, 'br', -20, -20);
+  assert.equal(r.width, COMMENT_MIN_MAAT_PT);
+  assert.equal(r.height, COMMENT_MIN_MAAT_PT);
 });
