@@ -1511,7 +1511,20 @@ async function handleUpdateAnnotation(params) {
   const oldState = factory.cloneAnnotation(ann);
 
   // id and type are immutable — silently drop them from the patch.
-  const { id: _id, type: _type, ...patch } = props;
+  const { id: _id, type: _type, ...ruwePatch } = props;
+  // Technische wacht op maat en positie. Zonder deze controle kwam width 0,
+  // een negatieve maat, NaN of tekst ongefilterd in het model en daarna (via
+  // de JSON-kloon) als null in de undo-stapel. Een vorm mag willekeurig klein
+  // zijn: elke positieve waarde wordt geaccepteerd.
+  const maat = await import('./annotations/minimummaat.js');
+  const heeftVak = maat.RECHTHOEK_VORMEN.has(ann.type)
+    || (typeof ann.w === 'number' && typeof ann.h === 'number');
+  let patch = ruwePatch;
+  if (heeftVak) {
+    const gecontroleerd = maat.valideerMaatPatch(ruwePatch);
+    if (!gecontroleerd.ok) return { ok: false, error: gecontroleerd.error };
+    patch = gecontroleerd.patch;
+  }
   Object.assign(ann, patch);
   ann.modifiedAt = new Date().toISOString();
 

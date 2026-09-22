@@ -307,3 +307,54 @@ export function tekstvakMinimum(ann) {
     minHoogte: klemMaat(fs * regel + rand * 2),
   };
 }
+
+/**
+ * Lees een ingetypte maat (paneel, zwevende invoer). Elke positieve waarde
+ * mag, met decimalen (punt of komma); onder de technische ondergrens wordt
+ * geklemd. Geeft null voor alles wat geen positieve maat is — ook de
+ * tussenstanden tijdens het typen ("", "0", "0.") — zodat de aanroeper het
+ * model dan met rust laat in plaats van naar een standaardmaat te springen.
+ */
+export function leesMaatInvoer(waarde) {
+  let n;
+  if (typeof waarde === 'number') n = waarde;
+  else if (typeof waarde === 'string') n = parseFloat(waarde.trim().replace(',', '.'));
+  else return null;
+  if (!Number.isFinite(n) || n <= 0) return null;
+  return klemMaat(n);
+}
+
+/** Maat voor weergave in een invoerveld: 2 decimalen, onder 1 pt 3 — nooit "0" voor een kleine vorm. */
+export function toonMaat(waarde) {
+  if (typeof waarde !== 'number' || !Number.isFinite(waarde)) return 0;
+  return Number(waarde.toFixed(Math.abs(waarde) < 1 ? 3 : 2));
+}
+
+/**
+ * Valideer de maat- en positievelden van een patch die van buiten komt
+ * (MCP-brug). Anders dan het paneel wordt hier GEWEIGERD in plaats van stil
+ * geklemd: een aanroeper die width 0, een negatieve maat, NaN of tekst stuurt
+ * hoort een fout te krijgen. Elke positieve maat mag; alleen een waarde onder
+ * de technische ondergrens wordt daarop geklemd.
+ *
+ * @returns {{ok: true, patch: object} | {ok: false, error: string}}
+ */
+export function valideerMaatPatch(patch) {
+  if (!patch || typeof patch !== 'object') return { ok: true, patch };
+  const uit = { ...patch };
+  for (const veld of _MAATVELDEN) {
+    if (!(veld in uit)) continue;
+    const v = uit[veld];
+    if (typeof v !== 'number' || !Number.isFinite(v) || v <= 0) {
+      return { ok: false, error: `props.${veld} must be a finite number > 0` };
+    }
+    uit[veld] = klemMaat(v);
+  }
+  for (const veld of _POSITIEVELDEN) {
+    if (!(veld in uit)) continue;
+    if (typeof uit[veld] !== 'number' || !Number.isFinite(uit[veld])) {
+      return { ok: false, error: `props.${veld} must be a finite number` };
+    }
+  }
+  return { ok: true, patch: uit };
+}

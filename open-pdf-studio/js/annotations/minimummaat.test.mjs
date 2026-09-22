@@ -5,7 +5,7 @@ import {
   klemMaat, isGeldigeMaat, schermPxNaarPt, veiligeVerhouding,
   nietNul, normaliseerRechthoek, schaalRechthoekMetGreep, isKlikSleep,
   raakMarge, wolkUitstulping, saneerMaatVelden, tekstvakMinimum,
-  normaliseerVormMaat,
+  normaliseerVormMaat, leesMaatInvoer, toonMaat, valideerMaatPatch,
 } from './minimummaat.js';
 
 const near = (a, b, eps = 1e-9) => Math.abs(a - b) < eps;
@@ -343,4 +343,50 @@ test('normaliseerVormMaat: laat ontbrekende velden en andere typen met rust', ()
   const l = normaliseerVormMaat({ type: 'line', x: 0, y: 0, width: 0, height: 10 });
   assert.equal(l.width, 0);
   assert.equal(normaliseerVormMaat(null), null);
+});
+
+test('leesMaatInvoer: elke positieve waarde mag, decimalen blijven, onzin wordt geweigerd', () => {
+  assert.equal(leesMaatInvoer('0.5'), 0.5);
+  assert.equal(leesMaatInvoer('0,5'), 0.5);
+  assert.equal(leesMaatInvoer(12.75), 12.75);
+  assert.equal(leesMaatInvoer('3000'), 3000);
+  // Onder de technische ondergrens: geklemd, niet geweigerd.
+  assert.equal(leesMaatInvoer('0.000001'), MIN_VORM_MAAT_PT);
+  // Halverwege het typen ("0", "0.", leeg) en onzin: null = model niet aanraken.
+  for (const v of ['', '0', '0.', '-4', 'abc', null, undefined, NaN, Infinity]) {
+    assert.equal(leesMaatInvoer(v), null, String(v));
+  }
+});
+
+test('toonMaat: kleine maten tonen hun decimalen in plaats van 0', () => {
+  assert.equal(toonMaat(0.4), 0.4);
+  assert.equal(toonMaat(0.05), 0.05);
+  assert.equal(toonMaat(0.0123), 0.012);
+  assert.equal(toonMaat(123.456), 123.46);
+  assert.equal(toonMaat(20), 20);
+  assert.equal(toonMaat(NaN), 0);
+});
+
+test('valideerMaatPatch (MCP-update): nul, negatief, NaN en tekst worden geweigerd met een duidelijke fout', () => {
+  for (const [veld, waarde] of [['width', 0], ['height', -3], ['width', NaN], ['height', '12'], ['w', null], ['h', Infinity], ['radius', 0]]) {
+    const r = valideerMaatPatch({ [veld]: waarde });
+    assert.equal(r.ok, false, `${veld}=${waarde}`);
+    assert.match(r.error, new RegExp(veld));
+  }
+  for (const veld of ['x', 'y']) {
+    const r = valideerMaatPatch({ [veld]: NaN });
+    assert.equal(r.ok, false);
+    assert.match(r.error, new RegExp(veld));
+  }
+});
+
+test('valideerMaatPatch: elke positieve maat mag; onder de technische ondergrens wordt geklemd', () => {
+  const r = valideerMaatPatch({ width: 0.05, height: 0.05, x: -10, color: '#f00' });
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.patch, { width: 0.05, height: 0.05, x: -10, color: '#f00' });
+  const klein = valideerMaatPatch({ width: 1e-12 });
+  assert.equal(klein.ok, true);
+  assert.equal(klein.patch.width, MIN_VORM_MAAT_PT);
+  // Een patch zonder maatvelden gaat ongemoeid door.
+  assert.deepEqual(valideerMaatPatch({ text: 'abc' }), { ok: true, patch: { text: 'abc' } });
 });
