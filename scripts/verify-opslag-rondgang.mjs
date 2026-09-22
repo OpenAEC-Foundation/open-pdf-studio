@@ -100,7 +100,14 @@ for (const naam of bestanden) {
   } catch (e) {
     rij.fout = String(e.message).slice(0, 120);
   }
-  try { await mcp('app_close_tab', {}); } catch (_) { /* tab kan al weg zijn */ }
+  // app_close_tab eist de index van de tab; zonder index sloot hij niets en
+  // liep de rig over de hele map vol met open tabbladen. force: de kopie is
+  // al opgeslagen (of het opslaan is mislukt en gemeld), er gaat niets verloren.
+  try {
+    const tabs = await mcp('app_list_tabs', {});
+    const index = tabs?.tabs?.find((t) => t.active)?.index;
+    if (index !== undefined) await mcp('app_close_tab', { index, force: true });
+  } catch (_) { /* tab kan al weg zijn */ }
   await sleep(1500);
   console.log(`${rij.openOk ? 'ok  ' : 'FOUT'} ${rij.opgeslagen === true ? 'opgeslagen    ' : rij.opgeslagen === false ? 'NIET-OPGESLAGEN' : '-             '} ${naam}${rij.fout ? `  << ${rij.fout}` : ''}`);
   rapport.push(rij);
