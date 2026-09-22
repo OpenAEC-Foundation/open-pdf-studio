@@ -8,6 +8,7 @@ pub mod cad_export;
 pub mod cad_import;
 mod email;
 pub mod linux_runtime;
+pub mod logboek;
 pub mod mcp_app_bridge;
 pub mod mcp_koppeling;
 pub mod mcp_server;
@@ -2638,6 +2639,14 @@ pub fn run(opts: StartupOpts) {
 
     builder
         .setup(move |app| {
+            // Als eerste, zodat alles wat hierna met `log::` gemeld wordt ook
+            // ergens aankomt. Zonder logger zijn die macro's lege hulzen.
+            // Mislukt het opzetten, dan draait de app gewoon door.
+            match logboek::registreer(app.handle()) {
+                Ok(map) => eprintln!("[startup] logboek in {}", map.display()),
+                Err(e) => eprintln!("[startup] geen logboek: {e}"),
+            }
+
             let diagnostics_path = app
                 .path()
                 .app_log_dir()
