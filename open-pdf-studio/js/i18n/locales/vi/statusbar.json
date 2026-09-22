@@ -89,5 +89,12 @@
       "doneAll": "Đã nhận dạng {{count}} từ trên {{pages}} trang",
       "failed": "Nhận dạng văn bản thất bại"
     }
-  }
+  },
+  "searchInText": "Văn bản",
+  "searchInAnnotations": "Chú thích",
+  "searchNoSources": "Chọn Văn bản hoặc Chú thích",
+  "searchResultsTitle": "Kết quả ({{count}})",
+  "searchResultPage": "Trang {{page}}",
+  "searchHitsOne": "1 kết quả",
+  "searchHitsMany": "{{count}} kết quả"
 }

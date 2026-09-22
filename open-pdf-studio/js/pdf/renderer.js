@@ -632,6 +632,13 @@ async function _renderPageImpl(pageNum) {
     // gereedschapswissel: klikbaar bij select/hand, uit bij editText en de
     // tekengereedschappen. Eén bron van waarheid — zie link-layer.js.
     applyOverlayPointerEvents(document.getElementById('canvas-container'));
+
+    // De lagen zijn zojuist (her)opgebouwd; de viewport zet ze in zijn
+    // volgende frame weer op de pagina (maat + transform). Zonder deze vlag
+    // bleef een verse tekstlaag in het rasterpad op de containermaat staan:
+    // na een paginawissel lagen tekstselectie en zoekmarkeringen dan naast
+    // de pagina tot iets anders toevallig een frame afdwong.
+    if (window.__pdfViewport) window.__pdfViewport.dirty = true;
   }
 
   // Ensure annotations for this page are loaded (on-demand if background hasn't reached it yet)

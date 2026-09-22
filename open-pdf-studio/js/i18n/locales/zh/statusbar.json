@@ -88,5 +88,12 @@
       "doneAll": "已在 {{pages}} 頁中識別 {{count}} 個詞",
       "failed": "文字識別失敗"
     }
-  }
+  },
+  "searchInText": "文本",
+  "searchInAnnotations": "批注",
+  "searchNoSources": "请选择文本或批注",
+  "searchResultsTitle": "结果 ({{count}})",
+  "searchResultPage": "第 {{page}} 页",
+  "searchHitsOne": "1 处匹配",
+  "searchHitsMany": "{{count}} 处匹配"
 }

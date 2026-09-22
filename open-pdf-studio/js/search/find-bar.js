@@ -5,6 +5,16 @@
 import { state, getActiveDocument } from '../core/state.js';
 import { executeSearch, executeProgressiveSearch, findNext, findPrevious, getCurrentResult, clearSearch, getResultsForPage } from './find-controller.js';
 import { renderPage, renderContinuous } from '../pdf/renderer.js';
+import { matchFractions, matchBoxInPageFrame, boxToLayerPercent } from './match-rect.js';
+import { groepeerPerPagina, BRON_ANNOTATIE } from './search-sources.js';
+import { annotationBounds } from '../annotations/spatial-index.js';
+import {
+  setFindBarResultGroups as setResultGroups,
+  setFindBarCurrentResultPage as setCurrentResultPage,
+  setFindBarSourcesOff as setSourcesOff,
+  setFindBarSearchInText as setSearchInText,
+  setFindBarSearchInAnnotations as setSearchInAnnotations,
+} from '../bridge.js';
 import {
   setFindBarVisible as setVisible, setFindBarResultsText as setResultsText,
   setFindBarMessageText as setMessageText, setFindBarNotFound as setNotFound,
@@ -193,6 +203,54 @@ export function onHighlightChange(highlightAll) {
 }
 
 /**
+ * Zoekbronnen aan/uit (tekst en annotaties). De keuze blijft bewaard in de
+ * voorkeuren, zodat hij een herstart overleeft.
+ */
+export function onSourcesChange({ tekst, annotaties }) {
+  state.search.sources = { tekst: !!tekst, annotaties: !!annotaties };
+  setSearchInText(!!tekst);
+  setSearchInAnnotations(!!annotaties);
+  state.preferences.searchInText = !!tekst;
+  state.preferences.searchInAnnotations = !!annotaties;
+  import('../core/preferences.js').then(m => m.savePreferences && m.savePreferences()).catch(() => {});
+
+  if (cancelProgressiveSearch) {
+    cancelProgressiveSearch();
+    cancelProgressiveSearch = null;
+  }
+  state.search.results = [];
+  state.search.totalMatches = 0;
+  state.search.currentIndex = -1;
+  clearHighlights();
+  if (state.search.query) {
+    executeSearchAndUpdate();
+  } else {
+    updateUI();
+  }
+}
+
+/** Zet de opgeslagen bronkeuze terug bij het opstarten. */
+export function applySourcePreferences() {
+  const tekst = state.preferences.searchInText !== false;
+  const annotaties = state.preferences.searchInAnnotations !== false;
+  state.search.sources = { tekst, annotaties };
+  setSearchInText(tekst);
+  setSearchInAnnotations(annotaties);
+}
+
+/**
+ * Spring naar de eerste treffer op een pagina uit de resultatenlijst.
+ */
+export async function goToResultIndex(index) {
+  const results = state.search.results;
+  if (!Number.isInteger(index) || index < 0 || index >= results.length) return;
+  state.search.currentIndex = index;
+  await navigateToResult(results[index]);
+  updateUI();
+  highlightResults();
+}
+
+/**
  * Execute search and update UI progressively
  */
 async function executeSearchAndUpdate() {
@@ -204,6 +262,18 @@ async function executeSearchAndUpdate() {
 
   const query = state.search.query;
   if (!query) return;
+
+  // Geen bron aangevinkt: geen zoekopdracht, wel een duidelijke toestand.
+  const bronnen = state.search.sources;
+  if (bronnen && !bronnen.tekst && !bronnen.annotaties) {
+    state.search.results = [];
+    state.search.totalMatches = 0;
+    state.search.currentIndex = -1;
+    setSearching(false);
+    clearHighlights();
+    updateUI();
+    return;
+  }
 
   // Reset state
   state.search.results = [];
@@ -286,6 +356,9 @@ async function executeSearchAndUpdate() {
       setMessageText(results.length === 0 && query ? 'Phrase not found' : '');
       highlightResults();
     }
+
+    // De lijst onder de zoekbalk groeit mee met de progressieve zoektocht.
+    publiceerResultatenlijst();
   });
 }
 
@@ -323,13 +396,38 @@ async function navigateToResult(result) {
  * Scroll to a specific match on the current page
  */
 function scrollToMatch(result) {
-  if (!result || !result.items || result.items.length === 0) return;
+  if (!result) return;
 
   // Find the highlight element for the current match
   const highlights = document.querySelectorAll('.search-highlight.current');
-  if (highlights.length > 0) {
-    highlights[0].scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+  if (highlights.length === 0) return;
+  if (panViewportToElement(highlights[0])) return;
+  highlights[0].scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+}
+
+/**
+ * Enkele pagina: de pagina hangt in de viewport (canvas + eigen verschuiving),
+ * niet in een scrollbare container — scrollIntoView doet daar niets. Ligt de
+ * treffer buiten beeld, dan schuift de viewport hem naar het midden. De
+ * render-lus klemt daarna zelf af op de paginaranden.
+ * @returns {boolean} true als de viewport de verplaatsing heeft afgehandeld
+ */
+function panViewportToElement(el) {
+  const vp = window.__pdfViewport;
+  const canvas = document.getElementById('pdf-canvas');
+  if (!vp || !vp.active || !canvas) return false;
+  const cr = canvas.getBoundingClientRect();
+  const hr = el.getBoundingClientRect();
+  if (!(cr.width > 0 && cr.height > 0)) return false;
+  const marge = 12;
+  const buitenBeeld = hr.left < cr.left + marge || hr.right > cr.right - marge
+    || hr.top < cr.top + marge || hr.bottom > cr.bottom - marge;
+  if (buitenBeeld) {
+    vp.offsetX += (cr.left + cr.width / 2) - (hr.left + hr.width / 2);
+    vp.offsetY += (cr.top + cr.height / 2) - (hr.top + hr.height / 2);
+    vp.dirty = true;
   }
+  return true;
 }
 
 /**
@@ -337,6 +435,17 @@ function scrollToMatch(result) {
  */
 function updateUI() {
   const { results, currentIndex, totalMatches, query } = state.search;
+  publiceerResultatenlijst();
+  const bronnenUit = state.search.sources
+    && !state.search.sources.tekst && !state.search.sources.annotaties;
+  setSourcesOff(!!bronnenUit);
+  if (bronnenUit) {
+    setResultsText('');
+    setMessageText('');
+    setNotFound(false);
+    setNavDisabled(true);
+    return;
+  }
 
   // Update results count
   if (totalMatches > 0) {
@@ -398,70 +507,107 @@ export function highlightResults() {
  * Highlight search results on a page.
  *
  * Highlights are positioned from the matched items' own PDF-space geometry
- * (transform/width/height captured at text extraction), NOT from measuring
- * DOM spans. The three text-layer builders (custom single-page PDF.js,
- * stock PDF.js TextLayer in continuous mode, Rust-extracted spans in vector
- * mode) produce different span structures — only one of them carries
- * data-item-index — so any DOM-based lookup breaks on the other two.
- * Item geometry is layer-type independent, and because the rects live in
- * layer-local coordinates they ride along with the viewport's zoom
- * transform instead of needing re-measurement.
+ * (transform/width captured at text extraction), NOT from measuring DOM
+ * spans: the text-layer builders (PDF.js layer on a single page, stock
+ * PDF.js TextLayer in continuous mode, Rust-extracted spans in vector mode)
+ * produce different span structures.
+ *
+ * All of those layers are laid out in the unrotated page box (origin at the
+ * box's top-left, Y down) and apply rotation + zoom themselves. The rects are
+ * therefore set in PERCENT of that box (see match-rect.js), like PDF.js does
+ * for its spans: no layer scale or layer height is read. Those values were
+ * unreliable right after a (re)build — the scale came from an ancestor and
+ * the height from the container until the viewport sync ran — which put the
+ * highlights at the wrong spot and size.
  */
 function highlightMatch(result, isCurrent) {
-  if (!result || !result.items || result.items.length === 0) return;
+  if (!result) return;
+  const view = result.pageView;
+  if (!view) return;
 
   const pageNum = result.pageNum;
   const doc = getActiveDocument();
-
-  // Get the text layer for this page
-  let textLayer;
-  if (doc?.viewMode === 'continuous') {
-    const wrapper = document.querySelector(`.page-wrapper[data-page="${pageNum}"]`);
-    textLayer = wrapper?.querySelector('.textLayer');
-  } else {
-    if (doc && doc.currentPage !== pageNum) return;
-    textLayer = document.querySelector('.textLayer');
-  }
+  const textLayer = tekstlaagVanPagina(pageNum, doc);
   if (!textLayer) return;
 
-  // Layer-local px per PDF point. Every layer builder sets
-  // --total-scale-factor on the layer or an ancestor: 1 in vector mode
-  // (layout px = PDF pt, zoom applied via CSS transform), viewport.scale
-  // for the PDF.js-built layers (laid out at scaled size).
-  const scale = parseFloat(
-    getComputedStyle(textLayer).getPropertyValue('--total-scale-factor')
-  ) || 1;
-  const pageHeightPt = textLayer.offsetHeight / scale;
+  // Annotatietreffer: een kader om de annotatie zelf; de tekst ervan staat
+  // niet in de tekstlaag, dus er is geen letterpositie om op te mikken.
+  if (result.bron === BRON_ANNOTATIE) {
+    const ann = doc?.annotations?.find(a => a.id === result.annotationId);
+    const doos = ann ? annotationBounds(ann) : null;
+    if (!doos) return;
+    const el = maakMarkering(result, isCurrent);
+    el.classList.add('search-highlight-annotation');
+    const W = view[2] - view[0];
+    const H = view[3] - view[1];
+    el.style.left = (100 * doos.x) / W + '%';
+    el.style.top = (100 * doos.y) / H + '%';
+    el.style.width = (100 * doos.width) / W + '%';
+    el.style.height = (100 * doos.height) / H + '%';
+    el.style.transformOrigin = '0 0';
+    el.style.transform = 'none';
+    textLayer.appendChild(el);
+    return;
+  }
+
+  if (!result.items || result.items.length === 0) return;
 
   for (const item of result.items) {
-    const t = item.transform;
-    if (!t) continue; // synthetic (Add Text) items carry no geometry
+    if (!item.transform) continue; // synthetic (Add Text) items carry no geometry
 
     const startInItem = Math.max(0, result.startPos - item.startPos);
     const endInItem = Math.min(item.str.length, result.endPos - item.startPos);
     if (endInItem <= startInItem) continue;
 
-    // Partial matches inside an item: slice the run width proportionally
-    // by character count. Approximate for proportional fonts, but close
-    // enough for a highlight and independent of DOM/font availability.
-    const len = item.str.length || 1;
-    const itemH = item.height || Math.abs(t[3]) || 10;
-    const itemW = item.width || 0;
-    const x0 = t[4] + itemW * (startInItem / len);
-    const x1 = t[4] + itemW * (endInItem / len);
-    // t[5] is the baseline; ascent ≈ 0.8em above it (same convention the
-    // vector-mode span builder uses), Y flipped into top-left space.
-    const topPt = pageHeightPt - t[5] - itemH * 0.8;
+    const [fracStart, fracEnd] = matchFractions(item.str, startInItem, endInItem, textMeasurer(item));
+    const box = matchBoxInPageFrame(item.transform, item.width, item.height, fracStart, fracEnd, view);
+    if (!box) continue;
+    const pct = boxToLayerPercent(box, view);
 
-    const highlight = document.createElement('div');
-    highlight.className = 'search-highlight' + (isCurrent ? ' current' : '');
-    highlight.dataset.resultIndex = result.index;
-    highlight.style.left = (x0 * scale) + 'px';
-    highlight.style.top = (topPt * scale) + 'px';
-    highlight.style.width = (Math.max(x1 - x0, 2) * scale) + 'px';
-    highlight.style.height = (itemH * scale) + 'px';
+    const highlight = maakMarkering(result, isCurrent);
+    highlight.style.left = pct.left + '%';
+    highlight.style.top = pct.top + '%';
+    highlight.style.width = pct.width + '%';
+    highlight.style.height = pct.height + '%';
+    // Inline transform: the layer's generic span rule would otherwise apply
+    // its scale/rotate variables to this div as well.
+    highlight.style.transformOrigin = '0 0';
+    highlight.style.transform = pct.angle ? `rotate(${pct.angle}rad)` : 'none';
     textLayer.appendChild(highlight);
   }
+}
+
+/** De tekstlaag van een pagina in de huidige weergave. */
+function tekstlaagVanPagina(pageNum, doc) {
+  if (doc?.viewMode === 'continuous') {
+    const wrapper = document.querySelector(`.page-wrapper[data-page="${pageNum}"]`);
+    return wrapper?.querySelector('.textLayer') || null;
+  }
+  if (doc && doc.currentPage !== pageNum) return null;
+  // Scoped: the hidden continuous layers stay in the DOM after a view switch.
+  return document.querySelector('#canvas-container .textLayer');
+}
+
+/** Leeg markeringselement met de juiste klassen. */
+function maakMarkering(result, isCurrent) {
+  const el = document.createElement('div');
+  el.className = 'search-highlight' + (isCurrent ? ' current' : '');
+  el.dataset.resultIndex = result.index;
+  return el;
+}
+
+// Share of a partial match within its run, measured in the run's (generic)
+// font family instead of by character count.
+let _measureCtx = null;
+function textMeasurer(item) {
+  if (typeof document === 'undefined') return null;
+  if (!_measureCtx) _measureCtx = document.createElement('canvas').getContext('2d');
+  if (!_measureCtx) return null;
+  const family = item.fontFamily || 'sans-serif';
+  return (str) => {
+    _measureCtx.font = `100px ${family}`;
+    return _measureCtx.measureText(str).width;
+  };
 }
 
 /**
@@ -554,4 +700,16 @@ export async function onReplaceAll() {
 
 export function handleReplaceInput(value) {
   state.search.replaceQuery = value;
+}
+
+/**
+ * De resultatenlijst onder de zoekbalk: treffers per pagina plus de pagina van
+ * de huidige treffer. Wordt ook tijdens de progressieve zoektocht bijgewerkt,
+ * zodat de lijst meegroeit.
+ */
+function publiceerResultatenlijst() {
+  const { results, currentIndex } = state.search;
+  setResultGroups(groepeerPerPagina(results));
+  const huidig = results[currentIndex];
+  setCurrentResultPage(huidig ? huidig.pageNum : 0);
 }

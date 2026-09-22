@@ -54,6 +54,10 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // General — authorName defaults to '' (resolved to OS username at load time)
   authorName: '',
 
+  // Zoeken: beide bronnen staan standaard aan
+  searchInText: true,
+  searchInAnnotations: true,
+
   // Snapping — 45 means Shift snaps to 0/45/90/135…: horizontaal,
   // verticaal én diagonaal.
   angleSnapDegrees: 45,

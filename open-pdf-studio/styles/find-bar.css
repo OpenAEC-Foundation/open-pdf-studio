@@ -22,6 +22,14 @@
   display: flex;
 }
 
+/* Nooit breder dan het documentvenster: met geopende panelen (of op een klein
+   scherm) liep de balk links het venster uit en waren het begin van het
+   zoekveld en het eerste vinkje niet meer zichtbaar of aanklikbaar. */
+.find-bar {
+  max-width: calc(100% - 24px);
+  box-sizing: border-box;
+}
+
 /* --- Expand/collapse button --- */
 
 .find-expand-btn {
@@ -52,6 +60,7 @@
   flex-direction: column;
   gap: 4px;
   flex: 1;
+  min-width: 0;
 }
 
 .find-row {
@@ -67,7 +76,8 @@
   align-items: center;
   border: 1px solid var(--theme-border, #d4d4d4);
   background: var(--theme-bg, #ffffff);
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-width: 90px;
   height: 24px;
 }
 
@@ -82,6 +92,7 @@
 
 .find-input {
   width: 180px;
+  min-width: 0;
   padding: 0 6px;
   border: none;
   background: transparent;
@@ -224,6 +235,110 @@
   color: #ffffff;
 }
 
+/* --- Zoekbronnen (Tekst / Annotaties) --- */
+
+.find-sources {
+  gap: 10px;
+  padding: 0 2px;
+}
+
+.find-check {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--theme-text, #333);
+  user-select: none;
+  cursor: default;
+}
+
+.find-check input {
+  width: 13px;
+  height: 13px;
+  margin: 0;
+  cursor: default;
+}
+
+.find-sources-hint {
+  font-size: 10px;
+  color: var(--theme-text-secondary, #888);
+  white-space: nowrap;
+}
+
+/* --- Resultatenlijst per pagina --- */
+
+.find-results {
+  border-top: 1px solid var(--theme-border, #d4d4d4);
+  margin-top: 2px;
+  display: flex;
+  flex-direction: column;
+}
+
+.find-results-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  color: var(--theme-text, #333);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: left;
+  padding: 3px 2px;
+  cursor: default;
+}
+
+.find-results-header:hover {
+  background: var(--theme-hover, #e5e5e5);
+}
+
+.find-results-caret {
+  font-size: 9px;
+  width: 10px;
+  color: var(--theme-text-secondary, #888);
+}
+
+.find-results-list {
+  max-height: 150px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.find-results-row {
+  display: flex;
+  overflow: hidden;
+  align-items: baseline;
+  gap: 6px;
+  border: none;
+  border-left: 3px solid transparent;
+  background: transparent;
+  color: var(--theme-text, #333);
+  font-family: inherit;
+  font-size: 11px;
+  text-align: left;
+  padding: 2px 6px 2px 4px;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.find-results-row:hover {
+  background: var(--theme-hover, #e5e5e5);
+}
+
+.find-results-row.current {
+  border-left-color: #ff8c00;
+  background: rgba(255, 165, 0, 0.14);
+  font-weight: 600;
+}
+
+.find-results-count,
+.find-results-kinds {
+  color: var(--theme-text-secondary, #888);
+  font-weight: normal;
+}
+
 /* --- Not found message (shown below the bar) --- */
 
 .find-message {
@@ -253,4 +368,17 @@
 .search-highlight.current {
   background-color: rgba(255, 165, 0, 0.6);
   outline: 2px solid #ff8c00;
+}
+
+/* Annotatietreffer: een kader om de annotatie in plaats van een vlak over de
+   letters — de tekst van een annotatie staat niet in de tekstlaag. */
+.search-highlight-annotation {
+  background-color: rgba(255, 255, 0, 0.18);
+  outline: 2px solid rgba(214, 187, 0, 0.9);
+  outline-offset: 1px;
+}
+
+.search-highlight-annotation.current {
+  background-color: rgba(255, 165, 0, 0.25);
+  outline-color: #ff8c00;
 }

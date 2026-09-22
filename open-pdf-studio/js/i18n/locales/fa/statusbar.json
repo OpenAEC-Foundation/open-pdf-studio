@@ -88,5 +88,12 @@
       "doneAll": "{{count}} کلمه در {{pages}} صفحه تشخیص داده شد",
       "failed": "تشخیص متن ناموفق بود"
     }
-  }
+  },
+  "searchInText": "متن",
+  "searchInAnnotations": "حاشیه‌نویسی‌ها",
+  "searchNoSources": "متن یا حاشیه‌نویسی‌ها را انتخاب کنید",
+  "searchResultsTitle": "نتایج ({{count}})",
+  "searchResultPage": "صفحه {{page}}",
+  "searchHitsOne": "1 مورد",
+  "searchHitsMany": "{{count}} مورد"
 }

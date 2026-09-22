@@ -98,6 +98,18 @@ export {
   setReplaceMode as setFindBarReplaceMode,
   replaceText as findBarReplaceText,
   setReplaceText as setFindBarReplaceText,
+  searchInText as findBarSearchInText,
+  setSearchInText as setFindBarSearchInText,
+  searchInAnnotations as findBarSearchInAnnotations,
+  setSearchInAnnotations as setFindBarSearchInAnnotations,
+  resultGroups as findBarResultGroups,
+  setResultGroups as setFindBarResultGroups,
+  resultsOpen as findBarResultsOpen,
+  setResultsOpen as setFindBarResultsOpen,
+  currentResultPage as findBarCurrentResultPage,
+  setCurrentResultPage as setFindBarCurrentResultPage,
+  sourcesOff as findBarSourcesOff,
+  setSourcesOff as setFindBarSourcesOff,
 } from './solid/stores/findBarStore.js';
 
 // ============= LOADING OVERLAY =============

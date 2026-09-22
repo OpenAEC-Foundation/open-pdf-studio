@@ -89,5 +89,12 @@
       "doneAll": "Tunnistettuja sanoja: {{count}} ({{pages}} sivua)",
       "failed": "Tekstintunnistus epäonnistui"
     }
-  }
+  },
+  "searchInText": "Teksti",
+  "searchInAnnotations": "Merkinnät",
+  "searchNoSources": "Valitse Teksti tai Merkinnät",
+  "searchResultsTitle": "Tulokset ({{count}})",
+  "searchResultPage": "Sivu {{page}}",
+  "searchHitsOne": "1 osuma",
+  "searchHitsMany": "{{count}} osumaa"
 }

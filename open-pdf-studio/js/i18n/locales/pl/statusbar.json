@@ -88,5 +88,12 @@
       "doneAll": "Rozpoznane słowa: {{count}} na {{pages}} stronach",
       "failed": "Rozpoznawanie tekstu nie powiodło się"
     }
-  }
+  },
+  "searchInText": "Tekst",
+  "searchInAnnotations": "Adnotacje",
+  "searchNoSources": "Wybierz Tekst lub Adnotacje",
+  "searchResultsTitle": "Wyniki ({{count}})",
+  "searchResultPage": "Strona {{page}}",
+  "searchHitsOne": "1 dopasowanie",
+  "searchHitsMany": "Dopasowania: {{count}}"
 }

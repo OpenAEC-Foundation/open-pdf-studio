@@ -5,6 +5,7 @@
  */
 
 import { state, getActiveDocument } from '../core/state.js';
+import { BRON_TEKST, zoekInAnnotaties } from './search-sources.js';
 
 // Cache for extracted text content per document
 const textCache = new Map();
@@ -30,6 +31,7 @@ async function extractPageText(pdfDoc, pageNum, doc) {
   // span.dataset.itemIndex = i (position in the filtered array).
   // We must use the SAME index so our itemIndex matches the DOM.
   const textItems = textContent.items.filter(item => item.str !== undefined);
+  const styles = textContent.styles || {};
 
   textItems.forEach((item, i) => {
     if (item.str) {
@@ -41,6 +43,9 @@ async function extractPageText(pdfDoc, pageNum, doc) {
         width: item.width,
         height: item.height,
         fontName: item.fontName || '',
+        // Generic family pdf.js assigns to the font; used to measure the
+        // share of a partial match within the run.
+        fontFamily: styles[item.fontName]?.fontFamily || '',
         // This matches span.dataset.itemIndex in text-layer.js line 212
         itemIndex: i
       });
@@ -74,7 +79,9 @@ async function extractPageText(pdfDoc, pageNum, doc) {
     }
   }
 
-  return { pageNum, text: pageText, items };
+  // Page box (MediaBox/CropBox in user space). The text layers are laid out
+  // in this box, so match highlights are positioned relative to it.
+  return { pageNum, text: pageText, items, view: Array.isArray(page.view) ? [...page.view] : null };
 }
 
 /**
@@ -114,7 +121,7 @@ export function clearTextCache(docId) {
  * Search a single page's text data and return matches
  */
 function searchPage(pageData, pattern, query) {
-  const { pageNum, text, items } = pageData;
+  const { pageNum, text, items, view } = pageData;
   const results = [];
 
   pattern.lastIndex = 0;
@@ -134,10 +141,12 @@ function searchPage(pageData, pattern, query) {
       const anchor = matchItems.find(item => item.transform);
       results.push({
         pageNum,
+        bron: BRON_TEKST,
         startPos,
         endPos,
         matchText: text.substring(startPos, endPos),
         items: matchItems,
+        pageView: view || null,
         anchorX: anchor ? anchor.transform[4] : null,
         anchorY: anchor ? anchor.transform[5] : null,
         index: 0 // will be re-indexed later
@@ -170,6 +179,27 @@ function compareResultsVisually(a, b) {
   return a.startPos - b.startPos;
 }
 
+/** De aangevinkte zoekbronnen (ontbreekt de instelling, dan beide). */
+export function zoekBronnen() {
+  const s = state.search.sources;
+  return { tekst: s ? s.tekst !== false : true, annotaties: s ? s.annotaties !== false : true };
+}
+
+/**
+ * Treffers van één pagina uit alle aangevinkte bronnen, in leesvolgorde.
+ * De annotatietreffers komen uit doc.annotations; die staan al in het
+ * geheugen, dus daar hoeft geen pagina voor te worden ingelezen.
+ */
+function zoekPaginaAlleBronnen(pageData, pattern, query, doc, bronnen) {
+  const uit = [];
+  if (bronnen.tekst && pageData) uit.push(...searchPage(pageData, pattern, query));
+  if (bronnen.annotaties) {
+    uit.push(...zoekInAnnotaties(doc?.annotations, pageData.pageNum, pattern, pageData.view));
+  }
+  uit.sort(compareResultsVisually);
+  return uit;
+}
+
 /**
  * Build the search regex from query and options
  */
@@ -190,12 +220,14 @@ export async function performSearch(query, options = {}) {
   state.search.isSearching = true;
 
   try {
-    const pagesText = await extractAllText(getActiveDocument().pdfDoc);
+    const doc = getActiveDocument();
+    const bronnen = zoekBronnen();
+    const pagesText = await extractAllText(doc.pdfDoc);
     const pattern = buildPattern(query, matchCase, wholeWord);
     const results = [];
 
     for (const pageData of pagesText) {
-      results.push(...searchPage(pageData, pattern, query));
+      results.push(...zoekPaginaAlleBronnen(pageData, pattern, query, doc, bronnen));
     }
 
     results.sort(compareResultsVisually);
@@ -220,11 +252,18 @@ export function executeProgressiveSearch(onProgress) {
     return () => {};
   }
 
+  // Geen enkele bron aangevinkt: niets te zoeken — meteen klaar, geen fout.
+  if (!zoekBronnen().tekst && !zoekBronnen().annotaties) {
+    onProgress([], 0, 0, true);
+    return () => {};
+  }
+
   const generation = ++_searchGeneration;
   const pdfDoc = doc.pdfDoc;
   const totalPages = pdfDoc.numPages;
   const currentPage = doc.currentPage || 1;
   const pattern = buildPattern(query, matchCase, wholeWord);
+  const bronnen = zoekBronnen();
   const docId = doc.id;
   const hasTextEdits = doc.textEdits?.length > 0;
 
@@ -257,7 +296,19 @@ export function executeProgressiveSearch(onProgress) {
 
       if (cancelled || generation !== _searchGeneration) return;
 
-      const pageResults = searchPage(pageData, pattern, query);
+      // Annotaties worden per pagina op aanvraag geladen; zonder deze stap
+      // mist de zoektocht de annotaties van nog niet bezochte pagina's.
+      if (bronnen.annotaties) {
+        try {
+          const { ensureAnnotationsForPage } = await import('../pdf/loader.js');
+          await ensureAnnotationsForPage(pageNum, doc);
+        } catch (e) {
+          console.warn('[zoeken] annotaties van pagina', pageNum, 'niet geladen:', e);
+        }
+        if (cancelled || generation !== _searchGeneration) return;
+      }
+
+      const pageResults = zoekPaginaAlleBronnen(pageData, pattern, query, doc, bronnen);
       for (const r of pageResults) {
         r.index = allResults.length;
         allResults.push(r);
@@ -363,6 +414,11 @@ export function didSearchWrap(direction) {
 // ==================== Replace helpers ====================
 
 function findAnnotationForMatch(doc, result) {
+  // Annotatietreffers dragen hun eigen id; de tekstzoektocht valt terug op de
+  // eerste annotatie op die pagina met dezelfde tekst.
+  if (result.annotationId) {
+    return doc.annotations.find(a => a.id === result.annotationId) || null;
+  }
   return doc.annotations.find(a => {
     if (!a.text || a.page !== result.pageNum) return false;
     return a.text.includes(result.matchText);

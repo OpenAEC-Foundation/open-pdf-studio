@@ -89,5 +89,12 @@
       "doneAll": "{{count}} ord igenkända på {{pages}} sidor",
       "failed": "Textigenkänningen misslyckades"
     }
-  }
+  },
+  "searchInText": "Text",
+  "searchInAnnotations": "Anteckningar",
+  "searchNoSources": "Välj Text eller Anteckningar",
+  "searchResultsTitle": "Resultat ({{count}})",
+  "searchResultPage": "Sida {{page}}",
+  "searchHitsOne": "1 träff",
+  "searchHitsMany": "{{count}} träffar"
 }

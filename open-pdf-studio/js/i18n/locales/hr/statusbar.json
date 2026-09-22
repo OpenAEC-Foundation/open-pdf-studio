@@ -89,5 +89,12 @@
       "doneAll": "Prepoznato riječi: {{count}} na {{pages}} stranica",
       "failed": "Prepoznavanje teksta nije uspjelo"
     }
-  }
+  },
+  "searchInText": "Tekst",
+  "searchInAnnotations": "Oznake",
+  "searchNoSources": "Odaberite Tekst ili Oznake",
+  "searchResultsTitle": "Rezultati ({{count}})",
+  "searchResultPage": "Stranica {{page}}",
+  "searchHitsOne": "1 podudaranje",
+  "searchHitsMany": "Podudaranja: {{count}}"
 }

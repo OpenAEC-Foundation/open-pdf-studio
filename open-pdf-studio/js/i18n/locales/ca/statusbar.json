@@ -89,5 +89,12 @@
       "doneAll": "S'han reconegut {{count}} paraules en {{pages}} pàgines",
       "failed": "El reconeixement de text ha fallat"
     }
-  }
+  },
+  "searchInText": "Text",
+  "searchInAnnotations": "Anotacions",
+  "searchNoSources": "Seleccioneu Text o Anotacions",
+  "searchResultsTitle": "Resultats ({{count}})",
+  "searchResultPage": "Pàgina {{page}}",
+  "searchHitsOne": "1 coincidència",
+  "searchHitsMany": "{{count}} coincidències"
 }

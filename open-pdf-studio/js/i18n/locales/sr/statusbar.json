@@ -89,5 +89,12 @@
       "doneAll": "Препознато речи: {{count}} на {{pages}} страница",
       "failed": "Препознавање текста није успело"
     }
-  }
+  },
+  "searchInText": "Текст",
+  "searchInAnnotations": "Анотације",
+  "searchNoSources": "Изаберите Текст или Анотације",
+  "searchResultsTitle": "Резултати ({{count}})",
+  "searchResultPage": "Страница {{page}}",
+  "searchHitsOne": "1 подударање",
+  "searchHitsMany": "Подударања: {{count}}"
 }

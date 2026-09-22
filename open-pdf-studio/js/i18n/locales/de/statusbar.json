@@ -88,5 +88,12 @@
       "doneAll": "{{count}} Wörter auf {{pages}} Seiten erkannt",
       "failed": "Texterkennung fehlgeschlagen"
     }
-  }
+  },
+  "searchInText": "Text",
+  "searchInAnnotations": "Anmerkungen",
+  "searchNoSources": "Text oder Anmerkungen auswählen",
+  "searchResultsTitle": "Ergebnisse ({{count}})",
+  "searchResultPage": "Seite {{page}}",
+  "searchHitsOne": "1 Treffer",
+  "searchHitsMany": "{{count}} Treffer"
 }

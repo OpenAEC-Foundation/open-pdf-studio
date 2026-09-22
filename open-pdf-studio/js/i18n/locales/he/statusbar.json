@@ -89,5 +89,12 @@
       "doneAll": "זוהו {{count}} מילים ב-{{pages}} עמודים",
       "failed": "זיהוי הטקסט נכשל"
     }
-  }
+  },
+  "searchInText": "טקסט",
+  "searchInAnnotations": "הערות",
+  "searchNoSources": "בחר טקסט או הערות",
+  "searchResultsTitle": "תוצאות ({{count}})",
+  "searchResultPage": "עמוד {{page}}",
+  "searchHitsOne": "תוצאה אחת",
+  "searchHitsMany": "{{count}} תוצאות"
 }

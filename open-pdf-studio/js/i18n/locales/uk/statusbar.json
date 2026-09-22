@@ -89,5 +89,12 @@
       "doneAll": "Розпізнано слів: {{count}}, сторінок: {{pages}}",
       "failed": "Не вдалося розпізнати текст"
     }
-  }
+  },
+  "searchInText": "Текст",
+  "searchInAnnotations": "Анотації",
+  "searchNoSources": "Виберіть Текст або Анотації",
+  "searchResultsTitle": "Результати ({{count}})",
+  "searchResultPage": "Сторінка {{page}}",
+  "searchHitsOne": "1 збіг",
+  "searchHitsMany": "Збігів: {{count}}"
 }

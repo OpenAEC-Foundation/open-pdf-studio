@@ -89,5 +89,12 @@
       "doneAll": "Rozpoznané slová: {{count}} na {{pages}} stranách",
       "failed": "Rozpoznávanie textu zlyhalo"
     }
-  }
+  },
+  "searchInText": "Text",
+  "searchInAnnotations": "Anotácie",
+  "searchNoSources": "Vyberte Text alebo Anotácie",
+  "searchResultsTitle": "Výsledky ({{count}})",
+  "searchResultPage": "Strana {{page}}",
+  "searchHitsOne": "1 zhoda",
+  "searchHitsMany": "Zhôd: {{count}}"
 }

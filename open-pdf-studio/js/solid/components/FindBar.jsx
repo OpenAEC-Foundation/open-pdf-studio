@@ -1,12 +1,26 @@
-import { createEffect, createSignal } from 'solid-js';
+import { createEffect, createSignal, For, Show } from 'solid-js';
 import {
   visible, resultsText, messageText, notFound, navDisabled, searching,
+  searchInText, searchInAnnotations, resultGroups, resultsOpen, setResultsOpen,
+  currentResultPage, sourcesOff,
 } from '../stores/findBarStore.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 
 export default function FindBar() {
   const { t } = useTranslation('statusbar');
+  const { t: tType } = useTranslation('properties');
   let inputRef;
+
+  const totaalTreffers = () => resultGroups().reduce((som, g) => som + g.totaal, 0);
+  const soortenTekst = (g) => g.soorten.map((soort) => tType(`types.${soort}`, soort)).join(', ');
+  const wisselBron = (welke) => {
+    const bronnen = { tekst: searchInText(), annotaties: searchInAnnotations() };
+    bronnen[welke] = !bronnen[welke];
+    import('../../search/find-bar.js').then(m => m.onSourcesChange(bronnen));
+  };
+  const naarPagina = (g) => {
+    import('../../search/find-bar.js').then(m => m.goToResultIndex(g.eersteIndex));
+  };
 
   const [matchCase, setMatchCase] = createSignal(false);
   const [wholeWord, setWholeWord] = createSignal(false);
@@ -151,6 +165,57 @@ export default function FindBar() {
             </svg>
           </button>
         </div>
+
+        {/* Rij 2: zoekbronnen */}
+        <div class="find-row find-sources">
+          <label class="find-check">
+            <input type="checkbox" checked={searchInText()} onChange={() => wisselBron('tekst')} />
+            {t('searchInText')}
+          </label>
+          <label class="find-check">
+            <input type="checkbox" checked={searchInAnnotations()} onChange={() => wisselBron('annotaties')} />
+            {t('searchInAnnotations')}
+          </label>
+          <Show when={sourcesOff()}>
+            <span class="find-sources-hint">{t('searchNoSources')}</span>
+          </Show>
+        </div>
+
+        {/* Rij 3: treffers per pagina */}
+        <Show when={resultGroups().length > 0}>
+          <div class="find-results">
+            <button
+              class="find-results-header"
+              title={t('searchResultsTitle', { count: totaalTreffers() })}
+              onClick={() => setResultsOpen(!resultsOpen())}
+            >
+              <span class="find-results-caret">{resultsOpen() ? '▾' : '▸'}</span>
+              {t('searchResultsTitle', { count: totaalTreffers() })}
+            </button>
+            <Show when={resultsOpen()}>
+              <div class="find-results-list">
+                <For each={resultGroups()}>{(g) => (
+                  <button
+                    class="find-results-row"
+                    classList={{ current: g.pagina === currentResultPage() }}
+                    data-page={g.pagina}
+                    data-count={g.totaal}
+                    data-annotations={g.annotaties}
+                    onClick={() => naarPagina(g)}
+                  >
+                    <span class="find-results-page">{t('searchResultPage', { page: g.pagina })}</span>
+                    <span class="find-results-count">
+                      {g.totaal === 1 ? t('searchHitsOne') : t('searchHitsMany', { count: g.totaal })}
+                    </span>
+                    <Show when={g.soorten.length > 0}>
+                      <span class="find-results-kinds">{soortenTekst(g)}</span>
+                    </Show>
+                  </button>
+                )}</For>
+              </div>
+            </Show>
+          </div>
+        </Show>
 
       </div>
 

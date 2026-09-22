@@ -97,5 +97,12 @@
       "doneAll": "{{count}} woorden herkend op {{pages}} pagina's",
       "failed": "Tekstherkenning mislukt"
     }
-  }
+  },
+  "searchInText": "Tekst",
+  "searchInAnnotations": "Annotaties",
+  "searchNoSources": "Kies Tekst of Annotaties",
+  "searchResultsTitle": "Resultaten ({{count}})",
+  "searchResultPage": "Pagina {{page}}",
+  "searchHitsOne": "1 treffer",
+  "searchHitsMany": "{{count}} treffers"
 }

@@ -89,5 +89,12 @@
       "doneAll": "{{count}} ord gjenkjent på {{pages}} sider",
       "failed": "Tekstgjenkjenning mislyktes"
     }
-  }
+  },
+  "searchInText": "Tekst",
+  "searchInAnnotations": "Merknader",
+  "searchNoSources": "Velg Tekst eller Merknader",
+  "searchResultsTitle": "Resultater ({{count}})",
+  "searchResultPage": "Side {{page}}",
+  "searchHitsOne": "1 treff",
+  "searchHitsMany": "{{count}} treff"
 }

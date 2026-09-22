@@ -19,6 +19,13 @@
   --min-font-size: 1;
   --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));
   --min-font-size-inv: calc(1 / var(--min-font-size));
+  /* PDF.js sizes the layer as round(down, var(--total-scale-factor) * page,
+     var(--scale-round-x/y)). Without these the declaration is invalid and the
+     layer fell back to inset:0, i.e. the container's (already rotated) box: on
+     a page turned 90/270 degrees the spans and search highlights then landed
+     beside the text. */
+  --scale-round-x: 1px;
+  --scale-round-y: 1px;
 }
 
 /* PDF.js lays out text in the page's original coordinate frame. Rotate the
