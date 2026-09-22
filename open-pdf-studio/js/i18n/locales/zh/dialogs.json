@@ -68,7 +68,19 @@
     "paperFallback": "纸张：{{paper}}（此打印机不支持 {{requested}}）",
     "pageSizeLabel": "页面：{{size}}",
     "pageClipped": "页面超出纸张，超出部分将被裁掉。",
-    "pageOutsidePrintable": "页面的一部分超出打印机的可打印区域。"
+    "pageOutsidePrintable": "页面的一部分超出打印机的可打印区域。",
+    "saveAsPdf": "保存为 PDF",
+    "sheetPortrait": "{{paper}} 纵向",
+    "sheetLandscape": "{{paper}} 横向",
+    "autoRotateOverrides": "自动旋转会覆盖所选方向（{{orientation}}）。",
+    "filePrinterHint": "此打印机输出到文件。“保存为 PDF”会保留纸张方向，文字和线条仍为矢量。",
+    "targetIsOpenFile": "该文件已在应用中打开。请选择其他名称。",
+    "fileSuffix": " - 打印",
+    "progress": {
+      "savedTo": "已保存：{{path}}",
+      "savedAsImages": "已保存，页面为图像：{{path}}",
+      "saveFailed": "保存失败：{{error}}"
+    }
   },
   "insertPage": {
     "title": "插入页面",

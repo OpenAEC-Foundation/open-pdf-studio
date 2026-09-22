@@ -68,7 +68,19 @@
     "paperFallback": "Papel: {{paper}} ({{requested}} no está disponible en esta impresora)",
     "pageSizeLabel": "Página: {{size}}",
     "pageClipped": "La página no cabe en el papel y se recortará.",
-    "pageOutsidePrintable": "Una parte de la página queda fuera del área imprimible de la impresora."
+    "pageOutsidePrintable": "Una parte de la página queda fuera del área imprimible de la impresora.",
+    "saveAsPdf": "Guardar como PDF",
+    "sheetPortrait": "{{paper}} vertical",
+    "sheetLandscape": "{{paper}} horizontal",
+    "autoRotateOverrides": "Rotar automáticamente anula la orientación elegida ({{orientation}}).",
+    "filePrinterHint": "Esta impresora escribe en un archivo. \"Guardar como PDF\" conserva la orientación de la hoja, y el texto y las líneas siguen siendo vectores.",
+    "targetIsOpenFile": "Ese archivo está abierto en la aplicación. Elija otro nombre.",
+    "fileSuffix": " - impresión",
+    "progress": {
+      "savedTo": "Guardado: {{path}}",
+      "savedAsImages": "Guardado, páginas como imágenes: {{path}}",
+      "saveFailed": "Error al guardar: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Insertar páginas",

@@ -68,7 +68,19 @@
     "paperFallback": "Papier: {{paper}} ({{requested}} nie je na tejto tlačiarni k dispozícii)",
     "pageSizeLabel": "Strana: {{size}}",
     "pageClipped": "Strana sa nezmestí na papier a bude orezaná.",
-    "pageOutsidePrintable": "Časť strany je mimo tlačiteľnej oblasti tlačiarne."
+    "pageOutsidePrintable": "Časť strany je mimo tlačiteľnej oblasti tlačiarne.",
+    "saveAsPdf": "Uložiť ako PDF",
+    "sheetPortrait": "{{paper}} na výšku",
+    "sheetLandscape": "{{paper}} na šírku",
+    "autoRotateOverrides": "Automatické otáčanie má prednosť pred zvolenou orientáciou ({{orientation}}).",
+    "filePrinterHint": "Táto tlačiareň zapisuje do súboru. „Uložiť ako PDF“ zachová orientáciu hárka a text aj čiary zostanú vektorové.",
+    "targetIsOpenFile": "Tento súbor je v aplikácii otvorený. Zvoľte iný názov.",
+    "fileSuffix": " - tlač",
+    "progress": {
+      "savedTo": "Uložené: {{path}}",
+      "savedAsImages": "Uložené, strany ako obrázky: {{path}}",
+      "saveFailed": "Uloženie zlyhalo: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Vložiť strany",

@@ -68,7 +68,19 @@
     "paperFallback": "Papier : {{paper}} ({{requested}} n'est pas disponible sur cette imprimante)",
     "pageSizeLabel": "Page : {{size}}",
     "pageClipped": "La page ne tient pas sur le papier et sera rognée.",
-    "pageOutsidePrintable": "Une partie de la page se trouve en dehors de la zone imprimable de l'imprimante."
+    "pageOutsidePrintable": "Une partie de la page se trouve en dehors de la zone imprimable de l'imprimante.",
+    "saveAsPdf": "Enregistrer en PDF",
+    "sheetPortrait": "{{paper}} portrait",
+    "sheetLandscape": "{{paper}} paysage",
+    "autoRotateOverrides": "La rotation automatique l'emporte sur l'orientation choisie ({{orientation}}).",
+    "filePrinterHint": "Cette imprimante écrit dans un fichier. « Enregistrer en PDF » conserve l'orientation de la feuille, et le texte et les traits restent vectoriels.",
+    "targetIsOpenFile": "Ce fichier est ouvert dans l'application. Choisissez un autre nom.",
+    "fileSuffix": " - impression",
+    "progress": {
+      "savedTo": "Enregistré : {{path}}",
+      "savedAsImages": "Enregistré, pages en images : {{path}}",
+      "saveFailed": "Échec de l'enregistrement : {{error}}"
+    }
   },
   "insertPage": {
     "title": "Insérer des pages",

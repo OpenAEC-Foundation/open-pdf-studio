@@ -109,8 +109,18 @@
       "failed": "Afdrukken mislukt: {{error}}",
       "failedGeneric": "Afdrukken mislukt",
       "errNoDocument": "geen document",
-      "errTempFile": "kon tijdelijk bestand niet maken"
-    }
+      "errTempFile": "kon tijdelijk bestand niet maken",
+      "savedTo": "Opgeslagen: {{path}}",
+      "savedAsImages": "Opgeslagen, pagina's als afbeelding: {{path}}",
+      "saveFailed": "Opslaan mislukt: {{error}}"
+    },
+    "saveAsPdf": "Opslaan als PDF",
+    "sheetPortrait": "{{paper}} staand",
+    "sheetLandscape": "{{paper}} liggend",
+    "autoRotateOverrides": "Automatisch draaien overstemt de gekozen stand ({{orientation}}).",
+    "filePrinterHint": "Deze printer schrijft naar een bestand. \"Opslaan als PDF\" behoudt de stand van het vel, en tekst en lijnen blijven vectoren.",
+    "targetIsOpenFile": "Dat bestand staat open in de app. Kies een andere naam.",
+    "fileSuffix": " - afdruk"
   },
   "insertPage": {
     "title": "Pagina's invoegen",

@@ -68,7 +68,19 @@
     "paperFallback": "Папір: {{paper}} ({{requested}} недоступний на цьому принтері)",
     "pageSizeLabel": "Сторінка: {{size}}",
     "pageClipped": "Сторінка не вміщується на папері й буде обрізана.",
-    "pageOutsidePrintable": "Частина сторінки виходить за межі області друку принтера."
+    "pageOutsidePrintable": "Частина сторінки виходить за межі області друку принтера.",
+    "saveAsPdf": "Зберегти як PDF",
+    "sheetPortrait": "{{paper}} книжкова",
+    "sheetLandscape": "{{paper}} альбомна",
+    "autoRotateOverrides": "Автоповорот скасовує вибрану орієнтацію ({{orientation}}).",
+    "filePrinterHint": "Цей принтер записує у файл. «Зберегти як PDF» зберігає орієнтацію аркуша, а текст і лінії залишаються векторними.",
+    "targetIsOpenFile": "Цей файл відкрито в застосунку. Виберіть іншу назву.",
+    "fileSuffix": " - друк",
+    "progress": {
+      "savedTo": "Збережено: {{path}}",
+      "savedAsImages": "Збережено, сторінки як зображення: {{path}}",
+      "saveFailed": "Помилка збереження: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Вставити сторінки",

@@ -68,7 +68,19 @@
     "paperFallback": "กระดาษ: {{paper}} ({{requested}} ไม่พร้อมใช้งานบนเครื่องพิมพ์นี้)",
     "pageSizeLabel": "หน้า: {{size}}",
     "pageClipped": "หน้านี้ไม่พอดีกับกระดาษและจะถูกตัดออก",
-    "pageOutsidePrintable": "บางส่วนของหน้าอยู่นอกพื้นที่พิมพ์ได้ของเครื่องพิมพ์"
+    "pageOutsidePrintable": "บางส่วนของหน้าอยู่นอกพื้นที่พิมพ์ได้ของเครื่องพิมพ์",
+    "saveAsPdf": "บันทึกเป็น PDF",
+    "sheetPortrait": "{{paper}} แนวตั้ง",
+    "sheetLandscape": "{{paper}} แนวนอน",
+    "autoRotateOverrides": "หมุนอัตโนมัติจะแทนที่แนวที่เลือกไว้ ({{orientation}})",
+    "filePrinterHint": "เครื่องพิมพ์นี้เขียนลงไฟล์ \"บันทึกเป็น PDF\" จะคงแนวของแผ่นไว้ และข้อความกับเส้นยังคงเป็นเวกเตอร์",
+    "targetIsOpenFile": "ไฟล์นั้นเปิดอยู่ในแอป โปรดเลือกชื่ออื่น",
+    "fileSuffix": " - พิมพ์",
+    "progress": {
+      "savedTo": "บันทึกแล้ว: {{path}}",
+      "savedAsImages": "บันทึกแล้ว หน้าเป็นรูปภาพ: {{path}}",
+      "saveFailed": "บันทึกล้มเหลว: {{error}}"
+    }
   },
   "insertPage": {
     "title": "แทรกหน้า",

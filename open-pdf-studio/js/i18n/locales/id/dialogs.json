@@ -68,7 +68,19 @@
     "paperFallback": "Kertas: {{paper}} ({{requested}} tidak tersedia di printer ini)",
     "pageSizeLabel": "Halaman: {{size}}",
     "pageClipped": "Halaman tidak muat di kertas dan akan terpotong.",
-    "pageOutsidePrintable": "Sebagian halaman berada di luar area cetak printer."
+    "pageOutsidePrintable": "Sebagian halaman berada di luar area cetak printer.",
+    "saveAsPdf": "Simpan sebagai PDF",
+    "sheetPortrait": "{{paper}} potret",
+    "sheetLandscape": "{{paper}} lanskap",
+    "autoRotateOverrides": "Putar Otomatis mengesampingkan orientasi yang dipilih ({{orientation}}).",
+    "filePrinterHint": "Printer ini menulis ke berkas. \"Simpan sebagai PDF\" mempertahankan orientasi lembar, dan teks serta garis tetap vektor.",
+    "targetIsOpenFile": "Berkas itu sedang terbuka di aplikasi. Pilih nama lain.",
+    "fileSuffix": " - cetak",
+    "progress": {
+      "savedTo": "Disimpan: {{path}}",
+      "savedAsImages": "Disimpan, halaman sebagai gambar: {{path}}",
+      "saveFailed": "Gagal menyimpan: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Sisipkan Halaman",

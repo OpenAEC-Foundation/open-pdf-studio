@@ -68,7 +68,19 @@
     "paperFallback": "کاغذ: {{paper}} ({{requested}} اس پرنٹر پر دستیاب نہیں ہے)",
     "pageSizeLabel": "صفحہ: {{size}}",
     "pageClipped": "صفحہ کاغذ پر پورا نہیں آتا اور کٹ جائے گا۔",
-    "pageOutsidePrintable": "صفحے کا ایک حصہ پرنٹر کے قابلِ طباعت علاقے سے باہر ہے۔"
+    "pageOutsidePrintable": "صفحے کا ایک حصہ پرنٹر کے قابلِ طباعت علاقے سے باہر ہے۔",
+    "saveAsPdf": "PDF کے طور پر محفوظ کریں",
+    "sheetPortrait": "{{paper}} عمودی",
+    "sheetLandscape": "{{paper}} افقی",
+    "autoRotateOverrides": "خودکار گھماؤ منتخب کردہ سمت ({{orientation}}) کو نظرانداز کرتا ہے۔",
+    "filePrinterHint": "یہ پرنٹر فائل میں لکھتا ہے۔ \"PDF کے طور پر محفوظ کریں\" شیٹ کی سمت برقرار رکھتا ہے اور متن اور لکیریں ویکٹر رہتی ہیں۔",
+    "targetIsOpenFile": "یہ فائل ایپ میں کھلی ہے۔ کوئی اور نام منتخب کریں۔",
+    "fileSuffix": " - پرنٹ",
+    "progress": {
+      "savedTo": "محفوظ ہو گیا: {{path}}",
+      "savedAsImages": "محفوظ ہو گیا، صفحات تصاویر کے طور پر: {{path}}",
+      "saveFailed": "محفوظ کرنا ناکام: {{error}}"
+    }
   },
   "insertPage": {
     "title": "صفحات داخل کریں",

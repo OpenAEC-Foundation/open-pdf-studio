@@ -109,8 +109,18 @@
       "failed": "Printing failed: {{error}}",
       "failedGeneric": "Printing failed",
       "errNoDocument": "no document open",
-      "errTempFile": "could not create temporary file"
-    }
+      "errTempFile": "could not create temporary file",
+      "savedTo": "Saved: {{path}}",
+      "savedAsImages": "Saved, pages as images: {{path}}",
+      "saveFailed": "Saving failed: {{error}}"
+    },
+    "saveAsPdf": "Save as PDF",
+    "sheetPortrait": "{{paper}} portrait",
+    "sheetLandscape": "{{paper}} landscape",
+    "autoRotateOverrides": "Auto-Rotate overrides the chosen orientation ({{orientation}}).",
+    "filePrinterHint": "This printer writes to a file. \"Save as PDF\" keeps the sheet orientation, and text and lines stay vectors.",
+    "targetIsOpenFile": "That file is open in the app. Choose another name.",
+    "fileSuffix": " - print"
   },
   "insertPage": {
     "title": "Insert Pages",

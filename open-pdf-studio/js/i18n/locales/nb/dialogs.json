@@ -68,7 +68,19 @@
     "paperFallback": "Papir: {{paper}} ({{requested}} er ikke tilgjengelig på denne skriveren)",
     "pageSizeLabel": "Side: {{size}}",
     "pageClipped": "Siden får ikke plass på papiret og blir beskåret.",
-    "pageOutsidePrintable": "En del av siden faller utenfor skriverens utskrivbare område."
+    "pageOutsidePrintable": "En del av siden faller utenfor skriverens utskrivbare område.",
+    "saveAsPdf": "Lagre som PDF",
+    "sheetPortrait": "{{paper}} stående",
+    "sheetLandscape": "{{paper}} liggende",
+    "autoRotateOverrides": "Autoroter overstyrer den valgte retningen ({{orientation}}).",
+    "filePrinterHint": "Denne skriveren skriver til en fil. \"Lagre som PDF\" beholder arkets retning, og tekst og streker forblir vektorer.",
+    "targetIsOpenFile": "Den filen er åpen i appen. Velg et annet navn.",
+    "fileSuffix": " - utskrift",
+    "progress": {
+      "savedTo": "Lagret: {{path}}",
+      "savedAsImages": "Lagret, sider som bilder: {{path}}",
+      "saveFailed": "Lagring mislyktes: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Sett inn sider",

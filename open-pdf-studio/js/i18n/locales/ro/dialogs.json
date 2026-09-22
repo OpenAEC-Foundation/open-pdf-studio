@@ -68,7 +68,19 @@
     "paperFallback": "Hârtie: {{paper}} ({{requested}} nu este disponibil pe această imprimantă)",
     "pageSizeLabel": "Pagină: {{size}}",
     "pageClipped": "Pagina nu încape pe hârtie și va fi tăiată.",
-    "pageOutsidePrintable": "O parte a paginii se află în afara zonei imprimabile a imprimantei."
+    "pageOutsidePrintable": "O parte a paginii se află în afara zonei imprimabile a imprimantei.",
+    "saveAsPdf": "Salvare ca PDF",
+    "sheetPortrait": "{{paper}} portret",
+    "sheetLandscape": "{{paper}} peisaj",
+    "autoRotateOverrides": "Rotirea automată ignoră orientarea aleasă ({{orientation}}).",
+    "filePrinterHint": "Această imprimantă scrie într-un fișier. „Salvare ca PDF” păstrează orientarea colii, iar textul și liniile rămân vectori.",
+    "targetIsOpenFile": "Acel fișier este deschis în aplicație. Alegeți alt nume.",
+    "fileSuffix": " - tipărire",
+    "progress": {
+      "savedTo": "Salvat: {{path}}",
+      "savedAsImages": "Salvat, paginile ca imagini: {{path}}",
+      "saveFailed": "Salvarea a eșuat: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Inserare pagini",

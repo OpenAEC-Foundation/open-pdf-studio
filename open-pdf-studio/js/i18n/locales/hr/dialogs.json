@@ -68,7 +68,19 @@
     "paperFallback": "Papir: {{paper}} ({{requested}} nije dostupan na ovom pisaču)",
     "pageSizeLabel": "Stranica: {{size}}",
     "pageClipped": "Stranica ne stane na papir i bit će odrezana.",
-    "pageOutsidePrintable": "Dio stranice nalazi se izvan područja pisača koje se može ispisati."
+    "pageOutsidePrintable": "Dio stranice nalazi se izvan područja pisača koje se može ispisati.",
+    "saveAsPdf": "Spremi kao PDF",
+    "sheetPortrait": "{{paper}} uspravno",
+    "sheetLandscape": "{{paper}} vodoravno",
+    "autoRotateOverrides": "Automatsko rotiranje nadjačava odabranu orijentaciju ({{orientation}}).",
+    "filePrinterHint": "Ovaj pisač zapisuje u datoteku. „Spremi kao PDF“ zadržava orijentaciju lista, a tekst i linije ostaju vektori.",
+    "targetIsOpenFile": "Ta je datoteka otvorena u aplikaciji. Odaberite drugi naziv.",
+    "fileSuffix": " - ispis",
+    "progress": {
+      "savedTo": "Spremljeno: {{path}}",
+      "savedAsImages": "Spremljeno, stranice kao slike: {{path}}",
+      "saveFailed": "Spremanje nije uspjelo: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Umetni stranice",
