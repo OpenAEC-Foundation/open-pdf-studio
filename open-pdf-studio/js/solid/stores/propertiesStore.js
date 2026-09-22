@@ -40,6 +40,7 @@ import { applyTemplateRealSize } from '../../symbols/real-size.js';
 import { applyStampLineWidth, applyStampColor, stampLineWidthOf } from '../../annotations/stamp-line-width.js';
 import { pendingParams, setPendingParams } from './parametricSymbolStore.js';
 import { klemMaat, leesMaatInvoer, toonMaat, veiligeVerhouding, RECHTHOEK_VORMEN } from '../../annotations/minimummaat.js';
+import { kanZonderRand } from '../../annotations/fill-utils.js';
 
 // Types whose single 'color' control IS their stroke colour and which render
 // via `strokeColor || color`. For these, the 'color' control must mirror onto
@@ -166,6 +167,7 @@ const [sectionVis, setSectionVis] = createStore({
   iconGroup: false,
   fillColorGroup: false,
   strokeColorGroup: false,
+  strokeNoneAllowed: false,
   colorGroup: false,
   lineWidthGroup: false,
   borderStyleGroup: false,
@@ -257,6 +259,7 @@ function computeSectionVisibility(type) {
     iconGroup: type === 'comment',
     fillColorGroup: hasFillColor,
     strokeColorGroup: isShape || type === 'measureDistance' || type === 'measureArea' || type === 'measurePerimeter' || type === 'filledArea',
+    strokeNoneAllowed: kanZonderRand(type),
     colorGroup: !hideColor || isTextMarkup,
     lineWidthGroup: !hideLineWidth,
     borderStyleGroup: hasBorderStyle,
@@ -508,6 +511,7 @@ export function storeHideProperties() {
     iconGroup: false,
     fillColorGroup: false,
     strokeColorGroup: false,
+  strokeNoneAllowed: false,
     colorGroup: false,
     lineWidthGroup: false,
     borderStyleGroup: false,
@@ -666,6 +670,7 @@ export function storeShowMultiSelection(selected) {
     iconGroup: allSameType && sharedType === 'comment',
     fillColorGroup: allMatch(t => fillColorTypes.has(t)),
     strokeColorGroup: allMatch(t => strokeColorTypes.has(t)),
+    strokeNoneAllowed: allMatch(t => kanZonderRand(t)),
     colorGroup: allMatch(t => !hideColorTypes.has(t) || textMarkupTypes.has(t)),
     lineWidthGroup: allMatch(t => !hideLineWidthTypes.has(t)),
     borderStyleGroup: allMatch(t => borderStyleTypes.has(t)),
@@ -765,6 +770,7 @@ export function storeShowTextEditProperties(info) {
     iconGroup: false,
     fillColorGroup: false,
     strokeColorGroup: false,
+  strokeNoneAllowed: false,
     colorGroup: false,
     lineWidthGroup: false,
     borderStyleGroup: false,

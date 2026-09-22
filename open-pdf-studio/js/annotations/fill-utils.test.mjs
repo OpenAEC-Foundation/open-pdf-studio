@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hasFill, hasStroke } from './fill-utils.js';
+import { hasFill, hasStroke, kanZonderRand } from './fill-utils.js';
 
 test('hasFill: true for a real color, false for unset/none/transparent', () => {
   assert.equal(hasFill('#ff0000'), true);
@@ -22,4 +22,14 @@ test('hasStroke: false only for the explicit none/transparent sentinel', () => {
   assert.equal(hasStroke(undefined), true);
   assert.equal(hasStroke(null), true);
   assert.equal(hasStroke(''), true);
+});
+
+test('kanZonderRand: alleen vormen waarvan de omtrek weg kan', () => {
+  for (const t of ['box', 'circle', 'polygon', 'cloud', 'textbox', 'callout', 'filledArea', 'measureArea']) {
+    assert.equal(kanZonderRand(t), true, t);
+  }
+  // Een lijn, pijl, vrije hand of maatlijn is zijn streek: geen "geen rand".
+  for (const t of ['line', 'arrow', 'draw', 'measureDistance', 'measurePerimeter', 'polyline', 'cloudPolyline', 'text', undefined]) {
+    assert.equal(kanZonderRand(t), false, String(t));
+  }
 });

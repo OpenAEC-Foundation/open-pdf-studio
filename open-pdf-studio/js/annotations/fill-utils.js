@@ -26,6 +26,17 @@ export function hasStroke(strokeColor) {
   return strokeColor !== 'none' && strokeColor !== 'transparent';
 }
 
+// Soorten waarvan de omtrek weg kan ("geen rand"): alleen hier slaat
+// rendering.js de omtrek over en schrijft de saver een vorm zonder rand. Een
+// lijn, pijl, vrije hand of maatlijn IS zijn streek; daar is "geen" geen keuze.
+export const SOORTEN_ZONDER_RAND = new Set([
+  'box', 'circle', 'polygon', 'cloud', 'textbox', 'callout', 'filledArea', 'measureArea',
+]);
+
+export function kanZonderRand(type) {
+  return SOORTEN_ZONDER_RAND.has(type);
+}
+
 // Kleur van wat bij een vorm zonder rand wél getekend wordt: het kruis, de
 // aanhaallijn, het maatlabel. Dat is de eigen kleur van de annotatie, net als
 // in rendering.js (`annotation.color || '#000000'`); de saver gebruikt dezelfde

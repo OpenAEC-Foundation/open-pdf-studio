@@ -1,6 +1,6 @@
 import { PDFName } from 'pdf-lib';
 import { kruisEindpuntenEllips } from '../../annotations/kruis-geometrie.js';
-import { hasFill, hasStroke, colorWithoutStroke } from '../../annotations/fill-utils.js';
+import { hasFill, hasStroke, colorWithoutStroke, kanZonderRand } from '../../annotations/fill-utils.js';
 
 // Convert hex color to RGB values (0-1 range)
 export function hexToRgb(hex) {
@@ -48,7 +48,7 @@ const RANDSLEUTEL = {
 // Sleutel van de randkleur als deze annotatie zonder rand opgeslagen moet
 // worden, anders null (vorm mét rand, of een soort zonder weglaatbare rand).
 export function randSleutelZonderRand(ann) {
-  if (!ann || hasStroke(ann.strokeColor)) return null;
+  if (!ann || hasStroke(ann.strokeColor) || !kanZonderRand(ann.type)) return null;
   return RANDSLEUTEL[ann.type] || null;
 }
 

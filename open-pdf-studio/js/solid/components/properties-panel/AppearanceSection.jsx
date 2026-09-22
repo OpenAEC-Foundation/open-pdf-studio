@@ -121,7 +121,7 @@ export default function AppearanceSection() {
               // of a misleading "None".
               return sc || annotProps.color || null;
             }}
-            showNone={true}
+            showNone={sectionVis.strokeNoneAllowed}
             disabled={isLocked()}
             onColorChange={(color) => updateAnnotProp('strokeColor', color)}
             onNone={() => updateAnnotProp('strokeColor', 'none')}
