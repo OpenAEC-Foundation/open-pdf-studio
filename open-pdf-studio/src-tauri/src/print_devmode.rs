@@ -21,6 +21,14 @@
 //! ingebouwde pdf-driver van Windows: zijn papierlijst ligt vast, een eigen
 //! maat negeert hij. A1 en A0 biedt hij zelf aan, de verlengde vellen niet.
 //!
+//! Liggende pagina's op een printer die een document schrijft (een
+//! PDF-printer, `schrijft_document`) krijgen niet de liggende stand maar het
+//! liggende vel als eigen maat met een staande stand
+//! (`liggend_voor_opdracht`): zo'n stuurprogramma schrijft "liggend"
+//! anders als een staand medium met de inhoud een kwartslag gedraaid. Neemt
+//! het stuurprogramma de maat niet over — nagemeten op een informatiecontext
+//! — dan de liggende stand, net als bij elke papieren printer.
+//!
 //! Aantal exemplaren: de app maakt kopieën zelf (één opdracht per kopie, zie
 //! print-job.js). Een opdracht-DEVMODE vraagt daarom altijd één exemplaar,
 //! anders vermenigvuldigen een aantal uit de eigenschappen of de
@@ -34,12 +42,15 @@ use windows_sys::Win32::Graphics::Gdi::{
     DM_FORMNAME, DM_IN_BUFFER, DM_IN_PROMPT, DM_ORIENTATION, DM_OUT_BUFFER, DM_PAPERLENGTH, DM_PAPERSIZE,
     DM_PAPERWIDTH, LOGPIXELSX, LOGPIXELSY, PHYSICALHEIGHT, PHYSICALWIDTH,
 };
-use windows_sys::Win32::Graphics::Printing::{ClosePrinter, DocumentPropertiesW, OpenPrinterW};
+use windows_sys::Win32::Graphics::Printing::{
+    ClosePrinter, DocumentPropertiesW, GetPrinterW, OpenPrinterW, PRINTER_INFO_2W,
+};
 use windows_sys::Win32::Storage::Xps::{DeviceCapabilitiesW, DC_PAPERNAMES, DC_PAPERS, DC_PAPERSIZE};
 use windows_sys::Win32::UI::WindowsAndMessaging::{IDCANCEL, IDOK};
 
 use crate::print_instelling::{
-    beschrijft_vel, dmpaper, zelfde_maat_mm, EigenschappenKeuze, Orientatie, Papier, PapierInfo,
+    beschrijft_vel, dmpaper, liggend_vel_aangenomen, liggende_eigen_maat_tiende_mm, schrijft_document,
+    zelfde_maat_mm, EigenschappenKeuze, Orientatie, Papier, PapierInfo,
 };
 
 /// UTF-16 met afsluitende nul, voor de W-functies.
@@ -50,6 +61,19 @@ pub fn breed(s: &str) -> Vec<u16> {
 fn uit_breed(tekens: &[u16]) -> String {
     let eind = tekens.iter().position(|&c| c == 0).unwrap_or(tekens.len());
     String::from_utf16_lossy(&tekens[..eind])
+}
+
+/// Een tekst met afsluitende nul uit een Windows-structuur. Leeg bij een
+/// nulwijzer. De aanroeper staat ervoor in dat de tekst nog leeft.
+unsafe fn uit_pwstr(p: *const u16) -> String {
+    if p.is_null() {
+        return String::new();
+    }
+    let mut n = 0;
+    while unsafe { *p.add(n) } != 0 {
+        n += 1;
+    }
+    String::from_utf16_lossy(unsafe { std::slice::from_raw_parts(p, n) })
 }
 
 /// Het publieke deel moet minstens tot en met `dmFormName` lopen: alle velden
@@ -330,6 +354,33 @@ impl Printer {
         }
         uit.lengte_bijwerken()?;
         Ok(uit)
+    }
+
+    /// De naam van het stuurprogramma en van de poort (`PRINTER_INFO_2`).
+    /// `None` als de spooler ze niet geeft.
+    fn stuurprogramma_en_poort(&self) -> Option<(String, String)> {
+        let mut nodig = 0u32;
+        unsafe {
+            GetPrinterW(self.handle, 2, std::ptr::null_mut(), 0, &mut nodig);
+            if (nodig as usize) < size_of::<PRINTER_INFO_2W>() {
+                return None;
+            }
+            let mut buf = vec![0u64; (nodig as usize).div_ceil(8)];
+            if GetPrinterW(self.handle, 2, buf.as_mut_ptr() as *mut u8, nodig, &mut nodig) == 0 {
+                return None;
+            }
+            // De tekstvelden wijzen in `buf`; ze worden hier meteen gekopieerd.
+            let info = &*(buf.as_ptr() as *const PRINTER_INFO_2W);
+            Some((uit_pwstr(info.pDriverName), uit_pwstr(info.pPortName)))
+        }
+    }
+
+    /// Schrijft deze printer een document in plaats van papier
+    /// (`schrijft_document`)? Alleen dan gaat een liggend vel als eigen maat.
+    /// Zonder gegevens van de spooler: nee, dus het gedrag van altijd.
+    pub fn schrijft_document(&self) -> bool {
+        self.stuurprogramma_en_poort()
+            .is_some_and(|(stuurprogramma, poort)| schrijft_document(&stuurprogramma, &poort))
     }
 
     /// Toont het eigenschappenvenster van de driver, modaal voor venster
@@ -638,6 +689,72 @@ pub fn met_orientatie(prn: &Printer, dm: &DevMode, liggend: bool) -> DevMode {
             nieuw
         }
     }
+}
+
+/// `staand` met het vel een kwartslag gedraaid als eigen maat
+/// (`DMPAPER_USER` met breedte > lengte) en de stand op staand, als het
+/// stuurprogramma dat overneemt.
+///
+/// Een stuurprogramma dat "liggend" als een staand medium met gedraaide
+/// inhoud wegschrijft (de gewone PostScript-werkwijze) krijgt zo een liggend
+/// medium en hoeft niets te draaien. Het vel is dat van `staand` zelf,
+/// nagemeten op een informatiecontext, dus ook goed bij papier "printer".
+///
+/// `None` als het vel niet te meten is, niet in een DEVMODE past, of als het
+/// stuurprogramma het niet overneemt: het vervangt de eigen maat stil door
+/// zijn eigen vel, kapt hem af, of draait de maat terug en zet de stand op
+/// liggend. Dat wordt nagemeten op een informatiecontext
+/// (`liggend_vel_aangenomen`); er start geen opdracht en er gaat niets naar
+/// de printer.
+fn liggend_als_eigen_maat(prn: &Printer, staand: &DevMode) -> Option<DevMode> {
+    let vel = gemeten_vel_mm(prn.naam(), staand)?;
+    let maat = liggende_eigen_maat_tiende_mm(vel)?;
+    let mut dm = staand.clone();
+    dm.zet_eigen_maat(maat.0, maat.1);
+    dm.zet_liggend(false);
+    let dm = match prn.valideren(&dm) {
+        Ok(gevalideerd) => gevalideerd,
+        Err(e) => {
+            log::warn!("[print] {e}; liggend vel als eigen maat overgeslagen");
+            return None;
+        }
+    };
+    let gemeten = gemeten_vel_mm(prn.naam(), &dm);
+    let maat_mm = (maat.0 as f64 / 10.0, maat.1 as f64 / 10.0);
+    if !liggend_vel_aangenomen(maat, gemeten, dm.liggend(), MEET_SPELING_MM) {
+        log::info!(
+            "[print] '{}' neemt het liggende vel {:.1} x {:.1} mm als eigen maat niet over (gemeten {:?}); liggende stand",
+            prn.naam(),
+            maat_mm.0,
+            maat_mm.1,
+            gemeten
+        );
+        return None;
+    }
+    log::info!(
+        "[print] '{}' schrijft een document: liggend vel {:.1} x {:.1} mm als eigen maat, stand staand",
+        prn.naam(),
+        maat_mm.0,
+        maat_mm.1
+    );
+    Some(dm)
+}
+
+/// De DEVMODE voor de liggende pagina's van een opdracht.
+///
+/// Bij een printer die een document schrijft (`Printer::schrijft_document`)
+/// eerst het liggende vel als eigen maat: dan bepaalt het vel de stand en
+/// hoeft het stuurprogramma niets te draaien. Neemt het dat niet over, en bij
+/// elke papieren printer, de liggende stand (`met_orientatie`) zoals altijd:
+/// daar is een liggend vel als eigen maat juist verkeerd, want de printer
+/// heeft dat medium niet.
+pub fn liggend_voor_opdracht(prn: &Printer, basis: &DevMode, staand: &DevMode) -> DevMode {
+    if prn.schrijft_document() {
+        if let Some(dm) = liggend_als_eigen_maat(prn, staand) {
+            return dm;
+        }
+    }
+    met_orientatie(prn, basis, true)
 }
 
 /// Waarmee het eigenschappenvenster opent: de in deze sessie gekozen

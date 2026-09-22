@@ -13,6 +13,13 @@
 //! met hun eigen standaard aan en nemen het papier vaak alleen over uit de
 //! DEVMODE waarmee de DC gemaakt is: het papier bleef A4 (issue 406).
 //!
+//! Een printer die een document schrijft in plaats van papier (een
+//! PDF-printer, `schrijft_document`) krijgt voor liggende pagina's niet de
+//! liggende stand maar het liggende vel als eigen maat, met een staande
+//! DEVMODE (`liggend_voor_opdracht`). Een stuurprogramma dat "liggend" als
+//! een staand medium met gedraaide inhoud wegschrijft, krijgt zo een liggend
+//! medium. Neemt het die maat niet over, dan alsnog de liggende stand.
+//!
 //! Geeft een driver geen bruikbare DEVMODE, dan blijft die oude weg over als
 //! noodweg (`nood_devmode`), maar altijd mét papier: het gevraagde, of het
 //! vel dat de DC al heeft, zodat een ResetDC het papier niet kwijtraakt.
@@ -41,7 +48,9 @@ use windows_sys::Win32::Graphics::Gdi::{
 use windows_sys::Win32::Storage::Xps::{AbortDoc, EndDoc, EndPage, StartDocW, StartPage, DOCINFOW};
 
 use crate::pdfium_renderer;
-use crate::print_devmode::{breed, devmode_voor_opdracht, met_orientatie, DevMode, Printer};
+use crate::print_devmode::{
+    breed, devmode_voor_opdracht, liggend_voor_opdracht, met_orientatie, DevMode, Printer,
+};
 use crate::print_instelling::{dmpaper, liggend_voor_pagina, papier_uit_maat_mm, Orientatie, Papier};
 use crate::print_plaatsing::{
     deel_linksom, deel_op_vel, draai_linksom, draaiing_voor_vel, fijnste_afbeelding_dpi, inhoud_deel, marges_uit_dc,
@@ -87,6 +96,10 @@ impl Drop for Opdracht {
 }
 
 /// De DEVMODE's voor staande en liggende pagina's van één opdracht.
+///
+/// De liggende is bij een printer die een document schrijft het liggende vel
+/// als eigen maat met een staande stand (`liggend_voor_opdracht`), en anders
+/// de liggende stand zoals altijd.
 pub struct OpdrachtDevmodes {
     pub staand: DevMode,
     pub liggend: DevMode,
@@ -96,10 +109,9 @@ impl OpdrachtDevmodes {
     pub fn maak(printer: &str, opgeslagen: Option<&[u8]>, papier: Papier) -> Result<OpdrachtDevmodes, String> {
         let prn = Printer::open(printer)?;
         let basis = devmode_voor_opdracht(&prn, opgeslagen, papier)?;
-        Ok(OpdrachtDevmodes {
-            staand: met_orientatie(&prn, &basis, false),
-            liggend: met_orientatie(&prn, &basis, true),
-        })
+        let staand = met_orientatie(&prn, &basis, false);
+        let liggend = liggend_voor_opdracht(&prn, &basis, &staand);
+        Ok(OpdrachtDevmodes { staand, liggend })
         // `prn` gaat hier dicht (Drop).
     }
 
