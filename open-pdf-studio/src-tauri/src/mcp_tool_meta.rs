@@ -61,6 +61,7 @@ pub const TOOLS: &[ToolMeta] = &[
     lees("app_get_takeoff", "Get quantity take-off"),
     lees("app_list_commands", "List app commands"),
     lees("app_assistant_history", "Get assistant conversation"),
+    lees("app_list_printers", "List printers"),
     // Voegt iets toe zonder bestaande gegevens te wijzigen.
     voegt_toe("app_new_blank_pdf", "New blank PDF"),
     voegt_toe("app_create_annotation", "Create annotation"),
@@ -83,6 +84,12 @@ pub const TOOLS: &[ToolMeta] = &[
     wijzigt("app_close_tab", "Close document tab"),
     wijzigt("app_save_pdf", "Save PDF"),
     wijzigt("app_export_cad", "Export to CAD drawing"),
+    // Afdrukken laat het document ongemoeid, maar is geen leesactie: de ene
+    // schrijft een bestand dat een bestaand bestand kan overschrijven, de
+    // andere laat papier uit een printer komen. Allebei onomkeerbaar buiten de
+    // app, dus wijzigt (destructiveHint) — Claude vraagt er altijd voor.
+    wijzigt("app_print_to_pdf", "Print to PDF file"),
+    wijzigt("app_print", "Print to printer"),
     wijzigt("app_set_measure_scale", "Set measurement scale"),
     wijzigt("app_snippet_flatten", "Flatten vector snippet"),
     wijzigt("app_titleblock", "Fill title block"),
