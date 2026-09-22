@@ -597,3 +597,72 @@ fn a_paper_coloured_fill_becomes_a_wipeout_under_the_text_that_it_masks() {
     }
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// Maatgetallen zoals een tekenpakket ze plot: één tekstobject (`TJ`) met
+/// grote verschuivingen tussen de getallen, plus een zin met gewone spaties en
+/// een getallenpaar dat met een kleine verschuiving bij elkaar hoort.
+fn build_dimension_chain_pdf() -> Vec<u8> {
+    let content = "\
+BT /F1 6 Tf 1 0 0 1 20 60 Tm [(3960) -5000 (40) -5000 (3960) -5000 (40)] TJ ET\n\
+BT /F1 6 Tf 1 0 0 1 20 20 Tm (Hart op hart afstand) Tj ET\n\
+BT /F1 6 Tf 0 1 -1 0 180 20 Tm [(2700) -5000 (900)] TJ ET\n\
+BT /F1 6 Tf 1 0 0 1 20 40 Tm [(12) -1000 (34)] TJ ET\n";
+    let objects = vec![
+        "<< /Type /Catalog /Pages 2 0 R >>".to_string(),
+        "<< /Type /Pages /Kids [3 0 R] /Count 1 >>".to_string(),
+        "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 100] /Contents 4 0 R \
+          /Resources << /Font << /F1 5 0 R >> >> >>"
+            .to_string(),
+        format!("<< /Length {} >>\nstream\n{}endstream", content.len(), content),
+        "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>".to_string(),
+    ];
+    assemble(&objects)
+}
+
+#[test]
+fn far_apart_pieces_of_one_text_object_each_get_their_own_place() {
+    let Some(pdfium) = pdfium_path() else { return };
+    let dir = work_dir("maatgetallen");
+    let pdf_path = dir.join("pagina.pdf");
+    std::fs::write(&pdf_path, build_dimension_chain_pdf()).unwrap();
+    let library = PdfiumLibrary::load(&pdfium).unwrap();
+    let request = request_for(pdf_path, dir.join("uit.dxf"), ConvertOptions::default());
+    let report = export_page(&library, &request, None, None).unwrap();
+    // Vier maatgetallen + de zin + twee staande getallen + het paar dat bij
+    // elkaar hoort = 8 teksten uit 4 tekstobjecten.
+    assert_eq!(report.extract.text_objects, 4);
+    assert_eq!(report.convert.texts, 8);
+
+    let doc = read_back(&request.output_path);
+    let texts: Vec<(String, f64, f64, f64)> = doc
+        .model_space_entities()
+        .filter_map(|e| match e {
+            EntityType::Text(t) => Some((t.value.clone(), t.insertion_point.x, t.insertion_point.y, t.rotation.to_degrees())),
+            _ => None,
+        })
+        .collect();
+
+    // De keten: elk getal staat op zijn eigen plek. Breedte van een cijfer in
+    // deze letter is 0,556 em; een verschuiving van 5000 in de TJ-rij is
+    // 5 × lettergrootte.
+    let digit = 0.556 * 6.0;
+    let mut x = 20.0;
+    for value in ["3960", "40", "3960", "40"] {
+        let found = texts
+            .iter()
+            .find(|(v, tx, ty, _)| v == value && (tx - x * MM).abs() < 0.4 && (ty - 60.0 * MM).abs() < 1e-3)
+            .unwrap_or_else(|| panic!("{value} op x = {x:.2} pt ontbreekt; gevonden: {texts:?}"));
+        assert!(found.0 == value, "{found:?}");
+        x += value.len() as f64 * digit + 5.0 * 6.0;
+    }
+    // Een zin met gewone spaties blijft één tekst.
+    assert!(texts.iter().any(|(v, ..)| v == "Hart op hart afstand"), "{texts:?}");
+    // Ook staande tekst valt uiteen, met behoud van de hoek.
+    let staand: Vec<&(String, f64, f64, f64)> = texts.iter().filter(|(v, ..)| v == "2700" || v == "900").collect();
+    assert_eq!(staand.len(), 2, "{texts:?}");
+    assert!(staand.iter().all(|(_, _, _, angle)| (angle - 90.0).abs() < 1e-6), "{staand:?}");
+    assert!((staand[0].2 - staand[1].2).abs() > 20.0 * MM, "de staande getallen staan boven elkaar: {staand:?}");
+    // Een kleine verschuiving (één lettergrootte) hoort nog bij dezelfde regel.
+    assert!(texts.iter().any(|(v, ..)| v == "12 34" || v == "1234"), "{texts:?}");
+    let _ = std::fs::remove_dir_all(&dir);
+}

@@ -202,12 +202,30 @@ impl Drop for TextPageGuard<'_> {
     }
 }
 
+/// Eén teken met de oorsprong van zijn basislijn, in gebruikersruimte.
+struct CharPos {
+    ch: char,
+    origin: Point,
+}
+
+/// Een sprong langs de regel groter dan dit aantal lettergroottes begint een
+/// nieuw tekststuk. De afstand wordt van oorsprong tot oorsprong gemeten, dus
+/// de breedte van het vorige teken (voor cijfers ruim een halve lettergrootte)
+/// zit er nog bij in: het echte gat mag zo ongeveer anderhalve lettergrootte
+/// zijn — meer dan een paar spaties, minder dan de sprong tussen twee
+/// maatgetallen.
+const RUN_GAP_EM: f64 = 2.0;
+
+/// Zo ver mag een teken van de regel af staan voordat het een nieuw stuk
+/// begint (een regelovergang of een tweede regel binnen hetzelfde object).
+const RUN_OFFSET_EM: f64 = 0.5;
+
 struct Walk<'a, 'c> {
     api: &'a PdfiumApi,
     sink: &'a mut dyn FnMut(RawItem),
     control: &'a mut ExtractControl<'c>,
     stats: ExtractStats,
-    texts: HashMap<usize, String>,
+    texts: HashMap<usize, Vec<CharPos>>,
     ocg_names: HashMap<String, Arc<str>>,
     top_total: u64,
 }
@@ -370,29 +388,33 @@ impl PdfiumLibrary {
         PageFrame::new(media, crop, rotate, 1.0)
     }
 
-    /// Eén doorgang over alle tekens van de pagina: teken → tekstobject. Dat is
-    /// O(n); per tekstobject de tekst opvragen zou O(n²) zijn.
-    fn collect_texts(&self, text_page: FpdfTextPage) -> HashMap<usize, String> {
+    /// Eén doorgang over alle tekens van de pagina: teken → tekstobject, met de
+    /// oorsprong van elk teken. Dat is O(n); per tekstobject de tekst opvragen
+    /// zou O(n²) zijn.
+    ///
+    /// De oorsprongen zijn nodig omdat één tekstobject (één `TJ`-rij) stukken
+    /// op heel verschillende plekken kan zetten: een maatketen zet zo alle
+    /// maatgetallen van een rij in één object. Spaties die PDFium zelf aanvult
+    /// blijven staan; ze scheiden woorden die in de PDF los geplaatst zijn.
+    fn collect_texts(&self, text_page: FpdfTextPage) -> HashMap<usize, Vec<CharPos>> {
         let api = &self.api;
-        let mut texts: HashMap<usize, String> = HashMap::new();
+        let mut texts: HashMap<usize, Vec<CharPos>> = HashMap::new();
         if text_page.is_null() {
             return texts;
         }
         let count = unsafe { (api.FPDFText_CountChars)(text_page) };
         for i in 0..count {
-            if unsafe { (api.FPDFText_IsGenerated)(text_page, i) } == 1 {
-                continue;
-            }
             let object = unsafe { (api.FPDFText_GetTextObject)(text_page, i) };
             if object.is_null() {
                 continue;
             }
             let code = unsafe { (api.FPDFText_GetUnicode)(text_page, i) };
-            if let Some(ch) = char::from_u32(code) {
-                if !ch.is_control() {
-                    texts.entry(object as usize).or_default().push(ch);
-                }
+            let Some(ch) = char::from_u32(code) else { continue };
+            let (mut x, mut y) = (0f64, 0f64);
+            if unsafe { (api.FPDFText_GetCharOrigin)(text_page, i, &mut x, &mut y) } == 0 {
+                continue;
             }
+            texts.entry(object as usize).or_default().push(CharPos { ch, origin: Point::new(x, y) });
         }
         texts
     }
@@ -512,7 +534,7 @@ impl Walk<'_, '_> {
                 if self.is_clipped_away(object, parent) {
                     return Ok(());
                 }
-                if let Some(text) = self.read_text(object, &total, layer) {
+                for text in self.read_text(object, &total, layer) {
                     (self.sink)(RawItem::Text(text));
                 }
             }
@@ -771,12 +793,12 @@ impl Walk<'_, '_> {
         (a != 0).then_some(Rgba { r: r as u8, g: g as u8, b: b as u8, a: a as u8 })
     }
 
-    fn read_text(&mut self, object: FpdfPageObject, total: &Matrix, layer: Option<LayerHint>) -> Option<RawText> {
+    /// Eén tekstobject wordt één tekst per aaneengesloten stuk: een `TJ`-rij
+    /// met grote sprongen (een maatketen) levert een tekst per maatgetal, elk
+    /// op zijn eigen plek en met de hoek en de schaal van het object.
+    fn read_text(&mut self, object: FpdfPageObject, total: &Matrix, layer: Option<LayerHint>) -> Vec<RawText> {
         let api = self.api;
-        let text = self.texts.remove(&(object as usize))?;
-        if text.trim().is_empty() {
-            return None;
-        }
+        let Some(chars) = self.texts.remove(&(object as usize)) else { return Vec::new() };
         let mut font_size = 0f32;
         unsafe { (api.FPDFTextObj_GetFontSize)(object, &mut font_size) };
         let render_mode = unsafe { (api.FPDFTextObj_GetTextRenderMode)(object) };
@@ -790,16 +812,71 @@ impl Walk<'_, '_> {
             font_name = String::from_utf8_lossy(&buffer[..end]).into_owned();
         }
         let color = self.fill_color(object).unwrap_or(Rgba::BLACK);
-        Some(RawText {
-            text,
-            matrix: *total,
-            font_size: font_size as f64,
-            font_name,
-            color,
-            render_mode,
-            layer,
-        })
+        // De lettergrootte in gebruikersruimte bepaalt wanneer een sprong te
+        // groot is om nog dezelfde regel te zijn.
+        let em = font_size as f64 * total.mean_scale();
+        split_runs(&chars, em, (total.a, total.b))
+            .into_iter()
+            .map(|(text, origin)| RawText {
+                text,
+                // Zelfde draaiing en schaal als het object, eigen invoegpunt.
+                matrix: Matrix::new(total.a, total.b, total.c, total.d, origin.x, origin.y),
+                font_size: font_size as f64,
+                font_name: font_name.clone(),
+                color,
+                render_mode,
+                layer: layer.clone(),
+            })
+            .collect()
     }
+}
+
+/// Splitst de tekens van één tekstobject in stukken die bij elkaar horen.
+/// Gemeten langs de regel (`direction` is de x-as van de tekstmatrix): een
+/// sprong vooruit van meer dan [`RUN_GAP_EM`] lettergroottes, een sprong terug
+/// of een stap opzij van meer dan [`RUN_OFFSET_EM`] begint een nieuw stuk. Elk
+/// stuk krijgt de oorsprong van zijn eerste teken; spaties aan het begin en het
+/// eind vervallen.
+fn split_runs(chars: &[CharPos], em: f64, direction: (f64, f64)) -> Vec<(String, Point)> {
+    let length = (direction.0 * direction.0 + direction.1 * direction.1).sqrt();
+    // Zonder bruikbare lettergrootte of richting (een ontaarde matrix) blijft
+    // alles één stuk: liever samen dan op een verzonnen grens uit elkaar.
+    let split = em.is_finite() && em > 0.0 && length > 1e-12;
+    let (ux, uy) = if split { (direction.0 / length, direction.1 / length) } else { (1.0, 0.0) };
+    let (gap, offset) = (em * RUN_GAP_EM, em * RUN_OFFSET_EM);
+
+    let mut runs: Vec<(String, Point)> = Vec::new();
+    let mut previous: Option<Point> = None;
+    let mut start_new = true;
+    for CharPos { ch, origin } in chars {
+        if let (Some(p), true) = (previous, split) {
+            let (dx, dy) = (origin.x - p.x, origin.y - p.y);
+            let along = dx * ux + dy * uy;
+            let across = -dx * uy + dy * ux;
+            if along > gap || along < -offset || across.abs() > offset {
+                start_new = true;
+            }
+        }
+        previous = Some(*origin);
+        if ch.is_control() {
+            // Een regelovergang die PDFium aanvult hoort niet in de tekst.
+            start_new = true;
+            continue;
+        }
+        if ch.is_whitespace() && start_new {
+            continue;
+        }
+        if start_new {
+            runs.push((String::new(), *origin));
+            start_new = false;
+        }
+        runs.last_mut().expect("er is net een stuk begonnen").0.push(*ch);
+    }
+    for run in &mut runs {
+        run.0.truncate(run.0.trim_end().len());
+    }
+    runs.retain(|(text, _)| !text.is_empty());
+    runs
 }
 
 fn intersect_loose(a: &PdfRect, b: &PdfRect) -> Option<PdfRect> {
@@ -816,4 +893,97 @@ fn map_file(path: &Path) -> Result<memmap2::Mmap, ExportError> {
     let file = std::fs::File::open(path).map_err(|e| ExportError::Io(format!("{}: {e}", path.display())))?;
     // Veilig zolang niemand het bestand onder ons inkort; de export leest alleen.
     unsafe { memmap2::Mmap::map(&file) }.map_err(|e| ExportError::Io(format!("{}: {e}", path.display())))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Tekens op een rij, elk `advance` verder, met een extra sprong vóór een
+    /// teken waarvan de index in `jumps` staat.
+    fn line(text: &str, advance: f64, jumps: &[(usize, f64)]) -> Vec<CharPos> {
+        let mut x = 0.0;
+        text.chars()
+            .enumerate()
+            .map(|(i, ch)| {
+                if i > 0 {
+                    x += advance + jumps.iter().find(|(at, _)| *at == i).map_or(0.0, |(_, extra)| *extra);
+                }
+                CharPos { ch, origin: Point::new(x, 0.0) }
+            })
+            .collect()
+    }
+
+    fn texts(runs: &[(String, Point)]) -> Vec<&str> {
+        runs.iter().map(|(t, _)| t.as_str()).collect()
+    }
+
+    #[test]
+    fn a_big_jump_starts_a_new_piece_and_a_normal_space_does_not() {
+        // Lettergrootte 10, tekenbreedte 5,6 (cijfers): een sprong van 40 is
+        // ruim boven de grens, een spatie van 2,8 ruim eronder.
+        let chars = line("3960403960", 5.6, &[(4, 40.0), (6, 40.0)]);
+        let runs = split_runs(&chars, 10.0, (1.0, 0.0));
+        assert_eq!(texts(&runs), ["3960", "40", "3960"]);
+        assert!((runs[1].1.x - (4.0 * 5.6 + 40.0)).abs() < 1e-9, "{:?}", runs[1].1);
+
+        let zin = line("Hart op hart", 5.6, &[]);
+        assert_eq!(texts(&split_runs(&zin, 10.0, (1.0, 0.0))), ["Hart op hart"]);
+    }
+
+    #[test]
+    fn a_jump_just_under_the_limit_keeps_one_piece() {
+        // Tot twee lettergroottes van oorsprong tot oorsprong blijft het één
+        // regel; daarboven niet.
+        let onder = line("1234", 5.6, &[(2, 10.0)]);
+        assert_eq!(texts(&split_runs(&onder, 10.0, (1.0, 0.0))), ["1234"]);
+        let boven = line("1234", 5.6, &[(2, 15.0)]);
+        assert_eq!(texts(&split_runs(&boven, 10.0, (1.0, 0.0))), ["12", "34"]);
+    }
+
+    #[test]
+    fn the_jump_is_measured_along_the_line_so_rotated_text_splits_the_same_way() {
+        // Staande tekst: dezelfde tekens, gedraaid over 90°.
+        let mut chars = line("2700900", 5.6, &[(4, 40.0)]);
+        for c in &mut chars {
+            c.origin = Point::new(-c.origin.y, c.origin.x);
+        }
+        assert_eq!(texts(&split_runs(&chars, 10.0, (0.0, 1.0))), ["2700", "900"]);
+        // Met de richting van liggende tekst is dezelfde sprong een stap
+        // opzij: ook dan een nieuw stuk, want de tekst staat niet op één regel.
+        assert_eq!(split_runs(&chars, 10.0, (1.0, 0.0)).len(), 7);
+    }
+
+    #[test]
+    fn a_step_back_or_aside_starts_a_new_piece_and_a_line_break_too() {
+        let mut chars = line("AB", 5.6, &[]);
+        chars.push(CharPos { ch: 'C', origin: Point::new(0.0, 0.0) });
+        assert_eq!(texts(&split_runs(&chars, 10.0, (1.0, 0.0))), ["AB", "C"]);
+
+        let mut chars = line("AB", 5.6, &[]);
+        chars.push(CharPos { ch: 'C', origin: Point::new(16.8, 12.0) });
+        assert_eq!(texts(&split_runs(&chars, 10.0, (1.0, 0.0))), ["AB", "C"]);
+
+        let mut chars = line("AB", 5.6, &[]);
+        chars.push(CharPos { ch: '\n', origin: Point::new(16.8, 0.0) });
+        chars.push(CharPos { ch: 'C', origin: Point::new(22.4, 0.0) });
+        assert_eq!(texts(&split_runs(&chars, 10.0, (1.0, 0.0))), ["AB", "C"]);
+    }
+
+    #[test]
+    fn spaces_at_the_start_and_the_end_fall_away_and_an_empty_piece_is_dropped() {
+        let chars = line("  A B  ", 5.6, &[]);
+        let runs = split_runs(&chars, 10.0, (1.0, 0.0));
+        assert_eq!(texts(&runs), ["A B"]);
+        // Het invoegpunt is dat van de eerste letter, niet van de spatie ervoor.
+        assert!((runs[0].1.x - 2.0 * 5.6).abs() < 1e-9, "{:?}", runs[0].1);
+        assert!(split_runs(&line("   ", 5.6, &[]), 10.0, (1.0, 0.0)).is_empty());
+    }
+
+    #[test]
+    fn without_a_usable_font_size_or_direction_everything_stays_one_piece() {
+        let chars = line("3960403960", 5.6, &[(4, 40.0), (6, 40.0)]);
+        assert_eq!(texts(&split_runs(&chars, 0.0, (1.0, 0.0))), ["3960403960"]);
+        assert_eq!(texts(&split_runs(&chars, 10.0, (0.0, 0.0))), ["3960403960"]);
+    }
 }
