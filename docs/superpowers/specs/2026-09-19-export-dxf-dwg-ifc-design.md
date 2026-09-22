@@ -373,12 +373,13 @@ bestaat nu alleen op Windows en macOS.
 | Bézier die een cirkelboog is | ARC / CIRCLE, of `bulge` in de LWPOLYLINE | fase 2 (herkenning binnen tolerantie) |
 | Rechthoek (`re`) | gesloten LWPOLYLINE met 4 punten | gebouwd |
 | Gevuld pad | HATCH, effen, één lus per deelpad (gaten via oneven-pariteit) | gebouwd |
-| Dekkend vlak in papierkleur (alle kanalen ≥ 250, ondoorzichtig) | WIPEOUT per lus: neemt in CAD de achtergrondkleur aan en dekt alleen af wat eronder ligt, net als het witte vlak in de PDF. `WIPEOUTFRAME` staat op 0, dus zonder kader | gebouwd |
+| Dekkend vlak in papierkleur (alle kanalen ≥ 250, ondoorzichtig) | WIPEOUT per lus: neemt in CAD de achtergrondkleur aan en dekt alleen af wat eronder ligt, net als het witte vlak in de PDF. `WIPEOUTFRAME` staat op 0, dus zonder kader. De import leest zo'n masker terug als vulling in papierkleur op dezelfde plek: de rondgang sluit | gebouwd |
 | Wit vlak met een gat (een lus binnen een andere) | blijft HATCH: een maskering is één gesloten omtrek en kan geen gat uitdrukken | gebouwd |
 | Vulling + lijn (`B`) | HATCH (bij papierkleur WIPEOUT) + LWPOLYLINE erboven | gebouwd |
 | Paginagroot vlak | overgeslagen (`skip_page_fills`) | gebouwd |
 | Patroon- of shadingvulling | niet te onderscheiden via PDFium; zie A1 | fase 2 (`lopdf`) |
 | Tekstobject | TEXT: invoegpunt, hoogte, hoek, breedtefactor, stijl `PDF_TEKST` (arial.ttf) | gebouwd |
+| Eén tekstobject met stukken ver uit elkaar (een `TJ`-rij met grote verschuivingen, zoals een maatketen) | een TEXT per stuk, op de oorsprong van zijn eerste teken. Grens: langs de regel een sprong van meer dan twee lettergroottes (van oorsprong tot oorsprong, dus een gat van ruim anderhalve lettergrootte), een sprong terug, of meer dan een halve lettergrootte naast de regel | gebouwd |
 | Opeenvolgende tekstobjecten op één regel | samenvoegen tot één TEXT; alinea's tot MTEXT | fase 2 |
 | Onzichtbare tekst (modus 3, OCR-laag) | overgeslagen, optioneel mee | gebouwd |
 | Tekst als omtrek (geen tekstobject) | gewone lijnen en vullingen | gebouwd (vanzelf) |
@@ -851,6 +852,7 @@ openen van de uitvoer in een CAD-programma (handmatig, Deel G eerste tabel).
 | Bestand opent niet in een bepaald CAD-programma | middel | De controlematrix van de bibliotheek dekt twee gangbare programma's; handmatige controle in fase 1; DXF als terugval voor DWG |
 | Gedeeltelijk geknipte objecten komen volledig mee | middel | Geteld in het verslag; rechthoekig knippen in fase 2 |
 | Patroon- en shadingvullingen komen als effen vlak | laag | Paginagrote vlakken vervallen al; de rest in fase 2 via `lopdf` |
+| De grens waarop een tekstobject uiteenvalt is een keuze | laag | Twee lettergroottes van oorsprong tot oorsprong: een spatie (een kwart tot een halve lettergrootte) en gewone letterspatiëring blijven daar ruim onder, de sprong tussen twee maatgetallen ruim erboven. Op de 30 verificatiepagina's valt geen enkel tekstobject uiteen; op een blad uit een tekenpakket met een maatketen juist wel. Te ruim gekozen plakt maatgetallen weer aan elkaar, te krap knipt het een zin in woorden — beide blijven op hun eigen plek staan, dus het is hinder, geen verlies |
 | Een CAD-programma toont WIPEOUT anders | laag | Het bestand zet `WIPEOUTFRAME` op 0, zodat er geen kader omheen komt. Een programma dat WIPEOUT niet kent laat het masker weg: de tekst blijft leesbaar en de lijn eronder loopt erdoor — hinderlijker dan in de PDF, maar niets raakt kwijt. Wie de maskers helemaal niet wil, laat bij de stijl-lagen de laag `PDF_FILL_FFFFFF` weg |
 | Een zichtbaar wit vlak (een wit vorm op een donkere ondergrond) wordt ook een maskering | laag | Op papier en op een lichte tekenachtergrond is het resultaat gelijk; op een donkere achtergrond toont zo'n vlak de achtergrondkleur in plaats van wit. De omgekeerde fout — een wit blok over de tekst — woog zwaarder, en in een bouwkundige plot is een dekkend vlak in papierkleur vrijwel altijd een maskering |
 | Tekstbreedte wijkt af (andere letter in CAD dan in de PDF) | laag | Invoegpunt, hoogte en hoek kloppen; breedtefactor mee; fase 2: uitlijning "passend" tussen begin- en eindpunt |
