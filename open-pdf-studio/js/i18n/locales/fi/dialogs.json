@@ -67,6 +67,7 @@
     "paperLabel": "Paperi: {{paper}}",
     "paperFallback": "Paperi: {{paper}} ({{requested}} ei ole käytettävissä tässä tulostimessa)",
     "pageSizeLabel": "Sivu: {{size}}",
+    "scaleLabel": "Skaalaus: {{percent}} %",
     "pageClipped": "Sivu ei mahdu paperille, ja se rajataan.",
     "pageOutsidePrintable": "Osa sivusta jää tulostimen tulostusalueen ulkopuolelle.",
     "saveAsPdf": "Tallenna PDF-muodossa",

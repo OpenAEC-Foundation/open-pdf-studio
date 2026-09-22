@@ -67,6 +67,7 @@
     "paperLabel": "الورق: {{paper}}",
     "paperFallback": "الورق: {{paper}} ({{requested}} غير متاح على هذه الطابعة)",
     "pageSizeLabel": "الصفحة: {{size}}",
+    "scaleLabel": "المقياس: {{percent}}%",
     "pageClipped": "لا تتسع الصفحة على الورق وسيتم قص جزء منها.",
     "pageOutsidePrintable": "يقع جزء من الصفحة خارج المنطقة القابلة للطباعة في الطابعة.",
     "saveAsPdf": "حفظ بصيغة PDF",

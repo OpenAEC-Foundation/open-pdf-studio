@@ -67,6 +67,7 @@
     "paperLabel": "Papír: {{paper}}",
     "paperFallback": "Papír: {{paper}} ({{requested}} není na této tiskárně k dispozici)",
     "pageSizeLabel": "Stránka: {{size}}",
+    "scaleLabel": "Měřítko: {{percent}} %",
     "pageClipped": "Stránka se nevejde na papír a bude oříznuta.",
     "pageOutsidePrintable": "Část stránky leží mimo tisknutelnou oblast tiskárny.",
     "saveAsPdf": "Uložit jako PDF",

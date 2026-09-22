@@ -67,6 +67,7 @@
     "paperLabel": "کاغذ: {{paper}}",
     "paperFallback": "کاغذ: {{paper}} ({{requested}} اس پرنٹر پر دستیاب نہیں ہے)",
     "pageSizeLabel": "صفحہ: {{size}}",
+    "scaleLabel": "پیمانہ: {{percent}}%",
     "pageClipped": "صفحہ کاغذ پر پورا نہیں آتا اور کٹ جائے گا۔",
     "pageOutsidePrintable": "صفحے کا ایک حصہ پرنٹر کے قابلِ طباعت علاقے سے باہر ہے۔",
     "saveAsPdf": "PDF کے طور پر محفوظ کریں",

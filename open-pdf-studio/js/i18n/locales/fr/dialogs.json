@@ -67,6 +67,7 @@
     "paperLabel": "Papier : {{paper}}",
     "paperFallback": "Papier : {{paper}} ({{requested}} n'est pas disponible sur cette imprimante)",
     "pageSizeLabel": "Page : {{size}}",
+    "scaleLabel": "Échelle : {{percent}} %",
     "pageClipped": "La page ne tient pas sur le papier et sera rognée.",
     "pageOutsidePrintable": "Une partie de la page se trouve en dehors de la zone imprimable de l'imprimante.",
     "saveAsPdf": "Enregistrer en PDF",

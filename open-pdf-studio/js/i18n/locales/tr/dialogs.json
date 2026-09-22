@@ -67,6 +67,7 @@
     "paperLabel": "Kağıt: {{paper}}",
     "paperFallback": "Kağıt: {{paper}} ({{requested}} bu yazıcıda kullanılamıyor)",
     "pageSizeLabel": "Sayfa: {{size}}",
+    "scaleLabel": "Ölçek: %{{percent}}",
     "pageClipped": "Sayfa kağıda sığmıyor ve kırpılacak.",
     "pageOutsidePrintable": "Sayfanın bir kısmı yazıcının yazdırılabilir alanının dışında kalıyor.",
     "saveAsPdf": "PDF olarak kaydet",

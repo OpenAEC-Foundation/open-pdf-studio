@@ -67,6 +67,7 @@
     "paperLabel": "Бумага: {{paper}}",
     "paperFallback": "Бумага: {{paper}} ({{requested}} недоступен на этом принтере)",
     "pageSizeLabel": "Страница: {{size}}",
+    "scaleLabel": "Масштаб: {{percent}}%",
     "pageClipped": "Страница не помещается на бумаге и будет обрезана.",
     "pageOutsidePrintable": "Часть страницы выходит за пределы области печати принтера.",
     "saveAsPdf": "Сохранить как PDF",

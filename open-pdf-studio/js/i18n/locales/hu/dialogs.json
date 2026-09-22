@@ -67,6 +67,7 @@
     "paperLabel": "Papír: {{paper}}",
     "paperFallback": "Papír: {{paper}} ({{requested}} nem érhető el ezen a nyomtatón)",
     "pageSizeLabel": "Oldal: {{size}}",
+    "scaleLabel": "Méretarány: {{percent}}%",
     "pageClipped": "Az oldal nem fér rá a papírra, ezért le lesz vágva.",
     "pageOutsidePrintable": "Az oldal egy része a nyomtató nyomtatható területén kívülre esik.",
     "saveAsPdf": "Mentés PDF-ként",

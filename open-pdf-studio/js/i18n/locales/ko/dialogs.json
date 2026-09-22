@@ -67,6 +67,7 @@
     "paperLabel": "용지: {{paper}}",
     "paperFallback": "용지: {{paper}} (이 프린터에서는 {{requested}} 용지를 사용할 수 없습니다)",
     "pageSizeLabel": "페이지: {{size}}",
+    "scaleLabel": "배율: {{percent}}%",
     "pageClipped": "페이지가 용지에 맞지 않아 잘립니다.",
     "pageOutsidePrintable": "페이지의 일부가 프린터의 인쇄 가능 영역을 벗어납니다.",
     "saveAsPdf": "PDF로 저장",

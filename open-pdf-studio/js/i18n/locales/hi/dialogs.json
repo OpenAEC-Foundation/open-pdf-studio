@@ -67,6 +67,7 @@
     "paperLabel": "कागज़: {{paper}}",
     "paperFallback": "कागज़: {{paper}} ({{requested}} इस प्रिंटर पर उपलब्ध नहीं है)",
     "pageSizeLabel": "पृष्ठ: {{size}}",
+    "scaleLabel": "पैमाना: {{percent}}%",
     "pageClipped": "पृष्ठ कागज़ पर नहीं समाता और काट दिया जाएगा।",
     "pageOutsidePrintable": "पृष्ठ का एक भाग प्रिंटर के मुद्रण योग्य क्षेत्र के बाहर है।",
     "saveAsPdf": "PDF के रूप में सहेजें",

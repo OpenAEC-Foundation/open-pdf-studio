@@ -2427,6 +2427,11 @@
   background: var(--theme-hover, #d8d8d8);
 }
 /* Notitie onder de kop: Automatisch draaien overstemt de gekozen stand. */
+/* Een schaal anders dan 100 % valt op: de pagina wordt verkleind of vergroot. */
+.print-preview-scale.changed {
+  font-weight: 600;
+}
+
 .print-preview-note {
   margin-top: 2px;
   color: var(--theme-text-secondary, #666);

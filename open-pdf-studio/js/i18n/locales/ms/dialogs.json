@@ -67,6 +67,7 @@
     "paperLabel": "Kertas: {{paper}}",
     "paperFallback": "Kertas: {{paper}} ({{requested}} tidak tersedia pada pencetak ini)",
     "pageSizeLabel": "Halaman: {{size}}",
+    "scaleLabel": "Skala: {{percent}}%",
     "pageClipped": "Halaman tidak muat pada kertas dan akan dipotong.",
     "pageOutsidePrintable": "Sebahagian halaman berada di luar kawasan cetakan pencetak.",
     "saveAsPdf": "Simpan sebagai PDF",
