@@ -252,6 +252,99 @@ pub fn schrijft_document(stuurprogramma: &str, poort: &str) -> bool {
     is_pad && [".pdf", ".ps", ".eps", ".xps", ".oxps"].iter().any(|ext| bestand.ends_with(ext))
 }
 
+/// Een regel van de printkern die zichtbaar moet zijn.
+///
+/// De app zet zelf geen logger op, dus `log::info!` komt nergens aan. Deze
+/// regels gaan daarom ook naar de standaarduitvoer — die vangt `tauri dev`
+/// op — en naar `opds-print.log` in de tijdelijke map, zodat een afdruk ook
+/// vanuit een geïnstalleerde app na te gaan is. Mislukt het schrijven (een
+/// venster zonder console, een volle schijf), dan gebeurt er niets.
+pub fn meld(regel: &str) {
+    use std::io::Write;
+    log::info!("{regel}");
+    let _ = writeln!(std::io::stdout(), "{regel}");
+    let _ = std::io::stdout().flush();
+    let seconden =
+        std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0);
+    if let Ok(mut bestand) =
+        std::fs::OpenOptions::new().create(true).append(true).open(std::env::temp_dir().join("opds-print.log"))
+    {
+        let _ = writeln!(bestand, "{seconden} {regel}");
+    }
+}
+
+/// Welke weg de liggende pagina's van een opdracht nemen.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LiggendeWeg {
+    /// Een papiersoort van het stuurprogramma die zelf al liggend is.
+    Soort,
+    /// Het liggende vel als eigen maat, met een staande DEVMODE.
+    EigenMaat,
+    /// `DM_ORIENTATION` liggend, zoals bij elke papieren printer.
+    Stand,
+}
+
+/// Wat de printkern over de velkeuze van één opdracht meldt.
+#[derive(Debug, Clone)]
+pub struct VelKeuze<'a> {
+    pub printer: &'a str,
+    pub stuurprogramma: Option<&'a str>,
+    pub poort: Option<&'a str>,
+    pub schrijft_document: bool,
+    /// Het vel uit de Pagina-instelling.
+    pub papier: Papier,
+    /// Het vel van de staande DEVMODE, nagemeten (breedte x hoogte in mm).
+    pub staand_vel_mm: Option<(f64, f64)>,
+    /// De gevraagde eigen maat in 0,1 mm (breedte > lengte).
+    pub gevraagde_maat_tiende_mm: Option<(i16, i16)>,
+    /// Uit de gecontroleerde DEVMODE.
+    pub papiercode: Option<i16>,
+    pub eigen_maat_tiende_mm: Option<(i32, i32)>,
+    pub devmode_liggend: Option<bool>,
+    /// Het vel dat een informatiecontext met die DEVMODE meldt.
+    pub gemeten_mm: Option<(f64, f64)>,
+    pub weg: LiggendeWeg,
+    /// Waarom het de liggende stand werd; leeg bij `EigenMaat`.
+    pub reden: &'a str,
+}
+
+/// De velkeuze van een opdracht als één regel voor `meld`: alles wat nodig is
+/// om achteraf te zien welke weg een afdruk nam en wat het stuurprogramma
+/// ervan maakte.
+pub fn velkeuze_regel(k: &VelKeuze) -> String {
+    let mm = |v: Option<(f64, f64)>| v.map_or("-".to_string(), |(b, h)| format!("{b:.1} x {h:.1} mm"));
+    let stand = |liggend: Option<bool>| match liggend {
+        Some(true) => "liggend",
+        Some(false) => "staand",
+        None => "-",
+    };
+    let nagemeten = match k.gemeten_mm {
+        Some((b, h)) => format!("{b:.1} x {h:.1} mm ({})", if b > h { "liggend" } else { "staand" }),
+        None => "-".to_string(),
+    };
+    let weg = match k.weg {
+        LiggendeWeg::Soort => "liggende papiersoort".to_string(),
+        LiggendeWeg::EigenMaat => "eigen maat".to_string(),
+        LiggendeWeg::Stand => format!("liggende stand ({})", if k.reden.is_empty() { "-" } else { k.reden }),
+    };
+    format!(
+        "[print] liggend vel: printer '{}' stuurprogramma '{}' poort '{}' document={} papier={} \
+         staand-vel={} gevraagd={} papiercode={} eigen-maat={} stand={} nagemeten={} weg={}",
+        k.printer,
+        k.stuurprogramma.unwrap_or("-"),
+        k.poort.unwrap_or("-"),
+        if k.schrijft_document { "ja" } else { "nee" },
+        k.papier.sleutel(),
+        mm(k.staand_vel_mm),
+        mm(k.gevraagde_maat_tiende_mm.map(|(b, l)| (b as f64 / 10.0, l as f64 / 10.0))),
+        k.papiercode.map_or("-".to_string(), |c| c.to_string()),
+        k.eigen_maat_tiende_mm.map_or("-".to_string(), |(b, l)| format!("{b} x {l}")),
+        stand(k.devmode_liggend),
+        nagemeten,
+        weg,
+    )
+}
+
 /// De omgevingsvariabele waarmee het liggende vel als eigen maat uit gaat.
 pub const LIGGEND_VEL_OMGEVING: &str = "OPDS_LIGGEND_VEL";
 
@@ -280,6 +373,24 @@ pub fn liggende_eigen_maat_tiende_mm(vel_mm: (f64, f64)) -> Option<(i16, i16)> {
     }
     let (kort, lang) = if a < b { (a, b) } else { (b, a) };
     Some((lang as i16, kort as i16))
+}
+
+/// De code van een papiersoort van het stuurprogramma die zelf al liggend is:
+/// breedte > hoogte en op `speling_tiende_mm` na de gevraagde maat (beide in
+/// 0,1 mm, zoals `DC_PAPERSIZE` ze geeft).
+///
+/// Zo'n soort is bij een PostScript-stuurprogramma een echt liggend medium in
+/// de PPD (bijvoorbeeld "Ledger", 17 x 11 inch), dus zekerder dan een eigen
+/// maat: daarbij bepaalt de invoerrichting van het stuurprogramma nog of het
+/// medium liggend wordt. Code 0 telt niet (die kan niet in een DEVMODE).
+pub fn liggende_soort(soorten: &[(i16, (i32, i32))], gevraagd: (i16, i16), speling_tiende_mm: i32) -> Option<i16> {
+    let (b, h) = (gevraagd.0 as i32, gevraagd.1 as i32);
+    soorten
+        .iter()
+        .find(|(code, (sb, sh))| {
+            *code != 0 && sb > sh && (sb - b).abs() <= speling_tiende_mm && (sh - h).abs() <= speling_tiende_mm
+        })
+        .map(|(code, _)| *code)
 }
 
 /// Nam het stuurprogramma het liggende vel als eigen maat over? `gevraagd`
@@ -982,6 +1093,82 @@ mod tests {
         assert_eq!(liggende_eigen_maat_tiende_mm((400.0, 3276.7)), Some((32767, 4000)));
     }
 
+    fn keuze_voorbeeld() -> VelKeuze<'static> {
+        VelKeuze {
+            printer: "Bureau-PDF",
+            stuurprogramma: Some("Proefpdfschrijver"),
+            poort: Some("OMZETMON"),
+            schrijft_document: true,
+            papier: Papier::A2,
+            staand_vel_mm: Some((420.2, 594.1)),
+            gevraagde_maat_tiende_mm: Some((5941, 4202)),
+            papiercode: Some(256),
+            eigen_maat_tiende_mm: Some((5941, 4202)),
+            devmode_liggend: Some(false),
+            gemeten_mm: Some((594.1, 420.2)),
+            weg: LiggendeWeg::EigenMaat,
+            reden: "",
+        }
+    }
+
+    #[test]
+    fn velkeuze_regel_noemt_printer_stuurprogramma_poort_maat_en_weg() {
+        let regel = velkeuze_regel(&keuze_voorbeeld());
+        for deel in [
+            "[print] liggend vel:",
+            "printer 'Bureau-PDF'",
+            "stuurprogramma 'Proefpdfschrijver'",
+            "poort 'OMZETMON'",
+            "document=ja",
+            "papier=a2",
+            "staand-vel=420.2 x 594.1 mm",
+            "gevraagd=594.1 x 420.2 mm",
+            "papiercode=256",
+            "eigen-maat=5941 x 4202",
+            "stand=staand",
+            "nagemeten=594.1 x 420.2 mm (liggend)",
+            "weg=eigen maat",
+        ] {
+            assert!(regel.contains(deel), "{deel} ontbreekt in: {regel}");
+        }
+        assert!(!regel.contains('\n'));
+    }
+
+    #[test]
+    fn velkeuze_regel_zegt_waarom_het_de_liggende_stand_werd() {
+        // Papieren printer: geen eigen maat geprobeerd.
+        let papier = VelKeuze {
+            printer: "Kantoor",
+            stuurprogramma: Some("Laser PCL6"),
+            poort: Some("IP_10.0.0.4"),
+            schrijft_document: false,
+            papier: Papier::A3,
+            staand_vel_mm: None,
+            gevraagde_maat_tiende_mm: None,
+            papiercode: None,
+            eigen_maat_tiende_mm: None,
+            devmode_liggend: None,
+            gemeten_mm: None,
+            weg: LiggendeWeg::Stand,
+            reden: "papieren printer",
+        };
+        let regel = velkeuze_regel(&papier);
+        assert!(regel.contains("document=nee"), "{regel}");
+        assert!(regel.contains("weg=liggende stand (papieren printer)"), "{regel}");
+        assert!(regel.contains("staand-vel=-"), "{regel}");
+        // Wel geprobeerd, maar het stuurprogramma nam het niet over.
+        let geweigerd = VelKeuze {
+            devmode_liggend: Some(false),
+            gemeten_mm: Some((210.0, 297.0)),
+            weg: LiggendeWeg::Stand,
+            reden: "stuurprogramma nam het vel niet over",
+            ..keuze_voorbeeld()
+        };
+        let regel = velkeuze_regel(&geweigerd);
+        assert!(regel.contains("nagemeten=210.0 x 297.0 mm (staand)"), "{regel}");
+        assert!(regel.contains("weg=liggende stand (stuurprogramma nam het vel niet over)"), "{regel}");
+    }
+
     #[test]
     fn liggend_vel_is_uit_te_zetten_in_de_omgeving() {
         for uit in ["0", " 0 ", "uit", "OFF", "False"] {
@@ -991,6 +1178,32 @@ mod tests {
             assert!(!liggend_vel_uitgezet(Some(aan)), "{aan}");
         }
         assert!(!liggend_vel_uitgezet(None));
+    }
+
+    #[test]
+    fn liggende_papiersoort_van_het_stuurprogramma_gaat_voor() {
+        // Zo meldt een PDF-printer op PostScript zijn soorten (code, maat in
+        // 0,1 mm): naast de staande vellen een paar die zelf al liggend zijn.
+        let lijst = [
+            (9i16, (2100i32, 2970i32)),
+            (8, (2970, 4200)),
+            (66, (4200, 5940)),
+            (3, (2794, 4318)),
+            (145, (4318, 2794)),
+            (204, (4515, 2540)),
+            (0, (5941, 4202)),
+        ];
+        // Tabloid liggend: de soort die zelf liggend is (Ledger).
+        assert_eq!(liggende_soort(&lijst, (4318, 2794), 10), Some(145));
+        // Binnen de speling.
+        assert_eq!(liggende_soort(&lijst, (4320, 2790), 10), Some(145));
+        // A2 liggend kent het stuurprogramma niet als soort.
+        assert_eq!(liggende_soort(&lijst, (5940, 4200), 10), None);
+        // Een staande soort telt niet, ook niet met de zijden verwisseld.
+        assert_eq!(liggende_soort(&lijst, (2970, 4200), 10), None);
+        // Code 0 telt niet, en een lege lijst geeft niets.
+        assert_eq!(liggende_soort(&lijst, (5941, 4202), 10), None);
+        assert_eq!(liggende_soort(&[], (4318, 2794), 10), None);
     }
 
     #[test]

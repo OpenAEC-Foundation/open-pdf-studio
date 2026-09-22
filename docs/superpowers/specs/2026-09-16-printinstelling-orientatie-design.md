@@ -207,10 +207,17 @@ voor een papieren printer). Een papieren printer heeft geen liggend medium
 van bijvoorbeeld A3; een eigen maat zou daar om ander papier vragen. Daar
 blijft `DM_ORIENTATION`, zoals altijd.
 
-Terugval (`liggend_voor_opdracht` en `liggend_als_eigen_maat` in
-`print_devmode.rs`): de maat is het vel van de staande DEVMODE van de
-opdracht, nagemeten op een informatiecontext (dus ook bij papier
-"printer"), een kwartslag gedraaid (`liggende_eigen_maat_tiende_mm`). Het
+Volgorde (`liggend_als_eigen_maat`): eerst een **papiersoort van het
+stuurprogramma die zelf al liggend is** (`liggende_soort`) — bij een
+PostScript-stuurprogramma is dat een echte liggende `*PageSize` in de PPD,
+bijvoorbeeld "Ledger" (17 x 11 inch), en daar komt geen invoerrichting meer
+aan te pas. Is die er niet (A-formaten staan in geen enkele PPD liggend),
+dan het vel als **eigen maat**.
+
+Terugval (`liggend_voor_opdracht` in `print_devmode.rs`): de maat is het vel
+van de staande DEVMODE van de opdracht, nagemeten op een informatiecontext
+(dus ook bij papier "printer"), een kwartslag gedraaid
+(`liggende_eigen_maat_tiende_mm`). Het
 stuurprogramma controleert de DEVMODE, en een informatiecontext meet het vel
 opnieuw (`PHYSICALWIDTH`/`PHYSICALHEIGHT`, [GetDeviceCaps]; geen opdracht).
 Alleen als dat de gevraagde maat is, breder dan hoog, en de DEVMODE staand
@@ -230,7 +237,22 @@ niet via de openbare velden te zetten. Bij de ene richting zet de PPD-code
 een liggend medium (gewenst), bij de andere een staand medium met een
 kwartslag in `/Install`: dan is de uitkomst dezelfde als voorheen, niet
 slechter. De DC meldt in beide gevallen een liggend vel. Dat valt alleen met
-een echte afdruk te controleren.
+een echte afdruk te controleren. De escape die de richting zou verklappen
+(`GET_PS_FEATURESETTING` met `FEATURESETTING_CUSTPAPER`, dat
+`PSFEATURE_CUSTPAPER` teruggeeft) blijkt op een gemeten PDF-printer niet
+ondersteund, op een informatiecontext noch op een printer-DC.
+
+Uitvragen zonder te printen: `examples/printer_capaciteiten.rs` leest per
+printer het stuurprogramma en de poort, de papierlijst met maten,
+`DC_ORIENTATION`, `DC_MINEXTENT`/`DC_MAXEXTENT`, `DC_PERSONALITY`, en wat het
+stuurprogramma van elke variant maakt (staand, liggende stand, eigen maat met
+`DMPAPER_USER` of met `dmPaperSize` 0, elke liggende papiersoort), telkens
+nagemeten op een informatiecontext. Het start nooit een opdracht en verandert
+niets. Wat een opdracht werkelijk koos, staat per afdruk in één regel in de
+standaarduitvoer en in `opds-print.log` in de tijdelijke map (`meld`,
+`velkeuze_regel`): printer, stuurprogramma, poort, of het een document
+schrijft, het gevraagde vel, de gevraagde eigen maat, wat het stuurprogramma
+ervan maakte, de nameting en de gekozen weg.
 
 De printdialoog krijgt geen nieuwe keuze: de kop toont het vel al met zijn
 stand, en bij een bestandsprinter blijft de hint naar "Opslaan als PDF"
@@ -280,10 +302,13 @@ is de hele regel zonder nieuwe versie terug te zetten op de liggende stand:
 - Liggend vel als eigen maat (2.7): Rust `print_instelling.rs`
   (`schrijft_document` voor document- en papieren printers,
   `liggende_eigen_maat_tiende_mm` voor elk bekend vel en de grenzen van een
-  DEVMODE, `liggend_vel_aangenomen` voor elke manier waarop een
-  stuurprogramma het vel kan weigeren). De aanroepen van Windows zelf zijn
-  dun en alleen met `cargo check` geborgd; of de PDF-printer het vel liggend
-  wegschrijft, blijkt alleen uit een echte afdruk.
+  DEVMODE, `liggende_soort` voor een liggende papiersoort van het
+  stuurprogramma, `liggend_vel_aangenomen` voor elke manier waarop een
+  stuurprogramma het vel kan weigeren, `velkeuze_regel` voor de meldregel).
+  De aanroepen van Windows zelf zijn dun en alleen met `cargo check` geborgd;
+  wat een printer ervan maakt, meet `examples/printer_capaciteiten.rs` zonder
+  te printen, en of de PDF-printer het vel ook liggend wegschrijft blijkt
+  alleen uit een echte afdruk plus de meldregel in `opds-print.log`.
 
 ## 4. Buiten scope en open punten
 

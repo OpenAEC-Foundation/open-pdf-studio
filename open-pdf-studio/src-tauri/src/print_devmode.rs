@@ -50,8 +50,8 @@ use windows_sys::Win32::UI::WindowsAndMessaging::{IDCANCEL, IDOK};
 
 use crate::print_instelling::{
     beschrijft_vel, dmpaper, liggend_vel_aangenomen, liggend_vel_uitgezet, liggende_eigen_maat_tiende_mm,
-    schrijft_document, zelfde_maat_mm, EigenschappenKeuze, Orientatie, Papier, PapierInfo,
-    LIGGEND_VEL_OMGEVING,
+    liggende_soort, meld, schrijft_document, velkeuze_regel, zelfde_maat_mm, EigenschappenKeuze, LiggendeWeg,
+    Orientatie, Papier, PapierInfo, VelKeuze, LIGGEND_VEL_OMGEVING,
 };
 
 /// UTF-16 met afsluitende nul, voor de W-functies.
@@ -212,15 +212,24 @@ impl DevMode {
         d.Anonymous1.Anonymous1.dmPaperWidth = 0;
     }
 
-    /// Zet een eigen maat (staand, in 0,1 mm): `DMPAPER_USER` met
+    /// Zet een eigen maat (in 0,1 mm): `DMPAPER_USER` met
     /// `dmPaperWidth`/`dmPaperLength`. Een formuliernaam zou de maat
-    /// overrulen, dus die gaat eruit.
+    /// overrulen, dus die gaat eruit. Meestal staand (breedte < lengte); voor
+    /// een liggend vel juist breedte > lengte (`liggend_als_eigen_maat`).
     pub fn zet_eigen_maat(&mut self, breedte: i16, lengte: i16) {
+        self.zet_eigen_maat_met_code(DMPAPER_USER as i16, breedte, lengte);
+    }
+
+    /// Dezelfde eigen maat met een zelfgekozen `dmPaperSize`. De documentatie
+    /// van `DEVMODEW` noemt 0 als de maat in `dmPaperWidth`/`dmPaperLength`
+    /// staat; stuurprogramma's nemen meestal ook `DMPAPER_USER`. Waar een
+    /// stuurprogramma mee overweg kan, meet `examples/printer_capaciteiten.rs`.
+    pub fn zet_eigen_maat_met_code(&mut self, code: i16, breedte: i16, lengte: i16) {
         let d = self.publiek_mut();
         d.dmFields |= DM_PAPERSIZE | DM_PAPERWIDTH | DM_PAPERLENGTH;
         d.dmFields &= !DM_FORMNAME;
         d.dmFormName = [0; 32];
-        d.Anonymous1.Anonymous1.dmPaperSize = DMPAPER_USER as i16;
+        d.Anonymous1.Anonymous1.dmPaperSize = code;
         d.Anonymous1.Anonymous1.dmPaperWidth = breedte;
         d.Anonymous1.Anonymous1.dmPaperLength = lengte;
     }
@@ -359,7 +368,7 @@ impl Printer {
 
     /// De naam van het stuurprogramma en van de poort (`PRINTER_INFO_2`).
     /// `None` als de spooler ze niet geeft.
-    fn stuurprogramma_en_poort(&self) -> Option<(String, String)> {
+    pub fn stuurprogramma_en_poort(&self) -> Option<(String, String)> {
         let mut nodig = 0u32;
         unsafe {
             GetPrinterW(self.handle, 2, std::ptr::null_mut(), 0, &mut nodig);
@@ -609,11 +618,11 @@ fn met_papier(prn: &Printer, basis: &DevMode, uit_sessie: bool, papier: Papier) 
     if zonder_code {
         let gecontroleerd = prn.valideren(&dm).unwrap_or_else(|_| dm.clone());
         if !neemt_vel(prn.naam(), &gecontroleerd, papier) {
-            log::warn!(
+            meld(&format!(
                 "[print] '{}' neemt papier {} niet over; het papier van de printer blijft staan",
                 prn.naam(),
                 papier.sleutel()
-            );
+            ));
             return (basis.clone(), false);
         }
     }
@@ -712,38 +721,80 @@ pub fn met_orientatie(prn: &Printer, dm: &DevMode, liggend: bool) -> DevMode {
 /// liggend. Dat wordt nagemeten op een informatiecontext
 /// (`liggend_vel_aangenomen`); er start geen opdracht en er gaat niets naar
 /// de printer.
-fn liggend_als_eigen_maat(prn: &Printer, staand: &DevMode) -> Option<DevMode> {
-    let vel = gemeten_vel_mm(prn.naam(), staand)?;
-    let maat = liggende_eigen_maat_tiende_mm(vel)?;
+/// Eén poging: `staand` aangepast met `zet`, door het stuurprogramma laten
+/// controleren en het vel nameten op een informatiecontext. `Some` alleen als
+/// dat echt het gevraagde liggende vel is (`liggend_vel_aangenomen`).
+fn probeer_liggend_vel(
+    prn: &Printer,
+    staand: &DevMode,
+    maat: (i16, i16),
+    keuze: &mut VelKeuze,
+    zet: impl Fn(&mut DevMode),
+) -> Option<DevMode> {
     let mut dm = staand.clone();
-    dm.zet_eigen_maat(maat.0, maat.1);
-    dm.zet_liggend(false);
+    zet(&mut dm);
     let dm = match prn.valideren(&dm) {
         Ok(gevalideerd) => gevalideerd,
         Err(e) => {
-            log::warn!("[print] {e}; liggend vel als eigen maat overgeslagen");
+            log::warn!("[print] {e}");
+            keuze.reden = "stuurprogramma controleerde de DEVMODE niet";
             return None;
         }
     };
     let gemeten = gemeten_vel_mm(prn.naam(), &dm);
-    let maat_mm = (maat.0 as f64 / 10.0, maat.1 as f64 / 10.0);
-    if !liggend_vel_aangenomen(maat, gemeten, dm.liggend(), MEET_SPELING_MM) {
-        log::info!(
-            "[print] '{}' neemt het liggende vel {:.1} x {:.1} mm als eigen maat niet over (gemeten {:?}); liggende stand",
-            prn.naam(),
-            maat_mm.0,
-            maat_mm.1,
-            gemeten
-        );
+    keuze.papiercode = dm.papiercode();
+    keuze.eigen_maat_tiende_mm = dm.eigen_maat_tiende_mm();
+    keuze.devmode_liggend = Some(dm.liggend());
+    keuze.gemeten_mm = gemeten;
+    liggend_vel_aangenomen(maat, gemeten, dm.liggend(), MEET_SPELING_MM).then_some(dm)
+}
+
+/// Vult onderweg `keuze` in, zodat `liggend_voor_opdracht` er één regel van
+/// kan maken (`velkeuze_regel`).
+fn liggend_als_eigen_maat(prn: &Printer, staand: &DevMode, keuze: &mut VelKeuze) -> Option<DevMode> {
+    let vel = gemeten_vel_mm(prn.naam(), staand);
+    keuze.staand_vel_mm = vel;
+    let Some(vel) = vel else {
+        keuze.reden = "vel van de staande DEVMODE niet te meten";
         return None;
+    };
+    let maat = liggende_eigen_maat_tiende_mm(vel);
+    keuze.gevraagde_maat_tiende_mm = maat;
+    let Some(maat) = maat else {
+        keuze.reden = "vel past niet als eigen maat in een DEVMODE";
+        return None;
+    };
+    // Eerst een papiersoort van het stuurprogramma die zelf al liggend is
+    // (bij een PostScript-stuurprogramma een echt liggend medium in de PPD);
+    // die laat geen ruimte voor een eigen invoerrichting.
+    let soorten: Vec<(i16, (i32, i32))> =
+        papierlijst(prn.naam()).iter().map(|s| (s.code, s.maat_tiende_mm)).collect();
+    if let Some(code) = liggende_soort(&soorten, maat, LIJST_SPELING) {
+        if let Some(dm) = probeer_liggend_vel(prn, staand, maat, keuze, |dm| {
+            dm.zet_papier(code);
+            dm.zet_liggend(false);
+        }) {
+            keuze.weg = LiggendeWeg::Soort;
+            return Some(dm);
+        }
     }
-    log::info!(
-        "[print] '{}' schrijft een document: liggend vel {:.1} x {:.1} mm als eigen maat, stand staand",
-        prn.naam(),
-        maat_mm.0,
-        maat_mm.1
-    );
-    Some(dm)
+    // Anders het vel als eigen maat.
+    let dm = probeer_liggend_vel(prn, staand, maat, keuze, |dm| {
+        dm.zet_eigen_maat(maat.0, maat.1);
+        dm.zet_liggend(false);
+    });
+    match dm {
+        Some(dm) => {
+            keuze.weg = LiggendeWeg::EigenMaat;
+            Some(dm)
+        }
+        None => {
+            if keuze.reden.is_empty() {
+                keuze.reden = "stuurprogramma nam het liggende vel niet over";
+            }
+            None
+        }
+    }
 }
 
 /// De DEVMODE voor de liggende pagina's van een opdracht.
@@ -757,18 +808,42 @@ fn liggend_als_eigen_maat(prn: &Printer, staand: &DevMode) -> Option<DevMode> {
 ///
 /// Met `OPDS_LIGGEND_VEL=0` in de omgeving krijgt elke printer de liggende
 /// stand, zoals vóór deze regel (`liggend_vel_uitgezet`).
-pub fn liggend_voor_opdracht(prn: &Printer, basis: &DevMode, staand: &DevMode) -> DevMode {
+///
+/// Meldt in één regel welke weg het werd en waarom (`velkeuze_regel`,
+/// `meld`), zodat een afdruk achteraf na te gaan is.
+pub fn liggend_voor_opdracht(prn: &Printer, basis: &DevMode, staand: &DevMode, papier: Papier) -> DevMode {
+    let gegevens = prn.stuurprogramma_en_poort();
+    let (stuurprogramma, poort) = match &gegevens {
+        Some((s, p)) => (Some(s.as_str()), Some(p.as_str())),
+        None => (None, None),
+    };
+    let mut keuze = VelKeuze {
+        printer: prn.naam(),
+        stuurprogramma,
+        poort,
+        schrijft_document: gegevens.as_ref().is_some_and(|(s, p)| schrijft_document(s, p)),
+        papier,
+        staand_vel_mm: None,
+        gevraagde_maat_tiende_mm: None,
+        papiercode: None,
+        eigen_maat_tiende_mm: None,
+        devmode_liggend: None,
+        gemeten_mm: None,
+        weg: LiggendeWeg::Stand,
+        reden: "",
+    };
     let uit = std::env::var(LIGGEND_VEL_OMGEVING).ok();
-    if liggend_vel_uitgezet(uit.as_deref()) {
-        log::info!("[print] {LIGGEND_VEL_OMGEVING} staat uit: liggende stand voor elke printer");
-        return met_orientatie(prn, basis, true);
-    }
-    if prn.schrijft_document() {
-        if let Some(dm) = liggend_als_eigen_maat(prn, staand) {
-            return dm;
-        }
-    }
-    met_orientatie(prn, basis, true)
+    let dm = if liggend_vel_uitgezet(uit.as_deref()) {
+        keuze.reden = "uitgezet in de omgeving";
+        None
+    } else if !keuze.schrijft_document {
+        keuze.reden = if gegevens.is_none() { "stuurprogramma en poort onbekend" } else { "papieren printer" };
+        None
+    } else {
+        liggend_als_eigen_maat(prn, staand, &mut keuze)
+    };
+    meld(&velkeuze_regel(&keuze));
+    dm.unwrap_or_else(|| met_orientatie(prn, basis, true))
 }
 
 /// Waarmee het eigenschappenvenster opent: de in deze sessie gekozen
