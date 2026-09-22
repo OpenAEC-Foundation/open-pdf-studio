@@ -9,6 +9,7 @@ import {
   geldigeZoom, velOrientatie, schaalFactor, berekenPlaatsing, renderDeel, pdfPagina,
   GEEN_MARGES, margesVoor,
   PRINT_DPI, printPxPerPt, voegPrintPaginaToe,
+  DRAAIING_HAAKS, haaksOpVel, ongedraaidDeel,
 } from './print-plaatsing.js';
 import { PAPIERFORMATEN } from './print-pagina-instelling.js';
 
@@ -137,9 +138,10 @@ test('niet centreren: linksboven op het vel', () => {
   const p = plaats({ papier: vel('a3'), pagina: A4, schaling: 'custom-scale', zoom: 50, centreren: false });
   rechthoek(p.pagina, [0, 0, 105, 148.5]);
   const passend = plaats({ papier: vel('a3'), pagina: A4_LIGGEND, orientatie: 'portrait', centreren: false });
-  // Liggende pagina op een staand vel: passend op de breedte, bovenaan.
-  bijna(passend.schaal, 297 / 297);
-  rechthoek(passend.pagina, [0, 0, 297, 210]);
+  // Liggende pagina op een staand vel: een kwartslag gedraaid, passend, linksboven.
+  assert.equal(passend.gedraaid, true);
+  bijna(passend.schaal, 420 / 297);
+  rechthoek(passend.pagina, [0, 0, 210 * (420 / 297), 420]);
 });
 
 // --- oriëntatie ---------------------------------------------------------------
@@ -150,7 +152,100 @@ test('auto: een liggende pagina krijgt een liggend vel; staand gevraagd blijft s
   rechthoek(auto.pagina, [61.5, 43.5, 297, 210]);
   const staand = plaats({ papier: vel('a3'), pagina: A4_LIGGEND, schaling: 'actual', orientatie: 'portrait' });
   assert.deepEqual(staand.vel, { breedteMm: 297, hoogteMm: 420, orientatie: 'portrait' });
-  rechthoek(staand.pagina, [0, 105, 297, 210]);
+  // De pagina ligt een kwartslag gedraaid op het staande vel: 210 x 297 mm, gecentreerd.
+  assert.equal(staand.gedraaid, true);
+  rechthoek(staand.pagina, [43.5, 61.5, 210, 297]);
+});
+
+// --- haaks op het vel: een kwartslag linksom ------------------------------------
+
+test('haaks: alleen liggend op staand of staand op liggend; vierkant nooit', () => {
+  assert.equal(haaksOpVel(297, 210, 210, 297), true);
+  assert.equal(haaksOpVel(210, 297, 297, 210), true);
+  assert.equal(haaksOpVel(210, 297, 210, 297), false);
+  assert.equal(haaksOpVel(297, 210, 420, 297), false);
+  assert.equal(haaksOpVel(200, 200, 210, 297), false);
+  assert.equal(haaksOpVel(297, 210, 300, 300), false);
+  for (const onzin of [NaN, 0, -1, undefined]) assert.equal(haaksOpVel(onzin, 210, 210, 297), false);
+  // Een kwartslag linksom, genoteerd zoals /Rotate: graden met de klok mee.
+  assert.equal(DRAAIING_HAAKS, 270);
+});
+
+test('haaks: staande pagina op een handmatig liggend vel vult het vel', () => {
+  const p = plaats({ papier: vel('a4'), pagina: A4, orientatie: 'landscape' });
+  assert.deepEqual(p.vel, { breedteMm: 297, hoogteMm: 210, orientatie: 'landscape' });
+  assert.equal(p.gedraaid, true);
+  assert.equal(p.draaiing, DRAAIING_HAAKS);
+  bijna(p.schaal, 1);
+  rechthoek(p.pagina, [0, 0, 297, 210]);
+  // De pagina zoals ze op het vel ligt: breedte en hoogte gewisseld.
+  bijna(p.paginaPt.breedtePt, A4.hoogtePt);
+  bijna(p.paginaPt.hoogtePt, A4.breedtePt);
+  rechthoek(p.bron, [0, 0, A4.hoogtePt, A4.breedtePt], 1e-6);
+  assert.equal(p.afgesneden, false);
+});
+
+test('haaks: auto draait nooit (het vel volgt de pagina), vierkant ook niet', () => {
+  for (const pag of [A4, A4_LIGGEND, A1_LIGGEND]) {
+    const p = plaats({ papier: vel('a3'), pagina: pag });
+    assert.equal(p.gedraaid, false);
+    assert.equal(p.draaiing, 0);
+    assert.deepEqual(p.paginaPt, pag);
+  }
+  const vierkant = plaats({ papier: vel('a4'), pagina: pagina(200, 200), orientatie: 'landscape' });
+  assert.equal(vierkant.gedraaid, false);
+  // Onbekend papier: de pagina is het vel, dus nooit haaks.
+  const onbekend = plaats({ papier: null, pagina: A4, orientatie: 'landscape' });
+  assert.equal(onbekend.gedraaid, false);
+  assert.equal(onbekend.draaiing, 0);
+});
+
+test('haaks: de marges van het liggende vel gelden, de pagina past gedraaid in het gebied', () => {
+  const drie = { links: 3, boven: 3, rechts: 3, onder: 3 };
+  const papier = { ...vel('a4'), bedrukbaar: { staand: drie, liggend: { links: 5, boven: 3, rechts: 5, onder: 3 } } };
+  const p = plaats({ papier, pagina: A4, orientatie: 'landscape' });
+  assert.equal(p.gedraaid, true);
+  assert.deepEqual(p.marges, { links: 5, boven: 3, rechts: 5, onder: 3 });
+  // Gedraaid is de pagina 297 x 210; het vak is 287 x 204 → de hoogte beslist.
+  bijna(p.schaal, Math.min(287 / 297, 204 / 210));
+  assert.equal(p.buitenBedrukbaar, false);
+});
+
+test('ongedraaidDeel: van het beeld op het vel terug naar de pixels van de pagina', () => {
+  // Niet gedraaid: hetzelfde deel.
+  const recht = plaats({ papier: vel('a3'), pagina: A4, schaling: 'actual' });
+  const d = renderDeel(recht, 2);
+  assert.deepEqual(ongedraaidDeel(recht, 2, d.px), d.px);
+
+  // Gedraaid, hele pagina: breedte en hoogte gewisseld, vanaf (0, 0).
+  const p = plaats({ papier: vel('a4'), pagina: A4, orientatie: 'landscape' });
+  const pxPerPt = 2;
+  const heel = renderDeel(p, pxPerPt);
+  const volB = Math.ceil(A4.breedtePt * pxPerPt - 1e-6);
+  const volH = Math.ceil(A4.hoogtePt * pxPerPt - 1e-6);
+  assert.deepEqual(heel.px, { x: 0, y: 0, breedte: volH, hoogte: volB });
+  assert.deepEqual(ongedraaidDeel(p, pxPerPt, heel.px), { x: 0, y: 0, breedte: volB, hoogte: volH });
+
+  // Een kwartslag linksom: de bovenrand van de pagina ligt links op het vel.
+  // Een strook links op het vel (x' 0..10) is dus de bovenste strook van de
+  // pagina (y 0..10); een strook boven op het vel (y' 0..10) de rechterstrook.
+  assert.deepEqual(
+    ongedraaidDeel(p, pxPerPt, { x: 0, y: 0, breedte: 10, hoogte: volB }),
+    { x: 0, y: 0, breedte: volB, hoogte: 10 },
+  );
+  assert.deepEqual(
+    ongedraaidDeel(p, pxPerPt, { x: 0, y: 0, breedte: volH, hoogte: 10 }),
+    { x: volB - 10, y: 0, breedte: 10, hoogte: volH },
+  );
+});
+
+test('haaks en afgesneden: alleen het deel op het vel, in het gedraaide beeld', () => {
+  // A3 staand op een handmatig liggend A4-vel, ware grootte: gedraaid 420 x 297 mm.
+  const p = plaats({ papier: vel('a4'), pagina: pagina(297, 420), orientatie: 'landscape', schaling: 'actual' });
+  assert.equal(p.gedraaid, true);
+  assert.equal(p.afgesneden, true);
+  rechthoek(p.pagina, [(297 - 420) / 2, (210 - 297) / 2, 420, 297]);
+  rechthoek(p.bron, [pt(61.5), pt(43.5), pt(297), pt(210)], 1e-6);
 });
 
 test('het papier mag in elke volgorde binnenkomen', () => {
@@ -328,6 +423,39 @@ test('onbekend papier: de pagina is het vel, ongeacht type en zoom', () => {
     rechthoek(p.pagina, [0, 0, 297, 210]);
     assert.equal(p.afgesneden, false);
   }
+});
+
+// --- het vel is de pagina zelf, in de gekozen stand ("Opslaan als PDF" zonder formaat) ----
+
+test('papier "pagina": het vel heeft de maat van de pagina en is bekend', () => {
+  const p = plaats({ papier: 'pagina', pagina: A4_LIGGEND });
+  assert.equal(p.bekend, true);
+  assert.deepEqual(p.vel, { breedteMm: 297, hoogteMm: 210, orientatie: 'landscape' });
+  assert.equal(p.gedraaid, false);
+  bijna(p.schaal, 1);
+  rechthoek(p.pagina, [0, 0, 297, 210]);
+  assert.equal(p.afgesneden, false);
+  // Elke pagina haar eigen vel: een andere maat geeft een ander vel.
+  const groot = plaats({ papier: 'pagina', pagina: A1_LIGGEND });
+  bijna(groot.vel.breedteMm, 841);
+  bijna(groot.vel.hoogteMm, 594);
+  assert.equal(groot.vel.orientatie, 'landscape');
+});
+
+test('papier "pagina": een handmatige stand haaks op de pagina draait haar op het vel', () => {
+  const p = plaats({ papier: 'pagina', pagina: A4_LIGGEND, orientatie: 'portrait' });
+  assert.deepEqual(p.vel, { breedteMm: 210, hoogteMm: 297, orientatie: 'portrait' });
+  assert.equal(p.gedraaid, true);
+  assert.equal(p.draaiing, DRAAIING_HAAKS);
+  bijna(p.schaal, 1);
+  rechthoek(p.pagina, [0, 0, 210, 297]);
+  assert.equal(p.afgesneden, false);
+  // Dezelfde stand als de pagina: niets te draaien.
+  const zelfde = plaats({ papier: 'pagina', pagina: A4_LIGGEND, orientatie: 'landscape' });
+  assert.equal(zelfde.gedraaid, false);
+  // Aangepaste schaal geldt op dat vel.
+  const half = plaats({ papier: 'pagina', pagina: A4, schaling: 'custom-scale', zoom: 50 });
+  rechthoek(half.pagina, [52.5, 74.25, 105, 148.5]);
 });
 
 test('onbruikbare paginamaat: geen plaatsing', () => {

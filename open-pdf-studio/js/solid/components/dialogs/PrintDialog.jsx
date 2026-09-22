@@ -3,10 +3,10 @@ import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { state, getActiveDocument, getPageRotation } from '../../../core/state.js';
 import { invoke } from '../../../core/platform.js';
-import { parsePageRange, renderPageOffscreen } from '../../../pdf/exporter.js';
+import { parsePageRange } from '../../../pdf/exporter.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { loadPrinters, printerList as cachedPrinters, defaultPrinterName, printerErrorMessage } from '../../stores/printerStore.js';
-import { runPrintJob } from '../../../pdf/print-job.js';
+import { runPrintJob, renderPrintBeeld } from '../../../pdf/print-job.js';
 import { savePreferences } from '../../../core/preferences.js';
 import { herstelPrintInstellingen, kiesStartPrinter } from '../../stores/print-instellingen.js';
 import { printArgumenten } from '../../../pdf/print-pagina-instelling.js';
@@ -195,9 +195,11 @@ export default function PrintDialog(props) {
       const pxPerMm = breedte / plaatsing.vel.breedteMm;
       const pxPerPt = plaatsing.schaal * MM_PER_PT * pxPerMm;
 
+      // Hetzelfde beeld als de printopdracht, inclusief de kwartslag voor een
+      // pagina die haaks op het vel staat.
       const deel = renderDeel(plaatsing, pxPerPt);
       const beeld = deel
-        ? await renderPageOffscreen(pageNum, pxPerPt, { deel: deel.px, markeringen })
+        ? await renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen })
         : null;
       if (beurt !== voorbeeldBeurt) return;
 

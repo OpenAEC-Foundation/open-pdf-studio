@@ -12,6 +12,17 @@
 // uit de printer komt; rechthoeken op de pagina in pt vanaf de linkerbovenhoek
 // van de pagina.
 //
+// Haaks op het vel: staat de pagina liggend en het vel staand (of andersom),
+// dan komt de pagina een kwartslag LINKSOM gedraaid op het vel te liggen, zodat
+// ze het vel vult in plaats van er op zo'n 70 % met brede witranden op te
+// staan. Dat gebeurt alleen bij een handmatig gekozen stand ("Automatisch
+// draaien" uit): bij 'auto' volgt het vel de pagina. De printkern in Rust
+// (print_plaatsing.rs, `draaiing_voor_vel`) gebruikt dezelfde regel en dezelfde
+// richting voor het geval het stuurprogramma een ander vel geeft dan gevraagd.
+// Alle rechthoeken op de pagina (`paginaPt`, `bron`, `renderDeel`) gelden dan
+// voor de pagina zoals ze op het vel ligt; `ongedraaidDeel` rekent terug naar
+// de pagina zoals ze getoond wordt.
+//
 // Bijna elke printer heeft een onbedrukbare rand. Die meldt Rust per
 // oriëntatie (printer_bedrukbaar); "Passend" en "Verkleinen" blijven binnen
 // dat gebied, zodat er niet bij elke afdruk een rand wegvalt. "Werkelijke
@@ -56,6 +67,24 @@ export function geldigeZoom(zoom) {
 export function velOrientatie(orientatie, breedtePt, hoogtePt) {
   if (orientatie === 'portrait' || orientatie === 'landscape') return orientatie;
   return paginaOrientatie(breedtePt, hoogtePt);
+}
+
+/**
+ * De draaiing van een pagina die haaks op het vel staat: een kwartslag linksom
+ * (de bovenrand van de pagina komt aan de linkerrand van het vel). Genoteerd
+ * zoals /Rotate in een PDF: graden met de klok mee, dus 270.
+ */
+export const DRAAIING_HAAKS = 270;
+
+/**
+ * Staat de pagina haaks op het vel: liggend op een staand vel of staand op een
+ * liggend vel? Een vierkante pagina of een vierkant vel staat nooit haaks;
+ * onbruikbare maten ook niet.
+ */
+export function haaksOpVel(paginaB, paginaH, velB, velH) {
+  if (![paginaB, paginaH, velB, velH].every(geldig)) return false;
+  if (paginaB === paginaH || velB === velH) return false;
+  return (paginaB > paginaH) !== (velB > velH);
 }
 
 /**
@@ -109,14 +138,19 @@ function snijding(a, b) {
  * `papier` is het vel staand in mm (volgorde maakt niet uit), of null als het
  * papier onbekend is: dan blijft het gedrag van vóór de schaalkeuze, de pagina
  * is het vel (het voorbeeld toont de pagina, de printer past haar in).
+ * `papier: 'pagina'` (het doel "Opslaan als PDF" zonder formaat, waar geen
+ * stuurprogramma meer inpast): het vel heeft de maat van de pagina zelf, maar
+ * is een bekend vel — de gekozen stand en de schaal gelden erop, en een pagina
+ * haaks op die stand komt gedraaid op het vel.
  *
- * @param {{ papier: {breedteMm:number, hoogteMm:number}|null,
+ * @param {{ papier: {breedteMm:number, hoogteMm:number}|'pagina'|null,
  *           orientatie?: 'auto'|'portrait'|'landscape',
  *           pagina: {breedtePt:number, hoogtePt:number},
  *           schaling?: string, zoom?: number, centreren?: boolean }} p
  * @returns {null | {
  *   bekend: boolean,
  *   vel: {breedteMm:number, hoogteMm:number, orientatie:'portrait'|'landscape'},
+ *   gedraaid: boolean, draaiing: 0|270,
  *   paginaPt: {breedtePt:number, hoogtePt:number},
  *   pagina: {x:number, y:number, breedte:number, hoogte:number},
  *   zichtbaar: {x:number, y:number, breedte:number, hoogte:number}|null,
@@ -125,9 +159,14 @@ function snijding(a, b) {
  *   marges: {links:number, boven:number, rechts:number, onder:number},
  *   bedrukbaar: {x:number, y:number, breedte:number, hoogte:number},
  *   afgesneden: boolean, buitenBedrukbaar: boolean }}
+ *   gedraaid = de pagina stond haaks op het vel en ligt er een kwartslag
+ *   linksom op (draaiing = DRAAIING_HAAKS, anders 0);
+ *   paginaPt = de pagina zoals ze op het vel ligt (gedraaid: breedte en hoogte
+ *   gewisseld);
  *   pagina = de hele pagina op het vel (mm, mag buiten het vel steken);
  *   zichtbaar = het deel daarvan dat op het vel valt (mm);
- *   bron = datzelfde deel in paginacoördinaten (pt);
+ *   bron = datzelfde deel in coördinaten van de pagina zoals ze op het vel
+ *   ligt (pt);
  *   schaal = mm op het vel per mm op de pagina (1 = ware grootte);
  *   bedrukbaar = het bedrukbare gebied op het vel (marges van de printer);
  *   afgesneden = steekt buiten het vel, buitenBedrukbaar = buiten dat gebied.
@@ -137,16 +176,25 @@ export function berekenPlaatsing({
   papier, orientatie = 'auto', pagina, schaling = 'fit', zoom = 100, centreren = true,
 }) {
   if (!pagina || !geldig(pagina.breedtePt) || !geldig(pagina.hoogtePt)) return null;
-  const paginaPt = { breedtePt: pagina.breedtePt, hoogtePt: pagina.hoogtePt };
-  const pagB = pagina.breedtePt * MM_PER_PT;
-  const pagH = pagina.hoogtePt * MM_PER_PT;
+
+  // Het vel is de pagina zelf: haar korte en lange zijde, als bekend vel.
+  if (papier === 'pagina') {
+    papier = {
+      breedteMm: Math.min(pagina.breedtePt, pagina.hoogtePt) * MM_PER_PT,
+      hoogteMm: Math.max(pagina.breedtePt, pagina.hoogtePt) * MM_PER_PT,
+    };
+  }
 
   if (!papier || !geldig(papier.breedteMm) || !geldig(papier.hoogteMm)) {
+    const pagB = pagina.breedtePt * MM_PER_PT;
+    const pagH = pagina.hoogtePt * MM_PER_PT;
     const heel = { x: 0, y: 0, breedte: pagB, hoogte: pagH };
     return {
       bekend: false,
       vel: { breedteMm: pagB, hoogteMm: pagH, orientatie: paginaOrientatie(pagina.breedtePt, pagina.hoogtePt) },
-      paginaPt,
+      gedraaid: false,
+      draaiing: 0,
+      paginaPt: { breedtePt: pagina.breedtePt, hoogtePt: pagina.hoogtePt },
       pagina: heel,
       zichtbaar: { ...heel },
       bron: { x: 0, y: 0, breedte: pagina.breedtePt, hoogte: pagina.hoogtePt },
@@ -163,6 +211,15 @@ export function berekenPlaatsing({
   const or = velOrientatie(orientatie, pagina.breedtePt, pagina.hoogtePt);
   const velB = or === 'landscape' ? lang : kort;
   const velH = or === 'landscape' ? kort : lang;
+
+  // Haaks op het vel: de pagina komt een kwartslag linksom te liggen. Vanaf
+  // hier is "de pagina" de pagina zoals ze op het vel ligt.
+  const gedraaid = haaksOpVel(pagina.breedtePt, pagina.hoogtePt, velB, velH);
+  const paginaPt = gedraaid
+    ? { breedtePt: pagina.hoogtePt, hoogtePt: pagina.breedtePt }
+    : { breedtePt: pagina.breedtePt, hoogtePt: pagina.hoogtePt };
+  const pagB = paginaPt.breedtePt * MM_PER_PT;
+  const pagH = paginaPt.hoogtePt * MM_PER_PT;
 
   // Het bedrukbare gebied van de printer (printer_bedrukbaar); onbekend = het
   // hele vel, zoals vóór deze meting.
@@ -206,6 +263,8 @@ export function berekenPlaatsing({
   return {
     bekend: true,
     vel: { breedteMm: velB, hoogteMm: velH, orientatie: or },
+    gedraaid,
+    draaiing: gedraaid ? DRAAIING_HAAKS : 0,
     paginaPt,
     pagina: op,
     zichtbaar,
@@ -251,6 +310,20 @@ export function renderDeel(plaatsing, pxPerPt) {
     px: { x: x0, y: y0, breedte: x1 - x0, hoogte: y1 - y0 },
     opVel: { x: links, y: boven, breedte: opX(x1) - links, hoogte: opY(y1) - boven },
   };
+}
+
+/**
+ * Het deel uit `renderDeel` (pixels van de pagina zoals ze op het vel ligt)
+ * terug naar de pixels van de pagina zoals ze getoond wordt: dat deel wordt
+ * gerenderd en daarna een kwartslag linksom gedraaid. Niet gedraaid: hetzelfde
+ * deel. Een kwartslag linksom legt punt (x, y) van een pagina van B pixels
+ * breed op (y, B - x); hier de omgekeerde weg.
+ */
+export function ongedraaidDeel(plaatsing, pxPerPt, px) {
+  if (!plaatsing || !plaatsing.gedraaid || !px) return px;
+  // De breedte van de getoonde pagina is de hoogte van de gedraaide.
+  const volB = Math.max(1, Math.ceil(plaatsing.paginaPt.hoogtePt * pxPerPt - 1e-6));
+  return { x: volB - (px.y + px.hoogte), y: px.x, breedte: px.hoogte, hoogte: px.breedte };
 }
 
 /** Resolutie van het paginabeeld in de tijdelijke print-PDF. */

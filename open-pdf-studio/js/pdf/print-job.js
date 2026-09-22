@@ -8,11 +8,43 @@ import { getActiveDocument, getPageRotation } from '../core/state.js';
 import { invoke } from '../core/platform.js';
 import { renderPageOffscreen, canvasToBytes } from './exporter.js';
 import { viewportOpties } from './getoonde-pagina.js';
-import { berekenPlaatsing, renderDeel, printPxPerPt, voegPrintPaginaToe } from './print-plaatsing.js';
+import {
+  berekenPlaatsing, renderDeel, ongedraaidDeel, printPxPerPt, voegPrintPaginaToe,
+} from './print-plaatsing.js';
 import { markeringenVoorInhoud } from '../solid/stores/print-instellingen.js';
 import {
   startPrintProgress, updatePrintProgress, finishPrintProgress, failPrintProgress,
 } from '../solid/stores/printProgressStore.js';
+
+/**
+ * Een canvas een kwartslag linksom gedraaid: de bovenrand komt links. Dezelfde
+ * richting als DRAAIING_HAAKS in print-plaatsing.js en als de printkern in
+ * Rust (`draai_linksom`).
+ */
+function kwartslagLinksom(canvas) {
+  const uit = document.createElement('canvas');
+  uit.width = canvas.height;
+  uit.height = canvas.width;
+  const ctx = uit.getContext('2d');
+  ctx.translate(0, uit.height);
+  ctx.rotate(-Math.PI / 2);
+  ctx.drawImage(canvas, 0, 0);
+  return uit;
+}
+
+/**
+ * Het paginabeeld van `deel` (renderDeel) zoals het op het vel ligt: gerenderd
+ * uit de getoonde pagina en, als de pagina haaks op het vel stond
+ * (`plaatsing.gedraaid`), een kwartslag linksom gedraaid. Het voorbeeld in de
+ * printdialoog en de printopdracht gebruiken allebei deze functie.
+ * @returns {Promise<HTMLCanvasElement>}
+ */
+export async function renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen = true } = {}) {
+  const canvas = await renderPageOffscreen(pageNum, pxPerPt, {
+    deel: ongedraaidDeel(plaatsing, pxPerPt, deel.px), markeringen,
+  });
+  return plaatsing.gedraaid ? kwartslagLinksom(canvas) : canvas;
+}
 
 /**
  * The temporary print PDF (not saved yet): every page as a page image. Scale
@@ -57,7 +89,7 @@ export async function bouwPrintPdf({
 
     const pxPerPt = printPxPerPt(plaatsing);
     const deel = renderDeel(plaatsing, pxPerPt);
-    const canvas = await renderPageOffscreen(pageNum, pxPerPt, { deel: deel.px, markeringen });
+    const canvas = await renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen });
     const jpegBytes = await canvasToBytes(canvas, 'jpeg', 0.92);
     voegPrintPaginaToe(pdf, plaatsing, deel, await pdf.embedJpg(jpegBytes));
   }
