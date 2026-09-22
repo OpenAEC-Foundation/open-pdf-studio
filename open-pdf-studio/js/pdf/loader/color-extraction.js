@@ -890,6 +890,27 @@ const result = {};
           colors.ic = pdfColorToHex(ic, context);
         }
 
+        // Randkleur aanwezig? Bij FreeText is /IC de rand, anders /C. Ontbreekt
+        // hij of is hij leeg, dan is de vorm met /W 0 randloos (loader/geen-rand.js).
+        const rkRaw = annotDict.get(PDFName.of(subtypeName === '/FreeText' ? 'IC' : 'C'));
+        const rk = rkRaw ? (context.lookup(rkRaw) || rkRaw) : null;
+        colors.geenRandkleur = !rk || (typeof rk.size === 'function' && rk.size() === 0);
+        // Eigen sleutel van een vorm zonder rand (zie markeerZonderRand in saver/utils.js).
+        const nsRaw = annotDict.get(PDFName.of('OPS_NoStroke'));
+        if (nsRaw !== undefined) {
+          const ns = context.lookup(nsRaw) || nsRaw;
+          const bewaard = {};
+          if (ns instanceof PDFDict) {
+            const nsW = ns.get(PDFName.of('W'));
+            const w = nsW !== undefined ? pdfNum(context.lookup(nsW) || nsW) : null;
+            if (w !== null) bewaard.lijndikte = w;
+            const nsC = ns.get(PDFName.of('C'));
+            const kleur = nsC ? pdfColorToHex(context.lookup(nsC) || nsC, context) : null;
+            if (kleur) bewaard.kleur = kleur;
+          }
+          colors.opsNoStroke = bewaard;
+        }
+
         // For Line annotations, read original /L array (PDF.js normalizeRect destroys direction)
         if (subtypeName === '/Line') {
           const lRaw = annotDict.get(PDFName.of('L'));

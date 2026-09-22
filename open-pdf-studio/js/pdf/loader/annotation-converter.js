@@ -20,6 +20,7 @@ import { pasRegelafstandAanDoos } from '../../annotations/rendering/textbox-layo
 import { toWinAnsiText } from '../saver/pdf-text.js';
 import { maatVanGedraaideVorm } from './gedraaide-vorm-maat.js';
 import { tekstvakRotatie, tekstvakMaat } from './tekstvak-rotatie.js';
+import { randloosUitExtra } from './geen-rand.js';
 
 // Convert PDF annotation to our format
 export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageMap, annotColorMap) {
@@ -389,6 +390,8 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
       };
       if (sqRotation) sqProps.rotation = sqRotation;
       if (extraColors.cross && sqProps.type === 'box') sqProps.cross = true;
+      // Vorm zonder rand (#431): strokeColor 'none' met de lijndikte-instelling.
+      Object.assign(sqProps, randloosUitExtra(extraColors));
       return createAnnotation(sqProps);
     }
 
@@ -428,6 +431,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
       };
       if (crRotation) crProps.rotation = crRotation;
       if (extraColors.cross) crProps.cross = true;
+      Object.assign(crProps, randloosUitExtra(extraColors)); // zonder rand (#431)
       return createAnnotation(crProps);
     }
 
@@ -971,6 +975,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
               });
             });
           }
+          Object.assign(faProps, randloosUitExtra(extraColors)); // zonder rand (#431)
           return createAnnotation(faProps);
         }
 
@@ -1016,6 +1021,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
               })
             );
           }
+          Object.assign(maProps, randloosUitExtra(extraColors)); // zonder rand (#431)
           return createAnnotation(maProps);
         }
 
@@ -1050,6 +1056,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           borderStyle: mapBorderStyle(annot, extraColors),
           ...(extraColors.cloudIntensity !== undefined ? { cloudIntensity: extraColors.cloudIntensity } : {})
         };
+        Object.assign(polyProps, randloosUitExtra(extraColors)); // zonder rand (#431)
 
         return createAnnotation(polyProps);
       }
@@ -1187,7 +1194,11 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
       // Border style: 1=SOLID, 2=DASHED, 3=BEVELED, 4=INSET, 5=UNDERLINE
       const bsStyle = annot.borderStyle?.style;
       const borderStyle = bsStyle === 2 ? 'dashed' : (bsStyle === 3 || bsStyle === 4 ? 'dotted' : 'solid');
-      const borderWidth = extraColors.borderWidth !== undefined ? extraColors.borderWidth : (annot.borderStyle?.width || 1);
+      // Zonder rand (#431): /W is 0, de lijndikte-instelling (die ook de
+      // binnenmarge van het tekstvak bepaalt) staat in de eigen sleutel.
+      const zonderRand = randloosUitExtra(extraColors);
+      const borderWidth = zonderRand ? zonderRand.lineWidth
+        : extraColors.borderWidth !== undefined ? extraColors.borderWidth : (annot.borderStyle?.width || 1);
 
       // Weergaverotatie en doosmaat: zie tekstvak-rotatie.js.
       const ftRotation = tekstvakRotatie({
@@ -1290,7 +1301,8 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
           ...(extraColors.borderCloudy ? {
             borderEffect: 'cloudy',
             ...(extraColors.cloudIntensity !== undefined ? { cloudIntensity: extraColors.cloudIntensity } : {})
-          } : {})
+          } : {}),
+          ...zonderRand,
         });
       }
 
@@ -1333,7 +1345,8 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
         ...(extraColors.borderCloudy ? {
           borderEffect: 'cloudy',
           ...(extraColors.cloudIntensity !== undefined ? { cloudIntensity: extraColors.cloudIntensity } : {})
-        } : {})
+        } : {}),
+        ...zonderRand,
       });
       // Stash raw PDF Rect so loader can resolve IRT-linked leader PolyLines.
       // Cleared by loader after leader-attach pass.
