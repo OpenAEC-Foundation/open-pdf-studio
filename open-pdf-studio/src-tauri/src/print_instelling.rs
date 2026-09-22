@@ -252,6 +252,18 @@ pub fn schrijft_document(stuurprogramma: &str, poort: &str) -> bool {
     is_pad && [".pdf", ".ps", ".eps", ".xps", ".oxps"].iter().any(|ext| bestand.ends_with(ext))
 }
 
+/// De omgevingsvariabele waarmee het liggende vel als eigen maat uit gaat.
+pub const LIGGEND_VEL_OMGEVING: &str = "OPDS_LIGGEND_VEL";
+
+/// Staat het liggende vel als eigen maat uit? Zo blijft het terug te zetten
+/// op de liggende stand (het gedrag van vóór deze regel) zonder nieuwe
+/// versie, als een stuurprogramma er iets onverwachts mee doet.
+/// `OPDS_LIGGEND_VEL=0` (of "uit", "off", "false") zet het uit; al het
+/// andere, en een lege of ontbrekende waarde, laat het aan.
+pub fn liggend_vel_uitgezet(waarde: Option<&str>) -> bool {
+    waarde.is_some_and(|v| matches!(v.trim().to_ascii_lowercase().as_str(), "0" | "uit" | "off" | "false"))
+}
+
 /// Het liggende vel als eigen maat voor een staande DEVMODE:
 /// `(dmPaperWidth, dmPaperLength)` in 0,1 mm, de lange zijde als breedte. Uit
 /// het vel `vel_mm` van de staande DEVMODE (zijden in willekeurige volgorde).
@@ -968,6 +980,17 @@ mod tests {
         // dmPaperWidth is een i16 in 0,1 mm: tot 3276,7 mm.
         assert_eq!(liggende_eigen_maat_tiende_mm((400.0, 3300.0)), None);
         assert_eq!(liggende_eigen_maat_tiende_mm((400.0, 3276.7)), Some((32767, 4000)));
+    }
+
+    #[test]
+    fn liggend_vel_is_uit_te_zetten_in_de_omgeving() {
+        for uit in ["0", " 0 ", "uit", "OFF", "False"] {
+            assert!(liggend_vel_uitgezet(Some(uit)), "{uit}");
+        }
+        for aan in ["", "1", "aan", "ja", "onzin"] {
+            assert!(!liggend_vel_uitgezet(Some(aan)), "{aan}");
+        }
+        assert!(!liggend_vel_uitgezet(None));
     }
 
     #[test]

@@ -49,8 +49,9 @@ use windows_sys::Win32::Storage::Xps::{DeviceCapabilitiesW, DC_PAPERNAMES, DC_PA
 use windows_sys::Win32::UI::WindowsAndMessaging::{IDCANCEL, IDOK};
 
 use crate::print_instelling::{
-    beschrijft_vel, dmpaper, liggend_vel_aangenomen, liggende_eigen_maat_tiende_mm, schrijft_document,
-    zelfde_maat_mm, EigenschappenKeuze, Orientatie, Papier, PapierInfo,
+    beschrijft_vel, dmpaper, liggend_vel_aangenomen, liggend_vel_uitgezet, liggende_eigen_maat_tiende_mm,
+    schrijft_document, zelfde_maat_mm, EigenschappenKeuze, Orientatie, Papier, PapierInfo,
+    LIGGEND_VEL_OMGEVING,
 };
 
 /// UTF-16 met afsluitende nul, voor de W-functies.
@@ -753,7 +754,15 @@ fn liggend_als_eigen_maat(prn: &Printer, staand: &DevMode) -> Option<DevMode> {
 /// elke papieren printer, de liggende stand (`met_orientatie`) zoals altijd:
 /// daar is een liggend vel als eigen maat juist verkeerd, want de printer
 /// heeft dat medium niet.
+///
+/// Met `OPDS_LIGGEND_VEL=0` in de omgeving krijgt elke printer de liggende
+/// stand, zoals vóór deze regel (`liggend_vel_uitgezet`).
 pub fn liggend_voor_opdracht(prn: &Printer, basis: &DevMode, staand: &DevMode) -> DevMode {
+    let uit = std::env::var(LIGGEND_VEL_OMGEVING).ok();
+    if liggend_vel_uitgezet(uit.as_deref()) {
+        log::info!("[print] {LIGGEND_VEL_OMGEVING} staat uit: liggende stand voor elke printer");
+        return met_orientatie(prn, basis, true);
+    }
     if prn.schrijft_document() {
         if let Some(dm) = liggend_als_eigen_maat(prn, staand) {
             return dm;

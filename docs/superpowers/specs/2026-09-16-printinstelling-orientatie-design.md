@@ -234,7 +234,10 @@ een echte afdruk te controleren.
 
 De printdialoog krijgt geen nieuwe keuze: de kop toont het vel al met zijn
 stand, en bij een bestandsprinter blijft de hint naar "Opslaan als PDF"
-staan (vectoren, en een stand die niet van het stuurprogramma afhangt).
+staan (vectoren, en een stand die niet van het stuurprogramma afhangt). Voor
+het geval een stuurprogramma toch iets onverwachts met de eigen maat doet,
+is de hele regel zonder nieuwe versie terug te zetten op de liggende stand:
+`OPDS_LIGGEND_VEL=0` in de omgeving (`liggend_vel_uitgezet`).
 
 [AutoRotatePages]: https://ghostscript.readthedocs.io/en/latest/VectorDevices.html
 [DEVMODEW]: https://learn.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-devmodew
