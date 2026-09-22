@@ -618,11 +618,11 @@ fn met_papier(prn: &Printer, basis: &DevMode, uit_sessie: bool, papier: Papier) 
     if zonder_code {
         let gecontroleerd = prn.valideren(&dm).unwrap_or_else(|_| dm.clone());
         if !neemt_vel(prn.naam(), &gecontroleerd, papier) {
-            log::warn!(
+            meld(&format!(
                 "[print] '{}' neemt papier {} niet over; het papier van de printer blijft staan",
                 prn.naam(),
                 papier.sleutel()
-            );
+            ));
             return (basis.clone(), false);
         }
     }
