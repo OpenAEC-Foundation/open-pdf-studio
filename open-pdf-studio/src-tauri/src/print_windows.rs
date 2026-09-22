@@ -51,7 +51,7 @@ use crate::pdfium_renderer;
 use crate::print_devmode::{
     breed, devmode_voor_opdracht, liggend_voor_opdracht, met_orientatie, DevMode, Printer,
 };
-use crate::print_instelling::{dmpaper, liggend_voor_pagina, papier_uit_maat_mm, Orientatie, Papier};
+use crate::print_instelling::{dmpaper, liggend_voor_pagina, meld, papier_uit_maat_mm, Orientatie, Papier};
 use crate::print_plaatsing::{
     deel_linksom, deel_op_vel, draai_linksom, draaiing_voor_vel, fijnste_afbeelding_dpi, inhoud_deel, marges_uit_dc,
     passend_in_bedrukbaar, render_dpi, Bedrukbaar, DcRechthoek, DcVel, PaginaDeel, Plaatsing,
@@ -110,7 +110,7 @@ impl OpdrachtDevmodes {
         let prn = Printer::open(printer)?;
         let basis = devmode_voor_opdracht(&prn, opgeslagen, papier)?;
         let staand = met_orientatie(&prn, &basis, false);
-        let liggend = liggend_voor_opdracht(&prn, &basis, &staand);
+        let liggend = liggend_voor_opdracht(&prn, &basis, &staand, papier);
         Ok(OpdrachtDevmodes { staand, liggend })
         // `prn` gaat hier dicht (Drop).
     }
@@ -188,7 +188,12 @@ fn beeld_op_vel(doc: &PdfDocument<'static>, i: u32, apparaat_dpi: i32, vel: &DcV
     // De pagina zoals ze op het vel ligt: gedraaid zijn breedte en hoogte gewisseld.
     let op_vel = if draaiing == 0 { pagina } else { (pagina.1, pagina.0) };
     if draaiing != 0 {
-        log::info!("[print] pagina {} staat haaks op het vel; beeld een kwartslag gedraaid", i + 1);
+        meld(&format!(
+            "[print] pagina {} ({:.0} x {:.0} pt) staat haaks op het vel; beeld een kwartslag gedraaid",
+            i + 1,
+            pagina.0,
+            pagina.1
+        ));
     }
     let inhoud = match pdfium_renderer::page_content(doc, i) {
         Ok(inhoud) if !inhoud.gedraaid => Some(inhoud),
@@ -338,6 +343,23 @@ fn print_met_devmodes(
         }
     };
 
+    // Eén regel per opdracht: wat er gevraagd is en wat de DC ervan maakte.
+    let (dc_b, dc_h) = vel_mm(hdc);
+    let eerste_vel = dc_vel(hdc);
+    meld(&format!(
+        "[print] opdracht: printer '{printer}' papier={} stand={orientatie:?} plaatsing={plaatsing:?} \
+         pagina's={page_count} devmode={} eerste-pagina={} | DC-vel {dc_b:.1} x {dc_h:.1} mm ({}) \
+         bedrukbaar {} x {} px, {} x {} dpi",
+        papier.sleutel(),
+        if devmodes.is_some() { "volledig" } else { "noodweg" },
+        if eerste_liggend { "liggend" } else { "staand" },
+        if dc_b > dc_h { "liggend" } else { "staand" },
+        eerste_vel.bedrukbaar.0,
+        eerste_vel.bedrukbaar.1,
+        eerste_vel.dpi.0,
+        eerste_vel.dpi.1,
+    ));
+
     let doc_name = breed(pad.file_name().and_then(|n| n.to_str()).unwrap_or("Document"));
     let uitvoer_w = uitvoer.map(|p| breed(&p.to_string_lossy()));
     let di = DOCINFOW {
@@ -370,9 +392,18 @@ fn print_met_devmodes(
             // De driver weigerde; de pagina gaat met de vorige stand mee in
             // plaats van de opdracht af te breken.
             Some(r) if r.is_null() => {
-                log::warn!("[print] ResetDC geweigerd voor pagina {} ({:?}, {:?})", i + 1, orientatie, papier)
+                meld(&format!("[print] pagina {}: ResetDC geweigerd ({orientatie:?}, {papier:?})", i + 1))
             }
-            Some(_) => dc_liggend = liggend,
+            Some(_) => {
+                dc_liggend = liggend;
+                let (b, h) = vel_mm(hdc);
+                meld(&format!(
+                    "[print] pagina {}: vel omgezet naar {} -> DC-vel {b:.1} x {h:.1} mm ({})",
+                    i + 1,
+                    if liggend { "liggend" } else { "staand" },
+                    if b > h { "liggend" } else { "staand" }
+                ));
+            }
             None => {}
         }
         // Het vel na een eventuele ResetDC opnieuw lezen.
@@ -385,6 +416,12 @@ fn print_met_devmodes(
                 // linksom, zodat het beeld het vel vult.
                 let (pw, ph) = pdfium_renderer::page_size_pt(doc, i)?;
                 let draaiing = draaiing_voor_vel((pw as f64, ph as f64), &vel);
+                if draaiing != 0 {
+                    meld(&format!(
+                        "[print] pagina {} ({pw:.0} x {ph:.0} pt) staat haaks op het vel; beeld een kwartslag gedraaid",
+                        i + 1
+                    ));
+                }
                 let (w, h, rgba) = pdfium_renderer::render_page_to_rgba(doc, i, scale, draaiing)
                     .map_err(|e| format!("Render page {} failed: {e}", i + 1))?;
                 // Pagina passend in het printbare gebied, verhouding behouden, gecentreerd.
