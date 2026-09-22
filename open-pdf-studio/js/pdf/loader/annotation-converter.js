@@ -20,7 +20,7 @@ import { pasRegelafstandAanDoos } from '../../annotations/rendering/textbox-layo
 import { toWinAnsiText } from '../saver/pdf-text.js';
 import { maatVanGedraaideVorm } from './gedraaide-vorm-maat.js';
 import { tekstvakRotatie, tekstvakMaat } from './tekstvak-rotatie.js';
-import { randloosUitExtra } from './geen-rand.js';
+import { onzichtbaarVlakUitExtra, randloosUitExtra } from './geen-rand.js';
 import { opmerkingUitAnnot, zonderDubbeleOpmerking } from './annotatie-opmerking.js';
 
 /**
@@ -407,6 +407,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
       if (extraColors.cross && sqProps.type === 'box') sqProps.cross = true;
       // Vorm zonder rand (#431): strokeColor 'none' met de lijndikte-instelling.
       Object.assign(sqProps, randloosUitExtra(extraColors));
+      // Onzichtbaar vlak (#435): hulplijn op het scherm, geen streek bij opslaan.
+      if (onzichtbaarVlakUitExtra(extraColors)) sqProps.onzichtbaarVlak = true;
       return createAnnotation(sqProps);
     }
 
@@ -447,6 +449,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
       if (crRotation) crProps.rotation = crRotation;
       if (extraColors.cross) crProps.cross = true;
       Object.assign(crProps, randloosUitExtra(extraColors)); // zonder rand (#431)
+      // Onzichtbaar vlak (#435): hulplijn op het scherm, geen streek bij opslaan.
+      if (onzichtbaarVlakUitExtra(extraColors)) crProps.onzichtbaarVlak = true;
       return createAnnotation(crProps);
     }
 
