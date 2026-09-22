@@ -21,9 +21,22 @@ import { toWinAnsiText } from '../saver/pdf-text.js';
 import { maatVanGedraaideVorm } from './gedraaide-vorm-maat.js';
 import { tekstvakRotatie, tekstvakMaat } from './tekstvak-rotatie.js';
 import { randloosUitExtra } from './geen-rand.js';
+import { opmerkingUitAnnot, zonderDubbeleOpmerking } from './annotatie-opmerking.js';
+
+/**
+ * Zet een PDF-annotatie om naar het model van de app.
+ *
+ * De opmerkingstekst (/Contents) komt in `subject`, behalve bij soorten die
+ * hem in een eigen veld lezen (tekst van een notitie of tekstvak, meettekst,
+ * label van een kader). Zie annotatie-opmerking.js.
+ */
+export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageMap, annotColorMap) {
+  return zonderDubbeleOpmerking(
+    await converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, annotColorMap));
+}
 
 // Convert PDF annotation to our format
-export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageMap, annotColorMap) {
+async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, annotColorMap) {
   // Helpers to convert PDF coordinates to viewport coordinates (handles CropBox/MediaBox offsets)
   const convertPoint = (pdfX, pdfY) => viewport.convertToViewportPoint(pdfX, pdfY);
   const convertRect = (pdfRect) => {
@@ -103,7 +116,9 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
   const baseProps = {
     page: pageNum,
     author: (annot.titleObj && annot.titleObj.str) || annot.title || 'User',
-    subject: annot.subject || '',
+    // pdf.js kent geen /Subject: de opmerking van een annotatie staat in
+    // /Contents. Soorten met een eigen tekstveld raken hem hierna weer kwijt.
+    subject: opmerkingUitAnnot(annot),
     createdAt: parsePdfDate(annot.creationDate),
     modifiedAt: parsePdfDate(annot.modificationDate),
     opacity: annot.opacity !== undefined ? annot.opacity : (extraColors.opacity !== undefined ? extraColors.opacity : 1.0),
