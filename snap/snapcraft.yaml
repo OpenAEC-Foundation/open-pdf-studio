@@ -1,30 +1,57 @@
 name: open-pdf-studio
 base: core24
 version: '1.16.0'
-summary: Free, open-source PDF annotation editor
+summary: Free, open-source PDF editor for drawings and documents
 description: |
-  Open PDF Studio is a free, open-source PDF editor and annotator
-  built for professionals who need powerful tools without expensive subscriptions.
+  Open PDF Studio is a free, open-source PDF editor and annotator for people
+  who work with drawings and documents every day: architects, engineers,
+  contractors, and anyone who needs solid tools without a subscription.
 
-  Features:
+  Drawings and CAD:
 
-  - 22+ annotation tools: highlight, underline, strikethrough, shapes, freehand drawing, text boxes, callouts, sticky notes, stamps, and images
-  - Signatures: draw, save, and reuse up to 5 signatures
-  - Measurement tools: distance, area, and perimeter with scale calibration
-  - Page management: insert, delete, extract, reorder, replace, and merge PDFs
-  - Watermarks and headers/footers with variables
-  - Redaction: mark and apply to permanently remove sensitive content
-  - Full print dialog with live preview, scaling, and page setup
-  - Form filling: AcroForms and XFA with JavaScript validation
-  - Edit existing PDF text
-  - Export pages as PNG, JPEG, or raster PDF
-  - Multi-tab editing with session restore
-  - 10 navigation panels: thumbnails, bookmarks, annotations, attachments, signatures, layers, form fields, destinations, links, and tags
-  - XFDF annotation import/export
-  - 5 themes: Dark, Light, Blue, High Contrast, System
-  - Undo/redo with up to 100 levels
-  - Built-in auto-updater
-  - No telemetry, no data collection, no subscriptions
+  - Import DWG and DXF: choose layers, model space or a layout with viewports,
+    area, scale and paper; the drawing becomes a vector PDF with the CAD layers
+    as PDF layers and a measuring scale, so measurements are right straight away
+  - Place a drawing as an underlay on an existing page, to scale, as vector or image
+  - Export a page back to DXF or DWG, with layers, at real size, and optionally
+    in the original model coordinates
+  - Measure distance, area and perimeter with scale calibration, scale regions,
+    and measuring scales read from the PDF itself
+  - Parametric symbols, walls, beams and a construction palette that stay to scale
+  - Fill in a title block and compose sheets from your own frames
+
+  Reading, checking and editing:
+
+  - 22+ annotation tools: highlight, underline, strikethrough, shapes, freehand
+    drawing, text boxes, callouts, sticky notes, stamps and images
+  - Search text and annotations, with hits listed per page
+  - Verify digital signatures: validity, certificate chain, timestamp, and whether
+    the document changed after signing
+  - Recognise text (OCR) to make scanned drawings searchable
+  - Straighten and shift the content of scanned pages
+  - Edit existing PDF text, fill forms (AcroForms and XFA), redact permanently
+  - Page management: insert, delete, extract, reorder, replace and merge
+  - Watermarks, headers and footers with variables
+  - Copy a detail from one PDF into another as vector, not as a screenshot
+  - Reader mode that reopens a document where you left off
+
+  Printing and output:
+
+  - Print dialog with live preview, paper and orientation from the document,
+    printing to scale (1:1 on the sheet), and large or extended sheets (A1, A0, A3L-A0L)
+  - "Save as PDF" writes the print as vector, with the sheet in the chosen orientation
+  - Export pages as PNG, JPEG or raster PDF, and annotations as XFDF
+
+  AI connection:
+
+  - An optional local connection (MCP) lets an AI assistant operate the app:
+    open drawings, measure, place symbols, import or export CAD, print to a file.
+    Off by default on request, local clients only, and every action is visible on screen.
+
+  Also: multi-tab editing with session restore, navigation panels for thumbnails,
+  bookmarks, annotations, attachments, signatures, layers, form fields, destinations,
+  links and tags, five themes, 39 languages, undo/redo, a built-in auto-updater,
+  and no telemetry, no data collection and no subscriptions.
 
   Built with Tauri and web technologies for a fast, lightweight, native desktop experience.
 title: Open PDF Studio
