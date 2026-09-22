@@ -1351,13 +1351,18 @@ const result = {};
                 // pure scaling all have b = c = 0). This is what every PDF engine
                 // actually paints, so it is the authority on whether the label
                 // sits rotated on the page.
+                // Een halve slag (a en d allebei negatief, b = c = 0) is ook
+                // een rotatie: de saver schrijft `-1 0 0 -1 0 0 cm` voor een
+                // vak dat 180 graden ten opzichte van de pagina staat. Eén
+                // negatieve as is een spiegeling en telt niet mee.
                 let apHasRotationOp = false;
                 if (content) {
                   const opRe = /(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(-?\d*\.?\d+)\s+(cm|Tm)\b/g;
                   let opMatch;
                   while ((opMatch = opRe.exec(content)) !== null) {
                     if (Math.abs(parseFloat(opMatch[2])) > 0.001 ||
-                        Math.abs(parseFloat(opMatch[3])) > 0.001) {
+                        Math.abs(parseFloat(opMatch[3])) > 0.001 ||
+                        (parseFloat(opMatch[1]) < 0 && parseFloat(opMatch[4]) < 0)) {
                       apHasRotationOp = true;
                       break;
                     }

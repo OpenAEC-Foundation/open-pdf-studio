@@ -202,3 +202,39 @@ test('#429: extern vak zonder sleutel op een 90°-blad volgt de paginarotatie', 
   assert.equal(uit.extra.apLegacyUnrotated, undefined);
   verwacht(uit, 90, W_VAK, H_VAK, 'extern zonder sleutel');
 });
+
+// ── Een halve slag telt als rotatie ─────────────────────────────────────────
+//
+// Staat een vak 180 graden gedraaid ten opzichte van de pagina, dan schrijft
+// de saver `-1 0 0 -1 0 0 cm`: b en c zijn 0, maar het is wel een rotatie.
+
+test('180° ten opzichte van de pagina: de sleutel blijft staan', async () => {
+  const gevallen = [[0, 180], [90, -90], [270, 90], [180, 0]];
+  for (const [paginaRotatie, rotatie] of gevallen) {
+    const bytes = await schrijf({ paginaRotatie, ap: saverAppearance({ rotatie, paginaRotatie }), sleutels: { OPS_Rotation: rotatie } });
+    const uit = await laad(bytes, { paginaRotatie });
+    assert.equal(uit.extra.apHasRotationOp, true, `blad ${paginaRotatie} rotatie ${rotatie}: rotatie-operator`);
+    verwacht(uit, rotatie, W_VAK, H_VAK, `blad ${paginaRotatie} rotatie ${rotatie}`);
+  }
+});
+
+test('spiegeling (één negatieve as) telt niet als rotatie', async () => {
+  const ap = platteAppearance({});
+  ap.content = `1 0 0 -1 0 ${2 * 400} cm\n${ap.content}`;
+  const bytes = await schrijf({ ap, sleutels: { OPS_Rotation: -90 } });
+  const uit = await laad(bytes);
+  assert.equal(uit.extra.apHasRotationOp, false);
+  assert.equal(uit.rotatie, 0);
+});
+
+test('rondgang in de saver-conventie: elke hoek op elke paginarotatie komt terug', async () => {
+  for (const paginaRotatie of [0, 90, 180, 270]) {
+    for (const rotatie of [0, 90, -90, 180, 270, 45, -55, 135, 35, -135]) {
+      const ap = (paginaRotatie === 0 && rotatie === 0)
+        ? platteAppearance({})
+        : saverAppearance({ rotatie, paginaRotatie });
+      const bytes = await schrijf({ paginaRotatie, ap, sleutels: { OPS_Rotation: rotatie } });
+      verwacht(await laad(bytes, { paginaRotatie }), rotatie, W_VAK, H_VAK, `blad ${paginaRotatie} rotatie ${rotatie}`);
+    }
+  }
+});
