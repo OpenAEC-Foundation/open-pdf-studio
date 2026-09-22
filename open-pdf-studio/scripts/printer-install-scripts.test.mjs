@@ -50,8 +50,13 @@ test('an upgrade that uninstalls the previous version first keeps the printer', 
   assert.ok(keep > 0 && keep < remove, 'the flag is checked before anything is removed');
 });
 
+// Only in CI (or on explicit request): on a developer machine the script
+// definitions are never loaded into a PowerShell that also knows the real
+// printer cmdlets, however well the simulation guards itself.
+const draaiPrinterScripts = process.env.OPDS_PRINTER_SCRIPT_TESTS === '1' || process.env.CI === 'true';
 test('printer scripts: every starting state, on a simulated print server', {
-  skip: process.platform === 'win32' ? false : 'Windows PowerShell only',
+  skip: process.platform !== 'win32' ? 'Windows PowerShell only'
+    : draaiPrinterScripts ? false : 'set OPDS_PRINTER_SCRIPT_TESTS=1 (runs in CI)',
 }, () => {
   const powershell = path.join(
     process.env.SystemRoot || 'C:\\Windows', 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe',

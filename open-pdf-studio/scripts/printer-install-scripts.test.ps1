@@ -6,8 +6,9 @@
 # table in memory. The test refuses to run anything when one of those
 # replacements is not in place.
 #
-# Run through scripts/printer-install-scripts.test.mjs (npm run test:unit), or
-# directly:  powershell -NoProfile -ExecutionPolicy Bypass -File scripts\printer-install-scripts.test.ps1
+# Runs through scripts/printer-install-scripts.test.mjs in CI (CI=true) or with
+# OPDS_PRINTER_SCRIPT_TESTS=1; a plain `npm run test:unit` on a developer
+# machine skips it. Do not start it by hand on a machine with real printers.
 
 $ErrorActionPreference = 'Stop'
 $nsisDir = Join-Path (Split-Path $PSScriptRoot -Parent) 'src-tauri\nsis'
