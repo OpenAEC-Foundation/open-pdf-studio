@@ -1498,6 +1498,197 @@
       "destructiveHint": true,
       "openWorldHint": false,
       "readOnlyHint": false,
+      "title": "Print to PDF file"
+    },
+    "description": "Print the current document to a PDF file, without opening the print dialog. Takes the route of the \"Save as PDF\" target in that dialog: no printer and no driver, the app writes the print PDF itself, so text stays text and the sheet lies in the file exactly as chosen. Settings that are left out take the value the print dialog remembered, otherwise its default; `pages` always starts at all pages. Returns the sheet size and orientation per page, the scale that was used and warnings about pages that do not fit. Fails while the print dialog is open.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "autoRotate": {
+          "description": "true means orientation \"auto\"; false takes the orientation from Page Setup, otherwise portrait. May not contradict orientation.",
+          "type": "boolean"
+        },
+        "center": {
+          "description": "Centre the page on the sheet.",
+          "type": "boolean"
+        },
+        "content": {
+          "description": "\"document\" leaves the annotation layer out; watermarks and text edits stay, they are document content.",
+          "enum": [
+            "document",
+            "document-and-markups"
+          ],
+          "type": "string"
+        },
+        "orientation": {
+          "description": "Orientation of the sheet; \"auto\" follows the page, as Auto-rotate in the dialog does. Left out: what the next print would already get.",
+          "enum": [
+            "auto",
+            "portrait",
+            "landscape"
+          ],
+          "type": "string"
+        },
+        "pages": {
+          "description": "\"all\" (default), \"current\" or a range like \"1-3,5\".",
+          "type": "string"
+        },
+        "paper": {
+          "description": "Sheet size. \"page\" = every page on a sheet of its own size. Left out: the paper the Page Setup of this document asks for, otherwise \"page\".",
+          "enum": [
+            "page",
+            "A0",
+            "A1",
+            "A2",
+            "A3",
+            "A4",
+            "A5",
+            "A0L",
+            "A1L",
+            "A2L",
+            "A3L",
+            "Letter",
+            "Legal",
+            "Tabloid"
+          ],
+          "type": "string"
+        },
+        "path": {
+          "description": "Absolute path of the PDF file to write (.pdf). A file that is open in the app is refused.",
+          "type": "string"
+        },
+        "scaling": {
+          "description": "fit = fit on the sheet, shrink = only shrink when the page does not fit, actual = real size, custom-scale = the percentage in zoom.",
+          "enum": [
+            "fit",
+            "shrink",
+            "actual",
+            "custom-scale"
+          ],
+          "type": "string"
+        },
+        "zoom": {
+          "description": "Page zoom in percent, 10 to 400. Implies scaling \"custom-scale\".",
+          "type": "number"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "name": "app_print_to_pdf"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Print to printer"
+    },
+    "description": "Print the current document to a printer, without opening the print dialog. Same page selection, paper, scale, position and content as that dialog, and the same background job. Settings that are left out take the value the print dialog remembered, otherwise its default; `pages` always starts at all pages. Returns the printer, the sheet with its orientation, the scale that was used, the number of copies and warnings about pages that do not fit. Paper really comes out of the printer, so ask the user before calling this. Fails on an unknown printer and while the print dialog is open.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "autoRotate": {
+          "description": "true means orientation \"auto\"; false takes the orientation from Page Setup, otherwise portrait. May not contradict orientation.",
+          "type": "boolean"
+        },
+        "center": {
+          "description": "Centre the page on the sheet.",
+          "type": "boolean"
+        },
+        "content": {
+          "description": "\"document\" leaves the annotation layer out; watermarks and text edits stay, they are document content.",
+          "enum": [
+            "document",
+            "document-and-markups"
+          ],
+          "type": "string"
+        },
+        "copies": {
+          "description": "Number of copies, 1 to 999 (default: what the print dialog remembered).",
+          "type": "number"
+        },
+        "orientation": {
+          "description": "Orientation of the sheet; \"auto\" follows the page, as Auto-rotate in the dialog does. Left out: what the next print would already get.",
+          "enum": [
+            "auto",
+            "portrait",
+            "landscape"
+          ],
+          "type": "string"
+        },
+        "pages": {
+          "description": "\"all\" (default), \"current\" or a range like \"1-3,5\".",
+          "type": "string"
+        },
+        "paper": {
+          "description": "Sheet size. \"printer\" = the paper that is in the printer. Left out: the paper the Page Setup of this document asks for, otherwise \"printer\".",
+          "enum": [
+            "printer",
+            "A0",
+            "A1",
+            "A2",
+            "A3",
+            "A4",
+            "A5",
+            "A0L",
+            "A1L",
+            "A2L",
+            "A3L",
+            "Letter",
+            "Legal",
+            "Tabloid"
+          ],
+          "type": "string"
+        },
+        "printer": {
+          "description": "Name of the print queue, exactly as app_list_printers reports it.",
+          "type": "string"
+        },
+        "scaling": {
+          "description": "fit = fit on the sheet, shrink = only shrink when the page does not fit, actual = real size, custom-scale = the percentage in zoom.",
+          "enum": [
+            "fit",
+            "shrink",
+            "actual",
+            "custom-scale"
+          ],
+          "type": "string"
+        },
+        "zoom": {
+          "description": "Page zoom in percent, 10 to 400. Implies scaling \"custom-scale\".",
+          "type": "number"
+        }
+      },
+      "required": [
+        "printer"
+      ],
+      "type": "object"
+    },
+    "name": "app_print"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "List printers"
+    },
+    "description": "List the printers the app knows, with the system default printer and, per printer, the driver, the port and whether it writes to a file instead of to paper. Reads only: it never starts a job and changes nothing. The \"Save as PDF\" target of the print dialog is not a printer — use app_print_to_pdf for that.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "name": "app_list_printers"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
       "title": "Flatten vector snippet"
     },
     "description": "Mark a pasted vector snippet as flattened: it stays visible but is no longer selectable, and on the next save it is drawn into the page content instead of being stored as an annotation.",
