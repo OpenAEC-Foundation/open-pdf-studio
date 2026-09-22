@@ -7,6 +7,7 @@ import test from 'node:test';
 import {
   isPapierFormaat, normaliseerPapierInfo, effectiefPapier, papierTekst,
   paginaTekst, eigenschappenVooraf, instellingNaEigenschappen, maakPapierVerzoeken,
+  papierVerzoekSleutel, bekendVel, velTekst, velNaam,
 } from './print-papier.js';
 import {
   startPaginaInstelling, bewaarPaginaInstelling, printArgumenten,
@@ -81,8 +82,13 @@ test('PapierInfo: null, true (oud antwoord) en onzin worden null', () => {
 
 test('PapierInfo: onbekende sleutel wordt overig, maten staand, oriëntatie veilig', () => {
   assert.deepEqual(
-    normaliseerPapierInfo({ papier: 'a1', naam: ' A1 ', breedteMm: 841, hoogteMm: 594, orientatie: 'landscape' }),
-    { papier: 'overig', naam: 'A1', breedteMm: 594, hoogteMm: 841, orientatie: 'landscape' },
+    normaliseerPapierInfo({ papier: 'b1', naam: ' B1 ', breedteMm: 1000, hoogteMm: 707, orientatie: 'landscape' }),
+    { papier: 'overig', naam: 'B1', breedteMm: 707, hoogteMm: 1000, orientatie: 'landscape' },
+  );
+  // A1 staat sinds de grote en verlengde vellen wel in de lijst.
+  assert.deepEqual(
+    normaliseerPapierInfo({ papier: 'a1', naam: ' ISOA1 ', breedteMm: 841, hoogteMm: 594, orientatie: 'landscape' }),
+    { papier: 'a1', naam: 'ISOA1', breedteMm: 594, hoogteMm: 841, orientatie: 'landscape' },
   );
   assert.deepEqual(
     normaliseerPapierInfo({ papier: 'a3', breedteMm: 0, hoogteMm: NaN, orientatie: 'schuin' }),
@@ -294,13 +300,28 @@ test('volgorde: Eigenschappen A3, Pagina-instelling A4, Eigenschappen OK zonder 
 });
 
 test('Eigenschappen met een formaat buiten de lijst → papier van de printer, niet verzonnen', () => {
-  const a1 = info('overig', 594, 841, 'portrait', 'A1');
-  const inst = naEigenschappen({ docId: 'd1', size: 'a3', orientation: 'portrait', handmatig: true }, ok(a1));
+  const b1 = info('overig', 707, 1000, 'portrait', 'B1');
+  const inst = naEigenschappen({ docId: 'd1', size: 'a3', orientation: 'portrait', handmatig: true }, ok(b1));
   assert.equal(inst.size, 'printer');
   assert.deepEqual(printArgumenten({ autoRotate: true, paginaInstelling: inst, docId: 'd1' }),
     { orientatie: 'auto', papier: 'printer' });
+  assert.equal(kop({ paginaInstelling: inst, printerPapier: b1, pagina: A4_STAAND }), 'B1 (707 x 1000 mm)');
+  assert.equal(kop({ paginaInstelling: inst, printerPapier: b1, pagina: A4_LIGGEND }), 'B1 (707 x 1000 mm)');
+});
+
+test('Eigenschappen: A1 of een verlengd vel gekozen → dat formaat in de Pagina-instelling', () => {
+  // De pdf-driver van Windows noemt A1 "ISOA1"; Rust herkent de maat.
+  const a1 = info('a1', 594, 841, 'portrait', 'ISOA1');
+  const inst = naEigenschappen({ docId: 'd1', size: 'a3', orientation: 'portrait', handmatig: true }, ok(a1));
+  assert.equal(inst.size, 'a1');
+  assert.deepEqual(printArgumenten({ autoRotate: true, paginaInstelling: inst, docId: 'd1' }),
+    { orientatie: 'auto', papier: 'a1' });
   assert.equal(kop({ paginaInstelling: inst, printerPapier: a1, pagina: A4_STAAND }), 'A1 (594 x 841 mm)');
-  assert.equal(kop({ paginaInstelling: inst, printerPapier: a1, pagina: A4_LIGGEND }), 'A1 (594 x 841 mm)');
+  // Een formulier van de printserver met de maat van A3L.
+  const a3l = info('a3l', 297, 630, 'landscape', 'A3L');
+  const lang = naEigenschappen(null, ok(a3l));
+  assert.equal(lang.size, 'a3l');
+  assert.equal(lang.orientation, 'landscape');
 });
 
 test('Eigenschappen: vel dat de driver niet kan beschrijven → papier van de printer', () => {
@@ -413,6 +434,119 @@ test('paginatekst: hele millimeters, onbekend → null', () => {
   assert.equal(paginaTekst(0, 0), null);
 });
 
+// --- Grote en verlengde vellen, en een driver die het formaat niet aankan ------------
+
+const PS = (size, orientation = 'portrait') => ({ docId: 'd1', size, orientation, handmatig: true });
+
+test('kop: A1, A0 en de verlengde vellen uit de Pagina-instelling', () => {
+  assert.equal(kop({ paginaInstelling: PS('a1'), printerPapier: PRINTER_A4 }), 'A1 (594 x 841 mm)');
+  assert.equal(kop({ paginaInstelling: PS('a0'), printerPapier: PRINTER_A4 }), 'A0 (841 x 1189 mm)');
+  assert.equal(kop({ paginaInstelling: PS('a3l'), printerPapier: PRINTER_A4 }), 'A3L (297 x 630 mm)');
+  assert.equal(kop({ paginaInstelling: PS('a2l'), printerPapier: PRINTER_A4 }), 'A2L (420 x 804 mm)');
+  assert.equal(kop({ paginaInstelling: PS('a1l', 'landscape'), printerPapier: PRINTER_A4 }), 'A1L (594 x 1051 mm)');
+  assert.equal(kop({ paginaInstelling: PS('a0l'), printerPapier: PRINTER_A4 }), 'A0L (841 x 1399 mm)');
+  assert.ok(isPapierFormaat('a3l') && isPapierFormaat('a0') && !isPapierFormaat('a4l'));
+});
+
+test('kop: papier van de printer is een groot of verlengd vel', () => {
+  assert.equal(kop({ printerPapier: info('a1', 594, 841, 'portrait', 'ISOA1'), pagina: A4_STAAND }), 'A1 (594 x 841 mm)');
+  assert.equal(kop({ printerPapier: info('a1l', 594, 1051, 'landscape', ''), pagina: A4_STAAND }), 'A1L (594 x 1051 mm)');
+});
+
+test('driver neemt het formaat over: de kop toont het formaat, niets geweigerd', () => {
+  const e = effectiefPapier({
+    paginaInstelling: PS('a3l'), docId: 'd1', autoRotate: true, printerPapier: undefined,
+    opdrachtPapier: info('a3l', 297, 630, 'portrait', ''), pagina: A4_STAAND,
+  });
+  assert.equal(e.bron, 'paginaInstelling');
+  assert.equal(e.geweigerd, null);
+  assert.equal(papierTekst(e, STANDAARD), 'A3L (297 x 630 mm)');
+});
+
+test('driver kan het formaat niet aan (A0L op de pdf-printer): de kop toont het papier van de printer', () => {
+  const e = effectiefPapier({
+    paginaInstelling: PS('a0l'), docId: 'd1', autoRotate: true, printerPapier: undefined,
+    opdrachtPapier: PRINTER_A4, pagina: A4_LIGGEND,
+  });
+  assert.equal(e.bron, 'printer');
+  assert.equal(e.papier, 'a4');
+  assert.equal(e.geweigerd, 'A0L');
+  assert.deepEqual([e.breedteMm, e.hoogteMm], [210, 297]);
+  assert.equal(papierTekst(e, STANDAARD), 'A4 (210 x 297 mm)');
+  // Automatisch draaien: de oriëntatie volgt nog steeds de getoonde pagina.
+  assert.equal(e.orientatie, 'landscape');
+});
+
+test('driver kan het formaat niet aan en meldt een vel buiten de lijst: naam en maten van de printer', () => {
+  const e = effectiefPapier({
+    paginaInstelling: PS('a0l', 'landscape'), docId: 'd1', autoRotate: false, printerPapier: undefined,
+    opdrachtPapier: info('overig', 914, 1219, 'portrait', 'Architecture ESheet'), pagina: A4_STAAND,
+  });
+  assert.equal(e.geweigerd, 'A0L');
+  assert.equal(papierTekst(e, STANDAARD), 'Architecture ESheet (914 x 1219 mm)');
+  assert.equal(e.orientatie, 'landscape');
+});
+
+test('zelfde vel onder een andere sleutel of nog geen antwoord: het formaat blijft staan', () => {
+  const vraag = (opdrachtPapier) => effectiefPapier({
+    paginaInstelling: PS('a3l'), docId: 'd1', autoRotate: true, printerPapier: undefined, opdrachtPapier, pagina: A4_STAAND,
+  });
+  // Driver-eigen vel van dezelfde maat (op 3 mm) dat Rust niet herkende.
+  assert.equal(vraag(info('overig', 296, 632, 'portrait', 'Lang A3')).geweigerd, null);
+  // 4 mm langer: een ander vel.
+  assert.equal(vraag(info('overig', 297, 634, 'portrait', 'Lang A3')).geweigerd, 'A3L');
+  // Nog aan het ophalen, of onbekend (Linux/macOS, driver geeft niets): niets beweren.
+  for (const geenAntwoord of [undefined, null, true, {}]) {
+    const e = vraag(geenAntwoord);
+    assert.equal(e.geweigerd, null);
+    assert.equal(e.bron, 'paginaInstelling');
+    assert.equal(papierTekst(e, STANDAARD), 'A3L (297 x 630 mm)');
+  }
+  // Zonder maten: alleen een ander bekend formaat is zeker een ander vel.
+  assert.equal(vraag(info('overig', 0, 0, 'portrait', 'Iets')).geweigerd, null);
+  assert.equal(vraag(info('a4', 0, 0, 'portrait', 'A4')).geweigerd, 'A3L');
+});
+
+// --- Het vel voor de schaal van het voorbeeld en de afdruk ---------------------
+
+test('bekend vel: de maten uit de kop, staand; zonder papier of maten null', () => {
+  const vel = (opties) => bekendVel(effectiefPapier({ docId: 'd1', autoRotate: true, pagina: A4_LIGGEND, ...opties }));
+  // Pagina-instelling met een formaat: dat vel, ook als de printer nog niets meldde.
+  assert.deepEqual(vel({ paginaInstelling: PS('a1'), printerPapier: undefined }), { breedteMm: 594, hoogteMm: 841 });
+  // Het papier van de printer.
+  assert.deepEqual(vel({ printerPapier: PRINTER_A3 }), { breedteMm: 297, hoogteMm: 420 });
+  assert.deepEqual(vel({ printerPapier: info('overig', 700, 500, 'landscape', 'Poster') }), { breedteMm: 500, hoogteMm: 700 });
+  // De driver kan het formaat niet aan: het vel waarop echt geprint wordt.
+  assert.deepEqual(
+    vel({ paginaInstelling: PS('a0l'), printerPapier: undefined, opdrachtPapier: PRINTER_A4 }),
+    { breedteMm: 210, hoogteMm: 297 },
+  );
+  // Nog aan het ophalen, onbekend, of een formulier zonder maten: geen vel.
+  assert.equal(vel({ printerPapier: undefined }), null);
+  assert.equal(vel({ printerPapier: null }), null);
+  assert.equal(vel({ printerPapier: info('overig', 0, 0, 'portrait', 'Envelop C5') }), null);
+  assert.equal(bekendVel(null), null);
+});
+
+test('papier aan de printer gelaten: een antwoord voor een opdracht speelt geen rol', () => {
+  const e = effectiefPapier({
+    paginaInstelling: PS('printer'), docId: 'd1', autoRotate: true,
+    printerPapier: PRINTER_A3, opdrachtPapier: PRINTER_A4, pagina: A4_STAAND,
+  });
+  assert.equal(e.bron, 'printer');
+  assert.equal(e.geweigerd, null);
+  assert.equal(papierTekst(e, STANDAARD), 'A3 (297 x 420 mm)');
+});
+
+test('antwoorden van printer_papier per printer en per gevraagd papier', () => {
+  assert.equal(papierVerzoekSleutel('Plotter', 'a1l'), 'Plotter\na1l');
+  assert.equal(papierVerzoekSleutel('Plotter', 'printer'), 'Plotter\nprinter');
+  // Alles wat geen formaat is vraagt om het papier van de printer.
+  assert.equal(papierVerzoekSleutel('Plotter', undefined), 'Plotter\nprinter');
+  assert.equal(papierVerzoekSleutel('Plotter', 'onzin'), 'Plotter\nprinter');
+  assert.notEqual(papierVerzoekSleutel('Plotter', 'a1'), papierVerzoekSleutel('Plotter', 'a1l'));
+});
+
 // --- Verouderde antwoorden van printer_papier ------------------------------------------
 
 test('verzoeken: alleen het laatste antwoord voor de nog gekozen printer telt', () => {
@@ -446,12 +580,65 @@ test('alle locales hebben de papierkop met dezelfde plaatshouders als Engels', a
   assert.equal(talen.length, 39);
   for (const taal of talen) {
     const d = lees(taal);
-    for (const sleutel of ['paperLabel', 'pageSizeLabel']) {
+    for (const sleutel of ['paperLabel', 'pageSizeLabel', 'paperFallback']) {
       const tekst = d.print?.[sleutel];
       assert.ok(typeof tekst === 'string' && tekst.trim(), `${taal} print.${sleutel} ontbreekt`);
       assert.deepEqual(plaatshouders(tekst), plaatshouders(en.print[sleutel]), `${taal} print.${sleutel}`);
     }
     // Onbekend papier toont de bestaande tekst uit de Pagina-instelling.
     assert.ok(d.pageSetup?.printerDefault?.trim(), `${taal} pageSetup.printerDefault ontbreekt`);
+    // De terugvalkop is per taal vertaald, niet de Engelse tekst overgenomen.
+    if (taal !== 'en') assert.notEqual(d.print.paperFallback, en.print.paperFallback, `${taal} print.paperFallback`);
   }
+});
+
+test('alle locales noemen de virtuele printer bij zijn naam', async () => {
+  const { readFileSync, readdirSync } = await import('node:fs');
+  const { dirname, join } = await import('node:path');
+  const { fileURLToPath } = await import('node:url');
+  const map = join(dirname(fileURLToPath(import.meta.url)), '../i18n/locales');
+  for (const taal of readdirSync(map)) {
+    const tekst = JSON.parse(readFileSync(join(map, taal, 'preferences.json'), 'utf8')).virtualPrinter.description;
+    assert.ok(tekst.includes('Open PDF Printer'), `${taal}: naam van de printer ontbreekt`);
+    assert.ok(!tekst.includes('Open PDF Studio'), `${taal}: oude printernaam staat er nog`);
+  }
+});
+
+// --- de kop: het vel met zijn stand -------------------------------------------------
+
+// Vertaalfunctie zoals de dialoog hem geeft: de Nederlandse teksten.
+const tNl = (sleutel, o) => ({
+  'print.sheetPortrait': `${o.paper} staand`,
+  'print.sheetLandscape': `${o.paper} liggend`,
+}[sleutel]);
+
+test('velTekst: naam, stand en de maten zoals het vel ligt', () => {
+  const liggendA2 = { bekend: true, vel: { breedteMm: 594, hoogteMm: 420, orientatie: 'landscape' } };
+  assert.equal(velTekst(liggendA2, 'A2', tNl), 'A2 liggend (594 × 420 mm)');
+  const staandA4 = { bekend: true, vel: { breedteMm: 210, hoogteMm: 297, orientatie: 'portrait' } };
+  assert.equal(velTekst(staandA4, 'A4', tNl), 'A4 staand (210 × 297 mm)');
+  // Maten van een vel op paginamaat worden afgerond op hele mm.
+  const eigen = { bekend: true, vel: { breedteMm: 594.02, hoogteMm: 419.98, orientatie: 'landscape' } };
+  assert.equal(velTekst(eigen, 'A2', tNl), 'A2 liggend (594 × 420 mm)');
+});
+
+test('velTekst: zonder naam alleen de maten, een naam met maten niet dubbel', () => {
+  const eigen = { bekend: true, vel: { breedteMm: 500, hoogteMm: 700, orientatie: 'portrait' } };
+  assert.equal(velTekst(eigen, null, tNl), '500 × 700 mm staand');
+  assert.equal(velTekst(eigen, '', tNl), '500 × 700 mm staand');
+  assert.equal(velTekst(eigen, 'Custom 500 x 700 mm', tNl), 'Custom 500 x 700 mm staand');
+});
+
+test('velTekst: onbekend vel toont de naam met de stand, zonder maten; niets zonder plaatsing', () => {
+  const onbekend = { bekend: false, vel: { breedteMm: 297, hoogteMm: 210, orientatie: 'landscape' } };
+  assert.equal(velTekst(onbekend, STANDAARD, tNl), `${STANDAARD} liggend`);
+  assert.equal(velTekst(onbekend, null, tNl), null);
+  assert.equal(velTekst(null, 'A4', tNl), null);
+});
+
+test('velNaam: het formaat dat bij een vel op paginamaat past, anders niets', () => {
+  assert.equal(velNaam(A4_LIGGEND), 'A4');
+  assert.equal(velNaam({ breedtePt: pt(1189), hoogtePt: pt(841) }), 'A0');
+  assert.equal(velNaam({ breedtePt: pt(500), hoogtePt: pt(700) }), null);
+  assert.equal(velNaam(null), null);
 });

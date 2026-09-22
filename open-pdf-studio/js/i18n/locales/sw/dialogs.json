@@ -65,7 +65,22 @@
     "noPages": "Hakuna kurasa",
     "pageOf": "Ukurasa {{current}} ya {{total}}",
     "paperLabel": "Karatasi: {{paper}}",
-    "pageSizeLabel": "Ukurasa: {{size}}"
+    "paperFallback": "Karatasi: {{paper}} ({{requested}} haipatikani kwenye printa hii)",
+    "pageSizeLabel": "Ukurasa: {{size}}",
+    "pageClipped": "Ukurasa hautoshei kwenye karatasi na utakatwa.",
+    "pageOutsidePrintable": "Sehemu ya ukurasa iko nje ya eneo la printa linaloweza kuchapishwa.",
+    "saveAsPdf": "Hifadhi kama PDF",
+    "sheetPortrait": "{{paper}} wima",
+    "sheetLandscape": "{{paper}} mlalo",
+    "autoRotateOverrides": "Zungusha Kiotomatiki hupuuza mwelekeo uliochaguliwa ({{orientation}}).",
+    "filePrinterHint": "Printa hii huandika kwenye faili. \"Hifadhi kama PDF\" huhifadhi mwelekeo wa karatasi, na maandishi na mistari hubaki vekta.",
+    "targetIsOpenFile": "Faili hiyo imefunguliwa kwenye programu. Chagua jina lingine.",
+    "fileSuffix": " - chapa",
+    "progress": {
+      "savedTo": "Imehifadhiwa: {{path}}",
+      "savedAsImages": "Imehifadhiwa, kurasa kama picha: {{path}}",
+      "saveFailed": "Kuhifadhi kumeshindwa: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Ingiza Kurasa",

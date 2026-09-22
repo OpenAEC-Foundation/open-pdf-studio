@@ -65,7 +65,22 @@
     "noPages": "Cap pàgina",
     "pageOf": "Pàgina {{current}} de {{total}}",
     "paperLabel": "Paper: {{paper}}",
-    "pageSizeLabel": "Pàgina: {{size}}"
+    "paperFallback": "Paper: {{paper}} ({{requested}} no està disponible en aquesta impressora)",
+    "pageSizeLabel": "Pàgina: {{size}}",
+    "pageClipped": "La pàgina no cap al paper i es retallarà.",
+    "pageOutsidePrintable": "Una part de la pàgina queda fora de l'àrea imprimible de la impressora.",
+    "saveAsPdf": "Desa com a PDF",
+    "sheetPortrait": "{{paper}} vertical",
+    "sheetLandscape": "{{paper}} horitzontal",
+    "autoRotateOverrides": "Gira automàticament anul·la l'orientació triada ({{orientation}}).",
+    "filePrinterHint": "Aquesta impressora escriu en un fitxer. \"Desa com a PDF\" conserva l'orientació del full, i el text i les línies continuen sent vectors.",
+    "targetIsOpenFile": "Aquest fitxer està obert a l'aplicació. Trieu un altre nom.",
+    "fileSuffix": " - impressió",
+    "progress": {
+      "savedTo": "Desat: {{path}}",
+      "savedAsImages": "Desat, pàgines com a imatges: {{path}}",
+      "saveFailed": "No s'ha pogut desar: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Insereix pàgines",

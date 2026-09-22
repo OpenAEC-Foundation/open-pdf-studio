@@ -537,3 +537,91 @@ pub fn render_page_region_to_rgba(
 
     Ok((actual_w, actual_h, rgba))
 }
+
+// ─── Printen van een pagina die al op papiergrootte is opgemaakt ─────────────
+
+/// Wat er op een pagina staat, voor het printen van een pagina die de
+/// printdialoog al op papiergrootte heeft opgemaakt (`print_windows`,
+/// plaatsing `Vel`): alleen het deel met inhoud hoeft gerenderd te worden.
+pub struct PaginaInhoud {
+    /// De zichtbare pagina (MediaBox en CropBox) in gebruikersruimte.
+    pub kader: crate::print_plaatsing::PdfRechthoek,
+    /// De omhullende van elk object in gebruikersruimte.
+    pub objecten: Vec<crate::print_plaatsing::PdfRechthoek>,
+    /// Per object de resolutie op de pagina (dpi) als het een afbeelding is.
+    pub afbeelding_dpi: Vec<Option<f64>>,
+    /// De pagina heeft een /Rotate: de omhullenden gelden dan niet in weergaveruimte.
+    pub gedraaid: bool,
+}
+
+/// Lees de objecten van een pagina (zonder te renderen).
+pub fn page_content(doc: &PdfDocument<'static>, page_index: u32) -> Result<PaginaInhoud, String> {
+    use crate::print_plaatsing::PdfRechthoek;
+    let _guard = inproc_guard();
+    let pages = doc.pages();
+    let page = pages
+        .get(page_index as i32)
+        .map_err(|e| format!("Page {} not found: {}", page_index, e))?;
+    let gedraaid = !matches!(page.rotation(), Ok(PdfPageRenderRotation::None));
+    let rechthoek = |r: PdfRect| PdfRechthoek {
+        links: r.left().value as f64,
+        onder: r.bottom().value as f64,
+        rechts: r.right().value as f64,
+        boven: r.top().value as f64,
+    };
+    let kader = match page.boundaries().bounding() {
+        Ok(b) => rechthoek(b.bounds),
+        Err(_) => PdfRechthoek { links: 0.0, onder: 0.0, rechts: page.width().value as f64, boven: page.height().value as f64 },
+    };
+    let mut objecten = Vec::new();
+    let mut afbeelding_dpi = Vec::new();
+    for object in page.objects().iter() {
+        let Ok(omhulling) = object.bounds() else { continue };
+        objecten.push(rechthoek(omhulling.to_rect()));
+        afbeelding_dpi.push(object.as_image_object().and_then(|beeld| {
+            let (x, y) = (beeld.horizontal_dpi().ok()?, beeld.vertical_dpi().ok()?);
+            Some(x.max(y) as f64)
+        }));
+    }
+    Ok(PaginaInhoud { kader, objecten, afbeelding_dpi, gedraaid })
+}
+
+/// Render een deel van een (niet gedraaide) pagina voor de printer: precies
+/// `scale` pixels per punt, deel vanaf de linkerbovenhoek van de pagina in
+/// punten. Geeft (breedte, hoogte, rgba); het beeld dekt
+/// `breedte / scale` x `hoogte / scale` punten vanaf (x, y).
+///
+/// Dezelfde matrix als `render_page_region_to_rgba`, maar zonder LCD-tekst
+/// (dat is voor schermen). Dat de plek op de pixel klopt, ook op een pagina
+/// met gebroken puntmaten, bewaakt `print_windows::tests`.
+pub fn render_page_part_for_print(
+    doc: &PdfDocument<'static>,
+    page_index: u32,
+    scale: f32,
+    x_pt: f32,
+    y_pt: f32,
+    w_pt: f32,
+    h_pt: f32,
+) -> Result<(u32, u32, Vec<u8>), String> {
+    if !(scale > 0.0 && w_pt > 0.0 && h_pt > 0.0) {
+        return Err(format!("render_page_part_for_print: invalid part {w_pt}x{h_pt} pt at scale {scale}"));
+    }
+    let _guard = inproc_guard();
+    let pages = doc.pages();
+    let page = pages
+        .get(page_index as i32)
+        .map_err(|e| format!("Page {} not found: {}", page_index, e))?;
+    let bitmap_w = (w_pt * scale).ceil().max(1.0) as i32;
+    let bitmap_h = (h_pt * scale).ceil().max(1.0) as i32;
+    let config = PdfRenderConfig::new()
+        .set_fixed_size(bitmap_w, bitmap_h)
+        .transform(scale, 0.0, 0.0, scale, -x_pt * scale, -y_pt * scale)
+        .map_err(|e| format!("render_page_part_for_print: invalid transform: {e}"))?
+        .render_annotations(false)
+        .use_lcd_text_rendering(false)
+        .set_format(PdfBitmapFormat::BGRA);
+    let bitmap = page
+        .render_with_config(&config)
+        .map_err(|e| format!("PDFium print render failed: {e}"))?;
+    Ok((bitmap.width() as u32, bitmap.height() as u32, bitmap.as_rgba_bytes()))
+}

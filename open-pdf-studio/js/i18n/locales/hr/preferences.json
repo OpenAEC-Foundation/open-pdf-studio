@@ -160,7 +160,7 @@
   },
   "virtualPrinter": {
     "title": "Virtualni pisač",
-    "description": "Instalirajte \"Open PDF Studio\" kao Windows pisač. Kada ispisujete iz bilo koje aplikacije (Word, Chrome, Notepad itd.) i odaberete ovaj pisač, izlazni PDF će se automatski otvoriti u ovoj aplikaciji.",
+    "description": "Instalirajte \"Open PDF Printer\" kao Windows pisač. Kada ispisujete iz bilo koje aplikacije (Word, Chrome, Notepad itd.) i odaberete ovaj pisač, izlazni PDF će se automatski otvoriti u ovoj aplikaciji.",
     "status": "Status:",
     "installButton": "Instaliraj virtualni pisač",
     "removeButton": "Ukloni virtualni pisač",

@@ -160,7 +160,7 @@
   },
   "virtualPrinter": {
     "title": "Imprimanta virtuala",
-    "description": "Instalati \"Open PDF Studio\" ca imprimanta Windows. Cand tipariti din orice aplicatie (Word, Chrome, Notepad, etc.) si selectati aceasta imprimanta, fisierul PDF rezultat se va deschide automat in aceasta aplicatie.",
+    "description": "Instalati \"Open PDF Printer\" ca imprimanta Windows. Cand tipariti din orice aplicatie (Word, Chrome, Notepad, etc.) si selectati aceasta imprimanta, fisierul PDF rezultat se va deschide automat in aceasta aplicatie.",
     "status": "Stare:",
     "installButton": "Instalare imprimanta virtuala",
     "removeButton": "Eliminare imprimanta virtuala",

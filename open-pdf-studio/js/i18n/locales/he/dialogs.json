@@ -65,7 +65,22 @@
     "noPages": "אין עמודים",
     "pageOf": "עמוד {{current}} מתוך {{total}}",
     "paperLabel": "נייר: {{paper}}",
-    "pageSizeLabel": "עמוד: {{size}}"
+    "paperFallback": "נייר: {{paper}} ({{requested}} אינו זמין במדפסת זו)",
+    "pageSizeLabel": "עמוד: {{size}}",
+    "pageClipped": "הדף אינו נכנס בנייר ויחתך.",
+    "pageOutsidePrintable": "חלק מהדף נמצא מחוץ לאזור ההדפסה של המדפסת.",
+    "saveAsPdf": "שמירה כ-PDF",
+    "sheetPortrait": "{{paper}} לאורך",
+    "sheetLandscape": "{{paper}} לרוחב",
+    "autoRotateOverrides": "סיבוב אוטומטי גובר על הכיוון שנבחר ({{orientation}}).",
+    "filePrinterHint": "מדפסת זו כותבת לקובץ. \"שמירה כ-PDF\" שומרת על כיוון הגיליון, והטקסט והקווים נשארים וקטורים.",
+    "targetIsOpenFile": "הקובץ הזה פתוח באפליקציה. בחרו שם אחר.",
+    "fileSuffix": " - הדפסה",
+    "progress": {
+      "savedTo": "נשמר: {{path}}",
+      "savedAsImages": "נשמר, העמודים כתמונות: {{path}}",
+      "saveFailed": "השמירה נכשלה: {{error}}"
+    }
   },
   "insertPage": {
     "title": "הוספת עמודים",

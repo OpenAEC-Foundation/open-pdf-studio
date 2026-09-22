@@ -65,7 +65,22 @@
     "noPages": "Keine Seiten",
     "pageOf": "Seite {{current}} von {{total}}",
     "paperLabel": "Papier: {{paper}}",
-    "pageSizeLabel": "Seite: {{size}}"
+    "paperFallback": "Papier: {{paper}} ({{requested}} ist auf diesem Drucker nicht verfügbar)",
+    "pageSizeLabel": "Seite: {{size}}",
+    "pageClipped": "Die Seite passt nicht auf das Papier und wird abgeschnitten.",
+    "pageOutsidePrintable": "Ein Teil der Seite liegt außerhalb des druckbaren Bereichs des Druckers.",
+    "saveAsPdf": "Als PDF speichern",
+    "sheetPortrait": "{{paper}} Hochformat",
+    "sheetLandscape": "{{paper}} Querformat",
+    "autoRotateOverrides": "Automatisch drehen übergeht die gewählte Ausrichtung ({{orientation}}).",
+    "filePrinterHint": "Dieser Drucker schreibt in eine Datei. „Als PDF speichern“ behält die Ausrichtung des Blatts bei, und Text und Linien bleiben Vektoren.",
+    "targetIsOpenFile": "Diese Datei ist in der App geöffnet. Wählen Sie einen anderen Namen.",
+    "fileSuffix": " - Druck",
+    "progress": {
+      "savedTo": "Gespeichert: {{path}}",
+      "savedAsImages": "Gespeichert, Seiten als Bilder: {{path}}",
+      "saveFailed": "Speichern fehlgeschlagen: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Seiten einfügen",

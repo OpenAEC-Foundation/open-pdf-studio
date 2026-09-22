@@ -65,7 +65,22 @@
     "noPages": "Tiada halaman",
     "pageOf": "Halaman {{current}} daripada {{total}}",
     "paperLabel": "Kertas: {{paper}}",
-    "pageSizeLabel": "Halaman: {{size}}"
+    "paperFallback": "Kertas: {{paper}} ({{requested}} tidak tersedia pada pencetak ini)",
+    "pageSizeLabel": "Halaman: {{size}}",
+    "pageClipped": "Halaman tidak muat pada kertas dan akan dipotong.",
+    "pageOutsidePrintable": "Sebahagian halaman berada di luar kawasan cetakan pencetak.",
+    "saveAsPdf": "Simpan sebagai PDF",
+    "sheetPortrait": "{{paper}} potret",
+    "sheetLandscape": "{{paper}} landskap",
+    "autoRotateOverrides": "Putar Automatik mengatasi orientasi yang dipilih ({{orientation}}).",
+    "filePrinterHint": "Pencetak ini menulis ke fail. \"Simpan sebagai PDF\" mengekalkan orientasi helaian, dan teks serta garisan kekal sebagai vektor.",
+    "targetIsOpenFile": "Fail itu sedang dibuka dalam aplikasi. Pilih nama lain.",
+    "fileSuffix": " - cetakan",
+    "progress": {
+      "savedTo": "Disimpan: {{path}}",
+      "savedAsImages": "Disimpan, halaman sebagai imej: {{path}}",
+      "saveFailed": "Gagal menyimpan: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Sisip Halaman",

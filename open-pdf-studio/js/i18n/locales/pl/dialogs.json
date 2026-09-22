@@ -65,7 +65,22 @@
     "noPages": "Brak stron",
     "pageOf": "Strona {{current}} z {{total}}",
     "paperLabel": "Papier: {{paper}}",
-    "pageSizeLabel": "Strona: {{size}}"
+    "paperFallback": "Papier: {{paper}} ({{requested}} nie jest dostępny na tej drukarce)",
+    "pageSizeLabel": "Strona: {{size}}",
+    "pageClipped": "Strona nie mieści się na papierze i zostanie przycięta.",
+    "pageOutsidePrintable": "Część strony znajduje się poza obszarem drukowania drukarki.",
+    "saveAsPdf": "Zapisz jako PDF",
+    "sheetPortrait": "{{paper}} pionowo",
+    "sheetLandscape": "{{paper}} poziomo",
+    "autoRotateOverrides": "Automatyczny obrót zastępuje wybraną orientację ({{orientation}}).",
+    "filePrinterHint": "Ta drukarka zapisuje do pliku. „Zapisz jako PDF” zachowuje orientację arkusza, a tekst i linie pozostają wektorami.",
+    "targetIsOpenFile": "Ten plik jest otwarty w aplikacji. Wybierz inną nazwę.",
+    "fileSuffix": " - wydruk",
+    "progress": {
+      "savedTo": "Zapisano: {{path}}",
+      "savedAsImages": "Zapisano, strony jako obrazy: {{path}}",
+      "saveFailed": "Zapis nie powiódł się: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Wstaw strony",

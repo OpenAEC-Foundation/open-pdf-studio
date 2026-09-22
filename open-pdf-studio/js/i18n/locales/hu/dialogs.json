@@ -65,7 +65,22 @@
     "noPages": "Nincsenek oldalak",
     "pageOf": "Oldal: {{current}} / {{total}}",
     "paperLabel": "Papír: {{paper}}",
-    "pageSizeLabel": "Oldal: {{size}}"
+    "paperFallback": "Papír: {{paper}} ({{requested}} nem érhető el ezen a nyomtatón)",
+    "pageSizeLabel": "Oldal: {{size}}",
+    "pageClipped": "Az oldal nem fér rá a papírra, ezért le lesz vágva.",
+    "pageOutsidePrintable": "Az oldal egy része a nyomtató nyomtatható területén kívülre esik.",
+    "saveAsPdf": "Mentés PDF-ként",
+    "sheetPortrait": "{{paper}} álló",
+    "sheetLandscape": "{{paper}} fekvő",
+    "autoRotateOverrides": "Az automatikus forgatás felülírja a választott tájolást ({{orientation}}).",
+    "filePrinterHint": "Ez a nyomtató fájlba ír. A „Mentés PDF-ként” megtartja a lap tájolását, a szöveg és a vonalak vektorok maradnak.",
+    "targetIsOpenFile": "Ez a fájl meg van nyitva az alkalmazásban. Válasszon másik nevet.",
+    "fileSuffix": " - nyomat",
+    "progress": {
+      "savedTo": "Mentve: {{path}}",
+      "savedAsImages": "Mentve, az oldalak képként: {{path}}",
+      "saveFailed": "A mentés nem sikerült: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Oldalak beszúrása",

@@ -65,7 +65,22 @@
     "noPages": "ページなし",
     "pageOf": "{{current}} / {{total}} ページ",
     "paperLabel": "用紙：{{paper}}",
-    "pageSizeLabel": "ページ：{{size}}"
+    "paperFallback": "用紙：{{paper}}（{{requested}} はこのプリンターでは使用できません）",
+    "pageSizeLabel": "ページ：{{size}}",
+    "pageClipped": "ページが用紙に収まらないため、はみ出た部分は印刷されません。",
+    "pageOutsidePrintable": "ページの一部がプリンターの印刷可能領域の外にあります。",
+    "saveAsPdf": "PDF として保存",
+    "sheetPortrait": "{{paper}} 縦向き",
+    "sheetLandscape": "{{paper}} 横向き",
+    "autoRotateOverrides": "自動回転により、選択した向き（{{orientation}}）は使われません。",
+    "filePrinterHint": "このプリンターはファイルに書き出します。「PDF として保存」なら用紙の向きが保たれ、文字と線はベクターのままです。",
+    "targetIsOpenFile": "そのファイルはアプリで開いています。別の名前を選んでください。",
+    "fileSuffix": " - 印刷",
+    "progress": {
+      "savedTo": "保存しました：{{path}}",
+      "savedAsImages": "保存しました（ページは画像）：{{path}}",
+      "saveFailed": "保存に失敗しました：{{error}}"
+    }
   },
   "insertPage": {
     "title": "ページの挿入",

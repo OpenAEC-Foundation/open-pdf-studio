@@ -65,7 +65,22 @@
     "noPages": "Sem páginas",
     "pageOf": "Página {{current}} de {{total}}",
     "paperLabel": "Papel: {{paper}}",
-    "pageSizeLabel": "Página: {{size}}"
+    "paperFallback": "Papel: {{paper}} ({{requested}} não está disponível nesta impressora)",
+    "pageSizeLabel": "Página: {{size}}",
+    "pageClipped": "A página não cabe no papel e será cortada.",
+    "pageOutsidePrintable": "Parte da página fica fora da área imprimível da impressora.",
+    "saveAsPdf": "Salvar como PDF",
+    "sheetPortrait": "{{paper}} retrato",
+    "sheetLandscape": "{{paper}} paisagem",
+    "autoRotateOverrides": "Girar automaticamente sobrepõe a orientação escolhida ({{orientation}}).",
+    "filePrinterHint": "Esta impressora grava em um arquivo. \"Salvar como PDF\" mantém a orientação da folha, e o texto e as linhas continuam vetoriais.",
+    "targetIsOpenFile": "Esse arquivo está aberto no aplicativo. Escolha outro nome.",
+    "fileSuffix": " - impressão",
+    "progress": {
+      "savedTo": "Salvo: {{path}}",
+      "savedAsImages": "Salvo, páginas como imagens: {{path}}",
+      "saveFailed": "Falha ao salvar: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Inserir páginas",

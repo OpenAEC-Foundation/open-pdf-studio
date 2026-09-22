@@ -91,7 +91,10 @@
     "noPages": "Geen pagina's",
     "pageOf": "Pagina {{current}} van {{total}}",
     "paperLabel": "Papier: {{paper}}",
+    "paperFallback": "Papier: {{paper}} ({{requested}} is niet beschikbaar op deze printer)",
     "pageSizeLabel": "Pagina: {{size}}",
+    "pageClipped": "De pagina past niet op het papier en wordt afgesneden.",
+    "pageOutsidePrintable": "Een deel van de pagina valt buiten het bedrukbare gebied van de printer.",
     "firstPage": "Eerste pagina",
     "prevPage": "Vorige pagina",
     "nextPage": "Volgende pagina",
@@ -106,8 +109,18 @@
       "failed": "Afdrukken mislukt: {{error}}",
       "failedGeneric": "Afdrukken mislukt",
       "errNoDocument": "geen document",
-      "errTempFile": "kon tijdelijk bestand niet maken"
-    }
+      "errTempFile": "kon tijdelijk bestand niet maken",
+      "savedTo": "Opgeslagen: {{path}}",
+      "savedAsImages": "Opgeslagen, pagina's als afbeelding: {{path}}",
+      "saveFailed": "Opslaan mislukt: {{error}}"
+    },
+    "saveAsPdf": "Opslaan als PDF",
+    "sheetPortrait": "{{paper}} staand",
+    "sheetLandscape": "{{paper}} liggend",
+    "autoRotateOverrides": "Automatisch draaien overstemt de gekozen stand ({{orientation}}).",
+    "filePrinterHint": "Deze printer schrijft naar een bestand. \"Opslaan als PDF\" behoudt de stand van het vel, en tekst en lijnen blijven vectoren.",
+    "targetIsOpenFile": "Dat bestand staat open in de app. Kies een andere naam.",
+    "fileSuffix": " - afdruk"
   },
   "insertPage": {
     "title": "Pagina's invoegen",

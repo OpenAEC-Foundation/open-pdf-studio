@@ -9,6 +9,9 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
 
+use crate::print_formulieren::{formulier, Formulier};
+use crate::print_plaatsing::Plaatsing;
+
 /// Gevraagde oriëntatie. `Auto` = per pagina afleiden (breder dan hoog → liggend).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Orientatie {
@@ -29,13 +32,24 @@ impl Orientatie {
 }
 
 /// Gevraagd papierformaat. `Printer` = niets instellen, standaard van de printer.
+///
+/// A0, A1 en de verlengde vellen (A3L = A3 plus één A4-breedte in de lengte,
+/// enzovoort) hebben geen vaste `DMPAPER_*`-code: hun maat staat in
+/// `print_formulieren::FORMULIEREN` en ze gaan als eigen maat naar de driver
+/// (`eigen_maat_tiende_mm`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Papier {
     Printer,
+    A0,
+    A1,
     A2,
     A3,
     A4,
     A5,
+    A0L,
+    A1L,
+    A2L,
+    A3L,
     Letter,
     Legal,
     Tabloid,
@@ -45,6 +59,12 @@ impl Papier {
     /// Onbekende of ontbrekende keuze → `Printer`.
     pub fn uit_keuze(keuze: Option<&str>) -> Papier {
         match keuze {
+            Some("a0") => Papier::A0,
+            Some("a1") => Papier::A1,
+            Some("a0l") => Papier::A0L,
+            Some("a1l") => Papier::A1L,
+            Some("a2l") => Papier::A2L,
+            Some("a3l") => Papier::A3L,
             Some("a2") => Papier::A2,
             Some("a3") => Papier::A3,
             Some("a4") => Papier::A4,
@@ -68,10 +88,12 @@ pub fn liggend_voor_pagina<T: PartialOrd>(keuze: Orientatie, breedte: T, hoogte:
 }
 
 /// DEVMODE `dmPaperSize`. Waarden gelijk aan de `DMPAPER_*`-constanten uit
-/// windows-sys 0.59; `None` bij `Printer` (dan wordt `DM_PAPERSIZE` niet gezet).
+/// windows-sys 0.59; `None` bij `Printer` (dan wordt `DM_PAPERSIZE` niet gezet)
+/// en bij de vellen zonder vaste code (die gaan via `eigen_maat_tiende_mm`).
 pub fn dmpaper(papier: Papier) -> Option<i16> {
     match papier {
         Papier::Printer => None,
+        Papier::A0 | Papier::A1 | Papier::A0L | Papier::A1L | Papier::A2L | Papier::A3L => None,
         Papier::A2 => Some(66),
         Papier::A3 => Some(8),
         Papier::A4 => Some(9),
@@ -87,6 +109,12 @@ impl Papier {
     pub fn sleutel(self) -> &'static str {
         match self {
             Papier::Printer => "printer",
+            Papier::A0 => "a0",
+            Papier::A1 => "a1",
+            Papier::A0L => "a0l",
+            Papier::A1L => "a1l",
+            Papier::A2L => "a2l",
+            Papier::A3L => "a3l",
             Papier::A2 => "a2",
             Papier::A3 => "a3",
             Papier::A4 => "a4",
@@ -97,10 +125,34 @@ impl Papier {
         }
     }
 
+    /// De regel in `print_formulieren::FORMULIEREN` voor een vel zonder vaste
+    /// `DMPAPER_*`-code; `None` voor de andere vellen en voor `Printer`.
+    pub fn formulier(self) -> Option<&'static Formulier> {
+        match self {
+            Papier::A0 | Papier::A1 | Papier::A0L | Papier::A1L | Papier::A2L | Papier::A3L => {
+                formulier(self.sleutel())
+            }
+            _ => None,
+        }
+    }
+
+    /// De maat die als eigen maat in de DEVMODE gaat (`dmPaperWidth`,
+    /// `dmPaperLength`, in 0,1 mm, staand) voor een vel zonder vaste code.
+    pub fn eigen_maat_tiende_mm(self) -> Option<(i16, i16)> {
+        self.formulier().map(|f| {
+            let (b, l) = f.maat_tiende_mm();
+            (b as i16, l as i16)
+        })
+    }
+
     /// Het vel staand in mm: (korte zijde, lange zijde). `None` bij `Printer`.
     pub fn staande_maat_mm(self) -> Option<(f64, f64)> {
         match self {
             Papier::Printer => None,
+            // De formulierentabel is de enige bron van deze maten.
+            Papier::A0 | Papier::A1 | Papier::A0L | Papier::A1L | Papier::A2L | Papier::A3L => {
+                self.formulier().map(|f| (f.breedte_mm as f64, f.hoogte_mm as f64))
+            }
             Papier::A2 => Some((420.0, 594.0)),
             Papier::A3 => Some((297.0, 420.0)),
             Papier::A4 => Some((210.0, 297.0)),
@@ -113,7 +165,13 @@ impl Papier {
 }
 
 /// Alle bekende vellen, voor het terugzoeken op maat.
-const BEKENDE_VELLEN: [Papier; 7] = [
+const BEKENDE_VELLEN: [Papier; 13] = [
+    Papier::A0,
+    Papier::A1,
+    Papier::A0L,
+    Papier::A1L,
+    Papier::A2L,
+    Papier::A3L,
     Papier::A2,
     Papier::A3,
     Papier::A4,
@@ -156,6 +214,14 @@ pub fn papier_uit_maat_mm(a: f64, b: f64) -> Option<Papier> {
     })
 }
 
+/// Dezelfde maat op `speling` mm na, ongeacht welke zijde eerst staat
+/// (een liggende DC meet breedte en hoogte omgekeerd).
+pub fn zelfde_maat_mm(a: (f64, f64), b: (f64, f64), speling: f64) -> bool {
+    let sorteer = |(x, y): (f64, f64)| if x <= y { (x, y) } else { (y, x) };
+    let ((a_kort, a_lang), (b_kort, b_lang)) = (sorteer(a), sorteer(b));
+    (a_kort - b_kort).abs() <= speling && (a_lang - b_lang).abs() <= speling
+}
+
 fn op_tiende(mm: f64) -> f64 {
     (mm * 10.0).round() / 10.0
 }
@@ -165,7 +231,7 @@ fn op_tiende(mm: f64) -> f64 {
 #[derive(Debug, Clone, PartialEq, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PapierInfo {
-    /// "a2" | "a3" | "a4" | "a5" | "letter" | "legal" | "tabloid" | "overig".
+    /// Een sleutel van `Papier` ("a4", "a3l", ...) of "overig".
     pub papier: &'static str,
     /// Formuliernaam van de driver (bijv. "A3"), anders leeg.
     pub naam: String,
@@ -287,7 +353,15 @@ impl PrinterDevmodes {
 }
 
 /// Extra `lp`-argumenten (CUPS). Bij `Auto` geen oriëntatie-optie, bij `Printer` geen media.
-pub fn lp_opties(orientatie: Orientatie, papier: Papier) -> Vec<String> {
+///
+/// Bij plaatsing `Vel` heeft de printdialoog elke pagina al op papiergrootte
+/// opgemaakt, met de gekozen schaal en plek. Dan `print-scaling=none` (het
+/// IPP-jobattribuut uit PWG 5100.13, dat CUPS en de pdftopdf-filter van
+/// cups-filters kennen): de standaard (`auto`) past een pagina die groter is
+/// dan het bedrukbare gebied nog eens in dat gebied, en een pagina op
+/// papiergrootte is dat altijd. Een printer die het attribuut niet kent,
+/// negeert het.
+pub fn lp_opties(orientatie: Orientatie, papier: Papier, plaatsing: Plaatsing) -> Vec<String> {
     let mut opties = Vec::new();
     match orientatie {
         Orientatie::Auto => {}
@@ -300,21 +374,38 @@ pub fn lp_opties(orientatie: Orientatie, papier: Papier) -> Vec<String> {
             opties.push("orientation-requested=4".to_string());
         }
     }
-    let media = match papier {
-        Papier::Printer => None,
-        Papier::A2 => Some("A2"),
-        Papier::A3 => Some("A3"),
-        Papier::A4 => Some("A4"),
-        Papier::A5 => Some("A5"),
-        Papier::Letter => Some("Letter"),
-        Papier::Legal => Some("Legal"),
-        Papier::Tabloid => Some("Tabloid"),
-    };
-    if let Some(m) = media {
+    if let Some(m) = lp_media(papier) {
         opties.push("-o".to_string());
         opties.push(format!("media={m}"));
     }
+    if plaatsing == Plaatsing::Vel {
+        opties.push("-o".to_string());
+        opties.push("print-scaling=none".to_string());
+    }
     opties
+}
+
+/// De `media`-waarde voor `lp`. Standaardvellen bij hun CUPS-naam; de
+/// verlengde vellen kent CUPS niet bij naam, die gaan als eigen maat
+/// (`Custom.BREEDTExLENGTEmm`, staand). `None` bij `Printer`.
+pub fn lp_media(papier: Papier) -> Option<String> {
+    let naam = match papier {
+        Papier::Printer => return None,
+        Papier::A0 => "A0",
+        Papier::A1 => "A1",
+        Papier::A2 => "A2",
+        Papier::A3 => "A3",
+        Papier::A4 => "A4",
+        Papier::A5 => "A5",
+        Papier::Letter => "Letter",
+        Papier::Legal => "Legal",
+        Papier::Tabloid => "Tabloid",
+        Papier::A0L | Papier::A1L | Papier::A2L | Papier::A3L => {
+            let f = papier.formulier()?;
+            return Some(format!("Custom.{}x{}mm", f.breedte_mm, f.hoogte_mm));
+        }
+    };
+    Some(naam.to_string())
 }
 
 #[cfg(test)]
@@ -330,8 +421,61 @@ mod tests {
         assert_eq!(Orientatie::uit_keuze(None), Orientatie::Auto);
         assert_eq!(Papier::uit_keuze(Some("a3")), Papier::A3);
         assert_eq!(Papier::uit_keuze(Some("printer")), Papier::Printer);
-        assert_eq!(Papier::uit_keuze(Some("a1")), Papier::Printer);
+        assert_eq!(Papier::uit_keuze(Some("a6")), Papier::Printer);
+        assert_eq!(Papier::uit_keuze(Some("A3L")), Papier::Printer);
         assert_eq!(Papier::uit_keuze(None), Papier::Printer);
+    }
+
+    #[test]
+    fn grote_en_verlengde_vellen_parsen() {
+        assert_eq!(Papier::uit_keuze(Some("a1")), Papier::A1);
+        assert_eq!(Papier::uit_keuze(Some("a0")), Papier::A0);
+        assert_eq!(Papier::uit_keuze(Some("a3l")), Papier::A3L);
+        assert_eq!(Papier::uit_keuze(Some("a2l")), Papier::A2L);
+        assert_eq!(Papier::uit_keuze(Some("a1l")), Papier::A1L);
+        assert_eq!(Papier::uit_keuze(Some("a0l")), Papier::A0L);
+        // Elke sleutel komt via uit_keuze terug op hetzelfde vel.
+        for p in BEKENDE_VELLEN {
+            assert_eq!(Papier::uit_keuze(Some(p.sleutel())), p);
+        }
+        assert_eq!(Papier::uit_keuze(Some(Papier::Printer.sleutel())), Papier::Printer);
+    }
+
+    #[test]
+    fn vellen_zonder_vaste_code_gaan_als_eigen_maat() {
+        // Geen DMPAPER-code, wel een maat in 0,1 mm (staand) uit de formulierentabel.
+        let verwacht = [
+            (Papier::A1, (5940, 8410)),
+            (Papier::A0, (8410, 11890)),
+            (Papier::A3L, (2970, 6300)),
+            (Papier::A2L, (4200, 8040)),
+            (Papier::A1L, (5940, 10510)),
+            (Papier::A0L, (8410, 13990)),
+        ];
+        for (p, maat) in verwacht {
+            assert_eq!(dmpaper(p), None, "{p:?}");
+            assert_eq!(p.eigen_maat_tiende_mm(), Some(maat), "{p:?}");
+        }
+        // Elk bekend vel gaat langs precies één van beide wegen.
+        for p in BEKENDE_VELLEN {
+            assert!(dmpaper(p).is_some() != p.eigen_maat_tiende_mm().is_some(), "{p:?}");
+        }
+        assert_eq!(Papier::A4.eigen_maat_tiende_mm(), None);
+        assert_eq!(Papier::Printer.eigen_maat_tiende_mm(), None);
+        assert_eq!(Papier::A2.formulier(), None);
+    }
+
+    #[test]
+    fn formulierentabel_en_papier_dekken_elkaar() {
+        use crate::print_formulieren::FORMULIEREN;
+        for f in FORMULIEREN {
+            let p = Papier::uit_keuze(Some(f.sleutel));
+            assert_ne!(p, Papier::Printer, "{} ontbreekt in Papier", f.sleutel);
+            assert_eq!(p.formulier(), Some(&f));
+            assert_eq!(p.staande_maat_mm(), Some((f.breedte_mm as f64, f.hoogte_mm as f64)));
+        }
+        let met_formulier = BEKENDE_VELLEN.iter().filter(|p| p.formulier().is_some()).count();
+        assert_eq!(met_formulier, FORMULIEREN.len());
     }
 
     #[test]
@@ -385,9 +529,11 @@ mod tests {
         assert_eq!(sleutel(1), Some("letter"));
         assert_eq!(sleutel(5), Some("legal"));
         assert_eq!(sleutel(3), Some("tabloid"));
-        // Elke Papier-keuze komt via haar eigen code terug op zichzelf.
+        // Elke Papier-keuze met een vaste code komt via die code terug op zichzelf.
         for p in BEKENDE_VELLEN {
-            assert_eq!(papier_uit_dmpaper(dmpaper(p).unwrap()), Some(p));
+            if let Some(code) = dmpaper(p) {
+                assert_eq!(papier_uit_dmpaper(code), Some(p));
+            }
         }
     }
 
@@ -438,6 +584,52 @@ mod tests {
         assert_eq!(papier_uit_maat_mm(215.9, 279.4), Some(Papier::Letter));
         assert_eq!(papier_uit_maat_mm(322.0, 445.0), None); // A3 Extra
         assert_eq!(papier_uit_maat_mm(210.0, 330.0), None); // A4 Plus
+    }
+
+    #[test]
+    fn grote_en_verlengde_vellen_herkennen_op_maat() {
+        assert_eq!(papier_uit_maat_mm(594.0, 841.0), Some(Papier::A1));
+        assert_eq!(papier_uit_maat_mm(1189.0, 841.0), Some(Papier::A0));
+        assert_eq!(papier_uit_maat_mm(297.0, 630.0), Some(Papier::A3L));
+        assert_eq!(papier_uit_maat_mm(630.0, 297.0), Some(Papier::A3L));
+        assert_eq!(papier_uit_maat_mm(420.0, 804.0), Some(Papier::A2L));
+        assert_eq!(papier_uit_maat_mm(1051.0, 594.0), Some(Papier::A1L));
+        assert_eq!(papier_uit_maat_mm(841.0, 1399.0), Some(Papier::A0L));
+        // Elk bekend vel komt via zijn eigen maat terug op zichzelf: geen twee
+        // vellen liggen binnen elkaars speling.
+        for p in BEKENDE_VELLEN {
+            let (b, h) = p.staande_maat_mm().unwrap();
+            assert_eq!(papier_uit_maat_mm(b, h), Some(p));
+            assert_eq!(papier_uit_maat_mm(h, b), Some(p));
+        }
+        // Een door de driver afgekapte A0L (1219,2 mm lang) is geen A0L en geen A0.
+        assert_eq!(papier_uit_maat_mm(841.0, 1219.2), None);
+    }
+
+    #[test]
+    fn zelfde_maat_in_beide_richtingen_met_speling() {
+        assert!(zelfde_maat_mm((297.0, 630.0), (297.0, 630.0), 3.0));
+        assert!(zelfde_maat_mm((630.1, 296.9), (297.0, 630.0), 3.0));
+        assert!(zelfde_maat_mm((1051.0, 594.0), (594.0, 1051.0), 3.0));
+        // A0L afgekapt op de grootste lengte van de pdf-driver: niet hetzelfde vel.
+        assert!(!zelfde_maat_mm((841.0, 1219.2), (841.0, 1399.0), 3.0));
+        // Teruggevallen op A4.
+        assert!(!zelfde_maat_mm((210.0, 297.0), (841.0, 1399.0), 3.0));
+        assert!(!zelfde_maat_mm((297.0, 634.0), (297.0, 630.0), 3.0));
+    }
+
+    #[test]
+    fn papierinfo_uit_een_eigen_maat() {
+        // DMPAPER_USER (256) met dmPaperWidth/-Length: de maat beslist.
+        let info = PapierInfo::uit_devmode(256, Some((2970, 6300)), None, 1).unwrap();
+        assert_eq!((info.papier, info.breedte_mm, info.hoogte_mm, info.orientatie), ("a3l", 297.0, 630.0, "portrait"));
+        let info = PapierInfo::uit_devmode(256, Some((5940, 10510)), Some("A1L"), 2).unwrap();
+        assert_eq!((info.papier, info.naam.as_str(), info.orientatie), ("a1l", "A1L", "landscape"));
+        // De driver-eigen code van de pdf-driver voor A1 ("ISOA1", 140).
+        let info = PapierInfo::uit_devmode(140, Some((5940, 8410)), Some("ISOA1"), 1).unwrap();
+        assert_eq!((info.papier, info.naam.as_str()), ("a1", "ISOA1"));
+        assert!(beschrijft_vel(Some(&info), Papier::A1));
+        assert!(!beschrijft_vel(Some(&info), Papier::A1L));
     }
 
     #[test]
@@ -613,11 +805,65 @@ mod tests {
 
     #[test]
     fn lp_opties_per_keuze() {
-        assert!(lp_opties(Orientatie::Auto, Papier::Printer).is_empty());
+        assert!(lp_opties(Orientatie::Auto, Papier::Printer, Plaatsing::Passend).is_empty());
         assert_eq!(
-            lp_opties(Orientatie::Liggend, Papier::A3),
+            lp_opties(Orientatie::Liggend, Papier::A3, Plaatsing::Passend),
             vec!["-o", "orientation-requested=4", "-o", "media=A3"]
         );
-        assert_eq!(lp_opties(Orientatie::Staand, Papier::Printer), vec!["-o", "orientation-requested=3"]);
+        assert_eq!(
+            lp_opties(Orientatie::Staand, Papier::Printer, Plaatsing::Passend),
+            vec!["-o", "orientation-requested=3"]
+        );
+    }
+
+    #[test]
+    fn lp_opties_pagina_op_papiergrootte_niet_opnieuw_schalen() {
+        // Plaatsing Vel: de pagina is het vel, CUPS mag niet nog eens passend maken.
+        assert_eq!(
+            lp_opties(Orientatie::Auto, Papier::A3, Plaatsing::Vel),
+            vec!["-o", "media=A3", "-o", "print-scaling=none"]
+        );
+        assert_eq!(
+            lp_opties(Orientatie::Liggend, Papier::A1L, Plaatsing::Vel),
+            vec!["-o", "orientation-requested=4", "-o", "media=Custom.594x1051mm", "-o", "print-scaling=none"]
+        );
+        // Het papier van de printer, maar wel een opgemaakte pagina: alleen de schaaloptie.
+        assert_eq!(lp_opties(Orientatie::Auto, Papier::Printer, Plaatsing::Vel), vec!["-o", "print-scaling=none"]);
+        // Het oude gedrag noemt geen schaaloptie: CUPS beslist zoals altijd.
+        for p in BEKENDE_VELLEN {
+            assert!(!lp_opties(Orientatie::Auto, p, Plaatsing::Passend).iter().any(|o| o.contains("scaling")));
+            // Elke optie staat als los argument na "-o", zonder spaties.
+            let opties = lp_opties(Orientatie::Staand, p, Plaatsing::Vel);
+            assert_eq!(opties.len() % 2, 0);
+            for paar in opties.chunks(2) {
+                assert_eq!(paar[0], "-o");
+                assert!(!paar[1].contains(' ') && paar[1].contains('='), "{p:?}: {}", paar[1]);
+            }
+        }
+    }
+
+    #[test]
+    fn lp_media_voor_grote_en_verlengde_vellen() {
+        // Standaardvellen bij naam, verlengde vellen als eigen maat in mm (staand).
+        assert_eq!(lp_media(Papier::A1).as_deref(), Some("A1"));
+        assert_eq!(lp_media(Papier::A0).as_deref(), Some("A0"));
+        assert_eq!(lp_media(Papier::A3L).as_deref(), Some("Custom.297x630mm"));
+        assert_eq!(lp_media(Papier::A2L).as_deref(), Some("Custom.420x804mm"));
+        assert_eq!(lp_media(Papier::A1L).as_deref(), Some("Custom.594x1051mm"));
+        assert_eq!(lp_media(Papier::A0L).as_deref(), Some("Custom.841x1399mm"));
+        assert_eq!(lp_media(Papier::Printer), None);
+        assert_eq!(
+            lp_opties(Orientatie::Liggend, Papier::A1L, Plaatsing::Passend),
+            vec!["-o", "orientation-requested=4", "-o", "media=Custom.594x1051mm"]
+        );
+        assert_eq!(
+            lp_opties(Orientatie::Auto, Papier::A3L, Plaatsing::Passend),
+            vec!["-o", "media=Custom.297x630mm"]
+        );
+        // Elk bekend vel levert een media-optie zonder spaties.
+        for p in BEKENDE_VELLEN {
+            let m = lp_media(p).unwrap();
+            assert!(!m.is_empty() && !m.contains(' '), "{p:?}: {m}");
+        }
     }
 }

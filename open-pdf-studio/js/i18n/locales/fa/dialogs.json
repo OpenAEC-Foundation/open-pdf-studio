@@ -65,7 +65,22 @@
     "noPages": "بدون صفحه",
     "pageOf": "صفحه {{current}} از {{total}}",
     "paperLabel": "کاغذ: {{paper}}",
-    "pageSizeLabel": "صفحه: {{size}}"
+    "paperFallback": "کاغذ: {{paper}} ({{requested}} در این چاپگر در دسترس نیست)",
+    "pageSizeLabel": "صفحه: {{size}}",
+    "pageClipped": "صفحه روی کاغذ جا نمی‌شود و بریده خواهد شد.",
+    "pageOutsidePrintable": "بخشی از صفحه بیرون از ناحیهٔ قابل چاپ چاپگر قرار می‌گیرد.",
+    "saveAsPdf": "ذخیره به‌صورت PDF",
+    "sheetPortrait": "{{paper}} عمودی",
+    "sheetLandscape": "{{paper}} افقی",
+    "autoRotateOverrides": "چرخش خودکار جهت انتخاب‌شده را نادیده می‌گیرد ({{orientation}}).",
+    "filePrinterHint": "این چاپگر در یک فایل می‌نویسد. «ذخیره به‌صورت PDF» جهت برگه را حفظ می‌کند و متن و خطوط برداری می‌مانند.",
+    "targetIsOpenFile": "این فایل در برنامه باز است. نام دیگری انتخاب کنید.",
+    "fileSuffix": " - چاپ",
+    "progress": {
+      "savedTo": "ذخیره شد: {{path}}",
+      "savedAsImages": "ذخیره شد، صفحه‌ها به‌صورت تصویر: {{path}}",
+      "saveFailed": "ذخیره ناموفق بود: {{error}}"
+    }
   },
   "insertPage": {
     "title": "درج صفحات",

@@ -65,7 +65,22 @@
     "noPages": "Нема страница",
     "pageOf": "Страница {{current}} од {{total}}",
     "paperLabel": "Папир: {{paper}}",
-    "pageSizeLabel": "Страница: {{size}}"
+    "paperFallback": "Папир: {{paper}} ({{requested}} није доступан на овом штампачу)",
+    "pageSizeLabel": "Страница: {{size}}",
+    "pageClipped": "Страница не стаје на папир и биће одсечена.",
+    "pageOutsidePrintable": "Део странице је изван области штампе штампача.",
+    "saveAsPdf": "Сачувај као PDF",
+    "sheetPortrait": "{{paper}} усправно",
+    "sheetLandscape": "{{paper}} водоравно",
+    "autoRotateOverrides": "Аутоматска ротација надјачава изабрану оријентацију ({{orientation}}).",
+    "filePrinterHint": "Овај штампач уписује у датотеку. „Сачувај као PDF“ задржава оријентацију листа, а текст и линије остају вектори.",
+    "targetIsOpenFile": "Та датотека је отворена у апликацији. Изаберите друго име.",
+    "fileSuffix": " - штампа",
+    "progress": {
+      "savedTo": "Сачувано: {{path}}",
+      "savedAsImages": "Сачувано, странице као слике: {{path}}",
+      "saveFailed": "Чување није успело: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Уметање страница",

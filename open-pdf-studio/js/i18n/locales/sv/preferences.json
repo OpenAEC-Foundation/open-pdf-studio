@@ -160,7 +160,7 @@
   },
   "virtualPrinter": {
     "title": "Virtuell skrivare",
-    "description": "Installera \"Open PDF Studio\" som en Windows-skrivare. När du skriver ut från valfritt program (Word, Chrome, Anteckningar, etc.) och väljer denna skrivare, öppnas den resulterande PDF-filen automatiskt i denna app.",
+    "description": "Installera \"Open PDF Printer\" som en Windows-skrivare. När du skriver ut från valfritt program (Word, Chrome, Anteckningar, etc.) och väljer denna skrivare, öppnas den resulterande PDF-filen automatiskt i denna app.",
     "status": "Status:",
     "installButton": "Installera virtuell skrivare",
     "removeButton": "Ta bort virtuell skrivare",

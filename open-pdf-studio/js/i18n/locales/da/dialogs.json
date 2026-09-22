@@ -65,7 +65,22 @@
     "noPages": "Ingen sider",
     "pageOf": "Side {{current}} af {{total}}",
     "paperLabel": "Papir: {{paper}}",
-    "pageSizeLabel": "Side: {{size}}"
+    "paperFallback": "Papir: {{paper}} ({{requested}} er ikke tilgængelig på denne printer)",
+    "pageSizeLabel": "Side: {{size}}",
+    "pageClipped": "Siden passer ikke på papiret og bliver beskåret.",
+    "pageOutsidePrintable": "En del af siden ligger uden for printerens udskrivbare område.",
+    "saveAsPdf": "Gem som PDF",
+    "sheetPortrait": "{{paper}} stående",
+    "sheetLandscape": "{{paper}} liggende",
+    "autoRotateOverrides": "Auto-roter tilsidesætter den valgte retning ({{orientation}}).",
+    "filePrinterHint": "Denne printer skriver til en fil. \"Gem som PDF\" bevarer arkets retning, og tekst og streger forbliver vektorer.",
+    "targetIsOpenFile": "Den fil er åben i appen. Vælg et andet navn.",
+    "fileSuffix": " - udskrift",
+    "progress": {
+      "savedTo": "Gemt: {{path}}",
+      "savedAsImages": "Gemt, sider som billeder: {{path}}",
+      "saveFailed": "Kunne ikke gemme: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Indsæt sider",

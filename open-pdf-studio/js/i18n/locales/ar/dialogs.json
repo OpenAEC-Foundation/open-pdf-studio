@@ -65,7 +65,22 @@
     "noPages": "لا توجد صفحات",
     "pageOf": "الصفحة {{current}} من {{total}}",
     "paperLabel": "الورق: {{paper}}",
-    "pageSizeLabel": "الصفحة: {{size}}"
+    "paperFallback": "الورق: {{paper}} ({{requested}} غير متاح على هذه الطابعة)",
+    "pageSizeLabel": "الصفحة: {{size}}",
+    "pageClipped": "لا تتسع الصفحة على الورق وسيتم قص جزء منها.",
+    "pageOutsidePrintable": "يقع جزء من الصفحة خارج المنطقة القابلة للطباعة في الطابعة.",
+    "saveAsPdf": "حفظ بصيغة PDF",
+    "sheetPortrait": "{{paper}} عمودي",
+    "sheetLandscape": "{{paper}} أفقي",
+    "autoRotateOverrides": "التدوير التلقائي يتجاوز الاتجاه المختار ({{orientation}}).",
+    "filePrinterHint": "تكتب هذه الطابعة إلى ملف. «حفظ بصيغة PDF» يحافظ على اتجاه الورقة، ويبقى النص والخطوط متجهات.",
+    "targetIsOpenFile": "هذا الملف مفتوح في التطبيق. اختر اسمًا آخر.",
+    "fileSuffix": " - طباعة",
+    "progress": {
+      "savedTo": "تم الحفظ: {{path}}",
+      "savedAsImages": "تم الحفظ، الصفحات كصور: {{path}}",
+      "saveFailed": "فشل الحفظ: {{error}}"
+    }
   },
   "insertPage": {
     "title": "إدراج صفحات",

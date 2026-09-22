@@ -65,7 +65,22 @@
     "noPages": "Žádné stránky",
     "pageOf": "Stránka {{current}} z {{total}}",
     "paperLabel": "Papír: {{paper}}",
-    "pageSizeLabel": "Stránka: {{size}}"
+    "paperFallback": "Papír: {{paper}} ({{requested}} není na této tiskárně k dispozici)",
+    "pageSizeLabel": "Stránka: {{size}}",
+    "pageClipped": "Stránka se nevejde na papír a bude oříznuta.",
+    "pageOutsidePrintable": "Část stránky leží mimo tisknutelnou oblast tiskárny.",
+    "saveAsPdf": "Uložit jako PDF",
+    "sheetPortrait": "{{paper}} na výšku",
+    "sheetLandscape": "{{paper}} na šířku",
+    "autoRotateOverrides": "Automatické otočení má přednost před zvolenou orientací ({{orientation}}).",
+    "filePrinterHint": "Tato tiskárna zapisuje do souboru. „Uložit jako PDF“ zachová orientaci listu a text i čáry zůstanou vektorové.",
+    "targetIsOpenFile": "Tento soubor je v aplikaci otevřený. Zvolte jiný název.",
+    "fileSuffix": " - tisk",
+    "progress": {
+      "savedTo": "Uloženo: {{path}}",
+      "savedAsImages": "Uloženo, stránky jako obrázky: {{path}}",
+      "saveFailed": "Uložení se nezdařilo: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Vložit stránky",

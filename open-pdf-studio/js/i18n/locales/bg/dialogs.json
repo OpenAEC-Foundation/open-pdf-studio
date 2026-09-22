@@ -65,7 +65,22 @@
     "noPages": "Няма страници",
     "pageOf": "Страница {{current}} от {{total}}",
     "paperLabel": "Хартия: {{paper}}",
-    "pageSizeLabel": "Страница: {{size}}"
+    "paperFallback": "Хартия: {{paper}} ({{requested}} не е наличен на този принтер)",
+    "pageSizeLabel": "Страница: {{size}}",
+    "pageClipped": "Страницата не се побира на хартията и ще бъде отрязана.",
+    "pageOutsidePrintable": "Част от страницата е извън печатаемата област на принтера.",
+    "saveAsPdf": "Запази като PDF",
+    "sheetPortrait": "{{paper}} портрет",
+    "sheetLandscape": "{{paper}} пейзаж",
+    "autoRotateOverrides": "Автоматичното завъртане отменя избраната ориентация ({{orientation}}).",
+    "filePrinterHint": "Този принтер записва във файл. „Запази като PDF“ запазва ориентацията на листа, а текстът и линиите остават вектори.",
+    "targetIsOpenFile": "Този файл е отворен в приложението. Изберете друго име.",
+    "fileSuffix": " - печат",
+    "progress": {
+      "savedTo": "Запазено: {{path}}",
+      "savedAsImages": "Запазено, страниците като изображения: {{path}}",
+      "saveFailed": "Запазването е неуспешно: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Вмъкване на страници",

@@ -65,7 +65,22 @@
     "noPages": "Không có trang",
     "pageOf": "Trang {{current}} / {{total}}",
     "paperLabel": "Giấy: {{paper}}",
-    "pageSizeLabel": "Trang: {{size}}"
+    "paperFallback": "Giấy: {{paper}} ({{requested}} không khả dụng trên máy in này)",
+    "pageSizeLabel": "Trang: {{size}}",
+    "pageClipped": "Trang không vừa với giấy và sẽ bị cắt bớt.",
+    "pageOutsidePrintable": "Một phần của trang nằm ngoài vùng in được của máy in.",
+    "saveAsPdf": "Lưu thành PDF",
+    "sheetPortrait": "{{paper}} dọc",
+    "sheetLandscape": "{{paper}} ngang",
+    "autoRotateOverrides": "Tự động xoay ghi đè hướng đã chọn ({{orientation}}).",
+    "filePrinterHint": "Máy in này ghi ra tệp. \"Lưu thành PDF\" giữ nguyên hướng của tờ, và chữ cùng đường nét vẫn là vectơ.",
+    "targetIsOpenFile": "Tệp đó đang mở trong ứng dụng. Hãy chọn tên khác.",
+    "fileSuffix": " - in",
+    "progress": {
+      "savedTo": "Đã lưu: {{path}}",
+      "savedAsImages": "Đã lưu, các trang dưới dạng hình ảnh: {{path}}",
+      "saveFailed": "Lưu thất bại: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Chèn Trang",

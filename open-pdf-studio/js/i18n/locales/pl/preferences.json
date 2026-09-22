@@ -143,7 +143,7 @@
   },
   "virtualPrinter": {
     "title": "Drukarka wirtualna",
-    "description": "Zainstaluj \"Open PDF Studio\" jako drukarkę systemu Windows. Gdy drukujesz z dowolnej aplikacji (Word, Chrome, Notatnik itp.) i wybierzesz tę drukarkę, wynikowy plik PDF otworzy się automatycznie w tej aplikacji.",
+    "description": "Zainstaluj \"Open PDF Printer\" jako drukarkę systemu Windows. Gdy drukujesz z dowolnej aplikacji (Word, Chrome, Notatnik itp.) i wybierzesz tę drukarkę, wynikowy plik PDF otworzy się automatycznie w tej aplikacji.",
     "status": "Status:",
     "installButton": "Zainstaluj drukarkę wirtualną",
     "removeButton": "Usuń drukarkę wirtualną",

@@ -65,7 +65,22 @@
     "noPages": "페이지 없음",
     "pageOf": "{{current}} / {{total}} 페이지",
     "paperLabel": "용지: {{paper}}",
-    "pageSizeLabel": "페이지: {{size}}"
+    "paperFallback": "용지: {{paper}} (이 프린터에서는 {{requested}} 용지를 사용할 수 없습니다)",
+    "pageSizeLabel": "페이지: {{size}}",
+    "pageClipped": "페이지가 용지에 맞지 않아 잘립니다.",
+    "pageOutsidePrintable": "페이지의 일부가 프린터의 인쇄 가능 영역을 벗어납니다.",
+    "saveAsPdf": "PDF로 저장",
+    "sheetPortrait": "{{paper}} 세로",
+    "sheetLandscape": "{{paper}} 가로",
+    "autoRotateOverrides": "자동 회전이 선택한 방향({{orientation}})을 무시합니다.",
+    "filePrinterHint": "이 프린터는 파일로 출력합니다. \"PDF로 저장\"은 용지 방향을 유지하며 텍스트와 선은 벡터로 남습니다.",
+    "targetIsOpenFile": "해당 파일이 앱에서 열려 있습니다. 다른 이름을 선택하세요.",
+    "fileSuffix": " - 인쇄",
+    "progress": {
+      "savedTo": "저장됨: {{path}}",
+      "savedAsImages": "저장됨, 페이지는 이미지로: {{path}}",
+      "saveFailed": "저장 실패: {{error}}"
+    }
   },
   "insertPage": {
     "title": "페이지 삽입",

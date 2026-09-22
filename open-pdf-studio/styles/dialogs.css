@@ -2338,6 +2338,13 @@
   margin-top: 2px;
   word-break: break-word;
 }
+/* Een printer die naar een bestand schrijft: wijs op "Opslaan als PDF". */
+.print-printer-hint {
+  font-size: 10px;
+  color: var(--theme-text-secondary, #666);
+  margin-top: 2px;
+  word-break: break-word;
+}
 
 /* Page range toggle buttons */
 .print-page-btns,
@@ -2419,6 +2426,11 @@
   border-bottom: 1px solid var(--theme-border, #b0b0b0);
   background: var(--theme-hover, #d8d8d8);
 }
+/* Notitie onder de kop: Automatisch draaien overstemt de gekozen stand. */
+.print-preview-note {
+  margin-top: 2px;
+  color: var(--theme-text-secondary, #666);
+}
 
 .print-preview-container {
   flex: 1;
@@ -2435,6 +2447,15 @@
   max-height: 340px;
   box-shadow: 0 1px 6px rgba(0,0,0,0.3);
   background: #fff;
+}
+
+/* The page sticks out of the sheet at the chosen scale. */
+.print-preview-warning {
+  padding: 3px 8px;
+  font-size: 10px;
+  color: #c42b1c;
+  border-top: 1px solid var(--theme-border, #b0b0b0);
+  background: var(--theme-hover, #d8d8d8);
 }
 
 .print-preview-footer {
@@ -4276,6 +4297,11 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
   transition: width 0.2s ease;
 }
 .print-progress-error .print-progress-fill { background: #c62828; }
+.print-progress-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
 
 /* ── Standalone "PDF-opvang" window (?view=printqueue) ── */
 .pq-window {

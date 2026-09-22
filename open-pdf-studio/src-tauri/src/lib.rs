@@ -15,7 +15,9 @@ pub mod mcp_tool_meta;
 pub mod ocr;
 pub mod pdfium_renderer;
 pub mod handtekening;
+pub mod print_formulieren;
 pub mod print_instelling;
+pub mod print_plaatsing;
 // DEVMODE-hulp en de GDI-printkern: alleen Windows.
 #[cfg(target_os = "windows")]
 pub mod print_devmode;
@@ -509,6 +511,11 @@ async fn get_printers() -> Result<String, String> {
 /// Windows: the printer DC is created with a complete, driver-validated
 /// DEVMODE (the Properties choice from this session or the driver default,
 /// plus the Page Setup paper); see print_windows.rs.
+/// `plaatsing`: absent or anything but "vel" = each page fitted and centred
+/// in the printable area (the behaviour before this parameter); "vel" = the
+/// Print dialog has already laid every page out at paper size with the
+/// chosen scale and position, so each page goes 1:1 onto the physical sheet
+/// (see print_plaatsing.rs and js/pdf/print-plaatsing.js).
 /// async for the same reason as get_printers: GDI spooling is slow blocking
 /// work and runs on a blocking thread, not on the main event-loop thread.
 #[tauri::command]
@@ -517,12 +524,14 @@ async fn print_pdf(
     printer: String,
     orientatie: Option<String>,
     papier: Option<String>,
+    plaatsing: Option<String>,
     devmodes: tauri::State<'_, print_instelling::PrinterDevmodes>,
 ) -> Result<bool, String> {
     // Keuzes uit de Pagina-instelling. Zonder argumenten: Auto + printerstandaard,
     // precies het gedrag van vóór deze parameters.
     let orientatie = print_instelling::Orientatie::uit_keuze(orientatie.as_deref());
     let papier = print_instelling::Papier::uit_keuze(papier.as_deref());
+    let plaatsing = print_plaatsing::Plaatsing::uit_keuze(plaatsing.as_deref());
     #[cfg(target_os = "windows")]
     {
         // Wat de gebruiker in deze sessie in het eigenschappenvenster koos.
@@ -533,6 +542,7 @@ async fn print_pdf(
                 &printer,
                 orientatie,
                 papier,
+                plaatsing,
                 opgeslagen.as_deref(),
                 None,
             )
@@ -543,9 +553,10 @@ async fn print_pdf(
     }
 
     // Linux/macOS: spool through CUPS. The JS side has already rasterised the
-    // selected pages into a temp PDF at the right size and rotation, and calls
-    // this once per copy — so `lp` only has to hand one document to one queue
-    // and needs no page-range, scaling or copy options of its own.
+    // selected pages into a temp PDF at the right size and rotation (with
+    // plaatsing "vel": at paper size, scale and position already applied),
+    // and calls this once per copy — so `lp` only has to hand one document to
+    // one queue and needs no page-range or copy options of its own.
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     {
         let _ = &devmodes;
@@ -558,7 +569,7 @@ async fn print_pdf(
         // The caller always passes an absolute temp path, so the filename can
         // never be mistaken for an option; `--` is not portable across lp
         // implementations and is deliberately left out.
-        for optie in print_instelling::lp_opties(orientatie, papier) {
+        for optie in print_instelling::lp_opties(orientatie, papier, plaatsing) {
             cmd.arg(optie);
         }
         let output = cmd
@@ -580,7 +591,7 @@ async fn print_pdf(
 
     #[cfg(not(any(target_os = "windows", target_os = "linux", target_os = "macos")))]
     {
-        let _ = (&path, &printer, &orientatie, &papier, &devmodes);
+        let _ = (&path, &printer, &orientatie, &papier, &plaatsing, &devmodes);
         Err("Printing is not supported on this platform".to_string())
     }
 }
@@ -679,27 +690,76 @@ async fn open_printer_properties(
     }
 }
 
-/// The paper the next job on this printer uses when Page Setup leaves the
-/// paper on "printer": the Properties choice from this session for this
-/// printer, else the driver's current default for this user. Never shows UI
-/// and never changes anything. null on Linux/macOS or when it cannot be
-/// determined.
+/// The paper the next job on this printer really uses, given the Page Setup
+/// paper (`papier`, same values as print_pdf).
+///
+/// - 'printer' or absent: the Properties choice from this session for this
+///   printer, else the driver's current default for this user.
+/// - a paper size: what the driver makes of it, exactly as print_pdf builds
+///   the job. A driver that cannot take the size (A0L is longer than the
+///   built-in PDF driver allows) keeps the printer's paper, and that is what
+///   comes back, so the Print dialog can show the sheet that will be used.
+///
+/// Never shows UI, never starts a job and never changes anything. null on
+/// Linux/macOS or when it cannot be determined.
 #[tauri::command]
 async fn printer_papier(
     printer: String,
+    papier: Option<String>,
     devmodes: tauri::State<'_, print_instelling::PrinterDevmodes>,
 ) -> Result<Option<print_instelling::PapierInfo>, String> {
     #[cfg(target_os = "windows")]
     {
         let opgeslagen = devmodes.ophalen(&printer);
-        tauri::async_runtime::spawn_blocking(move || print_devmode::huidig_papier(&printer, opgeslagen.as_deref()))
-            .await
-            .map_err(|e| format!("Printer paper task failed: {e}"))
+        let papier = print_instelling::Papier::uit_keuze(papier.as_deref());
+        tauri::async_runtime::spawn_blocking(move || {
+            print_devmode::papier_voor_opdracht(&printer, opgeslagen.as_deref(), papier)
+        })
+        .await
+        .map_err(|e| format!("Printer paper task failed: {e}"))
     }
 
     #[cfg(not(target_os = "windows"))]
     {
-        let _ = (&printer, &devmodes);
+        let _ = (&printer, &papier, &devmodes);
+        Ok(None)
+    }
+}
+
+/// The printer's unprintable margins for the sheet the next job gets
+/// (`papier`, same values as print_pdf), per orientation and in mm.
+///
+/// Measured on an information context with the very DEVMODE the job gets
+/// (this session's Properties choice or the driver default, plus the Page
+/// Setup paper): no job is started, nothing goes to the printer and nothing
+/// changes. The Print dialog fits "Fit" and "Shrink" inside that area and
+/// draws it in the preview.
+///
+/// Separate from printer_papier on purpose: the first information context on
+/// a sleeping network printer can take tens of seconds (cold driver), and the
+/// paper in the dialog header must not wait for it. null on Linux/macOS or
+/// when the driver does not report usable measurements; the dialog then works
+/// with a zero margin, as before.
+#[tauri::command]
+async fn printer_bedrukbaar(
+    printer: String,
+    papier: Option<String>,
+    devmodes: tauri::State<'_, print_instelling::PrinterDevmodes>,
+) -> Result<Option<print_plaatsing::Bedrukbaar>, String> {
+    #[cfg(target_os = "windows")]
+    {
+        let opgeslagen = devmodes.ophalen(&printer);
+        let papier = print_instelling::Papier::uit_keuze(papier.as_deref());
+        tauri::async_runtime::spawn_blocking(move || {
+            print_windows::bedrukbaar_voor_opdracht(&printer, opgeslagen.as_deref(), papier)
+        })
+        .await
+        .map_err(|e| format!("Printable area task failed: {e}"))
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        let _ = (&printer, &papier, &devmodes);
         Ok(None)
     }
 }
@@ -856,8 +916,11 @@ exit 1
 }
 
 /// Install a virtual printer named "Open PDF Printer" using the built-in
-/// "Microsoft Print to PDF" driver. Sets the default paper size to A4.
-/// Requires one-time UAC admin elevation.
+/// "Microsoft Print to PDF" driver. Sets the default paper size to A4 and
+/// adds the extra paper sizes (A3L, A2L, A1L; A1 and A0 where missing; see
+/// print_formulieren.rs) to the print server, so other applications can pick
+/// them on printers whose driver accepts user-defined paper sizes. Requires
+/// one-time UAC admin elevation.
 ///
 /// `use_collection` (DEFAULT true — the "catch and merge" behaviour):
 ///   - `true` (default) → routes the output to a fixed file port pointing at
@@ -873,7 +936,12 @@ exit 1
 ///
 /// Backward compatibility: removes the legacy printer name "Open PDF
 /// Studio" if present, so an existing installation cleanly migrates to
-/// the new name on next install.
+/// the new name on next install. Only printers that use the "Microsoft
+/// Print to PDF" driver are ever removed or replaced: a printer of the
+/// user's own that happens to carry one of these names is left alone.
+///
+/// The script text comes from print_formulieren.rs, the same source as the
+/// scripts the installer ships.
 #[tauri::command]
 fn install_virtual_printer(use_collection: Option<bool>) -> Result<bool, String> {
     #[cfg(target_os = "windows")]
@@ -881,76 +949,45 @@ fn install_virtual_printer(use_collection: Option<bool>) -> Result<bool, String>
         // Default to the silent collection port — the user wants prints
         // CAUGHT for merging, never a Save As dialog.
         let use_collection = use_collection.unwrap_or(true);
-        let (port_setup_block, port_arg) = if use_collection {
-            // Pre-create the spool dir + port pointing at it. Windows
-            // file-ports require the port NAME to be the file path itself.
+        let poort = if use_collection {
+            // Pre-create the spool dir. Windows file-ports require the port
+            // NAME to be the file path itself; the script adds the port.
             let local = std::env::var("LOCALAPPDATA")
                 .map_err(|_| "LOCALAPPDATA not set".to_string())?;
             let spool_dir = std::path::Path::new(&local).join("OpenPDFPrinter").join("spool");
-            let spool_file = spool_dir.join("latest.pdf");
             std::fs::create_dir_all(&spool_dir)
                 .map_err(|e| format!("Failed to create spool dir: {}", e))?;
-            let spool_file_str = spool_file.to_string_lossy().to_string();
-            (
-                format!(
-                    r#"$portPath = '{}'
-# Remove any existing port at this path before re-adding (Add-PrinterPort errors if it exists)
-try {{ Remove-PrinterPort -Name $portPath -ErrorAction SilentlyContinue }} catch {{}}
-Add-PrinterPort -Name $portPath
-"#,
-                    spool_file_str.replace('\'', "''")
-                ),
-                format!("'{}'", spool_file_str.replace('\'', "''")),
-            )
+            spool_dir.join("latest.pdf").to_string_lossy().to_string()
         } else {
-            (String::new(), "'PORTPROMPT:'".to_string())
+            print_formulieren::POORT_DIALOOG.to_string()
         };
 
-        let script = format!(r#"$ErrorActionPreference = 'Stop'
-$printerName = 'Open PDF Printer'
-$legacyName = 'Open PDF Studio'
-
-# Remove the LEGACY-named printer if present (migration from older versions)
-try {{ Remove-Printer -Name $legacyName -ErrorAction SilentlyContinue }} catch {{}}
-try {{ Remove-Printer -Name $printerName -ErrorAction SilentlyContinue }} catch {{}}
-
-{}
-Add-Printer -Name $printerName -DriverName 'Microsoft Print to PDF' -PortName {}
-
-# Default paper size = A4 (don't let driver/locale defaults pick C-size).
-try {{ Set-PrintConfiguration -PrinterName $printerName -PaperSize A4 -ErrorAction Stop }} catch {{
-    Write-Host "Note: could not set default paper size to A4 (install still succeeded). $($_.Exception.Message)"
-}}"#, port_setup_block, port_arg);
-
+        // The user asked for this port, so an existing "Open PDF Printer" of
+        // ours is re-created on it (the installer never does that).
+        let script = print_formulieren::script_installeren(&print_formulieren::Installatie {
+            poort,
+            bestaande_vervangen: true,
+        });
         run_elevated_ps_script(&script)?;
         Ok(true)
     }
 
     #[cfg(not(target_os = "windows"))]
     {
+        let _ = use_collection;
         Err("Virtual printer is only supported on Windows".to_string())
     }
 }
 
 /// Remove the "Open PDF Printer" virtual printer (and the legacy
-/// "Open PDF Studio" name if it exists). Requires UAC admin elevation.
+/// "Open PDF Studio" name if it exists), plus the paper sizes this app or
+/// its installer added to the print server. Requires UAC admin elevation.
+/// Printers with another driver and paper sizes added by someone else stay.
 #[tauri::command]
 fn remove_virtual_printer() -> Result<bool, String> {
     #[cfg(target_os = "windows")]
     {
-        let script = r#"$ErrorActionPreference = 'Stop'
-$printerName = 'Open PDF Printer'
-$legacyName = 'Open PDF Studio'
-
-# Remove BOTH the current and legacy names so the UI status reflects
-# "not installed" regardless of which one the user has.
-try { Remove-Printer -Name $printerName -ErrorAction SilentlyContinue } catch {}
-try { Remove-Printer -Name $legacyName -ErrorAction SilentlyContinue } catch {}
-
-# Clean up any leftover local port from older installations
-Get-PrinterPort | Where-Object { $_.Name -like '*OpenPDFStudio*print-capture*' -or $_.Name -like '*OpenPDFPrinter*print-capture*' } | Remove-PrinterPort"#;
-
-        run_elevated_ps_script(script)?;
+        run_elevated_ps_script(&print_formulieren::script_verwijderen())?;
         Ok(true)
     }
 
@@ -2748,6 +2785,7 @@ pub fn run(opts: StartupOpts) {
             print_pdf,
             open_printer_properties,
             printer_papier,
+            printer_bedrukbaar,
             get_temp_dir,
             write_temp_pdf,
             delete_file,

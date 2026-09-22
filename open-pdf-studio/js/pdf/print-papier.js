@@ -8,7 +8,7 @@
 // laatste expliciete keuze wint. Geen DOM, geen state, geen invoke.
 //
 // PapierInfo (van printer_papier en open_printer_properties, Rust):
-//   { papier: 'a2'|'a3'|'a4'|'a5'|'letter'|'legal'|'tabloid'|'overig',
+//   { papier: een sleutel uit PAPIERFORMATEN ('a4', 'a3l', ...) of 'overig',
 //     naam: string, breedteMm: number, hoogteMm: number,
 //     orientatie: 'portrait'|'landscape' }
 // breedteMm/hoogteMm = het vel staand (korte zijde, lange zijde); naam = de
@@ -16,7 +16,7 @@
 // daarnaast papierGewijzigd en orientatieGewijzigd: wat de gebruiker in het
 // venster anders zette dan waarmee het werd vooringevuld.
 
-import { PAPIERFORMATEN, paginaOrientatie, printArgumenten } from './print-pagina-instelling.js';
+import { PAPIERFORMATEN, paginaOrientatie, paginaFormaat, printArgumenten } from './print-pagina-instelling.js';
 
 const PT_NAAR_MM = 25.4 / 72;
 
@@ -66,15 +66,44 @@ function velOrientatie(gevraagd, pagina, terugval) {
   return terugval;
 }
 
+const ZELFDE_VEL_MM = 3;
+
+/**
+ * Meldt de printer een ander vel dan het gevraagde formaat? Dan neemt de
+ * driver het formaat niet over (A0L is langer dan de pdf-printer van Windows
+ * aankan) en print Rust op het papier van de printer. Dezelfde sleutel, of
+ * dezelfde maat op 3 mm, is hetzelfde vel; zonder antwoord valt er niets te
+ * zeggen. Zonder maten is alleen een ander bekend formaat zeker een ander vel.
+ */
+function anderVel(info, sleutel) {
+  if (!info || info.papier === sleutel) return false;
+  const f = PAPIERFORMATEN[sleutel];
+  if (geldig(info.breedteMm) && geldig(info.hoogteMm)) {
+    return Math.abs(info.breedteMm - f.breedte) > ZELFDE_VEL_MM
+      || Math.abs(info.hoogteMm - f.hoogte) > ZELFDE_VEL_MM;
+  }
+  return isPapierFormaat(info.papier);
+}
+
 /**
  * Het papier van de volgende afdruk, zoals de printdialoog het toont.
  *
  * 1. Een Pagina-instelling die voor dít document is bevestigd met een formaat
  *    wint: precies het papier dat printArgumenten naar print_pdf stuurt.
+ *    Behalve als de printer voor dát formaat een ander vel meldt
+ *    (opdrachtPapier): dan kan de driver het formaat niet aan en wordt er
+ *    geprint op het papier van de printer. De kop toont dat vel, en
+ *    `geweigerd` noemt het gevraagde formaat ("A0L").
  * 2. Anders het papier dat de printer zelf neemt (printer_papier, of wat uit
  *    Eigenschappen terugkwam).
  * 3. Anders onbekend (Linux/macOS, of de driver gaf niets). printerPapier
  *    undefined = nog aan het ophalen ('laden').
+ *
+ * printerPapier is het antwoord van printer_papier zonder formaat (papier
+ * 'printer'): het vel dat de printer zelf neemt. opdrachtPapier is het
+ * antwoord voor het formaat uit de Pagina-instelling: het vel dat een opdracht
+ * met dat formaat echt krijgt; undefined of null = (nog) onbekend, dan geldt
+ * het formaat zelf.
  *
  * breedteMm/hoogteMm beschrijven het vel staand (korte zijde, lange zijde),
  * net als PapierInfo en de keuzelijst van de Pagina-instelling: A3 is altijd
@@ -84,13 +113,17 @@ function velOrientatie(gevraagd, pagina, terugval) {
  *
  * @param {{ paginaInstelling: object|null, docId: any, autoRotate: boolean,
  *           printerPapier: object|null|undefined,
+ *           opdrachtPapier?: object|null|undefined,
  *           pagina?: { breedtePt: number, hoogtePt: number }|null }} p
  * @returns {{ bron: 'paginaInstelling'|'printer'|'onbekend'|'laden',
  *             papier: string, naam: string,
  *             breedteMm: number|null, hoogteMm: number|null,
- *             orientatie: 'portrait'|'landscape' }}
+ *             orientatie: 'portrait'|'landscape',
+ *             geweigerd: string|null }}
  */
-export function effectiefPapier({ paginaInstelling, docId, autoRotate, printerPapier, pagina = null }) {
+export function effectiefPapier({
+  paginaInstelling, docId, autoRotate, printerPapier, opdrachtPapier = undefined, pagina = null,
+}) {
   const args = printArgumenten({ autoRotate, paginaInstelling, docId });
 
   let bron;
@@ -99,8 +132,21 @@ export function effectiefPapier({ paginaInstelling, docId, autoRotate, printerPa
   let kort = null;
   let lang = null;
   let terugval = 'portrait';
+  let geweigerd = null;
 
-  if (isPapierFormaat(args.papier)) {
+  const gevraagd = isPapierFormaat(args.papier) ? args.papier : null;
+  const gemeld = opdrachtPapier ? normaliseerPapierInfo(opdrachtPapier) : null;
+  if (gevraagd && anderVel(gemeld, gevraagd)) {
+    // De driver neemt het formaat niet over: het papier van de printer.
+    const f = PAPIERFORMATEN[gemeld.papier];
+    bron = 'printer';
+    papier = gemeld.papier;
+    naam = f ? f.label : gemeld.naam;
+    kort = f ? f.breedte : gemeld.breedteMm;
+    lang = f ? f.hoogte : gemeld.hoogteMm;
+    terugval = paginaInstelling.orientation;
+    geweigerd = PAPIERFORMATEN[gevraagd].label;
+  } else if (gevraagd) {
     const f = PAPIERFORMATEN[args.papier];
     bron = 'paginaInstelling';
     papier = args.papier;
@@ -139,7 +185,16 @@ export function effectiefPapier({ paginaInstelling, docId, autoRotate, printerPa
     breedteMm: kort,
     hoogteMm: lang,
     orientatie: velOrientatie(args.orientatie, pagina, isOrientatie(terugval) ? terugval : 'portrait'),
+    geweigerd,
   };
+}
+
+/**
+ * Sleutel waaronder de printdialoog het antwoord van printer_papier bewaart:
+ * het antwoord hangt af van de printer én van het papier dat erom vroeg.
+ */
+export function papierVerzoekSleutel(printer, papier) {
+  return `${printer}\n${isPapierFormaat(papier) ? papier : 'printer'}`;
 }
 
 // Formuliernamen als "Custom 500 x 700 mm" dragen hun maten al.
@@ -162,6 +217,57 @@ export function papierTekst(effectief, standaardTekst) {
   if (naam) return naam;
   if (maten) return maten;
   return standaardTekst;
+}
+
+/**
+ * De kop van het voorbeeld: het vel met zijn stand en de maten zoals het
+ * ligt, "A2 liggend (594 × 420 mm)". `plaatsing` komt uit berekenPlaatsing
+ * (print-plaatsing.js): het vel zoals het uit de printer komt of in het
+ * bestand komt te liggen. `naam` is de naam van het vel ("A2", een
+ * formuliernaam, de tekst voor de printerstandaard) of null: dan alleen de
+ * maten. Een onbekend vel (plaatsing.bekend false: de printer past de pagina
+ * zelf in) toont geen maten, want die zijn niet die van het vel.
+ * `t` vertaalt 'print.sheetPortrait' / 'print.sheetLandscape' met {{paper}}.
+ * null = niets te tonen.
+ */
+export function velTekst(plaatsing, naam, t) {
+  if (!plaatsing || !plaatsing.vel) return null;
+  const { breedteMm, hoogteMm, orientatie } = plaatsing.vel;
+  const maten = plaatsing.bekend && geldig(breedteMm) && geldig(hoogteMm)
+    ? `${Math.round(breedteMm)} × ${Math.round(hoogteMm)} mm`
+    : null;
+  const papier = naam || maten;
+  if (!papier) return null;
+  const tekst = t(orientatie === 'landscape' ? 'print.sheetLandscape' : 'print.sheetPortrait', { paper: papier });
+  return naam && maten && !NAAM_MET_MATEN.test(naam) ? `${tekst} (${maten})` : tekst;
+}
+
+/**
+ * De naam van een vel op paginamaat (papier 'pagina' in print-plaatsing.js):
+ * het formaat uit de lijst dat bij de pagina past ("A2"), anders null.
+ */
+export function velNaam(pagina) {
+  if (!pagina) return null;
+  const f = PAPIERFORMATEN[paginaFormaat(pagina.breedtePt, pagina.hoogtePt)];
+  return f ? f.label : null;
+}
+
+/**
+ * Het vel waarop het voorbeeld en de printopdracht de schaal en de plek van de
+ * pagina uitrekenen (print-plaatsing.js): het papier uit de kop als het
+ * bekend is en maten heeft. Anders null: Linux/macOS zonder
+ * Pagina-instelling, een driver die niets meldt, een formulier zonder maten,
+ * of het antwoord loopt nog. Dan blijft het gedrag van vóór de schaalkeuze
+ * (de printer past de pagina in).
+ *
+ * @param {ReturnType<typeof effectiefPapier>|null} effectief
+ * @returns {{ breedteMm: number, hoogteMm: number } | null}  staand (kort, lang)
+ */
+export function bekendVel(effectief) {
+  if (!effectief || (effectief.bron !== 'paginaInstelling' && effectief.bron !== 'printer')) return null;
+  const { breedteMm, hoogteMm } = effectief;
+  if (!geldig(breedteMm) || !geldig(hoogteMm)) return null;
+  return { breedteMm: Math.min(breedteMm, hoogteMm), hoogteMm: Math.max(breedteMm, hoogteMm) };
 }
 
 /** Maat van de getoonde pagina: "297 x 210 mm"; null als die onbekend is. */

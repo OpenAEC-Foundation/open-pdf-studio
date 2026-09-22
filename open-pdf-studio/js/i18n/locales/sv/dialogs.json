@@ -65,7 +65,22 @@
     "noPages": "Inga sidor",
     "pageOf": "Sida {{current}} av {{total}}",
     "paperLabel": "Papper: {{paper}}",
-    "pageSizeLabel": "Sida: {{size}}"
+    "paperFallback": "Papper: {{paper}} ({{requested}} är inte tillgängligt på den här skrivaren)",
+    "pageSizeLabel": "Sida: {{size}}",
+    "pageClipped": "Sidan får inte plats på papperet och beskärs.",
+    "pageOutsidePrintable": "En del av sidan hamnar utanför skrivarens utskrivbara område.",
+    "saveAsPdf": "Spara som PDF",
+    "sheetPortrait": "{{paper}} stående",
+    "sheetLandscape": "{{paper}} liggande",
+    "autoRotateOverrides": "Autorotera åsidosätter den valda riktningen ({{orientation}}).",
+    "filePrinterHint": "Den här skrivaren skriver till en fil. \"Spara som PDF\" behåller arkets riktning, och text och linjer förblir vektorer.",
+    "targetIsOpenFile": "Den filen är öppen i appen. Välj ett annat namn.",
+    "fileSuffix": " - utskrift",
+    "progress": {
+      "savedTo": "Sparad: {{path}}",
+      "savedAsImages": "Sparad, sidor som bilder: {{path}}",
+      "saveFailed": "Det gick inte att spara: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Infoga sidor",

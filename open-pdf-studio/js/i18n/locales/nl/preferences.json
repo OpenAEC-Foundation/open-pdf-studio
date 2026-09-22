@@ -182,7 +182,7 @@
   },
   "virtualPrinter": {
     "title": "Virtuele printer",
-    "description": "Installeer \"Open PDF Studio\" als Windows-printer. Wanneer u vanuit een toepassing afdrukt (Word, Chrome, Kladblok, etc.) en deze printer selecteert, wordt de PDF automatisch geopend in deze app.",
+    "description": "Installeer \"Open PDF Printer\" als Windows-printer. Wanneer u vanuit een toepassing afdrukt (Word, Chrome, Kladblok, etc.) en deze printer selecteert, wordt de PDF automatisch geopend in deze app.",
     "status": "Status:",
     "installButton": "Virtuele printer installeren",
     "removeButton": "Virtuele printer verwijderen",

@@ -65,7 +65,22 @@
     "noPages": "কোনো পৃষ্ঠা নেই",
     "pageOf": "পৃষ্ঠা {{current}} / {{total}}",
     "paperLabel": "কাগজ: {{paper}}",
-    "pageSizeLabel": "পৃষ্ঠা: {{size}}"
+    "paperFallback": "কাগজ: {{paper}} (এই প্রিন্টারে {{requested}} উপলব্ধ নয়)",
+    "pageSizeLabel": "পৃষ্ঠা: {{size}}",
+    "pageClipped": "পৃষ্ঠাটি কাগজে আঁটে না এবং কেটে যাবে।",
+    "pageOutsidePrintable": "পৃষ্ঠার একটি অংশ প্রিন্টারের মুদ্রণযোগ্য এলাকার বাইরে পড়ে।",
+    "saveAsPdf": "PDF হিসেবে সংরক্ষণ করুন",
+    "sheetPortrait": "{{paper}} উলম্ব",
+    "sheetLandscape": "{{paper}} আনুভূমিক",
+    "autoRotateOverrides": "স্বয়ংক্রিয়-ঘূর্ণন নির্বাচিত দিক ({{orientation}}) বাতিল করে।",
+    "filePrinterHint": "এই প্রিন্টার একটি ফাইলে লেখে। \"PDF হিসেবে সংরক্ষণ করুন\" শীটের দিক বজায় রাখে, এবং লেখা ও রেখা ভেক্টর থাকে।",
+    "targetIsOpenFile": "সেই ফাইলটি অ্যাপে খোলা আছে। অন্য নাম বেছে নিন।",
+    "fileSuffix": " - প্রিন্ট",
+    "progress": {
+      "savedTo": "সংরক্ষিত: {{path}}",
+      "savedAsImages": "সংরক্ষিত, পৃষ্ঠাগুলি ছবি হিসেবে: {{path}}",
+      "saveFailed": "সংরক্ষণ ব্যর্থ: {{error}}"
+    }
   },
   "insertPage": {
     "title": "পৃষ্ঠা সন্নিবেশ",

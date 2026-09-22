@@ -65,7 +65,22 @@
     "noPages": "कोई पृष्ठ नहीं",
     "pageOf": "पृष्ठ {{current}} का {{total}}",
     "paperLabel": "कागज़: {{paper}}",
-    "pageSizeLabel": "पृष्ठ: {{size}}"
+    "paperFallback": "कागज़: {{paper}} ({{requested}} इस प्रिंटर पर उपलब्ध नहीं है)",
+    "pageSizeLabel": "पृष्ठ: {{size}}",
+    "pageClipped": "पृष्ठ कागज़ पर नहीं समाता और काट दिया जाएगा।",
+    "pageOutsidePrintable": "पृष्ठ का एक भाग प्रिंटर के मुद्रण योग्य क्षेत्र के बाहर है।",
+    "saveAsPdf": "PDF के रूप में सहेजें",
+    "sheetPortrait": "{{paper}} पोर्ट्रेट",
+    "sheetLandscape": "{{paper}} लैंडस्केप",
+    "autoRotateOverrides": "स्वतः-घुमाएं चुनी गई दिशा ({{orientation}}) को रद्द कर देता है।",
+    "filePrinterHint": "यह प्रिंटर फ़ाइल में लिखता है। \"PDF के रूप में सहेजें\" शीट की दिशा बनाए रखता है, और टेक्स्ट और रेखाएँ वेक्टर रहती हैं।",
+    "targetIsOpenFile": "वह फ़ाइल ऐप में खुली है। दूसरा नाम चुनें।",
+    "fileSuffix": " - प्रिंट",
+    "progress": {
+      "savedTo": "सहेजा गया: {{path}}",
+      "savedAsImages": "सहेजा गया, पृष्ठ छवियों के रूप में: {{path}}",
+      "saveFailed": "सहेजना विफल: {{error}}"
+    }
   },
   "insertPage": {
     "title": "पृष्ठ सम्मिलित करें",

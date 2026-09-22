@@ -65,7 +65,22 @@
     "noPages": "Nessuna pagina",
     "pageOf": "Pagina {{current}} di {{total}}",
     "paperLabel": "Carta: {{paper}}",
-    "pageSizeLabel": "Pagina: {{size}}"
+    "paperFallback": "Carta: {{paper}} ({{requested}} non è disponibile su questa stampante)",
+    "pageSizeLabel": "Pagina: {{size}}",
+    "pageClipped": "La pagina non rientra nel foglio e verrà tagliata.",
+    "pageOutsidePrintable": "Una parte della pagina si trova fuori dall'area stampabile della stampante.",
+    "saveAsPdf": "Salva come PDF",
+    "sheetPortrait": "{{paper}} verticale",
+    "sheetLandscape": "{{paper}} orizzontale",
+    "autoRotateOverrides": "La rotazione automatica prevale sull'orientamento scelto ({{orientation}}).",
+    "filePrinterHint": "Questa stampante scrive su un file. \"Salva come PDF\" mantiene l'orientamento del foglio, e testo e linee restano vettoriali.",
+    "targetIsOpenFile": "Quel file è aperto nell'app. Scegli un altro nome.",
+    "fileSuffix": " - stampa",
+    "progress": {
+      "savedTo": "Salvato: {{path}}",
+      "savedAsImages": "Salvato, pagine come immagini: {{path}}",
+      "saveFailed": "Salvataggio non riuscito: {{error}}"
+    }
   },
   "insertPage": {
     "title": "Inserisci pagine",

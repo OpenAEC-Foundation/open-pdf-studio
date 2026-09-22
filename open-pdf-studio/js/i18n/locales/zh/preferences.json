@@ -143,7 +143,7 @@
   },
   "virtualPrinter": {
     "title": "虚拟打印机",
-    "description": "将“Open PDF Studio”安装为 Windows 打印机。当您从任何应用程序（Word、Chrome、记事本等）打印并选择此打印机时，输出的 PDF 将自动在此应用中打开。",
+    "description": "将“Open PDF Printer”安装为 Windows 打印机。当您从任何应用程序（Word、Chrome、记事本等）打印并选择此打印机时，输出的 PDF 将自动在此应用中打开。",
     "status": "状态：",
     "installButton": "安装虚拟打印机",
     "removeButton": "移除虚拟打印机",
