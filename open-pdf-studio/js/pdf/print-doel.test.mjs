@@ -76,7 +76,7 @@ test('een printer die naar een bestand schrijft: aan de poort of aan het stuurpr
   assert.equal(isBestandsPrinter({ Name: 'A', DriverName: 'Een PDF Converter' }), true);
   assert.equal(isBestandsPrinter({ Name: 'A', DriverName: 'Document Writer v4 XPS' }), true);
   assert.equal(isBestandsPrinter({ Name: 'A', DriverName: 'print-to-pdf' }), true);
-  // Gewone printers: netwerkpoort, USB, een naam met "pdf" midden in een woord.
+  // Gewone printers: netwerkpoort, USB, een naam met "xps" midden in een woord.
   assert.equal(isBestandsPrinter({ Name: 'Kantoor', DriverName: 'Laser PCL6', PortName: 'IP_192.168.1.20' }), false);
   assert.equal(isBestandsPrinter({ Name: 'Inkjet', DriverName: 'Inkjet 5000 series', PortName: 'USB001' }), false);
   assert.equal(isBestandsPrinter({ Name: 'X', DriverName: 'Upxpsdfx', PortName: 'LPT1:' }), false);
@@ -84,6 +84,15 @@ test('een printer die naar een bestand schrijft: aan de poort of aan het stuurpr
   // De naam van de printer alleen zegt niets: een wachtrij mag "PDF's" heten.
   assert.equal(isBestandsPrinter({ Name: 'PDF-kamer', DriverName: 'Laser PCL6', PortName: 'IP_10.0.0.4' }), false);
   for (const niets of [null, undefined, {}, { Name: 'Z' }]) assert.equal(isBestandsPrinter(niets), false);
+});
+
+test('een PDF-printer met "pdf" vast aan een woord in het stuurprogramma is ook een bestandsprinter', () => {
+  // Veel PDF-printers heten zo, met een eigen poort die niets verraadt.
+  assert.equal(isBestandsPrinter({ Name: 'A', DriverName: 'Proefpdfschrijver', PortName: 'OMZETMON' }), true);
+  assert.equal(isBestandsPrinter({ Name: 'A', DriverName: 'PDFproef 6', PortName: 'OMZET:' }), true);
+  assert.equal(isBestandsPrinter({ Name: 'A', DriverName: 'MijnPDF7', PortName: 'X' }), true);
+  // "XPS" blijft alleen als los woord tellen: vast aan een woord zegt het niets.
+  assert.equal(isBestandsPrinter({ Name: 'X', DriverName: 'Laserxps', PortName: 'USB001' }), false);
 });
 
 // --- de teksten in alle talen --------------------------------------------------------

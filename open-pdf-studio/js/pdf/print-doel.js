@@ -88,9 +88,14 @@ export function standaardDoelPad(doc, map, achtervoegsel = '') {
  * aan wat de printerlijst al meldt, zonder de printer aan te spreken:
  * - de poort vraagt om een bestandsnaam (`PORTPROMPT:`, `FILE:`) of is zelf
  *   een pad naar een bestand;
- * - de naam van het stuurprogramma bevat "PDF" of "XPS" als los woord.
+ * - de naam van het stuurprogramma bevat "PDF", ook vast aan een woord (veel
+ *   PDF-printers heten zo en hebben een eigen poort die niets verraadt), of
+ *   "XPS" als los woord (vast aan een woord zegt het niets, en ook papieren
+ *   printers hebben XPS-stuurprogramma's).
  * De naam van de printer zelf telt niet: een wachtrij mag heten zoals ze wil.
- * De printdialoog wijst bij zo'n printer op "Opslaan als PDF".
+ * De printdialoog wijst bij zo'n printer op "Opslaan als PDF". Welke printers
+ * een liggend vel als eigen maat krijgen, beslist de printkern zelf, strenger
+ * (`schrijft_document` in src-tauri/src/print_instelling.rs).
  * @param {{DriverName?:string, PortName?:string}|null} printer
  */
 export function isBestandsPrinter(printer) {
@@ -100,5 +105,5 @@ export function isBestandsPrinter(printer) {
   // Een pad: stationsletter of UNC, met een bestandsnaam met extensie.
   if (/^([a-z]:[\\/]|\\\\)/i.test(poort) && /\.[a-z0-9]{2,5}$/i.test(poort)) return true;
   const driver = typeof printer.DriverName === 'string' ? printer.DriverName : '';
-  return /(^|[^a-z0-9])(pdf|xps)([^a-z0-9]|$)/i.test(driver);
+  return /pdf/i.test(driver) || /(^|[^a-z0-9])xps([^a-z0-9]|$)/i.test(driver);
 }
