@@ -36,7 +36,7 @@ import { invalidateScaleRegionCache, pixelsPerUnitFor, getRegionScaleFactor } fr
 import { drawSnapIndicator } from '../tools/snap-engine.js';
 import { drawImageAlignGuides } from '../tools/image-align-snap.js';
 import { getTemplate } from '../symbols/registry.js';
-import { hasFill } from './fill-utils.js';
+import { hasFill, hasStroke } from './fill-utils.js';
 import { EDITABLE_NUMBER_COLOR, shouldHighlightNumbers } from './editable-numbers.js';
 // Side-effect: meldt de providers voor bewerkbare getallen aan
 // (stavenreeks, betonbalk, parametricSymbol).
@@ -435,6 +435,22 @@ export function drawAnnotation(ctx, annotation) {
   // Use strokeColor/fillColor if available, otherwise fallback to color
   let strokeColor = annotation.strokeColor || annotation.color;
   let fillColor = annotation.fillColor || annotation.color;
+  // Explicit "No Border" (Stroke Color picker's None option) — checked
+  // against the raw field, since strokeColor above already fell back to
+  // .color when unset (see hasStroke()'s doc comment).
+  const annHasStroke = hasStroke(annotation.strokeColor);
+  // 'none'/'transparent' isn't a paintable canvas color — keep strokeColor a
+  // real color so anything that still uses ctx.strokeStyle unconditionally
+  // (e.g. a box/circle's cross-diagonals) doesn't silently inherit a stale
+  // strokeStyle from whatever was drawn before it. The outline itself is
+  // still skipped via annHasStroke at each draw site below.
+  if (!annHasStroke) strokeColor = annotation.color || '#000000';
+  // Sanitized stand-in for `annotation.strokeColor` wherever code falls back
+  // to it directly (leader lines, arrowheads) instead of the local
+  // `strokeColor` — never 'none'/'transparent', so those parts (which aren't
+  // "the border" and stay visible when the border is switched off) don't
+  // inherit the sentinel.
+  const rawStrokeColor = annHasStroke ? annotation.strokeColor : null;
 
   // Halftone-override: dim de soort en tint optioneel de kleuren. De tint
   // vervangt stroke/fill zodat de hele soort visueel als één laag oplicht
@@ -714,9 +730,11 @@ export function drawAnnotation(ctx, annotation) {
 
       ctx.strokeStyle = strokeColor;
       applyBorderStyle(ctx, annotation.borderStyle);
-      ctx.beginPath();
-      ctx.ellipse(ellipseCX, ellipseCY, Math.abs(ellipseW / 2), Math.abs(ellipseH / 2), 0, 0, 2 * Math.PI);
-      ctx.stroke();
+      if (annHasStroke) {
+        ctx.beginPath();
+        ctx.ellipse(ellipseCX, ellipseCY, Math.abs(ellipseW / 2), Math.abs(ellipseH / 2), 0, 0, 2 * Math.PI);
+        ctx.stroke();
+      }
       // Kruis (rond gat / sparing): lijnen onder ±45° door het middelpunt tot
       // de omtrek, in dezelfde lijnstijl als de omtrek.
       if (annotation.cross) {
@@ -792,7 +810,7 @@ export function drawAnnotation(ctx, annotation) {
 
       ctx.strokeStyle = strokeColor;
       applyBorderStyle(ctx, annotation.borderStyle);
-      ctx.strokeRect(annotation.x, annotation.y, annotation.width, annotation.height);
+      if (annHasStroke) ctx.strokeRect(annotation.x, annotation.y, annotation.width, annotation.height);
       // Kruis: beide diagonalen, in dezelfde lijnstijl als de rand.
       if (annotation.cross) {
         ctx.beginPath();
@@ -842,8 +860,10 @@ export function drawAnnotation(ctx, annotation) {
 
       ctx.strokeStyle = strokeColor;
       applyBorderStyle(ctx, annotation.borderStyle);
-      buildPolyPath();
-      ctx.stroke();
+      if (annHasStroke) {
+        buildPolyPath();
+        ctx.stroke();
+      }
       ctx.setLineDash([]);
       ctx.restore();
       break;
@@ -872,7 +892,7 @@ export function drawAnnotation(ctx, annotation) {
       }
 
       ctx.strokeStyle = strokeColor;
-      drawCloudShape(ctx, annotation.x, annotation.y, annotation.width, annotation.height);
+      if (annHasStroke) drawCloudShape(ctx, annotation.x, annotation.y, annotation.width, annotation.height);
       ctx.restore();
       break;
 
@@ -1080,8 +1100,8 @@ export function drawAnnotation(ctx, annotation) {
       }
 
       // Draw border with style
-      if (tbLineWidth > 0) {
-        ctx.strokeStyle = annotation.strokeColor || strokeColor;
+      if (tbLineWidth > 0 && annHasStroke) {
+        ctx.strokeStyle = rawStrokeColor || strokeColor;
         ctx.lineWidth = tbLineWidth;
         applyBorderStyle(ctx, tbBorderStyle);
         if (annotation.borderEffect === 'cloudy') {
@@ -1105,7 +1125,7 @@ export function drawAnnotation(ctx, annotation) {
 
       // Draw leaders (multi-leader generalisation of callout)
       if (Array.isArray(annotation.leaders) && annotation.leaders.length > 0) {
-        const _ldrStroke = annotation.strokeColor || strokeColor || '#000000';
+        const _ldrStroke = rawStrokeColor || strokeColor || '#000000';
         const _ldrLw = thinLw(annotation.lineWidth !== undefined ? annotation.lineWidth : 1) || 1;
         for (const leader of annotation.leaders) {
           drawTextboxLeader(ctx, annotation, leader, _ldrStroke, _ldrLw);
@@ -1121,7 +1141,7 @@ export function drawAnnotation(ctx, annotation) {
       const coBorderStyle = annotation.borderStyle || 'solid';
 
       // Set stroke style for leader line and border
-      ctx.strokeStyle = annotation.strokeColor || strokeColor;
+      ctx.strokeStyle = rawStrokeColor || strokeColor;
       ctx.lineWidth = coLineWidth > 0 ? coLineWidth : 1;
       applyBorderStyle(ctx, coBorderStyle);
 
@@ -1175,7 +1195,7 @@ export function drawAnnotation(ctx, annotation) {
       }
 
       // Draw arrowhead — filled (closed) by default, but honor explicit per-annotation style if set
-      ctx.fillStyle = annotation.strokeColor || strokeColor;
+      ctx.fillStyle = rawStrokeColor || strokeColor;
       drawArrowheadOnCanvas(ctx, arrowX, arrowY, angle, annotation.headSize || 7, annotation.arrowStyle || 'closed');
 
       ctx.save();
@@ -1201,8 +1221,8 @@ export function drawAnnotation(ctx, annotation) {
       }
 
       // Draw border with style
-      if (coLineWidth > 0) {
-        ctx.strokeStyle = annotation.strokeColor || strokeColor;
+      if (coLineWidth > 0 && annHasStroke) {
+        ctx.strokeStyle = rawStrokeColor || strokeColor;
         ctx.lineWidth = coLineWidth;
         applyBorderStyle(ctx, coBorderStyle);
         if (annotation.borderEffect === 'cloudy') {
@@ -1940,7 +1960,7 @@ export function drawAnnotation(ctx, annotation) {
       // (fillOpacity, bv. /ca 0.3 van een extern meetvlak) al verrekend, net als
       // bij de andere vormen. Met de kale hex kwam zo'n vlak dekkend over de
       // tekening en over het eigen maatlabel heen.
-      drawMeasureAreaShape(ctx, annotation.points, annotation.color || '#ff0000', annotation.lineWidth, annFill, annotation.borderStyle, annotation.holes, maHatch);
+      drawMeasureAreaShape(ctx, annotation.points, annotation.color || '#ff0000', annotation.lineWidth, annFill, annotation.borderStyle, annotation.holes, maHatch, undefined, annHasStroke);
       if (annotation.measureText) {
         drawCentroidLabel(ctx, annotation.points, annotation.measureText, strokeColor, annotation);
       }
@@ -1980,7 +2000,9 @@ export function drawAnnotation(ctx, annotation) {
         faFill,
         annotation.borderStyle || 'solid',
         annotation.holes,
-        faHatch
+        faHatch,
+        undefined,
+        annHasStroke
       );
       break;
     }
