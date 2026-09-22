@@ -6,7 +6,7 @@ import {
   nietNul, normaliseerRechthoek, schaalRechthoekMetGreep, isKlikSleep,
   raakMarge, wolkUitstulping, saneerMaatVelden, tekstvakMinimum,
   normaliseerVormMaat, leesMaatInvoer, toonMaat, valideerMaatPatch,
-  symboolRasterPxPerPt, MIN_SYMBOOL_RASTER_PX, plakVerschuivingPt, PLAK_STAP_PX,
+  symboolRasterPxPerPt, MIN_SYMBOOL_RASTER_PX, plakVerschuivingPt, PLAK_STAP_PX, rondMaatAf,
 } from './minimummaat.js';
 
 const near = (a, b, eps = 1e-9) => Math.abs(a - b) < eps;
@@ -415,4 +415,15 @@ test('plakVerschuivingPt: de plak-cascade staat in schermpixels, dus ingezoomd b
   // Zonder bekende zoom of met onzin: stap op zoom 1, eerste plak.
   assert.equal(plakVerschuivingPt(0, undefined), PLAK_STAP_PX);
   assert.equal(plakVerschuivingPt(NaN, 0), PLAK_STAP_PX);
+});
+
+test('rondMaatAf: honderdsten voor gewone maten, fijner onder 1 pt, nooit nul', () => {
+  assert.equal(rondMaatAf(9.9999), 10);
+  assert.equal(rondMaatAf(33.333 * 0.3), 10);
+  // Klein symbool (0,34 pt op 0,25): verhouding blijft, niet naar 0,09 afgerond.
+  assert.equal(rondMaatAf(0.085), 0.085);
+  // 0,004 rondde naar 0: nu de ondergrens.
+  assert.equal(rondMaatAf(0.004), MIN_VORM_MAAT_PT);
+  assert.equal(rondMaatAf(0.00004), MIN_VORM_MAAT_PT);
+  for (const v of [0, NaN, undefined, -2]) assert.equal(rondMaatAf(v), MIN_VORM_MAAT_PT, String(v));
 });

@@ -353,6 +353,19 @@ export function leesMaatInvoer(waarde) {
   return klemMaat(n);
 }
 
+/**
+ * Cosmetische afronding van een berekende maat die in het model komt
+ * (symboolschaal): op honderdsten, maar onder 1 pt op tienduizendsten zodat
+ * een klein symbool zijn verhouding houdt, en nooit onder de ondergrens
+ * (0,004 rondde op honderdsten af naar 0).
+ */
+export function rondMaatAf(waarde) {
+  const n = _getal(waarde);
+  if (!Number.isFinite(n)) return klemMaat(n);
+  const stap = Math.abs(n) < 1 ? 10000 : 100;
+  return klemMaat(Math.round(n * stap) / stap);
+}
+
 /** Maat voor weergave in een invoerveld: 2 decimalen, onder 1 pt 3 — nooit "0" voor een kleine vorm. */
 export function toonMaat(waarde) {
   if (typeof waarde !== 'number' || !Number.isFinite(waarde)) return 0;
