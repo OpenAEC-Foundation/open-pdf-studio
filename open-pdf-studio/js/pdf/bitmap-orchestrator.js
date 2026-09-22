@@ -15,7 +15,7 @@
 // overwrite a newer one (e.g. zoom-in while a previous render is pending).
 
 import { viewport } from './pdf-viewport.js';
-import { computeZoomBucket, ensureBitmap, getBestAvailableBitmap } from './page-bitmap-cache.js';
+import { computeZoomBucket, ensureBitmap, ensureExactBitmap, getBestAvailableBitmap } from './page-bitmap-cache.js';
 import { tileCacheFindCovering, tileCacheGet, tileCacheSet } from './tile-cache.js';
 import { tileCoversViewport, visiblePdfRegion } from './tile-coverage.js';
 import { state } from '../core/state.js';
@@ -95,7 +95,8 @@ export async function ensureBitmapForCurrentView() {
     const myGen = ++_bitmapGen;
 
     // Cap so PDFium never has to render above the 4096 px axis limit.
-    const cappedBucket = computeZoomBucket(Math.min(targetScale, capScale));
+    const exactScale = Math.min(targetScale, capScale);
+    const cappedBucket = computeZoomBucket(exactScale);
     // computeZoomBucket is monotonic, so the capped bucket is always <= the requested one
     const useBucket = cappedBucket;
 
@@ -114,6 +115,25 @@ export async function ensureBitmapForCurrentView() {
     if (entry && entry.bitmap) {
         viewport.currentBitmap = entry.bitmap;
         viewport.dirty = true;
+    }
+
+    // Sharpness settle: the bucket is rounded UP to the next power of 2, so
+    // pdf-viewport.js's drawImage() almost always resamples this bitmap down
+    // a little to fit the screen — soft text at any zoom that doesn't land
+    // exactly on a bucket boundary. ensureBitmapForCurrentView() itself only
+    // runs once zoom/pan has been still for a bit (see pdf-viewport.js's
+    // _kickOrchestratorAfterZoom debounce), so this is already a "the user
+    // stopped moving" event — safe to spend one more render getting the
+    // EXACT resolution, without slowing down the zoom/pan itself. Skipped
+    // when the bucket is already within 2% of exact (bucket boundaries,
+    // e.g. 100%/200%/400% @ 2x DPR — nothing to upgrade).
+    if (useBucket / exactScale > 1.02) {
+        const exactEntry = await ensureExactBitmap(viewport.filePath, viewport.pageNum, viewport.rotation, exactScale);
+        if (myGen !== _bitmapGen) return;  // stale (newer zoom/page/pan came in)
+        if (exactEntry && exactEntry.bitmap) {
+            viewport.currentBitmap = exactEntry.bitmap;
+            viewport.dirty = true;
+        }
     }
 }
 

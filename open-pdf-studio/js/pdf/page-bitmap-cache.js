@@ -133,6 +133,22 @@ export function ensureBitmap(filePath, pageNum, rotation, zoomBucket) {
 }
 
 /**
+ * Sharpness "settle" upgrade: render at the EXACT zoom*dpr the screen needs,
+ * instead of the next power-of-2 bucket above it. computeZoomBucket() rounds
+ * UP so PDFium always has at least enough resolution, but that means the
+ * whole-page bitmap is almost never a 1:1 pixel match for the destination
+ * rect — drawImage() in pdf-viewport.js then resamples it down to fit,
+ * softening text at every zoom that doesn't land exactly on a bucket
+ * boundary (100%, 200%, 400% @ 2x DPR; off-bucket levels like 150% get the
+ * blur). Cached under the rounded exact scale so repeated settles at the
+ * same zoom hit the cache instead of re-rendering.
+ */
+export function ensureExactBitmap(filePath, pageNum, rotation, exactScale) {
+  const roundedScale = Math.round(exactScale * 1000) / 1000;
+  return _ensureBitmapAtScale(filePath, pageNum, rotation, roundedScale, roundedScale);
+}
+
+/**
  * Background prefetch: render a small fallback bitmap and cache it under
  * `cacheBucket` so getBestAvailableBitmap finds it as a stretched fallback
  * on first user navigation. Intended for tile-classified pages where the
