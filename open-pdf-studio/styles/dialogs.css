@@ -4285,6 +4285,11 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
   transition: width 0.2s ease;
 }
 .print-progress-error .print-progress-fill { background: #c62828; }
+.print-progress-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
 
 /* ── Standalone "PDF-opvang" window (?view=printqueue) ── */
 .pq-window {
