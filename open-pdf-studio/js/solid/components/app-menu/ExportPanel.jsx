@@ -4,7 +4,7 @@ import { state, getActiveDocument } from '../../../core/state.js';
 import { exportAsImages, exportAsRasterPdf, parsePageRange } from '../../../pdf/exporter.js';
 import { exportAsPdfX } from '../../../pdf/pdfx-export.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
-import { showMessage } from '../../stores/dialogStore.js';
+import { showMessage, openDialog } from '../../stores/dialogStore.js';
 
 export default function ExportPanel() {
   const { t } = useTranslation('appMenu');
@@ -28,6 +28,17 @@ export default function ExportPanel() {
     closeAppMenu();
     const { exportBcfToFile } = await import('../../../bcf/bcf-ui.js');
     exportBcfToFile();
+  };
+
+  // DXF/DWG (#400): eigen venster met lagen, gebied en schaal.
+  const handleExportCad = () => {
+    const doc = getActiveDocument();
+    if (!doc?.pdfDoc) {
+      showMessage(tCommon('noDocumentOpen'));
+      return;
+    }
+    closeAppMenu();
+    openDialog('cad-export');
   };
 
   const handleCardClick = (type) => {
@@ -120,6 +131,20 @@ export default function ExportPanel() {
           <div class="bs-export-card-info">
             <h3>{t('exportPanel.exportPdfx')}</h3>
             <p>{t('exportPanel.exportPdfxDesc')}</p>
+          </div>
+        </div>
+
+        <div class="bs-export-card" onClick={handleExportCad}>
+          <div class="bs-export-card-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <path d="M14 2v6h6"/>
+              <path d="M7 18l3-5 2 3 2-4 3 6z"/>
+            </svg>
+          </div>
+          <div class="bs-export-card-info">
+            <h3>{t('exportPanel.exportCad')}</h3>
+            <p>{t('exportPanel.exportCadDesc')}</p>
           </div>
         </div>
 

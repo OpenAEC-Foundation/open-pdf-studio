@@ -2450,6 +2450,13 @@ export async function rotatePage(delta, targetPage) {
 
   // Transform annotation coordinates to match new rotation
   rotateAnnotationsForPage(pageNum, normDelta, oldViewport.width, oldViewport.height);
+  // The measure scales the PDF itself carries (/VP) live in the same display
+  // space as the annotations: turn them along, or a dimension line would fall
+  // outside every viewport (or into the neighbour's) until save + reopen (#400).
+  if (doc.pdfViewports?.[pageNum]) {
+    const { draaiViewports } = await import('./pdf-viewports.js');
+    doc.pdfViewports[pageNum] = draaiViewports(doc.pdfViewports[pageNum], normDelta, oldViewport.width, oldViewport.height);
+  }
 
   setPageRotation(pageNum, current + delta);
 

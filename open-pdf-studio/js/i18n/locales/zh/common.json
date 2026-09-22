@@ -111,6 +111,7 @@
     "internalLink": "内部链接"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "此 PDF 是图纸导入的预览，内容可能不完整。不能插入或保存；请重新导入图纸。",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

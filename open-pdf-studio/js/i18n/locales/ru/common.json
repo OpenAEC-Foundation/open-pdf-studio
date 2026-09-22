@@ -111,6 +111,7 @@
     "internalLink": "Внутренняя ссылка"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "Этот PDF — предварительный просмотр из импорта чертежа и может быть неполным. Его нельзя вставить или сохранить; импортируйте чертёж заново.",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

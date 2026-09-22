@@ -78,7 +78,9 @@
     "find": "ค้นหา",
     "findCtrlF": "ค้นหา (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "ไปยัง CAD",
+    "cadExportTitle": "ส่งออกแบบเวกเตอร์เป็น DXF หรือ DWG"
   },
   "comment": {
     "drawing": "การวาด",

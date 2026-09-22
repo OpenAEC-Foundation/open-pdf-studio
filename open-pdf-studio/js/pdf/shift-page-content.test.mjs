@@ -1,10 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  PDFArray, PDFDict, PDFDocument, PDFName, PDFNumber, PDFRawStream, PDFRef,
+  PDFArray, PDFDict, PDFDocument, PDFName, PDFNumber, PDFRawStream, PDFRef, PDFString,
   decodePDFRawStream, degrees, rgb,
 } from "pdf-lib";
-import { assertShiftable, shiftPageContent, shiftPageAnnotations } from "./shift-page-content.js";
+import { assertShiftable, shiftPageContent, shiftPageAnnotations, shiftPageViewports } from "./shift-page-content.js";
+import { leesViewportsVanPagina } from "./pdf-viewports.js";
 
 const name = (key) => PDFName.of(key);
 
@@ -215,4 +216,60 @@ test("an encrypted document is refused before anything is changed", async () => 
   );
   const encrypted = await PDFDocument.load(await source.save(), { ignoreEncryption: true });
   assert.throws(() => assertShiftable(encrypted), (err) => err.code === "encrypted");
+});
+
+// The measure scales the PDF itself carries (/VP with /BBox, /Measure and the
+// import's own /OPS_Clip and /OPS_ModelMatrix) describe regions of the page
+// content. They move with that content, or the scale would apply to a strip
+// next to the drawing and the way back to the model would be shifted (#400).
+test("the viewports of the page (/VP) move with the content", async () => {
+  const doc = await docWithPages(1);
+  const page = doc.getPages()[0];
+  const ctx = doc.context;
+  const scale = 100 * 25.4 / 72; // 1:100 in mm per point
+  // page → model: model = M·page, at 1:100 with a translation in millimetres
+  const matrix = [scale, 0, 0, scale, 1000, 2000];
+  page.node.set(name("VP"), ctx.obj([
+    {
+      Type: "Viewport", BBox: [100, 100, 500, 400], Name: PDFString.of("plattegrond"),
+      Measure: { Type: "Measure", Subtype: "RL", R: PDFString.of("1:100"), X: [{ U: PDFString.of("mm"), C: scale, D: 1 }] },
+      OPS_ModelMatrix: matrix, OPS_ModelUnits: PDFString.of("mm"),
+      OPS_Clip: [100, 100, 500, 100, 100, 400],
+    },
+    { Type: "Viewport", BBox: [0, 0, 50, 50] }, // no /Measure: still a region, still moves
+  ]));
+
+  assert.equal(shiftPageViewports(doc, page, 10, -5), 2);
+
+  const vp = page.node.lookup(name("VP"), PDFArray);
+  const eerste = vp.lookup(0, PDFDict);
+  assert.deepEqual(numbers(eerste.lookup(name("BBox"))), [110, 95, 510, 395]);
+  assert.deepEqual(numbers(eerste.lookup(name("OPS_Clip"))), [110, 95, 510, 95, 110, 395]);
+  // The model matrix absorbs the inverse translation: the same page content
+  // still maps to the same model coordinates.
+  const m = numbers(eerste.lookup(name("OPS_ModelMatrix")));
+  const model = (x, y) => [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
+  assert.deepEqual(model(110, 95), [matrix[0] * 100 + matrix[4], matrix[3] * 100 + matrix[5]]);
+  assert.equal(eerste.lookup(name("Measure"), PDFDict).lookup(name("R")).decodeText(), "1:100", "the scale itself is unchanged");
+  assert.deepEqual(numbers(vp.lookup(1, PDFDict).lookup(name("BBox"))), [10, -5, 60, 45]);
+
+  // What the app reads back lies on the shifted content.
+  const gelezen = leesViewportsVanPagina(page);
+  assert.equal(gelezen.length, 1);
+  assert.deepEqual([gelezen[0].x, gelezen[0].y, gelezen[0].width, gelezen[0].height], [110, 842 - 395, 400, 300]);
+});
+
+test("a rotated model matrix is shifted through its own axes, and a page without /VP has nothing to move", async () => {
+  const doc = await docWithPages(1);
+  const page = doc.getPages()[0];
+  assert.equal(shiftPageViewports(doc, page, 10, 10), 0);
+
+  // 90° turned model with scale 2: model = (−2·y + 7, 2·x + 9)
+  page.node.set(name("VP"), doc.context.obj([{ BBox: [0, 0, 10, 10], OPS_ModelMatrix: [0, 2, -2, 0, 7, 9] }]));
+  shiftPageViewports(doc, page, 3, 4);
+  const m = numbers(page.node.lookup(name("VP"), PDFArray).lookup(0, PDFDict).lookup(name("OPS_ModelMatrix")));
+  const model = (x, y) => [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]];
+  // The content point that was (0, 0) is now (3, 4) and must still map to (7, 9).
+  assert.deepEqual(model(3, 4), [7, 9]);
+  assert.deepEqual(m.slice(0, 4), [0, 2, -2, 0], "rotation and scale are untouched");
 });

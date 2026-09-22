@@ -78,7 +78,9 @@
     "find": "Tìm",
     "findCtrlF": "Tìm (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "Sang CAD",
+    "cadExportTitle": "Xuất bản vẽ vectơ sang DXF hoặc DWG"
   },
   "comment": {
     "drawing": "Vẽ",

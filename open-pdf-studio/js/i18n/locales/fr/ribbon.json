@@ -78,7 +78,9 @@
     "find": "Rechercher",
     "findCtrlF": "Rechercher (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "Vers la CAO",
+    "cadExportTitle": "Exporter le dessin vectoriel en DXF ou DWG"
   },
   "comment": {
     "drawing": "Dessin",

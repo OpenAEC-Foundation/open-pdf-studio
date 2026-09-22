@@ -63,7 +63,9 @@
     "importXfdf": "குறிப்புரைகளை இறக்குமதி செய் (XFDF)",
     "importXfdfDesc": "XFDF கோப்பிலிருந்து தற்போதைய ஆவணத்திற்குக் குறிப்புரைகளை இறக்குமதி செய்",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "CAD வரைபடம் (DWG, DXF)",
+    "importCadDesc": "ஒரு DWG அல்லது DXF வரைபடத்தை அளவுகோலுடன் PDF பக்கமாக இறக்குமதி செய், அடுக்குகள் மற்றும் அளவீட்டு அளவுகோலுடன்"
   },
   "exportPanel": {
     "title": "ஏற்றுமதி",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "CAD வரைபடம் (DXF, DWG)",
+    "exportCadDesc": "வெக்டர் வரைபடத்தை அடுக்குகள், அளவுகோல், பகுதியுடன் DXF அல்லது DWG ஆக ஏற்றுமதி செய்"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

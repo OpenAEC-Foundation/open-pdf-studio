@@ -292,6 +292,13 @@
   margin-right: 4px;
 }
 
+/* CAD-uitwisseling (#400): het blok in dialogs.css gebruikt logische
+   eigenschappen (margin-inline-start, padding-inline-end, text-align: end) en
+   keert dus vanzelf om. Alleen het afgekapte pad heeft een vaste richting. */
+[dir="rtl"] .cad-path {
+  text-align: right;
+}
+
 /* Stamp grid: keep LTR for visual layout */
 [dir="rtl"] .stamp-grid {
   direction: ltr;

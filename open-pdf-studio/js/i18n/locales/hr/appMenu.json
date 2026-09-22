@@ -63,7 +63,9 @@
     "importXfdf": "Uvezi oznake (XFDF)",
     "importXfdfDesc": "Uvezite oznake iz XFDF datoteke u trenutni dokument",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "CAD crtež (DWG, DXF)",
+    "importCadDesc": "Uvezi DWG ili DXF crtež kao PDF stranicu u mjerilu, sa slojevima i mjerilom"
   },
   "exportPanel": {
     "title": "Izvoz",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "CAD crtež (DXF, DWG)",
+    "exportCadDesc": "Izvezi vektorski crtež u DXF ili DWG sa slojevima, mjerilom i područjem"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

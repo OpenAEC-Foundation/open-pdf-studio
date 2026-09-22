@@ -268,6 +268,12 @@ export interface Preferences {
 
   // Print dialog — settings of the last print action (null = dialog defaults)
   printSettings: PrintSettings | null;
+
+  // CAD export/import (#400) — last used settings (null = dialog defaults);
+  // validated on read by cad-export-instellingen.js / cad-import-instellingen.js
+  cadExportSettings: Record<string, unknown> | null;
+  cadImportSettings: Record<string, unknown> | null;
+  cadImportPresets: Array<{ name: string; settings: Record<string, unknown> }> | null;
 }
 
 export interface PrintSettings {

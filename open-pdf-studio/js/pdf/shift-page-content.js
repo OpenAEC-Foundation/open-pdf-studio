@@ -7,7 +7,9 @@
 // with a non-zero origin, CropBox/BleedBox/TrimBox/ArtBox, /Rotate (own or
 // inherited), UserUnit, /Annots (links, form fields, signature widgets) and
 // every destination elsewhere in the file that points at this page object
-// (bookmarks, table-of-contents links, named destinations).
+// (bookmarks, table-of-contents links, named destinations). What describes a
+// PLACE on the content — /Annots and the measure viewports /VP — is moved
+// along explicitly (shiftPageAnnotations, shiftPageViewports).
 import { PDFArray, PDFDict, PDFName, PDFNumber, PDFStream } from "pdf-lib";
 
 // Plain decimal notation with at most 4 decimals — a content stream has no
@@ -119,6 +121,55 @@ export function shiftPageAnnotations(pdfDoc, page, cx, cy, seen = new Set()) {
         strokes.push(shifted);
       }
       if (valid) dict.set(inkName, context.obj(strokes));
+    }
+    moved++;
+  }
+  return moved;
+}
+
+/**
+ * Move the measure viewports stored ON the page (/VP: CAD plots and the
+ * DWG/DXF import) by the same content-space offset. A viewport describes a
+ * region of the content: /BBox and the import's own outline /OPS_Clip shift
+ * with it, and /OPS_ModelMatrix (page → model, for the way back to CAD) takes
+ * the inverse translation first, so the same content still maps to the same
+ * model coordinates. /Measure itself is a ratio and stays as it is.
+ *
+ * @returns {number} how many viewports were moved
+ */
+export function shiftPageViewports(pdfDoc, page, cx, cy) {
+  assertOffset(cx, cy);
+  const context = pdfDoc.context;
+  const viewports = page.node.lookup(PDFName.of("VP"));
+  if (!(viewports instanceof PDFArray)) return 0;
+
+  let moved = 0;
+  for (let i = 0; i < viewports.size(); i++) {
+    const dict = viewports.lookup(i);
+    if (!(dict instanceof PDFDict)) continue;
+
+    for (const key of ["BBox", "OPS_Clip"]) {
+      const name = PDFName.of(key);
+      const array = dict.lookup(name);
+      if (!(array instanceof PDFArray)) continue;
+      const shifted = shiftedCoordinates(context, array, cx, cy);
+      if (shifted) dict.set(name, shifted);
+    }
+
+    const matrixName = PDFName.of("OPS_ModelMatrix");
+    const matrix = dict.lookup(matrixName);
+    if (matrix instanceof PDFArray && matrix.size() === 6) {
+      const m = [];
+      for (let k = 0; k < 6; k++) {
+        const item = matrix.lookup(k);
+        if (!(item instanceof PDFNumber)) { m.length = 0; break; }
+        m.push(item.asNumber());
+      }
+      if (m.length === 6) {
+        // model = M·(page' − t), with t = (cx, cy): only e and f change.
+        const [a, b, c, d, e, f] = m;
+        dict.set(matrixName, context.obj([a, b, c, d, e - cx * a - cy * c, f - cx * b - cy * d]));
+      }
     }
     moved++;
   }

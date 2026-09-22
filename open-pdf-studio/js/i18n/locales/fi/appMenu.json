@@ -63,7 +63,9 @@
     "importXfdf": "Tuo merkinnät (XFDF)",
     "importXfdfDesc": "Tuo merkinnät XFDF-tiedostosta nykyiseen asiakirjaan",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "CAD-piirustus (DWG, DXF)",
+    "importCadDesc": "Tuo DWG- tai DXF-piirustus PDF-sivuksi mittakaavassa, tasoineen ja mittakaavamerkinnällä"
   },
   "exportPanel": {
     "title": "Vie",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "CAD-piirustus (DXF, DWG)",
+    "exportCadDesc": "Vie vektoripiirustus DXF- tai DWG-muotoon tasoineen, mittakaavoineen ja alueineen"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

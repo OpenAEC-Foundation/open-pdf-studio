@@ -76,6 +76,10 @@ function setupTauriDragDrop() {
         if (ext === '.pdf') {
           const { index } = createTab(filePath);
           await loadPDFIfNeeded(filePath, index);
+        } else if (ext === '.dwg' || ext === '.dxf') {
+          // Een CAD-tekening opent via het importvenster (#400).
+          const { openAlsCadTekening } = await import('../pdf/cad-import.js');
+          await openAlsCadTekening(filePath);
         } else if (IMAGE_EXTENSIONS.includes(ext)) {
           await addImageFromFile(filePath);
         }

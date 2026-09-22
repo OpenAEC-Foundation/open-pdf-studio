@@ -78,7 +78,9 @@
     "find": "Buscar",
     "findCtrlF": "Buscar (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "A CAD",
+    "cadExportTitle": "Exportar el dibujo vectorial a DXF o DWG"
   },
   "comment": {
     "drawing": "Dibujo",

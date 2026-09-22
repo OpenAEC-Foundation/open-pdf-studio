@@ -111,6 +111,7 @@
     "internalLink": "Pautan Dalaman"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "PDF ini ialah pratonton daripada import lukisan dan mungkin tidak lengkap. Ia tidak boleh disisipkan atau disimpan; import lukisan itu semula.",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

@@ -63,7 +63,9 @@
     "importXfdf": "Nhập Chú thích (XFDF)",
     "importXfdfDesc": "Nhập chú thích từ tệp XFDF vào tài liệu hiện tại",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "Bản vẽ CAD (DWG, DXF)",
+    "importCadDesc": "Nhập bản vẽ DWG hoặc DXF thành trang PDF theo tỷ lệ, có lớp và tỷ lệ đo"
   },
   "exportPanel": {
     "title": "Xuất",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "Bản vẽ CAD (DXF, DWG)",
+    "exportCadDesc": "Xuất bản vẽ vectơ sang DXF hoặc DWG kèm lớp, tỷ lệ và vùng"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

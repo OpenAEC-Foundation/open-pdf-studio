@@ -63,7 +63,9 @@
     "importXfdf": "تشریحات درآمد کریں (XFDF)",
     "importXfdfDesc": "XFDF فائل سے موجودہ دستاویز میں تشریحات درآمد کریں",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "CAD ڈرائنگ (DWG, DXF)",
+    "importCadDesc": "کسی DWG یا DXF ڈرائنگ کو پیمانے کے مطابق PDF صفحے کے طور پر درآمد کریں، پرتوں اور پیمائشی پیمانے کے ساتھ"
   },
   "exportPanel": {
     "title": "برآمد",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "CAD ڈرائنگ (DXF، DWG)",
+    "exportCadDesc": "ویکٹر ڈرائنگ کو پرتوں، پیمانے اور حصے کے ساتھ DXF یا DWG میں برآمد کریں"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

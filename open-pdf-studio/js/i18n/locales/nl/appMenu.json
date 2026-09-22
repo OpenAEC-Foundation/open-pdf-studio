@@ -74,7 +74,9 @@
     "importXfdf": "Annotaties importeren (XFDF)",
     "importXfdfDesc": "Annotaties importeren uit een XFDF-bestand in het huidige document",
     "importBcf": "Issues importeren (BCF)",
-    "importBcfDesc": "BCF-topics uit een andere BIM-tool importeren als annotaties"
+    "importBcfDesc": "BCF-topics uit een andere BIM-tool importeren als annotaties",
+    "importCad": "CAD-tekening (DWG, DXF)",
+    "importCadDesc": "Een DWG- of DXF-tekening importeren als PDF-pagina op schaal, met lagen en meetschaal"
   },
   "exportPanel": {
     "title": "Exporteren",
@@ -104,7 +106,9 @@
     "exportPdfxDesc": "Maak een drukklaar PDF/X-bestand met output intent en metadata",
     "pdfxOptions": "PDF/X-opties",
     "pdfxConformance": "Conformiteit",
-    "pdfxNote": "Voegt een sRGB-output-intent, TrimBox en PDF/X-metadata toe. Bestaande RGB-afbeeldingen worden niet naar CMYK omgezet; vervang voor strikt CMYK-drukwerk het profiel door een CMYK-profiel."
+    "pdfxNote": "Voegt een sRGB-output-intent, TrimBox en PDF/X-metadata toe. Bestaande RGB-afbeeldingen worden niet naar CMYK omgezet; vervang voor strikt CMYK-drukwerk het profiel door een CMYK-profiel.",
+    "exportCad": "CAD-tekening (DXF, DWG)",
+    "exportCadDesc": "Exporteer de vectortekening naar DXF of DWG, met lagen, schaal en gebied"
   },
   "extensions": "Extensies",
   "extensionsPanel": {

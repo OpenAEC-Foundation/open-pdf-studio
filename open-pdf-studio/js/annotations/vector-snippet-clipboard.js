@@ -31,6 +31,21 @@ export function knipselOpKlembord() {
  */
 export function plakKnipsel({ x, y, page } = {}) {
   if (!heeftKnipsel()) return null;
+  return plaatsKnipsel(_knipsel, { x, y, page });
+}
+
+/**
+ * Zet een knipsel als vectorSnippet-annotatie in het actieve document, zonder
+ * het klembord aan te raken. Plakken gebruikt dit, en ook de CAD-import die
+ * een tekening op de huidige pagina legt (#400). `extra` overschrijft de maat
+ * en de dekking en kan eigen velden meegeven (zoals `belowContent`).
+ * @param {{snippetKey:string, srcBox:object, srcLabel:string, breedte:number, hoogte:number}} knipsel
+ * @param {{x?:number, y?:number, page?:number}} [plek]
+ * @param {object} [extra]
+ * @returns {object|null} de nieuwe annotatie
+ */
+export function plaatsKnipsel(knipsel, { x, y, page } = {}, extra = {}) {
+  if (!knipsel || !heeft(knipsel.snippetKey)) return null;
   const doc = getActiveDocument();
   if (!doc) return null;
 
@@ -41,12 +56,13 @@ export function plakKnipsel({ x, y, page } = {}) {
     page: paginaNr,
     x: Number.isFinite(x) ? x : 40,
     y: Number.isFinite(y) ? y : 40,
-    width: _knipsel.breedte,
-    height: _knipsel.hoogte,
-    snippetKey: _knipsel.snippetKey,
-    srcBox: { ..._knipsel.srcBox },
-    srcLabel: _knipsel.srcLabel || '',
+    width: knipsel.breedte,
+    height: knipsel.hoogte,
+    snippetKey: knipsel.snippetKey,
+    srcBox: { ...knipsel.srcBox },
+    srcLabel: knipsel.srcLabel || '',
     opacity: 1,
+    ...extra,
   });
 
   doc.annotations.push(ann);

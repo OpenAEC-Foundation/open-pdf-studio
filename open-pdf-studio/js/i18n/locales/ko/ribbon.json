@@ -78,7 +78,9 @@
     "find": "찾기",
     "findCtrlF": "찾기 (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "CAD로",
+    "cadExportTitle": "벡터 도면을 DXF 또는 DWG로 내보내기"
   },
   "comment": {
     "drawing": "그리기",

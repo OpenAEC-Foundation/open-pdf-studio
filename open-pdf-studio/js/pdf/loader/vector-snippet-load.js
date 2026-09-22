@@ -58,7 +58,11 @@ export async function leesKnipselBronnen(pdfDoc, bewaar) {
 export function knipselUitExtra(extra, heeft) {
   const v = extra?.opsSubtype === 'vectorSnippet' ? extra.vectorSnippet : null;
   if (!v?.snippetKey || !v.srcBox) return null;
-  return heeft(v.snippetKey) ? { snippetKey: v.snippetKey, srcBox: { ...v.srcBox }, srcLabel: v.srcLabel || '' } : null;
+  if (!heeft(v.snippetKey)) return null;
+  const uit = { snippetKey: v.snippetKey, srcBox: { ...v.srcBox }, srcLabel: v.srcLabel || '' };
+  // Alleen als het gezet is: een gewoon knipsel draagt het veld niet.
+  if (v.belowContent === true) uit.belowContent = true;
+  return uit;
 }
 
 /**
@@ -84,9 +88,14 @@ export async function leesKnipselVelden(annotDict, context) {
   const g = vakArr.asArray().map((n) => n.asNumber());
   if (g.length !== 4 || !g.every(Number.isFinite)) return null;
 
-  return {
+  const velden = {
     snippetKey: sleutel,
     srcBox: { left: g[0], bottom: g[1], right: g[2], top: g[3] },
     srcLabel: tekstVan(annotDict.get(PDFName.of('OPS_SrcLabel'))) || '',
   };
+  // Onderlegger (#400): bij het vastzetten onder de bestaande inhoud.
+  const onderRaw = annotDict.get(PDFName.of('OPS_BelowContent'));
+  const onder = onderRaw ? (context.lookup(onderRaw) || onderRaw) : null;
+  if (onder && typeof onder.asBoolean === 'function' && onder.asBoolean() === true) velden.belowContent = true;
+  return velden;
 }

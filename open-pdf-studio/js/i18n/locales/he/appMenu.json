@@ -63,7 +63,9 @@
     "importXfdf": "ייבוא הערות (XFDF)",
     "importXfdfDesc": "ייבוא הערות מקובץ XFDF למסמך הנוכחי",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "שרטוט CAD (DWG, DXF)",
+    "importCadDesc": "ייבוא שרטוט DWG או DXF כעמוד PDF בקנה מידה, עם שכבות וקנה מידה למדידה"
   },
   "exportPanel": {
     "title": "ייצוא",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "שרטוט CAD (DXF, DWG)",
+    "exportCadDesc": "ייצוא השרטוט הווקטורי ל-DXF או ל-DWG עם שכבות, קנה מידה ואזור"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

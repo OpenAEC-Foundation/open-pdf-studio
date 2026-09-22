@@ -30,7 +30,8 @@ function _anchor(ann) {
 
 /**
  * Pagina-pixels per werkelijke millimeter op de positie van het raster.
- * Prioriteit: schaalgebied → viewport/schaalbalk/doc-schaal. 0 = onbekend
+ * Prioriteit: schaalgebied → viewport/schaalbalk/PDF-viewport (/VP)/doc-schaal
+ * (getScaleForPoint, volgorde in schaal-op-punt.js). 0 = onbekend
  * (dan valt buildSysteemraster terug op de vaste 1:100-omrekening).
  */
 export function systeemrasterPxPerMm(ann) {
