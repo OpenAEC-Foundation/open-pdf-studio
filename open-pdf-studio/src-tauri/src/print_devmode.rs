@@ -379,8 +379,13 @@ impl Printer {
     /// (`schrijft_document`)? Alleen dan gaat een liggend vel als eigen maat.
     /// Zonder gegevens van de spooler: nee, dus het gedrag van altijd.
     pub fn schrijft_document(&self) -> bool {
-        self.stuurprogramma_en_poort()
-            .is_some_and(|(stuurprogramma, poort)| schrijft_document(&stuurprogramma, &poort))
+        match self.stuurprogramma_en_poort() {
+            Some((stuurprogramma, poort)) => schrijft_document(&stuurprogramma, &poort),
+            None => {
+                log::warn!("[print] geen stuurprogramma en poort van '{}'; als papieren printer behandeld", self.tekst);
+                false
+            }
+        }
     }
 
     /// Toont het eigenschappenvenster van de driver, modaal voor venster
