@@ -543,6 +543,19 @@ function _handleResize(ctx, e, coords) {
     return;
   }
 
+  // Deadzone van 3 SCHERMpixels, zoals bij verplaatsen. Schalen had er geen:
+  // een klik op een greep met één pixel trilling vervormde de vorm al — bij
+  // een piepkleine vorm is dat meteen een zichtbare maatfout. Getypte
+  // lengte-invoer gaat er langs (die is bewust, geen trilling).
+  if (!state._dragExitedDeadzone) {
+    const dz = 3 / (getEffectiveScale() || 1);
+    const getypt = _gripLengte.actief && typeLengthHasBuffer();
+    if (!getypt
+        && Math.abs(coords.x - state.dragStartX) < dz
+        && Math.abs(coords.y - state.dragStartY) < dz) return;
+    state._dragExitedDeadzone = true;
+  }
+
   // Snap cursor position during resize.
   // Exception: the 8 box-resize handles (corners + edges) of a text box or
   // callout must NOT object-snap. On content-dense drawings object snap
@@ -658,7 +671,10 @@ function _handleResize(ctx, e, coords) {
   }
 
   Object.assign(ann, cloneAnnotation(state.originalAnnotation));
-  applyResize(ann, state.activeHandle, deltaX, deltaY, state.originalAnnotation, e.shiftKey, e.ctrlKey);
+  // De zoom gaat mee: ondergrenzen die over het scherm gaan (schaalgebied,
+  // viewport, schaalbalk) rekenen in schermpixels, niet in paginapunten.
+  applyResize(ann, state.activeHandle, deltaX, deltaY, state.originalAnnotation, e.shiftKey, e.ctrlKey,
+    { schaal: resizeScale });
   _pasGripLengteToe(ann);
 
   // Image "equal width/height" snapping: after the resize is applied, snap the
@@ -822,7 +838,7 @@ function _handleDrag(ctx, e, coords) {
   const deltaY = coords.y - state.dragStartY;
 
   // Deadzone: don't start moving until cursor exceeds 3 screen-pixels from click point
-  const dragScale = getActiveDocument()?.scale || 1.5;
+  const dragScale = getEffectiveScale();
   const deadzone = 3 / dragScale;
   if (!state._dragExitedDeadzone) {
     if (Math.abs(deltaX) < deadzone && Math.abs(deltaY) < deadzone) return;
@@ -835,7 +851,10 @@ function _handleDrag(ctx, e, coords) {
   // Ctrl+drag copy: create clones on first meaningful move. Duplication
   // goes through the edit-ops primitive (cloneForInsert) — same identity
   // convention as CO and the array tool.
-  if (state._ctrlDragCopy && !state._ctrlCopiesCreated && (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2)) {
+  // De sleep is hier de deadzone van 3 SCHERMpixels al voorbij; een extra
+  // drempel van 2 paginapunten (128 px bij 6400 %) maakte het onmogelijk een
+  // klein vormpje een klein stukje te kopiëren.
+  if (state._ctrlDragCopy && !state._ctrlCopiesCreated) {
     _maakCtrlKopieen(_dDoc, _dSel);
   }
 

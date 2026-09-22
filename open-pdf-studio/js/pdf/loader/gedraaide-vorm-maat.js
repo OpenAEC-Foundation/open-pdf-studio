@@ -31,7 +31,11 @@ export function omhullendeMaat(w, h, rotatie) {
 function klopt(kandidaat, omhullende, rotatie) {
   if (!kandidaat || !(kandidaat.width > 0) || !(kandidaat.height > 0)) return false;
   const o = omhullendeMaat(kandidaat.width, kandidaat.height, rotatie);
-  const tol = 0.1 + 0.001 * Math.max(omhullende.width, omhullende.height);
+  // Relatieve tolerantie met een piepkleine technische bodem. Een absolute
+  // term (was 0,1 pt) liet bij een vorm rond 0,1 pt ELKE kandidaat kloppen,
+  // ook een /BBox die gewoon gelijk is aan /Rect, waardoor de omhullende als
+  // maat werd overgenomen en de vorm per rondgang groeide.
+  const tol = Math.max(1e-6, 0.002 * Math.max(omhullende.width, omhullende.height));
   return Math.abs(o.width - omhullende.width) <= tol
     && Math.abs(o.height - omhullende.height) <= tol;
 }

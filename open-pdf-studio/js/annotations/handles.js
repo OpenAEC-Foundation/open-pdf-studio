@@ -9,6 +9,34 @@ import { betonbalkTagAnchor } from './betonbalk.js';
 import { betonbalkHalfWidthPx } from './betonbalk-scale.js';
 import { buildSysteemraster, segmentPoint, rotToWorld } from './systeemraster.js';
 import { systeemrasterBuildOpts } from './systeemraster-scale.js';
+import { spreidMaatgrepen, kiesGreep } from './greep-keuze.js';
+import { RECHTHOEK_VORMEN } from './minimummaat.js';
+
+// Het vak waar de acht maatgrepen omheen staan (lokale, ongedraaide ruimte),
+// of null voor vormen zonder zo'n vak. Dient voor het uitwijken van de grepen
+// bij een vorm die op het scherm maar een paar pixels groot is.
+function _maatVak(annotation) {
+  if (!annotation) return null;
+  if (annotation.type === 'circle') {
+    const w = annotation.width || annotation.radius * 2;
+    const h = annotation.height || annotation.radius * 2;
+    const x = annotation.x !== undefined ? annotation.x : annotation.centerX - annotation.radius;
+    const y = annotation.y !== undefined ? annotation.y : annotation.centerY - annotation.radius;
+    return { x, y, width: w, height: h };
+  }
+  if (annotation.type === 'callout') {
+    return { x: annotation.x, y: annotation.y, width: annotation.width || 150, height: annotation.height || 50 };
+  }
+  if (RECHTHOEK_VORMEN.has(annotation.type)) {
+    return { x: annotation.x, y: annotation.y, width: annotation.width, height: annotation.height };
+  }
+  // Plugin-vormen met {x, y, w, h}.
+  if (typeof annotation.x === 'number' && typeof annotation.y === 'number'
+      && typeof annotation.w === 'number' && typeof annotation.h === 'number') {
+    return { x: annotation.x, y: annotation.y, width: annotation.w, height: annotation.h };
+  }
+  return null;
+}
 
 // Rotate a point around a center point
 function rotatePoint(x, y, centerX, centerY, rotationDegrees) {
@@ -610,6 +638,12 @@ export function getAnnotationHandles(annotation, scale = 1) {
       break;
   }
 
+  // Piepkleine vorm op het scherm: laat de maatgrepen uitwijken naar een kader
+  // van vaste schermmaat, zodat ze elkaar en de vorm niet bedekken en slepen
+  // aan het lijf verplaatsen blijft (zie greep-keuze.js). Gebeurt hier, vóór de
+  // rotatie, zodat tekenen (selection.js) en raaktest dezelfde posities zien.
+  spreidMaatgrepen(handles, _maatVak(annotation), scale, HANDLE_SIZE);
+
   // If the annotation is rotated, rotate all handle positions around the annotation center
   if (annotation.rotation) {
     const center = getAnnotationCenter(annotation);
@@ -639,24 +673,10 @@ export function findHandleAt(x, y, annotation, scale = 1) {
   // Hit tolerance: expand clickable area by this much on each side of the handle
   const hitPad = 4 / scale;
 
-  let bestHandle = null;
-  let bestDist = Infinity;
-
-  for (const handle of handles) {
-    const hw = handle.w !== undefined ? handle.w : hs;
-    const hh = handle.h !== undefined ? handle.h : hs;
-    if (x >= handle.x - hitPad && x <= handle.x + hw + hitPad &&
-        y >= handle.y - hitPad && y <= handle.y + hh + hitPad) {
-      // Distance from click to handle center
-      const hcx = handle.x + hw / 2;
-      const hcy = handle.y + hh / 2;
-      const dist = (x - hcx) * (x - hcx) + (y - hcy) * (y - hcy);
-      if (dist < bestDist) {
-        bestDist = dist;
-        bestHandle = handle;
-      }
-    }
-  }
+  // Dichtstbijzijnde greepmidden wint; bij gelijke afstand de verplaatsgreep
+  // (verplaatsen vervormt niets). De regel staat in greep-keuze.js en is daar
+  // getest.
+  const bestHandle = kiesGreep(handles, x, y, hs, hitPad);
 
   if (!bestHandle) return null;
   // For polyline nodes, encode the index in the type string

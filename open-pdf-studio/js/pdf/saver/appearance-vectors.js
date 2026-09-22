@@ -18,6 +18,7 @@ import { hexToRgb } from './utils.js';
 import { getHatchLineFamilies } from './hatch-catalog.js';
 import { catmullRomToBezier, splineArrowEndTangent } from '../../annotations/spline-arrow-geometry.js';
 import { toWinAnsiText, winAnsiLiteral } from './pdf-text.js';
+import { klemMaat, MIN_VORM_MAAT_PT } from '../../annotations/minimummaat.js';
 import {
   rotToWorld as srRotToWorld,
   SYSTEEM_RAVEEL_OFFSET_MM as srRaveelOffsetMm,
@@ -240,7 +241,9 @@ function sampleArc(cx, cy, r, a0, a1, out, steps = 8) {
 
 // Rectangular cloud outline (mirrors shapes.js buildCloudPath).
 export function cloudRectOutlinePts(x, y, w, h, puff = 15) {
-  const W = Math.max(1, w), H = Math.max(1, h);
+  // Alleen de technische ondergrens (spiegel van buildCloudPath in shapes.js):
+  // anders staat een wolk kleiner dan 1 pt in de PDF groter dan op het scherm.
+  const W = klemMaat(w), H = klemMaat(h);
   const THETA = 252 * Math.PI / 180;
   const perim = [];
   const addEdge = (x0, y0, x1, y1) => {
@@ -258,7 +261,7 @@ export function cloudRectOutlinePts(x, y, w, h, puff = 15) {
     const [x0, y0] = perim[i];
     const [x1, y1] = perim[(i + 1) % perim.length];
     const dx = x1 - x0, dy = y1 - y0, c = Math.hypot(dx, dy);
-    if (c < 0.01) continue;
+    if (!(c > 0)) continue; // delingswacht, zie shapes.js
     const r = c / (2 * sinHalf);
     const nx = dy / c, ny = -dx / c;
     const ccx = (x0 + x1) / 2 + nx * r * cosHalf;
@@ -282,7 +285,7 @@ export function cloudPolyOutlinePts(points, closed = true) {
     const p2 = points[(i + 1) % points.length];
     const dx = p2.x - p1.x, dy = p2.y - p1.y;
     const edgeLen = Math.hypot(dx, dy);
-    if (edgeLen < 1) continue;
+    if (!(edgeLen >= MIN_VORM_MAAT_PT)) continue; // spiegel van buildCloudPolylinePath
     const numBumps = Math.max(1, Math.round(edgeLen / (TARGET_BUMP * 1.5)));
     const bumpRadius = edgeLen / numBumps / 2;
     const angle = Math.atan2(dy, dx);

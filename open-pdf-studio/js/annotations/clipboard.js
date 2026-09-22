@@ -7,6 +7,8 @@ import { showProperties, showMultiSelectionProperties } from '../ui/panels/prope
 import { redrawAnnotations, redrawContinuous } from './rendering.js';
 import { annotationCanvas, pdfContainer } from '../ui/dom-elements.js';
 import { recordAdd, recordBulkAdd } from '../core/undo-manager.js';
+import { getEffectiveScale } from '../tools/effective-scale.js';
+import { plakVerschuivingPt } from './minimummaat.js';
 
 // Copy annotation to internal clipboard
 export function copyAnnotation(annotation) {
@@ -15,9 +17,10 @@ export function copyAnnotation(annotation) {
   state._internalCopyAt = Date.now();
   state.clipboardAnnotation = cloneAnnotation(annotation);
   state.clipboardAnnotations = null;
-  // Reset the paste cascade so the first paste lands at source+20 and each
-  // subsequent paste steps a further +20 (instead of every paste stacking on
-  // the exact same spot, which made repeated Ctrl+V look like it did nothing).
+  // Reset the paste cascade so the first paste lands one step from the source
+  // and each subsequent paste steps a further step (instead of every paste
+  // stacking on the exact same spot, which made repeated Ctrl+V look like it
+  // did nothing). De stap staat in schermpixels (plakVerschuivingPt).
   state._pasteSeq = 0;
 
   // Also copy image data to system clipboard so other apps can paste it
@@ -190,10 +193,12 @@ export function pasteAnnotation() {
 
   const newAnnotation = cloneAnnotation(state.clipboardAnnotation);
 
-  // Cascade each paste by an extra +20 so repeated Ctrl+V steps down-right
-  // instead of stacking every copy on the same spot.
+  // Cascade each paste by an extra step so repeated Ctrl+V steps down-right
+  // instead of stacking every copy on the same spot. De stap staat in
+  // SCHERMpixels (px / zoom): bij klein werken op hoge zoom viel de kopie
+  // met 20 pt (1280 px bij 6400 %) buiten beeld.
   state._pasteSeq = (state._pasteSeq || 0) + 1;
-  const off = 20 * state._pasteSeq;
+  const off = plakVerschuivingPt(state._pasteSeq, getEffectiveScale());
   if (newAnnotation.x !== undefined) newAnnotation.x += off;
   if (newAnnotation.y !== undefined) newAnnotation.y += off;
   if (newAnnotation.startX !== undefined) newAnnotation.startX += off;
@@ -268,9 +273,9 @@ export function pasteAnnotations() {
     return;
   }
 
-  // Cascade each paste batch by an extra +20 (see pasteAnnotation).
+  // Cascade each paste batch by an extra step (see pasteAnnotation).
   state._pasteSeq = (state._pasteSeq || 0) + 1;
-  const off = 20 * state._pasteSeq;
+  const off = plakVerschuivingPt(state._pasteSeq, getEffectiveScale());
   const newAnnotations = [];
   for (const source of state.clipboardAnnotations) {
     const newAnn = cloneAnnotation(source);
@@ -332,7 +337,7 @@ export function pasteAnnotations() {
 // coördinaten (positie, afmetingen, rotatie) als het origineel — handig om
 // markeringen van de ene verdiepings-pagina op de volgende te stempelen.
 // Herhaalbaar: navigeer naar de volgende pagina en plak opnieuw. De gewone
-// Plakken (Ctrl+V, met +20-cascade) blijft onaangetast.
+// Plakken (Ctrl+V, met stap-cascade) blijft onaangetast.
 export function pasteAnnotationsInPlace() {
   const doc = getActiveDocument();
   if (!doc?.pdfDoc) return;

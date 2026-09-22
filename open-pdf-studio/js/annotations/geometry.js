@@ -13,6 +13,20 @@ import {
   approxTextWidth as bbApproxTextWidth,
 } from './betonbalk.js';
 import { systeemrasterFlatContour } from './systeemraster.js';
+import { getEffectiveScale } from '../tools/effective-scale.js';
+import { raakMarge, wolkUitstulping, schermPxNaarPt } from './minimummaat.js';
+
+// Binnen-test voor vormen die overal in hun vak raakbaar zijn. Een vorm die op
+// het scherm kleiner is dan het minimale raakvlak krijgt een marge in
+// SCHERMPIXELS erbij, zodat ook een piepkleine afbeelding of markering
+// aanklikbaar blijft. Een grote vorm krijgt niets extra: ernaast klikken blijft
+// deselecteren.
+function _binnenVak(px, py, ann, schaal) {
+  const mx = raakMarge(ann.width, schaal);
+  const my = raakMarge(ann.height, schaal);
+  return px >= ann.x - mx && px <= ann.x + ann.width + mx
+    && py >= ann.y - my && py <= ann.y + ann.height + my;
+}
 
 /**
  * Find intersection of two infinite lines defined by (p1,p2) and (p3,p4).
@@ -177,10 +191,13 @@ function getAnnotationCenterAndSize(ann) {
 // weergave, waar de aanwijzer boven een ANDERE pagina dan doc.currentPage
 // kan staan (hover/contextmenu); zonder pageNum geldt doc.currentPage.
 export function findAnnotationAt(x, y, pageNum = null) {
-  // Scale-aware hit tolerance: stay ~10 screen pixels at any zoom level
+  // Scale-aware hit tolerance: stay ~10 screen pixels at any zoom level.
+  // GEEN vloer in paginapunten meer: de oude vloer van 2 pt greep pas boven
+  // 500 % zoom — precies waar klein gewerkt wordt — en was bij 6400 % zo'n
+  // 128 schermpixels, zodat je niet meer naast een kleine vorm kon klikken.
   const doc = getActiveDocument();
-  const scale = doc?.scale || 1.5;
-  const tol = Math.max(10 / scale, 2);
+  const scale = getEffectiveScale();
+  const tol = schermPxNaarPt(10, scale);
   const targetPage = pageNum ?? (doc ? doc.currentPage : 1);
 
   // Search in reverse order (top annotations first)
@@ -288,7 +305,10 @@ export function findAnnotationAt(x, y, pageNum = null) {
           for (let i = 0; i < ann.points.length; i++) {
             const j = (i + 1) % ann.points.length;
             const cpDist = distanceToLine(x, y, ann.points[i].x, ann.points[i].y, ann.points[j].x, ann.points[j].y);
-            if (cpDist < tol + 12) return ann;
+            // De boogjes steken buiten de rand uit, maar schalen mee met de
+            // rand: marge evenredig met de randlengte, hooguit de oude 12 pt.
+            const cpRand = Math.hypot(ann.points[j].x - ann.points[i].x, ann.points[j].y - ann.points[i].y);
+            if (cpDist < tol + wolkUitstulping(cpRand, cpRand, 12)) return ann;
           }
         }
         break;
@@ -365,7 +385,7 @@ export function findAnnotationAt(x, y, pageNum = null) {
         // Transform click point by inverse rotation if annotation is rotated
         const hlCenter = { x: ann.x + ann.width / 2, y: ann.y + ann.height / 2 };
         const hlLocal = transformPointByInverseRotation(x, y, hlCenter.x, hlCenter.y, ann.rotation);
-        if (hlLocal.x >= ann.x && hlLocal.x <= ann.x + ann.width && hlLocal.y >= ann.y && hlLocal.y <= ann.y + ann.height) return ann;
+        if (_binnenVak(hlLocal.x, hlLocal.y, ann, scale)) return ann;
         break;
       case 'count': {
         // Telelement: cirkelmarker (straal 9) of symbool (22 pt) rond (x, y).
@@ -456,7 +476,10 @@ export function findAnnotationAt(x, y, pageNum = null) {
           if (bbLocal.x >= ann.x && bbLocal.x <= ann.x + ann.width &&
               bbLocal.y >= ann.y && bbLocal.y <= ann.y + ann.height) return ann;
           // Near border edges (covers the wavy scallops that extend slightly outside the bbox)
-          if (isPointNearRect(bbLocal.x, bbLocal.y, ann.x, ann.y, ann.width, ann.height, tol + 8)) return ann;
+          // De uitstulping schaalt mee met de vorm (minimaal twee boogjes per
+          // zijde); een vaste 8 pt was bij een wolk van 1 pt zestien keer de vorm.
+          if (isPointNearRect(bbLocal.x, bbLocal.y, ann.x, ann.y, ann.width, ann.height,
+            tol + wolkUitstulping(ann.width, ann.height, 8))) return ann;
         }
         break;
       }
@@ -468,15 +491,16 @@ export function findAnnotationAt(x, y, pageNum = null) {
         // Images/stamps/signatures/parametric symbols: selectable ANYWHERE inside the bounding box
         const imgCenter = { x: ann.x + ann.width / 2, y: ann.y + ann.height / 2 };
         const imgLocal = transformPointByInverseRotation(x, y, imgCenter.x, imgCenter.y, ann.rotation);
-        if (imgLocal.x >= ann.x && imgLocal.x <= ann.x + ann.width &&
-            imgLocal.y >= ann.y && imgLocal.y <= ann.y + ann.height) return ann;
+        if (_binnenVak(imgLocal.x, imgLocal.y, ann, scale)) return ann;
         break;
       }
       case 'viewport':
       case 'scaleRegion': {
         // Hit test on boundary edges and the top-left badge/label only,
         // so that annotations placed *inside* the region remain selectable.
-        const edgeTol = 6;
+        // Randmarge in schermpixels (px / zoom): 6 paginapunten was ingezoomd
+        // honderden pixels en bij een klein gebied groter dan het gebied zelf.
+        const edgeTol = schermPxNaarPt(6, scale);
         const nearLeft = Math.abs(x - ann.x) < edgeTol && y >= ann.y - edgeTol && y <= ann.y + ann.height + edgeTol;
         const nearRight = Math.abs(x - (ann.x + ann.width)) < edgeTol && y >= ann.y - edgeTol && y <= ann.y + ann.height + edgeTol;
         const nearTop = Math.abs(y - ann.y) < edgeTol && x >= ann.x - edgeTol && x <= ann.x + ann.width + edgeTol;
@@ -490,10 +514,10 @@ export function findAnnotationAt(x, y, pageNum = null) {
       case 'scheduleTable': {
         const imgCenter = { x: ann.x + ann.width / 2, y: ann.y + ann.height / 2 };
         const imgLocal = transformPointByInverseRotation(x, y, imgCenter.x, imgCenter.y, ann.rotation);
-        const inBounds = imgLocal.x >= ann.x && imgLocal.x <= ann.x + ann.width && imgLocal.y >= ann.y && imgLocal.y <= ann.y + ann.height;
+        const inBounds = _binnenVak(imgLocal.x, imgLocal.y, ann, scale);
         if (!inBounds) break;
         if (ann.stampName === 'TitleBlock') {
-          const bt = 6;
+          const bt = schermPxNaarPt(6, scale);
           const tt = ann.y + ann.height * 0.846;
           if (imgLocal.y >= tt) return ann;
           if (imgLocal.x <= ann.x + bt || imgLocal.x >= ann.x + ann.width - bt) return ann;

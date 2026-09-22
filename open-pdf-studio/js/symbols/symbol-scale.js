@@ -8,6 +8,8 @@
 // niets wat al op de tekening staat — dat is bewust: anders zou een tekening
 // onder je handen van maat veranderen.
 
+import { rondMaatAf } from '../annotations/minimummaat.js';
+
 /** Geen schaal gekozen = ware grootte. */
 export const STANDAARD_SCHAAL = 1;
 
@@ -44,7 +46,9 @@ export function schaalMaat(maat, factor) {
   // Ware grootte: niets aanraken. Ook niet afronden — een symbool met een
   // werkelijke maat in mm moet zijn exacte beeldverhouding houden.
   if (f === 1) return maat;
-  const rond = (n) => (Number.isFinite(n) ? Math.round(n * f * 100) / 100 : n);
+  // Afronding die een klein symbool zijn verhouding laat houden en nooit
+  // nul oplevert (0,004 rondde op honderdsten af naar 0).
+  const rond = (n) => (Number.isFinite(n) ? rondMaatAf(n * f) : n);
   return { ...maat, width: rond(maat.width), height: rond(maat.height) };
 }
 
@@ -59,8 +63,8 @@ export function schaalVakOmMidden(vak, factor) {
   if (!vak || f === 1) return vak;
   const cx = vak.x + vak.width / 2;
   const cy = vak.y + vak.height / 2;
-  const b = Math.round(vak.width * f * 100) / 100;
-  const h = Math.round(vak.height * f * 100) / 100;
+  const b = rondMaatAf(vak.width * f);
+  const h = rondMaatAf(vak.height * f);
   return { ...vak, x: cx - b / 2, y: cy - h / 2, width: b, height: h };
 }
 
