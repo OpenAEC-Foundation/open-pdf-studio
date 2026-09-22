@@ -4,7 +4,8 @@
 // Staat los van annotation-converter.js zodat de afleiding zonder de rest van
 // de app te testen is. Invoer is wat color-extraction.js uit het bestand leest
 // (`extra`), de /Rotate van de annotatie zoals PDF.js hem geeft
-// (annot.rotation) en de /Rotate van de pagina (viewport.rotation).
+// (annot.rotation), de /Rotate van de pagina (viewport.rotation) en de
+// NoRotate-vlag van de annotatie.
 
 /**
  * Weergaverotatie van een tekstvak in graden (zoals het model hem draagt).
@@ -13,9 +14,10 @@
  * @param {object} [p.extra]          uitvoer van extractAnnotationColors voor deze annotatie
  * @param {number} [p.annotRotatie]   annot.rotation van PDF.js (/Rotate van de annotatie)
  * @param {number} [p.paginaRotatie]  /Rotate van de pagina
+ * @param {boolean} [p.noRotate]      NoRotate-vlag (/F bit 5)
  * @returns {number}
  */
-export function tekstvakRotatie({ extra = {}, annotRotatie = 0, paginaRotatie = 0 } = {}) {
+export function tekstvakRotatie({ extra = {}, annotRotatie = 0, paginaRotatie = 0, noRotate = false } = {}) {
   const extraColors = extra || {};
   // Derive rotation. Priority:
   // 1. OPS_Rotation (our custom key, exact value). An EXPLICIT 0 counts
@@ -85,11 +87,22 @@ export function tekstvakRotatie({ extra = {}, annotRotatie = 0, paginaRotatie = 
   // dan wel degelijk geroteerd — de guard mag alleen vuren als zowel de
   // content als de /Matrix rotatievrij zijn, anders werden zulke labels
   // plat geladen (tekst horizontaal in een AABB-doos).
+  //
+  // "Visueel ongedraaid" betekent: ongedraaid in PDF-ruimte. De lezer draait
+  // de hele pagina — appearance inbegrepen — met /Rotate mee, dus op het
+  // scherm staat zo'n vak in de paginarotatie. De saver schrijft op een
+  // /Rotate-R-blad voor een vak met weergaverotatie R netto géén rotatie-cm
+  // (compensatie −R plus eigen draai +R); dat vak is dus R, niet 0 (#429).
+  // Alleen met de NoRotate-vlag draait de appearance niet mee en staat hij
+  // rechtop. Een sleutel die al gelijk is aan dat doel (modulo 360, bv. 270
+  // op een 270°-blad) blijft staan.
   const ftMatrixHoek = Math.abs(extraColors.matrixAngle || 0) % 360;
   const ftMatrixRotatievrij = ftMatrixHoek <= 1 || ftMatrixHoek >= 359;
   if (ftRotation !== 0 && extraColors.apHasRotationOp === false && extraColors.apInnerRect
       && ftMatrixRotatievrij) {
-    ftRotation = 0;
+    const pageRotAp = (((paginaRotatie || 0) % 360) + 360) % 360;
+    const doel = noRotate ? 0 : (pageRotAp > 180 ? pageRotAp - 360 : pageRotAp);
+    if (doel === 0 || (((ftRotation - doel) % 360) + 360) % 360 !== 0) ftRotation = doel;
   }
   return ftRotation;
 }

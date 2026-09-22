@@ -1194,6 +1194,7 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
         extra: extraColors,
         annotRotatie: annot.rotation,
         paginaRotatie: viewport.rotation,
+        noRotate: !!(annot.annotationFlags & 16), // Bit 5: NoRotate
       });
       // Rotation-aware viewport rect — its width/height already account for the
       // page /Rotate (they SWAP vs the raw PDF Rect on 90/270 pages).

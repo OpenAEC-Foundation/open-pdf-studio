@@ -80,13 +80,13 @@ async function schrijf({ paginaRotatie = 0, ap, sleutels = {}, matrix }) {
 }
 
 /** Terug inlezen zoals loader + annotation-converter. */
-async function laad(bytes, { paginaRotatie = 0, annotRotatie = 0 } = {}) {
+async function laad(bytes, { paginaRotatie = 0, annotRotatie = 0, noRotate = false } = {}) {
   const doc = await PDFDocument.load(bytes);
   const kaart = await extractAnnotationColors(1, doc);
   assert.equal(kaart.size, 1);
   const [sleutel, extra] = [...kaart.entries()][0];
   const rect = sleutel.split(',').map(Number);
-  const rotatie = tekstvakRotatie({ extra, annotRotatie, paginaRotatie });
+  const rotatie = tekstvakRotatie({ extra, annotRotatie, paginaRotatie, noRotate });
   const maat = tekstvakMaat({ rotatie, extra, rect, rectVp: weergaveRect(rect, paginaRotatie) });
   return { rotatie, ...maat, extra };
 }
@@ -161,6 +161,44 @@ test('NoRotate op een 90°-blad: ongedraaide appearance blijft rechtop (0)', asy
   // ongedraaide appearance staat op het scherm rechtop.
   const ap = platteAppearance({ signatuur: false });
   const bytes = await schrijf({ paginaRotatie: 90, ap, sleutels: { F: 4 | 16 } });
-  const uit = await laad(bytes, { paginaRotatie: 90 });
+  const uit = await laad(bytes, { paginaRotatie: 90, noRotate: true });
   assert.equal(uit.rotatie, 0);
+});
+
+// ── #429: geen rotatie-operator op een gedraaide pagina ─────────────────────
+//
+// Een vak waarvan de weergaverotatie gelijk is aan de paginarotatie krijgt
+// van de saver netto géén rotatie-cm (compensatie −R plus eigen draai +R).
+// Zo'n appearance staat op het scherm juist in de paginarotatie, niet op 0.
+
+test('#429: vak met de paginarotatie op een 90°-blad houdt rotatie 90 en 140×34', async () => {
+  const bytes = await schrijf({ paginaRotatie: 90, ap: saverAppearance({ rotatie: 90, paginaRotatie: 90 }), sleutels: { OPS_Rotation: 90 } });
+  const uit = await laad(bytes, { paginaRotatie: 90 });
+  assert.equal(uit.extra.apHasRotationOp, false);
+  verwacht(uit, 90, W_VAK, H_VAK, 'blad 90');
+});
+
+test('#429: hetzelfde op een 180°-blad (rotatie 180) en een 270°-blad (rotatie −90 of 270)', async () => {
+  const gevallen = [[180, 180], [270, -90], [270, 270]];
+  for (const [paginaRotatie, rotatie] of gevallen) {
+    const bytes = await schrijf({ paginaRotatie, ap: saverAppearance({ rotatie, paginaRotatie }), sleutels: { OPS_Rotation: rotatie } });
+    verwacht(await laad(bytes, { paginaRotatie }), rotatie, W_VAK, H_VAK, `blad ${paginaRotatie} rotatie ${rotatie}`);
+  }
+});
+
+test('#429: afwijkende sleutel naast een ongedraaide appearance op een 90°-blad wordt 90', async () => {
+  // De appearance beslist: zonder rotatie-operator is de weergaverotatie de
+  // paginarotatie, wat de sleutel ook zegt.
+  const bytes = await schrijf({ paginaRotatie: 90, ap: saverAppearance({ rotatie: 90, paginaRotatie: 90 }), sleutels: { OPS_Rotation: -90 } });
+  verwacht(await laad(bytes, { paginaRotatie: 90 }), 90, W_VAK, H_VAK, 'afwijkende sleutel');
+});
+
+test('#429: extern vak zonder sleutel op een 90°-blad volgt de paginarotatie', async () => {
+  // Geen /OPS_Rotation en geen eigen tekststaat-signatuur (dus geen
+  // oude-saver-uitvoer): elke lezer toont het vak meegedraaid met de pagina.
+  const ap = platteAppearance({ signatuur: false });
+  const bytes = await schrijf({ paginaRotatie: 90, ap });
+  const uit = await laad(bytes, { paginaRotatie: 90 });
+  assert.equal(uit.extra.apLegacyUnrotated, undefined);
+  verwacht(uit, 90, W_VAK, H_VAK, 'extern zonder sleutel');
 });
