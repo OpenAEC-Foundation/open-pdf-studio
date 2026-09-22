@@ -308,6 +308,22 @@ export function tekstvakMinimum(ann) {
   };
 }
 
+/** Minimale rasterzijde (pixels) van de appearance van een parametrisch symbool. */
+export const MIN_SYMBOOL_RASTER_PX = 64;
+
+/**
+ * Pixels per paginapunt voor de raster-appearance van een symbool. Gewoonlijk
+ * `pxPerPt`; een klein symbool krijgt méér zodat de langste zijde minstens
+ * MIN_SYMBOOL_RASTER_PX pixels is (een staaf van 0,3 pt kreeg anders een
+ * appearance van 1 pixel), een groot symbool minder zodat het canvas niet
+ * boven `maxPx` uitkomt.
+ */
+export function symboolRasterPxPerPt(langsteZijdePt, pxPerPt = 4, minPx = MIN_SYMBOOL_RASTER_PX, maxPx = 4000) {
+  const zijde = klemMaat(langsteZijdePt);
+  const gewenst = Math.max(pxPerPt, minPx / zijde);
+  return Math.max(0.5, Math.min(gewenst, maxPx / zijde));
+}
+
 /**
  * Lees een ingetypte maat (paneel, zwevende invoer). Elke positieve waarde
  * mag, met decimalen (punt of komma); onder de technische ondergrens wordt

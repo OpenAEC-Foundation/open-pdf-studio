@@ -43,6 +43,7 @@ import { labelHasNumericField } from './editable-numbers-providers.js';
 import { halftoneTypes as evHalftoneTypes } from '../solid/stores/elementVisibilityStore.js';
 import { isAnnotationHiddenInView } from './view-filters.js';
 import { kruisEindpuntenEllips } from './kruis-geometrie.js';
+import { klemMaat, symboolRasterPxPerPt } from './minimummaat.js';
 import {
   getPageRotationMatrix,
   resolveTextEditLineStyle,
@@ -292,14 +293,18 @@ function drawTextboxLeader(ctx, annotation, leader, strokeColor, lineWidth) {
 // annotation Rect), so a rotated symbol never clips.
 export function renderParametricSymbolToPng(annotation, pxPerUnit = 4) {
   try {
-    const w = Math.max(1, annotation.width || 1);
-    const h = Math.max(1, annotation.height || 1);
+    // Alleen de technische ondergrens: een symbool kleiner dan 1 pt (een
+    // wapeningsstaaf van 12 mm op 1:100 is 0,34 pt) kreeg een appearance van
+    // 1 pt, groter dan zijn geometrie.
+    const w = klemMaat(annotation.width);
+    const h = klemMaat(annotation.height);
     const rot = ((annotation.rotation || 0) * Math.PI) / 180;
     const cosA = Math.abs(Math.cos(rot)), sinA = Math.abs(Math.sin(rot));
     const aabbW = w * cosA + h * sinA;   // rotation-expanded bbox = saver Rect
     const aabbH = w * sinA + h * cosA;
-    // Cap so a huge symbol can't allocate an enormous canvas.
-    const px = Math.max(0.5, Math.min(pxPerUnit, 4000 / Math.max(aabbW, aabbH)));
+    // Klein symbool: genoeg pixels op de langste zijde (was 1-4 pixels);
+    // groot symbool: cap zodat het canvas niet enorm wordt.
+    const px = symboolRasterPxPerPt(Math.max(aabbW, aabbH), pxPerUnit);
     const cw = Math.max(1, Math.round(aabbW * px));
     const ch = Math.max(1, Math.round(aabbH * px));
     const canvas = document.createElement('canvas');

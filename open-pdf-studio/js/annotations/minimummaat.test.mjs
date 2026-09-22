@@ -6,6 +6,7 @@ import {
   nietNul, normaliseerRechthoek, schaalRechthoekMetGreep, isKlikSleep,
   raakMarge, wolkUitstulping, saneerMaatVelden, tekstvakMinimum,
   normaliseerVormMaat, leesMaatInvoer, toonMaat, valideerMaatPatch,
+  symboolRasterPxPerPt, MIN_SYMBOOL_RASTER_PX,
 } from './minimummaat.js';
 
 const near = (a, b, eps = 1e-9) => Math.abs(a - b) < eps;
@@ -389,4 +390,19 @@ test('valideerMaatPatch: elke positieve maat mag; onder de technische ondergrens
   assert.equal(klein.patch.width, MIN_VORM_MAAT_PT);
   // Een patch zonder maatvelden gaat ongemoeid door.
   assert.deepEqual(valideerMaatPatch({ text: 'abc' }), { ok: true, patch: { text: 'abc' } });
+});
+
+test('symboolRasterPxPerPt: een klein symbool krijgt genoeg pixels, een groot symbool niet te veel', () => {
+  // Gewoon symbool van 40 pt: 4 px per pt, 160 px.
+  assert.equal(symboolRasterPxPerPt(40), 4);
+  // Wapeningsstaaf van 0,34 pt: was 1 pixel, nu minstens MIN_SYMBOOL_RASTER_PX.
+  const klein = symboolRasterPxPerPt(0.34);
+  assert.ok(near(klein * 0.34, MIN_SYMBOOL_RASTER_PX), String(klein * 0.34));
+  // Op de technische ondergrens: eindig en genoeg pixels.
+  const grens = symboolRasterPxPerPt(MIN_VORM_MAAT_PT);
+  assert.ok(Number.isFinite(grens) && grens * MIN_VORM_MAAT_PT >= MIN_SYMBOOL_RASTER_PX);
+  // Nul of NaN: geen deling door nul.
+  for (const v of [0, NaN, undefined, -3]) assert.ok(Number.isFinite(symboolRasterPxPerPt(v)), String(v));
+  // Groot symbool van 2000 pt: cap op 4000 px = 2 px per pt.
+  assert.equal(symboolRasterPxPerPt(2000), 2);
 });
