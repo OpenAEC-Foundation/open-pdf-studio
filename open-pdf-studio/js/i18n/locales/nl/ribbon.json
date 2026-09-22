@@ -97,7 +97,9 @@
     "resizePages": "Paginaformaat",
     "resize": "Formaat",
     "ifcExport": "Opslaan als IFC-report (.ifcreport)",
-    "emailPdf": "Verzenden per e-mail (PDF als bijlage)"
+    "emailPdf": "Verzenden per e-mail (PDF als bijlage)",
+    "cadExport": "Naar CAD",
+    "cadExportTitle": "Exporteer de vectortekening naar DXF of DWG"
   },
   "comment": {
     "scaleRegion": "Schaalgebied",

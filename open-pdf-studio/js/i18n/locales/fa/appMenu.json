@@ -63,7 +63,9 @@
     "importXfdf": "درون‌ریزی حاشیه‌نویسی‌ها (XFDF)",
     "importXfdfDesc": "درون‌ریزی حاشیه‌نویسی‌ها از یک فایل XFDF به سند فعلی",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "نقشه CAD (DWG، DXF)",
+    "importCadDesc": "درون‌ریزی نقشه DWG یا DXF به‌صورت صفحه PDF با مقیاس، همراه با لایه‌ها و مقیاس اندازه‌گیری"
   },
   "exportPanel": {
     "title": "صدور",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "نقشه CAD (DXF، DWG)",
+    "exportCadDesc": "برون‌بری نقشه برداری به DXF یا DWG با لایه‌ها، مقیاس و محدوده"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

@@ -13,8 +13,12 @@ import {
 } from '../core/undo-manager.js';
 
 // Scale calibration: pixels per unit
-// Priority: scaleRegion (innermost containing point) → scaleBar/viewport →
-//          per-document scale → legacy global → default (px)
+// Priority: scaleRegion (innermost containing point) → viewport annotation →
+//          scaleBar on the page → PDF viewport (/VP + /Measure in the file
+//          itself, #400) → per-document scale → scaleBar elsewhere →
+//          legacy global → default (px)
+// The point-bound part of that order lives in schaal-op-punt.js (via
+// getScaleForPoint), shared with the light scale bridges.
 export function getMeasureScale(pageNum, x, y) {
   // 1. Check scaleRegion (innermost) — highest priority when a point is given
   if (pageNum != null && x != null && y != null) {
@@ -48,12 +52,17 @@ export function getMeasureScale(pageNum, x, y) {
 
 // Snap an endpoint so that the distance from (fromX,fromY) to the result
 // is rounded to the nearest N measured units (N from preferences).  Returns { x, y }.
-export function snapDistanceTo10(fromX, fromY, toX, toY) {
+// The scale is the one at the midpoint of the segment on `pageNum` (default:
+// the current page) — the same source calculateDistance uses for the label,
+// so a segment inside a PDF viewport or scale region snaps to round measured
+// values instead of round paper points (#400).
+export function snapDistanceTo10(fromX, fromY, toX, toY, pageNum) {
   const dx = toX - fromX, dy = toY - fromY;
   const pixelDist = Math.sqrt(dx * dx + dy * dy);
   if (pixelDist === 0) return { x: toX, y: toY };
   const step = state.preferences.measureCtrlSnap || 10;
-  const ms = getMeasureScale();
+  const page = pageNum ?? getActiveDocument()?.currentPage ?? 1;
+  const ms = getMeasureScale(page, (fromX + toX) / 2, (fromY + toY) / 2);
   const measuredValue = pixelDist / ms.pixelsPerUnit;
   const snappedValue = Math.max(Math.round(measuredValue / step) * step, step);
   const ratio = (snappedValue * ms.pixelsPerUnit) / pixelDist;

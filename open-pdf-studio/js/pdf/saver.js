@@ -315,6 +315,12 @@ async function _savePDFNu(saveAsPath) {
     }
 
     const pdfDocLib = await PDFDocument.load(existingPdfBytes);
+    // Een voorbeeld van het importvenster kan inhoud missen en wordt nooit
+    // als document opgeslagen (#400).
+    {
+      const { isVoorbeeldPdf } = await import('./cad-import-logica.js');
+      if (isVoorbeeldPdf(pdfDocLib, { PDFName })) throw new Error(i18next.t('previewPdfRefused'));
+    }
     // Alles met een hoger objectnummer maakt deze save zelf aan — zie het
     // knipsel-opruimen vlak voor pdfDocLib.save().
     const eersteNieuwObject = pdfDocLib.context.largestObjectNumber;
@@ -650,7 +656,7 @@ async function _savePDFNu(saveAsPath) {
             // meer te verplaatsen, wel nog steeds vector.
             if (ann.flattened) {
               try {
-                await tekenKnipselInPagina(page, gebouwd.ingebed.ref, gebouwd.plaatsing, opacity);
+                await tekenKnipselInPagina(page, gebouwd.ingebed.ref, gebouwd.plaatsing, opacity, ann.belowContent === true);
               } catch (err) {
                 console.warn(`[saver] knipsel ${ann.id} vastleggen mislukt:`, err.message);
               }
@@ -670,6 +676,9 @@ async function _savePDFNu(saveAsPath) {
               OPS_SnippetKey: pdfTextString(String(ann.snippetKey)),
               OPS_SrcBox: [ann.srcBox.left, ann.srcBox.bottom, ann.srcBox.right, ann.srcBox.top],
               OPS_SrcLabel: pdfTextString(ann.srcLabel || ''),
+              // Een tekening die als onderlegger geplaatst is, komt bij het
+              // vastzetten onder de bestaande inhoud; dat blijft zo na heropenen.
+              ...(ann.belowContent === true ? { OPS_BelowContent: true } : {}),
             });
             attachVectorAP(context, annotDict, gebouwd, kRect);
             break;
@@ -3154,6 +3163,15 @@ export async function savePDFAs() {
         try {
           if (window.__TAURI__?.fs?.remove) await window.__TAURI__.fs.remove(tempPath);
         } catch (e) { console.warn('[blank-pdf] temp cleanup failed:', e); }
+      }
+      // And every other working file the app made for this document (the PDF
+      // of an imported drawing, earlier `opds-edit` copies) that it no longer
+      // refers to (#400).
+      if (doc) {
+        try {
+          const { losgelatenWerkbestanden, ruimWerkbestandenOp } = await import('./document-release.js');
+          await ruimWerkbestandenOp(doc, losgelatenWerkbestanden(doc, state.documents.filter((d) => d !== doc)));
+        } catch (e) { console.warn('[save-as] working files not removed:', e); }
       }
     }
     return success || false;

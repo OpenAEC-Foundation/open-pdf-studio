@@ -78,7 +78,9 @@
     "find": "Hitta",
     "findCtrlF": "Hitta (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "Till CAD",
+    "cadExportTitle": "Exportera vektorritningen till DXF eller DWG"
   },
   "comment": {
     "drawing": "Ritning",

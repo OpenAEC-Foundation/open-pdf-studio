@@ -111,6 +111,7 @@
     "internalLink": "Interný odkaz"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "Toto PDF je náhľad z importu výkresu a môže byť neúplné. Nedá sa vložiť ani uložiť; importujte výkres znova.",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

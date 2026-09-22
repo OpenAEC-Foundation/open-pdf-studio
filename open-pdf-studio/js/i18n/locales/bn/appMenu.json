@@ -63,7 +63,9 @@
     "importXfdf": "টীকা আমদানি (XFDF)",
     "importXfdfDesc": "একটি XFDF ফাইল থেকে বর্তমান নথিতে টীকা আমদানি করুন",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "CAD অঙ্কন (DWG, DXF)",
+    "importCadDesc": "একটি DWG বা DXF অঙ্কনকে স্কেল অনুযায়ী PDF পৃষ্ঠা হিসেবে আমদানি করুন, স্তর ও পরিমাপ স্কেলসহ"
   },
   "exportPanel": {
     "title": "রপ্তানি",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "CAD অঙ্কন (DXF, DWG)",
+    "exportCadDesc": "স্তর, স্কেল ও এলাকাসহ ভেক্টর অঙ্কন DXF বা DWG-তে রপ্তানি করুন"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

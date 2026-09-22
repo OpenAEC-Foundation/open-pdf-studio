@@ -63,7 +63,9 @@
     "importXfdf": "주석 가져오기 (XFDF)",
     "importXfdfDesc": "XFDF 파일에서 현재 문서로 주석을 가져옵니다",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "CAD 도면 (DWG, DXF)",
+    "importCadDesc": "DWG 또는 DXF 도면을 축척에 맞춰 PDF 페이지로 가져옵니다. 도면층과 측정 축척 포함"
   },
   "exportPanel": {
     "title": "내보내기",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "CAD 도면(DXF, DWG)",
+    "exportCadDesc": "벡터 도면을 도면층, 축척, 영역과 함께 DXF 또는 DWG로 내보내기"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

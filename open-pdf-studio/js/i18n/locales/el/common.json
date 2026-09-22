@@ -111,6 +111,7 @@
     "internalLink": "Εσωτερικός σύνδεσμος"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "Αυτό το PDF είναι προεπισκόπηση από την εισαγωγή του σχεδίου και ίσως είναι ελλιπές. Δεν μπορεί να εισαχθεί ή να αποθηκευτεί· εισαγάγετε ξανά το σχέδιο.",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

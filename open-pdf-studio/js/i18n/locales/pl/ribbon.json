@@ -78,7 +78,9 @@
     "find": "Znajdź",
     "findCtrlF": "Znajdź (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "Do CAD",
+    "cadExportTitle": "Eksportuj rysunek wektorowy do DXF lub DWG"
   },
   "comment": {
     "drawing": "Rysowanie",

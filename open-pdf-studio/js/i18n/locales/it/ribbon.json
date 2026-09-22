@@ -78,7 +78,9 @@
     "find": "Trova",
     "findCtrlF": "Trova (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "Verso CAD",
+    "cadExportTitle": "Esporta il disegno vettoriale in DXF o DWG"
   },
   "comment": {
     "drawing": "Disegno",

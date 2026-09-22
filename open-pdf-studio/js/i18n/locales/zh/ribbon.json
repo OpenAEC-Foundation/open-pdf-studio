@@ -78,7 +78,9 @@
     "find": "查找",
     "findCtrlF": "查找 (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "导出 CAD",
+    "cadExportTitle": "将矢量图纸导出为 DXF 或 DWG"
   },
   "comment": {
     "drawing": "绘图",

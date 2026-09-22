@@ -170,6 +170,23 @@ test('knipselUitExtra maakt er een knipsel van als de bronpagina er is', () => {
   assert.deepEqual(knipselUitExtra(extra, () => true), { snippetKey: 'abc', srcBox: VAK, srcLabel: 'x' });
 });
 
+test('een onderlegger onthoudt dat hij onder de inhoud hoort', async () => {
+  const extra = {
+    opsSubtype: 'vectorSnippet',
+    vectorSnippet: { snippetKey: 'abc', srcBox: VAK, srcLabel: 'x', belowContent: true },
+  };
+  assert.equal(knipselUitExtra(extra, () => true).belowContent, true);
+  // Van de stempel gelezen: alleen een echte booleaan telt.
+  const doc = await PDFDocument.create();
+  const stempel = (onder) => doc.context.obj({
+    OPS_SnippetKey: PDFString.of('abc'), OPS_SrcBox: [VAK.left, VAK.bottom, VAK.right, VAK.top], ...onder,
+  });
+  assert.equal((await leesKnipselVelden(stempel({ OPS_BelowContent: true }), doc.context)).belowContent, true);
+  assert.equal((await leesKnipselVelden(stempel({ OPS_BelowContent: false }), doc.context)).belowContent, undefined);
+  assert.equal((await leesKnipselVelden(stempel({ OPS_BelowContent: 1 }), doc.context)).belowContent, undefined);
+  assert.equal((await leesKnipselVelden(stempel({}), doc.context)).belowContent, undefined);
+});
+
 test('zonder bronpagina blijft het een stempel die zijn appearance toont', () => {
   const extra = {
     opsSubtype: 'vectorSnippet',

@@ -78,7 +78,9 @@
     "find": "Tafuta",
     "findCtrlF": "Tafuta (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "Kwenda CAD",
+    "cadExportTitle": "Hamisha mchoro wa vekta kwenda DXF au DWG"
   },
   "comment": {
     "drawing": "Kuchora",

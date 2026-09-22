@@ -111,6 +111,7 @@
     "internalLink": "Tautan Internal"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "PDF ini adalah pratinjau dari impor gambar dan mungkin tidak lengkap. PDF ini tidak dapat disisipkan atau disimpan; impor ulang gambarnya.",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

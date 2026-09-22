@@ -132,6 +132,7 @@
     "internalLink": "Internal Link"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "This PDF is a preview from the drawing import and may be incomplete. It cannot be inserted or saved; import the drawing again.",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

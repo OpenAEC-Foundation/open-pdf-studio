@@ -63,7 +63,9 @@
     "importXfdf": "Impor Anotasi (XFDF)",
     "importXfdfDesc": "Impor anotasi dari file XFDF ke dokumen saat ini",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "Gambar CAD (DWG, DXF)",
+    "importCadDesc": "Impor gambar DWG atau DXF sebagai halaman PDF berskala, dengan lapisan dan skala pengukuran"
   },
   "exportPanel": {
     "title": "Ekspor",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "Gambar CAD (DXF, DWG)",
+    "exportCadDesc": "Ekspor gambar vektor ke DXF atau DWG dengan lapisan, skala, dan area"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

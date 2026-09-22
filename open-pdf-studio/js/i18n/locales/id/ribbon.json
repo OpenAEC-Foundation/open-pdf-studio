@@ -78,7 +78,9 @@
     "find": "Temukan",
     "findCtrlF": "Temukan (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "Ke CAD",
+    "cadExportTitle": "Ekspor gambar vektor ke DXF atau DWG"
   },
   "comment": {
     "drawing": "Gambar",

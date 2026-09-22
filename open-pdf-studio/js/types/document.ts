@@ -91,6 +91,9 @@ export interface DocumentState {
   pdfaCompliance: string | null;
   pdfADismissed: boolean;
   measureScale: MeasureScale | null;
+  /** Meetschalen uit de PDF zelf (/VP + /Measure), per 1-gebaseerd paginanummer,
+   *  in app-ruimte; alleen gelezen (js/pdf/pdf-viewports.js, #400). */
+  pdfViewports?: Record<number, Array<{ x: number; y: number; width: number; height: number; pixelsPerUnit: number; unit: string; mmPerPoint: number; ratio: string; name: string }>>;
   /** Benoemde lijnstijl-presets — persist in de PDF (catalog /OPS_StylePresets). */
   stylePresets: StylePreset[];
   // Internal loader state

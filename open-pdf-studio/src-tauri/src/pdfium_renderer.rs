@@ -76,7 +76,10 @@ static PDFIUM_INPROC_LOCK: Mutex<()> = Mutex::new(());
 
 /// Acquire the in-proc PDFium lock, recovering from a poisoned mutex (a prior
 /// panic mid-render) rather than permanently disabling all rendering.
-fn inproc_guard() -> std::sync::MutexGuard<'static, ()> {
+///
+/// `pub(crate)`: the CAD export (`cad_export.rs`) reads page objects through
+/// the same PDFium library and must hold this lock while it does.
+pub(crate) fn inproc_guard() -> std::sync::MutexGuard<'static, ()> {
     PDFIUM_INPROC_LOCK.lock().unwrap_or_else(|p| p.into_inner())
 }
 

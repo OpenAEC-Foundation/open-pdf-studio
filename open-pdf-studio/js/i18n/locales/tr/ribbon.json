@@ -78,7 +78,9 @@
     "find": "Bul",
     "findCtrlF": "Bul (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "CAD'e",
+    "cadExportTitle": "Vektör çizimi DXF veya DWG olarak dışa aktarın"
   },
   "comment": {
     "drawing": "Çizim",

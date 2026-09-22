@@ -78,7 +78,9 @@
     "find": "Намери",
     "findCtrlF": "Намери (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "Към CAD",
+    "cadExportTitle": "Експорт на векторния чертеж в DXF или DWG"
   },
   "comment": {
     "drawing": "Чертане",

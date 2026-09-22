@@ -78,7 +78,9 @@
     "find": "Cari",
     "findCtrlF": "Cari (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "Ke CAD",
+    "cadExportTitle": "Eksport lukisan vektor ke DXF atau DWG"
   },
   "comment": {
     "drawing": "Lukisan",

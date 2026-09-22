@@ -78,7 +78,9 @@
     "find": "Cerca",
     "findCtrlF": "Cerca (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "A CAD",
+    "cadExportTitle": "Exporta el dibuix vectorial a DXF o DWG"
   },
   "comment": {
     "drawing": "Dibuix",

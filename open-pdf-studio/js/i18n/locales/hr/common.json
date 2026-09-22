@@ -111,6 +111,7 @@
     "internalLink": "Unutarnja poveznica"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "Ovaj PDF je pregled iz uvoza crteža i može biti nepotpun. Ne može se umetnuti ni spremiti; ponovno uvezite crtež.",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

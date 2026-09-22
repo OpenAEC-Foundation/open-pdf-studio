@@ -3,6 +3,29 @@
 version = 3
 
 [[package]]
+name = "acadrust"
+version = "0.5.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6298485f7afd00af7880f285f01ab387143a1fbb20c42f9048830c95b19dda5d"
+dependencies = [
+ "ahash 0.8.12",
+ "anyhow",
+ "bitflags 2.11.1",
+ "byteorder",
+ "encoding_rs",
+ "flate2",
+ "indexmap 2.14.0",
+ "itoa",
+ "memmap2",
+ "nom 7.1.3",
+ "once_cell",
+ "rayon",
+ "ryu",
+ "thiserror 1.0.69",
+ "web-time",
+]
+
+[[package]]
 name = "adler2"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -28,6 +51,20 @@ dependencies = [
  "getrandom 0.2.17",
  "once_cell",
  "version_check",
+]
+
+[[package]]
+name = "ahash"
+version = "0.8.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a15f179cd60c4584b8a8c596927aadc462e27f2ca70c04e0071964a73ba7a75"
+dependencies = [
+ "cfg-if",
+ "getrandom 0.3.4",
+ "once_cell",
+ "serde",
+ "version_check",
+ "zerocopy",
 ]
 
 [[package]]
@@ -2283,7 +2320,7 @@ version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8a9ee70c43aaf417c914396645a0fa852624801b24ebb7ae78fe8272889ac888"
 dependencies = [
- "ahash",
+ "ahash 0.7.8",
 ]
 
 [[package]]
@@ -3599,6 +3636,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "open-pdf-cad"
+version = "0.1.0"
+dependencies = [
+ "acadrust",
+ "flate2",
+ "libloading 0.9.0",
+ "memmap2",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "open-pdf-render"
 version = "0.1.0"
 dependencies = [
@@ -3636,6 +3685,7 @@ dependencies = [
  "lopdf",
  "memmap2",
  "open",
+ "open-pdf-cad",
  "open-pdf-render",
  "p256",
  "p384",

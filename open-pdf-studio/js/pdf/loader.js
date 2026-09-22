@@ -522,6 +522,24 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
       }).catch(() => { /* presets zijn optioneel — negeer leesfouten */ });
     }
 
+    // Meetschalen uit de PDF zelf (/VP + /Measure): CAD-plots en de DWG/DXF-
+    // import brengen ze mee, zodat de maatvoering meteen klopt (#400). Alleen
+    // lezen, niet-blokkerend, net als de stijl-presets hierboven.
+    // De lezing draagt een kenmerk: wijzigt de gebruiker de pagina's terwijl
+    // ze nog loopt, dan komt deze uitkomst (van de oude bytes) niet meer
+    // binnen en leest de paginabeheerder de nieuwe bytes zelf.
+    import('./pdf-viewports.js').then(async ({ leesPdfViewports, beginViewportLezing, rondViewportLezingAf }) => {
+      if (isClosed()) return;
+      const kenmerk = beginViewportLezing(doc);
+      try {
+        const pdfLibDoc = await getSharedPdfLibDoc(doc);
+        const geldig = !isClosed() && pdfLibDoc;
+        rondViewportLezingAf(doc, kenmerk, geldig ? leesPdfViewports(pdfLibDoc) : null);
+      } catch {
+        rondViewportLezingAf(doc, kenmerk, null); // viewports zijn optioneel
+      }
+    }).catch(() => { /* viewports zijn optioneel — negeer leesfouten */ });
+
     // Load persisted measure scale for this document (data-only)
     {
       const { loadDocumentScale } = await import('../annotations/measurement.js');
@@ -745,7 +763,8 @@ export async function openPDFFile() {
     } catch { /* recents is best-effort */ }
 
     // Allow selecting multiple PDFs at once; each opens in its own tab.
-    const result = await openFileDialog(undefined, { defaultPath, multiple: true });
+    // CAD-tekeningen mogen ook: die gaan via het importvenster (#400).
+    const result = await openFileDialog(['pdf', 'dwg', 'dxf'], { defaultPath, multiple: true });
     if (result) {
       // Tauri returns an array with { multiple: true }; the invoke-fallback
       // still returns a single string — normalize to an array of paths.
@@ -754,6 +773,9 @@ export async function openPDFFile() {
       // The last selected file ends up as the active tab — same behaviour as
       // opening files one after another by hand.
       for (const path of paths) {
+        // Een CAD-tekening is geen PDF: die gaat via het importvenster (#400).
+        const { openAlsCadTekening } = await import('./cad-import.js');
+        if (await openAlsCadTekening(path)) continue;
         // Create a new tab for the file (will switch to existing tab if already open)
         const { index } = createTab(path);
         await loadPDFIfNeeded(path, index);

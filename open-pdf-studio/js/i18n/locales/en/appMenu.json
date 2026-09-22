@@ -75,7 +75,9 @@
     "importXfdf": "Import Annotations (XFDF)",
     "importXfdfDesc": "Import annotations from an XFDF file into the current document",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "CAD drawing (DWG, DXF)",
+    "importCadDesc": "Import a DWG or DXF drawing as a PDF page to scale, with layers and a measuring scale"
   },
   "exportPanel": {
     "title": "Export",
@@ -105,7 +107,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "CAD drawing (DXF, DWG)",
+    "exportCadDesc": "Export the vector drawing to DXF or DWG, with layers, scale and area"
   },
   "extensionsPanel": {
     "title": "Extensions",

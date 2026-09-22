@@ -63,7 +63,9 @@
     "importXfdf": "Importovat anotace (XFDF)",
     "importXfdfDesc": "Importovat anotace ze souboru XFDF do aktuálního dokumentu",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "Výkres CAD (DWG, DXF)",
+    "importCadDesc": "Importovat výkres DWG nebo DXF jako stránku PDF v měřítku, s hladinami a měřítkem"
   },
   "exportPanel": {
     "title": "Exportovat",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "Výkres CAD (DXF, DWG)",
+    "exportCadDesc": "Exportovat vektorový výkres do DXF nebo DWG s hladinami, měřítkem a oblastí"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

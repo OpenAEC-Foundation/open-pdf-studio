@@ -97,7 +97,9 @@
     "resizePages": "Resize Pages",
     "resize": "Resize",
     "ifcExport": "Save as IFC report (.ifcreport)",
-    "emailPdf": "Send by email (PDF as attachment)"
+    "emailPdf": "Send by email (PDF as attachment)",
+    "cadExport": "To CAD",
+    "cadExportTitle": "Export the vector drawing to DXF or DWG"
   },
   "comment": {
     "scaleRegion": "Scale Region",

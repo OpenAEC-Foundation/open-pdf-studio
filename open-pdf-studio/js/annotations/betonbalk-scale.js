@@ -32,7 +32,8 @@ function _anchor(ann) {
 
 /**
  * Pagina-pixels per werkelijke millimeter op de positie van de balk.
- * Prioriteit: schaalgebied → viewport/schaalbalk/doc-schaal. 0 = onbekend
+ * Prioriteit: schaalgebied → viewport/schaalbalk/PDF-viewport (/VP)/doc-schaal
+ * (getScaleForPoint, volgorde in schaal-op-punt.js). 0 = onbekend
  * (dan valt halfWidthFromMm terug op de vaste 1:100-omrekening).
  */
 export function betonbalkPxPerMm(ann) {

@@ -78,7 +78,9 @@
     "find": "Gasire",
     "findCtrlF": "Gasire (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "Spre CAD",
+    "cadExportTitle": "Exportă desenul vectorial în DXF sau DWG"
   },
   "comment": {
     "drawing": "Desen",

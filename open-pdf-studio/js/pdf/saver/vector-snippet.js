@@ -68,8 +68,11 @@ export function knipselApOps(rect, knipselB, knipselH, naam, paginaRot = 0) {
  * rechtstreeks in de inhoudstroom van de pagina. Niet via page.drawPage — die
  * schaalt met de maat van het ongedraaide bronvak, wat een knipsel uit een
  * gedraaid blad vervormt.
+ *
+ * Met `onder` komt het knipsel vóór de bestaande inhoud te staan, dus eronder:
+ * dat is de tekening die als onderlegger op de pagina gelegd is (#400).
  */
-export async function tekenKnipselInPagina(page, ingebedRef, plaatsing, opacity = 1) {
+export async function tekenKnipselInPagina(page, ingebedRef, plaatsing, opacity = 1, onder = false) {
   const {
     pushGraphicsState, popGraphicsState, concatTransformationMatrix, drawObject, setGraphicsState,
   } = await import('pdf-lib');
@@ -81,7 +84,29 @@ export async function tekenKnipselInPagina(page, ingebedRef, plaatsing, opacity 
     ops.push(setGraphicsState(page.node.newExtGState('GS', gs)));
   }
   ops.push(concatTransformationMatrix(...plaatsing.map(getal)), drawObject(naam), popGraphicsState());
+  if (onder) {
+    voegInhoudVooraanToe(page, ops.map((op) => op.toString()).join('\n'));
+    return;
+  }
   page.pushOperators(...ops);
+}
+
+/**
+ * Zet een inhoudsstroom vóór wat de pagina al heeft. `page.pushOperators`
+ * schrijft altijd achteraan (dus bóven de bestaande inhoud); een onderlegger
+ * hoort eronder. De operatoren moeten zelf in balans zijn (q … Q), zodat de
+ * bestaande inhoud met een schone grafische toestand begint.
+ * @param {import('pdf-lib').PDFPage} page
+ * @param {string} ops
+ */
+export function voegInhoudVooraanToe(page, ops) {
+  const context = page.doc.context;
+  const ref = context.register(context.flateStream(new TextEncoder().encode(`${ops}\n`)));
+  // normalizedEntries maakt van /Contents een array als dat nog niet zo was.
+  const contents = page.node.normalizedEntries().Contents;
+  if (contents instanceof PDFArray) contents.insert(0, ref);
+  else page.node.set(PDFName.of('Contents'), context.obj([ref]));
+  return ref;
 }
 
 /**

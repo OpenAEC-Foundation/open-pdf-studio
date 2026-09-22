@@ -78,7 +78,9 @@
     "find": "খুঁজুন",
     "findCtrlF": "খুঁজুন (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "CAD-তে",
+    "cadExportTitle": "ভেক্টর অঙ্কন DXF বা DWG-তে রপ্তানি করুন"
   },
   "comment": {
     "drawing": "অঙ্কন",

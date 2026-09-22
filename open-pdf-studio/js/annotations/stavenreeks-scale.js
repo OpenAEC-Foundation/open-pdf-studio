@@ -24,7 +24,8 @@ const UNIT_TO_MM = { mm: 1, cm: 10, m: 1000, in: 25.4, ft: 304.8 };
  * schaalgebied dat de reeks overlapt, en is rotatie-onafhankelijk.
  *
  * Prioriteit — identiek aan measurement.getMeasureScale voor een punt:
- *   schaalgebied (scaleRegion) → viewport/scaleBar/doc-schaal (getScaleForPoint).
+ *   schaalgebied (scaleRegion) → viewport/scaleBar/PDF-viewport (/VP)/doc-schaal
+ *   (getScaleForPoint, volgorde in schaal-op-punt.js).
  * getScaleForPoint valt zelf al terug op doc.measureScale, dus die keten dekt
  * alle gekalibreerde gevallen.
  *

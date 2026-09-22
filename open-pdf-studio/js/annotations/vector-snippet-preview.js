@@ -120,16 +120,39 @@ async function render(ann, niveau) {
   const schaal = Math.min(niveau, MAX_PIXELS / Math.max(b, h));
   if (!(schaal > 0)) return null;
 
+  return rasterVanPad(pad, { x: regio.x, y: regio.y, width: b, height: h }, schaal);
+}
+
+/**
+ * Rastert een gebied van de eerste pagina van een PDF op schijf via de
+ * pdfium-worker. `regio` staat in weergaveruimte (punten, linksboven, y
+ * omlaag). Ook de voorbeeldweergave van de CAD-import gebruikt dit (#400),
+ * zodat er één renderroute is.
+ * @returns {Promise<ImageBitmap|null>}
+ */
+export async function rasterVanPad(pad, regio, schaal, paginaIndex = 0) {
+  const beeld = await rasterBytesVanPad(pad, regio, schaal, paginaIndex);
+  if (!beeld) return null;
+  return await createImageBitmap(new ImageData(beeld.rgba, beeld.breedte, beeld.hoogte));
+}
+
+/**
+ * Als `rasterVanPad`, maar geeft de ruwe beeldpunten (RGBA) terug, voor wie ze
+ * nog wil bewerken.
+ * @returns {Promise<{breedte:number, hoogte:number, rgba:Uint8ClampedArray}|null>}
+ */
+export async function rasterBytesVanPad(pad, regio, schaal, paginaIndex = 0) {
+  if (!pad || !(regio?.width > 0) || !(regio?.height > 0) || !(schaal > 0)) return null;
   const { invoke } = await import('../core/platform.js');
   const res = await invoke('render_pdf_page_region', {
     path: pad,
-    pageIndex: 0,
+    pageIndex: paginaIndex,
     scale: schaal,
     rotation: 0,
-    regionXPt: regio.x,
-    regionYPt: regio.y,
-    regionWPt: b,
-    regionHPt: h,
+    regionXPt: regio.x || 0,
+    regionYPt: regio.y || 0,
+    regionWPt: regio.width,
+    regionHPt: regio.height,
   });
 
   const bytes = res instanceof Uint8Array ? res : new Uint8Array(res);
@@ -140,7 +163,7 @@ async function render(ann, niveau) {
   const hh = dv.getUint32(4, true);
   if (w * hh * 4 !== bytes.length - 8) return null;
   const rgba = new Uint8ClampedArray(bytes.buffer, bytes.byteOffset + 8, w * hh * 4);
-  return await createImageBitmap(new ImageData(rgba, w, hh));
+  return { breedte: w, hoogte: hh, rgba };
 }
 
 /** Gooit de bitmaps van knipsels weg die niet meer bestaan. */

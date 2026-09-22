@@ -63,7 +63,9 @@
     "importXfdf": "Import adnotari (XFDF)",
     "importXfdfDesc": "Importati adnotari dintr-un fisier XFDF in documentul curent",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "Desen CAD (DWG, DXF)",
+    "importCadDesc": "Importă un desen DWG sau DXF ca pagină PDF la scară, cu straturi și o scară de măsurare"
   },
   "exportPanel": {
     "title": "Export",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "Desen CAD (DXF, DWG)",
+    "exportCadDesc": "Exportă desenul vectorial în DXF sau DWG, cu straturi, scară și zonă"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

@@ -111,6 +111,7 @@
     "internalLink": "Interner Link"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "Diese PDF ist eine Vorschau aus dem Zeichnungsimport und kann unvollständig sein. Sie kann nicht eingefügt oder gespeichert werden; importieren Sie die Zeichnung erneut.",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

@@ -111,6 +111,7 @@
     "internalLink": "உள் இணைப்பி"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "இந்த PDF வரைபட இறக்குமதியின் முன்னோட்டம்; இது முழுமையற்றதாக இருக்கலாம். இதைச் செருகவோ சேமிக்கவோ முடியாது; வரைபடத்தை மீண்டும் இறக்குமதி செய்யவும்.",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

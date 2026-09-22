@@ -829,6 +829,7 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
     case 'signature':
     case 'scaleBar':
     case 'scheduleTable':
+    case 'vectorSnippet':
     case 'parametricSymbol': {
       if (annotation.type === 'parametricSymbol'
           && getTemplate(annotation.symbolId)?.placement === 'two-point') {

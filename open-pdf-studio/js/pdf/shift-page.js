@@ -13,7 +13,7 @@ import { cloneAnnotation } from "../annotations/factory.js";
 import i18next from "../i18n/config.js";
 import { translateAnnotation } from "./resize-pages.js";
 import { applyOcrShift, resolveTargetPages, shiftOffsetPoints, visualToContentOffset } from "./shift-page-geometry.js";
-import { assertShiftable, shiftPageContent, shiftPageAnnotations } from "./shift-page-content.js";
+import { assertShiftable, shiftPageContent, shiftPageAnnotations, shiftPageViewports } from "./shift-page-content.js";
 import { PDFDocument } from "pdf-lib";
 
 export { resolveTargetPages };
@@ -80,6 +80,11 @@ export async function shiftPages(dxMm, dyMm, applyTo, fromPage = 1) {
       // Links, form fields and other annotations stored in the file are in
       // content space as well; the app's own annotations follow below.
       let moved = shiftPageAnnotations(pdfDoc, page, cx, cy, movedFileAnnotations);
+      // The measure scales the PDF carries (/VP) describe regions of the
+      // content: they move too, or the scale would apply next to the drawing
+      // and the way back to CAD would be shifted (#400). Not counted as
+      // "something moved": a viewport alone is not visible content.
+      shiftPageViewports(pdfDoc, page, cx, cy);
 
       // The app's annotations are stored in visual space.
       for (const ann of newAnnotations) {
