@@ -44,14 +44,20 @@ const HANDLE_SIZE = Number(constanten.match(/export const HANDLE_SIZE = (\d+);/)
 const doc = { scale: 1, currentPage: 1, annotations: [] };
 const state = { preferences: {}, shiftKeyPressed: false };
 
+// De pure rekenregels voor maat, raakmarge en greepkeuze draaien echt mee:
+// een lege stub zou elke raaktest en elke greep laten mislukken.
+const minimummaat = await import('./minimummaat.js');
+const greepKeuze = await import('./greep-keuze.js');
+
 const geometrie = await laadMetStubs('./geometry.js', {
+  ...minimummaat,
   state,
   getActiveDocument: () => doc,
   isAnnotationHiddenInView: (ann) => ann.hidden === true,
   getAnnotationType: () => null,
 });
-const grepen = await laadMetStubs('./handles.js', { HANDLE_SIZE, HANDLE_TYPES, state });
-const vervormen = await laadMetStubs('./transforms.js', { HANDLE_TYPES, state });
+const grepen = await laadMetStubs('./handles.js', { ...minimummaat, ...greepKeuze, HANDLE_SIZE, HANDLE_TYPES, state });
+const vervormen = await laadMetStubs('./transforms.js', { ...minimummaat, HANDLE_TYPES, state });
 
 const knipsel = (extra = {}) => ({
   id: 'k1', type: 'vectorSnippet', page: 1,
