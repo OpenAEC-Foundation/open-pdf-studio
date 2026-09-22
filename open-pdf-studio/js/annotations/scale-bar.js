@@ -1,6 +1,7 @@
 import { createAnnotation } from './factory.js';
-import { state, getActiveDocument } from '../core/state.js';
+import { getActiveDocument } from '../core/state.js';
 import { detectScaleInDocument, scaleFromScaleBar } from './document-scale.js';
+import { schaalOpPunt } from './schaal-op-punt.js';
 
 /**
  * Create a scale bar annotation at the given position.
@@ -46,40 +47,15 @@ export function createScaleBar(x, y) {
 }
 
 /**
- * Get the effective scale for a specific point on a specific page.
- * Logic:
- *  - If there is exactly 1 scaleBar across all pages → use its scale everywhere
- *  - If there are scaleBars on different pages → use the one on the same page
- *  - If there are multiple on the same page → check if point is within a region
- *  - Fallback to doc.measureScale
+ * Get the effective scale for a specific point on a specific page of the
+ * active document: viewport annotation → scale bar on the page → viewport
+ * from the PDF itself (/VP) → doc.measureScale → scale bar elsewhere. The
+ * order lives in schaal-op-punt.js; this is the shared entry point for
+ * getMeasureScale and the light scale bridges (stamps, systeemraster, …).
+ * Returns null when nothing is known.
  */
 export function getScaleForPoint(pageNum, x, y) {
-  const doc = getActiveDocument();
-  if (!doc) return doc?.measureScale || null;
-
-  // Check viewport annotations first (they define per-region scales)
-  const viewports = (doc.annotations || []).filter(a => a.type === 'viewport' && a.page === pageNum);
-  for (const vp of viewports) {
-    if (x >= vp.x && x <= vp.x + vp.width && y >= vp.y && y <= vp.y + vp.height) {
-      return { pixelsPerUnit: vp.pixelsPerUnit, unit: vp.unit, method: 'viewport' };
-    }
-  }
-
-  // Then check scaleBar annotations (document/page level scale)
-  const scaleBars = (doc.annotations || []).filter(a => a.type === 'scaleBar');
-
-  if (scaleBars.length === 0) {
-    return doc.measureScale || null;
-  }
-
-  // Prefer scale bar on same page
-  const samePage = scaleBars.filter(sb => sb.page === pageNum);
-  if (samePage.length > 0) {
-    return { pixelsPerUnit: samePage[0].pixelsPerUnit, unit: samePage[0].unit, method: 'scaleBar' };
-  }
-
-  // Fallback to any scale bar or document scale
-  return doc.measureScale || { pixelsPerUnit: scaleBars[0].pixelsPerUnit, unit: scaleBars[0].unit, method: 'scaleBar' };
+  return schaalOpPunt(getActiveDocument(), pageNum, x, y);
 }
 
 /**

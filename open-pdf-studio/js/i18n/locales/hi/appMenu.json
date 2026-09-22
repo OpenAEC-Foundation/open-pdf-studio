@@ -63,7 +63,9 @@
     "importXfdf": "एनोटेशन आयात करें (XFDF)",
     "importXfdfDesc": "XFDF फ़ाइल से वर्तमान दस्तावेज़ में एनोटेशन आयात करें",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "CAD ड्राइंग (DWG, DXF)",
+    "importCadDesc": "किसी DWG या DXF ड्राइंग को पैमाने पर PDF पृष्ठ के रूप में आयात करें, परतों और माप पैमाने के साथ"
   },
   "exportPanel": {
     "title": "निर्यात करें",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "CAD ड्राइंग (DXF, DWG)",
+    "exportCadDesc": "वेक्टर ड्राइंग को परतों, पैमाने और क्षेत्र के साथ DXF या DWG में निर्यात करें"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

@@ -415,7 +415,10 @@ export const selectTool = {
       const rbW = Math.abs(x - state.rubberBandStartX);
       const rbH = Math.abs(y - state.rubberBandStartY);
 
-      if (rbW > 3 || rbH > 3) {
+      // Drempel in schermpixels (3 px / zoom): ingezoomd moet ook een klein
+      // kader om een klein vormpje selecteren. Was 3 paginapunten.
+      const rbMin = 3 / (ctx.scale > 0 ? ctx.scale : 1);
+      if (rbW > rbMin || rbH > rbMin) {
         const selected = [];
         const doc = state.documents[state.activeDocumentIndex];
         for (const ann of (doc?.annotations || [])) {

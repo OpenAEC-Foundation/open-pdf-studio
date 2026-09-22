@@ -110,6 +110,12 @@ function straightenOnePage(pdfDoc, pages, pageIndex, angleDeg) {
   const { width, height } = oldPage.getSize();
   const embedded = pdfDoc.embedPage(oldPage);
   return embedded.then((embeddedPage) => {
+    // A FRESH page: nothing of the old page dictionary comes along. That is
+    // deliberate for the measure viewports the PDF may carry (/VP, from CAD
+    // plots and the DWG/DXF import): a small rotation cannot be expressed in
+    // their axis-aligned /BBox, so rather no scale from the file (the
+    // document scale applies; the export reports NO_MODEL_SPACE) than one
+    // that quietly sits next to the turned drawing (#400).
     const newPage = pdfDoc.insertPage(pageIndex, [width, height]);
     pdfDoc.removePage(pageIndex + 1);
 

@@ -300,7 +300,10 @@ export async function closeTab(index, force = false, dialogAction = null) {
   // aan de Rust-kant — alleen als geen ander tabblad hetzelfde bestand nog
   // gebruikt (document-release.js). Zonder dit bleef na het sluiten van zware
   // tekeningen gigabytes aan heap staan tot de app afsloot.
-  import('../../pdf/document-release.js')
+  // Het vrijgeven start hier en wordt aan het eind van het sluiten afgewacht:
+  // het ruimt ook de tijdelijke werkbestanden van het document op, en wie het
+  // laatste tabblad sluit en meteen afsluit, liet die anders staan (#400).
+  const vrijgave = import('../../pdf/document-release.js')
     .then(({ geefDocumentVrij }) => geefDocumentVrij(doc, state.documents))
     .catch((e) => console.warn('[tabs] vrijgeven van document mislukt:', e));
 
@@ -337,6 +340,9 @@ export async function closeTab(index, force = false, dialogAction = null) {
 
   // Keep the persisted session in sync (debounced) — survives dev reloads.
   window.__OPDS_SESSION_SAVE__?.();
+
+  // De interface is bijgewerkt; nu pas wachten tot alles is vrijgegeven.
+  await vrijgave;
 
   return true;
 }

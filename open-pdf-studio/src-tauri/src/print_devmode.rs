@@ -11,6 +11,16 @@
 //! Nooit `DM_UPDATE` en nooit `SetPrinter`: niets hier verandert de standaard
 //! van de printer of van de gebruiker.
 //!
+//! Vellen zonder vaste `DMPAPER_*`-code (A1, A0 en de verlengde vellen A3L,
+//! A2L, A1L, A0L): biedt de driver de maat zelf aan (een eigen papiersoort of
+//! een formulier van de printserver), dan gaat diens code in de DEVMODE;
+//! anders de maat zelf (`DMPAPER_USER` met `dmPaperWidth`/`dmPaperLength`).
+//! De driver controleert het, en wat hij ervan maakt meten we na op een
+//! informatiecontext (geen opdracht). Neemt hij het vel niet over, dan blijft
+//! het papier van de printer staan (`met_papier`). Zo'n driver is de
+//! ingebouwde pdf-driver van Windows: zijn papierlijst ligt vast, een eigen
+//! maat negeert hij. A1 en A0 biedt hij zelf aan, de verlengde vellen niet.
+//!
 //! Aantal exemplaren: de app maakt kopieën zelf (één opdracht per kopie, zie
 //! print-job.js). Een opdracht-DEVMODE vraagt daarom altijd één exemplaar,
 //! anders vermenigvuldigen een aantal uit de eigenschappen of de
@@ -20,14 +30,17 @@ use std::mem::size_of;
 
 use windows_sys::Win32::Foundation::{HANDLE, HWND, POINT};
 use windows_sys::Win32::Graphics::Gdi::{
-    DEVMODEW, DMORIENT_LANDSCAPE, DMORIENT_PORTRAIT, DM_COPIES, DM_FORMNAME, DM_IN_BUFFER, DM_IN_PROMPT,
-    DM_ORIENTATION, DM_OUT_BUFFER, DM_PAPERLENGTH, DM_PAPERSIZE, DM_PAPERWIDTH,
+    CreateICW, DeleteDC, GetDeviceCaps, DEVMODEW, DMORIENT_LANDSCAPE, DMORIENT_PORTRAIT, DMPAPER_USER, DM_COPIES,
+    DM_FORMNAME, DM_IN_BUFFER, DM_IN_PROMPT, DM_ORIENTATION, DM_OUT_BUFFER, DM_PAPERLENGTH, DM_PAPERSIZE,
+    DM_PAPERWIDTH, LOGPIXELSX, LOGPIXELSY, PHYSICALHEIGHT, PHYSICALWIDTH,
 };
 use windows_sys::Win32::Graphics::Printing::{ClosePrinter, DocumentPropertiesW, OpenPrinterW};
 use windows_sys::Win32::Storage::Xps::{DeviceCapabilitiesW, DC_PAPERNAMES, DC_PAPERS, DC_PAPERSIZE};
 use windows_sys::Win32::UI::WindowsAndMessaging::{IDCANCEL, IDOK};
 
-use crate::print_instelling::{beschrijft_vel, dmpaper, EigenschappenKeuze, Orientatie, Papier, PapierInfo};
+use crate::print_instelling::{
+    beschrijft_vel, dmpaper, zelfde_maat_mm, EigenschappenKeuze, Orientatie, Papier, PapierInfo,
+};
 
 /// UTF-16 met afsluitende nul, voor de W-functies.
 pub fn breed(s: &str) -> Vec<u16> {
@@ -172,6 +185,19 @@ impl DevMode {
         d.Anonymous1.Anonymous1.dmPaperSize = code;
         d.Anonymous1.Anonymous1.dmPaperLength = 0;
         d.Anonymous1.Anonymous1.dmPaperWidth = 0;
+    }
+
+    /// Zet een eigen maat (staand, in 0,1 mm): `DMPAPER_USER` met
+    /// `dmPaperWidth`/`dmPaperLength`. Een formuliernaam zou de maat
+    /// overrulen, dus die gaat eruit.
+    pub fn zet_eigen_maat(&mut self, breedte: i16, lengte: i16) {
+        let d = self.publiek_mut();
+        d.dmFields |= DM_PAPERSIZE | DM_PAPERWIDTH | DM_PAPERLENGTH;
+        d.dmFields &= !DM_FORMNAME;
+        d.dmFormName = [0; 32];
+        d.Anonymous1.Anonymous1.dmPaperSize = DMPAPER_USER as i16;
+        d.Anonymous1.Anonymous1.dmPaperWidth = breedte;
+        d.Anonymous1.Anonymous1.dmPaperLength = lengte;
     }
 
     /// Zet alleen de oriëntatie; al het andere blijft.
@@ -390,6 +416,56 @@ pub fn papierlijst(printer: &str) -> Vec<DriverPapier> {
         .collect()
 }
 
+/// Speling bij het terugzoeken van een maat in de papierlijst: 1 mm, in 0,1 mm.
+const LIJST_SPELING: i32 = 10;
+
+/// De code van het driverpapier met deze maat (staand, in 0,1 mm). Alleen
+/// soorten die zelf ook staand zijn opgegeven tellen: een gedraaide variant
+/// ("A3 (gedraaid)") zou de oriëntatie van de opdracht omkeren.
+pub fn code_op_maat(lijst: &[DriverPapier], maat: (i16, i16)) -> Option<i16> {
+    let (breedte, lengte) = (maat.0 as i32, maat.1 as i32);
+    lijst
+        .iter()
+        .find(|s| {
+            s.code != 0
+                && (s.maat_tiende_mm.0 - breedte).abs() <= LIJST_SPELING
+                && (s.maat_tiende_mm.1 - lengte).abs() <= LIJST_SPELING
+        })
+        .map(|s| s.code)
+}
+
+/// Het vel (breedte x hoogte in mm, zoals de DC staat) dat een DC met deze
+/// DEVMODE krijgt. Gemeten op een informatiecontext: er start geen opdracht
+/// en er gaat niets naar de printer.
+pub fn gemeten_vel_mm(printer: &str, dm: &DevMode) -> Option<(f64, f64)> {
+    let naam = breed(printer);
+    let ic = unsafe { CreateICW(std::ptr::null(), naam.as_ptr(), std::ptr::null(), dm.ptr()) };
+    if ic.is_null() {
+        return None;
+    }
+    unsafe {
+        let (pw, ph) = (GetDeviceCaps(ic, PHYSICALWIDTH as i32), GetDeviceCaps(ic, PHYSICALHEIGHT as i32));
+        let (dx, dy) = (GetDeviceCaps(ic, LOGPIXELSX as i32), GetDeviceCaps(ic, LOGPIXELSY as i32));
+        DeleteDC(ic);
+        (pw > 0 && ph > 0 && dx > 0 && dy > 0).then(|| (pw as f64 * 25.4 / dx as f64, ph as f64 * 25.4 / dy as f64))
+    }
+}
+
+/// Speling bij het nameten van een vel: drivers ronden af op hun resolutie.
+const MEET_SPELING_MM: f64 = 3.0;
+
+/// Maakt de driver van `dm` echt het gevraagde vel? Gemeten op een
+/// informatiecontext; lukt dat niet, dan telt wat de DEVMODE zelf zegt.
+fn neemt_vel(printer: &str, dm: &DevMode, papier: Papier) -> bool {
+    let Some(gevraagd) = papier.staande_maat_mm() else {
+        return true;
+    };
+    match gemeten_vel_mm(printer, dm) {
+        Some(gemeten) => zelfde_maat_mm(gemeten, gevraagd, MEET_SPELING_MM),
+        None => beschrijft_vel(papier_info(printer, dm).as_ref(), papier),
+    }
+}
+
 /// Het vel van deze DEVMODE. Maat uit `dmPaperWidth`/`dmPaperLength` als die
 /// gezet zijn, anders uit de papierlijst van de driver, anders uit de vaste
 /// tabel (`PapierInfo::uit_devmode`).
@@ -432,14 +508,59 @@ fn basis_devmode(prn: &Printer, opgeslagen: Option<&[u8]>) -> Result<(DevMode, b
 /// Pagina-instelling niet kan uitdrukken: een gedraaide variant (A4_ROTATED),
 /// of een driver-eigen formulier of lade met dezelfde maat. Geeft terug of
 /// `dm` veranderde.
-pub fn papier_toepassen(dm: &mut DevMode, papier: Papier, huidig: Option<&PapierInfo>) -> bool {
-    match dmpaper(papier) {
-        Some(code) if !beschrijft_vel(huidig, papier) => {
-            dm.zet_papier(code);
+///
+/// Een vel zonder vaste `DMPAPER_*`-code krijgt de code waaronder de driver
+/// die maat zelf aanbiedt (`lijst`, zie `papierlijst`), en anders de maat
+/// zelf als eigen maat.
+pub fn papier_toepassen(dm: &mut DevMode, papier: Papier, huidig: Option<&PapierInfo>, lijst: &[DriverPapier]) -> bool {
+    if papier == Papier::Printer || beschrijft_vel(huidig, papier) {
+        return false;
+    }
+    if let Some(code) = dmpaper(papier) {
+        dm.zet_papier(code);
+        return true;
+    }
+    match papier.eigen_maat_tiende_mm() {
+        Some(maat) => {
+            match code_op_maat(lijst, maat) {
+                Some(code) => dm.zet_papier(code),
+                None => dm.zet_eigen_maat(maat.0, maat.1),
+            }
             true
         }
-        _ => false,
+        None => false,
     }
+}
+
+/// `basis` met het gevraagde papier erin (`papier_toepassen`), en of dat iets
+/// veranderde.
+///
+/// Een vel zonder vaste code moet de driver ook echt overnemen: hij
+/// controleert de DEVMODE en het vel wordt nagemeten (`neemt_vel`). Weigert
+/// hij het of kapt hij het af (A0L is langer dan de pdf-driver aankan), dan
+/// blijft het papier van `basis` staan: de standaard van de printer, of wat
+/// de gebruiker in de eigenschappen koos. De printdialoog toont dat vel dan
+/// ook (`papier_voor_opdracht`).
+fn met_papier(prn: &Printer, basis: &DevMode, uit_sessie: bool, papier: Papier) -> (DevMode, bool) {
+    let huidig = vel_van_sessie(prn.naam(), basis, uit_sessie);
+    let zonder_code = papier.eigen_maat_tiende_mm().is_some();
+    let lijst = if zonder_code { papierlijst(prn.naam()) } else { Vec::new() };
+    let mut dm = basis.clone();
+    if !papier_toepassen(&mut dm, papier, huidig.as_ref(), &lijst) {
+        return (dm, false);
+    }
+    if zonder_code {
+        let gecontroleerd = prn.valideren(&dm).unwrap_or_else(|_| dm.clone());
+        if !neemt_vel(prn.naam(), &gecontroleerd, papier) {
+            log::warn!(
+                "[print] '{}' neemt papier {} niet over; het papier van de printer blijft staan",
+                prn.naam(),
+                papier.sleutel()
+            );
+            return (basis.clone(), false);
+        }
+    }
+    (dm, true)
 }
 
 /// Het vel van `dm`, maar alleen als het een bewaarde keuze uit het
@@ -473,9 +594,8 @@ pub fn huidig_papier(printer: &str, opgeslagen: Option<&[u8]>) -> Option<PapierI
 /// (`papier_toepassen`) en één exemplaar, door de driver samengevoegd en
 /// gecontroleerd. Bij `Papier::Printer` blijft het papier van de basis staan.
 pub fn devmode_voor_opdracht(prn: &Printer, opgeslagen: Option<&[u8]>, papier: Papier) -> Result<DevMode, String> {
-    let (mut dm, uit_sessie) = basis_devmode(prn, opgeslagen)?;
-    let huidig = vel_van_sessie(prn.naam(), &dm, uit_sessie);
-    papier_toepassen(&mut dm, papier, huidig.as_ref());
+    let (basis, uit_sessie) = basis_devmode(prn, opgeslagen)?;
+    let (mut dm, _) = met_papier(prn, &basis, uit_sessie, papier);
     dm.zet_een_exemplaar();
     match prn.valideren(&dm) {
         Ok(gevalideerd) => Ok(gevalideerd),
@@ -486,6 +606,25 @@ pub fn devmode_voor_opdracht(prn: &Printer, opgeslagen: Option<&[u8]>, papier: P
             Ok(dm)
         }
     }
+}
+
+/// Het vel dat een opdracht met dit papier uit de Pagina-instelling op deze
+/// printer écht krijgt: dat van `devmode_voor_opdracht`. Neemt de driver het
+/// gevraagde vel niet over, dan is dit het papier van de printer; zo kan de
+/// printdialoog tonen waarop er werkelijk geprint wordt. `None` als het niet
+/// te bepalen is.
+pub fn papier_voor_opdracht(printer: &str, opgeslagen: Option<&[u8]>, papier: Papier) -> Option<PapierInfo> {
+    if papier == Papier::Printer {
+        return huidig_papier(printer, opgeslagen);
+    }
+    let dm = match Printer::open(printer).and_then(|prn| devmode_voor_opdracht(&prn, opgeslagen, papier)) {
+        Ok(dm) => dm,
+        Err(e) => {
+            log::warn!("[print] papier van '{printer}' voor {} niet te bepalen: {e}", papier.sleutel());
+            return None;
+        }
+    };
+    papier_info(printer, &dm)
 }
 
 /// `dm` met alleen een andere oriëntatie, opnieuw door de driver gecontroleerd.
@@ -508,15 +647,14 @@ pub fn met_orientatie(prn: &Printer, dm: &DevMode, liggend: bool) -> DevMode {
 /// zonder wijziging ook echt geen wijziging. `None` als de driver geen
 /// DEVMODE geeft; dan opent het venster op zijn eigen standaard.
 fn voorinvulling(prn: &Printer, opgeslagen: Option<&[u8]>, papier: Papier, orientatie: Orientatie) -> Option<DevMode> {
-    let (mut dm, uit_sessie) = match basis_devmode(prn, opgeslagen) {
+    let (basis, uit_sessie) = match basis_devmode(prn, opgeslagen) {
         Ok(b) => b,
         Err(e) => {
             log::warn!("[print] geen voorinvulling voor '{}': {e}", prn.naam());
             return None;
         }
     };
-    let huidig = vel_van_sessie(prn.naam(), &dm, uit_sessie);
-    let mut veranderd = papier_toepassen(&mut dm, papier, huidig.as_ref());
+    let (mut dm, mut veranderd) = met_papier(prn, &basis, uit_sessie, papier);
     let liggend = match orientatie {
         Orientatie::Staand => Some(false),
         Orientatie::Liggend => Some(true),
@@ -680,19 +818,98 @@ mod tests {
         // A4_ROTATED (77) uit het eigenschappenvenster, Pagina-instelling "a4".
         let mut dm = devmode_met(DM_PAPERSIZE | DM_ORIENTATION, 77, true);
         let huidig = PapierInfo::uit_devmode(77, None, None, 2);
-        assert!(!papier_toepassen(&mut dm, Papier::A4, huidig.as_ref()));
+        assert!(!papier_toepassen(&mut dm, Papier::A4, huidig.as_ref(), &[]));
         assert_eq!(dm.papiercode(), Some(77));
         // Ander vel gevraagd: wel overschrijven.
-        assert!(papier_toepassen(&mut dm, Papier::A3, huidig.as_ref()));
+        assert!(papier_toepassen(&mut dm, Papier::A3, huidig.as_ref(), &[]));
         assert_eq!(dm.papiercode(), Some(8));
         // Standaard van de driver (geen huidig vel): altijd zetten.
         let mut standaard = devmode_met(DM_PAPERSIZE, 9, false);
-        assert!(papier_toepassen(&mut standaard, Papier::A4, None));
+        assert!(papier_toepassen(&mut standaard, Papier::A4, None, &[]));
         assert_eq!(standaard.papiercode(), Some(9));
         // Papier "printer": nooit iets zetten.
         let mut blijft = devmode_met(DM_PAPERSIZE, 77, false);
-        assert!(!papier_toepassen(&mut blijft, Papier::Printer, None));
+        assert!(!papier_toepassen(&mut blijft, Papier::Printer, None, &[]));
         assert_eq!(blijft.papiercode(), Some(77));
+    }
+
+    fn soort(code: i16, breedte: i32, lengte: i32, naam: &str) -> DriverPapier {
+        DriverPapier { code, maat_tiende_mm: (breedte, lengte), naam: naam.to_string() }
+    }
+
+    #[test]
+    fn eigen_maat_in_de_devmode() {
+        let mut dm = devmode_met(DM_PAPERSIZE | DM_ORIENTATION | DM_FORMNAME, 9, true);
+        dm.publiek_mut().dmFormName[..2].copy_from_slice(&[b'A' as u16, b'4' as u16]);
+        dm.zet_eigen_maat(2970, 6300);
+        // DMPAPER_USER met breedte en lengte in 0,1 mm, alle drie de vlaggen.
+        assert_eq!(DMPAPER_USER, 256);
+        assert_eq!(dm.papiercode(), Some(256));
+        assert_eq!(dm.eigen_maat_tiende_mm(), Some((2970, 6300)));
+        let v = unsafe { dm.publiek().Anonymous1.Anonymous1 };
+        assert_eq!((v.dmPaperSize, v.dmPaperWidth, v.dmPaperLength), (256, 2970, 6300));
+        assert_eq!(
+            dm.velden() & (DM_PAPERSIZE | DM_PAPERWIDTH | DM_PAPERLENGTH),
+            DM_PAPERSIZE | DM_PAPERWIDTH | DM_PAPERLENGTH
+        );
+        // De formuliernaam zou de maat overrulen en gaat eruit; de oriëntatie blijft.
+        assert_eq!(dm.formuliernaam(), None);
+        assert!(dm.velden() & DM_FORMNAME == 0);
+        assert!(dm.liggend());
+        // Een vaste code daarna haalt de eigen maat weer weg.
+        dm.zet_papier(8);
+        assert_eq!(dm.eigen_maat_tiende_mm(), None);
+        assert_eq!(dm.papiercode(), Some(8));
+    }
+
+    #[test]
+    fn vel_zonder_vaste_code_als_eigen_maat_of_als_code_van_de_driver() {
+        // De driver kent de maat niet: de maat zelf gaat in de DEVMODE.
+        let lijst = vec![soort(9, 2100, 2970, "A4"), soort(8, 2970, 4200, "A3")];
+        let mut dm = devmode_met(DM_PAPERSIZE, 9, false);
+        assert!(papier_toepassen(&mut dm, Papier::A3L, None, &lijst));
+        assert_eq!((dm.papiercode(), dm.eigen_maat_tiende_mm()), (Some(256), Some((2970, 6300))));
+        let mut dm = devmode_met(DM_PAPERSIZE, 9, false);
+        assert!(papier_toepassen(&mut dm, Papier::A1L, None, &[]));
+        assert_eq!(dm.eigen_maat_tiende_mm(), Some((5940, 10510)));
+        let mut dm = devmode_met(DM_PAPERSIZE, 9, false);
+        assert!(papier_toepassen(&mut dm, Papier::A0L, None, &[]));
+        assert_eq!(dm.eigen_maat_tiende_mm(), Some((8410, 13990)));
+
+        // De driver biedt de maat zelf aan (pdf-driver: "ISOA1" = 140; of een
+        // formulier van de printserver): dan diens code, zonder eigen maat.
+        let lijst = vec![soort(9, 2100, 2970, "A4"), soort(140, 5940, 8410, "ISOA1"), soort(300, 2970, 6300, "A3L")];
+        let mut dm = devmode_met(DM_PAPERSIZE, 9, false);
+        assert!(papier_toepassen(&mut dm, Papier::A1, None, &lijst));
+        assert_eq!((dm.papiercode(), dm.eigen_maat_tiende_mm()), (Some(140), None));
+        let mut dm = devmode_met(DM_PAPERSIZE, 9, false);
+        assert!(papier_toepassen(&mut dm, Papier::A3L, None, &lijst));
+        assert_eq!((dm.papiercode(), dm.eigen_maat_tiende_mm()), (Some(300), None));
+
+        // Hetzelfde vel al in de eigenschappen gekozen: niets overschrijven.
+        let huidig = PapierInfo::uit_devmode(300, Some((2970, 6300)), Some("A3L"), 1);
+        let mut dm = devmode_met(DM_PAPERSIZE, 300, false);
+        assert!(!papier_toepassen(&mut dm, Papier::A3L, huidig.as_ref(), &lijst));
+        assert_eq!(dm.papiercode(), Some(300));
+    }
+
+    #[test]
+    fn code_op_maat_negeert_gedraaide_soorten_en_verkeerde_maten() {
+        let lijst = vec![
+            soort(76, 4200, 2970, "A3 (gedraaid)"),
+            soort(8, 2970, 4200, "A3"),
+            soort(141, 5936, 8413, "A1 afgerond"),
+            soort(0, 8410, 11890, "zonder code"),
+        ];
+        assert_eq!(code_op_maat(&lijst, (2970, 4200)), Some(8));
+        // Binnen 1 mm.
+        assert_eq!(code_op_maat(&lijst, (5940, 8410)), Some(141));
+        // Alleen een gedraaide soort: geen treffer.
+        assert_eq!(code_op_maat(&lijst[..1], (2970, 4200)), None);
+        // Code 0 telt niet; onbekende maat ook niet.
+        assert_eq!(code_op_maat(&lijst, (8410, 11890)), None);
+        assert_eq!(code_op_maat(&lijst, (2970, 6300)), None);
+        assert_eq!(code_op_maat(&[], (2970, 6300)), None);
     }
 
     #[test]

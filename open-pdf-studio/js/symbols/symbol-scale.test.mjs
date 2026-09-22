@@ -83,3 +83,12 @@ test('ware grootte raakt de maat niet aan, ook niet door afronding', () => {
   assert.equal(uit, maat, 'zelfde object terug');
   assert.ok(Math.abs(uit.width / uit.height - 65 / 14) < 1e-12);
 });
+
+test('een klein symbool houdt bij schalen zijn verhouding en wordt nooit nul', () => {
+  // 12 mm staaf op 1:100 is 0,34 pt; op 0,25 is dat 0,085 (niet 0,09).
+  assert.deepEqual(schaalMaat({ width: 0.34, height: 1.2 }, 0.25), { width: 0.085, height: 0.3 });
+  // Piepklein kader: afronding levert geen nul op.
+  const uit = schaalVakOmMidden({ x: 10, y: 10, width: 0.02, height: 0.02 }, 0.1);
+  assert.ok(uit.width > 0 && uit.height > 0);
+  assert.equal(uit.x + uit.width / 2, 10.01);
+});

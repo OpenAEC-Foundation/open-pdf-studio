@@ -1,10 +1,10 @@
-import { createSignal, createEffect, onMount } from 'solid-js';
+import { createSignal, createEffect, onMount, For } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { getActiveDocument, getPageRotation } from '../../../core/state.js';
 import {
-  PAPIERFORMATEN, startPaginaInstelling, bewaarPaginaInstelling,
+  PAPIERFORMATEN, formaatTekst, startPaginaInstelling, bewaarPaginaInstelling,
 } from '../../../pdf/print-pagina-instelling.js';
 import { viewportOpties } from '../../../pdf/getoonde-pagina.js';
 
@@ -234,13 +234,10 @@ export default function PageSetupDialog() {
             onChange={(e) => { aangeraakt = true; setSize(e.target.value); }}
           >
             <option value="printer">{t('pageSetup.printerDefault')}</option>
-            <option value="a2">A2 (420 x 594 mm)</option>
-            <option value="a3">A3 (297 x 420 mm)</option>
-            <option value="a4">A4 (210 x 297 mm)</option>
-            <option value="a5">A5 (148 x 210 mm)</option>
-            <option value="letter">Letter (216 x 279 mm)</option>
-            <option value="legal">Legal (216 x 356 mm)</option>
-            <option value="tabloid">Tabloid (279 x 432 mm)</option>
+            {/* Eén bron: dezelfde lijst waaruit het formaat wordt afgeleid. */}
+            <For each={Object.keys(PAPIERFORMATEN)}>
+              {(sleutel) => <option value={sleutel}>{formaatTekst(sleutel)}</option>}
+            </For>
           </select>
         </div>
         <div class="page-setup-row">

@@ -30,6 +30,11 @@ import { applyTemplateRealSize } from '../symbols/real-size.js';
 import { getEditTargets, trackerFresh } from './edit-ops.js';
 import { pointerToAppCoords } from './g-move-mode.js';
 import { snapAngle } from '../utils/helpers.js';
+import { getEffectiveScale } from './effective-scale.js';
+
+// Dode zone rond het draaipunt (de hoek is daar onbepaald), in SCHERMPIXELS.
+// Was 2 paginapunten: bij 6400 % een dode zone van 128 px rond een klein vormpje.
+const _dodeZone = () => 2 / (getEffectiveScale() || 1);
 
 // Module-level mode state. Mirrored onto state.gRotateMode for diagnostics
 // and cross-module guards (g-move refuses to start while rotate is active).
@@ -80,7 +85,7 @@ function onMouseMove(e) {
   if (!c) return;
   const dx = c.x - mode.pivotX;
   const dy = c.y - mode.pivotY;
-  if (Math.hypot(dx, dy) < 2) return; // angle is undefined near the pivot
+  if (Math.hypot(dx, dy) < _dodeZone()) return; // angle is undefined near the pivot
   const angle = Math.atan2(dy, dx) * (180 / Math.PI);
   // First usable mousemove seeds the reference angle (when the tracker was
   // stale at chord time, or the cursor sat on the pivot).
@@ -267,7 +272,7 @@ export function tryStartGRotate() {
   if (trackerFresh()) {
     const dx = state._lastMouseAppX - pivotX;
     const dy = state._lastMouseAppY - pivotY;
-    if (Math.hypot(dx, dy) >= 2) {
+    if (Math.hypot(dx, dy) >= _dodeZone()) {
       lastAngle = Math.atan2(dy, dx) * (180 / Math.PI);
     }
   }

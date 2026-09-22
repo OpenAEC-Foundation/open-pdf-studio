@@ -78,7 +78,9 @@
     "find": "Localizar",
     "findCtrlF": "Localizar (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "Para CAD",
+    "cadExportTitle": "Exportar o desenho vetorial para DXF ou DWG"
   },
   "comment": {
     "drawing": "Desenho",

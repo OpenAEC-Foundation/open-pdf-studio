@@ -78,7 +78,9 @@
     "find": "கண்டுபிடி",
     "findCtrlF": "கண்டுபிடி (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "CAD-க்கு",
+    "cadExportTitle": "வெக்டர் வரைபடத்தை DXF அல்லது DWG ஆக ஏற்றுமதி செய்"
   },
   "comment": {
     "drawing": "வரைதல்",

@@ -1,0 +1,429 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {
+  MIN_VORM_MAAT_PT, KLIK_DREMPEL_PX,
+  klemMaat, isGeldigeMaat, schermPxNaarPt, veiligeVerhouding,
+  nietNul, normaliseerRechthoek, schaalRechthoekMetGreep, isKlikSleep,
+  raakMarge, wolkUitstulping, saneerMaatVelden, tekstvakMinimum,
+  normaliseerVormMaat, leesMaatInvoer, toonMaat, valideerMaatPatch,
+  symboolRasterPxPerPt, MIN_SYMBOOL_RASTER_PX, plakVerschuivingPt, PLAK_STAP_PX, rondMaatAf,
+} from './minimummaat.js';
+
+const near = (a, b, eps = 1e-9) => Math.abs(a - b) < eps;
+const GREPEN = ['tl', 'tr', 'bl', 'br', 't', 'b', 'l', 'r'];
+const LINKS = new Set(['tl', 'bl', 'l']);
+const RECHTS = new Set(['tr', 'br', 'r']);
+const BOVEN = new Set(['tl', 'tr', 't']);
+const ONDER = new Set(['bl', 'br', 'b']);
+
+function allesEindig(r) {
+  return ['x', 'y', 'width', 'height'].every(k => Number.isFinite(r[k]));
+}
+
+// Hoekpunt van een (gedraaide) rechthoek in paginaruimte. fx/fy in 0..1.
+function hoek(r, fx, fy, rotatie = 0) {
+  const cx = r.x + r.width / 2, cy = r.y + r.height / 2;
+  const lx = r.x + r.width * fx - cx, ly = r.y + r.height * fy - cy;
+  const rad = rotatie * Math.PI / 180;
+  return {
+    x: cx + lx * Math.cos(rad) - ly * Math.sin(rad),
+    y: cy + lx * Math.sin(rad) + ly * Math.cos(rad),
+  };
+}
+
+// Het vaste punt tegenover de greep, als fractie van de rechthoek.
+function ankerFractie(greep) {
+  const fx = LINKS.has(greep) ? 1 : RECHTS.has(greep) ? 0 : 0.5;
+  const fy = BOVEN.has(greep) ? 1 : ONDER.has(greep) ? 0 : 0.5;
+  return { fx, fy };
+}
+
+test('de ondergrens is technisch: klein genoeg voor maximale zoom, groot genoeg voor PDF-getallen', () => {
+  // 6400 % -> 1 schermpixel = 1/64 pt; de epsilon ligt daaronder.
+  assert.ok(MIN_VORM_MAAT_PT < 1 / 64);
+  // Ruim boven 1e-6 (daaronder schrijft JS exponentnotatie) en boven de
+  // afronding van de vector-appearances (0,001 pt).
+  assert.ok(MIN_VORM_MAAT_PT >= 0.01);
+  assert.ok(!String(MIN_VORM_MAAT_PT / 4).includes('e'));
+});
+
+test('klemMaat: nul, negatief, NaN, Infinity en niet-getallen worden de ondergrens', () => {
+  for (const v of [0, -5, NaN, Infinity, -Infinity, null, undefined, 'abc', {}]) {
+    assert.equal(klemMaat(v), MIN_VORM_MAAT_PT, String(v));
+  }
+  assert.equal(klemMaat(0.05), 0.05);
+  assert.equal(klemMaat('0.5'), 0.5);
+  assert.equal(klemMaat(3, 10), 10);
+  assert.equal(klemMaat(12, 10), 12);
+  // Een ondergrens die zelf onzin is valt terug op de epsilon.
+  assert.equal(klemMaat(0, NaN), MIN_VORM_MAAT_PT);
+  assert.equal(klemMaat(0, -1), MIN_VORM_MAAT_PT);
+});
+
+test('isGeldigeMaat', () => {
+  assert.equal(isGeldigeMaat(0.01), true);
+  assert.equal(isGeldigeMaat(1e-9), false);
+  assert.equal(isGeldigeMaat(0), false);
+  assert.equal(isGeldigeMaat(-1), false);
+  assert.equal(isGeldigeMaat(NaN), false);
+  assert.equal(isGeldigeMaat('5'), false);
+});
+
+test('schermPxNaarPt rekent met de zoom en overleeft een kapotte zoom', () => {
+  assert.equal(schermPxNaarPt(16, 2), 8);
+  assert.equal(schermPxNaarPt(16, 64), 0.25);
+  assert.equal(schermPxNaarPt(16, 0), 16);
+  assert.equal(schermPxNaarPt(16, NaN), 16);
+  assert.equal(schermPxNaarPt(16, undefined), 16);
+});
+
+test('veiligeVerhouding: geen deling door nul, geen NaN', () => {
+  assert.equal(veiligeVerhouding(200, 100), 2);
+  assert.equal(veiligeVerhouding(200, 0), 0);
+  assert.equal(veiligeVerhouding(0, 100), 0);
+  assert.equal(veiligeVerhouding(NaN, 100), 0);
+  assert.equal(veiligeVerhouding(-4, 2), 0);
+});
+
+test('nietNul houdt het teken en springt niet naar 1 pt', () => {
+  assert.equal(nietNul(5), 5);
+  assert.equal(nietNul(-5), -5);
+  assert.equal(nietNul(0), MIN_VORM_MAAT_PT);
+  assert.equal(nietNul(-0.0001), -MIN_VORM_MAAT_PT);
+  assert.equal(nietNul(NaN), MIN_VORM_MAAT_PT);
+});
+
+test('normaliseerRechthoek: negatieve maat wordt omgeklapt naar linksboven', () => {
+  const r = normaliseerRechthoek({ x: 100, y: 50, width: -40, height: -10 });
+  assert.deepEqual(r, { x: 60, y: 40, width: 40, height: 10 });
+  const n = normaliseerRechthoek({ x: 1, y: 2, width: 0, height: NaN });
+  assert.equal(n.width, MIN_VORM_MAAT_PT);
+  assert.equal(n.height, MIN_VORM_MAAT_PT);
+  assert.equal(n.x, 1);
+  assert.equal(n.y, 2);
+});
+
+test('elke greep: het vaste punt blijft staan en alleen de aangestuurde as verandert', () => {
+  const orig = { x: 100, y: 200, width: 60, height: 40 };
+  for (const g of GREPEN) {
+    const r = schaalRechthoekMetGreep(orig, g, 7, -3);
+    const { fx, fy } = ankerFractie(g);
+    const a0 = hoek(orig, fx, fy), a1 = hoek(r, fx, fy);
+    assert.ok(near(a0.x, a1.x) && near(a0.y, a1.y), `anker ${g}`);
+    const stuurtX = LINKS.has(g) || RECHTS.has(g);
+    const stuurtY = BOVEN.has(g) || ONDER.has(g);
+    if (!stuurtX) { assert.equal(r.width, 60, g); assert.equal(r.x, 100, g); }
+    if (!stuurtY) { assert.equal(r.height, 40, g); assert.equal(r.y, 200, g); }
+    if (stuurtX) assert.ok(near(r.width, LINKS.has(g) ? 53 : 67), g);
+    if (stuurtY) assert.ok(near(r.height, BOVEN.has(g) ? 43 : 37), g);
+  }
+});
+
+test('een rechthoek mag willekeurig klein: 0,05 pt blijft 0,05 pt', () => {
+  const orig = { x: 10, y: 10, width: 20, height: 20 };
+  const r = schaalRechthoekMetGreep(orig, 'br', -19.95, -19.95);
+  assert.ok(near(r.width, 0.05));
+  assert.ok(near(r.height, 0.05));
+  assert.equal(r.x, 10);
+  assert.equal(r.y, 10);
+});
+
+test('een al kleine maat op de andere as springt niet omhoog bij het aanraken van een greep', () => {
+  const orig = { x: 0, y: 0, width: 0.3, height: 50 };
+  const r = schaalRechthoekMetGreep(orig, 'b', 0, -10);
+  assert.equal(r.width, 0.3);
+  assert.ok(near(r.height, 40));
+});
+
+test('voorbij het vaste punt slepen: klemt op de ondergrens, klapt niet om en loopt niet weg', () => {
+  const orig = { x: 100, y: 200, width: 60, height: 40 };
+  for (const g of GREPEN) {
+    const dx = LINKS.has(g) ? 500 : -500;
+    const dy = BOVEN.has(g) ? 500 : -500;
+    const r = schaalRechthoekMetGreep(orig, g, dx, dy);
+    assert.ok(allesEindig(r), g);
+    assert.ok(r.width >= MIN_VORM_MAAT_PT && r.height >= MIN_VORM_MAAT_PT, g);
+    const { fx, fy } = ankerFractie(g);
+    const a0 = hoek(orig, fx, fy), a1 = hoek(r, fx, fy);
+    assert.ok(near(a0.x, a1.x) && near(a0.y, a1.y), `anker ${g}`);
+    if (LINKS.has(g) || RECHTS.has(g)) assert.equal(r.width, MIN_VORM_MAAT_PT, g);
+    if (BOVEN.has(g) || ONDER.has(g)) assert.equal(r.height, MIN_VORM_MAAT_PT, g);
+  }
+});
+
+test('gedraaid (30/45/90/-120): het vaste punt blijft in paginaruimte staan, ook bij de klem', () => {
+  const orig = { x: 100, y: 200, width: 60, height: 40 };
+  for (const rot of [30, 45, 90, -120]) {
+    for (const g of GREPEN) {
+      for (const [dx, dy] of [[5, -8], [900, 900], [-900, -900]]) {
+        const r = schaalRechthoekMetGreep(orig, g, dx, dy, { rotatie: rot });
+        assert.ok(allesEindig(r), `${rot} ${g}`);
+        assert.ok(r.width >= MIN_VORM_MAAT_PT && r.height >= MIN_VORM_MAAT_PT);
+        const { fx, fy } = ankerFractie(g);
+        const a0 = hoek(orig, fx, fy, rot), a1 = hoek(r, fx, fy, rot);
+        assert.ok(near(a0.x, a1.x, 1e-6) && near(a0.y, a1.y, 1e-6), `anker ${rot} ${g} ${dx}`);
+      }
+    }
+  }
+});
+
+test('gedraaid 90: een sleep langs de pagina-y stuurt de lokale breedte', () => {
+  const orig = { x: 0, y: 0, width: 60, height: 40 };
+  // Bij 90 graden wijst de lokale x-as langs de pagina-y.
+  const r = schaalRechthoekMetGreep(orig, 'r', 0, 10, { rotatie: 90 });
+  assert.ok(near(r.width, 70, 1e-6));
+  assert.ok(near(r.height, 40, 1e-6));
+});
+
+test('vaste verhouding: zeer brede (188x24) en zeer hoge (24x188) afbeelding houden hun verhouding tot aan de ondergrens', () => {
+  for (const [w, h] of [[188, 24], [24, 188], [100, 100]]) {
+    const orig = { x: 50, y: 60, width: w, height: h };
+    const ratio = w / h;
+    for (const g of GREPEN) {
+      for (const d of [3, 20, 100, 5000]) {
+        const dx = LINKS.has(g) ? d : -d;
+        const dy = BOVEN.has(g) ? d : -d;
+        const r = schaalRechthoekMetGreep(orig, g, dx, dy, { vasteVerhouding: true, verhouding: ratio });
+        assert.ok(allesEindig(r), `${w}x${h} ${g} ${d}`);
+        assert.ok(r.width >= MIN_VORM_MAAT_PT - 1e-12 && r.height >= MIN_VORM_MAAT_PT - 1e-12, `${g} ${d}`);
+        assert.ok(near(r.width / r.height, ratio, 1e-6), `verhouding ${w}x${h} ${g} ${d}`);
+        const { fx, fy } = ankerFractie(g);
+        const a0 = hoek(orig, fx, fy), a1 = hoek(r, fx, fy);
+        assert.ok(near(a0.x, a1.x, 1e-6) && near(a0.y, a1.y, 1e-6), `anker ${g} ${d}`);
+      }
+    }
+  }
+});
+
+test('vaste verhouding: de afbeelding kan echt klein worden (niet vast op 20 pt)', () => {
+  const orig = { x: 0, y: 0, width: 188, height: 24 };
+  const r = schaalRechthoekMetGreep(orig, 'br', -187, 0, { vasteVerhouding: true, verhouding: 188 / 24 });
+  assert.ok(near(r.width, 1, 1e-9));
+  assert.ok(near(r.height, 24 / 188, 1e-9));
+});
+
+test('vaste verhouding met hoogte 0 of onzin-verhouding: valt terug op vrij schalen, nooit NaN', () => {
+  const orig = { x: 0, y: 0, width: 100, height: 0 };
+  for (const verhouding of [Infinity, NaN, 0, -2, undefined]) {
+    const r = schaalRechthoekMetGreep(orig, 'br', -10, 5, { vasteVerhouding: true, verhouding });
+    assert.ok(allesEindig(r), String(verhouding));
+    assert.ok(near(r.width, 90));
+    assert.ok(r.height >= MIN_VORM_MAAT_PT);
+  }
+});
+
+test('gedraaid met vaste verhouding: verhouding en anker blijven kloppen', () => {
+  const orig = { x: 10, y: 20, width: 120, height: 30 };
+  for (const g of GREPEN) {
+    const r = schaalRechthoekMetGreep(orig, g, 900, 900, { rotatie: 45, vasteVerhouding: true, verhouding: 4 });
+    assert.ok(allesEindig(r), g);
+    assert.ok(near(r.width / r.height, 4, 1e-6), g);
+    const { fx, fy } = ankerFractie(g);
+    const a0 = hoek(orig, fx, fy, 45), a1 = hoek(r, fx, fy, 45);
+    assert.ok(near(a0.x, a1.x, 1e-6) && near(a0.y, a1.y, 1e-6), `anker ${g}`);
+  }
+});
+
+test('eigen ondergrens (tekstvak, schaalgebied): houdt de vorm boven de grens, maar duwt een al kleinere vorm niet omhoog', () => {
+  const groot = { x: 0, y: 0, width: 100, height: 100 };
+  const r = schaalRechthoekMetGreep(groot, 'br', -99, -99, { minBreedte: 16, minHoogte: 12 });
+  assert.equal(r.width, 16);
+  assert.equal(r.height, 12);
+  // Al kleiner dan de grens (ingetypt of geladen): krimpen stopt, groeien kan.
+  const klein = { x: 0, y: 0, width: 6, height: 6 };
+  const k = schaalRechthoekMetGreep(klein, 'br', -3, 4, { minBreedte: 16, minHoogte: 12 });
+  assert.equal(k.width, 6);
+  assert.equal(k.height, 10);
+});
+
+test('kapotte invoer: NaN-delta, onbekende greep en negatieve bronmaat geven een geldige rechthoek', () => {
+  const orig = { x: 10, y: 10, width: 50, height: 50 };
+  const a = schaalRechthoekMetGreep(orig, 'br', NaN, undefined);
+  assert.deepEqual(a, { x: 10, y: 10, width: 50, height: 50 });
+  const b = schaalRechthoekMetGreep(orig, 'rotate', 5, 5);
+  assert.deepEqual(b, { x: 10, y: 10, width: 50, height: 50 });
+  const c = schaalRechthoekMetGreep({ x: 60, y: 60, width: -50, height: -50 }, 'br', 10, 10);
+  assert.deepEqual(c, { x: 10, y: 10, width: 60, height: 60 });
+});
+
+test('isKlikSleep rekent in schermpixels: ingezoomd is een kleine sleep een echte sleep', () => {
+  // 2 pt bij 100 % = 2 px: klik. Dezelfde 2 pt bij 6400 % = 128 px: sleep.
+  assert.equal(isKlikSleep(2, 2, 1), true);
+  assert.equal(isKlikSleep(2, 2, 64), false);
+  // 0,05 pt bij 6400 % = 3,2 px: nog binnen de drempel.
+  assert.equal(isKlikSleep(0.05, 0.05, 64), true);
+  // 0,1 pt bij 6400 % = 6,4 px: een bewuste sleep.
+  assert.equal(isKlikSleep(0.1, 0.1, 64), false);
+  // Smal maar lang is een sleep (beide assen moeten binnen de drempel vallen).
+  assert.equal(isKlikSleep(0, 50, 1), false);
+  assert.equal(isKlikSleep(-1, -1, 1), true);
+  assert.equal(isKlikSleep(NaN, NaN, 1), true);
+  assert.ok(KLIK_DREMPEL_PX > 0 && KLIK_DREMPEL_PX <= 5);
+});
+
+test('raakMarge: een piepkleine vorm krijgt een raakvlak in schermpixels, een grote vorm niets extra', () => {
+  // Vorm van 0,05 pt bij 6400 % = 3,2 px; raakvlak minimaal 10 px -> 3,4 px per kant.
+  const m = raakMarge(0.05, 64);
+  assert.ok(near(m * 64 * 2 + 0.05 * 64, 10, 1e-9));
+  assert.equal(raakMarge(100, 1), 0);
+  assert.equal(raakMarge(100, NaN), 0);
+  // De marge groeit nooit voorbij de halve schermgrens.
+  assert.ok(raakMarge(0, 2) <= 5 / 2 + 1e-12);
+});
+
+test('wolkUitstulping schaalt mee met de vorm en is begrensd op de oude vaste marge', () => {
+  assert.equal(wolkUitstulping(400, 300, 8), 8);
+  const klein = wolkUitstulping(1, 1, 8);
+  assert.ok(klein > 0 && klein <= 0.5);
+  assert.equal(wolkUitstulping(NaN, 1, 8), 0);
+});
+
+test('saneerMaatVelden: width/height/w/h/radius worden eindig en positief, de rest blijft staan', () => {
+  const uit = saneerMaatVelden({ width: 0, height: -3, w: NaN, h: '7', radius: 'x', color: '#f00', x: -5 });
+  assert.equal(uit.width, MIN_VORM_MAAT_PT);
+  assert.equal(uit.height, MIN_VORM_MAAT_PT);
+  assert.equal(uit.w, MIN_VORM_MAAT_PT);
+  assert.equal(uit.h, 7);
+  assert.equal(uit.radius, MIN_VORM_MAAT_PT);
+  assert.equal(uit.color, '#f00');
+  assert.equal(uit.x, -5);
+  // Velden die niet in de patch staan komen er niet bij.
+  assert.deepEqual(saneerMaatVelden({ color: '#0f0' }), { color: '#0f0' });
+  // De bron wordt niet gemuteerd.
+  const bron = { width: 0 };
+  saneerMaatVelden(bron);
+  assert.equal(bron.width, 0);
+  assert.equal(saneerMaatVelden(null), null);
+});
+
+test('saneerMaatVelden: niet-eindige positie wordt geweigerd (veld vervalt)', () => {
+  const uit = saneerMaatVelden({ x: NaN, y: 'abc', width: 5 });
+  assert.equal('x' in uit, false);
+  assert.equal('y' in uit, false);
+  assert.equal(uit.width, 5);
+});
+
+test('tekstvakMinimum volgt de lettergrootte en niet een vast aantal punten', () => {
+  const std = tekstvakMinimum({ fontSize: 12 });
+  const klein = tekstvakMinimum({ fontSize: 0.5 });
+  assert.ok(std.minBreedte > klein.minBreedte);
+  assert.ok(std.minHoogte > klein.minHoogte);
+  // Eén regel moet passen.
+  assert.ok(std.minHoogte >= 12);
+  assert.ok(klein.minHoogte >= 0.5 && klein.minHoogte < 2);
+  // Geen of kapotte lettergrootte: nooit onder de technische ondergrens.
+  const geen = tekstvakMinimum({ fontSize: NaN });
+  assert.ok(geen.minBreedte >= MIN_VORM_MAAT_PT && geen.minHoogte >= MIN_VORM_MAAT_PT);
+});
+
+test('normaliseerVormMaat: een rechthoek-vorm komt nooit met nul, negatief of NaN in het model', () => {
+  // Naar linksboven gesleepte veelhoek: negatieve maat wordt omgeklapt.
+  const p = normaliseerVormMaat({ type: 'polygon', x: 100, y: 80, width: -40, height: -30 });
+  assert.deepEqual({ x: p.x, y: p.y, width: p.width, height: p.height }, { x: 60, y: 50, width: 40, height: 30 });
+  // Sleep met breedte exact 0: technische ondergrens.
+  const b = normaliseerVormMaat({ type: 'box', x: 5, y: 5, width: 0, height: 50 });
+  assert.equal(b.width, MIN_VORM_MAAT_PT);
+  assert.equal(b.height, 50);
+  const n = normaliseerVormMaat({ type: 'image', x: 0, y: 0, width: NaN, height: Infinity });
+  assert.equal(n.width, MIN_VORM_MAAT_PT);
+  assert.equal(n.height, MIN_VORM_MAAT_PT);
+  // 0,05 x 0,05 pt blijft precies zo.
+  const k = normaliseerVormMaat({ type: 'box', x: 1, y: 1, width: 0.05, height: 0.05 });
+  assert.equal(k.width, 0.05);
+  assert.equal(k.height, 0.05);
+});
+
+test('normaliseerVormMaat: laat ontbrekende velden en andere typen met rust', () => {
+  // Aanhaal-tekstvak zonder maat (renderer valt terug op 150 x 50): er komt geen veld bij.
+  const c = normaliseerVormMaat({ type: 'callout', x: 0, y: 0 });
+  assert.equal('width' in c, false);
+  // Oude cirkel met middelpunt + straal.
+  const o = normaliseerVormMaat({ type: 'circle', centerX: 5, centerY: 5, radius: 3 });
+  assert.equal('width' in o, false);
+  // Een lijn met een omhullende van breedte 0 is geen rechthoek-vorm.
+  const l = normaliseerVormMaat({ type: 'line', x: 0, y: 0, width: 0, height: 10 });
+  assert.equal(l.width, 0);
+  assert.equal(normaliseerVormMaat(null), null);
+});
+
+test('leesMaatInvoer: elke positieve waarde mag, decimalen blijven, onzin wordt geweigerd', () => {
+  assert.equal(leesMaatInvoer('0.5'), 0.5);
+  assert.equal(leesMaatInvoer('0,5'), 0.5);
+  assert.equal(leesMaatInvoer(12.75), 12.75);
+  assert.equal(leesMaatInvoer('3000'), 3000);
+  // Onder de technische ondergrens: geklemd, niet geweigerd.
+  assert.equal(leesMaatInvoer('0.000001'), MIN_VORM_MAAT_PT);
+  // Halverwege het typen ("0", "0.", leeg) en onzin: null = model niet aanraken.
+  for (const v of ['', '0', '0.', '-4', 'abc', null, undefined, NaN, Infinity]) {
+    assert.equal(leesMaatInvoer(v), null, String(v));
+  }
+});
+
+test('toonMaat: kleine maten tonen hun decimalen in plaats van 0', () => {
+  assert.equal(toonMaat(0.4), 0.4);
+  assert.equal(toonMaat(0.05), 0.05);
+  assert.equal(toonMaat(0.0123), 0.012);
+  assert.equal(toonMaat(123.456), 123.46);
+  assert.equal(toonMaat(20), 20);
+  assert.equal(toonMaat(NaN), 0);
+});
+
+test('valideerMaatPatch (MCP-update): nul, negatief, NaN en tekst worden geweigerd met een duidelijke fout', () => {
+  for (const [veld, waarde] of [['width', 0], ['height', -3], ['width', NaN], ['height', '12'], ['w', null], ['h', Infinity], ['radius', 0]]) {
+    const r = valideerMaatPatch({ [veld]: waarde });
+    assert.equal(r.ok, false, `${veld}=${waarde}`);
+    assert.match(r.error, new RegExp(veld));
+  }
+  for (const veld of ['x', 'y']) {
+    const r = valideerMaatPatch({ [veld]: NaN });
+    assert.equal(r.ok, false);
+    assert.match(r.error, new RegExp(veld));
+  }
+});
+
+test('valideerMaatPatch: elke positieve maat mag; onder de technische ondergrens wordt geklemd', () => {
+  const r = valideerMaatPatch({ width: 0.05, height: 0.05, x: -10, color: '#f00' });
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.patch, { width: 0.05, height: 0.05, x: -10, color: '#f00' });
+  const klein = valideerMaatPatch({ width: 1e-12 });
+  assert.equal(klein.ok, true);
+  assert.equal(klein.patch.width, MIN_VORM_MAAT_PT);
+  // Een patch zonder maatvelden gaat ongemoeid door.
+  assert.deepEqual(valideerMaatPatch({ text: 'abc' }), { ok: true, patch: { text: 'abc' } });
+});
+
+test('symboolRasterPxPerPt: een klein symbool krijgt genoeg pixels, een groot symbool niet te veel', () => {
+  // Gewoon symbool van 40 pt: 4 px per pt, 160 px.
+  assert.equal(symboolRasterPxPerPt(40), 4);
+  // Wapeningsstaaf van 0,34 pt: was 1 pixel, nu minstens MIN_SYMBOOL_RASTER_PX.
+  const klein = symboolRasterPxPerPt(0.34);
+  assert.ok(near(klein * 0.34, MIN_SYMBOOL_RASTER_PX), String(klein * 0.34));
+  // Op de technische ondergrens: eindig en genoeg pixels.
+  const grens = symboolRasterPxPerPt(MIN_VORM_MAAT_PT);
+  assert.ok(Number.isFinite(grens) && grens * MIN_VORM_MAAT_PT >= MIN_SYMBOOL_RASTER_PX);
+  // Nul of NaN: geen deling door nul.
+  for (const v of [0, NaN, undefined, -3]) assert.ok(Number.isFinite(symboolRasterPxPerPt(v)), String(v));
+  // Groot symbool van 2000 pt: cap op 4000 px = 2 px per pt.
+  assert.equal(symboolRasterPxPerPt(2000), 2);
+});
+
+test('plakVerschuivingPt: de plak-cascade staat in schermpixels, dus ingezoomd blijft de kopie in beeld', () => {
+  assert.equal(plakVerschuivingPt(1, 1), PLAK_STAP_PX);
+  assert.equal(plakVerschuivingPt(3, 1), 3 * PLAK_STAP_PX);
+  // Bij 6400 % is de stap 20 px = 0,3125 pt, niet 20 pt (= 1280 px).
+  assert.ok(near(plakVerschuivingPt(1, 64), PLAK_STAP_PX / 64));
+  // Zonder bekende zoom of met onzin: stap op zoom 1, eerste plak.
+  assert.equal(plakVerschuivingPt(0, undefined), PLAK_STAP_PX);
+  assert.equal(plakVerschuivingPt(NaN, 0), PLAK_STAP_PX);
+});
+
+test('rondMaatAf: honderdsten voor gewone maten, fijner onder 1 pt, nooit nul', () => {
+  assert.equal(rondMaatAf(9.9999), 10);
+  assert.equal(rondMaatAf(33.333 * 0.3), 10);
+  // Klein symbool (0,34 pt op 0,25): verhouding blijft, niet naar 0,09 afgerond.
+  assert.equal(rondMaatAf(0.085), 0.085);
+  // 0,004 rondde naar 0: nu de ondergrens.
+  assert.equal(rondMaatAf(0.004), MIN_VORM_MAAT_PT);
+  assert.equal(rondMaatAf(0.00004), MIN_VORM_MAAT_PT);
+  for (const v of [0, NaN, undefined, -2]) assert.equal(rondMaatAf(v), MIN_VORM_MAAT_PT, String(v));
+});

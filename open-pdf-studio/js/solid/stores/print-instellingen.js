@@ -7,6 +7,8 @@
 // een onbekende of kapotte waarde valt terug op de standaard, zodat een oud
 // of met de hand bewerkt voorkeurenbestand de dialoog nooit kan breken.
 
+import { isPdfDoel } from '../../pdf/print-doel.js';
+
 /** Standaardwaarden van de printdialoog. */
 export const PRINT_STANDAARD = Object.freeze({
   printer: '',
@@ -24,12 +26,25 @@ export const PRINT_STANDAARD = Object.freeze({
   asImage: false,
 });
 
-const KEUZES = Object.freeze({
+/** De toegestane waarden per keuzelijst van de printdialoog. */
+export const PRINT_KEUZES = Object.freeze({
   range: ['all', 'current', 'custom'],
   subset: ['all', 'odd', 'even'],
   scaling: ['fit', 'actual', 'shrink', 'custom-scale'],
   content: ['doc-and-markups', 'doc-only'],
 });
+
+const KEUZES = PRINT_KEUZES;
+
+/**
+ * Tekent de afdruk de markeringen (annotatielaag)? "Afdrukken: Document"
+ * (`doc-only`) laat ze weg; watermerken en tekstbewerkingen blijven, dat is
+ * inhoud van het document. Een onbekende waarde telt als de standaard van de
+ * dialoog: document én markeringen.
+ */
+export function markeringenVoorInhoud(inhoud) {
+  return inhoud !== 'doc-only';
+}
 
 const SCHAKELAARS = ['collate', 'reverseOrder', 'autoRotate', 'autoCenter', 'asImage'];
 
@@ -62,7 +77,9 @@ export function herstelPrintInstellingen(opgeslagen) {
 
 /**
  * Welke printer staat bij het openen geselecteerd? De laatst gebruikte als die
- * nog bestaat, anders de Windows-standaardprinter, anders de eerste.
+ * nog bestaat, anders de Windows-standaardprinter, anders de eerste. Het doel
+ * "Opslaan als PDF" (print-doel.js) is geen printer en bestaat altijd: was dat
+ * het laatst gebruikte doel, dan komt het terug.
  * @param {Array<{Name?: string}>} printers
  * @param {string} voorkeur   Laatst gebruikte printer.
  * @param {string} standaard  Standaardprinter van het systeem.
@@ -70,6 +87,7 @@ export function herstelPrintInstellingen(opgeslagen) {
  */
 export function kiesStartPrinter(printers, voorkeur, standaard) {
   const namen = (printers || []).map((p) => p && p.Name).filter(Boolean);
+  if (isPdfDoel(voorkeur)) return voorkeur;
   if (voorkeur && namen.includes(voorkeur)) return voorkeur;
   if (standaard && namen.includes(standaard)) return standaard;
   return namen[0] || '';

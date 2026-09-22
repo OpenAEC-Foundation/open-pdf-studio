@@ -111,6 +111,7 @@
     "internalLink": "内部リンク"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "この PDF は図面インポートのプレビューであり、内容が欠けている可能性があります。挿入も保存もできません。図面をもう一度インポートしてください。",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

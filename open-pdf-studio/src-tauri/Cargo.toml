@@ -1,6 +1,6 @@
 [package]
 name = "open-pdf-studio"
-version = "2.4.1"
+version = "2.5.0"
 description = "A free, open-source PDF annotation editor"
 authors = ["OpenAEC Foundation"]
 license = "LGPL-3.0-or-later"
@@ -44,6 +44,9 @@ tauri-plugin-store = "2"
 tauri-plugin-clipboard-manager = "2"
 reqwest = { version = "0.12", features = ["rustls-tls", "json", "multipart"], default-features = false }
 open-pdf-render = { path = "../../open-pdf-render" }
+# Export van een PDF-pagina naar DXF/DWG (#400); trekt acadrust mee (pure Rust,
+# MPL-2.0). De app-crate bevat alleen de commando-schil in src/cad_export.rs.
+open-pdf-cad = { path = "../../open-pdf-cad" }
 image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }
 pdfium-render = { version = "0.9", features = ["thread_safe", "image_025"] }
 clap = { version = "4", features = ["derive"] }

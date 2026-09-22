@@ -147,17 +147,9 @@ export function applyToolTransform(ctx) {
   }
 }
 
-/**
- * Get the effective scale for the current rendering mode.
- * Vector mode: viewport zoom. Legacy mode: doc.scale.
- */
-export function getEffectiveScale() {
-  const doc = getActiveDocument();
-  const vp = window.__pdfViewport;
-  // Same blank-doc guard as resolvePointerCoords.
-  if (vp && vp.active && doc?.filePath) return vp.zoom;
-  return doc?.scale || 1.5;
-}
+// Get the effective scale for the current rendering mode — verhuisd naar een
+// eigen lichte module; hier opnieuw uitgevoerd voor bestaande importeurs.
+export { getEffectiveScale } from './effective-scale.js';
 
 /**
  * Build a tool context object from event + resolved coordinates.

@@ -160,7 +160,7 @@
   },
   "virtualPrinter": {
     "title": "Virtuaalitulostin",
-    "description": "Asenna \"Open PDF Studio\" Windows-tulostimeksi. Kun tulostat mistä tahansa sovelluksesta (Word, Chrome, Muistio jne.) ja valitset tämän tulostimen, tulostettava PDF avautuu automaattisesti tässä sovelluksessa.",
+    "description": "Asenna \"Open PDF Printer\" Windows-tulostimeksi. Kun tulostat mistä tahansa sovelluksesta (Word, Chrome, Muistio jne.) ja valitset tämän tulostimen, tulostettava PDF avautuu automaattisesti tässä sovelluksessa.",
     "status": "Tila:",
     "installButton": "Asenna virtuaalitulostin",
     "removeButton": "Poista virtuaalitulostin",

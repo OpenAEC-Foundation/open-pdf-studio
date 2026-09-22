@@ -78,7 +78,9 @@
     "find": "検索",
     "findCtrlF": "検索 (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "CAD へ",
+    "cadExportTitle": "ベクター図面を DXF または DWG にエクスポート"
   },
   "comment": {
     "drawing": "描画",

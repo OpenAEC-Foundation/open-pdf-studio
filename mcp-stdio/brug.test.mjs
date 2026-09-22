@@ -61,7 +61,7 @@ test('een leeg antwoord van de app wordt een nette fout', async () => {
 test('de meegeleverde lijst is de publieke lijst van de app, met annotaties', async () => {
   const { readFileSync } = await import('node:fs');
   const lijst = JSON.parse(readFileSync(new URL('./tools.json', import.meta.url), 'utf8'));
-  assert.equal(lijst.length, 49);
+  assert.equal(lijst.length, 51);
   for (const t of lijst) {
     assert.ok(t.annotations?.title, `${t.name} zonder titel`);
     assert.equal(typeof t.annotations.readOnlyHint, 'boolean');

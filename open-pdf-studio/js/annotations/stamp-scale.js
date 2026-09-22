@@ -16,7 +16,8 @@ const UNIT_TO_MM = { mm: 1, cm: 10, m: 1000, in: 25.4, ft: 304.8 };
 /**
  * Pagina-pixels per werkelijke millimeter op het invoegpunt van een stempel.
  * Prioriteit — identiek aan measurement.getMeasureScale voor een punt:
- *   schaalgebied (scaleRegion) → viewport/scaleBar/doc-schaal.
+ *   schaalgebied (scaleRegion) → viewport/scaleBar/PDF-viewport (/VP)/doc-schaal
+ *   (getScaleForPoint, volgorde in schaal-op-punt.js).
  *
  * @returns {number} px per mm, of 0 als er geen schaal bekend is.
  */

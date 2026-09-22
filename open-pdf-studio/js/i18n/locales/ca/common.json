@@ -111,6 +111,7 @@
     "internalLink": "Enllaç intern"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "Aquest PDF és una previsualització de la importació del dibuix i pot estar incomplet. No es pot inserir ni desar; torneu a importar el dibuix.",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

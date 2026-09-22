@@ -78,7 +78,9 @@
     "find": "بحث",
     "findCtrlF": "بحث (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "إلى CAD",
+    "cadExportTitle": "تصدير الرسم المتجه إلى DXF أو DWG"
   },
   "comment": {
     "drawing": "رسم",

@@ -204,3 +204,23 @@ test('90°: breedte en hoogte liggen in de omhullende andersom', () => {
   bijna(m.width, 100, 'breedte');
   bijna(m.height, 40, 'hoogte');
 });
+
+test('kleine gedraaide vorm: een /BBox gelijk aan /Rect geldt ook onder 0,2 pt niet als vormmaat', () => {
+  // Was: tolerantie 0,1 pt absoluut, dus bij een vorm van 0,1 pt 'klopte' elke
+  // kandidaat en werd de omhullende als maat overgenomen -> groei per rondgang.
+  for (const [w, h] of [[0.1, 0.1], [0.05, 0.2], [0.5, 0.2], [1, 0.3]]) {
+    const o = { x: 0, y: 0, ...omhullendeMaat(w, h, 30) };
+    const m = maatVanGedraaideVorm({ rotatie: 30, omhullende: o, kandidaten: [{ width: o.width, height: o.height }] });
+    assert.equal(m.bron, 'terugrekening', `${w}x${h}`);
+    assert.ok(Math.abs(m.width - w) < 1e-6 && Math.abs(m.height - h) < 1e-6, `${w}x${h}: ${m.width}x${m.height}`);
+    // De echte maat als kandidaat wordt wel herkend.
+    const k = maatVanGedraaideVorm({ rotatie: 30, omhullende: o, kandidaten: [{ width: w, height: h }] });
+    assert.equal(k.bron, 'kandidaat', `${w}x${h} echte kandidaat`);
+  }
+});
+
+test('kandidaat met afrondingsverschil van een externe schrijver (0,001 pt op 100 pt) telt nog', () => {
+  const o = { x: 0, y: 0, ...omhullendeMaat(100, 40, 30) };
+  const m = maatVanGedraaideVorm({ rotatie: 30, omhullende: o, kandidaten: [{ width: 100.001, height: 39.999 }] });
+  assert.equal(m.bron, 'kandidaat');
+});

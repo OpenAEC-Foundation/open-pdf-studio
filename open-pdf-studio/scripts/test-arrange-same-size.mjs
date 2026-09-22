@@ -143,4 +143,22 @@ ok('gelijke doelmaat = geen wijziging gemeld', () => {
   assert.deepEqual(changed, []);
 });
 
+ok('een lijn als referentie (hoogte 0) geeft een rechthoek nooit hoogte 0', () => {
+  const a = rect('a', 10, 10, 120, 90);
+  const lijn = { id: 'l', type: 'line', startX: 0, startY: 50, endX: 200, endY: 50 };
+  const entries = [{ ann: a, b: boundsOf(a) }, { ann: lijn, b: { x: 0, y: 50, width: 200, height: 0 } }];
+  const changed = matchAnnotationSizes(entries, lijn, { width: true, height: true });
+  assert.deepEqual(changed, [a]);
+  assert.equal(a.width, 200);
+  assert.ok(a.height > 0, `hoogte ${a.height}`);
+});
+
+ok('een kleine referentie (0,3 pt) wordt wel gewoon overgenomen', () => {
+  const a = rect('a', 10, 10, 120, 90);
+  const ref = rect('ref', 0, 0, 0.3, 0.2);
+  matchAnnotationSizes(entriesOf([a, ref]), ref, { width: true, height: true });
+  assert.equal(a.width, 0.3);
+  assert.equal(a.height, 0.2);
+});
+
 console.log(`\n${passed} tests geslaagd.`);

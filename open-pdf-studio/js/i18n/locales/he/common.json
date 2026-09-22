@@ -111,6 +111,7 @@
     "internalLink": "קישור פנימי"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "קובץ PDF זה הוא תצוגה מקדימה מייבוא השרטוט וייתכן שאינו שלם. לא ניתן להוסיף או לשמור אותו; ייבא את השרטוט מחדש.",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

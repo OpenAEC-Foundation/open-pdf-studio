@@ -111,6 +111,7 @@
     "internalLink": "आंतरिक लिंक"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "यह PDF ड्रॉइंग आयात का पूर्वावलोकन है और अधूरा हो सकता है। इसे न जोड़ा जा सकता है, न सहेजा जा सकता है; ड्रॉइंग को फिर से आयात करें।",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

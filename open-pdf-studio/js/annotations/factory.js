@@ -1,4 +1,5 @@
 import { state } from '../core/state.js';
+import { normaliseerVormMaat } from './minimummaat.js';
 
 // Create annotation with default properties
 // All annotations share these common properties (General section):
@@ -42,6 +43,11 @@ export function createAnnotation(baseProps) {
   if (result.type === 'textbox' && !Array.isArray(result.leaders)) {
     result.leaders = [];
   }
+
+  // Laatste wacht op elk aanmaakpad (tools, plakken, MCP-brug, laden): een
+  // rechthoek-vorm komt nooit met breedte/hoogte nul, negatief of NaN in het
+  // model. Een vorm mag wel willekeurig klein zijn (technische ondergrens).
+  normaliseerVormMaat(result);
 
   return result;
 }

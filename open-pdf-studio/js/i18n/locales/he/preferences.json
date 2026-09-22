@@ -160,7 +160,7 @@
   },
   "virtualPrinter": {
     "title": "מדפסת וירטואלית",
-    "description": "התקנת \"Open PDF Studio\" כמדפסת Windows. כאשר תדפיס מכל יישום (Word, Chrome, Notepad וכו') ותבחר מדפסת זו, קובץ ה-PDF שייווצר ייפתח אוטומטית ביישום זה.",
+    "description": "התקנת \"Open PDF Printer\" כמדפסת Windows. כאשר תדפיס מכל יישום (Word, Chrome, Notepad וכו') ותבחר מדפסת זו, קובץ ה-PDF שייווצר ייפתח אוטומטית ביישום זה.",
     "status": "מצב:",
     "installButton": "התקנת מדפסת וירטואלית",
     "removeButton": "הסרת מדפסת וירטואלית",

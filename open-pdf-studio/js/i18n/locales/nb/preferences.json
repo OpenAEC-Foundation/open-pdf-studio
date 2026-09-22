@@ -160,7 +160,7 @@
   },
   "virtualPrinter": {
     "title": "Virtuell skriver",
-    "description": "Installer \"Open PDF Studio\" som en Windows-skriver. Når du skriver ut fra et program (Word, Chrome, Notisblokk osv.) og velger denne skriveren, åpnes PDF-en automatisk i dette programmet.",
+    "description": "Installer \"Open PDF Printer\" som en Windows-skriver. Når du skriver ut fra et program (Word, Chrome, Notisblokk osv.) og velger denne skriveren, åpnes PDF-en automatisk i dette programmet.",
     "status": "Status:",
     "installButton": "Installer virtuell skriver",
     "removeButton": "Fjern virtuell skriver",

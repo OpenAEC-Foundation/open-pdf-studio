@@ -6,7 +6,7 @@
       "readOnlyHint": true,
       "title": "Open PDF"
     },
-    "description": "Open a PDF file in a new tab of the running app. Returns once the document is loaded and the tab is active.",
+    "description": "Open a PDF file in a new tab of the running app. Returns once the document is loaded and the tab is active. A DWG or DXF opens the CAD import dialog instead (result `dialog: \"cad-import\"`).",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
@@ -428,7 +428,7 @@
       "readOnlyHint": false,
       "title": "Merge PDF files"
     },
-    "description": "Merge one or more PDF files into the active document at the given position. The user's original file is not modified; the merged result opens as a working copy until saved. Returns { ok, position, mergedFiles, pagesBefore, pagesAfter, filePath }.",
+    "description": "Merge one or more PDF files into the active document at the given position. The user's original file is not modified; the merged result opens as a working copy until saved. Returns { ok, position, mergedFiles, pagesInserted, pagesBefore, pagesAfter, filePath }; mergedFiles counts the files that really went in. A file that stays out makes ok false: a preview PDF of the CAD import is refused (reason preview-pdf), a file without pages is refused (no-pages), an unreadable file fails. Then error names the files, refused [{ file, reason }] and failed [{ file, error }] list them, and mergedFiles and pagesAfter show what did go in.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
@@ -1164,6 +1164,334 @@
       "type": "object"
     },
     "name": "app_snippet_paste"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Import CAD drawing"
+    },
+    "description": "Import a DWG or DXF drawing as a vector PDF page, without opening the import dialog. Choose the space (model space or a layout), the scale, the paper size, the layers and what happens with the result: a new document, a new page after the current one, or an underlay on the current page. Settings that are left out take the value the import dialog remembered, otherwise its default. Returns the pages that were made, warnings about anything that could not be converted and the names of external files. Fails while the import dialog is open.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "area": {
+          "description": "What part of the model space is converted.",
+          "enum": [
+            "extents",
+            "limits"
+          ],
+          "type": "string"
+        },
+        "colors": {
+          "description": "Colour mode.",
+          "enum": [
+            "file",
+            "black",
+            "gray",
+            "mono",
+            "single"
+          ],
+          "type": "string"
+        },
+        "fonts": {
+          "description": "Font replacements: [{ \"from\": \"name in the drawing\", \"family\": \"sans\" or \"mono\", \"bold\": false, \"italic\": false }].",
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "hatch": {
+          "enum": [
+            "all",
+            "solid_only",
+            "outline",
+            "none"
+          ],
+          "type": "string"
+        },
+        "images": {
+          "description": "Embed images.",
+          "type": "boolean"
+        },
+        "includeOffLayers": {
+          "description": "Include switched-off layers as hidden PDF layers instead of leaving them out.",
+          "type": "boolean"
+        },
+        "layersAsOcg": {
+          "description": "Keep the layers as PDF layers.",
+          "type": "boolean"
+        },
+        "layersOff": {
+          "description": "Layer names to leave out, on top of the layers the file switches off.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "layersOn": {
+          "description": "Layer names to include although the file switches them off.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "lineweight": {
+          "description": "Line weights from the file, one fixed weight, or the colour table in pens.",
+          "enum": [
+            "file",
+            "fixed",
+            "pens"
+          ],
+          "type": "string"
+        },
+        "lineweightMm": {
+          "description": "Line weight in mm for lineweight fixed.",
+          "type": "number"
+        },
+        "marginMm": {
+          "description": "Margin around the drawing in mm, 0 to 200.",
+          "type": "number"
+        },
+        "maxImageMegapixels": {
+          "description": "Largest image that is embedded, in megapixels, 1 to 200.",
+          "type": "number"
+        },
+        "monoThreshold": {
+          "description": "Brightness threshold in percent for colors mono, 0 to 100.",
+          "type": "number"
+        },
+        "opacity": {
+          "description": "Opacity of an underlay, 0.05 to 1 (default 0.5). Only with target underlay.",
+          "type": "number"
+        },
+        "orientation": {
+          "enum": [
+            "auto",
+            "portrait",
+            "landscape"
+          ],
+          "type": "string"
+        },
+        "paper": {
+          "description": "Paper size. A layout keeps its own paper unless this is given.",
+          "enum": [
+            "auto",
+            "A4",
+            "A3",
+            "A3L",
+            "A2",
+            "A2L",
+            "A1",
+            "A1L",
+            "A0",
+            "Letter",
+            "Tabloid",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "paperHeightMm": {
+          "description": "Height in mm for paper custom.",
+          "type": "number"
+        },
+        "paperWidthMm": {
+          "description": "Width in mm for paper custom.",
+          "type": "number"
+        },
+        "path": {
+          "description": "Absolute path of the .dwg or .dxf file.",
+          "type": "string"
+        },
+        "pens": {
+          "description": "Colour table for lineweight pens: [{ \"color\": \"#RRGGBB\", \"lineweightMm\": 0.35 }].",
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "placement": {
+          "enum": [
+            "center",
+            "lower_left",
+            "origin"
+          ],
+          "type": "string"
+        },
+        "reuseBlocks": {
+          "description": "Store repeated blocks once in the PDF.",
+          "type": "boolean"
+        },
+        "rotation": {
+          "description": "Rotate the drawing before placing it, in degrees.",
+          "type": "number"
+        },
+        "scale": {
+          "description": "Denominator N of 1:N. 0 fits the drawing on the paper.",
+          "type": "number"
+        },
+        "searchPaths": {
+          "description": "Extra folders to look in for external references and images.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "singleColor": {
+          "description": "Colour #RRGGBB for colors single.",
+          "type": "string"
+        },
+        "space": {
+          "description": "\"model\" or the name of a layout (default: what the file suggests).",
+          "type": "string"
+        },
+        "target": {
+          "description": "new = a new document (default), append = a new page after the current page, underlay = on the current page. append without an open document becomes new.",
+          "enum": [
+            "new",
+            "append",
+            "underlay"
+          ],
+          "type": "string"
+        },
+        "text": {
+          "description": "Convert text.",
+          "type": "boolean"
+        },
+        "units": {
+          "description": "Drawing unit; file = the unit in the file.",
+          "enum": [
+            "file",
+            "mm",
+            "cm",
+            "m",
+            "in",
+            "ft"
+          ],
+          "type": "string"
+        },
+        "window": {
+          "description": "Convert only this window: [x0, y0, x1, y1] in drawing units. Excludes area.",
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 4,
+          "minItems": 4,
+          "type": "array"
+        },
+        "xrefs": {
+          "description": "Load external references.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "name": "app_import_cad"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Export to CAD drawing"
+    },
+    "description": "Export pages of the current document to DXF or DWG, without opening the export dialog. Reads the file on disk (save first); one page writes to `path`, several pages get `_p<page>` behind the name. Settings that are left out take the value the export dialog remembered, otherwise its default. Returns the files that were written with their object counts, warnings and, on a failure, a code (tooLarge, noModelSpace, modelSpaceAmbiguous, modelUnitsUnknown, failed). Fails while the export dialog is open.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "allowLarge": {
+          "description": "Export a page with more objects than the limit anyway (default false: such a page fails with code tooLarge).",
+          "type": "boolean"
+        },
+        "annotations": {
+          "description": "Include the annotations on layers OPS_<type>.",
+          "type": "boolean"
+        },
+        "area": {
+          "description": "Export only this window: [x0, y0, x1, y1] in page points with the origin at the top left, as annotations are positioned.",
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 4,
+          "minItems": 4,
+          "type": "array"
+        },
+        "format": {
+          "description": "Output format; sets the extension of path.",
+          "enum": [
+            "dxf",
+            "dxf_binary",
+            "dwg"
+          ],
+          "type": "string"
+        },
+        "layers": {
+          "description": "PDF layers then line style, line style only, or one layer.",
+          "enum": [
+            "ocg_then_style",
+            "style",
+            "single"
+          ],
+          "type": "string"
+        },
+        "layersOff": {
+          "description": "Layer names (as the export makes them) to leave out.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "origin": {
+          "description": "Where (0,0) of the drawing is: the lower left of the page (default), of the area, or the original model coordinates of an imported page.",
+          "enum": [
+            "page",
+            "area",
+            "model"
+          ],
+          "type": "string"
+        },
+        "pages": {
+          "description": "\"current\" (default), \"all\" or a range like \"1-3,5\".",
+          "type": "string"
+        },
+        "path": {
+          "description": "Absolute path of the target file (.dxf or .dwg). Gives the format when format is left out.",
+          "type": "string"
+        },
+        "scale": {
+          "description": "Denominator N of 1:N for scaleMode custom (implies it).",
+          "type": "number"
+        },
+        "scaleMode": {
+          "description": "paper = paper size, measure = the measure scale of the app at the area or page (default), custom = 1:scale.",
+          "enum": [
+            "paper",
+            "measure",
+            "custom"
+          ],
+          "type": "string"
+        },
+        "units": {
+          "description": "Drawing unit of the output.",
+          "enum": [
+            "mm",
+            "cm",
+            "m",
+            "in"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "path"
+      ],
+      "type": "object"
+    },
+    "name": "app_export_cad"
   },
   {
     "annotations": {

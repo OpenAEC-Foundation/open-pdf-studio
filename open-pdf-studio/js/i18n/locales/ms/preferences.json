@@ -160,7 +160,7 @@
   },
   "virtualPrinter": {
     "title": "Pencetak Maya",
-    "description": "Pasang \"Open PDF Studio\" sebagai pencetak Windows. Apabila anda mencetak dari mana-mana aplikasi (Word, Chrome, Notepad, dll.) dan memilih pencetak ini, output PDF akan dibuka secara automatik dalam aplikasi ini.",
+    "description": "Pasang \"Open PDF Printer\" sebagai pencetak Windows. Apabila anda mencetak dari mana-mana aplikasi (Word, Chrome, Notepad, dll.) dan memilih pencetak ini, output PDF akan dibuka secara automatik dalam aplikasi ini.",
     "status": "Status:",
     "installButton": "Pasang Pencetak Maya",
     "removeButton": "Buang Pencetak Maya",

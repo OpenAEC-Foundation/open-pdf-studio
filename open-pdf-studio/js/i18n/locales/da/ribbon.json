@@ -78,7 +78,9 @@
     "find": "Find",
     "findCtrlF": "Find (Ctrl+F)",
     "resizePages": "Resize Pages",
-    "resize": "Resize"
+    "resize": "Resize",
+    "cadExport": "Til CAD",
+    "cadExportTitle": "Eksportér vektortegningen til DXF eller DWG"
   },
   "comment": {
     "drawing": "Tegning",

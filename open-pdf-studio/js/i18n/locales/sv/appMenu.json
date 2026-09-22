@@ -63,7 +63,9 @@
     "importXfdf": "Importera anteckningar (XFDF)",
     "importXfdfDesc": "Importera anteckningar från en XFDF-fil till det aktuella dokumentet",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "CAD-ritning (DWG, DXF)",
+    "importCadDesc": "Importera en DWG- eller DXF-ritning som en PDF-sida i skala, med lager och mätskala"
   },
   "exportPanel": {
     "title": "Exportera",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "CAD-ritning (DXF, DWG)",
+    "exportCadDesc": "Exportera vektorritningen till DXF eller DWG med lager, skala och område"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

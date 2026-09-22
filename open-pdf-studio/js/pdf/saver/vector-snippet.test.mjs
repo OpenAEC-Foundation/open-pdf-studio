@@ -8,7 +8,7 @@ import { PDFDocument, PDFName, PDFString } from 'pdf-lib';
 
 import {
   knipselApOps, registreerBron, bouwKnipselAppearance, CATALOGUS_SLEUTEL,
-  knipselPlaatsing, tekenKnipselInPagina, alInBasis, markeerGebakken, ruimKnipselRestenOp,
+  knipselPlaatsing, tekenKnipselInPagina, alInBasis, markeerGebakken, ruimKnipselRestenOp, voegInhoudVooraanToe,
 } from './vector-snippet.js';
 
 const VAK = { left: 100, bottom: 80, right: 220, top: 140 };  // 120 x 60
@@ -199,6 +199,56 @@ test('vastzetten tekent het knipsel met dezelfde plaatsing in de pagina-inhoud',
   }).join(' ');
   assert.match(tekst, /0 1 -1 0 110 40 cm/);
   assert.ok(tekst.includes(`${xobjs.keys()[0].asString()} Do`), 'de inhoud tekent het knipsel');
+});
+
+// --- onder de bestaande inhoud (#400) ---------------------------------------
+
+const inhoudVan = (doc, pagina) => pagina.node.normalizedEntries().Contents.asArray().map((ref) => {
+  const st = doc.context.lookup(ref);
+  const rauw = Buffer.from(st.getContents ? st.getContents() : st.contents);
+  const flate = String(st.dict.get(PDFName.of('Filter')) || '') === '/FlateDecode';
+  return (flate ? inflateSync(rauw) : rauw).toString('latin1');
+});
+
+test('inhoud vooraan komt vóór wat de pagina al had', async () => {
+  const doel = await PDFDocument.create();
+  const pagina = doel.addPage([100, 100]);
+  pagina.drawRectangle({ x: 10, y: 10, width: 10, height: 10 });
+  voegInhoudVooraanToe(pagina, 'q 1 0 0 1 5 5 cm Q');
+  const heropend = await PDFDocument.load(await doel.save());
+  // pdf-lib zet bij het heropenen zelf een q-stroom voor en een Q-stroom achter
+  // de inhoud: het gaat om de volgorde in het geheel.
+  const tekst = inhoudVan(heropend, heropend.getPage(0)).join('\n');
+  const vooraan = tekst.indexOf('q 1 0 0 1 5 5 cm Q');
+  assert.ok(vooraan >= 0, 'de stroom staat in de pagina');
+  assert.ok(tekst.indexOf('10 10 l') > vooraan, 'de bestaande rechthoek staat erachter');
+});
+
+test('ook een pagina zonder inhoud krijgt de stroom', async () => {
+  const doel = await PDFDocument.create();
+  const pagina = doel.addPage([100, 100]);
+  voegInhoudVooraanToe(pagina, 'q Q');
+  const heropend = await PDFDocument.load(await doel.save());
+  assert.ok(inhoudVan(heropend, heropend.getPage(0)).some((stroom) => /^q Q/.test(stroom)));
+});
+
+test('een onderlegger wordt bij het vastzetten onder de bestaande inhoud getekend', async () => {
+  const doel = await PDFDocument.create();
+  const pagina = doel.addPage([BLAD_B, BLAD_H]);
+  pagina.drawRectangle({ x: 10, y: 10, width: 10, height: 10 });
+  const r = await bouwKnipselAppearance(doel, {
+    bronBytes: await bron(), srcBox: VAK, rect: [50, 40, 290, 160], sleutel: 'aaaabbbbccccdddd',
+  });
+  await tekenKnipselInPagina(pagina, r.ingebed.ref, r.plaatsing, 0.5, true);
+  const heropend = await PDFDocument.load(await doel.save());
+  const p = heropend.getPage(0);
+  const stromen = inhoudVan(heropend, p);
+  const naam = p.node.Resources().lookup(PDFName.of('XObject')).keys()[0].asString();
+  const eigen = stromen.filter((stroom) => stroom.includes(`${naam} Do`));
+  assert.equal(eigen.length, 1, 'het knipsel staat één keer in de inhoud');
+  assert.match(eigen[0], /^q\s[\s\S]*\sgs\s[\s\S]*Q\s*$/, 'in balans, met de dekking');
+  const tekst = stromen.join('\n');
+  assert.ok(tekst.indexOf('10 10 l') > tekst.indexOf(`${naam} Do`), 'de bestaande inhoud komt erna, dus erboven');
 });
 
 // --- niet twee keer inbakken ----------------------------------------------

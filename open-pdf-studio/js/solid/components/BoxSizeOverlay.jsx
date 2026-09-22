@@ -3,6 +3,7 @@ import { annotProps, updateAnnotProp } from '../stores/propertiesStore.js';
 import { state, getActiveDocument } from '../../core/state.js';
 import { getMeasureScale } from '../../annotations/measurement.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
+import { klemMaat } from '../../annotations/minimummaat.js';
 
 // Temporary width/height "dimensions" for a selected rectangle — two small
 // editable fields floating next to the selection. Values are in measured
@@ -35,8 +36,11 @@ export default function BoxSizeOverlay() {
     if (!ann) return;
     const { ppu: k, unit: u } = ppu(ann);
     setUnit(u);
-    setWVal(String(Math.round((ann.width / k) * 100) / 100));
-    setHVal(String(Math.round((ann.height / k) * 100) / 100));
+    // Zes significante cijfers in plaats van twee decimalen: bij eenheid "m"
+    // was twee decimalen (10 mm) te grof om een kleine maat te tonen.
+    const toon = (n) => (Number.isFinite(n) ? String(Number(n.toPrecision(6))) : '');
+    setWVal(toon(ann.width / k));
+    setHVal(toon(ann.height / k));
   }
 
   function reposition() {
@@ -76,7 +80,8 @@ export default function BoxSizeOverlay() {
     const v = parseFloat(String(raw).replace(',', '.'));
     if (!isFinite(v) || v <= 0) { refreshValues(); return; }
     const { ppu: k } = ppu(ann);
-    const px = v * k;
+    // Elke positieve waarde mag; alleen de technische ondergrens geldt.
+    const px = klemMaat(v * k);
     updateAnnotProp(which, px); // undo + redraw via the standard pipeline
     refreshValues();
     reposition();

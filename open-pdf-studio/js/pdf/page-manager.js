@@ -5,16 +5,22 @@ import { generateThumbnails, clearThumbnailCache } from '../ui/panels/left-panel
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import { updateAllStatus } from '../ui/chrome/status-bar.js';
 import { hideProperties } from '../ui/panels/properties-panel.js';
-import { saveFileDialog, writeBinaryFile, readBinaryFile, isTauri } from '../core/platform.js';
+import { saveFileDialog, writeBinaryFile, readBinaryFile, isTauri, unlockFile } from '../core/platform.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { recordPageStructure } from '../core/undo-manager.js';
 import { PDFDocument } from 'pdf-lib';
+import {
+  herschikViewports, leesPdfViewports, viewportsVanPaginas,
+  beginViewportLezing, rondViewportLezingAf, viewportLezingLoopt,
+} from './pdf-viewports.js';
 import * as pdfjsLib from 'pdfjs-dist';
 import { resetAnnotationStorage } from './form-layer.js';
 import { clearPdfVectorCache } from '../tools/pdf-snap-extractor.js';
 import { clearTextCache } from '../search/find-controller.js';
 import i18next from '../i18n/config.js';
 import { showMessage } from '../bridge.js';
+import { onthoudWerkbestand, losgelatenWerkbestanden, ruimWerkbestandenOp } from './document-release.js';
+import { nieuwMergeVerslag, REDEN_VOORBEELD, REDEN_GEEN_PAGINAS } from './merge-verslag.js';
 
 // Page clipboard for cut/copy/paste
 let pageClipboard = null; // { bytes: Uint8Array, cut: boolean, sourcePageNum: number }
@@ -145,7 +151,9 @@ export async function pastePage(afterPageNum) {
     const newBytes = new Uint8Array(await destDoc.save());
     const targetPage = insertIdx + 1;
 
-    await reloadFromBytes(newBytes, newAnnotations, newRotations, targetPage);
+    // Meetschalen van de ingevoegde pagina's komen uit die pagina's zelf (#400).
+    const newViewports = viewportsVanPaginas(copiedPages, insertIdx + 1);
+    await reloadFromBytes(newBytes, newAnnotations, newRotations, targetPage, { pageMapping, newViewports });
     recordPageStructure(currentBytes, oldAnnotations, oldRotations, oldPage, newBytes, newAnnotations, newRotations, targetPage);
   } finally {
     hideLoading();
@@ -161,7 +169,7 @@ export function getCacheKey() {
 }
 
 // Reload PDF.js from new bytes, preserving annotations and rotations
-export async function reloadFromBytes(newBytes, annotations, rotations, targetPage) {
+export async function reloadFromBytes(newBytes, annotations, rotations, targetPage, viewportUpdate = null) {
   const doc = getActiveDocument();
   if (!doc) return;
 
@@ -208,8 +216,26 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
       doc.isUntitled = !saveTarget; // saved docs keep Ctrl+S → original; untitled → Save-As
 
       // Delete the previous working/temp file (never a real saved original).
+      // A temp file that was opened through the normal open flow (the PDF of
+      // an imported drawing, #400) carries the app's own file lock; the tab
+      // only releases the lock of the path it points to when it closes, and
+      // from here on that is the new working copy. Release it first, or the
+      // file cannot be removed and stays locked until the app exits.
       if ((prevWasOurTemp || wasUntitled) && prevPath && prevPath !== renderPath) {
+        try { await unlockFile(prevPath); } catch {}
         try { await window.__TAURI__.fs.remove(prevPath); } catch {}
+      }
+      // The document remembers the working files the app made for it (#400):
+      // the PDF of an imported drawing and every `opds-edit` copy. Whatever it
+      // no longer refers to goes now, after its per-path caches are released;
+      // a file that is still in use stays remembered and is tried again at the
+      // next edit and when the tab closes, instead of lingering until the
+      // clean-up of the next day.
+      onthoudWerkbestand(doc, renderPath);
+      try {
+        await ruimWerkbestandenOp(doc, losgelatenWerkbestanden(doc, state.documents.filter((d) => d !== doc)));
+      } catch (e) {
+        console.warn('[reloadFromBytes] working files not removed', e);
       }
     } catch (e) {
       console.warn('[reloadFromBytes] temp working-file write failed; main view may stay stale', e);
@@ -242,6 +268,28 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
     verbosity: 0,
   }).promise;
 
+  // Meetschalen uit de PDF zelf (/VP + /Measure) staan per paginanummer; na
+  // invoegen, verwijderen of verplaatsen horen ze bij andere pagina's (#400).
+  // Met een paginatoewijzing verhuizen ze meteen mee — het document hoeft er
+  // niet nog een keer voor door pdf-lib. Stond er nog een lezing open (net
+  // bijgesneden, of het document was nog aan het openen), dan is wat hier
+  // verhuist nog van vóór die lezing: het geldt als tussenwaarde en de nieuwe
+  // bytes worden alsnog gelezen. De oude lezing komt niet meer binnen.
+  //
+  // Zonder toewijzing (bijsnijden, rechtzetten, formaat wijzigen, ongedaan
+  // maken en opnieuw doen) is niet bekend welke pagina waar bleef en of de
+  // schaal nog klopt. Dan gelden er even géén viewports — de maatvoering valt
+  // terug op de schaal van het document — tot de lezing klaar is. Liever kort
+  // geen meetschaal uit de PDF dan die van een andere pagina of versie.
+  if (viewportUpdate?.pageMapping) {
+    const lezingStondOpen = viewportLezingLoopt(doc);
+    doc.pdfViewports = herschikViewports(doc.pdfViewports, viewportUpdate.pageMapping, viewportUpdate.newViewports);
+    if (lezingStondOpen) leesViewportsOpnieuw(doc, newBytes);
+  } else {
+    doc.pdfViewports = undefined;
+    leesViewportsOpnieuw(doc, newBytes);
+  }
+
   // Restore annotations and rotations
   doc.annotations = annotations;
   doc.pageRotations = rotations;
@@ -270,6 +318,15 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
   generateThumbnails();
   updateAllStatus();
   markDocumentModified();
+}
+
+// Leest de viewports van deze bytes op de achtergrond. Een lezing die nog liep
+// wordt hiermee ongeldig; alleen de laatste zet haar uitkomst.
+function leesViewportsOpnieuw(doc, bytes) {
+  const kenmerk = beginViewportLezing(doc);
+  PDFDocument.load(bytes.slice(), { ignoreEncryption: true, updateMetadata: false })
+    .then((lib) => { rondViewportLezingAf(doc, kenmerk, leesPdfViewports(lib)); })
+    .catch(() => { rondViewportLezingAf(doc, kenmerk, null); /* viewports zijn optioneel */ });
 }
 
 // Build remapped annotations array based on page mapping
@@ -355,7 +412,7 @@ export async function insertBlankPages(position, refPage, count, widthPt, height
     // Determine which page to navigate to
     let targetPage = insertIdx + 1; // First inserted page
 
-    await reloadFromBytes(newBytes, newAnnotations, newRotations, targetPage);
+    await reloadFromBytes(newBytes, newAnnotations, newRotations, targetPage, { pageMapping });
 
     // Record undo
     recordPageStructure(currentBytes, oldAnnotations, oldRotations, oldPage, newBytes, newAnnotations, newRotations, targetPage);
@@ -372,30 +429,39 @@ export async function insertBlankPages(position, refPage, count, widthPt, height
  * page-structure convention.
  * @param {number} refPage - Reference page number (1-based)
  * @param {'before'|'after'} position - Insert before or after the reference page
+ * @param {string|null} sourcePath - when given, no file picker is shown (the
+ *   DWG/DXF import passes the PDF it just made, #400)
+ * @param {{stil?: boolean}} [opties] - `stil`: show no message box when it
+ *   fails; the caller reports the failure itself (the CAD import dialog shows
+ *   it in its own status line, and one report is enough, #400)
+ * @returns {Promise<boolean>} true when the pages were inserted; the CAD
+ *   import dialog has to know whether it succeeded (#400)
  */
-export async function insertPagesFromFile(refPage, position) {
+export async function insertPagesFromFile(refPage, position, sourcePath = null, { stil = false } = {}) {
   const activeDoc = getActiveDocument();
-  if (!activeDoc?.pdfDoc) return;
-  if (!isTauri()) return;
+  if (!activeDoc?.pdfDoc) return false;
+  if (!isTauri()) return false;
 
   const numPages = activeDoc.pdfDoc.numPages;
-  if (refPage < 1 || refPage > numPages) return;
+  if (refPage < 1 || refPage > numPages) return false;
 
   // Open file dialog to pick the source PDF
-  let filePath;
-  try {
-    filePath = await window.__TAURI__.dialog.open({
-      multiple: false,
-      filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
-    });
-  } catch (e) {
-    return;
+  let filePath = sourcePath;
+  if (!filePath) {
+    try {
+      filePath = await window.__TAURI__.dialog.open({
+        multiple: false,
+        filters: [{ name: 'PDF Files', extensions: ['pdf'] }],
+      });
+    } catch (e) {
+      return false;
+    }
   }
-  if (!filePath) return;
+  if (!filePath) return false;
 
   const cacheKey = getCacheKey();
   const currentBytes = getCachedPdfBytes(cacheKey);
-  if (!currentBytes) return;
+  if (!currentBytes) return false;
 
   const doc = getActiveDocument();
   const oldAnnotations = doc.annotations.map(a => ({ ...a }));
@@ -403,6 +469,7 @@ export async function insertPagesFromFile(refPage, position) {
   const oldPage = doc.currentPage;
 
   showLoading('Inserting pages...');
+  let inserted = false;
   try {
     // Ensure the picked source file is inside the fs allowlist scope.
     try { await window.__TAURI__?.core?.invoke?.('allow_fs_scope', { path: filePath }); } catch {}
@@ -412,8 +479,17 @@ export async function insertPagesFromFile(refPage, position) {
     const srcPageCount = srcDoc.getPageCount();
 
     if (srcPageCount === 0) {
-      showMessage(i18next.t('selectedPdfNoPages'));
-      return;
+      if (!stil) showMessage(i18next.t('selectedPdfNoPages'));
+      return false;
+    }
+    // Een voorbeeld van het importvenster kan inhoud missen: nooit invoegen (#400).
+    {
+      const { isVoorbeeldPdf } = await import('./cad-import-logica.js');
+      const { PDFName } = await import('pdf-lib');
+      if (isVoorbeeldPdf(srcDoc, { PDFName })) {
+        if (!stil) showMessage(i18next.t('previewPdfRefused'));
+        return false;
+      }
     }
 
     const destDoc = await PDFDocument.load(currentBytes, { ignoreEncryption: true });
@@ -427,6 +503,17 @@ export async function insertPagesFromFile(refPage, position) {
     const copiedPages = await destDoc.copyPages(srcDoc, indices);
     for (let i = 0; i < copiedPages.length; i++) {
       destDoc.insertPage(insertIdx + i, copiedPages[i]);
+    }
+    // PDF-lagen (OCG's) van de ingevoegde pagina's horen ook in de lagenlijst
+    // van de catalogus; copyPages neemt alleen de verwijzingen in de inhoud
+    // mee (#400).
+    try {
+      const { voegLagenSamen } = await import('./cad-import-logica.js');
+      const { PDFName, PDFArray, PDFDict, PDFString, PDFHexString } = await import('pdf-lib');
+      const herkomst = String(filePath).split(/[\\/]/).pop() || '';
+      voegLagenSamen(destDoc, copiedPages, { PDFName, PDFArray, PDFDict, PDFString, PDFHexString }, srcDoc, herkomst);
+    } catch (e) {
+      console.warn('[insert-pages] lagen samenvoegen mislukt:', e);
     }
 
     // Build page mapping for existing annotations/rotations
@@ -445,16 +532,21 @@ export async function insertPagesFromFile(refPage, position) {
     const newBytes = new Uint8Array(await destDoc.save());
     const targetPage = insertIdx + 1; // Navigate to first inserted page
 
-    await reloadFromBytes(newBytes, newAnnotations, newRotations, targetPage);
+    // De meetschalen van de ingevoegde pagina's komen uit de pagina's zelf;
+    // die zijn hier al ingelezen (#400).
+    const newViewports = viewportsVanPaginas(copiedPages, insertIdx + 1);
+    await reloadFromBytes(newBytes, newAnnotations, newRotations, targetPage, { pageMapping, newViewports });
 
     // Record undo
     recordPageStructure(currentBytes, oldAnnotations, oldRotations, oldPage, newBytes, newAnnotations, newRotations, targetPage);
+    inserted = true;
   } catch (err) {
     console.error('Failed to insert pages from file:', err);
-    showMessage(i18next.t('failedToInsertPagesFromFile', { error: err.message }));
+    if (!stil) showMessage(i18next.t('failedToInsertPagesFromFile', { error: err.message }));
   } finally {
     hideLoading();
   }
+  return inserted;
 }
 
 /**
@@ -514,7 +606,7 @@ export async function deletePages(pageNumbers) {
     // Clamp current page
     let targetPage = Math.min(doc.currentPage, newNumPages);
 
-    await reloadFromBytes(newBytes, newAnnotations, newRotations, targetPage);
+    await reloadFromBytes(newBytes, newAnnotations, newRotations, targetPage, { pageMapping });
 
     // Record undo
     recordPageStructure(currentBytes, oldAnnotations, oldRotations, oldPage, newBytes, newAnnotations, newRotations, targetPage);
@@ -630,7 +722,10 @@ export async function reorderPages(newPageOrder) {
     // Navigate to the page that the current page moved to
     const targetPage = pageMapping[doc.currentPage] || 1;
 
-    await reloadFromBytes(newBytes, newAnnotations, newRotations, targetPage);
+    // Alle pagina's zijn gekopieerd; hun meetschalen komen uit de pagina's
+    // zelf, genummerd vanaf de eerste (#400).
+    const newViewports = viewportsVanPaginas(copiedPages, 1);
+    await reloadFromBytes(newBytes, newAnnotations, newRotations, targetPage, { pageMapping, newViewports });
 
     // Record undo
     recordPageStructure(currentBytes, oldAnnotations, oldRotations, oldPage, newBytes, newAnnotations, newRotations, targetPage);
@@ -738,7 +833,10 @@ export async function replacePages(pageNumber) {
     const newBytes = new Uint8Array(await destDoc.save());
     const targetPage = pageNumber; // Navigate to where replacement starts
 
-    await reloadFromBytes(newBytes, newAnnotations, newRotations, targetPage);
+    // De vervangende pagina's brengen hun eigen meetschalen mee, vanaf de
+    // plek van de vervangen pagina (#400).
+    const newViewports = viewportsVanPaginas(copiedPages, pageNumber);
+    await reloadFromBytes(newBytes, newAnnotations, newRotations, targetPage, { pageMapping, newViewports });
 
     // Record undo
     recordPageStructure(currentBytes, oldAnnotations, oldRotations, oldPage, newBytes, newAnnotations, newRotations, targetPage);
@@ -754,14 +852,19 @@ export async function replacePages(pageNumber) {
  * Merge external PDF files into the current document.
  * @param {string[]} filePaths - Paths of PDF files to merge in
  * @param {'end'|'start'|'after'} position - Where to insert the merged pages
+ * @returns {Promise<object>} what really happened (merge-verslag.js): the files
+ *   that went in, the ones that were refused or failed, and the pages inserted.
+ *   A skipped file is not an error here, so a caller that has to report (the
+ *   MCP bridge) reads this instead of assuming success.
  */
 export async function mergeFiles(filePaths, position) {
-  if (!filePaths || filePaths.length === 0) return;
-  if (!isTauri()) return;
+  if (!filePaths || filePaths.length === 0) return nieuwMergeVerslag('no-files');
+  if (!isTauri()) return nieuwMergeVerslag('not-desktop');
 
   // Must have a document open
   const doc = getActiveDocument();
-  if (!doc?.pdfDoc) return;
+  if (!doc?.pdfDoc) return nieuwMergeVerslag('no-document');
+  const verslag = nieuwMergeVerslag();
 
   const cacheKey = getCacheKey();
   let currentBytes = getCachedPdfBytes(cacheKey);
@@ -770,7 +873,7 @@ export async function mergeFiles(filePaths, position) {
     // them from disk like savePDF does, so merge never silently no-ops.
     try { currentBytes = new Uint8Array(await readBinaryFile(doc.filePath)); } catch {}
   }
-  if (!currentBytes) return;
+  if (!currentBytes) return nieuwMergeVerslag('no-bytes');
   const oldAnnotations = doc.annotations.map(a => ({ ...a }));
   const oldRotations = { ...doc.pageRotations };
   const oldPage = doc.currentPage;
@@ -800,7 +903,20 @@ export async function mergeFiles(filePaths, position) {
         const srcDoc = await PDFDocument.load(srcBytes, { ignoreEncryption: true });
         const srcPageCount = srcDoc.getPageCount();
 
-        if (srcPageCount === 0) continue;
+        if (srcPageCount === 0) {
+          verslag.refused.push({ path: filePath, reason: REDEN_GEEN_PAGINAS });
+          continue;
+        }
+        // Een voorbeeld van het importvenster kan inhoud missen: overslaan (#400).
+        {
+          const { isVoorbeeldPdf } = await import('./cad-import-logica.js');
+          const { PDFName } = await import('pdf-lib');
+          if (isVoorbeeldPdf(srcDoc, { PDFName })) {
+            showMessage(i18next.t('previewPdfRefused'));
+            verslag.refused.push({ path: filePath, reason: REDEN_VOORBEELD });
+            continue;
+          }
+        }
 
         const indices = [];
         for (let i = 0; i < srcPageCount; i++) indices.push(i);
@@ -811,17 +927,20 @@ export async function mergeFiles(filePaths, position) {
         }
 
         totalInserted += srcPageCount;
+        verslag.merged.push(filePath);
       } catch (err) {
         console.error(`Failed to merge file: ${filePath}`, err);
         const fileName = filePath.split(/[\\/]/).pop();
         const detail = err?.message || String(err);
+        verslag.failed.push({ path: filePath, error: detail });
         showMessage(`${i18next.t('failedToMergeFile', { file: fileName, error: detail })}\n(${detail})`);
       }
     }
 
     if (totalInserted === 0) {
-      return;
+      return verslag;
     }
+    verslag.pagesInserted = totalInserted;
 
     // Build page mapping for existing annotations/rotations
     const pageMapping = {};
@@ -841,10 +960,13 @@ export async function mergeFiles(filePaths, position) {
     // Navigate to first merged page
     const targetPage = insertIdx + 1;
 
-    await reloadFromBytes(newBytes, newAnnotations, newRotations, targetPage);
+    // Meetschalen van alle samengevoegde pagina's, op hun nieuwe nummer (#400).
+    const newViewports = viewportsVanPaginas(destDoc.getPages().slice(insertIdx, insertIdx + totalInserted), insertIdx + 1);
+    await reloadFromBytes(newBytes, newAnnotations, newRotations, targetPage, { pageMapping, newViewports });
 
     // Record undo
     recordPageStructure(currentBytes, oldAnnotations, oldRotations, oldPage, newBytes, newAnnotations, newRotations, targetPage);
+    return verslag;
   } finally {
     hideLoading();
   }

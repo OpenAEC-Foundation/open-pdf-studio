@@ -111,6 +111,7 @@
     "internalLink": "Dahili Bağlantı"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "Bu PDF, çizim içe aktarmanın bir önizlemesidir ve eksik olabilir. Eklenemez veya kaydedilemez; çizimi yeniden içe aktarın.",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

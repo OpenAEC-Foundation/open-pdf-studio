@@ -111,6 +111,7 @@
     "internalLink": "ลิงก์ภายใน"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
+  "previewPdfRefused": "PDF นี้เป็นตัวอย่างจากการนำเข้าแบบและอาจไม่ครบถ้วน ไม่สามารถแทรกหรือบันทึกได้ โปรดนำเข้าแบบอีกครั้ง",
   "bcfExported": "Exported {{count}} issue(s) to BCF",
   "bcfImported": "Imported {{count}} issue(s) from BCF",
   "bcfExportFailed": "BCF export failed.",

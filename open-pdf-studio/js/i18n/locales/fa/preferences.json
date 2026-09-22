@@ -143,7 +143,7 @@
   },
   "virtualPrinter": {
     "title": "چاپگر مجازی",
-    "description": "نصب \"Open PDF Studio\" به عنوان یک چاپگر در Windows. هنگام چاپ از هر برنامه‌ای (Word، Chrome، Notepad و غیره) و انتخاب این چاپگر، فایل PDF خروجی به صورت خودکار در این برنامه باز می‌شود.",
+    "description": "نصب \"Open PDF Printer\" به عنوان یک چاپگر در Windows. هنگام چاپ از هر برنامه‌ای (Word، Chrome، Notepad و غیره) و انتخاب این چاپگر، فایل PDF خروجی به صورت خودکار در این برنامه باز می‌شود.",
     "status": "وضعیت:",
     "installButton": "نصب چاپگر مجازی",
     "removeButton": "حذف چاپگر مجازی",

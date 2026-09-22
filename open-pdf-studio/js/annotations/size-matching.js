@@ -1,9 +1,12 @@
 // Pure maatgelijk-geometrie voor de Schikken-groep "Grootte"
 // (arr-same-size / arr-same-width / arr-same-height, issue #313).
 //
-// Dit bestand heeft bewust GEEN imports: de kernlogica wordt ook in Node
-// geünittest door scripts/test-arrange-same-size.mjs. De browser-kant
-// (selectie, undo, redraw) zit in js/annotations/alignment.js.
+// Dit bestand heeft bewust geen browser-imports: de kernlogica wordt ook in
+// Node geünittest door scripts/test-arrange-same-size.mjs (minimummaat.js is
+// zelf import-vrij). De browser-kant (selectie, undo, redraw) zit in
+// js/annotations/alignment.js.
+
+import { klemMaat } from './minimummaat.js';
 
 // Herbereken de opgeslagen bounding box van een punt-gebaseerde annotatie.
 function updateBoundsFromPoints(ann, points) {
@@ -78,13 +81,17 @@ export function resizeAnnotationToBounds(ann, bounds, targetW, targetH) {
       return false;
     default: {
       // Rechthoek-model (rect, ellipse, freetext, stamp, image, callout, …):
-      // afmetingen direct zetten, positie (x/y) blijft staan.
+      // afmetingen direct zetten, positie (x/y) blijft staan. Technische
+      // ondergrens: een lijn als referentie heeft hoogte 0, en die mag een
+      // rechthoek niet krijgen (raaktest en index kunnen er niet mee overweg).
       let changed = false;
-      if (targetW != null && typeof ann.width === 'number' && ann.width !== targetW) {
-        ann.width = targetW; changed = true;
+      if (targetW != null && typeof ann.width === 'number') {
+        const w = klemMaat(targetW);
+        if (ann.width !== w) { ann.width = w; changed = true; }
       }
-      if (targetH != null && typeof ann.height === 'number' && ann.height !== targetH) {
-        ann.height = targetH; changed = true;
+      if (targetH != null && typeof ann.height === 'number') {
+        const h = klemMaat(targetH);
+        if (ann.height !== h) { ann.height = h; changed = true; }
       }
       return changed;
     }

@@ -13,6 +13,10 @@ import {
   twoPointEndpoints,
 } from '../symbols/two-point.js';
 import { isPointPolygon, rotatePointPolygon } from './polygon-transform.js';
+import {
+  MIN_GEBIED_PX, schaalRechthoekMetGreep, schermPxNaarPt, veiligeVerhouding,
+  tekstvakMinimum, nietNul,
+} from './minimummaat.js';
 
 // Compute measurement text for a dimension annotation, using its own scale if available
 function computeDimensionText(ann) {
@@ -102,137 +106,61 @@ function recalcCalloutLeader(annotation) {
   }
 }
 
-// Rotate a delta vector from screen space into the annotation's local coordinate space
-function rotateDelta(deltaX, deltaY, rotationDeg) {
-  if (!rotationDeg) return { dx: deltaX, dy: deltaY };
-  const rad = -rotationDeg * Math.PI / 180;
-  return {
-    dx: deltaX * Math.cos(rad) - deltaY * Math.sin(rad),
-    dy: deltaX * Math.sin(rad) + deltaY * Math.cos(rad)
-  };
-}
-
-// Apply resize for a rotated rectangular annotation.
-// The idea: resize in local (unrotated) space, then reposition so the
-// anchor corner (opposite to the dragged handle) stays in the same
-// screen position.
-function applyRotatedResize(annotation, handleType, deltaX, deltaY, originalAnn, lockRatio = false) {
-  const rot = originalAnn.rotation || 0;
-  const { dx, dy } = rotateDelta(deltaX, deltaY, rot);
-
-  // Start from original values
-  let newX = originalAnn.x;
-  let newY = originalAnn.y;
-  let newW = originalAnn.width;
-  let newH = originalAnn.height;
-  const aspectRatio = lockRatio && originalAnn.originalWidth && originalAnn.originalHeight
-    ? originalAnn.originalWidth / originalAnn.originalHeight
-    : (lockRatio ? originalAnn.width / originalAnn.height : 0);
-
-  // Apply local-space resize
-  switch (handleType) {
-    case HANDLE_TYPES.TOP_LEFT:
-      if (lockRatio) {
-        newW -= dx; newH = newW / aspectRatio;
-        newX = originalAnn.x + originalAnn.width - newW;
-        newY = originalAnn.y + originalAnn.height - newH;
-      } else {
-        newX += dx; newY += dy; newW -= dx; newH -= dy;
-      }
-      break;
-    case HANDLE_TYPES.TOP_RIGHT:
-      if (lockRatio) {
-        newW += dx; newH = newW / aspectRatio;
-        newY = originalAnn.y + originalAnn.height - newH;
-      } else {
-        newY += dy; newW += dx; newH -= dy;
-      }
-      break;
-    case HANDLE_TYPES.BOTTOM_LEFT:
-      if (lockRatio) {
-        newW -= dx; newH = newW / aspectRatio;
-        newX = originalAnn.x + originalAnn.width - newW;
-      } else {
-        newX += dx; newW -= dx; newH += dy;
-      }
-      break;
-    case HANDLE_TYPES.BOTTOM_RIGHT:
-      if (lockRatio) {
-        newW += dx; newH = newW / aspectRatio;
-      } else {
-        newW += dx; newH += dy;
-      }
-      break;
-    case HANDLE_TYPES.TOP:
-      if (lockRatio) {
-        newH -= dy; newW = newH * aspectRatio;
-        newY = originalAnn.y + originalAnn.height - newH;
-        newX = originalAnn.x + (originalAnn.width - newW) / 2;
-      } else {
-        newY += dy; newH -= dy;
-      }
-      break;
-    case HANDLE_TYPES.BOTTOM:
-      if (lockRatio) {
-        newH += dy; newW = newH * aspectRatio;
-        newX = originalAnn.x + (originalAnn.width - newW) / 2;
-      } else {
-        newH += dy;
-      }
-      break;
-    case HANDLE_TYPES.LEFT:
-      if (lockRatio) {
-        newW -= dx; newH = newW / aspectRatio;
-        newX = originalAnn.x + originalAnn.width - newW;
-        newY = originalAnn.y + (originalAnn.height - newH) / 2;
-      } else {
-        newX += dx; newW -= dx;
-      }
-      break;
-    case HANDLE_TYPES.RIGHT:
-      if (lockRatio) {
-        newW += dx; newH = newW / aspectRatio;
-        newY = originalAnn.y + (originalAnn.height - newH) / 2;
-      } else {
-        newW += dx;
-      }
-      break;
+// Schaal een rechthoek-vorm met een maatgreep via de gedeelde regel uit
+// minimummaat.js: maat -> klem -> positie uit het vaste punt. Werkt voor
+// ongedraaid en gedraaid (de vorm draait om zijn midden), voor vrije en vaste
+// verhouding, en voor plugin-vormen die w/h in plaats van width/height voeren.
+function _schaalMetGreep(annotation, handleType, deltaX, deltaY, originalAnn, opties = {}) {
+  const wKey = opties.breedteVeld || 'width';
+  const hKey = opties.hoogteVeld || 'height';
+  let bron = { x: originalAnn.x, y: originalAnn.y, width: originalAnn[wKey], height: originalAnn[hKey] };
+  // Oude cirkels voeren middelpunt + straal in plaats van een omhullende.
+  if (originalAnn.type === 'circle' && originalAnn.radius > 0
+      && !(originalAnn.width > 0) && !(originalAnn.height > 0)) {
+    const d = originalAnn.radius * 2;
+    bron = {
+      x: originalAnn.x !== undefined ? originalAnn.x : originalAnn.centerX - originalAnn.radius,
+      y: originalAnn.y !== undefined ? originalAnn.y : originalAnn.centerY - originalAnn.radius,
+      width: d, height: d,
+    };
   }
-
-  // Enforce minimum size
-  if (newW < 10) { newW = 10; if (lockRatio) newH = newW / aspectRatio; }
-  if (newH < 10) { newH = 10; if (lockRatio) newW = newH * aspectRatio; }
-
-  // The center of the original annotation in screen space
-  const rad = rot * Math.PI / 180;
-  const cosR = Math.cos(rad);
-  const sinR = Math.sin(rad);
-
-  const origCx = originalAnn.x + originalAnn.width / 2;
-  const origCy = originalAnn.y + originalAnn.height / 2;
-
-  // New center in local space (relative to old local origin)
-  const newLocalCx = newX + newW / 2;
-  const newLocalCy = newY + newH / 2;
-
-  // Offset of new center from old center in local space
-  const localOffX = newLocalCx - (originalAnn.x + originalAnn.width / 2);
-  const localOffY = newLocalCy - (originalAnn.y + originalAnn.height / 2);
-
-  // Rotate offset back to screen space to get the new screen center
-  const screenCx = origCx + localOffX * cosR - localOffY * sinR;
-  const screenCy = origCy + localOffX * sinR + localOffY * cosR;
-
-  // Set annotation position from screen center
-  annotation.x = screenCx - newW / 2;
-  annotation.y = screenCy - newH / 2;
-  annotation.width = newW;
-  annotation.height = newH;
+  const r = schaalRechthoekMetGreep(
+    bron,
+    handleType, deltaX, deltaY,
+    {
+      rotatie: opties.negeerRotatie ? 0 : (originalAnn.rotation || 0),
+      minBreedte: opties.minBreedte,
+      minHoogte: opties.minHoogte,
+      vasteVerhouding: !!opties.vasteVerhouding,
+      verhouding: opties.verhouding,
+    },
+  );
+  annotation.x = r.x;
+  annotation.y = r.y;
+  annotation[wKey] = r.width;
+  annotation[hKey] = r.height;
 }
 
-// Apply resize based on handle being dragged
-export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn, shiftKey = false, ctrlKey = false) {
+// Notitie-icoon: vaste markering met een vaste ondergrens in paginapunten.
+// Bewust GEEN schermpixel- of epsilon-grens: het icoon wordt op een vaste
+// maat getekend en krijgt van getAnnotationHandles geen maatgrepen; deze tak
+// is alleen nog bereikbaar voor programmatische aanroepen.
+export const COMMENT_MIN_MAAT_PT = 20;
+
+const _MAATGREPEN = new Set([
+  HANDLE_TYPES.TOP_LEFT, HANDLE_TYPES.TOP_RIGHT, HANDLE_TYPES.BOTTOM_LEFT, HANDLE_TYPES.BOTTOM_RIGHT,
+  HANDLE_TYPES.TOP, HANDLE_TYPES.BOTTOM, HANDLE_TYPES.LEFT, HANDLE_TYPES.RIGHT,
+]);
+
+// Apply resize based on handle being dragged.
+// opties.schaal = actuele zoom (schermpixels per paginapunt); nodig voor de
+// ondergrenzen die in schermpixels staan (schaalgebied, viewport, schaalbalk).
+export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn, shiftKey = false, ctrlKey = false, opties = {}) {
   if (annotation.locked) return;
+  // Ondergrens in schermpixels -> paginapunten bij de huidige zoom. Zonder
+  // bekende zoom geldt alleen de technische ondergrens.
+  const gebiedMinPt = (Number.isFinite(opties?.schaal) && opties.schaal > 0)
+    ? schermPxNaarPt(MIN_GEBIED_PX, opties.schaal) : undefined;
 
   // Center grips: move the whole annotation (translation, not stretch).
   // These are the "grip stretch" semantics for the center grip per the
@@ -350,6 +278,7 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
     case 'highlight':
     case 'polygon':
     case 'cloud':
+    case 'redaction':
     case 'textbox':
       // Textbox leader tip/knee drag: update only that point on the matching leader.
       if (annotation.type === 'textbox' && typeof handleType === 'string' &&
@@ -379,48 +308,14 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
         annotation.modifiedAt = new Date().toISOString();
         return;
       }
-      if (originalAnn.rotation) {
-        applyRotatedResize(annotation, handleType, deltaX, deltaY, originalAnn);
-      } else {
-        switch (handleType) {
-          case HANDLE_TYPES.TOP_LEFT:
-            annotation.x = originalAnn.x + deltaX;
-            annotation.y = originalAnn.y + deltaY;
-            annotation.width = originalAnn.width - deltaX;
-            annotation.height = originalAnn.height - deltaY;
-            break;
-          case HANDLE_TYPES.TOP_RIGHT:
-            annotation.y = originalAnn.y + deltaY;
-            annotation.width = originalAnn.width + deltaX;
-            annotation.height = originalAnn.height - deltaY;
-            break;
-          case HANDLE_TYPES.BOTTOM_LEFT:
-            annotation.x = originalAnn.x + deltaX;
-            annotation.width = originalAnn.width - deltaX;
-            annotation.height = originalAnn.height + deltaY;
-            break;
-          case HANDLE_TYPES.BOTTOM_RIGHT:
-            annotation.width = originalAnn.width + deltaX;
-            annotation.height = originalAnn.height + deltaY;
-            break;
-          case HANDLE_TYPES.TOP:
-            annotation.y = originalAnn.y + deltaY;
-            annotation.height = originalAnn.height - deltaY;
-            break;
-          case HANDLE_TYPES.BOTTOM:
-            annotation.height = originalAnn.height + deltaY;
-            break;
-          case HANDLE_TYPES.LEFT:
-            annotation.x = originalAnn.x + deltaX;
-            annotation.width = originalAnn.width - deltaX;
-            break;
-          case HANDLE_TYPES.RIGHT:
-            annotation.width = originalAnn.width + deltaX;
-            break;
-        }
-        // Ensure minimum size
-        if (annotation.width < 10) annotation.width = 10;
-        if (annotation.height < 10) annotation.height = 10;
+      if (_MAATGREPEN.has(handleType)) {
+        // Rechthoek, ellips, wolk, maskeer-, markerings- en redactievlak mogen
+        // willekeurig klein worden (alleen de technische ondergrens; de
+        // redactiemarkering had wel grepen maar geen tak). Een TEKSTVAK houdt
+        // een eigen ondergrens: er moet één teken op één regel in passen —
+        // afgeleid van de lettergrootte, niet een vast aantal punten.
+        const tbMin = annotation.type === 'textbox' ? tekstvakMinimum(originalAnn) : null;
+        _schaalMetGreep(annotation, handleType, deltaX, deltaY, originalAnn, tbMin || {});
       }
       break;
 
@@ -429,27 +324,14 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
       if (!originalAnn.width) originalAnn.width = 150;
       if (!originalAnn.height) originalAnn.height = 50;
 
+      // Hoekgrepen van het tekstvak: gedeelde regel. De ondergrens volgt de
+      // lettergrootte (één teken op één regel moet passen; de aanhaallijn
+      // rekent met de vakmaat), niet de oude vaste 50 x 30 punten.
+      if (_MAATGREPEN.has(handleType)) {
+        _schaalMetGreep(annotation, handleType, deltaX, deltaY, originalAnn,
+          { ...tekstvakMinimum(originalAnn), negeerRotatie: true });
+      }
       switch (handleType) {
-        case HANDLE_TYPES.TOP_LEFT:
-          annotation.x = originalAnn.x + deltaX;
-          annotation.y = originalAnn.y + deltaY;
-          annotation.width = originalAnn.width - deltaX;
-          annotation.height = originalAnn.height - deltaY;
-          break;
-        case HANDLE_TYPES.TOP_RIGHT:
-          annotation.y = originalAnn.y + deltaY;
-          annotation.width = originalAnn.width + deltaX;
-          annotation.height = originalAnn.height - deltaY;
-          break;
-        case HANDLE_TYPES.BOTTOM_LEFT:
-          annotation.x = originalAnn.x + deltaX;
-          annotation.width = originalAnn.width - deltaX;
-          annotation.height = originalAnn.height + deltaY;
-          break;
-        case HANDLE_TYPES.BOTTOM_RIGHT:
-          annotation.width = originalAnn.width + deltaX;
-          annotation.height = originalAnn.height + deltaY;
-          break;
         case HANDLE_TYPES.CALLOUT_MOVE:
           // Move entire callout (box + arrow + all points)
           annotation.x = originalAnn.x + deltaX;
@@ -475,9 +357,6 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
           }
           break;
       }
-      // Ensure minimum size
-      if (annotation.width < 50) annotation.width = 50;
-      if (annotation.height < 30) annotation.height = 30;
       // Recalculate leader line geometry (skip for move-all, already correct)
       if (handleType === HANDLE_TYPES.CALLOUT_MOVE) {
         // Everything moved together, no recalc needed
@@ -802,8 +681,10 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
             break;
         }
 
-        const newWidth = newMaxX - newMinX || 1;
-        const newHeight = newMaxY - newMinY || 1;
+        // Delingswacht met behoud van teken (omklappen mag bij vrije hand);
+        // exact 0 springt niet meer naar 1 pt.
+        const newWidth = nietNul(newMaxX - newMinX);
+        const newHeight = nietNul(newMaxY - newMinY);
         const scaleX = newWidth / origWidth;
         const scaleY = newHeight / origHeight;
 
@@ -931,30 +812,15 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
 
     case 'viewport':
     case 'scaleRegion': {
-      // Viewport / scale region: standard rectangle resize, minimum 40x40
-      switch (handleType) {
-        case HANDLE_TYPES.TOP_LEFT:
-          annotation.x = originalAnn.x + deltaX; annotation.y = originalAnn.y + deltaY;
-          annotation.width = originalAnn.width - deltaX; annotation.height = originalAnn.height - deltaY; break;
-        case HANDLE_TYPES.TOP_RIGHT:
-          annotation.y = originalAnn.y + deltaY;
-          annotation.width = originalAnn.width + deltaX; annotation.height = originalAnn.height - deltaY; break;
-        case HANDLE_TYPES.BOTTOM_LEFT:
-          annotation.x = originalAnn.x + deltaX;
-          annotation.width = originalAnn.width - deltaX; annotation.height = originalAnn.height + deltaY; break;
-        case HANDLE_TYPES.BOTTOM_RIGHT:
-          annotation.width = originalAnn.width + deltaX; annotation.height = originalAnn.height + deltaY; break;
-        case HANDLE_TYPES.TOP:
-          annotation.y = originalAnn.y + deltaY; annotation.height = originalAnn.height - deltaY; break;
-        case HANDLE_TYPES.BOTTOM:
-          annotation.height = originalAnn.height + deltaY; break;
-        case HANDLE_TYPES.LEFT:
-          annotation.x = originalAnn.x + deltaX; annotation.width = originalAnn.width - deltaX; break;
-        case HANDLE_TYPES.RIGHT:
-          annotation.width = originalAnn.width + deltaX; break;
+      // Schaalgebied / viewport: alleen op de randen raakbaar, en een per
+      // ongeluk ingeklapt gebied haalt alle maten erbinnen uit hun schaal.
+      // Daarom WEL een ondergrens, maar in SCHERMPIXELS (px / zoom): wie
+      // inzoomt kan een kleiner gebied maken. Een gebied dat al kleiner is
+      // (ingetypt in het paneel) springt niet omhoog.
+      if (_MAATGREPEN.has(handleType)) {
+        _schaalMetGreep(annotation, handleType, deltaX, deltaY, originalAnn,
+          { minBreedte: gebiedMinPt, minHoogte: gebiedMinPt, negeerRotatie: true });
       }
-      if (annotation.width < 40) annotation.width = 40;
-      if (annotation.height < 40) annotation.height = 40;
       break;
     }
 
@@ -963,6 +829,7 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
     case 'signature':
     case 'scaleBar':
     case 'scheduleTable':
+    case 'vectorSnippet':
     case 'parametricSymbol': {
       if (annotation.type === 'parametricSymbol'
           && getTemplate(annotation.symbolId)?.placement === 'two-point') {
@@ -1007,140 +874,26 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
         syncTwoPointLengthParam(annotation, pxPerMmAt(annotation.page, midX, midY));
         break;
       }
+      // Afbeelding, stempel, handtekening, staat en parametrisch symbool mogen
+      // willekeurig klein worden; ongedraaid, gedraaid, vrij en met vaste
+      // verhouding lopen via dezelfde regel. Bewuste keuze uit #283 blijft:
+      // voorbij het vaste punt slepen klapt niet om maar zakt naar de
+      // ondergrens, en de verhouding blijft bij elke sleepafstand gelden
+      // (#315: ook bij een zeer brede of zeer hoge afbeelding).
+      //
+      // De SCHAALBALK is geen gewone vorm: bij loslaten wordt zijn breedte de
+      // schaal van het hele document. Een per ongeluk ingeklapte balk zou
+      // alles herschalen, dus die houdt de schermpixel-ondergrens.
+      if (!_MAATGREPEN.has(handleType)) break;
       const lockRatio = shiftKey || annotation.lockAspectRatio;
-      if (originalAnn.rotation) {
-        applyRotatedResize(annotation, handleType, deltaX, deltaY, originalAnn, lockRatio);
-      } else {
-        const aspectRatio = originalAnn.originalWidth && originalAnn.originalHeight
-          ? originalAnn.originalWidth / originalAnn.originalHeight
-          : originalAnn.width / originalAnn.height;
-
-        if (lockRatio && aspectRatio > 0) {
-          // Aspect-ratio-locked resize (issue #283). Derive both axes from a
-          // single ratio-preserving width, then clamp BOTH axes proportionally
-          // — re-deriving the partner axis from the clamped one — so the ratio
-          // holds at every drag distance. The previous code clamped width and
-          // height to the minimum independently, which broke the ratio once the
-          // shorter axis dropped below the 20px floor ("past a certain point"),
-          // and let the size go negative when a handle was dragged past its
-          // anchor. Position is computed from the fixed anchor AFTER the clamp
-          // so the box never drifts.
-          //
-          // The floor bounds the LONGEST axis, not both axes independently
-          // (issue #315). A single 20-unit floor on width AND height freezes a
-          // very wide (or very tall) image long before it looks small: a
-          // 188 x 24 pt scale-bar image hits the 20-unit height floor while it
-          // is still 159 pt wide, and from there every further drag re-derives
-          // the exact same 159 x 20 box — the annotation appears stuck. With
-          // the floor on the long axis the ratio can always be honored; for a
-          // square-ish image (ratio 1) MIN_W/MIN_H are both 20, identical to
-          // the previous behavior.
-          const MIN_LONG = 20;
-          const MIN_W = aspectRatio >= 1 ? MIN_LONG : MIN_LONG * aspectRatio;
-          const MIN_H = MIN_W / aspectRatio;
-          const ox = originalAnn.x, oy = originalAnn.y;
-          const ow = originalAnn.width, oh = originalAnn.height;
-
-          // 1. Ratio-preserving width from the drag. For corners take the
-          //    dominant delta (width- vs height-driven) so diagonal drags stay
-          //    natural; edges drive from their own axis.
-          let newWidth;
-          switch (handleType) {
-            case HANDLE_TYPES.TOP_LEFT:
-            case HANDLE_TYPES.BOTTOM_LEFT: {
-              const hSign = (handleType === HANDLE_TYPES.BOTTOM_LEFT) ? 1 : -1;
-              const wFromX = ow - deltaX;
-              const wFromY = (oh + hSign * deltaY) * aspectRatio;
-              newWidth = Math.abs(deltaX) >= Math.abs(deltaY) ? wFromX : wFromY;
-              break;
-            }
-            case HANDLE_TYPES.TOP_RIGHT:
-            case HANDLE_TYPES.BOTTOM_RIGHT: {
-              const hSign = (handleType === HANDLE_TYPES.BOTTOM_RIGHT) ? 1 : -1;
-              const wFromX = ow + deltaX;
-              const wFromY = (oh + hSign * deltaY) * aspectRatio;
-              newWidth = Math.abs(deltaX) >= Math.abs(deltaY) ? wFromX : wFromY;
-              break;
-            }
-            case HANDLE_TYPES.LEFT:   newWidth = ow - deltaX; break;
-            case HANDLE_TYPES.RIGHT:  newWidth = ow + deltaX; break;
-            case HANDLE_TYPES.TOP:    newWidth = (oh - deltaY) * aspectRatio; break;
-            case HANDLE_TYPES.BOTTOM: newWidth = (oh + deltaY) * aspectRatio; break;
-            default:                  newWidth = ow;
-          }
-
-          // 2. Proportional clamp. A width <= 0 (dragged past the anchor) is
-          //    below the floor, so it collapses to the minimum rather than
-          //    flipping. Both tests describe the same box, the second only
-          //    catches float residue from the division above.
-          let newHeight = newWidth / aspectRatio;
-          if (newWidth < MIN_W)  { newWidth = MIN_W;  newHeight = newWidth / aspectRatio; }
-          if (newHeight < MIN_H) { newHeight = MIN_H; newWidth = newHeight * aspectRatio; }
-
-          // 3. Place from the fixed anchor using the final size.
-          let nx = ox, ny = oy;
-          switch (handleType) {
-            case HANDLE_TYPES.TOP_LEFT:
-              nx = ox + ow - newWidth; ny = oy + oh - newHeight; break;
-            case HANDLE_TYPES.TOP_RIGHT:
-              ny = oy + oh - newHeight; break;
-            case HANDLE_TYPES.BOTTOM_LEFT:
-              nx = ox + ow - newWidth; break;
-            case HANDLE_TYPES.BOTTOM_RIGHT:
-              break;
-            case HANDLE_TYPES.TOP:
-              nx = ox + (ow - newWidth) / 2; ny = oy + oh - newHeight; break;
-            case HANDLE_TYPES.BOTTOM:
-              nx = ox + (ow - newWidth) / 2; break;
-            case HANDLE_TYPES.LEFT:
-              nx = ox + ow - newWidth; ny = oy + (oh - newHeight) / 2; break;
-            case HANDLE_TYPES.RIGHT:
-              ny = oy + (oh - newHeight) / 2; break;
-          }
-          annotation.x = nx; annotation.y = ny;
-          annotation.width = newWidth; annotation.height = newHeight;
-        } else {
-          switch (handleType) {
-            case HANDLE_TYPES.TOP_LEFT:
-              annotation.x = originalAnn.x + deltaX;
-              annotation.y = originalAnn.y + deltaY;
-              annotation.width = originalAnn.width - deltaX;
-              annotation.height = originalAnn.height - deltaY;
-              break;
-            case HANDLE_TYPES.TOP_RIGHT:
-              annotation.y = originalAnn.y + deltaY;
-              annotation.width = originalAnn.width + deltaX;
-              annotation.height = originalAnn.height - deltaY;
-              break;
-            case HANDLE_TYPES.BOTTOM_LEFT:
-              annotation.x = originalAnn.x + deltaX;
-              annotation.width = originalAnn.width - deltaX;
-              annotation.height = originalAnn.height + deltaY;
-              break;
-            case HANDLE_TYPES.BOTTOM_RIGHT:
-              annotation.width = originalAnn.width + deltaX;
-              annotation.height = originalAnn.height + deltaY;
-              break;
-            case HANDLE_TYPES.TOP:
-              annotation.y = originalAnn.y + deltaY;
-              annotation.height = originalAnn.height - deltaY;
-              break;
-            case HANDLE_TYPES.BOTTOM:
-              annotation.height = originalAnn.height + deltaY;
-              break;
-            case HANDLE_TYPES.LEFT:
-              annotation.x = originalAnn.x + deltaX;
-              annotation.width = originalAnn.width - deltaX;
-              break;
-            case HANDLE_TYPES.RIGHT:
-              annotation.width = originalAnn.width + deltaX;
-              break;
-          }
-          // Ensure minimum size
-          if (annotation.width < 20) annotation.width = 20;
-          if (annotation.height < 20) annotation.height = 20;
-        }
-      }
+      const aspectRatio = veiligeVerhouding(originalAnn.originalWidth, originalAnn.originalHeight)
+        || veiligeVerhouding(originalAnn.width, originalAnn.height);
+      const isSchaalbalk = annotation.type === 'scaleBar';
+      _schaalMetGreep(annotation, handleType, deltaX, deltaY, originalAnn, {
+        vasteVerhouding: !!lockRatio,
+        verhouding: aspectRatio,
+        minBreedte: isSchaalbalk ? gebiedMinPt : undefined,
+      });
       break;
     }
 
@@ -1186,8 +939,8 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
           break;
       }
       // Ensure minimum size
-      if (annotation.width < 20) annotation.width = 20;
-      if (annotation.height < 20) annotation.height = 20;
+      if (annotation.width < COMMENT_MIN_MAAT_PT) annotation.width = COMMENT_MIN_MAAT_PT;
+      if (annotation.height < COMMENT_MIN_MAAT_PT) annotation.height = COMMENT_MIN_MAAT_PT;
       break;
 
     default:
@@ -1202,46 +955,13 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
         && typeof handleType === 'string'
         && !handleType.startsWith('polyline_node_')
       ) {
-        switch (handleType) {
-          case HANDLE_TYPES.TOP_LEFT:
-            annotation.x = originalAnn.x + deltaX;
-            annotation.y = originalAnn.y + deltaY;
-            annotation.w = originalAnn.w - deltaX;
-            annotation.h = originalAnn.h - deltaY;
-            break;
-          case HANDLE_TYPES.TOP_RIGHT:
-            annotation.y = originalAnn.y + deltaY;
-            annotation.w = originalAnn.w + deltaX;
-            annotation.h = originalAnn.h - deltaY;
-            break;
-          case HANDLE_TYPES.BOTTOM_LEFT:
-            annotation.x = originalAnn.x + deltaX;
-            annotation.w = originalAnn.w - deltaX;
-            annotation.h = originalAnn.h + deltaY;
-            break;
-          case HANDLE_TYPES.BOTTOM_RIGHT:
-            annotation.w = originalAnn.w + deltaX;
-            annotation.h = originalAnn.h + deltaY;
-            break;
-          case HANDLE_TYPES.TOP:
-            annotation.y = originalAnn.y + deltaY;
-            annotation.h = originalAnn.h - deltaY;
-            break;
-          case HANDLE_TYPES.BOTTOM:
-            annotation.h = originalAnn.h + deltaY;
-            break;
-          case HANDLE_TYPES.LEFT:
-            annotation.x = originalAnn.x + deltaX;
-            annotation.w = originalAnn.w - deltaX;
-            break;
-          case HANDLE_TYPES.RIGHT:
-            annotation.w = originalAnn.w + deltaX;
-            break;
+        // Zelfde regel als de ingebouwde rechthoek, maar naar w/h geschreven.
+        // Geen vaste 10 pt meer: de grepen zijn schermvast, dus inzoomen
+        // maakt ook een piepkleine vorm weer grijpbaar.
+        if (_MAATGREPEN.has(handleType)) {
+          _schaalMetGreep(annotation, handleType, deltaX, deltaY, originalAnn,
+            { breedteVeld: 'w', hoogteVeld: 'h', negeerRotatie: true });
         }
-        // Minimum-size guard: collapsing below 10 px makes the shape
-        // unreachable. Mirror the box-case minimum.
-        if (annotation.w < 10) annotation.w = 10;
-        if (annotation.h < 10) annotation.h = 10;
         break;
       }
       // Plugin polyline fallback: any annotation-type with a points array supports

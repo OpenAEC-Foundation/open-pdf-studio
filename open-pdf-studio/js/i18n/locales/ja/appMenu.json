@@ -63,7 +63,9 @@
     "importXfdf": "注釈をインポート (XFDF)",
     "importXfdfDesc": "XFDF ファイルから現在のドキュメントに注釈をインポートします",
     "importBcf": "Import Issues (BCF)",
-    "importBcfDesc": "Import BCF topics from another BIM tool as annotations"
+    "importBcfDesc": "Import BCF topics from another BIM tool as annotations",
+    "importCad": "CAD図面 (DWG, DXF)",
+    "importCadDesc": "DWGまたはDXF図面を縮尺どおりのPDFページとしてインポートします。画層と計測縮尺付き"
   },
   "exportPanel": {
     "title": "エクスポート",
@@ -93,7 +95,9 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile."
+    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "exportCad": "CAD 図面 (DXF, DWG)",
+    "exportCadDesc": "ベクター図面を画層・縮尺・範囲付きで DXF または DWG にエクスポート"
   },
   "annotateScreenshot": "Annotate Clipboard Screenshot"
 }

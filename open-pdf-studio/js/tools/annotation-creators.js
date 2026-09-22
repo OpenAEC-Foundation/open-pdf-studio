@@ -17,6 +17,8 @@ import { STAVENREEKS_DEFAULTS } from '../annotations/stavenreeks.js';
 import { BETONBALK_DEFAULTS } from '../annotations/betonbalk.js';
 import { betonbalkLastProfiel } from '../solid/stores/betonbalkStore.js';
 import { labelFontSizeAt } from '../annotations/drafting-rules.js';
+import { isKlikSleep, klemMaat, schermPxNaarPt, KLIK_DREMPEL_PX } from '../annotations/minimummaat.js';
+import { getEffectiveScale } from './effective-scale.js';
 
 /**
  * Build raw annotation properties from tool + coordinates.
@@ -40,11 +42,17 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
   }
 
   function bbox(sx, sy, ex, ey) {
+    // Genormaliseerd (linksboven + positieve maat) en nooit nul: een sleep
+    // langs precies één as geeft de technische ondergrens, geen breedte 0.
     return {
       x: Math.min(sx, ex), y: Math.min(sy, ey),
-      width: Math.abs(ex - sx), height: Math.abs(ey - sy)
+      width: klemMaat(Math.abs(ex - sx)), height: klemMaat(Math.abs(ey - sy))
     };
   }
+
+  // Klik of sleep is een schermbegrip: reken in schermpixels (px / zoom), zodat
+  // ingezoomd ook een heel kleine sleep een echte sleep is.
+  const isKlik = (dx, dy) => isKlikSleep(dx, dy, getEffectiveScale());
 
   switch (tool) {
     case 'draw':
@@ -250,8 +258,9 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
       return {
         type: 'polygon',
         page: getActiveDocument()?.currentPage || 1,
-        x: startX, y: startY,
-        width: endX - startX, height: endY - startY,
+        // Genormaliseerd: naar links/boven slepen gaf een negatieve maat, en
+        // daar kunnen raaktest, ruimtelijke index en opslaan niet mee overweg.
+        ...bbox(startX, startY, endX, endY),
         sides: 6,
         color: prefs.polygonStrokeColor || getColorPickerValue(),
         strokeColor: prefs.polygonStrokeColor || getColorPickerValue(),
@@ -406,7 +415,7 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         const bandHeight = (realSize?.height > 0
           ? realSize.height * k
           : (template.defaultSize?.height || 48)) * huidigeSymboolSchaal();
-        if (Math.hypot(pointEndX - startX, pointEndY - startY) < 5) {
+        if (isKlik(pointEndX - startX, pointEndY - startY)) {
           const defaultLength = realSize?.width > 0
             ? realSize.width * k
             : (template.defaultSize?.width || 320);
@@ -438,7 +447,12 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
       // templates with a real-world size (steel profiles), the REAL
       // dimensions at the click point (scale-region aware), centred on the
       // click like a CAD block insert.
-      const geklikt = b.width < 5 || b.height < 5;
+      // Drempel in SCHERMPIXELS (px / zoom) in plaats van 5 paginapunten:
+      // ingezoomd mag het gesleepte kader dus zo klein zijn als je wilt. Een
+      // symboolkader heeft beide assen nodig, dus een sleep die op één as
+      // binnen de klikdrempel blijft (slordige klik) telt nog als klik.
+      const klikGrens = schermPxNaarPt(KLIK_DREMPEL_PX, getEffectiveScale());
+      const geklikt = Math.abs(endX - startX) < klikGrens || Math.abs(endY - startY) < klikGrens;
       if (geklikt) {
         const mm = typeof template?.realSizeMm === 'function'
           ? template.realSizeMm(params) : null;
@@ -489,7 +503,7 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
       const end = snap(startX, startY, endX, endY);
       let sEndX = end.x, sEndY = end.y;
       // Klik zonder sleep: standaardlengte van 120 px horizontaal naar rechts.
-      if (Math.abs(sEndX - startX) < 5 && Math.abs(sEndY - startY) < 5) {
+      if (isKlik(sEndX - startX, sEndY - startY)) {
         sEndX = startX + 120;
         sEndY = startY;
       }
@@ -570,10 +584,19 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
 function finalizeAnnotation(tool, props) {
   if (!props) return null;
 
-  const w = props.width, h = props.height;
-  if (tool === 'cloud' && (w < 10 || h < 10)) return null;
-  if (tool === 'textbox' && (w < 5 || h < 5)) return null;
-  if (tool === 'redaction' && (w < 5 || h < 5)) return null;
+  // Geen ondergrens in paginapunten meer voor wolk (was 10 pt: een wolk van
+  // 8 x 100 pt verviel stil) en redactiemarkering (was 5 pt: een smalle strook
+  // over een dunne lijn moet kunnen). De vormen-tool heeft de echte
+  // "geen sleep"-situatie al in schermpixels afgevangen.
+  //
+  // Tekstvak: er moet tekst in passen. In plaats van stil te vervallen valt
+  // een te klein gesleept vak terug op de standaardmaat van een klik; de
+  // grens volgt de schermpixel-klikdrempel, niet een vast aantal punten.
+  if (tool === 'textbox') {
+    const grens = schermPxNaarPt(KLIK_DREMPEL_PX, getEffectiveScale());
+    if (props.width < grens) props.width = 100;
+    if (props.height < grens) props.height = 20;
+  }
 
   if (tool === 'draw') {
     state.currentPath = [];

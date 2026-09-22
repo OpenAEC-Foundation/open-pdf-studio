@@ -160,7 +160,7 @@
   },
   "virtualPrinter": {
     "title": "Printa Pepe",
-    "description": "Weka \"Open PDF Studio\" kama printa ya Windows. Unapochapisha kutoka programu yoyote (Word, Chrome, Notepad, n.k.) na kuchagua printa hii, PDF inayotoka itafunguka kiotomatiki kwenye programu hii.",
+    "description": "Weka \"Open PDF Printer\" kama printa ya Windows. Unapochapisha kutoka programu yoyote (Word, Chrome, Notepad, n.k.) na kuchagua printa hii, PDF inayotoka itafunguka kiotomatiki kwenye programu hii.",
     "status": "Hali:",
     "installButton": "Weka Printa Pepe",
     "removeButton": "Ondoa Printa Pepe",

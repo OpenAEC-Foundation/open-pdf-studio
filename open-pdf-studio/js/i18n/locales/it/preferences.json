@@ -143,7 +143,7 @@
   },
   "virtualPrinter": {
     "title": "Stampante virtuale",
-    "description": "Installa \"Open PDF Studio\" come stampante Windows. Quando si stampa da qualsiasi applicazione (Word, Chrome, Blocco note, ecc.) e si seleziona questa stampante, il PDF generato si aprirà automaticamente in questa applicazione.",
+    "description": "Installa \"Open PDF Printer\" come stampante Windows. Quando si stampa da qualsiasi applicazione (Word, Chrome, Blocco note, ecc.) e si seleziona questa stampante, il PDF generato si aprirà automaticamente in questa applicazione.",
     "status": "Stato:",
     "installButton": "Installa stampante virtuale",
     "removeButton": "Rimuovi stampante virtuale",

@@ -160,7 +160,7 @@
   },
   "virtualPrinter": {
     "title": "Virtuális nyomtató",
-    "description": "Telepítse a \"Open PDF Studio\" alkalmazást Windows nyomtatóként. Ha bármely alkalmazásból (Word, Chrome, Jegyzettömb stb.) nyomtat, és ezt a nyomtatót választja, a létrejövő PDF automatikusan megnyílik ebben az alkalmazásban.",
+    "description": "Telepítse az \"Open PDF Printer\" nyomtatót Windows nyomtatóként. Ha bármely alkalmazásból (Word, Chrome, Jegyzettömb stb.) nyomtat, és ezt a nyomtatót választja, a létrejövő PDF automatikusan megnyílik ebben az alkalmazásban.",
     "status": "Állapot:",
     "installButton": "Virtuális nyomtató telepítése",
     "removeButton": "Virtuális nyomtató eltávolítása",

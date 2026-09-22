@@ -41,6 +41,8 @@ import ScaleRegionDialog from './dialogs/ScaleRegionDialog.jsx';
 import MeasuredLengthDialog from './dialogs/MeasuredLengthDialog.jsx';
 import TitleBlockDialog from './dialogs/TitleBlockDialog.jsx';
 import CompareDialog from './compare/CompareDialog.jsx';
+import CadExportDialog from './dialogs/CadExportDialog.jsx';
+import CadImportDialog from './dialogs/CadImportDialog.jsx';
 import TextEditOverlay from './TextEditOverlay.jsx';
 import StavenreeksInlineEditor from './StavenreeksInlineEditor.jsx';
 import ParametricLabelInlineEditor from './ParametricLabelInlineEditor.jsx';
@@ -99,6 +101,8 @@ const DIALOG_MAP = {
   'scale-region': ScaleRegionDialog,
   'measured-length': MeasuredLengthDialog,
   'compare': CompareDialog,
+  'cad-export': CadExportDialog,
+  'cad-import': CadImportDialog,
 };
 
 export default function DialogHost() {

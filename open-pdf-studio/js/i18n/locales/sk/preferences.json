@@ -160,7 +160,7 @@
   },
   "virtualPrinter": {
     "title": "Virtuálna tlačiareň",
-    "description": "Nainštalujte \"Open PDF Studio\" ako tlačiareň systému Windows. Keď tlačíte z ľubovoľnej aplikácie (Word, Chrome, Poznámkový blok atď.) a vyberiete túto tlačiareň, výstupný PDF sa automaticky otvorí v tejto aplikácii.",
+    "description": "Nainštalujte \"Open PDF Printer\" ako tlačiareň systému Windows. Keď tlačíte z ľubovoľnej aplikácie (Word, Chrome, Poznámkový blok atď.) a vyberiete túto tlačiareň, výstupný PDF sa automaticky otvorí v tejto aplikácii.",
     "status": "Stav:",
     "installButton": "Nainštalovať virtuálnu tlačiareň",
     "removeButton": "Odstrániť virtuálnu tlačiareň",

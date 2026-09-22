@@ -143,7 +143,7 @@
   },
   "virtualPrinter": {
     "title": "Sanal Yazıcı",
-    "description": "\"Open PDF Studio\"yu bir Windows yazıcısı olarak yükleyin. Herhangi bir uygulamadan (Word, Chrome, Not Defteri vb.) yazdırıp bu yazıcıyı seçtiğinizde, çıktı PDF dosyası bu uygulamada otomatik olarak açılacaktır.",
+    "description": "\"Open PDF Printer\" adlı yazıcıyı Windows yazıcısı olarak yükleyin. Herhangi bir uygulamadan (Word, Chrome, Not Defteri vb.) yazdırıp bu yazıcıyı seçtiğinizde, çıktı PDF dosyası bu uygulamada otomatik olarak açılacaktır.",
     "status": "Durum:",
     "installButton": "Sanal Yazıcıyı Yükle",
     "removeButton": "Sanal Yazıcıyı Kaldır",

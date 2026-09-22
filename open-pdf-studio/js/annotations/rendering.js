@@ -24,6 +24,7 @@ import { drawSysteemrasterGeom } from './rendering/systeemraster-draw.js';
 import { getSysteemSymbolImage, registerSysteemSymbolRedraw } from './rendering/systeem-symbol-cache.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { drawSelectionHandles } from './rendering/selection.js';
+import { weergaveLagen } from './rendering/uitvoer-lagen.js';
 import { drawImageCropOverlay, activeCropAnnotation } from './image-crop-overlay.js';
 import { fracties as cropFracties, volledigVak as cropVolledigVak } from './crop-geometrie.js';
 import { drawEmbeddedImageOverlay } from '../tools/tools/remove-image-tool.js';
@@ -43,6 +44,7 @@ import { labelHasNumericField } from './editable-numbers-providers.js';
 import { halftoneTypes as evHalftoneTypes } from '../solid/stores/elementVisibilityStore.js';
 import { isAnnotationHiddenInView } from './view-filters.js';
 import { kruisEindpuntenEllips } from './kruis-geometrie.js';
+import { klemMaat, symboolRasterPxPerPt } from './minimummaat.js';
 import {
   getPageRotationMatrix,
   resolveTextEditLineStyle,
@@ -180,17 +182,30 @@ function _drawPolarOverlay(ctx, snapResult, scale) {
 // is in flight. Full weight is restored on the post-gesture repaint.
 const DRAG_LOD_MAX_SCREEN_PX = 6;
 
+// Lagen van de rendering die nu loopt: null = het scherm, anders de lagen van
+// een afdruk, export of voorbeeld (zie rendering/uitvoer-lagen.js). Wordt
+// alleen tijdens renderAnnotationsForPage gezet — die tekent synchroon — zodat
+// drawAnnotation weet dat er geen bewerkingstoestand in de uitvoer hoort.
+let _lagen = null;
+
+/** Tekent deze rendering laag `naam`? Zonder uitvoermodus altijd. */
+function laag(naam) {
+  return !_lagen || _lagen[naam];
+}
+
 // Blauwe klik-affordance voor bewerkbare getallen: alleen wanneer de
 // annotatie de ENIGE selectie is (zie annotations/editable-numbers.js) —
 // precies dan opent een klik op zo'n getal de inline invoer.
 function inlineNumberHighlight(annotation) {
+  // Een afdruk of export kent geen selectie: geen blauwe affordance.
+  if (!laag('selectie')) return false;
   const doc = state.documents[state.activeDocumentIndex];
   return shouldHighlightNumbers(annotation, doc ? doc.selectedAnnotations : null);
 }
 
 function thinLw(width) {
   if (width === 0) return 0;
-  if (state.preferences?.thinLines) {
+  if (state.preferences?.thinLines && laag('schermlijndikte')) {
     // Lineweight display OFF ('TL'): EVERYTHING renders as a true hairline —
     // exactly 1 screen pixel at any zoom (CAD LWDISPLAY off).
     const vp0 = window.__pdfViewport;
@@ -199,6 +214,10 @@ function thinLw(width) {
     return s0 > 0 ? 1 / s0 : 1;
   }
   let lw = Math.max(width, 0.25);
+  // Uitvoer (afdruk, export, voorbeeld): de echte lijndikte. De regels
+  // hieronder rekenen naar SCHERMpixels en maakten een lijn van 0,5 pt bij
+  // 17 % zoom 6 pt dik op papier.
+  if (!laag('schermlijndikte')) return lw;
   const vp = window.__pdfViewport;
   const _doc = state.documents[state.activeDocumentIndex];
   // Blank docs (no filePath) bypass the viewport singleton and use doc.scale.
@@ -292,14 +311,18 @@ function drawTextboxLeader(ctx, annotation, leader, strokeColor, lineWidth) {
 // annotation Rect), so a rotated symbol never clips.
 export function renderParametricSymbolToPng(annotation, pxPerUnit = 4) {
   try {
-    const w = Math.max(1, annotation.width || 1);
-    const h = Math.max(1, annotation.height || 1);
+    // Alleen de technische ondergrens: een symbool kleiner dan 1 pt (een
+    // wapeningsstaaf van 12 mm op 1:100 is 0,34 pt) kreeg een appearance van
+    // 1 pt, groter dan zijn geometrie.
+    const w = klemMaat(annotation.width);
+    const h = klemMaat(annotation.height);
     const rot = ((annotation.rotation || 0) * Math.PI) / 180;
     const cosA = Math.abs(Math.cos(rot)), sinA = Math.abs(Math.sin(rot));
     const aabbW = w * cosA + h * sinA;   // rotation-expanded bbox = saver Rect
     const aabbH = w * sinA + h * cosA;
-    // Cap so a huge symbol can't allocate an enormous canvas.
-    const px = Math.max(0.5, Math.min(pxPerUnit, 4000 / Math.max(aabbW, aabbH)));
+    // Klein symbool: genoeg pixels op de langste zijde (was 1-4 pixels);
+    // groot symbool: cap zodat het canvas niet enorm wordt.
+    const px = symboolRasterPxPerPt(Math.max(aabbW, aabbH), pxPerUnit);
     const cw = Math.max(1, Math.round(aabbW * px));
     const ch = Math.max(1, Math.round(aabbH * px));
     const canvas = document.createElement('canvas');
@@ -1311,7 +1334,7 @@ export function drawAnnotation(ctx, annotation) {
         // .naturalWidth — support both so crop works with and without tint.
         const srcW = imgSrc.naturalWidth || imgSrc.width || 0;
         const srcH = imgSrc.naturalHeight || imgSrc.height || 0;
-        if (activeCropAnnotation() === annotation && srcW > 0 && srcH > 0) {
+        if (laag('bewerkhulp') && activeCropAnnotation() === annotation && srcW > 0 && srcH > 0) {
           // Bijsnij-modus: de VOLLEDIGE bron tekenen op het vak waar hij
           // hoort, zodat de weggesneden rand (gedimd door de overlay)
           // zichtbaar blijft en een greep weer naar buiten kan. De
@@ -2919,7 +2942,9 @@ function drawRubberBand(ctx, effectiveScale) {
   if (sx == null || sy == null || ex == null || ey == null) return;
   const x = Math.min(sx, ex), y = Math.min(sy, ey);
   const w = Math.abs(ex - sx), h = Math.abs(ey - sy);
-  if (w < 0.5 && h < 0.5) return;
+  // Tekendrempel in schermpixels (was 0,5 paginapunt = 32 px bij 6400 %).
+  const rbTekenMin = 0.5 / (effectiveScale > 0 ? effectiveScale : 1);
+  if (w < rbTekenMin && h < rbTekenMin) return;
   const isCrossing = state.rubberBandMode === 'crossing';
   ctx.save();
   ctx.lineWidth = 1 / effectiveScale;
@@ -2946,13 +2971,29 @@ function drawRubberBand(ctx, effectiveScale) {
 // `pageDims` (optioneel, {w,h} in schaal-1-paginacoördinaten): volledige
 // paginamaat voor de watermerken; zonder deze parameter wordt de canvasmaat
 // gebruikt, wat bij een viewport-uitsnede te klein is.
-export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims) {
+// `opties` (optioneel): `{ uitvoer: true }` voor een afdruk, export of
+// voorbeeld — dan geen selectiekader, grepen of andere bewerkingstoestand, en
+// echte lijndiktes; `{ markeringen: false }` laat de annotatielaag weg
+// ("Afdrukken: Document"). Zie rendering/uitvoer-lagen.js.
+export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims, opties) {
+  const lagen = weergaveLagen(opties);
+  // Alleen tijdens deze (synchrone) rendering, zodat drawAnnotation weet dat
+  // er geen bewerkingstoestand in de uitvoer hoort.
+  _lagen = opties ? lagen : null;
+  try {
+    tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims, lagen);
+  } finally {
+    _lagen = null;
+  }
+}
+
+function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims, lagen) {
   ctx.clearRect(0, 0, width, height);
 
   // Read scale and annotations from the active document directly
   const doc = state.documents[state.activeDocumentIndex];
   const scale = doc ? doc.scale : 1;
-  const annotations = doc ? doc.annotations : [];
+  const annotations = lagen.markeringen && doc ? doc.annotations : [];
 
   // Apply scale transformation for zooming (includes hi-DPI factor)
   const dpr = overrideDpr !== undefined ? overrideDpr : (window.devicePixelRatio || 1);
@@ -2987,10 +3028,12 @@ export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDp
   // Draw watermarks in front of content
   renderWatermarksInFront(ctx, pageNum, wmW, wmH);
 
+  // Vanaf hier alleen bewerkingstoestand: die hoort niet in een afdruk,
+  // export of voorbeeld (lagen.selectie en lagen.bewerkhulp).
   // Blender-achtige 2D-cursor (Shift+rechtsklik). Werd alleen in het
   // enkelpagina-pad getekend; in de doorlopende weergave plaatste de klik hem
   // dus onzichtbaar. Zelfde gate op de pagina als de enkelpagina-render.
-  if (doc?.cursor2D && doc.cursor2D.page === pageNum) {
+  if (lagen.bewerkhulp && doc?.cursor2D && doc.cursor2D.page === pageNum) {
     _draw2DCursor(ctx, doc.cursor2D.x, doc.cursor2D.y, effectiveScale);
   }
 
@@ -2998,7 +3041,7 @@ export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDp
   // selectie in de doorlopende weergave onzichtbaar bleef: geen grippunten op
   // tekstblokken en geen visuele bevestiging na knippen/plakken. Zelfde bron
   // (selectedAnnotations) en zelfde volgorde als de enkelpagina-render.
-  const selected = doc ? doc.selectedAnnotations : [];
+  const selected = lagen.selectie && doc ? doc.selectedAnnotations : [];
   if (selected && selected.length > 0) {
     for (const ann of selected) {
       if (ann.page !== pageNum) continue;
@@ -3007,23 +3050,25 @@ export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDp
   }
 
   // Rubber-band selection marquee on the page the drag started on (continuous).
-  if (state.isRubberBanding && state.rubberBandPage === pageNum) {
+  if (lagen.bewerkhulp && state.isRubberBanding && state.rubberBandPage === pageNum) {
     drawRubberBand(ctx, effectiveScale);
   }
 
   // Image alignment guides on the page being edited (continuous). Same
   // state-driven principle as single-page mode: drawn here so the viewport's
   // RAF re-render can't wipe them.
-  if (state._imageAlignGuides && state._imageAlignGuides.length > 0 &&
+  if (lagen.bewerkhulp && state._imageAlignGuides && state._imageAlignGuides.length > 0 &&
       state._imageAlignGuidesPage === pageNum) {
     drawImageAlignGuides(ctx, state._imageAlignGuides, effectiveScale);
   }
 
-  // Interactive image-crop overlay for the page being cropped (continuous).
-  drawImageCropOverlay(ctx, pageNum);
+  if (lagen.bewerkhulp) {
+    // Interactive image-crop overlay for the page being cropped (continuous).
+    drawImageCropOverlay(ctx, pageNum);
 
-  // Embedded image-removal tool highlights (issue #184).
-  drawEmbeddedImageOverlay(ctx, pageNum);
+    // Embedded image-removal tool highlights (issue #184).
+    drawEmbeddedImageOverlay(ctx, pageNum);
+  }
 
   // Restore context
   ctx.restore();

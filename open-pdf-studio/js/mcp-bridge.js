@@ -142,6 +142,15 @@ async function handleOpenPdf(params) {
   if (typeof path !== 'string' || !path) {
     return { ok: false, error: 'missing or invalid params.path' };
   }
+  // Een DWG of DXF opent net als via Bestand > Openen het importvenster (#400).
+  const cadMod = await import('./pdf/cad-import.js');
+  const cad = await cadMod.openAlsCadTekening(path, { wachten: false });
+  if (cad === 'busy') {
+    return { ok: false, error: 'the CAD import dialog is already open for another drawing', file_path: path };
+  }
+  if (cad) {
+    return { ok: true, dialog: 'cad-import', file_path: path };
+  }
   const stateMod = await import('./core/state.js');
   const tabsMod = await import('./ui/chrome/tabs.js');
   const loaderMod = await import('./pdf/loader.js');
@@ -802,20 +811,24 @@ async function handleMergePdf(params) {
   if (!doc?.pdfDoc) return { ok: false, error: 'no active document to merge into' };
   const pagesBefore = doc.pdfDoc.numPages;
   const pm = await import('./pdf/page-manager.js');
+  let verslag;
   try {
-    await pm.mergeFiles(filePaths, position);
+    verslag = await pm.mergeFiles(filePaths, position);
   } catch (e) {
     return { ok: false, error: `merge failed: ${e?.message ?? e}` };
   }
+  // Het samenvoegen slaat een bestand over zonder te falen (een geweigerde
+  // voorbeeld-PDF, een onleesbaar bestand): het antwoord volgt wat er
+  // werkelijk in kwam, niet hoeveel er gevraagd was.
+  const { mergeAntwoord } = await import('./pdf/merge-verslag.js');
   const after = stateMod.getActiveDocument();
-  return {
-    ok: true,
+  return mergeAntwoord(verslag, {
+    filePaths,
     position,
-    mergedFiles: filePaths.length,
     pagesBefore,
     pagesAfter: after?.pdfDoc?.numPages ?? pagesBefore,
     filePath: after?.filePath,
-  };
+  });
 }
 
 async function handleClearCaches() {
@@ -1511,7 +1524,20 @@ async function handleUpdateAnnotation(params) {
   const oldState = factory.cloneAnnotation(ann);
 
   // id and type are immutable — silently drop them from the patch.
-  const { id: _id, type: _type, ...patch } = props;
+  const { id: _id, type: _type, ...ruwePatch } = props;
+  // Technische wacht op maat en positie. Zonder deze controle kwam width 0,
+  // een negatieve maat, NaN of tekst ongefilterd in het model en daarna (via
+  // de JSON-kloon) als null in de undo-stapel. Een vorm mag willekeurig klein
+  // zijn: elke positieve waarde wordt geaccepteerd.
+  const maat = await import('./annotations/minimummaat.js');
+  const heeftVak = maat.RECHTHOEK_VORMEN.has(ann.type)
+    || (typeof ann.w === 'number' && typeof ann.h === 'number');
+  let patch = ruwePatch;
+  if (heeftVak) {
+    const gecontroleerd = maat.valideerMaatPatch(ruwePatch);
+    if (!gecontroleerd.ok) return { ok: false, error: gecontroleerd.error };
+    patch = gecontroleerd.patch;
+  }
   Object.assign(ann, patch);
   ann.modifiedAt = new Date().toISOString();
 
@@ -2346,6 +2372,217 @@ async function handleTitleblock(params) {
 }
 
 
+// ─── CAD-import zonder venster (issue #400) ───────────────────────────────
+// De regels (argumenten controleren, ruimte en lagen kiezen, het antwoord)
+// staan in pdf/cad-mcp-opdracht.js; hier alleen het werk zelf, met dezelfde
+// functies als het importvenster.
+
+let cadImportBezig = false;
+
+async function handleImportCad(params) {
+  const opdrachtMod = await import('./pdf/cad-mcp-opdracht.js');
+  const stateMod = await import('./core/state.js');
+  const opdracht = opdrachtMod.leesImportOpdracht(params, stateMod.state.preferences?.cadImportSettings);
+  if (!opdracht.ok) return opdracht;
+  const pad = opdracht.pad;
+
+  // De app houdt één gelezen tekening vast; het venster en de opdracht zouden
+  // elkaars tekening verdringen.
+  const { getDialogs } = await import('./solid/stores/dialogStore.js');
+  const vensterOpen = () => getDialogs().some((d) => d.name === 'cad-import');
+  if (vensterOpen()) {
+    return { ok: false, error: 'the CAD import dialog is open; close it first', file_path: pad };
+  }
+  if (cadImportBezig) {
+    return { ok: false, error: 'another CAD import is still running', file_path: pad };
+  }
+
+  const cad = await import('./pdf/cad-import.js');
+  const logica = await import('./pdf/cad-import-logica.js');
+  const heeftDocument = !!stateMod.getActiveDocument()?.pdfDoc;
+  let doel = opdracht.doel;
+  if (doel === 'underlay') {
+    if (typeof cad.legTekeningOpPagina !== 'function') {
+      return { ok: false, error: 'target "underlay" is not available in this version', file_path: pad };
+    }
+    if (!heeftDocument) {
+      return { ok: false, error: 'target "underlay" needs an open document', file_path: pad };
+    }
+  } else {
+    doel = logica.effectiefDoel(doel, heeftDocument);
+  }
+
+  cadImportBezig = true;
+  let uitvoer = null;
+  // Eigen tijdgrens, net onder die van de brug (zie TIJDGRENS_MS): de
+  // aanroeper heeft dan al "timed out" gekregen, dus de lopende job wordt
+  // afgebroken en er wordt niets meer geplaatst of gewijzigd.
+  let lopendeJob = null;
+  let verstreken = false;
+  const wekker = setTimeout(() => {
+    verstreken = true;
+    if (lopendeJob) cad.annuleerImport(lopendeJob);
+  }, opdrachtMod.TIJDGRENS_MS);
+  try {
+    let scan;
+    try {
+      lopendeJob = cad.nieuwJobId('scan');
+      scan = await cad.verkenTekening(lopendeJob, pad, opdracht.inst.searchPaths);
+    } catch (e) {
+      if (verstreken) return opdrachtMod.tijdgrensFout(pad);
+      const fout = logica.leesImportFout(e);
+      return { ok: false, error: `scan failed: ${fout.sleutel}`, detail: fout.error || '', file_path: pad };
+    } finally {
+      lopendeJob = null;
+    }
+    if (verstreken) return opdrachtMod.tijdgrensFout(pad);
+    const keuze = opdrachtMod.kiesRuimte(scan, opdracht.ruimte);
+    if (!keuze.ok) return { ...keuze, file_path: pad };
+    const lagen = opdrachtMod.kiesLagen(scan, keuze.ruimte.id, opdracht);
+
+    let verslag;
+    try {
+      uitvoer = await cad.tijdelijkPdfPad(pad);
+      const args = opdrachtMod.opdrachtArgumenten(opdracht, keuze.ruimte, {
+        outputPath: uitvoer,
+        excludedLayers: lagen.excludedLayers,
+        hiddenLayers: lagen.hiddenLayers,
+        limits: await cad.importGrenzen(),
+      });
+      lopendeJob = cad.nieuwJobId('import');
+      verslag = await cad.importeerTekening(lopendeJob, args);
+    } catch (e) {
+      await cad.ruimOp(uitvoer);
+      if (verstreken) return opdrachtMod.tijdgrensFout(pad);
+      const fout = logica.leesImportFout(e);
+      return { ok: false, error: `import failed: ${fout.sleutel}`, detail: fout.error || '', file_path: pad };
+    } finally {
+      lopendeJob = null;
+    }
+    uitvoer = verslag.outputPath || uitvoer;
+    if (verstreken) {
+      await cad.ruimOp(uitvoer);
+      return opdrachtMod.tijdgrensFout(pad);
+    }
+
+    try {
+      if (doel === 'underlay') {
+        // isModel volgt de GEKOZEN ruimte (zoals het venster): zonder `space`
+        // kan het bestand een layout voorstellen, en die staat al op 1:1.
+        await cad.legTekeningOpPagina(uitvoer, opdrachtMod.onderleggerOpties(opdracht, keuze.ruimte, verslag));
+      } else if (doel === 'append') {
+        await cad.voegImportToeAanDocument(uitvoer);
+      } else {
+        await cad.openImportAlsNieuwDocument(uitvoer, pad);
+      }
+    } catch (e) {
+      await cad.ruimOp(uitvoer);
+      return { ok: false, error: `placing the result failed: ${e?.message ?? e}`, file_path: pad };
+    }
+    await _redrawActive();
+    return {
+      ...opdrachtMod.opdrachtUitkomst(opdracht, doel, verslag, lagen.onbekend, keuze.ruimte),
+      page_count: stateMod.getActiveDocument()?.pdfDoc?.numPages ?? 0,
+    };
+  } finally {
+    clearTimeout(wekker);
+    cadImportBezig = false;
+    // De vastgehouden tekening loslaten, tenzij het venster intussen open ging.
+    if (!vensterOpen()) await cad.laatTekeningLos();
+  }
+}
+
+
+// ─── CAD-export zonder venster (issue #400) ───────────────────────────────
+// De regels (argumenten controleren, argumenten voor de omzetter, het
+// antwoord) staan in pdf/cad-export-opdracht.js; hier alleen het werk zelf,
+// met dezelfde functies als het exportvenster (cad-export.js).
+
+let cadExportBezig = false;
+
+async function handleExportCad(params) {
+  const opdrachtMod = await import('./pdf/cad-export-opdracht.js');
+  const stateMod = await import('./core/state.js');
+  const opdracht = opdrachtMod.leesExportOpdracht(params, stateMod.state.preferences?.cadExportSettings);
+  if (!opdracht.ok) return opdracht;
+  const pad = opdracht.pad;
+
+  const doc = stateMod.getActiveDocument();
+  if (!doc?.pdfDoc) return { ok: false, error: 'no document open', file_path: pad };
+  // Net als het venster leest de export het bestand op schijf.
+  if (!doc.filePath || doc.isUntitled) {
+    return { ok: false, error: 'the document has no file on disk yet; save it first', file_path: pad };
+  }
+  const { getDialogs } = await import('./solid/stores/dialogStore.js');
+  if (getDialogs().some((d) => d.name === 'cad-export')) {
+    return { ok: false, error: 'the CAD export dialog is open; close it first', file_path: pad };
+  }
+  if (cadExportBezig) return { ok: false, error: 'another CAD export is still running', file_path: pad };
+
+  const cad = await import('./pdf/cad-export.js');
+  const logica = await import('./pdf/cad-export-logica.js');
+  const { parsePageRange } = await import('./pdf/exporter.js');
+  const { TIJDGRENS_MS, tijdgrensFout } = await import('./pdf/cad-mcp-opdracht.js');
+  const totaal = doc.pdfDoc.numPages;
+  const lijst = opdracht.paginas === 'current' ? [doc.currentPage || 1]
+    : opdracht.paginas === 'all' ? Array.from({ length: totaal }, (_, i) => i + 1)
+    : parsePageRange(opdracht.paginas, totaal);
+  if (!lijst.length) return { ok: false, error: `params.pages "${opdracht.paginas}" selects no page of ${totaal}`, file_path: pad };
+  const bestanden = logica.bestandenPerPagina(pad, lijst);
+  const waarschuwingen = [];
+  if (doc.modified) waarschuwingen.push('the document has unsaved changes; the export reads the file on disk');
+
+  cadExportBezig = true;
+  // Eigen tijdgrens net onder die van de brug (zie TIJDGRENS_MS): daarna
+  // wordt de lopende export afgebroken en komt er geen bestand meer bij.
+  let lopendeJob = null;
+  let verstreken = false;
+  const wekker = setTimeout(() => {
+    verstreken = true;
+    if (lopendeJob) cad.annuleer(lopendeJob);
+  }, TIJDGRENS_MS);
+  const EXPORT_AFGEBROKEN = 'the running export was cancelled; files written before that are listed';
+  const verslagen = [];
+  const totNu = () => opdrachtMod.exportUitkomst(opdracht, verslagen, waarschuwingen).files;
+  try {
+    for (const paginaNr of lijst) {
+      const maat = await cad.paginaMaat(doc, paginaNr);
+      let schaal = null;
+      if (opdracht.inst.scaleMode === 'custom') {
+        schaal = opdracht.inst.customScale;
+      } else if (opdracht.inst.scaleMode === 'measure') {
+        schaal = cad.meetschaalOp(paginaNr, opdracht.gebied, maat);
+        if (!schaal) waarschuwingen.push(`page ${paginaNr}: no measure scale known; exported at paper size`);
+      }
+      const args = opdrachtMod.exportOpdrachtArgumenten(opdracht, {
+        pdfPath: doc.filePath,
+        pageIndex: paginaNr - 1,
+        outputPath: bestanden.get(paginaNr),
+        schaalnoemer: schaal,
+        paginaHoogte: maat.hoogte,
+        uitgeslotenLagen: opdracht.lagenUit,
+      });
+      let verslag;
+      try {
+        lopendeJob = cad.nieuwJobId('export');
+        verslag = await cad.exporteerPagina(lopendeJob, args);
+      } catch (e) {
+        if (verstreken) return { ...tijdgrensFout(pad, EXPORT_AFGEBROKEN), files: totNu() };
+        return { ...opdrachtMod.exportFout(e, pad, paginaNr), files: totNu() };
+      } finally {
+        lopendeJob = null;
+      }
+      verslagen.push({ pagina: paginaNr, verslag });
+      if (verstreken) return { ...tijdgrensFout(pad, EXPORT_AFGEBROKEN), files: totNu() };
+    }
+    return opdrachtMod.exportUitkomst(opdracht, verslagen, waarschuwingen);
+  } finally {
+    clearTimeout(wekker);
+    cadExportBezig = false;
+  }
+}
+
+
 const HANDLERS = {
   'mcp:open-pdf':           handleOpenPdf,
   'mcp:set-zoom':           handleSetZoom,
@@ -2405,6 +2642,9 @@ const HANDLERS = {
   'mcp:snippet-flatten':    handleSnippetFlatten,
   'mcp:symbol-scale':       handleSymbolScale,
   'mcp:titleblock':         handleTitleblock,
+  // CAD-import zonder venster
+  'mcp:import-cad':         handleImportCad,
+  'mcp:export-cad':         handleExportCad,
   // Assistant — test the AI end-to-end
   'mcp:ai-complete':        handleAiComplete,
   // Accounts introspection — deactivated (cloud accounts feature removed)
