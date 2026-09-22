@@ -7,7 +7,7 @@ import test from 'node:test';
 import {
   isPapierFormaat, normaliseerPapierInfo, effectiefPapier, papierTekst,
   paginaTekst, eigenschappenVooraf, instellingNaEigenschappen, maakPapierVerzoeken,
-  papierVerzoekSleutel, bekendVel, velTekst, velNaam,
+  papierVerzoekSleutel, bekendVel, velTekst, velNaam, schaalProcent,
 } from './print-papier.js';
 import {
   startPaginaInstelling, bewaarPaginaInstelling, printArgumenten,
@@ -634,6 +634,24 @@ test('velTekst: onbekend vel toont de naam met de stand, zonder maten; niets zon
   assert.equal(velTekst(onbekend, STANDAARD, tNl), `${STANDAARD} liggend`);
   assert.equal(velTekst(onbekend, null, tNl), null);
   assert.equal(velTekst(null, 'A4', tNl), null);
+});
+
+test('schaalProcent: de schaal waarop de pagina op het vel komt, in hele procenten', () => {
+  // A2 passend op A3: 420/594 = 0,707 → 71 %.
+  assert.equal(schaalProcent({ bekend: true, schaal: 420 / 594 }), 71);
+  assert.equal(schaalProcent({ bekend: true, schaal: 1 }), 100);
+  assert.equal(schaalProcent({ bekend: true, schaal: 1.414 }), 141);
+  // Heel klein wordt niet 0 %: minstens 1 %.
+  assert.equal(schaalProcent({ bekend: true, schaal: 0.001 }), 1);
+});
+
+test('schaalProcent: niets als het vel onbekend is of de schaal onbruikbaar', () => {
+  // Onbekend vel: de printer past de pagina zelf in, de schaal is niet de onze.
+  assert.equal(schaalProcent({ bekend: false, schaal: 1 }), null);
+  assert.equal(schaalProcent(null), null);
+  for (const schaal of [0, -1, NaN, Infinity, undefined]) {
+    assert.equal(schaalProcent({ bekend: true, schaal }), null, String(schaal));
+  }
 });
 
 test('velNaam: het formaat dat bij een vel op paginamaat past, anders niets', () => {

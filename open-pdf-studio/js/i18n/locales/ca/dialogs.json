@@ -67,6 +67,7 @@
     "paperLabel": "Paper: {{paper}}",
     "paperFallback": "Paper: {{paper}} ({{requested}} no està disponible en aquesta impressora)",
     "pageSizeLabel": "Pàgina: {{size}}",
+    "scaleLabel": "Escala: {{percent}} %",
     "pageClipped": "La pàgina no cap al paper i es retallarà.",
     "pageOutsidePrintable": "Una part de la pàgina queda fora de l'àrea imprimible de la impressora.",
     "saveAsPdf": "Desa com a PDF",

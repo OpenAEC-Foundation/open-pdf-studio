@@ -13,7 +13,7 @@ import { printArgumenten, overstemdeStand } from '../../../pdf/print-pagina-inst
 import { getPageSetupSettings, stelPaginaInstellingIn, paginaInstellingVersie } from './PageSetupDialog.jsx';
 import { viewportOpties } from '../../../pdf/getoonde-pagina.js';
 import {
-  normaliseerPapierInfo, effectiefPapier, paginaTekst, bekendVel, velTekst, velNaam,
+  normaliseerPapierInfo, effectiefPapier, paginaTekst, bekendVel, velTekst, velNaam, schaalProcent,
   eigenschappenVooraf, instellingNaEigenschappen, maakPapierVerzoeken, papierVerzoekSleutel,
 } from '../../../pdf/print-papier.js';
 import {
@@ -679,6 +679,13 @@ export default function PrintDialog(props) {
     return tekst ? t('print.pageSizeLabel', { size: tekst }) : '';
   });
 
+  // De schaal waarop de getoonde pagina op het vel komt (A2 passend op A3:
+  // 71 %), zodat verkleinen of vergroten niet onopgemerkt blijft.
+  const schaalKop = createMemo(() => {
+    const procent = schaalProcent(voorbeeldPlaatsing());
+    return procent === null ? '' : t('print.scaleLabel', { percent: procent });
+  });
+
   const footer = (
     <>
       <Show when={statusMessage()}>
@@ -940,6 +947,12 @@ export default function PrintDialog(props) {
           </Show>
           <Show when={paginaKop()}>
             <span class="print-preview-page">{paginaKop()}</span>
+          </Show>
+          <Show when={(papierKop() || paginaKop()) && schaalKop()}>
+            <span class="print-printer-sep">{' | '}</span>
+          </Show>
+          <Show when={schaalKop()}>
+            <span class="print-preview-scale" classList={{ changed: schaalProcent(voorbeeldPlaatsing()) !== 100 }}>{schaalKop()}</span>
           </Show>
           <Show when={autoDraaienNotitie()}>
             <div class="print-preview-note">{autoDraaienNotitie()}</div>

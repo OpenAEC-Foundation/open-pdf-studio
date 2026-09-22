@@ -67,6 +67,7 @@
     "paperLabel": "נייר: {{paper}}",
     "paperFallback": "נייר: {{paper}} ({{requested}} אינו זמין במדפסת זו)",
     "pageSizeLabel": "עמוד: {{size}}",
+    "scaleLabel": "קנה מידה: {{percent}}%",
     "pageClipped": "הדף אינו נכנס בנייר ויחתך.",
     "pageOutsidePrintable": "חלק מהדף נמצא מחוץ לאזור ההדפסה של המדפסת.",
     "saveAsPdf": "שמירה כ-PDF",

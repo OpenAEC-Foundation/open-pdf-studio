@@ -67,6 +67,7 @@
     "paperLabel": "Giấy: {{paper}}",
     "paperFallback": "Giấy: {{paper}} ({{requested}} không khả dụng trên máy in này)",
     "pageSizeLabel": "Trang: {{size}}",
+    "scaleLabel": "Tỷ lệ: {{percent}}%",
     "pageClipped": "Trang không vừa với giấy và sẽ bị cắt bớt.",
     "pageOutsidePrintable": "Một phần của trang nằm ngoài vùng in được của máy in.",
     "saveAsPdf": "Lưu thành PDF",

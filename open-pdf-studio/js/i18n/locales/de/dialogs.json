@@ -67,6 +67,7 @@
     "paperLabel": "Papier: {{paper}}",
     "paperFallback": "Papier: {{paper}} ({{requested}} ist auf diesem Drucker nicht verfügbar)",
     "pageSizeLabel": "Seite: {{size}}",
+    "scaleLabel": "Skalierung: {{percent}} %",
     "pageClipped": "Die Seite passt nicht auf das Papier und wird abgeschnitten.",
     "pageOutsidePrintable": "Ein Teil der Seite liegt außerhalb des druckbaren Bereichs des Druckers.",
     "saveAsPdf": "Als PDF speichern",

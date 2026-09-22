@@ -93,6 +93,7 @@
     "paperLabel": "Paper: {{paper}}",
     "paperFallback": "Paper: {{paper}} ({{requested}} is not available on this printer)",
     "pageSizeLabel": "Page: {{size}}",
+    "scaleLabel": "Scale: {{percent}}%",
     "pageClipped": "The page does not fit on the paper and will be cut off.",
     "pageOutsidePrintable": "Part of the page falls outside the printer's printable area.",
     "firstPage": "First Page",

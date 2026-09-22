@@ -67,6 +67,7 @@
     "paperLabel": "Papir: {{paper}}",
     "paperFallback": "Papir: {{paper}} ({{requested}} er ikke tilgjengelig på denne skriveren)",
     "pageSizeLabel": "Side: {{size}}",
+    "scaleLabel": "Skalering: {{percent}} %",
     "pageClipped": "Siden får ikke plass på papiret og blir beskåret.",
     "pageOutsidePrintable": "En del av siden faller utenfor skriverens utskrivbare område.",
     "saveAsPdf": "Lagre som PDF",

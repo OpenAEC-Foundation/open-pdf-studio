@@ -67,6 +67,7 @@
     "paperLabel": "Χαρτί: {{paper}}",
     "paperFallback": "Χαρτί: {{paper}} (το {{requested}} δεν είναι διαθέσιμο σε αυτόν τον εκτυπωτή)",
     "pageSizeLabel": "Σελίδα: {{size}}",
+    "scaleLabel": "Κλίμακα: {{percent}}%",
     "pageClipped": "Η σελίδα δεν χωράει στο χαρτί και θα περικοπεί.",
     "pageOutsidePrintable": "Ένα μέρος της σελίδας βρίσκεται εκτός της εκτυπώσιμης περιοχής του εκτυπωτή.",
     "saveAsPdf": "Αποθήκευση ως PDF",

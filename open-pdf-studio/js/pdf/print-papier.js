@@ -243,6 +243,18 @@ export function velTekst(plaatsing, naam, t) {
 }
 
 /**
+ * De schaal waarop de pagina op het vel komt, in hele procenten (A2 passend
+ * op A3 → 71). `plaatsing` komt uit berekenPlaatsing; daarin zitten het
+ * schaaltype, de zoom, de draaiing en de marges van de printer al. Minstens
+ * 1, zodat een heel kleine schaal niet als 0 % leest. null bij een onbekend
+ * vel (dan past de printer de pagina zelf in) of een onbruikbare schaal.
+ */
+export function schaalProcent(plaatsing) {
+  if (!plaatsing || !plaatsing.bekend || !geldig(plaatsing.schaal)) return null;
+  return Math.max(1, Math.round(plaatsing.schaal * 100));
+}
+
+/**
  * De naam van een vel op paginamaat (papier 'pagina' in print-plaatsing.js):
  * het formaat uit de lijst dat bij de pagina past ("A2"), anders null.
  */
