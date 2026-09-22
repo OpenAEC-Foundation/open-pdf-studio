@@ -2338,6 +2338,13 @@
   margin-top: 2px;
   word-break: break-word;
 }
+/* Een printer die naar een bestand schrijft: wijs op "Opslaan als PDF". */
+.print-printer-hint {
+  font-size: 10px;
+  color: var(--theme-text-secondary, #666);
+  margin-top: 2px;
+  word-break: break-word;
+}
 
 /* Page range toggle buttons */
 .print-page-btns,
@@ -2418,6 +2425,11 @@
   color: var(--theme-text, #333);
   border-bottom: 1px solid var(--theme-border, #b0b0b0);
   background: var(--theme-hover, #d8d8d8);
+}
+/* Notitie onder de kop: Automatisch draaien overstemt de gekozen stand. */
+.print-preview-note {
+  margin-top: 2px;
+  color: var(--theme-text-secondary, #666);
 }
 
 .print-preview-container {

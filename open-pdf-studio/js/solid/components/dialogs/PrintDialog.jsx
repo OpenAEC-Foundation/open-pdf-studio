@@ -2,23 +2,26 @@ import { createSignal, createMemo, createEffect, on, onMount, batch, For, Show }
 import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { state, getActiveDocument, getPageRotation } from '../../../core/state.js';
-import { invoke } from '../../../core/platform.js';
+import { invoke, saveFileDialog } from '../../../core/platform.js';
 import { parsePageRange } from '../../../pdf/exporter.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { loadPrinters, printerList as cachedPrinters, defaultPrinterName, printerErrorMessage } from '../../stores/printerStore.js';
-import { runPrintJob, renderPrintBeeld } from '../../../pdf/print-job.js';
+import { runPrintJob, slaPrintOpAlsPdf, renderPrintBeeld } from '../../../pdf/print-job.js';
 import { savePreferences } from '../../../core/preferences.js';
 import { herstelPrintInstellingen, kiesStartPrinter } from '../../stores/print-instellingen.js';
-import { printArgumenten } from '../../../pdf/print-pagina-instelling.js';
+import { printArgumenten, overstemdeStand } from '../../../pdf/print-pagina-instelling.js';
 import { getPageSetupSettings, stelPaginaInstellingIn, paginaInstellingVersie } from './PageSetupDialog.jsx';
 import { viewportOpties } from '../../../pdf/getoonde-pagina.js';
 import {
-  normaliseerPapierInfo, effectiefPapier, papierTekst, paginaTekst, bekendVel,
+  normaliseerPapierInfo, effectiefPapier, paginaTekst, bekendVel, velTekst, velNaam,
   eigenschappenVooraf, instellingNaEigenschappen, maakPapierVerzoeken, papierVerzoekSleutel,
 } from '../../../pdf/print-papier.js';
 import {
   berekenPlaatsing, renderDeel, geldigeZoom, ZOOM_MIN, ZOOM_MAX,
 } from '../../../pdf/print-plaatsing.js';
+import {
+  DOEL_PDF, isPdfDoel, doelIsGeopend, standaardDoelPad, isBestandsPrinter,
+} from '../../../pdf/print-doel.js';
 
 // Vak waarin het voorbeeld het vel tekent, in CSS-pixels.
 const VOORBEELD_BREEDTE = 300;
@@ -82,6 +85,10 @@ export default function PrintDialog(props) {
   let canvasRef;
 
   const close = () => closeDialog('print');
+
+  // Het doel "Opslaan als PDF" (print-doel.js): geen printer, geen spooler;
+  // de app schrijft de print-PDF zelf weg, met het vel in de gekozen stand.
+  const pdfDoel = createMemo(() => isPdfDoel(selectedPrinter()));
 
   function updatePrinterInfo(name) {
     const printer = printerList().find(p => p.Name === name);
@@ -343,7 +350,8 @@ export default function PrintDialog(props) {
   }
 
   createEffect(on([selectedPrinter, gevraagdPapier], ([printer, papier]) => {
-    if (!printer) return;
+    // "Opslaan als PDF" heeft geen printer om iets aan te vragen.
+    if (!printer || isPdfDoel(printer)) return;
     haalPrinterPapier(printer, papier);
     if (!printerMarges().has(papierVerzoekSleutel(printer, papier))) haalPrinterBedrukbaar(printer, papier);
   }));
@@ -359,7 +367,7 @@ export default function PrintDialog(props) {
   // (systeeminstellingen) → null: niets verandert.
   async function openPrinterProperties() {
     const printer = selectedPrinter();
-    if (!printer || eigenschappenOpen) return;
+    if (!printer || isPdfDoel(printer) || eigenschappenOpen) return;
     eigenschappenOpen = true;
     const docId = getActiveDocument()?.id ?? null;
     const vooraf = eigenschappenVooraf({
@@ -412,7 +420,38 @@ export default function PrintDialog(props) {
     showPageSetupDialog();
   }
 
-  function executePrint() {
+  // Het opgeslagen bestand openen in een nieuw tabblad (achter de knop
+  // "Openen" op de melding), zoals de raster-export dat doet.
+  async function openOpgeslagen(pad) {
+    try {
+      const { createTab } = await import('../../../ui/chrome/tabs.js');
+      const { loadPDFIfNeeded } = await import('../../../pdf/loader.js');
+      const { index } = createTab(pad);
+      await loadPDFIfNeeded(pad, index);
+    } catch (e) {
+      console.error('Could not open the saved print PDF:', e);
+    }
+  }
+
+  // Het doel "Opslaan als PDF": het bestaande opslaan-venster, nooit over het
+  // geopende bestand heen, daarna de print-PDF op de achtergrond wegschrijven
+  // (dezelfde keuzes als een printopdracht). null = de gebruiker brak af, de
+  // dialoog blijft open.
+  async function kiesDoelbestand() {
+    const doc = getActiveDocument();
+    const pad = await saveFileDialog(standaardDoelPad(doc, null, t('print.fileSuffix')), [
+      { name: 'PDF', extensions: ['pdf'] },
+    ]);
+    if (!pad) return null;
+    if (doelIsGeopend(pad, state.documents)) {
+      setStatusMessage(t('print.targetIsOpenFile'));
+      setStatusType('error');
+      return null;
+    }
+    return pad;
+  }
+
+  async function executePrint() {
     if (!selectedPrinter()) {
       setStatusMessage(t('print.noPrinterSelected'));
       setStatusType('error');
@@ -424,6 +463,8 @@ export default function PrintDialog(props) {
       setStatusType('error');
       return;
     }
+    const doelPad = pdfDoel() ? await kiesDoelbestand() : null;
+    if (pdfDoel() && !doelPad) return;
     // Non-modal: close the dialog NOW and let the job render + spool in the
     // background, reporting via the floating progress bar. The user keeps
     // working meanwhile.
@@ -457,6 +498,20 @@ export default function PrintDialog(props) {
       paginaInstelling: getPageSetupSettings(),
       docId: getActiveDocument()?.id ?? null,
     });
+    if (doelPad) {
+      slaPrintOpAlsPdf({
+        pages,
+        pad: doelPad,
+        orientatie,
+        vel: keuzes.papier,
+        schaling: keuzes.schaling,
+        zoom: keuzes.zoom,
+        centreren: keuzes.centreren,
+        inhoud: printContent(),
+        openen: openOpgeslagen,
+      });
+      return;
+    }
     runPrintJob({
       pages,
       copies: numCopies,
@@ -495,7 +550,12 @@ export default function PrintDialog(props) {
       }
       setPrintDisabled(false);
     } else if (!cached.length) {
+      // Geen printer: "Opslaan als PDF" blijft over en staat dan vooraan.
       setPrintDisabled(true);
+      if (!gebruikerKoosPrinter && !selectedPrinter()) {
+        setSelectedPrinter(DOEL_PDF);
+        updatePrinterInfo(DOEL_PDF);
+      }
     }
 
     updatePreviewPages();
@@ -525,31 +585,18 @@ export default function PrintDialog(props) {
     });
   });
 
-  // Kop van het voorbeeld: het papier naast de maat van de getoonde pagina.
-  const papierKop = createMemo(() => {
-    const e = effectief();
-    // Onbekend papier = de standaard van de printer (dezelfde tekst als in de
-    // Pagina-instelling).
-    const tekst = papierTekst(e, t('pageSetup.printerDefault'));
-    if (!tekst) return '';
-    // De driver kan het gevraagde formaat niet aan: zeggen waarop er wel
-    // geprint wordt, en welk formaat niet beschikbaar is.
-    return e.geweigerd
-      ? t('print.paperFallback', { paper: tekst, requested: e.geweigerd })
-      : t('print.paperLabel', { paper: tekst });
-  });
-
   // Alles wat het vel en de plek van de pagina bepaalt behalve de pagina zelf
   // (print-plaatsing.js): het papier als het bekend is, de oriëntatie van het
   // vel (Automatisch draaien en de Pagina-instelling, zoals print_pdf), het
   // schaaltype, de zoom en centreren. Het voorbeeld en de printopdracht
-  // gebruiken dezelfde keuzes.
+  // gebruiken dezelfde keuzes. "Opslaan als PDF" zonder formaat: elke pagina
+  // haar eigen vel, in de gekozen stand (er is geen stuurprogramma dat inpast).
   const plaatsingKeuzes = createMemo(() => {
     paginaInstellingVersie();
     const vel = bekendVel(effectief());
     const marges = printerMarges().get(papierVerzoekSleutel(selectedPrinter(), gevraagdPapier())) || null;
     return {
-      papier: vel && { ...vel, bedrukbaar: marges },
+      papier: vel ? { ...vel, bedrukbaar: marges } : (pdfDoel() ? 'pagina' : null),
       orientatie: printArgumenten({
         autoRotate: autoRotate(),
         paginaInstelling: getPageSetupSettings(),
@@ -560,6 +607,64 @@ export default function PrintDialog(props) {
       centreren: autoCenter(),
     };
   }, undefined, { equals: zelfdeKeuzes });
+
+  // De plaatsing van de getoonde voorbeeldpagina: het vel zoals het uit de
+  // printer komt of in het bestand komt te liggen (dezelfde regel als het
+  // voorbeeld en de opdracht).
+  const voorbeeldPlaatsing = createMemo(() => {
+    const maat = paginaMaat();
+    return maat ? berekenPlaatsing({ ...plaatsingKeuzes(), pagina: maat }) : null;
+  });
+
+  // Kop van het voorbeeld: het vel met zijn stand en de maten zoals het ligt
+  // ("A2 liggend (594 × 420 mm)"), naast de maat van de getoonde pagina.
+  const papierKop = createMemo(() => {
+    const e = effectief();
+    const plaatsing = voorbeeldPlaatsing();
+    if (!plaatsing) return '';
+    let naam;
+    if (e.bron === 'laden') {
+      // Een printer die nog niet geantwoord heeft: nog niets tonen. Bij
+      // "Opslaan als PDF" zonder formaat is het vel de pagina zelf.
+      if (!pdfDoel()) return '';
+      naam = velNaam(paginaMaat());
+    } else if (e.bron === 'onbekend') {
+      // Onbekend papier = de standaard van de printer (dezelfde tekst als in
+      // de Pagina-instelling).
+      naam = t('pageSetup.printerDefault');
+    } else {
+      naam = e.naam || null;
+    }
+    const tekst = velTekst(plaatsing, naam, t);
+    if (!tekst) return '';
+    // De driver kan het gevraagde formaat niet aan: zeggen waarop er wel
+    // geprint wordt, en welk formaat niet beschikbaar is.
+    return e.geweigerd
+      ? t('print.paperFallback', { paper: tekst, requested: e.geweigerd })
+      : t('print.paperLabel', { paper: tekst });
+  });
+
+  // Automatisch draaien laat een in de Pagina-instelling gekozen stand
+  // vervallen: dat staat erbij, in plaats van stil te gebeuren.
+  const autoDraaienNotitie = createMemo(() => {
+    paginaInstellingVersie();
+    const stand = overstemdeStand({
+      autoRotate: autoRotate(),
+      paginaInstelling: getPageSetupSettings(),
+      docId: getActiveDocument()?.id ?? null,
+      pagina: paginaMaat(),
+    });
+    return stand ? t('print.autoRotateOverrides', { orientation: tCommon(stand) }) : '';
+  });
+
+  // Een printer die naar een bestand schrijft laat zijn stuurprogramma over
+  // het vel beslissen; "Opslaan als PDF" doet dat niet. Alleen uit wat de
+  // printerlijst al meldt (print-doel.js).
+  const bestandsPrinterHint = createMemo(() => {
+    if (pdfDoel()) return '';
+    const printer = printerList().find((p) => p.Name === selectedPrinter());
+    return isBestandsPrinter(printer) ? t('print.filePrinterHint') : '';
+  });
 
   // Voorbeeld opnieuw tekenen bij elke wijziging van de pagina's, de getoonde
   // pagina, de inhoud (met of zonder markeringen) of de plaatsing: schaaltype,
@@ -586,11 +691,12 @@ export default function PrintDialog(props) {
           <span class="print-page-info">{pageInfo()}</span>
         </div>
         <div class="print-footer-right">
+          {/* "Opslaan als PDF" heeft geen printer nodig en heet dan Opslaan. */}
           <button
             class="pref-btn pref-btn-primary"
-            disabled={printDisabled()}
+            disabled={printDisabled() && !pdfDoel()}
             onClick={executePrint}
-          >{tCommon('print')}</button>
+          >{pdfDoel() ? tCommon('save') : tCommon('print')}</button>
           <button class="pref-btn pref-btn-secondary" onClick={close}>{tCommon('cancel')}</button>
         </div>
       </div>
@@ -625,6 +731,8 @@ export default function PrintDialog(props) {
                     updatePrinterInfo(e.target.value);
                   }}
                 >
+                  {/* Bovenaan: het doel zonder printer, altijd beschikbaar. */}
+                  <option value={DOEL_PDF} selected={pdfDoel()}>{t('print.saveAsPdf')}</option>
                   <For each={printerList()}>
                     {(printer) => (
                       /* selected-attribute per option: the list arrives async,
@@ -636,19 +744,24 @@ export default function PrintDialog(props) {
                   </For>
                 </select>
               </div>
-              <div class="print-row print-printer-detail-row">
-                <span class="print-printer-status">{printerStatus()}</span>
-                <span class="print-printer-sep">|</span>
-                <span class="print-printer-type">{printerType()}</span>
-              </div>
+              <Show when={!pdfDoel()}>
+                <div class="print-row print-printer-detail-row">
+                  <span class="print-printer-status">{printerStatus()}</span>
+                  <span class="print-printer-sep">|</span>
+                  <span class="print-printer-type">{printerType()}</span>
+                </div>
+              </Show>
               {/* Without this the user cannot tell "no printers installed"
                   from "the query failed", and neither can a bug report. */}
               <Show when={printerErrorMessage()}>
                 <div class="print-row print-printer-error">{printerErrorMessage()}</div>
               </Show>
+              <Show when={bestandsPrinterHint()}>
+                <div class="print-row print-printer-hint">{bestandsPrinterHint()}</div>
+              </Show>
             </div>
             <div class="print-printer-right">
-              <button class="print-printer-action-btn" onClick={openPrinterProperties}>
+              <button class="print-printer-action-btn" disabled={pdfDoel()} onClick={openPrinterProperties}>
                 {t('print.propertiesBtn')}
               </button>
               <button class="print-printer-action-btn" onClick={openPageSetup}>
@@ -658,18 +771,21 @@ export default function PrintDialog(props) {
           </div>
           <div class="print-row">
             <label class="print-label">{t('print.copies')}</label>
+            {/* Een bestand heeft geen exemplaren. */}
             <input
               type="number"
               class="print-input"
               min="1"
               max="999"
               value={copies()}
+              disabled={pdfDoel()}
               onInput={(e) => setCopies(Math.max(1, parseInt(e.target.value) || 1))}
             />
             <label class="print-checkbox-label print-collate-label">
               <input
                 type="checkbox"
                 checked={collate()}
+                disabled={pdfDoel()}
                 onChange={(e) => setCollate(e.target.checked)}
               /> {t('print.collate')}
             </label>
@@ -824,6 +940,9 @@ export default function PrintDialog(props) {
           </Show>
           <Show when={paginaKop()}>
             <span class="print-preview-page">{paginaKop()}</span>
+          </Show>
+          <Show when={autoDraaienNotitie()}>
+            <div class="print-preview-note">{autoDraaienNotitie()}</div>
           </Show>
         </div>
         <div class="print-preview-container">
