@@ -20,8 +20,9 @@ import { pasRegelafstandAanDoos } from '../../annotations/rendering/textbox-layo
 import { toWinAnsiText } from '../saver/pdf-text.js';
 import { maatVanGedraaideVorm } from './gedraaide-vorm-maat.js';
 import { tekstvakRotatie, tekstvakMaat } from './tekstvak-rotatie.js';
-import { randloosUitExtra } from './geen-rand.js';
+import { onzichtbaarVlakUitExtra, randloosUitExtra } from './geen-rand.js';
 import { opmerkingUitAnnot, zonderDubbeleOpmerking } from './annotatie-opmerking.js';
+import { zoekExtraKleuren } from './extra-sleutel.js';
 
 /**
  * Zet een PDF-annotatie om naar het model van de app.
@@ -77,26 +78,9 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
   const rect = annot.rect;
   if (!rect || rect.length < 4) return null;
 
-  // Look up extra colors extracted via pdf-lib (IC entry, appearance stream colors)
-  const rectKey = `${rect[0]},${rect[1]},${rect[2]},${rect[3]}`;
-  let extraColors = annotColorMap?.get(rectKey);
-  // Fuzzy match fallback — pdf.js may expand Rect by borderWidth (up to several pts)
-  // when annotations lack an appearance stream, causing mismatch with pdf-lib's raw Rect
-  if (!extraColors && annotColorMap) {
-    let bestDist = Infinity;
-    for (const [k, v] of annotColorMap.entries()) {
-      const parts = k.split(',').map(Number);
-      if (parts.length === 4) {
-        const d = Math.abs(parts[0] - rect[0]) + Math.abs(parts[1] - rect[1]) +
-                  Math.abs(parts[2] - rect[2]) + Math.abs(parts[3] - rect[3]);
-        if (d < bestDist && d < 8) {
-          bestDist = d;
-          extraColors = v;
-        }
-      }
-    }
-  }
-  extraColors = extraColors || {};
+  // Look up extra colors extracted via pdf-lib (IC entry, appearance stream
+  // colors). Zie extra-sleutel.js voor het zoeken op de rauwe /Rect.
+  let extraColors = zoekExtraKleuren(annotColorMap, rect) || {};
 
   // Echte maat van een gedraaide vorm waarvan /Rect de assen-uitgelijnde
   // omhullende is (rechthoek, ellips, maskeervlak, parametrisch symbool).
@@ -407,6 +391,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
       if (extraColors.cross && sqProps.type === 'box') sqProps.cross = true;
       // Vorm zonder rand (#431): strokeColor 'none' met de lijndikte-instelling.
       Object.assign(sqProps, randloosUitExtra(extraColors));
+      // Onzichtbaar vlak (#435): hulplijn op het scherm, geen streek bij opslaan.
+      if (onzichtbaarVlakUitExtra(extraColors)) sqProps.onzichtbaarVlak = true;
       return createAnnotation(sqProps);
     }
 
@@ -447,6 +433,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
       if (crRotation) crProps.rotation = crRotation;
       if (extraColors.cross) crProps.cross = true;
       Object.assign(crProps, randloosUitExtra(extraColors)); // zonder rand (#431)
+      // Onzichtbaar vlak (#435): hulplijn op het scherm, geen streek bij opslaan.
+      if (onzichtbaarVlakUitExtra(extraColors)) crProps.onzichtbaarVlak = true;
       return createAnnotation(crProps);
     }
 

@@ -21,7 +21,7 @@ import { showMessage } from '../bridge.js';
 // Sub-modules
 import { hexToRgb, buildBorderStyle, computeAnnotFlags, mapFontToPdfName,
   ensureAcroFormFonts, stripPdfAMetadata, generateAppearanceStream,
-  randSleutelZonderRand, markeerZonderRand } from './saver/utils.js';
+  randSleutelZonderRand, markeerZonderRand, onzichtbaarVlak } from './saver/utils.js';
 import { saveTextEditsToPages } from './saver/text-edits.js';
 import { hasMixedRuns, textboxLineRuns, runsToText } from '../annotations/rendering/textbox-layout.js';
 import { saveWatermarksToPages } from './saver/watermarks.js';
@@ -576,7 +576,10 @@ async function _savePDFNu(saveAsPath) {
               Type: 'Annot',
               Subtype: 'Square',
               Rect: [bx1, by1, bx2, by2],
-              C: strokeColorArr,
+              // Onzichtbaar vlak (#435): geen randkleur, precies zoals het
+              // bestand hem aanleverde. Zonder /C blijft het vlak ook na
+              // heropenen onzichtbaar en blijft de rondgang gelijk.
+              ...(onzichtbaarVlak(ann) ? {} : { C: strokeColorArr }),
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.subject || ''),
@@ -715,7 +718,8 @@ async function _savePDFNu(saveAsPath) {
               Type: 'Annot',
               Subtype: 'Circle',
               Rect: [ccx1, ccy1, ccx2, ccy2],
-              C: strokeColorArr,
+              // Onzichtbaar vlak (#435): zie de rechthoek hierboven.
+              ...(onzichtbaarVlak(ann) ? {} : { C: strokeColorArr }),
               CA: opacity,
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.subject || ''),

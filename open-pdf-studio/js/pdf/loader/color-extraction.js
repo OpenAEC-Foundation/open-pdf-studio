@@ -900,6 +900,10 @@ const result = {};
         const rk = rkRaw ? (context.lookup(rkRaw) || rkRaw) : null;
         const geenRandkleur = !rk || (typeof rk.size === 'function' && rk.size() === 0);
         colors.geenRandkleur = geenRandkleur && (subtypeName === '/FreeText' || !!colors.ic);
+        // De kale vraag "staat er een randkleur in het bestand?" blijft apart
+        // bewaard: samen met een uitdrukkelijke lijndikte 0 en zonder vulling
+        // is de vorm onzichtbaar (#435, zie loader/geen-rand.js).
+        colors.randkleurOntbreekt = geenRandkleur;
         // Eigen sleutel van een vorm zonder rand (zie markeerZonderRand in saver/utils.js).
         const nsRaw = annotDict.get(PDFName.of('OPS_NoStroke'));
         if (nsRaw !== undefined) {
