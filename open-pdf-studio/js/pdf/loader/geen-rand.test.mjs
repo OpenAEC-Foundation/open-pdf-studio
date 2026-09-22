@@ -57,3 +57,12 @@ test('andere lezer: met randkleur of met lijndikte blijft de rand staan', async 
   assert.equal(randloosUitExtra(await extraVan({ Subtype: 'FreeText', IC: [1, 0, 0], BS: { W: 0 } })), null, 'FreeText met /IC');
   assert.equal(randloosUitExtra(await extraVan({ Subtype: 'Square', C: [0, 0, 1], BS: { W: 3 } })), null, 'gewone rand');
 });
+
+test('andere lezer: zonder vulling én zonder rand houdt de vorm zijn hulplijn', async () => {
+  // Onzichtbare vlakken, zoals de doorzoekbare tekstvlakken die CAD-programma's
+  // meeschrijven: de app tekent ze met een dunne hulplijn zodat ze vindbaar
+  // blijven. Randloos laden zou ze helemaal laten verdwijnen.
+  const tekstvlak = await extraVan({ Subtype: 'Square', F: 64, Border: [0, 0, 0] });
+  assert.equal(randloosUitExtra(tekstvlak), null);
+  assert.equal(randloosUitExtra(await extraVan({ Subtype: 'Polygon', BS: { W: 0 } })), null);
+});

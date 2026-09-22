@@ -891,10 +891,15 @@ const result = {};
         }
 
         // Randkleur aanwezig? Bij FreeText is /IC de rand, anders /C. Ontbreekt
-        // hij of is hij leeg, dan is de vorm met /W 0 randloos (loader/geen-rand.js).
+        // hij of is hij leeg, dan is de vorm met /W 0 randloos (loader/geen-rand.js)
+        // — als er zonder rand iets te zien blijft: tekst of een vulling. Een vlak
+        // zonder vulling én zonder rand is onzichtbaar (zoals de doorzoekbare
+        // tekstvlakken die CAD-programma's meeschrijven); de app tekent dat met
+        // een dunne hulplijn, zodat het vindbaar blijft, en dat blijft zo.
         const rkRaw = annotDict.get(PDFName.of(subtypeName === '/FreeText' ? 'IC' : 'C'));
         const rk = rkRaw ? (context.lookup(rkRaw) || rkRaw) : null;
-        colors.geenRandkleur = !rk || (typeof rk.size === 'function' && rk.size() === 0);
+        const geenRandkleur = !rk || (typeof rk.size === 'function' && rk.size() === 0);
+        colors.geenRandkleur = geenRandkleur && (subtypeName === '/FreeText' || !!colors.ic);
         // Eigen sleutel van een vorm zonder rand (zie markeerZonderRand in saver/utils.js).
         const nsRaw = annotDict.get(PDFName.of('OPS_NoStroke'));
         if (nsRaw !== undefined) {

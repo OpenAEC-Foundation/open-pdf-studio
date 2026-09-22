@@ -9,7 +9,9 @@
 // Bestanden uit een andere lezer: /BS /W 0 (of /Border [.. .. 0]) zonder
 // randkleur — /C ontbreekt of is leeg, bij FreeText de /IC — betekent dat elke
 // lezer de vorm zonder omtrek tekent. color-extraction.js zet dan
-// `borderWidth: 0` en `geenRandkleur: true`.
+// `borderWidth: 0` en `geenRandkleur: true`, maar alleen als er zonder rand
+// iets te zien blijft (tekst of een vulling): een onzichtbaar vlak houdt zijn
+// hulplijn in de app.
 //
 // Geeft de velden die het model overneemt, of null als de vorm een rand heeft.
 export function randloosUitExtra(extra) {
