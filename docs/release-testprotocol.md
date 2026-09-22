@@ -25,6 +25,7 @@ cd open-pdf-studio && npm run test:unit
 | Snelzoom | `node scripts/verify-snelzoom.mjs` | anker houdt bij snelle zoomreeksen |
 | Opslag-rondgang | `node scripts/verify-opslag-rondgang.mjs` | opslaan → heropenen zonder verlies |
 | Opslag-duplicaten | `node scripts/verify-opslag-duplicaten.mjs` | geen verdubbeling bij opslaan of sluiten-met-opslaan |
+| Zoeken | `node scripts/verify-zoeken.mjs` | markeringen liggen op het woord (≤ 2 px) in enkele pagina, doorlopend en vectormodus, op zoom 50/100/175 %, na zoom- en weergavewissels, bij /Rotate 90/180/270 en een MediaBox met oorsprong ≠ 0; "x van N", volgende/vorige, de bronvinkjes Tekst/Annotaties en de resultatenlijst per pagina |
 
 ## 3. Vergelijkings-sweep (bij render-/saver-/rotatie-wijzigingen verplicht)
 
