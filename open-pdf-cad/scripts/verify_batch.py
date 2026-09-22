@@ -97,7 +97,7 @@ def main():
             "dxf_bytes": report["file_size"],
             "export_ms": report["extract_ms"] + report["build_ms"] + report["write_ms"],
             "objects": {k: report["extract"][k] for k in ("path_objects", "text_objects", "image_objects", "form_objects", "max_form_depth", "objects_with_ocg", "objects_clipped")},
-            "entities": {k: report["convert"][k] for k in ("lines", "polylines", "splines", "hatches", "texts")},
+            "entities": {k: report["convert"][k] for k in ("lines", "polylines", "splines", "hatches", "masks", "texts")},
             "layers": report["convert"]["layers"],
             "ocg_layers": report["convert"]["ocg_layers"],
             "linetypes": report["convert"]["linetypes"],

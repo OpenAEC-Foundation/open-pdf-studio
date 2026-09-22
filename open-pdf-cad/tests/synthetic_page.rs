@@ -394,7 +394,7 @@ fn scan_counts_what_the_export_writes() {
 
     let report = export_page(&library, &request_for(pdf_path.clone(), dir.join("uit.dxf"), options), None, None).unwrap();
     let c = &report.convert;
-    assert_eq!(scan.entities, c.lines + c.polylines + c.splines + c.hatches + c.texts);
+    assert_eq!(scan.entities, c.lines + c.polylines + c.splines + c.hatches + c.masks + c.texts);
 
     // Uitgesloten lagen komen niet in het bestand.
     let options = ConvertOptions {
