@@ -22,6 +22,14 @@
   display: flex;
 }
 
+/* Nooit breder dan het documentvenster: met geopende panelen (of op een klein
+   scherm) liep de balk links het venster uit en waren het begin van het
+   zoekveld en het eerste vinkje niet meer zichtbaar of aanklikbaar. */
+.find-bar {
+  max-width: calc(100% - 24px);
+  box-sizing: border-box;
+}
+
 /* --- Expand/collapse button --- */
 
 .find-expand-btn {
@@ -52,6 +60,7 @@
   flex-direction: column;
   gap: 4px;
   flex: 1;
+  min-width: 0;
 }
 
 .find-row {
@@ -67,7 +76,8 @@
   align-items: center;
   border: 1px solid var(--theme-border, #d4d4d4);
   background: var(--theme-bg, #ffffff);
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-width: 90px;
   height: 24px;
 }
 
@@ -82,6 +92,7 @@
 
 .find-input {
   width: 180px;
+  min-width: 0;
   padding: 0 6px;
   border: none;
   background: transparent;
@@ -297,6 +308,7 @@
 
 .find-results-row {
   display: flex;
+  overflow: hidden;
   align-items: baseline;
   gap: 6px;
   border: none;
