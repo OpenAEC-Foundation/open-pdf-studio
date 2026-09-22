@@ -88,34 +88,52 @@ export async function renderPageOffscreen(pageNum, exportScale, { deel = null, m
   const renderTask = page.render(renderContext);
   await renderTask.promise;
 
-  // Create annotation canvas and render annotations
-  const annCanvas = document.createElement('canvas');
-  annCanvas.width = breedte;
-  annCanvas.height = hoogte;
-  const annCtx = annCanvas.getContext('2d');
-
-  // Temporarily override state.scale so renderAnnotationsForPage uses export scale
-  const savedScale = state.documents[state.activeDocumentIndex].scale;
-  state.documents[state.activeDocumentIndex].scale = exportScale;
-
-  const lagen = { uitvoer: true, markeringen };
-  if (deel) {
-    // The same shift in page coordinates (scale 1); watermarks keep the whole page.
-    renderAnnotationsForPage(annCtx, pageNum, annCanvas.width, annCanvas.height, 1,
-      { x: deel.x / exportScale, y: deel.y / exportScale },
-      { w: viewport.width / exportScale, h: viewport.height / exportScale }, lagen);
-  } else {
-    renderAnnotationsForPage(annCtx, pageNum, annCanvas.width, annCanvas.height, 1,
-      undefined, undefined, lagen);
-  }
-
-  // Restore original scale
-  state.documents[state.activeDocumentIndex].scale = savedScale;
+  // Annotation layer on its own canvas, composited on top of the PDF below.
+  const annCanvas = renderMarkeringenOffscreen(pageNum, exportScale, viewport, { deel, markeringen });
 
   // Composite: draw annotations on top of PDF
   pdfCtx.drawImage(annCanvas, 0, 0);
 
   return pdfCanvas;
+}
+
+/**
+ * The annotation layer of a page on a transparent canvas, without the PDF
+ * page itself: markups (unless `markeringen` is false), watermarks and text
+ * edits, as output (no editing state, real line weights). Same `deel` as
+ * renderPageOffscreen. Used on its own by "Save as PDF" in the print dialog,
+ * where the page stays vector and only this layer becomes an image.
+ * @param {number} pageNum - 1-based page number
+ * @param {number} exportScale
+ * @param {{width:number, height:number}} viewport  the page at `exportScale`
+ * @returns {HTMLCanvasElement}
+ */
+export function renderMarkeringenOffscreen(pageNum, exportScale, viewport, { deel = null, markeringen = true } = {}) {
+  const annCanvas = document.createElement('canvas');
+  annCanvas.width = deel ? deel.breedte : viewport.width;
+  annCanvas.height = deel ? deel.hoogte : viewport.height;
+  const annCtx = annCanvas.getContext('2d');
+
+  // Temporarily override state.scale so renderAnnotationsForPage uses export scale
+  const doc = state.documents[state.activeDocumentIndex];
+  const savedScale = doc.scale;
+  doc.scale = exportScale;
+  try {
+    const lagen = { uitvoer: true, markeringen };
+    if (deel) {
+      // The same shift in page coordinates (scale 1); watermarks keep the whole page.
+      renderAnnotationsForPage(annCtx, pageNum, annCanvas.width, annCanvas.height, 1,
+        { x: deel.x / exportScale, y: deel.y / exportScale },
+        { w: viewport.width / exportScale, h: viewport.height / exportScale }, lagen);
+    } else {
+      renderAnnotationsForPage(annCtx, pageNum, annCanvas.width, annCanvas.height, 1,
+        undefined, undefined, lagen);
+    }
+  } finally {
+    // Restore original scale
+    doc.scale = savedScale;
+  }
+  return annCanvas;
 }
 
 /**
