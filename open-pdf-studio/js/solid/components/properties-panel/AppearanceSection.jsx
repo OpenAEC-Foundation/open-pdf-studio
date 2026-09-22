@@ -113,10 +113,18 @@ export default function AppearanceSection() {
         <Show when={sectionVis.strokeColorGroup}>
           <ColorPalettePicker
             label={t('appearance.strokeColor')}
-            color={() => annotProps.strokeColor}
-            showNone={false}
+            color={() => {
+              const sc = annotProps.strokeColor;
+              if (sc === 'none' || sc === 'transparent') return null;
+              // Unset strokeColor still draws a border, falling back to
+              // .color (see rendering.js) — show that in the swatch instead
+              // of a misleading "None".
+              return sc || annotProps.color || null;
+            }}
+            showNone={true}
             disabled={isLocked()}
             onColorChange={(color) => updateAnnotProp('strokeColor', color)}
+            onNone={() => updateAnnotProp('strokeColor', 'none')}
           />
         </Show>
 

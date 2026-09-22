@@ -123,7 +123,10 @@ export function drawDimensionLabel(ctx, startX, startY, endX, endY, text, color,
 // (border/hatch keep whatever alpha the caller already had set). Used by
 // the Filled Area sketch preview so the shape stays see-through while
 // tracing over the page, without touching the final saved opacity.
-export function drawMeasureAreaShape(ctx, points, color, lineWidth, fillColor, borderStyle, holes, hatchOpts, fillAlpha) {
+// hasStroke: false skips the outline/hole strokes entirely (explicit "No
+// Border"). Defaults to true so the live-drawing tool previews, which never
+// pass this, keep showing their outline while sketching.
+export function drawMeasureAreaShape(ctx, points, color, lineWidth, fillColor, borderStyle, holes, hatchOpts, fillAlpha, hasStroke = true) {
   // Use actual border style from annotation; default to dashed for backwards compat
   if (borderStyle === 'dashed') {
     ctx.setLineDash([4, 2]);
@@ -176,18 +179,20 @@ export function drawMeasureAreaShape(ctx, points, color, lineWidth, fillColor, b
     applyHatchFillPolygon(ctx, points, holes, hatchOpts.pattern, hatchOpts.color || color, hatchOpts.scale, hatchOpts.angle);
   }
 
-  // Rebuild outer path for stroke (hatch clip destroys the current path)
-  _tracePolygonPath(ctx, points, true);
+  if (hasStroke) {
+    // Rebuild outer path for stroke (hatch clip destroys the current path)
+    _tracePolygonPath(ctx, points, true);
 
-  // Stroke outer boundary
-  ctx.stroke();
+    // Stroke outer boundary
+    ctx.stroke();
 
-  // Stroke hole boundaries separately
-  if (holes && holes.length > 0) {
-    for (const hole of holes) {
-      if (hole && hole.length >= 3) {
-        _tracePolygonPath(ctx, hole, true);
-        ctx.stroke();
+    // Stroke hole boundaries separately
+    if (holes && holes.length > 0) {
+      for (const hole of holes) {
+        if (hole && hole.length >= 3) {
+          _tracePolygonPath(ctx, hole, true);
+          ctx.stroke();
+        }
       }
     }
   }

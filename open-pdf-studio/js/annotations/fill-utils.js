@@ -14,3 +14,14 @@
 export function hasFill(color) {
   return !!color && color !== 'none' && color !== 'transparent';
 }
+
+// "Does this annotation have a border?" — same sentinel convention as
+// hasFill(), but note the caller-side difference: strokeColor falls back to
+// `annotation.color` when unset (`annotation.strokeColor || annotation.color`
+// in rendering.js), so an unset strokeColor still has a border. Only the
+// explicit sentinel ('none'/'transparent', set by the Stroke Color picker's
+// "No Border" option) means no border — check the raw annotation.strokeColor,
+// not the already-defaulted value.
+export function hasStroke(strokeColor) {
+  return strokeColor !== 'none' && strokeColor !== 'transparent';
+}
