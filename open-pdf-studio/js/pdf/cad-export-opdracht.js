@@ -153,7 +153,7 @@ export function exportUitkomst(opdracht, verslagen, waarschuwingen = []) {
   const warnings = [...waarschuwingen];
   const files = (verslagen || []).map(({ pagina, verslag }) => {
     const c = verslag?.convert || {};
-    const objects = ['lines', 'polylines', 'splines', 'hatches', 'texts'].reduce((som, k) => som + (Number(c[k]) || 0), 0);
+    const objects = ['lines', 'polylines', 'splines', 'hatches', 'masks', 'texts'].reduce((som, k) => som + (Number(c[k]) || 0), 0);
     if (Number(c.skipped_images) > 0) warnings.push(`page ${pagina}: ${c.skipped_images} image(s) were skipped`);
     if (Number(c.skipped_invisible_text) > 0) warnings.push(`page ${pagina}: ${c.skipped_invisible_text} invisible text item(s) were skipped`);
     return {
