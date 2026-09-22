@@ -22,6 +22,10 @@
 //! Waar een pagina op het vel komt (`print_plaatsing`): passend in het
 //! bedrukbare gebied (het oude gedrag), of, als de printdialoog de schaal al
 //! in de pagina heeft gezet (plaatsing `Vel`), 1:1 op het hele fysieke vel.
+//! Staat de pagina haaks op het vel dat de DC meldt (het stuurprogramma nam
+//! de stand of het papier niet over), dan gaat het beeld een kwartslag
+//! linksom (`draaiing_voor_vel`), dezelfde regel en richting als het
+//! voorbeeld in de printdialoog.
 
 use std::path::Path;
 use std::sync::Arc;
@@ -40,8 +44,8 @@ use crate::pdfium_renderer;
 use crate::print_devmode::{breed, devmode_voor_opdracht, met_orientatie, DevMode, Printer};
 use crate::print_instelling::{dmpaper, liggend_voor_pagina, papier_uit_maat_mm, Orientatie, Papier};
 use crate::print_plaatsing::{
-    deel_op_vel, fijnste_afbeelding_dpi, inhoud_deel, marges_uit_dc, passend_in_bedrukbaar, render_dpi, Bedrukbaar,
-    DcRechthoek, DcVel, PaginaDeel, Plaatsing,
+    deel_linksom, deel_op_vel, draai_linksom, draaiing_voor_vel, fijnste_afbeelding_dpi, inhoud_deel, marges_uit_dc,
+    passend_in_bedrukbaar, render_dpi, Bedrukbaar, DcRechthoek, DcVel, PaginaDeel, Plaatsing,
 };
 
 /// Printer-DC die bij het verlaten van de scope altijd weer vrijkomt.
@@ -160,9 +164,20 @@ type PaginaBeeld = (u32, u32, Vec<u8>, DcRechthoek);
 /// (`render_dpi`), zodat een A4 op een A0-vel niet een heel A0 aan pixels
 /// kost. `None` = een leeg vel. Een gedraaide pagina (/Rotate) gaat in zijn
 /// geheel, zoals PDFium hem gedraaid rendert.
+///
+/// Staat de pagina haaks op het vel dat de DC meldt (het stuurprogramma nam
+/// een ander vel of een andere stand dan gevraagd), dan gaat het beeld een
+/// kwartslag linksom (`draaiing_voor_vel`), zodat het het vel vult in plaats
+/// van er ongedraaid op zo'n 70 % met witranden op te staan.
 fn beeld_op_vel(doc: &PdfDocument<'static>, i: u32, apparaat_dpi: i32, vel: &DcVel) -> Result<Option<PaginaBeeld>, String> {
     let (pw, ph) = pdfium_renderer::page_size_pt(doc, i)?;
     let pagina = (pw as f64, ph as f64);
+    let draaiing = draaiing_voor_vel(pagina, vel);
+    // De pagina zoals ze op het vel ligt: gedraaid zijn breedte en hoogte gewisseld.
+    let op_vel = if draaiing == 0 { pagina } else { (pagina.1, pagina.0) };
+    if draaiing != 0 {
+        log::info!("[print] pagina {} staat haaks op het vel; beeld een kwartslag gedraaid", i + 1);
+    }
     let inhoud = match pdfium_renderer::page_content(doc, i) {
         Ok(inhoud) if !inhoud.gedraaid => Some(inhoud),
         Ok(_) => None,
@@ -173,8 +188,8 @@ fn beeld_op_vel(doc: &PdfDocument<'static>, i: u32, apparaat_dpi: i32, vel: &DcV
     };
     let Some(inhoud) = inhoud else {
         let schaal = (render_dpi(apparaat_dpi, None) / 72.0) as f32;
-        let (w, h, rgba) = pdfium_renderer::render_page_to_rgba(doc, i, schaal, 0)?;
-        return Ok(Some((w, h, rgba, deel_op_vel(pagina, PaginaDeel::heel(pagina), vel))));
+        let (w, h, rgba) = pdfium_renderer::render_page_to_rgba(doc, i, schaal, draaiing)?;
+        return Ok(Some((w, h, rgba, deel_op_vel(op_vel, PaginaDeel::heel(op_vel), vel))));
     };
     let Some(deel) = inhoud_deel(&inhoud.objecten, inhoud.kader) else {
         return Ok(None);
@@ -191,7 +206,11 @@ fn beeld_op_vel(doc: &PdfDocument<'static>, i: u32, apparaat_dpi: i32, vel: &DcV
     )?;
     // Het beeld dekt hele pixels, dus een fractie meer dan het deel.
     let gedekt = PaginaDeel { breedte: w as f64 / schaal, hoogte: h as f64 / schaal, ..deel };
-    Ok(Some((w, h, rgba, deel_op_vel(pagina, gedekt, vel))))
+    if draaiing == 0 {
+        return Ok(Some((w, h, rgba, deel_op_vel(pagina, gedekt, vel))));
+    }
+    let (w, h, rgba) = draai_linksom(w, h, &rgba);
+    Ok(Some((w, h, rgba, deel_op_vel(op_vel, deel_linksom(gedekt, pagina), vel))))
 }
 
 /// Noodweg als de driver geen DEVMODE geeft: een verder lege `DEVMODEW` voor
@@ -349,7 +368,12 @@ fn print_met_devmodes(
 
         let beeld = match plaatsing {
             Plaatsing::Passend => {
-                let (w, h, rgba) = pdfium_renderer::render_page_to_rgba(doc, i, scale, 0)
+                // Staat de pagina haaks op het vel dat de DC meldt (het
+                // stuurprogramma nam de stand niet over), dan een kwartslag
+                // linksom, zodat het beeld het vel vult.
+                let (pw, ph) = pdfium_renderer::page_size_pt(doc, i)?;
+                let draaiing = draaiing_voor_vel((pw as f64, ph as f64), &vel);
+                let (w, h, rgba) = pdfium_renderer::render_page_to_rgba(doc, i, scale, draaiing)
                     .map_err(|e| format!("Render page {} failed: {e}", i + 1))?;
                 // Pagina passend in het printbare gebied, verhouding behouden, gecentreerd.
                 let doel = passend_in_bedrukbaar((w, h), vel.bedrukbaar);

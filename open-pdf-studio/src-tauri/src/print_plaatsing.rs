@@ -176,6 +176,79 @@ pub fn deel_op_vel(pagina_pt: (f64, f64), deel: PaginaDeel, vel: &DcVel) -> DcRe
     DcRechthoek { x: x0, y: y0, breedte: (x1 - x0).max(1), hoogte: (y1 - y0).max(1) }
 }
 
+/// De draaiing van een pagina die haaks op het vel staat: een kwartslag
+/// linksom (de bovenrand van de pagina komt aan de linkerrand van het vel).
+/// Genoteerd zoals /Rotate en `PdfPageRenderRotation`: graden met de klok
+/// mee, dus 270. Dezelfde richting als `DRAAIING_HAAKS` in
+/// `js/pdf/print-plaatsing.js`, zodat voorbeeld, print-PDF en afdruk
+/// hetzelfde tonen.
+pub const DRAAIING_HAAKS: i32 = 270;
+
+/// Staat een pagina van `pagina` (breedte, hoogte) haaks op een vel van
+/// `vel`: liggend op staand of staand op liggend? Een vierkante pagina of
+/// een vierkant vel staat nooit haaks; onbruikbare maten ook niet.
+pub fn haaks_op_vel(pagina: (f64, f64), vel: (f64, f64)) -> bool {
+    let bruikbaar = |v: f64| v.is_finite() && v > 0.0;
+    if ![pagina.0, pagina.1, vel.0, vel.1].iter().all(|v| bruikbaar(*v)) {
+        return false;
+    }
+    if pagina.0 == pagina.1 || vel.0 == vel.1 {
+        return false;
+    }
+    (pagina.0 > pagina.1) != (vel.0 > vel.1)
+}
+
+/// Het vel van de DC in inch: het fysieke vel, of zonder fysieke maat het
+/// bedrukbare gebied. In inches, want de dpi kan in x en y verschillen.
+/// `None` zonder bruikbare maten.
+fn vel_inch(vel: &DcVel) -> Option<(f64, f64)> {
+    let (b, h) = if vel.fysiek.0 > 0 && vel.fysiek.1 > 0 { vel.fysiek } else { vel.bedrukbaar };
+    if b <= 0 || h <= 0 || vel.dpi.0 <= 0 || vel.dpi.1 <= 0 {
+        return None;
+    }
+    Some((b as f64 / vel.dpi.0 as f64, h as f64 / vel.dpi.1 as f64))
+}
+
+/// Met welke draaiing een pagina van `pagina_pt` gerenderd wordt zodat haar
+/// beeld het apparaatvel vult: `DRAAIING_HAAKS` als de pagina haaks op het
+/// vel staat (het stuurprogramma gaf een ander vel dan gevraagd, of de
+/// stand kon niet mee), anders 0. Ongedraaid zou zo'n pagina op zo'n 70 %
+/// met brede witranden op het vel komen.
+pub fn draaiing_voor_vel(pagina_pt: (f64, f64), vel: &DcVel) -> i32 {
+    match vel_inch(vel) {
+        Some(v) if haaks_op_vel(pagina_pt, v) => DRAAIING_HAAKS,
+        _ => 0,
+    }
+}
+
+/// Een RGBA-beeld van `b` x `h` pixels een kwartslag linksom gedraaid
+/// (`DRAAIING_HAAKS`): pixel (x, y) komt op (y, b - 1 - x) in een beeld van
+/// `h` x `b`. Een beeld met te weinig bytes geeft een leeg beeld.
+pub fn draai_linksom(b: u32, h: u32, rgba: &[u8]) -> (u32, u32, Vec<u8>) {
+    let (bu, hu) = (b as usize, h as usize);
+    if bu == 0 || hu == 0 || rgba.len() < bu * hu * 4 {
+        return (0, 0, Vec::new());
+    }
+    let mut uit = vec![0u8; bu * hu * 4];
+    for y in 0..hu {
+        let rij = &rgba[y * bu * 4..(y + 1) * bu * 4];
+        for x in 0..bu {
+            let doel = ((bu - 1 - x) * hu + y) * 4;
+            uit[doel..doel + 4].copy_from_slice(&rij[x * 4..x * 4 + 4]);
+        }
+    }
+    (h, b, uit)
+}
+
+/// Een deel van een pagina van `pagina_pt` (vanaf de linkerbovenhoek, in pt)
+/// op de pagina zoals ze een kwartslag linksom gedraaid op het vel ligt:
+/// (x, y, breedte, hoogte) wordt (y, B - (x + breedte), hoogte, breedte) met
+/// B de breedte van de ongedraaide pagina. De omgekeerde weg van
+/// `ongedraaidDeel` in `js/pdf/print-plaatsing.js`.
+pub fn deel_linksom(deel: PaginaDeel, pagina_pt: (f64, f64)) -> PaginaDeel {
+    PaginaDeel { x: deel.y, y: pagina_pt.0 - (deel.x + deel.breedte), breedte: deel.hoogte, hoogte: deel.breedte }
+}
+
 /// Het deel van de pagina met inhoud: de omhullende van alle `objecten`
 /// (gebruikersruimte), begrensd tot `kader` (de zichtbare pagina in
 /// gebruikersruimte), als deel vanaf de linkerbovenhoek van de pagina.
@@ -438,6 +511,80 @@ mod tests {
         // Omgekeerd opgegeven hoeken tellen gewoon.
         let omgekeerd = PdfRechthoek { links: 20.0, onder: 30.0, rechts: 10.0, boven: 5.0 };
         assert_eq!(inhoud_deel(&[omgekeerd], kader).unwrap(), PaginaDeel { x: 10.0, y: 812.0, breedte: 10.0, hoogte: 25.0 });
+    }
+
+    #[test]
+    fn haaks_alleen_liggend_op_staand_of_staand_op_liggend() {
+        assert!(haaks_op_vel((297.0, 210.0), (210.0, 297.0)));
+        assert!(haaks_op_vel((210.0, 297.0), (297.0, 210.0)));
+        assert!(!haaks_op_vel((210.0, 297.0), (210.0, 297.0)));
+        assert!(!haaks_op_vel((297.0, 210.0), (420.0, 297.0)));
+        // Vierkant staat nooit haaks; onbruikbare maten ook niet.
+        assert!(!haaks_op_vel((200.0, 200.0), (210.0, 297.0)));
+        assert!(!haaks_op_vel((297.0, 210.0), (300.0, 300.0)));
+        assert!(!haaks_op_vel((0.0, 210.0), (210.0, 297.0)));
+        assert!(!haaks_op_vel((f64::NAN, 210.0), (210.0, 297.0)));
+    }
+
+    #[test]
+    fn draaiing_een_kwartslag_linksom_als_de_pagina_haaks_op_het_apparaatvel_staat() {
+        // Dezelfde richting als DRAAIING_HAAKS in js/pdf/print-plaatsing.js.
+        assert_eq!(DRAAIING_HAAKS, 270);
+        // Een liggende A3-pagina op de staande A3 van de pdf-driver: draaien.
+        assert_eq!(draaiing_voor_vel((420.0 * MM, 297.0 * MM), &pdf_driver_a3()), DRAAIING_HAAKS);
+        // Staand op staand: niets.
+        assert_eq!(draaiing_voor_vel(a3(), &pdf_driver_a3()), 0);
+        // Een ander vel (A3 liggend op de staande A4 van de laser): ook haaks.
+        assert_eq!(draaiing_voor_vel((420.0 * MM, 297.0 * MM), &laser_a4()), DRAAIING_HAAKS);
+        // De stand van het vel telt in inches, niet in pixels: 600 x 1200 dpi
+        // meldt een staande A4 als 4960 x 14032 px; een staande pagina staat
+        // daar niet haaks op.
+        let vel = DcVel { bedrukbaar: (4960, 14032), fysiek: (4960, 14032), offset: (0, 0), dpi: (600, 1200) };
+        assert_eq!(draaiing_voor_vel(a4(), &vel), 0);
+        assert_eq!(draaiing_voor_vel((297.0 * MM, 210.0 * MM), &vel), DRAAIING_HAAKS);
+        // Zonder fysieke maat telt het bedrukbare gebied; zonder maten nooit draaien.
+        let zonder = DcVel { bedrukbaar: (7016, 4960), fysiek: (0, 0), offset: (0, 0), dpi: (600, 600) };
+        assert_eq!(draaiing_voor_vel(a4(), &zonder), DRAAIING_HAAKS);
+        let leeg = DcVel { bedrukbaar: (0, 0), fysiek: (0, 0), offset: (0, 0), dpi: (0, 0) };
+        assert_eq!(draaiing_voor_vel(a4(), &leeg), 0);
+    }
+
+    #[test]
+    fn draai_linksom_legt_de_bovenrand_links() {
+        // 3 x 2 pixels, elk een eigen kleur: rij 0 = a b c, rij 1 = d e f.
+        let px = |n: u8| [n, n, n, 255];
+        let mut rgba = Vec::new();
+        for n in 1..=6u8 {
+            rgba.extend_from_slice(&px(n));
+        }
+        let (b, h, uit) = draai_linksom(3, 2, &rgba);
+        assert_eq!((b, h), (2, 3));
+        let pixel = |x: u32, y: u32| uit[((y * b + x) * 4) as usize];
+        // Een kwartslag linksom: de bovenrand (a b c) komt aan de linkerkant,
+        // van onder naar boven: c bovenaan links, a onderaan links.
+        assert_eq!(pixel(0, 0), 3); // c
+        assert_eq!(pixel(0, 1), 2); // b
+        assert_eq!(pixel(0, 2), 1); // a
+        assert_eq!(pixel(1, 0), 6); // f
+        assert_eq!(pixel(1, 1), 5); // e
+        assert_eq!(pixel(1, 2), 4); // d
+        // Een leeg of kapot beeld geeft niets kapots terug.
+        assert_eq!(draai_linksom(0, 0, &[]), (0, 0, Vec::new()));
+        assert_eq!(draai_linksom(3, 2, &rgba[..8]).0, 0);
+    }
+
+    #[test]
+    fn deel_linksom_zoals_ongedraaid_deel_in_de_dialoog_maar_omgekeerd() {
+        // Een liggende pagina van 300 x 200 pt; de bovenste strook van 10 pt
+        // komt links op de gedraaide pagina (200 x 300) te liggen.
+        let pagina = (300.0, 200.0);
+        let boven = PaginaDeel { x: 0.0, y: 0.0, breedte: 300.0, hoogte: 10.0 };
+        assert_eq!(deel_linksom(boven, pagina), PaginaDeel { x: 0.0, y: 0.0, breedte: 10.0, hoogte: 300.0 });
+        // De rechterstrook komt boven.
+        let rechts = PaginaDeel { x: 290.0, y: 0.0, breedte: 10.0, hoogte: 200.0 };
+        assert_eq!(deel_linksom(rechts, pagina), PaginaDeel { x: 0.0, y: 0.0, breedte: 200.0, hoogte: 10.0 });
+        // De hele pagina blijft de hele (gedraaide) pagina.
+        assert_eq!(deel_linksom(PaginaDeel::heel(pagina), pagina), PaginaDeel::heel((200.0, 300.0)));
     }
 
     #[test]
