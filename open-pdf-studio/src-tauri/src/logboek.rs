@@ -12,7 +12,7 @@
 //   vullen venster-, netwerk- en TLS-bibliotheken het bestand.
 //
 // De regels lopen ook in een release-bouw door: de `log`-crate staat zonder
-// `release_max_level_*` in Cargo.toml, dus er wordt niets wegge-compileerd.
+// `release_max_level_*` in Cargo.toml, dus er wordt niets weggecompileerd.
 //
 // Wat er NIET in mag: inhoud van documenten (tekst, annotaties, afbeeldingen).
 // Paden van de gebruiker mogen wel — het bestand blijft lokaal en zonder pad
@@ -113,6 +113,32 @@ fn logmap_van_app<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> Result<PathBu
     Ok(logmap(override_basis().as_deref(), &app.config().identifier, &standaard))
 }
 
+/// Waar een logregel heen gaat.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Doel {
+    /// Het roterende logbestand in deze map.
+    Bestand(PathBuf),
+    /// De standaarduitvoer (`tauri dev` laat die zien).
+    Standaarduitvoer,
+}
+
+/// Pure regel: welke doelen krijgt de logger?
+///
+/// Deze lijst **vervangt** de standaardlijst van de plug-in. Die bevat naast
+/// de standaarduitvoer ook de logmap die het platform aanwijst, en dat is
+/// precies wat een testinstantie met `OPDS_DATA_DIR` níét mag raken: zonder
+/// vervanging schrijft ze alsnog in het logboek van de geïnstalleerde app.
+pub fn doelen(map: &Path, ontwikkelbouw: bool) -> Vec<Doel> {
+    let mut lijst = vec![Doel::Bestand(map.to_path_buf())];
+    // Een geïnstalleerde app heeft op Windows geen console om naar te
+    // schrijven; in een ontwikkelbouw is de uitvoer juist het snelste venster
+    // op wat de Rust-kant doet.
+    if ontwikkelbouw {
+        lijst.push(Doel::Standaarduitvoer);
+    }
+    lijst
+}
+
 /// Zet de logger op en meld waar het logboek staat.
 ///
 /// Fouten zijn niet fataal: de app start ook zonder logboek. De aanroeper
@@ -121,22 +147,22 @@ pub fn registreer<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> Result<PathBu
     let map = logmap_van_app(app)?;
     let eigen = niveau(std::env::var(NIVEAU_VAR).ok().as_deref());
 
+    let doelen = doelen(&map, cfg!(debug_assertions)).into_iter().map(|doel| match doel {
+        Doel::Bestand(map) => Target::new(TargetKind::Folder {
+            path: map,
+            file_name: Some(BESTANDSNAAM.to_string()),
+        }),
+        Doel::Standaarduitvoer => Target::new(TargetKind::Stdout),
+    });
+
     let mut plugin = tauri_plugin_log::Builder::new()
         .level(niveau_derden(eigen))
         .max_file_size(MAX_BESTANDSGROOTTE)
         .rotation_strategy(RotationStrategy::KeepSome(AANTAL_BESTANDEN))
         .timezone_strategy(tauri_plugin_log::TimezoneStrategy::UseLocal)
-        .target(Target::new(TargetKind::Folder {
-            path: map.clone(),
-            file_name: Some(BESTANDSNAAM.to_string()),
-        }));
+        .targets(doelen);
     for module in EIGEN_MODULES {
         plugin = plugin.level_for(module, eigen);
-    }
-    // Alleen in een ontwikkelbouw ook naar de standaarduitvoer; een
-    // geïnstalleerde app heeft op Windows geen console om naar te schrijven.
-    if cfg!(debug_assertions) {
-        plugin = plugin.target(Target::new(TargetKind::Stdout));
     }
 
     app.plugin(plugin.build()).map_err(|e| format!("logger niet geregistreerd: {e}"))?;
@@ -209,5 +235,64 @@ mod tests {
     fn logboek_gezette_override_wint() {
         let pad = if cfg!(windows) { r"C:\tmp\rig-data" } else { "/tmp/rig-data" };
         assert_eq!(override_uit_waarde(Some(OsString::from(pad))), Some(PathBuf::from(pad)));
+    }
+
+    #[test]
+    fn logboek_schrijft_alleen_naar_de_eigen_map() {
+        let map = PathBuf::from("rig-data").join("org.voorbeeld.app").join("logs");
+        assert_eq!(doelen(&map, false), vec![Doel::Bestand(map.clone())]);
+    }
+
+    #[test]
+    fn logboek_ontwikkelbouw_ook_naar_de_standaarduitvoer() {
+        let map = PathBuf::from("logmap");
+        assert_eq!(doelen(&map, true), vec![Doel::Bestand(map), Doel::Standaarduitvoer]);
+    }
+
+    /// De hele weg: een app-handle zonder venster (de mock-runtime van Tauri),
+    /// de logger erop, en dan staat er een logbestand in de map uit
+    /// `OPDS_DATA_DIR` met de gemelde regel erin.
+    ///
+    /// Eén test, geen tweede: een logger is per proces maar één keer te zetten.
+    #[test]
+    fn logboek_schrijft_in_de_map_uit_opds_data_dir() {
+        use tauri::Manager;
+        let map = std::env::temp_dir().join(format!("opds-logboek-test-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&map);
+        std::env::set_var(DATAMAP_VAR, &map);
+        std::env::set_var(NIVEAU_VAR, "info");
+        let app = tauri::test::mock_app();
+        // Het bestand dat de standaardlijst van de plug-in zou aanmaken: dat
+        // hoort er met een override juist NIET bij te komen.
+        let standaardbestand = app
+            .path()
+            .app_log_dir()
+            .expect("standaard logmap")
+            .join(format!("{}.log", app.package_info().name));
+        let bestond_al = standaardbestand.exists();
+        let doel = registreer(app.handle()).expect("logger geregistreerd");
+        std::env::remove_var(DATAMAP_VAR);
+        std::env::remove_var(NIVEAU_VAR);
+
+        assert!(doel.starts_with(&map), "logboek buiten de eigen datamap: {}", doel.display());
+        assert_eq!(doel.file_name().and_then(|n| n.to_str()), Some("logs"));
+
+        log::info!("[logboek-test] deze regel hoort in het bestand");
+        log::logger().flush();
+        let bestand = doel.join(format!("{BESTANDSNAAM}.log"));
+        let inhoud = std::fs::read_to_string(&bestand).expect("logbestand te lezen");
+        assert_eq!(
+            inhoud.matches("[logboek-test] deze regel hoort in het bestand").count(),
+            1,
+            "de regel hoort er precies één keer in te staan, in {}: {inhoud}",
+            bestand.display()
+        );
+        assert_eq!(
+            standaardbestand.exists(),
+            bestond_al,
+            "met een eigen datamap hoort er niets in de standaardlogmap te komen: {}",
+            standaardbestand.display()
+        );
+        let _ = std::fs::remove_dir_all(&map);
     }
 }
