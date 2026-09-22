@@ -386,6 +386,146 @@ async function ronde(modus, alle, exact, hoofd, start) {
   return zoekOpnieuw(M, v, WOORD.toLowerCase(), `hoofdlettergevoelig uit, "${WOORD.toLowerCase()}" vanaf p1`);
 }
 
+// ── Zoekbronnen: tekst en annotaties ────────────────────────────────────────
+// De annotaties worden via de app aangemaakt (zoals een gebruiker ze plaatst);
+// het zoeken zelf gebeurt gewoon via de zoekbalk.
+const ANNOTATIES = [
+  { pagina: 2, type: 'textbox', props: { x: 60, y: 300, width: 240, height: 40, text: `${WOORD} in een tekstvak`, fontSize: 12 } },
+  { pagina: 3, type: 'comment', props: { x: 90, y: 150, width: 24, height: 24, text: `${WOORD} in een notitie` } },
+];
+
+// Stand van de zoekbalk: vinkjes, hint en de resultatenlijst per pagina.
+const LIJST = () => ({
+  vinkjes: [...document.querySelectorAll('.find-sources .find-check input')].map((i) => i.checked),
+  hint: (document.querySelector('.find-sources-hint')?.textContent || '').trim(),
+  titel: (document.querySelector('.find-results-header')?.textContent || '').trim(),
+  rijen: [...document.querySelectorAll('.find-results-row')].map((r) => ({
+    pagina: +r.dataset.page, aantal: +r.dataset.count, annotaties: +r.dataset.annotations,
+    huidig: r.classList.contains('current'), tekst: (r.textContent || '').replace(/\s+/g, ' ').trim(),
+  })),
+  telling: (document.querySelector('.find-count-inline')?.textContent || '').trim(),
+  kaders: [...document.querySelectorAll('.search-highlight-annotation')].map((h) => {
+    const b = h.getBoundingClientRect();
+    return { l: b.left, t: b.top, r: b.right, b: b.bottom, huidig: h.classList.contains('current') };
+  }),
+});
+
+const bronKnop = (n) => pagina.locator('.find-sources .find-check input').nth(n);
+
+// Vinkje omzetten. In een smal venster kan een gedokt palet over de rand van
+// de zoekbalk vallen; dan valt de muisklik terug op een klik via het element
+// zelf (zelfde change-gebeurtenis, alleen zonder muisaanwijzer).
+async function wisselBron(n) {
+  try {
+    await bronKnop(n).click({ timeout: 4000 });
+  } catch {
+    await bronKnop(n).evaluate((el) => el.click());
+  }
+  await sleep(400);
+}
+
+function noteer(label, fout) {
+  resultaten.push({ label, fout });
+  console.log(`${fout.length ? 'FOUT' : 'GOED'} — ${label}`);
+  for (const f of fout) console.log('       ' + f);
+}
+
+async function bronnenRonde(tekstTreffers) {
+  await eigenTabActief();
+  for (const a of ANNOTATIES) {
+    await mcp('app_create_annotation', { page: a.pagina, type: a.type, props: a.props });
+  }
+  await sleep(1500);
+  const totaal = tekstTreffers + ANNOTATIES.length;
+
+  // Opnieuw zoeken zodat de annotaties meetellen.
+  await typZoekterm(WOORD.toLowerCase());
+  await wachtStabiel(`1 of ${totaal}`);
+  let L = await pagina.evaluate(LIJST);
+  const fout = [];
+  if (!L.vinkjes.every(Boolean) || L.vinkjes.length !== 2) fout.push(`vinkjes ${JSON.stringify(L.vinkjes)}, verwacht twee aangevinkte`);
+  if (!L.titel.includes(String(totaal))) fout.push(`lijstkop "${L.titel}" noemt het totaal ${totaal} niet`);
+  const p2 = L.rijen.find((r) => r.pagina === 2);
+  const p3 = L.rijen.find((r) => r.pagina === 3);
+  if (!p2 || p2.aantal !== 4 || p2.annotaties !== 1) fout.push(`regel pagina 2: ${JSON.stringify(p2)} (verwacht 4 treffers, 1 annotatie)`);
+  if (!p3 || p3.aantal !== 2 || p3.annotaties !== 1) fout.push(`regel pagina 3: ${JSON.stringify(p3)} (verwacht 2 treffers, 1 annotatie)`);
+  if (L.rijen.reduce((s, r) => s + r.aantal, 0) !== totaal) fout.push(`som van de regels ${L.rijen.map((r) => r.aantal).join('+')} ≠ ${totaal}`);
+  if (!L.rijen.some((r) => r.huidig)) fout.push('geen regel gemarkeerd als huidige treffer');
+  noteer(`bronnen: tekst + annotaties (${totaal} treffers, lijst per pagina)`, fout);
+  await schermafdruk('bronnen-beide-aan');
+
+  // Alleen tekst.
+  await wisselBron(1);
+  await wachtStabiel(`1 of ${tekstTreffers}`);
+  L = await pagina.evaluate(LIJST);
+  const foutT = [];
+  if (L.rijen.reduce((s, r) => s + r.aantal, 0) !== tekstTreffers) foutT.push(`${L.rijen.reduce((s, r) => s + r.aantal, 0)} treffers, verwacht ${tekstTreffers}`);
+  if (L.rijen.some((r) => r.annotaties > 0)) foutT.push('annotatietreffers terwijl het vinkje uit staat');
+  if (L.kaders.length) foutT.push(`${L.kaders.length} annotatiekaders terwijl het vinkje uit staat`);
+  noteer('bronnen: alleen tekst', foutT);
+
+  // Alleen annotaties.
+  await wisselBron(1);
+  await wisselBron(0);
+  await wachtStabiel(`1 of ${ANNOTATIES.length}`);
+  L = await pagina.evaluate(LIJST);
+  const foutA = [];
+  if (L.rijen.reduce((s, r) => s + r.aantal, 0) !== ANNOTATIES.length) foutA.push(`${L.rijen.reduce((s, r) => s + r.aantal, 0)} treffers, verwacht ${ANNOTATIES.length}`);
+  if (L.rijen.some((r) => r.aantal !== r.annotaties)) foutA.push('tekstreffers terwijl alleen annotaties aanstaan');
+  if (!L.kaders.length) foutA.push('geen kader om de gevonden annotatie');
+  else {
+    const kader = L.kaders[0];
+    const m = await pagina.evaluate(METING);
+    const huidigePagina = (await staat()).currentPage;
+    const ann = ANNOTATIES.find((a) => a.pagina === huidigePagina) || ANNOTATIES[0];
+    foutA.push(...kaderControle(kader, ann, m));
+  }
+  noteer('bronnen: alleen annotaties (kader om de annotatie)', foutA);
+  await schermafdruk('bronnen-alleen-annotaties');
+
+  // Allebei uit: geen resultaten, wel een duidelijke toestand.
+  await wisselBron(1);
+  await sleep(1200);
+  L = await pagina.evaluate(LIJST);
+  const foutU = [];
+  if (L.rijen.length) foutU.push(`${L.rijen.length} regels in de lijst terwijl beide bronnen uit staan`);
+  if (!L.hint) foutU.push('geen uitleg zichtbaar terwijl beide bronnen uit staan');
+  if (/not found|No results/i.test(L.telling)) foutU.push(`toestand oogt als een fout: "${L.telling}"`);
+  noteer('bronnen: allebei uit → lege lijst met uitleg, geen foutmelding', foutU);
+  await schermafdruk('bronnen-allebei-uit');
+
+  // Terug naar beide en op een regel klikken.
+  await wisselBron(0);
+  await wisselBron(1);
+  await wachtStabiel(`1 of ${totaal}`);
+  const doel = (await pagina.evaluate(LIJST)).rijen.find((r) => r.pagina === 3);
+  await pagina.locator('.find-results-row[data-page="3"]').click();
+  await sleep(2500);
+  const na = await pagina.evaluate(LIJST);
+  const st = await staat();
+  const foutK = [];
+  if (st.currentPage !== 3) foutK.push(`app staat op pagina ${st.currentPage} na klikken op de regel van pagina 3`);
+  if (!na.rijen.find((r) => r.pagina === 3)?.huidig) foutK.push('regel van pagina 3 is niet gemarkeerd als huidige treffer');
+  if (!doel) foutK.push('geen regel voor pagina 3 in de lijst');
+  noteer('resultatenlijst: klikken op "pagina 3" springt naar die treffer', foutK);
+  await schermafdruk('bronnen-klik-op-regel');
+}
+
+// Ligt het kader binnen een paar pixels om de annotatie?
+function kaderControle(kader, ann, meting) {
+  const fout = [];
+  const p = meting.paginas[ann.pagina];
+  const schaal = p ? p.w / (595.28) : meting.enkel.zoom;
+  const oorsprong = p ? { x: p.x, y: p.y } : meting.enkel;
+  const mx = oorsprong.x + (ann.props.x + (ann.props.width || 24) / 2) * schaal;
+  const my = oorsprong.y + (ann.props.y + (ann.props.height || 24) / 2) * schaal;
+  const kx = (kader.l + kader.r) / 2;
+  const ky = (kader.t + kader.b) / 2;
+  const afw = Math.max(Math.abs(kx - mx), Math.abs(ky - my));
+  if (afw > 6) fout.push(`kader staat ${rnd(afw)} px van de annotatie (midden ${rnd(kx)}/${rnd(ky)}, verwacht ${rnd(mx)}/${rnd(my)})`);
+  return fout;
+}
+
 // ── Hoofdprogramma ──────────────────────────────────────────────────────────
 fs.mkdirSync(UIT, { recursive: true });
 // Unieke naam per run: een nog geopend bestand van een vorige run blijft op slot.
@@ -426,7 +566,10 @@ try {
   await mcp('app_set_view_mode', { mode: 'continuous' });
   await controleer('wissel enkel → doorlopend zonder opnieuw zoeken', { ...w, modus: 'continuous' }, null, true);
 
-  // 5. Sluiten met Escape: geen markeringen meer.
+  // 5. Zoekbronnen: tekst en annotaties, plus de resultatenlijst per pagina.
+  await bronnenRonde(alle.length);
+
+  // 6. Sluiten met Escape: geen markeringen meer.
   await zoekveld().click();
   await pagina.keyboard.press('Escape');
   await sleep(600);
@@ -435,6 +578,12 @@ try {
   resultaten.push(r);
   console.log(`${r.fout.length ? 'FOUT' : 'GOED'} — ${r.label}`);
 } finally {
+  // De testtab draagt zelfgemaakte annotaties; weggooien zonder op te slaan.
+  try {
+    const tabs = (await mcp('app_list_tabs', {}))?.tabs || [];
+    const eigen = tabs.find((t) => zelfdePad(t.filePath, EIGEN_PAD));
+    if (eigen) await mcp('app_close_tab', { index: eigen.index, force: true });
+  } catch { /* opruimen is geen testresultaat */ }
   fs.writeFileSync(path.join(UIT, 'rapport.json'), JSON.stringify(resultaten, null, 1));
   await browser.close().catch(() => {});
 }
