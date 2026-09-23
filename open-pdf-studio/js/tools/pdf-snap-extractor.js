@@ -179,9 +179,13 @@ export function getPdfEdgeSegmentsNear(pageNum, x, y, radius) {
  * bounding box overlaps (unless that footprint exceeds EDGE_CELL_SPAN_CAP, in
  * which case the edge goes on an always-checked list).
  */
-function buildSpatialIndex(points, edges) {
+async function buildSpatialIndex(points, edges, checkActive = () => {}) {
   const pointGrid = new Map();
   for (let i = 0; i < points.length; i++) {
+    if (i > 0 && i % 2000 === 0) {
+      await new Promise(resolve => setTimeout(resolve, 0));
+      checkActive();
+    }
     const key = _cellKey(_cellCoord(points[i].x), _cellCoord(points[i].y));
     let bucket = pointGrid.get(key);
     if (!bucket) { bucket = []; pointGrid.set(key, bucket); }
@@ -191,6 +195,10 @@ function buildSpatialIndex(points, edges) {
   const edgeGrid = new Map();
   const edgeOversized = [];
   for (let i = 0; i < edges.length; i++) {
+    if (i > 0 && i % 2000 === 0) {
+      await new Promise(resolve => setTimeout(resolve, 0));
+      checkActive();
+    }
     const e = edges[i];
     const minCx = _cellCoord(Math.min(e.x1, e.x2));
     const maxCx = _cellCoord(Math.max(e.x1, e.x2));
@@ -226,10 +234,16 @@ export function clearPdfVectorCache() {
  * Extract vector geometry from a PDF page's operator list.
  * Transforms all coordinates to annotation-space (CSS pixels at scale=1).
  */
-async function extractPageGeometry(pageNum) {
-  const doc = getActiveDocument();
+export async function extractPageGeometry(pageNum, options = {}) {
+  const doc = options.document || getActiveDocument();
   const pdfDoc = doc?.pdfDoc;
   if (!pdfDoc) return { points: [], edges: [] };
+  const checkActive = () => {
+    if (options.signal?.aborted || (options.document && getActiveDocument() !== doc)) {
+      throw new DOMException('Vector extraction aborted', 'AbortError');
+    }
+  };
+  checkActive();
 
   // Rasterblad zonder vectorinhoud (gescande tekening: één grote JPEG)?
   // Dan niets uitlezen: getOperatorList() zou de hele afbeelding in
@@ -249,6 +263,7 @@ async function extractPageGeometry(pageNum) {
   }
 
   const page = await pdfDoc.getPage(pageNum);
+  checkActive();
 
   // Get viewport at scale 1 (annotation coordinate system)
   const extraRotation = getPageRotation(pageNum);
@@ -260,6 +275,7 @@ async function extractPageGeometry(pageNum) {
   const viewportTransform = viewport.transform;
 
   const opList = await page.getOperatorList();
+  checkActive();
 
   // PDF transform matrix stack
   const matrixStack = [];
@@ -274,6 +290,10 @@ async function extractPageGeometry(pageNum) {
   const argsArray = opList.argsArray;
 
   for (let i = 0; i < ops.length; i++) {
+    if (i % 2000 === 1999) {
+      await new Promise(resolve => setTimeout(resolve, 0));
+      checkActive();
+    }
     const op = ops[i];
     const a = argsArray[i];
 
@@ -303,11 +323,11 @@ async function extractPageGeometry(pageNum) {
         if (!pathData || !pathData.length) break;
 
         // Parse interleaved path data and collect segments
-        const segments = parseInterleavedPathData(pathData);
+        const segments = await parseInterleavedPathData(pathData, checkActive);
 
         // Commit all segments (even endPath — for snap purposes all geometry is useful)
         if (segments.length > 0) {
-          commitSegments(segments, ctm, viewportTransform, points, edges, pointSet);
+          await commitSegments(segments, ctm, viewportTransform, points, edges, pointSet, checkActive);
         }
         break;
       }
@@ -321,26 +341,32 @@ async function extractPageGeometry(pageNum) {
           { x: rx, y: ry + rh },
           { x: rx, y: ry }
         ];
-        commitSegments([rectPath], ctm, viewportTransform, points, edges, pointSet);
+        await commitSegments([rectPath], ctm, viewportTransform, points, edges, pointSet, checkActive);
         break;
       }
     }
   }
 
-  return { points, edges, index: buildSpatialIndex(points, edges) };
+  return { points, edges, index: await buildSpatialIndex(points, edges, checkActive) };
 }
 
 /**
  * Parse interleaved path data [op, args..., op, args...] into path segments.
  * Returns array of subpaths, where each subpath is an array of {x,y} points.
  */
-function parseInterleavedPathData(data) {
+async function parseInterleavedPathData(data, checkActive = () => {}) {
   const segments = [];
   let currentPath = [];
   let currentX = 0, currentY = 0;
   let i = 0;
+  let nextYield = 10000;
 
   while (i < data.length) {
+    if (i >= nextYield) {
+      nextYield = i + 10000;
+      await new Promise(resolve => setTimeout(resolve, 0));
+      checkActive();
+    }
     const drawOp = data[i++];
 
     switch (drawOp) {
@@ -419,8 +445,13 @@ function parseInterleavedPathData(data) {
 /**
  * Transform segments via CTM + viewport and produce snap points/edges.
  */
-function commitSegments(segments, ctm, viewportTransform, points, edges, pointSet) {
-  for (const path of segments) {
+async function commitSegments(segments, ctm, viewportTransform, points, edges, pointSet, checkActive = () => {}) {
+  for (let index = 0; index < segments.length; index++) {
+    if (index > 0 && index % 100 === 0) {
+      await new Promise(resolve => setTimeout(resolve, 0));
+      checkActive();
+    }
+    const path = segments[index];
     const transformed = path.map(pt => {
       // Apply CTM (PDF user space → PDF device space)
       const cx = ctm[0] * pt.x + ctm[2] * pt.y + ctm[4];

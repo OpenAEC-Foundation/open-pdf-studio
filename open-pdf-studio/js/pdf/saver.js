@@ -15,6 +15,7 @@ import { schrijfHatchMeta } from './saver/hatch-meta.js';
 import { bytesVan as knipselBytesVan } from '../annotations/vector-snippet-store.js';
 import { getAnnotationStorage, getAnnotIdToFieldName } from './form-layer.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
+import { createPluginPdfAnnotation, renderPluginAnnotationPng, readPluginPdfAnnotation } from '../plugins/plugin-pdf.js';
 import i18next from '../i18n/config.js';
 import { showMessage } from '../bridge.js';
 
@@ -462,6 +463,9 @@ async function _savePDFNu(saveAsPath) {
             const subtype = dict?.get?.(PDFName.of('Subtype'))?.toString();
             if (!subtype || !handledSubtypes.has(subtype)) {
               annotsArray.push(ref); // Keep annotations we don't manage
+            } else if (subtype === '/Square' && readPluginPdfAnnotation(dict, context) &&
+                       !getAnnotationType(readPluginPdfAnnotation(dict, context).type)) {
+              annotsArray.push(ref); // Preserve plugin data while its extension is unavailable.
             } else if (dict.get(PDFName.of('OPS_SnippetKey'))) {
               oudeKnipselStempels.push(ref); // wordt vervangen; resten opruimen
             }
@@ -2823,9 +2827,8 @@ async function _savePDFNu(saveAsPath) {
           }
 
           default: {
-            // Plugin-registered annotation types: delegate to the handler's
-            // optional serializeToPdf method. Unknown types without a handler
-            // remain dropped (legacy behavior).
+            // Existing page-baking handlers keep their original contract.
+            // Render-only handlers use a visible /Square with editable metadata.
             const pluginHandler = getAnnotationType(ann.type);
             if (pluginHandler && typeof pluginHandler.serializeToPdf === 'function') {
               try {
@@ -2839,6 +2842,15 @@ async function _savePDFNu(saveAsPath) {
               } catch (err) {
                 console.warn(`[saver] plugin serializeToPdf failed for type "${ann.type}":`, err);
               }
+            } else if (pluginHandler?.render) {
+              const rawBounds = pluginHandler.getBounds?.(annRaw) || annRaw;
+              const bounds = pageRot
+                ? _remapRect(rawBounds, _rotVisualMapper(pageRot, cropBox.width, cropBox.height))
+                : rawBounds;
+              const rect = [convertX(bounds.x), convertY(bounds.y + bounds.height),
+                convertX(bounds.x + bounds.width), convertY(bounds.y)];
+              const png = renderPluginAnnotationPng(annRaw, pluginHandler, pageRot);
+              annotDict = await createPluginPdfAnnotation(pdfDocLib, annRaw, rect, png);
             }
             break;
           }

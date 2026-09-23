@@ -5,6 +5,7 @@ import { fillAlphaAtFirstFill } from './ap-fill-alpha.js';
 import { leesKnipselBronnen, leesKnipselVelden } from './vector-snippet-load.js';
 import { bewaar as bewaarKnipsel } from '../../annotations/vector-snippet-store.js';
 import { decodePdfTextObject } from '../saver/pdf-text.js';
+import { readPluginPdfAnnotation } from '../../plugins/plugin-pdf.js';
 
 // Documenten waarvan de knipsel-bronpagina's al in de store staan: dat
 // uitpakken gebeurt één keer per document, bij het eerste knipsel dat we zien.
@@ -145,6 +146,16 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
       const key = `${pdfNum(rect.get(0))},${pdfNum(rect.get(1))},${pdfNum(rect.get(2))},${pdfNum(rect.get(3))}`;
 
       const colors = {};
+      const pluginAnnotation = readPluginPdfAnnotation(annotDict, context);
+      if (pluginAnnotation) {
+        // Rectangles are not unique: overlapping plugin objects may have
+        // identical geometry. PDF.js exposes the indirect reference as id.
+        const ref = annots.get(i);
+        const refId = Number.isInteger(ref?.objectNumber)
+          ? `${ref.objectNumber}R${ref.generationNumber || ''}` : null;
+        colorMap.set(refId ? `@ref:${refId}` : key, { pluginAnnotation });
+        continue;
+      }
 
       // Read /CA (opacity) entry for ALL annotation types - PDF.js doesn't always expose this
       const caRaw = annotDict.get(PDFName.of('CA'));
