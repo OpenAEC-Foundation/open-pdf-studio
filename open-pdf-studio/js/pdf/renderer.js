@@ -2,6 +2,8 @@ import { state, getActiveDocument, getPageRotation, setPageRotation } from '../c
 import { isTauri, invoke } from '../core/platform.js';
 import { pdfjsFallbackNodig } from './render-route.js';
 import { bepaalOverlayMaat, pasOverlayMaatToe } from './overlay-canvas-size.js';
+import { paginaGetekend } from './pagina-getekend.js';
+import { hideLoading } from '../ui/chrome/dialogs.js';
 // Always-fresh DOM refs (never stale regardless of init timing or bundler behavior)
 function getPdfCanvas() { return document.getElementById('pdf-canvas'); }
 function getAnnotationCanvas() { return document.getElementById('annotation-canvas'); }
@@ -558,6 +560,11 @@ async function _renderPageImpl(pageNum) {
       await tekenPaginaMetPdfJs(page, viewport, pdfCanvas);
       if (_isStaleDoc(doc)) return;
       state.renderEngine = 'Raster (PDF.js)';
+      // De pagina staat er. Wat hierna komt (tekst-, link- en formulierlaag,
+      // annotaties) kan in de webversie een minuut duren omdat PDF.js daar
+      // ook de miniaturen tekent; het laadscherm hoort daar niet op te
+      // wachten (#456).
+      paginaGetekend({ verbergLaadscherm: hideLoading });
     } catch (e) {
       console.warn('[render] PDF.js-render mislukt:', e);
     }
