@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Web-unit — demo</title>
+<style>
+  html,body { margin:0; height:100%; font:13px "Segoe UI",Arial,sans-serif; background:#f0f0f0; color:#111; }
+  body { display:grid; grid-template-columns:1fr 320px; grid-template-rows:auto 1fr; height:100vh; }
+  header { grid-column:1/-1; display:flex; gap:8px; align-items:center; padding:6px 10px;
+           background:linear-gradient(#ffffff,#f5f5f5); border-bottom:1px solid #d4d4d4; }
+  header button, header input, header select { font:inherit; }
+  header button { padding:3px 10px; border:1px solid #adadad; background:#f0f0f0; cursor:pointer; }
+  open-pdf-studio { height:100%; }
+  aside { border-left:1px solid #d4d4d4; background:#fff; padding:8px; overflow:auto; }
+  h2 { font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:#555; margin:12px 0 4px; }
+  #log { font:11px Consolas,monospace; white-space:pre-wrap; background:#fafafa; border:1px solid #e0e0e0;
+         padding:6px; min-height:140px; }
+  #uitkomst { font:12px Consolas,monospace; background:#fafafa; border:1px solid #e0e0e0; padding:6px; }
+</style>
+</head>
+<body>
+  <header>
+    <button id="voorbeeld">Voorbeeldtekening</button>
+    <label>Eigen PDF <input id="kiezer" type="file" accept="application/pdf"></label>
+    <label>Schaal <input id="schaal" value="1:100" size="7"></label>
+    <button id="zetSchaal">Toepassen</button>
+    <span style="flex:1"></span>
+    <button id="opslaan">Opslaan en teruggeven</button>
+    <a id="download" hidden>bestand ophalen</a>
+  </header>
+
+  <open-pdf-studio id="unit" scale="1:100" unit="mm" lang="nl" mode="edit"
+                   tools="measure,comment,shape" zoom="fit"></open-pdf-studio>
+
+  <aside>
+    <h2>Wat de gastheer ziet</h2>
+    <div id="uitkomst">nog niets geladen</div>
+    <h2>Gebeurtenissen</h2>
+    <div id="log"></div>
+  </aside>
+
+  <script type="module" src="../src/index.js"></script>
+  <script type="module" src="./demo.js"></script>
+</body>
+</html>

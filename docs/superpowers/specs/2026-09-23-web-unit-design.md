@@ -353,8 +353,11 @@ gebruikt daarom:
 - `pdfjs-dist` en `pdf-lib` rechtstreeks;
 - `js/pdf/mupdf-renderer.js` **ongewijzigd** — die module heeft geen enkele
   afhankelijkheid van de app;
-- een eigen, kleine schrijver die **exact dezelfde conventies in het bestand
-  gebruikt** als de bureaubladversie.
+- `js/pdf/saver/appearance-vectors.js` **ongewijzigd** voor de vector-`/AP` van
+  de maatlijn, zodat de unit en de bureaubladversie letterlijk dezelfde
+  appearance tekenen;
+- een eigen, kleine schrijver voor de annotatiewoordenboeken, die **exact
+  dezelfde conventies in het bestand gebruikt** als de bureaubladversie.
 
 Die laatste is het gevoelige punt. De afspraak, afgelezen uit
 `js/pdf/saver.js`, is:
@@ -386,6 +389,35 @@ ontbreekt".
 6. Opmerkingen: notitie en rechthoek.
 7. Opslaan met pdf-lib volgens de conventietabel hierboven.
 8. Eén demopagina en de tests.
+
+## Gemeten na de eerste snede
+
+`npm run build:web-unit` levert in `dist-web-unit`:
+
+| Bestand | rauw | gzip | wanneer |
+| --- | --- | --- | --- |
+| `open-pdf-studio.js` | 17,5 kB | **6,6 kB** | altijd — dit is wat de gastheer insluit |
+| `brokken/pdf-*.js` (PDF.js) | 403 kB | 119 kB | bij het eerste document |
+| `brokken/pdf.worker-*.js` | 1.978 kB | 378 kB | idem |
+| `brokken/opslaan-*.js` + pdf-lib | 7 kB + 429 kB | 3 kB + 178 kB | pas bij `opslaan()` |
+| `brokken/mupdf-*.js` | 90 kB | 24 kB | alleen bij `engine="mupdf"` |
+| `middelen/mupdf-wasm-*.wasm` | 9.757 kB | 4.480 kB (3.437 kB brotli) | idem |
+
+Het budget van 250 kB gzip voor de entry wordt dus ruim gehaald: de eerste
+lading is **6,6 kB**, en tot er een tekening op het scherm staat 504 kB gzip
+(PDF.js plus worker). Ter vergelijking: de bureaubladbundel laadt 1.169 kB
+gzip voordat er iets gebeurt. pdf-lib komt pas op het moment van opslaan
+binnen, wat een kijker in de alleen-lezenstand 178 kB scheelt.
+
+De opening van het zware A0-blad (blad A hierboven) door de gebouwde unit:
+
+| | `engine="pdfjs"` | `engine="mupdf"` |
+| --- | --- | --- |
+| eerste beeld, passend (1256 × 889 px) | 26,8 s | **6,4 s** |
+| zoomslag naar 175 % (2198 × 1555 px) | 14,0 s | **7,6 s** |
+| JS-heap erbij | +1.176 MB | vrijwel niets (de wasm rekent buiten de JS-heap) |
+
+Dat bevestigt de motormeting uit de opzet, nu door de echte unit heen.
 
 ## Wat er buiten deze snede valt
 

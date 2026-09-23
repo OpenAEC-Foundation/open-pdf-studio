@@ -3,6 +3,7 @@ node_modules/
 
 # Build output
 dist/
+dist-web-unit/
 out/
 
 # Rust / Cargo build output — elke target-map op elk niveau
