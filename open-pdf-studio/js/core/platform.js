@@ -343,14 +343,35 @@ export async function openExternal(url) {
   await invoke('open_url', { url });
 }
 
+// ── Contract van invoke() buiten Tauri ──────────────────────────────────────
+// De webversie heeft geen Rust-kant. Een aanroep KAN daar dus niet slagen.
+// Tot #456 gaf invoke() dan stil `null` terug: de aanroeper zag geen verschil
+// tussen "hier niet beschikbaar", "mislukt" en "Rust gaf echt null terug", dus
+// elke knop achter een Rust-opdracht deed niets zonder een woord. Het contract
+// is nu één vorm, overal gelijk: de belofte wordt afgewezen met een
+// NietInBrowserError. Aanroepers die er iets mee kunnen vangen hem af met
+// isNietInBrowser(); de rest laat hem door naar de gewone foutafhandeling.
+export const NIET_IN_BROWSER = 'NIET_IN_BROWSER';
+
+export class NietInBrowserError extends Error {
+  constructor(command) {
+    super(`"${command}" is not available in the browser build`);
+    this.name = 'NietInBrowserError';
+    this.code = NIET_IN_BROWSER;
+    this.command = command;
+  }
+}
+
+/** Is dit de fout "deze opdracht bestaat niet in de webversie"? */
+export function isNietInBrowser(fout) {
+  return !!fout && typeof fout === 'object' && fout.code === NIET_IN_BROWSER;
+}
+
 // Invoke custom commands
 export async function invoke(cmd, args = {}) {
-  if (!isTauri()) return null;
   const core = getTauriCore();
-  if (core) {
-    return await core.invoke(cmd, args);
-  }
-  return null;
+  if (!core) throw new NietInBrowserError(cmd);
+  return await core.invoke(cmd, args);
 }
 
 // App-datamap (kaders, onderhoeken). Gaat via Rust zodat een testinstantie

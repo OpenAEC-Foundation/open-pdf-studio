@@ -5,7 +5,8 @@
 import { PDFDocument } from 'pdf-lib';
 import i18next from '../i18n/config.js';
 import { getActiveDocument, getPageRotation } from '../core/state.js';
-import { invoke, readBinaryFile, writeBinaryFile } from '../core/platform.js';
+import { invoke, isNietInBrowser, readBinaryFile, writeBinaryFile } from '../core/platform.js';
+import { meldingTekst } from '../core/webfuncties.js';
 import { renderPageOffscreen, renderMarkeringenOffscreen, canvasToBytes } from './exporter.js';
 import { getCachedPdfBytes } from './loader.js';
 import { viewportOpties } from './getoonde-pagina.js';
@@ -292,6 +293,12 @@ export async function runPrintJob({
     return { ok: true, copies: numCopies };
   } catch (e) {
     console.error('Print job failed:', e);
+    // De webversie heeft geen spooler. Dan geen technische opdrachtnaam in
+    // beeld, maar de ene melding over functies zonder webvariant (#456).
+    if (isNietInBrowser(e)) {
+      failPrintProgress(meldingTekst(i18next.t.bind(i18next), i18next.t('print')));
+      return { ok: false, error: 'not-in-browser' };
+    }
     failPrintProgress(i18next.t('dialogs:print.progress.failed', { error: e?.message ?? e }));
     return { ok: false, error: `${e?.message ?? e}` };
   }
