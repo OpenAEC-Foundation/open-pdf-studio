@@ -19,6 +19,7 @@ import { betonbalkLastProfiel } from '../solid/stores/betonbalkStore.js';
 import { labelFontSizeAt } from '../annotations/drafting-rules.js';
 import { isKlikSleep, klemMaat, schermPxNaarPt, KLIK_DREMPEL_PX } from '../annotations/minimummaat.js';
 import { getEffectiveScale } from './effective-scale.js';
+import { randkleurenUitVoorkeur } from '../annotations/fill-utils.js';
 
 /**
  * Build raw annotation properties from tool + coordinates.
@@ -190,8 +191,7 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         type: 'circle',
         page: getActiveDocument()?.currentPage || 1,
         ...b,
-        color: prefs.circleStrokeColor,
-        strokeColor: prefs.circleStrokeColor,
+        ...randkleurenUitVoorkeur(prefs, 'circle', 'circle'),
         fillColor: prefs.circleFillNone ? null : prefs.circleFillColor,
         lineWidth: prefs.circleBorderWidth,
         borderStyle: prefs.circleBorderStyle,
@@ -209,8 +209,7 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         type: 'circle',
         page: getActiveDocument()?.currentPage || 1,
         ...b,
-        color: prefs.circleStrokeColor,
-        strokeColor: prefs.circleStrokeColor,
+        ...randkleurenUitVoorkeur(prefs, 'circle', 'circle'),
         fillColor: prefs.circleFillNone ? null : prefs.circleFillColor,
         lineWidth: prefs.circleBorderWidth,
         borderStyle: prefs.circleBorderStyle,
@@ -225,8 +224,7 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         type: 'box',
         page: getActiveDocument()?.currentPage || 1,
         ...b,
-        color: prefs.rectStrokeColor,
-        strokeColor: prefs.rectStrokeColor,
+        ...randkleurenUitVoorkeur(prefs, 'rect', 'box'),
         fillColor: prefs.rectFillNone ? null : prefs.rectFillColor,
         lineWidth: prefs.rectBorderWidth,
         borderStyle: prefs.rectBorderStyle,
@@ -262,8 +260,7 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         // daar kunnen raaktest, ruimtelijke index en opslaan niet mee overweg.
         ...bbox(startX, startY, endX, endY),
         sides: 6,
-        color: prefs.polygonStrokeColor || getColorPickerValue(),
-        strokeColor: prefs.polygonStrokeColor || getColorPickerValue(),
+        ...randkleurenUitVoorkeur(prefs, 'polygon', 'polygon', getColorPickerValue()),
         lineWidth: prefs.polygonLineWidth || getLineWidthValue(),
         opacity: (prefs.polygonOpacity || 100) / 100
       };
@@ -292,8 +289,7 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         page: getActiveDocument()?.currentPage || 1,
         points: pts,
         x: x0, y: y0, width: b.width, height: b.height,
-        color: prefs.polygonStrokeColor || getColorPickerValue(),
-        strokeColor: prefs.polygonStrokeColor || getColorPickerValue(),
+        ...randkleurenUitVoorkeur(prefs, 'polygon', 'polyline', getColorPickerValue()),
         lineWidth: prefs.polygonLineWidth || getLineWidthValue(),
         borderStyle: 'solid',
         opacity: (prefs.polygonOpacity || 100) / 100,
@@ -307,8 +303,7 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         type: 'cloud',
         page: getActiveDocument()?.currentPage || 1,
         ...b,
-        color: prefs.cloudStrokeColor || getColorPickerValue(),
-        strokeColor: prefs.cloudStrokeColor || getColorPickerValue(),
+        ...randkleurenUitVoorkeur(prefs, 'cloud', 'cloud', getColorPickerValue()),
         lineWidth: prefs.cloudLineWidth || getLineWidthValue(),
         opacity: (prefs.cloudOpacity || 100) / 100
       };
@@ -321,8 +316,7 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         page: getActiveDocument()?.currentPage || 1,
         ...b,
         text: '',
-        color: prefs.textboxStrokeColor,
-        strokeColor: prefs.textboxStrokeColor,
+        ...randkleurenUitVoorkeur(prefs, 'textbox', 'textbox'),
         fillColor: prefs.textboxFillNone ? 'none' : prefs.textboxFillColor,
         textColor: '#000000',
         fontSize: prefs.textboxFontSize,
@@ -354,8 +348,7 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         kneeX, kneeY,
         armOriginX, armOriginY,
         text: '',
-        color: prefs.calloutStrokeColor,
-        strokeColor: prefs.calloutStrokeColor,
+        ...randkleurenUitVoorkeur(prefs, 'callout', 'callout'),
         fillColor: prefs.calloutFillNone ? 'none' : prefs.calloutFillColor,
         textColor: '#000000',
         fontSize: prefs.calloutFontSize,
@@ -627,8 +620,7 @@ export function createMeasureAreaAnnotation(points, holes) {
     type: 'measureArea',
     page: getActiveDocument()?.currentPage || 1,
     points,
-    color: mPrefs.measureAreaStrokeColor,
-    strokeColor: mPrefs.measureAreaStrokeColor,
+    ...randkleurenUitVoorkeur(mPrefs, 'measureArea', 'measureArea'),
     lineWidth: mPrefs.measureAreaLineWidth,
     opacity: (mPrefs.measureAreaOpacity || 100) / 100,
     fillColor: mPrefs.measureAreaFillNone ? null : (mPrefs.measureAreaFillColor || null),

@@ -3,6 +3,7 @@ import { cloneAnnotation } from '../../annotations/factory.js';
 import { recordModify } from '../../core/undo-manager.js';
 import { calculateArea, formatMeasurement, formatDimensionText, arcControlPoint, expandArcPoints } from '../../annotations/measurement.js';
 import { applyToolTransform } from '../tool-context.js';
+import { randkleurenUitVoorkeur } from '../../annotations/fill-utils.js';
 import {
   enterTypeLengthMode,
   exitTypeLengthMode,
@@ -602,7 +603,9 @@ function _measureMultiClickMove(ctx, e, toolType) {
   }
 
   const prefs = state.preferences;
-  const mColor = (isArea ? prefs.measureAreaStrokeColor : prefs.measurePerimStrokeColor) || '#FF0000';
+  const mColor = isArea
+    ? randkleurenUitVoorkeur(prefs, 'measureArea', 'measureArea', '#FF0000').color
+    : (prefs.measurePerimStrokeColor || '#FF0000');
   const mBorderStyle = (isArea ? prefs.measureAreaBorderStyle : prefs.measurePerimBorderStyle) || 'solid';
   const mFillColor = isArea ? (prefs.measureAreaFillNone ? 'none' : (prefs.measureAreaFillColor || null)) : null;
 
@@ -765,7 +768,7 @@ function _measureMultiClickMove(ctx, e, toolType) {
 function _drawHolesPhasePreview(ctx, cursorX, cursorY) {
   const { state, canvasCtx, scale } = ctx;
   const prefs = state.preferences;
-  const mColor = prefs.measureAreaStrokeColor || '#FF0000';
+  const mColor = randkleurenUitVoorkeur(prefs, 'measureArea', 'measureArea', '#FF0000').color;
   const mBorderStyle = prefs.measureAreaBorderStyle || 'solid';
   const mFillColor = prefs.measureAreaFillNone ? 'none' : (prefs.measureAreaFillColor || null);
   const outerPoints = state.measureOuterPoints || [];
@@ -855,7 +858,9 @@ function _drawMeasureInProgress(ctx, toolType) {
   const { state, canvasCtx, scale } = ctx;
   const prefs = state.preferences;
   const isArea = toolType === 'measureArea';
-  const mColor = (isArea ? prefs.measureAreaStrokeColor : prefs.measurePerimStrokeColor) || '#FF0000';
+  const mColor = isArea
+    ? randkleurenUitVoorkeur(prefs, 'measureArea', 'measureArea', '#FF0000').color
+    : (prefs.measurePerimStrokeColor || '#FF0000');
   const mBorderStyle = (isArea ? prefs.measureAreaBorderStyle : prefs.measurePerimBorderStyle) || 'solid';
   const mFillColor = isArea ? (prefs.measureAreaFillNone ? 'none' : (prefs.measureAreaFillColor || null)) : null;
 

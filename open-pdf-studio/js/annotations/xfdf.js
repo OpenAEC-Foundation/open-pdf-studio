@@ -8,6 +8,8 @@ import i18next from '../i18n/config.js';
 import { showMessage } from '../bridge.js';
 import { ifcCategoryForParametric } from '../solid/data/ifcCategoryMap.js';
 import { syncTwoPointGeometry } from '../symbols/two-point.js';
+import { colorWithoutStroke } from './fill-utils.js';
+import { colorToXFDF, xfdfColorToHex, randkleurAttribuut, randkleurUitAttribuut, vulkleurUitAttribuut } from './xfdf-kleur.js';
 
 // Export annotations to XFDF XML format
 export function exportToXFDF() {
@@ -180,7 +182,8 @@ function annotationToXFDF(ann) {
 
     case 'box':
     case 'mask':
-      return `    <square ${attrs} color="${colorToXFDF(ann.strokeColor || ann.color)}"` +
+      // Zonder rand: geen color-attribuut (#433) — zie xfdf-kleur.js.
+      return `    <square ${attrs}${randkleurAttribuut(ann)}` +
              (ann.fillColor ? ` interior-color="${colorToXFDF(ann.fillColor)}"` : '') +
              ` width="${ann.lineWidth ?? 2}">\n` +
              `      <contents>${escapeXml(ann.subject || '')}</contents>\n` +
@@ -197,7 +200,7 @@ function annotationToXFDF(ann) {
              `    </square>\n`;
 
     case 'circle':
-      return `    <circle ${attrs} color="${colorToXFDF(ann.strokeColor || ann.color)}"` +
+      return `    <circle ${attrs}${randkleurAttribuut(ann)}` +
              (ann.fillColor ? ` interior-color="${colorToXFDF(ann.fillColor)}"` : '') +
              ` width="${ann.lineWidth ?? 2}">\n` +
              `      <contents>${escapeXml(ann.subject || '')}</contents>\n` +
@@ -233,7 +236,7 @@ function annotationToXFDF(ann) {
 
     case 'textbox':
     case 'callout': {
-      let out = `    <freetext ${attrs} color="${colorToXFDF(ann.strokeColor || ann.color)}"` +
+      let out = `    <freetext ${attrs}${randkleurAttribuut(ann)}` +
              (ann.fillColor ? ` interior-color="${colorToXFDF(ann.fillColor)}"` : '') +
              ` fontsize="${ann.fontSize || 14}" name="${escapeXml(ann.id)}">\n` +
              `      <contents>${escapeXml(ann.text || '')}</contents>\n` +
@@ -245,7 +248,7 @@ function annotationToXFDF(ann) {
           const xs = [l.kneeX, l.tipX]; const ys = [l.kneeY, l.tipY];
           const r = `${Math.min(...xs)},${Math.min(...ys)},${Math.max(...xs)},${Math.max(...ys)}`;
           out += `    <polyline page="${ann.page - 1}" rect="${r}" inreplyto="${escapeXml(ann.id)}"` +
-                 ` color="${colorToXFDF(ann.strokeColor || ann.color || '#000000')}"` +
+                 ` color="${colorToXFDF(colorWithoutStroke(ann))}"` +
                  ` width="${ann.lineWidth ?? 1}" head="None" tail="${l.endStyle === 'circle' ? 'Circle' : 'OpenArrow'}"` +
                  ` opstype="textboxLeader" leaderid="${escapeXml(l.id)}">\n` +
                  `      <vertices>${verts}</vertices>\n` +
@@ -302,7 +305,13 @@ function xfdfElementToAnnotation(el) {
 
   const contents = el.querySelector('contents')?.textContent || '';
   const color = xfdfColorToHex(el.getAttribute('color'));
-  const interiorColor = xfdfColorToHex(el.getAttribute('interior-color'));
+  // Vorm zonder rand (#433): ontbrekend color-attribuut of NONE. De eigen
+  // kleur blijft zichtbaar (kruis, aanhaallijn, maatlabel), de randkleur
+  // wordt 'none' — maar alleen bij soorten waarvan de omtrek weg kan.
+  const randkleur = (type) => randkleurUitAttribuut(el.getAttribute('color'), type);
+  // Ontbrekende interior-color is GEEN vulling; zwart zou een onopgevulde
+  // vorm als zwart blok terugzetten.
+  const interiorColor = vulkleurUitAttribuut(el.getAttribute('interior-color'));
   const width = parseFloat(el.getAttribute('width')) || 2;
 
   // Parse replies
@@ -369,10 +378,10 @@ function xfdfElementToAnnotation(el) {
         }
         return symbol;
       }
-      return createAnnotation({ ...baseProps, type: 'box', x: rect.x, y: rect.y, width: rect.w, height: rect.h, color, strokeColor: color, fillColor: interiorColor, lineWidth: width, subject: contents, replies: replies.length > 0 ? replies : undefined });
+      return createAnnotation({ ...baseProps, type: 'box', x: rect.x, y: rect.y, width: rect.w, height: rect.h, color, strokeColor: randkleur('box'), fillColor: interiorColor, lineWidth: width, subject: contents, replies: replies.length > 0 ? replies : undefined });
     }
     case 'circle':
-      return createAnnotation({ ...baseProps, type: 'circle', x: rect.x, y: rect.y, width: rect.w, height: rect.h, color, strokeColor: color, fillColor: interiorColor, lineWidth: width, subject: contents, replies: replies.length > 0 ? replies : undefined });
+      return createAnnotation({ ...baseProps, type: 'circle', x: rect.x, y: rect.y, width: rect.w, height: rect.h, color, strokeColor: randkleur('circle'), fillColor: interiorColor, lineWidth: width, subject: contents, replies: replies.length > 0 ? replies : undefined });
     case 'line': {
       const start = el.getAttribute('start')?.split(',').map(Number) || [rect.x, rect.y];
       const end = el.getAttribute('end')?.split(',').map(Number) || [rect.x + rect.w, rect.y + rect.h];
@@ -390,7 +399,7 @@ function xfdfElementToAnnotation(el) {
     case 'text':
       return createAnnotation({ ...baseProps, type: 'comment', x: rect.x, y: rect.y, width: 24, height: 24, text: contents, color, fillColor: color, icon: el.getAttribute('icon') || 'comment', replies: replies.length > 0 ? replies : undefined });
     case 'freetext':
-      return createAnnotation({ ...baseProps, type: 'textbox', x: rect.x, y: rect.y, width: rect.w, height: rect.h, text: contents, color, strokeColor: color, fillColor: interiorColor || '#FFFFD0', fontSize: parseInt(el.getAttribute('fontsize')) || 14, textColor: '#000000', replies: replies.length > 0 ? replies : undefined });
+      return createAnnotation({ ...baseProps, type: 'textbox', x: rect.x, y: rect.y, width: rect.w, height: rect.h, text: contents, color, strokeColor: randkleur('textbox'), fillColor: interiorColor || '#FFFFD0', fontSize: parseInt(el.getAttribute('fontsize')) || 14, textColor: '#000000', replies: replies.length > 0 ? replies : undefined });
     case 'stamp':
       return createAnnotation({ ...baseProps, type: 'stamp', x: rect.x, y: rect.y, width: rect.w, height: rect.h, stampName: el.getAttribute('icon') || 'Draft', stampText: contents, color: color || '#ef4444', stampColor: color || '#ef4444', replies: replies.length > 0 ? replies : undefined });
     default:
@@ -401,25 +410,6 @@ function xfdfElementToAnnotation(el) {
 // Helper functions
 function escapeXml(str) {
   return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
-}
-
-function colorToXFDF(hex) {
-  if (!hex) return '#000000';
-  return hex.toUpperCase();
-}
-
-function xfdfColorToHex(color) {
-  if (!color) return '#000000';
-  if (color.startsWith('#')) return color;
-  // Handle comma-separated RGB (0-1 range)
-  const parts = color.split(',').map(Number);
-  if (parts.length === 3) {
-    const r = Math.round(parts[0] * 255);
-    const g = Math.round(parts[1] * 255);
-    const b = Math.round(parts[2] * 255);
-    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-  }
-  return color;
 }
 
 function parseRect(rectStr) {

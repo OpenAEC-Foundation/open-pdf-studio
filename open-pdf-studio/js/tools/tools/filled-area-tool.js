@@ -27,6 +27,7 @@ import { getRegionScaleFactor } from '../../annotations/scale-region.js';
 import { viewport } from '../../pdf/pdf-viewport.js';
 import { handlePointerMove } from '../tool-dispatcher.js';
 import { vlakOmhullende } from '../../annotations/vlak-ringen.js';
+import { randkleurenUitVoorkeur } from '../../annotations/fill-utils.js';
 import {
   enterTypeLengthMode,
   exitTypeLengthMode,
@@ -303,7 +304,7 @@ export const filledAreaTool = {
     canvasCtx.save();
     applyToolTransform(canvasCtx);
 
-    const strokeColor = prefs.filledAreaStrokeColor || '#000000';
+    const strokeColor = randkleurenUitVoorkeur(prefs, 'filledArea', 'filledArea').color;
     const fillColor = prefs.filledAreaFillNone ? null : (prefs.filledAreaFillColor || '#cccccc');
     const lineWidth = prefs.filledAreaLineWidth || 1;
     const borderStyle = prefs.filledAreaBorderStyle || 'solid';
@@ -650,8 +651,7 @@ function _createFilledAreaAnnotation(ctx, points, holes) {
     type: 'filledArea',
     page: getActiveDocument()?.currentPage || 1,
     points,
-    color: prefs.filledAreaStrokeColor || '#000000',
-    strokeColor: prefs.filledAreaStrokeColor || '#000000',
+    ...randkleurenUitVoorkeur(prefs, 'filledArea', 'filledArea'),
     fillColor: prefs.filledAreaFillNone ? null : (prefs.filledAreaFillColor || '#cccccc'),
     lineWidth: prefs.filledAreaLineWidth ?? 1,
     borderStyle: prefs.filledAreaBorderStyle || 'solid',
@@ -684,7 +684,7 @@ function _drawHolesPhasePreview(ctx, cursorX, cursorY) {
   const completed = state.filledAreaHoles || [];
   if (outer.length < 3) return;
 
-  const strokeColor = prefs.filledAreaStrokeColor || '#000000';
+  const strokeColor = randkleurenUitVoorkeur(prefs, 'filledArea', 'filledArea').color;
   const fillColor = prefs.filledAreaFillNone ? null : (prefs.filledAreaFillColor || '#cccccc');
   const lineWidth = prefs.filledAreaLineWidth || 1;
   const borderStyle = prefs.filledAreaBorderStyle || 'solid';
