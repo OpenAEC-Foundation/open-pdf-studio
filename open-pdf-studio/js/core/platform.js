@@ -529,21 +529,25 @@ export async function getOpenedFiles() {
 }
 
 // Session management
+//
+// In de browser bewaart de sessie NIETS (#456). Wat de app daar bewaarde waren
+// bestandsnamen, en een naam alleen opent niets: de bytes staan enkel in het
+// geheugen van dat tabblad. Tabbladen die nergens naar wijzen zijn erger dan
+// een lege start, en de bestandsnamen van de gebruiker horen niet ongevraagd
+// in de browseropslag achter te blijven. Zie js/core/sessie-herstel.js.
+const WEB_SESSIE_SLEUTEL = 'pdfStudioSession';
+
 export async function saveSession(data) {
   if (!isTauri()) {
-    try { localStorage.setItem('pdfStudioSession', JSON.stringify(data)); } catch { /* ignore */ }
+    // Ook een eerder bewaarde sessie opruimen.
+    try { localStorage.removeItem(WEB_SESSIE_SLEUTEL); } catch { /* ignore */ }
     return;
   }
   return await invoke('save_session', { data: JSON.stringify(data) });
 }
 
 export async function loadSession() {
-  if (!isTauri()) {
-    try {
-      const s = localStorage.getItem('pdfStudioSession');
-      return s ? JSON.parse(s) : null;
-    } catch { return null; }
-  }
+  if (!isTauri()) return null;
   const result = await invoke('load_session');
   if (result) {
     try {

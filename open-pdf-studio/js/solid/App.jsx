@@ -32,7 +32,9 @@ import AssistantPanel from './components/AssistantPanel.jsx';
 import { getRegisteredPalettes } from '../plugins/palette-registry.js';
 import { leftOrder, rightOrder } from './stores/paletteOrder.js';
 import { useTranslation } from '../i18n/useTranslation.js';
-import { For, ErrorBoundary } from 'solid-js';
+import { isTauri } from '../core/platform.js';
+import { meldLegeStart, WEB_SESSIE_SLEUTEL } from '../core/sessie-herstel.js';
+import { For, ErrorBoundary, Show } from 'solid-js';
 
 function OrderedDockedPalettes(props) {
   const order = () => props.side === 'left' ? leftOrder() : rightOrder();
@@ -98,6 +100,11 @@ function DesktopApp() {
             </svg>
             <h2>{t('noDocuments')}</h2>
             <p>{t('noDocumentsHint')}</p>
+            {/* De webversie bewaart geen sessie. Dat zeggen is eerlijker dan
+                een voorkeur die daar nooit iets doet (#456). */}
+            <Show when={meldLegeStart({ inTauri: isTauri() })}>
+              <p class="placeholder-note">{t(WEB_SESSIE_SLEUTEL)}</p>
+            </Show>
           </div>
 
           <FormFieldsBar />

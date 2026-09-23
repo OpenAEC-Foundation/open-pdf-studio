@@ -554,6 +554,14 @@
   opacity: 0.8;
 }
 
+/* Uitleg die alleen de webversie toont: een herlaadbeurt begint daar leeg. */
+#placeholder p.placeholder-note {
+  font-size: 13px;
+  opacity: 0.65;
+  margin-top: 10px;
+  max-width: 420px;
+}
+
 #pdf-container {
   display: none;
 }

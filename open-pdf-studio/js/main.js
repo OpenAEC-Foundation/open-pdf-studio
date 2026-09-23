@@ -86,6 +86,7 @@ import { addRecentFile } from './mobile/recent-files.js';
 
 // Tauri API
 import { isTauri, isMobile, isDevMode, getOpenedFiles, loadSession, saveSession, fileExists, isDefaultPdfApp, openDefaultAppsSettings, extractFileName } from './core/platform.js';
+import { sessieHerstelBeleid } from './core/sessie-herstel.js';
 
 // Open PDF files: tabs created instantly, loads serialized through ONE global
 // queue - also across separate openFiles() calls (the Windows single-instance
@@ -482,11 +483,18 @@ window.__OPDS_SESSION_SAVE__ = scheduleSessionSave;
 // reloads happen on every plain-.js edit and the open test document must
 // survive them.
 async function restoreLastSession() {
-  if (!state.preferences.restoreLastSession && !import.meta.env.DEV) {
+  const beleid = sessieHerstelBeleid({
+    inTauri: isTauri(),
+    voorkeurAan: !!state.preferences.restoreLastSession,
+    inDev: !!import.meta.env.DEV,
+  });
+  if (!beleid.herstellen) {
+    // In de browser blijft het niet bij zwijgen: de lege weergave en de
+    // voorkeur zeggen dat een herlaadbeurt daar leeg begint (#456). Een oude
+    // sessie uit een vorige versie wordt hier opgeruimd.
+    if (beleid.reden === 'geen-webopslag') saveSession({ openFiles: [] });
     return;
   }
-
-  if (!isTauri()) return;
 
   try {
     const sessionData = await loadSession();
