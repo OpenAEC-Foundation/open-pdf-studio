@@ -22,6 +22,8 @@
 
 Open PDF Studio is a lightweight, native desktop application that provides professional-grade PDF annotation, markup, and editing tools without subscriptions, telemetry, or bloatware. Built with [Tauri 2](https://tauri.app/) and web technologies, it delivers a fast, modern experience with a Microsoft Office-style ribbon interface.
 
+It is built for people who work with drawings: import DWG and DXF as a vector PDF with layers and a measuring scale, measure and take off quantities, export a page back to CAD, verify digital signatures, make scans searchable with OCR, and let an AI assistant operate the app through a local connection.
+
 <p align="center">
   <img src="docs/screenshots/pdf-compare.jpg" alt="Open PDF Studio – side-by-side PDF compare with change list" width="100%">
 </p>
@@ -69,6 +71,9 @@ Professional annotation, markup, measurement, redaction and page management — 
 | **Price** | Free & open source (LGPL-3.0) | Subscription or paid license |
 | **Annotations & markup** | All included | Often a paid tier |
 | **Measurement tools** | Included | Usually paid |
+| **DWG/DXF import & export** | Included | Rare, or a separate product |
+| **OCR** | Included | Often a paid tier |
+| **AI connection (MCP)** | Included, local and optional | Cloud service, if any |
 | **Stamps, watermarks & redaction** | Included | Usually paid |
 | **Page management** | Included | Usually paid |
 | **Multi-tab editing** | Included | Varies |
@@ -96,6 +101,32 @@ Professional annotation, markup, measurement, redaction and page management — 
 - Draggable dimension text and endpoints with live recalculation
 - Object snapping to endpoints, midpoints, centers, and edges
 - Angle snapping with configurable increments
+
+### CAD Drawings (DWG & DXF)
+- **Import** a DWG or DXF through File > Import, Open, or drag and drop
+- Choose layers, model space or a layout with viewports, area, scale, paper, orientation, margins and placement
+- Appearance: colours as in the file, all black, greyscale, black and white or a single colour; lineweights from the file, a colour table or a fixed width; linetypes, hatch patterns, dimensions, attributes and points
+- External references and images are loaded from the drawing's folder or from search paths you pick
+- A live preview renders with the real converter, so what you see is what you get
+- The result is a **vector PDF**: CAD layers become PDF layers and every viewport carries its own measuring scale, so measuring is correct right away
+- Target: a new document, a new page, or an **underlay** on the current page — as vector or image, to scale, below the existing content
+- **Export** a page back to DXF or DWG with the PDF layers as CAD layers, at real size according to the measuring scale, with your markups on their own layers, and optionally in the drawing's original model coordinates
+
+### AI Connection (MCP)
+- One switch in Settings > General exposes the app to a local AI assistant over MCP — no start-up flags, local clients only
+- Over fifty tools: open and save documents, navigate, create and edit annotations, set the measuring scale, take off quantities and place schedules, import and export CAD, print to a PDF file, and more
+- `open-pdf-studio.mcpb` installs the connection in Claude Desktop with a double click
+- An assistant panel inside the app offers ready-made skills: translate, summarise, draw an element, and detect doors
+
+### Text Recognition (OCR)
+- Make scanned pages searchable and selectable with an invisible text layer
+- Current page or the whole document, with automatic language detection or a chosen language
+- Desktop only; the Android build ships without OCR
+
+### Digital Signatures
+- A bar above the page shows, per signature, whether it is valid, whether the certificate is trusted, and whether the document changed after signing
+- A detail dialog shows the certificate chain and the timestamp, and "show the signed version" opens the document as it was when signed
+- Reads PKCS#12 and validates against the system certificate store
 
 ### PDF Compare
 - Compare two PDF revisions in a dedicated compare tab, without leaving your workspace
@@ -133,6 +164,8 @@ Professional annotation, markup, measurement, redaction and page management — 
 ### Page Management
 - Insert blank pages (standard or custom sizes)
 - Delete, extract, and replace pages
+- **Straighten** a skewed scan by drawing a line along something that should be level
+- **Shift page content** by dragging the preview or typing an offset in millimetres, for one page, all pages, or the odd/even pages from a chosen page
 - Reorder pages via drag-and-drop thumbnails
 - Merge multiple PDFs into one
 - Page rotation (90/180/270 degrees)
@@ -148,11 +181,13 @@ Professional annotation, markup, measurement, redaction and page management — 
 - JavaScript validation support
 
 ### Printing
-- Full print dialog with live preview
+- Full print dialog with live preview, showing the sheet, its orientation and the resulting scale ("A3 landscape (420 × 297 mm) | Page: 594 × 420 mm | Scale: 71 %")
+- **Save as PDF** at the top of the printer list writes the print as vector with the sheet in the chosen orientation — landscape stays landscape
+- Paper and orientation follow the document; large and extended sheets (A1, A0, A3L up to A0L) are supported
+- Print to scale (1:1 on the sheet), fit, shrink or a custom percentage, within the printable area
+- A page perpendicular to the sheet is turned a quarter so that it fills the sheet
 - Page range, subset (odd/even), reverse order, copies, and collation
-- Scaling: fit to page, actual size, or custom percentage
-- Print content: document only, markups only, or both
-- Print as image option
+- Print content: document only, markups only, or both; print as image option
 - Virtual printer installation (Windows)
 
 ### Export
@@ -162,8 +197,9 @@ Professional annotation, markup, measurement, redaction and page management — 
 
 ### Find & Search
 - Text search with match case and whole word options
-- Highlight all matches with result count
-- Navigate results with F3
+- Search the **page text, the annotations, or both** (text boxes, callouts, sticky notes, stamp text and measurement labels)
+- A result list under the search bar shows the hits per page and jumps to them
+- Highlight all matches with result count; navigate results with F3
 
 ### Format & Styles
 - 12 pre-defined style gallery for quick annotation styling
@@ -270,6 +306,10 @@ Thumbnails, Bookmarks, Annotations, Attachments, Digital Signatures, Layers, For
 | `F1` | Keyboard shortcuts |
 | `Arrow keys` | Nudge annotation (1px, Shift for 10px) |
 | `Enter` | Complete area/perimeter measurement |
+
+## Versions
+
+From 2026.39 on, a release is named after the year and the ISO week number: `2026.39`, tagged `v2026.39`.
 
 ## Installation
 
