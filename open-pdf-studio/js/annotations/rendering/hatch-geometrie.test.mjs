@@ -15,12 +15,16 @@ globalThis.document = globalThis.document || { createElement: () => null };
 
 // De echte bron wordt getest; alleen de twee app-brede imports (de
 // state-store is TypeScript en trekt SolidJS mee) worden vervangen door
-// stubs, zodat de module buiten de browser laadbaar is.
-const bron = readFileSync(new URL('./hatch-patterns.js', import.meta.url), 'utf8')
+// stubs, zodat de module buiten de browser laadbaar is. De overige relatieve
+// imports krijgen een absolute URL — een data:-module kan geen relatief pad
+// oplossen.
+const bronUrl = new URL('./hatch-patterns.js', import.meta.url);
+const bron = readFileSync(bronUrl, 'utf8')
   .replace(/^import \{ arcControlPoint \}.*$/m,
     'const arcControlPoint = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });')
   .replace(/^import \{ state \}.*$/m,
-    'const state = { preferences: {}, documents: [], activeDocumentIndex: 0 };');
+    'const state = { preferences: {}, documents: [], activeDocumentIndex: 0 };')
+  .replace(/from '(\.[^']*)'/g, (_m, spec) => `from '${new URL(spec, bronUrl).href}'`);
 
 const { BUILTIN_HATCH_PATTERNS, applyHatchFill } =
   await import('data:text/javascript;base64,' + Buffer.from(bron, 'utf8').toString('base64'));

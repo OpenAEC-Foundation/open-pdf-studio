@@ -26,6 +26,7 @@ import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering
 import { getRegionScaleFactor } from '../../annotations/scale-region.js';
 import { viewport } from '../../pdf/pdf-viewport.js';
 import { handlePointerMove } from '../tool-dispatcher.js';
+import { vlakOmhullende } from '../../annotations/vlak-ringen.js';
 import {
   enterTypeLengthMode,
   exitTypeLengthMode,
@@ -661,12 +662,13 @@ function _createFilledAreaAnnotation(ctx, points, holes) {
     hatchAngle: prefs.filledAreaHatchAngle ?? 0,
   };
   if (holes && holes.length > 0) props.holes = holes;
-  // Bounding box for selection helpers.
-  const xs = points.map(p => p.x), ys = points.map(p => p.y);
-  props.x = Math.min(...xs);
-  props.y = Math.min(...ys);
-  props.width = Math.max(...xs) - props.x;
-  props.height = Math.max(...ys) - props.y;
+  // Bounding box for selection helpers — over ALLE ringen, want een tweede
+  // deel kan naast de buitenring liggen (#457).
+  const grens = vlakOmhullende(points, holes);
+  props.x = grens.minX;
+  props.y = grens.minY;
+  props.width = grens.maxX - grens.minX;
+  props.height = grens.maxY - grens.minY;
   return createAnnotation(props);
 }
 

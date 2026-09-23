@@ -1,6 +1,7 @@
 import { drawDimensionLineEnding } from './decorations.js';
 import { applyHatchFillPolygon } from './hatch-patterns.js';
-import { arcControlPoint } from '../measurement.js';
+import { arcControlPoint } from '../arc-points.js';
+import { ringenRichten } from '../vlak-ringen.js';
 
 /**
  * Trace a polygon path on the canvas context, supporting arc segments.
@@ -10,9 +11,9 @@ import { arcControlPoint } from '../measurement.js';
  * @param {boolean} close - whether to closePath
  * @param {boolean} newPath - start a fresh path (default). Pass false to ADD
  *   this polygon as a sub-path of the current path — required when combining
- *   an outer contour with hole contours for one evenodd fill; beginPath()
- *   here would wipe the outer contour and the fill would paint ONLY the
- *   holes (inverted donut).
+ *   an outer contour with the other rings for one fill; beginPath() here would
+ *   wipe the outer contour and the fill would paint ONLY the last ring
+ *   (inverted donut).
  */
 function _tracePolygonPath(ctx, points, close, newPath = true) {
   if (newPath) ctx.beginPath();
@@ -140,28 +141,29 @@ export function drawMeasureAreaShape(ctx, points, color, lineWidth, fillColor, b
     ctx.setLineDash([4, 2]);
   }
 
-  // Build combined path: outer polygon + hole sub-paths (arc-aware)
-  _tracePolygonPath(ctx, points, true);
-
-  // Add hole sub-paths to the SAME path (newPath=false) so the evenodd fill
-  // below cuts them out instead of filling only the last-traced hole.
-  if (holes && holes.length > 0) {
-    for (const hole of holes) {
-      if (hole && hole.length >= 3) {
-        _tracePolygonPath(ctx, hole, true, false);
-      }
-    }
+  // Build combined path: every ring as a sub-path of ONE path (arc-aware).
+  // ringenRichten() geeft de gaten de tegengestelde draairichting van de
+  // delen, zodat de niet-nul-vulling hieronder de gaten uitspaart én twee
+  // delen die elkaar overlappen samen gevuld blijven (#457). Met de oude
+  // even-oneven-regel viel juist die overlap weg.
+  const ringen = ringenRichten(points, holes);
+  if (ringen.length === 0) {
+    // Te weinig punten voor een vlak: niets tekenen (en zeker niet het pad
+    // van de vorige vorm nog eens vullen).
+    ctx.setLineDash([]);
+    return;
   }
+  ringen.forEach((ring, i) => _tracePolygonPath(ctx, ring.points, true, i === 0));
 
-  // Fill using even-odd rule so holes appear as cutouts
+  // Fill using the nonzero rule: parts add up, holes (opposite winding) cut out
   const _doFill = () => {
     if (fillColor && fillColor !== 'none' && fillColor !== 'transparent') {
       ctx.fillStyle = fillColor;
-      ctx.fill('evenodd');
+      ctx.fill('nonzero');
     } else if (!fillColor) {
       // No fill specified (created in this app) → semi-transparent default
       ctx.fillStyle = color + '20';
-      ctx.fill('evenodd');
+      ctx.fill('nonzero');
     }
     // fillColor === 'none' or 'transparent' → no fill
   };

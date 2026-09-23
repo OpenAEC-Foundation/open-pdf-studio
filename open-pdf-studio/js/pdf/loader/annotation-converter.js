@@ -10,6 +10,7 @@ import { nenIfcForStamp } from '../../solid/data/nenIfcMap.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
 import { knipselUitExtra } from './vector-snippet-load.js';
 import { hatchUitExtra } from '../saver/hatch-meta.js';
+import { vlakOmhullende } from '../../annotations/vlak-ringen.js';
 import { heeft as heeftKnipselBron } from '../../annotations/vector-snippet-store.js';
 import { syncTwoPointGeometry } from '../../symbols/two-point.js';
 import { systeemFromOps, sparingenFromJson } from '../../annotations/systeemraster.js';
@@ -978,6 +979,17 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
               });
             });
           }
+          if (faProps.holes) {
+            // Het omhullende vak over ALLE ringen: een tweede deel kan naast
+            // de buitenring liggen en viel anders buiten het vak (#457).
+            const grens = vlakOmhullende(faProps.points, faProps.holes);
+            if (grens) {
+              faProps.x = grens.minX;
+              faProps.y = grens.minY;
+              faProps.width = grens.maxX - grens.minX;
+              faProps.height = grens.maxY - grens.minY;
+            }
+          }
           Object.assign(faProps, randloosUitExtra(extraColors)); // zonder rand (#431)
           return createAnnotation(faProps);
         }
@@ -988,9 +1000,18 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
                               (extraColors.hasMeasure && !extraColors.opsSubtype) ||
                               annot.it === 'PolygonDimension';
         if (isMeasureArea) {
+          // Extra ringen uit onze eigen /OPS_Holes (PDF- naar app-coordinaten).
+          const maHoles = (extraColors.holes && extraColors.holes.length > 0)
+            ? extraColors.holes.map(hole => hole.map(pt => {
+                const [hx, hy] = convertPoint(pt.x, pt.y);
+                return { x: hx, y: hy };
+              }))
+            : null;
           let maText = (annot.contentsObj && annot.contentsObj.str) || annot.contents || baseProps.subject || '';
           if (!maText) {
-            const area = calculateArea(polyPoints, undefined, pageNum);
+            // Zonder opgeslagen tekst zelf rekenen - inclusief de extra ringen,
+            // anders staat er de oppervlakte van alleen de buitenring (#457).
+            const area = calculateArea(polyPoints, maHoles || undefined, pageNum);
             maText = formatMeasurement(area);
           }
           const maProps = {
@@ -1015,15 +1036,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
             if (areaPrecision !== undefined) maProps.measurePrecision = areaPrecision;
           }
           if (extraColors.opsPrecision != null) maProps.measurePrecision = extraColors.opsPrecision;
-          // Load holes from custom OPS_Holes data (convert PDF→app coordinates)
-          if (extraColors.holes && extraColors.holes.length > 0) {
-            maProps.holes = extraColors.holes.map(hole =>
-              hole.map(pt => {
-                const [hx, hy] = convertPoint(pt.x, pt.y);
-                return { x: hx, y: hy };
-              })
-            );
-          }
+          if (maHoles) maProps.holes = maHoles;
           Object.assign(maProps, randloosUitExtra(extraColors)); // zonder rand (#431)
           return createAnnotation(maProps);
         }

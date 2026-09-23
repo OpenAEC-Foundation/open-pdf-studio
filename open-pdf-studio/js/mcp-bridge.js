@@ -1174,7 +1174,11 @@ async function _buildCreateProps(type, page, props) {
         return { error: 'props.holes must be an array of point rings ([{x,y}, ...] each >= 3)' };
       }
       const pts = p.points.map(pt => ({ ...pt }));
-      const xs = pts.map(q => q.x), ys = pts.map(q => q.y);
+      // Het omhullende vak loopt over ALLE ringen: een extra ring kan naast
+      // de buitenring liggen en is dan een tweede deel, geen gat (#457).
+      const alle = pts.slice();
+      if (Array.isArray(p.holes)) for (const r of p.holes) if (Array.isArray(r)) alle.push(...r);
+      const xs = alle.map(q => q.x), ys = alle.map(q => q.y);
       const base = {
         type, page,
         points: pts,
@@ -1188,7 +1192,8 @@ async function _buildCreateProps(type, page, props) {
         hatchColor: prefs.filledAreaHatchColor || '#000000',
         hatchScale: prefs.filledAreaHatchScale ?? 100,
         hatchAngle: prefs.filledAreaHatchAngle ?? 0,
-        // Bounding box for selection helpers.
+        // Bounding box for selection helpers - over alle ringen, want een
+        // extra ring kan naast de buitenring liggen (#457).
         x: Math.min(...xs), y: Math.min(...ys),
         width: Math.max(...xs) - Math.min(...xs),
         height: Math.max(...ys) - Math.min(...ys),

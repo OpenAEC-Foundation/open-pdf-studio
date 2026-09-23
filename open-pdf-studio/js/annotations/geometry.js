@@ -15,6 +15,7 @@ import {
 import { systeemrasterFlatContour } from './systeemraster.js';
 import { getEffectiveScale } from '../tools/effective-scale.js';
 import { raakMarge, wolkUitstulping, schermPxNaarPt } from './minimummaat.js';
+import { puntInVlak } from './vlak-ringen.js';
 
 // Binnen-test voor vormen die overal in hun vak raakbaar zijn. Een vorm die op
 // het scherm kleiner is dan het minimale raakvlak krijgt een marge in
@@ -595,21 +596,11 @@ export function findAnnotationAt(x, y, pageNum = null) {
               }
             }
           }
-          // Point-in-polygon: click anywhere inside filled area
+          // Point-in-polygon: click anywhere inside the filled area. puntInVlak
+          // telt de ringen zoals de vulling geschilderd wordt — een tweede deel
+          // naast de buitenring is dus ook aanklikbaar, een gat niet (#457).
           if ((ann.type === 'measureArea' || ann.type === 'filledArea') && ann.points.length >= 3) {
-            let insideOuter = pointInPolygon(x, y, ann.points);
-            if (insideOuter) {
-              let insideHole = false;
-              if (ann.holes) {
-                for (const hole of ann.holes) {
-                  if (hole && hole.length >= 3 && pointInPolygon(x, y, hole)) {
-                    insideHole = true;
-                    break;
-                  }
-                }
-              }
-              if (!insideHole) return ann;
-            }
+            if (puntInVlak(x, y, ann.points, ann.holes)) return ann;
           }
         }
         break;

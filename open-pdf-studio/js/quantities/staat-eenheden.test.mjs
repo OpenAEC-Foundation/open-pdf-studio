@@ -111,6 +111,31 @@ test('gaten worden van de oppervlakte afgetrokken', () => {
   assert.equal(eersteRij(res).vals.area, 100 - 4);
 });
 
+test('een tweede deel naast het vlak telt op in plaats van af (#457)', () => {
+  // Elke extra ring gold als gat: twee gelijke delen naast elkaar kwamen op 0
+  // uit. De ringindeling kijkt nu of een ring binnen of buiten de andere ligt.
+  const met = {
+    type: 'filledArea', page: 1,
+    points: [{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 10, y: 10 }, { x: 0, y: 10 }],
+    holes: [[{ x: 20, y: 0 }, { x: 30, y: 0 }, { x: 30, y: 10 }, { x: 20, y: 10 }]],
+  };
+  const res = buildSchedule([met], { categories: ['area'], fields: ['area'] });
+  assert.equal(eersteRij(res).vals.area, 200);
+});
+
+test('een gat in het tweede deel trekt van dat deel af (#457)', () => {
+  const met = {
+    type: 'filledArea', page: 1,
+    points: [{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 10, y: 10 }, { x: 0, y: 10 }],
+    holes: [
+      [{ x: 20, y: 0 }, { x: 30, y: 0 }, { x: 30, y: 10 }, { x: 20, y: 10 }],
+      [{ x: 22, y: 2 }, { x: 24, y: 2 }, { x: 24, y: 4 }, { x: 22, y: 4 }],
+    ],
+  };
+  const res = buildSchedule([met], { categories: ['area'], fields: ['area'] });
+  assert.equal(eersteRij(res).vals.area, 100 + 100 - 4);
+});
+
 test('een cirkel telt als ellips-oppervlak, een schaalgebied telt niet mee', () => {
   const res = buildSchedule(
     [

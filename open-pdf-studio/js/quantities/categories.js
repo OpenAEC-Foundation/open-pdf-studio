@@ -3,6 +3,7 @@
 // set uitleesbare velden. Eén register, géén per-type code elders.
 
 import { totalBarLengthM } from '../annotations/stavenreeks.js';
+import { nettoVlakOppervlak } from '../annotations/vlak-ringen.js';
 
 // --- Vertaalhaak -----------------------------------------------------------
 // Deze module blijft puur: hij kent i18next niet. De UI-laag injecteert via
@@ -135,27 +136,14 @@ const GEOMETRISCHE_VLAKKEN = new Set([
   'box', 'mask', 'redaction', 'highlight', 'circle', 'ellipse',
 ]);
 
-function shoelace(pts) {
-  let s = 0;
-  for (let i = 0; i < pts.length; i++) {
-    const a = pts[i], b = pts[(i + 1) % pts.length];
-    if (!a || !b) continue;
-    s += (a.x ?? 0) * (b.y ?? 0) - (b.x ?? 0) * (a.y ?? 0);
-  }
-  return s / 2;
-}
-
 // Oppervlakte in pixels². Boogsegmenten (bulge) worden als rechte segmenten
 // benaderd — de meet-vlakken, waar het op aankomt, gaan niet langs dit pad.
+// Een extra ring is een gat (trekt af) of een los deel (telt op); die indeling
+// komt uit vlak-ringen.js — dezelfde regel die het scherm en het opgeslagen
+// bestand volgen (GitHub #457).
 function pixelArea(el) {
   const pts = Array.isArray(el.points) ? el.points : null;
-  if (pts && pts.length >= 3) {
-    let a = Math.abs(shoelace(pts));
-    for (const hole of (Array.isArray(el.holes) ? el.holes : [])) {
-      if (Array.isArray(hole) && hole.length >= 3) a -= Math.abs(shoelace(hole));
-    }
-    return Math.max(0, a);
-  }
+  if (pts && pts.length >= 3) return nettoVlakOppervlak(pts, el.holes);
   const w = Math.abs(el.width || 0), h = Math.abs(el.height || 0);
   if (w > 0 && h > 0) {
     return (el.type === 'circle' || el.type === 'ellipse')

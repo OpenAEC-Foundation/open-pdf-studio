@@ -12,7 +12,8 @@
 
 // Arc-aware clip support: same bulge→control-point interpretation as the
 // area fill/stroke path in rendering/measurements.js.
-import { arcControlPoint } from '../measurement.js';
+import { arcControlPoint } from '../arc-points.js';
+import { ringenRichten, vlakOmhullende } from '../vlak-ringen.js';
 import { state } from '../../core/state.js';
 
 // Hatch line weight: thin by default (0.4pt — arcering is ondergeschikt
@@ -582,13 +583,11 @@ export function applyHatchFillPolygon(ctx, points, holes, hatchPattern, hatchCol
   const scale = (hatchScale != null ? hatchScale : 100) / 100;
   const angle = hatchAngle || 0;
 
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-  for (const p of points) {
-    if (p.x < minX) minX = p.x;
-    if (p.y < minY) minY = p.y;
-    if (p.x > maxX) maxX = p.x;
-    if (p.y > maxY) maxY = p.y;
-  }
+  // De omhullende over ÁLLE ringen, niet alleen de buitenring: een tweede deel
+  // dat naast de buitenring ligt viel anders buiten het arceringsvlak en bleef
+  // leeg (#457).
+  const grens = vlakOmhullende(points, holes) || { minX: 0, minY: 0, maxX: 0, maxY: 0 };
+  const { minX, minY, maxX, maxY } = grens;
 
   const cx = (minX + maxX) / 2;
   const cy = (minY + maxY) / 2;
@@ -622,14 +621,11 @@ export function applyHatchFillPolygon(ctx, points, holes, hatchPattern, hatchCol
     ctx.closePath();
   };
 
+  // Knippad: alle ringen in één pad, gaten tegengesteld gedraaid, zodat de
+  // niet-nul-regel dezelfde vorm oplevert als de vulling (#457).
   ctx.beginPath();
-  traceSub(points);
-  if (holes && holes.length > 0) {
-    for (const hole of holes) {
-      if (hole && hole.length >= 3) traceSub(hole);
-    }
-  }
-  ctx.clip('evenodd');
+  for (const ring of ringenRichten(points, holes)) traceSub(ring.points);
+  ctx.clip('nonzero');
 
   if (angle !== 0) {
     ctx.translate(cx, cy);

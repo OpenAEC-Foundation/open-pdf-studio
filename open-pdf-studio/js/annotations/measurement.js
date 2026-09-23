@@ -5,6 +5,7 @@ import { savePreferences } from '../core/preferences.js';
 import { getScaleForPoint } from './scale-bar.js';
 import { getScaleFromRegion } from './scale-region.js';
 import { cloneAnnotation } from './factory.js';
+import { nettoVlakOppervlak } from './vlak-ringen.js';
 import {
   recordBulkModify,
   recordMeasureScale,
@@ -87,109 +88,20 @@ export function calculateDistance(x1, y1, x2, y2, pageNum) {
   };
 }
 
-// Check if any point in the array has an arc flag
-function _hasArcPoints(points) {
-  return points.some(p => p.arc);
-}
+// Boogsegmenten: de zuivere rekenkant staat in arc-points.js, zodat ook
+// headless modules (vlak-ringen.js) hem kunnen gebruiken. Hier opnieuw
+// geexporteerd omdat de tekenlaag ze al via measurement.js haalt.
+export { arcControlPoint, expandArcPoints } from './arc-points.js';
 
-/**
- * Calculate the control point for an arc segment using the bulge factor.
- * The control point is at the midpoint of prev->current, offset perpendicular by bulge * distance.
- */
-export function arcControlPoint(prev, current) {
-  const bulge = current.bulge || 0.3;
-  const mx = (prev.x + current.x) / 2;
-  const my = (prev.y + current.y) / 2;
-  const dx = current.x - prev.x;
-  const dy = current.y - prev.y;
-  const dist = Math.sqrt(dx * dx + dy * dy);
-  // Perpendicular direction (rotated 90 degrees CCW)
-  const px = -dy / (dist || 1);
-  const py = dx / (dist || 1);
-  return {
-    x: mx + px * bulge * dist,
-    y: my + py * bulge * dist,
-  };
-}
-
-/**
- * Expand polygon points that contain arc segments into a series of line segments
- * for accurate area calculation (shoelace formula approximation).
- * Each arc is subdivided into ~16 straight segments.
- */
-export function expandArcPoints(points) {
-  if (!points || points.length < 2) return points;
-  const expanded = [];
-  const n = points.length;
-  for (let i = 0; i < n; i++) {
-    const pt = points[i];
-    if (pt.arc && i > 0) {
-      const prev = points[i - 1];
-      const cp = arcControlPoint(prev, pt);
-      // Subdivide the quadratic bezier into segments
-      const segments = 16;
-      for (let s = 1; s <= segments; s++) {
-        const t = s / segments;
-        const t1 = 1 - t;
-        expanded.push({
-          x: t1 * t1 * prev.x + 2 * t1 * t * cp.x + t * t * pt.x,
-          y: t1 * t1 * prev.y + 2 * t1 * t * cp.y + t * t * pt.y,
-        });
-      }
-    } else {
-      expanded.push({ x: pt.x, y: pt.y });
-    }
-  }
-  // Handle closing segment: if first point has arc flag, expand it too
-  if (points[0].arc && n >= 2) {
-    const prev = points[n - 1];
-    const pt = points[0];
-    const cp = arcControlPoint(prev, pt);
-    const segments = 16;
-    for (let s = 1; s < segments; s++) {
-      const t = s / segments;
-      const t1 = 1 - t;
-      expanded.push({
-        x: t1 * t1 * prev.x + 2 * t1 * t * cp.x + t * t * pt.x,
-        y: t1 * t1 * prev.y + 2 * t1 * t * cp.y + t * t * pt.y,
-      });
-    }
-  }
-  return expanded;
-}
-
-// Shoelace formula for a single polygon ring (returns signed area * 2)
-function shoelaceRaw(points) {
-  let sum = 0;
-  const n = points.length;
-  for (let i = 0; i < n; i++) {
-    const j = (i + 1) % n;
-    sum += points[i].x * points[j].y;
-    sum -= points[j].x * points[i].y;
-  }
-  return sum;
-}
-
-// Calculate area of a polygon (using shoelace formula), with optional holes subtracted
-// Arc segments are expanded into line segments for accurate area calculation
+// Calculate area of a polygon, with the extra rings subtracted (holes) or
+// added (separate parts). Welke ring wat is bepaalt vlak-ringen.js \u2014 dezelfde
+// regel die het scherm, de hoeveelheden en de opgeslagen appearance volgen
+// (GitHub #457). Boogsegmenten worden daarbij uitgeklapt tot rechte stukjes.
 // Optionally pass pageNum to resolve scale from scaleBar annotations at the centroid
 export function calculateArea(points, holes, pageNum) {
   if (!points || points.length < 3) return { value: 0, unit: 'px\u00B2', pixels: 0 };
 
-  // Expand arc segments into line approximations for accurate area
-  const expandedOuter = _hasArcPoints(points) ? expandArcPoints(points) : points;
-  let area = Math.abs(shoelaceRaw(expandedOuter)) / 2;
-
-  // Subtract hole areas
-  if (holes && holes.length > 0) {
-    for (const hole of holes) {
-      if (hole && hole.length >= 3) {
-        const expandedHole = _hasArcPoints(hole) ? expandArcPoints(hole) : hole;
-        area -= Math.abs(shoelaceRaw(expandedHole)) / 2;
-      }
-    }
-  }
-  area = Math.max(0, area);
+  const area = nettoVlakOppervlak(points, holes);
 
   // Resolve scale using centroid of the polygon when page is provided
   let scale;
@@ -396,20 +308,9 @@ export function recalculateAllMeasurements() {
       ann.measureText = formatDimensionText({ value, unit: scale.unit });
     } else if (ann.type === 'measureArea') {
       if (ann.points && ann.points.length >= 3) {
-        // Use position-aware scale directly instead of calculateArea's global fallback
-        // Expand arc segments into line approximations for accurate area (same as calculateArea)
-        const expandedOuter = _hasArcPoints(ann.points) ? expandArcPoints(ann.points) : ann.points;
-        const pixelArea = Math.abs(shoelaceRaw(expandedOuter)) / 2;
-        let holeArea = 0;
-        if (ann.holes && ann.holes.length > 0) {
-          for (const hole of ann.holes) {
-            if (hole && hole.length >= 3) {
-              const expandedHole = _hasArcPoints(hole) ? expandArcPoints(hole) : hole;
-              holeArea += Math.abs(shoelaceRaw(expandedHole)) / 2;
-            }
-          }
-        }
-        const netPixelArea = Math.max(0, pixelArea - holeArea);
+        // Use position-aware scale directly instead of calculateArea's global fallback;
+        // de ringindeling (gat of extra deel) is dezelfde als in calculateArea.
+        const netPixelArea = nettoVlakOppervlak(ann.points, ann.holes);
         const scaledArea = netPixelArea / (scale.pixelsPerUnit * scale.pixelsPerUnit);
         const areaUnit = scale.unit + '\u00B2';
         ann.measureValue = scaledArea;

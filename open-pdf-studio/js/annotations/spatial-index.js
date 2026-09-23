@@ -316,6 +316,18 @@ export function annotationBounds(annotation, opties) {
       };
     }
 
+    // Vlak-annotaties met extra ringen: een tweede deel kan naast de
+    // buitenring liggen en valt dan buiten points[] én buiten de opgeslagen
+    // x/y/width/height. Zonder deze tak viel zo'n deel buiten de omhullende,
+    // en liet de viewport-culling het weg (GitHub #457).
+    if ((type === 'measureArea' || type === 'filledArea')
+        && Array.isArray(annotation.points) && annotation.points.length > 0
+        && Array.isArray(annotation.holes) && annotation.holes.length > 0) {
+      const alle = annotation.points.slice();
+      for (const ring of annotation.holes) if (Array.isArray(ring)) alle.push(...ring);
+      return boundsFromPoints(alle, annotation.lineWidth);
+    }
+
     // Rect-based annotations (most common)
     if (
       annotation.x != null &&
