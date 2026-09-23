@@ -35,6 +35,7 @@ import { buildFilledAreaAP, buildMeasureAreaAP, buildPolylineMeasureAP,
   buildMeasureDistanceAP, buildWallAP, buildCloudAP, buildSplineArrowAP,
   buildStavenreeksAP, buildBetonbalkAP, buildSysteemrasterAP,
   cloudRectOutlinePts, cloudPolyOutlinePts } from './saver/appearance-vectors.js';
+import { veelhoekGrondvorm } from './saver/veelhoek-grondvorm.js';
 import { buildStavenreeks, toLocalPrimitives, labelText } from '../annotations/stavenreeks.js';
 import { stavenreeksPxPerMm } from '../annotations/stavenreeks-scale.js';
 import { buildBetonbalk, approxTextWidth as betonbalkApproxTextWidth } from '../annotations/betonbalk.js';
@@ -1048,31 +1049,15 @@ async function _savePDFNu(saveAsPath) {
             let polyVertices = [];
             let polyMinX = Infinity, polyMinY = Infinity, polyMaxX = -Infinity, polyMaxY = -Infinity;
 
-            if (ann.points && ann.points.length >= 3) {
-              // Use stored points (from loaded PDF annotations)
-              for (const pt of ann.points) {
-                const px = convertX(pt.x);
-                const py = convertY(pt.y);
-                polyVertices.push(px, py);
-                polyMinX = Math.min(polyMinX, px); polyMaxX = Math.max(polyMaxX, px);
-                polyMinY = Math.min(polyMinY, py); polyMaxY = Math.max(polyMaxY, py);
-              }
-            } else {
-              // Generate points from bounding box for regular polygon
-              const cx = ann.x + ann.width / 2;
-              const cy = ann.y + ann.height / 2;
-              const rx = ann.width / 2;
-              const ry = ann.height / 2;
-              const sides = ann.sides || 6;
-
-              for (let i = 0; i < sides; i++) {
-                const angle = (i * 2 * Math.PI / sides) - Math.PI / 2;
-                const px = convertX(cx + rx * Math.cos(angle));
-                const py = convertY(cy + ry * Math.sin(angle));
-                polyVertices.push(px, py);
-                polyMinX = Math.min(polyMinX, px); polyMaxX = Math.max(polyMaxX, px);
-                polyMinY = Math.min(polyMinY, py); polyMaxY = Math.max(polyMaxY, py);
-              }
+            // De grondvorm waar /Vertices uit komt: de eigen punten van de
+            // vorm, anders de vorm die bij het vak hoort. De lader leidt het
+            // vak weer af uit deze punten — zie saver/veelhoek-grondvorm.js.
+            for (const pt of veelhoekGrondvorm(ann)) {
+              const px = convertX(pt.x);
+              const py = convertY(pt.y);
+              polyVertices.push(px, py);
+              polyMinX = Math.min(polyMinX, px); polyMaxX = Math.max(polyMaxX, px);
+              polyMinY = Math.min(polyMinY, py); polyMaxY = Math.max(polyMaxY, py);
             }
 
             const polyStrokeColor = ann.strokeColor ? hexToColorArray(ann.strokeColor) : colorArr;
