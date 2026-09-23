@@ -91,16 +91,6 @@ function randMarge(p) {
   return Math.max(maxX - minX, maxY - minY, 1) * 1e-9;
 }
 
-/** Ligt ring `binnen` helemaal binnen ring `buiten` (rand telt als binnen)? */
-export function ringOmsluit(buiten, binnen) {
-  const b = recht(buiten);
-  const i = recht(binnen);
-  if (!b || b.length < 3 || !i || i.length < 3) return false;
-  const marge = randMarge(b);
-  for (const q of i) if (!puntInRing(b, q.x, q.y, marge)) return false;
-  return true;
-}
-
 /**
  * Deelt de ringen in: `true` = deel (telt op), `false` = gat (trekt af).
  * Nestdiepte = het aantal andere ringen dat deze ring omsluit; even diep is
