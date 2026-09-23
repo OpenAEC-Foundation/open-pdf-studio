@@ -10,6 +10,7 @@ import { nenIfcForStamp } from '../../solid/data/nenIfcMap.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
 import { knipselUitExtra } from './vector-snippet-load.js';
 import { hatchUitExtra } from '../saver/hatch-meta.js';
+import { wolkVakUitHoeken, wolkVakUitZeshoek } from '../saver/veelhoek-grondvorm.js';
 import { vlakOmhullende } from '../../annotations/vlak-ringen.js';
 import { heeft as heeftKnipselBron } from '../../annotations/vector-snippet-store.js';
 import { syncTwoPointGeometry } from '../../symbols/two-point.js';
@@ -1073,6 +1074,23 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           ...(extraColors.cloudIntensity !== undefined ? { cloudIntensity: extraColors.cloudIntensity } : {})
         };
         Object.assign(polyProps, randloosUitExtra(extraColors)); // zonder rand (#431)
+
+        // Rechthoekige wolk: het vak terug, de punten weg (#434). Een wolk
+        // tekent en raakt op zijn vak, dus punten die niets meer zeggen dan
+        // dat vak horen niet in het model — anders schrijft de opslag na een
+        // maatwijziging de oude punten terug. /Vertices van vóór #434 zijn
+        // bovendien de INGESCHREVEN zeshoek van het vak: die maakte de wolk
+        // elke rondgang 13,4 % smaller. Alleen bij onze eigen sleutel: alleen
+        // deze app schreef die zeshoek; een echte zeshoek uit een ander
+        // programma blijft zoals hij is.
+        if (polyType === 'cloud') {
+          const vak = wolkVakUitHoeken(polyPoints)
+            || (extraColors.opsSubtype === 'cloud' ? wolkVakUitZeshoek(polyPoints) : null);
+          if (vak) {
+            Object.assign(polyProps, vak, { sides: 4 });
+            delete polyProps.points;
+          }
+        }
 
         return createAnnotation(polyProps);
       }
