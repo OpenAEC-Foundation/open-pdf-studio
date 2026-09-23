@@ -1070,6 +1070,7 @@ async function handleGetCurrentTool() {
  *  or { error } when required geometry is missing. */
 async function _buildCreateProps(type, page, props) {
   const stateMod = await import('./core/state.js');
+  const { randkleurenUitVoorkeur } = await import('./annotations/fill-utils.js');
   const prefs = stateMod.state.preferences || {};
   const p = props || {};
 
@@ -1129,8 +1130,8 @@ async function _buildCreateProps(type, page, props) {
       return { base: {
         type, page,
         points: p.points.map(pt => ({ ...pt })),
-        color: prefs.cloudStrokeColor || prefs.polylineStrokeColor || '#000000',
-        strokeColor: prefs.cloudStrokeColor || prefs.polylineStrokeColor || '#000000',
+        ...randkleurenUitVoorkeur(prefs, 'cloud', 'cloudPolyline',
+          prefs.polylineStrokeColor || '#000000'),
         lineWidth: prefs.cloudLineWidth || prefs.polylineLineWidth || 1,
         opacity: (prefs.cloudOpacity || 100) / 100,
       } };
@@ -1182,8 +1183,7 @@ async function _buildCreateProps(type, page, props) {
       const base = {
         type, page,
         points: pts,
-        color: prefs.filledAreaStrokeColor || '#000000',
-        strokeColor: prefs.filledAreaStrokeColor || '#000000',
+        ...randkleurenUitVoorkeur(prefs, 'filledArea', 'filledArea'),
         fillColor: prefs.filledAreaFillNone ? null : (prefs.filledAreaFillColor || '#cccccc'),
         lineWidth: prefs.filledAreaLineWidth ?? 1,
         borderStyle: prefs.filledAreaBorderStyle || 'solid',
@@ -1250,8 +1250,7 @@ async function _buildCreateProps(type, page, props) {
         x: p.x, y: p.y, width: p.width, height: p.height,
         arrowX, arrowY, kneeX, kneeY: armOriginY, armOriginX, armOriginY,
         text: typeof p.text === 'string' ? p.text : '',
-        color: prefs.calloutStrokeColor || '#000000',
-        strokeColor: prefs.calloutStrokeColor || '#000000',
+        ...randkleurenUitVoorkeur(prefs, 'callout', 'callout'),
         fillColor: prefs.calloutFillNone ? 'none' : (prefs.calloutFillColor || '#ffffff'),
         textColor: '#000000',
         fontSize: prefs.calloutFontSize || 12,
@@ -1286,8 +1285,7 @@ async function _buildCreateProps(type, page, props) {
       const base = {
         type, page,
         points: p.points.map(pt => ({ ...pt })),
-        color: prefs.measureAreaStrokeColor || '#ff0000',
-        strokeColor: prefs.measureAreaStrokeColor || '#ff0000',
+        ...randkleurenUitVoorkeur(prefs, 'measureArea', 'measureArea', '#ff0000'),
         lineWidth: prefs.measureAreaLineWidth || 1,
         opacity: (prefs.measureAreaOpacity || 100) / 100,
         fillColor: prefs.measureAreaFillNone ? null : (prefs.measureAreaFillColor || null),

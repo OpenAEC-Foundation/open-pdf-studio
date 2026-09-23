@@ -37,6 +37,45 @@ export function kanZonderRand(type) {
   return SOORTEN_ZONDER_RAND.has(type);
 }
 
+// Waarde voor de randkleur-voorkeur van een soort ("als standaardstijl
+// instellen", zie setAsDefaultStyle in core/preferences.js).
+//
+// "Geen rand" hoort alleen bij soorten waarvan de omtrek weg kan. Bleef de
+// voorkeur van een lijn, een wolklijn of het oude tekst-type op 'none' staan,
+// dan kreeg álles wat die voorkeur leest een onzichtbare lijn. Voor zulke
+// soorten wordt de eigen kleur van de annotatie bewaard; is ook die er niet,
+// dan geeft deze functie null en blijft de bestaande voorkeur staan.
+export function randkleurVoorVoorkeur(annotation) {
+  const gekozen = annotation && (annotation.strokeColor || annotation.color);
+  if (!gekozen) return null;
+  if (hasStroke(gekozen)) return gekozen;
+  if (kanZonderRand(annotation.type)) return 'none';
+  return hasFill(annotation.color) ? annotation.color : null;
+}
+
+// Rand- en eigen kleur voor een NIEUWE annotatie, uit de stijlvoorkeuren van
+// zijn soort (`<voorvoegsel>StrokeColor`).
+//
+// De voorkeur mag 'none' zijn — "geen rand" als standaardstijl — maar dezelfde
+// voorkeur wordt gelezen door soorten die hun omtrek NIET kunnen missen: de
+// L-vorm leest polygonStrokeColor en wordt een polyline, de wolklijn leest
+// cloudStrokeColor. Voor die soorten valt de randkleur terug op `terugval`.
+//
+// `color` is ALTIJD een zichtbare kleur: het kruis, de aanhaallijn en het
+// maatlabel tekenen ermee (zie colorWithoutStroke), en `color: 'none'` zou die
+// op zwart zetten in plaats van op de kleur die de gebruiker koos.
+export function randkleurenUitVoorkeur(prefs, voorvoegsel, type, terugval = '#000000') {
+  const bewaard = prefs ? prefs[voorvoegsel + 'StrokeColor'] : undefined;
+  const zonderRand = !!bewaard && !hasStroke(bewaard);
+  const zichtbaar = (bewaard && !zonderRand)
+    ? bewaard
+    : (hasFill(terugval) ? terugval : '#000000');
+  return {
+    color: zichtbaar,
+    strokeColor: (zonderRand && kanZonderRand(type)) ? 'none' : zichtbaar,
+  };
+}
+
 // Kleur van wat bij een vorm zonder rand wél getekend wordt: het kruis, de
 // aanhaallijn, het maatlabel. Dat is de eigen kleur van de annotatie, net als
 // in rendering.js (`annotation.color || '#000000'`); de saver gebruikt dezelfde
