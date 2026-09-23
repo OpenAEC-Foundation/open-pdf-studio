@@ -1,9 +1,8 @@
 // Wat de webversie niet kan, en hoe de gebruiker dat te horen krijgt.
 //
-// De app draait ook als gewone webpagina (zonder Tauri-schil). Alles wat de
-// Rust-kant doet — afdrukken, OCR, CAD in- en uitvoer, handtekeningen,
-// comprimeren, PDF/X, IFC, bijlagen, plug-ins, de bijwerker en de MCP-brug —
-// bestaat daar niet. Tot #456 bleven die knoppen gewoon klikbaar en deed er
+// De app draait ook als gewone webpagina (zonder Tauri-schil). Wat de
+// Rust-kant doet — afdrukken, OCR, CAD in- en uitvoer, comprimeren, PDF/X,
+// IFC, plug-ins, de bijwerker en de MCP-brug — bestaat daar niet. Tot #456 bleven die knoppen gewoon klikbaar en deed er
 // niets: invoke() gaf stil null terug. Nu gelden twee regels:
 //
 //  1. invoke() wijst af met een NietInBrowserError (zie platform.js).
@@ -29,7 +28,6 @@ export const BUREAUBLAD_KNOPPEN = Object.freeze({
   'ep-compress-pdf': 'compress',
   'btn-home-cad-export': 'cadExport',
   'btn-home-ifc-export': 'ifc',
-  'tool-signature': 'signatures',
   'ribbon-extensions': 'plugins',
   'ribbon-check-updates': 'updater',
   'ribbon-previous-version': 'updater',
@@ -37,13 +35,18 @@ export const BUREAUBLAD_KNOPPEN = Object.freeze({
   'ribbon-startup-diagnostics': 'diagnostics',
   'menu-print': 'print',
   'menu-extensions': 'plugins',
-  'menu-annotate-screenshot': 'screenshot',
   'export-pdfx': 'pdfx',
   'export-cad': 'cadExport',
   'import-cad': 'cadImport',
-  'panel-attachments': 'attachments',
   'prefs-mcp': 'mcp',
 });
+
+// Bewust NIET in de tabel, want ze werken in de browser al:
+//  - bijlagen: opslaan gaat via een download, toevoegen via <input type=file>
+//  - het handtekening-gereedschap: tekenen en plaatsen is gewoon JS. Alleen
+//    het CONTROLEREN van digitale handtekeningen loopt over de Rust-kant, en
+//    die balk verschijnt in de browser simpelweg niet
+//  - schermafdruk annoteren: valt terug op navigator.clipboard
 
 /** Welke functie hangt achter deze knop? `null` = gewone knop. */
 export function bureaubladFunctie(id) {

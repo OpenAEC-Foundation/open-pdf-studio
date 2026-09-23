@@ -3,6 +3,7 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 import { mcpStatus } from '../../../core/mcp-koppeling.js';
 import { isTauri } from '../../../core/platform.js';
 import { meldLegeStart, WEB_SESSIE_SLEUTEL } from '../../../core/sessie-herstel.js';
+import { knopUitInBrowser, meldingTekst } from '../../../core/webfuncties.js';
 import { LANGUAGES } from '../../../i18n/config.js';
 import PrefSelect from './PrefSelect.jsx';
 import LanguageSelect from './LanguageSelect.jsx';
@@ -11,6 +12,7 @@ export default function GeneralTab(props) {
   const { t } = useTranslation('preferences');
   const { t: tRibbon } = useTranslation('ribbon');
   const { t: tCommon } = useTranslation('common');
+  const mcpUit = () => knopUitInBrowser('prefs-mcp', isTauri());
   const p = props.prefs;
 
   // Status van de AI-koppeling zoals die nu draait (niet zoals ingevuld).
@@ -81,7 +83,10 @@ export default function GeneralTab(props) {
           </label>
         </div>
       </fieldset>
-      <fieldset class="pref-fieldset">
+      {/* De MCP-server draait op de Rust-kant; in de webversie is er niets om
+          aan of uit te zetten (#456). */}
+      <fieldset class="pref-fieldset" id="prefs-mcp" disabled={mcpUit()}
+        title={mcpUit() ? meldingTekst(tCommon, t('general.aiLink')) : undefined}>
         <legend>{t('general.aiLink')}</legend>
         <div class="pref-row pref-checkbox-row">
           <label class="pref-checkbox-label">

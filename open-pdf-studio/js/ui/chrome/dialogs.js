@@ -1,5 +1,6 @@
 import { state, getActiveDocument } from '../../core/state.js';
 import { isTauri } from '../../core/platform.js';
+import { meldingTekst } from '../../core/webfuncties.js';
 import {
   openDialog, closeDialog, showMessage,
   openAppMenu, setAppMenuPanel as setActivePanel,
@@ -197,6 +198,13 @@ export function hideMergePdfsDialog() {
 // ============================================
 
 export function showPrintDialog() {
+  // De webversie heeft geen spooler. De menu-ingang staat er uit, maar Ctrl+P
+  // en het snelmenu komen hier ook langs: dan de ene melding in plaats van een
+  // venster met een lege printerlijst (#456).
+  if (!isTauri()) {
+    showMessage(meldingTekst(i18next.t.bind(i18next), i18next.t('print')));
+    return;
+  }
   if (!getActiveDocument()?.pdfDoc) {
     showMessage(i18next.t('noDocumentOpen'));
     return;

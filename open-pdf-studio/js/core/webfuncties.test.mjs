@@ -15,22 +15,28 @@ const {
 } = await import('./webfuncties.js');
 const { NietInBrowserError } = await import('./platform.js');
 
-test('elke functie uit de melding heeft een knop in de tabel', () => {
+test('elke functie zonder webvariant heeft een knop in de tabel', () => {
   const functies = new Set(Object.values(BUREAUBLAD_KNOPPEN));
-  for (const f of ['print', 'ocr', 'cadImport', 'cadExport', 'signatures',
-    'compress', 'pdfx', 'ifc', 'attachments', 'plugins', 'updater', 'mcp']) {
+  for (const f of ['print', 'ocr', 'cadImport', 'cadExport',
+    'compress', 'pdfx', 'ifc', 'plugins', 'updater', 'mcp']) {
     assert.ok(functies.has(f), `geen knop gekoppeld aan "${f}"`);
   }
 });
 
 test('een knop uit de tabel staat uit in de browser en aan op het bureaublad', () => {
-  assert.equal(knopUitInBrowser('ep-ocr', false), true);
-  assert.equal(knopUitInBrowser('ep-ocr', true), false);
+  for (const id of Object.keys(BUREAUBLAD_KNOPPEN)) {
+    assert.equal(knopUitInBrowser(id, false), true, `id ${id} hoort uit te staan`);
+    assert.equal(knopUitInBrowser(id, true), false, `id ${id} hoort op het bureaublad aan te staan`);
+  }
   assert.equal(bureaubladFunctie('ep-ocr'), 'ocr');
 });
 
-test('een gewone knop blijft overal aan', () => {
-  for (const id of ['rotate-left', 'tool-select', undefined, null, '', 'toString']) {
+test('wat in de browser wél werkt blijft aan', () => {
+  // Bijlagen (download + <input type=file>), het handtekening-gereedschap
+  // (tekenen is gewoon JS) en schermafdrukken (navigator.clipboard) hebben
+  // een werkende webweg; die uitschakelen zou een achteruitgang zijn.
+  for (const id of ['tool-signature', 'panel-attachments', 'menu-annotate-screenshot',
+    'rotate-left', 'tool-select', undefined, null, '', 'toString']) {
     assert.equal(knopUitInBrowser(id, false), false, `id ${id}`);
     assert.equal(bureaubladFunctie(id), null, `id ${id}`);
   }
