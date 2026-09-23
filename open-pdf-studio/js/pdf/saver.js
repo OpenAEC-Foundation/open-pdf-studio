@@ -21,7 +21,7 @@ import { showMessage } from '../bridge.js';
 // Sub-modules
 import { hexToRgb, buildBorderStyle, computeAnnotFlags, mapFontToPdfName,
   ensureAcroFormFonts, stripPdfAMetadata, generateAppearanceStream,
-  randSleutelZonderRand, markeerZonderRand, onzichtbaarVlak } from './saver/utils.js';
+  randSleutelZonderRand, markeerZonderRand, onzichtbaarVlak, vlakRect } from './saver/utils.js';
 import { saveTextEditsToPages } from './saver/text-edits.js';
 import { hasMixedRuns, textboxLineRuns, runsToText } from '../annotations/rendering/textbox-layout.js';
 import { saveWatermarksToPages } from './saver/watermarks.js';
@@ -2444,20 +2444,16 @@ async function _savePDFNu(saveAsPath) {
             // Save as Polygon annotation with measurement data
             if (!ann.points || ann.points.length < 3) continue;
             let maVertices = [];
-            let maMinX = Infinity, maMinY = Infinity, maMaxX = -Infinity, maMaxY = -Infinity;
-
             for (const pt of ann.points) {
-              const px = convertX(pt.x);
-              const py = convertY(pt.y);
-              maVertices.push(px, py);
-              maMinX = Math.min(maMinX, px); maMaxX = Math.max(maMaxX, px);
-              maMinY = Math.min(maMinY, py); maMaxY = Math.max(maMaxY, py);
+              maVertices.push(convertX(pt.x), convertY(pt.y));
             }
 
             const maDict = {
               Type: 'Annot',
               Subtype: 'Polygon',
-              Rect: [maMinX - 2, maMinY - 2, maMaxX + 2, maMaxY + 2],
+              // Over alle ringen, dus ook over een tweede deel naast de
+              // buitenring: buiten de /Rect knipt een andere lezer het weg (#457).
+              Rect: vlakRect(ann, convertX, convertY, 2),
               Vertices: maVertices,
               C: hexToColorArray(ann.strokeColor || '#ff0000'),
               CA: opacity,
@@ -2519,23 +2515,19 @@ async function _savePDFNu(saveAsPath) {
             const faVertices = [];
             const faArcFlags = [];
             const faArcBulges = [];
-            let faMinX = Infinity, faMinY = Infinity, faMaxX = -Infinity, faMaxY = -Infinity;
             let anyArc = false;
             for (const pt of ann.points) {
-              const px = convertX(pt.x);
-              const py = convertY(pt.y);
-              faVertices.push(px, py);
+              faVertices.push(convertX(pt.x), convertY(pt.y));
               const isArc = pt.arc === true;
               faArcFlags.push(isArc ? 1 : 0);
               faArcBulges.push(isArc ? (typeof pt.bulge === 'number' ? pt.bulge : 0.3) : 0);
               if (isArc) anyArc = true;
-              faMinX = Math.min(faMinX, px); faMaxX = Math.max(faMaxX, px);
-              faMinY = Math.min(faMinY, py); faMaxY = Math.max(faMaxY, py);
             }
             const faDict = {
               Type: 'Annot',
               Subtype: 'Polygon',
-              Rect: [faMinX - 2, faMinY - 2, faMaxX + 2, faMaxY + 2],
+              // Zie measureArea: de omhullende loopt over alle ringen (#457).
+              Rect: vlakRect(ann, convertX, convertY, 2),
               Vertices: faVertices,
               C: hexToColorArray(ann.strokeColor || ann.color || '#000000'),
               CA: opacity,

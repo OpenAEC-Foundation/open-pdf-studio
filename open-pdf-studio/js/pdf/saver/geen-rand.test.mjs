@@ -157,21 +157,23 @@ const WOLK = { kind: 'rect', x: 0, y: 0, w: 40, h: 30, puff: 15, X, Y, fillColor
 const VLAK = { points: VIERKANT, X, Y, fillColorHex: '#33aa55', strokeColorHex: '#0000ff', lineWidth: 3, borderStyle: 'solid' };
 
 test('wolk, vlak en meetvlak zonder rand: vulling blijft, omtrek weg', () => {
-  assert.deepEqual(operatoren(buildCloudAP({ ...WOLK, heeftRand: false }).content), ['f*']);
-  assert.deepEqual(operatoren(buildFilledAreaAP({ ...VLAK, heeftRand: false }).content), ['f*']);
+  // De vulling gaat sinds #457 met de niet-nul-regel (f in plaats van f*), zodat
+  // losse delen in een vlak optellen; voor een enkele ring is dat hetzelfde beeld.
+  assert.deepEqual(operatoren(buildCloudAP({ ...WOLK, heeftRand: false }).content), ['f']);
+  assert.deepEqual(operatoren(buildFilledAreaAP({ ...VLAK, heeftRand: false }).content), ['f']);
   const meet = buildMeasureAreaAP({ ...VLAK, heeftRand: false, strokeColorHex: '#cc0000', text: '12 m2' }).content;
-  // f* = het vlak, f = het witte labelplaatje; het label krijgt de eigen kleur.
-  assert.deepEqual(operatoren(meet), ['f*', 'f']);
+  // eerste f = het vlak, tweede f = het witte labelplaatje; het label krijgt de eigen kleur.
+  assert.deepEqual(operatoren(meet), ['f', 'f']);
   assert.match(meet, /0\.8 0 0 rg\nBT/);
 });
 
 test('wolk, vlak en meetvlak mét rand: ongewijzigd', async () => {
   const { createHash } = await import('node:crypto');
   const hash = (s) => createHash('sha256').update(s).digest('hex');
-  assert.equal(hash(buildCloudAP(WOLK).content), 'f3aba03fa891268422d91800d7d6d7e07a0d6a61389de7ccf58ce2de57448da2');
+  assert.equal(hash(buildCloudAP(WOLK).content), 'f6b5cb83ebf181cdd1def5e6b5b217943d8ad2055785dddd671be3bb35aa7723');
   assert.equal(buildFilledAreaAP(VLAK).content,
-    '0.2 0.667 0.333 rg\n10 800 m\n50 800 l\n50 770 l\n10 770 l\nh\nf*\n0 0 1 RG\n3 w\n[] 0 d\n10 800 m\n50 800 l\n50 770 l\n10 770 l\nh\nS\n');
+    '0.2 0.667 0.333 rg\n10 800 m\n50 800 l\n50 770 l\n10 770 l\nh\nf\n0 0 1 RG\n3 w\n[] 0 d\n10 800 m\n50 800 l\n50 770 l\n10 770 l\nh\nS\n');
   assert.equal(buildMeasureAreaAP({ ...VLAK, borderStyle: 'dashed', text: '12 m2' }).content,
-    '0.2 0.667 0.333 rg\n10 800 m\n50 800 l\n50 770 l\n10 770 l\nh\nf*\n0 0 1 RG\n3 w\n[3 4] 0 d\n10 800 m\n50 800 l\n50 770 l\n10 770 l\nh\nS\n'
+    '0.2 0.667 0.333 rg\n10 800 m\n50 800 l\n50 770 l\n10 770 l\nh\nf\n0 0 1 RG\n3 w\n[3 4] 0 d\n10 800 m\n50 800 l\n50 770 l\n10 770 l\nh\nS\n'
     + 'q\n1 1 1 rg\n14.25 777.5 31.5 15 re f\n0 0 1 rg\nBT\n/Helv 11 Tf\n16.25 782.25 Td\n(12 m2) Tj\nET\nQ\n');
 });

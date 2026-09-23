@@ -15,6 +15,7 @@
 // in as plain points, so this module stays headless-testable.
 
 import { hexToRgb } from './utils.js';
+import { ringenRichten, vlakOmhullende } from '../../annotations/vlak-ringen.js';
 import { getHatchLineFamilies } from './hatch-catalog.js';
 import { catmullRomToBezier, splineArrowEndTangent } from '../../annotations/spline-arrow-geometry.js';
 import { toWinAnsiText, winAnsiLiteral } from './pdf-text.js';
@@ -157,11 +158,10 @@ function hatchFillOps({ points, holes, hatchPattern, hatchColorRgb, hatchScale, 
   if (families === null) return '';
   gX = X; gY = Y;
 
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-  for (const p of points) {
-    if (p.x < minX) minX = p.x; if (p.y < minY) minY = p.y;
-    if (p.x > maxX) maxX = p.x; if (p.y > maxY) maxY = p.y;
-  }
+  // Over álle ringen: een deel naast de buitenring hoort ook arcering te
+  // krijgen (#457).
+  const { minX, minY, maxX, maxY } =
+    vlakOmhullende(points, holes) || { minX: 0, minY: 0, maxX: 0, maxY: 0 };
   const bw = maxX - minX, bh = maxY - minY;
   const pad = Math.max(Math.hypot(bw, bh), bw, bh) * 0.6;
   const bounds = { left: minX - pad, top: minY - pad, right: maxX + pad, bottom: maxY + pad };
@@ -169,17 +169,15 @@ function hatchFillOps({ points, holes, hatchPattern, hatchColorRgb, hatchScale, 
   const center = { cx: (minX + maxX) / 2, cy: (minY + maxY) / 2 };
 
   let s = 'q\n';
-  // Clip path: outer + holes, even-odd.
-  s += pathOps(points, X, Y, true);
-  if (holes && holes.length) for (const h of holes) if (h && h.length >= 3) s += pathOps(h, X, Y, true);
-  s += 'W* n\n';
+  // Clip path: alle ringen, gaten tegengesteld gedraaid, niet-nul-regel.
+  s += ringPathOps(points, holes, X, Y);
+  s += 'W n\n';
 
   if (!families.length) {
     // Solid fill using hatch color.
     s += `${f(hatchColorRgb[0])} ${f(hatchColorRgb[1])} ${f(hatchColorRgb[2])} rg\n`;
-    s += pathOps(points, X, Y, true);
-    if (holes && holes.length) for (const h of holes) if (h && h.length >= 3) s += pathOps(h, X, Y, true);
-    s += 'f*\n';
+    s += ringPathOps(points, holes, X, Y);
+    s += 'f\n';
   } else {
     for (const fam of families) s += hatchFamilyOps(fam, bounds, scale, hatchAngle || 0, center, hatchColorRgb);
   }
@@ -187,12 +185,21 @@ function hatchFillOps({ points, holes, hatchPattern, hatchColorRgb, hatchScale, 
   return s;
 }
 
-// Solid fill of a polygon (+holes) using even-odd, app-space points.
+// Alle ringen van een vlak als één pad, gericht voor de niet-nul-regel: delen
+// draaien dezelfde kant op, gaten de andere. Zo telt een tweede deel op in
+// plaats van een hap uit het eerste te nemen, en blijft de overlap van twee
+// delen gevuld — precies zoals het scherm het tekent (#457).
+function ringPathOps(points, holes, X, Y) {
+  let s = '';
+  for (const ring of ringenRichten(points, holes)) s += pathOps(ring.points, X, Y, true);
+  return s;
+}
+
+// Solid fill of all rings using the nonzero rule, app-space points.
 function solidFillOps(points, holes, fillRgb, X, Y) {
   let s = `${f(fillRgb[0])} ${f(fillRgb[1])} ${f(fillRgb[2])} rg\n`;
-  s += pathOps(points, X, Y, true);
-  if (holes && holes.length) for (const h of holes) if (h && h.length >= 3) s += pathOps(h, X, Y, true);
-  s += 'f*\n';
+  s += ringPathOps(points, holes, X, Y);
+  s += 'f\n';
   return s;
 }
 
