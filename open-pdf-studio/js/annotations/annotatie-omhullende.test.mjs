@@ -123,3 +123,18 @@ test('index: queryExact vindt alleen wat het venster echt raakt', () => {
   const hits = idx.queryExact(1, 90, 90, 100, 100, anns).map(a => a.id);
   assert.deepEqual(hits, ['in']);
 });
+
+test('vlak met een tweede deel: dat deel valt binnen de omhullende (#457)', () => {
+  // Een extra ring hoeft niet binnen de buitenring te liggen. Lag hij ernaast,
+  // dan viel hij buiten de omhullende en liet de viewport-culling hem weg.
+  const ring = (x, y) => [{ x, y }, { x: x + 100, y }, { x: x + 100, y: y + 100 }, { x, y: y + 100 }];
+  for (const type of ['measureArea', 'filledArea']) {
+    const b = annotationBounds({
+      type, page: 1, points: ring(0, 0), holes: [ring(300, 0)],
+      // filledArea draagt ook een x/y/w/h, afgeleid van alleen de buitenring.
+      x: 0, y: 0, width: 100, height: 100,
+    });
+    assert.ok(omvat(b, [[0, 0], [100, 100], [300, 0], [400, 100]]),
+      `${type}: het tweede deel valt buiten de omhullende: ${JSON.stringify(b)}`);
+  }
+});

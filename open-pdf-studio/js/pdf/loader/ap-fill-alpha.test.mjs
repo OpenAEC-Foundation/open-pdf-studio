@@ -136,9 +136,10 @@ test('opslaan: vul-alfa alleen om het vlak, met /GSf', () => {
     lineWidth: 1, borderStyle: 'solid', text: '157 m2', fillAlpha: 0.3,
   });
   assert.equal(ap.fillAlpha, 0.3);
-  assert.match(ap.content, /^q\n\/GSf gs\n1 0 0 rg\n[\s\S]*?f\*\nQ\n/);
+  // De vulling gaat sinds #457 met de niet-nul-regel: f in plaats van f*.
+  assert.match(ap.content, /^q\n\/GSf gs\n1 0 0 rg\n[\s\S]*?\nf\nQ\n/);
   // Rand en label staan buiten die q…Q en blijven dus dekkend.
-  const naVlak = ap.content.slice(ap.content.indexOf('f*\nQ\n') + 5);
+  const naVlak = ap.content.slice(ap.content.indexOf('\nf\nQ\n') + 5);
   assert.doesNotMatch(naVlak, /\/GSf gs/);
   assert.match(naVlak, /\nS\n/);
   assert.equal(fillAlphaAtFirstFill(ap.content, alfas({ GSf: 0.3 })), 0.3);
