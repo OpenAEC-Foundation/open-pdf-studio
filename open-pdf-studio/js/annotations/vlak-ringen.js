@@ -27,7 +27,7 @@
 // ringenRichten() geeft alle delen dezelfde draairichting en alle gaten de
 // tegengestelde. De tekenlaag en de appearance-bouwer gebruiken die lijst.
 
-import { arcControlPoint, expandArcPoints, hasArcPoints } from './arc-points.js';
+import { expandArcPoints, hasArcPoints } from './arc-points.js';
 
 /** De ringen van een vlak: buitenring eerst, daarna de bruikbare extra ringen. */
 export function vlakRingen(points, holes) {
@@ -209,5 +209,3 @@ export function vlakOmhullende(points, holes) {
   if (!isFinite(minX)) return null;
   return { minX, minY, maxX, maxY };
 }
-
-export { arcControlPoint };
