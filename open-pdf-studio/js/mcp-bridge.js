@@ -1089,6 +1089,7 @@ async function _buildCreateProps(type, page, props) {
     case 'line':
     case 'arrow':
     case 'wall':
+    case 'betonbalk':
     case 'box':
     case 'mask':
     case 'redaction':
@@ -1098,7 +1099,7 @@ async function _buildCreateProps(type, page, props) {
     case 'cloud':
     case 'polygon':
     case 'textbox': {
-      const lineLike = type === 'line' || type === 'arrow' || type === 'wall';
+      const lineLike = type === 'line' || type === 'arrow' || type === 'wall' || type === 'betonbalk';
       const bad = lineLike ? needLine() : needRect();
       if (bad) return bad;
       const creators = await import('./tools/annotation-creators.js');
@@ -2030,6 +2031,138 @@ async function handlePlaceSchedule(params) {
   };
 }
 
+/** Maat van een profielsymbool uit de symbolenbibliotheek, in werkelijke mm.
+ *  Levert null als het symbool geen werkelijke maat kent. */
+function _profielMaat(reg, symbolId, maat) {
+  const tpl = reg.getTemplate(symbolId);
+  if (!tpl || typeof tpl.realSizeMm !== 'function') return null;
+  const mm = tpl.realSizeMm({ ...reg.defaultParams(tpl), maat, aanzicht: 'doorsnede' });
+  return (mm && mm.width > 0 && mm.height > 0)
+    ? { breedteMm: mm.width, hoogteMm: mm.height } : null;
+}
+
+/** Kent dit symbool de gevraagde `maat`? Een template zonder maat-keuzelijst
+ *  legt niets vast en gaat altijd akkoord. */
+function _profielMaatBestaat(reg, symbolId, maat) {
+  const tpl = reg.getTemplate(symbolId);
+  if (!tpl) return false;
+  const veld = (tpl.params || []).find(p => p.key === 'maat');
+  if (!veld || !Array.isArray(veld.options)) return true;
+  return veld.options.some(o => (typeof o === 'string' ? o : o?.value) === maat);
+}
+
+/** Zet een constructieplattegrond uit: stramien, kolommen, balken, vloervelden
+ *  met overspanningsrichting, positie-aanduidingen en (optioneel) de staat.
+ *
+ *  De rekenslag staat in drafting/constructie/ (puur en los getest); deze brug
+ *  voert hem uit. Alles wat er bij komt zit in EEN ongedaan-stap, zodat een
+ *  misgeplaatste plattegrond met een enkele Ctrl+Z weer weg is. `dryRun`
+ *  rekent alleen, zonder ook maar iets op de tekening te zetten. */
+async function handleStructuralLayout(params) {
+  const stateMod = await import('./core/state.js');
+  const doc = stateMod.getActiveDocument();
+  if (!doc?.pdfDoc) return { ok: false, error: 'no active document' };
+
+  const spec = (params && typeof params === 'object' && !Array.isArray(params)) ? { ...params } : {};
+  const droogloop = spec.dryRun === true;
+
+  // Pagina: zelfde regels als app_create_annotation.
+  let page = doc.currentPage || 1;
+  const paginaArg = spec.page ?? spec.pagina;
+  if (paginaArg != null) {
+    page = Number(paginaArg);
+    const numPages = doc.pdfDoc?.numPages ?? 1;
+    if (!Number.isInteger(page) || page < 1 || page > numPages) {
+      return { ok: false, error: `page ${paginaArg} out of range (doc has ${numPages} pages)` };
+    }
+  }
+  spec.pagina = page;
+  delete spec.page;
+
+  const reg = await import('./symbols/registry.js');
+  const planMod = await import('./drafting/constructie/constructieplan.js');
+  const uitkomst = planMod.bouwConstructieplan(spec, {
+    kentMaat: (symbolId, maat) => _profielMaatBestaat(reg, symbolId, maat),
+    maatVanProfiel: (symbolId, maat) => _profielMaat(reg, symbolId, maat),
+  });
+  if (!uitkomst.ok) return { ok: false, error: uitkomst.fout, code: uitkomst.code };
+
+  const samenvatting = uitkomst.samenvatting;
+  if (droogloop) {
+    return {
+      ok: true, dryRun: true, page, summary: samenvatting,
+      measureScale: uitkomst.meetschaal,
+      schedule: uitkomst.staat,
+      planned: uitkomst.annotaties.map(a => ({ role: a.rol, ref: a.id, type: a.type })),
+    };
+  }
+
+  // De meetschaal eerst: daarna meet elke meting in dezelfde werkelijkheid als
+  // waarin het raster is uitgezet.
+  let meetschaal = null;
+  if (spec.setMeasureScale !== false) {
+    const r = await handleSetMeasureScale(uitkomst.meetschaal);
+    if (r?.ok) meetschaal = r.measureScale;
+  }
+
+  const factory = await import('./annotations/factory.js');
+  const undoMod = await import('./core/undo-manager.js');
+  const gemaakt = [];
+  let staatResultaat = null;
+
+  // EERST alles opbouwen, PAS DAARNA plaatsen: struikelt een opgave, dan staat
+  // er nog niets op de tekening dat de gebruiker moet opruimen.
+  const klaar = [];
+  for (const opgave of uitkomst.annotaties) {
+    const built = await _buildCreateProps(opgave.type, page, opgave.props);
+    if (built.error) return { ok: false, error: `${opgave.rol} ${opgave.id}: ${built.error}` };
+    const merged = { ...built.base, ...opgave.props, type: opgave.type, page };
+    // Een parametrisch symbool zonder eigen kader kreeg (x,y) als INVOEGPUNT;
+    // de bouwer heeft er een kader op werkelijke maat omheen gezet.
+    if (opgave.type === 'parametricSymbol'
+        && !(_isNum(opgave.props.width) && _isNum(opgave.props.height))) {
+      merged.x = built.base.x;
+      merged.y = built.base.y;
+      merged.width = built.base.width;
+      merged.height = built.base.height;
+    }
+    klaar.push({ opgave, merged });
+  }
+
+  undoMod.beginUndoTransaction();
+  try {
+    for (const { opgave, merged } of klaar) {
+      const ann = factory.createAnnotation(merged);
+      doc.annotations.push(ann);
+      undoMod.recordAdd(ann);
+      gemaakt.push({ id: ann.id, role: opgave.rol, ref: opgave.id, type: opgave.type });
+    }
+
+    if (uitkomst.staat) {
+      staatResultaat = await handlePlaceSchedule({
+        templateId: uitkomst.staat.templateId,
+        name: uitkomst.staat.name,
+        config: uitkomst.staat.config,
+        page: uitkomst.staat.page ?? page,
+        x: uitkomst.staat.x, y: uitkomst.staat.y,
+      });
+    }
+  } finally {
+    undoMod.endUndoTransaction();
+  }
+
+  await _redrawActive();
+  return {
+    ok: true, page, summary: samenvatting,
+    measureScale: meetschaal,
+    created: gemaakt.length,
+    annotations: gemaakt,
+    schedule: staatResultaat && staatResultaat.ok
+      ? { scheduleId: staatResultaat.scheduleId, annotationId: staatResultaat.annotationId, rowCount: staatResultaat.rowCount }
+      : (staatResultaat || null),
+  };
+}
+
 // ─── Generic UI drivers: click / inspect any element by CSS selector ─────
 //
 // The ribbon renders only the ACTIVE tab's content (SolidJS <Match>), so a
@@ -2830,6 +2963,7 @@ const HANDLERS = {
   // Take-off / schedules
   'mcp:get-takeoff':        handleGetTakeoff,
   'mcp:place-schedule':     handlePlaceSchedule,
+  'mcp:structural-layout':  handleStructuralLayout,
   // Commandolaag: elke lintknop en elk gereedschap
   'mcp:list-commands':      handleListCommands,
   'mcp:run-command':        handleRunCommand,

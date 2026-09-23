@@ -200,6 +200,10 @@
       "description": "Build a quantities schedule (Staat) from the annotations in the open document and place it on the page as a table annotation."
     },
     {
+      "name": "app_structural_layout",
+      "description": "Set out a structural floor plan in one undoable step: the grid (lettered and numbered grid lines with bubbles), columns on the grid intersections, beams along the grid lines, a span-direction arrow per floor bay carrying the real span, spot elevations, position tags (position number / section / level) and - unless switched off - a quantity schedule grouped by IFC category."
+    },
+    {
       "name": "app_list_commands",
       "description": "List EVERY function the app exposes: each ribbon button on every tab (label, tab, disabled/active state) plus every drawing tool."
     },

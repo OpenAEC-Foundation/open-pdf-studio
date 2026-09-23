@@ -63,6 +63,8 @@ const TYPE_TO_CATEGORY = {
   measureDistance: 'line-based', measurePerimeter: 'line-based', line: 'line-based', arrow: 'line-based',
   polyline: 'line-based', wall: 'line-based', spline: 'line-based', arc: 'line-based', draw: 'line-based', measureAngle: 'line-based',
   stavenreeks: 'line-based',
+  // Betonbalk is lijnvormig: hij hoort bij de lengtes, niet bij 'overig'.
+  betonbalk: 'line-based',
   count: 'count', parametricSymbol: 'symbol', stamp: 'symbol', signature: 'symbol', image: 'image',
 };
 
@@ -83,6 +85,7 @@ export const TYPE_NAMES = {
   measureDistance: 'Distance', measureArea: 'Area', measurePerimeter: 'Perimeter',
   measureAngle: 'Angle', scaleRegion: 'Scale region', viewport: 'Viewport',
   stavenreeks: 'Bar series',
+  betonbalk: 'Concrete beam',
   scheduleTable: 'Quantities table', builtinText: 'Text',
 };
 
