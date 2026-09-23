@@ -94,6 +94,7 @@ pub const TOOLS: &[ToolMeta] = &[
     wijzigt("app_set_measure_scale", "Set measurement scale"),
     wijzigt("app_snippet_flatten", "Flatten vector snippet"),
     wijzigt("app_titleblock", "Fill title block"),
+    wijzigt("app_floorplan", "Draw floor plan"),
     wijzigt("app_run_command", "Run app command"),
     wijzigt("app_click_element", "Click interface element"),
     wijzigt("app_mouse_click", "Click"),

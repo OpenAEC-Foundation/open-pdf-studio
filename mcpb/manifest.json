@@ -250,6 +250,10 @@
     {
       "name": "app_titleblock",
       "description": "Read or fill the title block fields by NAME (projectnaam, adres, opdrachtgever, status, projectnr, fase, auteur, schaal, datum_eerste, wijziging, documenttype, kenmerk — whatever the title block defines)."
+    },
+    {
+      "name": "app_floorplan",
+      "description": "Draw a building floor plan with the parts related to each other, instead of loose shapes stacked on top of one another."
     }
   ],
   "keywords": [
