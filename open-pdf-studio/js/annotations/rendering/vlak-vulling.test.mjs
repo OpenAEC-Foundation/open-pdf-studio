@@ -144,3 +144,11 @@ test('de arcering reikt tot voorbij het tweede deel', () => {
   for (const pad of knip.paden) for (const p of pad) { maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y); }
   assert.ok(maxX >= 500 && maxY >= 500, 'het tweede deel zit in het knippad');
 });
+
+test('te weinig punten: niets tekenen, en niet het vorige pad nog eens vullen', () => {
+  const { ctx, ops } = maakRecorder();
+  ctx.beginPath();
+  ctx.moveTo(0, 0); ctx.lineTo(50, 0); ctx.lineTo(50, 50);
+  drawMeasureAreaShape(ctx, [{ x: 0, y: 0 }, { x: 10, y: 0 }], '#ff0000', 1, '#00ff00', 'solid');
+  assert.equal(ops.vullingen.length, 0);
+});

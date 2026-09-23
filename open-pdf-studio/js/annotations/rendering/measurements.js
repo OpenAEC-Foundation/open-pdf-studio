@@ -147,6 +147,12 @@ export function drawMeasureAreaShape(ctx, points, color, lineWidth, fillColor, b
   // delen die elkaar overlappen samen gevuld blijven (#457). Met de oude
   // even-oneven-regel viel juist die overlap weg.
   const ringen = ringenRichten(points, holes);
+  if (ringen.length === 0) {
+    // Te weinig punten voor een vlak: niets tekenen (en zeker niet het pad
+    // van de vorige vorm nog eens vullen).
+    ctx.setLineDash([]);
+    return;
+  }
   ringen.forEach((ring, i) => _tracePolygonPath(ctx, ring.points, true, i === 0));
 
   // Fill using the nonzero rule: parts add up, holes (opposite winding) cut out
