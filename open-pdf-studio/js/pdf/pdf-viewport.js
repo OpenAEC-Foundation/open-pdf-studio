@@ -99,6 +99,31 @@ export function destroyViewport() {
 // existing coordinate math (mouse, panning, zoom) keeps working unchanged.
 function _getDpr() { return window.devicePixelRatio || 1; }
 
+// Residual-softness fix: destW/destH below are computed from raw page-point
+// arithmetic (pageWidthPt * zoom * dpr), a float that essentially never
+// exactly equals the bitmap's actual pixel size (PDFium/Rust ceils that same
+// product to an integer — see render.rs's target_w/target_h). Whenever the
+// currently-shown bitmap IS the one rendered for this exact view (the common
+// case once the zoom/pan settle fires), that sub-pixel gap still makes
+// ctx.drawImage() resample — imageSmoothingEnabled defaults to true and is
+// never turned off for this draw — softening every frame by a fraction of a
+// physical pixel. A/B-tested: at a genuine exact-scale match this drawImage
+// is a no-op scale-wise, so snapping the destination size to the bitmap's
+// own pixel dimensions here is a pure win with no visible position shift.
+// Only snap when the mismatch is small (a couple of px at most) — a real
+// bucket/fallback bitmap mid zoom-transition differs from the intended
+// destination by tens to hundreds of pixels and must still be stretched to
+// fit, exactly as before.
+const _SNAP_TOLERANCE_PX = 2;
+function _snapDrawSize(destW, destH, bitmap) {
+  const dw = Math.abs(destW - bitmap.width);
+  const dh = Math.abs(destH - bitmap.height);
+  if (dw <= _SNAP_TOLERANCE_PX && dh <= _SNAP_TOLERANCE_PX) {
+    return { w: bitmap.width, h: bitmap.height };
+  }
+  return { w: destW, h: destH };
+}
+
 function _resizeCanvas() {
   if (!_canvas) return;
   const container = document.getElementById('pdf-container');
@@ -736,7 +761,8 @@ function _render() {
       const _downscale = destW < viewport.currentBitmap.width;
       const _prevQ = _ctx.imageSmoothingQuality;
       if (_downscale) _ctx.imageSmoothingQuality = 'high';
-      _ctx.drawImage(viewport.currentBitmap, destX, destY, destW, destH);
+      const _snap = _snapDrawSize(destW, destH, viewport.currentBitmap);
+      _ctx.drawImage(viewport.currentBitmap, destX, destY, _snap.w, _snap.h);
       if (_downscale) _ctx.imageSmoothingQuality = _prevQ;
     }
     _ctx.restore();
@@ -772,7 +798,8 @@ function _render() {
     const destY = (viewport.offsetY + m.regionYpt * viewport.zoom) * dpr;
     const destW = m.regionWpt * viewport.zoom * dpr;
     const destH = m.regionHpt * viewport.zoom * dpr;
-    _ctx.drawImage(viewport.currentTile, destX, destY, destW, destH);
+    const _tileSnap = _snapDrawSize(destW, destH, viewport.currentTile);
+    _ctx.drawImage(viewport.currentTile, destX, destY, _tileSnap.w, _tileSnap.h);
     _ctx.restore();
   }
 
