@@ -5,6 +5,9 @@ import { exportAsImages, exportAsRasterPdf, parsePageRange } from '../../../pdf/
 import { exportAsPdfX } from '../../../pdf/pdfx-export.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { showMessage, openDialog } from '../../stores/dialogStore.js';
+import { isTauri } from '../../../core/platform.js';
+import { knopUitInBrowser, meldingTekst } from '../../../core/webfuncties.js';
+import i18next from '../../../i18n/config.js';
 
 export default function ExportPanel() {
   const { t } = useTranslation('appMenu');
@@ -17,6 +20,10 @@ export default function ExportPanel() {
   const [quality, setQuality] = createSignal(92);
   const [dpi, setDpi] = createSignal(150);
   const [pdfxConformance, setPdfxConformance] = createSignal('X-3');
+  // PDF/X en CAD-uitvoer lopen over de Rust-kant en bestaan in de webversie
+  // niet; ze gaven daar stil `false` terug (#456).
+  const uit = (id) => knopUitInBrowser(id, isTauri());
+  const meld = (naam) => meldingTekst(i18next.t.bind(i18next), naam);
 
   const handleExportXFDF = async () => {
     closeAppMenu();
@@ -118,7 +125,9 @@ export default function ExportPanel() {
           </div>
         </div>
 
-        <div class={`bs-export-card${showOptions() && exportType() === 'pdfx' ? ' active' : ''}`} onClick={() => handleCardClick('pdfx')}>
+        <div class={`bs-export-card${showOptions() && exportType() === 'pdfx' ? ' active' : ''}${uit('export-pdfx') ? ' geen-webvariant' : ''}`}
+          title={uit('export-pdfx') ? meld(t('exportPanel.exportPdfx')) : undefined}
+          onClick={() => { if (!uit('export-pdfx')) handleCardClick('pdfx'); }}>
           <div class="bs-export-card-icon">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
@@ -134,7 +143,9 @@ export default function ExportPanel() {
           </div>
         </div>
 
-        <div class="bs-export-card" onClick={handleExportCad}>
+        <div class={`bs-export-card${uit('export-cad') ? ' geen-webvariant' : ''}`}
+          title={uit('export-cad') ? meld(t('exportPanel.exportCad')) : undefined}
+          onClick={() => { if (!uit('export-cad')) handleExportCad(); }}>
           <div class="bs-export-card-icon">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>

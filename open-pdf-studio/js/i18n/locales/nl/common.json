@@ -41,6 +41,8 @@
   "pt": "pt",
   "px": "px",
   "percent": "%",
+  "webSessionStartsEmpty": "Een herlaadbeurt begint leeg: in de browser blijft je document op je eigen computer en wordt het niet bewaard.",
+  "desktopOnly": "{{feature}} werkt alleen in de bureaubladversie. Deze pagina is de webversie.",
   "noDocumentOpen": "Er is geen document geopend.",
   "invalidPageRange": "Ongeldig paginabereik. Voer geldige paginanummers in.",
   "appName": "Open PDF Studio",

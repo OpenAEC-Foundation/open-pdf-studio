@@ -10,6 +10,17 @@
 // here so that readBinaryFile() can retrieve them by name.
 const _webFileCache = new Map(); // filename -> Uint8Array
 
+/**
+ * Leg bytes onder een bestandsnaam klaar voor readBinaryFile(). Dit is de
+ * in-geheugenroute van de webversie: de bestandskiezer gebruikt hem, en sinds
+ * #456 ook slepen en neerzetten, zodat er één route te onderhouden is.
+ * @returns {string} de naam waaronder de bytes klaarstaan
+ */
+export function cacheWebFile(name, data) {
+  _webFileCache.set(name, data instanceof Uint8Array ? data : new Uint8Array(data));
+  return name;
+}
+
 // Extract a display-friendly file name from a path or content:// URI
 export function extractFileName(pathOrUri) {
   if (!pathOrUri) return 'Document';
@@ -343,14 +354,35 @@ export async function openExternal(url) {
   await invoke('open_url', { url });
 }
 
+// ── Contract van invoke() buiten Tauri ──────────────────────────────────────
+// De webversie heeft geen Rust-kant. Een aanroep KAN daar dus niet slagen.
+// Tot #456 gaf invoke() dan stil `null` terug: de aanroeper zag geen verschil
+// tussen "hier niet beschikbaar", "mislukt" en "Rust gaf echt null terug", dus
+// elke knop achter een Rust-opdracht deed niets zonder een woord. Het contract
+// is nu één vorm, overal gelijk: de belofte wordt afgewezen met een
+// NietInBrowserError. Aanroepers die er iets mee kunnen vangen hem af met
+// isNietInBrowser(); de rest laat hem door naar de gewone foutafhandeling.
+export const NIET_IN_BROWSER = 'NIET_IN_BROWSER';
+
+export class NietInBrowserError extends Error {
+  constructor(command) {
+    super(`"${command}" is not available in the browser build`);
+    this.name = 'NietInBrowserError';
+    this.code = NIET_IN_BROWSER;
+    this.command = command;
+  }
+}
+
+/** Is dit de fout "deze opdracht bestaat niet in de webversie"? */
+export function isNietInBrowser(fout) {
+  return !!fout && typeof fout === 'object' && fout.code === NIET_IN_BROWSER;
+}
+
 // Invoke custom commands
 export async function invoke(cmd, args = {}) {
-  if (!isTauri()) return null;
   const core = getTauriCore();
-  if (core) {
-    return await core.invoke(cmd, args);
-  }
-  return null;
+  if (!core) throw new NietInBrowserError(cmd);
+  return await core.invoke(cmd, args);
 }
 
 // App-datamap (kaders, onderhoeken). Gaat via Rust zodat een testinstantie
@@ -497,21 +529,25 @@ export async function getOpenedFiles() {
 }
 
 // Session management
+//
+// In de browser bewaart de sessie NIETS (#456). Wat de app daar bewaarde waren
+// bestandsnamen, en een naam alleen opent niets: de bytes staan enkel in het
+// geheugen van dat tabblad. Tabbladen die nergens naar wijzen zijn erger dan
+// een lege start, en de bestandsnamen van de gebruiker horen niet ongevraagd
+// in de browseropslag achter te blijven. Zie js/core/sessie-herstel.js.
+const WEB_SESSIE_SLEUTEL = 'pdfStudioSession';
+
 export async function saveSession(data) {
   if (!isTauri()) {
-    try { localStorage.setItem('pdfStudioSession', JSON.stringify(data)); } catch { /* ignore */ }
+    // Ook een eerder bewaarde sessie opruimen.
+    try { localStorage.removeItem(WEB_SESSIE_SLEUTEL); } catch { /* ignore */ }
     return;
   }
   return await invoke('save_session', { data: JSON.stringify(data) });
 }
 
 export async function loadSession() {
-  if (!isTauri()) {
-    try {
-      const s = localStorage.getItem('pdfStudioSession');
-      return s ? JSON.parse(s) : null;
-    } catch { return null; }
-  }
+  if (!isTauri()) return null;
   const result = await invoke('load_session');
   if (result) {
     try {

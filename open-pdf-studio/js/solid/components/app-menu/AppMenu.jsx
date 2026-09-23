@@ -9,14 +9,22 @@ import { savePDF, savePDFAs } from '../../../pdf/saver.js';
 import { showPreferencesDialog } from '../../../core/preferences.js';
 import { showDocPropertiesDialog, showNewDocDialog, showPrintDialog } from '../../../ui/chrome/dialogs.js';
 import { hasUnsavedChanges, getUnsavedDocumentNames } from '../../../ui/chrome/tabs.js';
-import { closeWindow } from '../../../core/platform.js';
+import { closeWindow, isTauri } from '../../../core/platform.js';
+import { knopUitInBrowser, meldingTekst } from '../../../core/webfuncties.js';
+import i18next from '../../../i18n/config.js';
 import { persistAllReaderPositions } from '../../../pdf/reader-mode-view.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 
 function MenuItem(props) {
+  // Zelfde regel als bij de lintknoppen: wat de webversie niet kan staat uit
+  // en draagt de ene melding (#456). Zie js/core/webfuncties.js.
+  const geenWebvariant = () => knopUitInBrowser(props.id, isTauri());
   return (
     <button
       class={`app-menu-item${props.active ? ' active' : ''}`}
+      id={props.id}
+      title={geenWebvariant() ? meldingTekst(i18next.t.bind(i18next), props.label) : undefined}
+      disabled={geenWebvariant()}
       onClick={props.onClick}
     >
       <span class="app-menu-item-icon" innerHTML={props.icon} />
@@ -109,14 +117,14 @@ export default function AppMenu() {
             <MenuItem icon={ICONS.open} label={t('open')} shortcut="Ctrl+O" active={getActivePanel() === 'open'} onClick={() => setActivePanel('open')} />
             <MenuItem icon={ICONS.save} label={t('save')} shortcut="Ctrl+S" onClick={() => actionAndClose(savePDF)} />
             <MenuItem icon={ICONS.saveAs} label={t('saveAs')} shortcut="Ctrl+Shift+S" onClick={() => actionAndClose(savePDFAs)} />
-            <MenuItem icon={ICONS.print} label={t('print')} shortcut="Ctrl+P" onClick={() => actionAndClose(showPrintDialog)} />
+            <MenuItem id="menu-print" icon={ICONS.print} label={t('print')} shortcut="Ctrl+P" onClick={() => actionAndClose(showPrintDialog)} />
             <Divider />
             <MenuItem icon={ICONS.annotateScreenshot} label={t('annotateScreenshot')} onClick={() => actionAndClose(() => import('../../../tools/screenshot-annotate.js').then((m) => m.annotateClipboardScreenshot()))} />
             <Divider />
             <MenuItem icon={ICONS.import} label={t('import')} active={getActivePanel() === 'import'} onClick={() => setActivePanel('import')} />
             <MenuItem icon={ICONS.export} label={t('export')} active={getActivePanel() === 'export'} onClick={() => setActivePanel('export')} />
             <Divider />
-            <MenuItem icon={ICONS.extensions} label={t('extensions')} onClick={() => { closeAppMenu(); openDialog('extensions'); }} />
+            <MenuItem id="menu-extensions" icon={ICONS.extensions} label={t('extensions')} onClick={() => { closeAppMenu(); openDialog('extensions'); }} />
             <Divider />
             <MenuItem icon={ICONS.docProperties} label={t('docProperties')} shortcut="Ctrl+D" onClick={() => actionAndClose(showDocPropertiesDialog)} />
             <Divider />

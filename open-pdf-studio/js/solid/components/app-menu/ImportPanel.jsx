@@ -1,9 +1,14 @@
 import { closeAppMenu } from '../../stores/appMenuStore.js';
 import { openDialog } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { isTauri } from '../../../core/platform.js';
+import { knopUitInBrowser, meldingTekst } from '../../../core/webfuncties.js';
+import i18next from '../../../i18n/config.js';
 
 export default function ImportPanel() {
   const { t } = useTranslation('appMenu');
+  // CAD-invoer draait op de Rust-kant en bestaat in de webversie niet (#456).
+  const cadUit = () => knopUitInBrowser('import-cad', isTauri());
 
   const handleImportXFDF = async () => {
     closeAppMenu();
@@ -27,7 +32,9 @@ export default function ImportPanel() {
     <div class="bs-export-panel">
       <h2 class="bs-export-title">{t('importPanel.title')}</h2>
       <div class="bs-export-cards">
-        <div class="bs-export-card" onClick={handleImportCad}>
+        <div class={`bs-export-card${cadUit() ? ' geen-webvariant' : ''}`}
+          title={cadUit() ? meldingTekst(i18next.t.bind(i18next), t('importPanel.importCad')) : undefined}
+          onClick={() => { if (!cadUit()) handleImportCad(); }}>
           <div class="bs-export-card-icon">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>

@@ -336,6 +336,13 @@
   color: var(--theme-text, #333);
 }
 
+/* Uitleg onder een instelling die hier niet kan, bv. in de webversie. */
+.pref-row .pref-hint {
+  font-size: 11px;
+  opacity: 0.7;
+  color: var(--theme-text, #333);
+}
+
 .pref-row input[type="text"],
 .pref-row input[type="number"] {
   width: 100px;
@@ -1674,6 +1681,16 @@
 .bs-export-card.active {
   border-color: #3b82f6;
   background: var(--theme-app-menu-item-hover);
+}
+
+/* Geen webvariant: de kaart blijft leesbaar en houdt zijn tooltip, maar doet
+   niets meer (#456). */
+.bs-export-card.geen-webvariant,
+.bs-export-card.geen-webvariant:hover {
+  opacity: 0.45;
+  cursor: default;
+  background: none;
+  border-color: var(--theme-border, #d4d4d4);
 }
 
 .bs-export-card-icon {
