@@ -562,9 +562,23 @@ async function _renderPageImpl(pageNum) {
       state.renderEngine = 'Raster (PDF.js)';
       // De pagina staat er. Wat hierna komt (tekst-, link- en formulierlaag,
       // annotaties) kan in de webversie een minuut duren omdat PDF.js daar
-      // ook de miniaturen tekent; het laadscherm hoort daar niet op te
-      // wachten (#456).
-      paginaGetekend({ verbergLaadscherm: hideLoading });
+      // ook de miniaturen tekent. Het laadscherm en de maat van de
+      // overlay-canvassen horen daar niet op te wachten: tot dat moment
+      // stonden #annotation-canvas en #text-highlight-canvas op hun
+      // 300×150-standaard, en landde alles wat de gebruiker tekende of
+      // markeerde naast de pagina (#456). PDF.js tekent hier zelf, dus dit is
+      // altijd de paginatak van bepaalOverlayMaat().
+      paginaGetekend({
+        overlayCanvassen: [annotationCanvas, document.getElementById('text-highlight-canvas')],
+        overlayMaat: bepaalOverlayMaat({
+          viewportActief: false,
+          heeftBestandspad: false,
+          paginaCssW: viewport.width,
+          paginaCssH: viewport.height,
+          dpr: getCanvasDPR(),
+        }),
+        verbergLaadscherm: hideLoading,
+      });
     } catch (e) {
       console.warn('[render] PDF.js-render mislukt:', e);
     }
