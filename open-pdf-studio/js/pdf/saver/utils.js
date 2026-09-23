@@ -287,7 +287,11 @@ export function generateAppearanceStream(context, ann, convertY) {
           break;
         }
         streamContent = `${lw} w\n${r} ${g} ${b} RG\n`;
-        if (ann.fillColor) {
+        // hasFill() en niet de waarheid van fillColor: de tekenwaarden 'none'
+        // en 'transparent' zijn waar, en hexToRgb() maakt er ZWART van — een
+        // vorm zonder vulling kreeg zo een zwart blok in zijn uiterlijk (#433),
+        // terwijl het annotatie-woordenboek er terecht geen /IC bij zette.
+        if (hasFill(ann.fillColor)) {
           const [fr, fg, fb] = hexToRgb(ann.fillColor);
           streamContent += `${fr} ${fg} ${fb} rg\n0 0 ${w} ${h} re B\n`;
         } else {
@@ -341,12 +345,14 @@ export function generateAppearanceStream(context, ann, convertY) {
           break;
         }
         streamContent = `${lw} w\n${r} ${g} ${b} RG\n`;
-        if (ann.fillColor) {
+        // Zie de rechthoek hierboven: 'none'/'transparent' gaven zwart (#433).
+        const ellipsVulling = hasFill(ann.fillColor);
+        if (ellipsVulling) {
           const [fr, fg, fb] = hexToRgb(ann.fillColor);
           streamContent += `${fr} ${fg} ${fb} rg\n`;
         }
         streamContent += ellips;
-        streamContent += ann.fillColor ? 'B\n' : 'S\n';
+        streamContent += ellipsVulling ? 'B\n' : 'S\n';
         streamContent += kruis;
         break;
       }
