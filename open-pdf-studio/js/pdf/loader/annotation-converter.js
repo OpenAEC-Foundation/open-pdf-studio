@@ -10,6 +10,7 @@ import { nenIfcForStamp } from '../../solid/data/nenIfcMap.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
 import { knipselUitExtra } from './vector-snippet-load.js';
 import { hatchUitExtra } from '../saver/hatch-meta.js';
+import { vlakOmhullende } from '../../annotations/vlak-ringen.js';
 import { heeft as heeftKnipselBron } from '../../annotations/vector-snippet-store.js';
 import { syncTwoPointGeometry } from '../../symbols/two-point.js';
 import { systeemFromOps, sparingenFromJson } from '../../annotations/systeemraster.js';
@@ -977,6 +978,17 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
                 return out;
               });
             });
+          }
+          if (faProps.holes) {
+            // Het omhullende vak over ALLE ringen: een tweede deel kan naast
+            // de buitenring liggen en viel anders buiten het vak (#457).
+            const grens = vlakOmhullende(faProps.points, faProps.holes);
+            if (grens) {
+              faProps.x = grens.minX;
+              faProps.y = grens.minY;
+              faProps.width = grens.maxX - grens.minX;
+              faProps.height = grens.maxY - grens.minY;
+            }
           }
           Object.assign(faProps, randloosUitExtra(extraColors)); // zonder rand (#431)
           return createAnnotation(faProps);
