@@ -1,8 +1,18 @@
 # Voorstel: bouwkundige plattegronden tekenen
 
-*Status: voorstel — nog geen code. Geschreven na een praktijkproef: een
-begane grond van een woonhuis (10 x 8 m, 1:50) volledig getekend met wat de
-applicatie vandaag biedt.*
+*Geschreven na een praktijkproef: een begane grond van een woonhuis
+(10 x 8 m, 1:50) volledig getekend met wat de applicatie vandaag biedt.*
+
+**Stand van zaken.** De drie relaties hieronder zijn gebouwd als rekenlaag
+plus één opdracht voor de assistent (`app_floorplan`), aan te roepen via de
+vaardigheid "Plattegrond" in het assistentvenster. De rekenkunde staat in
+`open-pdf-studio/js/plattegrond/`: `sparing.js` knipt een wand op bij elke
+sparing, `ruimte.js` leidt de ruimten met hun netto-oppervlakte af uit de
+wanden eromheen, `maatvoering.js` houdt een maatlijn met een anker vast aan
+wat hij meet. Nog niet gedaan: de wandrenderer zelf laten onderbreken (de
+sparing ontstaat nu doordat de wand in stukken wordt getekend), de relaties
+bewaren in de annotatie zodat ze het opslaan overleven, en de
+tekenvolgorde-hulp in het palet.
 
 ---
 
