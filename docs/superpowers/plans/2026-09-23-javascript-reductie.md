@@ -29,7 +29,18 @@
 
 ## Gemeten uitgangspunten
 
-Gemeten op `origin/main`, commit `53cefd2d`, 23-09-2026, in een schone worktree. `node_modules` was **niet** geïnstalleerd, dus `npx vite build` kon niet draaien: **alle chunk-groottes in dit plan zijn schattingen op basis van statische analyse van de modulegraaf, geen gemeten bytes.** Regelaantallen, bestandsaantallen en paden zijn wél exact gemeten.
+Gemeten op `origin/main`, commit `53cefd2d`, 23-09-2026, in een schone worktree. Regelaantallen, bestandsaantallen en paden zijn exact gemeten.
+
+De bundel is ná het schrijven van dit plan alsnog gebouwd (`npx vite build` op diezelfde commit). Dit is de **gemeten nullijn**; waar verderop in het plan een kB-getal staat dat hiermee botst, wint deze tabel:
+
+| | Rauw | Gzip |
+|---|---:|---:|
+| Ingangschunk (`index-*.js`) | 3 576,6 kB | 1 137,9 kB |
+| `pdf.worker` (eigen chunk, laadt apart) | 1 931,7 kB | 382,5 kB |
+| `fontkit.es` | 699,9 kB | 322,0 kB |
+| Alle 346 JS-chunks samen | 9 751,9 kB | 3 168,8 kB |
+
+De overige chunks zijn alle kleiner dan 90 kB; de grootste groep daarvan zijn de dialogen (46 chunks van 20-61 kB). De doelen van fase 3 gelden tegen de ingangschunk van 3 576,6 kB rauw / 1 137,9 kB gzip.
 
 ### Omvang
 
@@ -4099,8 +4110,8 @@ Zet die test pas aan als de teller werkelijk op nul staat; eerder maakt hij de s
 
 ### Wat er niet gemeten kon worden
 
-- **Chunkgroottes in bytes.** `node_modules` was niet geïnstalleerd, dus `npx vite build` kon niet draaien. Alle kB-getallen in dit plan zijn afgeleid uit de statische modulegraaf en uit de regelaantallen per gebied. De eerste taak van wie fase 3 uitvoert is `npm ci` en dan `npx vite build`, om de werkelijke nullijn vast te leggen.
-- **`npm run test:unit` is niet gedraaid.** Dezelfde reden: de 113 testbestanden importeren app-modules die `solid-js` en `pdf-lib` nodig hebben.
+- **De verdeling van de ingangschunk over gebieden.** De totalen staan hierboven als gemeten nullijn, maar welke kB van de 3 576,6 uit welke map komt, is afgeleid uit de statische modulegraaf en de regelaantallen — geen gemeten bytes per gebied. Wie fase 3 uitvoert, haalt die verdeling uit `scripts/meet-js.mjs` (fase 1) en legt hem in de PR-tekst vast.
+- **`npm run test:unit` is bij het schrijven van dit plan niet gedraaid** (de testbestanden importeren app-modules die `solid-js` en `pdf-lib` nodig hebben). Elke fase heeft hem wél als poort.
 - **Aanroepen via een tekenreeks.** De dode-code-analyse is een identifier-scan. Een functie die alleen via `window[naam]()`, een MCP-opdrachtnaam of een i18n-sleutel wordt bereikt, telt als dood terwijl hij dat niet is. Daarom staat in fase 2 vóór elke verwijdering een verplichte grep over `js/`, `index.html`, `src-tauri/`, `mcp-server/`, `mcp-stdio/` en `scripts/`.
 - **Of twee "equivalente" helpers echt hetzelfde doen op elke invoer.** De vergelijking is met de hand gedaan op de code, niet met een generator over willekeurige invoer. Waar een verschil is gevonden, staat het in dit plan; waar er een is gemist, vangt de poort van de betreffende fase het op.
 
