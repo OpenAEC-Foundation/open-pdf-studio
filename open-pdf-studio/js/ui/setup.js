@@ -5,7 +5,8 @@ import { registerAllTools } from '../tools/tools/index.js';
 import { initKeyboardHandlers } from '../tools/keyboard-handlers.js';
 import { installeerMiddelmuisPan } from '../tools/middelmuis-pan.js';
 import { loadPDFIfNeeded } from '../pdf/loader.js';
-import { isTauri } from '../core/platform.js';
+import { cacheWebFile, isTauri } from '../core/platform.js';
+import { openGesleepteBestanden } from './setup/gesleept-bestand.js';
 import { createTab } from './chrome/tabs.js';
 import { addImageFromFile } from '../annotations/image-drop.js';
 
@@ -111,7 +112,9 @@ function clearDockHighlight() {
   if (tabs) tabs.classList.remove('drag-dock-target');
 }
 
-// HTML5 fallback: read files via FileReader
+// Terugval voor de browser: daar levert een drop een File-object zonder pad,
+// dus gaan de BYTES naar de webbestandscache en opent het tabblad op de
+// bestandsnaam — precies wat de bestandskiezer ook doet (#456).
 function setupHtmlDragDrop() {
   const dropZone = document.body;
   dropZone.addEventListener('drop', async (e) => {
@@ -120,17 +123,21 @@ function setupHtmlDragDrop() {
     const files = e.dataTransfer?.files;
     if (!files || files.length === 0) return;
 
-    for (const file of files) {
-      const ext = getFileExtension(file.name);
-      if (ext === '.pdf' && file.path) {
-        const { index } = createTab(file.path);
-        await loadPDFIfNeeded(file.path, index);
-      } else if (IMAGE_EXTENSIONS.includes(ext)) {
-        const blob = file;
+    await openGesleepteBestanden(files, {
+      openPdf: async (naam, bytes) => {
+        cacheWebFile(naam, bytes);
+        const { index } = createTab(naam);
+        await loadPDFIfNeeded(naam, index);
+      },
+      openAfbeelding: async (blob) => {
         const { pasteImageFromBlob } = await import('../annotations/clipboard.js');
         await pasteImageFromBlob(blob);
-      }
-    }
+      },
+      geenWebvariant: async () => {
+        const { meldAlleenBureaublad } = await import('../core/webfuncties.js');
+        await meldAlleenBureaublad('CAD');
+      },
+    });
   });
 }
 

@@ -10,6 +10,17 @@
 // here so that readBinaryFile() can retrieve them by name.
 const _webFileCache = new Map(); // filename -> Uint8Array
 
+/**
+ * Leg bytes onder een bestandsnaam klaar voor readBinaryFile(). Dit is de
+ * in-geheugenroute van de webversie: de bestandskiezer gebruikt hem, en sinds
+ * #456 ook slepen en neerzetten, zodat er één route te onderhouden is.
+ * @returns {string} de naam waaronder de bytes klaarstaan
+ */
+export function cacheWebFile(name, data) {
+  _webFileCache.set(name, data instanceof Uint8Array ? data : new Uint8Array(data));
+  return name;
+}
+
 // Extract a display-friendly file name from a path or content:// URI
 export function extractFileName(pathOrUri) {
   if (!pathOrUri) return 'Document';
