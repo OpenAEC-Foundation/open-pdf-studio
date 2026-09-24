@@ -965,6 +965,22 @@ async function _redrawActive() {
   else rendering.redrawAnnotations();
 }
 
+// ── Annotatielagen (#468) ─────────────────────────────────────────────────
+// De regels staan in annotations/annotatie-lagen-mcp.js; hier het document,
+// de weergavenaam van de standaardlaag en het bijwerken van paneel en canvas.
+async function _lagenMcp() {
+  const regels = await import('./annotations/annotatie-lagen-mcp.js');
+  const brug = await import('./bridge.js');
+  return { regels, brug, standaardNaam: brug.annotationDefaultLayerName() };
+}
+
+/** Samenvatting van een annotatie, met de naam van haar laag (niet de standaardlaag). */
+function _metLaag(regels, doc, ann, standaardNaam, s) {
+  const naam = regels.annotatieLaagNaam(doc, ann, standaardNaam);
+  if (naam) s.layer = naam;
+  return s;
+}
+
 function _isNum(v) {
   return typeof v === 'number' && Number.isFinite(v);
 }
@@ -1447,6 +1463,14 @@ async function handleCreateAnnotation(params) {
     merged.width = built.base.width;
     merged.height = built.base.height;
   }
+  // Laag (#468): `layer` naast props (of in props), op id of naam. Zonder
+  // laag landt de annotatie op de huidige laag, net als met het gereedschap.
+  const lagen = await _lagenMcp();
+  const laag = lagen.regels.laagArgument(doc, params?.layer !== undefined ? params.layer : props.layer, lagen.standaardNaam);
+  if (!laag.ok) return laag;
+  delete merged.layer;
+  if (laag.id !== undefined) merged.layer = laag.id === 'default' ? undefined : laag.id;
+
   const factory = await import('./annotations/factory.js');
   const meas = await import('./annotations/measurement.js');
   const ann = factory.createAnnotation(merged);
@@ -1470,7 +1494,8 @@ async function handleCreateAnnotation(params) {
     await _redrawActive();
   }
 
-  return { ok: true, id: ann.id, annotation: _summarizeAnnotation(ann) };
+  lagen.brug.refreshAnnotationLayers();
+  return { ok: true, id: ann.id, annotation: _metLaag(lagen.regels, doc, ann, lagen.standaardNaam, _summarizeAnnotation(ann)) };
 }
 
 async function handleListAnnotations(params) {
@@ -1485,7 +1510,16 @@ async function handleListAnnotations(params) {
     }
     anns = anns.filter(a => (a.page ?? 1) === page);
   }
-  return { ok: true, count: anns.length, annotations: anns.map(_summarizeAnnotation) };
+  // Alleen de annotaties van één laag (#468), op id of naam.
+  const lagen = await _lagenMcp();
+  const gefilterd = lagen.regels.filterOpLaag(doc, anns, params?.layer, lagen.standaardNaam);
+  if (!gefilterd.ok) return gefilterd;
+  anns = gefilterd.annotations;
+  return {
+    ok: true,
+    count: anns.length,
+    annotations: anns.map(a => _metLaag(lagen.regels, doc, a, lagen.standaardNaam, _summarizeAnnotation(a))),
+  };
 }
 
 async function handleGetAnnotation(params) {
@@ -1515,7 +1549,10 @@ async function handleUpdateAnnotation(params) {
     return { ok: false, error: 'missing or invalid params.id' };
   }
   const props = params?.props;
-  if (!props || typeof props !== 'object' || Array.isArray(props) || Object.keys(props).length === 0) {
+  // Een laag-wissel (#468) alleen mag ook: `layer` naast een lege props.
+  const laagRef = params?.layer !== undefined ? params.layer : props?.layer;
+  if (!props || typeof props !== 'object' || Array.isArray(props)
+      || (Object.keys(props).length === 0 && laagRef === undefined)) {
     return { ok: false, error: 'missing or empty params.props' };
   }
   const stateMod = await import('./core/state.js');
@@ -1523,12 +1560,16 @@ async function handleUpdateAnnotation(params) {
   if (!doc) return { ok: false, error: 'no active document' };
   const ann = (doc.annotations || []).find(a => a.id === id);
   if (!ann) return { ok: false, error: `annotation not found: ${id}` };
+  const lagen = await _lagenMcp();
+  const laag = lagen.regels.laagArgument(doc, laagRef, lagen.standaardNaam);
+  if (!laag.ok) return laag;
 
   const factory = await import('./annotations/factory.js');
   const oldState = factory.cloneAnnotation(ann);
 
-  // id and type are immutable — silently drop them from the patch.
-  const { id: _id, type: _type, ...ruwePatch } = props;
+  // id and type are immutable — silently drop them from the patch. De laag
+  // gaat via assignLayer: een naam wordt een id, de standaardlaag geen veld.
+  const { id: _id, type: _type, layer: _layer, ...ruwePatch } = props;
   // Technische wacht op maat en positie. Zonder deze controle kwam width 0,
   // een negatieve maat, NaN of tekst ongefilterd in het model en daarna (via
   // de JSON-kloon) als null in de undo-stapel. Een vorm mag willekeurig klein
@@ -1543,6 +1584,10 @@ async function handleUpdateAnnotation(params) {
     patch = gecontroleerd.patch;
   }
   Object.assign(ann, patch);
+  if (laag.id !== undefined) {
+    const { assignLayer } = await import('./annotations/annotatie-lagen.js');
+    assignLayer([ann], laag.id);
+  }
   ann.modifiedAt = new Date().toISOString();
 
   // Stempel-uiterlijk: kleur en lijndikte leven IN de SVG-bron (drawImage
@@ -1584,6 +1629,10 @@ async function handleUpdateAnnotation(params) {
     } catch { /* panel refresh is best-effort */ }
   }
 
+  if (laag.id !== undefined) {
+    // Op een uitgezette of vergrendelde laag is ze niet meer te selecteren.
+    await lagen.brug.annotationLayersChanged({ modified: false });
+  }
   return { ok: true, id: ann.id, annotation: _sanitizeAnnotation(ann) };
 }
 
@@ -2955,6 +3004,42 @@ async function handleListPrinters(params) {
 }
 
 
+/** app_list_layers — de annotatielagen van het actieve document. */
+async function handleListLayers(params) {
+  if (params && typeof params === 'object' && Object.keys(params).length) {
+    return { ok: false, error: `unknown argument: ${Object.keys(params)[0]}` };
+  }
+  const stateMod = await import('./core/state.js');
+  const doc = stateMod.getActiveDocument();
+  if (!doc) return { ok: false, error: 'no active document' };
+  const lagen = await _lagenMcp();
+  const lijst = lagen.regels.lagenOverzicht(doc, lagen.standaardNaam);
+  return { ok: true, count: lijst.length, currentLayer: lijst.find(l => l.current)?.name ?? null, layers: lijst };
+}
+
+/** app_create_layer — een nieuwe annotatielaag. */
+async function handleCreateLayer(params) {
+  const stateMod = await import('./core/state.js');
+  const doc = stateMod.getActiveDocument();
+  const lagen = await _lagenMcp();
+  const r = lagen.regels.maakLaag(doc, params ?? {}, lagen.standaardNaam);
+  if (!r.ok) return r;
+  await lagen.brug.annotationLayersChanged();
+  return r;
+}
+
+/** app_set_layer — een laag aan/uit, (ont)grendelen, hernoemen, huidig maken. */
+async function handleSetLayer(params) {
+  const stateMod = await import('./core/state.js');
+  const doc = stateMod.getActiveDocument();
+  const lagen = await _lagenMcp();
+  const r = lagen.regels.zetLaag(doc, params ?? {}, lagen.standaardNaam);
+  if (!r.ok) return r;
+  // Alleen de huidige laag kiezen verandert de tekening niet.
+  await lagen.brug.annotationLayersChanged({ modified: r.changed.some(k => k !== 'current') });
+  return r;
+}
+
 const HANDLERS = {
   'mcp:open-pdf':           handleOpenPdf,
   'mcp:set-zoom':           handleSetZoom,
@@ -3024,6 +3109,10 @@ const HANDLERS = {
   'mcp:print-to-pdf':       handlePrintToPdf,
   'mcp:print':              handlePrint,
   'mcp:list-printers':      handleListPrinters,
+  // Annotatielagen (#468)
+  'mcp:list-layers':        handleListLayers,
+  'mcp:create-layer':       handleCreateLayer,
+  'mcp:set-layer':          handleSetLayer,
   // Assistant — test the AI end-to-end
   'mcp:ai-complete':        handleAiComplete,
   // Accounts introspection — deactivated (cloud accounts feature removed)

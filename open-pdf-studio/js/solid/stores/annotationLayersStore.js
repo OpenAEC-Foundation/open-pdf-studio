@@ -77,6 +77,15 @@ async function naWijziging(doc, { gewijzigd = true } = {}) {
   redraw();
 }
 
+/**
+ * Voor vanilla JS (de MCP-brug): na een wijziging aan de lagen van het actieve
+ * document het paneel, het canvas en de selectie bijwerken. `modified: false`
+ * voor een wijziging die de tekening zelf niet raakt (de huidige laag).
+ */
+export function annotationLayersChanged({ modified = true } = {}) {
+  return naWijziging(getActiveDocument(), { gewijzigd: modified });
+}
+
 /** Nieuwe laag achteraan, met de eerste vrije naam. Geeft het id terug. */
 export function addAnnotationLayer() {
   const doc = getActiveDocument();
