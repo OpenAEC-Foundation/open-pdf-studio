@@ -337,5 +337,9 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // CAD export/import (#400) — last used settings (null = dialog defaults)
   cadExportSettings: null,
   cadImportSettings: null,
-  cadImportPresets: null
+  cadImportPresets: null,
+
+  // PDF/X export (#422) — last chosen output profile and rendering intent
+  // (null = sRGB without conversion, relative colorimetric)
+  pdfxSettings: null
 };

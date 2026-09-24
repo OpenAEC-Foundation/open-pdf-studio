@@ -3307,6 +3307,8 @@
 }
 .message-dialog-body p {
   margin: 0;
+  /* Meerregelige meldingen (zoals het CMYK-verslag, #422) houden hun regels. */
+  white-space: pre-line;
 }
 .message-dialog-footer {
   display: flex;

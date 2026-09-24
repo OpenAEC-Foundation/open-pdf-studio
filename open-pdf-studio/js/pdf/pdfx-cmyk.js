@@ -7,6 +7,8 @@
 // Geen imports uit de app: `invoke` en `t` komen van de aanroeper, zodat de
 // unit-tests onder node draaien.
 
+import { buildPdfxBytes } from './pdfx-enrich.js';
+
 /** Soorten in het verslag, in de volgorde waarin ze gemeld worden. */
 export const REPORT_KINDS = Object.freeze([
   'colourOperators',
@@ -97,6 +99,30 @@ export async function convertToCmyk(invoke, pdfBytes, { profilePath, intent = 'r
     },
   });
   return unpackCmykResponse(response);
+}
+
+/**
+ * Van bronbytes naar PDF/X. Zonder `profilePath` (sRGB, geen omzetting)
+ * komt er niets bij Rust: exact de export van vóór #422. Met een drukprofiel
+ * eerst omzetten, dan dat profiel als output-intent.
+ * @param {Uint8Array} bytes
+ * @param {{conformance: string, title: string, profilePath: string|null, intent?: string}} keuze
+ * @param {{invoke: Function, onPhase?: (phase: 'converting'|'writing') => void}} deps
+ * @returns {Promise<{pdfBytes: Uint8Array, conversion: null | {report: object, profileName: string}}>}
+ */
+export async function buildPdfx(bytes, { conformance, title, profilePath, intent }, { invoke, onPhase = () => {} }) {
+  if (!profilePath) {
+    return { pdfBytes: await buildPdfxBytes(bytes, { conformance, title }), conversion: null };
+  }
+  onPhase('converting');
+  const converted = await convertToCmyk(invoke, bytes, { profilePath, intent });
+  onPhase('writing');
+  const pdfBytes = await buildPdfxBytes(converted.pdf, {
+    conformance,
+    title,
+    outputProfile: { bytes: converted.profile, name: converted.profileName },
+  });
+  return { pdfBytes, conversion: { report: converted.report, profileName: converted.profileName } };
 }
 
 /** CMYK-drukprofielen in de systeemmappen: `[{ path, name }]`. */

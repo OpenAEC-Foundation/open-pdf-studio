@@ -150,3 +150,48 @@ test('alle nieuwe teksten staan in het Engels en het Nederlands, met dezelfde pl
   for (const kind of REPORT_KINDS) assert.ok(en.kinds[kind], `kind ${kind}`);
   for (const reason of SKIP_REASONS) assert.ok(en.skipReasons[reason], `reden ${reason}`);
 });
+
+test('buildPdfx: met sRGB gaat er niets naar Rust en is de uitvoer die van vóór #422', async () => {
+  const { buildPdfx } = await import('./pdfx-cmyk.js');
+  const { buildPdfxBytes } = await import('./pdfx-enrich.js');
+  const { PDFDocument } = await import('pdf-lib');
+  const doc = await PDFDocument.create();
+  doc.addPage([100, 100]);
+  const input = await doc.save();
+  const calls = [];
+  const invoke = async (...a) => { calls.push(a); throw new Error('mag niet'); };
+  const out = await buildPdfx(input, { conformance: 'X-3', title: 'T', profilePath: null }, { invoke });
+  assert.equal(calls.length, 0);
+  assert.equal(out.conversion, null);
+  const expected = await buildPdfxBytes(input, { conformance: 'X-3', title: 'T' });
+  assert.equal(out.pdfBytes.length, expected.length);
+});
+
+test('buildPdfx: met een drukprofiel eerst omzetten, dan dat profiel in de output-intent', async () => {
+  const { buildPdfx } = await import('./pdfx-cmyk.js');
+  const { PDFDocument, PDFName } = await import('pdf-lib');
+  const doc = await PDFDocument.create();
+  doc.addPage([100, 100]);
+  const input = await doc.save();
+  const report = emptyReport();
+  report.colourOperators.converted = 2;
+  const phases = [];
+  const invoke = async (cmd, body, options) => {
+    assert.equal(cmd, 'pdfx_convert_to_cmyk');
+    assert.equal(body, input);
+    assert.equal(options.headers['x-rendering-intent'], 'perceptual');
+    return pack({ report, profileName: 'Proefdruk' }, new Uint8Array([7, 7, 7, 7]), input);
+  };
+  const out = await buildPdfx(
+    input,
+    { conformance: 'X-4', title: 'T', profilePath: 'p.icc', intent: 'perceptual' },
+    { invoke, onPhase: (p) => phases.push(p) },
+  );
+  assert.deepEqual(phases, ['converting', 'writing']);
+  assert.equal(out.conversion.profileName, 'Proefdruk');
+  assert.equal(out.conversion.report.colourOperators.converted, 2);
+  const back = await PDFDocument.load(out.pdfBytes);
+  const intent = back.catalog.lookup(PDFName.of('OutputIntents')).lookup(0);
+  assert.equal(intent.lookup(PDFName.of('DestOutputProfile')).dict.get(PDFName.of('N')).asNumber(), 4);
+  assert.equal(intent.get(PDFName.of('OutputConditionIdentifier')).decodeText(), 'Proefdruk');
+});
