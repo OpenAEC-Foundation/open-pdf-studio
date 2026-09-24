@@ -17,7 +17,7 @@ import {
   pasGelezenLagenToe,
 } from './annotatie-lagen.js';
 import { extractAnnotationColors } from '../loader/color-extraction.js';
-import { DEFAULT_LAYER_ID, addLayer, ensureLayers, updateLayer, setCurrentLayer, getLayers } from '../../annotations/annotatie-lagen.js';
+import { DEFAULT_LAYER_ID, addLayer, ensureLayers, updateLayer, setCurrentLayer, getLayers, deleteLayer, renameLayer } from '../../annotations/annotatie-lagen.js';
 
 const LAAD = { updateMetadata: false };
 
@@ -220,8 +220,8 @@ test('opnieuw opslaan hergebruikt de OCG per laag en ruimt verwijderde lagen op'
   const oudeRef = [...leesAnnotatieLagen(eerste).refs.entries()].find(([id]) => id === constructie.id)[1];
 
   // Ronde 2 weg, Constructie hernoemd en uitgezet.
-  doc.annotationLayers = getLayers(doc).filter((l) => l.id !== ronde2.id);
-  doc.annotationLayers.find((l) => l.id === constructie.id).name = 'Draagconstructie';
+  deleteLayer(doc, ronde2.id);
+  renameLayer(doc, constructie.id, 'Draagconstructie');
   updateLayer(doc, constructie.id, { visible: false });
   const refs = schrijfAnnotatieLagen(eerste, getLayers(doc), { standaardNaam: 'Standaard' });
   assert.equal(refs.get(constructie.id), oudeRef, 'dezelfde OCG, geen nieuwe');
@@ -275,26 +275,38 @@ test('de ids die pdf.js aan de eigen OCGs geeft, om ze uit de tekeninglagen te h
   assert.deepEqual([...gelezen.ocgIds].sort(), verwacht.sort());
 });
 
-test('gelezen lagen komen op het document, één keer, en niet over eigen werk heen', () => {
-  const gelezen = { lagen: [{ id: DEFAULT_LAYER_ID, name: '' }, { id: 'a', name: 'A', visible: false }], huidigeLaag: 'a', ocgIds: new Set(['5R']) };
-  const doc = { annotations: [] };
-  assert.equal(pasGelezenLagenToe(doc, gelezen), true);
-  assert.deepEqual(getLayers(doc).map((l) => l.id), [DEFAULT_LAYER_ID, 'a']);
-  assert.equal(doc.currentLayerId, 'a');
-  assert.deepEqual([...doc._annotatieLaagOcgIds], ['5R']);
-  // Een tweede lezing (na een herlaad van de bytes) laat het model met rust.
-  doc.annotationLayers[1].name = 'Hernoemd';
-  assert.equal(pasGelezenLagenToe(doc, { ...gelezen, lagen: [{ id: 'b', name: 'B' }] }), false);
-  assert.equal(getLayers(doc)[1].name, 'Hernoemd');
-  // Wie al lagen maakte voordat het bestand gelezen was, houdt ze.
-  const vlug = { annotations: [] };
-  addLayer(vlug, { name: 'Eigen' });
-  assert.equal(pasGelezenLagenToe(vlug, gelezen), false);
-  assert.deepEqual(getLayers(vlug).map((l) => l.name), ['', 'Eigen']);
-  // Niets gelezen: alleen gemarkeerd.
-  const leeg = { annotations: [] };
-  assert.equal(pasGelezenLagenToe(leeg, null), false);
-  assert.equal(leeg._annotatieLagenGelezen, true);
+// Ook tegen documenten die, zoals in de app, bij toewijzen een kopie bewaren:
+// anders gaan de lagen uit een bestand bij het openen verloren.
+import { DOCUMENTSOORTEN, documentDatNietsBewaart } from '../../annotations/documentsoorten.testhulp.mjs';
+
+for (const [soort, maakDoc] of DOCUMENTSOORTEN) {
+  test(`${soort}: gelezen lagen komen op het document, één keer, en niet over eigen werk heen`, () => {
+    const gelezen = { lagen: [{ id: DEFAULT_LAYER_ID, name: '' }, { id: 'a', name: 'A', visible: false, locked: true, color: '#00ff00' }], huidigeLaag: 'a', ocgIds: new Set(['5R']) };
+    const doc = maakDoc();
+    assert.equal(pasGelezenLagenToe(doc, gelezen), true);
+    assert.deepEqual(getLayers(doc).map((l) => [l.id, l.name, l.visible, l.locked, l.color]),
+      [[DEFAULT_LAYER_ID, '', true, false, null], ['a', 'A', false, true, '#00ff00']]);
+    assert.equal(doc.currentLayerId, 'a');
+    assert.deepEqual([...doc._annotatieLaagOcgIds], ['5R']);
+    // Een tweede lezing (na een herlaad van de bytes) laat het model met rust.
+    assert.equal(renameLayer(doc, 'a', 'Hernoemd').ok, true);
+    assert.equal(pasGelezenLagenToe(doc, { ...gelezen, lagen: [{ id: 'b', name: 'B' }] }), false);
+    assert.equal(getLayers(doc)[1].name, 'Hernoemd');
+    // Wie al lagen maakte voordat het bestand gelezen was, houdt ze.
+    const vlug = maakDoc();
+    addLayer(vlug, { name: 'Eigen' });
+    assert.equal(pasGelezenLagenToe(vlug, gelezen), false);
+    assert.deepEqual(getLayers(vlug).map((l) => l.name), ['', 'Eigen']);
+    // Niets gelezen: alleen gemarkeerd.
+    const leeg = maakDoc();
+    assert.equal(pasGelezenLagenToe(leeg, null), false);
+    assert.equal(leeg._annotatieLagenGelezen, true);
+  });
+}
+
+test('gelezen lagen die het document niet bewaart, tellen niet als toegepast', () => {
+  const gelezen = { lagen: [{ id: DEFAULT_LAYER_ID, name: '' }, { id: 'a', name: 'A' }], huidigeLaag: 'a', ocgIds: new Set() };
+  assert.equal(pasGelezenLagenToe(documentDatNietsBewaart(), gelezen), false);
 });
 
 // --- de aansluiting in saver, lader en het paneel met tekeninglagen ------------

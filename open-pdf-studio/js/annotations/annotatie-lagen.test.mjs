@@ -3,7 +3,7 @@
 // standaardlaag — zodat bestaande documenten ongewijzigd werken.
 
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import basisTest from 'node:test';
 
 import {
   DEFAULT_LAYER_ID,
@@ -32,9 +32,14 @@ import {
   isLayerPrintable,
   layerDisplayName,
   layerRows,
+  annotationsInDocument,
 } from './annotatie-lagen.js';
 
-const leegDoc = () => ({ annotations: [] });
+// Elke test draait tegen een kaal object én tegen documenten die, zoals in de
+// app, bij toewijzen (en lezen) een kopie bewaren. Zie documentsoorten.testhulp.mjs.
+import { perDocumentsoort, documentDatNietsBewaart } from './documentsoorten.testhulp.mjs';
+const { test, maakDoc } = perDocumentsoort(basisTest);
+const leegDoc = () => maakDoc();
 
 // --- de standaardlaag ------------------------------------------------------
 
@@ -52,19 +57,18 @@ test('getLayers laat het document ongemoeid; ensureLayers schrijft de lijst', ()
   getLayers(doc);
   assert.equal(doc.annotationLayers, undefined);
   const lagen = ensureLayers(doc);
-  assert.equal(doc.annotationLayers, lagen);
+  assert.deepEqual(doc.annotationLayers, lagen, 'wat ensureLayers geeft, staat in het document');
   assert.equal(lagen[0].id, DEFAULT_LAYER_ID);
 });
 
 test('rommel in de lijst wordt opgeschoond, dubbele ids verdwijnen', () => {
-  const doc = {
-    annotations: [],
+  const doc = maakDoc({
     annotationLayers: [
       null, 'x', { id: '' }, { id: 'a', name: 'A' }, { id: 'a', name: 'nog eens A' },
       { id: 'b', name: '  B  ', visible: 0, locked: 1, printable: false, color: '#FF0000' },
       { id: 'c', name: 'C', color: 'rood' },
     ],
-  };
+  });
   const lagen = getLayers(doc);
   assert.deepEqual(lagen.map((l) => l.id), [DEFAULT_LAYER_ID, 'a', 'b', 'c']);
   const b = lagen.find((l) => l.id === 'b');
@@ -77,7 +81,7 @@ test('rommel in de lijst wordt opgeschoond, dubbele ids verdwijnen', () => {
 });
 
 test('de standaardlaag houdt haar plek als ze al in de lijst staat', () => {
-  const doc = { annotations: [], annotationLayers: [{ id: 'a', name: 'A' }, { id: DEFAULT_LAYER_ID, name: 'x' }] };
+  const doc = maakDoc({ annotationLayers: [{ id: 'a', name: 'A' }, { id: DEFAULT_LAYER_ID, name: 'x' }] });
   const lagen = getLayers(doc);
   assert.deepEqual(lagen.map((l) => l.id), ['a', DEFAULT_LAYER_ID]);
   assert.equal(lagen[1].name, '', 'de standaardlaag heeft geen eigen naam');
@@ -91,7 +95,7 @@ test('zonder layer hoort een annotatie bij de standaardlaag', () => {
 });
 
 test('een onbekende laag valt terug op de standaardlaag', () => {
-  const doc = { annotations: [], annotationLayers: [{ id: 'a', name: 'A', visible: false }] };
+  const doc = maakDoc({ annotationLayers: [{ id: 'a', name: 'A', visible: false }] });
   assert.equal(layerOf(doc, { layer: 'a' }).id, 'a');
   assert.equal(layerOf(doc, { layer: 'weg' }).id, DEFAULT_LAYER_ID);
   assert.equal(layerOf(doc, {}).id, DEFAULT_LAYER_ID);
@@ -326,4 +330,60 @@ test('de regels van het paneel: naam, aantal, schakelaars en de huidige laag', (
   assert.equal(regels[1].color, '#ff0000');
   assert.equal(regels[1].id, a.id);
   assert.deepEqual(layerRows(null, 'Standaard').map((r) => r.name), ['Standaard']);
+});
+
+// --- elke wijziging staat in het document, niet in een losse kopie ------------
+// De fout uit de app (#468): een mutator wees de lijst toe en schreef daarna in
+// zijn eigen kopie verder. Hier telt alleen wat je uit het document terugleest.
+
+test('toevoegen, hernoemen, schakelen, verplaatsen en verwijderen staan in het document', () => {
+  const doc = leegDoc();
+  const a = addLayer(doc, { name: 'Constructie' });
+  assert.equal(a.ok, true);
+  assert.deepEqual(getLayers(doc).map((l) => l.name), ['', 'Constructie'], 'toegevoegd');
+  assert.deepEqual(a.layer, findLayer(doc, a.layer.id), 'de teruggegeven laag is die uit het document');
+  addLayer(doc, { name: 'Ronde 2' });
+  renameLayer(doc, a.layer.id, 'Draagconstructie');
+  assert.equal(findLayer(doc, a.layer.id).name, 'Draagconstructie', 'hernoemd');
+  updateLayer(doc, a.layer.id, { locked: true, visible: false, printable: false, color: '#00ff00' });
+  assert.deepEqual(
+    (({ locked, visible, printable, color }) => ({ locked, visible, printable, color }))(findLayer(doc, a.layer.id)),
+    { locked: true, visible: false, printable: false, color: '#00ff00' }, 'geschakeld');
+  updateLayer(doc, DEFAULT_LAYER_ID, { locked: true });
+  assert.equal(findLayer(doc, DEFAULT_LAYER_ID).locked, true, 'ook de standaardlaag');
+  moveLayer(doc, a.layer.id, 0);
+  assert.equal(getLayers(doc)[0].id, a.layer.id, 'verplaatst');
+  setCurrentLayer(doc, a.layer.id);
+  assert.equal(currentLayerId(doc), a.layer.id);
+  deleteLayer(doc, a.layer.id);
+  assert.deepEqual(getLayers(doc).map((l) => l.name), ['', 'Ronde 2'], 'verwijderd');
+  assert.equal(currentLayerId(doc), DEFAULT_LAYER_ID);
+});
+
+test('wat ensureLayers teruggeeft is niet om in te schrijven', () => {
+  const doc = leegDoc();
+  const lagen = ensureLayers(doc);
+  assert.throws(() => lagen.push({ id: 'x', name: 'X' }), TypeError);
+  assert.throws(() => { lagen[0].locked = true; }, TypeError);
+  assert.equal(getLayers(doc).length, 1);
+});
+
+basisTest('een document dat niets bewaart: geen stil succes', () => {
+  const doc = documentDatNietsBewaart();
+  assert.deepEqual(addLayer(doc, { name: 'A' }), { ok: false, error: 'not-stored' });
+  assert.deepEqual(updateLayer(doc, DEFAULT_LAYER_ID, { locked: true }), { ok: false, error: 'not-stored' });
+});
+
+test('markeringen verplaatsen gebeurt op de annotaties van het document zelf', () => {
+  const doc = leegDoc();
+  const a = addLayer(doc, { name: 'A' }).layer;
+  const echt = { id: 'x1', type: 'box' };
+  doc.annotations.push(echt);
+  // Een kopie (zoals een selectie of een menu die kan vasthouden) wijst naar
+  // de annotatie van het document.
+  const [gevonden] = annotationsInDocument(doc, [{ id: 'x1', type: 'box' }]);
+  assert.equal(gevonden, echt);
+  assert.equal(assignLayer(annotationsInDocument(doc, [{ ...echt }]), a.id), 1);
+  assert.equal(doc.annotations[0].layer, a.id);
+  assert.deepEqual(annotationsInDocument(doc, [{ id: 'weg' }, null]), []);
 });

@@ -32,7 +32,7 @@
 import { PDFName, PDFArray, PDFDict, PDFRef, PDFBool } from 'pdf-lib';
 import { pdfTextString, decodePdfTextObject } from './pdf-text.js';
 import {
-  DEFAULT_LAYER_ID, layerIdOf, getLayers, ensureLayers, findLayer, layersInUse,
+  DEFAULT_LAYER_ID, layerIdOf, getLayers, layersInUse,
 } from '../../annotations/annotatie-lagen.js';
 
 export const LAGEN_CATALOGUS_SLEUTEL = 'OPS_AnnotLayers';
@@ -352,9 +352,14 @@ export function pasGelezenLagenToe(doc, gelezen) {
   doc._annotatieLagenGelezen = true;
   if (!gelezen || !Array.isArray(gelezen.lagen) || gelezen.lagen.length === 0) return false;
   if (layersInUse(doc)) return false;
-  doc.annotationLayers = gelezen.lagen.map((l) => ({ ...l }));
-  ensureLayers(doc);
-  doc.currentLayerId = gelezen.huidigeLaag && findLayer(doc, gelezen.huidigeLaag) ? gelezen.huidigeLaag : null;
+  // Eerst lokaal opschonen, dan één keer toewijzen en teruglezen: het document
+  // in de app bewaart bij toewijzen een kopie (zie de schrijfregel in
+  // annotations/annotatie-lagen.js).
+  const lagen = getLayers({ annotationLayers: gelezen.lagen });
+  doc.annotationLayers = lagen;
+  doc.currentLayerId = gelezen.huidigeLaag && lagen.some((l) => l.id === gelezen.huidigeLaag)
+    ? gelezen.huidigeLaag : null;
   doc._annotatieLaagOcgIds = new Set(gelezen.ocgIds || []);
-  return getLayers(doc).length > 0;
+  const terug = getLayers(doc);
+  return terug.length === lagen.length && lagen.every((l, i) => terug[i].id === l.id);
 }

@@ -4,14 +4,17 @@
 // selecteerbaar of verplaatsbaar.
 
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import basisTest from 'node:test';
+// Ook tegen documenten die, zoals in de app, bij toewijzen een kopie bewaren.
+import { perDocumentsoort } from './documentsoorten.testhulp.mjs';
+const { test, maakDoc } = perDocumentsoort(basisTest);
 import { readFileSync } from 'node:fs';
 
 import { hiddenInView, pickableInView, hiddenInOutput } from './view-filter-rules.js';
 import { addLayer, updateLayer, DEFAULT_LAYER_ID } from './annotatie-lagen.js';
 
 function docMetLagen() {
-  const doc = { annotations: [] };
+  const doc = maakDoc();
   const uit = addLayer(doc, { name: 'Uit', visible: false }).layer;
   const slot = addLayer(doc, { name: 'Slot', locked: true }).layer;
   const gewoon = addLayer(doc, { name: 'Gewoon' }).layer;
@@ -52,7 +55,7 @@ test('weer aangezet komt de annotatie ongewijzigd terug', () => {
 });
 
 test('de standaardlaag uit of op slot geldt voor annotaties zonder laag', () => {
-  const doc = { annotations: [] };
+  const doc = maakDoc();
   updateLayer(doc, DEFAULT_LAYER_ID, { visible: false });
   assert.equal(hiddenInView({ type: 'box' }, bron(doc)), true);
   updateLayer(doc, DEFAULT_LAYER_ID, { visible: true, locked: true });
@@ -61,7 +64,7 @@ test('de standaardlaag uit of op slot geldt voor annotaties zonder laag', () => 
 });
 
 test('een document zonder lagen gedraagt zich zoals voorheen', () => {
-  const doc = { annotations: [] };
+  const doc = maakDoc();
   assert.equal(hiddenInView({ type: 'box' }, bron(doc)), false);
   assert.equal(pickableInView({ type: 'box' }, bron(doc)), true);
   assert.equal(hiddenInView({ type: 'box', layer: 'onbekend' }, bron(doc)), false);
@@ -72,7 +75,7 @@ test('een document zonder lagen gedraagt zich zoals voorheen', () => {
 });
 
 test('de bestaande filters blijven werken: hidden-vlag, soort, status', () => {
-  const doc = { annotations: [] };
+  const doc = maakDoc();
   assert.equal(hiddenInView({ type: 'box', hidden: true }, bron(doc)), true);
   assert.equal(hiddenInView({ type: 'box' }, bron(doc, { hiddenTypes: new Set(['box']) })), true);
   assert.equal(hiddenInView({ type: 'box', status: 'rejected' },
@@ -82,7 +85,7 @@ test('de bestaande filters blijven werken: hidden-vlag, soort, status', () => {
 
 // De raakdetectie moet hetzelfde predicaat gebruiken: geen eigen, afwijkende
 // regel per plek. Dit zijn de drie plekken die annotaties uitkiezen.
-test('klikken, het selectiekader en "alles selecteren" vragen of een annotatie aanklikbaar is', () => {
+basisTest('klikken, het selectiekader en "alles selecteren" vragen of een annotatie aanklikbaar is', () => {
   const lees = (pad) => readFileSync(new URL(pad, import.meta.url), 'utf8');
   for (const pad of ['./geometry.js', '../tools/tools/select-tool.js', '../core/stores/selection-helpers.ts']) {
     const bronTekst = lees(pad);
@@ -94,7 +97,7 @@ test('klikken, het selectiekader en "alles selecteren" vragen of een annotatie a
 // --- afdrukken en exporteren ------------------------------------------------
 
 test('een uitgezette of niet-afdrukbare laag komt niet in de afdruk of export', () => {
-  const doc = { annotations: [] };
+  const doc = maakDoc();
   const uit = addLayer(doc, { name: 'Uit', visible: false }).layer;
   const scherm = addLayer(doc, { name: 'Alleen scherm', printable: false }).layer;
   const papier = addLayer(doc, { name: 'Papier' }).layer;
@@ -106,10 +109,10 @@ test('een uitgezette of niet-afdrukbare laag komt niet in de afdruk of export', 
   const slot = addLayer(doc, { name: 'Slot', locked: true }).layer;
   assert.equal(hiddenInOutput({ type: 'box', layer: slot.id }, bron(doc)), false);
   // Zonder lagen: alles zoals voorheen.
-  assert.equal(hiddenInOutput({ type: 'box' }, bron({ annotations: [] })), false);
+  assert.equal(hiddenInOutput({ type: 'box' }, bron(maakDoc())), false);
 });
 
-test('de uitvoer (afdruk, export, printvoorbeeld) vraagt het uitvoerpredicaat, het scherm niet', () => {
+basisTest('de uitvoer (afdruk, export, printvoorbeeld) vraagt het uitvoerpredicaat, het scherm niet', () => {
   const rendering = readFileSync(new URL('./rendering.js', import.meta.url), 'utf8');
   const teken = rendering.slice(rendering.indexOf('export function drawAnnotation('));
   const kop = teken.slice(0, teken.indexOf('const _evHalftone'));

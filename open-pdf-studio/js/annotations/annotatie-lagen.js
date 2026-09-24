@@ -9,6 +9,14 @@
 //
 // Deze module is puur: geen DOM, geen stores, geen state. Ze werkt op een
 // document-achtig object `{ annotations, annotationLayers, currentLayerId }`.
+//
+// SCHRIJFREGEL. Het document in de app bewaart bij het toewijzen van
+// `annotationLayers` een kopie. Elke wijziging gaat daarom zo: de lijst lezen
+// (getLayers geeft altijd verse objecten), de eigen kopie aanpassen, één keer
+// toewijzen (schrijfLagen) en wat je teruggeeft opnieuw uit het document
+// lezen. Nooit na het toewijzen nog in de eigen lijst of haar lagen schrijven:
+// dat gaat in de app verloren, terwijl het in een test met een kaal object
+// gewoon lijkt te werken.
 // Het tekenen en de raakdetectie (view-filters.js), het paneel, de saver en
 // de MCP-opdrachten gebruiken allemaal deze regels.
 
@@ -68,11 +76,20 @@ export function getLayers(doc) {
   return uit;
 }
 
-/** Schrijft de opgeschoonde lijst op het document en geeft haar terug. */
+// Het enige punt waar de lijst het document in gaat: één toewijzing, daarna
+// wordt er niets meer in `lagen` geschreven.
+function schrijfLagen(doc, lagen) {
+  doc.annotationLayers = lagen;
+}
+
+/**
+ * Schrijft de opgeschoonde lijst op het document. Wat terugkomt is een
+ * bevroren momentopname uit het document: alleen om te lezen. Schrijven gaat
+ * via de functies hieronder (zie de schrijfregel bovenaan).
+ */
 export function ensureLayers(doc) {
-  const lagen = getLayers(doc);
-  if (doc) doc.annotationLayers = lagen;
-  return lagen;
+  if (doc) schrijfLagen(doc, getLayers(doc));
+  return Object.freeze(getLayers(doc).map((l) => Object.freeze(l)));
 }
 
 export function findLayer(doc, id) {
@@ -142,20 +159,24 @@ function nieuwId(lagen) {
  * @returns {{ok:true, layer:object} | {ok:false, error:'name-empty'|'name-taken'|'id-taken'}}
  */
 export function addLayer(doc, props = {}) {
-  const lagen = ensureLayers(doc);
+  if (!doc) return { ok: false, error: 'no-document' };
+  const lagen = getLayers(doc);
   const naam = schoneNaam(props.name);
   if (!naam) return { ok: false, error: 'name-empty' };
   if (naamBezet(lagen, naam, null)) return { ok: false, error: 'name-taken' };
   let id = typeof props.id === 'string' ? props.id.trim() : '';
   if (id && lagen.some((l) => l.id === id)) return { ok: false, error: 'id-taken' };
   if (!id) id = nieuwId(lagen);
-  const laag = normaliseer({ ...props, id, name: naam });
-  lagen.push(laag);
-  return { ok: true, layer: laag };
+  lagen.push(normaliseer({ ...props, id, name: naam }));
+  schrijfLagen(doc, lagen);
+  // Teruglezen: alleen wat echt in het document staat, telt als gelukt.
+  const opgeslagen = findLayer(doc, id);
+  return opgeslagen ? { ok: true, layer: opgeslagen } : { ok: false, error: 'not-stored' };
 }
 
 export function renameLayer(doc, id, naam) {
-  const lagen = ensureLayers(doc);
+  if (!doc) return { ok: false, error: 'no-document' };
+  const lagen = getLayers(doc);
   const laag = lagen.find((l) => l.id === id);
   if (!laag) return { ok: false, error: 'not-found' };
   if (laag.id === DEFAULT_LAYER_ID) return { ok: false, error: 'default-layer' };
@@ -163,30 +184,37 @@ export function renameLayer(doc, id, naam) {
   if (!schoon) return { ok: false, error: 'name-empty' };
   if (naamBezet(lagen, schoon, id)) return { ok: false, error: 'name-taken' };
   laag.name = schoon;
-  return { ok: true };
+  schrijfLagen(doc, lagen);
+  return findLayer(doc, id)?.name === schoon ? { ok: true } : { ok: false, error: 'not-stored' };
 }
 
 /** Zichtbaar, afdrukbaar, vergrendeld en kleur bijwerken; de rest blijft. */
 export function updateLayer(doc, id, patch = {}) {
-  const lagen = ensureLayers(doc);
+  if (!doc) return { ok: false, error: 'no-document' };
+  const lagen = getLayers(doc);
   const laag = lagen.find((l) => l.id === id);
   if (!laag) return { ok: false, error: 'not-found' };
   for (const sleutel of ['visible', 'printable', 'locked']) {
     if (patch[sleutel] !== undefined) laag[sleutel] = !!patch[sleutel];
   }
   if (patch.color !== undefined) laag.color = schoneKleur(patch.color);
-  return { ok: true, layer: laag };
+  schrijfLagen(doc, lagen);
+  const opgeslagen = findLayer(doc, id);
+  const klopt = opgeslagen && ['visible', 'printable', 'locked', 'color'].every((k) => opgeslagen[k] === laag[k]);
+  return klopt ? { ok: true, layer: opgeslagen } : { ok: false, error: 'not-stored' };
 }
 
 /** Een laag naar plek `naar` in de lijst verplaatsen (buiten bereik = achteraan). */
 export function moveLayer(doc, id, naar) {
-  const lagen = ensureLayers(doc);
+  if (!doc) return { ok: false, error: 'no-document' };
+  const lagen = getLayers(doc);
   const van = lagen.findIndex((l) => l.id === id);
   if (van < 0) return { ok: false, error: 'not-found' };
   const [laag] = lagen.splice(van, 1);
   const doel = Number.isInteger(naar) ? Math.max(0, Math.min(naar, lagen.length)) : lagen.length;
   lagen.splice(doel, 0, laag);
-  return { ok: true };
+  schrijfLagen(doc, lagen);
+  return getLayers(doc).findIndex((l) => l.id === id) === doel ? { ok: true } : { ok: false, error: 'not-stored' };
 }
 
 /**
@@ -195,13 +223,15 @@ export function moveLayer(doc, id, naar) {
  * blijft staan valt terug op de standaardlaag (zie layerOf).
  */
 export function deleteLayer(doc, id) {
-  const lagen = ensureLayers(doc);
+  if (!doc) return { ok: false, error: 'no-document' };
+  const lagen = getLayers(doc);
   if (id === DEFAULT_LAYER_ID) return { ok: false, error: 'default-layer' };
   const i = lagen.findIndex((l) => l.id === id);
   if (i < 0) return { ok: false, error: 'not-found' };
   lagen.splice(i, 1);
+  schrijfLagen(doc, lagen);
   if (doc.currentLayerId === id) doc.currentLayerId = DEFAULT_LAYER_ID;
-  return { ok: true };
+  return findLayer(doc, id) ? { ok: false, error: 'not-stored' } : { ok: true };
 }
 
 /** De annotaties van een laag; die van een onbekende laag tellen als standaard. */
@@ -212,6 +242,25 @@ export function annotationsOnLayer(doc, id) {
     const eigen = layerIdOf(a);
     return (bekend.has(eigen) ? eigen : DEFAULT_LAYER_ID) === id;
   });
+}
+
+/**
+ * De annotaties van het document zelf bij een lijst annotaties (op id, anders
+ * op identiteit). Een selectie of een menu kan een ander object vasthouden dan
+ * het document; wie een laag toewijst, moet dat op de annotatie van het
+ * document doen, anders gaat de wijziging verloren.
+ */
+export function annotationsInDocument(doc, anns) {
+  const eigen = Array.isArray(doc?.annotations) ? doc.annotations : [];
+  const perId = new Map();
+  for (const a of eigen) if (a && a.id !== undefined && !perId.has(a.id)) perId.set(a.id, a);
+  const uit = [];
+  for (const a of anns || []) {
+    if (!a || typeof a !== 'object') continue;
+    const echt = (a.id !== undefined && perId.get(a.id)) || (eigen.includes(a) ? a : null);
+    if (echt && !uit.includes(echt)) uit.push(echt);
+  }
+  return uit;
 }
 
 /**
@@ -250,9 +299,10 @@ export function currentLayerId(doc) {
 }
 
 export function setCurrentLayer(doc, id) {
+  if (!doc) return { ok: false, error: 'no-document' };
   if (!getLayers(doc).some((l) => l.id === id)) return { ok: false, error: 'not-found' };
   doc.currentLayerId = id;
-  return { ok: true };
+  return currentLayerId(doc) === id ? { ok: true } : { ok: false, error: 'not-stored' };
 }
 
 /** Het `layer`-veld voor een nieuwe annotatie: undefined voor de standaardlaag. */

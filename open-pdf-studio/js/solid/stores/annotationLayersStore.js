@@ -17,7 +17,7 @@ import {
   DEFAULT_LAYER_ID,
   addLayer, renameLayer, updateLayer, moveLayer, deleteLayer,
   getLayers, findLayer, layerDisplayName, nextLayerName,
-  annotationsOnLayer, assignLayer, setCurrentLayer, layerIdOf,
+  annotationsOnLayer, assignLayer, setCurrentLayer, layerIdOf, annotationsInDocument,
 } from '../../annotations/annotatie-lagen.js';
 
 const [panelVisible, setPanelVisible] = createSignal(false);
@@ -180,10 +180,17 @@ export async function deleteAnnotationLayer(id, keuze = 'move', doelId = DEFAULT
     const undo = await import('../../core/undo-manager.js');
     if (keuze === 'delete') {
       undo.recordBulkDelete(op);
-      const weg = new Set(op);
-      doc.annotations = doc.annotations.filter((a) => !weg.has(a));
-      doc.selectedAnnotations = (doc.selectedAnnotations || []).filter((a) => !weg.has(a));
-      if (doc.selectedAnnotation && weg.has(doc.selectedAnnotation)) {
+      // Op id, niet op objectidentiteit.
+      const weg = new Set(op.map((a) => a.id));
+      const isWeg = (a) => !!a && weg.has(a.id);
+      // Ter plekke uit de lijst van het document halen (achteraan beginnen):
+      // geen nieuwe lijst toewijzen, want het document bewaart daar een kopie
+      // van en de verwijzingen hieronder zouden dan naar losse objecten wijzen.
+      for (let i = doc.annotations.length - 1; i >= 0; i--) {
+        if (isWeg(doc.annotations[i])) doc.annotations.splice(i, 1);
+      }
+      doc.selectedAnnotations = (doc.selectedAnnotations || []).filter((a) => !isWeg(a));
+      if (isWeg(doc.selectedAnnotation)) {
         doc.selectedAnnotation = doc.selectedAnnotations[0] || null;
       }
     } else {
@@ -207,7 +214,9 @@ export async function deleteAnnotationLayer(id, keuze = 'move', doelId = DEFAULT
 export async function moveAnnotationsToAnnotationLayer(anns, id) {
   const doc = getActiveDocument();
   if (!doc || !findLayer(doc, id)) return 0;
-  const te = (anns || []).filter((a) => a && layerIdOf(a) !== id);
+  // De annotaties van het document zelf: een selectie of menu kan een ander
+  // object vasthouden, en dan zou de nieuwe laag niet in het document landen.
+  const te = annotationsInDocument(doc, anns).filter((a) => layerIdOf(a) !== id);
   if (te.length === 0) return 0;
   const { cloneAnnotation } = await import('../../annotations/factory.js');
   const voor = te.map(cloneAnnotation);

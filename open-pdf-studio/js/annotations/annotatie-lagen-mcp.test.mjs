@@ -3,7 +3,7 @@
 // De regels zijn puur; mcp-bridge.js doet alleen het werk eromheen.
 
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import basisTest from 'node:test';
 import { readFileSync } from 'node:fs';
 
 import {
@@ -12,7 +12,10 @@ import {
 import { addLayer, getLayers, currentLayerId, DEFAULT_LAYER_ID } from './annotatie-lagen.js';
 
 const STANDAARD = 'Default';
-const leeg = () => ({ annotations: [] });
+// Ook tegen documenten die, zoals in de app, bij toewijzen een kopie bewaren.
+import { perDocumentsoort, documentDatNietsBewaart } from './documentsoorten.testhulp.mjs';
+const { test, maakDoc } = perDocumentsoort(basisTest);
+const leeg = () => maakDoc();
 
 test('lagen opvragen: naam, aantal, schakelaars, huidige en standaardlaag', () => {
   const doc = leeg();
@@ -106,7 +109,7 @@ const REPO = new URL('../../../', import.meta.url);
 const lees = (pad) => readFileSync(new URL(pad, REPO), 'utf8');
 const NIEUW = ['app_list_layers', 'app_create_layer', 'app_set_layer'];
 
-test('de nieuwe opdrachten staan in de brug, de Rust-server, de metatabel, tools.json en de manifest', () => {
+basisTest('de nieuwe opdrachten staan in de brug, de Rust-server, de metatabel, tools.json en de manifest', () => {
   const brug = lees('open-pdf-studio/js/mcp-bridge.js');
   for (const ev of ["'mcp:list-layers'", "'mcp:create-layer'", "'mcp:set-layer'"]) assert.ok(brug.includes(ev), ev);
   const server = lees('open-pdf-studio/src-tauri/src/mcp_server.rs');
@@ -124,4 +127,36 @@ test('de nieuwe opdrachten staan in de brug, de Rust-server, de metatabel, tools
     const t = tools.find((x) => x.name === naam);
     assert.equal(t.inputSchema.properties.layer?.type, 'string', `${naam} heeft een laag-argument`);
   }
+});
+
+// --- nooit een succes zonder laag ------------------------------------------
+// In de app gaf app_create_layer {"ok":true} zonder laag terug, terwijl de laag
+// niet in het document stond. Een antwoord met ok:true draagt altijd de laag
+// zoals die in het document staat.
+
+test('aanmaken geeft de laag uit het document terug, en app_list_layers kent haar', () => {
+  const doc = leeg();
+  const r = maakLaag(doc, { name: 'Constructie' }, STANDAARD);
+  assert.equal(r.ok, true);
+  assert.ok(r.layer && r.layer.id && r.layer.name === 'Constructie', 'de laag zit in het antwoord');
+  assert.deepEqual(lagenOverzicht(doc, STANDAARD).map((l) => l.name), ['Default', 'Constructie']);
+  assert.deepEqual(laagArgument(doc, 'Constructie', STANDAARD), { ok: true, id: r.layer.id });
+});
+
+test('bijwerken staat in het document: vergrendelen blijft vergrendeld', () => {
+  const doc = leeg();
+  const r = zetLaag(doc, { layer: 'Default', locked: true }, STANDAARD);
+  assert.equal(r.ok, true);
+  assert.equal(r.layer.locked, true);
+  assert.equal(lagenOverzicht(doc, STANDAARD)[0].locked, true);
+});
+
+basisTest('een document dat niets bewaart: aanmaken en bijwerken melden een fout', () => {
+  const doc = documentDatNietsBewaart();
+  const r = maakLaag(doc, { name: 'Constructie' }, STANDAARD);
+  assert.equal(r.ok, false);
+  assert.match(r.error, /not stored/);
+  const z = zetLaag(doc, { layer: 'Default', locked: true }, STANDAARD);
+  assert.equal(z.ok, false);
+  assert.match(z.error, /not stored/);
 });

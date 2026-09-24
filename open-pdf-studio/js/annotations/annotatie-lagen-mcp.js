@@ -20,6 +20,10 @@ function fout(error) {
   return { ok: false, error };
 }
 
+// Een wijziging die niet in het document terug te lezen is, is mislukt: nooit
+// ok:true zonder de laag zoals die in het document staat (#468).
+const NIET_BEWAARD = 'the layer change was not stored in the document';
+
 /** Samenvatting van alle lagen, in de volgorde van het paneel. */
 export function lagenOverzicht(doc, defaultName) {
   return layerRows(doc, defaultName).map((r) => ({
@@ -89,10 +93,12 @@ export function maakLaag(doc, args, defaultName) {
     locked: args.locked,
   });
   if (!r.ok) {
-    return fout(r.error === 'name-taken' ? `a layer named ${args.name.trim()} already exists` : r.error);
+    if (r.error === 'name-taken') return fout(`a layer named ${args.name.trim()} already exists`);
+    return fout(r.error === 'not-stored' ? NIET_BEWAARD : r.error);
   }
-  if (args.current === true) setCurrentLayer(doc, r.layer.id);
-  return { ok: true, layer: samenvatting(doc, r.layer.id, defaultName) };
+  if (args.current === true && !setCurrentLayer(doc, r.layer.id).ok) return fout(NIET_BEWAARD);
+  const layer = samenvatting(doc, r.layer.id, defaultName);
+  return layer ? { ok: true, layer } : fout(NIET_BEWAARD);
 }
 
 /** app_set_layer */
@@ -108,7 +114,10 @@ export function zetLaag(doc, args, defaultName) {
   if (args.name !== undefined) {
     if (laag.id === DEFAULT_LAYER_ID) return fout('the default layer cannot be renamed');
     const r = renameLayer(doc, laag.id, args.name);
-    if (!r.ok) return fout(r.error === 'name-taken' ? `a layer named ${args.name.trim()} already exists` : 'name must not be empty');
+    if (!r.ok) {
+      if (r.error === 'name-taken') return fout(`a layer named ${args.name.trim()} already exists`);
+      return fout(r.error === 'not-stored' ? NIET_BEWAARD : 'name must not be empty');
+    }
     changed.push('name');
   }
   const patch = {};
@@ -118,13 +127,14 @@ export function zetLaag(doc, args, defaultName) {
       changed.push(sleutel);
     }
   }
-  if (Object.keys(patch).length) updateLayer(doc, laag.id, patch);
+  if (Object.keys(patch).length && !updateLayer(doc, laag.id, patch).ok) return fout(NIET_BEWAARD);
   if (args.current === true) {
-    setCurrentLayer(doc, laag.id);
+    if (!setCurrentLayer(doc, laag.id).ok) return fout(NIET_BEWAARD);
     changed.push('current');
   }
   if (changed.length === 0) return fout('nothing to change: pass visible, printable, locked, color, name or current');
-  return { ok: true, layer: samenvatting(doc, laag.id, defaultName), changed };
+  const layer = samenvatting(doc, laag.id, defaultName);
+  return layer ? { ok: true, layer, changed } : fout(NIET_BEWAARD);
 }
 
 /** De laagnaam voor de lijst van annotaties; niets voor de standaardlaag. */

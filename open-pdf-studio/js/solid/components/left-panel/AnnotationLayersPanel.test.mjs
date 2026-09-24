@@ -94,3 +94,15 @@ test('geselecteerde markeringen naar een laag: vanuit het paneel en het contextm
   // Eén undo-stap voor de hele verplaatsing.
   assert.match(store, /recordBulkModify\(/);
 });
+
+// De schrijfregel (#468): het document bewaart bij toewijzen een kopie. Het
+// paneel, het contextmenu en de verwijderdialoog lopen allemaal via de store.
+test('de store schrijft markeringen op de annotaties van het document, zonder de lijst te vervangen', () => {
+  const verplaats = store.slice(store.indexOf('export async function moveAnnotationsToAnnotationLayer'));
+  assert.match(verplaats.slice(0, 900), /annotationsInDocument\(doc, anns\)/, 'eerst de annotaties van het document zelf opzoeken');
+  const verwijder = store.slice(store.indexOf('export async function deleteAnnotationLayer'), store.indexOf('export async function moveAnnotationsToAnnotationLayer'));
+  assert.doesNotMatch(verwijder, /doc\.annotations\s*=/, 'geen nieuwe lijst toewijzen en daarna verder werken');
+  assert.match(verwijder, /doc\.annotations\.splice\(/);
+  // De lagen zelf schrijft alleen het model; de store wijst nooit zelf toe.
+  assert.doesNotMatch(store, /\.annotationLayers\s*=/);
+});
