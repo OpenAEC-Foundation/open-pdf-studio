@@ -52,11 +52,17 @@ function positief(v, standaard) {
 }
 
 /**
- * Heeft een deursymbool de nieuwe kozijnopbouw? Oude deuren (zonder
- * wanddikte) behouden hun oude tekening: hun vak is anders opgezet.
+ * Heeft een symbool de nieuwe kozijnopbouw? Oude symbolen behouden hun oude
+ * tekening, op het scherm en in een opgeslagen PDF:
+ *   - een oude deur heeft geen wanddikte (haar vak is anders opgezet);
+ *   - een oud raam heeft wel een wanddikte maar geen kozijnhout
+ *     (`stijlBreedteMm`), dat zetten alleen het nieuwe symbool en
+ *     app_floorplan.
+ * @param {'deur'|'raam'} soort
  */
-export function heeftKozijnOpbouw(params) {
-  return (getal(params?.wallThickness) ?? 0) > 0;
+export function heeftKozijnOpbouw(params, soort = 'deur') {
+  if ((getal(params?.stijlBreedteMm) ?? 0) > 0) return true;
+  return soort === 'deur' && (getal(params?.wallThickness) ?? 0) > 0;
 }
 
 /**

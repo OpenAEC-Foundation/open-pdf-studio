@@ -40,9 +40,12 @@ test('kozijnmaten: 67 x 114, in een dikke wand in het midden, in een dunne wand 
   assert.equal(smal.stijlBreedteMm, 50, 'twee stijlen raken elkaar niet');
 });
 
-test('een oude deur (zonder wanddikte) houdt zijn oude tekening', () => {
+test('oude deuren en ramen houden hun oude tekening', () => {
   assert.equal(heeftKozijnOpbouw({ width: 900, swing: 'left', angle: 90, showWall: false }), false);
   assert.equal(heeftKozijnOpbouw({ width: 900, wallThickness: 100 }), true);
+  // Een oud raam heeft wel een wanddikte, maar geen kozijnhout.
+  assert.equal(heeftKozijnOpbouw({ width: 1200, wallThickness: 240, type: 'fixed' }, 'raam'), false);
+  assert.equal(heeftKozijnOpbouw({ width: 1200, wallThickness: 240, stijlBreedteMm: 67 }, 'raam'), true);
 });
 
 test('raam: twee stijlen in de dag, glas ertussen, borstwering in aanzicht', () => {
