@@ -8,7 +8,8 @@ test('de ruimtetag staat in de symboolbibliotheek', () => {
   assert.equal(RUIMTETAG_ID, 'room-tag');
   assert.equal(getTemplate('room-tag'), ruimteTagTemplate);
   const zichtbaar = ruimteTagTemplate.params.map((p) => p.key);
-  assert.deepEqual(zichtbaar, ['naam', 'nummer', 'oppervlakteM2', 'decimalen', 'toonOppervlakte']);
+  // De oppervlakte komt van de ruimte: geen invulveld in het paneel.
+  assert.deepEqual(zichtbaar, ['naam', 'nummer', 'decimalen', 'toonOppervlakte']);
   for (const p of ruimteTagTemplate.params) assert.ok(p.label && p.labelEn, `${p.key} heeft een NL- en EN-label`);
   // Het zaadpunt is geen instelling voor de gebruiker: het staat niet in het paneel.
   assert.ok(!zichtbaar.includes('zaadX'));
@@ -30,6 +31,8 @@ test('naam en netto oppervlakte in een tag, nummer erboven als het er is', () =>
   ]);
   // Zonder naam: alleen de oppervlakte.
   assert.deepEqual(ruimteTagRegels({ naam: '', oppervlakteM2: 8 }), [{ tekst: '8.0 m²', vet: false }]);
+  // Zonder oppervlakte (een losse tag buiten elke ruimte): alleen de naam.
+  assert.deepEqual(ruimteTagRegels({ naam: 'Ruimte' }), [{ tekst: 'Ruimte', vet: true }]);
 });
 
 test('de tag tekent gecentreerde tekstregels in zijn vak', () => {

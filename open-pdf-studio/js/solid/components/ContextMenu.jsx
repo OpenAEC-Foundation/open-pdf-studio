@@ -19,6 +19,7 @@ import {
 
 import { state, getActiveDocument, clearSelection, isSelected } from '../../core/state.js';
 import { showProperties, hideProperties } from '../../ui/panels/properties-panel.js';
+import { selecteerRuimteVanTag } from '../../plattegrond/ruimte-selectie.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { copyAnnotation, copyAnnotations, pasteFromClipboard, pasteAnnotationsInPlace, duplicateAnnotation } from '../../annotations/clipboard.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
@@ -727,6 +728,15 @@ function AnnotationMenuContent() {
             // geweigerde wissel (alleen-lezen PDF/A) laat geen doel achter.
             if (state.currentTool === 'dimChainRemove') state.dimChainTargetId = a.id;
           }
+        }} />
+        <Separator />
+      </Show>
+
+      {/* Ruimtetag: de ruimte zelf is met een klik niet te pakken (#477). */}
+      <Show when={ann()?.type === 'parametricSymbol' && ann()?.symbolId === 'room-tag'}>
+        <MenuItem icon={convertMeasurementIcon} label={t('annotation.selectRoom')} shortcut="Tab" onClick={() => {
+          const a = ann();
+          if (a) selecteerRuimteVanTag(a);
         }} />
         <Separator />
       </Show>

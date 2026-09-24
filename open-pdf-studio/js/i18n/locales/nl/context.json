@@ -51,6 +51,7 @@
     "setScale": "Schaal instellen...",
     "dimChainAdd": "Punten toevoegen aan maatketting",
     "dimChainRemove": "Hulplijn uit maatketting halen",
+    "selectRoom": "Ruimte selecteren",
     "editViewportScale": "Viewport-schaal bewerken"
   },
   "multiSelect": {

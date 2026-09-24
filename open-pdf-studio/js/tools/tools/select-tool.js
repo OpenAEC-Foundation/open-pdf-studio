@@ -13,6 +13,7 @@ import i18next from '../../i18n/config.js';
 
 // Speling (schermpixels) om een dunne stijl van een gevelelement te raken.
 const GEVEL_RAAK_PX = 6;
+import { inSelectieVak } from '../../plattegrond/ruimte-koppeling.js';
 
 /**
  * Select tool — click-select, rubber band, drag, resize, Ctrl+drag copy
@@ -476,13 +477,10 @@ export const selectTool = {
           if (!isAnnotationPickableInView(ann)) continue;
           const bounds = ctx.getAnnotationBounds(ann);
           if (!bounds) continue;
-          const fullyInside =
-            bounds.x >= rbX && bounds.x + bounds.width <= rbX + rbW &&
-            bounds.y >= rbY && bounds.y + bounds.height <= rbY + rbH;
-          const intersects =
-            bounds.x < rbX + rbW && bounds.x + bounds.width > rbX &&
-            bounds.y < rbY + rbH && bounds.y + bounds.height > rbY;
-          const hit = mode === 'window' ? fullyInside : intersects;
+          // Window: helemaal erin; crossing: raakt. Een ruimte uit de
+          // plattegrond alleen als ze er helemaal in ligt, anders pakt elk
+          // vak om een paar wanden haar mee (ruimte-koppeling.js).
+          const hit = inSelectieVak(ann, bounds, { x: rbX, y: rbY, width: rbW, height: rbH }, mode);
           if (hit) selected.push(ann);
         }
         if (doc) {

@@ -40,6 +40,7 @@
     "setScale": "Set Scale...",
     "dimChainAdd": "Add Points to Dimension Chain",
     "dimChainRemove": "Remove Extension Line from Chain",
+    "selectRoom": "Select Room",
     "convertToPolyline": "Convert to Polyline",
     "convertToPolygon": "Convert to Polygon",
     "styleTools": "Style Tools",

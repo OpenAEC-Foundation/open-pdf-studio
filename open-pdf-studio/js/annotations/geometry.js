@@ -16,6 +16,7 @@ import { systeemrasterFlatContour } from './systeemraster.js';
 import { getEffectiveScale } from '../tools/effective-scale.js';
 import { raakMarge, wolkUitstulping, schermPxNaarPt } from './minimummaat.js';
 import { puntInVlak } from './vlak-ringen.js';
+import { raakbaarBijKlik } from '../plattegrond/ruimte-koppeling.js';
 
 // Binnen-test voor vormen die overal in hun vak raakbaar zijn. Een vorm die op
 // het scherm kleiner is dan het minimale raakvlak krijgt een marge in
@@ -215,6 +216,10 @@ export function findAnnotationAt(x, y, pageNum = null) {
     // Een vastgezet vectorknipsel is geen object meer maar pagina-inhoud in
     // wording: zichtbaar, niet aanklikbaar.
     if (ann.type === 'vectorSnippet' && (ann.flattened || ann.gebakkenIn)) continue;
+    // Een ruimte uit de plattegrond: haar rand ligt op de wandvlakken en haar
+    // binnenkant is waar je een selectierechthoek begint. Een klik pakt haar
+    // dus nooit; je bereikt haar via haar ruimtetag (ruimte-koppeling.js).
+    if (raakbaarBijKlik(ann) === false) continue;
 
     switch (ann.type) {
       case 'draw':

@@ -59,12 +59,13 @@ test('een gewone maat krijgt geen extra sleutel', async () => {
 test('een ruimtevlak houdt zijn verborgen label, zijn zaadpunt en zijn naam', async () => {
   const terug = await rondgang({
     type: 'measureArea', measureShowLabel: false,
-    opsRuimteZaad: { x: 250, y: 125.5 }, opsRuimteNaam: 'Woonkamer / keuken',
+    opsRuimteZaad: { x: 250, y: 125.5 }, opsRuimteNaam: 'Woonkamer / keuken', opsRuimteNummer: '0.01',
   }, 'Polygon');
   assert.deepEqual(terug, {
     measureShowLabel: false,
     opsRuimteZaad: { x: 250, y: 125.5 },
     opsRuimteNaam: 'Woonkamer / keuken',
+    opsRuimteNummer: '0.01',
   });
 });
 

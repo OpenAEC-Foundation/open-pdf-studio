@@ -161,6 +161,8 @@
     "extGap": "Extension line gap (mm)",
     "extOvershoot": "Extension line overshoot (mm)",
     "auto": "Auto",
+    "roomNumber": "Room number",
+    "netArea": "Net area",
     "searchType": "Search…",
     "editTypes": "Edit types",
     "noTypesFound": "No types found"

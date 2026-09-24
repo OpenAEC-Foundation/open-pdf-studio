@@ -24,7 +24,10 @@ import {
   SPARING_SOORTEN, SPARING_SYMBOOL, SPARING_STANDAARD,
   normaliseerSparing, wandMetSparingen, controleerSparing, sparingPlaatsing,
 } from './sparing.js';
-import { ruimtenUitWanden, ruimteBijZaad, ruimteLabel, RUIMTE_VLAKSTIJL } from './ruimte.js';
+import { ruimtenUitWanden, ruimteBijZaad, ruimteLabel, RUIMTE_VLAKSTIJL, puntInPolygoon } from './ruimte.js';
+import {
+  isRuimteVlak, isRuimteTag, ruimteVanTag, tagsVanRuimte, ruimteNaamPatch,
+} from './ruimte-koppeling.js';
 import {
   maatketting, herberekenMaten, kettingLangsWandvlak,
   standaardMaatAfstanden, PLATTEGROND_MAATSTIJL, ankerVoorPunt,
@@ -491,6 +494,7 @@ function eindPatch(hoek) {
 
 const RUIMTE_ZAAD = 'opsRuimteZaad';
 const RUIMTE_NAAM = 'opsRuimteNaam';
+const RUIMTE_NUMMER = 'opsRuimteNummer';
 
 async function actieRuimten(params, omgeving, page) {
   const annotaties = omgeving.doc?.annotations || [];
@@ -502,14 +506,48 @@ async function actieRuimten(params, omgeving, page) {
   const { ruimten, losseEinden } = ruimtenUitWanden(wanden, {
     pxPerMm, maxGatMm: getal(params?.maxOpeningMm) ?? 3000,
   });
-  const verslag = (r, naam) => ({
-    name: naam || null,
-    areaM2: Math.round(r.oppervlakteM2 * 100) / 100,
-    perimeterM: Math.round(r.omtrekM * 100) / 100,
-    labelPoint: r.labelPunt,
-    wallIds: r.wandIds,
-    label: ruimteLabel(naam, r.oppervlakteM2),
-  });
+  // De geplaatste ruimte (het ruimtevlak) bij een gevonden ruimte: zij draagt
+  // naam en nummer; haar tags tonen die (ruimte-koppeling.js).
+  const vlakVoor = (r) => geplaatsteRuimte(omgeving.doc?.annotations, page, ruimten, r);
+  const verslag = (r, naam, vlak = vlakVoor(r)) => {
+    const n = vlak ? (vlak[RUIMTE_NAAM] || null) : (naam || null);
+    return {
+      ...(vlak ? { id: vlak.id } : {}),
+      name: n,
+      ...(vlak?.[RUIMTE_NUMMER] ? { number: vlak[RUIMTE_NUMMER] } : {}),
+      areaM2: Math.round(r.oppervlakteM2 * 100) / 100,
+      perimeterM: Math.round(r.omtrekM * 100) / 100,
+      labelPoint: r.labelPunt,
+      wallIds: r.wandIds,
+      label: ruimteLabel(n, r.oppervlakteM2),
+      ...(vlak ? { tagIds: tagsVanRuimte(vlak, omgeving.doc?.annotations).map((t) => t.id) } : {}),
+    };
+  };
+
+  // Naam en nummer op geplaatste ruimten zetten.
+  if (Array.isArray(params?.names) && params.names.length && !params?.place && !params?.refresh) {
+    const hernoemd = [];
+    const klachten = [];
+    await omgeving.transactie(async () => {
+      for (const item of params.names) {
+        const vlak = ruimteVoorVerwijzing(omgeving.doc?.annotations, page, ruimten, item);
+        if (!vlak) {
+          const waar = item?.id ? `id ${item.id}` : `(${item?.x}, ${item?.y})`;
+          klachten.push(`names: no placed room for ${waar}`);
+          continue;
+        }
+        await zetRuimteNaam(omgeving, vlak, item?.name, item?.number);
+        const r = vlak[RUIMTE_ZAAD] ? ruimteBijZaad(ruimten, vlak[RUIMTE_ZAAD]) : null;
+        hernoemd.push(r
+          ? verslag(r, null, vlak)
+          : { id: vlak.id, name: vlak[RUIMTE_NAAM] || null, number: vlak[RUIMTE_NUMMER] || null });
+      }
+    });
+    return {
+      ok: hernoemd.length > 0, page, renamed: hernoemd,
+      ...(klachten.length ? { warnings: klachten } : {}),
+    };
+  }
 
   if (params?.refresh) {
     const bestaand = annotaties.filter((a) => (a.page ?? 1) === page && zaadVan(a));
@@ -518,18 +556,22 @@ async function actieRuimten(params, omgeving, page) {
     await omgeving.transactie(async () => {
       for (const a of bestaand) {
         const tag = isRuimteTag(a);
-        const naam = tag ? (a.params?.naam || null) : (a[RUIMTE_NAAM] || null);
+        const eigenRuimte = tag ? ruimteVanTag(a, annotaties) : null;
+        const naam = tag
+          ? ((eigenRuimte ? eigenRuimte[RUIMTE_NAAM] : a.params?.naam) || null)
+          : (a[RUIMTE_NAAM] || null);
         const r = ruimteBijZaad(ruimten, zaadVan(a));
         if (!r) { losgeraakt.push({ id: a.id, name: naam }); continue; }
         if (a.type === 'measureArea') {
           await omgeving.werkBij(a.id, { points: r.polygoon });
         } else if (tag) {
-          // De tag houdt zijn plek ten opzichte van de ruimte en krijgt de
-          // nieuwe netto oppervlakte.
+          // De tag houdt zijn plek ten opzichte van de ruimte; zijn
+          // reservekopie volgt de ruimte (naam, nummer, oppervlakte).
           await omgeving.werkBij(a.id, {
             ...tagVolgtRuimte(a, r.labelPunt),
             params: {
               ...a.params,
+              ...(eigenRuimte ? { naam: eigenRuimte[RUIMTE_NAAM] || '', nummer: eigenRuimte[RUIMTE_NUMMER] || '' } : {}),
               oppervlakteM2: Math.round(r.oppervlakteM2 * 100) / 100,
               ankerX: r.labelPunt.x, ankerY: r.labelPunt.y,
             },
@@ -538,7 +580,8 @@ async function actieRuimten(params, omgeving, page) {
           // Los naamlabel uit een eerdere versie: terug naar het labelpunt.
           await omgeving.werkBij(a.id, { x: r.labelPunt.x - (a.width || 0) / 2, y: r.labelPunt.y - (a.height || 0) / 2 });
         }
-        bijgewerkt.push({ id: a.id, ...(tag ? { kind: 'tag' } : {}), ...verslag(r, naam) });
+        const eigenVlak = a.type === 'measureArea' ? a : eigenRuimte;
+        bijgewerkt.push({ ...verslag(r, naam, eigenVlak), id: a.id, ...(tag ? { kind: 'tag' } : {}) });
       }
     });
     return { ok: true, page, refreshed: bijgewerkt, detached: losgeraakt, openEnds: losseEinden };
@@ -575,37 +618,49 @@ async function actieRuimten(params, omgeving, page) {
   await omgeving.transactie(async () => {
     const vlakIds = [];
     for (const g of gekozen) {
-      // Het ruimtevlak: ingetogen, zonder eigen label (dat is de tag).
-      const vlak = await omgeving.maak('measureArea', page, {
-        ...RUIMTE_VLAKSTIJL,
-        points: g.ruimte.polygoon,
-        measureName: g.naam || undefined,
-        [RUIMTE_ZAAD]: g.zaad,
-        [RUIMTE_NAAM]: g.naam,
-      });
-      if (vlak?.ok && vlak.id) vlakIds.push(vlak.id);
-      // Naam, netto oppervlakte en nummer in een ruimtetag.
-      const tagParams = {
-        naam: g.naam || '',
-        nummer: g.nummer || '',
-        oppervlakteM2: Math.round(g.ruimte.oppervlakteM2 * 100) / 100,
-        decimalen: 1,
-        toonOppervlakte: true,
-        zaadX: g.zaad.x, zaadY: g.zaad.y,
-        ankerX: g.ruimte.labelPunt.x, ankerY: g.ruimte.labelPunt.y,
-      };
-      const tag = await omgeving.maak('parametricSymbol', page, {
-        ...RUIMTETAG_STIJL,
-        symbolId: RUIMTETAG_ID,
-        ...ruimteTagVak(g.ruimte.labelPunt, tagParams, RUIMTETAG_TEKST_PT),
-        params: tagParams,
-      });
-      gemaakt.push({
-        id: vlak?.id || null,
-        tagId: tag?.ok ? tag.id : null,
-        ...(g.nummer ? { number: g.nummer } : {}),
-        ...verslag(g.ruimte, g.naam),
-      });
+      // Staat deze ruimte er al (bijvoorbeeld nadat haar tag verwijderd is),
+      // dan geen tweede vlak: naam en nummer bijwerken als ze opgegeven zijn.
+      let vlak = vlakVoor(g.ruimte);
+      if (vlak) {
+        if (g.naam || g.nummer) await zetRuimteNaam(omgeving, vlak, g.naam || undefined, g.nummer ?? undefined);
+      } else {
+        // Het ruimtevlak: ingetogen, zonder eigen label (dat is de tag).
+        const r = await omgeving.maak('measureArea', page, {
+          ...RUIMTE_VLAKSTIJL,
+          points: g.ruimte.polygoon,
+          measureName: g.naam || undefined,
+          [RUIMTE_ZAAD]: g.zaad,
+          [RUIMTE_NAAM]: g.naam,
+          ...(g.nummer ? { [RUIMTE_NUMMER]: g.nummer } : {}),
+        });
+        if (r?.ok && r.id) {
+          vlakIds.push(r.id);
+          vlak = (omgeving.doc?.annotations || []).find((a) => a.id === r.id) || null;
+        }
+      }
+      // Een ruimtetag: alleen als de ruimte er nog geen heeft. Hij toont naam,
+      // nummer en oppervlakte van de ruimte; zijn params zijn een reservekopie.
+      let tagId = vlak ? (tagsVanRuimte(vlak, omgeving.doc?.annotations)[0]?.id || null) : null;
+      if (!tagId) {
+        const tagParams = {
+          naam: (vlak ? vlak[RUIMTE_NAAM] : g.naam) || '',
+          nummer: (vlak ? vlak[RUIMTE_NUMMER] : g.nummer) || '',
+          oppervlakteM2: Math.round(g.ruimte.oppervlakteM2 * 100) / 100,
+          decimalen: 1,
+          toonOppervlakte: true,
+          zaadX: vlak?.[RUIMTE_ZAAD]?.x ?? g.zaad.x,
+          zaadY: vlak?.[RUIMTE_ZAAD]?.y ?? g.zaad.y,
+          ankerX: g.ruimte.labelPunt.x, ankerY: g.ruimte.labelPunt.y,
+        };
+        const tag = await omgeving.maak('parametricSymbol', page, {
+          ...RUIMTETAG_STIJL,
+          symbolId: RUIMTETAG_ID,
+          ...ruimteTagVak(g.ruimte.labelPunt, tagParams, RUIMTETAG_TEKST_PT),
+          params: tagParams,
+        });
+        tagId = tag?.ok ? tag.id : null;
+      }
+      gemaakt.push({ ...verslag(g.ruimte, g.naam, vlak), id: vlak?.id || null, tagId });
     }
     // Ruimten achter de wanden en kozijnen, zodat een deurdraai zichtbaar blijft.
     const volgorde = ruimtenAchterBouwdelen(omgeving.doc?.annotations, vlakIds, page);
@@ -614,8 +669,39 @@ async function actieRuimten(params, omgeving, page) {
   return { ok: true, page, placed: gemaakt, openEnds: losseEinden };
 }
 
-function isRuimteTag(a) {
-  return a?.type === 'parametricSymbol' && a.symbolId === RUIMTETAG_ID;
+/** Het geplaatste ruimtevlak voor een gevonden ruimte (via zijn zaadpunt). */
+function geplaatsteRuimte(annotaties, page, ruimten, r) {
+  return (annotaties || []).find((a) => (a.page ?? 1) === page && isRuimteVlak(a)
+    && a[RUIMTE_ZAAD] && ruimteBijZaad(ruimten, a[RUIMTE_ZAAD]) === r) || null;
+}
+
+/** Een geplaatste ruimte aangewezen met `{id}` of met een punt `{x, y}` erin. */
+function ruimteVoorVerwijzing(annotaties, page, ruimten, item) {
+  const lijst = (annotaties || []).filter((a) => (a.page ?? 1) === page && isRuimteVlak(a));
+  if (item?.id) return lijst.find((a) => a.id === item.id) || null;
+  const x = getal(item?.x), y = getal(item?.y);
+  if (x === null || y === null) return null;
+  const r = ruimteBijZaad(ruimten, { x, y });
+  const viaWanden = r ? geplaatsteRuimte(annotaties, page, ruimten, r) : null;
+  if (viaWanden) return viaWanden;
+  // De wanden zijn veranderd: dan het vlak zelf waar het punt in valt.
+  return lijst.find((a) => Array.isArray(a.points) && a.points.length >= 3 && puntInPolygoon({ x, y }, a.points)) || null;
+}
+
+/** Naam en/of nummer op de ruimte zetten; de reservekopie in haar tags volgt. */
+async function zetRuimteNaam(omgeving, vlak, naam, nummer) {
+  const patch = ruimteNaamPatch(naam, nummer);
+  if (!Object.keys(patch).length) return;
+  await omgeving.werkBij(vlak.id, patch);
+  for (const t of tagsVanRuimte(vlak, omgeving.doc?.annotations)) {
+    await omgeving.werkBij(t.id, {
+      params: {
+        ...t.params,
+        ...('opsRuimteNaam' in patch ? { naam: patch.opsRuimteNaam } : {}),
+        ...('opsRuimteNummer' in patch ? { nummer: patch.opsRuimteNummer } : {}),
+      },
+    });
+  }
 }
 
 /** Het zaadpunt van een geplaatst ruimte-onderdeel (vlak, tag of oud label). */
@@ -919,12 +1005,22 @@ async function actieInspect(params, omgeving, page) {
   const { ruimten, losseEinden } = ruimtenUitWanden(omsluitingOpPagina(annotaties, page), {
     pxPerMm, maxGatMm: getal(params?.maxOpeningMm) ?? 3000,
   });
-  verslag.rooms = ruimten.map((r) => ({
-    areaM2: Math.round(r.oppervlakteM2 * 100) / 100,
-    perimeterM: Math.round(r.omtrekM * 100) / 100,
-    labelPoint: r.labelPunt,
-    wallIds: r.wandIds,
-  }));
+  verslag.rooms = ruimten.map((r) => {
+    // Een geplaatste ruimte: met haar id, naam, nummer en tags.
+    const vlak = geplaatsteRuimte(annotaties, page, ruimten, r);
+    return {
+      ...(vlak ? {
+        id: vlak.id,
+        name: vlak[RUIMTE_NAAM] || null,
+        number: vlak[RUIMTE_NUMMER] || null,
+        tagIds: tagsVanRuimte(vlak, annotaties).map((t) => t.id),
+      } : {}),
+      areaM2: Math.round(r.oppervlakteM2 * 100) / 100,
+      perimeterM: Math.round(r.omtrekM * 100) / 100,
+      labelPoint: r.labelPunt,
+      wallIds: r.wandIds,
+    };
+  });
   verslag.openEnds = losseEinden;
   return verslag;
 }
