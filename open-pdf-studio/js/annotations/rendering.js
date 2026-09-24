@@ -1590,7 +1590,11 @@ export function drawAnnotation(ctx, annotation) {
         ctx.translate(-cx, -cy);
       }
       // Lijndikte: eigen waarde of geërfd uit het tekeningtype (regelset).
-      const lw = thinLw(effectiveDraftingLineWidth(annotation));
+      const basisLw = effectiveDraftingLineWidth(annotation);
+      const lw = thinLw(basisLw);
+      // Per opdracht: een vaste `lineWidth`, of `lineWidthFactor` als fractie
+      // van de symbooldikte (kozijn: doorsnede vol, glas en draaicirkel dun).
+      const cmdLw = (c) => c.lineWidth ?? (c.lineWidthFactor > 0 ? thinLw(basisLw * c.lineWidthFactor) : lw);
       ctx.lineWidth = lw;
       ctx.strokeStyle = strokeColor;
       ctx.fillStyle = strokeColor;
@@ -1614,7 +1618,7 @@ export function drawAnnotation(ctx, annotation) {
         switch (c.kind) {
           case 'line': {
             ctx.save();
-            ctx.lineWidth = c.lineWidth ?? lw;
+            ctx.lineWidth = cmdLw(c);
             if (Array.isArray(c.dash)) ctx.setLineDash(c.dash);
             ctx.beginPath();
             ctx.moveTo(c.x1, c.y1);
@@ -1624,16 +1628,20 @@ export function drawAnnotation(ctx, annotation) {
             break;
           }
           case 'arc': {
+            ctx.save();
+            ctx.lineWidth = cmdLw(c);
+            if (Array.isArray(c.dash)) ctx.setLineDash(c.dash);
             ctx.beginPath();
             ctx.arc(c.cx, c.cy, c.r, c.a0, c.a1, !!c.ccw);
             ctx.stroke();
+            ctx.restore();
             break;
           }
           case 'circle': {
             ctx.save();
             // Per-cmd dikte (fijnwerk zoals het diameterteken van de
             // wapeningskorf); zonder eigen waarde geldt de annotatie-dikte.
-            ctx.lineWidth = c.lineWidth ?? lw;
+            ctx.lineWidth = cmdLw(c);
             ctx.beginPath();
             ctx.arc(c.cx, c.cy, c.r, 0, Math.PI * 2);
             ctx.stroke();
@@ -1643,7 +1651,7 @@ export function drawAnnotation(ctx, annotation) {
           case 'polyline': {
             if (!Array.isArray(c.points) || c.points.length < 2) break;
             ctx.save();
-            ctx.lineWidth = c.lineWidth ?? lw;
+            ctx.lineWidth = cmdLw(c);
             if (Array.isArray(c.dash)) ctx.setLineDash(c.dash);
             ctx.beginPath();
             ctx.moveTo(c.points[0].x, c.points[0].y);

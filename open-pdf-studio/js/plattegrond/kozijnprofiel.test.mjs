@@ -263,3 +263,11 @@ test('vormen naar tekenopdrachten: schaal, verschuiving en spiegeling', () => {
   bijna(spiegel[2].a1, -Math.PI / 2, 1e-12, 'hoek gespiegeld');
   assert.equal(spiegel[2].ccw, true, 'draairichting gespiegeld');
 });
+
+test('scharnier begin/eind (kader-object) is hetzelfde als min/plus', () => {
+  const eind = deurVormen({ vanU: 67, totU: 863, diepteMm: 114, scharnier: 'eind' });
+  const plus = deurVormen({ vanU: 67, totU: 863, diepteMm: 114, scharnier: 'plus' });
+  assert.deepEqual(eind, plus);
+  const begin = deurVormen({ vanU: 67, totU: 863, diepteMm: 114, scharnier: 'begin' });
+  assert.deepEqual(begin, deurVormen({ vanU: 67, totU: 863, diepteMm: 114, scharnier: 'min' }));
+});

@@ -241,6 +241,11 @@ export function deurbladBreedte(o) {
   return (Number(o.totU) - Number(o.vanU)) + 2 * (p.sponningDiepteMm - p.deurSpelingMm);
 }
 
+/** Scharnier aan de +u-kant? Accepteert 'plus' en (kader-object) 'eind'. */
+function scharnierPlus(s) {
+  return s === 'plus' || s === 'eind';
+}
+
 function draai(p, phi) {
   const c = Math.cos(phi), s = Math.sin(phi);
   return { u: p.u * c - p.v * s, v: p.u * s + p.v * c };
@@ -257,7 +262,7 @@ export function deurVormen(o) {
   const p = opties(o);
   const { vVan, vTot } = vlakken(o);
   const vanU = Number(o.vanU), totU = Number(o.totU);
-  const a = o.scharnier === 'plus' ? -1 : 1;           // richting van het dichte blad
+  const a = scharnierPlus(o.scharnier) ? -1 : 1;     // richting van het dichte blad
   const s = o.draaiNaar === 'buiten' ? -1 : 1;         // +1 = naar grote v
   const theta = (Math.max(1, Math.min(180, Number(o.hoekGraden) || 90)) * Math.PI) / 180;
   const phi = theta * a * s;
@@ -334,7 +339,7 @@ export function raamVormen(o) {
     vormen.push({ soort: 'lijn', rol: 'glas', van: { u: in0, v: g1 }, tot: { u: in1, v: g1 } });
   }
   if (type === 'turn' || type === 'draai') {
-    const a = o.scharnier === 'plus' ? -1 : 1;
+    const a = scharnierPlus(o.scharnier) ? -1 : 1;
     const s = binnen ? 1 : -1;
     const phi = (Math.PI / 2) * a * s;
     const midden = {
