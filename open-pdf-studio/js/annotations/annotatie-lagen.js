@@ -281,19 +281,35 @@ export function layersForSave(doc) {
   return layersInUse(doc) ? getLayers(doc) : null;
 }
 
+// Snel pad voor het tekenen en de raakdetectie, die per annotatie per frame
+// vragen: geen hele lijst normaliseren, alleen de ene laag opzoeken. Zelfde
+// uitkomst als layerOf (eerste treffer wint, onbekend = standaardlaag).
+function ruweLaag(ruw, id) {
+  for (const r of ruw) {
+    if (r && typeof r === 'object' && typeof r.id === 'string' && r.id.trim() === id) return r;
+  }
+  return null;
+}
+
+function laagVan(doc, ann) {
+  const ruw = doc?.annotationLayers;
+  if (!Array.isArray(ruw) || ruw.length === 0) return null;
+  return ruweLaag(ruw, layerIdOf(ann)) || ruweLaag(ruw, DEFAULT_LAYER_ID);
+}
+
 export function isLayerHidden(doc, ann) {
-  if (!doc) return false;
-  return !layerOf(doc, ann).visible;
+  const laag = laagVan(doc, ann);
+  return !!laag && laag.visible !== undefined && !laag.visible;
 }
 
 export function isLayerLocked(doc, ann) {
-  if (!doc) return false;
-  return layerOf(doc, ann).locked;
+  const laag = laagVan(doc, ann);
+  return !!laag && !!laag.locked;
 }
 
 export function isLayerPrintable(doc, ann) {
-  if (!doc) return true;
-  return layerOf(doc, ann).printable;
+  const laag = laagVan(doc, ann);
+  return !laag || laag.printable === undefined || !!laag.printable;
 }
 
 /** De naam zoals het paneel hem toont; de standaardlaag krijgt de vertaling. */

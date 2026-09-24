@@ -53,7 +53,8 @@ const geometrie = await laadMetStubs('./geometry.js', {
   ...minimummaat,
   state,
   getActiveDocument: () => doc,
-  isAnnotationHiddenInView: (ann) => ann.hidden === true,
+  // Wat verborgen is (of op een vergrendelde laag staat) is niet raakbaar.
+  isAnnotationPickableInView: (ann) => ann.hidden !== true,
   getAnnotationType: () => null,
 });
 const grepen = await laadMetStubs('./handles.js', { ...minimummaat, ...greepKeuze, HANDLE_SIZE, HANDLE_TYPES, state });

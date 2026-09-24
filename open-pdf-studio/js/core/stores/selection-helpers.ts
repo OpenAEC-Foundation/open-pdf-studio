@@ -6,7 +6,7 @@ import { betonbalkHalfWidthPx } from '../../annotations/betonbalk-scale.js';
 // @ts-ignore — pure JS-module zonder typedeclaraties
 import { systeemrasterFlatContour } from '../../annotations/systeemraster.js';
 // @ts-ignore — pure JS-module zonder typedeclaraties
-import { isAnnotationHiddenInView } from '../../annotations/view-filters.js';
+import { isAnnotationPickableInView } from '../../annotations/view-filters.js';
 
 export function clearSelection(): void {
   const doc = getActiveDocument();
@@ -45,9 +45,10 @@ export function selectAllOnPage(): void {
   const doc = state.documents[state.activeDocumentIndex];
   if (!doc) return;
   // Weergavefilters (hidden-vlag, Zichtbaarheid Elementen, statusfilter
-  // #333): wat niet getekend wordt, hoort ook niet in "alles selecteren".
+  // #333, lagen #468): wat niet getekend wordt of op een vergrendelde laag
+  // staat, hoort ook niet in "alles selecteren".
   const pageAnnotations = doc.annotations.filter(
-    a => a.page === doc.currentPage && !isAnnotationHiddenInView(a)
+    a => a.page === doc.currentPage && isAnnotationPickableInView(a)
   );
   doc.selectedAnnotations = pageAnnotations;
   doc.selectedAnnotation = pageAnnotations.length > 0 ? pageAnnotations[0] : null;
