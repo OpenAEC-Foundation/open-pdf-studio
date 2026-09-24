@@ -33,6 +33,21 @@ export default function MeasurementSection() {
               onInput={(e) => updateAnnotProp('measureName', e.target.value)}
             />
           </div>
+          {/* Ruimte uit de plattegrond: naam (hierboven), nummer en netto
+              oppervlakte horen bij de ruimte; haar ruimtetag toont ze. */}
+          <Show when={annotProps.isRuimte}>
+            <div class="property-group">
+              <label>{t('measurement.roomNumber')}</label>
+              <input type="text" value={annotProps.opsRuimteNummer || ''}
+                disabled={isLocked()}
+                onInput={(e) => updateAnnotProp('opsRuimteNummer', e.target.value)}
+              />
+            </div>
+            <div class="property-group">
+              <label>{t('measurement.netArea')}</label>
+              <input type="text" readonly value={annotProps.ruimteOppervlakte || ''} />
+            </div>
+          </Show>
           <div class="property-group">
             <label>{t('measurement.showLabel')}</label>
             <input type="checkbox"

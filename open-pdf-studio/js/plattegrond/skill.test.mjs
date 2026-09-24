@@ -28,7 +28,7 @@ test('de instructie voor het model noemt de opdracht, de eenheden en de volgorde
   // #477: maten aan het wandvlak en de buitenhoek, ruimtetag in plaats van een
   // los tekstvak, ruimten achter de wanden, alleen het getal.
   for (const stuk of ['WANDVLAK', 'buitenhoek', 'buitenste laag', 'ruimtetag', 'los tekstvak', 'ACHTER', 'showUnit', 'number',
-    'chainOf', 'addPoints', 'removePoints', '2 mm']) {
+    'chainOf', 'addPoints', 'removePoints', '2 mm', 'names:', 'tagIds', 'RUIMTE zelf']) {
     assert.ok(PLATTEGROND_PROMPT.includes(stuk), `de instructie noemt ${stuk}`);
   }
   assert.ok(!PLATTEGROND_PROMPT.includes('offsetMm:500'), 'geen vaste offset meer voorgeschreven: de standaard groeit mee met de schaal');

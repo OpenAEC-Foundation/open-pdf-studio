@@ -12,6 +12,7 @@ import { catmullRomToBezier, splineArrowEndTangent } from './spline-arrow-geomet
 import { drawDimension, drawMeasureAreaShape, drawCentroidLabel, drawMeasurePerimeterShape } from './rendering/measurements.js';
 import { maatlijnTekst } from './maat-label.js';
 import { maatlijnVelden } from './maatlijn-geometrie.js';
+import { tagWeergaveParams } from '../plattegrond/ruimte-koppeling.js';
 import { applyHatchFill, applyHatchFillPolygon } from './rendering/hatch-patterns.js';
 import { drawWall } from './rendering/walls.js';
 import { buildStavenreeks } from './stavenreeks.js';
@@ -1578,7 +1579,9 @@ export function drawAnnotation(ctx, annotation) {
         ctx.restore();
         break;
       }
-      const cmds = template.render(annotation.params || {}, {
+      // Een ruimtetag toont naam, nummer en oppervlakte van zijn ruimte
+      // (ruimte-koppeling.js); andere symbolen hun eigen params.
+      const cmds = template.render(tagWeergaveParams(annotation, getActiveDocument()?.annotations) || {}, {
         x: annotation.x, y: annotation.y, width: annotation.width, height: annotation.height
       }) || [];
       ctx.save();

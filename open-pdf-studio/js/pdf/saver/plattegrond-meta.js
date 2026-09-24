@@ -8,6 +8,7 @@
 //   OPS_NoLabel     true   meetvlak zonder eigen label (measureShowLabel false)
 //   OPS_RuimteZaad  [x y]  zaadpunt van een ruimte, in PDF-coördinaten
 //   OPS_RuimteNaam  tekst  de naam van die ruimte
+//   OPS_RuimteNummer tekst het nummer van die ruimte
 //
 // Het zaadpunt is hoe `app_floorplan {action:"rooms", refresh:true}` een
 // geplaatst ruimtevlak terugvindt; zonder deze sleutel was het na heropenen
@@ -60,6 +61,9 @@ export function schrijfPlattegrondMeta(annotDict, ann, context, X, Y) {
     }
     if (typeof ann.opsRuimteNaam === 'string' && ann.opsRuimteNaam) {
       zet('OPS_RuimteNaam', pdfTextString(ann.opsRuimteNaam));
+    }
+    if (typeof ann.opsRuimteNummer === 'string' && ann.opsRuimteNummer) {
+      zet('OPS_RuimteNummer', pdfTextString(ann.opsRuimteNummer));
     }
   }
   return n;

@@ -308,6 +308,48 @@ test('zonder seeds komt een ruimte in een gelaagde gevel maar een keer terug', a
   assert.equal(o.doc.annotations.filter((a) => a.symbolId === 'room-tag').length, 1);
 });
 
+test('naam en nummer horen bij de ruimte; de tag volgt, ook een nieuwe tag', async () => {
+  const { o } = await woning();
+  const r = await plattegrondOpdracht({
+    action: 'rooms', place: true, seeds: [{ x: 2500, y: 2000, name: 'Woonkamer', number: '0.01' }],
+  }, o);
+  const vlak = o.doc.annotations.find((a) => a.type === 'measureArea');
+  assert.equal(vlak.opsRuimteNaam, 'Woonkamer');
+  assert.equal(vlak.opsRuimteNummer, '0.01', 'het nummer staat op de ruimte');
+
+  // Uitlezen: rooms en inspect melden de geplaatste ruimte met naam en nummer.
+  const lijst = await plattegrondOpdracht({ action: 'rooms' }, o);
+  assert.equal(lijst.rooms[0].id, vlak.id);
+  assert.equal(lijst.rooms[0].name, 'Woonkamer');
+  assert.equal(lijst.rooms[0].number, '0.01');
+  assert.deepEqual(lijst.rooms[0].tagIds, [r.placed[0].tagId]);
+  const inspect = await plattegrondOpdracht({ action: 'inspect' }, o);
+  assert.equal(inspect.rooms[0].name, 'Woonkamer');
+
+  // Zetten via MCP: op de ruimte, aan te wijzen met id of met een punt erin.
+  const hernoemd = await plattegrondOpdracht({ action: 'rooms', names: [{ id: vlak.id, name: 'Woonkeuken' }] }, o);
+  assert.equal(hernoemd.ok, true);
+  assert.equal(vlak.opsRuimteNaam, 'Woonkeuken');
+  assert.equal(vlak.measureName, 'Woonkeuken');
+  assert.equal(vlak.opsRuimteNummer, '0.01', 'nummer ongemoeid');
+  await plattegrondOpdracht({ action: 'rooms', names: [{ x: 1000, y: 1000, number: '1.01' }] }, o);
+  assert.equal(vlak.opsRuimteNummer, '1.01');
+  assert.match((await plattegrondOpdracht({ action: 'rooms', names: [{ x: -900, y: -900, name: 'X' }] }, o)).warnings[0], /no placed room/);
+
+  // De tag verwijderd en opnieuw geplaatst: dezelfde ruimte, geen tweede vlak,
+  // en de nieuwe tag laat de naam van de ruimte zien.
+  o.doc.annotations = o.doc.annotations.filter((a) => a.symbolId !== 'room-tag');
+  const opnieuw = await plattegrondOpdracht({ action: 'rooms', place: true, seeds: [{ x: 3000, y: 1500 }] }, o);
+  assert.equal(o.doc.annotations.filter((a) => a.type === 'measureArea').length, 1, 'geen tweede ruimtevlak');
+  assert.equal(opnieuw.placed[0].id, vlak.id);
+  assert.equal(opnieuw.placed[0].name, 'Woonkeuken');
+  const tag = o.doc.annotations.find((a) => a.symbolId === 'room-tag');
+  assert.equal(tag.params.naam, 'Woonkeuken');
+  // Nog een keer plaatsen: de ruimte heeft al een tag, er komt er geen bij.
+  await plattegrondOpdracht({ action: 'rooms', place: true, seeds: [{ x: 3000, y: 1500 }] }, o);
+  assert.equal(o.doc.annotations.filter((a) => a.symbolId === 'room-tag').length, 1);
+});
+
 test('ruimtenAchterBouwdelen laat een onderlegger onderin', () => {
   const lijst = [
     { id: 'onder', type: 'image', page: 1 },

@@ -8,6 +8,11 @@
 // `app_floorplan {action:"rooms", refresh:true}` de ruimte terugvindt) en
 // `ankerX`/`ankerY` (het labelpunt van de ruimte bij de laatste plaatsing,
 // zodat een verschoven tag zijn plek ten opzichte van de ruimte houdt).
+//
+// Naam, nummer en netto oppervlakte horen bij de RUIMTE: de tekenlaag geeft
+// de tag de waarden van zijn ruimte (plattegrond/ruimte-koppeling.js). De
+// eigen `naam`/`nummer`/`oppervlakteM2` zijn een reservekopie voor een tag
+// zonder ruimte; de oppervlakte staat daarom niet als invulveld in het paneel.
 
 export const RUIMTETAG_ID = 'room-tag';
 
@@ -54,7 +59,12 @@ export function ruimteTagRegels(params = {}) {
   const naam = String(params.naam ?? '').trim();
   if (nummer) regels.push({ tekst: nummer, vet: false });
   if (naam) regels.push({ tekst: naam, vet: true });
-  if (params.toonOppervlakte !== false) regels.push({ tekst: oppervlakteTekst(params), vet: false });
+  // De oppervlakte komt van de ruimte (ruimte-koppeling.js); zonder ruimte
+  // en zonder eigen waarde staat er geen oppervlakte.
+  if (params.toonOppervlakte !== false && Number.isFinite(Number(params.oppervlakteM2))
+      && params.oppervlakteM2 !== null && params.oppervlakteM2 !== '') {
+    regels.push({ tekst: oppervlakteTekst(params), vet: false });
+  }
   return regels.length ? regels : [{ tekst: '?', vet: false }];
 }
 
@@ -79,7 +89,6 @@ export const ruimteTagTemplate = {
   params: [
     { key: 'naam', label: 'Naam', labelEn: 'Name', type: 'string', default: 'Ruimte' },
     { key: 'nummer', label: 'Nummer', labelEn: 'Number', type: 'string', default: '' },
-    { key: 'oppervlakteM2', label: 'Netto oppervlakte', labelEn: 'Net area', type: 'number', default: 0, min: 0, step: 0.01, unit: 'm²' },
     { key: 'decimalen', label: 'Decimalen', labelEn: 'Decimals', type: 'number', default: 1, min: 0, max: 3, step: 1 },
     { key: 'toonOppervlakte', label: 'Oppervlakte tonen', labelEn: 'Show area', type: 'boolean', default: true },
   ],

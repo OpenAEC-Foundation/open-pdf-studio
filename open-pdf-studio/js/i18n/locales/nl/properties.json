@@ -364,6 +364,8 @@
     "extGap": "Hulplijn: vrije afstand (mm)",
     "extOvershoot": "Hulplijn: doorloop (mm)",
     "auto": "Automatisch",
+    "roomNumber": "Ruimtenummer",
+    "netArea": "Netto oppervlakte",
     "searchType": "Zoeken…",
     "editTypes": "Typen bewerken",
     "noTypesFound": "Geen typen gevonden"

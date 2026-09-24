@@ -20,6 +20,7 @@ import { switchRibbonTab as switchToTab } from '../bridge.js';
 import { openFindBar, closeFindBar, onFindNext } from '../search/find-bar.js';
 import { closeActiveTab } from '../ui/chrome/tabs.js';
 import { hideProperties, showProperties, showMultiSelectionProperties, togglePropertiesPanel } from '../ui/panels/properties-panel.js';
+import { wisselTagEnRuimte } from '../plattegrond/ruimte-selectie.js';
 import { openDialog, getDialogs } from '../bridge.js';
 import { getTool } from './tool-registry.js';
 import { resolvePointerCoords, buildToolContext, isModalOpen } from './tool-context.js';
@@ -347,6 +348,13 @@ export async function handleKeydown(e) {
     e.preventDefault();
     state._editArcMode = !state._editArcMode;
     redraw();
+    return;
+  }
+
+  // Tab op een ruimtetag of ruimte (plattegrond): wissel tussen de tag en
+  // zijn ruimte - een ruimte is met een klik niet te pakken.
+  if (e.key === 'Tab' && !ctrl && !e.altKey && !shift && wisselTagEnRuimte()) {
+    e.preventDefault();
     return;
   }
 

@@ -57,6 +57,11 @@ export function leesPlattegrondMeta(annotDict, context) {
     const naam = decodePdfTextObject(context.lookup(naamRaw) || naamRaw);
     if (typeof naam === 'string' && naam) uit.opsRuimteNaam = naam;
   }
+  const nummerRaw = annotDict.get(PDFName.of('OPS_RuimteNummer'));
+  if (nummerRaw) {
+    const nummer = decodePdfTextObject(context.lookup(nummerRaw) || nummerRaw);
+    if (typeof nummer === 'string' && nummer) uit.opsRuimteNummer = nummer;
+  }
   return uit;
 }
 
@@ -80,5 +85,6 @@ export function plattegrondUitExtra(extra, naarApp) {
     if (Number.isFinite(x) && Number.isFinite(y)) uit.opsRuimteZaad = { x, y };
   }
   if (e.opsRuimteNaam) uit.opsRuimteNaam = e.opsRuimteNaam;
+  if (e.opsRuimteNummer) uit.opsRuimteNummer = e.opsRuimteNummer;
   return uit;
 }
