@@ -378,11 +378,13 @@ export function isNietInBrowser(fout) {
   return !!fout && typeof fout === 'object' && fout.code === NIET_IN_BROWSER;
 }
 
-// Invoke custom commands
-export async function invoke(cmd, args = {}) {
+// Invoke custom commands. `options` (bijvoorbeeld koppen bij een rauwe
+// body: `args` is dan een Uint8Array) gaat alleen mee als hij er is.
+export async function invoke(cmd, args = {}, options = undefined) {
   const core = getTauriCore();
   if (!core) throw new NietInBrowserError(cmd);
-  return await core.invoke(cmd, args);
+  if (options === undefined) return await core.invoke(cmd, args);
+  return await core.invoke(cmd, args, options);
 }
 
 // App-datamap (kaders, onderhoeken). Gaat via Rust zodat een testinstantie
