@@ -1388,7 +1388,12 @@ async function _buildCreateProps(type, page, props) {
       const reg = await import('./symbols/registry.js');
       const tpl = reg.getTemplate(p.symbolId);
       if (!tpl) return { error: `unknown template: ${p.symbolId}` };
-      const params = { ...reg.defaultParams(tpl), ...(p.params || {}) };
+      // Lijst-parameters (de onderdelen van een aanrecht) meteen genormaliseerd:
+      // wat de assistent terugleest is wat er getekend staat.
+      const params = reg.normalizeParams(tpl, { ...reg.defaultParams(tpl), ...(p.params || {}) });
+      const ankerMod = await import('./symbols/anker.js');
+      const anker = ankerMod.ankerArgument(p.anchor);
+      if (!anker.ok) return { error: anker.error };
       // Bbox: explicit rect wins; otherwise real-world size at (x,y) centre
       // (steel profiles), falling back to the template's defaultSize.
       let rect;
@@ -1401,7 +1406,12 @@ async function _buildCreateProps(type, page, props) {
           const k = rs.pxPerMmAt(page, p.x, p.y);
           const hPx = mm.height * k;
           const wPx = mm.width > 0 ? mm.width * k : hPx * 4; // free-length beam
-          rect = { x: p.x - wPx / 2, y: p.y - hPx / 2, width: wPx, height: hPx };
+          // (x,y) is het gekozen ankerpunt van het symbool (standaard het
+          // midden), met de rotatie meegerekend: bij anchor "back" is het
+          // een punt op het wandvlak (#478).
+          rect = ankerMod.vakUitAnker(
+            { x: p.x, y: p.y }, wPx, hPx, _isNum(p.rotation) ? p.rotation : 0, anker.anker,
+          );
         } else {
           const ds = tpl.defaultSize || { width: 80, height: 80 };
           rect = { x: p.x, y: p.y, width: ds.width, height: ds.height };
@@ -1462,6 +1472,12 @@ async function handleCreateAnnotation(params) {
     merged.y = built.base.y;
     merged.width = built.base.width;
     merged.height = built.base.height;
+  }
+  if (type === 'parametricSymbol') {
+    // De parameters zoals de bouwer ze samenstelde (standaarden + invoer,
+    // lijsten genormaliseerd); `anchor` is plaatsingsinvoer, geen veld.
+    merged.params = built.base.params;
+    delete merged.anchor;
   }
   // Laag (#468): `layer` naast props (of in props), op id of naam. Zonder
   // laag landt de annotatie op de huidige laag, net als met het gereedschap.
@@ -1583,7 +1599,23 @@ async function handleUpdateAnnotation(params) {
     if (!gecontroleerd.ok) return { ok: false, error: gecontroleerd.error };
     patch = gecontroleerd.patch;
   }
+  // Parametrisch symbool (#478): params worden SAMENGEVOEGD — wie alleen de
+  // lengte van een aanrecht wijzigt, houdt zijn onderdelen — en daarna
+  // krijgt het symbool weer zijn werkelijke maat (zoals in het
+  // eigenschappenpaneel), tenzij de aanroeper zelf een maat meegeeft.
+  const psParams = ann.type === 'parametricSymbol' && 'params' in patch;
+  if (psParams) {
+    const [ankerMod, reg] = await Promise.all([
+      import('./symbols/anker.js'), import('./symbols/registry.js'),
+    ]);
+    const tpl = reg.getTemplate(ann.symbolId);
+    patch = { ...patch, params: reg.normalizeParams(tpl, ankerMod.voegParamsSamen(ann.params, patch.params)) };
+  }
   Object.assign(ann, patch);
+  if (psParams && !('width' in patch) && !('height' in patch)) {
+    const rs = await import('./symbols/real-size.js');
+    rs.applyTemplateRealSize(ann, 'center');
+  }
   if (laag.id !== undefined) {
     const { assignLayer } = await import('./annotations/annotatie-lagen.js');
     assignLayer([ann], laag.id);

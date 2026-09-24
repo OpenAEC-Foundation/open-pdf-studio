@@ -11,6 +11,7 @@
 import { getTemplate } from './registry.js';
 import { getMeasureScale } from '../annotations/measurement.js';
 import { resizeTwoPointGeometry } from './two-point.js';
+import { maatAnkerVoor, vakNaMaatwijziging } from './anker.js';
 
 const UNIT_TO_MM = { mm: 1, cm: 10, m: 1000, in: 25.4, ft: 304.8 };
 
@@ -51,10 +52,16 @@ export function applyTemplateRealSize(ann, anchor = 'center') {
   if (tpl.placement === 'two-point') {
     return resizeTwoPointGeometry(ann, w, h);
   }
-  if (anchor === 'center') {
-    ann.x = cx - w / 2;
-    ann.y = cy - h / 2;
-  }
+  // 'center' houdt het midden vast; een template mag daar zijn eigen punt
+  // voor kiezen (een closet groeit vanaf de wand, een aanrecht vanaf zijn
+  // begin) — ook als het symbool gedraaid is. 'topleft' houdt x/y.
+  const vast = maatAnkerVoor(tpl, ann.params, anchor);
+  const vak = vakNaMaatwijziging(
+    { x: ann.x, y: ann.y, width: ann.width || 0, height: ann.height || 0 },
+    ann.rotation, w, h, vast,
+  );
+  ann.x = vak.x;
+  ann.y = vak.y;
   ann.width = w;
   ann.height = h;
   return true;

@@ -894,6 +894,26 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
         verhouding: aspectRatio,
         minBreedte: isSchaalbalk ? gebiedMinPt : undefined,
       });
+      // Inrichting (#478): een template met `paramsUitMaat` maakt van het
+      // versleepte vak zijn nieuwe werkelijke maat (een aanrecht langer, een
+      // closet dieper), zodat parameters en tekening gelijk blijven en de
+      // onderdelen in een aanrecht niet mee uitrekken.
+      if (annotation.type === 'parametricSymbol') {
+        const tpl = getTemplate(annotation.symbolId);
+        if (typeof tpl?.paramsUitMaat === 'function') {
+          const k = pxPerMmAt(
+            annotation.page,
+            annotation.x + annotation.width / 2,
+            annotation.y + annotation.height / 2,
+          );
+          if (k > 0) {
+            annotation.params = tpl.paramsUitMaat(originalAnn.params || {}, {
+              breedteMm: annotation.width / k,
+              hoogteMm: annotation.height / k,
+            });
+          }
+        }
+      }
       break;
     }
 

@@ -112,6 +112,14 @@ const PARAMETRIC_ID_DEFAULT = {
   'paalpuntniveau': 'IfcAnnotation',
   'overspanningspijl-vloer': 'IfcAnnotation',
   'stenenrij': 'IfcWall',
+  // Inrichting (#478): sanitaire toestellen en keukenblokken.
+  'wandcloset': 'IfcSanitaryTerminal',
+  'staand-closet': 'IfcSanitaryTerminal',
+  'fontein': 'IfcSanitaryTerminal',
+  'hoekfontein': 'IfcSanitaryTerminal',
+  'aanrecht': 'IfcFurniture',
+  'aanrecht-hoek': 'IfcFurniture',
+  'kookeiland': 'IfcFurniture',
 };
 
 function keywordMatch(text) {
@@ -261,6 +269,8 @@ export const IFC_LABELS = {
   IfcGrid: 'Stramien / raster',
   IfcAnnotation: 'Annotatie / maatvoering',
   IfcReinforcingBar: 'Wapening',
+  IfcSanitaryTerminal: 'Sanitair toestel',
+  IfcFurniture: 'Meubilair / keukenblok',
   IfcBuildingElementProxy: 'Overig bouwelement',
   // NEN 1414-klassen (nenIfcMap.js)
   IfcController: 'Centrale / paneel / regelaar',

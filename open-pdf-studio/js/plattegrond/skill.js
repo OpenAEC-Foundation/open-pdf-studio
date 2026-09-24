@@ -15,10 +15,23 @@ export const PLATTEGROND_SKILL = {
   id: 'floorplan',
   icon: '🏠',
   label: 'Plattegrond',
-  hint: 'Teken een bouwkundige plattegrond: wanden, kozijnen, ruimten en maatvoering',
+  hint: 'Teken een bouwkundige plattegrond: wanden, kozijnen, ruimten, maatvoering en inrichting (sanitair, keuken)',
   invoke: 'Teken een bouwkundige plattegrond. Werk als tekenaar: zet eerst de schaal, teken dan de wanden met hun deuren en ramen erin, laat de ruimten zichzelf herkennen en zet er maatvoering bij. Wat er getekend moet worden: ',
   needsInput: true,
 };
+
+// Inrichten (#478): sanitair en keuken als parametrische symbolen op
+// werkelijke maat, geplaatst met app_create_annotation. Apart gehouden zodat
+// de symbool-ids en parameters op één plek staan (skill.test.mjs toetst ze
+// tegen de templates).
+export const INRICHTING_PROMPT =
+  '\nINRICHTEN - sanitair en keuken (na de wanden): app_create_annotation {type:"parametricSymbol", props:{symbolId, x, y, rotation, anchor, params:{...}}}. Elk onderdeel staat op WERKELIJKE MAAT (mm, via de schaal op dat punt).\n' +
+  '   Richting: ongedraaid ligt de ACHTERKANT (wandzijde) boven; rotation 90 = wand rechts, 180 = wand onder, 270 = wand links. anchor:"back" maakt x/y het midden van de achterkant: geef dan een punt OP HET WANDVLAK (hartlijn plus halve wanddikte naar de ruimte toe) en de app legt het toestel ertegen, ook gedraaid. anchor:"back-left"/"back-right" is de linker-/rechterhoek van de achterkant (een aanrecht dat in een hoek begint); zonder anchor is x/y het midden.\n' +
+  '   Sanitair: "wandcloset" {breedte 360, diepte 530}, "staand-closet" {breedte 380, diepte 680}, "fontein" {breedte 380, diepte 250, kraan:"midden"|"zijkant", spiegelen}, "hoekfontein" {breedte 330, diepte 330, spiegelen} (de hoek ligt linksboven, gespiegeld rechtsboven: zet hem met anchor:"back-left" in de binnenhoek). Toiletruimte, vuistregel: netto minstens 900 x 1200 mm, hart closet minstens 400 mm uit een zijwand, 600 mm vrij voor de pot; de fontein naast of tegenover het closet, buiten de draaicirkel van de deur.\n' +
+  '   Keuken: "aanrecht" (recht; lengte, diepte 600), "aanrecht-hoek" (L-vorm; lengte = been 1 langs de achterwand, lengte2 = been 2 langs de rechterwand, buitenhoek rechtsboven, gespiegeld linksboven; diepte 600) en "kookeiland" (lengte 2400, diepte 1000, overstek = zitgedeelte). Allemaal met spiegelen en onderdelen. Een blok met zijn onderdelen is EEN symbool: het verplaatst en draait als geheel.\n' +
+  '   onderdelen: [{soort, vanaf, breedte, been}]. soort: spoelbak, spoelbak-dubbel, kookplaat-4, kookplaat-5, inductie, vaatwasser, koelkast, hoge-kast. vanaf = mm van het begin van het been tot de linkerkant van het onderdeel (kijkend naar de wand); breedte standaard 600 (spoelbak-dubbel en kookplaat-5 900, inductie 800); been 1|2 alleen bij aanrecht-hoek, been 2 gemeten vanaf de buitenhoek en pas vrij na het hoekvak (vanaf >= diepte). Wat buiten het blad valt, schuift de app erin; lees het resultaat terug met app_get_annotation.\n' +
+  '   Wijzigen: app_update_annotation {id, props:{params:{...}}} VOEGT params SAMEN (alleen de lengte meegeven laat de onderdelen staan) en zet de werkelijke maat opnieuw; een aanrecht groeit vanaf zijn begin (aanrecht-hoek vanaf de buitenhoek), een toestel vanaf de wand.\n' +
+  '   Keuken, vuistregels: vaatwasser direct naast de spoelbak; minstens 600 mm werkblad tussen spoelbak en kookplaat; kookplaat minstens 300 mm uit een wand of hoge kast; loopruimte voor een aanrecht en tussen aanrecht en eiland minstens 1000 mm.';
 
 export const PLATTEGROND_PROMPT =
   '\n\nPLATTEGROND TEKENEN (vaardigheid "Plattegrond", opdracht app_floorplan):\n' +
@@ -32,4 +45,5 @@ export const PLATTEGROND_PROMPT =
   '3. Ruimten: app_floorplan {action:"rooms", place:true, seeds:[{x,y,name:"Woonkamer"}, ...]}. De ruimte volgt uit de wanden: netto oppervlakte binnen de wandvlakken, label in het hart. Zonder seeds krijg je alleen een overzicht van wat er gevonden is. openEnds in het antwoord zijn wandeinden waar de contour niet sluit - meld die, ga niet raden. Verschoof er later een wand, draai dan {action:"rooms", refresh:true}: elke geplaatste ruimte rekent zichzelf opnieuw uit.\n' +
   '4. Maatvoering: app_floorplan {action:"dimensions", wallIds:[...uit stap 2, op volgorde], offsetMm:500, side:"left"|"right"}. Dat levert een maatketting (penant, dagmaat, penant, ...) plus een totaalmaat, met de eindpunten vast aan de wandstukken. Na een wijziging: {action:"dimensions", refresh:true}.\n' +
   '5. Controleren: app_floorplan {action:"inspect"} geeft terug wat er staat - wanden met lengte en dikte, sparingen met dagmaat en borstwering, de gevonden ruimten met oppervlakte, en openEnds. Gebruik dat om te verifieren, niet alleen een schermafdruk. Bekijk daarna eventueel met app_fit_page + app_screenshot_view of het beeld klopt.\n' +
-  'Elke aanroep is één undo-stap. Gaat er iets mis, dan is app_undo genoeg. Teksten op de tekening (ruimtenamen, titel) gaan in de taal van de gebruiker.';
+  'Elke aanroep is één undo-stap. Gaat er iets mis, dan is app_undo genoeg. Teksten op de tekening (ruimtenamen, titel) gaan in de taal van de gebruiker.' +
+  INRICHTING_PROMPT;
