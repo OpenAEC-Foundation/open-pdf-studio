@@ -552,14 +552,26 @@ export function getAnnotationHandles(annotation, scale = 1) {
             isGrip: true,
             isTwoPoint: true,
           });
-          handles.push({
-            type: HANDLE_TYPES.LINE_MID,
-            x: (_points.startX + _points.endX) / 2 - hs / 2,
-            y: (_points.startY + _points.endY) / 2 - hs / 2,
-            isGrip: true,
-            isCenterGrip: true,
-            isTwoPoint: true,
-          });
+          // Sjabloon-eigen grepen, bijvoorbeeld de geselecteerde stijl van
+          // een gevelelement (verschuiven door te slepen). Zijn die er, dan
+          // vervalt de middengreep: een stijl in het midden zou er precies
+          // onder liggen en bij gelijke afstand wint de verplaatsgreep. Het
+          // element zelf blijft verplaatsbaar door aan het lijf te slepen.
+          const _extra = typeof _tpl.extraGrepen === 'function'
+            ? (_tpl.extraGrepen(annotation) || []) : [];
+          if (!_extra.length) {
+            handles.push({
+              type: HANDLE_TYPES.LINE_MID,
+              x: (_points.startX + _points.endX) / 2 - hs / 2,
+              y: (_points.startY + _points.endY) / 2 - hs / 2,
+              isGrip: true,
+              isCenterGrip: true,
+              isTwoPoint: true,
+            });
+          }
+          for (const g of _extra) {
+            handles.push({ type: g.type, x: g.x - hs / 2, y: g.y - hs / 2, isGrip: true, isTwoPoint: true });
+          }
           break;
         }
         if (_tpl?.fixedSize) {

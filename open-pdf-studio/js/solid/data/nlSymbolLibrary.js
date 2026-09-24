@@ -40,6 +40,11 @@ const wandIsolatiePreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" 
 const wandKzsPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="6" y="24" width="52" height="16"/><line x1="12" y1="24" x2="8" y2="40" stroke-width="1.2"/><line x1="20" y1="24" x2="16" y2="40" stroke-width="1.2"/><line x1="28" y1="24" x2="24" y2="40" stroke-width="1.2"/><line x1="36" y1="24" x2="32" y2="40" stroke-width="1.2"/><line x1="44" y1="24" x2="40" y2="40" stroke-width="1.2"/><line x1="52" y1="24" x2="48" y2="40" stroke-width="1.2"/></svg>`;
 const wandBetonPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="6" y="24" width="52" height="16"/><line x1="16" y1="24" x2="8" y2="40" stroke-width="1.2"/><line x1="30" y1="24" x2="22" y2="40" stroke-width="1.2"/><line x1="44" y1="24" x2="36" y2="40" stroke-width="1.2"/><circle cx="22" cy="30" r="1.2" fill="#000"/><circle cx="36" cy="35" r="1.2" fill="#000"/><circle cx="48" cy="29" r="1.2" fill="#000"/></svg>`;
 
+// Gevelelement (#475): vliesgevel (stijlen als blokjes, dubbele glaslijn,
+// één deur met draaicirkel) en kozijn (kozijnhout met glas en een draairaam).
+const vliesgevelPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.2"><g fill="#000"><rect x="3" y="28" width="3" height="8"/><rect x="21" y="28" width="3" height="8"/><rect x="40" y="28" width="3" height="8"/><rect x="58" y="28" width="3" height="8"/></g><line x1="6" y1="31" x2="21" y2="31"/><line x1="6" y1="33" x2="21" y2="33"/><line x1="43" y1="31" x2="58" y2="31"/><line x1="43" y1="33" x2="58" y2="33"/><line x1="24" y1="36" x2="24" y2="52"/><path d="M24 52 A16 16 0 0 0 40 36" stroke-width="0.9"/></svg>`;
+const kozijnPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.2"><g fill="#000"><rect x="6" y="26" width="5" height="12"/><rect x="30" y="26" width="4" height="12"/><rect x="53" y="26" width="5" height="12"/></g><line x1="11" y1="31" x2="30" y2="31"/><line x1="11" y1="33" x2="30" y2="33"/><line x1="34" y1="31" x2="53" y2="31"/><line x1="34" y1="33" x2="53" y2="33"/><path d="M34 38 A19 19 0 0 0 53 57" stroke-dasharray="2 2" stroke-width="0.9"/></svg>`;
+
 const ifcSpacePreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="8" y="12" width="48" height="40" stroke-dasharray="5 3"/><text x="32" y="36" font-size="10" text-anchor="middle" fill="#000" stroke="none">Ruimte</text></svg>`;
 // Maskeer (wipeout): wit afdekvlak over een "tekening" (grijze lijntjes
 // eronder maken zichtbaar dat het vlak afdekt), streep-punt-rand.
@@ -104,6 +109,8 @@ export const NL_CATEGORIES = [
     icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5.5 8 2l6 3.5v5L8 14l-6-3.5z"/><path d="M8 8v6M2 5.5 8 8l6-2.5"/></svg>`,
     symbols: [
       { id: 'wand', name: 'Wand (IfcWall)', wall: { pattern: 'nen47-metselwerk-baksteen', dikteMm: 100 }, svg: wandMetselwerkPreview },
+      { id: 'param-vliesgevel', name: 'Vliesgevel (IfcCurtainWall)', parametricId: 'vliesgevel', svg: vliesgevelPreview },
+      { id: 'param-kozijn', name: 'Kozijn (IfcWindow)', parametricId: 'kozijn', svg: kozijnPreview },
       { id: 'ifc-space', name: 'Ruimte (IfcSpace)', parametricId: 'ifc-space', svg: ifcSpacePreview },
       { id: 'param-vloer-kanaalplaat', name: 'Kanaalplaatvloer', parametricId: 'vloer-kanaalplaatvloer', svg: kanaalplaatPreview },
       { id: 'param-vloer-isolatieplaat', name: 'Isolatieplaatvloer', parametricId: 'vloer-isolatieplaatvloer', svg: isolatieplaatPreview },

@@ -831,8 +831,9 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
     case 'scheduleTable':
     case 'vectorSnippet':
     case 'parametricSymbol': {
-      if (annotation.type === 'parametricSymbol'
-          && getTemplate(annotation.symbolId)?.placement === 'two-point') {
+      const _tweepuntTpl = annotation.type === 'parametricSymbol'
+        ? getTemplate(annotation.symbolId) : null;
+      if (_tweepuntTpl?.placement === 'two-point') {
         const points = twoPointEndpoints(originalAnn);
         let startX = points.startX;
         let startY = points.startY;
@@ -840,7 +841,13 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
         let endY = points.endY;
         const movingStart = handleType === HANDLE_TYPES.LINE_START;
         const movingEnd = handleType === HANDLE_TYPES.LINE_END;
-        if (!movingStart && !movingEnd) break;
+        if (!movingStart && !movingEnd) {
+          // Sjabloon-eigen greep (bijv. de stijl van een gevelelement).
+          if (typeof _tweepuntTpl.sleepGreep === 'function') {
+            _tweepuntTpl.sleepGreep(annotation, originalAnn, handleType, deltaX, deltaY);
+          }
+          break;
+        }
         if (movingStart) {
           startX += deltaX;
           startY += deltaY;
@@ -872,6 +879,11 @@ export function applyResize(annotation, handleType, deltaX, deltaY, originalAnn,
         const midX = (startX + endX) / 2;
         const midY = (startY + endY) / 2;
         syncTwoPointLengthParam(annotation, pxPerMmAt(annotation.page, midX, midY));
+        // Het sjabloon mag zijn indeling bijwerken op de nieuwe lengte; het
+        // uiteinde dat niet bewoog is de vaste kant.
+        if (typeof _tweepuntTpl.naRek === 'function') {
+          _tweepuntTpl.naRek(annotation, originalAnn, movingStart ? 'eind' : 'begin');
+        }
         break;
       }
       // Afbeelding, stempel, handtekening, staat en parametrisch symbool mogen

@@ -31,6 +31,7 @@ import {
 import {
   bouwkraanTemplate, draaicirkelTemplate, parkeervakTemplate, bouwkeetTemplate,
 } from './templates/bouwplaats-symbolen.js';
+import { vliesgevelTemplate, kozijnTemplate } from './templates/gevelelement.js';
 
 const templates = new Map();
 
@@ -76,6 +77,9 @@ register(bouwkraanTemplate);
 register(draaicirkelTemplate);
 register(parkeervakTemplate);
 register(bouwkeetTemplate);
+// Gevelelement (#475): vliesgevel en kozijn, één object met twee voorinstellingen.
+register(vliesgevelTemplate);
+register(kozijnTemplate);
 
 // Runtime registration for catalog-driven templates (downloaded steel
 // catalogs from the online symbol library — see symbols/steel-catalog-store.js).

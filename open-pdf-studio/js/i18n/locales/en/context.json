@@ -130,5 +130,13 @@
     "windows": "Show in Explorer",
     "mac": "Reveal in Finder",
     "linux": "Open containing folder"
+  },
+  "gevelelement": {
+    "addMullionHere": "Add mullion here",
+    "removeMullion": "Remove nearest mullion",
+    "panelItem": "Panel: {{name}}",
+    "placeInWall": "Place in wall (interrupt the wall)",
+    "noHostWall": "No wall found under this element",
+    "editRefused": "Not possible"
   }
 }

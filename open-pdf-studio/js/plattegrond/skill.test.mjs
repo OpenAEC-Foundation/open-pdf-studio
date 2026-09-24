@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import { PLATTEGROND_SKILL, PLATTEGROND_PROMPT } from './skill.js';
 import { FLOORPLAN_ACTIES } from './mcp-plattegrond.js';
+import { FACADE_ACTIES } from '../gevelelement/mcp-gevelelement.js';
 import { ASSISTANT_SKILLS, SKILLS_SYSTEM_PROMPT } from '../assistant-skills.js';
 
 test('de vaardigheid staat als chip in het assistentvenster', () => {
@@ -28,5 +29,15 @@ test('de instructie voor het model noemt de opdracht, de eenheden en de volgorde
   // De vier acties van de opdracht komen allemaal in de instructie voor.
   for (const a of FLOORPLAN_ACTIES) {
     assert.ok(PLATTEGROND_PROMPT.includes(`action:"${a}"`) || PLATTEGROND_PROMPT.includes(`"${a}"`), a);
+  }
+});
+
+test('de instructie beschrijft het gevelelement (vliesgevel, kozijn) en al zijn acties', () => {
+  for (const stuk of [
+    'app_facade_element', 'curtainWall', 'windowFrame', 'wallId', 'fromMm', 'lengthMm',
+    'fieldWidthsMm', 'hinge', 'swing', 'kader',
+  ]) assert.ok(PLATTEGROND_PROMPT.includes(stuk), `de instructie noemt ${stuk}`);
+  for (const a of FACADE_ACTIES) {
+    assert.ok(PLATTEGROND_PROMPT.includes(`action:"${a}"`), `actie ${a}`);
   }
 });

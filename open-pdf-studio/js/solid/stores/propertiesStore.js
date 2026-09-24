@@ -144,6 +144,8 @@ const [annotProps, setAnnotProps] = createStore({
   srLabelSide: 'end',
   symbolId: '',
   params: {},
+  // Gevelelement: het geselecteerde onderdeel (stijl/paneel) of null.
+  gevelSub: null,
   replies: [],
   multiCount: 0,
 });
@@ -391,6 +393,10 @@ export function storeShowProperties(annotation) {
     srLabelSide: annotation.labelSide || 'end',
     symbolId: annotation.symbolId || '',
     params: annotation.params ? { ...annotation.params } : {},
+    // Gevelelement (vliesgevel/kozijn): het met Tab of een tweede klik
+    // geselecteerde onderdeel — de GevelelementSection toont dat onderdeel.
+    gevelSub: annotation.type === 'parametricSymbol' && annotation.selectedSub
+      ? { ...annotation.selectedSub } : null,
     dikteMm: annotation.dikteMm ?? 100,
     isolatieType: annotation.isolatieType || 'steenwol',
     // Betonbalk

@@ -2,6 +2,7 @@ import { HANDLE_SIZE, HANDLE_TYPES } from '../../core/constants.js';
 import { state, getActiveDocument, getSelectionBounds, getAnnotationBounds } from '../../core/state.js';
 import { annotationCtx } from '../../ui/dom-elements.js';
 import { getAnnotationHandles } from '../handles.js';
+import { getTemplate } from '../../symbols/registry.js';
 
 // Draw selection highlight and handles
 export function drawSelectionHandles(ctx, annotation) {
@@ -214,6 +215,34 @@ export function drawSelectionHandles(ctx, annotation) {
       ctx.strokeRect(bounds.x, bounds.y, bounds.width, bounds.height);
       ctx.setLineDash([]);
       ctx.restore();
+    }
+  }
+
+  // Onderdeel van een parametrisch symbool oplichten (gevelelement: de met
+  // Tab of een tweede klik geselecteerde stijl of het paneel; lichter het
+  // onderdeel onder de aanwijzer). Alleen hier, op het interactieve canvas:
+  // de opgeslagen weergave (/AP) tekent geen selectie.
+  if (annotation.type === 'parametricSymbol') {
+    const _ondTpl = getTemplate(annotation.symbolId);
+    if (typeof _ondTpl?.onderdeelVlakken === 'function') {
+      let vlakken = [];
+      try { vlakken = _ondTpl.onderdeelVlakken(annotation) || []; } catch (_) { vlakken = []; }
+      for (const vlak of vlakken) {
+        if (!Array.isArray(vlak.punten) || vlak.punten.length < 3) continue;
+        const selectie = vlak.soort === 'selectie';
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(vlak.punten[0].x, vlak.punten[0].y);
+        for (let i = 1; i < vlak.punten.length; i++) ctx.lineTo(vlak.punten[i].x, vlak.punten[i].y);
+        ctx.closePath();
+        ctx.fillStyle = selectie ? 'rgba(0, 102, 204, 0.30)' : 'rgba(0, 102, 204, 0.12)';
+        ctx.fill();
+        ctx.strokeStyle = '#0066cc';
+        ctx.lineWidth = (selectie ? 2 : 1) / sc;
+        ctx.setLineDash(selectie ? [] : [3 / sc, 2 / sc]);
+        ctx.stroke();
+        ctx.restore();
+      }
     }
   }
 

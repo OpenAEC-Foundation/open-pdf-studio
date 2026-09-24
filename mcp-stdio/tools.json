@@ -2087,5 +2087,149 @@
       "type": "object"
     },
     "name": "app_floorplan"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Draw facade element"
+    },
+    "description": "Draw and edit a facade element in a floor plan: a curtain wall or a window frame, as ONE object along a line with an outer frame, mullions on the field boundaries and a panel in every field. Everything is at real size (mm) from the measurement scale, so set one first with app_set_measure_scale. Actions: \"create\" places a new element, either loose along start/end (page points), or IN an existing wall (wallId plus fromMm or alongMm and lengthMm): the wall is then cut over the length of the element, like a door or window opening, and the element sits in the gap; offsetMm moves it across the wall build-up (+ = right of the wall direction). The division is fields (number of equal fields, centre-to-centre) or fieldWidthsMm (centre-to-centre widths that add up to the length); without either it divides itself into fields of about 1200 mm (curtain wall) or 900 mm (window frame). \"get\" returns one element (id) with its mullions and fields, or without id a summary of every element on the page. Edits (all need id): \"addMullion\" splits a field at atMm (from the start) or in the middle of field; \"removeMullion\" merges the two fields beside mullion (index) or the mullion nearest atMm; \"moveMullion\" moves it to toMm or by byMm; \"setMullionType\" swaps the type of mullion (index 0 and the last index are the outer frame; without mullion or atMm all intermediate mullions); \"setPanel\" swaps the panel of field, fieldIndexes or the field at atMm; \"divide\" divides again into fields or fieldWidthsMm. Mullions are numbered from 0 (frame at the start) to n (frame at the end); field i lies between mullion i and i+1. Fields never become narrower than 100 mm clear and the overall length stays the same, except for divide with fieldWidthsMm. Mullion types: curtain wall alu-50x150 (default), alu-50x200, alu-65x250; window frame hout-67x114 (default), hout-67x139, hout-90x114 (width x depth in mm). Panels: curtain wall glass, solid, door, open; window frame glass, turnSash, door, solid. A panel is a name or {type, hinge: start|end, swing: inside|outside} for a door or turn sash. Every call is a single undo step and returns the element as it is now.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "description": "What to do.",
+          "enum": [
+            "create",
+            "get",
+            "addMullion",
+            "removeMullion",
+            "moveMullion",
+            "setMullionType",
+            "setPanel",
+            "divide"
+          ],
+          "type": "string"
+        },
+        "alongMm": {
+          "description": "create in a wall: distance from the wall start to the MIDDLE of the element, in mm (alternative to fromMm; without both the element is centred).",
+          "type": "number"
+        },
+        "atMm": {
+          "description": "Position along the element from its start, in mm: where addMullion splits, which mullion (nearest) or field setPanel/removeMullion/moveMullion/setMullionType means.",
+          "type": "number"
+        },
+        "byMm": {
+          "description": "moveMullion: shift in mm (+ = towards the end).",
+          "type": "number"
+        },
+        "end": {
+          "additionalProperties": true,
+          "description": "create (loose): end of the element as {x, y} in page points.",
+          "type": "object"
+        },
+        "field": {
+          "description": "addMullion: split this field in the middle; setPanel: the field index (0 = at the start).",
+          "type": "number"
+        },
+        "fieldIndexes": {
+          "description": "setPanel: several field indexes at once.",
+          "items": {
+            "type": "number"
+          },
+          "type": "array"
+        },
+        "fieldWidthsMm": {
+          "description": "create/divide: centre-to-centre field widths in mm, from the start.",
+          "items": {
+            "type": "number"
+          },
+          "type": "array"
+        },
+        "fields": {
+          "description": "create/divide: number of equal fields.",
+          "type": "number"
+        },
+        "frameType": {
+          "description": "create: type of the outer frame (both ends).",
+          "type": "string"
+        },
+        "fromMm": {
+          "description": "create in a wall: distance from the wall start to the START of the element, in mm.",
+          "type": "number"
+        },
+        "id": {
+          "description": "The facade element to read or edit (as returned by create or get).",
+          "type": "string"
+        },
+        "insideSide": {
+          "description": "create: which side of the drawing direction is inside (doors swing inside by default; default right).",
+          "enum": [
+            "right",
+            "left"
+          ],
+          "type": "string"
+        },
+        "lengthMm": {
+          "description": "create in a wall: length of the element = width of the gap, in mm (or give fieldWidthsMm).",
+          "type": "number"
+        },
+        "mullion": {
+          "description": "removeMullion/moveMullion/setMullionType: mullion index (0 = frame at the start).",
+          "type": "number"
+        },
+        "mullionType": {
+          "description": "create/addMullion/setMullionType: mullion type id, e.g. alu-50x150 or hout-67x114.",
+          "type": "string"
+        },
+        "offsetMm": {
+          "description": "create in a wall: position across the wall build-up, mm from the wall centre line, + = right of the wall direction (default 0).",
+          "type": "number"
+        },
+        "page": {
+          "description": "1-based page (default: the current page).",
+          "type": "number"
+        },
+        "panel": {
+          "description": "create: panel for every field not given in panels; setPanel: the new panel. A name (glass, solid, door, open, turnSash) or {type, hinge: start|end, swing: inside|outside}; an object without type only changes hinge/swing.",
+          "type": [
+            "string",
+            "object"
+          ]
+        },
+        "panels": {
+          "description": "create: the panel of each field, from the start (a name or {type, hinge, swing}).",
+          "type": "array"
+        },
+        "preset": {
+          "description": "create: which kind of element (default curtainWall).",
+          "enum": [
+            "curtainWall",
+            "windowFrame"
+          ],
+          "type": "string"
+        },
+        "start": {
+          "additionalProperties": true,
+          "description": "create (loose): start of the element as {x, y} in page points.",
+          "type": "object"
+        },
+        "toMm": {
+          "description": "moveMullion: new position from the start, in mm.",
+          "type": "number"
+        },
+        "wallId": {
+          "description": "create: put the element in this wall annotation; the wall is cut over the element's length.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "type": "object"
+    },
+    "name": "app_facade_element"
   }
 ]
