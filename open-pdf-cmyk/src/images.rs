@@ -2,10 +2,10 @@
 //!
 //! Indexed op een RGB-basis: alleen het palet verandert. Alle andere
 //! RGB-afbeeldingen worden gedecodeerd (ASCIIHex, ASCII85, RunLength, Flate
-//! met of zonder predictor, en DCT als laatste filter), omgezet en als Flate
-//! met `/ColorSpace /DeviceCMYK` en 8 bits per component teruggeschreven.
-//! `/Decode` wordt in de pixels verwerkt (en daarna weggelaten); `/SMask`
-//! blijft gewoon staan.
+//! met of zonder predictor, en DCT als laatste filter), omgezet en met
+//! `/ColorSpace /DeviceCMYK` en 8 bits per component teruggeschreven: als
+//! CMYK-JPEG als de bron een JPEG was, anders als Flate. Een `/Decode` van de
+//! bron wordt in de pixels verwerkt; `/SMask` blijft gewoon staan.
 
 use crate::lexer::{hex_string, is_ws};
 use crate::transform::{to_u8, CmykTransform};
@@ -223,6 +223,10 @@ const MAX_PIXELS: u64 = 256 * 1024 * 1024;
 /// Kwaliteit van de CMYK-JPEG voor afbeeldingen die als JPEG binnenkwamen.
 pub const JPEG_QUALITY: i32 = 92;
 
+/// Kleurverdichting 4:2:0 (alleen de twee kleurverschilkanalen; helderheid en
+/// zwart blijven op volle resolutie), zoals vrijwel elke JPEG-bron al had.
+const JPEG_SUBSAMPLING: turbojpeg::Subsamp = turbojpeg::Subsamp::Sub2x2;
+
 /// Een omgezette afbeelding: CMYK, 8 bits, ongecomprimeerd.
 struct CmykPixels {
     data: Vec<u8>,
@@ -239,16 +243,20 @@ struct CmykPixels {
 /// Zo ziet vrijwel elke CMYK-JPEG in bestaande PDF's eruit. PDF-lezers keren
 /// een CMYK-JPEG niet uit zichzelf om (nagegaan met PDFium en PDF.js); ze
 /// volgen `/Decode`.
-fn encode_cmyk_jpeg(cmyk: &[u8], width: usize, height: usize) -> Result<Vec<u8>, &'static str> {
-    let inverted: Vec<u8> = cmyk.iter().map(|v| 255 - v).collect();
+fn encode_cmyk_jpeg(mut cmyk: Vec<u8>, width: usize, height: usize) -> Result<Vec<u8>, &'static str> {
+    // Ter plekke omkeren: bij een gescande tekening van 150 megapixel scheelt
+    // een tweede buffer honderden megabytes.
+    for v in cmyk.iter_mut() {
+        *v = 255 - *v;
+    }
     let image = turbojpeg::Image {
-        pixels: &inverted[..],
+        pixels: &cmyk[..],
         width,
         pitch: width * 4,
         height,
         format: turbojpeg::PixelFormat::CMYK,
     };
-    turbojpeg::compress(image, JPEG_QUALITY, turbojpeg::Subsamp::None)
+    turbojpeg::compress(image, JPEG_QUALITY, JPEG_SUBSAMPLING)
         .map(|buf| buf.to_vec())
         .map_err(|_| "encodeFailed")
 }
@@ -372,7 +380,7 @@ pub(crate) fn deflate(data: &[u8]) -> Vec<u8> {
 pub fn convert_rgb_image(dict: &Dictionary, content: &[u8], t: &dyn CmykTransform) -> Result<(Dictionary, Vec<u8>), &'static str> {
     let px = cmyk_pixels(dict, content, t, false)?;
     let (filter, compressed) = if px.from_jpeg {
-        ("DCTDecode", encode_cmyk_jpeg(&px.data, px.width, px.height)?)
+        ("DCTDecode", encode_cmyk_jpeg(px.data, px.width, px.height)?)
     } else {
         ("FlateDecode", deflate(&px.data))
     };
