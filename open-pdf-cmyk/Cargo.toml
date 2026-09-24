@@ -15,6 +15,5 @@ image = { version = "0.25", default-features = false, features = ["jpeg"] }
 # Little CMS (MIT), meegebouwd vanuit de bron: de echte RGB→CMYK-transformatie.
 lcms2 = "6"
 serde = { version = "1", features = ["derive"] }
-
-[dev-dependencies]
 serde_json = "1"
+
