@@ -404,7 +404,11 @@ export function buildMeasureDistanceAP({ startX, startY, endX, endY,
 
 // wall: fill band (bg colour) + optional material hatch + outline. `bandPoints`
 // is the mitred band polygon (app-space) computed by the caller.
-export function buildWallAP({ bandPoints, X, Y, strokeColorHex, lineWidth,
+// `outlineSegments` (optioneel): de omtrek als losse lijnstukken, zoals het
+// scherm hem tekent (annotations/wand-vorm.js): geen kap op een verstekt
+// uiteinde, een onderbroken vlaklijn bij een T. Zonder die lijst blijft het
+// de gesloten omtrek van de band.
+export function buildWallAP({ bandPoints, outlineSegments, X, Y, strokeColorHex, lineWidth,
   fillBgHex, hatchPattern, hatchColorHex, hatchScale, hatchAngle }) {
   if (!bandPoints || bandPoints.length < 3) return null;
   const stroke = hexToRgb(strokeColorHex || '#000000');
@@ -417,7 +421,14 @@ export function buildWallAP({ bandPoints, X, Y, strokeColorHex, lineWidth,
       hatchColorRgb: hexToRgb(hatchColorHex || strokeColorHex || '#000000'),
       hatchScale, hatchAngle, X, Y });
   }
-  s += strokeOutlineOps(bandPoints, null, stroke, lineWidth ?? 1, 'solid', X, Y);
+  if (Array.isArray(outlineSegments)) {
+    s += `${f(stroke[0])} ${f(stroke[1])} ${f(stroke[2])} RG\n${f(lineWidth ?? 1)} w\n${dashOp('solid')}`;
+    for (const l of outlineSegments) {
+      s += `${f(X(l.x1))} ${f(Y(l.y1))} m ${f(X(l.x2))} ${f(Y(l.y2))} l S\n`;
+    }
+  } else {
+    s += strokeOutlineOps(bandPoints, null, stroke, lineWidth ?? 1, 'solid', X, Y);
+  }
   return { content: s, needsFont: false };
 }
 

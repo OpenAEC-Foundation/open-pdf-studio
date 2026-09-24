@@ -2729,7 +2729,7 @@ async function _savePDFNu(saveAsPath) {
                 const wRect = [Math.min(...bxs) - 2, Math.min(...bys) - 2, Math.max(...bxs) + 2, Math.max(...bys) + 2];
                 annotDict.set(PDFName.of('Rect'), context.obj(wRect));
                 attachVectorAP(context, annotDict, buildWallAP({
-                  bandPoints: band, X: convertX, Y: convertY,
+                  bandPoints: band, outlineSegments: wallShape.lijnen, X: convertX, Y: convertY,
                   strokeColorHex: ann.strokeColor || ann.color || '#000000', lineWidth: borderWidth,
                   fillBgHex: fillBg, hatchPattern: wHatch, hatchColorHex: wHatchColor,
                   hatchScale: wHatchScale, hatchAngle: wHatchAngle,

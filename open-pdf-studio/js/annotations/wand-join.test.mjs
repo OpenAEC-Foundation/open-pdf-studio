@@ -134,9 +134,20 @@ test('eindpunten binnen de tolerantie tellen als samenvallend', () => {
 test('bij meerdere samenvallende wanden wint dezelfde laag', () => {
   const a = wand(0, 0, 100, 0, { hatchPattern: KZS });
   const beton = wand(100, 0, 100, -100, { hatchPattern: 'nen47-beton-gewapend' });
-  const kzs = wand(100, 0, 100, 100, { hatchPattern: KZS });
+  const kzs = wand(100, 0, 160, 100, { hatchPattern: KZS });
   assert.equal(zoekJoinPartner(a, 'end', [a, beton, kzs], halfW).wall, kzs);
   assert.equal(zoekJoinPartner(a, 'end', [a, kzs, beton], halfW).wall, kzs);
+});
+
+test('een wand die op de naad van twee rechtdoorlopende stukken stopt, is een T op die lijn', () => {
+  const a = wand(0, 0, 100, 0, { hatchPattern: KZS });
+  const onder = wand(100, 0, 100, -1000, { hatchPattern: KZS });
+  const boven = wand(100, 0, 100, 1000, { hatchPattern: KZS });
+  const wanden = [a, onder, boven];
+  assert.equal(zoekJoinPartner(a, 'end', wanden, halfW)?.soort, 'T');
+  // De twee stukken zetten elkaar voort; de dwarswand is voor hen geen hoek.
+  assert.equal(zoekJoinPartner(onder, 'start', wanden, halfW)?.wall, boven);
+  assert.equal(zoekJoinPartner(boven, 'start', wanden, halfW)?.wall, onder);
 });
 
 // ── partner zoeken: kruisende hoek ────────────────────────────────────────
@@ -210,19 +221,26 @@ test('ook tot de BINNENHOEK getekende lagen sluiten per laag', () => {
 test('een losse wand snijdt niet in een hoek die al met samenvallende eindpunten dicht is', () => {
   // Binnenblad-hoek: twee kalkzandsteenwanden 120 met samenvallende
   // eindpunten in (300,300). Een binnenwand van kalkzandsteen stopt 400 mm
-  // verderop tegen het binnenblad (T-aansluiting vlak bij de hoek).
+  // verderop tegen het binnenblad: een T vlak bij de hoek, geen tweede hoek.
   const a = wand(300, 300, 5000, 300, { hatchPattern: KZS, dikteMm: 120 });
   const b = wand(300, 300, 300, 5000, { hatchPattern: KZS, dikteMm: 120 });
   const binnen = wand(700, 360, 700, 3000, { hatchPattern: KZS, dikteMm: 100 });
   const alle = [a, b, binnen];
-  assert.equal(zoekJoinPartner(binnen, 'start', alle, halfW), null);
+  const p = zoekJoinPartner(binnen, 'start', alle, halfW);
+  assert.equal(p?.soort, 'T', 'geen kruisende hoek');
+  assert.equal(p.wall, a);
   assert.equal(zoekJoinPartner(a, 'start', alle, halfW).wall, b, 'de hoek zelf blijft verstekt');
 });
 
-test('een kruising midden op een wand is geen hoek, ook niet binnen de laag', () => {
+test('een uiteinde midden op een wand is geen hoek maar een T', () => {
   const a = wand(0, 0, 130, 0);
   const b = wand(100, -2000, 100, 2000);
-  assert.equal(zoekJoinPartner(a, 'end', [a, b], halfW), null);
+  const p = zoekJoinPartner(a, 'end', [a, b], halfW);
+  assert.equal(p?.soort, 'T');
+  assert.equal(p.wall, b);
+  // Steekt het uiteinde er helemaal doorheen, dan is het een kruising.
+  const c = wand(0, 0, 300, 0);
+  assert.equal(zoekJoinPartner(c, 'end', [c, b], halfW), null);
 });
 
 test('de reikwijdte binnen de laag is ruimer dan de oude 4x maar niet onbegrensd', () => {

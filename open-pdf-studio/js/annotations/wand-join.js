@@ -6,7 +6,7 @@
 // beantwoordt alleen de vraag WIE de partner is; de geometrie van het
 // verstek blijft in walls.js.
 //
-// Twee soorten aansluiting:
+// Drie soorten aansluiting, in deze volgorde:
 //   - samenvallend: een eindpunt van de andere wand ligt binnen JOIN_TOL.
 //     Dat is een bewust getekende hoek; die verstekt ongeacht materiaal.
 //   - kruisend: de einden passeren elkaar net of blijven net te kort
@@ -14,6 +14,11 @@
 //     zodat bij een spouwmuur uit losse lagen metselwerk op metselwerk
 //     sluit, isolatie op isolatie en kalkzandsteen op kalkzandsteen — en een
 //     laag nooit door een andere laag steekt.
+//   - T: het uiteinde stopt op (of net voor, of in) een wand die aan beide
+//     kanten doorloopt. Zelfde materiaal: de wanden vloeien in elkaar over
+//     (geen kap, de vlaklijn van de doorgaande wand onderbroken). Ander
+//     materiaal: stomp tegen het vlak van de doorgaande wand, met naadlijn.
+//     De geometrie daarvan staat in wand-vorm.js.
 //
 // Per uiteinde kan de join uit: `noJoinStart` / `noJoinEnd` op de wand
 // (true = dit uiteinde joint nooit; ontbreekt het veld, dan mag het). Een
@@ -34,6 +39,12 @@ export const JOIN_TOL = 1.5;
  * nog bij een pakket tot ± 400 mm.
  */
 export const LAAG_REIK_FACTOR = 8;
+
+/**
+ * Een T vraagt een duidelijke hoek tussen de twee wanden: onder ± 11,5°
+ * (sinus 0,2) is het eerder een wand die langs de andere loopt.
+ */
+export const T_MIN_SIN = 0.2;
 
 const VLAG = { start: 'noJoinStart', end: 'noJoinEnd' };
 
@@ -92,6 +103,84 @@ function isZelfde(a, b) {
   return a === b || (a?.id != null && a.id === b?.id);
 }
 
+function as(w) {
+  const dx = w.endX - w.startX, dy = w.endY - w.startY;
+  const len = Math.hypot(dx, dy);
+  if (!(len > 1e-9)) return null;
+  const u = { x: dx / len, y: dy / len };
+  return { u, n: { x: -u.y, y: u.x }, len };
+}
+
+function evenwijdig(a, b) {
+  const aa = as(a), ab = as(b);
+  return !!aa && !!ab && Math.abs(aa.u.x * ab.u.y - aa.u.y * ab.u.x) < 1e-3;
+}
+
+/**
+ * De wand die uiteinde `eind` van `w` in dezelfde richting voortzet: een
+ * evenwijdige wand waarvan een eindpunt samenvalt en die de andere kant op
+ * wegloopt (een wand die bij een naad in stukken is getekend). `behalve`
+ * telt niet mee.
+ */
+export function doorlopendVia(w, eind, wanden, behalve = null) {
+  const P = punt(w, eind), F = punt(w, ANDER[eind]);
+  for (const q of wanden || []) {
+    if (!q || isZelfde(q, w) || (behalve && isZelfde(q, behalve)) || !evenwijdig(w, q)) continue;
+    for (const e of ['start', 'end']) {
+      const Q = punt(q, e);
+      if (Math.hypot(Q.x - P.x, Q.y - P.y) > JOIN_TOL) continue;
+      const G = punt(q, ANDER[e]);
+      if ((F.x - P.x) * (G.x - P.x) + (F.y - P.y) * (G.y - P.y) < 0) return q;
+    }
+  }
+  return null;
+}
+
+/**
+ * Stopt uiteinde `eind` van `w` als T op wand `o`?
+ *
+ * Voorwaarden: een duidelijke hoek (T_MIN_SIN); het eindpunt ligt binnen de
+ * dikte van `o` of er hooguit de halve dikte van de dunste wand voor of
+ * voorbij (op de hartlijn, op het vlak, net ervoor of erin: alles telt);
+ * het ligt binnen de lengte van `o` (`opties.marge`, standaard JOIN_TOL);
+ * het verre uiteinde van `w` ligt buiten `o`; en `o` loopt aan beide kanten
+ * door. Ligt een uiteinde van `o` in de band van `w`, dan is het een hoek,
+ * tenzij dat uiteinde door een evenwijdige wand wordt voortgezet.
+ *
+ * @returns {{wall, t:number, d:number, zijde:1|-1, vlak:{p:{x,y}, u:{x,y}},
+ *   afstand:number}|null}  `zijde` = de kant van `o` (langs zijn normaal
+ *   (-u.y, u.x)) waar `w` vandaan komt; `vlak` = het nabije vlak van `o`
+ *   als lijn; `afstand` = afstand van het eindpunt tot dat vlak.
+ */
+export function tAansluiting(w, eind, o, halfW, wanden = [], opties = {}) {
+  if (!w || !o || isZelfde(w, o)) return null;
+  const aw = as(w), ao = as(o);
+  if (!aw || !ao) return null;
+  if (Math.abs(aw.u.x * ao.u.y - aw.u.y * ao.u.x) < T_MIN_SIN) return null;
+  const hO = halfW(o), hW = halfW(w);
+  const tol = Math.min(hO, hW);
+  const P = punt(w, eind), F = punt(w, ANDER[eind]);
+  const rx = P.x - o.startX, ry = P.y - o.startY;
+  const t = rx * ao.u.x + ry * ao.u.y;
+  const d = rx * ao.n.x + ry * ao.n.y;
+  const marge = opties.marge ?? JOIN_TOL;
+  if (t < -marge || t > ao.len + marge) return null;
+  if (Math.abs(d) > hO + tol) return null;
+  const dF = (F.x - o.startX) * ao.n.x + (F.y - o.startY) * ao.n.y;
+  const zijde = dF >= 0 ? 1 : -1;
+  if (zijde * dF <= hO) return null;
+  for (const e of ['start', 'end']) {
+    const Q = punt(o, e);
+    const dq = Math.abs((Q.x - P.x) * aw.n.x + (Q.y - P.y) * aw.n.y);
+    if (dq <= hW + tol && !doorlopendVia(o, e, wanden, w)) return null;
+  }
+  return {
+    wall: o, t, d, zijde,
+    vlak: { p: { x: o.startX + ao.n.x * zijde * hO, y: o.startY + ao.n.y * zijde * hO }, u: ao.u },
+    afstand: Math.abs(zijde * d - hO),
+  };
+}
+
 /** Uiteinden van andere wanden die samenvallen met P (en mogen joinen). */
 function samenvallend(w, eind, P, wanden) {
   const uit = [];
@@ -113,10 +202,14 @@ function samenvallend(w, eind, P, wanden) {
  * @param {'start'|'end'} eind
  * @param {object[]} wanden   de wanden op dezelfde pagina (w mag erin staan)
  * @param {(w:object)=>number} halfW  halve dikte in paginapunten
- * @returns {{wall:object, eind:'start'|'end', far:{x,y}, at?:{x,y},
- *   soort:'samenvallend'|'kruisend'}|null}  `far` = het verre uiteinde van
- *   de partner (de richting waarin hij wegloopt); `at` alleen bij een
- *   kruisende hoek: het hoekpunt waarheen beide banden getrimd worden.
+ * @returns {{wall:object, soort:'samenvallend'|'kruisend'|'T',
+ *   eind?:'start'|'end', far?:{x,y}, at?:{x,y}, zelfdeLaag?:boolean,
+ *   zijde?:1|-1, vlak?:{p,u}}|null}
+ *   Hoek (samenvallend/kruisend): `eind` = het uiteinde van de partner,
+ *   `far` = zijn verre uiteinde (de richting waarin hij wegloopt), `at`
+ *   alleen bij een kruisende hoek: het hoekpunt waarheen beide banden
+ *   getrimd worden. T: `vlak` = het nabije vlak van de doorgaande wand,
+ *   `zelfdeLaag` bepaalt overvloeien (true) of stomp met naad (false).
  */
 export function zoekJoinPartner(w, eind, wanden, halfW) {
   if (!w || !joinToegestaan(w, eind)) return null;
@@ -124,8 +217,15 @@ export function zoekJoinPartner(w, eind, wanden, halfW) {
   const P = punt(w, eind);
 
   // 1. Samenvallende eindpunten. Bij meer dan één kandidaat wint dezelfde
-  //    laag, daarna de kleinste afstand.
-  const samen = samenvallend(w, eind, P, lijst);
+  //    laag, daarna de kleinste afstand. Wordt dit uiteinde door een
+  //    evenwijdige wand voortgezet (een wand in stukken), dan is alleen dat
+  //    stuk een partner: een dwarswand die precies op de naad stopt, is een
+  //    T en wordt vanaf zijn eigen kant afgehandeld. Omgekeerd is zo'n naad
+  //    voor die dwarswand geen hoek maar een T.
+  const verleng = doorlopendVia(w, eind, lijst);
+  const samen = samenvallend(w, eind, P, lijst).filter((k) => (verleng
+    ? isZelfde(k.o, verleng)
+    : (evenwijdig(w, k.o) || !doorlopendVia(k.o, k.e, lijst, w))));
   if (samen.length) {
     samen.sort((a, b) => (zelfdeLaag(w, b.o) - zelfdeLaag(w, a.o)) || (a.d - b.d));
     const k = samen[0];
@@ -134,7 +234,9 @@ export function zoekJoinPartner(w, eind, wanden, halfW) {
 
   // 2. Kruisende hoek, alleen binnen de laag. Het partner-uiteinde moet vrij
   //    zijn: een hoek die daar al met samenvallende eindpunten dicht is,
-  //    wordt niet door een losse wand aangesneden.
+  //    wordt niet door een losse wand aangesneden. En het mag geen T zijn:
+  //    loopt één van beide wanden voorbij de andere door, dan stopt de
+  //    andere er als T op.
   const eigenVer = punt(w, ANDER[eind]);
   const eigenHalf = halfW(w);
   let beste = null;
@@ -148,11 +250,24 @@ export function zoekJoinPartner(w, eind, wanden, halfW) {
     if (!k || (beste && k.score >= beste.score)) continue;
     if (!magJoinen(w, eind, o, k.eind, 'kruisend')) continue;
     if (samenvallend(o, k.eind, punt(o, k.eind), lijst.filter((q) => !isZelfde(q, w))).length) continue;
+    if (tAansluiting(w, eind, o, halfW, lijst) || tAansluiting(o, k.eind, w, halfW, lijst)) continue;
     beste = { wall: o, eind: k.eind, far: k.far, at: k.at, soort: 'kruisend', score: k.score };
   }
-  if (!beste) return null;
-  const { score: _score, ...partner } = beste;
-  return partner;
+  if (beste) {
+    const { score: _score, ...partner } = beste;
+    return partner;
+  }
+
+  // 3. T: het uiteinde stopt op een doorgaande wand, elk materiaal. De
+  //    wand met het nabije vlak het dichtst bij het eindpunt wint.
+  let t = null;
+  for (const o of lijst) {
+    if (!o || isZelfde(o, w)) continue;
+    const k = tAansluiting(w, eind, o, halfW, lijst);
+    if (k && (!t || k.afstand < t.afstand)) t = k;
+  }
+  if (!t) return null;
+  return { wall: t.wall, soort: 'T', zelfdeLaag: zelfdeLaag(w, t.wall), zijde: t.zijde, vlak: t.vlak };
 }
 
 // ── hoek trimmen ──────────────────────────────────────────────────────────
