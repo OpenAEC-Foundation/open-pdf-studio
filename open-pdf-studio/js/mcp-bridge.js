@@ -1880,6 +1880,48 @@ async function handleSetMeasureScale(params) {
   return { ok: true, measureScale: { pixelsPerUnit, unit } };
 }
 
+/**
+ * Plattegrond-relaties (#450): een sparing hoort bij een wand, een ruimte bij
+ * de wanden eromheen, een maat bij wat hij meet. Alle rekenkunde zit in
+ * js/plattegrond/ — deze handler levert alleen de app-kant: het document, de
+ * schaal op een punt, de twee annotatie-ingangen en één undo-stap per
+ * opdracht.
+ */
+async function handleFloorplan(params) {
+  const stateMod = await import('./core/state.js');
+  const doc = stateMod.getActiveDocument();
+  if (!doc?.pdfDoc) return { ok: false, error: 'no active document' };
+  const realSize = await import('./symbols/real-size.js');
+  const undoMod = await import('./core/undo-manager.js');
+  const { plattegrondOpdracht } = await import('./plattegrond/mcp-plattegrond.js');
+
+  let geraakt = false;
+  const uit = await plattegrondOpdracht(params, {
+    doc: {
+      currentPage: doc.currentPage || 1,
+      annotations: doc.annotations || [],
+      paginas: doc.pdfDoc?.numPages ?? null,
+    },
+    pxPerMmAt: (page, x, y) => realSize.pxPerMmAt(page, x, y),
+    maak: async (type, page, props) => {
+      geraakt = true;
+      return handleCreateAnnotation({ type, page, props });
+    },
+    werkBij: async (id, props) => {
+      geraakt = true;
+      return handleUpdateAnnotation({ id, props });
+    },
+    // Alles wat één opdracht aanmaakt of wijzigt gaat in één undo-stap, zodat
+    // Ctrl+Z een hele gevel (of een hele verversing) in één keer terugdraait.
+    transactie: async (fn) => {
+      undoMod.beginUndoTransaction();
+      try { await fn(); } finally { undoMod.endUndoTransaction(); }
+    },
+  });
+  if (geraakt) await _redrawActive();
+  return uit;
+}
+
 /** Ask the assistant's AI (Claude/Anthropic direct) — lets an MCP client test
  *  the assistant end-to-end without the chat UI. Uses the personal key set via
  *  the 🔑 button. */
@@ -2960,6 +3002,8 @@ const HANDLERS = {
   'mcp:get-page-count':     handleGetPageCount,
   // App control: measurement scale
   'mcp:set-measure-scale':  handleSetMeasureScale,
+  // Plattegrond: sparingen, ruimten en verankerde maatvoering
+  'mcp:floorplan':          handleFloorplan,
   // Take-off / schedules
   'mcp:get-takeoff':        handleGetTakeoff,
   'mcp:place-schedule':     handlePlaceSchedule,

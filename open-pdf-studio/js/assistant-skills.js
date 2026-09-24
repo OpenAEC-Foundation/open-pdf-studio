@@ -5,6 +5,8 @@
 // the brain (Claude Code over the MCP relay, or any AI provider) which executes
 // it using the app's MCP tools. SKILLS_SYSTEM_PROMPT teaches the brain how.
 
+import { PLATTEGROND_SKILL, PLATTEGROND_PROMPT } from './plattegrond/skill.js';
+
 export const ASSISTANT_SKILLS = [
   {
     id: 'translate',
@@ -43,6 +45,7 @@ export const ASSISTANT_SKILLS = [
     invoke: 'Zet de draagstructuur uit op de tekening: stramien, kolommen op de knopen, balken op de rasterlijnen, per vloerveld de overspanningsrichting, peilmaten, positie-aanduidingen en een constructiestaat. Opgave: ',
     needsInput: true,
   },
+  PLATTEGROND_SKILL,
 ];
 
 export const SKILLS_SYSTEM_PROMPT =
@@ -61,4 +64,5 @@ export const SKILLS_SYSTEM_PROMPT =
   '- Doe EERST een aanroep met dryRun: true. Die rekent alles door en meldt wat er zou komen zonder iets te tekenen. Klopt het, herhaal dan zonder dryRun.\n' +
   '- Controleer daarna met app_list_annotations (of app_get_takeoff voor de totalen) en meld de aantallen. Met app_undo verdwijnt het hele plan in één keer.\n' +
   '- Losse constructie-onderdelen teken je met app_create_annotation: type "betonbalk" (startX/startY/endX/endY + breedteMm/hoogteMm, tagTonen/tagTekst; hij verstekt zichzelf op de hoeken), of type "parametricSymbol" met symbolId "wapeningsstaaf", "netwapening", "wapeningskorf", "wapeningVerdeling" (params aantal/diameter), "beugel" (params diameter/afstand), "oplegging", "puntlast", "q-last", "windverband", "scharnier-verbinding", "paal-aanzicht-type-1", "sondering", "paalpuntniveau", "peilmaat" (params value), "stramien" (params label/orientation) of "overspanningspijl-vloer" (params lengte/tekst).\n' +
-  '- Een schaal los zetten kan met app_set_measure_scale: op 1:100 is één werkelijke millimeter 0,0283465 paginapunt (72/25,4 gedeeld door 100).';
+  '- Een schaal los zetten kan met app_set_measure_scale: op 1:100 is één werkelijke millimeter 0,0283465 paginapunt (72/25,4 gedeeld door 100).' +
+  PLATTEGROND_PROMPT;

@@ -294,6 +294,41 @@ fn print_tool() -> Value {
     })
 }
 
+/// Beschrijving van `app_floorplan`: de drie relaties van een bouwkundige
+/// plattegrond — een sparing hoort bij een wand, een ruimte bij de wanden
+/// eromheen, een maat bij wat hij meet.
+fn floorplan_tool() -> Value {
+    json!({
+        "name": "app_floorplan",
+        "description": "Draw a building floor plan with the parts related to each other, instead of loose shapes stacked on top of one another. Four actions. \"wall\" draws ONE wall run with its openings: the wall is split at every door and window, so the opening really interrupts the wall (the hatch stops at the reveal) and the frame symbol sits in the gap at the wall's own thickness and angle; it returns the wall segment ids in order. \"rooms\" derives the enclosed rooms from the walls on a page - net area (inside the wall faces), perimeter and a label point that always falls inside the room - and reports wall ends that leave the contour open instead of silently filling half an area; a door opening does not break the enclosure. With place:true it puts each room on the sheet as a measured area plus a name, remembering the seed point; with refresh:true it re-derives them from the walls as they are now, so a room that grew because a wall moved updates itself. \"dimensions\" places a dimension chain along a wall run whose end points are ANCHORED to the wall segments (pier, opening, pier, ...) plus an overall dimension; with refresh:true every anchored dimension on the page is recomputed, and a dimension whose wall disappeared is reported as detached rather than broken. \"inspect\" reads back what is on the page: walls with their length and thickness, openings with width, sill and height, the rooms it finds, open contour ends and how many anchored dimensions there are. Coordinates are page points at 100% zoom; sizes are real millimetres, so the page needs a measurement scale (app_set_measure_scale) first. Everything one call creates or changes goes into a single undo step.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "action":       { "type": "string", "enum": ["inspect", "wall", "rooms", "dimensions"], "description": "What to do." },
+                "page":         { "type": "number", "description": "1-based page (default: the current page)." },
+                "start":        { "type": "object", "description": "wall: start of the run as {x, y} in page points (the wall centre line).", "additionalProperties": true },
+                "end":          { "type": "object", "description": "wall: end of the run as {x, y} in page points.", "additionalProperties": true },
+                "thicknessMm":  { "type": "number", "description": "wall: real wall thickness in mm (default 100)." },
+                "material":     { "type": "string", "description": "wall: hatch material id, e.g. nen47-metselwerk-baksteen, nen47-metselwerk-kunststeen, nen47-beton-gewapend, isolatie, none." },
+                "insulation":   { "type": "string", "description": "wall: insulation sub-material when material is isolatie (steenwol, glaswol, pir, eps, kooltherm, pur)." },
+                "openings":     { "type": "array", "description": "wall: the doors and windows in this run. Each: kind (door|window), widthMm (clear opening), alongMm (centre, measured from start along the wall), sillMm, heightMm, swing (left|right hinge), openSide (left|right of the wall direction) or openTo ({x, y}: a point in the room the door opens into), windowType (fixed|pivot|tilt)." },
+                "minPierMm":    { "type": "number", "description": "wall: smallest piece of wall that must remain beside an opening (default 0)." },
+                "wallId":       { "type": "string", "description": "dimensions: a single wall annotation to dimension." },
+                "wallIds":      { "type": "array", "description": "dimensions: the wall segments of one run, in order along the run (as returned by action \"wall\")." },
+                "offsetMm":     { "type": "number", "description": "dimensions: distance from the wall to the chain, in mm (default 500)." },
+                "totalOffsetMm": { "type": "number", "description": "dimensions: distance for the overall dimension (default offsetMm + 350)." },
+                "side":         { "type": "string", "enum": ["left", "right"], "description": "dimensions: which side of the run the chain goes, seen along its direction (default left)." },
+                "place":        { "type": "boolean", "description": "rooms: also put the rooms on the sheet instead of only reporting them." },
+                "refresh":      { "type": "boolean", "description": "rooms/dimensions: recompute what is already on the sheet from the walls as they are now." },
+                "seeds":        { "type": "array", "description": "rooms: points inside the rooms you want, each {x, y, name}. Without seeds every room found is reported." },
+                "maxOpeningMm": { "type": "number", "description": "rooms/inspect: widest gap between two aligned wall ends that still counts as an opening rather than a hole in the contour (default 3000)." }
+            },
+            "required": ["action"],
+            "additionalProperties": false
+        }
+    })
+}
+
 /// Handle `tools/list`. Tasks 7-9 will append their tool descriptors to
 /// this array.
 fn handle_tools_list() -> Value {
@@ -1079,7 +1114,8 @@ fn handle_tools_list() -> Value {
                     },
                     "additionalProperties": false
                 }
-            }
+            },
+            floorplan_tool()
         ]
     })
 }
@@ -1179,6 +1215,7 @@ async fn handle_tools_call(state: &AppState, params: &Value) -> Result<Value, (i
         "app_snippet_flatten"    => tool_app_request(state, "mcp:snippet-flatten",    &arguments, Duration::from_secs(10)).await,
         "app_symbol_scale"       => tool_app_request(state, "mcp:symbol-scale",       &arguments, Duration::from_secs(10)).await,
         "app_titleblock"         => tool_app_request(state, "mcp:titleblock",         &arguments, Duration::from_secs(15)).await,
+        "app_floorplan"          => tool_app_request(state, "mcp:floorplan",          &arguments, Duration::from_secs(60)).await,
         "app_import_cad"         => tool_app_request(state, "mcp:import-cad",         &arguments, Duration::from_secs(300)).await,
         "app_export_cad"         => tool_app_request(state, "mcp:export-cad",         &arguments, Duration::from_secs(300)).await,
         // Afdrukken: een A0 op 300 dpi renderen duurt minuten, dus dezelfde
@@ -2292,6 +2329,7 @@ mod tests {
             "app_snippet_flatten",
             "app_symbol_scale",
             "app_titleblock",
+            "app_floorplan",
             "app_import_cad",
             "app_export_cad",
             "app_print_to_pdf",
