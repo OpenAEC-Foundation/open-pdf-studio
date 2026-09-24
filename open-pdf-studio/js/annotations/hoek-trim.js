@@ -20,8 +20,8 @@ export const CROSS_REIK_FACTOR = 4;
 /** Ondergrens in app-px (≈ paginapunten): 12 pt ≈ 4 mm op papier. */
 export const CROSS_REIK_MIN = 12;
 
-export function kruisendeHoekReik(halfA, halfB) {
-  return Math.max(CROSS_REIK_FACTOR * Math.max(halfA || 0, halfB || 0), CROSS_REIK_MIN);
+export function kruisendeHoekReik(halfA, halfB, factor = CROSS_REIK_FACTOR) {
+  return Math.max(factor * Math.max(halfA || 0, halfB || 0), CROSS_REIK_MIN);
 }
 
 function _unit(dx, dy) {
@@ -40,27 +40,32 @@ function _isect(p1, d1, p2, d2) {
  * Bepaal of het uiteinde P (van een element dat vanaf `eigenVer` loopt) met
  * het element S→E een kruisende hoek vormt.
  *
- * @returns {{at:{x,y}, far:{x,y}, score:number}|null} `at` = het hoekpunt
- *   (snijpunt van de hartlijnen), `far` = het VERRE uiteinde van het andere
- *   element (de richting waarin dat element wegloopt), `score` = som van
- *   beide afstanden tot het hoekpunt, voor het kiezen van de beste kandidaat.
+ * @param {{reikFactor?:number}} [opties] `reikFactor` vervangt
+ *   CROSS_REIK_FACTOR (de wanden gebruiken binnen één laag een ruimere
+ *   reikwijdte, zie wand-join.js).
+ * @returns {{at:{x,y}, far:{x,y}, eind:'start'|'end', score:number}|null}
+ *   `at` = het hoekpunt (snijpunt van de hartlijnen), `far` = het VERRE
+ *   uiteinde van het andere element (de richting waarin dat element
+ *   wegloopt), `eind` = welk uiteinde van S→E bij het hoekpunt ligt, `score`
+ *   = som van beide afstanden tot het hoekpunt, voor het kiezen van de beste
+ *   kandidaat.
  */
-export function kruisendeHoek(P, eigenVer, S, E, eigenHalf, doelHalf) {
+export function kruisendeHoek(P, eigenVer, S, E, eigenHalf, doelHalf, opties = {}) {
   if (!P || !eigenVer || !S || !E) return null;
   const d1 = _unit(P.x - eigenVer.x, P.y - eigenVer.y);
   const d2 = _unit(E.x - S.x, E.y - S.y);
   if (!d1 || !d2) return null;
   const X = _isect(P, d1, S, d2);
   if (!X) return null;
-  const reik = kruisendeHoekReik(eigenHalf, doelHalf);
+  const reik = kruisendeHoekReik(eigenHalf, doelHalf, opties?.reikFactor ?? CROSS_REIK_FACTOR);
   const dEigen = Math.hypot(P.x - X.x, P.y - X.y);
   if (dEigen > reik) return null;
   let beste = null;
-  for (const [eind, ver] of [[S, E], [E, S]]) {
-    const dDoel = Math.hypot(eind.x - X.x, eind.y - X.y);
+  for (const [punt, ver, eind] of [[S, E, 'start'], [E, S, 'end']]) {
+    const dDoel = Math.hypot(punt.x - X.x, punt.y - X.y);
     if (dDoel > reik) continue;
     const score = dEigen + dDoel;
-    if (!beste || score < beste.score) beste = { at: X, far: ver, score };
+    if (!beste || score < beste.score) beste = { at: X, far: ver, eind, score };
   }
   return beste;
 }

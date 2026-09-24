@@ -458,6 +458,11 @@
       "down-right": "Omlaag, naar rechts hellend"
     }
   },
+  "wall": {
+    "joinAtStart": "Join toestaan aan begin",
+    "joinAtEnd": "Join toestaan aan eind",
+    "joinHint": "Uit: dit uiteinde van de wand wordt nooit verstekt of afgekapt tegen een andere wand (stomp einde)."
+  },
   "tekeninstellingen": {
     "title": "Tekeninstellingen",
     "regelset": "Tekeningtype (regelset)",

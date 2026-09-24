@@ -44,6 +44,8 @@
     "exportSubmenu": "Exporteren",
     "exportAsImage": "Exporteren als afbeelding...",
     "addHole": "Sparing toevoegen",
+    "wallJoinAllow": "Join toestaan (dit uiteinde)",
+    "wallJoinDisallow": "Join niet toestaan (dit uiteinde)",
     "properties": "Eigenschappen...",
     "calibrateFromLine": "Kalibreren vanuit deze lijn...",
     "setScale": "Schaal instellen...",
@@ -62,6 +64,7 @@
     "centerVertically": "Verticaal centreren",
     "distributeHorizontally": "Horizontaal verdelen",
     "distributeVertically": "Verticaal verdelen",
+    "trimWallCorners": "Hoek trimmen",
     "deleteAnnotations": "{{count}} annotaties verwijderen",
     "deleteConfirm": "{{count}} annotaties verwijderen?",
     "deleteTitle": "Annotaties verwijderen"
