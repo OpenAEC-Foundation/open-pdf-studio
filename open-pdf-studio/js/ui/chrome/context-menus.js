@@ -45,7 +45,7 @@ export function initContextMenus() {
     // Check if any multi-click tool is in progress
     const isMultiClickActive = state.isDrawingPolyline || state.isDrawingCloudPolyline ||
       state.isDrawingDimension || (state.measurePoints && state.measurePoints.length >= 1) ||
-      state.addHoleTargetId;
+      state.addHoleTargetId || state.dimChainTargetId;
     if (!nonDrawTools.includes(state.currentTool) && !state.isDrawing && !isMultiClickActive) {
       e.preventDefault();
       e.stopPropagation();
@@ -74,7 +74,7 @@ export function initContextMenus() {
       // These are handled via the pointerdown handler with e.button === 2
       const isMultiClickActive = state.isDrawingPolyline || state.isDrawingCloudPolyline ||
         state.isDrawingDimension || (state.measurePoints && state.measurePoints.length >= 1) ||
-        state.addHoleTargetId;
+        state.addHoleTargetId || state.dimChainTargetId;
       if (isMultiClickActive) {
         e.preventDefault();
         return;
@@ -153,6 +153,37 @@ export function initContextMenus() {
                 ? { kind: 'paneel', ix: cel.ix, iy: cel.iy, annotationId: annotation.id, appX: x, appY: y }
                 : { kind: 'systeem', annotationId: annotation.id, appX: x, appY: y };
             } catch (_) { /* systeem-context optioneel — menu opent gewoon */ }
+          }
+          // Stramienlijn: de klikpositie gaat mee, zodat het menu de koppeling
+          // van het dichtstbijzijnde uiteinde kan omzetten.
+          if (annotation.type === 'parametricSymbol' && annotation.symbolId === 'stramien') {
+            sgVertex = { kind: 'stramien', annotationId: annotation.id, appX: x, appY: y };
+          }
+          // Wand: het klikpunt gaat mee, zodat "Join (niet) toestaan" het
+          // uiteinde bij de klik kan kiezen (#476).
+          if (annotation.type === 'wall') {
+            sgVertex = { kind: 'wand', annotationId: annotation.id, appX: x, appY: y };
+          }
+          // Gevelelement (vliesgevel/kozijn): het menu krijgt het onderdeel
+          // onder de klik en de positie langs het element mee (stijl hier
+          // toevoegen, dichtstbijzijnde stijl verwijderen, paneel wisselen).
+          if (!sgVertex) {
+            try {
+              const [{ gevelPreset }, { onderdeelOnderPunt, positieOpElement }] = await Promise.all([
+                import('../../gevelelement/herkenning.js'),
+                import('../../gevelelement/element.js'),
+              ]);
+              const gvPreset = gevelPreset(annotation);
+              if (gvPreset) {
+                const pos = positieOpElement(annotation, gvPreset, { x, y });
+                sgVertex = {
+                  kind: 'gevelelement',
+                  annotationId: annotation.id,
+                  onderdeel: onderdeelOnderPunt(annotation, gvPreset, { x, y }, 6 / scale),
+                  uMm: pos ? pos.uMm : null,
+                };
+              }
+            } catch (_) { /* gevelelement-context optioneel */ }
           }
           showContextMenu(e, annotation, sgVertex);
         } else {

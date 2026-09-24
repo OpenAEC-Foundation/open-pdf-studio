@@ -2,6 +2,7 @@ import { HANDLE_SIZE, HANDLE_TYPES } from '../../core/constants.js';
 import { state, getActiveDocument, getSelectionBounds, getAnnotationBounds } from '../../core/state.js';
 import { annotationCtx } from '../../ui/dom-elements.js';
 import { getAnnotationHandles } from '../handles.js';
+import { getTemplate } from '../../symbols/registry.js';
 
 // Draw selection highlight and handles
 export function drawSelectionHandles(ctx, annotation) {
@@ -217,6 +218,34 @@ export function drawSelectionHandles(ctx, annotation) {
     }
   }
 
+  // Onderdeel van een parametrisch symbool oplichten (gevelelement: de met
+  // Tab of een tweede klik geselecteerde stijl of het paneel; lichter het
+  // onderdeel onder de aanwijzer). Alleen hier, op het interactieve canvas:
+  // de opgeslagen weergave (/AP) tekent geen selectie.
+  if (annotation.type === 'parametricSymbol') {
+    const _ondTpl = getTemplate(annotation.symbolId);
+    if (typeof _ondTpl?.onderdeelVlakken === 'function') {
+      let vlakken = [];
+      try { vlakken = _ondTpl.onderdeelVlakken(annotation) || []; } catch (_) { vlakken = []; }
+      for (const vlak of vlakken) {
+        if (!Array.isArray(vlak.punten) || vlak.punten.length < 3) continue;
+        const selectie = vlak.soort === 'selectie';
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(vlak.punten[0].x, vlak.punten[0].y);
+        for (let i = 1; i < vlak.punten.length; i++) ctx.lineTo(vlak.punten[i].x, vlak.punten[i].y);
+        ctx.closePath();
+        ctx.fillStyle = selectie ? 'rgba(0, 102, 204, 0.30)' : 'rgba(0, 102, 204, 0.12)';
+        ctx.fill();
+        ctx.strokeStyle = '#0066cc';
+        ctx.lineWidth = (selectie ? 2 : 1) / sc;
+        ctx.setLineDash(selectie ? [] : [3 / sc, 2 / sc]);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+  }
+
   // Draw resize/move handles (scale-independent size)
   const scale = doc?.scale || 1;
   const handles = getAnnotationHandles(annotation, scale);
@@ -336,6 +365,50 @@ export function drawSelectionHandles(ctx, annotation) {
       ctx.strokeStyle = '#f59e0b';
       ctx.lineWidth = lw;
       ctx.strokeRect(-hs / 2, -hs / 2, hs, hs);
+      ctx.restore();
+      return;
+    }
+
+    // Stramienslotje: vierkante knop met een hangslot. Dicht = het uiteinde
+    // schuift mee met de gekoppelde uiteinden; open = los. Rechte hoeken en
+    // een hoekige beugel (huisstijl), geen animatie.
+    if (handle.isSlotUI) {
+      const w = handle.w || hs;
+      const h = handle.h || hs;
+      const dicht = handle.slot === 'dicht';
+      const hover = state.hoverHandle === handle.type;
+      ctx.save();
+      ctx.fillStyle = hover ? '#cce4f7' : '#ffffff';
+      ctx.fillRect(handle.x, handle.y, w, h);
+      ctx.strokeStyle = '#0066cc';
+      ctx.lineWidth = lw;
+      ctx.strokeRect(handle.x, handle.y, w, h);
+      // Slotlichaam onder, beugel erboven.
+      const bw = w * 0.5, bh = h * 0.32;
+      const bx = handle.x + (w - bw) / 2;
+      const by = handle.y + h * 0.5;
+      ctx.fillStyle = '#0066cc';
+      if (dicht) ctx.fillRect(bx, by, bw, bh);
+      else ctx.strokeRect(bx, by, bw, bh);
+      const sw = bw * 0.64;
+      const sx = handle.x + (w - sw) / 2;
+      const top = handle.y + h * 0.2;
+      ctx.lineWidth = lw * 1.4;
+      ctx.beginPath();
+      if (dicht) {
+        ctx.moveTo(sx, by);
+        ctx.lineTo(sx, top);
+        ctx.lineTo(sx + sw, top);
+        ctx.lineTo(sx + sw, by);
+      } else {
+        // Open: de beugel staat omhoog, het rechterbeen hangt los.
+        const lift = h * 0.12;
+        ctx.moveTo(sx, by);
+        ctx.lineTo(sx, top - lift);
+        ctx.lineTo(sx + sw, top - lift);
+        ctx.lineTo(sx + sw, top + h * 0.06);
+      }
+      ctx.stroke();
       ctx.restore();
       return;
     }

@@ -300,28 +300,79 @@ fn print_tool() -> Value {
 fn floorplan_tool() -> Value {
     json!({
         "name": "app_floorplan",
-        "description": "Draw a building floor plan with the parts related to each other, instead of loose shapes stacked on top of one another. Four actions. \"wall\" draws ONE wall run with its openings: the wall is split at every door and window, so the opening really interrupts the wall (the hatch stops at the reveal) and the frame symbol sits in the gap at the wall's own thickness and angle; it returns the wall segment ids in order. \"rooms\" derives the enclosed rooms from the walls on a page - net area (inside the wall faces), perimeter and a label point that always falls inside the room - and reports wall ends that leave the contour open instead of silently filling half an area; a door opening does not break the enclosure. With place:true it puts each room on the sheet as a measured area plus a name, remembering the seed point; with refresh:true it re-derives them from the walls as they are now, so a room that grew because a wall moved updates itself. \"dimensions\" places a dimension chain along a wall run whose end points are ANCHORED to the wall segments (pier, opening, pier, ...) plus an overall dimension; with refresh:true every anchored dimension on the page is recomputed, and a dimension whose wall disappeared is reported as detached rather than broken. \"inspect\" reads back what is on the page: walls with their length and thickness, openings with width, sill and height, the rooms it finds, open contour ends and how many anchored dimensions there are. Coordinates are page points at 100% zoom; sizes are real millimetres, so the page needs a measurement scale (app_set_measure_scale) first. Everything one call creates or changes goes into a single undo step.",
+        "description": "Draw a building floor plan with the parts related to each other, instead of loose shapes stacked on top of one another. Four actions. \"wall\" draws ONE wall run with its openings: the wall is split at every door and window, so the opening really interrupts the wall (the hatch stops at the reveal) and the frame symbol sits in the gap at the wall's own thickness and angle; it returns the wall segment ids in order. Doors and windows are drawn as real frames: timber stiles (67 x 114 mm by default) with a rebate, double glazing or a 40 mm door leaf with its swing. With layers the run is a layered (cavity) wall: start/end are its outside face, every drawn layer gets its own wall segments cut to its own opening (the outer leaf overlaps the frame, the insulation closes against it, the inner leaf keeps a reveal with clearance), the frame stands in the cavity behind the outer leaf, and runs whose outside faces meet in a corner are mitred layer by layer. \"rooms\" derives the enclosed rooms from the walls on a page - net area (inside the wall faces), perimeter and a label point that always falls inside the room - and reports wall ends that leave the contour open instead of silently filling half an area; a door opening does not break the enclosure. With place:true it puts each room on the sheet as a quiet room area (thin grey outline, no hatch or fill, drawn behind the walls and frames) plus ONE movable room tag, remembering the seed point. The room itself carries the name and the optional number (kept on save and reopen); the tag shows the room's name, number and net area. Placing a room that is already on the sheet adds no second area, only a tag if it has none. A click never selects a room (walls, frames and dimensions always win); reach it through its tag. names:[{id or x,y, name, number}] sets name and number on placed rooms; rooms and inspect report id, name, number and tagIds of placed rooms. With refresh:true it re-derives them from the walls as they are now, so a room that grew because a wall moved updates its area and its tag, and the tag keeps its place relative to the room. \"dimensions\" places a dimension chain along a wall run (pier, opening, pier, ...) plus an overall dimension, measured the way a draughtsman does: every point is ANCHORED to the wall face on the side of the chain (for a facade built from separate layers, the face of the outermost layer), and the end points sit on the outer corner of the building, also where the own segment stops short at a butt joint. The dimensions show the number only, black and thin, with extension lines that start a small gap from the wall face and run just past the dimension line, and the dimension line runs a little past the outer extension lines (sizes in paper millimetres, so they do not change with the drawing scale); the default distances grow with the drawing scale so text never runs into the lines. With refresh:true every anchored dimension on the page is recomputed the same way, and a dimension whose wall disappeared is reported as detached rather than broken. With chainOf (the id of any dimension) plus addPoints and/or removePoints an existing dimension or chain is extended or shortened in place: a point between two extension lines splits that segment, a point outside makes the chain longer, removing a point merges two segments; the overall dimension follows, the new segments copy the style of their neighbour, and a point on a wall face is anchored to that wall. A single dimension extended this way becomes a chain. \"inspect\" reads back what is on the page: walls with their length and thickness, openings with width, sill and height, the rooms it finds, open contour ends and how many anchored dimensions there are. Coordinates are page points at 100% zoom; sizes are real millimetres, so the page needs a measurement scale (app_set_measure_scale) first. Everything one call creates or changes goes into a single undo step.",
         "inputSchema": {
             "type": "object",
             "properties": {
                 "action":       { "type": "string", "enum": ["inspect", "wall", "rooms", "dimensions"], "description": "What to do." },
                 "page":         { "type": "number", "description": "1-based page (default: the current page)." },
-                "start":        { "type": "object", "description": "wall: start of the run as {x, y} in page points (the wall centre line).", "additionalProperties": true },
+                "start":        { "type": "object", "description": "wall: start of the run as {x, y} in page points (the wall centre line; with layers the outside face of the wall).", "additionalProperties": true },
                 "end":          { "type": "object", "description": "wall: end of the run as {x, y} in page points.", "additionalProperties": true },
                 "thicknessMm":  { "type": "number", "description": "wall: real wall thickness in mm (default 100)." },
                 "material":     { "type": "string", "description": "wall: hatch material id, e.g. nen47-metselwerk-baksteen, nen47-metselwerk-kunststeen, nen47-beton-gewapend, isolatie, none." },
                 "insulation":   { "type": "string", "description": "wall: insulation sub-material when material is isolatie (steenwol, glaswol, pir, eps, kooltherm, pur)." },
-                "openings":     { "type": "array", "description": "wall: the doors and windows in this run. Each: kind (door|window), widthMm (clear opening), alongMm (centre, measured from start along the wall), sillMm, heightMm, swing (left|right hinge), openSide (left|right of the wall direction) or openTo ({x, y}: a point in the room the door opens into), windowType (fixed|pivot|tilt)." },
+                "openings":     { "type": "array", "description": "wall: the doors and windows in this run. Each: kind (door|window), widthMm (frame size, outside dimensions; in a single wall this is also the opening), alongMm (centre, measured from start along the wall), sillMm, heightMm, swing (left|right: the hinge side seen from the side the door opens away from), openSide (left|right of the wall direction) or openTo ({x, y}: a point in the room the door opens into; for a window its inside), windowType (fixed|turn|pivot|tilt), showSwing (window: true also draws the opening direction of a turn sash as a dashed quarter circle; default false, because in a plan it reads as a door). Frame, all optional: stileWidthMm (default 67), frameDepthMm (default 114, never deeper than the wall), framePositionMm (outside face of the wall to outside face of the frame; default: behind the outer leaf in a layered wall, centred in a single wall), overlapMm (outer leaf over the frame; default 20 in a layered wall), clearanceMm (reveal of the inner leaf; default 10 in a layered wall), leafThicknessMm (door leaf, default 40)." },
                 "minPierMm":    { "type": "number", "description": "wall: smallest piece of wall that must remain beside an opening (default 0)." },
+                "joinStart":    { "type": "boolean", "description": "wall: false = the start of the run never joins another wall: no mitre, no T, no trim; the end keeps a plain butt cap exactly where it is drawn (default true). Otherwise walls that touch are joined automatically: coincident end points are mitred; ends that just pass or fall short of a wall of the same material are trimmed to a closed corner; an end that stops on a continuing wall (on its centre line, on its face, just short of it or inside it) forms a T, where the same material flows into it and another material butts against its face with a seam. Later: app_update_annotation props noJoinStart / noJoinEnd." },
+                "joinEnd":      { "type": "boolean", "description": "wall: false = the end of the run never joins another wall (see joinStart; default true)." },
+                "layers":       { "type": "array", "description": "wall: build-up of a layered (cavity) wall, from outside to inside, each {thicknessMm, material, insulation}; material none is an air cavity (not drawn). The run's start/end are then the outside face, thicknessMm and material of the run are ignored. Answer: layers[i].wallIds per drawn layer, per opening frame and layerOpeningsMm, corners = layers mitred at start/end." },
+                "insideSide":   { "type": "string", "enum": ["left", "right"], "description": "wall with layers: which side of start->end is inside (default right; a clockwise outline has the inside on the right)." },
                 "wallId":       { "type": "string", "description": "dimensions: a single wall annotation to dimension." },
                 "wallIds":      { "type": "array", "description": "dimensions: the wall segments of one run, in order along the run (as returned by action \"wall\")." },
-                "offsetMm":     { "type": "number", "description": "dimensions: distance from the wall to the chain, in mm (default 500)." },
-                "totalOffsetMm": { "type": "number", "description": "dimensions: distance for the overall dimension (default offsetMm + 350)." },
-                "side":         { "type": "string", "enum": ["left", "right"], "description": "dimensions: which side of the run the chain goes, seen along its direction (default left)." },
+                "offsetMm":     { "type": "number", "description": "dimensions: distance from the wall face to the chain, in mm (default 500 at 1:50; larger at smaller scales, so the text fits)." },
+                "totalOffsetMm": { "type": "number", "description": "dimensions: distance from the wall face to the overall dimension, in mm (default offsetMm plus one line of text, at least 350)." },
+                "showUnit":     { "type": "boolean", "description": "dimensions: also show the unit behind the number (default false: the number only, as on a building drawing)." },
+                "chainOf":      { "type": "string", "description": "dimensions: the id of a dimension (measureDistance) whose chain you want to extend or shorten, with addPoints and/or removePoints." },
+                "addPoints":    { "type": "array", "description": "dimensions with chainOf: points {x, y} in page points to add as extension lines, between or outside the existing ones." },
+                "removePoints": { "type": "array", "description": "dimensions with chainOf: points {x, y} near the extension lines to remove (the measured point or anywhere along the extension line)." },
+                "tolerance":    { "type": "number", "description": "dimensions with removePoints: how close (page points) a point must be to an extension line (default 6)." },
+                "side":         { "type": "string", "enum": ["left", "right"], "description": "dimensions: which side of the run the chain goes, seen along its direction (default right). For an outline drawn clockwise on the sheet, left is outside." },
                 "place":        { "type": "boolean", "description": "rooms: also put the rooms on the sheet instead of only reporting them." },
                 "refresh":      { "type": "boolean", "description": "rooms/dimensions: recompute what is already on the sheet from the walls as they are now." },
-                "seeds":        { "type": "array", "description": "rooms: points inside the rooms you want, each {x, y, name}. Without seeds every room found is reported." },
+                "seeds":        { "type": "array", "description": "rooms: points inside the rooms you want, each {x, y, name, number}; number is optional. Without seeds every room found is reported." },
+                "names":        { "type": "array", "description": "rooms: set the name and/or number of placed rooms, each {id (the room area) or x, y (a point inside), name, number}." },
                 "maxOpeningMm": { "type": "number", "description": "rooms/inspect: widest gap between two aligned wall ends that still counts as an opening rather than a hole in the contour (default 3000)." }
+            },
+            "required": ["action"],
+            "additionalProperties": false
+        }
+    })
+}
+
+/// Beschrijving van `app_facade_element`: het gevelelement (#475) — een
+/// vliesgevel of kozijn als één object met stijlen op de veldgrenzen en een
+/// paneel per veld.
+fn facade_element_tool() -> Value {
+    json!({
+        "name": "app_facade_element",
+        "description": "Draw and edit a facade element in a floor plan: a curtain wall or a window frame, as ONE object along a line with an outer frame, mullions on the field boundaries and a panel in every field. Everything is at real size (mm) from the measurement scale, so set one first with app_set_measure_scale. Actions: \"create\" places a new element, either loose along start/end (page points), or IN an existing wall (wallId plus fromMm or alongMm and lengthMm): the wall is then cut over the length of the element, like a door or window opening, and the element sits in the gap; offsetMm moves it across the wall build-up (+ = right of the wall direction). The division is fields (number of equal fields, centre-to-centre) or fieldWidthsMm (centre-to-centre widths that add up to the length); without either it divides itself into fields of about 1200 mm (curtain wall) or 900 mm (window frame). \"get\" returns one element (id) with its mullions and fields, or without id a summary of every element on the page. Edits (all need id): \"addMullion\" splits a field at atMm (from the start) or in the middle of field; \"removeMullion\" merges the two fields beside mullion (index) or the mullion nearest atMm; \"moveMullion\" moves it to toMm or by byMm; \"setMullionType\" swaps the type of mullion (index 0 and the last index are the outer frame; without mullion or atMm all intermediate mullions); \"setPanel\" swaps the panel of field, fieldIndexes or the field at atMm; \"divide\" divides again into fields or fieldWidthsMm. Mullions are numbered from 0 (frame at the start) to n (frame at the end); field i lies between mullion i and i+1. Fields never become narrower than 100 mm clear and the overall length stays the same, except for divide with fieldWidthsMm. Mullion types: curtain wall alu-50x150 (default), alu-50x200, alu-65x250; window frame hout-67x114 (default), hout-67x139, hout-90x114 (width x depth in mm). Panels: curtain wall glass, solid, door, open; window frame glass, turnSash, door, solid. A panel is a name or {type, hinge: start|end, swing: inside|outside} for a door or turn sash. Every call is a single undo step and returns the element as it is now.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "action":        { "type": "string", "enum": ["create", "get", "addMullion", "removeMullion", "moveMullion", "setMullionType", "setPanel", "divide"], "description": "What to do." },
+                "page":          { "type": "number", "description": "1-based page (default: the current page)." },
+                "id":            { "type": "string", "description": "The facade element to read or edit (as returned by create or get)." },
+                "preset":        { "type": "string", "enum": ["curtainWall", "windowFrame"], "description": "create: which kind of element (default curtainWall)." },
+                "start":         { "type": "object", "description": "create (loose): start of the element as {x, y} in page points.", "additionalProperties": true },
+                "end":           { "type": "object", "description": "create (loose): end of the element as {x, y} in page points.", "additionalProperties": true },
+                "wallId":        { "type": "string", "description": "create: put the element in this wall annotation; the wall is cut over the element's length." },
+                "fromMm":        { "type": "number", "description": "create in a wall: distance from the wall start to the START of the element, in mm." },
+                "alongMm":       { "type": "number", "description": "create in a wall: distance from the wall start to the MIDDLE of the element, in mm (alternative to fromMm; without both the element is centred)." },
+                "lengthMm":      { "type": "number", "description": "create in a wall: length of the element = width of the gap, in mm (or give fieldWidthsMm)." },
+                "offsetMm":      { "type": "number", "description": "create in a wall: position across the wall build-up, mm from the wall centre line, + = right of the wall direction (default 0)." },
+                "fields":        { "type": "number", "description": "create/divide: number of equal fields." },
+                "fieldWidthsMm": { "type": "array", "description": "create/divide: centre-to-centre field widths in mm, from the start.", "items": { "type": "number" } },
+                "mullionType":   { "type": "string", "description": "create/addMullion/setMullionType: mullion type id, e.g. alu-50x150 or hout-67x114." },
+                "frameType":     { "type": "string", "description": "create: type of the outer frame (both ends)." },
+                "panels":        { "type": "array", "description": "create: the panel of each field, from the start (a name or {type, hinge, swing})." },
+                "panel":         { "type": ["string", "object"], "description": "create: panel for every field not given in panels; setPanel: the new panel. A name (glass, solid, door, open, turnSash) or {type, hinge: start|end, swing: inside|outside}; an object without type only changes hinge/swing." },
+                "insideSide":    { "type": "string", "enum": ["right", "left"], "description": "create: which side of the drawing direction is inside (doors swing inside by default; default right)." },
+                "mullion":       { "type": "number", "description": "removeMullion/moveMullion/setMullionType: mullion index (0 = frame at the start)." },
+                "atMm":          { "type": "number", "description": "Position along the element from its start, in mm: where addMullion splits, which mullion (nearest) or field setPanel/removeMullion/moveMullion/setMullionType means." },
+                "toMm":          { "type": "number", "description": "moveMullion: new position from the start, in mm." },
+                "byMm":          { "type": "number", "description": "moveMullion: shift in mm (+ = towards the end)." },
+                "field":         { "type": "number", "description": "addMullion: split this field in the middle; setPanel: the field index (0 = at the start)." },
+                "fieldIndexes":  { "type": "array", "description": "setPanel: several field indexes at once.", "items": { "type": "number" } }
             },
             "required": ["action"],
             "additionalProperties": false
@@ -735,7 +786,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_create_annotation",
-                "description": "Create an annotation on the LIVE app's active document WITHOUT synthetic mouse input. Builds the same object the interactive tool would, pushes it onto the document, records an undo step and redraws. Geometry goes in `props` (page coordinates at 100% zoom): line/arrow/measureDistance need startX/startY/endX/endY; box/circle/highlight/cloud/polygon/textbox/callout/scaleRegion need x/y/width/height; polyline/filledArea/measureArea/measurePerimeter need points:[{x,y},...]; spline needs controlPoints; draw needs path; comment needs x/y. Optional style props (color, strokeColor, fillColor, lineWidth, opacity, text, fontSize, scaleString, units, leaderStartX/Y, leaderEndX/Y, ...) override the tool defaults. measure* annotations get measureText computed from the document scale automatically. Returns the new annotation id.",
+                "description": "Create an annotation on the LIVE app's active document WITHOUT synthetic mouse input. Builds the same object the interactive tool would, pushes it onto the document, records an undo step and redraws. Geometry goes in `props` (page coordinates at 100% zoom): line/arrow/measureDistance need startX/startY/endX/endY; box/circle/highlight/cloud/polygon/textbox/callout/scaleRegion need x/y/width/height; polyline/filledArea/measureArea/measurePerimeter need points:[{x,y},...]; spline needs controlPoints; draw needs path; comment needs x/y. Optional style props (color, strokeColor, fillColor, lineWidth, opacity, text, fontSize, scaleString, units, leaderStartX/Y, leaderEndX/Y, dimShowUnit (measureDistance: false shows the number only), dimLineOvershootMm / dimExtGapMm / dimExtOvershootMm (measureDistance: overshoot of the dimension line, gap and overshoot of the extension lines, in paper mm), measureShowLabel (measureArea: false hides its own label), ...) override the tool defaults. measure* annotations get measureText computed from the document scale automatically. Returns the new annotation id.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -765,7 +816,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_get_annotation",
-                "description": "Return the full JSON-safe property set of one annotation by id (functions/DOM refs stripped).",
+                "description": "Return the full JSON-safe property set of one annotation by id (functions/DOM refs stripped). A grid line also reports `gridAlignment`: per end its group, whether it is locked, the number of linked ends and whether it can be locked.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -777,7 +828,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_update_annotation",
-                "description": "Merge `props` onto an existing annotation (geometry, color, lineWidth, text, ...). Records a modify-undo step, recomputes measureText when measurement geometry changed, and redraws. `id` and `type` are immutable. `layer` moves the annotation to another markup layer; `props` may then be empty.",
+                "description": "Merge `props` onto an existing annotation (geometry, color, lineWidth, text, ...). Records a modify-undo step, recomputes measureText when measurement geometry changed, and redraws. `id` and `type` are immutable. `layer` moves the annotation to another markup layer; `props` may then be empty. Grid line (parametricSymbol `stramien`): `alignStart` / `alignEnd` true couples that end with the aligned ends of the other grid lines (dragging one end then moves them all), false unlocks it.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -1162,7 +1213,8 @@ fn handle_tools_list() -> Value {
                     "additionalProperties": false
                 }
             },
-            floorplan_tool()
+            floorplan_tool(),
+            facade_element_tool()
         ]
     })
 }
@@ -1263,6 +1315,7 @@ async fn handle_tools_call(state: &AppState, params: &Value) -> Result<Value, (i
         "app_symbol_scale"       => tool_app_request(state, "mcp:symbol-scale",       &arguments, Duration::from_secs(10)).await,
         "app_titleblock"         => tool_app_request(state, "mcp:titleblock",         &arguments, Duration::from_secs(15)).await,
         "app_floorplan"          => tool_app_request(state, "mcp:floorplan",          &arguments, Duration::from_secs(60)).await,
+        "app_facade_element"     => tool_app_request(state, "mcp:facade-element",     &arguments, Duration::from_secs(30)).await,
         "app_import_cad"         => tool_app_request(state, "mcp:import-cad",         &arguments, Duration::from_secs(300)).await,
         "app_export_cad"         => tool_app_request(state, "mcp:export-cad",         &arguments, Duration::from_secs(300)).await,
         // Afdrukken: een A0 op 300 dpi renderen duurt minuten, dus dezelfde
@@ -2402,6 +2455,7 @@ mod tests {
             "app_symbol_scale",
             "app_titleblock",
             "app_floorplan",
+            "app_facade_element",
             "app_import_cad",
             "app_export_cad",
             "app_print_to_pdf",

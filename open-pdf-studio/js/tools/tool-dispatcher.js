@@ -32,6 +32,7 @@ import {
   exitTypeLengthMode,
 } from './type-length-input.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
+import { getTemplate } from '../symbols/registry.js';
 import { hideMenu } from '../bridge.js';
 import { syncDocScale } from '../annotations/scale-bar.js';
 import { recalculateAllMeasurements, getMeasureScale } from '../annotations/measurement.js';
@@ -42,6 +43,48 @@ import {
   nieuwEindpuntVoorInvoer,
   isGripLengteStartToets,
 } from './grip-lengte.js';
+import {
+  isStramien, startMeeslepen, sleepMee, meesleepWijzigingen, herstelMeeslepen,
+} from '../annotations/stramien-koppeling.js';
+import { magMeeVeranderen } from '../annotations/stramien-slot.js';
+
+// ── Gekoppelde stramienuiteinden meeslepen ─────────────────────────────────
+// Sleep je de maatgreep aan het uiteinde van een stramienlijn waarvan dat
+// uiteinde gekoppeld is, dan schuiven de gekoppelde uiteinden van de andere
+// lijnen evenveel mee, elk langs de eigen lijn (stramien-koppeling.js). De
+// sessie hoort bij één sleepgebaar: ze wordt bij de eerste sleepbeweging
+// opgebouwd en is gekoppeld aan de begintoestand van dat gebaar
+// (state.originalAnnotation), zodat een afgebroken gebaar nooit in het
+// volgende doorwerkt. sessie null = er gaat niets mee.
+let _stramienMee = null; // { voor, greep, sessie }
+
+function _stramienMeeSessie() {
+  const orig = state.originalAnnotation;
+  if (!orig || !isStramien(orig)) return null;
+  if (!_stramienMee || _stramienMee.voor !== orig || _stramienMee.greep !== state.activeHandle) {
+    const doc = getActiveDocument();
+    _stramienMee = {
+      voor: orig,
+      greep: state.activeHandle,
+      sessie: startMeeslepen(
+        doc?.annotations || [], orig, state.activeHandle, cloneAnnotation,
+        { magMee: (a) => magMeeVeranderen(doc, a) },
+      ),
+    };
+  }
+  return _stramienMee.sessie;
+}
+
+function _sleepStramienMee(ann) {
+  const sessie = _stramienMeeSessie();
+  if (sessie && ann) sleepMee(sessie, state.originalAnnotation, ann);
+}
+
+/** Sleep afgebroken (Escape): meegeschoven uiteinden terug en sessie weg. */
+export function herstelStramienMeeslepen() {
+  if (_stramienMee?.sessie) herstelMeeslepen(_stramienMee.sessie);
+  _stramienMee = null;
+}
 
 // ── Lengte intypen tijdens het slepen van een eindpunt-handvat ─────────────
 // Hergebruikt de invoer van de tekengereedschappen (type-length-input.js:
@@ -183,6 +226,7 @@ export function handlePointerDown(e) {
     state.originalAnnotations = [];
     state._ctrlDragCopy = false;
     state._ctrlCopiesCreated = false;
+    _stramienMee = null;
   }
 
   // Finish inline text editing. A left-click while editing is the user
@@ -569,9 +613,16 @@ function _handleResize(ctx, e, coords) {
   const RECT_RESIZE_HANDLES = ['tl', 'tr', 'bl', 'br', 't', 'b', 'l', 'r'];
   const skipResizeSnap = (ann.type === 'textbox' || ann.type === 'callout') &&
     RECT_RESIZE_HANDLES.includes(state.activeHandle);
+  // Meeschuivende stramienuiteinden zijn geen snapdoel: ze bewegen zelf met
+  // de sleep mee en zouden de greep op hun vorige positie vasthouden.
+  const _meeSessie = _stramienMeeSessie();
+  const _meeIds = _meeSessie ? new Set(_meeSessie.leden.map(l => l.ann.id)) : null;
+  const snapAnnotations = _meeIds
+    ? (resizeDoc?.annotations || []).filter(a => !_meeIds.has(a.id))
+    : (resizeDoc?.annotations || []);
   const snap = skipResizeSnap
     ? { snapped: false }
-    : performSnap(coords.x, coords.y, resizeDoc?.annotations || [], coords.pageNum, resizeScale, ann.id);
+    : performSnap(coords.x, coords.y, snapAnnotations, coords.pageNum, resizeScale, ann.id);
   const snappedX = snap.snapped ? snap.x : coords.x;
   const snappedY = snap.snapped ? snap.y : coords.y;
   state.lastSnapResult = snap.snapped ? snap : null;
@@ -637,6 +688,12 @@ function _handleResize(ctx, e, coords) {
       ox = (orig.startX + orig.endX) / 2 + (orig.textOffsetX || 0);
       oy = (orig.startY + orig.endY) / 2 + (orig.textOffsetY || 0);
     }
+    // Sjabloon-eigen greep van een parametrisch symbool (bijv. de stijl van
+    // een gevelelement): het sjabloon weet waar die greep zat.
+    if (ox === undefined && orig.type === 'parametricSymbol') {
+      const o = getTemplate(orig.symbolId)?.greepOorsprong?.(orig, h);
+      if (o) { ox = o.x; oy = o.y; }
+    }
     if (ox === undefined) {
       ox = h === 'line_start' ? orig.startX
         : h === 'line_end' ? orig.endX
@@ -676,6 +733,7 @@ function _handleResize(ctx, e, coords) {
   applyResize(ann, state.activeHandle, deltaX, deltaY, state.originalAnnotation, e.shiftKey, e.ctrlKey,
     { schaal: resizeScale });
   _pasGripLengteToe(ann);
+  _sleepStramienMee(ann);
 
   // Image "equal width/height" snapping: after the resize is applied, snap the
   // resulting width/height to another image's width/height within tolerance.
@@ -1017,7 +1075,15 @@ function _finishDragResize(ctx, e, coords) {
       // _editContourBefore (pre-insert); originalAnnotation is post-insert and
       // is only used as the drag-math baseline.
       const beforeForUndo = state._editContourBefore || state.originalAnnotation;
-      if (_annotationChanged(beforeForUndo, upAnn)) {
+      // Gekoppelde stramienuiteinden: de versleepte lijn en alle meegeschoven
+      // lijnen in één ongedaan-stap. Eerst nog één keer bijwerken: een getypte
+      // lengte (Enter) wijzigt de lijn na de laatste sleepbeweging.
+      const meeSessie = state.isResizing ? _stramienMeeSessie() : null;
+      if (meeSessie) _sleepStramienMee(upAnn);
+      const meeStap = meeSessie ? meesleepWijzigingen(meeSessie, upAnn, beforeForUndo) : null;
+      if (meeStap && meeStap.huidig.length > 1) {
+        recordBulkModify(meeStap.huidig, meeStap.origineel);
+      } else if (_annotationChanged(beforeForUndo, upAnn)) {
         recordModify(upAnn.id, beforeForUndo, upAnn);
       }
     }
@@ -1049,6 +1115,7 @@ function _finishDragResize(ctx, e, coords) {
   state.isResizing = false;
   state.activeHandle = null;
   state._dragExitedDeadzone = false;
+  _stramienMee = null;
   state.originalAnnotation = null;
   state.originalAnnotations = [];
   state._ctrlDragCopy = false;

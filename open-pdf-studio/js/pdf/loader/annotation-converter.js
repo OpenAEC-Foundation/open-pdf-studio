@@ -10,6 +10,7 @@ import { nenIfcForStamp } from '../../solid/data/nenIfcMap.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
 import { knipselUitExtra } from './vector-snippet-load.js';
 import { hatchUitExtra } from '../saver/hatch-meta.js';
+import { wandJoinUitExtra } from '../saver/wand-join-meta.js';
 import { wolkVakUitHoeken, wolkVakUitZeshoek } from '../saver/veelhoek-grondvorm.js';
 import { vlakOmhullende } from '../../annotations/vlak-ringen.js';
 import { heeft as heeftKnipselBron } from '../../annotations/vector-snippet-store.js';
@@ -26,6 +27,7 @@ import { onzichtbaarVlakUitExtra, randloosUitExtra } from './geen-rand.js';
 import { opmerkingUitAnnot, zonderDubbeleOpmerking } from './annotatie-opmerking.js';
 import { zetLaagUitBestand } from './annotatie-laag.js';
 import { extraVoorAnnotatie } from './extra-sleutel.js';
+import { plattegrondUitExtra } from './plattegrond-meta.js';
 
 /**
  * Zet een PDF-annotatie om naar het model van de app.
@@ -470,6 +472,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
             hatchScale: extraColors.opsHatchScale ?? undefined,
             hatchAngle: extraColors.opsHatchAngle ?? 0,
             isolatieType: extraColors.opsIsolatieType || undefined,
+            // Join per uiteinde uit (#476); zonder sleutel geen velden.
+            ...wandJoinUitExtra(extraColors),
             // Explicit category wins; older files without it are IfcWall.
             ifcCategory: extraColors.opsIfcCategory || ifcCategoryForAnnotationType('wall'),
             color: colorArrayToHex(annot.color, '#000000'),
@@ -547,6 +551,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           // written verbatim by the saver, read back verbatim here.
           if (extraColors.opsTextOffsetX != null) mdProps.textOffsetX = extraColors.opsTextOffsetX;
           if (extraColors.opsTextOffsetY != null) mdProps.textOffsetY = extraColors.opsTextOffsetY;
+          // Maat zonder eenheid (OPS_DimNoUnit, zie saver/plattegrond-meta.js).
+          Object.assign(mdProps, plattegrondUitExtra(extraColors, convertPoint));
           // Compute dimension line position from PDF LL (leader length)
           // Per PDF spec: /L = base points on measured object, /LL = perpendicular
           // offset to the dimension line. Positive LL = counter-clockwise from /L direction.
@@ -1046,6 +1052,9 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           if (extraColors.opsPrecision != null) maProps.measurePrecision = extraColors.opsPrecision;
           if (maHoles) maProps.holes = maHoles;
           Object.assign(maProps, randloosUitExtra(extraColors)); // zonder rand (#431)
+          // Ruimtevlak van een plattegrond: verborgen label, zaadpunt en naam.
+          Object.assign(maProps, plattegrondUitExtra(extraColors, convertPoint));
+          if (maProps.opsRuimteNaam && !maProps.measureName) maProps.measureName = maProps.opsRuimteNaam;
           return createAnnotation(maProps);
         }
 

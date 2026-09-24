@@ -40,6 +40,11 @@ const wandIsolatiePreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" 
 const wandKzsPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="6" y="24" width="52" height="16"/><line x1="12" y1="24" x2="8" y2="40" stroke-width="1.2"/><line x1="20" y1="24" x2="16" y2="40" stroke-width="1.2"/><line x1="28" y1="24" x2="24" y2="40" stroke-width="1.2"/><line x1="36" y1="24" x2="32" y2="40" stroke-width="1.2"/><line x1="44" y1="24" x2="40" y2="40" stroke-width="1.2"/><line x1="52" y1="24" x2="48" y2="40" stroke-width="1.2"/></svg>`;
 const wandBetonPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="6" y="24" width="52" height="16"/><line x1="16" y1="24" x2="8" y2="40" stroke-width="1.2"/><line x1="30" y1="24" x2="22" y2="40" stroke-width="1.2"/><line x1="44" y1="24" x2="36" y2="40" stroke-width="1.2"/><circle cx="22" cy="30" r="1.2" fill="#000"/><circle cx="36" cy="35" r="1.2" fill="#000"/><circle cx="48" cy="29" r="1.2" fill="#000"/></svg>`;
 
+// Gevelelement (#475): vliesgevel (stijlen als blokjes, dubbele glaslijn,
+// één deur met draaicirkel) en kozijn (kozijnhout met glas en een draairaam).
+const vliesgevelPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.2"><g fill="#000"><rect x="3" y="28" width="3" height="8"/><rect x="21" y="28" width="3" height="8"/><rect x="40" y="28" width="3" height="8"/><rect x="58" y="28" width="3" height="8"/></g><line x1="6" y1="31" x2="21" y2="31"/><line x1="6" y1="33" x2="21" y2="33"/><line x1="43" y1="31" x2="58" y2="31"/><line x1="43" y1="33" x2="58" y2="33"/><line x1="24" y1="36" x2="24" y2="52"/><path d="M24 52 A16 16 0 0 0 40 36" stroke-width="0.9"/></svg>`;
+const kozijnPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.2"><g fill="#000"><rect x="6" y="26" width="5" height="12"/><rect x="30" y="26" width="4" height="12"/><rect x="53" y="26" width="5" height="12"/></g><line x1="11" y1="31" x2="30" y2="31"/><line x1="11" y1="33" x2="30" y2="33"/><line x1="34" y1="31" x2="53" y2="31"/><line x1="34" y1="33" x2="53" y2="33"/><path d="M34 38 A19 19 0 0 0 53 57" stroke-dasharray="2 2" stroke-width="0.9"/></svg>`;
+
 const ifcSpacePreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="8" y="12" width="48" height="40" stroke-dasharray="5 3"/><text x="32" y="36" font-size="10" text-anchor="middle" fill="#000" stroke="none">Ruimte</text></svg>`;
 // Maskeer (wipeout): wit afdekvlak over een "tekening" (grijze lijntjes
 // eronder maken zichtbaar dat het vlak afdekt), streep-punt-rand.
@@ -86,6 +91,15 @@ const bouwkraanPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" str
 const draaicirkelPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="1.6"><circle cx="32" cy="32" r="24" stroke-dasharray="5 4"/><path d="M52 16 47 13 49 20 Z" fill="#000"/><text x="32" y="36" font-size="10" text-anchor="middle" fill="#000" stroke="none">R</text></svg>`;
 const parkeervakPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="18" y="8" width="28" height="48"/><text x="32" y="38" font-size="18" font-weight="bold" text-anchor="middle" fill="#000" stroke="none">P</text></svg>`;
 const bouwkeetPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="6" y="20" width="52" height="24"/><line x1="6" y1="20" x2="58" y2="44" stroke-width="1"/><text x="32" y="56" font-size="9" text-anchor="middle" fill="#000" stroke="none">KEET</text></svg>`;
+// Previews inrichting (#478): sanitair en keuken in plattegrond, de wand
+// (achterkant) boven — zoals het symbool zelf ongedraaid ligt.
+const wandclosetPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><line x1="8" y1="8" x2="56" y2="8" stroke-width="3"/><path d="M20 10 H44 V24 A12 28 0 0 1 20 24 Z"/><ellipse cx="32" cy="33" rx="7.5" ry="12"/></svg>`;
+const staandClosetPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="18" y="4" width="28" height="13"/><circle cx="32" cy="10.5" r="2" stroke-width="1.4"/><path d="M20 17 H44 V26 A12 32 0 0 1 20 26 Z"/><ellipse cx="32" cy="38" rx="8" ry="12"/></svg>`;
+const fonteinPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="8" y="18" width="48" height="30"/><ellipse cx="32" cy="36" rx="17" ry="9"/><circle cx="32" cy="23.5" r="2.2" stroke-width="1.4"/></svg>`;
+const hoekfonteinPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M10 10 H52 A42 42 0 0 1 10 52 Z"/><circle cx="29" cy="29" r="11"/><circle cx="17" cy="17" r="2.2" stroke-width="1.4"/></svg>`;
+const aanrechtPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="4" y="21" width="56" height="22"/><rect x="10" y="24" width="14" height="16" stroke-width="1.4"/><rect x="13" y="28" width="8" height="10" stroke-width="1.2"/><g stroke-width="1.2"><circle cx="38" cy="27" r="3"/><circle cx="49" cy="27" r="3.6"/><circle cx="38" cy="37" r="3.6"/><circle cx="49" cy="37" r="3"/></g></svg>`;
+const aanrechtHoekPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><path d="M4 6 H58 V58 H42 V22 H4 Z"/><rect x="10" y="9" width="14" height="10" stroke-width="1.4"/><g stroke-width="1.2"><circle cx="46" cy="36" r="2.6"/><circle cx="54" cy="36" r="2.6"/><circle cx="46" cy="46" r="2.6"/><circle cx="54" cy="46" r="2.6"/></g></svg>`;
+const kookeilandPreview = `<svg viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="2"><rect x="6" y="16" width="52" height="30"/><line x1="6" y1="22" x2="58" y2="22" stroke-width="1.2" stroke-dasharray="3 2"/><rect x="19" y="26" width="26" height="19" stroke-width="1.2"/><g stroke-width="1.2"><circle cx="25" cy="31" r="4"/><circle cx="39" cy="31" r="4"/><circle cx="25" cy="40" r="4"/><circle cx="39" cy="40" r="4"/></g></svg>`;
 
 export const NL_CATEGORIES = [
   {
@@ -104,6 +118,8 @@ export const NL_CATEGORIES = [
     icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5.5 8 2l6 3.5v5L8 14l-6-3.5z"/><path d="M8 8v6M2 5.5 8 8l6-2.5"/></svg>`,
     symbols: [
       { id: 'wand', name: 'Wand (IfcWall)', wall: { pattern: 'nen47-metselwerk-baksteen', dikteMm: 100 }, svg: wandMetselwerkPreview },
+      { id: 'param-vliesgevel', name: 'Vliesgevel (IfcCurtainWall)', parametricId: 'vliesgevel', svg: vliesgevelPreview },
+      { id: 'param-kozijn', name: 'Kozijn (IfcWindow)', parametricId: 'kozijn', svg: kozijnPreview },
       { id: 'ifc-space', name: 'Ruimte (IfcSpace)', parametricId: 'ifc-space', svg: ifcSpacePreview },
       { id: 'param-vloer-kanaalplaat', name: 'Kanaalplaatvloer', parametricId: 'vloer-kanaalplaatvloer', svg: kanaalplaatPreview },
       { id: 'param-vloer-isolatieplaat', name: 'Isolatieplaatvloer', parametricId: 'vloer-isolatieplaatvloer', svg: isolatieplaatPreview },
@@ -185,6 +201,39 @@ export const NL_CATEGORIES = [
       { id: 'param-draaicirkel', name: 'Draaicirkel vrachtwagen', parametricId: 'draaicirkel', svg: draaicirkelPreview },
       { id: 'param-parkeervak', name: 'Parkeervak', parametricId: 'parkeervak', svg: parkeervakPreview },
       { id: 'param-bouwkeet', name: 'Bouwkeet', parametricId: 'bouwkeet', svg: bouwkeetPreview },
+    ],
+  },
+  {
+    // Sanitair (#478): closets en fonteinen op werkelijke maat, de wandzijde
+    // boven; draaien met de draaigreep, maten in het eigenschappenpaneel.
+    id: 'nl-sanitair',
+    builtin: true,
+    name: 'NL Sanitair',
+    industry: 'aec',
+    country: 'nl',
+    color: 'var(--theme-text, #000000)',
+    icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h8v4a4 7 0 0 1-8 0z"/></svg>`,
+    symbols: [
+      { id: 'param-wandcloset', name: 'Wandcloset', parametricId: 'wandcloset', svg: wandclosetPreview },
+      { id: 'param-staand-closet', name: 'Staand closet', parametricId: 'staand-closet', svg: staandClosetPreview },
+      { id: 'param-fontein', name: 'Fontein', parametricId: 'fontein', svg: fonteinPreview },
+      { id: 'param-hoekfontein', name: 'Hoekfontein', parametricId: 'hoekfontein', svg: hoekfonteinPreview },
+    ],
+  },
+  {
+    // Keuken (#478): een keukenblok is één symbool — het blad met de
+    // onderdelen erin (spoelbak, kookplaat, vaatwasser, koelkast, hoge kast).
+    id: 'nl-keuken',
+    builtin: true,
+    name: 'NL Keuken',
+    industry: 'aec',
+    country: 'nl',
+    color: 'var(--theme-text, #000000)',
+    icon: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="4.5" width="13" height="7"/><circle cx="5" cy="8" r="1.6"/><circle cx="11" cy="8" r="1.6"/></svg>`,
+    symbols: [
+      { id: 'param-aanrecht', name: 'Aanrecht (strekkende meter)', parametricId: 'aanrecht', svg: aanrechtPreview },
+      { id: 'param-aanrecht-hoek', name: 'Aanrecht hoekopstelling (L)', parametricId: 'aanrecht-hoek', svg: aanrechtHoekPreview },
+      { id: 'param-kookeiland', name: 'Kookeiland', parametricId: 'kookeiland', svg: kookeilandPreview },
     ],
   },
 ];

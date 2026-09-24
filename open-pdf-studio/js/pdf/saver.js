@@ -12,6 +12,10 @@ import { PDFDocument, PDFString, PDFHexString, PDFName, PDFArray, PDFStream, deg
   PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup, PDFOptionList } from 'pdf-lib';
 import { bouwKnipselAppearance, tekenKnipselInPagina, alInBasis, markeerGebakken, ruimKnipselRestenOp, CATALOGUS_SLEUTEL as KNIPSEL_CATALOGUS } from './saver/vector-snippet.js';
 import { schrijfHatchMeta } from './saver/hatch-meta.js';
+import { schrijfWandJoinMeta } from './saver/wand-join-meta.js';
+import { schrijfPlattegrondMeta } from './saver/plattegrond-meta.js';
+import { maatlijnTekst, maatLabelRuimte } from '../annotations/maat-label.js';
+import { maatlijnGeometrie, maatlijnVelden } from '../annotations/maatlijn-geometrie.js';
 import { bytesVan as knipselBytesVan } from '../annotations/vector-snippet-store.js';
 import { getAnnotationStorage, getAnnotIdToFieldName } from './form-layer.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
@@ -157,7 +161,7 @@ function remapAnnotationForRotatedPage(annRaw, rot, cw, ch) {
     }
   }
   // Nested {x,y} objects.
-  for (const k of ['vertex', 'point1', 'point2', 'at']) {
+  for (const k of ['vertex', 'point1', 'point2', 'at', 'opsRuimteZaad']) {
     const o = ann[k];
     if (o && typeof o.x === 'number' && typeof o.y === 'number') ann[k] = { ...o, ...m(o.x, o.y) };
   }
@@ -2341,11 +2345,27 @@ async function _savePDFNu(saveAsPath) {
             const mdx2 = convertX(ann.endX);
             const mdy2 = convertY(ann.endY);
 
-            // Compute rect including all points
-            let mdRectMinX = Math.min(mdx1, mdx2) - 5;
-            let mdRectMinY = Math.min(mdy1, mdy2) - 5;
-            let mdRectMaxX = Math.max(mdx1, mdx2) + 5;
-            let mdRectMaxY = Math.max(mdy1, mdy2) + 5;
+            // Compute rect including all points, plus room for the label that
+            // sits above the line (the /AP BBox is the Rect: a tight Rect
+            // would clip the text in other viewers).
+            const mdPad = maatLabelRuimte({
+              fontSize: ann.fontSize, startHead: ann.startHead || 'openCircle',
+              endHead: ann.endHead || 'openCircle', headSize: ann.headSize || 12,
+              tekst: maatlijnTekst(ann.measureText, ann.dimShowUnit),
+            });
+            let mdRectMinX = Math.min(mdx1, mdx2) - mdPad;
+            let mdRectMinY = Math.min(mdy1, mdy2) - mdPad;
+            let mdRectMaxX = Math.max(mdx1, mdx2) + mdPad;
+            let mdRectMaxY = Math.max(mdy1, mdy2) + mdPad;
+            // De uitloop van de maatlijn en de doorloop van de hulplijnen
+            // (maatlijn-geometrie.js) vallen ook binnen de Rect.
+            const mdGeo = maatlijnGeometrie(maatlijnVelden(ann));
+            for (const l of [mdGeo.maatlijn, ...mdGeo.hulplijnen]) {
+              for (const [gx, gy] of [[convertX(l.x1), convertY(l.y1)], [convertX(l.x2), convertY(l.y2)]]) {
+                mdRectMinX = Math.min(mdRectMinX, gx - 2); mdRectMaxX = Math.max(mdRectMaxX, gx + 2);
+                mdRectMinY = Math.min(mdRectMinY, gy - 2); mdRectMaxY = Math.max(mdRectMaxY, gy + 2);
+              }
+            }
 
             // PDF /L = base object points when leaders exist, else dimension line
             let pdfLX1 = mdx1, pdfLY1 = mdy1, pdfLX2 = mdx2, pdfLY2 = mdy2;
@@ -2428,13 +2448,17 @@ async function _savePDFNu(saveAsPath) {
             annotDict.set(PDFName.of('BS'), buildBorderStyle(context, borderWidth, ann.borderStyle));
             // Vector /AP so the dimension line, extension lines AND the value
             // label render in other viewers (label was Contents-only) — #256.
+            // Maat zonder eenheid (dimShowUnit false) en de plattegrond-sleutels.
+            schrijfPlattegrondMeta(annotDict, ann, context, convertX, convertY);
             attachVectorAP(context, annotDict, buildMeasureDistanceAP({
-              startX: ann.startX, startY: ann.startY, endX: ann.endX, endY: ann.endY,
-              leaderStartX: ann.leaderStartX, leaderStartY: ann.leaderStartY,
-              leaderEndX: ann.leaderEndX, leaderEndY: ann.leaderEndY,
+              ...maatlijnVelden(ann),
               X: convertX, Y: convertY, strokeColorHex: ann.strokeColor || '#ff0000',
               lineWidth: borderWidth, borderStyle: ann.borderStyle,
-              text: ann.measureText, textOffsetX: ann.textOffsetX, textOffsetY: ann.textOffsetY,
+              // De tekst zoals het scherm hem toont (maat-label.js).
+              text: maatlijnTekst(ann.measureText, ann.dimShowUnit),
+              textOffsetX: ann.textOffsetX, textOffsetY: ann.textOffsetY,
+              fontSize: ann.fontSize, startHead: ann.startHead || 'openCircle',
+              endHead: ann.endHead || 'openCircle', headSize: ann.headSize || 12,
             }), mdDict.Rect);
             break;
           }
@@ -2489,6 +2513,8 @@ async function _savePDFNu(saveAsPath) {
             // Zonder rand (#431): geen omtrek; het label krijgt de kleur waarin
             // het scherm het tekent.
             const maZonderRand = !!randSleutelZonderRand(ann);
+            // Verborgen label, zaadpunt en naam van een ruimte (plattegrond).
+            schrijfPlattegrondMeta(annotDict, ann, context, convertX, convertY);
             attachVectorAP(context, annotDict, buildMeasureAreaAP({
               points: ann.points, holes: ann.holes, X: convertX, Y: convertY,
               fillColorHex: ann.fillColor,
@@ -2497,7 +2523,8 @@ async function _savePDFNu(saveAsPath) {
               lineWidth: borderWidth, borderStyle: ann.borderStyle,
               hatchPattern: ann.hatchPattern, hatchColorHex: ann.hatchColor,
               hatchScale: ann.hatchScale, hatchAngle: ann.hatchAngle,
-              text: ann.measureText, labelX: ann.labelX, labelY: ann.labelY,
+              text: ann.measureShowLabel === false ? '' : ann.measureText,
+              labelX: ann.labelX, labelY: ann.labelY,
               // Eigen vul-alfa (bv. een extern meetvlak op 30%) ook in de
               // appearance, anders tonen andere lezers het vlak na opslaan dekkend.
               fillAlpha: fillOpacity,
@@ -2693,6 +2720,8 @@ async function _savePDFNu(saveAsPath) {
             if (ann.isolatieType) {
               annotDict.set(PDFName.of('OPS_IsolatieType'), pdfTextString(ann.isolatieType));
             }
+            // Join per uiteinde uit (#476): alleen als een uiteinde afwijkt.
+            schrijfWandJoinMeta(annotDict, ann);
             // Vector /AP so the wall BODY (thickness band + material fill/hatch
             // + outline) shows in other viewers instead of just the thin
             // centreline — issue #256. The band + material are resolved with the
@@ -2726,7 +2755,7 @@ async function _savePDFNu(saveAsPath) {
                 const wRect = [Math.min(...bxs) - 2, Math.min(...bys) - 2, Math.max(...bxs) + 2, Math.max(...bys) + 2];
                 annotDict.set(PDFName.of('Rect'), context.obj(wRect));
                 attachVectorAP(context, annotDict, buildWallAP({
-                  bandPoints: band, X: convertX, Y: convertY,
+                  bandPoints: band, outlineSegments: wallShape.lijnen, X: convertX, Y: convertY,
                   strokeColorHex: ann.strokeColor || ann.color || '#000000', lineWidth: borderWidth,
                   fillBgHex: fillBg, hatchPattern: wHatch, hatchColorHex: wHatchColor,
                   hatchScale: wHatchScale, hatchAngle: wHatchAngle,

@@ -13,6 +13,8 @@
     "addReply": "Add Reply",
     "locked": "Locked",
     "marked": "Marked",
+    "gridEndLock": "Lock Grid End",
+    "gridEndUnlock": "Unlock Grid End",
     "printable": "Printable",
     "status": "Status",
     "showByStatus": "Show by Status",
@@ -38,6 +40,9 @@
     "convertToMeasurement": "Convert to Measurement",
     "calibrateFromLine": "Calibrate from this Line...",
     "setScale": "Set Scale...",
+    "dimChainAdd": "Add Points to Dimension Chain",
+    "dimChainRemove": "Remove Extension Line from Chain",
+    "selectRoom": "Select Room",
     "convertToPolyline": "Convert to Polyline",
     "convertToPolygon": "Convert to Polygon",
     "styleTools": "Style Tools",
@@ -46,6 +51,8 @@
     "exportSubmenu": "Export",
     "exportAsImage": "Export as Image...",
     "addHole": "Add Hole",
+    "wallJoinAllow": "Allow Join (This End)",
+    "wallJoinDisallow": "Disallow Join (This End)",
     "properties": "Properties...",
     "editViewportScale": "Edit Viewport Scale"
   },
@@ -62,6 +69,7 @@
     "centerVertically": "Center Vertically",
     "distributeHorizontally": "Distribute Horizontally",
     "distributeVertically": "Distribute Vertically",
+    "trimWallCorners": "Trim Wall Corners",
     "deleteAnnotations": "Delete {{count}} Annotations",
     "deleteConfirm": "Delete {{count}} annotations?",
     "deleteTitle": "Delete Annotations"
@@ -130,5 +138,13 @@
     "windows": "Show in Explorer",
     "mac": "Reveal in Finder",
     "linux": "Open containing folder"
+  },
+  "gevelelement": {
+    "addMullionHere": "Add mullion here",
+    "removeMullion": "Remove nearest mullion",
+    "panelItem": "Panel: {{name}}",
+    "placeInWall": "Place in wall (interrupt the wall)",
+    "noHostWall": "No wall found under this element",
+    "editRefused": "Not possible"
   }
 }

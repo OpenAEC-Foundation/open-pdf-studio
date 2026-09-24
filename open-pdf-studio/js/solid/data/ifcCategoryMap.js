@@ -112,6 +112,18 @@ const PARAMETRIC_ID_DEFAULT = {
   'paalpuntniveau': 'IfcAnnotation',
   'overspanningspijl-vloer': 'IfcAnnotation',
   'stenenrij': 'IfcWall',
+  // Inrichting (#478): sanitaire toestellen en keukenblokken.
+  'wandcloset': 'IfcSanitaryTerminal',
+  'staand-closet': 'IfcSanitaryTerminal',
+  'fontein': 'IfcSanitaryTerminal',
+  'hoekfontein': 'IfcSanitaryTerminal',
+  'aanrecht': 'IfcFurniture',
+  'aanrecht-hoek': 'IfcFurniture',
+  'kookeiland': 'IfcFurniture',
+  // Gevelelement (#475): de vliesgevel is een eigen IFC-klasse; het kozijn
+  // als gevelelement is een raam (een deur erin maakt het nog geen IfcDoor).
+  'vliesgevel': 'IfcCurtainWall',
+  'kozijn': 'IfcWindow',
 };
 
 function keywordMatch(text) {
@@ -261,6 +273,8 @@ export const IFC_LABELS = {
   IfcGrid: 'Stramien / raster',
   IfcAnnotation: 'Annotatie / maatvoering',
   IfcReinforcingBar: 'Wapening',
+  IfcSanitaryTerminal: 'Sanitair toestel',
+  IfcFurniture: 'Meubilair / keukenblok',
   IfcBuildingElementProxy: 'Overig bouwelement',
   // NEN 1414-klassen (nenIfcMap.js)
   IfcController: 'Centrale / paneel / regelaar',

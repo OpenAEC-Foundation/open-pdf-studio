@@ -13,6 +13,8 @@
     "addReply": "Reactie toevoegen",
     "locked": "Vergrendeld",
     "marked": "Gemarkeerd",
+    "gridEndLock": "Stramienuiteinde koppelen",
+    "gridEndUnlock": "Stramienuiteinde loskoppelen",
     "printable": "Afdrukbaar",
     "status": "Status",
     "showByStatus": "Tonen op status",
@@ -44,9 +46,14 @@
     "exportSubmenu": "Exporteren",
     "exportAsImage": "Exporteren als afbeelding...",
     "addHole": "Sparing toevoegen",
+    "wallJoinAllow": "Join toestaan (dit uiteinde)",
+    "wallJoinDisallow": "Join niet toestaan (dit uiteinde)",
     "properties": "Eigenschappen...",
     "calibrateFromLine": "Kalibreren vanuit deze lijn...",
     "setScale": "Schaal instellen...",
+    "dimChainAdd": "Punten toevoegen aan maatketting",
+    "dimChainRemove": "Hulplijn uit maatketting halen",
+    "selectRoom": "Ruimte selecteren",
     "editViewportScale": "Viewport-schaal bewerken"
   },
   "multiSelect": {
@@ -62,6 +69,7 @@
     "centerVertically": "Verticaal centreren",
     "distributeHorizontally": "Horizontaal verdelen",
     "distributeVertically": "Verticaal verdelen",
+    "trimWallCorners": "Hoek trimmen",
     "deleteAnnotations": "{{count}} annotaties verwijderen",
     "deleteConfirm": "{{count}} annotaties verwijderen?",
     "deleteTitle": "Annotaties verwijderen"
@@ -130,5 +138,13 @@
     "windows": "Tonen in Verkenner",
     "mac": "Tonen in Finder",
     "linux": "Map met bestand openen"
+  },
+  "gevelelement": {
+    "addMullionHere": "Stijl hier toevoegen",
+    "removeMullion": "Dichtstbijzijnde stijl verwijderen",
+    "panelItem": "Paneel: {{name}}",
+    "placeInWall": "In wand plaatsen (wand onderbreken)",
+    "noHostWall": "Geen wand gevonden onder dit element",
+    "editRefused": "Niet mogelijk"
   }
 }

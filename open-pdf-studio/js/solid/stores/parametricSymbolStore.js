@@ -2,7 +2,7 @@
 // parametricSymbol tool when placing a new annotation.
 import { createSignal } from 'solid-js';
 import { state } from '../../core/state.js';
-import { getTemplate, listTemplates, defaultParams } from '../../symbols/registry.js';
+import { getTemplate, listTemplates, defaultParams, normalizeListParam } from '../../symbols/registry.js';
 
 const [pendingSymbolId, setPendingSymbolIdSignal] = createSignal('door');
 const [pendingParams, setPendingParamsSignal] = createSignal({});
@@ -14,6 +14,9 @@ export function validateSymbolParams(symbolId, values = {}) {
   if (!template) return {};
   const result = { ...defaults };
   for (const def of template.params || []) {
+    // Verborgen parameters (zoals de koppelgroep van een stramien) zijn geen
+    // gereedschapsstandaard: een nieuw symbool begint altijd bij de default.
+    if (def.hidden) continue;
     const raw = values[def.key];
     if (raw === undefined) continue;
     if (def.type === 'number') {
@@ -24,6 +27,11 @@ export function validateSymbolParams(symbolId, values = {}) {
       result[def.key] = raw === true;
     } else if (def.type === 'enum') {
       if ((def.options || []).some((option) => option.value === raw)) result[def.key] = raw;
+    } else if (def.type === 'list') {
+      // Lijst (onderdelen van een aanrecht): genormaliseerd met de maten die
+      // hierboven al gezet zijn; geen array = de standaard blijft.
+      const lijst = normalizeListParam(def, raw, result);
+      if (lijst !== undefined) result[def.key] = lijst;
     } else {
       result[def.key] = String(raw);
     }

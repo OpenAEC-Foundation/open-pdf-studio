@@ -22,6 +22,7 @@ import CustomFieldsSection from './CustomFieldsSection.jsx';
 import CustomPluginPanel from './CustomPluginPanel.jsx';
 import CollapsibleSection from './CollapsibleSection.jsx';
 import ParametricSymbolSection from './ParametricSymbolSection.jsx';
+import GevelelementSection from './GevelelementSection.jsx';
 import StavenreeksSection from './StavenreeksSection.jsx';
 import WallSection from './WallSection.jsx';
 import BetonbalkSection from './BetonbalkSection.jsx';
@@ -228,6 +229,7 @@ export default function PropertiesPanel() {
               </CollapsibleSection>
             </Show>
             <ParametricSymbolSection />
+            <GevelelementSection />
             <StavenreeksSection />
             <WallSection />
             <BetonbalkSection />

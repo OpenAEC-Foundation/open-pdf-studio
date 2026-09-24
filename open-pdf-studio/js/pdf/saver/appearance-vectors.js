@@ -19,6 +19,8 @@ import { ringenRichten, vlakOmhullende } from '../../annotations/vlak-ringen.js'
 import { getHatchLineFamilies } from './hatch-catalog.js';
 import { catmullRomToBezier, splineArrowEndTangent } from '../../annotations/spline-arrow-geometry.js';
 import { toWinAnsiText, winAnsiLiteral } from './pdf-text.js';
+import { maatTekstMarge, leesbareHoek } from '../../annotations/maat-label.js';
+import { maatlijnGeometrie } from '../../annotations/maatlijn-geometrie.js';
 import { klemMaat, MIN_VORM_MAAT_PT } from '../../annotations/minimummaat.js';
 import {
   rotToWorld as srRotToWorld,
@@ -382,29 +384,70 @@ export function buildPolylineMeasureAP({ points, X, Y, strokeColorHex, lineWidth
   return { content: s, needsFont: !!text };
 }
 
-// measureDistance: dimension line + extension lines + label at line midpoint.
+// Maattekst zoals op het scherm (rendering/measurements.js): langs de lijn
+// gedraaid, leesbaar van onder of van rechts, met de onderkant van de tekst
+// `marge` boven de lijn — dus vrij van de markeringen, zonder wit vlak dat de
+// lijn afdekt. De basislijn ligt een onderlengte (0,21 x tekst) hoger.
+function maatLabelOps({ text, startX, startY, endX, endY, offsetX, offsetY, fontSize, marge, colorRgb, X, Y }) {
+  const fs = fontSize > 0 ? fontSize : 11;
+  const a = leesbareHoek(Math.atan2(endY - startY, endX - startX));
+  const shown = toWinAnsiText(text, { newlines: 'space' });
+  const tw = shown.length * fs * 0.55;                 // Helvetica, cijferbreedte
+  const mx = (startX + endX) / 2 + (offsetX || 0);
+  const my = (startY + endY) / 2 + (offsetY || 0);
+  const op = (marge ?? Math.max(3, fs * 0.35)) + fs * 0.21;
+  const up = { x: Math.sin(a), y: -Math.cos(a) };      // "boven" de lijn, app-ruimte
+  const dir = { x: Math.cos(a), y: Math.sin(a) };
+  const bx = mx + up.x * op - dir.x * tw / 2;
+  const by = my + up.y * op - dir.y * tw / 2;
+  // App-hoek is y-omlaag, PDF y-omhoog: hoek spiegelen.
+  const c = Math.cos(-a), sn = Math.sin(-a);
+  let s = `BT\n/Helv ${f(fs)} Tf\n${f(colorRgb[0])} ${f(colorRgb[1])} ${f(colorRgb[2])} rg\n`;
+  s += `${f(c)} ${f(sn)} ${f(-sn)} ${f(c)} ${f(X(bx))} ${f(Y(by))} Tm\n`;
+  s += `(${escapePdfText(text)}) Tj\nET\n`;
+  return s;
+}
+
+// measureDistance: dimension line + extension lines + label above the line.
+// `fontSize`, `startHead`/`endHead`/`headSize` or an explicit `marge` place
+// the label exactly as the screen does (maat-label.js).
 export function buildMeasureDistanceAP({ startX, startY, endX, endY,
   leaderStartX, leaderStartY, leaderEndX, leaderEndY,
-  X, Y, strokeColorHex, lineWidth, borderStyle, text, textOffsetX, textOffsetY }) {
+  X, Y, strokeColorHex, lineWidth, borderStyle, text, textOffsetX, textOffsetY,
+  fontSize, startHead, endHead, headSize, marge,
+  extension, dimLineOvershootMm, dimOvershootEnds, dimExtGapMm, dimExtOvershootMm }) {
   const stroke = hexToRgb(strokeColorHex || '#ff0000');
   const lw = lineWidth ?? 1;
   let s = `${f(stroke[0])} ${f(stroke[1])} ${f(stroke[2])} RG\n${f(lw)} w\n${dashOp(borderStyle)}`;
-  // Extension lines from base object to dimension line, if present.
-  if (leaderStartX != null) {
-    s += `${f(X(leaderStartX))} ${f(Y(leaderStartY))} m ${f(X(startX))} ${f(Y(startY))} l S\n`;
-    s += `${f(X(leaderEndX))} ${f(Y(leaderEndY))} m ${f(X(endX))} ${f(Y(endY))} l S\n`;
+  // Extension lines and dimension line exactly as on screen
+  // (maatlijn-geometrie.js): gap, overshoot past the line, and the overshoot
+  // of the dimension line past the outer extension lines.
+  const geo = maatlijnGeometrie({
+    startX, startY, endX, endY, leaderStartX, leaderStartY, leaderEndX, leaderEndY,
+    headSize, extension, dimLineOvershootMm, dimOvershootEnds, dimExtGapMm, dimExtOvershootMm,
+  });
+  for (const h of geo.hulplijnen) {
+    s += `${f(X(h.x1))} ${f(Y(h.y1))} m ${f(X(h.x2))} ${f(Y(h.y2))} l S\n`;
   }
-  // Dimension line.
-  s += `${f(X(startX))} ${f(Y(startY))} m ${f(X(endX))} ${f(Y(endY))} l S\n`;
-  const midX = (startX + endX) / 2 + (textOffsetX || 0);
-  const midY = (startY + endY) / 2 + (textOffsetY || 0);
-  if (text) s += labelOps({ text, x: midX, y: midY, fontSize: 11, colorRgb: stroke, X, Y });
+  const ml = geo.maatlijn;
+  s += `${f(X(ml.x1))} ${f(Y(ml.y1))} m ${f(X(ml.x2))} ${f(Y(ml.y2))} l S\n`;
+  if (text) {
+    s += maatLabelOps({
+      text, startX, startY, endX, endY, offsetX: textOffsetX, offsetY: textOffsetY,
+      fontSize, colorRgb: stroke, X, Y,
+      marge: marge ?? maatTekstMarge({ fontSize, startHead, endHead, headSize }),
+    });
+  }
   return { content: s, needsFont: !!text };
 }
 
 // wall: fill band (bg colour) + optional material hatch + outline. `bandPoints`
 // is the mitred band polygon (app-space) computed by the caller.
-export function buildWallAP({ bandPoints, X, Y, strokeColorHex, lineWidth,
+// `outlineSegments` (optioneel): de omtrek als losse lijnstukken, zoals het
+// scherm hem tekent (annotations/wand-vorm.js): geen kap op een verstekt
+// uiteinde, een onderbroken vlaklijn bij een T. Zonder die lijst blijft het
+// de gesloten omtrek van de band.
+export function buildWallAP({ bandPoints, outlineSegments, X, Y, strokeColorHex, lineWidth,
   fillBgHex, hatchPattern, hatchColorHex, hatchScale, hatchAngle }) {
   if (!bandPoints || bandPoints.length < 3) return null;
   const stroke = hexToRgb(strokeColorHex || '#000000');
@@ -417,7 +460,14 @@ export function buildWallAP({ bandPoints, X, Y, strokeColorHex, lineWidth,
       hatchColorRgb: hexToRgb(hatchColorHex || strokeColorHex || '#000000'),
       hatchScale, hatchAngle, X, Y });
   }
-  s += strokeOutlineOps(bandPoints, null, stroke, lineWidth ?? 1, 'solid', X, Y);
+  if (Array.isArray(outlineSegments)) {
+    s += `${f(stroke[0])} ${f(stroke[1])} ${f(stroke[2])} RG\n${f(lineWidth ?? 1)} w\n${dashOp('solid')}`;
+    for (const l of outlineSegments) {
+      s += `${f(X(l.x1))} ${f(Y(l.y1))} m ${f(X(l.x2))} ${f(Y(l.y2))} l S\n`;
+    }
+  } else {
+    s += strokeOutlineOps(bandPoints, null, stroke, lineWidth ?? 1, 'solid', X, Y);
+  }
   return { content: s, needsFont: false };
 }
 

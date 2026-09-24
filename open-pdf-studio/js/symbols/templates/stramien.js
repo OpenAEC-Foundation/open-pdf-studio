@@ -20,6 +20,14 @@ export const stramienTemplate = {
         { value: 'beide', label: 'Twee bollen' },
       ] },
     { key: 'dashed', label: 'Streep-punt lijn', labelEn: 'Chain-dashed', type: 'boolean', default: true },
+    // Koppeling van de uiteinden met die van andere stramienlijnen (zie
+    // annotations/stramien-koppeling.js). Verborgen: het paneel toont er een
+    // eigen schakelaar voor, en een groeps-id hoort nooit gereedschapsstandaard
+    // te worden. Staat in params zodat hij met OPS_Params mee opgeslagen wordt.
+    { key: 'koppelBegin', label: 'Koppelgroep begin', labelEn: 'Start alignment group', type: 'string', default: '', hidden: true },
+    { key: 'koppelEinde', label: 'Koppelgroep einde', labelEn: 'End alignment group', type: 'string', default: '', hidden: true },
+    { key: 'losBegin', label: 'Begin losgezet', labelEn: 'Start unlocked', type: 'boolean', default: false, hidden: true },
+    { key: 'losEinde', label: 'Einde losgezet', labelEn: 'End unlocked', type: 'boolean', default: false, hidden: true },
   ],
   // Geometry shared by render() and snapPoints().
   _layout(params, bbox) {

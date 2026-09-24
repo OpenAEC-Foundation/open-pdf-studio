@@ -7,6 +7,7 @@ import { bewaar as bewaarKnipsel } from '../../annotations/vector-snippet-store.
 import { decodePdfTextObject } from '../saver/pdf-text.js';
 import { readPluginPdfAnnotation } from '../../plugins/plugin-pdf.js';
 import { laagVanOc } from '../saver/annotatie-lagen.js';
+import { leesPlattegrondMeta } from './plattegrond-meta.js';
 
 // Documenten waarvan de knipsel-bronpagina's al in de store staan: dat
 // uitpakken gebeurt één keer per document, bij het eerste knipsel dat we zien.
@@ -320,6 +321,10 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         const sub = leesPdfTekst(context, opsSubRaw);
         if (sub !== undefined) colors.opsSubtype = sub;
       }
+
+      // Plattegrond: maat zonder eenheid, meetvlak zonder label, zaadpunt en
+      // naam van een ruimte (zie saver/plattegrond-meta.js).
+      Object.assign(colors, leesPlattegrondMeta(annotDict, context));
 
       // Vectorknipsel: de knipsel-velden van de stempel, en bij het eerste
       // knipsel in dit document de bronpagina's van de catalogus in de store.
@@ -702,6 +707,14 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         const isoType = context.lookup(isoTypeRaw) || isoTypeRaw;
         if (typeof isoType.decodeText === 'function') colors.opsIsolatieType = isoType.decodeText();
         else if (typeof isoType.value === 'string') colors.opsIsolatieType = isoType.value;
+      }
+
+      // Read /OPS_NoJoin — wall end(s) whose automatic join is off (#476)
+      const noJoinRaw = annotDict.get(PDFName.of('OPS_NoJoin'));
+      if (noJoinRaw) {
+        const noJoin = context.lookup(noJoinRaw) || noJoinRaw;
+        if (typeof noJoin.decodeText === 'function') colors.opsNoJoin = noJoin.decodeText();
+        else if (typeof noJoin.value === 'string') colors.opsNoJoin = noJoin.value;
       }
 
       // Read /OPS_LinkedPath — source file of a LINKED image annotation

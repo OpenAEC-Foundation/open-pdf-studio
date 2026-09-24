@@ -20,6 +20,7 @@ import { switchRibbonTab as switchToTab } from '../bridge.js';
 import { openFindBar, closeFindBar, onFindNext } from '../search/find-bar.js';
 import { closeActiveTab } from '../ui/chrome/tabs.js';
 import { hideProperties, showProperties, showMultiSelectionProperties, togglePropertiesPanel } from '../ui/panels/properties-panel.js';
+import { wisselTagEnRuimte } from '../plattegrond/ruimte-selectie.js';
 import { openDialog, getDialogs } from '../bridge.js';
 import { getTool } from './tool-registry.js';
 import { resolvePointerCoords, buildToolContext, isModalOpen } from './tool-context.js';
@@ -27,7 +28,9 @@ import { tryStartGMove, isGMoveModeActive } from './g-move-mode.js';
 import { tryStartGRotate, isGRotateModeActive } from './g-rotate-mode.js';
 import { toggleFullscreen, exitFullscreen, getFullscreenState } from '../ui/chrome/fullscreen.js';
 import { typeLengthActive, consumeKey as typeLengthConsumeKey, typeLengthCursor } from './type-length-input.js';
-import { startGripLengteInvoer, stopGripLengteInvoer } from './tool-dispatcher.js';
+import { startGripLengteInvoer, stopGripLengteInvoer, herstelStramienMeeslepen } from './tool-dispatcher.js';
+import { tabDoorOnderdelen, verwijderOnderdeel } from '../gevelelement/app-bewerking.js';
+import { gevelPreset } from '../gevelelement/herkenning.js';
 
 function redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
@@ -350,6 +353,13 @@ export async function handleKeydown(e) {
     return;
   }
 
+  // Tab op een ruimtetag of ruimte (plattegrond): wissel tussen de tag en
+  // zijn ruimte - een ruimte is met een klik niet te pakken.
+  if (e.key === 'Tab' && !ctrl && !e.altKey && !shift && wisselTagEnRuimte()) {
+    e.preventDefault();
+    return;
+  }
+
   // Tab — toggle "edit contour" mode for a single selected filledArea annotation
   if (e.key === 'Tab' && !ctrl && !e.altKey) {
     const _doc = getActiveDocument();
@@ -363,6 +373,13 @@ export async function handleKeydown(e) {
         state.editingContour = _sel[0].id;
       }
       redraw();
+      return;
+    }
+    // Gevelelement (vliesgevel/kozijn): Tab loopt door de onderdelen —
+    // stijlen, dan panelen, dan weer het geheel; Shift+Tab terug. Zonder
+    // selectie geldt het element onder de aanwijzer.
+    if (tabDoorOnderdelen(shift ? -1 : 1)) {
+      e.preventDefault();
       return;
     }
   }
@@ -471,6 +488,13 @@ export async function handleKeydown(e) {
     if (isPdfAReadOnly()) { /* block */ }
     else if ((getActiveDocument()?.selectedAnnotations || []).length > 0) {
       const selected = [...getActiveDocument().selectedAnnotations];
+      // Gevelelement met een geselecteerd onderdeel: Delete verwijdert de
+      // STIJL (velden samengevoegd) of zet het standaardpaneel terug — nooit
+      // per ongeluk het hele element.
+      if (selected.length === 1 && gevelPreset(selected[0]) && selected[0].selectedSub) {
+        if (!selected[0].locked && verwijderOnderdeel(selected[0])) return;
+        if (selected[0].locked) return;
+      }
       // Systeem-sub-element geselecteerd: Delete reset het ONDERDEEL naar
       // het type-default (paneel-override weg = tegel/typedefault; rand-
       // override weg = profiel van het type) en verwijdert NOOIT per
@@ -736,6 +760,8 @@ export async function handleKeydown(e) {
         // Restore annotation to its pre-stretch state
         Object.assign(ann, state.originalAnnotation);
       }
+      // Meegeschoven stramienuiteinden gaan ook terug.
+      herstelStramienMeeslepen();
       state.isResizing = false;
       state.isDragging = false;
       state.activeHandle = null;
@@ -770,7 +796,7 @@ export async function handleKeydown(e) {
     {
       const escSel = getActiveDocument()?.selectedAnnotations || [];
       const escAnn = escSel.length === 1 ? escSel[0] : null;
-      if (escAnn && escAnn.type === 'systeemraster' && escAnn.selectedSub) {
+      if (escAnn && (escAnn.type === 'systeemraster' || gevelPreset(escAnn)) && escAnn.selectedSub) {
         escAnn.selectedSub = null;
         escAnn._hoverSub = null;
         showProperties(escAnn);

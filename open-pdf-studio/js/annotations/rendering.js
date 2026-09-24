@@ -10,6 +10,9 @@ import { drawArrowheadOnCanvas, applyBorderStyle, drawDimensionLineEnding } from
 import { catmullRomSpline } from '../tools/tools/spline-tool.js';
 import { catmullRomToBezier, splineArrowEndTangent } from './spline-arrow-geometry.js';
 import { drawDimension, drawMeasureAreaShape, drawCentroidLabel, drawMeasurePerimeterShape } from './rendering/measurements.js';
+import { maatlijnTekst } from './maat-label.js';
+import { maatlijnVelden } from './maatlijn-geometrie.js';
+import { tagWeergaveParams } from '../plattegrond/ruimte-koppeling.js';
 import { applyHatchFill, applyHatchFillPolygon } from './rendering/hatch-patterns.js';
 import { drawWall } from './rendering/walls.js';
 import { buildStavenreeks } from './stavenreeks.js';
@@ -25,6 +28,7 @@ import { getSysteemSymbolImage, registerSysteemSymbolRedraw } from './rendering/
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { drawSelectionHandles } from './rendering/selection.js';
 import { weergaveLagen } from './rendering/uitvoer-lagen.js';
+import { weergaveLijndikte, symboolOpdrachtLijndikte } from './rendering/lijndikte.js';
 import { drawImageCropOverlay, activeCropAnnotation } from './image-crop-overlay.js';
 import { fracties as cropFracties, volledigVak as cropVolledigVak } from './crop-geometrie.js';
 import { drawEmbeddedImageOverlay } from '../tools/tools/remove-image-tool.js';
@@ -180,7 +184,7 @@ function _drawPolarOverlay(ctx, snapResult, scale) {
 // untouched (they resolve below the cap) and only pathologically thick
 // strokes — the ones that made dragging lag — are bounded while the gesture
 // is in flight. Full weight is restored on the post-gesture repaint.
-const DRAG_LOD_MAX_SCREEN_PX = 6;
+// (SLEEP_MAX_SCHERM_PX in rendering/lijndikte.js.)
 
 // Lagen van de rendering die nu loopt: null = het scherm, anders de lagen van
 // een afdruk, export of voorbeeld (zie rendering/uitvoer-lagen.js). Wordt
@@ -203,31 +207,23 @@ function inlineNumberHighlight(annotation) {
   return shouldHighlightNumbers(annotation, doc ? doc.selectedAnnotations : null);
 }
 
+// The rule itself lives in rendering/lijndikte.js (pure, unit-tested); this
+// wrapper only supplies the app state it depends on.
 function thinLw(width) {
-  if (width === 0) return 0;
-  if (state.preferences?.thinLines && laag('schermlijndikte')) {
-    // Lineweight display OFF ('TL'): EVERYTHING renders as a true hairline —
-    // exactly 1 screen pixel at any zoom (CAD LWDISPLAY off).
-    const vp0 = window.__pdfViewport;
-    const _d0 = state.documents[state.activeDocumentIndex];
-    const s0 = (vp0 && vp0.active && _d0?.filePath) ? vp0.zoom : (_d0?.scale || 1);
-    return s0 > 0 ? 1 / s0 : 1;
-  }
-  let lw = Math.max(width, 0.25);
-  // Uitvoer (afdruk, export, voorbeeld): de echte lijndikte. De regels
-  // hieronder rekenen naar SCHERMpixels en maakten een lijn van 0,5 pt bij
-  // 17 % zoom 6 pt dik op papier.
-  if (!laag('schermlijndikte')) return lw;
+  // Uitvoer (afdruk, export, voorbeeld, opgeslagen appearance): de echte
+  // lijndikte. De schermregels rekenen naar SCHERMpixels en maakten een lijn
+  // van 0,5 pt bij 17 % zoom 6 pt dik op papier.
+  const scherm = laag('schermlijndikte');
+  if (width === 0 || !scherm) return weergaveLijndikte(width, { scherm: false });
   const vp = window.__pdfViewport;
   const _doc = state.documents[state.activeDocumentIndex];
   // Blank docs (no filePath) bypass the viewport singleton and use doc.scale.
   const scale = (vp && vp.active && _doc?.filePath)
     ? vp.zoom
     : (_doc?.scale || 1);
-  if (scale > 0 && scale < 1) {
-    const minAppPx = 1 / scale;          // 1 screen pixel in app-coords
-    if (lw < minAppPx) lw = minAppPx;
-  }
+  // Lineweight display OFF ('TL'): EVERYTHING renders as a true hairline —
+  // exactly 1 screen pixel at any zoom (CAD LWDISPLAY off). Below 100 % zoom
+  // a stroke gets at least one screen pixel.
   // Interaction LOD (level-of-detail): while an annotation is being dragged,
   // resized or G-transformed, redrawAnnotations() re-strokes the whole overlay
   // on EVERY pointermove. The ONLY per-frame cost that grows with line weight
@@ -235,16 +231,17 @@ function thinLw(width) {
   // (length × width × scale²) device pixels, so a thick stroke at high zoom
   // makes each frame progressively more expensive (thin lines stay smooth,
   // thick ones visibly lag). During the interaction we therefore cap the
-  // ON-SCREEN stroke to DRAG_LOD_MAX_SCREEN_PX device pixels: the geometry and
+  // ON-SCREEN stroke to SLEEP_MAX_SCHERM_PX device pixels: the geometry and
   // hit-testing are unchanged, only the drawn width is bounded so the fill
   // stays cheap. The very last repaint of the gesture runs with the drag flags
   // already cleared (see _finishDragResize in tool-dispatcher.js), so the final
   // on-screen result is the full, un-capped weight — the end view never changes.
-  if (scale > 0 && (state.isDragging || state.isResizing || state.gMoveMode || state.gRotateMode)) {
-    const maxAppPx = DRAG_LOD_MAX_SCREEN_PX / scale;   // cap expressed in app-coords
-    if (lw > maxAppPx) lw = maxAppPx;
-  }
-  return lw;
+  return weergaveLijndikte(width, {
+    scherm: true,
+    zoom: scale,
+    dunneLijnen: !!state.preferences?.thinLines,
+    slepen: !!(state.isDragging || state.isResizing || state.gMoveMode || state.gRotateMode),
+  });
 }
 
 // Pick the textbox edge whose midpoint is closest to (kx, ky).
@@ -337,7 +334,16 @@ export function renderParametricSymbolToPng(annotation, pxPerUnit = 4) {
     // `_ignoreViewFilters`: dit is de SAVER-route (AP schrijven) — weergave-
     // filters zoals het statusfilter of "Zichtbaarheid Elementen" mogen hier
     // nooit een lege appearance opleveren.
-    drawAnnotation(ctx, { ...annotation, opacity: 1, hidden: false, _ignoreViewFilters: true });
+    // Uitvoerlagen: een opgeslagen appearance is geen scherm. Echte
+    // lijndiktes (niet de minimum-schermpixel van de huidige zoomstand) en
+    // geen selectie- of bewerkingstoestand.
+    const vorigeLagen = _lagen;
+    _lagen = weergaveLagen({ uitvoer: true });
+    try {
+      drawAnnotation(ctx, { ...annotation, opacity: 1, hidden: false, _ignoreViewFilters: true });
+    } finally {
+      _lagen = vorigeLagen;
+    }
     return { dataUrl: canvas.toDataURL('image/png') };
   } catch (e) {
     console.warn('[render] renderParametricSymbolToPng failed:', e);
@@ -1576,7 +1582,9 @@ export function drawAnnotation(ctx, annotation) {
         ctx.restore();
         break;
       }
-      const cmds = template.render(annotation.params || {}, {
+      // Een ruimtetag toont naam, nummer en oppervlakte van zijn ruimte
+      // (ruimte-koppeling.js); andere symbolen hun eigen params.
+      const cmds = template.render(tagWeergaveParams(annotation, getActiveDocument()?.annotations) || {}, {
         x: annotation.x, y: annotation.y, width: annotation.width, height: annotation.height
       }) || [];
       ctx.save();
@@ -1590,7 +1598,15 @@ export function drawAnnotation(ctx, annotation) {
         ctx.translate(-cx, -cy);
       }
       // Lijndikte: eigen waarde of geërfd uit het tekeningtype (regelset).
-      const lw = thinLw(effectiveDraftingLineWidth(annotation));
+      const basisLw = effectiveDraftingLineWidth(annotation);
+      const lw = thinLw(basisLw);
+      // Per opdracht: een vaste `lineWidth`, of `lineWidthFactor` als fractie
+      // van de symbooldikte (kozijn: doorsnede vol, glas en draaicirkel dun).
+      const cmdLw = (c) => {
+        if (c.lineWidth != null) return c.lineWidth;          // vaste dikte, zoals altijd
+        if (!(c.lineWidthFactor > 0)) return lw;
+        return thinLw(symboolOpdrachtLijndikte(c, basisLw));
+      };
       ctx.lineWidth = lw;
       ctx.strokeStyle = strokeColor;
       ctx.fillStyle = strokeColor;
@@ -1614,7 +1630,7 @@ export function drawAnnotation(ctx, annotation) {
         switch (c.kind) {
           case 'line': {
             ctx.save();
-            ctx.lineWidth = c.lineWidth ?? lw;
+            ctx.lineWidth = cmdLw(c);
             if (Array.isArray(c.dash)) ctx.setLineDash(c.dash);
             ctx.beginPath();
             ctx.moveTo(c.x1, c.y1);
@@ -1624,16 +1640,20 @@ export function drawAnnotation(ctx, annotation) {
             break;
           }
           case 'arc': {
+            ctx.save();
+            ctx.lineWidth = cmdLw(c);
+            if (Array.isArray(c.dash)) ctx.setLineDash(c.dash);
             ctx.beginPath();
             ctx.arc(c.cx, c.cy, c.r, c.a0, c.a1, !!c.ccw);
             ctx.stroke();
+            ctx.restore();
             break;
           }
           case 'circle': {
             ctx.save();
             // Per-cmd dikte (fijnwerk zoals het diameterteken van de
             // wapeningskorf); zonder eigen waarde geldt de annotatie-dikte.
-            ctx.lineWidth = c.lineWidth ?? lw;
+            ctx.lineWidth = cmdLw(c);
             ctx.beginPath();
             ctx.arc(c.cx, c.cy, c.r, 0, Math.PI * 2);
             ctx.stroke();
@@ -1643,7 +1663,7 @@ export function drawAnnotation(ctx, annotation) {
           case 'polyline': {
             if (!Array.isArray(c.points) || c.points.length < 2) break;
             ctx.save();
-            ctx.lineWidth = c.lineWidth ?? lw;
+            ctx.lineWidth = cmdLw(c);
             if (Array.isArray(c.dash)) ctx.setLineDash(c.dash);
             ctx.beginPath();
             ctx.moveTo(c.points[0].x, c.points[0].y);
@@ -1933,14 +1953,20 @@ export function drawAnnotation(ctx, annotation) {
         endHead: annotation.endHead || 'openCircle',
         headSize: annotation.headSize || 12,
         color: strokeColor,
-        measureText: annotation.measureText,
+        // dimShowUnit === false: alleen het getal (maat-label.js).
+        measureText: maatlijnTekst(annotation.measureText, annotation.dimShowUnit),
         fontSize: annotation.fontSize,
         // User-dragged text position (offset from dimension-line midpoint)
         textOffsetX: annotation.textOffsetX || 0,
         textOffsetY: annotation.textOffsetY || 0,
         // Extension is the DEFAULT (NL drafting style): only explicitly
         // disabling it (dimExtension === false) turns it off.
-        extension: annotation.dimExtension !== false
+        extension: annotation.dimExtension !== false,
+        // Uitloop en hulplijnen in papiermillimeters (maatlijn-geometrie.js).
+        dimLineOvershootMm: maatlijnVelden(annotation).dimLineOvershootMm,
+        dimOvershootEnds: annotation.dimOvershootEnds,
+        dimExtGapMm: annotation.dimExtGapMm,
+        dimExtOvershootMm: annotation.dimExtOvershootMm,
       });
       break;
     }
@@ -1964,7 +1990,9 @@ export function drawAnnotation(ctx, annotation) {
       // bij de andere vormen. Met de kale hex kwam zo'n vlak dekkend over de
       // tekening en over het eigen maatlabel heen.
       drawMeasureAreaShape(ctx, annotation.points, annotation.color || '#ff0000', annotation.lineWidth, annFill, annotation.borderStyle, annotation.holes, maHatch, undefined, annHasStroke);
-      if (annotation.measureText) {
+      // measureShowLabel === false: de oppervlakte staat elders (bijvoorbeeld
+      // in de ruimtetag van een plattegrond) en het vlak toont geen eigen label.
+      if (annotation.measureText && annotation.measureShowLabel !== false) {
         drawCentroidLabel(ctx, annotation.points, annotation.measureText, strokeColor, annotation);
       }
       break;

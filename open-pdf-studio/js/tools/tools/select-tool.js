@@ -7,6 +7,14 @@ import { buildSysteemraster, subElementAt } from '../../annotations/systeemraste
 import { isAnnotationPickableInView } from '../../annotations/view-filters.js';
 import { systeemrasterBuildOpts } from '../../annotations/systeemraster-scale.js';
 import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
+import { gevelPreset } from '../../gevelelement/herkenning.js';
+import { onderdeelOnderPunt } from '../../gevelelement/element.js';
+import i18next from '../../i18n/config.js';
+
+// Speling (schermpixels) om een dunne stijl van een gevelelement te raken.
+const GEVEL_RAAK_PX = 6;
+import { inSelectieVak } from '../../plattegrond/ruimte-koppeling.js';
+import { verwerkSlotKlik, slotTooltip } from '../../annotations/stramien-slot.js';
 
 /**
  * Select tool — click-select, rubber band, drag, resize, Ctrl+drag copy
@@ -88,6 +96,12 @@ export const selectTool = {
               return;
             }
           }
+        }
+        // Stramienslotje (stramien_slot_begin / _einde): koppeling van dat
+        // uiteinde omzetten — één klik, één ongedaan-stap, geen sleep.
+        if (verwerkSlotKlik(selAnn, handleType)) {
+          ctx.redraw();
+          return;
         }
         // Textbox leader: + add button — append a new leader and commit undo
         if (selAnn.type === 'textbox' && handleType === HANDLE_TYPES.LEADER_ADD) {
@@ -248,6 +262,23 @@ export const selectTool = {
               console.error('[select] sub-element-selectie', err);
             }
           }
+          // Gevelelement (vliesgevel/kozijn): idem — de tweede klik pakt de
+          // stijl of het paneel onder de cursor (Tab loopt ze af).
+          const _gvPreset = gevelPreset(clickedAnnotation);
+          if (_gvPreset) {
+            try {
+              const sub = onderdeelOnderPunt(clickedAnnotation, _gvPreset, { x, y },
+                GEVEL_RAAK_PX / (ctx.scale || 1));
+              const prev = clickedAnnotation.selectedSub || null;
+              if (JSON.stringify(sub) !== JSON.stringify(prev)) {
+                clickedAnnotation.selectedSub = sub;
+                clickedAnnotation._hoverSub = null;
+                ctx.showProperties(clickedAnnotation);
+              }
+            } catch (err) {
+              console.error('[select] gevelelement-onderdeel', err);
+            }
+          }
         }
         const isTextMarkup = ['textHighlight', 'textStrikethrough', 'textUnderline'].includes(clickedAnnotation.type);
         if (ctx.isSelected(clickedAnnotation) && selAnns.length > 1) {
@@ -273,6 +304,13 @@ export const selectTool = {
             // Ontdekbaarheid: statusbalk-hint voor de tweede klik.
             try {
               updateStatusMessage('Klik nogmaals om een onderdeel te selecteren (paneel, rand of rasterlijn)');
+            } catch (_) { /* statusbalk optioneel */ }
+          }
+          if (gevelPreset(clickedAnnotation) && !ctx.isSelected(clickedAnnotation)) {
+            clickedAnnotation.selectedSub = null;
+            clickedAnnotation._hoverSub = null;
+            try {
+              updateStatusMessage(i18next.t('gevelelement.statusHint', { ns: 'properties' }));
             } catch (_) { /* statusbalk optioneel */ }
           }
           let toSelect = [clickedAnnotation];
@@ -351,7 +389,14 @@ export const selectTool = {
     if (hoverAnn) {
       hoverHandle = ctx.findHandleAt(x, y, hoverAnn);
     }
+    const vorigeHoverHandle = state.hoverHandle;
     state.hoverHandle = hoverHandle;
+    // Het stramienslotje kleurt op bij hover: alleen bij binnenkomen of
+    // verlaten hertekenen.
+    if (vorigeHoverHandle !== hoverHandle
+        && (slotTooltip(hoverAnn, vorigeHoverHandle) || slotTooltip(hoverAnn, hoverHandle))) {
+      ctx.redraw();
+    }
     // Sub-element-hover op een geselecteerd systeemraster: licht oplichten
     // van het onderdeel dat een tweede klik zou pakken (ontdekbaarheid).
     const setHoverSub = (ann, sub) => {
@@ -363,9 +408,9 @@ export const selectTool = {
     };
     if (hoverHandle) {
       // Hovering a resize handle — clear annotation hover so the handle wins.
-      if (hoverAnn?.type === 'systeemraster') setHoverSub(hoverAnn, null);
+      if (hoverAnn?.type === 'systeemraster' || gevelPreset(hoverAnn)) setHoverSub(hoverAnn, null);
       state.hoverAnnotation = null;
-      canvas.title = '';
+      canvas.title = slotTooltip(hoverAnn, hoverHandle) || '';
       return;
     }
     const hoverAnnotation = ctx.findAnnotationAt(x, y);
@@ -375,6 +420,23 @@ export const selectTool = {
         try {
           const geom = buildSysteemraster(hoverAnn, systeemrasterBuildOpts(hoverAnn));
           sub = geom ? subElementAt(geom, x, y, 6 / (ctx.scale || 1)) : null;
+        } catch (_) { sub = null; }
+      }
+      setHoverSub(hoverAnn, sub);
+    }
+    // Gevelelement: onthoud waar de aanwijzer staat (Tab begint bij het
+    // onderdeel eronder) en licht bij een geselecteerd element het onderdeel
+    // op dat een tweede klik zou pakken.
+    const _gvHover = gevelPreset(hoverAnnotation);
+    state._gevelAanwijzer = _gvHover
+      ? { id: hoverAnnotation.id, x, y, margePt: GEVEL_RAAK_PX / (ctx.scale || 1) }
+      : null;
+    const _gvSel = gevelPreset(hoverAnn);
+    if (_gvSel) {
+      let sub = null;
+      if (hoverAnnotation === hoverAnn) {
+        try {
+          sub = onderdeelOnderPunt(hoverAnn, _gvSel, { x, y }, GEVEL_RAAK_PX / (ctx.scale || 1));
         } catch (_) { sub = null; }
       }
       setHoverSub(hoverAnn, sub);
@@ -391,7 +453,7 @@ export const selectTool = {
     const doc = getActiveDocument();
     const selAnns = doc ? doc.selectedAnnotations : [];
     const ann = selAnns.length === 1 ? selAnns[0] : null;
-    if (ann && ann.type === 'systeemraster' && ann.selectedSub) {
+    if (ann && (ann.type === 'systeemraster' || gevelPreset(ann)) && ann.selectedSub) {
       ann.selectedSub = null;
       ann._hoverSub = null;
       ctx.showProperties(ann);
@@ -429,13 +491,10 @@ export const selectTool = {
           if (!isAnnotationPickableInView(ann)) continue;
           const bounds = ctx.getAnnotationBounds(ann);
           if (!bounds) continue;
-          const fullyInside =
-            bounds.x >= rbX && bounds.x + bounds.width <= rbX + rbW &&
-            bounds.y >= rbY && bounds.y + bounds.height <= rbY + rbH;
-          const intersects =
-            bounds.x < rbX + rbW && bounds.x + bounds.width > rbX &&
-            bounds.y < rbY + rbH && bounds.y + bounds.height > rbY;
-          const hit = mode === 'window' ? fullyInside : intersects;
+          // Window: helemaal erin; crossing: raakt. Een ruimte uit de
+          // plattegrond alleen als ze er helemaal in ligt, anders pakt elk
+          // vak om een paar wanden haar mee (ruimte-koppeling.js).
+          const hit = inSelectieVak(ann, bounds, { x: rbX, y: rbY, width: rbW, height: rbH }, mode);
           if (hit) selected.push(ann);
         }
         if (doc) {

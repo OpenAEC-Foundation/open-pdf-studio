@@ -2,10 +2,12 @@
 // Reads the current annotation's symbolId, looks up the template,
 // renders an input per parameter and writes back via updateAnnotProp('params.<key>', value).
 import { Show, For } from 'solid-js';
-import { annotProps, updateAnnotProp } from '../../stores/propertiesStore.js';
+import { annotProps, updateAnnotProp, getCurrentAnnotation } from '../../stores/propertiesStore.js';
 import CollapsibleSection from './CollapsibleSection.jsx';
 import { getTemplate } from '../../../symbols/registry.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import ParamListEditor from './ParamListEditor.jsx';
+import { stramienSlotStatus, schakelStramienSlot } from '../../../annotations/stramien-slot.js';
 
 function paramValue(key, fallback) {
   // annotProps.params is mirrored from currentAnnotation.params via setAnnotProps
@@ -16,8 +18,51 @@ function paramValue(key, fallback) {
 function setParam(key, value) {
   // Write the whole params object so propertiesStore's default branch updates
   // annotation.params AND its flat-key mirror updates annotProps.params for UI.
-  const next = { ...(annotProps.params || {}), [key]: value };
+  // Via JSON gekopieerd: annotProps.params is een store-proxy, en een lijst
+  // erin (de onderdelen van een aanrecht) mag niet als proxy in de annotatie
+  // terechtkomen.
+  const next = { ...JSON.parse(JSON.stringify(annotProps.params || {})), [key]: value };
   updateAnnotProp('params', next);
+}
+
+// Stramienlijn: per uiteinde de koppeling met de uiteinden van de andere
+// stramienlijnen (dezelfde schakelaar als het slotje op de tekening). Aangevinkt
+// = gekoppeld; uitgegrijsd = er ligt geen ander uiteinde op één lijn.
+function StramienKoppeling() {
+  const { t } = useTranslation('properties');
+  const status = (eind) => {
+    // Lees de paneelgegevens mee: na een wijziging vernieuwt showProperties
+    // ze, en dan rekent dit opnieuw.
+    void annotProps.params; void annotProps.x; void annotProps.y;
+    void annotProps.width; void annotProps.height;
+    const ann = getCurrentAnnotation();
+    if (!ann || ann.id === '__tool-defaults__') return null;
+    return stramienSlotStatus(ann, eind);
+  };
+  const rij = (eind, sleutel) => (
+    <div class="property-group" title={t('parametricSymbol.gridLinkHint')}>
+      <label>
+        <input type="checkbox"
+          checked={status(eind) === 'dicht'}
+          disabled={!status(eind) || annotProps.locked === true}
+          onChange={(e) => {
+            const ann = getCurrentAnnotation();
+            if (ann) schakelStramienSlot(ann, eind, e.target.checked);
+            e.target.checked = status(eind) === 'dicht';
+          }}
+        /> {t(sleutel)}
+      </label>
+    </div>
+  );
+  return (
+    <>
+      <div class="property-group">
+        <label>{t('parametricSymbol.gridAlignment')}</label>
+      </div>
+      {rij('begin', 'parametricSymbol.gridStartLinked')}
+      {rij('einde', 'parametricSymbol.gridEndLinked')}
+    </>
+  );
 }
 
 export default function ParametricSymbolSection() {
@@ -44,7 +89,22 @@ export default function ParametricSymbolSection() {
               <label>{t('parametricSymbol.typeLabel')}</label>
               <input type="text" readonly value={template.name + (template.nameEn ? ` / ${template.nameEn}` : '')} />
             </div>
-            <For each={template.params}>{(p) => (
+            <For each={template.params.filter(p => !p.hidden)}>{(p) => (
+              <Show when={p.type !== 'list'} fallback={
+                // Lijst-parameter (onderdelen van een aanrecht): kop plus een
+                // eigen bewerker over de volle breedte.
+                <div>
+                  <div class="property-group">
+                    <label title={p.labelEn || ''}>{p.label}</label>
+                  </div>
+                  <ParamListEditor
+                    def={p}
+                    value={paramValue(p.key, p.default)}
+                    params={annotProps.params || {}}
+                    onChange={(lijst) => setParam(p.key, lijst)}
+                  />
+                </div>
+              }>
               <div class="property-group">
                 {/* p.label/p.unit come from the symbol template's own data
                     (bilingual NL/EN label+labelEn, per symbols/registry.js),
@@ -88,7 +148,11 @@ export default function ParametricSymbolSection() {
                   />
                 </Show>
               </div>
+              </Show>
             )}</For>
+            <Show when={template.id === 'stramien' && annotProps.id !== '__tool-defaults__'}>
+              <StramienKoppeling />
+            </Show>
           </CollapsibleSection>
         );
       })()}
