@@ -29,6 +29,8 @@ import { saveWatermarksToPages } from './saver/watermarks.js';
 import { writeOcrTextLayer, embedOcrFont, loadDefaultOcrFontBytes } from './saver/ocr-text-layer.js';
 import { saveBookmarksToOutline } from './saver/bookmarks.js';
 import { saveStylePresetsToCatalog } from './saver/style-presets.js';
+import { schrijfAnnotatieLagen, ocVoorAnnotatie } from './saver/annotatie-lagen.js';
+import { layersForSave, currentLayerId } from '../annotations/annotatie-lagen.js';
 import { pdfTextString, toWinAnsiText, winAnsiLiteral, asciiPdfName } from './saver/pdf-text.js';
 import { catmullRomSpline } from '../tools/tools/spline-tool.js';
 import { catmullRomToBezier, splineArrowEndTangent } from '../annotations/spline-arrow-geometry.js';
@@ -387,6 +389,14 @@ async function _savePDFNu(saveAsPath) {
       }
       ensureAcroFormFonts(pdfDocLib, context, usedFonts);
     }
+
+    // Annotatielagen (#468): per laag een OCG in /OCProperties, zodat de lagen
+    // ook in andere lezers aan en uit kunnen. Een document zonder lagen geeft
+    // null en laat het bestand hier ongemoeid (saver/annotatie-lagen.js).
+    const laagOcgs = schrijfAnnotatieLagen(pdfDocLib, layersForSave(doc), {
+      standaardNaam: i18next.t('ribbon:annotationLayers.defaultName'),
+      huidigeLaag: currentLayerId(doc),
+    });
 
     // Group annotations by page
     const annotationsByPage = {};
@@ -2883,6 +2893,10 @@ async function _savePDFNu(saveAsPath) {
           if (randSleutel && typeof annotDict.set === 'function') {
             markeerZonderRand(context, annotDict, ann, randSleutel);
           }
+          // Annotatielaag (#468): /OC naar de OCG van de laag — ook één plek
+          // voor alle soorten. Zonder lagen is laagOcgs null en komt er niets bij.
+          const ocRef = ocVoorAnnotatie(laagOcgs, ann);
+          if (ocRef && typeof annotDict.set === 'function') annotDict.set(PDFName.of('OC'), ocRef);
           parentAnnotRef = context.register(annotDict);
           annotsArray.push(parentAnnotRef);
         }
@@ -2962,6 +2976,9 @@ async function _savePDFNu(saveAsPath) {
             ldrDict.set(PDFName.of('LE'), context.obj([PDFName.of('None'), PDFName.of(endStyle)]));
             ldrDict.set(PDFName.of('IRT'), parentAnnotRef);
             ldrDict.set(PDFName.of('BS'), buildBorderStyle(context, _lwLdr, ann.borderStyle));
+            // Een aanhaallijn hoort bij de laag van haar tekstvak (#468).
+            const ocRef = ocVoorAnnotatie(laagOcgs, ann);
+            if (ocRef) ldrDict.set(PDFName.of('OC'), ocRef);
             const ldrRef = context.register(ldrDict);
             annotsArray.push(ldrRef);
           }

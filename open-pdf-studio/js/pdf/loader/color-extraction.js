@@ -6,6 +6,7 @@ import { leesKnipselBronnen, leesKnipselVelden } from './vector-snippet-load.js'
 import { bewaar as bewaarKnipsel } from '../../annotations/vector-snippet-store.js';
 import { decodePdfTextObject } from '../saver/pdf-text.js';
 import { readPluginPdfAnnotation } from '../../plugins/plugin-pdf.js';
+import { laagVanOc } from '../saver/annotatie-lagen.js';
 
 // Documenten waarvan de knipsel-bronpagina's al in de store staan: dat
 // uitpakken gebeurt één keer per document, bij het eerste knipsel dat we zien.
@@ -194,6 +195,12 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
           if (fo !== null && fo >= 0 && fo <= 1) colors.fillOpacity = fo;
         }
       }
+
+      // Annotatielaag (#468): /OC naar een eigen OCG (herkenbaar aan
+      // /OPS_LayerId, zie saver/annotatie-lagen.js). Een OCG van een ander
+      // programma is geen annotatielaag van deze app.
+      const laagId = laagVanOc(context, annotDict.get(PDFName.of('OC')));
+      if (laagId) colors.layer = laagId;
 
       // Eigen sleutel van deze app (zie saver.js): wint van de afgeleide
       // waarde hierboven, want die is expliciet bij het opslaan bewaard.

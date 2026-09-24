@@ -12,7 +12,7 @@ import { addRecentFile, getRecentFiles } from '../mobile/recent-files.js';
 import { resumeReaderTracking } from './reader-mode-view.js';
 import { extractFileName } from '../core/platform.js';
 import i18next from '../i18n/config.js';
-import { showMessage } from '../bridge.js';
+import { showMessage, refreshAnnotationLayers } from '../bridge.js';
 import { verifieerHandtekeningen } from './handtekeningen/verificatie.js';
 
 // Sub-module imports
@@ -21,6 +21,7 @@ import { extractStampImagesHybrid } from './loader/image-extraction.js';
 import { convertPdfAnnotation } from './loader/annotation-converter.js';
 import { statusReplyFromPdfAnnotation, applyStatusReplies } from './loader/status-replies.js';
 import { loadIfNeeded } from './queued-load.js';
+import { leesAnnotatieLagen, pasGelezenLagenToe } from './saver/annotatie-lagen.js';
 
 
 // Convert one batch of pdf.js annotations and push them to doc.annotations,
@@ -413,6 +414,11 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
 
     // Reset annotation state (per-document)
     doc.annotations = [];
+    // Annotatielagen (#468): opnieuw uit dit bestand te lezen.
+    doc.annotationLayers = [];
+    doc.currentLayerId = null;
+    doc._annotatieLagenGelezen = false;
+    doc._annotatieLaagOcgIds = null;
     doc._loadedAnnotationPages.clear();
     if (doc._annotationPagesReady) doc._annotationPagesReady.clear();
     doc._pagesNeedingColorUpdate.clear();
@@ -998,6 +1004,17 @@ async function getSharedPdfLibDoc(doc) {
     console.log(`[PERF] PDFDocument.load DONE: ${(performance.now() - _pll0).toFixed(0)}ms`);
     doc._sharedPdfLibDoc = pdfLibDoc;
     doc._sharedPdfLibDocPromise = null;
+    // Annotatielagen (#468): de lijst lezen zodra het document er is — vóór
+    // de annotaties die dit document nodig hebben hun laag opzoeken. Eén keer
+    // per geopend bestand; daarna is het model de waarheid.
+    if (pasGelezenLagenToe(doc, leesAnnotatieLagen(pdfLibDoc))) {
+      refreshAnnotationLayers();
+      if (state.documents[state.activeDocumentIndex] === doc) {
+        import('../annotations/rendering.js').then((m) => {
+          if (doc.viewMode === 'continuous') m.redrawContinuous(); else m.redrawAnnotations();
+        }).catch(() => {});
+      }
+    }
     return pdfLibDoc;
   });
   return doc._sharedPdfLibDocPromise;
