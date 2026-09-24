@@ -2932,6 +2932,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "lcms2"
+version = "6.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "80205450f4d8b4de92f18111de879f3df4a6b728915e89b73c38f7a59a81ad90"
+dependencies = [
+ "bytemuck",
+ "foreign-types",
+ "lcms2-sys",
+]
+
+[[package]]
+name = "lcms2-sys"
+version = "4.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "264db0b78119c5a37d78bb41fb355daab29b3b29430b53cd92e3da51f0ab06cc"
+dependencies = [
+ "cc",
+ "dunce",
+ "libc",
+ "pkg-config",
+]
+
+[[package]]
 name = "leb128fmt"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3643,6 +3666,18 @@ dependencies = [
  "flate2",
  "libloading 0.9.0",
  "memmap2",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "open-pdf-cmyk"
+version = "0.1.0"
+dependencies = [
+ "flate2",
+ "image",
+ "lcms2",
+ "lopdf",
  "serde",
  "serde_json",
 ]
