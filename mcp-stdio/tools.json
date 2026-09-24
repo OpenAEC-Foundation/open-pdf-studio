@@ -545,7 +545,7 @@
       "readOnlyHint": false,
       "title": "Create annotation"
     },
-    "description": "Create an annotation on the LIVE app's active document WITHOUT synthetic mouse input. Builds the same object the interactive tool would, pushes it onto the document, records an undo step and redraws. Geometry goes in `props` (page coordinates at 100% zoom): line/arrow/measureDistance need startX/startY/endX/endY; box/circle/highlight/cloud/polygon/textbox/callout/scaleRegion need x/y/width/height; polyline/filledArea/measureArea/measurePerimeter need points:[{x,y},...]; spline needs controlPoints; draw needs path; comment needs x/y. Optional style props (color, strokeColor, fillColor, lineWidth, opacity, text, fontSize, scaleString, units, leaderStartX/Y, leaderEndX/Y, ...) override the tool defaults. measure* annotations get measureText computed from the document scale automatically. Returns the new annotation id.",
+    "description": "Create an annotation on the LIVE app's active document WITHOUT synthetic mouse input. Builds the same object the interactive tool would, pushes it onto the document, records an undo step and redraws. Geometry goes in `props` (page coordinates at 100% zoom): line/arrow/measureDistance need startX/startY/endX/endY; box/circle/highlight/cloud/polygon/textbox/callout/scaleRegion need x/y/width/height; polyline/filledArea/measureArea/measurePerimeter need points:[{x,y},...]; spline needs controlPoints; draw needs path; comment needs x/y. Optional style props (color, strokeColor, fillColor, lineWidth, opacity, text, fontSize, scaleString, units, leaderStartX/Y, leaderEndX/Y, dimShowUnit (measureDistance: false shows the number only), dimLineOvershootMm / dimExtGapMm / dimExtOvershootMm (measureDistance: overshoot of the dimension line, gap and overshoot of the extension lines, in paper mm), measureShowLabel (measureArea: false hides its own label), ...) override the tool defaults. measure* annotations get measureText computed from the document scale automatically. Returns the new annotation id.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
@@ -2036,7 +2036,7 @@
           "type": "number"
         },
         "offsetMm": {
-          "description": "dimensions: distance from the wall to the chain, in mm (default 500).",
+          "description": "dimensions: distance from the wall face to the chain, in mm (default 500 at 1:50; larger at smaller scales, so the text fits).",
           "type": "number"
         },
         "openings": {
@@ -2056,11 +2056,11 @@
           "type": "boolean"
         },
         "seeds": {
-          "description": "rooms: points inside the rooms you want, each {x, y, name}. Without seeds every room found is reported.",
+          "description": "rooms: points inside the rooms you want, each {x, y, name, number}; number is optional. Without seeds every room found is reported.",
           "type": "array"
         },
         "side": {
-          "description": "dimensions: which side of the run the chain goes, seen along its direction (default left).",
+          "description": "dimensions: which side of the run the chain goes, seen along its direction (default right). For an outline drawn clockwise on the sheet, left is outside.",
           "enum": [
             "left",
             "right"
@@ -2077,7 +2077,7 @@
           "type": "number"
         },
         "totalOffsetMm": {
-          "description": "dimensions: distance for the overall dimension (default offsetMm + 350).",
+          "description": "dimensions: distance from the wall face to the overall dimension, in mm (default offsetMm plus one line of text, at least 350).",
           "type": "number"
         },
         "wallId": {
@@ -2099,6 +2099,26 @@
         "layers": {
           "description": "wall: build-up of a layered (cavity) wall, from outside to inside, each {thicknessMm, material, insulation}; material none is an air cavity (not drawn). The run's start/end are then the outside face, thicknessMm and material of the run are ignored. Answer: layers[i].wallIds per drawn layer, per opening frame and layerOpeningsMm, corners = layers mitred at start/end.",
           "type": "array"
+        },
+        "addPoints": {
+          "description": "dimensions with chainOf: points {x, y} in page points to add as extension lines, between or outside the existing ones.",
+          "type": "array"
+        },
+        "chainOf": {
+          "description": "dimensions: the id of a dimension (measureDistance) whose chain you want to extend or shorten, with addPoints and/or removePoints.",
+          "type": "string"
+        },
+        "removePoints": {
+          "description": "dimensions with chainOf: points {x, y} near the extension lines to remove (the measured point or anywhere along the extension line).",
+          "type": "array"
+        },
+        "showUnit": {
+          "description": "dimensions: also show the unit behind the number (default false: the number only, as on a building drawing).",
+          "type": "boolean"
+        },
+        "tolerance": {
+          "description": "dimensions with removePoints: how close (page points) a point must be to an extension line (default 6).",
+          "type": "number"
         }
       },
       "required": [

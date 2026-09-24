@@ -155,6 +155,12 @@
     "dimType": "Type",
     "dimTypeCustom": "Custom",
     "extension": "Extension",
+    "showUnit": "Show unit",
+    "showLabel": "Show label",
+    "lineOvershoot": "Dimension line overshoot (mm)",
+    "extGap": "Extension line gap (mm)",
+    "extOvershoot": "Extension line overshoot (mm)",
+    "auto": "Auto",
     "searchType": "Search…",
     "editTypes": "Edit types",
     "noTypesFound": "No types found"

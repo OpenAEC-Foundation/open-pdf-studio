@@ -130,6 +130,11 @@ const [annotProps, setAnnotProps] = createStore({
   dimType: '',
   styleType: '',
   dimExtension: true,
+  dimShowUnit: true,
+  measureShowLabel: true,
+  dimLineOvershootMm: '',
+  dimExtGapMm: '',
+  dimExtOvershootMm: '',
   scaleBarUnit: 'mm',
   scaleBarTotalUnits: 5000,
   scaleBarDivisions: 5,
@@ -366,6 +371,14 @@ export function storeShowProperties(annotation) {
     dimType: annotation.dimType || '',
     styleType: annotation.styleType || annotation.dimType || '',
     dimExtension: annotation.dimExtension !== false, // default ON
+    // Eenheid achter de maat en het label van een meetvlak: standaard aan;
+    // alleen een expliciete false zet ze uit (maat-label.js).
+    dimShowUnit: annotation.dimShowUnit !== false,
+    measureShowLabel: annotation.measureShowLabel !== false,
+    // Uitloop en hulplijnen in mm op papier; leeg = automatisch (oude beeld).
+    dimLineOvershootMm: annotation.dimLineOvershootMm ?? '',
+    dimExtGapMm: annotation.dimExtGapMm ?? '',
+    dimExtOvershootMm: annotation.dimExtOvershootMm ?? '',
 
     scaleBarUnit: annotation.unit || 'mm',
     scaleBarTotalUnits: annotation.totalUnits || 5000,

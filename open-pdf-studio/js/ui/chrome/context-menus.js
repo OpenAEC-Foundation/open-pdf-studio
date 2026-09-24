@@ -45,7 +45,7 @@ export function initContextMenus() {
     // Check if any multi-click tool is in progress
     const isMultiClickActive = state.isDrawingPolyline || state.isDrawingCloudPolyline ||
       state.isDrawingDimension || (state.measurePoints && state.measurePoints.length >= 1) ||
-      state.addHoleTargetId;
+      state.addHoleTargetId || state.dimChainTargetId;
     if (!nonDrawTools.includes(state.currentTool) && !state.isDrawing && !isMultiClickActive) {
       e.preventDefault();
       e.stopPropagation();
@@ -74,7 +74,7 @@ export function initContextMenus() {
       // These are handled via the pointerdown handler with e.button === 2
       const isMultiClickActive = state.isDrawingPolyline || state.isDrawingCloudPolyline ||
         state.isDrawingDimension || (state.measurePoints && state.measurePoints.length >= 1) ||
-        state.addHoleTargetId;
+        state.addHoleTargetId || state.dimChainTargetId;
       if (isMultiClickActive) {
         e.preventDefault();
         return;

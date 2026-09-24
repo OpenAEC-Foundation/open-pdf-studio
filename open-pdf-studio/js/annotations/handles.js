@@ -496,7 +496,8 @@ export function getAnnotationHandles(annotation, scale = 1) {
         }
       }
       // Label drag handle for measureArea (at label position or centroid)
-      if (annotation.type === 'measureArea' && annotation.points && annotation.points.length >= 3 && annotation.measureText) {
+      if (annotation.type === 'measureArea' && annotation.points && annotation.points.length >= 3 && annotation.measureText
+          && annotation.measureShowLabel !== false) {
         let lx, ly;
         if (annotation.labelX != null && annotation.labelY != null) {
           lx = annotation.labelX;

@@ -1,7 +1,21 @@
-import { Show } from 'solid-js';
+import { Show, For } from 'solid-js';
 import { annotProps, sectionVis, updateAnnotProp, cycleSelectNext } from '../../stores/propertiesStore.js';
 import CollapsibleSection from './CollapsibleSection.jsx';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+
+// Uitloop van de maatlijn en de hulplijnen, in millimeters op papier
+// (maatlijn-geometrie.js). Leeg = automatisch.
+const PAPIER_MM_VELDEN = [
+  ['dimLineOvershootMm', 'measurement.lineOvershoot'],
+  ['dimExtGapMm', 'measurement.extGap'],
+  ['dimExtOvershootMm', 'measurement.extOvershoot'],
+];
+
+function papierMm(waarde) {
+  if (waarde === '' || waarde === null || waarde === undefined) return undefined;
+  const n = parseFloat(waarde);
+  return Number.isFinite(n) ? Math.max(0, n) : undefined;
+}
 
 export default function MeasurementSection() {
   const { t } = useTranslation('properties');
@@ -19,6 +33,14 @@ export default function MeasurementSection() {
               onInput={(e) => updateAnnotProp('measureName', e.target.value)}
             />
           </div>
+          <div class="property-group">
+            <label>{t('measurement.showLabel')}</label>
+            <input type="checkbox"
+              checked={annotProps.measureShowLabel !== false}
+              disabled={isLocked()}
+              onChange={(e) => updateAnnotProp('measureShowLabel', e.target.checked)}
+            />
+          </div>
         </Show>
 
         <Show when={annotProps.type === 'measureDistance'}>
@@ -30,6 +52,25 @@ export default function MeasurementSection() {
               onChange={(e) => updateAnnotProp('dimExtension', e.target.checked)}
             />
           </div>
+          <div class="property-group">
+            <label>{t('measurement.showUnit')}</label>
+            <input type="checkbox"
+              checked={annotProps.dimShowUnit !== false}
+              disabled={isLocked()}
+              onChange={(e) => updateAnnotProp('dimShowUnit', e.target.checked)}
+            />
+          </div>
+          <For each={PAPIER_MM_VELDEN}>{([veld, sleutel]) => (
+            <div class="property-group">
+              <label>{t(sleutel)}</label>
+              <input type="number" step="0.5" min="0"
+                value={annotProps[veld] ?? ''}
+                placeholder={t('measurement.auto')}
+                disabled={isLocked()}
+                onChange={(e) => updateAnnotProp(veld, papierMm(e.target.value))}
+              />
+            </div>
+          )}</For>
         </Show>
 
         <div class="property-group">

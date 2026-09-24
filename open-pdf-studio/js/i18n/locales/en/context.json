@@ -38,6 +38,8 @@
     "convertToMeasurement": "Convert to Measurement",
     "calibrateFromLine": "Calibrate from this Line...",
     "setScale": "Set Scale...",
+    "dimChainAdd": "Add Points to Dimension Chain",
+    "dimChainRemove": "Remove Extension Line from Chain",
     "convertToPolyline": "Convert to Polyline",
     "convertToPolygon": "Convert to Polygon",
     "styleTools": "Style Tools",

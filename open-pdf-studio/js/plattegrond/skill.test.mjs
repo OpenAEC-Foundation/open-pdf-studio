@@ -53,6 +53,13 @@ test('de instructie voor het model noemt de opdracht, de eenheden en de volgorde
     'paginapunten', 'MILLIMETERS',
     'alongMm', 'openTo', 'openEnds', 'refresh:true', 'undo',
   ]) assert.ok(PLATTEGROND_PROMPT.includes(stuk), `de instructie noemt ${stuk}`);
+  // #477: maten aan het wandvlak en de buitenhoek, ruimtetag in plaats van een
+  // los tekstvak, ruimten achter de wanden, alleen het getal.
+  for (const stuk of ['WANDVLAK', 'buitenhoek', 'buitenste laag', 'ruimtetag', 'los tekstvak', 'ACHTER', 'showUnit', 'number',
+    'chainOf', 'addPoints', 'removePoints', '2 mm']) {
+    assert.ok(PLATTEGROND_PROMPT.includes(stuk), `de instructie noemt ${stuk}`);
+  }
+  assert.ok(!PLATTEGROND_PROMPT.includes('offsetMm:500'), 'geen vaste offset meer voorgeschreven: de standaard groeit mee met de schaal');
   // De vier acties van de opdracht komen allemaal in de instructie voor.
   for (const a of FLOORPLAN_ACTIES) {
     assert.ok(PLATTEGROND_PROMPT.includes(`action:"${a}"`) || PLATTEGROND_PROMPT.includes(`"${a}"`), a);

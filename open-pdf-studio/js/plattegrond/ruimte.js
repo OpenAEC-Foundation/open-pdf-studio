@@ -402,3 +402,20 @@ export function ruimteLabel(naam, oppervlakteM2, decimalen = 1) {
   const opp = `${oppervlakteM2.toFixed(decimalen)} m²`;
   return naam ? `${naam}\n${opp}` : opp;
 }
+
+/**
+ * Hoe een ruimte op een plattegrond staat (#477): ingetogen, geen arcering,
+ * geen vulling, een dunne grijze rand, en zonder eigen label - naam en
+ * oppervlakte staan in de ruimtetag. Het vlak blijft een meetvlak, zodat de
+ * oppervlakte in de hoeveelheden meetelt.
+ */
+export const RUIMTE_VLAKSTIJL = Object.freeze({
+  color: '#808080',
+  strokeColor: '#808080',
+  lineWidth: 0.35,
+  borderStyle: 'solid',
+  fillColor: 'none',
+  hatchPattern: 'none',
+  opacity: 1,
+  measureShowLabel: false,
+});

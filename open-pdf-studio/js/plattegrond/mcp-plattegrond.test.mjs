@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-  FLOORPLAN_ACTIES, plattegrondOpdracht, draaizijde, kozijnProps,
+  FLOORPLAN_ACTIES, plattegrondOpdracht, draaizijde, kozijnProps, ruimtenAchterBouwdelen,
 } from './mcp-plattegrond.js';
 import { sparingPlaatsing } from './sparing.js';
 
@@ -29,6 +29,19 @@ function omgevingMet(annotaties = [], pxPerMm = K) {
       if (!a) return { ok: false };
       Object.assign(a, props);
       log.push({ soort: 'werkBij', id, props });
+      return { ok: true };
+    },
+    async verwijder(id) {
+      const i = doc.annotations.findIndex((x) => x.id === id);
+      if (i < 0) return { ok: false };
+      doc.annotations.splice(i, 1);
+      log.push({ soort: 'verwijder', id });
+      return { ok: true };
+    },
+    async herorden(ids) {
+      const perId = new Map(doc.annotations.map((a) => [a.id, a]));
+      doc.annotations.splice(0, doc.annotations.length, ...ids.map((id) => perId.get(id)));
+      log.push({ soort: 'herorden', ids });
       return { ok: true };
     },
     async transactie(fn) { log.push({ soort: 'transactie' }); await fn(); },
@@ -204,9 +217,16 @@ test('place zet de ruimte op het blad, refresh laat hem de wand volgen', async (
   assert.equal(vlak.opsRuimteNaam, 'Woonkamer');
   assert.deepEqual(vlak.points.map((p) => [p.x, p.y]),
     [[75, 75], [4925, 75], [4925, 3925], [75, 3925]]);
-  const label = o.doc.annotations.find((a) => a.type === 'textbox');
-  assert.equal(label.text, 'Woonkamer');
-  assert.equal(label.opsRuimteLabelVoor, vlak.id);
+  // Naam en oppervlakte zitten in EEN ruimtetag, niet in een los tekstvak.
+  assert.equal(o.doc.annotations.filter((a) => a.type === 'textbox').length, 0);
+  const tag = o.doc.annotations.find((a) => a.symbolId === 'room-tag');
+  assert.ok(tag, 'er staat een ruimtetag');
+  assert.equal(geplaatst.placed[0].tagId, tag.id);
+  assert.equal(tag.params.naam, 'Woonkamer');
+  assert.equal(tag.params.oppervlakteM2, 74.69);
+  assert.deepEqual([tag.params.zaadX, tag.params.zaadY], [2500, 2000]);
+  assert.equal(tag.x + tag.width / 2, 2500, 'de tag staat in het hart van de ruimte');
+  assert.equal(tag.y + tag.height / 2, 2000);
 
   // Oostgevel een meter naar buiten: de ruimte wordt groter en het meetvlak
   // volgt, zonder dat de gebruiker hem opnieuw hoeft aan te wijzen.
@@ -217,12 +237,97 @@ test('place zet de ruimte op het blad, refresh laat hem de wand volgen', async (
   }
   const na = await plattegrondOpdracht({ action: 'rooms', refresh: true }, o);
   assert.equal(na.ok, true);
-  assert.equal(na.refreshed.length, 2, 'het vlak en zijn label');
+  assert.equal(na.refreshed.length, 2, 'het vlak en zijn tag');
   assert.equal(na.detached.length, 0);
   // Netto 10 700 x 7700 = 82,39 m².
   assert.equal(na.refreshed[0].areaM2, 82.39);
   assert.equal(vlak.points[1].x, 5425, 'de contour is meegeschoven');
-  assert.equal(label.x, 2750 - label.width / 2, 'het label staat weer in het hart');
+  assert.equal(tag.params.oppervlakteM2, 82.39, 'de tag draagt de nieuwe oppervlakte');
+  assert.equal(tag.params.naam, 'Woonkamer');
+  assert.equal(tag.x + tag.width / 2, 2750, 'de tag schuift mee naar het nieuwe hart');
+});
+
+test('een ruimte ligt ingetogen achter de wanden en kozijnen', async () => {
+  const o = omgevingMet();
+  await plattegrondOpdracht({
+    action: 'wall', start: { x: 0, y: 0 }, end: { x: 5000, y: 0 }, thicknessMm: 300,
+    openings: [{ kind: 'door', widthMm: 900, alongMm: 2000, openTo: { x: 1000, y: 2000 } }],
+  }, o);
+  for (const [start, end] of [
+    [{ x: 5000, y: 0 }, { x: 5000, y: 4000 }],
+    [{ x: 5000, y: 4000 }, { x: 0, y: 4000 }],
+    [{ x: 0, y: 4000 }, { x: 0, y: 0 }],
+  ]) await plattegrondOpdracht({ action: 'wall', start, end, thicknessMm: 300 }, o);
+  const r = await plattegrondOpdracht({
+    action: 'rooms', place: true, seeds: [{ x: 2500, y: 2000, name: 'Woonkamer', number: '0.01' }],
+  }, o);
+  assert.equal(r.placed[0].number, '0.01');
+
+  const vlak = o.doc.annotations.find((a) => a.type === 'measureArea');
+  assert.equal(vlak.hatchPattern, 'none', 'geen arcering');
+  assert.equal(vlak.fillColor, 'none', 'geen vulling');
+  assert.equal(vlak.strokeColor, '#808080', 'grijze rand');
+  assert.ok(vlak.lineWidth <= 0.5, 'dunne rand');
+  assert.equal(vlak.measureShowLabel, false, 'de oppervlakte staat in de tag, niet nog eens in het vlak');
+  assert.equal(vlak.measureName, 'Woonkamer', 'de naam telt mee in de hoeveelheden');
+  assert.equal(o.doc.annotations.find((a) => a.symbolId === 'room-tag').params.nummer, '0.01');
+
+  // Tekenvolgorde: het vlak ligt achter de eerste wand; de deur, de wanden en
+  // de tag erboven.
+  const volgorde = o.doc.annotations.map((a) => a.type === 'parametricSymbol' ? a.symbolId : a.type);
+  const plekVlak = volgorde.indexOf('measureArea');
+  assert.equal(plekVlak, 0, `vlak onderaan: ${volgorde.join(', ')}`);
+  assert.ok(volgorde.indexOf('door') > plekVlak);
+  assert.ok(volgorde.indexOf('room-tag') > plekVlak);
+  assert.equal(o.log.filter((e) => e.soort === 'herorden').length, 1);
+  assert.equal(o.log.filter((e) => e.soort === 'transactie').length, 5, 'vier wanden + de ruimten: elk een undo-stap');
+});
+
+test('een opzij geschoven tag houdt zijn plek ten opzichte van de ruimte', async () => {
+  const { o } = await woning();
+  await plattegrondOpdracht({ action: 'rooms', place: true, seeds: [{ x: 2500, y: 2000, name: 'Hal' }] }, o);
+  const tag = o.doc.annotations.find((a) => a.symbolId === 'room-tag');
+  tag.x += 300; tag.y -= 100;                        // de gebruiker schuift hem opzij
+  const cx = tag.x + tag.width / 2, cy = tag.y + tag.height / 2;
+  // De hele woning 1000 pt naar rechts.
+  for (const w of o.doc.annotations) {
+    if (w.type !== 'wall') continue;
+    w.startX += 1000; w.endX += 1000;
+  }
+  await plattegrondOpdracht({ action: 'rooms', refresh: true }, o);
+  // Het zaadpunt ligt nog in de ruimte (x 2500 valt binnen 1075..5925).
+  assert.equal(tag.x + tag.width / 2, cx + 1000, 'mee met de ruimte, met zijn eigen verschuiving');
+  assert.equal(tag.y + tag.height / 2, cy);
+});
+
+test('zonder seeds komt een ruimte in een gelaagde gevel maar een keer terug', async () => {
+  // Buitenblad en binnenblad als losse gesloten lussen: elke lus is een vlak,
+  // maar het zaadpunt van beide valt in dezelfde (kleinste) ruimte.
+  const o = omgevingMet();
+  const lus = (a, b, dikte) => [
+    [{ x: a, y: a }, { x: b, y: a }], [{ x: b, y: a }, { x: b, y: b - 1000 }],
+    [{ x: b, y: b - 1000 }, { x: a, y: b - 1000 }], [{ x: a, y: b - 1000 }, { x: a, y: a }],
+  ].map(([start, end]) => ({ action: 'wall', start, end, thicknessMm: dikte }));
+  for (const w of [...lus(0, 5000, 100), ...lus(150, 4850, 100)]) await plattegrondOpdracht(w, o);
+  const r = await plattegrondOpdracht({ action: 'rooms' }, o);
+  assert.equal(r.rooms.length, 1, `een ruimte, niet ${r.rooms.length} keer dezelfde`);
+  const geplaatst = await plattegrondOpdracht({ action: 'rooms', place: true }, o);
+  assert.equal(geplaatst.placed.length, 1);
+  assert.equal(o.doc.annotations.filter((a) => a.symbolId === 'room-tag').length, 1);
+});
+
+test('ruimtenAchterBouwdelen laat een onderlegger onderin', () => {
+  const lijst = [
+    { id: 'onder', type: 'image', page: 1 },
+    { id: 'w', type: 'wall', page: 1 },
+    { id: 'd', type: 'parametricSymbol', symbolId: 'door', page: 1 },
+    { id: 'v', type: 'measureArea', page: 1 },
+    { id: 't', type: 'parametricSymbol', symbolId: 'room-tag', page: 1 },
+  ];
+  assert.deepEqual(ruimtenAchterBouwdelen(lijst, ['v'], 1), ['onder', 'v', 'w', 'd', 't']);
+  assert.equal(ruimtenAchterBouwdelen(lijst, ['v'], 2), null, 'geen wand op die pagina: niets te doen');
+  assert.equal(ruimtenAchterBouwdelen([lijst[3], lijst[1]], ['v'], 1), null, 'al achter de wanden');
+  assert.equal(ruimtenAchterBouwdelen(lijst, [], 1), null);
 });
 
 test('een gat in de contour wordt gemeld in plaats van half gevuld', async () => {
@@ -293,12 +398,22 @@ test('de maatketting hangt aan de wandstukken en volgt ze', async () => {
 
   const maten = o.doc.annotations.filter((a) => a.type === 'measureDistance');
   assert.equal(maten.length, 6);
-  assert.equal(maten[0].startY, 350, 'de ketting ligt 500 mm naast de gevel');
-  assert.equal(maten[5].startY, 525, 'de totaalmaat een regel verder');
-  assert.deepEqual(maten[0].opsAnkerStart, { annotationId: gevelR.wallIds[0], punt: 'start' });
-  assert.deepEqual(maten[1].opsAnkerStart, { annotationId: gevelR.wallIds[0], punt: 'end' });
-  assert.deepEqual(maten[1].opsAnkerEind, { annotationId: gevelR.wallIds[1], punt: 'start' });
-  assert.deepEqual(maten[5].opsAnkerEind, { annotationId: gevelR.wallIds[2], punt: 'end' });
+  // Het wandvlak aan de maatzijde ligt op y 100 + 75 = 175 (300 mm wand).
+  assert.equal(maten[0].startY, 425, 'de ketting ligt 500 mm naast het wandvlak');
+  assert.equal(maten[5].startY, 600, 'de totaalmaat een tekstregel verder (850 mm)');
+  assert.equal(maten[0].leaderStartY, 175, 'de hulplijn begint op het wandvlak');
+  const w = gevelR.wallIds;
+  assert.deepEqual(maten[0].opsAnkerStart, { annotationId: w[0], punt: 'start', vlak: 1, hoek: true });
+  assert.deepEqual(maten[1].opsAnkerStart, { annotationId: w[0], punt: 'end', vlak: 1 });
+  assert.deepEqual(maten[1].opsAnkerEind, { annotationId: w[1], punt: 'start', vlak: 1 });
+  assert.deepEqual(maten[5].opsAnkerEind, { annotationId: w[2], punt: 'end', vlak: 1, hoek: true });
+  // Uitloop alleen aan begin en eind van de ketting; de totaalmaat aan beide kanten.
+  assert.deepEqual(maten.map((m) => m.dimOvershootEnds), ['start', 'none', 'none', 'none', 'end', 'both']);
+  assert.equal(maten[0].dimLineOvershootMm, 2, '2 mm uitloop op papier');
+  assert.equal(maten[0].dimExtGapMm, 1.5, 'hulplijn vrij van het wandvlak');
+  // Een id voor de hele ketting.
+  assert.ok(r.chainId);
+  assert.ok(maten.every((m) => m.opsKettingId === r.chainId));
 
   // De hele gevel 200 pt omlaag: elke maat schuift mee.
   for (const w of o.doc.annotations) {
@@ -308,14 +423,114 @@ test('de maatketting hangt aan de wandstukken en volgt ze', async () => {
   assert.equal(na.updated.length, 6);
   assert.equal(na.detached.length, 0);
   assert.equal(na.unchanged, 0);
-  assert.equal(maten[0].startY, 550);
-  assert.equal(maten[5].startY, 725);
+  assert.equal(maten[0].startY, 625);
+  assert.equal(maten[5].startY, 800);
+  assert.equal(maten[0].leaderStartY, 375);
   assert.deepEqual(na.updated.map((d) => d.lengthMm), [1550, 900, 2950, 1200, 3400, 10000]);
 
   // Nog een keer verversen verandert niets meer.
   const nogmaals = await plattegrondOpdracht({ action: 'dimensions', refresh: true }, o);
   assert.equal(nogmaals.updated.length, 0);
   assert.equal(nogmaals.unchanged, 6);
+});
+
+test('plattegrondmaten zijn zwart, dun en zonder eenheid, en meten buitenwerks', async () => {
+  const { o, ids } = await woning();
+  // Noordgevel: loopt naar het oosten, n = (0, 1) wijst naar binnen; buiten = links.
+  const noord = ids[0];
+  const r = await plattegrondOpdracht({ action: 'dimensions', wallIds: [noord], side: 'left' }, o);
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.dimensions.map((d) => d.lengthMm), [10300], 'buitenmaat: hartlijn 10 000 + 2 x 150');
+  const m = o.doc.annotations.find((a) => a.type === 'measureDistance');
+  assert.equal(m.dimShowUnit, false, 'alleen het getal');
+  assert.equal(m.strokeColor, '#000000');
+  assert.equal(m.color, '#000000');
+  assert.ok(m.lineWidth < 0.5, 'dunne lijn');
+  assert.deepEqual([m.leaderStartX, m.leaderStartY, m.leaderEndX, m.leaderEndY], [-75, -75, 5075, -75],
+    'hulplijnen vanaf de buitenhoeken');
+  assert.equal(m.startY, -75 - 250, '500 mm uit het buitenvlak');
+
+  // Met showUnit:true houdt de maat zijn eenheid.
+  const { o: o2, ids: ids2 } = await woning();
+  await plattegrondOpdracht({ action: 'dimensions', wallIds: [ids2[0]], side: 'left', showUnit: true }, o2);
+  assert.equal(o2.doc.annotations.find((a) => a.type === 'measureDistance').dimShowUnit, true);
+});
+
+test('op een kleine schaal liggen ketting en totaal verder uit elkaar', async () => {
+  const k100 = 72 / 25.4 / 100;
+  const o = omgevingMet([], k100);
+  const r = await plattegrondOpdracht({
+    action: 'wall', start: { x: 0, y: 100 }, end: { x: 10000 * k100, y: 100 }, thicknessMm: 300,
+    openings: [{ kind: 'window', widthMm: 1200, alongMm: 5000 }],
+  }, o);
+  await plattegrondOpdracht({ action: 'dimensions', wallIds: r.wallIds, side: 'right' }, o);
+  const maten = o.doc.annotations.filter((a) => a.type === 'measureDistance');
+  const ketting = maten.find((a) => a.opsMaatRol === 'chain');
+  const totaal = maten.find((a) => a.opsMaatRol === 'total');
+  // 1:100: 350 mm is maar 10 pt papier - te krap voor een regel tekst.
+  assert.ok(totaal.startY - ketting.startY >= 18, `${totaal.startY - ketting.startY} pt tussen ketting en totaal`);
+  assert.ok(totaal.opsMaatOffsetMm - ketting.opsMaatOffsetMm > 350);
+});
+
+test('een ketting verlengen: een punt ertussen, erbuiten en weer eraf', async () => {
+  const o = omgevingMet();
+  const gevelR = await plattegrondOpdracht(gevel, o);
+  const r = await plattegrondOpdracht({ action: 'dimensions', wallIds: gevelR.wallIds, side: 'right' }, o);
+  const eerste = r.dimensions[0].id;
+  const kettingLengtes = (v) => v.dimensions.filter((d) => d.role === 'chain').map((d) => d.lengthMm);
+
+  // Een punt op het wandvlak (y 175) midden in het tweede penant: dat segment splitst.
+  const erbij = await plattegrondOpdracht({ action: 'dimensions', chainOf: eerste, addPoints: [{ x: 2000, y: 175 }] }, o);
+  assert.equal(erbij.ok, true);
+  assert.equal(erbij.chainId, r.chainId);
+  assert.deepEqual(kettingLengtes(erbij), [1550, 900, 1550, 1400, 1200, 3400]);
+  assert.equal(erbij.dimensions.find((d) => d.role === 'total').lengthMm, 10000, 'totaal blijft');
+  assert.equal(erbij.points.find((p) => p.x === 2000).anchored, true, 'op het wandvlak: verankerd');
+  const nieuw = o.doc.annotations.filter((a) => a.type === 'measureDistance').at(-1);
+  assert.equal(nieuw.opsKettingId, r.chainId, 'het nieuwe segment hoort bij de ketting');
+  assert.equal(nieuw.strokeColor, '#000000', 'dezelfde opmaak');
+  assert.equal(nieuw.dimShowUnit, false);
+  assert.equal(nieuw.startY, 425, 'op de maatlijn van de ketting');
+  assert.equal(o.log.filter((e) => e.soort === 'transactie').length, 3, 'een ongedaan-stap per aanroep');
+
+  // De wand schuift 100 pt omlaag: het toegevoegde punt schuift mee.
+  for (const w of o.doc.annotations) if (w.type === 'wall') { w.startY += 100; w.endY += 100; }
+  const na = await plattegrondOpdracht({ action: 'dimensions', refresh: true }, o);
+  assert.equal(na.detached.length, 0);
+  assert.equal(nieuw.leaderStartY, 275);
+
+  // Erbuiten: de ketting wordt langer en de totaalmaat groeit mee.
+  const langer = await plattegrondOpdracht({ action: 'dimensions', chainOf: eerste, addPoints: [{ x: 5600, y: 275 }] }, o);
+  assert.deepEqual(kettingLengtes(langer), [1550, 900, 1550, 1400, 1200, 3400, 1200]);
+  assert.equal(langer.dimensions.find((d) => d.role === 'total').lengthMm, 11200);
+  assert.equal(langer.points.at(-1).anchored, false, 'geen wand daar: een vrij punt');
+
+  // Weer eraf, tussenpunt en buitenpunt.
+  const eraf = await plattegrondOpdracht({
+    action: 'dimensions', chainOf: eerste, removePoints: [{ x: 2000, y: 275 }, { x: 5600, y: 275 }],
+  }, o);
+  assert.deepEqual(kettingLengtes(eraf), [1550, 900, 2950, 1200, 3400]);
+  assert.equal(eraf.dimensions.find((d) => d.role === 'total').lengthMm, 10000);
+  // De uitloop staat weer alleen aan begin en eind.
+  const leden = o.doc.annotations.filter((a) => a.opsKettingId === r.chainId && a.opsMaatRol === 'chain')
+    .sort((a, b) => a.startX - b.startX);
+  assert.deepEqual(leden.map((m) => m.dimOvershootEnds), ['start', 'none', 'none', 'none', 'end']);
+});
+
+test('een losse maat verlengen maakt er een ketting van', async () => {
+  const o = omgevingMet();
+  const r = await o.maak('measureDistance', 1, {
+    startX: 0, startY: 50, endX: 100, endY: 50, leaderStartX: 0, leaderStartY: 0, leaderEndX: 100, leaderEndY: 0,
+  });
+  const uit = await plattegrondOpdracht({ action: 'dimensions', chainOf: r.id, addPoints: [{ x: 160, y: 0 }] }, o);
+  assert.equal(uit.ok, true);
+  assert.ok(uit.chainId);
+  assert.deepEqual(uit.dimensions.map((d) => d.lengthMm), [200, 120]);
+  const fout = await plattegrondOpdracht({ action: 'dimensions', chainOf: r.id, addPoints: [{ x: 100, y: 0 }] }, o);
+  assert.equal(fout.ok, false);
+  assert.match(fout.warnings[0], /already/);
+  assert.match((await plattegrondOpdracht({ action: 'dimensions', chainOf: 'onzin', addPoints: [{ x: 1, y: 1 }] }, o)).error, /chainOf/);
+  assert.match((await plattegrondOpdracht({ action: 'dimensions', chainOf: r.id }, o)).error, /addPoints/);
 });
 
 test('een maat waarvan de wand verdwijnt raakt los, hij gaat niet stuk', async () => {

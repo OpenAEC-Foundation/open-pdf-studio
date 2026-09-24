@@ -11,6 +11,9 @@
 //     pxPerMmAt(page, x, y) -> number,
 //     maak(type, page, props)  -> { ok, id }      (annotatie toevoegen)
 //     werkBij(id, props)       -> { ok }          (annotatie wijzigen)
+//     verwijder(id)            -> { ok }          (annotatie weghalen)
+//     herorden(ids)            -> { ok }          (tekenvolgorde: alle ids, van
+//                                                  achter naar voor; optioneel)
 //     transactie(fn)           -> Promise         (alles in één undo-stap)
 //   }
 //
@@ -21,8 +24,14 @@ import {
   SPARING_SOORTEN, SPARING_SYMBOOL, SPARING_STANDAARD,
   normaliseerSparing, wandMetSparingen, controleerSparing, sparingPlaatsing,
 } from './sparing.js';
-import { ruimtenUitWanden, ruimteBijZaad, ruimteLabel } from './ruimte.js';
-import { maatketting, herberekenMaten, kettingUitWandstukken } from './maatvoering.js';
+import { ruimtenUitWanden, ruimteBijZaad, ruimteLabel, RUIMTE_VLAKSTIJL } from './ruimte.js';
+import {
+  maatketting, herberekenMaten, kettingLangsWandvlak,
+  standaardMaatAfstanden, PLATTEGROND_MAATSTIJL, ankerVoorPunt,
+} from './maatvoering.js';
+import {
+  leesKetting, puntToevoegen, puntVerwijderen, puntBij, nieuwSegment, wijzigPatch,
+} from '../annotations/maatketting-bewerken.js';
 import { wandAs, projecteer } from '../annotations/wand-geometrie.js';
 import { PRESETS as GEVEL_PRESETS } from '../gevelelement/catalogus.js';
 import { indeling as gevelIndeling } from '../gevelelement/indeling.js';
@@ -31,6 +40,9 @@ import { kozijnIndeling, kozijnMaten, vakOffsetMm } from './kozijn.js';
 import {
   normaliseerPakket, kozijnInPakket, laagSparingMm, laagLijnen, zoekLaagHoek,
 } from './spouwmuur.js';
+import {
+  RUIMTETAG_ID, ruimteTagVak, tagVolgtRuimte, RUIMTETAG_STIJL, RUIMTETAG_TEKST_PT,
+} from '../symbols/templates/ruimtetag.js';
 
 export const FLOORPLAN_ACTIES = Object.freeze(['inspect', 'wall', 'rooms', 'dimensions']);
 
@@ -479,7 +491,6 @@ function eindPatch(hoek) {
 
 const RUIMTE_ZAAD = 'opsRuimteZaad';
 const RUIMTE_NAAM = 'opsRuimteNaam';
-const RUIMTE_LABEL = 'opsRuimteLabelVoor';
 
 async function actieRuimten(params, omgeving, page) {
   const annotaties = omgeving.doc?.annotations || [];
@@ -501,29 +512,56 @@ async function actieRuimten(params, omgeving, page) {
   });
 
   if (params?.refresh) {
-    const bestaand = annotaties.filter((a) => (a.page ?? 1) === page && a[RUIMTE_ZAAD]);
+    const bestaand = annotaties.filter((a) => (a.page ?? 1) === page && zaadVan(a));
     const bijgewerkt = [];
     const losgeraakt = [];
     await omgeving.transactie(async () => {
       for (const a of bestaand) {
-        const zaad = a[RUIMTE_ZAAD];
-        const r = ruimteBijZaad(ruimten, zaad);
-        if (!r) { losgeraakt.push({ id: a.id, name: a[RUIMTE_NAAM] || null }); continue; }
-        if (a.type === 'measureArea') await omgeving.werkBij(a.id, { points: r.polygoon });
-        else await omgeving.werkBij(a.id, { x: r.labelPunt.x - (a.width || 0) / 2, y: r.labelPunt.y - (a.height || 0) / 2 });
-        bijgewerkt.push({ id: a.id, ...verslag(r, a[RUIMTE_NAAM]) });
+        const tag = isRuimteTag(a);
+        const naam = tag ? (a.params?.naam || null) : (a[RUIMTE_NAAM] || null);
+        const r = ruimteBijZaad(ruimten, zaadVan(a));
+        if (!r) { losgeraakt.push({ id: a.id, name: naam }); continue; }
+        if (a.type === 'measureArea') {
+          await omgeving.werkBij(a.id, { points: r.polygoon });
+        } else if (tag) {
+          // De tag houdt zijn plek ten opzichte van de ruimte en krijgt de
+          // nieuwe netto oppervlakte.
+          await omgeving.werkBij(a.id, {
+            ...tagVolgtRuimte(a, r.labelPunt),
+            params: {
+              ...a.params,
+              oppervlakteM2: Math.round(r.oppervlakteM2 * 100) / 100,
+              ankerX: r.labelPunt.x, ankerY: r.labelPunt.y,
+            },
+          });
+        } else {
+          // Los naamlabel uit een eerdere versie: terug naar het labelpunt.
+          await omgeving.werkBij(a.id, { x: r.labelPunt.x - (a.width || 0) / 2, y: r.labelPunt.y - (a.height || 0) / 2 });
+        }
+        bijgewerkt.push({ id: a.id, ...(tag ? { kind: 'tag' } : {}), ...verslag(r, naam) });
       }
     });
     return { ok: true, page, refreshed: bijgewerkt, detached: losgeraakt, openEnds: losseEinden };
   }
 
-  const zaden = Array.isArray(params?.seeds) && params.seeds.length
+  const metSeeds = Array.isArray(params?.seeds) && params.seeds.length > 0;
+  const zaden = metSeeds
     ? params.seeds
     : ruimten.map((r) => ({ x: r.labelPunt.x, y: r.labelPunt.y }));
   const gekozen = [];
   for (const z of zaden) {
     const r = ruimteBijZaad(ruimten, z);
-    if (r) gekozen.push({ ruimte: r, zaad: { x: z.x, y: z.y }, naam: z.name || z.naam || null });
+    if (!r) continue;
+    // Zonder seeds levert elk gevonden vlak een zaadpunt; bij een gevel uit
+    // losse lagen vallen die in dezelfde (kleinste) ruimte. Die telt een keer.
+    if (!metSeeds && gekozen.some((g) => g.ruimte === r)) continue;
+    const nummer = z.number ?? z.nummer;
+    gekozen.push({
+      ruimte: r,
+      zaad: { x: z.x, y: z.y },
+      naam: z.name || z.naam || null,
+      nummer: nummer != null && String(nummer).trim() ? String(nummer).trim() : null,
+    });
   }
   if (!params?.place) {
     return {
@@ -535,30 +573,84 @@ async function actieRuimten(params, omgeving, page) {
 
   const gemaakt = [];
   await omgeving.transactie(async () => {
+    const vlakIds = [];
     for (const g of gekozen) {
+      // Het ruimtevlak: ingetogen, zonder eigen label (dat is de tag).
       const vlak = await omgeving.maak('measureArea', page, {
+        ...RUIMTE_VLAKSTIJL,
         points: g.ruimte.polygoon,
+        measureName: g.naam || undefined,
         [RUIMTE_ZAAD]: g.zaad,
         [RUIMTE_NAAM]: g.naam,
       });
-      let labelId = null;
-      if (g.naam) {
-        const breedte = Math.max(40, g.naam.length * 7);
-        const r = await omgeving.maak('textbox', page, {
-          x: g.ruimte.labelPunt.x - breedte / 2, y: g.ruimte.labelPunt.y - 9,
-          width: breedte, height: 18,
-          text: g.naam,
-          [RUIMTE_ZAAD]: g.zaad,
-          [RUIMTE_NAAM]: g.naam,
-          [RUIMTE_LABEL]: vlak?.id || null,
-        });
-        labelId = r?.ok ? r.id : null;
-      }
-      gemaakt.push({ id: vlak?.id || null, labelId, ...verslag(g.ruimte, g.naam) });
+      if (vlak?.ok && vlak.id) vlakIds.push(vlak.id);
+      // Naam, netto oppervlakte en nummer in een ruimtetag.
+      const tagParams = {
+        naam: g.naam || '',
+        nummer: g.nummer || '',
+        oppervlakteM2: Math.round(g.ruimte.oppervlakteM2 * 100) / 100,
+        decimalen: 1,
+        toonOppervlakte: true,
+        zaadX: g.zaad.x, zaadY: g.zaad.y,
+        ankerX: g.ruimte.labelPunt.x, ankerY: g.ruimte.labelPunt.y,
+      };
+      const tag = await omgeving.maak('parametricSymbol', page, {
+        ...RUIMTETAG_STIJL,
+        symbolId: RUIMTETAG_ID,
+        ...ruimteTagVak(g.ruimte.labelPunt, tagParams, RUIMTETAG_TEKST_PT),
+        params: tagParams,
+      });
+      gemaakt.push({
+        id: vlak?.id || null,
+        tagId: tag?.ok ? tag.id : null,
+        ...(g.nummer ? { number: g.nummer } : {}),
+        ...verslag(g.ruimte, g.naam),
+      });
     }
+    // Ruimten achter de wanden en kozijnen, zodat een deurdraai zichtbaar blijft.
+    const volgorde = ruimtenAchterBouwdelen(omgeving.doc?.annotations, vlakIds, page);
+    if (volgorde && typeof omgeving.herorden === 'function') await omgeving.herorden(volgorde);
   });
   return { ok: true, page, placed: gemaakt, openEnds: losseEinden };
 }
+
+function isRuimteTag(a) {
+  return a?.type === 'parametricSymbol' && a.symbolId === RUIMTETAG_ID;
+}
+
+/** Het zaadpunt van een geplaatst ruimte-onderdeel (vlak, tag of oud label). */
+function zaadVan(a) {
+  if (isRuimteTag(a)) {
+    const x = getal(a.params?.zaadX), y = getal(a.params?.zaadY);
+    return x !== null && y !== null ? { x, y } : null;
+  }
+  const z = a?.[RUIMTE_ZAAD];
+  return z && getal(z.x) !== null && getal(z.y) !== null ? z : null;
+}
+
+/**
+ * Tekenvolgorde met de ruimtevlakken `ids` direct ACHTER de eerste wand of
+ * het eerste kozijn van de pagina, zodat wanden, deurdraaien en ramen er
+ * bovenop liggen. De rest van de volgorde blijft staan (een onderlegger
+ * onderin blijft onderin). Geeft de ids van alle annotaties, van achter naar
+ * voor, of null als er niets te verschuiven is.
+ */
+export function ruimtenAchterBouwdelen(annotaties, ids, page) {
+  const lijst = annotaties || [];
+  const achter = new Set((ids || []).filter(Boolean));
+  if (!achter.size) return null;
+  const bouwdeel = (a) => (a?.page ?? 1) === page && !achter.has(a.id)
+    && (a.type === 'wall' || (a.type === 'parametricSymbol' && SPARING_SYMBOOL_IDS.has(a.symbolId)));
+  const eerste = lijst.findIndex(bouwdeel);
+  if (eerste < 0) return null;
+  const verplaatst = lijst.filter((a) => achter.has(a.id));
+  if (verplaatst.every((a) => lijst.indexOf(a) < eerste)) return null;
+  const rest = lijst.filter((a) => !achter.has(a.id));
+  const plek = rest.findIndex(bouwdeel);
+  return [...rest.slice(0, plek), ...verplaatst, ...rest.slice(plek)].map((a) => a.id);
+}
+
+const SPARING_SYMBOOL_IDS = new Set(Object.values(SPARING_SYMBOOL));
 
 // ── actie: dimensions ────────────────────────────────────────────────────
 
@@ -567,22 +659,37 @@ const ANKER_EIND = 'opsAnkerEind';
 const MAAT_OFFSET = 'opsMaatOffsetMm';
 const MAAT_ZIJDE = 'opsMaatZijde';
 const MAAT_ROL = 'opsMaatRol';
+const KETTING_ID = 'opsKettingId';
+
+let kettingTeller = 0;
+function nieuwKettingId() {
+  kettingTeller += 1;
+  return `ketting-${Date.now().toString(36)}-${kettingTeller}`;
+}
 
 async function actieMaten(params, omgeving, page) {
+  // Een bestaande ketting verlengen of inkorten.
+  if (params?.chainOf) return actieKettingBewerken(params, omgeving);
   const annotaties = omgeving.doc?.annotations || [];
   const pxPerMm = schaalOp(omgeving, page, middenVan(wandenOpPagina(annotaties, page)));
   if (!pxPerMm) return fout('no measurement scale on this page - set it with app_set_measure_scale first');
 
   if (params?.refresh) {
     const index = new Map(annotaties.map((a) => [a.id, a]));
+    // Ook een maat met maar een verankerd eind (een los toegevoegd punt aan
+    // de andere kant) schuift mee; het vrije eind blijft staan.
     const maten = annotaties
-      .filter((a) => (a.page ?? 1) === page && a[ANKER_START] && a[ANKER_EIND])
+      .filter((a) => (a.page ?? 1) === page && (a[ANKER_START] || a[ANKER_EIND]))
       .map((a) => ({
         id: a.id, startX: a.startX, startY: a.startY, endX: a.endX, endY: a.endY,
+        leaderStartX: a.leaderStartX, leaderStartY: a.leaderStartY,
+        leaderEndX: a.leaderEndX, leaderEndY: a.leaderEndY,
         ankerStart: a[ANKER_START], ankerEind: a[ANKER_EIND],
         offsetMm: getal(a[MAAT_OFFSET]) ?? 0, zijde: getal(a[MAAT_ZIJDE]) ?? 1,
       }));
-    const uit = herberekenMaten(maten, index, { pxPerMm });
+    // Alle wanden van de pagina: voor het wandvlak, de buitenste laag en de
+    // buitenhoek van vlak-ankers.
+    const uit = herberekenMaten(maten, index, { pxPerMm, wanden: wandenOpPagina(annotaties, page) });
     await omgeving.transactie(async () => {
       for (const b of uit.bijgewerkt) await omgeving.werkBij(b.id, b.patch);
     });
@@ -608,22 +715,44 @@ async function actieMaten(params, omgeving, page) {
     startX: eerste.startX, startY: eerste.startY, endX: laatste.endX, endY: laatste.endY,
   })) return fout('the wall run has no length');
 
-  const punten = kettingUitWandstukken(wanden);
-  const offsetMm = getal(params?.offsetMm) ?? 500;
+  // Kettingpunten op het wandvlak aan de maatzijde (buitenste laag), de
+  // uiterste punten op de buitenhoek van het gebouw.
   const zijde = params?.side === 'left' || getal(params?.side) === -1 ? -1 : 1;
-  const totaalOffsetMm = getal(params?.totalOffsetMm) ?? offsetMm + 350;
+  const punten = kettingLangsWandvlak(
+    wanden.map((w) => ({
+      id: w.id, startX: w.startX, startY: w.startY, endX: w.endX, endY: w.endY,
+      dikteMm: getal(w.dikteMm) || 100,
+    })),
+    { zijde, wanden: wandenOpPagina(annotaties, page), pxPerMm },
+  );
+  // Afstanden vanaf het wandvlak; zonder opgave groeien ze mee met de schaal,
+  // zodat ketting, totaal en hun teksten elkaar niet raken.
+  const stijl = { ...PLATTEGROND_MAATSTIJL, dimShowUnit: params?.showUnit === true };
+  const afstanden = standaardMaatAfstanden(pxPerMm, stijl, getal(params?.offsetMm));
+  const offsetMm = afstanden.offsetMm;
+  const totaalOffsetMm = getal(params?.totalOffsetMm) ?? afstanden.totaalOffsetMm;
   const { maten } = maatketting(punten, { pxPerMm, offsetMm, totaalOffsetMm, zijde });
   if (!maten.length) return fout('nothing to dimension along this run');
 
   const gemaakt = [];
+  // Eén id voor de hele ketting (tussenmaten en totaal), zodat hij later als
+  // geheel te verlengen of in te korten is.
+  const kettingId = nieuwKettingId();
   await omgeving.transactie(async () => {
     for (const m of maten) {
       const r = await omgeving.maak('measureDistance', page, {
+        ...stijl,
         startX: m.startX, startY: m.startY, endX: m.endX, endY: m.endY,
+        // Hulplijnen vanaf het wandvlak naar de maatlijn.
+        leaderStartX: m.basis.van.x, leaderStartY: m.basis.van.y,
+        leaderEndX: m.basis.tot.x, leaderEndY: m.basis.tot.y,
+        // Uitloop alleen aan begin en eind van de hele ketting.
+        dimOvershootEnds: m.einden,
         [ANKER_START]: m.ankerStart, [ANKER_EIND]: m.ankerEind,
         [MAAT_OFFSET]: m.rol === 'totaalmaat' ? totaalOffsetMm : offsetMm,
         [MAAT_ZIJDE]: zijde,
         [MAAT_ROL]: m.rol === 'totaalmaat' ? 'total' : 'chain',
+        [KETTING_ID]: kettingId,
       });
       gemaakt.push({
         id: r?.ok ? r.id : null,
@@ -632,7 +761,98 @@ async function actieMaten(params, omgeving, page) {
       });
     }
   });
-  return { ok: true, page, dimensions: gemaakt };
+  return { ok: true, page, chainId: kettingId, dimensions: gemaakt };
+}
+
+// ── dimensions met chainOf: een ketting verlengen of inkorten ────────────
+
+/** De maten van een ketting: zelfde ketting-id, anders alleen deze maat. */
+function kettingLeden(annotaties, basis) {
+  const id = basis[KETTING_ID];
+  const leden = id
+    ? annotaties.filter((a) => a?.type === 'measureDistance' && a[KETTING_ID] === id && (a.page ?? 1) === (basis.page ?? 1))
+    : [basis];
+  return {
+    segmenten: leden.filter((a) => a[MAAT_ROL] !== 'total'),
+    totaal: leden.find((a) => a[MAAT_ROL] === 'total') || null,
+  };
+}
+
+function kettingVerslag(annotaties, basis, pxPerMm) {
+  const { segmenten, totaal } = kettingLeden(annotaties, basis);
+  const k = leesKetting(segmenten, totaal);
+  const lengte = (m) => {
+    const px = Math.hypot(m.endX - m.startX, m.endY - m.startY);
+    return pxPerMm ? Math.round(px / pxPerMm) : Math.round(px);
+  };
+  return {
+    points: (k?.punten || []).map((p) => ({ x: p.x, y: p.y, anchored: !!p.anker })),
+    dimensions: [
+      ...(k?.segmenten || []).map((m) => ({ id: m.id, role: 'chain', lengthMm: lengte(m) })),
+      ...(totaal ? [{ id: totaal.id, role: 'total', lengthMm: lengte(totaal) }] : []),
+    ],
+  };
+}
+
+async function actieKettingBewerken(params, omgeving) {
+  const annotaties = () => omgeving.doc?.annotations || [];
+  const basis = annotaties().find((a) => a.id === params.chainOf);
+  if (!basis || basis.type !== 'measureDistance') {
+    return fout('chainOf must be the id of an existing dimension (measureDistance)');
+  }
+  const geldig = (lijst) => (Array.isArray(lijst) ? lijst : [])
+    .filter((p) => p && getal(p.x) !== null && getal(p.y) !== null);
+  const erbij = geldig(params.addPoints);
+  const eraf = geldig(params.removePoints);
+  if (!erbij.length && !eraf.length) return fout('chainOf needs addPoints and/or removePoints ({x, y} in page points)');
+  const page = basis.page ?? 1;
+  const pxPerMm = schaalOp(omgeving, page, { x: basis.startX, y: basis.startY });
+  const klachten = [];
+
+  await omgeving.transactie(async () => {
+    // Een losse maat wordt een ketting.
+    if (!basis[KETTING_ID]) {
+      await omgeving.werkBij(basis.id, { [KETTING_ID]: nieuwKettingId(), [MAAT_ROL]: basis[MAAT_ROL] || 'chain' });
+    }
+    const voerUit = async (plan) => {
+      const perId = new Map(annotaties().map((a) => [a.id, a]));
+      for (const w of plan.wijzig) await omgeving.werkBij(w.id, wijzigPatch(w));
+      for (const n of plan.nieuw) {
+        await omgeving.maak('measureDistance', page, nieuwSegment(perId.get(n.sjabloon), n));
+      }
+      for (const id of plan.weg) {
+        if (typeof omgeving.verwijder === 'function') await omgeving.verwijder(id);
+      }
+    };
+    for (const p of erbij) {
+      const { segmenten, totaal } = kettingLeden(annotaties(), basis);
+      const k = leesKetting(segmenten, totaal);
+      // Snapt het punt op een wandvlak, dan hangt het voortaan aan die wand.
+      const anker = pxPerMm ? ankerVoorPunt(p, wandenOpPagina(annotaties(), page), pxPerMm) : null;
+      const plan = puntToevoegen(k, { x: getal(p.x), y: getal(p.y) }, anker);
+      if (!plan.ok) { klachten.push(`addPoint (${p.x}, ${p.y}): ${plan.fout}`); continue; }
+      await voerUit(plan);
+    }
+    for (const p of eraf) {
+      const { segmenten, totaal } = kettingLeden(annotaties(), basis);
+      const k = leesKetting(segmenten, totaal);
+      const i = puntBij(k, { x: getal(p.x), y: getal(p.y) }, getal(params.tolerance) ?? 6);
+      const plan = puntVerwijderen(k, i);
+      if (!plan.ok) { klachten.push(`removePoint (${p.x}, ${p.y}): ${plan.fout}`); continue; }
+      await voerUit(plan);
+    }
+  });
+  // De basis kan zelf verwijderd zijn: verslag via een overgebleven lid.
+  const nuBasis = annotaties().find((a) => a.id === basis.id)
+    || annotaties().find((a) => a[KETTING_ID] && a[KETTING_ID] === basis[KETTING_ID]);
+  const verslag = nuBasis ? kettingVerslag(annotaties(), nuBasis, pxPerMm) : { points: [], dimensions: [] };
+  return {
+    ok: klachten.length < erbij.length + eraf.length,
+    page,
+    chainId: nuBasis?.[KETTING_ID] || null,
+    ...verslag,
+    ...(klachten.length ? { warnings: klachten } : {}),
+  };
 }
 
 // ── actie: inspect ───────────────────────────────────────────────────────

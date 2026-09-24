@@ -232,15 +232,18 @@ test('maatlabels: WinAnsi-escapes in de Tj en de breedte over de getoonde tekst'
     startX: 0, startY: 0, endX: 100, endY: 0, X: (x) => x, Y: (y) => y,
     strokeColorHex: '#ff0000', lineWidth: 1, text,
   }).content;
-  // '€ 22': 4 getoonde tekens -> 4 * 11 * 0.5 = 22 breed, plus 2 * 2 marge.
+  // '€ 22': 4 getoonde tekens -> 4 * 11 * 0.55 = 24,2 breed, gecentreerd op
+  // het midden van de lijn (x 50): de tekst begint op x 37,9. Sinds #477 staat
+  // hij boven de lijn, zonder wit vlak eronder.
   const euro = label('€ 22');
   assert.ok(euro.includes('(\\200 22) Tj'), euro);
-  assert.ok(euro.includes(' 26 15 re f'), euro);
+  assert.match(euro, /1 0 0 1 37\.9 -?[\d.]+ Tm/);
   assert.match(euro, /^[\x09\x0A\x0D\x20-\x7E]*$/);
-  // ASCII met haakjes: zelfde breedte als voorheen (escapes tellen mee).
+  // ASCII met haakjes: de escapes tellen niet mee, 5 getoonde tekens.
   const ascii = label('L (a)');
   assert.ok(ascii.includes('(L \\(a\\)) Tj'), ascii);
-  assert.ok(ascii.includes(' 42.5 15 re f'), ascii);
+  assert.match(ascii, /1 0 0 1 34\.875 -?[\d.]+ Tm/);
+  assert.ok(!/ re f/.test(ascii), 'geen wit vlak over de maatlijn');
   assert.ok(label('12,5 m²').includes('(12,5 m\\262) Tj'));
 });
 
