@@ -68,3 +68,13 @@ test('de instructie beschrijft het gevelelement (vliesgevel, kozijn) en al zijn 
     assert.ok(PLATTEGROND_PROMPT.includes(`action:"${a}"`), `actie ${a}`);
   }
 });
+
+test('de instructie heeft een eigen blok over kozijnen en spouwmuren', () => {
+  const blok = PLATTEGROND_PROMPT.slice(PLATTEGROND_PROMPT.indexOf('KOZIJNEN EN SPOUWMUREN'));
+  assert.ok(blok.length > 100, 'het blok staat in de instructie');
+  for (const stuk of [
+    'layers', 'insideSide', 'BUITENVLAK', 'KOZIJNMAAT', 'aanslag', 'speling',
+    'framePositionMm', 'overlapMm', 'clearanceMm', 'stileWidthMm', 'frameDepthMm', 'leafThicknessMm',
+    'layerOpeningsMm', 'corners', 'windowType', 'turn', '67 x 114',
+  ]) assert.ok(blok.includes(stuk), `het kozijnblok noemt ${stuk}`);
+});
