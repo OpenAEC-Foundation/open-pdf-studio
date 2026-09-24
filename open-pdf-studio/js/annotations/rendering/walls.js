@@ -6,20 +6,22 @@
 // free: G/MV move (generic applyMove walker), endpoint grips, object snap,
 // and the trim/extend "make corner" tools.
 //
-// Corner joins: when two wall endpoints coincide (within JOIN_TOL) their
-// band outlines are MITRED — each shared corner is the intersection of the
-// matching band edges, so trimmed walls close perfectly. Free ends get a
-// butt cap. WHICH wall is the partner (per end, per layer, and whether the
-// end allows a join at all — noJoinStart/noJoinEnd) is decided by the pure
-// module wand-join.js; this file only builds the mitred band.
+// Joins: when two wall endpoints coincide (within JOIN_TOL) their band
+// outlines are MITRED — each shared corner is the intersection of the
+// matching band edges, so trimmed walls close perfectly. A wall that stops
+// on another wall forms a T: same material flows into it (no cap, the
+// through wall's face line is interrupted), another material butts against
+// its face with a seam line. Free ends get a butt cap. The band and its
+// outline segments come from the pure module wand-vorm.js; WHICH wall is the
+// partner (per end, per layer, and whether the end allows a join at all —
+// noJoinStart/noJoinEnd) is decided by wand-join.js.
 
 import { getMeasureScale } from '../measurement.js';
 import { getRegionScaleFactor } from '../scale-region.js';
 import { applyHatchFillPolygon } from './hatch-patterns.js';
-import { zoekJoinPartner } from '../wand-join.js';
+import { wandVorm } from '../wand-vorm.js';
 
 const UNIT_TO_MM = { mm: 1, cm: 10, m: 1000, in: 25.4, ft: 304.8 };
-const MITER_LIMIT = 6;    // × max(halfW) — beyond this fall back to butt
 
 // ── Wall material registry — SINGLE SOURCE for renderer + properties UI ───
 // kind 'hatch' = TWO-layer fill: solid background colour (`bg`) + a line
@@ -84,75 +86,13 @@ function _unit(dx, dy) {
   return { x: dx / len, y: dy / len };
 }
 
-// Line-line intersection (infinite lines through p along d).
-function _isect(p1, d1, p2, d2) {
-  const denom = d1.x * d2.y - d1.y * d2.x;
-  if (Math.abs(denom) < 1e-9) return null; // parallel/collinear
-  const t = ((p2.x - p1.x) * d2.y - (p2.y - p1.y) * d2.x) / denom;
-  return { x: p1.x + d1.x * t, y: p1.y + d1.y * t };
-}
-
-// Corner pair at end `eind` ('start' | 'end', point P0) of `ann`. dirIn =
-// unit vector from P0 INTO the wall body. Returns { plus, minus, joined }
-// where plus/minus are the band corners on the +perp / -perp side (perp of
-// dirIn).
-function _cornersAt(ann, walls, eind, P0, dirIn, halfW) {
-  const n = { x: -dirIn.y, y: dirIn.x };
-  const def = {
-    plus: { x: P0.x + n.x * halfW, y: P0.y + n.y * halfW },
-    minus: { x: P0.x - n.x * halfW, y: P0.y - n.y * halfW },
-    joined: false,
-  };
-  // Coincident end point (any material) or a crossing corner within the
-  // same layer; null when this end — or the partner's end — has its join
-  // switched off (see wand-join.js).
-  const partner = zoekJoinPartner(ann, eind, walls, wallHalfWidthPx);
-  if (!partner) return def;
-  // Bij een kruisende hoek ligt het hoekpunt op het snijpunt van de
-  // hartlijnen — de band wordt daarheen getrimd of doorgetrokken. De
-  // annotatie zelf blijft ongemoeid; dit is puur rendergeometrie.
-  const P = partner.at || P0;
-  const dir2 = _unit(partner.far.x - P.x, partner.far.y - P.y);
-  if (!dir2) return def;
-  const h2 = wallHalfWidthPx(partner.wall);
-  const n2 = { x: -dir2.y, y: dir2.x };
-  const lim = MITER_LIMIT * Math.max(halfW, h2);
-  // Matching edge pairing for the away-from-P direction convention: the
-  // +σ edge of this wall meets the -σ edge of the partner (see derivation
-  // in the corner cases: L-joints both turn directions).
-  const mk = (sigma, fallback) => {
-    const e1 = { x: P.x + sigma * n.x * halfW, y: P.y + sigma * n.y * halfW };
-    const e2 = { x: P.x - sigma * n2.x * h2, y: P.y - sigma * n2.y * h2 };
-    const ix = _isect(e1, dirIn, e2, dir2);
-    if (!ix || Math.hypot(ix.x - P.x, ix.y - P.y) > lim) return fallback;
-    return ix;
-  };
-  return {
-    plus: mk(1, def.plus),
-    minus: mk(-1, def.minus),
-    joined: true,
-  };
-}
-
-// Band polygon for a wall, mitred against joined neighbours.
-// Returns { poly: [sPlus, ePlus, eMinus, sMinus], joinedStart, joinedEnd }
-// or null for degenerate walls.
+// Band polygon for a wall, mitred / T-trimmed against its neighbours, plus
+// the outline as separate segments (see wand-vorm.js).
+// Returns { poly: [sPlus, ePlus, eMinus, sMinus], joinedStart, joinedEnd,
+// lijnen: [{x1,y1,x2,y2}] } or null for degenerate walls.
 export function computeWallShape(ann, annotations) {
-  const u = _unit(ann.endX - ann.startX, ann.endY - ann.startY);
-  if (!u) return null;
-  const halfW = wallHalfWidthPx(ann);
   const walls = (annotations || []).filter(a => a.type === 'wall' && a.page === ann.page);
-  const S = { x: ann.startX, y: ann.startY };
-  const E = { x: ann.endX, y: ann.endY };
-  // dirIn at S is u; at E it is -u. perp(u) = n; perp(-u) = -n — so the
-  // band edge on +n is σ=+1 at S and σ=-1 at E.
-  const cs = _cornersAt(ann, walls, 'start', S, u, halfW);
-  const ce = _cornersAt(ann, walls, 'end', E, { x: -u.x, y: -u.y }, halfW);
-  return {
-    poly: [cs.plus, ce.minus, ce.plus, cs.minus],
-    joinedStart: cs.joined,
-    joinedEnd: ce.joined,
-  };
+  return wandVorm(ann, walls, wallHalfWidthPx);
 }
 
 // Insulation fill: solid background + 60° triangle-wave zigzag spanning the
@@ -209,7 +149,6 @@ function _drawIsolatieFill(ctx, ann, shape, mat) {
 export function drawWall(ctx, ann, annotations) {
   const shape = computeWallShape(ann, annotations);
   if (!shape) return;
-  const [sP, eP, eM, sM] = shape.poly;
   const stroke = ann.strokeColor || ann.color || '#000000';
 
   const mat = resolveWallMaterial(ann);
@@ -250,20 +189,17 @@ export function drawWall(ctx, ann, annotations) {
     );
   }
 
-  // Outline: walk the band polygon edge-by-edge. poly order is
-  // [S+, E+, E−, S−] when read as consecutive corners, so the LONG edges are
-  // poly[0]→poly[1] and poly[2]→poly[3]; the end caps are poly[1]→poly[2]
-  // (E) and poly[3]→poly[0] (S). Long edges always stroke; caps only on
-  // free (unjoined) ends so a joined corner stays open and the partner
-  // wall runs through. (Pairing the wrong corners draws an X through the
-  // band — the original bug.)
+  // Outline: the segments from wand-vorm.js — long edges (interrupted
+  // where a wall of the same material joins as a T) and caps only on free
+  // ends and on the seam of a T with another material, so a joined corner
+  // stays open. The saved appearance strokes the same segments.
   ctx.strokeStyle = stroke;
   ctx.setLineDash([]);
   ctx.beginPath();
-  ctx.moveTo(sP.x, sP.y); ctx.lineTo(eP.x, eP.y);   // long edge 1
-  ctx.moveTo(eM.x, eM.y); ctx.lineTo(sM.x, sM.y);   // long edge 2
-  if (!shape.joinedEnd) { ctx.moveTo(eP.x, eP.y); ctx.lineTo(eM.x, eM.y); }
-  if (!shape.joinedStart) { ctx.moveTo(sM.x, sM.y); ctx.lineTo(sP.x, sP.y); }
+  for (const l of shape.lijnen) {
+    ctx.moveTo(l.x1, l.y1);
+    ctx.lineTo(l.x2, l.y2);
+  }
   ctx.stroke();
 }
 

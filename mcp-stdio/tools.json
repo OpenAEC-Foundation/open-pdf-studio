@@ -2020,7 +2020,7 @@
           "type": "boolean"
         },
         "joinStart": {
-          "description": "wall: false = the start of the run never joins another wall: no mitre, no trim to a corner, a plain butt end (default true). Walls that touch are otherwise joined automatically: coincident end points are mitred, and ends that just pass or fall short of a wall of the same material are trimmed to a closed corner. Use false where a wall or layer must stop square against another one (butt joint). Later: app_update_annotation props noJoinStart / noJoinEnd.",
+          "description": "wall: false = the start of the run never joins another wall: no mitre, no T, no trim; the end keeps a plain butt cap exactly where it is drawn (default true). Otherwise walls that touch are joined automatically: coincident end points are mitred; ends that just pass or fall short of a wall of the same material are trimmed to a closed corner; an end that stops on a continuing wall (on its centre line, on its face, just short of it or inside it) forms a T, where the same material flows into it and another material butts against its face with a seam. Later: app_update_annotation props noJoinStart / noJoinEnd.",
           "type": "boolean"
         },
         "material": {

@@ -461,7 +461,7 @@
   "wall": {
     "joinAtStart": "Join toestaan aan begin",
     "joinAtEnd": "Join toestaan aan eind",
-    "joinHint": "Uit: dit uiteinde van de wand wordt nooit verstekt of afgekapt tegen een andere wand (stomp einde)."
+    "joinHint": "Uit: dit uiteinde van de wand wordt nooit verstekt, als T aangesloten of afgekapt tegen een andere wand; het houdt een stompe kap waar het getekend is."
   },
   "tekeninstellingen": {
     "title": "Tekeninstellingen",

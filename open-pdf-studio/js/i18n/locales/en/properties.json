@@ -461,7 +461,7 @@
   "wall": {
     "joinAtStart": "Join at start",
     "joinAtEnd": "Join at end",
-    "joinHint": "Off: this end of the wall is never mitred or trimmed against another wall (butt end)."
+    "joinHint": "Off: this end of the wall is never mitred, joined as a T or trimmed against another wall; it keeps a butt end where it is drawn."
   },
   "tekeninstellingen": {
     "title": "Drawing settings",
