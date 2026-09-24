@@ -417,15 +417,9 @@ pub(crate) fn fmt_obj(o: &Object) -> String {
         Object::Null | Object::Stream(_) => "null".into(),
         Object::Boolean(b) => b.to_string(),
         Object::Integer(i) => i.to_string(),
-        Object::Real(r) => {
-            let s = format!("{r:.6}");
-            let s = s.trim_end_matches('0').trim_end_matches('.');
-            if s.is_empty() || s == "-" || s == "-0" {
-                "0".into()
-            } else {
-                s.to_string()
-            }
-        }
+        // Kortste weergave die precies terugleest; Rust schrijft nooit een exponent.
+        Object::Real(r) if r.is_finite() && *r != 0.0 => r.to_string(),
+        Object::Real(_) => "0".into(),
         Object::Name(n) => {
             let mut s = String::from("/");
             for &b in n {

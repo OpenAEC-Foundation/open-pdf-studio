@@ -23,6 +23,11 @@ pub enum Space {
     /// Patroon. Met een RGB-basis (ongekleurd tiling-patroon) staan er vóór
     /// de patroonnaam drie componenten die mee moeten.
     Pattern(Option<RgbSource>),
-    /// Alles waar niets aan omgezet hoeft of kan (Lab, Separation, …).
+    /// Separation of DeviceN met een RGB-alternatief: de tinttransformatie
+    /// levert RGB en is niet algemeen om te zetten. Blijft staan en wordt
+    /// gemeld.
+    SpotOnRgb,
+    /// Alles waar niets aan omgezet hoeft of kan (Lab, Separation op een
+    /// grijs- of CMYK-alternatief, …).
     Other,
 }
