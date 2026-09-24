@@ -15,6 +15,7 @@ pub mod images;
 pub mod lcms;
 mod lexer;
 pub mod profiles;
+mod repair;
 pub mod report;
 pub mod space;
 pub mod transform;

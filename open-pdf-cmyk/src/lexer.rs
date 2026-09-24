@@ -256,7 +256,19 @@ pub(crate) fn parse_object(data: &[u8], toks: &[Tok], i: &mut usize) -> Option<O
             if raw.contains(&b'.') {
                 Object::Real(v)
             } else {
-                std::str::from_utf8(raw).ok().and_then(|s| s.parse::<i64>().ok()).map(Object::Integer)?
+                let n = std::str::from_utf8(raw).ok().and_then(|s| s.parse::<i64>().ok())?;
+                // `<nr> <gen> R`: een verwijzing (komt voor in woordenboeken
+                // van xref-stromen, nooit bij ingebedde afbeeldingen).
+                let gen = toks.get(*i).filter(|t| matches!(t.kind, Kind::Number(_)));
+                let r = toks.get(*i + 1).filter(|t| t.kind == Kind::Word && &data[t.start..t.end] == b"R");
+                match (gen, r) {
+                    (Some(g), Some(_)) if n >= 0 => {
+                        let gen = std::str::from_utf8(&data[g.start..g.end]).ok().and_then(|s| s.parse::<u16>().ok())?;
+                        *i += 2;
+                        Object::Reference((n as u32, gen))
+                    }
+                    _ => Object::Integer(n),
+                }
             }
         }
         Kind::Name => Object::Name(name_bytes(raw)),
@@ -312,6 +324,21 @@ c)"), b"a(b)\\A\nc");
     #[test]
     fn hex_string_with_odd_digit_count() {
         assert_eq!(hex_string(b"4 1F a"), vec![0x41, 0xFA]);
+    }
+
+    #[test]
+    fn indirect_references_are_parsed() {
+        let src = b"<< /Root 1 0 R /Kids [3 0 R 4 0 R] /Size 8 /W [1 3 2] >>";
+        let mut lx = Lexer::new(src);
+        let mut toks = Vec::new();
+        while let Some(t) = lx.next_tok() {
+            toks.push(t);
+        }
+        let Some(Object::Dictionary(d)) = parse_object(src, &toks, &mut 0) else { panic!("geen woordenboek") };
+        assert_eq!(d.get(b"Root").unwrap(), &Object::Reference((1, 0)));
+        assert_eq!(d.get(b"Kids").unwrap().as_array().unwrap(), &vec![Object::Reference((3, 0)), Object::Reference((4, 0))]);
+        assert_eq!(d.get(b"Size").unwrap(), &Object::Integer(8));
+        assert_eq!(d.get(b"W").unwrap().as_array().unwrap().len(), 3);
     }
 
     #[test]

@@ -67,7 +67,7 @@ pub fn convert_document_with_progress(
     t: &dyn CmykTransform,
     progress: &mut dyn FnMut(usize, usize),
 ) -> Result<Converted, ConvertError> {
-    let doc = Document::load_mem(pdf).map_err(|e| ConvertError::Unreadable(e.to_string()))?;
+    let (doc, _) = crate::repair::load(pdf).map_err(|e| ConvertError::Unreadable(e.to_string()))?;
     if doc.is_encrypted() {
         return Err(ConvertError::Encrypted);
     }
