@@ -18,6 +18,7 @@ pub mod mcp_tool_meta;
 #[cfg(not(target_os = "android"))]
 pub mod ocr;
 pub mod pdfium_renderer;
+pub mod pdfx_cmyk;
 pub mod handtekening;
 pub mod print_formulieren;
 pub mod print_instelling;
@@ -2866,6 +2867,9 @@ pub fn run(opts: StartupOpts) {
             cad_export::export_page_to_cad,
             cad_export::cancel_cad_export,
             cad_export::scan_page_for_cad,
+            pdfx_cmyk::pdfx_list_cmyk_profiles,
+            pdfx_cmyk::pdfx_inspect_profile,
+            pdfx_cmyk::pdfx_convert_to_cmyk,
             cad_import::scan_cad_file,
             cad_import::import_cad_to_pdf,
             cad_import::cancel_cad_import,

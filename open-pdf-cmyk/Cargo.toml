@@ -1,0 +1,21 @@
+[package]
+name = "open-pdf-cmyk"
+version = "0.1.0"
+edition = "2021"
+license = "LGPL-3.0-or-later"
+description = "Converts the RGB colour of a PDF to CMYK through an ICC printing profile (PDF/X export)"
+publish = false
+
+[dependencies]
+# Zelfde lopdf-lijn als de app-crate en open-pdf-render: één versie in de lock.
+lopdf = "0.34"
+flate2 = "1"
+# Alleen de JPEG-decoder, voor afbeeldingen met DCTDecode.
+image = { version = "0.25", default-features = false, features = ["jpeg"] }
+# CMYK-JPEG schrijven (libjpeg-turbo, met cmake gebouwd); zelfde crate en
+# features als open-pdf-render, dus geen tweede bouw van de C-bibliotheek.
+turbojpeg = { version = "1", default-features = false, features = ["cmake"] }
+# Little CMS (MIT), meegebouwd vanuit de bron: de echte RGB→CMYK-transformatie.
+lcms2 = "6"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

@@ -95,7 +95,7 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "pdfxNote": "Adds an output intent, TrimBox and PDF/X metadata. With a CMYK printing profile, RGB colours, images and gradients are converted to CMYK and that profile becomes the output intent; with sRGB nothing is converted. Standard fonts that are not embedded remain a limitation.",
     "exportCad": "CAD 도면(DXF, DWG)",
     "exportCadDesc": "벡터 도면을 도면층, 축척, 영역과 함께 DXF 또는 DWG로 내보내기"
   },

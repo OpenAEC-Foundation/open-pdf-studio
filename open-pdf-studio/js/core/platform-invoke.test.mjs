@@ -69,3 +69,16 @@ test('Tauri aanwezig maar zonder core-brug telt als niet beschikbaar', async () 
   globalThis.window.__TAURI__ = {};
   await assert.rejects(() => invoke('mcp_status'), (fout) => isNietInBrowser(fout));
 });
+
+test('bureaublad: opties (koppen bij een rauwe body) gaan mee naar Tauri', async () => {
+  const aanroepen = [];
+  zetTauri({ invoke: async (...a) => { aanroepen.push(a); return 'ok'; } });
+  const body = new Uint8Array([1, 2, 3]);
+  const opties = { headers: { 'x-profile-path': 'a%20b.icc' } };
+  assert.equal(await invoke('pdfx_convert_to_cmyk', body, opties), 'ok');
+  assert.equal(aanroepen[0][1], body, 'de bytes zelf, geen kopie');
+  assert.deepEqual(aanroepen[0][2], opties);
+  // Zonder opties blijft de aanroep zoals hij altijd was: twee argumenten.
+  await invoke('page_count', { path: 'a.pdf' });
+  assert.equal(aanroepen[1].length, 2);
+});

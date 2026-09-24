@@ -278,6 +278,7 @@ export interface Preferences {
   cadExportSettings: Record<string, unknown> | null;
   cadImportSettings: Record<string, unknown> | null;
   cadImportPresets: Array<{ name: string; settings: Record<string, unknown> }> | null;
+  pdfxSettings: { profilePath: string | null; profileName: string; intent: string } | null;
 }
 
 export interface PrintSettings {

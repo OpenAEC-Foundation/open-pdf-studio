@@ -106,9 +106,65 @@
     "exportPdfxDesc": "Maak een drukklaar PDF/X-bestand met output intent en metadata",
     "pdfxOptions": "PDF/X-opties",
     "pdfxConformance": "Conformiteit",
-    "pdfxNote": "Voegt een sRGB-output-intent, TrimBox en PDF/X-metadata toe. Bestaande RGB-afbeeldingen worden niet naar CMYK omgezet; vervang voor strikt CMYK-drukwerk het profiel door een CMYK-profiel.",
+    "pdfxNote": "Voegt een output-intent, TrimBox en PDF/X-metadata toe. Met een CMYK-drukprofiel worden RGB-kleuren, afbeeldingen en verlopen naar CMYK omgezet en wordt dat profiel de output-intent; met sRGB wordt niets omgezet. Niet-ingebedde standaardlettertypen blijven een beperking.",
     "exportCad": "CAD-tekening (DXF, DWG)",
     "exportCadDesc": "Exporteer de vectortekening naar DXF of DWG, met lagen, schaal en gebied"
+  },
+  "pdfxCmyk": {
+    "profile": "Uitvoerprofiel",
+    "srgb": "sRGB — geen omzetting",
+    "browse": "Bestand kiezen…",
+    "noneFound": "Geen CMYK-drukprofielen gevonden in de kleurmap van het systeem",
+    "help": "Kies voor CMYK-drukwerk het drukprofiel (.icc of .icm) van je drukkerij: vraag het daar op, of gebruik een vrij te gebruiken profielset van een branche-organisatie voor drukwerk. Profielen in de kleurmap van het systeem verschijnen vanzelf in deze lijst.",
+    "intent": "Rendering intent",
+    "intentRelative": "Relatief colorimetrisch met zwartpuntcompensatie",
+    "intentPerceptual": "Perceptueel",
+    "invalidProfile": "“{{file}}” is niet te gebruiken als CMYK-drukprofiel: {{reason}}",
+    "profileReasons": {
+      "notIcc": "het is geen ICC-kleurprofiel.",
+      "notCmyk": "de kleurruimte is geen CMYK.",
+      "notPrinter": "het is geen uitvoerprofiel (printer).",
+      "unreadable": "het bestand is niet te lezen."
+    },
+    "featureName": "CMYK-omzetting",
+    "converting": "Kleuren omzetten naar CMYK…",
+    "convertingPages": "Kleuren omzetten naar CMYK… pagina {{done}} van {{total}}",
+    "writing": "PDF/X schrijven…",
+    "failed": "Omzetten naar CMYK is mislukt: {{reason}}",
+    "failReasons": {
+      "encrypted": "het document is versleuteld.",
+      "unreadable": "het document is niet te lezen.",
+      "transform": "met dit profiel is geen kleuromzetting te maken."
+    },
+    "reportTitle": "PDF/X opgeslagen. Kleuren omgezet naar CMYK met “{{profile}}”.",
+    "reportLine": "{{kind}}: {{converted}} omgezet",
+    "reportLineSkipped": "{{kind}}: {{converted}} omgezet, {{skipped}} niet omgezet ({{reasons}})",
+    "kinds": {
+      "colourOperators": "Kleuren in tekening en tekst",
+      "colourSpaces": "Benoemde kleurruimten",
+      "images": "Afbeeldingen",
+      "inlineImages": "Ingebedde afbeeldingen",
+      "shadings": "Kleurverlopen",
+      "transparencyGroups": "Transparantiegroepen",
+      "contentStreams": "Inhoudsstromen"
+    },
+    "skipReasons": {
+      "malformed": "onjuist opgebouwd",
+      "decodeFailed": "niet te decoderen",
+      "unsupportedFilter": "compressie niet ondersteund",
+      "jpeg2000": "JPEG 2000",
+      "colourKeyMask": "kleursleutelmasker",
+      "bitsPerComponent": "bitdiepte niet ondersteund",
+      "tooLarge": "te groot",
+      "encodeFailed": "niet te schrijven",
+      "shadingType": "mesh- of functieverloop",
+      "functionType": "verloopfunctie niet ondersteund",
+      "separationRgbAlternate": "steunkleur met een RGB-alternatief",
+      "unreadable": "niet te lezen"
+    },
+    "nothing": "Er is geen RGB-kleur gevonden; er hoefde niets omgezet te worden.",
+    "stillRgb": "Wat niet is omgezet, is nog RGB; een controle op alleen-CMYK (zoals PDF/X-1a) zal dat melden.",
+    "growth": "Het bestand groeide van {{before}} naar {{after}} ({{factor}}×): omgezette afbeeldingen worden opnieuw opgeslagen en het drukprofiel wordt ingesloten."
   },
   "extensions": "Extensies",
   "extensionsPanel": {

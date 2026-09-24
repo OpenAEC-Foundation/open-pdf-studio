@@ -10,209 +10,43 @@
 //   • an /Info dictionary with a defined /Trapped value + document title.
 //
 // Chosen conformance: PDF/X-3:2002 (default) and PDF/X-4.
-// PDF/X-3 is deliberately preferred over X-1a because X-1a is CMYK/grayscale
-// only, whereas pdf-lib cannot convert the source PDF's existing RGB content to
-// CMYK. X-3 permits calibrated RGB via an ICC-based OutputIntent, so a
-// pragmatic, self-contained export is achievable without a licensed CMYK
-// profile.
 //
-// ICC profile: a compact sRGB (IEC 61966-2.1 primaries / D50) ICC v2 display
-// profile is generated in-code (buildSrgbIccProfile). It is authored here from
-// the open ISO 15076-1 / ICC.1 byte layout, so it carries no third-party
-// licence. This keeps the export fully self-contained (no shipped binary asset).
+// Output profile (#422), chosen in the export panel:
+//   • "sRGB — no conversion" (default): a compact sRGB ICC v2 display profile
+//     generated in-code (buildSrgbIccProfile, in pdfx-enrich.js) becomes the
+//     output intent and nothing is converted. Byte for byte the export as it
+//     was before #422.
+//   • A CMYK printing profile (from the system colour folder or a chosen
+//     .icc/.icm file): the Rust side (crate open-pdf-cmyk, Little CMS) first
+//     converts RGB content to CMYK — content streams, Form XObjects,
+//     annotation appearances, tiling patterns, images, axial and radial
+//     gradients with exponential or stitching functions, transparency groups —
+//     and then that profile (/N 4) becomes the output intent. The export ends
+//     with a report of what was converted and what was not, with the reason.
+//   No CMYK profile is shipped: the user brings the profile of the print shop.
 //
 // KNOWN LIMITATIONS (documented, honest):
-//   • The embedded output-intent profile is an RGB display profile. A strict
-//     CMYK print workflow should substitute a licensed CMYK printer profile;
-//     that substitution is out of scope here.
-//   • Existing RGB (or other) images inside the source PDF are NOT colour-
-//     converted to CMYK.
+//   • Not converted, and reported as such: mesh and function-based gradients,
+//     gradients with sampled or PostScript functions, Separation/DeviceN
+//     colour with an RGB alternate, JPEG 2000 and LZW-compressed images,
+//     images with a colour-key mask. They stay RGB.
+//   • Annotation colour entries (/C, /IC) and default appearance strings are
+//     left alone; printing uses the appearance streams, which are converted.
 //   • Standard-14 fonts used by app-drawn appearances are not embedded, which a
 //     strict PDF/X preflight flags. For guaranteed conformance, rasterise the
 //     document first (Export → Raster PDF) and then run PDF/X export on that.
 //   • Full external preflight validation is out of scope.
+//   • The CMYK conversion needs the desktop app; the browser build shows the
+//     one "desktop only" message.
 
 import { getActiveDocument } from '../core/state.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
-import { isTauri, readBinaryFile, writeBinaryFile, saveFileDialog } from '../core/platform.js';
+import { isTauri, invoke, readBinaryFile, writeBinaryFile, saveFileDialog } from '../core/platform.js';
+import { meldAlleenBureaublad, vangAlleenBureaublad } from '../core/webfuncties.js';
 import { getCachedPdfBytes } from './loader.js';
-import { PDFDocument, PDFName, PDFString } from 'pdf-lib';
+import { buildPdfx, conversionErrorMessage, formatCmykReport } from './pdfx-cmyk.js';
 import { showMessage } from '../bridge.js';
 import i18next from '../i18n/config.js';
-
-// ── ICC profile generation ─────────────────────────────────────────────────
-// Build a minimal but structurally valid sRGB (IEC 61966-2.1) ICC v2 profile.
-// Layout: 128-byte header + tag table + tag data. Required tags for an RGB
-// display profile: desc, cprt, wtpt, rXYZ, gXYZ, bXYZ, rTRC, gTRC, bTRC.
-export function buildSrgbIccProfile() {
-  const SIZE = 468;
-  const buf = new Uint8Array(SIZE);
-  const dv = new DataView(buf.buffer);
-
-  const writeStr = (off, s) => { for (let i = 0; i < s.length; i++) buf[off + i] = s.charCodeAt(i); };
-  const u32 = (off, v) => dv.setUint32(off, v >>> 0, false);
-  const s15f16 = (off, v) => dv.setInt32(off, Math.round(v * 65536), false);
-
-  // ── Header (128 bytes) ──
-  u32(0, SIZE);             // profile size
-  u32(4, 0);               // preferred CMM (none)
-  u32(8, 0x02400000);      // profile version 2.4.0
-  writeStr(12, 'mntr');    // device class: display
-  writeStr(16, 'RGB ');    // data colour space
-  writeStr(20, 'XYZ ');    // PCS
-  // creation date/time (12 bytes): 2024-01-01T00:00:00
-  dv.setUint16(24, 2024, false); dv.setUint16(26, 1, false); dv.setUint16(28, 1, false);
-  writeStr(36, 'acsp');    // profile file signature
-  u32(40, 0);              // primary platform (none)
-  u32(44, 0);              // profile flags
-  u32(48, 0);              // device manufacturer
-  u32(52, 0);              // device model
-  // attributes (8 bytes) left zero
-  u32(64, 0);              // rendering intent: perceptual
-  // PCS illuminant (D50) at offset 68
-  s15f16(68, 0.9642); s15f16(72, 1.0); s15f16(76, 0.8249);
-  u32(80, 0);              // profile creator
-  // profile ID (16 bytes) + reserved (28 bytes) left zero
-
-  // ── Tag table ──
-  const TAG_COUNT = 9;
-  u32(128, TAG_COUNT);
-  const OFF = { desc: 240, cprt: 348, wtpt: 372, rXYZ: 392, gXYZ: 412, bXYZ: 432, trc: 452 };
-  const entries = [
-    ['desc', OFF.desc, 108],
-    ['cprt', OFF.cprt, 24],
-    ['wtpt', OFF.wtpt, 20],
-    ['rXYZ', OFF.rXYZ, 20],
-    ['gXYZ', OFF.gXYZ, 20],
-    ['bXYZ', OFF.bXYZ, 20],
-    ['rTRC', OFF.trc, 16],   // three TRC tags share one curve
-    ['gTRC', OFF.trc, 16],
-    ['bTRC', OFF.trc, 16],
-  ];
-  let te = 132;
-  for (const [sig, off, size] of entries) { writeStr(te, sig); u32(te + 4, off); u32(te + 8, size); te += 12; }
-
-  // ── desc (textDescriptionType) ──
-  {
-    const o = OFF.desc;
-    writeStr(o, 'desc');
-    const text = 'sRGB IEC61966-2.1';
-    u32(o + 8, text.length + 1);           // ASCII count incl. null
-    writeStr(o + 12, text);                // null already zero
-    // unicode + scriptcode sections left zero
-  }
-  // ── cprt (textType) ──
-  {
-    const o = OFF.cprt;
-    writeStr(o, 'text');
-    writeStr(o + 8, 'Public domain');      // null-terminated by zero fill
-  }
-  // ── XYZ tags ──
-  const xyz = (o, X, Y, Z) => { writeStr(o, 'XYZ '); s15f16(o + 8, X); s15f16(o + 12, Y); s15f16(o + 16, Z); };
-  xyz(OFF.wtpt, 0.9642, 1.0, 0.8249);       // D50 white point
-  xyz(OFF.rXYZ, 0.43607, 0.22249, 0.01392); // sRGB red colorant (D50-adapted)
-  xyz(OFF.gXYZ, 0.38515, 0.71687, 0.09708); // sRGB green colorant
-  xyz(OFF.bXYZ, 0.14307, 0.06061, 0.71410); // sRGB blue colorant
-  // ── TRC (curveType, single gamma value ≈ 2.2) ──
-  {
-    const o = OFF.trc;
-    writeStr(o, 'curv');
-    u32(o + 8, 1);                          // one entry → gamma
-    dv.setUint16(o + 12, Math.round(2.2 * 256), false); // u8Fixed8 gamma
-  }
-
-  return buf;
-}
-
-// ── XMP metadata ───────────────────────────────────────────────────────────
-// Build a self-contained XMP packet with the PDF/X identification schema.
-// Uses the NPES pdfxid namespace and the Dublin Core namespace only, so it
-// carries the PDF/X version + title without depending on other schemas.
-function buildPdfxXmp(versionString, title) {
-  const esc = (s) => String(s || '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  return `<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-  <rdf:Description rdf:about="" xmlns:pdfxid="http://www.npes.org/pdfx/ns/id/">
-    <pdfxid:GTS_PDFXVersion>${esc(versionString)}</pdfxid:GTS_PDFXVersion>
-  </rdf:Description>
-  <rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/">
-    <dc:format>application/pdf</dc:format>
-    <dc:title><rdf:Alt><rdf:li xml:lang="x-default">${esc(title)}</rdf:li></rdf:Alt></dc:title>
-  </rdf:Description>
-</rdf:RDF>
-<?xpacket end="w"?>`;
-}
-
-// Map the conformance key chosen in the UI to the GTS_PDFXVersion string.
-function versionStringFor(conformance) {
-  switch (conformance) {
-    case 'X-4': return 'PDF/X-4';
-    case 'X-3':
-    default:    return 'PDF/X-3:2002';
-  }
-}
-
-// ── Core enrichment ────────────────────────────────────────────────────────
-// Take a loaded pdf-lib document and add all PDF/X structures in place.
-export function enrichForPdfX(pdfDocLib, { conformance = 'X-3', title = 'Document' } = {}) {
-  const context = pdfDocLib.context;
-  const catalog = pdfDocLib.catalog;
-  const versionString = versionStringFor(conformance);
-
-  // 1. OutputIntent with embedded ICC profile.
-  const iccBytes = buildSrgbIccProfile();
-  const iccStream = context.stream(iccBytes, {
-    N: 3, // RGB → 3 components
-  });
-  const iccRef = context.register(iccStream);
-  const outputIntents = context.obj([
-    {
-      Type: 'OutputIntent',
-      S: 'GTS_PDFX',
-      OutputConditionIdentifier: PDFString.of('sRGB IEC61966-2.1'),
-      Info: PDFString.of('sRGB IEC61966-2.1'),
-      RegistryName: PDFString.of('http://www.color.org'),
-      DestOutputProfile: iccRef,
-    },
-  ]);
-  catalog.set(PDFName.of('OutputIntents'), outputIntents);
-
-  // 2. XMP metadata stream (uncompressed so preflight tools can read it).
-  const xmp = buildPdfxXmp(versionString, title);
-  // Als UTF-8-bytes: een string kapt pdf-lib per teken af op de lage byte
-  // (niet-ASCII-titel, en U+FEFF in xpacket begin werd 0xFF).
-  const metaStream = context.stream(new TextEncoder().encode(xmp), { Type: 'Metadata', Subtype: 'XML' });
-  const metaRef = context.register(metaStream);
-  catalog.set(PDFName.of('Metadata'), metaRef);
-
-  // 3. TrimBox on every page (PDF/X requires a TrimBox or ArtBox). Fall back to
-  //    the CropBox, which itself falls back to the MediaBox in pdf-lib.
-  const pages = pdfDocLib.getPages();
-  for (const page of pages) {
-    const box = page.getCropBox(); // {x, y, width, height}
-    page.setTrimBox(box.x, box.y, box.width, box.height);
-  }
-
-  // 4. /Info dictionary: title, producer, dates and a DEFINED /Trapped value
-  //    (PDF/X forbids /Trapped /Unknown).
-  const now = new Date();
-  try {
-    pdfDocLib.setTitle(title);
-    pdfDocLib.setProducer('Open PDF Studio');
-    pdfDocLib.setModificationDate(now);
-    if (!context.lookup(context.trailerInfo.Info)?.get?.(PDFName.of('CreationDate'))) {
-      pdfDocLib.setCreationDate(now);
-    }
-  } catch (_) { /* setters best-effort */ }
-  const infoRef = context.trailerInfo.Info;
-  const infoDict = infoRef ? context.lookup(infoRef) : null;
-  if (infoDict && typeof infoDict.set === 'function') {
-    infoDict.set(PDFName.of('Trapped'), PDFName.of('False'));
-  }
-
-  return { versionString };
-}
 
 // ── Byte acquisition ───────────────────────────────────────────────────────
 // Get the current document's PDF bytes, mirroring saver.js: cache → memory key
@@ -226,15 +60,29 @@ async function getCurrentPdfBytes(activeDoc) {
   return bytes;
 }
 
+// Voortgang van de Rust-kant (pagina's) in de laadmelding.
+async function luisterNaarOmzetting(onProgress) {
+  const ev = window.__TAURI__?.event;
+  if (!ev?.listen) return () => {};
+  const stop = await ev.listen('pdfx-cmyk-progress', (e) => onProgress(e.payload));
+  return () => { try { stop(); } catch { /* al gestopt */ } };
+}
+
 // ── Public entry point ─────────────────────────────────────────────────────
 // Export the active document as a PDF/X file (Save As — original untouched).
-export async function exportAsPdfX({ conformance = 'X-3' } = {}) {
+// `profilePath` null = sRGB without conversion; otherwise a CMYK printing
+// profile and a rendering intent ('relative' or 'perceptual').
+export async function exportAsPdfX({ conformance = 'X-3', profilePath = null, intent = 'relative' } = {}) {
+  const t = i18next.t.bind(i18next);
   const activeDoc = getActiveDocument();
   if (!activeDoc?.pdfDoc) {
-    showMessage(i18next.t('noPdfLoaded', { defaultValue: 'No PDF loaded.' }));
+    showMessage(t('noPdfLoaded', { defaultValue: 'No PDF loaded.' }));
     return false;
   }
-  if (!isTauri()) return false;
+  if (!isTauri()) {
+    await meldAlleenBureaublad(t(profilePath ? 'appMenu:pdfxCmyk.featureName' : 'appMenu:exportPanel.exportPdfx'));
+    return false;
+  }
 
   const baseName = (activeDoc.fileName || 'document').replace(/\.pdf$/i, '');
   const suffix = conformance === 'X-4' ? 'PDFX-4' : 'PDFX-3';
@@ -245,21 +93,48 @@ export async function exportAsPdfX({ conformance = 'X-3' } = {}) {
   ]);
   if (!outputPath) return false;
 
-  showLoading('Exporting PDF/X...');
+  showLoading(profilePath ? t('appMenu:pdfxCmyk.converting') : 'Exporting PDF/X...');
+  let stopLuisteren = () => {};
+  let result;
   try {
     const existingBytes = await getCurrentPdfBytes(activeDoc);
     if (!existingBytes) {
-      showMessage(i18next.t('failedToSavePdf', { error: 'no source bytes', defaultValue: 'Could not read the source PDF.' }));
+      showMessage(t('failedToSavePdf', { error: 'no source bytes', defaultValue: 'Could not read the source PDF.' }));
       return false;
     }
+    const sourceBytes = existingBytes instanceof Uint8Array ? existingBytes : new Uint8Array(existingBytes);
 
-    const pdfDocLib = await PDFDocument.load(existingBytes);
-    enrichForPdfX(pdfDocLib, { conformance, title: baseName });
+    if (profilePath) {
+      stopLuisteren = await luisterNaarOmzetting(({ done, total }) => {
+        showLoading(t('appMenu:pdfxCmyk.convertingPages', { done, total }));
+      });
+    }
+    try {
+      result = await buildPdfx(
+        sourceBytes,
+        { conformance, title: baseName, profilePath, intent },
+        {
+          invoke,
+          onPhase: (phase) => {
+            if (phase === 'writing') {
+              stopLuisteren();
+              showLoading(t('appMenu:pdfxCmyk.writing'));
+            }
+          },
+        },
+      );
+    } catch (error) {
+      if (await vangAlleenBureaublad(error, t('appMenu:pdfxCmyk.featureName'))) return false;
+      // De Rust-kant wijst af met een code (tekst); al het andere is een echte fout.
+      if (typeof error === 'string') {
+        console.error('PDF/X CMYK conversion failed:', error);
+        showMessage(conversionErrorMessage(t, error), t('appMenu:exportPanel.exportPdfx'));
+        return false;
+      }
+      throw error;
+    }
 
-    // useObjectStreams:false keeps the file at the classic (PDF 1.4-style)
-    // cross-reference table PDF/X-3:2002 expects.
-    const pdfBytes = await pdfDocLib.save({ useObjectStreams: false });
-    await writeBinaryFile(outputPath, new Uint8Array(pdfBytes));
+    await writeBinaryFile(outputPath, new Uint8Array(result.pdfBytes));
 
     // Open the exported result in a new tab so the user can inspect it.
     try {
@@ -270,12 +145,25 @@ export async function exportAsPdfX({ conformance = 'X-3' } = {}) {
     } catch (e) {
       console.error('Could not open PDF/X result in a new tab:', e);
     }
+
+    if (result.conversion) {
+      showMessage(
+        formatCmykReport(t, {
+          report: result.conversion.report,
+          profileName: result.conversion.profileName,
+          sizeBefore: sourceBytes.length,
+          sizeAfter: result.pdfBytes.length,
+        }),
+        t('appMenu:exportPanel.exportPdfx'),
+      );
+    }
     return outputPath;
   } catch (error) {
     console.error('Error exporting PDF/X:', error);
-    showMessage(i18next.t('failedToSavePdf', { error: error?.message || String(error), defaultValue: 'Failed to export PDF/X.' }));
+    showMessage(t('failedToSavePdf', { error: error?.message || String(error), defaultValue: 'Failed to export PDF/X.' }));
     return false;
   } finally {
+    stopLuisteren();
     hideLoading();
   }
 }
