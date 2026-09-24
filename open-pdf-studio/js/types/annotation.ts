@@ -38,6 +38,8 @@ export interface AnnotationBase {
   replies?: AnnotationReply[];
   status?: string;
   rotation?: number;
+  /** Annotatielaag (#468): id uit doc.annotationLayers; ontbreekt = standaardlaag. */
+  layer?: string;
 }
 
 export interface RectAnnotation extends AnnotationBase {
