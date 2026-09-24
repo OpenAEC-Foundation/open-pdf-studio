@@ -59,6 +59,12 @@ export {
   applyToSelected,
 } from './solid/stores/formatStore.js';
 
+// ============= ANNOTATIELAGEN (#468) =============
+export {
+  refreshAnnotationLayers,
+  defaultLayerName as annotationDefaultLayerName,
+} from './solid/stores/annotationLayersStore.js';
+
 // ============= LEFT PANEL =============
 export {
   switchToLeftPanelTab,

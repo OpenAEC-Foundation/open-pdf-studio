@@ -11,6 +11,7 @@ import {
   setAnnotationEmptyMessage as setEmptyMessage, annotationSortMode as sortMode,
   annotationFilterMode as filterMode, setAnnotationFilterMode as setFilterMode,
   isAnnotationStatusHidden,
+  refreshAnnotationLayers,
 } from '../../bridge.js';
 
 const statusColors = {
@@ -51,6 +52,8 @@ export function updateAnnotationsList(filterValue) {
   import('../../solid/stores/elementVisibilityStore.js')
     .then(m => m.refreshElementTypes())
     .catch(() => { /* store nog niet geladen */ });
+  // Het lagenpaneel telt markeringen per laag (#468): zelfde aanleiding.
+  refreshAnnotationLayers();
 
   // Use provided filter or fall back to stored filter mode
   if (filterValue !== undefined) {

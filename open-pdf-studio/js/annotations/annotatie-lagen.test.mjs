@@ -31,6 +31,7 @@ import {
   isLayerLocked,
   isLayerPrintable,
   layerDisplayName,
+  layerRows,
 } from './annotatie-lagen.js';
 
 const leegDoc = () => ({ annotations: [] });
@@ -306,4 +307,23 @@ test('een eigen laag, of een gewijzigde standaardlaag, moet wel bewaard worden',
   setCurrentLayer(doc3, getLayers(doc3)[1].id);
   deleteLayer(doc3, getLayers(doc3)[1].id);
   assert.equal(layersInUse(doc3), false, 'alles weer terug = niets te bewaren');
+});
+
+// --- wat het paneel toont ----------------------------------------------------
+
+test('de regels van het paneel: naam, aantal, schakelaars en de huidige laag', () => {
+  const doc = leegDoc();
+  const a = addLayer(doc, { name: 'Constructie', color: '#ff0000', locked: true }).layer;
+  addLayer(doc, { name: 'Ronde 2', visible: false, printable: false });
+  doc.annotations.push({ id: '1', layer: a.id }, { id: '2', layer: a.id }, { id: '3' }, { id: '4', layer: 'weg' });
+  setCurrentLayer(doc, a.id);
+  const regels = layerRows(doc, 'Standaard');
+  assert.deepEqual(regels.map((r) => [r.name, r.count, r.visible, r.printable, r.locked, r.current, r.isDefault]), [
+    ['Standaard', 2, true, true, false, false, true],
+    ['Constructie', 2, true, true, true, true, false],
+    ['Ronde 2', 0, false, false, false, false, false],
+  ]);
+  assert.equal(regels[1].color, '#ff0000');
+  assert.equal(regels[1].id, a.id);
+  assert.deepEqual(layerRows(null, 'Standaard').map((r) => r.name), ['Standaard']);
 });

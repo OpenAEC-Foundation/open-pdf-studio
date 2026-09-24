@@ -317,3 +317,23 @@ export function layerDisplayName(laag, defaultName) {
   if (!laag) return '';
   return laag.id === DEFAULT_LAYER_ID ? (defaultName || 'Default') : laag.name;
 }
+
+/**
+ * De regels van het lagenpaneel: per laag de weergavenaam, het aantal
+ * markeringen, de schakelaars en of het de huidige laag is.
+ */
+export function layerRows(doc, defaultName) {
+  const tel = countByLayer(doc);
+  const huidig = currentLayerId(doc);
+  return getLayers(doc).map((l) => ({
+    id: l.id,
+    name: layerDisplayName(l, defaultName),
+    color: l.color,
+    visible: l.visible,
+    printable: l.printable,
+    locked: l.locked,
+    count: tel.get(l.id) || 0,
+    current: l.id === huidig,
+    isDefault: l.id === DEFAULT_LAYER_ID,
+  }));
+}
