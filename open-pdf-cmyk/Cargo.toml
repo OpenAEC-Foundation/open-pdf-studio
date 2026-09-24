@@ -12,6 +12,9 @@ lopdf = "0.34"
 flate2 = "1"
 # Alleen de JPEG-decoder, voor afbeeldingen met DCTDecode.
 image = { version = "0.25", default-features = false, features = ["jpeg"] }
+# CMYK-JPEG schrijven (libjpeg-turbo, met cmake gebouwd); zelfde crate en
+# features als open-pdf-render, dus geen tweede bouw van de C-bibliotheek.
+turbojpeg = { version = "1", default-features = false, features = ["cmake"] }
 # Little CMS (MIT), meegebouwd vanuit de bron: de echte RGB→CMYK-transformatie.
 lcms2 = "6"
 serde = { version = "1", features = ["derive"] }

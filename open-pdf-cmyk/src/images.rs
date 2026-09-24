@@ -220,9 +220,42 @@ pub fn convert_palette(lookup: &[u8], hival: usize, t: &dyn CmykTransform) -> Ve
 /// (RGB en CMYK samen 7 bytes per pixel) zouden gigabytes worden.
 const MAX_PIXELS: u64 = 256 * 1024 * 1024;
 
+/// Kwaliteit van de CMYK-JPEG voor afbeeldingen die als JPEG binnenkwamen.
+pub const JPEG_QUALITY: i32 = 92;
+
+/// Een omgezette afbeelding: CMYK, 8 bits, ongecomprimeerd.
+struct CmykPixels {
+    data: Vec<u8>,
+    width: usize,
+    height: usize,
+    /// De bron was een JPEG: dan gaat hij ook als JPEG terug. Als Flate zou
+    /// een foto vele malen groter worden.
+    from_jpeg: bool,
+}
+
+/// CMYK-JPEG in de Adobe-vorm: de waarden omgekeerd opgeslagen (255 = geen
+/// inkt), met de APP14-markering die libjpeg-turbo bij CMYK zelf schrijft, en
+/// in het afbeeldingswoordenboek `/Decode [1 0 1 0 1 0 1 0]` om terug te keren.
+/// Zo ziet vrijwel elke CMYK-JPEG in bestaande PDF's eruit. PDF-lezers keren
+/// een CMYK-JPEG niet uit zichzelf om (nagegaan met PDFium en PDF.js); ze
+/// volgen `/Decode`.
+fn encode_cmyk_jpeg(cmyk: &[u8], width: usize, height: usize) -> Result<Vec<u8>, &'static str> {
+    let inverted: Vec<u8> = cmyk.iter().map(|v| 255 - v).collect();
+    let image = turbojpeg::Image {
+        pixels: &inverted[..],
+        width,
+        pitch: width * 4,
+        height,
+        format: turbojpeg::PixelFormat::CMYK,
+    };
+    turbojpeg::compress(image, JPEG_QUALITY, turbojpeg::Subsamp::None)
+        .map(|buf| buf.to_vec())
+        .map_err(|_| "encodeFailed")
+}
+
 /// De pixels van een RGB-afbeelding als CMYK, 8 bits, ongecomprimeerd.
 /// `dict` gebruikt de volledige sleutelnamen.
-fn cmyk_pixels(dict: &Dictionary, content: &[u8], t: &dyn CmykTransform, inline: bool) -> Result<Vec<u8>, &'static str> {
+fn cmyk_pixels(dict: &Dictionary, content: &[u8], t: &dyn CmykTransform, inline: bool) -> Result<CmykPixels, &'static str> {
     if matches!(dict.get(b"Mask"), Ok(Object::Array(_))) {
         return Err("colourKeyMask");
     }
@@ -237,7 +270,9 @@ fn cmyk_pixels(dict: &Dictionary, content: &[u8], t: &dyn CmykTransform, inline:
     let bpc = int(b"BitsPerComponent").unwrap_or(8);
     let (filters, parms) = filters_of(dict, inline);
     let decode = decode_array(dict);
-    let rgb = match decode_filters(content, &filters, &parms)? {
+    let decoded = decode_filters(content, &filters, &parms)?;
+    let from_jpeg = matches!(decoded, Decoded::Jpeg(_));
+    let rgb = match decoded {
         Decoded::Raw(samples) => unpack_rgb8(&samples, w, h, bpc, decode)?,
         Decoded::Jpeg(bytes) => {
             let (jw, jh, mut px) = decode_jpeg(&bytes)?;
@@ -255,7 +290,7 @@ fn cmyk_pixels(dict: &Dictionary, content: &[u8], t: &dyn CmykTransform, inline:
     };
     let mut cmyk = vec![0u8; w * h * 4];
     t.rgb8_to_cmyk8(&rgb, &mut cmyk);
-    Ok(cmyk)
+    Ok(CmykPixels { data: cmyk, width: w, height: h, from_jpeg })
 }
 
 /// `/Decode` voor drie componenten, of `None` als hij ontbreekt of de
@@ -335,14 +370,21 @@ pub(crate) fn deflate(data: &[u8]) -> Vec<u8> {
 /// DecodeParms, Decode en Mask. Geeft het nieuwe woordenboek en de nieuwe
 /// (Flate-gecomprimeerde) inhoud.
 pub fn convert_rgb_image(dict: &Dictionary, content: &[u8], t: &dyn CmykTransform) -> Result<(Dictionary, Vec<u8>), &'static str> {
-    let cmyk = cmyk_pixels(dict, content, t, false)?;
-    let compressed = deflate(&cmyk);
+    let px = cmyk_pixels(dict, content, t, false)?;
+    let (filter, compressed) = if px.from_jpeg {
+        ("DCTDecode", encode_cmyk_jpeg(&px.data, px.width, px.height)?)
+    } else {
+        ("FlateDecode", deflate(&px.data))
+    };
     let mut nd = dict.clone();
     nd.set("ColorSpace", Object::Name(b"DeviceCMYK".to_vec()));
     nd.set("BitsPerComponent", 8);
-    nd.set("Filter", Object::Name(b"FlateDecode".to_vec()));
+    nd.set("Filter", Object::Name(filter.as_bytes().to_vec()));
     nd.remove(b"DecodeParms");
     nd.remove(b"Decode");
+    if px.from_jpeg {
+        nd.set("Decode", Object::Array([1, 0, 1, 0, 1, 0, 1, 0].into_iter().map(Object::Integer).collect()));
+    }
     nd.set("Length", compressed.len() as i64);
     Ok((nd, compressed))
 }
@@ -372,8 +414,10 @@ pub fn convert_inline_rgb(dict: &Dictionary, data: &[u8], t: &dyn CmykTransform)
     for (k, v) in dict.iter() {
         full.set(full_key(k).to_vec(), v.clone());
     }
-    let cmyk = cmyk_pixels(&full, data, t, true)?;
-    let hex: String = deflate(&cmyk).iter().map(|b| format!("{b:02X}")).collect();
+    // Ingebed altijd als hex-Flate, ook uit een JPEG: klein, en zonder
+    // binaire bytes waarin een lezer een valse `EI` zou kunnen vinden.
+    let px = cmyk_pixels(&full, data, t, true)?;
+    let hex: String = deflate(&px.data).iter().map(|b| format!("{b:02X}")).collect();
     let mut out = b"BI".to_vec();
     for (k, v) in dict.iter() {
         let skip = matches!(full_key(k), b"ColorSpace" | b"Filter" | b"DecodeParms" | b"Decode" | b"BitsPerComponent" | b"L" | b"Length");
@@ -600,21 +644,60 @@ mod tests {
         assert_eq!(convert_rgb_image(&d, &[0, 0, 0], &NaiveCmyk).err(), Some("colourKeyMask"));
     }
 
-    #[test]
-    fn jpeg_image_is_decoded_and_rewritten_as_flate() {
+    fn red_jpeg(size: u32) -> Vec<u8> {
         let mut jpeg = Vec::new();
-        let pixels: Vec<u8> = (0..64).flat_map(|_| [255u8, 0, 0]).collect();
+        let pixels: Vec<u8> = (0..size * size).flat_map(|_| [255u8, 0, 0]).collect();
         image::codecs::jpeg::JpegEncoder::new_with_quality(&mut jpeg, 100)
-            .encode(&pixels, 8, 8, image::ExtendedColorType::Rgb8)
+            .encode(&pixels, size, size, image::ExtendedColorType::Rgb8)
             .unwrap();
+        jpeg
+    }
+
+    #[test]
+    fn jpeg_image_is_written_back_as_an_adobe_cmyk_jpeg() {
         let mut d = image_dict(8, 8, 8);
         d.set("Filter", Object::Name(b"DCTDecode".to_vec()));
-        let (nd, content) = convert_rgb_image(&d, &jpeg, &NaiveCmyk).unwrap();
-        assert_eq!(nd.get(b"Filter").unwrap(), &Object::Name(b"FlateDecode".to_vec()));
-        let cmyk = inflate(&content);
-        assert_eq!(cmyk.len(), 8 * 8 * 4);
-        // JPEG is verliesgevend: rood blijft dicht bij (0, 1, 1, 0).
-        assert!(cmyk[0] < 10 && cmyk[1] > 240 && cmyk[2] > 240 && cmyk[3] < 10, "{:?}", &cmyk[..4]);
+        d.set("DecodeParms", Object::Dictionary(Dictionary::new()));
+        let (nd, content) = convert_rgb_image(&d, &red_jpeg(8), &NaiveCmyk).unwrap();
+        assert_eq!(nd.get(b"Filter").unwrap(), &Object::Name(b"DCTDecode".to_vec()));
+        assert_eq!(nd.get(b"ColorSpace").unwrap(), &Object::Name(b"DeviceCMYK".to_vec()));
+        assert!(nd.get(b"DecodeParms").is_err());
+        // De Adobe-vorm: omgekeerd opgeslagen, en /Decode keert terug. PDF-
+        // lezers keren een CMYK-JPEG niet zelf om; ze volgen /Decode.
+        let decode: Vec<i64> = nd.get(b"Decode").unwrap().as_array().unwrap().iter().map(|o| o.as_i64().unwrap()).collect();
+        assert_eq!(decode, vec![1, 0, 1, 0, 1, 0, 1, 0]);
+        assert_eq!(nd.get(b"Length").unwrap().as_i64().unwrap(), content.len() as i64);
+        assert!(content.windows(5).any(|w| w == b"Adobe"), "APP14-markering");
+        let img = turbojpeg::decompress(&content, turbojpeg::PixelFormat::CMYK).unwrap();
+        assert_eq!((img.width, img.height), (8, 8));
+        let px = &img.pixels[..4];
+        // Rood is (0, 1, 1, 0); omgekeerd opgeslagen is dat (255, 0, 0, 255).
+        assert!(px[0] > 245 && px[1] < 10 && px[2] < 10 && px[3] > 245, "{px:?}");
+    }
+
+    #[test]
+    fn a_photo_like_jpeg_stays_small() {
+        // Vloeiende verlopen met wat ruis, zoals een foto: Flate kan daar
+        // weinig mee, JPEG wel.
+        let (w, h) = (128u32, 128u32);
+        let mut seed = 7u32;
+        let pixels: Vec<u8> = (0..w * h)
+            .flat_map(|i| {
+                seed = seed.wrapping_mul(1_103_515_245).wrapping_add(12_345);
+                let noise = (seed >> 24) as u8 % 12;
+                let (x, y) = ((i % w) as u8, (i / w) as u8);
+                [x.wrapping_mul(2).wrapping_add(noise), y.wrapping_mul(2), (x / 2 + y / 2).wrapping_add(noise)]
+            })
+            .collect();
+        let mut jpeg = Vec::new();
+        image::codecs::jpeg::JpegEncoder::new_with_quality(&mut jpeg, 95)
+            .encode(&pixels, w, h, image::ExtendedColorType::Rgb8)
+            .unwrap();
+        let mut d = image_dict(w as i64, h as i64, 8);
+        d.set("Filter", Object::Name(b"DCTDecode".to_vec()));
+        let (_, content) = convert_rgb_image(&d, &jpeg, &NaiveCmyk).unwrap();
+        let raw = (w * h * 4) as usize;
+        assert!(content.len() * 4 < raw, "{} van {raw} bytes", content.len());
     }
 
     #[test]
