@@ -19,11 +19,15 @@
 
 import {
   SPARING_SOORTEN, SPARING_SYMBOOL, SPARING_STANDAARD,
-  normaliseerSparing, wandMetSparingen, controleerSparing, sparingSymboolVak,
+  normaliseerSparing, wandMetSparingen, controleerSparing, sparingPlaatsing,
 } from './sparing.js';
 import { ruimtenUitWanden, ruimteBijZaad, ruimteLabel } from './ruimte.js';
 import { maatketting, herberekenMaten, kettingUitWandstukken } from './maatvoering.js';
 import { wandAs, projecteer } from '../annotations/wand-geometrie.js';
+import { kozijnIndeling, kozijnMaten, vakOffsetMm } from './kozijn.js';
+import {
+  normaliseerPakket, kozijnInPakket, laagSparingMm, laagLijnen, zoekLaagHoek,
+} from './spouwmuur.js';
 
 export const FLOORPLAN_ACTIES = Object.freeze(['inspect', 'wall', 'rooms', 'dimensions']);
 
@@ -95,6 +99,9 @@ async function actieWand(params, omgeving, page) {
   if (dikteMm <= 0) return fout('thicknessMm must be > 0');
   const pxPerMm = schaalOp(omgeving, page, start);
   if (!pxPerMm) return fout('no measurement scale on this page - set it with app_set_measure_scale first');
+  if (Array.isArray(params?.layers) && params.layers.length) {
+    return actieGelaagdeWand(params, omgeving, page, pxPerMm);
+  }
 
   const wand = {
     id: params?.wallId || `run:${Math.round(start.x)}:${Math.round(start.y)}`,
@@ -107,20 +114,10 @@ async function actieWand(params, omgeving, page) {
   // weigering dan een half getekende gevel.
   const sparingen = [];
   const klachten = [];
+  const enkelPakket = normaliseerPakket([{ dikteMm, materiaal: params?.material || 'nen47-metselwerk-baksteen' }]);
   (params?.openings || []).forEach((o, i) => {
-    const soort = SOORT_VAN_KIND[o?.kind] || (SPARING_SOORTEN.includes(o?.kind) ? o.kind : 'deur');
-    const langs = getal(o?.alongMm);
-    const s = normaliseerSparing({
-      id: `opening-${i}`,
-      soort,
-      dagmaatMm: getal(o?.widthMm) ?? SPARING_STANDAARD[soort].dagmaatMm,
-      hartMm: langs ?? 0,
-      borstweringMm: getal(o?.sillMm),
-      hoogteMm: getal(o?.heightMm),
-      draairichting: o?.swing === 'rechts' || o?.swing === 'right' ? 'rechts' : 'links',
-    });
-    s.draaizijde = draaizijde(wand, o);
-    s.raamtype = o?.windowType || 'fixed';
+    const s = leesOpening(o, i, wand, enkelPakket);
+    const soort = s.soort;
     const controle = controleerSparing(wand, s, sparingen, pxPerMm, getal(params?.minPierMm) ?? 0);
     if (!controle.ok) klachten.push(`opening ${i} (${o?.kind || soort}): ${controle.reden}`);
     else sparingen.push(s);
@@ -182,55 +179,264 @@ export function draaizijde(wand, opening) {
   return opening?.openSide === 'right' ? -1 : 1;
 }
 
+const RAAMTYPEN = ['fixed', 'turn', 'pivot', 'tilt'];
+
 /**
- * Het kozijnsymbool in het gat. Een raam is de dag breed en de wand diep. Een
- * deur is de dag breed én diep (vierkant), met de scharnierlijn op het
- * wandvlak, zodat het draaisymbool de ruimte in zwaait; `draaizijde` kiest
- * aan welke kant van de wand dat is.
+ * Eén opening uit de MCP-invoer: de sparing (plaats langs de wand, maat)
+ * plus het kozijn in het wandpakket. `widthMm` is de kozijnmaat
+ * (buitenwerks); in een enkele wand is dat ook de sparing.
  */
-export function kozijnProps(wand, plaatsing, bron, pxPerMm) {
+function leesOpening(o, i, wand, pakket) {
+  const soort = SOORT_VAN_KIND[o?.kind] || (SPARING_SOORTEN.includes(o?.kind) ? o.kind : 'deur');
+  const langs = getal(o?.alongMm);
+  const s = normaliseerSparing({
+    id: `opening-${i}`,
+    soort,
+    dagmaatMm: getal(o?.widthMm) ?? SPARING_STANDAARD[soort].dagmaatMm,
+    hartMm: langs ?? 0,
+    borstweringMm: getal(o?.sillMm),
+    hoogteMm: getal(o?.heightMm),
+    draairichting: o?.swing === 'rechts' || o?.swing === 'right' ? 'rechts' : 'links',
+  });
+  s.draaizijde = draaizijde(wand, o);
+  s.raamtype = RAAMTYPEN.includes(o?.windowType) ? o.windowType : 'fixed';
+  // Leeg (niet opgegeven) blijft leeg, zodat de standaard geldt.
+  const maat = (v) => (v === undefined || v === null || v === '' ? undefined : (getal(v) ?? undefined));
+  const stijl = maat(o?.stileWidthMm);
+  const blad = maat(o?.leafThicknessMm);
+  s.kozijn = {
+    ...kozijnInPakket(pakket, {
+      positieMm: maat(o?.framePositionMm),
+      diepteMm: maat(o?.frameDepthMm),
+      aanslagMm: maat(o?.overlapMm),
+      spelingMm: maat(o?.clearanceMm),
+    }),
+    stijlBreedteMm: stijl > 0 ? stijl : 67,
+    deurbladDikteMm: blad > 0 ? blad : 40,
+  };
+  return s;
+}
+
+/**
+ * Het kozijnsymbool in het gat. Het symbool tekent het kozijn op ware
+ * grootte in de wand (stijlen met sponning, glas of deurblad met
+ * draaicirkel, zie kozijn.js); zijn vak beslaat de wand plus, bij een deur,
+ * de draaicirkel. In het symbool staat de binnenzijde bovenaan, dus de
+ * rotatie kiest welke kant van de wand binnen is.
+ *
+ * `pakket` (optioneel, voor een gelaagde wand): { dikteMm, middenOffsetPt,
+ * binnenN }. `wand` is dan het buitenvlak van het pakket; het hart van het
+ * pakket ligt `middenOffsetPt` langs de wandnormaal n daarvandaan, en
+ * `binnenN` (+1/-1) zegt aan welke kant van n binnen is. Zonder pakket is
+ * `wand` de hartlijn van één wand en is binnen de kant waar de deur heen
+ * draait (`draaizijde`; bij een raam de kant van `openTo`/`openSide`).
+ */
+export function kozijnProps(wand, plaatsing, bron, pxPerMm, pakket = null) {
   const as = wandAs(wand);
-  const hoek = plaatsing.rotatie;
-  const gedeeld = {
+  const deur = plaatsing.soort !== 'raam';
+  // draaizijde +1 = de kant links van de wandrichting = -n.
+  const zijde = getal(bron?.draaizijde) === -1 ? -1 : 1;
+  const T = pakket ? pakket.dikteMm : (getal(wand.dikteMm) || 100);
+  const binnenN = pakket ? (pakket.binnenN < 0 ? -1 : 1) : -zijde;
+  const middenOffsetPt = pakket ? (getal(pakket.middenOffsetPt) || 0) : 0;
+  const kz = bron?.kozijn || {};
+  const params = {
+    hostWallId: wand.id,
+    hostAfstandMm: plaatsing.hartMm,
+    width: plaatsing.dagmaatMm,
+    dagmaatMm: plaatsing.dagmaatMm,
+    borstweringMm: plaatsing.borstweringMm,
+    hoogteMm: plaatsing.hoogteMm,
+    wallThickness: T,
+    stijlBreedteMm: getal(kz.stijlBreedteMm) || 67,
+    stijlDiepteMm: getal(kz.diepteMm) || Math.min(114, T),
+    kozijnPositieMm: getal(kz.positieMm) ?? -1,
+    aanslagMm: getal(kz.aanslagMm) ?? 0,
+    binnenSpelingMm: getal(kz.spelingMm) ?? 0,
+    swing: plaatsing.draairichting === 'rechts' ? 'right' : 'left',
+  };
+  if (deur) {
+    // De deur draait naar de kant van `zijde` (-zijde langs n); is dat de
+    // binnenkant, dan draait hij naar binnen.
+    params.draaiNaar = -zijde === binnenN ? 'binnen' : 'buiten';
+    params.angle = 90;
+    params.showWall = false;
+    params.deurbladDikteMm = getal(kz.deurbladDikteMm) || 40;
+  } else {
+    params.type = bron?.raamtype || 'fixed';
+  }
+  const { vak } = kozijnIndeling(deur ? 'deur' : 'raam', params);
+  const k = pxPerMm;
+  const breedte = (vak.uMax - vak.uMin) * k;
+  const hoogte = (vak.vMax - vak.vMin) * k;
+  // Binnen bovenaan: lokale +y (omlaag) wijst naar buiten. Met rotatie =
+  // wandhoek is lokale +y gelijk aan n, dus buiten = +n; is binnen +n, dan
+  // een halve slag erbij.
+  const rotatie = binnenN > 0 ? plaatsing.rotatie + 180 : plaatsing.rotatie;
+  const r = (rotatie * Math.PI) / 180;
+  const ex = { x: Math.cos(r), y: Math.sin(r) };
+  const ey = { x: -Math.sin(r), y: Math.cos(r) };
+  // Het midden van het kozijn (halve kozijnmaat, halve pakketdikte) ligt op
+  // het hart van de sparing, verschoven naar het midden van het pakket.
+  const P0 = {
+    x: plaatsing.hart.x + as.n.x * middenOffsetPt,
+    y: plaatsing.hart.y + as.n.y * middenOffsetPt,
+  };
+  const off = vakOffsetMm(vak, plaatsing.dagmaatMm / 2, T / 2);
+  const cx = P0.x - (ex.x * off.dx + ey.x * off.dy) * k;
+  const cy = P0.y - (ex.y * off.dx + ey.y * off.dy) * k;
+  return {
     symbolId: SPARING_SYMBOOL[plaatsing.soort],
     color: '#000000', strokeColor: '#000000', lineWidth: 0.7,
-    params: {
-      hostWallId: wand.id,
-      hostAfstandMm: plaatsing.hartMm,
-      width: plaatsing.dagmaatMm,
-      dagmaatMm: plaatsing.dagmaatMm,
-      borstweringMm: plaatsing.borstweringMm,
-      hoogteMm: plaatsing.hoogteMm,
-    },
+    x: cx - breedte / 2, y: cy - hoogte / 2, width: breedte, height: hoogte,
+    rotation: rotatie,
+    params,
   };
-  if (plaatsing.soort === 'raam') {
-    const vak = sparingSymboolVak(plaatsing);
-    return {
-      ...gedeeld, ...vak,
-      params: { ...gedeeld.params, wallThickness: getal(wand.dikteMm) || 100, type: bron?.raamtype || 'fixed' },
-    };
+}
+
+// ── actie: wall met lagen (spouwmuur) ────────────────────────────────────
+
+/**
+ * Een wandloop met een laagopbouw (spouwmuur): per getekende laag eigen
+ * wandstukken, per laag anders opgeknipt rond elk kozijn (aanslag in het
+ * buitenblad, isolatie tegen het kozijn, dagkant met speling in het
+ * binnenblad), en één kozijnsymbool per opening in het pakket. start/end is
+ * het BUITENVLAK van het pakket; `insideSide` zegt aan welke kant binnen
+ * is. Sluit het buitenvlak in een hoek aan op een eerder getekende gevel
+ * met dezelfde lagen, dan worden de laageinden daar per laag verstekt.
+ */
+async function actieGelaagdeWand(params, omgeving, page, pxPerMm) {
+  const start = params.start, end = params.end;
+  const pakket = normaliseerPakket(params.layers);
+  if (!pakket.lagen.some((l) => l.getekend)) {
+    return fout('layers: at least one layer needs a material other than none');
   }
-  // Deur: vierkant vak met de scharnierlijn op één wandvlak, zodat het blad
-  // en de boog de ruimte in draaien. `m` is de richting waarin de onderkant
-  // van het vak (de scharnierlijn) ligt ná het draaien; het blad zwaait naar
-  // -m, dus naar de andere kant van de wand.
-  const zijde = getal(bron?.draaizijde) === -1 ? -1 : 1;
-  const maat = plaatsing.breedtePt;
-  const halveWand = ((getal(wand.dikteMm) || 100) * pxPerMm) / 2;
-  const m = { x: -as.u.y * zijde, y: as.u.x * zijde };
-  const verschuiving = halveWand - maat / 2;
-  const cx = plaatsing.hart.x + m.x * verschuiving;
-  const cy = plaatsing.hart.y + m.y * verschuiving;
+  const binnenzijde = params?.insideSide === 'left' ? 'links' : 'rechts';
+  const binnenN = binnenzijde === 'rechts' ? 1 : -1;
+  const T = pakket.dikteMm;
+  const ref = {
+    id: params?.wallId || `run:${Math.round(start.x)}:${Math.round(start.y)}`,
+    startX: start.x, startY: start.y, endX: end.x, endY: end.y, dikteMm: T,
+  };
+  if (!wandAs(ref)) return fout('start and end are the same point');
+
+  const sparingen = [];
+  const klachten = [];
+  (params?.openings || []).forEach((o, i) => {
+    const s = leesOpening(o, i, ref, pakket);
+    // Zonder opgegeven kant draait een deur naar binnen.
+    if (!o?.openTo && !o?.openSide) s.draaizijde = -binnenN;
+    const kozijn = { breedteMm: s.dagmaatMm, ...s.kozijn };
+    s.laagMaten = pakket.lagen.map((l) => (l.getekend ? laagSparingMm(l, kozijn) : null));
+    // Controle op de breedste sparing: die moet in de wand passen en mag
+    // geen andere raken.
+    s.breedsteMm = Math.max(s.dagmaatMm, ...s.laagMaten.filter((m) => m !== null));
+    const controle = controleerSparing(
+      ref, { ...s, dagmaatMm: s.breedsteMm },
+      sparingen.map((x) => ({ ...x, dagmaatMm: x.breedsteMm })),
+      pxPerMm, getal(params?.minPierMm) ?? 0,
+    );
+    if (!controle.ok) klachten.push(`opening ${i} (${o?.kind || s.soort}): ${controle.reden}`);
+    else sparingen.push(s);
+  });
+  if (klachten.length) return { ok: false, error: klachten.join('; ') };
+
+  const lijnen = laagLijnen(start, end, pakket, pxPerMm, binnenzijde);
+  const bestaande = (omgeving.doc?.annotations || [])
+    .filter((a) => a?.type === 'wall' && (a.page ?? 1) === page);
+  const EPS = 1e-6;
+
+  // Per laag: opknippen, hoeken zoeken, eerste en laatste stuk verstekken.
+  const perLaag = [];
+  const aanpassingen = [];
+  let hoekenStart = 0, hoekenEind = 0;
+  lijnen.forEach((lijn, i) => {
+    if (!lijn.getekend) return;
+    const laagWand = {
+      id: `${ref.id}:${i}`, startX: lijn.startX, startY: lijn.startY,
+      endX: lijn.endX, endY: lijn.endY, dikteMm: lijn.dikteMm,
+    };
+    const laagSparingen = sparingen.map((s) => ({ ...s, dagmaatMm: s.laagMaten[i] }));
+    const { segmenten, lengteMm } = wandMetSparingen(laagWand, laagSparingen, pxPerMm);
+    const lenPt = lengteMm * pxPerMm;
+    const hStart = zoekLaagHoek(start, lijn, bestaande, { pxPerMm, binnenzijde });
+    const hEind = zoekLaagHoek(end, lijn, bestaande, { pxPerMm, binnenzijde });
+    const eerste = segmenten[0], laatste = segmenten[segmenten.length - 1];
+    if (hStart && eerste && eerste.vanPt <= EPS) {
+      eerste.startX = hStart.snijpunt.x; eerste.startY = hStart.snijpunt.y;
+      aanpassingen.push(eindPatch(hStart));
+      hoekenStart++;
+    }
+    if (hEind && laatste && laatste.totPt >= lenPt - EPS) {
+      laatste.endX = hEind.snijpunt.x; laatste.endY = hEind.snijpunt.y;
+      aanpassingen.push(eindPatch(hEind));
+      hoekenEind++;
+    }
+    perLaag.push({ index: i, lijn, segmenten });
+  });
+
+  const wallIds = [];
+  const openingIds = [];
+  const lagenUit = [];
+  await omgeving.transactie(async () => {
+    for (const a of aanpassingen) await omgeving.werkBij(a.id, a.patch);
+    for (const { index, lijn, segmenten } of perLaag) {
+      const ids = [];
+      for (const seg of segmenten) {
+        const r = await omgeving.maak('wall', page, {
+          startX: seg.startX, startY: seg.startY, endX: seg.endX, endY: seg.endY,
+          dikteMm: lijn.dikteMm,
+          hatchPattern: lijn.materiaal,
+          ...(lijn.isolatie ? { isolatieType: lijn.isolatie } : {}),
+        });
+        if (r?.ok && r.id) { ids.push(r.id); wallIds.push(r.id); }
+      }
+      lagenUit.push({
+        index, material: lijn.materiaal, thicknessMm: lijn.dikteMm, wallIds: ids,
+        segments: segmenten.map((g) => ({ fromMm: Math.round(g.vanPt / pxPerMm), lengthMm: Math.round(g.lengteMm) })),
+      });
+    }
+    const pakketInfo = { dikteMm: T, middenOffsetPt: (binnenN * T * pxPerMm) / 2, binnenN };
+    for (const s of sparingen) {
+      const p = sparingPlaatsing(ref, s, pxPerMm);
+      if (!p) continue;
+      const r = await omgeving.maak('parametricSymbol', page, kozijnProps(ref, p, s, pxPerMm, pakketInfo));
+      if (r?.ok && r.id) openingIds.push(r.id);
+    }
+  });
+
   return {
-    ...gedeeld,
-    x: cx - maat / 2, y: cy - maat / 2, width: maat, height: maat,
-    rotation: zijde < 0 ? hoek + 180 : hoek,
-    params: {
-      ...gedeeld.params,
-      swing: plaatsing.draairichting === 'rechts' ? 'right' : 'left',
-      angle: 90,
-      showWall: false,
-    },
+    ok: true,
+    page,
+    wallIds,
+    openingIds,
+    lengthMm: Math.round((wandAs(ref).len / pxPerMm) * 10) / 10,
+    thicknessMm: T,
+    insideSide: binnenzijde === 'links' ? 'left' : 'right',
+    layers: lagenUit,
+    cavities: pakket.lagen
+      .map((l, i) => ({ index: i, thicknessMm: l.dikteMm, drawn: l.getekend }))
+      .filter((l) => !l.drawn)
+      .map(({ index, thicknessMm }) => ({ index, thicknessMm })),
+    corners: { start: hoekenStart, end: hoekenEind },
+    openings: sparingen.map((s) => ({
+      kind: KIND_VAN_SOORT[s.soort], widthMm: s.dagmaatMm, alongMm: s.hartMm,
+      sillMm: s.borstweringMm, heightMm: s.hoogteMm,
+      frame: {
+        positionMm: s.kozijn.positieMm, depthMm: s.kozijn.diepteMm,
+        overlapMm: s.kozijn.aanslagMm, clearanceMm: s.kozijn.spelingMm,
+      },
+      layerOpeningsMm: s.laagMaten,
+    })),
+  };
+}
+
+/** Patch voor het uiteinde van een bestaande laagwand dat in de hoek komt. */
+function eindPatch(hoek) {
+  const X = hoek.snijpunt;
+  return {
+    id: hoek.wand.id,
+    patch: hoek.eind === 'start' ? { startX: X.x, startY: X.y } : { endX: X.x, endY: X.y },
   };
 }
 
@@ -396,6 +602,21 @@ async function actieMaten(params, omgeving, page) {
 
 // ── actie: inspect ───────────────────────────────────────────────────────
 
+/** Het kozijn van een door/window-symbool zoals het getekend wordt. */
+function kozijnVerslag(a) {
+  const soort = a.symbolId === 'window' ? 'raam' : 'deur';
+  // Een oude deur zonder wanddikte heeft nog geen kozijnopbouw.
+  if (!(getal(a.params?.wallThickness) > 0)) return { wallThicknessMm: null, frame: null };
+  const m = kozijnMaten(soort, a.params);
+  return {
+    wallThicknessMm: m.wandDikteMm,
+    frame: {
+      stileWidthMm: m.stijlBreedteMm, depthMm: m.stijlDiepteMm, positionMm: m.positieMm,
+      overlapMm: m.aanslagMm, clearanceMm: m.spelingMm,
+    },
+  };
+}
+
 async function actieInspect(params, omgeving, page) {
   const annotaties = omgeving.doc?.annotations || [];
   const wanden = wandenOpPagina(annotaties, page);
@@ -419,6 +640,7 @@ async function actieInspect(params, omgeving, page) {
       sillMm: getal(a.params?.borstweringMm),
       heightMm: getal(a.params?.hoogteMm),
       hostWallId: a.params?.hostWallId || null,
+      ...kozijnVerslag(a),
     })),
     anchoredDimensions: maten.length,
   };

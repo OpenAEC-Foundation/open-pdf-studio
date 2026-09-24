@@ -1992,7 +1992,7 @@
       "readOnlyHint": false,
       "title": "Draw floor plan"
     },
-    "description": "Draw a building floor plan with the parts related to each other, instead of loose shapes stacked on top of one another. Four actions. \"wall\" draws ONE wall run with its openings: the wall is split at every door and window, so the opening really interrupts the wall (the hatch stops at the reveal) and the frame symbol sits in the gap at the wall's own thickness and angle; it returns the wall segment ids in order. \"rooms\" derives the enclosed rooms from the walls on a page - net area (inside the wall faces), perimeter and a label point that always falls inside the room - and reports wall ends that leave the contour open instead of silently filling half an area; a door opening does not break the enclosure. With place:true it puts each room on the sheet as a measured area plus a name, remembering the seed point; with refresh:true it re-derives them from the walls as they are now, so a room that grew because a wall moved updates itself. \"dimensions\" places a dimension chain along a wall run whose end points are ANCHORED to the wall segments (pier, opening, pier, ...) plus an overall dimension; with refresh:true every anchored dimension on the page is recomputed, and a dimension whose wall disappeared is reported as detached rather than broken. \"inspect\" reads back what is on the page: walls with their length and thickness, openings with width, sill and height, the rooms it finds, open contour ends and how many anchored dimensions there are. Coordinates are page points at 100% zoom; sizes are real millimetres, so the page needs a measurement scale (app_set_measure_scale) first. Everything one call creates or changes goes into a single undo step.",
+    "description": "Draw a building floor plan with the parts related to each other, instead of loose shapes stacked on top of one another. Four actions. \"wall\" draws ONE wall run with its openings: the wall is split at every door and window, so the opening really interrupts the wall (the hatch stops at the reveal) and the frame symbol sits in the gap at the wall's own thickness and angle; it returns the wall segment ids in order. Doors and windows are drawn as real frames: timber stiles (67 x 114 mm by default) with a rebate, double glazing or a 40 mm door leaf with its swing. With layers the run is a layered (cavity) wall: start/end are its outside face, every drawn layer gets its own wall segments cut to its own opening (the outer leaf overlaps the frame, the insulation closes against it, the inner leaf keeps a reveal with clearance), the frame stands in the cavity behind the outer leaf, and runs whose outside faces meet in a corner are mitred layer by layer. \"rooms\" derives the enclosed rooms from the walls on a page - net area (inside the wall faces), perimeter and a label point that always falls inside the room - and reports wall ends that leave the contour open instead of silently filling half an area; a door opening does not break the enclosure. With place:true it puts each room on the sheet as a measured area plus a name, remembering the seed point; with refresh:true it re-derives them from the walls as they are now, so a room that grew because a wall moved updates itself. \"dimensions\" places a dimension chain along a wall run whose end points are ANCHORED to the wall segments (pier, opening, pier, ...) plus an overall dimension; with refresh:true every anchored dimension on the page is recomputed, and a dimension whose wall disappeared is reported as detached rather than broken. \"inspect\" reads back what is on the page: walls with their length and thickness, openings with width, sill and height, the rooms it finds, open contour ends and how many anchored dimensions there are. Coordinates are page points at 100% zoom; sizes are real millimetres, so the page needs a measurement scale (app_set_measure_scale) first. Everything one call creates or changes goes into a single undo step.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
@@ -2011,9 +2011,21 @@
           "description": "wall: end of the run as {x, y} in page points.",
           "type": "object"
         },
+        "insideSide": {
+          "description": "wall with layers: which side of start->end is inside (default right; a clockwise outline has the inside on the right).",
+          "enum": [
+            "left",
+            "right"
+          ],
+          "type": "string"
+        },
         "insulation": {
           "description": "wall: insulation sub-material when material is isolatie (steenwol, glaswol, pir, eps, kooltherm, pur).",
           "type": "string"
+        },
+        "layers": {
+          "description": "wall: build-up of a layered (cavity) wall, from outside to inside, each {thicknessMm, material, insulation}; material none is an air cavity (not drawn). The run's start/end are then the outside face, thicknessMm and material of the run are ignored. Answer: layers[i].wallIds per drawn layer, per opening frame and layerOpeningsMm, corners = layers mitred at start/end.",
+          "type": "array"
         },
         "material": {
           "description": "wall: hatch material id, e.g. nen47-metselwerk-baksteen, nen47-metselwerk-kunststeen, nen47-beton-gewapend, isolatie, none.",
@@ -2032,7 +2044,7 @@
           "type": "number"
         },
         "openings": {
-          "description": "wall: the doors and windows in this run. Each: kind (door|window), widthMm (clear opening), alongMm (centre, measured from start along the wall), sillMm, heightMm, swing (left|right hinge), openSide (left|right of the wall direction) or openTo ({x, y}: a point in the room the door opens into), windowType (fixed|pivot|tilt).",
+          "description": "wall: the doors and windows in this run. Each: kind (door|window), widthMm (frame size, outside dimensions; in a single wall this is also the opening), alongMm (centre, measured from start along the wall), sillMm, heightMm, swing (left|right: the hinge side seen from the side the door opens away from), openSide (left|right of the wall direction) or openTo ({x, y}: a point in the room the door opens into; for a window its inside), windowType (fixed|turn|pivot|tilt). Frame, all optional: stileWidthMm (default 67), frameDepthMm (default 114, never deeper than the wall), framePositionMm (outside face of the wall to outside face of the frame; default: behind the outer leaf in a layered wall, centred in a single wall), overlapMm (outer leaf over the frame; default 20 in a layered wall), clearanceMm (reveal of the inner leaf; default 10 in a layered wall), leafThicknessMm (door leaf, default 40).",
           "type": "array"
         },
         "page": {
@@ -2061,7 +2073,7 @@
         },
         "start": {
           "additionalProperties": true,
-          "description": "wall: start of the run as {x, y} in page points (the wall centre line).",
+          "description": "wall: start of the run as {x, y} in page points (the wall centre line; with layers the outside face of the wall).",
           "type": "object"
         },
         "thicknessMm": {

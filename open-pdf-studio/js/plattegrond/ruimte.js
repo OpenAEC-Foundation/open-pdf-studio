@@ -307,6 +307,36 @@ export function binnenContour(poly, halveDiktesPt) {
   return uit;
 }
 
+/** Kortste afstand van p tot de rand van een ring. */
+function afstandTotRand(p, poly) {
+  let beste = Infinity;
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i], b = poly[(i + 1) % poly.length];
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const l2 = dx * dx + dy * dy;
+    const t = l2 > 0 ? Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / l2)) : 0;
+    beste = Math.min(beste, Math.hypot(p.x - (a.x + dx * t), p.y - (a.y + dy * t)));
+  }
+  return beste;
+}
+
+/**
+ * Een spouwmuur is getekend als losse wandlussen per laag (buitenblad,
+ * isolatie, binnenblad). Elke laaglus sluit een eigen vlak in, maar alleen
+ * het binnenste is een ruimte: een vlak dat een kleiner vlak omsluit en er
+ * overal vlak langs loopt (hooguit `ringMaxPt`) is de ring van een
+ * luchtspouw of isolatielaag en valt af. Een ruimte met een losse schacht
+ * erin blijft staan: haar rand ligt ver van de schacht.
+ */
+function zonderLaagringen(ruimten, ringMaxPt) {
+  const ring = (a) => ruimten.some((b) => b !== a
+    && b.oppervlakteM2 < a.oppervlakteM2
+    && b.polygoon.every((p) => puntInPolygoon(p, a.polygoon))
+    && a.polygoon.every((p) => afstandTotRand(p, b.polygoon) <= ringMaxPt));
+  const weg = ruimten.filter(ring);
+  for (const r of weg) ruimten.splice(ruimten.indexOf(r), 1);
+}
+
 /**
  * De ruimten van een blad.
  *
@@ -344,6 +374,7 @@ export function ruimtenUitWanden(wanden, opties = {}) {
     });
   }
   ruimten.sort((a, b) => b.oppervlakteM2 - a.oppervlakteM2);
+  zonderLaagringen(ruimten, (opties.ringMaxMm ?? 600) * pxPerMm);
 
   // Losse einden: knopen met graad 1 (wand die nergens op aansluit).
   const losseEinden = [];
