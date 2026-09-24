@@ -1,4 +1,4 @@
-import { layoutTextboxLines } from './textbox-layout.js';
+import { layoutTextboxLines, textboxTekstInzet } from './textbox-layout.js';
 import { klemMaat, MIN_VORM_MAAT_PT } from '../minimummaat.js';
 // First strong-directional character decides the base direction of a text run,
 // mirroring CSS `dir="auto"` (which the free-text/callout editors use, issue #61).
@@ -287,7 +287,7 @@ export function drawTextboxContent(ctx, annotation, padding) {
   // wider than the resulting 273.88pt content area → wrapped to 2 lines.
   // Real measurement (logged via [textbox-debug]): box=275.88pt,
   // text=275.61pt → fits with padding=0, doesn't with padding=1.
-  if (padding === undefined) padding = annotation.lineWidth ?? 0;
+  if (padding === undefined) padding = textboxTekstInzet(annotation);
 
   // Build font string with style options.
   // CSS font shorthand requires multi-word family names ("Segoe UI") to be

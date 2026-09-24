@@ -11,6 +11,19 @@
 // `measure(text, bold, italic)` zodat renderer, saver en tests dezelfde
 // regelafbraak krijgen.
 
+/**
+ * Hoe ver de tekst van een tekstvlak van de rand van het vak begint: de
+ * lijndikte, zonder minimum. Canvas, editor en opslag gebruiken deze ene regel.
+ */
+export function textboxTekstInzet(ann) {
+  return ann?.lineWidth ?? 0;
+}
+
+/** De breedte waarop de tekst van een tekstvlak afbreekt, in paginapunten. */
+export function textboxTekstBreedte(ann) {
+  return (ann?.width || 150) - 2 * textboxTekstInzet(ann);
+}
+
 /** Platte tekst van run-regels. */
 export function runsToText(lines) {
   return (lines || []).map(r => (r || []).map(x => String(x?.text ?? '')).join('')).join('\n');
