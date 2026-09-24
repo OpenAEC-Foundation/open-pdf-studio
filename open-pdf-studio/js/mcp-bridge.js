@@ -1937,6 +1937,14 @@ async function handleSetMeasureScale(params) {
  * opdracht.
  */
 async function handleFloorplan(params) {
+  return plattegrondInApp(params);
+}
+
+/**
+ * De plattegrond-opdracht vanuit de app zelf (het maatketting-gereedschap):
+ * precies dezelfde weg als `app_floorplan`, met één ongedaan-stap per aanroep.
+ */
+export async function plattegrondInApp(params) {
   const stateMod = await import('./core/state.js');
   const doc = stateMod.getActiveDocument();
   if (!doc?.pdfDoc) return { ok: false, error: 'no active document' };
@@ -1959,6 +1967,24 @@ async function handleFloorplan(params) {
     werkBij: async (id, props) => {
       geraakt = true;
       return handleUpdateAnnotation({ id, props });
+    },
+    verwijder: async (id) => {
+      geraakt = true;
+      return handleDeleteAnnotation({ id });
+    },
+    // Tekenvolgorde (ruimten achter wanden en kozijnen): dezelfde undo-stap
+    // als het z-order-menu, binnen de transactie van de opdracht.
+    herorden: async (ids) => {
+      const lijst = doc.annotations || [];
+      const perId = new Map(lijst.map((a) => [a.id, a]));
+      if (!Array.isArray(ids) || ids.length !== lijst.length || ids.some((id) => !perId.has(id))) {
+        return { ok: false, error: 'order must list every annotation once' };
+      }
+      const oud = lijst.map((a) => a.id);
+      lijst.splice(0, lijst.length, ...ids.map((id) => perId.get(id)));
+      undoMod.recordAnnotationOrder(oud, ids);
+      geraakt = true;
+      return { ok: true };
     },
     // Alles wat één opdracht aanmaakt of wijzigt gaat in één undo-stap, zodat
     // Ctrl+Z een hele gevel (of een hele verversing) in één keer terugdraait.

@@ -608,6 +608,26 @@ function AnnotationMenuContent() {
           }
         }} />
         <Separator />
+        {/* Maatketting verlengen of inkorten (#477): dimension-chain-tool.js. */}
+        <MenuItem icon={convertMeasurementIcon} label={t('annotation.dimChainAdd')} disabled={isLocked()} onClick={() => {
+          const a = ann();
+          if (a) {
+            setTool('dimChainAdd');
+            // Pas na het kiezen: het wisselen ruimt het vorige doel op, en een
+            // geweigerde wissel (alleen-lezen PDF/A) laat geen doel achter.
+            if (state.currentTool === 'dimChainAdd') state.dimChainTargetId = a.id;
+          }
+        }} />
+        <MenuItem icon={convertMeasurementIcon} label={t('annotation.dimChainRemove')} disabled={isLocked()} onClick={() => {
+          const a = ann();
+          if (a) {
+            setTool('dimChainRemove');
+            // Pas na het kiezen: het wisselen ruimt het vorige doel op, en een
+            // geweigerde wissel (alleen-lezen PDF/A) laat geen doel achter.
+            if (state.currentTool === 'dimChainRemove') state.dimChainTargetId = a.id;
+          }
+        }} />
+        <Separator />
       </Show>
 
       <Show when={isMeasureArea()}>

@@ -358,6 +358,12 @@
     "dimType": "Type",
     "dimTypeCustom": "Aangepast",
     "extension": "Extensie",
+    "showUnit": "Eenheid tonen",
+    "showLabel": "Label tonen",
+    "lineOvershoot": "Uitloop maatlijn (mm)",
+    "extGap": "Hulplijn: vrije afstand (mm)",
+    "extOvershoot": "Hulplijn: doorloop (mm)",
+    "auto": "Automatisch",
     "searchType": "Zoeken…",
     "editTypes": "Typen bewerken",
     "noTypesFound": "Geen typen gevonden"

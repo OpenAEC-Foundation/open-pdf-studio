@@ -2,6 +2,8 @@ import { drawDimensionLineEnding } from './decorations.js';
 import { applyHatchFillPolygon } from './hatch-patterns.js';
 import { arcControlPoint } from '../arc-points.js';
 import { ringenRichten } from '../vlak-ringen.js';
+import { maatTekstMarge, leesbareHoek } from '../maat-label.js';
+import { maatlijnGeometrie } from '../maatlijn-geometrie.js';
 
 /**
  * Trace a polygon path on the canvas context, supporting arc segments.
@@ -43,39 +45,29 @@ export function drawDimension(ctx, opts) {
     leaderStartX, leaderStartY, leaderEndX, leaderEndY,
     startHead = 'openCircle', endHead = 'openCircle', headSize = 12,
     color, measureText, fontSize, extension,
-    textOffsetX = 0, textOffsetY = 0
+    textOffsetX = 0, textOffsetY = 0,
+    dimLineOvershootMm, dimOvershootEnds, dimExtGapMm, dimExtOvershootMm,
   } = opts;
 
   const mdAngle = Math.atan2(endY - startY, endX - startX);
-  const hasLeaders = leaderStartX !== undefined && leaderStartY !== undefined;
-
-  if (hasLeaders) {
-    // Extension lines with overshoot past dimension line
-    const perpDx = -Math.sin(mdAngle);
-    const perpDy = Math.cos(mdAngle);
-    const lsDx = startX - leaderStartX;
-    const lsDy = startY - leaderStartY;
-    const leaderDir = (lsDx * perpDx + lsDy * perpDy) > 0 ? 1 : -1;
-    const overshoot = Math.max(10, Math.sin(Math.PI / 6) * headSize);
-    const extDx = perpDx * overshoot * leaderDir;
-    const extDy = perpDy * overshoot * leaderDir;
-
+  // Extension lines (with a gap from the measured point and an overshoot past
+  // the dimension line) and the dimension line with its overshoot past the
+  // outer extension lines (NL drafting style) - maatlijn-geometrie.js.
+  const geo = maatlijnGeometrie({
+    startX, startY, endX, endY, leaderStartX, leaderStartY, leaderEndX, leaderEndY,
+    headSize, extension, dimLineOvershootMm, dimOvershootEnds, dimExtGapMm, dimExtOvershootMm,
+  });
+  if (geo.hulplijnen.length) {
     ctx.beginPath();
-    ctx.moveTo(leaderStartX, leaderStartY);
-    ctx.lineTo(startX + extDx, startY + extDy);
-    ctx.moveTo(leaderEndX, leaderEndY);
-    ctx.lineTo(endX + extDx, endY + extDy);
+    for (const h of geo.hulplijnen) {
+      ctx.moveTo(h.x1, h.y1);
+      ctx.lineTo(h.x2, h.y2);
+    }
     ctx.stroke();
   }
-
-  // Dimension line. With `extension` on, the line sticks out past both
-  // extension lines (NL drafting style).
-  const extLen = extension ? Math.max(9, headSize * 0.9) : 0;
-  const dirX = Math.cos(mdAngle);
-  const dirY = Math.sin(mdAngle);
   ctx.beginPath();
-  ctx.moveTo(startX - dirX * extLen, startY - dirY * extLen);
-  ctx.lineTo(endX + dirX * extLen, endY + dirY * extLen);
+  ctx.moveTo(geo.maatlijn.x1, geo.maatlijn.y1);
+  ctx.lineTo(geo.maatlijn.x2, geo.maatlijn.y2);
   ctx.stroke();
 
   // Line endings
@@ -87,9 +79,10 @@ export function drawDimension(ctx, opts) {
     drawDimensionLineEnding(ctx, endX, endY, mdAngle, headSize, endHead);
   }
 
-  // Measurement label
+  // Measurement label, free above the end markers (maat-label.js).
   if (measureText) {
-    drawDimensionLabel(ctx, startX, startY, endX, endY, measureText, color, fontSize, textOffsetX, textOffsetY);
+    const marge = maatTekstMarge({ fontSize, startHead, endHead, headSize });
+    drawDimensionLabel(ctx, startX, startY, endX, endY, measureText, color, fontSize, textOffsetX, textOffsetY, marge);
   }
 }
 
@@ -98,13 +91,13 @@ export function drawDimension(ctx, opts) {
 // legacy 11px when the annotation predates dimension types.
 // `offsetX`/`offsetY` displace the text anchor from the dimension-line
 // midpoint (user-dragged label position); default 0,0 keeps it on the line.
-export function drawDimensionLabel(ctx, startX, startY, endX, endY, text, color, fontSize, offsetX = 0, offsetY = 0) {
+// `marge` is the gap between the line and the bottom of the text; without it
+// the old rule applies (it scales with the text height).
+export function drawDimensionLabel(ctx, startX, startY, endX, endY, text, color, fontSize, offsetX = 0, offsetY = 0, marge = null) {
   const midX = (startX + endX) / 2 + offsetX;
   const midY = (startY + endY) / 2 + offsetY;
-  let textAngle = Math.atan2(endY - startY, endX - startX);
-  // Keep text readable (not upside-down)
-  if (textAngle > Math.PI / 2) textAngle -= Math.PI;
-  else if (textAngle < -Math.PI / 2) textAngle += Math.PI;
+  // Keep text readable (not upside-down; a vertical dimension reads from the right).
+  const textAngle = leesbareHoek(Math.atan2(endY - startY, endX - startX));
   const fs = fontSize || 11;
   ctx.save();
   ctx.translate(midX, midY);
@@ -113,8 +106,9 @@ export function drawDimensionLabel(ctx, startX, startY, endX, endY, text, color,
   ctx.fillStyle = color;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'bottom';
-  // Gap between dimension line and text scales with the text height.
-  ctx.fillText(text, 0, -Math.max(3, fs * 0.35));
+  // Gap between dimension line and text: clear of the end markers when the
+  // caller passes it, otherwise scaled with the text height.
+  ctx.fillText(text, 0, -(marge ?? Math.max(3, fs * 0.35)));
   ctx.restore();
 }
 

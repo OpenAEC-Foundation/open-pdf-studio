@@ -10,6 +10,8 @@ import { drawArrowheadOnCanvas, applyBorderStyle, drawDimensionLineEnding } from
 import { catmullRomSpline } from '../tools/tools/spline-tool.js';
 import { catmullRomToBezier, splineArrowEndTangent } from './spline-arrow-geometry.js';
 import { drawDimension, drawMeasureAreaShape, drawCentroidLabel, drawMeasurePerimeterShape } from './rendering/measurements.js';
+import { maatlijnTekst } from './maat-label.js';
+import { maatlijnVelden } from './maatlijn-geometrie.js';
 import { applyHatchFill, applyHatchFillPolygon } from './rendering/hatch-patterns.js';
 import { drawWall } from './rendering/walls.js';
 import { buildStavenreeks } from './stavenreeks.js';
@@ -1933,14 +1935,20 @@ export function drawAnnotation(ctx, annotation) {
         endHead: annotation.endHead || 'openCircle',
         headSize: annotation.headSize || 12,
         color: strokeColor,
-        measureText: annotation.measureText,
+        // dimShowUnit === false: alleen het getal (maat-label.js).
+        measureText: maatlijnTekst(annotation.measureText, annotation.dimShowUnit),
         fontSize: annotation.fontSize,
         // User-dragged text position (offset from dimension-line midpoint)
         textOffsetX: annotation.textOffsetX || 0,
         textOffsetY: annotation.textOffsetY || 0,
         // Extension is the DEFAULT (NL drafting style): only explicitly
         // disabling it (dimExtension === false) turns it off.
-        extension: annotation.dimExtension !== false
+        extension: annotation.dimExtension !== false,
+        // Uitloop en hulplijnen in papiermillimeters (maatlijn-geometrie.js).
+        dimLineOvershootMm: maatlijnVelden(annotation).dimLineOvershootMm,
+        dimOvershootEnds: annotation.dimOvershootEnds,
+        dimExtGapMm: annotation.dimExtGapMm,
+        dimExtOvershootMm: annotation.dimExtOvershootMm,
       });
       break;
     }
@@ -1964,7 +1972,9 @@ export function drawAnnotation(ctx, annotation) {
       // bij de andere vormen. Met de kale hex kwam zo'n vlak dekkend over de
       // tekening en over het eigen maatlabel heen.
       drawMeasureAreaShape(ctx, annotation.points, annotation.color || '#ff0000', annotation.lineWidth, annFill, annotation.borderStyle, annotation.holes, maHatch, undefined, annHasStroke);
-      if (annotation.measureText) {
+      // measureShowLabel === false: de oppervlakte staat elders (bijvoorbeeld
+      // in de ruimtetag van een plattegrond) en het vlak toont geen eigen label.
+      if (annotation.measureText && annotation.measureShowLabel !== false) {
         drawCentroidLabel(ctx, annotation.points, annotation.measureText, strokeColor, annotation);
       }
       break;

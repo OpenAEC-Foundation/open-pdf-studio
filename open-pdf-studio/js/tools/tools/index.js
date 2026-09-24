@@ -30,6 +30,7 @@ import { arrayTool } from './array-tool.js';
 import { removeImageTool } from './remove-image-tool.js';
 import { splitTool, breakTool } from './split-tool.js';
 import { lengthenTool } from './lengthen-tool.js';
+import { dimChainAddTool, dimChainRemoveTool } from './dimension-chain-tool.js';
 import { radiusTool, diameterTool } from './dimension-radius-tool.js';
 
 export function registerAllTools() {
@@ -87,6 +88,9 @@ export function registerAllTools() {
   registerTool('measurePerimeter', measurePerimeterTool);
   registerTool('measureAngle', measureAngleTool);
   registerTool('addHole', addHoleTool);
+  // Maatketting verlengen / een hulplijn eruit halen (#477).
+  registerTool('dimChainAdd', dimChainAddTool);
+  registerTool('dimChainRemove', dimChainRemoveTool);
 
   // Filled area (contour with arcs and optional holes; solid or hatched fill)
   registerTool('filledArea', filledAreaTool);
