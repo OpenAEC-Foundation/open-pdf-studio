@@ -32,7 +32,7 @@ function gehost(soort, extra = {}) {
   const wand = { id: 'w', startX: 0, startY: 100, endX: 2000, endY: 100, dikteMm: 300 };
   const p = sparingPlaatsing(wand, { id: 's', soort, dagmaatMm: soort === 'raam' ? 1200 : 930, hartMm: 2000 }, K50);
   const kozijn = kozijnInPakket(normaliseerPakket([{ dikteMm: 300 }]), {});
-  const props = kozijnProps(wand, p, { draaizijde: 1, raamtype: extra.type, kozijn }, K50);
+  const props = kozijnProps(wand, p, { draaizijde: 1, raamtype: extra.type, draairichtingTonen: extra.toon === true, kozijn }, K50);
   const tpl = soort === 'raam' ? windowTemplate : doorTemplate;
   const params = { ...defaultParams(tpl), ...props.params };
   return tpl.render(params, { x: props.x, y: props.y, width: props.width, height: props.height });
@@ -69,9 +69,10 @@ test('raam op 1:50: glas en aanzicht dun, kozijnhout vol, gelijk aan het scherm'
 });
 
 test('draairaam en deur op 1:50: de draaicirkel is dun', () => {
-  const draai = gehost('raam', { type: 'turn' });
+  assert.ok(!gehost('raam', { type: 'turn' }).some((c) => c.kind === 'arc'), 'standaard geen draaicirkel bij een raam');
+  const draai = gehost('raam', { type: 'turn', toon: true });
   const boog = draai.find((c) => c.kind === 'arc');
-  assert.ok(boog, 'draairaam heeft een draaicirkel');
+  assert.ok(boog, 'draairaam met draairichting heeft een draaicirkel');
   assert.ok(opgeslagen(boog) <= 0.25 + 1e-12, `draaicirkel ${opgeslagen(boog)} pt`);
   assert.ok(Array.isArray(boog.dash), 'gestreept');
 

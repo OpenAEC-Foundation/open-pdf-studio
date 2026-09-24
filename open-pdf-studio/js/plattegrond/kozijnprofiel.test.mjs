@@ -207,8 +207,12 @@ test('vast raam is glas in het kozijn; een draairaam krijgt raamhout en een draa
     bijna(o.vMax, 114, 1e-9, 'raamhout in de binnensponning');
     bijna(o.vMax - o.vMin, KOZIJN_STANDAARD.raamhoutDiepteMm, 1e-9, 'diepte raamhout');
   }
-  const boog = draai.find((v) => v.rol === 'draaicirkel');
-  assert.ok(boog, 'draairaam: draaicirkel');
+  // Standaard GEEN draaicirkel: op een plattegrond leest een kwartcirkel
+  // als een deur; de draairichting van een raam hoort in het aanzicht.
+  assert.ok(!draai.some((v) => v.rol === 'draaicirkel'), 'draairaam zonder aanduiding tenzij gevraagd');
+  const getoond = raamVormen({ vanU: 67, totU: 1133, diepteMm: 114, type: 'turn', scharnier: 'min', toonDraairichting: true });
+  const boog = getoond.find((v) => v.rol === 'draaicirkel');
+  assert.ok(boog, 'met toonDraairichting: draaicirkel');
   assert.ok(Array.isArray(boog.streep), 'gestreept, anders leest het als een deur');
   assert.equal(draai.filter((v) => v.rol === 'glas').length, 2);
 

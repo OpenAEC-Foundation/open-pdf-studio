@@ -301,10 +301,11 @@ const DRAAIENDE_RAMEN = new Set(['turn', 'pivot', 'tilt', 'draai', 'tuimel', 'kl
 /**
  * Raam in een vak: 'fixed' = glas direct in het kozijn; een draaiend raam
  * ('turn', 'pivot', 'tilt') heeft raamhout in de sponning met het glas
- * daarin. Een draairaam ('turn') krijgt een gestreepte draaicirkel naar de
- * zijde waar het heen draait; klep- en tuimelramen draaien niet de ruimte in
- * en krijgen die niet.
- * @param {{ vanU, totU, diepteMm, type?, zijde?, scharnier?, vVan?, vTot?, detail? }} o
+ * daarin. De draaicirkel van een draairaam ('turn') komt er alleen bij met
+ * `toonDraairichting`: op een plattegrond leest een kwartcirkel als een deur,
+ * en de draairichting van een raam hoort in het aanzicht. Klep- en
+ * tuimelramen draaien niet de ruimte in en krijgen hem nooit.
+ * @param {{ vanU, totU, diepteMm, type?, zijde?, scharnier?, vVan?, vTot?, detail?, toonDraairichting? }} o
  */
 export function raamVormen(o) {
   const type = o.type || 'fixed';
@@ -338,7 +339,7 @@ export function raamVormen(o) {
     vormen.push({ soort: 'lijn', rol: 'glas', van: { u: in0, v: g0 }, tot: { u: in1, v: g0 } });
     vormen.push({ soort: 'lijn', rol: 'glas', van: { u: in0, v: g1 }, tot: { u: in1, v: g1 } });
   }
-  if (type === 'turn' || type === 'draai') {
+  if ((type === 'turn' || type === 'draai') && o.toonDraairichting === true) {
     const a = scharnierPlus(o.scharnier) ? -1 : 1;
     const s = binnen ? 1 : -1;
     const phi = (Math.PI / 2) * a * s;

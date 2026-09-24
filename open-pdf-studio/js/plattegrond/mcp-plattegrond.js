@@ -250,6 +250,8 @@ function leesOpening(o, i, wand, pakket) {
   });
   s.draaizijde = draaizijde(wand, o);
   s.raamtype = RAAMTYPEN.includes(o?.windowType) ? o.windowType : 'fixed';
+  // Draairichting van een draairaam alleen op verzoek (showSwing).
+  s.draairichtingTonen = o?.showSwing === true;
   // Leeg (niet opgegeven) blijft leeg, zodat de standaard geldt.
   const maat = (v) => (v === undefined || v === null || v === '' ? undefined : (getal(v) ?? undefined));
   const stijl = maat(o?.stileWidthMm);
@@ -314,6 +316,7 @@ export function kozijnProps(wand, plaatsing, bron, pxPerMm, pakket = null) {
     params.deurbladDikteMm = getal(kz.deurbladDikteMm) || 40;
   } else {
     params.type = bron?.raamtype || 'fixed';
+    params.draairichtingTonen = bron?.draairichtingTonen === true;
   }
   const { vak } = kozijnIndeling(deur ? 'deur' : 'raam', params);
   const k = pxPerMm;

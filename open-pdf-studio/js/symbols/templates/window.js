@@ -53,6 +53,7 @@ export const windowTemplate = {
         { value: 'pivot', label: 'Tuimel' },
         { value: 'tilt', label: 'Klap' }
       ], default: 'fixed' },
+    { key: 'draairichtingTonen', label: 'Draairichting tonen', labelEn: 'Show opening direction', type: 'boolean', default: false },
     { key: 'swing', label: 'Scharnierzijde', labelEn: 'Hinge side', type: 'enum', options: [
         { value: 'left', label: 'Links' },
         { value: 'right', label: 'Rechts' }

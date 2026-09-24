@@ -96,6 +96,8 @@ export function kozijnMaten(soort, params = {}) {
     // aanzicht er altijd, dus dat blijft zo.
     borstweringMm: borstweringMm === null ? (deur ? 0 : 1) : borstweringMm,
     raamtype: params.type || 'fixed',
+    // Draairichting van een raam alleen op verzoek (zie raamVormen).
+    toonDraairichting: params.draairichtingTonen === true,
     scharnier: rechts ? 'plus' : 'min',
     draaiNaar,
     hoekGraden: Math.max(1, Math.min(180, getal(params.angle) ?? 90)),
@@ -149,7 +151,7 @@ function maakVormen(m, detail) {
       vormen.push({ soort: 'lijn', rol: 'aanzicht', streep: [6, 3], van: { u: 0, v: T }, tot: { u: W, v: T } });
     }
   } else {
-    vormen.push(...raamVormen({ ...vak, type: m.raamtype, zijde: 'binnen', scharnier: m.scharnier }));
+    vormen.push(...raamVormen({ ...vak, type: m.raamtype, zijde: 'binnen', scharnier: m.scharnier, toonDraairichting: m.toonDraairichting }));
     if (m.borstweringMm > 0) {
       // De borstwering onder het raam, in aanzicht: buiten tussen de
       // dagkanten van het buitenblad (aanslag), binnen tussen die van het
