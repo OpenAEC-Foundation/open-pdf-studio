@@ -82,7 +82,11 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
 
   // Look up extra colors extracted via pdf-lib (IC entry, appearance stream
   // colors). Zie extra-sleutel.js voor het zoeken op de rauwe /Rect.
-  let extraColors = zoekExtraKleuren(annotColorMap, rect) || {};
+  let extraColors = (annot.id && annotColorMap?.get(`@ref:${annot.id}`)) ||
+    zoekExtraKleuren(annotColorMap, rect) || {};
+  if (extraColors.pluginAnnotation) {
+    return createAnnotation({ ...extraColors.pluginAnnotation, page: pageNum });
+  }
 
   // Echte maat van een gedraaide vorm waarvan /Rect de assen-uitgelijnde
   // omhullende is (rechthoek, ellips, maskeervlak, parametrisch symbool).

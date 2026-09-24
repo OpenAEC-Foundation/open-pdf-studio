@@ -14,16 +14,57 @@ import {
 } from './selection-listener-registry.js';
 import { clearAllToolGroups } from './tool-group-state.js';
 import { setNativePanelHidden } from '../solid/stores/propertiesStore.js';
-import { state, getActiveDocument } from '../core/state.js';
+import { state, getActiveDocument, getPageRotation } from '../core/state.js';
 import { setTool } from '../tools/manager.js';
 import { createAnnotation } from '../annotations/factory.js';
 import { redrawAnnotations } from '../annotations/rendering.js';
+import { beginUndoTransaction, endUndoTransaction, recordAdd, recordModify, recordDelete } from '../core/undo-manager.js';
+import { applyAnnotationBatch } from './annotation-batch.js';
+import { getPageInfoForDocument, readPageContentForDocument, renderPageTileForDocument } from './page-access.js';
+import { extractPageGeometry } from '../tools/pdf-snap-extractor.js';
+import { schaalOpPunt } from '../annotations/schaal-op-punt.js';
+import { getScaleFromRegion } from '../annotations/scale-region.js';
+import { createRoot, createEffect } from 'solid-js';
 
 export function createPluginApi(pluginId) {
   const registeredTypes = [];
   const registeredPalettes = [];
   const registeredPanels = [];
   const registeredSelectionListeners = []; // [{typeName, fn}]
+  const documentListeners = new Map();
+  let disposeDocumentEvents = null;
+
+  function ensureDocumentEvents() {
+    if (disposeDocumentEvents) return;
+    let previous = null;
+    createRoot(dispose => {
+      disposeDocumentEvents = dispose;
+      createEffect(() => {
+        const doc = getActiveDocument();
+        const documentId = doc?.id ?? null;
+        const page = doc?.currentPage ?? null;
+        const scale = doc ? JSON.stringify({
+          documentScale: doc.measureScale,
+          calibratedAnnotations: (doc.annotations || [])
+            .filter(a => ['scaleRegion', 'scaleBar', 'viewport'].includes(a.type))
+            .map(a => [a.id, a.page, a.x, a.y, a.width, a.height, a.scaleString, a.pixelsPerUnit, a.unit]),
+        }) : null;
+        const current = { documentId, page, scale };
+        if (previous) {
+          if (previous.documentId !== documentId) emit('documentChanged', { documentId });
+          if (previous.documentId !== documentId || previous.page !== page) emit('pageChanged', { documentId, page });
+          if (previous.documentId !== documentId || previous.scale !== scale) emit('scaleChanged', { documentId });
+        }
+        previous = current;
+      });
+    });
+  }
+
+  function emit(type, event) {
+    for (const listener of documentListeners.get(type) || []) {
+      try { listener(event); } catch (error) { console.warn(`[plugin] ${type} listener failed`, error); }
+    }
+  }
 
   return {
     pluginId,
@@ -35,6 +76,9 @@ export function createPluginApi(pluginId) {
     // without breaking older OPPS builds that lack it.
     features: {
       toolGroups: true,
+      annotationBatch: true,
+      pageAnalysis: true,
+      pluginDocumentEvents: true,
     },
 
     // --- Annotation type registration ---
@@ -157,6 +201,85 @@ export function createPluginApi(pluginId) {
       return createAnnotation(props);
     },
 
+    getDocumentInfo() {
+      const doc = getActiveDocument();
+      return doc ? { id: doc.id, pageCount: doc.numPages || doc.pdfDoc?.numPages || 0, currentPage: doc.currentPage,
+        name: doc.fileName || null } : null;
+    },
+
+    getPageInfo(pageNum, options = {}) {
+      const doc = getActiveDocument();
+      return getPageInfoForDocument(doc, pageNum, {
+        ...options, rotation: getPageRotation(pageNum), isCurrent: candidate => getActiveDocument() === candidate,
+      });
+    },
+
+    getScaleAt(pageNum, x, y) {
+      const doc = getActiveDocument();
+      if (!doc || !Number.isInteger(pageNum) || pageNum < 1 || pageNum > (doc.numPages || doc.pdfDoc?.numPages || 0) ||
+          !Number.isFinite(x) || !Number.isFinite(y)) return null;
+      const scale = getScaleFromRegion(pageNum, x, y) || schaalOpPunt(doc, pageNum, x, y);
+      return scale && Number.isFinite(scale.pixelsPerUnit) && scale.pixelsPerUnit > 0 ? { ...scale } : null;
+    },
+
+    readPageContent(pageNum, options = {}) {
+      const doc = getActiveDocument();
+      return readPageContentForDocument(doc, pageNum, {
+        ...options, rotation: getPageRotation(pageNum), isCurrent: candidate => getActiveDocument() === candidate,
+        extractVectors: (page, request) => extractPageGeometry(page, request),
+      });
+    },
+
+    renderPageTile(pageNum, rect, options = {}) {
+      const doc = getActiveDocument();
+      return renderPageTileForDocument(doc, pageNum, rect, {
+        ...options, rotation: getPageRotation(pageNum), isCurrent: candidate => getActiveDocument() === candidate,
+      });
+    },
+
+    onDocumentEvent(type, listener) {
+      if (!['documentChanged', 'pageChanged', 'scaleChanged'].includes(type) || typeof listener !== 'function') {
+        throw new TypeError('Unsupported document event or listener');
+      }
+      let listeners = documentListeners.get(type);
+      if (!listeners) { listeners = new Set(); documentListeners.set(type, listeners); }
+      listeners.add(listener);
+      ensureDocumentEvents();
+      return () => listeners.delete(listener);
+    },
+
+    async waitForPageAnnotations(pageNum, options = {}) {
+      const doc = getActiveDocument();
+      const pageCount = doc?.numPages || doc?.pdfDoc?.numPages || 0;
+      if (!Number.isInteger(pageNum) || pageNum < 1 || pageNum > pageCount) throw new RangeError('Invalid document page');
+      const checkActive = () => {
+        if (options.signal?.aborted || getActiveDocument() !== doc) {
+          throw new DOMException('Page annotation load aborted', 'AbortError');
+        }
+      };
+      checkActive();
+      const { ensureAnnotationsForPage } = await import('../pdf/loader.js');
+      checkActive();
+      await ensureAnnotationsForPage(pageNum, doc);
+      const started = Date.now();
+      while (!doc._annotationPagesReady?.has(pageNum)) {
+        checkActive();
+        if (Date.now() - started > 30_000) throw new Error('Timed out waiting for page annotations');
+        await new Promise(resolve => setTimeout(resolve, 20));
+      }
+      checkActive();
+      return doc.annotations.filter(annotation => annotation.page === pageNum)
+        .map(annotation => JSON.parse(JSON.stringify(annotation)));
+    },
+
+    /** Apply create/update/delete operations atomically with one undo step. */
+    applyAnnotationBatch(operations) {
+      return applyAnnotationBatch(getActiveDocument(), operations, {
+        createAnnotation, beginUndoTransaction, endUndoTransaction,
+        recordAdd, recordModify, recordDelete, redraw: redrawAnnotations,
+      });
+    },
+
     redrawAnnotations() {
       redrawAnnotations();
     },
@@ -175,6 +298,9 @@ export function createPluginApi(pluginId) {
       registeredPalettes.length = 0;
       registeredPanels.length = 0;
       registeredSelectionListeners.length = 0;
+      disposeDocumentEvents?.();
+      disposeDocumentEvents = null;
+      documentListeners.clear();
     }
   };
 }
