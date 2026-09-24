@@ -944,6 +944,42 @@ fn handle_tools_list() -> Value {
                 }
             },
             {
+                "name": "app_structural_layout",
+                "description": "Set out a structural floor plan in one undoable step: the grid (lettered and numbered grid lines with bubbles), columns on the grid intersections, beams along the grid lines, a span-direction arrow per floor bay carrying the real span, spot elevations, position tags (position number / section / level) and - unless switched off - a quantity schedule grouped by IFC category. Bay sizes are REAL millimetres; the app converts them to page points at `scale` and also calibrates the measuring scale so later measurements agree. Profiles: \"HE200B\", \"HEA 200\", \"IPE 300\", \"UNP 200\", \"Koker 100x100x5\", \"L 100x100x10\" (steel) or \"300x500\" (concrete b x h in mm). Use dryRun to see what would be placed without touching the drawing.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "page":   { "type": "number", "description": "Page to draw on (default: current page)." },
+                        "origin": {
+                            "type": "object",
+                            "description": "First grid intersection, in page points (top-left origin, 100% zoom).",
+                            "properties": { "x": { "type": "number" }, "y": { "type": "number" } },
+                            "required": ["x", "y"],
+                            "additionalProperties": false
+                        },
+                        "scale":  { "type": "string", "description": "Drawing scale, e.g. '1:100' (default) or '1:50'." },
+                        "baysX":  { "description": "Bay sizes left to right in mm: [5400,5400], '2x5400' or '5400 6000'." },
+                        "baysY":  { "description": "Bay sizes top to bottom in mm, same notations as baysX." },
+                        "labelStyleX": { "type": "string", "enum": ["letters", "numbers"], "description": "Label style for the vertical grid lines (default letters)." },
+                        "labelStyleY": { "type": "string", "enum": ["letters", "numbers"], "description": "Label style for the horizontal grid lines (default numbers)." },
+                        "labelsYFromBottom": { "type": "boolean", "description": "Number the horizontal grid lines from the bottom up, as on a drawing (default true)." },
+                        "gridExtensionMm":   { "type": "number", "description": "How far a grid line runs past the outer bay, in mm (default 1500)." },
+                        "textHeightMm":      { "type": "number", "description": "Tag text height in PAPER mm (default 2.5)." },
+                        "gridBubbleMm":      { "type": "number", "description": "Grid bubble radius in PAPER mm (default 4)." },
+                        "columns": { "description": "false to omit, or { profile, prefix, levelMm, skip: [grid labels] }." },
+                        "beams":   { "description": "false to omit, or { profile, direction: x|y|both, prefix, levelMm, edgeOnly }." },
+                        "floors":  { "description": "false to omit, or { direction: x|y|shortest, thicknessMm, levelMm, prefix, text }." },
+                        "levelMarkers": { "type": "boolean", "description": "Place a spot elevation per floor bay when a level is given (default true)." },
+                        "tags":         { "type": "boolean", "description": "Tag each element with position number, section and level (default true)." },
+                        "schedule":     { "description": "false to omit, or { name, x, y, itemize } for the quantity schedule." },
+                        "setMeasureScale": { "type": "boolean", "description": "Also calibrate the document's measuring scale to this drawing scale (default true)." },
+                        "dryRun":       { "type": "boolean", "description": "Only compute and report; draw nothing." }
+                    },
+                    "required": ["origin", "baysX", "baysY"],
+                    "additionalProperties": false
+                }
+            },
+            {
                 "name": "app_list_commands",
                 "description": "List EVERY function the app exposes: each ribbon button on every tab (label, tab, disabled/active state) plus every drawing tool. Use this to discover how a feature is called before running it with app_run_command. Command ids: 'ribbon:#<id>' (stable), 'ribbon:<tab>:<n>' (button without an id, only stable within one version), 'tool:<name>'. Optional `filter` narrows by text (matches id, label, title or tab).",
                 "inputSchema": {
@@ -1135,6 +1171,7 @@ async fn handle_tools_call(state: &AppState, params: &Value) -> Result<Value, (i
         "app_set_measure_scale"  => tool_app_request(state, "mcp:set-measure-scale",  &arguments, Duration::from_secs(15)).await,
         "app_get_takeoff"        => tool_app_request(state, "mcp:get-takeoff",        &arguments, Duration::from_secs(10)).await,
         "app_place_schedule"     => tool_app_request(state, "mcp:place-schedule",     &arguments, Duration::from_secs(15)).await,
+        "app_structural_layout"  => tool_app_request(state, "mcp:structural-layout",  &arguments, Duration::from_secs(60)).await,
         "app_list_commands"      => tool_app_request(state, "mcp:list-commands",      &arguments, Duration::from_secs(30)).await,
         "app_run_command"        => tool_app_request(state, "mcp:run-command",        &arguments, Duration::from_secs(20)).await,
         "app_snippet_cut"        => tool_app_request(state, "mcp:snippet-cut",        &arguments, Duration::from_secs(60)).await,
@@ -2247,6 +2284,7 @@ mod tests {
             "app_set_measure_scale",
             "app_get_takeoff",
             "app_place_schedule",
+            "app_structural_layout",
             "app_list_commands",
             "app_run_command",
             "app_snippet_cut",

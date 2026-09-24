@@ -1056,6 +1056,118 @@
     "annotations": {
       "destructiveHint": false,
       "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Set out structural layout"
+    },
+    "description": "Set out a structural floor plan in one undoable step: the grid (lettered and numbered grid lines with bubbles), columns on the grid intersections, beams along the grid lines, a span-direction arrow per floor bay carrying the real span, spot elevations, position tags (position number / section / level) and - unless switched off - a quantity schedule grouped by IFC category. Bay sizes are REAL millimetres; the app converts them to page points at `scale` and also calibrates the measuring scale so later measurements agree. Profiles: \"HE200B\", \"HEA 200\", \"IPE 300\", \"UNP 200\", \"Koker 100x100x5\", \"L 100x100x10\" (steel) or \"300x500\" (concrete b x h in mm). Use dryRun to see what would be placed without touching the drawing.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "baysX": {
+          "description": "Bay sizes left to right in mm: [5400,5400], '2x5400' or '5400 6000'."
+        },
+        "baysY": {
+          "description": "Bay sizes top to bottom in mm, same notations as baysX."
+        },
+        "beams": {
+          "description": "false to omit, or { profile, direction: x|y|both, prefix, levelMm, edgeOnly }."
+        },
+        "columns": {
+          "description": "false to omit, or { profile, prefix, levelMm, skip: [grid labels] }."
+        },
+        "dryRun": {
+          "description": "Only compute and report; draw nothing.",
+          "type": "boolean"
+        },
+        "floors": {
+          "description": "false to omit, or { direction: x|y|shortest, thicknessMm, levelMm, prefix, text }."
+        },
+        "gridBubbleMm": {
+          "description": "Grid bubble radius in PAPER mm (default 4).",
+          "type": "number"
+        },
+        "gridExtensionMm": {
+          "description": "How far a grid line runs past the outer bay, in mm (default 1500).",
+          "type": "number"
+        },
+        "labelStyleX": {
+          "description": "Label style for the vertical grid lines (default letters).",
+          "enum": [
+            "letters",
+            "numbers"
+          ],
+          "type": "string"
+        },
+        "labelStyleY": {
+          "description": "Label style for the horizontal grid lines (default numbers).",
+          "enum": [
+            "letters",
+            "numbers"
+          ],
+          "type": "string"
+        },
+        "labelsYFromBottom": {
+          "description": "Number the horizontal grid lines from the bottom up, as on a drawing (default true).",
+          "type": "boolean"
+        },
+        "levelMarkers": {
+          "description": "Place a spot elevation per floor bay when a level is given (default true).",
+          "type": "boolean"
+        },
+        "origin": {
+          "additionalProperties": false,
+          "description": "First grid intersection, in page points (top-left origin, 100% zoom).",
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "y"
+          ],
+          "type": "object"
+        },
+        "page": {
+          "description": "Page to draw on (default: current page).",
+          "type": "number"
+        },
+        "scale": {
+          "description": "Drawing scale, e.g. '1:100' (default) or '1:50'.",
+          "type": "string"
+        },
+        "schedule": {
+          "description": "false to omit, or { name, x, y, itemize } for the quantity schedule."
+        },
+        "setMeasureScale": {
+          "description": "Also calibrate the document's measuring scale to this drawing scale (default true).",
+          "type": "boolean"
+        },
+        "tags": {
+          "description": "Tag each element with position number, section and level (default true).",
+          "type": "boolean"
+        },
+        "textHeightMm": {
+          "description": "Tag text height in PAPER mm (default 2.5).",
+          "type": "number"
+        }
+      },
+      "required": [
+        "origin",
+        "baysX",
+        "baysY"
+      ],
+      "type": "object"
+    },
+    "name": "app_structural_layout"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
       "readOnlyHint": true,
       "title": "List app commands"
     },
