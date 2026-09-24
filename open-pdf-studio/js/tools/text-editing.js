@@ -10,6 +10,7 @@ import { invertPageRotation, resolveTextEditPageGeometry } from '../text/text-ed
 import { annotationCanvas } from '../ui/dom-elements.js';
 import { viewport as vpState } from '../pdf/pdf-viewport.js';
 import { hasMixedRuns, textboxLineRuns } from '../annotations/rendering/textbox-layout.js';
+import { editorVakOpmaak } from './text-edit-vak.js';
 import { layerForNewAnnotation } from '../annotations/annotatie-lagen.js';
 import {
   showTextEditOverlay, hideTextEditOverlay,
@@ -109,9 +110,10 @@ export function startTextEditing(annotation) {
   _chain.push('sans-serif');
   const cssFontFamily = _chain.join(', ');
 
-  // Match the canvas padding (lineWidth, no minimum) so wrap-points line
-  // up. Was `2 * scale` which added a 2pt margin the canvas no longer has.
-  const editPadding = (annotation.lineWidth ?? 0) * scale;
+  // Rand en opvulling zo dat de editor op dezelfde breedte afbreekt als het
+  // canvas (zie text-edit-vak.js): anders sprong een woord dat op het canvas
+  // paste bij het bewerken naar een tweede regel en groeide het vak mee.
+  const vakOpmaak = editorVakOpmaak(annotation, scale);
 
   // Build style object for the textarea overlay
   const styleObj = {
@@ -124,8 +126,7 @@ export function startTextEditing(annotation) {
     'font-family': cssFontFamily,
     color: annotation.textColor || annotation.color || '#000000',
     'background-color': hasFill(annotation.fillColor) ? annotation.fillColor : '#ffffff',
-    border: `${(annotation.lineWidth ?? 1) * scale}px solid ${annotation.strokeColor || '#000000'}`,
-    padding: `${editPadding}px`,
+    ...vakOpmaak,
     'box-sizing': 'border-box',
     resize: 'none',
     outline: 'none',
