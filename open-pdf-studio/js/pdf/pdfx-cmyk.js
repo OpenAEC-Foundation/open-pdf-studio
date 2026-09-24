@@ -33,6 +33,7 @@ export const SKIP_REASONS = Object.freeze([
   'shadingType',
   'functionType',
   'separationRgbAlternate',
+  'unreadable',
 ]);
 
 /** Rendering intents; de eerste is de standaard. */

@@ -160,7 +160,8 @@
       "encodeFailed": "could not be written",
       "shadingType": "mesh or function-based gradient",
       "functionType": "unsupported gradient function",
-      "separationRgbAlternate": "spot colour with an RGB alternate"
+      "separationRgbAlternate": "spot colour with an RGB alternate",
+      "unreadable": "could not be read"
     },
     "nothing": "No RGB colour was found; nothing needed converting.",
     "stillRgb": "What was not converted is still RGB; a check for CMYK-only output (such as PDF/X-1a) will flag it.",

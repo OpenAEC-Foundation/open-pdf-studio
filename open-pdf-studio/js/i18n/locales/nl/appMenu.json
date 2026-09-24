@@ -159,7 +159,8 @@
       "encodeFailed": "niet te schrijven",
       "shadingType": "mesh- of functieverloop",
       "functionType": "verloopfunctie niet ondersteund",
-      "separationRgbAlternate": "steunkleur met een RGB-alternatief"
+      "separationRgbAlternate": "steunkleur met een RGB-alternatief",
+      "unreadable": "niet te lezen"
     },
     "nothing": "Er is geen RGB-kleur gevonden; er hoefde niets omgezet te worden.",
     "stillRgb": "Wat niet is omgezet, is nog RGB; een controle op alleen-CMYK (zoals PDF/X-1a) zal dat melden.",

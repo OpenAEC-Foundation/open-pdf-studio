@@ -416,11 +416,14 @@ impl<'a> Walker<'a> {
                         Ok((Some(id), Object::Stream(_))) => self.form(id, None),
                         Ok((_, Object::Dictionary(states))) => {
                             for (_, state) in states.iter() {
-                                if let Ok((Some(id), Object::Stream(_))) = self.doc.dereference(state) {
-                                    self.form(id, None);
+                                match self.doc.dereference(state) {
+                                    Ok((Some(id), Object::Stream(_))) => self.form(id, None),
+                                    Err(_) => self.report.content_streams.skipped("unreadable"),
+                                    _ => {}
                                 }
                             }
                         }
+                        Err(_) => self.report.content_streams.skipped("unreadable"),
                         _ => {}
                     }
                 }
@@ -446,7 +449,10 @@ impl<'a> Walker<'a> {
 
     /// Eén inhoudsstroom herschrijven (al gemarkeerd als gezien).
     fn content(&mut self, id: ObjectId, res: Option<&'a Dictionary>, state: &mut ColourState) {
-        let Ok(Object::Stream(s)) = self.doc.get_object(id) else { return };
+        let Ok(Object::Stream(s)) = self.doc.get_object(id) else {
+            self.report.content_streams.skipped("unreadable");
+            return;
+        };
         let data = match self.plain(s) {
             Ok(d) => d,
             Err(reason) => {
@@ -469,7 +475,10 @@ impl<'a> Walker<'a> {
         if !self.seen.insert(id) {
             return;
         }
-        let Ok(Object::Stream(s)) = self.doc.get_object(id) else { return };
+        let Ok(Object::Stream(s)) = self.doc.get_object(id) else {
+            self.report.content_streams.skipped("unreadable");
+            return;
+        };
         let place = Place::root(id);
         let own = self.entry(&s.dict, &place, b"Resources").and_then(|(o, p)| dict_of(o).map(|d| (d, p)));
         if let Some((r, p)) = &own {
@@ -508,7 +517,11 @@ impl<'a> Walker<'a> {
         }
         if let Some((Object::Dictionary(xobjects), _)) = self.entry(res, &place, b"XObject") {
             for (_, value) in xobjects.iter() {
-                let Ok((Some(id), Object::Stream(s))) = self.doc.dereference(value) else { continue };
+                let Ok((Some(id), obj)) = self.doc.dereference(value) else {
+                    self.report.content_streams.skipped("unreadable");
+                    continue;
+                };
+                let Object::Stream(s) = obj else { continue };
                 match s.dict.get(b"Subtype").and_then(|o| o.as_name()) {
                     Ok(b"Form") => self.form(id, Some((res, place.clone()))),
                     Ok(b"Image") => self.image(id),
@@ -518,12 +531,17 @@ impl<'a> Walker<'a> {
         }
         if let Some((Object::Dictionary(patterns), pats_place)) = self.entry(res, &place, b"Pattern") {
             for (key, _) in patterns.iter() {
-                let Some((pattern, pat_place)) = self.entry(patterns, &pats_place, key) else { continue };
+                let Some((pattern, pat_place)) = self.entry(patterns, &pats_place, key) else {
+                    self.report.content_streams.skipped("unreadable");
+                    continue;
+                };
                 match pattern {
                     Object::Stream(_) if pat_place.path.is_empty() => self.form(pat_place.owner, Some((res, place.clone()))),
                     Object::Dictionary(d) => {
-                        if let Some((shading, sh_place)) = self.entry(d, &pat_place, b"Shading") {
-                            self.shading(shading, sh_place);
+                        match self.entry(d, &pat_place, b"Shading") {
+                            Some((shading, sh_place)) => self.shading(shading, sh_place),
+                            None if d.has(b"Shading") => self.report.shadings.skipped("unreadable"),
+                            None => {}
                         }
                     }
                     _ => {}
@@ -532,8 +550,9 @@ impl<'a> Walker<'a> {
         }
         if let Some((Object::Dictionary(shadings), sh_place)) = self.entry(res, &place, b"Shading") {
             for (key, _) in shadings.iter() {
-                if let Some((shading, p)) = self.entry(shadings, &sh_place, key) {
-                    self.shading(shading, p);
+                match self.entry(shadings, &sh_place, key) {
+                    Some((shading, p)) => self.shading(shading, p),
+                    None => self.report.shadings.skipped("unreadable"),
                 }
             }
         }
@@ -572,7 +591,10 @@ impl<'a> Walker<'a> {
         if !self.seen.insert(id) {
             return;
         }
-        let Ok(Object::Stream(s)) = self.doc.get_object(id) else { return };
+        let Ok(Object::Stream(s)) = self.doc.get_object(id) else {
+            self.report.images.skipped("unreadable");
+            return;
+        };
         if matches!(s.dict.get(b"ImageMask").map(|o| self.deref(o)), Ok(Object::Boolean(true))) {
             return;
         }
@@ -1414,6 +1436,22 @@ mod tests {
         let mut seen = Vec::new();
         convert_document_with_progress(&fx.bytes(), &NaiveCmyk, &mut |done, total| seen.push((done, total))).unwrap();
         assert_eq!(seen, vec![(0, 2), (1, 2), (2, 2)]);
+    }
+
+    #[test]
+    fn references_that_cannot_be_read_are_reported_not_skipped() {
+        let mut fx = Fx::new("/Fm0 Do /Sh0 sh");
+        let contents = fx.page().get(b"Contents").unwrap().clone();
+        fx.page().set("Contents", vec![contents, Object::Reference((99, 0))]);
+        fx.res("XObject", "Fm0", Object::Reference((98, 0)));
+        fx.res("Shading", "Sh0", Object::Reference((96, 0)));
+        let annot = fx.add(dictionary! { "Type" => "Annot", "Subtype" => "Square",
+            "Rect" => vec![0.into(), 0.into(), 1.into(), 1.into()], "AP" => dictionary! { "N" => Object::Reference((97, 0)) } });
+        fx.page().set("Annots", vec![annot.into()]);
+        let (_, report, _) = convert(&fx.bytes());
+        // Inhoud 99, formulier 98 en uiterlijk 97.
+        assert_eq!(report.content_streams.skipped.get("unreadable"), Some(&3));
+        assert_eq!(report.shadings.skipped.get("unreadable"), Some(&1));
     }
 
     #[test]
