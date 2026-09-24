@@ -6,6 +6,7 @@ import { annotProps, updateAnnotProp } from '../../stores/propertiesStore.js';
 import CollapsibleSection from './CollapsibleSection.jsx';
 import { getTemplate } from '../../../symbols/registry.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import ParamListEditor from './ParamListEditor.jsx';
 
 function paramValue(key, fallback) {
   // annotProps.params is mirrored from currentAnnotation.params via setAnnotProps
@@ -16,7 +17,10 @@ function paramValue(key, fallback) {
 function setParam(key, value) {
   // Write the whole params object so propertiesStore's default branch updates
   // annotation.params AND its flat-key mirror updates annotProps.params for UI.
-  const next = { ...(annotProps.params || {}), [key]: value };
+  // Via JSON gekopieerd: annotProps.params is een store-proxy, en een lijst
+  // erin (de onderdelen van een aanrecht) mag niet als proxy in de annotatie
+  // terechtkomen.
+  const next = { ...JSON.parse(JSON.stringify(annotProps.params || {})), [key]: value };
   updateAnnotProp('params', next);
 }
 
@@ -45,6 +49,21 @@ export default function ParametricSymbolSection() {
               <input type="text" readonly value={template.name + (template.nameEn ? ` / ${template.nameEn}` : '')} />
             </div>
             <For each={template.params}>{(p) => (
+              <Show when={p.type !== 'list'} fallback={
+                // Lijst-parameter (onderdelen van een aanrecht): kop plus een
+                // eigen bewerker over de volle breedte.
+                <div>
+                  <div class="property-group">
+                    <label title={p.labelEn || ''}>{p.label}</label>
+                  </div>
+                  <ParamListEditor
+                    def={p}
+                    value={paramValue(p.key, p.default)}
+                    params={annotProps.params || {}}
+                    onChange={(lijst) => setParam(p.key, lijst)}
+                  />
+                </div>
+              }>
               <div class="property-group">
                 {/* p.label/p.unit come from the symbol template's own data
                     (bilingual NL/EN label+labelEn, per symbols/registry.js),
@@ -88,6 +107,7 @@ export default function ParametricSymbolSection() {
                   />
                 </Show>
               </div>
+              </Show>
             )}</For>
           </CollapsibleSection>
         );

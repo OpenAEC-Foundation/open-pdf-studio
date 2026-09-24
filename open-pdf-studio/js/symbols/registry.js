@@ -31,6 +31,8 @@ import {
 import {
   bouwkraanTemplate, draaicirkelTemplate, parkeervakTemplate, bouwkeetTemplate,
 } from './templates/bouwplaats-symbolen.js';
+import { SANITAIR_TEMPLATES } from './templates/sanitair.js';
+import { KEUKEN_TEMPLATES } from './templates/keuken.js';
 
 const templates = new Map();
 
@@ -76,6 +78,8 @@ register(bouwkraanTemplate);
 register(draaicirkelTemplate);
 register(parkeervakTemplate);
 register(bouwkeetTemplate);
+for (const t of SANITAIR_TEMPLATES) register(t);
+for (const t of KEUKEN_TEMPLATES) register(t);
 
 // Runtime registration for catalog-driven templates (downloaded steel
 // catalogs from the online symbol library — see symbols/steel-catalog-store.js).
@@ -103,7 +107,41 @@ export function defaultParams(template) {
   if (!template || !Array.isArray(template.params)) return {};
   const out = {};
   for (const p of template.params) {
-    out[p.key] = p.default;
+    // Een lijst- of objectstandaard (de onderdelen van een aanrecht) als
+    // kopie: anders deelt elk geplaatst symbool dezelfde array met het
+    // template, en één wijziging zou ze allemaal raken.
+    out[p.key] = p.default !== null && typeof p.default === 'object'
+      ? JSON.parse(JSON.stringify(p.default))
+      : p.default;
+  }
+  return out;
+}
+
+/**
+ * Waarde voor een lijst-parameter (type 'list', zoals de onderdelen van een
+ * aanrecht). De parameter mag zijn eigen normalisatie meebrengen; zonder die
+ * wordt het een kopie van de objecten. Geen array: undefined (de standaard
+ * blijft staan).
+ */
+export function normalizeListParam(def, raw, params = {}) {
+  if (!Array.isArray(raw)) return undefined;
+  if (def && typeof def.normalize === 'function') return def.normalize(raw, params);
+  return raw.map((o) => (o && typeof o === 'object' ? { ...o } : o));
+}
+
+/**
+ * Alle lijst-parameters van een template genormaliseerd (de rest blijft zoals
+ * hij is). Voor de MCP-kant: wat de assistent aanmaakt of bijwerkt, staat er
+ * daarna precies zo in als het getekend wordt.
+ */
+export function normalizeParams(template, params = {}) {
+  const out = { ...(params || {}) };
+  if (!template || !Array.isArray(template.params)) return out;
+  for (const def of template.params) {
+    if (def.type !== 'list' || !(def.key in out)) continue;
+    const lijst = normalizeListParam(def, out[def.key], out);
+    if (lijst !== undefined) out[def.key] = lijst;
+    else delete out[def.key];
   }
   return out;
 }

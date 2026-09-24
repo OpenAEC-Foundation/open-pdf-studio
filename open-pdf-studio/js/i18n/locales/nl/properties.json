@@ -616,6 +616,11 @@
     "sectionTitle": "Symbol: {{name}}",
     "symbolLabel": "Symbol",
     "typeLabel": "Type",
-    "unknownSymbol": "Unknown symbol"
+    "unknownSymbol": "Unknown symbol",
+    "listNew": "Nieuw",
+    "listAdd": "Toevoegen",
+    "listRemove": "Verwijderen",
+    "listSwap": "Wisselen met de volgende",
+    "listEmpty": "Geen onderdelen"
   }
 }
