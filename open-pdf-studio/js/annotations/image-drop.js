@@ -7,6 +7,7 @@ import { updateStatusMessage } from '../ui/chrome/status-bar.js';
 import { visibleCenterOnPage } from './clipboard.js';
 import { readBinaryFile } from '../core/platform.js';
 import i18next from '../i18n/config.js';
+import { layerForNewAnnotation } from './annotatie-lagen.js';
 
 const MIME_BY_EXT = {
   png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg',
@@ -121,6 +122,9 @@ export function plaatsAfbeeldingAnnotatie(img, dataUrl, plek) {
     createdAt: new Date().toISOString(),
     modifiedAt: new Date().toISOString()
   };
+  // Een nieuwe markering landt op de huidige laag (#468), zoals via createAnnotation.
+  const laag = layerForNewAnnotation(doc);
+  if (laag) annotation.layer = laag;
 
   doc.annotations.push(annotation);
   recordAdd(annotation);

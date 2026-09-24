@@ -30,6 +30,7 @@ import { recordAdd } from '../core/undo-manager.js';
 import { showProperties } from '../ui/panels/properties-panel.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
+import { layerForNewAnnotation } from '../annotations/annotatie-lagen.js';
 
 // ─── Clipboard image → Blob ─────────────────────────────────────────────────
 // Desktop reads through a small Rust command (clipboard-manager plugin), which
@@ -119,6 +120,9 @@ async function placeImageFillingPage(blob, dataUrl, img) {
     createdAt: new Date().toISOString(),
     modifiedAt: new Date().toISOString(),
   };
+  // Een nieuwe markering landt op de huidige laag (#468), zoals via createAnnotation.
+  const laag = layerForNewAnnotation(doc);
+  if (laag) annotation.layer = laag;
 
   doc.annotations.push(annotation);
   recordAdd(annotation);

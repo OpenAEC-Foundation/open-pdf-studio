@@ -81,3 +81,13 @@ test('ook de extra annotaties die de lader naast de hoofdannotatie maakt', () =>
   assert.equal(extra.layer, 'l1');
   assert.equal(zetLaagUitBestand(null, 'l1'), null);
 });
+
+// Vier aanmaakpaden bouwen hun annotatie als los object, buiten
+// createAnnotation om (notitie, twee schermafbeeldingen, afbeelding slepen).
+// Die moeten dezelfde regel volgen.
+test('ook notities, schermafbeeldingen en gesleepte afbeeldingen landen op de huidige laag', () => {
+  for (const pad of ['../tools/text-editing.js', '../tools/screenshot-annotate.js', '../tools/screenshot.js', './image-drop.js']) {
+    const bron = readFileSync(new URL(pad, import.meta.url), 'utf8');
+    assert.match(bron, /layerForNewAnnotation\(/, `${pad} zet de huidige laag`);
+  }
+});
