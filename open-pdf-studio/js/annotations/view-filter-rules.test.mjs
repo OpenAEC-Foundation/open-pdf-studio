@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 
-import { hiddenInView, pickableInView } from './view-filter-rules.js';
+import { hiddenInView, pickableInView, hiddenInOutput } from './view-filter-rules.js';
 import { addLayer, updateLayer, DEFAULT_LAYER_ID } from './annotatie-lagen.js';
 
 function docMetLagen() {
@@ -89,4 +89,33 @@ test('klikken, het selectiekader en "alles selecteren" vragen of een annotatie a
     assert.match(bronTekst, /isAnnotationPickableInView\(/, `${pad} gebruikt het aanklikbaar-predicaat`);
     assert.doesNotMatch(bronTekst, /isAnnotationHiddenInView\(/, `${pad} gebruikt niet meer alleen het weergavepredicaat`);
   }
+});
+
+// --- afdrukken en exporteren ------------------------------------------------
+
+test('een uitgezette of niet-afdrukbare laag komt niet in de afdruk of export', () => {
+  const doc = { annotations: [] };
+  const uit = addLayer(doc, { name: 'Uit', visible: false }).layer;
+  const scherm = addLayer(doc, { name: 'Alleen scherm', printable: false }).layer;
+  const papier = addLayer(doc, { name: 'Papier' }).layer;
+  assert.equal(hiddenInOutput({ type: 'box', layer: uit.id }, bron(doc)), true);
+  assert.equal(hiddenInOutput({ type: 'box', layer: scherm.id }, bron(doc)), true);
+  assert.equal(hiddenInView({ type: 'box', layer: scherm.id }, bron(doc)), false, 'op het scherm wel zichtbaar');
+  assert.equal(hiddenInOutput({ type: 'box', layer: papier.id }, bron(doc)), false);
+  // Vergrendeld is geen reden om niet af te drukken.
+  const slot = addLayer(doc, { name: 'Slot', locked: true }).layer;
+  assert.equal(hiddenInOutput({ type: 'box', layer: slot.id }, bron(doc)), false);
+  // Zonder lagen: alles zoals voorheen.
+  assert.equal(hiddenInOutput({ type: 'box' }, bron({ annotations: [] })), false);
+});
+
+test('de uitvoer (afdruk, export, printvoorbeeld) vraagt het uitvoerpredicaat, het scherm niet', () => {
+  const rendering = readFileSync(new URL('./rendering.js', import.meta.url), 'utf8');
+  const teken = rendering.slice(rendering.indexOf('export function drawAnnotation('));
+  const kop = teken.slice(0, teken.indexOf('const _evHalftone'));
+  assert.match(kop, /_lagen\s*\?\s*isAnnotationHiddenInOutput\(annotation\)\s*:\s*isAnnotationHiddenInView\(annotation\)/);
+  // Het printpad en de exports gaan door renderMarkeringenOffscreen, dat
+  // altijd in uitvoermodus tekent.
+  const exporter = readFileSync(new URL('../pdf/exporter.js', import.meta.url), 'utf8');
+  assert.match(exporter, /const lagen = \{ uitvoer: true, markeringen \};/);
 });

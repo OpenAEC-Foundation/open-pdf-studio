@@ -42,7 +42,7 @@ import { EDITABLE_NUMBER_COLOR, shouldHighlightNumbers } from './editable-number
 // (stavenreeks, betonbalk, parametricSymbol).
 import { labelHasNumericField } from './editable-numbers-providers.js';
 import { halftoneTypes as evHalftoneTypes } from '../solid/stores/elementVisibilityStore.js';
-import { isAnnotationHiddenInView } from './view-filters.js';
+import { isAnnotationHiddenInView, isAnnotationHiddenInOutput } from './view-filters.js';
 import { kruisEindpuntenEllips } from './kruis-geometrie.js';
 import { klemMaat, symboolRasterPxPerPt } from './minimummaat.js';
 import {
@@ -425,7 +425,10 @@ export function drawAnnotation(ctx, annotation) {
   // wat niet getekend wordt ook niet aanklikbaar is.
   // `_ignoreViewFilters` is voor de saver/AP-raster-route: opslaan is geen
   // weergave, een verborgen annotatie moet zijn appearance gewoon krijgen.
-  if (!annotation._ignoreViewFilters && isAnnotationHiddenInView(annotation)) return;
+  // In een afdruk, export of printvoorbeeld (`_lagen` gezet door
+  // renderAnnotationsForPage) blijft ook een niet-afdrukbare laag weg (#468).
+  if (!annotation._ignoreViewFilters
+      && (_lagen ? isAnnotationHiddenInOutput(annotation) : isAnnotationHiddenInView(annotation))) return;
   const _evHalftone = evHalftoneTypes().get(annotation.type) || null;
 
   // Use annotation's opacity property

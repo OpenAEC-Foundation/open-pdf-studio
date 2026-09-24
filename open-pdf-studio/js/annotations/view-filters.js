@@ -25,7 +25,7 @@
 import { hiddenTypes as evHiddenTypes } from '../solid/stores/elementVisibilityStore.js';
 import { isStatusHidden } from '../solid/stores/panels/annotationsStore.js';
 import { getActiveDocument } from '../core/state.js';
-import { hiddenInView, pickableInView } from './view-filter-rules.js';
+import { hiddenInView, pickableInView, hiddenInOutput } from './view-filter-rules.js';
 
 function bronnen() {
   return { doc: getActiveDocument(), hiddenTypes: evHiddenTypes(), isStatusHidden };
@@ -34,6 +34,15 @@ function bronnen() {
 /** Wordt deze annotatie niet getekend? Dan is ze ook niet aanklikbaar. */
 export function isAnnotationHiddenInView(ann) {
   return hiddenInView(ann, bronnen());
+}
+
+/**
+ * Blijft deze annotatie uit een afdruk of export? Wat niet getekend wordt,
+ * plus een laag die niet afdrukbaar is (#468). "Afdrukken: Document" laat de
+ * hele annotatielaag al weg (rendering/uitvoer-lagen.js); dit is per markering.
+ */
+export function isAnnotationHiddenInOutput(ann) {
+  return hiddenInOutput(ann, bronnen());
 }
 
 /**

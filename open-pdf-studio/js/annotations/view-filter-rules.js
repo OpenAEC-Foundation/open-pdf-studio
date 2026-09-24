@@ -11,7 +11,7 @@
 //     vergrendeld is — die blijft zichtbaar, maar is niet te selecteren en
 //     dus ook niet te verplaatsen.
 
-import { isLayerHidden, isLayerLocked } from './annotatie-lagen.js';
+import { isLayerHidden, isLayerLocked, isLayerPrintable } from './annotatie-lagen.js';
 
 /**
  * @typedef {object} WeergaveBronnen
@@ -31,6 +31,18 @@ export function hiddenInView(ann, bron = {}) {
   if (bron.isStatusHidden && bron.isStatusHidden(ann)) return true;
   // 4. de laag van de annotatie staat uit (#468).
   return isLayerHidden(bron.doc, ann);
+}
+
+/**
+ * Blijft deze annotatie uit een afdruk, export of printvoorbeeld? Alles wat
+ * niet op het scherm staat, plus een laag die niet afdrukbaar is (#468). Een
+ * vergrendelde laag drukt gewoon af.
+ * @param {object} ann @param {WeergaveBronnen} bron
+ */
+export function hiddenInOutput(ann, bron = {}) {
+  if (!ann) return false;
+  if (hiddenInView(ann, bron)) return true;
+  return !isLayerPrintable(bron.doc, ann);
 }
 
 /** @param {object} ann @param {WeergaveBronnen} bron */
