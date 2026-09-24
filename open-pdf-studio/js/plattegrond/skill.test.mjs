@@ -30,3 +30,13 @@ test('de instructie voor het model noemt de opdracht, de eenheden en de volgorde
     assert.ok(PLATTEGROND_PROMPT.includes(`action:"${a}"`) || PLATTEGROND_PROMPT.includes(`"${a}"`), a);
   }
 });
+
+test('de instructie heeft een eigen blok over kozijnen en spouwmuren', () => {
+  const blok = PLATTEGROND_PROMPT.slice(PLATTEGROND_PROMPT.indexOf('KOZIJNEN EN SPOUWMUREN'));
+  assert.ok(blok.length > 100, 'het blok staat in de instructie');
+  for (const stuk of [
+    'layers', 'insideSide', 'BUITENVLAK', 'KOZIJNMAAT', 'aanslag', 'speling',
+    'framePositionMm', 'overlapMm', 'clearanceMm', 'stileWidthMm', 'frameDepthMm', 'leafThicknessMm',
+    'layerOpeningsMm', 'corners', 'windowType', 'turn', '67 x 114',
+  ]) assert.ok(blok.includes(stuk), `het kozijnblok noemt ${stuk}`);
+});
