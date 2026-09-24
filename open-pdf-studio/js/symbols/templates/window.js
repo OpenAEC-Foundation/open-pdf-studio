@@ -6,7 +6,37 @@
 // rebate (two lines at 1:50, one at 1:100), a sash for opening windows and
 // the sill in view below the cut (see js/plattegrond/kozijn.js). The INSIDE
 // of the wall is at the top of the bbox.
-import { kozijnTekenopdrachten } from '../../plattegrond/kozijn.js';
+//
+// Windows from older documents have no frame timber (`stijlBreedteMm`) in
+// their params: they keep their old drawing (legacyRender below), on screen
+// and in a saved PDF.
+import { heeftKozijnOpbouw, kozijnTekenopdrachten } from '../../plattegrond/kozijn.js';
+
+function legacyRender(params, bbox) {
+  const cmds = [];
+  const x = bbox.x, y = bbox.y, w = bbox.width, h = bbox.height;
+  // Two parallel "frame" lines along the bbox top/bottom
+  cmds.push({ kind: 'line', x1: x, y1: y, x2: x + w, y2: y });
+  cmds.push({ kind: 'line', x1: x, y1: y + h, x2: x + w, y2: y + h });
+  // Two glass lines in the middle (the parallel pair representing glazing)
+  const cy = y + h / 2;
+  const inset = h * 0.18;
+  cmds.push({ kind: 'line', x1: x, y1: cy - inset, x2: x + w, y2: cy - inset });
+  cmds.push({ kind: 'line', x1: x, y1: cy + inset, x2: x + w, y2: cy + inset });
+  // End caps
+  cmds.push({ kind: 'line', x1: x, y1: y, x2: x, y2: y + h });
+  cmds.push({ kind: 'line', x1: x + w, y1: y, x2: x + w, y2: y + h });
+  // Type indicator: small symbol in the centre
+  if (params.type === 'pivot') {
+    // Diagonal X across centre band
+    cmds.push({ kind: 'line', x1: x + w / 2 - 6, y1: cy - inset, x2: x + w / 2 + 6, y2: cy + inset });
+    cmds.push({ kind: 'line', x1: x + w / 2 - 6, y1: cy + inset, x2: x + w / 2 + 6, y2: cy - inset });
+  } else if (params.type === 'tilt') {
+    // Single diagonal indicating tilt
+    cmds.push({ kind: 'line', x1: x, y1: cy + inset, x2: x + w, y2: cy - inset, dash: [3, 2] });
+  }
+  return cmds;
+}
 
 export const windowTemplate = {
   id: 'window',
@@ -35,6 +65,7 @@ export const windowTemplate = {
     { key: 'binnenSpelingMm', label: 'Speling binnenblad', labelEn: 'Inner leaf clearance', type: 'number', default: 0, min: 0, max: 100, step: 1, unit: 'mm' },
   ],
   render(params, bbox) {
+    if (!heeftKozijnOpbouw(params, 'raam')) return legacyRender(params, bbox);
     return kozijnTekenopdrachten('raam', params, bbox);
   }
 };
