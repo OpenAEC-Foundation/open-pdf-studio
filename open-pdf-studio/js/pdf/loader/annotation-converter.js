@@ -24,6 +24,7 @@ import { maatVanGedraaideVorm } from './gedraaide-vorm-maat.js';
 import { tekstvakRotatie, tekstvakMaat } from './tekstvak-rotatie.js';
 import { onzichtbaarVlakUitExtra, randloosUitExtra } from './geen-rand.js';
 import { opmerkingUitAnnot, zonderDubbeleOpmerking } from './annotatie-opmerking.js';
+import { zetLaagUitBestand } from './annotatie-laag.js';
 import { zoekExtraKleuren } from './extra-sleutel.js';
 
 /**
@@ -34,8 +35,11 @@ import { zoekExtraKleuren } from './extra-sleutel.js';
  * label van een kader). Zie annotatie-opmerking.js.
  */
 export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageMap, annotColorMap) {
-  return zonderDubbeleOpmerking(
+  const omgezet = zonderDubbeleOpmerking(
     await converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, annotColorMap));
+  // De laag komt uit het bestand (/OC, zie color-extraction.js), nooit uit de
+  // huidige laag die createAnnotation voor nieuwe markeringen invult (#468).
+  return zetLaagUitBestand(omgezet, zoekExtraKleuren(annotColorMap, annot?.rect)?.layer);
 }
 
 // Convert PDF annotation to our format

@@ -6,7 +6,7 @@ import {
   panelVisible, setPanelVisible, layersVersion,
   addAnnotationLayer, renameAnnotationLayer, setAnnotationLayerFlag,
   setAnnotationLayerColor, moveAnnotationLayerBy, setCurrentAnnotationLayer,
-  requestDeleteAnnotationLayer,
+  requestDeleteAnnotationLayer, moveSelectionToAnnotationLayer,
 } from '../../stores/annotationLayersStore.js';
 
 // "Markeringslagen" (#468): markeringen groeperen op benoemde lagen. Per laag
@@ -23,6 +23,7 @@ const ICOON = {
   moveUp: '<svg viewBox="0 0 16 16" width="14" height="14"><path d="M8 3l-4 5h8zM8 8v5" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>',
   moveDown: '<svg viewBox="0 0 16 16" width="14" height="14"><path d="M8 13l-4-5h8zM8 8V3" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>',
   delete: '<svg viewBox="0 0 16 16" width="14" height="14"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>',
+  moveSelection: '<svg viewBox="0 0 16 16" width="14" height="14"><path d="M2 8h8M7 5l3 3-3 3M12 3v10" stroke="currentColor" stroke-width="1.2" fill="none"/></svg>',
 };
 
 export default function AnnotationLayersPanel() {
@@ -95,6 +96,10 @@ export default function AnnotationLayersPanel() {
           <button type="button" class="al-tool" title={t('annotationLayers.delete')}
             disabled={!gekozenRij() || gekozenRij().isDefault}
             onClick={() => requestDeleteAnnotationLayer(gekozen())} innerHTML={ICOON.delete} />
+          <span class="al-tool-sep" />
+          <button type="button" class="al-tool" title={t('annotationLayers.moveSelection')}
+            disabled={!gekozenRij()}
+            onClick={() => moveSelectionToAnnotationLayer(gekozen())} innerHTML={ICOON.moveSelection} />
         </div>
 
         <div class="al-column-head">

@@ -17,7 +17,7 @@ import {
   DEFAULT_LAYER_ID,
   addLayer, renameLayer, updateLayer, moveLayer, deleteLayer,
   getLayers, findLayer, layerDisplayName, nextLayerName,
-  annotationsOnLayer, assignLayer, setCurrentLayer,
+  annotationsOnLayer, assignLayer, setCurrentLayer, layerIdOf,
 } from '../../annotations/annotatie-lagen.js';
 
 const [panelVisible, setPanelVisible] = createSignal(false);
@@ -188,6 +188,34 @@ export async function deleteAnnotationLayer(id, keuze = 'move', doelId = DEFAULT
   await naWijziging(doc);
   lijstBijwerken();
   return true;
+}
+
+/**
+ * Markeringen naar een laag verplaatsen, als één undo-stap. Wat op een
+ * uitgezette of vergrendelde laag belandt, gaat uit de selectie.
+ * @returns {Promise<number>} hoeveel markeringen er verplaatst zijn
+ */
+export async function moveAnnotationsToAnnotationLayer(anns, id) {
+  const doc = getActiveDocument();
+  if (!doc || !findLayer(doc, id)) return 0;
+  const te = (anns || []).filter((a) => a && layerIdOf(a) !== id);
+  if (te.length === 0) return 0;
+  const { cloneAnnotation } = await import('../../annotations/factory.js');
+  const voor = te.map(cloneAnnotation);
+  const n = assignLayer(te, id);
+  const nu = new Date().toISOString();
+  for (const a of te) a.modifiedAt = nu;
+  const undo = await import('../../core/undo-manager.js');
+  undo.recordBulkModify(te, voor);
+  await naWijziging(doc, { gewijzigd: false });
+  lijstBijwerken();
+  return n;
+}
+
+/** De geselecteerde markeringen naar een laag. */
+export function moveSelectionToAnnotationLayer(id) {
+  const doc = getActiveDocument();
+  return moveAnnotationsToAnnotationLayer([...(doc?.selectedAnnotations || [])], id);
 }
 
 export { panelVisible, setPanelVisible, layersVersion };

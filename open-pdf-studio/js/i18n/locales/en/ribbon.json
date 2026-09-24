@@ -227,6 +227,7 @@
     "delete": "Delete layer",
     "moveUp": "Move layer up",
     "moveDown": "Move layer down",
+    "moveSelection": "Move the selected markups to this layer",
     "colCurrent": "Cur.",
     "colName": "Name",
     "colCount": "Count",

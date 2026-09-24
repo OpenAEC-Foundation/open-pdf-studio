@@ -81,3 +81,16 @@ test('elke gebruikte sleutel bestaat in het Engels', () => {
   assert.ok(gebruikt.size > 10);
   for (const k of gebruikt) assert.ok(k in en, `annotationLayers.${k} ontbreekt in en/ribbon.json`);
 });
+
+test('geselecteerde markeringen naar een laag: vanuit het paneel en het contextmenu', () => {
+  assert.match(paneel, /moveSelectionToAnnotationLayer\(/);
+  assert.match(paneel, /annotationLayers\.moveSelection'/);
+  const menu = lees('../ContextMenu.jsx');
+  // Het oude "geen lagen beschikbaar" is vervangen door de echte lagen, in het
+  // menu van één annotatie én in dat van een meervoudige selectie.
+  assert.doesNotMatch(menu, /noLayersAvailable/);
+  assert.equal((menu.match(/<LayerSubmenu /g) || []).length, 2);
+  assert.match(menu, /moveAnnotationsToAnnotationLayer\(/);
+  // Eén undo-stap voor de hele verplaatsing.
+  assert.match(store, /recordBulkModify\(/);
+});

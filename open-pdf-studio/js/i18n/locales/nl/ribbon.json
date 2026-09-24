@@ -227,6 +227,7 @@
     "delete": "Laag verwijderen",
     "moveUp": "Laag omhoog",
     "moveDown": "Laag omlaag",
+    "moveSelection": "Geselecteerde markeringen naar deze laag verplaatsen",
     "colCurrent": "Huid.",
     "colName": "Naam",
     "colCount": "Aantal",

@@ -63,6 +63,7 @@ export {
 export {
   refreshAnnotationLayers,
   defaultLayerName as annotationDefaultLayerName,
+  moveAnnotationsToAnnotationLayer,
 } from './solid/stores/annotationLayersStore.js';
 
 // ============= LEFT PANEL =============
