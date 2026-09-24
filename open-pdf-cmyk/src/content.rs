@@ -266,7 +266,7 @@ fn inline_image(lx: &mut Lexer, bi_start: usize, env: &mut dyn ContentEnv, repor
 }
 
 fn ei_at(data: &[u8], p: usize) -> bool {
-    data.get(p..p + 2) == Some(b"EI") && data.get(p + 2).map_or(true, |&b| is_ws(b) || is_delim(b))
+    data.get(p..p + 2) == Some(b"EI") && !matches!(data.get(p + 2), Some(&b) if !is_ws(b) && !is_delim(b))
 }
 
 /// (einde van de gegevens, einde van `EI`). Ongecomprimeerd volgt de lengte
@@ -498,14 +498,16 @@ mod tests {
 
     #[test]
     fn inline_image_replacement_and_skip_are_counted() {
-        let mut env = Env::default();
-        env.inline_answer = Some(|img| {
-            if img.dict.get(b"W").and_then(|w| w.as_i64()).ok() == Some(1) {
-                InlineOutcome::Replace(b"BI /W 1 /H 1 /CS /CMYK /BPC 8 ID \x00\x00\x00\x00 EI".to_vec())
-            } else {
-                InlineOutcome::Skip("unsupportedFilter")
-            }
-        });
+        let mut env = Env {
+            inline_answer: Some(|img| {
+                if img.dict.get(b"W").and_then(|w| w.as_i64()).ok() == Some(1) {
+                    InlineOutcome::Replace(b"BI /W 1 /H 1 /CS /CMYK /BPC 8 ID \x00\x00\x00\x00 EI".to_vec())
+                } else {
+                    InlineOutcome::Skip("unsupportedFilter")
+                }
+            }),
+            ..Default::default()
+        };
         let src = b"q BI /W 1 /H 1 /BPC 8 /CS /RGB ID \xff\x00\x00 EI Q BI /W 2 /H 1 /CS /RGB /F /LZW ID xx EI".to_vec();
         let mut report = Report::default();
         let out = rewrite(&src, &mut ColourState::default(), &mut env, &mut report).unwrap();

@@ -177,7 +177,7 @@ fn run_length(data: &[u8]) -> Vec<u8> {
             128 => break,
             _ => {
                 if let Some(&b) = data.get(i) {
-                    out.extend(std::iter::repeat(b).take(257 - n));
+                    out.resize(out.len() + 257 - n, b);
                 }
                 i += 1;
             }
@@ -188,7 +188,7 @@ fn run_length(data: &[u8]) -> Vec<u8> {
 
 /// Filternamen en hun parameters uit een (al opgelost) woordenboek, onder de
 /// volledige of (bij een ingebedde afbeelding) de afgekorte sleutel.
-pub fn filters_of<'a>(dict: &'a Dictionary, inline: bool) -> (Vec<Vec<u8>>, Vec<Option<&'a Dictionary>>) {
+pub fn filters_of(dict: &Dictionary, inline: bool) -> (Vec<Vec<u8>>, Vec<Option<&Dictionary>>) {
     let get = |long: &[u8], short: &[u8]| dict.get(long).ok().or_else(|| if inline { dict.get(short).ok() } else { None });
     let filters: Vec<Vec<u8>> = match get(b"Filter", b"F") {
         Some(Object::Name(n)) => vec![n.clone()],
