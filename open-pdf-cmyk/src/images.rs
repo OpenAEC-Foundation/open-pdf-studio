@@ -237,7 +237,7 @@ struct CmykPixels {
     from_jpeg: bool,
 }
 
-/// CMYK-JPEG in de Adobe-vorm: de waarden omgekeerd opgeslagen (255 = geen
+/// CMYK-JPEG in de gangbare omgekeerde vorm: de waarden omgekeerd opgeslagen (255 = geen
 /// inkt), met de APP14-markering die libjpeg-turbo bij CMYK zelf schrijft, en
 /// in het afbeeldingswoordenboek `/Decode [1 0 1 0 1 0 1 0]` om terug te keren.
 /// Zo ziet vrijwel elke CMYK-JPEG in bestaande PDF's eruit. PDF-lezers keren
@@ -662,7 +662,7 @@ mod tests {
     }
 
     #[test]
-    fn jpeg_image_is_written_back_as_an_adobe_cmyk_jpeg() {
+    fn jpeg_image_is_written_back_as_an_inverted_cmyk_jpeg() {
         let mut d = image_dict(8, 8, 8);
         d.set("Filter", Object::Name(b"DCTDecode".to_vec()));
         d.set("DecodeParms", Object::Dictionary(Dictionary::new()));
@@ -670,12 +670,12 @@ mod tests {
         assert_eq!(nd.get(b"Filter").unwrap(), &Object::Name(b"DCTDecode".to_vec()));
         assert_eq!(nd.get(b"ColorSpace").unwrap(), &Object::Name(b"DeviceCMYK".to_vec()));
         assert!(nd.get(b"DecodeParms").is_err());
-        // De Adobe-vorm: omgekeerd opgeslagen, en /Decode keert terug. PDF-
+        // De gangbare vorm: omgekeerd opgeslagen, en /Decode keert terug. PDF-
         // lezers keren een CMYK-JPEG niet zelf om; ze volgen /Decode.
         let decode: Vec<i64> = nd.get(b"Decode").unwrap().as_array().unwrap().iter().map(|o| o.as_i64().unwrap()).collect();
         assert_eq!(decode, vec![1, 0, 1, 0, 1, 0, 1, 0]);
         assert_eq!(nd.get(b"Length").unwrap().as_i64().unwrap(), content.len() as i64);
-        assert!(content.windows(5).any(|w| w == b"Adobe"), "APP14-markering");
+        assert!(content.windows(2).any(|w| w == [0xFF, 0xEE]), "APP14-markering");
         let img = turbojpeg::decompress(&content, turbojpeg::PixelFormat::CMYK).unwrap();
         assert_eq!((img.width, img.height), (8, 8));
         let px = &img.pixels[..4];
