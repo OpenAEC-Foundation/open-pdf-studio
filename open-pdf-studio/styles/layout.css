@@ -169,6 +169,181 @@
 .ev-half-opacity input[type="range"] { flex: 1; min-width: 0; }
 .ev-half-opacity-val { width: 30px; text-align: right; opacity: 0.8; }
 
+/* Markeringslagen (#468) — gedockt naast Zichtbaarheid Elementen. Zelfde
+   opbouw en huisstijl: rechte hoeken, standaardcursor, geen animaties. */
+.annotation-layers-panel {
+  width: 250px;
+  flex-shrink: 0;
+  background: var(--theme-panel-bg);
+  border-right: 1px solid var(--theme-panel-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  cursor: default;
+  user-select: none;
+  font-size: 11px;
+}
+
+.al-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 6px;
+  font-weight: 600;
+  color: var(--theme-panel-header-text);
+  background: linear-gradient(to bottom, #ffffff, #f5f5f5);
+  border-bottom: 1px solid #d4d4d4;
+}
+
+.al-panel-close {
+  width: 18px;
+  height: 18px;
+  line-height: 16px;
+  text-align: center;
+  border: none;
+  background: transparent;
+  color: var(--theme-panel-header-text);
+  cursor: default;
+  font-size: 14px;
+}
+
+.al-panel-close:hover { background: #e81123; color: #fff; }
+
+.al-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 4px;
+  border-bottom: 1px solid var(--theme-panel-border);
+}
+
+.al-tool {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--theme-panel-header-text);
+  cursor: default;
+}
+
+.al-tool:hover:not(:disabled) {
+  border-color: var(--theme-panel-border);
+  background: var(--theme-panel-toggle-hover, #e5e5e5);
+}
+
+.al-tool:disabled { opacity: 0.4; }
+
+.al-tool-sep {
+  width: 1px;
+  height: 16px;
+  margin: 0 3px;
+  background: var(--theme-panel-border);
+}
+
+.al-column-head,
+.al-row {
+  display: grid;
+  grid-template-columns: 22px 1fr 34px 24px 24px 24px;
+  align-items: center;
+  gap: 2px;
+}
+
+.al-column-head {
+  padding: 3px 4px;
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--theme-panel-tab-text);
+  opacity: 0.75;
+  border-bottom: 1px solid var(--theme-panel-border);
+}
+
+.al-col-cur, .al-col-count, .al-col-flag { text-align: center; }
+
+.al-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2px 0;
+}
+
+.al-row {
+  padding: 2px 4px;
+  border-bottom: 1px solid var(--theme-panel-border);
+  color: var(--theme-panel-header-text);
+}
+
+.al-row-selected { background: var(--theme-panel-toggle-hover, #e5e5e5); }
+.al-row-current .al-name { font-weight: 600; }
+.al-row-hidden .al-name { opacity: 0.5; }
+
+.al-cell-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+}
+
+.al-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.al-swatch {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 1px solid var(--theme-panel-border);
+  background: none;
+  cursor: default;
+}
+
+.al-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.al-name-input {
+  flex: 1;
+  min-width: 0;
+  height: 18px;
+  padding: 0 3px;
+  font-size: 11px;
+  border: 1px solid var(--theme-panel-border);
+  background: var(--theme-bg, #fff);
+  color: inherit;
+}
+
+.al-count { text-align: center; opacity: 0.8; }
+
+.al-error {
+  padding: 4px 6px;
+  color: #c42b1c;
+}
+
+.al-delete-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 320px;
+}
+
+.al-delete-choice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.al-delete-target { margin-left: 22px; }
+/* einde Markeringslagen */
+
 /* Left Panel */
 .left-panel {
   width: 200px;

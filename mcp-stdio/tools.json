@@ -549,6 +549,10 @@
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
+        "layer": {
+          "description": "Markup layer to draw on, by id or name (see app_list_layers). Left out: the current layer, as with the interactive tool. An unknown layer is an error; create it first with app_create_layer.",
+          "type": "string"
+        },
         "page": {
           "description": "1-based target page. Defaults to the current page.",
           "minimum": 1,
@@ -607,10 +611,14 @@
       "readOnlyHint": true,
       "title": "List annotations"
     },
-    "description": "List the active document's annotations as compact JSON (id, type, page, core geometry, colors, text/measureText). Optionally filter to one page.",
+    "description": "List the active document's annotations as compact JSON (id, type, page, core geometry, colors, text/measureText, and the markup layer when it is not the default layer). Optionally filter to one page or one layer.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
+        "layer": {
+          "description": "Only annotations on this markup layer, by id or name.",
+          "type": "string"
+        },
         "page": {
           "description": "Only annotations on this 1-based page.",
           "minimum": 1,
@@ -650,11 +658,15 @@
       "readOnlyHint": false,
       "title": "Update annotation"
     },
-    "description": "Merge `props` onto an existing annotation (geometry, color, lineWidth, text, ...). Records a modify-undo step, recomputes measureText when measurement geometry changed, and redraws. `id` and `type` are immutable.",
+    "description": "Merge `props` onto an existing annotation (geometry, color, lineWidth, text, ...). Records a modify-undo step, recomputes measureText when measurement geometry changed, and redraws. `id` and `type` are immutable. `layer` moves the annotation to another markup layer; `props` may then be empty.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
         "id": {
+          "type": "string"
+        },
+        "layer": {
+          "description": "Move the annotation to this markup layer, by id or name (see app_list_layers).",
           "type": "string"
         },
         "props": {
@@ -1795,6 +1807,111 @@
       "type": "object"
     },
     "name": "app_list_printers"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "List markup layers"
+    },
+    "description": "List the markup layers of the active document in panel order: id, name, colour, visible, printable, locked, the number of markups on it, whether it is the current layer (where new markups land) and whether it is the default layer. Markups without a layer of their own are on the default layer. Reads only.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    },
+    "name": "app_list_layers"
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Create markup layer"
+    },
+    "description": "Create a markup layer in the active document, at the end of the layer list. Names are unique (case-insensitive). Returns the new layer. The layers are saved with the document as optional content groups, so other PDF readers can switch them too.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "color": {
+          "description": "Layer colour as #rrggbb.",
+          "type": "string"
+        },
+        "current": {
+          "description": "Make it the current layer, so new markups land on it.",
+          "type": "boolean"
+        },
+        "locked": {
+          "description": "Visible, but its markups cannot be selected or moved (default false).",
+          "type": "boolean"
+        },
+        "name": {
+          "description": "Name of the new layer.",
+          "type": "string"
+        },
+        "printable": {
+          "description": "Printed and exported (default true).",
+          "type": "boolean"
+        },
+        "visible": {
+          "description": "Shown on screen (default true). A hidden layer is also not printed, not exported and not selectable.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "app_create_layer"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Change markup layer"
+    },
+    "description": "Change a markup layer of the active document: switch it on or off, make it printable or not, lock or unlock it, rename it, set its colour, or make it the current layer. A layer that is switched off is not drawn, not selectable, not printed and not exported; its markups come back unchanged when it is switched on. Returns the layer and what changed.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "color": {
+          "description": "Layer colour as #rrggbb.",
+          "type": "string"
+        },
+        "current": {
+          "description": "true makes it the current layer.",
+          "type": "boolean"
+        },
+        "layer": {
+          "description": "The layer, by id or name (see app_list_layers).",
+          "type": "string"
+        },
+        "locked": {
+          "description": "Lock the layer: visible, but not selectable or movable.",
+          "type": "boolean"
+        },
+        "name": {
+          "description": "New name. The default layer cannot be renamed.",
+          "type": "string"
+        },
+        "printable": {
+          "description": "Print and export the layer.",
+          "type": "boolean"
+        },
+        "visible": {
+          "description": "Switch the layer on (true) or off (false).",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "layer"
+      ],
+      "type": "object"
+    },
+    "name": "app_set_layer"
   },
   {
     "annotations": {

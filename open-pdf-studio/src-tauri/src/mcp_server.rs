@@ -744,7 +744,8 @@ fn handle_tools_list() -> Value {
                             "enum": ["line", "arrow", "wall", "box", "mask", "redaction", "viewport", "circle", "highlight", "cloud", "polygon", "polyline", "cloudPolyline", "spline", "draw", "filledArea", "textbox", "callout", "comment", "stamp", "signature", "image", "parametricSymbol", "measureDistance", "measureArea", "measurePerimeter", "scaleRegion", "count"]
                         },
                         "page":  { "type": "integer", "minimum": 1, "description": "1-based target page. Defaults to the current page." },
-                        "props": { "type": "object", "description": "Geometry + style properties for the annotation." }
+                        "props": { "type": "object", "description": "Geometry + style properties for the annotation." },
+                        "layer": { "type": "string", "description": "Markup layer to draw on, by id or name (see app_list_layers). Left out: the current layer, as with the interactive tool. An unknown layer is an error; create it first with app_create_layer." }
                     },
                     "required": ["type", "props"],
                     "additionalProperties": false
@@ -752,11 +753,12 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_list_annotations",
-                "description": "List the active document's annotations as compact JSON (id, type, page, core geometry, colors, text/measureText). Optionally filter to one page.",
+                "description": "List the active document's annotations as compact JSON (id, type, page, core geometry, colors, text/measureText, and the markup layer when it is not the default layer). Optionally filter to one page or one layer.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "page": { "type": "integer", "minimum": 1, "description": "Only annotations on this 1-based page." }
+                        "page": { "type": "integer", "minimum": 1, "description": "Only annotations on this 1-based page." },
+                        "layer": { "type": "string", "description": "Only annotations on this markup layer, by id or name." }
                     },
                     "additionalProperties": false
                 }
@@ -775,12 +777,13 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_update_annotation",
-                "description": "Merge `props` onto an existing annotation (geometry, color, lineWidth, text, ...). Records a modify-undo step, recomputes measureText when measurement geometry changed, and redraws. `id` and `type` are immutable.",
+                "description": "Merge `props` onto an existing annotation (geometry, color, lineWidth, text, ...). Records a modify-undo step, recomputes measureText when measurement geometry changed, and redraws. `id` and `type` are immutable. `layer` moves the annotation to another markup layer; `props` may then be empty.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
                         "id":    { "type": "string" },
-                        "props": { "type": "object", "description": "Property patch to merge onto the annotation." }
+                        "props": { "type": "object", "description": "Property patch to merge onto the annotation." },
+                        "layer": { "type": "string", "description": "Move the annotation to this markup layer, by id or name (see app_list_layers)." }
                     },
                     "required": ["id", "props"],
                     "additionalProperties": false
@@ -1080,6 +1083,50 @@ fn handle_tools_list() -> Value {
                 }
             },
             {
+                "name": "app_list_layers",
+                "description": "List the markup layers of the active document in panel order: id, name, colour, visible, printable, locked, the number of markups on it, whether it is the current layer (where new markups land) and whether it is the default layer. Markups without a layer of their own are on the default layer. Reads only.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "app_create_layer",
+                "description": "Create a markup layer in the active document, at the end of the layer list. Names are unique (case-insensitive). Returns the new layer. The layers are saved with the document as optional content groups, so other PDF readers can switch them too.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "name":      { "type": "string", "description": "Name of the new layer." },
+                        "color":     { "type": "string", "description": "Layer colour as #rrggbb." },
+                        "visible":   { "type": "boolean", "description": "Shown on screen (default true). A hidden layer is also not printed, not exported and not selectable." },
+                        "printable": { "type": "boolean", "description": "Printed and exported (default true)." },
+                        "locked":    { "type": "boolean", "description": "Visible, but its markups cannot be selected or moved (default false)." },
+                        "current":   { "type": "boolean", "description": "Make it the current layer, so new markups land on it." }
+                    },
+                    "required": ["name"],
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "app_set_layer",
+                "description": "Change a markup layer of the active document: switch it on or off, make it printable or not, lock or unlock it, rename it, set its colour, or make it the current layer. A layer that is switched off is not drawn, not selectable, not printed and not exported; its markups come back unchanged when it is switched on. Returns the layer and what changed.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "layer":     { "type": "string", "description": "The layer, by id or name (see app_list_layers)." },
+                        "visible":   { "type": "boolean", "description": "Switch the layer on (true) or off (false)." },
+                        "printable": { "type": "boolean", "description": "Print and export the layer." },
+                        "locked":    { "type": "boolean", "description": "Lock the layer: visible, but not selectable or movable." },
+                        "name":      { "type": "string", "description": "New name. The default layer cannot be renamed." },
+                        "color":     { "type": "string", "description": "Layer colour as #rrggbb." },
+                        "current":   { "type": "boolean", "description": "true makes it the current layer." }
+                    },
+                    "required": ["layer"],
+                    "additionalProperties": false
+                }
+            },
+            {
                 "name": "app_snippet_flatten",
                 "description": "Mark a pasted vector snippet as flattened: it stays visible but is no longer selectable, and on the next save it is drawn into the page content instead of being stored as an annotation.",
                 "inputSchema": {
@@ -1225,6 +1272,10 @@ async fn handle_tools_call(state: &AppState, params: &Value) -> Result<Value, (i
         "app_print_to_pdf"       => tool_app_request(state, "mcp:print-to-pdf",       &arguments, Duration::from_secs(300)).await,
         "app_print"              => tool_app_request(state, "mcp:print",              &arguments, Duration::from_secs(300)).await,
         "app_list_printers"      => tool_app_request(state, "mcp:list-printers",      &arguments, Duration::from_secs(30)).await,
+        // Annotatielagen (#468): alleen het model, dus korte grenzen.
+        "app_list_layers"        => tool_app_request(state, "mcp:list-layers",        &arguments, Duration::from_secs(10)).await,
+        "app_create_layer"       => tool_app_request(state, "mcp:create-layer",       &arguments, Duration::from_secs(10)).await,
+        "app_set_layer"          => tool_app_request(state, "mcp:set-layer",          &arguments, Duration::from_secs(10)).await,
         other => Err((
             jsonrpc_error::METHOD_NOT_FOUND,
             format!("method not found: {other}"),
@@ -1836,7 +1887,7 @@ mod tests {
         use crate::mcp_tool_meta::Profiel;
         let publiek = tools_list_voor(Profiel::Publiek);
         let arr = publiek["tools"].as_array().unwrap();
-        assert_eq!(arr.len(), 54);
+        assert_eq!(arr.len(), 59);
         for t in arr {
             let a = &t["annotations"];
             assert!(a["title"].as_str().map_or(false, |s| !s.is_empty()), "{} zonder titel", t["name"]);
@@ -1868,6 +1919,27 @@ mod tests {
         )
         .unwrap();
         assert_eq!(op_schijf, verwacht, "mcp-stdio/tools.json loopt achter - draai met OPDS_MCPB_TOOLS_SCHRIJVEN=1");
+    }
+
+    #[test]
+    fn annotatielagen_zijn_te_bedienen_via_mcp() {
+        let v = handle_tools_list();
+        let zoek = |naam: &str| {
+            v["tools"].as_array().unwrap().iter()
+                .find(|t| t["name"] == naam)
+                .unwrap_or_else(|| panic!("{naam} staat in de lijst"))
+                .clone()
+        };
+        assert_eq!(zoek("app_create_layer")["inputSchema"]["required"], json!(["name"]));
+        assert_eq!(zoek("app_set_layer")["inputSchema"]["required"], json!(["layer"]));
+        for naam in ["app_create_annotation", "app_update_annotation", "app_list_annotations"] {
+            assert_eq!(zoek(naam)["inputSchema"]["properties"]["layer"]["type"], "string", "{naam} heeft een laag-argument");
+        }
+        use crate::mcp_tool_meta::meta;
+        assert!(meta("app_list_layers").unwrap().alleen_lezen);
+        let maak = meta("app_create_layer").unwrap();
+        assert!(!maak.alleen_lezen && !maak.wijzigt);
+        assert!(meta("app_set_layer").unwrap().wijzigt);
     }
 
     #[test]
@@ -2335,6 +2407,9 @@ mod tests {
             "app_print_to_pdf",
             "app_print",
             "app_list_printers",
+            "app_list_layers",
+            "app_create_layer",
+            "app_set_layer",
         ] {
             assert!(names.contains(&tool), "missing tool: {tool} (got {names:?})");
             let descr = arr.iter().find(|t| t["name"] == tool).unwrap();

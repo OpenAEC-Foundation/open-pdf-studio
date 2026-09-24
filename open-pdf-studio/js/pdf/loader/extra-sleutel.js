@@ -5,6 +5,15 @@
 
 const sleutel = (r) => `${r[0]},${r[1]},${r[2]},${r[3]}`;
 
+/**
+ * De extra gegevens van een annotatie zoals pdf.js haar levert: eerst op
+ * objectverwijzing (plugin-annotaties, #467 — daar is de /Rect niet uniek),
+ * anders op de /Rect.
+ */
+export function extraVoorAnnotatie(annotColorMap, annot) {
+  return (annot?.id && annotColorMap?.get(`@ref:${annot.id}`)) || zoekExtraKleuren(annotColorMap, annot?.rect);
+}
+
 export function zoekExtraKleuren(annotColorMap, rect) {
   if (!annotColorMap || !rect || rect.length < 4) return undefined;
   const exact = annotColorMap.get(sleutel(rect));

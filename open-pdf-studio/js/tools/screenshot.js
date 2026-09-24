@@ -9,6 +9,7 @@ import { renderAnnotationsForPage, redrawAnnotations, redrawContinuous } from '.
 import { generateImageId } from '../utils/helpers.js';
 import { recordAdd } from '../core/undo-manager.js';
 import { showProperties } from '../ui/panels/properties-panel.js';
+import { layerForNewAnnotation } from '../annotations/annotatie-lagen.js';
 
 function mergeCanvases(pdfCanvasEl, annotationCanvasEl) {
   const merged = document.createElement('canvas');
@@ -469,6 +470,9 @@ export async function placeLastScreenshotAsOverlay() {
       createdAt: new Date().toISOString(),
       modifiedAt: new Date().toISOString(),
     };
+    // Een nieuwe markering landt op de huidige laag (#468), zoals via createAnnotation.
+    const laag = layerForNewAnnotation(doc);
+    if (laag) annotation.layer = laag;
 
     doc.annotations.push(annotation);
     recordAdd(annotation);

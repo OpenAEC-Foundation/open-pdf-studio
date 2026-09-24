@@ -43,6 +43,8 @@ import { showCalibrationDialog } from '../../annotations/measurement.js';
 import { openDialog } from '../stores/dialogStore.js';
 import { getSelectedPagesArray, formatPageRangeString, selectAllPages, clearPageSelection } from '../stores/panels/thumbnailStore.js';
 import { hiddenStatuses, toggleHiddenStatus } from '../stores/panels/annotationsStore.js';
+import { layersVersion, moveAnnotationsToAnnotationLayer } from '../stores/annotationLayersStore.js';
+import { layerRows, layerOf } from '../../annotations/annotatie-lagen.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 import {
   revealInFileManager,
@@ -97,6 +99,36 @@ function Submenu(props) {
         {props.children}
       </div>
     </div>
+  );
+}
+
+// "Laag:" met de lagen van het document (#468). Het vinkje staat bij de laag
+// van de markering(en); een klik verplaatst ze daarheen (één undo-stap). Bij
+// markeringen op verschillende lagen staat er geen waarde en geen vinkje.
+function LayerSubmenu(props) {
+  const { t } = useTranslation('context');
+  const { t: tRibbon } = useTranslation('ribbon');
+  const anns = () => (props.annotations() || []).filter(Boolean);
+  const rijen = () => {
+    layersVersion();
+    return layerRows(getActiveDocument(), tRibbon('annotationLayers.defaultName'));
+  };
+  const gedeeldeLaag = () => {
+    const doc = getActiveDocument();
+    const ids = new Set(anns().map((a) => layerOf(doc, a).id));
+    return ids.size === 1 ? [...ids][0] : null;
+  };
+  const waarde = () => rijen().find((r) => r.id === gedeeldeLaag())?.name || '';
+  return (
+    <Submenu icon={layerIcon} label={<>{t('annotation.layer')} <span class="context-menu-value">{waarde()}</span></>}
+      disabled={anns().length === 0}>
+      <For each={rijen()}>
+        {(r) => (
+          <MenuItem label={r.name} checkbox={true} checked={r.id === gedeeldeLaag()}
+            onClick={() => moveAnnotationsToAnnotationLayer(anns(), r.id)} />
+        )}
+      </For>
+    </Submenu>
   );
 }
 
@@ -455,9 +487,7 @@ function AnnotationMenuContent() {
 
       <Separator />
 
-      <Submenu icon={layerIcon} label={<>{t('annotation.layer')} <span class="context-menu-value">{tCommon('none')}</span></>}>
-        <MenuItem label={t('annotation.noLayersAvailable')} disabled={true} />
-      </Submenu>
+      <LayerSubmenu annotations={() => (ann() ? [ann()] : [])} />
 
       <Submenu icon={arrangeIcon} label={t('annotation.arrange')}>
         <div class="arrange-icon-grid">
@@ -652,6 +682,10 @@ function MultiAnnotationMenuContent() {
         const _d = getActiveDocument();
         sendToBack(_d ? _d.selectedAnnotations : []);
       }} />
+
+      <Separator />
+
+      <LayerSubmenu annotations={() => [...(getActiveDocument()?.selectedAnnotations || [])]} />
 
       <Separator />
 

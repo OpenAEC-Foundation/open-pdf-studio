@@ -1,5 +1,6 @@
 import { state } from '../core/state.js';
 import { normaliseerVormMaat } from './minimummaat.js';
+import { layerForNewAnnotation } from './annotatie-lagen.js';
 
 // Create annotation with default properties
 // All annotations share these common properties (General section):
@@ -38,6 +39,17 @@ export function createAnnotation(baseProps) {
     ...defaults,
     ...baseProps
   };
+
+  // Annotatielagen (#468): een nieuwe markering landt op de huidige laag van
+  // het actieve document, tenzij de aanroeper zelf een laag meegeeft (ook
+  // expliciet geen: dan de standaardlaag). De standaardlaag is géén veld, zodat
+  // een document zonder lagen dezelfde annotaties houdt als voorheen. De lader
+  // zet na het omzetten zelf de laag uit het bestand (loader/annotatie-laag.js).
+  if (!('layer' in baseProps)) {
+    const laag = layerForNewAnnotation(state.documents?.[state.activeDocumentIndex]);
+    if (laag) result.layer = laag;
+  }
+  if (!result.layer) delete result.layer;
 
   // Textbox: ensure leaders array exists (multi-leader feature)
   if (result.type === 'textbox' && !Array.isArray(result.leaders)) {

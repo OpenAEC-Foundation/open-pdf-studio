@@ -5,11 +5,13 @@ import { redrawAnnotations, redrawContinuous } from './rendering.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
 import { isTauri, readBinaryFile, writeBinaryFile, saveFileDialog, openFileDialog } from '../core/platform.js';
 import i18next from '../i18n/config.js';
-import { showMessage } from '../bridge.js';
+import { showMessage, refreshAnnotationLayers } from '../bridge.js';
 import { ifcCategoryForParametric } from '../solid/data/ifcCategoryMap.js';
 import { syncTwoPointGeometry } from '../symbols/two-point.js';
 import { colorWithoutStroke } from './fill-utils.js';
 import { colorToXFDF, xfdfColorToHex, randkleurAttribuut, randkleurUitAttribuut, vulkleurUitAttribuut } from './xfdf-kleur.js';
+import { laagAttribuut, laagUitAttribuut } from './xfdf-laag.js';
+import { assignLayer } from './annotatie-lagen.js';
 
 // Export annotations to XFDF XML format
 export function exportToXFDF() {
@@ -100,6 +102,7 @@ export function importFromXFDF(xml) {
 
   const newAnnotations = [];
   const activeDoc = getActiveDocument();
+  let nieuweLagen = false;
 
   // First pass: parse non-leader annotations and index textboxes by their id (name attr).
   const textboxByName = new Map();
@@ -112,6 +115,11 @@ export function importFromXFDF(xml) {
     }
     const ann = xfdfElementToAnnotation(el);
     if (ann) {
+      // Laag (#468): uit `opslayer` (een onbekende naam wordt een nieuwe laag),
+      // zonder attribuut de standaardlaag — niet de huidige laag.
+      const laag = laagUitAttribuut(activeDoc, el.getAttribute('opslayer'));
+      assignLayer([ann], laag.id);
+      if (laag.nieuw) nieuweLagen = true;
       // Preserve original id from XFDF "name" attribute for IRT linkage
       const xfdfName = el.getAttribute('name');
       if (xfdfName) {
@@ -145,6 +153,8 @@ export function importFromXFDF(xml) {
       endStyle,
     });
   }
+
+  if (nieuweLagen) refreshAnnotationLayers();
 
   if (newAnnotations.length > 0) {
     recordBulkAdd(newAnnotations);
@@ -433,7 +443,8 @@ function commonAttrs(ann) {
     rect = '0,0,0,0';
   }
 
-  return `page="${ann.page - 1}" rect="${rect}" title="${escapeXml(ann.author || 'User')}" subject="${escapeXml(ann.subject || '')}" date="${ann.modifiedAt || ''}" creationdate="${ann.createdAt || ''}"`;
+  // Laag (#468): de naam in `opslayer`; de standaardlaag schrijft niets.
+  return `page="${ann.page - 1}" rect="${rect}" title="${escapeXml(ann.author || 'User')}" subject="${escapeXml(ann.subject || '')}" date="${ann.modifiedAt || ''}" creationdate="${ann.createdAt || ''}"${laagAttribuut(getActiveDocument(), ann)}`;
 }
 
 function replyToXFDF(reply) {

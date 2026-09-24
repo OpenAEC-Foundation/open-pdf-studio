@@ -30,6 +30,10 @@ export function createDocument(filePath: string | null = null): DocumentState {
     pdfADismissed: false,
     measureScale: null,
     stylePresets: [],
+    // Annotatielagen (#468): leeg = alleen de standaardlaag, zodat een
+    // document zonder lagen werkt en bewaard wordt zoals voorheen.
+    annotationLayers: [],
+    currentLayerId: null,
     _loadedAnnotationPages: new Set(),
     // Pagina's waarvan de annotaties ECHT in het model staan (pas na
     // conversie gezet). _loadedAnnotationPages markeert al bij de start

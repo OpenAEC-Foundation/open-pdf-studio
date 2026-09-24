@@ -6,6 +6,7 @@ import DocumentTabs from './components/DocumentTabs.jsx';
 import CanvasScrollbars from './components/CanvasScrollbars.jsx';
 import LeftPanel from './components/left-panel/LeftPanel.jsx';
 import ElementVisibilityPanel from './components/left-panel/ElementVisibilityPanel.jsx';
+import AnnotationLayersPanel from './components/left-panel/AnnotationLayersPanel.jsx';
 import FindBar from './components/FindBar.jsx';
 import FormFieldsBar from './components/FormFieldsBar.jsx';
 import PdfABar from './components/PdfABar.jsx';
@@ -85,6 +86,7 @@ function DesktopApp() {
       <div class="content">
         <LeftPanel />
         <ElementVisibilityPanel />
+        <AnnotationLayersPanel />
         <OrderedDockedPalettes side="left" />
 
         <div class="main-view">

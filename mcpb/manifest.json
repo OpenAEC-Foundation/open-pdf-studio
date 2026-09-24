@@ -121,7 +121,7 @@
     },
     {
       "name": "app_list_annotations",
-      "description": "List the active document's annotations as compact JSON (id, type, page, core geometry, colors, text/measureText)."
+      "description": "List the active document's annotations as compact JSON (id, type, page, core geometry, colors, text/measureText, and the markup layer when it is not the default layer)."
     },
     {
       "name": "app_get_annotation",
@@ -238,6 +238,18 @@
     {
       "name": "app_list_printers",
       "description": "List the printers the app knows, with the system default printer and, per printer, the driver, the port and whether it writes to a file instead of to paper."
+    },
+    {
+      "name": "app_list_layers",
+      "description": "List the markup layers of the active document in panel order: id, name, colour, visible, printable, locked, the number of markups on it, whether it is the current layer (where new markups land) and whether it is the default layer."
+    },
+    {
+      "name": "app_create_layer",
+      "description": "Create a markup layer in the active document, at the end of the layer list."
+    },
+    {
+      "name": "app_set_layer",
+      "description": "Change a markup layer of the active document: switch it on or off, make it printable or not, lock or unlock it, rename it, set its colour, or make it the current layer."
     },
     {
       "name": "app_snippet_flatten",

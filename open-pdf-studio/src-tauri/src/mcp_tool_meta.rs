@@ -62,9 +62,11 @@ pub const TOOLS: &[ToolMeta] = &[
     lees("app_list_commands", "List app commands"),
     lees("app_assistant_history", "Get assistant conversation"),
     lees("app_list_printers", "List printers"),
+    lees("app_list_layers", "List markup layers"),
     // Voegt iets toe zonder bestaande gegevens te wijzigen.
     voegt_toe("app_new_blank_pdf", "New blank PDF"),
     voegt_toe("app_create_annotation", "Create annotation"),
+    voegt_toe("app_create_layer", "Create markup layer"),
     voegt_toe("app_snippet_cut", "Cut vector snippet"),
     voegt_toe("app_snippet_paste", "Paste vector snippet"),
     voegt_toe("app_place_schedule", "Place quantity schedule"),
@@ -79,6 +81,7 @@ pub const TOOLS: &[ToolMeta] = &[
     voegt_toe("app_scroll", "Scroll"),
     // Wijzigt of verwijdert bestaande inhoud, of schrijft een bestand.
     wijzigt("app_update_annotation", "Update annotation"),
+    wijzigt("app_set_layer", "Change markup layer"),
     wijzigt("app_delete_annotation", "Delete annotation"),
     wijzigt("app_undo", "Undo"),
     wijzigt("app_redo", "Redo"),

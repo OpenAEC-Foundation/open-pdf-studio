@@ -24,7 +24,8 @@ import { maatVanGedraaideVorm } from './gedraaide-vorm-maat.js';
 import { tekstvakRotatie, tekstvakMaat } from './tekstvak-rotatie.js';
 import { onzichtbaarVlakUitExtra, randloosUitExtra } from './geen-rand.js';
 import { opmerkingUitAnnot, zonderDubbeleOpmerking } from './annotatie-opmerking.js';
-import { zoekExtraKleuren } from './extra-sleutel.js';
+import { zetLaagUitBestand } from './annotatie-laag.js';
+import { extraVoorAnnotatie } from './extra-sleutel.js';
 
 /**
  * Zet een PDF-annotatie om naar het model van de app.
@@ -34,8 +35,11 @@ import { zoekExtraKleuren } from './extra-sleutel.js';
  * label van een kader). Zie annotatie-opmerking.js.
  */
 export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageMap, annotColorMap) {
-  return zonderDubbeleOpmerking(
+  const omgezet = zonderDubbeleOpmerking(
     await converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, annotColorMap));
+  // De laag komt uit het bestand (/OC, zie color-extraction.js), nooit uit de
+  // huidige laag die createAnnotation voor nieuwe markeringen invult (#468).
+  return zetLaagUitBestand(omgezet, extraVoorAnnotatie(annotColorMap, annot)?.layer);
 }
 
 // Convert PDF annotation to our format
@@ -82,8 +86,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
 
   // Look up extra colors extracted via pdf-lib (IC entry, appearance stream
   // colors). Zie extra-sleutel.js voor het zoeken op de rauwe /Rect.
-  let extraColors = (annot.id && annotColorMap?.get(`@ref:${annot.id}`)) ||
-    zoekExtraKleuren(annotColorMap, rect) || {};
+  let extraColors = extraVoorAnnotatie(annotColorMap, annot) || {};
   if (extraColors.pluginAnnotation) {
     return createAnnotation({ ...extraColors.pluginAnnotation, page: pageNum });
   }

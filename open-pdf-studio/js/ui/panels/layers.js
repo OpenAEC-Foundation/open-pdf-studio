@@ -60,7 +60,11 @@ export async function updateLayersList() {
     }
 
     const layerItems = [];
+    // De annotatielagen van deze app zijn ook OCG's (#468), maar staan in het
+    // paneel Markeringslagen; hier alleen de lagen van de tekening zelf.
+    const annotatieLagen = activeDoc._annotatieLaagOcgIds || new Set();
     for (const [id, group] of Object.entries(groups)) {
+      if (annotatieLagen.has(id)) continue;
       layerItems.push({
         id,
         name: group.name || `Layer ${layerItems.length + 1}`,
@@ -68,7 +72,7 @@ export async function updateLayersList() {
       });
     }
 
-    setEmptyMessage(null);
+    setEmptyMessage(layerItems.length ? null : i18next.t('leftPanel.noLayers'));
     setItems(layerItems);
     setCountText(i18next.t('leftPanel.layersCount', { count: layerItems.length }));
   } catch (e) {

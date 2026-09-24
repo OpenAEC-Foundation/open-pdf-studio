@@ -10,6 +10,7 @@ import { invertPageRotation, resolveTextEditPageGeometry } from '../text/text-ed
 import { annotationCanvas } from '../ui/dom-elements.js';
 import { viewport as vpState } from '../pdf/pdf-viewport.js';
 import { hasMixedRuns, textboxLineRuns } from '../annotations/rendering/textbox-layout.js';
+import { layerForNewAnnotation } from '../annotations/annotatie-lagen.js';
 import {
   showTextEditOverlay, hideTextEditOverlay,
   getTextEditValue as getTextValue, getTextEditHeightGrowth as getHeightGrowth,
@@ -410,6 +411,9 @@ export function addComment(x, y) {
   };
 
   const doc = getActiveDocument();
+  // Een nieuwe markering landt op de huidige laag (#468), zoals via createAnnotation.
+  const laag = layerForNewAnnotation(doc);
+  if (laag) annotation.layer = laag;
   if (doc) doc.annotations.push(annotation);
   recordAdd(annotation);
 
