@@ -25,7 +25,7 @@ fn main() {
     let intent = RenderingIntent::from_code(args.get(4).map(String::as_str).unwrap_or("relative"));
     let pdf = std::fs::read(input).expect("invoer lezen");
     let start = Instant::now();
-    match convert_with_profile(&pdf, Path::new(profile), intent) {
+    match convert_with_profile(&pdf, Path::new(profile), intent, &mut |_, _| {}) {
         Ok(c) => {
             let ms = start.elapsed().as_millis();
             std::fs::write(output, &c.pdf).expect("uitvoer schrijven");

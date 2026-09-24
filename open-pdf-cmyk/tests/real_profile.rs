@@ -48,7 +48,7 @@ fn real_profile_gives_plausible_cmyk() {
         let red = t.rgb_to_cmyk([1.0, 0.0, 0.0]);
         assert!(red[1] > 0.8 && red[2] > 0.8 && red[0] < 0.15, "rood {red:?}");
 
-        // Het pixelpad (8 bits) en het kleurpad (double) komen overeen.
+        // Het pixelpad (8 bits) en het kleurpad (16 bits) komen overeen.
         let rgb = [255u8, 0, 0, 255, 255, 255, 0, 0, 0, 30, 120, 200];
         let mut cmyk = [0u8; 16];
         t.rgb8_to_cmyk8(&rgb, &mut cmyk);
@@ -92,7 +92,7 @@ fn whole_document_with_the_real_profile_and_the_wire_format() {
     let mut pdf = Vec::new();
     doc.save_to(&mut pdf).unwrap();
 
-    let out = convert_with_profile(&pdf, &path, RenderingIntent::RelativeColorimetricBpc).unwrap();
+    let out = convert_with_profile(&pdf, &path, RenderingIntent::RelativeColorimetricBpc, &mut |_, _| {}).unwrap();
     assert_eq!(out.report.colour_operators.converted, 1);
     assert!(!out.profile_name.is_empty());
     assert_eq!(out.profile, std::fs::read(&path).unwrap());
@@ -118,7 +118,7 @@ fn a_file_that_is_not_a_printing_profile_gives_a_clear_code() {
     std::fs::create_dir_all(&dir).unwrap();
     let path = dir.join("scherm.icc");
     std::fs::write(&path, lcms2::Profile::new_srgb().icc().unwrap()).unwrap();
-    let err = convert_with_profile(b"%PDF-1.7", &path, RenderingIntent::Perceptual).err().unwrap();
+    let err = convert_with_profile(b"%PDF-1.7", &path, RenderingIntent::Perceptual, &mut |_, _| {}).err().unwrap();
     assert_eq!(err.code(), "profile:notCmyk");
     let _ = std::fs::remove_dir_all(&dir);
 }

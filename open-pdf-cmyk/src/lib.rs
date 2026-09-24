@@ -19,7 +19,7 @@ pub mod report;
 pub mod space;
 pub mod transform;
 
-pub use doc::{convert_document, ConvertError, Converted};
+pub use doc::{convert_document, convert_document_with_progress, ConvertError, Converted};
 pub use lcms::{LcmsTransform, RenderingIntent};
 pub use profiles::{ProfileError, ProfileInfo};
 pub use report::Report;
@@ -71,12 +71,17 @@ impl std::fmt::Display for Error {
 impl std::error::Error for Error {}
 
 /// Controleert het profiel, zet het document om en geeft ook de
-/// profielbytes en -naam terug.
-pub fn convert_with_profile(pdf: &[u8], profile_path: &Path, intent: RenderingIntent) -> Result<ProfileConversion, Error> {
+/// profielbytes en -naam terug. `progress` krijgt `(klaar, totaal)` in pagina's.
+pub fn convert_with_profile(
+    pdf: &[u8],
+    profile_path: &Path,
+    intent: RenderingIntent,
+    progress: &mut dyn FnMut(usize, usize),
+) -> Result<ProfileConversion, Error> {
     let info = profiles::inspect_file(profile_path).map_err(Error::Profile)?;
     let profile = std::fs::read(profile_path).map_err(|_| Error::Profile(ProfileError::Unreadable))?;
     let transform = LcmsTransform::new(&profile, intent).map_err(Error::Transform)?;
-    let Converted { pdf, report } = convert_document(pdf, &transform).map_err(Error::Convert)?;
+    let Converted { pdf, report } = convert_document_with_progress(pdf, &transform, progress).map_err(Error::Convert)?;
     Ok(ProfileConversion { pdf, report, profile, profile_name: info.name })
 }
 

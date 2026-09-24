@@ -57,13 +57,26 @@ pub struct Converted {
 
 /// Zet alle RGB-kleur in het document om naar CMYK.
 pub fn convert_document(pdf: &[u8], t: &dyn CmykTransform) -> Result<Converted, ConvertError> {
+    convert_document_with_progress(pdf, t, &mut |_, _| {})
+}
+
+/// Als [`convert_document`], met voortgang: `(klaar, totaal)` in pagina's,
+/// eerst `(0, totaal)` en daarna na elke pagina.
+pub fn convert_document_with_progress(
+    pdf: &[u8],
+    t: &dyn CmykTransform,
+    progress: &mut dyn FnMut(usize, usize),
+) -> Result<Converted, ConvertError> {
     let doc = Document::load_mem(pdf).map_err(|e| ConvertError::Unreadable(e.to_string()))?;
     if doc.is_encrypted() {
         return Err(ConvertError::Encrypted);
     }
+    let pages: Vec<ObjectId> = doc.page_iter().collect();
+    progress(0, pages.len());
     let mut w = Walker::new(&doc, t);
-    for page in doc.page_iter() {
-        w.page(page);
+    for (i, page) in pages.iter().enumerate() {
+        w.page(*page);
+        progress(i + 1, pages.len());
     }
     let Walker { edits, report, .. } = w;
     let pdf = if edits.is_empty() { pdf.to_vec() } else { write_incremental(pdf, &doc, &edits) };
@@ -1386,6 +1399,21 @@ mod tests {
         let (_, report, _) = convert(&fx.bytes());
         assert_eq!(report.content_streams.converted, 1);
         assert_eq!(report.colour_operators.converted, 1);
+    }
+
+    #[test]
+    fn progress_is_reported_after_every_page() {
+        let mut fx = Fx::new("1 0 0 rg");
+        let pages = fx.page().get(b"Parent").unwrap().as_reference().unwrap();
+        let content = fx.add(Stream::new(dictionary! {}, b"0 1 0 rg".to_vec()));
+        let second = fx.add(dictionary! { "Type" => "Page", "Parent" => pages,
+            "MediaBox" => vec![0.into(), 0.into(), 100.into(), 100.into()], "Contents" => content });
+        let node = fx.doc.get_dictionary_mut(pages).unwrap();
+        node.get_mut(b"Kids").unwrap().as_array_mut().unwrap().push(second.into());
+        node.set("Count", 2);
+        let mut seen = Vec::new();
+        convert_document_with_progress(&fx.bytes(), &NaiveCmyk, &mut |done, total| seen.push((done, total))).unwrap();
+        assert_eq!(seen, vec![(0, 2), (1, 2), (2, 2)]);
     }
 
     #[test]
