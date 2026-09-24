@@ -369,6 +369,50 @@ export function drawSelectionHandles(ctx, annotation) {
       return;
     }
 
+    // Stramienslotje: vierkante knop met een hangslot. Dicht = het uiteinde
+    // schuift mee met de gekoppelde uiteinden; open = los. Rechte hoeken en
+    // een hoekige beugel (huisstijl), geen animatie.
+    if (handle.isSlotUI) {
+      const w = handle.w || hs;
+      const h = handle.h || hs;
+      const dicht = handle.slot === 'dicht';
+      const hover = state.hoverHandle === handle.type;
+      ctx.save();
+      ctx.fillStyle = hover ? '#cce4f7' : '#ffffff';
+      ctx.fillRect(handle.x, handle.y, w, h);
+      ctx.strokeStyle = '#0066cc';
+      ctx.lineWidth = lw;
+      ctx.strokeRect(handle.x, handle.y, w, h);
+      // Slotlichaam onder, beugel erboven.
+      const bw = w * 0.5, bh = h * 0.32;
+      const bx = handle.x + (w - bw) / 2;
+      const by = handle.y + h * 0.5;
+      ctx.fillStyle = '#0066cc';
+      if (dicht) ctx.fillRect(bx, by, bw, bh);
+      else ctx.strokeRect(bx, by, bw, bh);
+      const sw = bw * 0.64;
+      const sx = handle.x + (w - sw) / 2;
+      const top = handle.y + h * 0.2;
+      ctx.lineWidth = lw * 1.4;
+      ctx.beginPath();
+      if (dicht) {
+        ctx.moveTo(sx, by);
+        ctx.lineTo(sx, top);
+        ctx.lineTo(sx + sw, top);
+        ctx.lineTo(sx + sw, by);
+      } else {
+        // Open: de beugel staat omhoog, het rechterbeen hangt los.
+        const lift = h * 0.12;
+        ctx.moveTo(sx, by);
+        ctx.lineTo(sx, top - lift);
+        ctx.lineTo(sx + sw, top - lift);
+        ctx.lineTo(sx + sw, top + h * 0.06);
+      }
+      ctx.stroke();
+      ctx.restore();
+      return;
+    }
+
     // Textbox leader UI: + add button (top-right) and × delete button per leader
     if (handle.isLeaderUI) {
       const w = handle.w || hs;

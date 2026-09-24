@@ -154,6 +154,11 @@ export function initContextMenus() {
                 : { kind: 'systeem', annotationId: annotation.id, appX: x, appY: y };
             } catch (_) { /* systeem-context optioneel — menu opent gewoon */ }
           }
+          // Stramienlijn: de klikpositie gaat mee, zodat het menu de koppeling
+          // van het dichtstbijzijnde uiteinde kan omzetten.
+          if (annotation.type === 'parametricSymbol' && annotation.symbolId === 'stramien') {
+            sgVertex = { kind: 'stramien', annotationId: annotation.id, appX: x, appY: y };
+          }
           // Wand: het klikpunt gaat mee, zodat "Join (niet) toestaan" het
           // uiteinde bij de klik kan kiezen (#476).
           if (annotation.type === 'wall') {

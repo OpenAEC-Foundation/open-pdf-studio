@@ -13,6 +13,8 @@
     "addReply": "Reactie toevoegen",
     "locked": "Vergrendeld",
     "marked": "Gemarkeerd",
+    "gridEndLock": "Stramienuiteinde koppelen",
+    "gridEndUnlock": "Stramienuiteinde loskoppelen",
     "printable": "Afdrukbaar",
     "status": "Status",
     "showByStatus": "Tonen op status",

@@ -14,6 +14,7 @@ import i18next from '../../i18n/config.js';
 // Speling (schermpixels) om een dunne stijl van een gevelelement te raken.
 const GEVEL_RAAK_PX = 6;
 import { inSelectieVak } from '../../plattegrond/ruimte-koppeling.js';
+import { verwerkSlotKlik, slotTooltip } from '../../annotations/stramien-slot.js';
 
 /**
  * Select tool — click-select, rubber band, drag, resize, Ctrl+drag copy
@@ -95,6 +96,12 @@ export const selectTool = {
               return;
             }
           }
+        }
+        // Stramienslotje (stramien_slot_begin / _einde): koppeling van dat
+        // uiteinde omzetten — één klik, één ongedaan-stap, geen sleep.
+        if (verwerkSlotKlik(selAnn, handleType)) {
+          ctx.redraw();
+          return;
         }
         // Textbox leader: + add button — append a new leader and commit undo
         if (selAnn.type === 'textbox' && handleType === HANDLE_TYPES.LEADER_ADD) {
@@ -382,7 +389,14 @@ export const selectTool = {
     if (hoverAnn) {
       hoverHandle = ctx.findHandleAt(x, y, hoverAnn);
     }
+    const vorigeHoverHandle = state.hoverHandle;
     state.hoverHandle = hoverHandle;
+    // Het stramienslotje kleurt op bij hover: alleen bij binnenkomen of
+    // verlaten hertekenen.
+    if (vorigeHoverHandle !== hoverHandle
+        && (slotTooltip(hoverAnn, vorigeHoverHandle) || slotTooltip(hoverAnn, hoverHandle))) {
+      ctx.redraw();
+    }
     // Sub-element-hover op een geselecteerd systeemraster: licht oplichten
     // van het onderdeel dat een tweede klik zou pakken (ontdekbaarheid).
     const setHoverSub = (ann, sub) => {
@@ -396,7 +410,7 @@ export const selectTool = {
       // Hovering a resize handle — clear annotation hover so the handle wins.
       if (hoverAnn?.type === 'systeemraster' || gevelPreset(hoverAnn)) setHoverSub(hoverAnn, null);
       state.hoverAnnotation = null;
-      canvas.title = '';
+      canvas.title = slotTooltip(hoverAnn, hoverHandle) || '';
       return;
     }
     const hoverAnnotation = ctx.findAnnotationAt(x, y);

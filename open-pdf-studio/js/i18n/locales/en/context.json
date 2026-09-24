@@ -13,6 +13,8 @@
     "addReply": "Add Reply",
     "locked": "Locked",
     "marked": "Marked",
+    "gridEndLock": "Lock Grid End",
+    "gridEndUnlock": "Unlock Grid End",
     "printable": "Printable",
     "status": "Status",
     "showByStatus": "Show by Status",

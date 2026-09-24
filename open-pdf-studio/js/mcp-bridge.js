@@ -1548,7 +1548,34 @@ async function handleGetAnnotation(params) {
   if (!doc) return { ok: false, error: 'no active document' };
   const ann = (doc.annotations || []).find(a => a.id === id);
   if (!ann) return { ok: false, error: `annotation not found: ${id}` };
-  return { ok: true, annotation: _sanitizeAnnotation(ann) };
+  const uit = { ok: true, annotation: _sanitizeAnnotation(ann) };
+  // Stramienlijn (#486): per uiteinde de koppeling met de andere uiteinden.
+  const koppelMod = await import('./annotations/stramien-koppeling.js');
+  if (koppelMod.isStramien(ann)) uit.gridAlignment = koppelMod.koppelingOverzicht(doc.annotations || [], ann);
+  return uit;
+}
+
+// ─── Stramienkoppeling (#486) ────────────────────────────────────────────
+// alignStart / alignEnd in app_update_annotation zijn geen velden maar een
+// opdracht: true koppelt dat uiteinde met de uitgelijnde uiteinden van de
+// andere stramienlijnen (zet het terug op hun lijn), false zet het los.
+
+const _UITLIJN_FOUT = {
+  'geen-uitgelijnde-uiteinden': 'no other grid line end on this page lies in line with this end (parallel, within tolerance)',
+  vergrendeld: 'the grid line is locked',
+  'geen-stramien': 'not a grid line',
+};
+
+async function _pasUitlijningToe(doc, ann, uitlijning) {
+  const slotMod = await import('./annotations/stramien-slot.js');
+  const fouten = [];
+  for (const [eind, aan] of uitlijning) {
+    const r = slotMod.schakelStramienSlot(ann, eind, aan, { doc, hertekenen: false });
+    if (!r.ok) {
+      fouten.push(`${eind === 'begin' ? 'alignStart' : 'alignEnd'}: ${_UITLIJN_FOUT[r.reden] || r.reden}`);
+    }
+  }
+  return fouten;
 }
 
 // Keys that change an annotation's shape — used to decide whether a patch
@@ -1583,9 +1610,40 @@ async function handleUpdateAnnotation(params) {
   const factory = await import('./annotations/factory.js');
   const oldState = factory.cloneAnnotation(ann);
 
+  // Stramienkoppeling (#486): alignStart / alignEnd (true = koppelen, false =
+  // los). Alleen voor een stramienlijn.
+  const koppelMod = await import('./annotations/stramien-koppeling.js');
+  const uitlijning = [];
+  if ('alignStart' in props) uitlijning.push(['begin', props.alignStart]);
+  if ('alignEnd' in props) uitlijning.push(['einde', props.alignEnd]);
+  if (uitlijning.length) {
+    if (!koppelMod.isStramien(ann)) {
+      return { ok: false, error: 'alignStart / alignEnd only apply to a grid line (parametricSymbol with symbolId "stramien")' };
+    }
+    if (uitlijning.some(([, aan]) => typeof aan !== 'boolean')) {
+      return { ok: false, error: 'alignStart / alignEnd must be true (couple) or false (unlock)' };
+    }
+  }
+
   // id and type are immutable — silently drop them from the patch. De laag
   // gaat via assignLayer: een naam wordt een id, de standaardlaag geen veld.
-  const { id: _id, type: _type, layer: _layer, ...ruwePatch } = props;
+  const { id: _id, type: _type, layer: _layer, alignStart: _as, alignEnd: _ae, ...ruwePatch } = props;
+  if (uitlijning.length && Object.keys(ruwePatch).length === 0 && laag.id === undefined) {
+    const undoMod = await import('./core/undo-manager.js');
+    undoMod.beginUndoTransaction();
+    let fouten;
+    try { fouten = await _pasUitlijningToe(doc, ann, uitlijning); } finally { undoMod.endUndoTransaction(); }
+    await _redrawActive();
+    if (doc.selectedAnnotation && doc.selectedAnnotation.id === ann.id) {
+      try {
+        const panel = await import('./ui/panels/properties-panel.js');
+        panel.showProperties(ann);
+      } catch { /* panel refresh is best-effort */ }
+    }
+    const gridAlignment = koppelMod.koppelingOverzicht(doc.annotations || [], ann);
+    if (fouten.length) return { ok: false, error: fouten.join('; '), id: ann.id, gridAlignment };
+    return { ok: true, id: ann.id, gridAlignment, annotation: _sanitizeAnnotation(ann) };
+  }
   // Technische wacht op maat en positie. Zonder deze controle kwam width 0,
   // een negatieve maat, NaN of tekst ongefilterd in het model en daarna (via
   // de JSON-kloon) als null in de undo-stapel. Een vorm mag willekeurig klein
@@ -1610,6 +1668,11 @@ async function handleUpdateAnnotation(params) {
     ]);
     const tpl = reg.getTemplate(ann.symbolId);
     patch = { ...patch, params: reg.normalizeParams(tpl, ankerMod.voegParamsSamen(ann.params, patch.params)) };
+  }
+  // Nieuwe params voor een stramienlijn vervangen de oude in hun geheel; de
+  // koppeling van de uiteinden blijft staan tenzij de patch haar zelf noemt.
+  if (koppelMod.isStramien(ann) && patch.params && typeof patch.params === 'object') {
+    patch = { ...patch, params: koppelMod.bewaarKoppeling(ann.params, patch.params) };
   }
   Object.assign(ann, patch);
   if (psParams && !('width' in patch) && !('height' in patch)) {
@@ -1641,7 +1704,15 @@ async function handleUpdateAnnotation(params) {
   }
 
   const undoMod = await import('./core/undo-manager.js');
-  undoMod.recordModify(ann.id, oldState, ann);
+  // Samen met alignStart / alignEnd: één ongedaan-stap.
+  if (uitlijning.length) undoMod.beginUndoTransaction();
+  let uitlijnFouten = [];
+  try {
+    undoMod.recordModify(ann.id, oldState, ann);
+    if (uitlijning.length) uitlijnFouten = await _pasUitlijningToe(doc, ann, uitlijning);
+  } finally {
+    if (uitlijning.length) undoMod.endUndoTransaction();
+  }
 
   if (ann.type === 'scaleRegion' &&
       (geometryTouched || 'scaleString' in patch || 'units' in patch)) {
@@ -1665,7 +1736,12 @@ async function handleUpdateAnnotation(params) {
     // Op een uitgezette of vergrendelde laag is ze niet meer te selecteren.
     await lagen.brug.annotationLayersChanged({ modified: false });
   }
-  return { ok: true, id: ann.id, annotation: _sanitizeAnnotation(ann) };
+  const resultaat = { ok: true, id: ann.id, annotation: _sanitizeAnnotation(ann) };
+  if (uitlijning.length) {
+    resultaat.gridAlignment = koppelMod.koppelingOverzicht(doc.annotations || [], ann);
+    if (uitlijnFouten.length) resultaat.warning = uitlijnFouten.join('; ');
+  }
+  return resultaat;
 }
 
 async function handleDeleteAnnotation(params) {
@@ -2275,9 +2351,13 @@ async function handleStructuralLayout(params) {
 
   const reg = await import('./symbols/registry.js');
   const planMod = await import('./drafting/constructie/constructieplan.js');
+  // Eigen koppelsleutel per plan: de bollen van dit raster schuiven samen
+  // mee, maar niet met die van een ander raster op hetzelfde blad (#486).
+  const koppelMod = await import('./annotations/stramien-koppeling.js');
   const uitkomst = planMod.bouwConstructieplan(spec, {
     kentMaat: (symbolId, maat) => _profielMaatBestaat(reg, symbolId, maat),
     maatVanProfiel: (symbolId, maat) => _profielMaat(reg, symbolId, maat),
+    koppelSleutel: koppelMod.nieuwGroepsId(),
   });
   if (!uitkomst.ok) return { ok: false, error: uitkomst.fout, code: uitkomst.code };
 

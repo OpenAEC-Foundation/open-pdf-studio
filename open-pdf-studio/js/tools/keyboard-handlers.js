@@ -28,7 +28,7 @@ import { tryStartGMove, isGMoveModeActive } from './g-move-mode.js';
 import { tryStartGRotate, isGRotateModeActive } from './g-rotate-mode.js';
 import { toggleFullscreen, exitFullscreen, getFullscreenState } from '../ui/chrome/fullscreen.js';
 import { typeLengthActive, consumeKey as typeLengthConsumeKey, typeLengthCursor } from './type-length-input.js';
-import { startGripLengteInvoer, stopGripLengteInvoer } from './tool-dispatcher.js';
+import { startGripLengteInvoer, stopGripLengteInvoer, herstelStramienMeeslepen } from './tool-dispatcher.js';
 import { tabDoorOnderdelen, verwijderOnderdeel } from '../gevelelement/app-bewerking.js';
 import { gevelPreset } from '../gevelelement/herkenning.js';
 
@@ -760,6 +760,8 @@ export async function handleKeydown(e) {
         // Restore annotation to its pre-stretch state
         Object.assign(ann, state.originalAnnotation);
       }
+      // Meegeschoven stramienuiteinden gaan ook terug.
+      herstelStramienMeeslepen();
       state.isResizing = false;
       state.isDragging = false;
       state.activeHandle = null;

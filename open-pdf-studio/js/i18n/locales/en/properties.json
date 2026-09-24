@@ -629,7 +629,11 @@
     "listAdd": "Add",
     "listRemove": "Remove",
     "listSwap": "Swap with the next one",
-    "listEmpty": "No components"
+    "listEmpty": "No components",
+    "gridAlignment": "Aligned ends",
+    "gridStartLinked": "Start coupled",
+    "gridEndLinked": "End coupled",
+    "gridLinkHint": "A coupled end moves along when the end of another coupled grid line is dragged. Unlock an end to drag it on its own."
   },
   "gevelelement": {
     "sectionTitle": "Facade element: {{name}}",
