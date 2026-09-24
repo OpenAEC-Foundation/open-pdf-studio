@@ -133,5 +133,13 @@
     "windows": "Tonen in Verkenner",
     "mac": "Tonen in Finder",
     "linux": "Map met bestand openen"
+  },
+  "gevelelement": {
+    "addMullionHere": "Stijl hier toevoegen",
+    "removeMullion": "Dichtstbijzijnde stijl verwijderen",
+    "panelItem": "Paneel: {{name}}",
+    "placeInWall": "In wand plaatsen (wand onderbreken)",
+    "noHostWall": "Geen wand gevonden onder dit element",
+    "editRefused": "Niet mogelijk"
   }
 }

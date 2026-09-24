@@ -24,6 +24,9 @@ import {
 import { ruimtenUitWanden, ruimteBijZaad, ruimteLabel } from './ruimte.js';
 import { maatketting, herberekenMaten, kettingUitWandstukken } from './maatvoering.js';
 import { wandAs, projecteer } from '../annotations/wand-geometrie.js';
+import { PRESETS as GEVEL_PRESETS } from '../gevelelement/catalogus.js';
+import { indeling as gevelIndeling } from '../gevelelement/indeling.js';
+import { twoPointEndpoints } from '../symbols/two-point.js';
 
 export const FLOORPLAN_ACTIES = Object.freeze(['inspect', 'wall', 'rooms', 'dimensions']);
 
@@ -47,6 +50,12 @@ function paginaVan(params, omgeving) {
   return { page };
 }
 
+/** Gevelelementen (vliesgevel, kozijn — #475) op een pagina. */
+function gevelelementenOpPagina(annotaties, page) {
+  return (annotaties || []).filter((a) => a?.type === 'parametricSymbol'
+    && GEVEL_PRESETS[a.symbolId] && (a.page ?? 1) === page);
+}
+
 /** De wanden op een pagina, in de vorm die de rekenmodules verwachten. */
 function wandenOpPagina(annotaties, page) {
   return (annotaties || [])
@@ -57,6 +66,22 @@ function wandenOpPagina(annotaties, page) {
       // Join per uiteinde (#476), voor inspect.
       noJoinStart: a.noJoinStart === true, noJoinEnd: a.noJoinEnd === true,
     }));
+}
+
+/**
+ * Wat een ruimte omsluit: de wanden plus de gevelelementen. Een vliesgevel
+ * sluit een ruimte net zo goed af als een wand; hij telt mee met de dikte
+ * van de wand waarin hij staat (dan loopt de contour recht door het gat), of
+ * los met zijn eigen diepte.
+ */
+function omsluitingOpPagina(annotaties, page) {
+  const wanden = wandenOpPagina(annotaties, page);
+  for (const g of gevelelementenOpPagina(annotaties, page)) {
+    const l = twoPointEndpoints(g);
+    const dikte = getal(g.params?.host?.dikteMm) || gevelIndeling(g.params, g.symbolId).diepteMm;
+    wanden.push({ id: g.id, startX: l.startX, startY: l.startY, endX: l.endX, endY: l.endY, dikteMm: dikte });
+  }
+  return wanden;
 }
 
 /** De gehoste kozijnen op een pagina (deur/raam als parametricSymbol). */
@@ -252,7 +277,7 @@ const RUIMTE_LABEL = 'opsRuimteLabelVoor';
 
 async function actieRuimten(params, omgeving, page) {
   const annotaties = omgeving.doc?.annotations || [];
-  const wanden = wandenOpPagina(annotaties, page);
+  const wanden = omsluitingOpPagina(annotaties, page);
   if (!wanden.length) return fout('no wall annotations on this page');
   const pxPerMm = schaalOp(omgeving, page, middenVan(wanden));
   if (!pxPerMm) return fout('no measurement scale on this page - set it with app_set_measure_scale first');
@@ -432,6 +457,16 @@ async function actieInspect(params, omgeving, page) {
       hostWallId: a.params?.hostWallId || null,
     })),
     anchoredDimensions: maten.length,
+    facadeElements: gevelelementenOpPagina(annotaties, page).map((a) => {
+      const lay = gevelIndeling(a.params, a.symbolId);
+      return {
+        id: a.id,
+        preset: a.symbolId === 'kozijn' ? 'windowFrame' : 'curtainWall',
+        lengthMm: Math.round(lay.lengteMm),
+        fields: lay.velden.length,
+        hostWallId: a.params?.host?.wandId ?? null,
+      };
+    }),
   };
   if (!pxPerMm || !wanden.length) {
     verslag.rooms = [];
@@ -439,7 +474,7 @@ async function actieInspect(params, omgeving, page) {
     if (!pxPerMm) verslag.warning = 'no measurement scale on this page';
     return verslag;
   }
-  const { ruimten, losseEinden } = ruimtenUitWanden(wanden, {
+  const { ruimten, losseEinden } = ruimtenUitWanden(omsluitingOpPagina(annotaties, page), {
     pxPerMm, maxGatMm: getal(params?.maxOpeningMm) ?? 3000,
   });
   verslag.rooms = ruimten.map((r) => ({

@@ -245,6 +245,32 @@ test('een deuropening breekt de ruimte niet open', async () => {
   assert.deepEqual(r.openEnds, []);
 });
 
+test('een vliesgevel in de wand sluit de ruimte af, ook over een breed gat (#475)', async () => {
+  const { gevelelementOpdracht } = await import('../gevelelement/mcp-gevelelement.js');
+  const { o } = await woning();
+  const noord = o.doc.annotations.find((a) => a.type === 'wall' && a.startY === 0 && a.endY === 0);
+  o.verwijder = async (id) => {
+    o.doc.annotations = o.doc.annotations.filter((a) => a.id !== id);
+    return { ok: true };
+  };
+  // 6 m glas: breder dan de 3 m die als sparing overbrugd wordt.
+  const vg = await gevelelementOpdracht({
+    action: 'create', preset: 'curtainWall', wallId: noord.id, fromMm: 2000, lengthMm: 6000, fields: 5,
+  }, o);
+  assert.equal(vg.ok, true, vg.error);
+  const r = await plattegrondOpdracht({ action: 'rooms' }, o);
+  assert.equal(r.rooms.length, 1, 'de vliesgevel telt als omsluiting');
+  assert.equal(r.rooms[0].areaM2, 74.69, 'met de dikte van de wand waarin hij staat');
+  assert.deepEqual(r.openEnds, []);
+  const zonder = await plattegrondOpdracht({ action: 'rooms' }, {
+    ...o, doc: { ...o.doc, annotations: o.doc.annotations.filter((a) => a.id !== vg.id) },
+  });
+  assert.equal(zonder.rooms.length, 0, 'zonder het element is het gat te breed');
+  const inspect = await plattegrondOpdracht({ action: 'inspect' }, o);
+  assert.deepEqual(inspect.facadeElements, [{ id: vg.id, preset: 'curtainWall', lengthMm: 6000, fields: 5, hostWallId: noord.id }]);
+  assert.ok(!inspect.walls.some((w) => w.id === vg.id), 'een gevelelement is geen wand in het overzicht');
+});
+
 test('de maatketting hangt aan de wandstukken en volgt ze', async () => {
   const o = omgevingMet();
   const gevelR = await plattegrondOpdracht(gevel, o);

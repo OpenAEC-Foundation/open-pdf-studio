@@ -33,6 +33,7 @@ import {
 } from './templates/bouwplaats-symbolen.js';
 import { SANITAIR_TEMPLATES } from './templates/sanitair.js';
 import { KEUKEN_TEMPLATES } from './templates/keuken.js';
+import { vliesgevelTemplate, kozijnTemplate } from './templates/gevelelement.js';
 
 const templates = new Map();
 
@@ -80,6 +81,9 @@ register(parkeervakTemplate);
 register(bouwkeetTemplate);
 for (const t of SANITAIR_TEMPLATES) register(t);
 for (const t of KEUKEN_TEMPLATES) register(t);
+// Gevelelement (#475): vliesgevel en kozijn, één object met twee voorinstellingen.
+register(vliesgevelTemplate);
+register(kozijnTemplate);
 
 // Runtime registration for catalog-driven templates (downloaded steel
 // catalogs from the online symbol library — see symbols/steel-catalog-store.js).

@@ -32,6 +32,7 @@ import {
   exitTypeLengthMode,
 } from './type-length-input.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
+import { getTemplate } from '../symbols/registry.js';
 import { hideMenu } from '../bridge.js';
 import { syncDocScale } from '../annotations/scale-bar.js';
 import { recalculateAllMeasurements, getMeasureScale } from '../annotations/measurement.js';
@@ -636,6 +637,12 @@ function _handleResize(ctx, e, coords) {
         && typeof orig.startX === 'number' && typeof orig.endX === 'number') {
       ox = (orig.startX + orig.endX) / 2 + (orig.textOffsetX || 0);
       oy = (orig.startY + orig.endY) / 2 + (orig.textOffsetY || 0);
+    }
+    // Sjabloon-eigen greep van een parametrisch symbool (bijv. de stijl van
+    // een gevelelement): het sjabloon weet waar die greep zat.
+    if (ox === undefined && orig.type === 'parametricSymbol') {
+      const o = getTemplate(orig.symbolId)?.greepOorsprong?.(orig, h);
+      if (o) { ox = o.x; oy = o.y; }
     }
     if (ox === undefined) {
       ox = h === 'line_start' ? orig.startX

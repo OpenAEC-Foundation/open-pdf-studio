@@ -2003,6 +2003,51 @@ async function handleFloorplan(params) {
   return uit;
 }
 
+/**
+ * Gevelelementen (#475): vliesgevel en kozijn — één object met stijlen op de
+ * veldgrenzen en een paneel per veld. Aanmaken (los langs een lijn of in een
+ * wand, die dan onderbroken wordt), stijlen toevoegen/verwijderen/
+ * verschuiven/wisselen, panelen wisselen en terugvragen. De rekenkunde zit
+ * in js/gevelelement/; hier alleen de app-kant, met één undo-stap per
+ * aanroep.
+ */
+async function handleFacadeElement(params) {
+  const stateMod = await import('./core/state.js');
+  const doc = stateMod.getActiveDocument();
+  if (!doc?.pdfDoc) return { ok: false, error: 'no active document' };
+  const realSize = await import('./symbols/real-size.js');
+  const undoMod = await import('./core/undo-manager.js');
+  const { gevelelementOpdracht } = await import('./gevelelement/mcp-gevelelement.js');
+
+  let geraakt = false;
+  const uit = await gevelelementOpdracht(params, {
+    doc: {
+      currentPage: doc.currentPage || 1,
+      annotations: doc.annotations || [],
+      paginas: doc.pdfDoc?.numPages ?? null,
+    },
+    pxPerMmAt: (page, x, y) => realSize.pxPerMmAt(page, x, y),
+    maak: async (type, page, props) => {
+      geraakt = true;
+      return handleCreateAnnotation({ type, page, props });
+    },
+    werkBij: async (id, props) => {
+      geraakt = true;
+      return handleUpdateAnnotation({ id, props });
+    },
+    verwijder: async (id) => {
+      geraakt = true;
+      return handleDeleteAnnotation({ id });
+    },
+    transactie: async (fn) => {
+      undoMod.beginUndoTransaction();
+      try { await fn(); } finally { undoMod.endUndoTransaction(); }
+    },
+  });
+  if (geraakt) await _redrawActive();
+  return uit;
+}
+
 /** Ask the assistant's AI (Claude/Anthropic direct) — lets an MCP client test
  *  the assistant end-to-end without the chat UI. Uses the personal key set via
  *  the 🔑 button. */
@@ -3121,6 +3166,8 @@ const HANDLERS = {
   'mcp:set-measure-scale':  handleSetMeasureScale,
   // Plattegrond: sparingen, ruimten en verankerde maatvoering
   'mcp:floorplan':          handleFloorplan,
+  // Gevelelement: vliesgevel en kozijn (#475)
+  'mcp:facade-element':     handleFacadeElement,
   // Take-off / schedules
   'mcp:get-takeoff':        handleGetTakeoff,
   'mcp:place-schedule':     handlePlaceSchedule,

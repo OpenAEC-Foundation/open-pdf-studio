@@ -159,6 +159,27 @@ export function initContextMenus() {
           if (annotation.type === 'wall') {
             sgVertex = { kind: 'wand', annotationId: annotation.id, appX: x, appY: y };
           }
+          // Gevelelement (vliesgevel/kozijn): het menu krijgt het onderdeel
+          // onder de klik en de positie langs het element mee (stijl hier
+          // toevoegen, dichtstbijzijnde stijl verwijderen, paneel wisselen).
+          if (!sgVertex) {
+            try {
+              const [{ gevelPreset }, { onderdeelOnderPunt, positieOpElement }] = await Promise.all([
+                import('../../gevelelement/herkenning.js'),
+                import('../../gevelelement/element.js'),
+              ]);
+              const gvPreset = gevelPreset(annotation);
+              if (gvPreset) {
+                const pos = positieOpElement(annotation, gvPreset, { x, y });
+                sgVertex = {
+                  kind: 'gevelelement',
+                  annotationId: annotation.id,
+                  onderdeel: onderdeelOnderPunt(annotation, gvPreset, { x, y }, 6 / scale),
+                  uMm: pos ? pos.uMm : null,
+                };
+              }
+            } catch (_) { /* gevelelement-context optioneel */ }
+          }
           showContextMenu(e, annotation, sgVertex);
         } else {
           showPageContextMenu(e);

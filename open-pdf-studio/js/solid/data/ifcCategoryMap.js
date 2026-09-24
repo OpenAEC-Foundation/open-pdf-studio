@@ -120,6 +120,10 @@ const PARAMETRIC_ID_DEFAULT = {
   'aanrecht': 'IfcFurniture',
   'aanrecht-hoek': 'IfcFurniture',
   'kookeiland': 'IfcFurniture',
+  // Gevelelement (#475): de vliesgevel is een eigen IFC-klasse; het kozijn
+  // als gevelelement is een raam (een deur erin maakt het nog geen IfcDoor).
+  'vliesgevel': 'IfcCurtainWall',
+  'kozijn': 'IfcWindow',
 };
 
 function keywordMatch(text) {

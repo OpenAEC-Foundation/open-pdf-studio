@@ -7,6 +7,12 @@ import { buildSysteemraster, subElementAt } from '../../annotations/systeemraste
 import { isAnnotationPickableInView } from '../../annotations/view-filters.js';
 import { systeemrasterBuildOpts } from '../../annotations/systeemraster-scale.js';
 import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
+import { gevelPreset } from '../../gevelelement/herkenning.js';
+import { onderdeelOnderPunt } from '../../gevelelement/element.js';
+import i18next from '../../i18n/config.js';
+
+// Speling (schermpixels) om een dunne stijl van een gevelelement te raken.
+const GEVEL_RAAK_PX = 6;
 
 /**
  * Select tool — click-select, rubber band, drag, resize, Ctrl+drag copy
@@ -248,6 +254,23 @@ export const selectTool = {
               console.error('[select] sub-element-selectie', err);
             }
           }
+          // Gevelelement (vliesgevel/kozijn): idem — de tweede klik pakt de
+          // stijl of het paneel onder de cursor (Tab loopt ze af).
+          const _gvPreset = gevelPreset(clickedAnnotation);
+          if (_gvPreset) {
+            try {
+              const sub = onderdeelOnderPunt(clickedAnnotation, _gvPreset, { x, y },
+                GEVEL_RAAK_PX / (ctx.scale || 1));
+              const prev = clickedAnnotation.selectedSub || null;
+              if (JSON.stringify(sub) !== JSON.stringify(prev)) {
+                clickedAnnotation.selectedSub = sub;
+                clickedAnnotation._hoverSub = null;
+                ctx.showProperties(clickedAnnotation);
+              }
+            } catch (err) {
+              console.error('[select] gevelelement-onderdeel', err);
+            }
+          }
         }
         const isTextMarkup = ['textHighlight', 'textStrikethrough', 'textUnderline'].includes(clickedAnnotation.type);
         if (ctx.isSelected(clickedAnnotation) && selAnns.length > 1) {
@@ -273,6 +296,13 @@ export const selectTool = {
             // Ontdekbaarheid: statusbalk-hint voor de tweede klik.
             try {
               updateStatusMessage('Klik nogmaals om een onderdeel te selecteren (paneel, rand of rasterlijn)');
+            } catch (_) { /* statusbalk optioneel */ }
+          }
+          if (gevelPreset(clickedAnnotation) && !ctx.isSelected(clickedAnnotation)) {
+            clickedAnnotation.selectedSub = null;
+            clickedAnnotation._hoverSub = null;
+            try {
+              updateStatusMessage(i18next.t('gevelelement.statusHint', { ns: 'properties' }));
             } catch (_) { /* statusbalk optioneel */ }
           }
           let toSelect = [clickedAnnotation];
@@ -363,7 +393,7 @@ export const selectTool = {
     };
     if (hoverHandle) {
       // Hovering a resize handle — clear annotation hover so the handle wins.
-      if (hoverAnn?.type === 'systeemraster') setHoverSub(hoverAnn, null);
+      if (hoverAnn?.type === 'systeemraster' || gevelPreset(hoverAnn)) setHoverSub(hoverAnn, null);
       state.hoverAnnotation = null;
       canvas.title = '';
       return;
@@ -375,6 +405,23 @@ export const selectTool = {
         try {
           const geom = buildSysteemraster(hoverAnn, systeemrasterBuildOpts(hoverAnn));
           sub = geom ? subElementAt(geom, x, y, 6 / (ctx.scale || 1)) : null;
+        } catch (_) { sub = null; }
+      }
+      setHoverSub(hoverAnn, sub);
+    }
+    // Gevelelement: onthoud waar de aanwijzer staat (Tab begint bij het
+    // onderdeel eronder) en licht bij een geselecteerd element het onderdeel
+    // op dat een tweede klik zou pakken.
+    const _gvHover = gevelPreset(hoverAnnotation);
+    state._gevelAanwijzer = _gvHover
+      ? { id: hoverAnnotation.id, x, y, margePt: GEVEL_RAAK_PX / (ctx.scale || 1) }
+      : null;
+    const _gvSel = gevelPreset(hoverAnn);
+    if (_gvSel) {
+      let sub = null;
+      if (hoverAnnotation === hoverAnn) {
+        try {
+          sub = onderdeelOnderPunt(hoverAnn, _gvSel, { x, y }, GEVEL_RAAK_PX / (ctx.scale || 1));
         } catch (_) { sub = null; }
       }
       setHoverSub(hoverAnn, sub);
@@ -391,7 +438,7 @@ export const selectTool = {
     const doc = getActiveDocument();
     const selAnns = doc ? doc.selectedAnnotations : [];
     const ann = selAnns.length === 1 ? selAnns[0] : null;
-    if (ann && ann.type === 'systeemraster' && ann.selectedSub) {
+    if (ann && (ann.type === 'systeemraster' || gevelPreset(ann)) && ann.selectedSub) {
       ann.selectedSub = null;
       ann._hoverSub = null;
       ctx.showProperties(ann);

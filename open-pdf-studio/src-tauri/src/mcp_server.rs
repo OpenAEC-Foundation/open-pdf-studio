@@ -331,6 +331,47 @@ fn floorplan_tool() -> Value {
     })
 }
 
+/// Beschrijving van `app_facade_element`: het gevelelement (#475) — een
+/// vliesgevel of kozijn als één object met stijlen op de veldgrenzen en een
+/// paneel per veld.
+fn facade_element_tool() -> Value {
+    json!({
+        "name": "app_facade_element",
+        "description": "Draw and edit a facade element in a floor plan: a curtain wall or a window frame, as ONE object along a line with an outer frame, mullions on the field boundaries and a panel in every field. Everything is at real size (mm) from the measurement scale, so set one first with app_set_measure_scale. Actions: \"create\" places a new element, either loose along start/end (page points), or IN an existing wall (wallId plus fromMm or alongMm and lengthMm): the wall is then cut over the length of the element, like a door or window opening, and the element sits in the gap; offsetMm moves it across the wall build-up (+ = right of the wall direction). The division is fields (number of equal fields, centre-to-centre) or fieldWidthsMm (centre-to-centre widths that add up to the length); without either it divides itself into fields of about 1200 mm (curtain wall) or 900 mm (window frame). \"get\" returns one element (id) with its mullions and fields, or without id a summary of every element on the page. Edits (all need id): \"addMullion\" splits a field at atMm (from the start) or in the middle of field; \"removeMullion\" merges the two fields beside mullion (index) or the mullion nearest atMm; \"moveMullion\" moves it to toMm or by byMm; \"setMullionType\" swaps the type of mullion (index 0 and the last index are the outer frame; without mullion or atMm all intermediate mullions); \"setPanel\" swaps the panel of field, fieldIndexes or the field at atMm; \"divide\" divides again into fields or fieldWidthsMm. Mullions are numbered from 0 (frame at the start) to n (frame at the end); field i lies between mullion i and i+1. Fields never become narrower than 100 mm clear and the overall length stays the same, except for divide with fieldWidthsMm. Mullion types: curtain wall alu-50x150 (default), alu-50x200, alu-65x250; window frame hout-67x114 (default), hout-67x139, hout-90x114 (width x depth in mm). Panels: curtain wall glass, solid, door, open; window frame glass, turnSash, door, solid. A panel is a name or {type, hinge: start|end, swing: inside|outside} for a door or turn sash. Every call is a single undo step and returns the element as it is now.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "action":        { "type": "string", "enum": ["create", "get", "addMullion", "removeMullion", "moveMullion", "setMullionType", "setPanel", "divide"], "description": "What to do." },
+                "page":          { "type": "number", "description": "1-based page (default: the current page)." },
+                "id":            { "type": "string", "description": "The facade element to read or edit (as returned by create or get)." },
+                "preset":        { "type": "string", "enum": ["curtainWall", "windowFrame"], "description": "create: which kind of element (default curtainWall)." },
+                "start":         { "type": "object", "description": "create (loose): start of the element as {x, y} in page points.", "additionalProperties": true },
+                "end":           { "type": "object", "description": "create (loose): end of the element as {x, y} in page points.", "additionalProperties": true },
+                "wallId":        { "type": "string", "description": "create: put the element in this wall annotation; the wall is cut over the element's length." },
+                "fromMm":        { "type": "number", "description": "create in a wall: distance from the wall start to the START of the element, in mm." },
+                "alongMm":       { "type": "number", "description": "create in a wall: distance from the wall start to the MIDDLE of the element, in mm (alternative to fromMm; without both the element is centred)." },
+                "lengthMm":      { "type": "number", "description": "create in a wall: length of the element = width of the gap, in mm (or give fieldWidthsMm)." },
+                "offsetMm":      { "type": "number", "description": "create in a wall: position across the wall build-up, mm from the wall centre line, + = right of the wall direction (default 0)." },
+                "fields":        { "type": "number", "description": "create/divide: number of equal fields." },
+                "fieldWidthsMm": { "type": "array", "description": "create/divide: centre-to-centre field widths in mm, from the start.", "items": { "type": "number" } },
+                "mullionType":   { "type": "string", "description": "create/addMullion/setMullionType: mullion type id, e.g. alu-50x150 or hout-67x114." },
+                "frameType":     { "type": "string", "description": "create: type of the outer frame (both ends)." },
+                "panels":        { "type": "array", "description": "create: the panel of each field, from the start (a name or {type, hinge, swing})." },
+                "panel":         { "type": ["string", "object"], "description": "create: panel for every field not given in panels; setPanel: the new panel. A name (glass, solid, door, open, turnSash) or {type, hinge: start|end, swing: inside|outside}; an object without type only changes hinge/swing." },
+                "insideSide":    { "type": "string", "enum": ["right", "left"], "description": "create: which side of the drawing direction is inside (doors swing inside by default; default right)." },
+                "mullion":       { "type": "number", "description": "removeMullion/moveMullion/setMullionType: mullion index (0 = frame at the start)." },
+                "atMm":          { "type": "number", "description": "Position along the element from its start, in mm: where addMullion splits, which mullion (nearest) or field setPanel/removeMullion/moveMullion/setMullionType means." },
+                "toMm":          { "type": "number", "description": "moveMullion: new position from the start, in mm." },
+                "byMm":          { "type": "number", "description": "moveMullion: shift in mm (+ = towards the end)." },
+                "field":         { "type": "number", "description": "addMullion: split this field in the middle; setPanel: the field index (0 = at the start)." },
+                "fieldIndexes":  { "type": "array", "description": "setPanel: several field indexes at once.", "items": { "type": "number" } }
+            },
+            "required": ["action"],
+            "additionalProperties": false
+        }
+    })
+}
+
 /// Handle `tools/list`. Tasks 7-9 will append their tool descriptors to
 /// this array.
 fn handle_tools_list() -> Value {
@@ -1164,7 +1205,8 @@ fn handle_tools_list() -> Value {
                     "additionalProperties": false
                 }
             },
-            floorplan_tool()
+            floorplan_tool(),
+            facade_element_tool()
         ]
     })
 }
@@ -1265,6 +1307,7 @@ async fn handle_tools_call(state: &AppState, params: &Value) -> Result<Value, (i
         "app_symbol_scale"       => tool_app_request(state, "mcp:symbol-scale",       &arguments, Duration::from_secs(10)).await,
         "app_titleblock"         => tool_app_request(state, "mcp:titleblock",         &arguments, Duration::from_secs(15)).await,
         "app_floorplan"          => tool_app_request(state, "mcp:floorplan",          &arguments, Duration::from_secs(60)).await,
+        "app_facade_element"     => tool_app_request(state, "mcp:facade-element",     &arguments, Duration::from_secs(30)).await,
         "app_import_cad"         => tool_app_request(state, "mcp:import-cad",         &arguments, Duration::from_secs(300)).await,
         "app_export_cad"         => tool_app_request(state, "mcp:export-cad",         &arguments, Duration::from_secs(300)).await,
         // Afdrukken: een A0 op 300 dpi renderen duurt minuten, dus dezelfde
@@ -2404,6 +2447,7 @@ mod tests {
             "app_symbol_scale",
             "app_titleblock",
             "app_floorplan",
+            "app_facade_element",
             "app_import_cad",
             "app_export_cad",
             "app_print_to_pdf",

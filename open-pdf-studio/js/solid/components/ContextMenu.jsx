@@ -48,6 +48,12 @@ import { hiddenStatuses, toggleHiddenStatus } from '../stores/panels/annotations
 import { layersVersion, moveAnnotationsToAnnotationLayer } from '../stores/annotationLayersStore.js';
 import { layerRows, layerOf } from '../../annotations/annotatie-lagen.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
+import i18next from '../../i18n/config.js';
+import { gevelPreset } from '../../gevelelement/herkenning.js';
+import { paneelTypenVoor, typeNaam } from '../../gevelelement/catalogus.js';
+import { indeling, veldBij, voegStijlToe, verwijderStijl, wisselPaneel } from '../../gevelelement/indeling.js';
+import { pasToe, zetInWand } from '../../gevelelement/app-bewerking.js';
+import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
 import {
   revealInFileManager,
   revealInFileManagerLabelKey,
@@ -215,6 +221,65 @@ function AnnotationMenuContent() {
         } catch (err) { console.error('[contextmenu] sparing toevoegen', err); }
         hideMenu();
       } : null;
+    // Gevelelement (vliesgevel/kozijn): stijl hier toevoegen, dichtstbijzijnde
+    // stijl verwijderen, paneel van het aangeklikte veld wisselen, en een los
+    // getekend element in de wand eronder zetten. Elke keuze is één
+    // ongedaan-stap (app-bewerking.js).
+    if (v.kind === 'gevelelement') {
+      const presetId = gevelPreset(a);
+      if (!presetId) return null;
+      const lay = indeling(a.params, presetId);
+      const u = Number.isFinite(v.uMm) ? v.uMm : null;
+      const sub = v.onderdeel;
+      const laatste = lay.stijlen.length - 1;
+      const veldIndex = sub?.soort === 'paneel' ? sub.index : (u !== null ? veldBij(lay, u) : -1);
+      let stijlIndex = sub?.soort === 'stijl' && sub.index > 0 && sub.index < laatste ? sub.index : -1;
+      if (stijlIndex < 0 && u !== null) {
+        let beste = Infinity;
+        for (const st of lay.stijlen.slice(1, laatste)) {
+          const d = Math.abs(st.posMm - u);
+          if (d < beste) { beste = d; stijlIndex = st.index; }
+        }
+      }
+      const huidig = lay.velden[veldIndex]?.paneel?.type;
+      const meld = (r) => {
+        if (r && !r.ok) {
+          try { updateStatusMessage(`${t('gevelelement.editRefused')}: ${r.error}`); } catch (_) { /* optioneel */ }
+        }
+        hideMenu();
+      };
+      return (
+        <>
+          <MenuItem label={t('gevelelement.addMullionHere')} disabled={isLocked() || u === null}
+            onClick={() => meld(pasToe(a, (p, id) => voegStijlToe(p, id, u),
+              { onderdeel: (r) => ({ soort: 'stijl', index: r.index }) }))} />
+          <MenuItem label={t('gevelelement.removeMullion')} disabled={isLocked() || stijlIndex < 0}
+            onClick={() => meld(pasToe(a, (p, id) => verwijderStijl(p, id, stijlIndex),
+              { onderdeel: { soort: 'paneel', index: stijlIndex - 1 } }))} />
+          <Show when={veldIndex >= 0}>
+            <For each={paneelTypenVoor(presetId)}>{(pt) => (
+              <MenuItem label={t('gevelelement.panelItem', { name: typeNaam(pt, i18next.language) })}
+                checkbox checked={huidig === pt.id} disabled={isLocked()}
+                onClick={() => meld(pasToe(a, (p, id) => wisselPaneel(p, id, veldIndex, pt.id),
+                  { onderdeel: { soort: 'paneel', index: veldIndex } }))} />
+            )}</For>
+          </Show>
+          <Show when={!a.params?.host}>
+            <MenuItem label={t('gevelelement.placeInWall')} disabled={isLocked()}
+              onClick={() => {
+                const r = zetInWand(a);
+                if (!r.ok && r.error === 'no wall under the element') {
+                  try { updateStatusMessage(t('gevelelement.noHostWall')); } catch (_) { /* optioneel */ }
+                  hideMenu();
+                  return;
+                }
+                meld(r);
+              }} />
+          </Show>
+          <Separator />
+        </>
+      );
+    }
     if (v.kind === 'systeem') {
       return (
         <>
