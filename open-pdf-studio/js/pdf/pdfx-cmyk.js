@@ -39,8 +39,13 @@ export const SKIP_REASONS = Object.freeze([
 /** Rendering intents; de eerste is de standaard. */
 export const INTENTS = Object.freeze(['relative', 'perceptual']);
 
-/** Boven deze groeifactor meldt het verslag dat het bestand veel groter werd. */
+/**
+ * Boven deze groeifactor, én meer dan GROWTH_MIN_BYTES erbij, meldt het
+ * verslag dat het bestand veel groter werd. Het ondergrens voorkomt een
+ * melding bij een klein bestand dat alleen groeit door het ingesloten profiel.
+ */
 export const GROWTH_WARNING = 2;
+export const GROWTH_MIN_BYTES = 1e6;
 
 /** Standaard: sRGB zonder omzetting (het gedrag van vóór #422). */
 export const PDFX_STANDAARD = Object.freeze({ profilePath: null, profileName: '', intent: 'relative' });
@@ -176,7 +181,7 @@ export function formatCmykReport(t, { report, profileName, sizeBefore, sizeAfter
   }
   if (!anyConverted && !anySkipped) lines.push(t(`${K}nothing`));
   if (anySkipped) lines.push(t(`${K}stillRgb`));
-  if (sizeBefore > 0 && sizeAfter / sizeBefore > GROWTH_WARNING) {
+  if (sizeBefore > 0 && sizeAfter / sizeBefore > GROWTH_WARNING && sizeAfter - sizeBefore > GROWTH_MIN_BYTES) {
     lines.push(t(`${K}growth`, { before: size(sizeBefore), after: size(sizeAfter), factor: (sizeAfter / sizeBefore).toFixed(1) }));
   }
   return lines.join('\n');

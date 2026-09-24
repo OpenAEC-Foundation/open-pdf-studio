@@ -195,3 +195,10 @@ test('buildPdfx: met een drukprofiel eerst omzetten, dan dat profiel in de outpu
   assert.equal(intent.lookup(PDFName.of('DestOutputProfile')).dict.get(PDFName.of('N')).asNumber(), 4);
   assert.equal(intent.get(PDFName.of('OutputConditionIdentifier')).decodeText(), 'Proefdruk');
 });
+
+test('een klein bestand dat alleen groeit door het ingesloten profiel krijgt geen waarschuwing', () => {
+  const report = emptyReport();
+  report.colourOperators.converted = 12;
+  const text = formatCmykReport(tFor('en'), { report, profileName: 'P', sizeBefore: 5_000, sizeAfter: 165_000 });
+  assert.doesNotMatch(text, /grew/);
+});

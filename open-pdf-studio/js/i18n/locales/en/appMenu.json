@@ -165,7 +165,7 @@
     },
     "nothing": "No RGB colour was found; nothing needed converting.",
     "stillRgb": "What was not converted is still RGB; a check for CMYK-only output (such as PDF/X-1a) will flag it.",
-    "growth": "The file grew from {{before}} to {{after}} ({{factor}}×), mainly because converted images are stored anew."
+    "growth": "The file grew from {{before}} to {{after}} ({{factor}}×): converted images are stored anew and the printing profile is embedded."
   },
   "extensionsPanel": {
     "title": "Extensions",

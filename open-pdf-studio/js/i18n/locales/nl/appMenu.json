@@ -164,7 +164,7 @@
     },
     "nothing": "Er is geen RGB-kleur gevonden; er hoefde niets omgezet te worden.",
     "stillRgb": "Wat niet is omgezet, is nog RGB; een controle op alleen-CMYK (zoals PDF/X-1a) zal dat melden.",
-    "growth": "Het bestand groeide van {{before}} naar {{after}} ({{factor}}×), vooral doordat omgezette afbeeldingen opnieuw worden opgeslagen."
+    "growth": "Het bestand groeide van {{before}} naar {{after}} ({{factor}}×): omgezette afbeeldingen worden opnieuw opgeslagen en het drukprofiel wordt ingesloten."
   },
   "extensions": "Extensies",
   "extensionsPanel": {
