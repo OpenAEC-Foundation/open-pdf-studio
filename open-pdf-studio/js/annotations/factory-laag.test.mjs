@@ -71,6 +71,9 @@ test('de lader zet de laag uit het bestand, of haalt de huidige laag weer weg', 
   assert.equal('layer' in geladen, false, 'geladen zonder laag = standaardlaag');
   zetLaagUitBestand(geladen, 'uit-het-bestand');
   assert.equal(geladen.layer, 'uit-het-bestand');
+  // De standaardlaag staat als OCG in het bestand, maar is nooit een veld.
+  zetLaagUitBestand(geladen, 'default');
+  assert.equal('layer' in geladen, false);
 });
 
 test('ook de extra annotaties die de lader naast de hoofdannotatie maakt', () => {

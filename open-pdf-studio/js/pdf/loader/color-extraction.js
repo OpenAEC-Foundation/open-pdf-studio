@@ -154,7 +154,11 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         const ref = annots.get(i);
         const refId = Number.isInteger(ref?.objectNumber)
           ? `${ref.objectNumber}R${ref.generationNumber || ''}` : null;
-        colorMap.set(refId ? `@ref:${refId}` : key, { pluginAnnotation });
+        const pluginExtra = { pluginAnnotation };
+        // Annotatielaag (#468), net als hieronder voor de andere soorten.
+        const pluginLaag = laagVanOc(context, annotDict.get(PDFName.of('OC')));
+        if (pluginLaag) pluginExtra.layer = pluginLaag;
+        colorMap.set(refId ? `@ref:${refId}` : key, pluginExtra);
         continue;
       }
 

@@ -325,3 +325,42 @@ test('het paneel met de lagen van de tekening toont de annotatielagen niet nog e
   const paneel = bron('../../ui/panels/layers.js');
   assert.match(paneel, /_annotatieLaagOcgIds/);
 });
+
+// Plugin-annotaties (#467) worden bij het laden op hun objectverwijzing
+// gevonden, niet op de /Rect. Ook zij houden hun laag.
+test('een plugin-annotatie houdt haar laag na opslaan en heropenen', async () => {
+  const { createPluginPdfAnnotation } = await import('../../plugins/plugin-pdf.js');
+  const { extraVoorAnnotatie } = await import('../loader/extra-sleutel.js');
+  const png = Uint8Array.from(Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLytQAAAABJRU5ErkJggg==', 'base64'));
+  const model = { annotations: [] };
+  const laag = addLayer(model, { name: 'Plafonds' }).layer;
+  const pdf = await PDFDocument.create();
+  const pagina = pdf.addPage([400, 300]);
+  const refs = schrijfAnnotatieLagen(pdf, getLayers(model), { standaardNaam: 'Standaard' });
+  // Twee plugin-objecten met dezelfde /Rect: alleen de verwijzing onderscheidt ze.
+  for (const [id, laagId] of [['p1', laag.id], ['p2', undefined]]) {
+    const ann = { id, type: 'plafondsysteem', page: 1, x: 20, y: 30, width: 100, height: 60 };
+    const dict = await createPluginPdfAnnotation(pdf, ann, [20, 210, 120, 270], png);
+    dict.set(PDFName.of('OC'), ocVoorAnnotatie(refs, { layer: laagId }));
+    pagina.node.addAnnot(pdf.context.register(dict));
+  }
+  const bytes = await pdf.save();
+  const heropend = await PDFDocument.load(bytes.slice());
+  const kaart = await extractAnnotationColors(1, heropend);
+  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+  const lezer = await pdfjs.getDocument({ data: bytes.slice(), isEvalSupported: false, verbosity: 0 }).promise;
+  try {
+    const annots = await (await lezer.getPage(1)).getAnnotations();
+    assert.deepEqual(annots.map((a) => extraVoorAnnotatie(kaart, a)?.layer), [laag.id, DEFAULT_LAYER_ID]);
+    assert.deepEqual(annots.map((a) => extraVoorAnnotatie(kaart, a)?.pluginAnnotation.id), ['p1', 'p2']);
+  } finally {
+    await lezer.destroy();
+  }
+});
+
+test('de omzetting zoekt de laag op dezelfde manier op als de rest van de extra gegevens', () => {
+  const converter = bron('../loader/annotation-converter.js');
+  assert.match(converter, /zetLaagUitBestand\(omgezet, extraVoorAnnotatie\(annotColorMap, annot\)\?\.layer\)/);
+  assert.match(converter, /let extraColors = extraVoorAnnotatie\(annotColorMap, annot\) \|\| \{\};/);
+});
