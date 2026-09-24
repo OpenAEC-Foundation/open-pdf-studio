@@ -3722,6 +3722,7 @@ dependencies = [
  "memmap2",
  "open",
  "open-pdf-cad",
+ "open-pdf-cmyk",
  "open-pdf-render",
  "p256",
  "p384",

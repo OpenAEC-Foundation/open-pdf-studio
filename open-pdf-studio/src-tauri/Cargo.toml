@@ -47,6 +47,9 @@ open-pdf-render = { path = "../../open-pdf-render" }
 # Export van een PDF-pagina naar DXF/DWG (#400); trekt acadrust mee (pure Rust,
 # MPL-2.0). De app-crate bevat alleen de commando-schil in src/cad_export.rs.
 open-pdf-cad = { path = "../../open-pdf-cad" }
+# CMYK-omzetting voor de PDF/X-export (#422): Little CMS en de documentloop.
+# De app-crate bevat alleen de commando-schil in src/pdfx_cmyk.rs.
+open-pdf-cmyk = { path = "../../open-pdf-cmyk" }
 image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }
 pdfium-render = { version = "0.9", features = ["thread_safe", "image_025"] }
 clap = { version = "4", features = ["derive"] }
