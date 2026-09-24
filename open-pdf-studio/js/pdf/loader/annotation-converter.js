@@ -10,6 +10,7 @@ import { nenIfcForStamp } from '../../solid/data/nenIfcMap.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
 import { knipselUitExtra } from './vector-snippet-load.js';
 import { hatchUitExtra } from '../saver/hatch-meta.js';
+import { wandJoinUitExtra } from '../saver/wand-join-meta.js';
 import { wolkVakUitHoeken, wolkVakUitZeshoek } from '../saver/veelhoek-grondvorm.js';
 import { vlakOmhullende } from '../../annotations/vlak-ringen.js';
 import { heeft as heeftKnipselBron } from '../../annotations/vector-snippet-store.js';
@@ -470,6 +471,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
             hatchScale: extraColors.opsHatchScale ?? undefined,
             hatchAngle: extraColors.opsHatchAngle ?? 0,
             isolatieType: extraColors.opsIsolatieType || undefined,
+            // Join per uiteinde uit (#476); zonder sleutel geen velden.
+            ...wandJoinUitExtra(extraColors),
             // Explicit category wins; older files without it are IfcWall.
             ifcCategory: extraColors.opsIfcCategory || ifcCategoryForAnnotationType('wall'),
             color: colorArrayToHex(annot.color, '#000000'),

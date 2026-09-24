@@ -54,6 +54,8 @@ function wandenOpPagina(annotaties, page) {
     .map((a) => ({
       id: a.id, startX: a.startX, startY: a.startY, endX: a.endX, endY: a.endY,
       dikteMm: getal(a.dikteMm) || 100,
+      // Join per uiteinde (#476), voor inspect.
+      noJoinStart: a.noJoinStart === true, noJoinEnd: a.noJoinEnd === true,
     }));
 }
 
@@ -134,12 +136,20 @@ async function actieWand(params, omgeving, page) {
     ...(params?.insulation ? { isolatieType: params.insulation } : {}),
   };
 
+  // Join uit aan het begin en/of eind van de LOOP (#476): alleen op het
+  // wandstuk dat daar echt ligt; einden bij een sparing zijn al vrij.
+  const joinUit = (seg) => ({
+    ...(params?.joinStart === false && seg.vanPt <= 1e-6 ? { noJoinStart: true } : {}),
+    ...(params?.joinEnd === false && seg.totPt >= as.len - 1e-6 ? { noJoinEnd: true } : {}),
+  });
+
   const wallIds = [];
   const openingIds = [];
   await omgeving.transactie(async () => {
     for (const seg of segmenten) {
       const r = await omgeving.maak('wall', page, {
         startX: seg.startX, startY: seg.startY, endX: seg.endX, endY: seg.endY, ...stijl,
+        ...joinUit(seg),
       });
       if (r?.ok && r.id) wallIds.push(r.id);
     }
@@ -411,6 +421,7 @@ async function actieInspect(params, omgeving, page) {
       id: w.id, thicknessMm: w.dikteMm,
       lengthMm: pxPerMm ? Math.round(wandAs(w).len / pxPerMm) : null,
       start: { x: w.startX, y: w.startY }, end: { x: w.endX, y: w.endY },
+      joinStart: !w.noJoinStart, joinEnd: !w.noJoinEnd,
     })),
     openings: kozijnen.map((a) => ({
       id: a.id,

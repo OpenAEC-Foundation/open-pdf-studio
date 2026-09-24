@@ -2015,6 +2015,14 @@
           "description": "wall: insulation sub-material when material is isolatie (steenwol, glaswol, pir, eps, kooltherm, pur).",
           "type": "string"
         },
+        "joinEnd": {
+          "description": "wall: false = the end of the run never joins another wall (see joinStart; default true).",
+          "type": "boolean"
+        },
+        "joinStart": {
+          "description": "wall: false = the start of the run never joins another wall: no mitre, no trim to a corner, a plain butt end (default true). Walls that touch are otherwise joined automatically: coincident end points are mitred, and ends that just pass or fall short of a wall of the same material are trimmed to a closed corner. Use false where a wall or layer must stop square against another one (butt joint). Later: app_update_annotation props noJoinStart / noJoinEnd.",
+          "type": "boolean"
+        },
         "material": {
           "description": "wall: hatch material id, e.g. nen47-metselwerk-baksteen, nen47-metselwerk-kunststeen, nen47-beton-gewapend, isolatie, none.",
           "type": "string"

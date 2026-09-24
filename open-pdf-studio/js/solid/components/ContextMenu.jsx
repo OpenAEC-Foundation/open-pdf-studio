@@ -23,7 +23,7 @@ import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering
 import { copyAnnotation, copyAnnotations, pasteFromClipboard, pasteAnnotationsInPlace, duplicateAnnotation } from '../../annotations/clipboard.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
 import { commitAnnotationMutation } from '../../annotations/mutations.js';
-import { recordDelete, recordBulkDelete, recordModify } from '../../core/undo-manager.js';
+import { recordDelete, recordBulkDelete, recordModify, recordBulkModify } from '../../core/undo-manager.js';
 import { bringToFront, sendToBack, bringForward, sendBackward, rotateAnnotation, flipHorizontal, flipVertical } from '../../annotations/z-order.js';
 import { startTextEditing } from '../../tools/text-editing.js';
 import { openStickyPopup, closeStickyPopup } from '../stores/stickyNotePopupStore.js';
@@ -36,6 +36,8 @@ import {
   buildSysteemraster,
 } from '../../annotations/systeemraster.js';
 import { systeemrasterBuildOpts } from '../../annotations/systeemraster-scale.js';
+import { joinToegestaan, zetJoin, dichtstbijzijndEind, hoekTrimPlan, pasTrimToe } from '../../annotations/wand-join.js';
+import { wallHalfWidthPx } from '../../annotations/rendering/walls.js';
 import { createDefaultPaneelTypen } from '../../annotations/systeem-typen.js';
 import { getSysteemTypeById } from '../../annotations/systeem-typen-registry.js';
 import { getSelectedText, clearTextSelection } from '../../text/text-selection.js';
@@ -153,6 +155,15 @@ function AnnotationMenuContent() {
   const isLineType = () => ['line', 'arrow'].includes(ann()?.type);
   const isMeasureDistance = () => ann()?.type === 'measureDistance';
   const isMeasureArea = () => ann()?.type === 'measureArea' || ann()?.type === 'filledArea';
+  // Wand (#476): het uiteinde bij de rechtsklik. Zonder klikpunt (menu via
+  // een ander pad geopend) geen join-schakelaar — dan is niet duidelijk welk
+  // uiteinde bedoeld is.
+  const wandEind = () => {
+    const a = ann();
+    const v = vertexContext();
+    if (a?.type !== 'wall' || v?.kind !== 'wand' || v.annotationId !== a.id) return null;
+    return dichtstbijzijndEind(a, { x: v.appX, y: v.appY });
+  };
 
   const statusItems = [
     { key: 'None', label: () => t('annotation.statusNone') },
@@ -168,6 +179,8 @@ function AnnotationMenuContent() {
     const v = vertexContext();
     const a = ann();
     if (!v || !a || a.id !== v.annotationId) return null;
+    // Wand-context draagt alleen het klikpunt (zie wandEind hieronder).
+    if (v.kind === 'wand') return null;
     // Systeem-paneel (rechtsklik op een cel van een systeemraster/-plafond):
     // paneeltype direct wisselen — het ASSORTIMENT komt als data van het
     // systeemtype (typeDef.paneelTypen) — of het paneel vervangen door een
@@ -362,6 +375,29 @@ function AnnotationMenuContent() {
 
       <Show when={['textbox', 'callout'].includes(ann()?.type)}>
         <MenuItem label={t('annotation.editText')} disabled={isLocked()} onClick={() => startTextEditing(ann())} />
+        <Separator />
+      </Show>
+
+      <Show when={wandEind()}>
+        {/* wandEind() leest het klikpunt (vertexContext, bij elke
+            rechtsklik nieuw), zodat het label na een wissel klopt. */}
+        <MenuItem
+          label={joinToegestaan(ann(), wandEind())
+            ? t('annotation.wallJoinDisallow')
+            : t('annotation.wallJoinAllow')}
+          disabled={isLocked()}
+          onClick={() => {
+            const a = ann();
+            const eind = wandEind();
+            if (!a || !eind) return;
+            const nu = joinToegestaan(a, eind);
+            // Eén ongedaan-stap; de partnerwand leest de vlag bij het
+            // hertekenen, dus hij hoeft zelf niet te veranderen.
+            commitAnnotationMutation(a, (w) => zetJoin(w, eind, !nu));
+            if (getActiveDocument()?.selectedAnnotation === a) showProperties(a);
+            redraw();
+          }}
+        />
         <Separator />
       </Show>
 
@@ -653,6 +689,14 @@ function AnnotationMenuContent() {
 function MultiAnnotationMenuContent() {
   const { t } = useTranslation('context');
   const count = () => multiSelectCount();
+  // Hoek trimmen (#476): de geselecteerde wanden. count() en position()
+  // (bij elke rechtsklik een nieuw object) maken dit reactief op elke nieuwe
+  // multiselectie; de selectie zelf is geen signaal.
+  const geselecteerdeWanden = () => {
+    count(); position();
+    return (getActiveDocument()?.selectedAnnotations || [])
+      .filter(a => a?.type === 'wall' && !a.locked);
+  };
 
   return (
     <>
@@ -699,6 +743,25 @@ function MultiAnnotationMenuContent() {
       <Show when={count() >= 3}>
         <MenuItem label={t('multiSelect.distributeHorizontally')} onClick={() => { alignAnnotations('distribute-h'); redraw(); }} />
         <MenuItem label={t('multiSelect.distributeVertically')} onClick={() => { alignAnnotations('distribute-v'); redraw(); }} />
+      </Show>
+
+      <Show when={geselecteerdeWanden().length >= 2}>
+        <Separator />
+        <MenuItem label={t('multiSelect.trimWallCorners')} onClick={() => {
+          const wanden = geselecteerdeWanden();
+          const plan = hoekTrimPlan(wanden, wallHalfWidthPx);
+          const geraakt = wanden.filter(w => plan.some(z => z.id === w.id));
+          if (!geraakt.length) return;
+          // Alles in één ongedaan-stap.
+          const voor = geraakt.map(w => cloneAnnotation(w));
+          const nu = new Date().toISOString();
+          for (const w of geraakt) {
+            pasTrimToe(w, plan);
+            w.modifiedAt = nu;
+          }
+          recordBulkModify(geraakt, voor);
+          redraw();
+        }} />
       </Show>
 
       <Separator />

@@ -154,6 +154,11 @@ export function initContextMenus() {
                 : { kind: 'systeem', annotationId: annotation.id, appX: x, appY: y };
             } catch (_) { /* systeem-context optioneel — menu opent gewoon */ }
           }
+          // Wand: het klikpunt gaat mee, zodat "Join (niet) toestaan" het
+          // uiteinde bij de klik kan kiezen (#476).
+          if (annotation.type === 'wall') {
+            sgVertex = { kind: 'wand', annotationId: annotation.id, appX: x, appY: y };
+          }
           showContextMenu(e, annotation, sgVertex);
         } else {
           showPageContextMenu(e);

@@ -704,6 +704,14 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         else if (typeof isoType.value === 'string') colors.opsIsolatieType = isoType.value;
       }
 
+      // Read /OPS_NoJoin — wall end(s) whose automatic join is off (#476)
+      const noJoinRaw = annotDict.get(PDFName.of('OPS_NoJoin'));
+      if (noJoinRaw) {
+        const noJoin = context.lookup(noJoinRaw) || noJoinRaw;
+        if (typeof noJoin.decodeText === 'function') colors.opsNoJoin = noJoin.decodeText();
+        else if (typeof noJoin.value === 'string') colors.opsNoJoin = noJoin.value;
+      }
+
       // Read /OPS_LinkedPath — source file of a LINKED image annotation
       const lpRaw = annotDict.get(PDFName.of('OPS_LinkedPath'));
       if (lpRaw) {

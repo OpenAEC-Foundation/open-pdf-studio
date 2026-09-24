@@ -46,6 +46,8 @@
     "exportSubmenu": "Export",
     "exportAsImage": "Export as Image...",
     "addHole": "Add Hole",
+    "wallJoinAllow": "Allow Join (This End)",
+    "wallJoinDisallow": "Disallow Join (This End)",
     "properties": "Properties...",
     "editViewportScale": "Edit Viewport Scale"
   },
@@ -62,6 +64,7 @@
     "centerVertically": "Center Vertically",
     "distributeHorizontally": "Distribute Horizontally",
     "distributeVertically": "Distribute Vertically",
+    "trimWallCorners": "Trim Wall Corners",
     "deleteAnnotations": "Delete {{count}} Annotations",
     "deleteConfirm": "Delete {{count}} annotations?",
     "deleteTitle": "Delete Annotations"

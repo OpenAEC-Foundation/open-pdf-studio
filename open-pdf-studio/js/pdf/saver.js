@@ -12,6 +12,7 @@ import { PDFDocument, PDFString, PDFHexString, PDFName, PDFArray, PDFStream, deg
   PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup, PDFOptionList } from 'pdf-lib';
 import { bouwKnipselAppearance, tekenKnipselInPagina, alInBasis, markeerGebakken, ruimKnipselRestenOp, CATALOGUS_SLEUTEL as KNIPSEL_CATALOGUS } from './saver/vector-snippet.js';
 import { schrijfHatchMeta } from './saver/hatch-meta.js';
+import { schrijfWandJoinMeta } from './saver/wand-join-meta.js';
 import { bytesVan as knipselBytesVan } from '../annotations/vector-snippet-store.js';
 import { getAnnotationStorage, getAnnotIdToFieldName } from './form-layer.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
@@ -2693,6 +2694,8 @@ async function _savePDFNu(saveAsPath) {
             if (ann.isolatieType) {
               annotDict.set(PDFName.of('OPS_IsolatieType'), pdfTextString(ann.isolatieType));
             }
+            // Join per uiteinde uit (#476): alleen als een uiteinde afwijkt.
+            schrijfWandJoinMeta(annotDict, ann);
             // Vector /AP so the wall BODY (thickness band + material fill/hatch
             // + outline) shows in other viewers instead of just the thin
             // centreline — issue #256. The band + material are resolved with the

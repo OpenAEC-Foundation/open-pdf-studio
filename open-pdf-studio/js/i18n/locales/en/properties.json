@@ -458,6 +458,11 @@
       "down-right": "Down, leaning right"
     }
   },
+  "wall": {
+    "joinAtStart": "Join at start",
+    "joinAtEnd": "Join at end",
+    "joinHint": "Off: this end of the wall is never mitred or trimmed against another wall (butt end)."
+  },
   "tekeninstellingen": {
     "title": "Drawing settings",
     "regelset": "Drawing type (rule set)",

@@ -9,15 +9,16 @@
 // Corner joins: when two wall endpoints coincide (within JOIN_TOL) their
 // band outlines are MITRED — each shared corner is the intersection of the
 // matching band edges, so trimmed walls close perfectly. Free ends get a
-// butt cap.
+// butt cap. WHICH wall is the partner (per end, per layer, and whether the
+// end allows a join at all — noJoinStart/noJoinEnd) is decided by the pure
+// module wand-join.js; this file only builds the mitred band.
 
 import { getMeasureScale } from '../measurement.js';
 import { getRegionScaleFactor } from '../scale-region.js';
 import { applyHatchFillPolygon } from './hatch-patterns.js';
-import { kruisendeHoek } from '../hoek-trim.js';
+import { zoekJoinPartner } from '../wand-join.js';
 
 const UNIT_TO_MM = { mm: 1, cm: 10, m: 1000, in: 25.4, ft: 304.8 };
-const JOIN_TOL = 1.5;     // page-pt endpoint coincidence tolerance
 const MITER_LIMIT = 6;    // × max(halfW) — beyond this fall back to butt
 
 // ── Wall material registry — SINGLE SOURCE for renderer + properties UI ───
@@ -91,49 +92,21 @@ function _isect(p1, d1, p2, d2) {
   return { x: p1.x + d1.x * t, y: p1.y + d1.y * t };
 }
 
-// Find another wall whose endpoint coincides with (px,py), or — when the
-// endpoints only PASS each other — whose centreline crosses ours right by
-// both ends (see hoek-trim.js). The latter returns `at`: the corner point
-// the two walls are trimmed/extended to.
-function _jointPartner(walls, self, px, py, eigenVer, halfW) {
-  for (const o of walls) {
-    if (o === self || o.id === self.id) continue;
-    if (Math.hypot(o.startX - px, o.startY - py) <= JOIN_TOL) {
-      return { wall: o, far: { x: o.endX, y: o.endY } };
-    }
-    if (Math.hypot(o.endX - px, o.endY - py) <= JOIN_TOL) {
-      return { wall: o, far: { x: o.startX, y: o.startY } };
-    }
-  }
-  // Kruisende hoek: los getekende wanden die elkaar bij de hoek net
-  // passeren (of net te kort blijven) horen óók één nette hoek te vormen.
-  if (!eigenVer) return null;
-  let beste = null;
-  for (const o of walls) {
-    if (o === self || o.id === self.id) continue;
-    const kruis = kruisendeHoek(
-      { x: px, y: py }, eigenVer,
-      { x: o.startX, y: o.startY }, { x: o.endX, y: o.endY },
-      halfW, wallHalfWidthPx(o),
-    );
-    if (kruis && (!beste || kruis.score < beste.score)) {
-      beste = { wall: o, far: kruis.far, at: kruis.at, score: kruis.score };
-    }
-  }
-  return beste;
-}
-
-// Corner pair at endpoint P of `ann`. dirIn = unit vector from P INTO the
-// wall body. Returns { plus, minus, joined } where plus/minus are the band
-// corners on the +perp / -perp side (perp of dirIn).
-function _cornersAt(ann, walls, P0, dirIn, halfW, eigenVer) {
+// Corner pair at end `eind` ('start' | 'end', point P0) of `ann`. dirIn =
+// unit vector from P0 INTO the wall body. Returns { plus, minus, joined }
+// where plus/minus are the band corners on the +perp / -perp side (perp of
+// dirIn).
+function _cornersAt(ann, walls, eind, P0, dirIn, halfW) {
   const n = { x: -dirIn.y, y: dirIn.x };
   const def = {
     plus: { x: P0.x + n.x * halfW, y: P0.y + n.y * halfW },
     minus: { x: P0.x - n.x * halfW, y: P0.y - n.y * halfW },
     joined: false,
   };
-  const partner = _jointPartner(walls, ann, P0.x, P0.y, eigenVer, halfW);
+  // Coincident end point (any material) or a crossing corner within the
+  // same layer; null when this end — or the partner's end — has its join
+  // switched off (see wand-join.js).
+  const partner = zoekJoinPartner(ann, eind, walls, wallHalfWidthPx);
   if (!partner) return def;
   // Bij een kruisende hoek ligt het hoekpunt op het snijpunt van de
   // hartlijnen — de band wordt daarheen getrimd of doorgetrokken. De
@@ -173,8 +146,8 @@ export function computeWallShape(ann, annotations) {
   const E = { x: ann.endX, y: ann.endY };
   // dirIn at S is u; at E it is -u. perp(u) = n; perp(-u) = -n — so the
   // band edge on +n is σ=+1 at S and σ=-1 at E.
-  const cs = _cornersAt(ann, walls, S, u, halfW, E);
-  const ce = _cornersAt(ann, walls, E, { x: -u.x, y: -u.y }, halfW, S);
+  const cs = _cornersAt(ann, walls, 'start', S, u, halfW);
+  const ce = _cornersAt(ann, walls, 'end', E, { x: -u.x, y: -u.y }, halfW);
   return {
     poly: [cs.plus, ce.minus, ce.plus, cs.minus],
     joinedStart: cs.joined,

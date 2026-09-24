@@ -393,6 +393,9 @@ export function storeShowProperties(annotation) {
     params: annotation.params ? { ...annotation.params } : {},
     dikteMm: annotation.dikteMm ?? 100,
     isolatieType: annotation.isolatieType || 'steenwol',
+    // Wandjoin per uiteinde (#476): true = dat uiteinde joint nooit.
+    noJoinStart: annotation.noJoinStart === true,
+    noJoinEnd: annotation.noJoinEnd === true,
     // Betonbalk
     breedteMm: annotation.breedteMm ?? BETONBALK_DEFAULTS.breedteMm,
     hoogteMm: annotation.hoogteMm ?? BETONBALK_DEFAULTS.hoogteMm,
