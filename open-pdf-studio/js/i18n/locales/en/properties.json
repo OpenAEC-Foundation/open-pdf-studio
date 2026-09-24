@@ -611,6 +611,10 @@
     "sectionTitle": "Symbol: {{name}}",
     "symbolLabel": "Symbol",
     "typeLabel": "Type",
-    "unknownSymbol": "Unknown symbol"
+    "unknownSymbol": "Unknown symbol",
+    "gridAlignment": "Aligned ends",
+    "gridStartLinked": "Start coupled",
+    "gridEndLinked": "End coupled",
+    "gridLinkHint": "A coupled end moves along when the end of another coupled grid line is dragged. Unlock an end to drag it on its own."
   }
 }

@@ -765,7 +765,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_get_annotation",
-                "description": "Return the full JSON-safe property set of one annotation by id (functions/DOM refs stripped).",
+                "description": "Return the full JSON-safe property set of one annotation by id (functions/DOM refs stripped). A grid line also reports `gridAlignment`: per end its group, whether it is locked, the number of linked ends and whether it can be locked.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -777,7 +777,7 @@ fn handle_tools_list() -> Value {
             },
             {
                 "name": "app_update_annotation",
-                "description": "Merge `props` onto an existing annotation (geometry, color, lineWidth, text, ...). Records a modify-undo step, recomputes measureText when measurement geometry changed, and redraws. `id` and `type` are immutable. `layer` moves the annotation to another markup layer; `props` may then be empty.",
+                "description": "Merge `props` onto an existing annotation (geometry, color, lineWidth, text, ...). Records a modify-undo step, recomputes measureText when measurement geometry changed, and redraws. `id` and `type` are immutable. `layer` moves the annotation to another markup layer; `props` may then be empty. Grid line (parametricSymbol `stramien`): `alignStart` / `alignEnd` true couples that end with the aligned ends of the other grid lines (dragging one end then moves them all), false unlocks it.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {

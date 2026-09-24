@@ -154,6 +154,11 @@ export function initContextMenus() {
                 : { kind: 'systeem', annotationId: annotation.id, appX: x, appY: y };
             } catch (_) { /* systeem-context optioneel — menu opent gewoon */ }
           }
+          // Stramienlijn: de klikpositie gaat mee, zodat het menu de koppeling
+          // van het dichtstbijzijnde uiteinde kan omzetten.
+          if (annotation.type === 'parametricSymbol' && annotation.symbolId === 'stramien') {
+            sgVertex = { kind: 'stramien', annotationId: annotation.id, appX: x, appY: y };
+          }
           showContextMenu(e, annotation, sgVertex);
         } else {
           showPageContextMenu(e);

@@ -1,6 +1,7 @@
 import { getActiveDocument } from '../../core/state.js';
 import { selectTool } from './select-tool.js';
 import { setTool } from '../manager.js';
+import { verwerkSlotKlik } from '../../annotations/stramien-slot.js';
 
 /**
  * Hand tool — pan; on hover of an annotation, show pointer cursor;
@@ -20,6 +21,11 @@ export const handTool = {
     const selAnn = selAnns.length === 1 ? selAnns[0] : null;
     if (selAnn) {
       const handleType = ctx.findHandleAt(x, y, selAnn);
+      // Stramienslotje: omzetten in plaats van slepen (zelfde als select-tool).
+      if (handleType && !ctx.isPdfAReadOnly() && verwerkSlotKlik(selAnn, handleType)) {
+        ctx.redraw();
+        return;
+      }
       if (handleType) {
         state.isResizing = true;
         state.activeHandle = handleType;

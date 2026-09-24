@@ -14,6 +14,9 @@ export function validateSymbolParams(symbolId, values = {}) {
   if (!template) return {};
   const result = { ...defaults };
   for (const def of template.params || []) {
+    // Verborgen parameters (zoals de koppelgroep van een stramien) zijn geen
+    // gereedschapsstandaard: een nieuw symbool begint altijd bij de default.
+    if (def.hidden) continue;
     const raw = values[def.key];
     if (raw === undefined) continue;
     if (def.type === 'number') {

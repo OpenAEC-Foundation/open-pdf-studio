@@ -266,3 +266,50 @@ test('de staat blijft binnen het blad als het raster tegen de rand ligt', () => 
   assert.ok(r.staat.x >= 0);
   assert.ok(r.staat.y >= 0);
 });
+
+// --- Koppeling van de stramienbollen -----------------------------------------
+
+test('de bolzijden van één richting zijn standaard aan elkaar gekoppeld', () => {
+  const r = plan({ kolommen: false, balken: false, vloeren: false }, { koppelSleutel: 'k1' });
+  const stramien = rollen(r, 'stramien');
+  const verticaal = stramien.filter(a => a.props.params.orientation === 'verticaal');
+  const horizontaal = stramien.filter(a => a.props.params.orientation === 'horizontaal');
+  assert.ok(verticaal.every(a => a.props.params.koppelBegin === 'k1-x'));
+  assert.ok(horizontaal.every(a => a.props.params.koppelBegin === 'k1-y'));
+  // De bol staat aan het begin; het andere uiteinde hoort nergens bij.
+  assert.ok(stramien.every(a => a.props.params.bollen === 'begin'));
+  assert.ok(stramien.every(a => !('koppelEinde' in a.props.params)));
+});
+
+test('twee rasters op verschillende plekken krijgen elk een eigen groep', () => {
+  const a = rollen(plan({ kolommen: false }), 'stramien')[0].props.params.koppelBegin;
+  const b = rollen(plan({ kolommen: false, oorsprong: { x: 400, y: 160 } }), 'stramien')[0].props.params.koppelBegin;
+  assert.ok(a && b);
+  assert.notEqual(a, b);
+  // Zonder eigen sleutel blijft het plan reproduceerbaar.
+  assert.equal(rollen(plan({ kolommen: false }), 'stramien')[0].props.params.koppelBegin, a);
+});
+
+test('de MCP-brug geeft elk plan een eigen koppelsleutel mee', async () => {
+  const { readFileSync } = await import('node:fs');
+  const brug = readFileSync(new URL('../../mcp-bridge.js', import.meta.url), 'utf8');
+  assert.match(brug, /koppelSleutel:\s*\w+\.nieuwGroepsId\(\)/);
+});
+
+test('de gekoppelde bollen liggen op één lijn en schuiven samen mee', async () => {
+  const k = await import('../../annotations/stramien-koppeling.js');
+  const r = plan({ kolommen: false, balken: false, vloeren: false }, { koppelSleutel: 'k2' });
+  const anns = rollen(r, 'stramien').map((a, i) => ({ id: `s${i}`, type: a.type, page: a.props.page, ...a.props }));
+  const verticaal = anns.filter(a => a.params.orientation === 'verticaal');
+  for (const a of anns) assert.equal(k.slotStatus(anns, a, 'begin'), 'dicht');
+
+  const bron = verticaal[1];
+  const orig = JSON.parse(JSON.stringify(bron));
+  const sessie = k.startMeeslepen(anns, orig, 't', (x) => JSON.parse(JSON.stringify(x)));
+  assert.equal(sessie.leden.length, verticaal.length - 1);
+  k.verlengUiteinde(bron, 'begin', 20);
+  k.sleepMee(sessie, orig, bron);
+  const boven = verticaal.map(a => k.stramienAs(a).begin.y);
+  for (const y of boven) bijna(y, boven[0]);
+  bijna(boven[0], k.stramienAs(orig).begin.y - 20);
+});

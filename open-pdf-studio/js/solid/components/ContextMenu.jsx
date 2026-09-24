@@ -36,6 +36,8 @@ import {
   buildSysteemraster,
 } from '../../annotations/systeemraster.js';
 import { systeemrasterBuildOpts } from '../../annotations/systeemraster-scale.js';
+import { dichtstbijzijndUiteinde } from '../../annotations/stramien-koppeling.js';
+import { stramienSlotStatus, schakelStramienSlot, slotLabelSleutel } from '../../annotations/stramien-slot.js';
 import { createDefaultPaneelTypen } from '../../annotations/systeem-typen.js';
 import { getSysteemTypeById } from '../../annotations/systeem-typen-registry.js';
 import { getSelectedText, clearTextSelection } from '../../text/text-selection.js';
@@ -202,6 +204,23 @@ function AnnotationMenuContent() {
         } catch (err) { console.error('[contextmenu] sparing toevoegen', err); }
         hideMenu();
       } : null;
+    // Stramienlijn: koppeling van het uiteinde het dichtst bij de klik los
+    // zetten of weer vastzetten (zelfde schakelaar als het slotje).
+    if (v.kind === 'stramien') {
+      if (!Number.isFinite(v.appX)) return null;
+      const eind = dichtstbijzijndUiteinde(a, { x: v.appX, y: v.appY });
+      const status = stramienSlotStatus(a, eind);
+      if (!status) return null;
+      return (
+        <>
+          <MenuItem icon={status === 'dicht' ? unlockedIcon : lockedIcon}
+            label={t(slotLabelSleutel(status))}
+            disabled={isLocked()}
+            onClick={() => schakelStramienSlot(a, eind, status !== 'dicht')} />
+          <Separator />
+        </>
+      );
+    }
     if (v.kind === 'systeem') {
       return (
         <>

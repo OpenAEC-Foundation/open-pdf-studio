@@ -1,6 +1,7 @@
 import { HANDLE_SIZE, HANDLE_TYPES } from '../core/constants.js';
 import { annotationCtx } from '../ui/dom-elements.js';
-import { state } from '../core/state.js';
+import { state, getActiveDocument } from '../core/state.js';
+import { isStramien, stramienAs, slotStatus, UITEINDEN } from './stramien-koppeling.js';
 import { getTemplate } from '../symbols/registry.js';
 import { twoPointEndpoints } from '../symbols/two-point.js';
 import { handleAnchors } from './stavenreeks.js';
@@ -36,6 +37,38 @@ function _maatVak(annotation) {
     return { x: annotation.x, y: annotation.y, width: annotation.w, height: annotation.h };
   }
   return null;
+}
+
+// Slotje bij een uiteinde van een geselecteerde stramienlijn (schermmaat in
+// px). Het staat naast de hoekgreep van dat uiteinde, aan de rechterkant van
+// een verticale lijn en boven een horizontale; dicht = gekoppeld met de
+// uiteinden van de andere stramienlijnen, open = los of te koppelen.
+export const STRAMIEN_SLOT_PX = 14;
+
+function _stramienSlotGrepen(annotation, scale, handles) {
+  const doc = getActiveDocument();
+  const alle = doc?.annotations || [];
+  const as = stramienAs(annotation);
+  const maat = STRAMIEN_SLOT_PX / scale;
+  // Loodrecht op de lijn: lokaal (1,0) bij verticaal en (0,-1) bij
+  // horizontaal — beide zijn de lijnrichting 90 graden terug gedraaid.
+  const px = as.richting.y, py = -as.richting.x;
+  const opzij = Math.max(as.dwars / 2, 12 / scale) + (HANDLE_SIZE / 2 + 4) / scale + maat / 2;
+  for (const eind of UITEINDEN) {
+    const status = slotStatus(alle, annotation, eind);
+    if (!status) continue;
+    const tip = as[eind];
+    handles.push({
+      type: `stramien_slot_${eind}`,
+      x: tip.x + px * opzij - maat / 2,
+      y: tip.y + py * opzij - maat / 2,
+      w: maat,
+      h: maat,
+      isSlotUI: true,
+      slot: status,
+      eind,
+    });
+  }
 }
 
 // Rotate a point around a center point
@@ -584,6 +617,8 @@ export function getAnnotationHandles(annotation, scale = 1) {
       handles.push({ type: HANDLE_TYPES.LEFT, x: annotation.x - hs/2, y: annotation.y + annotation.height/2 - hs/2 });
       handles.push({ type: HANDLE_TYPES.RIGHT, x: annotation.x + annotation.width - hs/2, y: annotation.y + annotation.height/2 - hs/2 });
       handles.push({ type: HANDLE_TYPES.ROTATE, x: annotation.x + annotation.width/2 - hs/2, y: annotation.y - 25 / scale - hs/2 });
+      // Stramienlijn: slotje per uiteinde (koppeling met de andere lijnen).
+      if (isStramien(annotation)) _stramienSlotGrepen(annotation, scale, handles);
       break;
 
     // Vectorknipsel: schalen zoals een afbeelding. Geen draaigreep — de
@@ -654,7 +689,8 @@ export function getAnnotationHandles(annotation, scale = 1) {
     if (center) {
       for (const handle of handles) {
         // Leader UI / handles live in absolute (unrotated) document space
-        if (handle.isLeaderUI || handle.isLeaderHandle || handle.isTwoPoint) continue;
+        // Het stramienslotje is al in paginaruimte geplaatst (draaiing verwerkt).
+        if (handle.isLeaderUI || handle.isLeaderHandle || handle.isTwoPoint || handle.isSlotUI) continue;
         const handleCenterX = handle.x + hs / 2;
         const handleCenterY = handle.y + hs / 2;
         const rotated = rotatePoint(handleCenterX, handleCenterY, center.x, center.y, annotation.rotation);

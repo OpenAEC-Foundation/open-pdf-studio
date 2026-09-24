@@ -611,6 +611,10 @@
     "sectionTitle": "Symbol: {{name}}",
     "symbolLabel": "Symbol",
     "typeLabel": "Type",
-    "unknownSymbol": "Unknown symbol"
+    "unknownSymbol": "Unknown symbol",
+    "gridAlignment": "Uitlijning uiteinden",
+    "gridStartLinked": "Begin gekoppeld",
+    "gridEndLinked": "Einde gekoppeld",
+    "gridLinkHint": "Een gekoppeld uiteinde schuift mee als het uiteinde van een andere gekoppelde stramienlijn versleept wordt. Koppel een uiteinde los om het alleen te verslepen."
   }
 }

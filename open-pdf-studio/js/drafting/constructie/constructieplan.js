@@ -154,6 +154,11 @@ export function normaliseerOpgave(params = {}) {
  *        Controle of het symbool deze `maat` kent. Levert hij false, dan
  *        wordt het plan geweigerd in plaats van stilzwijgend een ander
  *        profiel te tekenen.
+ * @param {string} [opts.koppelSleutel]  Basis van de groeps-ids waarmee de
+ *        bolzijden van het stramien gekoppeld worden. De MCP-brug geeft per
+ *        plan een nieuwe, unieke sleutel mee. Weggelaten = afgeleid van pagina
+ *        en oorsprong: het plan blijft reproduceerbaar en twee rasters op
+ *        verschillende plekken van één blad blijven los van elkaar.
  *
  * @returns {{ok:true, plan:object, annotaties:object[], meetschaal:object,
  *            staat:object|null, samenvatting:object}
@@ -190,6 +195,13 @@ function bouw(spec, opts) {
   };
 
   // --- 1. Stramien -------------------------------------------------------
+  // De bolzijden van één richting zijn gekoppeld (stramien-koppeling.js):
+  // sleep je één bol, dan schuiven de andere bollen van die richting mee.
+  const koppelSleutel = typeof opts.koppelSleutel === 'string' && opts.koppelSleutel
+    ? opts.koppelSleutel
+    : `raster-${pagina ?? 0}-${Math.round(raster.oorsprong.x)}-${Math.round(raster.oorsprong.y)}`;
+  const koppelX = `${koppelSleutel}-x`;
+  const koppelY = `${koppelSleutel}-y`;
   for (const lijn of raster.lijnenX) {
     voegToe('stramien', lijn.label, {
       type: 'parametricSymbol',
@@ -197,7 +209,7 @@ function bouw(spec, opts) {
         symbolId: 'stramien',
         x: lijn.x - bolStraal, y: lijn.yBoven,
         width: bolStraal * 2, height: lijn.yOnder - lijn.yBoven,
-        params: { label: lijn.label, orientation: 'verticaal', bollen: 'begin', dashed: true },
+        params: { label: lijn.label, orientation: 'verticaal', bollen: 'begin', dashed: true, koppelBegin: koppelX },
         color: ZWART, strokeColor: ZWART,
         ifcCategory: 'IfcGrid', label: lijn.label,
       },
@@ -210,7 +222,7 @@ function bouw(spec, opts) {
         symbolId: 'stramien',
         x: lijn.xLinks, y: lijn.y - bolStraal,
         width: lijn.xRechts - lijn.xLinks, height: bolStraal * 2,
-        params: { label: lijn.label, orientation: 'horizontaal', bollen: 'begin', dashed: true },
+        params: { label: lijn.label, orientation: 'horizontaal', bollen: 'begin', dashed: true, koppelBegin: koppelY },
         color: ZWART, strokeColor: ZWART,
         ifcCategory: 'IfcGrid', label: lijn.label,
       },
