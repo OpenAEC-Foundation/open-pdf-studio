@@ -107,9 +107,64 @@
     "exportPdfxDesc": "Create a print-ready PDF/X file with an output intent and metadata",
     "pdfxOptions": "PDF/X Options",
     "pdfxConformance": "Conformance",
-    "pdfxNote": "Adds an sRGB output intent, TrimBox and PDF/X metadata. Existing RGB images are not converted to CMYK; for strict CMYK printing, substitute a CMYK profile.",
+    "pdfxNote": "Adds an output intent, TrimBox and PDF/X metadata. With a CMYK printing profile, RGB colours, images and gradients are converted to CMYK and that profile becomes the output intent; with sRGB nothing is converted. Standard fonts that are not embedded remain a limitation.",
     "exportCad": "CAD drawing (DXF, DWG)",
     "exportCadDesc": "Export the vector drawing to DXF or DWG, with layers, scale and area"
+  },
+  "pdfxCmyk": {
+    "profile": "Output profile",
+    "srgb": "sRGB — no conversion",
+    "browse": "Choose file…",
+    "noneFound": "No CMYK printing profiles found in the system colour folder",
+    "help": "For CMYK printing, choose the printing profile (.icc or .icm) of your print shop: ask them for it, or use a freely available profile set from a printing industry association. Profiles installed in the system colour folder appear in this list automatically.",
+    "intent": "Rendering intent",
+    "intentRelative": "Relative colorimetric with black point compensation",
+    "intentPerceptual": "Perceptual",
+    "invalidProfile": "“{{file}}” cannot be used as a CMYK printing profile: {{reason}}",
+    "profileReasons": {
+      "notIcc": "it is not an ICC colour profile.",
+      "notCmyk": "its colour space is not CMYK.",
+      "notPrinter": "it is not an output (printer) profile.",
+      "unreadable": "the file cannot be read."
+    },
+    "featureName": "CMYK conversion",
+    "converting": "Converting colours to CMYK…",
+    "convertingPages": "Converting colours to CMYK… page {{done}} of {{total}}",
+    "writing": "Writing PDF/X…",
+    "failed": "The conversion to CMYK failed: {{reason}}",
+    "failReasons": {
+      "encrypted": "the document is encrypted.",
+      "unreadable": "the document cannot be read.",
+      "transform": "the profile cannot be used for a colour conversion."
+    },
+    "reportTitle": "PDF/X saved. Colours converted to CMYK with “{{profile}}”.",
+    "reportLine": "{{kind}}: {{converted}} converted",
+    "reportLineSkipped": "{{kind}}: {{converted}} converted, {{skipped}} not converted ({{reasons}})",
+    "kinds": {
+      "colourOperators": "Colours in drawings and text",
+      "colourSpaces": "Named colour spaces",
+      "images": "Images",
+      "inlineImages": "Inline images",
+      "shadings": "Gradients",
+      "transparencyGroups": "Transparency groups",
+      "contentStreams": "Content streams"
+    },
+    "skipReasons": {
+      "malformed": "malformed",
+      "decodeFailed": "could not be decoded",
+      "unsupportedFilter": "unsupported compression",
+      "jpeg2000": "JPEG 2000",
+      "colourKeyMask": "colour-key mask",
+      "bitsPerComponent": "unsupported bit depth",
+      "tooLarge": "too large",
+      "encodeFailed": "could not be written",
+      "shadingType": "mesh or function-based gradient",
+      "functionType": "unsupported gradient function",
+      "separationRgbAlternate": "spot colour with an RGB alternate"
+    },
+    "nothing": "No RGB colour was found; nothing needed converting.",
+    "stillRgb": "What was not converted is still RGB; a check for CMYK-only output (such as PDF/X-1a) will flag it.",
+    "growth": "The file grew from {{before}} to {{after}} ({{factor}}×), mainly because converted images are stored anew."
   },
   "extensionsPanel": {
     "title": "Extensions",
