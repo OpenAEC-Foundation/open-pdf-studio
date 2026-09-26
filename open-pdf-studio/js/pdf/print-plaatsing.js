@@ -198,7 +198,10 @@ export function berekenPlaatsing({
       pagina: heel,
       zichtbaar: { ...heel },
       bron: { x: 0, y: 0, breedte: pagina.breedtePt, hoogte: pagina.hoogtePt },
-      schaal: 1,
+      // De pagina is hier haar eigen vel, dus "passend" is altijd 1 — maar
+      // 'custom-scale' moet nog steeds de gekozen zoom volgen in plaats van
+      // stilzwijgend op ware grootte te blijven staan (#print-onbekend-vel).
+      schaal: schaalFactor(schaling, zoom, 1),
       marges: GEEN_MARGES,
       bedrukbaar: { ...heel },
       afgesneden: false,
