@@ -412,16 +412,26 @@ test('afronding van papiermaten is geen afsnijden (Letter 216 x 279 in de lijst)
 
 // --- onbekend papier: gedrag van vóór de schaalkeuze ---------------------------
 
-test('onbekend papier: de pagina is het vel, ongeacht type en zoom', () => {
+test('onbekend papier: de pagina is het vel, maar de gekozen schaal blijft gelden', () => {
   for (const papier of [null, undefined, { breedteMm: null, hoogteMm: 297 }, { breedteMm: 0, hoogteMm: 0 }]) {
     const p = plaats({ papier, pagina: A4_LIGGEND, schaling: 'custom-scale', zoom: 10 });
     assert.equal(p.bekend, false, JSON.stringify(papier));
     bijna(p.vel.breedteMm, 297);
     bijna(p.vel.hoogteMm, 210);
     assert.equal(p.vel.orientatie, 'landscape');
-    assert.equal(p.schaal, 1);
+    // Custom Scale mag niet stilzwijgend op ware grootte terugvallen alleen
+    // omdat het papierformaat onbekend is (#print-custom-scale-onbekend-vel).
+    bijna(p.schaal, 0.1);
     rechthoek(p.pagina, [0, 0, 297, 210]);
     assert.equal(p.afgesneden, false);
+  }
+});
+
+test('onbekend papier: "actual"/"fit"/"shrink" blijven ware grootte (oud gedrag)', () => {
+  for (const schaling of ['actual', 'fit', 'shrink', undefined]) {
+    const p = plaats({ papier: null, pagina: A4_LIGGEND, schaling, zoom: 55 });
+    assert.equal(p.bekend, false);
+    assert.equal(p.schaal, 1, schaling);
   }
 });
 
