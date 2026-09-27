@@ -178,7 +178,16 @@ export function berekenPlaatsing({
   if (!pagina || !geldig(pagina.breedtePt) || !geldig(pagina.hoogtePt)) return null;
 
   // Het vel is de pagina zelf: haar korte en lange zijde, als bekend vel.
-  if (papier === 'pagina') {
+  // Ook wanneer het papier van de printer onbekend is (macOS/Linux, of een
+  // driver zonder maat) én Custom Scale gekozen is: zonder een bekend vel
+  // gaat de pagina zelf ongeschaald het bedrukbare-gebied-pad in, en drukt de
+  // printer/OS-driver haar daarna alsnog passend af — de gekozen schaal
+  // verdwijnt dan bij het echt afdrukken (#print-custom-scale-printer). Als
+  // eigen vel blijft de pagina op schaal, gecentreerd op haar eigen maat, en
+  // krijgt Rust `plaatsing: 'vel'` (1:1, niet opnieuw passend maken).
+  const onbekendMaarSchaalGekozen = schaling === 'custom-scale'
+    && (!papier || !geldig(papier.breedteMm) || !geldig(papier.hoogteMm));
+  if (papier === 'pagina' || onbekendMaarSchaalGekozen) {
     papier = {
       breedteMm: Math.min(pagina.breedtePt, pagina.hoogtePt) * MM_PER_PT,
       hoogteMm: Math.max(pagina.breedtePt, pagina.hoogtePt) * MM_PER_PT,

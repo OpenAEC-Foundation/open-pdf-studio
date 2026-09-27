@@ -412,17 +412,20 @@ test('afronding van papiermaten is geen afsnijden (Letter 216 x 279 in de lijst)
 
 // --- onbekend papier: gedrag van vóór de schaalkeuze ---------------------------
 
-test('onbekend papier: de pagina is het vel, maar de gekozen schaal blijft gelden', () => {
+test('onbekend papier + Custom Scale: de pagina wordt haar eigen (bekende) vel, op schaal en gecentreerd', () => {
   for (const papier of [null, undefined, { breedteMm: null, hoogteMm: 297 }, { breedteMm: 0, hoogteMm: 0 }]) {
     const p = plaats({ papier, pagina: A4_LIGGEND, schaling: 'custom-scale', zoom: 10 });
-    assert.equal(p.bekend, false, JSON.stringify(papier));
+    // Zonder een bekend vel zou de OS-printer de al geschaalde pagina anders
+    // stilzwijgend weer passend afdrukken (#print-custom-scale-printer): de
+    // pagina wordt daarom, net als bij papier: 'pagina', haar eigen vel —
+    // bekend, op schaal, en met plaatsing:'vel' naar Rust (opVel = bekend).
+    assert.equal(p.bekend, true, JSON.stringify(papier));
     bijna(p.vel.breedteMm, 297);
     bijna(p.vel.hoogteMm, 210);
     assert.equal(p.vel.orientatie, 'landscape');
-    // Custom Scale mag niet stilzwijgend op ware grootte terugvallen alleen
-    // omdat het papierformaat onbekend is (#print-custom-scale-onbekend-vel).
     bijna(p.schaal, 0.1);
-    rechthoek(p.pagina, [0, 0, 297, 210]);
+    // Op schaal en gecentreerd op haar eigen vel: 29,7 x 21 mm in het midden.
+    rechthoek(p.pagina, [(297 - 29.7) / 2, (210 - 21) / 2, 29.7, 21], 1e-6);
     assert.equal(p.afgesneden, false);
   }
 });
@@ -524,7 +527,9 @@ test('pdfPagina: bekend papier = pagina op papiergrootte, beeld op de plek (oors
 });
 
 test('pdfPagina: onbekend papier = de pagina op haar eigen maat, beeld vult haar (oude gedrag)', () => {
-  const p = plaats({ papier: null, pagina: A4_LIGGEND, schaling: 'custom-scale', zoom: 10 });
+  // 'fit' (niet 'custom-scale'): zonder bekend vel mag de printer die zelf
+  // passend maken, dus schaal blijft 1 en de pagina haar eigen maat.
+  const p = plaats({ papier: null, pagina: A4_LIGGEND, schaling: 'fit', zoom: 10 });
   const d = renderDeel(p, 300 / 72);
   const { maat, afbeelding } = pdfPagina(p, d);
   assert.deepEqual(maat, [A4_LIGGEND.breedtePt, A4_LIGGEND.hoogtePt]);
