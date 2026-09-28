@@ -329,3 +329,26 @@ test('klik in een gedraaide weergave: het tekstvak begint op het scherm bij het 
     assert.ok(Math.abs(s2.x - (klik.x + 100)) < 1e-9 && Math.abs(s2.y - (klik.y + 20)) < 1e-9, `${weergave}° 100 × 20 naar rechts en omlaag`);
   }
 });
+
+test('klik met het tekstvak-gereedschap: standaardvak 100 × 20 rechtop, linksboven op het klikpunt', () => {
+  // Zo doet de vormen-tool het: het standaardvak loopt op het scherm naar
+  // rechts en omlaag (vectorNaarPagina), daarna rechtopVak.
+  for (const [W, H] of [[595.28, 841.89], [1190.55, 841.89]]) {
+    for (const weergave of [0, 90, 180, 270]) {
+      const klik = { x: 210, y: 320 }; // op het scherm (weergaveruimte)
+      const p = naarPagina(klik.x, klik.y, W, H, weergave);
+      const d = vectorNaarPagina(100, 20, weergave);
+      const omhullende = {
+        x: Math.min(p.x, p.x + d.x), y: Math.min(p.y, p.y + d.y),
+        width: Math.abs(d.x), height: Math.abs(d.y),
+      };
+      const vak = rechtopVak(omhullende, (360 - weergave) % 360);
+      const lb = naarWeergave(...Object.values(hoekOpPagina(vak, -1, -1)), W, H, weergave);
+      const ro = naarWeergave(...Object.values(hoekOpPagina(vak, 1, 1)), W, H, weergave);
+      bijna(lb.x, klik.x, `${weergave}° linksboven x`);
+      bijna(lb.y, klik.y, `${weergave}° linksboven y`);
+      bijna(ro.x, klik.x + 100, `${weergave}° rechtsonder x`);
+      bijna(ro.y, klik.y + 20, `${weergave}° rechtsonder y`);
+    }
+  }
+});

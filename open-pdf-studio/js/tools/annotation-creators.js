@@ -312,13 +312,7 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
     }
 
     case 'textbox': {
-      let b = bbox(startX, startY, endX, endY);
-      // Weergave draaien (#200): een nieuw tekstvak staat rechtop op het
-      // scherm. Het gesleepte vak is in de paginaruimte de omhullende; het vak
-      // zelf krijgt de maat zoals op het scherm (bij een kwartslag wisselen
-      // breedte en hoogte) en de tegengestelde rotatie, om hetzelfde midden.
-      const rechtop = rechtopRotatie();
-      if (rechtop) b = rechtopVak(b, rechtop);
+      const b = bbox(startX, startY, endX, endY);
       return {
         type: 'textbox',
         page: getActiveDocument()?.currentPage || 1,
@@ -622,12 +616,24 @@ function finalizeAnnotation(tool, props) {
   return createAnnotation(props);
 }
 
+// Weergave draaien (#200): een tekstvak dat de gebruiker tekent, staat rechtop
+// op het scherm. Het gesleepte vak is in de paginaruimte de omhullende; het
+// vak zelf krijgt de maat zoals op het scherm (bij een kwartslag wisselen
+// breedte en hoogte) en de tegengestelde rotatie, om hetzelfde midden. Alleen
+// bij tekenen: buildAnnotationProps blijft in paginamaten, zodat een vak via
+// MCP of een plug-in precies de opgegeven maten houdt.
+function rechtopOpScherm(tool, props) {
+  if (!props || tool !== 'textbox') return props;
+  const rechtop = rechtopRotatie();
+  return rechtop ? { ...props, ...rechtopVak(props, rechtop) } : props;
+}
+
 export function createAnnotationFromTool(tool, startX, startY, endX, endY, e) {
-  return finalizeAnnotation(tool, buildAnnotationProps(tool, startX, startY, endX, endY, e));
+  return finalizeAnnotation(tool, rechtopOpScherm(tool, buildAnnotationProps(tool, startX, startY, endX, endY, e)));
 }
 
 export function createContinuousAnnotation(tool, pageNum, startX, startY, endX, endY) {
-  const props = buildAnnotationProps(tool, startX, startY, endX, endY, null);
+  const props = rechtopOpScherm(tool, buildAnnotationProps(tool, startX, startY, endX, endY, null));
   if (props) props.page = pageNum;
   return finalizeAnnotation(tool, props);
 }

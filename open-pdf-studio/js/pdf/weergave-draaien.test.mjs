@@ -189,7 +189,16 @@ test('schermposities van popups, editors en overlays gaan via de centrale omreke
 });
 
 test('nieuwe tekstvakken, stempels en geplakte afbeeldingen staan rechtop op het scherm', () => {
-  assert.match(bron('../tools/annotation-creators.js'), /const rechtop = rechtopRotatie\(\);/);
+  const makers = bron('../tools/annotation-creators.js');
+  assert.match(makers, /function rechtopOpScherm\(tool, props\)/);
+  // Alleen bij tekenen (beide tekenroutes), niet in buildAnnotationProps:
+  // een tekstvak via MCP of een plug-in houdt de opgegeven paginamaten.
+  assert.match(makers, /finalizeAnnotation\(tool, rechtopOpScherm\(tool, buildAnnotationProps\(/);
+  assert.match(makers, /const props = rechtopOpScherm\(tool, buildAnnotationProps\(/);
+  const bouw = makers.slice(makers.indexOf('export function buildAnnotationProps'), makers.indexOf('function finalizeAnnotation'));
+  assert.doesNotMatch(bouw, /rechtop/i);
+  // Een klik maakt het standaardvak op het scherm naar rechts en omlaag.
+  assert.match(bron('../tools/tools/shape-tool.js'), /weergaveVectorNaarPagina\(100, 20\)/);
   assert.equal((bron('../annotations/stamps.js').match(/rechtopRotatie\(\)/g) || []).length, 3);
   assert.match(bron('../annotations/clipboard.js'), /rotation: rechtopRotatie\(\),/);
 });
