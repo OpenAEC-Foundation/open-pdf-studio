@@ -256,7 +256,7 @@ PDF-weergave.
 - **Kop:** een vak met groene vulling `#45B5A8` en vetgedrukte tekst in
   hoofdletters, `#350E35`, 12 pt.
 - **Regel:** links een voorbeeld van de stift (een lijnstuk van 25 mm, een pijl
-  met letter, het puntsymbool of een kruis van 8 × 8 mm), rechts een groen vak
+  met letter, het puntsymbool of een kruis van 8 mm breed en zo hoog als de regel), rechts een groen vak
   met de omschrijving in `#350E35`, 12 pt. Voor een balklaag staat de letter
   vooraan in de tekst, zoals "A  Balklaag 45x145, C24, hoh 610".
 - **Maten:** elk vak is 15 pt hoog (5,3 mm), met 2 mm marge links en rechts van
