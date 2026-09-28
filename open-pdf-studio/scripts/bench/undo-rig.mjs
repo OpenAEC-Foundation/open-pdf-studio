@@ -10,11 +10,13 @@
 //
 //   node scripts/bench/undo-rig.mjs [--mcp=9305] [--cdp=9405] [--counts=100,500,1000,2000]
 //        [--reps=3] [--mode=undo,modify] [--profile=<N>] [--profile-modify=<N>]
-//        [--pdf=<copy of a real PDF>] [--mix] [--out=<file.json>]
+//        [--pdf=<copy of a real PDF>] [--mix] [--list] [--out=<file.json>]
 //
 // Per count N the active document (a new blank one, or --pdf) gets N
 // synthetic 'box' annotations (with --mix: boxes, lines, measured distances
-// and areas plus a scale bar). Times in ms, median over --reps:
+// and areas plus a scale bar). --list keeps the annotation list in the left
+// panel open during the run (by default the thumbnails are shown, as when
+// the app starts). Times in ms, median over --reps:
 //
 // mode undo
 //   undo        create one box (untimed), then undo it: removes one annotation
@@ -56,6 +58,7 @@ const PROFILE_AT = Number(arg('profile', '0'));
 const PROFILE_MODIFY_AT = Number(arg('profile-modify', '0'));
 const PDF = arg('pdf', '');
 const MIX = process.argv.includes('--mix');
+const LIST = process.argv.includes('--list');
 const OUT = arg('out', '');
 
 async function tool(name, args = {}) {
@@ -381,6 +384,11 @@ const round = (v) => +v.toFixed(1);
 
 await openDocument();
 await tool('app_set_tool', { tool: 'select' });
+// Left panel: the annotation list (--list) or the thumbnails.
+await page.evaluate(async (list) => {
+  document.querySelector(`.left-panel-tab[data-panel="${list ? 'annotations' : 'thumbnails'}"]`)?.click();
+  await window.__bench491.frames(2);
+}, LIST);
 await page.evaluate(() => {
   const b = window.__bench491;
   b.originalIds = new Set(b.doc().annotations.map((a) => a.id));
@@ -423,6 +431,9 @@ for (const n of COUNTS) {
       await profileModify(OUT ? `${OUT.replace(/\.json$/, '')}-modify-${n}` : `modify-profile-${n}`, targetId);
     }
     await tool('app_clear_selection', {});
+  }
+  if (LIST) {
+    row.listItems = await page.evaluate(() => document.querySelectorAll('#annotations-panel .annotation-list-item').length);
   }
   rows.push(row);
   console.log(JSON.stringify(row));
