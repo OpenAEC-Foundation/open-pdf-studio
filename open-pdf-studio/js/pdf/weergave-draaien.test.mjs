@@ -143,3 +143,53 @@ test('de uitleg zegt dat het document niet verandert (Engels en Nederlands)', ()
   assert.match(lees('en', 'statusbar').viewRotatedTitle, /document is unchanged/);
   assert.match(lees('nl', 'ribbon').view.rotateViewRightTitle, /document zelf verandert niet/);
 });
+
+// ─── Koppelpunten: elke omrekening tussen scherm en pagina draait mee ──────
+
+test('aanwijzer → pagina, voorbeelden en viewport gaan via de weergave-omrekening', () => {
+  const ctx = bron('../tools/tool-context.js');
+  assert.match(ctx, /viewportNaarPagina\(vp, screenX, screenY\)/, 'enkele pagina (viewport)');
+  assert.equal((ctx.match(/weergaveNaarPagina\(/g) || []).length, 2, 'doorlopend en de oude modus');
+  const transform = bron('../tools/tool-transform.js');
+  assert.match(transform, /viewportGeometrie\(vp\)\.matrix/);
+  assert.match(transform, /weergaveTransform\(pagina, doc\)/);
+  const viewport = bron('./pdf-viewport.js');
+  assert.match(viewport, /const geo = viewportGeometrie\(viewport\)/, '_render tekent via de weergavegeometrie');
+  assert.match(viewport, /laagGeometrie\.rotation \+ geo\.rotatie/, 'tekst- en formulierlaag draaien mee');
+  const rendering = bron('../annotations/rendering.js');
+  assert.match(rendering, /annotationCtx\.setTransform\(\.\.\.vpGeo\.matrix\)/, 'annotaties enkele pagina');
+  assert.match(rendering, /if \(weergave\) ctx\.transform\(\.\.\.weergave\)/, 'annotaties doorlopend');
+});
+
+test('de doorlopende weergave rendert in de gedraaide stand, opslaan en miniaturen niet', () => {
+  const renderer = bron('./renderer.js');
+  assert.match(renderer, /function beeldRotatie\(pageNum\)/);
+  // Alle paginarenders van de doorlopende weergave (pagina, wrapper, herrender,
+  // voorbeeld) gebruiken de beeldrotatie.
+  assert.ok((renderer.match(/beeldRotatie\(pageNum\)/g) || []).length >= 5);
+  // rotatePage() blijft een documentbewerking op de eigen paginarotatie.
+  assert.match(renderer, /const current = getPageRotation\(pageNum\);/);
+});
+
+test('schermposities van popups, editors en overlays gaan via de centrale omrekening', () => {
+  for (const [pad, patroon] of [
+    ['../solid/components/StickyNotePopup.jsx', /paginaNaarClient\(/],
+    ['../solid/components/BoxSizeOverlay.jsx', /paginaRectNaarClient\(/],
+    ['../tools/stavenreeks-editing.js', /paginaNaarClient\(/],
+    ['../tools/inline-number-editing.js', /paginaNaarClient\(/],
+    ['../tools/parametric-symbol-editing.js', /paginaNaarClient\(/],
+    ['../tools/text-editing.js', /paginaNaarClient\(/],
+    ['../annotations/clipboard.js', /clientNaarPagina\(/],
+    ['../text/text-selection.js', /weergaveRectNaarPagina\(/],
+    ['../tools/g-move-mode.js', /viewportNaarPagina\(vp,/],
+    ['../tools/manager.js', /viewportNaarPagina\(vp,/],
+  ]) {
+    assert.match(bron(pad), patroon, pad);
+  }
+});
+
+test('nieuwe tekstvakken, stempels en geplakte afbeeldingen staan rechtop op het scherm', () => {
+  assert.match(bron('../tools/annotation-creators.js'), /const rechtop = rechtopRotatie\(\);/);
+  assert.equal((bron('../annotations/stamps.js').match(/rechtopRotatie\(\)/g) || []).length, 3);
+  assert.match(bron('../annotations/clipboard.js'), /rotation: rechtopRotatie\(\),/);
+});

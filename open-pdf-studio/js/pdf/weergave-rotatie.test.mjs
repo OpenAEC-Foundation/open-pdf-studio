@@ -19,6 +19,8 @@ import {
   viewportNaarPagina,
   viewportNaarScherm,
   viewportZichtbaar,
+  rechtopVak,
+  nieuweMaatHoekVast,
 } from './weergave-rotatie.js';
 import { getPageRotationMatrix } from '../text/text-edit-appearance.js';
 
@@ -252,4 +254,78 @@ test('viewportZichtbaar: pagina buiten beeld geeft een lege rechthoek', () => {
   const vp = { pageW: 595, pageH: 842, rotation: 0, viewRotation: 180, zoom: 1, offsetX: 5000, offsetY: 0 };
   const zicht = viewportZichtbaar(vp, 800, 600);
   assert.equal(zicht.width, 0);
+});
+
+// ─── Rechtop op het scherm ──────────────────────────────────────────────────
+
+// Plek op de pagina van een hoek van een vak dat om zijn midden gedraaid is
+// (ux, uy = -1 of +1: links/rechts en boven/onder in het vak zelf).
+function hoekOpPagina(v, ux, uy) {
+  const a = ((v.rotation || 0) * Math.PI) / 180;
+  const dx = (ux * v.width) / 2;
+  const dy = (uy * v.height) / 2;
+  return {
+    x: v.x + v.width / 2 + dx * Math.cos(a) - dy * Math.sin(a),
+    y: v.y + v.height / 2 + dx * Math.sin(a) + dy * Math.cos(a),
+  };
+}
+
+test('rechtopVak: bij een kwartslag wisselen breedte en hoogte om hetzelfde midden', () => {
+  const r = rechtopVak({ x: 100, y: 200, width: 60, height: 200 }, 270);
+  assert.deepEqual(r, { x: 30, y: 270, width: 200, height: 60, rotation: 270 });
+  assert.deepEqual(rechtopVak({ x: 1, y: 2, width: 3, height: 4 }, 180), { x: 1, y: 2, width: 3, height: 4, rotation: 180 });
+  assert.deepEqual(rechtopVak({ x: 1, y: 2, width: 3, height: 4 }, 0), { x: 1, y: 2, width: 3, height: 4, rotation: 0 });
+});
+
+test('rechtopVak: op het scherm rechtop, met de eigen linkerbovenhoek linksboven', () => {
+  for (const weergave of [90, 180, 270]) {
+    for (const [W, H] of [[595.28, 841.89], [1684, 1191]]) {
+      // Het vak zoals de gebruiker het op het scherm sleept (weergaveruimte).
+      const scherm = { x: 150, y: 90, width: 220, height: 70 };
+      const omhullende = rectNaarPagina(scherm, W, H, weergave);
+      const v = rechtopVak(omhullende, 360 - weergave);
+      const hoeken = [[-1, -1], [1, -1], [1, 1], [-1, 1]]
+        .map(([ux, uy]) => hoekOpPagina(v, ux, uy))
+        .map((p) => naarWeergave(p.x, p.y, W, H, weergave));
+      const eq = (a, b) => Math.abs(a - b) < 1e-9;
+      // Linksboven, rechtsboven, rechtsonder, linksonder van het vak vallen
+      // op die van de gesleepte rechthoek op het scherm.
+      assert.ok(eq(hoeken[0].x, scherm.x) && eq(hoeken[0].y, scherm.y), `${weergave}° linksboven ${JSON.stringify(hoeken[0])}`);
+      assert.ok(eq(hoeken[1].x, scherm.x + scherm.width) && eq(hoeken[1].y, scherm.y), `${weergave}° rechtsboven`);
+      assert.ok(eq(hoeken[2].x, scherm.x + scherm.width) && eq(hoeken[2].y, scherm.y + scherm.height), `${weergave}° rechtsonder`);
+      assert.ok(eq(hoeken[3].x, scherm.x) && eq(hoeken[3].y, scherm.y + scherm.height), `${weergave}° linksonder`);
+    }
+  }
+});
+
+test('nieuweMaatHoekVast: zonder rotatie blijven x en y staan', () => {
+  assert.deepEqual(nieuweMaatHoekVast({ x: 10, y: 20, width: 2, height: 3 }, 100, 20), { x: 10, y: 20, width: 100, height: 20 });
+});
+
+test('nieuweMaatHoekVast: de eigen linkerbovenhoek blijft op zijn plek, bij elke rotatie', () => {
+  for (const rotation of [90, 180, 270, 45, -30]) {
+    const oud = { x: 300, y: 400, width: 2, height: 3, rotation };
+    const nieuw = { ...nieuweMaatHoekVast(oud, 100, 20), rotation };
+    const a = hoekOpPagina(oud, -1, -1);
+    const b = hoekOpPagina(nieuw, -1, -1);
+    assert.ok(Math.abs(a.x - b.x) < 1e-9 && Math.abs(a.y - b.y) < 1e-9, `${rotation}°: ${JSON.stringify(a)} vs ${JSON.stringify(b)}`);
+    assert.equal(nieuw.width, 100);
+    assert.equal(nieuw.height, 20);
+  }
+});
+
+test('klik in een gedraaide weergave: het tekstvak begint op het scherm bij het klikpunt', () => {
+  const [W, H] = [595.28, 841.89];
+  for (const weergave of [90, 180, 270]) {
+    const klik = { x: 200, y: 300 }; // op het scherm (weergaveruimte)
+    const p = naarPagina(klik.x, klik.y, W, H, weergave);
+    const piepklein = rechtopVak({ x: p.x, y: p.y, width: 0, height: 0 }, 360 - weergave);
+    const vak = { ...nieuweMaatHoekVast(piepklein, 100, 20), rotation: piepklein.rotation };
+    const lb = hoekOpPagina(vak, -1, -1);
+    const ro = hoekOpPagina(vak, 1, 1);
+    const s1 = naarWeergave(lb.x, lb.y, W, H, weergave);
+    const s2 = naarWeergave(ro.x, ro.y, W, H, weergave);
+    assert.ok(Math.abs(s1.x - klik.x) < 1e-9 && Math.abs(s1.y - klik.y) < 1e-9, `${weergave}° linksboven op het klikpunt`);
+    assert.ok(Math.abs(s2.x - (klik.x + 100)) < 1e-9 && Math.abs(s2.y - (klik.y + 20)) < 1e-9, `${weergave}° 100 × 20 naar rechts en omlaag`);
+  }
 });

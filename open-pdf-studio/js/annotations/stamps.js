@@ -10,7 +10,7 @@ import { BUILTIN_STAMP_DEFAULT_WIDTH, BUILTIN_STAMP_DEFAULT_HEIGHT, OVERRIDE_STA
 import { svgRealSizeMm, stampPlacementSize } from './svg-real-size.js';
 import { stampPxPerMm } from './stamp-scale.js';
 import { rasterizeSvg } from './svg-raster.js';
-import { paginaMaat } from '../pdf/weergave-ruimte.js';
+import { paginaMaat, rechtopRotatie } from '../pdf/weergave-ruimte.js';
 
 // Built-in stamp definitions
 export const BUILT_IN_STAMPS = [
@@ -54,7 +54,8 @@ function placeStamp(stamp, x, y) {
     color: stamp.color,
     strokeColor: stamp.color,
     opacity: 0.85,
-    rotation: 0
+    // Rechtop op het scherm, ook in een gedraaide weergave (#200).
+    rotation: rechtopRotatie()
   });
 
   const _doc = getActiveDocument();
@@ -172,7 +173,9 @@ export async function placeOverrideStamp(x, y) {
     originalHeight: img.naturalHeight,
     color: '#000000',
     opacity: 1,
-    rotation: 0,
+    // Rechtop op het scherm in een gedraaide weergave (#200); een stempel die
+    // de pagina vult, volgt de pagina.
+    rotation: overrides.stampFillPage ? 0 : rechtopRotatie(),
     lockAspectRatio: overrides.lockAspectRatio !== false,
     // IFC-categorie uit de symbool-metadata (mapping-laag) → hoeveelheden.
     ifcCategory: overrides.ifcCategory || undefined,
@@ -266,7 +269,8 @@ async function loadCustomStamp(x, y) {
       originalHeight: img.naturalHeight,
       color: '#000000',
       opacity: 1,
-      rotation: 0
+      // Rechtop op het scherm, ook in een gedraaide weergave (#200).
+      rotation: rechtopRotatie()
     });
 
     const _doc3 = getActiveDocument();

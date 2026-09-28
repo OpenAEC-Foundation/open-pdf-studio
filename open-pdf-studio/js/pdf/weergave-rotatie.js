@@ -210,3 +210,48 @@ export function viewportZichtbaar(vp, cssBreedte, cssHoogte) {
   };
   return rectNaarPagina(inBeeld, g.paginaBreedte, g.paginaHoogte, g.rotatie);
 }
+
+// ─── Rechtop op het scherm ──────────────────────────────────────────────────
+// Een nieuw tekstvak in een gedraaide weergave krijgt de tegengestelde
+// rotatie, zodat het op het scherm rechtop staat (weergave-ruimte.js,
+// rechtopRotatie). Annotaties draaien om hun midden, rechtsom, y omlaag.
+
+/**
+ * Het vak dat de gebruiker sleepte, rechtop op het scherm. `omhullende` is de
+ * gesleepte rechthoek in de paginaruimte; het vak zelf krijgt de maat zoals
+ * op het scherm (bij een kwartslag wisselen breedte en hoogte) om hetzelfde
+ * midden, met de gegeven rotatie.
+ * @returns {{x:number, y:number, width:number, height:number, rotation:number}}
+ */
+export function rechtopVak(omhullende, rotatie) {
+  const rot = normaliseerRotatie(rotatie);
+  const x = Number(omhullende?.x) || 0;
+  const y = Number(omhullende?.y) || 0;
+  const breedte = Number(omhullende?.width) || 0;
+  const hoogte = Number(omhullende?.height) || 0;
+  const kwart = isKwartslag(rot);
+  const w = kwart ? hoogte : breedte;
+  const h = kwart ? breedte : hoogte;
+  return { x: x + breedte / 2 - w / 2, y: y + hoogte / 2 - h / 2, width: w, height: h, rotation: rot };
+}
+
+/**
+ * Een vak dat om zijn midden gedraaid is (`rotation` in graden, rechtsom) een
+ * nieuwe maat geven met zijn eigen linkerbovenhoek op dezelfde plek. Zo groeit
+ * het vak zoals de gebruiker het ziet naar rechts en omlaag, ook als het
+ * gedraaid op de pagina staat. Zonder rotatie blijven x en y staan.
+ * @returns {{x:number, y:number, width:number, height:number}}
+ */
+export function nieuweMaatHoekVast(vak, breedte, hoogte) {
+  const a = ((Number(vak?.rotation) || 0) * Math.PI) / 180;
+  const cos = Math.cos(a);
+  const sin = Math.sin(a);
+  const draai = (dx, dy) => [dx * cos - dy * sin, dx * sin + dy * cos];
+  const oudB = Number(vak?.width) || 0;
+  const oudH = Number(vak?.height) || 0;
+  const [hx, hy] = draai(-oudB / 2, -oudH / 2);
+  const hoekX = (Number(vak?.x) || 0) + oudB / 2 + hx;
+  const hoekY = (Number(vak?.y) || 0) + oudH / 2 + hy;
+  const [mx, my] = draai(breedte / 2, hoogte / 2);
+  return { x: hoekX + mx - breedte / 2, y: hoekY + my - hoogte / 2, width: breedte, height: hoogte };
+}

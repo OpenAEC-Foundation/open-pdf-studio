@@ -9,7 +9,7 @@ import { annotationCanvas, pdfContainer } from '../ui/dom-elements.js';
 import { recordAdd, recordBulkAdd } from '../core/undo-manager.js';
 import { getEffectiveScale } from '../tools/effective-scale.js';
 import { plakVerschuivingPt } from './minimummaat.js';
-import { paginaMaat, paginaRectNaarClient, clientNaarPagina } from '../pdf/weergave-ruimte.js';
+import { paginaMaat, paginaRectNaarClient, clientNaarPagina, rechtopRotatie } from '../pdf/weergave-ruimte.js';
 
 // Copy annotation to internal clipboard
 export function copyAnnotation(annotation) {
@@ -176,7 +176,8 @@ export async function pasteImageFromBlob(blob) {
     y: Math.max(10, y),
     width: width,
     height: height,
-    rotation: 0,
+    // Rechtop op het scherm, ook in een gedraaide weergave (#200).
+    rotation: rechtopRotatie(),
     imageId: imageId,
     imageData: dataUrl, // data:image/... URL for PDF embedding
     originalWidth: img.naturalWidth,

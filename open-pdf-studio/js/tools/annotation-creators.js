@@ -20,6 +20,8 @@ import { labelFontSizeAt } from '../annotations/drafting-rules.js';
 import { isKlikSleep, klemMaat, schermPxNaarPt, KLIK_DREMPEL_PX } from '../annotations/minimummaat.js';
 import { getEffectiveScale } from './effective-scale.js';
 import { randkleurenUitVoorkeur } from '../annotations/fill-utils.js';
+import { rechtopRotatie } from '../pdf/weergave-ruimte.js';
+import { rechtopVak, nieuweMaatHoekVast } from '../pdf/weergave-rotatie.js';
 
 /**
  * Build raw annotation properties from tool + coordinates.
@@ -310,7 +312,13 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
     }
 
     case 'textbox': {
-      const b = bbox(startX, startY, endX, endY);
+      let b = bbox(startX, startY, endX, endY);
+      // Weergave draaien (#200): een nieuw tekstvak staat rechtop op het
+      // scherm. Het gesleepte vak is in de paginaruimte de omhullende; het vak
+      // zelf krijgt de maat zoals op het scherm (bij een kwartslag wisselen
+      // breedte en hoogte) en de tegengestelde rotatie, om hetzelfde midden.
+      const rechtop = rechtopRotatie();
+      if (rechtop) b = rechtopVak(b, rechtop);
       return {
         type: 'textbox',
         page: getActiveDocument()?.currentPage || 1,
@@ -587,8 +595,18 @@ function finalizeAnnotation(tool, props) {
   // grens volgt de schermpixel-klikdrempel, niet een vast aantal punten.
   if (tool === 'textbox') {
     const grens = schermPxNaarPt(KLIK_DREMPEL_PX, getEffectiveScale());
-    if (props.width < grens) props.width = 100;
-    if (props.height < grens) props.height = 20;
+    const breedte = props.width < grens ? 100 : props.width;
+    const hoogte = props.height < grens ? 20 : props.height;
+    if (props.rotation && (breedte !== props.width || hoogte !== props.height)) {
+      // Rechtop gezet in een gedraaide weergave (#200): net als zonder
+      // draaiing blijft de linkerbovenhoek zoals de gebruiker hem op het
+      // scherm ziet (bij een klik: het klikpunt) op zijn plaats, en groeit het
+      // vak op het scherm naar rechts en omlaag.
+      Object.assign(props, nieuweMaatHoekVast(props, breedte, hoogte));
+    } else {
+      props.width = breedte;
+      props.height = hoogte;
+    }
   }
 
   if (tool === 'draw') {

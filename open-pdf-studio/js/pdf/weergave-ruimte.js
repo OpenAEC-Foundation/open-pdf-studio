@@ -200,3 +200,15 @@ export function zetRechtopRond(ctx, x, y, doc = getActiveDocument()) {
   ctx.translate(-x, -y);
   return true;
 }
+
+/**
+ * Rotatie (graden, rechtsom) waarmee een NIEUWE tekst- of beeldannotatie
+ * (tekstvak, stempel, geplakte afbeelding) rechtop op het scherm staat in een
+ * gedraaide weergave: het tegendeel van de weergaverotatie. Zo ziet wat de
+ * gebruiker plaatst eruit zoals in een ongedraaide weergave. 0 zonder
+ * weergaverotatie.
+ */
+export function rechtopRotatie(doc = getActiveDocument()) {
+  const r = weergaveRotatie(doc);
+  return r ? 360 - r : 0;
+}
