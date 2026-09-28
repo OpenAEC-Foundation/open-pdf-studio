@@ -1,12 +1,8 @@
 // Helper utility functions
 import i18next from '../i18n/config.js';
 
-// Format date for display
-export function formatDate(date) {
-  if (!date) return '';
-  const d = new Date(date);
-  return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
+// Format date for display (datum-opmaak.js)
+export { formatDate } from './datum-opmaak.js';
 
 // Generate unique ID for images
 export function generateImageId() {
