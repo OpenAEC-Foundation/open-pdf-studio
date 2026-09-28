@@ -9,6 +9,13 @@
 
 import { normaliseerRotatie } from './weergave-rotatie.js';
 
+/**
+ * Venster-event nadat de weergave gedraaid is én het beeld in de nieuwe stand
+ * staat. Wat zelf een schermpositie bijhoudt (zoals een open notitie-popup)
+ * rekent die dan opnieuw uit; eerder klopt de geometrie van het beeld nog niet.
+ */
+export const WEERGAVE_GEDRAAID = 'opds:weergave-gedraaid';
+
 async function appOmgeving() {
   const [st, renderer, viewportMod, rendering] = await Promise.all([
     import('../core/state.js'),
@@ -30,6 +37,7 @@ async function appOmgeving() {
     tekenDoorlopend: () => renderer.tekenDoorlopendOpnieuw(),
     naWijziging: () => {
       import('../ui/chrome/status-bar.js').then((m) => m.updateAllStatus?.()).catch(() => {});
+      window.dispatchEvent(new CustomEvent(WEERGAVE_GEDRAAID));
     },
   };
 }

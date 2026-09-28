@@ -193,3 +193,15 @@ test('nieuwe tekstvakken, stempels en geplakte afbeeldingen staan rechtop op het
   assert.equal((bron('../annotations/stamps.js').match(/rechtopRotatie\(\)/g) || []).length, 3);
   assert.match(bron('../annotations/clipboard.js'), /rotation: rechtopRotatie\(\),/);
 });
+
+test('een open notitie-popup gaat mee als de weergave draait, pas als het beeld klaar is', () => {
+  const draaien = bron('./weergave-draaien.js');
+  // Het event gaat in naWijziging, en die komt pas na het tekenen (zie de
+  // volgorde-tests hierboven: eerst viewport/pagina/doorlopend, dan 'status').
+  assert.match(draaien, /naWijziging: \(\) => \{[\s\S]*?window\.dispatchEvent\(new CustomEvent\(WEERGAVE_GEDRAAID\)\)/);
+  const popup = bron('../solid/components/StickyNotePopup.jsx');
+  assert.match(popup, /addEventListener\(WEERGAVE_GEDRAAID, naWeergaveGedraaid\)/);
+  assert.match(popup, /removeEventListener\(WEERGAVE_GEDRAAID, naWeergaveGedraaid\)/);
+  // Midden in het draaien niet rekenen met een half bijgewerkt beeld.
+  assert.match(popup, /untrack\(\(\) => paginaNaarClient\(/);
+});
