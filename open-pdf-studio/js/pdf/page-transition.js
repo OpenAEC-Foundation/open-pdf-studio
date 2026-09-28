@@ -13,6 +13,7 @@
 // loop that owns #pdf-canvas, so vector/raster/blank paths all benefit.
 
 import { thumbnailData } from '../solid/stores/panels/thumbnailStore.js';
+import { weergaveRotatie } from './weergave-ruimte.js';
 
 const OVERLAY_ID = 'page-transition-placeholder';
 
@@ -59,10 +60,20 @@ export function showPagePlaceholder(pageNum) {
     // Cover the canvas exactly. annotation-canvas / textLayer are positioned
     // siblings of pdf-canvas in the same offset parent, so matching the
     // canvas's offset box aligns the overlay over the whole page area.
-    el.style.left = canvas.offsetLeft + 'px';
-    el.style.top = canvas.offsetTop + 'px';
-    el.style.width = canvas.offsetWidth + 'px';
-    el.style.height = canvas.offsetHeight + 'px';
+    // De miniatuur staat zoals het document; bij een gedraaide weergave (#200)
+    // het beeld meedraaien: bij een kwartslag een vak met verwisselde maten,
+    // rond zijn midden gedraaid, zodat het weer precies het canvas dekt.
+    const r = weergaveRotatie();
+    const w = canvas.offsetWidth;
+    const h = canvas.offsetHeight;
+    const kwart = r === 90 || r === 270;
+    const vakW = kwart ? h : w;
+    const vakH = kwart ? w : h;
+    el.style.left = (canvas.offsetLeft + (w - vakW) / 2) + 'px';
+    el.style.top = (canvas.offsetTop + (h - vakH) / 2) + 'px';
+    el.style.width = vakW + 'px';
+    el.style.height = vakH + 'px';
+    el.style.transform = r ? `rotate(${r}deg)` : '';
     el.style.display = 'block';
   } catch (e) {
     console.warn('[page-transition] show failed:', e);

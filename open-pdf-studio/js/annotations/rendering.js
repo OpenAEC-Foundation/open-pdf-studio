@@ -54,6 +54,8 @@ import {
   resolveTextEditLineStyle,
   textEditLineAnchor,
 } from '../text/text-edit-appearance.js';
+import { viewportGeometrie, rectNaarPagina } from '../pdf/weergave-rotatie.js';
+import { paginaMaat, paginaNaarWeergave, weergaveTransform, weergaveRectNaarPagina } from '../pdf/weergave-ruimte.js';
 
 // Re-export everything that external code needs
 export { drawPolygonShape, drawCloudShape, buildPolygonPath, buildCloudPath } from './rendering/shapes.js';
@@ -937,12 +939,20 @@ export function drawAnnotation(ctx, annotation) {
 
         const doc = state.documents[state.activeDocumentIndex];
         const scl = (doc ? doc.scale : 1) || 1;
-        const popW = 230 / scl;
-        const popH = 150 / scl;
+        // De popup is een rechtop staand schermvenster met zijn linkerbovenhoek
+        // op (popupX, popupY). Bij een gedraaide weergave (#200) ligt dat vak in
+        // de paginaruimte anders: via de weergave terugrekenen.
+        let popBox = { x: popX, y: popY, width: 230 / scl, height: 150 / scl };
+        if (doc?.viewRotation) {
+          const hoek = paginaNaarWeergave(annotation.page, popX, popY, doc);
+          popBox = weergaveRectNaarPagina(annotation.page, { x: hoek.x, y: hoek.y, width: popBox.width, height: popBox.height }, doc);
+        }
+        const popW = popBox.width;
+        const popH = popBox.height;
 
         // Popup center
-        const cx = popX + popW / 2;
-        const cy = popY + popH / 2;
+        const cx = popBox.x + popW / 2;
+        const cy = popBox.y + popH / 2;
 
         // Direction from popup center to icon
         const dx = iconCX - cx;
@@ -2795,26 +2805,6 @@ export function redrawAnnotations(lightweight = false) {
   const _activeDoc = state.documents[state.activeDocumentIndex];
   const useViewport = vp && vp.active && _activeDoc?.filePath;
   const effectiveScale = useViewport ? vp.zoom : scale * dpr;
-  annotationCtx.save();
-  if (textHighlightCtx) textHighlightCtx.save();
-  if (useViewport) {
-    // Viewport mode: annotations are in app-space (top-left origin, Y-down, scale=1).
-    // Page top-left on screen = (offsetX, offsetY).
-    // App coord (ax, ay) → screen (ax*zoom + offsetX, ay*zoom + offsetY).
-    // This is a simple scale + translate — no Y-flip needed for annotations.
-    annotationCtx.setTransform(vp.zoom, 0, 0, vp.zoom, vp.offsetX, vp.offsetY);
-    if (textHighlightCtx) textHighlightCtx.setTransform(vp.zoom, 0, 0, vp.zoom, vp.offsetX, vp.offsetY);
-  } else {
-    // Legacy mode: simple scale from origin
-    annotationCtx.scale(effectiveScale, effectiveScale);
-    if (textHighlightCtx) textHighlightCtx.scale(effectiveScale, effectiveScale);
-  }
-
-  // Draw grid overlay if enabled (BEFORE annotations, as a background pass).
-  // Pass effectiveScale so the dot grid hides when too zoomed-out.
-  if (state.preferences.showGrid) {
-    drawGrid(annotationCtx, annotationCanvas.width / effectiveScale, annotationCanvas.height / effectiveScale, effectiveScale);
-  }
 
   // CRITICAL: in vector viewport mode, key the annotation page off
   // viewport.pageNum (what's currently drawn on #pdf-canvas) NOT
@@ -2828,8 +2818,55 @@ export function redrawAnnotations(lightweight = false) {
     ? (vp.pageNum || (doc ? doc.currentPage : 1))
     : (doc ? doc.currentPage : 1);
 
+  // Weergave draaien (#200): annotaties staan in de paginaruimte; de
+  // transform legt ze gedraaid op het scherm, net als de pagina zelf.
+  const vpGeo = useViewport ? viewportGeometrie(vp) : null;
+  const legacyWeergave = useViewport ? null : weergaveTransform(curPage, doc);
+  annotationCtx.save();
+  if (textHighlightCtx) textHighlightCtx.save();
+  if (useViewport) {
+    // Viewport mode: annotations are in app-space (top-left origin, Y-down, scale=1).
+    // Page top-left on screen = (offsetX, offsetY) without view rotation.
+    // App coord → screen = offset + zoom · (view rotation of the app coord).
+    // No Y-flip needed for annotations.
+    annotationCtx.setTransform(...vpGeo.matrix);
+    if (textHighlightCtx) textHighlightCtx.setTransform(...vpGeo.matrix);
+  } else {
+    // Legacy mode: simple scale from origin
+    annotationCtx.scale(effectiveScale, effectiveScale);
+    if (textHighlightCtx) textHighlightCtx.scale(effectiveScale, effectiveScale);
+    if (legacyWeergave) {
+      annotationCtx.transform(...legacyWeergave);
+      if (textHighlightCtx) textHighlightCtx.transform(...legacyWeergave);
+    }
+  }
+
+  // Het canvas in paginaruimte: bij een gedraaide weergave liggen breedte en
+  // hoogte anders dan op het scherm (raster en watermerken rekenen erin).
+  let canvasInPagina = { x: 0, y: 0, width: annotationCanvas.width / effectiveScale, height: annotationCanvas.height / effectiveScale };
+  if (vpGeo && vpGeo.rotatie) {
+    canvasInPagina = rectNaarPagina(
+      { x: -vp.offsetX / vp.zoom, y: -vp.offsetY / vp.zoom, width: annotationCanvas.width / vp.zoom, height: annotationCanvas.height / vp.zoom },
+      vpGeo.paginaBreedte, vpGeo.paginaHoogte, vpGeo.rotatie,
+    );
+  } else if (legacyWeergave) {
+    canvasInPagina = weergaveRectNaarPagina(curPage, canvasInPagina, doc);
+  }
+
+  // Draw grid overlay if enabled (BEFORE annotations, as a background pass).
+  // Pass effectiveScale so the dot grid hides when too zoomed-out.
+  if (state.preferences.showGrid) {
+    drawGrid(annotationCtx, canvasInPagina.x + canvasInPagina.width, canvasInPagina.y + canvasInPagina.height, effectiveScale);
+  }
+
+  // Watermerken rekenen hun plek op de pagina uit de paginamaat. De viewport
+  // kent die maat; zonder viewport is het canvas de pagina.
+  const wmMaat = vpGeo
+    ? { w: vpGeo.paginaBreedte, h: vpGeo.paginaHoogte }
+    : { w: canvasInPagina.width, h: canvasInPagina.height };
+
   // Draw watermarks behind content
-  renderWatermarksBehind(annotationCtx, curPage, annotationCanvas.width / effectiveScale, annotationCanvas.height / effectiveScale);
+  renderWatermarksBehind(annotationCtx, curPage, wmMaat.w, wmMaat.h);
 
   // Draw text edits (cover-and-replace) before annotations
   drawTextEdits(annotationCtx, curPage);
@@ -2840,6 +2877,7 @@ export function redrawAnnotations(lightweight = false) {
     // Vector mode: visible area in app-coords = screen area mapped through inverse transform
     // Screen (0,0) → app (-offsetX/zoom, -offsetY/zoom)
     // Screen (canvasW, canvasH) → app ((canvasW-offsetX)/zoom, (canvasH-offsetY)/zoom)
+    // (in de weergaveruimte; bij een weergaverotatie daarna terug naar de pagina).
     vpX = -vp.offsetX / vp.zoom;
     vpY = -vp.offsetY / vp.zoom;
     vpW = annotationCanvas.width / vp.zoom;
@@ -2847,6 +2885,10 @@ export function redrawAnnotations(lightweight = false) {
     // Generous margin
     const margin = 200 / vp.zoom;
     vpX -= margin; vpY -= margin; vpW += margin * 2; vpH += margin * 2;
+    if (vpGeo.rotatie) {
+      const r = rectNaarPagina({ x: vpX, y: vpY, width: vpW, height: vpH }, vpGeo.paginaBreedte, vpGeo.paginaHoogte, vpGeo.rotatie);
+      vpX = r.x; vpY = r.y; vpW = r.width; vpH = r.height;
+    }
   } else {
     const canvasW = annotationCanvas.width / effectiveScale;
     const canvasH = annotationCanvas.height / effectiveScale;
@@ -2860,6 +2902,10 @@ export function redrawAnnotations(lightweight = false) {
       vpH = scrollContainer.clientHeight / scale;
       const margin = 200 / scale;
       vpX -= margin; vpY -= margin; vpW += margin * 2; vpH += margin * 2;
+    }
+    if (legacyWeergave) {
+      const r = weergaveRectNaarPagina(curPage, { x: vpX, y: vpY, width: vpW, height: vpH }, doc);
+      vpX = r.x; vpY = r.y; vpW = r.width; vpH = r.height;
     }
   }
 
@@ -2886,7 +2932,7 @@ export function redrawAnnotations(lightweight = false) {
   }
 
   // Draw watermarks in front of content
-  renderWatermarksInFront(annotationCtx, curPage, annotationCanvas.width / effectiveScale, annotationCanvas.height / effectiveScale);
+  renderWatermarksInFront(annotationCtx, curPage, wmMaat.w, wmMaat.h);
 
   // Draw polar ray + tooltip when an active polar snap is engaged
   if (state.lastSnapResult && state.lastSnapResult.type === 'polar') {
@@ -3006,19 +3052,23 @@ function drawRubberBand(ctx, effectiveScale) {
 // voorbeeld — dan geen selectiekader, grepen of andere bewerkingstoestand, en
 // echte lijndiktes; `{ markeringen: false }` laat de annotatielaag weg
 // ("Afdrukken: Document"). Zie rendering/uitvoer-lagen.js.
-export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims, opties) {
+// `weergave` (optioneel, alleen op het scherm): matrix paginaruimte →
+// weergaveruimte van een gedraaide weergave (#200, weergaveTransform()).
+// Dan zijn `renderOffset`, `pageDims` en de canvasmaat weergavematen; de
+// annotaties zelf blijven in de paginaruimte en draaien via deze matrix mee.
+export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims, opties, weergave) {
   const lagen = weergaveLagen(opties);
   // Alleen tijdens deze (synchrone) rendering, zodat drawAnnotation weet dat
   // er geen bewerkingstoestand in de uitvoer hoort.
   _lagen = opties ? lagen : null;
   try {
-    tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims, lagen);
+    tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims, lagen, weergave);
   } finally {
     _lagen = null;
   }
 }
 
-function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims, lagen) {
+function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims, lagen, weergave) {
   ctx.clearRect(0, 0, width, height);
 
   // Read scale and annotations from the active document directly
@@ -3032,10 +3082,16 @@ function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset
   ctx.save();
   ctx.scale(effectiveScale, effectiveScale);
   if (renderOffset) ctx.translate(-renderOffset.x, -renderOffset.y);
+  if (weergave) ctx.transform(...weergave);
 
-  // Draw watermarks behind content
-  const wmW = pageDims ? pageDims.w : width / effectiveScale;
-  const wmH = pageDims ? pageDims.h : height / effectiveScale;
+  // Draw watermarks behind content. Gedraaide weergave: de watermerken
+  // staan in de paginaruimte en rekenen dus met de paginamaat.
+  let wmW = pageDims ? pageDims.w : width / effectiveScale;
+  let wmH = pageDims ? pageDims.h : height / effectiveScale;
+  if (weergave) {
+    const m = paginaMaat(pageNum, doc);
+    if (m) { wmW = m.breedte; wmH = m.hoogte; }
+  }
   renderWatermarksBehind(ctx, pageNum, wmW, wmH);
 
   // Draw text edits (cover-and-replace)
@@ -3045,10 +3101,15 @@ function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset
   // pagina (zie setupContinuousAnnotationCanvas); alles daarbuiten kostte tot
   // nu toe wél een volledige drawAnnotation.
   const cullMarge = 200 / (effectiveScale || 1);
-  const cvX = (renderOffset ? renderOffset.x : 0) - cullMarge;
-  const cvY = (renderOffset ? renderOffset.y : 0) - cullMarge;
-  const cvW = width / effectiveScale + cullMarge * 2;
-  const cvH = height / effectiveScale + cullMarge * 2;
+  let cvX = (renderOffset ? renderOffset.x : 0) - cullMarge;
+  let cvY = (renderOffset ? renderOffset.y : 0) - cullMarge;
+  let cvW = width / effectiveScale + cullMarge * 2;
+  let cvH = height / effectiveScale + cullMarge * 2;
+  if (weergave) {
+    // De uitsnede is een stuk van de gedraaide pagina: terug naar de pagina.
+    const r = weergaveRectNaarPagina(pageNum, { x: cvX, y: cvY, width: cvW, height: cvH }, doc);
+    cvX = r.x; cvY = r.y; cvW = r.width; cvH = r.height;
+  }
 
   annotations.forEach(annotation => {
     if (annotation.page !== pageNum) return;
@@ -3173,6 +3234,7 @@ export function updateContinuousSharpOverlay(wrapper, pageNum) {
   renderAnnotationsForPage(
     sharp.getContext('2d'), pageNum, sharp.width, sharp.height, dpr,
     { x: visLinks / scale, y: visBoven / scale },
+    undefined, undefined, weergaveTransform(pageNum, doc),
   );
   // Basis leegmaken: de overlay dekt het zichtbare deel al scherp af.
   const bctx = baseCanvas.getContext('2d');
@@ -3239,7 +3301,8 @@ export function redrawContinuous(lightweight = false) {
       renderAnnotationsForPage(ctx, pageNum, canvas.width, canvas.height,
         Number.isFinite(backingScale) ? backingScale : undefined,
         { x: (parseFloat(canvas.dataset.clipX) || 0) / schaal, y: (parseFloat(canvas.dataset.clipY) || 0) / schaal },
-        ccW > 0 && ccH > 0 ? { w: ccW / schaal, h: ccH / schaal } : undefined);
+        ccW > 0 && ccH > 0 ? { w: ccW / schaal, h: ccH / schaal } : undefined,
+        undefined, weergaveTransform(pageNum, doc));
     }
   });
   updateAllContinuousSharpOverlays();

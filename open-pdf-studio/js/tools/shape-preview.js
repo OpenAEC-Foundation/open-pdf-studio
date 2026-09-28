@@ -4,6 +4,7 @@ import { redrawAnnotations, drawAnnotation } from '../annotations/rendering.js';
 import { drawSnapIndicator } from './snap-engine.js';
 import { buildAnnotationProps } from './annotation-creators.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
+import { applyToolTransform } from './tool-transform.js';
 
 /**
  * Draw a live preview of the shape being created.
@@ -34,14 +35,9 @@ export function drawShapePreview(currentX, currentY, e) {
   // tool-context.js for the full rationale.
   const useViewport = vp && vp.active && doc?.filePath;
   annotationCtx.save();
-  if (useViewport) {
-    // Vector viewport: use same transform as annotation rendering
-    annotationCtx.setTransform(vp.zoom, 0, 0, vp.zoom, vp.offsetX, vp.offsetY);
-  } else {
-    // Legacy mode
-    const scale = doc?.scale || 1.5;
-    annotationCtx.scale(scale, scale);
-  }
+  // Zelfde transform als de annotatieweergave: viewport (zoom + verschuiving)
+  // of de oude modus (schaal × dpr), met een gedraaide weergave (#200) erin.
+  applyToolTransform(annotationCtx);
 
   const tool = state.currentTool;
 

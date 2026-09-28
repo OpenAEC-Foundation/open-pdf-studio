@@ -59,6 +59,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "มุมมองถูกหมุน {{degrees}}° ตามเข็มนาฬิกา เอกสารไม่มีการเปลี่ยนแปลง คลิกเพื่อหมุนมุมมองกลับ",
   "filledAreaSketch": {
     "undoPoint": "เลิกทำจุด",
     "undoPointTitle": "ลบจุดล่าสุด (Backspace)",

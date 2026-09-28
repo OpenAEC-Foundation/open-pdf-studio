@@ -58,6 +58,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "نما {{degrees}}° در جهت عقربه‌های ساعت چرخیده است؛ سند تغییری نکرده است. برای برگرداندن نما کلیک کنید.",
   "filledAreaSketch": {
     "undoPoint": "واگرد نقطه",
     "undoPointTitle": "حذف آخرین نقطه (Backspace)",

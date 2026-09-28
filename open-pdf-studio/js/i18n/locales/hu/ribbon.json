@@ -157,7 +157,11 @@
     "keystrokes": "Keystrokes",
     "readerMode": "Olvasó mód",
     "readerModeTip": "Megjegyzi ennek a PDF-nek az oldalát, görgetési pozícióját és nagyítását bezárás és újranyitás között. Amíg be van kapcsolva, egy kis fájl található a PDF mellett, ezért az a felhővel szinkronizált mappákban (OneDrive, Dropbox stb.) is megjelenik; kikapcsoláskor a fájl törlődik.",
-    "readerModeSaveFailed": "Az olvasó mód nem tudta menteni a PDF beállítását. Lehet, hogy a mappa csak olvasható."
+    "readerModeSaveFailed": "Az olvasó mód nem tudta menteni a PDF beállítását. Lehet, hogy a mappa csak olvasható.",
+    "rotateViewLeft": "Nézet forgatása balra",
+    "rotateViewRight": "Nézet forgatása jobbra",
+    "rotateViewLeftTitle": "Az óramutató járásával ellentétesen 90°-kal elforgatja a nézetet. Maga a dokumentum nem változik.",
+    "rotateViewRightTitle": "Az óramutató járásával megegyezően 90°-kal elforgatja a nézetet. Maga a dokumentum nem változik."
   },
   "organize": {
     "pages": "Oldalak",

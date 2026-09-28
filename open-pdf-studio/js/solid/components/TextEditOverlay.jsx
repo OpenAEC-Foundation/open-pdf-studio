@@ -146,10 +146,16 @@ export default function TextEditOverlay() {
     const growth = heightGrowth();
     const baseH = parseFloat(s.height) || 0;
     const baseTop = parseFloat(s.top) || 0;
+    const baseLeft = parseFloat(s.left) || 0;
+    // De wrapper staat met zijn midden op (left, top). Groeit het vak, dan
+    // blijft de bovenrand staan: het midden schuift een halve groei langs de
+    // "omlaag"-richting van het vak zoals het op het scherm gedraaid staat
+    // (annotatierotatie plus weergaverotatie, #200).
+    const hoek = (parseFloat(s['--scherm-rotatie']) || 0) * Math.PI / 180;
     return {
       position: s.position,
-      left: s.left,
-      top: `${baseTop + growth / 2}px`,
+      left: `${baseLeft - Math.sin(hoek) * growth / 2}px`,
+      top: `${baseTop + Math.cos(hoek) * growth / 2}px`,
       width: s.width,
       height: `${baseH + growth}px`,
       transform: s.transform,
@@ -168,6 +174,7 @@ export default function TextEditOverlay() {
     delete ts.transform;
     delete ts['z-index'];
     delete ts['--text-offset'];
+    delete ts['--scherm-rotatie'];
     // De basisstijl van het vlak is via de runs in de DOM zichtbaar; het
     // element zelf blijft 'normal' zodat <b>/<i> het verschil maken.
     ts['font-weight'] = 'normal';

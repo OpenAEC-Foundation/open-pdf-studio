@@ -157,7 +157,11 @@
     "keystrokes": "Keystrokes",
     "readerMode": "Mod Pembaca",
     "readerModeTip": "Mengingati halaman, kedudukan tatal dan zum PDF ini apabila ditutup dan dibuka semula. Selagi dihidupkan, satu fail kecil disimpan di sebelah PDF ini, jadi ia juga muncul dalam folder yang disegerakkan dengan awan (OneDrive, Dropbox, dsb.); mematikannya akan membuang fail tersebut.",
-    "readerModeSaveFailed": "Mod Pembaca tidak dapat menyimpan tetapannya untuk PDF ini. Folder mungkin baca sahaja."
+    "readerModeSaveFailed": "Mod Pembaca tidak dapat menyimpan tetapannya untuk PDF ini. Folder mungkin baca sahaja.",
+    "rotateViewLeft": "Putar Paparan ke Kiri",
+    "rotateViewRight": "Putar Paparan ke Kanan",
+    "rotateViewLeftTitle": "Memutar paparan 90° lawan arah jam. Dokumen itu sendiri tidak berubah.",
+    "rotateViewRightTitle": "Memutar paparan 90° ikut arah jam. Dokumen itu sendiri tidak berubah."
   },
   "organize": {
     "pages": "Halaman",

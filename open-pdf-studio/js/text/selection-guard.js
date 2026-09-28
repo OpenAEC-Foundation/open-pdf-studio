@@ -31,22 +31,42 @@
  * het rechtsklikmenu ongemoeid blijven.
  */
 
+import { weergaveRotatie } from '../pdf/weergave-ruimte.js';
+import { naarPagina, rectNaarPagina, weergaveMaat } from '../pdf/weergave-rotatie.js';
+
+/**
+ * De kolom-band rekent met horizontale tekstregels. Is de weergave gedraaid
+ * (#200), dan staan die regels op het scherm verticaal of op hun kop; reken
+ * dan terug naar de stand van de pagina zelf (in schermpixels, zonder schaal).
+ * @param {DOMRect} layerRect
+ * @returns {{r:number, b:number, h:number}|null} null = ongedraaid
+ */
+function leesstand(layerRect) {
+  const r = weergaveRotatie();
+  if (!r) return null;
+  const pag = weergaveMaat(layerRect.width, layerRect.height, r);
+  return { r, b: pag.breedte, h: pag.hoogte };
+}
+
 /**
  * Leest de geometrie van een tekstlaag-span uit t.o.v. de tekstlaag.
  * @param {HTMLElement} span
  * @param {DOMRect} layerRect - getBoundingClientRect() van de .textLayer
+ * @param {{r:number, b:number, h:number}|null} [stand] - zie leesstand()
  * @returns {{left:number, right:number, top:number, bottom:number, cx:number, cy:number, h:number}}
  */
-function spanGeom(span, layerRect) {
+function spanGeom(span, layerRect, stand = null) {
   const r = span.getBoundingClientRect();
+  let vak = { x: r.left - layerRect.left, y: r.top - layerRect.top, width: r.width, height: r.height };
+  if (stand) vak = rectNaarPagina(vak, stand.b, stand.h, stand.r);
   return {
-    left: r.left - layerRect.left,
-    right: r.right - layerRect.left,
-    top: r.top - layerRect.top,
-    bottom: r.bottom - layerRect.top,
-    cx: (r.left + r.right) / 2 - layerRect.left,
-    cy: (r.top + r.bottom) / 2 - layerRect.top,
-    h: r.height,
+    left: vak.x,
+    right: vak.x + vak.width,
+    top: vak.y,
+    bottom: vak.y + vak.height,
+    cx: vak.x + vak.width / 2,
+    cy: vak.y + vak.height / 2,
+    h: vak.height,
   };
 }
 
@@ -154,9 +174,13 @@ export function applyBandRestriction(textLayer, clientX, clientY) {
     delete el.dataset.selGuardPrev;
   });
 
-  const geoms = spanEls.map(s => spanGeom(s, layerRect));
-  const startX = clientX - layerRect.left;
-  const startY = clientY - layerRect.top;
+  const stand = leesstand(layerRect);
+  const geoms = spanEls.map(s => spanGeom(s, layerRect, stand));
+  const start = stand
+    ? naarPagina(clientX - layerRect.left, clientY - layerRect.top, stand.b, stand.h, stand.r)
+    : { x: clientX - layerRect.left, y: clientY - layerRect.top };
+  const startX = start.x;
+  const startY = start.y;
 
   const band = computeColumnBand(geoms, startX, startY);
   if (!band) return [];

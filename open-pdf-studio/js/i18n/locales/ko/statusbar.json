@@ -58,6 +58,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "보기가 시계 방향으로 {{degrees}}° 회전되어 있습니다. 문서는 변경되지 않았습니다. 클릭하면 보기가 원래대로 돌아갑니다.",
   "filledAreaSketch": {
     "undoPoint": "점 실행 취소",
     "undoPointTitle": "마지막 점 제거(Backspace)",

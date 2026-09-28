@@ -1,6 +1,6 @@
 import { getActiveDocument } from '../core/state.js';
 import { annotationCanvas } from '../ui/dom-elements.js';
-import { viewport as viewportState } from '../pdf/pdf-viewport.js';
+import { paginaNaarClient } from '../pdf/weergave-ruimte.js';
 import { getTemplate } from '../symbols/registry.js';
 import { findEditableLabel } from '../symbols/editable-labels.js';
 import {
@@ -42,18 +42,12 @@ function rotatedLabelCenter(annotation, label) {
 function labelScreenPosition(annotation, label) {
   const canvas = activeCanvas(annotation);
   if (!canvas) return null;
-  const canvasRect = canvas.getBoundingClientRect();
   const documentState = getActiveDocument();
   const point = rotatedLabelCenter(annotation, label);
-  const useViewport = documentState?.viewMode !== 'continuous'
-    && viewportState?.active && documentState?.filePath;
-  const scale = useViewport ? viewportState.zoom : (documentState?.scale || 1.5);
-  const offsetX = useViewport ? viewportState.offsetX : 0;
-  const offsetY = useViewport ? viewportState.offsetY : 0;
-  return {
-    left: canvasRect.left + offsetX + point.x * scale,
-    top: canvasRect.top + offsetY + point.y * scale,
-  };
+  // Centrale omrekening (pdf/weergave-ruimte.js): viewport, doorlopende
+  // weergave en een gedraaide weergave (#200) in één.
+  const opScherm = paginaNaarClient(annotation.page ?? documentState?.currentPage ?? 1, point.x, point.y, documentState);
+  return opScherm ? { left: opScherm.x, top: opScherm.y } : null;
 }
 
 function stillAlive(annotation) {

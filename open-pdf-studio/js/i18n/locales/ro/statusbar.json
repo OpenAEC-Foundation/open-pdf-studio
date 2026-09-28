@@ -59,6 +59,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "Vizualizarea este rotită cu {{degrees}}° în sensul acelor de ceasornic; documentul nu s-a modificat. Faceți clic pentru a readuce vizualizarea.",
   "filledAreaSketch": {
     "undoPoint": "Anulează punctul",
     "undoPointTitle": "Elimină ultimul punct (Backspace)",

@@ -74,6 +74,13 @@ async function applyViewMode(mode) {
   await setViewMode(mode);
 }
 
+// Weergave draaien (#200): de statusbalk toont het zolang de weergave
+// gedraaid staat; een klik zet hem terug. Alleen de weergave, niet het document.
+async function resetViewRotation() {
+  const { zetWeergaveRotatie } = await import('../../pdf/weergave-draaien.js');
+  await zetWeergaveRotatie(0);
+}
+
 async function handleZoomIn() {
   const { zoomIn } = await import('../../pdf/renderer.js');
   zoomIn();
@@ -135,6 +142,10 @@ export default function StatusBar() {
     return localizeNumber(Math.round((doc ? doc.scale : 1.5) * 100)) + '%';
   };
   const viewMode = () => state.documents[state.activeDocumentIndex]?.viewMode || 'single';
+  const viewRotation = () => {
+    const r = Number(state.documents[state.activeDocumentIndex]?.viewRotation) || 0;
+    return ((r % 360) + 360) % 360;
+  };
   const bookSpread = () => !!state.documents[state.activeDocumentIndex]?.bookSpread;
   const facingSpread = () => !!state.documents[state.activeDocumentIndex]?.facingSpread;
   const annotationText = () => {
@@ -246,6 +257,17 @@ export default function StatusBar() {
               </svg>
             </button>
           </div>
+
+          <Show when={viewRotation() !== 0}>
+            <button class="status-view-rotation" id="status-view-rotation" tabIndex={-1}
+              title={t('viewRotatedTitle', { degrees: localizeNumber(viewRotation()) })}
+              onClick={resetViewRotation}>
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/>
+              </svg>
+              <span>{localizeNumber(viewRotation())}°</span>
+            </button>
+          </Show>
         </div>
       </Show>
 

@@ -24,6 +24,8 @@ import { buildCloudPolylinePath } from '../annotations/rendering/shapes.js';
 import { drawDimension, drawMeasureAreaShape, drawCentroidLabel, drawMeasurePerimeterShape } from '../annotations/rendering/measurements.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { getColorPickerValue, getLineWidthValue } from '../bridge.js';
+import { viewportNaarPagina } from '../pdf/weergave-rotatie.js';
+import { weergaveNaarPagina, weergaveRotatie } from '../pdf/weergave-ruimte.js';
 
 /**
  * Check if any modal dialog/overlay is blocking interaction
@@ -45,6 +47,10 @@ export function isModalOpen() {
 /**
  * Resolve pointer coordinates from a PointerEvent into unified canvas-space coords.
  * Works for both single-page and continuous modes.
+ *
+ * De uitkomst staat altijd in de paginaruimte (waar annotaties staan), ook als
+ * de weergave gedraaid is (#200): eerst naar de weergave (schaal, verschuiving),
+ * dan terugdraaien naar de pagina.
  */
 export function resolvePointerCoords(e) {
   const doc = getActiveDocument();
@@ -67,10 +73,12 @@ export function resolvePointerCoords(e) {
     // PAGINA-oorsprong is de canvas-container eromheen.
     const paginaEl = ccEl || (canvas.closest && canvas.closest('.canvas-container-cont')) || canvas;
     const rect = paginaEl.getBoundingClientRect();
+    const pagina = isNaN(pageNum) ? docCurrentPage : pageNum;
+    const p = weergaveNaarPagina(pagina, (e.clientX - rect.left) / scale, (e.clientY - rect.top) / scale, doc);
     return {
-      x: (e.clientX - rect.left) / scale,
-      y: (e.clientY - rect.top) / scale,
-      pageNum: isNaN(pageNum) ? docCurrentPage : pageNum,
+      x: p.x,
+      y: p.y,
+      pageNum: pagina,
       canvas,
       canvasCtx: canvas.getContext ? canvas.getContext('2d') : null
     };
@@ -96,10 +104,10 @@ export function resolvePointerCoords(e) {
       const screenX = e.clientX - rect.left;
       const screenY = e.clientY - rect.top;
       // Annotations use app-space: (0,0) = page top-left, Y-down, scale=1
-      // Page top-left on screen = (offsetX, offsetY)
-      // So app coords = (screen - offset) / zoom — NO Y-flip needed
-      const appX = (screenX - vp.offsetX) / vp.zoom;
-      const appY = (screenY - vp.offsetY) / vp.zoom;
+      // Page top-left on screen = (offsetX, offsetY) without view rotation
+      // So app coords = (screen - offset) / zoom, turned back by the view
+      // rotation (#200) — NO Y-flip needed
+      const { x: appX, y: appY } = viewportNaarPagina(vp, screenX, screenY);
       return {
         x: appX,
         y: appY,
@@ -110,9 +118,10 @@ export function resolvePointerCoords(e) {
     }
 
     // Legacy PDF.js mode
+    const p = weergaveNaarPagina(docCurrentPage, (e.clientX - rect.left) / scale, (e.clientY - rect.top) / scale, doc);
     return {
-      x: (e.clientX - rect.left) / scale,
-      y: (e.clientY - rect.top) / scale,
+      x: p.x,
+      y: p.y,
       pageNum: docCurrentPage,
       canvas,
       canvasCtx: ctx
@@ -120,32 +129,11 @@ export function resolvePointerCoords(e) {
   }
 }
 
-/**
- * Apply the correct canvas transform for drawing tool previews/interactions.
- * In vector viewport mode: uses viewport zoom + offset (no DPR).
- * In legacy mode: uses doc.scale (with DPR handled elsewhere).
- * Call ctx.save() before and ctx.restore() after.
- */
-export function applyToolTransform(ctx) {
-  const doc = getActiveDocument();
-  const vp = window.__pdfViewport;
-  // Same blank-doc guard as resolvePointerCoords — blank in-memory docs
-  // bypass the viewport singleton and use doc.scale via the PDF.js path.
-  if (vp && vp.active && doc?.filePath) {
-    ctx.setTransform(vp.zoom, 0, 0, vp.zoom, vp.offsetX, vp.offsetY);
-  } else {
-    const scale = doc?.scale || 1.5;
-    const canvas = ctx.canvas;
-    const backing = canvas?.dataset ? parseFloat(canvas.dataset.backingScale) : NaN;
-    const dpr = Number.isFinite(backing) ? backing : (window.devicePixelRatio || 1);
-    ctx.setTransform(scale * dpr, 0, 0, scale * dpr, 0, 0);
-    // Doorlopende weergave: het annotatiecanvas is een viewport-uitsnede van
-    // de pagina; (clipX,clipY) is de positie van die uitsnede in CSS-px.
-    const clipX = canvas?.dataset ? parseFloat(canvas.dataset.clipX) || 0 : 0;
-    const clipY = canvas?.dataset ? parseFloat(canvas.dataset.clipY) || 0 : 0;
-    if (clipX || clipY) ctx.translate(-clipX / scale, -clipY / scale);
-  }
-}
+// Canvas-transform voor voorbeelden en interactie van gereedschappen — in een
+// eigen lichte module (ook bruikbaar voor shape-preview.js zonder kringimport);
+// hier opnieuw uitgevoerd voor bestaande importeurs.
+import { applyToolTransform } from './tool-transform.js';
+export { applyToolTransform };
 
 // Get the effective scale for the current rendering mode — verhuisd naar een
 // eigen lichte module; hier opnieuw uitgevoerd voor bestaande importeurs.
@@ -192,7 +180,9 @@ export function buildToolContext(e, coords) {
     // Annotation operations
     findAnnotationAt,
     findHandleAt: (x, y, ann) => findHandleAt(x, y, ann, ctxScale),
-    getCursorForHandle: (handle, rotation, ann) => getCursorForHandle(handle, rotation, ann),
+    // De cursor volgt de richting op het scherm: annotatierotatie plus de
+    // weergaverotatie (#200).
+    getCursorForHandle: (handle, rotation, ann) => getCursorForHandle(handle, (rotation || 0) + weergaveRotatie(ctxDoc), ann),
     createAnnotation,
     cloneAnnotation,
     applyResize,

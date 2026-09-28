@@ -59,6 +59,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "Visningen er rotert {{degrees}}° med klokken; dokumentet er uendret. Klikk for å rotere visningen tilbake.",
   "filledAreaSketch": {
     "undoPoint": "Angre punkt",
     "undoPointTitle": "Fjern siste punkt (Backspace)",

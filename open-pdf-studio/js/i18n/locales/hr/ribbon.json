@@ -157,7 +157,11 @@
     "keystrokes": "Keystrokes",
     "readerMode": "Način čitanja",
     "readerModeTip": "Pamti stranicu, položaj pomicanja i zumiranje ovog PDF-a pri zatvaranju i ponovnom otvaranju. Dok je uključeno, uz ovaj PDF čuva se mala datoteka, pa se ona pojavljuje i u mapama sinkroniziranima s oblakom (OneDrive, Dropbox itd.); isključivanjem se ta datoteka uklanja.",
-    "readerModeSaveFailed": "Način čitanja nije mogao spremiti postavku za ovaj PDF. Mapa je možda samo za čitanje."
+    "readerModeSaveFailed": "Način čitanja nije mogao spremiti postavku za ovaj PDF. Mapa je možda samo za čitanje.",
+    "rotateViewLeft": "Rotiraj prikaz lijevo",
+    "rotateViewRight": "Rotiraj prikaz desno",
+    "rotateViewLeftTitle": "Zakreće prikaz za 90° suprotno od smjera kazaljke na satu. Sam dokument se ne mijenja.",
+    "rotateViewRightTitle": "Zakreće prikaz za 90° u smjeru kazaljke na satu. Sam dokument se ne mijenja."
   },
   "organize": {
     "pages": "Stranice",

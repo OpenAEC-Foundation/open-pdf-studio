@@ -21,6 +21,13 @@ import { getAnnotationHoverCursor } from './cursors/annotation-cursors.js';
 import { getCursorForHandle } from '../annotations/handles.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 
+// Richting van een greep op het scherm: de rotatie van de annotatie plus de
+// weergaverotatie van het document (#200).
+function schermRotatie(ann) {
+  const doc = getActiveDocument();
+  return (Number(ann?.rotation) || 0) + (Number(doc?.viewRotation) || 0);
+}
+
 // Ink-eraser cursor: a circle exactly the eraser's screen radius (8px, see
 // ERASER_RADIUS_PX in tools/tools/eraser-tool.js), white halo + dark ring so
 // it reads on light and dark pages. Hotspot = circle centre. Only applied to
@@ -60,7 +67,7 @@ const cursor = createMemo(() => {
   // 2. Resize handle being dragged → handle's directional cursor
   if (interactionState.isResizing && interactionState.activeHandle) {
     const ann = interactionState.originalAnnotation;
-    return getCursorForHandle(interactionState.activeHandle, ann?.rotation, ann);
+    return getCursorForHandle(interactionState.activeHandle, schermRotatie(ann), ann);
   }
 
   // 3. Annotation drag in progress → 'move' or 'copy' (Ctrl+drag)
@@ -79,7 +86,7 @@ const cursor = createMemo(() => {
     const sel = getActiveDocument()?.selectedAnnotations || [];
     const hoverAnn = sel.length === 1 ? sel[0] : null;
     if (hoverAnn) {
-      return getCursorForHandle(interactionState.hoverHandle, hoverAnn.rotation, hoverAnn);
+      return getCursorForHandle(interactionState.hoverHandle, schermRotatie(hoverAnn), hoverAnn);
     }
   }
 

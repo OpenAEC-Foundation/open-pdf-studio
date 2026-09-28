@@ -157,7 +157,11 @@
     "keystrokes": "Keystrokes",
     "readerMode": "Okuyucu Modu",
     "readerModeTip": "Bu PDF'nin sayfasını, kaydırma konumunu ve yakınlaştırmasını kapatıp yeniden açtığınızda hatırlar. Açık olduğu sürece bu PDF'nin yanında küçük bir dosya tutulur; bu nedenle bulutla eşitlenen klasörlerde de (OneDrive, Dropbox vb.) görünür. Kapatıldığında bu dosya silinir.",
-    "readerModeSaveFailed": "Okuyucu Modu bu PDF için ayarını kaydedemedi. Klasör salt okunur olabilir."
+    "readerModeSaveFailed": "Okuyucu Modu bu PDF için ayarını kaydedemedi. Klasör salt okunur olabilir.",
+    "rotateViewLeft": "Görünümü Sola Döndür",
+    "rotateViewRight": "Görünümü Sağa Döndür",
+    "rotateViewLeftTitle": "Görünümü saat yönünün tersine 90° döndürür. Belgenin kendisi değişmez.",
+    "rotateViewRightTitle": "Görünümü saat yönünde 90° döndürür. Belgenin kendisi değişmez."
   },
   "organize": {
     "pages": "Sayfalar",

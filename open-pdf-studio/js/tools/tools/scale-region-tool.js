@@ -14,6 +14,7 @@ import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering
 import { annotationCtx } from '../../ui/dom-elements.js';
 import { openDialog } from '../../bridge.js';
 import { MIN_GEBIED_PX, schermPxNaarPt } from '../../annotations/minimummaat.js';
+import { applyToolTransform } from '../tool-transform.js';
 
 function redraw() {
   const doc = getActiveDocument();
@@ -36,12 +37,8 @@ function _drawPreview(curX, curY) {
   const doc = getActiveDocument();
   const ctx = annotationCtx;
   ctx.save();
-  if (vp && vp.active) {
-    ctx.setTransform(vp.zoom, 0, 0, vp.zoom, vp.offsetX, vp.offsetY);
-  } else {
-    const scale = doc?.scale || 1.5;
-    ctx.scale(scale, scale);
-  }
+  // Zelfde transform als de annotatieweergave (ook met een gedraaide weergave, #200).
+  applyToolTransform(ctx);
   const x1 = Math.min(_placement.firstX, curX);
   const y1 = Math.min(_placement.firstY, curY);
   const w = Math.abs(curX - _placement.firstX);

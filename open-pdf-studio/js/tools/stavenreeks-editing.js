@@ -11,8 +11,7 @@
 // aanroepen (aantal + diameter) leveren dus samen één Ctrl+Z. Er is bewust
 // GEEN tweede undo-mechanisme voor deze invoer.
 import { getActiveDocument } from '../core/state.js';
-import { annotationCanvas } from '../ui/dom-elements.js';
-import { viewport as vpState } from '../pdf/pdf-viewport.js';
+import { paginaNaarClient } from '../pdf/weergave-ruimte.js';
 import {
   buildStavenreeks, resolveParams,
   sanitizeCountInput, sanitizeDiameterInput, sanitizeFontSizeInput,
@@ -28,36 +27,19 @@ let editingAnnotation = null;
 
 /**
  * Schermpositie (CSS-pixels, position: fixed) van het label van een
- * stavenreeks. Zelfde rekenwijze als tools/text-editing.js:
- *   viewport-modus: canvasRect + offset + pos × zoom
- *   klassieke modus: canvasRect + pos × schaal
+ * stavenreeks. Via de centrale omrekening (pdf/weergave-ruimte.js): de
+ * doorlopende weergave rekent tegen de paginacontainer van de annotatie, de
+ * enkelpagina tegen de viewport (zoom + verschuiving), en een gedraaide
+ * weergave (#200) draait mee.
  * @returns {{left:number, top:number}|null}
  */
 function labelScreenPos(ann) {
-  // Doorlopende weergave: reken tegen het canvas van de PAGINA van de
-  // annotatie (scherm = paginacanvas-rect + pos × doc.scale). Het enkelpagina-
-  // canvas is daar 0×0 op de vensteroorsprong, en het viewport-singleton
-  // (vpState) blijft na een moduswissel 'active' met stale zoom/offsets.
   const doc = getActiveDocument();
-  const isContinuous = doc?.viewMode === 'continuous';
-  let canvas = null;
-  if (isContinuous) {
-    canvas = document.querySelector(
-      `.page-wrapper[data-page="${ann.page}"] .canvas-container-cont`);
-  }
-  if (!canvas) canvas = annotationCanvas || document.getElementById('annotation-canvas');
-  if (!canvas) return null;
-  const rect = canvas.getBoundingClientRect();
-  const useViewport = !isContinuous && vpState && vpState.active;
-  const scale = useViewport ? vpState.zoom : (doc?.scale || 1.5);
-  const offX = useViewport ? vpState.offsetX : 0;
-  const offY = useViewport ? vpState.offsetY : 0;
   const geom = buildStavenreeks(ann, { pxPerMm: stavenreeksPxPerMm(ann) });
+  const p = paginaNaarClient(ann.page ?? doc?.currentPage ?? 1, geom.label.x, geom.label.y, doc);
+  if (!p) return null;
   // Net onder het label, zodat het venstertje de reeks zelf niet afdekt.
-  return {
-    left: rect.left + offX + geom.label.x * scale,
-    top: rect.top + offY + geom.label.y * scale + 10,
-  };
+  return { left: p.x, top: p.y + 10 };
 }
 
 /** Staat de annotatie nog in het actieve document? */

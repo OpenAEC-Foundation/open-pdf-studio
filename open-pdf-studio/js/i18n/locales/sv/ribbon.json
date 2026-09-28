@@ -157,7 +157,11 @@
     "keystrokes": "Keystrokes",
     "readerMode": "Läsläge",
     "readerModeTip": "Kom ihåg sida, rullningsposition och zoom för den här PDF-filen när den stängs och öppnas igen. Så länge funktionen är på sparas en liten fil bredvid den här PDF-filen, så den syns även i mappar som synkroniseras med molnet (OneDrive, Dropbox osv.); när du stänger av funktionen tas filen bort.",
-    "readerModeSaveFailed": "Läsläget kunde inte spara inställningen för den här PDF-filen. Mappen kan vara skrivskyddad."
+    "readerModeSaveFailed": "Läsläget kunde inte spara inställningen för den här PDF-filen. Mappen kan vara skrivskyddad.",
+    "rotateViewLeft": "Rotera vyn åt vänster",
+    "rotateViewRight": "Rotera vyn åt höger",
+    "rotateViewLeftTitle": "Roterar vyn 90° moturs. Själva dokumentet ändras inte.",
+    "rotateViewRightTitle": "Roterar vyn 90° medurs. Själva dokumentet ändras inte."
   },
   "organize": {
     "pages": "Sidor",

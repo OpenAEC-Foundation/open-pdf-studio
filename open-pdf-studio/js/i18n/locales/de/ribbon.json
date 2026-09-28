@@ -157,7 +157,11 @@
     "keystrokes": "Keystrokes",
     "readerMode": "Lesemodus",
     "readerModeTip": "Merkt sich Seite, Scrollposition und Zoom dieser PDF beim Schließen und erneuten Öffnen. Solange eingeschaltet, liegt eine kleine Datei neben dieser PDF und erscheint daher auch in Cloud-synchronisierten Ordnern (OneDrive, Dropbox usw.); beim Ausschalten wird diese Datei entfernt.",
-    "readerModeSaveFailed": "Der Lesemodus konnte die Einstellung für diese PDF nicht speichern. Der Ordner ist möglicherweise schreibgeschützt."
+    "readerModeSaveFailed": "Der Lesemodus konnte die Einstellung für diese PDF nicht speichern. Der Ordner ist möglicherweise schreibgeschützt.",
+    "rotateViewLeft": "Ansicht links drehen",
+    "rotateViewRight": "Ansicht rechts drehen",
+    "rotateViewLeftTitle": "Dreht die Ansicht um 90° gegen den Uhrzeigersinn. Das Dokument selbst ändert sich nicht.",
+    "rotateViewRightTitle": "Dreht die Ansicht um 90° im Uhrzeigersinn. Das Dokument selbst ändert sich nicht."
   },
   "organize": {
     "pages": "Seiten",

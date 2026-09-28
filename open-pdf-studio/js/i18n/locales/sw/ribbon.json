@@ -157,7 +157,11 @@
     "keystrokes": "Keystrokes",
     "readerMode": "Hali ya Kusoma",
     "readerModeTip": "Inakumbuka ukurasa, nafasi ya kusogeza na ukuzaji wa PDF hii unapofunga na kufungua tena. Ikiwa imewashwa, faili ndogo huhifadhiwa kando ya PDF hii, kwa hivyo inaonekana pia katika folda zinazosawazishwa na wingu (OneDrive, Dropbox, n.k.); ukiizima, faili hiyo huondolewa.",
-    "readerModeSaveFailed": "Hali ya Kusoma haikuweza kuhifadhi mpangilio wake wa PDF hii. Huenda folda ni ya kusoma tu."
+    "readerModeSaveFailed": "Hali ya Kusoma haikuweza kuhifadhi mpangilio wake wa PDF hii. Huenda folda ni ya kusoma tu.",
+    "rotateViewLeft": "Zungusha Mwonekano Kushoto",
+    "rotateViewRight": "Zungusha Mwonekano Kulia",
+    "rotateViewLeftTitle": "Huzungusha mwonekano 90° kinyume cha mwendo wa saa. Hati yenyewe haibadiliki.",
+    "rotateViewRightTitle": "Huzungusha mwonekano 90° kwa mwendo wa saa. Hati yenyewe haibadiliki."
   },
   "organize": {
     "pages": "Kurasa",

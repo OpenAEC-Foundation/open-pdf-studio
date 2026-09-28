@@ -11,6 +11,30 @@
   overflow: clip;
   pointer-events: none;
   transform-origin: 0 0;
+  /* pdf.js zet de laagmaat als round(down, var(--total-scale-factor) × pagina,
+     var(--scale-round-x/y)); zonder deze variabelen is die declaratie
+     ongeldig en valt de laag terug op inset:0 — het al gedraaide vak van de
+     container, zodat de velden op een gedraaide pagina naast de plek landen.
+     Zelfde regel als de tekstlaag (text-layer.css). */
+  --scale-round-x: 1px;
+  --scale-round-y: 1px;
+}
+
+/* pdf.js legt de velden uit in het ONGEDRAAIDE paginakader (rawDims) en
+   zet de draaiing van de pagina in data-main-rotation; de laag zelf moet
+   gedraaid worden, net als de tekstlaag (text-layer.css). Nodig voor gedraaide
+   pagina's en een gedraaide weergave (#200) in de doorlopende weergave. In de
+   enkelpagina-weergave zet pdf-viewport.js een eigen inline transform. */
+.formLayer[data-main-rotation="90"] {
+  transform: rotate(90deg) translateY(-100%);
+}
+
+.formLayer[data-main-rotation="180"] {
+  transform: rotate(180deg) translate(-100%, -100%);
+}
+
+.formLayer[data-main-rotation="270"] {
+  transform: rotate(270deg) translateX(-100%);
 }
 
 /* pdf.js AnnotationLayer widget styles */

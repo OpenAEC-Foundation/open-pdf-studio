@@ -59,6 +59,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "காட்சி கடிகார திசையில் {{degrees}}° சுழற்றப்பட்டுள்ளது; ஆவணம் மாறவில்லை. காட்சியைத் திருப்ப கிளிக் செய்யவும்.",
   "filledAreaSketch": {
     "undoPoint": "புள்ளியை மீட்டமை",
     "undoPointTitle": "கடைசி புள்ளியை அகற்று (Backspace)",

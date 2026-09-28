@@ -58,6 +58,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "Die Ansicht ist um {{degrees}}° im Uhrzeigersinn gedreht; das Dokument ist unverändert. Klicken, um die Ansicht zurückzudrehen.",
   "filledAreaSketch": {
     "undoPoint": "Punkt zurücknehmen",
     "undoPointTitle": "Letzten Punkt entfernen (Rücktaste)",

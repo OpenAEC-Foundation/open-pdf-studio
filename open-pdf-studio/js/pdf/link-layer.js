@@ -241,9 +241,10 @@ export async function handleInternalLink(dest) {
       const baseViewport = targetPdfPage.getViewport({ scale: 1 });
       const extraRotation = getPageRotation(targetPage) || 0;
       // Bestemmingscoördinaten staan in ongeroteerde gebruikersruimte. Bij een
-      // gedraaide weergave laten we de pagina gewoon bovenaan beginnen in
-      // plaats van naar een verkeerde plek te springen.
-      if (extraRotation % 360 === 0 && (baseViewport.rotation || 0) % 360 === 0) {
+      // gedraaide pagina of weergave (#200) laten we de pagina gewoon bovenaan
+      // beginnen in plaats van naar een verkeerde plek te springen.
+      if (extraRotation % 360 === 0 && (baseViewport.rotation || 0) % 360 === 0
+          && !(Number(doc.viewRotation) % 360)) {
         topOffsetPt = destTopOffsetPt(destInfo, baseViewport.height);
       }
     } catch { /* paginahoogte onbekend: bovenaan de pagina beginnen */ }

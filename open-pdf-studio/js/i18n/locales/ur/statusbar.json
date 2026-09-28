@@ -59,6 +59,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "منظر گھڑی کی سوئیوں کی سمت {{degrees}}° گھمایا گیا ہے؛ دستاویز تبدیل نہیں ہوئی۔ منظر واپس گھمانے کے لیے کلک کریں۔",
   "filledAreaSketch": {
     "undoPoint": "نقطہ واپس لیں",
     "undoPointTitle": "آخری نقطہ ہٹائیں (Backspace)",

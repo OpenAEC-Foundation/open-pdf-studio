@@ -21,6 +21,8 @@ import { onPageRendered, clearHighlights } from '../search/find-bar.js';
 import { showPagePlaceholder, hidePagePlaceholderWhenReady } from './page-transition.js';
 import { anchorScrollCorrection, pickAnchorPageIndex } from './continuous-zoom-anchor.js';
 import { createRerenderGate } from './continuous-rerender-gate.js';
+import { weergaveRotatie, weergaveTransform } from './weergave-ruimte.js';
+import { normaliseerRotatie, isKwartslag } from './weergave-rotatie.js';
 // Hi-DPI support: render canvases at device pixel ratio for sharp text
 export function getCanvasDPR() { return window.devicePixelRatio || 1; }
 
@@ -167,6 +169,8 @@ function reclipContinuousAnnotationCanvas(wrapper, pageNum) {
     parseFloat(canvas.dataset.backingScale) || undefined,
     { x: (parseFloat(canvas.dataset.clipX) || 0) / doc.scale, y: (parseFloat(canvas.dataset.clipY) || 0) / doc.scale },
     { w: breedte / doc.scale, h: hoogte / doc.scale },
+    undefined,
+    weergaveTransform(pageNum),
   );
 }
 
@@ -180,6 +184,14 @@ function reclipAllContinuousAnnotationCanvases() {
     const r = wrapper.getBoundingClientRect();
     if (r.top < cr.bottom && r.bottom > cr.top) reclipContinuousAnnotationCanvas(wrapper, pageNum);
   });
+}
+
+// Rotatie waarin een pagina op het scherm staat, bovenop zijn eigen /Rotate:
+// de paginarotatie van het document plus de weergaverotatie (#200). De
+// doorlopende weergave rendert de pagina's in deze stand; opslaan, afdrukken,
+// exporteren en miniaturen gebruiken alleen getPageRotation().
+function beeldRotatie(pageNum) {
+  return normaliseerRotatie((getPageRotation(pageNum) || 0) + weergaveRotatie());
 }
 
 // Foreground-render generation counter. Bumped on every renderPage() entry;
@@ -272,6 +284,14 @@ async function _renderPageImpl(pageNum) {
     viewportOpts.rotation = (page.rotate + extraRotation) % 360;
   }
   const viewport = page.getViewport(viewportOpts);
+  // Weergave draaien (#200). De viewport-singleton (PDFium) draait de pagina
+  // zelf bij het tekenen; bitmap en lagen blijven in de paginaruimte. Tekent
+  // PDF.js de pagina rechtstreeks (webversie, leeg document zonder pad), dan
+  // gebeurt het draaien hier: pagina, overlay en lagen in de gedraaide stand.
+  const weergaveRot = weergaveRotatie(doc);
+  const beeldViewport = weergaveRot
+    ? page.getViewport({ scale, rotation: (page.rotate + extraRotation + weergaveRot) % 360 })
+    : viewport;
 
   // High-zoom safety cap. The browser canvas has a max ~16384 px per axis
   // (Chromium); rendering BARN (1632×1056 pt page) at scale=10 would produce
@@ -420,7 +440,7 @@ async function _renderPageImpl(pageNum) {
           if (container) container.style.overflow = 'hidden';
 
           // Load page into viewport (triggers fitToViewport + first render)
-          setPage(doc.filePath, pageNum, dims.w, dims.h, dims.x0 || 0, dims.y0 || 0, userRotation);
+          setPage(doc.filePath, pageNum, dims.w, dims.h, dims.x0 || 0, dims.y0 || 0, userRotation, weergaveRot);
 
           // Create text layer for text selection + search
           // Try Rust-extracted text spans first (faster, no PDF.js dependency),
@@ -497,7 +517,8 @@ async function _renderPageImpl(pageNum) {
           doc.filePath, pageNum,
           _pageWpt, _pageHpt,
           _x0, _y0,
-          getPageRotation(pageNum) || 0
+          getPageRotation(pageNum) || 0,
+          weergaveRot,
         );
 
         // Mark as raster so _render() takes the bitmap branch + skips vector
@@ -557,7 +578,7 @@ async function _renderPageImpl(pageNum) {
         _vpMod.viewport.currentBitmap = null;
       }
 
-      await tekenPaginaMetPdfJs(page, viewport, pdfCanvas);
+      await tekenPaginaMetPdfJs(page, beeldViewport, pdfCanvas);
       if (_isStaleDoc(doc)) return;
       state.renderEngine = 'Raster (PDF.js)';
       // De pagina staat er. Wat hierna komt (tekst-, link- en formulierlaag,
@@ -573,8 +594,8 @@ async function _renderPageImpl(pageNum) {
         overlayMaat: bepaalOverlayMaat({
           viewportActief: false,
           heeftBestandspad: false,
-          paginaCssW: viewport.width,
-          paginaCssH: viewport.height,
+          paginaCssW: beeldViewport.width,
+          paginaCssH: beeldViewport.height,
           dpr: getCanvasDPR(),
         }),
         verbergLaadscherm: hideLoading,
@@ -604,33 +625,37 @@ async function _renderPageImpl(pageNum) {
   // continuous-lagen van dezelfde pagina, waardoor na een weergavewissel de
   // single-modus nooit een eigen tekstlaag bouwde — tekst (incl. nieuw
   // toegevoegde blokken) was dan niet meer selecteerbaar of bewerkbaar.
+  // Welke PDF.js-viewport de tekst-, link- en formulierlaag krijgen: in het
+  // viewport-pad de paginaruimte (_render() in pdf-viewport.js draait en zoomt
+  // ze), in het PDF.js-pad de gedraaide stand van het getekende canvas.
+  const lagenViewport = _skipBitmapRender ? viewport : beeldViewport;
   const _existingTextLayer = document.querySelector('#canvas-container .textLayer');
   // De linklaag bevat rechthoeken die bij ÉÉN rotatiestand horen (PDF.js heeft
   // de draaiing al in de pixels verwerkt). Draait de gebruiker de pagina, dan
   // moet de laag opnieuw worden opgebouwd, anders liggen de klikvlakken scheef.
   const _existingLinkLayer = document.querySelector('#canvas-container .linkLayer');
   const _linkLayerRotationStale = !!_existingLinkLayer
-    && Number(_existingLinkLayer.dataset.rotation || 0) !== ((viewport.rotation || 0) % 360);
+    && Number(_existingLinkLayer.dataset.rotation || 0) !== ((lagenViewport.rotation || 0) % 360);
   const _textLayerStale = !_existingTextLayer
     || parseInt(_existingTextLayer.dataset.page) !== pageNum
     || _linkLayerRotationStale;
   if (!_skipBitmapRender || _textLayerStale) {
     try {
-      await createSinglePageTextLayer(page, viewport);
+      await createSinglePageTextLayer(page, lagenViewport);
       if (_isStaleDoc(doc)) return;
     } catch (e) {
       console.warn('Failed to create text layer:', e);
     }
 
     try {
-      await createSinglePageLinkLayer(page, viewport);
+      await createSinglePageLinkLayer(page, lagenViewport);
       if (_isStaleDoc(doc)) return;
     } catch (e) {
       console.warn('Failed to create link layer:', e);
     }
 
     try {
-      await createSinglePageFormLayer(page, viewport);
+      await createSinglePageFormLayer(page, lagenViewport);
       if (_isStaleDoc(doc)) return;
     } catch (e) {
       console.warn('Failed to create form layer:', e);
@@ -696,8 +721,8 @@ async function _renderPageImpl(pageNum) {
     // De viewport tekent op #pdf-canvas zelf: backing / dpr = CSS-maat.
     viewportCssW: pdfCanvas.width / dprOverlay,
     viewportCssH: pdfCanvas.height / dprOverlay,
-    paginaCssW: viewport.width,
-    paginaCssH: viewport.height,
+    paginaCssW: beeldViewport.width,
+    paginaCssH: beeldViewport.height,
     dpr: dprOverlay,
   });
   if (overlayMaat) {
@@ -1024,7 +1049,7 @@ const LOW_RES_SCALE = 0.5; // Render at 50% for fast preview
 // (old-orientation) preview canvas — that stale preview flashed in the OLD
 // orientation on the continuous-view rebuild after rotating (issue #262).
 function _lowResKey(pageNum) {
-  return `${getActiveDocument()?.filePath || 'blank'}|${pageNum}|${getPageRotation(pageNum) || 0}`;
+  return `${getActiveDocument()?.filePath || 'blank'}|${pageNum}|${beeldRotatie(pageNum)}`;
 }
 
 // Render a quick low-res preview of a page (fast, <50ms per page)
@@ -1033,7 +1058,7 @@ async function renderLowResPreview(pdfDoc, pageNum, targetWidth, targetHeight) {
   if (_lowResCache.has(cacheKey)) return _lowResCache.get(cacheKey).canvas;
 
   const page = await pdfDoc.getPage(pageNum);
-  const extraRotation = getPageRotation(pageNum);
+  const extraRotation = beeldRotatie(pageNum);
   const vpOpts = { scale: LOW_RES_SCALE };
   if (extraRotation) vpOpts.rotation = (page.rotate + extraRotation) % 360;
   const viewport = page.getViewport(vpOpts);
@@ -1084,7 +1109,10 @@ async function renderContinuousPage(pageNum) {
   if (!doc || !doc.pdfDoc) return;
   const page = await doc.pdfDoc.getPage(pageNum);
   if (_isStaleDoc(doc)) return; // tab switched while we awaited PDF.js page
-  const extraRotation = getPageRotation(pageNum);
+  // Paginarotatie plus weergaverotatie (#200): de pagina, zijn tekst-, link-
+  // en formulierlaag en de container staan in de gedraaide stand; alleen de
+  // annotaties blijven in de paginaruimte (weergaveTransform hieronder).
+  const extraRotation = beeldRotatie(pageNum);
   const vpOpts = { scale: doc.scale };
   if (extraRotation) {
     vpOpts.rotation = (page.rotate + extraRotation) % 360;
@@ -1163,6 +1191,8 @@ async function renderContinuousPage(pageNum) {
     annotationCanvasEl.width, annotationCanvasEl.height, annBackingScale,
     annClipOffset(),
     { w: viewport.width / doc.scale, h: viewport.height / doc.scale },
+    undefined,
+    weergaveTransform(pageNum),
   );
   if (isNewPage) {
     setupCanvasHiDPI(pdfCanvasEl, viewport.width, viewport.height);
@@ -1368,6 +1398,8 @@ async function renderContinuousPage(pageNum) {
     annotationCanvasEl.width, annotationCanvasEl.height, annBackingScale,
     annClipOffset(),
     { w: viewport.width / doc.scale, h: viewport.height / doc.scale },
+    undefined,
+    weergaveTransform(pageNum),
   );
 
   // Re-apply search highlights after re-render
@@ -1406,7 +1438,7 @@ export async function reRenderVisibleContinuousPages() {
 
     const page = await doc.pdfDoc.getPage(pageNum);
     if (!_contRerenderGate.isCurrent(token, doc.scale) || _isStaleDoc(doc)) return;
-    const extraRotation = getPageRotation(pageNum);
+    const extraRotation = beeldRotatie(pageNum);
     const vpOpts = { scale };
     if (extraRotation) vpOpts.rotation = (page.rotate + extraRotation) % 360;
     jobs.push({ wrapper, viewport: page.getViewport(vpOpts) });
@@ -1696,7 +1728,9 @@ export async function renderContinuous(forceRebuild) {
       offsetYPt: pageY0,
       rotation: page.rotate || 0,
     };
-    const extraRotation = getPageRotation(pageNum);
+    // Paginarotatie plus weergaverotatie (#200): de wrapper krijgt de maat
+    // van de pagina zoals hij op het scherm ligt.
+    const extraRotation = beeldRotatie(pageNum);
     const vpOpts = { scale };
     if (extraRotation) {
       vpOpts.rotation = (page.rotate + extraRotation) % 360;
@@ -2176,7 +2210,8 @@ async function _getFitInputs() {
 
   // Legacy mode — read dimensions from PDF.js viewport + container.
   const page = await doc.pdfDoc.getPage(doc.currentPage);
-  const extraRot = getPageRotation(doc.currentPage);
+  // Zoals de pagina op het scherm ligt: met de weergaverotatie (#200).
+  const extraRot = beeldRotatie(doc.currentPage);
   const opts = { scale: 1 };
   if (extraRot) opts.rotation = (page.rotate + extraRot) % 360;
   const pageViewport = page.getViewport(opts);
@@ -2220,8 +2255,9 @@ async function _maxContinuousPageWidthPt(doc) {
       hPt = y1 - y0;
       baseRot = page.rotate || 0;
     }
-    const totalRot = (((baseRot + getPageRotation(p)) % 360) + 360) % 360;
-    maxW = Math.max(maxW, (totalRot === 90 || totalRot === 270) ? hPt : wPt);
+    // Zoals de pagina op het scherm ligt: met de weergaverotatie (#200).
+    const totalRot = normaliseerRotatie(baseRot + beeldRotatie(p));
+    maxW = Math.max(maxW, isKwartslag(totalRot) ? hPt : wPt);
   }
   return maxW;
 }
@@ -2505,6 +2541,19 @@ export async function rotatePage(delta, targetPage, { tekenen = true } = {}) {
   // Update thumbnails
   const { invalidateThumbnail } = await import('../ui/panels/left-panel.js');
   invalidateThumbnail(pageNum);
+}
+
+// Doorlopende weergave opnieuw opbouwen in de stand van nu (na weergave
+// draaien, #200) en op de pagina blijven die de gebruiker las: de opbouw
+// begint anders weer bij pagina 1.
+export async function tekenDoorlopendOpnieuw() {
+  const doc = getActiveDocument();
+  if (!doc?.pdfDoc || doc.viewMode !== 'continuous') return;
+  const pagina = doc.currentPage;
+  await renderContinuous();
+  if (doc.facingSpread) return;
+  const wrapper = document.querySelector(`#continuous-container .page-wrapper[data-page="${pagina}"]`);
+  if (wrapper) wrapper.scrollIntoView({ block: 'start' });
 }
 
 // Het beeld opnieuw opbouwen in de draaistand van nu: na het draaien van

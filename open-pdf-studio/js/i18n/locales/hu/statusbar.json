@@ -59,6 +59,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "A nézet {{degrees}}°-kal el van forgatva az óramutató járásával megegyezően; a dokumentum változatlan. Kattintson a nézet visszaforgatásához.",
   "filledAreaSketch": {
     "undoPoint": "Pont visszavonása",
     "undoPointTitle": "Utolsó pont eltávolítása (Backspace)",

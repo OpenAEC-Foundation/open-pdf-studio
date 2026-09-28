@@ -59,6 +59,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "Η προβολή είναι περιστραμμένη κατά {{degrees}}° δεξιόστροφα· το έγγραφο δεν έχει αλλάξει. Κάντε κλικ για να επαναφέρετε την προβολή.",
   "filledAreaSketch": {
     "undoPoint": "Αναίρεση σημείου",
     "undoPointTitle": "Αφαίρεση τελευταίου σημείου (Backspace)",

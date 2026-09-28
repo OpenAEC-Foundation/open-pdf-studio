@@ -157,7 +157,11 @@
     "keystrokes": "Keystrokes",
     "readerMode": "Chế độ đọc",
     "readerModeTip": "Ghi nhớ trang, vị trí cuộn và mức thu phóng của PDF này khi đóng và mở lại. Khi đang bật, một tệp nhỏ được lưu bên cạnh PDF này nên tệp đó cũng xuất hiện trong các thư mục đồng bộ với đám mây (OneDrive, Dropbox, v.v.); tắt tính năng này sẽ xóa tệp đó.",
-    "readerModeSaveFailed": "Chế độ đọc không thể lưu thiết lập cho PDF này. Thư mục có thể ở chế độ chỉ đọc."
+    "readerModeSaveFailed": "Chế độ đọc không thể lưu thiết lập cho PDF này. Thư mục có thể ở chế độ chỉ đọc.",
+    "rotateViewLeft": "Xoay chế độ xem sang trái",
+    "rotateViewRight": "Xoay chế độ xem sang phải",
+    "rotateViewLeftTitle": "Xoay chế độ xem 90° ngược chiều kim đồng hồ. Bản thân tài liệu không thay đổi.",
+    "rotateViewRightTitle": "Xoay chế độ xem 90° theo chiều kim đồng hồ. Bản thân tài liệu không thay đổi."
   },
   "organize": {
     "pages": "Trang",

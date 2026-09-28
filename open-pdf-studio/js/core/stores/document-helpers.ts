@@ -26,6 +26,9 @@ export function createDocument(filePath: string | null = null): DocumentState {
     scrollPosition: { x: 0, y: 0 },
     readerModeActive: false,
     pageRotations: {},
+    // Weergave draaien (#200): alleen hoe de pagina's op het scherm staan;
+    // geen documentbewerking, niet in ongedaan maken, niet opgeslagen.
+    viewRotation: 0,
     pdfaCompliance: null,
     pdfADismissed: false,
     measureScale: null,

@@ -59,6 +59,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "দৃশ্যটি ঘড়ির কাঁটার দিকে {{degrees}}° ঘোরানো আছে; নথি অপরিবর্তিত। দৃশ্য ফিরিয়ে আনতে ক্লিক করুন।",
   "filledAreaSketch": {
     "undoPoint": "পয়েন্ট পূর্বাবস্থায় ফেরান",
     "undoPointTitle": "শেষ পয়েন্ট সরান (Backspace)",

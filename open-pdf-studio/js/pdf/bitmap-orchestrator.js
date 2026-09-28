@@ -18,6 +18,7 @@ import { viewport } from './pdf-viewport.js';
 import { computeZoomBucket, ensureBitmap, ensureExactBitmap, getBestAvailableBitmap } from './page-bitmap-cache.js';
 import { tileCacheFindCovering, tileCacheGet, tileCacheSet } from './tile-cache.js';
 import { tileCoversViewport, visiblePdfRegion } from './tile-coverage.js';
+import { rectNaarPagina, viewportGeometrie } from './weergave-rotatie.js';
 import { state } from '../core/state.js';
 import {
     ensureProgressiveBitmapForCurrentView,
@@ -47,6 +48,31 @@ const TILE_BUFFER_FRACTION = 0.25;
 
 let _bitmapGen = 0;
 const _tileRequests = createInflightKeyGate();
+
+// Tegels staan in de paginaruimte (na de eigen /Rotate en de paginarotatie).
+// Het scherm kan die pagina gedraaid tonen (weergave draaien, #200): wat in
+// beeld is, rekenen we daarom eerst in de weergaveruimte uit en draaien het
+// dan terug naar de paginaruimte.
+//
+// Hypothetisch zichtbaar gebied bij `zoom`, gecentreerd op het huidige midden
+// van het beeld (zo blijft gecentreerd inzoomen een cache-hit).
+function zichtbaarBijZoom(zoom, cssW, cssH) {
+    const g = viewportGeometrie(viewport);
+    const midU = (cssW / 2 - viewport.offsetX) / viewport.zoom;
+    const midV = (cssH / 2 - viewport.offsetY) / viewport.zoom;
+    const visW = Math.min(g.schermBreedte, cssW / zoom);
+    const visH = Math.min(g.schermHoogte, cssH / zoom);
+    const visU = Math.max(0, Math.min(g.schermBreedte - visW, midU - visW / 2));
+    const visV = Math.max(0, Math.min(g.schermHoogte - visH, midV - visH / 2));
+    const r = rectNaarPagina({ x: visU, y: visV, width: visW, height: visH }, g.paginaBreedte, g.paginaHoogte, g.rotatie);
+    return { x: r.x, y: r.y, w: r.width, h: r.height };
+}
+
+// Maat van de pagina in de paginaruimte (punten).
+function paginaMaatPt() {
+    const g = viewportGeometrie(viewport);
+    return { w: g.paginaBreedte, h: g.paginaHoogte };
+}
 
 export async function ensureBitmapForCurrentView() {
     if (!viewport.active || !viewport.filePath || viewport.pageType !== 'raster') {
@@ -192,10 +218,9 @@ export async function prewarmZoomTiles(filePath, pageNum) {
     if (maxAxisPt <= 0 || cssW < 1 || cssH < 1) return;
     const capScale = MAX_BITMAP_AXIS_PX / maxAxisPt;
 
-    // Huidig weergave-centrum in paginapunten: gecentreerd zoomen houdt dit
-    // punt in beeld, dus daaromheen ligt de toekomstige zichtregio.
-    const centerXpt = (cssW / 2 - viewport.offsetX) / viewport.zoom;
-    const centerYpt = (cssH / 2 - viewport.offsetY) / viewport.zoom;
+    // Gecentreerd zoomen houdt het midden van het beeld in beeld; daaromheen
+    // ligt de toekomstige zichtregio (zie zichtbaarBijZoom).
+    const pag = paginaMaatPt();
 
     // Eén brede 150%-regio op 300%-resolutie dekt alle tussenliggende
     // zoomstanden in beide richtingen. Gebruik deze route zolang de bitmap
@@ -207,17 +232,14 @@ export async function prewarmZoomTiles(filePath, pageNum) {
     });
     if (coveragePlan && needsVisibleTile(coveragePlan.supportZoom, dpr, capScale)) {
         const zoom = coveragePlan.regionZoom;
-        const visW = Math.min(viewport.pageW, cssW / zoom);
-        const visH = Math.min(viewport.pageH, cssH / zoom);
-        const visX = Math.max(0, Math.min(viewport.pageW - visW, centerXpt - visW / 2));
-        const visY = Math.max(0, Math.min(viewport.pageH - visH, centerYpt - visH / 2));
-        const bufW = visW * TILE_BUFFER_FRACTION;
-        const bufH = visH * TILE_BUFFER_FRACTION;
+        const vis = zichtbaarBijZoom(zoom, cssW, cssH);
+        const bufW = vis.w * TILE_BUFFER_FRACTION;
+        const bufH = vis.h * TILE_BUFFER_FRACTION;
         const region = {
-            x: Math.max(0, visX - bufW),
-            y: Math.max(0, visY - bufH),
-            w: Math.min(viewport.pageW, visW + 2 * bufW),
-            h: Math.min(viewport.pageH, visH + 2 * bufH),
+            x: Math.max(0, vis.x - bufW),
+            y: Math.max(0, vis.y - bufH),
+            w: Math.min(pag.w, vis.w + 2 * bufW),
+            h: Math.min(pag.h, vis.h + 2 * bufH),
         };
         const renderScale = coveragePlan.renderScale;
         const outputW = Math.ceil(region.w * renderScale);
@@ -225,8 +247,8 @@ export async function prewarmZoomTiles(filePath, pageNum) {
 
         if (outputW <= MAX_BITMAP_AXIS_PX && outputH <= MAX_BITMAP_AXIS_PX) {
             const zoomBucket = computeZoomBucket(renderScale);
-            const stepX = viewport.pageW * TILE_BUFFER_FRACTION;
-            const stepY = viewport.pageH * TILE_BUFFER_FRACTION;
+            const stepX = pag.w * TILE_BUFFER_FRACTION;
+            const stepY = pag.h * TILE_BUFFER_FRACTION;
             const regionBucket = `${Math.round(Math.floor(region.x / stepX) * stepX * 100)},${Math.round(Math.floor(region.y / stepY) * stepY * 100)}`;
             const covering = tileCacheFindCovering(filePath, pageNum, viewport.rotation, {
                 regionXpt: region.x,
@@ -294,20 +316,17 @@ export async function prewarmZoomTiles(filePath, pageNum) {
         if (viewSig() !== sig || progressiveRunActive()) return;
 
         // Zelfde formule als ensureTileForCurrentView, met hypothetische zoom.
-        const visW = Math.min(viewport.pageW, cssW / zoom);
-        const visH = Math.min(viewport.pageH, cssH / zoom);
-        const visX = Math.max(0, Math.min(viewport.pageW - visW, centerXpt - visW / 2));
-        const visY = Math.max(0, Math.min(viewport.pageH - visH, centerYpt - visH / 2));
-        const bufW = visW * TILE_BUFFER_FRACTION;
-        const bufH = visH * TILE_BUFFER_FRACTION;
+        const vis = zichtbaarBijZoom(zoom, cssW, cssH);
+        const bufW = vis.w * TILE_BUFFER_FRACTION;
+        const bufH = vis.h * TILE_BUFFER_FRACTION;
         const region = {
-            x: Math.max(0, visX - bufW),
-            y: Math.max(0, visY - bufH),
-            w: Math.min(viewport.pageW, visW + 2 * bufW),
-            h: Math.min(viewport.pageH, visH + 2 * bufH),
+            x: Math.max(0, vis.x - bufW),
+            y: Math.max(0, vis.y - bufH),
+            w: Math.min(pag.w, vis.w + 2 * bufW),
+            h: Math.min(pag.h, vis.h + 2 * bufH),
         };
-        const stepX = viewport.pageW * TILE_BUFFER_FRACTION;
-        const stepY = viewport.pageH * TILE_BUFFER_FRACTION;
+        const stepX = pag.w * TILE_BUFFER_FRACTION;
+        const stepY = pag.h * TILE_BUFFER_FRACTION;
         const regionBucket = `${Math.round(Math.floor(region.x / stepX) * stepX * 100)},${Math.round(Math.floor(region.y / stepY) * stepY * 100)}`;
         const zoomBucket = computeZoomBucket(zoom * dpr);
         const cached = tileCacheGet(filePath, pageNum, zoomBucket, viewport.rotation, regionBucket);
@@ -407,19 +426,21 @@ export async function ensureTileForCurrentView(canvas) {
         return;
     }
 
-    // Add buffer for pan-within-buffer cache hits.
+    // Add buffer for pan-within-buffer cache hits. Alles in de paginaruimte
+    // (visiblePdfRegion draait een weergaverotatie al terug).
+    const pag = paginaMaatPt();
     const bufW = visRegion.w * TILE_BUFFER_FRACTION;
     const bufH = visRegion.h * TILE_BUFFER_FRACTION;
     const bufferedRegion = {
         x: Math.max(0, visRegion.x - bufW),
         y: Math.max(0, visRegion.y - bufH),
-        w: Math.min(viewport.pageW, visRegion.w + 2 * bufW),
-        h: Math.min(viewport.pageH, visRegion.h + 2 * bufH),
+        w: Math.min(pag.w, visRegion.w + 2 * bufW),
+        h: Math.min(pag.h, visRegion.h + 2 * bufH),
     };
 
     // Snap region origin to buffer-step grid for cache stability across pans.
-    const stepX = viewport.pageW * TILE_BUFFER_FRACTION;
-    const stepY = viewport.pageH * TILE_BUFFER_FRACTION;
+    const stepX = pag.w * TILE_BUFFER_FRACTION;
+    const stepY = pag.h * TILE_BUFFER_FRACTION;
     const snappedX = Math.floor(bufferedRegion.x / stepX) * stepX;
     const snappedY = Math.floor(bufferedRegion.y / stepY) * stepY;
     const regionBucket = `${Math.round(snappedX * 100)},${Math.round(snappedY * 100)}`;

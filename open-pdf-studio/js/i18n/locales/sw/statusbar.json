@@ -59,6 +59,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "Mwonekano umezungushwa {{degrees}}° kwa mwendo wa saa; hati haijabadilika. Bofya ili kurudisha mwonekano.",
   "filledAreaSketch": {
     "undoPoint": "Tengua pointi",
     "undoPointTitle": "Ondoa pointi ya mwisho (Backspace)",

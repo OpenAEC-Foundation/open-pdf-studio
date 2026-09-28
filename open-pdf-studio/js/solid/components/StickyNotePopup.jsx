@@ -7,6 +7,7 @@ import { annotationCanvas } from '../../ui/dom-elements.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
 import { recordModify } from '../../core/undo-manager.js';
+import { paginaNaarClient, clientNaarPagina } from '../../pdf/weergave-ruimte.js';
 
 // Icon name to label mapping
 const ICON_LABELS = {
@@ -74,7 +75,10 @@ function StickyNotePopup(props) {
     const px = a.popupX !== undefined ? a.popupX : a.x + 30;
     const py = a.popupY !== undefined ? a.popupY : a.y;
 
-    setLocalPos({
+    // Centrale omrekening: neemt de verschuiving van de viewport en een
+    // gedraaide weergave (#200) mee. Terugval: de oude canvas-formule.
+    const opScherm = paginaNaarClient(a.page ?? getActiveDocument()?.currentPage ?? 1, px, py);
+    setLocalPos(opScherm || {
       x: canvasRect.left + px * scale,
       y: canvasRect.top + py * scale
     });
@@ -132,11 +136,10 @@ function StickyNotePopup(props) {
       if (canvas) {
         const canvasRect = canvas.getBoundingClientRect();
         const scale = state.documents?.[state.activeDocumentIndex]?.scale || 1.5;
-        updatePopupPosition(
-          ann().id,
-          (newPos.x - canvasRect.left) / scale,
-          (newPos.y - canvasRect.top) / scale
-        );
+        // Terug naar de paginaruimte, ook bij een gedraaide weergave (#200).
+        const opPagina = clientNaarPagina(ann().page ?? getActiveDocument()?.currentPage ?? 1, newPos.x, newPos.y)
+          || { x: (newPos.x - canvasRect.left) / scale, y: (newPos.y - canvasRect.top) / scale };
+        updatePopupPosition(ann().id, opPagina.x, opPagina.y);
         if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
         else redrawAnnotations(true);
       }

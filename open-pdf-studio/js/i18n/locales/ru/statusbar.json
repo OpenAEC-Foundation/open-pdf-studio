@@ -59,6 +59,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "Вид повёрнут на {{degrees}}° по часовой стрелке; документ не изменён. Нажмите, чтобы вернуть вид.",
   "filledAreaSketch": {
     "undoPoint": "Отменить точку",
     "undoPointTitle": "Удалить последнюю точку (Backspace)",

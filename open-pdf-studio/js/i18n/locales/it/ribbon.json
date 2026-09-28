@@ -157,7 +157,11 @@
     "keystrokes": "Keystrokes",
     "readerMode": "Modalità lettura",
     "readerModeTip": "Ricorda pagina, posizione di scorrimento e zoom di questo PDF alla chiusura e riapertura. Finché è attiva, accanto a questo PDF viene conservato un piccolo file, che compare quindi anche nelle cartelle sincronizzate con il cloud (OneDrive, Dropbox, ecc.); disattivandola il file viene rimosso.",
-    "readerModeSaveFailed": "La modalità lettura non ha potuto salvare l'impostazione per questo PDF. La cartella potrebbe essere di sola lettura."
+    "readerModeSaveFailed": "La modalità lettura non ha potuto salvare l'impostazione per questo PDF. La cartella potrebbe essere di sola lettura.",
+    "rotateViewLeft": "Ruota vista a sinistra",
+    "rotateViewRight": "Ruota vista a destra",
+    "rotateViewLeftTitle": "Ruota la vista di 90° in senso antiorario. Il documento non viene modificato.",
+    "rotateViewRightTitle": "Ruota la vista di 90° in senso orario. Il documento non viene modificato."
   },
   "organize": {
     "pages": "Pagine",

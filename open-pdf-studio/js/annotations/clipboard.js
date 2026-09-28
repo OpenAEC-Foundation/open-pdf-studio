@@ -9,6 +9,7 @@ import { annotationCanvas, pdfContainer } from '../ui/dom-elements.js';
 import { recordAdd, recordBulkAdd } from '../core/undo-manager.js';
 import { getEffectiveScale } from '../tools/effective-scale.js';
 import { plakVerschuivingPt } from './minimummaat.js';
+import { paginaMaat, paginaRectNaarClient, clientNaarPagina } from '../pdf/weergave-ruimte.js';
 
 // Copy annotation to internal clipboard
 export function copyAnnotation(annotation) {
@@ -77,6 +78,27 @@ export function pasteFromClipboard() {
 // op en houdt het plakken per pagina correct.
 export function visibleCenterOnPage(pageNum) {
   const doc = getActiveDocument();
+  // Via de centrale scherm↔pagina-omrekening: klopt ook met de verschuiving
+  // van de enkelpagina-viewport en met een gedraaide weergave (#200).
+  const maat = paginaMaat(pageNum, doc);
+  const paginaOpScherm = maat
+    ? paginaRectNaarClient(pageNum, { x: 0, y: 0, width: maat.breedte, height: maat.hoogte }, doc)
+    : null;
+  if (paginaOpScherm && pdfContainer?.getBoundingClientRect) {
+    const vr = pdfContainer.getBoundingClientRect();
+    const cr = {
+      left: paginaOpScherm.left, top: paginaOpScherm.top,
+      right: paginaOpScherm.left + paginaOpScherm.width, bottom: paginaOpScherm.top + paginaOpScherm.height,
+    };
+    const left = Math.max(cr.left, vr.left);
+    const right = Math.min(cr.right, vr.right);
+    const top = Math.max(cr.top, vr.top);
+    const bottom = Math.min(cr.bottom, vr.bottom);
+    const cx = right > left ? (left + right) / 2 : (cr.left + cr.right) / 2;
+    const cy = bottom > top ? (top + bottom) / 2 : (cr.top + cr.bottom) / 2;
+    const p = clientNaarPagina(pageNum, cx, cy, doc);
+    if (p) return p;
+  }
   const scale = doc?.scale || 1;
   let canvas = annotationCanvas;
   if (doc?.viewMode === 'continuous') {
