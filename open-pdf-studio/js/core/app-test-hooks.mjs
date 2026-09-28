@@ -2,7 +2,8 @@
 // benchmark van #491 (scripts/bench/undo-node.mjs).
 //
 // - `./x.js` dat alleen als `./x.ts` bestaat, wordt het .ts-bestand (zoals
-//   Vite doet; node haalt de types er zelf af).
+//   Vite doet). De types haalt TypeScript eraf (transpileModule): node 20,
+//   waarop CI draait, kan dat niet zelf.
 // - `solid-js` en `solid-js/store` worden de reactieve browserbouw, net als in
 //   de app. Onder node kiest het pakket anders de serverbouw, waarin een memo
 //   één keer rekent en daarna nooit meer: reactief gedrag is daar niet te
@@ -20,7 +21,24 @@
 // kale `window`/`document` neer (zie installeerBrowserStubs hieronder).
 
 import { existsSync, readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+
+const require = createRequire(import.meta.url);
+let typescript = null;
+
+// Een .ts-module als gewone JavaScript: alleen de types eraf, verder niets.
+function zonderTypes(bron, bestand) {
+  typescript ??= require('typescript');
+  return typescript.transpileModule(bron, {
+    fileName: bestand,
+    compilerOptions: {
+      module: typescript.ModuleKind.ESNext,
+      target: typescript.ScriptTarget.ES2022,
+      isolatedModules: true,
+    },
+  }).outputText;
+}
 
 const STUBS = [
   '/js/bridge.ts',
@@ -102,6 +120,10 @@ export function buildSchedule(...args) {
 }`);
     if (standaard) regels.push('export default { t: (k, o) => (o && o.defaultValue) || k, on() {}, language: "en" };');
     return { format: 'module', shortCircuit: true, source: regels.join('\n') };
+  }
+  if (url.startsWith('file:') && url.endsWith('.ts')) {
+    const bestand = fileURLToPath(url);
+    return { format: 'module', shortCircuit: true, source: zonderTypes(readFileSync(bestand, 'utf8'), bestand) };
   }
   return nextLoad(url, context);
 }
