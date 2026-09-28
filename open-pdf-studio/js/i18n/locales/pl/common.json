@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Nie udało się załadować podpisów",
     "layersCount": "{{count}} warstw",
     "noLayers": "Brak warstw w tym dokumencie",
+    "layerToggleUnavailable": "Włączanie i wyłączanie warstw nie jest jeszcze dostępne",
     "fieldsCount": "{{count}} pól",
     "noFormFields": "Brak pól formularza w tym dokumencie",
     "couldNotLoadFormFields": "Nie udało się załadować pól formularza",

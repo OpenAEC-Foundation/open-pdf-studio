@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Nije moguće učitati potpise",
     "layersCount": "{{count}} slojeva",
     "noLayers": "Nema slojeva u ovom dokumentu",
+    "layerToggleUnavailable": "Uključivanje i isključivanje slojeva još nije dostupno",
     "fieldsCount": "{{count}} polja",
     "noFormFields": "Nema polja obrazaca u ovom dokumentu",
     "couldNotLoadFormFields": "Nije moguće učitati polja obrazaca",

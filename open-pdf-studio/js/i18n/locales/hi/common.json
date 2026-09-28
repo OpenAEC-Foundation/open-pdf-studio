@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "हस्ताक्षर लोड नहीं हो सके",
     "layersCount": "{{count}} परतें",
     "noLayers": "इस दस्तावेज़ में कोई परत नहीं",
+    "layerToggleUnavailable": "परतों को चालू और बंद करना अभी उपलब्ध नहीं है",
     "fieldsCount": "{{count}} फ़ील्ड",
     "noFormFields": "इस दस्तावेज़ में कोई फ़ॉर्म फ़ील्ड नहीं",
     "couldNotLoadFormFields": "फ़ॉर्म फ़ील्ड लोड नहीं हो सके",

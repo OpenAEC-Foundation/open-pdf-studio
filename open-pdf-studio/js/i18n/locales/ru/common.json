@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Не удалось загрузить подписи",
     "layersCount": "{{count}} слоёв",
     "noLayers": "В этом документе нет слоёв",
+    "layerToggleUnavailable": "Включение и выключение слоёв пока недоступно",
     "fieldsCount": "{{count}} полей",
     "noFormFields": "В этом документе нет полей формы",
     "couldNotLoadFormFields": "Не удалось загрузить поля формы",

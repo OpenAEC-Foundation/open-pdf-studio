@@ -1,5 +1,5 @@
-import { For, Show, createSignal, onCleanup } from 'solid-js';
-import { activeTab } from '../../../stores/leftPanelStore.js';
+import { For, Show, createSignal, createEffect, onCleanup } from 'solid-js';
+import { activeTab, collapsed } from '../../../stores/leftPanelStore.js';
 import { items, countText, emptyMessage, sortMode, setSortMode, filterMode, setFilterMode, hiddenStatuses, toggleHiddenStatus, collapsedGroups, toggleGroup, expandAllGroups, collapseAllGroups } from '../../../stores/panels/annotationsStore.js';
 import { useTranslation } from '../../../../i18n/useTranslation.js';
 import { state, clearSelection, getActiveDocument } from '../../../../core/state.js';
@@ -45,6 +45,15 @@ export default function AnnotationsPanel() {
   const { t } = useTranslation('properties');
   const { t: tCommon } = useTranslation('common');
   const { t: tContext } = useTranslation('context');
+
+  // The list is not built while it is hidden (annotations-list.js, #491):
+  // bring it up to date the moment it is shown, whichever way that happens
+  // (tab switch, expanding the panel, the ribbon).
+  createEffect(() => {
+    if (activeTab() === 'annotations' && !collapsed()) {
+      import('../../../../ui/panels/annotations-list.js').then(m => m.refreshAnnotationsListIfStale());
+    }
+  });
 
   const [menuOpen, setMenuOpen] = createSignal(false);
   const [menuPos, setMenuPos] = createSignal({ top: 0, left: 0 });

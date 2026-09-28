@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "ไม่สามารถโหลดลายเซ็นได้",
     "layersCount": "เลเยอร์ {{count}} รายการ",
     "noLayers": "ไม่มีเลเยอร์ในเอกสารนี้",
+    "layerToggleUnavailable": "ยังไม่สามารถเปิดและปิดเลเยอร์ได้",
     "fieldsCount": "ฟิลด์ {{count}} รายการ",
     "noFormFields": "ไม่มีฟิลด์ฟอร์มในเอกสารนี้",
     "couldNotLoadFormFields": "ไม่สามารถโหลดฟิลด์ฟอร์มได้",

@@ -37,6 +37,7 @@ import { drawCommentIcon } from './rendering/comment-icons.js';
 import { spatialIndex, annotationBounds } from './spatial-index.js';
 import { bitmapVoor, bijNieuweTegel } from './vector-snippet-preview.js';
 import { invalidateScaleRegionCache, pixelsPerUnitFor, getRegionScaleFactor } from './scale-region.js';
+import { metSchaalBronnen } from './schaal-bronnen.js';
 import { drawSnapIndicator } from '../tools/snap-engine.js';
 import { drawImageAlignGuides } from '../tools/image-align-snap.js';
 import { getTemplate } from '../symbols/registry.js';
@@ -2914,7 +2915,9 @@ export function redrawAnnotations(lightweight = false) {
   // Draw all annotations for current page (with viewport culling).
   // Text highlights go to the dedicated #text-highlight-canvas (CSS multiply
   // blend with #pdf-canvas below); everything else goes to #annotation-canvas.
-  annotations.forEach(annotation => {
+  // One scale pass: annotations that look up their scale while drawing (walls,
+  // bar series, hatches) share the scale sources collected once (#491).
+  metSchaalBronnen(() => annotations.forEach(annotation => {
     if (annotation.page !== curPage) return;
     if (_buitenBeeld(annotation, vpX, vpY, vpW, vpH)) return;
     const targetCtx = (annotation.type === 'textHighlight' && textHighlightCtx)
@@ -2924,7 +2927,7 @@ export function redrawAnnotations(lightweight = false) {
     targetCtx.save();
     drawAnnotation(targetCtx, annotation);
     targetCtx.restore();
-  });
+  }));
 
   annotationCtx.globalAlpha = 1;
   annotationCtx.globalCompositeOperation = 'source-over';
@@ -3113,11 +3116,11 @@ function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset
     cvX = r.x; cvY = r.y; cvW = r.width; cvH = r.height;
   }
 
-  annotations.forEach(annotation => {
+  metSchaalBronnen(() => annotations.forEach(annotation => {
     if (annotation.page !== pageNum) return;
     if (_buitenBeeld(annotation, cvX, cvY, cvW, cvH)) return;
     drawAnnotation(ctx, annotation);
-  });
+  }));
 
   // Draw watermarks in front of content
   renderWatermarksInFront(ctx, pageNum, wmW, wmH);

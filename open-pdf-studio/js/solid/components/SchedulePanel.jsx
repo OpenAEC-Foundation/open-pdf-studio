@@ -1,4 +1,4 @@
-import { Show, For, onMount, onCleanup } from 'solid-js';
+import { Show, Index, onMount, onCleanup } from 'solid-js';
 import { getActiveDocument } from '../../core/state.js';
 import { createAnnotation } from '../../annotations/factory.js';
 import { recordAdd } from '../../core/undo-manager.js';
@@ -143,54 +143,57 @@ export default function SchedulePanel() {
               fallback={<div class="schedule-empty">{t('quantities.noElements')}</div>}>
               <table class="schedule-table q-table"
                 classList={{ 'q-gridlines': appearance().gridlines, 'q-outline': appearance().outline }}>
+                {/* Index, not For: the schedule is rebuilt as new objects on every
+                    change, and For would recreate every row. Index keeps the rows
+                    and only rewrites the cells whose text changed (#491). */}
                 <Show when={appearance().showHeaders}>
                   <thead><tr>
-                    <For each={scheduleResult().columns}>
-                      {(col) => <th class={col.align === 'right' ? 'schedule-val' : ''}>{col.label}{col.unit ? ` (${col.unit})` : ''}</th>}
-                    </For>
+                    <Index each={scheduleResult().columns}>
+                      {(col) => <th class={col().align === 'right' ? 'schedule-val' : ''}>{col().label}{col().unit ? ` (${col().unit})` : ''}</th>}
+                    </Index>
                   </tr></thead>
                 </Show>
-                <For each={scheduleResult().groups}>
+                <Index each={scheduleResult().groups}>
                   {(group) => (
                     <tbody>
-                      <Show when={group.key !== null}>
+                      <Show when={group().key !== null}>
                         <tr class="q-group-row">
-                          <td colspan={scheduleResult().columns.length}>{group.key} <span class="schedule-group-count">({group.rows.length})</span></td>
+                          <td colspan={scheduleResult().columns.length}>{group().key} <span class="schedule-group-count">({group().rows.length})</span></td>
                         </tr>
                       </Show>
                       <Show when={scheduleResult().itemize}>
-                        <For each={group.rows}>
+                        <Index each={group().rows}>
                           {(row, i) => (
-                            <tr classList={{ 'q-stripe': appearance().stripe && i() % 2 === 1 }}>
-                              <For each={scheduleResult().columns}>
-                                {(col) => <td class={col.align === 'right' ? 'schedule-val' : ''}>{formatCell(row.vals[col.key], col)}</td>}
-                              </For>
+                            <tr classList={{ 'q-stripe': appearance().stripe && i % 2 === 1 }}>
+                              <Index each={scheduleResult().columns}>
+                                {(col) => <td class={col().align === 'right' ? 'schedule-val' : ''}>{formatCell(row().vals[col().key], col())}</td>}
+                              </Index>
                             </tr>
                           )}
-                        </For>
+                        </Index>
                       </Show>
                       <tr class="schedule-total-row">
-                        <For each={scheduleResult().columns}>
+                        <Index each={scheduleResult().columns}>
                           {(col, i) => (
-                            <td class={col.align === 'right' ? 'schedule-val' : ''}>
-                              {i() === 0 ? (group.key !== null ? `Σ ${group.key}` : t('quantities.subtotal')) : fmtTotal(group.subtotals[col.key], col)}
+                            <td class={col().align === 'right' ? 'schedule-val' : ''}>
+                              {i === 0 ? (group().key !== null ? `Σ ${group().key}` : t('quantities.subtotal')) : fmtTotal(group().subtotals[col().key], col())}
                             </td>
                           )}
-                        </For>
+                        </Index>
                       </tr>
                     </tbody>
                   )}
-                </For>
+                </Index>
                 <Show when={grandTotals()}>
                   <tbody>
                     <tr class="schedule-total-row q-grand">
-                      <For each={scheduleResult().columns}>
+                      <Index each={scheduleResult().columns}>
                         {(col, i) => (
-                          <td class={col.align === 'right' ? 'schedule-val' : ''}>
-                            {i() === 0 ? t('quantities.grandTotal') : fmtTotal(scheduleResult().grandTotals[col.key], col)}
+                          <td class={col().align === 'right' ? 'schedule-val' : ''}>
+                            {i === 0 ? t('quantities.grandTotal') : fmtTotal(scheduleResult().grandTotals[col().key], col())}
                           </td>
                         )}
-                      </For>
+                      </Index>
                     </tr>
                   </tbody>
                 </Show>

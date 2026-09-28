@@ -1,4 +1,4 @@
-import { createSignal } from 'solid-js';
+import { createSignal, batch } from 'solid-js';
 import { DRAFTING_RULE_TYPES, effectiveDraftingLineWidth } from '../../annotations/drafting-rules.js';
 import { createStore } from 'solid-js/store';
 import { state, getActiveDocument } from '../../core/state.js';
@@ -1270,7 +1270,14 @@ function zetRunsStijl(ann, veld, waarde) {
   ann.textRuns = ann.textRuns.map(line => (line || []).map(r => ({ ...r, [veld]: !!waarde })));
 }
 
+// One field change is one reactive update: the change writes the field, the
+// modification time and sometimes more, and every write on its own reran
+// everything that watches the annotation (#491).
 export function updateAnnotProp(key, value) {
+  batch(() => applyAnnotProp(key, value));
+}
+
+function applyAnnotProp(key, value) {
   // Multi-selection mode: apply to all selected annotations
   if (annotProps.multiCount > 0) {
     const _doc = getActiveDocument();

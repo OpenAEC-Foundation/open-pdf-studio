@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "கையொப்பங்களை ஏற்ற முடியவில்லை",
     "layersCount": "{{count}} அடுக்குகள்",
     "noLayers": "இந்த ஆவணத்தில் அடுக்குகள் இல்லை",
+    "layerToggleUnavailable": "அடுக்குகளை இயக்குவதும் அணைப்பதும் இன்னும் கிடைக்கவில்லை",
     "fieldsCount": "{{count}} புலங்கள்",
     "noFormFields": "இந்த ஆவணத்தில் படிவப் புலங்கள் இல்லை",
     "couldNotLoadFormFields": "படிவப் புலங்களை ஏற்ற முடியவில்லை",

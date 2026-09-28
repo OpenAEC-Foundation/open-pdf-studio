@@ -1,31 +1,21 @@
 import i18next from '../../i18n/config.js';
 import { getActiveDocument } from '../../core/state.js';
 import { setLayerItems as setItems, setLayerCountText as setCountText, setLayerEmptyMessage as setEmptyMessage } from '../../bridge.js';
+import { lagenLijst } from './lagen-lijst.js';
 
-let currentOCConfig = null;
-
-export async function toggleLayerVisibility(id, checked) {
-  try {
-    if (currentOCConfig && typeof currentOCConfig.setVisibility === 'function') {
-      await currentOCConfig.setVisibility(id, checked);
-    }
-    const activeDoc = getActiveDocument();
-    if (activeDoc && activeDoc.pdfDoc) {
-      const event = new CustomEvent('layers-changed');
-      document.dispatchEvent(event);
-    }
-  } catch (e) {
-    console.warn('Failed to toggle layer visibility:', e);
-  }
+function geenLagen(melding) {
+  setItems([]);
+  setCountText(i18next.t('leftPanel.layersCount', { count: 0 }));
+  setEmptyMessage(melding);
 }
 
+// Het paneel toont de lagen en hun stand volgens het document. Aan- en
+// uitzetten volgt nog: de pagina tekent met PDFium uit het bestand zelf, en
+// dat pad kent (nog) geen andere laagstand dan die van het document.
 export async function updateLayersList() {
   const activeDoc = getActiveDocument();
   if (!activeDoc || !activeDoc.pdfDoc) {
-    setItems([]);
-    setCountText(i18next.t('leftPanel.layersCount', { count: 0 }));
-    setEmptyMessage(i18next.t('leftPanel.noDocumentOpen'));
-    currentOCConfig = null;
+    geenLagen(i18next.t('leftPanel.noDocumentOpen'));
     return;
   }
 
@@ -33,53 +23,22 @@ export async function updateLayersList() {
 
   try {
     const pdfDoc = activeDoc.pdfDoc;
-
-    if (typeof pdfDoc.getOptionalContentConfig !== 'function') {
-      setItems([]);
-      setCountText(i18next.t('leftPanel.layersCount', { count: 0 }));
-      setEmptyMessage(i18next.t('leftPanel.noLayers'));
-      return;
-    }
-
-    const ocConfig = await pdfDoc.getOptionalContentConfig();
-    currentOCConfig = ocConfig;
-
-    if (!ocConfig) {
-      setItems([]);
-      setCountText(i18next.t('leftPanel.layersCount', { count: 0 }));
-      setEmptyMessage(i18next.t('leftPanel.noLayers'));
-      return;
-    }
-
-    const groups = ocConfig.getGroups();
-    if (!groups || Object.keys(groups).length === 0) {
-      setItems([]);
-      setCountText(i18next.t('leftPanel.layersCount', { count: 0 }));
-      setEmptyMessage(i18next.t('leftPanel.noLayers'));
-      return;
-    }
-
-    const layerItems = [];
+    const ocConfig = typeof pdfDoc.getOptionalContentConfig === 'function'
+      ? await pdfDoc.getOptionalContentConfig()
+      : null;
     // De annotatielagen van deze app zijn ook OCG's (#468), maar staan in het
     // paneel Markeringslagen; hier alleen de lagen van de tekening zelf.
-    const annotatieLagen = activeDoc._annotatieLaagOcgIds || new Set();
-    for (const [id, group] of Object.entries(groups)) {
-      if (annotatieLagen.has(id)) continue;
-      layerItems.push({
-        id,
-        name: group.name || `Layer ${layerItems.length + 1}`,
-        visible: ocConfig.isVisible(group) !== false
-      });
+    const regels = lagenLijst(ocConfig, { overslaan: activeDoc._annotatieLaagOcgIds || new Set() });
+    const aantal = regels.filter((r) => !r.kop).length;
+    if (!aantal) {
+      geenLagen(i18next.t('leftPanel.noLayers'));
+      return;
     }
-
-    setEmptyMessage(layerItems.length ? null : i18next.t('leftPanel.noLayers'));
-    setItems(layerItems);
-    setCountText(i18next.t('leftPanel.layersCount', { count: layerItems.length }));
+    setEmptyMessage(null);
+    setItems(regels);
+    setCountText(i18next.t('leftPanel.layersCount', { count: aantal }));
   } catch (e) {
     console.warn('Failed to load layers:', e);
-    setItems([]);
-    setCountText(i18next.t('leftPanel.layersCount', { count: 0 }));
-    setEmptyMessage(i18next.t('leftPanel.noLayers'));
-    currentOCConfig = null;
+    geenLagen(i18next.t('leftPanel.noLayers'));
   }
 }

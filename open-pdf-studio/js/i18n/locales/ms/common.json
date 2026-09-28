@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Tidak dapat memuatkan tandatangan",
     "layersCount": "{{count}} lapisan",
     "noLayers": "Tiada lapisan dalam dokumen ini",
+    "layerToggleUnavailable": "Menghidupkan dan mematikan lapisan belum tersedia",
     "fieldsCount": "{{count}} medan",
     "noFormFields": "Tiada medan borang dalam dokumen ini",
     "couldNotLoadFormFields": "Tidak dapat memuatkan medan borang",

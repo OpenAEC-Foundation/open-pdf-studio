@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Kunde inte ladda signaturer",
     "layersCount": "{{count}} lager",
     "noLayers": "Inga lager i detta dokument",
+    "layerToggleUnavailable": "Det går ännu inte att slå på och av lager",
     "fieldsCount": "{{count}} fält",
     "noFormFields": "Inga formulärfält i detta dokument",
     "couldNotLoadFormFields": "Kunde inte ladda formulärfält",

@@ -1,5 +1,5 @@
 import { state, getActiveDocument, isSelected, getAnnotationBounds, addToSelection, removeFromSelection } from '../../core/state.js';
-import { getTypeDisplayName, formatDate } from '../../utils/helpers.js';
+import { getTypeDisplayName, createDateFormatter } from '../../utils/helpers.js';
 import { showProperties, showMultiSelectionProperties } from './properties-panel.js';
 import { goToPage } from '../../pdf/renderer.js';
 import { viewport, markAnchored, stopPanMomentum } from '../../pdf/pdf-viewport.js';
@@ -46,6 +46,34 @@ export function hideAnnotationsListPanel() {
   switchLeftPanelTab('thumbnails');
 }
 
+// The list is only built while it can be seen (#491). Every full redraw calls
+// updateAnnotationsList; with the panel hidden that sorted, grouped and
+// formatted every annotation and made the (always mounted) panel recreate all
+// its rows, for nothing. A hidden list is marked stale instead and rebuilt as
+// soon as it is shown (AnnotationsPanel calls refreshAnnotationsListIfStale).
+let listStale = false;
+
+function listVisible() {
+  return activeTab() === 'annotations' && !leftPanelCollapsed();
+}
+
+/** Rebuild the list if an update came in while it was hidden. */
+export function refreshAnnotationsListIfStale() {
+  if (listStale && listVisible()) updateAnnotationsList();
+}
+
+// The rows of the previous build by key. A row whose content did not change
+// is handed back as the same object, so the list component keeps its DOM row
+// instead of recreating every row on each update (#491).
+let previousItems = new Map();
+
+function sameItem(a, b) {
+  const keys = Object.keys(a);
+  if (keys.length !== Object.keys(b).length) return false;
+  for (const key of keys) if (a[key] !== b[key]) return false;
+  return true;
+}
+
 // Update annotations list - pushes data to the Solid.js store
 export function updateAnnotationsList(filterValue) {
   // Houd het "Zichtbaarheid Elementen"-paneel synchroon: dit is de canonieke
@@ -60,6 +88,11 @@ export function updateAnnotationsList(filterValue) {
   if (filterValue !== undefined) {
     setFilterMode(filterValue);
   }
+  if (!listVisible()) {
+    listStale = true;
+    return;
+  }
+  listStale = false;
   const activeFilter = filterValue !== undefined ? filterValue : filterMode();
 
   // Read annotations from the active document directly (bypass proxy getter caching)
@@ -170,6 +203,19 @@ export function updateAnnotationsList(filterValue) {
   // Clear empty message so the list renders
   setEmptyMessage('');
 
+  // One date formatter and one selection set for the whole list, instead of
+  // new locale formatters and a scan of the selection per annotation.
+  const formatDate = createDateFormatter();
+  const selected = new Set(doc ? doc.selectedAnnotations : []);
+  const nextItems = new Map();
+  const reuse = (key, item) => {
+    if (nextItems.has(key)) return item; // a second row with the same id keeps its own object
+    const previous = previousItems.get(key);
+    const row = previous && sameItem(previous, item) ? previous : item;
+    nextItems.set(key, row);
+    return row;
+  };
+
   // Helper to get last status author
   const getLastStatusAuthor = (ann) => {
     if (ann.replies && ann.replies.length > 0) {
@@ -247,21 +293,21 @@ export function updateAnnotationsList(filterValue) {
       headerLabel = key;
     }
 
-    flatItems.push({
+    flatItems.push(reuse(`header:${key}`, {
       isHeader: true,
       groupKey: key,
       page: currentSort === 'page' ? parseInt(key) : null,
       headerLabel,
       headerColor,
       sortMode: currentSort
-    });
+    }));
 
     // Annotation item entries
     groups[key].forEach(ann => {
       const hasStatus = ann.status && ann.status !== 'none';
       const replyCount = (ann.replies && ann.replies.length) || 0;
 
-      flatItems.push({
+      flatItems.push(reuse(`annotation:${ann.id}`, {
         isHeader: false,
         groupKey: key,
         id: ann.id,
@@ -274,11 +320,12 @@ export function updateAnnotationsList(filterValue) {
         statusColor: hasStatus ? (statusColors[ann.status] || '#888') : null,
         statusTitle: hasStatus ? capitalize(ann.status) : null,
         replyCount,
-        selected: isSelected(ann)
-      });
+        selected: selected.has(ann)
+      }));
     });
   });
 
+  previousItems = nextItems;
   setItems(flatItems);
 }
 

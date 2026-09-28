@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "تعذر تحميل التوقيعات",
     "layersCount": "{{count}} طبقات",
     "noLayers": "لا توجد طبقات في هذا المستند",
+    "layerToggleUnavailable": "تشغيل الطبقات وإيقافها غير متاح بعد",
     "fieldsCount": "{{count}} حقول",
     "noFormFields": "لا توجد حقول نموذج في هذا المستند",
     "couldNotLoadFormFields": "تعذر تحميل حقول النموذج",

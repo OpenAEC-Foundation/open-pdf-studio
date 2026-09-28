@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Impossibile caricare le firme",
     "layersCount": "{{count}} livelli",
     "noLayers": "Nessun livello in questo documento",
+    "layerToggleUnavailable": "L’attivazione e la disattivazione dei livelli non sono ancora disponibili",
     "fieldsCount": "{{count}} campi",
     "noFormFields": "Nessun campo modulo in questo documento",
     "couldNotLoadFormFields": "Impossibile caricare i campi modulo",

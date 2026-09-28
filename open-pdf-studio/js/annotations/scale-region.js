@@ -13,6 +13,8 @@
  */
 import { getActiveDocument } from '../core/state.js';
 import { createAnnotation } from './factory.js';
+import { schaalgebiedenOpPagina } from './schaal-op-punt.js';
+import { schaalBronnenInDoorloop, vergeetSchaalBronnen } from './schaal-bronnen.js';
 
 // Parse "1:100" → 100 (the denominator of the drawing-to-world ratio)
 export function parseScaleString(s) {
@@ -48,12 +50,19 @@ let _cache = new WeakMap();
 let _cacheGen = 0;
 
 // Bump on every annotation change (call from rendering before pass).
+// Also drops the scale sources of a running pass (schaal-bronnen.js), so a
+// change made in the middle of a pass is seen by the next lookup.
 export function invalidateScaleRegionCache() {
   _cacheGen++;
   _cache = new WeakMap();
+  vergeetSchaalBronnen();
 }
 
 function _getRegionsForPage(doc, pageNum) {
+  // Inside a pass (metSchaalBronnen) the regions come from the sources that
+  // pass collected once: fresh for that pass, so never stale.
+  const bronnen = schaalBronnenInDoorloop(doc);
+  if (bronnen) return schaalgebiedenOpPagina(bronnen, pageNum);
   let docCache = _cache.get(doc);
   if (!docCache) {
     docCache = new Map();
