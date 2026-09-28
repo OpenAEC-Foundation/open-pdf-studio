@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Không thể tải chữ ký",
     "layersCount": "{{count}} lớp",
     "noLayers": "Không có lớp trong tài liệu này",
+    "layerToggleUnavailable": "Chưa thể bật và tắt các lớp",
     "fieldsCount": "{{count}} trường",
     "noFormFields": "Không có trường biểu mẫu trong tài liệu này",
     "couldNotLoadFormFields": "Không thể tải trường biểu mẫu",

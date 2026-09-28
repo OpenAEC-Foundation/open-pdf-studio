@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Não foi possível carregar as assinaturas",
     "layersCount": "{{count}} camadas",
     "noLayers": "Nenhuma camada neste documento",
+    "layerToggleUnavailable": "Ainda não é possível ativar e desativar camadas",
     "fieldsCount": "{{count}} campos",
     "noFormFields": "Nenhum campo de formulário neste documento",
     "couldNotLoadFormFields": "Não foi possível carregar os campos de formulário",

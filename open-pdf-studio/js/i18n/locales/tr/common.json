@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "İmzalar yüklenemedi",
     "layersCount": "{{count}} katman",
     "noLayers": "Bu belgede katman yok",
+    "layerToggleUnavailable": "Katmanları açıp kapatma henüz kullanılamıyor",
     "fieldsCount": "{{count}} alan",
     "noFormFields": "Bu belgede form alanı yok",
     "couldNotLoadFormFields": "Form alanları yüklenemedi",

@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Δεν ήταν δυνατή η φόρτωση υπογραφών",
     "layersCount": "{{count}} επίπεδα",
     "noLayers": "Δεν υπάρχουν επίπεδα σε αυτό το έγγραφο",
+    "layerToggleUnavailable": "Η ενεργοποίηση και απενεργοποίηση επιπέδων δεν είναι ακόμη διαθέσιμη",
     "fieldsCount": "{{count}} πεδία",
     "noFormFields": "Δεν υπάρχουν πεδία φόρμας σε αυτό το έγγραφο",
     "couldNotLoadFormFields": "Δεν ήταν δυνατή η φόρτωση πεδίων φόρμας",

@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Haikuweza kupakia saini",
     "layersCount": "Tabaka {{count}}",
     "noLayers": "Hakuna tabaka katika hati hii",
+    "layerToggleUnavailable": "Kuwasha na kuzima tabaka bado hakupatikani",
     "fieldsCount": "Sehemu {{count}}",
     "noFormFields": "Hakuna sehemu za fomu katika hati hii",
     "couldNotLoadFormFields": "Haikuweza kupakia sehemu za fomu",

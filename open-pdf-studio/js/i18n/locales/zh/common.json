@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "无法加载签名",
     "layersCount": "{{count}} 个图层",
     "noLayers": "此文档中没有图层",
+    "layerToggleUnavailable": "暂不支持开关图层",
     "fieldsCount": "{{count}} 个字段",
     "noFormFields": "此文档中没有表单字段",
     "couldNotLoadFormFields": "无法加载表单字段",

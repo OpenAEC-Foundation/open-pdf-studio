@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "স্বাক্ষর লোড করা যায়নি",
     "layersCount": "{{count}} স্তর",
     "noLayers": "এই নথিতে কোনো স্তর নেই",
+    "layerToggleUnavailable": "স্তর চালু ও বন্ধ করা এখনও উপলব্ধ নয়",
     "fieldsCount": "{{count}} ক্ষেত্র",
     "noFormFields": "এই নথিতে কোনো ফর্ম ক্ষেত্র নেই",
     "couldNotLoadFormFields": "ফর্ম ক্ষেত্র লোড করা যায়নি",

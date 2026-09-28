@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Kunne ikke laste signaturer",
     "layersCount": "{{count}} lag",
     "noLayers": "Ingen lag i dette dokumentet",
+    "layerToggleUnavailable": "Å slå lag av og på er ikke tilgjengelig ennå",
     "fieldsCount": "{{count}} felt",
     "noFormFields": "Ingen skjemafelt i dette dokumentet",
     "couldNotLoadFormFields": "Kunne ikke laste skjemafelt",
