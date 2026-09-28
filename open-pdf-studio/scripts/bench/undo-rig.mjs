@@ -10,13 +10,14 @@
 //
 //   node scripts/bench/undo-rig.mjs [--mcp=9305] [--cdp=9405] [--counts=100,500,1000,2000]
 //        [--reps=3] [--mode=undo,modify] [--profile=<N>] [--profile-modify=<N>]
-//        [--pdf=<copy of a real PDF>] [--mix] [--list] [--out=<file.json>]
+//        [--pdf=<copy of a real PDF>] [--mix] [--list] [--schedule] [--out=<file.json>]
 //
 // Per count N the active document (a new blank one, or --pdf) gets N
 // synthetic 'box' annotations next to its own (0: only its own) (with --mix: boxes, lines, measured distances
 // and areas plus a scale bar). --list keeps the annotation list in the left
 // panel open during the run (by default the thumbnails are shown, as when
-// the app starts). Times in ms, median over --reps:
+// the app starts); --schedule keeps the quantities panel open. Times in ms,
+// median over --reps:
 //
 // mode undo
 //   undo        create one box (untimed), then undo it: removes one annotation
@@ -54,11 +55,12 @@ const CDP = `http://127.0.0.1:${arg('cdp', '9405')}`;
 const COUNTS = arg('counts', '100,500,1000,2000').split(',').filter((c) => c !== '').map(Number).filter((c) => c >= 0);
 const REPS = Number(arg('reps', '3'));
 const MODES = arg('mode', 'undo,modify').split(',');
-const PROFILE_AT = Number(arg('profile', '0'));
-const PROFILE_MODIFY_AT = Number(arg('profile-modify', '0'));
+const PROFILE_AT = Number(arg('profile', '-1'));
+const PROFILE_MODIFY_AT = Number(arg('profile-modify', '-1'));
 const PDF = arg('pdf', '');
 const MIX = process.argv.includes('--mix');
 const LIST = process.argv.includes('--list');
+const SCHEDULE = process.argv.includes('--schedule');
 const OUT = arg('out', '');
 
 async function tool(name, args = {}) {
@@ -405,6 +407,10 @@ await page.evaluate(async (list) => {
   document.querySelector(`.left-panel-tab[data-panel="${list ? 'annotations' : 'thumbnails'}"]`)?.click();
   await window.__bench491.frames(2);
 }, LIST);
+// Quantities panel: open with --schedule (the ribbon button toggles it).
+const scheduleOpen = () => page.evaluate(() => !!document.querySelector('.schedule-modeless'));
+if (SCHEDULE !== await scheduleOpen()) await tool('app_click_element', { selector: '#btn-open-schedule' });
+if (SCHEDULE !== await scheduleOpen()) throw new Error('could not set the quantities panel');
 await page.evaluate(() => {
   const b = window.__bench491;
   b.originalIds = new Set(b.doc().annotations.map((a) => a.id));
@@ -450,6 +456,9 @@ for (const n of COUNTS) {
   }
   if (LIST) {
     row.listItems = await page.evaluate(() => document.querySelectorAll('#annotations-panel .annotation-list-item').length);
+  }
+  if (SCHEDULE) {
+    row.scheduleRows = await page.evaluate(() => document.querySelectorAll('.schedule-modeless tbody tr').length);
   }
   rows.push(row);
   console.log(JSON.stringify(row));
