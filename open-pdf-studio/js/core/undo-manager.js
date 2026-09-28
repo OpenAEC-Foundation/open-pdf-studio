@@ -1,3 +1,4 @@
+import { batch } from 'solid-js';
 import { state, getActiveDocument, getPageRotation, setPageRotation, imageCache } from './state.js';
 import { cloneAnnotation } from '../annotations/factory.js';
 import { stampRasterStale } from '../annotations/stamp-appearance-sync.js';
@@ -199,7 +200,11 @@ export async function undo() {
     return;
   }
 
-  applyUndo(cmd);
+  // One reactive update for the whole command: restoring an annotation sets
+  // its properties one by one, and a bulk command touches many annotations.
+  // Without the batch every single write reran every view that watches the
+  // annotations (#491).
+  batch(() => applyUndo(cmd));
   await rerasterizeStaleStamps();
   await persistMeasureScaleIfNeeded(cmd);
   syncModifiedState();
@@ -217,13 +222,7 @@ export async function undo() {
   } else {
     // Clear selection of annotations that no longer exist
     const doc = getActiveDocument();
-    if (doc) {
-      const remaining = doc.selectedAnnotations.filter(a => doc.annotations.includes(a));
-      if (remaining.length !== doc.selectedAnnotations.length) {
-        doc.selectedAnnotations = remaining;
-        doc.selectedAnnotation = remaining.length > 0 ? remaining[0] : null;
-      }
-    }
+    if (doc) dropRemovedFromSelection(doc);
     const { hideProperties } = await import('../ui/panels/properties-panel.js');
     hideProperties();
   }
@@ -250,7 +249,7 @@ export async function redo() {
     return;
   }
 
-  applyRedo(cmd);
+  batch(() => applyRedo(cmd));
   await rerasterizeStaleStamps();
   await persistMeasureScaleIfNeeded(cmd);
   syncModifiedState();
@@ -268,13 +267,7 @@ export async function redo() {
   } else {
     // Clear selection of annotations that no longer exist
     const doc = getActiveDocument();
-    if (doc) {
-      const remaining = doc.selectedAnnotations.filter(a => doc.annotations.includes(a));
-      if (remaining.length !== doc.selectedAnnotations.length) {
-        doc.selectedAnnotations = remaining;
-        doc.selectedAnnotation = remaining.length > 0 ? remaining[0] : null;
-      }
-    }
+    if (doc) dropRemovedFromSelection(doc);
     const { hideProperties } = await import('../ui/panels/properties-panel.js');
     hideProperties();
   }
@@ -335,6 +328,66 @@ async function rerasterizeStaleStamps() {
   for (const annotation of stamps) rerasterizeStamp(annotation);
 }
 
+// Keep only the selected annotations that are still in the document. One pass
+// over the list instead of one includes() per selected annotation.
+function dropRemovedFromSelection(doc) {
+  const selected = doc.selectedAnnotations;
+  if (!selected || selected.length === 0) return;
+  const present = new Set(doc.annotations);
+  const remaining = selected.filter(a => present.has(a));
+  if (remaining.length !== selected.length) {
+    doc.selectedAnnotations = remaining;
+    doc.selectedAnnotation = remaining.length > 0 ? remaining[0] : null;
+  }
+}
+
+// Annotations by id for one undo/redo, built on first use with one pass over
+// the list instead of a findIndex per item (#491). The first annotation with
+// an id wins, as with findIndex. A change to the list itself (or to an id)
+// makes the next lookup rebuild it.
+function annotationsById(doc) {
+  let byId = null;
+  return {
+    get(id) {
+      if (!byId) {
+        byId = new Map();
+        for (const annotation of doc.annotations) {
+          if (!byId.has(annotation.id)) byId.set(annotation.id, annotation);
+        }
+      }
+      return byId.get(id);
+    },
+    reset() { byId = null; },
+  };
+}
+
+// Restore the annotation with this id (if it is still there) to a snapshot.
+function restoreById(lookup, id, snapshot) {
+  const annotation = lookup.get(id);
+  if (!annotation) return;
+  restoreAnnotationState(annotation, snapshot);
+  if (annotation.id !== id) lookup.reset();
+}
+
+// Remove, for every id in `ids`, the first annotation with that id: the same
+// result as a findIndex + splice per id, in one pass and one splice.
+function removeFirstById(doc, ids) {
+  const toRemove = new Map();
+  for (const id of ids) toRemove.set(id, (toRemove.get(id) || 0) + 1);
+  const kept = [];
+  let removed = 0;
+  for (const annotation of doc.annotations) {
+    const left = toRemove.get(annotation.id);
+    if (left) {
+      toRemove.set(annotation.id, left - 1);
+      removed++;
+    } else {
+      kept.push(annotation);
+    }
+  }
+  if (removed > 0) doc.annotations.splice(0, doc.annotations.length, ...kept);
+}
+
 function restoreSelectionByIds(doc, ids) {
   const byId = new Map(doc.annotations.map(annotation => [annotation.id, annotation]));
   doc.selectedAnnotations = (ids || []).map(id => byId.get(id)).filter(Boolean);
@@ -342,34 +395,36 @@ function restoreSelectionByIds(doc, ids) {
 }
 
 // Apply undo for a command
-function applyUndo(cmd) {
+function applyUndo(cmd, lookup) {
   const doc = getActiveDocument();
   if (!doc) return;
+  if (!lookup) lookup = annotationsById(doc);
 
   switch (cmd.type) {
     case 'addAnnotation': {
       const idx = doc.annotations.findIndex(a => a.id === cmd.annotation.id);
       if (idx !== -1) doc.annotations.splice(idx, 1);
+      lookup.reset();
       break;
     }
     case 'deleteAnnotation': {
       const insertIdx = Math.min(cmd.index, doc.annotations.length);
       doc.annotations.splice(insertIdx, 0, cmd.annotation);
+      lookup.reset();
       break;
     }
     case 'clearPage': {
       doc.annotations.push(...cmd.annotations);
+      lookup.reset();
       break;
     }
     case 'clearAll': {
       doc.annotations.push(...cmd.annotations);
+      lookup.reset();
       break;
     }
     case 'modifyAnnotation': {
-      const idx = doc.annotations.findIndex(a => a.id === cmd.id);
-      if (idx !== -1) {
-        restoreAnnotationState(doc.annotations[idx], cmd.oldState);
-      }
+      restoreById(lookup, cmd.id, cmd.oldState);
       break;
     }
     case 'rotatePage': {
@@ -381,19 +436,17 @@ function applyUndo(cmd) {
       break;
     }
     case 'bulkModify': {
-      for (const item of cmd.items) {
-        const idx = doc.annotations.findIndex(a => a.id === item.id);
-        if (idx !== -1) restoreAnnotationState(doc.annotations[idx], item.oldState);
-      }
+      for (const item of cmd.items) restoreById(lookup, item.id, item.oldState);
       break;
     }
     case 'reorderAnnotations': {
       restoreAnnotationOrder(doc, cmd.oldOrder);
+      lookup.reset();
       break;
     }
     case 'compound': {
       for (let index = cmd.commands.length - 1; index >= 0; index--) {
-        applyUndo(cmd.commands[index]);
+        applyUndo(cmd.commands[index], lookup);
       }
       if (Array.isArray(cmd.beforeSelectionIds)) {
         restoreSelectionByIds(doc, cmd.beforeSelectionIds);
@@ -401,18 +454,22 @@ function applyUndo(cmd) {
       break;
     }
     case 'bulkDelete': {
+      // Put every item back at its original index, lowest index first: the
+      // same order as one splice per item, worked out on a plain copy and
+      // written back with a single splice.
       const itemsByOriginalIndex = [...cmd.items].sort((a, b) => a.index - b.index);
+      const list = [...doc.annotations];
       for (const item of itemsByOriginalIndex) {
-        const insertIdx = Math.min(item.index, doc.annotations.length);
-        doc.annotations.splice(insertIdx, 0, item.annotation);
+        const insertIdx = Math.min(item.index, list.length);
+        list.splice(insertIdx, 0, item.annotation);
       }
+      doc.annotations.splice(0, doc.annotations.length, ...list);
+      lookup.reset();
       break;
     }
     case 'bulkAdd': {
-      for (const item of cmd.items) {
-        const idx = doc.annotations.findIndex(a => a.id === item.annotation.id);
-        if (idx !== -1) doc.annotations.splice(idx, 1);
-      }
+      removeFirstById(doc, cmd.items.map(item => item.annotation.id));
+      lookup.reset();
       break;
     }
     case 'addTextEdit': {
@@ -525,33 +582,35 @@ function applyUndo(cmd) {
 }
 
 // Apply redo for a command
-function applyRedo(cmd) {
+function applyRedo(cmd, lookup) {
   const doc = getActiveDocument();
   if (!doc) return;
+  if (!lookup) lookup = annotationsById(doc);
 
   switch (cmd.type) {
     case 'addAnnotation': {
       doc.annotations.push(cloneAnnotation(cmd.annotation));
+      lookup.reset();
       break;
     }
     case 'deleteAnnotation': {
       const idx = doc.annotations.findIndex(a => a.id === cmd.annotation.id);
       if (idx !== -1) doc.annotations.splice(idx, 1);
+      lookup.reset();
       break;
     }
     case 'clearPage': {
       doc.annotations = doc.annotations.filter(a => a.page !== cmd.pageNum);
+      lookup.reset();
       break;
     }
     case 'clearAll': {
       doc.annotations = [];
+      lookup.reset();
       break;
     }
     case 'modifyAnnotation': {
-      const idx = doc.annotations.findIndex(a => a.id === cmd.id);
-      if (idx !== -1) {
-        restoreAnnotationState(doc.annotations[idx], cmd.newState);
-      }
+      restoreById(lookup, cmd.id, cmd.newState);
       break;
     }
     case 'rotatePage': {
@@ -563,34 +622,31 @@ function applyRedo(cmd) {
       break;
     }
     case 'bulkModify': {
-      for (const item of cmd.items) {
-        const idx = doc.annotations.findIndex(a => a.id === item.id);
-        if (idx !== -1) restoreAnnotationState(doc.annotations[idx], item.newState);
-      }
+      for (const item of cmd.items) restoreById(lookup, item.id, item.newState);
       break;
     }
     case 'reorderAnnotations': {
       restoreAnnotationOrder(doc, cmd.newOrder);
+      lookup.reset();
       break;
     }
     case 'compound': {
-      for (const command of cmd.commands) applyRedo(command);
+      for (const command of cmd.commands) applyRedo(command, lookup);
       if (Array.isArray(cmd.afterSelectionIds)) {
         restoreSelectionByIds(doc, cmd.afterSelectionIds);
       }
       break;
     }
     case 'bulkDelete': {
-      for (const item of cmd.items) {
-        const idx = doc.annotations.findIndex(a => a.id === item.annotation.id);
-        if (idx !== -1) doc.annotations.splice(idx, 1);
-      }
+      removeFirstById(doc, cmd.items.map(item => item.annotation.id));
+      lookup.reset();
       break;
     }
     case 'bulkAdd': {
       for (const item of cmd.items) {
         doc.annotations.push(cloneAnnotation(item.annotation));
       }
+      lookup.reset();
       break;
     }
     case 'addTextEdit': {
