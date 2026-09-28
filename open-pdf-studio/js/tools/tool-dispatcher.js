@@ -1,5 +1,6 @@
 import { state, getActiveDocument } from '../core/state.js';
 import { resolvePointerCoords, buildToolContext, isModalOpen, applyToolTransform, getEffectiveScale } from './tool-context.js';
+import { zetRechtopRond } from '../pdf/weergave-ruimte.js';
 import { getTool } from './tool-registry.js';
 import { cloneAnnotation } from '../annotations/factory.js';
 import { applyResize, applyMove, applyRotation } from '../annotations/transforms.js';
@@ -835,6 +836,8 @@ function _handleResize(ctx, e, coords) {
       const measureUnit = (getActiveDocument()?.measureUnit) || 'px';
       const lenLabel = (len * measureScale).toFixed(1) + ' ' + measureUnit;
       const label = `${lenLabel} < ${ang.toFixed(1)}°`;
+      // Rechtop op het scherm, ook in een gedraaide weergave (#200).
+      zetRechtopRond(canvasCtx, lx, ly);
       const fontPx = 11 / resizeScale;
       canvasCtx.font = `${fontPx}px sans-serif`;
       const textW = canvasCtx.measureText(label).width;

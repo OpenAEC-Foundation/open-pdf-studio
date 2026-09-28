@@ -1,6 +1,7 @@
 import { state, getActiveDocument } from '../core/state.js';
 import { getPdfSnapPointsNear, getPdfEdgeSegmentsNear } from './pdf-snap-extractor.js';
 import { snapPointToGrid } from '../annotations/rendering/ui-state.js';
+import { zetRechtopRond } from '../pdf/weergave-ruimte.js';
 
 // ─── Polar tracking ────────────────────────────────────────────────────
 // A "polar anchor" is a point set by a tool when a draw operation has a
@@ -639,6 +640,8 @@ export function drawSnapIndicator(ctx, snapResult, scale) {
     };
     const label = labels[snapResult.type];
     if (label) {
+      // Rechtop op het scherm, ook in een gedraaide weergave (#200).
+      zetRechtopRond(ctx, x, y);
       const fontSize = 9 / scale;
       ctx.font = `${fontSize}px Arial`;
       const textWidth = ctx.measureText(label).width;
@@ -698,6 +701,8 @@ export function drawPolarRay(ctx, snapResult, scale) {
   } catch (_) { /* ignore */ }
   const angleDeg = (angle * 180 / Math.PI + 360) % 360;
   const text = `Polar: ${angleDeg.toFixed(2)}° < ${lenInUnits.toFixed(2)} ${unit}`;
+  // Rechtop op het scherm, ook in een gedraaide weergave (#200).
+  zetRechtopRond(ctx, snapResult.x, snapResult.y);
   const fontSize = 11 / scale;
   ctx.font = `${fontSize}px Arial`;
   const padX = 4 / scale;

@@ -28,6 +28,8 @@ import {
   pdfDeltaFromScreenDelta,
   nieuwTekstblokRecord,
 } from '../text/text-edit-appearance.js';
+import { weergaveRotatie, paginaNaarClient, clientNaarPagina } from '../pdf/weergave-ruimte.js';
+import { normaliseerRotatie, naarWeergave, rectNaarPagina, weergaveMaat } from '../pdf/weergave-rotatie.js';
 
 let activeEditor = null;
 let hoverListeners = [];
@@ -344,6 +346,67 @@ function getTextEditGeometry(pageNum, canvasEl) {
     displayHeight,
     getPageRotation(pageNum),
   );
+}
+
+// ── Draaiing op het scherm (weergave draaien, #200) ──
+//
+// Hoe ver staat het paginakader op het scherm rechtsom gedraaid? De eigen
+// /Rotate en de paginarotatie (geometry.rotation) plus de weergaverotatie.
+// Voor alles wat met het scherm te maken heeft: de draaiing van de editor en
+// verplaatsen met de pijltjes of de grip. Records en hun PDF-coördinaten
+// blijven in de ongedraaide paginaruimte.
+function schermRotatieVan(geometry) {
+  return normaliseerRotatie((Number(geometry?.rotation) || 0) + weergaveRotatie());
+}
+
+// Draaiing (0/90/180/270, rechtsom) van een tekstlaag op het scherm, uit zijn
+// berekende CSS-transform.
+function laagSchermHoek(layer) {
+  try {
+    const t = getComputedStyle(layer).transform;
+    if (!t || t === 'none' || typeof DOMMatrixReadOnly !== 'function') return 0;
+    const m = new DOMMatrixReadOnly(t);
+    return normaliseerRotatie(Math.round(Math.atan2(m.b, m.a) * 180 / Math.PI / 90) * 90);
+  } catch {
+    return 0;
+  }
+}
+
+// Kader waarin een tekstblok horizontaal loopt, in schermpixels. theta = hoe
+// ver de tekst op het scherm rechtsom gedraaid staat: de draaiing van de laag
+// min de eigen tekstrichting (graden linksom in PDF-ruimte), op een kwartslag.
+// 0 als de tekst gewoon horizontaal op het scherm staat of schuin loopt; dan
+// geldt de oude rekenwijze (t.o.v. de linkerbovenhoek van de laag).
+function tekstKader(layer, tekstHoek) {
+  const layerRect = layer.getBoundingClientRect();
+  const ruw = laagSchermHoek(layer) - (Number(tekstHoek) || 0);
+  const kwart = Math.round(ruw / 90) * 90;
+  const theta = Math.abs(ruw - kwart) <= 1 ? normaliseerRotatie(kwart) : 0;
+  const maat = weergaveMaat(layerRect.width, layerRect.height, theta);
+  const naarKader = (r) => {
+    const rel = { x: r.left - layerRect.left, y: r.top - layerRect.top, width: r.width, height: r.height };
+    return theta ? rectNaarPagina(rel, maat.breedte, maat.hoogte, theta) : rel;
+  };
+  return {
+    theta,
+    naarKader,
+    // Omhullende (in het kader) van een reeks spans, vers gemeten.
+    omhullende(spans) {
+      let links = Infinity, boven = Infinity, rechts = -Infinity, onder = -Infinity;
+      for (const sp of spans) {
+        const r = naarKader(sp.getBoundingClientRect());
+        links = Math.min(links, r.x);
+        boven = Math.min(boven, r.y);
+        rechts = Math.max(rechts, r.x + r.width);
+        onder = Math.max(onder, r.y + r.height);
+      }
+      return { left: links, top: boven, width: rechts - links, height: onder - boven };
+    },
+    naarScherm(x, y) {
+      const p = theta ? naarWeergave(x, y, maat.breedte, maat.hoogte, theta) : { x, y };
+      return { x: layerRect.left + p.x, y: layerRect.top + p.y };
+    },
+  };
 }
 
 export function activateEditTextTool() {
@@ -820,15 +883,29 @@ function startPdfTextEditing(span, pageNum, groupMode = 'strict') {
   const pdfY = lineData[0].pdfY;
   const fontSize = lineData[0].fontSize;
   const pdfWidth = Math.max(...lineData.map(l => l.pdfWidth));
-  const groupRect = block.rect;
+  let groupRect = block.rect;
 
   // Match the PDF.js line box exactly. The previous 0.82 multiplier made the
   // live text visibly shrink and move as soon as editing started.
   const numLines = lineData.length;
-  const editorFontSize = Math.max(1, lineData[0].domBottom - lineData[0].domTop);
-  const visualLineHeight = numLines > 1
+  let editorFontSize = Math.max(1, lineData[0].domBottom - lineData[0].domTop);
+  let visualLineHeight = numLines > 1
     ? Math.abs(lineData[1].domTop - lineData[0].domTop)
     : editorFontSize * (lineSpacing / fontSize);
+
+  // Staat de tekst op het scherm gedraaid (een gedraaide weergave, #200, of
+  // een gedraaide pagina), dan zijn de schermrechthoeken van de spans
+  // gedraaid: hoogte en breedte wisselen. Meet dan in het kader waarin de
+  // tekst horizontaal loopt en draai de editor mee.
+  const kader = tekstKader(textLayer, lineData[0].angle);
+  if (kader.theta) {
+    const regel0 = kader.omhullende(lineData[0].spans);
+    editorFontSize = Math.max(1, regel0.height);
+    visualLineHeight = numLines > 1
+      ? Math.abs(kader.omhullende(lineData[1].spans).top - regel0.top)
+      : editorFontSize * (lineSpacing / fontSize);
+    groupRect = kader.omhullende(block.spans);
+  }
 
   // Place editor in the textLayer's parent container (not in the textLayer itself)
   // because .textLayer has opacity: 0.25 which makes all children semi-transparent
@@ -860,13 +937,30 @@ function startPdfTextEditing(span, pageNum, groupMode = 'strict') {
     + cssBaselineOffset(editorFont, editorFontSize, editorFontSize, editorBold, editorItalic);
   const editorTop = targetBaseline
     - cssBaselineOffset(editorFont, editorFontSize, visualLineHeight, editorBold, editorItalic);
+  // Gedraaid kader: dezelfde maten langs de assen van de tekst, dan naar het
+  // scherm; de editor draait om zijn linkerbovenhoek mee.
+  let editorLeftPx = containerRect.left + groupRect.left + offsetX;
+  let editorTopPx = editorTop;
+  let editorBaselineWaarde = targetBaseline;
+  if (kader.theta) {
+    const basisLokaal = groupRect.top
+      + cssBaselineOffset(editorFont, editorFontSize, editorFontSize, editorBold, editorItalic);
+    const bovenLokaal = basisLokaal
+      - cssBaselineOffset(editorFont, editorFontSize, visualLineHeight, editorBold, editorItalic);
+    const anker = kader.naarScherm(groupRect.left, bovenLokaal);
+    const basis = kader.naarScherm(groupRect.left, basisLokaal);
+    const [, , rotationC, rotationD] = getPageRotationMatrix(0, 0, kader.theta);
+    editorLeftPx = anker.x;
+    editorTopPx = anker.y;
+    editorBaselineWaarde = { left: basis.x, top: basis.y, rotationC, rotationD };
+  }
 
   // Build style object for the Solid overlay
   // Use fixed positioning based on container's viewport position
   const styleObj = {
     position: 'fixed',
-    left: `${containerRect.left + groupRect.left + offsetX}px`,
-    top: `${editorTop}px`,
+    left: `${editorLeftPx}px`,
+    top: `${editorTopPx}px`,
     width: `${Math.max(groupRect.width + 4, 80)}px`,
     height: `${Math.max(numLines * visualLineHeight, 24)}px`,
     'font-size': `${editorFontSize}px`,
@@ -875,6 +969,10 @@ function startPdfTextEditing(span, pageNum, groupMode = 'strict') {
     color: lineData[0].color || '#000000',
     'z-index': '1000'
   };
+  if (kader.theta) {
+    styleObj.transform = `rotate(${kader.theta}deg)`;
+    styleObj['transform-origin'] = '0 0';
+  }
   // NB: geen container-brede font-weight/style meer — de per-regel runs
   // (initialLines met <b>/<i>) bepalen de weergave, zodat een blok met een
   // vette kop en gewone broodtekst beide correct toont en de DOM-parse de
@@ -979,7 +1077,7 @@ function startPdfTextEditing(span, pageNum, groupMode = 'strict') {
     numOriginalLines: lineData.length,
     scale: getActiveDocument()?.scale || 1.5,
     visualScale: editorFontSize / fontSize,
-    editorBaseline: targetBaseline,
+    editorBaseline: editorBaselineWaarde,
     // Accumulated style state edited via the properties panel; seeded from the
     // block's detected formatting. Persisted onto the edit record on commit.
     styleState: {
@@ -1639,13 +1737,20 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
   const baselineOffset = cssBaselineOffset(
     editorFontFamily, editorFontSize, visualLineHeight, editorBold, editorItalic
   );
+  // Op het scherm staat het paginakader gedraaid over de paginarotatie plus
+  // de weergaverotatie (#200): de editor draait daarover mee.
+  const schermRotatie = schermRotatieVan(geometry);
   const [, , rotationC, rotationD] = getPageRotationMatrix(
     geometry.pageWidth,
     geometry.pageHeight,
-    geometry.rotation,
+    schermRotatie,
   );
-  const baselineLeft = containerRect.left + pageOffsetX + rotatedBaseline.x * editScale;
-  const baselineTop = containerRect.top + pageOffsetY + rotatedBaseline.y * editScale;
+  // Met een gedraaide weergave via de centrale omrekening naar het scherm.
+  const basisOpScherm = weergaveRotatie(editDoc)
+    ? paginaNaarClient(pageNum, rotatedBaseline.x, rotatedBaseline.y, editDoc)
+    : null;
+  const baselineLeft = basisOpScherm ? basisOpScherm.x : containerRect.left + pageOffsetX + rotatedBaseline.x * editScale;
+  const baselineTop = basisOpScherm ? basisOpScherm.y : containerRect.top + pageOffsetY + rotatedBaseline.y * editScale;
   const editorLeft = baselineLeft - rotationC * baselineOffset;
   const editorTop = baselineTop - rotationD * baselineOffset;
 
@@ -1660,7 +1765,7 @@ export function startTextEditEditing(textEdit, pageNum, canvasEl) {
     'line-height': `${visualLineHeight}px`,
     'font-family': editorFontFamily,
     color: textEdit.color || '#000000',
-    transform: `rotate(${geometry.rotation}deg)`,
+    transform: `rotate(${schermRotatie}deg)`,
     'transform-origin': '0 0',
     'z-index': '1000'
   };
@@ -2114,8 +2219,14 @@ function startNewTextBlockAt(e, layer, pageNum) {
     ? geometry.pageHeight : geometry.pageWidth;
   const dispH = (geometry.rotation === 90 || geometry.rotation === 270)
     ? geometry.pageWidth : geometry.pageHeight;
-  const vx = (e.clientX - rect.left) / rect.width * dispW;
-  const vy = (e.clientY - rect.top) / rect.height * dispH;
+  let vx = (e.clientX - rect.left) / rect.width * dispW;
+  let vy = (e.clientY - rect.top) / rect.height * dispH;
+  // Gedraaide weergave (#200): de laag ligt gedraaid op het scherm; het
+  // klikpunt via de centrale omrekening terug naar de paginaruimte.
+  if (weergaveRotatie(doc)) {
+    const opPagina = clientNaarPagina(pageNum, e.clientX, e.clientY, doc);
+    if (opPagina) { vx = opPagina.x; vy = opPagina.y; }
+  }
   const punt = invertPageRotation(vx, vy, geometry.pageWidth, geometry.pageHeight, geometry.rotation);
   // App-ruimte → ECHTE user-space: de box-oorsprong meenemen, anders landt een
   // nieuw blok op een CAD-plot (MediaBox rond de oorsprong) volledig mis.
@@ -2142,7 +2253,7 @@ function maakDragHandlers() {
       const canvasEl = pdfCanvas || document.getElementById('pdf-canvas');
       const geometry = getTextEditGeometry(activeEditor.pageNum, canvasEl);
       const m = getPageRotationMatrix(
-        geometry.pageWidth, geometry.pageHeight, geometry.rotation,
+        geometry.pageWidth, geometry.pageHeight, schermRotatieVan(geometry),
       );
       const scale = activeEditor.scale || (getActiveDocument()?.scale || 1.5);
       const { dx, dy } = pdfDeltaFromScreenDelta(sxPx, syPx, scale, m);
@@ -2168,10 +2279,11 @@ function nudgeActiveTextEdit(dxPdf, dyPdf) {
   // Convert the PDF-space nudge into the rotated display frame.
   const canvasEl = pdfCanvas || document.getElementById('pdf-canvas');
   const geometry = getTextEditGeometry(activeEditor.pageNum, canvasEl);
+  // Draaiing op het scherm: paginarotatie plus weergaverotatie (#200).
   const [a, b, c, d] = getPageRotationMatrix(
     geometry.pageWidth,
     geometry.pageHeight,
-    geometry.rotation,
+    schermRotatieVan(geometry),
   );
   const unrotatedDy = -dyPdf;
   const shiftX = (a * dxPdf + c * unrotatedDy) * scale;

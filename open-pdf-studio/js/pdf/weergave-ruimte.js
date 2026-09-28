@@ -183,3 +183,20 @@ export function paginaRectNaarClient(pageNum, rect, doc = getActiveDocument()) {
     height: w.height * o.schaal,
   };
 }
+
+/**
+ * Tekenhulp voor schermteksten (tooltips, snaplabels) die in de paginaruimte
+ * getekend worden: draait de context rond het punt (x, y) terug over de
+ * weergaverotatie, zodat de tekst rechtop op het scherm staat en een
+ * verschuiving als "rechtsonder van de cursor" ook op het scherm klopt.
+ * Aanroepen binnen ctx.save()/ctx.restore().
+ * @returns {boolean} of er gedraaid is
+ */
+export function zetRechtopRond(ctx, x, y, doc = getActiveDocument()) {
+  const r = weergaveRotatie(doc);
+  if (!r || !ctx) return false;
+  ctx.translate(x, y);
+  ctx.rotate((-r * Math.PI) / 180);
+  ctx.translate(-x, -y);
+  return true;
+}

@@ -580,6 +580,7 @@ async function handleGetViewportState() {
   let activePageNum = null;
   let viewMode = null;
   let bookSpread = null;
+  let viewRotation = null;
   let currentTool = null;
   let annotationCount = null;
   let selectedCount = null;
@@ -597,6 +598,9 @@ async function handleGetViewportState() {
     activePageNum = doc?.currentPage ?? null;
     viewMode = doc?.viewMode ?? null;
     bookSpread = !!doc?.bookSpread;
+    // Weergave draaien (#200): alleen hoe het tabblad de pagina's toont; de
+    // annotatiecoördinaten en paginarotaties blijven die van het document.
+    viewRotation = Number(doc?.viewRotation) || 0;
     annotationCount = (doc?.annotations || []).length;
     selectedCount = (doc?.selectedAnnotations || []).length;
     pageCount = doc?.pdfDoc?.numPages ?? null;
@@ -623,6 +627,7 @@ async function handleGetViewportState() {
       currentPage: activePageNum,
       viewMode,
       bookSpread,
+      viewRotation,
     },
     // viewport singleton (pdf-viewport.js): the transform that maps world→screen
     viewport: vp ? {
@@ -634,6 +639,7 @@ async function handleGetViewportState() {
       pageH: vp.pageH ?? null,
       filePath: vp.filePath ?? null,
       pageNum: vp.pageNum ?? null,
+      viewRotation: vp.viewRotation ?? 0,
     } : null,
     // The main canvas backing store
     canvas: pdfCanvas ? {

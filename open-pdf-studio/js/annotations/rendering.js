@@ -55,7 +55,7 @@ import {
   textEditLineAnchor,
 } from '../text/text-edit-appearance.js';
 import { viewportGeometrie, rectNaarPagina } from '../pdf/weergave-rotatie.js';
-import { paginaMaat, paginaNaarWeergave, weergaveTransform, weergaveRectNaarPagina } from '../pdf/weergave-ruimte.js';
+import { paginaMaat, paginaNaarWeergave, weergaveTransform, weergaveRectNaarPagina, zetRechtopRond } from '../pdf/weergave-ruimte.js';
 
 // Re-export everything that external code needs
 export { drawPolygonShape, drawCloudShape, buildPolygonPath, buildCloudPath } from './rendering/shapes.js';
@@ -151,6 +151,8 @@ function _drawPolarOverlay(ctx, snapResult, scale) {
   } catch (_) { /* ignore */ }
   const angleDeg = (angle * 180 / Math.PI + 360) % 360;
   const text = `Polar: ${angleDeg.toFixed(2)}° < ${lenInUnits.toFixed(2)} ${unit}`;
+  // Rechtop op het scherm, ook in een gedraaide weergave (#200).
+  zetRechtopRond(ctx, snapResult.x, snapResult.y);
   const fontSize = 11 / scale;
   ctx.font = `${fontSize}px Arial`;
   const padX = 4 / scale;
