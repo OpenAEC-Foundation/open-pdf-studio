@@ -148,6 +148,23 @@ function commandPreservesSelection(cmd) {
   return cmd.commands.length > 0 && cmd.commands.every(commandPreservesSelection);
 }
 
+// Een paginarotatie verandert het paginabeeld zelf; refresh() tekent alleen de
+// annotaties opnieuw, dus na ongedaan maken bleef de pagina gedraaid staan.
+function raaktPaginaRotatie(cmd) {
+  if (!cmd) return false;
+  if (cmd.type === 'rotatePage') return true;
+  return cmd.type === 'compound' && cmd.commands.some(raaktPaginaRotatie);
+}
+
+function zetViewports(doc, pageNum, lijst) {
+  if (lijst === undefined) {
+    if (doc.pdfViewports) delete doc.pdfViewports[pageNum];
+    return;
+  }
+  doc.pdfViewports ||= {};
+  doc.pdfViewports[pageNum] = lijst;
+}
+
 function commandChangesMeasureScale(cmd) {
   if (!cmd) return false;
   if (cmd.type === 'modifyMeasureScale') return true;
@@ -200,6 +217,10 @@ export async function undo() {
   }
 
   applyUndo(cmd);
+  if (raaktPaginaRotatie(cmd)) {
+    const { tekenNaPaginaRotatie } = await import('../pdf/renderer.js');
+    await tekenNaPaginaRotatie();
+  }
   await rerasterizeStaleStamps();
   await persistMeasureScaleIfNeeded(cmd);
   syncModifiedState();
@@ -251,6 +272,10 @@ export async function redo() {
   }
 
   applyRedo(cmd);
+  if (raaktPaginaRotatie(cmd)) {
+    const { tekenNaPaginaRotatie } = await import('../pdf/renderer.js');
+    await tekenNaPaginaRotatie();
+  }
   await rerasterizeStaleStamps();
   await persistMeasureScaleIfNeeded(cmd);
   syncModifiedState();
@@ -374,6 +399,7 @@ function applyUndo(cmd) {
     }
     case 'rotatePage': {
       setPageRotation(cmd.pageNum, cmd.oldRotation);
+      if (cmd.viewports) zetViewports(doc, cmd.pageNum, cmd.viewports.oud);
       break;
     }
     case 'modifyMeasureScale': {
@@ -556,6 +582,7 @@ function applyRedo(cmd) {
     }
     case 'rotatePage': {
       setPageRotation(cmd.pageNum, cmd.newRotation);
+      if (cmd.viewports) zetViewports(doc, cmd.pageNum, cmd.viewports.nieuw);
       break;
     }
     case 'modifyMeasureScale': {
@@ -705,12 +732,15 @@ export function recordModify(annotationId, oldState, newState) {
   });
 }
 
-export function recordPageRotation(pageNum, oldRotation, newRotation) {
+// `viewports` ({oud, nieuw}): de meetschalen uit de PDF (/VP) van de pagina
+// vóór en na het draaien; rotatePage() draait ze mee (zie pagina-draaien.js).
+export function recordPageRotation(pageNum, oldRotation, newRotation, viewports) {
   execute({
     type: 'rotatePage',
     pageNum,
     oldRotation,
-    newRotation
+    newRotation,
+    ...(viewports ? { viewports } : {}),
   });
 }
 

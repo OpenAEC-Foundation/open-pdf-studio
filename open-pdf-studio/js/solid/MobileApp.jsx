@@ -3,7 +3,8 @@ import { useTranslation } from '../i18n/useTranslation.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { isTauri, extractFileName } from '../core/platform.js';
 import { loadPDF, loadPDFIfNeeded } from '../pdf/loader.js';
-import { fitWidth, fitPage, goToPage, rotatePage, setZoom } from '../pdf/renderer.js';
+import { fitWidth, fitPage, goToPage, setZoom } from '../pdf/renderer.js';
+import { draaiVanafKnop } from '../pdf/pagina-draaien.js';
 import { createTab } from '../ui/chrome/tabs.js';
 import { initDomElements } from '../ui/dom-elements.js';
 import { applyTheme, savePreferences } from '../core/preferences.js';
@@ -227,7 +228,7 @@ export default function MobileApp() {
   // --- Page rotation ---
 
   function handleRotate() {
-    rotatePage(90);
+    draaiVanafKnop(90);
   }
 
   // --- Fullscreen ---

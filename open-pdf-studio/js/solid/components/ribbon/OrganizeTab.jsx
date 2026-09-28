@@ -3,11 +3,10 @@ import AdaptiveGroups from './AdaptiveGroups.jsx';
 import RibbonButton from './RibbonButton.jsx';
 import RibbonButtonStack from './RibbonButtonStack.jsx';
 import { insertPageIcon, deletePageIcon, extractPagesIcon, mergePdfsIcon, watermarkIcon, headerFooterIcon, manageWatermarksIcon, editTextIcon, addTextIcon, ocrIcon, cropMarginsIcon, straightenIcon, shiftPageIcon, resizePagesIcon, rotateLeftIcon, rotateRightIcon } from '../../data/ribbonIcons.js';
-import { state, noPdf, getActiveDocument, getPageRotation } from '../../../core/state.js';
+import { state, noPdf, getActiveDocument } from '../../../core/state.js';
 import { isPdfAReadOnly } from '../../../pdf/loader.js';
 import { showInsertPageDialog, showExtractPagesDialog, showMergePdfsDialog } from '../../../ui/chrome/dialogs.js';
-import { rotatePage } from '../../../pdf/renderer.js';
-import { recordPageRotation } from '../../../core/undo-manager.js';
+import { draaiVanafKnop } from '../../../pdf/pagina-draaien.js';
 import { setTool } from '../../../tools/manager.js';
 import { setLeftPanelActiveTab, setLeftPanelCollapsed } from '../../../bridge.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
@@ -23,16 +22,9 @@ export default function OrganizeTab() {
 
   // Pagina-rotatie bewerkt het document (undo-baar, wordt opgeslagen) en
   // hoort daarom bij de pagina-bewerkingen — verplaatst uit de Beeld-groep
-  // van de Start-tab (#200).
-  // rotatePage() is async en zet de nieuwe stand pas NA een await; zonder
-  // await legt de undo-stap oud==nieuw vast en doet Ctrl+Z niets.
-  async function rotateCurrentPage(delta) {
-    const doc = getActiveDocument();
-    const pg = doc ? doc.currentPage : 1;
-    const oldRot = getPageRotation(pg);
-    await rotatePage(delta);
-    recordPageRotation(pg, oldRot, getPageRotation(pg));
-  }
+  // van de Start-tab (#200). Draait de geselecteerde miniaturen, of anders de
+  // huidige pagina (#464).
+  const rotateCurrentPage = (delta) => draaiVanafKnop(delta);
 
   function openPageReorder() {
     // Open the left panel and switch to the page-thumbnails tab so the user

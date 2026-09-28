@@ -2465,7 +2465,9 @@ function rotateAnnotationsForPage(pageNum, normDelta, oldW, oldH) {
   }
 }
 
-export async function rotatePage(delta, targetPage) {
+// `tekenen: false` laat het opnieuw tekenen aan de aanroeper: pagina-draaien.js
+// draait meerdere pagina's en tekent daarna één keer (#464).
+export async function rotatePage(delta, targetPage, { tekenen = true } = {}) {
   const doc = getActiveDocument();
   if (!doc?.pdfDoc) return;
   const pageNum = targetPage || doc.currentPage;
@@ -2492,15 +2494,30 @@ export async function rotatePage(delta, targetPage) {
   if (doc) doc.modified = true;
 
   // Re-render
-  if (doc?.viewMode === 'continuous') {
-    await renderContinuous();
-  } else {
-    await renderPage(pageNum);
+  if (tekenen) {
+    if (doc?.viewMode === 'continuous') {
+      await renderContinuous();
+    } else {
+      await renderPage(pageNum);
+    }
   }
 
   // Update thumbnails
   const { invalidateThumbnail } = await import('../ui/panels/left-panel.js');
   invalidateThumbnail(pageNum);
+}
+
+// Het beeld opnieuw opbouwen in de draaistand van nu: na het draaien van
+// pagina's, en na ongedaan maken of opnieuw doen daarvan. Tekent de pagina die
+// de gebruiker bekijkt, niet de laatst gedraaide.
+export async function tekenNaPaginaRotatie() {
+  const doc = getActiveDocument();
+  if (!doc?.pdfDoc) return;
+  if (doc.viewMode === 'continuous') {
+    await renderContinuous();
+  } else {
+    await renderPage(doc.currentPage);
+  }
 }
 
 // Clear the PDF view when no document is open
