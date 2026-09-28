@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Signaturen konnten nicht geladen werden",
     "layersCount": "{{count}} Ebenen",
     "noLayers": "Keine Ebenen in diesem Dokument",
+    "layerToggleUnavailable": "Ebenen ein- und ausblenden ist noch nicht verfügbar",
     "fieldsCount": "{{count}} Felder",
     "noFormFields": "Keine Formularfelder in diesem Dokument",
     "couldNotLoadFormFields": "Formularfelder konnten nicht geladen werden",

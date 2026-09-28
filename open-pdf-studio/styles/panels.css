@@ -747,6 +747,30 @@
   flex-shrink: 0;
 }
 
+.layer-list-toggle {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.layer-list-item input[type="checkbox"]:disabled {
+  cursor: default;
+  margin: 0;
+}
+
+/* Kop van een groep in de lagenboom (/Order-label): geen vinkje. */
+.layer-list-kop {
+  background: transparent;
+  border-color: transparent;
+}
+
+.layer-list-kop:hover {
+  background: transparent;
+}
+
+.layer-list-kop .layer-list-name {
+  font-weight: 600;
+}
+
 .layer-list-name {
   font-size: 12px;
   color: var(--theme-panel-header-text);

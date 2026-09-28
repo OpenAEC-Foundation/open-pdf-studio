@@ -86,6 +86,7 @@
     "couldNotLoadSignatures": "Handtekeningen konden niet worden geladen",
     "layersCount": "{{count}} lagen",
     "noLayers": "Geen lagen in dit document",
+    "layerToggleUnavailable": "Lagen aan- en uitzetten is nog niet beschikbaar",
     "fieldsCount": "{{count}} velden",
     "noFormFields": "Geen formuliervelden in dit document",
     "couldNotLoadFormFields": "Formuliervelden konden niet worden geladen",

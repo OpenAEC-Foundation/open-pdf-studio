@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "No se pudieron cargar las firmas",
     "layersCount": "{{count}} capas",
     "noLayers": "No hay capas en este documento",
+    "layerToggleUnavailable": "Todavía no se pueden activar y desactivar las capas",
     "fieldsCount": "{{count}} campos",
     "noFormFields": "No hay campos de formulario en este documento",
     "couldNotLoadFormFields": "No se pudieron cargar los campos de formulario",

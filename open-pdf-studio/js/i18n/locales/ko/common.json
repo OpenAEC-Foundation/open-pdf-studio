@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "서명을 불러올 수 없습니다",
     "layersCount": "레이어 {{count}}개",
     "noLayers": "이 문서에 레이어가 없습니다",
+    "layerToggleUnavailable": "레이어 켜기 및 끄기는 아직 사용할 수 없습니다",
     "fieldsCount": "필드 {{count}}개",
     "noFormFields": "이 문서에 양식 필드가 없습니다",
     "couldNotLoadFormFields": "양식 필드를 불러올 수 없습니다",

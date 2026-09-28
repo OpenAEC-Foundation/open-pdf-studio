@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Nepodarilo sa načítať podpisy",
     "layersCount": "{{count}} vrstiev",
     "noLayers": "V tomto dokumente nie sú žiadne vrstvy",
+    "layerToggleUnavailable": "Zapínanie a vypínanie vrstiev zatiaľ nie je k dispozícii",
     "fieldsCount": "{{count}} polí",
     "noFormFields": "V tomto dokumente nie sú žiadne formulárové polia",
     "couldNotLoadFormFields": "Nepodarilo sa načítať formulárové polia",

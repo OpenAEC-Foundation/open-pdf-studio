@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "دستخط لوڈ نہیں ہو سکے",
     "layersCount": "{{count}} تہیں",
     "noLayers": "اس دستاویز میں کوئی تہیں نہیں ہیں",
+    "layerToggleUnavailable": "تہوں کو آن اور آف کرنا ابھی دستیاب نہیں ہے",
     "fieldsCount": "{{count}} فیلڈز",
     "noFormFields": "اس دستاویز میں کوئی فارم فیلڈز نہیں ہیں",
     "couldNotLoadFormFields": "فارم فیلڈز لوڈ نہیں ہو سکیں",

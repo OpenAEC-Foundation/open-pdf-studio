@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Allekirjoituksia ei voitu ladata",
     "layersCount": "{{count}} tasoa",
     "noLayers": "Ei tasoja tässä asiakirjassa",
+    "layerToggleUnavailable": "Tasojen näyttäminen ja piilottaminen ei ole vielä käytettävissä",
     "fieldsCount": "{{count}} kenttää",
     "noFormFields": "Ei lomakekenttiä tässä asiakirjassa",
     "couldNotLoadFormFields": "Lomakekenttiä ei voitu ladata",

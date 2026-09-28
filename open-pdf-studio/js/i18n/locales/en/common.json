@@ -106,6 +106,7 @@
     "couldNotLoadSignatures": "Could not load signatures",
     "layersCount": "{{count}} layers",
     "noLayers": "No layers in this document",
+    "layerToggleUnavailable": "Switching layers on and off is not available yet",
     "fieldsCount": "{{count}} fields",
     "noFormFields": "No form fields in this document",
     "couldNotLoadFormFields": "Could not load form fields",

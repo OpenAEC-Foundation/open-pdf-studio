@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Nem sikerült betölteni az aláírásokat",
     "layersCount": "{{count}} réteg",
     "noLayers": "Nincsenek rétegek ebben a dokumentumban",
+    "layerToggleUnavailable": "A rétegek be- és kikapcsolása még nem érhető el",
     "fieldsCount": "{{count}} mező",
     "noFormFields": "Nincsenek űrlapmezők ebben a dokumentumban",
     "couldNotLoadFormFields": "Nem sikerült betölteni az űrlapmezőket",

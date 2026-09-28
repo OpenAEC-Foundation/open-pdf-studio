@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Nepodařilo se načíst podpisy",
     "layersCount": "{{count}} vrstev",
     "noLayers": "V tomto dokumentu nejsou žádné vrstvy",
+    "layerToggleUnavailable": "Zapínání a vypínání vrstev zatím není k dispozici",
     "fieldsCount": "{{count}} polí",
     "noFormFields": "V tomto dokumentu nejsou žádná formulářová pole",
     "couldNotLoadFormFields": "Nepodařilo se načíst formulářová pole",

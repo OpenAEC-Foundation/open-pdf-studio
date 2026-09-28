@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "署名を読み込めませんでした",
     "layersCount": "{{count}} 件のレイヤー",
     "noLayers": "このドキュメントにはレイヤーがありません",
+    "layerToggleUnavailable": "レイヤーの表示と非表示の切り替えはまだ利用できません",
     "fieldsCount": "{{count}} 件のフィールド",
     "noFormFields": "このドキュメントにはフォームフィールドがありません",
     "couldNotLoadFormFields": "フォームフィールドを読み込めませんでした",
