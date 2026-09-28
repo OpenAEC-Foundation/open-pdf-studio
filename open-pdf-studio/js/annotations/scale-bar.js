@@ -1,7 +1,8 @@
 import { createAnnotation } from './factory.js';
 import { getActiveDocument } from '../core/state.js';
 import { detectScaleInDocument, scaleFromScaleBar } from './document-scale.js';
-import { schaalOpPunt } from './schaal-op-punt.js';
+import { schaalOpPuntUitBronnen } from './schaal-op-punt.js';
+import { schaalBronnen } from './schaal-bronnen.js';
 
 /**
  * Create a scale bar annotation at the given position.
@@ -53,9 +54,15 @@ export function createScaleBar(x, y) {
  * order lives in schaal-op-punt.js; this is the shared entry point for
  * getMeasureScale and the light scale bridges (stamps, systeemraster, …).
  * Returns null when nothing is known.
+ *
+ * Inside a pass (schaal-bronnen.js metSchaalBronnen) the scale sources of the
+ * document are collected once and shared, so a loop over all annotations
+ * stays linear (#491); outside a pass they are collected fresh per call.
  */
 export function getScaleForPoint(pageNum, x, y) {
-  return schaalOpPunt(getActiveDocument(), pageNum, x, y);
+  const doc = getActiveDocument();
+  if (!doc) return null;
+  return schaalOpPuntUitBronnen(schaalBronnen(doc), doc, pageNum, x, y);
 }
 
 /**

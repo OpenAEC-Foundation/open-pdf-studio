@@ -1,9 +1,11 @@
+import { batch } from 'solid-js';
 import { state, getActiveDocument } from '../core/state.js';
 import { openDialog } from '../bridge.js';
 import { redrawAnnotations, redrawContinuous } from './rendering.js';
 import { savePreferences } from '../core/preferences.js';
 import { getScaleForPoint } from './scale-bar.js';
 import { getScaleFromRegion } from './scale-region.js';
+import { schaalBronnen, metSchaalBronnen } from './schaal-bronnen.js';
 import { cloneAnnotation } from './factory.js';
 import { nettoVlakOppervlak } from './vlak-ringen.js';
 import {
@@ -31,7 +33,7 @@ export function getMeasureScale(pageNum, x, y) {
     // No point specified — check if any scaleBar exists (global fallback)
     const doc = getActiveDocument();
     if (doc?.annotations) {
-      const scaleBars = doc.annotations.filter(a => a.type === 'scaleBar');
+      const scaleBars = schaalBronnen(doc).schaalbalken;
       if (scaleBars.length === 1) {
         return { pixelsPerUnit: scaleBars[0].pixelsPerUnit, unit: scaleBars[0].unit || 'mm' };
       }
@@ -293,6 +295,20 @@ export function recalculateAllMeasurements() {
   const doc = getActiveDocument();
   if (!doc) return;
 
+  // One pass: the scale sources are collected once instead of once per
+  // annotation, and the measurement updates reach the reactive views as one
+  // change instead of four per annotation (#491).
+  batch(() => metSchaalBronnen(() => recalculateMeasurementsIn(doc)));
+
+  // Redraw canvas
+  if (getActiveDocument()?.viewMode === 'continuous') {
+    redrawContinuous();
+  } else {
+    redrawAnnotations();
+  }
+}
+
+function recalculateMeasurementsIn(doc) {
   for (const ann of doc.annotations) {
     const pt = getAnnotationPoint(ann);
     const scale = getMeasureScale(pt.page, pt.x, pt.y);
@@ -334,13 +350,6 @@ export function recalculateAllMeasurements() {
         ann.measureText = formatMeasurement({ value, unit: scale.unit });
       }
     }
-  }
-
-  // Redraw canvas
-  if (getActiveDocument()?.viewMode === 'continuous') {
-    redrawContinuous();
-  } else {
-    redrawAnnotations();
   }
 }
 
