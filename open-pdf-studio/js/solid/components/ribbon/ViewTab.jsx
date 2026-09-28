@@ -18,10 +18,9 @@ import { panelVisible, panelCollapsed } from '../../stores/propertiesStore.js';
 import { panelVisible as elementVisibilityPanelVisible, toggleElementVisibilityPanel } from '../../stores/elementVisibilityStore.js';
 import { panelVisible as annotationLayersPanelVisible, toggleAnnotationLayersPanel } from '../../stores/annotationLayersStore.js';
 import { collapsed as leftPanelCollapsed } from '../../stores/leftPanelStore.js';
-import { state, noPdf, getActiveDocument, getPageRotation } from '../../../core/state.js';
+import { state, noPdf, getActiveDocument } from '../../../core/state.js';
 import { isPdfAReadOnly } from '../../../pdf/loader.js';
-import { rotatePage } from '../../../pdf/renderer.js';
-import { recordPageRotation } from '../../../core/undo-manager.js';
+import { draaiVanafKnop } from '../../../pdf/pagina-draaien.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { openDialog, showMessage } from '../../stores/dialogStore.js';
 import { readerTrackingPath } from '../../../core/reader-mode-tracking.js';
@@ -33,15 +32,7 @@ export default function ViewTab() {
 
   // Zelfde undo-bare paginarotatie als op de Organiseren-tab; hier ook
   // aangeboden omdat draaien tijdens het bekijken een veelgebruikte actie is.
-  // rotatePage() is async en zet de nieuwe stand pas NA een await; zonder
-  // await legt de undo-stap oud==nieuw vast en doet Ctrl+Z niets.
-  async function rotateCurrentPage(delta) {
-    const doc = getActiveDocument();
-    const pg = doc ? doc.currentPage : 1;
-    const oldRot = getPageRotation(pg);
-    await rotatePage(delta);
-    recordPageRotation(pg, oldRot, getPageRotation(pg));
-  }
+  const rotateCurrentPage = (delta) => draaiVanafKnop(delta);
 
   return (
     <div class="ribbon-content active" id="tab-view">

@@ -1105,14 +1105,14 @@ function ThumbnailMenuContent() {
       <MenuItem icon={thumbnailRotateLeftIcon}
         label={isMulti() ? t('thumbnail.rotateLeftPages', { count: count() }) : t('thumbnail.rotateLeft')}
         onClick={async () => {
-          const { rotatePage } = await import('../../pdf/renderer.js');
-          for (const p of pages()) await rotatePage(-90, p);
+          const { draaiPaginas } = await import('../../pdf/pagina-draaien.js');
+          await draaiPaginas(-90, pages());
         }} />
       <MenuItem icon={thumbnailRotateRightIcon}
         label={isMulti() ? t('thumbnail.rotateRightPages', { count: count() }) : t('thumbnail.rotateRight')}
         onClick={async () => {
-          const { rotatePage } = await import('../../pdf/renderer.js');
-          for (const p of pages()) await rotatePage(90, p);
+          const { draaiPaginas } = await import('../../pdf/pagina-draaien.js');
+          await draaiPaginas(90, pages());
         }} />
 
       <Separator />
