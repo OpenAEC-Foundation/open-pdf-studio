@@ -209,7 +209,8 @@ export async function undo() {
   await persistMeasureScaleIfNeeded(cmd);
   syncModifiedState();
 
-  // For modify operations, keep selection intact and refresh properties
+  // For modify operations, keep selection intact and refresh properties.
+  // No redraw from the panel: refresh() below draws once for the whole step.
   if (commandPreservesSelection(cmd)) {
     const { showProperties, showMultiSelectionProperties } = await import('../ui/panels/properties-panel.js');
     const _uDoc = getActiveDocument();
@@ -217,14 +218,14 @@ export async function undo() {
     if (_uSel.length > 1) {
       showMultiSelectionProperties();
     } else if (_uDoc?.selectedAnnotation) {
-      showProperties(_uDoc.selectedAnnotation);
+      showProperties(_uDoc.selectedAnnotation, { redraw: false });
     }
   } else {
     // Clear selection of annotations that no longer exist
     const doc = getActiveDocument();
     if (doc) dropRemovedFromSelection(doc);
     const { hideProperties } = await import('../ui/panels/properties-panel.js');
-    hideProperties();
+    hideProperties({ redraw: false });
   }
   await refresh();
 }
@@ -254,7 +255,8 @@ export async function redo() {
   await persistMeasureScaleIfNeeded(cmd);
   syncModifiedState();
 
-  // For modify operations, keep selection intact and refresh properties
+  // For modify operations, keep selection intact and refresh properties.
+  // No redraw from the panel: refresh() below draws once for the whole step.
   if (commandPreservesSelection(cmd)) {
     const { showProperties, showMultiSelectionProperties } = await import('../ui/panels/properties-panel.js');
     const _uDoc = getActiveDocument();
@@ -262,14 +264,14 @@ export async function redo() {
     if (_uSel.length > 1) {
       showMultiSelectionProperties();
     } else if (_uDoc?.selectedAnnotation) {
-      showProperties(_uDoc.selectedAnnotation);
+      showProperties(_uDoc.selectedAnnotation, { redraw: false });
     }
   } else {
     // Clear selection of annotations that no longer exist
     const doc = getActiveDocument();
     if (doc) dropRemovedFromSelection(doc);
     const { hideProperties } = await import('../ui/panels/properties-panel.js');
-    hideProperties();
+    hideProperties({ redraw: false });
   }
   await refresh();
 }

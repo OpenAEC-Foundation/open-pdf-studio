@@ -8,8 +8,10 @@
 //   één keer rekent en daarna nooit meer: reactief gedrag is daar niet te
 //   testen.
 // - Modules die de DOM, het canvas of de Tauri-brug nodig hebben, worden
-//   stubs: elke export is een lege functie. De state-store, de undo-manager,
-//   de schaalopzoeking en de hoeveelhedenstaat blijven echt.
+//   stubs: elke export is een lege functie die zijn aanroepen telt in
+//   globalThis.__stubCalls ({ naam: aantal }). De state-store, de
+//   undo-manager, het eigenschappenpaneel, de schaalopzoeking en de
+//   hoeveelhedenstaat blijven echt.
 // - buildSchedule (quantities/engine.js) telt zijn aanroepen in
 //   globalThis.__buildScheduleCount.
 //
@@ -27,7 +29,7 @@ const STUBS = [
   '/js/quantities/label-i18n.js',
   '/js/i18n/config.js',
   '/js/i18n/useTranslation.js',
-  '/js/ui/panels/properties-panel.js',
+  '/js/text/text-selection.js',
   '/js/ui/panels/left-panel.js',
   '/js/ui/panels/bookmarks.js',
   '/js/annotations/stamp-line-width.js',
@@ -93,7 +95,11 @@ export function buildSchedule(...args) {
   }
   if (isStub(url)) {
     const { namen, standaard } = exportNamen(readFileSync(fileURLToPath(url), 'utf8'));
-    const regels = namen.map((n) => `export function ${n}() { return undefined; }`);
+    const regels = namen.map((n) => `export function ${n}() {
+  const tel = (globalThis.__stubCalls ??= {});
+  tel[${JSON.stringify(n)}] = (tel[${JSON.stringify(n)}] || 0) + 1;
+  return undefined;
+}`);
     if (standaard) regels.push('export default { t: (k, o) => (o && o.defaultValue) || k, on() {}, language: "en" };');
     return { format: 'module', shortCircuit: true, source: regels.join('\n') };
   }

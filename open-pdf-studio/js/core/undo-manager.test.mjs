@@ -169,7 +169,7 @@ test('a transaction of adds, changes and deletes is undone and redone exactly', 
   assert.deepEqual(inhoud(doc), voor);
 });
 
-test('after undo the selection keeps what is still there and drops what is gone', async () => {
+test('after an undo that removes annotations nothing stays selected, as before', async () => {
   const doc = openen([vak('s1', 1), vak('s2', 2)]);
   const extra = vak('s3', 3);
   doc.annotations.push(extra);
@@ -179,9 +179,9 @@ test('after undo the selection keeps what is still there and drops what is gone'
   doc.selectedAnnotation = s3;
   await undo.undo();
   assert.deepEqual(doc.annotations.map((a) => a.id), ['s1', 's2']);
-  assert.equal(doc.selectedAnnotations.length, 1);
-  assert.equal(doc.selectedAnnotations[0], doc.annotations[0], 'dezelfde annotatie, geen kopie');
-  assert.equal(doc.selectedAnnotation, doc.annotations[0]);
+  // Het eigenschappenpaneel sluit (hideProperties) en heft de selectie op.
+  assert.equal(doc.selectedAnnotations.length, 0);
+  assert.equal(doc.selectedAnnotation, null);
 });
 
 test('one undo is one reactive update, however many fields and annotations it restores', async () => {
@@ -222,4 +222,35 @@ test('one undo is one reactive update, however many fields and annotations it re
   } finally {
     dispose();
   }
+});
+
+test('one undo or redo draws the canvas once', async () => {
+  const tekeningen = () => globalThis.__stubCalls?.redrawAnnotations || 0;
+  const doc = openen([vak('d1', 1), vak('d2', 2)]);
+
+  // Een toevoeging terugdraaien: de selectie gaat weg (hideProperties).
+  const extra = vak('d3', 3);
+  doc.annotations.push(extra);
+  undo.recordAdd(extra);
+  let voor = tekeningen();
+  await undo.undo();
+  assert.equal(tekeningen() - voor, 1, 'undo van een toevoeging');
+  voor = tekeningen();
+  await undo.redo();
+  assert.equal(tekeningen() - voor, 1, 'redo van een toevoeging');
+
+  // Een wijziging terugdraaien: de selectie blijft (showProperties).
+  const d1 = doc.annotations[0];
+  doc.selectedAnnotations = [d1];
+  doc.selectedAnnotation = d1;
+  const oud = { ...d1 };
+  d1.x = 40;
+  undo.recordModify(d1.id, oud, d1);
+  voor = tekeningen();
+  await undo.undo();
+  assert.equal(tekeningen() - voor, 1, 'undo van een wijziging');
+  assert.equal(doc.selectedAnnotation, doc.annotations[0], 'de selectie blijft staan');
+  voor = tekeningen();
+  await undo.redo();
+  assert.equal(tekeningen() - voor, 1, 'redo van een wijziging');
 });
