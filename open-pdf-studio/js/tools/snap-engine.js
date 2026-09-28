@@ -266,40 +266,14 @@ function extractSnapPoints(ann, points, prefs, annotations) {
 
     case 'parametricSymbol': {
       // Parametric symbols expose their own snap candidates via the template
-      // (e.g. stramien: line endpoints/midpoint + bubble centres). Falls back
-      // to the bbox rect points when a template has no snapPoints().
+      // (e.g. stramien: line endpoints/midpoint + bubble centres), with the
+      // bbox rect points as fallback; symbool-snappunten.js rotates them with
+      // the symbol, as the renderer draws it.
       try {
-        // Dynamic require avoided — registry is a leaf module, safe to import
-        // at top would also work, but keep the lazy pattern consistent here.
-        const tpl = _getTemplateForSnap(ann.symbolId);
-        if (tpl?.placement === 'two-point') {
-          const p = _twoPointEndpoints(ann);
-          if (doEndpoints) {
-            points.push({ x: p.startX, y: p.startY, type: 'endpoint', annotation: ann });
-            points.push({ x: p.endX, y: p.endY, type: 'endpoint', annotation: ann });
-          }
-          if (doMidpoints) {
-            points.push({
-              x: (p.startX + p.endX) / 2,
-              y: (p.startY + p.endY) / 2,
-              type: 'midpoint',
-              annotation: ann,
-            });
-          }
-        } else if (tpl && typeof tpl.snapPoints === 'function') {
-          const pts = tpl.snapPoints(ann.params || {}, {
-            x: ann.x, y: ann.y, width: ann.width, height: ann.height,
-          }) || [];
-          for (const p of pts) {
-            const kind = p.kind === 'midpoint' ? 'midpoint' : (p.kind === 'center' ? 'center' : 'endpoint');
-            if ((kind === 'midpoint' && !doMidpoints) ||
-                (kind === 'center' && !doCenters) ||
-                (kind === 'endpoint' && !doEndpoints)) continue;
-            points.push({ x: p.x, y: p.y, type: kind, annotation: ann });
-          }
-        } else {
-          addRectSnapPoints(ann.x, ann.y, ann.width, ann.height, ann, points, doEndpoints, doMidpoints, doCenters);
-        }
+        const pts = _symboolSnappunten(ann, _getTemplateForSnap(ann.symbolId), {
+          endpoints: doEndpoints, midpoints: doMidpoints, centers: doCenters,
+        });
+        for (const p of pts) points.push({ x: p.x, y: p.y, type: p.type, annotation: ann });
       } catch (_) { /* snap candidates are best-effort */ }
       break;
     }
@@ -309,7 +283,7 @@ function extractSnapPoints(ann, points, prefs, annotations) {
 // Lazy template lookup for snap candidates (sync import — registry has no
 // heavy deps and no cycles back into the tools layer).
 import { getTemplate as _getTemplateForSnap } from '../symbols/registry.js';
-import { twoPointEndpoints as _twoPointEndpoints } from '../symbols/two-point.js';
+import { symboolSnappunten as _symboolSnappunten } from './symbool-snappunten.js';
 // Wall band outline (mitred corners) for corner snapping.
 import { computeWallShape as _computeWallShapeForSnap } from '../annotations/rendering/walls.js';
 
