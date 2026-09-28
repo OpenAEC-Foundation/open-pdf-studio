@@ -59,6 +59,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "Zobrazení je otočeno o {{degrees}}° ve směru hodinových ručiček; dokument se nezměnil. Kliknutím zobrazení vrátíte.",
   "filledAreaSketch": {
     "undoPoint": "Zpět bod",
     "undoPointTitle": "Odebrat poslední bod (Backspace)",

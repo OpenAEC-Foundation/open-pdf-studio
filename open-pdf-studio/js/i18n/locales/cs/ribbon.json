@@ -157,7 +157,11 @@
     "keystrokes": "Keystrokes",
     "readerMode": "Režim Čtení",
     "readerModeTip": "Zapamatuje si stránku, pozici posouvání a přiblížení tohoto PDF při zavření a opětovném otevření. Dokud je funkce zapnutá, je vedle tohoto PDF uložen malý soubor, který se proto objeví i ve složkách synchronizovaných s cloudem (OneDrive, Dropbox atd.); vypnutím funkce se soubor odstraní.",
-    "readerModeSaveFailed": "Režim čtení nemohl uložit nastavení pro toto PDF. Složka je možná jen pro čtení."
+    "readerModeSaveFailed": "Režim čtení nemohl uložit nastavení pro toto PDF. Složka je možná jen pro čtení.",
+    "rotateViewLeft": "Otočit zobrazení doleva",
+    "rotateViewRight": "Otočit zobrazení doprava",
+    "rotateViewLeftTitle": "Otočí zobrazení o 90° proti směru hodinových ručiček. Samotný dokument se nemění.",
+    "rotateViewRightTitle": "Otočí zobrazení o 90° ve směru hodinových ručiček. Samotný dokument se nemění."
   },
   "organize": {
     "pages": "Stránky",

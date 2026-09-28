@@ -59,6 +59,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "Näkymää on kierretty {{degrees}}° myötäpäivään; asiakirja on ennallaan. Palauta näkymä napsauttamalla.",
   "filledAreaSketch": {
     "undoPoint": "Kumoa piste",
     "undoPointTitle": "Poista viimeisin piste (Askelpalautin)",

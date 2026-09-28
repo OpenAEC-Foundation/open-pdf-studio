@@ -59,6 +59,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "दृश्य दक्षिणावर्त {{degrees}}° घुमाया गया है; दस्तावेज़ अपरिवर्तित है। दृश्य वापस घुमाने के लिए क्लिक करें।",
   "filledAreaSketch": {
     "undoPoint": "बिंदु पूर्ववत करें",
     "undoPointTitle": "अंतिम बिंदु हटाएं (Backspace)",

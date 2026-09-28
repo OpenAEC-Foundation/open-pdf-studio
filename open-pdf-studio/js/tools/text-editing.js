@@ -9,6 +9,7 @@ import { injectSyntheticTextSpans } from '../text/text-layer.js';
 import { invertPageRotation, resolveTextEditPageGeometry } from '../text/text-edit-appearance.js';
 import { annotationCanvas } from '../ui/dom-elements.js';
 import { viewport as vpState } from '../pdf/pdf-viewport.js';
+import { paginaNaarClient, weergaveRotatie } from '../pdf/weergave-ruimte.js';
 import { hasMixedRuns, textboxLineRuns } from '../annotations/rendering/textbox-layout.js';
 import { editorVakOpmaak } from './text-edit-vak.js';
 import { layerForNewAnnotation } from '../annotations/annotatie-lagen.js';
@@ -89,9 +90,16 @@ export function startTextEditing(annotation) {
   const scaledWidth = width * scale;
   const scaledHeight = height * scale;
 
-  // Calculate center position of the annotation
-  const centerX = canvasRect.left + offX + (annotation.x + width / 2) * scale;
-  const centerY = canvasRect.top + offY + (annotation.y + height / 2) * scale;
+  // Calculate center position of the annotation. Via de centrale omrekening
+  // (pdf/weergave-ruimte.js), zodat het midden ook bij een gedraaide weergave
+  // (#200) op het vak valt; de oude formule blijft de terugval.
+  const midden = paginaNaarClient(annotation.page ?? doc?.currentPage ?? 1,
+    annotation.x + width / 2, annotation.y + height / 2, doc);
+  const centerX = midden ? midden.x : canvasRect.left + offX + (annotation.x + width / 2) * scale;
+  const centerY = midden ? midden.y : canvasRect.top + offY + (annotation.y + height / 2) * scale;
+  // Op het scherm staat het vak gedraaid over zijn eigen rotatie plus de
+  // weergaverotatie: de editor draait mee zodat hij het vak exact bedekt.
+  const schermRotatie = (Number(annotation.rotation) || 0) + weergaveRotatie(doc);
 
   // Build a CSS font-family fallback chain matching shapes.js
   // drawTextboxContent — some editors emit "SegoeUI" (no space)
@@ -132,9 +140,11 @@ export function startTextEditing(annotation) {
     outline: 'none',
     'z-index': '1200',
     overflow: 'hidden',
-    transform: annotation.rotation
-      ? `translate(-50%, -50%) rotate(${annotation.rotation}deg)`
-      : 'translate(-50%, -50%)'
+    transform: schermRotatie % 360
+      ? `translate(-50%, -50%) rotate(${schermRotatie}deg)`
+      : 'translate(-50%, -50%)',
+    // Voor de groei-correctie in TextEditOverlay (bovenrand blijft staan).
+    '--scherm-rotatie': String(schermRotatie),
   };
 
   // Apply text styles

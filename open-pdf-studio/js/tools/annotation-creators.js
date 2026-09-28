@@ -20,6 +20,8 @@ import { labelFontSizeAt } from '../annotations/drafting-rules.js';
 import { isKlikSleep, klemMaat, schermPxNaarPt, KLIK_DREMPEL_PX } from '../annotations/minimummaat.js';
 import { getEffectiveScale } from './effective-scale.js';
 import { randkleurenUitVoorkeur } from '../annotations/fill-utils.js';
+import { rechtopRotatie } from '../pdf/weergave-ruimte.js';
+import { rechtopVak, nieuweMaatHoekVast } from '../pdf/weergave-rotatie.js';
 
 /**
  * Build raw annotation properties from tool + coordinates.
@@ -587,8 +589,18 @@ function finalizeAnnotation(tool, props) {
   // grens volgt de schermpixel-klikdrempel, niet een vast aantal punten.
   if (tool === 'textbox') {
     const grens = schermPxNaarPt(KLIK_DREMPEL_PX, getEffectiveScale());
-    if (props.width < grens) props.width = 100;
-    if (props.height < grens) props.height = 20;
+    const breedte = props.width < grens ? 100 : props.width;
+    const hoogte = props.height < grens ? 20 : props.height;
+    if (props.rotation && (breedte !== props.width || hoogte !== props.height)) {
+      // Rechtop gezet in een gedraaide weergave (#200): net als zonder
+      // draaiing blijft de linkerbovenhoek zoals de gebruiker hem op het
+      // scherm ziet (bij een klik: het klikpunt) op zijn plaats, en groeit het
+      // vak op het scherm naar rechts en omlaag.
+      Object.assign(props, nieuweMaatHoekVast(props, breedte, hoogte));
+    } else {
+      props.width = breedte;
+      props.height = hoogte;
+    }
   }
 
   if (tool === 'draw') {
@@ -604,12 +616,24 @@ function finalizeAnnotation(tool, props) {
   return createAnnotation(props);
 }
 
+// Weergave draaien (#200): een tekstvak dat de gebruiker tekent, staat rechtop
+// op het scherm. Het gesleepte vak is in de paginaruimte de omhullende; het
+// vak zelf krijgt de maat zoals op het scherm (bij een kwartslag wisselen
+// breedte en hoogte) en de tegengestelde rotatie, om hetzelfde midden. Alleen
+// bij tekenen: buildAnnotationProps blijft in paginamaten, zodat een vak via
+// MCP of een plug-in precies de opgegeven maten houdt.
+function rechtopOpScherm(tool, props) {
+  if (!props || tool !== 'textbox') return props;
+  const rechtop = rechtopRotatie();
+  return rechtop ? { ...props, ...rechtopVak(props, rechtop) } : props;
+}
+
 export function createAnnotationFromTool(tool, startX, startY, endX, endY, e) {
-  return finalizeAnnotation(tool, buildAnnotationProps(tool, startX, startY, endX, endY, e));
+  return finalizeAnnotation(tool, rechtopOpScherm(tool, buildAnnotationProps(tool, startX, startY, endX, endY, e)));
 }
 
 export function createContinuousAnnotation(tool, pageNum, startX, startY, endX, endY) {
-  const props = buildAnnotationProps(tool, startX, startY, endX, endY, null);
+  const props = rechtopOpScherm(tool, buildAnnotationProps(tool, startX, startY, endX, endY, null));
   if (props) props.page = pageNum;
   return finalizeAnnotation(tool, props);
 }

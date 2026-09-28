@@ -10,6 +10,7 @@ import { BUILTIN_STAMP_DEFAULT_WIDTH, BUILTIN_STAMP_DEFAULT_HEIGHT, OVERRIDE_STA
 import { svgRealSizeMm, stampPlacementSize } from './svg-real-size.js';
 import { stampPxPerMm } from './stamp-scale.js';
 import { rasterizeSvg } from './svg-raster.js';
+import { paginaMaat, rechtopRotatie } from '../pdf/weergave-ruimte.js';
 
 // Built-in stamp definitions
 export const BUILT_IN_STAMPS = [
@@ -53,7 +54,8 @@ function placeStamp(stamp, x, y) {
     color: stamp.color,
     strokeColor: stamp.color,
     opacity: 0.85,
-    rotation: 0
+    // Rechtop op het scherm, ook in een gedraaide weergave (#200).
+    rotation: rechtopRotatie()
   });
 
   const _doc = getActiveDocument();
@@ -114,8 +116,11 @@ export async function placeOverrideStamp(x, y) {
     const doc = getActiveDocument();
     const stampScale = doc?.scale || 1.5;
     const dpr = window.devicePixelRatio || 1;
-    const pageW = canvas ? canvas.width / (stampScale * dpr) : 600;
-    const pageH = canvas ? canvas.height / (stampScale * dpr) : 800;
+    // Paginamaat in de paginaruimte; het canvas is in de viewport-weergave het
+    // venster en kan gedraaid zijn (#200) — alleen nog als terugval.
+    const maat = paginaMaat(doc?.currentPage || 1, doc);
+    const pageW = maat ? maat.breedte : (canvas ? canvas.width / (stampScale * dpr) : 600);
+    const pageH = maat ? maat.hoogte : (canvas ? canvas.height / (stampScale * dpr) : 800);
     const margin = overrides.stampPageMargin || 20;
     stampWidth = Math.round(pageW - margin * 2);
     stampHeight = Math.round(pageH - margin * 2);
@@ -168,7 +173,9 @@ export async function placeOverrideStamp(x, y) {
     originalHeight: img.naturalHeight,
     color: '#000000',
     opacity: 1,
-    rotation: 0,
+    // Rechtop op het scherm in een gedraaide weergave (#200); een stempel die
+    // de pagina vult, volgt de pagina.
+    rotation: overrides.stampFillPage ? 0 : rechtopRotatie(),
     lockAspectRatio: overrides.lockAspectRatio !== false,
     // IFC-categorie uit de symbool-metadata (mapping-laag) → hoeveelheden.
     ifcCategory: overrides.ifcCategory || undefined,
@@ -262,7 +269,8 @@ async function loadCustomStamp(x, y) {
       originalHeight: img.naturalHeight,
       color: '#000000',
       opacity: 1,
-      rotation: 0
+      // Rechtop op het scherm, ook in een gedraaide weergave (#200).
+      rotation: rechtopRotatie()
     });
 
     const _doc3 = getActiveDocument();

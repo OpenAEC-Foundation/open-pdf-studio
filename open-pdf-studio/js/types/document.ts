@@ -101,6 +101,9 @@ export interface DocumentState {
   /** Reader Mode: a jump to the stored position is under way. */
   _readerRestoring?: boolean;
   pageRotations: Record<number, number>;
+  /** Weergave draaien (#200): 0/90/180/270, rechtsom, voor alle pagina's van
+   *  dit tabblad. Alleen de weergave; het document verandert niet. */
+  viewRotation?: number;
   pageDims?: Record<number, { widthPt: number; heightPt: number; rotation?: number }>;
   pdfaCompliance: string | null;
   pdfADismissed: boolean;

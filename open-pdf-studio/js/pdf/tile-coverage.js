@@ -1,3 +1,5 @@
+import { viewportZichtbaar } from './weergave-rotatie.js';
+
 const SCALE_EPSILON = 0.001;
 const BOUNDS_EPSILON_PT = 0.5;
 
@@ -32,24 +34,13 @@ export function findBestCoveringTile(entries, request, epsilon = BOUNDS_EPSILON_
   return candidates[0] || null;
 }
 
+// Het zichtbare deel van de pagina in PDF-punten van de paginaruimte (waar de
+// tegels in staan). Houdt rekening met de paginarotatie (`rotation`, pageW/pageH
+// zijn de maat daarvóór) en de weergaverotatie (`viewRotation`, #200): het
+// scherm toont de pagina gedraaid, de tegels blijven ongedraaid.
 export function visiblePdfRegion(viewport, cssWidth, cssHeight) {
-  const visibleScreenLeft = Math.max(0, -viewport.offsetX);
-  const visibleScreenTop = Math.max(0, -viewport.offsetY);
-  const visibleScreenRight = Math.min(
-    viewport.pageW * viewport.zoom,
-    cssWidth - viewport.offsetX,
-  );
-  const visibleScreenBottom = Math.min(
-    viewport.pageH * viewport.zoom,
-    cssHeight - viewport.offsetY,
-  );
-
-  return {
-    x: visibleScreenLeft / viewport.zoom,
-    y: visibleScreenTop / viewport.zoom,
-    w: Math.max(0, visibleScreenRight - visibleScreenLeft) / viewport.zoom,
-    h: Math.max(0, visibleScreenBottom - visibleScreenTop) / viewport.zoom,
-  };
+  const zicht = viewportZichtbaar(viewport, cssWidth, cssHeight);
+  return { x: zicht.x, y: zicht.y, w: zicht.width, h: zicht.height };
 }
 
 export function tileCoversViewport(

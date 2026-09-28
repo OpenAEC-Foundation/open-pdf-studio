@@ -20,6 +20,7 @@ import {
   styleToolsIcon, resetLocationIcon, openPropertiesIcon, hideAnnotationIcon, editTypeIcon
 } from '../../data/ribbonIcons.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { paginaMaat } from '../../../pdf/weergave-ruimte.js';
 
 const STYLE_GALLERY = [
   { name: 'red', labelKey: 'format.styleRed', color: '#ff0000', cloudy: false },
@@ -381,8 +382,12 @@ export default function FormatTab() {
                       const resetDoc = getActiveDocument();
                       const resetScale = resetDoc?.scale || 1.5;
                       const resetDpr = window.devicePixelRatio || 1;
-                      const cx = (canvas.width / (resetScale * resetDpr)) / 2;
-                      const cy = (canvas.height / (resetScale * resetDpr)) / 2;
+                      // Midden van de pagina in de paginaruimte: uit de
+                      // paginamaat, niet uit het canvas (dat is in de viewport-
+                      // weergave het venster en kan gedraaid zijn, #200).
+                      const maat = paginaMaat(ann.page ?? resetDoc?.currentPage ?? 1, resetDoc);
+                      const cx = maat ? maat.breedte / 2 : (canvas.width / (resetScale * resetDpr)) / 2;
+                      const cy = maat ? maat.hoogte / 2 : (canvas.height / (resetScale * resetDpr)) / 2;
                       const w = ann.width || 100;
                       const h = ann.height || 50;
                       ann.x = cx - w / 2;

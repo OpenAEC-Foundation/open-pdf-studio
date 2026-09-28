@@ -157,7 +157,11 @@
     "keystrokes": "Keystrokes",
     "readerMode": "Mod citire",
     "readerModeTip": "Ține minte pagina, poziția de derulare și zoom-ul acestui PDF la închidere și redeschidere. Cât timp este activat, lângă acest PDF se păstrează un fișier mic, care apare astfel și în folderele sincronizate în cloud (OneDrive, Dropbox etc.); la dezactivare, fișierul este șters.",
-    "readerModeSaveFailed": "Modul citire nu a putut salva setarea pentru acest PDF. Este posibil ca folderul să fie doar pentru citire."
+    "readerModeSaveFailed": "Modul citire nu a putut salva setarea pentru acest PDF. Este posibil ca folderul să fie doar pentru citire.",
+    "rotateViewLeft": "Rotire vizualizare la stânga",
+    "rotateViewRight": "Rotire vizualizare la dreapta",
+    "rotateViewLeftTitle": "Rotește vizualizarea cu 90° în sens invers acelor de ceasornic. Documentul în sine nu se modifică.",
+    "rotateViewRightTitle": "Rotește vizualizarea cu 90° în sensul acelor de ceasornic. Documentul în sine nu se modifică."
   },
   "organize": {
     "pages": "Pagini",

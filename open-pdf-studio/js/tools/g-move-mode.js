@@ -39,6 +39,8 @@ import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js
 import { recordModify, recordBulkModify, recordBulkAdd } from '../core/undo-manager.js';
 import { isPdfAReadOnly } from '../pdf/loader.js';
 import { annotationCanvas } from '../ui/dom-elements.js';
+import { viewportNaarPagina } from '../pdf/weergave-rotatie.js';
+import { weergaveNaarPagina } from '../pdf/weergave-ruimte.js';
 import { applyTemplateRealSize } from '../symbols/real-size.js';
 import { getEditTargets, trackerFresh } from './edit-ops.js';
 import { performSnap, collectSnapPoints } from './snap-engine.js';
@@ -144,18 +146,13 @@ export function pointerToAppCoords(e) {
     && canvas.closest && canvas.closest('.canvas-container-cont')) || canvas;
   const rect = meetEl.getBoundingClientRect();
   const vp = window.__pdfViewport;
-  if (vp && vp.active && getActiveDocument()?.viewMode !== 'continuous') {
-    const screenX = e.clientX - rect.left;
-    const screenY = e.clientY - rect.top;
-    return {
-      x: (screenX - vp.offsetX) / vp.zoom,
-      y: (screenY - vp.offsetY) / vp.zoom
-    };
+  const doc = getActiveDocument();
+  // Met een gedraaide weergave (#200) van het scherm terug naar de pagina.
+  if (vp && vp.active && doc?.viewMode !== 'continuous') {
+    return viewportNaarPagina(vp, e.clientX - rect.left, e.clientY - rect.top);
   }
-  return {
-    x: (e.clientX - rect.left) / scale,
-    y: (e.clientY - rect.top) / scale
-  };
+  const pagina = parseInt(canvas.dataset?.page ?? meetEl.dataset?.page, 10) || doc?.currentPage || 1;
+  return weergaveNaarPagina(pagina, (e.clientX - rect.left) / scale, (e.clientY - rect.top) / scale, doc);
 }
 
 // IDENTITY-SAFE target resolution. Some UI flows replace annotation objects

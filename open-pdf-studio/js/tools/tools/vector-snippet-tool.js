@@ -18,6 +18,7 @@ import { bewaar } from '../../annotations/vector-snippet-store.js';
 import { zetKnipselOpKlembord } from '../../annotations/vector-snippet-clipboard.js';
 import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
 import i18next from '../../i18n/config.js';
+import { applyToolTransform } from '../tool-transform.js';
 
 /** Kleiner dan dit in app-punten is een misklik, geen knipsel. */
 const MIN_SLEEP_PT = 8;
@@ -38,11 +39,8 @@ function _tekenVoorbeeld(curX, curY) {
   const doc = getActiveDocument();
   const ctx = annotationCtx;
   ctx.save();
-  if (vp && vp.active) {
-    ctx.setTransform(vp.zoom, 0, 0, vp.zoom, vp.offsetX, vp.offsetY);
-  } else {
-    ctx.scale(doc?.scale || 1.5, doc?.scale || 1.5);
-  }
+  // Zelfde transform als de annotatieweergave (ook met een gedraaide weergave, #200).
+  applyToolTransform(ctx);
   const x1 = Math.min(_plaatsing.firstX, curX);
   const y1 = Math.min(_plaatsing.firstY, curY);
   const w = Math.abs(curX - _plaatsing.firstX);

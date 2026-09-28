@@ -6,6 +6,8 @@ import { redrawAnnotations } from '../../annotations/rendering.js';
 import { cloneForInsert } from '../edit-ops.js';
 import { applyMoveGeneric } from '../../annotations/transforms.js';
 import { schermPxNaarPt } from '../../annotations/minimummaat.js';
+import { applyToolTransform } from '../tool-transform.js';
+import { getEffectiveScale } from '../effective-scale.js';
 
 const _arrayState = { basePoint: null, count: 3, mode: 'linear' };
 
@@ -57,18 +59,21 @@ export const arrayTool = {
     if (_arrayState.basePoint) {
       redrawAnnotations();
       const { x, y, canvas } = ctx;
-      const doc = getActiveDocument();
-      const scale = doc?.scale || 1.5;
       const c = canvas.getContext('2d');
       const base = _arrayState.basePoint;
+      // In paginacoördinaten tekenen met dezelfde transform als de
+      // annotatieweergave (viewport, doorlopend, gedraaide weergave #200);
+      // lijndikte, streepjes en stippen in schermpixels.
+      const px1 = 1 / (getEffectiveScale() || 1);
 
       c.save();
-      c.setLineDash([4, 4]);
+      applyToolTransform(c);
+      c.setLineDash([4 * px1, 4 * px1]);
       c.strokeStyle = '#0066FF';
-      c.lineWidth = 1;
+      c.lineWidth = px1;
       c.beginPath();
-      c.moveTo(base.x * scale, base.y * scale);
-      c.lineTo(x * scale, y * scale);
+      c.moveTo(base.x, base.y);
+      c.lineTo(x, y);
       c.stroke();
 
       const count = _arrayState.count;
@@ -76,10 +81,10 @@ export const arrayTool = {
       const ddy = y - base.y;
       for (let i = 1; i < count; i++) {
         const frac = i / (count - 1 || 1);
-        const px = (base.x + ddx * frac) * scale;
-        const py = (base.y + ddy * frac) * scale;
+        const px = base.x + ddx * frac;
+        const py = base.y + ddy * frac;
         c.beginPath();
-        c.arc(px, py, 3, 0, Math.PI * 2);
+        c.arc(px, py, 3 * px1, 0, Math.PI * 2);
         c.fillStyle = '#0066FF';
         c.fill();
       }

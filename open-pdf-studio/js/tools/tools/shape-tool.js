@@ -3,6 +3,7 @@
  * All use the same drag-to-create pattern via buildAnnotationProps + drawShapePreview
  */
 import { isKlikSleep } from '../../annotations/minimummaat.js';
+import { weergaveVectorNaarPagina } from '../../pdf/weergave-ruimte.js';
 
 export const shapeTool = {
   name: 'shape',
@@ -65,18 +66,24 @@ export const shapeTool = {
     const isClick = isKlikSleep(dx, dy, ctx.scale);
 
     if (isClick && tool === 'textbox') {
-      // Compact standaardvak, passend bij de 8pt-standaardtekst.
-      endX = state.startX + 100;
-      endY = state.startY + 20;
+      // Compact standaardvak, passend bij de 8pt-standaardtekst: op het
+      // scherm naar rechts en omlaag, ook in een gedraaide weergave (#200).
+      const naar = weergaveVectorNaarPagina(100, 20);
+      endX = state.startX + naar.x;
+      endY = state.startY + naar.y;
     } else if (isClick && tool === 'mask') {
       // Maskeer: a single click PLACES a default-size cover (the user thinks
       // "plaatsen", not "drag a rectangle"); dragging still sets a custom size.
-      endX = state.startX + 200;
-      endY = state.startY + 140;
+      // Op het scherm rechts onder de klik, ook in een gedraaide weergave.
+      const naar = weergaveVectorNaarPagina(200, 140);
+      endX = state.startX + naar.x;
+      endY = state.startY + naar.y;
     } else if (isClick && tool === 'callout') {
-      // Click places arrow tip; box appears offset above-right
-      endX = state.startX + 80;
-      endY = state.startY - 40;
+      // Click places arrow tip; box appears offset above-right (on screen,
+      // also in a rotated view)
+      const naar = weergaveVectorNaarPagina(80, -40);
+      endX = state.startX + naar.x;
+      endY = state.startY + naar.y;
     } else if (isClick && (tool === 'comment' || tool === 'stamp' || tool === 'signature' || tool === 'count')) {
       // These already handle single click (count = place one marker at the click)
     } else if (isClick && tool === 'parametricSymbol') {

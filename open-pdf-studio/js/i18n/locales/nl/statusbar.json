@@ -66,6 +66,7 @@
   "viewContinuous": "Doorlopend",
   "viewBook": "Twee pagina’s",
   "viewFacing": "Twee pagina’s naast elkaar",
+  "viewRotatedTitle": "De weergave is {{degrees}}° rechtsom gedraaid; het document is niet gewijzigd. Klik om de weergave terug te draaien.",
   "compareTabTitle": "Vergelijken",
   "filledAreaSketch": {
     "undoPoint": "Punt ongedaan maken",

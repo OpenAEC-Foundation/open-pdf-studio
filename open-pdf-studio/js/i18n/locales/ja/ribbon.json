@@ -157,7 +157,11 @@
     "keystrokes": "Keystrokes",
     "readerMode": "リーダーモード",
     "readerModeTip": "このPDFを閉じて再度開く際に、ページ、スクロール位置、ズームを記憶します。オンの間は、このPDFの隣に小さなファイルが保存されるため、クラウド同期フォルダー（OneDrive、Dropboxなど）にも表示されます。オフにするとそのファイルは削除されます。",
-    "readerModeSaveFailed": "リーダーモードはこのPDFの設定を保存できませんでした。フォルダーが読み取り専用の可能性があります。"
+    "readerModeSaveFailed": "リーダーモードはこのPDFの設定を保存できませんでした。フォルダーが読み取り専用の可能性があります。",
+    "rotateViewLeft": "表示を左に回転",
+    "rotateViewRight": "表示を右に回転",
+    "rotateViewLeftTitle": "表示を反時計回りに90°回転します。文書そのものは変更されません。",
+    "rotateViewRightTitle": "表示を時計回りに90°回転します。文書そのものは変更されません。"
   },
   "organize": {
     "pages": "ページ",

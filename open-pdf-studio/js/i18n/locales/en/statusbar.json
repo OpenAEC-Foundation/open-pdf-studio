@@ -66,6 +66,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "The view is rotated {{degrees}}° clockwise; the document is unchanged. Click to turn the view back.",
   "compareTabTitle": "Compare",
   "filledAreaSketch": {
     "undoPoint": "Undo point",

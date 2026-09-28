@@ -3,6 +3,7 @@ import { SYMBOL_STAMP_DEFAULT_SIZE } from '../../annotations/stamp-defaults.js';
 import { svgRealSizeMm, stampPlacementSize } from '../../annotations/svg-real-size.js';
 import { stampPxPerMm } from '../../annotations/stamp-scale.js';
 import { getActiveDocument } from '../../core/state.js';
+import { zetRechtopRond } from '../../pdf/weergave-ruimte.js';
 
 /**
  * Text tools — comment, text, stamp, signature, editText
@@ -72,6 +73,8 @@ export const stampTool = {
     const canvasCtx = ctx.canvasCtx;
     canvasCtx.save();
     applyToolTransform(canvasCtx);
+    // Zoals hij geplaatst wordt: rechtop op het scherm, ook gedraaid (#200).
+    zetRechtopRond(canvasCtx, ctx.x, ctx.y);
     canvasCtx.globalAlpha = 0.6;
     canvasCtx.drawImage(previewImg, ctx.x - w / 2, ctx.y - h / 2, w, h);
     canvasCtx.restore();

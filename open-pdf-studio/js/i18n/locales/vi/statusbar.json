@@ -59,6 +59,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "Chế độ xem đang xoay {{degrees}}° theo chiều kim đồng hồ; tài liệu không thay đổi. Nhấp để xoay chế độ xem trở lại.",
   "filledAreaSketch": {
     "undoPoint": "Hoàn tác điểm",
     "undoPointTitle": "Xóa điểm cuối cùng (Backspace)",

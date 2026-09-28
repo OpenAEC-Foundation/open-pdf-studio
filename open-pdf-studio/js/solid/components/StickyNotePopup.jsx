@@ -1,4 +1,4 @@
-import { For, Show, onMount, onCleanup, createSignal, createEffect } from 'solid-js';
+import { For, Show, onMount, onCleanup, createSignal, createEffect, untrack } from 'solid-js';
 import { getOpenPopups, closeStickyPopup, updatePopupText, updatePopupPosition } from '../stores/stickyNotePopupStore.js';
 import { showAnnotationMenu } from '../stores/contextMenuStore.js';
 import { storeShowProperties, updateAnnotProp } from '../stores/propertiesStore.js';
@@ -7,6 +7,8 @@ import { annotationCanvas } from '../../ui/dom-elements.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
 import { recordModify } from '../../core/undo-manager.js';
+import { paginaNaarClient, clientNaarPagina } from '../../pdf/weergave-ruimte.js';
+import { WEERGAVE_GEDRAAID } from '../../pdf/weergave-draaien.js';
 
 // Icon name to label mapping
 const ICON_LABELS = {
@@ -62,8 +64,38 @@ function StickyNotePopup(props) {
   const ann = () => props.entry.annotation;
   const isActive = () => hovered() || focused() || dragging();
 
+  // Weergave draaien (#200): de notitie staat daarna ergens anders op het
+  // scherm. De popup gaat mee zodra het beeld in de nieuwe stand staat, en
+  // beweegt daarna nog mee tot het beeld stilstaat: in de doorlopende
+  // weergave verschuift de pagina nog even, bv. als de formulierbalk boven de
+  // pagina's na het opnieuw opbouwen terugkomt.
+  const [weergaveTik, setWeergaveTik] = createSignal(0);
+  let volgen = true;
+  const naWeergaveGedraaid = () => {
+    setWeergaveTik((n) => n + 1);
+    let stil = 0;
+    let frames = 0;
+    let vorige = '';
+    const volg = () => {
+      if (!volgen || dragging()) return;
+      setWeergaveTik((n) => n + 1);
+      const p = localPos();
+      const nu = `${Math.round(p.x)},${Math.round(p.y)}`;
+      stil = nu === vorige ? stil + 1 : 0;
+      vorige = nu;
+      if (stil < 45 && ++frames < 240) requestAnimationFrame(volg);
+    };
+    requestAnimationFrame(volg);
+  };
+  window.addEventListener(WEERGAVE_GEDRAAID, naWeergaveGedraaid);
+  onCleanup(() => {
+    volgen = false;
+    window.removeEventListener(WEERGAVE_GEDRAAID, naWeergaveGedraaid);
+  });
+
   // Calculate initial position
   createEffect(() => {
+    weergaveTik();
     const a = ann();
     if (!a) return;
     const canvas = popupCanvas(a);
@@ -74,6 +106,20 @@ function StickyNotePopup(props) {
     const px = a.popupX !== undefined ? a.popupX : a.x + 30;
     const py = a.popupY !== undefined ? a.popupY : a.y;
 
+    // Centrale omrekening: neemt de verschuiving van de viewport en een
+    // gedraaide weergave (#200) mee. De stand van het beeld zelf niet volgen
+    // (untrack): midden in het draaien klopt die nog niet; weergaveTik komt
+    // als het beeld klaar is.
+    const pagina = a.page ?? getActiveDocument()?.currentPage ?? 1;
+    const opScherm = untrack(() => paginaNaarClient(pagina, px, py));
+    if (opScherm) {
+      setLocalPos(opScherm);
+      return;
+    }
+    // De pagina staat (nog) niet in de doorlopende weergave, bv. tijdens het
+    // opnieuw opbouwen: de popup laten staan in plaats van naar de
+    // vensteroorsprong te springen.
+    if (untrack(() => getActiveDocument()?.viewMode) === 'continuous') return;
     setLocalPos({
       x: canvasRect.left + px * scale,
       y: canvasRect.top + py * scale
@@ -132,11 +178,10 @@ function StickyNotePopup(props) {
       if (canvas) {
         const canvasRect = canvas.getBoundingClientRect();
         const scale = state.documents?.[state.activeDocumentIndex]?.scale || 1.5;
-        updatePopupPosition(
-          ann().id,
-          (newPos.x - canvasRect.left) / scale,
-          (newPos.y - canvasRect.top) / scale
-        );
+        // Terug naar de paginaruimte, ook bij een gedraaide weergave (#200).
+        const opPagina = clientNaarPagina(ann().page ?? getActiveDocument()?.currentPage ?? 1, newPos.x, newPos.y)
+          || { x: (newPos.x - canvasRect.left) / scale, y: (newPos.y - canvasRect.top) / scale };
+        updatePopupPosition(ann().id, opPagina.x, opPagina.y);
         if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
         else redrawAnnotations(true);
       }

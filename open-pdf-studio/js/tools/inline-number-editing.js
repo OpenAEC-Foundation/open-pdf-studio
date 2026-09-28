@@ -15,8 +15,7 @@
 //  - betonbalk        → ParametricLabelInlineEditor met één synthetisch
 //                       tekstveld voor de tag (zelfde undo-pad als het paneel).
 import { getActiveDocument } from '../core/state.js';
-import { annotationCanvas } from '../ui/dom-elements.js';
-import { viewport as vpState } from '../pdf/pdf-viewport.js';
+import { paginaNaarClient } from '../pdf/weergave-ruimte.js';
 import { hitTestEditableNumber } from '../annotations/editable-numbers.js';
 // Side-effect: providers aanmelden (ook als rendering.js nog niet laadde).
 import '../annotations/editable-numbers-providers.js';
@@ -57,30 +56,19 @@ export function hitInlineNumberAt(annotation, x, y) {
 
 // ── Betonbalk-tag: schermpositie + editor ─────────────────────────────────
 
-// Zelfde rekenwijze als tools/stavenreeks-editing.js labelScreenPos():
-// doorlopende weergave rekent tegen het paginacanvas van de annotatie,
-// enkelpagina tegen het viewport-singleton (zoom + offsets).
-function betonbalkTagScreenPos(ann) {
+// Schermpositie van een punt op de pagina van de annotatie, 10 px eronder:
+// via de centrale omrekening (weergave-ruimte.js), dus in elke weergave en
+// ook met een gedraaide weergave (#200).
+function schermPosOnder(ann, x, y) {
   const doc = getActiveDocument();
-  const isContinuous = doc?.viewMode === 'continuous';
-  let canvas = null;
-  if (isContinuous) {
-    canvas = document.querySelector(
-      `.page-wrapper[data-page="${ann.page}"] .canvas-container-cont`);
-  }
-  if (!canvas) canvas = annotationCanvas || document.getElementById('annotation-canvas');
-  if (!canvas) return null;
-  const rect = canvas.getBoundingClientRect();
-  const useViewport = !isContinuous && vpState && vpState.active;
-  const scale = useViewport ? vpState.zoom : (doc?.scale || 1.5);
-  const offX = useViewport ? vpState.offsetX : 0;
-  const offY = useViewport ? vpState.offsetY : 0;
+  const p = paginaNaarClient(ann.page ?? doc?.currentPage ?? 1, x, y, doc);
+  return p ? { left: p.x, top: p.y + 10 } : null;
+}
+
+function betonbalkTagScreenPos(ann) {
   const geom = buildBetonbalk(ann, providerOpts(ann));
   if (!geom || !geom.tag) return null;
-  return {
-    left: rect.left + offX + geom.tag.x * scale,
-    top: rect.top + offY + geom.tag.y * scale + 10,
-  };
+  return schermPosOnder(ann, geom.tag.x, geom.tag.y);
 }
 
 function stillAlive(ann) {
@@ -115,26 +103,9 @@ function startBetonbalkTagInput(annotation) {
 
 // Zelfde rekenwijze als betonbalkTagScreenPos hierboven.
 function systeemrasterMaatScreenPos(ann) {
-  const doc = getActiveDocument();
-  const isContinuous = doc?.viewMode === 'continuous';
-  let canvas = null;
-  if (isContinuous) {
-    canvas = document.querySelector(
-      `.page-wrapper[data-page="${ann.page}"] .canvas-container-cont`);
-  }
-  if (!canvas) canvas = annotationCanvas || document.getElementById('annotation-canvas');
-  if (!canvas) return null;
-  const rect = canvas.getBoundingClientRect();
-  const useViewport = !isContinuous && vpState && vpState.active;
-  const scale = useViewport ? vpState.zoom : (doc?.scale || 1.5);
-  const offX = useViewport ? vpState.offsetX : 0;
-  const offY = useViewport ? vpState.offsetY : 0;
   const geom = buildSysteemraster(ann, providerOpts(ann));
   if (!geom || !geom.tag) return null;
-  return {
-    left: rect.left + offX + geom.tag.x * scale,
-    top: rect.top + offY + geom.tag.y * scale + 10,
-  };
+  return schermPosOnder(ann, geom.tag.x, geom.tag.y);
 }
 
 function startSysteemrasterMaatInput(annotation) {

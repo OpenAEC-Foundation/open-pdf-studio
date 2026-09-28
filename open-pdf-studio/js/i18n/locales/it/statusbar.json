@@ -58,6 +58,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "La vista è ruotata di {{degrees}}° in senso orario; il documento non è stato modificato. Fai clic per ripristinare la vista.",
   "filledAreaSketch": {
     "undoPoint": "Annulla punto",
     "undoPointTitle": "Rimuovi ultimo punto (Backspace)",

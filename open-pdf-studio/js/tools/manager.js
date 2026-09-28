@@ -8,6 +8,8 @@ import { getTool } from './tool-registry.js';
 import { buildToolContext, resolvePointerCoords } from './tool-context.js';
 import { findAnnotationAt } from '../annotations/geometry.js';
 import { findHandleAt } from '../annotations/handles.js';
+import { viewportNaarPagina } from '../pdf/weergave-rotatie.js';
+import { weergaveNaarPagina } from '../pdf/weergave-ruimte.js';
 import { cancelParametricSymbolInput } from './parametric-symbol-editing.js';
 import { applyOverlayPointerEvents } from '../pdf/link-layer.js';
 import {
@@ -158,12 +160,12 @@ function _setSelectFallthroughEnabled(enabled) {
       const vp = window.__pdfViewport;
       // Blank docs bypass the viewport — same guard as resolvePointerCoords.
       const _useVp = doc.viewMode !== 'continuous' && vp && vp.active && doc?.filePath;
+      // Met een gedraaide weergave (#200) daarna terug naar de paginaruimte.
       if (_useVp) {
-        appX = (e.clientX - rect.left - vp.offsetX) / vp.zoom;
-        appY = (e.clientY - rect.top - vp.offsetY) / vp.zoom;
+        ({ x: appX, y: appY } = viewportNaarPagina(vp, e.clientX - rect.left, e.clientY - rect.top));
       } else {
-        appX = (e.clientX - rect.left) / scale;
-        appY = (e.clientY - rect.top) / scale;
+        const pagina = hoverPage ?? doc.currentPage ?? 1;
+        ({ x: appX, y: appY } = weergaveNaarPagina(pagina, (e.clientX - rect.left) / scale, (e.clientY - rect.top) / scale, doc));
       }
 
       const ann = findAnnotationAt(appX, appY, hoverPage);

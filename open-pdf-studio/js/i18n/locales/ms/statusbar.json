@@ -59,6 +59,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "Paparan diputar {{degrees}}° ikut arah jam; dokumen tidak berubah. Klik untuk mengembalikan paparan.",
   "filledAreaSketch": {
     "undoPoint": "Buat asal titik",
     "undoPointTitle": "Buang titik terakhir (Backspace)",

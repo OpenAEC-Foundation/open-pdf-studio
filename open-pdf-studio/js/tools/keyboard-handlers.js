@@ -13,6 +13,7 @@ import { createMeasureAreaAnnotation, createMeasurePerimeterAnnotation } from '.
 import { openPDFFile, isPdfAReadOnly } from '../pdf/loader.js';
 import { actualSize, fitWidth, fitPage, goToPage } from '../pdf/renderer.js';
 import { draaiVanafKnop } from '../pdf/pagina-draaien.js';
+import { weergaveVectorNaarPagina } from '../pdf/weergave-ruimte.js';
 import { activeTab } from '../solid/stores/leftPanelStore.js';
 import { savePDF, savePDFAs } from '../pdf/saver.js';
 import { toggleAnnotationsListPanel } from '../ui/panels/annotations-list.js';
@@ -556,6 +557,9 @@ export async function handleKeydown(e) {
       else if (e.key === 'ArrowRight') dx = step;
       else if (e.key === 'ArrowUp') dy = -step;
       else if (e.key === 'ArrowDown') dy = step;
+      // De pijl wijst een richting op het SCHERM aan; bij een gedraaide
+      // weergave (#200) is dat op de pagina een andere richting.
+      ({ x: dx, y: dy } = weergaveVectorNaarPagina(dx, dy, nudgeDoc));
 
       if (movable.length > 1) {
         const originals = movable.map(a => ({ ...a }));

@@ -58,6 +58,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "视图已顺时针旋转 {{degrees}}°；文档未更改。单击可将视图转回。",
   "filledAreaSketch": {
     "undoPoint": "撤销点",
     "undoPointTitle": "删除最后一个点（退格键）",

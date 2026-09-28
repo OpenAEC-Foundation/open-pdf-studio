@@ -59,6 +59,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "La vista està girada {{degrees}}° en sentit horari; el document no ha canviat. Feu clic per tornar la vista a la posició original.",
   "filledAreaSketch": {
     "undoPoint": "Desfés punt",
     "undoPointTitle": "Elimina l'últim punt (Retrocés)",

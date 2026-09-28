@@ -12,6 +12,26 @@ import { parseEditorDom } from '../../text/editor-dom-parse.js';
 // het bewerken de bron van waarheid; elke invoer wordt geparseerd naar runs
 // per regel ({ text, bold, italic }) in de store.
 
+// Draaiing (graden rechtsom) van de editor, uit zijn transform-stijl: een
+// gedraaide pagina of een gedraaide weergave (#200) draait de editor mee.
+function editorHoek(st) {
+  const m = /rotate\((-?\d+(?:\.\d+)?)deg\)/.exec(String(st?.transform || ''));
+  const hoek = m ? Number(m[1]) : 0;
+  return ((Math.round(hoek) % 360) + 360) % 360;
+}
+
+// Afstand langs de regel (de x-as van de editor) tussen het begin van de
+// regel en een element, uit hun schermrechthoeken. Staat de editor een
+// kwartslag gedraaid, dan loopt die as op het scherm verticaal of terug.
+function xLangsRegel(elRect, lijnRect, hoek) {
+  switch (hoek) {
+    case 90: return elRect.top - lijnRect.top;
+    case 180: return lijnRect.right - elRect.right;
+    case 270: return lijnRect.bottom - elRect.bottom;
+    default: return elRect.left - lijnRect.left;
+  }
+}
+
 function escapeHtml(s) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
@@ -85,10 +105,11 @@ export default function PdfTextEditOverlay() {
     if (!spacers.length) return;
     const st = editorStyle() || {};
     const grid = parseFloat(st['tab-size']) || 0;
+    const hoek = editorHoek(st);
     for (const sp of spacers) {
       const lijn = sp.closest('div') || editorRef;
       sp.style.width = '0px';
-      const x = sp.getBoundingClientRect().left - lijn.getBoundingClientRect().left;
+      const x = xLangsRegel(sp.getBoundingClientRect(), lijn.getBoundingClientRect(), hoek);
       let doel = Number(sp.dataset.stop);
       if (!Number.isFinite(doel)) {
         doel = grid > 1 ? (Math.floor(x / grid) + 1) * grid : x + 24;
@@ -228,9 +249,15 @@ export default function PdfTextEditOverlay() {
 
   const gripStyle = () => {
     const st = editorStyle() || {};
-    const left = (parseFloat(st.left) || 0) - 16;
-    const top = (parseFloat(st.top) || 0) - 2;
+    // Het handvat staat 16 px links en 2 px boven de linkerbovenhoek van de
+    // editor, langs de assen van de editor: draait die (gedraaide pagina of
+    // weergave, #200), dan draait het handvat mee.
+    const hoek = editorHoek(st);
+    const rad = (hoek * Math.PI) / 180;
+    const left = (parseFloat(st.left) || 0) - 16 * Math.cos(rad) + 2 * Math.sin(rad);
+    const top = (parseFloat(st.top) || 0) - 16 * Math.sin(rad) - 2 * Math.cos(rad);
     return {
+      ...(hoek ? { transform: `rotate(${hoek}deg)`, 'transform-origin': '0 0' } : {}),
       position: st.position || 'fixed',
       left: `${left}px`,
       top: `${top}px`,

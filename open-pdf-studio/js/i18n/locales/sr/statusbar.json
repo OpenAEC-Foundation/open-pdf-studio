@@ -59,6 +59,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "Приказ је ротиран за {{degrees}}° у смеру казаљке на сату; документ није промењен. Кликните да бисте вратили приказ.",
   "filledAreaSketch": {
     "undoPoint": "Опозови тачку",
     "undoPointTitle": "Уклони последњу тачку (Backspace)",

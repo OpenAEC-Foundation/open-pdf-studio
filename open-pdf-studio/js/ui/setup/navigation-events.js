@@ -1,6 +1,6 @@
 import { state, getActiveDocument } from '../../core/state.js';
 import { goToPage } from '../../pdf/renderer.js';
-import { viewport, zoomStepAtPoint, suppressNextFit, addPanVelocity, stopPanMomentum } from '../../pdf/pdf-viewport.js';
+import { viewport, zoomStepAtPoint, suppressNextFit, addPanVelocity, stopPanMomentum, schermPaginaMaat } from '../../pdf/pdf-viewport.js';
 import { getTool } from '../../tools/tool-registry.js';
 
 // ─── Wheel Zoom + Pan + Page Navigation ───────────────────────────────────
@@ -172,8 +172,10 @@ export function setupWheelZoom() {
 
       const dx = e.deltaX || 0;
       const dy = e.deltaY || 0;
-      const pageScreenH = viewport.pageH * viewport.zoom;
-      const pageScreenW = viewport.pageW * viewport.zoom;
+      // Maat op het scherm: na paginarotatie en weergaverotatie (#200).
+      const _schermMaat = schermPaginaMaat();
+      const pageScreenH = _schermMaat.h * viewport.zoom;
+      const pageScreenW = _schermMaat.w * viewport.zoom;
       // CSS-pixels, niet de backing-store. viewport.offsetY/zoom rekenen in
       // CSS-pixels; `pdfCanvas.height` is dpr maal zo groot. Op een scherm met
       // dpr > 1 maakte dat het kijkvenster kunstmatig hoog, waardoor "onderaan
@@ -285,7 +287,7 @@ function _viewportHeightCss() {
 // top of the viewport (so the user can keep scrolling down through it).
 function alignPageToTop() {
   const vpH = _viewportHeightCss();
-  const pageScreenH = viewport.pageH * viewport.zoom;
+  const pageScreenH = schermPaginaMaat().h * viewport.zoom;
   viewport.offsetY = (vpH > 0 && pageScreenH <= vpH)
     ? (vpH - pageScreenH) / 2
     : 0;
@@ -297,7 +299,7 @@ function alignPageToTop() {
 function alignPageToBottom() {
   const vpH = _viewportHeightCss();
   if (!vpH) return;
-  const pageScreenH = viewport.pageH * viewport.zoom;
+  const pageScreenH = schermPaginaMaat().h * viewport.zoom;
   viewport.offsetY = (pageScreenH <= vpH)
     ? (vpH - pageScreenH) / 2
     : vpH - pageScreenH;

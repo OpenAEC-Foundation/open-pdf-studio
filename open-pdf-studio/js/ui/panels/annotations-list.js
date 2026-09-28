@@ -4,6 +4,7 @@ import { showProperties, showMultiSelectionProperties } from './properties-panel
 import { goToPage } from '../../pdf/renderer.js';
 import { viewport, markAnchored, stopPanMomentum } from '../../pdf/pdf-viewport.js';
 import { redrawAnnotations } from '../../annotations/rendering.js';
+import { paginaNaarWeergave } from '../../pdf/weergave-ruimte.js';
 import { switchLeftPanelTab } from './left-panel.js';
 import {
   leftPanelCollapsed, leftPanelActiveTab as activeTab,
@@ -338,8 +339,13 @@ function scrollToAnnotation(annotation) {
   const pdfContainer = document.getElementById('pdf-container');
   if (!pdfContainer) return;
 
-  const centerX = (bounds.x + bounds.width / 2) * scale;
-  const centerY = (bounds.y + bounds.height / 2) * scale;
+  // Het midden zoals het op het scherm ligt: bij een gedraaide weergave (#200)
+  // staat het elders dan in de paginaruimte. Viewport en scrollcontainer
+  // rekenen in de weergaveruimte.
+  const midden = paginaNaarWeergave(annotation.page ?? doc?.currentPage ?? 1,
+    bounds.x + bounds.width / 2, bounds.y + bounds.height / 2, doc);
+  const centerX = midden.x * scale;
+  const centerY = midden.y * scale;
 
   // Enkelpagina met de vector-viewport (issue #318): daar scrollt de
   // container NIET — het canvas staat vast en pannen/zoomen gebeurt via
@@ -353,10 +359,10 @@ function scrollToAnnotation(annotation) {
     const dpr = window.devicePixelRatio || 1;
     const vpW = canvas.width / dpr;   // CSS-px
     const vpH = canvas.height / dpr;
-    // Annotatie-coördinaten (app-ruimte, punten, oorsprong linksboven) zijn
-    // dezelfde wereld-ruimte als de viewport gebruikt.
-    const cx = bounds.x + bounds.width / 2;
-    const cy = bounds.y + bounds.height / 2;
+    // De viewport rekent in de weergaveruimte (punten, oorsprong linksboven
+    // van de getoonde, eventueel gedraaide pagina).
+    const cx = midden.x;
+    const cy = midden.y;
     stopPanMomentum();
     viewport.offsetX = vpW / 2 - cx * viewport.zoom;
     viewport.offsetY = vpH / 2 - cy * viewport.zoom;

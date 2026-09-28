@@ -107,7 +107,9 @@ test('mislukt het draaien halverwege, dan sluit de stap toch en wordt er geteken
 
 test('lint, sneltoets, mobiele knop en contextmenu draaien via deze module', () => {
   const bron = (pad) => readFileSync(new URL(pad, import.meta.url), 'utf8');
-  for (const pad of ['../solid/components/ribbon/OrganizeTab.jsx', '../solid/components/ribbon/ViewTab.jsx',
+  // De knoppen op het tabblad Beeld draaien sinds #200 alleen de weergave
+  // (weergave-draaien.js), niet de pagina's; zie weergave-draaien.test.mjs.
+  for (const pad of ['../solid/components/ribbon/OrganizeTab.jsx',
     '../tools/keyboard-handlers.js', '../solid/MobileApp.jsx']) {
     assert.match(bron(pad), /draaiVanafKnop\(/, pad);
     assert.doesNotMatch(bron(pad), /\brotatePage\(/, pad);

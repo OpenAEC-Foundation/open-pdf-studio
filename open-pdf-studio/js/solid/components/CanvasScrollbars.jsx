@@ -1,12 +1,15 @@
 import { onCleanup, onMount, createMemo } from 'solid-js';
 import { state } from '../../core/state.js';
-import { viewport } from '../../pdf/pdf-viewport.js';
+import { viewport, schermPaginaMaat } from '../../pdf/pdf-viewport.js';
 
 // Optional X/Y scrollbars overlaid on the PDF canvas viewport.
 // - Hidden by default (preference `showScrollbars`).
 // - Each scrollbar only shown when its axis overflows the canvas.
 // - Dragging the thumb pans the viewport (mirrors viewport.offsetX/Y).
 // - Does NOT replace existing pan/zoom; this is an additional input.
+//
+// Paginamaat op het scherm = na paginarotatie én weergaverotatie (#200):
+// schermPaginaMaat(), niet de ongedraaide viewport.pageW/pageH.
 //
 // Implementation note: viewport state is a plain object (not reactive),
 // so we drive the bars from a RAF loop that reads viewport every frame
@@ -48,8 +51,8 @@ export default function CanvasScrollbars() {
     }
     const css = getCanvasCssSize();
     if (!css) return;
-    const pageW = viewport.pageW * viewport.zoom;
-    const pageH = viewport.pageH * viewport.zoom;
+    const pageW = schermPaginaMaat().w * viewport.zoom;
+    const pageH = schermPaginaMaat().h * viewport.zoom;
 
     // Horizontal
     if (pageW > css.w + 0.5) {
@@ -98,17 +101,17 @@ export default function CanvasScrollbars() {
     e.stopPropagation();
     dragging = axis;
     if (axis === 'h') {
-      const pageW = viewport.pageW * viewport.zoom;
+      const pageW = schermPaginaMaat().w * viewport.zoom;
       dragOverflow = pageW - css.w;
-      const vVisible = (viewport.pageH * viewport.zoom) > css.h + 0.5;
+      const vVisible = (schermPaginaMaat().h * viewport.zoom) > css.h + 0.5;
       dragTrackPx = css.w - (vVisible ? SB_SIZE : 0);
       dragThumbPx = parseFloat(hThumbRef.style.width) || 20;
       dragStartClient = e.clientX;
       dragStartOffset = viewport.offsetX;
     } else {
-      const pageH = viewport.pageH * viewport.zoom;
+      const pageH = schermPaginaMaat().h * viewport.zoom;
       dragOverflow = pageH - css.h;
-      const hVisible = (viewport.pageW * viewport.zoom) > css.w + 0.5;
+      const hVisible = (schermPaginaMaat().w * viewport.zoom) > css.w + 0.5;
       dragTrackPx = css.h - (hVisible ? SB_SIZE : 0);
       dragThumbPx = parseFloat(vThumbRef.style.height) || 20;
       dragStartClient = e.clientY;

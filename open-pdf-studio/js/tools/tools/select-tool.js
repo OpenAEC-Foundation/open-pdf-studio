@@ -1,4 +1,12 @@
 import { getActiveDocument } from '../../core/state.js';
+import { paginaVectorNaarWeergave } from '../../pdf/weergave-ruimte.js';
+
+// Sleeprichting op het SCHERM: bij een gedraaide weergave (#200) is naar links
+// slepen op het scherm niet naar links op de pagina.
+function kruisSelectie(state, x, y) {
+  const opScherm = paginaVectorNaarWeergave(x - state.rubberBandStartX, y - state.rubberBandStartY);
+  return opScherm.x < 0 ? 'crossing' : 'window';
+}
 import { applyToolTransform, getEffectiveScale } from '../tool-context.js';
 import { HANDLE_TYPES } from '../../core/constants.js';
 import { recordModify } from '../../core/undo-manager.js';
@@ -372,7 +380,7 @@ export const selectTool = {
     if (state.isRubberBanding) {
       // AutoCAD-style: drag right → window (blue, solid),
       // drag left → crossing (green, dashed).
-      state.rubberBandMode = x < state.rubberBandStartX ? 'crossing' : 'window';
+      state.rubberBandMode = kruisSelectie(state, x, y);
       state.rubberBandEndX = x;
       state.rubberBandEndY = y;
       ctx.redraw();
@@ -469,7 +477,7 @@ export const selectTool = {
     // Rubber band selection end
     if (state.isRubberBanding) {
       state.isRubberBanding = false;
-      const mode = state.rubberBandMode || (x < state.rubberBandStartX ? 'crossing' : 'window');
+      const mode = state.rubberBandMode || kruisSelectie(state, x, y);
       const modifier = state.rubberBandModifier || 'replace';
 
       const rbX = Math.min(state.rubberBandStartX, x);

@@ -157,7 +157,11 @@
     "keystrokes": "Keystrokes",
     "readerMode": "Læsetilstand",
     "readerModeTip": "Husker side, rulleposition og zoom for denne PDF, når den lukkes og åbnes igen. Så længe funktionen er slået til, ligger der en lille fil ved siden af denne PDF, så den også vises i mapper, der synkroniseres med skyen (OneDrive, Dropbox osv.); når du slår den fra, fjernes filen.",
-    "readerModeSaveFailed": "Læsetilstand kunne ikke gemme indstillingen for denne PDF. Mappen er muligvis skrivebeskyttet."
+    "readerModeSaveFailed": "Læsetilstand kunne ikke gemme indstillingen for denne PDF. Mappen er muligvis skrivebeskyttet.",
+    "rotateViewLeft": "Roter visning til venstre",
+    "rotateViewRight": "Roter visning til højre",
+    "rotateViewLeftTitle": "Roterer visningen 90° mod uret. Selve dokumentet ændres ikke.",
+    "rotateViewRightTitle": "Roterer visningen 90° med uret. Selve dokumentet ændres ikke."
   },
   "organize": {
     "pages": "Sider",

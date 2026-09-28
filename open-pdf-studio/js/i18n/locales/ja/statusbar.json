@@ -58,6 +58,7 @@
   "viewContinuous": "Continuous",
   "viewBook": "Two Pages",
   "viewFacing": "Two Pages Side by Side",
+  "viewRotatedTitle": "表示は時計回りに{{degrees}}°回転しています。文書は変更されていません。クリックすると表示を元に戻します。",
   "filledAreaSketch": {
     "undoPoint": "点を元に戻す",
     "undoPointTitle": "最後の点を削除（Backspace）",

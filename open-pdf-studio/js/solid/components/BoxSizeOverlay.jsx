@@ -4,6 +4,7 @@ import { state, getActiveDocument } from '../../core/state.js';
 import { getMeasureScale } from '../../annotations/measurement.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 import { klemMaat } from '../../annotations/minimummaat.js';
+import { paginaRectNaarClient } from '../../pdf/weergave-ruimte.js';
 
 // Temporary width/height "dimensions" for a selected rectangle — two small
 // editable fields floating next to the selection. Values are in measured
@@ -48,19 +49,13 @@ export default function BoxSizeOverlay() {
     if (!ann) { setPos(null); return; }
     const doc = getActiveDocument();
     if (doc?.viewMode === 'continuous') { setPos(null); return; } // v1: single-page only
-    const canvas = document.getElementById('annotation-canvas');
-    if (!canvas) { setPos(null); return; }
-    const rect = canvas.getBoundingClientRect();
-    const vp = window.__pdfViewport;
-    let sx, sy;
-    if (vp && vp.active && doc?.filePath) {
-      sx = rect.left + (ann.x + ann.width) * vp.zoom + vp.offsetX;
-      sy = rect.top + ann.y * vp.zoom + vp.offsetY;
-    } else {
-      const scale = doc?.scale || 1.5;
-      sx = rect.left + (ann.x + ann.width) * scale;
-      sy = rect.top + ann.y * scale;
-    }
+    // Rechts naast het vak zoals het op het scherm staat: via de centrale
+    // omrekening, zodat ook een gedraaide weergave (#200) klopt.
+    const opScherm = paginaRectNaarClient(ann.page ?? doc?.currentPage ?? 1,
+      { x: ann.x, y: ann.y, width: ann.width, height: ann.height }, doc);
+    if (!opScherm) { setPos(null); return; }
+    const sx = opScherm.left + opScherm.width;
+    const sy = opScherm.top;
     setPos({ x: sx + 10, y: Math.max(8, sy) });
   }
 

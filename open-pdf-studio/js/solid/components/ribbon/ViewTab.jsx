@@ -19,8 +19,7 @@ import { panelVisible as elementVisibilityPanelVisible, toggleElementVisibilityP
 import { panelVisible as annotationLayersPanelVisible, toggleAnnotationLayersPanel } from '../../stores/annotationLayersStore.js';
 import { collapsed as leftPanelCollapsed } from '../../stores/leftPanelStore.js';
 import { state, noPdf, getActiveDocument } from '../../../core/state.js';
-import { isPdfAReadOnly } from '../../../pdf/loader.js';
-import { draaiVanafKnop } from '../../../pdf/pagina-draaien.js';
+import { draaiWeergave } from '../../../pdf/weergave-draaien.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { openDialog, showMessage } from '../../stores/dialogStore.js';
 import { readerTrackingPath } from '../../../core/reader-mode-tracking.js';
@@ -30,9 +29,11 @@ import { compareActive, exitCompare } from '../../../compare/compare-store.js';
 export default function ViewTab() {
   const { t } = useTranslation('ribbon');
 
-  // Zelfde undo-bare paginarotatie als op de Organiseren-tab; hier ook
-  // aangeboden omdat draaien tijdens het bekijken een veelgebruikte actie is.
-  const rotateCurrentPage = (delta) => draaiVanafKnop(delta);
+  // Weergave draaien (#200): alleen het beeld draait, het document niet.
+  // Geen bewerking, dus ook bij een alleen-lezen (PDF/A-)document beschikbaar
+  // en niet ongedaan te maken. Pagina's echt draaien (opgeslagen, ongedaan
+  // te maken) staat op het tabblad Bewerken & combineren.
+  const rotateView = (delta) => draaiWeergave(delta);
 
   return (
     <div class="ribbon-content active" id="tab-view">
@@ -61,10 +62,10 @@ export default function ViewTab() {
               && !!state.documents[state.activeDocumentIndex]?.facingSpread}
             disabled={noPdf()} onClick={() => setViewMode('facing')} />
           <RibbonButtonStack>
-            <RibbonButton size="small" id="view-rotate-left" title={t('home.rotateLeft')} icon={rotateLeftIcon} label={t('home.rotateLeft')}
-              disabled={noPdf() || isPdfAReadOnly()} onClick={() => rotateCurrentPage(-90)} />
-            <RibbonButton size="small" id="view-rotate-right" title={t('home.rotateRight')} icon={rotateRightIcon} label={t('home.rotateRight')}
-              disabled={noPdf() || isPdfAReadOnly()} onClick={() => rotateCurrentPage(90)} />
+            <RibbonButton size="small" id="view-rotate-left" title={t('view.rotateViewLeftTitle')} icon={rotateLeftIcon} label={t('view.rotateViewLeft')}
+              disabled={noPdf()} onClick={() => rotateView(-90)} />
+            <RibbonButton size="small" id="view-rotate-right" title={t('view.rotateViewRightTitle')} icon={rotateRightIcon} label={t('view.rotateViewRight')}
+              disabled={noPdf()} onClick={() => rotateView(90)} />
           </RibbonButtonStack>
         </RibbonGroup>
 

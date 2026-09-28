@@ -157,7 +157,11 @@
     "keystrokes": "Keystrokes",
     "readerMode": "Lukutila",
     "readerModeTip": "Muistaa tämän PDF:n sivun, vierityskohdan ja zoomauksen sulkemisen ja uudelleenavaamisen välillä. Kun toiminto on päällä, tämän PDF:n viereen tallennetaan pieni tiedosto, joten se näkyy myös pilveen synkronoiduissa kansioissa (OneDrive, Dropbox jne.); toiminnon poistaminen käytöstä poistaa tiedoston.",
-    "readerModeSaveFailed": "Lukutila ei voinut tallentaa tämän PDF:n asetusta. Kansio saattaa olla vain luku -tilassa."
+    "readerModeSaveFailed": "Lukutila ei voinut tallentaa tämän PDF:n asetusta. Kansio saattaa olla vain luku -tilassa.",
+    "rotateViewLeft": "Kierrä näkymää vasemmalle",
+    "rotateViewRight": "Kierrä näkymää oikealle",
+    "rotateViewLeftTitle": "Kiertää näkymää 90° vastapäivään. Itse asiakirja ei muutu.",
+    "rotateViewRightTitle": "Kiertää näkymää 90° myötäpäivään. Itse asiakirja ei muutu."
   },
   "organize": {
     "pages": "Sivut",

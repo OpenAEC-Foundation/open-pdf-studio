@@ -157,7 +157,11 @@
     "keystrokes": "Keystrokes",
     "readerMode": "Mode lecture",
     "readerModeTip": "Mémorise la page, la position de défilement et le zoom de ce PDF entre deux ouvertures. Tant que l'option est activée, un petit fichier est conservé à côté de ce PDF ; il apparaît donc aussi dans les dossiers synchronisés avec le cloud (OneDrive, Dropbox, etc.). La désactiver supprime ce fichier.",
-    "readerModeSaveFailed": "Le mode lecture n'a pas pu enregistrer son réglage pour ce PDF. Le dossier est peut-être en lecture seule."
+    "readerModeSaveFailed": "Le mode lecture n'a pas pu enregistrer son réglage pour ce PDF. Le dossier est peut-être en lecture seule.",
+    "rotateViewLeft": "Faire pivoter l'affichage à gauche",
+    "rotateViewRight": "Faire pivoter l'affichage à droite",
+    "rotateViewLeftTitle": "Fait pivoter l'affichage de 90° dans le sens antihoraire. Le document lui-même ne change pas.",
+    "rotateViewRightTitle": "Fait pivoter l'affichage de 90° dans le sens horaire. Le document lui-même ne change pas."
   },
   "organize": {
     "pages": "Pages",

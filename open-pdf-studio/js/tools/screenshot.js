@@ -10,6 +10,24 @@ import { generateImageId } from '../utils/helpers.js';
 import { recordAdd } from '../core/undo-manager.js';
 import { showProperties } from '../ui/panels/properties-panel.js';
 import { layerForNewAnnotation } from '../annotations/annotatie-lagen.js';
+import { viewportGeometrie, rectNaarPagina, normaliseerRotatie, isKwartslag } from '../pdf/weergave-rotatie.js';
+import { paginaMaat, weergaveRotatie, weergaveRectNaarPagina } from '../pdf/weergave-ruimte.js';
+
+// Weergave draaien (#200): een schermafdruk hoort eruit te zien zoals de
+// gebruiker de pagina ziet. De scherpe render gebeurt in de paginaruimte;
+// draai hem daarna over de weergaverotatie (rechtsom).
+function draaiCanvas(canvas, rotatie) {
+  const r = normaliseerRotatie(rotatie);
+  if (!r || !canvas) return canvas;
+  const uit = document.createElement('canvas');
+  uit.width = isKwartslag(r) ? canvas.height : canvas.width;
+  uit.height = isKwartslag(r) ? canvas.width : canvas.height;
+  const ctx = uit.getContext('2d');
+  ctx.translate(uit.width / 2, uit.height / 2);
+  ctx.rotate((r * Math.PI) / 180);
+  ctx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+  return uit;
+}
 
 function mergeCanvases(pdfCanvasEl, annotationCanvasEl) {
   const merged = document.createElement('canvas');
@@ -95,30 +113,36 @@ function _capturePageNum(doc) {
 
 // Map a selection rect (CSS px relative to `container`) to app-space
 // (page points, top-left origin — the space annotations live in).
-// Returns null when there is no document.
+// Returns null when there is no document. Een gedraaide weergave (#200) wordt
+// teruggedraaid: het resultaat staat altijd in de paginaruimte.
 function _selectionToAppRect(sel, container) {
   const doc = getActiveDocument();
   if (!doc) return null;
   const vp = window.__pdfViewport;
   if (doc.viewMode !== 'continuous' && vp && vp.active && doc.filePath) {
-    return {
+    const g = viewportGeometrie(vp);
+    const r = rectNaarPagina({
       x: (sel.left - vp.offsetX) / vp.zoom,
       y: (sel.top - vp.offsetY) / vp.zoom,
-      w: sel.width / vp.zoom,
-      h: sel.height / vp.zoom,
-      pageW: vp.pageW,
-      pageH: vp.pageH,
-    };
+      width: sel.width / vp.zoom,
+      height: sel.height / vp.zoom,
+    }, g.paginaBreedte, g.paginaHoogte, g.rotatie);
+    return { x: r.x, y: r.y, w: r.width, h: r.height, pageW: g.paginaBreedte, pageH: g.paginaHoogte };
   }
-  // Continuous mode / legacy: the container maps 1:1 onto the page at doc.scale.
+  // Continuous mode / legacy: the container maps 1:1 onto the (possibly
+  // rotated) page at doc.scale.
   const s = doc.scale || 1.5;
+  const pagina = _capturePageNum(doc);
+  const r = weergaveRectNaarPagina(pagina, { x: sel.left / s, y: sel.top / s, width: sel.width / s, height: sel.height / s }, doc);
+  const maat = paginaMaat(pagina, doc);
+  const draai = isKwartslag(weergaveRotatie(doc));
   return {
-    x: sel.left / s,
-    y: sel.top / s,
-    w: sel.width / s,
-    h: sel.height / s,
-    pageW: container.offsetWidth / s,
-    pageH: container.offsetHeight / s,
+    x: r.x,
+    y: r.y,
+    w: r.width,
+    h: r.height,
+    pageW: maat ? maat.breedte : (draai ? container.offsetHeight : container.offsetWidth) / s,
+    pageH: maat ? maat.hoogte : (draai ? container.offsetWidth : container.offsetHeight) / s,
   };
 }
 
@@ -139,11 +163,15 @@ function _fullPageAppRect(container) {
   if (!doc) return null;
   const vp = window.__pdfViewport;
   if (doc.viewMode !== 'continuous' && vp && vp.active && doc.filePath && vp.pageW > 0 && vp.pageH > 0) {
-    return { x: 0, y: 0, w: vp.pageW, h: vp.pageH, pageW: vp.pageW, pageH: vp.pageH };
+    // Paginaruimte: na de paginarotatie (viewport.pageW/pageH zijn de maat daarvóór).
+    const g = viewportGeometrie(vp);
+    return { x: 0, y: 0, w: g.paginaBreedte, h: g.paginaHoogte, pageW: g.paginaBreedte, pageH: g.paginaHoogte };
   }
   const s = doc.scale || 1.5;
-  const w = container.offsetWidth / s;
-  const h = container.offsetHeight / s;
+  const maat = paginaMaat(_capturePageNum(doc), doc);
+  const draai = isKwartslag(weergaveRotatie(doc));
+  const w = maat ? maat.breedte : (draai ? container.offsetHeight : container.offsetWidth) / s;
+  const h = maat ? maat.hoogte : (draai ? container.offsetWidth : container.offsetHeight) / s;
   if (!(w >= 1) || !(h >= 1)) return null;
   return { x: 0, y: 0, w, h, pageW: w, pageH: h };
 }
@@ -273,9 +301,17 @@ export async function screenshotFullPage() {
   } catch (e) {
     console.warn('[screenshot] high-res page capture failed, using screen crop:', e);
   }
-  if (!out) out = mergeCanvases(canvases.pdfCanvas, canvases.annotationCanvas);
-  // A full-page capture can be overlaid on another page too (whole-floor compare).
-  _storeLastCapture(out, pageRect, _capturePageNum(doc));
+  const rotatie = weergaveRotatie(doc);
+  if (out) {
+    // A full-page capture can be overlaid on another page too (whole-floor
+    // compare): bewaren in de paginaruimte, opslaan zoals op het scherm.
+    _storeLastCapture(out, pageRect, _capturePageNum(doc));
+    await copyAndSave(draaiCanvas(out, rotatie));
+    return;
+  }
+  // Terugval: het scherm staat al in de gedraaide stand.
+  out = mergeCanvases(canvases.pdfCanvas, canvases.annotationCanvas);
+  _storeLastCapture(draaiCanvas(out, -rotatie), pageRect, _capturePageNum(doc));
   await copyAndSave(out);
 }
 
@@ -339,13 +375,16 @@ export function startRegionScreenshot() {
       }
 
       // Preferred path: re-render the selected region at high resolution.
+      // Die render staat in de paginaruimte; het scherm kan gedraaid zijn (#200).
       let cropped = null;
+      let croppedInPaginaruimte = false;
       const captureDoc = getActiveDocument();
       const capturePage = _capturePageNum(captureDoc);
       const appRect = _clampAppRect(_selectionToAppRect(sel, container));
       try {
         if (captureDoc && appRect) {
           cropped = await _renderRegionHighRes(capturePage, appRect);
+          croppedInPaginaruimte = !!cropped;
         }
       } catch (e) {
         console.warn('[screenshot] high-res region capture failed, using screen crop:', e);
@@ -371,11 +410,16 @@ export function startRegionScreenshot() {
       }
 
       // Keep the capture around so it can be placed as an overlay
-      // annotation on another page ("verdiepingen vergelijken").
-      _storeLastCapture(cropped, appRect, capturePage);
+      // annotation on another page ("verdiepingen vergelijken"): in de
+      // paginaruimte, want de overlay landt op dezelfde paginacoördinaten.
+      // Naar het klembord en het bestand gaat hij zoals op het scherm.
+      const rotatie = weergaveRotatie(captureDoc);
+      const paginaBeeld = croppedInPaginaruimte ? cropped : draaiCanvas(cropped, -rotatie);
+      const schermBeeld = croppedInPaginaruimte ? draaiCanvas(cropped, rotatie) : cropped;
+      _storeLastCapture(paginaBeeld, appRect, capturePage);
 
       cleanupOverlayMount();
-      await copyAndSave(cropped);
+      await copyAndSave(schermBeeld);
     },
     () => {
       // Cancelled
