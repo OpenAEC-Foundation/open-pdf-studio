@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "לא ניתן לטעון חתימות",
     "layersCount": "{{count}} שכבות",
     "noLayers": "אין שכבות במסמך זה",
+    "layerToggleUnavailable": "הפעלה וכיבוי של שכבות עדיין אינם זמינים",
     "fieldsCount": "{{count}} שדות",
     "noFormFields": "אין שדות טופס במסמך זה",
     "couldNotLoadFormFields": "לא ניתן לטעון שדות טופס",

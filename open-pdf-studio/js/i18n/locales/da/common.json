@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Kunne ikke indlæse signaturer",
     "layersCount": "{{count}} lag",
     "noLayers": "Ingen lag i dette dokument",
+    "layerToggleUnavailable": "Det er endnu ikke muligt at slå lag til og fra",
     "fieldsCount": "{{count}} felter",
     "noFormFields": "Ingen formularfelter i dette dokument",
     "couldNotLoadFormFields": "Kunne ikke indlæse formularfelter",

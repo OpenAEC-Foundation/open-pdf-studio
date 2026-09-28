@@ -22,23 +22,25 @@ function redraw() {
   }
 }
 
-// Show properties panel for a single annotation
-export function showProperties(annotation) {
+// Show properties panel for a single annotation. A caller that redraws right
+// after (undo/redo) passes { redraw: false }, so the canvas is drawn once.
+export function showProperties(annotation, options) {
   clearTextSelection();
   const doc = state.documents[state.activeDocumentIndex];
   if (doc) {
     doc.selectedAnnotation = annotation;
   }
   storeShowProperties(annotation);
-  redraw();
+  if (options?.redraw !== false) redraw();
 }
 
-// Hide properties (deselect annotation, show doc info)
-export function hideProperties() {
+// Hide properties (deselect annotation, show doc info). { redraw: false } as
+// with showProperties.
+export function hideProperties(options) {
   const doc = getActiveDocument();
   if (doc) { doc.selectedAnnotation = null; doc.selectedAnnotations = []; }
   storeHideProperties();
-  redraw();
+  if (options?.redraw !== false) redraw();
 }
 
 // Collapse the properties panel (keeps the vertical strip visible)

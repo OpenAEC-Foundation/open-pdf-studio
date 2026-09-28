@@ -8,13 +8,12 @@ name: Nightly Build
 #
 # Trigger options:
 #   - Manual: Actions tab → "Nightly Build" → Run workflow
+#     (`gh workflow run nightly.yml --ref main`)
 #   - Push to main: every commit (disabled by default; uncomment the push block)
-#   - Daily cron at 04:00 UTC
+#   - No daily schedule: builds only run when someone asks for one
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 4 * * *'
   # Uncomment to also build on every push to main:
   # push:
   #   branches: [main]

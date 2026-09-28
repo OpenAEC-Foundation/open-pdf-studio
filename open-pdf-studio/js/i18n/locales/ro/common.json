@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Nu s-au putut incarca semnaturile",
     "layersCount": "{{count}} straturi",
     "noLayers": "Nu exista straturi in acest document",
+    "layerToggleUnavailable": "Activarea si dezactivarea straturilor nu sunt inca disponibile",
     "fieldsCount": "{{count}} campuri",
     "noFormFields": "Nu exista campuri de formular in acest document",
     "couldNotLoadFormFields": "Nu s-au putut incarca campurile de formular",

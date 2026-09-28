@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "بارگذاری امضاها ممکن نشد",
     "layersCount": "{{count}} لایه",
     "noLayers": "هیچ لایه‌ای در این سند وجود ندارد",
+    "layerToggleUnavailable": "روشن و خاموش کردن لایه‌ها هنوز در دسترس نیست",
     "fieldsCount": "{{count}} فیلد",
     "noFormFields": "هیچ فیلد فرمی در این سند وجود ندارد",
     "couldNotLoadFormFields": "بارگذاری فیلدهای فرم ممکن نشد",

@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Impossible de charger les signatures",
     "layersCount": "{{count}} calques",
     "noLayers": "Aucun calque dans ce document",
+    "layerToggleUnavailable": "L’affichage et le masquage des calques ne sont pas encore disponibles",
     "fieldsCount": "{{count}} champs",
     "noFormFields": "Aucun champ de formulaire dans ce document",
     "couldNotLoadFormFields": "Impossible de charger les champs de formulaire",

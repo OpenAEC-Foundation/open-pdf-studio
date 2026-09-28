@@ -6,6 +6,7 @@ import { buildSchedule } from '../../quantities/engine.js';
 // Koppelt de label-hook van quantities/categories.js aan i18next (side-effect).
 import '../../quantities/label-i18n.js';
 import { getMeasureScale } from '../../annotations/measurement.js';
+import { metSchaalBronnen } from '../../annotations/schaal-bronnen.js';
 import { countTallies } from './countStore.js';
 import { scheduleVisible, setScheduleVisible, toggleSchedule } from './scheduleStore.js';
 
@@ -76,7 +77,9 @@ function countCatName(categoryId) {
 /** Alle elementen: annotaties (count verrijkt met telcategorie-naam) + native tekst. */
 function collectElements() {
   const doc = getActiveDocument();
-  const anns = (doc?.annotations || []).map(a => {
+  // Eén doorloop: de schaalbronnen van het document worden één keer verzameld
+  // in plaats van per element opnieuw uit de hele annotatielijst (#491).
+  const anns = metSchaalBronnen(() => (doc?.annotations || []).map(a => {
     if (a.type === 'count') return { ...a, __countCatName: countCatName(a.categoryId) };
     // Lijnen/pijlen zonder eigen measureValue: schaal meegeven zodat de
     // LENGTE-kolom een werkelijke lengte in meter kan tonen.
@@ -90,19 +93,34 @@ function collectElements() {
       return a.measureUnit ? a : withScale(a);
     }
     return a;
-  });
+  }));
   const bi = selectedCategories().includes('text-built-in') ? builtInText() : [];
   return [...anns, ...bi];
 }
 
-export const scheduleResult = createMemo(() => buildSchedule(collectElements(), {
-  categories: selectedCategories(),
-  fields: scheduledFields(),
-  filters: filters(),
-  sort: sortLevels(),
-  itemize: itemize(),
-  format: format(),
-}));
+function computeSchedule() {
+  return buildSchedule(collectElements(), {
+    categories: selectedCategories(),
+    fields: scheduledFields(),
+    filters: filters(),
+    sort: sortLevels(),
+    itemize: itemize(),
+    format: format(),
+  });
+}
+
+// Alleen zolang het hoeveelhedenpaneel open staat houdt een memo de staat bij.
+// Een Solid-memo rekent bij elke wijziging meteen opnieuw, ook zonder lezer:
+// met het paneel dicht kostte zo elke toevoeging, verwijdering of ongedaan-stap
+// een volledige herberekening (#491). Dicht leest de memo alleen
+// scheduleVisible(); gaat het paneel open, dan rekent hij vers.
+const scheduleInView = createMemo(() => (scheduleVisible() ? computeSchedule() : null));
+
+/** De hoeveelhedenstaat van het actieve document. Met het paneel open uit de
+ *  memo; anders op verzoek berekend (zonder bij te houden). */
+export function scheduleResult() {
+  return scheduleInView() ?? computeSchedule();
+}
 
 /** Laadt native PDF-tekst van de huidige pagina als text-built-in pseudo-elementen. */
 export async function loadBuiltInText() {

@@ -22,6 +22,7 @@ import { convertPdfAnnotation } from './loader/annotation-converter.js';
 import { statusReplyFromPdfAnnotation, applyStatusReplies } from './loader/status-replies.js';
 import { loadIfNeeded } from './queued-load.js';
 import { leesAnnotatieLagen, pasGelezenLagenToe } from './saver/annotatie-lagen.js';
+import { voegAnnotatiesToe } from './loader/annotaties-toevoegen.js';
 
 
 // Convert one batch of pdf.js annotations and push them to doc.annotations,
@@ -30,11 +31,15 @@ import { leesAnnotatieLagen, pasGelezenLagenToe } from './saver/annotatie-lagen.
 // Review-status replies (Text + /IRT + /State, issue #308) worden hier ook
 // herkend: die worden NIET als losse sticky note gepusht maar als status
 // op de doel-annotatie gezet.
+// De hele reeks gaat pas aan het eind, in één keer, in doc.annotations (zie
+// annotaties-toevoegen.js): losse pushes lieten per annotatie alles opnieuw
+// rekenen wat de lijst leest.
 async function _convertAndPushAnnotations(annots, pageNum, viewport, stampImageMap, annotColorMap, doc) {
   const textboxByRect = new Map();
   const byPdfId = new Map();
   const pendingLeaders = [];
   const pendingStatuses = [];
+  const nieuw = [];
   for (const annot of annots) {
     const statusReply = statusReplyFromPdfAnnotation(annot);
     if (statusReply) {
@@ -51,12 +56,12 @@ async function _convertAndPushAnnotations(annots, pageNum, viewport, stampImageM
       textboxByRect.set(converted._pdfRectKey, converted);
     }
     if (annot.id) byPdfId.set(annot.id, converted);
-    doc.annotations.push(converted);
+    nieuw.push(converted);
     // Sommige converters leveren EXTRA annotaties naast de hoofdannotatie
     // (bv. een legacy meerpunts-betonbalk die in losse tweepunts-balken
     // gesplitst wordt). Die worden hier mee-gepusht.
     if (Array.isArray(converted.__extraAnnotations)) {
-      for (const extra of converted.__extraAnnotations) doc.annotations.push(extra);
+      for (const extra of converted.__extraAnnotations) nieuw.push(extra);
       delete converted.__extraAnnotations;
     }
   }
@@ -69,6 +74,7 @@ async function _convertAndPushAnnotations(annots, pageNum, viewport, stampImageM
   }
   for (const tb of textboxByRect.values()) delete tb._pdfRectKey;
   applyStatusReplies(pendingStatuses, byPdfId);
+  voegAnnotatiesToe(doc, nieuw);
 }
 
 // Cache for original PDF bytes (used by saver to avoid re-reading)

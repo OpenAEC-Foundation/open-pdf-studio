@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Не вдалося завантажити підписи",
     "layersCount": "{{count}} шарів",
     "noLayers": "У цьому документі немає шарів",
+    "layerToggleUnavailable": "Увімкнення та вимкнення шарів поки що недоступне",
     "fieldsCount": "{{count}} полів",
     "noFormFields": "У цьому документі немає полів форми",
     "couldNotLoadFormFields": "Не вдалося завантажити поля форми",

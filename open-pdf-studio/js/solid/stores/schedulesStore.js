@@ -9,6 +9,7 @@ import { buildSchedule } from '../../quantities/engine.js';
 // Koppelt de label-hook van quantities/categories.js aan i18next (side-effect).
 import '../../quantities/label-i18n.js';
 import { getMeasureScale } from '../../annotations/measurement.js';
+import { metSchaalBronnen } from '../../annotations/schaal-bronnen.js';
 import { countTallies } from './countStore.js';
 import { STANDARD_SCHEDULE_TEMPLATES, getTemplateById } from '../../quantities/schedule-templates.js';
 
@@ -43,11 +44,12 @@ function countCatName(categoryId) {
 /** Alle annotaties van het actieve document, verrijkt zoals de engine verwacht. */
 function collectElements() {
   const doc = getActiveDocument();
-  return (doc?.annotations || []).map(a => {
+  // Eén doorloop: de schaalbronnen één keer verzamelen, niet per lijn (#491).
+  return metSchaalBronnen(() => (doc?.annotations || []).map(a => {
     if (a.type === 'count') return { ...a, __countCatName: countCatName(a.categoryId) };
     if (LENGTH_TYPES.has(a.type) && typeof a.measureValue !== 'number') return withLengthScale(a);
     return a;
-  });
+  }));
 }
 
 // --- Persistente lijst van schedules ---

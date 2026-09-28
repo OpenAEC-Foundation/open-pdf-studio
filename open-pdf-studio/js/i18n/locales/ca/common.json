@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "No s'han pogut carregar les signatures",
     "layersCount": "{{count}} capes",
     "noLayers": "No hi ha capes en aquest document",
+    "layerToggleUnavailable": "Encara no es poden activar i desactivar les capes",
     "fieldsCount": "{{count}} camps",
     "noFormFields": "No hi ha camps de formulari en aquest document",
     "couldNotLoadFormFields": "No s'han pogut carregar els camps de formulari",

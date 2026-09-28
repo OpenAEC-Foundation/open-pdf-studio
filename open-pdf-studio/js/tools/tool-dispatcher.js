@@ -1,3 +1,4 @@
+import { batch } from 'solid-js';
 import { state, getActiveDocument } from '../core/state.js';
 import { resolvePointerCoords, buildToolContext, isModalOpen, applyToolTransform, getEffectiveScale } from './tool-context.js';
 import { getTool } from './tool-registry.js';
@@ -341,7 +342,10 @@ function _verwerkWachtendeMove() {
   _moveRafId = 0;
   const ev = _wachtendeMove;
   _wachtendeMove = null;
-  if (ev) _handlePointerMoveNu(ev);
+  // Eén reactieve update per beeldframe: verslepen schrijft x én y (en
+  // vergroten tot vier velden); zonder batch liep alles wat de annotatie
+  // volgt per geschreven veld opnieuw (#491).
+  if (ev) batch(() => _handlePointerMoveNu(ev));
 }
 
 // Laat een uitgestelde move alsnog los vóór pointerup/pointerdown, zodat de

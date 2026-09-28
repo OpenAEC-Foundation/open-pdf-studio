@@ -83,6 +83,7 @@
     "couldNotLoadSignatures": "Неуспешно зареждане на подписи",
     "layersCount": "{{count}} слоя",
     "noLayers": "Няма слоеве в този документ",
+    "layerToggleUnavailable": "Включването и изключването на слоеве все още не е налично",
     "fieldsCount": "{{count}} полета",
     "noFormFields": "Няма полета на формуляр в този документ",
     "couldNotLoadFormFields": "Неуспешно зареждане на полета на формуляр",

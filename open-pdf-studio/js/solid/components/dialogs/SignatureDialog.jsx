@@ -9,6 +9,7 @@ import { redrawAnnotations, redrawContinuous } from '../../../annotations/render
 import { updateStatusMessage } from '../../../ui/chrome/status-bar.js';
 import { generateImageId } from '../../../utils/helpers.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { createSignaturePad } from '../../../annotations/signature-pad.js';
 
 const STORAGE_KEY = 'pdfEditorSignatures';
 const MAX_SAVED = 5;
@@ -141,12 +142,9 @@ export default function SignatureDialog(props) {
   const [strokeColor, setStrokeColor] = createSignal('#000000');
   const [savedSigs, setSavedSigs] = createSignal(getSavedSignatures());
 
-  let canvasRef;
-  let ctx;
-  let isDrawing = false;
-  let strokes = [];
-  let currentStroke = null;
-  let canvasSnapshot = null;
+  // The Draw tab builds a new canvas each time it is shown again; the pad
+  // follows whichever canvas is on screen (see signature-pad.js, #492).
+  const pad = createSignaturePad();
 
   const close = () => closeDialog('signature');
 
@@ -154,87 +152,43 @@ export default function SignatureDialog(props) {
     setSavedSigs(getSavedSignatures());
   }
 
-  function drawStroke(stroke) {
-    if (!ctx || stroke.points.length < 2) return;
-    ctx.strokeStyle = stroke.color;
-    ctx.beginPath();
-    ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
-    for (let i = 1; i < stroke.points.length; i++) {
-      ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
-    }
-    ctx.stroke();
-  }
-
-  function redrawCanvas() {
-    if (!ctx || !canvasRef) return;
-    ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    for (const stroke of strokes) {
-      drawStroke(stroke);
-    }
+  function padPoint(e) {
+    const rect = pad.canvas.getBoundingClientRect();
+    return [e.clientX - rect.left, e.clientY - rect.top];
   }
 
   function startDraw(e) {
-    if (!ctx || !canvasRef) return;
-    isDrawing = true;
-    const rect = canvasRef.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    currentStroke = { color: strokeColor(), points: [{ x, y }] };
-    canvasSnapshot = ctx.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    if (!pad.canvas) return;
+    const [x, y] = padPoint(e);
+    pad.begin(x, y, strokeColor());
   }
 
   function continueDraw(e) {
-    if (!isDrawing || !currentStroke || !ctx || !canvasRef) return;
-    const rect = canvasRef.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    currentStroke.points.push({ x, y });
-    ctx.putImageData(canvasSnapshot, 0, 0);
-    drawStroke(currentStroke);
+    if (!pad.canvas) return;
+    const [x, y] = padPoint(e);
+    pad.extend(x, y);
   }
 
   function endDraw() {
-    if (isDrawing && currentStroke && currentStroke.points.length > 1) {
-      strokes.push(currentStroke);
-    }
-    currentStroke = null;
-    canvasSnapshot = null;
-    isDrawing = false;
-  }
-
-  function undoLastStroke() {
-    if (strokes.length === 0) return;
-    strokes.pop();
-    redrawCanvas();
-  }
-
-  function clearCanvas() {
-    strokes = [];
-    currentStroke = null;
-    if (ctx && canvasRef) {
-      ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    }
+    pad.end();
   }
 
   function handlePlace() {
-    if (strokes.length === 0) {
+    if (!pad.hasInk()) {
       showMessage(t('signature.drawFirst'));
       return;
     }
-    const dataUrl = getCroppedDataUrl(canvasRef);
+    const dataUrl = getCroppedDataUrl(pad.canvas);
     placeSignatureFromDataUrl(dataUrl, placeX, placeY, strokeColor(), t);
     close();
   }
 
   function handleSaveAndPlace() {
-    if (strokes.length === 0) {
+    if (!pad.hasInk()) {
       showMessage(t('signature.drawFirst'));
       return;
     }
-    const dataUrl = getCroppedDataUrl(canvasRef);
+    const dataUrl = getCroppedDataUrl(pad.canvas);
     saveSignatureToStorage(dataUrl);
     placeSignatureFromDataUrl(dataUrl, placeX, placeY, strokeColor(), t);
     close();
@@ -255,18 +209,11 @@ export default function SignatureDialog(props) {
     if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
       e.preventDefault();
       e.stopPropagation();
-      undoLastStroke();
+      pad.undo();
     }
   }
 
   onMount(() => {
-    if (canvasRef) {
-      ctx = canvasRef.getContext('2d');
-      ctx.lineWidth = 2;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.strokeStyle = strokeColor();
-    }
     document.addEventListener('keydown', onKeyDown, true);
   });
 
@@ -291,14 +238,11 @@ export default function SignatureDialog(props) {
           type="color"
           class="sig-color-input"
           value={strokeColor()}
-          onInput={(e) => {
-            setStrokeColor(e.target.value);
-            if (ctx) ctx.strokeStyle = e.target.value;
-          }}
+          onInput={(e) => setStrokeColor(e.target.value)}
         />
       </div>
       <div class="sig-footer-right">
-        <button class="pref-btn pref-btn-secondary" onClick={clearCanvas}>{tCommon('clear')}</button>
+        <button class="pref-btn pref-btn-secondary" onClick={() => pad.clear()}>{tCommon('clear')}</button>
         <button
           class="pref-btn pref-btn-secondary"
           style="color:#0078d4; border-color:#0078d4;"
@@ -334,7 +278,7 @@ export default function SignatureDialog(props) {
       <Show when={activeTab() === 'draw'}>
         <div class="sig-draw-panel">
           <canvas
-            ref={canvasRef}
+            ref={(el) => pad.attach(el)}
             width={CANVAS_WIDTH}
             height={CANVAS_HEIGHT}
             onMouseDown={startDraw}
