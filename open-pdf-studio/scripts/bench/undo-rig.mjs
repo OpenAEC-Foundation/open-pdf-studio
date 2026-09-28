@@ -13,7 +13,7 @@
 //        [--pdf=<copy of a real PDF>] [--mix] [--list] [--out=<file.json>]
 //
 // Per count N the active document (a new blank one, or --pdf) gets N
-// synthetic 'box' annotations (with --mix: boxes, lines, measured distances
+// synthetic 'box' annotations next to its own (0: only its own) (with --mix: boxes, lines, measured distances
 // and areas plus a scale bar). --list keeps the annotation list in the left
 // panel open during the run (by default the thumbnails are shown, as when
 // the app starts). Times in ms, median over --reps:
@@ -51,7 +51,7 @@ const arg = (name, dflt) => {
 };
 const MCP = `http://127.0.0.1:${arg('mcp', '9305')}/mcp`;
 const CDP = `http://127.0.0.1:${arg('cdp', '9405')}`;
-const COUNTS = arg('counts', '100,500,1000,2000').split(',').map(Number).filter(Boolean);
+const COUNTS = arg('counts', '100,500,1000,2000').split(',').filter((c) => c !== '').map(Number).filter((c) => c >= 0);
 const REPS = Number(arg('reps', '3'));
 const MODES = arg('mode', 'undo,modify').split(',');
 const PROFILE_AT = Number(arg('profile', '0'));
@@ -180,6 +180,22 @@ async function openDocument() {
   if (PDF) {
     const r = await tool('app_open_pdf', { path: PDF });
     if (!r?.ok) throw new Error(`open failed: ${JSON.stringify(r)}`);
+    // The annotations of a real file can arrive page by page: wait until
+    // their number has been stable for a second.
+    const loaded = await page.evaluate(async () => {
+      const b = window.__bench491;
+      let last = -1;
+      let stableSince = performance.now();
+      const start = performance.now();
+      while (performance.now() - start < 60000) {
+        const n = b.doc()?.annotations?.length ?? -1;
+        if (n !== last) { last = n; stableSince = performance.now(); }
+        if (n >= 0 && performance.now() - stableSince > 1500) break;
+        await new Promise((res) => setTimeout(res, 250));
+      }
+      return last;
+    });
+    console.log(`opened ${PDF}: ${loaded} annotations`);
   } else {
     const r = await tool('app_new_blank_pdf', { widthPt: 595, heightPt: 842 });
     if (!r?.ok) throw new Error(`blank pdf failed: ${JSON.stringify(r)}`);
