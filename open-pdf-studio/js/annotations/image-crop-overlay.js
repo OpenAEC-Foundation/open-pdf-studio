@@ -25,6 +25,7 @@ import { redrawAnnotations, redrawContinuous } from './rendering.js';
 import { recordPropertyChange } from '../core/undo-manager.js';
 import { showProperties } from '../ui/panels/properties-panel.js';
 import { fracties, volledigVak, vensterOpVak, fractiesNaSleep, rectNaBijsnijden } from './crop-geometrie.js';
+import { weergaveRotatie } from '../pdf/weergave-ruimte.js';
 
 // De annotatie die bijgesneden wordt (null = inactief).
 let _cropAnn = null;
@@ -114,10 +115,13 @@ function onPointerMove(e) {
     const local = toLocal(e, _cropAnn);
     const h = hitHandle(local, _cropAnn);
     if (annotationCanvas) {
+      // Bij een kwartslag gedraaide weergave (#200) staat een zijgreep op het
+      // scherm andersom: horizontaal wordt verticaal en de diagonalen wisselen.
+      const kwart = weergaveRotatie() % 180 !== 0;
+      const zij = (h === 'l' || h === 'r') !== kwart ? 'ew-resize' : 'ns-resize';
+      const diag = (h === 'tl' || h === 'br') !== kwart ? 'nwse-resize' : 'nesw-resize';
       annotationCanvas.style.cursor = h
-        ? ((h === 'l' || h === 'r') ? 'ew-resize'
-          : (h === 't' || h === 'b') ? 'ns-resize'
-          : (h === 'tl' || h === 'br') ? 'nwse-resize' : 'nesw-resize')
+        ? ((h === 'l' || h === 'r' || h === 't' || h === 'b') ? zij : diag)
         : 'default';
     }
     return;

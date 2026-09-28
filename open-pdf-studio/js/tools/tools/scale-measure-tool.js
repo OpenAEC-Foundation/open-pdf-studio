@@ -13,6 +13,7 @@
  */
 import { setTool } from '../manager.js';
 import { applyToolTransform } from '../tool-context.js';
+import { zetRechtopRond } from '../../pdf/weergave-ruimte.js';
 
 // Module-level flow + picking state (survives across pointer events).
 let _flow = null; // { onDone(pixelDistance), onCancel() }
@@ -147,6 +148,8 @@ export const scaleMeasureTool = {
     const distMm = distPts * 25.4 / 72;
     const midX = (p1.x + curX) / 2;
     const midY = (p1.y + curY) / 2;
+    // Rechtop op het scherm, ook in een gedraaide weergave (#200).
+    zetRechtopRond(canvasCtx, midX, midY);
     canvasCtx.font = `${11 / scale}px Arial`;
     canvasCtx.fillStyle = '#00AAFF';
     canvasCtx.textAlign = 'center';

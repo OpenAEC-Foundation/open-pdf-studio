@@ -5,6 +5,7 @@
 import { setCalibrationPixelDistance, setActiveTab } from '../../solid/stores/ribbonStore.js';
 import { setTool } from '../manager.js';
 import { applyToolTransform } from '../tool-context.js';
+import { zetRechtopRond } from '../../pdf/weergave-ruimte.js';
 
 export const calibrationPickTool = {
   name: 'calibrationPick',
@@ -102,6 +103,8 @@ export const calibrationPickTool = {
     const dist = Math.sqrt(dx * dx + dy * dy);
     const midX = (p1.x + snapX) / 2;
     const midY = (p1.y + snapY) / 2;
+    // Rechtop op het scherm, ook in een gedraaide weergave (#200).
+    zetRechtopRond(canvasCtx, midX, midY);
     canvasCtx.font = `${11}px Arial`;
     canvasCtx.fillStyle = '#00AAFF';
     canvasCtx.textAlign = 'center';

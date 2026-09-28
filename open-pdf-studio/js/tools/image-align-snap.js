@@ -20,6 +20,7 @@
 // "overlay after redraw" pattern the resize grip line already uses.
 
 import { state } from '../core/state.js';
+import { zetRechtopRond } from '../pdf/weergave-ruimte.js';
 
 // A very large extent so guide lines visually span the page; the canvas clips.
 const GUIDE_EXTENT = 50000;
@@ -304,6 +305,9 @@ function _drawEqualSize(ctx, g, scale) {
     const tw = ctx.measureText(label).width;
     const lx = isW ? g.box.x + g.box.w + 4 / scale : g.box.x + 4 / scale;
     const ly = isW ? g.box.y - 8 / scale : g.box.y - 4 / scale;
+    ctx.save();
+    // Rechtop op het scherm, ook in een gedraaide weergave (#200).
+    zetRechtopRond(ctx, lx, ly);
     const prevFill = ctx.fillStyle;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
     ctx.fillRect(lx - 1 / scale, ly - fontSize, tw + 2 / scale, fontSize + 2 / scale);
@@ -311,5 +315,6 @@ function _drawEqualSize(ctx, g, scale) {
     ctx.textAlign = 'left';
     ctx.textBaseline = 'bottom';
     ctx.fillText(label, lx, ly);
+    ctx.restore();
   }
 }

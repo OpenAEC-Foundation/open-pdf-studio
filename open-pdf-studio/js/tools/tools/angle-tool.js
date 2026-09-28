@@ -1,5 +1,6 @@
 import { getActiveDocument } from '../../core/state.js';
 import { applyToolTransform } from '../tool-context.js';
+import { zetRechtopRond } from '../../pdf/weergave-ruimte.js';
 
 /**
  * Angle measurement tool — 3-click: point1, vertex, point2
@@ -156,11 +157,15 @@ export const measureAngleTool = {
       const labelR = arcR + 14;
       const lx = vertex.x + labelR * Math.cos(midAngle);
       const ly = vertex.y + labelR * Math.sin(midAngle);
+      canvasCtx.save();
+      // Rechtop op het scherm, ook in een gedraaide weergave (#200).
+      zetRechtopRond(canvasCtx, lx, ly);
       canvasCtx.font = '11px Arial';
       canvasCtx.fillStyle = color;
       canvasCtx.textAlign = 'center';
       canvasCtx.textBaseline = 'middle';
       canvasCtx.fillText(angleDeg.toFixed(1) + '\u00B0', lx, ly);
+      canvasCtx.restore();
     }
 
     canvasCtx.globalAlpha = 1;

@@ -28,6 +28,7 @@ import { viewport } from '../../pdf/pdf-viewport.js';
 import { handlePointerMove } from '../tool-dispatcher.js';
 import { vlakOmhullende } from '../../annotations/vlak-ringen.js';
 import { randkleurenUitVoorkeur } from '../../annotations/fill-utils.js';
+import { zetRechtopRond } from '../../pdf/weergave-ruimte.js';
 import {
   enterTypeLengthMode,
   exitTypeLengthMode,
@@ -374,10 +375,14 @@ export const filledAreaTool = {
     }
 
     if (arcState.active) {
+      canvasCtx.save();
+      // Rechtop op het scherm, ook in een gedraaide weergave (#200).
+      zetRechtopRond(canvasCtx, snapX, snapY);
       canvasCtx.font = '10px Arial';
       canvasCtx.fillStyle = strokeColor;
       canvasCtx.globalAlpha = 0.7;
       canvasCtx.fillText(`Arc (bulge: ${arcState.bulge.toFixed(2)})`, snapX + 12, snapY - 8);
+      canvasCtx.restore();
       canvasCtx.globalAlpha = opacity;
     }
 
@@ -708,10 +713,14 @@ function _drawHolesPhasePreview(ctx, cursorX, cursorY) {
 
   ctx.drawMeasureAreaShape(canvasCtx, outer, strokeColor, lineWidth, fillColor, borderStyle, completed.length > 0 ? completed : undefined, hatchOpts, SKETCH_FILL_PREVIEW_ALPHA);
 
+  // Rechtop op het scherm, ook in een gedraaide weergave (#200).
+  canvasCtx.save();
+  zetRechtopRond(canvasCtx, cursorX, cursorY);
   canvasCtx.font = '10px Arial';
   canvasCtx.fillStyle = strokeColor;
   canvasCtx.globalAlpha = 0.7;
   canvasCtx.fillText(i18next.t('statusbar:filledAreaSketch.holesPhaseHint'), cursorX + 12 / scale, cursorY - 4 / scale);
+  canvasCtx.restore();
   canvasCtx.globalAlpha = 1;
   canvasCtx.restore();
 }
