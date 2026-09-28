@@ -98,14 +98,29 @@ function collectElements() {
   return [...anns, ...bi];
 }
 
-export const scheduleResult = createMemo(() => buildSchedule(collectElements(), {
-  categories: selectedCategories(),
-  fields: scheduledFields(),
-  filters: filters(),
-  sort: sortLevels(),
-  itemize: itemize(),
-  format: format(),
-}));
+function computeSchedule() {
+  return buildSchedule(collectElements(), {
+    categories: selectedCategories(),
+    fields: scheduledFields(),
+    filters: filters(),
+    sort: sortLevels(),
+    itemize: itemize(),
+    format: format(),
+  });
+}
+
+// Alleen zolang het hoeveelhedenpaneel open staat houdt een memo de staat bij.
+// Een Solid-memo rekent bij elke wijziging meteen opnieuw, ook zonder lezer:
+// met het paneel dicht kostte zo elke toevoeging, verwijdering of ongedaan-stap
+// een volledige herberekening (#491). Dicht leest de memo alleen
+// scheduleVisible(); gaat het paneel open, dan rekent hij vers.
+const scheduleInView = createMemo(() => (scheduleVisible() ? computeSchedule() : null));
+
+/** De hoeveelhedenstaat van het actieve document. Met het paneel open uit de
+ *  memo; anders op verzoek berekend (zonder bij te houden). */
+export function scheduleResult() {
+  return scheduleInView() ?? computeSchedule();
+}
 
 /** Laadt native PDF-tekst van de huidige pagina als text-built-in pseudo-elementen. */
 export async function loadBuiltInText() {
