@@ -211,7 +211,7 @@ jobs:
         if: matrix.target == 'linux'
         run: |
           mkdir -p src-tauri/binaries/linux-x64
-          curl -L "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F7834/pdfium-linux-x64.tgz" -o /tmp/pdfium-linux.tgz
+          curl -L "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F8076/pdfium-linux-x64.tgz" -o /tmp/pdfium-linux.tgz
           tar xzf /tmp/pdfium-linux.tgz -C /tmp lib/libpdfium.so
           cp /tmp/lib/libpdfium.so src-tauri/binaries/linux-x64/libpdfium.so
 

@@ -191,12 +191,12 @@ jobs:
       # Linux uses in-proc PDFium (the worker sidecar is Windows-only), so the
       # AppImage must bundle libpdfium.so — referenced by tauri.linux.conf.json.
       # Fetch the same pdfium release as the committed win-x64/pdfium.dll
-      # (bblanchon chromium/7834) before bundling.
+      # (bblanchon chromium/8076) before bundling.
       - name: Fetch libpdfium.so (Linux)
         if: matrix.target == 'linux'
         run: |
           mkdir -p src-tauri/binaries/linux-x64
-          curl -L "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F7834/pdfium-linux-x64.tgz" -o /tmp/pdfium-linux.tgz
+          curl -L "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F8076/pdfium-linux-x64.tgz" -o /tmp/pdfium-linux.tgz
           tar xzf /tmp/pdfium-linux.tgz -C /tmp lib/libpdfium.so
           cp /tmp/lib/libpdfium.so src-tauri/binaries/linux-x64/libpdfium.so
 

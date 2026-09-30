@@ -18,8 +18,8 @@ test('native runtime preparation is a no-op outside macOS', () => {
 test('macOS uses the pinned universal PDFium runtime and checksum', () => {
   const plan = nativeRuntimePlan({ platform: 'darwin', projectDir: '/app' });
 
-  assert.equal(plan.version, '7834');
-  assert.equal(plan.sha256, '659e2f647ffd667b36487375165563e58f961db9cf75a45104dc59b9407ccbdf');
+  assert.equal(plan.version, '8076');
+  assert.equal(plan.sha256, '3bdb93e229298dfdf083dc8ccc7d1a8cf87790b6917e5073335504fe2ff0bdc1');
   assert.equal(plan.libraryPath, path.join('/app', 'src-tauri', 'binaries', 'macos-universal', 'libpdfium.dylib'));
   assert.equal(plan.metadataPath, `${plan.libraryPath}.runtime.json`);
   assert.equal(plan.url, PDFIUM_RUNTIME.url);

@@ -48,7 +48,7 @@ open-pdf-render = { path = "../../open-pdf-render" }
 # MPL-2.0). De app-crate bevat alleen de commando-schil in src/cad_export.rs.
 open-pdf-cad = { path = "../../open-pdf-cad" }
 image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }
-pdfium-render = { version = "0.9", features = ["thread_safe", "image_025"] }
+pdfium-render = { version = "0.9.4", features = ["thread_safe", "image_025"] }
 clap = { version = "4", features = ["derive"] }
 
 # OpenAEC Accounts ("Sign in with OpenAEC", accounts.rs): PKCE + OS-keyring

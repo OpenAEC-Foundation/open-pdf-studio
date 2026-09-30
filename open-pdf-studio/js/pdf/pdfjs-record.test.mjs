@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PDFDocument, PDFName } from 'pdf-lib';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
-import { pdfjsRecord } from './pdfjs-record.js';
+import { pdfjsRecord, viewportRectangle } from './pdfjs-record.js';
 
 test('PDF.js 6 form catalog remains usable as UI record and releases worker', async () => {
   const doc = await PDFDocument.create(); const page = doc.addPage();
@@ -22,4 +22,17 @@ test('PDF.js actions and absent catalogs normalize without changing original Map
   assert.deepEqual(pdfjsRecord(actions), { Blur: ['checkDate();'] });
   assert.ok(actions instanceof Map);
   assert.equal(pdfjsRecord(null), null);
+});
+
+test('viewportRectangle maps a PDF rectangle like the removed PDF.js method', async () => {
+  const doc = await PDFDocument.create(); doc.addPage([600, 800]);
+  const loading = getDocument({ data: await doc.save() });
+  try {
+    const page = await (await loading.promise).getPage(1);
+    const rect = [50, 100, 250, 300];
+    assert.deepEqual(viewportRectangle(page.getViewport({ scale: 1 }), rect), [50, 700, 250, 500]);
+    assert.deepEqual(viewportRectangle(page.getViewport({ scale: 2, rotation: 90 }), rect), [200, 100, 600, 500]);
+  } finally {
+    await loading.destroy();
+  }
 });

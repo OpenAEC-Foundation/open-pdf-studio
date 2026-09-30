@@ -141,6 +141,10 @@ async function schrijfNaarTijdelijkeMap(sleutel, bytes) {
   const map = await t.path.tempDir();
   const scheiding = (map.endsWith('\\') || map.endsWith('/')) ? '' : '/';
   const pad = `${map}${scheiding}opds-knipsel-${sleutel}.pdf`;
+  // De tijdelijke map staat niet vanzelf in de fs-scope; zonder dit lukt het
+  // schrijven alleen als iets anders hem eerder vrijgaf, en blijft een
+  // heropend knipsel een leeg kader.
+  await t.core.invoke('allow_fs_scope', { path: pad });
   await t.fs.writeFile(pad, bytes);
   return pad;
 }
