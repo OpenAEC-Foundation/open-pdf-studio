@@ -129,8 +129,8 @@ export function clearCachedPdfBytes(filePath) {
 // worker wordt door rollup als asset geëmit — zie assetFileNames in
 // vite.config.js).
 pdfjsLib.GlobalWorkerOptions.workerSrc = import.meta.env?.DEV
-  ? '/node_modules/pdfjs-dist/build/pdf.worker.mjs'
-  : new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).href;
+  ? '/node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs'
+  : new URL('pdfjs-dist/legacy/build/pdf.worker.mjs', import.meta.url).href;
 
 /**
  * Wrap doc.pdfDoc.getPage with a recovery layer that re-loads the doc when

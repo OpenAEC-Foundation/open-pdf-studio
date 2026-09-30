@@ -282,7 +282,7 @@ export async function savePDF(saveAsPath = null, opties = {}, activeDoc = getAct
 
   if (_saveBezig) {
     await _saveBezig.catch(() => {});
-    return savePDF(saveAsPath, opties, activeDoc);
+    return savePDF(saveAsPath, { ...opties, zonderHandtekeningVraag: true }, activeDoc);
   }
   if (!state.documents.includes(activeDoc)) return false;
   const doel = saveAsPath || activeDoc?.saveTargetPath || currentPath;

@@ -36,7 +36,7 @@ let _pdfjs = null;
 async function getPdfjs() {
   if (_pdfjs) return _pdfjs;
   const lib = await import('pdfjs-dist');
-  try { lib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).href; } catch (_) {}
+  try { lib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/legacy/build/pdf.worker.mjs', import.meta.url).href; } catch (_) {}
   _pdfjs = lib;
   return lib;
 }

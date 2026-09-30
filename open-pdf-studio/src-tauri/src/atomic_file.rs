@@ -21,8 +21,9 @@ fn write_with(path: &Path, write_bytes: impl FnOnce(&mut File) -> io::Result<()>
     // Follow existing symlinks, like an ordinary write, instead of replacing the link.
     let target = match fs::canonicalize(path) {
         Ok(target) => target,
-        Err(e) if e.kind() == io::ErrorKind::NotFound => path.to_path_buf(),
-        Err(e) => return Err(e),
+        // Not there yet, or a drive that cannot resolve paths (some network,
+        // RAM and virtual drives): write to the path as given.
+        Err(_) => path.to_path_buf(),
     };
     let permissions = match fs::metadata(&target) {
         Ok(meta) => {
@@ -63,8 +64,29 @@ fn write_with(path: &Path, write_bytes: impl FnOnce(&mut File) -> io::Result<()>
     })();
     drop(file);
     result?;
-    fs::rename(&staged.0, &target)?;
-    Ok(())
+    replace(&staged.0, &target)
+}
+
+/// Move the staged file over the destination. On Windows a rename fails while
+/// another program (a viewer, the preview pane, a virus scanner) holds the
+/// destination open without delete sharing; retry briefly, then write in place
+/// as the previous save did, which still works when that program allows writing.
+fn replace(staged: &Path, target: &Path) -> io::Result<()> {
+    let mut attempt = 0;
+    loop {
+        match fs::rename(staged, target) {
+            Ok(()) => return Ok(()),
+            Err(e) if cfg!(windows) && e.kind() == io::ErrorKind::PermissionDenied && target.is_file() => {
+                if attempt == 4 {
+                    fs::copy(staged, target)?;
+                    return Ok(());
+                }
+                std::thread::sleep(std::time::Duration::from_millis(25 << attempt));
+                attempt += 1;
+            }
+            Err(e) => return Err(e),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -118,6 +140,22 @@ mod tests {
         });
         assert!(result.is_err());
         assert_eq!(fs::read(path.join("keep")).unwrap(), b"untouched");
+        assert_eq!(fs::read_dir(&dir.0).unwrap().count(), 1);
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn replaces_file_held_open_without_delete_sharing() {
+        use std::os::windows::fs::OpenOptionsExt;
+        const FILE_SHARE_READ: u32 = 1;
+        const FILE_SHARE_WRITE: u32 = 2;
+        let dir = TestDir::new();
+        let path = dir.0.join("document.pdf");
+        fs::write(&path, b"original").unwrap();
+        let _viewer = OpenOptions::new().read(true)
+            .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE).open(&path).unwrap();
+        write(&path, b"replacement").unwrap();
+        assert_eq!(fs::read(&path).unwrap(), b"replacement");
         assert_eq!(fs::read_dir(&dir.0).unwrap().count(), 1);
     }
 

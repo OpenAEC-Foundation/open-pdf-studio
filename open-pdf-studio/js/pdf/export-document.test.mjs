@@ -3,7 +3,7 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { joinExportPath } from './export-path.js';
 
-const source = readFileSync(new URL('./exporter.js', import.meta.url), 'utf8');
+const source = readFileSync(new URL('./exporter.js', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
 const pageRangeSource = source.slice(source.indexOf('export function parsePageRange'),
   source.indexOf('/**\n * Render a single PDF page'))
   .replace('export function', 'function');
