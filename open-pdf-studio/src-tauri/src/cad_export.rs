@@ -49,6 +49,8 @@ struct ProgressEvent<'a> {
 }
 
 fn library(app: &tauri::AppHandle) -> Result<&'static PdfiumLibrary, String> {
+    // Binding calls FPDF_InitLibrary too; serialize it with the renderer.
+    let _pdfium = crate::pdfium_renderer::inproc_guard();
     if let Some(library) = LIBRARY.get() {
         return Ok(library);
     }

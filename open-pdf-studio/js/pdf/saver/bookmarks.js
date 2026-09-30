@@ -3,8 +3,7 @@ import { PDFName } from 'pdf-lib';
 import { pdfTextString } from './pdf-text.js';
 
 // Save bookmarks to PDF outline structure
-export function saveBookmarksToOutline(pdfDocLib) {
-  const doc = getActiveDocument();
+export function saveBookmarksToOutline(pdfDocLib, doc = getActiveDocument()) {
   const bookmarks = doc ? doc.bookmarks : [];
   const context = pdfDocLib.context;
   const catalog = context.lookup(context.trailerInfo.Root);

@@ -309,7 +309,10 @@ fn print_met_devmodes(
     let bytes = std::fs::read(pad).map_err(|e| format!("Read PDF: {e}"))?;
     let handle = pdfium_renderer::PdfiumDocumentHandle::load_from_bytes(Arc::new(bytes))?;
     let doc = handle.document();
-    let page_count = doc.pages().len() as u32;
+    let page_count = {
+        let _guard = pdfium_renderer::inproc_guard();
+        doc.pages().len() as u32
+    };
     if page_count == 0 {
         return Err("PDF has no pages".to_string());
     }

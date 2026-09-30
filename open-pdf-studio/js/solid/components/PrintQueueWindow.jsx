@@ -89,7 +89,7 @@ export default function PrintQueueWindow() {
       await page.render({ canvasContext: ctx, viewport: vp }).promise;
       const url = c.toDataURL('image/png');
       setThumbs(prev => ({ ...prev, [job.file]: url }));
-      try { doc.destroy(); } catch (_) {}
+      try { await doc.loadingTask.destroy(); } catch (_) {}
     } catch (_) { /* tile is best-effort */ }
   }
 

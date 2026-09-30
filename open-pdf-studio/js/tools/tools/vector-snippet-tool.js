@@ -84,7 +84,7 @@ export async function knipselVanVak(vak, paginaNr) {
 
   // De hele bronpagina gaat mee, niet het bijgesneden vak: dat is wat het
   // inbedden nodig heeft. Zie js/pdf/vector-embed.js.
-  const mini = await knipselAlsMiniPdf(bronBytes, paginaNr - 1, appRotatie);
+  const mini = await knipselAlsMiniPdf(bronBytes, paginaNr - 1, appRotatie, bron);
   const sleutel = bewaar(mini);
 
   return {

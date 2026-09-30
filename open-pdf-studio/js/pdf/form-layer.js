@@ -1,3 +1,4 @@
+import { pdfjsRecord } from './pdfjs-record.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { AnnotationLayer } from 'pdfjs-dist';
 import { showFormFieldsBar as showBar, hideFormFieldsBar as hideBar } from '../bridge.js';
@@ -10,7 +11,7 @@ import {
 } from './form-layer/validation-ui.js';
 
 // Map of annotation ID → field name (for saving)
-const annotIdToFieldName = new Map();
+const fieldNamesByPdf = new WeakMap();
 
 // Store references to form layers for cleanup
 const formLayers = new Map();
@@ -49,36 +50,38 @@ const simpleLinkService = {
 /**
  * Reset annotation storage for a new document.
  */
-export function resetAnnotationStorage() {
-  annotIdToFieldName.clear();
+export function resetAnnotationStorage(doc = getActiveDocument()) {
+  getAnnotIdToFieldName(doc).clear();
+  const storage = getAnnotationStorage(doc);
+  if (storage) storage.onSetModified = () => { doc.modified = true; };
+  if (doc !== getActiveDocument()) return;
   initializedRadioGroups.clear();
   annotButtonValues.clear();
   documentJS = null;
   jsConstants = null;
   jsFunctions = null;
-
-  const annotationStorage = getAnnotationStorage();
-  if (annotationStorage) {
-    annotationStorage.onSetModified = () => {
-      const doc = state.documents[state.activeDocumentIndex];
-      if (doc) doc.modified = true;
-    };
-  }
 }
 
-export function getAnnotationStorage() {
-  const doc = getActiveDocument();
+export function getAnnotationStorage(doc = getActiveDocument()) {
   return doc?.pdfDoc ? doc.pdfDoc.annotationStorage : null;
 }
 
-export function getAnnotIdToFieldName() {
-  return annotIdToFieldName;
+export function getAnnotIdToFieldName(doc = getActiveDocument()) {
+  if (!doc?.pdfDoc) return new Map();
+  let names = fieldNamesByPdf.get(doc.pdfDoc);
+  if (!names) {
+    names = new Map();
+    fieldNamesByPdf.set(doc.pdfDoc, names);
+  }
+  return names;
 }
 
 /**
  * Creates form layer for a PDF page
  */
 export async function createFormLayer(page, viewport, container, pageNum) {
+  const doc = getActiveDocument();
+  const annotIdToFieldName = getAnnotIdToFieldName(doc);
   const annotations = await page.getAnnotations({ intent: 'display' });
 
   const widgetAnnotations = annotations.filter(ann => ann.subtype === 'Widget');
@@ -94,7 +97,7 @@ export async function createFormLayer(page, viewport, container, pageNum) {
     }
   }
 
-  const annotationStorage = getAnnotationStorage();
+  const annotationStorage = getAnnotationStorage(doc);
   if (!annotationStorage) return null;
 
   const formLayerDiv = document.createElement('div');
@@ -127,7 +130,7 @@ export async function createFormLayer(page, viewport, container, pageNum) {
     try {
       const jsActions = await getActiveDocument()?.pdfDoc?.getJSActions();
       if (jsActions) {
-        documentJS = Object.values(jsActions).flat().join('\n');
+        documentJS = Object.values(pdfjsRecord(jsActions)).flat().join('\n');
         jsConstants = parseJSConstants(documentJS);
         jsFunctions = parseJSFunctions(documentJS);
       }
@@ -136,7 +139,7 @@ export async function createFormLayer(page, viewport, container, pageNum) {
     }
   }
 
-  applyFieldRestrictions(formLayerDiv, widgetAnnotations);
+  applyFieldRestrictions(formLayerDiv, widgetAnnotations.map(ann => ({ ...ann, actions: pdfjsRecord(ann.actions) })));
 
   formLayers.set(pageNum, formLayerDiv);
 
@@ -494,7 +497,7 @@ function applyFieldChanges(changes) {
     let found = false;
     const allLayers = document.querySelectorAll('.formLayer');
     for (const layer of allLayers) {
-      for (const [annId, fieldName] of annotIdToFieldName.entries()) {
+      for (const [annId, fieldName] of getAnnotIdToFieldName().entries()) {
         if (fieldName !== change.fieldName && !fieldName.startsWith(change.fieldName + '.')) continue;
 
         const section = layer.querySelector(`[data-annotation-id="${annId}"]`);

@@ -4,6 +4,7 @@
 #![recursion_limit = "256"]
 
 mod accounts;
+mod atomic_file;
 pub mod cad_export;
 pub mod cad_import;
 pub mod datamap;
@@ -208,8 +209,26 @@ fn read_file(path: String) -> Result<Vec<u8>, String> {
 #[tauri::command]
 fn write_file(path: String, data: String) -> Result<bool, String> {
     let bytes = BASE64.decode(&data).map_err(|e| e.to_string())?;
-    fs::write(&path, bytes).map_err(|e| e.to_string())?;
+    atomic_file::write(std::path::Path::new(&path), &bytes).map_err(|e| e.to_string())?;
     Ok(true)
+}
+
+#[tauri::command]
+async fn write_file_atomic(request: tauri::ipc::Request<'_>) -> Result<(), String> {
+    let header = request.headers().get("x-opds-path")
+        .ok_or("Missing destination path")?.to_str().map_err(|e| e.to_string())?;
+    let path = urlencoding::decode(header).map_err(|e| e.to_string())?.into_owned();
+    let bytes = match request.body() {
+        tauri::ipc::InvokeBody::Raw(bytes) => bytes.clone(),
+        // Android cannot transport a raw IPC body.
+        tauri::ipc::InvokeBody::Json(value) => {
+            serde_json::from_value::<Vec<u8>>(value.get("data").cloned().ok_or("Missing file data")?)
+                .map_err(|e| e.to_string())?
+        }
+    };
+    tauri::async_runtime::spawn_blocking(move || {
+        atomic_file::write(std::path::Path::new(&path), &bytes).map_err(|e| e.to_string())
+    }).await.map_err(|e| e.to_string())?
 }
 
 #[tauri::command]
@@ -1772,7 +1791,12 @@ async fn render_pdf_page(
                 return Ok(tauri::ipc::Response::new(data));
             }
             Err(e) => {
-                eprintln!("[render_pdf_page] pool render failed: {} — falling back to in-proc", e);
+                // A worker can die while parsing a malformed PDF. Retrying
+                // that same file inside the GUI process would move the native
+                // PDFium crash into the app itself (observed with Tekst.pdf).
+                // The pool already retries on a second worker; keep the
+                // failure isolated and let the UI show a render error.
+                return Err(format!("PDFium worker render failed: {e}"));
             }
         }
     }
@@ -1896,7 +1920,8 @@ async fn render_pdf_page_region(
 
     // Try the worker pool first: region tiles are small (fit the 64 MB SHM), so
     // they render in a SEPARATE process — safe for parallel/pre-cache rendering
-    // and off the main thread. Falls back to in-proc PDFium on any failure.
+    // and off the main thread. Only use in-proc PDFium if the pool never
+    // started; a worker crash must not be repeated inside the GUI process.
     if let Some(p) = pool.get() {
         match p
             .render_region(&path, page_index, scale, extra_rot, region_x_pt, region_y_pt, region_w_pt, region_h_pt, spread.unwrap_or(false))
@@ -1910,7 +1935,7 @@ async fn render_pdf_page_region(
                 return Ok(tauri::ipc::Response::new(data));
             }
             Err(e) => {
-                eprintln!("[render_pdf_page_region] pool failed: {} — in-proc fallback", e);
+                return Err(format!("PDFium worker region render failed: {e}"));
             }
         }
     }
@@ -2801,6 +2826,7 @@ pub fn run(opts: StartupOpts) {
             get_username,
             read_file,
             write_file,
+            write_file_atomic,
             file_exists,
             open_url,
             is_dev_mode,

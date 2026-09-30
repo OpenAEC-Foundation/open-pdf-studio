@@ -1,8 +1,14 @@
+import { isAnnotationHiddenInOutput } from '../annotations/view-filters.js';
+import { bereidKnipselsVoorUitvoer } from '../annotations/vector-snippet-preview.js';
 import { state, getActiveDocument, getAnnotationBounds } from '../core/state.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
-import { isTauri, writeBinaryFile, saveFileDialog, openFolderDialog } from '../core/platform.js';
+import { isTauri, writeBinaryFileAtomic, saveFileDialog, openFolderDialog } from '../core/platform.js';
 import { renderAnnotationsForPage, drawAnnotation } from '../annotations/rendering.js';
-import { getPageRotation } from '../core/state.js';
+import { showMessage } from '../bridge.js';
+import i18next from '../i18n/config.js';
+import { joinExportPath } from './export-path.js';
+import { canvasToTiffBytes } from './tiff.js';
+import { imageWithDpi } from './image-dpi.js';
 import { PDFDocument } from 'pdf-lib';
 
 /**
@@ -12,28 +18,28 @@ import { PDFDocument } from 'pdf-lib';
  * @returns {number[]} Array of 1-based page numbers, sorted and deduplicated
  */
 export function parsePageRange(rangeStr, totalPages) {
+  if (typeof rangeStr !== 'string' || !Number.isSafeInteger(totalPages) || totalPages < 1) return [];
   const pages = new Set();
   const parts = rangeStr.split(',');
 
   for (const part of parts) {
     const trimmed = part.trim();
-    if (!trimmed) continue;
-
-    const rangeParts = trimmed.split('-');
-    if (rangeParts.length === 2) {
-      const start = parseInt(rangeParts[0].trim(), 10);
-      const end = parseInt(rangeParts[1].trim(), 10);
-      if (isNaN(start) || isNaN(end)) continue;
+    const range = /^(\d+)\s*-\s*(\d+)$/.exec(trimmed);
+    if (range) {
+      const start = Number(range[1]);
+      const end = Number(range[2]);
+      if (!Number.isSafeInteger(start) || !Number.isSafeInteger(end)) return [];
       const lo = Math.max(1, Math.min(start, end));
       const hi = Math.min(totalPages, Math.max(start, end));
+      if (lo > hi) return [];
       for (let i = lo; i <= hi; i++) {
         pages.add(i);
       }
     } else {
-      const num = parseInt(trimmed, 10);
-      if (!isNaN(num) && num >= 1 && num <= totalPages) {
-        pages.add(num);
-      }
+      if (!/^\d+$/.test(trimmed)) return [];
+      const num = Number(trimmed);
+      if (!Number.isSafeInteger(num) || num < 1 || num > totalPages) return [];
+      pages.add(num);
     }
   }
 
@@ -59,8 +65,12 @@ export function parsePageRange(rangeStr, totalPages) {
  * @returns {Promise<HTMLCanvasElement>} The rendered canvas
  */
 export async function renderPageOffscreen(pageNum, exportScale, { deel = null, markeringen = true } = {}) {
-  const page = await getActiveDocument().pdfDoc.getPage(pageNum);
-  const extraRotation = getPageRotation(pageNum);
+  const doc = getActiveDocument();
+  const pdf = doc?.pdfDoc;
+  if (!pdf) throw new Error('No PDF document is open');
+  const page = await pdf.getPage(pageNum);
+  if (getActiveDocument() !== doc || doc.pdfDoc !== pdf) throw exportChanged();
+  const extraRotation = doc.pageRotations?.[pageNum] || 0;
   const viewportOpts = { scale: exportScale };
   if (extraRotation) {
     viewportOpts.rotation = (page.rotate + extraRotation) % 360;
@@ -87,9 +97,10 @@ export async function renderPageOffscreen(pageNum, exportScale, { deel = null, m
 
   const renderTask = page.render(renderContext);
   await renderTask.promise;
+  if (getActiveDocument() !== doc || doc.pdfDoc !== pdf) throw exportChanged();
 
   // Annotation layer on its own canvas, composited on top of the PDF below.
-  const annCanvas = renderMarkeringenOffscreen(pageNum, exportScale, viewport, { deel, markeringen });
+  const annCanvas = await renderMarkeringenOffscreen(pageNum, exportScale, viewport, { deel, markeringen });
 
   // Composite: draw annotations on top of PDF
   pdfCtx.drawImage(annCanvas, 0, 0);
@@ -108,7 +119,7 @@ export async function renderPageOffscreen(pageNum, exportScale, { deel = null, m
  * @param {{width:number, height:number}} viewport  the page at `exportScale`
  * @returns {HTMLCanvasElement}
  */
-export function renderMarkeringenOffscreen(pageNum, exportScale, viewport, { deel = null, markeringen = true } = {}) {
+export async function renderMarkeringenOffscreen(pageNum, exportScale, viewport, { deel = null, markeringen = true } = {}) {
   const annCanvas = document.createElement('canvas');
   annCanvas.width = deel ? deel.breedte : viewport.width;
   annCanvas.height = deel ? deel.hoogte : viewport.height;
@@ -116,10 +127,18 @@ export function renderMarkeringenOffscreen(pageNum, exportScale, viewport, { dee
 
   // Temporarily override state.scale so renderAnnotationsForPage uses export scale
   const doc = state.documents[state.activeDocumentIndex];
+  const pdf = doc.pdfDoc;
+  const snippetBitmaps = markeringen
+    ? await bereidKnipselsVoorUitvoer(doc.annotations.filter(a => a.page === pageNum && !isAnnotationHiddenInOutput(a)), exportScale)
+    : new Map();
+  if (getActiveDocument() !== doc || doc.pdfDoc !== pdf) {
+    for (const bmp of snippetBitmaps.values()) bmp.close();
+    throw exportChanged();
+  }
   const savedScale = doc.scale;
   doc.scale = exportScale;
   try {
-    const lagen = { uitvoer: true, markeringen };
+    const lagen = { uitvoer: true, markeringen, snippetBitmaps };
     if (deel) {
       // The same shift in page coordinates (scale 1); watermarks keep the whole page.
       renderAnnotationsForPage(annCtx, pageNum, annCanvas.width, annCanvas.height, 1,
@@ -132,6 +151,7 @@ export function renderMarkeringenOffscreen(pageNum, exportScale, viewport, { dee
   } finally {
     // Restore original scale
     doc.scale = savedScale;
+    for (const bmp of snippetBitmaps.values()) bmp.close();
   }
   return annCanvas;
 }
@@ -166,27 +186,38 @@ export function canvasToBytes(canvas, format, quality) {
 /**
  * Get the base name of the current PDF (without extension).
  */
-function getPdfBaseName() {
-  const doc = state.documents[state.activeDocumentIndex];
+function getPdfBaseName(doc = getActiveDocument()) {
   if (!doc) return 'document';
   const fileName = doc.fileName || 'document';
   return fileName.replace(/\.pdf$/i, '');
 }
 
+function exportChanged() {
+  return new Error(i18next.t('documentChangedDuringExport', {
+    defaultValue: 'The document changed during export. Start again.',
+  }));
+}
+
 /**
  * Export pages as image files (PNG or JPEG).
  * @param {Object} options
- * @param {string} options.format - 'png' or 'jpeg'
+ * @param {string} options.format - 'png', 'jpeg' or 'tiff'
  * @param {number} options.quality - JPEG quality (0-1), default 0.92
  * @param {number} options.dpi - Export resolution, default 150
  * @param {number[]} options.pages - Array of 1-based page numbers
  */
-export async function exportAsImages({ format = 'png', quality = 0.92, dpi = 150, pages }) {
-  if (!getActiveDocument()?.pdfDoc || !isTauri()) return;
+export async function exportAsImages({ format = 'png', quality = 0.92, dpi = 150, pages, includeAnnotations = true, doc = getActiveDocument() }) {
+  const pdf = doc?.pdfDoc, path = doc?.filePath;
+  if (!pdf || !isTauri()) return;
+  const ensureCurrent = () => {
+    if (getActiveDocument() !== doc || doc.pdfDoc !== pdf || doc.filePath !== path) throw exportChanged();
+  };
 
-  const ext = format === 'jpeg' ? 'jpg' : 'png';
+  if (!['png', 'jpeg', 'tiff'].includes(format)) throw new Error(`Unsupported image format: ${format}`);
+  const ext = format === 'jpeg' ? 'jpg' : format === 'tiff' ? 'tiff' : 'png';
   const exportScale = dpi / 72;
-  const baseName = getPdfBaseName();
+  if (getActiveDocument() !== doc) { showMessage(exportChanged().message); return false; }
+  const baseName = getPdfBaseName(doc);
 
   let outputPath = null;
   let folderPath = null;
@@ -196,7 +227,9 @@ export async function exportAsImages({ format = 'png', quality = 0.92, dpi = 150
     const defaultName = `${baseName}_page${String(pages[0]).padStart(4, '0')}.${ext}`;
     const filters = format === 'jpeg'
       ? [{ name: 'JPEG Images', extensions: ['jpg', 'jpeg'] }]
-      : [{ name: 'PNG Images', extensions: ['png'] }];
+      : format === 'tiff'
+        ? [{ name: 'TIFF Images', extensions: ['tif', 'tiff'] }]
+        : [{ name: 'PNG Images', extensions: ['png'] }];
     outputPath = await saveFileDialog(defaultName, filters);
     if (!outputPath) return;
   } else {
@@ -208,23 +241,32 @@ export async function exportAsImages({ format = 'png', quality = 0.92, dpi = 150
   showLoading('Exporting images...');
 
   try {
+    ensureCurrent();
     for (let i = 0; i < pages.length; i++) {
+      ensureCurrent();
       const pageNum = pages[i];
       showLoading(`Exporting page ${pageNum} of ${pages[pages.length - 1]}...`);
 
-      const canvas = await renderPageOffscreen(pageNum, exportScale);
-      const bytes = await canvasToBytes(canvas, format, quality);
+      const canvas = await renderPageOffscreen(pageNum, exportScale, { markeringen: includeAnnotations });
+      const bytes = format === 'tiff'
+        ? canvasToTiffBytes(canvas, dpi)
+        : imageWithDpi(await canvasToBytes(canvas, format, quality), format, dpi);
+      ensureCurrent();
 
       let filePath;
       if (pages.length === 1) {
         filePath = outputPath;
       } else {
         const fileName = `${baseName}_page${String(pageNum).padStart(4, '0')}.${ext}`;
-        filePath = `${folderPath}\\${fileName}`;
+        filePath = joinExportPath(folderPath, fileName);
       }
 
-      await writeBinaryFile(filePath, bytes);
+      await writeBinaryFileAtomic(filePath, bytes);
     }
+  } catch (error) {
+    console.error('[export images]', error);
+    showMessage(error?.message || String(error));
+    return false;
   } finally {
     hideLoading();
   }
@@ -236,10 +278,15 @@ export async function exportAsImages({ format = 'png', quality = 0.92, dpi = 150
  * @param {number} options.dpi - Export resolution, default 300
  * @param {number[]} options.pages - Array of 1-based page numbers
  */
-export async function exportAsRasterPdf({ dpi = 300, pages }) {
-  if (!getActiveDocument()?.pdfDoc || !isTauri()) return;
+export async function exportAsRasterPdf({ dpi = 300, pages, doc = getActiveDocument() }) {
+  const pdf = doc?.pdfDoc, path = doc?.filePath;
+  if (!pdf || !isTauri()) return;
+  const ensureCurrent = () => {
+    if (getActiveDocument() !== doc || doc.pdfDoc !== pdf || doc.filePath !== path) throw exportChanged();
+  };
 
-  const baseName = getPdfBaseName();
+  if (getActiveDocument() !== doc) { showMessage(exportChanged().message); return false; }
+  const baseName = getPdfBaseName(doc);
   const defaultName = `${baseName}_raster.pdf`;
 
   const outputPath = await saveFileDialog(defaultName, [
@@ -250,21 +297,25 @@ export async function exportAsRasterPdf({ dpi = 300, pages }) {
   showLoading('Exporting raster PDF...');
 
   try {
+    ensureCurrent();
     const exportScale = dpi / 72;
     const newPdf = await PDFDocument.create();
 
     for (let i = 0; i < pages.length; i++) {
+      ensureCurrent();
       const pageNum = pages[i];
       showLoading(`Rasterizing page ${pageNum} of ${pages[pages.length - 1]}...`);
 
       const canvas = await renderPageOffscreen(pageNum, exportScale);
       const jpegBytes = await canvasToBytes(canvas, 'jpeg', 0.92);
+      ensureCurrent();
 
       const jpegImage = await newPdf.embedJpg(jpegBytes);
 
       // Get original page dimensions (in PDF points)
-      const origPage = await getActiveDocument().pdfDoc.getPage(pageNum);
-      const extraRotation = getPageRotation(pageNum);
+      const origPage = await pdf.getPage(pageNum);
+      ensureCurrent();
+      const extraRotation = doc.pageRotations?.[pageNum] || 0;
       const origViewportOpts = { scale: 1 };
       if (extraRotation) {
         origViewportOpts.rotation = (origPage.rotate + extraRotation) % 360;
@@ -281,7 +332,8 @@ export async function exportAsRasterPdf({ dpi = 300, pages }) {
     }
 
     const pdfBytes = await newPdf.save();
-    await writeBinaryFile(outputPath, pdfBytes);
+    ensureCurrent();
+    await writeBinaryFileAtomic(outputPath, pdfBytes);
 
     // Open the rasterised result in a new tab. Each page is now a flat image,
     // so it renders identically in every viewer/printer — the reliable way to
@@ -294,6 +346,10 @@ export async function exportAsRasterPdf({ dpi = 300, pages }) {
     } catch (e) {
       console.error('Could not open raster PDF in a new tab:', e);
     }
+  } catch (error) {
+    console.error('[export raster PDF]', error);
+    showMessage(error?.message || String(error));
+    return false;
   } finally {
     hideLoading();
   }
@@ -353,5 +409,5 @@ export async function exportAnnotationAsImage(annotation) {
   if (!outputPath) return;
 
   const bytes = await canvasToBytes(canvas, 'png');
-  await writeBinaryFile(outputPath, bytes);
+  await writeBinaryFileAtomic(outputPath, bytes);
 }

@@ -991,6 +991,32 @@ fn handle_tools_list() -> Value {
                 }
             },
             {
+                "name": "app_get_page_text",
+                "description": "Read existing PDF page text without mouse automation. Returns document-bound span IDs, readable merged text, page-space bounding boxes, PDF anchors, font family/size, rotation and fill colour when recoverable. Pass a page number or omit it for the current page. Text is never sent outside the local MCP connection.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "page": { "type": "integer", "minimum": 1, "description": "1-based page number; defaults to the current page." }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            {
+                "name": "app_replace_text",
+                "description": "Replace one existing PDF text span returned by app_get_page_text. Requires the exact expected text to reject stale IDs. Preserves the page artwork by refusing edits that cannot remove the original text in place; fits the replacement inside its original width and embeds a full fallback font when the subset lacks glyphs. Changes stay pending until app_save_pdf is called. One line per call; for translation, map translated lines to span IDs and call repeatedly.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "spanId": { "type": "string", "description": "Opaque span ID from app_get_page_text." },
+                        "expectedText": { "type": "string", "description": "Exact current text returned for that span." },
+                        "newText": { "type": "string", "description": "Replacement text on one line (may be empty to delete)." },
+                        "color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$", "description": "Required only when the source fill colour could not be recovered." }
+                    },
+                    "required": ["spanId", "expectedText", "newText"],
+                    "additionalProperties": false
+                }
+            },
+            {
                 "name": "app_set_measure_scale",
                 "description": "Set the active document's measurement scale calibration (pixels per unit + unit, e.g. ~2.835 px/mm for 1:1 at 72 dpi) and recalculate every measurement annotation.",
                 "inputSchema": {
@@ -1303,6 +1329,8 @@ async fn handle_tools_call(state: &AppState, params: &Value) -> Result<Value, (i
         "app_fit_page"           => tool_app_request(state, "mcp:fit-page",           &arguments, Duration::from_secs(15)).await,
         "app_fit_width"          => tool_app_request(state, "mcp:fit-width",          &arguments, Duration::from_secs(15)).await,
         "app_get_page_count"     => tool_app_request(state, "mcp:get-page-count",     &arguments, Duration::from_secs(5)).await,
+        "app_get_page_text"      => tool_app_request(state, "mcp:get-page-text",      &arguments, Duration::from_secs(60)).await,
+        "app_replace_text"       => tool_app_request(state, "mcp:replace-text",       &arguments, Duration::from_secs(120)).await,
         "app_set_measure_scale"  => tool_app_request(state, "mcp:set-measure-scale",  &arguments, Duration::from_secs(15)).await,
         "app_get_takeoff"        => tool_app_request(state, "mcp:get-takeoff",        &arguments, Duration::from_secs(10)).await,
         "app_place_schedule"     => tool_app_request(state, "mcp:place-schedule",     &arguments, Duration::from_secs(15)).await,
@@ -1515,6 +1543,7 @@ async fn tool_screenshot_page(
         )?;
         let doc = handle.document();
         let scale = {
+            let _guard = crate::pdfium_renderer::inproc_guard();
             let pages = doc.pages();
             let page = pages
                 .get(page_index as i32)
@@ -1711,6 +1740,7 @@ async fn tool_screenshot_all(
             )?;
             let doc = handle.document();
             let scale = {
+                let _guard = crate::pdfium_renderer::inproc_guard();
                 let pages = doc.pages();
                 let page = pages
                     .get(idx as i32)
@@ -1940,7 +1970,7 @@ mod tests {
         use crate::mcp_tool_meta::Profiel;
         let publiek = tools_list_voor(Profiel::Publiek);
         let arr = publiek["tools"].as_array().unwrap();
-        assert_eq!(arr.len(), 59);
+        assert_eq!(arr.len(), 62);
         for t in arr {
             let a = &t["annotations"];
             assert!(a["title"].as_str().map_or(false, |s| !s.is_empty()), "{} zonder titel", t["name"]);

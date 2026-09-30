@@ -142,9 +142,23 @@ export function paginaRotatie(page) {
  * in dezelfde stand staat als het blad waaruit je knipte.
  * @returns {Promise<Uint8Array>}
  */
-export async function knipselAlsMiniPdf(bronBytes, paginaIndex = 0, extraRotatie = 0) {
+const miniPdfs = new WeakMap();
+
+export async function knipselAlsMiniPdf(bronBytes, paginaIndex = 0, extraRotatie = 0, geladenBron = null) {
+  let bladen = miniPdfs.get(bronBytes);
+  if (!bladen) miniPdfs.set(bronBytes, bladen = new Map());
+  const key = `${paginaIndex}|${_kwartslag(extraRotatie)}`;
+  if (!bladen.has(key)) {
+    const taak = maakMiniPdf(bronBytes, paginaIndex, extraRotatie, geladenBron);
+    bladen.set(key, taak);
+    taak.catch(() => bladen.delete(key));
+  }
+  return bladen.get(key);
+}
+
+async function maakMiniPdf(bronBytes, paginaIndex, extraRotatie, geladenBron) {
   const { PDFDocument, degrees } = await import('pdf-lib');
-  const bron = await PDFDocument.load(bronBytes);
+  const bron = geladenBron || await PDFDocument.load(bronBytes);
   const mini = await PDFDocument.create();
   const [pagina] = await mini.copyPages(bron, [paginaIndex]);
   if (_kwartslag(extraRotatie)) {
@@ -167,13 +181,50 @@ export async function knipselAlsMiniPdf(bronBytes, paginaIndex = 0, extraRotatie
  * @param {number} [paginaIndex]
  * @returns {Promise<{ingebed:object, breedte:number, hoogte:number, rotatie:number}>}
  */
+// Per doel-document: bronobjecten mogen nooit PDFRefs tussen saves delen.
+const gedeeldeBronnen = new WeakMap();
+
 export async function bedKnipselIn(doelDoc, bronBytes, srcBox, paginaIndex = 0) {
   const vak = normaliseerVak(srcBox);
   if (!vak) throw new Error('vak te klein of ontaard');
-  const { PDFDocument } = await import('pdf-lib');
-  const bron = await PDFDocument.load(bronBytes);
-  const pagina = bron.getPage(paginaIndex);
-  const { matrix, breedte, hoogte, rotatie } = knipselMatrix(vak, paginaRotatie(pagina));
-  const ingebed = await doelDoc.embedPage(pagina, vak, matrix);
-  return { ingebed, breedte, hoogte, rotatie };
+  const { PDFDocument, PDFPage, drawObject } = await import('pdf-lib');
+  let bronnen = gedeeldeBronnen.get(doelDoc);
+  if (!bronnen) gedeeldeBronnen.set(doelDoc, bronnen = new WeakMap());
+  let bladen = bronnen.get(bronBytes);
+  if (!bladen) bronnen.set(bronBytes, bladen = new Map());
+  if (!bladen.has(paginaIndex)) {
+    const laden = (async () => {
+      const bron = await PDFDocument.load(bronBytes);
+      const pagina = bron.getPage(paginaIndex);
+      const box = pagina.getMediaBox();
+      const crop = pagina.getCropBox();
+      const volledig = {
+        left: Math.min(box.x, crop.x), bottom: Math.min(box.y, crop.y),
+        right: Math.max(box.x + box.width, crop.x + crop.width),
+        top: Math.max(box.y + box.height, crop.y + crop.height),
+      };
+      // Identiteitsmatrix: de wrappers knippen in oorspronkelijke PDF-coördinaten.
+      const bronForm = await doelDoc.embedPage(pagina, volledig, [1, 0, 0, 1, 0, 0]);
+      return { bronForm, rotatie: paginaRotatie(pagina), vakken: new Map() };
+    })();
+    bladen.set(paginaIndex, laden);
+    laden.catch(() => bladen.delete(paginaIndex));
+  }
+  const bron = await bladen.get(paginaIndex);
+  const key = [vak.left, vak.bottom, vak.right, vak.top].join('|');
+  if (!bron.vakken.has(key)) {
+    const bouwen = (async () => {
+      const { matrix, breedte, hoogte, rotatie } = knipselMatrix(vak, bron.rotatie);
+      // Kleine Form-wrapper per uitsnede, met één gedeelde zware bron-Form.
+      const wrapper = PDFPage.create(doelDoc);
+      const naam = wrapper.node.newXObject('OPSbron', bron.bronForm.ref);
+      wrapper.pushOperators(drawObject(naam));
+      const ingebed = await doelDoc.embedPage(wrapper, vak, matrix);
+      doelDoc.context.delete(wrapper.ref); // helperpagina hoort niet in de paginaboom
+      return { ingebed, breedte, hoogte, rotatie };
+    })();
+    bron.vakken.set(key, bouwen);
+    bouwen.catch(() => bron.vakken.delete(key));
+  }
+  return bron.vakken.get(key);
 }

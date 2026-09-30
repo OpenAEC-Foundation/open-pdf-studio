@@ -58,6 +58,7 @@ pub const TOOLS: &[ToolMeta] = &[
     lees("app_get_annotation", "Get annotation"),
     lees("app_list_tabs", "List document tabs"),
     lees("app_get_page_count", "Get page count"),
+    lees("app_get_page_text", "Read existing page text"),
     lees("app_get_takeoff", "Get quantity take-off"),
     lees("app_list_commands", "List app commands"),
     lees("app_assistant_history", "Get assistant conversation"),
@@ -87,6 +88,7 @@ pub const TOOLS: &[ToolMeta] = &[
     wijzigt("app_redo", "Redo"),
     wijzigt("app_close_tab", "Close document tab"),
     wijzigt("app_save_pdf", "Save PDF"),
+    wijzigt("app_replace_text", "Replace existing page text"),
     wijzigt("app_export_cad", "Export to CAD drawing"),
     // Afdrukken laat het document ongemoeid, maar is geen leesactie: de ene
     // schrijft een bestand dat een bestaand bestand kan overschrijven, de

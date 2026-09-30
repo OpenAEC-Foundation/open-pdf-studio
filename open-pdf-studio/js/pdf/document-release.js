@@ -200,7 +200,7 @@ export async function geefDocumentVrij(gesloten, overgebleven) {
   const plan = vrijgaveplan(gesloten, overgebleven);
 
   if (plan.pdfjsVrijgeven) {
-    try { await gesloten.pdfDoc.destroy(); } catch (e) { console.warn('[release] PDF.js afsluiten:', e); }
+    try { await (gesloten.pdfDoc.loadingTask || gesloten.pdfDoc).destroy(); } catch (e) { console.warn('[release] PDF.js afsluiten:', e); }
   }
 
   if (plan.memoryKey) {

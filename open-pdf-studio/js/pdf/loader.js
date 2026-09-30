@@ -104,6 +104,7 @@ export async function reloadDocumentFromBytes(doc, bytes) {
     cMapUrl: '/pdfjs/web/cmaps/',
     cMapPacked: true,
     standardFontDataUrl: '/pdfjs/web/standard_fonts/',
+    wasmUrl: '/pdfjs/web/wasm/',
     isEvalSupported: false,
     verbosity: 0,
   }).promise;
@@ -157,6 +158,7 @@ function _attachPdfDocGetPageRecovery(doc, filePath) {
           cMapUrl: '/pdfjs/web/cmaps/',
           cMapPacked: true,
           standardFontDataUrl: '/pdfjs/web/standard_fonts/',
+    wasmUrl: '/pdfjs/web/wasm/',
           isEvalSupported: false,
           verbosity: 0,
         }).promise;
@@ -358,6 +360,7 @@ export async function loadPDF(filePath, docIndex, preloadedData = null) {
       cMapUrl: '/pdfjs/web/cmaps/',
       cMapPacked: true,
       standardFontDataUrl: '/pdfjs/web/standard_fonts/',
+    wasmUrl: '/pdfjs/web/wasm/',
       isEvalSupported: false,
       verbosity: 0,
     }).promise;
@@ -920,6 +923,7 @@ export async function createBlankPDF(widthPt, heightPt, numPages) {
       cMapUrl: '/pdfjs/web/cmaps/',
       cMapPacked: true,
       standardFontDataUrl: '/pdfjs/web/standard_fonts/',
+    wasmUrl: '/pdfjs/web/wasm/',
       isEvalSupported: false,
       verbosity: 0,
     }).promise;

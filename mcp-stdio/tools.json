@@ -969,6 +969,65 @@
   },
   {
     "annotations": {
+      "destructiveHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Read existing page text"
+    },
+    "description": "Read existing PDF page text without mouse automation. Returns document-bound span IDs, readable merged text, page-space bounding boxes, PDF anchors, font family/size, rotation and fill colour when recoverable. Pass a page number or omit it for the current page. Text is never sent outside the local MCP connection.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "page": {
+          "description": "1-based page number; defaults to the current page.",
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "name": "app_get_page_text"
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "openWorldHint": false,
+      "readOnlyHint": false,
+      "title": "Replace existing page text"
+    },
+    "description": "Replace one existing PDF text span returned by app_get_page_text. Requires the exact expected text to reject stale IDs. Preserves the page artwork by refusing edits that cannot remove the original text in place; fits the replacement inside its original width and embeds a full fallback font when the subset lacks glyphs. Changes stay pending until app_save_pdf is called. One line per call; for translation, map translated lines to span IDs and call repeatedly.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "color": {
+          "description": "Required only when the source fill colour could not be recovered.",
+          "pattern": "^#[0-9A-Fa-f]{6}$",
+          "type": "string"
+        },
+        "expectedText": {
+          "description": "Exact current text returned for that span.",
+          "type": "string"
+        },
+        "newText": {
+          "description": "Replacement text on one line (may be empty to delete).",
+          "type": "string"
+        },
+        "spanId": {
+          "description": "Opaque span ID from app_get_page_text.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "spanId",
+        "expectedText",
+        "newText"
+      ],
+      "type": "object"
+    },
+    "name": "app_replace_text"
+  },
+  {
+    "annotations": {
       "destructiveHint": true,
       "openWorldHint": false,
       "readOnlyHint": false,
@@ -2006,10 +2065,26 @@
           ],
           "type": "string"
         },
+        "addPoints": {
+          "description": "dimensions with chainOf: points {x, y} in page points to add as extension lines, between or outside the existing ones.",
+          "type": "array"
+        },
+        "chainOf": {
+          "description": "dimensions: the id of a dimension (measureDistance) whose chain you want to extend or shorten, with addPoints and/or removePoints.",
+          "type": "string"
+        },
         "end": {
           "additionalProperties": true,
           "description": "wall: end of the run as {x, y} in page points.",
           "type": "object"
+        },
+        "insideSide": {
+          "description": "wall with layers: which side of start->end is inside (default right; a clockwise outline has the inside on the right).",
+          "enum": [
+            "left",
+            "right"
+          ],
+          "type": "string"
         },
         "insulation": {
           "description": "wall: insulation sub-material when material is isolatie (steenwol, glaswol, pir, eps, kooltherm, pur).",
@@ -2023,6 +2098,10 @@
           "description": "wall: false = the start of the run never joins another wall: no mitre, no T, no trim; the end keeps a plain butt cap exactly where it is drawn (default true). Otherwise walls that touch are joined automatically: coincident end points are mitred; ends that just pass or fall short of a wall of the same material are trimmed to a closed corner; an end that stops on a continuing wall (on its centre line, on its face, just short of it or inside it) forms a T, where the same material flows into it and another material butts against its face with a seam. Later: app_update_annotation props noJoinStart / noJoinEnd.",
           "type": "boolean"
         },
+        "layers": {
+          "description": "wall: build-up of a layered (cavity) wall, from outside to inside, each {thicknessMm, material, insulation}; material none is an air cavity (not drawn). The run's start/end are then the outside face, thicknessMm and material of the run are ignored. Answer: layers[i].wallIds per drawn layer, per opening frame and layerOpeningsMm, corners = layers mitred at start/end.",
+          "type": "array"
+        },
         "material": {
           "description": "wall: hatch material id, e.g. nen47-metselwerk-baksteen, nen47-metselwerk-kunststeen, nen47-beton-gewapend, isolatie, none.",
           "type": "string"
@@ -2034,6 +2113,10 @@
         "minPierMm": {
           "description": "wall: smallest piece of wall that must remain beside an opening (default 0).",
           "type": "number"
+        },
+        "names": {
+          "description": "rooms: set the name and/or number of placed rooms, each {id (the room area) or x, y (a point inside), name, number}.",
+          "type": "array"
         },
         "offsetMm": {
           "description": "dimensions: distance from the wall face to the chain, in mm (default 500 at 1:50; larger at smaller scales, so the text fits).",
@@ -2055,9 +2138,17 @@
           "description": "rooms/dimensions: recompute what is already on the sheet from the walls as they are now.",
           "type": "boolean"
         },
+        "removePoints": {
+          "description": "dimensions with chainOf: points {x, y} near the extension lines to remove (the measured point or anywhere along the extension line).",
+          "type": "array"
+        },
         "seeds": {
           "description": "rooms: points inside the rooms you want, each {x, y, name, number}; number is optional. Without seeds every room found is reported.",
           "type": "array"
+        },
+        "showUnit": {
+          "description": "dimensions: also show the unit behind the number (default false: the number only, as on a building drawing).",
+          "type": "boolean"
         },
         "side": {
           "description": "dimensions: which side of the run the chain goes, seen along its direction (default right). For an outline drawn clockwise on the sheet, left is outside.",
@@ -2076,6 +2167,10 @@
           "description": "wall: real wall thickness in mm (default 100).",
           "type": "number"
         },
+        "tolerance": {
+          "description": "dimensions with removePoints: how close (page points) a point must be to an extension line (default 6).",
+          "type": "number"
+        },
         "totalOffsetMm": {
           "description": "dimensions: distance from the wall face to the overall dimension, in mm (default offsetMm plus one line of text, at least 350).",
           "type": "number"
@@ -2086,42 +2181,6 @@
         },
         "wallIds": {
           "description": "dimensions: the wall segments of one run, in order along the run (as returned by action \"wall\").",
-          "type": "array"
-        },
-        "insideSide": {
-          "description": "wall with layers: which side of start->end is inside (default right; a clockwise outline has the inside on the right).",
-          "enum": [
-            "left",
-            "right"
-          ],
-          "type": "string"
-        },
-        "layers": {
-          "description": "wall: build-up of a layered (cavity) wall, from outside to inside, each {thicknessMm, material, insulation}; material none is an air cavity (not drawn). The run's start/end are then the outside face, thicknessMm and material of the run are ignored. Answer: layers[i].wallIds per drawn layer, per opening frame and layerOpeningsMm, corners = layers mitred at start/end.",
-          "type": "array"
-        },
-        "addPoints": {
-          "description": "dimensions with chainOf: points {x, y} in page points to add as extension lines, between or outside the existing ones.",
-          "type": "array"
-        },
-        "chainOf": {
-          "description": "dimensions: the id of a dimension (measureDistance) whose chain you want to extend or shorten, with addPoints and/or removePoints.",
-          "type": "string"
-        },
-        "removePoints": {
-          "description": "dimensions with chainOf: points {x, y} near the extension lines to remove (the measured point or anywhere along the extension line).",
-          "type": "array"
-        },
-        "showUnit": {
-          "description": "dimensions: also show the unit behind the number (default false: the number only, as on a building drawing).",
-          "type": "boolean"
-        },
-        "tolerance": {
-          "description": "dimensions with removePoints: how close (page points) a point must be to an extension line (default 6).",
-          "type": "number"
-        },
-        "names": {
-          "description": "rooms: set the name and/or number of placed rooms, each {id (the room area) or x, y (a point inside), name, number}.",
           "type": "array"
         }
       },

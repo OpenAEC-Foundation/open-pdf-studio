@@ -120,5 +120,5 @@ basisTest('de uitvoer (afdruk, export, printvoorbeeld) vraagt het uitvoerpredica
   // Het printpad en de exports gaan door renderMarkeringenOffscreen, dat
   // altijd in uitvoermodus tekent.
   const exporter = readFileSync(new URL('../pdf/exporter.js', import.meta.url), 'utf8');
-  assert.match(exporter, /const lagen = \{ uitvoer: true, markeringen \};/);
+  assert.match(exporter, /const lagen = \{ uitvoer: true, markeringen, snippetBitmaps \};/);
 });
