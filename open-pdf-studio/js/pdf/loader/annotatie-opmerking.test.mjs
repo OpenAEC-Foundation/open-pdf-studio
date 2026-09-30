@@ -42,7 +42,7 @@ async function gelezenDoorPdfJs(bytes) {
   const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
   const doc = await pdfjs.getDocument({ data: bytes.slice(), isEvalSupported: false, verbosity: 0 }).promise;
   const annots = await (await doc.getPage(1)).getAnnotations();
-  await doc.destroy();
+  await doc.loadingTask.destroy();
   return annots;
 }
 

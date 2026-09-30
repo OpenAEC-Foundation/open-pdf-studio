@@ -13,6 +13,7 @@ import {
   resolveTextEditLineStyle,
 } from '../../text/text-edit-appearance.js';
 import { applyInPlaceTextEdits } from './text-edit-inplace.js';
+import { embedMcpTextFont } from '../../text/mcp-text-font.js';
 
 // Save text edits into PDF pages.
 //
@@ -22,8 +23,7 @@ import { applyInPlaceTextEdits } from './text-edit-inplace.js';
 // toelaat in het originele font, anders via het Standard-14-pad. Alleen als
 // de originele run niet eenduidig te lokaliseren is, valt een edit terug op
 // het oude afdekken-en-overheen-tekenen (wit vlak + nieuwe tekst).
-export async function saveTextEditsToPages(pdfDocLib, pages) {
-  const doc = getActiveDocument();
+export async function saveTextEditsToPages(pdfDocLib, pages, doc = getActiveDocument()) {
   if (!doc || !doc.textEdits || doc.textEdits.length === 0) return;
 
   const fontCache = {};
@@ -67,6 +67,7 @@ export async function saveTextEditsToPages(pdfDocLib, pages) {
     try {
       await saveOneTextEdit(pdfDocLib, pages, edit, getEditFont, inplaceResults.get(edit) || null);
     } catch (editErr) {
+      if (edit.mcpStrict) throw editErr;
       console.warn(
         `[text-edits] Edit ${edit?.id ?? '?'} (pagina ${edit?.page ?? '?'}) ` +
         'overgeslagen bij opslaan:', editErr,
@@ -115,6 +116,9 @@ async function saveOneTextEdit(pdfDocLib, pages, edit, getEditFont, inplace) {
   // al in user-space, dus alleen de glyph-richting en de regel-richting
   // moeten meedraaien.
   const angle = Number(edit.textAngle) || 0;
+  if (edit.mcpStrict && !inplace) {
+    throw new Error(`MCP text edit ${edit.id ?? '?'} cannot remove the source text in place`);
+  }
   const rad = angle * Math.PI / 180;
   const readDir = { x: Math.cos(rad), y: Math.sin(rad) };   // leesrichting
   const ascDir = { x: -Math.sin(rad), y: Math.cos(rad) };   // ascender-richting
@@ -148,7 +152,7 @@ async function saveOneTextEdit(pdfDocLib, pages, edit, getEditFont, inplace) {
   // alleen het witte vlak af. Bij een geslaagde knip zonder onderliggende
   // afbeelding is er niets meer om af te dekken. (Nieuw toegevoegde tekst
   // heeft sowieso geen origineel.)
-  if (edit.originalText && (!inplace || inplace.needsCover)) {
+  if (edit.originalText && !edit.mcpStrict && (!inplace || inplace.needsCover)) {
     // Bij een her-bewerking van een eerder ingebakken edit moet het vlak ook
     // de eerder weggeschreven (mogelijk langere) nieuwe tekst afdekken.
     const coverSources = [edit.originalText];
@@ -258,6 +262,17 @@ async function saveOneTextEdit(pdfDocLib, pages, edit, getEditFont, inplace) {
     // opgeschoven penpositie.
     const drawRun = async (text, bold, italic, penX, runColor) => {
       const cleaned = String(text ?? '').replace(/\t/g, ' ').replace(/\r/g, '');
+      if (edit.mcpStrict) {
+        const { font, name } = await embedMcpTextFont(pdfDocLib, cleaned, { bold, italic });
+        const [rr, rg, rb] = hexToRgb(runColor || lineStyle.color || '#000000');
+        page.drawText(cleaned, {
+          x: anchor.x + readDir.x * penX, y: anchor.y + readDir.y * penX,
+          size: lineFontSize, font, rotate: degrees(angle), color: rgb(rr, rg, rb),
+        });
+        bakeLine.text += cleaned;
+        edit._pendingMcpFontUsed = name;
+        return penX + font.widthOfTextAtSize(cleaned, lineFontSize);
+      }
       const { text: safe, replaced } = sanitizeWinAnsiText(cleaned);
       if (replaced.length > 0) {
         console.warn(

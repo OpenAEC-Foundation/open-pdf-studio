@@ -229,7 +229,7 @@ export async function closeTab(index, force = false, dialogAction = null) {
       }
       // Met `dialogAction` (MCP-brug, tests) kan niemand een vraag over
       // handtekeningen beantwoorden; die keuze is dan al gemaakt.
-      const saved = await savePDF(null, { zonderHandtekeningVraag: !!dialogAction });
+      const saved = await savePDF(null, { zonderHandtekeningVraag: !!dialogAction }, doc);
       if (!saved) {
         // Save failed or was cancelled: terug naar het tabblad van de gebruiker.
         if (vorigActief) {
@@ -413,7 +413,7 @@ export async function renameDocument(index, newName) {
   // Untitled docs — trigger Save As instead
   if (!doc.filePath) {
     const { savePDFAs } = await import('../../pdf/saver.js');
-    return await savePDFAs();
+    return await savePDFAs(doc);
   }
 
   // Validate: no invalid characters
@@ -510,8 +510,7 @@ export function updateWindowTitle() {
 /**
  * Mark the active document as modified
  */
-export function markDocumentModified() {
-  const doc = getActiveDocument();
+export function markDocumentModified(doc = getActiveDocument()) {
   if (doc) {
     doc.modified = true;
     // Direct modification bypasses undo stack, so clean point is unreachable
@@ -524,8 +523,7 @@ export function markDocumentModified() {
 /**
  * Mark the active document as saved (not modified)
  */
-export function markDocumentSaved() {
-  const doc = getActiveDocument();
+export function markDocumentSaved(doc = getActiveDocument()) {
   if (doc) {
     doc.modified = false;
     doc.savedUndoStackLength = (doc.undoStack || []).length;

@@ -19,6 +19,10 @@ export default function ExportPanel() {
   const [format, setFormat] = createSignal('png');
   const [quality, setQuality] = createSignal(92);
   const [dpi, setDpi] = createSignal(150);
+  const [includeImages, setIncludeImages] = createSignal(false);
+  const [includeAnnotations, setIncludeAnnotations] = createSignal(true);
+  const [decimal, setDecimal] = createSignal((i18next.language || '').startsWith('nl') ? ',' : '.');
+  const office = () => ['odt', 'xlsx'].includes(exportType());
   const [pdfxConformance, setPdfxConformance] = createSignal('X-3');
   // PDF/X en CAD-uitvoer lopen over de Rust-kant en bestaan in de webversie
   // niet; ze gaven daar stil `false` terug (#456).
@@ -83,12 +87,15 @@ export default function ExportPanel() {
 
     closeAppMenu();
 
-    if (exportType() === 'pdfx') {
+    if (office()) {
+      const { exportOffice } = await import('../../../pdf/office-export.js');
+      await exportOffice({ format: exportType(), pages, includeImages: includeImages(), decimal: decimal(), doc });
+    } else if (exportType() === 'pdfx') {
       await exportAsPdfX({ conformance: pdfxConformance() });
     } else if (exportType() === 'raster') {
-      await exportAsRasterPdf({ dpi: dpi(), pages });
+      await exportAsRasterPdf({ dpi: dpi(), pages, doc });
     } else {
-      await exportAsImages({ format: format(), quality: quality() / 100, dpi: dpi(), pages });
+      await exportAsImages({ format: format(), quality: quality() / 100, dpi: dpi(), pages, includeAnnotations: includeAnnotations(), doc });
     }
   };
 
@@ -97,6 +104,16 @@ export default function ExportPanel() {
       <h2 class="bs-export-title">{t('exportPanel.title')}</h2>
 
       <div class="bs-export-cards">
+        {['odt', 'xlsx'].map(type => (
+          <button type="button" class={`bs-export-card${showOptions() && exportType() === type ? ' active' : ''}`} onClick={() => handleCardClick(type)}>
+            <div class="bs-export-card-icon" aria-hidden="true"><strong>{type.toUpperCase()}</strong></div>
+            <div class="bs-export-card-info">
+              <h3>{t(type === 'odt' ? 'exportPanel.exportOdt' : 'exportPanel.exportExcel')}</h3>
+              <p>{t(type === 'odt' ? 'exportPanel.exportOdtDesc' : 'exportPanel.exportExcelDesc')}</p>
+            </div>
+          </button>
+        ))}
+
         <div class={`bs-export-card${showOptions() && exportType() === 'images' ? ' active' : ''}`} onClick={() => handleCardClick('images')}>
           <div class="bs-export-card-icon">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -193,7 +210,8 @@ export default function ExportPanel() {
       <Show when={showOptions()}>
         <div class="bs-export-options">
           <h3 class="bs-export-options-title">
-            {exportType() === 'pdfx' ? t('exportPanel.pdfxOptions')
+            {office() ? t('exportPanel.officeOptions')
+              : exportType() === 'pdfx' ? t('exportPanel.pdfxOptions')
               : exportType() === 'raster' ? t('exportPanel.rasterOptions')
               : t('exportPanel.imageOptions')}
           </h3>
@@ -223,6 +241,20 @@ export default function ExportPanel() {
           </div>
           </Show>
 
+          <Show when={office()}>
+            <p class="bs-export-note">{t('exportPanel.officeNote')}</p>
+          </Show>
+          <Show when={exportType() === 'odt'}>
+            <label class="bs-export-radio"><input type="checkbox" checked={includeImages()} onChange={e => setIncludeImages(e.target.checked)} /> {t('exportPanel.officeImages')}</label>
+          </Show>
+          <Show when={exportType() === 'xlsx'}>
+            <div class="bs-export-option-group">
+              <label class="bs-export-option-label">{t('exportPanel.officeDecimal')}</label>
+              <select class="bs-export-select" value={decimal()} onChange={e => setDecimal(e.target.value)}>
+                <option value=",">1.234,56</option><option value=".">1,234.56</option>
+              </select>
+            </div>
+          </Show>
           <Show when={exportType() === 'pdfx'}>
             <div class="bs-export-option-group">
               <label class="bs-export-option-label">{t('exportPanel.pdfxConformance')}</label>
@@ -240,6 +272,7 @@ export default function ExportPanel() {
               <select class="bs-export-select" value={format()} onChange={(e) => setFormat(e.target.value)}>
                 <option value="png">PNG</option>
                 <option value="jpeg">JPEG</option>
+                <option value="tiff">TIFF</option>
               </select>
             </div>
           </Show>
@@ -254,7 +287,11 @@ export default function ExportPanel() {
             </div>
           </Show>
 
-          <Show when={exportType() !== 'pdfx'}>
+          <Show when={exportType() === 'images'}>
+            <label class="bs-export-radio"><input type="checkbox" checked={includeAnnotations()} onChange={e => setIncludeAnnotations(e.target.checked)} /> {t('exportPanel.imageAnnotations')}</label>
+          </Show>
+
+          <Show when={exportType() === 'images' || exportType() === 'raster'}>
           <div class="bs-export-option-group">
             <label class="bs-export-option-label">{t('exportPanel.resolution')}</label>
             <select class="bs-export-select" value={dpi()} onChange={(e) => setDpi(parseInt(e.target.value))}>

@@ -169,19 +169,18 @@ export function getCacheKey() {
 }
 
 // Reload PDF.js from new bytes, preserving annotations and rotations
-export async function reloadFromBytes(newBytes, annotations, rotations, targetPage, viewportUpdate = null) {
-  const doc = getActiveDocument();
+export async function reloadFromBytes(newBytes, annotations, rotations, targetPage, viewportUpdate = null, doc = getActiveDocument()) {
   if (!doc) return;
 
-  const oldPath = doc.filePath || getCacheKey();
+  const oldPath = doc.filePath || `__memory__${doc.id}`;
   if (!oldPath) return;
 
   // Cancel any in-progress annotation loading
-  cancelAnnotationLoading();
+  cancelAnnotationLoading(doc);
 
   // Destroy old pdf.js document to free memory
   if (doc.pdfDoc) {
-    doc.pdfDoc.destroy();
+    await (doc.pdfDoc.loadingTask || doc.pdfDoc).destroy();
   }
 
   // ── Issue #247 fix ──────────────────────────────────────────────────────
@@ -247,7 +246,7 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
   setCachedPdfBytes(renderPath, newBytes.slice());
 
   // Reset form field annotation storage
-  resetAnnotationStorage();
+  resetAnnotationStorage(doc);
 
   // Caches derived from the old bytes that are NOT keyed by file path: the
   // snap-to-content geometry (keyed by page number) and the search text (keyed
@@ -264,6 +263,7 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
     cMapUrl: '/pdfjs/web/cmaps/',
     cMapPacked: true,
     standardFontDataUrl: '/pdfjs/web/standard_fonts/',
+    wasmUrl: '/pdfjs/web/wasm/',
     isEvalSupported: false,
     verbosity: 0,
   }).promise;
@@ -299,13 +299,17 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
   doc.currentPage = Math.max(1, Math.min(targetPage, numPages));
 
   // Mark all pages as loaded so background loader won't overwrite
-  markAllAnnotationPagesLoaded(numPages);
+  markAllAnnotationPagesLoaded(numPages, doc);
 
   // Clear selection
   if (doc) {
     doc.selectedAnnotation = null;
     doc.selectedAnnotations = [];
   }
+  clearThumbnailCache(doc.id);
+  doc.modified = true;
+  doc.savedUndoStackLength = -1;
+  if (getActiveDocument() !== doc) return;
   hideProperties();
 
   // Re-render (preserve the book-spread / facing layout variants of continuous)
@@ -314,10 +318,9 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
     : doc?.bookSpread && doc?.viewMode === 'continuous' ? 'book'
     : (doc?.viewMode || 'single')
   );
-  clearThumbnailCache(doc.id);
+  if (getActiveDocument() !== doc) return;
   generateThumbnails();
   updateAllStatus();
-  markDocumentModified();
 }
 
 // Leest de viewports van deze bytes op de achtergrond. Een lezing die nog liep

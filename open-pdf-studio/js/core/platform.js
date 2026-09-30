@@ -294,6 +294,8 @@ export async function writeBinaryFile(path, data) {
       pdf: 'application/pdf', png: 'image/png', jpg: 'image/jpeg',
       jpeg: 'image/jpeg', csv: 'text/csv', xfdf: 'application/xml',
       xml: 'application/xml',
+      odt: 'application/vnd.oasis.opendocument.text',
+      xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     };
     const blob = new Blob([data], { type: mimeMap[ext] || 'application/octet-stream' });
     const url = URL.createObjectURL(blob);
@@ -314,6 +316,17 @@ export async function writeBinaryFile(path, data) {
   }
 
   throw new Error('FS plugin not available');
+}
+
+// PDF saves must never truncate the original before all bytes are safely staged.
+export async function writeBinaryFileAtomic(path, data) {
+  if (!isTauri()) return writeBinaryFile(path, data);
+  const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
+  const mobile = window.__TAURI__?.os?.type?.() === 'android';
+  await getTauriCore().invoke('write_file_atomic', mobile ? { data: Array.from(bytes) } : bytes, {
+    headers: { 'x-opds-path': encodeURIComponent(path) },
+  });
+  return true;
 }
 
 export async function fileExists(path) {

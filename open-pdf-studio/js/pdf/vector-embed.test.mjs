@@ -229,3 +229,32 @@ test('knipselAlsMiniPdf telt een extra rotatie uit de app op bij de /Rotate', as
   const zonder = await knipselAlsMiniPdf(await bronMetVak({ rotatie: 90 }), 0);
   assert.equal(paginaRotatie((await PDFDocument.load(zonder)).getPage(0)), 90);
 });
+
+test('verschillende uitsneden delen bron-Form en identieke uitsneden delen wrapper', async () => {
+  const bytes = await bronMetVak();
+  const target = await PDFDocument.create();
+  const a = await bedKnipselIn(target, bytes, VAK);
+  const b = await bedKnipselIn(target, bytes, { ...VAK, right: 250 });
+  const again = await bedKnipselIn(target, bytes, VAK);
+  assert.equal(again.ingebed.ref, a.ingebed.ref);
+  assert.notEqual(a.ingebed.ref, b.ingebed.ref);
+  target.addPage().drawPage(a.ingebed);
+  await target.flush();
+  const sourceRef = r => {
+    const form = target.context.lookup(r.ingebed.ref);
+    const x = form.dict.lookup(PDFName.of('Resources')).lookup(PDFName.of('XObject'));
+    return x.get(x.keys()[0]).toString();
+  };
+  assert.equal(sourceRef(a), sourceRef(b));
+  const other = await PDFDocument.create();
+  const c = await bedKnipselIn(other, bytes, VAK);
+  assert.notEqual(c.ingebed.doc, a.ingebed.doc);
+});
+
+test('herhaald knippen deelt mini-PDF, gewijzigde bron en rotatie krijgen eigen bytes', async () => {
+  const bytes = await bronMetVak();
+  const [a, b] = await Promise.all([knipselAlsMiniPdf(bytes), knipselAlsMiniPdf(bytes)]);
+  assert.equal(a, b);
+  assert.notEqual(await knipselAlsMiniPdf(bytes, 0, 90), a);
+  assert.notEqual(await knipselAlsMiniPdf(new Uint8Array(bytes)), a);
+});

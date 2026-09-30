@@ -65,7 +65,7 @@ export default function HomeTab() {
               const pages = [];
               for (let i = 1; i <= total; i++) pages.push(i);
               const m = await import('../../../pdf/exporter.js');
-              await m.exportAsRasterPdf({ dpi: 300, pages });
+              await m.exportAsRasterPdf({ dpi: 300, pages, doc });
             }} />
         </RibbonGroup>
 

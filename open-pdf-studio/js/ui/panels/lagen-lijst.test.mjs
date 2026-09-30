@@ -47,7 +47,7 @@ test('de lagen van een echte PDF via pdf.js: boom, namen en beginstand', async (
       { id: pdfjsId(refs.los), name: 'Los', visible: true, depth: 0 },
     ]);
   } finally {
-    await doc.destroy();
+    await doc.loadingTask.destroy();
   }
 });
 
@@ -61,7 +61,7 @@ test('zonder overslaan staat de markeringslaag onder zijn eigen kop', async () =
     assert.ok(i >= 0);
     assert.deepEqual(lijst[i + 1], { id: pdfjsId(refs.markering), name: 'Opmerkingen', visible: true, depth: 1 });
   } finally {
-    await doc.destroy();
+    await doc.loadingTask.destroy();
   }
 });
 

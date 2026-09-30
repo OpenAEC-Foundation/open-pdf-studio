@@ -1,3 +1,4 @@
+import { pdfjsRecord } from '../pdfjs-record.js';
 // Weergave van handtekeningstatussen uit pdf_signature_list: i18n-sleutels,
 // ernst en kleine beslissingen. Puur: geen i18n, DOM of Tauri, zodat het met
 // node:test te toetsen is. Sleutels zijn relatief aan de namespace `dialogs`.
@@ -271,7 +272,7 @@ export function formatTijd(unix, taal, tijdzone) {
 export async function heeftHandtekeningvelden(pdfDoc) {
   if (!pdfDoc || typeof pdfDoc.getFieldObjects !== 'function') return false;
   try {
-    const velden = await pdfDoc.getFieldObjects();
+    const velden = pdfjsRecord(await pdfDoc.getFieldObjects());
     if (!velden) return false;
     return Object.values(velden).some((lijst) => Array.isArray(lijst) && lijst.some((v) => v?.type === 'signature'));
   } catch {

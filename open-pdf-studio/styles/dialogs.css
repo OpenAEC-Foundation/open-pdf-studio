@@ -1663,6 +1663,9 @@
 
 .bs-export-card {
   display: flex;
+  font: inherit;
+  color: var(--theme-app-menu-icon);
+  text-align: left;
   align-items: center;
   gap: 16px;
   padding: 14px 16px;

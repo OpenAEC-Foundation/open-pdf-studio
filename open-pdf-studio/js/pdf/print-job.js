@@ -114,7 +114,7 @@ async function markeringBeelden(pageNum, plaatsing, markeringen) {
   if (!deel) return [];
   const page = await getActiveDocument().pdfDoc.getPage(pageNum);
   const viewport = page.getViewport(viewportOpties(page, getPageRotation(pageNum), pxPerPt));
-  let canvas = renderMarkeringenOffscreen(pageNum, pxPerPt, viewport, {
+  let canvas = await renderMarkeringenOffscreen(pageNum, pxPerPt, viewport, {
     deel: ongedraaidDeel(plaatsing, pxPerPt, deel.px), markeringen,
   });
   if (plaatsing.gedraaid) canvas = kwartslagLinksom(canvas);
