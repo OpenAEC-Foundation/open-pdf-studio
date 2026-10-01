@@ -1,4 +1,5 @@
 import { createSignal } from 'solid-js';
+import { zetRanddikte } from '../../annotations/rendering/textbox-layout.js';
 import { getActiveDocument } from '../../core/state.js';
 import { applyToSelected } from './formatStore.js';
 import { annotProps, updateAnnotProp } from './propertiesStore.js';
@@ -111,7 +112,7 @@ function _applyPropsToAnnotation(ann, props) {
   }
   if (props.lineWidth !== undefined) {
     const lw = parseFloat(props.lineWidth);
-    if (!isNaN(lw)) ann.lineWidth = lw;
+    if (!isNaN(lw)) zetRanddikte(ann, lw);
   }
   if (props.borderStyle !== undefined) ann.borderStyle = props.borderStyle;
   // Line endings: only where they make sense.

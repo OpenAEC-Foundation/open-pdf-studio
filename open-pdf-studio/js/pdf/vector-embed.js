@@ -167,7 +167,7 @@ export async function knipselAlsMiniPdf(bronBytes, paginaIndex = 0, extraRotatie
  * @param {number} [paginaIndex]
  * @returns {Promise<{ingebed:object, breedte:number, hoogte:number, rotatie:number}>}
  */
-export async function bedKnipselIn(doelDoc, bronBytes, srcBox, paginaIndex = 0) {
+export async function bedKnipselIn(doelDoc, bronBytes, srcBox, paginaIndex = 0, { alsGroep = false } = {}) {
   const vak = normaliseerVak(srcBox);
   if (!vak) throw new Error('vak te klein of ontaard');
   const { PDFDocument } = await import('pdf-lib');
@@ -175,5 +175,17 @@ export async function bedKnipselIn(doelDoc, bronBytes, srcBox, paginaIndex = 0) 
   const pagina = bron.getPage(paginaIndex);
   const { matrix, breedte, hoogte, rotatie } = knipselMatrix(vak, paginaRotatie(pagina));
   const ingebed = await doelDoc.embedPage(pagina, vak, matrix);
+  // Een doorzichtige onderlegger als transparantiegroep (#512): zijn alfa staat
+  // vóór de `Do`, en zonder groep zet een `gs` in de brontekening die alfa voor
+  // de rest terug op 1. Alleen dan: pdf.js isoleert elke groep, waardoor
+  // overvloeimodi in de bron niet meer met de pagina mengen.
+  // pdf-lib reserveert de ref pas bij embed().
+  if (alsGroep) {
+    await ingebed.embed();
+    const { PDFName } = await import('pdf-lib');
+    doelDoc.context.lookup(ingebed.ref).dict.set(
+      PDFName.of('Group'), doelDoc.context.obj({ Type: 'Group', S: 'Transparency' }),
+    );
+  }
   return { ingebed, breedte, hoogte, rotatie };
 }

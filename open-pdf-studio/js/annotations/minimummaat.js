@@ -313,8 +313,10 @@ export function tekstvakMinimum(ann) {
     ? ann.fontSize : 14;
   const regel = (typeof ann?.lineSpacing === 'number' && Number.isFinite(ann.lineSpacing) && ann.lineSpacing > 0)
     ? ann.lineSpacing : 1.2;
-  const rand = (typeof ann?.lineWidth === 'number' && Number.isFinite(ann.lineWidth) && ann.lineWidth > 0)
-    ? ann.lineWidth : 0;
+  // Zelfde regel als textboxTekstInzet (rendering/textbox-layout.js): de eigen
+  // tekstmarge uit het bestand, anders de lijndikte. Hier zonder import.
+  const inzet = ann?.textPadding ?? ann?.lineWidth;
+  const rand = (typeof inzet === 'number' && Number.isFinite(inzet) && inzet > 0) ? inzet : 0;
   return {
     minBreedte: klemMaat(fs + rand * 2),
     minHoogte: klemMaat(fs * regel + rand * 2),

@@ -6,25 +6,15 @@ import { showProperties } from '../ui/panels/properties-panel.js';
 import { redrawAnnotations, redrawContinuous } from './rendering.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
 import { openDialog } from '../bridge.js';
-import { BUILTIN_STAMP_DEFAULT_WIDTH, BUILTIN_STAMP_DEFAULT_HEIGHT, OVERRIDE_STAMP_DEFAULT_HEIGHT } from './stamp-defaults.js';
+import { BUILTIN_STAMP_DEFAULT_WIDTH, BUILTIN_STAMP_DEFAULT_HEIGHT, OVERRIDE_STAMP_DEFAULT_HEIGHT, BUILT_IN_STAMPS } from './stamp-defaults.js';
 import { svgRealSizeMm, stampPlacementSize } from './svg-real-size.js';
 import { stampPxPerMm } from './stamp-scale.js';
 import { rasterizeSvg } from './svg-raster.js';
 import { paginaMaat, rechtopRotatie } from '../pdf/weergave-ruimte.js';
 
 // Built-in stamp definitions
-export const BUILT_IN_STAMPS = [
-  { name: 'Approved', color: '#22c55e', text: 'APPROVED' },
-  { name: 'Rejected', color: '#ef4444', text: 'REJECTED' },
-  { name: 'Draft', color: '#3b82f6', text: 'DRAFT' },
-  { name: 'Confidential', color: '#ef4444', text: 'CONFIDENTIAL' },
-  { name: 'Final', color: '#22c55e', text: 'FINAL' },
-  { name: 'For Review', color: '#f59e0b', text: 'FOR REVIEW' },
-  { name: 'Not Approved', color: '#ef4444', text: 'NOT APPROVED' },
-  { name: 'Void', color: '#6b7280', text: 'VOID' },
-  { name: 'As Is', color: '#6b7280', text: 'AS IS' },
-  { name: 'Revised', color: '#8b5cf6', text: 'REVISED' }
-];
+// (in stamp-defaults.js, zodat ook de loader ze kan lezen)
+export { BUILT_IN_STAMPS };
 
 // Show stamp picker dialog
 export function showStampPicker(x, y) {

@@ -427,3 +427,18 @@ test('rondMaatAf: honderdsten voor gewone maten, fijner onder 1 pt, nooit nul', 
   assert.equal(rondMaatAf(0.00004), MIN_VORM_MAAT_PT);
   for (const v of [0, NaN, undefined, -2]) assert.equal(rondMaatAf(v), MIN_VORM_MAAT_PT, String(v));
 });
+
+test('de minimummaat van een tekstvak volgt de eigen tekstmarge', async () => {
+  const { textboxTekstInzet } = await import('./rendering/textbox-layout.js');
+  for (const ann of [
+    { fontSize: 12, lineWidth: 0, textPadding: 3 },
+    { fontSize: 12, lineWidth: 4, textPadding: 1 },
+    { fontSize: 10, lineWidth: 2 },
+  ]) {
+    const { minBreedte, minHoogte } = tekstvakMinimum(ann);
+    assert.ok(minBreedte - 2 * textboxTekstInzet(ann) >= ann.fontSize - 1e-9, JSON.stringify(ann));
+    assert.ok(minHoogte - 2 * textboxTekstInzet(ann) >= ann.fontSize * 1.2 - 1e-9, JSON.stringify(ann));
+    assert.ok(Math.abs(minBreedte - (ann.fontSize + 2 * textboxTekstInzet(ann))) < 1e-9 || minBreedte > ann.fontSize, JSON.stringify(ann));
+  }
+  assert.equal(tekstvakMinimum({ fontSize: 12, lineWidth: 4, textPadding: 1 }).minBreedte, 14);
+});
