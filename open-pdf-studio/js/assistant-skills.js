@@ -6,6 +6,7 @@
 // it using the app's MCP tools. SKILLS_SYSTEM_PROMPT teaches the brain how.
 
 import { PLATTEGROND_SKILL, PLATTEGROND_PROMPT } from './plattegrond/skill.js';
+import { CONSTRUCTIEOVERZICHT_SKILL, CONSTRUCTIEOVERZICHT_PROMPT } from './constructieoverzicht/skill.js';
 
 export const ASSISTANT_SKILLS = [
   {
@@ -45,6 +46,7 @@ export const ASSISTANT_SKILLS = [
     invoke: 'Zet de draagstructuur uit op de tekening: stramien, kolommen op de knopen, balken op de rasterlijnen, per vloerveld de overspanningsrichting, peilmaten, positie-aanduidingen en een constructiestaat. Opgave: ',
     needsInput: true,
   },
+  CONSTRUCTIEOVERZICHT_SKILL,
   PLATTEGROND_SKILL,
 ];
 
@@ -66,4 +68,5 @@ export const SKILLS_SYSTEM_PROMPT =
   '- De stramienbollen zijn GEKOPPELD: app_structural_layout koppelt alle bolzijden van één richting. Sleept de gebruiker één bol (de greep aan het uiteinde), dan schuiven de andere bollen van die richting evenveel mee, zodat ze op één lijn blijven. app_get_annotation op een stramienlijn meldt per uiteinde `gridAlignment` (start/end: group, locked, linkedEnds, canLock). Eén uiteinde los zetten: app_update_annotation met props { alignStart: false } (het begin, waar de bol staat) of { alignEnd: false }; met true koppel je het weer en schuift het terug op de lijn van de andere bollen. Losse stramienlijnen die op één lijn liggen, koppel je ook met alignStart/alignEnd: true. Een hele stramienlijn verplaatsen raakt de koppeling niet.\n' +
   '- Losse constructie-onderdelen teken je met app_create_annotation: type "betonbalk" (startX/startY/endX/endY + breedteMm/hoogteMm, tagTonen/tagTekst; hij verstekt zichzelf op de hoeken), of type "parametricSymbol" met symbolId "wapeningsstaaf", "netwapening", "wapeningskorf", "wapeningVerdeling" (params aantal/diameter), "beugel" (params diameter/afstand), "oplegging", "puntlast", "q-last", "windverband", "scharnier-verbinding", "paal-aanzicht-type-1", "sondering", "paalpuntniveau", "peilmaat" (params value), "stramien" (params label/orientation) of "overspanningspijl-vloer" (params lengte/tekst).\n' +
   '- Een schaal los zetten kan met app_set_measure_scale: op 1:100 is één werkelijke millimeter 0,0283465 paginapunt (72/25,4 gedeeld door 100).' +
+  CONSTRUCTIEOVERZICHT_PROMPT +
   PLATTEGROND_PROMPT;
