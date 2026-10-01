@@ -138,3 +138,37 @@ test('inladen: zonder geldige lettergrootte blijft het oude groeigedrag', () => 
     { lineSpacing: 4.6, height: 19 },
   );
 });
+
+// Tolerantie (vakken met een /DS-inzet): een vak blijft zoals het bestand het
+// gaf zolang de tekst er hooguit de onderinzet mee opgebruikt. Groeit het toch,
+// dan naar de volle hoogte, en het aantal regels komt uit de echte hoogte.
+test('binnen de tolerantie blijft het vak van het bestand', async () => {
+  const { tolerantieVoorDsInzet } = await import('./textbox-layout.js');
+  // Gemeten callout: Helvetica 11, regelafstand 1,5, inzet 5,5, zeven regels.
+  const tolerantie = tolerantieVoorDsInzet(5.5, 11, 1.5);
+  assert.equal(tolerantie, 8.25, 'inzet plus de halve regelafstand onder de laatste regel');
+  const r = pasRegelafstandAanDoos({ lineSpacing: 1.5, fontSize: 11, boxHeight: 119.91, padding: 5.5, neededHeight: 126.5, tolerantie });
+  assert.equal(r.height, 119.91);
+});
+
+test('moet het vak toch groeien, dan naar de volle hoogte', () => {
+  const r = pasRegelafstandAanDoos({ lineSpacing: 1.2, fontSize: 12, boxHeight: 30, padding: 5.5, neededHeight: 54.2, tolerantie: 5.5 });
+  assert.equal(r.height, 54.2);
+});
+
+test('met tolerantie telt het aantal regels nog goed (kleine tekst, grote inzet)', () => {
+  // 4 pt tekst met regelafstand 2,5 (onaannemelijk), twee regels, vak van 20 pt.
+  const r = pasRegelafstandAanDoos({ lineSpacing: 2.5, fontSize: 4, boxHeight: 20, padding: 5.5, neededHeight: 31, tolerantie: 5.5 });
+  assert.equal(r.height, 20);
+  assert.equal(r.lineSpacing, 1.125, 'twee regels passen met 1,125');
+});
+
+test('de editor laat een vak met /DS-inzet niet groeien binnen dezelfde tolerantie als de loader', async () => {
+  const { editorGroei } = await import('./textbox-layout.js');
+  const ann = { textPadding: 5.5, fontSize: 11, lineSpacing: 1.5 };
+  // Schaal 2: onderinzet 11 px, tolerantie (5,5 + 2,75) * 2 = 16,5 px.
+  assert.equal(editorGroei(13, ann, 11), 0);
+  assert.equal(editorGroei(20, ann, 11), 20, 'daarboven groeit het met de volle overloop');
+  assert.equal(editorGroei(3, { lineWidth: 1 }, 2), 3, 'zonder /DS-inzet groeit het zoals altijd');
+  assert.equal(editorGroei(-4, ann, 11), 0);
+});

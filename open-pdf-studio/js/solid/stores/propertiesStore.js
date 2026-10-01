@@ -24,6 +24,7 @@ import { syncDocScale } from '../../annotations/scale-bar.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
 import { BETONBALK_DEFAULTS, BETONBALK_BREEDTE_RANGE, BETONBALK_HOOGTE_RANGE, BETONBALK_LIJNSTIJLEN } from '../../annotations/betonbalk.js';
 import { setBetonbalkLastProfiel } from './betonbalkStore.js';
+import { zetRanddikte } from '../../annotations/rendering/textbox-layout.js';
 import {
   SYSTEEMRASTER_DEFAULTS, SYSTEEMRASTER_PLAAT_RANGE, SYSTEEMRASTER_RANDCONDITIES,
   resolveSysteem, paneelKey, setEdgeProfiel, setPaneelType, setPaneelComponent,
@@ -1055,7 +1056,7 @@ function applyPropToAnnotation(ann, key, value) {
     case 'fillColor': ann.fillColor = value; break;
     case 'strokeColor': ann.strokeColor = value; break;
     case 'lineWidth':
-      ann.lineWidth = parseFloat(value);
+      zetRanddikte(ann, parseFloat(value));
       // Een stempel wordt als raster getekend en kent geen ctx.lineWidth; de
       // dikte moet in de SVG worden gezet. Synchroon, zodat undo de gewijzigde
       // stampSvg meekrijgt.
@@ -1447,7 +1448,7 @@ function applyAnnotProp(key, value) {
       if (currentAnnotation.type === 'parametricSymbol') currentAnnotation.color = value;
       break;
     case 'lineWidth':
-      currentAnnotation.lineWidth = parseFloat(value);
+      zetRanddikte(currentAnnotation, parseFloat(value));
       // Zie applyPropToAnnotation: bij een stempel moet de dikte de SVG in.
       if (currentAnnotation.type === 'stamp') applyStampLineWidth(currentAnnotation);
       break;

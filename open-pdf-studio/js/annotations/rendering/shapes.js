@@ -190,8 +190,8 @@ export function computeTextboxContentHeight(annotation) {
   const fontSize = annotation.fontSize || 14;
   const lineSpacing = annotation.lineSpacing || DEFAULT_LINE_SPACING;
   const lineHeight = fontSize * lineSpacing;
-  // Match drawTextboxContent: padding == borderWidth (no minimum).
-  const padding = annotation.lineWidth ?? 0;
+  // Match drawTextboxContent (textboxTekstInzet).
+  const padding = textboxTekstInzet(annotation);
   const maxWidth = width - padding * 2;
 
   // Match drawTextboxContent's font-family fallback chain so measureText
@@ -235,7 +235,7 @@ export function layoutTextboxForExport(annotation) {
   const fontSize = annotation.fontSize || 14;
   const lineSpacing = annotation.lineSpacing || DEFAULT_LINE_SPACING;
   const lineHeight = fontSize * lineSpacing;
-  const padding = annotation.lineWidth ?? 0;
+  const padding = textboxTekstInzet(annotation);
   const maxWidth = Math.max(1, width - padding * 2);
 
   const rawFontFamily = annotation.fontFamily || 'Arial';

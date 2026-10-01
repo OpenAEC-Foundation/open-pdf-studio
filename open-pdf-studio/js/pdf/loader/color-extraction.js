@@ -1177,7 +1177,9 @@ const result = {};
           try {
             // Hex-/DS (UTF-16, bijv. een niet-ASCII-fontnaam): eerst decoderen.
             const dsObj = context.lookup(dsRaw) || dsRaw;
-            const dsStr = dsObj instanceof PDFHexString ? dsObj.decodeText() : (dsRaw.toString?.() || '');
+            // Gedecodeerd, zonder de haakjes van de PDF-notatie: anders mist
+            // een /DS die met 'margin:' begint zijn eerste declaratie.
+            const dsStr = decodePdfTextObject(dsObj) ?? (dsRaw.toString?.() || '');
             const fsSizeMatch = dsStr.match(/font-size\s*:\s*([\d.]+)\s*pt/i);
             if (fsSizeMatch) {
               colors.dsFontSize = parseFloat(fsSizeMatch[1]);
@@ -1210,6 +1212,13 @@ const result = {};
               if (fsMatch && /italic|oblique/i.test(fsMatch[1])) {
                 colors.fontItalic = true;
               }
+            }
+            // Binnenmarge van het tekstvak. De app kent één gelijke marge;
+            // bij meerdere CSS-waarden telt de eerste.
+            const marginMatch = dsStr.match(/(?:^|[;\s])margin\s*:\s*(\d+(?:\.\d+)?|\.\d+)\s*pt/i);
+            if (marginMatch) {
+              const marge = parseFloat(marginMatch[1]);
+              if (Number.isFinite(marge)) colors.dsMargin = marge;
             }
             if (!colors.rawLineHeight) {
               const lhMatch = dsStr.match(/line-height\s*:\s*([\d.]+)/i);

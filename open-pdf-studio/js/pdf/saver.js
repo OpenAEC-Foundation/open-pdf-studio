@@ -28,7 +28,7 @@ import { hexToRgb, buildBorderStyle, computeAnnotFlags, mapFontToPdfName,
   ensureAcroFormFonts, stripPdfAMetadata, generateAppearanceStream,
   randSleutelZonderRand, markeerZonderRand, onzichtbaarVlak, vlakRect } from './saver/utils.js';
 import { saveTextEditsToPages } from './saver/text-edits.js';
-import { hasMixedRuns, textboxLineRuns, runsToText } from '../annotations/rendering/textbox-layout.js';
+import { hasMixedRuns, textboxLineRuns, runsToText, dsMargeUitInzet } from '../annotations/rendering/textbox-layout.js';
 import { saveWatermarksToPages } from './saver/watermarks.js';
 import { writeOcrTextLayer, embedOcrFont, loadDefaultOcrFontBytes } from './saver/ocr-text-layer.js';
 import { saveBookmarksToOutline } from './saver/bookmarks.js';
@@ -1232,7 +1232,10 @@ async function _savePDFNu(saveAsPath) {
             const dsFontWeight = ann.fontBold ? 'font-weight:bold;' : '';
             const dsFontStyle = ann.fontItalic ? 'font-style:italic;' : '';
             const dsTextDecoration = ann.fontUnderline ? 'text-decoration:underline;' : '';
-            const dsStr = `font-family:${dsFontFamily};font-size:${fontSize}pt;color:${textColorCss};${dsFontWeight}${dsFontStyle}${dsTextDecoration}${dsLineHeight}`;
+            // Een eigen binnenmarge (uit /DS van een ander programma) gaat
+            // mee terug; zonder die opgave is de marge de randdikte.
+            const dsMargin = ann.textPadding != null ? `margin:${dsMargeUitInzet(ann.textPadding, ann.lineWidth)}pt;` : '';
+            const dsStr = `font-family:${dsFontFamily};font-size:${fontSize}pt;color:${textColorCss};${dsFontWeight}${dsFontStyle}${dsTextDecoration}${dsLineHeight}${dsMargin}`;
 
             const annDictObj = {
               Type: 'Annot',
