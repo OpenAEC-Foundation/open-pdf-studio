@@ -27,9 +27,9 @@ async function bronMetVak({ rotatie = 0 } = {}) {
 
 /** Bed in, teken op een pagina, sla op en lees het XObject terug uit het
  *  resultaat — pas na opslaan staat het echt in de resources. */
-async function ingebedXObject(bronBytes, vak = VAK) {
+async function ingebedXObject(bronBytes, vak = VAK, opties) {
   const doel = await PDFDocument.create();
-  const r = await bedKnipselIn(doel, bronBytes, vak);
+  const r = await bedKnipselIn(doel, bronBytes, vak, 0, opties);
   const pagina = doel.addPage([800, 600]);
   pagina.drawPage(r.ingebed, { x: 0, y: 0, width: r.breedte, height: r.hoogte });
   const heropend = await PDFDocument.load(await doel.save());
@@ -37,6 +37,7 @@ async function ingebedXObject(bronBytes, vak = VAK) {
   const namen = xobjs.keys();
   const form = heropend.context.lookup(xobjs.get(namen[0]));
   return {
+    form,
     aantal: namen.length,
     bbox: form.dict.get(PDFName.of('BBox')).asArray().map((n) => n.asNumber()),
     matrix: form.dict.get(PDFName.of('Matrix')).asArray().map((n) => n.asNumber()),
@@ -228,4 +229,21 @@ test('knipselAlsMiniPdf telt een extra rotatie uit de app op bij de /Rotate', as
   assert.equal(paginaRotatie((await PDFDocument.load(mini)).getPage(0)), 270);
   const zonder = await knipselAlsMiniPdf(await bronMetVak({ rotatie: 90 }), 0);
   assert.equal(paginaRotatie((await PDFDocument.load(zonder)).getPage(0)), 90);
+});
+
+// Een doorzichtige onderlegger (#512): de alfa staat vóór de `Do` van het
+// knipsel. Zet de brontekening zelf `gs` met ca 1, dan geldt binnen een gewone
+// Form XObject die 1 weer voor alles erna en wordt de onderlegger dekkend.
+// Als transparantiegroep wordt het knipsel eerst als geheel opgebouwd en dan
+// met de buitenste alfa samengesteld, zoals op het scherm.
+test('het knipsel is een transparantiegroep, zodat de buitenste alfa voor het geheel geldt', async () => {
+  const { form } = await ingebedXObject(await bronMetVak(), VAK, { alsGroep: true });
+  const groep = form.dict.lookup(PDFName.of('Group'));
+  assert.ok(groep, 'het knipsel heeft een /Group');
+  assert.equal(groep.get(PDFName.of('S')).asString(), '/Transparency');
+});
+
+test('een dekkend knipsel krijgt geen groep (overvloeimodi in de bron blijven werken)', async () => {
+  const { form } = await ingebedXObject(await bronMetVak());
+  assert.equal(form.dict.get(PDFName.of('Group')), undefined);
 });

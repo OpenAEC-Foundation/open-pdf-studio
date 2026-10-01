@@ -183,7 +183,9 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
           const nStreamForAlpha = nForAlpha ? context.lookup(nForAlpha) : null;
           if (nStreamForAlpha) {
             const { fillAlpha, strokeAlpha } = await extractApAlphas(context, nStreamForAlpha);
-            if (fillAlpha !== null) colors.fillOpacity = fillAlpha;
+            // Gelijk aan /CA is het de algehele doorzichtigheid die ook in de
+            // appearance staat (#512), geen aparte vul-alfa.
+            if (fillAlpha !== null && fillAlpha !== colors.opacity) colors.fillOpacity = fillAlpha;
             if (strokeAlpha !== null && colors.opacity === undefined) colors.opacity = strokeAlpha;
           }
         }
@@ -246,6 +248,11 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
           const on = leesPdfTekst(context, opsNameRaw);
           if (on !== undefined) colors.stampName = on;
         }
+        const opsTekstRaw = annotDict.get(PDFName.of('OPS_StampText'));
+        if (opsTekstRaw) {
+          const tekst = leesPdfTekst(context, opsTekstRaw);
+          if (tekst) colors.opsStampText = tekst;
+        }
         // Read /OPS_CropLeft.. (non-destructive image crop, fractions 0-1
         // per side — issue #212). The AP embeds the FULL bitmap, so these
         // fractions re-apply the crop after the image round-trips.
@@ -286,6 +293,13 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
       if (opsRotRaw) {
         const rv = pdfNum(context.lookup(opsRotRaw) || opsRotRaw);
         if (rv !== null) colors.rotation = rv;
+      }
+
+      // /OPS_LineHeads: exacte lijnkoppen die /LE niet kent (lijnkoppen.js).
+      const opsKoppenRaw = annotDict.get(PDFName.of('OPS_LineHeads'));
+      if (opsKoppenRaw) {
+        const koppen = leesPdfTekst(context, opsKoppenRaw);
+        if (koppen) colors.opsLineHeads = koppen;
       }
 
       // Read /OPS_HeadSize (our custom arrowhead size for dimension annotations)
