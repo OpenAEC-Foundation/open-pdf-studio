@@ -10,6 +10,7 @@ import { isTauri, invoke, readBinaryFile, writeBinaryFile, saveFileDialog, unloc
 import { getCachedPdfBytes, setCachedPdfBytes, hidePdfABar } from './loader.js';
 import { PDFDocument, PDFString, PDFHexString, PDFName, PDFArray, PDFStream, degrees,
   PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup, PDFOptionList } from 'pdf-lib';
+import { kopNaarLE, koppenSleutel } from './lijnkoppen.js';
 import { bouwKnipselAppearance, tekenKnipselInPagina, alInBasis, markeerGebakken, ruimKnipselRestenOp, CATALOGUS_SLEUTEL as KNIPSEL_CATALOGUS } from './saver/vector-snippet.js';
 import { schrijfHatchMeta } from './saver/hatch-meta.js';
 import { schrijfWandJoinMeta } from './saver/wand-join-meta.js';
@@ -25,7 +26,7 @@ import { showMessage } from '../bridge.js';
 
 // Sub-modules
 import { hexToRgb, buildBorderStyle, computeAnnotFlags, mapFontToPdfName,
-  ensureAcroFormFonts, stripPdfAMetadata, generateAppearanceStream,
+  ensureAcroFormFonts, stripPdfAMetadata, generateAppearanceStream, zetDoorzichtigheidInAp, tekstvakFontDict, boogHoekenNaRotatie,
   randSleutelZonderRand, markeerZonderRand, onzichtbaarVlak, vlakRect } from './saver/utils.js';
 import { saveTextEditsToPages } from './saver/text-edits.js';
 import { hasMixedRuns, textboxLineRuns, runsToText } from '../annotations/rendering/textbox-layout.js';
@@ -40,7 +41,7 @@ import { catmullRomSpline } from '../tools/tools/spline-tool.js';
 import { catmullRomToBezier, splineArrowEndTangent } from '../annotations/spline-arrow-geometry.js';
 import { buildFilledAreaAP, buildMeasureAreaAP, buildPolylineMeasureAP,
   buildMeasureDistanceAP, buildWallAP, buildCloudAP, buildSplineArrowAP,
-  buildStavenreeksAP, buildBetonbalkAP, buildSysteemrasterAP,
+  buildStavenreeksAP, buildBetonbalkAP, buildSysteemrasterAP, buildLineAP, buildPolylineAP, polylijnOmhullende, lijnOmhullende, buildLeiderAP, leiderOmhullende, apLijndikte,
   cloudRectOutlinePts, cloudPolyOutlinePts } from './saver/appearance-vectors.js';
 import { veelhoekGrondvorm } from './saver/veelhoek-grondvorm.js';
 import { buildStavenreeks, toLocalPrimitives, labelText } from '../annotations/stavenreeks.js';
@@ -159,6 +160,10 @@ function remapAnnotationForRotatedPage(annRaw, rot, cw, ch) {
     if (typeof ann[kx] === 'number' && typeof ann[ky] === 'number') {
       const p = m(ann[kx], ann[ky]); ann[kx] = p.x; ann[ky] = p.y;
     }
+  }
+  // Boog: met het middelpunt draaien ook de hoeken mee.
+  if (ann.type === 'arc' && typeof ann.startAngle === 'number' && typeof ann.endAngle === 'number') {
+    Object.assign(ann, boogHoekenNaRotatie(ann, rot));
   }
   // Nested {x,y} objects.
   for (const k of ['vertex', 'point1', 'point2', 'at', 'opsRuimteZaad']) {
@@ -504,7 +509,9 @@ async function _savePDFNu(saveAsPath) {
         // returns the annotation unchanged (non-rotated pages untouched).
         const ann = pageRot ? remapAnnotationForRotatedPage(annRaw, pageRot, cropBox.width, cropBox.height) : annRaw;
         const colorArr = hexToColorArray(ann.color || '#000000');
-        const opacity = ann.opacity !== undefined ? ann.opacity : 1;
+        // Een wipeout-masker tekent de app altijd dekkend; zijn doorzichtigheid
+        // mag dus ook in het bestand niet doorschijnen.
+        const opacity = ann.type === 'mask' ? 1 : (ann.opacity !== undefined ? ann.opacity : 1);
         // Aparte vul-doorzichtigheid (PDF /ca). De annotatie-dict kent alleen
         // /CA voor het geheel; een afwijkende vul-alfa leeft normaal in de
         // graphics-state van de appearance-stream. Om hem niet te verliezen bij
@@ -668,6 +675,7 @@ async function _savePDFNu(saveAsPath) {
                 paginaIndex: 0,
                 paginaRot: pageRot,
                 bewaarBron: !ann.flattened,
+                opacity,
               });
             } catch (err) {
               console.warn(`[saver] knipsel ${ann.id} kon niet worden ingebed:`, err.message);
@@ -769,12 +777,17 @@ async function _savePDFNu(saveAsPath) {
             const x2 = convertX(ann.endX);
             const y2 = convertY(ann.endY);
 
-            const headSize = ann.headSize || 12;
-            const padding = Math.max(borderWidth, headSize);
-            const rectX1 = Math.min(x1, x2) - padding;
-            const rectY1 = Math.min(y1, y2) - padding;
-            const rectX2 = Math.max(x1, x2) + padding;
-            const rectY2 = Math.max(y1, y2) + padding;
+            // Same defaults as the screen (rendering.js 'arrow'): an open end
+            // head, no start head, size 8. /LE, /OPS_HeadSize and the
+            // appearance all use these, so a reopened arrow stays the same.
+            const isArrow = ann.type === 'arrow';
+            const headSize = ann.headSize || 8;
+            const startHead = isArrow ? (ann.startHead || 'none') : null;
+            const endHead = isArrow ? (ann.endHead || 'open') : null;
+            const [rectX1, rectY1, rectX2, rectY2] = lijnOmhullende({
+              x1, y1, x2, y2, lineWidth: apLijndikte(borderWidth, { isPijl: isArrow, heeftVulling: hasFill(ann.fillColor) }), headSize,
+              heeftKoppen: (startHead && startHead !== 'none') || (endHead && endHead !== 'none'),
+            });
 
             const strokeColorArr = ann.strokeColor ? hexToColorArray(ann.strokeColor) : colorArr;
 
@@ -796,21 +809,11 @@ async function _savePDFNu(saveAsPath) {
 
             // Arrow line endings (LE)
             if (ann.type === 'arrow') {
-              const mapHead = (h) => {
-                switch (h) {
-                  case 'open': return 'OpenArrow';
-                  case 'closed': return 'ClosedArrow';
-                  case 'diamond': return 'Diamond';
-                  case 'circle': return 'Circle';
-                  case 'square': return 'Square';
-                  case 'slash': return 'Slash';
-                  case 'butt': return 'Butt';
-                  case 'openReversed': return 'ROpenArrow';
-                  case 'closedReversed': return 'RClosedArrow';
-                  default: return 'None';
-                }
-              };
-              lineDict.LE = [PDFName.of(mapHead(ann.startHead)), PDFName.of(mapHead(ann.endHead))];
+              lineDict.LE = [PDFName.of(kopNaarLE(startHead)), PDFName.of(kopNaarLE(endHead))];
+              lineDict.OPS_HeadSize = headSize;
+              // Een kop die /LE niet exact kent (stealth), gaat apart mee.
+              const koppen = koppenSleutel(startHead, endHead);
+              if (koppen) lineDict.OPS_LineHeads = PDFString.of(koppen);
 
               // Interior color for closed arrowheads
               if (hasFill(ann.fillColor)) {
@@ -819,6 +822,14 @@ async function _savePDFNu(saveAsPath) {
             }
 
             annotDict = context.obj(lineDict);
+            // Other viewers do not draw a /Line from /L and /LE themselves.
+            attachVectorAP(context, annotDict, buildLineAP({
+              startX: ann.startX, startY: ann.startY, endX: ann.endX, endY: ann.endY,
+              X: convertX, Y: convertY, strokeColorHex: ann.strokeColor || ann.color,
+              fillColorHex: isArrow ? (ann.fillColor || ann.strokeColor || ann.color) : null,
+              lineWidth: apLijndikte(borderWidth, { isPijl: isArrow, heeftVulling: hasFill(ann.fillColor) }), borderStyle: ann.borderStyle,
+              startHead, endHead, headSize,
+            }), lineDict.Rect);
             break;
           }
 
@@ -868,14 +879,13 @@ async function _savePDFNu(saveAsPath) {
             let arcSA = ann.startAngle, arcEA = ann.endAngle;
             if (arcEA < arcSA) arcEA += 2 * Math.PI;
             const arcVertices = [];
-            let arcMinX = Infinity, arcMinY = Infinity, arcMaxX = -Infinity, arcMaxY = -Infinity;
+            const arcAppPts = [];
             for (let i = 0; i <= arcSteps; i++) {
               const angle = arcSA + (arcEA - arcSA) * i / arcSteps;
-              const px = convertX(ann.centerX + ann.radius * Math.cos(angle));
-              const py = convertY(ann.centerY + ann.radius * Math.sin(angle));
-              arcVertices.push(px, py);
-              arcMinX = Math.min(arcMinX, px); arcMaxX = Math.max(arcMaxX, px);
-              arcMinY = Math.min(arcMinY, py); arcMaxY = Math.max(arcMaxY, py);
+              const ax = ann.centerX + ann.radius * Math.cos(angle);
+              const ay = ann.centerY + ann.radius * Math.sin(angle);
+              arcAppPts.push({ x: ax, y: ay });
+              arcVertices.push(convertX(ax), convertY(ay));
             }
 
             const arcStrokeColor = ann.strokeColor ? hexToColorArray(ann.strokeColor) : colorArr;
@@ -883,7 +893,7 @@ async function _savePDFNu(saveAsPath) {
             const arcDict = {
               Type: 'Annot',
               Subtype: 'PolyLine',
-              Rect: [arcMinX - borderWidth, arcMinY - borderWidth, arcMaxX + borderWidth, arcMaxY + borderWidth],
+              Rect: polylijnOmhullende(arcAppPts.map((p) => [convertX(p.x), convertY(p.y)]), apLijndikte(borderWidth, { heeftVulling: false })),
               Vertices: arcVertices,
               C: arcStrokeColor,
               CA: opacity,
@@ -902,6 +912,11 @@ async function _savePDFNu(saveAsPath) {
             arcDict.BS = buildBorderStyle(context, borderWidth, ann.borderStyle);
 
             annotDict = context.obj(arcDict);
+            // Other viewers do not draw a /PolyLine from /Vertices themselves.
+            attachVectorAP(context, annotDict, buildPolylineAP({
+              points: arcAppPts, X: convertX, Y: convertY,
+              strokeColorHex: ann.strokeColor || ann.color, lineWidth: apLijndikte(borderWidth, { heeftVulling: false }), borderStyle: ann.borderStyle,
+            }), arcDict.Rect);
             break;
           }
 
@@ -911,14 +926,7 @@ async function _savePDFNu(saveAsPath) {
             const samples = catmullRomSpline(ann.controlPoints, 16);
 
             const splineVertices = [];
-            let spMinX = Infinity, spMinY = Infinity, spMaxX = -Infinity, spMaxY = -Infinity;
-            for (const sample of samples) {
-              const px = convertX(sample.x);
-              const py = convertY(sample.y);
-              splineVertices.push(px, py);
-              spMinX = Math.min(spMinX, px); spMaxX = Math.max(spMaxX, px);
-              spMinY = Math.min(spMinY, py); spMaxY = Math.max(spMaxY, py);
-            }
+            for (const sample of samples) splineVertices.push(convertX(sample.x), convertY(sample.y));
 
             const spStrokeColor = ann.strokeColor ? hexToColorArray(ann.strokeColor) : colorArr;
 
@@ -931,7 +939,7 @@ async function _savePDFNu(saveAsPath) {
             const splineDict = {
               Type: 'Annot',
               Subtype: 'PolyLine',
-              Rect: [spMinX - borderWidth, spMinY - borderWidth, spMaxX + borderWidth, spMaxY + borderWidth],
+              Rect: polylijnOmhullende(splineVertices, apLijndikte(borderWidth, { heeftVulling: false })),
               Vertices: splineVertices,
               C: spStrokeColor,
               CA: opacity,
@@ -946,6 +954,10 @@ async function _savePDFNu(saveAsPath) {
             splineDict.BS = buildBorderStyle(context, borderWidth, ann.borderStyle);
 
             annotDict = context.obj(splineDict);
+            attachVectorAP(context, annotDict, buildPolylineAP({
+              points: samples, X: convertX, Y: convertY,
+              strokeColorHex: ann.strokeColor || ann.color, lineWidth: apLijndikte(borderWidth, { heeftVulling: false }), borderStyle: ann.borderStyle,
+            }), splineDict.Rect);
             break;
           }
 
@@ -973,20 +985,7 @@ async function _savePDFNu(saveAsPath) {
             const saHeadSize = ann.headSize || 8;
             const saPad = Math.max(borderWidth, saHeadSize) + 2;
 
-            const saMapHead = (h) => {
-              switch (h) {
-                case 'open': return 'OpenArrow';
-                case 'closed': return 'ClosedArrow';
-                case 'diamond': return 'Diamond';
-                case 'circle': return 'Circle';
-                case 'square': return 'Square';
-                case 'slash': return 'Slash';
-                case 'butt': return 'Butt';
-                case 'openReversed': return 'ROpenArrow';
-                case 'closedReversed': return 'RClosedArrow';
-                default: return 'None';
-              }
-            };
+            const saMapHead = kopNaarLE;
 
             // OPS_Points = clicked control points (app curve is rebuilt from these).
             const saOpsPoints = [];
@@ -1001,6 +1000,7 @@ async function _savePDFNu(saveAsPath) {
               C: saStrokeColor,
               CA: opacity,
               LE: [PDFName.of(saMapHead(ann.startHead)), PDFName.of(saMapHead(ann.endHead || 'open'))],
+              ...(koppenSleutel(ann.startHead, ann.endHead || 'open') ? { OPS_LineHeads: PDFString.of(koppenSleutel(ann.startHead, ann.endHead || 'open')) } : {}),
               T: pdfTextString(ann.author || 'User'),
               Contents: pdfTextString(ann.subject || ''),
               M: PDFString.of(new Date().toISOString()),
@@ -1030,21 +1030,15 @@ async function _savePDFNu(saveAsPath) {
             if (!ann.points || ann.points.length < 2) continue;
 
             const vertices = [];
-            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-            for (const pt of ann.points) {
-              const px = convertX(pt.x);
-              const py = convertY(pt.y);
-              vertices.push(px, py);
-              minX = Math.min(minX, px); maxX = Math.max(maxX, px);
-              minY = Math.min(minY, py); maxY = Math.max(maxY, py);
-            }
+            for (const pt of ann.points) vertices.push(convertX(pt.x), convertY(pt.y));
 
             const strokeColorArr = ann.strokeColor ? hexToColorArray(ann.strokeColor) : colorArr;
 
             const polylineDict = {
               Type: 'Annot',
               Subtype: 'PolyLine',
-              Rect: [minX - borderWidth, minY - borderWidth, maxX + borderWidth, maxY + borderWidth],
+              // Met de verstekpunten van scherpe hoeken: de appearance wordt op de Rect geknipt.
+              Rect: polylijnOmhullende(vertices, apLijndikte(borderWidth, { heeftVulling: false })),
               Vertices: vertices,
               C: strokeColorArr,
               CA: opacity,
@@ -1057,6 +1051,10 @@ async function _savePDFNu(saveAsPath) {
             polylineDict.BS = buildBorderStyle(context, borderWidth, ann.borderStyle);
 
             annotDict = context.obj(polylineDict);
+            attachVectorAP(context, annotDict, buildPolylineAP({
+              points: ann.points, X: convertX, Y: convertY,
+              strokeColorHex: ann.strokeColor || ann.color, lineWidth: apLijndikte(borderWidth, { heeftVulling: false }), borderStyle: ann.borderStyle,
+            }), polylineDict.Rect);
             break;
           }
 
@@ -1518,12 +1516,7 @@ async function _savePDFNu(saveAsPath) {
               ftUsedFonts.add(pdfFont);
               const ftFontResources = {};
               for (const f of ftUsedFonts) {
-                ftFontResources[f] = context.obj({
-                  Type: 'Font',
-                  Subtype: 'Type1',
-                  BaseFont: f,
-                  Encoding: 'WinAnsiEncoding'
-                });
+                ftFontResources[f] = tekstvakFontDict(context, f);
               }
 
               // Use absolute BBox (same as Rect) with Matrix to translate origin
@@ -1663,6 +1656,12 @@ async function _savePDFNu(saveAsPath) {
               });
               const apStreamRef = context.register(apStream);
               annotDict.set(PDFName.of('AP'), context.obj({ N: apStreamRef }));
+              // De tekst zelf, zodat de stempel als tekststempel terugkomt
+              // (loader/stempel-tekst.js) en niet als uitsnede van de weergave.
+              // Hex: een losse ')' in een letterlijke string breekt het bestand.
+              annotDict.set(PDFName.of('OPS_StampText'), PDFHexString.fromText(ann.stampText));
+              // /C is de kleur die de appearance tekent; de loader leest hem terug.
+              annotDict.set(PDFName.of('C'), context.obj(hexToColorArray(ann.stampColor || ann.color || '#ef4444')));
             }
 
             // Embed image data if present (e.g. north arrow, custom stamps)
@@ -2522,7 +2521,7 @@ async function _savePDFNu(saveAsPath) {
               heeftRand: !maZonderRand,
               lineWidth: borderWidth, borderStyle: ann.borderStyle,
               hatchPattern: ann.hatchPattern, hatchColorHex: ann.hatchColor,
-              hatchScale: ann.hatchScale, hatchAngle: ann.hatchAngle,
+              hatchScale: ann.hatchScale, hatchAngle: (ann.hatchAngle || 0) - pageRot,
               text: ann.measureShowLabel === false ? '' : ann.measureText,
               labelX: ann.labelX, labelY: ann.labelY,
               // Eigen vul-alfa (bv. een extern meetvlak op 30%) ook in de
@@ -2621,7 +2620,7 @@ async function _savePDFNu(saveAsPath) {
               heeftRand: !faZonderRand,
               lineWidth: borderWidth, borderStyle: ann.borderStyle,
               hatchPattern: ann.hatchPattern, hatchColorHex: ann.hatchColor,
-              hatchScale: ann.hatchScale, hatchAngle: ann.hatchAngle,
+              hatchScale: ann.hatchScale, hatchAngle: (ann.hatchAngle || 0) - pageRot,
             }), faDict.Rect);
             break;
           }
@@ -2905,6 +2904,12 @@ async function _savePDFNu(saveAsPath) {
             annotDict.set(PDFName.of('AP'), apDict);
           }
         }
+        // Doorzichtigheid ook in de appearance (#512): PDFium en MuPDF negeren
+        // /CA zodra er een /AP is.
+        if (annotDict && typeof annotDict.get === 'function') {
+          // Een pijl als geheel, zoals het scherm (overlap van schacht en kop).
+          zetDoorzichtigheidInAp(context, annotDict, opacity, { alsGroep: ann.type === 'arrow' });
+        }
 
         // Add annotation to page
         let parentAnnotRef = null;
@@ -2963,7 +2968,7 @@ async function _savePDFNu(saveAsPath) {
           const _bw = ann.width || 150;
           const _bh = ann.height || 50;
           const _box = { x: ann.x, y: ann.y, width: _bw, height: _bh };
-          const _lwLdr = ann.lineWidth !== undefined ? ann.lineWidth : 1;
+          const _lwLdr = (ann.lineWidth !== undefined ? ann.lineWidth : 1) || 1; // zoals het scherm (drawTextboxLeader)
           const _strokeArr = ann.strokeColor && hasStroke(ann.strokeColor)
             ? hexToColorArray(ann.strokeColor)
             : (ann.color ? hexToColorArray(ann.color) : [0, 0, 0]);
@@ -2984,15 +2989,15 @@ async function _savePDFNu(saveAsPath) {
             const kPdf = [convertX(leader.kneeX), convertY(leader.kneeY)];
             const tPdf = [convertX(leader.tipX), convertY(leader.tipY)];
             const verts = [aPdf[0], aPdf[1], kPdf[0], kPdf[1], tPdf[0], tPdf[1]];
-            const minX = Math.min(aPdf[0], kPdf[0], tPdf[0]) - _lwLdr - 4;
-            const maxX = Math.max(aPdf[0], kPdf[0], tPdf[0]) + _lwLdr + 4;
-            const minY = Math.min(aPdf[1], kPdf[1], tPdf[1]) - _lwLdr - 4;
-            const maxY = Math.max(aPdf[1], kPdf[1], tPdf[1]) + _lwLdr + 4;
-            const endStyle = leader.endStyle === 'circle' ? 'Circle' : 'OpenArrow';
+            const eindStijl = leader.endStyle === 'circle' ? 'circle' : 'arrow';
+            // Met de kop erin: de appearance wordt op de Rect geknipt.
+            const ldrRect = leiderOmhullende([aPdf, kPdf, tPdf], _lwLdr, eindStijl);
+            // Het scherm tekent een gevulde (gesloten) pijlkop.
+            const endStyle = eindStijl === 'circle' ? 'Circle' : 'ClosedArrow';
             const ldrDict = context.obj({
               Type: 'Annot',
               Subtype: 'PolyLine',
-              Rect: [minX, minY, maxX, maxY],
+              Rect: ldrRect,
               Vertices: verts,
               C: _strokeArr,
               CA: ann.opacity !== undefined ? ann.opacity : 1,
@@ -3005,6 +3010,14 @@ async function _savePDFNu(saveAsPath) {
             ldrDict.set(PDFName.of('LE'), context.obj([PDFName.of('None'), PDFName.of(endStyle)]));
             ldrDict.set(PDFName.of('IRT'), parentAnnotRef);
             ldrDict.set(PDFName.of('BS'), buildBorderStyle(context, _lwLdr, ann.borderStyle));
+            // Andere lezers tekenen een /PolyLine niet zelf (#512).
+            attachVectorAP(context, ldrDict, buildLeiderAP({
+              points: [aBest, { x: leader.kneeX, y: leader.kneeY }, { x: leader.tipX, y: leader.tipY }],
+              X: convertX, Y: convertY,
+              strokeColorHex: ann.strokeColor && hasStroke(ann.strokeColor) ? ann.strokeColor : (ann.color || '#000000'),
+              lineWidth: _lwLdr, eindStijl,
+            }), ldrRect);
+            zetDoorzichtigheidInAp(context, ldrDict, ann.opacity !== undefined ? ann.opacity : 1, { alsGroep: true });
             // Een aanhaallijn hoort bij de laag van haar tekstvak (#468).
             const ocRef = ocVoorAnnotatie(laagOcgs, ann);
             if (ocRef) ldrDict.set(PDFName.of('OC'), ocRef);

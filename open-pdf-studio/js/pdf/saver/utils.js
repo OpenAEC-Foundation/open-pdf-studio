@@ -1,4 +1,4 @@
-import { PDFName } from 'pdf-lib';
+import { PDFName, PDFDict, PDFRef, PDFRawStream, decodePDFRawStream } from 'pdf-lib';
 import { kruisEindpuntenEllips } from '../../annotations/kruis-geometrie.js';
 import { hasFill, hasStroke, colorWithoutStroke, kanZonderRand } from '../../annotations/fill-utils.js';
 import { vlakOmhullende } from '../../annotations/vlak-ringen.js';
@@ -145,6 +145,39 @@ export function mapFontToPdfName(fontFamily, bold, italic) {
   return baseName + suffix;
 }
 
+const _STANDAARD_FONTS = /^(Helvetica|Courier|Times|Symbol|ZapfDingbats)(-|$)/;
+
+/**
+ * Het fontwoordenboek voor een tekstvak-appearance (#512). Een niet-standaard
+ * font is niet ingebed; zonder FontDescriptor vervangt MuPDF het door een
+ * schreefletter. Een descriptor zonder Serif-vlag laat lezers die het font niet
+ * hebben een schreefloze letter kiezen, met vet en cursief uit de naam.
+ * @param {string} naam  PDF-fontnaam van mapFontToPdfName
+ */
+export function tekstvakFontDict(context, naam) {
+  const font = { Type: 'Font', Subtype: 'Type1', BaseFont: naam, Encoding: 'WinAnsiEncoding' };
+  if (_STANDAARD_FONTS.test(naam)) return context.obj(font);
+  const vet = /-Bold/.test(naam);
+  const cursief = /(Italic|Oblique)$/.test(naam);
+  const familie = naam.replace(/-.*$/, '').toLowerCase();
+  const mono = /mono|consol|courier|menlo|typewriter|code/.test(familie);
+  const schreef = !mono && !/sans/.test(familie)
+    && /serif|times|georgia|cambria|garamond|antiqua|palatino|bookman|baskerville|caslon|didot|bodoni|constantia|century|minion|rockwell|charter|cochin|sabon|plantin|perpetua|bell ?mt|book/.test(familie);
+  font.FontDescriptor = context.register(context.obj({
+    Type: 'FontDescriptor',
+    FontName: naam,
+    // 1 vaste breedte, 2 schreef, 32 niet-symbolisch, 64 cursief, 262144 vet (ForceBold).
+    Flags: (mono ? 1 : 0) | (schreef ? 2 : 0) | 32 | (cursief ? 64 : 0) | (vet ? 262144 : 0),
+    ItalicAngle: cursief ? -12 : 0,
+    FontBBox: [-200, -250, 1200, 950],
+    Ascent: 950,
+    Descent: -250,
+    CapHeight: 700,
+    StemV: vet ? 140 : 80,
+  }));
+  return context.obj(font);
+}
+
 // Ensure AcroForm Default Resources contain fonts used by FreeText annotations
 // so DA strings can reference them (e.g. /Helv, /Courier, /SegoeUI)
 export function ensureAcroFormFonts(pdfDoc, context, usedFonts) {
@@ -247,6 +280,84 @@ export function stripPdfAMetadata(pdfDocLib) {
   } catch (e) {
     console.warn('Failed to strip PDF/A metadata:', e);
   }
+}
+
+/**
+ * Zet de doorzichtigheid van een annotatie ook ín haar appearance stream (#512).
+ * PDFium (ook in browsers) en MuPDF negeren /CA zodra er een /AP is; andere
+ * programma's schrijven de alfa daarom óók als ExtGState in de stream. `/GSo gs`
+ * komt vóór al het tekenwerk; een aparte vul-alfa (GSf) daarna blijft gelden,
+ * net als op het scherm. /CA op de annotatie zelf blijft staan.
+ *
+ * Met `alsGroep` gaat de inhoud ongewijzigd in een transparantiegroep die één
+ * keer met de alfa getekend wordt: overlappende delen (schacht en kop van een
+ * pijl) worden dan niet donkerder, zoals op het scherm.
+ */
+export function zetDoorzichtigheidInAp(context, annotDict, opacity, { alsGroep = false } = {}) {
+  if (!(opacity >= 0 && opacity < 1)) return;
+  const apRaw = annotDict.get(PDFName.of('AP'));
+  const ap = apRaw && context.lookup(apRaw);
+  const nRef = ap?.get?.(PDFName.of('N'));
+  const n = nRef && context.lookup(nRef);
+  if (!n?.dict) return;
+  const oud = n instanceof PDFRawStream ? decodePDFRawStream(n).decode()
+    : typeof n.getUnencodedContents === 'function' ? n.getUnencodedContents() : n.getContents();
+  const metKop = (kopTekst, rest) => {
+    const kop = new TextEncoder().encode(kopTekst);
+    const uit = new Uint8Array(kop.length + rest.length);
+    uit.set(kop, 0);
+    uit.set(rest, kop.length);
+    return uit;
+  };
+
+  const dict = {};
+  for (const [sleutel, waarde] of n.dict.entries()) {
+    const naam = sleutel.asString();
+    if (naam === '/Filter' || naam === '/DecodeParms' || naam === '/Length') continue;
+    dict[naam.slice(1)] = waarde;
+  }
+  const gso = context.obj({ Type: 'ExtGState', CA: opacity, ca: opacity });
+  const resOud = n.dict.get(PDFName.of('Resources'));
+  const res = context.lookup(resOud);
+
+  let inhoud;
+  if (alsGroep) {
+    // Zelfde ruimte als de buitenste stream (geen eigen Matrix), alfa 1.
+    const groep = context.flateStream(oud, {
+      Type: 'XObject', Subtype: 'Form', BBox: n.dict.get(PDFName.of('BBox')),
+      Resources: resOud || context.obj({}),
+      Group: context.obj({ Type: 'Group', S: 'Transparency' }),
+    });
+    dict.Resources = context.obj({
+      ExtGState: context.obj({ GSo: gso }),
+      XObject: context.obj({ OPSg: context.register(groep) }),
+    });
+    inhoud = new TextEncoder().encode('/GSo gs\n/OPSg Do\n');
+  } else {
+    const resNieuw = res instanceof PDFDict ? res.clone(context) : context.obj({});
+    const egsOud = resNieuw.get(PDFName.of('ExtGState'));
+    const egs = egsOud ? context.lookup(egsOud).clone(context) : context.obj({});
+    egs.set(PDFName.of('GSo'), gso);
+    resNieuw.set(PDFName.of('ExtGState'), egs);
+    dict.Resources = resNieuw;
+    inhoud = metKop('/GSo gs\n', oud);
+  }
+
+  const nieuw = context.flateStream(inhoud, dict);
+  if (nRef instanceof PDFRef) context.assign(nRef, nieuw);
+  else ap.set(PDFName.of('N'), context.register(nieuw));
+}
+
+/**
+ * Begin- en eindhoek van een boog na de paginarotatie van de saver
+ * (_rotVisualMapper): die draait de pagina, dus de hoeken draaien mee
+ * (90 → θ − π/2, 180 → θ + π, 270 → θ + π/2). Zonder dit stond een boog op
+ * een gedraaide pagina een kwartslag om zijn middelpunt verdraaid.
+ */
+export function boogHoekenNaRotatie({ startAngle, endAngle }, rot) {
+  const r = ((rot % 360) + 360) % 360;
+  const d = r === 90 ? -Math.PI / 2 : r === 180 ? Math.PI : r === 270 ? Math.PI / 2 : 0;
+  return { startAngle: startAngle + d, endAngle: endAngle + d };
 }
 
 // Generate a PDF appearance stream (Form XObject) for an annotation
@@ -357,9 +468,7 @@ export function generateAppearanceStream(context, ann, convertY) {
         break;
       }
       case 'line': {
-        // Skip AP stream for lines and arrows - let PDF viewers render natively
-        // from /L, /LE, and /BS entries. Custom AP streams cause coordinate
-        // mismatches between BBox and Rect, and override native arrowhead rendering.
+        // Lines and arrows get their appearance in saver.js (buildLineAP).
         return null;
       }
       case 'draw': {
