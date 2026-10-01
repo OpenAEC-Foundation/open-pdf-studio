@@ -20,7 +20,6 @@ import { systeemTypeFromJson } from '../../annotations/systeem-typen.js';
 import { ensureSysteemType, getSysteemTypeById } from '../../annotations/systeem-typen-registry.js';
 import { computeTextboxContentHeight } from '../../annotations/rendering/shapes.js';
 import { pasRegelafstandAanDoos } from '../../annotations/rendering/textbox-layout.js';
-import { toWinAnsiText } from '../saver/pdf-text.js';
 import { maatVanGedraaideVorm } from './gedraaide-vorm-maat.js';
 import { tekstvakRotatie, tekstvakMaat } from './tekstvak-rotatie.js';
 import { onzichtbaarVlakUitExtra, randloosUitExtra } from './geen-rand.js';
@@ -30,6 +29,8 @@ import { extraVoorAnnotatie } from './extra-sleutel.js';
 import { plattegrondUitExtra } from './plattegrond-meta.js';
 import { eigenTekststempel, tekststempelKleur } from './stempel-tekst.js';
 import { koppenUitBestand } from '../lijnkoppen.js';
+import { kiesTekstvakTekst, runsZonderInspringing } from './tekstvak-tekst.js';
+import { inzetUitDsMarge, tolerantieVoorDsInzet } from '../../annotations/rendering/textbox-layout.js';
 
 /**
  * Zet een PDF-annotatie om naar het model van de app.
@@ -1168,22 +1169,15 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
       let fontUnderline = extraColors.fontUnderline || false;
       let fontStrikethrough = extraColors.fontStrikethrough || false;
 
-      // Text content: prefer textContent array (joined), fallback to contents
-      let text = annot.textContent ? annot.textContent.join('\n') : (annot.contents || '');
-      // De appearance kan alleen WinAnsi tonen: tekens daarbuiten staan er als
-      // '?' of een naaste equivalent in, terwijl /Contents (UTF-16) de echte
-      // tekst bewaart. Is de appearance-tekst precies de WinAnsi-weergave van
-      // /Contents, dan is /Contents de bron; anders legt de volgende save de
-      // vervangingstekens ook in /Contents vast.
-      const contentsTekst = annot.contentsObj?.str || annot.contents || '';
-      if (annot.textContent && contentsTekst) {
-        const zonderWit = (s) => String(s).replace(/\s+/g, '');
-        const appearanceTekst = zonderWit(text);
-        if (appearanceTekst !== zonderWit(contentsTekst)
-          && appearanceTekst === zonderWit(toWinAnsiText(contentsTekst))) {
-          text = contentsTekst;
-        }
-      }
+      // /Contents draagt de getypte tekst (met witregels, zonder de
+      // afbrekingen van de appearance); de appearance-regels zijn de
+      // terugval. Ook de WinAnsi-vervangtekens van de appearance wijzen
+      // /Contents als bron aan. Zie tekstvak-tekst.js.
+      const appearanceTekst = annot.textContent ? annot.textContent.join('\n') : '';
+      let text = kiesTekstvakTekst({
+        appearanceTekst,
+        contents: annot.contentsObj?.str || annot.contents || '',
+      });
       // Inline opmaak uit /RC: alleen als de platte tekst (op witruimte na)
       // overeenkomt met Contents — anders zijn de runs niet te vertrouwen.
       let textRuns;
@@ -1197,7 +1191,11 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         // (losing bold/italic/underline for the whole annotation) over a
         // difference that isn't a real content difference.
         const norm = (s) => String(s).replace(/\s+/g, '');
-        if (norm(rcText) === norm(text)) { text = rcText; textRuns = extraColors.textRuns; }
+        if (norm(rcText) === norm(text)) {
+          // Zelfde voorloopwit-regel als de platte tekst (tekstvak-tekst.js).
+          textRuns = runsZonderInspringing(extraColors.textRuns, appearanceTekst);
+          text = textRuns.map(l => l.map(r => r.text).join('')).join('\n');
+        }
       }
 
       // For FreeText annotations, annot.color (C entry) is the background/fill color per PDF spec
@@ -1224,6 +1222,9 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
       const zonderRand = randloosUitExtra(extraColors);
       const borderWidth = zonderRand ? zonderRand.lineWidth
         : extraColors.borderWidth !== undefined ? extraColors.borderWidth : (annot.borderStyle?.width || 1);
+      // Tekstinzet uit /DS (randdikte + marge + 1, zie inzetUitDsMarge); zonder
+      // marge blijft het de app-regel (randdikte).
+      const dsInzet = extraColors.dsMargin != null ? inzetUitDsMarge(borderWidth, extraColors.dsMargin) : undefined;
 
       // Weergaverotatie en doosmaat: zie tekstvak-rotatie.js.
       const ftRotation = tekstvakRotatie({
@@ -1268,14 +1269,14 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         // of truncating text other editors show in full.
         const coNeededH = computeTextboxContentHeight({
           text, textRuns, width: coW, fontSize,
-          lineSpacing: extraColors.lineSpacing, lineWidth: borderWidth,
+          lineSpacing: extraColors.lineSpacing, lineWidth: borderWidth, textPadding: dsInzet,
           fontFamily: fontFamily || 'Arial'
         });
         // An implausible /DS line-height (e.g. 4pt text with 18.4pt) is fitted
         // into the authored box instead of growing the box over the drawing.
         const coPas = pasRegelafstandAanDoos({
           lineSpacing: extraColors.lineSpacing, fontSize, boxHeight: coH,
-          padding: borderWidth ?? 0, neededHeight: coNeededH,
+          padding: dsInzet ?? borderWidth ?? 0, neededHeight: coNeededH, tolerantie: dsInzet != null ? tolerantieVoorDsInzet(dsInzet, fontSize, extraColors.lineSpacing) : 0,
         });
         coH = coPas.height;
         // Callout stroke color: IC > AP stroke > borderColor fallback
@@ -1309,6 +1310,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           fontSize: fontSize,
           borderStyle: borderStyle,
           lineWidth: borderWidth,
+          // Binnenmarge uit /DS; zonder die opgave blijft het de randdikte.
+          textPadding: dsInzet,
           fontFamily: fontFamily || 'Arial',
           fontBold: fontBold,
           fontItalic: fontItalic,
@@ -1335,12 +1338,12 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
       // lines other editors show in full just because the authored Rect is tight.
       const ftNeededH = computeTextboxContentHeight({
         text, textRuns, width: ftWidth, fontSize,
-        lineSpacing: extraColors.lineSpacing, lineWidth: borderWidth,
+        lineSpacing: extraColors.lineSpacing, lineWidth: borderWidth, textPadding: dsInzet,
         fontFamily: fontFamily || 'Arial'
       });
       const ftPas = pasRegelafstandAanDoos({
         lineSpacing: extraColors.lineSpacing, fontSize, boxHeight: ftHeight,
-        padding: borderWidth ?? 0, neededHeight: ftNeededH,
+        padding: dsInzet ?? borderWidth ?? 0, neededHeight: ftNeededH, tolerantie: dsInzet != null ? tolerantieVoorDsInzet(dsInzet, fontSize, extraColors.lineSpacing) : 0,
       });
       ftHeight = ftPas.height;
 
@@ -1361,6 +1364,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         fontSize: fontSize,
         borderStyle: borderStyle,
         lineWidth: borderWidth,
+        // Binnenmarge uit /DS; zonder die opgave blijft het de randdikte.
+        textPadding: dsInzet,
         fontFamily: fontFamily || 'Arial',
         fontBold: fontBold,
         fontItalic: fontItalic,

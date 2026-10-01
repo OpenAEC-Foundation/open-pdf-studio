@@ -7,6 +7,7 @@ import { isTauri, getUsername, savePreferencesFile, loadPreferencesFile } from '
 import { preferencesMirrorJson } from './preferences-mirror.js';
 import { voegSamenMetStandaarden } from './preferences-merge.js';
 import { randkleurVoorVoorkeur, randkleurenUitVoorkeur } from '../annotations/fill-utils.js';
+import { zetRanddikte } from '../annotations/rendering/textbox-layout.js';
 
 // Load preferences from Rust file storage, with localStorage migration fallback
 export async function loadPreferences() {
@@ -307,7 +308,7 @@ export function applyDefaultStyle(annotation) {
       annotation.fillColor = prefs[p + m.fill];
     }
   }
-  if (m.width && prefs[p + m.width] != null) annotation.lineWidth = prefs[p + m.width];
+  if (m.width && prefs[p + m.width] != null) zetRanddikte(annotation, prefs[p + m.width]);
   if (m.borderStyle && prefs[p + m.borderStyle]) annotation.borderStyle = prefs[p + m.borderStyle];
   if (m.opacity && prefs[p + m.opacity] !== undefined) annotation.opacity = prefs[p + m.opacity] / 100;
   if (m.startHead && prefs[p + m.startHead]) annotation.startHead = prefs[p + m.startHead];
