@@ -6,6 +6,14 @@ export function needsVisibleTile(zoom, devicePixelRatio, wholePageCapScale) {
   return tileRenderScaleForZoom(zoom, devicePixelRatio) > wholePageCapScale + 0.001;
 }
 
+// A tile rendered above the screen's physical resolution is drawn shrunk by a
+// non-integer factor (e.g. a 300% coverage tile shown at 200%), which blurs
+// thin strokes. Only an (almost) exact render is 1:1 and sharp.
+export function tileNeedsExactRender(renderScale, zoom, devicePixelRatio) {
+  return Number.isFinite(renderScale)
+    && renderScale > tileRenderScaleForZoom(zoom, devicePixelRatio) * 1.02;
+}
+
 export function prewarmCoveragePlan({ zooms, devicePixelRatio }) {
   const sortedZooms = zooms
     .filter((zoom) => Number.isFinite(zoom) && zoom > 0)
