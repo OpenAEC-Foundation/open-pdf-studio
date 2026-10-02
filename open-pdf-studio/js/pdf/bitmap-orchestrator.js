@@ -30,7 +30,7 @@ import {
     needsVisibleTile,
     prewarmCoveragePlan,
     prewarmTileRenderScale,
-    tileCoverageRenderScale,
+    tileNeedsExactRender,
     tileRenderScaleForZoom,
     tileSupportsZoom,
 } from './tile-render-policy.js';
@@ -420,6 +420,7 @@ export async function ensureTileForCurrentView(canvas) {
     if (
         viewport.currentTile
         && tileCoversViewport(viewport.currentTileMeta, viewport, cssW, cssH, dpr)
+        && !tileNeedsExactRender(viewport.currentTileMeta?.renderScale, viewport.zoom, dpr)
     ) {
         _tileRequests.cancel();
         viewport.dirty = true;
@@ -463,22 +464,20 @@ export async function ensureTileForCurrentView(canvas) {
         regionHpt: visRegion.h,
         requiredScale: requestedZoom * dpr,
     });
-    if (covering?.bitmap) {
-        _tileRequests.cancel();
-        viewport.currentTile = covering.bitmap;
-        viewport.currentTileMeta = covering.regionMeta;
-        viewport.dirty = true;
-        return;
-    }
-
-    // Cache hit?
     const hit = tileCacheGet(filePath, pageNum, zoomBucket, rotation, regionBucket);
-    if (hit && tileSupportsZoom(hit.regionMeta?.renderScale, requestedZoom, dpr)) {
-        _tileRequests.cancel();
-        viewport.currentTile = hit.bitmap;
-        viewport.currentTileMeta = hit.regionMeta;
+    const candidate = covering?.bitmap
+        ? covering
+        : (hit && tileSupportsZoom(hit.regionMeta?.renderScale, requestedZoom, dpr) ? hit : null);
+    if (candidate) {
+        viewport.currentTile = candidate.bitmap;
+        viewport.currentTileMeta = candidate.regionMeta;
         viewport.dirty = true;
-        return;
+        // Sharp already (1:1)? Done. An oversampled coverage tile stays on
+        // screen while an exact-resolution one is rendered below.
+        if (!tileNeedsExactRender(candidate.regionMeta?.renderScale, requestedZoom, dpr)) {
+            _tileRequests.cancel();
+            return;
+        }
     }
 
     // Cache miss: async Rust render of the region at the requested zoom.
@@ -486,13 +485,9 @@ export async function ensureTileForCurrentView(canvas) {
     if (!requestToken) return;
     try {
         const { invokeTileRegion } = await import('./progressive-render.js');
-        const renderScale = tileCoverageRenderScale({
-            zoom: requestedZoom,
-            devicePixelRatio: dpr,
-            regionWpt: bufferedRegion.w,
-            regionHpt: bufferedRegion.h,
-            maxBitmapAxisPx: MAX_BITMAP_AXIS_PX,
-        });
+        // This runs once the view has settled: render the exact screen
+        // resolution (sharp, 1:1) rather than a wider-coverage oversample.
+        const renderScale = tileRenderScaleForZoom(requestedZoom, dpr);
         const rgbaData = await invokeTileRegion({
             path: filePath,
             pageIndex: pageNum - 1,
