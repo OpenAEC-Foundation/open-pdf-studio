@@ -290,6 +290,10 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // multi-proces worker-pool: parallelle eerste render (sneller), geen
   // zwart scherm, hoofdthread blijft vrij. Uitzetbaar in Voorkeuren.
   progressiveRender: true,
+  // Screen resolution (dpi) that defines 100% zoom.
+  zoomDpi: 110,
+  // Page text sharpening 0-4 (0 = as rendered).
+  pageSharpen: 2,
 
   // Panels
   propertiesPanelVisible: true,

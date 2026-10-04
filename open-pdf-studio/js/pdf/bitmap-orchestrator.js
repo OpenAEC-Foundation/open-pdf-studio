@@ -20,6 +20,7 @@ import { tileCacheFindCovering, tileCacheGet, tileCacheSet } from './tile-cache.
 import { tileCoversViewport, visiblePdfRegion } from './tile-coverage.js';
 import { rectNaarPagina, viewportGeometrie } from './weergave-rotatie.js';
 import { state } from '../core/state.js';
+import { sharpenPageRgba } from './render-sharpen-pref.js';
 import {
     ensureProgressiveBitmapForCurrentView,
     isExtremePage,
@@ -30,7 +31,7 @@ import {
     needsVisibleTile,
     prewarmCoveragePlan,
     prewarmTileRenderScale,
-    tileCoverageRenderScale,
+    tileNeedsExactRender,
     tileRenderScaleForZoom,
     tileSupportsZoom,
 } from './tile-render-policy.js';
@@ -282,7 +283,7 @@ export async function prewarmZoomTiles(filePath, pageNum) {
                     if (w * h * 4 === bytes.length - 8) {
                         const cacheStarted = performance.now();
                         const imageData = new ImageData(
-                            new Uint8ClampedArray(bytes.buffer, bytes.byteOffset + 8, w * h * 4),
+                            sharpenPageRgba(new Uint8ClampedArray(bytes.buffer, bytes.byteOffset + 8, w * h * 4), w, h),
                             w,
                             h,
                         );
@@ -365,7 +366,7 @@ export async function prewarmZoomTiles(filePath, pageNum) {
             const h = dv.getUint32(4, true);
             if (w * h * 4 !== bytes.length - 8) continue;
             const _pw1 = performance.now();
-            const imageData = new ImageData(new Uint8ClampedArray(bytes.buffer, bytes.byteOffset + 8, w * h * 4), w, h);
+            const imageData = new ImageData(sharpenPageRgba(new Uint8ClampedArray(bytes.buffer, bytes.byteOffset + 8, w * h * 4), w, h), w, h);
             await tileCacheSet(filePath, pageNum, zoomBucket, viewport.rotation, regionBucket, imageData, {
                 regionXpt: region.x,
                 regionYpt: region.y,
@@ -420,6 +421,7 @@ export async function ensureTileForCurrentView(canvas) {
     if (
         viewport.currentTile
         && tileCoversViewport(viewport.currentTileMeta, viewport, cssW, cssH, dpr)
+        && !tileNeedsExactRender(viewport.currentTileMeta?.renderScale, viewport.zoom, dpr)
     ) {
         _tileRequests.cancel();
         viewport.dirty = true;
@@ -463,22 +465,20 @@ export async function ensureTileForCurrentView(canvas) {
         regionHpt: visRegion.h,
         requiredScale: requestedZoom * dpr,
     });
-    if (covering?.bitmap) {
-        _tileRequests.cancel();
-        viewport.currentTile = covering.bitmap;
-        viewport.currentTileMeta = covering.regionMeta;
-        viewport.dirty = true;
-        return;
-    }
-
-    // Cache hit?
     const hit = tileCacheGet(filePath, pageNum, zoomBucket, rotation, regionBucket);
-    if (hit && tileSupportsZoom(hit.regionMeta?.renderScale, requestedZoom, dpr)) {
-        _tileRequests.cancel();
-        viewport.currentTile = hit.bitmap;
-        viewport.currentTileMeta = hit.regionMeta;
+    const candidate = covering?.bitmap
+        ? covering
+        : (hit && tileSupportsZoom(hit.regionMeta?.renderScale, requestedZoom, dpr) ? hit : null);
+    if (candidate) {
+        viewport.currentTile = candidate.bitmap;
+        viewport.currentTileMeta = candidate.regionMeta;
         viewport.dirty = true;
-        return;
+        // Sharp already (1:1)? Done. An oversampled coverage tile stays on
+        // screen while an exact-resolution one is rendered below.
+        if (!tileNeedsExactRender(candidate.regionMeta?.renderScale, requestedZoom, dpr)) {
+            _tileRequests.cancel();
+            return;
+        }
     }
 
     // Cache miss: async Rust render of the region at the requested zoom.
@@ -486,13 +486,9 @@ export async function ensureTileForCurrentView(canvas) {
     if (!requestToken) return;
     try {
         const { invokeTileRegion } = await import('./progressive-render.js');
-        const renderScale = tileCoverageRenderScale({
-            zoom: requestedZoom,
-            devicePixelRatio: dpr,
-            regionWpt: bufferedRegion.w,
-            regionHpt: bufferedRegion.h,
-            maxBitmapAxisPx: MAX_BITMAP_AXIS_PX,
-        });
+        // This runs once the view has settled: render the exact screen
+        // resolution (sharp, 1:1) rather than a wider-coverage oversample.
+        const renderScale = tileRenderScaleForZoom(requestedZoom, dpr);
         const rgbaData = await invokeTileRegion({
             path: filePath,
             pageIndex: pageNum - 1,
@@ -513,7 +509,7 @@ export async function ensureTileForCurrentView(canvas) {
             console.warn('[tile-orch] size mismatch', w, h, bytes.length - 8);
             return;
         }
-        const rgba = new Uint8ClampedArray(bytes.buffer, bytes.byteOffset + 8, bytes.length - 8);
+        const rgba = sharpenPageRgba(new Uint8ClampedArray(bytes.buffer, bytes.byteOffset + 8, bytes.length - 8), w, h);
         const imageData = new ImageData(rgba, w, h);
         const regionMeta = {
             regionXpt: bufferedRegion.x,

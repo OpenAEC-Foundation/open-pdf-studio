@@ -8,6 +8,7 @@ import { preferencesMirrorJson } from './preferences-mirror.js';
 import { voegSamenMetStandaarden } from './preferences-merge.js';
 import { randkleurVoorVoorkeur, randkleurenUitVoorkeur } from '../annotations/fill-utils.js';
 import { zetRanddikte } from '../annotations/rendering/textbox-layout.js';
+import { setZoomDpi } from './zoom-display.js';
 
 // Load preferences from Rust file storage, with localStorage migration fallback
 export async function loadPreferences() {
@@ -165,6 +166,9 @@ export function applyPreferences() {
   if (state.preferences.theme) {
     applyTheme(state.preferences.theme);
   }
+
+  // Screen resolution behind the 100% zoom label
+  setZoomDpi(state.preferences.zoomDpi);
 
   // Update default author from preferences
   state.defaultAuthor = state.preferences.authorName || 'User';

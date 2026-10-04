@@ -1,3 +1,4 @@
+import { cssPxPerPtAt100, nextScaleStep } from '../core/zoom-display.js';
 import { state, getActiveDocument, getPageRotation, setPageRotation } from '../core/state.js';
 import { isTauri, invoke } from '../core/platform.js';
 import { pdfjsFallbackNodig } from './render-route.js';
@@ -1246,9 +1247,16 @@ async function renderContinuousPage(pageNum) {
   // the single-page path. Sharp detail work at high zoom belongs to
   // single-page mode (tiles); continuous trades that for full-document flow.
   const _maxViewAxis = Math.max(viewport.width, viewport.height);
-  const renderScale = _maxViewAxis > CONT_MAX_AXIS_PX
+  const _contCapped = _maxViewAxis > CONT_MAX_AXIS_PX;
+  // Device-pixel resolution: the bitmap is shown 1:1 (canvas CSS size =
+  // bitmap size / dpr) so no bilinear resampling blurs thin rules and text.
+  const _contDpr = window.devicePixelRatio || 1;
+  const renderScale = _contCapped
     ? doc.scale * (CONT_MAX_AXIS_PX / _maxViewAxis)
-    : doc.scale;
+    : doc.scale * _contDpr;
+  const cssFromBitmap = (bw, bh) => (_contCapped
+    ? cssSize()
+    : { w: bw / _contDpr, h: bh / _contDpr });
 
   const label = `[render p${pageNum} scale ${renderScale.toFixed(2)}]`;
   console.time(label);
@@ -1270,7 +1278,7 @@ async function renderContinuousPage(pageNum) {
     pdfCanvasEl.height = _cached.h;
     // CSS size = logical page size; differs from the backing store when the
     // axis cap reduced renderScale (CSS upscales the capped bitmap).
-    const { w: cssW1, h: cssH1 } = cssSize();
+    const { w: cssW1, h: cssH1 } = cssFromBitmap(_cached.w, _cached.h);
     pdfCanvasEl.style.width = cssW1 + 'px';
     pdfCanvasEl.style.height = cssH1 + 'px';
     pdfCtxEl.drawImage(_cached.bitmap, 0, 0);
@@ -1318,7 +1326,7 @@ async function renderContinuousPage(pageNum) {
       pdfCanvasEl.width = rustW;
       pdfCanvasEl.height = rustH;
       // CSS size = logical page size (see the cached branch above).
-      const { w: cssW2, h: cssH2 } = cssSize();
+      const { w: cssW2, h: cssH2 } = cssFromBitmap(rustW, rustH);
       pdfCanvasEl.style.width = cssW2 + 'px';
       pdfCanvasEl.style.height = cssH2 + 'px';
       const imageData = new ImageData(rgba, rustW, rustH);
@@ -1601,7 +1609,9 @@ async function _continuousRezoom(oldScale) {
 
 // One discrete zoom step (zoom buttons / keyboard) anchored at anchorY.
 export function continuousZoomStep(direction, anchorY = null) {
-  continuousZoomBy(direction > 0 ? 1.25 : 0.8, anchorY);
+  const doc = getActiveDocument();
+  if (!doc) return;
+  continuousZoomBy(nextScaleStep(doc.scale, direction) / doc.scale, anchorY);
 }
 
 // While the user scrolls freely, the page whose center sits closest to the
@@ -2325,9 +2335,8 @@ export async function actualSize() {
   const doc = state.documents[state.activeDocumentIndex];
   if (!doc) return;
 
-  // Vector viewport mode: 100% = 1.0 zoom, anchored at canvas center.
-  // This makes 1 PDF point = 1 CSS pixel, the standard "Actual Size"
-  // interpretation.
+  // Vector viewport mode: 100% = 96 dpi (1 PDF point = 96/72 CSS pixels),
+  // anchored at canvas center.
   const vp = window.__pdfViewport;
   // Same blank-doc guard as zoomIn() — see comment there.
   if (vp && vp.active && doc.filePath) {
@@ -2337,17 +2346,17 @@ export async function actualSize() {
     // Anchor in CSS pixels (same unit as zoomStepAtCenter) — the backing
     // store is dpr-scaled and would mis-centre on 125%/150% displays.
     const dpr = window.devicePixelRatio || 1;
-    m.setZoomAtPoint(pdfCanvas.width / dpr / 2, pdfCanvas.height / dpr / 2, 1.0);
+    m.setZoomAtPoint(pdfCanvas.width / dpr / 2, pdfCanvas.height / dpr / 2, cssPxPerPtAt100());
     return;
   }
 
   if (doc.viewMode === 'continuous' && doc.pdfDoc) {
     const _old = doc.scale;
-    doc.scale = 1;
+    doc.scale = cssPxPerPtAt100();
     await _continuousRezoom(_old);
     return;
   }
-  doc.scale = 1;
+  doc.scale = cssPxPerPtAt100();
   if (doc.pdfDoc) {
     await renderPage(doc.currentPage);
   }

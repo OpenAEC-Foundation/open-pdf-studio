@@ -14,6 +14,7 @@
  */
 
 import { isTauri, invoke } from '../core/platform.js';
+import { sharpenPageRgba } from './render-sharpen-pref.js';
 
 // Map<key, { bitmap: ImageBitmap, w, h, scale }>
 const _cache = new Map();
@@ -195,7 +196,7 @@ function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderSc
         console.warn('[page-bitmap-cache] size mismatch', expected, fileBytes.length - 8);
         return null;
       }
-      const rgba = new Uint8ClampedArray(fileBytes.buffer, fileBytes.byteOffset + 8, expected);
+      const rgba = sharpenPageRgba(new Uint8ClampedArray(fileBytes.buffer, fileBytes.byteOffset + 8, expected), w, h);
       const imageData = new ImageData(rgba, w, h);
       const bitmap = await createImageBitmap(imageData);
       import('../solid/stores/engineStatusStore.js')

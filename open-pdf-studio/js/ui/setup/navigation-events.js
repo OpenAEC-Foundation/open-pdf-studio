@@ -2,6 +2,7 @@ import { state, getActiveDocument } from '../../core/state.js';
 import { goToPage } from '../../pdf/renderer.js';
 import { viewport, zoomStepAtPoint, suppressNextFit, addPanVelocity, stopPanMomentum, schermPaginaMaat } from '../../pdf/pdf-viewport.js';
 import { getTool } from '../../tools/tool-registry.js';
+import { nextScaleStep } from '../../core/zoom-display.js';
 
 // ─── Wheel Zoom + Pan + Page Navigation ───────────────────────────────────
 // Single source of truth for the wheel event on the main view.
@@ -36,7 +37,10 @@ function _resetZoomAccumSoon() {
 
 // Coalescing-staat voor continu zoomen: factoren binnen een frame worden
 // vermenigvuldigd en 1x per rAF toegepast (zie de continue tak hieronder).
-let _contZoomFactor = 1;
+// Wheel/pinch delta collected since the last zoom step; one round zoom level
+// per _CONT_ZOOM_STEP_DELTA (a mouse notch is ~100, trackpad pinches are small).
+let _contZoomAcc = 0;
+const _CONT_ZOOM_STEP_DELTA = 60;
 let _contZoomAnchor = { anchorY: null, anchorX: null };
 let _contZoomRaf = 0;
 
@@ -72,27 +76,27 @@ export function setupWheelZoom() {
             const containerRect = container?.getBoundingClientRect();
             const anchorY = containerRect ? e.clientY - containerRect.top : null;
             const anchorX = containerRect ? e.clientX - containerRect.left : null;
-            // Proportional zoom: scale tracks the wheel delta directly so the
-            // page follows the cursor immediately instead of jumping a fixed
-            // chunk per notch.
-            //
-            // Coalescing per frame: een high-res wiel levert 60+ events/s en
-            // elke continuousZoomBy doet twee geforceerde layouts over ALLE
-            // pagina's. Daarom accumuleren we de factor en passen we hem 1x
-            // per animatieframe toe met het anker van het laatste event (de
-            // actuele cursorpositie). De clamp verhuist mee naar het
-            // gecombineerde product per frame; de harde schaalgrenzen
-            // (0.05-24) zitten al in continuousZoomBy.
-            _contZoomFactor *= Math.pow(1.0012, -contDy);
+            // Stepped zoom: the wheel/pinch delta is collected and every
+            // _CONT_ZOOM_STEP_DELTA moves one round zoom level (100, 125,
+            // 150, 200...). Applied at most once per animation frame, since
+            // each continuousZoomBy forces layouts over all pages.
+            _contZoomAcc += -contDy;
             _contZoomAnchor = { anchorY, anchorX };
             if (!_contZoomRaf) {
               _contZoomRaf = requestAnimationFrame(async () => {
                 _contZoomRaf = 0;
-                const zf = Math.max(0.5, Math.min(2.0, _contZoomFactor));
-                _contZoomFactor = 1;
+                const steps = Math.trunc(_contZoomAcc / _CONT_ZOOM_STEP_DELTA);
+                if (steps === 0) return;
+                _contZoomAcc -= steps * _CONT_ZOOM_STEP_DELTA;
+                const doc = getActiveDocument();
+                if (!doc) return;
+                let target = doc.scale;
+                for (let i = 0; i < Math.abs(steps); i++) {
+                  target = nextScaleStep(target, steps > 0 ? +1 : -1);
+                }
                 const anker = _contZoomAnchor;
                 const m = await import('../../pdf/renderer.js');
-                m.continuousZoomBy(zf, anker.anchorY, anker.anchorX);
+                m.continuousZoomBy(target / doc.scale, anker.anchorY, anker.anchorX);
               });
             }
           }
