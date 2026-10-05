@@ -154,6 +154,16 @@ export async function knipselAlsMiniPdf(bronBytes, paginaIndex = 0, extraRotatie
   return await mini.save();
 }
 
+// Een lege pagina die pdf-lib zelf aanmaakte (nieuw document, ingevoegde lege
+// pagina) heeft geen /Contents. embedPage gooit daarop pas bij het opslaan, en
+// dan mislukt elke volgende save van het document. Een lege inhoudsstroom
+// verandert niets aan het beeld. pushOperators() zonder operatoren maakt die
+// stroom aan; alleen doen als hij ontbreekt, anders komt er een extra bij.
+export function metInhoud(pagina) {
+  if (!pagina.node.Contents()) pagina.pushOperators();
+  return pagina;
+}
+
 /**
  * Bedt het gekozen vak van een bronpagina in als Form XObject in `doelDoc`.
  *
@@ -172,7 +182,7 @@ export async function bedKnipselIn(doelDoc, bronBytes, srcBox, paginaIndex = 0, 
   if (!vak) throw new Error('vak te klein of ontaard');
   const { PDFDocument } = await import('pdf-lib');
   const bron = await PDFDocument.load(bronBytes);
-  const pagina = bron.getPage(paginaIndex);
+  const pagina = metInhoud(bron.getPage(paginaIndex));
   const { matrix, breedte, hoogte, rotatie } = knipselMatrix(vak, paginaRotatie(pagina));
   const ingebed = await doelDoc.embedPage(pagina, vak, matrix);
   // Een doorzichtige onderlegger als transparantiegroep (#512): zijn alfa staat
