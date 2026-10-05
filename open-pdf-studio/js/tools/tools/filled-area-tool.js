@@ -75,7 +75,7 @@ const _faDirLock = { x: null, y: null };
 //   - everything else (legacy single-page, continuous): a real DOM
 //     scrollLeft/scrollTop on #pdf-container (pan-handler.js).
 // Auto-pan drives whichever one is actually active directly (not via the
-// wheel handler's momentum/friction accumulator — a coasting pan would
+// wheel handler's eased scroll animation (wiel-scroll.js) — a coasting pan would
 // fight the precision a sketch needs), so it stays consistent with manual
 // panning in both modes with no new pan mechanism of its own.
 const AUTOPAN_MARGIN = 32; // px from the viewport edge that starts panning

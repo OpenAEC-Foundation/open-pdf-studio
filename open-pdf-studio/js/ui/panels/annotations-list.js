@@ -5,7 +5,8 @@ import {
 } from '../../annotations/corrections/model.js';
 import { showProperties, showMultiSelectionProperties } from './properties-panel.js';
 import { goToPage } from '../../pdf/renderer.js';
-import { viewport, markAnchored, stopPanMomentum } from '../../pdf/pdf-viewport.js';
+import { viewport, markAnchored } from '../../pdf/pdf-viewport.js';
+import { stopAlleWielScrollers } from '../../pdf/wiel-scroll.js';
 import { redrawAnnotations } from '../../annotations/rendering.js';
 import { paginaNaarWeergave } from '../../pdf/weergave-ruimte.js';
 import { switchLeftPanelTab } from './left-panel.js';
@@ -372,7 +373,7 @@ function scrollToAnnotation(annotation) {
     // van de getoonde, eventueel gedraaide pagina).
     const cx = midden.x;
     const cy = midden.y;
-    stopPanMomentum();
+    stopAlleWielScrollers();
     viewport.offsetX = vpW / 2 - cx * viewport.zoom;
     viewport.offsetY = vpH / 2 - cy * viewport.zoom;
     // Door de gebruiker (indirect) gepositioneerd → niet automatisch her-fitten.
@@ -391,10 +392,13 @@ function scrollToAnnotation(annotation) {
     const canvasOffset = canvasContainer.offsetTop;
     const scrollX = centerX - pdfContainer.clientWidth / 2;
     const scrollY = wrapperOffset + canvasOffset + centerY - pdfContainer.clientHeight / 2;
+    // Een lopende wieluitloop zou deze vloeiende sprong afbreken (#522).
+    stopAlleWielScrollers();
     pdfContainer.scrollTo({ left: Math.max(0, scrollX), top: Math.max(0, scrollY), behavior: 'smooth' });
   } else {
     const scrollX = centerX - pdfContainer.clientWidth / 2;
     const scrollY = centerY - pdfContainer.clientHeight / 2;
+    stopAlleWielScrollers();
     pdfContainer.scrollTo({ left: Math.max(0, scrollX), top: Math.max(0, scrollY), behavior: 'smooth' });
   }
 }
