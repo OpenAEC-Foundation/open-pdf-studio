@@ -1316,8 +1316,8 @@ function finishPdfTextEditing() {
       // Gemengde per-woord-opmaak (meerdere runs op een regel): niet
       // reflowen — het herverdelen van woorden over regels zou de
       // run-indeling verhaspelen (runs zijn per oorspronkelijke regel).
-      && (!Array.isArray(initialLineRuns)
-        || initialLineRuns.every(r => !Array.isArray(r) || r.length <= 1));
+      && (!Array.isArray(initialRuns)
+        || initialRuns.every(r => !Array.isArray(r) || r.length <= 1));
     if (isPlainParagraph) {
       const blockLeft = Math.min(...lineData.map(l => l.pdfX));
       const blockRight = Math.max(...lineData.map(l => l.pdfX + (l.pdfWidth || 0)));

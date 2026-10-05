@@ -12,11 +12,61 @@
 // regelafbraak krijgen.
 
 /**
- * Hoe ver de tekst van een tekstvlak van de rand van het vak begint: de
+ * Hoe ver de tekst van een tekstvlak van de rand van het vak begint: de inzet
+ * die het bestand opgeeft (textPadding, zie inzetUitDsMarge), anders de
  * lijndikte, zonder minimum. Canvas, editor en opslag gebruiken deze ene regel.
  */
 export function textboxTekstInzet(ann) {
-  return ann?.lineWidth ?? 0;
+  return ann?.textPadding ?? ann?.lineWidth ?? 0;
+}
+
+/**
+ * De tekstinzet van een vak met een /DS-marge. Gemeten in de appearances van
+ * zulke bestanden (horizontaal en verticaal): randdikte + marge + 1.
+ */
+export function inzetUitDsMarge(lineWidth, marge) {
+  return (lineWidth ?? 0) + marge + 1;
+}
+
+/**
+ * Hoeveel de tekst van een vak met /DS-inzet over de doos mag lopen voordat
+ * die groeit: de onderinzet plus de halve regelafstand onder de laatste regel
+ * (geen tekst). Zo houdt de loader de doos die de schrijver tekende.
+ */
+export function tolerantieVoorDsInzet(inzet, fontSize, lineSpacing) {
+  const fs = fontSize > 0 ? fontSize : 0;
+  const ls = lineSpacing > 0 ? lineSpacing : STANDAARD_REGELAFSTAND;
+  return inzet + Math.max(0, (fs * ls - fs) / 2);
+}
+
+/**
+ * Groei van een vak in de inline editor, in px. Een vak met /DS-inzet volgt
+ * dezelfde regel als de loader (tolerantieVoorDsInzet): openen en sluiten
+ * zonder wijziging laat het dan even groot. onderinzetPx is de onderste
+ * padding van de editor, dus de inzet op de huidige schaal.
+ */
+export function editorGroei(overloopPx, ann, onderinzetPx) {
+  if (!(overloopPx > 0)) return 0;
+  if (ann?.textPadding == null || !(ann.textPadding > 0) || !(onderinzetPx > 0)) return overloopPx;
+  const schaal = onderinzetPx / ann.textPadding;
+  const ruimte = tolerantieVoorDsInzet(ann.textPadding, ann.fontSize, ann.lineSpacing) * schaal;
+  return overloopPx > ruimte ? overloopPx : 0;
+}
+
+/** Terug naar de /DS-marge bij opslaan (omgekeerde van inzetUitDsMarge). */
+export function dsMargeUitInzet(inzet, lineWidth) {
+  return Math.max(0, Math.round((inzet - (lineWidth ?? 0) - 1) * 1000) / 1000);
+}
+
+/**
+ * Zet de randdikte. Verandert die echt, dan vervalt een tekstinzet uit het
+ * bestand: wie de rand wijzigt, krijgt de regel van de app terug (tekst op
+ * randdikte). Dezelfde dikte opnieuw zetten (stijl plakken) laat hem staan.
+ */
+export function zetRanddikte(ann, lineWidth) {
+  if (ann.lineWidth === lineWidth) return;
+  ann.lineWidth = lineWidth;
+  if (ann.textPadding != null) delete ann.textPadding;
 }
 
 /** De breedte waarop de tekst van een tekstvlak afbreekt, in paginapunten. */
@@ -192,13 +242,16 @@ export const MAX_AANNEMELIJKE_REGELAFSTAND = 2;
 
 /**
  * @param {{ lineSpacing?: number, fontSize: number, boxHeight: number,
- *           padding?: number, neededHeight: number }} o
+ *           padding?: number, neededHeight: number, tolerantie?: number }} o
  *   neededHeight is de uitkomst van computeTextboxContentHeight met dezelfde
  *   lineSpacing en padding: padding*2 + regels*fontSize*lineSpacing.
  * @returns {{ lineSpacing: (number|undefined), height: number }}
  */
-export function pasRegelafstandAanDoos({ lineSpacing, fontSize, boxHeight, padding = 0, neededHeight }) {
-  if (!(neededHeight > boxHeight)) return { lineSpacing, height: boxHeight };
+export function pasRegelafstandAanDoos({ lineSpacing, fontSize, boxHeight, padding = 0, neededHeight, tolerantie = 0 }) {
+  // tolerantie: zoveel mag de tekst de doos overschrijden voordat die groeit
+  // (een /DS-inzet: de schrijver gebruikt de onderinzet mee). Groeit hij toch,
+  // dan naar de volle hoogte.
+  if (!(neededHeight - tolerantie > boxHeight)) return { lineSpacing, height: boxHeight };
   if (!(fontSize > 0)) return { lineSpacing, height: neededHeight };
   const ls = lineSpacing > 0 ? lineSpacing : STANDAARD_REGELAFSTAND;
   const regels = Math.max(1, Math.round((neededHeight - padding * 2) / (fontSize * ls)));

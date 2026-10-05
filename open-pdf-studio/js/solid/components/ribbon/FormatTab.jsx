@@ -16,6 +16,7 @@ import { openSymbolTypeEditor } from '../../stores/symbolEditStore.js';
 import { state, getActiveDocument } from '../../../core/state.js';
 import { showProperties, showMultiSelectionProperties, closePropertiesPanel } from '../../../ui/panels/properties-panel.js';
 import { setPanelVisible } from '../../stores/propertiesStore.js';
+import { zetRanddikte } from '../../../annotations/rendering/textbox-layout.js';
 import {
   styleToolsIcon, resetLocationIcon, openPropertiesIcon, hideAnnotationIcon, editTypeIcon
 } from '../../data/ribbonIcons.js';
@@ -239,7 +240,7 @@ export default function FormatTab() {
                 onInput={(e) => {
                   const v = parseFloat(e.currentTarget.value);
                   if (!Number.isFinite(v) || v <= 0) return;
-                  applyToSelected(ann => { ann.lineWidth = v; });
+                  applyToSelected(ann => { zetRanddikte(ann, v); });
                   syncFormatStore(getActiveDocument()?.selectedAnnotations || []);
                 }} />
             </div>
