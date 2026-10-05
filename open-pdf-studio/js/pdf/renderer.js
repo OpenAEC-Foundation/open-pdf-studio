@@ -23,6 +23,8 @@ import { anchorScrollCorrection, pickAnchorPageIndex } from './continuous-zoom-a
 import { createRerenderGate } from './continuous-rerender-gate.js';
 import { weergaveRotatie, weergaveTransform } from './weergave-ruimte.js';
 import { normaliseerRotatie, isKwartslag } from './weergave-rotatie.js';
+import { rotateTextDir } from '../annotations/corrections/geometry.js';
+import { isTextAnchored } from '../annotations/corrections/model.js';
 // Hi-DPI support: render canvases at device pixel ratio for sharp text
 export function getCanvasDPR() { return window.devicePixelRatio || 1; }
 
@@ -2389,6 +2391,11 @@ function recalcBoundsFromPoints(ann, pts) {
 function rotateAnnotation(ann, normDelta, oldW, oldH) {
   if (normDelta === 0) return;
   let boundsHandled = false;
+
+  // Leesrichting van tekstgebonden annotaties (markeringen, invoegteken,
+  // #508) draait mee: verticale tekst krijgt zo een doorhaling langs de tekst
+  // en de juiste quadvolgorde bij het opslaan.
+  if (isTextAnchored(ann)) ann.textDir = rotateTextDir(ann.textDir, normDelta);
 
   // Path-based (draw/freehand)
   if (ann.path && ann.path.length > 0) {

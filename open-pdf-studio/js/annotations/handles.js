@@ -131,6 +131,7 @@ function getAnnotationCenter(annotation) {
     case 'textHighlight':
     case 'textStrikethrough':
     case 'textUnderline':
+    case 'caret':
       return {
         x: annotation.x + annotation.width / 2,
         y: annotation.y + annotation.height / 2
@@ -652,6 +653,7 @@ export function getAnnotationHandles(annotation, scale = 1) {
     case 'textHighlight':
     case 'textStrikethrough':
     case 'textUnderline':
+    case 'caret':
       // Text markup annotations use per-rect selection outlines (drawn in selection.js)
       // No bounding-box handles — they can only be moved or deleted
       break;

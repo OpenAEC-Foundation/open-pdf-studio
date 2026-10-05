@@ -1,5 +1,5 @@
 import { parseEditorDom } from '../../text/editor-dom-parse.js';
-import { PDFName, PDFDict, PDFArray, PDFHexString } from 'pdf-lib';
+import { PDFName, PDFDict, PDFArray, PDFHexString, PDFString } from 'pdf-lib';
 import { pdfNum, pdfColorToHex, mapPdfFontName, inflateBytes } from './pdf-helpers.js';
 import { fillAlphaAtFirstFill } from './ap-fill-alpha.js';
 import { leesKnipselBronnen, leesKnipselVelden } from './vector-snippet-load.js';
@@ -117,6 +117,53 @@ async function extractApAlphas(context, nStream) {
     };
   } catch (_) {
     return empty;
+  }
+}
+
+const TEKSTCORRECTIE_SOORTEN = new Set(['/Caret', '/Highlight', '/Underline', '/StrikeOut', '/Squiggly']);
+
+// Een gewone tekst-string uit een ander programma (/NM, /Subj, /Contents):
+// met escapes en UTF-16 gedecodeerd, zoals pdf.js dat ook doet.
+function leesTekstString(context, raw) {
+  if (!raw) return undefined;
+  const v = context.lookup(raw) || raw;
+  return (v instanceof PDFString || v instanceof PDFHexString) ? v.decodeText() : undefined;
+}
+
+// /Sy, /RD, /NM, /Subj, de rauwe /QuadPoints (bestandsvolgorde),
+// /OPS_TextDir en /OPS_MarkedText; bij een /Caret ook de eigen /Contents (als
+// kind in een groep geeft pdf.js die van de ouder).
+function leesTekstcorrectieExtra(context, annotDict, subtypeName, colors) {
+  const getallen = (raw) => {
+    const arr = raw !== undefined ? (context.lookup(raw) || raw) : null;
+    if (!arr || typeof arr.size !== 'function') return null;
+    const uit = [];
+    for (let j = 0; j < arr.size(); j++) uit.push(pdfNum(context.lookup(arr.get(j)) || arr.get(j)));
+    return uit.every((v) => typeof v === 'number' && Number.isFinite(v)) ? uit : null;
+  };
+  const syRaw = annotDict.get(PDFName.of('Sy'));
+  if (syRaw) {
+    const sy = String(context.lookup(syRaw) || syRaw).replace('/', '');
+    if (sy) colors.sy = sy;
+  }
+  const rd = getallen(annotDict.get(PDFName.of('RD')));
+  if (rd && rd.length === 4) colors.rd = rd;
+  const nm = leesTekstString(context, annotDict.get(PDFName.of('NM')));
+  if (nm) colors.nm = nm;
+  const subj = leesTekstString(context, annotDict.get(PDFName.of('Subj')));
+  if (subj) colors.subj = subj;
+  const quads = getallen(annotDict.get(PDFName.of('QuadPoints')));
+  if (quads && quads.length >= 8) colors.rawQuadPoints = quads;
+  const tdRaw = annotDict.get(PDFName.of('OPS_TextDir'));
+  if (tdRaw !== undefined) {
+    const td = pdfNum(context.lookup(tdRaw) || tdRaw);
+    if (typeof td === 'number' && Number.isFinite(td)) colors.opsTextDir = td;
+  }
+  const gemarkeerd = leesPdfTekst(context, annotDict.get(PDFName.of('OPS_MarkedText')));
+  if (gemarkeerd) colors.opsMarkedText = gemarkeerd;
+  if (subtypeName === '/Caret') {
+    const eigen = leesTekstString(context, annotDict.get(PDFName.of('Contents')));
+    if (eigen !== undefined) colors.ownContents = eigen;
   }
 }
 
@@ -822,6 +869,13 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         const it = context.lookup(itRaw) || itRaw;
         const itStr = it.toString();
         if (itStr) colors.intent = itStr.replace('/', '');
+      }
+
+      // Proefleescorrecties (#508) en tekstmarkeringen: pdf.js geeft /Sy, /RD,
+      // /NM, /Subj, de rauwe /QuadPoints en de eigen sleutels niet door (zie
+      // loader/correction-load.js). Alleen gezet als het bestand ze heeft.
+      if (TEKSTCORRECTIE_SOORTEN.has(subtypeName)) {
+        leesTekstcorrectieExtra(context, annotDict, subtypeName, colors);
       }
 
       // Check for /Measure dictionary (PDF measurement annotations)
@@ -1555,8 +1609,16 @@ const result = {};
         delete colors.rawLineHeight;
       }
 
-      if (Object.keys(colors).length > 0) {
-        colorMap.set(key, colors);
+      if (Object.keys(colors).length > 0) colorMap.set(key, colors);
+      // Invoegteken en tekstmarkeringen ook op objectverwijzing, ook zonder
+      // gegevens: markeringen op dezelfde woorden hebben dezelfde /Rect, en de
+      // latere gaf anders haar /IT, /NM en /Subj aan de eerdere. Zie
+      // extra-sleutel.js.
+      if (TEKSTCORRECTIE_SOORTEN.has(subtypeName)) {
+        const ref = annots.get(i);
+        if (Number.isInteger(ref?.objectNumber)) {
+          colorMap.set(`@ref:${ref.objectNumber}R${ref.generationNumber || ''}`, colors);
+        }
       }
     }
   } catch (e) {

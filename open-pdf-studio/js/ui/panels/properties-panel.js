@@ -2,6 +2,7 @@ import { state, getActiveDocument } from '../../core/state.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { savePreferences } from '../../core/preferences.js';
 import { clearTextSelection } from '../../text/text-selection.js';
+import { replaceParentOf } from '../../annotations/corrections/model.js';
 import {
   storeShowProperties,
   storeHideProperties,
@@ -81,6 +82,11 @@ export function showMultiSelectionProperties() {
   const _multiDoc = getActiveDocument();
   const selected = _multiDoc ? _multiDoc.selectedAnnotations : [];
   if (!selected || selected.length < 2) return;
+  // Een vervanging (#508) is één correctie: het paneel van het invoegteken,
+  // het paar blijft geselecteerd. Geldt voor elke aanroeper (undo, z-volgorde,
+  // opmaak, lagen).
+  const ouder = replaceParentOf(selected, _multiDoc?.annotations);
+  if (ouder) { showProperties(ouder, { redraw: false }); return; }
   storeShowMultiSelection(selected);
 }
 

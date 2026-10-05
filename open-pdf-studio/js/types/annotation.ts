@@ -1,5 +1,6 @@
 export type AnnotationType =
-  | 'highlight' | 'textHighlight' | 'textStrikethrough' | 'textUnderline'
+  | 'highlight' | 'textHighlight' | 'textStrikethrough' | 'textUnderline' | 'textSquiggly'
+  | 'caret'
   | 'draw' | 'line' | 'arrow' | 'box' | 'circle'
   | 'textbox' | 'callout' | 'comment' | 'stamp' | 'image' | 'signature'
   | 'polygon' | 'cloud' | 'cloudPolyline' | 'polyline' | 'text'
@@ -235,6 +236,18 @@ export type Annotation = AnnotationBase & {
   scaleString?: string;  // e.g. "1:100"
   units?: string;        // 'mm' | 'cm' | 'm' | 'in' | 'ft'
   label?: string;        // optional user label drawn in badge
+
+  // Verzameling en proefleescorrecties (#508)
+  groupId?: string | null;     // gedeeld door de leden van een verzameling of vervanging
+  /** Leesrichting met de klok mee in de paginaruimte: 0/90/180/270 (ontbreekt = 0). */
+  textDir?: number;
+  intent?: string;             // /IT, bijv. 'StrikeOutTextEdit' of 'Replace'
+  inReplyTo?: string;          // id van de ouder (bij een vervanging: het invoegteken)
+  replyType?: string;          // 'group' voor de doorhaling van een vervanging
+  symbol?: string;             // /Sy van een invoegteken: 'None' of 'P'
+  markedText?: string;         // doorgehaalde tekst (niet in /Contents)
+  nm?: string;                 // /NM uit het bestand
+  pdfSubject?: string;         // /Subj uit het bestand, ongewijzigd
 };
 
 export interface AnnotationBounds {

@@ -44,6 +44,11 @@ import { buildFilledAreaAP, buildMeasureAreaAP, buildPolylineMeasureAP,
   buildStavenreeksAP, buildBetonbalkAP, buildSysteemrasterAP, buildLineAP, buildPolylineAP, polylijnOmhullende, lijnOmhullende, buildLeiderAP, leiderOmhullende, apLijndikte,
   cloudRectOutlinePts, cloudPolyOutlinePts } from './saver/appearance-vectors.js';
 import { veelhoekGrondvorm } from './saver/veelhoek-grondvorm.js';
+import { _rotVisualMapper, _remapRect } from './saver/rotatie-mapper.js';
+import { makePointMapper, buildTextEditStrikeDict, buildCaretDict, addLoadedMarkupKeys,
+  applyGroupLinks, correctionRefKeys, dropOrphanPopups } from './saver/correction-dicts.js';
+import { buildTextMarkupDict } from './saver/text-markup-dict.js';
+import { linkPlanForSave, isTextEditStrike, saveColor } from '../annotations/corrections/model.js';
 import { buildStavenreeks, toLocalPrimitives, labelText } from '../annotations/stavenreeks.js';
 import { stavenreeksPxPerMm } from '../annotations/stavenreeks-scale.js';
 import { buildBetonbalk, approxTextWidth as betonbalkApproxTextWidth } from '../annotations/betonbalk.js';
@@ -109,37 +114,8 @@ function attachVectorAP(context, annotDict, built, rect) {
   annotDict.set(PDFName.of('AP'), context.obj({ N: context.register(apStream) }));
 }
 
-// ── Rotated-page coordinate remap ──────────────────────────────────────────
-// On a page with /Rotate 90/180/270 the annotation coordinates live in the
-// DISPLAYED (rotated) visual space, but the PDF page box (CropBox) is unrotated.
-// The save-time convert helpers only know the unrotated box, so without
-// compensation the saved /Rect lands rotated and annotations drift on reopen
-// (the loader, via pdf.js viewport, IS rotation-aware). We remap every visual
-// coordinate into the UNROTATED page frame once, up front, so the existing
-// convert + appearance code produces correct PDF coordinates for every type.
-//
-// The map is the inverse of pdf.js viewport.convertToViewportPoint, so that
-// naiveConvert(remappedPoint) === rotationAwareConvert(originalPoint). cw/ch are
-// the UNROTATED page-box width/height. rot 0 is identity (callers skip it), so
-// non-rotated pages are completely unaffected.
-function _rotVisualMapper(rot, cw, ch) {
-  switch (((rot % 360) + 360) % 360) {
-    case 90:  return (x, y) => ({ x: y,      y: ch - x });
-    case 180: return (x, y) => ({ x: cw - x, y: ch - y });
-    case 270: return (x, y) => ({ x: cw - y, y: x });
-    default:  return (x, y) => ({ x, y });
-  }
-}
-
-// Map a rect's two corners and re-derive an axis-aligned rect (width/height
-// swap under 90/270).
-function _remapRect(obj, m) {
-  const a = m(obj.x, obj.y);
-  const b = m(obj.x + obj.width, obj.y + obj.height);
-  return { x: Math.min(a.x, b.x), y: Math.min(a.y, b.y),
-           width: Math.abs(b.x - a.x), height: Math.abs(b.y - a.y) };
-}
-
+// Paginarotatie-omrekening (_rotVisualMapper, _remapRect): zie
+// saver/rotatie-mapper.js.
 function remapAnnotationForRotatedPage(annRaw, rot, cw, ch) {
   const m = _rotVisualMapper(rot, cw, ch);
   const ann = { ...annRaw };
@@ -467,12 +443,15 @@ async function _savePDFNu(saveAsPath, activeDoc) {
 
       // Build annotations array: keep existing annotations we don't handle (widgets, links, etc.)
       // and replace the ones we do with our document annotations (which is the source of truth)
+      // '/Caret' (#508) hoort bij de 'caret'-tak van de converter: de een zonder
+      // de ander verdubbelt of verliest invoegtekens bij elke save.
       const handledSubtypes = new Set([
         '/Highlight', '/Underline', '/StrikeOut', '/Squiggly',
         '/Square', '/Circle', '/Line', '/Ink', '/PolyLine', '/Polygon',
-        '/Text', '/FreeText', '/Stamp'
+        '/Text', '/FreeText', '/Stamp', '/Caret'
       ]);
       let annotsArray = [];
+      const verwijderdeRefs = []; // weggehaald en uit het model herschreven
       const annotsRef = page.node.get(PDFName.of('Annots'));
       if (annotsRef) {
         const lookedUp = context.lookup(annotsRef);
@@ -491,6 +470,8 @@ async function _savePDFNu(saveAsPath, activeDoc) {
               annotsArray.push(ref); // Preserve plugin data while its extension is unavailable.
             } else if (dict.get(PDFName.of('OPS_SnippetKey'))) {
               oudeKnipselStempels.push(ref); // wordt vervangen; resten opruimen
+            } else {
+              verwijderdeRefs.push(ref);
             }
           }
         }
@@ -505,6 +486,17 @@ async function _savePDFNu(saveAsPath, activeDoc) {
       const viewTop = cropBox.y + cropBox.height;
       const convertX = (canvasX) => canvasX + viewLeft;
       const convertY = (canvasY) => viewTop - canvasY;
+
+      // Proefleescorrecties (#508): een doorhaling wordt alleen als kind van een
+      // vervanging geschreven als haar invoegteken op deze pagina staat. Correcties
+      // rekenen per punt om (geen assen-uitgelijnd vak na het draaien).
+      const plan = linkPlanForSave(pageAnnotations);
+      const gekoppeldeKinderen = new Set(plan.links.map(l => l.childId));
+      const puntNaarPdf = makePointMapper(pageRot, cropBox);
+      const refById = new Map();
+      const dictById = new Map();
+      // /NM per pagina uniek: een kopie draagt de naam van het origineel mee.
+      const gebruikteNm = new Set();
 
       // Add our annotations
       for (const annRaw of pageAnnotations) {
@@ -532,44 +524,31 @@ async function _savePDFNu(saveAsPath, activeDoc) {
           case 'textStrikethrough':
           case 'textUnderline':
           case 'textSquiggly': {
-            // Text markup annotations
-            const x1 = convertX(ann.x);
-            const y1 = convertY(ann.y + ann.height);
-            const x2 = convertX(ann.x + ann.width);
-            const y2 = convertY(ann.y);
-
-            // Build QuadPoints from rects if available, otherwise from bounding box
-            let quadPoints;
-            if (ann.rects && ann.rects.length > 0) {
-              quadPoints = [];
-              for (const r of ann.rects) {
-                const qx1 = convertX(r.x);
-                const qx2 = convertX(r.x + r.width);
-                const qy1 = convertY(r.y + r.height);
-                const qy2 = convertY(r.y);
-                quadPoints.push(qx1, qy2, qx2, qy2, qx1, qy1, qx2, qy1);
-              }
-            } else {
-              quadPoints = [x1, y2, x2, y2, x1, y1, x2, y1];
+            // Doorhaling als tekstcorrectie (#508): quads uit de NIET omgerekende
+            // annotatie, in tekstvolgorde, met een eigen appearance.
+            if (isTextEditStrike(annRaw)) {
+              annotDict = buildTextEditStrikeDict(context, annRaw, puntNaarPdf, {
+                rgb: hexToColorArray(saveColor(annRaw, pageAnnotations, plan)),
+                opacity, pageRot, flags: computeAnnotFlags(annRaw),
+                linked: gekoppeldeKinderen.has(annRaw.id), gebruikteNm,
+              });
+              break;
             }
+            // Text markup annotations (ongewijzigd, zie saver/text-markup-dict.js).
+            // Een geladen markering krijgt /IT, /NM en /Subj alleen terug als het
+            // model ze heeft.
+            annotDict = buildTextMarkupDict(context, ann, { convertX, convertY, opacity });
+            addLoadedMarkupKeys(annotDict, ann, gebruikteNm);
+            break;
+          }
 
-            // Map type to PDF subtype
-            let markupSubtype = 'Highlight';
-            if (ann.type === 'textStrikethrough') markupSubtype = 'StrikeOut';
-            else if (ann.type === 'textUnderline') markupSubtype = 'Underline';
-            else if (ann.type === 'textSquiggly') markupSubtype = 'Squiggly';
-
-            annotDict = context.obj({
-              Type: 'Annot',
-              Subtype: markupSubtype,
-              Rect: [x1, y1, x2, y2],
-              QuadPoints: quadPoints,
-              C: hexToColorArray(ann.fillColor || ann.color),
-              CA: opacity,
-              T: pdfTextString(ann.author || 'User'),
-              Contents: pdfTextString(ann.subject || ''),
-              M: PDFString.of(new Date().toISOString()),
-              F: computeAnnotFlags(ann)
+          case 'caret': {
+            // Invoegteken (#508). Een /IT /Replace zonder kind op deze pagina
+            // wordt een gewone invoeging.
+            const karet = plan.stripReplaceIntent.has(annRaw.id) ? { ...annRaw, intent: undefined } : annRaw;
+            annotDict = buildCaretDict(context, karet, puntNaarPdf, {
+              rgb: hexToColorArray(saveColor(karet, pageAnnotations, plan)),
+              opacity, pageRot, flags: computeAnnotFlags(annRaw), gebruikteNm,
             });
             break;
           }
@@ -2940,6 +2919,10 @@ async function _savePDFNu(saveAsPath, activeDoc) {
           if (ocRef && typeof annotDict.set === 'function') annotDict.set(PDFName.of('OC'), ocRef);
           parentAnnotRef = context.register(annotDict);
           annotsArray.push(parentAnnotRef);
+          if (annRaw.type === 'caret' || annRaw.type === 'textStrikethrough') {
+            refById.set(annRaw.id, parentAnnotRef);
+            dictById.set(annRaw.id, annotDict);
+          }
         }
 
         // Review-status (issue #308): schrijf de status als aparte Text-
@@ -3033,6 +3016,12 @@ async function _savePDFNu(saveAsPath, activeDoc) {
           }
         }
       }
+
+      // Vervangingen koppelen (#508): /IRT + /RT /Group naar het invoegteken.
+      // Popups van herschreven correcties vallen weg; die van andere
+      // annotaties blijven zoals voorheen.
+      applyGroupLinks(context, plan, refById, dictById, annotsArray);
+      annotsArray = dropOrphanPopups(context, annotsArray, correctionRefKeys(context, verwijderdeRefs));
 
       // Set the updated annotations array
       page.node.set(PDFName.of('Annots'), context.obj(annotsArray));

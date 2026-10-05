@@ -34,6 +34,7 @@ import { fracties as cropFracties, volledigVak as cropVolledigVak } from './crop
 import { drawEmbeddedImageOverlay } from '../tools/tools/remove-image-tool.js';
 import { updateQuickAccessButtons, updateContextualTabs, drawGrid, snapToGrid } from './rendering/ui-state.js';
 import { drawCommentIcon } from './rendering/comment-icons.js';
+import { drawCaret, strikeLine, replaceStrikeColor } from './rendering/caret.js';
 import { spatialIndex, annotationBounds } from './spatial-index.js';
 import { bitmapVoor, bijNieuweTegel } from './vector-snippet-preview.js';
 import { invalidateScaleRegionCache, pixelsPerUnitFor, getRegionScaleFactor } from './scale-region.js';
@@ -1412,26 +1413,37 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       }
       break;
 
-    case 'textStrikethrough':
-      // Draw strikethrough line through the middle of each text rect
-      ctx.strokeStyle = strokeColor;
+    case 'textStrikethrough': {
+      // Doorhaallijn door het midden van elk tekstvak; bij verticale tekst
+      // (textDir 90/270) langs de tekst. De doorhaling van een vervanging
+      // (#508) krijgt de kleur van haar invoegteken, zoals ze ook opgeslagen
+      // wordt; een weergavetint gaat voor.
+      const ouderKleur = _evHalftone?.color ? null
+        : replaceStrikeColor(annotation, state.documents[state.activeDocumentIndex]?.annotations);
+      ctx.strokeStyle = ouderKleur || strokeColor;
       ctx.lineWidth = thinLw(annotation.lineWidth ?? 1);
       ctx.lineCap = 'round';
       if (annotation.rects && annotation.rects.length > 0) {
         annotation.rects.forEach(rect => {
-          const midY = rect.y + rect.height / 2;
+          const [van, tot] = strikeLine(rect, annotation.textDir);
           ctx.beginPath();
-          ctx.moveTo(rect.x, midY);
-          ctx.lineTo(rect.x + rect.width, midY);
+          ctx.moveTo(van.x, van.y);
+          ctx.lineTo(tot.x, tot.y);
           ctx.stroke();
         });
       } else {
-        const midY = annotation.y + annotation.height / 2;
+        const [van, tot] = strikeLine(annotation, annotation.textDir);
         ctx.beginPath();
-        ctx.moveTo(annotation.x, midY);
-        ctx.lineTo(annotation.x + annotation.width, midY);
+        ctx.moveTo(van.x, van.y);
+        ctx.lineTo(tot.x, tot.y);
         ctx.stroke();
       }
+      break;
+    }
+
+    case 'caret':
+      // Invoegteken (#508): dezelfde vorm als zijn appearance in de PDF.
+      drawCaret(ctx, annotation, fillColor);
       break;
 
     case 'textUnderline':

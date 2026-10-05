@@ -32,7 +32,6 @@ export function createTextMarkupAnnotation(type, color, opacity) {
   const maxY = Math.max(...rects.map(r => r.y + r.height));
 
   const annotation = createAnnotation({
-    id: Date.now(),
     type: type,
     page: pageNum,
     // Bounding box
@@ -125,7 +124,6 @@ export function createCalloutFromSelection() {
   const kneeY = midY + (chordDX / chordLen) * bow;
 
   const annotation = createAnnotation({
-    id: Date.now(),
     type: 'callout',
     page: pageNum,
     x: boxX,
