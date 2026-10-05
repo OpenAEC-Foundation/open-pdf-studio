@@ -8,6 +8,7 @@ import { renderPage, renderContinuous } from '../pdf/renderer.js';
 import { matchFractions, matchBoxInPageFrame, boxToLayerPercent } from './match-rect.js';
 import { groepeerPerPagina, BRON_ANNOTATIE } from './search-sources.js';
 import { annotationBounds } from '../annotations/spatial-index.js';
+import { stopAlleWielScrollers } from '../pdf/wiel-scroll.js';
 import {
   setFindBarResultGroups as setResultGroups,
   setFindBarCurrentResultPage as setCurrentResultPage,
@@ -378,6 +379,8 @@ async function navigateToResult(result) {
       // Scroll to page in continuous mode
       const pageWrapper = document.querySelector(`.page-wrapper[data-page="${result.pageNum}"]`);
       if (pageWrapper) {
+        // Een lopende wieluitloop zou deze vloeiende sprong afbreken (#522).
+        stopAlleWielScrollers();
         pageWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     } else {
@@ -401,6 +404,8 @@ function scrollToMatch(result) {
   // Find the highlight element for the current match
   const highlights = document.querySelectorAll('.search-highlight.current');
   if (highlights.length === 0) return;
+  // Een lopende wieluitloop zou de sprong naar de treffer afbreken (#522).
+  stopAlleWielScrollers();
   if (panViewportToElement(highlights[0])) return;
   highlights[0].scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
 }

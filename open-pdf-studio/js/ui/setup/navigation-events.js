@@ -1,6 +1,7 @@
 import { state, getActiveDocument } from '../../core/state.js';
 import { goToPage } from '../../pdf/renderer.js';
-import { viewport, zoomStepAtPoint, suppressNextFit, addPanVelocity, stopPanMomentum, schermPaginaMaat } from '../../pdf/pdf-viewport.js';
+import { viewport, zoomStepAtPoint, suppressNextFit, wielPanViewport, stopPanMomentum, schermPaginaMaat } from '../../pdf/pdf-viewport.js';
+import { leesWielDelta, maakWielHerkenning, maakWielScroller, maakElementVerschuiver } from '../../pdf/wiel-scroll.js';
 import { getTool } from '../../tools/tool-registry.js';
 
 // ─── Wheel Zoom + Pan + Page Navigation ───────────────────────────────────
@@ -10,6 +11,27 @@ import { getTool } from '../../tools/tool-registry.js';
 //   plain wheel → pan inside the current page; at the page edge in the wheel
 //                 direction, navigate to next/previous page.
 // In legacy mode it falls back to scroll-position-based page nav.
+// Scrollende weergaven (doorlopend, boek, naast elkaar, lege documenten):
+//   plain wheel → scrollt #pdf-container (lege documenten bladeren op de rand).
+// Gewoon wielen loopt in ALLE weergaven via dezelfde helper (wiel-scroll.js,
+// issue #522): een muiswielklik schuift zijn delta op met een korte ease-out
+// (~180 ms), touchpad- en fijne delta's gaan 1-op-1 door (in de viewport via
+// de helper, in de scrollende weergaven door de browser zelf).
+
+// Eén herkenning (muiswielklik of touchpad) voor alle weergaven, en de
+// wielscroller van de scrollende weergaven. De viewport heeft zijn eigen
+// exemplaar, dat zijn render-lus pompt (pdf-viewport.js). Is de viewport
+// actief, dan hoort #pdf-container niet te scrollen: geen element, dan stopt
+// een nog lopende uitloop vanzelf. Het scrollbereik van de container beperkt
+// een klik tot de rand, zoals de browser zijn eigen scrolldoel klemt.
+const _wielHerkenning = maakWielHerkenning();
+const _containerVerschuiver = maakElementVerschuiver(() => (viewport.active ? null : document.getElementById('pdf-container')));
+const _containerWiel = maakWielScroller({
+  nu: () => performance.now(),
+  vraagFrame: (f) => requestAnimationFrame(f),
+  verschuif: _containerVerschuiver,
+  ruimte: _containerVerschuiver.ruimte,
+});
 
 let _pageNavCooldown = false;
 // Pixels of slack at the page edge before we treat the page as "at the edge"
@@ -54,9 +76,10 @@ export function setupWheelZoom() {
     // wielrol ook (Ctrl+wiel blijft altijd werken).
     if (e.ctrlKey || e.metaKey || state.preferences.wheelZoomWithoutCtrl) {
       e.preventDefault();
-      // Starting a zoom gesture: kill any in-flight pan momentum so the page
+      // Starting a zoom gesture: kill any in-flight wheel scroll so the page
       // doesn't keep gliding mid-zoom (would tear the cursor anchor away).
       stopPanMomentum();
+      _containerWiel.stop();
       if (!viewport.active || !activeDoc.filePath) {
         // Continuous mode: the vector viewport is deliberately inactive
         // (renderContinuous() disables it) — route the zoom through the
@@ -170,8 +193,6 @@ export function setupWheelZoom() {
       const pdfCanvas = document.getElementById('pdf-canvas');
       if (!pdfCanvas) return;
 
-      const dx = e.deltaX || 0;
-      const dy = e.deltaY || 0;
       // Maat op het scherm: na paginarotatie en weergaverotatie (#200).
       const _schermMaat = schermPaginaMaat();
       const pageScreenH = _schermMaat.h * viewport.zoom;
@@ -184,6 +205,11 @@ export function setupWheelZoom() {
       const canvasRect = pdfCanvas.getBoundingClientRect();
       const canvasH = canvasRect.height;
       const canvasW = canvasRect.width;
+
+      // Delta in CSS-px (deltaMode regels/pagina's, Shift+wiel) en soort
+      // invoer: muiswielklik (stap) of touchpad/fijn wiel.
+      const { dx, dy } = leesWielDelta(e, canvasH);
+      const stap = _wielHerkenning.isStap(e, dx, dy, performance.now());
 
       // Where the page edges sit on the visible canvas right now
       const pageTop = viewport.offsetY;
@@ -224,43 +250,92 @@ export function setupWheelZoom() {
         }
       }
 
-      // Smooth pan: feed wheel deltas into the velocity accumulator instead
-      // of writing offsetX/Y directly. The RAF loop in pdf-viewport applies
-      // and decays the velocity over multiple frames, producing Apple-style
-      // momentum scroll — a single wheel notch glides to a smooth stop.
-      // Skip the contribution on any axis where the page already fits the
-      // viewport (no scroll headroom on that axis).
+      // Pan via de gedeelde wielhelper: een muiswielklik schuift precies zijn
+      // delta op met een korte ease-out die de render-lus van pdf-viewport op
+      // TIJD afspeelt (ook bij trage frames binnen ~180 ms stil); touchpad-
+      // delta's gaan direct door. Skip the contribution on any axis where the
+      // page already fits the viewport (no scroll headroom on that axis).
       const vx = (pageScreenW <= canvasW) ? 0 : dx;
       const vy = (pageScreenH <= canvasH) ? 0 : dy;
       if (vx !== 0 || vy !== 0) {
-        addPanVelocity(vx, vy);
+        wielPanViewport(vx, vy, stap);
       }
       return;
     }
 
-    // ─── Legacy mode: scroll-position-based page nav ──────────────────────
-    if (activeDoc?.viewMode !== 'single') return;
-    if (_pageNavCooldown) return;
-
     const pdfContainer = document.getElementById('pdf-container');
     if (!pdfContainer) return;
 
-    const canScroll = pdfContainer.scrollHeight > pdfContainer.clientHeight + 1;
-    const atBottomLegacy = !canScroll || pdfContainer.scrollTop + pdfContainer.clientHeight >= pdfContainer.scrollHeight - 5;
-    const atTopLegacy = !canScroll || pdfContainer.scrollTop <= 5;
+    // ─── Legacy mode: scroll-position-based page nav ──────────────────────
+    if (activeDoc.viewMode === 'single' && !_pageNavCooldown) {
+      const canScroll = pdfContainer.scrollHeight > pdfContainer.clientHeight + 1;
+      const atBottomLegacy = !canScroll || pdfContainer.scrollTop + pdfContainer.clientHeight >= pdfContainer.scrollHeight - 5;
+      const atTopLegacy = !canScroll || pdfContainer.scrollTop <= 5;
 
-    if (e.deltaY > 0 && atBottomLegacy && activeDoc.currentPage < activeDoc.pdfDoc.numPages) {
-      e.preventDefault();
-      _pageNavCooldown = true;
-      await goToPage(activeDoc.currentPage + 1);
-      setTimeout(() => { _pageNavCooldown = false; }, 300);
-    } else if (e.deltaY < 0 && atTopLegacy && activeDoc.currentPage > 1) {
-      e.preventDefault();
-      _pageNavCooldown = true;
-      await goToPage(activeDoc.currentPage - 1);
-      setTimeout(() => { _pageNavCooldown = false; }, 300);
+      if (e.deltaY > 0 && atBottomLegacy && activeDoc.currentPage < activeDoc.pdfDoc.numPages) {
+        e.preventDefault();
+        _containerWiel.stop();
+        _pageNavCooldown = true;
+        await goToPage(activeDoc.currentPage + 1);
+        setTimeout(() => { _pageNavCooldown = false; }, 300);
+        return;
+      } else if (e.deltaY < 0 && atTopLegacy && activeDoc.currentPage > 1) {
+        e.preventDefault();
+        _containerWiel.stop();
+        _pageNavCooldown = true;
+        await goToPage(activeDoc.currentPage - 1);
+        setTimeout(() => { _pageNavCooldown = false; }, 300);
+        return;
+      }
     }
+
+    // ─── Scrollende weergaven: #pdf-container via de wielhelper ───────────
+    // Doorlopend, boek en naast elkaar (viewMode 'continuous') en lege
+    // documenten. Vroeger scrolde de webview hier elke wielklik zelf, met een
+    // eigen uitloop die anders aanvoelde dan de enkelpagina-weergave (#522).
+    // Nu krijgt een muiswielklik dezelfde korte uitloop als daar. Touchpad en
+    // fijn wiel laten we aan de browser: die scrolt ze al 1-op-1 (met de
+    // traagheid van het OS), en buiten de hoofdthread, ook als er net een
+    // zware pagina rendert.
+    const doel = e.target;
+    // Alleen wielen binnen het documentgebied; de vergelijkingsweergave (ook
+    // binnen #pdf-container) heeft haar eigen wielafhandeling.
+    if (!(doel instanceof Element) || !pdfContainer.contains(doel) || doel.closest('.compare-view')) return;
+    const delta = leesWielDelta(e, pdfContainer.clientHeight);
+    if (!_wielHerkenning.isStap(e, delta.dx, delta.dy, performance.now())) return;
+    // De browser houdt een scrollreeks vast: was het eerste event niet
+    // tegengehouden, dan scrolt hij de rest zelf en is het niet annuleerbaar.
+    // Dan niet nog eens scrollen.
+    if (!e.cancelable) return;
+    // Alleen langs een as die de container ook native zou scrollen.
+    const stijl = getComputedStyle(pdfContainer);
+    const dx = /(auto|scroll)/.test(stijl.overflowX) ? delta.dx : 0;
+    const dy = /(auto|scroll)/.test(stijl.overflowY) ? delta.dy : 0;
+    if (dx === 0 && dy === 0) return;
+    // Een element met een eigen scrollgebied (formulierveld, lijst) dat in
+    // de wielrichting nog kan scrollen, houdt het native wiel.
+    if (_scrolltZelf(doel, pdfContainer, dx, dy)) return;
+    e.preventDefault();
+    _containerWiel.wiel(dx, dy, true);
   }, { passive: false });
+}
+
+// Kan een element tussen het wieldoel en #pdf-container zelf nog scrollen in
+// de wielrichting, of is het een invoerveld? Dan hoort het wiel bij dat
+// element en doet de browser het native, zoals voorheen.
+function _scrolltZelf(doel, grens, dx, dy) {
+  for (let el = doel; el && el !== grens; el = el.parentElement) {
+    if (el.tagName === 'INPUT' || el.tagName === 'SELECT') return true;
+    if (dy !== 0 && el.scrollHeight > el.clientHeight + 1) {
+      const kan = dy > 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 1 : el.scrollTop > 0;
+      if (kan && /(auto|scroll)/.test(getComputedStyle(el).overflowY)) return true;
+    }
+    if (dx !== 0 && el.scrollWidth > el.clientWidth + 1) {
+      const kan = dx > 0 ? el.scrollLeft + el.clientWidth < el.scrollWidth - 1 : el.scrollLeft > 0;
+      if (kan && /(auto|scroll)/.test(getComputedStyle(el).overflowX)) return true;
+    }
+  }
+  return false;
 }
 
 // Verticale uitlijning van een pagina na wiel-navigatie.

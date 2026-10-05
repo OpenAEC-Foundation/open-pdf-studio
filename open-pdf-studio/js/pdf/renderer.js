@@ -23,6 +23,7 @@ import { anchorScrollCorrection, pickAnchorPageIndex } from './continuous-zoom-a
 import { createRerenderGate } from './continuous-rerender-gate.js';
 import { weergaveRotatie, weergaveTransform } from './weergave-ruimte.js';
 import { normaliseerRotatie, isKwartslag } from './weergave-rotatie.js';
+import { stopAlleWielScrollers } from './wiel-scroll.js';
 // Hi-DPI support: render canvases at device pixel ratio for sharp text
 export function getCanvasDPR() { return window.devicePixelRatio || 1; }
 
@@ -2087,6 +2088,8 @@ export async function goToPage(pageNum, options = {}) {
     // Scroll to page in continuous mode
     const pageWrapper = document.querySelector(`.page-wrapper[data-page="${pageNum}"]`);
     if (pageWrapper && !options.skipScroll) {
+      // Een lopende wieluitloop zou deze vloeiende sprong afbreken (#522).
+      stopAlleWielScrollers();
       pageWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
