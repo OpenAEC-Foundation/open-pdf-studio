@@ -96,3 +96,12 @@ test('wisOngebruikt vergeet ook het pad', async () => {
   await padVan(opnieuw, async (s) => { schrijfacties++; return `C:/cache/${s}.pdf`; });
   assert.equal(schrijfacties, 1, 'na wissen moet er opnieuw geschreven worden');
 });
+
+test('gelijktijdige pad-aanvragen schrijven dezelfde bron maar eenmaal', async () => {
+  const store = await import('./vector-snippet-store.js');
+  const key = store.bewaar(new Uint8Array([91, 22, 3]));
+  let calls = 0;
+  const write = async () => { calls++; await new Promise(r => setTimeout(r, 5)); return '/tmp/single.pdf'; };
+  assert.deepEqual(await Promise.all(Array.from({ length: 5 }, () => store.padVan(key, write))), Array(5).fill('/tmp/single.pdf'));
+  assert.equal(calls, 1);
+});

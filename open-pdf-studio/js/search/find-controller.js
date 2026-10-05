@@ -534,6 +534,7 @@ async function replaceInPdfContent(doc, result, replaceText) {
       cMapUrl: '/pdfjs/web/cmaps/',
       cMapPacked: true,
       standardFontDataUrl: '/pdfjs/web/standard_fonts/',
+    wasmUrl: '/pdfjs/web/wasm/',
       isEvalSupported: false,
       verbosity: 0,
     }).promise;

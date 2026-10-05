@@ -27,6 +27,7 @@ import { opmerkingUitAnnot, zonderDubbeleOpmerking } from './annotatie-opmerking
 import { zetLaagUitBestand } from './annotatie-laag.js';
 import { extraVoorAnnotatie } from './extra-sleutel.js';
 import { plattegrondUitExtra } from './plattegrond-meta.js';
+import { viewportRectangle } from '../pdfjs-record.js';
 import { eigenTekststempel, tekststempelKleur } from './stempel-tekst.js';
 import { koppenUitBestand } from '../lijnkoppen.js';
 import { kiesTekstvakTekst, runsZonderInspringing } from './tekstvak-tekst.js';
@@ -52,7 +53,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
   // Helpers to convert PDF coordinates to viewport coordinates (handles CropBox/MediaBox offsets)
   const convertPoint = (pdfX, pdfY) => viewport.convertToViewportPoint(pdfX, pdfY);
   const convertRect = (pdfRect) => {
-    const vr = viewport.convertToViewportRectangle(pdfRect);
+    const vr = viewportRectangle(viewport, pdfRect);
     return {
       x: Math.min(vr[0], vr[2]),
       y: Math.min(vr[1], vr[3]),

@@ -77,6 +77,7 @@ async function _getDoc(filePath) {
     cMapUrl: '/pdfjs/web/cmaps/',
     cMapPacked: true,
     standardFontDataUrl: '/pdfjs/web/standard_fonts/',
+    wasmUrl: '/pdfjs/web/wasm/',
     isEvalSupported: false,
     verbosity: 0,
   }).promise;
@@ -92,7 +93,7 @@ export function getCompareDoc(filePath) {
 
 export function clearCompareDocCache() {
   for (const d of _docCache.values()) {
-    try { d.destroy?.(); } catch {}
+    try { d.loadingTask.destroy(); } catch {}
   }
   _docCache.clear();
   _imageDataCache.clear();

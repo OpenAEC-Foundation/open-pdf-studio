@@ -1,3 +1,4 @@
+import { pdfjsRecord } from '../../pdf/pdfjs-record.js';
 import i18next from '../../i18n/config.js';
 import { getActiveDocument } from '../../core/state.js';
 import { setFormFieldGroups as setGroups, setFormFieldCountText as setCountText, setFormFieldEmptyMessage as setEmptyMessage } from '../../bridge.js';
@@ -36,7 +37,7 @@ export async function updateFormFieldsList() {
       return;
     }
 
-    const fields = await pdfDoc.getFieldObjects();
+    const fields = pdfjsRecord(await pdfDoc.getFieldObjects());
 
     if (!fields || Object.keys(fields).length === 0) {
       setGroups([]);

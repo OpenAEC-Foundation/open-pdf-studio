@@ -1,4 +1,4 @@
-import { state, getPageRotation, getActiveDocument } from '../core/state.js';
+import { state, getActiveDocument } from '../core/state.js';
 import { ifcCategoryForAnnotationType } from '../solid/data/ifcCategoryMap.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { hexToColorArray } from '../utils/colors.js';
@@ -6,7 +6,7 @@ import { hasFill, hasStroke, colorWithoutStroke } from '../annotations/fill-util
 import { layoutTextboxForExport } from '../annotations/rendering/shapes.js';
 import { markDocumentSaved, updateWindowTitle } from '../ui/chrome/tabs.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
-import { isTauri, invoke, readBinaryFile, writeBinaryFile, saveFileDialog, unlockFile, lockFile } from '../core/platform.js';
+import { isTauri, invoke, readBinaryFile, writeBinaryFileAtomic, saveFileDialog, unlockFile, lockFile } from '../core/platform.js';
 import { getCachedPdfBytes, setCachedPdfBytes, hidePdfABar } from './loader.js';
 import { PDFDocument, PDFString, PDFHexString, PDFName, PDFArray, PDFStream, degrees,
   PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup, PDFOptionList } from 'pdf-lib';
@@ -248,15 +248,15 @@ function pageCompensationForAp(w, h, pageRot) {
 // het bijgewerkte document. (#345)
 let _saveBezig = null;
 
-export async function savePDF(saveAsPath = null, opties = {}) {
-  const activeDoc = getActiveDocument();
+export async function savePDF(saveAsPath = null, opties = {}, activeDoc = getActiveDocument()) {
+  if (!activeDoc?.pdfDoc || !state.documents.includes(activeDoc)) return false;
   const currentPath = activeDoc?.filePath;
   // Redirect to "Save As" for untitled docs. These now have a temp-file
   // `filePath` (so they render via the real pipeline), so we ALSO check the
   // `isUntitled` flag — otherwise "Save" would silently overwrite the temp
   // file and the user would never be asked where to keep their document.
   if ((!currentPath || activeDoc?.isUntitled) && !saveAsPath) {
-    return await savePDFAs();
+    return await savePDFAs(activeDoc);
   }
 
   // Files opened from an email attachment live in Outlook's secure temp
@@ -266,7 +266,7 @@ export async function savePDF(saveAsPath = null, opties = {}) {
   // as untitled documents.
   const OUTLOOK_TEMP = /[\\/]INetCache[\\/]Content\.Outlook[\\/]|Microsoft\.OutlookForWindows/i;
   if (!saveAsPath && OUTLOOK_TEMP.test(currentPath)) {
-    return await savePDFAs();
+    return await savePDFAs(activeDoc);
   }
 
   // Loopt er al een save, dan eerst die afwachten: pas daarna is bekend of
@@ -274,7 +274,7 @@ export async function savePDF(saveAsPath = null, opties = {}) {
   // Ctrl+S tijdens het opslaan nogmaals).
   if (_saveBezig) {
     await _saveBezig.catch(() => {});
-    return savePDF(saveAsPath, opties);
+    return savePDF(saveAsPath, opties, activeDoc);
   }
 
   // Ondertekend document: gewoon opslaan maakt de handtekeningen ongeldig.
@@ -287,10 +287,11 @@ export async function savePDF(saveAsPath = null, opties = {}) {
 
   if (_saveBezig) {
     await _saveBezig.catch(() => {});
-    return savePDF(saveAsPath, { ...opties, zonderHandtekeningVraag: true });
+    return savePDF(saveAsPath, { ...opties, zonderHandtekeningVraag: true }, activeDoc);
   }
+  if (!state.documents.includes(activeDoc)) return false;
   const doel = saveAsPath || activeDoc?.saveTargetPath || currentPath;
-  _saveBezig = _savePDFNu(saveAsPath).finally(() => { _saveBezig = null; });
+  _saveBezig = _savePDFNu(saveAsPath, activeDoc).finally(() => { _saveBezig = null; });
   const gelukt = await _saveBezig;
   if (gelukt && activeDoc) {
     // De vorige uitkomst gold voor het oude bestand: opnieuw verifiëren. Het
@@ -311,9 +312,14 @@ export async function savePDF(saveAsPath = null, opties = {}) {
   return gelukt;
 }
 
-async function _savePDFNu(saveAsPath) {
-  const activeDoc = getActiveDocument();
+async function _savePDFNu(saveAsPath, activeDoc) {
   const currentPath = activeDoc?.filePath;
+  const sourcePdf = activeDoc?.pdfDoc;
+  const stillCurrent = () => state.documents.includes(activeDoc)
+    && activeDoc.pdfDoc === sourcePdf && activeDoc.filePath === currentPath;
+  const changedDuringSave = () => new Error(i18next.t('documentChangedDuringSave', {
+    defaultValue: 'The document changed while saving. Save again.',
+  }));
   try {
     showLoading('Saving PDF...');
 
@@ -343,8 +349,6 @@ async function _savePDFNu(saveAsPath) {
     // Strip PDF/A metadata — saved file no longer conforms to PDF/A
     if (activeDoc && activeDoc.pdfaCompliance) {
       stripPdfAMetadata(pdfDocLib);
-      activeDoc.pdfaCompliance = null;
-      hidePdfABar();
     }
 
     // Get the PDF pages
@@ -352,8 +356,8 @@ async function _savePDFNu(saveAsPath) {
     const context = pdfDocLib.context;
 
     // Persist interactive form field values from AnnotationStorage
-    const storage = getAnnotationStorage();
-    const fieldNameMap = getAnnotIdToFieldName();
+    const storage = getAnnotationStorage(activeDoc);
+    const fieldNameMap = getAnnotIdToFieldName(activeDoc);
     if (storage && storage.size > 0 && fieldNameMap.size > 0) {
       try {
         const form = pdfDocLib.getForm();
@@ -387,7 +391,7 @@ async function _savePDFNu(saveAsPath) {
 
     // Ensure AcroForm DR (Default Resources) has fonts for FreeText annotations.
     // PDF viewers resolve font names in DA strings through these resources.
-    const doc = getActiveDocument();
+    const doc = activeDoc;
     const docAnnotations = doc?.annotations || [];
     const ftAnnotations = docAnnotations.filter(a => a.type === 'textbox' || a.type === 'callout');
     if (ftAnnotations.length > 0) {
@@ -422,7 +426,7 @@ async function _savePDFNu(saveAsPath) {
       const page = pages[pageIndex];
 
       // Apply page rotation if set (combine with existing PDF rotation)
-      const appRotation = getPageRotation(pageNum);
+      const appRotation = (activeDoc.pageRotations?.[pageNum] || 0);
       if (appRotation) {
         const existingDeg = page.getRotation().angle;
         page.setRotation(degrees(existingDeg + appRotation));
@@ -455,10 +459,10 @@ async function _savePDFNu(saveAsPath) {
       // "niet geladen" te boek staat. Doorschrijven zou ze verdubbelen
       // (bestaande blijven staan én het model komt erbij). Dit trad op
       // wanneer de gereedheids-sets gewist werden terwijl doc.annotations
-      // bleef staan (sluiten-met-opslaan); luid melden zodat een regressie
-      // direct opvalt in plaats van stil dubbele annotaties op te leveren.
+      // bleef staan (sluiten-met-opslaan). Breek af vóór de schijfschrijfactie.
       if (!pageAnnotsLoaded && pageAnnotations.length > 0) {
-        console.warn(`[saver] pagina ${pageNum}: ${pageAnnotations.length} model-annotaties maar pagina niet als geladen gemarkeerd — bestaande bestands-annotaties blijven staan en het model wordt toegevoegd (risico op duplicaten)`);
+        console.warn(`[saver] pagina ${pageNum}: ${pageAnnotations.length} model-annotaties maar pagina niet als geladen gemarkeerd — opslaan afgebroken om duplicaten te voorkomen`);
+        throw changedDuringSave();
       }
 
       // Build annotations array: keep existing annotations we don't handle (widgets, links, etc.)
@@ -3035,7 +3039,7 @@ async function _savePDFNu(saveAsPath) {
     }
 
     // Burn text edits into the PDF (cover-and-replace)
-    await saveTextEditsToPages(pdfDocLib, pages);
+    await saveTextEditsToPages(pdfDocLib, pages, activeDoc);
 
     // Write out any OCR results as an invisible searchable text layer
     if (activeDoc && activeDoc.ocrResults && Object.keys(activeDoc.ocrResults).length > 0) {
@@ -3051,13 +3055,13 @@ async function _savePDFNu(saveAsPath) {
     }
 
     // Burn watermarks into the PDF
-    await saveWatermarksToPages(pdfDocLib, pages);
+    await saveWatermarksToPages(pdfDocLib, pages, activeDoc);
 
     // Save bookmarks to PDF outline
-    saveBookmarksToOutline(pdfDocLib);
+    saveBookmarksToOutline(pdfDocLib, activeDoc);
 
     // Save named line-style presets into the catalog (travel with the PDF)
-    saveStylePresetsToCatalog(pdfDocLib);
+    saveStylePresetsToCatalog(pdfDocLib, activeDoc.stylePresets || null);
 
     // Vectorknipsels: opruimen wat de vorige stempels en het inbedden achter-
     // lieten, anders groeit het bestand per save met de hele bronpagina. Eerst
@@ -3080,11 +3084,15 @@ async function _savePDFNu(saveAsPath) {
     const pdfBytes = await pdfDocLib.save();
     const outputPath = saveAsPath || activeDoc?.saveTargetPath || currentPath;
     const savedBytes = new Uint8Array(pdfBytes);
+    // Structural edits replace the PDF and often move its working path. A
+    // serialization started before that replacement must not write old bytes.
+    if (!stillCurrent()) throw changedDuringSave();
 
     // Temporarily release lock so we can write, then re-lock
     await unlockFile(outputPath);
     try {
-      await writeBinaryFile(outputPath, savedBytes);
+      if (!stillCurrent()) throw changedDuringSave();
+      await writeBinaryFileAtomic(outputPath, savedBytes);
     } catch (writeErr) {
       // Re-lock before reporting error
       await lockFile(outputPath);
@@ -3103,9 +3111,17 @@ async function _savePDFNu(saveAsPath) {
 
     // Update cache so subsequent saves use the latest PDF as base
     setCachedPdfBytes(outputPath, savedBytes.slice());
+    // A close/reload during the atomic write cannot be undone here. Keep the
+    // new live document dirty, and never publish the old save as its state.
+    if (!stillCurrent()) throw changedDuringSave();
+
+    if (activeDoc.pdfaCompliance) {
+      activeDoc.pdfaCompliance = null;
+      if (getActiveDocument() === activeDoc) hidePdfABar();
+    }
 
     // Mark document as saved
-    markDocumentSaved();
+    markDocumentSaved(activeDoc);
 
     // Vastgezette knipsels staan nu in de pagina-inhoud van outputPath. Zie
     // alInBasis(): een volgende save op die basis tekent ze niet nogmaals.
@@ -3155,6 +3171,8 @@ async function _savePDFNu(saveAsPath) {
           activeDoc.annotations,
           activeDoc.pageRotations,
           activeDoc.currentPage,
+          null,
+          activeDoc,
         );
         // De herlaad zet het document op een verse werkkopie met deze bytes
         // als basis: daar staan de vastgezette knipsels dus ook in.
@@ -3167,7 +3185,7 @@ async function _savePDFNu(saveAsPath) {
         activeDoc.textEdits = [];
         // reloadFromBytes is voor structurele edits en markeert het document
         // als gewijzigd; deze save heeft alles net weggeschreven.
-        markDocumentSaved();
+        markDocumentSaved(activeDoc);
       } catch (reloadErr) {
         console.warn(
           '[saver] Verversing na text-edit-save mislukt (weergave kan de oude ' +
@@ -3190,15 +3208,14 @@ async function _savePDFNu(saveAsPath) {
 
 
 // Save As - prompt for new file path
-export async function savePDFAs() {
-  if (!getActiveDocument()?.pdfDoc) {
+export async function savePDFAs(doc = getActiveDocument()) {
+  if (!doc?.pdfDoc) {
     showMessage(i18next.t('noPdfLoaded'));
     return false;
   }
 
   // Standaard het eigen pad. Een naamloos document staat in een tijdelijk
   // bestand: stel dan de tabbladnaam met .pdf voor in een normale map.
-  const doc = getActiveDocument();
   const currentPath = doc?.filePath;
   let map = null;
   if (doc?.isUntitled && !doc._voorgesteldeMap) {
@@ -3212,7 +3229,7 @@ export async function savePDFAs() {
   if (savePath) {
     const wasUntitled = !!doc?.isUntitled || !currentPath;
     const tempPath = (doc?.isUntitled || doc?._renderTemp) ? currentPath : null;
-    const success = await savePDF(savePath);
+    const success = await savePDF(savePath, {}, doc);
 
     // If saved to a new path, update the current path and UI
     if (success && savePath !== currentPath) {

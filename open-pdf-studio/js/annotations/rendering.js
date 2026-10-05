@@ -427,7 +427,7 @@ function withFillAlpha(color, fillOpacity, baseOpacity) {
   return `rgba(${r}, ${g}, ${b}, ${ratio})`;
 }
 
-export function drawAnnotation(ctx, annotation) {
+export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
   // ── Weergavefilters ────────────────────────────────────────────────────
   // Eén centraal predicaat (annotations/view-filters.js) bundelt de
   // per-annotatie `hidden`-vlag, het "Zichtbaarheid Elementen"-paneel
@@ -1269,7 +1269,8 @@ export function drawAnnotation(ctx, annotation) {
       const zoom = (vpz && vpz.active)
         ? vpz.zoom
         : (state.documents[state.activeDocumentIndex]?.scale || 1);
-      const bmp = bitmapVoor(annotation, zoom);
+      const bmp = snippetBitmaps ? snippetBitmaps.get(annotation) : bitmapVoor(annotation, zoom);
+      if (snippetBitmaps && !bmp) throw new Error('Vectorknipsel ontbreekt in uitvoer');
       ctx.save();
       const kcx = annotation.x + annotation.width / 2;
       const kcy = annotation.y + annotation.height / 2;
@@ -3067,13 +3068,13 @@ export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDp
   // er geen bewerkingstoestand in de uitvoer hoort.
   _lagen = opties ? lagen : null;
   try {
-    tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims, lagen, weergave);
+    tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims, lagen, weergave, opties?.snippetBitmaps);
   } finally {
     _lagen = null;
   }
 }
 
-function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims, lagen, weergave) {
+function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims, lagen, weergave, snippetBitmaps) {
   ctx.clearRect(0, 0, width, height);
 
   // Read scale and annotations from the active document directly
@@ -3119,7 +3120,7 @@ function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset
   metSchaalBronnen(() => annotations.forEach(annotation => {
     if (annotation.page !== pageNum) return;
     if (_buitenBeeld(annotation, cvX, cvY, cvW, cvH)) return;
-    drawAnnotation(ctx, annotation);
+    drawAnnotation(ctx, annotation, snippetBitmaps);
   }));
 
   // Draw watermarks in front of content

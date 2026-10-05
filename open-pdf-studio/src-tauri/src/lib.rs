@@ -4,6 +4,7 @@
 #![recursion_limit = "256"]
 
 mod accounts;
+mod atomic_file;
 pub mod cad_export;
 pub mod cad_import;
 pub mod datamap;
@@ -208,8 +209,26 @@ fn read_file(path: String) -> Result<Vec<u8>, String> {
 #[tauri::command]
 fn write_file(path: String, data: String) -> Result<bool, String> {
     let bytes = BASE64.decode(&data).map_err(|e| e.to_string())?;
-    fs::write(&path, bytes).map_err(|e| e.to_string())?;
+    atomic_file::write(std::path::Path::new(&path), &bytes).map_err(|e| e.to_string())?;
     Ok(true)
+}
+
+#[tauri::command]
+async fn write_file_atomic(request: tauri::ipc::Request<'_>) -> Result<(), String> {
+    let header = request.headers().get("x-opds-path")
+        .ok_or("Missing destination path")?.to_str().map_err(|e| e.to_string())?;
+    let path = urlencoding::decode(header).map_err(|e| e.to_string())?.into_owned();
+    let bytes = match request.body() {
+        tauri::ipc::InvokeBody::Raw(bytes) => bytes.clone(),
+        // Android cannot transport a raw IPC body.
+        tauri::ipc::InvokeBody::Json(value) => {
+            serde_json::from_value::<Vec<u8>>(value.get("data").cloned().ok_or("Missing file data")?)
+                .map_err(|e| e.to_string())?
+        }
+    };
+    tauri::async_runtime::spawn_blocking(move || {
+        atomic_file::write(std::path::Path::new(&path), &bytes).map_err(|e| e.to_string())
+    }).await.map_err(|e| e.to_string())?
 }
 
 #[tauri::command]
@@ -1724,6 +1743,13 @@ fn worker_pool_ready(
     pool.get().is_some()
 }
 
+/// True when a pool error means the worker process itself went away (EOF or a
+/// broken pipe), as opposed to a timeout or a bitmap that did not fit.
+fn worker_died(e: &anyhow::Error) -> bool {
+    let msg = e.to_string();
+    msg.ends_with(" EOF") || msg.starts_with("write to worker") || msg.starts_with("read from worker")
+}
+
 #[tauri::command]
 async fn render_pdf_page(
     path: String,
@@ -1772,6 +1798,16 @@ async fn render_pdf_page(
                 return Ok(tauri::ipc::Response::new(data));
             }
             Err(e) => {
+                // A worker can die while parsing a malformed PDF. Retrying
+                // that same file inside the GUI process would move the native
+                // PDFium crash into the app itself (observed with Tekst.pdf).
+                // The pool already retries on a second worker; keep the
+                // failure isolated and let the UI show a render error.
+                // Other failures (timeout, bitmap too large for the shared
+                // memory, an older worker) still fall back to in-proc.
+                if worker_died(&e) {
+                    return Err(format!("PDFium worker render failed: {e}"));
+                }
                 eprintln!("[render_pdf_page] pool render failed: {} — falling back to in-proc", e);
             }
         }
@@ -1896,7 +1932,8 @@ async fn render_pdf_page_region(
 
     // Try the worker pool first: region tiles are small (fit the 64 MB SHM), so
     // they render in a SEPARATE process — safe for parallel/pre-cache rendering
-    // and off the main thread. Falls back to in-proc PDFium on any failure.
+    // and off the main thread. Falls back to in-proc PDFium on any failure
+    // except a dead worker: that crash must not be repeated in the GUI process.
     if let Some(p) = pool.get() {
         match p
             .render_region(&path, page_index, scale, extra_rot, region_x_pt, region_y_pt, region_w_pt, region_h_pt, spread.unwrap_or(false))
@@ -1910,6 +1947,9 @@ async fn render_pdf_page_region(
                 return Ok(tauri::ipc::Response::new(data));
             }
             Err(e) => {
+                if worker_died(&e) {
+                    return Err(format!("PDFium worker region render failed: {e}"));
+                }
                 eprintln!("[render_pdf_page_region] pool failed: {} — in-proc fallback", e);
             }
         }
@@ -2342,12 +2382,17 @@ fn release_pdf_document(
     if let Ok(mut pc) = page_type_cache.0.lock() {
         pc.retain(|(p, _), _| p != &path);
     }
-    let had_doc = pdfium_cache
+    let removed = pdfium_cache
         .0
         .lock()
         .map_err(|e| format!("Pdfium doc cache lock: {}", e))?
-        .remove(&path)
-        .is_some();
+        .remove(&path);
+    let had_doc = removed.is_some();
+    // Closing a PDFium document waits for the global PDFium lock, which a CAD
+    // export or print can hold for seconds: close it off the UI thread.
+    if let Some(handle) = removed {
+        std::thread::spawn(move || drop(handle));
+    }
     if let Ok(mut guard) = pixmap_cache.0.lock() {
         if let Some(cache) = guard.as_mut() {
             cache.remove_path(&path);
@@ -2371,7 +2416,13 @@ fn clear_pdf_cache(
     handle_cache.0.lock().map_err(|e| format!("Handle cache lock: {}", e))?.clear();
     if let Ok(mut tc) = thumb_cache.0.lock() { tc.clear(); }
     if let Ok(mut ptc) = page_type_cache.0.lock() { ptc.clear(); }
-    if let Ok(mut pc) = pdfium_cache.0.lock() { pc.clear(); }
+    if let Ok(mut pc) = pdfium_cache.0.lock() {
+        // Close the documents off the UI thread (see release_pdf_document).
+        let handles: Vec<_> = pc.drain().map(|(_, handle)| handle).collect();
+        if !handles.is_empty() {
+            std::thread::spawn(move || drop(handles));
+        }
+    }
     if let Ok(mut guard) = pixmap_cache.0.lock() {
         if let Some(cache) = guard.as_mut() {
             cache.clear();
@@ -2801,6 +2852,7 @@ pub fn run(opts: StartupOpts) {
             get_username,
             read_file,
             write_file,
+            write_file_atomic,
             file_exists,
             open_url,
             is_dev_mode,

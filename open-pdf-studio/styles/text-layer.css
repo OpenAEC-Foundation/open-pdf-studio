@@ -91,10 +91,12 @@
   top: 0;
 }
 
-/* Selection highlighting — translucent so the underlying glyphs remain
-   visible. Solid AccentColor masked the text completely. */
+/* A solid pastel avoids darker bands where PDF.js text runs overlap at word
+   boundaries. Render the selected glyphs in the text layer so the PDF canvas
+   text remains legible beneath the opaque selection background. */
 .textLayer ::selection {
-  background: rgba(0, 120, 255, 0.28);
+  background: #b8d8ff;
+  color: #171c25;
 }
 
 .textLayer br::selection {

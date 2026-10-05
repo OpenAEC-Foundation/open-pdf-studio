@@ -10,6 +10,8 @@
 // aan; die schrijft de bytes één keer weg en onthoudt waar.
 
 const _bytes = new Map();   // sleutel -> Uint8Array
+const _schrijvend = new Map();
+let generatie = 0;
 const _paden = new Map();   // sleutel -> pad op schijf
 
 /**
@@ -77,6 +79,8 @@ export function wisOngebruikt(gebruikteSleutels) {
 
 /** Alleen voor tests en het sluiten van een document. */
 export function leegmaken() {
+  generatie++;
+  _schrijvend.clear();
   _bytes.clear();
   _paden.clear();
 }
@@ -93,7 +97,12 @@ export async function padVan(sleutel, schrijf) {
   if (_paden.has(sleutel)) return _paden.get(sleutel);
   const bytes = bytesVan(sleutel);
   if (!bytes) return null;
-  const pad = await schrijf(sleutel, bytes);
-  if (pad) _paden.set(sleutel, pad);
-  return pad;
+  if (_schrijvend.has(sleutel)) return _schrijvend.get(sleutel);
+  const gestart = generatie;
+  const taak = Promise.resolve().then(() => schrijf(sleutel, bytes)).then((pad) => {
+    if (pad && gestart === generatie && bytesVan(sleutel) === bytes) _paden.set(sleutel, pad);
+    return pad;
+  }).finally(() => { if (_schrijvend.get(sleutel) === taak) _schrijvend.delete(sleutel); });
+  _schrijvend.set(sleutel, taak);
+  return taak;
 }

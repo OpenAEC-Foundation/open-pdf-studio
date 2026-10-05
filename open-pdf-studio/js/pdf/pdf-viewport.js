@@ -916,7 +916,7 @@ function _render() {
       const style = document.createElement('style');
       style.textContent = `
         .textLayer span { color: transparent !important; }
-        .textLayer ::selection { background: rgba(0, 100, 255, 0.3) !important; }
+        .textLayer ::selection { background: #b8d8ff !important; color: #171c25 !important; }
       `;
       textLayer.prepend(style);
     }

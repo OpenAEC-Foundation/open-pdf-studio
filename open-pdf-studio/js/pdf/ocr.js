@@ -2,10 +2,10 @@
 // Tauri command across a document's pages and stores the results on the
 // document so saver.js can write them out as an invisible, searchable text
 // layer next time the file is saved (see saver/ocr-text-layer.js).
-import { getActiveDocument } from '../core/state.js';
+import { state, getActiveDocument } from '../core/state.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import {
-  startPrintProgress, updatePrintProgress, finishPrintProgress, failPrintProgress,
+  startPrintProgress, updatePrintProgress, finishPrintProgress, failPrintProgress, sluitPrintProgress,
 } from '../solid/stores/printProgressStore.js';
 import i18next from '../i18n/config.js';
 
@@ -24,12 +24,18 @@ export async function ocrCurrentPage(lang = 'auto') {
   const doc = getActiveDocument();
   if (!doc || !doc.filePath || !doc.pdfDoc) return;
   const pageIndex = doc.currentPage - 1;
+  const pdf = doc.pdfDoc, path = doc.filePath;
 
   startPrintProgress(i18next.t('ocr.progress.page', { ns: 'statusbar', page: doc.currentPage }) || `Recognizing text on page ${doc.currentPage}...`);
   try {
-    const words = await ocrOnePage(doc.filePath, pageIndex, lang);
-    doc.ocrResults[doc.currentPage] = words;
-    markDocumentModified();
+    const words = await ocrOnePage(path, pageIndex, lang);
+    // A page/tab switch is harmless; replacing or closing the source is not.
+    if (!state.documents.includes(doc) || doc.pdfDoc !== pdf || doc.filePath !== path) {
+      sluitPrintProgress();
+      return;
+    }
+    doc.ocrResults[pageIndex + 1] = words;
+    markDocumentModified(doc);
     finishPrintProgress(i18next.t('ocr.progress.done', { ns: 'statusbar', count: words.length }) || `Recognized ${words.length} words`);
   } catch (e) {
     console.warn('OCR failed:', e);
@@ -45,6 +51,7 @@ export async function ocrAllPages(lang = 'auto') {
   const doc = getActiveDocument();
   if (!doc || !doc.filePath || !doc.pdfDoc) return;
   const total = doc.pdfDoc.numPages || 1;
+  const pdf = doc.pdfDoc, path = doc.filePath;
 
   startPrintProgress(i18next.t('ocr.progress.starting', { ns: 'statusbar' }) || 'Recognizing text...');
   let totalWords = 0;
@@ -55,11 +62,16 @@ export async function ocrAllPages(lang = 'auto') {
         i18next.t('ocr.progress.page', { ns: 'statusbar', page: pageNum }) || `Recognizing text on page ${pageNum}...`,
         i / total,
       );
-      const words = await ocrOnePage(doc.filePath, i, lang);
+      const words = await ocrOnePage(path, i, lang);
+      if (!state.documents.includes(doc) || doc.pdfDoc !== pdf || doc.filePath !== path) {
+        sluitPrintProgress();
+        return;
+      }
       doc.ocrResults[pageNum] = words;
+      // Keep successful pages dirty even if a later page fails.
+      markDocumentModified(doc);
       totalWords += words.length;
     }
-    markDocumentModified();
     finishPrintProgress(i18next.t('ocr.progress.doneAll', { ns: 'statusbar', pages: total, count: totalWords }) || `Recognized ${totalWords} words across ${total} pages`);
   } catch (e) {
     console.warn('OCR failed:', e);

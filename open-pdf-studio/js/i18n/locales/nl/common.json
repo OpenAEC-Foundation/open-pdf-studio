@@ -30,6 +30,8 @@
   "place": "Plaatsen",
   "draw": "Tekenen",
   "saved": "Opgeslagen",
+  "documentChangedDuringSave": "Het document is gewijzigd tijdens het opslaan. Sla opnieuw op.",
+  "documentChangedDuringExport": "Het document is gewijzigd tijdens het exporteren. Start opnieuw.",
   "search": "Zoeken",
   "find": "Zoeken",
   "page": "Pagina",

@@ -367,7 +367,7 @@ test('een plugin-annotatie houdt haar laag na opslaan en heropenen', async () =>
     assert.deepEqual(annots.map((a) => extraVoorAnnotatie(kaart, a)?.layer), [laag.id, DEFAULT_LAYER_ID]);
     assert.deepEqual(annots.map((a) => extraVoorAnnotatie(kaart, a)?.pluginAnnotation.id), ['p1', 'p2']);
   } finally {
-    await lezer.destroy();
+    await lezer.loadingTask.destroy();
   }
 });
 

@@ -231,6 +231,35 @@ test('knipselAlsMiniPdf telt een extra rotatie uit de app op bij de /Rotate', as
   assert.equal(paginaRotatie((await PDFDocument.load(zonder)).getPage(0)), 90);
 });
 
+test('verschillende uitsneden delen bron-Form en identieke uitsneden delen wrapper', async () => {
+  const bytes = await bronMetVak();
+  const target = await PDFDocument.create();
+  const a = await bedKnipselIn(target, bytes, VAK);
+  const b = await bedKnipselIn(target, bytes, { ...VAK, right: 250 });
+  const again = await bedKnipselIn(target, bytes, VAK);
+  assert.equal(again.ingebed.ref, a.ingebed.ref);
+  assert.notEqual(a.ingebed.ref, b.ingebed.ref);
+  target.addPage().drawPage(a.ingebed);
+  await target.flush();
+  const sourceRef = r => {
+    const form = target.context.lookup(r.ingebed.ref);
+    const x = form.dict.lookup(PDFName.of('Resources')).lookup(PDFName.of('XObject'));
+    return x.get(x.keys()[0]).toString();
+  };
+  assert.equal(sourceRef(a), sourceRef(b));
+  const other = await PDFDocument.create();
+  const c = await bedKnipselIn(other, bytes, VAK);
+  assert.notEqual(c.ingebed.doc, a.ingebed.doc);
+});
+
+test('herhaald knippen deelt mini-PDF, gewijzigde bron en rotatie krijgen eigen bytes', async () => {
+  const bytes = await bronMetVak();
+  const [a, b] = await Promise.all([knipselAlsMiniPdf(bytes), knipselAlsMiniPdf(bytes)]);
+  assert.equal(a, b);
+  assert.notEqual(await knipselAlsMiniPdf(bytes, 0, 90), a);
+  assert.notEqual(await knipselAlsMiniPdf(new Uint8Array(bytes)), a);
+});
+
 // Een doorzichtige onderlegger (#512): de alfa staat vóór de `Do` van het
 // knipsel. Zet de brontekening zelf `gs` met ca 1, dan geldt binnen een gewone
 // Form XObject die 1 weer voor alles erna en wordt de onderlegger dekkend.
@@ -263,4 +292,30 @@ test('een knipsel van een lege pagina zonder inhoud blokkeert het opslaan niet',
     assert.ok(opgeslagen.length > 0);
     assert.ok((await doel.save()).length > 0, 'ook een tweede save lukt');
   }
+});
+
+// Gedeelde bron (#509) en transparantiegroep (#512) samen: een dekkend en een
+// doorzichtig knipsel van hetzelfde vak in één document delen de zware
+// bron-Form, maar niet de wrapper; alleen de doorzichtige krijgt de groep.
+test('dekkend en doorzichtig knipsel van hetzelfde vak: eigen wrapper, gedeelde bron, groep alleen bij doorzichtig', async () => {
+  const bytes = await bronMetVak();
+  const target = await PDFDocument.create();
+  const dekkend = await bedKnipselIn(target, bytes, VAK);
+  const doorzichtig = await bedKnipselIn(target, bytes, VAK, 0, { alsGroep: true });
+  const nogmaals = await bedKnipselIn(target, bytes, VAK, 0, { alsGroep: true });
+  assert.notEqual(doorzichtig.ingebed.ref, dekkend.ingebed.ref);
+  assert.equal(nogmaals.ingebed.ref, doorzichtig.ingebed.ref);
+  const pagina = target.addPage();
+  pagina.drawPage(dekkend.ingebed);
+  pagina.drawPage(doorzichtig.ingebed);
+  await target.flush();
+  const form = (r) => target.context.lookup(r.ingebed.ref);
+  const bronVan = (r) => {
+    const x = form(r).dict.lookup(PDFName.of('Resources')).lookup(PDFName.of('XObject'));
+    return x.get(x.keys()[0]).toString();
+  };
+  assert.equal(bronVan(dekkend), bronVan(doorzichtig));
+  assert.equal(form(dekkend).dict.get(PDFName.of('Group')), undefined);
+  const groep = form(doorzichtig).dict.lookup(PDFName.of('Group'));
+  assert.equal(groep?.get(PDFName.of('S'))?.asString(), '/Transparency');
 });
