@@ -4,6 +4,7 @@ import {
   hideTextEditOverlay, heightGrowth, setHeightGrowth, setEditorFormatHandler,
 } from '../stores/textEditOverlayStore.js';
 import { state } from '../../core/state.js';
+import { editorGroei } from '../../annotations/rendering/textbox-layout.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { parseEditorDom } from '../../text/editor-dom-parse.js';
 import { runsPlainText } from '../../text/text-edit-appearance.js';
@@ -51,7 +52,10 @@ export default function TextEditOverlay() {
   function autoGrow() {
     if (!editorRef) return;
     const overflow = editorRef.scrollHeight - editorRef.clientHeight;
-    if (overflow > 0) setHeightGrowth(g => g + overflow);
+    // Zelfde groeiregel als de loader voor vakken met een /DS-inzet.
+    const onderinzet = parseFloat(getComputedStyle(editorRef).paddingBottom) || 0;
+    const groei = editorGroei(overflow, state.editingAnnotation, onderinzet);
+    if (groei > 0) setHeightGrowth(g => g + groei);
   }
 
   // Vet/cursief op de selectie; zonder selectie op het woord onder de caret.

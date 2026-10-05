@@ -1693,7 +1693,10 @@ async function handleUpdateAnnotation(params) {
   if (koppelMod.isStramien(ann) && patch.params && typeof patch.params === 'object') {
     patch = { ...patch, params: koppelMod.bewaarKoppeling(ann.params, patch.params) };
   }
+  const andereDikte = 'lineWidth' in patch && patch.lineWidth !== ann.lineWidth;
   Object.assign(ann, patch);
+  // Een andere randdikte laat een tekstinzet uit het bestand vallen (zie zetRanddikte).
+  if (andereDikte && !('textPadding' in patch)) delete ann.textPadding;
   if (psParams && !('width' in patch) && !('height' in patch)) {
     const rs = await import('./symbols/real-size.js');
     rs.applyTemplateRealSize(ann, 'center');

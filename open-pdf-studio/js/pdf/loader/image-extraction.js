@@ -124,7 +124,9 @@ export async function extractStampImagesViaPdfJs(page, viewport, stampAnnots) {
         // space:'visual' — dit pad rendert via een pdf.js-viewport dat de
         // pagina-/Rotate al bevat; de pixels staan dus zoals op het scherm.
         // De saver moet zulke bitmaps met pagina-compensatie wegschrijven.
-        imageMap.set(key, { kind: 'stamp', dataUrl, space: 'visual' });
+        // source:'render' — een kopie van de weergave, geen bron in het bestand
+        // (zie stempel-tekst.js).
+        imageMap.set(key, { kind: 'stamp', dataUrl, space: 'visual', source: 'render' });
       }
     }
   } catch (e) {

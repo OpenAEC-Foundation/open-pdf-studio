@@ -163,9 +163,10 @@ export async function registreerBron(doelDoc, sleutel, bytes) {
  * @returns {Promise<{content: string, xobjects: object, breedte: number, hoogte: number, bronRef: object, ingebed: object, plaatsing: number[]}>}
  */
 export async function bouwKnipselAppearance(doelDoc, opdracht) {
-  const { bronBytes, srcBox, rect, sleutel, paginaIndex = 0, paginaRot = 0, bewaarBron = true } = opdracht;
+  const { bronBytes, srcBox, rect, sleutel, paginaIndex = 0, paginaRot = 0, bewaarBron = true, opacity = 1 } = opdracht;
   if (!bronBytes) throw new Error(`geen bronbytes voor knipsel ${sleutel}`);
-  const { ingebed, breedte, hoogte } = await bedKnipselIn(doelDoc, bronBytes, srcBox, paginaIndex);
+  const { ingebed, breedte, hoogte } = await bedKnipselIn(doelDoc, bronBytes, srcBox, paginaIndex,
+    { alsGroep: Number.isFinite(opacity) && opacity < 1 });
   const naam = 'OPSK0';
   const plaatsing = knipselPlaatsing(rect, breedte, hoogte, paginaRot);
   const content = knipselApOps(rect, breedte, hoogte, naam, paginaRot);

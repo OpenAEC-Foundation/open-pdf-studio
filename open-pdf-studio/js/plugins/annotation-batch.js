@@ -90,7 +90,11 @@ export function applyAnnotationBatch(doc, operations, host) {
       } else if (operation.op === 'update') {
         const annotation = doc.annotations.find(item => item.id === operation.id);
         const before = snapshot(annotation);
+        const andereDikte = 'lineWidth' in operation.changes && operation.changes.lineWidth !== annotation.lineWidth;
         Object.assign(annotation, operation.changes);
+        // Een andere randdikte laat een tekstinzet uit het bestand vallen
+        // (zelfde regel als zetRanddikte in rendering/textbox-layout.js).
+        if (andereDikte && !('textPadding' in operation.changes)) delete annotation.textPadding;
         host.recordModify(operation.id, before, annotation);
       } else {
         const index = doc.annotations.findIndex(item => item.id === operation.id);
