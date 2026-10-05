@@ -1233,10 +1233,15 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         paginaRotatie: viewport.rotation,
         noRotate: !!(annot.annotationFlags & 16), // Bit 5: NoRotate
       });
+      // pdf.js doesn't expose calloutLine; use pdf-lib extracted CL from extraColors
+      const calloutLine = extraColors.calloutLine || annot.calloutLine;
+      const isCallout = calloutLine && calloutLine.length >= 4;
+
       // Rotation-aware viewport rect — its width/height already account for the
       // page /Rotate (they SWAP vs the raw PDF Rect on 90/270 pages).
       const ftRectVp = convertRect(annot.rect);
-      const ftMaat = tekstvakMaat({ rotatie: ftRotation, extra: extraColors, rect, rectVp: ftRectVp });
+      // De /Rect van een callout bevat ook de aanhaallijn (zie tekstvakMaat).
+      const ftMaat = tekstvakMaat({ rotatie: ftRotation, extra: extraColors, rect, rectVp: ftRectVp, callout: !!isCallout });
       const ftWidth = ftMaat.width;
       let ftHeight = ftMaat.height;
       // Position: center of the Rect (bounding box center = rotated textbox center)
@@ -1244,10 +1249,6 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
       const cy = ftRectVp.y + ftRectVp.height / 2;
       const ftX = cx - ftWidth / 2;
       const ftY = cy - ftHeight / 2;
-
-      // pdf.js doesn't expose calloutLine; use pdf-lib extracted CL from extraColors
-      const calloutLine = extraColors.calloutLine || annot.calloutLine;
-      const isCallout = calloutLine && calloutLine.length >= 4;
 
       if (isCallout) {
         // For callouts, Rect may include the leader line. Use /RD to get the actual text box.
@@ -1334,12 +1335,22 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         });
       }
 
+      // Typemachine-tekst (/IT /FreeTextTypewriter): het vak is precies zo
+      // breed als de tekst en breekt niet af, alleen op een harde
+      // regelovergang (noWrap, zie layoutTextboxLines). Dat is een waarneming
+      // aan zulke bestanden, geen regel uit de PDF-specificatie. Een fractie
+      // verschil in de tekstmeting liet hem anders naar twee regels groeien.
+      // De specificatie spelt de waarde FreeTextTypeWriter, veel producers
+      // FreeTextTypewriter: beide tellen.
+      const typemachine = /^FreeTextTypewriter$/i.test(annot.it || extraColors.intent || '');
+
       // Same grow-to-fit as the callout branch above: don't silently drop
       // lines other editors show in full just because the authored Rect is tight.
       const ftNeededH = computeTextboxContentHeight({
         text, textRuns, width: ftWidth, fontSize,
         lineSpacing: extraColors.lineSpacing, lineWidth: borderWidth, textPadding: dsInzet,
-        fontFamily: fontFamily || 'Arial'
+        fontFamily: fontFamily || 'Arial',
+        ...(typemachine ? { noWrap: true } : {}),
       });
       const ftPas = pasRegelafstandAanDoos({
         lineSpacing: extraColors.lineSpacing, fontSize, boxHeight: ftHeight,
@@ -1372,6 +1383,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         lineSpacing: ftPas.lineSpacing || undefined,
         fontUnderline: fontUnderline,
         fontStrikethrough: fontStrikethrough,
+        ...(typemachine ? { noWrap: true } : {}),
         ...(extraColors.borderCloudy ? {
           borderEffect: 'cloudy',
           ...(extraColors.cloudIntensity !== undefined ? { cloudIntensity: extraColors.cloudIntensity } : {})
