@@ -584,7 +584,9 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       //     V. Use a tiny shortening (just enough to keep the line tip from
       //     poking past the V tip with thick strokes).
       const FILLED_HEADS = new Set(['closed', 'closedReversed', 'diamond', 'square', 'circle']);
-      const isHeadFilled = (s) => FILLED_HEADS.has(s);
+      // A closed head without /IC from another program is hollow: the line
+      // runs into it like into an open head.
+      const isHeadFilled = (s) => FILLED_HEADS.has(s) && annotation.headFill !== false;
       const aDx = annotation.endX - annotation.startX;
       const aDy = annotation.endY - annotation.startY;
       const aLen = Math.sqrt(aDx * aDx + aDy * aDy);
@@ -613,12 +615,12 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
 
       if (endHead !== 'none') {
         const endAngle = Math.atan2(aDy, aDx);
-        drawArrowheadOnCanvas(offCtx, annotation.endX, annotation.endY, endAngle, headSize, endHead);
+        drawArrowheadOnCanvas(offCtx, annotation.endX, annotation.endY, endAngle, headSize, endHead, { hol: annotation.headFill === false });
       }
 
       if (startHead !== 'none') {
         const startAngle = Math.atan2(-aDy, -aDx);
-        drawArrowheadOnCanvas(offCtx, annotation.startX, annotation.startY, startAngle, headSize, startHead);
+        drawArrowheadOnCanvas(offCtx, annotation.startX, annotation.startY, startAngle, headSize, startHead, { hol: annotation.headFill === false });
       }
 
       // Composite the offscreen arrow onto the main canvas with opacity
@@ -1993,6 +1995,12 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
         dimOvershootEnds: annotation.dimOvershootEnds,
         dimExtGapMm: annotation.dimExtGapMm,
         dimExtOvershootMm: annotation.dimExtOvershootMm,
+        // Opmaak van een maat uit een ander programma (loader/maatlijn-uit-
+        // bestand.js): holle punten, bijschrift in de lijn, eigen tekstkleur.
+        headFill: annotation.headFill,
+        textPosition: annotation.dimTextPosition,
+        labelColor: _evHalftone?.color ? strokeColor : annotation.labelColor,
+        lineWidth: annotation.lineWidth ?? 1,
       });
       break;
     }
@@ -2115,14 +2123,14 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       if (mpStartHead !== 'none' && mpPts.length >= 2) {
         const startAngle = Math.atan2(mpPts[0].y - mpPts[1].y, mpPts[0].x - mpPts[1].x);
         ctx.fillStyle = strokeColor;
-        drawDimensionLineEnding(ctx, mpPts[0].x, mpPts[0].y, startAngle, mpHeadSize, mpStartHead);
+        drawDimensionLineEnding(ctx, mpPts[0].x, mpPts[0].y, startAngle, mpHeadSize, mpStartHead, { hol: annotation.headFill === false });
       }
       if (mpEndHead !== 'none' && mpPts.length >= 2) {
         const last = mpPts[mpPts.length - 1];
         const prev = mpPts[mpPts.length - 2];
         const endAngle = Math.atan2(last.y - prev.y, last.x - prev.x);
         ctx.fillStyle = strokeColor;
-        drawDimensionLineEnding(ctx, last.x, last.y, endAngle, mpHeadSize, mpEndHead);
+        drawDimensionLineEnding(ctx, last.x, last.y, endAngle, mpHeadSize, mpEndHead, { hol: annotation.headFill === false });
       }
 
       if (annotation.measureText && mpPts.length > 0) {

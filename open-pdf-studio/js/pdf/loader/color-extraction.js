@@ -8,6 +8,7 @@ import { decodePdfTextObject } from '../saver/pdf-text.js';
 import { readPluginPdfAnnotation } from '../../plugins/plugin-pdf.js';
 import { laagVanOc } from '../saver/annotatie-lagen.js';
 import { leesPlattegrondMeta } from './plattegrond-meta.js';
+import { leesLijnSleutels } from './maatlijn-uit-bestand.js';
 
 // Documenten waarvan de knipsel-bronpagina's al in de store staan: dat
 // uitpakken gebeurt één keer per document, bij het eerste knipsel dat we zien.
@@ -1021,6 +1022,12 @@ const result = {};
             if (kleur) bewaard.kleur = kleur;
           }
           colors.opsNoStroke = bewaard;
+        }
+
+        // Lijndikte-, punt- en bijschriftsleutels van een lijn of polylijn
+        // zoals ze in het woordenboek staan (zie maatlijn-uit-bestand.js).
+        if (subtypeName === '/Line' || subtypeName === '/PolyLine') {
+          colors.lijn = leesLijnSleutels(annotDict, context);
         }
 
         // For Line annotations, read original /L array (PDF.js normalizeRect destroys direction)

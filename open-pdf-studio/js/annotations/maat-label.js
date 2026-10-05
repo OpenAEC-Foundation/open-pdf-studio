@@ -63,18 +63,24 @@ export function maatTekstStrook(opties = {}) {
   return maatTekstMarge(opties) + fs + kop + 1.5;
 }
 
+/** Tot zo ver naast staand (radialen) leest een maat nog als een staande. */
+export const STAAND_TOLERANTIE = Math.PI / 180;
+
 /**
  * Hoek (radialen, y omlaag) waaronder de maattekst staat: langs de lijn, maar
  * nooit op zijn kop. Een staande maat leest van rechts — van onder naar
- * boven — ongeacht de richting waarin de lijn getekend is.
+ * boven — ongeacht de richting waarin de lijn getekend is. Dat geldt ook tot
+ * 1° naast staand: zo lezen twee bijna staande maten van -90,13° en -88,91°
+ * dezelfde kant op in plaats van de een omgeklapt. Precies staande en
+ * liggende maten veranderen daar niet door.
  */
 export function leesbareHoek(hoek) {
   let a = Number(hoek) || 0;
   while (a > Math.PI) a -= 2 * Math.PI;
   while (a <= -Math.PI) a += 2 * Math.PI;
   const eps = 1e-9;
-  if (a > Math.PI / 2 - eps) a -= Math.PI;
-  else if (a < -Math.PI / 2 - eps) a += Math.PI;
+  if (a > Math.PI / 2 - STAAND_TOLERANTIE - eps) a -= Math.PI;
+  else if (a < -Math.PI / 2 - STAAND_TOLERANTIE - eps) a += Math.PI;
   return a;
 }
 
