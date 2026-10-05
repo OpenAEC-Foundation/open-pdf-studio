@@ -247,3 +247,20 @@ test('een dekkend knipsel krijgt geen groep (overvloeimodi in de bron blijven we
   const { form } = await ingebedXObject(await bronMetVak());
   assert.equal(form.dict.get(PDFName.of('Group')), undefined);
 });
+// Een lege pagina die pdf-lib zelf aanmaakte (nieuw document, ingevoegde lege
+// pagina) heeft geen /Contents. embedPage gooit daarop pas bij opslaan, en dan
+// mislukte elke volgende save van het document, niet alleen die ene.
+test('een knipsel van een lege pagina zonder inhoud blokkeert het opslaan niet', async () => {
+  const leeg = await PDFDocument.create();
+  leeg.addPage([600, 400]);
+  const bytes = await leeg.save();
+  assert.equal((await PDFDocument.load(bytes)).getPage(0).node.Contents(), undefined, 'de bron heeft echt geen /Contents');
+  for (const opties of [{}, { alsGroep: true }]) {
+    const doel = await PDFDocument.create();
+    const r = await bedKnipselIn(doel, bytes, VAK, 0, opties);
+    doel.addPage([800, 600]).drawPage(r.ingebed, { x: 0, y: 0, width: r.breedte, height: r.hoogte });
+    const opgeslagen = await doel.save();
+    assert.ok(opgeslagen.length > 0);
+    assert.ok((await doel.save()).length > 0, 'ook een tweede save lukt');
+  }
+});

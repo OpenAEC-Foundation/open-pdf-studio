@@ -26,7 +26,7 @@ import {
   pushGraphicsState, popGraphicsState, concatTransformationMatrix, drawObject,
 } from 'pdf-lib';
 import { berekenPlaatsing } from './print-plaatsing.js';
-import { knipselMatrix } from './vector-embed.js';
+import { knipselMatrix, metInhoud } from './vector-embed.js';
 
 const PT_PER_MM = 72 / 25.4;
 
@@ -281,7 +281,7 @@ export async function bouwVectorPrintPdf({
     if (!Number.isInteger(index) || index < 0 || index >= aantal) {
       throw new Error(`page ${index + 1} does not exist in the source document`);
     }
-    const page = bron.getPage(index);
+    const page = metInhoud(bron.getPage(index));
     const maat = weergaveMaat(page, extraRotatie);
     const plaatsing = berekenPlaatsing({
       ...keuzes,
