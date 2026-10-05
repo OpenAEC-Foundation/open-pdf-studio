@@ -48,7 +48,7 @@ import { veelhoekGrondvorm } from './saver/veelhoek-grondvorm.js';
 import { _rotVisualMapper, _remapRect } from './saver/rotatie-mapper.js';
 import { makePointMapper, buildTextEditStrikeDict, buildCaretDict, addLoadedMarkupKeys,
   applyGroupLinks, correctionRefKeys, dropOrphanPopups } from './saver/correction-dicts.js';
-import { buildTextMarkupDict } from './saver/text-markup-dict.js';
+import { buildTextMarkupDict, bronMarkeringen } from './saver/text-markup-dict.js';
 import { linkPlanForSave, isTextEditStrike, saveColor } from '../annotations/corrections/model.js';
 import { buildStavenreeks, toLocalPrimitives, labelText } from '../annotations/stavenreeks.js';
 import { stavenreeksPxPerMm } from '../annotations/stavenreeks-scale.js';
@@ -463,6 +463,9 @@ async function _savePDFNu(saveAsPath, activeDoc) {
       const plan = linkPlanForSave(pageAnnotations);
       const gekoppeldeKinderen = new Set(plan.links.map(l => l.childId));
       const puntNaarPdf = makePointMapper(pageRot, cropBox);
+      // Gewone markeringen die al zonder /OPS_TextDir in het bestand stonden
+      // (#527): hun quads geven bij het herschrijven de leesrichting.
+      const markeringBronnen = bronMarkeringen(context, verwijderdeRefs);
       const refById = new Map();
       const dictById = new Map();
       // /NM per pagina uniek: een kopie draagt de naam van het origineel mee.
@@ -507,10 +510,15 @@ async function _savePDFNu(saveAsPath, activeDoc) {
               });
               break;
             }
-            // Text markup annotations (ongewijzigd, zie saver/text-markup-dict.js).
-            // Een geladen markering krijgt /IT, /NM en /Subj alleen terug als het
-            // model ze heeft.
-            annotDict = buildTextMarkupDict(context, ann, { convertX, convertY, opacity });
+            // Gewone markering (#527): ook de quads uit de NIET omgerekende
+            // annotatie, in leesrichting, met een appearance langs de tekst (zie
+            // saver/text-markup-dict.js). Een geladen markering krijgt /IT, /NM
+            // en /Subj alleen terug als het model ze heeft. Een gekoppeld kind
+            // zonder /IT tekent in de kleur die applyGroupLinks in /C zet.
+            annotDict = buildTextMarkupDict(context, annRaw, puntNaarPdf, {
+              opacity, pageRot, bronnen: markeringBronnen,
+              rgb: gekoppeldeKinderen.has(annRaw.id) ? hexToColorArray(saveColor(annRaw, pageAnnotations, plan)) : undefined,
+            });
             addLoadedMarkupKeys(annotDict, ann, gebruikteNm);
             break;
           }

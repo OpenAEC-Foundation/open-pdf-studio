@@ -139,6 +139,17 @@ test('markeringen krijgen intent, /NM, /Subj en gemarkeerde tekst alleen als het
   assert.deepEqual(vol, { intent: 'StrikeOutTextEdit', nm: 'x', pdfSubject: 'Cross-Out', markedText: 'teh', textDir: 0 });
 });
 
+test('de lijndikte komt alleen uit de eigen sleutel /OPS_LineWidth (#527)', () => {
+  const lijn = { subtype: 'Underline', rect: [0, 0, 1, 1] };
+  assert.deepEqual(textEditPropsFromPdf(lijn, { opsLineWidth: 3 }, convertPoint, 0), { lineWidth: 3 });
+  // Zonder de sleutel, of met een onbruikbare waarde: geen lineWidth.
+  assert.deepEqual(textEditPropsFromPdf(lijn, {}, convertPoint, 0), {});
+  assert.deepEqual(textEditPropsFromPdf(lijn, { opsLineWidth: 0 }, convertPoint, 0), {});
+  assert.deepEqual(textEditPropsFromPdf(lijn, { opsLineWidth: -1 }, convertPoint, 0), {});
+  // Een /BS uit een ander programma (borderWidth) telt niet.
+  assert.deepEqual(textEditPropsFromPdf(lijn, { borderWidth: 2 }, convertPoint, 0), {});
+});
+
 function paar() {
   const karet = { id: 'k', type: 'caret', page: 1, intent: 'Replace' };
   const door = { id: 'd', type: 'textStrikethrough', page: 1, intent: 'StrikeOutTextEdit' };

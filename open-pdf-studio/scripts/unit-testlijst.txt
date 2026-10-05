@@ -242,3 +242,5 @@ js/core/opstart-processen.test.mjs
 js/pdf/printerlijst-bron.test.mjs
 js/pdf/printerlijst-afnemers.test.mjs
 js/pdf/wiel-scroll.test.mjs
+js/pdf/saver/text-markup-dict.test.mjs
+js/text/leesrichting.test.mjs

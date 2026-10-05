@@ -2,6 +2,7 @@ import { state, getActiveDocument } from '../core/state.js';
 import { showTextSelectionContextMenu } from '../ui/chrome/context-menus.js';
 import { applyBandRestriction, clearBandRestriction } from './selection-guard.js';
 import { weergaveRectNaarPagina } from '../pdf/weergave-ruimte.js';
+import { selectionTextDir } from './leesrichting.js';
 
 /**
  * Text Selection Module
@@ -295,6 +296,25 @@ export function getSelectionRectsForAnnotation() {
   }
 
   return result;
+}
+
+/**
+ * Leesrichting (0/90/180/270) van de geselecteerde tekst in de paginaruimte,
+ * of null als die onbekend is (#527). De rotatie is de eigen /Rotate plus de
+ * paginarotatie in de app, zoals paginaMaat (weergave-ruimte.js) die telt; de
+ * weergaverotatie (#200) hoort er niet bij, want annotaties staan in de
+ * paginaruimte.
+ * @returns {number|null}
+ */
+export function getSelectionTextDir() {
+  const selection = window.getSelection();
+  if (!selection || selection.rangeCount === 0) return null;
+  const textLayer = findParentTextLayer(selection.anchorNode);
+  if (!textLayer) return null;
+  const doc = getActiveDocument();
+  const pageNum = parseInt(textLayer.dataset.page) || (doc?.currentPage || 1);
+  const pageRot = (Number(doc?.pageDims?.[pageNum]?.rotation) || 0) + (Number(doc?.pageRotations?.[pageNum]) || 0);
+  return selectionTextDir(selection, pageRot);
 }
 
 /**

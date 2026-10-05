@@ -14,9 +14,12 @@
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { PDFDocument, PDFName, PDFRef, PDFDict, PDFString, PDFHexString } from 'pdf-lib';
+import { PDFDocument, PDFName, PDFRef, PDFDict, PDFString, PDFHexString, decodePDFRawStream, degrees } from 'pdf-lib';
 
-import { buildTextEditFixture, PAGINAS, OPBOUW, nm, OUDE_M } from './saver/test-fixtures/text-edit-fixture.mjs';
+import {
+  buildTextEditFixture, PAGINAS, OPBOUW, nm, OUDE_M, naarGebruiker, MEDIABOX, karetVak,
+} from './saver/test-fixtures/text-edit-fixture.mjs';
+import { replaceStrikeColor } from '../annotations/rendering/caret.js';
 import { extractAnnotationColors } from './loader/color-extraction.js';
 import { extraVoorAnnotatie } from './loader/extra-sleutel.js';
 import { opmerkingUitAnnot, zonderDubbeleOpmerking } from './loader/annotatie-opmerking.js';
@@ -25,8 +28,7 @@ import {
   makePointMapper, buildTextEditStrikeDict, buildCaretDict, addLoadedMarkupKeys,
   applyGroupLinks, correctionRefKeys, dropOrphanPopups,
 } from './saver/correction-dicts.js';
-import { buildTextMarkupDict } from './saver/text-markup-dict.js';
-import { _rotVisualMapper, _remapRect } from './saver/rotatie-mapper.js';
+import { buildTextMarkupDict, bronMarkeringen } from './saver/text-markup-dict.js';
 import { zetDoorzichtigheidInAp } from './saver/utils.js';
 import { linkPlanForSave, isTextEditStrike, saveColor, correctionKind } from '../annotations/corrections/model.js';
 import { colorArrayToHex, hexToColorArray } from '../utils/colors.js';
@@ -111,13 +113,6 @@ async function laad(bytes) {
   return model;
 }
 
-function remap(annRaw, rot, cropBox) {
-  const m = _rotVisualMapper(rot, cropBox.width, cropBox.height);
-  const ann = { ...annRaw, ..._remapRect(annRaw, m) };
-  if (Array.isArray(ann.rects)) ann.rects = ann.rects.map((r) => ({ ...r, ..._remapRect(r, m) }));
-  return ann;
-}
-
 /** Slaat het model op over `bytes` zoals saver.js (alleen correcties en markeringen). */
 async function slaOp(bytes, model) {
   const doc = await PDFDocument.load(bytes);
@@ -134,16 +129,14 @@ async function slaOp(bytes, model) {
       else verwijderdeRefs.push(ref);
     }
     const cropBox = pagina.getCropBox();
-    const convertX = (x) => x + cropBox.x;
-    const convertY = (y) => cropBox.y + cropBox.height - y;
     const plan = linkPlanForSave(pageAnnotations);
     const gekoppeldeKinderen = new Set(plan.links.map((l) => l.childId));
     const puntNaarPdf = makePointMapper(pageRot, cropBox);
+    const markeringBronnen = bronMarkeringen(ctx, verwijderdeRefs);
     const refById = new Map();
     const dictById = new Map();
     for (const annRaw of pageAnnotations) {
-      const ann = pageRot ? remap(annRaw, pageRot, cropBox) : annRaw;
-      const opacity = ann.opacity !== undefined ? ann.opacity : 1;
+      const opacity = annRaw.opacity !== undefined ? annRaw.opacity : 1;
       let annotDict;
       if (annRaw.type === 'caret') {
         const karet = plan.stripReplaceIntent.has(annRaw.id) ? { ...annRaw, intent: undefined } : annRaw;
@@ -156,8 +149,13 @@ async function slaOp(bytes, model) {
           linked: gekoppeldeKinderen.has(annRaw.id),
         });
       } else {
-        annotDict = buildTextMarkupDict(ctx, ann, { convertX, convertY, opacity });
-        addLoadedMarkupKeys(annotDict, ann);
+        // Gewone markering (#527): ook per punt, in leesrichting.
+        // Een gekoppeld kind tekent in de kleur die applyGroupLinks in /C zet.
+        annotDict = buildTextMarkupDict(ctx, annRaw, puntNaarPdf, {
+          opacity, pageRot, bronnen: markeringBronnen,
+          rgb: gekoppeldeKinderen.has(annRaw.id) ? hexToColorArray(saveColor(annRaw, pageAnnotations, plan)) : undefined,
+        });
+        addLoadedMarkupKeys(annotDict, annRaw);
       }
       zetDoorzichtigheidInAp(ctx, annotDict, opacity);
       const ref = ctx.register(annotDict);
@@ -304,18 +302,37 @@ test('textDir is 0 voor elke correctie op elke /Rotate', async () => {
   }
 });
 
-test('de oude doorhaling zonder /IT houdt quads, /Contents en de /M-afhandeling', async () => {
+test('de oude doorhaling zonder /IT houdt /Contents en de /M-afhandeling; quads in leesrichting met /AP (#527)', async () => {
   const { origineel, eerste, tweede } = await rondgang();
   origineel.forEach((pagina, i) => {
     const bron = pagina.find((a) => a.subtype === '/StrikeOut' && !a.it);
+    // Begin-boven, eind-boven, begin-onder, eind-onder van de getoonde regel,
+    // los van de saver omgerekend. De oude vaste volgorde viel alleen op
+    // /Rotate 0 hiermee samen.
+    const map = naarGebruiker(i);
+    const leesrichting = OPBOUW.oud.rects.flatMap((r) => [
+      map(r.x, r.y), map(r.x + r.width, r.y), map(r.x, r.y + r.height), map(r.x + r.width, r.y + r.height),
+    ].flatMap((p) => [p.x, p.y]));
+    if (PAGINAS[i].rotate === 0) assert.deepEqual(bron.quads, leesrichting, 'op /Rotate 0 was de oude volgorde al de leesrichting');
+    else assert.notDeepEqual(bron.quads, leesrichting, `pagina ${i + 1}: de oude volgorde liep niet langs de tekst`);
+    // Op /Rotate 90 en 270 is p1 -> p2 van de oude volgorde de regelhoogte: die
+    // wordt hersteld. Op /Rotate 180 is het de lange kant, net als bij tekst die
+    // in gebruikersruimte rechtop staat en op zijn kop getoond wordt (dan is
+    // het wel de leesrichting); daar blijven de quads uit het bestand, zoals de
+    // oude saver ze ook schreef. Een doorhaling ligt in beide gevallen op
+    // dezelfde lijn.
+    const verwacht = PAGINAS[i].rotate === 180 ? bron.quads : leesrichting;
     for (const save of [eerste, tweede]) {
       const oud = save[i].find((a) => a.subtype === '/StrikeOut' && !a.it);
-      assert.deepEqual(oud.quads, bron.quads, `pagina ${i + 1}: quads byte-gelijk`);
+      assert.equal(oud.quads.length, verwacht.length);
+      oud.quads.forEach((v, k) => assert.ok(Math.abs(v - verwacht[k]) <= 1e-3, `pagina ${i + 1}: quad ${k} ${v} vs ${verwacht[k]}`));
+      assert.equal(oud.dict.get(PDFName.of('OPS_TextDir')), undefined, `pagina ${i + 1}: geen /OPS_TextDir, de lader blijft zoals hij was`);
       assert.equal(oud.contents, OPBOUW.oud.opmerking);
       assert.match(oud.m, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, '/M blijft een ISO-tijd zoals voorheen');
       assert.equal(oud.nm, undefined);
       assert.equal(oud.subj, undefined);
-      assert.equal(oud.heeftAp, false, 'geen appearance, zoals voorheen');
+      assert.equal(oud.it, undefined, 'blijft een gewone doorhaling');
+      assert.equal(oud.heeftAp, true, 'een appearance langs de tekst');
     }
     assert.equal(bron.m, OUDE_M);
   });
@@ -356,4 +373,72 @@ test('een tweede save van een eigen save laat het bestand gelijk', async () => {
   const { eerste, tweede } = await rondgang();
   const zonderRef = (lijst) => lijst.map((p) => p.map(({ ref, dict, quads, m, ...rest }) => ({ ...rest, quads: quads?.map((v) => Math.round(v * 100) / 100) })));
   assert.deepEqual(zonderRef(tweede), zonderRef(eerste));
+});
+
+// ── een vervanging waarvan de doorhaling geen /IT heeft ─────────────────────
+//
+// De lader neemt zo'n paar ook als vervanging (/IRT plus /RT /Group is genoeg).
+// De doorhaling gaat dan niet als tekstcorrectie maar als gewone markering de
+// saver door; applyGroupLinks zet daarna /C van het invoegteken. De /AP moet
+// diezelfde kleur hebben, zoals het scherm de doorhaling ook tekent
+// (replaceStrikeColor) en zoals de tak voor tekstcorrecties het al deed.
+
+async function vervangingZonderIt() {
+  const doc = await PDFDocument.create();
+  const ctx = doc.context;
+  for (const i of [0, 1]) {
+    const pagina = doc.addPage([MEDIABOX[2], MEDIABOX[3]]);
+    pagina.setRotation(degrees(PAGINAS[i].rotate));
+    const { x, y, width, height } = PAGINAS[i].cropBox;
+    pagina.setCropBox(x, y, width, height);
+    const map = naarGebruiker(i);
+    const vak = karetVak(OPBOUW.vervang.P.x, OPBOUW.vervang.P.y);
+    const hoeken = [map(vak.x, vak.y), map(vak.x + vak.width, vak.y + vak.height)];
+    const karetRef = ctx.register(ctx.obj({
+      Type: 'Annot', Subtype: 'Caret', IT: 'Replace', Sy: 'None', Contents: PDFString.of('the'),
+      Rect: [Math.min(hoeken[0].x, hoeken[1].x), Math.min(hoeken[0].y, hoeken[1].y), Math.max(hoeken[0].x, hoeken[1].x), Math.max(hoeken[0].y, hoeken[1].y)],
+      NM: PDFString.of(`zonder-it-${i + 1}-caret`), C: [0.6, 0, 0.8], CA: 1, F: 4, T: PDFString.of('Reviewer'),
+    }));
+    const r = OPBOUW.vervang.rects[0];
+    const quad = [map(r.x, r.y), map(r.x + r.width, r.y), map(r.x, r.y + r.height), map(r.x + r.width, r.y + r.height)].flatMap((p) => [p.x, p.y]);
+    const xs = quad.filter((_, k) => k % 2 === 0);
+    const ys = quad.filter((_, k) => k % 2 === 1);
+    const kindRef = ctx.register(ctx.obj({
+      Type: 'Annot', Subtype: 'StrikeOut', QuadPoints: quad,
+      Rect: [Math.min(...xs) - 1, Math.min(...ys) - 1, Math.max(...xs) + 1, Math.max(...ys) + 1],
+      IRT: karetRef, RT: 'Group', NM: PDFString.of(`zonder-it-${i + 1}-strike`), C: [1, 0, 0], CA: 1, F: 4, T: PDFString.of('Reviewer'),
+    }));
+    pagina.node.set(PDFName.of('Annots'), ctx.obj([kindRef, karetRef]));
+  }
+  return doc.save();
+}
+
+test('een vervanging met een doorhaling zonder /IT: na een nieuwe kleur tekent de /AP in de kleur van /C (#527)', async () => {
+  const bytes = await vervangingZonderIt();
+  const model = await laad(bytes);
+  for (const n of [1, 2]) {
+    const karet = model.find((a) => a.page === n && a.type === 'caret');
+    const kind = model.find((a) => a.page === n && a.type === 'textStrikethrough');
+    assert.equal(kind.intent, undefined, 'geen /IT');
+    assert.equal(isTextEditStrike(kind), false, 'dus de tak voor gewone markeringen');
+    assert.equal(correctionKind(kind, model), 'replaceChild');
+    // De gebruiker geeft de vervanging een andere kleur (het paneel past het invoegteken aan).
+    karet.color = '#00AA00';
+    assert.equal(replaceStrikeColor(kind, model), '#00AA00', 'het scherm tekent de doorhaling in de kleur van het invoegteken');
+  }
+  const doc = await PDFDocument.load(await slaOp(bytes, model));
+  const ctx = doc.context;
+  doc.getPages().forEach((pagina, i) => {
+    const kind = ctx.lookup(pagina.node.get(PDFName.of('Annots'))).asArray().map((ref) => ctx.lookup(ref))
+      .find((d) => d.get(PDFName.of('Subtype'))?.toString() === '/StrikeOut');
+    const label = `pagina ${i + 1}`;
+    assert.equal(kind.get(PDFName.of('RT'))?.toString(), '/Group', `${label}: gekoppeld`);
+    const c = kind.lookup(PDFName.of('C')).asArray().map((v) => v.asNumber());
+    hexToColorArray('#00AA00').forEach((v, k) => assert.ok(Math.abs(c[k] - v) < 1e-6, `${label}: /C is de kleur van het invoegteken`));
+    const ap = ctx.lookup(kind.lookup(PDFName.of('AP')).get(PDFName.of('N')));
+    const tekst = Buffer.from(decodePDFRawStream(ap).decode()).toString('latin1');
+    const rg = /(-?[\d.]+) (-?[\d.]+) (-?[\d.]+) RG/.exec(tekst);
+    assert.ok(rg, `${label}: de /AP zet een lijnkleur`);
+    rg.slice(1, 4).map(Number).forEach((v, k) => assert.ok(Math.abs(v - c[k]) < 1e-3, `${label}: lijnkleur ${rg[0]} is /C ${c.join(' ')}`));
+  });
 });
