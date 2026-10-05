@@ -238,3 +238,6 @@ js/annotations/xfdf-laag.test.mjs
 js/annotations/annotatie-lagen-mcp.test.mjs
 js/annotations/vector-snippet-preview.test.mjs
 js/pdf/pdfjs-record.test.mjs
+js/core/opstart-processen.test.mjs
+js/pdf/printerlijst-bron.test.mjs
+js/pdf/printerlijst-afnemers.test.mjs

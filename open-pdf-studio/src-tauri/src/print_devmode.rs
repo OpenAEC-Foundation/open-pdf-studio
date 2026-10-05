@@ -66,7 +66,7 @@ fn uit_breed(tekens: &[u16]) -> String {
 
 /// Een tekst met afsluitende nul uit een Windows-structuur. Leeg bij een
 /// nulwijzer. De aanroeper staat ervoor in dat de tekst nog leeft.
-unsafe fn uit_pwstr(p: *const u16) -> String {
+pub(crate) unsafe fn uit_pwstr(p: *const u16) -> String {
     if p.is_null() {
         return String::new();
     }

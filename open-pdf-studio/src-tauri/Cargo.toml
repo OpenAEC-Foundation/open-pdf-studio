@@ -146,8 +146,10 @@ rustls-native-certs = "0.8"
 # Win32_Security_Cryptography: het Windows-rootarchief en de gewantrouwde
 # certificaten rechtstreeks en alleen-lezen lezen (handtekeningen), met de
 # doelen en uitschakeldata per wortel.
+# Win32_Security (met Win32_Graphics_Gdi): `PRINTER_INFO_2W`, voor de
+# printerlijst uit de spooler (print_lijst.rs, #524).
 [target.'cfg(target_os = "windows")'.dependencies]
-windows-sys = { version = "0.59", features = ["Win32_Graphics_Printing", "Win32_Graphics_Gdi", "Win32_Storage_Xps", "Win32_Foundation", "Win32_System_Com", "Win32_UI_Shell", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging", "Win32_Security_Cryptography"] }
+windows-sys = { version = "0.59", features = ["Win32_Graphics_Printing", "Win32_Graphics_Gdi", "Win32_Storage_Xps", "Win32_Foundation", "Win32_System_Com", "Win32_UI_Shell", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging", "Win32_Security", "Win32_Security_Cryptography", "Win32_System_Registry"] }
 
 # De mock-runtime van Tauri, zodat een test een AppHandle kan maken zonder
 # venster (logboek::registreer schrijft daarmee echt een logbestand). Alleen

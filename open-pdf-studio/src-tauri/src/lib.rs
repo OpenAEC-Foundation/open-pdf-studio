@@ -23,9 +23,14 @@ pub mod handtekening;
 pub mod print_formulieren;
 pub mod print_instelling;
 pub mod print_plaatsing;
-// DEVMODE-hulp en de GDI-printkern: alleen Windows.
+// DEVMODE-hulp, de printerlijst uit de spooler en de GDI-printkern: alleen
+// Windows.
 #[cfg(target_os = "windows")]
 pub mod print_devmode;
+#[cfg(target_os = "windows")]
+pub mod print_lijst;
+#[cfg(target_os = "windows")]
+mod standaard_app;
 #[cfg(target_os = "windows")]
 pub mod print_windows;
 pub mod render_to_png;
@@ -254,49 +259,26 @@ async fn is_default_pdf_app() -> bool {
     tauri::async_runtime::spawn_blocking(|| {
         #[cfg(target_os = "windows")]
         {
-            // Get our own executable path
-            let our_exe = match std::env::current_exe() {
-                Ok(p) => p.to_string_lossy().to_lowercase(),
-                Err(_) => return false,
-            };
-
-            // Query the UserChoice ProgId for .pdf
-            let output = match no_window_command("reg")
-                .args(&["query", r"HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.pdf\UserChoice", "/v", "ProgId"])
-                .output()
-            {
-                Ok(o) => o,
-                Err(_) => return false,
-            };
-            let stdout = String::from_utf8_lossy(&output.stdout);
-
-            // Extract ProgId value from reg query output
-            let prog_id = stdout.lines()
-                .find(|line| line.contains("ProgId"))
-                .and_then(|line| line.split_whitespace().last())
-                .unwrap_or("");
-
-            if prog_id.is_empty() {
+            // Register lezen met de Windows-API, niet met reg.exe: een extra
+            // systeemproces kort na de start laat beveiligingssoftware de app
+            // afsluiten (#524).
+            use windows_sys::Win32::System::Registry::{HKEY_CLASSES_ROOT, HKEY_CURRENT_USER};
+            let eigen_exe = std::env::current_exe()
+                .map(|p| p.to_string_lossy().into_owned())
+                .unwrap_or_default();
+            let Some(prog_id) = standaard_app::lees_tekst(
+                HKEY_CURRENT_USER,
+                r"Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.pdf\UserChoice",
+                Some("ProgId"),
+            ) else {
                 return false;
-            }
-
-            // Check if the ProgId directly matches our app name
-            if prog_id.to_lowercase().contains("openpdfstudio") {
-                return true;
-            }
-
-            // Look up the shell\open\command for this ProgId in HKCR
-            let key_path = format!(r"HKCR\{}\shell\open\command", prog_id);
-            let output2 = match no_window_command("reg")
-                .args(&["query", &key_path, "/ve"])
-                .output()
-            {
-                Ok(o) => o,
-                Err(_) => return false,
             };
-            let stdout2 = String::from_utf8_lossy(&output2.stdout).to_lowercase();
-
-            stdout2.contains("openpdfstudio") || stdout2.contains(&our_exe.replace('\\', "\\\\"))
+            let open_opdracht = standaard_app::lees_tekst(
+                HKEY_CLASSES_ROOT,
+                &format!(r"{}\shell\open\command", prog_id.trim()),
+                None,
+            );
+            standaard_app::is_onze_pdf_app(&prog_id, open_opdracht.as_deref(), &eigen_exe)
         }
 
         #[cfg(target_os = "linux")]
@@ -427,40 +409,25 @@ fn no_window_command(program: &str) -> std::process::Command {
     c
 }
 
-/// Enumerate installed printers via PowerShell CIM.
-/// Returns a JSON array of printer objects.
+/// Enumerate installed printers.
+/// Returns a JSON array of printer objects: Name, DriverName, PortName,
+/// Default and PrinterStatus, the shape of Win32_Printer.
 /// Alleen opvragen: er wordt niets geïnstalleerd, gewijzigd of gestart.
 /// PortName hoort erbij omdat de printdialoog en `app_list_printers` daaraan
 /// zien of een wachtrij naar een bestand schrijft (js/pdf/print-doel.js,
 /// `isBestandsPrinter`).
-/// async: sync commands run on the main event-loop thread, and this one
-/// blocks on a PowerShell subprocess for ~1s — long enough to freeze window
-/// show and input processing at startup. Async moves it to the runtime pool.
+/// Windows: rechtstreeks uit de spooler (print_lijst.rs), zonder PowerShell;
+/// endpoint-beveiliging beëindigt de app als die bij het opstarten
+/// powershell.exe start (#524).
+/// async: the query runs on a blocking thread, so a slow spooler or printer
+/// server never holds up window show and input processing at startup.
 #[tauri::command]
 async fn get_printers() -> Result<String, String> {
     #[cfg(target_os = "windows")]
     {
-        let output = no_window_command("powershell")
-            .args(&[
-                "-NoProfile", "-NonInteractive", "-Command",
-                "Get-CimInstance -ClassName Win32_Printer | Select-Object Name, DriverName, PortName, Default, PrinterStatus | ConvertTo-Json -Compress"
-            ])
-            .output()
-            .map_err(|e| format!("Failed to enumerate printers: {}", e))?;
-
-        if !output.status.success() {
-            let stderr = String::from_utf8_lossy(&output.stderr);
-            return Err(format!("PowerShell error: {}", stderr));
-        }
-
-        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-        // PowerShell returns a single object (not array) when there's only one printer
-        let trimmed = stdout.trim();
-        if trimmed.starts_with('{') {
-            Ok(format!("[{}]", trimmed))
-        } else {
-            Ok(trimmed.to_string())
-        }
+        tauri::async_runtime::spawn_blocking(print_lijst::printers_als_json)
+            .await
+            .map_err(|e| format!("Failed to enumerate printers: {}", e))?
     }
 
     #[cfg(any(target_os = "linux", target_os = "macos"))]
@@ -1131,27 +1098,23 @@ fn virtual_printer_delete_job(file: String) -> Result<(), String> {
 /// Whether "Open PDF Printer" is in SILENT CATCH mode — i.e. its port is the
 /// spool file (no Save As dialog). Returns false when it's on PORTPROMPT (the
 /// legacy save-dialog port) so the UI can offer to reconfigure it.
+/// Windows: de poort komt uit de spooler (print_lijst.rs), zonder PowerShell
+/// (#524).
 #[tauri::command]
-fn virtual_printer_catch_enabled() -> bool {
+async fn virtual_printer_catch_enabled() -> bool {
     #[cfg(target_os = "windows")]
     {
-        let expected = match vp_spool_dir() {
-            Ok(p) => p.join("latest.pdf").to_string_lossy().to_lowercase(),
+        let spoolbestand = match vp_spool_dir() {
+            Ok(p) => p.join("latest.pdf").to_string_lossy().to_string(),
             Err(_) => return false,
         };
-        let out = no_window_command("powershell")
-            .args(&[
-                "-NoProfile", "-NonInteractive", "-Command",
-                "(Get-Printer -Name 'Open PDF Printer' -ErrorAction SilentlyContinue).PortName"
-            ])
-            .output();
-        match out {
-            Ok(o) => {
-                let port = String::from_utf8_lossy(&o.stdout).trim().to_lowercase();
-                !port.is_empty() && port == expected
-            }
-            Err(_) => false,
-        }
+        tauri::async_runtime::spawn_blocking(move || {
+            let printers = print_lijst::printers_opvragen().unwrap_or_default();
+            let poort = print_lijst::poort_van(&printers, print_formulieren::PRINTERNAAM);
+            print_lijst::vangt_in_spoolbestand(poort, &spoolbestand)
+        })
+        .await
+        .unwrap_or(false)
     }
     #[cfg(not(target_os = "windows"))]
     {
@@ -1197,27 +1160,22 @@ Set-Printer -Name 'Open PDF Printer' -PortName $port"#,
 /// Check whether the "Open PDF Printer" virtual printer is installed.
 /// Also returns `true` for the legacy "Open PDF Studio" name so users on
 /// an older installation see "installed" until they reinstall.
+/// Windows: de namen komen uit de spooler (print_lijst.rs), zonder
+/// PowerShell: deze vraag loopt bij elke start (#524).
 #[tauri::command]
-fn is_virtual_printer_installed() -> bool {
+async fn is_virtual_printer_installed() -> bool {
     #[cfg(target_os = "windows")]
     {
-        use std::os::windows::process::CommandExt;
-        const CREATE_NO_WINDOW: u32 = 0x08000000;
-        let output = std::process::Command::new("powershell")
-            .args(&[
-                "-NoProfile", "-NonInteractive", "-Command",
-                "(Get-Printer -Name 'Open PDF Printer' -ErrorAction SilentlyContinue) -or (Get-Printer -Name 'Open PDF Studio' -ErrorAction SilentlyContinue)"
-            ])
-            .creation_flags(CREATE_NO_WINDOW)
-            .output();
-
-        match output {
-            Ok(o) => {
-                let stdout = String::from_utf8_lossy(&o.stdout);
-                stdout.trim().eq_ignore_ascii_case("True")
-            }
-            Err(_) => false,
-        }
+        tauri::async_runtime::spawn_blocking(|| {
+            print_lijst::printers_opvragen().is_ok_and(|printers| {
+                print_lijst::heeft_printer(
+                    &printers,
+                    &[print_formulieren::PRINTERNAAM, print_formulieren::OUDE_PRINTERNAAM],
+                )
+            })
+        })
+        .await
+        .unwrap_or(false)
     }
 
     #[cfg(not(target_os = "windows"))]
