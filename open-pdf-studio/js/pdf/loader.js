@@ -20,6 +20,7 @@ import { extractAnnotationColors } from './loader/color-extraction.js';
 import { extractStampImagesHybrid } from './loader/image-extraction.js';
 import { convertPdfAnnotation } from './loader/annotation-converter.js';
 import { statusReplyFromPdfAnnotation, applyStatusReplies } from './loader/status-replies.js';
+import { resolveGroupLinks } from './loader/correction-load.js';
 import { loadIfNeeded } from './queued-load.js';
 import { leesAnnotatieLagen, pasGelezenLagenToe } from './saver/annotatie-lagen.js';
 import { voegAnnotatiesToe } from './loader/annotaties-toevoegen.js';
@@ -30,7 +31,8 @@ import { voegAnnotatiesToe } from './loader/annotaties-toevoegen.js';
 // to their parent textbox instead of pushing a standalone annotation.
 // Review-status replies (Text + /IRT + /State, issue #308) worden hier ook
 // herkend: die worden NIET als losse sticky note gepusht maar als status
-// op de doel-annotatie gezet.
+// op de doel-annotatie gezet. Een vervanging (invoegteken en doorhaling met
+// /RT /Group, #508) wordt na de lus gekoppeld.
 // De hele reeks gaat pas aan het eind, in één keer, in doc.annotations (zie
 // annotaties-toevoegen.js): losse pushes lieten per annotatie alles opnieuw
 // rekenen wat de lijst leest.
@@ -39,6 +41,7 @@ async function _convertAndPushAnnotations(annots, pageNum, viewport, stampImageM
   const byPdfId = new Map();
   const pendingLeaders = [];
   const pendingStatuses = [];
+  const groepen = []; // /RT /Group-kinderen, zie resolveGroupLinks
   const nieuw = [];
   for (const annot of annots) {
     const statusReply = statusReplyFromPdfAnnotation(annot);
@@ -56,6 +59,9 @@ async function _convertAndPushAnnotations(annots, pageNum, viewport, stampImageM
       textboxByRect.set(converted._pdfRectKey, converted);
     }
     if (annot.id) byPdfId.set(annot.id, converted);
+    if (annot.replyType === 'Group' && annot.inReplyTo) {
+      groepen.push({ converted, inReplyTo: annot.inReplyTo, replyType: annot.replyType });
+    }
     nieuw.push(converted);
     // Sommige converters leveren EXTRA annotaties naast de hoofdannotatie
     // (bv. een legacy meerpunts-betonbalk die in losse tweepunts-balken
@@ -74,6 +80,8 @@ async function _convertAndPushAnnotations(annots, pageNum, viewport, stampImageM
   }
   for (const tb of textboxByRect.values()) delete tb._pdfRectKey;
   applyStatusReplies(pendingStatuses, byPdfId);
+  // Vervangingen (#508): invoegteken + doorhaling, in beide richtingen.
+  resolveGroupLinks(groepen, byPdfId);
   voegAnnotatiesToe(doc, nieuw);
 }
 
@@ -1043,7 +1051,7 @@ async function loadAnnotationsForSinglePage(doc, pageNum, waitForColors = false)
 
   const stampAnnots = annotations.filter(a => a.subtype === 'Stamp');
   const hasSquareAnnotations = annotations.some(a => a.subtype === 'Square');
-  const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp'].includes(a.subtype));
+  const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp', 'Caret'].includes(a.subtype));
 
   let stampImageMap = null;
   let annotColorMap = null;
@@ -1178,7 +1186,7 @@ export async function loadExistingAnnotations(doc) {
 
       const stampAnnots = annotations.filter(a => a.subtype === 'Stamp');
       const hasSquareAnnotations = annotations.some(a => a.subtype === 'Square');
-      const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp'].includes(a.subtype));
+      const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp', 'Caret'].includes(a.subtype));
 
       let stampImageMap = null;
       let annotColorMap = null;
@@ -1229,7 +1237,7 @@ export async function loadExistingAnnotations(doc) {
 
         const stampAnnots = annotations.filter(a => a.subtype === 'Stamp');
         const hasSquareAnnotations = annotations.some(a => a.subtype === 'Square');
-        const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp'].includes(a.subtype));
+        const needsExtraData = annotations.some(a => ['FreeText', 'Square', 'Circle', 'Line', 'PolyLine', 'Polygon', 'Ink', 'Text', 'Highlight', 'Underline', 'StrikeOut', 'Squiggly', 'Stamp', 'Caret'].includes(a.subtype));
 
         let stampImageMap = null;
         let annotColorMap = null;

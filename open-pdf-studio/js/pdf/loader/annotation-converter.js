@@ -31,6 +31,7 @@ import { eigenTekststempel, tekststempelKleur } from './stempel-tekst.js';
 import { koppenUitBestand } from '../lijnkoppen.js';
 import { kiesTekstvakTekst, runsZonderInspringing } from './tekstvak-tekst.js';
 import { inzetUitDsMarge, tolerantieVoorDsInzet } from '../../annotations/rendering/textbox-layout.js';
+import { caretPropsFromPdf, textEditPropsFromPdf } from './correction-load.js';
 
 /**
  * Zet een PDF-annotatie om naar het model van de app.
@@ -182,9 +183,20 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         height: maxY - minY,
         rects: rects.length > 0 ? rects : undefined,
         color: colorArrayToHex(annot.color, '#FFFF00'),
-        fillColor: colorArrayToHex(annot.color, '#FFFF00')
+        fillColor: colorArrayToHex(annot.color, '#FFFF00'),
+        // Proefleescorrecties (#508): /IT, /NM, /Subj, gemarkeerde tekst en
+        // leesrichting, alleen als het bestand ze heeft.
+        ...textEditPropsFromPdf(annot, extraColors, convertPoint, viewport.rotation || 0)
       });
     }
+
+    case 'Caret':
+      // Invoegteken (#508): vak = /Rect min /RD, tekst uit de eigen /Contents.
+      // Hoort bij '/Caret' in handledSubtypes van saver.js.
+      return createAnnotation({
+        ...baseProps,
+        ...caretPropsFromPdf(annot, extraColors, convertRect, viewport.rotation || 0),
+      });
 
     case 'Square': {
       const squareImgEntry = findImageEntryForAnnotation(stampImageMap, annot, 'square-image');

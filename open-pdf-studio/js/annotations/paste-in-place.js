@@ -2,12 +2,15 @@
 //
 // Pure clone-logic: kopieert clipboard-annotaties naar een doelpagina met
 // EXACT dezelfde positie (x/y, start/end, center, path), afmetingen en
-// rotatie als het origineel. Alleen id, page en timestamps worden vervangen.
-// Onderlinge posities van een multi-selectie blijven daardoor vanzelf
-// behouden.
+// rotatie als het origineel. Alleen id, page en timestamps worden vervangen,
+// plus de koppeling van proefleescorrecties en hun /NM (#508, zie
+// relinkPastedCorrections). Onderlinge posities van een multi-selectie
+// blijven daardoor vanzelf behouden.
 //
 // Dit bestand importeert bewust GEEN app-state, zodat de logica in kaal
 // Node te testen is (zie scripts/test-paste-in-place.mjs).
+
+import { relinkPastedCorrections } from './corrections/model.js';
 
 // Zelfde deep-clone-techniek als cloneAnnotation in annotations/factory.js.
 function deepClone(obj) {
@@ -34,7 +37,7 @@ export function cloneAnnotationsInPlace(sources, targetPage, opts = {}) {
   const now = opts.now || (() => new Date().toISOString());
 
   const list = Array.isArray(sources) ? sources : (sources ? [sources] : []);
-  return list.map(source => {
+  const result = list.map(source => {
     const clone = deepClone(source);
     clone.id = makeId();
     clone.page = targetPage;
@@ -42,4 +45,6 @@ export function cloneAnnotationsInPlace(sources, targetPage, opts = {}) {
     clone.modifiedAt = now();
     return clone;
   });
+  // Vervangingen (#508) koppelen aan hun eigen kopie; geen gedeelde /NM.
+  return relinkPastedCorrections(list, result);
 }

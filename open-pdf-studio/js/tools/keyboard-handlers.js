@@ -1,5 +1,5 @@
 import { state, getActiveDocument, selectAllOnPage, clearSelection } from '../core/state.js';
-import { undo, redo, recordAdd, recordBulkDelete, recordDelete, recordModify, recordBulkModify, recordClearPage } from '../core/undo-manager.js';
+import { undo, redo, recordAdd, recordModify, recordBulkModify, recordClearPage } from '../core/undo-manager.js';
 import { setTool } from './manager.js';
 import { showPreferencesDialog, setAsDefaultStyle } from '../core/preferences.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
@@ -33,6 +33,8 @@ import { typeLengthActive, consumeKey as typeLengthConsumeKey, typeLengthCursor 
 import { startGripLengteInvoer, stopGripLengteInvoer, herstelStramienMeeslepen } from './tool-dispatcher.js';
 import { tabDoorOnderdelen, verwijderOnderdeel } from '../gevelelement/app-bewerking.js';
 import { gevelPreset } from '../gevelelement/herkenning.js';
+import { isTextAnchored, expandCorrectionGroups, replaceParentOf } from '../annotations/corrections/model.js';
+import { deleteAnnotationsWithUndo } from '../annotations/mutations.js';
 
 function redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
@@ -478,7 +480,9 @@ export async function handleKeydown(e) {
     e.preventDefault();
     if (isPdfAReadOnly()) { /* block */ }
     else if ((getActiveDocument()?.selectedAnnotations || []).length > 0) {
-      const selected = [...getActiveDocument().selectedAnnotations];
+      // Een vervanging (#508) telt met beide helften, ook in de vraag.
+      const selected = expandCorrectionGroups(getActiveDocument().annotations,
+        [...getActiveDocument().selectedAnnotations]);
       // Gevelelement met een geselecteerd onderdeel: Delete verwijdert de
       // STIJL (velden samengevoegd) of zet het standaardpaneel terug — nooit
       // per ongeluk het hele element.
@@ -513,8 +517,9 @@ export async function handleKeydown(e) {
         }
         return;
       }
-      // Single locked check
-      if (selected.length === 1 && selected[0].locked) return;
+      // Single locked check. Een vervanging (#508) telt als één annotatie:
+      // vergrendeld als een van beide helften vergrendeld is.
+      if ((selected.length === 1 || replaceParentOf(selected, getActiveDocument().annotations)) && selected.some(a => a.locked)) return;
 
       // Confirmation dialog
       {
@@ -527,14 +532,8 @@ export async function handleKeydown(e) {
         if (!confirmed) return;
       }
 
-      const doc = getActiveDocument();
-      if (selected.length > 1) {
-        recordBulkDelete(selected);
-      } else {
-        recordDelete(selected[0], (doc?.annotations || []).indexOf(selected[0]));
-      }
-      const toDelete = new Set(selected);
-      if (doc) doc.annotations = doc.annotations.filter(a => !toDelete.has(a));
+      // Een vervanging (#508) gaat in haar geheel, met één ongedaan-stap.
+      deleteAnnotationsWithUndo(getActiveDocument(), selected);
       clearSelection();
       hideProperties();
       redraw();
@@ -544,9 +543,8 @@ export async function handleKeydown(e) {
   else if (!ctrl && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
     if (isPdfAReadOnly()) { /* block nudge */ }
     else if ((getActiveDocument()?.selectedAnnotations || []).length > 0 && getActiveDocument()?.pdfDoc) {
-      // Text markup annotations are anchored to text — skip nudge
-      const movable = getActiveDocument().selectedAnnotations.filter(a =>
-        !['textHighlight', 'textStrikethrough', 'textUnderline'].includes(a.type));
+      // Text markup annotations (and carets, #508) are anchored to text — skip nudge
+      const movable = getActiveDocument().selectedAnnotations.filter(a => !isTextAnchored(a));
       if (movable.length === 0) return;
 
       e.preventDefault();
@@ -612,20 +610,15 @@ export async function handleKeydown(e) {
     // Geen bevestigingsdialoog: het geknipte zit op het klembord en de
     // verwijdering loopt via het gewone undo-pad.
     const cutDoc = getActiveDocument();
-    const cutSel = cutDoc ? [...(cutDoc.selectedAnnotations || [])] : [];
+    // Een vervanging (#508) wordt in haar geheel geknipt.
+    const cutSel = cutDoc ? expandCorrectionGroups(cutDoc.annotations, [...(cutDoc.selectedAnnotations || [])]) : [];
     if (cutSel.length > 0) {
       e.preventDefault();
       if (isPdfAReadOnly()) return;
       if (cutSel.some(a => a.locked)) return;
       if (cutSel.length > 1) copyAnnotations(cutSel);
       else copyAnnotation(cutSel[0]);
-      if (cutSel.length > 1) {
-        recordBulkDelete(cutSel);
-      } else {
-        recordDelete(cutSel[0], (cutDoc?.annotations || []).indexOf(cutSel[0]));
-      }
-      const cutSet = new Set(cutSel);
-      if (cutDoc) cutDoc.annotations = cutDoc.annotations.filter(a => !cutSet.has(a));
+      deleteAnnotationsWithUndo(cutDoc, cutSel);
       clearSelection();
       hideProperties();
       redraw();

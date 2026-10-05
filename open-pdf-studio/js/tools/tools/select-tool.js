@@ -23,6 +23,16 @@ import i18next from '../../i18n/config.js';
 const GEVEL_RAAK_PX = 6;
 import { inSelectieVak } from '../../plattegrond/ruimte-koppeling.js';
 import { verwerkSlotKlik, slotTooltip } from '../../annotations/stramien-slot.js';
+import {
+  isTextAnchored, correctionKind, expandCorrectionGroups, replaceParentOf,
+} from '../../annotations/corrections/model.js';
+
+// Een proefleescorrectie (#508) zit aan haar tekst vast: een Ctrl-sleepkopie
+// zou een los teken naast de tekst opleveren, met koppelingen naar het
+// origineel. Daarom geen Ctrl-sleepkopie zodra de selectie er een bevat.
+function bevatCorrectie(lijst) {
+  return (lijst || []).some(a => correctionKind(a) !== null);
+}
 
 /**
  * Select tool — click-select, rubber band, drag, resize, Ctrl+drag copy
@@ -183,7 +193,7 @@ export const selectTool = {
           // Ctrl+click on already selected: initiate Ctrl+drag copy. Blijft
           // de muis staan (klik zonder sleep), dan maakt de dispatcher bij
           // het loslaten alsnog een nieuwe instantie op dezelfde plek.
-          if (!pdfaLocked) {
+          if (!pdfaLocked && !bevatCorrectie(selAnns2())) {
             state.isDragging = true;
             state._ctrlDragCopy = true;
             state._ctrlCopiesCreated = false;
@@ -197,7 +207,7 @@ export const selectTool = {
         } else {
           // Ctrl+click on unselected: add and allow drag
           ctx.addToSelection(clickedAnnotation);
-          if (!pdfaLocked) {
+          if (!pdfaLocked && !bevatCorrectie(selAnns2())) {
             state.isDragging = true;
             state._ctrlDragCopy = true;
             state._ctrlCopiesCreated = false;
@@ -288,7 +298,7 @@ export const selectTool = {
             }
           }
         }
-        const isTextMarkup = ['textHighlight', 'textStrikethrough', 'textUnderline'].includes(clickedAnnotation.type);
+        const isTextMarkup = isTextAnchored(clickedAnnotation);
         if (ctx.isSelected(clickedAnnotation) && selAnns.length > 1) {
           if (!pdfaLocked && !isTextMarkup) {
             state.isDragging = true;
@@ -326,8 +336,14 @@ export const selectTool = {
             const members = doc.annotations.filter(a => a.groupId === clickedAnnotation.groupId);
             if (members.length > 1) toSelect = members;
           }
-          if (doc) { doc.selectedAnnotations = toSelect; doc.selectedAnnotation = clickedAnnotation; }
-          if (toSelect.length > 1) ctx.showMultiSelectionProperties();
+          // Een vervanging (#508) is één correctie: beide helften, ook zonder
+          // gedeeld groupId, en het paneel toont het invoegteken in plaats
+          // van een meervoudige selectie.
+          if (doc) toSelect = expandCorrectionGroups(doc.annotations, toSelect);
+          const correctieOuder = doc && toSelect.length > 1 ? replaceParentOf(toSelect, doc.annotations) : null;
+          if (doc) { doc.selectedAnnotations = toSelect; doc.selectedAnnotation = correctieOuder || clickedAnnotation; }
+          if (correctieOuder) ctx.showProperties(correctieOuder);
+          else if (toSelect.length > 1) ctx.showMultiSelectionProperties();
           else ctx.showProperties(clickedAnnotation);
           if (!pdfaLocked && !isTextMarkup) {
             state.isDragging = true;

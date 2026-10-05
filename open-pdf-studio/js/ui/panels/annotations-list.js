@@ -1,5 +1,8 @@
 import { state, getActiveDocument, isSelected, getAnnotationBounds, addToSelection, removeFromSelection } from '../../core/state.js';
-import { getTypeDisplayName, createDateFormatter } from '../../utils/helpers.js';
+import { getTypeDisplayName, getAnnotationDisplayName, createDateFormatter } from '../../utils/helpers.js';
+import {
+  withoutFoldedChildren, listPreview, expandCorrectionGroups, replaceParentOf,
+} from '../../annotations/corrections/model.js';
 import { showProperties, showMultiSelectionProperties } from './properties-panel.js';
 import { goToPage } from '../../pdf/renderer.js';
 import { viewport, markAnchored, stopPanMomentum } from '../../pdf/pdf-viewport.js';
@@ -113,6 +116,11 @@ export function updateAnnotationsList(filterValue) {
   // ÉÉN plek (annotationsStore.isStatusHidden) zodat lijst en canvas (#333)
   // gegarandeerd hetzelfde filteren.
   filteredAnnotations = filteredAnnotations.filter(a => !isAnnotationStatusHidden(a));
+
+  // Proefleescorrecties (#508): de doorhaling van een vervanging staat in de
+  // regel van haar invoegteken, met de naam en voorvertoning van de correctie.
+  const byId = new Map(annotations.map(a => [a.id, a]));
+  filteredAnnotations = withoutFoldedChildren(filteredAnnotations, byId);
 
   // Update count text
   setCountText(`${filteredAnnotations.length} annotation${filteredAnnotations.length !== 1 ? 's' : ''}`);
@@ -306,6 +314,7 @@ export function updateAnnotationsList(filterValue) {
     groups[key].forEach(ann => {
       const hasStatus = ann.status && ann.status !== 'none';
       const replyCount = (ann.replies && ann.replies.length) || 0;
+      const preview = listPreview(ann, byId) || ann.text;
 
       flatItems.push(reuse(`annotation:${ann.id}`, {
         isHeader: false,
@@ -313,9 +322,9 @@ export function updateAnnotationsList(filterValue) {
         id: ann.id,
         page: ann.page,
         type: ann.type,
-        typeLabel: getTypeDisplayName(ann.type),
+        typeLabel: getAnnotationDisplayName(ann, byId),
         color: ann.color || ann.strokeColor || '#000',
-        text: ann.text ? ann.text.substring(0, 50) + (ann.text.length > 50 ? '...' : '') : null,
+        text: preview ? preview.substring(0, 50) + (preview.length > 50 ? '...' : '') : null,
         meta: `[${ann.author || 'User'}] - ${formatDate(ann.modifiedAt)}`,
         statusColor: hasStatus ? (statusColors[ann.status] || '#888') : null,
         statusTitle: hasStatus ? capitalize(ann.status) : null,
@@ -397,27 +406,33 @@ export async function selectAnnotationItem(id, page, ctrlKey = false) {
   const annotation = (selDoc?.annotations || []).find(a => a.id === id);
   if (!annotation) return;
   const selDocPage = selDoc ? selDoc.currentPage : 1;
+  // Een vervanging (#508) is één regel en één selectie: beide helften.
+  const leden = expandCorrectionGroups(selDoc?.annotations, [annotation]);
   if (ctrlKey) {
     if (isSelected(annotation)) {
-      removeFromSelection(annotation);
+      for (const lid of leden) removeFromSelection(lid);
     } else {
       if (annotation.page !== selDocPage) {
         await goToPage(annotation.page);
       }
-      addToSelection(annotation);
+      for (const lid of leden) addToSelection(lid);
     }
   } else {
     if (annotation.page !== selDocPage) {
       await goToPage(annotation.page);
     }
     const _selListDoc = getActiveDocument();
-    if (_selListDoc) { _selListDoc.selectedAnnotation = annotation; _selListDoc.selectedAnnotations = [annotation]; }
+    const ouder = leden.length > 1 ? replaceParentOf(leden, _selListDoc?.annotations) : null;
+    if (_selListDoc) { _selListDoc.selectedAnnotation = ouder || annotation; _selListDoc.selectedAnnotations = leden; }
   }
 
   redrawAnnotations();
   const _listDoc2 = getActiveDocument();
   const _listSel = _listDoc2 ? _listDoc2.selectedAnnotations : [];
-  if (_listSel.length > 1) {
+  const _listOuder = _listSel.length > 1 ? replaceParentOf(_listSel, _listDoc2?.annotations) : null;
+  if (_listOuder) {
+    showProperties(_listOuder);
+  } else if (_listSel.length > 1) {
     showMultiSelectionProperties();
   } else if (_listDoc2?.selectedAnnotation) {
     showProperties(_listDoc2.selectedAnnotation);
