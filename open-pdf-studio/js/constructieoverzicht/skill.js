@@ -48,5 +48,5 @@ export const CONSTRUCTIEOVERZICHT_PROMPT =
   '- Rood = staal, liggers, kolommen en pijlen; blauw = fundering; groen gestippeld = houten vlieringvloer; zwart gestippeld = onderliggende dragende wand.\n' +
   '- Een legenda met elk gebruikt symbool. Een beknopte toelichting: vloersystemen, fundering, stabiliteit en een verwijzing naar het uitgangspuntendocument; geen Rc-waarden.\n' +
   'Controle en uitvoer:\n' +
-  '- Controleer met app_list_annotations en bekijk het blad met app_fit_page en app_screenshot_view. Sla op met app_save_pdf.\n' +
-  '- Verstuur het overzicht als Raster-PDF met app_run_command {command:"ribbon:#btn-home-raster-pdf"}: dan ziet elke lezer hetzelfde beeld.';
+  '- Controleer met app_list_annotations en bekijk het blad met app_fit_page en app_screenshot_view. Sla niet zelf op: dat beslist de gebruiker, en het geopende sjabloon mag niet overschreven worden.\n' +
+  '- Bied de gebruiker aan het overzicht als Raster-PDF te versturen (knop "Raster-PDF" op het tabblad Start): dan ziet elke lezer hetzelfde beeld. Druk die knop niet zelf in; hij opent een opslagvenster.';

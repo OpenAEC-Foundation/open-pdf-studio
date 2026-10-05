@@ -38,7 +38,7 @@ test('elke genoemde lintknop bestaat', () => {
   const map = new URL('../solid/components/ribbon/', import.meta.url);
   const lint = readdirSync(map).filter((f) => f.endsWith('.jsx')).map((f) => readFileSync(new URL(f, map), 'utf8')).join('\n');
   const knoppen = alle(/ribbon:#([\w-]+)/g);
-  assert.deepEqual(knoppen.sort(), ['arr-send-back', 'btn-home-raster-pdf']);
+  assert.deepEqual(knoppen.sort(), ['arr-send-back']);
   for (const id of knoppen) assert.ok(lint.includes(`id="${id}"`), `geen lintknop met id ${id}`);
 });
 
@@ -55,4 +55,13 @@ test('de conventies van een constructieoverzicht staan erin', () => {
     'alleen het hellende dak', 'Platte daken op de hoogte van een verdiepingsvloer', 'kolommetjes',
     'koker 100x100', 'geen Rc-waarden', 'Raster-PDF', 'geen app_structural_layout',
   ]) assert.ok(CONSTRUCTIEOVERZICHT_PROMPT.includes(stuk), `de instructie noemt ${stuk}`);
+});
+
+// Opslaan en exporteren beslist de gebruiker. app_save_pdf zonder pad overschrijft
+// het geopende sjabloon; de knop Raster-PDF opent vanuit de brug een opslagvenster
+// en meldt al succes voordat er iets is weggeschreven.
+test('de assistent slaat niet zelf op en exporteert niet zelf', () => {
+  assert.ok(!/app_save_pdf/.test(CONSTRUCTIEOVERZICHT_PROMPT), 'geen app_save_pdf in de instructie');
+  assert.ok(!CONSTRUCTIEOVERZICHT_PROMPT.includes('btn-home-raster-pdf'), 'de Raster-PDF-knop niet zelf indrukken');
+  assert.ok(/Bied de gebruiker aan[^.]*Raster-PDF/.test(CONSTRUCTIEOVERZICHT_PROMPT), 'de Raster-PDF wordt aangeboden');
 });
