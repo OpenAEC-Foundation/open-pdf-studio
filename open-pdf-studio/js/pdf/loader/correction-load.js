@@ -68,6 +68,8 @@ export function caretPropsFromPdf(annot, extra, convertRect, pageRot) {
  *   gedraaide pagina's een vaste volgorde zonder /IT; bij een kort woord is
  *   die niet van de leesrichting te onderscheiden.
  * - intent alleen uit pdf.js (annot.it), zoals bij het invoegteken.
+ * - lineWidth alleen uit de eigen sleutel /OPS_LineWidth (#527); een /BS van
+ *   een ander programma telt niet, zodat zo'n bestand laadt als voorheen.
  * @param {(x:number,y:number)=>number[]|{x:number,y:number}} convertPoint
  */
 export function textEditPropsFromPdf(annot, extra, convertPoint, pageRot) {
@@ -78,6 +80,7 @@ export function textEditPropsFromPdf(annot, extra, convertPoint, pageRot) {
   if (e.nm) props.nm = e.nm;
   if (e.subj) props.pdfSubject = e.subj;
   if (typeof e.opsMarkedText === 'string' && e.opsMarkedText) props.markedText = e.opsMarkedText;
+  if (Number.isFinite(e.opsLineWidth) && e.opsLineWidth > 0) props.lineWidth = e.opsLineWidth;
   if (Number.isFinite(e.opsTextDir)) {
     props.textDir = normTextDir(e.opsTextDir + (pageRot || 0));
     return props;

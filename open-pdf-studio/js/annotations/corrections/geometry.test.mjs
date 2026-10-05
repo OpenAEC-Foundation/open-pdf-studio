@@ -8,8 +8,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
-  TEXT_ASCENT, TEXT_DESCENT, upVector, quadCorners, quadMidline,
-  caretGlyphBox, caretGlyphPoints, textDirFromVector, rotateTextDir,
+  TEXT_ASCENT, TEXT_DESCENT, upVector, dirVector, quadCorners, quadMidline,
+  quadUnderline, quadSquiggle,
+  caretGlyphBox, caretGlyphPoints, textDirFromVector, rotateTextDir, textDirFromTransform,
 } from './geometry.js';
 
 const RECT = { x: 72, y: 90.4, width: 18, height: 12 };
@@ -66,6 +67,75 @@ test('quadMidline loopt evenwijdig aan de tekst, midden tussen boven en onder', 
   }
 });
 
+// Gewone tekstmarkeringen (#527). Hoogte boven de onderkant en afstand langs
+// de tekst, gemeten vanaf begin-onder (q[2]).
+const boven = (p, q, dir) => {
+  const up = upVector(dir);
+  return (p.x - q[2].x) * up.x + (p.y - q[2].y) * up.y;
+};
+const langs = (p, q, dir) => {
+  const d = dirVector(dir);
+  return (p.x - q[2].x) * d.x + (p.y - q[2].y) * d.y;
+};
+
+test('quadUnderline: langs de tekst, 1 pt boven de onderkant, van begin tot eind (#527)', () => {
+  for (const dir of [0, 90, 180, 270]) {
+    const q = quadCorners(RECT, dir);
+    const [a, b] = quadUnderline(q);
+    assert.equal(textDirFromVector(b.x - a.x, b.y - a.y), dir, `richting ${dir}`);
+    dichtbij(boven(a, q, dir), 1, `begin 1 pt boven de onderkant (${dir})`);
+    dichtbij(boven(b, q, dir), 1, `eind 1 pt boven de onderkant (${dir})`);
+    dichtbij(langs(a, q, dir), 0, `begint aan het begin van de tekst (${dir})`);
+    dichtbij(langs(b, q, dir), dir % 180 === 0 ? RECT.width : RECT.height, `eindigt aan het eind (${dir})`);
+  }
+  // Een lage regel: hooguit halverwege; een eigen afstand mag ook.
+  const laag = quadCorners({ x: 0, y: 0, width: 10, height: 1 }, 0);
+  dichtbij(boven(quadUnderline(laag)[0], laag, 0), 0.5, 'halve hoogte');
+  const q = quadCorners(RECT, 90);
+  dichtbij(boven(quadUnderline(q, 2)[1], q, 90), 2, 'eigen afstand');
+});
+
+test('quadUnderline werkt ook in PDF-ruimte (y omhoog): alleen de quadpunten tellen', () => {
+  // Dezelfde regel gespiegeld (y -> -y): de lijn ligt nog steeds 1 pt boven de onderrand.
+  const q = quadCorners(RECT, 0).map((p) => ({ x: p.x, y: -p.y }));
+  const [a, b] = quadUnderline(q);
+  zelfdePunt(a, { x: 72, y: -(90.4 + 12 - 1) }, 'begin');
+  zelfdePunt(b, { x: 90, y: -(90.4 + 12 - 1) }, 'eind');
+});
+
+test('quadSquiggle: zigzag langs de onderkant, tanden van h/6 naar boven (#527)', () => {
+  for (const dir of [0, 90, 180, 270]) {
+    const q = quadCorners(RECT, dir);
+    const punten = quadSquiggle(q);
+    const lengte = dir % 180 === 0 ? RECT.width : RECT.height;
+    const hoogte = dir % 180 === 0 ? RECT.height : RECT.width;
+    const tand = hoogte / 6;
+    assert.ok(punten.length >= 3, `meer dan een rechte lijn (${dir})`);
+    zelfdePunt(punten[0], q[2], `begint op begin-onder (${dir})`);
+    dichtbij(langs(punten.at(-1), q, dir), lengte, `eindigt aan het eind van de tekst (${dir})`);
+    punten.forEach((p, i) => {
+      dichtbij(boven(p, q, dir), i % 2 === 1 ? tand : 0, `punt ${i} op de juiste hoogte (${dir})`);
+      if (i > 0) {
+        assert.ok(langs(p, q, dir) > langs(punten[i - 1], q, dir), `punt ${i} verder langs de tekst (${dir})`);
+        assert.ok(langs(p, q, dir) - langs(punten[i - 1], q, dir) <= tand + 1e-9, `punt ${i}: stap hooguit een tand (${dir})`);
+      }
+    });
+  }
+});
+
+test('quadSquiggle: tand begrensd op 0,5..4 pt en nooit hoger dan de regel', () => {
+  const tandVan = (rect) => {
+    const q = quadCorners(rect, 0);
+    return Math.max(...quadSquiggle(q).map((p) => boven(p, q, 0)));
+  };
+  dichtbij(tandVan({ x: 0, y: 0, width: 50, height: 60 }), 4, 'bovengrens');
+  dichtbij(tandVan({ x: 0, y: 0, width: 50, height: 2 }), 0.5, 'ondergrens');
+  dichtbij(tandVan({ x: 0, y: 0, width: 50, height: 0.3 }), 0.3, 'niet hoger dan de regel');
+  // Zonder hoogte of lengte: een rechte lijn over de onderrand.
+  const plat = quadCorners({ x: 5, y: 5, width: 20, height: 0 }, 0);
+  assert.deepEqual(quadSquiggle(plat), [plat[2], plat[3]]);
+});
+
 test('caretGlyphBox: zijde 0,5 h tussen 3 en 16, top 0,1 h boven het invoegpunt', () => {
   const box = caretGlyphBox({ x: 90, y: 100 }, 12, 0);
   zelfdePunt(box, { x: 87, y: 98.8 }, 'linksboven');
@@ -113,4 +183,24 @@ test('een hoek die meer dan 1 graad van een kwartslag afwijkt geeft null', () =>
   assert.equal(textDirFromVector(...graden(45)), null);
   assert.equal(textDirFromVector(...graden(-92)), null);
   assert.equal(textDirFromVector(0, 0), null);
+});
+
+test('textDirFromTransform: de leesrichting in de getoonde pagina uit een pdf.js-teksttransform (#527)', () => {
+  // Rechtop in gebruikersruimte (y omhoog): (a, b) = (12, 0).
+  const rechtop = [12, 0, 0, 12, 72, 700];
+  assert.equal(textDirFromTransform(rechtop, 0), 0);
+  assert.equal(textDirFromTransform(rechtop, 90), 90, '/Rotate 90: de tekst loopt omlaag over het scherm');
+  assert.equal(textDirFromTransform(rechtop, 180), 180, '/Rotate 180: op zijn kop');
+  assert.equal(textDirFromTransform(rechtop, 270), 270, '/Rotate 270: omhoog');
+  // Inhoud die de /Rotate goedmaakt: liggend getoond.
+  assert.equal(textDirFromTransform([0, 12, -12, 0, 100, 72], 90), 0, 'omhoog in het bestand, /Rotate 90');
+  assert.equal(textDirFromTransform([0, -12, 12, 0, 500, 700], 270), 0, 'omlaag in het bestand, /Rotate 270');
+  assert.equal(textDirFromTransform([-12, 0, 0, -12, 500, 100], 180), 0, 'op zijn kop in het bestand, /Rotate 180');
+  // De paginarotatie in de app telt mee: eigen /Rotate 90 plus 90 in de app.
+  assert.equal(textDirFromTransform(rechtop, 90 + 90), 180);
+  // Scheef of onbruikbaar: geen richting.
+  assert.equal(textDirFromTransform([10, 5, -5, 10, 0, 0], 0), null);
+  assert.equal(textDirFromTransform([0, 0, 0, 0, 0, 0], 0), null);
+  assert.equal(textDirFromTransform(['x', 'y'], 0), null);
+  assert.equal(textDirFromTransform(null, 0), null);
 });

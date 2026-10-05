@@ -19,7 +19,9 @@
 import { PDFName, PDFString, PDFNumber, PDFRef, PDFDict } from 'pdf-lib';
 import { pdfTextString } from './pdf-text.js';
 import { _rotVisualMapper } from './rotatie-mapper.js';
-import { quadCorners, quadMidline, caretGlyphPoints, normTextDir } from '../../annotations/corrections/geometry.js';
+import {
+  quadCorners, quadMidline, quadUnderline, quadSquiggle, caretGlyphPoints, normTextDir,
+} from '../../annotations/corrections/geometry.js';
 
 const N = (naam) => PDFName.of(naam);
 
@@ -68,32 +70,69 @@ function omhullende(punten, marge) {
   ];
 }
 
-function vormStream(context, rect, inhoud) {
+function vormStream(context, rect, inhoud, resources) {
   const [llx, lly, urx, ury] = rect;
   const stream = context.stream(inhoud, {
     Type: 'XObject', Subtype: 'Form', BBox: [0, 0, rond(urx - llx), rond(ury - lly)],
-    Resources: context.obj({}),
+    Resources: resources || context.obj({}),
   });
   return context.register(stream);
 }
 
 const kleur = (rgb) => (rgb || [0, 0, 0]).slice(0, 3).map(getal).join(' ');
 
+// Punten als pad, relatief aan (llx, lly): het eerste met m, de rest met l.
+const pad = (punten, llx, lly) => punten
+  .map((p, i) => `${getal(p.x - llx)} ${getal(p.y - lly)} ${i === 0 ? 'm' : 'l'}`).join(' ');
+
+// Lijn per quad en lijnstijl per soort. De kronkellijn krijgt ronde hoeken:
+// een scherpe hoek steekt verder uit dan de halve lijndikte rond /Rect.
+const LIJN_PER_SOORT = {
+  StrikeOut: { lijn: quadMidline, stijl: '0 J' },
+  Underline: { lijn: quadUnderline, stijl: '0 J' },
+  Squiggly: { lijn: quadSquiggle, stijl: '0 J 1 j' },
+};
+
 /**
- * Appearance van een doorhaling: per quad één lijn van mid(p1,p3) naar
- * mid(p2,p4), dezelfde lijn die pdf.js als terugval tekent. /Rect is de
- * omhullende van alle quads plus een halve lijndikte.
+ * Appearance van een tekstmarkering langs haar quads (gebruikersruimte, per
+ * quad begin-boven, eind-boven, begin-onder, eind-onder):
+ * - StrikeOut: per quad de lijn van mid(p1,p3) naar mid(p2,p4), dezelfde lijn
+ *   die pdf.js als terugval tekent;
+ * - Underline: de onderrand, 1 pt naar boven, zoals het scherm (#527);
+ * - Squiggly: een zigzag langs de onderrand (#527);
+ * - Highlight: alle quads in één vulling met /BM /Multiply, zoals de
+ *   markeerlaag op het scherm (mix-blend-mode: multiply) (#527).
+ * /Rect is de omhullende van alle quads, bij een lijn plus een halve
+ * lijndikte. De doorzichtigheid zet de saver er daarna in
+ * (zetDoorzichtigheidInAp).
+ * @param {'Highlight'|'Underline'|'StrikeOut'|'Squiggly'} subtype
+ * @returns {{ rect: number[], apRef: PDFRef }}
+ */
+export function buildMarkupAppearance(context, quads, subtype, rgb, lw = 1) {
+  if (subtype === 'Highlight') {
+    const rect = omhullende(quads.flat(), 0);
+    const [llx, lly] = rect;
+    const vlakken = quads.map((q) => `${pad([q[0], q[1], q[3], q[2]], llx, lly)} h`);
+    const inhoud = `q /GSm gs ${kleur(rgb)} rg ${vlakken.join(' ')} f Q`;
+    const resources = context.obj({
+      ExtGState: context.obj({ GSm: context.obj({ Type: 'ExtGState', BM: 'Multiply' }) }),
+    });
+    return { rect, apRef: vormStream(context, rect, inhoud, resources) };
+  }
+  const { lijn, stijl } = LIJN_PER_SOORT[subtype] || LIJN_PER_SOORT.StrikeOut;
+  const rect = omhullende(quads.flat(), lw / 2);
+  const [llx, lly] = rect;
+  const lijnen = quads.map((q) => pad(lijn(q), llx, lly));
+  const inhoud = `q ${kleur(rgb)} RG ${getal(lw)} w ${stijl} [] 0 d ${lijnen.join(' ')} S Q`;
+  return { rect, apRef: vormStream(context, rect, inhoud) };
+}
+
+/**
+ * Appearance van een doorhaling (zie buildMarkupAppearance).
  * @returns {{ rect: number[], apRef: PDFRef }}
  */
 export function buildStrikeAppearance(context, quads, rgb, lw = 1) {
-  const rect = omhullende(quads.flat(), lw / 2);
-  const [llx, lly] = rect;
-  const lijnen = quads.map((q) => {
-    const [a, b] = quadMidline(q);
-    return `${getal(a.x - llx)} ${getal(a.y - lly)} m ${getal(b.x - llx)} ${getal(b.y - lly)} l`;
-  });
-  const inhoud = `q ${kleur(rgb)} RG ${getal(lw)} w 0 J [] 0 d ${lijnen.join(' ')} S Q`;
-  return { rect, apRef: vormStream(context, rect, inhoud) };
+  return buildMarkupAppearance(context, quads, 'StrikeOut', rgb, lw);
 }
 
 /**

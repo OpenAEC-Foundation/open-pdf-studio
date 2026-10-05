@@ -26,7 +26,23 @@ test('saver.js handelt /Caret af en schrijft correcties met de gedeelde bouwsten
   assert.match(opslag, /case 'caret':[\s\S]{0,400}buildCaretDict\(/);
   assert.match(opslag, /isTextEditStrike\(annRaw\)[\s\S]{0,600}buildTextEditStrikeDict\(context, annRaw,/,
     'de quads komen uit de niet omgerekende annotatie');
-  assert.match(opslag, /buildTextMarkupDict\(context, ann,/);
+  // Gewone markeringen (#527): ook per punt uit de niet omgerekende annotatie,
+  // in leesrichting, met de paginarotatie voor /OPS_TextDir.
+  assert.match(opslag, /buildTextMarkupDict\(context, annRaw, puntNaarPdf, \{\s*opacity, pageRot,/,
+    'gewone markeringen: quads uit de niet omgerekende annotatie');
+  assert.doesNotMatch(opslag, /buildTextMarkupDict\(context, ann,/, 'niet meer de omgerekende annotatie');
+  // Een markering die al zonder /OPS_TextDir in het bestand stond, krijgt haar
+  // quads uit dat bestand terug (#527): de bronnen komen uit de weggehaalde
+  // annotaties van dezelfde pagina, vóór de lus die het model schrijft.
+  assert.match(opslag, /from '\.\/saver\/text-markup-dict\.js'/);
+  assert.match(opslag, /import \{[^}]*bronMarkeringen[^}]*\} from '\.\/saver\/text-markup-dict\.js'/);
+  const bronnen = opslag.indexOf('const markeringBronnen = bronMarkeringen(context, verwijderdeRefs);');
+  assert.ok(bronnen > opslag.indexOf('verwijderdeRefs.push(ref);'), 'na het verzamelen van de weggehaalde annotaties');
+  assert.ok(bronnen < opslag.indexOf('for (const annRaw of pageAnnotations)'), 'vóór de lus over het model');
+  assert.match(opslag, /buildTextMarkupDict\(context, annRaw, puntNaarPdf, \{[^}]*bronnen: markeringBronnen,[^}]*\}\)/);
+  // Een gekoppeld kind zonder /IT gaat ook door deze tak: zijn /AP krijgt de
+  // kleur die applyGroupLinks in /C zet (die van het invoegteken).
+  assert.match(opslag, /buildTextMarkupDict\(context, annRaw, puntNaarPdf, \{[^}]*rgb: gekoppeldeKinderen\.has\(annRaw\.id\) \? hexToColorArray\(saveColor\(annRaw, pageAnnotations, plan\)\) : undefined,[^}]*\}\)/);
   // /NM is per pagina uniek: één verzameling per pagina voor alle correcties
   // en geladen markeringen (een kopie draagt de naam van het origineel mee).
   assert.match(opslag, /const gebruikteNm = new Set\(\);[\s\S]{0,200}for \(const annRaw of pageAnnotations\)/);
