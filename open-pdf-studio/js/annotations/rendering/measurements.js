@@ -4,6 +4,7 @@ import { arcControlPoint } from '../arc-points.js';
 import { ringenRichten } from '../vlak-ringen.js';
 import { maatTekstMarge, leesbareHoek } from '../maat-label.js';
 import { maatlijnGeometrie } from '../maatlijn-geometrie.js';
+import { tekenInlineMaat } from './maat-inline-tekenen.js';
 
 /**
  * Trace a polygon path on the canvas context, supporting arc segments.
@@ -47,7 +48,15 @@ export function drawDimension(ctx, opts) {
     color, measureText, fontSize, extension,
     textOffsetX = 0, textOffsetY = 0,
     dimLineOvershootMm, dimOvershootEnds, dimExtGapMm, dimExtOvershootMm,
+    headFill, textPosition, labelColor,
   } = opts;
+
+  // Caption inside the line (a dimension taken over from another program,
+  // PDF /CP /Inline): the line is broken for the text - maat-inline-tekenen.js.
+  if (textPosition === 'inline') {
+    tekenInlineMaat(ctx, { ...opts, startHead, endHead, headSize });
+    return;
+  }
 
   const mdAngle = Math.atan2(endY - startY, endX - startX);
   // Extension lines (with a gap from the measured point and an overshoot past
@@ -70,19 +79,20 @@ export function drawDimension(ctx, opts) {
   ctx.lineTo(geo.maatlijn.x2, geo.maatlijn.y2);
   ctx.stroke();
 
-  // Line endings
+  // Line endings (hollow: a closed ending without /IC from another program)
   ctx.fillStyle = color;
   if (startHead !== 'none') {
-    drawDimensionLineEnding(ctx, startX, startY, mdAngle + Math.PI, headSize, startHead);
+    drawDimensionLineEnding(ctx, startX, startY, mdAngle + Math.PI, headSize, startHead, { hol: headFill === false });
   }
   if (endHead !== 'none') {
-    drawDimensionLineEnding(ctx, endX, endY, mdAngle, headSize, endHead);
+    drawDimensionLineEnding(ctx, endX, endY, mdAngle, headSize, endHead, { hol: headFill === false });
   }
 
-  // Measurement label, free above the end markers (maat-label.js).
+  // Measurement label, free above the end markers (maat-label.js), in its
+  // own colour when one was taken over from the file.
   if (measureText) {
     const marge = maatTekstMarge({ fontSize, startHead, endHead, headSize });
-    drawDimensionLabel(ctx, startX, startY, endX, endY, measureText, color, fontSize, textOffsetX, textOffsetY, marge);
+    drawDimensionLabel(ctx, startX, startY, endX, endY, measureText, labelColor || color, fontSize, textOffsetX, textOffsetY, marge);
   }
 }
 

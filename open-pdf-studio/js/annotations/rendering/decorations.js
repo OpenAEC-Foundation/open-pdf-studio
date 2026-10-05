@@ -1,6 +1,10 @@
-// Draw arrowhead at specified position
-export function drawArrowheadOnCanvas(ctx, x, y, angle, size, style) {
+// Draw arrowhead at specified position. `hol`: a closed shape without a fill
+// (PDF /LE without /IC): only its outline, drawn at the full line width so its
+// mitred tip lands one line width past the geometric tip.
+export function drawArrowheadOnCanvas(ctx, x, y, angle, size, style, { hol = false } = {}) {
   const halfAngle = Math.PI / 6; // 30 degrees
+  const dunneRand = () => { if (!hol) ctx.lineWidth = Math.min(ctx.lineWidth, 1); };
+  const vulEnOmlijn = () => { if (!hol) ctx.fill(); ctx.stroke(); };
 
   ctx.save();
   ctx.translate(x, y);
@@ -18,31 +22,28 @@ export function drawArrowheadOnCanvas(ctx, x, y, angle, size, style) {
     ctx.stroke();
   } else if (style === 'closed') {
     // Closed/filled arrow style - thin stroke so visual tip aligns with data endpoint
-    ctx.lineWidth = Math.min(ctx.lineWidth, 1);
+    dunneRand();
     ctx.moveTo(0, 0);
     ctx.lineTo(-size, -size * Math.tan(halfAngle));
     ctx.lineTo(-size, size * Math.tan(halfAngle));
     ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
+    vulEnOmlijn();
   } else if (style === 'diamond') {
     // Diamond style - thin stroke for filled shape
-    ctx.lineWidth = Math.min(ctx.lineWidth, 1);
+    dunneRand();
     const halfSize = size / 2;
     ctx.moveTo(0, 0);
     ctx.lineTo(-halfSize, -halfSize * 0.6);
     ctx.lineTo(-size, 0);
     ctx.lineTo(-halfSize, halfSize * 0.6);
     ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
+    vulEnOmlijn();
   } else if (style === 'circle') {
     // Circle style - thin stroke for filled shape
-    ctx.lineWidth = Math.min(ctx.lineWidth, 1);
+    dunneRand();
     const radius = size / 3;
     ctx.arc(-radius, 0, radius, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.stroke();
+    vulEnOmlijn();
   } else if (style === 'openCircle') {
     // Open circle style - stroke only, no fill (used for dimension ticks)
     const radius = 4;
@@ -50,11 +51,10 @@ export function drawArrowheadOnCanvas(ctx, x, y, angle, size, style) {
     ctx.stroke();
   } else if (style === 'square') {
     // Square style - thin stroke for filled shape
-    ctx.lineWidth = Math.min(ctx.lineWidth, 1);
+    dunneRand();
     const halfSize = size / 3;
     ctx.rect(-size / 2 - halfSize, -halfSize, halfSize * 2, halfSize * 2);
-    ctx.fill();
-    ctx.stroke();
+    vulEnOmlijn();
   } else if (style === 'butt') {
     // Butt style - perpendicular line at the endpoint (like slash but thicker)
     ctx.moveTo(0, -size / 2);
@@ -69,13 +69,12 @@ export function drawArrowheadOnCanvas(ctx, x, y, angle, size, style) {
     ctx.stroke();
   } else if (style === 'closedReversed') {
     // Closed arrow reversed - filled triangle pointing backward
-    ctx.lineWidth = Math.min(ctx.lineWidth, 1);
+    dunneRand();
     ctx.moveTo(0, 0);
     ctx.lineTo(size, -size * Math.tan(halfAngle));
     ctx.lineTo(size, size * Math.tan(halfAngle));
     ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
+    vulEnOmlijn();
   } else if (style === 'slash') {
     // Slash style - perpendicular line
     ctx.moveTo(0, -size / 2);
@@ -87,8 +86,9 @@ export function drawArrowheadOnCanvas(ctx, x, y, angle, size, style) {
 }
 
 // Draw a dimension line ending with centering offsets for circle/diamond/square,
-// transparent fill for those shapes, and 30° rotation for slash.
-export function drawDimensionLineEnding(ctx, x, y, angle, size, style) {
+// transparent fill for those shapes, and 30° rotation for slash. `hol`: see
+// drawArrowheadOnCanvas (a closed arrow without a fill).
+export function drawDimensionLineEnding(ctx, x, y, angle, size, style, { hol = false } = {}) {
   if (style === 'none') return;
   let ox = x, oy = y, a = angle;
   const unfilled = style === 'circle' || style === 'diamond' || style === 'square' || style === 'openCircle';
@@ -107,7 +107,7 @@ export function drawDimensionLineEnding(ctx, x, y, angle, size, style) {
   }
   const savedFill = ctx.fillStyle;
   if (unfilled) ctx.fillStyle = 'rgba(0,0,0,0)';
-  drawArrowheadOnCanvas(ctx, ox, oy, a, size, style);
+  drawArrowheadOnCanvas(ctx, ox, oy, a, size, style, { hol });
   if (unfilled) ctx.fillStyle = savedFill;
 }
 

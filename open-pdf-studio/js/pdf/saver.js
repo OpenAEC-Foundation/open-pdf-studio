@@ -15,8 +15,8 @@ import { bouwKnipselAppearance, tekenKnipselInPagina, alInBasis, markeerGebakken
 import { schrijfHatchMeta } from './saver/hatch-meta.js';
 import { schrijfWandJoinMeta } from './saver/wand-join-meta.js';
 import { schrijfPlattegrondMeta } from './saver/plattegrond-meta.js';
-import { maatlijnTekst, maatLabelRuimte } from '../annotations/maat-label.js';
-import { maatlijnGeometrie, maatlijnVelden } from '../annotations/maatlijn-geometrie.js';
+import { maatlijnAnnotatie, kopVullingSleutels } from './saver/maatlijn-opslaan.js';
+import { attachVectorAP } from './saver/vector-ap.js';
 import { bytesVan as knipselBytesVan } from '../annotations/vector-snippet-store.js';
 import { getAnnotationStorage, getAnnotIdToFieldName } from './form-layer.js';
 import { getAnnotationType } from '../plugins/annotation-type-registry.js';
@@ -40,7 +40,7 @@ import { pdfTextString, toWinAnsiText, winAnsiLiteral, asciiPdfName } from './sa
 import { catmullRomSpline } from '../tools/tools/spline-tool.js';
 import { catmullRomToBezier, splineArrowEndTangent } from '../annotations/spline-arrow-geometry.js';
 import { buildFilledAreaAP, buildMeasureAreaAP, buildPolylineMeasureAP,
-  buildMeasureDistanceAP, buildWallAP, buildCloudAP, buildSplineArrowAP,
+  buildWallAP, buildCloudAP, buildSplineArrowAP,
   buildStavenreeksAP, buildBetonbalkAP, buildSysteemrasterAP, buildLineAP, buildPolylineAP, polylijnOmhullende, lijnOmhullende, buildLeiderAP, leiderOmhullende, apLijndikte,
   cloudRectOutlinePts, cloudPolyOutlinePts } from './saver/appearance-vectors.js';
 import { veelhoekGrondvorm } from './saver/veelhoek-grondvorm.js';
@@ -70,43 +70,6 @@ function winAnsiTekstvak(ann) {
       ? ann.textRuns.map(line => (line || []).map(r => ({ ...r, text: toWinAnsiText(r?.text) })))
       : undefined,
   };
-}
-
-// Wrap a vector /AP builder result (absolute-PDF-coord content + needsFont flag)
-// into a Form XObject and set it as the annotation's /AP /N — same BBox/Matrix
-// convention as the FreeText appearance path. `rect` is the annotation /Rect
-// [x1,y1,x2,y2] the appearance is drawn against. Types that previously wrote NO
-// appearance stream were invisible (or showed only a bare outline) in other PDF
-// viewers, which rely on /AP; see issue #256.
-function attachVectorAP(context, annotDict, built, rect) {
-  if (!built || !built.content) return;
-  const [x1, y1, x2, y2] = rect;
-  const resources = {};
-  if (built.needsFont) {
-    resources.Font = context.obj({
-      Helv: context.obj({ Type: 'Font', Subtype: 'Type1', BaseFont: 'Helvetica', Encoding: 'WinAnsiEncoding' }),
-    });
-  }
-  // Aparte vul-doorzichtigheid: de content refereert /GSf gs rond de
-  // vul-operator; de graphics-state zelf hoort in de Resources. Zonder deze
-  // ExtGState verloor een polygoon met transparante vulling zijn vlak bij
-  // opslaan (The.Map-regressie in de opslag-rondgang).
-  if (built.fillAlpha !== undefined && built.fillAlpha !== null && built.fillAlpha < 1) {
-    resources.ExtGState = context.obj({
-      GSf: context.obj({ Type: 'ExtGState', ca: built.fillAlpha }),
-    });
-  }
-  // Een appearance die een Form XObject tekent (het vectorknipsel) heeft dat
-  // XObject in zijn eigen resources nodig; zonder deze regel blijft de /Do
-  // zonder doel en is het knipsel leeg.
-  if (built.xobjects) {
-    resources.XObject = context.obj(built.xobjects);
-  }
-  const apStream = context.stream(built.content, {
-    Type: 'XObject', Subtype: 'Form', BBox: [x1, y1, x2, y2],
-    Matrix: [1, 0, 0, 1, -x1, -y1], Resources: context.obj(resources),
-  });
-  annotDict.set(PDFName.of('AP'), context.obj({ N: context.register(apStream) }));
 }
 
 // ── Rotated-page coordinate remap ──────────────────────────────────────────
@@ -819,6 +782,8 @@ async function _savePDFNu(saveAsPath) {
               if (hasFill(ann.fillColor)) {
                 lineDict.IC = hexToColorArray(ann.fillColor);
               }
+              // Holle punten (gesloten /LE zonder /IC uit een ander programma).
+              Object.assign(lineDict, kopVullingSleutels(ann));
             }
 
             annotDict = context.obj(lineDict);
@@ -828,7 +793,7 @@ async function _savePDFNu(saveAsPath) {
               X: convertX, Y: convertY, strokeColorHex: ann.strokeColor || ann.color,
               fillColorHex: isArrow ? (ann.fillColor || ann.strokeColor || ann.color) : null,
               lineWidth: apLijndikte(borderWidth, { isPijl: isArrow, heeftVulling: hasFill(ann.fillColor) }), borderStyle: ann.borderStyle,
-              startHead, endHead, headSize,
+              startHead, endHead, headSize, headFill: ann.headFill,
             }), lineDict.Rect);
             break;
           }
@@ -2325,143 +2290,10 @@ async function _savePDFNu(saveAsPath) {
           }
 
           case 'measureDistance': {
-            const mapDimHead = (h) => {
-              switch (h) {
-                case 'open': return 'OpenArrow';
-                case 'closed': return 'ClosedArrow';
-                case 'diamond': return 'Diamond';
-                case 'circle': return 'Circle';
-                case 'openCircle': return 'Circle';
-                case 'square': return 'Square';
-                case 'slash': return 'Slash';
-                case 'butt': return 'Butt';
-                case 'openReversed': return 'ROpenArrow';
-                case 'closedReversed': return 'RClosedArrow';
-                default: return 'Circle';
-              }
-            };
-            // Save as Line annotation with Measure dictionary
-            // Data model: startX/Y = dimension line, leaderX/Y = base object points
-            const mdx1 = convertX(ann.startX);
-            const mdy1 = convertY(ann.startY);
-            const mdx2 = convertX(ann.endX);
-            const mdy2 = convertY(ann.endY);
-
-            // Compute rect including all points, plus room for the label that
-            // sits above the line (the /AP BBox is the Rect: a tight Rect
-            // would clip the text in other viewers).
-            const mdPad = maatLabelRuimte({
-              fontSize: ann.fontSize, startHead: ann.startHead || 'openCircle',
-              endHead: ann.endHead || 'openCircle', headSize: ann.headSize || 12,
-              tekst: maatlijnTekst(ann.measureText, ann.dimShowUnit),
+            // Maatlijn met hulplijnen, schaal en appearance: saver/maatlijn-opslaan.js.
+            annotDict = maatlijnAnnotatie({
+              ann, context, convertX, convertY, opacity, borderWidth, paginaRotatie: pageRot || 0,
             });
-            let mdRectMinX = Math.min(mdx1, mdx2) - mdPad;
-            let mdRectMinY = Math.min(mdy1, mdy2) - mdPad;
-            let mdRectMaxX = Math.max(mdx1, mdx2) + mdPad;
-            let mdRectMaxY = Math.max(mdy1, mdy2) + mdPad;
-            // De uitloop van de maatlijn en de doorloop van de hulplijnen
-            // (maatlijn-geometrie.js) vallen ook binnen de Rect.
-            const mdGeo = maatlijnGeometrie(maatlijnVelden(ann));
-            for (const l of [mdGeo.maatlijn, ...mdGeo.hulplijnen]) {
-              for (const [gx, gy] of [[convertX(l.x1), convertY(l.y1)], [convertX(l.x2), convertY(l.y2)]]) {
-                mdRectMinX = Math.min(mdRectMinX, gx - 2); mdRectMaxX = Math.max(mdRectMaxX, gx + 2);
-                mdRectMinY = Math.min(mdRectMinY, gy - 2); mdRectMaxY = Math.max(mdRectMaxY, gy + 2);
-              }
-            }
-
-            // PDF /L = base object points when leaders exist, else dimension line
-            let pdfLX1 = mdx1, pdfLY1 = mdy1, pdfLX2 = mdx2, pdfLY2 = mdy2;
-
-            const mdDict = {
-              Type: 'Annot',
-              Subtype: 'Line',
-              C: hexToColorArray(ann.strokeColor || '#ff0000'),
-              CA: opacity,
-              T: pdfTextString(ann.author || 'User'),
-              Contents: pdfTextString(ann.measureText || ''),
-              M: PDFString.of(new Date().toISOString()),
-              IT: PDFName.of('LineDimension'),
-              OPS_Subtype: PDFString.of('measureDistance'),
-              LE: [PDFName.of(mapDimHead(ann.startHead)), PDFName.of(mapDimHead(ann.endHead))],
-              F: computeAnnotFlags(ann)
-            };
-
-            // Save custom properties for exact round-trip
-            if (ann.headSize && ann.headSize !== 12) mdDict.OPS_HeadSize = ann.headSize;
-            if (ann.measurePrecision != null && ann.measurePrecision !== 2) mdDict.OPS_Precision = ann.measurePrecision;
-            // User-dragged text position: offset from the dimension-line
-            // midpoint, stored in the same visual frame as the annotation
-            // (loader reads it back verbatim — no coordinate conversion).
-            if (ann.textOffsetX || ann.textOffsetY) {
-              mdDict.OPS_TextOffsetX = ann.textOffsetX || 0;
-              mdDict.OPS_TextOffsetY = ann.textOffsetY || 0;
-            }
-
-            // Save leader line properties if extension lines exist
-            if (ann.leaderStartX !== undefined) {
-              // leaderStartX/Y = /L base object points in our data model
-              const lsx = convertX(ann.leaderStartX);
-              const lsy = convertY(ann.leaderStartY);
-              const lex = convertX(ann.leaderEndX);
-              const ley = convertY(ann.leaderEndY);
-              // /L = base object points
-              pdfLX1 = lsx; pdfLY1 = lsy;
-              pdfLX2 = lex; pdfLY2 = ley;
-              // Compute LL: perpendicular distance from /L base to dimension line
-              const lineAngle = Math.atan2(ley - lsy, lex - lsx);
-              const perpX = -Math.sin(lineAngle);
-              const perpY = Math.cos(lineAngle);
-              const ll = (mdx1 - lsx) * perpX + (mdy1 - lsy) * perpY;
-              mdDict.LL = ll;
-              mdDict.LLE = 5;
-              // Expand rect to include base points
-              mdRectMinX = Math.min(mdRectMinX, lsx, lex);
-              mdRectMinY = Math.min(mdRectMinY, lsy, ley);
-              mdRectMaxX = Math.max(mdRectMaxX, lsx, lex);
-              mdRectMaxY = Math.max(mdRectMaxY, lsy, ley);
-            }
-
-            mdDict.L = [pdfLX1, pdfLY1, pdfLX2, pdfLY2];
-
-            mdDict.Rect = [mdRectMinX, mdRectMinY, mdRectMaxX, mdRectMaxY];
-
-            // Save Measure dictionary with scale factor
-            if (ann.measureScale) {
-              mdDict.Cap = true;
-              mdDict.CP = PDFName.of('Inline');
-            }
-
-            annotDict = context.obj(mdDict);
-
-            if (ann.measureScale) {
-              const numFmt = context.obj({
-                C: ann.measureScale,
-                D: 1,
-                U: pdfTextString(ann.measureUnit || 'mm'),
-              });
-              const measureDict = context.obj({
-                Subtype: PDFName.of('RL'),
-                R: pdfTextString(`1 pt = ${ann.measureScale} ${ann.measureUnit || 'mm'}`),
-                X: context.obj([numFmt]),
-              });
-              annotDict.set(PDFName.of('Measure'), measureDict);
-            }
-
-            annotDict.set(PDFName.of('BS'), buildBorderStyle(context, borderWidth, ann.borderStyle));
-            // Vector /AP so the dimension line, extension lines AND the value
-            // label render in other viewers (label was Contents-only) — #256.
-            // Maat zonder eenheid (dimShowUnit false) en de plattegrond-sleutels.
-            schrijfPlattegrondMeta(annotDict, ann, context, convertX, convertY);
-            attachVectorAP(context, annotDict, buildMeasureDistanceAP({
-              ...maatlijnVelden(ann),
-              X: convertX, Y: convertY, strokeColorHex: ann.strokeColor || '#ff0000',
-              lineWidth: borderWidth, borderStyle: ann.borderStyle,
-              // De tekst zoals het scherm hem toont (maat-label.js).
-              text: maatlijnTekst(ann.measureText, ann.dimShowUnit),
-              textOffsetX: ann.textOffsetX, textOffsetY: ann.textOffsetY,
-              fontSize: ann.fontSize, startHead: ann.startHead || 'openCircle',
-              endHead: ann.endHead || 'openCircle', headSize: ann.headSize || 12,
-            }), mdDict.Rect);
             break;
           }
 
@@ -2675,6 +2507,8 @@ async function _savePDFNu(saveAsPath) {
               mpDict.LE = [PDFName.of(mapHead(ann.startHead)), PDFName.of(mapHead(ann.endHead))];
             }
             if (ann.headSize && ann.headSize !== 12) mpDict.OPS_HeadSize = ann.headSize;
+            // Holle punten van een omtrekmaat uit een ander programma.
+            Object.assign(mpDict, kopVullingSleutels(ann));
             annotDict = context.obj(mpDict);
             annotDict.set(PDFName.of('BS'), buildBorderStyle(context, borderWidth, ann.borderStyle));
             // Vector /AP so the polyline AND the perimeter value label render in
