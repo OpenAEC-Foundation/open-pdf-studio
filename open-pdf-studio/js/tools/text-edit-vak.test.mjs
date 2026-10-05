@@ -42,3 +42,15 @@ test('een zichtbare rand blijft zichtbaar in de editor, "geen rand" niet', () =>
   const zonder = editorVakOpmaak({ width: 60, lineWidth: 3, strokeColor: 'none' }, 2);
   assert.doesNotMatch(JSON.stringify(zonder), /#/);
 });
+
+test('een typemachine-tekst (noWrap) breekt in de editor niet af, een gewoon tekstvak wel', async () => {
+  // Breekt de editor wel af, dan groeit het vak bij het afsluiten mee met een
+  // regel die het canvas nooit tekent.
+  assert.equal(editorVakOpmaak({ width: 100, lineWidth: 0, noWrap: true }, 2)['white-space'], 'pre');
+  assert.equal('white-space' in editorVakOpmaak({ width: 100, lineWidth: 0 }, 2), false);
+  // De editor zelf (TextEditOverlay) neemt 'pre' over in plaats van zijn
+  // vaste 'pre-wrap'; die draait niet onder kale node, dus via de bron.
+  const { readFileSync } = await import('node:fs');
+  const bron = readFileSync(new URL('../solid/components/TextEditOverlay.jsx', import.meta.url), 'utf8');
+  assert.match(bron, /ts\['white-space'\] = s\['white-space'\] === 'pre' \? 'pre' : 'pre-wrap';/);
+});

@@ -238,3 +238,130 @@ test('rondgang in de saver-conventie: elke hoek op elke paginarotatie komt terug
     }
   }
 });
+
+// ── Rotatie in /Matrix plus tekst-cm op een 90°-blad (extern vak) ───────────
+//
+// Een ander programma draait het vak met de /Matrix en tekent de doos-`re`
+// in formulierruimte, met daarna een tekst-cm en een iets kleinere
+// tekstclip-`re`. Twee verschillende `re` geven geen apInnerRect, dus de maat
+// komt uit de omhullende. De hoek is een weergavehoek; de omhullende moet dan
+// ook die in de weergave zijn. De PDF-/Rect heeft op een 90°-blad breedte en
+// hoogte verwisseld: het vak kwam als 19×55 in plaats van 55×19 terug.
+
+/** Appearance zoals dat programma hem schrijft (doos, tekst-cm, tekstclip). */
+function matrixAppearance({ doos, clip, tekst }) {
+  return `.824 .824 1 rg 0 0 1 RG 1 w\n${doos} re B\n0 -1 1 0 0 0 cm${clip ? ` ${clip} re W n` : ''}\n`
+    + `BT 0 g 0 Tc 0 Tw 100 Tz 0 Tr/Helvetica 12 Tf ${tekst} Tj ET\n`;
+}
+
+const HEA160 = {
+  rect: [132.5051, 146.60863, 187.69895, 165.41576],
+  bbox: [105.70868, 126.165439, 124.51581, 181.35929],
+  matrix: [0, -1, 1, 0, -105.70868, -126.165439],
+  doos: '106.709 127.165 16.807 53.194',
+  clip: '-179.859 107.209 52.194 15.807',
+  tekst: '-178.3593 110.6558 Td (HEA160)',
+};
+const TREKSTAG = {
+  rect: [201.4051, 377.52574, 266.72395, 399.48057],
+  bbox: [192.72234, 357.71858, 214.67717, 423.0374],
+  matrix: [0, -1, 1, 0, -192.72234, -357.71858],
+  doos: '193.722 358.719 19.955 63.319',
+  clip: '-421.537 194.222 62.319 18.955',
+  tekst: '-420.0374 200.8172 Td (Trekstag)',
+};
+
+async function matrixVak(vak, { metClip = true } = {}) {
+  const ap = {
+    content: matrixAppearance({ doos: vak.doos, clip: metClip ? vak.clip : null, tekst: vak.tekst }),
+    rect: vak.rect, bbox: vak.bbox,
+  };
+  const bytes = await schrijf({ paginaRotatie: 90, ap, sleutels: { Rotate: 270, Rotation: -270 }, matrix: vak.matrix });
+  return laad(bytes, { paginaRotatie: 90, annotRotatie: 270 });
+}
+
+test('rotatie in /Matrix plus tekst-cm op een 90°-blad: breedte en hoogte niet verwisseld (HEA160)', async () => {
+  const uit = await matrixVak(HEA160);
+  assert.equal(uit.extra.apInnerRect, undefined, 'twee verschillende re: geen apInnerRect');
+  verwacht(uit, -90, 55.19385, 18.80713, 'HEA160');
+});
+
+test('rotatie in /Matrix plus tekst-cm op een 90°-blad: breedte en hoogte niet verwisseld (Trekstag)', async () => {
+  verwacht(await matrixVak(TREKSTAG), -90, 65.31885, 21.95483, 'Trekstag');
+});
+
+test('maat uit de omhullende: de omhullende in de weergave telt, niet de PDF-/Rect', () => {
+  // Vak 120×20 op −30° op een 90°-blad: weergave-omhullende 113.923×77.321,
+  // de PDF-/Rect is 77.321 breed en 113.923 hoog.
+  const a = tekstvakMaat({ rotatie: -30, extra: {}, rect: [0, 0, 77.321, 113.923], rectVp: { width: 113.923, height: 77.321 } });
+  assert.ok(Math.abs(a.width - 120) <= TOL && Math.abs(a.height - 20) <= TOL, `−30° op een 90°-blad: ${a.width}×${a.height}`);
+  // Vak 120×20 op 90° op een 270°-blad: weergave 20×120, PDF-/Rect 120×20.
+  const b = tekstvakMaat({ rotatie: 90, extra: {}, rect: [0, 0, 120, 20], rectVp: { width: 20, height: 120 } });
+  assert.ok(Math.abs(b.width - 120) <= TOL && Math.abs(b.height - 20) <= TOL, `90° op een 270°-blad: ${b.width}×${b.height}`);
+});
+
+test('maat uit de omhullende op een 0°-blad: oriëntatie klopte al, nu ook zonder afronding', () => {
+  const uit = tekstvakMaat({ rotatie: -90, extra: {}, rect: [0, 0, 18.80713, 55.19385], rectVp: { width: 18.80713, height: 55.19385 } });
+  assert.ok(Math.abs(uit.width - 55.19385) <= TOL && Math.abs(uit.height - 18.80713) <= TOL, `${uit.width}×${uit.height}`);
+});
+
+test('doos-re in formulierruimte (zonder tekstclip): verkeerd georiënteerde apInnerRect wordt niet gebruikt', async () => {
+  // Zonder de clip-`re` blijft alleen de doos over, getekend BUITEN de
+  // tekst-cm: 16.807×53.194, een kwartslag verkeerd.
+  const uit = await matrixVak(HEA160, { metClip: false });
+  assert.equal(uit.extra.apInnerRect.w, 16.807);
+  verwacht(uit, -90, 55.19385, 18.80713, 'HEA160 zonder clip');
+});
+
+// ── Wachters bij de oriëntatiecontrole van apInnerRect ──────────────────────
+
+test('wachter: callout zonder /RD houdt zijn apInnerRect (Rect bevat de aanhaallijn)', () => {
+  // Vak 60×20 op −90°; de aanhaallijn maakt de /Rect breder dan het vak. Uit
+  // die Rect lijkt de omgewisselde oriëntatie dichterbij, maar bij een
+  // callout is de Rect geen omhullende van het vak.
+  const uit = tekstvakMaat({
+    rotatie: -90, extra: { apInnerRect: { w: 60, h: 20 } }, callout: true,
+    rect: [0, 0, 22, 63], rectVp: { width: 63, height: 22 },
+  });
+  assert.deepEqual(uit, { width: 60, height: 20 });
+});
+
+test('wachter: een Rect die geen omhullende is (negatieve terugrekening) laat apInnerRect staan', () => {
+  // Vak 140×34 op 30° in een Rect van 138×400: de formule geeft −161×555.
+  const uit = tekstvakMaat({
+    rotatie: 30, extra: { apInnerRect: { w: 140, h: 34 } },
+    rect: [0, 0, 400, 138], rectVp: { width: 138, height: 400 },
+  });
+  assert.deepEqual(uit, { width: 140, height: 34 });
+});
+
+test('wachter: bij 45° (det ≈ 0) blijft apInnerRect staan', () => {
+  const omh = (140 + 34) * Math.SQRT1_2;
+  for (const rotatie of [45, -45, 135, -135]) {
+    const uit = tekstvakMaat({
+      rotatie, extra: { apInnerRect: { w: 34, h: 140 } },
+      rect: [0, 0, omh, omh], rectVp: { width: omh, height: omh },
+    });
+    assert.deepEqual(uit, { width: 34, height: 140 }, `rotatie ${rotatie}`);
+  }
+});
+
+test('wachter: apInnerRect ver van beide oriëntaties blijft staan', () => {
+  // apInnerRect 30×30 naast een omhullende van een vak 120×20: geen van de
+  // twee oriëntaties ligt binnen een paar punt, dus de AP beslist.
+  const uit = tekstvakMaat({
+    rotatie: -90, extra: { apInnerRect: { w: 30, h: 30 } },
+    rect: [0, 0, 20, 120], rectVp: { width: 20, height: 120 },
+  });
+  assert.deepEqual(uit, { width: 30, height: 30 });
+});
+
+test('wachter: bijna vierkant vak van de eigen saver houdt zijn maat op elke paginarotatie', async () => {
+  for (const paginaRotatie of [0, 90, 180, 270]) {
+    for (const rotatie of [90, -90, 30, -60, 180]) {
+      const ap = saverAppearance({ rotatie, paginaRotatie, w: 40, h: 38 });
+      const bytes = await schrijf({ paginaRotatie, ap, sleutels: { OPS_Rotation: rotatie } });
+      verwacht(await laad(bytes, { paginaRotatie }), rotatie, 40, 38, `blad ${paginaRotatie} rotatie ${rotatie}`);
+    }
+  }
+});

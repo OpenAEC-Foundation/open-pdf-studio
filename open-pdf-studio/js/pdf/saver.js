@@ -37,6 +37,7 @@ import { saveStylePresetsToCatalog } from './saver/style-presets.js';
 import { schrijfAnnotatieLagen, ocVoorAnnotatie } from './saver/annotatie-lagen.js';
 import { layersForSave, currentLayerId } from '../annotations/annotatie-lagen.js';
 import { pdfTextString, toWinAnsiText, winAnsiLiteral, asciiPdfName } from './saver/pdf-text.js';
+import { typemachineVak, typemachineRegelBreedte } from './saver/typemachine.js';
 import { catmullRomSpline } from '../tools/tools/spline-tool.js';
 import { catmullRomToBezier, splineArrowEndTangent } from '../annotations/spline-arrow-geometry.js';
 import { buildFilledAreaAP, buildMeasureAreaAP, buildPolylineMeasureAP,
@@ -75,6 +76,14 @@ function winAnsiTekstvak(ann) {
       ? ann.textRuns.map(line => (line || []).map(r => ({ ...r, text: toWinAnsiText(r?.text) })))
       : undefined,
   };
+}
+
+// Een typemachine-tekst (noWrap) breekt niet af: zijn vak wordt zo breed dat
+// elke regel er ook in andere lezers in past (saver/typemachine.js). Elk ander
+// vlak komt ongewijzigd terug.
+function typemachineVoorOpslag(ann) {
+  if (ann?.type !== 'textbox' || !ann.noWrap || !ann.text) return ann;
+  return typemachineVak(ann, layoutTextboxForExport(winAnsiTekstvak(ann)));
 }
 
 function remapAnnotationForRotatedPage(annRaw, rot, cw, ch) {
@@ -464,7 +473,10 @@ async function _savePDFNu(saveAsPath, activeDoc) {
         // On rotated pages, remap visual coords into the unrotated page frame
         // so the convert helpers below produce correct PDF coordinates. rot 0
         // returns the annotation unchanged (non-rotated pages untouched).
-        const ann = pageRot ? remapAnnotationForRotatedPage(annRaw, pageRot, cropBox.width, cropBox.height) : annRaw;
+        // Het vak van een typemachine-tekst eerst op zijn regels (in de
+        // weergave, vóór het omrekenen); al het andere blijft hetzelfde object.
+        const annVak = typemachineVoorOpslag(annRaw);
+        const ann = pageRot ? remapAnnotationForRotatedPage(annVak, pageRot, cropBox.width, cropBox.height) : annVak;
         const colorArr = hexToColorArray(ann.color || '#000000');
         // Een wipeout-masker tekent de app altijd dekkend; zijn doorzichtigheid
         // mag dus ook in het bestand niet doorschijnen.
@@ -1267,6 +1279,12 @@ async function _savePDFNu(saveAsPath, activeDoc) {
 
             annotDict = context.obj(annDictObj);
 
+            // Typemachine-tekst: /IT terug, anders breekt hij na heropenen
+            // weer af (zie de lader en saver/typemachine.js).
+            if (ann.type === 'textbox' && ann.noWrap) {
+              annotDict.set(PDFName.of('IT'), PDFName.of('FreeTextTypewriter'));
+            }
+
             // Set callout entries explicitly using PDFName keys for reliable serialization
             if (calloutData) {
               annotDict.set(PDFName.of('CL'), context.obj(calloutData.cl));
@@ -1431,11 +1449,19 @@ async function _savePDFNu(saveAsPath, activeDoc) {
                 ftStreamContent += `${ann.textColor ? `${tr} ${tg} ${tb}` : '0 0 0'} rg 0 Tc 0 Tw 100 Tz 0 Tr\n`;
                 ftStreamContent += `/${pdfFont} ${ftFontSize} Tf\n`;
                 let huidigFont = pdfFont;
+                // Een typemachineregel staat met de breedte waarmee zijn vak is
+                // gemaakt (saver/typemachine.js): in de vervangende font is hij
+                // breder dan op het canvas en blijft hij zo toch binnen het vak.
+                const typemachine = ann.type === 'textbox' && ann.noWrap;
                 for (const ln of layout.lines) {
                   if (textY < bottomLimit) break;
+                  const lnW = typemachine ? typemachineRegelBreedte(ann, ln) : ln.width;
                   let textX = boxLeft + pad;
-                  if (align === 'center') textX = boxLeft + pad + (layout.maxWidth - ln.width) / 2;
-                  else if (align === 'right') textX = boxLeft + visW - pad - ln.width;
+                  if (align === 'center') textX = boxLeft + pad + (layout.maxWidth - lnW) / 2;
+                  else if (align === 'right') textX = boxLeft + visW - pad - lnW;
+                  // Vak en regel zijn dan even breed op een rekenfout na; die
+                  // mag geen getal als 1e-14 opleveren (geen geldig PDF-getal).
+                  if (typemachine) textX = Math.round(textX * 1e6) / 1e6;
                   ftStreamContent += `${textX} ${textY} Td\n`;
                   // Per chunk zijn eigen font (vet/cursief); de pen loopt in
                   // PDF-tekstruimte vanzelf door na elke Tj.

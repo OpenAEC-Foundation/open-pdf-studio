@@ -107,24 +107,45 @@ export function tekstvakRotatie({ extra = {}, annotRotatie = 0, paginaRotatie = 
   return ftRotation;
 }
 
+// Zoveel punt per zijde mag een apInnerRect van de omgewisselde maat uit de
+// omhullende afwijken om als omgewisseld te gelden (rand- of /RD-inzet).
+const OMGEWISSELD_MARGE = 4;
+// Onder deze |cos²−sin²| (rond 45°) is de terugrekening uit de omhullende te
+// gevoelig om de oriëntatie van apInnerRect op te beoordelen.
+const OMGEWISSELD_MIN_DET = 0.2;
+
 /**
  * Doosmaat van een tekstvak in weergaveruimte.
  *
  * @param {object} p
  * @param {number} p.rotatie   weergaverotatie uit tekstvakRotatie
  * @param {object} [p.extra]   uitvoer van extractAnnotationColors
- * @param {number[]} p.rect    /Rect in PDF-ruimte
+ * @param {number[]} [p.rect]  /Rect in PDF-ruimte; niet gebruikt, de maat
+ *   volgt uit de omhullende in weergaveruimte (rectVp)
  * @param {{width:number,height:number}} p.rectVp  /Rect in weergaveruimte
+ * @param {boolean} [p.callout]  callout: de /Rect bevat dan ook de aanhaallijn
  * @returns {{width:number,height:number}}
  */
-export function tekstvakMaat({ rotatie, extra = {}, rect, rectVp }) {
+export function tekstvakMaat({ rotatie, extra = {}, rectVp, callout = false }) {
   const extraColors = extra || {};
   const ftRotation = rotatie;
-  // Recover the original (unrotated) textbox dimensions from Rect.
-  const rectW = rect[2] - rect[0];
-  const rectH = rect[3] - rect[1];
+  // De omhullende in WEERGAVERUIMTE: de hoek is een weergavehoek, dus de
+  // omhullende moet in dezelfde ruimte staan. De PDF-/Rect heeft op een
+  // /Rotate 90/270-blad breedte en hoogte verwisseld; een vak van 55×19 op
+  // −90° kwam daarmee als 19×55 terug.
+  const rectW = rectVp.width;
+  const rectH = rectVp.height;
   let ftWidth, ftHeight;
   if (ftRotation !== 0) {
+    // Inverse of the visual bounding box:
+    //   rectW = |w*cos| + |h*sin|, rectH = |w*sin| + |h*cos|
+    // Exact for a true bounding box, singular at 45° (det = cos²−sin² = 0).
+    const c = Math.abs(Math.cos(ftRotation * Math.PI / 180));
+    const s = Math.abs(Math.sin(ftRotation * Math.PI / 180));
+    const det = c * c - s * s;
+    const uitOmhullende = Math.abs(det) > 0.01
+      ? { w: (rectW * c - rectH * s) / det, h: (rectH * c - rectW * s) / det }
+      : null;
     // PREFERRED: read the unrotated dims straight from the appearance
     // stream. The AP draws the textbox plane with one `x y w h re`
     // operator INSIDE the rotation transform, so its w/h ARE the original
@@ -133,31 +154,40 @@ export function tekstvakMaat({ rotatie, extra = {}, rect, rectVp }) {
     if (apInner && apInner.w > 1 && apInner.h > 1) {
       ftWidth = apInner.w;
       ftHeight = apInner.h;
+      // Een ander programma draait het vak met de /Matrix en tekent de doos
+      // in formulierruimte, BUITEN de tekst-cm: die `re` staat dan een
+      // kwartslag verkeerd. Ligt hij binnen een paar punt van de omgewisselde
+      // maat uit de omhullende en verder van de rechte, dan telt de
+      // omhullende. Niet bij een callout (Rect met aanhaallijn), niet rond
+      // 45° en niet bij een onmogelijke terugrekening.
+      if (!callout && uitOmhullende && Math.abs(det) >= OMGEWISSELD_MIN_DET
+          && uitOmhullende.w > 0 && uitOmhullende.h > 0) {
+        const recht = Math.abs(apInner.w - uitOmhullende.w) + Math.abs(apInner.h - uitOmhullende.h);
+        const omgewisseld = Math.abs(apInner.w - uitOmhullende.h) + Math.abs(apInner.h - uitOmhullende.w);
+        if (omgewisseld < recht
+            && Math.abs(apInner.w - uitOmhullende.h) <= OMGEWISSELD_MARGE
+            && Math.abs(apInner.h - uitOmhullende.w) <= OMGEWISSELD_MARGE) {
+          ftWidth = uitOmhullende.w;
+          ftHeight = uitOmhullende.h;
+        }
+      }
+    } else if (uitOmhullende) {
+      // FALLBACK (no unambiguous `re` in the AP): the inverse above. Niet
+      // afgerond: de tak voor rotatie 0 rondt ook niet af.
+      ftWidth = uitOmhullende.w;
+      ftHeight = uitOmhullende.h;
+      if (ftWidth <= 0 || ftHeight <= 0) {
+        ftWidth = rectW;
+        ftHeight = rectH;
+      }
     } else {
-      // FALLBACK (no unambiguous `re` in the AP): recover the dims from the
-      // axis-aligned bounding box /Rect via inverse rotation:
-      //   rectW = |w*cos| + |h*sin|, rectH = |w*sin| + |h*cos|
-      // This is lossy — singular at 45° (det = cos²−sin² = 0) and it swaps
-      // W/H at 90° — hence it is only used when the AP tells us nothing.
-      const c = Math.abs(Math.cos(ftRotation * Math.PI / 180));
-      const s = Math.abs(Math.sin(ftRotation * Math.PI / 180));
-      const det = c * c - s * s;
-      if (Math.abs(det) > 0.01) {
-        ftWidth = Math.round((rectW * c - rectH * s) / det);
-        ftHeight = Math.round((rectH * c - rectW * s) / det);
-        if (ftWidth <= 0 || ftHeight <= 0) {
-          ftWidth = rectW;
-          ftHeight = rectH;
-        }
+      if (extraColors.bboxWidth && extraColors.bboxHeight &&
+          (Math.abs(extraColors.bboxWidth - rectW) > 1 || Math.abs(extraColors.bboxHeight - rectH) > 1)) {
+        ftWidth = extraColors.bboxWidth;
+        ftHeight = extraColors.bboxHeight;
       } else {
-        if (extraColors.bboxWidth && extraColors.bboxHeight &&
-            (Math.abs(extraColors.bboxWidth - rectW) > 1 || Math.abs(extraColors.bboxHeight - rectH) > 1)) {
-          ftWidth = extraColors.bboxWidth;
-          ftHeight = extraColors.bboxHeight;
-        } else {
-          ftWidth = rectW;
-          ftHeight = rectH;
-        }
+        ftWidth = rectW;
+        ftHeight = rectH;
       }
     }
   } else {

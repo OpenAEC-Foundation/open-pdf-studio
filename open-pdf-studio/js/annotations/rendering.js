@@ -6,6 +6,7 @@ import { renderWatermarksBehind, renderWatermarksInFront } from '../watermark/wa
 
 // Import from sub-modules
 import { drawPolygonShape, drawCloudShape, buildPolygonPath, buildPolygonPointsPath, buildCloudPath, buildCloudPolylinePath, drawTextboxContent, isRTLText } from './rendering/shapes.js';
+import { tekstvakKnipvlak } from './rendering/textbox-layout.js';
 import { drawArrowheadOnCanvas, applyBorderStyle, drawDimensionLineEnding } from './rendering/decorations.js';
 import { catmullRomSpline } from '../tools/tools/spline-tool.js';
 import { catmullRomToBezier, splineArrowEndTangent } from './spline-arrow-geometry.js';
@@ -1139,10 +1140,14 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       }
 
       // Allow text to overflow slightly beyond textbox bounds
-      // (other PDF viewers show overflow text; hard clipping hides words at edges)
-      ctx.beginPath();
-      ctx.rect(annotation.x - 2, annotation.y - 2, tbWidth + 4, tbHeight + 4);
-      ctx.clip();
+      // (other PDF viewers show overflow text; hard clipping hides words at edges).
+      // Een typemachine-tekst knipt niet: zie tekstvakKnipvlak.
+      const tbKnip = tekstvakKnipvlak(annotation, tbWidth, tbHeight);
+      if (tbKnip) {
+        ctx.beginPath();
+        ctx.rect(tbKnip.x, tbKnip.y, tbKnip.width, tbKnip.height);
+        ctx.clip();
+      }
 
       // Draw text content
       drawTextboxContent(ctx, annotation);
