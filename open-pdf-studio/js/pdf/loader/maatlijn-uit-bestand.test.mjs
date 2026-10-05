@@ -113,7 +113,7 @@ async function gelezen(bytes) {
   const pagina = await doc.getPage(1);
   const viewport = pagina.getViewport({ scale: 1 });
   const annots = await pagina.getAnnotations();
-  await doc.destroy();
+  await doc.loadingTask.destroy();
   const kaart = await extractAnnotationColors(1, await PDFDocument.load(bytes.slice()));
   const convertPoint = (x, y) => viewport.convertToViewportPoint(x, y);
   return annots.map((annot) => ({ annot, extra: extraVoorAnnotatie(kaart, annot) || {}, convertPoint }));

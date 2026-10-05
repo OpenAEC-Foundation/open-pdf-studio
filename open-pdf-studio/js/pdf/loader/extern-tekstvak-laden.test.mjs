@@ -106,7 +106,7 @@ async function laad(bytes) {
   for (const annot of await pagina.getAnnotations()) {
     modellen.push(await convertPdfAnnotation(annot, 1, viewport, new Map(), kaart));
   }
-  await doc.destroy();
+  await doc.loadingTask.destroy();
   return modellen;
 }
 

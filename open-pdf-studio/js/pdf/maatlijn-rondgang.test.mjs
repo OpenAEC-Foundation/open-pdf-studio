@@ -131,7 +131,7 @@ async function geladen(bytes) {
   const p = await doc.getPage(1);
   const viewport = p.getViewport({ scale: 1 });
   const annots = await p.getAnnotations();
-  await doc.destroy();
+  await doc.loadingTask.destroy();
   const kaart = await extractAnnotationColors(1, await PDFDocument.load(bytes.slice()));
   const convertPoint = (x, y) => viewport.convertToViewportPoint(x, y);
   return annots.map((annot) => {

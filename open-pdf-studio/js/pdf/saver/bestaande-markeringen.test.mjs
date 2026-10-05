@@ -22,6 +22,7 @@ import { textEditPropsFromPdf, resolveGroupLinks } from '../loader/correction-lo
 import { extractAnnotationColors } from '../loader/color-extraction.js';
 import { extraVoorAnnotatie } from '../loader/extra-sleutel.js';
 import { buildLegacyMarkupFixture, PAGINAS } from './test-fixtures/text-edit-fixture.mjs';
+import { viewportRectangle } from '../pdfjs-record.js';
 
 // ── letterlijke kopie van de oude tak in saver.js (vóór #508) ────────────────
 function oudeTekstmarkering(context, ann, convertX, convertY, opacity) {
@@ -166,7 +167,7 @@ test('bestaande markeringen laden met dezelfde eigenschappen; alleen textDir kan
   for (const { n, viewport, annots, kaart } of await laad(bytes)) {
     const convertPoint = (x, y) => viewport.convertToViewportPoint(x, y);
     const convertRect = (r) => {
-      const vr = viewport.convertToViewportRectangle(r);
+      const vr = viewportRectangle(viewport, r);
       return { x: Math.min(vr[0], vr[2]), y: Math.min(vr[1], vr[3]), width: Math.abs(vr[2] - vr[0]), height: Math.abs(vr[3] - vr[1]) };
     };
     const markeringen = annots.filter((a) => ['Highlight', 'Underline', 'StrikeOut', 'Squiggly'].includes(a.subtype));
@@ -208,7 +209,7 @@ test('opslaan: dezelfde annotaties blijven staan, popups blijven, markeringen sc
     // De markeringen zoals de lader ze geeft, opnieuw geschreven.
     const { viewport, annots, kaart, n } = geladen[i];
     const convertRect = (r) => {
-      const vr = viewport.convertToViewportRectangle(r);
+      const vr = viewportRectangle(viewport, r);
       return { x: Math.min(vr[0], vr[2]), y: Math.min(vr[1], vr[3]), width: Math.abs(vr[2] - vr[0]), height: Math.abs(vr[3] - vr[1]) };
     };
     const convertPoint = (x, y) => viewport.convertToViewportPoint(x, y);

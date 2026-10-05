@@ -73,7 +73,7 @@ async function laad(bytes) {
   for (const annot of await pagina.getAnnotations()) {
     modellen.push(await convertPdfAnnotation(annot, 1, viewport, new Map(), kaart));
   }
-  await doc.destroy();
+  await doc.loadingTask.destroy();
   return modellen;
 }
 
@@ -84,10 +84,12 @@ async function opslaan(bronBytes, modellen) {
     impl: {
       getCachedPdfBytes: () => bronBytes,
       writeBinaryFile: (_pad, bytes) => { uit = bytes; return true; },
+      writeBinaryFileAtomic: (_pad, bytes) => { uit = bytes; return true; },
     },
   };
   state.documents = [{
-    id: 'rondgang', filePath: 'C:/rondgang/bron.pdf', annotations: modellen,
+    // savePDF eist een geopend pdf.js-document (alleen als identiteit gebruikt).
+    id: 'rondgang', filePath: 'C:/rondgang/bron.pdf', pdfDoc: {}, annotations: modellen,
     pageRotations: {}, _annotationPagesReady: new Set([1]), textEdits: [],
   }];
   state.activeDocumentIndex = 0;

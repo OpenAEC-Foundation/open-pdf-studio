@@ -30,6 +30,7 @@ import { _rotVisualMapper, _remapRect } from './saver/rotatie-mapper.js';
 import { zetDoorzichtigheidInAp } from './saver/utils.js';
 import { linkPlanForSave, isTextEditStrike, saveColor, correctionKind } from '../annotations/corrections/model.js';
 import { colorArrayToHex, hexToColorArray } from '../utils/colors.js';
+import { viewportRectangle } from './pdfjs-record.js';
 
 const HANDLED = new Set([
   '/Highlight', '/Underline', '/StrikeOut', '/Squiggly',
@@ -62,7 +63,7 @@ async function laad(bytes) {
     const kaart = await extractAnnotationColors(n, pdfLib);
     const convertPoint = (x, y) => viewport.convertToViewportPoint(x, y);
     const convertRect = (r) => {
-      const vr = viewport.convertToViewportRectangle(r);
+      const vr = viewportRectangle(viewport, r);
       return { x: Math.min(vr[0], vr[2]), y: Math.min(vr[1], vr[3]), width: Math.abs(vr[2] - vr[0]), height: Math.abs(vr[3] - vr[1]) };
     };
     const byPdfId = new Map();
