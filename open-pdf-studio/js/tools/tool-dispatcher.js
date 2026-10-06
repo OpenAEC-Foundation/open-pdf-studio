@@ -37,7 +37,7 @@ import { getAnnotationType } from '../plugins/annotation-type-registry.js';
 import { getTemplate } from '../symbols/registry.js';
 import { hideMenu } from '../bridge.js';
 import { syncDocScale } from '../annotations/scale-bar.js';
-import { recalculateAllMeasurements, getMeasureScale } from '../annotations/measurement.js';
+import { recalculateAllMeasurements, getMeasureScale, findMeasureScale } from '../annotations/measurement.js';
 import { parseCoordBuffer } from './coord-invoer.js';
 import {
   gripLengteEindpunten,
@@ -45,6 +45,7 @@ import {
   nieuwEindpuntVoorInvoer,
   isGripLengteStartToets,
 } from './grip-lengte.js';
+import { greepOorsprong, strekBasispunt, strekLengteTekst } from './greep-strek.js';
 import {
   isStramien, startMeeslepen, sleepMee, meesleepWijzigingen, herstelMeeslepen,
 } from '../annotations/stramien-koppeling.js';
@@ -634,99 +635,12 @@ function _handleResize(ctx, e, coords) {
 
   let deltaX, deltaY;
   if (snap.snapped) {
-    const orig = state.originalAnnotation;
-    const h = state.activeHandle;
-    let ox, oy;
-    // Textbox leader tip/knee: pull origin from the matching leader on originalAnn
-    if (typeof h === 'string' && (h.startsWith('leader_tip_') || h.startsWith('leader_knee_'))) {
-      const isTipL = h.startsWith('leader_tip_');
-      const lid = h.substring(isTipL ? 'leader_tip_'.length : 'leader_knee_'.length);
-      const ldrs = Array.isArray(orig.leaders) ? orig.leaders : [];
-      const found = ldrs.find(l => l.id === lid);
-      if (found) {
-        ox = isTipL ? found.tipX : found.kneeX;
-        oy = isTipL ? found.tipY : found.kneeY;
-      }
-    } else
-    if (typeof h === 'string' && h.startsWith('polyline_node_')) {
-      // Check for hole node: polyline_node_hole_<holeIdx>_<nodeIdx>
-      const holeSnapMatch = h.match(/^polyline_node_hole_(\d+)_(\d+)$/);
-      if (holeSnapMatch && orig.holes) {
-        const hi = parseInt(holeSnapMatch[1], 10);
-        const ni = parseInt(holeSnapMatch[2], 10);
-        if (hi < orig.holes.length && ni < orig.holes[hi].length) {
-          ox = orig.holes[hi][ni].x;
-          oy = orig.holes[hi][ni].y;
-        }
-      } else if (orig.points) {
-        const nodeIdx = parseInt(h.split('_').pop(), 10);
-        if (!isNaN(nodeIdx) && nodeIdx < orig.points.length) {
-          ox = orig.points[nodeIdx].x;
-          oy = orig.points[nodeIdx].y;
-        }
-      } else if (orig.type === 'measureAngle' && orig.point1 && orig.vertex && orig.point2) {
-        const maNodeIdx = parseInt(h.split('_').pop(), 10);
-        const maPts = [orig.point1, orig.vertex, orig.point2];
-        if (!isNaN(maNodeIdx) && maNodeIdx < 3) {
-          ox = maPts[maNodeIdx].x;
-          oy = maPts[maNodeIdx].y;
-        }
-      }
-    }
-    // Label move handle
-    if (h === 'label_move' && orig.points) {
-      if (orig.labelX != null && orig.labelY != null) {
-        ox = orig.labelX;
-        oy = orig.labelY;
-      } else {
-        let clx = 0, cly = 0;
-        for (const p of orig.points) { clx += p.x; cly += p.y; }
-        ox = clx / orig.points.length;
-        oy = cly / orig.points.length;
-      }
-    }
-    // Label move on a dimension line (measureDistance text handle): anchor =
-    // dimension-line midpoint + textOffset. Without this the generic x/width
-    // fallback below would produce NaN (dimensions have no x/width).
-    if (h === 'label_move' && ox === undefined
-        && typeof orig.startX === 'number' && typeof orig.endX === 'number') {
-      ox = (orig.startX + orig.endX) / 2 + (orig.textOffsetX || 0);
-      oy = (orig.startY + orig.endY) / 2 + (orig.textOffsetY || 0);
-    }
-    // Sjabloon-eigen greep van een parametrisch symbool (bijv. de stijl van
-    // een gevelelement): het sjabloon weet waar die greep zat.
-    if (ox === undefined && orig.type === 'parametricSymbol') {
-      const o = getTemplate(orig.symbolId)?.greepOorsprong?.(orig, h);
-      if (o) { ox = o.x; oy = o.y; }
-    }
-    if (ox === undefined) {
-      ox = h === 'line_start' ? orig.startX
-        : h === 'line_end' ? orig.endX
-        : h === 'line_mid' ? (orig.startX + orig.endX) / 2
-        : h === 'leader_start' ? orig.leaderStartX
-        : h === 'leader_end' ? orig.leaderEndX
-        : h === 'callout_arrow' ? (orig.arrowX || orig.x)
-        : h === 'callout_knee' ? (orig.kneeX || orig.x)
-        : h === 'circle_center' ? ((orig.x !== undefined ? orig.x : orig.centerX - (orig.radius || 0)) + (orig.width || (orig.radius || 0) * 2) / 2)
-        : h === 'rect_center' ? (orig.x + (orig.width || 0) / 2)
-        : (h === 'tl' || h === 'l' || h === 'bl') ? orig.x
-        : (h === 'tr' || h === 'r' || h === 'br') ? orig.x + orig.width
-        : orig.x + orig.width / 2;
-      oy = h === 'line_start' ? orig.startY
-        : h === 'line_end' ? orig.endY
-        : h === 'line_mid' ? (orig.startY + orig.endY) / 2
-        : h === 'leader_start' ? orig.leaderStartY
-        : h === 'leader_end' ? orig.leaderEndY
-        : h === 'callout_arrow' ? (orig.arrowY || orig.y)
-        : h === 'callout_knee' ? (orig.kneeY || orig.y)
-        : h === 'circle_center' ? ((orig.y !== undefined ? orig.y : orig.centerY - (orig.radius || 0)) + (orig.height || (orig.radius || 0) * 2) / 2)
-        : h === 'rect_center' ? (orig.y + (orig.height || 0) / 2)
-        : (h === 'tl' || h === 't' || h === 'tr') ? orig.y
-        : (h === 'bl' || h === 'b' || h === 'br') ? orig.y + orig.height
-        : orig.y + orig.height / 2;
-    }
-    deltaX = snappedX - ox;
-    deltaY = snappedY - oy;
+    // Vanaf de greep zoals hij getekend is (ook bij een gedraaide vorm), zodat
+    // de greep precies op het snappunt komt in plaats van te verspringen.
+    const o = greepOorsprong(state.originalAnnotation, state.activeHandle,
+      (orig, h) => getTemplate(orig.symbolId)?.greepOorsprong?.(orig, h));
+    deltaX = snappedX - o.x;
+    deltaY = snappedY - o.y;
   } else {
     deltaX = coords.x - state.dragStartX;
     deltaY = coords.y - state.dragStartY;
@@ -747,12 +661,16 @@ function _handleResize(ctx, e, coords) {
   // snaps a single axis and derives the other from the ratio, so the lock is
   // preserved — hence we no longer skip locked images here. Shift is a caller
   // override that we keep respecting via lockRatio below.
+  // Niet bij een gedraaide afbeelding: snapImageResize zet het vaste punt in
+  // het ongedraaide vak terug, dat verschuift het draaipunt en daarmee de
+  // vaste zijde op het scherm.
   state._imageAlignGuides = null;
   const _rh = state.activeHandle;
   const _isBoxHandle = _rh === 'tl' || _rh === 'tr' || _rh === 'bl' || _rh === 'br' ||
     _rh === 't' || _rh === 'b' || _rh === 'l' || _rh === 'r';
   const _lockRatio = e.shiftKey || ann.lockAspectRatio;
-  if (state.preferences.enableImageAlignSnap && ann.type === 'image' && _isBoxHandle) {
+  if (state.preferences.enableImageAlignSnap && ann.type === 'image' && _isBoxHandle
+      && !state.originalAnnotation.rotation) {
     const excludeIds = new Set([ann.id]);
     const refs = collectImageAlignRefs(resizeDoc?.annotations || [], coords.pageNum, excludeIds);
     const tol = (state.preferences.objectSnapRadius || 12) / resizeScale;
@@ -791,34 +709,9 @@ function _handleResize(ctx, e, coords) {
   // (livePoint), plus a small "<length> < <angle>°" tooltip. Per the
   // grippoints design spec.
   {
-    const orig = state.originalAnnotation;
-    const h = state.activeHandle;
-    let bx, by;
-    if (typeof h === 'string' && h.startsWith('polyline_node_') && !h.includes('hole') && Array.isArray(orig.points)) {
-      const ni = parseInt(h.split('_').pop(), 10);
-      if (!isNaN(ni) && ni < orig.points.length) {
-        bx = orig.points[ni].x; by = orig.points[ni].y;
-      }
-    } else if (h === 'line_start') { bx = orig.startX; by = orig.startY; }
-    else if (h === 'line_end') { bx = orig.endX; by = orig.endY; }
-    else if (h === 'line_mid') { bx = (orig.startX + orig.endX) / 2; by = (orig.startY + orig.endY) / 2; }
-    else if (h === 'rect_center') { bx = orig.x + (orig.width || 0) / 2; by = orig.y + (orig.height || 0) / 2; }
-    else if (h === 'circle_center') {
-      const cw = orig.width || (orig.radius || 0) * 2;
-      const ch = orig.height || (orig.radius || 0) * 2;
-      const cx0 = orig.x !== undefined ? orig.x : (orig.centerX - (orig.radius || 0));
-      const cy0 = orig.y !== undefined ? orig.y : (orig.centerY - (orig.radius || 0));
-      bx = cx0 + cw / 2; by = cy0 + ch / 2;
-    } else if (h === 'tl') { bx = orig.x; by = orig.y; }
-    else if (h === 'tr') { bx = orig.x + orig.width; by = orig.y; }
-    else if (h === 'bl') { bx = orig.x; by = orig.y + orig.height; }
-    else if (h === 'br') { bx = orig.x + orig.width; by = orig.y + orig.height; }
-    else if (h === 't') { bx = orig.x + orig.width / 2; by = orig.y; }
-    else if (h === 'b') { bx = orig.x + orig.width / 2; by = orig.y + orig.height; }
-    else if (h === 'l') { bx = orig.x; by = orig.y + orig.height / 2; }
-    else if (h === 'r') { bx = orig.x + orig.width; by = orig.y + orig.height / 2; }
-
-    if (bx !== undefined && by !== undefined) {
+    const basis = strekBasispunt(state.originalAnnotation, state.activeHandle);
+    if (basis) {
+      const bx = basis.x, by = basis.y;
       const lx = state.lastSnapResult ? state.lastSnapResult.x : coords.x;
       const ly = state.lastSnapResult ? state.lastSnapResult.y : coords.y;
       const lineColor = ann.strokeColor || ann.color || ann.lineColor || '#0078d4';
@@ -836,9 +729,10 @@ function _handleResize(ctx, e, coords) {
       const dxT = lx - bx, dyT = ly - by;
       const len = Math.sqrt(dxT * dxT + dyT * dyT);
       const ang = Math.atan2(dyT, dxT) * 180 / Math.PI;
-      const measureScale = (getActiveDocument()?.measureScale) || 1;
-      const measureUnit = (getActiveDocument()?.measureUnit) || 'px';
-      const lenLabel = (len * measureScale).toFixed(1) + ' ' + measureUnit;
+      // Lengte in de eenheid van de tekening, met de schaal halverwege de
+      // meetlijn (zoals bij een maatlijn); zonder enige schaal in punten.
+      const lenSchaal = findMeasureScale(ann.page ?? coords.pageNum, (bx + lx) / 2, (by + ly) / 2);
+      const lenLabel = strekLengteTekst(len, lenSchaal, getActiveDocument());
       const label = `${lenLabel} < ${ang.toFixed(1)}°`;
       // Rechtop op het scherm, ook in een gedraaide weergave (#200).
       zetRechtopRond(canvasCtx, lx, ly);

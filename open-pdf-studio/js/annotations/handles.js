@@ -141,6 +141,18 @@ function getAnnotationCenter(annotation) {
   }
 }
 
+// Waar een punt uit de lokale (ongedraaide) ruimte van de vorm op het scherm
+// staat: om het midden gedraaid, precies zoals getAnnotationHandles hieronder
+// de grepen draait. Zonder rotatie of zonder draaipunt (vormen die niet
+// meedraaien) komt het punt ongewijzigd terug. Het slepen van een greep
+// (greep-strek.js) rekent er snap en meetlijn mee vanaf de greep die je ziet.
+export function greepOpScherm(annotation, x, y) {
+  if (!annotation || !annotation.rotation) return { x, y };
+  const center = getAnnotationCenter(annotation);
+  if (!center) return { x, y };
+  return rotatePoint(x, y, center.x, center.y, annotation.rotation);
+}
+
 // Get handles for an annotation based on its type
 // scale parameter ensures handles stay the same screen size at any zoom level
 export function getAnnotationHandles(annotation, scale = 1) {

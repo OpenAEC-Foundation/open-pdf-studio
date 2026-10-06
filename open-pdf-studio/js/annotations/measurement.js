@@ -23,6 +23,13 @@ import {
 // The point-bound part of that order lives in schaal-op-punt.js (via
 // getScaleForPoint), shared with the light scale bridges.
 export function getMeasureScale(pageNum, x, y) {
+  return findMeasureScale(pageNum, x, y) || { pixelsPerUnit: 1, unit: 'mm' };
+}
+
+// Dezelfde opzoeking als getMeasureScale, maar null als er nergens een schaal
+// is in plaats van de terugval op 1 punt per mm. Voor wie dan gewoon punten
+// toont, zoals de lengte in de tooltip bij het slepen van een greep.
+export function findMeasureScale(pageNum, x, y) {
   // 1. Check scaleRegion (innermost) — highest priority when a point is given
   if (pageNum != null && x != null && y != null) {
     const regionScale = getScaleFromRegion(pageNum, x, y);
@@ -50,7 +57,7 @@ export function getMeasureScale(pageNum, x, y) {
   if (ms && ms.pixelsPerUnit > 0) {
     return { pixelsPerUnit: ms.pixelsPerUnit, unit: ms.unit || 'mm' };
   }
-  return { pixelsPerUnit: 1, unit: 'mm' };
+  return null;
 }
 
 // Snap an endpoint so that the distance from (fromX,fromY) to the result
