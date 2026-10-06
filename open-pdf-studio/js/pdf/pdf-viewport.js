@@ -15,6 +15,7 @@ import {
 import { tileCoversViewport } from './tile-coverage.js';
 import { bepaalOverlayMaat, pasOverlayMaatToe } from './overlay-canvas-size.js';
 import { maakWielScroller } from './wiel-scroll.js';
+import { maakFramePlanner, bewaakSchrijven } from './frame-planner.js';
 import {
   normaliseerRotatie,
   vermenigvuldig,
@@ -53,9 +54,43 @@ if (!window.__pdfViewport) {
 }
 export const viewport = window.__pdfViewport;
 
+// ─── Render-lus op aanvraag: dirty en active als accessors ─────────────────
+// Elke schrijver (ook rechtstreeks via window.__pdfViewport) blijft gewoon
+// `viewport.dirty = true` schrijven; de setter vraagt dan hooguit één frame
+// aan bij de render-lus (zie _startLoop). Zonder werk vraagt de lus geen
+// frames meer, zodat een stilstaand venster niets kost. De lus die het
+// canvas bezit (laatste initViewport) staat op window, net als de viewport
+// zelf: een tweede module-instantie (HMR) maakt de accessors opnieuw, met
+// behoud van de waarden, en wekt nog steeds de lus die echt tekent.
+const _volgers = window.__pdfViewportVolgers || (window.__pdfViewportVolgers = new Set());
+bewaakSchrijven(viewport, 'dirty', () => _wekLus());
+bewaakSchrijven(viewport, 'active', (nieuw, oud) => {
+  if (!nieuw !== !oud) _meldVolgers();
+  _wekLus();
+});
+
+function _wekLus() {
+  window.__pdfViewportLus?.plan();
+}
+
+/**
+ * Volg de viewport: fn() draait na elke render en bij elke wissel van
+ * viewport.active (bijv. de canvas-scrollbalken, die zo niet elk frame
+ * hoeven te pollen). Geeft een functie terug die het volgen stopt.
+ */
+export function volgViewport(fn) {
+  _volgers.add(fn);
+  return () => { _volgers.delete(fn); };
+}
+
+function _meldVolgers() {
+  for (const fn of _volgers) {
+    try { fn(); } catch (e) { console.warn('[viewport] volger faalde:', e); }
+  }
+}
+
 let _canvas = null;
 let _ctx = null;
-let _rafId = 0;
 let _annotationRedraw = null; // callback for annotation overlay
 let _resizeObserver = null;
 
@@ -63,7 +98,7 @@ let _resizeObserver = null;
 
 export function initViewport(canvas, annotationRedrawFn) {
   // Stop previous loop if re-initializing
-  if (_rafId) cancelAnimationFrame(_rafId);
+  _lus.stop();
   _canvas = canvas;
   _ctx = canvas.getContext('2d');
   _annotationRedraw = annotationRedrawFn || null;
@@ -97,7 +132,7 @@ export function initViewport(canvas, annotationRedrawFn) {
 
 export function destroyViewport() {
   viewport.active = false;
-  cancelAnimationFrame(_rafId);
+  _lus.stop();
   window.removeEventListener('resize', _resizeCanvas);
   if (_resizeObserver) {
     _resizeObserver.disconnect();
@@ -481,25 +516,40 @@ export function kickRedactAnts() {
   _redactAntsRafId = requestAnimationFrame(_redactAntsTick);
 }
 
-function _startLoop() {
-  function tick() {
-    if (viewport.active) {
-      // Wieluitloop vóór de dirty-check: zolang hij loopt verschuift hij de
-      // pagina (en zet hij dirty) naar rato van de verstreken tijd.
-      if (_wielScroll.actief) _wielScroll.pomp(performance.now());
-      if (viewport.dirty) {
-        viewport.dirty = false;
-        _render();
-      }
-    } else if (_wielScroll.actief) {
-      // Doorlopende weergave zet de viewport direct uit (renderer.js). Een
-      // uitloop die blijft staan zou bij terugkomst in één keer het restant
-      // springen: hier gewoon laten vallen.
-      _wielScroll.stop();
+// Eén frame van de render-lus.
+function _tick() {
+  if (viewport.active) {
+    // Wieluitloop vóór de dirty-check: zolang hij loopt verschuift hij de
+    // pagina (en zet hij dirty) naar rato van de verstreken tijd.
+    if (_wielScroll.actief) _wielScroll.pomp(performance.now());
+    if (viewport.dirty) {
+      viewport.dirty = false;
+      _render();
     }
-    _rafId = requestAnimationFrame(tick);
+  } else if (_wielScroll.actief) {
+    // Doorlopende weergave zet de viewport direct uit (renderer.js). Een
+    // uitloop die blijft staan zou bij terugkomst in één keer het restant
+    // springen: hier gewoon laten vallen.
+    _wielScroll.stop();
   }
-  _rafId = requestAnimationFrame(tick);
+}
+
+// De lus vraagt alleen een frame bij werk: dirty bij een actieve viewport, of
+// een lopende wieluitloop (die elk frame verder moet tot hij klaar is, en bij
+// een inactieve viewport nog één frame om hem te laten vallen). Na een frame
+// zonder resterend werk volgt geen nieuw frame; de volgende schrijfactie op
+// dirty of active wekt hem weer (zie bewaakSchrijven bovenaan).
+const _lus = maakFramePlanner({
+  heeftWerk: () => _wielScroll.actief || (viewport.active && viewport.dirty),
+  frame: _tick,
+});
+
+function _startLoop() {
+  // Nooit twee lussen: die van een andere module-instantie (HMR) stopt.
+  const vorige = window.__pdfViewportLus;
+  if (vorige && vorige !== _lus) vorige.stop();
+  window.__pdfViewportLus = _lus;
+  _lus.start();
 }
 
 // Maat van de getoonde pagina in punten, zoals hij op het scherm ligt: na de
@@ -645,7 +695,19 @@ let _strictAnchor = false;
 export function clearAnchor() { _anchorActive = false; _strictAnchor = false; }
 export function markAnchored() { _anchorActive = true; }
 
+// Eén render: tekenen en daarna de volgers (scrollbalken) bijwerken. Ook na
+// een vroege terugkeer (geen pagina, zoom-snapshot) of als het tekenen faalt:
+// zoom en verschuiving kunnen dan toch veranderd zijn. De fout zelf gaat
+// gewoon door naar de frame-planner (geen foutlus per frame).
 function _render() {
+  try {
+    _tekenViewport();
+  } finally {
+    _meldVolgers();
+  }
+}
+
+function _tekenViewport() {
   if (!_ctx || !_canvas || !viewport.filePath) return;
   // CSS-pixel viewport (backing is dpr-scaled). All math below stays in CSS px;
   // the dpr multiplier is folded into the canvas transform so output

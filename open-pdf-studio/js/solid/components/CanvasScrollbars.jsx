@@ -1,6 +1,7 @@
-import { onCleanup, onMount, createMemo } from 'solid-js';
+import { onCleanup, onMount, createMemo, createEffect, on, untrack } from 'solid-js';
 import { state } from '../../core/state.js';
-import { viewport, schermPaginaMaat } from '../../pdf/pdf-viewport.js';
+import { viewport, schermPaginaMaat, volgViewport } from '../../pdf/pdf-viewport.js';
+import { SB_SIZE, scrollbalkGeometrie } from '../../pdf/scrollbalk-geometrie.js';
 
 // Optional X/Y scrollbars overlaid on the PDF canvas viewport.
 // - Hidden by default (preference `showScrollbars`).
@@ -11,19 +12,20 @@ import { viewport, schermPaginaMaat } from '../../pdf/pdf-viewport.js';
 // Paginamaat op het scherm = na paginarotatie én weergaverotatie (#200):
 // schermPaginaMaat(), niet de ongedraaide viewport.pageW/pageH.
 //
-// Implementation note: viewport state is a plain object (not reactive),
-// so we drive the bars from a RAF loop that reads viewport every frame
-// and updates DOM only when values change.
-
-const SB_SIZE = 14; // Windows-standard scrollbar width
+// Bijwerken zonder te pollen: de viewport is een gewoon object (niet
+// reactief). Vroeger las een eigen animatieframe-lus hem elk frame uit, ook
+// met de balken uit en zonder document open. Nu werken de balken alleen bij
+// als er iets veranderd kan zijn: na elke render van de viewport en bij een
+// wissel van viewport.active (volgViewport), en als de voorkeur omgaat. De
+// maatvoering staat in scrollbalk-geometrie.js.
 
 export default function CanvasScrollbars() {
   // Reactive on/off via the SolidJS preferences mutable
   const enabled = createMemo(() => !!state.preferences.showScrollbars);
 
   let hRef, vRef, hThumbRef, vThumbRef;
-  let raf = 0;
   let mounted = false;
+  let stopVolgen = null;
 
   // Drag state
   let dragging = null; // 'h' | 'v' | null
@@ -40,54 +42,52 @@ export default function CanvasScrollbars() {
     return { w: c.width / dpr, h: c.height / dpr };
   }
 
+  // Alleen schrijven als er iets verandert: met de balken uit (standaard)
+  // draait dit na elke render.
+  function hideBars() {
+    if (hRef && hRef.style.display !== 'none') hRef.style.display = 'none';
+    if (vRef && vRef.style.display !== 'none') vRef.style.display = 'none';
+  }
+
   function update() {
     if (!mounted) return;
-    raf = requestAnimationFrame(update);
-    if (!enabled()) return;
+    // Voorkeur uit: balken weg (ook als ze net nog zichtbaar waren).
+    if (!enabled()) {
+      hideBars();
+      return;
+    }
     if (!viewport || !viewport.active) {
-      if (hRef) hRef.style.display = 'none';
-      if (vRef) vRef.style.display = 'none';
+      hideBars();
       return;
     }
     const css = getCanvasCssSize();
     if (!css) return;
-    const pageW = schermPaginaMaat().w * viewport.zoom;
-    const pageH = schermPaginaMaat().h * viewport.zoom;
+    const scherm = schermPaginaMaat();
+    const g = scrollbalkGeometrie({
+      canvasW: css.w,
+      canvasH: css.h,
+      paginaW: scherm.w * viewport.zoom,
+      paginaH: scherm.h * viewport.zoom,
+      offsetX: viewport.offsetX,
+      offsetY: viewport.offsetY,
+    });
 
     // Horizontal
-    if (pageW > css.w + 0.5) {
-      const overflow = pageW - css.w; // total scrollable px
-      // offsetX ranges from (css.w - pageW)..0 — we map to 0..overflow
-      const scrolled = -viewport.offsetX; // 0 at left edge, overflow at right
-      const trackPx = css.w - SB_SIZE; // reserve corner if vertical also shown
-      const vVisible = pageH > css.h + 0.5;
-      const usableTrack = vVisible ? trackPx : css.w;
-      const ratio = css.w / pageW;
-      const thumbPx = Math.max(20, usableTrack * ratio);
-      const maxThumbStart = usableTrack - thumbPx;
-      const thumbStart = overflow > 0 ? (scrolled / overflow) * maxThumbStart : 0;
+    if (g.h) {
       hRef.style.display = '';
-      hRef.style.right = (vVisible ? SB_SIZE : 0) + 'px';
-      hThumbRef.style.width = thumbPx + 'px';
-      hThumbRef.style.transform = `translateX(${Math.max(0, Math.min(maxThumbStart, thumbStart))}px)`;
+      hRef.style.right = g.h.right + 'px';
+      hThumbRef.style.width = g.h.thumbPx + 'px';
+      hThumbRef.style.transform = `translateX(${g.h.thumbStart}px)`;
     } else {
       hRef.style.display = 'none';
     }
 
     // Vertical
-    if (pageH > css.h + 0.5) {
-      const overflow = pageH - css.h;
-      const scrolled = -viewport.offsetY;
-      const hVisible = pageW > css.w + 0.5;
-      const trackPx = css.h - (hVisible ? SB_SIZE : 0);
-      const ratio = css.h / pageH;
-      const thumbPx = Math.max(20, trackPx * ratio);
-      const maxThumbStart = trackPx - thumbPx;
-      const thumbStart = overflow > 0 ? (scrolled / overflow) * maxThumbStart : 0;
+    if (g.v) {
       vRef.style.display = '';
-      vRef.style.bottom = (hVisible ? SB_SIZE : 0) + 'px';
-      vThumbRef.style.height = thumbPx + 'px';
-      vThumbRef.style.transform = `translateY(${Math.max(0, Math.min(maxThumbStart, thumbStart))}px)`;
+      vRef.style.bottom = g.v.bottom + 'px';
+      vThumbRef.style.height = g.v.thumbPx + 'px';
+      vThumbRef.style.transform = `translateY(${g.v.thumbStart}px)`;
     } else {
       vRef.style.display = 'none';
     }
@@ -170,12 +170,20 @@ export default function CanvasScrollbars() {
 
   onMount(() => {
     mounted = true;
-    raf = requestAnimationFrame(update);
+    // Na elke render en bij een wissel van viewport.active. Untrack: de
+    // schrijver van active kan zelf in een effect zitten; die mag niet van
+    // de voorkeur gaan afhangen doordat update() enabled() leest.
+    stopVolgen = volgViewport(() => untrack(update));
+    update();
   });
+
+  // Voorkeur omgezet: meteen tonen of verbergen, ook zonder render.
+  createEffect(on(enabled, () => update(), { defer: true }));
 
   onCleanup(() => {
     mounted = false;
-    if (raf) cancelAnimationFrame(raf);
+    if (stopVolgen) stopVolgen();
+    stopVolgen = null;
   });
 
   return (
