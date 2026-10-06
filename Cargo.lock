@@ -3664,7 +3664,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-studio"
-version = "2026.39.2"
+version = "2026.41.0"
 dependencies = [
  "anyhow",
  "axum",
@@ -3896,9 +3896,9 @@ dependencies = [
 
 [[package]]
 name = "pdfium-render"
-version = "0.9.1"
+version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "076dd8f3a6c7da9298ddffbcc0d5a109f89caf967fa4871c9a172d5b3498b35b"
+checksum = "8948a803616a9e936b15a6637af2cd48c5fb8ae0fcdeb3c32eac3a540e255a19"
 dependencies = [
  "bitflags 2.11.1",
  "bytemuck",

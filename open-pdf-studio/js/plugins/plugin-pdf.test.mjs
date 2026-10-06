@@ -29,7 +29,7 @@ test('plugin metadata and visible appearance survive a saved PDF round trip', as
     assert.equal(visible.subtype, 'Square');
     assert.deepEqual(extras.pluginAnnotation, annotation);
   } finally {
-    await reader.destroy();
+    await reader.loadingTask.destroy();
   }
 });
 
@@ -57,7 +57,7 @@ test('overlapping plugin annotations retain separate metadata by PDF reference',
     const annotations = await (await reader.getPage(1)).getAnnotations();
     assert.deepEqual(annotations.map(a => map.get(`@ref:${a.id}`)?.pluginAnnotation.id), ['first', 'second']);
   } finally {
-    await reader.destroy();
+    await reader.loadingTask.destroy();
   }
 });
 

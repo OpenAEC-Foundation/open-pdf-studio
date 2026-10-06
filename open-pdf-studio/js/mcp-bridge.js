@@ -100,6 +100,19 @@ async function waitForActiveLoad(targetDoc, timeoutMs = 30000) {
  *  — the regression-test harness only cares about the page view. For a
  *  full-window grab the caller can use OS-level screenshotting. */
 async function compositeCurrentView(maxWidth = 2000) {
+  const { getActiveDocument } = await import('./core/state.js');
+  const doc = getActiveDocument();
+  const pagina = doc?.currentPage;
+  const knipsels = doc?.annotations?.filter(a => a.page === pagina && a.type === 'vectorSnippet') || [];
+  if (knipsels.length) {
+    const { wachtOpKnipselPreviews } = await import('./annotations/vector-snippet-preview.js');
+    const zoom = window.__pdfViewport?.active ? window.__pdfViewport.zoom : doc.scale;
+    await wachtOpKnipselPreviews(knipsels, zoom);
+    if (getActiveDocument() !== doc || doc.currentPage !== pagina) throw new Error('Document changed during screenshot');
+    const rendering = await import('./annotations/rendering.js');
+    if (doc.viewMode === 'continuous') rendering.redrawContinuous();
+    else rendering.redrawAnnotations();
+  }
   const pdfCanvas = document.getElementById('pdf-canvas');
   const annCanvas = document.getElementById('annotation-canvas');
   const hlCanvas  = document.getElementById('text-highlight-canvas');
@@ -1960,7 +1973,7 @@ async function handleSavePdf(params) {
   } catch { /* best-effort */ }
   let success;
   try {
-    success = await saverMod.savePDF(path, { zonderHandtekeningVraag: true });
+    success = await saverMod.savePDF(path, { zonderHandtekeningVraag: true }, doc);
   } catch (e) {
     return { ok: false, error: `savePDF: ${e?.message ?? e}` };
   }
@@ -2025,6 +2038,16 @@ async function handleGetPageCount() {
   const doc = stateMod.getActiveDocument();
   if (!doc?.pdfDoc) return { ok: false, error: 'no active document' };
   return { ok: true, pageCount: doc.pdfDoc.numPages, currentPage: doc.currentPage ?? 1 };
+}
+
+async function handleGetPageText(params) {
+  const textTools = await import('./text/mcp-text-tools.js');
+  return textTools.getPageTextForMcp(params);
+}
+
+async function handleReplaceText(params) {
+  const textTools = await import('./text/mcp-text-tools.js');
+  return textTools.replaceTextForMcp(params);
 }
 
 async function handleSetMeasureScale(params) {
@@ -3277,6 +3300,8 @@ const HANDLERS = {
   'mcp:fit-page':           handleFitPage,
   'mcp:fit-width':          handleFitWidth,
   'mcp:get-page-count':     handleGetPageCount,
+  'mcp:get-page-text':      handleGetPageText,
+  'mcp:replace-text':       handleReplaceText,
   // App control: measurement scale
   'mcp:set-measure-scale':  handleSetMeasureScale,
   // Plattegrond: sparingen, ruimten en verankerde maatvoering

@@ -4,6 +4,7 @@ import { recordBulkModify } from '../core/undo-manager.js';
 import { cloneAnnotation } from './factory.js';
 import { redrawAnnotations, redrawContinuous } from './rendering.js';
 import { matchAnnotationSizes } from './size-matching.js';
+import { correctionKind } from './corrections/model.js';
 
 // Uitlijn-referentie (arr-align-to dropdown, issue #313):
 //  - 'selection' (default): uitlijnen op de collectieve bounding box
@@ -19,10 +20,12 @@ function redraw() {
   }
 }
 
-// Get selected annotations (multi-selection or single)
+// Get selected annotations (multi-selection or single). Een
+// proefleescorrectie (#508) zit aan haar tekst vast: uitlijnen, verdelen en
+// maat gelijkmaken slaan haar over.
 function getSelected() {
   const _alDoc = getActiveDocument();
-  const _alSel = _alDoc ? _alDoc.selectedAnnotations : [];
+  const _alSel = (_alDoc ? _alDoc.selectedAnnotations : []).filter(a => correctionKind(a) === null);
   if (_alSel.length >= 2) return _alSel;
   return [];
 }

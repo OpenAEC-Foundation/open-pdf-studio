@@ -21,6 +21,7 @@ import {
   beginUndoTransaction, endUndoTransaction,
 } from '../core/undo-manager.js';
 import { redrawAnnotations, redrawContinuous } from './rendering.js';
+import { expandCorrectionGroups } from './corrections/model.js';
 
 // Types whose geometry is an ordered list of vertices in `points[]`.
 const POLY_TYPES = new Set([
@@ -241,17 +242,22 @@ export function explodeCollection() {
   if (sel.length === 0) return 0;
 
   // Expand to every annotation sharing any selected groupId, so ungrouping one
-  // member dissolves the whole collection.
+  // member dissolves the whole collection. The two halves of a replacement
+  // (#508) stay together: that is one correction, not a collection. A pair
+  // that only carries its own groupId (the caret's id) is not a target; a
+  // pair inside a collection gets its own groupId back.
   const gids = new Set(sel.map(a => a.groupId));
-  const targets = doc.annotations.filter(a => a.groupId && gids.has(a.groupId));
+  const eigenGroep = (a) => (expandCorrectionGroups(doc.annotations, [a]).length > 1
+    ? (a.type === 'caret' ? a.id : a.inReplyTo) : null);
+  const targets = doc.annotations.filter(a => a.groupId && gids.has(a.groupId) && a.groupId !== eigenGroep(a));
   if (targets.length === 0) return 0;
 
   const originals = targets.map(a => cloneAnnotation(a));
   for (const a of targets) {
-    // Set to null rather than delete: bulkModify redo uses Object.assign and
-    // cannot remove a key, so `null` (read as ungrouped everywhere) makes both
-    // undo and redo of the ungroup deterministic.
-    a.groupId = null;
+    // Set to null (or the pair's own id) rather than delete: bulkModify redo
+    // uses Object.assign and cannot remove a key, so `null` (read as ungrouped
+    // everywhere) makes both undo and redo of the ungroup deterministic.
+    a.groupId = eigenGroep(a);
     a.modifiedAt = new Date().toISOString();
   }
   recordBulkModify(targets, originals);

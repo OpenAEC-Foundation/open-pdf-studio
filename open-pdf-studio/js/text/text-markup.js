@@ -1,7 +1,7 @@
 import { state, getActiveDocument } from '../core/state.js';
 import { createAnnotation } from '../annotations/factory.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
-import { getSelectionRectsForAnnotation, getSelectionQuadPoints } from './text-selection.js';
+import { getSelectionRectsForAnnotation, getSelectionQuadPoints, getSelectionTextDir } from './text-selection.js';
 import { recordAdd } from '../core/undo-manager.js';
 
 /**
@@ -31,8 +31,12 @@ export function createTextMarkupAnnotation(type, color, opacity) {
   const maxX = Math.max(...rects.map(r => r.x + r.width));
   const maxY = Math.max(...rects.map(r => r.y + r.height));
 
+  // Reading direction of the selected text (#527): the rects are axis-aligned,
+  // so without it the saver writes markups on vertical or upside-down text
+  // across the text.
+  const textDir = getSelectionTextDir();
+
   const annotation = createAnnotation({
-    id: Date.now(),
     type: type,
     page: pageNum,
     // Bounding box
@@ -44,6 +48,7 @@ export function createTextMarkupAnnotation(type, color, opacity) {
     quadPoints: quadPoints,
     // Individual rects for rendering
     rects: rects.map(r => ({ x: r.x, y: r.y, width: r.width, height: r.height })),
+    ...(textDir !== null ? { textDir } : {}),
     // Appearance
     color: color,
     opacity: opacity
@@ -125,7 +130,6 @@ export function createCalloutFromSelection() {
   const kneeY = midY + (chordDX / chordLen) * bow;
 
   const annotation = createAnnotation({
-    id: Date.now(),
     type: 'callout',
     page: pageNum,
     x: boxX,

@@ -1,5 +1,6 @@
 // Helper utility functions
 import i18next from '../i18n/config.js';
+import { displayKey } from '../annotations/corrections/model.js';
 
 // Format date for display
 export function formatDate(date) {
@@ -44,4 +45,17 @@ export function getTypeDisplayName(type) {
   const translated = i18next.t(key, { ns: 'properties' });
   if (translated !== key) return translated;
   return type.charAt(0).toUpperCase() + type.slice(1);
+}
+
+// English fallback for the names of proofreading corrections (#508).
+const CORRECTION_NAMES = { replaceText: 'Replace Text', caret: 'Inserted Text', crossOut: 'Cross-Out' };
+
+// Display name of one annotation: a proofreading correction (#508) is named
+// after its kind (replace, insert, delete), anything else after its type.
+// `annotations`: all annotations of the document (a Map by id or an array),
+// to resolve the link of a replacement.
+export function getAnnotationDisplayName(ann, annotations) {
+  const key = displayKey(ann, annotations);
+  if (key) return i18next.t(`types.${key}`, { ns: 'properties', defaultValue: CORRECTION_NAMES[key] });
+  return getTypeDisplayName(ann.type);
 }

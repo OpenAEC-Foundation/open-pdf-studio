@@ -7,9 +7,9 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 export const PDFIUM_RUNTIME = Object.freeze({
-  version: '7834',
-  url: 'https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F7834/pdfium-mac-univ.tgz',
-  sha256: '659e2f647ffd667b36487375165563e58f961db9cf75a45104dc59b9407ccbdf',
+  version: '8076',
+  url: 'https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F8076/pdfium-mac-univ.tgz',
+  sha256: '3bdb93e229298dfdf083dc8ccc7d1a8cf87790b6917e5073335504fe2ff0bdc1',
 });
 
 export function nativeRuntimePlan({

@@ -203,8 +203,9 @@ export default function TextEditOverlay() {
     ts.top = '0';
     ts.width = '100%';
     ts.height = '100%';
-    ts['white-space'] = 'pre-wrap';
-    ts['overflow-wrap'] = 'break-word';
+    // Een typemachine-tekst (noWrap) breekt niet af, zie editorVakOpmaak.
+    ts['white-space'] = s['white-space'] === 'pre' ? 'pre' : 'pre-wrap';
+    ts['overflow-wrap'] = ts['white-space'] === 'pre' ? 'normal' : 'break-word';
     ts['overflow-y'] = 'hidden';
     return ts;
   });

@@ -82,6 +82,7 @@ pub async fn render_page_to_png(
         )?;
         let doc = handle.document();
         let scale = {
+            let _guard = crate::pdfium_renderer::inproc_guard();
             let pages = doc.pages();
             let page = pages
                 .get(page_index as i32)

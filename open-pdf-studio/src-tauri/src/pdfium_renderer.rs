@@ -24,6 +24,7 @@ static PDFIUM: OnceLock<Pdfium> = OnceLock::new();
 /// error containing the underlying message — the caller should treat
 /// this as fatal because no PDF rendering is possible without PDFium.
 pub fn init_pdfium(dll_dir: &Path) -> Result<(), String> {
+    let _guard = inproc_guard();
     if PDFIUM.get().is_some() {
         return Ok(()); // Already initialised — idempotent.
     }
@@ -57,16 +58,10 @@ use std::sync::{Arc, Mutex};
 /// Serialises ALL in-proc PDFium FFI work — document loading and page / region /
 /// thumbnail rendering — onto a single global lock.
 ///
-/// PDFium's in-proc API is not safe to call concurrently from multiple threads.
-/// Even with pdfium-render's `thread_safe` feature (which only wraps each
-/// individual FFI call), interleaving a document *load* on one thread with a
-/// *render* on another — or two renders at once — corrupts the process heap.
-/// This surfaced on Linux as `free(): double free detected` /
-/// `malloc(): unaligned fastbin chunk` when a second document was opened while
-/// the first was still rendering. Linux hits this because every render runs
-/// in-proc: the multi-process worker pool is Windows-only. On Windows the pool
-/// isolates each render in its own process, so this lock is virtually
-/// uncontended there.
+/// The wrapper's `thread_safe` feature provides Send/Sync, not sufficient
+/// serialization (upstream #262). We serialize complete operations, including
+/// document destruction and initialization. Worker processes have separate C
+/// state and process requests sequentially.
 ///
 /// The guard is only ever held across synchronous FFI work — never across an
 /// `.await` — so it cannot stall or deadlock the async runtime. Callers that
@@ -90,7 +85,7 @@ pub(crate) fn inproc_guard() -> std::sync::MutexGuard<'static, ()> {
 /// sound.
 pub struct PdfiumDocumentHandle {
     // Order matters: `_bytes` must outlive `document`.
-    document: PdfDocument<'static>,
+    document: Option<PdfDocument<'static>>,
     _bytes: Arc<Vec<u8>>,
 }
 
@@ -121,13 +116,21 @@ impl PdfiumDocumentHandle {
         };
 
         Ok(Self {
-            document,
+            document: Some(document),
             _bytes: bytes,
         })
     }
 
     pub fn document(&self) -> &PdfDocument<'static> {
-        &self.document
+        self.document.as_ref().expect("live PDFium document")
+    }
+}
+
+impl Drop for PdfiumDocumentHandle {
+    fn drop(&mut self) {
+        // FPDF_CloseDocument is FFI too; the backing bytes must still be alive.
+        let _guard = inproc_guard();
+        drop(self.document.take());
     }
 }
 
@@ -627,4 +630,32 @@ pub fn render_page_part_for_print(
         .render_with_config(&config)
         .map_err(|e| format!("PDFium print render failed: {e}"))?;
     Ok((bitmap.width() as u32, bitmap.height() as u32, bitmap.as_rgba_bytes()))
+}
+
+#[cfg(test)]
+mod lifetime_tests {
+    use super::*;
+
+    #[test]
+    #[ignore = "requires OPDS_TEST_PDFIUM_DIR and OPDS_TEST_PDF"]
+    fn document_drop_waits_for_inproc_guard() {
+        let library = std::env::var("OPDS_TEST_PDFIUM_DIR").expect("PDFium directory");
+        init_pdfium(Path::new(&library)).unwrap();
+        let bytes = std::fs::read(std::env::var("OPDS_TEST_PDF").expect("test PDF")).unwrap();
+        let handle = PdfiumDocumentHandle::load_from_bytes(Arc::new(bytes)).unwrap();
+        let guard = inproc_guard();
+        let (started_tx, started_rx) = std::sync::mpsc::channel();
+        let (done_tx, done_rx) = std::sync::mpsc::channel();
+        let thread = std::thread::spawn(move || {
+            started_tx.send(()).unwrap();
+            drop(handle);
+            done_tx.send(()).unwrap();
+        });
+        started_rx.recv().unwrap();
+        let blocked = done_rx.recv_timeout(std::time::Duration::from_millis(50)).is_err();
+        drop(guard);
+        if blocked { done_rx.recv_timeout(std::time::Duration::from_secs(5)).unwrap(); }
+        thread.join().unwrap();
+        assert!(blocked, "FPDF_CloseDocument must wait for the process-wide lock");
+    }
 }

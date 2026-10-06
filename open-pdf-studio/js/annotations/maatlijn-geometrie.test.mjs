@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { maatlijnGeometrie, papierMmNaarPt, PT_PER_MM } from './maatlijn-geometrie.js';
+import { maatlijnGeometrie, maatlijnVelden, papierMmNaarPt, PT_PER_MM } from './maatlijn-geometrie.js';
 
 const bijna = (a, b, wat) => assert.ok(Math.abs(a - b) < 1e-9, `${wat}: ${a} ≈ ${b}`);
 
@@ -83,4 +83,19 @@ test('een schuine maat: uitloop en hulplijnen langs en haaks op de lijn', () => 
   bijna(g.maatlijn.y1, -u * s, 'uitloop langs de lijn (y)');
   bijna(g.hulplijnen[0].x2, 0, 'hulplijn eindigt op de maatlijn');
   bijna(g.hulplijnen[0].y2, 0, 'hulplijn eindigt op de maatlijn');
+});
+
+test('een maat uit een ander programma: geen uitloop, hulplijnen van /LL tot /LLE voorbij de lijn', () => {
+  // /LL 9,73 en /LLE 5 (punten), zoals de lader ze overneemt: uitloop 0,
+  // vrije afstand 0 en de doorloop /LLE in papiermillimeters.
+  const g = maatlijnGeometrie(maatlijnVelden({
+    startX: 0, startY: 0, endX: 100, endY: 0,
+    leaderStartX: 0, leaderStartY: 9.73, leaderEndX: 100, leaderEndY: 9.73,
+    headSize: 7.794, dimLineOvershootMm: 0, dimExtGapMm: 0, dimExtOvershootMm: 5 * 25.4 / 72,
+  }));
+  assert.deepEqual([g.maatlijn.x1, g.maatlijn.x2], [0, 100], 'geen uitloop');
+  for (const h of g.hulplijnen) {
+    bijna(h.y1, 9.73, 'vanaf het gemeten punt');
+    bijna(h.y2, -5, '5 pt voorbij de maatlijn');
+  }
 });

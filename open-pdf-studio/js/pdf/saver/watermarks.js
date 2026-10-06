@@ -3,8 +3,7 @@ import { StandardFonts, degrees, rgb } from 'pdf-lib';
 import { parsePageRange } from '../exporter.js';
 
 // Save watermarks into PDF pages
-export async function saveWatermarksToPages(pdfDocLib, pages) {
-  const doc = getActiveDocument();
+export async function saveWatermarksToPages(pdfDocLib, pages, doc = getActiveDocument()) {
   const watermarks = doc?.watermarks;
   if (!watermarks || watermarks.length === 0) return;
 
@@ -132,7 +131,6 @@ export async function saveWatermarksToPages(pdfDocLib, pages) {
           const ml = wm.marginLeft || 40;
           const mr = wm.marginRight || 40;
 
-          const doc = getActiveDocument();
           const filename = doc ? doc.fileName : '';
           const now = new Date();
           const subst = (t) => (t || '')

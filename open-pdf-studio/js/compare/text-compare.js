@@ -11,6 +11,7 @@
 
 import { getCompareDoc } from './compare-viewport.js';
 import { groupItemsIntoLineObjs, diffPageTexts, normalizeLine } from './text-diff.js';
+import { viewportRectangle } from '../pdf/pdfjs-record.js';
 
 const _resultCache = new Map();
 const _CACHE_MAX = 4;
@@ -35,7 +36,7 @@ async function _extractDocLines(filePath) {
         const w = it.width || 0;
         // Tekst-ruimte-rect (baseline linksonder) → viewport-rect linksboven,
         // via de viewport zodat ook geroteerde pagina's kloppen.
-        const [vx1, vy1, vx2, vy2] = vp.convertToViewportRectangle([tx, ty, tx + w, ty + h]);
+        const [vx1, vy1, vx2, vy2] = viewportRectangle(vp, [tx, ty, tx + w, ty + h]);
         return {
           str: it.str,
           x: tx,

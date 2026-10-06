@@ -19,8 +19,10 @@ export function drawSelectionHandles(ctx, annotation) {
   switch (annotation.type) {
     case 'textHighlight':
     case 'textStrikethrough':
-    case 'textUnderline': {
+    case 'textUnderline':
+    case 'caret': {
       // Draw per-rect outlines instead of bounding-box indicator
+      // (a caret, #508, has no rects: its own box)
       ctx.strokeStyle = '#0066cc';
       ctx.lineWidth = 1 / sc;
       ctx.setLineDash([3 / sc, 3 / sc]);

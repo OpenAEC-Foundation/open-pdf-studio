@@ -1,3 +1,4 @@
+import { pdfjsRecord } from '../../pdf/pdfjs-record.js';
 import i18next from '../../i18n/config.js';
 import { getActiveDocument } from '../../core/state.js';
 import { setSignatureItems as setItems, setSignatureCountText as setCountText, setSignatureEmptyMessage as setEmptyMessage } from '../../bridge.js';
@@ -31,7 +32,7 @@ async function getSignatureFields(pdfDoc) {
   try {
     // Try getFieldObjects (pdf.js >= 2.10)
     if (typeof pdfDoc.getFieldObjects === 'function') {
-      const fields = await pdfDoc.getFieldObjects();
+      const fields = pdfjsRecord(await pdfDoc.getFieldObjects());
       if (fields) {
         for (const [fieldName, fieldArray] of Object.entries(fields)) {
           for (const field of fieldArray) {

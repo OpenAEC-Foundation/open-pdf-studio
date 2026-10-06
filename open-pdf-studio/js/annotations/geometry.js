@@ -17,6 +17,7 @@ import { getEffectiveScale } from '../tools/effective-scale.js';
 import { raakMarge, wolkUitstulping, schermPxNaarPt } from './minimummaat.js';
 import { puntInVlak } from './vlak-ringen.js';
 import { raakbaarBijKlik } from '../plattegrond/ruimte-koppeling.js';
+import { caretHit } from './corrections/geometry.js';
 
 // Binnen-test voor vormen die overal in hun vak raakbaar zijn. Een vorm die op
 // het scherm kleiner is dan het minimale raakvlak krijgt een marge in
@@ -654,6 +655,11 @@ export function findAnnotationAt(x, y, pageNum = null) {
           if (x >= ann.x && x <= ann.x + ann.width && y >= ann.y && y <= ann.y + ann.height) return ann;
         }
         break;
+      case 'caret':
+        // Invoegteken (#508): een klein teken, dus het vak groeit met de
+        // raaktolerantie.
+        if (caretHit(ann, x, y, tol)) return ann;
+        break;
       default: {
         const typeHandler = getAnnotationType(ann.type);
         if (typeHandler && typeHandler.hitTest) {
@@ -866,6 +872,10 @@ export function isPointInsideAnnotation(x, y, annotation) {
       // Fallback to bounding box
       return x >= annotation.x && x <= annotation.x + annotation.width &&
              y >= annotation.y && y <= annotation.y + annotation.height;
+
+    case 'caret':
+      // Invoegteken (#508): zelfde raakvak als in findAnnotationAt.
+      return caretHit(annotation, x, y, schermPxNaarPt(10, getEffectiveScale()));
 
     default:
       return false;

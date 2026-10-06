@@ -6,6 +6,7 @@ import { renderWatermarksBehind, renderWatermarksInFront } from '../watermark/wa
 
 // Import from sub-modules
 import { drawPolygonShape, drawCloudShape, buildPolygonPath, buildPolygonPointsPath, buildCloudPath, buildCloudPolylinePath, drawTextboxContent, isRTLText } from './rendering/shapes.js';
+import { tekstvakKnipvlak } from './rendering/textbox-layout.js';
 import { drawArrowheadOnCanvas, applyBorderStyle, drawDimensionLineEnding } from './rendering/decorations.js';
 import { catmullRomSpline } from '../tools/tools/spline-tool.js';
 import { catmullRomToBezier, splineArrowEndTangent } from './spline-arrow-geometry.js';
@@ -34,6 +35,7 @@ import { fracties as cropFracties, volledigVak as cropVolledigVak } from './crop
 import { drawEmbeddedImageOverlay } from '../tools/tools/remove-image-tool.js';
 import { updateQuickAccessButtons, updateContextualTabs, drawGrid, snapToGrid } from './rendering/ui-state.js';
 import { drawCommentIcon } from './rendering/comment-icons.js';
+import { drawCaret, strikeLine, replaceStrikeColor } from './rendering/caret.js';
 import { spatialIndex, annotationBounds } from './spatial-index.js';
 import { bitmapVoor, bijNieuweTegel } from './vector-snippet-preview.js';
 import { invalidateScaleRegionCache, pixelsPerUnitFor, getRegionScaleFactor } from './scale-region.js';
@@ -427,7 +429,7 @@ function withFillAlpha(color, fillOpacity, baseOpacity) {
   return `rgba(${r}, ${g}, ${b}, ${ratio})`;
 }
 
-export function drawAnnotation(ctx, annotation) {
+export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
   // ── Weergavefilters ────────────────────────────────────────────────────
   // Eén centraal predicaat (annotations/view-filters.js) bundelt de
   // per-annotatie `hidden`-vlag, het "Zichtbaarheid Elementen"-paneel
@@ -583,7 +585,9 @@ export function drawAnnotation(ctx, annotation) {
       //     V. Use a tiny shortening (just enough to keep the line tip from
       //     poking past the V tip with thick strokes).
       const FILLED_HEADS = new Set(['closed', 'closedReversed', 'diamond', 'square', 'circle']);
-      const isHeadFilled = (s) => FILLED_HEADS.has(s);
+      // A closed head without /IC from another program is hollow: the line
+      // runs into it like into an open head.
+      const isHeadFilled = (s) => FILLED_HEADS.has(s) && annotation.headFill !== false;
       const aDx = annotation.endX - annotation.startX;
       const aDy = annotation.endY - annotation.startY;
       const aLen = Math.sqrt(aDx * aDx + aDy * aDy);
@@ -612,12 +616,12 @@ export function drawAnnotation(ctx, annotation) {
 
       if (endHead !== 'none') {
         const endAngle = Math.atan2(aDy, aDx);
-        drawArrowheadOnCanvas(offCtx, annotation.endX, annotation.endY, endAngle, headSize, endHead);
+        drawArrowheadOnCanvas(offCtx, annotation.endX, annotation.endY, endAngle, headSize, endHead, { hol: annotation.headFill === false });
       }
 
       if (startHead !== 'none') {
         const startAngle = Math.atan2(-aDy, -aDx);
-        drawArrowheadOnCanvas(offCtx, annotation.startX, annotation.startY, startAngle, headSize, startHead);
+        drawArrowheadOnCanvas(offCtx, annotation.startX, annotation.startY, startAngle, headSize, startHead, { hol: annotation.headFill === false });
       }
 
       // Composite the offscreen arrow onto the main canvas with opacity
@@ -1136,10 +1140,14 @@ export function drawAnnotation(ctx, annotation) {
       }
 
       // Allow text to overflow slightly beyond textbox bounds
-      // (other PDF viewers show overflow text; hard clipping hides words at edges)
-      ctx.beginPath();
-      ctx.rect(annotation.x - 2, annotation.y - 2, tbWidth + 4, tbHeight + 4);
-      ctx.clip();
+      // (other PDF viewers show overflow text; hard clipping hides words at edges).
+      // Een typemachine-tekst knipt niet: zie tekstvakKnipvlak.
+      const tbKnip = tekstvakKnipvlak(annotation, tbWidth, tbHeight);
+      if (tbKnip) {
+        ctx.beginPath();
+        ctx.rect(tbKnip.x, tbKnip.y, tbKnip.width, tbKnip.height);
+        ctx.clip();
+      }
 
       // Draw text content
       drawTextboxContent(ctx, annotation);
@@ -1269,7 +1277,8 @@ export function drawAnnotation(ctx, annotation) {
       const zoom = (vpz && vpz.active)
         ? vpz.zoom
         : (state.documents[state.activeDocumentIndex]?.scale || 1);
-      const bmp = bitmapVoor(annotation, zoom);
+      const bmp = snippetBitmaps ? snippetBitmaps.get(annotation) : bitmapVoor(annotation, zoom);
+      if (snippetBitmaps && !bmp) throw new Error('Vectorknipsel ontbreekt in uitvoer');
       ctx.save();
       const kcx = annotation.x + annotation.width / 2;
       const kcy = annotation.y + annotation.height / 2;
@@ -1411,26 +1420,37 @@ export function drawAnnotation(ctx, annotation) {
       }
       break;
 
-    case 'textStrikethrough':
-      // Draw strikethrough line through the middle of each text rect
-      ctx.strokeStyle = strokeColor;
+    case 'textStrikethrough': {
+      // Doorhaallijn door het midden van elk tekstvak; bij verticale tekst
+      // (textDir 90/270) langs de tekst. De doorhaling van een vervanging
+      // (#508) krijgt de kleur van haar invoegteken, zoals ze ook opgeslagen
+      // wordt; een weergavetint gaat voor.
+      const ouderKleur = _evHalftone?.color ? null
+        : replaceStrikeColor(annotation, state.documents[state.activeDocumentIndex]?.annotations);
+      ctx.strokeStyle = ouderKleur || strokeColor;
       ctx.lineWidth = thinLw(annotation.lineWidth ?? 1);
       ctx.lineCap = 'round';
       if (annotation.rects && annotation.rects.length > 0) {
         annotation.rects.forEach(rect => {
-          const midY = rect.y + rect.height / 2;
+          const [van, tot] = strikeLine(rect, annotation.textDir);
           ctx.beginPath();
-          ctx.moveTo(rect.x, midY);
-          ctx.lineTo(rect.x + rect.width, midY);
+          ctx.moveTo(van.x, van.y);
+          ctx.lineTo(tot.x, tot.y);
           ctx.stroke();
         });
       } else {
-        const midY = annotation.y + annotation.height / 2;
+        const [van, tot] = strikeLine(annotation, annotation.textDir);
         ctx.beginPath();
-        ctx.moveTo(annotation.x, midY);
-        ctx.lineTo(annotation.x + annotation.width, midY);
+        ctx.moveTo(van.x, van.y);
+        ctx.lineTo(tot.x, tot.y);
         ctx.stroke();
       }
+      break;
+    }
+
+    case 'caret':
+      // Invoegteken (#508): dezelfde vorm als zijn appearance in de PDF.
+      drawCaret(ctx, annotation, fillColor);
       break;
 
     case 'textUnderline':
@@ -1980,6 +2000,12 @@ export function drawAnnotation(ctx, annotation) {
         dimOvershootEnds: annotation.dimOvershootEnds,
         dimExtGapMm: annotation.dimExtGapMm,
         dimExtOvershootMm: annotation.dimExtOvershootMm,
+        // Opmaak van een maat uit een ander programma (loader/maatlijn-uit-
+        // bestand.js): holle punten, bijschrift in de lijn, eigen tekstkleur.
+        headFill: annotation.headFill,
+        textPosition: annotation.dimTextPosition,
+        labelColor: _evHalftone?.color ? strokeColor : annotation.labelColor,
+        lineWidth: annotation.lineWidth ?? 1,
       });
       break;
     }
@@ -2102,14 +2128,14 @@ export function drawAnnotation(ctx, annotation) {
       if (mpStartHead !== 'none' && mpPts.length >= 2) {
         const startAngle = Math.atan2(mpPts[0].y - mpPts[1].y, mpPts[0].x - mpPts[1].x);
         ctx.fillStyle = strokeColor;
-        drawDimensionLineEnding(ctx, mpPts[0].x, mpPts[0].y, startAngle, mpHeadSize, mpStartHead);
+        drawDimensionLineEnding(ctx, mpPts[0].x, mpPts[0].y, startAngle, mpHeadSize, mpStartHead, { hol: annotation.headFill === false });
       }
       if (mpEndHead !== 'none' && mpPts.length >= 2) {
         const last = mpPts[mpPts.length - 1];
         const prev = mpPts[mpPts.length - 2];
         const endAngle = Math.atan2(last.y - prev.y, last.x - prev.x);
         ctx.fillStyle = strokeColor;
-        drawDimensionLineEnding(ctx, last.x, last.y, endAngle, mpHeadSize, mpEndHead);
+        drawDimensionLineEnding(ctx, last.x, last.y, endAngle, mpHeadSize, mpEndHead, { hol: annotation.headFill === false });
       }
 
       if (annotation.measureText && mpPts.length > 0) {
@@ -3067,13 +3093,13 @@ export function renderAnnotationsForPage(ctx, pageNum, width, height, overrideDp
   // er geen bewerkingstoestand in de uitvoer hoort.
   _lagen = opties ? lagen : null;
   try {
-    tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims, lagen, weergave);
+    tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims, lagen, weergave, opties?.snippetBitmaps);
   } finally {
     _lagen = null;
   }
 }
 
-function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims, lagen, weergave) {
+function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset, pageDims, lagen, weergave, snippetBitmaps) {
   ctx.clearRect(0, 0, width, height);
 
   // Read scale and annotations from the active document directly
@@ -3119,7 +3145,7 @@ function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset
   metSchaalBronnen(() => annotations.forEach(annotation => {
     if (annotation.page !== pageNum) return;
     if (_buitenBeeld(annotation, cvX, cvY, cvW, cvH)) return;
-    drawAnnotation(ctx, annotation);
+    drawAnnotation(ctx, annotation, snippetBitmaps);
   }));
 
   // Draw watermarks in front of content

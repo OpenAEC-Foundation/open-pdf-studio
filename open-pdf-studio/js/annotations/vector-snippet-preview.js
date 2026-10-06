@@ -12,7 +12,7 @@ import { padVan, bytesVan } from './vector-snippet-store.js';
 import { weergaveVak, paginaRotatie } from '../pdf/vector-embed.js';
 
 /** Zoomniveaus waarop we rasteren. Tussenliggende zoom gebruikt de eerstvolgende. */
-const NIVEAUS = [1, 2, 4, 8, 16];
+const NIVEAUS = [0.125, 0.25, 0.5, 1, 2, 4, 8, 16];
 
 /** Boven deze pixelmaat wordt niet verder verscherpt — anders lopen zware
  *  knipsels het geheugen in. */
@@ -20,8 +20,12 @@ const MAX_PIXELS = 4096;
 
 const _bitmaps = new Map();   // `${sleutel}|${vakSleutel}|${niveau}` -> ImageBitmap
 const _bezig = new Map();     // dezelfde sleutel -> lopende belofte (in-flight dedupe)
+const _bladData = new Map();
 const _bladen = new Map();    // snippetKey -> belofte van { cropBox, rotatie } van de mini-PDF
 let _opnieuwTekenen = null;
+let _generatie = 0;
+let _redrawGepland = false;
+const MAX_BYTES = 128 * 1024 * 1024;
 
 /** De tekenlaag geeft hier zijn hertekenfunctie af, zodat een net binnengekomen
  *  tegel meteen zichtbaar wordt. */
@@ -35,7 +39,7 @@ export function niveauVoor(zoom) {
 }
 
 const vakSleutel = (vak) =>
-  `${Math.round(vak.left)}_${Math.round(vak.bottom)}_${Math.round(vak.right)}_${Math.round(vak.top)}`;
+  `${vak.left}_${vak.bottom}_${vak.right}_${vak.top}`;
 
 /**
  * De beste bitmap die er NU is voor dit knipsel, of null. Ontbreekt het
@@ -49,34 +53,86 @@ const vakSleutel = (vak) =>
 export function bitmapVoor(ann, zoom) {
   if (!ann?.snippetKey || !ann?.srcBox) return null;
   const vs = vakSleutel(ann.srcBox);
-  const gevraagd = niveauVoor(zoom);
+  const blad = _bladData.get(ann.snippetKey);
+  const regio = blad ? weergaveVak(ann.srcBox, blad.cropBox, blad.rotatie)
+    : { width: ann.srcBox.right - ann.srcBox.left, height: ann.srcBox.top - ann.srcBox.bottom };
+  const verhouding = Math.max(ann.width / regio.width, ann.height / regio.height);
+  const gevraagd = Math.min(niveauVoor(zoom * (window.devicePixelRatio || 1) * verhouding), MAX_PIXELS / Math.max(regio.width, regio.height));
   const sleutel = `${ann.snippetKey}|${vs}|${gevraagd}`;
-
   const klaar = _bitmaps.get(sleutel);
-  if (klaar) return klaar;
-
-  vraagAan(ann, gevraagd, sleutel);
-
-  // Val terug op het beste grovere niveau dat er al is.
-  for (let i = NIVEAUS.indexOf(gevraagd) - 1; i >= 0; i--) {
-    const b = _bitmaps.get(`${ann.snippetKey}|${vs}|${NIVEAUS[i]}`);
-    if (b) return b;
+  if (klaar) {
+    _bitmaps.delete(sleutel); _bitmaps.set(sleutel, klaar);
+    return klaar;
   }
-  return null;
+  vraagAan(ann, gevraagd, sleutel);
+  // Ook een scherper bestaand beeld is bruikbaar tijdens uitzoomen.
+  const prefix = `${ann.snippetKey}|${vs}|`;
+  let beste = null, afstand = Infinity;
+  for (const [key, bmp] of _bitmaps) {
+    if (!key.startsWith(prefix)) continue;
+    const d = Math.abs(Math.log(Number(key.slice(prefix.length)) / gevraagd));
+    if (d < afstand) { beste = bmp; afstand = d; }
+  }
+  return beste;
 }
 
 function vraagAan(ann, niveau, sleutel) {
-  if (_bezig.has(sleutel)) return;          // in-flight dedupe
+  if (_bezig.has(sleutel)) return;
+  const generatie = _generatie;
   const belofte = render(ann, niveau)
     .then((bmp) => {
-      if (bmp) {
-        _bitmaps.set(sleutel, bmp);
-        if (_opnieuwTekenen) _opnieuwTekenen();
+      if (!bmp) return;
+      if (generatie !== _generatie || !bytesVan(ann.snippetKey)) { bmp.close(); return; }
+      _bitmaps.set(sleutel, bmp);
+      let bytes = [..._bitmaps.values()].reduce((n, b) => n + b.width * b.height * 4, 0);
+      for (const [key, b] of _bitmaps) {
+        if (bytes <= MAX_BYTES) break;
+        if (key === sleutel) continue;
+        bytes -= b.width * b.height * 4;
+        b.close(); _bitmaps.delete(key);
+      }
+      if (!_redrawGepland) {
+        _redrawGepland = true;
+        requestAnimationFrame(() => { _redrawGepland = false; _opnieuwTekenen?.(); });
       }
     })
-    .catch(() => { /* stil: de placeholder blijft staan */ })
-    .finally(() => { _bezig.delete(sleutel); });
+    .catch(() => { /* schermvoorvertoning mag later opnieuw proberen */ })
+    .finally(() => { if (_bezig.get(sleutel) === belofte) _bezig.delete(sleutel); });
   _bezig.set(sleutel, belofte);
+}
+
+/** Voor MCP-screenshots: voltooi previews ook als RAF gepauzeerd is. */
+export async function wachtOpKnipselPreviews(annotaties, zoom) {
+  const knipsels = annotaties.filter(a => a.type === 'vectorSnippet' && !a.hidden);
+  for (const ann of knipsels) bitmapVoor(ann, zoom);
+  await Promise.all([..._bezig.values()]);
+  for (const ann of knipsels) {
+    if (!bitmapVoor(ann, zoom)) throw new Error('Vectorknipsel-preview is niet gereed');
+  }
+}
+
+/** Uitvoer wacht onafhankelijk van schermzoom/RAF op alle benodigde knipsels.
+ * De aanroeper sluit de tijdelijke bitmaps na het tekenen. Mislukken breekt
+ * de uitvoer af: nooit ongemerkt een placeholder afdrukken.
+ */
+export async function bereidKnipselsVoorUitvoer(annotaties, schaal) {
+  const beelden = new Map();
+  try {
+    for (const ann of annotaties) {
+      if (ann.type !== 'vectorSnippet' || ann.hidden) continue;
+      const blad = await bladVan(ann.snippetKey);
+      if (!blad) throw new Error('Vectorknipsel: bron ontbreekt');
+      const regio = weergaveVak(ann.srcBox, blad.cropBox, blad.rotatie);
+      const niveau = schaal * Math.max(ann.width / regio.width, ann.height / regio.height);
+      const bmp = await render(ann, niveau);
+      if (!bmp) throw new Error('Vectorknipsel kon niet worden gerenderd');
+      beelden.set(ann, bmp);
+    }
+    return beelden;
+  } catch (err) {
+    for (const bmp of beelden.values()) bmp.close();
+    throw err;
+  }
 }
 
 async function schrijfNaarTijdelijkeMap(sleutel, bytes) {
@@ -85,6 +141,10 @@ async function schrijfNaarTijdelijkeMap(sleutel, bytes) {
   const map = await t.path.tempDir();
   const scheiding = (map.endsWith('\\') || map.endsWith('/')) ? '' : '/';
   const pad = `${map}${scheiding}opds-knipsel-${sleutel}.pdf`;
+  // De tijdelijke map staat niet vanzelf in de fs-scope; zonder dit lukt het
+  // schrijven alleen als iets anders hem eerder vrijgaf, en blijft een
+  // heropend knipsel een leeg kader.
+  await t.core.invoke('allow_fs_scope', { path: pad });
   await t.fs.writeFile(pad, bytes);
   return pad;
 }
@@ -97,7 +157,9 @@ function bladVan(sleutel) {
       if (!bytes) return null;
       const { PDFDocument } = await import('pdf-lib');
       const pagina = (await PDFDocument.load(bytes)).getPage(0);
-      return { cropBox: pagina.getCropBox(), rotatie: paginaRotatie(pagina) };
+      const blad = { cropBox: pagina.getCropBox(), rotatie: paginaRotatie(pagina) };
+      if (bytesVan(sleutel) === bytes) _bladData.set(sleutel, blad);
+      return blad;
     })().catch(() => null));
   }
   return _bladen.get(sleutel);
@@ -178,8 +240,11 @@ export function wisOngebruikteBitmaps(gebruikteSleutels) {
 }
 
 export function leegmaken() {
+  _generatie++;
+  _redrawGepland = false;
   for (const bmp of _bitmaps.values()) if (bmp && typeof bmp.close === 'function') bmp.close();
   _bitmaps.clear();
   _bezig.clear();
   _bladen.clear();
+  _bladData.clear();
 }

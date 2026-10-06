@@ -3237,7 +3237,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-studio"
-version = "2026.39.2"
+version = "2026.41.0"
 dependencies = [
  "axum",
  "base64 0.22.1",

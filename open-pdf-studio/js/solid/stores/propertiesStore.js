@@ -14,7 +14,8 @@ import { cloneAnnotation } from '../../annotations/factory.js';
 import { ondersteuntKruis, kruisZichtbaarVoorSelectie } from '../../annotations/kruis-geometrie.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { computeTextboxContentHeight } from '../../annotations/rendering/shapes.js';
-import { formatDate, getTypeDisplayName } from '../../utils/helpers.js';
+import { formatDate, getTypeDisplayName, getAnnotationDisplayName } from '../../utils/helpers.js';
+import { isTextAnchored, isFoldedChild } from '../../annotations/corrections/model.js';
 import { getAnnotationType } from '../../plugins/annotation-type-registry.js';
 import { getPropertyPanel } from '../../plugins/property-panel-registry.js';
 import { fireSelectionChange } from '../../plugins/selection-listener-registry.js';
@@ -235,12 +236,13 @@ function redraw() {
 function computeSectionVisibility(type) {
   const isTextbox = ['textbox', 'callout'].includes(type);
   const isShape = ['line', 'arrow', 'box', 'circle', 'draw', 'textbox', 'callout'].includes(type);
-  const isTextContent = type === 'text' || type === 'comment';
+  // Een invoegteken (#508) heeft de ingevoegde tekst als inhoud.
+  const isTextContent = type === 'text' || type === 'comment' || type === 'caret';
   const isImage = type === 'image';
   const isArrow = type === 'arrow';
   const isLineOrArrow = type === 'arrow' || type === 'line';
-  const isTextMarkup = ['textHighlight', 'textStrikethrough', 'textUnderline'].includes(type);
-  const hideLineWidth = ['highlight', 'comment', 'image', 'textHighlight'].includes(type);
+  const isTextMarkup = isTextAnchored({ type });
+  const hideLineWidth = ['highlight', 'comment', 'image', 'textHighlight', 'caret'].includes(type);
   const hasFillColor = ['highlight', 'box', 'circle', 'polygon', 'cloud', 'textbox', 'callout', 'arrow', 'line', 'measureArea', 'filledArea'].includes(type);
   const hideColor = ['line', 'arrow', 'box', 'circle', 'draw', 'highlight', 'image', 'textbox', 'callout', 'polygon', 'cloud', 'measureDistance', 'measureArea', 'measurePerimeter', 'filledArea'].includes(type);
   const hasBorderStyle = ['textbox', 'callout', 'arrow', 'line', 'box', 'circle', 'polygon', 'cloud', 'draw', 'polyline', 'splineArrow', 'measureDistance', 'measureArea', 'measurePerimeter', 'filledArea'].includes(type);
@@ -288,6 +290,12 @@ function computeSectionVisibility(type) {
 
 // Show properties for a single annotation
 export function storeShowProperties(annotation) {
+  // De doorhaling van een vervanging (#508) wordt getekend en opgeslagen in de
+  // kleur van haar invoegteken: het paneel bewerkt dus het invoegteken.
+  const _corrDoc = getActiveDocument();
+  if (_corrDoc && isFoldedChild(annotation, _corrDoc.annotations)) {
+    annotation = _corrDoc.annotations.find(a => a.id === annotation.inReplyTo) || annotation;
+  }
   currentAnnotation = annotation;
   // Fire plugin selection-listeners (separate from property-panel-registry):
   // gives plugins a direct channel to react to selection without scraping DOM.
@@ -297,7 +305,7 @@ export function storeShowProperties(annotation) {
   setAnnotProps({
     id: annotation.id || '',
     type: annotation.type,
-    typeDisplay: getTypeDisplayName(annotation.type),
+    typeDisplay: getAnnotationDisplayName(annotation, getActiveDocument()?.annotations),
     subject: annotation.subject || '',
     author: annotation.author || state.defaultAuthor,
     created: formatDate(annotation.createdAt),
@@ -682,12 +690,11 @@ export function storeShowMultiSelection(selected) {
   const fillColorTypes = new Set(['highlight', 'box', 'circle', 'polygon', 'cloud', 'textbox', 'callout', 'arrow', 'line']);
   const strokeColorTypes = new Set(['line', 'arrow', 'box', 'circle', 'draw', 'textbox', 'callout', 'polygon', 'cloud']);
   const hideColorTypes = new Set(['line', 'arrow', 'box', 'circle', 'draw', 'highlight', 'image', 'textbox', 'callout', 'polygon', 'cloud']);
-  const hideLineWidthTypes = new Set(['highlight', 'comment', 'image', 'textHighlight']);
+  const hideLineWidthTypes = new Set(['highlight', 'comment', 'image', 'textHighlight', 'caret']);
   const borderStyleTypes = new Set(['textbox', 'callout', 'arrow', 'line', 'box', 'circle', 'polygon', 'cloud', 'draw', 'polyline', 'splineArrow']);
   const hatchPatternTypes = new Set(['box', 'circle', 'polygon', 'cloud', 'measureArea', 'filledArea']);
   const rotationTypes = new Set(['box', 'circle', 'polygon', 'cloud', 'highlight', 'redaction', 'comment', 'stamp', 'signature']);
   const textboxTypes = new Set(['textbox', 'callout']);
-  const textMarkupTypes = new Set(['textHighlight', 'textStrikethrough', 'textUnderline']);
 
   const allSameType = sharedType !== '';
 
@@ -707,7 +714,7 @@ export function storeShowMultiSelection(selected) {
     fillColorGroup: allMatch(t => fillColorTypes.has(t)),
     strokeColorGroup: allMatch(t => strokeColorTypes.has(t)),
     strokeNoneAllowed: allMatch(t => kanZonderRand(t)),
-    colorGroup: allMatch(t => !hideColorTypes.has(t) || textMarkupTypes.has(t)),
+    colorGroup: allMatch(t => !hideColorTypes.has(t) || isTextAnchored({ type: t })),
     lineWidthGroup: allMatch(t => !hideLineWidthTypes.has(t)),
     borderStyleGroup: allMatch(t => borderStyleTypes.has(t)),
     hatchPatternGroup: allMatch(t => hatchPatternTypes.has(t)),

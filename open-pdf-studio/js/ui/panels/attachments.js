@@ -1,3 +1,4 @@
+import { pdfjsRecord } from '../../pdf/pdfjs-record.js';
 import i18next from '../../i18n/config.js';
 import { getActiveDocument } from '../../core/state.js';
 import { isTauri, writeBinaryFile, readBinaryFile } from '../../core/platform.js';
@@ -284,6 +285,7 @@ async function reloadDocumentFromBytes(activeDoc, bytes) {
     cMapUrl: '/pdfjs/web/cmaps/',
     cMapPacked: true,
     standardFontDataUrl: '/pdfjs/web/standard_fonts/',
+    wasmUrl: '/pdfjs/web/wasm/',
     isEvalSupported: false,
     verbosity: 0,
   }).promise;
@@ -340,7 +342,7 @@ export async function updateAttachmentsList() {
     let attachments = null;
 
     if (typeof pdfDoc.getAttachments === 'function') {
-      attachments = await pdfDoc.getAttachments();
+      attachments = pdfjsRecord(await pdfDoc.getAttachments());
     }
 
     if (!attachments || Object.keys(attachments).length === 0) {

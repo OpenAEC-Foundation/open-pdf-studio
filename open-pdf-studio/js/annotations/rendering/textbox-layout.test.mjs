@@ -172,3 +172,46 @@ test('de editor laat een vak met /DS-inzet niet groeien binnen dezelfde tolerant
   assert.equal(editorGroei(3, { lineWidth: 1 }, 2), 3, 'zonder /DS-inzet groeit het zoals altijd');
   assert.equal(editorGroei(-4, ann, 11), 0);
 });
+
+// ── Typemachine-tekst: geen woordafbreking (noWrap) ─────────────────────────
+//
+// Breedtes zoals Chromium ze meet in de font van het bestand; het vak is
+// precies de breedte die het andere programma voor de tekst rekende.
+const TYPEMACHINE_BREEDTE = { 'M.D. ': 28.9639, 'M.D.': 25.4775, Vroegindeweij: 74.375, 'M.D. Vroegindeweij': 103.3389 };
+const meetTypemachine = (t) => TYPEMACHINE_BREEDTE[t] ?? t.length * 6;
+
+test('noWrap: een regel die een fractie te breed is blijft één regel', () => {
+  const lines = layoutTextboxLines({ text: 'M.D. Vroegindeweij', noWrap: true }, 103.33398, meetTypemachine);
+  assert.equal(tekst(lines), 'M.D. Vroegindeweij');
+  assert.equal(lines[0].width, 103.3389);
+});
+
+test('zonder noWrap breekt dezelfde regel af (gewoon tekstvak)', () => {
+  const lines = layoutTextboxLines({ text: 'M.D. Vroegindeweij' }, 103.33398, meetTypemachine);
+  assert.equal(tekst(lines), 'M.D.|Vroegindeweij');
+});
+
+test('noWrap: een harde regelovergang blijft een nieuwe regel, opmaak blijft', () => {
+  assert.equal(tekst(layoutTextboxLines({ text: 'a\nb', noWrap: true }, 1, meet)), 'a|b');
+  const ann = { text: 'een twee drie vier', noWrap: true, textRuns: [[{ text: 'een ' }, { text: 'twee drie vier', bold: true }]] };
+  const lines = layoutTextboxLines(ann, 20, meet);
+  assert.equal(lines.length, 1);
+  assert.deepEqual(lines[0].chunks.map(c => [c.text, c.bold]), [['een ', false], ['twee drie vier', true]]);
+});
+
+test('noWrap: knipvlak alleen voor een gewoon tekstvak', async () => {
+  // Het canvas knipt de tekst op het vak (±2 pt). Een typemachine-tekst mag
+  // er horizontaal overheen lopen, zoals in andere lezers.
+  const { tekstvakKnipvlak } = await import('./textbox-layout.js');
+  assert.deepEqual(tekstvakKnipvlak({ x: 10, y: 20 }, 100, 17), { x: 8, y: 18, width: 104, height: 21 });
+  assert.equal(tekstvakKnipvlak({ x: 10, y: 20, noWrap: true }, 100, 17), null);
+});
+
+test('het canvas knipt een tekstvak met tekstvakKnipvlak', async () => {
+  // rendering.js draait niet onder kale node; de aansluiting via de bron.
+  const { readFileSync } = await import('node:fs');
+  const bron = readFileSync(new URL('../rendering.js', import.meta.url), 'utf8');
+  const tak = bron.slice(bron.indexOf("case 'textbox':"), bron.indexOf("case 'callout':"));
+  assert.match(tak, /tekstvakKnipvlak\(annotation, tbWidth, tbHeight\)/);
+  assert.doesNotMatch(tak, /ctx\.rect\(annotation\.x - 2/);
+});
