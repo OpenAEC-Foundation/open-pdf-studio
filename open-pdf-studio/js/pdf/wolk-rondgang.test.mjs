@@ -91,7 +91,7 @@ async function gelezen(bytes) {
   const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
   const doc = await pdfjs.getDocument({ data: bytes.slice(), isEvalSupported: false, verbosity: 0 }).promise;
   const [annot] = await (await doc.getPage(1)).getAnnotations();
-  await doc.destroy();
+  await doc.loadingTask.destroy();
   const viaPdfLib = await PDFDocument.load(bytes.slice());
   const extra = zoekExtraKleuren(await extractAnnotationColors(1, viaPdfLib), annot.rect) || {};
   return { annot, extra };

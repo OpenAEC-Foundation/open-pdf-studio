@@ -1,6 +1,7 @@
 import { state, getActiveDocument, imageCache } from '../core/state.js';
 import { cloneAnnotation } from './factory.js';
 import { cloneAnnotationsInPlace } from './paste-in-place.js';
+import { relinkPastedCorrections } from './corrections/model.js';
 import { generateImageId } from '../utils/helpers.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
 import { showProperties, showMultiSelectionProperties } from '../ui/panels/properties-panel.js';
@@ -239,6 +240,9 @@ export function pasteAnnotation() {
   newAnnotation.page = getActiveDocument()?.currentPage || 1;
   newAnnotation.createdAt = new Date().toISOString();
   newAnnotation.modifiedAt = new Date().toISOString();
+  // Een losse helft van een vervanging (#508) hoort niet bij het origineel;
+  // de kopie krijgt bij opslaan een eigen /NM.
+  relinkPastedCorrections([state.clipboardAnnotation], [newAnnotation]);
 
   // For images/signatures, need to copy the cached image
   if (newAnnotation.type === 'image' || newAnnotation.type === 'signature') {
@@ -328,10 +332,12 @@ export function pasteAnnotations() {
       newAnn.imageId = newImageId;
     }
 
-    const _pasteDoc3 = getActiveDocument();
-    if (_pasteDoc3) _pasteDoc3.annotations.push(newAnn);
     newAnnotations.push(newAnn);
   }
+  // Vervangingen (#508) koppelen aan hun eigen kopie, niet aan het origineel.
+  relinkPastedCorrections(state.clipboardAnnotations, newAnnotations);
+  const _pasteDocAdd = getActiveDocument();
+  if (_pasteDocAdd) _pasteDocAdd.annotations.push(...newAnnotations);
 
   recordBulkAdd(newAnnotations);
   const _pasteDoc3 = getActiveDocument();

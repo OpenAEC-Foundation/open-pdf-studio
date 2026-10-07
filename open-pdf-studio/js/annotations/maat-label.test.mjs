@@ -73,6 +73,28 @@ test('maattekst leest van onder of van rechts, nooit op zijn kop', () => {
   bijna(leesbareHoek(-Math.PI / 2), -Math.PI / 2);
 });
 
+test('een bijna staande maat leest net als een staande van onder naar boven', () => {
+  const graden = (r) => r * 180 / Math.PI;
+  const rad = (g) => g * Math.PI / 180;
+  const bijna = (a, b) => assert.ok(Math.abs(a - b) < 1e-9, `${a} ≈ ${b}`);
+  // Twee staande maten uit een ander programma (weergavehoeken van 2,9 m en
+  // 2,8 m): allebei van onder naar boven, dus rond -90°, niet de een links en
+  // de ander rechts.
+  bijna(graden(leesbareHoek(rad(-90.13))), -90.13);
+  bijna(graden(leesbareHoek(rad(-88.91))), -88.91);
+  // Dezelfde lijnen andersom getekend.
+  bijna(graden(leesbareHoek(rad(89.87))), -90.13);
+  bijna(graden(leesbareHoek(rad(91.09))), -88.91);
+  // Precies staand en precies liggend blijft zoals het was.
+  bijna(leesbareHoek(Math.PI / 2), -Math.PI / 2);
+  bijna(leesbareHoek(-Math.PI / 2), -Math.PI / 2);
+  bijna(leesbareHoek(0), 0);
+  bijna(leesbareHoek(Math.PI), 0);
+  // Buiten de tolerantie van 1° blijft de oude regel: 2° naast staand klapt om.
+  bijna(graden(leesbareHoek(rad(-92))), 88);
+  bijna(graden(leesbareHoek(rad(88))), 88);
+});
+
 test('de opgeslagen appearance is ruim genoeg voor de tekst boven de lijn', () => {
   const opties = { fontSize: 7, startHead: 'openCircle', endHead: 'openCircle', headSize: 8 };
   assert.equal(maatLabelRuimte({ ...opties, tekst: '' }), 5, 'zonder tekst de oude rand');

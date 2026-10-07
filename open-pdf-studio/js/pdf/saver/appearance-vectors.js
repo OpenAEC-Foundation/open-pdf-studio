@@ -21,6 +21,7 @@ import { catmullRomToBezier, splineArrowEndTangent } from '../../annotations/spl
 import { toWinAnsiText, winAnsiLiteral } from './pdf-text.js';
 import { maatTekstMarge, leesbareHoek } from '../../annotations/maat-label.js';
 import { maatlijnGeometrie } from '../../annotations/maatlijn-geometrie.js';
+import { inlineMaatlijn, helveticaBreedte, HOOFDLETTER_HOOGTE } from '../../annotations/maatlijn-inline.js';
 import { klemMaat, MIN_VORM_MAAT_PT } from '../../annotations/minimummaat.js';
 import {
   rotToWorld as srRotToWorld,
@@ -411,9 +412,10 @@ function maatLabelOps({ text, startX, startY, endX, endY, offsetX, offsetY, font
 // measureDistance: dimension line + extension lines + label above the line.
 // `fontSize`, `startHead`/`endHead`/`headSize` or an explicit `marge` place
 // the label exactly as the screen does (maat-label.js).
+// `labelColorHex`: eigen tekstkleur (overgenomen uit /RC), anders de lijnkleur.
 export function buildMeasureDistanceAP({ startX, startY, endX, endY,
   leaderStartX, leaderStartY, leaderEndX, leaderEndY,
-  X, Y, strokeColorHex, lineWidth, borderStyle, text, textOffsetX, textOffsetY,
+  X, Y, strokeColorHex, labelColorHex, lineWidth, borderStyle, text, textOffsetX, textOffsetY,
   fontSize, startHead, endHead, headSize, marge,
   extension, dimLineOvershootMm, dimOvershootEnds, dimExtGapMm, dimExtOvershootMm }) {
   const stroke = hexToRgb(strokeColorHex || '#ff0000');
@@ -434,11 +436,71 @@ export function buildMeasureDistanceAP({ startX, startY, endX, endY,
   if (text) {
     s += maatLabelOps({
       text, startX, startY, endX, endY, offsetX: textOffsetX, offsetY: textOffsetY,
-      fontSize, colorRgb: stroke, X, Y,
+      fontSize, colorRgb: labelColorHex ? hexToRgb(labelColorHex) : stroke, X, Y,
       marge: marge ?? maatTekstMarge({ fontSize, startHead, endHead, headSize }),
     });
   }
   return { content: s, needsFont: !!text };
+}
+
+// measureDistance met het bijschrift IN de lijn (dimTextPosition 'inline',
+// een maat uit een ander programma): hulplijnen, de maatlijn onderbroken
+// voor de tekst, de punten (hol als `headFill` false is) en de tekst midden
+// op de lijn, zoals het scherm (annotations/maatlijn-inline.js). `draaiing`
+// (radialen) is de paginarotatie: de tekst leest van onder of van links op
+// de GEDRAAIDE pagina, zoals op het scherm.
+export function buildInlineMaatAP({ startX, startY, endX, endY,
+  leaderStartX, leaderStartY, leaderEndX, leaderEndY,
+  X, Y, strokeColorHex, labelColorHex, lineWidth, borderStyle, text, textOffsetX, textOffsetY,
+  fontSize, startHead, endHead, headSize, headFill, draaiing = 0,
+  extension, dimLineOvershootMm, dimOvershootEnds, dimExtGapMm, dimExtOvershootMm }) {
+  const stroke = hexToRgb(strokeColorHex || '#ff0000');
+  const lw = lineWidth ?? 1;
+  const fs = fontSize > 0 ? fontSize : 11;
+  const kop = headSize || 12;
+  let s = `${f(stroke[0])} ${f(stroke[1])} ${f(stroke[2])} RG\n${f(lw)} w\n${dashOp(borderStyle)}`;
+  const geo = maatlijnGeometrie({
+    startX, startY, endX, endY, leaderStartX, leaderStartY, leaderEndX, leaderEndY,
+    headSize: kop, extension, dimLineOvershootMm, dimOvershootEnds, dimExtGapMm, dimExtOvershootMm,
+  });
+  for (const h of geo.hulplijnen) {
+    s += `${f(X(h.x1))} ${f(Y(h.y1))} m ${f(X(h.x2))} ${f(Y(h.y2))} l S\n`;
+  }
+  const shown = text ? toWinAnsiText(text, { newlines: 'space' }) : '';
+  const tw = helveticaBreedte(shown, fs);
+  const il = inlineMaatlijn({
+    startX, startY, endX, endY, leaderStartX, leaderStartY, leaderEndX, leaderEndY,
+    lineWidth: lw, headSize: kop, startHead, endHead, tekstBreedte: tw, fontSize: fs,
+    tekstOffsetX: textOffsetX, tekstOffsetY: textOffsetY, draaiing,
+  });
+  for (const l of il.lijnstukken) {
+    s += `${f(X(l.x1))} ${f(Y(l.y1))} m ${f(X(l.x2))} ${f(Y(l.y2))} l S\n`;
+  }
+  for (const k of il.koppen) {
+    // Zoals drawDimensionLineEnding: cirkel, ruit en vierkant gecentreerd en
+    // ongevuld, de schuine streep 30° gedraaid.
+    const leeg = k.stijl === 'circle' || k.stijl === 'diamond' || k.stijl === 'square';
+    const schuif = k.stijl === 'circle' ? kop / 3 : leeg ? kop / 2 : 0;
+    const hoek = k.stijl === 'slash' ? k.hoek + Math.PI / 6 : k.hoek;
+    s += lineHeadOps(k.x + Math.cos(k.hoek) * schuif, k.y + Math.sin(k.hoek) * schuif, hoek, kop, k.stijl,
+      stroke, null, lw, X, Y, { hol: headFill === false || leeg });
+  }
+  if (shown) {
+    // Midden van de hoofdletters op het tekstpunt: de basislijn ligt een
+    // halve hoofdletterhoogte "onder" de tekst, het begin een halve breedte terug.
+    const a = il.tekst.hoek;
+    const dir = { x: Math.cos(a), y: Math.sin(a) };
+    const up = { x: Math.sin(a), y: -Math.cos(a) };
+    const half = fs * HOOFDLETTER_HOOGTE / 2;
+    const bx = il.tekst.x - dir.x * tw / 2 - up.x * half;
+    const by = il.tekst.y - dir.y * tw / 2 - up.y * half;
+    const kleur = labelColorHex ? hexToRgb(labelColorHex) : stroke;
+    const c = Math.cos(-a), sn = Math.sin(-a);
+    s += `BT\n/Helv ${f(fs)} Tf\n${f(kleur[0])} ${f(kleur[1])} ${f(kleur[2])} rg\n`;
+    s += `${f(c)} ${f(sn)} ${f(-sn)} ${f(c)} ${f(X(bx))} ${f(Y(by))} Tm\n`;
+    s += `(${escapePdfText(text)}) Tj\nET\n`;
+  }
+  return { content: s, needsFont: !!shown };
 }
 
 // wall: fill band (bg colour) + optional material hatch + outline. `bandPoints`
@@ -793,8 +855,9 @@ const _KAPPA = 0.5522847498;
 
 // One line ending at tip (tx,ty), pointing along `angle` (app space), as
 // drawArrowheadOnCanvas draws it. Filled shapes use the thin (≤1) outline the
-// screen uses so the visual tip stays on the end point.
-function lineHeadOps(tx, ty, angle, size, style, strokeRgb, fillRgb, lineWidth, X, Y) {
+// screen uses so the visual tip stays on the end point. `hol`: a closed shape
+// without a fill (PDF /LE without /IC), only its outline at the full width.
+function lineHeadOps(tx, ty, angle, size, style, strokeRgb, fillRgb, lineWidth, X, Y, { hol = false } = {}) {
   const cos = Math.cos(angle), sin = Math.sin(angle);
   const pt = (lx, ly) => `${f(X(tx + lx * cos - ly * sin))} ${f(Y(ty + lx * sin + ly * cos))}`;
   const poly = (pts, close) => pts.map((p, i) => `${pt(p[0], p[1])} ${i ? 'l' : 'm'}`).join(' ') + (close ? ' h' : '');
@@ -810,8 +873,8 @@ function lineHeadOps(tx, ty, angle, size, style, strokeRgb, fillRgb, lineWidth, 
   const fill = fillRgb || strokeRgb;
   const stroked = (path, join = 0) =>
     `${f(lineWidth)} w\n${join} j\n[] 0 d\n${path}\nS\n`;
-  const filled = (path) =>
-    `${f(Math.min(lineWidth, 1))} w\n0 j\n[] 0 d\n${f(fill[0])} ${f(fill[1])} ${f(fill[2])} rg\n${path}\nB\n`;
+  const filled = (path) => (hol ? stroked(path)
+    : `${f(Math.min(lineWidth, 1))} w\n0 j\n[] 0 d\n${f(fill[0])} ${f(fill[1])} ${f(fill[2])} rg\n${path}\nB\n`);
   switch (style) {
     case 'open':
     case 'stealth':        return stroked(poly([[-s, -w], [0, 0], [-s, w]]), 1);
@@ -834,9 +897,10 @@ function lineHeadOps(tx, ty, angle, size, style, strokeRgb, fillRgb, lineWidth, 
 const _FILLED_LINE_HEADS = new Set(['closed', 'closedReversed', 'diamond', 'square', 'circle']);
 
 // line + arrow: the stroke stops at the base of a filled head (and just short
-// of the tip of an open one), exactly as the screen shortens it.
+// of the tip of an open one), exactly as the screen shortens it. `headFill`
+// false: closed heads are hollow (outline only) and the line runs into them.
 export function buildLineAP({ startX, startY, endX, endY, X, Y, strokeColorHex, fillColorHex,
-  lineWidth, borderStyle, startHead, endHead, headSize }) {
+  lineWidth, borderStyle, startHead, endHead, headSize, headFill }) {
   const dx = endX - startX, dy = endY - startY;
   const len = Math.hypot(dx, dy);
   if (!(len > 0)) return null;
@@ -848,14 +912,15 @@ export function buildLineAP({ startX, startY, endX, endY, X, Y, strokeColorHex, 
   const kopBegin = startHead && startHead !== 'none' ? startHead : null;
   const kopEind = endHead && endHead !== 'none' ? endHead : null;
   const ux = dx / len, uy = dy / len;
-  const inkorting = (kop) => (_FILLED_LINE_HEADS.has(kop) ? size : Math.min(lw * 0.5, 1));
+  const hol = headFill === false;
+  const inkorting = (kop) => (_FILLED_LINE_HEADS.has(kop) && !hol ? size : Math.min(lw * 0.5, 1));
   const a = kopBegin ? inkorting(kopBegin) : 0;
   const b = kopEind ? inkorting(kopEind) : 0;
 
   let s = `${f(stroke[0])} ${f(stroke[1])} ${f(stroke[2])} RG\n${f(lw)} w\n0 J 0 j\n${dashOp(borderStyle)}`;
   s += `${f(X(startX + ux * a))} ${f(Y(startY + uy * a))} m ${f(X(endX - ux * b))} ${f(Y(endY - uy * b))} l S\n`;
-  if (kopEind) s += lineHeadOps(endX, endY, Math.atan2(dy, dx), size, kopEind, stroke, fill, lw, X, Y);
-  if (kopBegin) s += lineHeadOps(startX, startY, Math.atan2(-dy, -dx), size, kopBegin, stroke, fill, lw, X, Y);
+  if (kopEind) s += lineHeadOps(endX, endY, Math.atan2(dy, dx), size, kopEind, stroke, fill, lw, X, Y, { hol });
+  if (kopBegin) s += lineHeadOps(startX, startY, Math.atan2(-dy, -dx), size, kopBegin, stroke, fill, lw, X, Y, { hol });
   return { content: s, needsFont: false };
 }
 

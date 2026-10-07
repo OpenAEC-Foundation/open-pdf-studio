@@ -118,6 +118,11 @@ const TEXT_MARKUP_BADGE = `
   <line x1="17" y1="28" x2="29" y2="28" stroke="#cc6600" stroke-width="1.2"/>
 `;
 
+// Inserted text (caret, #508): the insertion wedge
+const CARET_BADGE = `
+  <path d="M23,17 L29,29 L23,26 L17,29 Z" fill="#0066cc" stroke="white" stroke-width="0.8" stroke-linejoin="round"/>
+`;
+
 // Generic fallback: small dot
 const GENERIC_BADGE = `
   <circle cx="23" cy="24" r="5" fill="white" stroke="#666666" stroke-width="1.2"/>
@@ -147,6 +152,7 @@ const BADGE_MAP = {
   textHighlight:      TEXT_MARKUP_BADGE,
   textStrikethrough:  TEXT_MARKUP_BADGE,
   textUnderline:      TEXT_MARKUP_BADGE,
+  caret:              CARET_BADGE,
   measureDistance:     MEASURE_BADGE,
   measureArea:        MEASURE_BADGE,
   measurePerimeter:   MEASURE_BADGE,

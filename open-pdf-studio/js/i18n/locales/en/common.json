@@ -33,6 +33,8 @@
   "place": "Place",
   "draw": "Draw",
   "saved": "Saved",
+  "documentChangedDuringSave": "The document changed while saving. Save again.",
+  "documentChangedDuringExport": "The document changed during export. Start again.",
   "search": "Search",
   "find": "Find",
   "page": "Page",

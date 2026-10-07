@@ -23,8 +23,9 @@ import { selecteerRuimteVanTag } from '../../plattegrond/ruimte-selectie.js';
 import { redrawAnnotations, redrawContinuous } from '../../annotations/rendering.js';
 import { copyAnnotation, copyAnnotations, pasteFromClipboard, pasteAnnotationsInPlace, duplicateAnnotation } from '../../annotations/clipboard.js';
 import { cloneAnnotation } from '../../annotations/factory.js';
-import { commitAnnotationMutation } from '../../annotations/mutations.js';
-import { recordDelete, recordBulkDelete, recordModify, recordBulkModify } from '../../core/undo-manager.js';
+import { commitAnnotationMutation, deleteAnnotationsWithUndo } from '../../annotations/mutations.js';
+import { expandCorrectionGroups } from '../../annotations/corrections/model.js';
+import { recordModify, recordBulkModify } from '../../core/undo-manager.js';
 import { bringToFront, sendToBack, bringForward, sendBackward, rotateAnnotation, flipHorizontal, flipVertical } from '../../annotations/z-order.js';
 import { startTextEditing } from '../../tools/text-editing.js';
 import { openStickyPopup, closeStickyPopup } from '../stores/stickyNotePopupStore.js';
@@ -161,6 +162,9 @@ function AnnotationMenuContent() {
   const { t: tCommon } = useTranslation('common');
   const ann = () => targetAnnotation();
   const isLocked = () => ann()?.locked || false;
+  // Knippen, verwijderen en platmaken nemen bij een vervanging (#508) de andere
+  // helft mee: vergrendeld als een van beide helften vergrendeld is.
+  const isPaarVergrendeld = () => { const a = ann(); return !!a && expandCorrectionGroups(getActiveDocument()?.annotations, [a]).some(x => x.locked); };
   const isLineType = () => ['line', 'arrow'].includes(ann()?.type);
   const isMeasureDistance = () => ann()?.type === 'measureDistance';
   const isMeasureArea = () => ann()?.type === 'measureArea' || ann()?.type === 'filledArea';
@@ -486,13 +490,14 @@ function AnnotationMenuContent() {
         <Separator />
       </Show>
 
-      <MenuItem icon={cutIcon} label={tCommon('cut')} shortcut="Ctrl+X" disabled={isLocked()} onClick={() => {
+      <MenuItem icon={cutIcon} label={tCommon('cut')} shortcut="Ctrl+X" disabled={isPaarVergrendeld()} onClick={() => {
         const a = ann();
         const doc = getActiveDocument();
-        copyAnnotation(a);
-        const idx = (doc?.annotations || []).indexOf(a);
-        recordDelete(a, idx);
-        if (doc) doc.annotations = doc.annotations.filter(x => x !== a);
+        // Een vervanging (#508) wordt in haar geheel geknipt.
+        const weg = expandCorrectionGroups(doc?.annotations, [a]);
+        if (weg.length > 1) copyAnnotations(weg);
+        else copyAnnotation(a);
+        deleteAnnotationsWithUndo(doc, weg);
         hideProperties();
         redraw();
       }} />
@@ -516,7 +521,7 @@ function AnnotationMenuContent() {
         <Separator />
       </Show>
 
-      <MenuItem icon={deleteIcon} label={tCommon('delete')} shortcut="Delete" disabled={isLocked()} onClick={async () => {
+      <MenuItem icon={deleteIcon} label={tCommon('delete')} shortcut="Delete" disabled={isPaarVergrendeld()} onClick={async () => {
         const a = ann();
         const confirmed = await showConfirm({
           title: t('deleteAnnotation.title'),
@@ -524,15 +529,13 @@ function AnnotationMenuContent() {
           preferenceKey: 'confirmBeforeDelete'
         });
         if (confirmed) {
-          const doc = getActiveDocument();
-          const idx = (doc?.annotations || []).indexOf(a);
-          recordDelete(a, idx);
-          if (doc) doc.annotations = doc.annotations.filter(x => x !== a);
+          // Een vervanging (#508) gaat in haar geheel, met één ongedaan-stap.
+          deleteAnnotationsWithUndo(getActiveDocument(), [a]);
           hideProperties();
           redraw();
         }
       }} />
-      <MenuItem icon={flattenIcon} label={tCommon('flatten')} disabled={isLocked()} onClick={() => {
+      <MenuItem icon={flattenIcon} label={tCommon('flatten')} disabled={isPaarVergrendeld()} onClick={() => {
         const a = ann();
         if (a) {
           commitAnnotationMutation(a, annotation => { annotation.flattened = true; });
@@ -820,11 +823,11 @@ function MultiAnnotationMenuContent() {
       }} />
       <MenuItem icon={cutIcon} label={t('multiSelect.cutAnnotations', { count: count() })} onClick={() => {
         const _d = getActiveDocument();
-        const _sel = _d ? _d.selectedAnnotations : [];
+        const _sel = _d ? expandCorrectionGroups(_d.annotations, _d.selectedAnnotations) : [];
+        // Geen vergrendelde helft van een vervanging ongevraagd meenemen.
+        if (_sel.some(a => a.locked && !_d.selectedAnnotations.includes(a))) return;
         copyAnnotations(_sel);
-        recordBulkDelete(_sel);
-        const toDelete = new Set(_sel);
-        if (_d) _d.annotations = _d.annotations.filter(a => !toDelete.has(a));
+        deleteAnnotationsWithUndo(_d, _sel);
         clearSelection();
         hideProperties();
         redraw();
@@ -888,10 +891,7 @@ function MultiAnnotationMenuContent() {
         });
         if (confirmed) {
           const _d = getActiveDocument();
-          const _sel = _d ? _d.selectedAnnotations : [];
-          recordBulkDelete(_sel);
-          const toDelete = new Set(_sel);
-          if (_d) _d.annotations = _d.annotations.filter(a => !toDelete.has(a));
+          deleteAnnotationsWithUndo(_d, _d ? [..._d.selectedAnnotations] : []);
           clearSelection();
           hideProperties();
           redraw();

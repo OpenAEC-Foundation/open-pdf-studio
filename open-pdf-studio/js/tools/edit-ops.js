@@ -27,11 +27,11 @@ import { findAnnotationAt } from '../annotations/geometry.js';
 import { recordBulkAdd } from '../core/undo-manager.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { tryStartGMove } from './g-move-mode.js';
+import { isTextAnchored } from '../annotations/corrections/model.js';
 
-// Types whose position is text-anchored — excluded from move/copy targets.
-export const NON_EDITABLE_TYPES = new Set([
-  'textHighlight', 'textStrikethrough', 'textUnderline',
-]);
+// Annotations whose position is text-anchored (text markups and carets,
+// #508) — excluded from move/copy targets.
+const isNonEditable = (a) => isTextAnchored(a);
 
 function _redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
@@ -61,11 +61,11 @@ export function getEditTargets({ hover = true } = {}) {
   const doc = getActiveDocument();
   if (!doc?.pdfDoc) return [];
   let targets = (doc.selectedAnnotations || []).filter(
-    a => a && !a.locked && !NON_EDITABLE_TYPES.has(a.type)
+    a => a && !a.locked && !isNonEditable(a)
   );
   if (targets.length === 0 && hover && trackerFresh()) {
     const hovered = findAnnotationAt(state._lastMouseAppX, state._lastMouseAppY);
-    if (hovered && !hovered.locked && !NON_EDITABLE_TYPES.has(hovered.type)) {
+    if (hovered && !hovered.locked && !isNonEditable(hovered)) {
       doc.selectedAnnotations = [hovered];
       doc.selectedAnnotation = hovered;
       targets = [hovered];

@@ -74,6 +74,17 @@ export function textboxTekstBreedte(ann) {
   return (ann?.width || 150) - 2 * textboxTekstInzet(ann);
 }
 
+/**
+ * Het knipvlak voor de tekst op het canvas: het vak met 2 pt speling, want
+ * andere lezers tonen tekst die net over de rand loopt. Een typemachine-tekst
+ * (noWrap) breekt niet af en mag horizontaal over het vak lopen: geen knipvlak.
+ * @returns {{x:number,y:number,width:number,height:number}|null}
+ */
+export function tekstvakKnipvlak(ann, breedte, hoogte) {
+  if (ann?.noWrap) return null;
+  return { x: ann.x - 2, y: ann.y - 2, width: breedte + 4, height: hoogte + 4 };
+}
+
 /** Platte tekst van run-regels. */
 export function runsToText(lines) {
   return (lines || []).map(r => (r || []).map(x => String(x?.text ?? '')).join('')).join('\n');
@@ -184,12 +195,15 @@ function trimEinde(delen) {
 }
 
 /**
- * Breekt de regels van een tekstvlak af op `maxWidth`.
+ * Breekt de regels van een tekstvlak af op `maxWidth`. Een typemachine-tekst
+ * (`noWrap`, /IT /FreeTextTypewriter) breekt alleen op een harde
+ * regelovergang en mag breder zijn dan het vak.
  * @returns {Array<{chunks: Array<{text,bold,italic,color?,underline?,strikethrough?}>, width: number}>}
  *   Eén element per uitvoerregel; een lege bronregel geeft { chunks: [], width: 0 }.
  */
 export function layoutTextboxLines(ann, maxWidth, measure) {
   const uit = [];
+  const afbreken = !ann?.noWrap;
   for (const runs of textboxLineRuns(ann)) {
     if (!runs.length) { uit.push({ chunks: [], width: 0 }); continue; }
     const woorden = woordenVanRegel(runs);
@@ -208,7 +222,7 @@ export function layoutTextboxLines(ann, maxWidth, measure) {
       // vroeger deed) — een woord dat alleen dankzij zijn eigen afsluitende
       // spatie net over maxWidth gaat, hoort niet vroegtijdig af te breken.
       const woordBreedteVoorPast = meetDelen(trimEinde(w.delen), measure);
-      if (!eerste && regelBreedte + woordBreedteVoorPast > maxWidth) {
+      if (afbreken && !eerste && regelBreedte + woordBreedteVoorPast > maxWidth) {
         const klaar = trimEinde(voegSamen(regel));
         uit.push({ chunks: klaar, width: meetDelen(klaar, measure) });
         regel = [...w.delen];

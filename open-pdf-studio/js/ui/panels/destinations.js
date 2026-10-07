@@ -1,3 +1,4 @@
+import { pdfjsRecord } from '../../pdf/pdfjs-record.js';
 import i18next from '../../i18n/config.js';
 import { getActiveDocument } from '../../core/state.js';
 import { goToPage } from '../../pdf/renderer.js';
@@ -46,7 +47,7 @@ export async function updateDestinationsList() {
       return;
     }
 
-    const destinations = await pdfDoc.getDestinations();
+    const destinations = pdfjsRecord(await pdfDoc.getDestinations());
 
     if (!destinations || Object.keys(destinations).length === 0) {
       destinationsMap = {};

@@ -15,8 +15,9 @@ import { hasStroke } from '../annotations/fill-utils.js';
 import { textboxTekstInzet } from '../annotations/rendering/textbox-layout.js';
 
 /**
- * De CSS voor rand en opvulling van de editor, in schermpixels.
- * @param {{ lineWidth?: number, strokeColor?: string }} ann
+ * De CSS voor rand en opvulling van de editor, in schermpixels. Een
+ * typemachine-tekst (noWrap) breekt ook in de editor niet af.
+ * @param {{ lineWidth?: number, strokeColor?: string, noWrap?: boolean }} ann
  * @param {number} scale
  */
 export function editorVakOpmaak(ann, scale) {
@@ -26,5 +27,6 @@ export function editorVakOpmaak(ann, scale) {
     border: 'none',
     'box-shadow': zichtbaar ? `inset 0 0 0 ${randDikte}px ${ann.strokeColor || '#000000'}` : 'none',
     padding: `${textboxTekstInzet(ann) * scale}px`,
+    ...(ann.noWrap ? { 'white-space': 'pre' } : {}),
   };
 }

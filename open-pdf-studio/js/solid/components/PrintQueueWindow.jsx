@@ -36,7 +36,7 @@ let _pdfjs = null;
 async function getPdfjs() {
   if (_pdfjs) return _pdfjs;
   const lib = await import('pdfjs-dist');
-  try { lib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).href; } catch (_) {}
+  try { lib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/legacy/build/pdf.worker.mjs', import.meta.url).href; } catch (_) {}
   _pdfjs = lib;
   return lib;
 }
@@ -89,7 +89,7 @@ export default function PrintQueueWindow() {
       await page.render({ canvasContext: ctx, viewport: vp }).promise;
       const url = c.toDataURL('image/png');
       setThumbs(prev => ({ ...prev, [job.file]: url }));
-      try { doc.destroy(); } catch (_) {}
+      try { await doc.loadingTask.destroy(); } catch (_) {}
     } catch (_) { /* tile is best-effort */ }
   }
 

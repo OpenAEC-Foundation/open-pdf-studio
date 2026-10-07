@@ -3,9 +3,9 @@
 ## Provenance
 
 - **Source:** https://github.com/bblanchon/pdfium-binaries
-- **Release:** `chromium/7834`
-- **Download URL:** https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F7834/pdfium-win-x64.tgz
-- **Date pulled:** 2026-05-15
+- **Release:** `chromium/8076`
+- **Download URL:** https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F8076/pdfium-win-x64.tgz
+- **Date pulled:** 2026-09-30
 
 ## Files
 
@@ -15,7 +15,7 @@
 ## SHA-256
 
 ```
-a487e1d2a18f164adc3a17aacee158787fa86049e6d91d3712b0a43f745e6905  pdfium.dll
+69f1e860f6742fbaafcc4db80e785eec9a4ee0da36ea6d1dc0867ea0f18baea6  pdfium.dll
 ```
 
 ## Hoe te updaten

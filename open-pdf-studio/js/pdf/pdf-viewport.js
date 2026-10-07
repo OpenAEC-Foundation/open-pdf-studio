@@ -15,6 +15,7 @@ import {
 } from './page-bitmap-cache.js';
 import { tileCoversViewport } from './tile-coverage.js';
 import { bepaalOverlayMaat, pasOverlayMaatToe } from './overlay-canvas-size.js';
+import { maakWielScroller } from './wiel-scroll.js';
 import {
   normaliseerRotatie,
   vermenigvuldig,
@@ -275,24 +276,31 @@ async function _applyDprChange() {
   }
 }
 
-// ─── Smooth Scroll: Velocity + Momentum ────────────────────────────────────
-// Wheel-driven pan accumulates into _vx/_vy. The RAF loop then applies and
-// decays the velocity each frame so a single wheel notch glides to a smooth
-// stop instead of jumping in a single instantaneous step. Tuned to feel like
-// macOS / iOS rubber-banding scroll without rubber-band overshoot (we just
-// clamp at edges via clampAndCenter()).
-let _vx = 0;
-let _vy = 0;
-// Per-frame decay. Closer to 1 = longer glide. 0.88 ≈ velocity halves in
-// ~5 frames (~83ms @ 60fps); feels responsive but smooth, no over-floaty.
-const _VELOCITY_FRICTION = 0.88;
-// Hard stop threshold so we don't burn frames on sub-pixel residue.
-const _VELOCITY_MIN = 0.15;
-// How much of a wheel notch becomes velocity. The OS sends ~100 per notch;
-// we want ~25 CSS px/frame at impact, which a single notch of 100 * 0.25
-// produces. Trackpad inertia already smooths fine deltas so this scale
-// works for both.
-const _WHEEL_TO_VELOCITY = 0.25;
+// ─── Wielscrollen: korte, tijdgebonden uitloop (issue #522) ────────────────
+// Dezelfde helper als de scrollende weergaven (wiel-scroll.js). Een
+// muiswielklik schuift precies zijn delta op met een ease-out van ~180 ms die
+// de render-lus hieronder elk frame op TIJD afspeelt; touchpad-delta's gaan
+// direct door. Vroeger kreeg elke klik snelheid mee die per FRAME met 0,88
+// afnam: altijd 41 frames uitloop (0,7 s bij 60 fps, ruim 2 s op een zware
+// vectorpagina die het tempo naar 20 fps drukt) over ~2x de wieldelta.
+const _wielScroll = maakWielScroller({
+  nu: () => performance.now(),
+  verschuif: (dx, dy) => _verschuifDoorWiel(dx, dy),
+});
+
+function _verschuifDoorWiel(dx, dy) {
+  const dpr = _getDpr();
+  const vpW = _canvas ? _canvas.width / dpr : 0;
+  const vpH = _canvas ? _canvas.height / dpr : 0;
+  // Maat op het scherm: na paginarotatie én weergaverotatie.
+  const scherm = schermPaginaMaat();
+  // Alleen schuiven op een as waar de pagina niet in het venster past (zoals
+  // voorheen: anders valt er op die as niets te pannen).
+  if (dx !== 0 && scherm.w * viewport.zoom > vpW + 0.5) viewport.offsetX -= dx;
+  if (dy !== 0 && scherm.h * viewport.zoom > vpH + 0.5) viewport.offsetY -= dy;
+  viewport.dirty = true;
+  _scheduleTileRecheckAfterPan();
+}
 
 // Debounce timer for tile re-renders triggered by pan. ensureTileForCurrentView
 // is cheap when zoom <= cap (early-returns + clears tile state) but the Rust
@@ -385,28 +393,24 @@ function _scheduleTileRecheckAfterPan() {
 }
 
 /**
- * Add wheel deltas to the pan-momentum accumulator. Called from the wheel
- * handler in navigation-events.js on plain (non-ctrl) wheel events when the
- * vector viewport is active. The RAF loop applies velocity over multiple
- * frames with friction-based decay, producing smooth Apple-style scroll.
- *
- * No-op when momentum is suppressed by clamping on both axes (page fits).
+ * Pan de pagina met een wieldelta (CSS-px, zie leesWielDelta). Een
+ * muiswielklik (stap) loopt kort uit via de render-lus; touchpad- en fijne
+ * delta's worden direct toegepast. Aangeroepen vanuit navigation-events.js
+ * bij een gewoon wielevent (zonder Ctrl) als de viewport actief is.
  */
-export function addPanVelocity(dx, dy) {
-  _vx += dx * _WHEEL_TO_VELOCITY;
-  _vy += dy * _WHEEL_TO_VELOCITY;
-  viewport.dirty = true; // wake the RAF loop
+export function wielPanViewport(dx, dy, stap) {
   _anchorActive = true;  // user-positioned, don't auto-center
+  _wielScroll.wiel(dx, dy, stap);
+  viewport.dirty = true; // wake the RAF loop
 }
 
 /**
- * Halt any in-flight pan momentum. Called when a new gesture begins
+ * Halt any in-flight wheel scroll. Called when a new gesture begins
  * (pointer-down for click-pan, ctrl+wheel for zoom, edge-triggered page
- * nav) so the new gesture doesn't fight a still-decaying old one.
+ * nav) so the new gesture doesn't fight a still-running old one.
  */
 export function stopPanMomentum() {
-  _vx = 0;
-  _vy = 0;
+  _wielScroll.stop();
 }
 
 // ─── Render Loop ────────────────────────────────────────────────────────────
@@ -481,48 +485,18 @@ export function kickRedactAnts() {
 function _startLoop() {
   function tick() {
     if (viewport.active) {
-      // Apply pan momentum before the dirty check so a velocity > 0 keeps
-      // the loop alive even when nothing else marked dirty.
-      if (_vx !== 0 || _vy !== 0) {
-        const dpr = _getDpr();
-        const vpW = _canvas ? _canvas.width / dpr : 0;
-        const vpH = _canvas ? _canvas.height / dpr : 0;
-        // Maat op het scherm: na paginarotatie én weergaverotatie.
-        const _scherm = schermPaginaMaat();
-        const pageScreenW = _scherm.w * viewport.zoom;
-        const pageScreenH = _scherm.h * viewport.zoom;
-
-        // Skip the velocity update on any axis where the page already fits
-        // (clampAndCenter would just snap it back, producing a buzzy oscillation
-        // for an axis the user can't pan anyway). Also kill that axis's
-        // velocity outright so we don't waste frames decaying it.
-        if (pageScreenW > vpW + 0.5) {
-          viewport.offsetX -= _vx;
-        } else {
-          _vx = 0;
-        }
-        if (pageScreenH > vpH + 0.5) {
-          viewport.offsetY -= _vy;
-        } else {
-          _vy = 0;
-        }
-
-        // Decay
-        _vx *= _VELOCITY_FRICTION;
-        _vy *= _VELOCITY_FRICTION;
-        if (Math.abs(_vx) < _VELOCITY_MIN) _vx = 0;
-        if (Math.abs(_vy) < _VELOCITY_MIN) _vy = 0;
-
-        viewport.dirty = true;
-
-        if (_vx !== 0 || _vy !== 0) {
-          _scheduleTileRecheckAfterPan();
-        }
-      }
+      // Wieluitloop vóór de dirty-check: zolang hij loopt verschuift hij de
+      // pagina (en zet hij dirty) naar rato van de verstreken tijd.
+      if (_wielScroll.actief) _wielScroll.pomp(performance.now());
       if (viewport.dirty) {
         viewport.dirty = false;
         _render();
       }
+    } else if (_wielScroll.actief) {
+      // Doorlopende weergave zet de viewport direct uit (renderer.js). Een
+      // uitloop die blijft staan zou bij terugkomst in één keer het restant
+      // springen: hier gewoon laten vallen.
+      _wielScroll.stop();
     }
     _rafId = requestAnimationFrame(tick);
   }
@@ -920,7 +894,7 @@ function _render() {
       const style = document.createElement('style');
       style.textContent = `
         .textLayer span { color: transparent !important; }
-        .textLayer ::selection { background: rgba(0, 100, 255, 0.3) !important; }
+        .textLayer ::selection { background: #b8d8ff !important; color: #171c25 !important; }
       `;
       textLayer.prepend(style);
     }

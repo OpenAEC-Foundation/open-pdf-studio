@@ -411,3 +411,16 @@ test('verwijderOnbereikbaar: haalt alleen weg wat vanaf de trailer niet te berei
   assert.equal(doc.context.lookup(wees), undefined);
   assert.equal((await herlaad(doc)).getPageCount(), 1);
 });
+// Een ingevoegde lege pagina (pdf-lib addPage) heeft geen /Contents. embedPages
+// gooit daarop pas bij opslaan: de hele afdruk mislukte dan.
+test('een lege pagina zonder inhoud breekt de vectorafdruk niet', async () => {
+  const bron = await PDFDocument.create();
+  bron.addPage([595, 842]).drawText('eerste pagina', { x: 50, y: 700 });
+  bron.addPage([595, 842]);
+  const bytes = await bron.save();
+  assert.equal((await PDFDocument.load(bytes)).getPage(1).node.Contents(), undefined, 'de tweede pagina heeft echt geen /Contents');
+  const { pdf } = await bouwVectorPrintPdf({
+    bronBytes: bytes, paginas: [{ index: 0 }, { index: 1 }], keuzes: { ...KEUZES, papier: vel('a4') },
+  });
+  assert.equal((await herlaad(pdf)).getPageCount(), 2);
+});

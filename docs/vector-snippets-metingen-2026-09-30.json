@@ -1,0 +1,59 @@
+{
+  "results": [
+    {
+      "name": "Tekst.pdf",
+      "bytes": 158293,
+      "metadataParseMs": 62.48005300000003,
+      "miniIncludingSecondParseMs": 69.508917,
+      "miniBytes": 66694,
+      "miniReusingParsedSourceMs": 5.858934000000033,
+      "fiveSeparateEmbeddings": {
+        "buildMs": 24.941070000000025,
+        "saveMs": 21.102688999999998,
+        "outputBytes": 340172
+      },
+      "reuseOneEmbedding": {
+        "buildMs": 2.9126360000000204,
+        "saveMs": 5.648630000000026,
+        "outputBytes": 69215
+      }
+    },
+    {
+      "name": "Technische tekening.pdf",
+      "bytes": 1055395,
+      "metadataParseMs": 27.388149999999996,
+      "miniIncludingSecondParseMs": 32.759337000000016,
+      "miniBytes": 298466,
+      "miniReusingParsedSourceMs": 6.429952999999955,
+      "fiveSeparateEmbeddings": {
+        "buildMs": 27.698654999999974,
+        "saveMs": 86.42373799999996,
+        "outputBytes": 1595668
+      },
+      "reuseOneEmbedding": {
+        "buildMs": 5.074292000000014,
+        "saveMs": 20.025162000000023,
+        "outputBytes": 320628
+      }
+    },
+    {
+      "name": "Zware vector PDF.pdf",
+      "bytes": 17894799,
+      "metadataParseMs": 85.28845999999999,
+      "miniIncludingSecondParseMs": 103.978749,
+      "miniBytes": 621803,
+      "miniReusingParsedSourceMs": 12.558111999999937,
+      "fiveSeparateEmbeddings": {
+        "buildMs": 31.69502900000009,
+        "saveMs": 287.21274200000005,
+        "outputBytes": 3593297
+      },
+      "reuseOneEmbedding": {
+        "buildMs": 3.687359000000015,
+        "saveMs": 43.59249999999997,
+        "outputBytes": 719794
+      }
+    }
+  ],
+  "parallelPathWriterCalls": 5
+}

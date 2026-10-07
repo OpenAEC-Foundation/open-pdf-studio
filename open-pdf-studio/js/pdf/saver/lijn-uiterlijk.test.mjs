@@ -53,6 +53,19 @@ test('een open pijlpunt is een V zonder vulling en de lijn loopt tot vlak voor d
   assert.ok(punten(ap.content, 'l').some(([x, y]) => x === 110 && y === 780));
 });
 
+test('een holle gesloten pijlpunt (geen /IC) wordt alleen omlijnd, de lijn loopt tot vlak voor de tip', () => {
+  // Een pijl uit een ander programma met /LE ClosedArrow zonder /IC.
+  const ap = buildLineAP({ startX: 10, startY: 20, endX: 110, endY: 20, X, Y,
+    strokeColorHex: '#ff0000', lineWidth: 2, endHead: 'closed', headSize: 8, headFill: false });
+  assert.doesNotMatch(ap.content, /\b(f|B|b)\b/, 'niets gevuld');
+  assert.deepEqual(punten(ap.content, 'l')[0], [109, 780], 'zoals bij een open punt: inkorten met min(lw / 2, 1)');
+  assert.match(ap.content, /110 780 m \S+ \S+ l \S+ \S+ l h\nS\n/, 'een gesloten driehoek, omlijnd');
+  assert.match(ap.content, /\n2 w\n0 j\n\[\] 0 d\n110 780 m/, 'met de volle lijndikte');
+  // Gevuld blijft gevuld.
+  assert.match(buildLineAP({ startX: 10, startY: 20, endX: 110, endY: 20, X, Y,
+    strokeColorHex: '#ff0000', lineWidth: 2, endHead: 'closed', headSize: 8 }).content, /\bB\b/);
+});
+
 test('een beginpunt krijgt zijn eigen kop, naar buiten gericht', () => {
   const ap = buildLineAP({ startX: 10, startY: 20, endX: 110, endY: 20, X, Y,
     strokeColorHex: '#000000', lineWidth: 1, startHead: 'closed', endHead: 'none', headSize: 8 });

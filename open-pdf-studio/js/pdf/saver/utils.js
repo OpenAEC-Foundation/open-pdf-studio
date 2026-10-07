@@ -146,6 +146,46 @@ export function mapFontToPdfName(fontFamily, bold, italic) {
 }
 
 const _STANDAARD_FONTS = /^(Helvetica|Courier|Times|Symbol|ZapfDingbats)(-|$)/;
+// De twaalf standaardfonts voor tekst, precies zo gespeld: alleen van deze
+// namen heeft elke lezer de maten. 'Helvetica-Narrow' of 'Helvetica-Bold-Bold'
+// hoort er niet bij.
+const _TEKST_STANDAARDFONTS = /^(Helvetica(-Bold|-Oblique|-BoldOblique)?|Courier(-Bold|-Oblique|-BoldOblique)?|Times-(Roman|Bold|Italic|BoldItalic))$/;
+
+/** Is `naam` precies een van de twaalf standaardfonts voor tekst? */
+export function isTekstStandaardFont(naam) {
+  return _TEKST_STANDAARDFONTS.test(naam);
+}
+
+// Soort van een niet-standaard tekstvakfont, uit de naam: bepaalt de vlaggen
+// van zijn FontDescriptor en daarmee de letter waarmee een lezer hem vervangt.
+function tekstvakFontSoort(naam) {
+  const vet = /-Bold/.test(naam);
+  const cursief = /(Italic|Oblique)$/.test(naam);
+  const familie = naam.replace(/-.*$/, '').toLowerCase();
+  const mono = /mono|consol|courier|menlo|typewriter|code/.test(familie);
+  const schreef = !mono && !/sans/.test(familie)
+    && /serif|times|georgia|cambria|garamond|antiqua|palatino|bookman|baskerville|caslon|didot|bodoni|constantia|century|minion|rockwell|charter|cochin|sabon|plantin|perpetua|bell ?mt|book/.test(familie);
+  return { vet, cursief, mono, schreef };
+}
+
+/**
+ * De standaardfont waarmee een lezer zonder het font een tekstvakfont tekent:
+ * een standaardfont zichzelf, anders die met de vlaggen van zijn
+ * FontDescriptor (vaste breedte, schreef, vet, cursief). Het font is niet
+ * ingebed en heeft geen /Widths, dus dit zijn de breedtes van een lezer die de
+ * vlaggen volgt. Niet van elke lezer: pdf.js leest de breedtes op naam en neemt
+ * Helvetica voor een onbekende (zie typemachineRegelBreedte).
+ * @param {string} naam  PDF-fontnaam van mapFontToPdfName
+ * @returns {string} naam van een van de 14 standaardfonts (pdf-lib StandardFonts)
+ */
+export function vervangendeStandaardFont(naam) {
+  if (isTekstStandaardFont(naam)) return naam;
+  // Een andere Helvetica-, Courier- of Times-naam valt op zijn familie terug.
+  const { vet, cursief, mono, schreef } = tekstvakFontSoort(/^(Symbol|ZapfDingbats)(-|$)/.test(naam) ? '' : naam);
+  if (mono) return `Courier${vet || cursief ? `-${vet ? 'Bold' : ''}${cursief ? 'Oblique' : ''}` : ''}`;
+  if (schreef) return vet ? (cursief ? 'Times-BoldItalic' : 'Times-Bold') : (cursief ? 'Times-Italic' : 'Times-Roman');
+  return `Helvetica${vet || cursief ? `-${vet ? 'Bold' : ''}${cursief ? 'Oblique' : ''}` : ''}`;
+}
 
 /**
  * Het fontwoordenboek voor een tekstvak-appearance (#512). Een niet-standaard
@@ -157,12 +197,7 @@ const _STANDAARD_FONTS = /^(Helvetica|Courier|Times|Symbol|ZapfDingbats)(-|$)/;
 export function tekstvakFontDict(context, naam) {
   const font = { Type: 'Font', Subtype: 'Type1', BaseFont: naam, Encoding: 'WinAnsiEncoding' };
   if (_STANDAARD_FONTS.test(naam)) return context.obj(font);
-  const vet = /-Bold/.test(naam);
-  const cursief = /(Italic|Oblique)$/.test(naam);
-  const familie = naam.replace(/-.*$/, '').toLowerCase();
-  const mono = /mono|consol|courier|menlo|typewriter|code/.test(familie);
-  const schreef = !mono && !/sans/.test(familie)
-    && /serif|times|georgia|cambria|garamond|antiqua|palatino|bookman|baskerville|caslon|didot|bodoni|constantia|century|minion|rockwell|charter|cochin|sabon|plantin|perpetua|bell ?mt|book/.test(familie);
+  const { vet, cursief, mono, schreef } = tekstvakFontSoort(naam);
   font.FontDescriptor = context.register(context.obj({
     Type: 'FontDescriptor',
     FontName: naam,
