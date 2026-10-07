@@ -215,3 +215,13 @@ test('rejects freeze bypass when the current tile misses part of the future view
 
   assert.equal(covered, false);
 });
+
+import { tileNeedsExactRender } from './tile-render-policy.js';
+
+test('tileNeedsExactRender: een 300%-dekkingstegel op 200% is te groot, 1:1 niet', () => {
+  assert.equal(tileNeedsExactRender(3, 2, 1), true);
+  assert.equal(tileNeedsExactRender(6, 2, 2), true);
+  assert.equal(tileNeedsExactRender(2, 2, 1), false);
+  assert.equal(tileNeedsExactRender(2.03, 2, 1), false);
+  assert.equal(tileNeedsExactRender(undefined, 2, 1), false);
+});
