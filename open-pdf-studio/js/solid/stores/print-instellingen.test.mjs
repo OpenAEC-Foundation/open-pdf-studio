@@ -26,8 +26,23 @@ test('alle gekozen instellingen komen terug', () => {
     autoCenter: false,
     content: 'doc-only',
     asImage: true,
+    perSheet: 'custom',
+    sheetCols: 3,
+    sheetRows: 4,
+    sheetOrder: 'vertical-reversed',
+    sheetBorder: true,
   };
   assert.deepEqual(herstelPrintInstellingen(gekozen), gekozen);
+});
+
+test('pagina\'s per vel: een getal uit een oud bestand telt, rommel valt terug', () => {
+  assert.equal(herstelPrintInstellingen({ perSheet: 4 }).perSheet, '4');
+  const s = herstelPrintInstellingen({ perSheet: 7, sheetCols: 99, sheetRows: 'x', sheetOrder: 'diagonaal', sheetBorder: 'ja' });
+  assert.equal(s.perSheet, '1');
+  assert.equal(s.sheetCols, 10);
+  assert.equal(s.sheetRows, 2);
+  assert.equal(s.sheetOrder, 'horizontal');
+  assert.equal(s.sheetBorder, false);
 });
 
 test('onbekende keuzes en verkeerde typen vallen terug op de standaard', () => {
