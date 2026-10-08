@@ -15,6 +15,7 @@ import {
 } from './print-plaatsing.js';
 import { bouwVectorPrintPdf, maakTegelRaster, vakkenUitRaster, vakOpVel } from './print-vector.js';
 import { markeringenVoorInhoud } from '../solid/stores/print-instellingen.js';
+import { maakMeerPerBlad, isMeerPerBlad } from './print-meerperblad.js';
 import {
   startPrintProgress, updatePrintProgress, finishPrintProgress, failPrintProgress,
 } from '../solid/stores/printProgressStore.js';
@@ -168,9 +169,11 @@ async function bronBytesVan(doc) {
  * @returns {Promise<{ok:boolean, gerasterd?:boolean, afgebroken?:boolean, error?:string}>}
  */
 export async function slaPrintOpAlsPdf({
-  pages, pad, orientatie = 'auto', vel = null, schaling = 'fit', zoom = 100, centreren = true,
+  pages, pad, orientatie = 'auto', vel = null, schaling: schalingKeuze = 'fit', zoom: zoomKeuze = 100,
+  centreren: centrerenKeuze = true, meerPerBlad = null,
   inhoud = 'doc-and-markups', openen = null, afgebroken = () => false,
 }) {
+  const { schaling, zoom, centreren } = schaalVoorMeerPerBlad(meerPerBlad, schalingKeuze, zoomKeuze, centrerenKeuze);
   startPrintProgress(i18next.t('dialogs:print.progress.preparing'));
   try {
     const doc = getActiveDocument();
@@ -200,6 +203,8 @@ export async function slaPrintOpAlsPdf({
       }));
     }
 
+    pdf = await metMeerPerBlad(pdf, meerPerBlad, vel, orientatie);
+
     updatePrintProgress(i18next.t('dialogs:print.progress.saving'), pages.length / total);
     // Afgebroken (de tijdgrens van een MCP-opdracht): niets wegschrijven, want
     // de aanroeper heeft allang een foutantwoord gekregen.
@@ -224,6 +229,27 @@ export async function slaPrintOpAlsPdf({
 }
 
 /**
+ * Meerdere pagina's per vel: zet de gebouwde print-PDF (één pagina per
+ * bronpagina) om naar vellen met een raster van pagina's. Bij meer dan één per
+ * vel werkt de schaalkeuze niet (elke pagina past in zijn cel): de bronpagina's
+ * worden dan passend en gecentreerd gebouwd.
+ * @param {PDFDocument} pdf
+ * @param {{kolommen:number, rijen:number, volgorde?:string, rand?:boolean}|null} meerPerBlad
+ */
+async function metMeerPerBlad(pdf, meerPerBlad, vel, orientatie) {
+  if (!isMeerPerBlad(meerPerBlad)) return pdf;
+  const papier = vel && typeof vel === 'object' ? vel : null;
+  return maakMeerPerBlad(pdf, { ...meerPerBlad, papier, orientatie });
+}
+
+/** Per vel meerdere pagina's: de schaalkeuze telt dan niet. */
+function schaalVoorMeerPerBlad(meerPerBlad, schaling, zoom, centreren) {
+  return isMeerPerBlad(meerPerBlad)
+    ? { schaling: 'fit', zoom: 100, centreren: true }
+    : { schaling, zoom, centreren };
+}
+
+/**
  * Run a print job in the background. Fire-and-forget: the caller closes the
  * dialog first, this drives the floating progress bar.
  *
@@ -243,22 +269,26 @@ export async function slaPrintOpAlsPdf({
  */
 export async function runPrintJob({
   pages, copies, printer, orientatie = 'auto', papier = 'printer',
-  vel = null, schaling = 'fit', zoom = 100, centreren = true, inhoud = 'doc-and-markups',
+  vel = null, schaling: schalingKeuze = 'fit', zoom: zoomKeuze = 100, centreren: centrerenKeuze = true,
+  meerPerBlad = null, inhoud = 'doc-and-markups',
   afgebroken = () => false,
 }) {
+  const { schaling, zoom, centreren } = schaalVoorMeerPerBlad(meerPerBlad, schalingKeuze, zoomKeuze, centrerenKeuze);
   startPrintProgress(i18next.t('dialogs:print.progress.preparing'));
   try {
     const doc = getActiveDocument();
     if (!doc?.pdfDoc) throw new Error(i18next.t('dialogs:print.progress.errNoDocument'));
     // Reserve the last slice of the bar for the spool step.
     const total = pages.length + 1;
-    const { pdf: newPdf, opVel } = await bouwPrintPdf({
+    const { pdf: pagePdf, opVel } = await bouwPrintPdf({
       doc, pages, orientatie, vel, schaling, zoom, centreren, inhoud,
       voortgang: (i, pageNum) => updatePrintProgress(
         i18next.t('dialogs:print.progress.renderingPage', { page: pageNum, current: i + 1, total: pages.length }),
         i / total,
       ),
     });
+
+    const newPdf = await metMeerPerBlad(pagePdf, meerPerBlad, vel, orientatie);
 
     updatePrintProgress(i18next.t('dialogs:print.progress.saving'), pages.length / total);
     // Afgebroken (de tijdgrens van een MCP-opdracht): niets spoolen.

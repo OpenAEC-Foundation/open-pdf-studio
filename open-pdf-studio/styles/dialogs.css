@@ -2426,6 +2426,7 @@
 .print-collate-label { margin-left: 12px; }
 
 .print-zoom-row { margin-left: 58px; }
+.print-note { font-size: 11px; color: var(--theme-text-secondary); }
 
 .print-pages-row { margin-bottom: 4px; }
 

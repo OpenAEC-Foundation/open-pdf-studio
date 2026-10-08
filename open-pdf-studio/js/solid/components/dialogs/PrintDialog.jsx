@@ -7,6 +7,7 @@ import { parsePageRange } from '../../../pdf/exporter.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { loadPrinters, printerList as cachedPrinters, defaultPrinterName, printerErrorMessage } from '../../stores/printerStore.js';
 import { runPrintJob, slaPrintOpAlsPdf, renderPrintBeeld } from '../../../pdf/print-job.js';
+import { rasterVan, isMeerPerBlad } from '../../../pdf/print-meerperblad.js';
 import { savePreferences } from '../../../core/preferences.js';
 import { herstelPrintInstellingen, kiesStartPrinter } from '../../stores/print-instellingen.js';
 import { printArgumenten, overstemdeStand } from '../../../pdf/print-pagina-instelling.js';
@@ -60,6 +61,15 @@ export default function PrintDialog(props) {
   const [autoCenter, setAutoCenter] = createSignal(bewaard.autoCenter);
   const [printContent, setPrintContent] = createSignal(bewaard.content);
   const [printAsImage, setPrintAsImage] = createSignal(bewaard.asImage);
+  const [perSheet, setPerSheet] = createSignal(bewaard.perSheet);
+  const [sheetCols, setSheetCols] = createSignal(bewaard.sheetCols);
+  const [sheetRows, setSheetRows] = createSignal(bewaard.sheetRows);
+  const [sheetOrder, setSheetOrder] = createSignal(bewaard.sheetOrder);
+  const [sheetBorder, setSheetBorder] = createSignal(bewaard.sheetBorder);
+  const meerPerBlad = () => {
+    const raster = rasterVan({ perBlad: perSheet(), kolommen: sheetCols(), rijen: sheetRows() });
+    return isMeerPerBlad(raster) ? { ...raster, volgorde: sheetOrder(), rand: sheetBorder() } : null;
+  };
   const [statusMessage, setStatusMessage] = createSignal('');
   const [statusType, setStatusType] = createSignal('');
   const [printDisabled, setPrintDisabled] = createSignal(false);
@@ -485,10 +495,16 @@ export default function PrintDialog(props) {
       autoCenter: autoCenter(),
       content: printContent(),
       asImage: printAsImage(),
+      perSheet: perSheet(),
+      sheetCols: sheetCols(),
+      sheetRows: sheetRows(),
+      sheetOrder: sheetOrder(),
+      sheetBorder: sheetBorder(),
     };
     // Schaal en plek zoals het voorbeeld ze toont (vóór close(): de keuzes
     // komen uit de signalen van deze dialoog).
     const keuzes = plaatsingKeuzes();
+    const meerBlad = meerPerBlad();
     savePreferences();
     close();
     // Oriëntatie en papier: Automatisch draaien en de Pagina-instelling
@@ -507,6 +523,7 @@ export default function PrintDialog(props) {
         schaling: keuzes.schaling,
         zoom: keuzes.zoom,
         centreren: keuzes.centreren,
+        meerPerBlad: meerBlad,
         inhoud: printContent(),
         openen: openOpgeslagen,
       });
@@ -522,6 +539,7 @@ export default function PrintDialog(props) {
       schaling: keuzes.schaling,
       zoom: keuzes.zoom,
       centreren: keuzes.centreren,
+      meerPerBlad: meerBlad,
       // "Afdrukken: Document" laat de markeringen ook echt weg.
       inhoud: printContent(),
     });
@@ -869,6 +887,7 @@ export default function PrintDialog(props) {
             <select
               class="print-select"
               value={scaling()}
+              disabled={!!meerPerBlad()}
               onChange={(e) => setScaling(e.target.value)}
             >
               <option value="fit">{t('print.fit')}</option>
@@ -885,7 +904,7 @@ export default function PrintDialog(props) {
               min={ZOOM_MIN}
               max={ZOOM_MAX}
               value={zoom()}
-              disabled={scaling() !== 'custom-scale'}
+              disabled={!!meerPerBlad() || scaling() !== 'custom-scale'}
               onInput={onZoomInput}
               onChange={onZoomChange}
             />
@@ -909,6 +928,74 @@ export default function PrintDialog(props) {
               /> {t('print.autoCenter')}
             </label>
           </div>
+        </fieldset>
+
+        {/* Pages per sheet */}
+        <fieldset class="print-group">
+          <legend>{t('print.pagesPerSheet')}</legend>
+          <div class="print-row">
+            <label class="print-label">{t('print.pagesPerSheetLabel')}</label>
+            <select
+              class="print-select"
+              value={perSheet()}
+              onChange={(e) => setPerSheet(e.target.value)}
+            >
+              <option value="1">{t('print.perSheetOne')}</option>
+              <option value="2">2</option>
+              <option value="4">4</option>
+              <option value="6">6</option>
+              <option value="9">9</option>
+              <option value="16">16</option>
+              <option value="custom">{t('print.perSheetCustom')}</option>
+            </select>
+          </div>
+          <Show when={perSheet() === 'custom'}>
+            <div class="print-row print-zoom-row">
+              <label class="print-label">{t('print.perSheetGrid')}</label>
+              <input
+                type="number"
+                class="print-input"
+                min="1"
+                max="10"
+                value={sheetCols()}
+                onChange={(e) => setSheetCols(Math.min(10, Math.max(1, parseInt(e.target.value, 10) || 1)))}
+              />
+              <span>{t('print.perSheetBy')}</span>
+              <input
+                type="number"
+                class="print-input"
+                min="1"
+                max="10"
+                value={sheetRows()}
+                onChange={(e) => setSheetRows(Math.min(10, Math.max(1, parseInt(e.target.value, 10) || 1)))}
+              />
+            </div>
+          </Show>
+          <Show when={meerPerBlad()}>
+            <div class="print-row">
+              <label class="print-label">{t('print.pageOrder')}</label>
+              <select
+                class="print-select"
+                value={sheetOrder()}
+                onChange={(e) => setSheetOrder(e.target.value)}
+              >
+                <option value="horizontal">{t('print.orderHorizontal')}</option>
+                <option value="horizontal-reversed">{t('print.orderHorizontalReversed')}</option>
+                <option value="vertical">{t('print.orderVertical')}</option>
+                <option value="vertical-reversed">{t('print.orderVerticalReversed')}</option>
+              </select>
+            </div>
+            <div class="print-row print-checkbox-row">
+              <label class="print-checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={sheetBorder()}
+                  onChange={(e) => setSheetBorder(e.target.checked)}
+                /> {t('print.pageBorder')}
+              </label>
+            </div>
+            <div class="print-row print-note">{t('print.perSheetNote')}</div>
+          </Show>
         </fieldset>
 
         {/* Advanced Print Options */}
