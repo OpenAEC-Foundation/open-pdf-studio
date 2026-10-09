@@ -1,30 +1,43 @@
-import { Show, createSignal, createEffect, onCleanup } from 'solid-js';
+import { Show, createSignal, createEffect, onCleanup, onMount } from 'solid-js';
 import { annotProps, updateAnnotProp } from '../stores/propertiesStore.js';
 import { state, getActiveDocument } from '../../core/state.js';
 import { getMeasureScale } from '../../annotations/measurement.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 import { klemMaat } from '../../annotations/minimummaat.js';
+import { beginUndoTransaction, endUndoTransaction } from '../../core/undo-manager.js';
 import { paginaRectNaarClient } from '../../pdf/weergave-ruimte.js';
 
-// Temporary width/height "dimensions" for a selected rectangle — two small
+// Floating width/height "dimensions" for a selected shape — two small
 // editable fields floating next to the selection. Values are in measured
-// units (scale-region aware); typing a new value and pressing Enter resizes
-// the rectangle (top-left anchored) through the normal property pipeline
-// (undo + redraw included).
+// units (scale-region aware); typing a new value and pressing Enter OR
+// leaving the field (Tab, clicking the canvas/ribbon) applies the resize
+// through the normal property pipeline (undo + redraw included).
+//
+// Vormen: box (rechthoek), circle (cirkel/ellips) en polygon. Een polylijn
+// (L-vorm) zit er bewust níét in: daar is x/y/width/height alleen een
+// afgeleide bounding box en zou alleen de maat wijzigen de punten
+// desynchroniseren.
+const MAAT_VORMEN = new Set(['box', 'circle', 'polygon']);
+
 export default function BoxSizeOverlay() {
   const { t } = useTranslation('statusbar');
   const [pos, setPos] = createSignal(null); // { x, y } screen px
   const [wVal, setWVal] = createSignal('');
   const [hVal, setHVal] = createSignal('');
   const [unit, setUnit] = createSignal('mm');
+  // Wat er in een veld staat is gewijzigd t.o.v. het model: pas bij Enter,
+  // focuswissel of klik buitenuit wordt het doorgerekend. Zo voorkomt een
+  // blur zonder wijziging een onnodige undo-stap.
+  const [wDirty, setWDirty] = createSignal(false);
+  const [hDirty, setHDirty] = createSignal(false);
 
   const selectedBox = () => {
     if (annotProps.multiCount > 0) return null;
-    if (annotProps.type !== 'box') return null;
+    if (!MAAT_VORMEN.has(annotProps.type)) return null;
     if (annotProps.id === '__tool-defaults__') return null;
     const doc = getActiveDocument();
     const sel = doc?.selectedAnnotations || [];
-    return sel.length === 1 && sel[0].type === 'box' ? sel[0] : null;
+    return sel.length === 1 && MAAT_VORMEN.has(sel[0].type) ? sel[0] : null;
   };
 
   const ppu = (ann) => {
@@ -42,6 +55,9 @@ export default function BoxSizeOverlay() {
     const toon = (n) => (Number.isFinite(n) ? String(Number(n.toPrecision(6))) : '');
     setWVal(toon(ann.width / k));
     setHVal(toon(ann.height / k));
+    // Model is weer leidend: geen openstaande wijziging meer.
+    setWDirty(false);
+    setHDirty(false);
   }
 
   function reposition() {
@@ -71,16 +87,60 @@ export default function BoxSizeOverlay() {
 
   function commit(which, raw) {
     const ann = selectedBox();
-    if (!ann || ann.locked) return;
+    if (!ann || ann.locked) { setWDirty(false); setHDirty(false); return; }
     const v = parseFloat(String(raw).replace(',', '.'));
     if (!isFinite(v) || v <= 0) { refreshValues(); return; }
     const { ppu: k } = ppu(ann);
     // Elke positieve waarde mag; alleen de technische ondergrens geldt.
     const px = klemMaat(v * k);
-    updateAnnotProp(which, px); // undo + redraw via the standard pipeline
+    if (ann.type === 'box') {
+      updateAnnotProp(which, px);
+    } else if (ann.type === 'circle') {
+      // Cirkel (w ≈ h) blijft rond: beide maten gelijk. Een ellips (w ≠ h)
+      // beweegt alleen de bewerkte as.
+      const rond = Math.abs(ann.width - ann.height)
+        <= Math.max(1e-6, 0.01 * Math.min(ann.width, ann.height));
+      if (rond) {
+        // Eén undo-stap voor beide maten.
+        beginUndoTransaction();
+        updateAnnotProp('width', px);
+        updateAnnotProp('height', px);
+        endUndoTransaction();
+      } else {
+        updateAnnotProp(which, px);
+      }
+    } else if (ann.type === 'polygon') {
+      // Reguliere veelhoek: pas beide assen met dezelfde factor aan, zodat
+      // de verhouding (en dus de vorm) bewaard blijft.
+      const oude = which === 'width' ? ann.width : ann.height;
+      const ander = which === 'width' ? ann.height : ann.width;
+      const factor = oude > 0 ? px / oude : 1;
+      beginUndoTransaction();
+      updateAnnotProp(which, px);
+      updateAnnotProp(which === 'width' ? 'height' : 'width', klemMaat(ander * factor));
+      endUndoTransaction();
+    } else {
+      updateAnnotProp(which, px); // undo + redraw via the standard pipeline
+    }
+    setWDirty(false);
+    setHDirty(false);
     refreshValues();
     reposition();
   }
+
+  // Klik buiten het badge (canvas, ribbon, paneel) terwijl er een
+  // openstaande wijziging is: DAN toepassen — vóór de deselectie die de
+  // pointerdown op het canvas veroorzaakt, want daarna is de selectie weg
+  // en zou de ingetypte maat verdwijnen. Capture-fase draait vóór elke
+  // andere pointerdown-handler.
+  const buitenPointer = (e) => {
+    if (e.target && typeof e.target.closest === 'function'
+        && e.target.closest('[data-maat-badge]')) return;
+    if (wDirty()) commit('width', wVal());
+    else if (hDirty()) commit('height', hVal());
+  };
+  onMount(() => document.addEventListener('pointerdown', buitenPointer, true));
+  onCleanup(() => document.removeEventListener('pointerdown', buitenPointer, true));
 
   // Select the field's text on the focusing click so a new value can be typed
   // immediately. WebView2/Chromium otherwise collapses the selection on mouseup;
@@ -97,10 +157,11 @@ export default function BoxSizeOverlay() {
     background: 'var(--theme-bg, #fff)',
     color: 'var(--theme-text, #000)',
   };
+  const hint = t('boxSizeHint', 'Type a value + Enter — or click away to apply');
 
   return (
     <Show when={selectedBox() && pos()}>
-      <div style={{
+      <div data-maat-badge style={{
         position: 'fixed',
         left: `${pos().x}px`,
         top: `${pos().y}px`,
@@ -116,20 +177,28 @@ export default function BoxSizeOverlay() {
       }}>
         <div style={{ display: 'flex', 'align-items': 'center', gap: '4px' }}>
           <span style={{ width: '14px', 'font-weight': 600 }}>{t('boxWidthAbbr')}</span>
-          <input style={inputStyle} value={wVal()}
+          <input style={inputStyle} value={wVal()} title={hint}
             onFocus={onDimFocus} onMouseUp={onDimMouseUp}
-            onInput={(e) => setWVal(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') commit('width', wVal()); e.stopPropagation(); }}
-            onBlur={() => refreshValues()} />
+            onInput={(e) => { setWVal(e.target.value); setWDirty(true); }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') commit('width', wVal());
+              else if (e.key === 'Escape') { refreshValues(); e.currentTarget.blur(); }
+              e.stopPropagation();
+            }}
+            onBlur={() => { if (wDirty()) commit('width', wVal()); }} />
           <span>{unit()}</span>
         </div>
         <div style={{ display: 'flex', 'align-items': 'center', gap: '4px' }}>
           <span style={{ width: '14px', 'font-weight': 600 }}>{t('boxHeightAbbr')}</span>
-          <input style={inputStyle} value={hVal()}
+          <input style={inputStyle} value={hVal()} title={hint}
             onFocus={onDimFocus} onMouseUp={onDimMouseUp}
-            onInput={(e) => setHVal(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') commit('height', hVal()); e.stopPropagation(); }}
-            onBlur={() => refreshValues()} />
+            onInput={(e) => { setHVal(e.target.value); setHDirty(true); }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') commit('height', hVal());
+              else if (e.key === 'Escape') { refreshValues(); e.currentTarget.blur(); }
+              e.stopPropagation();
+            }}
+            onBlur={() => { if (hDirty()) commit('height', hVal()); }} />
           <span>{unit()}</span>
         </div>
       </div>

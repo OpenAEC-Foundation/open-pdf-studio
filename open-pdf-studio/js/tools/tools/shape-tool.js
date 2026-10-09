@@ -4,6 +4,102 @@
  */
 import { isKlikSleep } from '../../annotations/minimummaat.js';
 import { weergaveVectorNaarPagina } from '../../pdf/weergave-ruimte.js';
+import { state as appState, getActiveDocument } from '../../core/state.js';
+import { updateStatusMessage } from '../../ui/chrome/status-bar.js';
+import i18next from '../../i18n/config.js';
+import { getMeasureScale } from '../../annotations/measurement.js';
+import { parseCoordBuffer } from '../coord-invoer.js';
+import {
+  enterTypeLengthMode,
+  exitTypeLengthMode,
+  typeLengthActive,
+  typeLengthBuffer,
+} from '../type-length-input.js';
+
+// ── Maatinvoer (CAD-stijl): klik = anker, typen + Enter = vorm met opgegeven
+// maten. `500,300` = breedte × hoogte, één getal = vierkant / diameter.
+// De geometrie volgt de cursorrichting (net als de lijn-tool), zodat je met
+// de muis nog kantelt WAT je typt.
+const MAAT_TOOLS = new Set(['box', 'circle', 'ellipse', 'polygon', 'lshape']);
+const _dim = { actief: false, startX: 0, startY: 0, cursor: null, end: null, ctx: null };
+
+function _dimStop() {
+  if (_dim.actief && typeLengthActive()) exitTypeLengthMode();
+  if (appState._typeLengthCommit) appState._typeLengthCommit = null;
+  _dim.actief = false;
+  _dim.cursor = null;
+  _dim.end = null;
+  _dim.ctx = null;
+}
+
+/** Eindpunt uit het getypte buffer, of null als er nog niets staat. */
+function _dimEindpunt(ctx) {
+  if (!_dim.actief) return null;
+  const buf = typeLengthBuffer();
+  if (!buf) return null;
+  const r = parseCoordBuffer(buf);
+  if (!r || r.kind === 'empty' || r.kind === 'invalid') return null;
+  const ax = _dim.startX;
+  const ay = _dim.startY;
+  if (r.kind === 'absolute') return { x: r.a, y: r.b };
+  const page = getActiveDocument()?.currentPage || 1;
+  const ppu = getMeasureScale(page, ax, ay).pixelsPerUnit || 1;
+  if (r.kind === 'cartesian') return { x: ax + r.a * ppu, y: ay + r.b * ppu };
+  if (r.kind === 'polar') {
+    const rad = (r.b * Math.PI) / 180;
+    return { x: ax + r.a * ppu * Math.cos(rad), y: ay + r.a * ppu * Math.sin(rad) };
+  }
+  // Length-only: één getal = vierkant / diameter. De ORDE van grootte is
+  // exact de getypte waarde; alleen het KWADRANT (richting van de cursor)
+  // bepaalt welke kant de vorm opgaat. Zo blijft "240" een cirkel van 240
+  // ook als de muis toevallig schuin staat.
+  const c = (ctx && Number.isFinite(ctx.x) && Number.isFinite(ctx.y)) ? ctx : _dim.cursor;
+  const dx = c ? c.x - ax : 0;
+  const dy = c ? c.y - ay : 0;
+  const richtingX = dx < -1e-9 ? -1 : 1;
+  const richtingY = dy < -1e-9 ? -1 : 1;
+  return { x: ax + richtingX * r.a * ppu, y: ay + richtingY * r.a * ppu };
+}
+
+/** Start de maatinvoer na een klik-zonder-sleep. */
+function _dimStart(ctx) {
+  _dim.actief = true;
+  _dim.startX = appState.startX;
+  _dim.startY = appState.startY;
+  _dim.cursor = { x: ctx.x, y: ctx.y };
+  _dim.end = null;
+  _dim.ctx = ctx;
+  enterTypeLengthMode(_dim.startX, _dim.startY);
+  appState._typeLengthCommit = _dimCommit;
+  updateStatusMessage(
+    i18next.t('drawing.dimInputHint', {
+      ns: 'ribbon',
+      defaultValue: 'Type dimensions (e.g. 500,300 or a single size) and press Enter — or drag to draw',
+    }),
+    6000,
+  );
+}
+
+/** Enter: de vorm met de getypte maten tekenen. */
+function _dimCommit() {
+  const ctx = _dim.ctx;
+  let end = _dim.end || _dimEindpunt(null);
+  if (!ctx || !end) { _dimStop(); return; }
+  const tool = appState.currentTool;
+  if (tool === 'circle') end = _squareEnd(_dim.startX, _dim.startY, end.x, end.y);
+  _dimStop();
+
+  const ann = ctx.createAnnotationFromTool(tool, _dim.startX, _dim.startY, end.x, end.y, {
+    shiftKey: false, ctrlKey: false, altKey: false, metaKey: false,
+  });
+  const doc = getActiveDocument();
+  if (ann && doc) {
+    doc.annotations.push(ann);
+    ctx.recordAdd(ann);
+  }
+  ctx.redraw();
+  import('../manager.js').then((m) => m.maybeRevertToSelect && m.maybeRevertToSelect());
+}
 
 export const shapeTool = {
   name: 'shape',
@@ -11,6 +107,8 @@ export const shapeTool = {
 
   onPointerDown(ctx, e) {
     if (e.button !== 0) return;
+    // Een nieuwe klik breekt een openstaande maatinvoer af (opnieuw ankeren).
+    if (_dim.actief) _dimStop();
     const { state } = ctx;
     state.isDrawing = true;
     // Start the marching-ants animation as soon as a redaction drag begins so
@@ -24,6 +122,19 @@ export const shapeTool = {
 
   onPointerMove(ctx, e) {
     const { x, y, state } = ctx;
+
+    // Maatinvoer actief: voorbeeld van de vorm met de getypte maten.
+    if (_dim.actief) {
+      _dim.cursor = { x, y };
+      const end = _dimEindpunt(ctx);
+      if (!end) return;
+      _dim.end = state.currentTool === 'circle'
+        ? _squareEnd(_dim.startX, _dim.startY, end.x, end.y)
+        : end;
+      ctx.drawShapePreview(_dim.end.x, _dim.end.y, e);
+      return;
+    }
+
     if (!state.isDrawing) {
       // Hover snap indicator
       _drawHoverSnap(ctx, x, y);
@@ -92,6 +203,13 @@ export const shapeTool = {
     } else if (isClick && tool === 'stavenreeks') {
       // Single click: place a default-length series (the creator falls back to
       // 120 px horizontally when start and end coincide).
+    } else if (isClick && MAAT_TOOLS.has(tool)) {
+      // Klik zonder sleep in plaats van "weggooien": de gebruiker kan nu
+      // de maten intypen (500,300 of één getal) + Enter. Zonder invoer
+      // blijft de tool gewoon actief voor de volgende poging.
+      _dimStart(ctx);
+      ctx.redraw();
+      return true;
     } else if (isClick) {
       // Other shapes: too small to be useful, skip creation
       ctx.redraw();
@@ -124,6 +242,16 @@ export const shapeTool = {
     import("../../tools/manager.js").then(m => m.maybeRevertToSelect && m.maybeRevertToSelect());
 
     return true;
+  },
+
+  // Maatinvoer netjes afbreken (Escape wisselt daarna naar de selectietool;
+  // wisselen van gereedschap ruimt via onDeactivate dezelfde state op).
+  onEscape() {
+    if (_dim.actief) _dimStop();
+  },
+
+  onDeactivate() {
+    if (_dim.actief) _dimStop();
   },
 };
 

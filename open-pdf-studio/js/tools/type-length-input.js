@@ -53,20 +53,23 @@ export const typeLengthCursor = _cursorScreen;
 export const typeLengthFormat = _format;
 
 // ── Internal mode state ────────────────────────────────────────────────────
+// `active` is een signal zodat de HUD-knop ook zichtbaar wordt zodra een
+// gereedschap de invoer ACTIVEERT (nog vóór de eerste toetsaanslag) — de
+// gebruiker ziet dan meteen wáár hij de maat moet typen.
+const [_active, _setActive] = createSignal(false);
 const _mode = {
-  active: false,
   startX: 0,
   startY: 0,
 };
 
 /** Returns true if a tool has called enterTypeLengthMode and not yet exited. */
 export function typeLengthActive() {
-  return _mode.active;
+  return _active();
 }
 
 /** Returns true if the user has typed at least one char (so endpoint should be constrained). */
 export function typeLengthHasBuffer() {
-  return _mode.active && _buffer().length > 0;
+  return _active() && _buffer().length > 0;
 }
 
 export function getTypeLengthStart() {
@@ -75,7 +78,7 @@ export function getTypeLengthStart() {
 
 /** Activate coord-input capture for a tool that just committed its start point. */
 export function enterTypeLengthMode(startX, startY) {
-  _mode.active = true;
+  _setActive(true);
   _mode.startX = startX;
   _mode.startY = startY;
   _setBuffer('');
@@ -84,7 +87,9 @@ export function enterTypeLengthMode(startX, startY) {
 
 /** Deactivate (called from tool onDeactivate or after final commit). */
 export function exitTypeLengthMode() {
-  _mode.active = false;
+  _setActive(false);
+  _mode.startX = 0;
+  _mode.startY = 0;
   _setBuffer('');
   _setFormat('empty');
 }
@@ -128,7 +133,7 @@ function _reparse() {
  *   { handled: true, aborted: true }            — Esc pressed
  */
 export function consumeKey(key) {
-  if (!_mode.active) return { handled: false };
+  if (!_active()) return { handled: false };
 
   // Allow chars that participate in any of the four formats: digits, '.', ',',
   // '<', '=', '-' plus the editing keys.
@@ -216,7 +221,7 @@ export function consumeKey(key) {
  * unchanged cursor coords are returned.
  */
 export function applyToEndpoint(startX, startY, cursorX, cursorY) {
-  if (!_mode.active || _buffer().length === 0) {
+  if (!_active() || _buffer().length === 0) {
     return { x: cursorX, y: cursorY, constrained: false };
   }
   // Resolve the scale AT THE ANCHOR POINT: when drawing inside a scale region

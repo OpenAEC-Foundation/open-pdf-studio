@@ -244,3 +244,6 @@ js/pdf/printerlijst-afnemers.test.mjs
 js/pdf/wiel-scroll.test.mjs
 js/pdf/saver/text-markup-dict.test.mjs
 js/text/leesrichting.test.mjs
+js/annotations/offset-geometry.test.mjs
+js/annotations/stretch-geometry.test.mjs
+js/annotations/scale-geometry.test.mjs
