@@ -85,6 +85,8 @@
     "exportImagesDesc": "Save pages as PNG or JPEG image files",
     "exportRaster": "Export as Raster PDF",
     "exportRasterDesc": "Flatten pages and annotations into a new PDF with rasterized images",
+    "exportFlat": "Flattened Copy for Sharing",
+    "exportFlatDesc": "Save a copy where annotations are part of the page, so they also show in a phone preview or chat app. Text stays selectable; keep the original for editing.",
     "exportXfdf": "Export Annotations (XFDF)",
     "exportXfdfDesc": "Export all annotations to an XFDF file for sharing or backup",
     "rasterOptions": "Raster PDF Options",
