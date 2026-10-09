@@ -6,6 +6,7 @@ import RibbonButtonStack from './RibbonButtonStack.jsx';
 import { setTool } from '../../../tools/manager.js';
 import { startRemoveImageTool } from '../../../tools/tools/remove-image-tool.js';
 import { startOffsetTool } from '../../../tools/tools/offset-tool.js';
+import { startExtendTool } from '../../../tools/tools/extend-tool.js';
 import { startStretchTool } from '../../../tools/tools/stretch-tool.js';
 import { startEnlargeTool } from '../../../tools/tools/enlarge-tool.js';
 import { state, getActiveDocument, noPdf } from '../../../core/state.js';
@@ -384,7 +385,7 @@ export function DrawingGroups() {
             <RibbonButton size="small" id="dr-trim" title={t('drawing.trim')} icon={trimIcon} label={t('drawing.trim')}
               disabled={ro()} active={state.currentTool === 'trim'} onClick={() => setTool('trim')} />
             <RibbonButton size="small" id="dr-extend" title={t('drawing.extend')} icon={extendIcon} label={t('drawing.extend')}
-              disabled={ro()} active={state.currentTool === 'extend'} onClick={() => setTool('extend')} />
+              disabled={ro()} active={state.currentTool === 'extend'} onClick={() => startExtendTool()} />
             <RibbonButton size="small" id="dr-offset" title={t('drawing.offset')} icon={offsetIcon} label={t('drawing.offset')}
               disabled={ro()} active={state.currentTool === 'offset'} onClick={() => startOffsetTool()} />
           </RibbonButtonStack>

@@ -90,6 +90,7 @@
   },
   "boxWidthAbbr": "W",
   "boxHeightAbbr": "H",
+  "boxSizeHint": "Type a value + Enter — or click away to apply",
   "ocr": {
     "progress": {
       "starting": "Recognizing text...",
