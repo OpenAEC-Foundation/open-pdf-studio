@@ -118,13 +118,26 @@ function _commitFactor(factor) {
 
 /** Start het gereedschap met de huidige selectie (ribbon-knop). */
 export async function startEnlargeTool() {
+  // Selectie VÓÓR activering vastleggen: zonder selectie is er niets om te
+  // vergroten én kan de gebruiker tijdens dit gereedschap ook niet selecteren
+  // (elke klik kiest een basispunt). In dat geval geen dead-end activering,
+  // maar een duidelijke instructie.
+  const sel0 = getActiveDocument()?.selectedAnnotations || [];
+  if (sel0.length === 0) {
+    _bericht(
+      'Enlarge: select the objects first (Select tool), then click Enlarge',
+      'drawing.enlargeSelectFirst',
+    );
+    return;
+  }
   const m = await import('../manager.js');
   m.setTool('enlarge');
-  _startMetSelectie();
+  _startMetSelectie(sel0);
 }
 
-function _startMetSelectie() {
-  const sel = getActiveDocument()?.selectedAnnotations || [];
+function _startMetSelectie(sel0) {
+  const sel = (sel0 && sel0.length > 0 ? sel0 : null)
+    || getActiveDocument()?.selectedAnnotations || [];
   if (sel.length === 0) {
     _bericht('Enlarge: select the objects to enlarge first', 'drawing.enlargeNoSelection');
     return false;

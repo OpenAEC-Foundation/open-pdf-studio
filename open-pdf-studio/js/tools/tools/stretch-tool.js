@@ -19,6 +19,15 @@ import { annotationCtx } from '../../ui/dom-elements.js';
 import { applyToolTransform } from '../tool-transform.js';
 import i18next from '../../i18n/config.js';
 import { verticesOf, stretchAnnotation, canStretch } from '../../annotations/stretch-geometry.js';
+import {
+  enterTypeLengthMode,
+  exitTypeLengthMode,
+  typeLengthActive,
+  typeLengthBuffer,
+  clearTypeLengthBuffer,
+} from '../type-length-input.js';
+import { parseCoordBuffer } from '../coord-invoer.js';
+import { getMeasureScale } from '../../annotations/measurement.js';
 
 const _s = {
   fase: 'ruit',        // 'ruit' | 'verplaats'
@@ -26,6 +35,7 @@ const _s = {
   ruit: null,          // {x1,y1,x2,y2} na loslaten
   basis: null,         // basispunt van de verplaatsing
   doelen: null,        // [{ ann, orig }]
+  ownsCommit: false,   // deze sessie heeft de CAD-invoer (commit-hook) in handen
 };
 
 function _t(key, def) {
@@ -43,6 +53,13 @@ function _reset() {
   _s.basis = null;
   _s.doelen = null;
   state.isDrawing = false;
+  // Laat geen CAD-invoer of commit-hook achter (anders vangt de volgende
+  // tool de toetsaanslagen van stretch nog op).
+  if (_s.ownsCommit) {
+    if (typeLengthActive()) exitTypeLengthMode();
+    if (state._typeLengthCommit) state._typeLengthCommit = null;
+    _s.ownsCommit = false;
+  }
 }
 
 function _inRuit(r) {
@@ -151,7 +168,15 @@ export const stretchTool = {
       _s.ruit = ruit;
       _s.doelen = doelen;
       _s.fase = 'verplaats';
-      _bericht('Stretch: click the base point, then drag', 'drawing.stretchBase');
+      // CAD-invoer openen: de verplaatsing mag ook getypt worden (dx,dy of
+      // polair) in plaats van te slepen — muis EN toetsbord werken allebei.
+      enterTypeLengthMode((ruit.x1 + ruit.x2) / 2, (ruit.y1 + ruit.y2) / 2);
+      state._typeLengthCommit = _commitVerschuiving;
+      _s.ownsCommit = true;
+      _bericht(
+        'Stretch: drag from a base point — or type a displacement like 50,0 and press Enter',
+        'drawing.stretchTyped',
+      );
       return true;
     }
 
@@ -178,6 +203,45 @@ export const stretchTool = {
   onEscape() { _reset(); },
   onDeactivate() { _reset(); },
 };
+
+/**
+ * Getypte verplaatsing: `50,0` (dx,dy), `100<45` (polair) of negatieve
+ * waarden — in de schaaleenheden van het document, zoals de rest van de
+ * CAD-invoer. Alleen een los getal ("50") heeft geen richting en wordt
+ * geweigerd met een hint.
+ */
+function _commitVerschuiving() {
+  const r = parseCoordBuffer(typeLengthBuffer());
+  let dx = null, dy = null;
+  if (r.kind === 'cartesian' && r.a != null && r.b != null) {
+    dx = r.a; dy = r.b;
+  } else if (r.kind === 'polar' && r.a != null && r.b != null) {
+    // Zelfde hoekconventie als beperkEindpunt: app-Y wijkt omlaag,
+    // getypte hoek is mathematisch (CCW vanaf +X).
+    const theta = -r.b * Math.PI / 180;
+    dx = r.a * Math.cos(theta);
+    dy = r.a * Math.sin(theta);
+  }
+  if (dx == null || dy == null || (dx === 0 && dy === 0)) {
+    clearTypeLengthBuffer();
+    _bericht(
+      'Stretch: type a displacement like 50,0 or 100<45 and press Enter',
+      'drawing.stretchDisplacementInvalid',
+    );
+    return;
+  }
+  if (!_s.doelen || !_s.ruit) { _reset(); return; }
+  const page = _s.doelen[0].ann.page ?? getActiveDocument()?.currentPage ?? 1;
+  const ax = (_s.ruit.x1 + _s.ruit.x2) / 2;
+  const ay = (_s.ruit.y1 + _s.ruit.y2) / 2;
+  const ppu = getMeasureScale(page, ax, ay).pixelsPerUnit || 1;
+  const test = _inRuit(_s.ruit);
+  for (const t of _s.doelen) stretchAnnotation(t.orig, t.ann, dx * ppu, dy * ppu, test);
+  recordBulkModify(_s.doelen.map((t) => t.ann), _s.doelen.map((t) => t.orig));
+  redrawAnnotations();
+  _bericht('Stretched — drag another window, or press Escape', 'drawing.stretchDone');
+  _reset();
+}
 
 /** Start het gereedschap met een korte instructie (ribbon-knop). */
 export async function startStretchTool() {
