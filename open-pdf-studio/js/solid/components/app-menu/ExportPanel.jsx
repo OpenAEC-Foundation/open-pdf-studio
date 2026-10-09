@@ -52,6 +52,19 @@ export default function ExportPanel() {
     openDialog('cad-export');
   };
 
+  // Gevlakte kopie om te delen: annotaties worden deel van de pagina.
+  const handleFlattenedCopy = async () => {
+    const doc = getActiveDocument();
+    if (!doc?.pdfDoc) {
+      showMessage(tCommon('noDocumentOpen'));
+      return;
+    }
+    closeAppMenu();
+    const { maakGevlakteKopie } = await import('../../../pdf/flattened-copy.js');
+    const r = await maakGevlakteKopie();
+    if (!r.ok && r.reden === 'doel-is-geopend') showMessage(i18next.t('dialogs:print.targetIsOpenFile'));
+  };
+
   const handleCardClick = (type) => {
     setExportType(type);
     setShowOptions(true);
@@ -139,6 +152,20 @@ export default function ExportPanel() {
           <div class="bs-export-card-info">
             <h3>{t('exportPanel.exportRaster')}</h3>
             <p>{t('exportPanel.exportRasterDesc')}</p>
+          </div>
+        </div>
+
+        <div class="bs-export-card" onClick={handleFlattenedCopy}>
+          <div class="bs-export-card-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <path d="M14 2v6h6"/>
+              <path d="M8 17l3-6 3 4 2-3"/>
+            </svg>
+          </div>
+          <div class="bs-export-card-info">
+            <h3>{t('exportPanel.exportFlat')}</h3>
+            <p>{t('exportPanel.exportFlatDesc')}</p>
           </div>
         </div>
 

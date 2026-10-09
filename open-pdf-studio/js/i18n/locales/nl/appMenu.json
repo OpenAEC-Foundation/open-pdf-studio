@@ -84,6 +84,8 @@
     "exportImagesDesc": "Pagina's opslaan als PNG- of JPEG-afbeeldingsbestanden",
     "exportRaster": "Exporteren als raster-PDF",
     "exportRasterDesc": "Pagina's en annotaties afvlakken naar een nieuwe PDF met gerasterde afbeeldingen",
+    "exportFlat": "Gevlakte kopie om te delen",
+    "exportFlatDesc": "Sla een kopie op waarin de annotaties deel van de pagina zijn, zodat ze ook in een voorbeeld op de telefoon of in een chat-app staan. Tekst blijft selecteerbaar; bewaar het origineel om te bewerken.",
     "exportXfdf": "Annotaties exporteren (XFDF)",
     "exportXfdfDesc": "Alle annotaties exporteren naar een XFDF-bestand voor delen of back-up",
     "rasterOptions": "Raster-PDF-opties",
