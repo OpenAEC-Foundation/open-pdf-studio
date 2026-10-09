@@ -5,6 +5,9 @@ import RibbonButton from './RibbonButton.jsx';
 import RibbonButtonStack from './RibbonButtonStack.jsx';
 import { setTool } from '../../../tools/manager.js';
 import { startRemoveImageTool } from '../../../tools/tools/remove-image-tool.js';
+import { startOffsetTool } from '../../../tools/tools/offset-tool.js';
+import { startStretchTool } from '../../../tools/tools/stretch-tool.js';
+import { startEnlargeTool } from '../../../tools/tools/enlarge-tool.js';
 import { state, getActiveDocument, noPdf } from '../../../core/state.js';
 import { savePreferences } from '../../../core/preferences.js';
 import { isPdfAReadOnly } from '../../../pdf/loader.js';
@@ -70,6 +73,12 @@ const splitIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 const breakIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12 L9 12 M15 12 L21 12"/><path d="M9 8 L9 16 M15 8 L15 16" stroke-width="1"/></svg>`;
 // Lengthen: a line with a double arrow along its axis
 const lengthenIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 H21"/><path d="M6 9 L3 12 L6 15"/><path d="M18 9 L21 12 L18 15"/></svg>`;
+// Offset: two parallel lines with an arrow between them
+const offsetIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18"/><path d="M3 17h18"/><path d="M12 7v10"/><path d="M9 14l3 3 3-3"/></svg>`;
+// Stretch: a solid box being pulled into a dashed box
+const stretchIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="7" height="9"/><rect x="14" y="8" width="7" height="9" stroke-dasharray="3 2"/><path d="M11 12.5h2.5"/><path d="M13 10.5l2 2-2 2"/></svg>`;
+// Enlarge: small square growing into a big square
+const enlargeIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="14" width="6" height="6"/><rect x="15" y="3" width="6" height="6" stroke-dasharray="3 2"/><path d="M9.5 17.5L14 13"/><path d="M14 8.5v4.5h-4.5"/></svg>`;
 // Collection create: group objects into a bracketed set
 const collectionCreateIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/><path d="M11 7 H16 V13" stroke-width="1" stroke-dasharray="2 2"/></svg>`;
 // Collection explode: dissolve a group back into loose objects
@@ -185,11 +194,11 @@ export function DrawingGroups() {
             disabled={ro()} active={state.currentTool === 'draw'} onClick={() => setTool('draw')} />
           <RibbonButton size="small" id="dr-eraser" title={t('drawing.eraser')} icon={eraserIcon}
             disabled={ro()} active={state.currentTool === 'eraser'} onClick={() => setTool('eraser')} />
-          <RibbonButton size="small" id="dr-rect" title={t('comment.rectangle')} icon={rectIcon}
+          <RibbonButton size="small" id="dr-rect" title={`${t('comment.rectangle')} — ${t('drawing.dimHint')}`} icon={rectIcon}
             disabled={ro()} active={state.currentTool === 'box'} onClick={() => setTool('box')} />
           <RibbonButton size="small" id="dr-arc" title="Arc" icon={arcIcon}
             disabled={ro()} active={state.currentTool === 'arc'} onClick={() => setTool('arc')} />
-          <RibbonButton size="small" id="dr-polyline" title={t('comment.polylineTitle')} icon={polylineIcon}
+          <RibbonButton size="small" id="dr-polyline" title={`${t('comment.polylineTitle')} — ${t('drawing.dimHint')}`} icon={polylineIcon}
             disabled={ro()} active={state.currentTool === 'polyline'} onClick={() => setTool('polyline')} />
           <RibbonButton size="small" id="dr-hatch" title={t('comment.filledArea')} icon={hatchIcon}
             disabled={ro()} active={state.currentTool === 'filledArea'} onClick={() => setTool('filledArea')} />
@@ -200,13 +209,13 @@ export function DrawingGroups() {
           {/* Row 2 */}
           <RibbonButton size="small" id="dr-spline" title={t('comment.splineTitle')} icon={splineIcon}
             disabled={ro()} active={state.currentTool === 'spline'} onClick={() => setTool('spline')} />
-          <RibbonButton size="small" id="dr-circle" title={t('format.circle') || 'Cirkel'} icon={circleIcon}
+          <RibbonButton size="small" id="dr-circle" title={`${t('format.circle') || 'Circle'} — ${t('drawing.dimHint')}`} icon={circleIcon}
             disabled={ro()} active={state.currentTool === 'circle'} onClick={() => setTool('circle')} />
-          <RibbonButton size="small" id="dr-ellipse" title={t('comment.ellipse') || 'Ellips'} icon={ellipseIcon}
+          <RibbonButton size="small" id="dr-ellipse" title={`${t('comment.ellipse') || 'Ellipse'} — ${t('drawing.dimHint')}`} icon={ellipseIcon}
             disabled={ro()} active={state.currentTool === 'ellipse'} onClick={() => setTool('ellipse')} />
           <RibbonButton size="small" id="dr-count" title="Tellen" icon={circleIcon}
             disabled={ro()} active={state.currentTool === 'count'} onClick={() => setTool('count')} />
-          <RibbonButton size="small" id="dr-l-shape" title={t('drawing.lShape')} icon={lShapeIcon}
+          <RibbonButton size="small" id="dr-l-shape" title={`${t('drawing.lShape')} — ${t('drawing.dimHint')}`} icon={lShapeIcon}
             disabled={ro()} active={state.currentTool === 'lshape'} onClick={() => setTool('lshape')} />
           <RibbonButton size="small" id="dr-image" title={t('drawing.image')} icon={imageIcon}
             disabled={ro()} active={state.currentTool === 'image'} onClick={() => setTool('image')} />
@@ -376,16 +385,21 @@ export function DrawingGroups() {
               disabled={ro()} active={state.currentTool === 'trim'} onClick={() => setTool('trim')} />
             <RibbonButton size="small" id="dr-extend" title={t('drawing.extend')} icon={extendIcon} label={t('drawing.extend')}
               disabled={ro()} active={state.currentTool === 'extend'} onClick={() => setTool('extend')} />
-            <RibbonButton size="small" id="dr-offset" title={cs} icon={placeholderIcon} label={t('drawing.offset')}
-              disabled={true} />
+            <RibbonButton size="small" id="dr-offset" title={t('drawing.offset')} icon={offsetIcon} label={t('drawing.offset')}
+              disabled={ro()} active={state.currentTool === 'offset'} onClick={() => startOffsetTool()} />
           </RibbonButtonStack>
           <RibbonButtonStack>
             <RibbonButton size="small" id="dr-fillet" title={cs} icon={placeholderIcon} label={t('drawing.fillet')}
               disabled={true} />
             <RibbonButton size="small" id="dr-chamfer" title={cs} icon={placeholderIcon} label={t('drawing.chamfer')}
               disabled={true} />
-            <RibbonButton size="small" id="dr-stretch" title={cs} icon={placeholderIcon} label={t('drawing.stretch')}
-              disabled={true} />
+            <RibbonButton size="small" id="dr-stretch" title={t('drawing.stretch')} icon={stretchIcon} label={t('drawing.stretch')}
+              disabled={ro()} active={state.currentTool === 'stretch'} onClick={() => startStretchTool()} />
+          </RibbonButtonStack>
+          <RibbonButtonStack>
+            {/* Vergroten/verkleinen (AutoCAD SCALE) rond een basispunt */}
+            <RibbonButton size="small" id="dr-enlarge" title={t('drawing.enlarge')} icon={enlargeIcon} label={t('drawing.enlarge')}
+              disabled={ro()} active={state.currentTool === 'enlarge'} onClick={() => startEnlargeTool()} />
           </RibbonButtonStack>
           <RibbonButtonStack>
             <RibbonButton size="small" id="dr-split" title={t('drawing.split')} icon={splitIcon} label={t('drawing.split')}
