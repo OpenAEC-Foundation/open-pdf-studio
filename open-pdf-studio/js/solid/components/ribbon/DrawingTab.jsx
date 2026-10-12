@@ -9,6 +9,11 @@ import { startOffsetTool } from '../../../tools/tools/offset-tool.js';
 import { startExtendTool } from '../../../tools/tools/extend-tool.js';
 import { startStretchTool } from '../../../tools/tools/stretch-tool.js';
 import { startEnlargeTool } from '../../../tools/tools/enlarge-tool.js';
+import { startFilletTool, startChamferTool } from '../../../tools/tools/corner-tools.js';
+import { startSpotCoordTool } from '../../../tools/tools/spot-coord-tool.js';
+import { tryStartGMove } from '../../../tools/g-move-mode.js';
+import { updateStatusMessage } from '../../../ui/chrome/status-bar.js';
+import i18next from '../../../i18n/config.js';
 import { state, getActiveDocument, noPdf } from '../../../core/state.js';
 import { savePreferences } from '../../../core/preferences.js';
 import { isPdfAReadOnly } from '../../../pdf/loader.js';
@@ -44,6 +49,9 @@ const hatchIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 const imageIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M3 17l5-5 4 4 3-3 6 6"/></svg>`;
 const removeImageIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="13" height="13"/><circle cx="7" cy="7" r="1.3"/><path d="M3 12l3.5-3.5 3 3"/><path d="M14.5 14.5l6.5 6.5M21 14.5l-6.5 6.5"/></svg>`;
 const moveIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/></svg>`;
+const spotCoordIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20 L 11 13 M8 20 h8 M12 17 v6"/><circle cx="13" cy="11" r="3.2"/><path d="M13 6.5 v1.5 M13 14 v1.5 M8.5 11 h1.5 M16 11 h1.5"/></svg>`;
+const filletIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20 H 9.5 A 6.5 6.5 0 0 0 16 13.5 V 4"/><path d="M4 4 H 10.5 M20 20 H 13.5" stroke-dasharray="2 2" stroke-width="1"/></svg>`;
+const chamferIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 20 H 8 L 16 4 H 20"/><path d="M4 4 H 8 M20 20 H 16" stroke-dasharray="2 2" stroke-width="1"/></svg>`;
 const copyAnnIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="8" y="8" width="12" height="12"/><rect x="4" y="4" width="12" height="12"/></svg>`;
 const arrayIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="6" height="6"/><rect x="15" y="3" width="6" height="6"/><rect x="3" y="15" width="6" height="6"/><rect x="15" y="15" width="6" height="6"/></svg>`;
 const trimIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8 16 L20 4 M16 16 L4 4"/></svg>`;
@@ -138,8 +146,26 @@ function rotateSelected() {
 }
 
 function moveSelected() {
-  // Trigger G-key move (existing handler) on current selection
-  document.dispatchEvent(new KeyboardEvent('keydown', { key: 'g', bubbles: true }));
+  // AutoCAD-achtig verplaatsen met basispunt (de 'mv'-flow uit g-move-mode):
+  // klik 1 kiest het basispunt, slepen óf een getypte verplaatsing (50,0)
+  // plaatst de selectie.
+  if (tryStartGMove({ basePoint: true })) {
+    updateStatusMessage(
+      i18next.t('drawing.moveBase', {
+        ns: 'ribbon',
+        defaultValue: 'Move: click the base point, then the destination — or type a displacement like 50,0 + Enter',
+      }),
+      5000,
+    );
+  } else {
+    updateStatusMessage(
+      i18next.t('drawing.moveNoSelection', {
+        ns: 'ribbon',
+        defaultValue: 'Move: select an object first',
+      }),
+      5000,
+    );
+  }
 }
 
 // The drawing groups are exported as a standalone fragment so the merged
@@ -318,9 +344,9 @@ export function DrawingGroups() {
               disabled={ro()} active={state.currentTool === 'measureAngle'} onClick={() => setTool('measureAngle')} />
           </RibbonButtonStack>
           <RibbonButtonStack>
-            {/* Spot Coord — placeholder icon, deferred */}
-            <RibbonButton size="small" id="dr-spot-coord" title={cs} icon={placeholderIcon} label={t('drawing.spotCoord')}
-              disabled={true} />
+            {/* Spot Coord — één klik labelt de X,Y-coördinaten van een punt */}
+            <RibbonButton size="small" id="dr-spot-coord" title={t('drawing.spotCoord')} icon={spotCoordIcon} label={t('drawing.spotCoord')}
+              disabled={ro()} active={state.currentTool === 'spotCoord'} onClick={() => startSpotCoordTool()} />
             {/* Radius — 2-click radius dimension (centre → rim) */}
             <RibbonButton size="small" id="dr-radius" title={t('drawing.radius')} icon={radiusIcon} label={t('drawing.radius')}
               disabled={ro()} active={state.currentTool === 'radius'} onClick={() => setTool('radius')} />
@@ -390,10 +416,10 @@ export function DrawingGroups() {
               disabled={ro()} active={state.currentTool === 'offset'} onClick={() => startOffsetTool()} />
           </RibbonButtonStack>
           <RibbonButtonStack>
-            <RibbonButton size="small" id="dr-fillet" title={cs} icon={placeholderIcon} label={t('drawing.fillet')}
-              disabled={true} />
-            <RibbonButton size="small" id="dr-chamfer" title={cs} icon={placeholderIcon} label={t('drawing.chamfer')}
-              disabled={true} />
+            <RibbonButton size="small" id="dr-fillet" title={t('drawing.fillet')} icon={filletIcon} label={t('drawing.fillet')}
+              disabled={ro()} active={state.currentTool === 'fillet'} onClick={() => startFilletTool()} />
+            <RibbonButton size="small" id="dr-chamfer" title={t('drawing.chamfer')} icon={chamferIcon} label={t('drawing.chamfer')}
+              disabled={ro()} active={state.currentTool === 'chamfer'} onClick={() => startChamferTool()} />
             <RibbonButton size="small" id="dr-stretch" title={t('drawing.stretch')} icon={stretchIcon} label={t('drawing.stretch')}
               disabled={ro()} active={state.currentTool === 'stretch'} onClick={() => startStretchTool()} />
           </RibbonButtonStack>

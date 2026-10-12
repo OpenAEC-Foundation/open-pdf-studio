@@ -49,6 +49,7 @@ scripts/test-systeemraster.mjs
 js/drafting/tekeningtype.test.mjs
 js/annotations/betonbalk-join.test.mjs
 js/annotations/hoek-trim.test.mjs
+js/annotations/hoek-geometrie.test.mjs
 js/annotations/polygon-transform.test.mjs
 js/annotations/fill-utils.test.mjs
 js/annotations/crop-geometrie.test.mjs
