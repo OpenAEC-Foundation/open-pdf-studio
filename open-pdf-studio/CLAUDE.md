@@ -200,7 +200,7 @@ The Cross-Tech package covers the specific integration boundaries in this codeba
 |------------|---------|------|
 | Tauri | 2.10.2 | Desktop shell + IPC |
 | SolidJS | 1.9.11 | Reactive UI framework |
-| PDF.js (pdfjs-dist) | 5.4.624 | PDF rendering engine |
+| PDF.js (pdfjs-dist) | 6.4.299 | PDF rendering engine |
 | pdf-lib | 1.17.1 | PDF creation/modification |
 | i18next | 25.8.13 | Internationalization |
 | Vite | 7.3.1 | Build tool |
