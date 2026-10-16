@@ -42,6 +42,11 @@ export async function exportOffice({ format, pages, includeImages = false, decim
         defaultValue: 'The document changed during export. Start again.',
       }));
     }
+    // Edits can arrive while the file dialog or text extraction is pending.
+    // PDF.js still contains the old text until those edits have been saved.
+    if (doc.textEdits?.some(edit => !edit.baked && !edit._pendingNew)) {
+      throw new Error(t('officeSaveEditsFirst'));
+    }
   };
   const selected = [...new Set(pages)].filter(p => Number.isInteger(p) && p >= 1 && p <= pdf.numPages).sort((a, b) => a - b);
   if (!selected.length) return false;

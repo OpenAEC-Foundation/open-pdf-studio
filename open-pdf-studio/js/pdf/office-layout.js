@@ -182,8 +182,10 @@ export function spreadsheetNumber(value, decimal = '.') {
 }
 
 export function spreadsheetCurrency(value, decimal = '.') {
-  const match = /^(-?)€\s*(.+)$/.exec(String(value).trim());
+  const text = String(value).trim();
+  const match = /^(-?)€\s*(.+)$/.exec(text) || /^(-?)(.+?)\s*€$/.exec(text);
   if (!match) return null;
+  if (match[1] && match[2].trim().startsWith('-')) return null;
   const number = spreadsheetNumber(match[2], decimal);
   return number === null ? null : match[1] ? -number : number;
 }

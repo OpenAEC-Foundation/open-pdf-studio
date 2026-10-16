@@ -7,16 +7,24 @@ const exportSource = source.slice(source.indexOf('export async function exportOf
   .replace('export async function', 'async function');
 const deferred = () => { let resolve; const promise = new Promise(r => { resolve = r; }); return { promise, resolve }; };
 
-function harness() {
+function harness({ saveFileDialog = async name => `/tmp/${name}` } = {}) {
   const content = deferred();
-  const page = { rotate: 0, getViewport: () => ({ width: 595, height: 842 }), getTextContent: () => content.promise };
+  const extracting = deferred();
+  const page = {
+    rotate: 0,
+    getViewport: () => ({ width: 595, height: 842 }),
+    getTextContent: () => {
+      extracting.resolve();
+      return content.promise;
+    },
+  };
   const pdf = { numPages: 1, getPage: async () => page };
   const doc = { pdfDoc: pdf, filePath: 'source.pdf', fileName: 'source.pdf', textEdits: [], ocrResults: {} };
   const state = { documents: [doc] };
   const writes = [], messages = [], built = [];
   const deps = {
     state, getActiveDocument: () => state.documents[0],
-    saveFileDialog: async name => `/tmp/${name}`,
+    saveFileDialog,
     writeBinaryFileAtomic: async (path, bytes) => writes.push({ path, bytes }),
     showLoading() {}, hideLoading() {}, showMessage: message => messages.push(message),
     i18next: { t: key => key },
@@ -26,7 +34,7 @@ function harness() {
     pageImage: async () => new Uint8Array(),
   };
   const exportOffice = new Function(...Object.keys(deps), `${exportSource}\nreturn exportOffice;`)(...Object.values(deps));
-  return { content, doc, state, writes, messages, built, exportOffice };
+  return { content, extracting, doc, state, writes, messages, built, exportOffice };
 }
 
 test('closing the source document during Office extraction prevents an output file', async () => {
@@ -65,4 +73,38 @@ test('an unknown office format is refused before asking for a file', async () =>
   const h = harness();
   assert.equal(await h.exportOffice({ format: 'rtf', pages: [1] }), false);
   assert.deepEqual(h.writes, []);
+});
+
+for (const format of ['odt', 'xlsx']) {
+  test(`${format} rejects text edits made while choosing the output file`, async () => {
+    const dialog = deferred();
+    const h = harness({ saveFileDialog: () => dialog.promise });
+    const exporting = h.exportOffice({ format, pages: [1] });
+    h.doc.textEdits.push({ baked: false, replacement: 'Updated' });
+    dialog.resolve(`/tmp/source.${format}`);
+    h.content.resolve({ items: [] });
+    assert.equal(await exporting, false);
+    assert.deepEqual(h.writes, []);
+    assert.match(h.messages[0], /officeSaveEditsFirst/);
+  });
+
+  test(`${format} rejects text edits arriving during text extraction`, async () => {
+    const h = harness();
+    const exporting = h.exportOffice({ format, pages: [1] });
+    await h.extracting.promise;
+    h.doc.textEdits.push({ baked: false, replacement: 'Updated' });
+    h.content.resolve({ items: [] });
+    assert.equal(await exporting, false);
+    assert.deepEqual(h.writes, []);
+    assert.match(h.messages[0], /officeSaveEditsFirst/);
+  });
+}
+
+test('already saved edits do not block Office export', async () => {
+  const h = harness();
+  h.doc.textEdits.push({ baked: true });
+  const exporting = h.exportOffice({ format: 'xlsx', pages: [1] });
+  h.content.resolve({ items: [] });
+  assert.equal(await exporting, true);
+  assert.equal(h.writes.length, 1);
 });

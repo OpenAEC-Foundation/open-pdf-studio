@@ -2071,7 +2071,9 @@ async function handleSavePdf(params) {
   } catch { /* best-effort */ }
   let success;
   try {
-    success = await saverMod.savePDF(path, { zonderHandtekeningVraag: true }, doc);
+    success = path
+      ? await saverMod.savePDFAs(doc, path, { zonderHandtekeningVraag: true })
+      : await saverMod.savePDF(null, { zonderHandtekeningVraag: true }, doc);
   } catch (e) {
     return { ok: false, error: `savePDF: ${e?.message ?? e}` };
   }
