@@ -17,6 +17,7 @@ const PACKAGE_REL = 'http://schemas.openxmlformats.org/package/2006/relationship
 const part = (name, data) => ({ name, data });
 const decimalPlaces = Array.from({ length: 15 }, (_, i) => i + 1);
 const CURRENCY_STYLE = 2 + decimalPlaces.length;
+const CURRENCY_SUFFIX_STYLE = CURRENCY_STYLE + 1;
 function hasHeaderRow(rows, decimal = '.') {
   return rows.length > 1 && !/:\s*$/.test(String(rows[0][0] ?? ''))
     && !rows[0].slice(1).some(value => spreadsheetNumber(value, decimal) !== null
@@ -48,7 +49,7 @@ export function buildXlsx(pages, { title = 'Document', decimal = '.', pageLabel 
     part('docProps/core.xml', `${XML}<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>${xml(title)}</dc:title><dc:creator>Open PDF Studio</dc:creator></cp:coreProperties>`),
     part('xl/workbook.xml', `${XML}<workbook xmlns="${MAIN}" xmlns:r="${REL}"><bookViews><workbookView/></bookViews><sheets>${sheets.map((s, i) => `<sheet name="${xml(s.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('')}</sheets></workbook>`),
     part('xl/_rels/workbook.xml.rels', `${XML}<Relationships xmlns="${PACKAGE_REL}">${sheets.map((_, i) => `<Relationship Id="rId${i + 1}" Type="${REL}/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('')}<Relationship Id="styles" Type="${REL}/styles" Target="styles.xml"/></Relationships>`),
-    part('xl/styles.xml', `${XML}<styleSheet xmlns="${MAIN}"><numFmts count="16">${decimalPlaces.map(n => `<numFmt numFmtId="${163 + n}" formatCode="0.${'0'.repeat(n)}"/>`).join('')}<numFmt numFmtId="179" formatCode="&quot;€&quot; #,##0.00"/></numFmts><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF244766"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="${CURRENCY_STYLE + 1}"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>${decimalPlaces.map(n => `<xf numFmtId="${163 + n}" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>`).join('')}<xf numFmtId="179" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`),
+    part('xl/styles.xml', `${XML}<styleSheet xmlns="${MAIN}"><numFmts count="17">${decimalPlaces.map(n => `<numFmt numFmtId="${163 + n}" formatCode="0.${'0'.repeat(n)}"/>`).join('')}<numFmt numFmtId="179" formatCode="&quot;€&quot; #,##0.00"/><numFmt numFmtId="180" formatCode="#,##0.00 &quot;€&quot;"/></numFmts><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF244766"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="${CURRENCY_SUFFIX_STYLE + 1}"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>${decimalPlaces.map(n => `<xf numFmtId="${163 + n}" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>`).join('')}<xf numFmtId="179" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf><xf numFmtId="180" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`),
   ];
   sheets.forEach((sheet, i) => {
     const width = sheet.rows.reduce((max, row) => Math.max(max, row.length), 1);
@@ -64,7 +65,10 @@ export function buildXlsx(pages, { title = 'Document', decimal = '.', pageLabel 
       const number = !hasHeader || r > 0 ? (currency ?? spreadsheetNumber(value, decimal)) : null;
       if (number !== null) {
         const places = String(value).trim().split(decimal)[1]?.length || 0;
-        return `<c r="${ref}" s="${currency !== null ? CURRENCY_STYLE : places ? places + 1 : 0}"><v>${number}</v></c>`;
+        const style = currency !== null
+          ? (/€\s*$/.test(String(value).trim()) ? CURRENCY_SUFFIX_STYLE : CURRENCY_STYLE)
+          : places ? places + 1 : 0;
+        return `<c r="${ref}" s="${style}"><v>${number}</v></c>`;
       }
       const text = String(value ?? '');
       if (text.length > 32767) throw new Error('Excel cell text exceeds 32767 characters');

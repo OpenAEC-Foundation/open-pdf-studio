@@ -15,34 +15,8 @@ import { getActiveDocument } from '../core/state.js';
 import { createAnnotation } from './factory.js';
 import { schaalgebiedenOpPagina } from './schaal-op-punt.js';
 import { schaalBronnenInDoorloop, vergeetSchaalBronnen } from './schaal-bronnen.js';
-
-// Parse "1:100" → 100 (the denominator of the drawing-to-world ratio)
-export function parseScaleString(s) {
-  if (!s) return null;
-  const m = String(s).match(/1\s*[:/]\s*(\d+(?:\.\d+)?)/);
-  if (!m) return null;
-  const denom = parseFloat(m[1]);
-  if (!denom || denom <= 0) return null;
-  return denom;
-}
-
-// Compute pixelsPerUnit for a scale region given its scaleString + units.
-// PDF user units = 1/72 inch. We keep this consistent with the viewport tool:
-//   1 mm at 1:N maps to (72 / 25.4) / N pixels.
-//   1 cm = 10mm; 1 m = 1000mm; 1 in = 25.4mm; 1 ft = 304.8mm.
-export function pixelsPerUnitFor(scaleString, units) {
-  const denom = parseScaleString(scaleString);
-  if (!denom) return 1;
-  const ppmm = (72 / 25.4) / denom;
-  switch (units) {
-    case 'mm': return ppmm;
-    case 'cm': return ppmm * 10;
-    case 'm':  return ppmm * 1000;
-    case 'in': return ppmm * 25.4;
-    case 'ft': return ppmm * 304.8;
-    default:   return ppmm;
-  }
-}
+import { pixelsPerUnitFor } from './scale-region-scale.js';
+export { parseScaleString, pixelsPerUnitFor } from './scale-region-scale.js';
 
 // Per-redraw cache keyed by document instance.
 // Map<doc, Map<pageNum, scaleRegion[] sorted by area asc>>

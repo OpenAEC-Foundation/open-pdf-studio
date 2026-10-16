@@ -19,6 +19,7 @@ import { schrijfPlattegrondMeta } from './saver/plattegrond-meta.js';
 import { maatlijnAnnotatie, kopVullingSleutels } from './saver/maatlijn-opslaan.js';
 import { schrijfMeetvlakSchaal, meetvlakRect } from './saver/meetvlak-opslaan.js';
 import { vlakZijdeTeksten } from '../annotations/measurement.js';
+import { verzamelSchaalBronnen } from '../annotations/schaal-op-punt.js';
 import { attachVectorAP } from './saver/vector-ap.js';
 import { bytesVan as knipselBytesVan } from '../annotations/vector-snippet-store.js';
 import { getAnnotationStorage, getAnnotIdToFieldName } from './form-layer.js';
@@ -365,6 +366,7 @@ async function _savePDFNu(saveAsPath, activeDoc) {
     // PDF viewers resolve font names in DA strings through these resources.
     const doc = activeDoc;
     const docAnnotations = doc?.annotations || [];
+    const scaleSources = verzamelSchaalBronnen(doc);
     const ftAnnotations = docAnnotations.filter(a => a.type === 'textbox' || a.type === 'callout');
     if (ftAnnotations.length > 0) {
       // Collect all font names actually used
@@ -2358,7 +2360,8 @@ async function _savePDFNu(saveAsPath, activeDoc) {
           case 'measureDistance': {
             // Maatlijn met hulplijnen, schaal en appearance: saver/maatlijn-opslaan.js.
             annotDict = maatlijnAnnotatie({
-              ann, context, convertX, convertY, opacity, borderWidth, paginaRotatie: pageRot || 0,
+              ann, annRaw, doc, preferences: state.preferences, scaleSources,
+              context, convertX, convertY, opacity, borderWidth, paginaRotatie: pageRot || 0,
             });
             break;
           }
@@ -3101,8 +3104,9 @@ async function _savePDFNu(saveAsPath, activeDoc) {
     // gebakken text-edit-records zijn daarna overbodig — pixels én tekst
     // zitten in het bestand — en de tekstlaag toont de nieuwe tekst als
     // gewone paginatekst, direct opnieuw bewerkbaar.
-    if (textEditsGebakken && !saveAsPath && activeDoc) {
+    if (textEditsGebakken && activeDoc) {
       try {
+        if (saveAsPath) activeDoc.saveTargetPath = saveAsPath;
         const { reloadFromBytes } = await import('./page-manager.js');
         await reloadFromBytes(
           savedBytes,
@@ -3159,7 +3163,7 @@ async function _savePDFNu(saveAsPath, activeDoc) {
 
 
 // Save As - prompt for new file path
-export async function savePDFAs(doc = getActiveDocument()) {
+export async function savePDFAs(doc = getActiveDocument(), explicitPath = null, opties = {}) {
   if (!doc?.pdfDoc) {
     showMessage(i18next.t('noPdfLoaded'));
     return false;
@@ -3170,18 +3174,20 @@ export async function savePDFAs(doc = getActiveDocument()) {
   // bestand: stel dan de tabbladnaam met .pdf voor in een normale map.
   const currentPath = doc?.filePath;
   let map = null;
-  if (doc?.isUntitled && !doc._voorgesteldeMap) {
+  if (!explicitPath && doc?.isUntitled && !doc._voorgesteldeMap) {
     try { map = await window.__TAURI__?.path?.documentDir?.(); } catch { map = null; }
   }
-  const { opslaanAlsStandaardPad } = await import('./handtekeningen/opslaan.js');
-  const defaultPath = opslaanAlsStandaardPad(doc, map);
-
-  const savePath = await saveFileDialog(defaultPath);
+  let savePath = explicitPath;
+  if (!savePath) {
+    const { opslaanAlsStandaardPad } = await import('./handtekeningen/opslaan.js');
+    const defaultPath = opslaanAlsStandaardPad(doc, map);
+    savePath = await saveFileDialog(defaultPath);
+  }
 
   if (savePath) {
     const wasUntitled = !!doc?.isUntitled || !currentPath;
     const tempPath = (doc?.isUntitled || doc?._renderTemp) ? currentPath : null;
-    const success = await savePDF(savePath, {}, doc);
+    const success = await savePDF(savePath, opties, doc);
 
     // If saved to a new path, update the current path and UI
     if (success && savePath !== currentPath) {

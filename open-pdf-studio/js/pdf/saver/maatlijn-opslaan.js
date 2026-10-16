@@ -23,6 +23,7 @@ import { pdfTextString } from './pdf-text.js';
 import { schrijfPlattegrondMeta } from './plattegrond-meta.js';
 import { buildMeasureDistanceAP, buildInlineMaatAP } from './appearance-vectors.js';
 import { attachVectorAP } from './vector-ap.js';
+import { writeDimensionMeasure } from './dimension-measure.js';
 import { maatlijnTekst, maatLabelRuimte } from '../../annotations/maat-label.js';
 import { maatlijnGeometrie, maatlijnVelden, papierMmNaarPt } from '../../annotations/maatlijn-geometrie.js';
 import { inlineMaatlijn, helveticaBreedte } from '../../annotations/maatlijn-inline.js';
@@ -56,7 +57,8 @@ const rond = (n) => Math.round(n * 1e6) / 1e6;
  * het ongedraaide paginaframe (saver.js); `convertX`/`convertY` rekenen naar
  * PDF-coördinaten. `paginaRotatie` is de /Rotate van de pagina.
  */
-export function maatlijnAnnotatie({ ann, context, convertX, convertY, opacity, borderWidth, paginaRotatie = 0 }) {
+export function maatlijnAnnotatie({ ann, annRaw = ann, doc, preferences, scaleSources,
+  context, convertX, convertY, opacity, borderWidth, paginaRotatie = 0 }) {
   let annotDict;
   const overgenomen = heeftOvergenomenOpmaak(ann);
   const inline = ann.dimTextPosition === 'inline';
@@ -189,27 +191,12 @@ export function maatlijnAnnotatie({ ann, context, convertX, convertY, opacity, b
 
   mdDict.Rect = [mdRectMinX, mdRectMinY, mdRectMaxX, mdRectMaxY];
 
-  // Save Measure dictionary with scale factor
-  if (ann.measureScale || inline) {
-    mdDict.Cap = true;
-    mdDict.CP = PDFName.of('Inline');
-  }
+  // Keep scale and units machine-readable even when inherited from the page.
+  mdDict.Cap = true;
+  mdDict.CP = PDFName.of('Inline');
 
   annotDict = context.obj(mdDict);
-
-  if (ann.measureScale) {
-    const numFmt = context.obj({
-      C: ann.measureScale,
-      D: 1,
-      U: pdfTextString(ann.measureUnit || 'mm'),
-    });
-    const measureDict = context.obj({
-      Subtype: PDFName.of('RL'),
-      R: pdfTextString(`1 pt = ${ann.measureScale} ${ann.measureUnit || 'mm'}`),
-      X: context.obj([numFmt]),
-    });
-    annotDict.set(PDFName.of('Measure'), measureDict);
-  }
+  writeDimensionMeasure(annotDict, context, annRaw, doc, preferences, scaleSources);
 
   annotDict.set(PDFName.of('BS'), buildBorderStyle(context, borderWidth, ann.borderStyle));
   // Vector /AP so the dimension line, extension lines AND the value
