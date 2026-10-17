@@ -58,6 +58,91 @@ Var VPrinterState
 !macroend
 
 ; ============================================================
+; File Explorer thumbnails (#605)
+;
+; open-pdf-thumbnails.dll is a shell thumbnail handler. The app registers it
+; per user (HKCU) when the user turns it on in Preferences; the installer never
+; turns it on. Constants: same values as open-pdf-thumbnails/src/registratie.rs.
+;
+; - install/update: File Explorer may have the DLL loaded (in its thumbnail
+;   surrogate process), so it cannot be overwritten. A loaded DLL can still be
+;   renamed: the old one is moved aside and removed on a later run.
+; - uninstall: undo this user's registration when it points into this install
+;   folder, putting back a handler of another program that it replaced. An
+;   update or a reinstall keeps it (same path).
+; ============================================================
+!define OPDS_THUMB_DLL "open-pdf-thumbnails.dll"
+!define OPDS_THUMB_CLSID "{CB423985-4932-4B94-8BD3-C515D63CB768}"
+!define OPDS_THUMB_CLSID_KEY "Software\Classes\CLSID\${OPDS_THUMB_CLSID}"
+!define OPDS_THUMB_SHELLEX_KEY "Software\Classes\.pdf\ShellEx\{E357FCCD-A995-4576-B01F-234630154E96}"
+!define OPDS_THUMB_PREVIOUS "PreviousPdfThumbnailHandler"
+
+; Moves the handler DLL out of the way when it cannot be deleted (in use).
+; Leaves the new name in $R8, or "" when nothing had to be moved.
+!macro OPDS_THUMB_MOVE_ASIDE
+  StrCpy $R8 ""
+  Delete "$INSTDIR\${OPDS_THUMB_DLL}.old*"
+  ${If} ${FileExists} "$INSTDIR\${OPDS_THUMB_DLL}"
+    ClearErrors
+    Delete "$INSTDIR\${OPDS_THUMB_DLL}"
+    ${If} ${Errors}
+      System::Call 'kernel32::GetTickCount() i .R9'
+      ClearErrors
+      Rename "$INSTDIR\${OPDS_THUMB_DLL}" "$INSTDIR\${OPDS_THUMB_DLL}.old$R9"
+      ${If} ${Errors}
+        DetailPrint "File Explorer thumbnail handler is in use and could not be moved."
+      ${Else}
+        StrCpy $R8 "$INSTDIR\${OPDS_THUMB_DLL}.old$R9"
+        DetailPrint "File Explorer thumbnail handler was in use; moved aside."
+      ${EndIf}
+    ${EndIf}
+    ClearErrors
+  ${EndIf}
+!macroend
+
+; Deletes an HKCU key only when it has no subkeys and no values.
+!macro OPDS_DELETE_HKCU_KEY_IF_EMPTY _KEY
+  EnumRegKey $R4 HKCU "${_KEY}" 0
+  EnumRegValue $R5 HKCU "${_KEY}" 0
+  ${If} $R4 == ""
+  ${AndIf} $R5 == ""
+    DeleteRegKey HKCU "${_KEY}"
+  ${EndIf}
+  ClearErrors
+!macroend
+
+; Turns the thumbnails off for the current user when the registration points
+; at this install folder: the same steps as zet_uit in registratie.rs.
+; The 64-bit registry view: this installer is a 32-bit process, and for it
+; HKCU\Software\Classes\CLSID is redirected to Wow6432Node, where the
+; 64-bit app's registration is not.
+!macro OPDS_THUMB_UNREGISTER
+  SetRegView 64
+  ReadRegStr $R1 HKCU "${OPDS_THUMB_CLSID_KEY}\InprocServer32" ""
+  ${If} $R1 == "$INSTDIR\${OPDS_THUMB_DLL}"
+    ReadRegStr $R2 HKCU "${OPDS_THUMB_SHELLEX_KEY}" ""
+    ${If} $R2 == "${OPDS_THUMB_CLSID}"
+      ReadRegStr $R3 HKCU "${OPDS_THUMB_CLSID_KEY}" "${OPDS_THUMB_PREVIOUS}"
+      ${If} $R3 != ""
+        WriteRegStr HKCU "${OPDS_THUMB_SHELLEX_KEY}" "" "$R3"
+      ${Else}
+        DeleteRegKey HKCU "${OPDS_THUMB_SHELLEX_KEY}"
+        !insertmacro OPDS_DELETE_HKCU_KEY_IF_EMPTY "Software\Classes\.pdf\ShellEx"
+        !insertmacro OPDS_DELETE_HKCU_KEY_IF_EMPTY "Software\Classes\.pdf"
+      ${EndIf}
+    ${EndIf}
+    DeleteRegKey HKCU "${OPDS_THUMB_CLSID_KEY}"
+    System::Call 'shell32::SHChangeNotify(i 0x08000000, i 0x0000, p 0, p 0)'
+    DetailPrint "File Explorer thumbnails turned off."
+  ${EndIf}
+  SetRegView lastused
+!macroend
+
+!macro NSIS_HOOK_PREINSTALL
+  !insertmacro OPDS_THUMB_MOVE_ASIDE
+!macroend
+
+; ============================================================
 ; Page 1: File Association
 ; ============================================================
 Function FileAssocPageCreate
@@ -248,6 +333,21 @@ FunctionEnd
       ${Else}
         DetailPrint "Virtual printer could not be removed completely (exit code: $0)."
       ${EndIf}
+    ${EndIf}
+  ${EndIf}
+  ClearErrors
+
+  ; --- File Explorer thumbnails (#605) ---
+  ClearErrors
+  ${GetOptions} $CMDLINE "/KEEPPRINTER" $R1
+  ${IfNot} ${Errors}
+  ${OrIf} $UpdateMode = 1
+    DetailPrint "Keeping the File Explorer thumbnail setting (another version is being installed)."
+  ${Else}
+    !insertmacro OPDS_THUMB_UNREGISTER
+    !insertmacro OPDS_THUMB_MOVE_ASIDE
+    ${If} $R8 != ""
+      Delete /REBOOTOK "$R8"
     ${EndIf}
   ${EndIf}
   ClearErrors

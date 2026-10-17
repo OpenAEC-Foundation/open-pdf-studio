@@ -181,9 +181,20 @@
     "checkFinder": "Tarkista Finder > Hae tietoja",
     "notSet": "Ei asetettu"
   },
+  "explorerThumbnails": {
+    "title": "Resurssienhallinta",
+    "show": "Näytä PDF-pikkukuvat resurssienhallinnassa",
+    "help": "Resurssienhallinta näyttää tällöin jokaisen PDF:n ensimmäisen sivun PDF-kuvakkeen sijaan. Asetus koskee vain Windows-tiliäsi eikä muuta oletus-PDF-sovellustasi.",
+    "unavailable": "Ei käytettävissä tässä versiossa.",
+    "otherHandler": "PDF-pikkukuvat tarjoaa tällä hetkellä {{name}}.",
+    "defaultApp": "Oletus-PDF-sovelluksesi näyttää omat pikkukuvansa ({{name}}). Windows käyttää niitä niin kauan kuin kyseinen sovellus on oletus-PDF-sovelluksesi.",
+    "replaceTitle": "PDF-pikkukuvat",
+    "replaceConfirm": "{{name}} tarjoaa jo PDF-pikkukuvat resurssienhallintaan.\n\nNäytetäänkö Windows-tilillesi sen sijaan Open PDF Studion pikkukuvat? Kun poistat asetuksen käytöstä, aiemmat pikkukuvat palautetaan.",
+    "failed": "Resurssienhallinnan pikkukuva-asetusta ei voitu muuttaa."
+  },
   "virtualPrinter": {
     "title": "Virtuaalitulostin",
-    "description": "Asenna \"Open PDF Printer\" Windows-tulostimeksi. Kun tulostat mistä tahansa sovelluksesta (Word, Chrome, Muistio jne.) ja valitset tämän tulostimen, tulostettava PDF avautuu automaattisesti tässä sovelluksessa.",
+    "description": "\"Open PDF Printer\" on Windows-tulostin, joka muuttaa minkä tahansa ohjelman tulosteen PDF-tiedostoksi ja kerää sen tämän sovelluksen tulostinikkunaan.",
     "status": "Tila:",
     "installButton": "Asenna virtuaalitulostin",
     "removeButton": "Poista virtuaalitulostin",
@@ -196,7 +207,17 @@
     "installationFailed": "Asennus epäonnistui",
     "removalFailed": "Poistaminen epäonnistui",
     "failedToInstall": "Virtuaalitulostimen asennus epäonnistui:",
-    "failedToRemove": "Virtuaalitulostimen poistaminen epäonnistui:"
+    "failedToRemove": "Virtuaalitulostimen poistaminen epäonnistui:",
+    "stateActiveDetail": "Tulosteet tulostimeen {{printer}} saapuvat tulostinikkunaan ilman Tallenna-ikkunaa.",
+    "stateDialogDetail": "Jokainen tuloste kysyy yhä tallennuspaikkaa. Ota PDF-kaappaus käyttöön, jotta tulosteet kerätään tulostinikkunaan.",
+    "stateMissingDetail": "Asenna tulostin, niin voit luoda PDF-tiedoston mistä tahansa ohjelmasta.",
+    "stateUnknownDetail": "Tulostimen tilaa ei voitu lukea.",
+    "howTitle": "Näin se toimii",
+    "how1": "Valitse missä tahansa ohjelmassa Tulosta ja valitse {{printer}}.",
+    "how2": "Tuloste ilmestyy Open PDF Studion tulostinikkunaan.",
+    "how3": "Esikatsele, järjestä, yhdistä ja tallenna työt yhtenä PDF-tiedostona tai avaa ne Studiossa.",
+    "openWindow": "Avaa tulostinikkuna",
+    "openWindowTip": "Näytä kaapatut tulostustyöt"
   },
   "pageDisplay": {
     "rendering": "Renderöinti",

@@ -36,6 +36,9 @@ test('alle gekozen instellingen komen terug', () => {
     posterCutMarks: false,
     posterLabels: false,
     posterOnlyLarge: false,
+    flyerCount: '8',
+    flyerCutMarks: false,
+    bookletSheets: 4,
   };
   assert.deepEqual(herstelPrintInstellingen(gekozen), gekozen);
 });
@@ -130,4 +133,32 @@ test('de keuzelijst in de printdialoog kent precies deze waarden', async () => {
   const blok = jsx.split('onChange={(e) => onPrintContentChange(e.target.value)}')[1] ?? '';
   const waarden = [...blok.split('</select>')[0].matchAll(/<option value="([^"]+)"/g)].map((m) => m[1]);
   assert.deepEqual(waarden, [...PRINT_KEUZES.content]);
+});
+
+test('folder en katernen (#607): de keuzes blijven bewaard, rommel valt terug', () => {
+  assert.equal(herstelPrintInstellingen({ perSheet: 'flyer' }).perSheet, 'flyer');
+  assert.equal(herstelPrintInstellingen({ flyerCount: 16 }).flyerCount, '16');
+  assert.equal(herstelPrintInstellingen({ flyerCount: '7' }).flyerCount, PRINT_STANDAARD.flyerCount);
+  assert.equal(herstelPrintInstellingen({ flyerCutMarks: 'ja' }).flyerCutMarks, PRINT_STANDAARD.flyerCutMarks);
+  assert.equal(PRINT_STANDAARD.flyerCount, '4');
+  assert.equal(PRINT_STANDAARD.flyerCutMarks, true);
+  assert.equal(PRINT_STANDAARD.bookletSheets, 0);
+  assert.equal(herstelPrintInstellingen({ bookletSheets: 8 }).bookletSheets, 8);
+  assert.equal(herstelPrintInstellingen({ bookletSheets: 7 }).bookletSheets, 0);
+  assert.equal(herstelPrintInstellingen({ bookletSheets: 'x' }).bookletSheets, 0);
+});
+
+test("de keuzelijsten voor pagina's per vel en folder in de printdialoog kennen precies deze waarden", async () => {
+  const { readFileSync } = await import('node:fs');
+  const { dirname, join } = await import('node:path');
+  const { fileURLToPath } = await import('node:url');
+  const jsx = readFileSync(
+    join(dirname(fileURLToPath(import.meta.url)), '../components/dialogs/PrintDialog.jsx'), 'utf8',
+  );
+  const waardenNa = (merk) => {
+    const blok = jsx.split(merk)[1] ?? '';
+    return [...blok.split('</select>')[0].matchAll(/<option value="([^"]+)"/g)].map((m) => m[1]);
+  };
+  assert.deepEqual(waardenNa('onChange={(e) => setPerSheet(e.target.value)}'), [...PRINT_KEUZES.perSheet]);
+  assert.deepEqual(waardenNa('onChange={(e) => setFlyerCount(e.target.value)}'), [...PRINT_KEUZES.flyerCount]);
 });

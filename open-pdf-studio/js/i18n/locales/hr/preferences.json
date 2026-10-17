@@ -181,9 +181,20 @@
     "checkFinder": "Provjerite Finder > Get Info",
     "notSet": "Nije postavljeno"
   },
+  "explorerThumbnails": {
+    "title": "Eksplorer za datoteke",
+    "show": "Prikaži minijature PDF-ova u Eksploreru za datoteke",
+    "help": "Eksplorer za datoteke tada umjesto ikone PDF-a prikazuje prvu stranicu svakog PDF-a. To vrijedi samo za vaš Windows račun i ne mijenja vašu zadanu aplikaciju za PDF.",
+    "unavailable": "Nije dostupno u ovoj verziji.",
+    "otherHandler": "Minijature PDF-ova trenutačno pruža {{name}}.",
+    "defaultApp": "Vaša zadana aplikacija za PDF prikazuje vlastite minijature ({{name}}). Windows ih koristi dok je ta aplikacija vaša zadana aplikacija za PDF.",
+    "replaceTitle": "Minijature PDF-ova",
+    "replaceConfirm": "{{name}} već pruža minijature PDF-ova u Eksploreru za datoteke.\n\nŽelite li umjesto toga za svoj Windows račun prikazivati minijature iz aplikacije Open PDF Studio? Isključivanjem ove mogućnosti vraćaju se prethodne minijature.",
+    "failed": "Postavka minijatura u Eksploreru za datoteke nije se mogla promijeniti."
+  },
   "virtualPrinter": {
     "title": "Virtualni pisač",
-    "description": "Instalirajte \"Open PDF Printer\" kao Windows pisač. Kada ispisujete iz bilo koje aplikacije (Word, Chrome, Notepad itd.) i odaberete ovaj pisač, izlazni PDF će se automatski otvoriti u ovoj aplikaciji.",
+    "description": "„Open PDF Printer“ je Windows pisač koji ispis iz bilo kojeg programa pretvara u PDF i prikuplja ga u prozoru pisača ove aplikacije.",
     "status": "Status:",
     "installButton": "Instaliraj virtualni pisač",
     "removeButton": "Ukloni virtualni pisač",
@@ -196,7 +207,17 @@
     "installationFailed": "Instalacija nije uspjela",
     "removalFailed": "Uklanjanje nije uspjelo",
     "failedToInstall": "Nije uspjela instalacija virtualnog pisača:",
-    "failedToRemove": "Nije uspjelo uklanjanje virtualnog pisača:"
+    "failedToRemove": "Nije uspjelo uklanjanje virtualnog pisača:",
+    "stateActiveDetail": "Ispisi na {{printer}} stižu u prozor pisača bez dijaloga Spremi.",
+    "stateDialogDetail": "Svaki ispis i dalje pita gdje spremiti. Omogućite hvatanje PDF-a da bi se ispisi prikupljali u prozoru pisača.",
+    "stateMissingDetail": "Instalirajte pisač da biste iz bilo kojeg programa mogli izraditi PDF.",
+    "stateUnknownDetail": "Nije moguće pročitati stanje pisača.",
+    "howTitle": "Kako radi",
+    "how1": "U bilo kojem programu odaberite Ispis i odaberite {{printer}}.",
+    "how2": "Ispis se pojavljuje u prozoru pisača programa Open PDF Studio.",
+    "how3": "Pregledajte, preuredite, spojite i spremite zadatke kao jedan PDF ili ih otvorite u Studiju.",
+    "openWindow": "Otvori prozor pisača",
+    "openWindowTip": "Prikaži uhvaćene zadatke ispisa"
   },
   "pageDisplay": {
     "rendering": "Iscrtavanje",

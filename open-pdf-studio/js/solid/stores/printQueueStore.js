@@ -59,10 +59,10 @@ export async function openPrintQueueWindow() {
     const win = new W(label, {
       url: 'index.html?view=printqueue',
       title: 'Open PDF Printer',
-      width: 640,
-      height: 540,
-      minWidth: 420,
-      minHeight: 320,
+      width: 920,
+      height: 620,
+      minWidth: 560,
+      minHeight: 400,
       resizable: true,
       decorations: true,
     });
@@ -70,6 +70,52 @@ export async function openPrintQueueWindow() {
   } catch (e) {
     console.warn('[printqueue] could not open window:', e);
   }
+}
+
+/**
+ * State of the virtual printer, read-only (no PowerShell, see lib.rs):
+ *  'active'  installed, prints are caught silently in the spool;
+ *  'dialog'  installed, but every print still shows a Save dialog;
+ *  'missing' not installed;  'unknown' could not be read (or not desktop).
+ */
+export async function readPrinterState() {
+  try {
+    if (!(await _invoke('is_virtual_printer_installed'))) return 'missing';
+  } catch (_) {
+    return 'unknown';
+  }
+  try {
+    return (await _invoke('virtual_printer_catch_enabled')) ? 'active' : 'dialog';
+  } catch (_) {
+    return 'dialog';
+  }
+}
+
+const SETTINGS_EVENT = 'print-queue:open-settings';
+
+/** From the printer window: ask the main window to show the printer settings. */
+export async function requestPrinterSettings() {
+  const ev = window.__TAURI__?.event;
+  if (!ev) return false;
+  try {
+    if (ev.emitTo) await ev.emitTo('main', SETTINGS_EVENT);
+    else await ev.emit(SETTINGS_EVENT);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+/** In the main window: answer requestPrinterSettings() with the Virtual printer tab. */
+export async function listenForPrinterSettingsRequests() {
+  const ev = window.__TAURI__?.event;
+  const current = window.__TAURI__?.webviewWindow?.getCurrentWebviewWindow?.();
+  if (!ev?.listen || (current && current.label !== 'main')) return;
+  await ev.listen(SETTINGS_EVENT, async () => {
+    try { await current?.show(); await current?.setFocus(); } catch (_) {}
+    const { showPreferencesDialog } = await import('../../core/preferences.js');
+    showPreferencesDialog('vprinter');
+  });
 }
 
 async function _tick() {

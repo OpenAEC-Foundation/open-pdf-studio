@@ -9,6 +9,7 @@ js/annotations/maatlijn-inline.test.mjs
 js/annotations/rendering/maat-inline-tekenen.test.mjs
 js/pdf/loader/maatlijn-uit-bestand.test.mjs
 js/pdf/saver/maatlijn-opslaan.test.mjs
+js/pdf/saver/dimension-measure.test.mjs
 js/pdf/maatlijn-rondgang.test.mjs
 js/annotations/corrections/geometry.test.mjs
 js/annotations/corrections/model.test.mjs
@@ -354,6 +355,7 @@ js/pdf/page-transition.test.mjs
 js/mobile/mobiele-gereedschappen.test.mjs
 js/core/oude-webview.test.mjs
 scripts/oude-webview.test.mjs
+scripts/oude-webview-pdfjs.test.mjs
 scripts/android-config.test.mjs
 js/core/fout-bericht.test.mjs
 js/core/bestandsnaam.test.mjs
@@ -375,3 +377,12 @@ js/pdf/print-boekje.test.mjs
 js/pdf/splits-logica.test.mjs
 js/pdf/splits-document.test.mjs
 js/pdf/splits-i18n.test.mjs
+js/pdf/print-bereik.test.mjs
+js/pdf/print-flyer.test.mjs
+js/pdf/print-katern.test.mjs
+js/solid/stores/print-queue-model.test.mjs
+js/solid/components/print-queue-i18n.test.mjs
+js/ui/chrome/tab-losmaken.test.mjs
+js/core/instantie-rol.test.mjs
+js/core/verkenner-miniaturen.test.mjs
+js/i18n/verkenner-miniaturen-i18n.test.mjs

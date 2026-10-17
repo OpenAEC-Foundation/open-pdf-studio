@@ -3,7 +3,8 @@
   "bundle": {
     "resources": {
       "binaries/win-x64/pdfium.dll": "pdfium.dll",
-      "WebView2Loader.dll": "WebView2Loader.dll"
+      "WebView2Loader.dll": "WebView2Loader.dll",
+      "binaries/open-pdf-thumbnails.dll": "open-pdf-thumbnails.dll"
     }
   }
 }

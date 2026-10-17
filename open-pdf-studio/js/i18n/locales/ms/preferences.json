@@ -181,9 +181,20 @@
     "checkFinder": "Semak Finder > Dapatkan Maklumat",
     "notSet": "Tidak ditetapkan"
   },
+  "explorerThumbnails": {
+    "title": "Penjelajah Fail",
+    "show": "Tunjukkan lakaran kecil PDF dalam Penjelajah Fail",
+    "help": "Penjelajah Fail kemudian menunjukkan halaman pertama setiap PDF dan bukannya ikon PDF. Ini hanya terpakai pada akaun Windows anda dan tidak menukar aplikasi PDF lalai anda.",
+    "unavailable": "Tidak tersedia dalam versi ini.",
+    "otherHandler": "Lakaran kecil PDF kini disediakan oleh {{name}}.",
+    "defaultApp": "Aplikasi PDF lalai anda menunjukkan lakaran kecilnya sendiri ({{name}}). Windows menggunakannya selagi aplikasi itu menjadi aplikasi PDF lalai anda.",
+    "replaceTitle": "Lakaran kecil PDF",
+    "replaceConfirm": "{{name}} sudah menyediakan lakaran kecil PDF dalam Penjelajah Fail.\n\nTunjukkan lakaran kecil Open PDF Studio sebagai gantinya untuk akaun Windows anda? Mematikan pilihan ini akan memulihkan lakaran kecil sebelumnya.",
+    "failed": "Tetapan lakaran kecil Penjelajah Fail tidak dapat ditukar."
+  },
   "virtualPrinter": {
     "title": "Pencetak Maya",
-    "description": "Pasang \"Open PDF Printer\" sebagai pencetak Windows. Apabila anda mencetak dari mana-mana aplikasi (Word, Chrome, Notepad, dll.) dan memilih pencetak ini, output PDF akan dibuka secara automatik dalam aplikasi ini.",
+    "description": "\"Open PDF Printer\" ialah pencetak Windows yang menukar cetakan daripada mana-mana program kepada PDF dan mengumpulkannya dalam tetingkap pencetak aplikasi ini.",
     "status": "Status:",
     "installButton": "Pasang Pencetak Maya",
     "removeButton": "Buang Pencetak Maya",
@@ -196,7 +207,17 @@
     "installationFailed": "Pemasangan gagal",
     "removalFailed": "Pembuangan gagal",
     "failedToInstall": "Gagal memasang pencetak maya:",
-    "failedToRemove": "Gagal membuang pencetak maya:"
+    "failedToRemove": "Gagal membuang pencetak maya:",
+    "stateActiveDetail": "Cetakan ke {{printer}} sampai ke tetingkap pencetak tanpa dialog Simpan.",
+    "stateDialogDetail": "Setiap cetakan masih bertanya tempat menyimpan. Dayakan tangkapan PDF untuk mengumpulkan cetakan dalam tetingkap pencetak.",
+    "stateMissingDetail": "Pasang pencetak untuk membuat PDF daripada mana-mana program.",
+    "stateUnknownDetail": "Status pencetak tidak dapat dibaca.",
+    "howTitle": "Cara ia berfungsi",
+    "how1": "Dalam mana-mana program, pilih Cetak dan pilih {{printer}}.",
+    "how2": "Cetakan dipaparkan dalam tetingkap pencetak Open PDF Studio.",
+    "how3": "Pratonton, susun semula, gabung dan simpan kerja sebagai satu PDF, atau buka dalam Studio.",
+    "openWindow": "Buka tetingkap pencetak",
+    "openWindowTip": "Tunjukkan kerja cetak yang ditangkap"
   },
   "pageDisplay": {
     "rendering": "Rendering",

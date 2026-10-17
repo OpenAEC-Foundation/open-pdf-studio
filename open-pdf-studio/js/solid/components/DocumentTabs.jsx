@@ -18,9 +18,15 @@ import {
   compareNewPath,
 } from '../../compare/compare-store.js';
 
-// Detach threshold — how far the mouse must travel BELOW the tab bar
-// during drag before we treat it as a "detach to new window" gesture.
-const DETACH_VERTICAL_PX = 60;
+import {
+  buitenTabbalk,
+  buitenVenster,
+  besluitBijLoslaten,
+  moetOsSleepStarten,
+  besluitNaOsSleep,
+  padVoorNieuweInstantie,
+  losmaakBlokkade,
+} from '../../ui/chrome/tab-losmaken.js';
 
 // Cached current-window label (set once on first mount). All windows ask
 // Rust for their own label so cross-window dock IPC can identify the source.
@@ -38,26 +44,44 @@ async function getCurrentWindowLabel() {
 // Right-click context menu (Chrome-style "Open in new window" etc.)
 const [ctxMenu, setCtxMenu] = createSignal(null);
 
+// Tear a tab off into a SECOND app instance (its own process and window).
+//
+// Order matters: the tab is closed HERE first — that asks to save a modified
+// document (Save / Don't Save / Cancel) and releases the file lock and any
+// temporary working copy — and only then does the new instance open the file
+// from disk, so it always sees what the user chose to keep. If starting the
+// new instance fails, the document is reopened here.
 async function detachTabToNewWindow(index) {
   const doc = state.documents[index];
-  if (!doc) return;
-  const pdfPath = doc.filePath || '';
-  console.log('[detach] requested for index', index, 'pdfPath:', pdfPath);
+  const blokkade = losmaakBlokkade(doc);
+  if (blokkade === 'geen-document') return;
   // Untitled docs are backed by a TEMP file that this window owns and deletes
   // on close — handing it to another process would leave a dangling reference.
-  // Require an explicit save first.
-  if (!pdfPath || doc.isUntitled) {
+  if (blokkade === 'eerst-opslaan') {
     alert(i18next.t('tabs.saveBeforeDetach'));
     return;
   }
+  const { closeTab } = await import('../../ui/chrome/tabs.js');
+  const closed = await closeTab(index);
+  if (!closed) return; // user cancelled the save question
+  // Read the path AFTER closing: saving may have moved the document from a
+  // working copy to its real file.
+  const pdfPath = padVoorNieuweInstantie(doc);
+  if (!pdfPath) return;
   try {
-    const label = await invoke('spawn_window_with_pdf', { pdfPath });
-    console.log('[detach] spawn_window_with_pdf returned label:', label);
-    // Close the source tab AFTER the new window is spawned so the user
-    // visually sees the tab leave the parent.
-    await closeTabAndMaybeCloseWindow(index);
+    await invoke('spawn_window_with_pdf', { pdfPath });
   } catch (e) {
-    console.error('[detach] spawn_window_with_pdf failed:', e);
+    console.error('[detach] starting a new instance failed:', e);
+    try {
+      const [{ createTab }, { loadPDFIfNeeded }] = await Promise.all([
+        import('../../ui/chrome/tabs.js'),
+        import('../../pdf/loader.js'),
+      ]);
+      const { index: nieuw } = createTab(pdfPath);
+      await loadPDFIfNeeded(pdfPath, nieuw);
+    } catch (err) {
+      console.warn('[detach] reopening here failed:', err);
+    }
     alert(i18next.t('tabs.detachFailed', { error: e?.message || e }));
   }
 }
@@ -188,47 +212,71 @@ function onDocMouseMove(e) {
     document.body.style.userSelect = 'none';
   }
 
-  // Find which tab the mouse is over
   const tabsContainer = document.getElementById('document-tabs');
   if (!tabsContainer) return;
 
-  const tabElements = tabsContainer.querySelectorAll('.document-tab');
-  let targetIndex = -1;
+  // Tear-off gesture: once the cursor is far enough above or below the tab
+  // bar, releasing the button opens the tab in a second app instance. This
+  // stays an ordinary in-WebView drag: while the button is held, the WebView
+  // keeps delivering mouse events outside the window, so no OS drag loop is
+  // needed for it.
+  const tabBarRect = tabsContainer.getBoundingClientRect();
+  dragState.losGewapend = buitenTabbalk(e.clientY, tabBarRect);
 
-  for (let i = 0; i < tabElements.length; i++) {
-    const rect = tabElements[i].getBoundingClientRect();
-    if (e.clientX >= rect.left && e.clientX < rect.right) {
-      targetIndex = i;
-      break;
+  // Find which tab the mouse is over (reorder)
+  let targetIndex = -1;
+  if (!dragState.losGewapend) {
+    const tabElements = tabsContainer.querySelectorAll('.document-tab');
+    for (let i = 0; i < tabElements.length; i++) {
+      const rect = tabElements[i].getBoundingClientRect();
+      if (e.clientX >= rect.left && e.clientX < rect.right) {
+        targetIndex = i;
+        break;
+      }
     }
   }
+  setDropTargetIndex(targetIndex !== -1 && targetIndex !== dragState.fromIndex ? targetIndex : -1);
 
-  if (targetIndex !== -1 && targetIndex !== dragState.fromIndex) {
-    setDropTargetIndex(targetIndex);
-  } else {
-    setDropTargetIndex(-1);
+  // Re-dock: only while the cursor hangs over ANOTHER instance of this app do
+  // we hand off to a native OS file drag, so that instance can take the tab
+  // (its onDragDropEvent opens it). Asked at most every 120 ms.
+  const buiten = buitenVenster(e.clientX, e.clientY, window.innerWidth, window.innerHeight);
+  if (dragState.losGewapend && buiten && !dragState.doelVraag) {
+    const nu = Date.now();
+    if (!dragState.laatsteDoelVraag || nu - dragState.laatsteDoelVraag > 120) {
+      dragState.laatsteDoelVraag = nu;
+      const vraag = dragState;
+      vraag.doelVraag = dropTargetKind().then((doelSoort) => {
+        vraag.doelVraag = null;
+        // The gesture may have ended (or moved back) while we were asking.
+        if (dragState !== vraag || vraag.nativeDragStarted) return;
+        if (!moetOsSleepStarten({ losGewapend: vraag.losGewapend, buitenVenster: true, doelSoort })) return;
+        vraag.nativeDragStarted = true;
+        const from = vraag.fromIndex;
+        endMouseDrag();
+        startNativeTabDrag(from);
+      });
+    }
   }
+}
 
-  // Detach / re-dock hand-off: once the cursor leaves the tab bar vertically,
-  // stop our mouse-based tracking and start a NATIVE OS file-drag of the PDF.
-  // The OS drag is what lets the user drop onto ANOTHER app instance's tab bar
-  // (cross-process re-dock) — browser mouse events can't cross window/process
-  // boundaries, the OS drag-drop layer can. Started ONCE per drag.
-  const tabBarRect = tabsContainer.getBoundingClientRect();
-  const verticalOutside =
-       e.clientY > tabBarRect.bottom + DETACH_VERTICAL_PX
-    || e.clientY < tabBarRect.top    - DETACH_VERTICAL_PX;
-  if (verticalOutside && !dragState.nativeDragStarted) {
-    dragState.nativeDragStarted = true;
-    const from = dragState.fromIndex;
-    // Tear down mouse tracking — the OS drag loop owns the pointer now.
-    document.removeEventListener('mousemove', onDocMouseMove);
-    document.removeEventListener('mouseup', onDocMouseUp);
-    document.body.style.userSelect = '';
-    dragState = null;
-    setDraggingIndex(-1);
-    setDropTargetIndex(-1);
-    startNativeTabDrag(from);
+// Stop the in-WebView drag tracking and clear its visual state.
+function endMouseDrag() {
+  document.removeEventListener('mousemove', onDocMouseMove);
+  document.removeEventListener('mouseup', onDocMouseUp);
+  document.body.style.userSelect = '';
+  dragState = null;
+  setDraggingIndex(-1);
+  setDropTargetIndex(-1);
+}
+
+// What lies under the mouse cursor right now: 'zelf' | 'instantie' | 'geen'.
+async function dropTargetKind() {
+  try {
+    const r = await invoke('tab_drop_target');
+    return r?.kind || 'geen';
+  } catch {
+    return 'geen';
   }
 }
 
@@ -278,18 +326,20 @@ function explainDragUnavailable(reason) {
   alert(msg);
 }
 
-// Start a native OS file-drag of a tab's PDF. The OS handles where it lands:
-//   * dropped on another OPDS instance  → that instance docks it as a tab
-//     (its onDragDropEvent), and we close our tab here;
-//   * dropped on empty space            → classic detach into a new window;
-//   * dropped back on ourselves         → no-op (self-drop guard keeps the tab).
+// Native OS file drag of a tab's PDF, ONLY started while the cursor is over
+// another instance of this app (re-dock). Where it lands decides the rest:
+//   * on another instance → that instance opens it as a tab; we close ours;
+//   * back on ourselves    → nothing changes;
+//   * anywhere else        → the tab is torn off into a new instance.
+// The OS result alone is not enough: on Windows it reports "Dropped" even when
+// the window under the cursor accepted nothing (and "Cancel", not
+// "Cancelled", for Escape), so we look at what is under the cursor once the
+// drag is over.
 async function startNativeTabDrag(index) {
   const doc = state.documents[index];
   if (!doc) return;
-  const pdfPath = doc.filePath || '';
-  // Untitled docs live in a temp file this window owns — don't drag them to
-  // other instances (the temp file would be deleted out from under them).
-  if (!pdfPath || doc.isUntitled) {
+  const pdfPath = padVoorNieuweInstantie(doc);
+  if (!pdfPath || losmaakBlokkade(doc)) {
     alert(i18next.t('tabs.saveBeforeDetach'));
     return;
   }
@@ -298,7 +348,7 @@ async function startNativeTabDrag(index) {
   const mod = await _dragModulePromise;
   const icon = await _dragIconPromise;
   if (!mod?.startDrag) {
-    // Geen drag-backend beschikbaar → gewoon losmaken in een eigen venster.
+    // Geen drag-backend beschikbaar → losmaken naar een nieuwe instantie.
     detachTabToNewWindow(index);
     return;
   }
@@ -315,7 +365,8 @@ async function startNativeTabDrag(index) {
   }
   if (!pre?.ok) {
     if (pre?.reason === 'button-released') {
-      // Knop al losgelaten — de gebruiker bedoelde "losmaken in eigen venster".
+      // Knop al losgelaten: niet meer over te dragen, dus losmaken naar een
+      // nieuwe instantie.
       detachTabToNewWindow(index);
     } else {
       explainDragUnavailable(pre?.reason);
@@ -338,33 +389,33 @@ async function startNativeTabDrag(index) {
   let settled = false;
   try {
     await mod.startDrag({ item: [pdfPath], icon }, (payload) => {
-      // DEFENSIEF: deze callback loopt vanuit Rust, op de hoofdthread, terwijl
-      // de OS-drag nog wordt afgerond. Gooit hij een fout, dan ontrolt die door
-      // de Rust/Win32-grens en breekt het proces hard af. Dus: alles in een
-      // try/catch, en het echte werk (tab sluiten, venster sluiten) pas ná
-      // een tick, zodat de OS-drag eerst netjes afloopt en we nooit een venster
-      // vernietigen terwijl de drag-lus er nog op staat.
+      // DEFENSIEF: deze callback loopt vanuit Rust terwijl de OS-drag nog
+      // wordt afgerond. Alles in een try/catch, en het echte werk pas ná een
+      // korte pauze, zodat de OS-drag eerst netjes afloopt en de eigen
+      // drop-afhandeling een terugzetten op dit venster kan melden.
       try {
         if (settled) return;
         settled = true;
-        const result = payload?.result;
-        const wasSelf = !!window.__OPDS_SELF_DROP__;
-        window.__OPDS_DRAGGING_OUT__ = null;
-        window.__OPDS_SELF_DROP__ = false;
-        setTimeout(() => {
+        const resultaat = payload?.result;
+        setTimeout(async () => {
           try {
-            if (result === 'Dropped' && !wasSelf) {
-              // Accepted by another instance/app → the tab moved; remove it here.
-              closeTabAndMaybeCloseWindow(index);
-            } else if (result === 'Cancelled') {
-              // Dropped on empty space → classic detach into its own new window.
-              detachTabToNewWindow(index);
+            const zelfDrop = !!window.__OPDS_SELF_DROP__;
+            window.__OPDS_DRAGGING_OUT__ = null;
+            window.__OPDS_SELF_DROP__ = false;
+            const doelSoort = await dropTargetKind();
+            const besluit = besluitNaOsSleep({ resultaat, doelSoort, zelfDrop });
+            // The index may have shifted meanwhile; find the document again.
+            const nu = state.documents.indexOf(doc);
+            if (nu === -1) return;
+            if (besluit === 'sluiten') {
+              closeTabAndMaybeCloseWindow(nu);
+            } else if (besluit === 'losmaken') {
+              detachTabToNewWindow(nu);
             }
-            // 'Dropped' + wasSelf → dropped back on us; keep the tab as-is.
           } catch (err) {
             console.error('[tab-drag] afhandeling na drop faalde:', err);
           }
-        }, 0);
+        }, 50);
       } catch (err) {
         console.error('[tab-drag] drop-callback faalde:', err);
       }
@@ -372,7 +423,7 @@ async function startNativeTabDrag(index) {
   } catch (e) {
     window.__OPDS_DRAGGING_OUT__ = null;
     window.__OPDS_SELF_DROP__ = false;
-    console.warn('native tab drag failed, falling back to detach:', e);
+    console.warn('native tab drag failed, tearing off instead:', e);
     if (!settled) {
       settled = true;
       detachTabToNewWindow(index);
@@ -389,26 +440,29 @@ function handleTabContextMenu(e, index) {
   setCtxMenu({ x: e.clientX, y: e.clientY, index });
 }
 
-function onDocMouseUp(e) {
-  document.removeEventListener('mousemove', onDocMouseMove);
-  document.removeEventListener('mouseup', onDocMouseUp);
-  document.body.style.userSelect = '';
-
-  if (!dragState) return;
+function onDocMouseUp() {
+  if (!dragState) {
+    endMouseDrag();
+    return;
+  }
 
   const from = dragState.fromIndex;
   const wasStarted = dragState.started;
-  dragState = null;
-  setDraggingIndex(-1);
-
+  const losGewapend = !!dragState.losGewapend;
   const target = dropTargetIndex();
-  setDropTargetIndex(-1);
+  endMouseDrag();
 
-  // NB: detach / cross-instance re-dock is no longer handled here — once the
-  // cursor leaves the tab bar vertically, onDocMouseMove hands off to a native
-  // OS drag (startNativeTabDrag) and tears down these listeners. So a mouseUp
-  // that reaches here is always an IN-BAR reorder.
-  if (!wasStarted || target === -1 || target === from) return;
+  if (!wasStarted) return;
+
+  const besluit = besluitBijLoslaten({ losGewapend, aantalTabs: state.documents.length });
+  if (besluit === 'losmaken') {
+    // Released away from the tab bar (and not over another instance, or the
+    // OS drag would have taken over): open it in a second instance.
+    detachTabToNewWindow(from);
+    return;
+  }
+  if (besluit !== 'herschikken') return;
+  if (target === -1 || target === from) return;
 
   // Track which doc is active by its id
   const activeId = state.documents[state.activeDocumentIndex]?.id;

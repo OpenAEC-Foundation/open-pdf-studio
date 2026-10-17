@@ -45,6 +45,7 @@ fn pdfium_renders_barn_top_left_quadrant() {
         0.0,      // region_y_pt
         816.0,    // region_w_pt (half of 1632)
         528.0,    // region_h_pt (half of 1056)
+        false,    // thin_lines
     ).expect("render region");
 
     println!("Region rendered: {}x{} px, {} bytes", w, h, rgba.len());

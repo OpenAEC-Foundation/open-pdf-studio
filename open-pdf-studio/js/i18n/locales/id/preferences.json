@@ -181,9 +181,20 @@
     "checkFinder": "Periksa Finder > Dapatkan Info",
     "notSet": "Belum diatur"
   },
+  "explorerThumbnails": {
+    "title": "Penjelajah File",
+    "show": "Tampilkan gambar mini PDF di Penjelajah File",
+    "help": "Penjelajah File kemudian menampilkan halaman pertama setiap PDF sebagai ganti ikon PDF. Ini hanya berlaku untuk akun Windows Anda dan tidak mengubah aplikasi PDF default Anda.",
+    "unavailable": "Tidak tersedia di versi ini.",
+    "otherHandler": "Gambar mini PDF saat ini disediakan oleh {{name}}.",
+    "defaultApp": "Aplikasi PDF default Anda menampilkan gambar mininya sendiri ({{name}}). Windows memakainya selama aplikasi itu menjadi aplikasi PDF default Anda.",
+    "replaceTitle": "Gambar mini PDF",
+    "replaceConfirm": "{{name}} sudah menyediakan gambar mini PDF di Penjelajah File.\n\nTampilkan gambar mini dari Open PDF Studio sebagai gantinya untuk akun Windows Anda? Menonaktifkan opsi ini akan memulihkan gambar mini sebelumnya.",
+    "failed": "Pengaturan gambar mini Penjelajah File tidak dapat diubah."
+  },
   "virtualPrinter": {
     "title": "Printer Virtual",
-    "description": "Instal \"Open PDF Printer\" sebagai printer Windows. Ketika Anda mencetak dari aplikasi apa pun (Word, Chrome, Notepad, dll.) dan memilih printer ini, PDF hasil keluaran akan terbuka secara otomatis di aplikasi ini.",
+    "description": "\"Open PDF Printer\" adalah printer Windows yang mengubah cetakan dari program mana pun menjadi PDF dan mengumpulkannya di jendela printer aplikasi ini.",
     "status": "Status:",
     "installButton": "Instal Printer Virtual",
     "removeButton": "Hapus Printer Virtual",
@@ -196,7 +207,17 @@
     "installationFailed": "Instalasi gagal",
     "removalFailed": "Penghapusan gagal",
     "failedToInstall": "Gagal menginstal printer virtual:",
-    "failedToRemove": "Gagal menghapus printer virtual:"
+    "failedToRemove": "Gagal menghapus printer virtual:",
+    "stateActiveDetail": "Cetakan ke {{printer}} masuk ke jendela printer tanpa dialog Simpan.",
+    "stateDialogDetail": "Setiap cetakan masih menanyakan lokasi penyimpanan. Aktifkan penangkapan PDF untuk mengumpulkan cetakan di jendela printer.",
+    "stateMissingDetail": "Instal printer untuk membuat PDF dari program mana pun.",
+    "stateUnknownDetail": "Status printer tidak dapat dibaca.",
+    "howTitle": "Cara kerjanya",
+    "how1": "Di program mana pun, pilih Cetak lalu pilih {{printer}}.",
+    "how2": "Cetakan muncul di jendela printer Open PDF Studio.",
+    "how3": "Pratinjau, urutkan ulang, gabungkan, dan simpan pekerjaan sebagai satu PDF, atau buka di Studio.",
+    "openWindow": "Buka jendela printer",
+    "openWindowTip": "Tampilkan pekerjaan cetak yang ditangkap"
   },
   "pageDisplay": {
     "rendering": "Rendering",

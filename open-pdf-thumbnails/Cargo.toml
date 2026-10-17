@@ -1,0 +1,28 @@
+[package]
+name = "open-pdf-thumbnails"
+version = "0.1.0"
+edition = "2021"
+license = "LGPL-3.0-or-later"
+description = "Windows Shell thumbnail handler for PDF files (File Explorer previews, #605)"
+publish = false
+
+# Een in-process COM-server (DLL) die de Windows-shell laadt om een miniatuur
+# van pagina 1 te maken. Alleen Windows; op andere platforms is de crate leeg
+# (de pure delen en hun tests blijven wel overal bouwen).
+[lib]
+name = "open_pdf_thumbnails"
+crate-type = ["cdylib", "rlib"]
+
+[target.'cfg(windows)'.dependencies]
+# Zelfde versies die de app-crate al gebruikt; ze staan in Cargo.lock.
+libloading = "0.9"
+windows-core = "0.61"
+windows = { version = "0.61.3", features = [
+  "Win32_Foundation",
+  "Win32_Graphics_Gdi",
+  "Win32_System_Com",
+  "Win32_System_Com_StructuredStorage",
+  "Win32_System_LibraryLoader",
+  "Win32_UI_Shell",
+  "Win32_UI_Shell_PropertiesSystem",
+] }

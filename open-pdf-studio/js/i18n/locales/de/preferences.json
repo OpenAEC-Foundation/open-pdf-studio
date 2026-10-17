@@ -181,9 +181,20 @@
     "checkFinder": "Überprüfen Sie Finder > Informationen",
     "notSet": "Nicht festgelegt"
   },
+  "explorerThumbnails": {
+    "title": "Datei-Explorer",
+    "show": "PDF-Miniaturansichten im Datei-Explorer anzeigen",
+    "help": "Der Datei-Explorer zeigt dann die erste Seite jeder PDF statt des PDF-Symbols. Dies gilt nur für Ihr Windows-Konto und ändert Ihre Standard-PDF-App nicht.",
+    "unavailable": "In dieser Version nicht verfügbar.",
+    "otherHandler": "PDF-Miniaturansichten werden derzeit von {{name}} bereitgestellt.",
+    "defaultApp": "Ihre Standard-PDF-App zeigt eigene Miniaturansichten ({{name}}). Windows verwendet diese, solange diese App Ihre Standard-PDF-App ist.",
+    "replaceTitle": "PDF-Miniaturansichten",
+    "replaceConfirm": "{{name}} stellt bereits PDF-Miniaturansichten im Datei-Explorer bereit.\n\nStattdessen für Ihr Windows-Konto die Miniaturansichten von Open PDF Studio anzeigen? Wenn Sie diese Option wieder ausschalten, werden die vorherigen Miniaturansichten wiederhergestellt.",
+    "failed": "Die Einstellung für Miniaturansichten im Datei-Explorer konnte nicht geändert werden."
+  },
   "virtualPrinter": {
     "title": "Virtueller Drucker",
-    "description": "Installieren Sie „Open PDF Printer“ als Windows-Drucker. Wenn Sie aus einer Anwendung drucken (Word, Chrome, Editor usw.) und diesen Drucker auswählen, wird die erzeugte PDF automatisch in dieser App geöffnet.",
+    "description": "„Open PDF Printer“ ist ein Windows-Drucker, der einen Ausdruck aus einem beliebigen Programm in eine PDF umwandelt und im Druckerfenster dieser App sammelt.",
     "status": "Status:",
     "installButton": "Virtuellen Drucker installieren",
     "removeButton": "Virtuellen Drucker entfernen",
@@ -196,7 +207,17 @@
     "installationFailed": "Installation fehlgeschlagen",
     "removalFailed": "Entfernung fehlgeschlagen",
     "failedToInstall": "Virtueller Drucker konnte nicht installiert werden:",
-    "failedToRemove": "Virtueller Drucker konnte nicht entfernt werden:"
+    "failedToRemove": "Virtueller Drucker konnte nicht entfernt werden:",
+    "stateActiveDetail": "Ausdrucke auf {{printer}} erscheinen ohne Speichern-Dialog im Druckerfenster.",
+    "stateDialogDetail": "Bei jedem Druck wird weiterhin nach dem Speicherort gefragt. Aktivieren Sie den PDF-Abfang, um Ausdrucke im Druckerfenster zu sammeln.",
+    "stateMissingDetail": "Installieren Sie den Drucker, um aus jedem Programm eine PDF zu erstellen.",
+    "stateUnknownDetail": "Der Druckerstatus konnte nicht gelesen werden.",
+    "howTitle": "So funktioniert es",
+    "how1": "Wählen Sie in einem beliebigen Programm Drucken und wählen Sie {{printer}} aus.",
+    "how2": "Der Ausdruck erscheint im Druckerfenster von Open PDF Studio.",
+    "how3": "Zeigen Sie die Aufträge in der Vorschau an, ordnen Sie sie neu an, führen Sie sie zusammen und speichern Sie sie als eine PDF, oder öffnen Sie sie in Studio.",
+    "openWindow": "Druckerfenster öffnen",
+    "openWindowTip": "Die erfassten Druckaufträge anzeigen"
   },
   "pageDisplay": {
     "rendering": "Darstellung",

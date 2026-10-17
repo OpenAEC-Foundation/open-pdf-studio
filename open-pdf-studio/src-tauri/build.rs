@@ -44,6 +44,47 @@ fn main() {
         );
     }
 
+    // Windows: de miniatuurhandler voor Verkenner (#605), open-pdf-thumbnails.dll,
+    // gaat als resource mee (tauri.windows.conf.json). Net als de worker wordt
+    // hij door het npm-voorscript gebouwd en hier alleen gekopieerd; alleen als
+    // de bron nieuwer is, zodat een in CI al ondertekende kopie in binaries/
+    // niet door een onondertekende wordt overschreven. Zonder bron (een kale
+    // `cargo build` van dit pakket) komt er een leeg bestand, want
+    // tauri_build eist dat elke resource bestaat; de app ziet aan het ontbreken
+    // van de PE-kop dat de handler er niet is en biedt de optie dan niet aan.
+    if target.contains("windows") {
+        let naam = "open_pdf_thumbnails.dll";
+        let mut bronnen: Vec<std::path::PathBuf> = Vec::new();
+        if let Ok(out_dir) = std::env::var("OUT_DIR") {
+            if let Some(profile_dir) = std::path::Path::new(&out_dir).ancestors().nth(3) {
+                bronnen.push(profile_dir.join(naam));
+            }
+        }
+        bronnen.push(std::path::PathBuf::from("../../target").join(&profile).join(naam));
+        let doel = std::path::PathBuf::from("binaries").join("open-pdf-thumbnails.dll");
+        let gewijzigd = |p: &std::path::Path| std::fs::metadata(p).and_then(|m| m.modified()).ok();
+        let _ = std::fs::create_dir_all("binaries");
+        if let Some(bron) = bronnen.iter().find(|p| p.exists()) {
+            println!("cargo:rerun-if-changed={}", bron.display());
+            let verouderd = match (gewijzigd(bron), gewijzigd(&doel)) {
+                (Some(b), Some(d)) => b > d,
+                _ => true,
+            };
+            let leeg = std::fs::metadata(&doel).map(|m| m.len() == 0).unwrap_or(true);
+            if verouderd || leeg {
+                if let Err(e) = std::fs::copy(bron, &doel) {
+                    println!("cargo:warning=open-pdf-thumbnails kopie faalde ({} -> {}): {}", bron.display(), doel.display(), e);
+                }
+            }
+        } else if !doel.exists() {
+            let _ = std::fs::write(&doel, b"");
+            println!(
+                "cargo:warning=open-pdf-thumbnails.dll niet gevonden in {:?} — Verkenner-miniaturen ontbreken in deze build; draai `cargo build -p open-pdf-thumbnails`",
+                bronnen.iter().map(|p| p.display().to_string()).collect::<Vec<_>>()
+            );
+        }
+    }
+
     // Windows: link Simple MAPI for MAPISendMail (src/email.rs). The in-source
     // #[link(name = "mapi32")] is not reliably honoured across every rustc/SDK
     // setup (CI left __imp_MAPISendMail unresolved), so force the link here.

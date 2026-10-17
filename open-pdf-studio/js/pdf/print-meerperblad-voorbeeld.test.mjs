@@ -8,7 +8,7 @@ import { PDFDocument, PDFArray, PDFRawStream, decodePDFRawStream } from 'pdf-lib
 
 import {
   voorbeeldMeerPerBlad, aantalVellen, paginasOpVel, schaalVoorMeerPerBlad, maakMeerPerBlad,
-  rasterVan, BLAD_MARGE_PT,
+  rasterVan, kiesBlad, BLAD_MARGE_PT,
 } from './print-meerperblad.js';
 import { berekenPlaatsing, printPaginaMaat } from './print-plaatsing.js';
 
@@ -252,4 +252,68 @@ test('voorbeeld = afdruk: elke cel ligt waar maakMeerPerBlad de pagina tekent', 
       });
     }
   }
+});
+
+const pt = (p) => ({ breedte: p.breedtePt, hoogte: p.hoogtePt });
+
+// --- #606: een vaste stand blijft vast, ook bij een vast aantal per vel ---------
+
+test('kiesBlad: een vaste staande stand geeft altijd een staand vel', () => {
+  for (const perBlad of ['2', '4', '6', '9', '16']) {
+    const { kolommen, rijen } = rasterVan({ perBlad });
+    for (const pagina of [A4, A4_LIGGEND]) {
+      const b = kiesBlad({ papier: A4_VEL, orientatie: 'portrait', eerstePagina: pt(pagina), kolommen, rijen, draaibaar: true });
+      assert.ok(b.bladB < b.bladH, `${perBlad} per vel: staand`);
+      const l = kiesBlad({ papier: A4_VEL, orientatie: 'landscape', eerstePagina: pt(pagina), kolommen, rijen, draaibaar: true });
+      assert.ok(l.bladB > l.bladH, `${perBlad} per vel: liggend`);
+    }
+  }
+});
+
+test('kiesBlad: een vast raster draait mee met het vel (6 per vel staand = 2 x 3)', () => {
+  const staand = kiesBlad({ papier: A4_VEL, orientatie: 'portrait', eerstePagina: pt(A4), kolommen: 3, rijen: 2, draaibaar: true });
+  assert.deepEqual([staand.kolommen, staand.rijen], [2, 3]);
+  const liggend = kiesBlad({ papier: A4_VEL, orientatie: 'landscape', eerstePagina: pt(A4), kolommen: 3, rijen: 2, draaibaar: true });
+  assert.deepEqual([liggend.kolommen, liggend.rijen], [3, 2]);
+  // Twee staande pagina's op een staand vel: onder elkaar komen ze iets
+  // groter dan naast elkaar.
+  const twee = kiesBlad({ papier: A4_VEL, orientatie: 'portrait', eerstePagina: pt(A4), kolommen: 2, rijen: 1, draaibaar: true });
+  assert.deepEqual([twee.kolommen, twee.rijen], [1, 2]);
+  // Vier per vel: vierkant raster, er valt niets te draaien.
+  const vier = kiesBlad({ papier: A4_VEL, orientatie: 'portrait', eerstePagina: pt(A4), kolommen: 2, rijen: 2, draaibaar: true });
+  assert.deepEqual([vier.kolommen, vier.rijen], [2, 2]);
+  // Een eigen raster blijft zoals getypt.
+  const eigen = kiesBlad({ papier: A4_VEL, orientatie: 'portrait', eerstePagina: pt(A4), kolommen: 3, rijen: 2 });
+  assert.deepEqual([eigen.kolommen, eigen.rijen], [3, 2]);
+});
+
+test('kiesBlad automatisch: de beste stand én de beste richting van het raster', () => {
+  // Twee staande pagina's: naast elkaar op een liggend vel (zoals altijd).
+  const staand = kiesBlad({ papier: A4_VEL, orientatie: 'auto', eerstePagina: pt(A4), kolommen: 2, rijen: 1, draaibaar: true });
+  assert.ok(staand.bladB > staand.bladH);
+  assert.deepEqual([staand.kolommen, staand.rijen], [2, 1]);
+  // Twee liggende pagina's: onder elkaar op een staand vel.
+  const liggend = kiesBlad({ papier: A4_VEL, orientatie: 'auto', eerstePagina: pt(A4_LIGGEND), kolommen: 2, rijen: 1, draaibaar: true });
+  assert.ok(liggend.bladB < liggend.bladH);
+  assert.deepEqual([liggend.kolommen, liggend.rijen], [1, 2]);
+});
+
+test('voorbeeld bij 2 per vel en gekozen staande stand: een staand vel (#606)', () => {
+  const v = voorbeeldMeerPerBlad({
+    meerPerBlad: { ...rasterVan({ perBlad: '2' }), draaibaar: true },
+    keuzes: { ...KEUZES, orientatie: 'portrait' },
+    eerstePagina: A4,
+    paginas: [A4, A4],
+  });
+  assert.equal(v.vel.orientatie, 'portrait');
+  bijna(v.vel.breedteMm, 210);
+  const zes = voorbeeldMeerPerBlad({
+    meerPerBlad: { ...rasterVan({ perBlad: '6' }), draaibaar: true },
+    keuzes: { ...KEUZES, orientatie: 'portrait' },
+    eerstePagina: A4,
+    paginas: Array(6).fill(A4),
+  });
+  assert.equal(zes.vel.orientatie, 'portrait');
+  assert.equal(new Set(zes.cellen.map((c) => c.opVel.x.toFixed(3))).size, 2, 'twee kolommen');
+  assert.equal(new Set(zes.cellen.map((c) => c.opVel.y.toFixed(3))).size, 3, 'drie rijen');
 });

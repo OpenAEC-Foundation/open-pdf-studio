@@ -111,6 +111,9 @@ export function leesLijnSleutels(annotDict, context) {
   }
   const soort = opzoeken(context, get('OPS_DimKind'));
   if (soort !== undefined) uit.opsDimKind = naam(soort);
+  // Schaal van de pagina, alleen voor andere programma's in /Measure gezet
+  // (saver/dimension-measure.js): de maat volgt die schaal hier gewoon.
+  if (waarheid(opzoeken(context, get('OPS_ScaleInherited'))) === true) uit.opsScaleInherited = true;
   return uit;
 }
 
@@ -229,7 +232,7 @@ export function maatlijnUitBestand({ annot, extra = {}, convertPoint }) {
     lineWidth: lijnBreedteUitBestand(extraColors, annot, 1),
   };
   // Store per-annotation scale/unit/precision from PDF Measure dictionary
-  if (extraColors.measureScale) {
+  if (extraColors.measureScale && !extraColors.lijn?.opsScaleInherited) {
     mdProps.measureScale = extraColors.measureScale;
     mdProps.measureUnit = extraColors.measureUnit || 'mm';
     if (extraColors.measurePrecision !== undefined) {

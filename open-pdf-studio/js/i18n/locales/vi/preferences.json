@@ -181,9 +181,20 @@
     "checkFinder": "Kiểm tra Finder > Lấy Thông tin",
     "notSet": "Chưa đặt"
   },
+  "explorerThumbnails": {
+    "title": "Trình khám phá tệp",
+    "show": "Hiển thị hình thu nhỏ PDF trong Trình khám phá tệp",
+    "help": "Khi đó Trình khám phá tệp sẽ hiển thị trang đầu tiên của mỗi tệp PDF thay cho biểu tượng PDF. Thiết lập này chỉ áp dụng cho tài khoản Windows của bạn và không thay đổi ứng dụng PDF mặc định.",
+    "unavailable": "Không có trong phiên bản này.",
+    "otherHandler": "Hình thu nhỏ PDF hiện do {{name}} cung cấp.",
+    "defaultApp": "Ứng dụng PDF mặc định của bạn hiển thị hình thu nhỏ riêng ({{name}}). Windows dùng chúng chừng nào ứng dụng đó còn là ứng dụng PDF mặc định của bạn.",
+    "replaceTitle": "Hình thu nhỏ PDF",
+    "replaceConfirm": "{{name}} đã cung cấp hình thu nhỏ PDF trong Trình khám phá tệp.\n\nHiển thị hình thu nhỏ của Open PDF Studio thay thế cho tài khoản Windows của bạn? Tắt tùy chọn này sẽ khôi phục hình thu nhỏ trước đó.",
+    "failed": "Không thể thay đổi thiết lập hình thu nhỏ của Trình khám phá tệp."
+  },
   "virtualPrinter": {
     "title": "Máy in Ảo",
-    "description": "Cài đặt \"Open PDF Printer\" làm máy in Windows. Khi bạn in từ bất kỳ ứng dụng nào (Word, Chrome, Notepad, v.v.) và chọn máy in này, tệp PDF đầu ra sẽ tự động mở trong ứng dụng này.",
+    "description": "\"Open PDF Printer\" là máy in Windows biến bản in từ bất kỳ chương trình nào thành PDF và thu thập vào cửa sổ máy in của ứng dụng này.",
     "status": "Trạng thái:",
     "installButton": "Cài đặt Máy in Ảo",
     "removeButton": "Gỡ bỏ Máy in Ảo",
@@ -196,7 +207,17 @@
     "installationFailed": "Cài đặt thất bại",
     "removalFailed": "Gỡ bỏ thất bại",
     "failedToInstall": "Không thể cài đặt máy in ảo:",
-    "failedToRemove": "Không thể gỡ bỏ máy in ảo:"
+    "failedToRemove": "Không thể gỡ bỏ máy in ảo:",
+    "stateActiveDetail": "Các bản in tới {{printer}} xuất hiện trong cửa sổ máy in mà không có hộp thoại Lưu.",
+    "stateDialogDetail": "Mỗi lần in vẫn hỏi nơi lưu. Hãy bật bắt PDF để thu thập các bản in trong cửa sổ máy in.",
+    "stateMissingDetail": "Cài đặt máy in để tạo PDF từ bất kỳ chương trình nào.",
+    "stateUnknownDetail": "Không thể đọc trạng thái máy in.",
+    "howTitle": "Cách hoạt động",
+    "how1": "Trong bất kỳ chương trình nào, chọn In và chọn {{printer}}.",
+    "how2": "Bản in xuất hiện trong cửa sổ máy in của Open PDF Studio.",
+    "how3": "Xem trước, sắp xếp lại, gộp và lưu các lệnh in thành một PDF, hoặc mở chúng trong Studio.",
+    "openWindow": "Mở cửa sổ máy in",
+    "openWindowTip": "Hiển thị các lệnh in đã bắt được"
   },
   "pageDisplay": {
     "rendering": "Kết xuất",

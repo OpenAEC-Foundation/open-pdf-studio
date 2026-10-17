@@ -1,22 +1,26 @@
-//! Multi-window management — "detach a tab into its own window" (Chrome-style).
+//! Multi-window management — a torn-off tab opens in a SECOND app instance.
 //!
-//! Architecture: detaching launches a SECOND, INDEPENDENT app process with the
-//! PDF path as a command-line argument and `OPDS_DETACHED=1` in its env. We
-//! chose process-per-window over Tauri's in-process `WebviewWindowBuilder`
-//! because:
+//! Architecture: tearing off launches a SECOND, INDEPENDENT app process with
+//! `--new-instance <pdf>` (see instantie.rs). We chose process-per-window over
+//! Tauri's in-process `WebviewWindowBuilder` because:
 //!   * `WebviewWindowBuilder::build()` called synchronously from a command
 //!     handler deadlocks in dev mode (the call never returns, the window stays
 //!     a blank grey shell — main.js never boots).
 //!   * Each process is a real, fully-initialised app — no half-built webview,
 //!     no shared-canvas/ghosting bugs, identical behaviour to a normal launch.
 //!
-//! Two coordination details make multi-process safe:
-//!   * `OPDS_DETACHED=1` makes the new process SKIP the single-instance plugin
+//! Coordination details that make multi-process safe:
+//!   * `--new-instance` makes the new process SKIP the single-instance plugin
 //!     (lib.rs) so it runs as its own window instead of forwarding its arg to
-//!     the original instance and exiting.
+//!     the primary instance and exiting. The frontend reads the same flag via
+//!     `instance_role` and leaves session, AI link, print queue and the PrtScn
+//!     hotkey to the primary instance.
 //!   * The PDFium worker pool namespaces its SHM files by the owning process
 //!     PID (worker_pool/spawn.rs + pdfium-worker), so the second process's
 //!     workers don't collide with the first's on `pdfium-worker-*.shm`.
+//!   * The environment is inherited unchanged: both processes share the
+//!     WebView2 user data folder, which WebView2 supports only with identical
+//!     environment options.
 
 use tauri::{AppHandle, Emitter, Manager};
 
@@ -46,11 +50,11 @@ fn diag_file(msg: &str) {
 /// window. Used by `try_dock_pdf_at_screen` for re-dock hit-testing.
 const TAB_BAR_HEIGHT_CSS_PX: f64 = 48.0;
 
-/// Detach a tab into its own window by launching a NEW, independent app
-/// process with the PDF path as an argument. Returns a short status string.
+/// Tear a tab off into a SECOND app instance: launch a NEW, independent app
+/// process with `--new-instance <pdf>`. Returns a short status string.
 ///
 /// The new process:
-///   1. skips single-instance (via `OPDS_DETACHED=1`), so it becomes its own
+///   1. skips single-instance (via `--new-instance`), so it becomes its own
 ///      window rather than forwarding the arg to this instance;
 ///   2. reads the `.pdf` argv on boot and auto-opens it (the same path used
 ///      for file-association double-clicks);
@@ -63,6 +67,9 @@ pub fn spawn_window_with_pdf(
     if pdf_path.is_empty() {
         return Err("Cannot detach an unsaved document — save it first.".to_string());
     }
+    if !std::path::Path::new(&pdf_path).is_file() {
+        return Err(format!("File not found: {pdf_path}"));
+    }
 
     let exe = std::env::current_exe().map_err(|e| format!("current_exe: {e}"))?;
 
@@ -72,8 +79,7 @@ pub fn spawn_window_with_pdf(
     // tears down. On Windows that means CREATE_BREAKAWAY_FROM_JOB | DETACHED_PROCESS.
     let build_cmd = || {
         let mut c = std::process::Command::new(&exe);
-        c.arg(&pdf_path);
-        c.env("OPDS_DETACHED", "1");
+        c.args(crate::instantie::nieuwe_instantie_args(&pdf_path));
         c.stdin(std::process::Stdio::null())
             .stdout(std::process::Stdio::null())
             .stderr(std::process::Stdio::null());

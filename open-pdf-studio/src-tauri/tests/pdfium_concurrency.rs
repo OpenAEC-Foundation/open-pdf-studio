@@ -77,7 +77,7 @@ fn concurrent_inproc_renders_do_not_corrupt_heap() {
                 let doc = handle.document();
                 let _ = render_page_to_rgba(doc, 0, 1.0, 0);
                 let _ = render_thumbnail_to_json(doc, 0, 140, 0);
-                let _ = render_page_region_to_rgba(doc, 0, 2.0, 0, 0.0, 0.0, 100.0, 100.0);
+                let _ = render_page_region_to_rgba(doc, 0, 2.0, 0, 0.0, 0.0, 100.0, 100.0, false);
             }
         }));
     }

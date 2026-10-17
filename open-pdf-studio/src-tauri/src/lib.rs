@@ -24,6 +24,7 @@ pub mod ocr;
 pub mod pdfium_renderer;
 pub mod pdfx_cmyk;
 pub mod handtekening;
+pub mod instantie;
 pub mod print_formulieren;
 pub mod print_instelling;
 pub mod print_plaatsing;
@@ -38,6 +39,8 @@ mod standaard_app;
 #[cfg(target_os = "windows")]
 pub mod print_windows;
 pub mod render_to_png;
+// Miniaturen van PDF's in Windows Verkenner (#605); buiten Windows niet beschikbaar.
+pub mod verkenner_miniaturen;
 pub mod window_mgmt;
 pub mod startup_diagnostics;
 // Vensteropname voor app_screenshot_view (#583); buiten Windows een nette fout.
@@ -334,6 +337,38 @@ async fn is_default_pdf_app() -> bool {
             false
         }
     }).await.unwrap_or(false)
+}
+
+/// Of de PDF-miniaturen in Windows Verkenner aan staan (#605), en of een ander
+/// programma ze al levert. Leest alleen het register.
+#[tauri::command]
+async fn explorer_thumbnails_status(app: tauri::AppHandle) -> verkenner_miniaturen::MiniatuurStatus {
+    let Ok(resource_dir) = app.path().resource_dir() else {
+        return verkenner_miniaturen::MiniatuurStatus::default();
+    };
+    tauri::async_runtime::spawn_blocking(move || verkenner_miniaturen::status(&resource_dir))
+        .await
+        .unwrap_or_default()
+}
+
+/// Zet de PDF-miniaturen in Windows Verkenner aan of uit voor deze gebruiker
+/// (HKCU, geen admin; de bestandskoppeling blijft ongemoeid). `replace_other`:
+/// de gebruiker koos ervoor de miniaturen van een ander programma te vervangen.
+#[tauri::command]
+async fn explorer_thumbnails_set(
+    app: tauri::AppHandle,
+    enabled: bool,
+    replace_other: bool,
+) -> Result<verkenner_miniaturen::MiniatuurStatus, String> {
+    let resource_dir = app
+        .path()
+        .resource_dir()
+        .map_err(|e| format!("Cannot resolve resource_dir: {}", e))?;
+    tauri::async_runtime::spawn_blocking(move || {
+        verkenner_miniaturen::zet(&resource_dir, enabled, replace_other)
+    })
+    .await
+    .map_err(|e| e.to_string())?
 }
 
 /// Make this app the default handler for .pdf files.
@@ -1079,6 +1114,27 @@ struct VpJob {
     size: u64,
     modified_ms: u64,
     pages: u32,
+    /// `/Info /Title` of the PDF. The Windows PDF driver behind "Open PDF
+    /// Printer" writes the print job's document name there, so this is the
+    /// name of what was printed (the file port itself drops it).
+    title: Option<String>,
+}
+
+/// The document title from the trailer's `/Info` dictionary (direct or
+/// indirect), decoded from PDFDocEncoding or UTF-16; None when absent/blank.
+fn vp_pdf_title(doc: &lopdf::Document) -> Option<String> {
+    let info = doc.trailer.get(b"Info").ok()?;
+    let dict = match info.as_reference() {
+        Ok(id) => doc.get_object(id).ok()?.as_dict().ok()?,
+        Err(_) => info.as_dict().ok()?,
+    };
+    let title = match dict.get(b"Title").ok()? {
+        lopdf::Object::Reference(id) => doc.get_object(*id).ok()?,
+        o => o,
+    };
+    let text = lopdf::decode_text_string(title).ok()?;
+    let text = text.trim();
+    (!text.is_empty()).then(|| text.to_string())
 }
 
 /// List collected jobs (oldest first — print order).
@@ -1102,15 +1158,17 @@ fn virtual_printer_jobs() -> Result<Vec<VpJob>, String> {
                 .and_then(|m| m.duration_since(std::time::UNIX_EPOCH).ok())
                 .map(|d| d.as_millis() as u64)
                 .unwrap_or(0);
-            let pages = lopdf::Document::load(e.path())
-                .map(|d| d.get_pages().len() as u32)
-                .unwrap_or(0);
+            let (pages, title) = match lopdf::Document::load(e.path()) {
+                Ok(d) => (d.get_pages().len() as u32, vp_pdf_title(&d)),
+                Err(_) => (0, None),
+            };
             jobs.push(VpJob {
                 file: name,
                 path: e.path().to_string_lossy().to_string(),
                 size: meta.len(),
                 modified_ms,
                 pages,
+                title,
             });
         }
     }
@@ -2636,15 +2694,19 @@ pub fn run(opts: StartupOpts) {
 
     // Single-instance and updater plugins are desktop-only.
     //
-    // A DETACHED document window is launched as its own app process with the
-    // `OPDS_DETACHED=1` env var (see window_mgmt::spawn_window_with_pdf). Such
-    // a process must NOT register single-instance — otherwise it would just
-    // forward its PDF arg to the original instance and exit, instead of
-    // becoming an independent window. So we skip the plugin when detached.
+    // A torn-off tab opens in a SECOND app instance: its own process, started
+    // with `--new-instance` (see instantie.rs and
+    // window_mgmt::spawn_window_with_pdf). Such a process must NOT register
+    // single-instance — otherwise it would forward its PDF arg to the primary
+    // instance and exit. `OPDS_DETACHED=1` also skips it (test instances next
+    // to the installed app).
     #[cfg(not(target_os = "android"))]
     {
-        let is_detached = std::env::var("OPDS_DETACHED").as_deref() == Ok("1");
-        if !is_detached {
+        let skip_single_instance = instantie::slaat_single_instance_over(
+            &args,
+            std::env::var("OPDS_DETACHED").ok().as_deref(),
+        );
+        if !skip_single_instance {
             builder = builder
                 .plugin(tauri_plugin_single_instance::init(|app: &tauri::AppHandle, argv: Vec<String>, _cwd: String| {
                     if let Some(window) = app.get_webview_window("main") {
@@ -2876,6 +2938,8 @@ pub fn run(opts: StartupOpts) {
             unlock_file,
             is_default_pdf_app,
             open_default_apps_settings,
+            explorer_thumbnails_status,
+            explorer_thumbnails_set,
             get_printers,
             print_pdf,
             open_printer_properties,
@@ -2978,6 +3042,8 @@ pub fn run(opts: StartupOpts) {
             window_mgmt::drag_icon_path,
             window_mgmt::tab_drag_preflight,
             window_mgmt::detach_diag,
+            instantie::instance_role,
+            instantie::tab_drop_target,
             startup_diagnostics::startup_diagnostic,
             startup_diagnostics::startup_diagnostics_path,
             datamap::app_data_dir_effectief,
@@ -3091,5 +3157,53 @@ mod geopend_document_tests {
         for s in ["openpdfstudio://open/x.pdf", "https://open/x.pdf", "http://example.com/a.pdf"] {
             assert_eq!(geopend_pdf_document(&url(s), true), None, "{s}");
         }
+    }
+}
+
+#[cfg(test)]
+mod vp_title_tests {
+    use super::vp_pdf_title;
+    use lopdf::{dictionary, Document, Object, StringFormat};
+
+    fn doc_with_info(info: Option<Object>) -> Document {
+        let mut doc = Document::with_version("1.7");
+        if let Some(info) = info {
+            let id = doc.add_object(info);
+            doc.trailer.set("Info", Object::Reference(id));
+        }
+        doc
+    }
+
+    #[test]
+    fn title_from_an_indirect_info_dictionary() {
+        let doc = doc_with_info(Some(Object::Dictionary(dictionary! {
+            "Title" => Object::String(b"Rapport fase 2.docx".to_vec(), StringFormat::Literal),
+        })));
+        assert_eq!(vp_pdf_title(&doc).as_deref(), Some("Rapport fase 2.docx"));
+    }
+
+    #[test]
+    fn title_in_utf16_with_a_byte_order_mark() {
+        let mut bytes = vec![0xFE, 0xFF];
+        for u in "Gevel noord – A1".encode_utf16() {
+            bytes.extend_from_slice(&u.to_be_bytes());
+        }
+        let doc = doc_with_info(Some(Object::Dictionary(dictionary! {
+            "Title" => Object::String(bytes, StringFormat::Hexadecimal),
+        })));
+        assert_eq!(vp_pdf_title(&doc).as_deref(), Some("Gevel noord – A1"));
+    }
+
+    #[test]
+    fn no_info_blank_title_or_no_title_give_none() {
+        assert_eq!(vp_pdf_title(&doc_with_info(None)), None);
+        let blank = doc_with_info(Some(Object::Dictionary(dictionary! {
+            "Title" => Object::String(b"   ".to_vec(), StringFormat::Literal),
+        })));
+        assert_eq!(vp_pdf_title(&blank), None);
+        let other = doc_with_info(Some(Object::Dictionary(dictionary! {
+            "Producer" => Object::String(b"x".to_vec(), StringFormat::Literal),
+        })));
+        assert_eq!(vp_pdf_title(&other), None);
     }
 }

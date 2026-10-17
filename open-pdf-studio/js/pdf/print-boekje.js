@@ -28,35 +28,68 @@ export function isBoekje(perBlad) {
 }
 
 /**
+ * Katernen (#607): een dik boek wordt een stapel kleine boekjes van elk een
+ * vast aantal vellen, die elk apart gevouwen en daarna samen gebonden worden.
+ * De keuzes in de printdialoog; 0 = één boekje van alle pagina's.
+ */
+export const KATERN_KEUZES = Object.freeze([0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 16]);
+const KATERN_MAX = 32;
+
+/** Vellen per katern als heel getal (0 = geen katernen, één boekje). */
+export function geldigKatern(waarde) {
+  const n = Math.round(Number(waarde));
+  if (!Number.isFinite(n) || n < 1) return 0;
+  return Math.min(KATERN_MAX, n);
+}
+
+/**
  * De genietvolgorde voor `aantal` pagina's (in printvolgorde, index vanaf 0).
  * Vel s (vanaf 0) van een boekje van `totaal` pagina's (een viervoud):
  * voorkant [totaal-1-2s, 2s], achterkant [2s+1, totaal-2-2s], links en rechts
  * van de vouw. Een index voorbij het laatste pagina is een blanco pagina (null).
+ *
+ * Met `katern` vellen per katern (#607): de pagina's in groepjes van
+ * 4 x katern, elk groepje een eigen boekje in genietvolgorde; alleen het
+ * laatste katern kan kleiner zijn en wordt aangevuld tot een viervoud.
+ * Zonder katern (0) is alles één boekje.
  * @param {number} aantal
+ * @param {number} [katern]
  * @returns {{ totaal:number, blanco:number,
  *   vellen: {voor:[number,number], achter:[number,number]}[],
- *   zijden: [number|null, number|null][] }}
+ *   zijden: [number|null, number|null][],
+ *   katernen: {start:number, paginas:number, vellen:number}[],
+ *   katernVanVel: number[] }}
  *   vellen: de indexen zonder aanvulling (ook voor blanco's); zijden: in
- *   afdrukvolgorde (voor, achter, voor, ...) met null voor een blanco helft.
+ *   afdrukvolgorde (voor, achter, voor, ...) met null voor een blanco helft;
+ *   katernen: per katern de eerste index, het aantal pagina's (aangevuld) en
+ *   vellen; katernVanVel: per vel het nummer van zijn katern (vanaf 1).
  */
-export function boekjeVolgorde(aantal) {
+export function boekjeVolgorde(aantal, katern = 0) {
   const n = Math.max(0, Math.floor(Number(aantal) || 0));
-  const totaal = Math.ceil(n / 4) * 4;
+  const perKatern = geldigKatern(katern) * 4 || Math.max(4, Math.ceil(n / 4) * 4);
   const vellen = [];
   const zijden = [];
+  const katernen = [];
+  const katernVanVel = [];
   const echt = (i) => (i < n ? i : null);
-  for (let s = 0; s < totaal / 4; s++) {
-    const voor = [totaal - 1 - 2 * s, 2 * s];
-    const achter = [2 * s + 1, totaal - 2 - 2 * s];
-    vellen.push({ voor, achter });
-    zijden.push([echt(voor[0]), echt(voor[1])], [echt(achter[0]), echt(achter[1])]);
+  for (let start = 0; start < n; start += perKatern) {
+    const totaalHier = Math.ceil(Math.min(perKatern, n - start) / 4) * 4;
+    katernen.push({ start, paginas: totaalHier, vellen: totaalHier / 4 });
+    for (let s = 0; s < totaalHier / 4; s++) {
+      const voor = [start + totaalHier - 1 - 2 * s, start + 2 * s];
+      const achter = [start + 2 * s + 1, start + totaalHier - 2 - 2 * s];
+      vellen.push({ voor, achter });
+      katernVanVel.push(katernen.length);
+      zijden.push([echt(voor[0]), echt(voor[1])], [echt(achter[0]), echt(achter[1])]);
+    }
   }
-  return { totaal, blanco: totaal - n, vellen, zijden };
+  const totaal = katernen.reduce((som, k) => som + k.paginas, 0);
+  return { totaal, blanco: totaal - n, vellen, zijden, katernen, katernVanVel };
 }
 
 /** Hoeveel zijden (pagina's in de print-PDF) een boekje van `aantal` pagina's wordt. */
-export function aantalBoekjeZijden(aantal) {
-  return boekjeVolgorde(aantal).zijden.length;
+export function aantalBoekjeZijden(aantal, katern = 0) {
+  return boekjeVolgorde(aantal, katern).zijden.length;
 }
 
 /** Vel (vanaf 1) en kant ('front' / 'back') van zijde `k` (vanaf 0). */
@@ -183,10 +216,11 @@ export function voorbeeldBoekje({ keuzes, eerstePagina, paginas }) {
  * Bouw de print-PDF van een boekje uit `pdf` (één pagina per bronpagina, in
  * printvolgorde): elke zijde een liggend vel met links en rechts van de vouw
  * de pagina's in genietvolgorde. Zonder pagina's komt `pdf` zelf terug.
+ * `katern`: vellen per katern (boekjeVolgorde), 0 = één boekje.
  * @param {PDFDocument} pdf
- * @param {{ papier?: {breedteMm:number, hoogteMm:number}|null }} opties
+ * @param {{ papier?: {breedteMm:number, hoogteMm:number}|null, katern?: number }} opties
  */
-export async function maakBoekje(pdf, { papier = null } = {}) {
+export async function maakBoekje(pdf, { papier = null, katern = 0 } = {}) {
   const bron = pdf.getPages();
   if (bron.length === 0) return pdf;
   const maten = bron.map((p) => {
@@ -200,7 +234,7 @@ export async function maakBoekje(pdf, { papier = null } = {}) {
   await pdf.flush();
   const uit = await PDFDocument.create();
   const ingebed = await uit.embedPdf(pdf, bron.map((_, i) => i));
-  for (const zijde of boekjeVolgorde(bron.length).zijden) {
+  for (const zijde of boekjeVolgorde(bron.length, katern).zijden) {
     const blad = uit.addPage([bladB, bladH]);
     const cellen = boekjeIndeling({ bladB, bladH, maten: zijde.map((i) => (i === null ? null : maten[i])) });
     for (const c of cellen) {

@@ -247,9 +247,20 @@
     "checkFinder": "Check Finder > Get Info",
     "notSet": "Not set"
   },
+  "explorerThumbnails": {
+    "title": "File Explorer",
+    "show": "Show PDF thumbnails in File Explorer",
+    "help": "File Explorer then shows the first page of each PDF instead of the PDF icon. This applies to your Windows account only and does not change your default PDF app.",
+    "unavailable": "Not available in this version.",
+    "otherHandler": "PDF thumbnails are currently provided by {{name}}.",
+    "defaultApp": "Your default PDF app shows its own thumbnails ({{name}}). Windows uses those as long as that app is your default PDF app.",
+    "replaceTitle": "PDF thumbnails",
+    "replaceConfirm": "{{name}} already provides PDF thumbnails in File Explorer.\n\nShow the thumbnails of Open PDF Studio instead for your Windows account? Turning this option off restores the previous thumbnails.",
+    "failed": "Could not change the File Explorer thumbnail setting."
+  },
   "virtualPrinter": {
     "title": "Virtual Printer",
-    "description": "Install \"Open PDF Printer\" as a Windows printer. When you print from any application (Word, Chrome, Notepad, etc.) and select this printer, the output PDF will open automatically in this app.",
+    "description": "\"Open PDF Printer\" is a Windows printer that turns a print from any program into a PDF and collects it in the printer window of this app.",
     "status": "Status:",
     "installButton": "Install Virtual Printer",
     "removeButton": "Remove Virtual Printer",
@@ -262,6 +273,16 @@
     "installationFailed": "Installation failed",
     "removalFailed": "Removal failed",
     "failedToInstall": "Failed to install virtual printer:",
-    "failedToRemove": "Failed to remove virtual printer:"
+    "failedToRemove": "Failed to remove virtual printer:",
+    "stateActiveDetail": "Prints to {{printer}} arrive in the printer window without a Save dialog.",
+    "stateDialogDetail": "Each print still asks where to save. Enable the PDF catch to collect prints in the printer window.",
+    "stateMissingDetail": "Install the printer to make a PDF from any program.",
+    "stateUnknownDetail": "The printer status could not be read.",
+    "howTitle": "How it works",
+    "how1": "In any program choose Print and select {{printer}}.",
+    "how2": "The print appears in the printer window of Open PDF Studio.",
+    "how3": "Preview, reorder, merge and save the jobs as one PDF, or open them in Studio.",
+    "openWindow": "Open printer window",
+    "openWindowTip": "Show the captured print jobs"
   }
 }

@@ -8,6 +8,7 @@
 // of met de hand bewerkt voorkeurenbestand de dialoog nooit kan breken.
 
 import { isPdfDoel } from '../../pdf/print-doel.js';
+import { KATERN_KEUZES } from '../../pdf/print-boekje.js';
 
 /** Standaardwaarden van de printdialoog. */
 export const PRINT_STANDAARD = Object.freeze({
@@ -35,6 +36,11 @@ export const PRINT_STANDAARD = Object.freeze({
   posterCutMarks: true,
   posterLabels: true,
   posterOnlyLarge: true,
+  // Folder (#607): kopieën van dezelfde pagina per vel, met snijtekens.
+  flyerCount: '4',
+  flyerCutMarks: true,
+  // Boekje in katernen (#607): vellen per katern, 0 = één boekje.
+  bookletSheets: 0,
 });
 
 /** De toegestane waarden per keuzelijst van de printdialoog. */
@@ -43,7 +49,8 @@ export const PRINT_KEUZES = Object.freeze({
   subset: ['all', 'odd', 'even'],
   scaling: ['fit', 'actual', 'shrink', 'custom-scale', 'poster'],
   content: ['doc-and-markups', 'doc-only'],
-  perSheet: ['1', '2', '4', '6', '9', '16', 'custom', 'booklet'],
+  perSheet: ['1', '2', '4', '6', '9', '16', 'custom', 'flyer', 'booklet'],
+  flyerCount: ['2', '4', '6', '8', '9', '16'],
   sheetOrder: ['horizontal', 'horizontal-reversed', 'vertical', 'vertical-reversed'],
 });
 
@@ -61,7 +68,7 @@ export function markeringenVoorInhoud(inhoud) {
 
 const SCHAKELAARS = [
   'collate', 'reverseOrder', 'autoRotate', 'autoCenter', 'asImage', 'sheetBorder',
-  'posterCutMarks', 'posterLabels', 'posterOnlyLarge',
+  'posterCutMarks', 'posterLabels', 'posterOnlyLarge', 'flyerCutMarks',
 ];
 
 function geheelGetal(waarde, min, max, terugval) {
@@ -89,6 +96,7 @@ export function herstelPrintInstellingen(opgeslagen) {
     if (Number.isFinite(n)) s.posterOverlap = Math.min(50, Math.max(0, Math.round(n * 10) / 10));
   }
   if (typeof o.customPages === 'string') s.customPages = o.customPages;
+  if (KATERN_KEUZES.includes(o.bookletSheets)) s.bookletSheets = o.bookletSheets;
   for (const sleutel of SCHAKELAARS) {
     if (typeof o[sleutel] === 'boolean') s[sleutel] = o[sleutel];
   }

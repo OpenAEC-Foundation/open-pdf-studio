@@ -13,6 +13,8 @@ target-*/
 
 # pdfium-worker-sidecar: build-artefact dat build.rs/CI zelf plaatsen
 binaries/pdfium-worker-*
+# Verkenner-miniatuurhandler (#605): door build.rs/CI uit de target-map gekopieerd
+open-pdf-studio/src-tauri/binaries/open-pdf-thumbnails.dll
 
 # macOS in-proc PDFium: door CI opgehaald (SHA-256-geverifieerd), niet gecommit
 binaries/macos-universal/

@@ -181,9 +181,20 @@
     "checkFinder": "Zkontrolujte Finder > Získat informace",
     "notSet": "Nenastaveno"
   },
+  "explorerThumbnails": {
+    "title": "Průzkumník souborů",
+    "show": "Zobrazovat miniatury PDF v Průzkumníku souborů",
+    "help": "Průzkumník souborů pak místo ikony PDF zobrazí první stránku každého PDF. Platí to jen pro váš účet Windows a nemění to vaši výchozí aplikaci pro PDF.",
+    "unavailable": "V této verzi není k dispozici.",
+    "otherHandler": "Miniatury PDF nyní poskytuje {{name}}.",
+    "defaultApp": "Vaše výchozí aplikace pro PDF zobrazuje vlastní miniatury ({{name}}). Windows je používá, dokud je tato aplikace vaší výchozí aplikací pro PDF.",
+    "replaceTitle": "Miniatury PDF",
+    "replaceConfirm": "{{name}} už poskytuje miniatury PDF v Průzkumníku souborů.\n\nZobrazovat místo nich pro váš účet Windows miniatury z Open PDF Studio? Vypnutím této možnosti se obnoví předchozí miniatury.",
+    "failed": "Nastavení miniatur v Průzkumníku souborů se nepodařilo změnit."
+  },
   "virtualPrinter": {
     "title": "Virtuální tiskárna",
-    "description": "Nainstalujte \"Open PDF Printer\" jako tiskárnu ve Windows. Když tisknete z libovolné aplikace (Word, Chrome, Poznámkový blok atd.) a vyberete tuto tiskárnu, výstupní PDF se automaticky otevře v této aplikaci.",
+    "description": "„Open PDF Printer“ je tiskárna ve Windows, která převede výtisk z libovolného programu na PDF a shromáždí jej v okně tiskárny této aplikace.",
     "status": "Stav:",
     "installButton": "Nainstalovat virtuální tiskárnu",
     "removeButton": "Odebrat virtuální tiskárnu",
@@ -196,7 +207,17 @@
     "installationFailed": "Instalace se nezdařila",
     "removalFailed": "Odebrání se nezdařilo",
     "failedToInstall": "Nepodařilo se nainstalovat virtuální tiskárnu:",
-    "failedToRemove": "Nepodařilo se odebrat virtuální tiskárnu:"
+    "failedToRemove": "Nepodařilo se odebrat virtuální tiskárnu:",
+    "stateActiveDetail": "Výtisky na {{printer}} se objeví v okně tiskárny bez dialogu Uložit.",
+    "stateDialogDetail": "Každý výtisk se stále ptá, kam uložit. Povolte zachytávání PDF, aby se výtisky shromažďovaly v okně tiskárny.",
+    "stateMissingDetail": "Nainstalujte tiskárnu, abyste mohli vytvořit PDF z libovolného programu.",
+    "stateUnknownDetail": "Stav tiskárny se nepodařilo přečíst.",
+    "howTitle": "Jak to funguje",
+    "how1": "V libovolném programu zvolte Tisk a vyberte {{printer}}.",
+    "how2": "Výtisk se objeví v okně tiskárny aplikace Open PDF Studio.",
+    "how3": "Zobrazte úlohy v náhledu, změňte jejich pořadí, sloučte je a uložte jako jedno PDF, nebo je otevřete ve Studiu.",
+    "openWindow": "Otevřít okno tiskárny",
+    "openWindowTip": "Zobrazit zachycené tiskové úlohy"
   },
   "pageDisplay": {
     "rendering": "Vykreslování",

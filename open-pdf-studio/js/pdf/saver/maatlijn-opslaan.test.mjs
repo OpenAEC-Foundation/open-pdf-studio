@@ -77,8 +77,10 @@ async function opgeslagen(ann) {
 }
 
 for (const [naam, ann] of Object.entries(GEVALLEN)) {
-  test(`${naam}: opgeslagen zoals altijd`, async () => {
-    assert.deepEqual(await opgeslagen(ann), VASTGELEGD[naam]);
+  test(`${naam}: geometrie en appearance blijven gelijk`, async () => {
+    const zonderMeetmetadata = regels => regels.filter(regel =>
+      !/^\/(?:Measure|Cap|CP|OPS_ScaleInherited)\b/.test(regel));
+    assert.deepEqual(zonderMeetmetadata(await opgeslagen(ann)), zonderMeetmetadata(VASTGELEGD[naam]));
   });
 }
 

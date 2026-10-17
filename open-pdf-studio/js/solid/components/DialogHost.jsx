@@ -10,7 +10,6 @@ import ExtractPagesDialog from './dialogs/ExtractPagesDialog.jsx';
 import SplitDocumentDialog from './dialogs/SplitDocumentDialog.jsx';
 import MergePdfsDialog from './dialogs/MergePdfsDialog.jsx';
 import PrintDialog from './dialogs/PrintDialog.jsx';
-import PrintQueueDialog from './dialogs/PrintQueueDialog.jsx';
 import PageSetupDialog from './dialogs/PageSetupDialog.jsx';
 import WatermarkDialog from './dialogs/WatermarkDialog.jsx';
 import HeaderFooterDialog from './dialogs/HeaderFooterDialog.jsx';
@@ -75,7 +74,6 @@ const DIALOG_MAP = {
   'split-document': SplitDocumentDialog,
   'merge-pdfs': MergePdfsDialog,
   'print': PrintDialog,
-  'print-queue': PrintQueueDialog,
   'page-setup': PageSetupDialog,
   'watermark': WatermarkDialog,
   'header-footer': HeaderFooterDialog,

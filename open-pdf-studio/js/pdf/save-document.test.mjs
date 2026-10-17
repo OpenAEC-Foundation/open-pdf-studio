@@ -23,6 +23,7 @@ function harness() {
     state: { documents: [a, b] }, getActiveDocument: () => active,
     showLoading() {}, hideLoading() {}, updateTabBar() {}, updateWindowTitle() {},
     getCachedPdfBytes: path => new TextEncoder().encode(path), setCachedPdfBytes() {},
+    verzamelSchaalBronnen: () => ({}),
     PDFDocument: { load: async bytes => ({ context: { largestObjectNumber: 1 }, getPages: () => [], catalog: { get: () => null }, save: async () => bytes }) },
     PDFName: { of: x => x }, KNIPSEL_CATALOGUS: 'snippets',
     getAnnotationStorage: doc => { owners.push(doc); return null; },
@@ -151,6 +152,15 @@ test('Save As dialog keeps source and resulting path on A', async () => {
   assert.equal(h.b.filePath, 'b.pdf');
 });
 
+test('explicit Save As path retargets A without opening a file dialog', async () => {
+  const h = harness();
+  h.deps.saveFileDialog = async () => { throw new Error('unexpected file dialog'); };
+  assert.equal(await h.api.savePDFAs(h.a, 'translated.pdf', { zonderHandtekeningVraag: true }), true);
+  assert.deepEqual(h.writes, [{ path: 'translated.pdf', source: 'a.pdf' }]);
+  assert.equal(h.a.filePath, 'translated.pdf');
+  assert.equal(h.b.filePath, 'b.pdf');
+});
+
 test('closed document is not saved after the confirmation wait', async () => {
   const h = harness(), entered = deferred(), gate = deferred();
   h.deps.loadModule = async () => ({ bevestigOpslaanMetHandtekeningen: async () => { entered.resolve(); return gate.promise; } });
@@ -196,6 +206,53 @@ test('a reload during the disk write never marks the newer document clean', asyn
   assert.equal(await saving, false);
   assert.equal(h.writes.length, 1);
   assert.equal(h.a.modified, true);
+});
+
+test('saving text edits to a new path refreshes the view and retargets later saves', async () => {
+  const h = harness();
+  const reloads = [];
+  h.a.textEdits = [{ id: 'edit-1', newText: 'Bienvenue', baked: false }];
+  h.deps.saveTextEditsToPages = async (_pdf, _pages, doc) => {
+    doc.textEdits[0]._pendingBakeInfo = { bakedNewText: 'Bienvenue', inplaceBaked: null };
+  };
+  const loadModule = h.deps.loadModule;
+  h.deps.loadModule = async path => path.includes('page-manager')
+    ? { reloadFromBytes: async (bytes, _annotations, _rotations, _page, _viewport, doc) => {
+      reloads.push({ bytes: new TextDecoder().decode(bytes), target: doc.saveTargetPath });
+      doc.filePath = 'fresh-working-copy.pdf';
+      doc.pdfDoc = { fresh: true };
+      doc.modified = true;
+    } }
+    : loadModule(path);
+  assert.equal(await h.api.savePDF('translated.pdf', { zonderHandtekeningVraag: true }), true);
+  assert.deepEqual(h.writes.map(write => write.path), ['translated.pdf']);
+  assert.deepEqual(reloads, [{ bytes: 'a.pdf', target: 'translated.pdf' }]);
+  assert.equal(h.a.saveTargetPath, 'translated.pdf');
+  assert.equal(h.a.textEdits.length, 0);
+  assert.equal(h.a.modified, false);
+});
+
+test('Save As keeps a refreshed text edit bound to its new file', async () => {
+  const h = harness();
+  h.a.textEdits = [{ id: 'edit-2', newText: 'Bienvenue', baked: false }];
+  h.deps.saveTextEditsToPages = async (_pdf, _pages, doc) => {
+    doc.textEdits[0]._pendingBakeInfo = { bakedNewText: 'Bienvenue', inplaceBaked: null };
+  };
+  const loadModule = h.deps.loadModule;
+  h.deps.loadModule = async path => path.includes('page-manager')
+    ? { reloadFromBytes: async (_bytes, _annotations, _rotations, _page, _viewport, doc) => {
+      assert.equal(doc.saveTargetPath, 'copy.pdf');
+      doc.filePath = 'fresh-working-copy.pdf';
+      doc._renderTemp = true;
+      doc.pdfDoc = { fresh: true };
+    } }
+    : loadModule(path);
+  assert.equal(await h.api.savePDFAs(h.a), true);
+  assert.equal(h.a.filePath, 'copy.pdf');
+  assert.equal(h.a.saveTargetPath, null);
+  assert.equal(h.a._renderTemp, false);
+  assert.equal(h.a.pdfDoc.fresh, true);
+  assert.equal(h.a.modified, false);
 });
 
 test('saving aborts before writing when a page has model annotations but is not ready', async () => {

@@ -9,7 +9,7 @@ on:
       version:
         description: 'Version tag (e.g., v1.0.0)'
         required: true
-        default: 'v2026.42.10'
+        default: 'v2026.42.11'
 
 jobs:
   create-release:
@@ -131,19 +131,26 @@ jobs:
       # Tauri requires binaries/pdfium-worker-<target-triple> to exist at
       # build time on EVERY desktop platform, so build the workspace crate
       # first and drop it in with the right triple suffix.
-      - name: Build pdfium-worker sidecar (Windows)
+      # Also builds the File Explorer thumbnail handler (#605), a COM DLL that
+      # ships as a bundle resource next to pdfium.dll. It is copied into
+      # binaries/ here so the signing step below signs it in place: Tauri's
+      # signCommand covers the main binary and sidecars, not resources, and
+      # build.rs only replaces this copy with a NEWER build.
+      - name: Build pdfium-worker sidecar and thumbnail handler (Windows)
         if: contains(matrix.target, 'windows')
         shell: pwsh
         working-directory: .
         run: |
-          cargo build --release -p pdfium-worker
+          cargo build --release -p pdfium-worker -p open-pdf-thumbnails
           New-Item -ItemType Directory -Force open-pdf-studio/src-tauri/binaries | Out-Null
           Copy-Item target/release/pdfium-worker.exe open-pdf-studio/src-tauri/binaries/pdfium-worker-x86_64-pc-windows-msvc.exe -Force
+          Copy-Item target/release/open_pdf_thumbnails.dll open-pdf-studio/src-tauri/binaries/open-pdf-thumbnails.dll -Force
 
       # Installs signtool and the Azure Trusted Signing dlib on the runner (and
-      # signs the freshly built sidecar). The build below re-copies the sidecar,
-      # so the signatures that end up in the installer come from Tauri's
-      # signCommand, configured in the next step.
+      # signs the freshly built sidecar and thumbnail handler DLL). The build
+      # below re-copies the sidecar, so the sidecar signature that ends up in
+      # the installer comes from Tauri's signCommand, configured in the next
+      # step; the thumbnail handler is a resource and keeps this signature.
       - name: Install Azure signing tools (Windows)
         if: contains(matrix.target, 'windows')
         uses: azure/trusted-signing-action@v1
@@ -156,7 +163,7 @@ jobs:
           certificate-profile-name: ${{ secrets.AZURE_CERTIFICATE_PROFILE_NAME }}
           cache-dependencies: false
           files-folder: ${{ github.workspace }}/open-pdf-studio/src-tauri/binaries
-          files-folder-filter: exe
+          files-folder-filter: exe,dll
           files-folder-depth: 1
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
@@ -436,7 +443,7 @@ jobs:
           Write-Output "installed to: $dir"
 
           $unsigned = $false
-          foreach ($exe in 'open-pdf-studio.exe', 'pdfium-worker.exe', 'uninstall.exe') {
+          foreach ($exe in 'open-pdf-studio.exe', 'pdfium-worker.exe', 'open-pdf-thumbnails.dll', 'uninstall.exe') {
             $sig = Get-AuthenticodeSignature (Join-Path $dir $exe)
             Write-Output ("{0}: {1} ({2})" -f $exe, $sig.Status, $sig.SignerCertificate.Subject)
             if ($sig.Status -ne 'Valid') { $unsigned = $true }

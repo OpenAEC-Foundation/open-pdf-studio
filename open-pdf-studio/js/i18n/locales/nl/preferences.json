@@ -181,9 +181,20 @@
     "checkFinder": "Controleer Finder > Toon info",
     "notSet": "Niet ingesteld"
   },
+  "explorerThumbnails": {
+    "title": "Verkenner",
+    "show": "PDF-miniaturen tonen in Verkenner",
+    "help": "Verkenner toont dan de eerste pagina van elke PDF in plaats van het PDF-pictogram. Dit geldt alleen voor uw Windows-account en verandert uw standaard-PDF-app niet.",
+    "unavailable": "Niet beschikbaar in deze versie.",
+    "otherHandler": "PDF-miniaturen worden nu geleverd door {{name}}.",
+    "defaultApp": "Uw standaard-PDF-app toont eigen miniaturen ({{name}}). Windows gebruikt die zolang die app uw standaard-PDF-app is.",
+    "replaceTitle": "PDF-miniaturen",
+    "replaceConfirm": "{{name}} levert al PDF-miniaturen in Verkenner.\n\nVoor uw Windows-account in plaats daarvan de miniaturen van Open PDF Studio tonen? Als u deze optie weer uitzet, komen de vorige miniaturen terug.",
+    "failed": "De instelling voor miniaturen in Verkenner kon niet worden gewijzigd."
+  },
   "virtualPrinter": {
     "title": "Virtuele printer",
-    "description": "Installeer \"Open PDF Printer\" als Windows-printer. Wanneer u vanuit een toepassing afdrukt (Word, Chrome, Kladblok, etc.) en deze printer selecteert, wordt de PDF automatisch geopend in deze app.",
+    "description": "\"Open PDF Printer\" is een Windows-printer die een afdruk uit elk programma omzet in een PDF en die verzamelt in het printervenster van deze app.",
     "status": "Status:",
     "installButton": "Virtuele printer installeren",
     "removeButton": "Virtuele printer verwijderen",
@@ -196,7 +207,17 @@
     "installationFailed": "Installatie mislukt",
     "removalFailed": "Verwijdering mislukt",
     "failedToInstall": "Kan virtuele printer niet installeren:",
-    "failedToRemove": "Kan virtuele printer niet verwijderen:"
+    "failedToRemove": "Kan virtuele printer niet verwijderen:",
+    "stateActiveDetail": "Afdrukken naar {{printer}} komen zonder opslaan-venster in het printervenster terecht.",
+    "stateDialogDetail": "Elke afdruk vraagt nog waar die moet worden opgeslagen. Schakel de PDF-opvang in om afdrukken in het printervenster te verzamelen.",
+    "stateMissingDetail": "Installeer de printer om vanuit elk programma een PDF te maken.",
+    "stateUnknownDetail": "De status van de printer kon niet worden gelezen.",
+    "howTitle": "Zo werkt het",
+    "how1": "Kies in een programma Afdrukken en selecteer {{printer}}.",
+    "how2": "De afdruk verschijnt in het printervenster van Open PDF Studio.",
+    "how3": "Bekijk, orden, voeg samen en sla de opdrachten op als één PDF, of open ze in Studio.",
+    "openWindow": "Printervenster openen",
+    "openWindowTip": "Toon de opgevangen afdrukopdrachten"
   },
   "pageDisplay": {
     "rendering": "Weergave",

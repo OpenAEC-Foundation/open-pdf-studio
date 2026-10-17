@@ -2071,7 +2071,9 @@ async function handleSavePdf(params) {
   } catch { /* best-effort */ }
   let success;
   try {
-    success = await saverMod.savePDF(path, { zonderHandtekeningVraag: true }, doc);
+    success = path
+      ? await saverMod.savePDFAs(doc, path, { zonderHandtekeningVraag: true })
+      : await saverMod.savePDF(null, { zonderHandtekeningVraag: true }, doc);
   } catch (e) {
     return { ok: false, error: `savePDF: ${e?.message ?? e}` };
   }
@@ -3394,9 +3396,10 @@ async function bereidPrintVoor(params, naarBestand, controle = null) {
     if (mis) return mis;
   }
 
-  const { parsePageRange } = await import('./pdf/exporter.js');
+  // Het printbereik zoals getypt, met volgorde en herhalingen (#606).
+  const { printPaginaBereik } = await import('./pdf/print-bereik.js');
   const keuze = opdrachtMod.kiesPaginas(opdracht, {
-    totaal: doc.pdfDoc.numPages, huidig: doc.currentPage || 1, bereik: parsePageRange,
+    totaal: doc.pdfDoc.numPages, huidig: doc.currentPage || 1, bereik: printPaginaBereik,
   });
   if (!keuze.ok) return keuze;
 

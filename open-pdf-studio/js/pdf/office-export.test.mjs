@@ -90,6 +90,10 @@ test('numeric conversion is locale-aware and preserves identifiers and formulas'
   }
   assert.equal(spreadsheetCurrency('€ 94.000,00', ','), 94000);
   assert.equal(spreadsheetCurrency('-€ 1.234,50', ','), -1234.5);
+  assert.equal(spreadsheetCurrency('1.234,50 €', ','), 1234.5);
+  assert.equal(spreadsheetCurrency('-1.234,50 €', ','), -1234.5);
+  assert.equal(spreadsheetCurrency('€ -1.234,50', ','), -1234.5);
+  assert.equal(spreadsheetCurrency('-€ -1.234,50', ','), null);
   assert.equal(spreadsheetCurrency('€ =SUM(A1:A2)', ','), null);
 });
 
@@ -105,6 +109,19 @@ test('a schedule without a header converts its first row and formats currency', 
   assert.ok(!sheet.includes('state="frozen"'));
   assert.ok(!sheet.includes('<autoFilter'));
   assert.match(string(files.get('xl/styles.xml')), /numFmtId="179" formatCode="&quot;€&quot; #,##0.00"/);
+});
+
+test('trailing euro amounts remain numeric with the symbol after the amount', async () => {
+  const files = await entries(buildXlsx([{ number: 1, blocks: [{ type: 'table', rows: [
+    ['Omschrijving', 'Bedrag'],
+    ['Werk', '1.234,50 €'],
+    ['Correctie', '-10,00 €'],
+  ] }] }], { decimal: ',' }));
+  const sheet = string(files.get('xl/worksheets/sheet1.xml'));
+  assert.match(sheet, /r="B2" s="18"><v>1234\.5<\/v>/);
+  assert.match(sheet, /r="B3" s="18"><v>-10<\/v>/);
+  assert.match(string(files.get('xl/styles.xml')),
+    /numFmtId="180" formatCode="#,##0\.00 &quot;€&quot;"/);
 });
 
 test('XLSX contains numeric amounts, string identifiers, escaped text and usable formatting', async () => {

@@ -181,9 +181,20 @@
     "checkFinder": "Ellenőrizze a Finder > Információ részben",
     "notSet": "Nincs beállítva"
   },
+  "explorerThumbnails": {
+    "title": "Fájlkezelő",
+    "show": "PDF-miniatűrök megjelenítése a Fájlkezelőben",
+    "help": "A Fájlkezelő ekkor a PDF-ikon helyett minden PDF első oldalát mutatja. Ez csak az Ön Windows-fiókjára vonatkozik, és nem változtatja meg az alapértelmezett PDF-alkalmazást.",
+    "unavailable": "Ebben a verzióban nem érhető el.",
+    "otherHandler": "A PDF-miniatűröket jelenleg a következő biztosítja: {{name}}.",
+    "defaultApp": "Az alapértelmezett PDF-alkalmazása saját miniatűröket mutat ({{name}}). A Windows ezeket használja, amíg az az alkalmazás az alapértelmezett PDF-alkalmazás.",
+    "replaceTitle": "PDF-miniatűrök",
+    "replaceConfirm": "A(z) {{name}} már biztosít PDF-miniatűröket a Fájlkezelőben.\n\nHelyettük az Open PDF Studio miniatűrjei jelenjenek meg az Ön Windows-fiókjában? Ha kikapcsolja ezt a beállítást, visszaállnak a korábbi miniatűrök.",
+    "failed": "A Fájlkezelő miniatűr-beállítását nem sikerült módosítani."
+  },
   "virtualPrinter": {
     "title": "Virtuális nyomtató",
-    "description": "Telepítse az \"Open PDF Printer\" nyomtatót Windows nyomtatóként. Ha bármely alkalmazásból (Word, Chrome, Jegyzettömb stb.) nyomtat, és ezt a nyomtatót választja, a létrejövő PDF automatikusan megnyílik ebben az alkalmazásban.",
+    "description": "Az „Open PDF Printer” egy Windows-nyomtató, amely bármely programból érkező nyomtatást PDF-fé alakít, és összegyűjti az alkalmazás nyomtatóablakában.",
     "status": "Állapot:",
     "installButton": "Virtuális nyomtató telepítése",
     "removeButton": "Virtuális nyomtató eltávolítása",
@@ -196,7 +207,17 @@
     "installationFailed": "A telepítés sikertelen",
     "removalFailed": "Az eltávolítás sikertelen",
     "failedToInstall": "Nem sikerült telepíteni a virtuális nyomtatót:",
-    "failedToRemove": "Nem sikerült eltávolítani a virtuális nyomtatót:"
+    "failedToRemove": "Nem sikerült eltávolítani a virtuális nyomtatót:",
+    "stateActiveDetail": "A(z) {{printer}} nyomtatóra küldött nyomtatások Mentés párbeszédpanel nélkül érkeznek a nyomtatóablakba.",
+    "stateDialogDetail": "Minden nyomtatás még rákérdez a mentés helyére. Engedélyezze a PDF-elfogást, hogy a nyomtatások a nyomtatóablakban gyűljenek.",
+    "stateMissingDetail": "Telepítse a nyomtatót, hogy bármely programból PDF-et készíthessen.",
+    "stateUnknownDetail": "A nyomtató állapota nem olvasható.",
+    "howTitle": "Működése",
+    "how1": "Bármely programban válassza a Nyomtatás parancsot, és válassza ki a(z) {{printer}} nyomtatót.",
+    "how2": "A nyomtatás megjelenik az Open PDF Studio nyomtatóablakában.",
+    "how3": "Tekintse meg az előnézetet, rendezze át, fűzze össze és mentse a feladatokat egyetlen PDF-ként, vagy nyissa meg őket a Studióban.",
+    "openWindow": "Nyomtatóablak megnyitása",
+    "openWindowTip": "Az elfogott nyomtatási feladatok megjelenítése"
   },
   "pageDisplay": {
     "rendering": "Megjelenítés",

@@ -181,9 +181,20 @@
     "checkFinder": "Comproveu Finder > Obtenir informació",
     "notSet": "No establert"
   },
+  "explorerThumbnails": {
+    "title": "Explorador de fitxers",
+    "show": "Mostra les miniatures dels PDF a l'Explorador de fitxers",
+    "help": "L'Explorador de fitxers mostrarà la primera pàgina de cada PDF en lloc de la icona de PDF. Només s'aplica al vostre compte de Windows i no canvia l'aplicació PDF predeterminada.",
+    "unavailable": "No disponible en aquesta versió.",
+    "otherHandler": "Actualment, les miniatures dels PDF les proporciona {{name}}.",
+    "defaultApp": "La vostra aplicació PDF predeterminada mostra les seves pròpies miniatures ({{name}}). Windows les fa servir mentre aquesta aplicació sigui l'aplicació PDF predeterminada.",
+    "replaceTitle": "Miniatures dels PDF",
+    "replaceConfirm": "{{name}} ja proporciona miniatures dels PDF a l'Explorador de fitxers.\n\nVoleu mostrar-hi en canvi les miniatures d'Open PDF Studio per al vostre compte de Windows? Si desactiveu aquesta opció, es restauren les miniatures anteriors.",
+    "failed": "No s'ha pogut canviar la configuració de miniatures de l'Explorador de fitxers."
+  },
   "virtualPrinter": {
     "title": "Impressora virtual",
-    "description": "Instal·leu \"Open PDF Printer\" com a impressora de Windows. Quan imprimiu des de qualsevol aplicació (Word, Chrome, Bloc de notes, etc.) i seleccioneu aquesta impressora, el PDF resultant s'obrirà automàticament en aquesta aplicació.",
+    "description": "«Open PDF Printer» és una impressora de Windows que converteix la impressió de qualsevol programa en un PDF i el recull a la finestra d'impressora d'aquesta aplicació.",
     "status": "Estat:",
     "installButton": "Instal·la la impressora virtual",
     "removeButton": "Suprimeix la impressora virtual",
@@ -196,7 +207,17 @@
     "installationFailed": "La instal·lació ha fallat",
     "removalFailed": "La supressió ha fallat",
     "failedToInstall": "No s'ha pogut instal·lar la impressora virtual:",
-    "failedToRemove": "No s'ha pogut suprimir la impressora virtual:"
+    "failedToRemove": "No s'ha pogut suprimir la impressora virtual:",
+    "stateActiveDetail": "Les impressions a {{printer}} arriben a la finestra d'impressora sense diàleg Desa.",
+    "stateDialogDetail": "Cada impressió encara pregunta on desar. Activeu la captura de PDF per recollir les impressions a la finestra d'impressora.",
+    "stateMissingDetail": "Instal·leu la impressora per crear un PDF des de qualsevol programa.",
+    "stateUnknownDetail": "No s'ha pogut llegir l'estat de la impressora.",
+    "howTitle": "Com funciona",
+    "how1": "En qualsevol programa, trieu Imprimeix i seleccioneu {{printer}}.",
+    "how2": "La impressió apareix a la finestra d'impressora d'Open PDF Studio.",
+    "how3": "Previsualitzeu, reordeneu, combineu i deseu les tasques com a un sol PDF, o obriu-les a Studio.",
+    "openWindow": "Obre la finestra d'impressora",
+    "openWindowTip": "Mostra les tasques d'impressió capturades"
   },
   "pageDisplay": {
     "rendering": "Renderització",

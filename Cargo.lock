@@ -3700,7 +3700,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-studio"
-version = "2026.42.10"
+version = "2026.42.11"
 dependencies = [
  "anyhow",
  "axum",
@@ -3766,6 +3766,15 @@ dependencies = [
  "x509-cert",
  "zeroize",
  "zip 2.4.2",
+]
+
+[[package]]
+name = "open-pdf-thumbnails"
+version = "0.1.0"
+dependencies = [
+ "libloading 0.9.0",
+ "windows 0.61.3",
+ "windows-core 0.61.2",
 ]
 
 [[package]]

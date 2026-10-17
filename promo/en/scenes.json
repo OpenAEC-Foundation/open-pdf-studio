@@ -1,0 +1,79 @@
+[
+  {
+    "duration": 9.5,
+    "eyebrow": "MEET OPEN PDF STUDIO",
+    "title": [
+      "Your drawings.",
+      "Your tools."
+    ],
+    "detail": "Free and open source.",
+    "voice": "Your drawings. Your tools. Meet Open PDF Studio. Free and open source.",
+    "layout": "hero"
+  },
+  {
+    "duration": 8.5,
+    "eyebrow": "01 / OPEN",
+    "title": [
+      "Every detail.",
+      "In view."
+    ],
+    "detail": "A workspace built for technical drawings.",
+    "voice": "Bring your technical drawings into one workspace. Explore the details, and keep your project in view.",
+    "layout": "wide"
+  },
+  {
+    "duration": 10,
+    "eyebrow": "02 / MEASURE",
+    "title": [
+      "Turn drawings",
+      "into quantities."
+    ],
+    "detail": "Set the scale. Measure lengths and areas.",
+    "voice": "Set the scale. Measure lengths and areas directly on your drawing. Turn project information into quantities you can use.",
+    "layout": "measure"
+  },
+  {
+    "duration": 9,
+    "eyebrow": "03 / ANNOTATE",
+    "title": [
+      "Make your",
+      "mark."
+    ],
+    "detail": "Dimensions. Shapes. Hatches. Notes.",
+    "voice": "Add dimensions, shapes, hatches, and notes. Keep your markups where they belong: right on the drawing.",
+    "layout": "annotate"
+  },
+  {
+    "duration": 9.5,
+    "eyebrow": "04 / COMPARE",
+    "title": [
+      "See what changed."
+    ],
+    "detail": "Compare PDF versions side by side.",
+    "voice": "Put two versions side by side. See additions and removals, inspect the differences, and make your next review clearer.",
+    "layout": "compare"
+  },
+  {
+    "duration": 10.5,
+    "eyebrow": "BUILT FOR YOUR WORK",
+    "title": [
+      "No subscription.",
+      "No watermarks.",
+      "Open source."
+    ],
+    "detail": "Professional PDF tools. Freely available.",
+    "voice": "Professional PDF tools, without a subscription. No watermarks. Open source, with the freedom to make it your own.",
+    "layout": "manifesto"
+  },
+  {
+    "duration": 9,
+    "eyebrow": "OPENAEC FOUNDATION",
+    "title": [
+      "Open PDF",
+      "Studio."
+    ],
+    "detail": "Download it free.",
+    "voice": "Your next project starts here. Open PDF Studio. Download it free, and get to work.",
+    "layout": "end"
+  }
+]

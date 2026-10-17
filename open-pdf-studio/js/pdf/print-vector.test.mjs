@@ -475,3 +475,17 @@ test('lagen: een bron zonder lagen krijgt er geen', async () => {
   });
   assert.equal((await herlaad(pdf)).catalog.get(PDFName.of('OCProperties')), undefined);
 });
+
+test('herhaalde pagina\'s (#606): elke herhaling wordt een eigen printpagina, in de gegeven volgorde', async () => {
+  const bytes = await bron([[595, 842], [842, 595]]);
+  const { pdf } = await bouwVectorPrintPdf({
+    bronBytes: bytes,
+    paginas: [{ index: 0 }, { index: 0 }, { index: 1 }, { index: 0 }],
+    keuzes: { ...KEUZES, papier: null },
+  });
+  const herladen = await PDFDocument.load(await pdf.save());
+  assert.equal(herladen.getPageCount(), 4);
+  const maten = herladen.getPages().map((p) => `${Math.round(p.getWidth())}x${Math.round(p.getHeight())}`);
+  assert.deepEqual(maten, ['595x842', '595x842', '842x595', '595x842']);
+  for (const p of herladen.getPages()) assert.equal(xobjecten(p).filter((x) => x.subtype === 'Form').length, 1);
+});

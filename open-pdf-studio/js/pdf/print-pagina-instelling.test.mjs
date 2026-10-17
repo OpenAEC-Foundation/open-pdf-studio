@@ -6,7 +6,7 @@ import test from 'node:test';
 
 import {
   PAPIERFORMATEN, VERLENGING_MM, formaatTekst, paginaOrientatie, paginaFormaat,
-  startPaginaInstelling, bewaarPaginaInstelling, printArgumenten, overstemdeStand,
+  startPaginaInstelling, bewaarPaginaInstelling, printArgumenten, overstemdeStand, vellenStand,
 } from './print-pagina-instelling.js';
 
 const MM = 72 / 25.4; // pt per mm
@@ -223,4 +223,33 @@ test('overstemde stand: alleen met Automatisch draaien aan, voor dít document, 
   // Een kapotte stand in een oud voorkeurenbestand telt niet.
   const kapot = { ...p, orientation: 'schuin' };
   assert.equal(overstemdeStand({ autoRotate: true, paginaInstelling: kapot, docId: 'd1', pagina: liggend }), null);
+});
+
+test("vaste stand bij pagina's per vel (#606): de stand uit de Pagina-instelling geldt, ook met Automatisch draaien", () => {
+  const staand = { docId: 'd1', size: 'a4', orientation: 'portrait', handmatig: true };
+  const liggend = { ...staand, orientation: 'landscape', handmatig: false };
+  // Meerdere pagina's per vel (of een folder): het vel volgt de bevestigde keuze.
+  assert.equal(vellenStand({ autoRotate: true, paginaInstelling: staand, docId: 'd1', metIndeling: true }), 'portrait');
+  assert.equal(vellenStand({ autoRotate: true, paginaInstelling: liggend, docId: 'd1', metIndeling: true }), 'landscape');
+  assert.equal(vellenStand({ autoRotate: false, paginaInstelling: staand, docId: 'd1', metIndeling: true }), 'portrait');
+  // Geen keuze voor dit document: automatisch, de beste stand voor het raster.
+  assert.equal(vellenStand({ autoRotate: true, paginaInstelling: staand, docId: 'ander', metIndeling: true }), 'auto');
+  assert.equal(vellenStand({ autoRotate: true, paginaInstelling: null, docId: 'd1', metIndeling: true }), 'auto');
+  assert.equal(vellenStand({ autoRotate: false, paginaInstelling: null, docId: 'd1', metIndeling: true }), 'auto');
+  // Eén pagina per vel: precies printArgumenten, zoals altijd.
+  for (const autoRotate of [true, false]) {
+    for (const p of [staand, liggend, null]) {
+      assert.equal(vellenStand({ autoRotate, paginaInstelling: p, docId: 'd1', metIndeling: false }),
+        printArgumenten({ autoRotate, paginaInstelling: p, docId: 'd1' }).orientatie);
+    }
+  }
+  // Een kapotte stand telt niet.
+  assert.equal(vellenStand({ autoRotate: true, paginaInstelling: { ...staand, orientation: 'schuin' }, docId: 'd1', metIndeling: true }), 'auto');
+});
+
+test("overstemde stand: bij pagina's per vel wordt de gekozen stand niet overstemd, dus geen melding", () => {
+  const liggend = { breedtePt: pt(297), hoogtePt: pt(210) };
+  const p = { docId: 'd1', size: 'a4', orientation: 'portrait', handmatig: true };
+  assert.equal(overstemdeStand({ autoRotate: true, paginaInstelling: p, docId: 'd1', pagina: liggend, metIndeling: true }), null);
+  assert.equal(overstemdeStand({ autoRotate: true, paginaInstelling: p, docId: 'd1', pagina: liggend, metIndeling: false }), 'portrait');
 });

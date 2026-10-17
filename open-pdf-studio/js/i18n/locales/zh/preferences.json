@@ -181,9 +181,20 @@
     "checkFinder": "检查 Finder > 显示简介",
     "notSet": "未设置"
   },
+  "explorerThumbnails": {
+    "title": "文件资源管理器",
+    "show": "在文件资源管理器中显示 PDF 缩略图",
+    "help": "文件资源管理器将显示每个 PDF 的第一页，而不是 PDF 图标。此设置仅适用于您的 Windows 帐户，不会更改您的默认 PDF 应用。",
+    "unavailable": "此版本中不可用。",
+    "otherHandler": "PDF 缩略图目前由 {{name}} 提供。",
+    "defaultApp": "您的默认 PDF 应用会显示自己的缩略图（{{name}}）。只要该应用仍是您的默认 PDF 应用，Windows 就会使用这些缩略图。",
+    "replaceTitle": "PDF 缩略图",
+    "replaceConfirm": "{{name}} 已在文件资源管理器中提供 PDF 缩略图。\n\n是否为您的 Windows 帐户改为显示 Open PDF Studio 的缩略图？关闭此选项会恢复之前的缩略图。",
+    "failed": "无法更改文件资源管理器的缩略图设置。"
+  },
   "virtualPrinter": {
     "title": "虚拟打印机",
-    "description": "将“Open PDF Printer”安装为 Windows 打印机。当您从任何应用程序（Word、Chrome、记事本等）打印并选择此打印机时，输出的 PDF 将自动在此应用中打开。",
+    "description": "“Open PDF Printer”是一台 Windows 打印机，可将任意程序的打印内容转换为 PDF，并收集到本应用的打印机窗口中。",
     "status": "状态：",
     "installButton": "安装虚拟打印机",
     "removeButton": "移除虚拟打印机",
@@ -196,7 +207,17 @@
     "installationFailed": "安装失败",
     "removalFailed": "移除失败",
     "failedToInstall": "无法安装虚拟打印机：",
-    "failedToRemove": "无法移除虚拟打印机："
+    "failedToRemove": "无法移除虚拟打印机：",
+    "stateActiveDetail": "发送到 {{printer}} 的打印内容会直接进入打印机窗口，不显示保存对话框。",
+    "stateDialogDetail": "每次打印仍会询问保存位置。启用 PDF 捕获即可在打印机窗口中收集打印内容。",
+    "stateMissingDetail": "安装打印机即可从任意程序生成 PDF。",
+    "stateUnknownDetail": "无法读取打印机状态。",
+    "howTitle": "工作原理",
+    "how1": "在任意程序中选择“打印”，然后选择 {{printer}}。",
+    "how2": "打印内容会显示在 Open PDF Studio 的打印机窗口中。",
+    "how3": "预览、重新排序、合并并将作业保存为一个 PDF，或在 Studio 中打开它们。",
+    "openWindow": "打开打印机窗口",
+    "openWindowTip": "显示已捕获的打印作业"
   },
   "pageDisplay": {
     "rendering": "渲染",

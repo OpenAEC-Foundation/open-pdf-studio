@@ -1,6 +1,6 @@
 [package]
 name = "open-pdf-studio"
-version = "2026.42.10"
+version = "2026.42.11"
 description = "A free, open-source PDF annotation editor"
 authors = ["OpenAEC Foundation"]
 license = "LGPL-3.0-or-later"
@@ -160,7 +160,7 @@ rustls-native-certs = "0.8"
 [target.'cfg(target_os = "windows")'.dependencies]
 webview2-com = "0.38.2"
 windows = { version = "0.61.3", features = ["Win32_Foundation", "Win32_System_Com", "Win32_System_Com_StructuredStorage"] }
-windows-sys ={ version = "0.59", features = ["Win32_Graphics_Printing", "Win32_Graphics_Gdi", "Win32_Storage_Xps", "Win32_Foundation", "Win32_System_Com", "Win32_UI_Shell", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging", "Win32_Security", "Win32_Security_Cryptography", "Win32_System_Registry"] }
+windows-sys ={ version = "0.59", features = ["Win32_Graphics_Printing", "Win32_Graphics_Gdi", "Win32_Storage_Xps", "Win32_Foundation", "Win32_System_Com", "Win32_UI_Shell", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_WindowsAndMessaging", "Win32_Security", "Win32_Security_Cryptography", "Win32_System_Registry", "Win32_System_Threading"] }
 
 # De mock-runtime van Tauri, zodat een test een AppHandle kan maken zonder
 # venster (logboek::registreer schrijft daarmee echt een logbestand). Alleen

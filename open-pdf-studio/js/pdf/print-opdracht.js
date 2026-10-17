@@ -263,8 +263,8 @@ function leesStand(p, venster, bewaard) {
 /**
  * De paginalijst van de opdracht, met dezelfde keuzes als het printvenster:
  * "all" = elke pagina, "current" = de getoonde pagina, anders het bereik.
- * `bereik` is `parsePageRange` uit exporter.js; die module heeft de DOM nodig,
- * dus de aanroeper geeft hem mee.
+ * `bereik` is `printPaginaBereik` uit print-bereik.js (zoals getypt, met
+ * volgorde en herhalingen); de aanroeper geeft hem mee.
  * @returns {{ok:true, pages:number[]} | {ok:false, error:string}}
  */
 export function kiesPaginas(opdracht, { totaal, huidig = 1, bereik }) {

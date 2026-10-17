@@ -181,9 +181,20 @@
     "checkFinder": "Verificar Finder > Obtener información",
     "notSet": "No establecido"
   },
+  "explorerThumbnails": {
+    "title": "Explorador de archivos",
+    "show": "Mostrar miniaturas de PDF en el Explorador de archivos",
+    "help": "El Explorador de archivos mostrará entonces la primera página de cada PDF en lugar del icono de PDF. Esto solo se aplica a su cuenta de Windows y no cambia su aplicación PDF predeterminada.",
+    "unavailable": "No disponible en esta versión.",
+    "otherHandler": "Las miniaturas de PDF las proporciona actualmente {{name}}.",
+    "defaultApp": "Su aplicación PDF predeterminada muestra sus propias miniaturas ({{name}}). Windows las usa mientras esa aplicación sea su aplicación PDF predeterminada.",
+    "replaceTitle": "Miniaturas de PDF",
+    "replaceConfirm": "{{name}} ya proporciona miniaturas de PDF en el Explorador de archivos.\n\n¿Mostrar en su lugar las miniaturas de Open PDF Studio para su cuenta de Windows? Al desactivar esta opción se restauran las miniaturas anteriores.",
+    "failed": "No se pudo cambiar la configuración de miniaturas del Explorador de archivos."
+  },
   "virtualPrinter": {
     "title": "Impresora virtual",
-    "description": "Instale \"Open PDF Printer\" como impresora de Windows. Cuando imprima desde cualquier aplicación (Word, Chrome, Bloc de notas, etc.) y seleccione esta impresora, el PDF generado se abrirá automáticamente en esta aplicación.",
+    "description": "«Open PDF Printer» es una impresora de Windows que convierte la impresión de cualquier programa en un PDF y lo reúne en la ventana de impresora de esta aplicación.",
     "status": "Estado:",
     "installButton": "Instalar impresora virtual",
     "removeButton": "Eliminar impresora virtual",
@@ -196,7 +207,17 @@
     "installationFailed": "La instalación falló",
     "removalFailed": "La eliminación falló",
     "failedToInstall": "Error al instalar la impresora virtual:",
-    "failedToRemove": "Error al eliminar la impresora virtual:"
+    "failedToRemove": "Error al eliminar la impresora virtual:",
+    "stateActiveDetail": "Las impresiones en {{printer}} llegan a la ventana de impresora sin diálogo Guardar.",
+    "stateDialogDetail": "Cada impresión sigue preguntando dónde guardar. Active la captura de PDF para reunir las impresiones en la ventana de impresora.",
+    "stateMissingDetail": "Instale la impresora para crear un PDF desde cualquier programa.",
+    "stateUnknownDetail": "No se pudo leer el estado de la impresora.",
+    "howTitle": "Cómo funciona",
+    "how1": "En cualquier programa, elija Imprimir y seleccione {{printer}}.",
+    "how2": "La impresión aparece en la ventana de impresora de Open PDF Studio.",
+    "how3": "Previsualice, reordene, combine y guarde los trabajos como un solo PDF, o ábralos en Studio.",
+    "openWindow": "Abrir ventana de impresora",
+    "openWindowTip": "Mostrar los trabajos de impresión capturados"
   },
   "pageDisplay": {
     "rendering": "Representación",

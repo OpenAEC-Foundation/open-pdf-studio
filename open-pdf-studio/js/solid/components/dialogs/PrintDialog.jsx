@@ -3,19 +3,20 @@ import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { state, getActiveDocument, getPageRotation } from '../../../core/state.js';
 import { invoke, saveFileDialog } from '../../../core/platform.js';
-import { parsePageRange } from '../../../pdf/exporter.js';
+import { printPaginaBereik } from '../../../pdf/print-bereik.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { loadPrinters, printerList as cachedPrinters, defaultPrinterName, printerErrorMessage } from '../../stores/printerStore.js';
 import { runPrintJob, slaPrintOpAlsPdf, renderPrintBeeld } from '../../../pdf/print-job.js';
 import {
   rasterVan, isMeerPerBlad, voorbeeldMeerPerBlad, aantalVellen, paginasOpVel,
+  isFlyer, flyerRaster, volgordeAanwijzer, SNIJTEKEN_LIJN_PT,
 } from '../../../pdf/print-meerperblad.js';
 import {
-  isBoekje, voorbeeldBoekje, boekjeVolgorde, aantalBoekjeZijden, boekjeZijde,
+  isBoekje, voorbeeldBoekje, boekjeVolgorde, aantalBoekjeZijden, boekjeZijde, geldigKatern, KATERN_KEUZES,
 } from '../../../pdf/print-boekje.js';
 import { savePreferences } from '../../../core/preferences.js';
 import { herstelPrintInstellingen, kiesStartPrinter } from '../../stores/print-instellingen.js';
-import { printArgumenten, overstemdeStand } from '../../../pdf/print-pagina-instelling.js';
+import { printArgumenten, overstemdeStand, vellenStand } from '../../../pdf/print-pagina-instelling.js';
 import { getPageSetupSettings, stelPaginaInstellingIn, paginaInstellingVersie } from './PageSetupDialog.jsx';
 import { viewportOpties } from '../../../pdf/getoonde-pagina.js';
 import {
@@ -42,6 +43,25 @@ const MM_PER_PT = 25.4 / 72;
 // zo tekent het voorbeeld niet opnieuw als er alleen een nieuw object komt.
 function zelfdeKeuzes(a, b) {
   return JSON.stringify(a) === JSON.stringify(b);
+}
+
+// Een klein plaatje naast de keuze voor de paginavolgorde (#607): een raster
+// van 2 x 2 met het pad van de leesvolgorde, zoals celVoorVolgnummer het
+// legt. Alleen uitleg; de afdruk verandert er niet door.
+const VOLGORDE_PADEN = {
+  horizontal: 'M4 4 H12 L4 12 H12',
+  'horizontal-reversed': 'M12 4 H4 L12 12 H4',
+  vertical: 'M4 4 V12 L12 4 V12',
+  'vertical-reversed': 'M12 4 V12 L4 4 V12',
+};
+
+function VolgordeIcoon(props) {
+  return (
+    <svg class="print-order-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+      <rect x="0.5" y="0.5" width="15" height="15" fill="none" stroke="currentColor" stroke-opacity="0.4" />
+      <path d={VOLGORDE_PADEN[props.volgorde] || VOLGORDE_PADEN.horizontal} fill="none" stroke="#0066cc" stroke-width="1.5" />
+    </svg>
+  );
 }
 
 export default function PrintDialog(props) {
@@ -80,6 +100,9 @@ export default function PrintDialog(props) {
   const [posterCutMarks, setPosterCutMarks] = createSignal(bewaard.posterCutMarks);
   const [posterLabels, setPosterLabels] = createSignal(bewaard.posterLabels);
   const [posterOnlyLarge, setPosterOnlyLarge] = createSignal(bewaard.posterOnlyLarge);
+  const [flyerCount, setFlyerCount] = createSignal(bewaard.flyerCount);
+  const [flyerCutMarks, setFlyerCutMarks] = createSignal(bewaard.flyerCutMarks);
+  const [bookletSheets, setBookletSheets] = createSignal(bewaard.bookletSheets);
   // Posterafdruk (Type "Poster", print-poster.js): de tegelkeuzes, of null.
   // De poster vervangt de schaalkeuze én het aantal pagina's per vel.
   const poster = createMemo(() => (scaling() === 'poster'
@@ -95,13 +118,26 @@ export default function PrintDialog(props) {
   // Een keuze in "Pagina's per vel", dus nooit samen met meer per vel; de
   // poster gaat voor.
   const boekje = createMemo(() => !poster() && isBoekje(perSheet()));
-  // Meerdere pagina's per vel, of null bij één per vel (en bij een poster of
-  // een boekje). Een memo met waardevergelijking: het voorbeeld tekent alleen
+  // Vellen per katern van een boekje (#607); 0 = één boekje.
+  const katern = createMemo(() => (boekje() ? geldigKatern(bookletSheets()) : 0));
+  // Folder (#607): kopieën van dezelfde pagina op elk vel, met dezelfde vel-
+  // en celregels als meerdere pagina's per vel. Ook een keuze in "Pagina's
+  // per vel"; de poster gaat voor.
+  const flyer = createMemo(() => !poster() && isFlyer(perSheet()));
+  // Meerdere pagina's per vel (of een folder), of null bij één per vel (en
+  // bij een poster of een boekje). Een vast aantal of een folder laat het
+  // raster meedraaien met het vel (draaibaar); een eigen raster blijft zoals
+  // getypt. Een memo met waardevergelijking: het voorbeeld tekent alleen
   // opnieuw als de keuze echt verandert.
   const meerPerBlad = createMemo(() => {
     if (poster() || boekje()) return null;
+    if (flyer()) {
+      return { ...flyerRaster(flyerCount()), volgorde: 'horizontal', rand: false, snijtekens: flyerCutMarks() };
+    }
     const raster = rasterVan({ perBlad: perSheet(), kolommen: sheetCols(), rijen: sheetRows() });
-    return isMeerPerBlad(raster) ? { ...raster, volgorde: sheetOrder(), rand: sheetBorder() } : null;
+    return isMeerPerBlad(raster)
+      ? { ...raster, volgorde: sheetOrder(), rand: sheetBorder(), draaibaar: perSheet() !== 'custom' }
+      : null;
   }, undefined, { equals: zelfdeKeuzes });
   // Het getoonde vel bij meerdere pagina's per vel (voorbeeldMeerPerBlad), of
   // null: dan toont het voorbeeld één pagina op het vel.
@@ -121,7 +157,7 @@ export default function PrintDialog(props) {
   // Een gewone functie (geen memo): posterVellenLijst staat verderop.
   const voorbeeldTotaal = () => {
     if (poster()) return posterVellenLijst().length;
-    if (boekje()) return aantalBoekjeZijden(previewPages().length);
+    if (boekje()) return aantalBoekjeZijden(previewPages().length, katern());
     return aantalVellen(previewPages().length, meerPerBlad());
   };
   // Maat van de getoonde voorbeeldpagina in pt (inclusief draaiing), of null.
@@ -172,7 +208,8 @@ export default function PrintDialog(props) {
       const cp = props.data?.currentPage || getActiveDocument()?.currentPage || 1;
       pages = [cp];
     } else if (activeRange() === 'custom') {
-      pages = parsePageRange(customPages(), totalPages);
+      // Zoals getypt: volgorde en herhalingen tellen mee (#606).
+      pages = printPaginaBereik(customPages(), totalPages);
     }
 
     if (activeSubset() === 'odd') {
@@ -311,7 +348,9 @@ export default function PrintDialog(props) {
       setAfsnijMelding('');
       if (!v) return;
 
-      await tekenCellenVoorbeeld(beurt, v, (cel) => opVel[cel.k], markeringen);
+      // De volgorde-aanwijzer alleen bij verschillende pagina's (niet bij een
+      // folder) en alleen in het voorbeeld, nooit in de afdruk.
+      await tekenCellenVoorbeeld(beurt, v, (cel) => opVel[cel.k], markeringen, { aanwijzer: !raster.flyer });
     } catch (e) {
       console.error('Preview render error:', e);
     }
@@ -323,7 +362,7 @@ export default function PrintDialog(props) {
   // navigatie loopt per zijde: vel 1 voor, vel 1 achter, vel 2 voor...
   async function renderBoekjeVoorbeeld(beurt, doc, pages, keuzes, markeringen) {
     try {
-      const { zijden } = boekjeVolgorde(pages.length);
+      const { zijden } = boekjeVolgorde(pages.length, katern());
       const zijde = zijden[Math.min(previewIndex(), zijden.length - 1)];
       const maatVan = async (pageNum) => {
         const page = await doc.pdfDoc.getPage(pageNum);
@@ -347,20 +386,26 @@ export default function PrintDialog(props) {
     }
   }
 
-  // Een vel met cellen (meerdere pagina's per vel of een boekje): elke cel de
-  // printpagina van haar pagina, verkleind op haar plek. Eerst alle beelden,
-  // dan in één keer tekenen: geen half vel in beeld.
-  async function tekenCellenVoorbeeld(beurt, v, paginaVan, markeringen) {
+  // Een vel met cellen (meerdere pagina's per vel, een folder of een boekje):
+  // elke cel de printpagina van haar pagina, verkleind op haar plek. Eerst
+  // alle beelden, dan in één keer tekenen: geen half vel in beeld. Dezelfde
+  // pagina op dezelfde schaal (een folder) wordt één keer gerenderd.
+  // `aanwijzer`: de volgorde-aanwijzer erover (alleen in het voorbeeld).
+  async function tekenCellenVoorbeeld(beurt, v, paginaVan, markeringen, { aanwijzer = false } = {}) {
     const vak = canvasVak(v.vel);
     const beelden = [];
+    const gerenderd = new Map();
     for (const cel of v.cellen) {
       const pxPerPt = cel.plaatsing.schaal * cel.schaal * MM_PER_PT * vak.pxPerMm;
       const deel = renderDeel(cel.plaatsing, pxPerPt);
-      const beeld = deel
-        ? await renderPrintBeeld(paginaVan(cel), pxPerPt, cel.plaatsing, deel, { markeringen })
-        : null;
+      const sleutel = deel ? `${paginaVan(cel)}|${pxPerPt}|${JSON.stringify(deel.px)}` : null;
+      let beeld = sleutel ? gerenderd.get(sleutel) : null;
+      if (deel && !beeld) {
+        beeld = await renderPrintBeeld(paginaVan(cel), pxPerPt, cel.plaatsing, deel, { markeringen });
+        gerenderd.set(sleutel, beeld);
+      }
       if (beurt !== voorbeeldBeurt) return;
-      beelden.push({ cel, deel, beeld });
+      beelden.push({ cel, deel, beeld: beeld || null });
     }
 
     const ctx = begin(vak);
@@ -387,7 +432,68 @@ export default function PrintDialog(props) {
       }
       ctx.restore();
     }
+    if (v.snijtekens && v.snijtekens.length) {
+      // Zoals maakMeerPerBlad ze bij een folder tekent.
+      ctx.save();
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = Math.max(1, SNIJTEKEN_LIJN_PT * MM_PER_PT * vak.pxPerMm);
+      ctx.beginPath();
+      for (const s of v.snijtekens) {
+        ctx.moveTo(s.x1 * vak.pxPerMm, s.y1 * vak.pxPerMm);
+        ctx.lineTo(s.x2 * vak.pxPerMm, s.y2 * vak.pxPerMm);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+    if (aanwijzer) tekenVolgordeAanwijzer(ctx, vak, v.cellen, paginaVan);
     if (v.bekend) tekenVel(ctx, vak, v);
+  }
+
+  // De volgorde-aanwijzer (#607): in elke cel het paginanummer in een rondje
+  // en een pijl van cel naar cel in de printvolgorde (volgordeAanwijzer in
+  // print-meerperblad.js). Alleen op het voorbeeld; de afdruk kent hem niet.
+  function tekenVolgordeAanwijzer(ctx, vak, cellen, paginaVan) {
+    const { straal, merken, pijlen } = volgordeAanwijzer(cellen);
+    if (!merken.length) return;
+    const px = vak.pxPerMm;
+    const r = Math.max(7 * vak.dpr, straal * px);
+    const kleur = 'rgba(0, 102, 204, 0.85)';
+    ctx.save();
+    ctx.strokeStyle = kleur;
+    ctx.fillStyle = kleur;
+    ctx.lineWidth = Math.max(1, 1.5 * vak.dpr);
+    const punt = Math.max(4 * vak.dpr, r * 0.55);
+    for (const p of pijlen) {
+      const x1 = p.x1 * px;
+      const y1 = p.y1 * px;
+      const x2 = p.x2 * px;
+      const y2 = p.y2 * px;
+      const hoek = Math.atan2(y2 - y1, x2 - x1);
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2 - Math.cos(hoek) * punt * 0.8, y2 - Math.sin(hoek) * punt * 0.8);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x2, y2);
+      ctx.lineTo(x2 - Math.cos(hoek - 0.45) * punt, y2 - Math.sin(hoek - 0.45) * punt);
+      ctx.lineTo(x2 - Math.cos(hoek + 0.45) * punt, y2 - Math.sin(hoek + 0.45) * punt);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    for (const m of merken) {
+      const cel = cellen.find((c) => c.k === m.k);
+      const tekst = String(cel ? paginaVan(cel) : m.k + 1);
+      ctx.fillStyle = kleur;
+      ctx.beginPath();
+      ctx.arc(m.x * px, m.y * px, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `bold ${Math.round(r * (tekst.length > 2 ? 0.8 : 1.05))}px "Segoe UI", Arial, sans-serif`;
+      ctx.fillText(tekst, m.x * px, m.y * px + r * 0.05);
+    }
+    ctx.restore();
   }
 
   // Posterafdruk: het getoonde vel met zijn tegel, zoals maakPoster het bouwt
@@ -783,18 +889,24 @@ export default function PrintDialog(props) {
       posterCutMarks: posterCutMarks(),
       posterLabels: posterLabels(),
       posterOnlyLarge: posterOnlyLarge(),
+      flyerCount: flyerCount(),
+      flyerCutMarks: flyerCutMarks(),
+      bookletSheets: geldigKatern(bookletSheets()),
     };
     // Schaal en plek zoals het voorbeeld ze toont (vóór close(): de keuzes
     // komen uit de signalen van deze dialoog).
     const keuzes = plaatsingKeuzes();
     const meerBlad = meerPerBlad();
     const posterKeuze = poster();
-    const boekjeKeuze = boekje();
+    const boekjeKeuze = boekje() ? { katern: katern() } : false;
+    // De stand zoals het voorbeeld hem toont (plaatsingKeuzes): bij meerdere
+    // pagina's per vel of een folder geldt de gekozen stand (#606).
+    const orientatie = keuzes.orientatie;
     savePreferences();
     close();
-    // Oriëntatie en papier: Automatisch draaien en de Pagina-instelling
-    // bereiken nu echt de printer (zie print-pagina-instelling.js).
-    const { orientatie, papier } = printArgumenten({
+    // Papier: de Pagina-instelling bereikt nu echt de printer (zie
+    // print-pagina-instelling.js).
+    const { papier } = printArgumenten({
       autoRotate: autoRotate(),
       paginaInstelling: getPageSetupSettings(),
       docId: getActiveDocument()?.id ?? null,
@@ -904,11 +1016,14 @@ export default function PrintDialog(props) {
     const marges = printerMarges().get(papierVerzoekSleutel(selectedPrinter(), gevraagdPapier())) || null;
     return {
       papier: vel ? { ...vel, bedrukbaar: marges } : (pdfDoel() ? 'pagina' : null),
-      orientatie: printArgumenten({
+      // Bij meerdere pagina's per vel of een folder geldt de in de
+      // Pagina-instelling gekozen stand, ook met Automatisch draaien (#606).
+      orientatie: vellenStand({
         autoRotate: autoRotate(),
         paginaInstelling: getPageSetupSettings(),
         docId: getActiveDocument()?.id ?? null,
-      }).orientatie,
+        metIndeling: !!meerPerBlad(),
+      }),
       schaling: scaling(),
       zoom: geldigeZoom(zoom()),
       centreren: autoCenter(),
@@ -951,15 +1066,29 @@ export default function PrintDialog(props) {
   const boekjeNotitie = createMemo(() => {
     if (!boekje()) return '';
     const pages = previewPages();
-    const { zijden, blanco } = boekjeVolgorde(pages.length);
+    const { zijden, blanco, katernen, katernVanVel } = boekjeVolgorde(pages.length, katern());
     if (!zijden.length) return '';
     const k = Math.min(previewIndex(), zijden.length - 1);
     const { vel, kant } = boekjeZijde(k);
     const naam = (i) => (i === null ? t('print.bookletBlank') : String(pages[i]));
-    const tekst = t(kant === 'front' ? 'print.bookletSideFront' : 'print.bookletSideBack', {
+    let tekst = t(kant === 'front' ? 'print.bookletSideFront' : 'print.bookletSideBack', {
       sheet: vel, left: naam(zijden[k][0]), right: naam(zijden[k][1]),
     });
+    if (katernen.length > 1) {
+      const info = t('print.bookletSignatureInfo', { signature: katernVanVel[vel - 1], signatures: katernen.length });
+      tekst = `${tekst} ${info}`;
+    }
     return blanco ? `${tekst} ${t('print.bookletPadded', { count: blanco })}` : tekst;
+  });
+
+  // De regel onder de kop bij een folder: hoeveel kopieën van welke pagina.
+  const flyerNotitie = createMemo(() => {
+    const raster = meerPerBlad();
+    if (!flyer() || !raster) return '';
+    const pages = previewPages();
+    if (!pages.length) return '';
+    const pagina = pages[Math.min(previewIndex(), pages.length - 1)];
+    return t('print.flyerNote', { count: raster.kolommen * raster.rijen, page: pagina });
   });
 
   // De plaatsing van de getoonde voorbeeldpagina: het vel zoals het uit de
@@ -1018,6 +1147,7 @@ export default function PrintDialog(props) {
       paginaInstelling: getPageSetupSettings(),
       docId: getActiveDocument()?.id ?? null,
       pagina: paginaMaat(),
+      metIndeling: !!meerPerBlad(),
     });
     return stand ? t('print.autoRotateOverrides', { orientation: tCommon(stand) }) : '';
   });
@@ -1035,7 +1165,7 @@ export default function PrintDialog(props) {
   // pagina, de inhoud (met of zonder markeringen), de plaatsing (schaaltype,
   // zoom, centreren, automatisch draaien, Pagina-instelling en printerpapier)
   // of de pagina's per vel (aantal, raster, volgorde, rand).
-  createEffect(on([previewPages, previewIndex, printContent, plaatsingKeuzes, meerPerBlad, boekje, posterVellenLijst], () => {
+  createEffect(on([previewPages, previewIndex, printContent, plaatsingKeuzes, meerPerBlad, boekje, katern, posterVellenLijst], () => {
     renderPreview();
   }, { defer: true }));
 
@@ -1066,6 +1196,8 @@ export default function PrintDialog(props) {
   // Poster of boekje aan of uit: het voorbeeld begint weer bij het eerste vel.
   createEffect(on(() => !!poster(), () => setPreviewIndex(0), { defer: true }));
   createEffect(on(boekje, () => setPreviewIndex(0), { defer: true }));
+  createEffect(on(katern, () => setPreviewIndex(0), { defer: true }));
+  createEffect(on(flyer, () => setPreviewIndex(0), { defer: true }));
 
   // Een ander aantal per vel: het voorbeeld begint weer bij het eerste vel
   // (de nummering van pagina's en vellen loopt dan niet meer gelijk).
@@ -1394,6 +1526,7 @@ export default function PrintDialog(props) {
               <option value="9">9</option>
               <option value="16">16</option>
               <option value="custom">{t('print.perSheetCustom')}</option>
+              <option value="flyer">{t('print.perSheetFlyer')}</option>
               <option value="booklet">{t('print.perSheetBooklet')}</option>
             </select>
           </div>
@@ -1422,7 +1555,34 @@ export default function PrintDialog(props) {
               />
             </div>
           </Show>
-          <Show when={meerPerBlad()}>
+          <Show when={flyer()}>
+            <div class="print-row">
+              <label class="print-label">{t('print.flyerCopies')}</label>
+              <select
+                class="print-select"
+                value={flyerCount()}
+                onChange={(e) => setFlyerCount(e.target.value)}
+              >
+                <option value="2">2</option>
+                <option value="4">4</option>
+                <option value="6">6</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="16">16</option>
+              </select>
+            </div>
+            <div class="print-row print-checkbox-row">
+              <label class="print-checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={flyerCutMarks()}
+                  onChange={(e) => setFlyerCutMarks(e.target.checked)}
+                /> {t('print.flyerCutMarks')}
+              </label>
+            </div>
+            <div class="print-row print-note">{t('print.perSheetNote')}</div>
+          </Show>
+          <Show when={meerPerBlad() && !flyer()}>
             <div class="print-row">
               <label class="print-label">{t('print.pageOrder')}</label>
               <select
@@ -1435,6 +1595,7 @@ export default function PrintDialog(props) {
                 <option value="vertical">{t('print.orderVertical')}</option>
                 <option value="vertical-reversed">{t('print.orderVerticalReversed')}</option>
               </select>
+              <VolgordeIcoon volgorde={sheetOrder()} />
             </div>
             <div class="print-row print-checkbox-row">
               <label class="print-checkbox-label">
@@ -1448,6 +1609,22 @@ export default function PrintDialog(props) {
             <div class="print-row print-note">{t('print.perSheetNote')}</div>
           </Show>
           <Show when={boekje()}>
+            <div class="print-row">
+              <label class="print-label">{t('print.bookletSignature')}</label>
+              <select
+                class="print-select"
+                value={String(bookletSheets())}
+                onChange={(e) => setBookletSheets(geldigKatern(e.target.value))}
+              >
+                <For each={KATERN_KEUZES}>
+                  {(n) => (
+                    <option value={String(n)} selected={n === bookletSheets()}>
+                      {n === 0 ? t('print.bookletSignatureAll') : String(n)}
+                    </option>
+                  )}
+                </For>
+              </select>
+            </div>
             <div class="print-row print-note">{t('print.bookletNote')}</div>
           </Show>
         </fieldset>
@@ -1503,6 +1680,9 @@ export default function PrintDialog(props) {
           </Show>
           <Show when={boekjeNotitie()}>
             <div class="print-preview-note print-preview-booklet">{boekjeNotitie()}</div>
+          </Show>
+          <Show when={flyerNotitie()}>
+            <div class="print-preview-note print-preview-flyer">{flyerNotitie()}</div>
           </Show>
         </div>
         <div class="print-preview-container">

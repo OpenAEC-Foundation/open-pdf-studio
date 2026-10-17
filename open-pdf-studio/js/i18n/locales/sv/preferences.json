@@ -181,9 +181,20 @@
     "checkFinder": "Kontrollera Finder > Visa info",
     "notSet": "Inte angiven"
   },
+  "explorerThumbnails": {
+    "title": "Utforskaren",
+    "show": "Visa PDF-miniatyrer i Utforskaren",
+    "help": "Utforskaren visar då den första sidan i varje PDF i stället för PDF-ikonen. Detta gäller bara ditt Windows-konto och ändrar inte din standardapp för PDF.",
+    "unavailable": "Inte tillgängligt i den här versionen.",
+    "otherHandler": "PDF-miniatyrer tillhandahålls just nu av {{name}}.",
+    "defaultApp": "Din standardapp för PDF visar egna miniatyrer ({{name}}). Windows använder dem så länge den appen är din standardapp för PDF.",
+    "replaceTitle": "PDF-miniatyrer",
+    "replaceConfirm": "{{name}} tillhandahåller redan PDF-miniatyrer i Utforskaren.\n\nVisa i stället miniatyrerna från Open PDF Studio för ditt Windows-konto? Om du stänger av alternativet igen återställs de tidigare miniatyrerna.",
+    "failed": "Inställningen för miniatyrer i Utforskaren kunde inte ändras."
+  },
   "virtualPrinter": {
     "title": "Virtuell skrivare",
-    "description": "Installera \"Open PDF Printer\" som en Windows-skrivare. När du skriver ut från valfritt program (Word, Chrome, Anteckningar, etc.) och väljer denna skrivare, öppnas den resulterande PDF-filen automatiskt i denna app.",
+    "description": "”Open PDF Printer” är en Windows-skrivare som gör om en utskrift från valfritt program till en PDF och samlar den i skrivarfönstret i den här appen.",
     "status": "Status:",
     "installButton": "Installera virtuell skrivare",
     "removeButton": "Ta bort virtuell skrivare",
@@ -196,7 +207,17 @@
     "installationFailed": "Installationen misslyckades",
     "removalFailed": "Borttagningen misslyckades",
     "failedToInstall": "Kunde inte installera virtuell skrivare:",
-    "failedToRemove": "Kunde inte ta bort virtuell skrivare:"
+    "failedToRemove": "Kunde inte ta bort virtuell skrivare:",
+    "stateActiveDetail": "Utskrifter till {{printer}} kommer till skrivarfönstret utan Spara-dialog.",
+    "stateDialogDetail": "Varje utskrift frågar fortfarande var den ska sparas. Aktivera PDF-fångst för att samla utskrifter i skrivarfönstret.",
+    "stateMissingDetail": "Installera skrivaren för att skapa en PDF från valfritt program.",
+    "stateUnknownDetail": "Skrivarstatusen kunde inte läsas.",
+    "howTitle": "Så fungerar det",
+    "how1": "Välj Skriv ut i valfritt program och välj {{printer}}.",
+    "how2": "Utskriften visas i skrivarfönstret i Open PDF Studio.",
+    "how3": "Förhandsvisa, ändra ordning på, sammanfoga och spara jobben som en PDF, eller öppna dem i Studio.",
+    "openWindow": "Öppna skrivarfönster",
+    "openWindowTip": "Visa de fångade utskriftsjobben"
   },
   "pageDisplay": {
     "rendering": "Rendering",

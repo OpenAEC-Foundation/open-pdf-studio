@@ -29,7 +29,7 @@ async fn pool_render_matches_inproc_for_nkd1a_p4() {
     let pool = app_lib::worker_pool::WorkerPool::new(workers);
     assert!(pool.is_ready(), "pool not ready");
 
-    let (pw, ph, prgba) = pool.render(path, page, scale, 0).await.expect("pool render");
+    let (pw, ph, prgba) = pool.render(path, page, scale, 0, false).await.expect("pool render");
 
     // 2. Render in-proc. PDFium must be initialised first; idempotent.
     let dll_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))

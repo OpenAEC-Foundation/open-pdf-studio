@@ -181,9 +181,20 @@
     "checkFinder": "Finder > 情報を見る を確認",
     "notSet": "未設定"
   },
+  "explorerThumbnails": {
+    "title": "エクスプローラー",
+    "show": "エクスプローラーで PDF のサムネイルを表示する",
+    "help": "エクスプローラーで、PDF アイコンの代わりに各 PDF の最初のページが表示されます。この設定はお使いの Windows アカウントにのみ適用され、既定の PDF アプリは変更されません。",
+    "unavailable": "このバージョンでは利用できません。",
+    "otherHandler": "現在、PDF のサムネイルは {{name}} によって提供されています。",
+    "defaultApp": "既定の PDF アプリが独自のサムネイルを表示します ({{name}})。そのアプリが既定の PDF アプリである間は、Windows はそちらを使用します。",
+    "replaceTitle": "PDF のサムネイル",
+    "replaceConfirm": "{{name}} がすでにエクスプローラーで PDF のサムネイルを提供しています。\n\nお使いの Windows アカウントでは、代わりに Open PDF Studio のサムネイルを表示しますか? このオプションをオフにすると、以前のサムネイルに戻ります。",
+    "failed": "エクスプローラーのサムネイル設定を変更できませんでした。"
+  },
   "virtualPrinter": {
     "title": "仮想プリンター",
-    "description": "「Open PDF Printer」を Windows プリンターとしてインストールします。任意のアプリケーション（Word、Chrome、メモ帳など）から印刷してこのプリンターを選択すると、出力された PDF がこのアプリで自動的に開きます。",
+    "description": "「Open PDF Printer」は、任意のプログラムからの印刷を PDF に変換し、このアプリのプリンターウィンドウに集める Windows プリンターです。",
     "status": "状態：",
     "installButton": "仮想プリンターをインストール",
     "removeButton": "仮想プリンターを削除",
@@ -196,7 +207,17 @@
     "installationFailed": "インストールに失敗しました",
     "removalFailed": "削除に失敗しました",
     "failedToInstall": "仮想プリンターのインストールに失敗しました：",
-    "failedToRemove": "仮想プリンターの削除に失敗しました："
+    "failedToRemove": "仮想プリンターの削除に失敗しました：",
+    "stateActiveDetail": "{{printer}} への印刷は、保存ダイアログなしでプリンターウィンドウに届きます。",
+    "stateDialogDetail": "印刷のたびに保存先を確認します。PDF キャッチを有効にすると、印刷物がプリンターウィンドウに集まります。",
+    "stateMissingDetail": "プリンターをインストールすると、任意のプログラムから PDF を作成できます。",
+    "stateUnknownDetail": "プリンターの状態を読み取れませんでした。",
+    "howTitle": "使い方",
+    "how1": "任意のプログラムで［印刷］を選択し、{{printer}} を選びます。",
+    "how2": "印刷物が Open PDF Studio のプリンターウィンドウに表示されます。",
+    "how3": "ジョブをプレビュー、並べ替え、結合して 1 つの PDF として保存するか、Studio で開きます。",
+    "openWindow": "プリンターウィンドウを開く",
+    "openWindowTip": "キャッチした印刷ジョブを表示します"
   },
   "pageDisplay": {
     "rendering": "レンダリング",

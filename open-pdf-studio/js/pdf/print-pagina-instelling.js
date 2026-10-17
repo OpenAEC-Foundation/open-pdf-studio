@@ -113,14 +113,36 @@ export function printArgumenten({ autoRotate, paginaInstelling, docId }) {
 }
 
 /**
+ * De stand van het vel bij meerdere pagina's per vel of een folder (#606).
+ * Automatisch draaien draait daar geen pagina naar het papier maar kiest de
+ * stand van het hele vel; een in de Pagina-instelling voor dít document
+ * bevestigde stand moet dan gewoon gelden — anders bleef het voorbeeld
+ * liggend terwijl er staand gekozen was. Zonder zo'n keuze: 'auto', de stand
+ * waarin het raster het best past (kiesBlad in print-meerperblad.js). Zonder
+ * indeling (één pagina per vel): precies printArgumenten.
+ * @returns {'auto'|'portrait'|'landscape'}
+ */
+export function vellenStand({ autoRotate, paginaInstelling, docId, metIndeling }) {
+  const basis = printArgumenten({ autoRotate, paginaInstelling, docId }).orientatie;
+  if (!metIndeling) return basis;
+  const voorDitDocument = Boolean(paginaInstelling) && paginaInstelling.docId === docId;
+  const gekozen = voorDitDocument ? paginaInstelling.orientation : null;
+  return gekozen === 'portrait' || gekozen === 'landscape' ? gekozen : 'auto';
+}
+
+/**
  * Welke gekozen stand "Automatisch draaien" stil overstemt, zodat de
  * printdialoog dat kan zeggen: de stand uit de voor dít document bevestigde
  * Pagina-instelling, als Automatisch draaien aan staat (printArgumenten stuurt
  * dan 'auto') en de getoonde pagina daardoor de andere kant op gaat. Ligt de
  * pagina al zoals gekozen, dan verandert er niets en is er niets te melden.
+ * `metIndeling`: meerdere pagina's per vel of een folder, zie vellenStand.
  * @returns {'portrait'|'landscape'|null}
  */
-export function overstemdeStand({ autoRotate, paginaInstelling, docId, pagina }) {
+export function overstemdeStand({ autoRotate, paginaInstelling, docId, pagina, metIndeling = false }) {
+  // Meerdere pagina's per vel of een folder: de gekozen stand geldt daar
+  // (vellenStand), er wordt niets overstemd.
+  if (metIndeling) return null;
   if (!autoRotate || !paginaInstelling || paginaInstelling.docId !== docId) return null;
   const gekozen = paginaInstelling.orientation;
   if (gekozen !== 'portrait' && gekozen !== 'landscape') return null;

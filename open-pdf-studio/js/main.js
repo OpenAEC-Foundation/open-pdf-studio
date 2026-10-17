@@ -91,7 +91,8 @@ import App from './solid/App.jsx';
 import { addRecentFile } from './mobile/recent-files.js';
 
 // Tauri API
-import { isTauri, isMobile, isDevMode, getOpenedFiles, loadSession, saveSession, fileExists, isDefaultPdfApp, openDefaultAppsSettings, extractFileName } from './core/platform.js';
+import { isTauri, isMobile, isDevMode, getOpenedFiles, loadSession, saveSession, fileExists, isDefaultPdfApp, openDefaultAppsSettings, extractFileName, invoke } from './core/platform.js';
+import { instantieRol, taakToegestaan } from './core/instantie-rol.js';
 import { sessieHerstelBeleid } from './core/sessie-herstel.js';
 import { sessieBestanden, bronPad } from './pdf/wachtwoord-pdf.js';
 
@@ -223,8 +224,14 @@ async function init() {
 
   // Load user preferences (before render so theme is applied)
   await loadPreferences();
+  // Hoofdinstantie of tweede instantie (losgemaakt tabblad)? Een tweede
+  // instantie laat sessie, AI-koppeling, printwachtrij en PrtScn aan de
+  // hoofdinstantie over (core/instantie-rol.js).
+  const rol = isTauri() ? await instantieRol(invoke) : { tweede: false };
   // AI-koppeling volgens de instelling (niet wachten: bindt alleen een poort).
-  import('./core/mcp-koppeling.js').then(m => m.pasMcpInstellingToe());
+  if (taakToegestaan('mcp-koppeling', rol)) {
+    import('./core/mcp-koppeling.js').then(m => m.pasMcpInstellingToe());
+  }
 
   // Single render call — mounts the entire UI tree
   // render() is synchronous, so DOM elements exist immediately after
@@ -249,9 +256,11 @@ async function init() {
 
   // Screenshot-annotate mode: wire the PrtScn hotkey event and apply the
   // (opt-in) preference. No-op outside Tauri. Lazy so it never blocks startup.
-  import('./tools/screenshot-annotate.js')
-    .then(m => m.initScreenshotAnnotate())
-    .catch(() => {});
+  if (taakToegestaan('prtscn', rol)) {
+    import('./tools/screenshot-annotate.js')
+      .then(m => m.initScreenshotAnnotate())
+      .catch(() => {});
+  }
 
   // Wire the MCP <-> WebView bridge early. The bridge is just
   // event-listener registration on window.__TAURI__.event — it does not need
@@ -263,9 +272,16 @@ async function init() {
   // "Open PDF Printer" job queue: watch the spool so prints from ANY
   // application pop the in-app sort/merge dialog. No-op when the virtual
   // printer isn't installed.
-  import('./solid/stores/printQueueStore.js')
-    .then(m => m.startPrintQueueWatcher())
-    .catch(() => {});
+  if (taakToegestaan('printwachtrij', rol)) {
+    import('./solid/stores/printQueueStore.js')
+      .then(m => m.startPrintQueueWatcher())
+      .catch(() => {});
+    // The printer window ("Open printer settings") asks this window to show
+    // the Virtual printer tab of the preferences.
+    import('./solid/stores/printQueueStore.js')
+      .then(m => m.listenForPrinterSettingsRequests())
+      .catch(() => {});
+  }
 
   // Lazy-load printer enumeration so the print dialog shows the OS default
   // printer instantly (Ctrl+P) instead of waiting on PowerShell/lpstat.
@@ -372,7 +388,7 @@ async function init() {
     // the whole app FEEL frozen until every previously-open tab finished
     // reloading. Tabs still appear and load the same way, just without
     // blocking "ready" on it. restoreLastSession() has its own try/catch.
-    restoreLastSession();
+    if (taakToegestaan('sessie-herstellen', rol)) restoreLastSession();
   }
 
   // Dev convenience: ALWAYS have Desktop\test.pdf open on boot — the standing
@@ -408,7 +424,7 @@ async function init() {
 
   // Desktop-only: check default PDF app (deferred to avoid blocking startup)
   if (!mobile) {
-    setTimeout(() => checkDefaultPdfApp(), 3000);
+    if (taakToegestaan('standaard-app', rol)) setTimeout(() => checkDefaultPdfApp(), 3000);
     // Geen automatische update-check meer bij het opstarten: het update-venster
     // verscheen ongevraagd. Updaten kan nog handmatig via Help → Controleren op
     // updates (checkForUpdates(false)).
@@ -470,6 +486,9 @@ function setupSessionSaveOnClose() {
 // Save session data to disk
 async function saveSessionData() {
   try {
+    // Een tweede instantie (losgemaakt tabblad) schrijft de sessie niet: ze
+    // zou de tabbladen van de hoofdinstantie overschrijven.
+    if (!taakToegestaan('sessie-bewaren', await instantieRol(invoke))) return;
     // Skip untitled docs: their filePath is a temp file that gets deleted on
     // close — restoring it next launch would open a dangling/empty path.
     // A PDF opened with a password is stored by its ORIGINAL path, never by

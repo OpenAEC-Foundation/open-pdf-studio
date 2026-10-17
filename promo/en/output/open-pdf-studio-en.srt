@@ -1,0 +1,27 @@
+1
+00:00:00,350 --> 00:00:09,038
+Your drawings. Your tools. Meet Open PDF Studio. Free and open source.
+
+2
+00:00:09,850 --> 00:00:17,554
+Bring your technical drawings into one workspace. Explore the details, and keep your project in view.
+
+3
+00:00:18,350 --> 00:00:27,638
+Set the scale. Measure lengths and areas directly on your drawing. Turn project information into quantities you can use.
+
+4
+00:00:28,350 --> 00:00:36,438
+Add dimensions, shapes, hatches, and notes. Keep your markups where they belong: right on the drawing.
+
+5
+00:00:37,350 --> 00:00:45,966
+Put two versions side by side. See additions and removals, inspect the differences, and make your next review clearer.
+
+6
+00:00:46,850 --> 00:00:56,330
+Professional PDF tools, without a subscription. No watermarks. Open source, with the freedom to make it your own.
+
+7
+00:00:57,350 --> 00:01:05,294
+Your next project starts here. Open PDF Studio. Download it free, and get to work.

@@ -161,13 +161,15 @@ async function bronBytesVan(doc) {
  *           orientatie?:'auto'|'portrait'|'landscape',
  *           vel?: {breedteMm:number, hoogteMm:number}|'pagina'|null,
  *           schaling?: string, zoom?: number, centreren?: boolean, inhoud?: string,
- *           poster?: object|null, boekje?: boolean,
+ *           poster?: object|null, boekje?: boolean|{katern:number},
  *           openen?: ((pad:string) => void)|null,
  *           afgebroken?: () => boolean }} opts
  *   vel 'pagina' = elke pagina haar eigen vel, in de gekozen stand
  *   (print-plaatsing.js); poster = de tegelkeuzes van de posterafdruk
  *   (print-poster.js, posterOpties) of null; boekje: een geniet boekje
- *   (print-boekje.js), twee pagina's per liggend vel; openen: achter de knop "Openen" op de melding na
+ *   (print-boekje.js), twee pagina's per liggend vel, eventueel in katernen
+ *   ({ katern }); meerPerBlad: het raster (print-meerperblad.js), ook een
+ *   folder ({ flyer, snijtekens }); openen: achter de knop "Openen" op de melding na
  *   afloop; afgebroken: wordt vlak vóór het schrijven gevraagd — zegt hij ja,
  *   dan komt er geen bestand (de MCP-opdracht `app_print_to_pdf` gebruikt dat
  *   voor haar eigen tijdgrens, zie print-opdracht.js).
@@ -254,11 +256,13 @@ async function metMeerPerBlad(pdf, meerPerBlad, vel, orientatie) {
 /**
  * Boekje (print-boekje.js): de print-PDF (één pagina per bronpagina, in
  * printvolgorde) naar liggende vellen met twee pagina's per zijde in
- * genietvolgorde, aangevuld tot een viervoud.
+ * genietvolgorde, aangevuld tot een viervoud. `boekje` is true of
+ * { katern } (vellen per katern, #607; 0 = één boekje).
  */
 async function metBoekje(pdf, boekje, vel) {
   if (!boekje) return pdf;
-  return maakBoekje(pdf, { papier: vel && typeof vel === 'object' ? vel : null });
+  const katern = typeof boekje === 'object' ? boekje.katern || 0 : 0;
+  return maakBoekje(pdf, { papier: vel && typeof vel === 'object' ? vel : null, katern });
 }
 
 /**
@@ -304,7 +308,7 @@ async function metPoster(pdf, poster, { vel, orientatie, pages, doc }) {
  *           orientatie?:'auto'|'portrait'|'landscape', papier?:string,
  *           vel?: {breedteMm:number, hoogteMm:number}|null,
  *           schaling?: string, zoom?: number, centreren?: boolean, inhoud?: string,
- *           poster?: object|null, boekje?: boolean,
+ *           poster?: object|null, boekje?: boolean|{katern:number},
  *           afgebroken?: () => boolean }} opts
  *   boekje: een geniet boekje (print-boekje.js), twee pagina's per liggend vel.
  *   poster: de tegelkeuzes van de posterafdruk (print-poster.js) of null; de

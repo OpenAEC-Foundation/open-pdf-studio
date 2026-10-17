@@ -1,0 +1,4 @@
+Pillow>=10,<13
+numpy>=1.26,<3
+imageio-ffmpeg==0.6.0
+edge-tts==7.2.8
