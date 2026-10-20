@@ -11,6 +11,7 @@
 // preference itself (annotations/rendering.js).
 
 import { state, getActiveDocument } from '../core/state.js';
+import { renderEngineOn } from './render-engine.js';
 
 /** Whether Thin Lines is switched on. */
 export function thinLinesOn(prefs = state.preferences) {
@@ -22,9 +23,13 @@ export function withThinLines(args, thin = thinLinesOn()) {
   return { ...args, thinLines: !!thin };
 }
 
-/** Cache-key part for the line mode a bitmap was rendered in. */
-export function thinLinesKey(thin = thinLinesOn()) {
-  return thin ? 'thin' : 'true';
+/**
+ * Cache-key part for the look a bitmap was rendered in: the line mode and
+ * the page engine (#625). PDFium keys are unchanged ('thin' / 'true').
+ */
+export function thinLinesKey(thin = thinLinesOn(), engine = renderEngineOn()) {
+  const lines = thin ? 'thin' : 'true';
+  return engine === 'pdfium' ? lines : `${lines}+${engine}`;
 }
 
 /**

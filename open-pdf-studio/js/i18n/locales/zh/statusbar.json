@@ -61,6 +61,7 @@
   "engineTitle": "当前视图使用的渲染引擎",
   "engine": {
     "pdfium": "PDFium",
+    "hayro": "Hayro",
     "scene": "AEC-PDF v1",
     "vector": "AEC-PDF v1（矢量）"
   },

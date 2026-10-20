@@ -20,6 +20,7 @@
 import { isTauri, invoke } from '../core/platform.js';
 import { sharpenPageRgba } from './render-sharpen-pref.js';
 import { thinLinesKey, thinLinesOn } from './thin-lines.js';
+import { renderEngineOn, engineForPage } from './render-engine.js';
 
 // Map<key, { bitmap: ImageBitmap, w, h, scale }>
 const _cache = new Map();
@@ -30,8 +31,8 @@ const _pending = new Map(); // key -> Promise
 // Per-page LRU bookkeeping (drop oldest entries above limit)
 const MAX_ENTRIES = 12;
 
-function _key(filePath, pageNum, rotation, zoomBucket, thin = thinLinesOn()) {
-  return `${filePath}:${pageNum}:${(rotation || 0) % 360}:${zoomBucket}:${thinLinesKey(thin)}`;
+function _key(filePath, pageNum, rotation, zoomBucket, thin = thinLinesOn(), engine = renderEngineOn()) {
+  return `${filePath}:${pageNum}:${(rotation || 0) % 360}:${zoomBucket}:${thinLinesKey(thin, engine)}`;
 }
 
 // Compute the zoom bucket (power of 2) to render at, given a target scale.
@@ -173,7 +174,8 @@ function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderSc
   // Line mode captured once: the render and the cache key must agree even if
   // the user switches Thin Lines while this render is in flight.
   const thin = thinLinesOn();
-  const key = _key(filePath, pageNum, rotation, cacheBucket, thin);
+  const engine = renderEngineOn();
+  const key = _key(filePath, pageNum, rotation, cacheBucket, thin, engine);
   if (_cache.has(key)) return Promise.resolve(_cache.get(key));
   if (_pending.has(key)) return _pending.get(key);
   if (!isTauri() || !filePath) return Promise.resolve(null);
@@ -195,6 +197,7 @@ function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderSc
         scale: renderScale,
         rotation: rotation || 0,
         thinLines: thin,
+        engine,
       });
       console.log(`[pbc] whole-page KLAAR p${pageNum} scale=${renderScale.toFixed(3)} @${Math.round(performance.now() - _t0)}ms`);
       const fileBytes = result instanceof Uint8Array ? result : new Uint8Array(result);
@@ -211,7 +214,7 @@ function _ensureBitmapAtScale(filePath, pageNum, rotation, cacheBucket, renderSc
       const imageData = new ImageData(rgba, w, h);
       const bitmap = await createImageBitmap(imageData);
       import('../solid/stores/engineStatusStore.js')
-        .then((m) => m.reportActiveEngine('pdfium', filePath, pageNum))
+        .then((m) => m.reportActiveEngine(engineForPage(engine, filePath, pageNum - 1), filePath, pageNum))
         .catch(() => {});
       const entry = { bitmap, w, h, scale: renderScale };
       _cache.set(key, entry);

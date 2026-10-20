@@ -8,16 +8,17 @@
 
 import { findBestCoveringTile } from './tile-coverage.js';
 import { thinLinesKey, thinLinesOn } from './thin-lines.js';
+import { renderEngineOn } from './render-engine.js';
 
 const CACHE = new Map();
 const MAX = 8;
 
-function makeKey(filePath, pageNum, zoomBucket, rotation, regionBucket, thin) {
-  return `${filePath}|p${pageNum}|z${Math.round(zoomBucket * 10000)}|r${rotation || 0}|l${thinLinesKey(thin)}|reg${regionBucket}`;
+function makeKey(filePath, pageNum, zoomBucket, rotation, regionBucket, thin, engine) {
+  return `${filePath}|p${pageNum}|z${Math.round(zoomBucket * 10000)}|r${rotation || 0}|l${thinLinesKey(thin, engine)}|reg${regionBucket}`;
 }
 
-export function tileCacheGet(filePath, pageNum, zoomBucket, rotation, regionBucket, thin = thinLinesOn()) {
-  const key = makeKey(filePath, pageNum, zoomBucket, rotation, regionBucket, thin);
+export function tileCacheGet(filePath, pageNum, zoomBucket, rotation, regionBucket, thin = thinLinesOn(), engine = renderEngineOn()) {
+  const key = makeKey(filePath, pageNum, zoomBucket, rotation, regionBucket, thin, engine);
   const entry = CACHE.get(key);
   if (entry) {
     CACHE.delete(key);
@@ -26,9 +27,9 @@ export function tileCacheGet(filePath, pageNum, zoomBucket, rotation, regionBuck
   return entry || null;
 }
 
-export function tileCacheFindCovering(filePath, pageNum, rotation, request, thin = thinLinesOn()) {
+export function tileCacheFindCovering(filePath, pageNum, rotation, request, thin = thinLinesOn(), engine = renderEngineOn()) {
   const pagePrefix = `${filePath}|p${pageNum}|`;
-  const rotationPart = `|r${rotation || 0}|l${thinLinesKey(thin)}|`;
+  const rotationPart = `|r${rotation || 0}|l${thinLinesKey(thin, engine)}|`;
   const candidates = [];
 
   for (const [key, entry] of CACHE) {
@@ -47,7 +48,10 @@ export function tileCacheFindCovering(filePath, pageNum, rotation, request, thin
 
 export async function tileCacheSet(filePath, pageNum, zoomBucket, rotation, regionBucket, imageData, regionMeta) {
   const thin = regionMeta && regionMeta.thinLines !== undefined ? !!regionMeta.thinLines : thinLinesOn();
-  const key = makeKey(filePath, pageNum, zoomBucket, rotation, regionBucket, thin);
+  // The engine the tile was rendered with, so a tile that lands after an
+  // engine switch never shows up under the new engine.
+  const engine = regionMeta && regionMeta.engine ? regionMeta.engine : renderEngineOn();
+  const key = makeKey(filePath, pageNum, zoomBucket, rotation, regionBucket, thin, engine);
   const replaced = CACHE.get(key);
   while (!replaced && CACHE.size >= MAX) {
     const firstKey = CACHE.keys().next().value;

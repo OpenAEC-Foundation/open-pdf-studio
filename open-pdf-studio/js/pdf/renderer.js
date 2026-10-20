@@ -31,6 +31,7 @@ import { isTextAnchored } from '../annotations/corrections/model.js';
 import { stopAlleWielScrollers } from './wiel-scroll.js';
 import { werkelijkeGrootteZoom, kalibratieVoor } from './schermkalibratie.js';
 import { thinLinesKey, thinLinesOn } from './thin-lines.js';
+import { pageEngineLabel } from './render-engine.js';
 // Hi-DPI support: render canvases at device pixel ratio for sharp text
 export function getCanvasDPR() { return window.devicePixelRatio || 1; }
 
@@ -852,7 +853,7 @@ export async function renderPageOffscreen(pageNum) {
       // "no blink"-regel als verderop in renderPage).
       setupCanvasHiDPI(annotationCanvas, viewport.width, viewport.height);
       redrawAnnotations();
-      state.renderEngine = 'Raster (PDFium)';
+      state.renderEngine = `Raster (${pageEngineLabel(doc.filePath, pageNum - 1)})`;
     } catch (e) {
       state.renderEngine = 'ERROR';
       console.error('[render-offscreen] HARD ERROR: Rust render threw. NO FALLBACK.', e);
@@ -1323,7 +1324,7 @@ async function renderContinuousPage(pageNum) {
     pdfCanvasEl.style.height = cssH1 + 'px';
     pdfCtxEl.drawImage(_cached.bitmap, 0, 0);
     console.timeEnd(label + ' canvas-draw-cached');
-    state.renderEngine = 'Raster (PDFium · cached)';
+    state.renderEngine = `Raster (${pageEngineLabel(doc.filePath, pageNum - 1)} · cached)`;
     console.timeEnd(label);
   } else {
     try {
@@ -1373,7 +1374,7 @@ async function renderContinuousPage(pageNum) {
       const imageData = new ImageData(rgba, rustW, rustH);
       pdfCtxEl.putImageData(imageData, 0, 0);
       console.timeEnd(label + ' canvas-putImageData');
-      state.renderEngine = 'Raster (PDFium)';
+      state.renderEngine = `Raster (${pageEngineLabel(doc.filePath, pageNum - 1)})`;
       // Cache the freshly-rendered bitmap (clone the RGBA into its own buffer
       // — the view into _contBytes becomes invalid once that array is GC'd).
       console.time(label + ' cache-store');

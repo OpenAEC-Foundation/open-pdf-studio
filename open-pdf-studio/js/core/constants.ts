@@ -294,6 +294,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
 
   // View
   thinLines: false,
+  renderEngine: 'auto',
   showScrollbars: false,
   // Zware raster-pagina's (grote content-stream, bv. CAD-tekeningen met
   // miljoenen segmenten) progressief tegel-voor-tegel invullen via de

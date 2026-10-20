@@ -61,6 +61,7 @@
   "engineTitle": "Bộ máy kết xuất dùng cho chế độ xem hiện tại",
   "engine": {
     "pdfium": "PDFium",
+    "hayro": "Hayro",
     "scene": "AEC-PDF v1",
     "vector": "AEC-PDF v1 (vectơ)"
   },

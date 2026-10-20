@@ -18,19 +18,22 @@
 import { state } from '../core/state.js';
 import { invoke } from '../core/platform.js';
 import { thinLinesOn } from './thin-lines.js';
+import { renderEngineOn, withPageEngine } from './render-engine.js';
 
 /**
  * Render one whole page via the user-selected engine.
  * `thinLines` (Thin Lines view mode, #595) defaults to the preference; a
  * caller that caches the result passes the flag it keyed the cache on.
- * @param {{path:string, pageIndex:number, scale:number, rotation?:number, thinLines?:boolean}} args
+ * `engine` (#625) defaults to the page-engine preference, like `thinLines`.
+ * @param {{path:string, pageIndex:number, scale:number, rotation?:number, thinLines?:boolean, engine?:'pdfium'|'hayro'}} args
  * @returns {Promise<Uint8Array>} `[w:u32 LE][h:u32 LE][rgba…]` wire format
  */
-export async function renderPdfPage({ path, pageIndex, scale, rotation = 0, thinLines = thinLinesOn() }) {
-  const command = (state?.renderEngineOverride === 'rust-skia')
-    ? 'render_pdf_page_skia'
-    : 'render_pdf_page';
-  return invoke(command, { path, pageIndex, scale, rotation, thinLines: !!thinLines });
+export async function renderPdfPage({ path, pageIndex, scale, rotation = 0, thinLines = thinLinesOn(), engine = renderEngineOn() }) {
+  if (state?.renderEngineOverride === 'rust-skia') {
+    return invoke('render_pdf_page_skia', { path, pageIndex, scale, rotation, thinLines: !!thinLines });
+  }
+  return withPageEngine(engine, path, pageIndex, (eng) =>
+    invoke('render_pdf_page', { path, pageIndex, scale, rotation, thinLines: !!thinLines, engine: eng }));
 }
 
 /**

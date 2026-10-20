@@ -61,6 +61,7 @@
   "engineTitle": "தற்போதைய காட்சிக்குப் பயன்படுத்தப்படும் ரெண்டரிங் இயந்திரம்",
   "engine": {
     "pdfium": "PDFium",
+    "hayro": "Hayro",
     "scene": "AEC-PDF v1",
     "vector": "AEC-PDF v1 (வெக்டர்)"
   },

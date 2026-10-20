@@ -4,13 +4,15 @@
 // pattern in open-pdf-studio/src-tauri/src/main.rs.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod hayro_render;
 mod protocol;
 mod render;
 mod shm;
 mod thin_lines;
 
 use anyhow::{Context, Result};
-use protocol::{Request, Response};
+use hayro_render::HayroRenderer;
+use protocol::{Engine, Request, Response};
 use render::Renderer;
 use shm::Shm;
 use std::io::{BufRead, Write};
@@ -25,6 +27,7 @@ fn main() -> Result<()> {
     let ns: String = std::env::args().nth(2).unwrap_or_else(|| "0".to_string());
 
     let mut renderer = Renderer::new().context("init Renderer")?;
+    let mut hayro = HayroRenderer::new();
     let mut shm_region = Shm::create(&ns, slot).context("init SHM")?;
 
     // Emit ready message — main process waits for this before
@@ -59,8 +62,12 @@ fn main() -> Result<()> {
         };
 
         match req {
-            Request::Render { id, path, page_index, scale, rotation, thin_lines } => {
-                let resp = match renderer.render(&path, page_index, scale, rotation, thin_lines) {
+            Request::Render { id, path, page_index, scale, rotation, thin_lines, engine } => {
+                let result = match engine {
+                    Engine::Pdfium => renderer.render(&path, page_index, scale, rotation, thin_lines),
+                    Engine::Hayro => guarded(|| hayro.render(&path, page_index, scale, rotation)),
+                };
+                let resp = match result {
                     Ok(result) => {
                         match shm_region.write_bitmap(result.width, result.height, &result.rgba) {
                             Ok(bytes) => Response::RenderOk {
@@ -84,12 +91,19 @@ fn main() -> Result<()> {
             }
             Request::RenderRegion {
                 id, path, page_index, scale, rotation,
-                region_x_pt, region_y_pt, region_w_pt, region_h_pt, thin_lines,
+                region_x_pt, region_y_pt, region_w_pt, region_h_pt, thin_lines, engine,
             } => {
-                let resp = match renderer.render_region(
-                    &path, page_index, scale, rotation,
-                    region_x_pt, region_y_pt, region_w_pt, region_h_pt, thin_lines,
-                ) {
+                let result = match engine {
+                    Engine::Pdfium => renderer.render_region(
+                        &path, page_index, scale, rotation,
+                        region_x_pt, region_y_pt, region_w_pt, region_h_pt, thin_lines,
+                    ),
+                    Engine::Hayro => guarded(|| hayro.render_region(
+                        &path, page_index, scale, rotation,
+                        region_x_pt, region_y_pt, region_w_pt, region_h_pt,
+                    )),
+                };
+                let resp = match result {
                     Ok(result) => {
                         match shm_region.write_bitmap(result.width, result.height, &result.rgba) {
                             Ok(bytes) => Response::RenderOk {
@@ -122,4 +136,11 @@ fn main() -> Result<()> {
     }
 
     Ok(())
+}
+
+/// Run a Hayro render and turn a panic into an error response, so one
+/// unsupported page cannot take the worker down.
+fn guarded<T>(f: impl FnOnce() -> Result<T>) -> Result<T> {
+    std::panic::catch_unwind(std::panic::AssertUnwindSafe(f))
+        .unwrap_or_else(|_| Err(anyhow::anyhow!("Hayro panicked while rendering")))
 }

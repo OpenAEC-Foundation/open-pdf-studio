@@ -46,6 +46,7 @@ nul
 !open-pdf-studio/public/pdfjs/**
 !open-pdf-studio/src-tauri/icons/**
 !open-pdf-studio/assets/nen1414/**
+!open-pdf-kernel/tests/golden/*.png
 !snap/gui/open-pdf-studio.png
 !docs/screenshots/**
 

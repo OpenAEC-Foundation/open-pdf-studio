@@ -6,7 +6,7 @@ authors = ["OpenAEC Foundation"]
 license = "LGPL-3.0-or-later"
 repository = "https://github.com/OpenAEC-Foundation/Open-2D-Studio"
 edition = "2021"
-rust-version = "1.77.2"
+rust-version = "1.92"
 
 [lib]
 name = "app_lib"
@@ -44,6 +44,7 @@ tauri-plugin-store = "2"
 tauri-plugin-clipboard-manager = "2"
 reqwest = { version = "0.12", features = ["rustls-tls", "json", "multipart"], default-features = false }
 open-pdf-render = { path = "../../open-pdf-render" }
+open-pdf-kernel = { path = "../../open-pdf-kernel" }
 # Export van een PDF-pagina naar DXF/DWG (#400); trekt acadrust mee (pure Rust,
 # MPL-2.0). De app-crate bevat alleen de commando-schil in src/cad_export.rs.
 open-pdf-cad = { path = "../../open-pdf-cad" }

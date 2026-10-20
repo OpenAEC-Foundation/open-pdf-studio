@@ -738,6 +738,7 @@ async function handleGetViewportState() {
   let selectedCount = null;
   let pageCount = null;
   let statusMessage = null;
+  let pageEngine = null;
   try {
     const stateMod = await import('/js/core/state.ts');
     renderEngine = stateMod.state?.renderEngine ?? null;
@@ -759,6 +760,14 @@ async function handleGetViewportState() {
   } catch {
     // Module may not be loaded yet; leave fields null.
   }
+  if (activeDocPath) {
+    try {
+      const { describePageEngine } = await import('./pdf/render-engine.js');
+      pageEngine = describePageEngine(activeDocPath, (activePageNum || 1) - 1);
+    } catch {
+      // Leave pageEngine null.
+    }
+  }
 
   return {
     ok: true,
@@ -771,6 +780,9 @@ async function handleGetViewportState() {
     statusMessage,
     // Engine + timing — what the user sees in the status-bar chip.
     engine: renderEngine,
+    // Page engine of the current page (#625): which engine draws it and why
+    // (mode, engine, reason, weightKB, threads) — for test logs.
+    pageEngine,
     renderTiming,
     // Active document at the moment of the snapshot.
     doc: {

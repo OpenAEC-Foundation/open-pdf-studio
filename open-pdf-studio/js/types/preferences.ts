@@ -230,6 +230,8 @@ export interface Preferences {
 
   // View
   thinLines: boolean;
+  /** Page engine (#625): 'auto' (default: Hayro for heavy pages), 'pdfium' or 'hayro'. */
+  renderEngine: 'auto' | 'pdfium' | 'hayro';
   showScrollbars: boolean;
   progressiveRender: boolean;
   screenCalibration: Record<string, number>;

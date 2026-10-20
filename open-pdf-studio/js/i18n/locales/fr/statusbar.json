@@ -61,6 +61,7 @@
   "engineTitle": "Moteur de rendu utilisé pour la vue actuelle",
   "engine": {
     "pdfium": "PDFium",
+    "hayro": "Hayro",
     "scene": "AEC-PDF v1",
     "vector": "AEC-PDF v1 (vectoriel)"
   },

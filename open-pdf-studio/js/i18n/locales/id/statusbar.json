@@ -61,6 +61,7 @@
   "engineTitle": "Mesin render yang digunakan untuk tampilan saat ini",
   "engine": {
     "pdfium": "PDFium",
+    "hayro": "Hayro",
     "scene": "AEC-PDF v1",
     "vector": "AEC-PDF v1 (vektor)"
   },

@@ -338,11 +338,19 @@ pub struct CachedPixmap {
 /// for multi-doc workflows. 40 entries × ~15 MB ≈ 600 MB upper bound.
 const PIXMAP_CACHE_MAX_ENTRIES: usize = 40;
 
-pub type PixmapKey = (String, u32, u32, i32, bool);
+pub type PixmapKey = (String, u32, u32, i32, bool, &'static str);
 
-/// Cache key of one whole-page render.
-pub fn pixmap_key(path: &str, page_index: u32, scale: f32, rotation: i32, thin_lines: bool) -> PixmapKey {
-    (path.to_string(), page_index, (scale * 10_000.0).round() as u32, rotation, thin_lines)
+/// Cache key of one whole-page render. The engine is part of it: switching
+/// engines must never serve a bitmap the other engine drew.
+pub fn pixmap_key(
+    path: &str,
+    page_index: u32,
+    scale: f32,
+    rotation: i32,
+    thin_lines: bool,
+    engine: &'static str,
+) -> PixmapKey {
+    (path.to_string(), page_index, (scale * 10_000.0).round() as u32, rotation, thin_lines, engine)
 }
 
 pub struct PixmapCache {

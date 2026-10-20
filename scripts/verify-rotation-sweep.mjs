@@ -15,7 +15,7 @@ import path from 'path';
 const require = createRequire(import.meta.url);
 const playwright = require('C:/Users/rickd/Documents/GitHub/open-pdf-studio/open-pdf-studio/node_modules/playwright');
 
-const MCP = 'http://127.0.0.1:9223/mcp';
+const MCP = `http://127.0.0.1:${process.env.MCP_PORT || '9223'}/mcp`;
 const DEFAULT_DIRS = [
   'C:/Users/rickd/Documents/GitHub/verification-files/PDF-bestanden',
   'C:/Users/rickd/Documents/GitHub/open-pdf-studio/test pdf-bestanden/Originele bestanden',

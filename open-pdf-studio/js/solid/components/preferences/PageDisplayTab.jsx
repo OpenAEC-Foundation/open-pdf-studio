@@ -66,6 +66,20 @@ export default function PageDisplayTab(props) {
             options={SHARPEN_LEVELS.map((key, v) => ({ value: v, label: t(key) }))}
           />
         </div>
+        {/* Page engine (#625): PDFium, or Hayro (pure Rust). Annotations are
+            always drawn by the app itself. */}
+        <div class="pref-row">
+          <label>{t('pageDisplay.renderEngine')}</label>
+          <PrefSelect
+            value={p.renderEngine[0]}
+            setValue={p.renderEngine[1]}
+            options={[
+              { value: 'auto', label: t('pageDisplay.renderEngineAuto') },
+              { value: 'pdfium', label: t('pageDisplay.renderEnginePdfium') },
+              { value: 'hayro', label: t('pageDisplay.renderEngineHayro') },
+            ]}
+          />
+        </div>
       </fieldset>
       <fieldset class="pref-fieldset">
         <legend>{t('pageDisplay.actualSize')}</legend>

@@ -1,0 +1,16 @@
+[package]
+name = "open-pdf-kernel"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.92"
+license = "LGPL-3.0-or-later"
+description = "Rust kernel for Open PDF Studio: annotation model, display list and rasterizer"
+publish = false
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+vello_cpu = { version = "=0.3.0", default-features = false, features = ["std", "png", "u8_pipeline", "multithreading"] }
+png = "0.18"
+hayro = "=0.8.0"
+self_cell = "1"

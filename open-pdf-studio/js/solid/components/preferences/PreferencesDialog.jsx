@@ -82,6 +82,7 @@ export default function PreferencesDialog(props) {
   function handleSave() {
     const prevThinLines = state.preferences.thinLines;
     const prevPageSharpen = state.preferences.pageSharpen;
+    const prevRenderEngine = state.preferences.renderEngine;
     for (const key of Object.keys(DEFAULT_PREFERENCES)) {
       state.preferences[key] = prefs[key][0]();
     }
@@ -97,8 +98,11 @@ export default function PreferencesDialog(props) {
     if (state.preferences.thinLines !== prevThinLines) {
       import('../../../pdf/thin-lines.js').then(m => m.refreshAfterThinLinesChange());
     }
-    // Cached bitmaps already carry the old sharpening: flush and redraw.
-    if (state.preferences.pageSharpen !== prevPageSharpen && getActiveDocument()?.pdfDoc) {
+    // Cached bitmaps already carry the old sharpening or were drawn by the
+    // other page engine (#625): flush and redraw.
+    const lookChanged = state.preferences.pageSharpen !== prevPageSharpen
+      || state.preferences.renderEngine !== prevRenderEngine;
+    if (lookChanged && getActiveDocument()?.pdfDoc) {
       Promise.all([
         import('../../../pdf/page-bitmap-cache.js'),
         import('../../../pdf/tile-cache.js'),

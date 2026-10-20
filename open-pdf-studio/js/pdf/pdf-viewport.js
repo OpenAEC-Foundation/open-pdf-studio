@@ -27,6 +27,7 @@ import {
   viewportZichtbaar,
 } from './weergave-rotatie.js';
 import { maakWeergaveStand, weergaveGeheugen, wisselWeergave } from './weergave-per-document.js';
+import { pageEngineLabel } from './render-engine.js';
 
 // ─── Viewport State (singleton via window to survive HMR/dynamic imports) ───
 if (!window.__pdfViewport) {
@@ -931,7 +932,7 @@ function _tekenViewport() {
   }
 
   // Status bar
-  state.renderEngine = viewport.pageType === 'raster' ? 'Raster (PDFium)' : 'Vector';
+  state.renderEngine = viewport.pageType === 'raster' ? `Raster (${pageEngineLabel(viewport.filePath, viewport.pageNum - 1)})` : 'Vector';
 
   // Sync text layer with viewport.
   // PDF.js text layer (0,0) = page top-left at scale=1.

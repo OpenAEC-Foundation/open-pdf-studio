@@ -22,6 +22,7 @@ import { rectNaarPagina, viewportGeometrie } from './weergave-rotatie.js';
 import { state } from '../core/state.js';
 import { sharpenPageRgba } from './render-sharpen-pref.js';
 import { thinLinesOn } from './thin-lines.js';
+import { renderEngineOn } from './render-engine.js';
 import {
     ensureProgressiveBitmapForCurrentView,
     isExtremePage,
@@ -226,6 +227,7 @@ export async function prewarmZoomTiles(filePath, pageNum) {
     // Lijnstand (Thin Lines, #595) bij de start: render, cache-sleutel en
     // regionMeta gebruiken dezelfde, ook als de gebruiker intussen wisselt.
     const thin = thinLinesOn();
+    const engine = renderEngineOn();
 
     // Eén brede 150%-regio op 300%-resolutie dekt alle tussenliggende
     // zoomstanden in beide richtingen. Gebruik deze route zolang de bitmap
@@ -261,7 +263,7 @@ export async function prewarmZoomTiles(filePath, pageNum) {
                 regionWpt: region.w,
                 regionHpt: region.h,
                 requiredScale: renderScale,
-            }, thin);
+            }, thin, engine);
             if (covering) return;
 
             try {
@@ -277,6 +279,7 @@ export async function prewarmZoomTiles(filePath, pageNum) {
                     regionWPt: region.w,
                     regionHPt: region.h,
                     thinLines: thin,
+                    engine,
                 });
                 if (!viewport.active || viewport.filePath !== filePath || viewport.pageNum !== pageNum) return;
                 const bytes = raw instanceof Uint8Array ? raw : new Uint8Array(raw);
@@ -300,6 +303,7 @@ export async function prewarmZoomTiles(filePath, pageNum) {
                             zoom,
                             renderScale,
                             thinLines: thin,
+                            engine,
                         });
                         perfMark(`prewarm-coverage-cacheSet ${w}x${h} ${Math.round(performance.now() - cacheStarted)}ms`);
                         console.log(`[tile-orch] prewarm coverage z=${zoom}-${coveragePlan.supportZoom} bucket=${zoomBucket} reg=${regionBucket} (${w}x${h})`);
@@ -336,7 +340,7 @@ export async function prewarmZoomTiles(filePath, pageNum) {
         const stepY = pag.h * TILE_BUFFER_FRACTION;
         const regionBucket = `${Math.round(Math.floor(region.x / stepX) * stepX * 100)},${Math.round(Math.floor(region.y / stepY) * stepY * 100)}`;
         const zoomBucket = computeZoomBucket(zoom * dpr);
-        const cached = tileCacheGet(filePath, pageNum, zoomBucket, viewport.rotation, regionBucket, thin);
+        const cached = tileCacheGet(filePath, pageNum, zoomBucket, viewport.rotation, regionBucket, thin, engine);
         if (cached && tileSupportsZoom(cached.regionMeta?.renderScale, zoom, dpr)) continue;
 
         // The 150% and 200% views often share one power-of-two bucket. Render
@@ -363,6 +367,7 @@ export async function prewarmZoomTiles(filePath, pageNum) {
                 regionWPt: region.w,
                 regionHPt: region.h,
                 thinLines: thin,
+                engine,
             });
             if (!viewport.active || viewport.filePath !== filePath || viewport.pageNum !== pageNum) return;
             const bytes = raw instanceof Uint8Array ? raw : new Uint8Array(raw);
@@ -382,6 +387,7 @@ export async function prewarmZoomTiles(filePath, pageNum) {
                 zoom,
                 renderScale,
                 thinLines: thin,
+                engine,
             });
             perfMark(`prewarm-cacheSet z=${zoom} ${w}x${h} ${Math.round(performance.now() - _pw1)}ms`);
             console.log(`[tile-orch] prewarm z=${zoom} bucket=${zoomBucket} reg=${regionBucket} (${w}x${h})`);
@@ -418,6 +424,7 @@ export async function ensureTileForCurrentView(canvas) {
     // Lijnstand (Thin Lines, #595) van deze aanvraag; een tegel in de andere
     // stand telt niet als scherp genoeg (zie hieronder).
     const thin = thinLinesOn();
+    const engine = renderEngineOn();
 
     const visRegion = visiblePdfRegion(viewport, cssW, cssH);
     if (visRegion.w * viewport.zoom < 1 || visRegion.h * viewport.zoom < 1) {
@@ -433,6 +440,7 @@ export async function ensureTileForCurrentView(canvas) {
     if (
         viewport.currentTile
         && !!viewport.currentTileMeta?.thinLines === thin
+        && (viewport.currentTileMeta?.engine || 'pdfium') === engine
         && tileCoversViewport(viewport.currentTileMeta, viewport, cssW, cssH, dpr)
         && !tileNeedsExactRender(viewport.currentTileMeta?.renderScale, viewport.zoom, dpr)
     ) {
@@ -465,7 +473,7 @@ export async function ensureTileForCurrentView(canvas) {
     const pageNum = viewport.pageNum;
     const rotation = viewport.rotation || 0;
     const requestedZoom = viewport.zoom;
-    const requestKey = `${filePath}|${pageNum}|${zoomBucket}|${rotation}|${regionBucket}|${thin ? 'thin' : 'true'}`;
+    const requestKey = `${filePath}|${pageNum}|${zoomBucket}|${rotation}|${regionBucket}|${thin ? 'thin' : 'true'}|${engine}`;
 
     // GIS-style tile-cover lookup: zoom buckets describe how a tile was
     // produced, not where it may be reused. A tile from another zoom level is
@@ -477,8 +485,8 @@ export async function ensureTileForCurrentView(canvas) {
         regionWpt: visRegion.w,
         regionHpt: visRegion.h,
         requiredScale: requestedZoom * dpr,
-    }, thin);
-    const hit = tileCacheGet(filePath, pageNum, zoomBucket, rotation, regionBucket, thin);
+    }, thin, engine);
+    const hit = tileCacheGet(filePath, pageNum, zoomBucket, rotation, regionBucket, thin, engine);
     const candidate = covering?.bitmap
         ? covering
         : (hit && tileSupportsZoom(hit.regionMeta?.renderScale, requestedZoom, dpr) ? hit : null);
@@ -512,6 +520,7 @@ export async function ensureTileForCurrentView(canvas) {
             regionWPt: bufferedRegion.w,
             regionHPt: bufferedRegion.h,
             thinLines: thin,
+            engine,
         });
         if (!_tileRequests.isCurrent(requestToken)) return;
         const bytes = rgbaData instanceof Uint8Array ? rgbaData : new Uint8Array(rgbaData);
@@ -533,10 +542,11 @@ export async function ensureTileForCurrentView(canvas) {
             zoom: requestedZoom,
             renderScale,
             thinLines: thin,
+            engine,
         };
         await tileCacheSet(filePath, pageNum, zoomBucket, rotation, regionBucket, imageData, regionMeta);
         if (!_tileRequests.isCurrent(requestToken)) return;
-        const cached = tileCacheGet(filePath, pageNum, zoomBucket, rotation, regionBucket, thin);
+        const cached = tileCacheGet(filePath, pageNum, zoomBucket, rotation, regionBucket, thin, engine);
         if (cached && cached.bitmap) {
             viewport.currentTile = cached.bitmap;
             viewport.currentTileMeta = cached.regionMeta;

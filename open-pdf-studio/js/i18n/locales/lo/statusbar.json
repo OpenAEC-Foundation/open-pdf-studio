@@ -61,6 +61,7 @@
   "engineTitle": "ລະບົບປະມວນຜົນການສະແດງຜົນສຳລັບມຸມມອງປັດຈຸບັນ",
   "engine": {
     "pdfium": "PDFium",
+    "hayro": "Hayro",
     "scene": "AEC-PDF v1",
     "vector": "AEC-PDF v1 (ເວັກເຕີ)"
   },

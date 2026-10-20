@@ -123,6 +123,7 @@ impl WorkerPool {
         scale: f32,
         rotation: i32,
         thin_lines: bool,
+        engine: &str,
     ) -> Result<(u32, u32, Vec<u8>)> {
         // First attempt. Pinned: al het werk voor dezelfde (path, page) —
         // volledige render, thumbnail, tegels — blijft op één worker, ook
@@ -134,7 +135,7 @@ impl WorkerPool {
         let worker = self.workers[slot].clone();
         self.touch(&worker);
         worker.queue_depth.fetch_add(1, Ordering::Release);
-        let result = self.render_on_worker(worker.clone(), path, page_index, scale, rotation, thin_lines).await;
+        let result = self.render_on_worker(worker.clone(), path, page_index, scale, rotation, thin_lines, engine).await;
         worker.queue_depth.fetch_sub(1, Ordering::Release);
 
         if result.is_ok() {
@@ -154,7 +155,7 @@ impl WorkerPool {
         let worker2 = self.workers[slot2].clone();
         self.touch(&worker2);
         worker2.queue_depth.fetch_add(1, Ordering::Release);
-        let result2 = self.render_on_worker(worker2.clone(), path, page_index, scale, rotation, thin_lines).await;
+        let result2 = self.render_on_worker(worker2.clone(), path, page_index, scale, rotation, thin_lines, engine).await;
         worker2.queue_depth.fetch_sub(1, Ordering::Release);
         result2
     }
@@ -167,6 +168,7 @@ impl WorkerPool {
         scale: f32,
         rotation: i32,
         thin_lines: bool,
+        engine: &str,
     ) -> Result<(u32, u32, Vec<u8>)> {
         // Eén request tegelijk per worker: het draadprotocol heeft geen id-demux
         // en de SHM-regio wordt per response overschreven.
@@ -177,7 +179,7 @@ impl WorkerPool {
         let _plog = PoolTrace::new(worker.slot, "render", path, page_index, scale, _t_queue, _t_run);
         let id = self.next_request_id.fetch_add(1, Ordering::Release);
 
-        let req = render_request(id, path, page_index, scale, rotation, thin_lines);
+        let req = render_request(id, path, page_index, scale, rotation, thin_lines, engine);
         let req_line = format!("{}\n", req);
 
         // Write request
@@ -253,6 +255,7 @@ impl WorkerPool {
         region_h_pt: f32,
         spread: bool,
         thin_lines: bool,
+        engine: &str,
     ) -> Result<(u32, u32, Vec<u8>)> {
         let depths = self.depths();
         // Salt de affiniteit met de regio-coördinaten wanneer spreiding gewenst
@@ -271,7 +274,7 @@ impl WorkerPool {
         worker.queue_depth.fetch_add(1, Ordering::Release);
         let result = self.render_region_on_worker(
             worker.clone(), path, page_index, scale, rotation,
-            region_x_pt, region_y_pt, region_w_pt, region_h_pt, thin_lines,
+            region_x_pt, region_y_pt, region_w_pt, region_h_pt, thin_lines, engine,
         ).await;
         worker.queue_depth.fetch_sub(1, Ordering::Release);
         // Geen retry (de aanroeper valt terug op in-proc PDFium), maar een
@@ -296,6 +299,7 @@ impl WorkerPool {
         region_w_pt: f32,
         region_h_pt: f32,
         thin_lines: bool,
+        engine: &str,
     ) -> Result<(u32, u32, Vec<u8>)> {
         // Zelfde volledige-round-trip-serialisatie als render_on_worker.
         let request_lock = worker.request_lock.clone();
@@ -307,7 +311,7 @@ impl WorkerPool {
 
         let req = render_region_request(
             id, path, page_index, scale, rotation,
-            region_x_pt, region_y_pt, region_w_pt, region_h_pt, thin_lines,
+            region_x_pt, region_y_pt, region_w_pt, region_h_pt, thin_lines, engine,
         );
         let req_line = format!("{}\n", req);
 
@@ -363,7 +367,7 @@ impl WorkerPool {
 /// Worker-request voor een volledige pagina (zie pdfium-worker/src/protocol.rs).
 /// `thin_lines` = Thin Lines-weergave (#595): de worker tekent elke lijn als
 /// haarlijn.
-fn render_request(id: u64, path: &str, page_index: u32, scale: f32, rotation: i32, thin_lines: bool) -> serde_json::Value {
+fn render_request(id: u64, path: &str, page_index: u32, scale: f32, rotation: i32, thin_lines: bool, engine: &str) -> serde_json::Value {
     json!({
         "op": "render",
         "id": id,
@@ -372,6 +376,7 @@ fn render_request(id: u64, path: &str, page_index: u32, scale: f32, rotation: i3
         "scale": scale,
         "rotation": rotation,
         "thin_lines": thin_lines,
+        "engine": engine,
     })
 }
 
@@ -388,6 +393,7 @@ fn render_region_request(
     region_w_pt: f32,
     region_h_pt: f32,
     thin_lines: bool,
+    engine: &str,
 ) -> serde_json::Value {
     json!({
         "op": "render_region",
@@ -401,6 +407,7 @@ fn render_region_request(
         "region_w_pt": region_w_pt,
         "region_h_pt": region_h_pt,
         "thin_lines": thin_lines,
+        "engine": engine,
     })
 }
 
@@ -410,11 +417,18 @@ mod request_tests {
 
     #[test]
     fn both_render_requests_carry_thin_lines() {
-        assert_eq!(render_request(1, "a.pdf", 0, 1.0, 0, true)["thin_lines"], json!(true));
-        assert_eq!(render_request(1, "a.pdf", 0, 1.0, 0, false)["thin_lines"], json!(false));
-        let region = render_region_request(2, "a.pdf", 3, 2.0, 0, 0.0, 0.0, 10.0, 10.0, true);
+        assert_eq!(render_request(1, "a.pdf", 0, 1.0, 0, true, "pdfium")["thin_lines"], json!(true));
+        assert_eq!(render_request(1, "a.pdf", 0, 1.0, 0, false, "pdfium")["thin_lines"], json!(false));
+        let region = render_region_request(2, "a.pdf", 3, 2.0, 0, 0.0, 0.0, 10.0, 10.0, true, "pdfium");
         assert_eq!(region["thin_lines"], json!(true));
         assert_eq!(region["op"], json!("render_region"));
+    }
+
+    #[test]
+    fn both_render_requests_carry_the_engine() {
+        assert_eq!(render_request(1, "a.pdf", 0, 1.0, 0, false, "hayro")["engine"], json!("hayro"));
+        let region = render_region_request(2, "a.pdf", 3, 2.0, 0, 0.0, 0.0, 10.0, 10.0, false, "hayro");
+        assert_eq!(region["engine"], json!("hayro"));
     }
 }
 

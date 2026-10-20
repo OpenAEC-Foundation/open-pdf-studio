@@ -26,7 +26,7 @@ const playwright = require('C:/Users/rickd/Documents/GitHub/open-pdf-studio/open
 
 const REPO = 'C:/Users/rickd/Documents/GitHub/open-pdf-studio';
 const HELPER = path.join(REPO, 'scripts', 'mupdf_compare_helper.py');
-const MCP = 'http://127.0.0.1:9223/mcp';
+const MCP = `http://127.0.0.1:${process.env.MCP_PORT || '9223'}/mcp`;
 const DEFAULT_DIRS = [
   'C:/Users/rickd/Documents/GitHub/verification-files/PDF-bestanden',
   `${REPO}/test pdf-bestanden/Originele bestanden`,
@@ -52,6 +52,13 @@ const FLAG_INK_NEG = -8;
 const FLAG_INK_POS = 20;
 const isFlagged = (cmp) => !!cmp.error || cmp.occ_miss >= FLAG_MISS || cmp.occ_match < FLAG_OCC
   || cmp.ink_diff < FLAG_INK_NEG || cmp.ink_diff > FLAG_INK_POS;
+
+/** "engine=hayro(auto-heavy, 1835 KB, 4 thr)" for a log line. */
+function engineTag(pe) {
+  if (!pe) return 'engine=?';
+  const extra = [pe.reason, pe.weightKB !== null && pe.weightKB !== undefined ? `${pe.weightKB} KB` : null, pe.threads ? `${pe.threads} thr` : null].filter(Boolean).join(', ');
+  return `engine=${pe.engine}(${extra})`;
+}
 
 async function tool(name, args) {
   const r = await fetch(MCP, { method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -275,10 +282,12 @@ function selectPages(n) {
           catch (e) { cmp = { error: String(e).slice(0, 200) }; }
         }
         const flagged = isFlagged(cmp);
-        pageRows.push({ page: pno, canvas_ink: appInk, ...cmp, flagged });
+        // Page engine (#625): which engine drew this page and why.
+        const pe = (await tool('app_get_viewport_state', {}).catch(() => null))?.pageEngine || null;
+        pageRows.push({ page: pno, canvas_ink: appInk, ...cmp, flagged, page_engine: pe });
         const m = cmp.error ? `FOUT ${cmp.error}` :
           `miss=${cmp.occ_miss} extra=${cmp.occ_extra} ink ref=${cmp.ink_ref}% app=${cmp.ink_app}% diff=${cmp.ink_diff}`;
-        console.log(`  p${String(pno).padStart(3)} ${flagged ? 'AFWIJKEND' : 'ok       '} ${m}`);
+        console.log(`  p${String(pno).padStart(3)} ${flagged ? 'AFWIJKEND' : 'ok       '} ${m} ${engineTag(pe)}`);
       }
       await closeActiveTab();
       const secs = ((Date.now() - t0) / 1000).toFixed(0);

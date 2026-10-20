@@ -141,6 +141,14 @@ export function createSceneAttemptCoordinator() {
 const _sceneAttempts = createSceneAttemptCoordinator();
 
 /**
+ * Whether a tile goes to the scene engine first: only on the PDFium route
+ * (#625) and only for pages with more content than SCENE_CONTENT_BYTES.
+ */
+export function usesSceneEngine(engine, contentBytes) {
+  return engine === 'pdfium' && contentBytes > SCENE_CONTENT_BYTES;
+}
+
+/**
  * Tegel-invoke met scene-first en per-pagina PDFium-fallback. De eigen
  * display-list-engine rastert tegels parallel uit één gecachete scene
  * (~140 MB op een 5M-ops blad) i.p.v. PDFium-parse-state van ~1,1 GB per
@@ -153,13 +161,25 @@ export async function invokeTileRegion(args) {
   // preference. Both engines below draw strokes as hairlines with it.
   const { withThinLines } = await import('./thin-lines.js');
   args = args.thinLines === undefined ? withThinLines(args) : withThinLines(args, args.thinLines);
+  // Page engine (#625): the caller's choice or the preference. The scene
+  // engine is a PDFium-route optimisation; Hayro renders every tile itself.
+  if (args.engine === undefined) {
+    const { renderEngineOn } = await import('./render-engine.js');
+    args = { ...args, engine: renderEngineOn() };
+  }
   const key = `${args.path}|${args.pageIndex}|${args.rotation || 0}`;
-  const sceneWorthIt = (await pageContentBytes(args.path, args.pageIndex + 1)) > SCENE_CONTENT_BYTES;
+  const { resolvePageEngine, tileEngine } = await import('./render-engine.js');
+  const tilePref = tileEngine(args.engine);
+  const pageEngine = await resolvePageEngine(tilePref, args.path, args.pageIndex);
+  const sceneWorthIt = usesSceneEngine(
+    pageEngine,
+    pageEngine === 'pdfium' ? await pageContentBytes(args.path, args.pageIndex + 1) : 0,
+  );
   if (sceneWorthIt) {
     const res = await _sceneAttempts.tryRegion(
       key,
       args,
-      (regionArgs) => invoke('render_tile_scene_region', regionArgs),
+      ({ engine: _engine, ...regionArgs }) => invoke('render_tile_scene_region', regionArgs),
       (error) => {
         perfMark(`scene-fallback p${args.pageIndex + 1}: ${String(error).slice(0, 80)}`);
         console.log(`[prog] scene-fallback p${args.pageIndex + 1}: ${String(error).slice(0, 140)}`);
@@ -177,13 +197,16 @@ export async function invokeTileRegion(args) {
   // scene-engine zijn afgewezen pinnen juist op één affinity-worker: anders
   // parsen vier processen elk dezelfde enorme content-stream en groeit de
   // worker-RSS tot meerdere gigabytes.
-  const res = await invoke('render_pdf_page_region', {
-    ...args,
-    spread: shouldSpreadPdfiumFallback(sceneWorthIt),
-  });
+  const { withPageEngine, engineForPage } = await import('./render-engine.js');
+  const res = await withPageEngine(tilePref, args.path, args.pageIndex, (engine) =>
+    invoke('render_pdf_page_region', {
+      ...args,
+      engine,
+      spread: shouldSpreadPdfiumFallback(sceneWorthIt),
+    }));
   try {
     const { reportActiveEngine } = await import('../solid/stores/engineStatusStore.js');
-    reportActiveEngine('pdfium', args.path, args.pageIndex + 1);
+    reportActiveEngine(engineForPage(tilePref, args.path, args.pageIndex), args.path, args.pageIndex + 1);
   } catch {}
   return res;
 }
@@ -256,7 +279,7 @@ export async function isHeavyPage(filePath, pageNum) {
 // ondertussen doorontwikkeld tot volwaardige engine (clips, images, tekst-
 // randgevallen) en de drempel zakt pas wanneer de corpus-benchmark
 // (examples/corpus_diff.rs) dat per bladklasse aantoont.
-const SCENE_CONTENT_BYTES = 6_000_000;
+export const SCENE_CONTENT_BYTES = 6_000_000;
 
 export function isSceneCandidateBytes(bytes) {
   return typeof bytes === 'number' && bytes > SCENE_CONTENT_BYTES;

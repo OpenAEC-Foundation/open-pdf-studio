@@ -121,9 +121,24 @@ async function handleZoomBlur(e) {
 }
 
 import { engineFor } from '../stores/engineStatusStore.js';
+import { describePageEngine } from '../../pdf/render-engine.js';
 import { scaleToPercent, percentToScale } from '../../core/zoom-display.js';
 
 export default function StatusBar() {
+  // Engine chip tooltip (#625): which engine draws this page and why, how
+  // many render threads, and which engine renders zoom tiles.
+  const engineChipTitle = () => {
+    const d = state.documents[state.activeDocumentIndex];
+    const shown = engineFor(d?.filePath, d?.currentPage);
+    if (!d?.filePath || !shown) return t('engineTitle');
+    const pe = describePageEngine(d.filePath, (d.currentPage || 1) - 1);
+    const parts = [pe.mode, pe.reason];
+    if (pe.weightKB !== null) parts.push(`${pe.weightKB} KB`);
+    if (pe.threads) parts.push(`${pe.threads} threads`);
+    if (pe.tiles && pe.tiles !== pe.engine) parts.push(`tiles ${pe.tiles}`);
+    return `${t('engineTitle')}
+${pe.engine}: ${parts.join(' · ')}`;
+  };
   const { t } = useTranslation('statusbar');
 
   const toolName = () => {
@@ -297,9 +312,9 @@ export default function StatusBar() {
         <Show when={(() => { const d = state.documents[state.activeDocumentIndex]; return engineFor(d?.filePath, d?.currentPage); })()}>
           <div
             class="status-item"
-            title={t('engineTitle')}
+            title={engineChipTitle()}
             style={`padding:1px 8px; border:1px solid #b5b5b5; font-size:11px; background:${
-              (() => { const d = state.documents[state.activeDocumentIndex]; return engineFor(d?.filePath, d?.currentPage); })() === 'scene' ? '#dcfce7' : (() => { const d = state.documents[state.activeDocumentIndex]; return engineFor(d?.filePath, d?.currentPage); })() === 'vector' ? '#dbeafe' : '#f0f0f0'
+              (() => { const d = state.documents[state.activeDocumentIndex]; return engineFor(d?.filePath, d?.currentPage); })() === 'scene' ? '#dcfce7' : (() => { const d = state.documents[state.activeDocumentIndex]; return engineFor(d?.filePath, d?.currentPage); })() === 'vector' ? '#dbeafe' : (() => { const d = state.documents[state.activeDocumentIndex]; return engineFor(d?.filePath, d?.currentPage); })() === 'hayro' ? '#fef3c7' : '#f0f0f0'
             }; color:#222;`}
           >
             {t(`engine.${(() => { const d = state.documents[state.activeDocumentIndex]; return engineFor(d?.filePath, d?.currentPage); })()}`)}

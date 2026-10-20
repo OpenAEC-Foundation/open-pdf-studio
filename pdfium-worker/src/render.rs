@@ -195,6 +195,12 @@ impl Renderer {
         }
     }
 
+    /// Number of pages of the document (loads it into the cache).
+    pub fn page_count(&mut self, path: &str) -> Result<u32> {
+        let idx = self.get_or_load(path)?;
+        Ok(self.cache[idx].document.pages().len() as u32)
+    }
+
     pub fn render(
         &mut self,
         path: &str,

@@ -81,6 +81,9 @@ jobs:
       - name: Run unit tests
         run: npm run test:unit
 
+      - name: Run kernel tests
+        run: cargo test -p open-pdf-kernel --locked
+
       - name: Run Linux release regression tests
         run: node --test scripts/linux-release-config.test.mjs
 

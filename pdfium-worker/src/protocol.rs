@@ -1,5 +1,14 @@
 use serde::{Deserialize, Serialize};
 
+/// Page engine for a render request. Absent (older app) = PDFium.
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum Engine {
+    #[default]
+    Pdfium,
+    Hayro,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "op", rename_all = "snake_case")]
 pub enum Request {
@@ -13,6 +22,8 @@ pub enum Request {
         /// (older app) = off.
         #[serde(default)]
         thin_lines: bool,
+        #[serde(default)]
+        engine: Engine,
     },
     RenderRegion {
         id: u64,
@@ -26,6 +37,8 @@ pub enum Request {
         region_h_pt: f32,
         #[serde(default)]
         thin_lines: bool,
+        #[serde(default)]
+        engine: Engine,
     },
     /// Sluit open pagina-handles (parse-state, honderden MB's op zware
     /// CAD-pagina's); documenten blijven gecachet. Fire-and-forget: geen
@@ -55,6 +68,7 @@ mod tests {
             scale: 0.25,
             rotation: 0,
             thin_lines: true,
+            engine: Engine::Hayro,
         };
         let line = serde_json::to_string(&req).unwrap();
         let parsed: Request = serde_json::from_str(&line).unwrap();
@@ -85,6 +99,32 @@ mod tests {
                 "region_x_pt":0,"region_y_pt":0,"region_w_pt":10,"region_h_pt":10,"thin_lines":true}"#,
         ).unwrap();
         assert!(matches!(region, Request::RenderRegion { thin_lines: true, .. }));
+    }
+
+    #[test]
+    fn engine_defaults_to_pdfium() {
+        let render: Request = serde_json::from_str(
+            r#"{"op":"render","id":1,"path":"a.pdf","page_index":0,"scale":1.0,"rotation":0}"#,
+        ).unwrap();
+        assert!(matches!(render, Request::Render { engine: Engine::Pdfium, .. }));
+        let region: Request = serde_json::from_str(
+            r#"{"op":"render_region","id":2,"path":"a.pdf","page_index":0,"scale":1.0,"rotation":0,
+                "region_x_pt":0,"region_y_pt":0,"region_w_pt":10,"region_h_pt":10}"#,
+        ).unwrap();
+        assert!(matches!(region, Request::RenderRegion { engine: Engine::Pdfium, .. }));
+    }
+
+    #[test]
+    fn engine_hayro_parses_in_both_render_requests() {
+        let render: Request = serde_json::from_str(
+            r#"{"op":"render","id":1,"path":"a.pdf","page_index":0,"scale":1.0,"rotation":0,"engine":"hayro"}"#,
+        ).unwrap();
+        assert!(matches!(render, Request::Render { engine: Engine::Hayro, .. }));
+        let region: Request = serde_json::from_str(
+            r#"{"op":"render_region","id":2,"path":"a.pdf","page_index":0,"scale":1.0,"rotation":0,
+                "region_x_pt":0,"region_y_pt":0,"region_w_pt":10,"region_h_pt":10,"engine":"hayro"}"#,
+        ).unwrap();
+        assert!(matches!(region, Request::RenderRegion { engine: Engine::Hayro, .. }));
     }
 
     #[test]
