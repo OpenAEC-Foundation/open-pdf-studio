@@ -82,6 +82,8 @@ p256 = { version = "0.13", default-features = false, features = ["ecdsa", "pkcs8
 p384 = { version = "0.13", default-features = false, features = ["ecdsa", "pkcs8"] }
 zeroize = "1"
 rand = "0.8"
+aes = "0.8"
+stringprep = "0.1"
 url = "2"
 urlencoding = "2"
 tokio = { version = "1", features = ["sync", "macros", "rt-multi-thread", "net", "process", "io-util", "time"] }

@@ -133,7 +133,9 @@
     "officePage": "पृष्ठ",
     "officeTable": "तालिका",
     "officeText": "टेक्स्ट",
-    "officeFailed": "दस्तावेज़ निर्यात विफल रहा।"
+    "officeFailed": "दस्तावेज़ निर्यात विफल रहा।",
+    "protect": "Protect with Password",
+    "protectDesc": "Save a copy protected with a password (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "आउटपुट प्रोफ़ाइल",

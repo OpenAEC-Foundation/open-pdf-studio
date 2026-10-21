@@ -133,7 +133,9 @@
     "officePage": "หน้า",
     "officeTable": "ตาราง",
     "officeText": "ข้อความ",
-    "officeFailed": "ส่งออกเอกสารไม่สำเร็จ"
+    "officeFailed": "ส่งออกเอกสารไม่สำเร็จ",
+    "protect": "Protect with Password",
+    "protectDesc": "Save a copy protected with a password (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "โปรไฟล์เอาต์พุต",

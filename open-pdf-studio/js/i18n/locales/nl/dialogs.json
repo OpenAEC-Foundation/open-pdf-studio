@@ -1145,5 +1145,33 @@
     "tabLabel": "hersteld",
     "tabTip": "Hersteld na een onverwachte afsluiting. Opslaan schrijft naar het oorspronkelijke bestand.",
     "reloadStopped": "Het venster van Open PDF Studio is meerdere keren kort na elkaar vastgelopen en wordt niet meer automatisch opnieuw geladen. Sla uw werk op en start de app opnieuw."
+  },
+  "protectPdf": {
+    "title": "Beveiligen met wachtwoord",
+    "info": "Slaat een beveiligde kopie van dit document op. Het geopende document verandert niet. De kopie gebruikt de standaard AES-256-versleuteling, dus Acrobat, Voorvertoning, Chrome en andere viewers openen hem met het wachtwoord.",
+    "openPassword": "Wachtwoord om het document te openen",
+    "openPasswordHint": "Zonder dit wachtwoord opent het document niet. Laat leeg als iedereen het mag openen.",
+    "rightsPassword": "Wachtwoord om de rechten te wijzigen",
+    "rightsPasswordHint": "Nodig om de onderstaande rechten te wijzigen. Laat leeg om geen rechtenwachtwoord in te stellen.",
+    "rightsWarning": "Rechten gelden alleen voor programma's die ze respecteren; sommige hulpmiddelen negeren ze. Alleen het openwachtwoord houdt de inhoud privé.",
+    "password": "Wachtwoord:",
+    "repeat": "Herhaal wachtwoord:",
+    "allow": "Ontvangers mogen",
+    "allowPrint": "Afdrukken",
+    "allowPrintHigh": "Afdrukken in hoge kwaliteit",
+    "allowCopy": "Tekst en afbeeldingen kopiëren",
+    "allowEdit": "Het document wijzigen",
+    "allowAnnotate": "Opmerkingen en annotaties toevoegen",
+    "allowForms": "Formuliervelden invullen",
+    "allowAssemble": "Pagina's invoegen, verwijderen en draaien",
+    "apply": "Beveiligde kopie opslaan…",
+    "needPassword": "Vul minstens één wachtwoord in.",
+    "userMismatch": "De openwachtwoorden komen niet overeen.",
+    "ownerMismatch": "De rechtenwachtwoorden komen niet overeen.",
+    "samePassword": "Gebruik een ander wachtwoord om te openen dan om de rechten te wijzigen.",
+    "saveFirst": "Het document moet eerst worden opgeslagen voordat een beveiligde kopie gemaakt kan worden. Nu opslaan?",
+    "saved": "Beveiligde kopie opgeslagen:\n{{path}}",
+    "failed": "Het document kon niet worden beveiligd: {{error}}",
+    "tooShort": "Een wachtwoord moet minstens 6 tekens hebben. Gebruik liefst 12 of meer."
   }
 }

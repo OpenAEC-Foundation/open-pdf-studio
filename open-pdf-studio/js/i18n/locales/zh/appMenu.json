@@ -133,7 +133,9 @@
     "officePage": "页",
     "officeTable": "表格",
     "officeText": "文本",
-    "officeFailed": "文档导出失败。"
+    "officeFailed": "文档导出失败。",
+    "protect": "Protect with Password",
+    "protectDesc": "Save a copy protected with a password (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "输出配置文件",

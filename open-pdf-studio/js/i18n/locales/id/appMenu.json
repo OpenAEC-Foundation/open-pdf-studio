@@ -133,7 +133,9 @@
     "officePage": "Halaman",
     "officeTable": "Tabel",
     "officeText": "Teks",
-    "officeFailed": "Ekspor dokumen gagal."
+    "officeFailed": "Ekspor dokumen gagal.",
+    "protect": "Protect with Password",
+    "protectDesc": "Save a copy protected with a password (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Profil keluaran",

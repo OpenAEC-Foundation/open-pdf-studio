@@ -133,7 +133,9 @@
     "officePage": "Sivu",
     "officeTable": "Taulukko",
     "officeText": "Teksti",
-    "officeFailed": "Asiakirjan vienti epäonnistui."
+    "officeFailed": "Asiakirjan vienti epäonnistui.",
+    "protect": "Protect with Password",
+    "protectDesc": "Save a copy protected with a password (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Tulostusprofiili",

@@ -1145,5 +1145,33 @@
     "tabLabel": "שוחזר",
     "tabTip": "שוחזר לאחר סגירה בלתי צפויה. השמירה כותבת לקובץ המקורי.",
     "reloadStopped": "החלון של Open PDF Studio הפסיק לפעול כמה פעמים ברציפות ואינו נטען עוד מחדש באופן אוטומטי. שמור את עבודתך והפעל מחדש את היישום."
+  },
+  "protectPdf": {
+    "title": "Protect with Password",
+    "info": "Saves a protected copy of this document. The open document is not changed. The copy uses standard AES-256 encryption, so Acrobat, Preview, Chrome and other viewers open it with the password.",
+    "openPassword": "Password to open the document",
+    "openPasswordHint": "Without this password the document does not open. Leave empty to let everyone open it.",
+    "rightsPassword": "Password to change the rights",
+    "rightsPasswordHint": "Needed to change the permissions below. Leave empty to set no rights password.",
+    "rightsWarning": "Rights are only honoured by programs that respect them; some tools can ignore them. Only the open password keeps the content private.",
+    "password": "Password:",
+    "repeat": "Repeat password:",
+    "allow": "Recipients may",
+    "allowPrint": "Print",
+    "allowPrintHigh": "Print in high quality",
+    "allowCopy": "Copy text and images",
+    "allowEdit": "Change the document",
+    "allowAnnotate": "Add comments and annotations",
+    "allowForms": "Fill in form fields",
+    "allowAssemble": "Insert, delete and rotate pages",
+    "apply": "Save Protected Copy…",
+    "needPassword": "Enter at least one password.",
+    "userMismatch": "The open passwords do not match.",
+    "ownerMismatch": "The rights passwords do not match.",
+    "samePassword": "Use a different password for opening and for changing the rights.",
+    "saveFirst": "The document has to be saved before a protected copy can be made. Save it now?",
+    "saved": "Protected copy saved:\n{{path}}",
+    "failed": "Could not protect the document: {{error}}",
+    "tooShort": "A password needs at least 6 characters. Use 12 or more if you can."
   }
 }

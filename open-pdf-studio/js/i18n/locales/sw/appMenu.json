@@ -133,7 +133,9 @@
     "officePage": "Ukurasa",
     "officeTable": "Jedwali",
     "officeText": "Maandishi",
-    "officeFailed": "Kuhamisha nje hati kumeshindwa."
+    "officeFailed": "Kuhamisha nje hati kumeshindwa.",
+    "protect": "Protect with Password",
+    "protectDesc": "Save a copy protected with a password (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Wasifu wa matokeo",

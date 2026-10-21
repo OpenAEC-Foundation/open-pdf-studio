@@ -133,7 +133,9 @@
     "officePage": "Stránka",
     "officeTable": "Tabulka",
     "officeText": "Text",
-    "officeFailed": "Export dokumentu se nezdařil."
+    "officeFailed": "Export dokumentu se nezdařil.",
+    "protect": "Protect with Password",
+    "protectDesc": "Save a copy protected with a password (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Výstupní profil",

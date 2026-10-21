@@ -133,7 +133,9 @@
     "officePage": "페이지",
     "officeTable": "표",
     "officeText": "텍스트",
-    "officeFailed": "문서를 내보내지 못했습니다."
+    "officeFailed": "문서를 내보내지 못했습니다.",
+    "protect": "Protect with Password",
+    "protectDesc": "Save a copy protected with a password (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "출력 프로필",

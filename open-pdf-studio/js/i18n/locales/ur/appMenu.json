@@ -133,7 +133,9 @@
     "officePage": "صفحہ",
     "officeTable": "جدول",
     "officeText": "متن",
-    "officeFailed": "دستاویز برآمد ناکام ہو گئی۔"
+    "officeFailed": "دستاویز برآمد ناکام ہو گئی۔",
+    "protect": "Protect with Password",
+    "protectDesc": "Save a copy protected with a password (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "آؤٹ پٹ پروفائل",

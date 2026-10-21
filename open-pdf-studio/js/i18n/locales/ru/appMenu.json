@@ -133,7 +133,9 @@
     "officePage": "Страница",
     "officeTable": "Таблица",
     "officeText": "Текст",
-    "officeFailed": "Не удалось экспортировать документ."
+    "officeFailed": "Не удалось экспортировать документ.",
+    "protect": "Protect with Password",
+    "protectDesc": "Save a copy protected with a password (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Профиль вывода",

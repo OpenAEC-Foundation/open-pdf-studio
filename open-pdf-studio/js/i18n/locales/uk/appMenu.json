@@ -133,7 +133,9 @@
     "officePage": "Сторінка",
     "officeTable": "Таблиця",
     "officeText": "Текст",
-    "officeFailed": "Не вдалося експортувати документ."
+    "officeFailed": "Не вдалося експортувати документ.",
+    "protect": "Protect with Password",
+    "protectDesc": "Save a copy protected with a password (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Профіль виведення",

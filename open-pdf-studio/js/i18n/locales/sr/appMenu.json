@@ -133,7 +133,9 @@
     "officePage": "Страница",
     "officeTable": "Табела",
     "officeText": "Текст",
-    "officeFailed": "Извоз документа није успео."
+    "officeFailed": "Извоз документа није успео.",
+    "protect": "Protect with Password",
+    "protectDesc": "Save a copy protected with a password (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Излазни профил",

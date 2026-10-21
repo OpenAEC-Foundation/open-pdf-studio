@@ -133,7 +133,9 @@
     "officePage": "صفحه",
     "officeTable": "جدول",
     "officeText": "متن",
-    "officeFailed": "صدور سند ناموفق بود."
+    "officeFailed": "صدور سند ناموفق بود.",
+    "protect": "Protect with Password",
+    "protectDesc": "Save a copy protected with a password (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "پروفایل خروجی",

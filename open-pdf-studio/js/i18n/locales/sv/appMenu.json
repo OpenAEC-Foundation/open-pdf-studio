@@ -133,7 +133,9 @@
     "officePage": "Sida",
     "officeTable": "Tabell",
     "officeText": "Text",
-    "officeFailed": "Exporten av dokumentet misslyckades."
+    "officeFailed": "Exporten av dokumentet misslyckades.",
+    "protect": "Protect with Password",
+    "protectDesc": "Save a copy protected with a password (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Utdataprofil",

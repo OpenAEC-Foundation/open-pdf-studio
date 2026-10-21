@@ -132,7 +132,9 @@
     "officePage": "Pagina",
     "officeTable": "Tabel",
     "officeText": "Tekst",
-    "officeFailed": "Documentexport mislukt."
+    "officeFailed": "Documentexport mislukt.",
+    "protect": "Beveiligen met wachtwoord",
+    "protectDesc": "Sla een met een wachtwoord beveiligde kopie op (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Uitvoerprofiel",

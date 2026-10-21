@@ -133,7 +133,9 @@
     "officePage": "பக்கம்",
     "officeTable": "அட்டவணை",
     "officeText": "உரை",
-    "officeFailed": "ஆவண ஏற்றுமதி தோல்வியடைந்தது."
+    "officeFailed": "ஆவண ஏற்றுமதி தோல்வியடைந்தது.",
+    "protect": "Protect with Password",
+    "protectDesc": "Save a copy protected with a password (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "வெளியீட்டுச் சுயவிவரம்",

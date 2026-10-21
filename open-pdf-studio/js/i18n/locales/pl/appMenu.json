@@ -133,7 +133,9 @@
     "officePage": "Strona",
     "officeTable": "Tabela",
     "officeText": "Tekst",
-    "officeFailed": "Eksport dokumentu nie powiódł się."
+    "officeFailed": "Eksport dokumentu nie powiódł się.",
+    "protect": "Protect with Password",
+    "protectDesc": "Save a copy protected with a password (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Profil wyjściowy",
