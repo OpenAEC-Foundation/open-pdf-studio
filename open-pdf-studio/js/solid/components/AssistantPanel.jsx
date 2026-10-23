@@ -1,7 +1,10 @@
-// Assistant — floating chat panel (bottom-right) + launcher button. Two ways to
+// Assistant — floating chat panel (bottom-right) + launcher button. Ways to
 // answer, tried in order:
 //   1. Claude (Anthropic) -> direct API with a locally stored API key
 //   2. MCP relay          -> an external MCP client answers via the app server
+// In the OpenAEC workplace (the host page offers its AI function) only one way:
+//   OpenAEC -> the host forwards the question to the OpenAEC AI gateway; the
+//              tool calls run here in the app (js/assistant-openaec.js).
 //
 // Every text the user sees comes from the locale files (common.assistant.*), and
 // the system prompt tells the model to answer in the current app language. The
@@ -15,6 +18,7 @@ import { LANGUAGES } from '../../i18n/config.js';
 import { leesAiSleutel, bewaarAiSleutel, ruimAiSleutelOpAlsGast } from '../../core/ai-sleutel.js';
 import { knopUit, externeDienstenAan } from '../../core/webfuncties.js';
 import { isTauri } from '../../core/platform.js';
+import { askOpenaec, describeOpenaecError, historyMessages, openaecAvailable } from '../../assistant-openaec.js';
 
 const CLAUDE_MODEL = 'claude-sonnet-4-6';
 
@@ -64,7 +68,10 @@ function currentLanguage(lang) {
 export default function AssistantPanel() {
   // As a guest the AI service is off (#548): no floating button over the
   // drawing that cannot do anything. The key is cleared from storage there too.
-  if (knopUit('assistant-launcher', { inTauri: isTauri() })) {
+  // In the OpenAEC workplace the assistant talks to its own host, not to
+  // another host: then it stays on.
+  const viaOpenaec = openaecAvailable();
+  if (!viaOpenaec && knopUit('assistant-launcher', { inTauri: isTauri() })) {
     ruimAiSleutelOpAlsGast();
     return null;
   }
@@ -163,14 +170,30 @@ export default function AssistantPanel() {
       return await enqueueAssistantQuestion({ prompt, system: systemPrompt(), docName });
     };
 
+    // OpenAEC: the host forwards the question to the AI gateway; tool calls run
+    // in the app. The whole turn (assistant and tool messages, unchanged) is
+    // kept so the next question sends it back as the gateway requires.
+    const openaec = async () => {
+      const { runAppEvent } = await import('../../mcp-bridge.js');
+      const { text, turn } = await askOpenaec({
+        system: systemPrompt(),
+        history: historyMessages(messages(), modelText),
+        runEvent: runAppEvent,
+      });
+      return { content: text || t('assistant.noAnswer'), openaec: turn };
+    };
+
     // Provider order. When a Claude Code/Desktop MCP client is connected (it
     // polled recently), route to the relay FIRST so it answers instantly — no
     // Anthropic API, no key. Otherwise: Claude key -> relay (fallback).
     const relayActive = relayClientActive();
     const providers = [];
-    if (relayActive) providers.push(mcpRelay);
-    if (key && externeDienstenAan()) providers.push(claudeDirect);
-    if (!relayActive) providers.push(mcpRelay);
+    if (viaOpenaec) providers.push(openaec);
+    else {
+      if (relayActive) providers.push(mcpRelay);
+      if (key && externeDienstenAan()) providers.push(claudeDirect);
+      if (!relayActive) providers.push(mcpRelay);
+    }
 
     let answer = null;
     let lastErr = null;
@@ -178,7 +201,9 @@ export default function AssistantPanel() {
       try { answer = await provider(); break; }
       catch (e) { lastErr = e; console.warn('[assistant] provider failed, trying the next one:', e?.message ?? e); }
     }
-    setMessages((m) => [...m, { role: 'assistant', content: answer == null ? describeAiError(lastErr, t) : answer }]);
+    const failed = viaOpenaec ? describeOpenaecError(lastErr, t) : describeAiError(lastErr, t);
+    const reply = answer == null ? { content: failed } : typeof answer === 'object' ? answer : { content: answer };
+    setMessages((m) => [...m, { role: 'assistant', ...reply }]);
     setLoading(false);
   }
 
@@ -208,7 +233,7 @@ export default function AssistantPanel() {
   }
 
   // Subtitle shows the active provider so the user knows where answers come from.
-  const providerLabel = () => (apiKey() ? t('assistant.viaClaude') : t('assistant.notConnected'));
+  const providerLabel = () => (viaOpenaec ? 'OpenAEC' : apiKey() ? t('assistant.viaClaude') : t('assistant.notConnected'));
 
   return (
     <Show
@@ -226,7 +251,9 @@ export default function AssistantPanel() {
                 {activeDocName() ? `${t('assistant.workingIn')}: ${activeDocName()} · ${providerLabel()}` : providerLabel()}
               </span>
             </div>
-            <button class="chat-close" title={t('assistant.keyButton')} onClick={() => setShowKey(!showKey())}>🔑</button>
+            <Show when={!viaOpenaec}>
+              <button class="chat-close" title={t('assistant.keyButton')} onClick={() => setShowKey(!showKey())}>🔑</button>
+            </Show>
             <button class="chat-close" title={t('close')} onClick={() => setOpen(false)}>✕</button>
           </div>
 

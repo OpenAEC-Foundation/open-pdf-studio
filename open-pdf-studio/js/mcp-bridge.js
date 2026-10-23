@@ -3827,6 +3827,15 @@ const HANDLERS = {
   'mcp:agent-task-result':  (p) => import('./plugins/agent-tasks.js').then((m) => m.handleAgentTaskResult(p)),
 };
 
+/** Run one app command in the app itself: the same handler an `mcp:*` event
+ *  runs. Used by the OpenAEC assistant (js/assistant-openaec.js), whose tool
+ *  calls run locally in the browser without the Tauri MCP server. */
+export async function runAppEvent(name, params = {}) {
+  const handler = HANDLERS[name];
+  if (!handler) throw new Error(`unknown app command: ${name}`);
+  return handler(params ?? {});
+}
+
 /**
  * Gestructureerde opdrachten van extensies (#575) staan in tools/list van de
  * MCP-server: na elke wijziging gaat de hele lijst naar Rust

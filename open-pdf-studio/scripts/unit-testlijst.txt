@@ -376,6 +376,7 @@ js/annotations/xfdf-pagina.test.mjs
 js/compare/change-detect-worker.test.mjs
 js/pdf/thin-lines.test.mjs
 js/assistant-i18n.test.mjs
+js/assistant-openaec.test.mjs
 js/pdf/three-d/u3d-reader.test.mjs
 js/pdf/three-d/pdf-3d.test.mjs
 js/pdf/three-d/camera.test.mjs
