@@ -198,7 +198,11 @@
     "alignCenter": "কেন্দ্রে সারিবদ্ধ",
     "alignRight": "ডানে সারিবদ্ধ",
     "lineSpacing": "লাইন ব্যবধান",
-    "rotation": "ঘূর্ণন"
+    "rotation": "ঘূর্ণন",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "উত্তর",

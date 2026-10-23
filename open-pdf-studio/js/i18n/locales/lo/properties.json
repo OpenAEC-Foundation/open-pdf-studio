@@ -230,7 +230,11 @@
     "alignCenter": "ຈັດເຄິ່ງກາງ",
     "alignRight": "ຈັດຊິດຂວາ",
     "lineSpacing": "ໄລຍະຫ່າງແຖວ",
-    "rotation": "ການໝຸນ"
+    "rotation": "ການໝຸນ",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "ການຕອບກັບ",

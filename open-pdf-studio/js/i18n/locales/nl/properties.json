@@ -178,7 +178,11 @@
     "alignCenter": "Centreren",
     "alignRight": "Rechts uitlijnen",
     "lineSpacing": "Regelafstand",
-    "rotation": "Rotatie"
+    "rotation": "Rotatie",
+    "verticalAlignment": "Verticale uitlijning",
+    "alignTop": "Boven uitlijnen",
+    "alignMiddle": "Verticaal centreren",
+    "alignBottom": "Onder uitlijnen"
   },
   "replies": {
     "title": "Reacties",

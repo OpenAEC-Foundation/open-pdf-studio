@@ -164,6 +164,13 @@ export function startTextEditing(annotation) {
   if (annotation.fontBold) styleObj['font-weight'] = 'bold';
   if (annotation.fontItalic) styleObj['font-style'] = 'italic';
   if (annotation.textAlign) styleObj['text-align'] = annotation.textAlign;
+  // Verticale uitlijning: de tekst blijft tijdens het bewerken staan waar de
+  // canvas hem tekent (rendering/textbox-layout.js, verticaleVerschuiving).
+  if (annotation.textVAlign === 'middle' || annotation.textVAlign === 'bottom') {
+    styleObj.display = 'flex';
+    styleObj['flex-direction'] = 'column';
+    styleObj['justify-content'] = annotation.textVAlign === 'middle' ? 'center' : 'flex-end';
+  }
   // Line spacing: CSS line-height adds half-leading above first line.
   // To show spacing only below text, we shift the textarea up inside a clipping wrapper.
   // Match shapes.js DEFAULT_LINE_SPACING (=1.2) so the edit overlay shows

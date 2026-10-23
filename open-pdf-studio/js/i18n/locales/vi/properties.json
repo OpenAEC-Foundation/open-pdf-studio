@@ -198,7 +198,11 @@
     "alignCenter": "Căn giữa",
     "alignRight": "Căn phải",
     "lineSpacing": "Khoảng cách Dòng",
-    "rotation": "Góc xoay"
+    "rotation": "Góc xoay",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Trả lời",

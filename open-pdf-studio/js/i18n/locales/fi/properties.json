@@ -198,7 +198,11 @@
     "alignCenter": "Tasaa keskelle",
     "alignRight": "Tasaa oikealle",
     "lineSpacing": "Riviväli",
-    "rotation": "Kierto"
+    "rotation": "Kierto",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Vastaukset",

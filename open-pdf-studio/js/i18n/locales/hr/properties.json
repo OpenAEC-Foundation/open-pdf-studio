@@ -198,7 +198,11 @@
     "alignCenter": "Poravnaj sredinu",
     "alignRight": "Poravnaj desno",
     "lineSpacing": "Razmak između redova",
-    "rotation": "Rotacija"
+    "rotation": "Rotacija",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Odgovori",
