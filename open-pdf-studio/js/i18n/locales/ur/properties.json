@@ -247,7 +247,9 @@
     "tint": "رنگ کی جھلک",
     "tintNone": "کوئی نہیں",
     "linkImageTitle": "تصویر منسلک کریں",
-    "imageFilter": "تصاویر"
+    "imageFilter": "تصاویر",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "سائز کی اکائی"

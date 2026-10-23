@@ -247,7 +247,9 @@
     "tint": "Renk Tonu",
     "tintNone": "Yok",
     "linkImageTitle": "Görüntü bağla",
-    "imageFilter": "Görüntüler"
+    "imageFilter": "Görüntüler",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Boyut birimi"

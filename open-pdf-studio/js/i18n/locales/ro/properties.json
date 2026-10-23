@@ -247,7 +247,9 @@
     "tint": "Nuanță de culoare",
     "tintNone": "Niciuna",
     "linkImageTitle": "Legare imagine",
-    "imageFilter": "Imagini"
+    "imageFilter": "Imagini",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Unitate pentru dimensiuni"

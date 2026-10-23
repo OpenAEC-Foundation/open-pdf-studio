@@ -247,7 +247,9 @@
     "tint": "Χρωματική απόχρωση",
     "tintNone": "Κανένα",
     "linkImageTitle": "Σύνδεση εικόνας",
-    "imageFilter": "Εικόνες"
+    "imageFilter": "Εικόνες",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Μονάδα διαστάσεων"

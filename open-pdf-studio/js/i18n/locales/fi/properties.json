@@ -247,7 +247,9 @@
     "tint": "Värisävy",
     "tintNone": "Ei mitään",
     "linkImageTitle": "Linkitä kuva",
-    "imageFilter": "Kuvat"
+    "imageFilter": "Kuvat",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Mittojen yksikkö"

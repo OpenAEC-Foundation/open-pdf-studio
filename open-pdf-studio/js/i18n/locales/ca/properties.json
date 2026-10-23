@@ -247,7 +247,9 @@
     "tint": "Tint de color",
     "tintNone": "Cap",
     "linkImageTitle": "Enllaça la imatge",
-    "imageFilter": "Imatges"
+    "imageFilter": "Imatges",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Unitat de les mides"

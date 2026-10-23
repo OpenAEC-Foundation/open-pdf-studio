@@ -247,7 +247,9 @@
     "tint": "ته‌رنگ",
     "tintNone": "هیچ",
     "linkImageTitle": "پیوند تصویر",
-    "imageFilter": "تصاویر"
+    "imageFilter": "تصاویر",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "واحد اندازه‌ها"

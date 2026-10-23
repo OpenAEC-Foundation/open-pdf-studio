@@ -247,7 +247,9 @@
     "tint": "रंग आभा",
     "tintNone": "कोई नहीं",
     "linkImageTitle": "छवि लिंक करें",
-    "imageFilter": "छवियां"
+    "imageFilter": "छवियां",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "आकार की इकाई"

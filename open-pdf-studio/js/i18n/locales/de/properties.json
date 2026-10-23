@@ -247,7 +247,9 @@
     "tint": "Farbtönung",
     "tintNone": "Keine",
     "linkImageTitle": "Bild verknüpfen",
-    "imageFilter": "Bilder"
+    "imageFilter": "Bilder",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Einheit für Abmessungen"

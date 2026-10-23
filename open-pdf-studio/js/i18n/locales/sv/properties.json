@@ -247,7 +247,9 @@
     "tint": "Färgton",
     "tintNone": "Ingen",
     "linkImageTitle": "Länka bild",
-    "imageFilter": "Bilder"
+    "imageFilter": "Bilder",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Enhet för mått"

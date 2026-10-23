@@ -247,7 +247,9 @@
     "tint": "Rona Warna",
     "tintNone": "Tidak Ada",
     "linkImageTitle": "Tautkan gambar",
-    "imageFilter": "Gambar"
+    "imageFilter": "Gambar",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Satuan ukuran"

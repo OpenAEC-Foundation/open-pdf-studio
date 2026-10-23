@@ -247,7 +247,9 @@
     "tint": "色调",
     "tintNone": "无",
     "linkImageTitle": "链接图像",
-    "imageFilter": "图像"
+    "imageFilter": "图像",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "尺寸单位"

@@ -247,7 +247,9 @@
     "tint": "রঙের আভা",
     "tintNone": "কোনোটি নয়",
     "linkImageTitle": "ছবি লিঙ্ক করুন",
-    "imageFilter": "ছবি"
+    "imageFilter": "ছবি",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "মাপের একক"

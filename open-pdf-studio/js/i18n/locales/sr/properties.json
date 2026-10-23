@@ -247,7 +247,9 @@
     "tint": "Нијанса боје",
     "tintNone": "Без",
     "linkImageTitle": "Повежи слику",
-    "imageFilter": "Слике"
+    "imageFilter": "Слике",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Јединица за димензије"

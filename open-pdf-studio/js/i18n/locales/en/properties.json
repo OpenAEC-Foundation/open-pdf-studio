@@ -279,7 +279,9 @@
     "tint": "Color Tint",
     "tintNone": "None",
     "linkImageTitle": "Link image",
-    "imageFilter": "Images"
+    "imageFilter": "Images",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Unit for sizes"

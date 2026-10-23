@@ -279,7 +279,9 @@
     "tint": "ການຍ້ອມສີ",
     "tintNone": "ບໍ່ມີ",
     "linkImageTitle": "ເຊື່ອມໂຍງຮູບພາບ",
-    "imageFilter": "ຮູບພາບ"
+    "imageFilter": "ຮູບພາບ",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "ຫົວໜ່ວຍຂະໜາດ"

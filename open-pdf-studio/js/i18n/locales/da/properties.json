@@ -247,7 +247,9 @@
     "tint": "Farvetone",
     "tintNone": "Ingen",
     "linkImageTitle": "Sammenkæd billede",
-    "imageFilter": "Billeder"
+    "imageFilter": "Billeder",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Enhed for mål"

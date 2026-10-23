@@ -247,7 +247,9 @@
     "tint": "Színárnyalat",
     "tintNone": "Nincs",
     "linkImageTitle": "Kép csatolása",
-    "imageFilter": "Képek"
+    "imageFilter": "Képek",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Méretek mértékegysége"

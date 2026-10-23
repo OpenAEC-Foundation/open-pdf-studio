@@ -247,7 +247,9 @@
     "tint": "Fargetone",
     "tintNone": "Ingen",
     "linkImageTitle": "Koble bilde",
-    "imageFilter": "Bilder"
+    "imageFilter": "Bilder",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Enhet for mål"

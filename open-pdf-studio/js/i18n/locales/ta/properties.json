@@ -247,7 +247,9 @@
     "tint": "நிறச் சாயல்",
     "tintNone": "எதுவுமில்லை",
     "linkImageTitle": "படத்தை இணை",
-    "imageFilter": "படங்கள்"
+    "imageFilter": "படங்கள்",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "அளவுகளின் அலகு"

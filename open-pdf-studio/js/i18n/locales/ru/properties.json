@@ -247,7 +247,9 @@
     "tint": "Цветовой оттенок",
     "tintNone": "Нет",
     "linkImageTitle": "Связать изображение",
-    "imageFilter": "Изображения"
+    "imageFilter": "Изображения",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Единица размеров"

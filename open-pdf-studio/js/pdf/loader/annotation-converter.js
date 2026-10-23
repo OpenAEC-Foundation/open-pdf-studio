@@ -1691,6 +1691,11 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
       if (extraColors.opsTintColor) {
         stampProps.tintColor = extraColors.opsTintColor;
       }
+      // Frame around an image (width and colour).
+      if (extraColors.opsFrameWidth > 0) {
+        stampProps.frameWidth = extraColors.opsFrameWidth;
+        if (extraColors.opsFrameColor) stampProps.frameColor = extraColors.opsFrameColor;
+      }
       // Stamps the app saved from an IMAGE annotation (Name 'Image', bitmap
       // embedded) round-trip back to type 'image' so the image properties
       // (size, aspect lock, linked file) stay editable after reopen.

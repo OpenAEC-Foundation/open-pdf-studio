@@ -247,7 +247,9 @@
     "tint": "Rangi ya Kufifisha",
     "tintNone": "Hakuna",
     "linkImageTitle": "Unganisha picha",
-    "imageFilter": "Picha"
+    "imageFilter": "Picha",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Kipimo cha ukubwa"

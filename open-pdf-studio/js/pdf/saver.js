@@ -1,4 +1,5 @@
 import { state, getActiveDocument } from '../core/state.js';
+import { kaderDikte, kaderKleur, kaderRechthoek } from '../annotations/rendering/afbeelding-kader.js';
 import { ifcCategoryForAnnotationType } from '../solid/data/ifcCategoryMap.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { hexToColorArray } from '../utils/colors.js';
@@ -1953,6 +1954,12 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             if (ann.grayscale) imgDictObj.OPS_Grayscale = true;
             if (ann.brightness !== undefined && ann.brightness !== 1) imgDictObj.OPS_Brightness = ann.brightness;
             if (ann.contrast !== undefined && ann.contrast !== 1) imgDictObj.OPS_Contrast = ann.contrast;
+            // Frame around the image (colour and width), restored on reopening.
+            const imgKaderDik = ann.type === 'image' ? kaderDikte(ann) : 0;
+            if (imgKaderDik > 0) {
+              imgDictObj.OPS_FrameWidth = imgKaderDik;
+              imgDictObj.OPS_FrameColor = pdfTextString(kaderKleur(ann));
+            }
 
             annotDict = context.obj(imgDictObj);
 
@@ -2013,6 +2020,12 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
                   });
                   extGStates.GS1 = context.register(tintGs);
                   apContent += `q\n/GS1 gs\n${imgPrefix}${tintR} ${tintG} ${tintB} rg\n0 0 ${visW} ${visH} re f\nQ\n`;
+                }
+                // The frame is drawn in the appearance so other viewers show it too.
+                if (imgKaderDik > 0) {
+                  const [fkR, fkG, fkB] = hexToRgb(kaderKleur(ann));
+                  const kr = kaderRechthoek(visW, visH, imgKaderDik);
+                  apContent += `q\n${alpha < 1 ? '/GS0 gs\n' : ''}${imgPrefix}${fkR} ${fkG} ${fkB} RG\n${imgKaderDik} w\n${kr.x} ${kr.y} ${kr.w} ${kr.h} re S\nQ\n`;
                 }
                 if (Object.keys(extGStates).length > 0) {
                   resources.ExtGState = context.obj(extGStates);

@@ -227,7 +227,9 @@
     "tint": "Kleurtint",
     "tintNone": "Geen",
     "linkImageTitle": "Afbeelding koppelen",
-    "imageFilter": "Afbeeldingen"
+    "imageFilter": "Afbeeldingen",
+    "frameWidth": "Kaderdikte",
+    "frameColor": "Kaderkleur"
   },
   "sizeUnit": {
     "tooltip": "Eenheid voor maten"

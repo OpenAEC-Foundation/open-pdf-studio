@@ -108,6 +108,28 @@ export default function ImageSection() {
         </div>
 
         <div class="property-group">
+          <label>{t('image.frameWidth')}</label>
+          <PrefComboBox
+            value={() => annotProps.frameWidth}
+            setValue={(val) => updateAnnotProp('frameWidth', val)}
+            options={[0, 0.5, 1, 2, 3, 4, 6, 8, 10]}
+            min={0} max={30} fallback={0} suffix="pt"
+            disabled={isLocked}
+          />
+        </div>
+
+        <Show when={(parseFloat(annotProps.frameWidth) || 0) > 0}>
+          <div class="property-group">
+            <label>{t('image.frameColor')}</label>
+            <input type="color"
+              value={annotProps.frameColor || '#000000'}
+              disabled={isLocked()}
+              style={{ width: '36px', height: '20px', padding: '0' }}
+              onInput={(e) => updateAnnotProp('frameColor', e.target.value)} />
+          </div>
+        </Show>
+
+        <div class="property-group">
           <label></label>
           <button type="button" class="prop-action-btn"
             disabled={isLocked()}

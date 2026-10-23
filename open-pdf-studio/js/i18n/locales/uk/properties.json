@@ -247,7 +247,9 @@
     "tint": "Відтінок кольору",
     "tintNone": "Немає",
     "linkImageTitle": "Пов'язати зображення",
-    "imageFilter": "Зображення"
+    "imageFilter": "Зображення",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Одиниця розмірів"

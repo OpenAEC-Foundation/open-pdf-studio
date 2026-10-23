@@ -247,7 +247,9 @@
     "tint": "גוון צבע",
     "tintNone": "ללא",
     "linkImageTitle": "קישור תמונה",
-    "imageFilter": "תמונות"
+    "imageFilter": "תמונות",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "יחידת מידה לגדלים"

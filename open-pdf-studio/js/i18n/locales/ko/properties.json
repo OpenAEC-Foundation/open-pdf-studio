@@ -247,7 +247,9 @@
     "tint": "색조",
     "tintNone": "없음",
     "linkImageTitle": "이미지 연결",
-    "imageFilter": "이미지"
+    "imageFilter": "이미지",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "크기 단위"

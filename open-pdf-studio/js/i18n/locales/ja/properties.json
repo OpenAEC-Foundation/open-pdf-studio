@@ -247,7 +247,9 @@
     "tint": "色合い",
     "tintNone": "なし",
     "linkImageTitle": "画像をリンク",
-    "imageFilter": "画像"
+    "imageFilter": "画像",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "サイズの単位"

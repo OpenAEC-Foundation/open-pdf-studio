@@ -247,7 +247,9 @@
     "tint": "Rona Warna",
     "tintNone": "Tiada",
     "linkImageTitle": "Pautkan imej",
-    "imageFilter": "Imej"
+    "imageFilter": "Imej",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Unit saiz"

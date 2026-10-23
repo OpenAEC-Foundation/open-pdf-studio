@@ -904,6 +904,19 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         else if (typeof tc.value === 'string') colors.opsTintColor = tc.value;
       }
 
+      // Read /OPS_FrameWidth + /OPS_FrameColor — the frame around an image
+      const fwRaw = annotDict.get(PDFName.of('OPS_FrameWidth'));
+      if (fwRaw) {
+        const fw = pdfNum(context.lookup(fwRaw) || fwRaw);
+        if (fw > 0) colors.opsFrameWidth = fw;
+      }
+      const fcRaw = annotDict.get(PDFName.of('OPS_FrameColor'));
+      if (fcRaw) {
+        const fc = context.lookup(fcRaw) || fcRaw;
+        if (typeof fc.decodeText === 'function') colors.opsFrameColor = fc.decodeText();
+        else if (typeof fc.value === 'string') colors.opsFrameColor = fc.value;
+      }
+
       // Read /OPS_ArcFlags + /OPS_ArcBulges (parallel arrays, one entry per
       // outer vertex). Used to round-trip arc-segment metadata for filledArea.
       const afRaw = annotDict.get(PDFName.of('OPS_ArcFlags'));

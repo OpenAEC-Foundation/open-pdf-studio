@@ -1,4 +1,5 @@
 import { state, getActiveDocument, getPageRotation, imageCache } from '../core/state.js';
+import { kaderDikte, kaderKleur, kaderRechthoek } from './rendering/afbeelding-kader.js';
 import { annotationCanvas, annotationCtx, textHighlightCanvas, textHighlightCtx } from '../ui/dom-elements.js';
 import { updateStatusAnnotations } from '../ui/chrome/status-bar.js';
 import { updateAnnotationsList } from '../ui/panels/annotations-list.js';
@@ -1472,6 +1473,16 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
         ctx.imageSmoothingEnabled = prevSmooth;
         ctx.imageSmoothingQuality = prevQuality;
         if (_imgFilters) ctx.filter = _prevFilter;
+
+        // Frame around the image (inside its edge; rotates and flips with it).
+        const kaderDik = kaderDikte(annotation);
+        if (kaderDik > 0) {
+          const kr = kaderRechthoek(annotation.width, annotation.height, kaderDik);
+          ctx.strokeStyle = kaderKleur(annotation);
+          ctx.lineWidth = kaderDik;
+          ctx.setLineDash([]);
+          ctx.strokeRect(-annotation.width / 2 + kr.x, -annotation.height / 2 + kr.y, kr.w, kr.h);
+        }
 
         ctx.restore();
       } else {

@@ -247,7 +247,9 @@
     "tint": "การย้อมสี",
     "tintNone": "ไม่มี",
     "linkImageTitle": "ลิงก์รูปภาพ",
-    "imageFilter": "รูปภาพ"
+    "imageFilter": "รูปภาพ",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "หน่วยของขนาด"

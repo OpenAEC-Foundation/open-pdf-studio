@@ -247,7 +247,9 @@
     "tint": "Tinta",
     "tintNone": "Nessuna",
     "linkImageTitle": "Collega immagine",
-    "imageFilter": "Immagini"
+    "imageFilter": "Immagini",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Unità delle dimensioni"

@@ -247,7 +247,9 @@
     "tint": "Phủ màu",
     "tintNone": "Không có",
     "linkImageTitle": "Liên kết hình ảnh",
-    "imageFilter": "Hình ảnh"
+    "imageFilter": "Hình ảnh",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Đơn vị kích thước"

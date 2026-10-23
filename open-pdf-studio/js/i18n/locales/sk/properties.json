@@ -247,7 +247,9 @@
     "tint": "Farebný tón",
     "tintNone": "Žiadny",
     "linkImageTitle": "Prepojiť obrázok",
-    "imageFilter": "Obrázky"
+    "imageFilter": "Obrázky",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Jednotka rozmerov"

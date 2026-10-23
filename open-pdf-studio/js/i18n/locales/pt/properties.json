@@ -247,7 +247,9 @@
     "tint": "Tonalidade",
     "tintNone": "Nenhuma",
     "linkImageTitle": "Vincular imagem",
-    "imageFilter": "Imagens"
+    "imageFilter": "Imagens",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "Unidade das dimensões"

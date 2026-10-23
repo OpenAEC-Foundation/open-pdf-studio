@@ -247,7 +247,9 @@
     "tint": "صبغة اللون",
     "tintNone": "لا شيء",
     "linkImageTitle": "ربط صورة",
-    "imageFilter": "الصور"
+    "imageFilter": "الصور",
+    "frameWidth": "Frame width",
+    "frameColor": "Frame colour"
   },
   "sizeUnit": {
     "tooltip": "وحدة الأبعاد"
