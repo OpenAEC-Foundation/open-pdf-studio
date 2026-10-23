@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Segellant",
       "nen47-maaiveld": "NEN47-25 Nivell del terreny"
     },
-    "rotation": "Rotació"
+    "rotation": "Rotació",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Estil de línia",

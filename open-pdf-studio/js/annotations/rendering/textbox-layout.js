@@ -11,13 +11,16 @@
 // `measure(text, bold, italic)` zodat renderer, saver en tests dezelfde
 // regelafbraak krijgen.
 
+import { vormInzet } from './textbox-vorm.js';
+
 /**
  * Hoe ver de tekst van een tekstvlak van de rand van het vak begint: de inzet
  * die het bestand opgeeft (textPadding, zie inzetUitDsMarge), anders de
  * lijndikte, zonder minimum. Canvas, editor en opslag gebruiken deze ene regel.
  */
 export function textboxTekstInzet(ann) {
-  return ann?.textPadding ?? ann?.lineWidth ?? 0;
+  // Plus de ruimte die een afgeronde of ovale vorm vraagt (textbox-vorm.js).
+  return (ann?.textPadding ?? ann?.lineWidth ?? 0) + vormInzet(ann);
 }
 
 /**

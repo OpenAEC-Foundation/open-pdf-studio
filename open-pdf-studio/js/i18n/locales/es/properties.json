@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Sellador",
       "nen47-maaiveld": "NEN47-25 Nivel del terreno"
     },
-    "rotation": "Rotación"
+    "rotation": "Rotación",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Estilo de línea",

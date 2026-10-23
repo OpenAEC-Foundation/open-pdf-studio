@@ -1438,6 +1438,14 @@ const result = {};
           colors.opsRotationKey = true;
         }
 
+        // De vorm van het vak (afgerond of ovaal), zie rendering/textbox-vorm.js.
+        const opsVormRaw = annotDict.get(PDFName.of('OPS_BoxShape'));
+        if (opsVormRaw) {
+          const vv = context.lookup(opsVormRaw) || opsVormRaw;
+          const naam = typeof vv?.asString === 'function' ? vv.asString().replace(/^\//, '') : '';
+          if (naam === 'rounded' || naam === 'ellipse') colors.boxShape = naam;
+        }
+
         // /LE van een callout (#612): volgens de specificatie één naam, sommige
         // programma's schrijven een rij. pdf.js geeft /LE alleen voor lijnen.
         const ftLeRaw = annotDict.get(PDFName.of('LE'));
