@@ -491,3 +491,4 @@ js/pdf/vul-dekking-rondgang.test.mjs
 js/symbols/profieltype.test.mjs
 js/tools/editor-ondergrond.test.mjs
 js/pdf/raster-export-plan.test.mjs
+js/annotations/image-drop-bron.test.mjs

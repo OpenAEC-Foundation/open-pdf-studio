@@ -35,14 +35,12 @@ async function _loadImageFromPath(filePath) {
     reader.onerror = reject;
     reader.readAsDataURL(blob);
   });
-  const url = URL.createObjectURL(blob);
+  // The bitmap comes from the data URL and stays attached to it. A blob URL
+  // was revoked right after loading: WebKit then dropped the decoded pixels
+  // and the image showed only its selection frame, without the picture.
   const img = new Image();
-  img.src = url;
-  try {
-    await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; });
-  } finally {
-    URL.revokeObjectURL(url);
-  }
+  img.src = dataUrl;
+  await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; });
   return { img, dataUrl };
 }
 
@@ -190,4 +188,20 @@ export async function addImageFromFile(filePath, opts = {}) {
     console.error('Failed to add image from file:', e);
     updateStatusMessage('Failed to add image');
   }
+}
+
+/**
+ * The "Image" button in the ribbon: pick a file and place it on the current
+ * page (then move and resize it with the handles). Same path as dropping an
+ * image on the page.
+ */
+export async function kiesEnPlaatsAfbeelding() {
+  if (!getActiveDocument()?.pdfDoc) {
+    updateStatusMessage('Open a PDF first to add images');
+    return;
+  }
+  const { openFileDialog } = await import('../core/platform.js');
+  const pad = await openFileDialog(['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'svg']);
+  if (!pad || typeof pad !== 'string') return;
+  await addImageFromFile(pad);
 }
