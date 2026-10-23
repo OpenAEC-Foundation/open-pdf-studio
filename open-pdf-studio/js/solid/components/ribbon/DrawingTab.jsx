@@ -245,7 +245,8 @@ export function DrawingGroups() {
           <RibbonButton size="small" id="dr-l-shape" title={`${t('drawing.lShape')} — ${t('drawing.dimHint')}`} icon={lShapeIcon}
             disabled={ro()} active={state.currentTool === 'lshape'} onClick={() => setTool('lshape')} />
           <RibbonButton size="small" id="dr-image" title={t('drawing.image')} icon={imageIcon}
-            disabled={ro()} active={state.currentTool === 'image'} onClick={() => setTool('image')} />
+            disabled={ro()} active={state.currentTool === 'image'}
+            onClick={() => import('../../../annotations/image-drop.js').then((m) => m.kiesEnPlaatsAfbeelding())} />
           <RibbonButton size="small" id="dr-remove-image" title={t('drawing.removeImage')} icon={removeImageIcon}
             disabled={ro()} active={state.currentTool === 'removeImage'} onClick={() => startRemoveImageTool()} />
         </RibbonGroup>
