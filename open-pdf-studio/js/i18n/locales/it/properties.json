@@ -198,7 +198,11 @@
     "alignCenter": "Allinea al centro",
     "alignRight": "Allinea a destra",
     "lineSpacing": "Interlinea",
-    "rotation": "Rotazione"
+    "rotation": "Rotazione",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Risposte",

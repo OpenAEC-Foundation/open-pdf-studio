@@ -122,6 +122,7 @@ const [annotProps, setAnnotProps] = createStore({
   fontUnderline: false,
   fontStrikethrough: false,
   textAlign: 'left',
+  textVAlign: 'top',
   lineSpacing: '1.5',
   rotation: 0,
   imageWidth: 0,
@@ -435,6 +436,7 @@ export function storeShowProperties(annotation) {
     fontUnderline: annotation.fontUnderline || false,
     fontStrikethrough: annotation.fontStrikethrough || false,
     textAlign: annotation.textAlign || 'left',
+    textVAlign: annotation.textVAlign || 'top',
     lineSpacing: annotation.lineSpacing || '1.5',
     rotation: annotation.rotation || 0,
     // In paginapunten, onafgerond: het paneel toont ze in de gekozen
@@ -758,6 +760,7 @@ export function storeShowMultiSelection(selected) {
     fontUnderline: sharedValue(selected, a => a.fontUnderline || false, 'mixed'),
     fontStrikethrough: sharedValue(selected, a => a.fontStrikethrough || false, 'mixed'),
     textAlign: sharedValue(selected, a => a.textAlign || 'left', 'mixed'),
+    textVAlign: sharedValue(selected, a => a.textVAlign || 'top', 'mixed'),
     lineSpacing: sharedValue(selected, a => a.lineSpacing || '1.5', 'mixed'),
     rotation: sharedValue(selected, a => a.rotation || 0, 'mixed'),
     imageWidth: 0,
@@ -1190,6 +1193,7 @@ function applyPropToAnnotation(ann, key, value) {
     case 'fontUnderline': ann.fontUnderline = value; break;
     case 'fontStrikethrough': ann.fontStrikethrough = value; break;
     case 'textAlign': ann.textAlign = value; break;
+    case 'textVAlign': ann.textVAlign = value === 'top' ? undefined : value; break;
     case 'lineSpacing': {
       ann.lineSpacing = leesGetalBegin(value);
       if (['textbox', 'callout'].includes(ann.type) && ann.text) {
@@ -1599,6 +1603,7 @@ function applyAnnotProp(key, value) {
     case 'fontUnderline': currentAnnotation.fontUnderline = value; break;
     case 'fontStrikethrough': currentAnnotation.fontStrikethrough = value; break;
     case 'textAlign': currentAnnotation.textAlign = value; break;
+    case 'textVAlign': currentAnnotation.textVAlign = value === 'top' ? undefined : value; break;
     case 'lineSpacing': {
       currentAnnotation.lineSpacing = leesGetalBegin(value);
       // Resize textbox height to fit content with new line spacing

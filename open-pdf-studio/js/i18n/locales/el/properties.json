@@ -198,7 +198,11 @@
     "alignCenter": "Στοίχιση στο κέντρο",
     "alignRight": "Στοίχιση δεξιά",
     "lineSpacing": "Διάστιχο",
-    "rotation": "Περιστροφή"
+    "rotation": "Περιστροφή",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Απαντήσεις",

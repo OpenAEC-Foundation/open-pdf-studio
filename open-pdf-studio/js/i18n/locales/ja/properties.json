@@ -198,7 +198,11 @@
     "alignCenter": "中央揃え",
     "alignRight": "右揃え",
     "lineSpacing": "行間",
-    "rotation": "回転"
+    "rotation": "回転",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "返信",
