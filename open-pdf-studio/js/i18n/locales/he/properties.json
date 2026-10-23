@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 חומר איטום",
       "nen47-maaiveld": "NEN47-25 מפלס הקרקע"
     },
-    "rotation": "סיבוב"
+    "rotation": "סיבוב",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "סגנון קו",

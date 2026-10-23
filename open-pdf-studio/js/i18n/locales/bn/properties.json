@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 সিল্যান্ট",
       "nen47-maaiveld": "NEN47-25 ভূমিস্তর"
     },
-    "rotation": "ঘূর্ণন"
+    "rotation": "ঘূর্ণন",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "রেখার শৈলী",

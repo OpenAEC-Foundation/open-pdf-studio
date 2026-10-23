@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Kizibio",
       "nen47-maaiveld": "NEN47-25 Usawa wa ardhi"
     },
-    "rotation": "Mzunguko"
+    "rotation": "Mzunguko",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Mtindo wa mstari",

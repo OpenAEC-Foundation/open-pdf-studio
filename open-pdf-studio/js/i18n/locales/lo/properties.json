@@ -121,7 +121,11 @@
       "nen47-kunststof": "NEN47-22 ປລາສະຕິກ",
       "nen47-afdichtingsmiddel": "NEN47-23 ວັດສະດຸອັດຮອຍຕໍ່",
       "nen47-maaiveld": "NEN47-25 ລະດັບໜ້າດິນ"
-    }
+    },
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "ຮູບແບບເສັ້ນ",

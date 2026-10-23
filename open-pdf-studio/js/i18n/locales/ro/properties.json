@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Material de etanșare",
       "nen47-maaiveld": "NEN47-25 Nivelul terenului"
     },
-    "rotation": "Rotatie"
+    "rotation": "Rotatie",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Stil de linie",

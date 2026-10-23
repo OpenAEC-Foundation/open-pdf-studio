@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Brtvena masa",
       "nen47-maaiveld": "NEN47-25 Razina terena"
     },
-    "rotation": "Rotacija"
+    "rotation": "Rotacija",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Stil linije",

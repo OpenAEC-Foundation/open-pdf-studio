@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 مادة مانعة للتسرب",
       "nen47-maaiveld": "NEN47-25 منسوب الأرض"
     },
-    "rotation": "التدوير"
+    "rotation": "التدوير",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "نمط الخط",

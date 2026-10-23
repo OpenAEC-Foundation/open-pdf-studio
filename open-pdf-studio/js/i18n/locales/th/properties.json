@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 วัสดุยาแนว",
       "nen47-maaiveld": "NEN47-25 ระดับพื้นดิน"
     },
-    "rotation": "การหมุน"
+    "rotation": "การหมุน",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "รูปแบบเส้น",

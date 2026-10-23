@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 실링재",
       "nen47-maaiveld": "NEN47-25 지반면"
     },
-    "rotation": "회전"
+    "rotation": "회전",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "선 스타일",

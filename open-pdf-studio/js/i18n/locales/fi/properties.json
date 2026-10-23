@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Tiivistysaine",
       "nen47-maaiveld": "NEN47-25 Maanpinta"
     },
-    "rotation": "Kierto"
+    "rotation": "Kierto",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Viivatyyli",
