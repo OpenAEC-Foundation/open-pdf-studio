@@ -81,6 +81,18 @@ export default function BehaviorTab(props) {
         </div>
         <div class="pref-row pref-checkbox-row">
           <label class="pref-checkbox-label">
+            <input type="checkbox" checked={p.snapToVertices[0]()} onChange={e => p.snapToVertices[1](e.target.checked)} disabled={!p.enableObjectSnap[0]()} />
+            <span>{t('behavior.snapToVertices')}</span>
+          </label>
+        </div>
+        <div class="pref-row pref-checkbox-row">
+          <label class="pref-checkbox-label">
+            <input type="checkbox" checked={p.snapToStartPoints[0]()} onChange={e => p.snapToStartPoints[1](e.target.checked)} disabled={!p.enableObjectSnap[0]()} />
+            <span>{t('behavior.snapToStartPoints')}</span>
+          </label>
+        </div>
+        <div class="pref-row pref-checkbox-row">
+          <label class="pref-checkbox-label">
             <input type="checkbox" checked={p.snapToEdges[0]()} onChange={e => p.snapToEdges[1](e.target.checked)} disabled={!p.enableObjectSnap[0]()} />
             <span>{t('behavior.snapToEdges')}</span>
           </label>
