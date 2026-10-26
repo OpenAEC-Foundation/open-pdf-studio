@@ -8,12 +8,13 @@ pub mod state;
 pub mod routing;
 pub mod spawn;
 pub mod recovery;
+pub mod response;
 
 use anyhow::{anyhow, Context, Result};
 use serde_json::json;
 use std::sync::Arc;
 use std::sync::atomic::Ordering;
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt};
+use tokio::io::AsyncWriteExt;
 
 pub use state::{Status, WorkerState};
 
@@ -40,7 +41,7 @@ fn now_ms() -> u64 {
 /// die een nieuwe `op` niet kent en niets terugstuurt). Zonder deze grens
 /// blokkeert `read_line` eeuwig met de request-lock vast, waardoor die worker
 /// voor ALLE volgende requests wedged raakt en de pagina blanco blijft. Bij
-/// timeout -> Err -> in-proc-PDFium-fallback + respawn van de worker.
+/// timeout -> expliciete fout + beëindigen/respawn; nooit in-proc herhalen.
 const WORKER_READ_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(60);
 
 /// Pad naar de pdfium-worker-sidecar naast de hoofdbinary. Platform-correct
@@ -130,6 +131,7 @@ impl WorkerPool {
         // content-stream laten parsen (seconden + ~1 GB parse-state op zware
         // CAD-bladen), terwijl de warme worker in ~0,4 s klaar is.
         let depths = self.depths();
+        if depths.iter().all(|&d| d == usize::MAX) { return Err(response::Unavailable.into()); }
         let slot = routing::pick_worker(path, page_index, &depths, true);
         let worker = self.workers[slot].clone();
         self.touch(&worker);
@@ -141,9 +143,12 @@ impl WorkerPool {
             return result;
         }
 
-        // First attempt failed → mark crash, retry on a DIFFERENT live slot
-        let recover_task = recovery::handle_worker_crash(worker.clone(), worker_exe_path());
-        tokio::spawn(recover_task);
+        // Recover failed exchanges; exhausted work is never retried.
+        // Other failures may retry once on a different live slot.
+        if !result.as_ref().err().is_some_and(response::is_unavailable) {
+            recovery::schedule_worker_recovery(worker.clone(), worker_exe_path());
+        }
+        if result.as_ref().err().is_some_and(response::is_resource_limit) { return result; }
 
         let mut depths_retry = self.depths();
         depths_retry[slot] = usize::MAX; // mark as dead for this retry
@@ -156,6 +161,9 @@ impl WorkerPool {
         worker2.queue_depth.fetch_add(1, Ordering::Release);
         let result2 = self.render_on_worker(worker2.clone(), path, page_index, scale, rotation, thin_lines).await;
         worker2.queue_depth.fetch_sub(1, Ordering::Release);
+        if result2.as_ref().err().is_some_and(|e| !response::is_unavailable(e)) {
+            recovery::schedule_worker_recovery(worker2, worker_exe_path());
+        }
         result2
     }
 
@@ -173,6 +181,7 @@ impl WorkerPool {
         let request_lock = worker.request_lock.clone();
         let _t_queue = std::time::Instant::now();
         let _exchange = request_lock.lock().await;
+        if worker.status() != Status::Ready { return Err(response::Unavailable.into()); }
         let _t_run = std::time::Instant::now();
         let _plog = PoolTrace::new(worker.slot, "render", path, page_index, scale, _t_queue, _t_run);
         let id = self.next_request_id.fetch_add(1, Ordering::Release);
@@ -192,14 +201,17 @@ impl WorkerPool {
 
         // Read response (met timeout: een vastgelopen/verouderde worker die
         // niets terugstuurt mag de request-lock niet eeuwig vasthouden).
-        let mut resp_line = String::new();
+        let resp_line;
         {
             let mut stdout_guard = worker.stdout.lock().await;
             let stdout = stdout_guard.as_mut()
                 .ok_or_else(|| anyhow!("worker {} has no stdout", worker.slot))?;
-            match tokio::time::timeout(WORKER_READ_TIMEOUT, stdout.read_line(&mut resp_line)).await {
-                Ok(r) => { r.with_context(|| format!("read from worker {}", worker.slot))?; }
-                Err(_) => return Err(anyhow!("worker {} read timeout ({}s)", worker.slot, WORKER_READ_TIMEOUT.as_secs())),
+            match response::read_response(stdout, WORKER_READ_TIMEOUT).await {
+                Ok(line) => resp_line = line,
+                Err(error) => {
+                    worker.set_status(Status::Dead);
+                    return Err(error.context(format!("read from worker {}", worker.slot)));
+                }
             }
         }
 
@@ -255,6 +267,7 @@ impl WorkerPool {
         thin_lines: bool,
     ) -> Result<(u32, u32, Vec<u8>)> {
         let depths = self.depths();
+        if depths.iter().all(|&d| d == usize::MAX) { return Err(response::Unavailable.into()); }
         // Salt de affiniteit met de regio-coördinaten wanneer spreiding gewenst
         // is: tegels van DEZELFDE pagina landen dan op verschillende workers.
         let salt = if spread {
@@ -274,11 +287,11 @@ impl WorkerPool {
             region_x_pt, region_y_pt, region_w_pt, region_h_pt, thin_lines,
         ).await;
         worker.queue_depth.fetch_sub(1, Ordering::Release);
-        // Geen retry (de aanroeper valt terug op in-proc PDFium), maar een
+        // Geen retry; alleen niet-fatale fouten mogen in-proc terugvallen. Een
         // gefaalde/getimede worker is mogelijk gedesynchroniseerd — respawn
         // hem zodat de volgende tegel niet weer op een wedged worker landt.
-        if result.is_err() {
-            tokio::spawn(recovery::handle_worker_crash(worker.clone(), worker_exe_path()));
+        if result.as_ref().err().is_some_and(|e| !response::is_unavailable(e)) {
+            recovery::schedule_worker_recovery(worker.clone(), worker_exe_path());
         }
         result
     }
@@ -301,6 +314,7 @@ impl WorkerPool {
         let request_lock = worker.request_lock.clone();
         let _t_queue = std::time::Instant::now();
         let _exchange = request_lock.lock().await;
+        if worker.status() != Status::Ready { return Err(response::Unavailable.into()); }
         let _t_run = std::time::Instant::now();
         let _plog = PoolTrace::new(worker.slot, "region", path, page_index, scale, _t_queue, _t_run);
         let id = self.next_request_id.fetch_add(1, Ordering::Release);
@@ -320,14 +334,17 @@ impl WorkerPool {
             stdin.flush().await?;
         }
 
-        let mut resp_line = String::new();
+        let resp_line;
         {
             let mut stdout_guard = worker.stdout.lock().await;
             let stdout = stdout_guard.as_mut()
                 .ok_or_else(|| anyhow!("worker {} has no stdout", worker.slot))?;
-            match tokio::time::timeout(WORKER_READ_TIMEOUT, stdout.read_line(&mut resp_line)).await {
-                Ok(r) => { r.with_context(|| format!("read from worker {}", worker.slot))?; }
-                Err(_) => return Err(anyhow!("worker {} region read timeout ({}s)", worker.slot, WORKER_READ_TIMEOUT.as_secs())),
+            match response::read_response(stdout, WORKER_READ_TIMEOUT).await {
+                Ok(line) => resp_line = line,
+                Err(error) => {
+                    worker.set_status(Status::Dead);
+                    return Err(error.context(format!("read from worker {}", worker.slot)));
+                }
             }
         }
 
@@ -453,5 +470,25 @@ impl Drop for PoolTrace {
                 let _ = writeln!(f, "{} run={}ms", l, self.t_run.elapsed().as_millis());
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod unavailable_tests {
+    use super::*;
+    #[tokio::test]
+    async fn all_dead_returns_an_isolated_error_for_pages_and_regions() {
+        let worker = Arc::new(WorkerState::new(0));
+        worker.set_status(Status::Dead);
+        let pool = WorkerPool {
+            workers: vec![worker],
+            next_request_id: std::sync::atomic::AtomicU64::new(1),
+            last_used_ms: std::sync::atomic::AtomicU64::new(0),
+            trimmed: std::sync::atomic::AtomicBool::new(false),
+        };
+        let page = pool.render("fixture.pdf", 0, 1.0, 0, false).await.unwrap_err();
+        assert!(response::is_unavailable(&page));
+        let region = pool.render_region("fixture.pdf", 0, 1.0, 0, 0.0, 0.0, 10.0, 10.0, false, false).await.unwrap_err();
+        assert!(response::is_unavailable(&region));
     }
 }

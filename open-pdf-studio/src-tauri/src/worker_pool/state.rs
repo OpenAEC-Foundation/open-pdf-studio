@@ -24,6 +24,7 @@ pub struct WorkerState {
     pub stdout: Arc<Mutex<Option<BufReader<ChildStdout>>>>,
     pub shm: Arc<Mutex<Option<Mmap>>>,
     pub crashes: AtomicUsize,
+    pub recovering: AtomicBool,
     pub last_crash_at: Arc<Mutex<Option<std::time::Instant>>>,
     /// Serializes the FULL request round-trip (write request → read response →
     /// read SHM) per worker. The wire protocol has no request-id demux: with two
@@ -50,6 +51,7 @@ impl WorkerState {
             stdout: Arc::new(Mutex::new(None)),
             shm: Arc::new(Mutex::new(None)),
             crashes: AtomicUsize::new(0),
+            recovering: AtomicBool::new(false),
             last_crash_at: Arc::new(Mutex::new(None)),
             request_lock: Arc::new(Mutex::new(())),
             last_used_ms: AtomicU64::new(0),

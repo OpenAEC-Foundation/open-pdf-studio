@@ -21,6 +21,7 @@ pub async fn spawn_worker(worker: Arc<WorkerState>, exe_path: &std::path::Path) 
     let mut cmd = Command::new(exe_path);
     cmd.arg(worker.slot.to_string())
         .arg(&ns)
+        .kill_on_drop(true)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::inherit());
