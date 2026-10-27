@@ -208,7 +208,17 @@
     "rotateViewLeft": "Rotera vyn åt vänster",
     "rotateViewRight": "Rotera vyn åt höger",
     "rotateViewLeftTitle": "Roterar vyn 90° moturs. Själva dokumentet ändras inte.",
-    "rotateViewRightTitle": "Roterar vyn 90° medurs. Själva dokumentet ändras inte."
+    "rotateViewRightTitle": "Roterar vyn 90° medurs. Själva dokumentet ändras inte.",
+    "splitGroup": "Dela",
+    "split": "Dela",
+    "splitTitle": "Dela vyn i två fönsterrutor med samma dokument",
+    "splitOptions": "Alternativ för delning",
+    "splitVertical": "Dela lodrätt",
+    "splitHorizontal": "Dela vågrätt",
+    "unsplit": "Ta bort delning",
+    "splitSync": "Synkronisera",
+    "splitSyncTitle": "Rulla och zooma båda fönsterrutorna tillsammans",
+    "splitDividerTitle": "Dra för att ändra storlek på fönsterrutorna. Dubbelklicka för att återställa till 50/50."
   },
   "elementVisibility": {
     "buttonTitle": "Elementsynlighet — visa/dölj och dämpa anteckningstyper",

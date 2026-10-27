@@ -208,7 +208,17 @@
     "rotateViewLeft": "보기 왼쪽으로 회전",
     "rotateViewRight": "보기 오른쪽으로 회전",
     "rotateViewLeftTitle": "보기를 시계 반대 방향으로 90° 회전합니다. 문서 자체는 변경되지 않습니다.",
-    "rotateViewRightTitle": "보기를 시계 방향으로 90° 회전합니다. 문서 자체는 변경되지 않습니다."
+    "rotateViewRightTitle": "보기를 시계 방향으로 90° 회전합니다. 문서 자체는 변경되지 않습니다.",
+    "splitGroup": "분할",
+    "split": "분할",
+    "splitTitle": "같은 문서의 보기를 두 개의 창으로 분할합니다",
+    "splitOptions": "분할 옵션",
+    "splitVertical": "세로 분할",
+    "splitHorizontal": "가로 분할",
+    "unsplit": "분할 해제",
+    "splitSync": "동기화",
+    "splitSyncTitle": "두 창을 함께 스크롤하고 확대/축소합니다",
+    "splitDividerTitle": "드래그하여 창 크기를 조정합니다. 두 번 클릭하면 50/50으로 돌아갑니다."
   },
   "elementVisibility": {
     "buttonTitle": "요소 가시성 — 주석 유형 표시/숨기기 및 흐리게 하기",

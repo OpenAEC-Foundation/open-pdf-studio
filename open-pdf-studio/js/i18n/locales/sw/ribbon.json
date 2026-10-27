@@ -208,7 +208,17 @@
     "rotateViewLeft": "Zungusha Mwonekano Kushoto",
     "rotateViewRight": "Zungusha Mwonekano Kulia",
     "rotateViewLeftTitle": "Huzungusha mwonekano 90° kinyume cha mwendo wa saa. Hati yenyewe haibadiliki.",
-    "rotateViewRightTitle": "Huzungusha mwonekano 90° kwa mwendo wa saa. Hati yenyewe haibadiliki."
+    "rotateViewRightTitle": "Huzungusha mwonekano 90° kwa mwendo wa saa. Hati yenyewe haibadiliki.",
+    "splitGroup": "Gawanya",
+    "split": "Gawanya",
+    "splitTitle": "Gawanya mwonekano kuwa vidirisha viwili vya hati ileile",
+    "splitOptions": "Chaguo za kugawanya",
+    "splitVertical": "Gawanya Wima",
+    "splitHorizontal": "Gawanya Mlalo",
+    "unsplit": "Ondoa Mgawanyo",
+    "splitSync": "Sawazisha",
+    "splitSyncTitle": "Sogeza na kuza vidirisha vyote viwili pamoja",
+    "splitDividerTitle": "Buruta ili kubadilisha ukubwa wa vidirisha. Bofya mara mbili kurudi 50/50."
   },
   "elementVisibility": {
     "buttonTitle": "Uonekanaji wa Vipengele — onyesha/ficha na fifisha aina za maelezo",

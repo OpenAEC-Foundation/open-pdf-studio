@@ -75,6 +75,7 @@ import {
 import { viewportGeometrie, rectNaarPagina } from '../pdf/weergave-rotatie.js';
 import { paginaMaat, paginaNaarWeergave, weergaveTransform, weergaveRectNaarPagina, zetRechtopRond } from '../pdf/weergave-ruimte.js';
 import { schaalgebiedStijl } from './scale-region-style.js';
+import { meld as meldSplit } from '../pdf/split-view/split-haken.js';
 
 // Re-export everything that external code needs
 export { drawPolygonShape, drawCloudShape, buildPolygonPath, buildCloudPath } from './rendering/shapes.js';
@@ -3267,6 +3268,9 @@ export function redrawAnnotations(lightweight = false) {
     // Show/hide contextual ribbon tabs based on selection
     updateContextualTabs();
   }
+
+  // Gesplitste weergave (#715): het andere paneel tekent de wijziging mee.
+  meldSplit('annotatiesHertekend');
 }
 
 // Render annotations for a specific page (continuous mode)
@@ -3584,4 +3588,7 @@ export function redrawContinuous(lightweight = false) {
     // Show/hide contextual ribbon tabs based on selection
     updateContextualTabs();
   }
+
+  // Gesplitste weergave (#715): het andere paneel tekent de wijziging mee.
+  meldSplit('annotatiesHertekend');
 }

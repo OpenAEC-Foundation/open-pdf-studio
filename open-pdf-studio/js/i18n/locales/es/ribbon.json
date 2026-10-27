@@ -208,7 +208,17 @@
     "rotateViewLeft": "Girar vista a la izquierda",
     "rotateViewRight": "Girar vista a la derecha",
     "rotateViewLeftTitle": "Gira la vista 90° en sentido antihorario. El documento en sí no cambia.",
-    "rotateViewRightTitle": "Gira la vista 90° en sentido horario. El documento en sí no cambia."
+    "rotateViewRightTitle": "Gira la vista 90° en sentido horario. El documento en sí no cambia.",
+    "splitGroup": "Dividir",
+    "split": "Dividir",
+    "splitTitle": "Divide la vista en dos paneles del mismo documento",
+    "splitOptions": "Opciones de división",
+    "splitVertical": "Dividir verticalmente",
+    "splitHorizontal": "Dividir horizontalmente",
+    "unsplit": "Quitar división",
+    "splitSync": "Sincronizar",
+    "splitSyncTitle": "Desplaza y amplía ambos paneles a la vez",
+    "splitDividerTitle": "Arrastre para cambiar el tamaño de los paneles. Doble clic para volver a 50/50."
   },
   "elementVisibility": {
     "buttonTitle": "Visibilidad de elementos — mostrar/ocultar y atenuar tipos de anotación",

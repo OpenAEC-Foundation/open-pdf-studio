@@ -208,7 +208,17 @@
     "rotateViewLeft": "Rotire vizualizare la stânga",
     "rotateViewRight": "Rotire vizualizare la dreapta",
     "rotateViewLeftTitle": "Rotește vizualizarea cu 90° în sens invers acelor de ceasornic. Documentul în sine nu se modifică.",
-    "rotateViewRightTitle": "Rotește vizualizarea cu 90° în sensul acelor de ceasornic. Documentul în sine nu se modifică."
+    "rotateViewRightTitle": "Rotește vizualizarea cu 90° în sensul acelor de ceasornic. Documentul în sine nu se modifică.",
+    "splitGroup": "Împarte",
+    "split": "Împarte",
+    "splitTitle": "Împarte vizualizarea în două panouri cu același document",
+    "splitOptions": "Opțiuni de împărțire",
+    "splitVertical": "Împarte vertical",
+    "splitHorizontal": "Împarte orizontal",
+    "unsplit": "Anulează împărțirea",
+    "splitSync": "Sincronizează",
+    "splitSyncTitle": "Derulează și mărește ambele panouri împreună",
+    "splitDividerTitle": "Trageți pentru a redimensiona panourile. Dublu clic pentru a reveni la 50/50."
   },
   "elementVisibility": {
     "buttonTitle": "Vizibilitatea elementelor — afișare/ascundere și estompare tipuri de adnotări",

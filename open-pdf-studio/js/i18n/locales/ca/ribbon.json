@@ -208,7 +208,17 @@
     "rotateViewLeft": "Gira la vista a l'esquerra",
     "rotateViewRight": "Gira la vista a la dreta",
     "rotateViewLeftTitle": "Gira la vista 90° en sentit antihorari. El document no canvia.",
-    "rotateViewRightTitle": "Gira la vista 90° en sentit horari. El document no canvia."
+    "rotateViewRightTitle": "Gira la vista 90° en sentit horari. El document no canvia.",
+    "splitGroup": "Divideix",
+    "split": "Divideix",
+    "splitTitle": "Divideix la vista en dues subfinestres del mateix document",
+    "splitOptions": "Opcions de divisió",
+    "splitVertical": "Divisió vertical",
+    "splitHorizontal": "Divisió horitzontal",
+    "unsplit": "Desfés la divisió",
+    "splitSync": "Sincronitza",
+    "splitSyncTitle": "Desplaça i amplia les dues subfinestres alhora",
+    "splitDividerTitle": "Arrossegueu per canviar la mida de les subfinestres. Feu doble clic per tornar al 50/50."
   },
   "elementVisibility": {
     "buttonTitle": "Visibilitat d'elements — mostra/amaga i atenua els tipus d'anotació",

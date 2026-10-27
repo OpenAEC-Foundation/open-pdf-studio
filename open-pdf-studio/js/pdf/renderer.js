@@ -1,3 +1,4 @@
+import { meld as meldSplit } from './split-view/split-haken.js';
 import { cssPxPerPtAt100, nextScaleStep } from '../core/zoom-display.js';
 import { state, getActiveDocument, getPageRotation, setPageRotation } from '../core/state.js';
 import { isTauri, isMobile, heeftRustRenderer, invoke } from '../core/platform.js';
@@ -260,6 +261,9 @@ export async function renderPage(pageNum) {
     if (typeof window !== 'undefined') {
       window.__pdfRenderInFlight = Math.max(0, (window.__pdfRenderInFlight || 1) - 1);
     }
+    // Gesplitste weergave (#715): paginarotatie, -bewerking of weergavewissel
+    // in de live viewer; het andere paneel tekent zich bij.
+    meldSplit('weergaveGerenderd');
   }
 }
 
@@ -1902,6 +1906,7 @@ export async function renderContinuous(forceRebuild) {
       }
     })();
   }
+  meldSplit('weergaveGerenderd');
 }
 
 // Setup pointer events for continuous mode pages
@@ -2011,7 +2016,7 @@ export async function setViewMode(mode) {
     // (scrollTop/scrollIntoView/_continuousRezoom). Zonder deze reset blijft
     // de inline `hidden` staan na één single-render en kan de gebruiker niet
     // meer scrollen — alleen de eerste pagina('s) zijn zichtbaar. Terug naar
-    // '' laat de CSS-regel (.main-view > #pdf-container.visible { overflow:auto })
+    // '' laat de CSS-regel (.main-view #pdf-container.visible { overflow:auto })
     // het weer overnemen.
     if (pdfContainer) pdfContainer.style.overflow = '';
     await renderContinuous();

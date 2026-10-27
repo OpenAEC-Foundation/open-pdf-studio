@@ -29,6 +29,10 @@ import './pdf/pdf-lib-snelheid.js';
 // Polyfills voor oudere Android-WebViews (#596): vóór PDF.js en de rest van
 // de app (pdf-lib hierboven heeft ze niet nodig).
 import './core/oude-webview-start.js';
+// Gesplitste weergave (#715): vroeg, zodat zijn capture-luisteraar op window
+// vóór die van de gereedschappen staat (die pas bij hun init komen); zie
+// split-haken.js. Zonder afhankelijkheden.
+import './pdf/split-view/split-haken.js';
 import { state } from './core/state.js';
 import { loadPreferences, savePreferences } from './core/preferences.js';
 import { initDomElements } from './ui/dom-elements.js';

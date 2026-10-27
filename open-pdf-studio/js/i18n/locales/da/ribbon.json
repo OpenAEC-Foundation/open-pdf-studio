@@ -208,7 +208,17 @@
     "rotateViewLeft": "Roter visning til venstre",
     "rotateViewRight": "Roter visning til højre",
     "rotateViewLeftTitle": "Roterer visningen 90° mod uret. Selve dokumentet ændres ikke.",
-    "rotateViewRightTitle": "Roterer visningen 90° med uret. Selve dokumentet ændres ikke."
+    "rotateViewRightTitle": "Roterer visningen 90° med uret. Selve dokumentet ændres ikke.",
+    "splitGroup": "Opdel",
+    "split": "Opdel",
+    "splitTitle": "Opdel visningen i to ruder med det samme dokument",
+    "splitOptions": "Indstillinger for opdeling",
+    "splitVertical": "Opdel lodret",
+    "splitHorizontal": "Opdel vandret",
+    "unsplit": "Fjern opdeling",
+    "splitSync": "Synkroniser",
+    "splitSyncTitle": "Rul og zoom begge ruder sammen",
+    "splitDividerTitle": "Træk for at ændre rudernes størrelse. Dobbeltklik for at nulstille til 50/50."
   },
   "elementVisibility": {
     "buttonTitle": "Elementsynlighed — vis/skjul og dæmp annotationstyper",

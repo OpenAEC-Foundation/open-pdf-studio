@@ -3,6 +3,7 @@ import AdaptiveGroups from './AdaptiveGroups.jsx';
 import RibbonButton from './RibbonButton.jsx';
 import RibbonButtonStack from './RibbonButtonStack.jsx';
 import ThemePicker from './ThemePicker.jsx';
+import SplitButton from './SplitButton.jsx';
 import { singlePageIcon, continuousIcon, bookViewIcon, facingPagesIcon, navigationIcon, propertiesIcon, annotationsListIcon, toolPaletteIcon, fullscreenIcon, fullscreenExitIcon, elementVisibilityIcon, annotationLayersIcon, rotateLeftIcon, rotateRightIcon } from '../../data/ribbonIcons.js';
 import { isFullscreen } from '../../stores/ribbonStore.js';
 import { toggleFullscreen } from '../../../ui/chrome/fullscreen.js';
@@ -23,7 +24,8 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 import { openDialog, showMessage } from '../../stores/dialogStore.js';
 import { readerTrackingPath } from '../../../core/reader-mode-tracking.js';
 import { setReaderTracking } from '../../../pdf/reader-mode-view.js';
-import { compareActive, exitCompare } from '../../../compare/compare-store.js';
+import { compareActive, compareFocused, exitCompare } from '../../../compare/compare-store.js';
+import { splitsWeergave, hefSplitsingOp, zetSplitSync } from '../../../pdf/split-view/split-view.js';
 
 export default function ViewTab() {
   const { t } = useTranslation('ribbon');
@@ -33,6 +35,12 @@ export default function ViewTab() {
   // en niet ongedaan te maken. Pagina's echt draaien (opgeslagen, ongedaan
   // te maken) staat op het tabblad Bewerken & combineren.
   const rotateView = (delta) => draaiWeergave(delta);
+
+  // Gesplitste weergave (#715): per document, staat op doc.splitView.
+  const splitView = () => state.documents[state.activeDocumentIndex]?.splitView || null;
+  const splitDisabled = () => noPdf() || compareFocused();
+  const splitVerticalIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16"/><line x1="12" y1="4" x2="12" y2="20"/></svg>`;
+  const splitSyncIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="8" height="14"/><rect x="14" y="5" width="8" height="14"/><path d="M6 9v6M18 9v6M4.5 13.5L6 15l1.5-1.5M16.5 13.5L18 15l1.5-1.5"/></svg>`;
 
   return (
     <div class="ribbon-content active" id="tab-view">
@@ -66,6 +74,41 @@ export default function ViewTab() {
             <RibbonButton size="small" id="view-rotate-right" title={t('view.rotateViewRightTitle')} icon={rotateRightIcon} label={t('view.rotateViewRight')}
               disabled={noPdf()} onClick={() => rotateView(90)} />
           </RibbonButtonStack>
+        </RibbonGroup>
+
+        <RibbonGroup label={t('view.splitGroup')}>
+          <SplitButton
+            id="split-view-btn"
+            mainIcon={splitVerticalIcon}
+            mainLabel={t('view.split')}
+            mainTitle={t('view.splitTitle')}
+            dropdownTitle={t('view.splitOptions')}
+            disabled={splitDisabled()}
+            onMainClick={() => { if (splitView()) hefSplitsingOp(); else splitsWeergave('vertical'); }}
+          >
+            <button class="ribbon-split-btn-menu-item" id="split-menu-vertical"
+              classList={{ active: splitView()?.richting === 'vertical' }}
+              onClick={() => splitsWeergave('vertical')}>
+              <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="14" height="14"><rect x="3" y="4" width="18" height="16"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+              {t('view.splitVertical')}
+            </button>
+            <button class="ribbon-split-btn-menu-item" id="split-menu-horizontal"
+              classList={{ active: splitView()?.richting === 'horizontal' }}
+              onClick={() => splitsWeergave('horizontal')}>
+              <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="14" height="14"><rect x="3" y="4" width="18" height="16"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
+              {t('view.splitHorizontal')}
+            </button>
+            <button class="ribbon-split-btn-menu-item" id="split-menu-unsplit"
+              disabled={!splitView()}
+              onClick={() => hefSplitsingOp()}>
+              <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="14" height="14"><rect x="3" y="4" width="18" height="16"/></svg>
+              {t('view.unsplit')}
+            </button>
+          </SplitButton>
+          <RibbonButton id="split-view-sync" title={t('view.splitSyncTitle')} icon={splitSyncIcon} label={t('view.splitSync')}
+            disabled={splitDisabled() || !splitView()}
+            active={!!splitView()?.sync}
+            onClick={() => zetSplitSync(!splitView()?.sync)} />
         </RibbonGroup>
 
         <RibbonGroup label={t('view.display') || 'Display'}>

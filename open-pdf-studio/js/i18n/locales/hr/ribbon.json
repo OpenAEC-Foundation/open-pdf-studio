@@ -208,7 +208,17 @@
     "rotateViewLeft": "Rotiraj prikaz lijevo",
     "rotateViewRight": "Rotiraj prikaz desno",
     "rotateViewLeftTitle": "Zakreće prikaz za 90° suprotno od smjera kazaljke na satu. Sam dokument se ne mijenja.",
-    "rotateViewRightTitle": "Zakreće prikaz za 90° u smjeru kazaljke na satu. Sam dokument se ne mijenja."
+    "rotateViewRightTitle": "Zakreće prikaz za 90° u smjeru kazaljke na satu. Sam dokument se ne mijenja.",
+    "splitGroup": "Podijeli",
+    "split": "Podijeli",
+    "splitTitle": "Podijeli prikaz u dva okna s istim dokumentom",
+    "splitOptions": "Mogućnosti podjele",
+    "splitVertical": "Podijeli okomito",
+    "splitHorizontal": "Podijeli vodoravno",
+    "unsplit": "Ukloni podjelu",
+    "splitSync": "Sinkroniziraj",
+    "splitSyncTitle": "Pomiči i zumiraj oba okna zajedno",
+    "splitDividerTitle": "Povucite za promjenu veličine okana. Dvostruki klik vraća na 50/50."
   },
   "elementVisibility": {
     "buttonTitle": "Vidljivost elemenata — prikaži/sakrij i zatamni vrste oznaka",

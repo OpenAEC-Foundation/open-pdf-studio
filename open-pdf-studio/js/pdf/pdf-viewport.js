@@ -736,6 +736,46 @@ export function clearAnchor() { _anchorActive = false; _strictAnchor = false; }
 let _fitWacht = false;
 export function markAnchored() { _anchorActive = true; }
 
+// ── Gesplitste weergave (#715) ─────────────────────────────────────────────
+// De viewport is één singleton: alleen het actieve paneel heeft hem. Bij het
+// wisselen van paneel bewaart de regelaar (split-view/split-view.js) de stand
+// van het vertrekkende paneel en zet hij die van het aankomende terug.
+
+/** De ankervlaggen: heeft de gebruiker zelf gezoomd/gepand? */
+export function leesAnkers() {
+  return { verankerd: _anchorActive, strikt: _strictAnchor };
+}
+
+/** CSS-maat van het viewportcanvas. */
+export function viewportCanvasMaat() {
+  const dpr = _getDpr();
+  return { cssW: _canvas ? _canvas.width / dpr : 0, cssH: _canvas ? _canvas.height / dpr : 0 };
+}
+
+/** Maak het canvas meteen even groot als #pdf-container (na een lay-outwissel). */
+export function pasViewportMaatAan() {
+  _resizeCanvas();
+}
+
+/**
+ * Zet zoom, verschuiving en ankervlaggen van een bewaarde paneelstand terug
+ * (dezelfde pagina staat dan al in de viewport via setPage).
+ */
+export function zetViewportStand({ zoom, offsetX, offsetY, verankerd = true, strikt = false }) {
+  if (!(zoom > 0)) return;
+  if (_zoomFreezeTimer) clearTimeout(_zoomFreezeTimer);
+  _zoomFreezeTimer = null;
+  _zoomFreezeBitmap = null;
+  stopPanMomentum();
+  viewport.zoom = zoom;
+  viewport.offsetX = offsetX;
+  viewport.offsetY = offsetY;
+  _anchorActive = !!verankerd;
+  _strictAnchor = !!strikt;
+  viewport.dirty = true;
+  _kickOrchestratorAfterZoom();
+}
+
 // Eén render: tekenen en daarna de volgers (scrollbalken) bijwerken. Ook na
 // een vroege terugkeer (geen pagina, zoom-snapshot) of als het tekenen faalt:
 // zoom en verschuiving kunnen dan toch veranderd zijn. De fout zelf gaat

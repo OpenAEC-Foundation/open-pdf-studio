@@ -208,7 +208,17 @@
     "rotateViewLeft": "Putar Paparan ke Kiri",
     "rotateViewRight": "Putar Paparan ke Kanan",
     "rotateViewLeftTitle": "Memutar paparan 90° lawan arah jam. Dokumen itu sendiri tidak berubah.",
-    "rotateViewRightTitle": "Memutar paparan 90° ikut arah jam. Dokumen itu sendiri tidak berubah."
+    "rotateViewRightTitle": "Memutar paparan 90° ikut arah jam. Dokumen itu sendiri tidak berubah.",
+    "splitGroup": "Pisah",
+    "split": "Pisah",
+    "splitTitle": "Pisahkan paparan kepada dua anak tetingkap bagi dokumen yang sama",
+    "splitOptions": "Pilihan pisah",
+    "splitVertical": "Pisah Menegak",
+    "splitHorizontal": "Pisah Mendatar",
+    "unsplit": "Nyahpisah",
+    "splitSync": "Segerak",
+    "splitSyncTitle": "Tatal dan zum kedua-dua anak tetingkap bersama",
+    "splitDividerTitle": "Seret untuk mengubah saiz anak tetingkap. Dwiklik untuk kembali ke 50/50."
   },
   "elementVisibility": {
     "buttonTitle": "Keterlihatan Elemen — tunjuk/sembunyi dan malapkan jenis anotasi",

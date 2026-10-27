@@ -208,7 +208,17 @@
     "rotateViewLeft": "Nézet forgatása balra",
     "rotateViewRight": "Nézet forgatása jobbra",
     "rotateViewLeftTitle": "Az óramutató járásával ellentétesen 90°-kal elforgatja a nézetet. Maga a dokumentum nem változik.",
-    "rotateViewRightTitle": "Az óramutató járásával megegyezően 90°-kal elforgatja a nézetet. Maga a dokumentum nem változik."
+    "rotateViewRightTitle": "Az óramutató járásával megegyezően 90°-kal elforgatja a nézetet. Maga a dokumentum nem változik.",
+    "splitGroup": "Felosztás",
+    "split": "Felosztás",
+    "splitTitle": "A nézet felosztása két ablaktáblára ugyanazzal a dokumentummal",
+    "splitOptions": "Felosztási beállítások",
+    "splitVertical": "Függőleges felosztás",
+    "splitHorizontal": "Vízszintes felosztás",
+    "unsplit": "Felosztás megszüntetése",
+    "splitSync": "Szinkronizálás",
+    "splitSyncTitle": "A két ablaktábla együtt görgetése és nagyítása",
+    "splitDividerTitle": "Húzással átméretezheti az ablaktáblákat. Dupla kattintással visszaáll 50/50-re."
   },
   "elementVisibility": {
     "buttonTitle": "Elemek láthatósága — annotációtípusok megjelenítése/elrejtése és halványítása",
