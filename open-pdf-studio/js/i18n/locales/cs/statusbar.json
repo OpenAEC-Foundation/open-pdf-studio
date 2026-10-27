@@ -148,5 +148,7 @@
     "title": "Přejít na další nález vykreslování. Žádné nálezy nezaručují úplné vykreslení.",
     "count": "Nálezy vykreslování: {{count}}",
     "detail": "Strana {{page}}: {{code}}. Zkuste menší přiblížení nebo dokument znovu otevřete; úplnost není zaručena."
-  }
+  },
+  "pdfaReadOnly": "Tento dokument odpovídá standardu {{label}} a byl otevřen pouze pro čtení, aby se zabránilo jeho úpravě.",
+  "pdfaValidate": "Ověřit"
 }

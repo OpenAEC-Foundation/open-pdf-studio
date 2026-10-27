@@ -148,5 +148,7 @@
     "title": "Prejsť na ďalšie zistenie vykresľovania. Žiadne zistenia nezaručujú úplné vykreslenie.",
     "count": "Zistenia vykresľovania: {{count}}",
     "detail": "Strana {{page}}: {{code}}. Skúste menšie priblíženie alebo dokument znova otvorte; úplnosť nie je zaručená."
-  }
+  },
+  "pdfaReadOnly": "Tento dokument zodpovedá štandardu {{label}} a bol otvorený iba na čítanie, aby sa zabránilo jeho úprave.",
+  "pdfaValidate": "Overiť"
 }

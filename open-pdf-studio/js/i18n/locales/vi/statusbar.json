@@ -148,5 +148,7 @@
     "title": "Đi tới thông báo hiển thị tiếp theo. Không có thông báo không đảm bảo hiển thị đầy đủ.",
     "count": "Thông báo hiển thị: {{count}}",
     "detail": "Trang {{page}}: {{code}}. Hãy thử thu phóng nhỏ hơn hoặc mở lại tài liệu; không đảm bảo tính đầy đủ."
-  }
+  },
+  "pdfaReadOnly": "Tài liệu này tuân thủ tiêu chuẩn {{label}} và đã được mở ở chế độ chỉ đọc để tránh sửa đổi.",
+  "pdfaValidate": "Xác thực"
 }

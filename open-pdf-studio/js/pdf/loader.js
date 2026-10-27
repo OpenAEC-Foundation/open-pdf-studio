@@ -164,8 +164,7 @@ function showPdfABar(part, conformance, doc) {
   // kan daar niet.
   if (isBeveiligdDocument(doc)) return;
   const label = `PDF/A-${part}${conformance ? conformance.toLowerCase() : ''}`;
-  const text = `This document complies with the ${label} standard and has been opened read-only to prevent modification.`;
-  import('../solid/stores/pdfaBarStore.js').then(m => m.showPdfABar(text));
+  import('../solid/stores/pdfaBarStore.js').then(m => m.showPdfABar(label));
 
   // Disable annotation tool buttons
   import('../tools/manager.js').then(m => m.updatePdfAToolState());
@@ -175,9 +174,17 @@ export function hidePdfABar() {
   import('../solid/stores/pdfaBarStore.js').then(m => m.hidePdfABar());
 }
 
-export function dismissPdfAForActiveDoc() {
+/**
+ * Bewerken inschakelen in een PDF/A-document. `opslaan` is de keuze uit de
+ * waarschuwing (#379): 'herconverteer' maakt bij opslaan weer PDF/A,
+ * 'verwijder' slaat op als gewone PDF.
+ */
+export function dismissPdfAForActiveDoc(opslaan = 'herconverteer') {
   const activeDoc = state.documents[state.activeDocumentIndex];
-  if (activeDoc) activeDoc.pdfADismissed = true;
+  if (activeDoc) {
+    activeDoc.pdfADismissed = true;
+    activeDoc.pdfaOpslaan = opslaan === 'verwijder' ? 'verwijder' : 'herconverteer';
+  }
   hidePdfABar();
   import('../tools/manager.js').then(m => m.updatePdfAToolState());
 }

@@ -148,5 +148,7 @@
     "title": "Siirry seuraavaan piirtohavaintoon. Havaintojen puuttuminen ei takaa täydellistä piirtoa.",
     "count": "Piirtohavainnot: {{count}}",
     "detail": "Sivu {{page}}: {{code}}. Kokeile pienempää zoomausta tai avaa asiakirja uudelleen; täydellisyyttä ei taata."
-  }
+  },
+  "pdfaReadOnly": "Tämä asiakirja noudattaa {{label}}-standardia ja on avattu vain luku -tilassa muutosten estämiseksi.",
+  "pdfaValidate": "Validoi"
 }

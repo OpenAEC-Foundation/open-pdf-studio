@@ -223,5 +223,6 @@
   "workflows": "Dokumentarbeidsflyter",
   "drawingSets": "Tegningssett",
   "sheetLinks": "Lenker mellom tegninger",
-  "approvalRouting": "Godkjenningsflyt"
+  "approvalRouting": "Godkjenningsflyt",
+  "pdfa": "PDF/A..."
 }

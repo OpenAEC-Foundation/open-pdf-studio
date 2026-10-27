@@ -223,5 +223,6 @@
   "workflows": "文档工作流",
   "drawingSets": "图纸集",
   "sheetLinks": "跨图纸链接",
-  "approvalRouting": "审批流转"
+  "approvalRouting": "审批流转",
+  "pdfa": "PDF/A..."
 }

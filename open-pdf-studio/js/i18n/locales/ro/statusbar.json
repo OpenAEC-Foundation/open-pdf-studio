@@ -148,5 +148,7 @@
     "title": "Mergi la următoarea constatare de randare. Lipsa constatărilor nu garantează o randare completă.",
     "count": "Constatări de randare: {{count}}",
     "detail": "Pagina {{page}}: {{code}}. Încercați un zoom mai mic sau redeschideți documentul; completitudinea nu este garantată."
-  }
+  },
+  "pdfaReadOnly": "Acest document respectă standardul {{label}} și a fost deschis numai pentru citire pentru a preveni modificarea.",
+  "pdfaValidate": "Validare"
 }

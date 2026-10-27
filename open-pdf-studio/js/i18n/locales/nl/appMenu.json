@@ -223,5 +223,6 @@
   "workflows": "Documentworkflows",
   "drawingSets": "Tekeningsets",
   "sheetLinks": "Verwijzingen tussen bladen",
-  "approvalRouting": "Goedkeuringsroutes"
+  "approvalRouting": "Goedkeuringsroutes",
+  "pdfa": "PDF/A..."
 }

@@ -223,5 +223,6 @@
   "workflows": "Pracovní postupy dokumentů",
   "drawingSets": "Sady výkresů",
   "sheetLinks": "Odkazy mezi výkresy",
-  "approvalRouting": "Schvalovací oběh"
+  "approvalRouting": "Schvalovací oběh",
+  "pdfa": "PDF/A..."
 }

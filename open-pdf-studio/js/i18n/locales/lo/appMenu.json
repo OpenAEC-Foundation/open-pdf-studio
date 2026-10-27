@@ -223,5 +223,6 @@
   "workflows": "ຂັ້ນຕອນວຽກເອກະສານ",
   "drawingSets": "ຊຸດແບບແຕ້ມ",
   "sheetLinks": "ລິ້ງຄ໌ລະຫວ່າງແຜ່ນແບບ",
-  "approvalRouting": "ການສົ່ງຕໍ່ເພື່ອອະນຸມັດ"
+  "approvalRouting": "ການສົ່ງຕໍ່ເພື່ອອະນຸມັດ",
+  "pdfa": "PDF/A..."
 }

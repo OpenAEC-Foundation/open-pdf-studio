@@ -148,5 +148,7 @@
     "title": "Idi na sljedeći nalaz iscrtavanja. Bez nalaza ne jamči potpuno iscrtavanje.",
     "count": "Nalazi iscrtavanja: {{count}}",
     "detail": "Stranica {{page}}: {{code}}. Pokušajte manje uvećanje ili ponovno otvorite dokument; potpunost nije zajamčena."
-  }
+  },
+  "pdfaReadOnly": "Ovaj dokument zadovoljava standard {{label}} i otvoren je samo za čitanje kako bi se spriječila njegova izmjena.",
+  "pdfaValidate": "Provjeri"
 }

@@ -223,5 +223,6 @@
   "workflows": "Aliran kerja dokumen",
   "drawingSets": "Set lukisan",
   "sheetLinks": "Pautan antara helaian",
-  "approvalRouting": "Penghalaan kelulusan"
+  "approvalRouting": "Penghalaan kelulusan",
+  "pdfa": "PDF/A..."
 }

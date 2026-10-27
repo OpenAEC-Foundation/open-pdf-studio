@@ -148,5 +148,7 @@
     "title": "Zum nächsten Darstellungshinweis wechseln. Keine Hinweise garantieren keine vollständige Darstellung.",
     "count": "Darstellungshinweise: {{count}}",
     "detail": "Seite {{page}}: {{code}}. Versuchen Sie einen kleineren Zoom oder öffnen Sie das Dokument erneut; die Vollständigkeit ist nicht garantiert."
-  }
+  },
+  "pdfaReadOnly": "Dieses Dokument entspricht dem Standard {{label}} und wurde schreibgeschützt geöffnet, um Änderungen zu verhindern.",
+  "pdfaValidate": "Validieren"
 }

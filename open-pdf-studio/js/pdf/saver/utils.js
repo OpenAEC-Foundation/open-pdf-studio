@@ -263,7 +263,8 @@ export function ensureAcroFormFonts(pdfDoc, context, usedFonts) {
 }
 
 // Strip PDF/A conformance from XMP metadata so the saved file
-// is not falsely reported as PDF/A after modifications.
+// is not falsely reported as PDF/A after modifications. A document the user
+// chose to keep as PDF/A is converted again afterwards (pdf/pdfa/, #379).
 export function stripPdfAMetadata(pdfDocLib) {
   try {
     const catalog = pdfDocLib.catalog;
@@ -271,20 +272,26 @@ export function stripPdfAMetadata(pdfDocLib) {
     if (!metadataRef) return;
 
     const metadataObj = pdfDocLib.context.lookup(metadataRef);
-    if (!metadataObj || typeof metadataObj.getContents !== 'function') return;
+    if (!(metadataObj instanceof PDFRawStream) && typeof metadataObj?.getContents !== 'function') return;
 
-    const xmlBytes = metadataObj.getContents();
+    // Decoded bytes: the stream may be compressed.
+    const xmlBytes = metadataObj instanceof PDFRawStream
+      ? decodePDFRawStream(metadataObj).decode()
+      : metadataObj.getContents();
     let xml = new TextDecoder().decode(xmlBytes);
 
-    // Remove pdfaid:part and pdfaid:conformance elements
+    // Remove pdfaid:part and pdfaid:conformance elements (and attribute form)
     xml = xml.replace(/<pdfaid:part>[^<]*<\/pdfaid:part>/g, '');
     xml = xml.replace(/<pdfaid:conformance>[^<]*<\/pdfaid:conformance>/g, '');
+    xml = xml.replace(/\s(pdfaid:(?:part|conformance|amd|rev))\s*=\s*(["'])[^"']*\2/g, '');
 
     // Remove empty pdfaid Description blocks left behind
     xml = xml.replace(/<rdf:Description[^>]*xmlns:pdfaid[^>]*>\s*<\/rdf:Description>/g, '');
 
-    const newBytes = new TextEncoder().encode(xml);
-    metadataObj.setContents(newBytes);
+    // A new stream: pdf-lib streams cannot change their contents in place.
+    const stream = pdfDocLib.context.stream(new TextEncoder().encode(xml), { Type: 'Metadata', Subtype: 'XML' });
+    if (metadataRef instanceof PDFRef) pdfDocLib.context.assign(metadataRef, stream);
+    else catalog.set(PDFName.of('Metadata'), pdfDocLib.context.register(stream));
   } catch (e) {
     console.warn('Failed to strip PDF/A metadata:', e);
   }

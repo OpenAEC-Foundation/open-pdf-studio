@@ -223,5 +223,6 @@
   "workflows": "گردش‌کارهای سند",
   "drawingSets": "مجموعه‌نقشه‌ها",
   "sheetLinks": "پیوندهای بین برگه‌ها",
-  "approvalRouting": "گردش تأیید"
+  "approvalRouting": "گردش تأیید",
+  "pdfa": "PDF/A..."
 }

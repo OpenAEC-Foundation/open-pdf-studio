@@ -30,6 +30,8 @@ import ProtectPdfDialog from './dialogs/ProtectPdfDialog.jsx';
 import OcrLanguageDialog from './dialogs/OcrLanguageDialog.jsx';
 import ResizePagesDialog from './dialogs/ResizePagesDialog.jsx';
 import CompressDialog from './dialogs/CompressDialog.jsx';
+import PdfAEditDialog from './dialogs/PdfAEditDialog.jsx';
+const PdfADialog = lazy(() => import('./dialogs/PdfADialog.jsx'));
 import ScreenshotDialog from './dialogs/ScreenshotDialog.jsx';
 import FeedbackDialog from './dialogs/FeedbackDialog.jsx';
 import MessageDialog from './dialogs/MessageDialog.jsx';
@@ -124,6 +126,8 @@ const DIALOG_MAP = {
   'ocr-review': OcrReviewDialog,
   'resize-pages': ResizePagesDialog,
   'compress': CompressDialog,
+  'pdfa': PdfADialog,
+  'pdfa-edit': PdfAEditDialog,
   'screenshot': ScreenshotDialog,
   'feedback': FeedbackDialog,
   'message': MessageDialog,

@@ -148,5 +148,7 @@
     "title": "Ves a la següent incidència de renderització. No tenir incidències no garanteix una renderització completa.",
     "count": "Incidències de renderització: {{count}}",
     "detail": "Pàgina {{page}}: {{code}}. Proveu un zoom més baix o torneu a obrir el document; la completesa no està garantida."
-  }
+  },
+  "pdfaReadOnly": "Aquest document compleix l'estàndard {{label}} i s'ha obert només de lectura per evitar modificacions.",
+  "pdfaValidate": "Valida"
 }

@@ -148,5 +148,7 @@
     "title": "Ugrás a következő megjelenítési észrevételre. Az észrevételek hiánya nem garantálja a teljes megjelenítést.",
     "count": "Megjelenítési észrevételek: {{count}}",
     "detail": "{{page}}. oldal: {{code}}. Próbáljon kisebb nagyítást, vagy nyissa meg újra a dokumentumot; a teljesség nem garantált."
-  }
+  },
+  "pdfaReadOnly": "Ez a dokumentum megfelel a(z) {{label}} szabványnak, és írásvédetten lett megnyitva a módosítás megakadályozása érdekében.",
+  "pdfaValidate": "Ellenőrzés"
 }

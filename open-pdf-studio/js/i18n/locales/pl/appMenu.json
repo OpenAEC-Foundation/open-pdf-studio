@@ -223,5 +223,6 @@
   "workflows": "Przepływy pracy dokumentów",
   "drawingSets": "Zestawy rysunków",
   "sheetLinks": "Łącza między arkuszami",
-  "approvalRouting": "Obieg zatwierdzania"
+  "approvalRouting": "Obieg zatwierdzania",
+  "pdfa": "PDF/A..."
 }

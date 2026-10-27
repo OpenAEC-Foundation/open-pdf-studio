@@ -148,5 +148,7 @@
     "title": "Przejdź do następnego zgłoszenia renderowania. Brak zgłoszeń nie gwarantuje pełnego renderowania.",
     "count": "Zgłoszenia renderowania: {{count}}",
     "detail": "Strona {{page}}: {{code}}. Spróbuj mniejszego powiększenia lub otwórz dokument ponownie; kompletność nie jest gwarantowana."
-  }
+  },
+  "pdfaReadOnly": "Ten dokument jest zgodny ze standardem {{label}} i został otwarty tylko do odczytu, aby zapobiec jego modyfikacji.",
+  "pdfaValidate": "Waliduj"
 }

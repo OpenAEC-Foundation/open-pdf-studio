@@ -148,5 +148,7 @@
     "title": "Buka temuan render berikutnya. Tidak adanya temuan tidak menjamin render yang lengkap.",
     "count": "Temuan render: {{count}}",
     "detail": "Halaman {{page}}: {{code}}. Coba zoom yang lebih kecil atau buka ulang dokumen; kelengkapan tidak dijamin."
-  }
+  },
+  "pdfaReadOnly": "Dokumen ini mematuhi standar {{label}} dan telah dibuka dalam mode baca saja untuk mencegah modifikasi.",
+  "pdfaValidate": "Validasi"
 }

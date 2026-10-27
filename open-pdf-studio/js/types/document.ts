@@ -121,6 +121,8 @@ export interface DocumentState {
   pageDims?: Record<number, { widthPt: number; heightPt: number; rotation?: number }>;
   pdfaCompliance: string | null;
   pdfADismissed: boolean;
+  /** Keuze bij "Bewerken inschakelen" in een PDF/A-document (#379). */
+  pdfaOpslaan?: 'herconverteer' | 'verwijder' | null;
   /** Met een openingswachtwoord geopend: alleen-lezen, kan niet opgeslagen
    *  worden (js/pdf/wachtwoord-pdf.js). `filePath` is dan de ontsleutelde
    *  werkkopie, `originalFilePath` het bestand van de gebruiker. */
