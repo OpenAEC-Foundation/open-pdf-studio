@@ -250,6 +250,10 @@
     "nextTab": "அடுத்த தாவல்",
     "previousTab": "முந்தைய தாவல்"
   },
+  "pageNav": {
+    "nextPage": "அடுத்த பக்கம்",
+    "previousPage": "முந்தைய பக்கம்"
+  },
   "quickAccess": {
     "exportRaster": "ராஸ்டர் PDF ஆக ஏற்றுமதி செய் (புதிய தாவலில் திறக்கும்)"
   },

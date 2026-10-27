@@ -250,6 +250,10 @@
     "nextTab": "Nästa flik",
     "previousTab": "Föregående flik"
   },
+  "pageNav": {
+    "nextPage": "Nästa sida",
+    "previousPage": "Föregående sida"
+  },
   "quickAccess": {
     "exportRaster": "Exportera som rastrerad PDF (öppnas i en ny flik)"
   },

@@ -250,6 +250,10 @@
     "nextTab": "다음 탭",
     "previousTab": "이전 탭"
   },
+  "pageNav": {
+    "nextPage": "다음 페이지",
+    "previousPage": "이전 페이지"
+  },
   "quickAccess": {
     "exportRaster": "래스터 PDF로 내보내기(새 탭에서 열림)"
   },

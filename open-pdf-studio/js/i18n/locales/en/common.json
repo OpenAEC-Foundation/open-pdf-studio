@@ -251,6 +251,10 @@
     "nextTab": "Next Tab",
     "previousTab": "Previous Tab"
   },
+  "pageNav": {
+    "nextPage": "Next Page",
+    "previousPage": "Previous Page"
+  },
   "quickAccess": {
     "exportRaster": "Export as raster PDF (opens in a new tab)"
   },

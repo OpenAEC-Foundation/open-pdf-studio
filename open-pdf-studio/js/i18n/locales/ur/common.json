@@ -250,6 +250,10 @@
     "nextTab": "اگلا ٹیب",
     "previousTab": "پچھلا ٹیب"
   },
+  "pageNav": {
+    "nextPage": "اگلا صفحہ",
+    "previousPage": "پچھلا صفحہ"
+  },
   "quickAccess": {
     "exportRaster": "راسٹر PDF کے طور پر برآمد کریں (نئے ٹیب میں کھلتا ہے)"
   },

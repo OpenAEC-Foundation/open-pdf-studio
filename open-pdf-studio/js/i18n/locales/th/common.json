@@ -250,6 +250,10 @@
     "nextTab": "แท็บถัดไป",
     "previousTab": "แท็บก่อนหน้า"
   },
+  "pageNav": {
+    "nextPage": "หน้าถัดไป",
+    "previousPage": "หน้าก่อนหน้า"
+  },
   "quickAccess": {
     "exportRaster": "ส่งออกเป็น PDF แบบแรสเตอร์ (เปิดในแท็บใหม่)"
   },

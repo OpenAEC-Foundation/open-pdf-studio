@@ -250,6 +250,10 @@
     "nextTab": "Další karta",
     "previousTab": "Předchozí karta"
   },
+  "pageNav": {
+    "nextPage": "Další stránka",
+    "previousPage": "Předchozí stránka"
+  },
   "quickAccess": {
     "exportRaster": "Exportovat jako rastrové PDF (otevře se na nové kartě)"
   },

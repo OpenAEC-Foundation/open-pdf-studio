@@ -250,6 +250,10 @@
     "nextTab": "Pestanya següent",
     "previousTab": "Pestanya anterior"
   },
+  "pageNav": {
+    "nextPage": "Pàgina següent",
+    "previousPage": "Pàgina anterior"
+  },
   "quickAccess": {
     "exportRaster": "Exporta com a PDF ràster (s'obre en una pestanya nova)"
   },

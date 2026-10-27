@@ -250,6 +250,10 @@
     "nextTab": "Sonraki Sekme",
     "previousTab": "Önceki Sekme"
   },
+  "pageNav": {
+    "nextPage": "Sonraki Sayfa",
+    "previousPage": "Önceki Sayfa"
+  },
   "quickAccess": {
     "exportRaster": "Raster PDF olarak dışa aktar (yeni sekmede açılır)"
   },

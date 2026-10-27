@@ -40,6 +40,9 @@ const SHORTCUT_CATEGORIES = [
       { action: 'Rotate Page Left', keys: ['Ctrl', 'Shift', '-'] },
       { action: 'Thin Lines', keys: ['Ctrl', '5'] },
       { action: 'Find', keys: ['Ctrl', 'F'] },
+      // Bladeren per pagina (#751, #713). Vertaald via common.json (pageNav.*).
+      { actionKey: 'pageNav.nextPage', action: 'Next Page', keys: ['PgDn'] },
+      { actionKey: 'pageNav.previousPage', action: 'Previous Page', keys: ['PgUp'] },
       // Tabblad wisselen (#539). Vertaald via common.json (tabs.*).
       { actionKey: 'tabs.nextTab', action: 'Next Tab', keys: ['Ctrl', 'Tab'] },
       { actionKey: 'tabs.previousTab', action: 'Previous Tab', keys: ['Ctrl', 'Shift', 'Tab'] },

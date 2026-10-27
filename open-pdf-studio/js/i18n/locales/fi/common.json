@@ -250,6 +250,10 @@
     "nextTab": "Seuraava välilehti",
     "previousTab": "Edellinen välilehti"
   },
+  "pageNav": {
+    "nextPage": "Seuraava sivu",
+    "previousPage": "Edellinen sivu"
+  },
   "quickAccess": {
     "exportRaster": "Vie rasteri-PDF:nä (avautuu uuteen välilehteen)"
   },

@@ -250,6 +250,10 @@
     "nextTab": "Tab Berikutnya",
     "previousTab": "Tab Sebelumnya"
   },
+  "pageNav": {
+    "nextPage": "Halaman Berikutnya",
+    "previousPage": "Halaman Sebelumnya"
+  },
   "quickAccess": {
     "exportRaster": "Ekspor sebagai PDF raster (terbuka di tab baru)"
   },

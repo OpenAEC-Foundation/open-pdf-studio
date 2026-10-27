@@ -250,6 +250,10 @@
     "nextTab": "পরবর্তী ট্যাব",
     "previousTab": "পূর্ববর্তী ট্যাব"
   },
+  "pageNav": {
+    "nextPage": "পরবর্তী পৃষ্ঠা",
+    "previousPage": "পূর্ববর্তী পৃষ্ঠা"
+  },
   "quickAccess": {
     "exportRaster": "রাস্টার PDF হিসেবে রপ্তানি করুন (নতুন ট্যাবে খোলে)"
   },

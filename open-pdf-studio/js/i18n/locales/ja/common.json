@@ -250,6 +250,10 @@
     "nextTab": "次のタブ",
     "previousTab": "前のタブ"
   },
+  "pageNav": {
+    "nextPage": "次のページ",
+    "previousPage": "前のページ"
+  },
   "quickAccess": {
     "exportRaster": "ラスター PDF としてエクスポート（新しいタブで開く）"
   },

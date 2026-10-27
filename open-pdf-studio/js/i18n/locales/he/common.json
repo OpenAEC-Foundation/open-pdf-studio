@@ -250,6 +250,10 @@
     "nextTab": "הכרטיסייה הבאה",
     "previousTab": "הכרטיסייה הקודמת"
   },
+  "pageNav": {
+    "nextPage": "עמוד הבא",
+    "previousPage": "עמוד קודם"
+  },
   "quickAccess": {
     "exportRaster": "ייצוא כ-PDF רסטרי (נפתח בלשונית חדשה)"
   },

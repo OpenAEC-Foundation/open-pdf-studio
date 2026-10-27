@@ -250,6 +250,10 @@
     "nextTab": "Næste fane",
     "previousTab": "Forrige fane"
   },
+  "pageNav": {
+    "nextPage": "Næste side",
+    "previousPage": "Forrige side"
+  },
   "quickAccess": {
     "exportRaster": "Eksportér som raster-PDF (åbner i en ny fane)"
   },
