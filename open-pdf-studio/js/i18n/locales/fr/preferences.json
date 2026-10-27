@@ -32,7 +32,10 @@
     "aiLinkActive": "Active sur {{adres}}",
     "aiLinkViaFlag": "Active via l'option de démarrage ({{adres}})",
     "aiLinkOff": "Désactivée",
-    "aiLinkError": "Non démarrée : {{fout}}"
+    "aiLinkError": "Non démarrée : {{fout}}",
+    "saving": "Enregistrement",
+    "incrementalSave": "Enregistrer les modifications d'annotations et de formulaires de manière incrémentielle (expérimental)",
+    "incrementalSaveHint": "Ajoute les modifications à la fin du fichier au lieu de le réécrire. Les versions précédentes restent récupérables à partir du fichier. La rédaction, la suppression d'informations masquées et les autres modifications sont toujours enregistrées par une réécriture complète."
   },
   "annotations": {
     "generalDefaults": "Valeurs par défaut générales",

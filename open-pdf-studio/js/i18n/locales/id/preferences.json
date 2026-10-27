@@ -32,7 +32,10 @@
     "aiLinkActive": "Aktif di {{adres}}",
     "aiLinkViaFlag": "Aktif melalui parameter awal ({{adres}})",
     "aiLinkOff": "Mati",
-    "aiLinkError": "Tidak dimulai: {{fout}}"
+    "aiLinkError": "Tidak dimulai: {{fout}}",
+    "saving": "Penyimpanan",
+    "incrementalSave": "Simpan perubahan anotasi dan formulir secara inkremental (eksperimental)",
+    "incrementalSaveHint": "Menambahkan perubahan ke akhir file alih-alih menulis ulang file. Versi sebelumnya tetap dapat dipulihkan dari file. Redaksi, penghapusan informasi tersembunyi, dan perubahan lain selalu disimpan dengan penulisan ulang penuh."
   },
   "annotations": {
     "generalDefaults": "Bawaan Umum",

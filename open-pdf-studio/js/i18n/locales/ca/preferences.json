@@ -32,7 +32,10 @@
     "aiLinkActive": "Activa a {{adres}}",
     "aiLinkViaFlag": "Activa mitjançant paràmetre d'inici ({{adres}})",
     "aiLinkOff": "Desactivada",
-    "aiLinkError": "No iniciada: {{fout}}"
+    "aiLinkError": "No iniciada: {{fout}}",
+    "saving": "Desament",
+    "incrementalSave": "Desa els canvis d'anotacions i formularis de manera incremental (experimental)",
+    "incrementalSaveHint": "Afegeix els canvis al final del fitxer en lloc de reescriure'l. Les versions anteriors continuen sent recuperables des del fitxer. La redacció, l'eliminació d'informació oculta i altres canvis sempre es desen reescrivint el fitxer sencer."
   },
   "annotations": {
     "generalDefaults": "Valors per defecte generals",

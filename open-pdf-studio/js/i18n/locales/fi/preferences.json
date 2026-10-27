@@ -32,7 +32,10 @@
     "aiLinkActive": "Käytössä osoitteessa {{adres}}",
     "aiLinkViaFlag": "Käytössä käynnistysparametrin kautta ({{adres}})",
     "aiLinkOff": "Pois",
-    "aiLinkError": "Ei käynnistetty: {{fout}}"
+    "aiLinkError": "Ei käynnistetty: {{fout}}",
+    "saving": "Tallennus",
+    "incrementalSave": "Tallenna merkintä- ja lomakemuutokset inkrementaalisesti (kokeellinen)",
+    "incrementalSaveHint": "Lisää muutokset tiedoston loppuun sen sijaan, että tiedosto kirjoitettaisiin uudelleen. Aiemmat versiot ovat edelleen palautettavissa tiedostosta. Peittäminen, piilotettujen tietojen poistaminen ja muut muutokset tallennetaan aina kirjoittamalla tiedosto kokonaan uudelleen."
   },
   "annotations": {
     "generalDefaults": "Yleiset oletukset",

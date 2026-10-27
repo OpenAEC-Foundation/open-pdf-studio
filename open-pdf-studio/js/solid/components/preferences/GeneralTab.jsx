@@ -83,6 +83,17 @@ export default function GeneralTab(props) {
           </label>
         </div>
       </fieldset>
+      {/* Incrementeel opslaan (#679): experimenteel, standaard uit. */}
+      <fieldset class="pref-fieldset">
+        <legend>{t('general.saving')}</legend>
+        <div class="pref-row pref-checkbox-row">
+          <label class="pref-checkbox-label">
+            <input type="checkbox" checked={p.incrementalSave[0]()} onChange={e => p.incrementalSave[1](e.target.checked)} />
+            <span>{t('general.incrementalSave')}</span>
+          </label>
+        </div>
+        <div class="pref-row" style={{ color: '#666', 'font-size': '11px' }}>{t('general.incrementalSaveHint')}</div>
+      </fieldset>
       {/* De MCP-server draait op de Rust-kant; in de webversie is er niets om
           aan of uit te zetten (#456). */}
       <fieldset class="pref-fieldset" id="prefs-mcp" disabled={mcpUit()}

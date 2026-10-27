@@ -32,7 +32,10 @@
     "aiLinkActive": "Active on {{adres}}",
     "aiLinkViaFlag": "Active via command-line flag ({{adres}})",
     "aiLinkOff": "Off",
-    "aiLinkError": "Not started: {{fout}}"
+    "aiLinkError": "Not started: {{fout}}",
+    "saving": "Saving",
+    "incrementalSave": "Save annotation and form changes incrementally (experimental)",
+    "incrementalSaveHint": "Appends the changes to the end of the file instead of rewriting it. Earlier versions remain recoverable from the file. Redaction, removing hidden information and other changes are always saved as a full rewrite."
   },
   "annotations": {
     "generalDefaults": "General Defaults",

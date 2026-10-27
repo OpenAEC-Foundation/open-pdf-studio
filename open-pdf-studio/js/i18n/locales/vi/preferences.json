@@ -32,7 +32,10 @@
     "aiLinkActive": "Đang hoạt động tại {{adres}}",
     "aiLinkViaFlag": "Đang hoạt động qua tham số khởi động ({{adres}})",
     "aiLinkOff": "Tắt",
-    "aiLinkError": "Chưa khởi động: {{fout}}"
+    "aiLinkError": "Chưa khởi động: {{fout}}",
+    "saving": "Lưu",
+    "incrementalSave": "Lưu thay đổi chú thích và biểu mẫu theo kiểu tăng dần (thử nghiệm)",
+    "incrementalSaveHint": "Nối các thay đổi vào cuối tệp thay vì ghi lại toàn bộ tệp. Các phiên bản trước vẫn có thể khôi phục từ tệp. Che thông tin, xóa thông tin ẩn và các thay đổi khác luôn được lưu bằng cách ghi lại toàn bộ."
   },
   "annotations": {
     "generalDefaults": "Mặc định Chung",

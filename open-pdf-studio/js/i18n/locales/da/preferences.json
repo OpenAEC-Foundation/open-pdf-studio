@@ -32,7 +32,10 @@
     "aiLinkActive": "Aktiv på {{adres}}",
     "aiLinkViaFlag": "Aktiv via startparameter ({{adres}})",
     "aiLinkOff": "Fra",
-    "aiLinkError": "Ikke startet: {{fout}}"
+    "aiLinkError": "Ikke startet: {{fout}}",
+    "saving": "Gemning",
+    "incrementalSave": "Gem ændringer af annoteringer og formularer trinvist (eksperimentel)",
+    "incrementalSaveHint": "Tilføjer ændringerne til slutningen af filen i stedet for at omskrive den. Tidligere versioner kan stadig gendannes fra filen. Sværtning, fjernelse af skjulte oplysninger og andre ændringer gemmes altid med en fuld omskrivning."
   },
   "annotations": {
     "generalDefaults": "Generelle standarder",

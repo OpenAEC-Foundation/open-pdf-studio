@@ -250,6 +250,8 @@ export interface Preferences {
   // '' = default, or '#rrggbb' (#859).
   pageBackgroundColor: string;
   progressiveRender: boolean;
+  /** Incrementeel opslaan van annotatie- en formulierwijzigingen (#679), standaard uit. */
+  incrementalSave: boolean;
   screenCalibration: Record<string, number>;
   zoomDpi: number;
   pageSharpen: number;

@@ -337,6 +337,11 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // multi-proces worker-pool: parallelle eerste render (sneller), geen
   // zwart scherm, hoofdthread blijft vrij. Uitzetbaar in Voorkeuren.
   progressiveRender: true,
+  // Incrementeel opslaan (#679): annotatie- en formulierwijzigingen achter de
+  // bestaande bytes toevoegen in plaats van het hele bestand te herschrijven.
+  // Experimenteel en standaard uit (docs/incrementeel-opslaan.md); wat niet
+  // zeker past, wordt altijd volledig herschreven.
+  incrementalSave: false,
   // Schermkalibratie voor Werkelijke grootte (#520): CSS-pixels per inch per
   // schermschaal ({ "1.25": 120.5 }). Gekalibreerd scherm: 100% is de echte
   // papiermaat. Leeg = niet gekalibreerd, dan bepaalt zoomDpi wat 100% is.

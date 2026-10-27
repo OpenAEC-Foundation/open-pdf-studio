@@ -32,7 +32,10 @@
     "aiLinkActive": "Ativa em {{adres}}",
     "aiLinkViaFlag": "Ativa através de parâmetro de arranque ({{adres}})",
     "aiLinkOff": "Desligada",
-    "aiLinkError": "Não iniciada: {{fout}}"
+    "aiLinkError": "Não iniciada: {{fout}}",
+    "saving": "Gravação",
+    "incrementalSave": "Guardar alterações de anotações e formulários de forma incremental (experimental)",
+    "incrementalSaveHint": "Acrescenta as alterações ao fim do ficheiro em vez de o reescrever. As versões anteriores continuam recuperáveis a partir do ficheiro. A rasura, a remoção de informação oculta e outras alterações são sempre gravadas com uma reescrita completa."
   },
   "annotations": {
     "generalDefaults": "Padrões gerais",
