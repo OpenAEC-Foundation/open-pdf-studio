@@ -114,6 +114,7 @@ js/search/search-sources.test.mjs
 js/solid/stores/panels/annotationsStore.test.mjs
 js/solid/stores/print-instellingen.test.mjs
 js/pdf/vector-embed.test.mjs
+js/pdf/vector-cull.test.mjs
 js/pdf/saver/vector-snippet.test.mjs
 js/pdf/loader/vector-snippet-load.test.mjs
 js/annotations/vector-snippet-store.test.mjs
