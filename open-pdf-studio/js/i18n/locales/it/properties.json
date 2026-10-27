@@ -41,7 +41,10 @@
     "cancelled": "Annullato",
     "completed": "Completato",
     "reviewed": "Revisionato",
-    "statusSetBy": "Impostato da {{author}} il {{date}}"
+    "statusSetBy": "Impostato da {{author}} il {{date}}",
+    "layer": "Livello",
+    "layerMarkupGroup": "Livelli di annotazione",
+    "layerDocumentGroup": "Livelli del documento"
   },
   "colorNone": "Nessuno",
   "moreColors": "Altri colori...",
@@ -370,7 +373,12 @@
     "addPage": "Aggiungi pagina",
     "pageLabels": "Etichette di pagina (generatore di nomi)",
     "portfolio": "Portfolio PDF",
-    "recognizeForm": "Riconosci campi modulo"
+    "recognizeForm": "Riconosci campi modulo",
+    "layersSetDefault": "Imposta come predefinito",
+    "layersSetDefaultTitle": "Memorizza la visibilità attuale dei livelli come stato predefinito del documento. Viene scritta nel file al prossimo salvataggio.",
+    "layersDefaultPending": "Diventerà predefinito al salvataggio",
+    "layerLocked": "Livello bloccato: non può essere attivato o disattivato",
+    "layerRadioGroup": "Gruppo di scelta: attivando questo livello si disattivano gli altri livelli del gruppo"
   },
   "scaleBar": {
     "title": "Barra di scala",

@@ -41,7 +41,10 @@
     "cancelled": "Anulowane",
     "completed": "Zakończone",
     "reviewed": "Zrecenzowane",
-    "statusSetBy": "Ustawione przez {{author}} dnia {{date}}"
+    "statusSetBy": "Ustawione przez {{author}} dnia {{date}}",
+    "layer": "Warstwa",
+    "layerMarkupGroup": "Warstwy adnotacji",
+    "layerDocumentGroup": "Warstwy dokumentu"
   },
   "colorNone": "Brak",
   "moreColors": "Więcej Kolorów...",
@@ -370,7 +373,12 @@
     "addPage": "Dodaj stronę",
     "pageLabels": "Etykiety stron (kreator nazw)",
     "portfolio": "Portfolio PDF",
-    "recognizeForm": "Rozpoznaj pola formularza"
+    "recognizeForm": "Rozpoznaj pola formularza",
+    "layersSetDefault": "Ustaw jako domyślne",
+    "layersSetDefaultTitle": "Zapisz bieżącą widoczność warstw jako domyślny stan dokumentu. Zostanie zapisana w pliku przy następnym zapisie.",
+    "layersDefaultPending": "Stanie się domyślne po zapisaniu",
+    "layerLocked": "Warstwa zablokowana: nie można jej włączyć ani wyłączyć",
+    "layerRadioGroup": "Grupa wyboru: włączenie tej warstwy wyłącza pozostałe warstwy grupy"
   },
   "scaleBar": {
     "title": "Podziałka liniowa",

@@ -926,6 +926,55 @@
   text-overflow: ellipsis;
 }
 
+/* Vergrendelde laag (/Locked): vinkje grijs, slotje erachter. */
+.layer-list-locked .layer-list-name {
+  color: var(--theme-panel-tab-text);
+}
+
+.layer-list-lock {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: var(--theme-panel-tab-text);
+}
+
+/* Werkbalk van het paneel Lagen: "Als standaard instellen" (#377). */
+.layers-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--theme-panel-border);
+  background: var(--theme-panel-tab-bg);
+  flex-shrink: 0;
+}
+
+.layers-toolbar-btn {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: var(--theme-panel-bg);
+  border: 1px solid var(--theme-panel-border);
+  color: var(--theme-panel-header-text);
+  cursor: default;
+}
+
+.layers-toolbar-btn:hover:not(:disabled) {
+  background: var(--theme-panel-tab-hover);
+}
+
+.layers-toolbar-btn:disabled {
+  opacity: 0.45;
+}
+
+.layers-toolbar-note {
+  font-size: 11px;
+  color: var(--theme-panel-tab-text);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .layers-count {
   font-size: 11px;
   color: var(--theme-panel-tab-text);

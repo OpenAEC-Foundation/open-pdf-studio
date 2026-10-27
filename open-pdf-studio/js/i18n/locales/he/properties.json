@@ -41,7 +41,10 @@
     "cancelled": "בוטל",
     "completed": "הושלם",
     "reviewed": "נסקר",
-    "statusSetBy": "הוגדר על ידי {{author}} בתאריך {{date}}"
+    "statusSetBy": "הוגדר על ידי {{author}} בתאריך {{date}}",
+    "layer": "שכבה",
+    "layerMarkupGroup": "שכבות סימון",
+    "layerDocumentGroup": "שכבות המסמך"
   },
   "colorNone": "ללא",
   "moreColors": "צבעים נוספים...",
@@ -370,7 +373,12 @@
     "addPage": "הוספת עמוד",
     "pageLabels": "תוויות עמודים (בונה שמות)",
     "portfolio": "תיק PDF",
-    "recognizeForm": "זיהוי שדות טופס"
+    "recognizeForm": "זיהוי שדות טופס",
+    "layersSetDefault": "הגדר כברירת מחדל",
+    "layersSetDefaultTitle": "שמירת הנראות הנוכחית של השכבות כמצב ברירת המחדל של המסמך. היא נכתבת לקובץ בשמירה הבאה.",
+    "layersDefaultPending": "תהפוך לברירת מחדל בשמירה",
+    "layerLocked": "שכבה נעולה: לא ניתן להפעיל או לכבות אותה",
+    "layerRadioGroup": "קבוצת בחירה: הפעלת שכבה זו מכבה את שאר השכבות בקבוצה"
   },
   "scaleBar": {
     "title": "סרגל קנה מידה",

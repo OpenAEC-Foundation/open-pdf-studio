@@ -41,7 +41,10 @@
     "cancelled": "Avbruten",
     "completed": "Slutförd",
     "reviewed": "Granskad",
-    "statusSetBy": "Angiven av {{author}} den {{date}}"
+    "statusSetBy": "Angiven av {{author}} den {{date}}",
+    "layer": "Lager",
+    "layerMarkupGroup": "Markeringslager",
+    "layerDocumentGroup": "Dokumentets lager"
   },
   "colorNone": "Ingen",
   "moreColors": "Fler färger...",
@@ -370,7 +373,12 @@
     "addPage": "Lägg till sida",
     "pageLabels": "Sidetiketter (namnbyggare)",
     "portfolio": "PDF-portfölj",
-    "recognizeForm": "Identifiera formulärfält"
+    "recognizeForm": "Identifiera formulärfält",
+    "layersSetDefault": "Ange som standard",
+    "layersSetDefaultTitle": "Spara lagrens aktuella synlighet som dokumentets standardläge. Det skrivs till filen nästa gång du sparar.",
+    "layersDefaultPending": "Blir standard när du sparar",
+    "layerLocked": "Låst lager: kan inte slås på eller av",
+    "layerRadioGroup": "Valgrupp: när detta lager slås på slås de andra lagren i gruppen av"
   },
   "scaleBar": {
     "title": "Skalstock",

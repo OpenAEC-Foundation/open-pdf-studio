@@ -41,7 +41,10 @@
     "cancelled": "Lemondva",
     "completed": "Befejezve",
     "reviewed": "Felülvizsgálva",
-    "statusSetBy": "Beállította: {{author}}, {{date}}"
+    "statusSetBy": "Beállította: {{author}}, {{date}}",
+    "layer": "Réteg",
+    "layerMarkupGroup": "Jelölésrétegek",
+    "layerDocumentGroup": "A dokumentum rétegei"
   },
   "colorNone": "Nincs",
   "moreColors": "További színek...",
@@ -370,7 +373,12 @@
     "addPage": "Oldal hozzáadása",
     "pageLabels": "Oldalcímkék (névkészítő)",
     "portfolio": "PDF-portfólió",
-    "recognizeForm": "Űrlapmezők felismerése"
+    "recognizeForm": "Űrlapmezők felismerése",
+    "layersSetDefault": "Beállítás alapértelmezettként",
+    "layersSetDefaultTitle": "A rétegek jelenlegi láthatóságának mentése a dokumentum alapértelmezett állapotaként. A következő mentéskor kerül a fájlba.",
+    "layersDefaultPending": "Mentéskor ez lesz az alapértelmezett",
+    "layerLocked": "Zárolt réteg: nem kapcsolható be vagy ki",
+    "layerRadioGroup": "Választócsoport: e réteg bekapcsolása kikapcsolja a csoport többi rétegét"
   },
   "scaleBar": {
     "title": "Aránymérték",

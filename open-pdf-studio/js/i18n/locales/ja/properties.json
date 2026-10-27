@@ -41,7 +41,10 @@
     "cancelled": "取消",
     "completed": "完了",
     "reviewed": "レビュー済み",
-    "statusSetBy": "{{author}} が {{date}} に設定"
+    "statusSetBy": "{{author}} が {{date}} に設定",
+    "layer": "レイヤー",
+    "layerMarkupGroup": "マークアップレイヤー",
+    "layerDocumentGroup": "文書のレイヤー"
   },
   "colorNone": "なし",
   "moreColors": "その他の色...",
@@ -370,7 +373,12 @@
     "addPage": "ページを追加",
     "pageLabels": "ページラベル (名前ビルダー)",
     "portfolio": "PDF ポートフォリオ",
-    "recognizeForm": "フォームフィールドの認識"
+    "recognizeForm": "フォームフィールドの認識",
+    "layersSetDefault": "既定に設定",
+    "layersSetDefaultTitle": "現在のレイヤーの表示状態を文書の既定の状態として保存します。次回の保存時にファイルに書き込まれます。",
+    "layersDefaultPending": "保存時に既定になります",
+    "layerLocked": "ロックされたレイヤー: オン/オフを切り替えられません",
+    "layerRadioGroup": "選択グループ: このレイヤーをオンにすると、グループ内の他のレイヤーはオフになります"
   },
   "scaleBar": {
     "title": "スケールバー",

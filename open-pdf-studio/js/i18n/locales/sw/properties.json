@@ -41,7 +41,10 @@
     "cancelled": "Imeghairiwa",
     "completed": "Imekamilika",
     "reviewed": "Imepitiwa",
-    "statusSetBy": "Imewekwa na {{author}} tarehe {{date}}"
+    "statusSetBy": "Imewekwa na {{author}} tarehe {{date}}",
+    "layer": "Tabaka",
+    "layerMarkupGroup": "Tabaka za alama",
+    "layerDocumentGroup": "Tabaka za hati"
   },
   "colorNone": "Hakuna",
   "moreColors": "Rangi Zaidi...",
@@ -370,7 +373,12 @@
     "addPage": "Ongeza ukurasa",
     "pageLabels": "Lebo za kurasa (kiunda majina)",
     "portfolio": "Jalada la PDF",
-    "recognizeForm": "Tambua sehemu za fomu"
+    "recognizeForm": "Tambua sehemu za fomu",
+    "layersSetDefault": "Weka kama chaguo-msingi",
+    "layersSetDefaultTitle": "Hifadhi mwonekano wa sasa wa tabaka kama hali chaguo-msingi ya hati. Huandikwa kwenye faili utakapohifadhi tena.",
+    "layersDefaultPending": "Itakuwa chaguo-msingi ukihifadhi",
+    "layerLocked": "Tabaka lililofungwa: haliwezi kuwashwa wala kuzimwa",
+    "layerRadioGroup": "Kikundi cha chaguo: kuwasha tabaka hili huzima tabaka zingine za kikundi"
   },
   "scaleBar": {
     "title": "Upau wa Kipimo",

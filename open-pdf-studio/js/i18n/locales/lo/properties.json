@@ -21,7 +21,10 @@
     "cancelled": "ຍົກເລີກແລ້ວ",
     "completed": "ສຳເລັດແລ້ວ",
     "reviewed": "ກວດສອບແລ້ວ",
-    "statusSetBy": "ກຳນົດໂດຍ {{author}} ເມື່ອ {{date}}"
+    "statusSetBy": "ກຳນົດໂດຍ {{author}} ເມື່ອ {{date}}",
+    "layer": "ຊັ້ນ",
+    "layerMarkupGroup": "ເລເຢີເຄື່ອງໝາຍ",
+    "layerDocumentGroup": "ຊັ້ນຂອງເອກະສານ"
   },
   "colorNone": "ບໍ່ມີ",
   "moreColors": "ສີເພີ່ມເຕີມ...",
@@ -402,7 +405,12 @@
     "addPage": "ເພີ່ມໜ້າ",
     "pageLabels": "ປ້າຍຊື່ໜ້າ (ຕົວສ້າງຊື່)",
     "portfolio": "ແຟ້ມສະສົມ PDF",
-    "recognizeForm": "ຮັບຮູ້ຊ່ອງຟອມ"
+    "recognizeForm": "ຮັບຮູ້ຊ່ອງຟອມ",
+    "layersSetDefault": "ຕັ້ງເປັນຄ່າເລີ່ມຕົ້ນ",
+    "layersSetDefaultTitle": "ເກັບການສະແດງຊັ້ນປັດຈຸບັນເປັນສະຖານະເລີ່ມຕົ້ນຂອງເອກະສານ. ມັນຈະຖືກຂຽນລົງໄຟລ໌ເມື່ອບັນທຶກຄັ້ງຕໍ່ໄປ.",
+    "layersDefaultPending": "ຈະເປັນຄ່າເລີ່ມຕົ້ນເມື່ອບັນທຶກ",
+    "layerLocked": "ຊັ້ນທີ່ລັອກ: ບໍ່ສາມາດເປີດ ຫຼື ປິດໄດ້",
+    "layerRadioGroup": "ກຸ່ມທາງເລືອກ: ການເປີດຊັ້ນນີ້ຈະປິດຊັ້ນອື່ນໃນກຸ່ມ"
   },
   "schedules": {
     "title": "ຕາຕະລາງລາຍການ",

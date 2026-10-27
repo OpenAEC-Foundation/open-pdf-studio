@@ -41,7 +41,10 @@
     "cancelled": "已取消",
     "completed": "已完成",
     "reviewed": "已审阅",
-    "statusSetBy": "由 {{author}} 于 {{date}} 设置"
+    "statusSetBy": "由 {{author}} 于 {{date}} 设置",
+    "layer": "图层",
+    "layerMarkupGroup": "标记图层",
+    "layerDocumentGroup": "文档图层"
   },
   "colorNone": "无",
   "moreColors": "更多颜色...",
@@ -370,7 +373,12 @@
     "addPage": "添加页面",
     "pageLabels": "页面标签（名称生成器）",
     "portfolio": "PDF 文件包",
-    "recognizeForm": "识别表单域"
+    "recognizeForm": "识别表单域",
+    "layersSetDefault": "设为默认",
+    "layersSetDefaultTitle": "将当前图层的可见性保存为文档的默认状态。下次保存时写入文件。",
+    "layersDefaultPending": "保存时将成为默认",
+    "layerLocked": "锁定的图层：无法打开或关闭",
+    "layerRadioGroup": "选择组：打开此图层会关闭组中的其他图层"
   },
   "scaleBar": {
     "title": "比例尺",

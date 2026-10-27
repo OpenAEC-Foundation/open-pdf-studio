@@ -41,7 +41,10 @@
     "cancelled": "Cancel·lat",
     "completed": "Completat",
     "reviewed": "Revisat",
-    "statusSetBy": "Definit per {{author}} el {{date}}"
+    "statusSetBy": "Definit per {{author}} el {{date}}",
+    "layer": "Capa",
+    "layerMarkupGroup": "Capes de marques",
+    "layerDocumentGroup": "Capes del document"
   },
   "colorNone": "Cap",
   "moreColors": "Més colors...",
@@ -376,7 +379,12 @@
     "addPage": "Afegeix una pàgina",
     "pageLabels": "Etiquetes de pàgina (generador de noms)",
     "portfolio": "Portafolis PDF",
-    "recognizeForm": "Reconeix camps de formulari"
+    "recognizeForm": "Reconeix camps de formulari",
+    "layersSetDefault": "Estableix com a predeterminat",
+    "layersSetDefaultTitle": "Desa la visibilitat actual de les capes com a estat predeterminat del document. S'escriu al fitxer la propera vegada que deseu.",
+    "layersDefaultPending": "Serà el predeterminat en desar",
+    "layerLocked": "Capa bloquejada: no es pot activar ni desactivar",
+    "layerRadioGroup": "Grup d'opcions: activar aquesta capa desactiva les altres capes del grup"
   },
   "scaleBar": {
     "title": "Barra d'escala",

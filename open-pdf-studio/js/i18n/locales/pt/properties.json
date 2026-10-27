@@ -41,7 +41,10 @@
     "cancelled": "Cancelado",
     "completed": "Concluído",
     "reviewed": "Revisado",
-    "statusSetBy": "Definido por {{author}} em {{date}}"
+    "statusSetBy": "Definido por {{author}} em {{date}}",
+    "layer": "Camada",
+    "layerMarkupGroup": "Camadas de marcação",
+    "layerDocumentGroup": "Camadas do documento"
   },
   "colorNone": "Nenhuma",
   "moreColors": "Mais Cores...",
@@ -370,7 +373,12 @@
     "addPage": "Adicionar página",
     "pageLabels": "Rótulos de página (gerador de nomes)",
     "portfolio": "Portfólio PDF",
-    "recognizeForm": "Reconhecer campos de formulário"
+    "recognizeForm": "Reconhecer campos de formulário",
+    "layersSetDefault": "Definir como padrão",
+    "layersSetDefaultTitle": "Guardar a visibilidade atual das camadas como estado padrão do documento. É gravada no arquivo na próxima vez que salvar.",
+    "layersDefaultPending": "Será o padrão ao salvar",
+    "layerLocked": "Camada bloqueada: não pode ser ativada nem desativada",
+    "layerRadioGroup": "Grupo de escolha: ativar esta camada desativa as outras camadas do grupo"
   },
   "scaleBar": {
     "title": "Barra de escala",

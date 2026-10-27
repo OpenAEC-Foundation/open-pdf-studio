@@ -41,7 +41,10 @@
     "cancelled": "Avbrutt",
     "completed": "Fullført",
     "reviewed": "Gjennomgått",
-    "statusSetBy": "Angitt av {{author}} den {{date}}"
+    "statusSetBy": "Angitt av {{author}} den {{date}}",
+    "layer": "Lag",
+    "layerMarkupGroup": "Markeringslag",
+    "layerDocumentGroup": "Dokumentets lag"
   },
   "colorNone": "Ingen",
   "moreColors": "Flere farger...",
@@ -370,7 +373,12 @@
     "addPage": "Legg til side",
     "pageLabels": "Sideetiketter (navnebygger)",
     "portfolio": "PDF-portefølje",
-    "recognizeForm": "Gjenkjenn skjemafelt"
+    "recognizeForm": "Gjenkjenn skjemafelt",
+    "layersSetDefault": "Angi som standard",
+    "layersSetDefaultTitle": "Lagre lagenes gjeldende synlighet som dokumentets standardtilstand. Den skrives til filen neste gang du lagrer.",
+    "layersDefaultPending": "Blir standard ved neste lagring",
+    "layerLocked": "Låst lag: kan ikke slås av eller på",
+    "layerRadioGroup": "Valggruppe: når dette laget slås på, slås de andre lagene i gruppen av"
   },
   "scaleBar": {
     "title": "Målestokklinjal",

@@ -41,7 +41,10 @@
     "cancelled": "Скасовано",
     "completed": "Завершено",
     "reviewed": "Переглянуто",
-    "statusSetBy": "Установлено: {{author}}, {{date}}"
+    "statusSetBy": "Установлено: {{author}}, {{date}}",
+    "layer": "Шар",
+    "layerMarkupGroup": "Шари розмітки",
+    "layerDocumentGroup": "Шари документа"
   },
   "colorNone": "Немає",
   "moreColors": "Більше кольорів...",
@@ -370,7 +373,12 @@
     "addPage": "Додати сторінку",
     "pageLabels": "Мітки сторінок (конструктор назв)",
     "portfolio": "PDF-портфоліо",
-    "recognizeForm": "Розпізнати поля форми"
+    "recognizeForm": "Розпізнати поля форми",
+    "layersSetDefault": "Зробити типовим",
+    "layersSetDefaultTitle": "Зберегти поточну видимість шарів як типовий стан документа. Його буде записано у файл під час наступного збереження.",
+    "layersDefaultPending": "Стане типовим під час збереження",
+    "layerLocked": "Заблокований шар: його не можна ввімкнути чи вимкнути",
+    "layerRadioGroup": "Група вибору: увімкнення цього шару вимикає інші шари групи"
   },
   "scaleBar": {
     "title": "Масштабна лінійка",

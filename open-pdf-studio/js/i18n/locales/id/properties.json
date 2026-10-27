@@ -41,7 +41,10 @@
     "cancelled": "Dibatalkan",
     "completed": "Selesai",
     "reviewed": "Ditinjau",
-    "statusSetBy": "Diatur oleh {{author}} pada {{date}}"
+    "statusSetBy": "Diatur oleh {{author}} pada {{date}}",
+    "layer": "Lapisan",
+    "layerMarkupGroup": "Lapisan markup",
+    "layerDocumentGroup": "Lapisan dokumen"
   },
   "colorNone": "Tidak Ada",
   "moreColors": "Warna Lainnya...",
@@ -370,7 +373,12 @@
     "addPage": "Tambah halaman",
     "pageLabels": "Label halaman (pembuat nama)",
     "portfolio": "Portofolio PDF",
-    "recognizeForm": "Kenali bidang formulir"
+    "recognizeForm": "Kenali bidang formulir",
+    "layersSetDefault": "Jadikan bawaan",
+    "layersSetDefaultTitle": "Simpan visibilitas lapisan saat ini sebagai keadaan bawaan dokumen. Ditulis ke berkas saat Anda menyimpan berikutnya.",
+    "layersDefaultPending": "Menjadi bawaan saat disimpan",
+    "layerLocked": "Lapisan terkunci: tidak dapat dinyalakan atau dimatikan",
+    "layerRadioGroup": "Grup pilihan: menyalakan lapisan ini mematikan lapisan lain dalam grup"
   },
   "scaleBar": {
     "title": "Batang Skala",

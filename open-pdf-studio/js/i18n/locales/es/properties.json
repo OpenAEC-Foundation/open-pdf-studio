@@ -41,7 +41,10 @@
     "cancelled": "Cancelado",
     "completed": "Completado",
     "reviewed": "Revisado",
-    "statusSetBy": "Establecido por {{author}} el {{date}}"
+    "statusSetBy": "Establecido por {{author}} el {{date}}",
+    "layer": "Capa",
+    "layerMarkupGroup": "Capas de marcas",
+    "layerDocumentGroup": "Capas del documento"
   },
   "colorNone": "Ninguno",
   "moreColors": "Más colores...",
@@ -370,7 +373,12 @@
     "addPage": "Añadir página",
     "pageLabels": "Etiquetas de página (generador de nombres)",
     "portfolio": "Portafolio PDF",
-    "recognizeForm": "Reconocer campos de formulario"
+    "recognizeForm": "Reconocer campos de formulario",
+    "layersSetDefault": "Establecer como predeterminado",
+    "layersSetDefaultTitle": "Guardar la visibilidad actual de las capas como estado predeterminado del documento. Se escribe en el archivo la próxima vez que guarde.",
+    "layersDefaultPending": "Será el predeterminado al guardar",
+    "layerLocked": "Capa bloqueada: no se puede activar ni desactivar",
+    "layerRadioGroup": "Grupo de opciones: al activar esta capa se desactivan las demás capas del grupo"
   },
   "scaleBar": {
     "title": "Barra de escala",

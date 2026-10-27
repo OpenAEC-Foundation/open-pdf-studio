@@ -41,7 +41,10 @@
     "cancelled": "Annulleret",
     "completed": "Fuldført",
     "reviewed": "Gennemgået",
-    "statusSetBy": "Angivet af {{author}} den {{date}}"
+    "statusSetBy": "Angivet af {{author}} den {{date}}",
+    "layer": "Lag",
+    "layerMarkupGroup": "Markeringslag",
+    "layerDocumentGroup": "Dokumentets lag"
   },
   "colorNone": "Ingen",
   "moreColors": "Flere farver...",
@@ -370,7 +373,12 @@
     "addPage": "Tilføj side",
     "pageLabels": "Sideetiketter (navnegenerator)",
     "portfolio": "PDF-portefølje",
-    "recognizeForm": "Genkend formularfelter"
+    "recognizeForm": "Genkend formularfelter",
+    "layersSetDefault": "Angiv som standard",
+    "layersSetDefaultTitle": "Gem lagenes aktuelle synlighed som dokumentets standardtilstand. Den skrives til filen, næste gang du gemmer.",
+    "layersDefaultPending": "Bliver standard ved næste gem",
+    "layerLocked": "Låst lag: kan ikke slås til eller fra",
+    "layerRadioGroup": "Valggruppe: når dette lag slås til, slås de andre lag i gruppen fra"
   },
   "scaleBar": {
     "title": "Skalabjælke",

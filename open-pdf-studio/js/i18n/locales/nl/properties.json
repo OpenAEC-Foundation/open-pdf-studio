@@ -21,7 +21,10 @@
     "cancelled": "Geannuleerd",
     "completed": "Voltooid",
     "reviewed": "Beoordeeld",
-    "statusSetBy": "Gezet door {{author}} op {{date}}"
+    "statusSetBy": "Gezet door {{author}} op {{date}}",
+    "layer": "Laag",
+    "layerMarkupGroup": "Markeringslagen",
+    "layerDocumentGroup": "Lagen van het document"
   },
   "colorNone": "Geen",
   "moreColors": "Meer kleuren...",
@@ -350,7 +353,12 @@
     "addPage": "Pagina toevoegen",
     "pageLabels": "Paginalabels (naambouwer)",
     "portfolio": "PDF-portfolio",
-    "recognizeForm": "Formuliervelden herkennen"
+    "recognizeForm": "Formuliervelden herkennen",
+    "layersSetDefault": "Als standaard instellen",
+    "layersSetDefaultTitle": "De huidige zichtbaarheid van de lagen bewaren als standaardstand van het document. Die wordt bij de volgende keer opslaan in het bestand geschreven.",
+    "layersDefaultPending": "Wordt bij opslaan de standaard",
+    "layerLocked": "Vergrendelde laag: kan niet aan of uit worden gezet",
+    "layerRadioGroup": "Keuzegroep: deze laag aanzetten zet de andere lagen van de groep uit"
   },
   "scaleBar": {
     "title": "Schaalbalk",

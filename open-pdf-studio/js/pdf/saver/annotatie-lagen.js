@@ -37,6 +37,14 @@
 // staan (geen tweede groep met dezelfde naam) en is daarna een eigen laag.
 // Een OCG waar geen annotatie naar wijst (inhoud van de tekening, een
 // watermerk) is geen annotatielaag en blijft buiten het paneel.
+//
+// Een laag van de tekening als annotatielaag (#377): in het eigenschappen-
+// paneel kan een markering op een laag van de tekening gezet worden. Dat is
+// dezelfde route: een laag 'ocg-<object>-<generatie>' die bij het opslaan
+// de OCG van de tekening zelf als /OC krijgt. Zo'n "overgenomen" OCG blijft
+// een laag van de tekening: hij houdt zijn plek in /Order, /Locked en
+// /RBGroups, blijft in het paneel Lagen staan, en verdwijnt niet uit het
+// bestand als de annotatielaag weggaat (alleen de OPS_-sleutels gaan eraf).
 
 import { PDFName, PDFArray, PDFDict, PDFRef, PDFBool } from 'pdf-lib';
 import { pdfTextString, decodePdfTextObject } from './pdf-text.js';
@@ -71,6 +79,11 @@ function isOnwaar(context, raw) {
 }
 
 const VREEMD_ID = /^ocg-(\d+)-(\d+)$/;
+
+/** Is dit het id van een overgenomen OCG (van de tekening of een ander programma)? */
+function isOvergenomenId(id) {
+  return typeof id === 'string' && VREEMD_ID.test(id);
+}
 
 /** Het laag-id voor een OCG van een ander programma (zie de kop). */
 function vreemdId(ref) {
@@ -173,6 +186,40 @@ function verwijderEigen(pdfDoc, eigen) {
   if (!ocgs || ocgs.size() === 0) pdfDoc.catalog.delete(N('OCProperties'));
 }
 
+const EIGEN_SLEUTELS = ['OPS_LayerId', 'OPS_Color', 'OPS_Locked', 'OPS_Printable'];
+
+/**
+ * Eigen OCG's die uit het model verdwenen: een OCG die we zelf maakten gaat
+ * weg; een overgenomen OCG (zie de kop) blijft als laag van de tekening
+ * staan, zonder onze sleutels.
+ */
+function ruimEigenOp(pdfDoc, weg) {
+  const context = pdfDoc.context;
+  const verwijderen = new Set();
+  for (const [id, ref] of weg) {
+    if (!isOvergenomenId(id)) {
+      verwijderen.add(ref);
+      continue;
+    }
+    const dict = context.lookup(ref);
+    if (!(dict instanceof PDFDict)) continue;
+    for (const k of EIGEN_SLEUTELS) dict.delete(N(k));
+    if (isEigenUsage(context, dict.get(N('Usage')))) dict.delete(N('Usage'));
+  }
+  if (verwijderen.size) verwijderEigen(pdfDoc, verwijderen);
+}
+
+/** Staat `ref` ergens in deze (mogelijk geneste) array? */
+function bevat(context, array, ref, diepte = 0) {
+  if (!array || diepte > 10) return false;
+  for (const e of array.asArray()) {
+    if (e === ref) return true;
+    const genest = opgezocht(context, e);
+    if (genest instanceof PDFArray && bevat(context, genest, ref, diepte + 1)) return true;
+  }
+  return false;
+}
+
 /**
  * Schrijf de annotatielagen in het document.
  *
@@ -191,7 +238,7 @@ export function schrijfAnnotatieLagen(pdfDoc, lagen, { standaardNaam = 'Default'
 
   if (!Array.isArray(lagen) || lagen.length === 0) {
     if (bestaand.size === 0 && catalog.get(N(LAGEN_CATALOGUS_SLEUTEL)) === undefined) return null;
-    verwijderEigen(pdfDoc, new Set(bestaand.values()));
+    ruimEigenOp(pdfDoc, bestaand);
     catalog.delete(N(LAGEN_CATALOGUS_SLEUTEL));
     return null;
   }
@@ -231,24 +278,29 @@ export function schrijfAnnotatieLagen(pdfDoc, lagen, { standaardNaam = 'Default'
     ocgs = context.obj([]);
     oc.set(N('OCGs'), ocgs);
   }
-  const vreemdeOcgs = ocgs.asArray().filter((r) => !(r instanceof PDFRef && alleEigen.has(r)));
-  vervangInhoud(ocgs, [...vreemdeOcgs, ...eigenRefs]);
+  // Overgenomen OCG's (zie de kop) houden hun plek in /OCGs, in de boom, hun
+  // slot en hun keuzegroep.
+  const overgenomen = new Set(lagen.filter((l) => l && isOvergenomenId(l.id)).map((l) => refs.get(l.id)).filter(Boolean));
+  const vreemdeOcgs = ocgs.asArray().filter((r) => !(r instanceof PDFRef && alleEigen.has(r) && !overgenomen.has(r)));
+  vervangInhoud(ocgs, [...vreemdeOcgs, ...eigenRefs.filter((r) => !vreemdeOcgs.includes(r))]);
 
   let d = opgezocht(context, oc.get(N('D')));
   if (!(d instanceof PDFDict)) {
     d = context.obj({});
     oc.set(N('D'), d);
   }
-  for (const sleutel of ['Locked', 'RBGroups']) zonderEigen(context, arrayVan(context, d, sleutel), alleEigen);
+  const losTeMaken = new Set([...alleEigen].filter((r) => !overgenomen.has(r)));
+  for (const sleutel of ['Locked', 'RBGroups']) zonderEigen(context, arrayVan(context, d, sleutel), losTeMaken);
 
   // Volgorde in het lagenpaneel van andere lezers: de tekening eerst, dan de
   // annotatielagen in de volgorde van ons paneel.
   let order = arrayVan(context, d, 'Order');
   if (order) {
-    zonderEigen(context, order, alleEigen);
-    for (const r of eigenRefs) order.push(r);
+    const alInBoom = new Set([...overgenomen].filter((r) => bevat(context, order, r)));
+    zonderEigen(context, order, new Set([...alleEigen].filter((r) => !alInBoom.has(r))));
+    for (const r of eigenRefs) if (!alInBoom.has(r)) order.push(r);
   } else {
-    order = context.obj([...vreemdeOcgs, ...eigenRefs]);
+    order = context.obj([...vreemdeOcgs, ...eigenRefs.filter((r) => !vreemdeOcgs.includes(r))]);
     d.set(N('Order'), order);
   }
 
@@ -290,8 +342,8 @@ export function schrijfAnnotatieLagen(pdfDoc, lagen, { standaardNaam = 'Default'
   catalog.set(N(LAGEN_CATALOGUS_SLEUTEL), eigen);
 
   // Lagen die uit het model verdwenen zijn: nergens meer genoemd.
-  const weg = new Set([...bestaand].filter(([id]) => !refs.has(id)).map(([, r]) => r));
-  if (weg.size) verwijderEigen(pdfDoc, weg);
+  const weg = new Map([...bestaand].filter(([id, r]) => !refs.has(id) && !eigenRefs.includes(r)));
+  if (weg.size) ruimEigenOp(pdfDoc, weg);
 
   return refs;
 }
@@ -405,7 +457,8 @@ export function leesAnnotatieLagen(pdfDoc) {
       });
       perId.set(id, ref);
     }
-    const eigenOcgIds = new Set([...perId.values()].map(pdfjsId));
+    // Een overgenomen OCG (#377) blijft een laag van de tekening.
+    const eigenOcgIds = new Set([...perId].filter(([id]) => !isOvergenomenId(id)).map(([, r]) => pdfjsId(r)));
     for (const [id, ref] of vreemd) {
       if (perId.has(id)) continue;
       const dict = context.lookup(ref);
