@@ -134,6 +134,8 @@
     "callout": "Fumetto",
     "stamp": "Timbro",
     "signature": "Firma",
+    "digitalSign": "Firma digitale",
+    "digitalSignTooltip": "Firma il documento con un certificato (.p12/.pfx). Il pulsante Firma inserisce solo un’immagine.",
     "measure": "Misura",
     "measureDistance": "Misura distanza",
     "distance": "Distanza",

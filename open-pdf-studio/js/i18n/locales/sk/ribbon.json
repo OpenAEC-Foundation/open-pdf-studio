@@ -134,6 +134,8 @@
     "callout": "Popisok",
     "stamp": "Pečiatka",
     "signature": "Podpis",
+    "digitalSign": "Digitálny podpis",
+    "digitalSignTooltip": "Podpísať dokument certifikátom (.p12/.pfx). Tlačidlo Podpis vkladá iba obrázok.",
     "measure": "Meranie",
     "measureDistance": "Merať vzdialenosť",
     "distance": "Vzdialenosť",

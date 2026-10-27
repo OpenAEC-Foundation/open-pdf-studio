@@ -134,6 +134,8 @@
     "callout": "Llamada",
     "stamp": "Sello",
     "signature": "Firma",
+    "digitalSign": "Firma digital",
+    "digitalSignTooltip": "Firmar el documento con un certificado (.p12/.pfx). El botón Firma solo coloca una imagen.",
     "measure": "Medir",
     "measureDistance": "Medir distancia",
     "distance": "Distancia",

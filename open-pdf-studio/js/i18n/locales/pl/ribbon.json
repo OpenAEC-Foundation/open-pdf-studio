@@ -134,6 +134,8 @@
     "callout": "Dymek",
     "stamp": "Pieczątka",
     "signature": "Podpis",
+    "digitalSign": "Podpis cyfrowy",
+    "digitalSignTooltip": "Podpisz dokument certyfikatem (.p12/.pfx). Przycisk Podpis wstawia tylko obraz.",
     "measure": "Pomiar",
     "measureDistance": "Pomiar odległości",
     "distance": "Odległość",

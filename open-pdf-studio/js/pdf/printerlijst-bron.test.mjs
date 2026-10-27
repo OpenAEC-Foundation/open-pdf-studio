@@ -142,12 +142,11 @@ test('virtuele printer: dezelfde namen en hetzelfde spoolbestand als installeren
 
 test('PowerShell start alleen nog na een klik van de gebruiker', () => {
   // Installeren, verwijderen en de opvang aanzetten blijven op PowerShell:
-  // die lopen pas na een klik in Voorkeuren. De meting in pdf_lezen.rs is
-  // een test die alleen met --ignored draait.
+  // die lopen pas na een klik in Voorkeuren. (De meting in pdf_lezen.rs, een
+  // test die alleen met --ignored draait, staat in de crate open-pdf-signatures.)
   const toegestaan = [
     'lib.rs run_elevated_ps_script',
     'lib.rs virtual_printer_enable_catch',
-    'handtekening/pdf_lezen.rs meet_geheugen_en_tijd',
   ];
   const gevonden = [];
   for (const pad of rustBestanden()) {

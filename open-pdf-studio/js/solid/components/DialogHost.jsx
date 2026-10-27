@@ -77,6 +77,7 @@ const SymbolSearchDialog = lazy(() => import('./dialogs/SymbolSearchDialog.jsx')
 const WorkbookBindingsDialog = lazy(() => import('./dialogs/WorkbookBindingsDialog.jsx'));
 const PageOrganizerDialog = lazy(() => import('./dialogs/PageOrganizerDialog.jsx'));
 const AccessibilityReportDialog = lazy(() => import('./dialogs/AccessibilityReportDialog.jsx'));
+const DigitaalOndertekenenDialog = lazy(() => import('./dialogs/DigitaalOndertekenenDialog.jsx'));
 
 const DIALOG_MAP = {
   'portfolio': PortfolioDialog,
@@ -135,6 +136,7 @@ const DIALOG_MAP = {
   'tool-sets-import': ToolSetImportDialog,
   'tool-sets-confirm': ToolSetConfirmDialog,
   'handtekening-detail': HandtekeningDetailDialog,
+  'digital-sign': DigitaalOndertekenenDialog,
   'title-block-edit': TitleBlockDialog,
   'viewport-scale': ViewportScaleDialog,
   'scale-region': ScaleRegionDialog,

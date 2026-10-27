@@ -522,6 +522,51 @@ blijft open tot dat bevestigd is.
   verwachtingen staan in het manifest.
 - **Eis 1** wacht op handmatige controle door de gebruiker (§9.5).
 
+## 11a. Uitwerking ondertekenen (oktober 2026)
+
+- **Crate.** Alle code zonder Tauri staat in de workspace-crate
+  `open-pdf-signatures` (repo-root): lezen, ondertekenen en verifiëren, met
+  de fixtures onder `open-pdf-signatures/tests/fixtures/`. De app-crate houdt
+  alleen de commando-schil `src-tauri/src/handtekening.rs`. Testen:
+  `cargo test -p open-pdf-signatures`, zonder de app-crate te bouwen.
+- **Modules.** `pdf_schrijven.rs` (objecten schrijven, incrementele
+  toevoeging met xref-tabel of -stroom), `cms_bouw.rs` (SignedData),
+  `tsa.rs` (RFC 3161-verzoek en -antwoord, zonder I/O; de HTTP-aanroep doet
+  de schil met reqwest), `onderteken.rs` (de stappen van §6.2) en
+  `wijzigingen.rs` (zie hieronder).
+- **Weergave.** Een zichtbare handtekening krijgt een afbeelding als
+  weergave, in de browser getekend (`js/pdf/handtekeningen/ondertekenen.js`):
+  optioneel de opgeslagen handtekeningafbeelding van de knop Handtekening,
+  plus naam, datum, reden en plaats in de taal van de gebruiker. Zo werkt
+  elk schrift zonder ingebed lettertype; de WinAnsi-tekstweergave van §6.2
+  is daarmee vervallen. Op een gedraaide pagina draait `/Matrix` de
+  weergave terug.
+- **Tijdstempel.** Alleen als de gebruiker een tijdstempelserver invult
+  (geen vaste standaarddienst). Mislukt het, dan vraagt de app of het zonder
+  mag; nooit stil zonder.
+- **Eigen controle.** Voor het schrijven controleert de eigen verifier de
+  nieuwe handtekening (intact, hele document); anders geen bestand.
+- **Later gewijzigd.** `wijzigingen.rs` vergelijkt de ondertekende versie met
+  het hele bestand per object. Alleen annotaties, velden, handtekeningen,
+  `/DSS`, `/Info` of `/Metadata` erbij: `latereWijziging: toevoegingen`.
+  Andere objecten (paginastromen, paginaboom, een al ondertekend veld of zijn
+  weergave): `inhoud`, en de UI toont dan "Gewijzigd na ondertekenen". Een
+  heuristiek, geen DocMDP-beoordeling.
+- **Panel.** Het paneel Digitale handtekeningen toont de status uit Rust
+  (zelfde tekst als de balk); een klik opent het detailvenster.
+- **Opslaan na ondertekenen.** Ongewijzigd: de gewone opslag herschrijft het
+  bestand en vraagt daarvoor bevestiging (§3.2). Incrementeel opslaan van
+  annotaties op ondertekende documenten blijft een vervolgstap.
+- **Vervolg.** Ondertekenen met het Windows-certificaatarchief of een
+  smartcard (sleutels die niet exporteerbaar zijn, via NCrypt), ECDSA-sleutels
+  ondertekenen, LTV (B-LT/B-LTA) en incrementeel opslaan.
+- **Onafhankelijke controle in de tests.** OpenSSL (`openssl cms -verify`
+  over het bytebereik, `openssl ts -reply` als proef-tijdstempeldienst) en
+  Poppler (`pdfsig`) in de cargo-tests als ze op de machine staan; MuPDF en
+  node:crypto in `js/pdf/handtekeningen/ondertekend-mupdf.test.mjs` op een
+  vast proefbestand. Eis 1 (twee andere lezers) blijft een handmatige
+  controle.
+
 ## 12. Bouwvolgorde
 
 Verifiëren komt vóór ondertekenen: zonder eigen verifier is ondertekenen niet

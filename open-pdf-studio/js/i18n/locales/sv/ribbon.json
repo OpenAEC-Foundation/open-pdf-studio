@@ -134,6 +134,8 @@
     "callout": "Pratbubbla",
     "stamp": "Stämpel",
     "signature": "Signatur",
+    "digitalSign": "Digital signatur",
+    "digitalSignTooltip": "Signera dokumentet med ett certifikat (.p12/.pfx). Knappen Namnteckning placerar bara en bild.",
     "measure": "Mät",
     "measureDistance": "Mät avstånd",
     "distance": "Avstånd",

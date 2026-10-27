@@ -134,6 +134,8 @@
     "callout": "Chú thích",
     "stamp": "Con dấu",
     "signature": "Chữ ký",
+    "digitalSign": "Chữ ký số",
+    "digitalSignTooltip": "Ký tài liệu bằng chứng thư số (.p12/.pfx). Nút Chữ ký chỉ đặt một hình ảnh.",
     "measure": "Đo lường",
     "measureDistance": "Đo Khoảng cách",
     "distance": "Khoảng cách",

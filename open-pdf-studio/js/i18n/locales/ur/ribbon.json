@@ -134,6 +134,8 @@
     "callout": "کال آؤٹ",
     "stamp": "مہر",
     "signature": "دستخط",
+    "digitalSign": "ڈیجیٹل دستخط",
+    "digitalSignTooltip": "دستاویز پر سرٹیفکیٹ (.p12/.pfx) سے دستخط کریں۔ دستخط کا بٹن صرف ایک تصویر رکھتا ہے۔",
     "measure": "پیمائش",
     "measureDistance": "فاصلے کی پیمائش",
     "distance": "فاصلہ",

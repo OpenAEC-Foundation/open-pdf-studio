@@ -134,6 +134,8 @@
     "callout": "설명선",
     "stamp": "스탬프",
     "signature": "서명",
+    "digitalSign": "디지털 서명",
+    "digitalSignTooltip": "인증서(.p12/.pfx)로 문서에 서명합니다. 서명 단추는 이미지만 배치합니다.",
     "measure": "측정",
     "measureDistance": "거리 측정",
     "distance": "거리",

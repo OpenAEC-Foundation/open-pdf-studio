@@ -134,6 +134,8 @@
     "callout": "Balon Keterangan",
     "stamp": "Stempel",
     "signature": "Tanda Tangan",
+    "digitalSign": "Tanda tangan digital",
+    "digitalSignTooltip": "Tanda tangani dokumen dengan sertifikat (.p12/.pfx). Tombol Tanda tangan hanya menempatkan gambar.",
     "measure": "Ukur",
     "measureDistance": "Ukur Jarak",
     "distance": "Jarak",

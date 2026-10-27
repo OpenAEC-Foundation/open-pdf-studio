@@ -134,6 +134,8 @@
     "callout": "Explicatie",
     "stamp": "Stampila",
     "signature": "Semnatura",
+    "digitalSign": "Semnătură digitală",
+    "digitalSignTooltip": "Semnați documentul cu un certificat (.p12/.pfx). Butonul Semnătură plasează doar o imagine.",
     "measure": "Masurare",
     "measureDistance": "Masurare distanta",
     "distance": "Distanta",

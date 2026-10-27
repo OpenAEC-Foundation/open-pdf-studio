@@ -134,6 +134,8 @@
     "callout": "הסבר",
     "stamp": "חותמת",
     "signature": "חתימה",
+    "digitalSign": "חתימה דיגיטלית",
+    "digitalSignTooltip": "חתימה על המסמך באמצעות אישור (.p12/.pfx). הלחצן חתימה מציב תמונה בלבד.",
     "measure": "מדידה",
     "measureDistance": "מדידת מרחק",
     "distance": "מרחק",

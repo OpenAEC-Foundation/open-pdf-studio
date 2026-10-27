@@ -29,3 +29,17 @@ wachtwoord, dat de MAC als BMP `00 00` bevestigt (wachtwoordvorm `Leeg`).
 
 Een bestand zonder MAC waarin ook het certificaat versleuteld is, maken de
 tests zelf door de MacData uit `windows-export-3des.p12` weg te laten.
+
+## Met keten: `met-keten.p12`
+
+Voor de rondgang ondertekenen → verifiëren met een vertrouwde keten
+(`src/onderteken_tests.rs`). Gemaakt met OpenSSL 3.0 (`openssl req -x509`,
+`openssl x509 -req`, `openssl pkcs12 -export`), tien jaar geldig, wachtwoord
+`proef123`, PBES2 AES-256-CBC met MAC SHA-256. De sleutels van CA en blad zijn
+direct na het maken weggegooid.
+
+- Blad: `CN=OPDS Test Documentondertekenaar, O=OpenAEC Test`, RSA-2048,
+  sleutelgebruik digitalSignature en nonRepudiation (kritiek), uitgebreid
+  sleutelgebruik emailProtection.
+- Uitgever (zit ook in het bestand): `CN=OPDS Test CA`, zelfondertekend,
+  basicConstraints CA (kritiek), sleutelgebruik keyCertSign en cRLSign.

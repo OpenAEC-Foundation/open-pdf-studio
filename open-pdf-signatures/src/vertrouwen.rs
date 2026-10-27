@@ -1246,8 +1246,8 @@ mod tests {
         let pad = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/verifieer");
         let data = std::fs::read(pad.join("data.bin")).unwrap();
         let token = std::fs::read(pad.join("k-tst-zonder-timestamping.der")).unwrap();
-        let t = crate::handtekening::tijdstempel::controleer_token(&token, &[data.as_slice()]);
-        assert_eq!(t.integriteit, crate::handtekening::status::Integriteit::Intact);
+        let t = crate::tijdstempel::controleer_token(&token, &[data.as_slice()]);
+        assert_eq!(t.integriteit, crate::status::Integriteit::Intact);
         let tsa = t.tsa.unwrap();
         assert_eq!(tsa.der, cert("k-blad-email.der").der);
         // De genTime is overgenomen uit tst-data.der en kan vóór de ketenwortel
@@ -1375,7 +1375,7 @@ mod tests {
         let mut rest = bytes.as_slice();
         let mut uit = Vec::new();
         while !rest.is_empty() {
-            let (tlv, na) = crate::handtekening::ber::lees_tlv(rest).unwrap();
+            let (tlv, na) = crate::ber::lees_tlv(rest).unwrap();
             uit.push(lees_certificaat(tlv.geheel).unwrap());
             rest = na;
         }

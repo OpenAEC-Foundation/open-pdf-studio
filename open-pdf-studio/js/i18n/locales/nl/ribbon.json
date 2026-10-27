@@ -133,6 +133,8 @@
     "callout": "Bijschrift",
     "stamp": "Stempel",
     "signature": "Handtekening",
+    "digitalSign": "Digitale handtekening",
+    "digitalSignTooltip": "Onderteken het document met een certificaat (.p12/.pfx). De knop Handtekening plaatst alleen een afbeelding.",
     "measure": "Meten",
     "measureDistance": "Afstand meten",
     "distance": "Afstand",

@@ -134,6 +134,8 @@
     "callout": "Tangazo",
     "stamp": "Muhuri",
     "signature": "Saini",
+    "digitalSign": "Sahihi ya kidijitali",
+    "digitalSignTooltip": "Saini hati kwa cheti (.p12/.pfx). Kitufe cha Sahihi huweka picha tu.",
     "measure": "Pima",
     "measureDistance": "Pima Umbali",
     "distance": "Umbali",
