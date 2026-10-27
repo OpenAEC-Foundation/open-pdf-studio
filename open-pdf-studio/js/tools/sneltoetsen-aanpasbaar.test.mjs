@@ -104,13 +104,30 @@ function toets(key, code, { ctrl = false, shift = false, alt = false, meta = fal
 }
 const ctrl = (key, code, extra = {}) => toets(key, code, { ctrl: true, ...extra });
 
-const wacht = () => new Promise((r) => setTimeout(r, 0));
-async function druk(e) {
+// Some branches run their command after a dynamic import (zoom, Thin Lines,
+// paste in place). Under module.register the loader hooks run on their own
+// thread, so how long that import takes differs per machine: wait until the
+// log has been quiet for a while instead of a fixed number of ticks, so a late
+// call is neither missed nor counted in the next key.
+const slaap = (ms) => new Promise((r) => setTimeout(r, ms));
+async function totStil({ minstens = 0, stilMs = 80, maxMs = 5000 } = {}) {
+  const eind = Date.now() + maxMs;
+  let lengte = -1;
+  let stilSinds = Date.now();
+  while (Date.now() < eind) {
+    if (log.length !== lengte) { lengte = log.length; stilSinds = Date.now(); }
+    else if (log.length >= minstens && Date.now() - stilSinds >= stilMs) return;
+    await slaap(5);
+  }
+}
+// `verwacht`: how many log lines the key should give; waits for them (also
+// when they come late), then until nothing more comes.
+async function druk(e, verwacht = 0) {
+  await totStil();
   log.length = 0;
   doc.selectedAnnotations = [ann];
   await handleKeydown(e);
-  await wacht();
-  await wacht();
+  await totStil({ minstens: verwacht });
   return [...log];
 }
 
@@ -193,7 +210,7 @@ test('every old key still does what it did', async () => {
   for (const [id, combo, maakToets, verwacht] of OUDE_STANDAARDEN) {
     if (!maakToets) continue;
     begin();
-    assert.deepEqual(await druk(maakToets()), verwacht, `${combo} (${id})`);
+    assert.deepEqual(await druk(maakToets(), verwacht.length), verwacht, `${combo} (${id})`);
   }
 });
 
