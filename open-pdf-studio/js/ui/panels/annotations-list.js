@@ -11,6 +11,10 @@ import { redrawAnnotations } from '../../annotations/rendering.js';
 import { paginaNaarWeergave } from '../../pdf/weergave-ruimte.js';
 import { switchLeftPanelTab } from './left-panel.js';
 import {
+  filterOpmerkingen, sorteerOpmerkingen, auteursIn, typesIn, laatsteStatusAuteur,
+} from '../../annotations/opmerkingen-overzicht.js';
+import { listFilter, setFilterOptions } from '../../solid/stores/panels/annotationsStore.js';
+import {
   leftPanelCollapsed, leftPanelActiveTab as activeTab,
   setAnnotationItems as setItems, setAnnotationCountText as setCountText,
   setAnnotationEmptyMessage as setEmptyMessage, annotationSortMode as sortMode,
@@ -118,6 +122,15 @@ export function updateAnnotationsList(filterValue) {
   // gegarandeerd hetzelfde filteren.
   filteredAnnotations = filteredAnnotations.filter(a => !isAnnotationStatusHidden(a));
 
+  // Filterbalk van het overzicht (#383): auteur, soort, paginabereik en
+  // datumbereik, over alle pagina's. De keuzes komen uit het hele document,
+  // zodat een gekozen auteur in de lijst blijft staan als hij wegvalt.
+  setFilterOptions({
+    authors: auteursIn(annotations),
+    types: typesIn(annotations, getTypeDisplayName),
+  });
+  filteredAnnotations = filterOpmerkingen(filteredAnnotations, listFilter());
+
   // Proefleescorrecties (#508): de doorhaling van een vervanging staat in de
   // regel van haar invoegteken, met de naam en voorvertoning van de correctie.
   const byId = new Map(annotations.map(a => [a.id, a]));
@@ -129,79 +142,9 @@ export function updateAnnotationsList(filterValue) {
   // Sort and group based on current sort mode
   const currentSort = sortMode();
 
-  const pageThenDate = (a, b) => {
-    if (a.page !== b.page) return a.page - b.page;
-    return new Date(a.createdAt) - new Date(b.createdAt);
-  };
-
-  if (currentSort === 'type') {
-    filteredAnnotations.sort((a, b) => {
-      const ta = getTypeDisplayName(a.type);
-      const tb = getTypeDisplayName(b.type);
-      if (ta !== tb) return ta.localeCompare(tb);
-      return pageThenDate(a, b);
-    });
-  } else if (currentSort === 'modifiedDate') {
-    filteredAnnotations.sort((a, b) => new Date(b.modifiedAt) - new Date(a.modifiedAt));
-  } else if (currentSort === 'creationDate') {
-    filteredAnnotations.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  } else if (currentSort === 'author') {
-    filteredAnnotations.sort((a, b) => {
-      const aa = (a.author || 'User').toLowerCase();
-      const ab = (b.author || 'User').toLowerCase();
-      if (aa !== ab) return aa.localeCompare(ab);
-      return pageThenDate(a, b);
-    });
-  } else if (currentSort === 'color') {
-    filteredAnnotations.sort((a, b) => {
-      const ca = (a.color || a.strokeColor || '#000').toLowerCase();
-      const cb = (b.color || b.strokeColor || '#000').toLowerCase();
-      if (ca !== cb) return ca.localeCompare(cb);
-      return pageThenDate(a, b);
-    });
-  } else if (currentSort === 'subject') {
-    filteredAnnotations.sort((a, b) => {
-      const sa = (a.subject || '').toLowerCase();
-      const sb = (b.subject || '').toLowerCase();
-      if (sa !== sb) return sa.localeCompare(sb);
-      return pageThenDate(a, b);
-    });
-  } else if (currentSort === 'status') {
-    filteredAnnotations.sort((a, b) => {
-      const sa = (a.status || 'none').toLowerCase();
-      const sb = (b.status || 'none').toLowerCase();
-      if (sa !== sb) return sa.localeCompare(sb);
-      return pageThenDate(a, b);
-    });
-  } else if (currentSort === 'statusAndAuthor') {
-    filteredAnnotations.sort((a, b) => {
-      const sa = (a.status || 'none').toLowerCase();
-      const sb = (b.status || 'none').toLowerCase();
-      if (sa !== sb) return sa.localeCompare(sb);
-      const aa = (a.author || 'User').toLowerCase();
-      const ab = (b.author || 'User').toLowerCase();
-      if (aa !== ab) return aa.localeCompare(ab);
-      return pageThenDate(a, b);
-    });
-  } else if (currentSort === 'lastStatusAuthor') {
-    const getLastStatusAuthor = (ann) => {
-      if (ann.replies && ann.replies.length > 0) {
-        for (let i = ann.replies.length - 1; i >= 0; i--) {
-          if (ann.replies[i].author) return ann.replies[i].author;
-        }
-      }
-      return ann.author || 'User';
-    };
-    filteredAnnotations.sort((a, b) => {
-      const aa = getLastStatusAuthor(a).toLowerCase();
-      const ab = getLastStatusAuthor(b).toLowerCase();
-      if (aa !== ab) return aa.localeCompare(ab);
-      return pageThenDate(a, b);
-    });
-  } else {
-    // Default: sort by page
-    filteredAnnotations.sort(pageThenDate);
-  }
+  // De volgorde rekent op één plek (opmerkingen-overzicht.js), zodat lijst,
+  // CSV en rapport dezelfde volgorde hebben.
+  filteredAnnotations = sorteerOpmerkingen(filteredAnnotations, currentSort, { typeNaam: getTypeDisplayName });
 
   if (filteredAnnotations.length === 0) {
     setEmptyMessage('No annotations found');
@@ -225,15 +168,7 @@ export function updateAnnotationsList(filterValue) {
     return row;
   };
 
-  // Helper to get last status author
-  const getLastStatusAuthor = (ann) => {
-    if (ann.replies && ann.replies.length > 0) {
-      for (let i = ann.replies.length - 1; i >= 0; i--) {
-        if (ann.replies[i].author) return ann.replies[i].author;
-      }
-    }
-    return ann.author || 'User';
-  };
+  const getLastStatusAuthor = laatsteStatusAuteur;
 
   // Helper to capitalize status
   const capitalize = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;

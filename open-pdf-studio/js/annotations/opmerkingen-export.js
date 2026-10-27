@@ -13,7 +13,8 @@ import { expandCorrectionGroups } from './corrections/model.js';
 
 /** De kolommen van de CSV, in deze volgorde. */
 export const CSV_KOLOMMEN = Object.freeze([
-  'page', 'type', 'author', 'date', 'status', 'subject', 'contents', 'color', 'layer',
+  'id', 'page', 'type', 'author', 'created', 'modified', 'status', 'statusBy', 'statusAt',
+  'subject', 'contents', 'replyCount', 'replies', 'color', 'layer', 'x', 'y', 'width', 'height',
 ]);
 
 // Een tekstveld dat zo begint leest een spreadsheet als formule. Uit een PDF
@@ -48,31 +49,60 @@ export function csvDatum(datum) {
     + `${tweeCijfers(d.getHours())}:${tweeCijfers(d.getMinutes())}`;
 }
 
-function inhoudVan(ann) {
+export function inhoudVan(ann) {
   for (const veld of [ann.text, ann.stampText, ann.contents]) {
     if (typeof veld === 'string' && veld !== '') return veld;
   }
   return '';
 }
 
+/** De reacties als tekst: één regel per reactie, `auteur (datum): tekst`. */
+export function reactiesTekst(replies) {
+  return (Array.isArray(replies) ? replies : [])
+    .filter((r) => r && (r.text || r.author))
+    .map((r) => {
+      const datum = csvDatum(r.createdAt || r.modifiedAt);
+      const wie = r.author || 'User';
+      return `${wie}${datum ? ` (${datum})` : ''}: ${r.text || ''}`;
+    })
+    .join('\n');
+}
+
+const tweeDecimalen = (n) => (Number.isFinite(n) ? Math.round(n * 100) / 100 : '');
+
 /**
  * De waarden van één annotatie in de volgorde van CSV_KOLOMMEN.
  * @param {object} ann
  * @param {{ typeNaam?: (ann) => string, statusNaam?: (status) => string,
- *           laagNaam?: (ann) => string }} [namen]
+ *           laagNaam?: (ann) => string,
+ *           omhullende?: (ann) => ({x:number, y:number, width:number, height:number}|null) }} [namen]
  */
 export function opmerkingRij(ann, namen = {}) {
   const status = ann.status && String(ann.status).toLowerCase() !== 'none' ? String(ann.status) : '';
+  const replies = Array.isArray(ann.replies) ? ann.replies.filter(Boolean) : [];
+  const b = (namen.omhullende ? namen.omhullende(ann) : null)
+    || (Number.isFinite(ann.x) && Number.isFinite(ann.y)
+      ? { x: ann.x, y: ann.y, width: ann.width, height: ann.height } : null);
   return [
+    ann.id ?? '',
     ann.page ?? '',
     namen.typeNaam ? namen.typeNaam(ann) : (ann.type || ''),
     ann.author || '',
+    csvDatum(ann.createdAt),
     csvDatum(ann.modifiedAt || ann.createdAt),
     status && namen.statusNaam ? namen.statusNaam(status) : status,
+    status ? (ann.statusBy || '') : '',
+    status ? csvDatum(ann.statusAt) : '',
     ann.subject || '',
     inhoudVan(ann),
+    replies.length,
+    reactiesTekst(replies),
     ann.color || ann.strokeColor || '',
     namen.laagNaam ? (namen.laagNaam(ann) || '') : '',
+    b ? tweeDecimalen(b.x) : '',
+    b ? tweeDecimalen(b.y) : '',
+    b ? tweeDecimalen(b.width) : '',
+    b ? tweeDecimalen(b.height) : '',
   ];
 }
 
