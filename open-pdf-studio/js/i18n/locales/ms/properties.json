@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Bahan pengedap",
       "nen47-maaiveld": "NEN47-25 Aras tanah"
     },
-    "rotation": "Putaran"
+    "rotation": "Putaran",
+    "iconPaperclip": "Klip kertas",
+    "iconPushPin": "Pin tekan",
+    "iconGraph": "Graf",
+    "iconTag": "Tag"
   },
   "stylePresets": {
     "label": "Gaya garisan",
@@ -284,7 +288,8 @@
     "measurePerimeter": "Perimeter",
     "redaction": "Redaksi",
     "scaleBar": "Bar Skala",
-    "parametricSymbol": "Simbol Parametrik"
+    "parametricSymbol": "Simbol Parametrik",
+    "fileAttachment": "Lampiran fail"
   },
   "leftPanel": {
     "togglePanel": "Togol Panel",
@@ -722,5 +727,12 @@
     "invalid": "Lokasi tidak dapat dikemas kini",
     "rules": "Penetapan menggunakan pusat kotak sempadan penanda, termasuk tepi. Zon paling dalam menang, kemudian keluasan terkecil, kemudian ID zon. Gunakan poligon lurus tanpa lubang atau kotak tanpa putaran. Identiti zon yang tidak sah atau pendua dikecualikan.",
     "loading": "Anotasi sedang dimuatkan: lokasi mungkin masih berubah."
+  },
+  "attachment": {
+    "file": "Fail",
+    "size": "Saiz",
+    "open": "Buka",
+    "saveAs": "Simpan sebagai...",
+    "noContent": "Kandungan fail ini tidak dibenamkan dalam PDF."
   }
 }

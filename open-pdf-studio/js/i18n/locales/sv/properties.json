@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Fogmassa",
       "nen47-maaiveld": "NEN47-25 Marknivå"
     },
-    "rotation": "Rotation"
+    "rotation": "Rotation",
+    "iconPaperclip": "Gem",
+    "iconPushPin": "Häftstift",
+    "iconGraph": "Diagram",
+    "iconTag": "Etikett"
   },
   "stylePresets": {
     "label": "Linjestil",
@@ -284,7 +288,8 @@
     "measurePerimeter": "Omkrets",
     "redaction": "Maskering",
     "scaleBar": "Skalstock",
-    "parametricSymbol": "Parametrisk symbol"
+    "parametricSymbol": "Parametrisk symbol",
+    "fileAttachment": "Filbilaga"
   },
   "leftPanel": {
     "togglePanel": "Växla panel",
@@ -722,5 +727,12 @@
     "invalid": "Platsen kunde inte uppdateras",
     "rules": "Tilldelningen använder mitten av markeringens omslutande ram, kanter inräknade. Den djupaste zonen vinner, därefter minsta area och sedan zon-ID. Använd raka polygoner utan hål eller oroterade rektanglar. Ogiltiga eller dubblerade zonidentiteter undantas.",
     "loading": "Anteckningar läses in: platser kan fortfarande ändras."
+  },
+  "attachment": {
+    "file": "Fil",
+    "size": "Storlek",
+    "open": "Öppna",
+    "saveAs": "Spara som...",
+    "noContent": "Innehållet i den här filen är inte inbäddat i PDF-filen."
   }
 }

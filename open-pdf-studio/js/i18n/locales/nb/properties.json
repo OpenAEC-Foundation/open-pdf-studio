@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Fugemasse",
       "nen47-maaiveld": "NEN47-25 Terrengnivå"
     },
-    "rotation": "Rotasjon"
+    "rotation": "Rotasjon",
+    "iconPaperclip": "Binders",
+    "iconPushPin": "Tegnestift",
+    "iconGraph": "Diagram",
+    "iconTag": "Merkelapp"
   },
   "stylePresets": {
     "label": "Linjestil",
@@ -284,7 +288,8 @@
     "measurePerimeter": "Omkrets",
     "redaction": "Sladding",
     "scaleBar": "Målestokklinjal",
-    "parametricSymbol": "Parametrisk symbol"
+    "parametricSymbol": "Parametrisk symbol",
+    "fileAttachment": "Filvedlegg"
   },
   "leftPanel": {
     "togglePanel": "Veksle panel",
@@ -722,5 +727,12 @@
     "invalid": "Plasseringen kunne ikke oppdateres",
     "rules": "Tildelingen bruker midtpunktet av markeringens omsluttende ramme, kanter inkludert. Den dypeste sonen vinner, deretter minste areal og så sone-ID. Bruk rette polygoner uten hull eller uroterte rektangler. Ugyldige eller dupliserte soneidentiteter utelates.",
     "loading": "Merknader lastes inn: plasseringer kan fortsatt endres."
+  },
+  "attachment": {
+    "file": "Fil",
+    "size": "Størrelse",
+    "open": "Åpne",
+    "saveAs": "Lagre som...",
+    "noContent": "Innholdet i denne filen er ikke innebygd i PDF-en."
   }
 }

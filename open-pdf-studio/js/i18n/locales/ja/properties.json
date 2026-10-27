@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 シーリング材",
       "nen47-maaiveld": "NEN47-25 地盤面"
     },
-    "rotation": "回転"
+    "rotation": "回転",
+    "iconPaperclip": "クリップ",
+    "iconPushPin": "押しピン",
+    "iconGraph": "グラフ",
+    "iconTag": "タグ"
   },
   "stylePresets": {
     "label": "線スタイル",
@@ -284,7 +288,8 @@
     "measurePerimeter": "周長",
     "redaction": "墨消し",
     "scaleBar": "スケールバー",
-    "parametricSymbol": "パラメトリックシンボル"
+    "parametricSymbol": "パラメトリックシンボル",
+    "fileAttachment": "ファイル添付"
   },
   "leftPanel": {
     "togglePanel": "パネルの切替",
@@ -722,5 +727,12 @@
     "invalid": "場所を更新できませんでした",
     "rules": "割り当てにはマークアップの境界ボックスの中心（辺上を含む）が使用されます。最も深い階層のゾーンが優先され、次に面積が最小のゾーン、その次にゾーン ID の順で決まります。穴のない直線の多角形か、回転していないボックスを使用してください。無効または重複したゾーン識別子は除外されます。",
     "loading": "注釈を読み込み中です。場所が変わる可能性があります。"
+  },
+  "attachment": {
+    "file": "ファイル",
+    "size": "サイズ",
+    "open": "開く",
+    "saveAs": "名前を付けて保存...",
+    "noContent": "このファイルの内容は PDF に埋め込まれていません。"
   }
 }

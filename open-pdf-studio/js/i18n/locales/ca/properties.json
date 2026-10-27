@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Segellant",
       "nen47-maaiveld": "NEN47-25 Nivell del terreny"
     },
-    "rotation": "Rotació"
+    "rotation": "Rotació",
+    "iconPaperclip": "Clip",
+    "iconPushPin": "Xinxeta",
+    "iconGraph": "Gràfic",
+    "iconTag": "Etiqueta"
   },
   "stylePresets": {
     "label": "Estil de línia",
@@ -284,7 +288,8 @@
     "measurePerimeter": "Perímetre",
     "redaction": "Redacció",
     "scaleBar": "Barra d'escala",
-    "parametricSymbol": "Símbol paramètric"
+    "parametricSymbol": "Símbol paramètric",
+    "fileAttachment": "Fitxer adjunt"
   },
   "leftPanel": {
     "togglePanel": "Commuta el panell",
@@ -728,5 +733,12 @@
     "invalid": "No s'ha pogut actualitzar la ubicació",
     "rules": "L'assignació utilitza el centre del quadre delimitador del marcatge, vores incloses. Guanya la zona més profunda, després l'àrea més petita i després l'identificador de zona. Utilitzeu polígons rectes sense forats o rectangles sense rotació. S'exclouen les identitats de zona no vàlides o duplicades.",
     "loading": "S'estan carregant les anotacions: les ubicacions encara poden canviar."
+  },
+  "attachment": {
+    "file": "Fitxer",
+    "size": "Mida",
+    "open": "Obre",
+    "saveAs": "Desa com a...",
+    "noContent": "El contingut d'aquest fitxer no està incrustat al PDF."
   }
 }

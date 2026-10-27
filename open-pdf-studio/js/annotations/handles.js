@@ -123,6 +123,7 @@ function getAnnotationCenter(annotation) {
     case 'count':
       return { x: annotation.x, y: annotation.y };
     case 'comment':
+    case 'fileAttachment':
       const cw = annotation.width || 24;
       const ch = annotation.height || 24;
       return {
@@ -396,6 +397,7 @@ export function getAnnotationHandles(annotation, scale = 1) {
       break;
 
     case 'comment':
+    case 'fileAttachment':
     case 'count':
       // No resize/rotation handles — fixed-size marker, move only
       break;

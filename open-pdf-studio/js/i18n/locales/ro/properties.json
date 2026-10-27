@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Material de etanșare",
       "nen47-maaiveld": "NEN47-25 Nivelul terenului"
     },
-    "rotation": "Rotatie"
+    "rotation": "Rotatie",
+    "iconPaperclip": "Agrafă",
+    "iconPushPin": "Piuneză",
+    "iconGraph": "Grafic",
+    "iconTag": "Etichetă"
   },
   "stylePresets": {
     "label": "Stil de linie",
@@ -284,7 +288,8 @@
     "measurePerimeter": "Perimetru",
     "redaction": "Redactare",
     "scaleBar": "Bară de scară",
-    "parametricSymbol": "Simbol parametric"
+    "parametricSymbol": "Simbol parametric",
+    "fileAttachment": "Atașament fișier"
   },
   "leftPanel": {
     "togglePanel": "Comutare panou",
@@ -722,5 +727,12 @@
     "invalid": "Locația nu a putut fi actualizată",
     "rules": "Atribuirea folosește centrul casetei de încadrare a marcajului, inclusiv marginile. Câștigă zona cea mai adânc imbricată, apoi cea cu aria cea mai mică, apoi ID-ul zonei. Folosiți poligoane cu laturi drepte, fără găuri, sau casete nerotite. Identitățile de zonă nevalide sau duplicate sunt excluse.",
     "loading": "Adnotările se încarcă: locațiile se pot încă modifica."
+  },
+  "attachment": {
+    "file": "Fișier",
+    "size": "Dimensiune",
+    "open": "Deschide",
+    "saveAs": "Salvare ca...",
+    "noContent": "Conținutul acestui fișier nu este încorporat în PDF."
   }
 }

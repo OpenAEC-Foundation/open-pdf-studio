@@ -310,6 +310,9 @@ js/core/host-brug.test.mjs
 js/core/blob-worker.test.mjs
 js/core/werkplek-ai.test.mjs
 js/pdf/bijlagen.test.mjs
+js/pdf/bijlage-annotatie.test.mjs
+js/pdf/bijlage-rondgang.test.mjs
+js/i18n/bijlagen-i18n.test.mjs
 js/watermark/kopvoet.test.mjs
 js/pdf/page-manager-kopvoet.test.mjs
 js/pdf/pdfx-enrich.test.mjs

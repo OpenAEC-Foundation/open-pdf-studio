@@ -224,7 +224,12 @@
     "goToPageLink": "Aller à la page",
     "openExternalFile": "Ouvrir : {{filename}}",
     "destination": "Destination : {{name}}",
-    "internalLink": "Lien interne"
+    "internalLink": "Lien interne",
+    "attachmentOnPage": "Page {{page}}",
+    "attachmentCreated": "Créé : {{date}}",
+    "attachmentModified": "Modifié : {{date}}",
+    "openAttachmentRiskTitle": "Ouvrir la pièce jointe",
+    "openAttachmentRiskMessage": "« {{name}} » peut exécuter des programmes sur cet ordinateur. Ne l'ouvrez que si vous faites confiance à la source. Ouvrir quand même ?"
   },
   "failedToInsertPagesFromFile": "Impossible d'insérer les pages depuis le fichier : {{error}}",
   "previewPdfRefused": "Ce PDF est un aperçu issu de l’importation du dessin et peut être incomplet. Il ne peut être ni inséré ni enregistré ; importez de nouveau le dessin.",

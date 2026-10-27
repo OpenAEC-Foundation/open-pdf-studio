@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Tömítőanyag",
       "nen47-maaiveld": "NEN47-25 Terepszint"
     },
-    "rotation": "Forgatás"
+    "rotation": "Forgatás",
+    "iconPaperclip": "Gemkapocs",
+    "iconPushPin": "Rajzszög",
+    "iconGraph": "Diagram",
+    "iconTag": "Címke"
   },
   "stylePresets": {
     "label": "Vonalstílus",
@@ -284,7 +288,8 @@
     "measurePerimeter": "Kerület",
     "redaction": "Kitörlés",
     "scaleBar": "Aránymérték",
-    "parametricSymbol": "Paraméteres szimbólum"
+    "parametricSymbol": "Paraméteres szimbólum",
+    "fileAttachment": "Fájlmelléklet"
   },
   "leftPanel": {
     "togglePanel": "Panel váltása",
@@ -722,5 +727,12 @@
     "invalid": "A hely nem frissíthető",
     "rules": "A hozzárendelés a jelölés befoglaló téglalapjának középpontján alapul, a széleket is beleértve. A legmélyebben beágyazott zóna nyer, utána a legkisebb terület, majd a zónaazonosító. Egyenes oldalú, lyuk nélküli sokszögeket vagy elforgatás nélküli téglalapokat használjon. Az érvénytelen vagy ismétlődő zónaazonosítók kimaradnak.",
     "loading": "Az annotációk betöltése folyamatban: a helyek még változhatnak."
+  },
+  "attachment": {
+    "file": "Fájl",
+    "size": "Méret",
+    "open": "Megnyitás",
+    "saveAs": "Mentés másként...",
+    "noContent": "A fájl tartalma nincs beágyazva a PDF-be."
   }
 }

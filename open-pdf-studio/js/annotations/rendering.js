@@ -20,6 +20,7 @@ import { tagWeergaveParams } from '../plattegrond/ruimte-koppeling.js';
 import { applyHatchFill, applyHatchFillPolygon } from './rendering/hatch-patterns.js';
 import { isVreemdeTelling, tellingStraal } from './telling.js';
 import { drawWall } from './rendering/walls.js';
+import { tekenBijlageIcoon } from './bijlage-iconen.js';
 import { buildStavenreeks } from './stavenreeks.js';
 import { stavenreeksPxPerMm } from './stavenreeks-scale.js';
 import { buildBetonbalk } from './betonbalk.js';
@@ -1097,6 +1098,14 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       ctx.restore();
       break;
     }
+
+    case 'fileAttachment':
+      // Bijlage-annotatie (#376): het pictogram, zoals in de appearance.
+      ctx.save();
+      ctx.globalAlpha = annotation.opacity ?? 1;
+      tekenBijlageIcoon(ctx, annotation);
+      ctx.restore();
+      break;
 
     case 'count': {
       const cx = annotation.x, cy = annotation.y;

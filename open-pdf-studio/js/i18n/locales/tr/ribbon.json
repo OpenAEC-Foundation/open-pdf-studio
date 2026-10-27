@@ -169,7 +169,9 @@
     "flattenAll": "Tümünü düzleştir",
     "flattenAllTooltip": "Tüm işaretlemeleri sayfa içeriğine düzleştir",
     "unflattenAll": "Düzleştirmeyi geri al",
-    "unflattenAllTooltip": "Geri yüklemeye izin verilerek düzleştirilen işaretlemeleri geri yükle"
+    "unflattenAllTooltip": "Geri yüklemeye izin verilerek düzleştirilen işaretlemeleri geri yükle",
+    "fileAttachment": "Dosya ekle",
+    "fileAttachmentTitle": "Dosya eki: sayfaya tıklayın ve bir dosya seçin"
   },
   "view": {
     "pageDisplay": "Sayfa Görüntüleme",

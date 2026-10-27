@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Sızdırmazlık malzemesi",
       "nen47-maaiveld": "NEN47-25 Zemin kotu"
     },
-    "rotation": "Döndürme"
+    "rotation": "Döndürme",
+    "iconPaperclip": "Ataş",
+    "iconPushPin": "Raptiye",
+    "iconGraph": "Grafik",
+    "iconTag": "Etiket"
   },
   "stylePresets": {
     "label": "Çizgi stili",
@@ -284,7 +288,8 @@
     "measurePerimeter": "Çevre",
     "redaction": "Karartma",
     "scaleBar": "Ölçek Çubuğu",
-    "parametricSymbol": "Parametrik sembol"
+    "parametricSymbol": "Parametrik sembol",
+    "fileAttachment": "Dosya eki"
   },
   "leftPanel": {
     "togglePanel": "Paneli Aç/Kapat",
@@ -722,5 +727,12 @@
     "invalid": "Konum güncellenemedi",
     "rules": "Atama, kenarlar dahil işaretlemenin sınırlayıcı kutu merkezini kullanır. En derin bölge kazanır, ardından en küçük alan, ardından bölge kimliği. Deliksiz düz kenarlı çokgenler veya döndürülmemiş kutular kullanın. Geçersiz veya yinelenen bölge kimlikleri hariç tutulur.",
     "loading": "Açıklamalar yükleniyor: konumlar hâlâ değişebilir."
+  },
+  "attachment": {
+    "file": "Dosya",
+    "size": "Boyut",
+    "open": "Aç",
+    "saveAs": "Farklı kaydet...",
+    "noContent": "Bu dosyanın içeriği PDF'e gömülü değil."
   }
 }

@@ -42,6 +42,7 @@ import { inzetUitDsMarge, tolerantieVoorDsInzet } from '../../annotations/render
 import { caretPropsFromPdf, textEditPropsFromPdf } from './correction-load.js';
 import { algemeneEigenschappen } from './annotatie-algemeen.js';
 import { ontdraaiVorm } from '../saver/vorm-draaiing.js';
+import { bijlageIcoonUitPdf } from '../../annotations/bijlage-iconen.js';
 import { stempelGeometrie, kiesStempelWeergave, oudeStempelDraaiing } from './stempel-geometrie.js';
 
 /**
@@ -1195,6 +1196,39 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         popupOpen: annot.open || false,
         // Draaiing van het pictogram: eigen sleutel /OPS_Rotation (#619).
         ...(extraColors.rotation ? { rotation: extraColors.rotation } : {}),
+      });
+    }
+
+    case 'FileAttachment': {
+      // Bijlage-annotatie (#376): pictogram met een ingesloten bestand. Het
+      // bestand zelf las color-extraction.js met pdf-lib (extraColors.bijlage).
+      const vak = convertRect(rect);
+      const bijlage = extraColors.bijlage || null;
+      const bestand = bijlage?.bestand || {};
+      return createAnnotation({
+        ...baseProps,
+        type: 'fileAttachment',
+        x: vak.x,
+        y: vak.y,
+        width: vak.width || 24,
+        height: vak.height || 24,
+        text: (annot.contentsObj && annot.contentsObj.str) || annot.contents || '',
+        color: colorArrayToHex(annot.color, '#2B579A'),
+        icon: bijlage?.icoon || bijlageIcoonUitPdf(annot.name),
+        attachment: {
+          key: bestand.key || null,
+          name: bestand.naam || annot.file?.filename || 'attachment',
+          description: bestand.beschrijving || annot.file?.description || '',
+          mime: bestand.mime || null,
+          size: bestand.grootte ?? null,
+          createdAt: bestand.aangemaakt || null,
+          modifiedAt: bestand.gewijzigd || null,
+          relationship: bestand.relatie || null,
+          external: !!bestand.extern,
+          // Terugval als de inhoud (nog) niet via pdf-lib gelezen is: pdf.js
+          // levert hem op dit id (getAttachmentContent).
+          pdfjsId: annot.fileId || null,
+        },
       });
     }
 

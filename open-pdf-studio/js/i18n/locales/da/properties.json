@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Fugemasse",
       "nen47-maaiveld": "NEN47-25 Terrænniveau"
     },
-    "rotation": "Rotation"
+    "rotation": "Rotation",
+    "iconPaperclip": "Papirclips",
+    "iconPushPin": "Tegnestift",
+    "iconGraph": "Diagram",
+    "iconTag": "Mærkat"
   },
   "stylePresets": {
     "label": "Linjestil",
@@ -284,7 +288,8 @@
     "measurePerimeter": "Omkreds",
     "redaction": "Redigering",
     "scaleBar": "Skalabjælke",
-    "parametricSymbol": "Parametrisk symbol"
+    "parametricSymbol": "Parametrisk symbol",
+    "fileAttachment": "Vedhæftet fil"
   },
   "leftPanel": {
     "togglePanel": "Skift panel",
@@ -722,5 +727,12 @@
     "invalid": "Placeringen kunne ikke opdateres",
     "rules": "Tildelingen bruger midten af markeringens afgrænsningsramme, inklusive kanter. Den dybeste zone vinder, derefter det mindste areal og derefter zone-id. Brug lige polygoner uden huller eller uroterede rektangler. Ugyldige eller dublerede zoneidentiteter udelades.",
     "loading": "Annotationer indlæses: placeringer kan stadig ændre sig."
+  },
+  "attachment": {
+    "file": "Fil",
+    "size": "Størrelse",
+    "open": "Åbn",
+    "saveAs": "Gem som...",
+    "noContent": "Indholdet af denne fil er ikke indlejret i PDF'en."
   }
 }

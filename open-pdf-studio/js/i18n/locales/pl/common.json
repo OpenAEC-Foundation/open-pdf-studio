@@ -224,7 +224,12 @@
     "goToPageLink": "Przejdź do strony",
     "openExternalFile": "Otwórz: {{filename}}",
     "destination": "Miejsce docelowe: {{name}}",
-    "internalLink": "Łącze wewnętrzne"
+    "internalLink": "Łącze wewnętrzne",
+    "attachmentOnPage": "Strona {{page}}",
+    "attachmentCreated": "Utworzono: {{date}}",
+    "attachmentModified": "Zmodyfikowano: {{date}}",
+    "openAttachmentRiskTitle": "Otwórz załącznik",
+    "openAttachmentRiskMessage": "„{{name}}” może uruchamiać programy na tym komputerze. Otwieraj go tylko, jeśli ufasz źródłu. Otworzyć mimo to?"
   },
   "failedToInsertPagesFromFile": "Nie udało się wstawić stron z pliku: {{error}}",
   "previewPdfRefused": "Ten PDF jest podglądem z importu rysunku i może być niekompletny. Nie można go wstawić ani zapisać; zaimportuj rysunek ponownie.",

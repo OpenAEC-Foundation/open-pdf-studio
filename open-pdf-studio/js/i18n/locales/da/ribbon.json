@@ -169,7 +169,9 @@
     "flattenAll": "Fladgør alle",
     "flattenAllTooltip": "Fladgør alle markeringer til sideindhold",
     "unflattenAll": "Fortryd fladgøring",
-    "unflattenAllTooltip": "Gendan markeringer, der blev fladgjort med gendannelse tilladt"
+    "unflattenAllTooltip": "Gendan markeringer, der blev fladgjort med gendannelse tilladt",
+    "fileAttachment": "Vedhæft fil",
+    "fileAttachmentTitle": "Vedhæftet fil: klik på siden og vælg en fil"
   },
   "view": {
     "pageDisplay": "Sidevisning",

@@ -169,7 +169,9 @@
     "flattenAll": "Aplanar todo",
     "flattenAllTooltip": "Aplanar todas las marcas en el contenido de la página",
     "unflattenAll": "Deshacer aplanado",
-    "unflattenAllTooltip": "Restaurar las marcas aplanadas con la restauración permitida"
+    "unflattenAllTooltip": "Restaurar las marcas aplanadas con la restauración permitida",
+    "fileAttachment": "Adjuntar archivo",
+    "fileAttachmentTitle": "Archivo adjunto: haga clic en la página y elija un archivo"
   },
   "view": {
     "pageDisplay": "Visualización de página",

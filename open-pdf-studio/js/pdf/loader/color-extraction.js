@@ -12,6 +12,27 @@ import { leesPlattegrondMeta } from './plattegrond-meta.js';
 import { leesLijnSleutels } from './maatlijn-uit-bestand.js';
 import { blendUitPdf } from '../../annotations/blend-modes.js';
 import { leesStempelAp } from './stempel-ap.js';
+import { leesBijlageAnnotatie } from '../bijlage-annotatie.js';
+import { bewaarBijlageInhoud } from '../../annotations/bijlage-store.js';
+
+// Bijlage-annotaties (#376) die al gelezen zijn, op hun /FS-object: een pagina
+// kan meer dan eens geëxtraheerd worden, de inhoud hoeft maar één keer in de
+// store.
+const _bijlagenGelezen = new WeakMap();
+
+function bijlageUitAnnotatie(context, annotDict) {
+  const fsObj = context.lookup(annotDict.get(PDFName.of('FS')));
+  if (fsObj && typeof fsObj === 'object' && _bijlagenGelezen.has(fsObj)) {
+    return { ..._bijlagenGelezen.get(fsObj) };
+  }
+  const gelezen = leesBijlageAnnotatie(context, annotDict);
+  if (!gelezen) return null;
+  const { bytes, ruw, ...meta } = gelezen.bestand;
+  const key = (bytes || ruw) ? bewaarBijlageInhoud(bytes ? { bytes } : { ruw }) : null;
+  const uit = { icoon: gelezen.icoon, bestand: { ...meta, key } };
+  if (fsObj && typeof fsObj === 'object') _bijlagenGelezen.set(fsObj, uit);
+  return { ...uit };
+}
 
 // Documenten waarvan de knipsel-bronpagina's al in de store staan: dat
 // uitpakken gebeurt één keer per document, bij het eerste knipsel dat we zien.
@@ -319,6 +340,16 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
             const iv = beI !== undefined ? pdfNum(context.lookup(beI) || beI) : null;
             if (iv !== null) colors.cloudIntensity = iv;
           }
+        }
+      }
+
+      // Bijlage-annotatie (#376): het bestand achter het pictogram.
+      if (subtypeName === '/FileAttachment') {
+        try {
+          const bijlage = bijlageUitAnnotatie(context, annotDict);
+          if (bijlage) colors.bijlage = bijlage;
+        } catch (e) {
+          console.warn('[loader] file attachment could not be read:', e?.message || e);
         }
       }
 

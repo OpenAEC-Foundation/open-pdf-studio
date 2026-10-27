@@ -169,7 +169,9 @@
     "flattenAll": "שטח הכל",
     "flattenAllTooltip": "שיטוח כל הסימונים לתוכן העמוד",
     "unflattenAll": "בטל שיטוח",
-    "unflattenAllTooltip": "שחזור סימונים ששוטחו כשהשחזור הותר"
+    "unflattenAllTooltip": "שחזור סימונים ששוטחו כשהשחזור הותר",
+    "fileAttachment": "צירוף קובץ",
+    "fileAttachmentTitle": "קובץ מצורף: לחצו על העמוד ובחרו קובץ"
   },
   "view": {
     "pageDisplay": "תצוגת עמוד",

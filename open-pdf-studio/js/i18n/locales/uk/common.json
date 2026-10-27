@@ -224,7 +224,12 @@
     "goToPageLink": "Перейти на сторінку",
     "openExternalFile": "Відкрити: {{filename}}",
     "destination": "Призначення: {{name}}",
-    "internalLink": "Внутрішнє посилання"
+    "internalLink": "Внутрішнє посилання",
+    "attachmentOnPage": "Сторінка {{page}}",
+    "attachmentCreated": "Створено: {{date}}",
+    "attachmentModified": "Змінено: {{date}}",
+    "openAttachmentRiskTitle": "Відкрити вкладення",
+    "openAttachmentRiskMessage": "«{{name}}» може запускати програми на цьому комп'ютері. Відкривайте його, лише якщо довіряєте джерелу. Усе одно відкрити?"
   },
   "failedToInsertPagesFromFile": "Не вдалося вставити сторінки з файлу: {{error}}",
   "previewPdfRefused": "Цей PDF — попередній перегляд з імпорту креслення і може бути неповним. Його не можна вставити чи зберегти; імпортуйте креслення знову.",

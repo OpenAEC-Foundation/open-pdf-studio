@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Dichtstoff",
       "nen47-maaiveld": "NEN47-25 Geländeoberfläche"
     },
-    "rotation": "Drehung"
+    "rotation": "Drehung",
+    "iconPaperclip": "Büroklammer",
+    "iconPushPin": "Reißzwecke",
+    "iconGraph": "Diagramm",
+    "iconTag": "Etikett"
   },
   "stylePresets": {
     "label": "Linienstil",
@@ -284,7 +288,8 @@
     "measurePerimeter": "Umfang",
     "redaction": "Schwärzung",
     "scaleBar": "Maßstabsleiste",
-    "parametricSymbol": "Parametrisches Symbol"
+    "parametricSymbol": "Parametrisches Symbol",
+    "fileAttachment": "Dateianhang"
   },
   "leftPanel": {
     "togglePanel": "Seitenleiste ein-/ausblenden",
@@ -722,5 +727,12 @@
     "invalid": "Standort konnte nicht aktualisiert werden",
     "rules": "Die Zuordnung verwendet den Mittelpunkt des Begrenzungsrahmens der Markierung, einschließlich Kanten. Die tiefste Zone hat Vorrang, dann die kleinste Fläche, dann die Zonen-ID. Verwenden Sie gerade Polygone ohne Löcher oder nicht gedrehte Rechtecke. Ungültige oder doppelte Zonenidentitäten werden ausgeschlossen.",
     "loading": "Anmerkungen werden geladen: Standorte können sich noch ändern."
+  },
+  "attachment": {
+    "file": "Datei",
+    "size": "Größe",
+    "open": "Öffnen",
+    "saveAs": "Speichern unter...",
+    "noContent": "Der Inhalt dieser Datei ist nicht in die PDF eingebettet."
   }
 }

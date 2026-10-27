@@ -169,7 +169,9 @@
     "flattenAll": "Aplana-ho tot",
     "flattenAllTooltip": "Aplana totes les marques en el contingut de la pàgina",
     "unflattenAll": "Desfés l'aplanat",
-    "unflattenAllTooltip": "Restaura les marques aplanades amb la restauració permesa"
+    "unflattenAllTooltip": "Restaura les marques aplanades amb la restauració permesa",
+    "fileAttachment": "Adjunta un fitxer",
+    "fileAttachmentTitle": "Fitxer adjunt: feu clic a la pàgina i trieu un fitxer"
   },
   "view": {
     "pageDisplay": "Visualització de pàgina",

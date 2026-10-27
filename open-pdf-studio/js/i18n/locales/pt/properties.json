@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Selante",
       "nen47-maaiveld": "NEN47-25 Nível do terreno"
     },
-    "rotation": "Rotação"
+    "rotation": "Rotação",
+    "iconPaperclip": "Clipe",
+    "iconPushPin": "Alfinete",
+    "iconGraph": "Gráfico",
+    "iconTag": "Etiqueta"
   },
   "stylePresets": {
     "label": "Estilo de linha",
@@ -284,7 +288,8 @@
     "measurePerimeter": "Perímetro",
     "redaction": "Redação",
     "scaleBar": "Barra de escala",
-    "parametricSymbol": "Símbolo paramétrico"
+    "parametricSymbol": "Símbolo paramétrico",
+    "fileAttachment": "Anexo de arquivo"
   },
   "leftPanel": {
     "togglePanel": "Alternar Painel",
@@ -722,5 +727,12 @@
     "invalid": "Não foi possível atualizar a localização",
     "rules": "A atribuição usa o centro da caixa delimitadora da marcação, incluindo as bordas. Prevalece a zona mais profunda, depois a menor área e, por fim, o ID da zona. Use polígonos retos sem furos ou retângulos sem rotação. Identidades de zona inválidas ou duplicadas são excluídas.",
     "loading": "Carregando anotações: as localizações ainda podem mudar."
+  },
+  "attachment": {
+    "file": "Arquivo",
+    "size": "Tamanho",
+    "open": "Abrir",
+    "saveAs": "Salvar como...",
+    "noContent": "O conteúdo deste arquivo não está incorporado no PDF."
   }
 }

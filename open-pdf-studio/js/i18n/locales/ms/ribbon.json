@@ -169,7 +169,9 @@
     "flattenAll": "Ratakan semua",
     "flattenAllTooltip": "Ratakan semua penanda ke dalam kandungan halaman",
     "unflattenAll": "Buat asal perataan",
-    "unflattenAllTooltip": "Pulihkan penanda yang diratakan dengan pemulihan dibenarkan"
+    "unflattenAllTooltip": "Pulihkan penanda yang diratakan dengan pemulihan dibenarkan",
+    "fileAttachment": "Lampirkan fail",
+    "fileAttachmentTitle": "Lampiran fail: klik pada halaman dan pilih fail"
   },
   "view": {
     "pageDisplay": "Paparan Halaman",

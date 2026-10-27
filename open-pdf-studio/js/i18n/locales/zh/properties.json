@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 密封胶",
       "nen47-maaiveld": "NEN47-25 地面标高"
     },
-    "rotation": "旋转"
+    "rotation": "旋转",
+    "iconPaperclip": "回形针",
+    "iconPushPin": "图钉",
+    "iconGraph": "图表",
+    "iconTag": "标签"
   },
   "stylePresets": {
     "label": "线条样式",
@@ -284,7 +288,8 @@
     "measurePerimeter": "周长",
     "redaction": "密文",
     "scaleBar": "比例尺",
-    "parametricSymbol": "参数化符号"
+    "parametricSymbol": "参数化符号",
+    "fileAttachment": "文件附件"
   },
   "leftPanel": {
     "togglePanel": "切换面板",
@@ -722,5 +727,12 @@
     "invalid": "无法更新位置",
     "rules": "分配依据标记边界框的中心点（含边缘）。优先选择最深层的区域，其次是面积最小的区域，然后是区域 ID。请使用无孔洞的直边多边形或未旋转的矩形框。无效或重复的区域标识将被排除。",
     "loading": "正在加载批注：位置可能仍会变化。"
+  },
+  "attachment": {
+    "file": "文件",
+    "size": "大小",
+    "open": "打开",
+    "saveAs": "另存为...",
+    "noContent": "此文件的内容未嵌入 PDF 中。"
   }
 }

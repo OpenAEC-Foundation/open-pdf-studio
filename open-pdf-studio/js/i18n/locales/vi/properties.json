@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Vật liệu trám kín",
       "nen47-maaiveld": "NEN47-25 Cốt mặt đất"
     },
-    "rotation": "Góc xoay"
+    "rotation": "Góc xoay",
+    "iconPaperclip": "Kẹp giấy",
+    "iconPushPin": "Ghim",
+    "iconGraph": "Biểu đồ",
+    "iconTag": "Thẻ"
   },
   "stylePresets": {
     "label": "Kiểu đường",
@@ -284,7 +288,8 @@
     "measurePerimeter": "Chu vi",
     "redaction": "Che thông tin",
     "scaleBar": "Thước tỷ lệ",
-    "parametricSymbol": "Ký hiệu tham số"
+    "parametricSymbol": "Ký hiệu tham số",
+    "fileAttachment": "Tệp đính kèm"
   },
   "leftPanel": {
     "togglePanel": "Bật/Tắt Bảng",
@@ -722,5 +727,12 @@
     "invalid": "Không thể cập nhật vị trí",
     "rules": "Việc gán dựa trên tâm hộp giới hạn của đánh dấu, tính cả cạnh. Vùng sâu nhất được ưu tiên, sau đó đến diện tích nhỏ nhất, rồi đến ID vùng. Hãy dùng đa giác cạnh thẳng không có lỗ hoặc hộp chưa xoay. Các định danh vùng không hợp lệ hoặc trùng lặp sẽ bị loại trừ.",
     "loading": "Đang tải chú thích: vị trí có thể vẫn thay đổi."
+  },
+  "attachment": {
+    "file": "Tệp",
+    "size": "Kích thước",
+    "open": "Mở",
+    "saveAs": "Lưu thành...",
+    "noContent": "Nội dung của tệp này không được nhúng trong PDF."
   }
 }

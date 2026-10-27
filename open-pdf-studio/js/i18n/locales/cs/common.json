@@ -224,7 +224,12 @@
     "goToPageLink": "Přejít na stránku",
     "openExternalFile": "Otevřít: {{filename}}",
     "destination": "Cíl: {{name}}",
-    "internalLink": "Interní odkaz"
+    "internalLink": "Interní odkaz",
+    "attachmentOnPage": "Strana {{page}}",
+    "attachmentCreated": "Vytvořeno: {{date}}",
+    "attachmentModified": "Změněno: {{date}}",
+    "openAttachmentRiskTitle": "Otevřít přílohu",
+    "openAttachmentRiskMessage": "„{{name}}“ může na tomto počítači spouštět programy. Otevřete ji, jen pokud zdroji důvěřujete. Přesto otevřít?"
   },
   "failedToInsertPagesFromFile": "Vložení stránek ze souboru se nezdařilo: {{error}}",
   "previewPdfRefused": "Toto PDF je náhled z importu výkresu a může být neúplné. Nelze je vložit ani uložit; importujte výkres znovu.",

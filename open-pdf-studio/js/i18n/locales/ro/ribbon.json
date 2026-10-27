@@ -169,7 +169,9 @@
     "flattenAll": "Aplatizare totală",
     "flattenAllTooltip": "Aplatizează toate marcajele în conținutul paginii",
     "unflattenAll": "Anulare aplatizare",
-    "unflattenAllTooltip": "Restaurează marcajele aplatizate cu restaurarea permisă"
+    "unflattenAllTooltip": "Restaurează marcajele aplatizate cu restaurarea permisă",
+    "fileAttachment": "Atașează fișier",
+    "fileAttachmentTitle": "Atașament: faceți clic pe pagină și alegeți un fișier"
   },
   "view": {
     "pageDisplay": "Afisare pagina",

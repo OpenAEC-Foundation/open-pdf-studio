@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Brtvena masa",
       "nen47-maaiveld": "NEN47-25 Razina terena"
     },
-    "rotation": "Rotacija"
+    "rotation": "Rotacija",
+    "iconPaperclip": "Spajalica",
+    "iconPushPin": "Pribadača",
+    "iconGraph": "Grafikon",
+    "iconTag": "Oznaka"
   },
   "stylePresets": {
     "label": "Stil linije",
@@ -284,7 +288,8 @@
     "measurePerimeter": "Opseg",
     "redaction": "Redigiranje",
     "scaleBar": "Grafičko mjerilo",
-    "parametricSymbol": "Parametarski simbol"
+    "parametricSymbol": "Parametarski simbol",
+    "fileAttachment": "Privitak datoteke"
   },
   "leftPanel": {
     "togglePanel": "Prebaci ploču",
@@ -722,5 +727,12 @@
     "invalid": "Lokaciju nije moguće ažurirati",
     "rules": "Dodjela koristi središte graničnog okvira oznake, uključujući rubove. Prednost ima najdublja zona, zatim najmanja površina, pa ID zone. Koristite ravne mnogokute bez rupa ili nerotirane okvire. Nevaljani ili dvostruki identiteti zona isključuju se.",
     "loading": "Bilješke se učitavaju: lokacije se još mogu promijeniti."
+  },
+  "attachment": {
+    "file": "Datoteka",
+    "size": "Veličina",
+    "open": "Otvori",
+    "saveAs": "Spremi kao...",
+    "noContent": "Sadržaj ove datoteke nije ugrađen u PDF."
   }
 }

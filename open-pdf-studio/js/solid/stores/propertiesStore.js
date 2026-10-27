@@ -111,6 +111,9 @@ const [annotProps, setAnnotProps] = createStore({
   opacity: 100,
   fillOpacity: 100,
   icon: 'comment',
+  attachmentName: '',
+  attachmentSize: null,
+  attachmentMime: '',
   borderStyle: 'solid',
   cross: false,
   text: '',
@@ -195,6 +198,7 @@ const [sectionVis, setSectionVis] = createStore({
   customFields: false,
   // Sub-group visibility
   iconGroup: false,
+  attachmentGroup: false,
   fillColorGroup: false,
   fillNoneAllowed: true,
   strokeColorGroup: false,
@@ -257,11 +261,11 @@ function computeSectionVisibility(type) {
   const isTextbox = ['textbox', 'callout'].includes(type);
   const isShape = ['line', 'arrow', 'box', 'circle', 'draw', 'textbox', 'callout'].includes(type);
   // Een invoegteken (#508) heeft de ingevoegde tekst als inhoud.
-  const isTextContent = type === 'text' || type === 'comment' || type === 'caret';
+  const isTextContent = type === 'text' || type === 'comment' || type === 'caret' || type === 'fileAttachment';
   const isImage = type === 'image';
   const isLineOrArrow = type === 'arrow' || type === 'line';
   const isTextMarkup = isTextAnchored({ type });
-  const hideLineWidth = ['highlight', 'comment', 'image', 'textHighlight', 'caret'].includes(type);
+  const hideLineWidth = ['highlight', 'comment', 'fileAttachment', 'image', 'textHighlight', 'caret'].includes(type);
   // Schaalgebied (#611): eigen vulkleur en vul-doorzichtigheid; "geen" vulling
   // is daar vul-doorzichtigheid 0, want zonder vulkleur volgt de vulling de
   // randkleur (het oude uiterlijk).
@@ -295,7 +299,9 @@ function computeSectionVisibility(type) {
     image: isImage,
     actions: true,
     customFields: hasCustomFields,
-    iconGroup: type === 'comment',
+    // Bijlage-annotatie (#376) heeft haar eigen pictogrammen (/Name).
+    iconGroup: type === 'comment' || type === 'fileAttachment',
+    attachmentGroup: type === 'fileAttachment',
     fillColorGroup: hasFillColor,
     fillNoneAllowed: !isScaleRegion,
     strokeColorGroup: isShape || type === 'measureDistance' || type === 'measureArea' || type === 'measurePerimeter' || type === 'filledArea',
@@ -419,7 +425,10 @@ export function storeShowProperties(annotation) {
         : DRAFTING_RULE_TYPES.has(annotation.type)
           ? Math.round(effectiveDraftingLineWidth(annotation) * 100) / 100 : 3),
     opacity: annotation.opacity !== undefined ? Math.round(annotation.opacity * 100) : 100,
-    icon: annotation.icon || 'comment',
+    icon: annotation.icon || (annotation.type === 'fileAttachment' ? 'paperclip' : 'comment'),
+    attachmentName: annotation.attachment?.name || '',
+    attachmentSize: annotation.attachment?.size ?? null,
+    attachmentMime: annotation.attachment?.mime || '',
     borderStyle: annotation.borderStyle || 'solid',
     cross: annotation.cross === true,
     hatchPattern: annotation.hatchPattern || (annotation.type === 'measureArea' ? 'diagonal-left' : 'none'),
@@ -784,7 +793,7 @@ export function storeShowMultiSelection(selected) {
   const fillColorTypes = new Set(['highlight', 'box', 'circle', 'polygon', 'cloud', 'textbox', 'callout', 'arrow', 'line', 'scaleRegion']);
   const strokeColorTypes = new Set(['line', 'arrow', 'box', 'circle', 'draw', 'textbox', 'callout', 'polygon', 'cloud']);
   const hideColorTypes = new Set(['line', 'arrow', 'box', 'circle', 'draw', 'highlight', 'image', 'textbox', 'callout', 'polygon', 'cloud']);
-  const hideLineWidthTypes = new Set(['highlight', 'comment', 'image', 'textHighlight', 'caret']);
+  const hideLineWidthTypes = new Set(['highlight', 'comment', 'fileAttachment', 'image', 'textHighlight', 'caret']);
   const borderStyleTypes = new Set(['textbox', 'callout', 'arrow', 'line', 'box', 'circle', 'polygon', 'cloud', 'draw', 'polyline', 'splineArrow']);
   const hatchPatternTypes = new Set(['box', 'circle', 'polygon', 'cloud', 'measureArea', 'filledArea']);
   const rotationTypes = new Set(['box', 'circle', 'polygon', 'cloud', 'highlight', 'redaction', 'comment', 'stamp', 'signature']);

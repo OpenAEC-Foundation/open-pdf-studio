@@ -169,7 +169,9 @@
     "flattenAll": "全部拼合",
     "flattenAllTooltip": "将所有标记拼合到页面内容中",
     "unflattenAll": "取消拼合",
-    "unflattenAllTooltip": "恢复在允许恢复时拼合的标记"
+    "unflattenAllTooltip": "恢复在允许恢复时拼合的标记",
+    "fileAttachment": "附加文件",
+    "fileAttachmentTitle": "文件附件: 单击页面并选择一个文件"
   },
   "view": {
     "pageDisplay": "页面显示",

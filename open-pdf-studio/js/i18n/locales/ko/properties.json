@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 실링재",
       "nen47-maaiveld": "NEN47-25 지반면"
     },
-    "rotation": "회전"
+    "rotation": "회전",
+    "iconPaperclip": "클립",
+    "iconPushPin": "압정",
+    "iconGraph": "그래프",
+    "iconTag": "태그"
   },
   "stylePresets": {
     "label": "선 스타일",
@@ -284,7 +288,8 @@
     "measurePerimeter": "둘레",
     "redaction": "교정",
     "scaleBar": "축척 막대",
-    "parametricSymbol": "파라메트릭 기호"
+    "parametricSymbol": "파라메트릭 기호",
+    "fileAttachment": "파일 첨부"
   },
   "leftPanel": {
     "togglePanel": "패널 전환",
@@ -722,5 +727,12 @@
     "invalid": "위치를 업데이트할 수 없습니다",
     "rules": "할당에는 가장자리를 포함한 마크업 경계 상자의 중심이 사용됩니다. 가장 깊은 구역이 우선하며, 그다음 가장 작은 면적, 그다음 구역 ID 순입니다. 구멍이 없는 직선 다각형이나 회전하지 않은 상자를 사용하세요. 잘못되었거나 중복된 구역 식별자는 제외됩니다.",
     "loading": "주석을 불러오는 중입니다. 위치가 아직 변경될 수 있습니다."
+  },
+  "attachment": {
+    "file": "파일",
+    "size": "크기",
+    "open": "열기",
+    "saveAs": "다른 이름으로 저장...",
+    "noContent": "이 파일의 내용은 PDF에 포함되어 있지 않습니다."
   }
 }

@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Kizibio",
       "nen47-maaiveld": "NEN47-25 Usawa wa ardhi"
     },
-    "rotation": "Mzunguko"
+    "rotation": "Mzunguko",
+    "iconPaperclip": "Kibanio cha karatasi",
+    "iconPushPin": "Pini",
+    "iconGraph": "Grafu",
+    "iconTag": "Lebo"
   },
   "stylePresets": {
     "label": "Mtindo wa mstari",
@@ -284,7 +288,8 @@
     "measurePerimeter": "Mzunguko",
     "redaction": "Ufutaji",
     "scaleBar": "Upau wa Kipimo",
-    "parametricSymbol": "Ishara ya Vigezo"
+    "parametricSymbol": "Ishara ya Vigezo",
+    "fileAttachment": "Kiambatisho cha faili"
   },
   "leftPanel": {
     "togglePanel": "Badilisha Paneli",
@@ -722,5 +727,12 @@
     "invalid": "Mahali hapakuweza kusasishwa",
     "rules": "Upangaji hutumia kitovu cha kisanduku cha mipaka cha alama, pamoja na kingo. Kanda ya ndani kabisa hushinda, kisha eneo dogo zaidi, kisha kitambulisho cha kanda. Tumia poligoni zilizonyooka zisizo na matundu au visanduku visivyozungushwa. Utambulisho wa kanda batili au unaojirudia huachwa.",
     "loading": "Maoni yanapakiwa: maeneo bado yanaweza kubadilika."
+  },
+  "attachment": {
+    "file": "Faili",
+    "size": "Ukubwa",
+    "open": "Fungua",
+    "saveAs": "Hifadhi kama...",
+    "noContent": "Maudhui ya faili hii hayajapachikwa kwenye PDF."
   }
 }

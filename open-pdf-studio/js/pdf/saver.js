@@ -51,6 +51,8 @@ import { saveBookmarksToOutline } from './saver/bookmarks.js';
 import { saveStylePresetsToCatalog } from './saver/style-presets.js';
 import { slaPaginaLabelsOp } from './pagina-labels.js';
 import { pasBijlagenToe } from './bijlagen.js';
+import { bouwBijlageAnnotatie } from './bijlage-annotatie.js';
+import { bijlageInhoud } from '../annotations/bijlage-store.js';
 import { schrijfAnnotatieLagen, ocVoorAnnotatie } from './saver/annotatie-lagen.js';
 import { layersForSave, currentLayerId } from '../annotations/annotatie-lagen.js';
 import { heeftNietWinAnsi, pdfTextString, toWinAnsiText, winAnsiLiteral, asciiPdfName } from './saver/pdf-text.js';
@@ -503,7 +505,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       const handledSubtypes = new Set([
         '/Highlight', '/Underline', '/StrikeOut', '/Squiggly',
         '/Square', '/Circle', '/Line', '/Ink', '/PolyLine', '/Polygon',
-        '/Text', '/FreeText', '/Stamp', '/Caret'
+        '/Text', '/FreeText', '/Stamp', '/Caret', '/FileAttachment'
       ]);
       let annotsArray = [];
       const verwijderdeRefs = []; // weggehaald en uit het model herschreven
@@ -1739,6 +1741,37 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             // Draaiing van het pictogram (#619): de specificatie kent er geen
             // sleutel voor; andere lezers tekenen hun eigen pictogram rechtop.
             if (ann.rotation) annotDict.set(PDFName.of('OPS_Rotation'), context.obj(ann.rotation));
+            break;
+          }
+
+          case 'fileAttachment': {
+            // Bijlage-annotatie (#376): pictogram met ingesloten bestand.
+            const faW = ann.width || 24;
+            const faH = ann.height || 24;
+            const faInhoud = await bijlageInhoud(annRaw, activeDoc);
+            const faBestand = annRaw.attachment || {};
+            annotDict = bouwBijlageAnnotatie(pdfDocLib, {
+              rect: [convertX(ann.x), convertY(ann.y + faH), convertX(ann.x + faW), convertY(ann.y)],
+              icoon: ann.icon,
+              kleur: ann.color,
+              kleurArray: hexToColorArray(ann.color || '#2B579A'),
+              opacity,
+              tekst: ann.text || '',
+              auteur: pdfTextString(ann.author || 'User'),
+              flags: computeAnnotFlags(ann),
+              tekstObj: pdfTextString,
+              bestand: {
+                naam: faBestand.name || 'attachment',
+                beschrijving: faBestand.description || ann.text || '',
+                mime: faBestand.mime || undefined,
+                aangemaakt: faBestand.createdAt || undefined,
+                gewijzigd: faBestand.modifiedAt || undefined,
+                relatie: faBestand.relationship || undefined,
+                grootte: faBestand.size ?? undefined,
+                ...(faInhoud?.bytes ? { bytes: faInhoud.bytes } : faInhoud?.ruw ? { ruw: faInhoud.ruw } : {}),
+              },
+            });
+            if (!faInhoud && annotDict) console.warn(`[saver] file attachment "${faBestand.name}" has no content; written without /EF`);
             break;
           }
 
@@ -3141,7 +3174,14 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       applyGroupLinks(context, plan, refById, dictById, annotsArray);
       // Overige koppelingen naar een andere annotatie (#619): /IRT en /RT.
       schrijfKoppelingen(pageAnnotations, refById, dictById);
-      annotsArray = dropOrphanPopups(context, annotsArray, correctionRefKeys(context, verwijderdeRefs));
+      // Ook de popup van een herschreven bijlage-annotatie (#376) valt weg: via
+      // haar /Parent hield die de oude annotatie, en daarmee een kopie van het
+      // ingesloten bestand, bij elke save in het bestand.
+      const popupOuders = correctionRefKeys(context, verwijderdeRefs);
+      for (const ref of verwijderdeRefs) {
+        if (context.lookup(ref)?.get?.(PDFName.of('Subtype'))?.toString() === '/FileAttachment') popupOuders.add(ref.toString());
+      }
+      annotsArray = dropOrphanPopups(context, annotsArray, popupOuders);
 
       // Set the updated annotations array
       page.node.set(PDFName.of('Annots'), context.obj(annotsArray));

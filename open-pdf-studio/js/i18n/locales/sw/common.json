@@ -224,7 +224,12 @@
     "goToPageLink": "Nenda ukurasa",
     "openExternalFile": "Fungua: {{filename}}",
     "destination": "Marudio: {{name}}",
-    "internalLink": "Kiungo cha ndani"
+    "internalLink": "Kiungo cha ndani",
+    "attachmentOnPage": "Ukurasa {{page}}",
+    "attachmentCreated": "Imeundwa: {{date}}",
+    "attachmentModified": "Imebadilishwa: {{date}}",
+    "openAttachmentRiskTitle": "Fungua kiambatisho",
+    "openAttachmentRiskMessage": "\"{{name}}\" inaweza kuendesha programu kwenye kompyuta hii. Ifungue tu ikiwa unaamini chanzo chake. Ifungue hata hivyo?"
   },
   "failedToInsertPagesFromFile": "Imeshindwa kuingiza kurasa kutoka faili: {{error}}",
   "previewPdfRefused": "PDF hii ni hakikisho kutoka kwenye uingizaji wa mchoro na huenda haijakamilika. Haiwezi kuingizwa wala kuhifadhiwa; ingiza mchoro tena.",

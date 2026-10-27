@@ -169,7 +169,9 @@
     "flattenAll": "모두 병합",
     "flattenAllTooltip": "모든 마크업을 페이지 내용으로 병합",
     "unflattenAll": "병합 취소",
-    "unflattenAllTooltip": "복원을 허용하고 병합한 마크업 복원"
+    "unflattenAllTooltip": "복원을 허용하고 병합한 마크업 복원",
+    "fileAttachment": "파일 첨부",
+    "fileAttachmentTitle": "파일 첨부: 페이지를 클릭하고 파일을 선택하세요"
   },
   "view": {
     "pageDisplay": "페이지 표시",

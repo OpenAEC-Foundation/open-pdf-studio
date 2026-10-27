@@ -224,7 +224,12 @@
     "goToPageLink": "跳转到页面",
     "openExternalFile": "打开：{{filename}}",
     "destination": "目标：{{name}}",
-    "internalLink": "内部链接"
+    "internalLink": "内部链接",
+    "attachmentOnPage": "第 {{page}} 页",
+    "attachmentCreated": "创建时间: {{date}}",
+    "attachmentModified": "修改时间: {{date}}",
+    "openAttachmentRiskTitle": "打开附件",
+    "openAttachmentRiskMessage": "“{{name}}”可能会在此计算机上运行程序。只有在信任其来源时才打开。仍要打开吗?"
   },
   "failedToInsertPagesFromFile": "从文件插入页面失败：{{error}}",
   "previewPdfRefused": "此 PDF 是图纸导入的预览，内容可能不完整。不能插入或保存；请重新导入图纸。",

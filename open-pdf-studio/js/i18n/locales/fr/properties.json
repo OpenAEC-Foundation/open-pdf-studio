@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Mastic d'étanchéité",
       "nen47-maaiveld": "NEN47-25 Niveau du terrain"
     },
-    "rotation": "Rotation"
+    "rotation": "Rotation",
+    "iconPaperclip": "Trombone",
+    "iconPushPin": "Punaise",
+    "iconGraph": "Graphique",
+    "iconTag": "Étiquette"
   },
   "stylePresets": {
     "label": "Style de ligne",
@@ -284,7 +288,8 @@
     "measurePerimeter": "Périmètre",
     "redaction": "Caviardage",
     "scaleBar": "Barre d'échelle",
-    "parametricSymbol": "Symbole paramétrique"
+    "parametricSymbol": "Symbole paramétrique",
+    "fileAttachment": "Pièce jointe"
   },
   "leftPanel": {
     "togglePanel": "Afficher/masquer le panneau",
@@ -722,5 +727,12 @@
     "invalid": "Impossible de mettre à jour l'emplacement",
     "rules": "L'attribution utilise le centre du cadre de délimitation de l'annotation, bords compris. La zone la plus profonde l'emporte, puis la plus petite surface, puis l'ID de zone. Utilisez des polygones droits sans trous ou des rectangles non pivotés. Les identités de zone non valides ou en double sont exclues.",
     "loading": "Chargement des annotations : les emplacements peuvent encore changer."
+  },
+  "attachment": {
+    "file": "Fichier",
+    "size": "Taille",
+    "open": "Ouvrir",
+    "saveAs": "Enregistrer sous...",
+    "noContent": "Le contenu de ce fichier n'est pas incorporé dans le PDF."
   }
 }

@@ -121,7 +121,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Afdichtingsmiddel",
       "nen47-maaiveld": "NEN47-25 Maaiveld"
     },
-    "rotation": "Rotatie"
+    "rotation": "Rotatie",
+    "iconPaperclip": "Paperclip",
+    "iconPushPin": "Punaise",
+    "iconGraph": "Grafiek",
+    "iconTag": "Label"
   },
   "stylePresets": {
     "label": "Lijnstijl",
@@ -264,7 +268,8 @@
     "measurePerimeter": "Omtrek",
     "redaction": "Redactie",
     "scaleBar": "Schaalbalk",
-    "parametricSymbol": "Parametrisch symbool"
+    "parametricSymbol": "Parametrisch symbool",
+    "fileAttachment": "Bestandsbijlage"
   },
   "leftPanel": {
     "togglePanel": "Paneel in-/uitschakelen",
@@ -722,5 +727,12 @@
     "invalid": "Locatie kon niet worden bijgewerkt",
     "rules": "Toewijzing gebruikt het midden van de annotatie-omhullende, inclusief randen. De diepste zone wint, daarna het kleinste oppervlak, daarna het zone-ID. Gebruik rechte polygonen zonder gaten of ongedraaide rechthoeken. Ongeldige of dubbele zone-ID’s worden uitgesloten.",
     "loading": "Annotaties laden: locaties kunnen nog veranderen."
+  },
+  "attachment": {
+    "file": "Bestand",
+    "size": "Grootte",
+    "open": "Openen",
+    "saveAs": "Opslaan als...",
+    "noContent": "De inhoud van dit bestand is niet in de PDF ingesloten."
   }
 }

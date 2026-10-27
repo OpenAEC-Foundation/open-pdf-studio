@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Tesniaca hmota",
       "nen47-maaiveld": "NEN47-25 Úroveň terénu"
     },
-    "rotation": "Otočenie"
+    "rotation": "Otočenie",
+    "iconPaperclip": "Kancelárska spinka",
+    "iconPushPin": "Pripináčik",
+    "iconGraph": "Graf",
+    "iconTag": "Štítok"
   },
   "stylePresets": {
     "label": "Štýl čiary",
@@ -284,7 +288,8 @@
     "measurePerimeter": "Obvod",
     "redaction": "Redigovanie",
     "scaleBar": "Grafická mierka",
-    "parametricSymbol": "Parametrický symbol"
+    "parametricSymbol": "Parametrický symbol",
+    "fileAttachment": "Príloha súboru"
   },
   "leftPanel": {
     "togglePanel": "Prepnúť panel",
@@ -722,5 +727,12 @@
     "invalid": "Umiestnenie sa nedá aktualizovať",
     "rules": "Priradenie vychádza zo stredu ohraničujúceho rámčeka označenia vrátane okrajov. Vyhráva najhlbšie vnorená zóna, potom najmenšia plocha, potom ID zóny. Používajte mnohouholníky s rovnými stranami bez otvorov alebo neotočené obdĺžniky. Neplatné alebo duplicitné identity zón sa vylučujú.",
     "loading": "Načítavajú sa anotácie: umiestnenia sa ešte môžu zmeniť."
+  },
+  "attachment": {
+    "file": "Súbor",
+    "size": "Veľkosť",
+    "open": "Otvoriť",
+    "saveAs": "Uložiť ako...",
+    "noContent": "Obsah tohto súboru nie je vložený do PDF."
   }
 }

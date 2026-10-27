@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Bahan penyekat",
       "nen47-maaiveld": "NEN47-25 Muka tanah"
     },
-    "rotation": "Rotasi"
+    "rotation": "Rotasi",
+    "iconPaperclip": "Klip kertas",
+    "iconPushPin": "Paku payung",
+    "iconGraph": "Grafik",
+    "iconTag": "Tag"
   },
   "stylePresets": {
     "label": "Gaya garis",
@@ -284,7 +288,8 @@
     "measurePerimeter": "Keliling",
     "redaction": "Redaksi",
     "scaleBar": "Batang Skala",
-    "parametricSymbol": "Simbol Parametrik"
+    "parametricSymbol": "Simbol Parametrik",
+    "fileAttachment": "Lampiran file"
   },
   "leftPanel": {
     "togglePanel": "Tampilkan/Sembunyikan Panel",
@@ -722,5 +727,12 @@
     "invalid": "Lokasi tidak dapat diperbarui",
     "rules": "Penetapan menggunakan titik tengah kotak pembatas markup, termasuk tepinya. Zona terdalam diutamakan, lalu luas terkecil, lalu ID zona. Gunakan poligon bersisi lurus tanpa lubang atau kotak tanpa rotasi. Identitas zona yang tidak valid atau duplikat dikecualikan.",
     "loading": "Anotasi sedang dimuat: lokasi masih dapat berubah."
+  },
+  "attachment": {
+    "file": "File",
+    "size": "Ukuran",
+    "open": "Buka",
+    "saveAs": "Simpan sebagai...",
+    "noContent": "Isi file ini tidak disematkan dalam PDF."
   }
 }

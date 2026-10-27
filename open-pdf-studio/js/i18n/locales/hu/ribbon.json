@@ -169,7 +169,9 @@
     "flattenAll": "Összes lapítása",
     "flattenAllTooltip": "Az összes jelölés lapítása az oldal tartalmába",
     "unflattenAll": "Lapítás visszavonása",
-    "unflattenAllTooltip": "Az engedélyezett visszaállítással lapított jelölések visszaállítása"
+    "unflattenAllTooltip": "Az engedélyezett visszaállítással lapított jelölések visszaállítása",
+    "fileAttachment": "Fájl csatolása",
+    "fileAttachmentTitle": "Fájlmelléklet: kattintson az oldalra, és válasszon fájlt"
   },
   "view": {
     "pageDisplay": "Oldal megjelenítés",

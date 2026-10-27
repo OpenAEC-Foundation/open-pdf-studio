@@ -224,7 +224,12 @@
     "goToPageLink": "ページへ移動",
     "openExternalFile": "開く: {{filename}}",
     "destination": "移動先：{{name}}",
-    "internalLink": "内部リンク"
+    "internalLink": "内部リンク",
+    "attachmentOnPage": "{{page}} ページ",
+    "attachmentCreated": "作成日時: {{date}}",
+    "attachmentModified": "更新日時: {{date}}",
+    "openAttachmentRiskTitle": "添付ファイルを開く",
+    "openAttachmentRiskMessage": "「{{name}}」はこのコンピューターでプログラムを実行する可能性があります。提供元を信頼できる場合にのみ開いてください。それでも開きますか?"
   },
   "failedToInsertPagesFromFile": "ファイルからのページ挿入に失敗しました：{{error}}",
   "previewPdfRefused": "この PDF は図面インポートのプレビューであり、内容が欠けている可能性があります。挿入も保存もできません。図面をもう一度インポートしてください。",

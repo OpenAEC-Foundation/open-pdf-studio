@@ -224,7 +224,12 @@
     "goToPageLink": "पृष्ठ पर जाएं",
     "openExternalFile": "खोलें: {{filename}}",
     "destination": "गंतव्य: {{name}}",
-    "internalLink": "आंतरिक लिंक"
+    "internalLink": "आंतरिक लिंक",
+    "attachmentOnPage": "पृष्ठ {{page}}",
+    "attachmentCreated": "बनाया गया: {{date}}",
+    "attachmentModified": "संशोधित: {{date}}",
+    "openAttachmentRiskTitle": "अनुलग्नक खोलें",
+    "openAttachmentRiskMessage": "\"{{name}}\" इस कंप्यूटर पर प्रोग्राम चला सकता है। इसे केवल तभी खोलें जब आपको स्रोत पर भरोसा हो। फिर भी खोलें?"
   },
   "failedToInsertPagesFromFile": "फ़ाइल से पृष्ठ डालने में विफल: {{error}}",
   "previewPdfRefused": "यह PDF ड्रॉइंग आयात का पूर्वावलोकन है और अधूरा हो सकता है। इसे न जोड़ा जा सकता है, न सहेजा जा सकता है; ड्रॉइंग को फिर से आयात करें।",

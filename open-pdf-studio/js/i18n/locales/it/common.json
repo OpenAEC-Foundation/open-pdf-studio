@@ -224,7 +224,12 @@
     "goToPageLink": "Vai alla pagina",
     "openExternalFile": "Apri: {{filename}}",
     "destination": "Destinazione: {{name}}",
-    "internalLink": "Collegamento interno"
+    "internalLink": "Collegamento interno",
+    "attachmentOnPage": "Pagina {{page}}",
+    "attachmentCreated": "Creato: {{date}}",
+    "attachmentModified": "Modificato: {{date}}",
+    "openAttachmentRiskTitle": "Apri allegato",
+    "openAttachmentRiskMessage": "\"{{name}}\" può eseguire programmi su questo computer. Aprilo solo se ti fidi della fonte. Aprire comunque?"
   },
   "failedToInsertPagesFromFile": "Impossibile inserire pagine dal file: {{error}}",
   "previewPdfRefused": "Questo PDF è un’anteprima dell’importazione del disegno e può essere incompleto. Non può essere inserito né salvato; importare di nuovo il disegno.",

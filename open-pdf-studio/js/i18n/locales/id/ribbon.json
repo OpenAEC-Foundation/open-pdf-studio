@@ -169,7 +169,9 @@
     "flattenAll": "Ratakan semua",
     "flattenAllTooltip": "Ratakan semua markup ke dalam isi halaman",
     "unflattenAll": "Batalkan perataan",
-    "unflattenAllTooltip": "Pulihkan markup yang diratakan dengan pemulihan diizinkan"
+    "unflattenAllTooltip": "Pulihkan markup yang diratakan dengan pemulihan diizinkan",
+    "fileAttachment": "Lampirkan file",
+    "fileAttachmentTitle": "Lampiran file: klik pada halaman dan pilih file"
   },
   "view": {
     "pageDisplay": "Tampilan Halaman",

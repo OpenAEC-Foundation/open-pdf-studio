@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Masa uszczelniająca",
       "nen47-maaiveld": "NEN47-25 Poziom terenu"
     },
-    "rotation": "Obrót"
+    "rotation": "Obrót",
+    "iconPaperclip": "Spinacz",
+    "iconPushPin": "Pinezka",
+    "iconGraph": "Wykres",
+    "iconTag": "Etykieta"
   },
   "stylePresets": {
     "label": "Styl linii",
@@ -284,7 +288,8 @@
     "measurePerimeter": "Obwód",
     "redaction": "Redakcja",
     "scaleBar": "Podziałka liniowa",
-    "parametricSymbol": "Symbol parametryczny"
+    "parametricSymbol": "Symbol parametryczny",
+    "fileAttachment": "Załącznik pliku"
   },
   "leftPanel": {
     "togglePanel": "Przełącz Panel",
@@ -722,5 +727,12 @@
     "invalid": "Nie można zaktualizować lokalizacji",
     "rules": "Przypisanie opiera się na środku prostokąta ograniczającego znacznik, łącznie z krawędziami. Wygrywa najgłębiej zagnieżdżona strefa, potem najmniejsza powierzchnia, potem identyfikator strefy. Używaj wielokątów o prostych bokach bez otworów lub prostokątów bez obrotu. Nieprawidłowe lub zduplikowane identyfikatory stref są pomijane.",
     "loading": "Trwa wczytywanie adnotacji: lokalizacje mogą się jeszcze zmienić."
+  },
+  "attachment": {
+    "file": "Plik",
+    "size": "Rozmiar",
+    "open": "Otwórz",
+    "saveAs": "Zapisz jako...",
+    "noContent": "Zawartość tego pliku nie jest osadzona w pliku PDF."
   }
 }

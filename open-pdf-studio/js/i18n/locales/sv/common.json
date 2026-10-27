@@ -224,7 +224,12 @@
     "goToPageLink": "Gå till sida",
     "openExternalFile": "Öppna: {{filename}}",
     "destination": "Destination: {{name}}",
-    "internalLink": "Intern länk"
+    "internalLink": "Intern länk",
+    "attachmentOnPage": "Sida {{page}}",
+    "attachmentCreated": "Skapad: {{date}}",
+    "attachmentModified": "Ändrad: {{date}}",
+    "openAttachmentRiskTitle": "Öppna bilaga",
+    "openAttachmentRiskMessage": "\"{{name}}\" kan köra program på den här datorn. Öppna den bara om du litar på källan. Öppna ändå?"
   },
   "failedToInsertPagesFromFile": "Det gick inte att infoga sidor från filen: {{error}}",
   "previewPdfRefused": "Den här PDF-filen är en förhandsvisning från ritningsimporten och kan vara ofullständig. Den kan inte infogas eller sparas; importera ritningen igen.",

@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Tiivistysaine",
       "nen47-maaiveld": "NEN47-25 Maanpinta"
     },
-    "rotation": "Kierto"
+    "rotation": "Kierto",
+    "iconPaperclip": "Paperiliitin",
+    "iconPushPin": "Nasta",
+    "iconGraph": "Kaavio",
+    "iconTag": "Tunniste"
   },
   "stylePresets": {
     "label": "Viivatyyli",
@@ -284,7 +288,8 @@
     "measurePerimeter": "Piiri",
     "redaction": "Poisto",
     "scaleBar": "Mittakaavajana",
-    "parametricSymbol": "Parametrinen symboli"
+    "parametricSymbol": "Parametrinen symboli",
+    "fileAttachment": "Tiedostoliite"
   },
   "leftPanel": {
     "togglePanel": "Näytä/piilota paneeli",
@@ -722,5 +727,12 @@
     "invalid": "Sijaintia ei voitu päivittää",
     "rules": "Määritys käyttää merkinnän rajauslaatikon keskipistettä reunat mukaan lukien. Syvin vyöhyke voittaa, sitten pienin pinta-ala ja sitten vyöhykkeen tunnus. Käytä suorasivuisia monikulmioita ilman reikiä tai kiertämättömiä suorakulmioita. Virheelliset tai päällekkäiset vyöhyketunnisteet jätetään pois.",
     "loading": "Merkintöjä ladataan: sijainnit voivat vielä muuttua."
+  },
+  "attachment": {
+    "file": "Tiedosto",
+    "size": "Koko",
+    "open": "Avaa",
+    "saveAs": "Tallenna nimellä...",
+    "noContent": "Tämän tiedoston sisältöä ei ole upotettu PDF-tiedostoon."
   }
 }

@@ -224,7 +224,12 @@
     "goToPageLink": "Pergi ke halaman",
     "openExternalFile": "Buka: {{filename}}",
     "destination": "Destinasi: {{name}}",
-    "internalLink": "Pautan Dalaman"
+    "internalLink": "Pautan Dalaman",
+    "attachmentOnPage": "Halaman {{page}}",
+    "attachmentCreated": "Dicipta: {{date}}",
+    "attachmentModified": "Diubah suai: {{date}}",
+    "openAttachmentRiskTitle": "Buka lampiran",
+    "openAttachmentRiskMessage": "\"{{name}}\" boleh menjalankan program pada komputer ini. Buka hanya jika anda mempercayai sumbernya. Buka juga?"
   },
   "failedToInsertPagesFromFile": "Gagal memasukkan halaman daripada fail: {{error}}",
   "previewPdfRefused": "PDF ini ialah pratonton daripada import lukisan dan mungkin tidak lengkap. Ia tidak boleh disisipkan atau disimpan; import lukisan itu semula.",

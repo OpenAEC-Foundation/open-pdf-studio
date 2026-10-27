@@ -224,7 +224,12 @@
     "goToPageLink": "صفحے پر جائیں",
     "openExternalFile": "کھولیں: {{filename}}",
     "destination": "منزل: {{name}}",
-    "internalLink": "اندرونی لنک"
+    "internalLink": "اندرونی لنک",
+    "attachmentOnPage": "صفحہ {{page}}",
+    "attachmentCreated": "تخلیق: {{date}}",
+    "attachmentModified": "ترمیم: {{date}}",
+    "openAttachmentRiskTitle": "منسلکہ کھولیں",
+    "openAttachmentRiskMessage": "\"{{name}}\" اس کمپیوٹر پر پروگرام چلا سکتا ہے۔ اسے صرف اسی صورت کھولیں جب آپ کو ماخذ پر بھروسہ ہو۔ پھر بھی کھولیں؟"
   },
   "failedToInsertPagesFromFile": "فائل سے صفحات داخل کرنے میں ناکامی: {{error}}",
   "previewPdfRefused": "یہ PDF ڈرائنگ کی درآمد کا پیش منظر ہے اور نامکمل ہو سکتی ہے۔ اسے نہ شامل کیا جا سکتا ہے نہ محفوظ؛ ڈرائنگ دوبارہ درآمد کریں۔",

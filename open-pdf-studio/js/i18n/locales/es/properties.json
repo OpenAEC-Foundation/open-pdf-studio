@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Sellador",
       "nen47-maaiveld": "NEN47-25 Nivel del terreno"
     },
-    "rotation": "Rotación"
+    "rotation": "Rotación",
+    "iconPaperclip": "Clip",
+    "iconPushPin": "Chincheta",
+    "iconGraph": "Gráfico",
+    "iconTag": "Etiqueta"
   },
   "stylePresets": {
     "label": "Estilo de línea",
@@ -284,7 +288,8 @@
     "measurePerimeter": "Perímetro",
     "redaction": "Redacción",
     "scaleBar": "Barra de escala",
-    "parametricSymbol": "Símbolo paramétrico"
+    "parametricSymbol": "Símbolo paramétrico",
+    "fileAttachment": "Archivo adjunto"
   },
   "leftPanel": {
     "togglePanel": "Alternar panel",
@@ -722,5 +727,12 @@
     "invalid": "No se pudo actualizar la ubicación",
     "rules": "La asignación usa el centro del cuadro delimitador de la marca, bordes incluidos. Prevalece la zona más profunda, luego la de menor área y después el ID de zona. Use polígonos rectos sin huecos o rectángulos sin rotar. Se excluyen las identidades de zona no válidas o duplicadas.",
     "loading": "Cargando anotaciones: las ubicaciones aún pueden cambiar."
+  },
+  "attachment": {
+    "file": "Archivo",
+    "size": "Tamaño",
+    "open": "Abrir",
+    "saveAs": "Guardar como...",
+    "noContent": "El contenido de este archivo no está incrustado en el PDF."
   }
 }

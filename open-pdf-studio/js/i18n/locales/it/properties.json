@@ -141,7 +141,11 @@
       "nen47-afdichtingsmiddel": "NEN47-23 Sigillante",
       "nen47-maaiveld": "NEN47-25 Piano di campagna"
     },
-    "rotation": "Rotazione"
+    "rotation": "Rotazione",
+    "iconPaperclip": "Graffetta",
+    "iconPushPin": "Puntina",
+    "iconGraph": "Grafico",
+    "iconTag": "Etichetta"
   },
   "stylePresets": {
     "label": "Stile di linea",
@@ -284,7 +288,8 @@
     "measurePerimeter": "Perimetro",
     "redaction": "Redazione",
     "scaleBar": "Barra di scala",
-    "parametricSymbol": "Simbolo parametrico"
+    "parametricSymbol": "Simbolo parametrico",
+    "fileAttachment": "Allegato file"
   },
   "leftPanel": {
     "togglePanel": "Attiva/disattiva pannello",
@@ -722,5 +727,12 @@
     "invalid": "Impossibile aggiornare l'ubicazione",
     "rules": "L'assegnazione usa il centro del riquadro di delimitazione dell'annotazione, bordi inclusi. Prevale la zona più profonda, poi l'area più piccola, poi l'ID della zona. Usa poligoni rettilinei senza fori o rettangoli non ruotati. Le identità di zona non valide o duplicate vengono escluse.",
     "loading": "Caricamento delle annotazioni: le ubicazioni possono ancora cambiare."
+  },
+  "attachment": {
+    "file": "File",
+    "size": "Dimensione",
+    "open": "Apri",
+    "saveAs": "Salva con nome...",
+    "noContent": "Il contenuto di questo file non è incorporato nel PDF."
   }
 }

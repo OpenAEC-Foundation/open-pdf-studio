@@ -121,7 +121,11 @@
       "nen47-kunststof": "NEN47-22 Plastic",
       "nen47-afdichtingsmiddel": "NEN47-23 Sealant",
       "nen47-maaiveld": "NEN47-25 Ground level"
-    }
+    },
+    "iconPaperclip": "Paperclip",
+    "iconPushPin": "Push Pin",
+    "iconGraph": "Graph",
+    "iconTag": "Tag"
   },
   "stylePresets": {
     "label": "Line style",
@@ -316,7 +320,8 @@
     "measurePerimeter": "Perimeter",
     "redaction": "Redaction",
     "scaleBar": "Scale Bar",
-    "parametricSymbol": "Parametric Symbol"
+    "parametricSymbol": "Parametric Symbol",
+    "fileAttachment": "File Attachment"
   },
   "leftPanel": {
     "togglePanel": "Toggle Panel",
@@ -722,5 +727,12 @@
     "invalid": "Location could not be updated",
     "rules": "Assignment uses the markup bounding-box centre, including edges. Deepest zone wins, then smallest area, then zone ID. Use straight polygons without holes or unrotated boxes. Invalid or duplicate zone identities are excluded.",
     "loading": "Annotations are loading: locations may still change."
+  },
+  "attachment": {
+    "file": "File",
+    "size": "Size",
+    "open": "Open",
+    "saveAs": "Save As...",
+    "noContent": "The content of this file is not embedded in the PDF."
   }
 }

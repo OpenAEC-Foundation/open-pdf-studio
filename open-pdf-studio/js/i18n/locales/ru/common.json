@@ -224,7 +224,12 @@
     "goToPageLink": "Перейти на страницу",
     "openExternalFile": "Открыть: {{filename}}",
     "destination": "Назначение: {{name}}",
-    "internalLink": "Внутренняя ссылка"
+    "internalLink": "Внутренняя ссылка",
+    "attachmentOnPage": "Страница {{page}}",
+    "attachmentCreated": "Создан: {{date}}",
+    "attachmentModified": "Изменён: {{date}}",
+    "openAttachmentRiskTitle": "Открыть вложение",
+    "openAttachmentRiskMessage": "«{{name}}» может запускать программы на этом компьютере. Открывайте его, только если доверяете источнику. Всё равно открыть?"
   },
   "failedToInsertPagesFromFile": "Не удалось вставить страницы из файла: {{error}}",
   "previewPdfRefused": "Этот PDF — предварительный просмотр из импорта чертежа и может быть неполным. Его нельзя вставить или сохранить; импортируйте чертёж заново.",

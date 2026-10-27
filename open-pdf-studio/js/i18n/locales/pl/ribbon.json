@@ -169,7 +169,9 @@
     "flattenAll": "Spłaszcz wszystko",
     "flattenAllTooltip": "Spłaszcz wszystkie adnotacje do zawartości strony",
     "unflattenAll": "Cofnij spłaszczenie",
-    "unflattenAllTooltip": "Przywróć adnotacje spłaszczone z dozwolonym przywracaniem"
+    "unflattenAllTooltip": "Przywróć adnotacje spłaszczone z dozwolonym przywracaniem",
+    "fileAttachment": "Dołącz plik",
+    "fileAttachmentTitle": "Załącznik pliku: kliknij stronę i wybierz plik"
   },
   "view": {
     "pageDisplay": "Wyświetlanie strony",
