@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -216,4 +217,82 @@ test('development optimization profiles live at the workspace root', async () =>
   assert.match(workspaceCargo, /\[profile\.dev\.package\.open-pdf-render\]/);
   assert.match(workspaceCargo, /\[profile\.dev\.package\.pdfium-render\]/);
   assert.doesNotMatch(appCargo, /\[profile\./);
+});
+
+test('Little CMS is built from source, never linked from the build machine (#750, #361)', async () => {
+  const cargo = await readFile(path.join(repoDir, 'open-pdf-cmyk', 'Cargo.toml'), 'utf8');
+  const line = cargo.split('\n').find((l) => /^lcms2\s*=/.test(l));
+  assert.ok(line, 'open-pdf-cmyk depends on lcms2');
+  assert.match(line, /features\s*=\s*\[[^\]]*"static"/, line);
+
+  for (const name of ['ci.yml', 'release.yml', 'nightly.yml']) {
+    const workflow = await readFile(path.join(repoDir, '.github', 'workflows', name), 'utf8');
+    assert.doesNotMatch(workflow, /LCMS2_LIB_DIR/, `${name} does not point lcms2-sys at a system library`);
+    assert.match(workflow, /bash scripts\/macos-dylib-check\.sh "\$APP_PATH"/, `${name} checks the app's load commands`);
+  }
+  for (const name of ['release.yml', 'nightly.yml']) {
+    const workflow = await readFile(path.join(repoDir, '.github', 'workflows', name), 'utf8');
+    const check = workflow.indexOf('Verify macOS binaries load no Homebrew libraries');
+    assert.ok(check > workflow.indexOf('Build macOS app without bundles'), `${name} checks after compiling`);
+    assert.ok(check < workflow.indexOf('Upload macOS release assets'), `${name} checks before notarizing`);
+  }
+});
+
+test('macos-dylib-check.sh rejects Homebrew dylibs and accepts system ones', { skip: process.platform === 'win32' }, async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'opds-dylib-check-'));
+  try {
+    const bin = path.join(dir, 'bin');
+    await mkdir(bin);
+    // Fake otool: prints the load commands stored next to the Mach-O file.
+    await writeFile(path.join(bin, 'otool'), [
+      '#!/usr/bin/env bash',
+      'f="${@: -1}"',
+      'case "$1" in',
+      '  -D) echo "$f:"; cat "$f.id" 2>/dev/null || true ;;',
+      '  -arch) if [[ "$3" == "-L" ]]; then echo "$f (architecture arm64):"; cat "$f.libs"; else cat "$f.cmds" 2>/dev/null || true; fi ;;',
+      'esac',
+      '',
+    ].join('\n'));
+    await chmod(path.join(bin, 'otool'), 0o755);
+
+    const app = path.join(dir, 'Test.app', 'Contents');
+    await mkdir(path.join(app, 'MacOS'), { recursive: true });
+    await mkdir(path.join(app, 'Resources'), { recursive: true });
+    const macho = Buffer.from([0xcf, 0xfa, 0xed, 0xfe, 0, 0, 0, 0]);
+    const exe = path.join(app, 'MacOS', 'open-pdf-studio');
+    const dylib = path.join(app, 'Resources', 'libpdfium.dylib');
+    await writeFile(exe, macho);
+    await writeFile(dylib, macho);
+    await writeFile(path.join(app, 'Resources', 'notes.txt'), 'not a binary');
+    await writeFile(`${dylib}.id`, './libpdfium.dylib\n');
+    await writeFile(`${dylib}.libs`, '\t./libpdfium.dylib (compatibility version 0.0.0, current version 0.0.0)\n\t/usr/lib/libc++.1.dylib (compatibility version 1.0.0, current version 1700.255.0)\n');
+    await writeFile(`${exe}.cmds`, 'Load command 30\n          cmd LC_RPATH\n      cmdsize 48\n         path @executable_path/../Frameworks (offset 12)\n');
+    const goodLibs = '\t/System/Library/Frameworks/WebKit.framework/Versions/A/WebKit (compatibility version 1.0.0, current version 621.1.0)\n\t/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1351.0.0)\n';
+    await writeFile(`${exe}.libs`, goodLibs);
+
+    const run = () => spawnSync('bash', [path.join(projectDir, 'scripts', 'macos-dylib-check.sh'), path.join(dir, 'Test.app')], {
+      encoding: 'utf8',
+      env: { ...process.env, PATH: `${bin}${path.delimiter}${process.env.PATH}` },
+    });
+
+    let result = run();
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.match(result.stdout, /OK: 2 Mach-O file/);
+
+    await writeFile(`${exe}.libs`, `${goodLibs}\t/opt/homebrew/opt/little-cms2/lib/liblcms2.2.dylib (compatibility version 3.0.0, current version 3.17.0)\n`);
+    result = run();
+    assert.equal(result.status, 1, result.stdout + result.stderr);
+    assert.match(result.stderr, /BAD {2}\/opt\/homebrew\/opt\/little-cms2\/lib\/liblcms2\.2\.dylib/);
+
+    await writeFile(`${exe}.libs`, `${goodLibs}\t/usr/local/lib/libfoo.dylib (compatibility version 1.0.0, current version 1.0.0)\n`);
+    assert.equal(run().status, 1, '/usr/local is rejected');
+
+    await writeFile(`${exe}.libs`, goodLibs);
+    await writeFile(`${exe}.cmds`, 'Load command 30\n          cmd LC_RPATH\n      cmdsize 40\n         path /opt/homebrew/lib (offset 12)\n');
+    result = run();
+    assert.equal(result.status, 1, 'a Homebrew LC_RPATH is rejected');
+    assert.match(result.stderr, /LC_RPATH \/opt\/homebrew\/lib/);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
 });

@@ -227,6 +227,9 @@ jobs:
         run: |
           APP_PATH="../target/universal-apple-darwin/release/bundle/macos/Open PDF Studio.app"
           codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+          # Homebrew is on the runner, so the startup smoke would pass even
+          # if the app needs one of its dylibs; check the load commands (#750).
+          bash scripts/macos-dylib-check.sh "$APP_PATH"
           bash scripts/macos-startup-smoke.sh "$APP_PATH"
 
   # De gehoste bundel onder de strikte CSP van #693 en onder die van de
