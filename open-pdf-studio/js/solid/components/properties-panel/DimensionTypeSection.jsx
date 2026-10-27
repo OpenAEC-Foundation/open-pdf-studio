@@ -1,7 +1,9 @@
 import { Show, For, createSignal, createMemo, onCleanup } from 'solid-js';
 import { Portal } from 'solid-js/web';
 import { annotProps, applyStyleType } from '../../stores/propertiesStore.js';
-import { styleTypesFor } from '../../../annotations/style-types.js';
+import { styleTypesFor, styleTypeLabel } from '../../../annotations/style-types.js';
+import { getHatchSwatchDataUrl, styleTypeSwatchParams } from '../../../annotations/rendering/hatch-patterns.js';
+import { hatchSwatchColors } from './HatchPatternSection.jsx';
 import { openDialog } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 
@@ -20,20 +22,6 @@ function _dashFor(style) {
     case 'long-dash': return '14,5';
     default: return '';
   }
-}
-
-// Map an engine hatch-pattern id onto one of a few preview families.
-function _hatchFamily(pattern = '') {
-  const p = String(pattern);
-  if (p === 'solid') return 'solid';
-  if (p.includes('cross') || p.includes('isolatie')) return 'cross';
-  if (p === 'grid' || p.includes('raster-l') === false && p.includes('grid')) return 'grid';
-  if (p.includes('raster-liggend') || p.includes('horizontal') || p.includes('hout-langs')) return 'h';
-  if (p.includes('raster-staand') || p.includes('vertical') || p.includes('verticaal')) return 'v';
-  if (p.includes('dots') || p.includes('sand') || p.includes('concrete') || p.includes('grind') || p.includes('gravel')) return 'dots';
-  if (p.includes('brick') || p.includes('tegel') || p.includes('plank') || p.includes('blok') || p.includes('lood') || p.includes('metselwerk') || p.includes('kunststeen')) return 'brick';
-  if (p.includes('diagonal-right')) return 'diag-r';
-  return 'diag'; // default: diagonal line work
 }
 
 export function PreviewSwatch(props) {
@@ -64,57 +52,27 @@ export function PreviewSwatch(props) {
     );
   };
 
+  // Hatch preview: rendered by the SAME engine that paints the filled area
+  // (pattern, colours, hatchScale and hatchAngle of the type), so the swatch
+  // shows exactly what applying the type produces at 100% zoom.
   const hatchSvg = () => {
-    const p = e().props || {};
-    const bg = p.fillColor || 'transparent';
-    const lc = p.hatchColor || e().color || '#000';
-    const fam = _hatchFamily(p.hatchPattern);
-    const lines = [];
-    if (fam === 'diag' || fam === 'cross' || fam === 'diag-r') {
-      for (let x = -H; x < W; x += 8) {
-        lines.push(<line x1={x} y1={H} x2={x + H} y2={0} stroke={lc} stroke-width="1" />);
-      }
+    const sp = styleTypeSwatchParams(e());
+    let bg = sp.fill;
+    let line = sp.line;
+    if (!bg) {
+      const theme = hatchSwatchColors(sp.line);
+      bg = theme.bg;
+      line = theme.line;
     }
-    if (fam === 'cross' || fam === 'diag-r') {
-      for (let x = 0; x < W + H; x += 8) {
-        lines.push(<line x1={x} y1={0} x2={x - H} y2={H} stroke={lc} stroke-width="1" />);
-      }
+    if (!sp.pattern) {
+      return <rect x="0" y="0" width={W} height={H} fill={bg} />;
     }
-    if (fam === 'grid' || fam === 'h' || fam === 'brick') {
-      for (let y = 4; y < H; y += 7) {
-        lines.push(<line x1={0} y1={y} x2={W} y2={y} stroke={lc} stroke-width="1" />);
-      }
-    }
-    if (fam === 'grid' || fam === 'v') {
-      for (let x = 6; x < W; x += 9) {
-        lines.push(<line x1={x} y1={0} x2={x} y2={H} stroke={lc} stroke-width="1" />);
-      }
-    }
-    if (fam === 'brick') {
-      let off = 0;
-      for (let y = 4; y < H; y += 7) {
-        for (let x = off; x < W; x += 14) {
-          lines.push(<line x1={x} y1={y} x2={x} y2={Math.min(y + 7, H)} stroke={lc} stroke-width="1" />);
-        }
-        off = off === 0 ? 7 : 0;
-      }
-    }
-    if (fam === 'dots') {
-      for (let y = 5; y < H; y += 7) {
-        for (let x = 6 + ((y % 14) ? 4 : 0); x < W; x += 9) {
-          lines.push(<circle cx={x} cy={y} r="1" fill={lc} />);
-        }
-      }
-    }
-    if (fam === 'solid') {
-      lines.push(<rect x="0" y="0" width={W} height={H} fill={lc} />);
-    }
-    return (
-      <g>
-        <rect x="0" y="0" width={W} height={H} fill={bg === 'transparent' ? 'var(--theme-bg, #fff)' : bg} />
-        {lines}
-      </g>
-    );
+    const url = getHatchSwatchDataUrl(sp.pattern, line, W, bg, {
+      width: W, height: H, scale: sp.scale, angle: sp.angle,
+      tint: sp.fill ? '' : sp.tint, border: false,
+      pixelRatio: typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1,
+    });
+    return <image href={url} x="0" y="0" width={W} height={H} preserveAspectRatio="none" />;
   };
 
   return (
@@ -151,7 +109,8 @@ export default function DimensionTypeSection() {
     const q = query().toLowerCase().trim();
     const list = types() || [];
     if (!q) return list;
-    return list.filter((d) => d.label.toLowerCase().includes(q) || d.id.toLowerCase().includes(q));
+    return list.filter((d) => styleTypeLabel(d, t).toLowerCase().includes(q)
+      || String(d.label || '').toLowerCase().includes(q) || d.id.toLowerCase().includes(q));
   };
 
   function openPopup() {
@@ -190,7 +149,7 @@ export default function DimensionTypeSection() {
           }}>
           <Show when={current()} fallback={<span style={{ flex: 1, 'font-size': '13px', opacity: 0.7 }}>{t('measurement.dimTypeCustom') || 'Aangepast'}</span>}>
             <PreviewSwatch annType={annotProps.type} entry={current()} />
-            <span style={{ flex: 1, 'font-size': '13px', overflow: 'hidden', 'text-overflow': 'ellipsis', 'white-space': 'nowrap' }}>{current().label}</span>
+            <span style={{ flex: 1, 'font-size': '13px', overflow: 'hidden', 'text-overflow': 'ellipsis', 'white-space': 'nowrap' }}>{styleTypeLabel(current(), t)}</span>
           </Show>
           <span style={{ 'font-size': '10px' }}>▼</span>
         </div>
@@ -222,7 +181,7 @@ export default function DimensionTypeSection() {
                     onMouseLeave={(ev) => ev.currentTarget.style.background = d.id === currentId() ? 'var(--theme-accent-soft, #cce4f7)' : 'transparent'}
                   >
                     <PreviewSwatch annType={annotProps.type} entry={d} />
-                    <span style={{ 'font-size': '13px', flex: 1, overflow: 'hidden', 'text-overflow': 'ellipsis', 'white-space': 'nowrap' }}>{d.label}</span>
+                    <span style={{ 'font-size': '13px', flex: 1, overflow: 'hidden', 'text-overflow': 'ellipsis', 'white-space': 'nowrap' }}>{styleTypeLabel(d, t)}</span>
                   </div>
                 )}
               </For>

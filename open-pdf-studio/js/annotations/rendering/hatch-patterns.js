@@ -639,44 +639,99 @@ export function applyHatchFillPolygon(ctx, points, holes, hatchPattern, hatchCol
 }
 
 // ---------------------------------------------------------------------------
-// Preview swatch — draws a small tileable image of the pattern.
-// Cached so the picker (which builds many swatches) stays fast.
+// Preview swatch — draws a small image of the pattern with the SAME renderer
+// (renderPattern) that paints the annotation, so a swatch can never drift
+// from the hatch that is actually applied. Cached so the pickers (which build
+// many swatches) stay fast.
 // ---------------------------------------------------------------------------
 
-const SWATCH_CACHE = new Map(); // key: id|color|size → dataURL
+// Scale the pattern picker uses so a pattern visibly tiles inside 16px.
+export const SWATCH_PATTERN_SCALE = 0.35;
 
-export function getHatchSwatchDataUrl(patternId, color = '#000000', size = 16, bg = '#ffffff') {
-  const key = `${patternId}|${color}|${size}|${bg}`;
+const SWATCH_CACHE = new Map(); // key: id|color|size|bg|opts → dataURL
+
+// opts (all optional):
+//   width/height  swatch size in px (default: size × size)
+//   scale         pattern scale factor (default SWATCH_PATTERN_SCALE); pass
+//                 hatchScale/100 to show a style type at its real density
+//   angle         hatch rotation in degrees (hatchAngle)
+//   tint          colour washed over the backdrop at 0x20 alpha — mirrors the
+//                 default semi-transparent fill of an area without fillColor
+//   border        draw the grey picker border (default true)
+//   pixelRatio    backing-store density (devicePixelRatio) for sharp lines;
+//                 the image keeps its CSS size width × height
+export function getHatchSwatchDataUrl(patternId, color = '#000000', size = 16, bg = '#ffffff', opts = {}) {
+  const width = opts.width || size;
+  const height = opts.height || size;
+  const scale = opts.scale != null ? opts.scale : SWATCH_PATTERN_SCALE;
+  const angle = opts.angle || 0;
+  const tint = opts.tint || '';
+  const border = opts.border !== false;
+  const pr = opts.pixelRatio > 0 ? Math.min(4, opts.pixelRatio) : 1;
+  const key = `${patternId}|${color}|${width}x${height}@${pr}|${bg}|${scale}|${angle}|${tint}|${border}`;
   const cached = SWATCH_CACHE.get(key);
   if (cached) return cached;
 
   if (typeof document === 'undefined') return '';
   const canvas = document.createElement('canvas');
-  canvas.width = size;
-  canvas.height = size;
+  if (!canvas) return '';
+  canvas.width = Math.round(width * pr);
+  canvas.height = Math.round(height * pr);
   const ctx = canvas.getContext('2d');
   if (!ctx) return '';
+  if (pr !== 1) ctx.scale(pr, pr);
 
   // Backdrop so line patterns stay visible — callers pass the theme surface
   // colour in dark mode; white by default. 'transparent' skips the fill.
   if (bg && bg !== 'transparent') {
     ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, size, size);
+    ctx.fillRect(0, 0, width, height);
+  }
+  if (tint) {
+    ctx.fillStyle = tint + '20';
+    ctx.fillRect(0, 0, width, height);
   }
 
   ctx.save();
   ctx.beginPath();
-  ctx.rect(0, 0, size, size);
+  ctx.rect(0, 0, width, height);
   ctx.clip();
-  // Use a small scale so the pattern visibly tiles inside 16px.
-  renderPattern(ctx, patternId, -size, -size, size * 2, size * 2, 0.35, color);
+  const cx = width / 2;
+  const cy = height / 2;
+  if (angle) {
+    ctx.translate(cx, cy);
+    ctx.rotate(angle * Math.PI / 180);
+    ctx.translate(-cx, -cy);
+  }
+  const ext = Math.max(width, height);
+  renderPattern(ctx, patternId, cx - ext * 1.5, cy - ext * 1.5, cx + ext * 1.5, cy + ext * 1.5, scale, color);
   ctx.restore();
 
-  // Border for picker presentation
-  ctx.strokeStyle = '#888';
-  ctx.strokeRect(0.5, 0.5, size - 1, size - 1);
+  if (border) {
+    ctx.strokeStyle = '#888';
+    ctx.strokeRect(0.5, 0.5, width - 1, height - 1);
+  }
 
   const url = canvas.toDataURL('image/png');
   SWATCH_CACHE.set(key, url);
   return url;
+}
+
+// Swatch parameters for a filled-area STYLE TYPE entry ({ color, props }):
+// exactly the pattern, colours, scale and angle that applying the type puts on
+// the annotation. Pure — shared by the type picker and its unit test.
+export function styleTypeSwatchParams(entry) {
+  const p = (entry && entry.props) || {};
+  const pattern = p.hatchPattern && p.hatchPattern !== 'none' ? p.hatchPattern : null;
+  const line = p.hatchColor || p.strokeColor || entry?.color || '#000000';
+  const fill = p.fillColor && p.fillColor !== 'none' && p.fillColor !== 'transparent' ? p.fillColor : null;
+  return {
+    pattern,
+    line,
+    fill,
+    // An area without fillColor gets a faint tint of its line colour.
+    tint: p.fillColor == null ? (p.strokeColor || p.color || line) : '',
+    scale: (p.hatchScale != null ? p.hatchScale : 100) / 100,
+    angle: p.hatchAngle || 0,
+  };
 }
