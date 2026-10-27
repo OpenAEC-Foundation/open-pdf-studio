@@ -226,6 +226,7 @@ function nieuwItem(doc, handtekening) {
   return {
     handtekening, pdfDoc: doc.pdfDoc, status: 'gepland', timer: null,
     pdfjsDoc: null, pagina: null, bitmap: null, doel: null, wens: null, taak: null, weg: false,
+    fout: null,
   };
 }
 
@@ -250,6 +251,7 @@ async function bouwItem(doc, item, edit, box) {
   } catch (err) {
     if (item.weg) return;
     item.status = 'mislukt';
+    item.fout = err;
     console.warn('[type3-voorbeeld] voorbeeld niet gebouwd; Helvetica-weergave blijft:', err);
   }
   if (!item.weg) herteken();
@@ -281,6 +283,7 @@ async function renderLus(item) {
       item.taak = null;
       if (item.weg) break;
       item.status = 'mislukt';
+      item.fout = err;
       console.warn('[type3-voorbeeld] render mislukt; Helvetica-weergave blijft:', err);
       break;
     }
@@ -387,4 +390,10 @@ export function vergeetType3Voorbeelden(doc) {
 export function type3VoorbeeldStatus(doc, pageNum, editId) {
   const item = doc ? _caches.get(doc)?.get(type3Sleutel(pageNum, editId)) : null;
   return item ? item.status : null;
+}
+
+/** Voor tests en diagnose: de fout achter de status 'mislukt' (of null). */
+export function type3VoorbeeldFout(doc, pageNum, editId) {
+  const item = doc ? _caches.get(doc)?.get(type3Sleutel(pageNum, editId)) : null;
+  return item?.fout || null;
 }

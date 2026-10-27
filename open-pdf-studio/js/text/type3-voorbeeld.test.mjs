@@ -204,7 +204,13 @@ let napiCanvas = null;
 try { napiCanvas = await import('@napi-rs/canvas'); } catch { napiCanvas = null; }
 const require = createRequire(import.meta.url);
 const standaardFonts = (() => {
-  try { return path.join(path.dirname(require.resolve('pdfjs-dist/package.json')), 'standard_fonts') + path.sep; } catch { return undefined; }
+  // PDF.js eist een slash aan het eind (getFactoryUrlProp); path.sep is op
+  // Windows een backslash, en dan weigert getDocument het hele document.
+  // fs.readFile leest 'C:/.../standard_fonts/x.pfb' ook op Windows.
+  try {
+    return path.join(path.dirname(require.resolve('pdfjs-dist/package.json')), 'standard_fonts')
+      .split(path.sep).join('/') + '/';
+  } catch { return undefined; }
 })();
 
 async function laadPdfjs(bytes) {
@@ -247,7 +253,8 @@ test('de render van het voorbeeld is de render van de opgeslagen pagina (zelfde 
       assert.equal(V.type3Voorbeeld(doc, 1, gemengd, BOX, px), null, 'eerst de Helvetica-terugval');
       await hertekend;
       const bmp = V.type3Voorbeeld(doc, 1, gemengd, BOX, px);
-      assert.ok(bmp, `status ${V.type3VoorbeeldStatus(doc, 1, 't3')}`);
+      const fout = V.type3VoorbeeldFout(doc, 1, 't3');
+      assert.ok(bmp, `status ${V.type3VoorbeeldStatus(doc, 1, 't3')}: ${fout?.stack || fout}`);
       assert.equal(bmp.px, px);
 
       // De opgeslagen pagina, met hetzelfde kader en dezelfde dichtheid.
@@ -455,6 +462,12 @@ test('terugval: mislukte bouw, geen Type3, export zonder planning', async () => 
     V.vergeetType3Voorbeelden(doc);
     V.zetType3VoorbeeldBronnen({});
   }
+});
+
+test('de standaardfont-map voor PDF.js eindigt op een slash, ook met Windows-paden', () => {
+  assert.ok(!standaardFonts || standaardFonts.endsWith('/'), standaardFonts);
+  const win = path.win32.join('C:\\a\\node_modules\\pdfjs-dist', 'standard_fonts').split(path.win32.sep).join('/') + '/';
+  assert.equal(win, 'C:/a/node_modules/pdfjs-dist/standard_fonts/');
 });
 
 test('omhullende: ruim om de regel, ook gedraaid', () => {
