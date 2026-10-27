@@ -1599,5 +1599,26 @@
       "supersede": "Nahradené",
       "expire": "Vypršané"
     }
+  },
+  "accessibilityReport": {
+    "title": "Kontrola prístupnosti",
+    "starting": "Prebieha kontrola...",
+    "checking": "Kontroluje sa strana {{done}} z {{total}}...",
+    "noIssues": "Nenašli sa žiadne problémy.",
+    "summary": "Počet nájdených problémov: {{count}}. Dvojitým kliknutím na položku prejdete na jej stranu.",
+    "failed": "Kontrolu tohto dokumentu nebolo možné vykonať.",
+    "recheck": "Skontrolovať znova",
+    "close": "Zavrieť",
+    "goTo": "Dvojitým kliknutím prejdete na stranu",
+    "page": "Strana {{page}}",
+    "kind": {
+      "notTagged": "Dokument nemá značky: chýba strom štruktúry, takže asistenčné technológie nemôžu sledovať poradie čítania.",
+      "notMarked": "Dokument nie je označený ako označkovaný (/MarkInfo /Marked).",
+      "noLanguage": "Jazyk dokumentu nie je nastavený.",
+      "figureNoAlt": "{{role}} bez alternatívneho textu",
+      "pageNotTagged": "Na tejto strane nie je žiadny označkovaný obsah (textové položky: {{count}})",
+      "untaggedContent": "Textové položky mimo značiek: {{count}}",
+      "annotationNoText": "Poznámka ({{type}}) bez popisu"
+    }
   }
 }

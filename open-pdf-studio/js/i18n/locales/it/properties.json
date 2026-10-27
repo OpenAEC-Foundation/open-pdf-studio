@@ -722,5 +722,17 @@
     "invalid": "Impossibile aggiornare l'ubicazione",
     "rules": "L'assegnazione usa il centro del riquadro di delimitazione dell'annotazione, bordi inclusi. Prevale la zona più profonda, poi l'area più piccola, poi l'ID della zona. Usa poligoni rettilinei senza fori o rettangoli non ruotati. Le identità di zona non valide o duplicate vengono escluse.",
     "loading": "Caricamento delle annotazioni: le ubicazioni possono ancora cambiare."
+  },
+  "tagsPanel": {
+    "moveUp": "Sposta su nell'ordine di lettura",
+    "moveDown": "Sposta giù nell'ordine di lettura",
+    "checkAccessibility": "Verifica accessibilità",
+    "altText": "Testo alternativo",
+    "altTextPlaceholder": "Descrivi l'immagine per chi non può vederla...",
+    "noAlt": "Nessun testo alternativo",
+    "role": "Ruolo",
+    "mappedTo": "{{role}} è associato a {{standard}}",
+    "content": "Contenuto {{mcid}} (pagina {{page}})",
+    "annotationRef": "Annotazione (pagina {{page}})"
   }
 }

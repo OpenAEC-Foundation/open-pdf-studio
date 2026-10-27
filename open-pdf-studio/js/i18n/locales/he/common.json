@@ -290,5 +290,26 @@
     "readFailed": "לא ניתן לקרוא את מודל ה-3D.",
     "partial": "לא ניתן לקרוא חלקים מסוימים של מודל ה-3D ({{n}} דולגו).",
     "viewerFailed": "לא ניתן להפעיל את תצוגת ה-3D."
+  },
+  "readAloud": {
+    "title": "הקראה",
+    "play": "קריאה",
+    "pause": "השהיה",
+    "resume": "המשך",
+    "stop": "עצירה",
+    "close": "סגירה",
+    "voice": "קול",
+    "defaultVoice": "קול ברירת מחדל",
+    "rate": "מהירות",
+    "loading": "בהכנה...",
+    "reading": "מקריא",
+    "paused": "מושהה",
+    "page": "עמוד {{page}}",
+    "tagOrder": "סדר התגים",
+    "contentOrder": "סדר העמודים",
+    "noEngine": "אין מנוע דיבור זמין במערכת זו.",
+    "noEngineLinux": "לא נמצא מנוע דיבור. התקינו את speech-dispatcher (spd-say) או את espeak-ng ונסו שוב.",
+    "speechFailed": "ההקראה הופסקה עקב שגיאה.",
+    "nothingToRead": "אין טקסט להקראה."
   }
 }

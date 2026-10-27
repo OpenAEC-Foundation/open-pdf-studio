@@ -208,7 +208,15 @@
     "rotateViewLeft": "تدوير العرض لليسار",
     "rotateViewRight": "تدوير العرض لليمين",
     "rotateViewLeftTitle": "تدوير العرض 90° عكس اتجاه عقارب الساعة. لا يتغير المستند نفسه.",
-    "rotateViewRightTitle": "تدوير العرض 90° في اتجاه عقارب الساعة. لا يتغير المستند نفسه."
+    "rotateViewRightTitle": "تدوير العرض 90° في اتجاه عقارب الساعة. لا يتغير المستند نفسه.",
+    "accessibilityGroup": "إمكانية الوصول",
+    "readAloud": "القراءة بصوت عالٍ",
+    "readAloudPause": "إيقاف مؤقت",
+    "readAloudTitle": "قراءة التحديد، أو المستند من الصفحة الحالية، بصوت عالٍ",
+    "tagsPanel": "العلامات",
+    "tagsPanelTitle": "عرض علامات بنية المستند",
+    "accessibilityCheck": "فحص",
+    "accessibilityCheckTitle": "البحث عن النص البديل المفقود والمحتوى غير الموسوم"
   },
   "elementVisibility": {
     "buttonTitle": "رؤية العناصر — إظهار/إخفاء أنواع التعليقات وتخفيتها",

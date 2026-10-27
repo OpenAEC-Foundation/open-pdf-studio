@@ -290,5 +290,26 @@
     "readFailed": "3D model okunamadı.",
     "partial": "3D modelin bazı bölümleri okunamadı ({{n}} atlandı).",
     "viewerFailed": "3D görünüm başlatılamadı."
+  },
+  "readAloud": {
+    "title": "Sesli oku",
+    "play": "Oku",
+    "pause": "Duraklat",
+    "resume": "Sürdür",
+    "stop": "Durdur",
+    "close": "Kapat",
+    "voice": "Ses",
+    "defaultVoice": "Varsayılan ses",
+    "rate": "Hız",
+    "loading": "Hazırlanıyor...",
+    "reading": "Okunuyor",
+    "paused": "Duraklatıldı",
+    "page": "sayfa {{page}}",
+    "tagOrder": "etiket sırası",
+    "contentOrder": "sayfa sırası",
+    "noEngine": "Bu sistemde kullanılabilir bir konuşma motoru yok.",
+    "noEngineLinux": "Konuşma motoru bulunamadı. speech-dispatcher (spd-say) veya espeak-ng yükleyip yeniden deneyin.",
+    "speechFailed": "Okuma bir hata nedeniyle durdu.",
+    "nothingToRead": "Okunacak metin yok."
   }
 }

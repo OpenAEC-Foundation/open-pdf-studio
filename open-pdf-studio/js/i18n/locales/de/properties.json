@@ -722,5 +722,17 @@
     "invalid": "Standort konnte nicht aktualisiert werden",
     "rules": "Die Zuordnung verwendet den Mittelpunkt des Begrenzungsrahmens der Markierung, einschließlich Kanten. Die tiefste Zone hat Vorrang, dann die kleinste Fläche, dann die Zonen-ID. Verwenden Sie gerade Polygone ohne Löcher oder nicht gedrehte Rechtecke. Ungültige oder doppelte Zonenidentitäten werden ausgeschlossen.",
     "loading": "Anmerkungen werden geladen: Standorte können sich noch ändern."
+  },
+  "tagsPanel": {
+    "moveUp": "In der Lesereihenfolge nach oben",
+    "moveDown": "In der Lesereihenfolge nach unten",
+    "checkAccessibility": "Barrierefreiheit prüfen",
+    "altText": "Alternativtext",
+    "altTextPlaceholder": "Beschreiben Sie das Bild für Menschen, die es nicht sehen können...",
+    "noAlt": "Kein Alternativtext",
+    "role": "Rolle",
+    "mappedTo": "{{role}} ist {{standard}} zugeordnet",
+    "content": "Inhalt {{mcid}} (Seite {{page}})",
+    "annotationRef": "Anmerkung (Seite {{page}})"
   }
 }

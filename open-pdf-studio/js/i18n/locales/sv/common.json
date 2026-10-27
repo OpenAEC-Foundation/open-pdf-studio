@@ -290,5 +290,26 @@
     "readFailed": "3D-modellen kunde inte läsas.",
     "partial": "Vissa delar av 3D-modellen kunde inte läsas ({{n}} hoppades över).",
     "viewerFailed": "3D-vyn kunde inte startas."
+  },
+  "readAloud": {
+    "title": "Läs upp",
+    "play": "Läs",
+    "pause": "Pausa",
+    "resume": "Fortsätt",
+    "stop": "Stoppa",
+    "close": "Stäng",
+    "voice": "Röst",
+    "defaultVoice": "Standardröst",
+    "rate": "Hastighet",
+    "loading": "Förbereder...",
+    "reading": "Läser upp",
+    "paused": "Pausad",
+    "page": "sida {{page}}",
+    "tagOrder": "taggordning",
+    "contentOrder": "sidordning",
+    "noEngine": "Ingen talsyntes finns tillgänglig på det här systemet.",
+    "noEngineLinux": "Ingen talsyntes hittades. Installera speech-dispatcher (spd-say) eller espeak-ng och försök igen.",
+    "speechFailed": "Uppläsningen stoppades på grund av ett fel.",
+    "nothingToRead": "Det finns ingen text att läsa upp."
   }
 }

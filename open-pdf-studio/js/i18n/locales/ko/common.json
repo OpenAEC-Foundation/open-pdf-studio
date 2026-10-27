@@ -290,5 +290,26 @@
     "readFailed": "3D 모델을 읽을 수 없습니다.",
     "partial": "3D 모델의 일부를 읽을 수 없습니다({{n}}개 건너뜀).",
     "viewerFailed": "3D 보기를 시작할 수 없습니다."
+  },
+  "readAloud": {
+    "title": "소리 내어 읽기",
+    "play": "읽기",
+    "pause": "일시 중지",
+    "resume": "계속",
+    "stop": "중지",
+    "close": "닫기",
+    "voice": "음성",
+    "defaultVoice": "기본 음성",
+    "rate": "속도",
+    "loading": "준비 중...",
+    "reading": "읽는 중",
+    "paused": "일시 중지됨",
+    "page": "{{page}}페이지",
+    "tagOrder": "태그 순서",
+    "contentOrder": "페이지 순서",
+    "noEngine": "이 시스템에서 사용할 수 있는 음성 엔진이 없습니다.",
+    "noEngineLinux": "음성 엔진을 찾을 수 없습니다. speech-dispatcher(spd-say) 또는 espeak-ng를 설치한 후 다시 시도하세요.",
+    "speechFailed": "오류로 인해 읽기가 중지되었습니다.",
+    "nothingToRead": "읽을 텍스트가 없습니다."
   }
 }

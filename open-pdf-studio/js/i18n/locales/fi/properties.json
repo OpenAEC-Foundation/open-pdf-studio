@@ -722,5 +722,17 @@
     "invalid": "Sijaintia ei voitu päivittää",
     "rules": "Määritys käyttää merkinnän rajauslaatikon keskipistettä reunat mukaan lukien. Syvin vyöhyke voittaa, sitten pienin pinta-ala ja sitten vyöhykkeen tunnus. Käytä suorasivuisia monikulmioita ilman reikiä tai kiertämättömiä suorakulmioita. Virheelliset tai päällekkäiset vyöhyketunnisteet jätetään pois.",
     "loading": "Merkintöjä ladataan: sijainnit voivat vielä muuttua."
+  },
+  "tagsPanel": {
+    "moveUp": "Siirrä ylös lukujärjestyksessä",
+    "moveDown": "Siirrä alas lukujärjestyksessä",
+    "checkAccessibility": "Tarkista saavutettavuus",
+    "altText": "Vaihtoehtoinen teksti",
+    "altTextPlaceholder": "Kuvaile kuva niille, jotka eivät näe sitä...",
+    "noAlt": "Ei vaihtoehtoista tekstiä",
+    "role": "Rooli",
+    "mappedTo": "{{role}} on yhdistetty rooliin {{standard}}",
+    "content": "Sisältö {{mcid}} (sivu {{page}})",
+    "annotationRef": "Merkintä (sivu {{page}})"
   }
 }

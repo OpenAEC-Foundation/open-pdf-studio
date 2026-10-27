@@ -24,6 +24,8 @@ import { openDialog, showMessage } from '../../stores/dialogStore.js';
 import { readerTrackingPath } from '../../../core/reader-mode-tracking.js';
 import { setReaderTracking } from '../../../pdf/reader-mode-view.js';
 import { compareActive, exitCompare } from '../../../compare/compare-store.js';
+import { status as readAloudStatus } from '../../stores/readAloudStore.js';
+import { activeTab as leftPanelTab } from '../../stores/leftPanelStore.js';
 
 export default function ViewTab() {
   const { t } = useTranslation('ribbon');
@@ -124,6 +126,33 @@ export default function ViewTab() {
               re-exposed later if needed). */}
           <RibbonButton id="ribbon-symbol-palette" title="Toolpalette" icon={toolPaletteIcon} label="Toolpalette"
             active={symbolPaletteVisible()} onClick={toggleSymbolPalette} />
+        </RibbonGroup>
+
+        {/* Read aloud and the structure tags (#384). */}
+        <RibbonGroup label={t('view.accessibilityGroup')}>
+          <RibbonButton id="ribbon-read-aloud"
+            title={t('view.readAloudTitle')}
+            icon={`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 9h3l5-4v14l-5-4H4z"/><path d="M15.5 8.5a5 5 0 010 7"/><path d="M18 6a8.5 8.5 0 010 12"/></svg>`}
+            label={readAloudStatus() === 'playing' ? t('view.readAloudPause') : t('view.readAloud')}
+            disabled={noPdf()}
+            active={readAloudStatus() !== 'idle'}
+            onClick={() => import('../../../accessibility/read-aloud.js').then((m) => {
+              if (m.isReading()) m.togglePauseReadAloud();
+              else m.startReadAloud();
+            })} />
+          <RibbonButtonStack>
+            <RibbonButton size="small" id="ribbon-tags-panel" title={t('view.tagsPanelTitle')}
+              icon={`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h7l9 9-7 7-9-9z"/><circle cx="8" cy="8" r="1.5"/></svg>`}
+              label={t('view.tagsPanel')}
+              disabled={noPdf()}
+              active={!leftPanelCollapsed() && leftPanelTab() === 'tags'}
+              onClick={() => import('../../../ui/panels/left-panel.js').then((m) => m.switchLeftPanelTab('tags'))} />
+            <RibbonButton size="small" id="ribbon-accessibility-check" title={t('view.accessibilityCheckTitle')}
+              icon={`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>`}
+              label={t('view.accessibilityCheck')}
+              disabled={noPdf()}
+              onClick={() => openDialog('accessibility-report')} />
+          </RibbonButtonStack>
         </RibbonGroup>
 
         <RibbonGroup label={t('view.appearance')}>

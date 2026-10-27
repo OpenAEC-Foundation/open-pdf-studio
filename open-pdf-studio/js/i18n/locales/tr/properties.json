@@ -722,5 +722,17 @@
     "invalid": "Konum güncellenemedi",
     "rules": "Atama, kenarlar dahil işaretlemenin sınırlayıcı kutu merkezini kullanır. En derin bölge kazanır, ardından en küçük alan, ardından bölge kimliği. Deliksiz düz kenarlı çokgenler veya döndürülmemiş kutular kullanın. Geçersiz veya yinelenen bölge kimlikleri hariç tutulur.",
     "loading": "Açıklamalar yükleniyor: konumlar hâlâ değişebilir."
+  },
+  "tagsPanel": {
+    "moveUp": "Okuma sırasında yukarı taşı",
+    "moveDown": "Okuma sırasında aşağı taşı",
+    "checkAccessibility": "Erişilebilirliği denetle",
+    "altText": "Alternatif metin",
+    "altTextPlaceholder": "Görüntüyü göremeyenler için açıklayın...",
+    "noAlt": "Alternatif metin yok",
+    "role": "Rol",
+    "mappedTo": "{{role}}, {{standard}} ile eşlenmiş",
+    "content": "İçerik {{mcid}} (sayfa {{page}})",
+    "annotationRef": "Ek açıklama (sayfa {{page}})"
   }
 }

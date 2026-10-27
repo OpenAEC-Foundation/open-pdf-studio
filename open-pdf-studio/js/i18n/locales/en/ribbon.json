@@ -208,7 +208,15 @@
     "keystrokesHint": "Show pressed keyboard shortcuts at the bottom left (for screen recordings)",
     "readerMode": "Reader Mode",
     "readerModeTip": "Remember this PDF's page, scroll position and zoom across closing and reopening it. While switched on, a small file is kept next to this PDF, so it also appears in cloud-synced folders (OneDrive, Dropbox, etc.); switching it off removes that file.",
-    "readerModeSaveFailed": "Reader Mode could not save its setting for this PDF. The folder may be read-only."
+    "readerModeSaveFailed": "Reader Mode could not save its setting for this PDF. The folder may be read-only.",
+    "accessibilityGroup": "Accessibility",
+    "readAloud": "Read Aloud",
+    "readAloudPause": "Pause",
+    "readAloudTitle": "Read the selection, or the document from the current page, aloud",
+    "tagsPanel": "Tags",
+    "tagsPanelTitle": "Show the structure tags of the document",
+    "accessibilityCheck": "Check",
+    "accessibilityCheckTitle": "Check for missing alt text and untagged content"
   },
   "elementVisibility": {
     "buttonTitle": "Element Visibility — show/hide and dim annotation types",

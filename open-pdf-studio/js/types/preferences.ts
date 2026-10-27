@@ -230,6 +230,8 @@ export interface Preferences {
 
   // View
   thinLines: boolean;
+  readAloudVoice: string;
+  readAloudRate: number;
   showScrollbars: boolean;
   progressiveRender: boolean;
   screenCalibration: Record<string, number>;

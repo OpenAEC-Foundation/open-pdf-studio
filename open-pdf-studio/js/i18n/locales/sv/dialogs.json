@@ -1599,5 +1599,26 @@
       "supersede": "Ersatt",
       "expire": "Förfallen"
     }
+  },
+  "accessibilityReport": {
+    "title": "Tillgänglighetskontroll",
+    "starting": "Kontrollerar...",
+    "checking": "Kontrollerar sida {{done}} av {{total}}...",
+    "noIssues": "Inga problem hittades.",
+    "summary": "{{count}} problem hittades. Dubbelklicka på ett objekt för att gå till dess sida.",
+    "failed": "Kontrollen kunde inte köras på det här dokumentet.",
+    "recheck": "Kontrollera igen",
+    "close": "Stäng",
+    "goTo": "Dubbelklicka för att gå till sidan",
+    "page": "Sida {{page}}",
+    "kind": {
+      "notTagged": "Dokumentet saknar taggar: det finns inget strukturträd, så hjälpmedel kan inte följa läsordningen.",
+      "notMarked": "Dokumentet är inte markerat som taggat (/MarkInfo /Marked).",
+      "noLanguage": "Dokumentets språk är inte angivet.",
+      "figureNoAlt": "{{role}} utan alternativtext",
+      "pageNotTagged": "Inget taggat innehåll på den här sidan ({{count}} textobjekt)",
+      "untaggedContent": "{{count}} textobjekt utanför taggarna",
+      "annotationNoText": "Kommentar ({{type}}) utan beskrivning"
+    }
   }
 }

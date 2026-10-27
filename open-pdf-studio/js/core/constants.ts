@@ -294,6 +294,9 @@ export const DEFAULT_PREFERENCES: Preferences = {
 
   // View
   thinLines: false,
+  // Read aloud (#384): voice id ('' = the engine's default) and rate (1 = normal).
+  readAloudVoice: '',
+  readAloudRate: 1,
   showScrollbars: false,
   // Zware raster-pagina's (grote content-stream, bv. CAD-tekeningen met
   // miljoenen segmenten) progressief tegel-voor-tegel invullen via de

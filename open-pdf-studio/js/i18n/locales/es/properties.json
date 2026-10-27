@@ -722,5 +722,17 @@
     "invalid": "No se pudo actualizar la ubicación",
     "rules": "La asignación usa el centro del cuadro delimitador de la marca, bordes incluidos. Prevalece la zona más profunda, luego la de menor área y después el ID de zona. Use polígonos rectos sin huecos o rectángulos sin rotar. Se excluyen las identidades de zona no válidas o duplicadas.",
     "loading": "Cargando anotaciones: las ubicaciones aún pueden cambiar."
+  },
+  "tagsPanel": {
+    "moveUp": "Subir en el orden de lectura",
+    "moveDown": "Bajar en el orden de lectura",
+    "checkAccessibility": "Comprobar accesibilidad",
+    "altText": "Texto alternativo",
+    "altTextPlaceholder": "Describa la imagen para quien no pueda verla...",
+    "noAlt": "Sin texto alternativo",
+    "role": "Función",
+    "mappedTo": "{{role}} se asigna a {{standard}}",
+    "content": "Contenido {{mcid}} (página {{page}})",
+    "annotationRef": "Anotación (página {{page}})"
   }
 }

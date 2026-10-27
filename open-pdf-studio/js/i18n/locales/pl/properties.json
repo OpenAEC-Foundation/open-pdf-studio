@@ -722,5 +722,17 @@
     "invalid": "Nie można zaktualizować lokalizacji",
     "rules": "Przypisanie opiera się na środku prostokąta ograniczającego znacznik, łącznie z krawędziami. Wygrywa najgłębiej zagnieżdżona strefa, potem najmniejsza powierzchnia, potem identyfikator strefy. Używaj wielokątów o prostych bokach bez otworów lub prostokątów bez obrotu. Nieprawidłowe lub zduplikowane identyfikatory stref są pomijane.",
     "loading": "Trwa wczytywanie adnotacji: lokalizacje mogą się jeszcze zmienić."
+  },
+  "tagsPanel": {
+    "moveUp": "Przenieś wyżej w kolejności czytania",
+    "moveDown": "Przenieś niżej w kolejności czytania",
+    "checkAccessibility": "Sprawdź dostępność",
+    "altText": "Tekst alternatywny",
+    "altTextPlaceholder": "Opisz obraz dla osób, które go nie widzą...",
+    "noAlt": "Brak tekstu alternatywnego",
+    "role": "Rola",
+    "mappedTo": "{{role}} jest mapowana na {{standard}}",
+    "content": "Treść {{mcid}} (strona {{page}})",
+    "annotationRef": "Adnotacja (strona {{page}})"
   }
 }

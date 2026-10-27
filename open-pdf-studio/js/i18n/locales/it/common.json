@@ -290,5 +290,26 @@
     "readFailed": "Impossibile leggere il modello 3D.",
     "partial": "Impossibile leggere alcune parti del modello 3D ({{n}} saltate).",
     "viewerFailed": "Impossibile avviare la vista 3D."
+  },
+  "readAloud": {
+    "title": "Leggi ad alta voce",
+    "play": "Leggi",
+    "pause": "Pausa",
+    "resume": "Riprendi",
+    "stop": "Interrompi",
+    "close": "Chiudi",
+    "voice": "Voce",
+    "defaultVoice": "Voce predefinita",
+    "rate": "Velocità",
+    "loading": "Preparazione...",
+    "reading": "Lettura in corso",
+    "paused": "In pausa",
+    "page": "pagina {{page}}",
+    "tagOrder": "ordine dei tag",
+    "contentOrder": "ordine delle pagine",
+    "noEngine": "Nessun motore vocale disponibile su questo sistema.",
+    "noEngineLinux": "Nessun motore vocale trovato. Installa speech-dispatcher (spd-say) o espeak-ng e riprova.",
+    "speechFailed": "La lettura si è interrotta a causa di un errore.",
+    "nothingToRead": "Non c'è testo da leggere."
   }
 }

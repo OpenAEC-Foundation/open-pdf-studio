@@ -208,7 +208,15 @@
     "rotateViewLeft": "Zungusha Mwonekano Kushoto",
     "rotateViewRight": "Zungusha Mwonekano Kulia",
     "rotateViewLeftTitle": "Huzungusha mwonekano 90° kinyume cha mwendo wa saa. Hati yenyewe haibadiliki.",
-    "rotateViewRightTitle": "Huzungusha mwonekano 90° kwa mwendo wa saa. Hati yenyewe haibadiliki."
+    "rotateViewRightTitle": "Huzungusha mwonekano 90° kwa mwendo wa saa. Hati yenyewe haibadiliki.",
+    "accessibilityGroup": "Ufikivu",
+    "readAloud": "Soma kwa sauti",
+    "readAloudPause": "Sitisha",
+    "readAloudTitle": "Soma kwa sauti uteuzi, au hati kuanzia ukurasa wa sasa",
+    "tagsPanel": "Lebo",
+    "tagsPanelTitle": "Onyesha lebo za muundo wa hati",
+    "accessibilityCheck": "Kagua",
+    "accessibilityCheckTitle": "Tafuta maandishi mbadala yanayokosekana na maudhui yasiyo na lebo"
   },
   "elementVisibility": {
     "buttonTitle": "Uonekanaji wa Vipengele — onyesha/ficha na fifisha aina za maelezo",

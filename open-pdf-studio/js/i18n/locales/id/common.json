@@ -290,5 +290,26 @@
     "readFailed": "Model 3D tidak dapat dibaca.",
     "partial": "Beberapa bagian model 3D tidak dapat dibaca ({{n}} dilewati).",
     "viewerFailed": "Tampilan 3D tidak dapat dimulai."
+  },
+  "readAloud": {
+    "title": "Bacakan",
+    "play": "Baca",
+    "pause": "Jeda",
+    "resume": "Lanjutkan",
+    "stop": "Hentikan",
+    "close": "Tutup",
+    "voice": "Suara",
+    "defaultVoice": "Suara default",
+    "rate": "Kecepatan",
+    "loading": "Menyiapkan...",
+    "reading": "Sedang membacakan",
+    "paused": "Dijeda",
+    "page": "halaman {{page}}",
+    "tagOrder": "urutan tag",
+    "contentOrder": "urutan halaman",
+    "noEngine": "Tidak ada mesin suara yang tersedia di sistem ini.",
+    "noEngineLinux": "Mesin suara tidak ditemukan. Instal speech-dispatcher (spd-say) atau espeak-ng lalu coba lagi.",
+    "speechFailed": "Pembacaan berhenti karena terjadi kesalahan.",
+    "nothingToRead": "Tidak ada teks untuk dibacakan."
   }
 }

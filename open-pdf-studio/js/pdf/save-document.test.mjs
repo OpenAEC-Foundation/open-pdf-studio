@@ -41,6 +41,8 @@ function harness() {
     saveBookmarksToOutline: (_pdf, doc) => owners.push(doc), saveStylePresetsToCatalog() {},
     slaPaginaLabelsOp: (_pdf, doc) => owners.push(doc),
     pasBijlagenToe: (_pdf, wijzigingen) => attachmentEdits.push(wijzigingen),
+    // Structuurbewerkingen van het tagspaneel (#384): hier geen.
+    hasEdits: () => false, applyEditsToPdf: () => ({ applied: 0, skipped: 0 }), notifyStructEditsSaved() {},
     unlockFile: async () => {}, lockFile: async () => {},
     writeBinaryFileAtomic: async (path, bytes) => { writes.push({ path, source: new TextDecoder().decode(bytes) }); },
     isTauri: () => false, markeerGebakken() {}, hidePdfABar() {}, stripPdfAMetadata() {},

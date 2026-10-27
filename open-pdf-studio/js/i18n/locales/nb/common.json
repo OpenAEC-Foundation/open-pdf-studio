@@ -290,5 +290,26 @@
     "readFailed": "3D-modellen kunne ikke leses.",
     "partial": "Noen deler av 3D-modellen kunne ikke leses ({{n}} hoppet over).",
     "viewerFailed": "3D-visningen kunne ikke startes."
+  },
+  "readAloud": {
+    "title": "Les høyt",
+    "play": "Les",
+    "pause": "Pause",
+    "resume": "Fortsett",
+    "stop": "Stopp",
+    "close": "Lukk",
+    "voice": "Stemme",
+    "defaultVoice": "Standardstemme",
+    "rate": "Hastighet",
+    "loading": "Forbereder...",
+    "reading": "Leser høyt",
+    "paused": "Satt på pause",
+    "page": "side {{page}}",
+    "tagOrder": "taggrekkefølge",
+    "contentOrder": "siderekkefølge",
+    "noEngine": "Ingen talesyntese er tilgjengelig på dette systemet.",
+    "noEngineLinux": "Fant ingen talesyntese. Installer speech-dispatcher (spd-say) eller espeak-ng og prøv igjen.",
+    "speechFailed": "Opplesingen stoppet på grunn av en feil.",
+    "nothingToRead": "Det er ingen tekst å lese."
   }
 }

@@ -208,7 +208,15 @@
     "rotateViewLeft": "Gira la vista a l'esquerra",
     "rotateViewRight": "Gira la vista a la dreta",
     "rotateViewLeftTitle": "Gira la vista 90° en sentit antihorari. El document no canvia.",
-    "rotateViewRightTitle": "Gira la vista 90° en sentit horari. El document no canvia."
+    "rotateViewRightTitle": "Gira la vista 90° en sentit horari. El document no canvia.",
+    "accessibilityGroup": "Accessibilitat",
+    "readAloud": "Llegeix en veu alta",
+    "readAloudPause": "Pausa",
+    "readAloudTitle": "Llegeix en veu alta la selecció, o el document des de la pàgina actual",
+    "tagsPanel": "Etiquetes",
+    "tagsPanelTitle": "Mostra les etiquetes d'estructura del document",
+    "accessibilityCheck": "Comprova",
+    "accessibilityCheckTitle": "Cerca text alternatiu que falta i contingut sense etiquetar"
   },
   "elementVisibility": {
     "buttonTitle": "Visibilitat d'elements — mostra/amaga i atenua els tipus d'anotació",

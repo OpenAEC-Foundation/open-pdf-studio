@@ -290,5 +290,26 @@
     "readFailed": "Het 3D-model kon niet worden gelezen.",
     "partial": "Een deel van het 3D-model kon niet worden gelezen ({{n}} overgeslagen).",
     "viewerFailed": "De 3D-weergave kon niet worden gestart."
+  },
+  "readAloud": {
+    "title": "Voorlezen",
+    "play": "Lezen",
+    "pause": "Pauzeren",
+    "resume": "Hervatten",
+    "stop": "Stoppen",
+    "close": "Sluiten",
+    "voice": "Stem",
+    "defaultVoice": "Standaardstem",
+    "rate": "Snelheid",
+    "loading": "Voorbereiden...",
+    "reading": "Bezig met voorlezen",
+    "paused": "Gepauzeerd",
+    "page": "pagina {{page}}",
+    "tagOrder": "tagvolgorde",
+    "contentOrder": "paginavolgorde",
+    "noEngine": "Er is geen spraakengine beschikbaar op dit systeem.",
+    "noEngineLinux": "Geen spraakengine gevonden. Installeer speech-dispatcher (spd-say) of espeak-ng en probeer het opnieuw.",
+    "speechFailed": "Het voorlezen is gestopt door een fout.",
+    "nothingToRead": "Er is geen tekst om voor te lezen."
   }
 }

@@ -728,5 +728,17 @@
     "invalid": "No s'ha pogut actualitzar la ubicació",
     "rules": "L'assignació utilitza el centre del quadre delimitador del marcatge, vores incloses. Guanya la zona més profunda, després l'àrea més petita i després l'identificador de zona. Utilitzeu polígons rectes sense forats o rectangles sense rotació. S'exclouen les identitats de zona no vàlides o duplicades.",
     "loading": "S'estan carregant les anotacions: les ubicacions encara poden canviar."
+  },
+  "tagsPanel": {
+    "moveUp": "Puja en l'ordre de lectura",
+    "moveDown": "Baixa en l'ordre de lectura",
+    "checkAccessibility": "Comprova l'accessibilitat",
+    "altText": "Text alternatiu",
+    "altTextPlaceholder": "Descriviu la imatge per a qui no la pot veure...",
+    "noAlt": "Sense text alternatiu",
+    "role": "Funció",
+    "mappedTo": "{{role}} s'assigna a {{standard}}",
+    "content": "Contingut {{mcid}} (pàgina {{page}})",
+    "annotationRef": "Anotació (pàgina {{page}})"
   }
 }

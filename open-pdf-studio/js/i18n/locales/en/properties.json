@@ -722,5 +722,17 @@
     "invalid": "Location could not be updated",
     "rules": "Assignment uses the markup bounding-box centre, including edges. Deepest zone wins, then smallest area, then zone ID. Use straight polygons without holes or unrotated boxes. Invalid or duplicate zone identities are excluded.",
     "loading": "Annotations are loading: locations may still change."
+  },
+  "tagsPanel": {
+    "moveUp": "Move up in reading order",
+    "moveDown": "Move down in reading order",
+    "checkAccessibility": "Check accessibility",
+    "altText": "Alternate text",
+    "altTextPlaceholder": "Describe the image for people who cannot see it...",
+    "noAlt": "No alternate text",
+    "role": "Role",
+    "mappedTo": "{{role}} is mapped to {{standard}}",
+    "content": "Content {{mcid}} (page {{page}})",
+    "annotationRef": "Annotation (page {{page}})"
   }
 }

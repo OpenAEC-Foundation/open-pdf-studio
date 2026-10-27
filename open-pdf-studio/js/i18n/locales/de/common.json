@@ -290,5 +290,26 @@
     "readFailed": "Das 3D-Modell konnte nicht gelesen werden.",
     "partial": "Einige Teile des 3D-Modells konnten nicht gelesen werden ({{n}} übersprungen).",
     "viewerFailed": "Die 3D-Ansicht konnte nicht gestartet werden."
+  },
+  "readAloud": {
+    "title": "Vorlesen",
+    "play": "Lesen",
+    "pause": "Anhalten",
+    "resume": "Fortsetzen",
+    "stop": "Stoppen",
+    "close": "Schließen",
+    "voice": "Stimme",
+    "defaultVoice": "Standardstimme",
+    "rate": "Geschwindigkeit",
+    "loading": "Wird vorbereitet...",
+    "reading": "Wird vorgelesen",
+    "paused": "Angehalten",
+    "page": "Seite {{page}}",
+    "tagOrder": "Tag-Reihenfolge",
+    "contentOrder": "Seitenreihenfolge",
+    "noEngine": "Auf diesem System ist keine Sprachausgabe verfügbar.",
+    "noEngineLinux": "Keine Sprachausgabe gefunden. Installieren Sie speech-dispatcher (spd-say) oder espeak-ng und versuchen Sie es erneut.",
+    "speechFailed": "Das Vorlesen wurde wegen eines Fehlers beendet.",
+    "nothingToRead": "Es gibt keinen Text zum Vorlesen."
   }
 }

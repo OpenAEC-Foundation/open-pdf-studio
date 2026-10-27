@@ -722,5 +722,17 @@
     "invalid": "Mahali hapakuweza kusasishwa",
     "rules": "Upangaji hutumia kitovu cha kisanduku cha mipaka cha alama, pamoja na kingo. Kanda ya ndani kabisa hushinda, kisha eneo dogo zaidi, kisha kitambulisho cha kanda. Tumia poligoni zilizonyooka zisizo na matundu au visanduku visivyozungushwa. Utambulisho wa kanda batili au unaojirudia huachwa.",
     "loading": "Maoni yanapakiwa: maeneo bado yanaweza kubadilika."
+  },
+  "tagsPanel": {
+    "moveUp": "Sogeza juu katika mpangilio wa kusoma",
+    "moveDown": "Sogeza chini katika mpangilio wa kusoma",
+    "checkAccessibility": "Kagua ufikivu",
+    "altText": "Maandishi mbadala",
+    "altTextPlaceholder": "Eleza picha kwa wasioweza kuiona...",
+    "noAlt": "Hakuna maandishi mbadala",
+    "role": "Jukumu",
+    "mappedTo": "{{role}} imeunganishwa na {{standard}}",
+    "content": "Maudhui {{mcid}} (ukurasa {{page}})",
+    "annotationRef": "Kidokezo (ukurasa {{page}})"
   }
 }

@@ -290,5 +290,26 @@
     "readFailed": "Nie można odczytać modelu 3D.",
     "partial": "Nie można odczytać niektórych części modelu 3D (pominięto: {{n}}).",
     "viewerFailed": "Nie można uruchomić widoku 3D."
+  },
+  "readAloud": {
+    "title": "Czytaj na głos",
+    "play": "Czytaj",
+    "pause": "Wstrzymaj",
+    "resume": "Wznów",
+    "stop": "Zatrzymaj",
+    "close": "Zamknij",
+    "voice": "Głos",
+    "defaultVoice": "Głos domyślny",
+    "rate": "Szybkość",
+    "loading": "Przygotowywanie...",
+    "reading": "Czytanie",
+    "paused": "Wstrzymano",
+    "page": "strona {{page}}",
+    "tagOrder": "kolejność znaczników",
+    "contentOrder": "kolejność stron",
+    "noEngine": "W tym systemie nie ma dostępnego syntezatora mowy.",
+    "noEngineLinux": "Nie znaleziono syntezatora mowy. Zainstaluj speech-dispatcher (spd-say) lub espeak-ng i spróbuj ponownie.",
+    "speechFailed": "Czytanie zostało przerwane z powodu błędu.",
+    "nothingToRead": "Brak tekstu do przeczytania."
   }
 }

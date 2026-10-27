@@ -208,7 +208,15 @@
     "rotateViewLeft": "দৃশ্য বামে ঘোরান",
     "rotateViewRight": "দৃশ্য ডানে ঘোরান",
     "rotateViewLeftTitle": "দৃশ্যটি ঘড়ির কাঁটার বিপরীতে 90° ঘোরান। নথিটি নিজে পরিবর্তিত হয় না।",
-    "rotateViewRightTitle": "দৃশ্যটি ঘড়ির কাঁটার দিকে 90° ঘোরান। নথিটি নিজে পরিবর্তিত হয় না।"
+    "rotateViewRightTitle": "দৃশ্যটি ঘড়ির কাঁটার দিকে 90° ঘোরান। নথিটি নিজে পরিবর্তিত হয় না।",
+    "accessibilityGroup": "অ্যাক্সেসযোগ্যতা",
+    "readAloud": "জোরে পড়ুন",
+    "readAloudPause": "বিরতি",
+    "readAloudTitle": "নির্বাচন, অথবা বর্তমান পৃষ্ঠা থেকে নথি, জোরে পড়ুন",
+    "tagsPanel": "ট্যাগ",
+    "tagsPanelTitle": "নথির কাঠামো ট্যাগ দেখান",
+    "accessibilityCheck": "পরীক্ষা",
+    "accessibilityCheckTitle": "অনুপস্থিত বিকল্প পাঠ্য এবং ট্যাগবিহীন বিষয়বস্তু খুঁজুন"
   },
   "elementVisibility": {
     "buttonTitle": "উপাদানের দৃশ্যমানতা — টীকার ধরন দেখান/লুকান ও ম্লান করুন",

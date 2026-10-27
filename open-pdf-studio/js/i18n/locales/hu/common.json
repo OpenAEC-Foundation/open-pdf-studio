@@ -290,5 +290,26 @@
     "readFailed": "A 3D modell nem olvasható be.",
     "partial": "A 3D modell egyes részei nem olvashatók be ({{n}} kihagyva).",
     "viewerFailed": "A 3D nézet nem indítható el."
+  },
+  "readAloud": {
+    "title": "Felolvasás",
+    "play": "Olvasás",
+    "pause": "Szünet",
+    "resume": "Folytatás",
+    "stop": "Leállítás",
+    "close": "Bezárás",
+    "voice": "Hang",
+    "defaultVoice": "Alapértelmezett hang",
+    "rate": "Sebesség",
+    "loading": "Előkészítés...",
+    "reading": "Felolvasás folyamatban",
+    "paused": "Szüneteltetve",
+    "page": "{{page}}. oldal",
+    "tagOrder": "címkesorrend",
+    "contentOrder": "oldalsorrend",
+    "noEngine": "Ezen a rendszeren nem érhető el beszédmotor.",
+    "noEngineLinux": "Nem található beszédmotor. Telepítse a speech-dispatcher (spd-say) vagy az espeak-ng csomagot, majd próbálja újra.",
+    "speechFailed": "A felolvasás hiba miatt leállt.",
+    "nothingToRead": "Nincs felolvasható szöveg."
   }
 }

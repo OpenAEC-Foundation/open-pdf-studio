@@ -517,3 +517,8 @@ js/pdf/saver/text-edit-unicode.test.mjs
 js/text/tekstlaag-bron.test.mjs
 js/pdf/saver/text-edit-glyfen.test.mjs
 js/text/tekenafstand.test.mjs
+js/accessibility/struct-tree.test.mjs
+js/accessibility/struct-edits-rondgang.test.mjs
+js/accessibility/report.test.mjs
+js/accessibility/speech.test.mjs
+js/accessibility/accessibility-i18n.test.mjs

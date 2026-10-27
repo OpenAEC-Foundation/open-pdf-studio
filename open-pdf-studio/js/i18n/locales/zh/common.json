@@ -290,5 +290,26 @@
     "readFailed": "无法读取 3D 模型。",
     "partial": "3D 模型的部分内容无法读取（已跳过 {{n}} 个）。",
     "viewerFailed": "无法启动 3D 视图。"
+  },
+  "readAloud": {
+    "title": "朗读",
+    "play": "朗读",
+    "pause": "暂停",
+    "resume": "继续",
+    "stop": "停止",
+    "close": "关闭",
+    "voice": "语音",
+    "defaultVoice": "默认语音",
+    "rate": "语速",
+    "loading": "正在准备...",
+    "reading": "正在朗读",
+    "paused": "已暂停",
+    "page": "第 {{page}} 页",
+    "tagOrder": "标签顺序",
+    "contentOrder": "页面顺序",
+    "noEngine": "此系统上没有可用的语音引擎。",
+    "noEngineLinux": "未找到语音引擎。请安装 speech-dispatcher (spd-say) 或 espeak-ng 后重试。",
+    "speechFailed": "朗读因出错而停止。",
+    "nothingToRead": "没有可朗读的文本。"
   }
 }

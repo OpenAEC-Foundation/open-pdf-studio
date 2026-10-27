@@ -290,5 +290,26 @@
     "readFailed": "3D モデルを読み取れませんでした。",
     "partial": "3D モデルの一部を読み取れませんでした ({{n}} 件をスキップ)。",
     "viewerFailed": "3D ビューを開始できませんでした。"
+  },
+  "readAloud": {
+    "title": "読み上げ",
+    "play": "読む",
+    "pause": "一時停止",
+    "resume": "再開",
+    "stop": "停止",
+    "close": "閉じる",
+    "voice": "音声",
+    "defaultVoice": "既定の音声",
+    "rate": "速度",
+    "loading": "準備中...",
+    "reading": "読み上げ中",
+    "paused": "一時停止中",
+    "page": "{{page}} ページ",
+    "tagOrder": "タグの順序",
+    "contentOrder": "ページの順序",
+    "noEngine": "このシステムでは音声エンジンを利用できません。",
+    "noEngineLinux": "音声エンジンが見つかりません。speech-dispatcher (spd-say) または espeak-ng をインストールしてから、もう一度お試しください。",
+    "speechFailed": "エラーのため読み上げを停止しました。",
+    "nothingToRead": "読み上げるテキストがありません。"
   }
 }

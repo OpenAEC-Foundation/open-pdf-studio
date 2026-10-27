@@ -1599,5 +1599,26 @@
       "supersede": "Sustituida",
       "expire": "Caducada"
     }
+  },
+  "accessibilityReport": {
+    "title": "Comprobación de accesibilidad",
+    "starting": "Comprobando...",
+    "checking": "Comprobando la página {{done}} de {{total}}...",
+    "noIssues": "No se encontraron problemas.",
+    "summary": "Se encontraron {{count}} problema(s). Haga doble clic en un elemento para ir a su página.",
+    "failed": "No se pudo realizar la comprobación en este documento.",
+    "recheck": "Comprobar de nuevo",
+    "close": "Cerrar",
+    "goTo": "Haga doble clic para ir a la página",
+    "page": "Página {{page}}",
+    "kind": {
+      "notTagged": "El documento no está etiquetado: no tiene árbol de estructura, por lo que la tecnología de asistencia no puede seguir su orden de lectura.",
+      "notMarked": "El documento no está marcado como etiquetado (/MarkInfo /Marked).",
+      "noLanguage": "No se ha definido el idioma del documento.",
+      "figureNoAlt": "{{role}} sin texto alternativo",
+      "pageNotTagged": "No hay contenido etiquetado en esta página ({{count}} elementos de texto)",
+      "untaggedContent": "{{count}} elemento(s) de texto fuera de las etiquetas",
+      "annotationNoText": "Anotación ({{type}}) sin descripción"
+    }
   }
 }

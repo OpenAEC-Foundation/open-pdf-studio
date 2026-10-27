@@ -722,5 +722,17 @@
     "invalid": "Locatie kon niet worden bijgewerkt",
     "rules": "Toewijzing gebruikt het midden van de annotatie-omhullende, inclusief randen. De diepste zone wint, daarna het kleinste oppervlak, daarna het zone-ID. Gebruik rechte polygonen zonder gaten of ongedraaide rechthoeken. Ongeldige of dubbele zone-ID’s worden uitgesloten.",
     "loading": "Annotaties laden: locaties kunnen nog veranderen."
+  },
+  "tagsPanel": {
+    "moveUp": "Omhoog in de leesvolgorde",
+    "moveDown": "Omlaag in de leesvolgorde",
+    "checkAccessibility": "Toegankelijkheid controleren",
+    "altText": "Alternatieve tekst",
+    "altTextPlaceholder": "Beschrijf de afbeelding voor wie hem niet kan zien...",
+    "noAlt": "Geen alternatieve tekst",
+    "role": "Rol",
+    "mappedTo": "{{role}} is gekoppeld aan {{standard}}",
+    "content": "Inhoud {{mcid}} (pagina {{page}})",
+    "annotationRef": "Annotatie (pagina {{page}})"
   }
 }

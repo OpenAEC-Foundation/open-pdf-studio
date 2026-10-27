@@ -208,7 +208,15 @@
     "rotateViewLeft": "向左旋转视图",
     "rotateViewRight": "向右旋转视图",
     "rotateViewLeftTitle": "将视图逆时针旋转 90°。文档本身不会更改。",
-    "rotateViewRightTitle": "将视图顺时针旋转 90°。文档本身不会更改。"
+    "rotateViewRightTitle": "将视图顺时针旋转 90°。文档本身不会更改。",
+    "accessibilityGroup": "辅助功能",
+    "readAloud": "朗读",
+    "readAloudPause": "暂停",
+    "readAloudTitle": "朗读所选内容，或从当前页开始朗读文档",
+    "tagsPanel": "标签",
+    "tagsPanelTitle": "显示文档的结构标签",
+    "accessibilityCheck": "检查",
+    "accessibilityCheckTitle": "检查缺少的替代文本和未加标签的内容"
   },
   "elementVisibility": {
     "buttonTitle": "元素可见性 — 显示/隐藏并淡显批注类型",

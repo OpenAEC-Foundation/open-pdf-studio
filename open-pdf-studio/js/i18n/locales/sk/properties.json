@@ -722,5 +722,17 @@
     "invalid": "Umiestnenie sa nedá aktualizovať",
     "rules": "Priradenie vychádza zo stredu ohraničujúceho rámčeka označenia vrátane okrajov. Vyhráva najhlbšie vnorená zóna, potom najmenšia plocha, potom ID zóny. Používajte mnohouholníky s rovnými stranami bez otvorov alebo neotočené obdĺžniky. Neplatné alebo duplicitné identity zón sa vylučujú.",
     "loading": "Načítavajú sa anotácie: umiestnenia sa ešte môžu zmeniť."
+  },
+  "tagsPanel": {
+    "moveUp": "Posunúť vyššie v poradí čítania",
+    "moveDown": "Posunúť nižšie v poradí čítania",
+    "checkAccessibility": "Skontrolovať prístupnosť",
+    "altText": "Alternatívny text",
+    "altTextPlaceholder": "Opíšte obrázok pre tých, ktorí ho nevidia...",
+    "noAlt": "Bez alternatívneho textu",
+    "role": "Rola",
+    "mappedTo": "{{role}} je mapovaná na {{standard}}",
+    "content": "Obsah {{mcid}} (strana {{page}})",
+    "annotationRef": "Poznámka (strana {{page}})"
   }
 }

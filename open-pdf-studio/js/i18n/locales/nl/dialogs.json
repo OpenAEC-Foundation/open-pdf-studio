@@ -1599,5 +1599,26 @@
       "supersede": "Vervangen",
       "expire": "Verlopen"
     }
+  },
+  "accessibilityReport": {
+    "title": "Toegankelijkheidscontrole",
+    "starting": "Bezig met controleren...",
+    "checking": "Pagina {{done}} van {{total}} controleren...",
+    "noIssues": "Geen problemen gevonden.",
+    "summary": "{{count}} probleem/problemen gevonden. Dubbelklik op een item om naar de pagina te gaan.",
+    "failed": "De controle kon op dit document niet worden uitgevoerd.",
+    "recheck": "Opnieuw controleren",
+    "close": "Sluiten",
+    "goTo": "Dubbelklik om naar de pagina te gaan",
+    "page": "Pagina {{page}}",
+    "kind": {
+      "notTagged": "Het document heeft geen tags: er is geen structuurboom, dus hulptechnologie kan de leesvolgorde niet volgen.",
+      "notMarked": "Het document is niet gemarkeerd als getagd (/MarkInfo /Marked).",
+      "noLanguage": "De taal van het document is niet ingesteld.",
+      "figureNoAlt": "{{role}} zonder alternatieve tekst",
+      "pageNotTagged": "Geen getagde inhoud op deze pagina ({{count}} tekstitems)",
+      "untaggedContent": "{{count}} tekstitem(s) buiten de tags",
+      "annotationNoText": "Annotatie ({{type}}) zonder beschrijving"
+    }
   }
 }

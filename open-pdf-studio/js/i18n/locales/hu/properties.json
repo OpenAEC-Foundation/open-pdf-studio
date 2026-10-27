@@ -722,5 +722,17 @@
     "invalid": "A hely nem frissíthető",
     "rules": "A hozzárendelés a jelölés befoglaló téglalapjának középpontján alapul, a széleket is beleértve. A legmélyebben beágyazott zóna nyer, utána a legkisebb terület, majd a zónaazonosító. Egyenes oldalú, lyuk nélküli sokszögeket vagy elforgatás nélküli téglalapokat használjon. Az érvénytelen vagy ismétlődő zónaazonosítók kimaradnak.",
     "loading": "Az annotációk betöltése folyamatban: a helyek még változhatnak."
+  },
+  "tagsPanel": {
+    "moveUp": "Feljebb az olvasási sorrendben",
+    "moveDown": "Lejjebb az olvasási sorrendben",
+    "checkAccessibility": "Akadálymentesség ellenőrzése",
+    "altText": "Helyettesítő szöveg",
+    "altTextPlaceholder": "Írja le a képet azoknak, akik nem látják...",
+    "noAlt": "Nincs helyettesítő szöveg",
+    "role": "Szerepkör",
+    "mappedTo": "{{role}} leképezése: {{standard}}",
+    "content": "Tartalom {{mcid}} ({{page}}. oldal)",
+    "annotationRef": "Megjegyzés ({{page}}. oldal)"
   }
 }

@@ -1598,5 +1598,26 @@
       "supersede": "Superseded",
       "expire": "Expired"
     }
+  },
+  "accessibilityReport": {
+    "title": "Accessibility Check",
+    "starting": "Checking...",
+    "checking": "Checking page {{done}} of {{total}}...",
+    "noIssues": "No problems found.",
+    "summary": "{{count}} problem(s) found. Double-click an item to go to its page.",
+    "failed": "The check could not be run on this document.",
+    "recheck": "Check again",
+    "close": "Close",
+    "goTo": "Double-click to go to the page",
+    "page": "Page {{page}}",
+    "kind": {
+      "notTagged": "The document is not tagged: there is no structure tree, so assistive technology cannot follow its reading order.",
+      "notMarked": "The document is not marked as tagged (/MarkInfo /Marked).",
+      "noLanguage": "The document language is not set.",
+      "figureNoAlt": "{{role}} without alternate text",
+      "pageNotTagged": "No tagged content on this page ({{count}} text items)",
+      "untaggedContent": "{{count}} text item(s) outside the tags",
+      "annotationNoText": "Annotation ({{type}}) without a description"
+    }
   }
 }

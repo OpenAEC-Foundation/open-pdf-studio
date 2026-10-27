@@ -290,5 +290,26 @@
     "readFailed": "The 3D model could not be read.",
     "partial": "Some parts of the 3D model could not be read ({{n}} skipped).",
     "viewerFailed": "The 3D view could not be started."
+  },
+  "readAloud": {
+    "title": "Read aloud",
+    "play": "Read",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Stop",
+    "close": "Close",
+    "voice": "Voice",
+    "defaultVoice": "Default voice",
+    "rate": "Speed",
+    "loading": "Preparing...",
+    "reading": "Reading",
+    "paused": "Paused",
+    "page": "page {{page}}",
+    "tagOrder": "tag order",
+    "contentOrder": "page order",
+    "noEngine": "No speech engine is available on this system.",
+    "noEngineLinux": "No speech engine found. Install speech-dispatcher (spd-say) or espeak-ng and try again.",
+    "speechFailed": "Speech stopped because of an error.",
+    "nothingToRead": "There is no text to read."
   }
 }

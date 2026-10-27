@@ -1599,5 +1599,26 @@
       "supersede": "Geçersiz kılındı",
       "expire": "Süresi doldu"
     }
+  },
+  "accessibilityReport": {
+    "title": "Erişilebilirlik denetimi",
+    "starting": "Denetleniyor...",
+    "checking": "Sayfa {{done}} / {{total}} denetleniyor...",
+    "noIssues": "Sorun bulunamadı.",
+    "summary": "{{count}} sorun bulundu. Sayfasına gitmek için bir öğeye çift tıklayın.",
+    "failed": "Bu belgede denetim çalıştırılamadı.",
+    "recheck": "Yeniden denetle",
+    "close": "Kapat",
+    "goTo": "Sayfaya gitmek için çift tıklayın",
+    "page": "Sayfa {{page}}",
+    "kind": {
+      "notTagged": "Belge etiketli değil: yapı ağacı yok, bu nedenle yardımcı teknolojiler okuma sırasını izleyemez.",
+      "notMarked": "Belge etiketli olarak işaretlenmemiş (/MarkInfo /Marked).",
+      "noLanguage": "Belge dili ayarlanmamış.",
+      "figureNoAlt": "Alternatif metni olmayan {{role}}",
+      "pageNotTagged": "Bu sayfada etiketli içerik yok ({{count}} metin öğesi)",
+      "untaggedContent": "Etiketlerin dışında {{count}} metin öğesi",
+      "annotationNoText": "Açıklaması olmayan ek açıklama ({{type}})"
+    }
   }
 }

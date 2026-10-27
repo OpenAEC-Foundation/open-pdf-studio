@@ -722,5 +722,17 @@
     "invalid": "Không thể cập nhật vị trí",
     "rules": "Việc gán dựa trên tâm hộp giới hạn của đánh dấu, tính cả cạnh. Vùng sâu nhất được ưu tiên, sau đó đến diện tích nhỏ nhất, rồi đến ID vùng. Hãy dùng đa giác cạnh thẳng không có lỗ hoặc hộp chưa xoay. Các định danh vùng không hợp lệ hoặc trùng lặp sẽ bị loại trừ.",
     "loading": "Đang tải chú thích: vị trí có thể vẫn thay đổi."
+  },
+  "tagsPanel": {
+    "moveUp": "Di chuyển lên trong thứ tự đọc",
+    "moveDown": "Di chuyển xuống trong thứ tự đọc",
+    "checkAccessibility": "Kiểm tra trợ năng",
+    "altText": "Văn bản thay thế",
+    "altTextPlaceholder": "Mô tả hình ảnh cho những người không thể nhìn thấy...",
+    "noAlt": "Không có văn bản thay thế",
+    "role": "Vai trò",
+    "mappedTo": "{{role}} được ánh xạ tới {{standard}}",
+    "content": "Nội dung {{mcid}} (trang {{page}})",
+    "annotationRef": "Chú thích (trang {{page}})"
   }
 }

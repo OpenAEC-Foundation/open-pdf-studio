@@ -208,7 +208,15 @@
     "rotateViewLeft": "Rotiraj prikaz lijevo",
     "rotateViewRight": "Rotiraj prikaz desno",
     "rotateViewLeftTitle": "Zakreće prikaz za 90° suprotno od smjera kazaljke na satu. Sam dokument se ne mijenja.",
-    "rotateViewRightTitle": "Zakreće prikaz za 90° u smjeru kazaljke na satu. Sam dokument se ne mijenja."
+    "rotateViewRightTitle": "Zakreće prikaz za 90° u smjeru kazaljke na satu. Sam dokument se ne mijenja.",
+    "accessibilityGroup": "Pristupačnost",
+    "readAloud": "Čitaj naglas",
+    "readAloudPause": "Pauza",
+    "readAloudTitle": "Pročitaj naglas odabir ili dokument od trenutne stranice",
+    "tagsPanel": "Oznake",
+    "tagsPanelTitle": "Prikaži strukturne oznake dokumenta",
+    "accessibilityCheck": "Provjeri",
+    "accessibilityCheckTitle": "Potraži nedostajući zamjenski tekst i sadržaj bez oznaka"
   },
   "elementVisibility": {
     "buttonTitle": "Vidljivost elemenata — prikaži/sakrij i zatamni vrste oznaka",

@@ -290,5 +290,26 @@
     "readFailed": "Modeli ya 3D haikuweza kusomwa.",
     "partial": "Baadhi ya sehemu za modeli ya 3D hazikuweza kusomwa ({{n}} zimerukwa).",
     "viewerFailed": "Mwonekano wa 3D haukuweza kuanzishwa."
+  },
+  "readAloud": {
+    "title": "Soma kwa sauti",
+    "play": "Soma",
+    "pause": "Sitisha",
+    "resume": "Endelea",
+    "stop": "Simamisha",
+    "close": "Funga",
+    "voice": "Sauti",
+    "defaultVoice": "Sauti chaguomsingi",
+    "rate": "Kasi",
+    "loading": "Inaandaa...",
+    "reading": "Inasoma",
+    "paused": "Imesitishwa",
+    "page": "ukurasa {{page}}",
+    "tagOrder": "mpangilio wa lebo",
+    "contentOrder": "mpangilio wa kurasa",
+    "noEngine": "Hakuna injini ya usemi inayopatikana kwenye mfumo huu.",
+    "noEngineLinux": "Injini ya usemi haikupatikana. Sakinisha speech-dispatcher (spd-say) au espeak-ng kisha ujaribu tena.",
+    "speechFailed": "Usomaji umesimama kwa sababu ya hitilafu.",
+    "nothingToRead": "Hakuna maandishi ya kusoma."
   }
 }

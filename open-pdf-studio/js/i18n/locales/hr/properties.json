@@ -722,5 +722,17 @@
     "invalid": "Lokaciju nije moguće ažurirati",
     "rules": "Dodjela koristi središte graničnog okvira oznake, uključujući rubove. Prednost ima najdublja zona, zatim najmanja površina, pa ID zone. Koristite ravne mnogokute bez rupa ili nerotirane okvire. Nevaljani ili dvostruki identiteti zona isključuju se.",
     "loading": "Bilješke se učitavaju: lokacije se još mogu promijeniti."
+  },
+  "tagsPanel": {
+    "moveUp": "Pomakni gore u redoslijedu čitanja",
+    "moveDown": "Pomakni dolje u redoslijedu čitanja",
+    "checkAccessibility": "Provjeri pristupačnost",
+    "altText": "Zamjenski tekst",
+    "altTextPlaceholder": "Opišite sliku za one koji je ne mogu vidjeti...",
+    "noAlt": "Nema zamjenskog teksta",
+    "role": "Uloga",
+    "mappedTo": "{{role}} je mapirana na {{standard}}",
+    "content": "Sadržaj {{mcid}} (stranica {{page}})",
+    "annotationRef": "Napomena (stranica {{page}})"
   }
 }

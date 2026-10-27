@@ -290,5 +290,26 @@
     "readFailed": "3D model nije moguće pročitati.",
     "partial": "Neke dijelove 3D modela nije moguće pročitati (preskočeno: {{n}}).",
     "viewerFailed": "3D prikaz nije moguće pokrenuti."
+  },
+  "readAloud": {
+    "title": "Čitaj naglas",
+    "play": "Čitaj",
+    "pause": "Pauza",
+    "resume": "Nastavi",
+    "stop": "Zaustavi",
+    "close": "Zatvori",
+    "voice": "Glas",
+    "defaultVoice": "Zadani glas",
+    "rate": "Brzina",
+    "loading": "Priprema...",
+    "reading": "Čitanje",
+    "paused": "Pauzirano",
+    "page": "stranica {{page}}",
+    "tagOrder": "redoslijed oznaka",
+    "contentOrder": "redoslijed stranica",
+    "noEngine": "Na ovom sustavu nije dostupan nijedan govorni modul.",
+    "noEngineLinux": "Nije pronađen govorni modul. Instalirajte speech-dispatcher (spd-say) ili espeak-ng i pokušajte ponovno.",
+    "speechFailed": "Čitanje je zaustavljeno zbog pogreške.",
+    "nothingToRead": "Nema teksta za čitanje."
   }
 }

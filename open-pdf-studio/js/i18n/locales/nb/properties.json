@@ -722,5 +722,17 @@
     "invalid": "Plasseringen kunne ikke oppdateres",
     "rules": "Tildelingen bruker midtpunktet av markeringens omsluttende ramme, kanter inkludert. Den dypeste sonen vinner, deretter minste areal og så sone-ID. Bruk rette polygoner uten hull eller uroterte rektangler. Ugyldige eller dupliserte soneidentiteter utelates.",
     "loading": "Merknader lastes inn: plasseringer kan fortsatt endres."
+  },
+  "tagsPanel": {
+    "moveUp": "Flytt opp i leserekkefølgen",
+    "moveDown": "Flytt ned i leserekkefølgen",
+    "checkAccessibility": "Kontroller tilgjengelighet",
+    "altText": "Alternativ tekst",
+    "altTextPlaceholder": "Beskriv bildet for dem som ikke kan se det...",
+    "noAlt": "Ingen alternativ tekst",
+    "role": "Rolle",
+    "mappedTo": "{{role}} er tilordnet {{standard}}",
+    "content": "Innhold {{mcid}} (side {{page}})",
+    "annotationRef": "Merknad (side {{page}})"
   }
 }

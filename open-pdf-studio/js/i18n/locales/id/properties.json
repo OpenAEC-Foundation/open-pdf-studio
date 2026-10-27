@@ -722,5 +722,17 @@
     "invalid": "Lokasi tidak dapat diperbarui",
     "rules": "Penetapan menggunakan titik tengah kotak pembatas markup, termasuk tepinya. Zona terdalam diutamakan, lalu luas terkecil, lalu ID zona. Gunakan poligon bersisi lurus tanpa lubang atau kotak tanpa rotasi. Identitas zona yang tidak valid atau duplikat dikecualikan.",
     "loading": "Anotasi sedang dimuat: lokasi masih dapat berubah."
+  },
+  "tagsPanel": {
+    "moveUp": "Pindah ke atas dalam urutan baca",
+    "moveDown": "Pindah ke bawah dalam urutan baca",
+    "checkAccessibility": "Periksa aksesibilitas",
+    "altText": "Teks alternatif",
+    "altTextPlaceholder": "Jelaskan gambar untuk orang yang tidak dapat melihatnya...",
+    "noAlt": "Tidak ada teks alternatif",
+    "role": "Peran",
+    "mappedTo": "{{role}} dipetakan ke {{standard}}",
+    "content": "Konten {{mcid}} (halaman {{page}})",
+    "annotationRef": "Anotasi (halaman {{page}})"
   }
 }

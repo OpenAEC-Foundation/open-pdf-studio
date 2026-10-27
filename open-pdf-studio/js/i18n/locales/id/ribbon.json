@@ -208,7 +208,15 @@
     "rotateViewLeft": "Putar Tampilan ke Kiri",
     "rotateViewRight": "Putar Tampilan ke Kanan",
     "rotateViewLeftTitle": "Memutar tampilan 90° berlawanan arah jarum jam. Dokumen itu sendiri tidak berubah.",
-    "rotateViewRightTitle": "Memutar tampilan 90° searah jarum jam. Dokumen itu sendiri tidak berubah."
+    "rotateViewRightTitle": "Memutar tampilan 90° searah jarum jam. Dokumen itu sendiri tidak berubah.",
+    "accessibilityGroup": "Aksesibilitas",
+    "readAloud": "Bacakan",
+    "readAloudPause": "Jeda",
+    "readAloudTitle": "Bacakan pilihan, atau dokumen dari halaman saat ini",
+    "tagsPanel": "Tag",
+    "tagsPanelTitle": "Tampilkan tag struktur dokumen",
+    "accessibilityCheck": "Periksa",
+    "accessibilityCheckTitle": "Cari teks alternatif yang hilang dan konten tanpa tag"
   },
   "elementVisibility": {
     "buttonTitle": "Visibilitas Elemen — tampilkan/sembunyikan dan redupkan jenis anotasi",

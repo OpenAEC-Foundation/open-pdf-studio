@@ -208,7 +208,15 @@
     "rotateViewLeft": "Otočiť zobrazenie doľava",
     "rotateViewRight": "Otočiť zobrazenie doprava",
     "rotateViewLeftTitle": "Otočí zobrazenie o 90° proti smeru hodinových ručičiek. Samotný dokument sa nemení.",
-    "rotateViewRightTitle": "Otočí zobrazenie o 90° v smere hodinových ručičiek. Samotný dokument sa nemení."
+    "rotateViewRightTitle": "Otočí zobrazenie o 90° v smere hodinových ručičiek. Samotný dokument sa nemení.",
+    "accessibilityGroup": "Prístupnosť",
+    "readAloud": "Čítať nahlas",
+    "readAloudPause": "Pozastaviť",
+    "readAloudTitle": "Prečítať nahlas výber alebo dokument od aktuálnej strany",
+    "tagsPanel": "Značky",
+    "tagsPanelTitle": "Zobraziť štruktúrne značky dokumentu",
+    "accessibilityCheck": "Skontrolovať",
+    "accessibilityCheckTitle": "Vyhľadať chýbajúci alternatívny text a obsah bez značiek"
   },
   "elementVisibility": {
     "buttonTitle": "Viditeľnosť prvkov — zobraziť/skryť a stlmiť typy anotácií",

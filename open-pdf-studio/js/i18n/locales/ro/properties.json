@@ -722,5 +722,17 @@
     "invalid": "Locația nu a putut fi actualizată",
     "rules": "Atribuirea folosește centrul casetei de încadrare a marcajului, inclusiv marginile. Câștigă zona cea mai adânc imbricată, apoi cea cu aria cea mai mică, apoi ID-ul zonei. Folosiți poligoane cu laturi drepte, fără găuri, sau casete nerotite. Identitățile de zonă nevalide sau duplicate sunt excluse.",
     "loading": "Adnotările se încarcă: locațiile se pot încă modifica."
+  },
+  "tagsPanel": {
+    "moveUp": "Mută mai sus în ordinea de citire",
+    "moveDown": "Mută mai jos în ordinea de citire",
+    "checkAccessibility": "Verifică accesibilitatea",
+    "altText": "Text alternativ",
+    "altTextPlaceholder": "Descrieți imaginea pentru cei care nu o pot vedea...",
+    "noAlt": "Fără text alternativ",
+    "role": "Rol",
+    "mappedTo": "{{role}} este asociat cu {{standard}}",
+    "content": "Conținut {{mcid}} (pagina {{page}})",
+    "annotationRef": "Adnotare (pagina {{page}})"
   }
 }

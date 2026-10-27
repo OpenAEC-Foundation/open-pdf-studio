@@ -722,5 +722,17 @@
     "invalid": "Platsen kunde inte uppdateras",
     "rules": "Tilldelningen använder mitten av markeringens omslutande ram, kanter inräknade. Den djupaste zonen vinner, därefter minsta area och sedan zon-ID. Använd raka polygoner utan hål eller oroterade rektanglar. Ogiltiga eller dubblerade zonidentiteter undantas.",
     "loading": "Anteckningar läses in: platser kan fortfarande ändras."
+  },
+  "tagsPanel": {
+    "moveUp": "Flytta upp i läsordningen",
+    "moveDown": "Flytta ned i läsordningen",
+    "checkAccessibility": "Kontrollera tillgänglighet",
+    "altText": "Alternativtext",
+    "altTextPlaceholder": "Beskriv bilden för den som inte kan se den...",
+    "noAlt": "Ingen alternativtext",
+    "role": "Roll",
+    "mappedTo": "{{role}} är mappad till {{standard}}",
+    "content": "Innehåll {{mcid}} (sida {{page}})",
+    "annotationRef": "Kommentar (sida {{page}})"
   }
 }

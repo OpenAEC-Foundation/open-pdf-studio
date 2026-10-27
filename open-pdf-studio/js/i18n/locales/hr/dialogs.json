@@ -1599,5 +1599,26 @@
       "supersede": "Zamijenjeno",
       "expire": "Isteklo"
     }
+  },
+  "accessibilityReport": {
+    "title": "Provjera pristupačnosti",
+    "starting": "Provjera...",
+    "checking": "Provjera stranice {{done}} od {{total}}...",
+    "noIssues": "Nisu pronađeni problemi.",
+    "summary": "Broj pronađenih problema: {{count}}. Dvaput kliknite stavku za prijelaz na njezinu stranicu.",
+    "failed": "Provjera ovog dokumenta nije se mogla izvršiti.",
+    "recheck": "Provjeri ponovno",
+    "close": "Zatvori",
+    "goTo": "Dvaput kliknite za prijelaz na stranicu",
+    "page": "Stranica {{page}}",
+    "kind": {
+      "notTagged": "Dokument nema oznake: nema stabla strukture pa pomoćne tehnologije ne mogu pratiti redoslijed čitanja.",
+      "notMarked": "Dokument nije označen kao označen oznakama (/MarkInfo /Marked).",
+      "noLanguage": "Jezik dokumenta nije postavljen.",
+      "figureNoAlt": "{{role}} bez zamjenskog teksta",
+      "pageNotTagged": "Na ovoj stranici nema označenog sadržaja (tekstnih stavki: {{count}})",
+      "untaggedContent": "Tekstnih stavki izvan oznaka: {{count}}",
+      "annotationNoText": "Napomena ({{type}}) bez opisa"
+    }
   }
 }

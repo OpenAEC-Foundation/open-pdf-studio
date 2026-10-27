@@ -722,5 +722,17 @@
     "invalid": "无法更新位置",
     "rules": "分配依据标记边界框的中心点（含边缘）。优先选择最深层的区域，其次是面积最小的区域，然后是区域 ID。请使用无孔洞的直边多边形或未旋转的矩形框。无效或重复的区域标识将被排除。",
     "loading": "正在加载批注：位置可能仍会变化。"
+  },
+  "tagsPanel": {
+    "moveUp": "在阅读顺序中上移",
+    "moveDown": "在阅读顺序中下移",
+    "checkAccessibility": "检查辅助功能",
+    "altText": "替代文本",
+    "altTextPlaceholder": "为看不到图像的人描述该图像...",
+    "noAlt": "无替代文本",
+    "role": "角色",
+    "mappedTo": "{{role}} 映射到 {{standard}}",
+    "content": "内容 {{mcid}}（第 {{page}} 页）",
+    "annotationRef": "注释（第 {{page}} 页）"
   }
 }

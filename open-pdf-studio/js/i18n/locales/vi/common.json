@@ -290,5 +290,26 @@
     "readFailed": "Không thể đọc mô hình 3D.",
     "partial": "Không thể đọc một số phần của mô hình 3D (đã bỏ qua {{n}}).",
     "viewerFailed": "Không thể khởi động chế độ xem 3D."
+  },
+  "readAloud": {
+    "title": "Đọc to",
+    "play": "Đọc",
+    "pause": "Tạm dừng",
+    "resume": "Tiếp tục",
+    "stop": "Dừng",
+    "close": "Đóng",
+    "voice": "Giọng đọc",
+    "defaultVoice": "Giọng mặc định",
+    "rate": "Tốc độ",
+    "loading": "Đang chuẩn bị...",
+    "reading": "Đang đọc",
+    "paused": "Đã tạm dừng",
+    "page": "trang {{page}}",
+    "tagOrder": "thứ tự thẻ",
+    "contentOrder": "thứ tự trang",
+    "noEngine": "Không có công cụ tổng hợp giọng nói nào trên hệ thống này.",
+    "noEngineLinux": "Không tìm thấy công cụ tổng hợp giọng nói. Hãy cài đặt speech-dispatcher (spd-say) hoặc espeak-ng rồi thử lại.",
+    "speechFailed": "Việc đọc đã dừng do lỗi.",
+    "nothingToRead": "Không có văn bản để đọc."
   }
 }
