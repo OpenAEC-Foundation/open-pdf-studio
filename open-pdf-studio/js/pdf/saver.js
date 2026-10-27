@@ -2753,6 +2753,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             // Holle punten van een omtrekmaat uit een ander programma.
             Object.assign(mpDict, kopVullingSleutels(ann));
             annotDict = context.obj(mpDict);
+            // Diepte van de omtrekmaat (#311).
+            schrijfPlattegrondMeta(annotDict, ann, context, convertX, convertY);
             annotDict.set(PDFName.of('BS'), buildBorderStyle(context, borderWidth, ann.borderStyle));
             // Vector /AP so the polyline AND the perimeter value label render in
             // other viewers (label was Contents-only) — issue #256.

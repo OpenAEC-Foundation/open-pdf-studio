@@ -168,7 +168,13 @@
     "netArea": "Net area",
     "searchType": "Search…",
     "editTypes": "Edit types",
-    "noTypesFound": "No types found"
+    "noTypesFound": "No types found",
+    "depth": "Depth",
+    "depthUnit": "Depth ({{unit}})",
+    "depthNone": "None",
+    "depthTooltip": "Wall height, floor thickness, etc., in the unit of the measurement. Length × depth gives a surface, area × depth a volume.",
+    "surface": "Surface",
+    "volume": "Volume"
   },
   "scaleBar": {
     "title": "Scale Bar",
@@ -402,7 +408,8 @@
     "addPage": "Add page",
     "pageLabels": "Page labels (name builder)",
     "portfolio": "PDF portfolio",
-    "recognizeForm": "Recognize form fields"
+    "recognizeForm": "Recognize form fields",
+    "toolChest": "Tool Chest"
   },
   "schedules": {
     "title": "Schedules",
@@ -722,5 +729,48 @@
     "invalid": "Location could not be updated",
     "rules": "Assignment uses the markup bounding-box centre, including edges. Deepest zone wins, then smallest area, then zone ID. Use straight polygons without holes or unrotated boxes. Invalid or duplicate zone identities are excluded.",
     "loading": "Annotations are loading: locations may still change."
+  },
+  "toolChest": {
+    "title": "Tool Chest",
+    "typeWall": "Wall",
+    "newSet": "New tool set",
+    "newSetName": "Tool set",
+    "defaultSetName": "My tools",
+    "rename": "Rename (F2)",
+    "delete": "Delete",
+    "exportSet": "Export tool set...",
+    "importSet": "Import tool set...",
+    "moveTo": "Move to...",
+    "toggleSet": "Expand or collapse",
+    "empty": "No tools yet. Right-click a measurement on the page and choose \"Save to Tool Chest\".",
+    "emptySet": "Empty tool set",
+    "useItem": "Click to draw with these settings",
+    "count": "Tool sets: {{sets}} · Tools: {{items}}",
+    "nameEmpty": "Enter a name.",
+    "nameTaken": "A tool set with this name already exists.",
+    "ok": "OK",
+    "cancel": "Cancel",
+    "deleteSetTitle": "Delete tool set",
+    "deleteSetMessage": "Delete tool set \"{{name}}\" and its tools ({{count}})? Markups already placed with these tools are not changed.",
+    "savedStatus": "\"{{name}}\" saved to tool set \"{{set}}\"",
+    "activeStatus": "Drawing with \"{{name}}\" (Esc to stop)",
+    "exportedStatus": "Tool set \"{{name}}\" exported",
+    "importedStatus": "Tool set \"{{name}}\" imported (tools: {{count}})",
+    "importedSkipped": "Tool set \"{{name}}\" imported (tools: {{count}}); skipped because of an unknown type: {{skipped}}",
+    "importTitle": "Import tool set",
+    "importConflictTitle": "Tool set already exists",
+    "importConflictMessage": "A tool set named \"{{name}}\" already exists. What do you want to do?",
+    "importRename": "Import under another name:",
+    "importOverwrite": "Overwrite the existing tool set",
+    "importKeepBoth": "Keep both (the imported set gets a new name)",
+    "fileType": "Tool set",
+    "noDocument": "Open a document first.",
+    "errorSave": "The tool could not be saved.",
+    "errorExport": "The tool set could not be exported: {{error}}",
+    "errorFileRead": "The file could not be read.",
+    "errorFileEmpty": "The file is empty.",
+    "errorFileTooLarge": "The file is too large for a tool set.",
+    "errorFileInvalid": "This file is not a valid tool set.",
+    "errorFileNewer": "This tool set was made with a newer version of Open PDF Studio. Update the app to import it."
   }
 }

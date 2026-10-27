@@ -350,7 +350,8 @@
     "addPage": "Pagina toevoegen",
     "pageLabels": "Paginalabels (naambouwer)",
     "portfolio": "PDF-portfolio",
-    "recognizeForm": "Formuliervelden herkennen"
+    "recognizeForm": "Formuliervelden herkennen",
+    "toolChest": "Werkkist"
   },
   "scaleBar": {
     "title": "Schaalbalk",
@@ -394,7 +395,13 @@
     "netArea": "Netto oppervlakte",
     "searchType": "Zoeken…",
     "editTypes": "Typen bewerken",
-    "noTypesFound": "Geen typen gevonden"
+    "noTypesFound": "Geen typen gevonden",
+    "depth": "Diepte",
+    "depthUnit": "Diepte ({{unit}})",
+    "depthNone": "Geen",
+    "depthTooltip": "Wandhoogte, vloerdikte enz., in de eenheid van de meting. Lengte × diepte geeft een oppervlak, vlak × diepte een inhoud.",
+    "surface": "Oppervlak",
+    "volume": "Inhoud"
   },
   "measurements": {
     "scale": "Schaal",
@@ -722,5 +729,48 @@
     "invalid": "Locatie kon niet worden bijgewerkt",
     "rules": "Toewijzing gebruikt het midden van de annotatie-omhullende, inclusief randen. De diepste zone wint, daarna het kleinste oppervlak, daarna het zone-ID. Gebruik rechte polygonen zonder gaten of ongedraaide rechthoeken. Ongeldige of dubbele zone-ID’s worden uitgesloten.",
     "loading": "Annotaties laden: locaties kunnen nog veranderen."
+  },
+  "toolChest": {
+    "title": "Werkkist",
+    "typeWall": "Wand",
+    "newSet": "Nieuwe gereedschapsset",
+    "newSetName": "Gereedschapsset",
+    "defaultSetName": "Mijn gereedschap",
+    "rename": "Hernoemen (F2)",
+    "delete": "Verwijderen",
+    "exportSet": "Gereedschapsset exporteren...",
+    "importSet": "Gereedschapsset importeren...",
+    "moveTo": "Verplaatsen naar...",
+    "toggleSet": "Uit- of samenvouwen",
+    "empty": "Nog geen gereedschap. Klik met rechts op een meting op de pagina en kies \"Opslaan in werkkist\".",
+    "emptySet": "Lege gereedschapsset",
+    "useItem": "Klik om met deze instellingen te tekenen",
+    "count": "Gereedschapssets: {{sets}} · Gereedschap: {{items}}",
+    "nameEmpty": "Vul een naam in.",
+    "nameTaken": "Er bestaat al een gereedschapsset met deze naam.",
+    "ok": "OK",
+    "cancel": "Annuleren",
+    "deleteSetTitle": "Gereedschapsset verwijderen",
+    "deleteSetMessage": "Gereedschapsset \"{{name}}\" met het gereedschap erin ({{count}}) verwijderen? Markeringen die al met dit gereedschap geplaatst zijn, veranderen niet.",
+    "savedStatus": "\"{{name}}\" opgeslagen in gereedschapsset \"{{set}}\"",
+    "activeStatus": "Tekenen met \"{{name}}\" (Esc om te stoppen)",
+    "exportedStatus": "Gereedschapsset \"{{name}}\" geëxporteerd",
+    "importedStatus": "Gereedschapsset \"{{name}}\" geïmporteerd (gereedschap: {{count}})",
+    "importedSkipped": "Gereedschapsset \"{{name}}\" geïmporteerd (gereedschap: {{count}}); overgeslagen wegens onbekend type: {{skipped}}",
+    "importTitle": "Gereedschapsset importeren",
+    "importConflictTitle": "Gereedschapsset bestaat al",
+    "importConflictMessage": "Er bestaat al een gereedschapsset met de naam \"{{name}}\". Wat wilt u doen?",
+    "importRename": "Importeren onder een andere naam:",
+    "importOverwrite": "De bestaande gereedschapsset overschrijven",
+    "importKeepBoth": "Beide behouden (de import krijgt een nieuwe naam)",
+    "fileType": "Gereedschapsset",
+    "noDocument": "Open eerst een document.",
+    "errorSave": "Het gereedschap kon niet worden opgeslagen.",
+    "errorExport": "De gereedschapsset kon niet worden geëxporteerd: {{error}}",
+    "errorFileRead": "Het bestand kon niet worden gelezen.",
+    "errorFileEmpty": "Het bestand is leeg.",
+    "errorFileTooLarge": "Het bestand is te groot voor een gereedschapsset.",
+    "errorFileInvalid": "Dit bestand is geen geldige gereedschapsset.",
+    "errorFileNewer": "Deze gereedschapsset is gemaakt met een nieuwere versie van Open PDF Studio. Werk de app bij om hem te importeren."
   }
 }

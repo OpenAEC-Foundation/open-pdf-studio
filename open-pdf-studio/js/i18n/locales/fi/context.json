@@ -48,7 +48,8 @@
     "setScale": "Aseta mittakaava...",
     "dimChainAdd": "Lisää pisteitä mittaketjuun",
     "dimChainRemove": "Poista apuviiva ketjusta",
-    "selectRoom": "Valitse huone"
+    "selectRoom": "Valitse huone",
+    "saveToToolChest": "Tallenna työkalupakkiin"
   },
   "multiSelect": {
     "copyAnnotations": "Kopioi {{count}} merkintää",

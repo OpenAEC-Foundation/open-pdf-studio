@@ -370,7 +370,8 @@
     "addPage": "Seite hinzufügen",
     "pageLabels": "Seitenbeschriftungen (Namensgenerator)",
     "portfolio": "PDF-Portfolio",
-    "recognizeForm": "Formularfelder erkennen"
+    "recognizeForm": "Formularfelder erkennen",
+    "toolChest": "Werkzeugkasten"
   },
   "scaleBar": {
     "title": "Maßstabsleiste",
@@ -402,7 +403,13 @@
     "netArea": "Nettofläche",
     "searchType": "Suchen…",
     "editTypes": "Typen bearbeiten",
-    "noTypesFound": "Keine Typen gefunden"
+    "noTypesFound": "Keine Typen gefunden",
+    "depth": "Tiefe",
+    "depthUnit": "Tiefe ({{unit}})",
+    "depthNone": "Keine",
+    "depthTooltip": "Wandhöhe, Bodendicke usw. in der Einheit der Messung. Länge × Tiefe ergibt eine Fläche, Fläche × Tiefe ein Volumen.",
+    "surface": "Fläche",
+    "volume": "Volumen"
   },
   "schedules": {
     "title": "Listen",
@@ -722,5 +729,48 @@
     "invalid": "Standort konnte nicht aktualisiert werden",
     "rules": "Die Zuordnung verwendet den Mittelpunkt des Begrenzungsrahmens der Markierung, einschließlich Kanten. Die tiefste Zone hat Vorrang, dann die kleinste Fläche, dann die Zonen-ID. Verwenden Sie gerade Polygone ohne Löcher oder nicht gedrehte Rechtecke. Ungültige oder doppelte Zonenidentitäten werden ausgeschlossen.",
     "loading": "Anmerkungen werden geladen: Standorte können sich noch ändern."
+  },
+  "toolChest": {
+    "title": "Werkzeugkasten",
+    "typeWall": "Wand",
+    "newSet": "Neuer Werkzeugsatz",
+    "newSetName": "Werkzeugsatz",
+    "defaultSetName": "Meine Werkzeuge",
+    "rename": "Umbenennen (F2)",
+    "delete": "Löschen",
+    "exportSet": "Werkzeugsatz exportieren...",
+    "importSet": "Werkzeugsatz importieren...",
+    "moveTo": "Verschieben nach...",
+    "toggleSet": "Ein- oder ausklappen",
+    "empty": "Noch keine Werkzeuge. Klicken Sie mit der rechten Maustaste auf eine Messung und wählen Sie „In Werkzeugkasten speichern“.",
+    "emptySet": "Leerer Werkzeugsatz",
+    "useItem": "Klicken, um mit diesen Einstellungen zu zeichnen",
+    "count": "Werkzeugsätze: {{sets}} · Werkzeuge: {{items}}",
+    "nameEmpty": "Geben Sie einen Namen ein.",
+    "nameTaken": "Ein Werkzeugsatz mit diesem Namen ist bereits vorhanden.",
+    "ok": "OK",
+    "cancel": "Abbrechen",
+    "deleteSetTitle": "Werkzeugsatz löschen",
+    "deleteSetMessage": "Werkzeugsatz „{{name}}“ mit seinen Werkzeugen ({{count}}) löschen? Bereits mit diesen Werkzeugen platzierte Markierungen bleiben unverändert.",
+    "savedStatus": "„{{name}}“ im Werkzeugsatz „{{set}}“ gespeichert",
+    "activeStatus": "Zeichnen mit „{{name}}“ (Esc zum Beenden)",
+    "exportedStatus": "Werkzeugsatz „{{name}}“ exportiert",
+    "importedStatus": "Werkzeugsatz „{{name}}“ importiert (Werkzeuge: {{count}})",
+    "importedSkipped": "Werkzeugsatz „{{name}}“ importiert (Werkzeuge: {{count}}); wegen unbekanntem Typ übersprungen: {{skipped}}",
+    "importTitle": "Werkzeugsatz importieren",
+    "importConflictTitle": "Werkzeugsatz bereits vorhanden",
+    "importConflictMessage": "Ein Werkzeugsatz mit dem Namen „{{name}}“ ist bereits vorhanden. Was möchten Sie tun?",
+    "importRename": "Unter einem anderen Namen importieren:",
+    "importOverwrite": "Vorhandenen Werkzeugsatz überschreiben",
+    "importKeepBoth": "Beide behalten (der Import erhält einen neuen Namen)",
+    "fileType": "Werkzeugsatz",
+    "noDocument": "Öffnen Sie zuerst ein Dokument.",
+    "errorSave": "Das Werkzeug konnte nicht gespeichert werden.",
+    "errorExport": "Der Werkzeugsatz konnte nicht exportiert werden: {{error}}",
+    "errorFileRead": "Die Datei konnte nicht gelesen werden.",
+    "errorFileEmpty": "Die Datei ist leer.",
+    "errorFileTooLarge": "Die Datei ist zu groß für einen Werkzeugsatz.",
+    "errorFileInvalid": "Diese Datei ist kein gültiger Werkzeugsatz.",
+    "errorFileNewer": "Dieser Werkzeugsatz wurde mit einer neueren Version von Open PDF Studio erstellt. Aktualisieren Sie die App, um ihn zu importieren."
   }
 }

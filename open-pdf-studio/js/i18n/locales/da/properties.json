@@ -370,7 +370,8 @@
     "addPage": "Tilføj side",
     "pageLabels": "Sideetiketter (navnegenerator)",
     "portfolio": "PDF-portefølje",
-    "recognizeForm": "Genkend formularfelter"
+    "recognizeForm": "Genkend formularfelter",
+    "toolChest": "Værktøjskasse"
   },
   "scaleBar": {
     "title": "Skalabjælke",
@@ -402,7 +403,13 @@
     "netArea": "Nettoareal",
     "searchType": "Søg…",
     "editTypes": "Rediger typer",
-    "noTypesFound": "Ingen typer fundet"
+    "noTypesFound": "Ingen typer fundet",
+    "depth": "Dybde",
+    "depthUnit": "Dybde ({{unit}})",
+    "depthNone": "Ingen",
+    "depthTooltip": "Vægthøjde, dækkets tykkelse osv. i målingens enhed. Længde × dybde giver en flade, areal × dybde et volumen.",
+    "surface": "Flade",
+    "volume": "Volumen"
   },
   "schedules": {
     "title": "Lister",
@@ -722,5 +729,48 @@
     "invalid": "Placeringen kunne ikke opdateres",
     "rules": "Tildelingen bruger midten af markeringens afgrænsningsramme, inklusive kanter. Den dybeste zone vinder, derefter det mindste areal og derefter zone-id. Brug lige polygoner uden huller eller uroterede rektangler. Ugyldige eller dublerede zoneidentiteter udelades.",
     "loading": "Annotationer indlæses: placeringer kan stadig ændre sig."
+  },
+  "toolChest": {
+    "title": "Værktøjskasse",
+    "typeWall": "Væg",
+    "newSet": "Nyt værktøjssæt",
+    "newSetName": "Værktøjssæt",
+    "defaultSetName": "Mine værktøjer",
+    "rename": "Omdøb (F2)",
+    "delete": "Slet",
+    "exportSet": "Eksportér værktøjssæt...",
+    "importSet": "Importér værktøjssæt...",
+    "moveTo": "Flyt til...",
+    "toggleSet": "Udvid eller skjul",
+    "empty": "Ingen værktøjer endnu. Højreklik på en måling på siden, og vælg \"Gem i værktøjskassen\".",
+    "emptySet": "Tomt værktøjssæt",
+    "useItem": "Klik for at tegne med disse indstillinger",
+    "count": "Værktøjssæt: {{sets}} · Værktøjer: {{items}}",
+    "nameEmpty": "Angiv et navn.",
+    "nameTaken": "Der findes allerede et værktøjssæt med dette navn.",
+    "ok": "OK",
+    "cancel": "Annuller",
+    "deleteSetTitle": "Slet værktøjssæt",
+    "deleteSetMessage": "Slet værktøjssættet \"{{name}}\" og dets værktøjer ({{count}})? Markeringer, der allerede er placeret med disse værktøjer, ændres ikke.",
+    "savedStatus": "\"{{name}}\" gemt i værktøjssættet \"{{set}}\"",
+    "activeStatus": "Tegner med \"{{name}}\" (Esc for at stoppe)",
+    "exportedStatus": "Værktøjssættet \"{{name}}\" er eksporteret",
+    "importedStatus": "Værktøjssættet \"{{name}}\" er importeret (værktøjer: {{count}})",
+    "importedSkipped": "Værktøjssættet \"{{name}}\" er importeret (værktøjer: {{count}}); sprunget over pga. ukendt type: {{skipped}}",
+    "importTitle": "Importér værktøjssæt",
+    "importConflictTitle": "Værktøjssættet findes allerede",
+    "importConflictMessage": "Der findes allerede et værktøjssæt med navnet \"{{name}}\". Hvad vil du gøre?",
+    "importRename": "Importér under et andet navn:",
+    "importOverwrite": "Overskriv det eksisterende værktøjssæt",
+    "importKeepBoth": "Behold begge (det importerede sæt får et nyt navn)",
+    "fileType": "Værktøjssæt",
+    "noDocument": "Åbn først et dokument.",
+    "errorSave": "Værktøjet kunne ikke gemmes.",
+    "errorExport": "Værktøjssættet kunne ikke eksporteres: {{error}}",
+    "errorFileRead": "Filen kunne ikke læses.",
+    "errorFileEmpty": "Filen er tom.",
+    "errorFileTooLarge": "Filen er for stor til et værktøjssæt.",
+    "errorFileInvalid": "Denne fil er ikke et gyldigt værktøjssæt.",
+    "errorFileNewer": "Dette værktøjssæt er lavet med en nyere version af Open PDF Studio. Opdater appen for at importere det."
   }
 }

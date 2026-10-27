@@ -370,7 +370,8 @@
     "addPage": "添加页面",
     "pageLabels": "页面标签（名称生成器）",
     "portfolio": "PDF 文件包",
-    "recognizeForm": "识别表单域"
+    "recognizeForm": "识别表单域",
+    "toolChest": "工具箱"
   },
   "scaleBar": {
     "title": "比例尺",
@@ -402,7 +403,13 @@
     "netArea": "净面积",
     "searchType": "搜索…",
     "editTypes": "编辑类型",
-    "noTypesFound": "未找到类型"
+    "noTypesFound": "未找到类型",
+    "depth": "深度",
+    "depthUnit": "深度 ({{unit}})",
+    "depthNone": "无",
+    "depthTooltip": "墙高、楼板厚度等，使用测量的单位。长度 × 深度得到面积，面积 × 深度得到体积。",
+    "surface": "面积",
+    "volume": "体积"
   },
   "schedules": {
     "title": "明细表",
@@ -722,5 +729,48 @@
     "invalid": "无法更新位置",
     "rules": "分配依据标记边界框的中心点（含边缘）。优先选择最深层的区域，其次是面积最小的区域，然后是区域 ID。请使用无孔洞的直边多边形或未旋转的矩形框。无效或重复的区域标识将被排除。",
     "loading": "正在加载批注：位置可能仍会变化。"
+  },
+  "toolChest": {
+    "title": "工具箱",
+    "typeWall": "墙",
+    "newSet": "新建工具集",
+    "newSetName": "工具集",
+    "defaultSetName": "我的工具",
+    "rename": "重命名 (F2)",
+    "delete": "删除",
+    "exportSet": "导出工具集...",
+    "importSet": "导入工具集...",
+    "moveTo": "移动到...",
+    "toggleSet": "展开或折叠",
+    "empty": "还没有工具。右键单击页面上的测量，然后选择“保存到工具箱”。",
+    "emptySet": "空工具集",
+    "useItem": "单击以使用这些设置绘制",
+    "count": "工具集：{{sets}} · 工具：{{items}}",
+    "nameEmpty": "请输入名称。",
+    "nameTaken": "已存在同名的工具集。",
+    "ok": "确定",
+    "cancel": "取消",
+    "deleteSetTitle": "删除工具集",
+    "deleteSetMessage": "删除工具集“{{name}}”及其中的工具 ({{count}})？已用这些工具放置的标注不会改变。",
+    "savedStatus": "“{{name}}”已保存到工具集“{{set}}”",
+    "activeStatus": "正在使用“{{name}}”绘制（按 Esc 停止）",
+    "exportedStatus": "已导出工具集“{{name}}”",
+    "importedStatus": "已导入工具集“{{name}}”（工具：{{count}}）",
+    "importedSkipped": "已导入工具集“{{name}}”（工具：{{count}}）；因类型未知而跳过：{{skipped}}",
+    "importTitle": "导入工具集",
+    "importConflictTitle": "工具集已存在",
+    "importConflictMessage": "名为“{{name}}”的工具集已存在。您要怎么做？",
+    "importRename": "以其他名称导入：",
+    "importOverwrite": "覆盖现有工具集",
+    "importKeepBoth": "两者都保留（导入的工具集使用新名称）",
+    "fileType": "工具集",
+    "noDocument": "请先打开一个文档。",
+    "errorSave": "无法保存工具。",
+    "errorExport": "无法导出工具集：{{error}}",
+    "errorFileRead": "无法读取文件。",
+    "errorFileEmpty": "文件为空。",
+    "errorFileTooLarge": "文件太大，不是工具集。",
+    "errorFileInvalid": "此文件不是有效的工具集。",
+    "errorFileNewer": "此工具集由更新版本的 Open PDF Studio 创建。请更新应用后再导入。"
   }
 }

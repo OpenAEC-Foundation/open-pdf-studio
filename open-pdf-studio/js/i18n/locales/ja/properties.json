@@ -370,7 +370,8 @@
     "addPage": "ページを追加",
     "pageLabels": "ページラベル (名前ビルダー)",
     "portfolio": "PDF ポートフォリオ",
-    "recognizeForm": "フォームフィールドの認識"
+    "recognizeForm": "フォームフィールドの認識",
+    "toolChest": "ツールチェスト"
   },
   "scaleBar": {
     "title": "スケールバー",
@@ -402,7 +403,13 @@
     "netArea": "正味面積",
     "searchType": "検索…",
     "editTypes": "タイプを編集",
-    "noTypesFound": "タイプが見つかりません"
+    "noTypesFound": "タイプが見つかりません",
+    "depth": "奥行き",
+    "depthUnit": "奥行き ({{unit}})",
+    "depthNone": "なし",
+    "depthTooltip": "壁の高さや床の厚さなどを計測の単位で入力します。長さ × 奥行きで面積、面積 × 奥行きで体積になります。",
+    "surface": "面積",
+    "volume": "体積"
   },
   "schedules": {
     "title": "集計表",
@@ -722,5 +729,48 @@
     "invalid": "場所を更新できませんでした",
     "rules": "割り当てにはマークアップの境界ボックスの中心（辺上を含む）が使用されます。最も深い階層のゾーンが優先され、次に面積が最小のゾーン、その次にゾーン ID の順で決まります。穴のない直線の多角形か、回転していないボックスを使用してください。無効または重複したゾーン識別子は除外されます。",
     "loading": "注釈を読み込み中です。場所が変わる可能性があります。"
+  },
+  "toolChest": {
+    "title": "ツールチェスト",
+    "typeWall": "壁",
+    "newSet": "新しいツールセット",
+    "newSetName": "ツールセット",
+    "defaultSetName": "マイツール",
+    "rename": "名前の変更 (F2)",
+    "delete": "削除",
+    "exportSet": "ツールセットをエクスポート...",
+    "importSet": "ツールセットをインポート...",
+    "moveTo": "移動先...",
+    "toggleSet": "展開または折りたたみ",
+    "empty": "ツールはまだありません。ページ上の計測を右クリックして「ツールチェストに保存」を選択してください。",
+    "emptySet": "空のツールセット",
+    "useItem": "クリックするとこの設定で描画します",
+    "count": "ツールセット: {{sets}} · ツール: {{items}}",
+    "nameEmpty": "名前を入力してください。",
+    "nameTaken": "この名前のツールセットは既に存在します。",
+    "ok": "OK",
+    "cancel": "キャンセル",
+    "deleteSetTitle": "ツールセットの削除",
+    "deleteSetMessage": "ツールセット「{{name}}」とそのツール ({{count}}) を削除しますか？ これらのツールで既に配置した注釈は変更されません。",
+    "savedStatus": "「{{name}}」をツールセット「{{set}}」に保存しました",
+    "activeStatus": "「{{name}}」で描画中 (Esc で終了)",
+    "exportedStatus": "ツールセット「{{name}}」をエクスポートしました",
+    "importedStatus": "ツールセット「{{name}}」をインポートしました (ツール: {{count}})",
+    "importedSkipped": "ツールセット「{{name}}」をインポートしました (ツール: {{count}})。不明な種類のためスキップ: {{skipped}}",
+    "importTitle": "ツールセットのインポート",
+    "importConflictTitle": "ツールセットは既に存在します",
+    "importConflictMessage": "「{{name}}」という名前のツールセットは既に存在します。どうしますか？",
+    "importRename": "別の名前でインポート:",
+    "importOverwrite": "既存のツールセットを上書き",
+    "importKeepBoth": "両方を保持 (インポートしたセットに新しい名前を付ける)",
+    "fileType": "ツールセット",
+    "noDocument": "先にドキュメントを開いてください。",
+    "errorSave": "ツールを保存できませんでした。",
+    "errorExport": "ツールセットをエクスポートできませんでした: {{error}}",
+    "errorFileRead": "ファイルを読み込めませんでした。",
+    "errorFileEmpty": "ファイルが空です。",
+    "errorFileTooLarge": "ツールセットとしてはファイルが大きすぎます。",
+    "errorFileInvalid": "このファイルは有効なツールセットではありません。",
+    "errorFileNewer": "このツールセットは新しいバージョンの Open PDF Studio で作成されています。インポートするにはアプリを更新してください。"
   }
 }

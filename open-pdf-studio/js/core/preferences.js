@@ -7,7 +7,9 @@ import { isTauri, getUsername, savePreferencesFile, loadPreferencesFile } from '
 import { preferencesMirrorJson } from './preferences-mirror.js';
 import { leesOpslag, schrijfOpslag, VOORKEUREN_NAAM } from './opslag.js';
 import { voegSamenMetStandaarden } from './preferences-merge.js';
-import { randkleurVoorVoorkeur, randkleurenUitVoorkeur } from '../annotations/fill-utils.js';
+import { randkleurenUitVoorkeur } from '../annotations/fill-utils.js';
+import { writeStylePrefs } from './style-prefs.js';
+import { prefsForStorage } from '../tools/tool-chest-session.js';
 import { zetRanddikte } from '../annotations/rendering/textbox-layout.js';
 import { getStyleMapping } from './stijl-mapping.js';
 import { setZoomDpi, setZoomDpiSource, normalizeZoomDpi } from './zoom-display.js';
@@ -105,14 +107,17 @@ export async function loadPreferences() {
 // (het enige dat het pre-boot-themascript leest) zodat het quotum niet
 // eens in beeld komt.
 export function savePreferences() {
+  // While a Tool Chest item is active its style is a temporary overlay on
+  // the preferences (#311); what is saved is the user's own value.
+  const opTeSlaan = prefsForStorage(state.preferences);
   if (isTauri()) {
-    savePreferencesFile(state.preferences).catch(e =>
+    savePreferencesFile(opTeSlaan).catch(e =>
       console.error('Failed to save preferences file:', e)
     );
   }
   applyPreferences();
   try {
-    schrijfOpslag(VOORKEUREN_NAAM, preferencesMirrorJson(state.preferences, isTauri()));
+    schrijfOpslag(VOORKEUREN_NAAM, preferencesMirrorJson(opTeSlaan, isTauri()));
   } catch (e) {
     // Alleen de pre-boot-themaflits staat op het spel — niet de instellingen.
     console.warn('Voorkeuren-spiegel niet bijgewerkt (localStorage):', e);
@@ -215,60 +220,7 @@ export { getStyleMapping };
 // Set the current annotation's style as default for its type
 export function setAsDefaultStyle(annotation) {
   if (!annotation) return;
-  const prefs = state.preferences;
-  const m = getStyleMapping(annotation.type);
-  if (!m) return;
-
-  const p = m.prefix;
-
-  // "Geen rand" blijft alleen staan voor soorten waarvan de omtrek weg kan;
-  // voor de rest zou de voorkeur op 'none' een onzichtbare lijn geven (#433).
-  if (m.stroke) prefs[p + m.stroke] = randkleurVoorVoorkeur(annotation) || prefs[p + m.stroke];
-  if (m.color) prefs[p + m.color] = annotation.color || annotation.fillColor || prefs[p + m.color];
-  if (m.fill) {
-    prefs[p + m.fill] = annotation.fillColor || prefs[p + m.fill];
-    if (m.fillNone) prefs[p + m.fillNone] = !annotation.fillColor || annotation.fillColor === 'transparent' || annotation.fillColor === 'none' || annotation.fillColor === null;
-  }
-  if (m.width) prefs[p + m.width] = annotation.lineWidth ?? prefs[p + m.width];
-  if (m.borderStyle && annotation.borderStyle) prefs[p + m.borderStyle] = annotation.borderStyle;
-  if (m.opacity && annotation.opacity !== undefined) prefs[p + m.opacity] = Math.round(annotation.opacity * 100);
-  // Eigen vul-dekking (#685); zonder eigen waarde volgt de vulling de dekking.
-  if (m.fillOpacity) {
-    if (typeof annotation.fillOpacity === 'number') prefs[p + m.fillOpacity] = Math.round(annotation.fillOpacity * 100);
-    else delete prefs[p + m.fillOpacity];
-  }
-  if (m.startHead && annotation.startHead) prefs[p + m.startHead] = annotation.startHead;
-  if (m.endHead && annotation.endHead) prefs[p + m.endHead] = annotation.endHead;
-  if (m.headSize && annotation.headSize) prefs[p + m.headSize] = annotation.headSize;
-  if (m.fontSize && annotation.fontSize) prefs[p + m.fontSize] = annotation.fontSize;
-  if (m.icon && annotation.icon) prefs[p + m.icon] = annotation.icon;
-  if (m.overlayColor) prefs[p + m.overlayColor] = annotation.overlayColor || prefs[p + m.overlayColor];
-
-  // Hatch properties
-  if (m.hatch) {
-    if (annotation.hatchPattern) prefs[p + 'HatchPattern'] = annotation.hatchPattern;
-    if (annotation.hatchColor) prefs[p + 'HatchColor'] = annotation.hatchColor;
-    if (annotation.hatchScale != null) prefs[p + 'HatchScale'] = annotation.hatchScale;
-  }
-
-  // Generic style-type preset id (see annotations/style-types.js) — '' = custom.
-  prefs[p + 'StyleType'] = annotation.styleType || '';
-
-  // Dimension measurement properties (use 'Dim' prefix to avoid clash with global measureScale object)
-  if (m.dimension) {
-    if (!m.noDimScale) {
-      if (annotation.measureScale != null) prefs[p + 'DimScale'] = annotation.measureScale;
-      if (annotation.measureUnit) prefs[p + 'DimUnit'] = annotation.measureUnit;
-    }
-    if (annotation.measurePrecision != null) prefs[p + 'DimPrecision'] = annotation.measurePrecision;
-    // Dimension type preset (1.8/2.5/3.5/5.0 mm) — '' means custom.
-    prefs[p + 'DimType'] = annotation.dimType || '';
-    prefs[p + 'DimExtension'] = !!annotation.dimExtension;
-  }
-
-  // Zijdematen van een meetvlak (#536): aan of uit, standaard uit.
-  if (m.edgeLengths) prefs[p + m.edgeLengths] = annotation.measureShowEdgeLengths === true;
-
+  if (!writeStylePrefs(annotation, state.preferences)) return;
   savePreferences();
   updateStatusMessage('Style set as default');
 }

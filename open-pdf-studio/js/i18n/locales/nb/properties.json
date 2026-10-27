@@ -370,7 +370,8 @@
     "addPage": "Legg til side",
     "pageLabels": "Sideetiketter (navnebygger)",
     "portfolio": "PDF-portefølje",
-    "recognizeForm": "Gjenkjenn skjemafelt"
+    "recognizeForm": "Gjenkjenn skjemafelt",
+    "toolChest": "Verktøykasse"
   },
   "scaleBar": {
     "title": "Målestokklinjal",
@@ -402,7 +403,13 @@
     "netArea": "Nettoareal",
     "searchType": "Søk…",
     "editTypes": "Rediger typer",
-    "noTypesFound": "Ingen typer funnet"
+    "noTypesFound": "Ingen typer funnet",
+    "depth": "Dybde",
+    "depthUnit": "Dybde ({{unit}})",
+    "depthNone": "Ingen",
+    "depthTooltip": "Vegghøyde, dekketykkelse osv. i målingens enhet. Lengde × dybde gir en flate, areal × dybde et volum.",
+    "surface": "Flate",
+    "volume": "Volum"
   },
   "schedules": {
     "title": "Lister",
@@ -722,5 +729,48 @@
     "invalid": "Plasseringen kunne ikke oppdateres",
     "rules": "Tildelingen bruker midtpunktet av markeringens omsluttende ramme, kanter inkludert. Den dypeste sonen vinner, deretter minste areal og så sone-ID. Bruk rette polygoner uten hull eller uroterte rektangler. Ugyldige eller dupliserte soneidentiteter utelates.",
     "loading": "Merknader lastes inn: plasseringer kan fortsatt endres."
+  },
+  "toolChest": {
+    "title": "Verktøykasse",
+    "typeWall": "Vegg",
+    "newSet": "Nytt verktøysett",
+    "newSetName": "Verktøysett",
+    "defaultSetName": "Mine verktøy",
+    "rename": "Gi nytt navn (F2)",
+    "delete": "Slett",
+    "exportSet": "Eksporter verktøysett...",
+    "importSet": "Importer verktøysett...",
+    "moveTo": "Flytt til...",
+    "toggleSet": "Vis eller skjul",
+    "empty": "Ingen verktøy ennå. Høyreklikk på en måling på siden og velg «Lagre i verktøykassen».",
+    "emptySet": "Tomt verktøysett",
+    "useItem": "Klikk for å tegne med disse innstillingene",
+    "count": "Verktøysett: {{sets}} · Verktøy: {{items}}",
+    "nameEmpty": "Skriv inn et navn.",
+    "nameTaken": "Det finnes allerede et verktøysett med dette navnet.",
+    "ok": "OK",
+    "cancel": "Avbryt",
+    "deleteSetTitle": "Slett verktøysett",
+    "deleteSetMessage": "Slette verktøysettet «{{name}}» og verktøyene i det ({{count}})? Markeringer som allerede er plassert med disse verktøyene, endres ikke.",
+    "savedStatus": "«{{name}}» lagret i verktøysettet «{{set}}»",
+    "activeStatus": "Tegner med «{{name}}» (Esc for å stoppe)",
+    "exportedStatus": "Verktøysettet «{{name}}» er eksportert",
+    "importedStatus": "Verktøysettet «{{name}}» er importert (verktøy: {{count}})",
+    "importedSkipped": "Verktøysettet «{{name}}» er importert (verktøy: {{count}}); hoppet over på grunn av ukjent type: {{skipped}}",
+    "importTitle": "Importer verktøysett",
+    "importConflictTitle": "Verktøysettet finnes allerede",
+    "importConflictMessage": "Det finnes allerede et verktøysett med navnet «{{name}}». Hva vil du gjøre?",
+    "importRename": "Importer under et annet navn:",
+    "importOverwrite": "Overskriv det eksisterende verktøysettet",
+    "importKeepBoth": "Behold begge (det importerte settet får et nytt navn)",
+    "fileType": "Verktøysett",
+    "noDocument": "Åpne et dokument først.",
+    "errorSave": "Verktøyet kunne ikke lagres.",
+    "errorExport": "Verktøysettet kunne ikke eksporteres: {{error}}",
+    "errorFileRead": "Filen kunne ikke leses.",
+    "errorFileEmpty": "Filen er tom.",
+    "errorFileTooLarge": "Filen er for stor for et verktøysett.",
+    "errorFileInvalid": "Denne filen er ikke et gyldig verktøysett.",
+    "errorFileNewer": "Dette verktøysettet ble laget med en nyere versjon av Open PDF Studio. Oppdater appen for å importere det."
   }
 }

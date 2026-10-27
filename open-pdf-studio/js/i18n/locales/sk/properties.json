@@ -370,7 +370,8 @@
     "addPage": "Pridať stranu",
     "pageLabels": "Menovky strán (tvorba názvov)",
     "portfolio": "Portfólio PDF",
-    "recognizeForm": "Rozpoznať polia formulára"
+    "recognizeForm": "Rozpoznať polia formulára",
+    "toolChest": "Skrinka nástrojov"
   },
   "scaleBar": {
     "title": "Grafická mierka",
@@ -402,7 +403,13 @@
     "netArea": "Čistá plocha",
     "searchType": "Hľadať…",
     "editTypes": "Upraviť typy",
-    "noTypesFound": "Nenašli sa žiadne typy"
+    "noTypesFound": "Nenašli sa žiadne typy",
+    "depth": "Hĺbka",
+    "depthUnit": "Hĺbka ({{unit}})",
+    "depthNone": "Žiadna",
+    "depthTooltip": "Výška steny, hrúbka stropu a pod. v jednotke merania. Dĺžka × hĺbka dáva plochu, plocha × hĺbka objem.",
+    "surface": "Plocha",
+    "volume": "Objem"
   },
   "schedules": {
     "title": "Výkazy",
@@ -722,5 +729,48 @@
     "invalid": "Umiestnenie sa nedá aktualizovať",
     "rules": "Priradenie vychádza zo stredu ohraničujúceho rámčeka označenia vrátane okrajov. Vyhráva najhlbšie vnorená zóna, potom najmenšia plocha, potom ID zóny. Používajte mnohouholníky s rovnými stranami bez otvorov alebo neotočené obdĺžniky. Neplatné alebo duplicitné identity zón sa vylučujú.",
     "loading": "Načítavajú sa anotácie: umiestnenia sa ešte môžu zmeniť."
+  },
+  "toolChest": {
+    "title": "Skrinka nástrojov",
+    "typeWall": "Stena",
+    "newSet": "Nová sada nástrojov",
+    "newSetName": "Sada nástrojov",
+    "defaultSetName": "Moje nástroje",
+    "rename": "Premenovať (F2)",
+    "delete": "Odstrániť",
+    "exportSet": "Exportovať sadu nástrojov...",
+    "importSet": "Importovať sadu nástrojov...",
+    "moveTo": "Presunúť do...",
+    "toggleSet": "Rozbaliť alebo zbaliť",
+    "empty": "Zatiaľ žiadne nástroje. Kliknite pravým tlačidlom na meranie na stránke a vyberte „Uložiť do skrinky nástrojov“.",
+    "emptySet": "Prázdna sada nástrojov",
+    "useItem": "Kliknutím budete kresliť s týmito nastaveniami",
+    "count": "Sady: {{sets}} · Nástroje: {{items}}",
+    "nameEmpty": "Zadajte názov.",
+    "nameTaken": "Sada nástrojov s týmto názvom už existuje.",
+    "ok": "OK",
+    "cancel": "Zrušiť",
+    "deleteSetTitle": "Odstrániť sadu nástrojov",
+    "deleteSetMessage": "Odstrániť sadu nástrojov „{{name}}“ aj s nástrojmi ({{count}})? Poznámky už umiestnené týmito nástrojmi sa nezmenia.",
+    "savedStatus": "„{{name}}“ uložené do sady nástrojov „{{set}}“",
+    "activeStatus": "Kreslenie nástrojom „{{name}}“ (Esc ukončí)",
+    "exportedStatus": "Sada nástrojov „{{name}}“ bola exportovaná",
+    "importedStatus": "Sada nástrojov „{{name}}“ bola importovaná (nástroje: {{count}})",
+    "importedSkipped": "Sada nástrojov „{{name}}“ bola importovaná (nástroje: {{count}}); preskočené pre neznámy typ: {{skipped}}",
+    "importTitle": "Importovať sadu nástrojov",
+    "importConflictTitle": "Sada nástrojov už existuje",
+    "importConflictMessage": "Sada nástrojov s názvom „{{name}}“ už existuje. Čo chcete urobiť?",
+    "importRename": "Importovať pod iným názvom:",
+    "importOverwrite": "Prepísať existujúcu sadu nástrojov",
+    "importKeepBoth": "Ponechať obe (importovaná sada dostane nový názov)",
+    "fileType": "Sada nástrojov",
+    "noDocument": "Najprv otvorte dokument.",
+    "errorSave": "Nástroj sa nepodarilo uložiť.",
+    "errorExport": "Sadu nástrojov sa nepodarilo exportovať: {{error}}",
+    "errorFileRead": "Súbor sa nepodarilo prečítať.",
+    "errorFileEmpty": "Súbor je prázdny.",
+    "errorFileTooLarge": "Súbor je pre sadu nástrojov príliš veľký.",
+    "errorFileInvalid": "Tento súbor nie je platná sada nástrojov.",
+    "errorFileNewer": "Táto sada nástrojov bola vytvorená v novšej verzii Open PDF Studio. Na import aktualizujte aplikáciu."
   }
 }

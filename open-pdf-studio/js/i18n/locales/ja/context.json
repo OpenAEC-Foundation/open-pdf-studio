@@ -48,7 +48,8 @@
     "setScale": "縮尺を設定...",
     "dimChainAdd": "寸法チェーンに点を追加",
     "dimChainRemove": "寸法チェーンから補助線を削除",
-    "selectRoom": "部屋を選択"
+    "selectRoom": "部屋を選択",
+    "saveToToolChest": "ツールチェストに保存"
   },
   "multiSelect": {
     "copyAnnotations": "{{count}} 個の注釈をコピー",

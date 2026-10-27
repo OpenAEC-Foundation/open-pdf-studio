@@ -48,7 +48,8 @@
     "setScale": "Постави размеру...",
     "dimChainAdd": "Додај тачке у ланац кота",
     "dimChainRemove": "Уклони помоћну линију из ланца",
-    "selectRoom": "Изабери просторију"
+    "selectRoom": "Изабери просторију",
+    "saveToToolChest": "Сачувај у кутију алата"
   },
   "multiSelect": {
     "copyAnnotations": "Копирај {{count}} анотација",

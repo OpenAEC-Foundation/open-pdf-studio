@@ -760,7 +760,18 @@ async function refresh() {
 
 // ---- Helper recorders ----
 
+// Called with every annotation the user adds, before it is recorded: the
+// Tool Chest (#311) puts the properties of its active item on it here, so
+// the undo record and redo hold the finished annotation.
+let _addAnnotationHook = null;
+export function setAddAnnotationHook(fn) {
+  _addAnnotationHook = typeof fn === 'function' ? fn : null;
+}
+
 export function recordAdd(annotation) {
+  if (_addAnnotationHook && annotation) {
+    try { _addAnnotationHook(annotation); } catch (e) { console.warn('Add-annotation hook failed:', e); }
+  }
   execute({
     type: 'addAnnotation',
     annotation: cloneAnnotation(annotation)

@@ -370,7 +370,8 @@
     "addPage": "Oldal hozzáadása",
     "pageLabels": "Oldalcímkék (névkészítő)",
     "portfolio": "PDF-portfólió",
-    "recognizeForm": "Űrlapmezők felismerése"
+    "recognizeForm": "Űrlapmezők felismerése",
+    "toolChest": "Eszköztárláda"
   },
   "scaleBar": {
     "title": "Aránymérték",
@@ -402,7 +403,13 @@
     "netArea": "Nettó terület",
     "searchType": "Keresés…",
     "editTypes": "Típusok szerkesztése",
-    "noTypesFound": "Nem található típus"
+    "noTypesFound": "Nem található típus",
+    "depth": "Mélység",
+    "depthUnit": "Mélység ({{unit}})",
+    "depthNone": "Nincs",
+    "depthTooltip": "Falmagasság, födémvastagság stb. a mérés mértékegységében. Hossz × mélység felületet, terület × mélység térfogatot ad.",
+    "surface": "Felület",
+    "volume": "Térfogat"
   },
   "schedules": {
     "title": "Kimutatások",
@@ -722,5 +729,48 @@
     "invalid": "A hely nem frissíthető",
     "rules": "A hozzárendelés a jelölés befoglaló téglalapjának középpontján alapul, a széleket is beleértve. A legmélyebben beágyazott zóna nyer, utána a legkisebb terület, majd a zónaazonosító. Egyenes oldalú, lyuk nélküli sokszögeket vagy elforgatás nélküli téglalapokat használjon. Az érvénytelen vagy ismétlődő zónaazonosítók kimaradnak.",
     "loading": "Az annotációk betöltése folyamatban: a helyek még változhatnak."
+  },
+  "toolChest": {
+    "title": "Eszköztárláda",
+    "typeWall": "Fal",
+    "newSet": "Új eszközkészlet",
+    "newSetName": "Eszközkészlet",
+    "defaultSetName": "Saját eszközök",
+    "rename": "Átnevezés (F2)",
+    "delete": "Törlés",
+    "exportSet": "Eszközkészlet exportálása...",
+    "importSet": "Eszközkészlet importálása...",
+    "moveTo": "Áthelyezés ide...",
+    "toggleSet": "Kibontás vagy összecsukás",
+    "empty": "Még nincsenek eszközök. Kattintson jobb gombbal egy mérésre az oldalon, és válassza a „Mentés az eszköztárládába” lehetőséget.",
+    "emptySet": "Üres eszközkészlet",
+    "useItem": "Kattintson, hogy ezekkel a beállításokkal rajzoljon",
+    "count": "Készletek: {{sets}} · Eszközök: {{items}}",
+    "nameEmpty": "Adjon meg egy nevet.",
+    "nameTaken": "Már létezik ilyen nevű eszközkészlet.",
+    "ok": "OK",
+    "cancel": "Mégse",
+    "deleteSetTitle": "Eszközkészlet törlése",
+    "deleteSetMessage": "Törli a(z) „{{name}}” eszközkészletet és az eszközeit ({{count}})? Az ezekkel az eszközökkel már elhelyezett jelölések nem változnak.",
+    "savedStatus": "„{{name}}” mentve a(z) „{{set}}” eszközkészletbe",
+    "activeStatus": "Rajzolás ezzel: „{{name}}” (Esc a leállításhoz)",
+    "exportedStatus": "A(z) „{{name}}” eszközkészlet exportálva",
+    "importedStatus": "A(z) „{{name}}” eszközkészlet importálva (eszközök: {{count}})",
+    "importedSkipped": "A(z) „{{name}}” eszközkészlet importálva (eszközök: {{count}}); ismeretlen típus miatt kihagyva: {{skipped}}",
+    "importTitle": "Eszközkészlet importálása",
+    "importConflictTitle": "Az eszközkészlet már létezik",
+    "importConflictMessage": "Már létezik „{{name}}” nevű eszközkészlet. Mit szeretne tenni?",
+    "importRename": "Importálás más néven:",
+    "importOverwrite": "A meglévő eszközkészlet felülírása",
+    "importKeepBoth": "Mindkettő megtartása (az importált készlet új nevet kap)",
+    "fileType": "Eszközkészlet",
+    "noDocument": "Először nyisson meg egy dokumentumot.",
+    "errorSave": "Az eszközt nem sikerült menteni.",
+    "errorExport": "Az eszközkészletet nem sikerült exportálni: {{error}}",
+    "errorFileRead": "A fájlt nem sikerült beolvasni.",
+    "errorFileEmpty": "A fájl üres.",
+    "errorFileTooLarge": "A fájl túl nagy egy eszközkészlethez.",
+    "errorFileInvalid": "Ez a fájl nem érvényes eszközkészlet.",
+    "errorFileNewer": "Ez az eszközkészlet az Open PDF Studio egy újabb verziójával készült. Az importáláshoz frissítse az alkalmazást."
   }
 }

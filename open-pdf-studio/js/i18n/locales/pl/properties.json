@@ -370,7 +370,8 @@
     "addPage": "Dodaj stronę",
     "pageLabels": "Etykiety stron (kreator nazw)",
     "portfolio": "Portfolio PDF",
-    "recognizeForm": "Rozpoznaj pola formularza"
+    "recognizeForm": "Rozpoznaj pola formularza",
+    "toolChest": "Skrzynka narzędziowa"
   },
   "scaleBar": {
     "title": "Podziałka liniowa",
@@ -402,7 +403,13 @@
     "netArea": "Powierzchnia netto",
     "searchType": "Szukaj…",
     "editTypes": "Edytuj typy",
-    "noTypesFound": "Nie znaleziono typów"
+    "noTypesFound": "Nie znaleziono typów",
+    "depth": "Głębokość",
+    "depthUnit": "Głębokość ({{unit}})",
+    "depthNone": "Brak",
+    "depthTooltip": "Wysokość ściany, grubość stropu itp. w jednostce pomiaru. Długość × głębokość daje powierzchnię, pole × głębokość objętość.",
+    "surface": "Powierzchnia",
+    "volume": "Objętość"
   },
   "schedules": {
     "title": "Zestawienia",
@@ -722,5 +729,48 @@
     "invalid": "Nie można zaktualizować lokalizacji",
     "rules": "Przypisanie opiera się na środku prostokąta ograniczającego znacznik, łącznie z krawędziami. Wygrywa najgłębiej zagnieżdżona strefa, potem najmniejsza powierzchnia, potem identyfikator strefy. Używaj wielokątów o prostych bokach bez otworów lub prostokątów bez obrotu. Nieprawidłowe lub zduplikowane identyfikatory stref są pomijane.",
     "loading": "Trwa wczytywanie adnotacji: lokalizacje mogą się jeszcze zmienić."
+  },
+  "toolChest": {
+    "title": "Skrzynka narzędziowa",
+    "typeWall": "Ściana",
+    "newSet": "Nowy zestaw narzędzi",
+    "newSetName": "Zestaw narzędzi",
+    "defaultSetName": "Moje narzędzia",
+    "rename": "Zmień nazwę (F2)",
+    "delete": "Usuń",
+    "exportSet": "Eksportuj zestaw narzędzi...",
+    "importSet": "Importuj zestaw narzędzi...",
+    "moveTo": "Przenieś do...",
+    "toggleSet": "Rozwiń lub zwiń",
+    "empty": "Brak narzędzi. Kliknij prawym przyciskiem pomiar na stronie i wybierz „Zapisz w skrzynce narzędziowej”.",
+    "emptySet": "Pusty zestaw narzędzi",
+    "useItem": "Kliknij, aby rysować z tymi ustawieniami",
+    "count": "Zestawy: {{sets}} · Narzędzia: {{items}}",
+    "nameEmpty": "Wpisz nazwę.",
+    "nameTaken": "Zestaw narzędzi o tej nazwie już istnieje.",
+    "ok": "OK",
+    "cancel": "Anuluj",
+    "deleteSetTitle": "Usuń zestaw narzędzi",
+    "deleteSetMessage": "Usunąć zestaw narzędzi „{{name}}” wraz z narzędziami ({{count}})? Adnotacje już umieszczone tymi narzędziami nie zmienią się.",
+    "savedStatus": "„{{name}}” zapisano w zestawie narzędzi „{{set}}”",
+    "activeStatus": "Rysowanie narzędziem „{{name}}” (Esc, aby zakończyć)",
+    "exportedStatus": "Wyeksportowano zestaw narzędzi „{{name}}”",
+    "importedStatus": "Zaimportowano zestaw narzędzi „{{name}}” (narzędzia: {{count}})",
+    "importedSkipped": "Zaimportowano zestaw narzędzi „{{name}}” (narzędzia: {{count}}); pominięto z powodu nieznanego typu: {{skipped}}",
+    "importTitle": "Importuj zestaw narzędzi",
+    "importConflictTitle": "Zestaw narzędzi już istnieje",
+    "importConflictMessage": "Zestaw narzędzi o nazwie „{{name}}” już istnieje. Co chcesz zrobić?",
+    "importRename": "Importuj pod inną nazwą:",
+    "importOverwrite": "Zastąp istniejący zestaw narzędzi",
+    "importKeepBoth": "Zachowaj oba (importowany zestaw otrzyma nową nazwę)",
+    "fileType": "Zestaw narzędzi",
+    "noDocument": "Najpierw otwórz dokument.",
+    "errorSave": "Nie udało się zapisać narzędzia.",
+    "errorExport": "Nie udało się wyeksportować zestawu narzędzi: {{error}}",
+    "errorFileRead": "Nie udało się odczytać pliku.",
+    "errorFileEmpty": "Plik jest pusty.",
+    "errorFileTooLarge": "Plik jest za duży na zestaw narzędzi.",
+    "errorFileInvalid": "Ten plik nie jest prawidłowym zestawem narzędzi.",
+    "errorFileNewer": "Ten zestaw narzędzi utworzono w nowszej wersji Open PDF Studio. Zaktualizuj aplikację, aby go zaimportować."
   }
 }

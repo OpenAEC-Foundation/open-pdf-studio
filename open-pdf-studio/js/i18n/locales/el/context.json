@@ -48,7 +48,8 @@
     "setScale": "Ορισμός κλίμακας...",
     "dimChainAdd": "Προσθήκη σημείων στην αλυσίδα διαστάσεων",
     "dimChainRemove": "Αφαίρεση βοηθητικής γραμμής από την αλυσίδα",
-    "selectRoom": "Επιλογή χώρου"
+    "selectRoom": "Επιλογή χώρου",
+    "saveToToolChest": "Αποθήκευση στην εργαλειοθήκη"
   },
   "multiSelect": {
     "copyAnnotations": "Αντιγραφή {{count}} σχολιασμών",

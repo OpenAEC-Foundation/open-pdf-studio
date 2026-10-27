@@ -48,7 +48,8 @@
     "setScale": "הגדרת קנה מידה...",
     "dimChainAdd": "הוספת נקודות לשרשרת המידות",
     "dimChainRemove": "הסרת קו עזר מהשרשרת",
-    "selectRoom": "בחירת חדר"
+    "selectRoom": "בחירת חדר",
+    "saveToToolChest": "שמירה בארגז הכלים"
   },
   "multiSelect": {
     "copyAnnotations": "העתקת {{count}} הערות",

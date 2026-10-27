@@ -209,6 +209,8 @@ export type Annotation = AnnotationBase & {
   measureName?: string;
   // Meetvlak: de lengte van elke rechte zijde tonen (#536)
   measureShowEdgeLengths?: boolean;
+  /** Depth in the measurement's unit (#311): length × depth, area × depth. */
+  measureDepth?: number;
   // Label position override (absolute coords; defaults to centroid if unset)
   labelX?: number;
   labelY?: number;

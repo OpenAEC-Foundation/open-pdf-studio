@@ -48,7 +48,8 @@
     "setScale": "ตั้งมาตราส่วน...",
     "dimChainAdd": "เพิ่มจุดในโซ่เส้นบอกขนาด",
     "dimChainRemove": "ลบเส้นช่วยบอกขนาดออกจากโซ่",
-    "selectRoom": "เลือกห้อง"
+    "selectRoom": "เลือกห้อง",
+    "saveToToolChest": "บันทึกลงกล่องเครื่องมือ"
   },
   "multiSelect": {
     "copyAnnotations": "คัดลอก {{count}} คำอธิบายประกอบ",

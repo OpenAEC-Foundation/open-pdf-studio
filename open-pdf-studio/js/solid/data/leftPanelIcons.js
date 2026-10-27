@@ -67,3 +67,12 @@ export const schedulesIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="curre
 export const toggleIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
   <polyline points="15 18 9 12 15 6"/>
 </svg>`;
+
+// Tool Chest (#311): a toolbox.
+export const toolChestIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <rect x="2" y="8" width="20" height="12" rx="0"/>
+  <path d="M8 8V5h8v3"/>
+  <line x1="2" y1="13" x2="22" y2="13"/>
+  <line x1="10" y1="13" x2="10" y2="15"/>
+  <line x1="14" y1="13" x2="14" y2="15"/>
+</svg>`;

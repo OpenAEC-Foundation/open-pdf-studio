@@ -48,7 +48,8 @@
     "setScale": "Задать масштаб...",
     "dimChainAdd": "Добавить точки в размерную цепь",
     "dimChainRemove": "Удалить выносную линию из цепи",
-    "selectRoom": "Выбрать помещение"
+    "selectRoom": "Выбрать помещение",
+    "saveToToolChest": "Сохранить в ящик инструментов"
   },
   "multiSelect": {
     "copyAnnotations": "Копировать {{count}} аннотаций",

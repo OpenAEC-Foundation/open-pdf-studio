@@ -370,7 +370,8 @@
     "addPage": "Tambah halaman",
     "pageLabels": "Label halaman (pembina nama)",
     "portfolio": "Portfolio PDF",
-    "recognizeForm": "Kenal pasti medan borang"
+    "recognizeForm": "Kenal pasti medan borang",
+    "toolChest": "Peti Alat"
   },
   "scaleBar": {
     "title": "Bar Skala",
@@ -402,7 +403,13 @@
     "netArea": "Luas bersih",
     "searchType": "Cari…",
     "editTypes": "Sunting jenis",
-    "noTypesFound": "Tiada jenis ditemui"
+    "noTypesFound": "Tiada jenis ditemui",
+    "depth": "Kedalaman",
+    "depthUnit": "Kedalaman ({{unit}})",
+    "depthNone": "Tiada",
+    "depthTooltip": "Ketinggian dinding, ketebalan lantai dsb., dalam unit pengukuran. Panjang × kedalaman memberi permukaan, luas × kedalaman memberi isi padu.",
+    "surface": "Permukaan",
+    "volume": "Isi padu"
   },
   "schedules": {
     "title": "Jadual",
@@ -722,5 +729,48 @@
     "invalid": "Lokasi tidak dapat dikemas kini",
     "rules": "Penetapan menggunakan pusat kotak sempadan penanda, termasuk tepi. Zon paling dalam menang, kemudian keluasan terkecil, kemudian ID zon. Gunakan poligon lurus tanpa lubang atau kotak tanpa putaran. Identiti zon yang tidak sah atau pendua dikecualikan.",
     "loading": "Anotasi sedang dimuatkan: lokasi mungkin masih berubah."
+  },
+  "toolChest": {
+    "title": "Peti Alat",
+    "typeWall": "Dinding",
+    "newSet": "Set alat baharu",
+    "newSetName": "Set alat",
+    "defaultSetName": "Alat saya",
+    "rename": "Namakan semula (F2)",
+    "delete": "Padam",
+    "exportSet": "Eksport set alat...",
+    "importSet": "Import set alat...",
+    "moveTo": "Alih ke...",
+    "toggleSet": "Kembangkan atau runtuhkan",
+    "empty": "Belum ada alat. Klik kanan pada pengukuran di halaman dan pilih \"Simpan ke Peti Alat\".",
+    "emptySet": "Set alat kosong",
+    "useItem": "Klik untuk melukis dengan tetapan ini",
+    "count": "Set: {{sets}} · Alat: {{items}}",
+    "nameEmpty": "Masukkan nama.",
+    "nameTaken": "Set alat dengan nama ini sudah wujud.",
+    "ok": "OK",
+    "cancel": "Batal",
+    "deleteSetTitle": "Padam set alat",
+    "deleteSetMessage": "Padam set alat \"{{name}}\" bersama alatnya ({{count}})? Tanda yang sudah diletakkan dengan alat ini tidak berubah.",
+    "savedStatus": "\"{{name}}\" disimpan ke set alat \"{{set}}\"",
+    "activeStatus": "Melukis dengan \"{{name}}\" (Esc untuk berhenti)",
+    "exportedStatus": "Set alat \"{{name}}\" dieksport",
+    "importedStatus": "Set alat \"{{name}}\" diimport (alat: {{count}})",
+    "importedSkipped": "Set alat \"{{name}}\" diimport (alat: {{count}}); dilangkau kerana jenis tidak diketahui: {{skipped}}",
+    "importTitle": "Import set alat",
+    "importConflictTitle": "Set alat sudah wujud",
+    "importConflictMessage": "Set alat bernama \"{{name}}\" sudah wujud. Apakah yang anda mahu lakukan?",
+    "importRename": "Import dengan nama lain:",
+    "importOverwrite": "Tulis ganti set alat sedia ada",
+    "importKeepBoth": "Simpan kedua-duanya (set yang diimport mendapat nama baharu)",
+    "fileType": "Set alat",
+    "noDocument": "Buka dokumen dahulu.",
+    "errorSave": "Alat tidak dapat disimpan.",
+    "errorExport": "Set alat tidak dapat dieksport: {{error}}",
+    "errorFileRead": "Fail tidak dapat dibaca.",
+    "errorFileEmpty": "Fail kosong.",
+    "errorFileTooLarge": "Fail terlalu besar untuk set alat.",
+    "errorFileInvalid": "Fail ini bukan set alat yang sah.",
+    "errorFileNewer": "Set alat ini dibuat dengan versi Open PDF Studio yang lebih baharu. Kemas kini aplikasi untuk mengimportnya."
   }
 }

@@ -370,7 +370,8 @@
     "addPage": "Adăugare pagină",
     "pageLabels": "Etichete de pagină (generator de nume)",
     "portfolio": "Portofoliu PDF",
-    "recognizeForm": "Recunoaștere câmpuri de formular"
+    "recognizeForm": "Recunoaștere câmpuri de formular",
+    "toolChest": "Trusă de unelte"
   },
   "scaleBar": {
     "title": "Bară de scară",
@@ -402,7 +403,13 @@
     "netArea": "Suprafață netă",
     "searchType": "Căutare…",
     "editTypes": "Editare tipuri",
-    "noTypesFound": "Nu s-au găsit tipuri"
+    "noTypesFound": "Nu s-au găsit tipuri",
+    "depth": "Adâncime",
+    "depthUnit": "Adâncime ({{unit}})",
+    "depthNone": "Niciuna",
+    "depthTooltip": "Înălțimea peretelui, grosimea plăcii etc., în unitatea măsurătorii. Lungime × adâncime dă o suprafață, arie × adâncime un volum.",
+    "surface": "Suprafață",
+    "volume": "Volum"
   },
   "schedules": {
     "title": "Extrase",
@@ -722,5 +729,48 @@
     "invalid": "Locația nu a putut fi actualizată",
     "rules": "Atribuirea folosește centrul casetei de încadrare a marcajului, inclusiv marginile. Câștigă zona cea mai adânc imbricată, apoi cea cu aria cea mai mică, apoi ID-ul zonei. Folosiți poligoane cu laturi drepte, fără găuri, sau casete nerotite. Identitățile de zonă nevalide sau duplicate sunt excluse.",
     "loading": "Adnotările se încarcă: locațiile se pot încă modifica."
+  },
+  "toolChest": {
+    "title": "Trusă de unelte",
+    "typeWall": "Perete",
+    "newSet": "Set nou de unelte",
+    "newSetName": "Set de unelte",
+    "defaultSetName": "Uneltele mele",
+    "rename": "Redenumește (F2)",
+    "delete": "Șterge",
+    "exportSet": "Exportă setul de unelte...",
+    "importSet": "Importă un set de unelte...",
+    "moveTo": "Mută în...",
+    "toggleSet": "Extinde sau restrânge",
+    "empty": "Încă nu există unelte. Faceți clic dreapta pe o măsurătoare din pagină și alegeți „Salvează în trusa de unelte”.",
+    "emptySet": "Set de unelte gol",
+    "useItem": "Faceți clic pentru a desena cu aceste setări",
+    "count": "Seturi: {{sets}} · Unelte: {{items}}",
+    "nameEmpty": "Introduceți un nume.",
+    "nameTaken": "Există deja un set de unelte cu acest nume.",
+    "ok": "OK",
+    "cancel": "Anulează",
+    "deleteSetTitle": "Șterge setul de unelte",
+    "deleteSetMessage": "Ștergeți setul de unelte „{{name}}” și uneltele lui ({{count}})? Adnotările deja plasate cu aceste unelte nu se schimbă.",
+    "savedStatus": "„{{name}}” salvat în setul de unelte „{{set}}”",
+    "activeStatus": "Desenare cu „{{name}}” (Esc pentru oprire)",
+    "exportedStatus": "Setul de unelte „{{name}}” a fost exportat",
+    "importedStatus": "Setul de unelte „{{name}}” a fost importat (unelte: {{count}})",
+    "importedSkipped": "Setul de unelte „{{name}}” a fost importat (unelte: {{count}}); omise din cauza tipului necunoscut: {{skipped}}",
+    "importTitle": "Importă un set de unelte",
+    "importConflictTitle": "Setul de unelte există deja",
+    "importConflictMessage": "Există deja un set de unelte numit „{{name}}”. Ce doriți să faceți?",
+    "importRename": "Importă sub alt nume:",
+    "importOverwrite": "Suprascrie setul de unelte existent",
+    "importKeepBoth": "Păstrează-le pe amândouă (setul importat primește un nume nou)",
+    "fileType": "Set de unelte",
+    "noDocument": "Deschideți mai întâi un document.",
+    "errorSave": "Unealta nu a putut fi salvată.",
+    "errorExport": "Setul de unelte nu a putut fi exportat: {{error}}",
+    "errorFileRead": "Fișierul nu a putut fi citit.",
+    "errorFileEmpty": "Fișierul este gol.",
+    "errorFileTooLarge": "Fișierul este prea mare pentru un set de unelte.",
+    "errorFileInvalid": "Acest fișier nu este un set de unelte valid.",
+    "errorFileNewer": "Acest set de unelte a fost creat cu o versiune mai nouă de Open PDF Studio. Actualizați aplicația pentru a-l importa."
   }
 }

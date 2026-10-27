@@ -517,3 +517,7 @@ js/pdf/saver/text-edit-unicode.test.mjs
 js/text/tekstlaag-bron.test.mjs
 js/pdf/saver/text-edit-glyfen.test.mjs
 js/text/tekenafstand.test.mjs
+js/annotations/tool-chest.test.mjs
+js/annotations/tool-chest-wiring.test.mjs
+js/annotations/measure-depth.test.mjs
+js/solid/stores/toolChestStore.test.mjs

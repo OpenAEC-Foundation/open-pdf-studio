@@ -370,7 +370,8 @@
     "addPage": "Lisää sivu",
     "pageLabels": "Sivujen nimiöt (nimien muodostus)",
     "portfolio": "PDF-portfolio",
-    "recognizeForm": "Tunnista lomakekentät"
+    "recognizeForm": "Tunnista lomakekentät",
+    "toolChest": "Työkalupakki"
   },
   "scaleBar": {
     "title": "Mittakaavajana",
@@ -402,7 +403,13 @@
     "netArea": "Nettopinta-ala",
     "searchType": "Hae…",
     "editTypes": "Muokkaa tyyppejä",
-    "noTypesFound": "Tyyppejä ei löytynyt"
+    "noTypesFound": "Tyyppejä ei löytynyt",
+    "depth": "Syvyys",
+    "depthUnit": "Syvyys ({{unit}})",
+    "depthNone": "Ei mitään",
+    "depthTooltip": "Seinän korkeus, laatan paksuus jne. mittauksen yksikössä. Pituus × syvyys antaa pinta-alan, ala × syvyys tilavuuden.",
+    "surface": "Pinta-ala",
+    "volume": "Tilavuus"
   },
   "schedules": {
     "title": "Luettelot",
@@ -722,5 +729,48 @@
     "invalid": "Sijaintia ei voitu päivittää",
     "rules": "Määritys käyttää merkinnän rajauslaatikon keskipistettä reunat mukaan lukien. Syvin vyöhyke voittaa, sitten pienin pinta-ala ja sitten vyöhykkeen tunnus. Käytä suorasivuisia monikulmioita ilman reikiä tai kiertämättömiä suorakulmioita. Virheelliset tai päällekkäiset vyöhyketunnisteet jätetään pois.",
     "loading": "Merkintöjä ladataan: sijainnit voivat vielä muuttua."
+  },
+  "toolChest": {
+    "title": "Työkalupakki",
+    "typeWall": "Seinä",
+    "newSet": "Uusi työkalusarja",
+    "newSetName": "Työkalusarja",
+    "defaultSetName": "Omat työkalut",
+    "rename": "Nimeä uudelleen (F2)",
+    "delete": "Poista",
+    "exportSet": "Vie työkalusarja...",
+    "importSet": "Tuo työkalusarja...",
+    "moveTo": "Siirrä kohteeseen...",
+    "toggleSet": "Laajenna tai kutista",
+    "empty": "Ei vielä työkaluja. Napsauta sivun mittausta hiiren oikealla painikkeella ja valitse \"Tallenna työkalupakkiin\".",
+    "emptySet": "Tyhjä työkalusarja",
+    "useItem": "Napsauta piirtääksesi näillä asetuksilla",
+    "count": "Työkalusarjat: {{sets}} · Työkalut: {{items}}",
+    "nameEmpty": "Anna nimi.",
+    "nameTaken": "Tämänniminen työkalusarja on jo olemassa.",
+    "ok": "OK",
+    "cancel": "Peruuta",
+    "deleteSetTitle": "Poista työkalusarja",
+    "deleteSetMessage": "Poistetaanko työkalusarja \"{{name}}\" ja sen työkalut ({{count}})? Näillä työkaluilla jo sijoitetut merkinnät eivät muutu.",
+    "savedStatus": "\"{{name}}\" tallennettu työkalusarjaan \"{{set}}\"",
+    "activeStatus": "Piirretään työkalulla \"{{name}}\" (lopeta Esc-näppäimellä)",
+    "exportedStatus": "Työkalusarja \"{{name}}\" vietiin",
+    "importedStatus": "Työkalusarja \"{{name}}\" tuotiin (työkaluja: {{count}})",
+    "importedSkipped": "Työkalusarja \"{{name}}\" tuotiin (työkaluja: {{count}}); ohitettu tuntemattoman tyypin vuoksi: {{skipped}}",
+    "importTitle": "Tuo työkalusarja",
+    "importConflictTitle": "Työkalusarja on jo olemassa",
+    "importConflictMessage": "Työkalusarja nimeltä \"{{name}}\" on jo olemassa. Mitä haluat tehdä?",
+    "importRename": "Tuo toisella nimellä:",
+    "importOverwrite": "Korvaa olemassa oleva työkalusarja",
+    "importKeepBoth": "Säilytä molemmat (tuotu sarja saa uuden nimen)",
+    "fileType": "Työkalusarja",
+    "noDocument": "Avaa ensin asiakirja.",
+    "errorSave": "Työkalua ei voitu tallentaa.",
+    "errorExport": "Työkalusarjaa ei voitu viedä: {{error}}",
+    "errorFileRead": "Tiedostoa ei voitu lukea.",
+    "errorFileEmpty": "Tiedosto on tyhjä.",
+    "errorFileTooLarge": "Tiedosto on liian suuri työkalusarjaksi.",
+    "errorFileInvalid": "Tämä tiedosto ei ole kelvollinen työkalusarja.",
+    "errorFileNewer": "Tämä työkalusarja on tehty Open PDF Studion uudemmalla versiolla. Päivitä sovellus tuodaksesi sen."
   }
 }

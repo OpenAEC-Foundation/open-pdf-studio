@@ -48,7 +48,8 @@
     "setScale": "Ölçek Ayarla...",
     "dimChainAdd": "Ölçü Zincirine Nokta Ekle",
     "dimChainRemove": "Uzatma Çizgisini Zincirden Kaldır",
-    "selectRoom": "Mahal Seç"
+    "selectRoom": "Mahal Seç",
+    "saveToToolChest": "Araç kutusuna kaydet"
   },
   "multiSelect": {
     "copyAnnotations": "{{count}} Açıklamayı Kopyala",

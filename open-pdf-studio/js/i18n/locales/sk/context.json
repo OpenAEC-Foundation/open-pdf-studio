@@ -48,7 +48,8 @@
     "setScale": "Nastaviť mierku...",
     "dimChainAdd": "Pridať body do reťazca kót",
     "dimChainRemove": "Odobrať vynášaciu čiaru z reťazca",
-    "selectRoom": "Vybrať miestnosť"
+    "selectRoom": "Vybrať miestnosť",
+    "saveToToolChest": "Uložiť do skrinky nástrojov"
   },
   "multiSelect": {
     "copyAnnotations": "Kopírovať {{count}} anotácií",

@@ -370,7 +370,8 @@
     "addPage": "Aggiungi pagina",
     "pageLabels": "Etichette di pagina (generatore di nomi)",
     "portfolio": "Portfolio PDF",
-    "recognizeForm": "Riconosci campi modulo"
+    "recognizeForm": "Riconosci campi modulo",
+    "toolChest": "Cassetta degli attrezzi"
   },
   "scaleBar": {
     "title": "Barra di scala",
@@ -402,7 +403,13 @@
     "netArea": "Area netta",
     "searchType": "Cerca…",
     "editTypes": "Modifica tipi",
-    "noTypesFound": "Nessun tipo trovato"
+    "noTypesFound": "Nessun tipo trovato",
+    "depth": "Profondità",
+    "depthUnit": "Profondità ({{unit}})",
+    "depthNone": "Nessuna",
+    "depthTooltip": "Altezza del muro, spessore del solaio, ecc., nell'unità della misura. Lunghezza × profondità dà una superficie, area × profondità un volume.",
+    "surface": "Superficie",
+    "volume": "Volume"
   },
   "schedules": {
     "title": "Abachi",
@@ -722,5 +729,48 @@
     "invalid": "Impossibile aggiornare l'ubicazione",
     "rules": "L'assegnazione usa il centro del riquadro di delimitazione dell'annotazione, bordi inclusi. Prevale la zona più profonda, poi l'area più piccola, poi l'ID della zona. Usa poligoni rettilinei senza fori o rettangoli non ruotati. Le identità di zona non valide o duplicate vengono escluse.",
     "loading": "Caricamento delle annotazioni: le ubicazioni possono ancora cambiare."
+  },
+  "toolChest": {
+    "title": "Cassetta degli attrezzi",
+    "typeWall": "Muro",
+    "newSet": "Nuovo set di strumenti",
+    "newSetName": "Set di strumenti",
+    "defaultSetName": "I miei strumenti",
+    "rename": "Rinomina (F2)",
+    "delete": "Elimina",
+    "exportSet": "Esporta set di strumenti...",
+    "importSet": "Importa set di strumenti...",
+    "moveTo": "Sposta in...",
+    "toggleSet": "Espandi o comprimi",
+    "empty": "Ancora nessuno strumento. Fai clic destro su una misura nella pagina e scegli \"Salva nella cassetta degli attrezzi\".",
+    "emptySet": "Set di strumenti vuoto",
+    "useItem": "Fai clic per disegnare con queste impostazioni",
+    "count": "Set: {{sets}} · Strumenti: {{items}}",
+    "nameEmpty": "Inserisci un nome.",
+    "nameTaken": "Esiste già un set di strumenti con questo nome.",
+    "ok": "OK",
+    "cancel": "Annulla",
+    "deleteSetTitle": "Elimina set di strumenti",
+    "deleteSetMessage": "Eliminare il set di strumenti \"{{name}}\" e i suoi strumenti ({{count}})? Le annotazioni già posizionate con questi strumenti non cambiano.",
+    "savedStatus": "\"{{name}}\" salvato nel set di strumenti \"{{set}}\"",
+    "activeStatus": "Disegno con \"{{name}}\" (Esc per terminare)",
+    "exportedStatus": "Set di strumenti \"{{name}}\" esportato",
+    "importedStatus": "Set di strumenti \"{{name}}\" importato (strumenti: {{count}})",
+    "importedSkipped": "Set di strumenti \"{{name}}\" importato (strumenti: {{count}}); saltati per tipo sconosciuto: {{skipped}}",
+    "importTitle": "Importa set di strumenti",
+    "importConflictTitle": "Il set di strumenti esiste già",
+    "importConflictMessage": "Esiste già un set di strumenti chiamato \"{{name}}\". Cosa vuoi fare?",
+    "importRename": "Importa con un altro nome:",
+    "importOverwrite": "Sovrascrivi il set di strumenti esistente",
+    "importKeepBoth": "Mantieni entrambi (il set importato riceve un nuovo nome)",
+    "fileType": "Set di strumenti",
+    "noDocument": "Apri prima un documento.",
+    "errorSave": "Impossibile salvare lo strumento.",
+    "errorExport": "Impossibile esportare il set di strumenti: {{error}}",
+    "errorFileRead": "Impossibile leggere il file.",
+    "errorFileEmpty": "Il file è vuoto.",
+    "errorFileTooLarge": "Il file è troppo grande per un set di strumenti.",
+    "errorFileInvalid": "Questo file non è un set di strumenti valido.",
+    "errorFileNewer": "Questo set di strumenti è stato creato con una versione più recente di Open PDF Studio. Aggiorna l'app per importarlo."
   }
 }

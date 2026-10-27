@@ -370,7 +370,8 @@
     "addPage": "Sayfa ekle",
     "pageLabels": "Sayfa etiketleri (ad oluşturucu)",
     "portfolio": "PDF portföyü",
-    "recognizeForm": "Form alanlarını tanı"
+    "recognizeForm": "Form alanlarını tanı",
+    "toolChest": "Araç kutusu"
   },
   "scaleBar": {
     "title": "Ölçek Çubuğu",
@@ -402,7 +403,13 @@
     "netArea": "Net alan",
     "searchType": "Ara…",
     "editTypes": "Türleri düzenle",
-    "noTypesFound": "Tür bulunamadı"
+    "noTypesFound": "Tür bulunamadı",
+    "depth": "Derinlik",
+    "depthUnit": "Derinlik ({{unit}})",
+    "depthNone": "Yok",
+    "depthTooltip": "Duvar yüksekliği, döşeme kalınlığı vb., ölçümün biriminde. Uzunluk × derinlik bir yüzey, alan × derinlik bir hacim verir.",
+    "surface": "Yüzey",
+    "volume": "Hacim"
   },
   "schedules": {
     "title": "Çizelgeler",
@@ -722,5 +729,48 @@
     "invalid": "Konum güncellenemedi",
     "rules": "Atama, kenarlar dahil işaretlemenin sınırlayıcı kutu merkezini kullanır. En derin bölge kazanır, ardından en küçük alan, ardından bölge kimliği. Deliksiz düz kenarlı çokgenler veya döndürülmemiş kutular kullanın. Geçersiz veya yinelenen bölge kimlikleri hariç tutulur.",
     "loading": "Açıklamalar yükleniyor: konumlar hâlâ değişebilir."
+  },
+  "toolChest": {
+    "title": "Araç kutusu",
+    "typeWall": "Duvar",
+    "newSet": "Yeni araç seti",
+    "newSetName": "Araç seti",
+    "defaultSetName": "Araçlarım",
+    "rename": "Yeniden adlandır (F2)",
+    "delete": "Sil",
+    "exportSet": "Araç setini dışa aktar...",
+    "importSet": "Araç seti içe aktar...",
+    "moveTo": "Şuraya taşı...",
+    "toggleSet": "Genişlet veya daralt",
+    "empty": "Henüz araç yok. Sayfadaki bir ölçüme sağ tıklayın ve \"Araç kutusuna kaydet\"i seçin.",
+    "emptySet": "Boş araç seti",
+    "useItem": "Bu ayarlarla çizmek için tıklayın",
+    "count": "Setler: {{sets}} · Araçlar: {{items}}",
+    "nameEmpty": "Bir ad girin.",
+    "nameTaken": "Bu ada sahip bir araç seti zaten var.",
+    "ok": "Tamam",
+    "cancel": "İptal",
+    "deleteSetTitle": "Araç setini sil",
+    "deleteSetMessage": "\"{{name}}\" araç seti ve içindeki araçlar ({{count}}) silinsin mi? Bu araçlarla zaten yerleştirilmiş işaretlemeler değişmez.",
+    "savedStatus": "\"{{name}}\", \"{{set}}\" araç setine kaydedildi",
+    "activeStatus": "\"{{name}}\" ile çiziliyor (durdurmak için Esc)",
+    "exportedStatus": "\"{{name}}\" araç seti dışa aktarıldı",
+    "importedStatus": "\"{{name}}\" araç seti içe aktarıldı (araç: {{count}})",
+    "importedSkipped": "\"{{name}}\" araç seti içe aktarıldı (araç: {{count}}); bilinmeyen tür nedeniyle atlanan: {{skipped}}",
+    "importTitle": "Araç seti içe aktar",
+    "importConflictTitle": "Araç seti zaten var",
+    "importConflictMessage": "\"{{name}}\" adlı bir araç seti zaten var. Ne yapmak istiyorsunuz?",
+    "importRename": "Başka bir adla içe aktar:",
+    "importOverwrite": "Mevcut araç setinin üzerine yaz",
+    "importKeepBoth": "İkisini de tut (içe aktarılan set yeni bir ad alır)",
+    "fileType": "Araç seti",
+    "noDocument": "Önce bir belge açın.",
+    "errorSave": "Araç kaydedilemedi.",
+    "errorExport": "Araç seti dışa aktarılamadı: {{error}}",
+    "errorFileRead": "Dosya okunamadı.",
+    "errorFileEmpty": "Dosya boş.",
+    "errorFileTooLarge": "Dosya bir araç seti için çok büyük.",
+    "errorFileInvalid": "Bu dosya geçerli bir araç seti değil.",
+    "errorFileNewer": "Bu araç seti Open PDF Studio'nun daha yeni bir sürümüyle oluşturuldu. İçe aktarmak için uygulamayı güncelleyin."
   }
 }

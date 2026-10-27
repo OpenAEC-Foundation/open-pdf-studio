@@ -48,7 +48,8 @@
     "setScale": "Maßstab festlegen...",
     "dimChainAdd": "Punkte zur Maßkette hinzufügen",
     "dimChainRemove": "Maßhilfslinie aus der Kette entfernen",
-    "selectRoom": "Raum auswählen"
+    "selectRoom": "Raum auswählen",
+    "saveToToolChest": "In Werkzeugkasten speichern"
   },
   "multiSelect": {
     "copyAnnotations": "{{count}} Anmerkungen kopieren",

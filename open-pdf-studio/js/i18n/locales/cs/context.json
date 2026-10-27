@@ -48,7 +48,8 @@
     "setScale": "Nastavit měřítko...",
     "dimChainAdd": "Přidat body do řetězce kót",
     "dimChainRemove": "Odebrat vynášecí čáru z řetězce",
-    "selectRoom": "Vybrat místnost"
+    "selectRoom": "Vybrat místnost",
+    "saveToToolChest": "Uložit do skříňky nástrojů"
   },
   "multiSelect": {
     "copyAnnotations": "Kopírovat {{count}} anotací",

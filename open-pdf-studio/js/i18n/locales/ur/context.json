@@ -48,7 +48,8 @@
     "setScale": "پیمانہ مقرر کریں...",
     "dimChainAdd": "ڈائمینشن چین میں پوائنٹس شامل کریں",
     "dimChainRemove": "چین سے ایکسٹینشن لائن ہٹائیں",
-    "selectRoom": "کمرہ منتخب کریں"
+    "selectRoom": "کمرہ منتخب کریں",
+    "saveToToolChest": "ٹول باکس میں محفوظ کریں"
   },
   "multiSelect": {
     "copyAnnotations": "{{count}} تشریحات نقل کریں",

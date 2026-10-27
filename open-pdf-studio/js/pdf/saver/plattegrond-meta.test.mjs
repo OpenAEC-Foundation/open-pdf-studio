@@ -106,3 +106,13 @@ test('de appearance toont wat het scherm toont', () => {
   assert.equal(Math.abs(Number(tm2[2])), 1, 'sin 90° = ±1');
   assert.ok(Number(tm2[5]) < X(100), 'de tekst staat links van de staande lijn, net als op het scherm');
 });
+
+test('de diepte van een maat, omtrek en meetvlak blijft bewaard (#311)', async () => {
+  assert.deepEqual(await rondgang({ type: 'measureDistance', measureDepth: 2600 }, 'Line'), { measureDepth: 2600 });
+  assert.deepEqual(await rondgang({ type: 'measurePerimeter', measureDepth: 0.25 }, 'PolyLine'), { measureDepth: 0.25 });
+  assert.deepEqual(await rondgang({ type: 'measureArea', measureDepth: 70 }, 'Polygon'), { measureDepth: 70 });
+  // Geen, nul of onzin: geen sleutel.
+  assert.deepEqual(await rondgang({ type: 'measureArea', measureDepth: 0 }, 'Polygon'), {});
+  assert.deepEqual(await rondgang({ type: 'measureDistance', measureDepth: 'x' }, 'Line'), {});
+  assert.deepEqual(await rondgang({ type: 'line', measureDepth: 5 }, 'Line'), {});
+});

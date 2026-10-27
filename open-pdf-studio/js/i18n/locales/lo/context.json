@@ -31,8 +31,8 @@
     "sendToBack": "ຍ້າຍໄປໄວ້ຫຼັງສຸດ",
     "bringForward": "ຍ້າຍຂຶ້ນມາຂ້າງໜ້າ",
     "sendBackward": "ຍ້າຍລົງໄປຂ້າງຫຼັງ",
-    "rotateLeft90": "ໝູນຊ້າຍ 90\u00b0",
-    "rotateRight90": "ໝູນຂວາ 90\u00b0",
+    "rotateLeft90": "ໝູນຊ້າຍ 90°",
+    "rotateRight90": "ໝູນຂວາ 90°",
     "flipHorizontal": "ພິກແນວນອນ",
     "flipVertical": "ພິກແນວຕັ້ງ",
     "transform": "ປ່ຽນຮູບຮ່າງ...",
@@ -54,7 +54,8 @@
     "wallJoinAllow": "ອະນຸຍາດໃຫ້ເຊື່ອມຕໍ່ (ສົ້ນນີ້)",
     "wallJoinDisallow": "ບໍ່ອະນຸຍາດໃຫ້ເຊື່ອມຕໍ່ (ສົ້ນນີ້)",
     "properties": "ຄຸນສົມບັດ...",
-    "editViewportScale": "ແກ້ໄຂມາດຕາສ່ວນມຸມມອງ"
+    "editViewportScale": "ແກ້ໄຂມາດຕາສ່ວນມຸມມອງ",
+    "saveToToolChest": "ບັນທຶກໃສ່ກ່ອງເຄື່ອງມື"
   },
   "multiSelect": {
     "copyAnnotations": "ສຳເນົາ {{count}} ຄຳອະທິບາຍ",

@@ -32,6 +32,8 @@ import { startTextEditing } from '../../tools/text-editing.js';
 import { openStickyPopup, closeStickyPopup } from '../stores/stickyNotePopupStore.js';
 import { createTextMarkupAnnotation, createCalloutFromSelection } from '../../text/text-markup.js';
 import { setAsDefaultStyle, applyDefaultStyle } from '../../core/preferences.js';
+import { canSaveToToolChest, saveAnnotationToToolChest } from '../stores/toolChestStore.js';
+import { toolChestIcon as toolChestMenuIcon } from '../data/contextMenuIcons.js';
 import { setTool } from '../../tools/manager.js';
 import { alignAnnotations } from '../../annotations/smart-guides.js';
 import {
@@ -808,6 +810,14 @@ function AnnotationMenuContent() {
           }
         }} />
         <Separator />
+      </Show>
+
+      {/* Tool Chest (#311): everything except the drawn geometry becomes a reusable item. */}
+      <Show when={canSaveToToolChest(ann())}>
+        <MenuItem icon={toolChestMenuIcon} label={t('annotation.saveToToolChest')} onClick={() => {
+          const a = ann();
+          if (a) saveAnnotationToToolChest(a);
+        }} />
       </Show>
 
       <Submenu icon={styleToolsIcon} label={t('annotation.styleTools')}>
