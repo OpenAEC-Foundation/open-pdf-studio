@@ -173,18 +173,17 @@ test('every Linux desktop entry passes the opened PDF to the app (#748)', async 
   assert.ok(debTemplate, '.deb (and the AppImage built from it) uses a custom desktop template');
   assert.equal(rpmTemplate, debTemplate, '.rpm uses the same desktop template');
 
-  const snapcraft = await readFile(new URL('snap/snapcraft.yaml', repoRoot), 'utf8');
+  // A Windows checkout may have CRLF line endings; the entries are checked per line.
+  const lf = async (url) => (await readFile(url, 'utf8')).replace(/\r\n/g, '\n');
+  const snapcraft = await lf(new URL('snap/snapcraft.yaml', repoRoot));
   const heredoc = snapcraft.match(/<< 'EOF'\n([\s\S]*?)\n\s*EOF/);
   assert.ok(heredoc, 'snapcraft.yaml writes a desktop entry');
 
   const entries = {
-    [debTemplate]: await readFile(new URL(`src-tauri/${debTemplate}`, appRoot), 'utf8'),
-    'snap/gui/open-pdf-studio.desktop': await readFile(new URL('snap/gui/open-pdf-studio.desktop', repoRoot), 'utf8'),
+    [debTemplate]: await lf(new URL(`src-tauri/${debTemplate}`, appRoot)),
+    'snap/gui/open-pdf-studio.desktop': await lf(new URL('snap/gui/open-pdf-studio.desktop', repoRoot)),
     'snap/snapcraft.yaml': heredoc[1].replace(/^ +/gm, ''),
-    'flatpak/org.openaec.OpenPdfStudio.desktop': await readFile(
-      new URL('flatpak/org.openaec.OpenPdfStudio.desktop', repoRoot),
-      'utf8',
-    ),
+    'flatpak/org.openaec.OpenPdfStudio.desktop': await lf(new URL('flatpak/org.openaec.OpenPdfStudio.desktop', repoRoot)),
   };
 
   for (const [name, entry] of Object.entries(entries)) {
