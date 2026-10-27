@@ -165,6 +165,11 @@
     "deletion": "Mazání",
     "confirmBeforeDeleting": "Potvrdit před smazáním anotací",
     "snapToPdfContent": "Přichytit k obsahu výkresu PDF",
+    "moveInference": "Pomocné čáry při přesunu (G / mv)",
+    "moveInferenceTracking": "Trasovací čáry (zarovnání k bodům jiné geometrie)",
+    "moveInferenceExtension": "Prodloužení čar a líců stěn",
+    "moveInferenceParallel": "Rovnoběžně / kolmo k blízkým čarám",
+    "moveInferenceHint": "Krátce podržte kurzor nad bodem, aby se zachytil, podržte Shift pro uzamčení pomocné čáry, Tab přepíná mezi vzdáleností a úhlem. Polární pomocné čáry se řídí nastavením polárního trasování.",
     "navigation": "Navigace",
     "wheelZoomWithoutCtrl": "Lupa kolečkem myši (bez držení Ctrl)",
     "dynamicScaling": "Automaticky měnit měřítko značek"

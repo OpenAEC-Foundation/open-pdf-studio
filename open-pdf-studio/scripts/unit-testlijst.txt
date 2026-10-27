@@ -88,6 +88,10 @@ js/annotations/signature-pad.test.mjs
 js/tools/aanraak-gebaar.test.mjs
 js/ui/panels/lagen-lijst.test.mjs
 js/tools/symbool-snappunten.test.mjs
+js/tools/inference-engine.test.mjs
+js/tools/move-inference.test.mjs
+js/tools/move-inference-i18n.test.mjs
+js/tools/type-length-tab.test.mjs
 js/pdf/pagina-draaien.test.mjs
 js/pdf/weergave-rotatie.test.mjs
 js/pdf/weergave-draaien.test.mjs

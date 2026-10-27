@@ -290,5 +290,16 @@
     "readFailed": "3D модел није могуће прочитати.",
     "partial": "Неке делове 3D модела није могуће прочитати (прескочено: {{n}}).",
     "viewerFailed": "3D приказ није могуће покренути."
+  },
+  "moveInference": {
+    "onAxisX": "На X оси",
+    "onAxisY": "На Y оси",
+    "fromPoint": "Од тачке",
+    "extension": "На продужетку",
+    "parallel": "Паралелно",
+    "perpendicular": "Управно",
+    "intersection": "Пресек",
+    "polar": "Поларно",
+    "locked": "Закључано"
   }
 }

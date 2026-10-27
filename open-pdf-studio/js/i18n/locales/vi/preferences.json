@@ -165,6 +165,11 @@
     "deletion": "Xóa",
     "confirmBeforeDeleting": "Xác nhận trước khi xóa chú thích",
     "snapToPdfContent": "Bắt dính nội dung bản vẽ PDF",
+    "moveInference": "Đường suy luận khi di chuyển (G / mv)",
+    "moveInferenceTracking": "Đường theo dõi (căn theo các điểm của hình khác)",
+    "moveInferenceExtension": "Đường kéo dài của đường thẳng và mặt tường",
+    "moveInferenceParallel": "Song song / vuông góc với các đường gần đó",
+    "moveInferenceHint": "Giữ con trỏ trên một điểm trong giây lát để thu điểm đó, giữ Shift để khóa một đường dẫn, Tab chuyển giữa khoảng cách và góc. Các đường dẫn cực tuân theo cài đặt theo dõi cực.",
     "navigation": "Điều hướng",
     "wheelZoomWithoutCtrl": "Thu phóng bằng con lăn chuột (không cần giữ Ctrl)",
     "dynamicScaling": "Tự động co giãn đánh dấu"

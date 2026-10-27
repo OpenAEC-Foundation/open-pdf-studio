@@ -165,6 +165,11 @@
     "snapToNearest": "Uitlijnen op dichtstbijzijnde",
     "objectSnapRadius": "Uitlijnstraal (pixels)",
     "snapToPdfContent": "Uitlijnen op PDF-tekeninhoud",
+    "moveInference": "Hulplijnen bij verplaatsen (G / mv)",
+    "moveInferenceTracking": "Volglijnen (uitlijnen op punten van andere geometrie)",
+    "moveInferenceExtension": "Verlengden van lijnen en wandvlakken",
+    "moveInferenceParallel": "Evenwijdig / loodrecht op lijnen in de buurt",
+    "moveInferenceHint": "Houd de cursor even op een punt om het vast te pakken, houd Shift ingedrukt om een hulplijn vast te zetten, Tab wisselt tussen afstand en hoek. Poolhulplijnen volgen de instellingen van poolvolging.",
     "navigation": "Navigatie",
     "wheelZoomWithoutCtrl": "Zoomen met muiswiel (zonder Ctrl ingedrukt)",
     "dynamicScaling": "Markeringen automatisch schalen"

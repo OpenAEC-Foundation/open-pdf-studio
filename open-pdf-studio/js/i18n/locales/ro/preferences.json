@@ -165,6 +165,11 @@
     "deletion": "Stergere",
     "confirmBeforeDeleting": "Confirmare inainte de stergerea adnotarilor",
     "snapToPdfContent": "Fixare la conținutul desenului PDF",
+    "moveInference": "Inferență la mutare (G / mv)",
+    "moveInferenceTracking": "Linii de urmărire (aliniere la punctele altor geometrii)",
+    "moveInferenceExtension": "Prelungiri ale liniilor și fețelor de pereți",
+    "moveInferenceParallel": "Paralel / perpendicular pe liniile din apropiere",
+    "moveInferenceHint": "Țineți scurt cursorul pe un punct pentru a-l prelua, țineți apăsat Shift pentru a bloca un ghidaj, Tab comută între distanță și unghi. Ghidajele polare urmează setările urmăririi polare.",
     "navigation": "Navigare",
     "wheelZoomWithoutCtrl": "Zoom cu rotița mouse-ului (fără a ține apăsat Ctrl)",
     "dynamicScaling": "Scalare automată a marcajelor"

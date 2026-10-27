@@ -290,5 +290,16 @@
     "readFailed": "مدل 3D خوانده نشد.",
     "partial": "برخی بخش‌های مدل 3D خوانده نشد ({{n}} مورد رد شد).",
     "viewerFailed": "نمای 3D راه‌اندازی نشد."
+  },
+  "moveInference": {
+    "onAxisX": "روی محور X",
+    "onAxisY": "روی محور Y",
+    "fromPoint": "از نقطه",
+    "extension": "روی امتداد",
+    "parallel": "موازی",
+    "perpendicular": "عمود",
+    "intersection": "تقاطع",
+    "polar": "قطبی",
+    "locked": "قفل‌شده"
   }
 }

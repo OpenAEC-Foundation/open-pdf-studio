@@ -290,5 +290,16 @@
     "readFailed": "Modelul 3D nu a putut fi citit.",
     "partial": "Unele părți ale modelului 3D nu au putut fi citite ({{n}} omise).",
     "viewerFailed": "Vizualizarea 3D nu a putut fi pornită."
+  },
+  "moveInference": {
+    "onAxisX": "Pe axa X",
+    "onAxisY": "Pe axa Y",
+    "fromPoint": "Din punct",
+    "extension": "Pe prelungire",
+    "parallel": "Paralel",
+    "perpendicular": "Perpendicular",
+    "intersection": "Intersecție",
+    "polar": "Polar",
+    "locked": "Blocat"
   }
 }

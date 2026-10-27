@@ -93,6 +93,13 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // guide lines); while resizing, its width/height snaps to another image's
   // width/height ("equal width"). Uses objectSnapRadius as its tolerance.
   enableImageAlignSnap: true,
+  // Move inference (#519, G / mv): tracking lines through points of other
+  // geometry (and acquired points), extension lines of lines / wall faces,
+  // and parallel / perpendicular guides. Polar during a move follows the
+  // polar-tracking settings above.
+  moveInferenceTracking: true,
+  moveInferenceExtension: true,
+  moveInferenceParallel: true,
   // CAD behavior — keep drawing tool active after committing one annotation
   // so the user can place multiple in a row without re-selecting the tool.
   // Esc returns to select.

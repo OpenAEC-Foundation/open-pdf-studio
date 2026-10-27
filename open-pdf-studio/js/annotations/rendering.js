@@ -49,6 +49,7 @@ import { bitmapVoor, bijNieuweTegel, KNIPSEL_UITVOER_FOUT } from './vector-snipp
 import { invalidateScaleRegionCache, pixelsPerUnitFor, getRegionScaleFactor } from './scale-region.js';
 import { metSchaalBronnen } from './schaal-bronnen.js';
 import { drawSnapIndicator } from '../tools/snap-engine.js';
+import { drawMoveInferenceOverlay } from '../tools/inference-overlay.js';
 import { drawImageAlignGuides } from '../tools/image-align-snap.js';
 import { getTemplate } from '../symbols/registry.js';
 import { hasFill, hasStroke } from './fill-utils.js';
@@ -3207,6 +3208,9 @@ export function redrawAnnotations(lightweight = false) {
       state.lastSnapResult.type !== 'polar') {
     drawSnapIndicator(annotationCtx, state.lastSnapResult, effectiveScale);
   }
+  // Inference guides of a move session (#519): tracking/extension/parallel/
+  // polar lines, acquired points and the tooltip naming the inference.
+  if (state.gMoveMode) drawMoveInferenceOverlay(annotationCtx, curPage, effectiveScale);
 
   // Image alignment guides (edge/centre snap while moving, equal-width/height
   // while resizing). State-driven — same principle as the rubber-band and the
@@ -3407,6 +3411,16 @@ function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset
       if (ann.page !== pageNum) continue;
       drawSelectionHandles(ctx, ann);
     }
+  }
+
+  // Move session (continuous): snap indicator and inference guides (#519) on
+  // the page of the moved selection — this path never drew them before.
+  if (lagen.bewerkhulp && state.gMoveMode) {
+    const snap = state.lastSnapResult;
+    if (snap && snap.snapped && snap.type !== 'polar' && snap.page === pageNum) {
+      drawSnapIndicator(ctx, snap, effectiveScale);
+    }
+    drawMoveInferenceOverlay(ctx, pageNum, effectiveScale);
   }
 
   // Rubber-band selection marquee on the page the drag started on (continuous).

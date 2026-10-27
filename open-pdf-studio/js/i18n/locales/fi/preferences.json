@@ -165,6 +165,11 @@
     "deletion": "Poistaminen",
     "confirmBeforeDeleting": "Vahvista ennen merkintöjen poistamista",
     "snapToPdfContent": "Kiinnitä PDF-piirustuksen sisältöön",
+    "moveInference": "Apuviivat siirrettäessä (G / mv)",
+    "moveInferenceTracking": "Seurantaviivat (tasaus muun geometrian pisteisiin)",
+    "moveInferenceExtension": "Viivojen ja seinäpintojen jatkeet",
+    "moveInferenceParallel": "Yhdensuuntainen / kohtisuora lähellä oleviin viivoihin",
+    "moveInferenceHint": "Pidä osoitinta hetki pisteen päällä poimiaksesi sen, pidä Shift painettuna lukitaksesi apuviivan, Tab vaihtaa etäisyyden ja kulman välillä. Napa-apuviivat noudattavat napaseurannan asetuksia.",
     "navigation": "Siirtyminen",
     "wheelZoomWithoutCtrl": "Zoomaa hiiren rullalla (ilman Ctrl-näppäintä)",
     "dynamicScaling": "Skaalaa merkinnät automaattisesti"

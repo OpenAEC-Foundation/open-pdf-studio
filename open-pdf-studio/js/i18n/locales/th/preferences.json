@@ -165,6 +165,11 @@
     "deletion": "การลบ",
     "confirmBeforeDeleting": "ยืนยันก่อนลบคำอธิบายประกอบ",
     "snapToPdfContent": "สแนปไปยังเนื้อหาแบบใน PDF",
+    "moveInference": "เส้นช่วยอนุมานขณะย้าย (G / mv)",
+    "moveInferenceTracking": "เส้นติดตาม (จัดแนวกับจุดของรูปทรงอื่น)",
+    "moveInferenceExtension": "ส่วนต่อขยายของเส้นและผิวผนัง",
+    "moveInferenceParallel": "ขนาน / ตั้งฉากกับเส้นที่อยู่ใกล้",
+    "moveInferenceHint": "วางเคอร์เซอร์บนจุดสักครู่เพื่อจับจุดนั้น กด Shift ค้างไว้เพื่อล็อกเส้นช่วย และ Tab สลับระหว่างระยะทางกับมุม เส้นช่วยเชิงขั้วเป็นไปตามการตั้งค่าการติดตามเชิงขั้ว",
     "navigation": "การนำทาง",
     "wheelZoomWithoutCtrl": "ซูมด้วยล้อเมาส์ (โดยไม่ต้องกด Ctrl)",
     "dynamicScaling": "ปรับขนาดมาร์กอัปอัตโนมัติ"

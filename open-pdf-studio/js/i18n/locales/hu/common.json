@@ -290,5 +290,16 @@
     "readFailed": "A 3D modell nem olvasható be.",
     "partial": "A 3D modell egyes részei nem olvashatók be ({{n}} kihagyva).",
     "viewerFailed": "A 3D nézet nem indítható el."
+  },
+  "moveInference": {
+    "onAxisX": "Az X tengelyen",
+    "onAxisY": "Az Y tengelyen",
+    "fromPoint": "Pontból",
+    "extension": "Meghosszabbításon",
+    "parallel": "Párhuzamos",
+    "perpendicular": "Merőleges",
+    "intersection": "Metszéspont",
+    "polar": "Poláris",
+    "locked": "Rögzítve"
   }
 }

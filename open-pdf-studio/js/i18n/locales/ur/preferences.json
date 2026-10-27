@@ -165,6 +165,11 @@
     "deletion": "حذف",
     "confirmBeforeDeleting": "تشریحات حذف کرنے سے پہلے تصدیق کریں",
     "snapToPdfContent": "PDF ڈرائنگ مواد سے سنیپ کریں",
+    "moveInference": "منتقل کرتے وقت رہنما خطوط (G / mv)",
+    "moveInferenceTracking": "ٹریکنگ خطوط (دوسری جیومیٹری کے نقاط سے سیدھ)",
+    "moveInferenceExtension": "خطوط اور دیوار کی سطحوں کی توسیع",
+    "moveInferenceParallel": "قریبی خطوط کے متوازی / عمودی",
+    "moveInferenceHint": "کسی نقطے کو پکڑنے کے لیے کرسر کو لمحہ بھر اس پر رکھیں، رہنما خط کو مقفل کرنے کے لیے Shift دبائے رکھیں، Tab فاصلے اور زاویے کے درمیان بدلتا ہے۔ پولر رہنما خطوط پولر ٹریکنگ کی ترتیبات کی پیروی کرتے ہیں۔",
     "navigation": "نیویگیشن",
     "wheelZoomWithoutCtrl": "ماؤس وہیل سے زوم کریں (Ctrl دبائے بغیر)",
     "dynamicScaling": "مارک اپس کو خودکار اسکیل کریں"

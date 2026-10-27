@@ -290,5 +290,16 @@
     "readFailed": "تعذرت قراءة نموذج 3D.",
     "partial": "تعذرت قراءة بعض أجزاء نموذج 3D (تم تخطي {{n}}).",
     "viewerFailed": "تعذر بدء عرض 3D."
+  },
+  "moveInference": {
+    "onAxisX": "على المحور X",
+    "onAxisY": "على المحور Y",
+    "fromPoint": "من نقطة",
+    "extension": "على الامتداد",
+    "parallel": "موازٍ",
+    "perpendicular": "عمودي",
+    "intersection": "تقاطع",
+    "polar": "قطبي",
+    "locked": "مثبّت"
   }
 }

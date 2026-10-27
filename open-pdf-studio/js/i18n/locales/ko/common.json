@@ -290,5 +290,16 @@
     "readFailed": "3D 모델을 읽을 수 없습니다.",
     "partial": "3D 모델의 일부를 읽을 수 없습니다({{n}}개 건너뜀).",
     "viewerFailed": "3D 보기를 시작할 수 없습니다."
+  },
+  "moveInference": {
+    "onAxisX": "X축 위",
+    "onAxisY": "Y축 위",
+    "fromPoint": "점에서",
+    "extension": "연장선 위",
+    "parallel": "평행",
+    "perpendicular": "수직",
+    "intersection": "교차점",
+    "polar": "극좌표",
+    "locked": "고정됨"
   }
 }

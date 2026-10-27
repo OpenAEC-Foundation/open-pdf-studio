@@ -290,5 +290,16 @@
     "readFailed": "ไม่สามารถอ่านโมเดล 3D ได้",
     "partial": "ไม่สามารถอ่านบางส่วนของโมเดล 3D ได้ (ข้าม {{n}})",
     "viewerFailed": "ไม่สามารถเริ่มมุมมอง 3D ได้"
+  },
+  "moveInference": {
+    "onAxisX": "บนแกน X",
+    "onAxisY": "บนแกน Y",
+    "fromPoint": "จากจุด",
+    "extension": "บนส่วนต่อขยาย",
+    "parallel": "ขนาน",
+    "perpendicular": "ตั้งฉาก",
+    "intersection": "จุดตัด",
+    "polar": "เชิงขั้ว",
+    "locked": "ล็อกแล้ว"
   }
 }

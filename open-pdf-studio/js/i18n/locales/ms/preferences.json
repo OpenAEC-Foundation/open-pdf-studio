@@ -165,6 +165,11 @@
     "deletion": "Pemadaman",
     "confirmBeforeDeleting": "Sahkan sebelum memadam anotasi",
     "snapToPdfContent": "Rakam ke Kandungan Lukisan PDF",
+    "moveInference": "Inferens semasa mengalih (G / mv)",
+    "moveInferenceTracking": "Garisan penjejakan (jajarkan dengan titik geometri lain)",
+    "moveInferenceExtension": "Lanjutan garisan dan muka dinding",
+    "moveInferenceParallel": "Selari / serenjang dengan garisan berhampiran",
+    "moveInferenceHint": "Letakkan kursor seketika pada satu titik untuk menangkapnya, tahan Shift untuk mengunci garisan panduan, Tab bertukar antara jarak dan sudut. Garisan panduan polar mengikut tetapan penjejakan polar.",
     "navigation": "Navigasi",
     "wheelZoomWithoutCtrl": "Zum dengan roda tetikus (tanpa menahan Ctrl)",
     "dynamicScaling": "Skala automatik penanda"

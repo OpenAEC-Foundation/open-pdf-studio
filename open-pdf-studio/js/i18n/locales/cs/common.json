@@ -290,5 +290,16 @@
     "readFailed": "3D model se nepodařilo načíst.",
     "partial": "Některé části 3D modelu se nepodařilo načíst (vynecháno: {{n}}).",
     "viewerFailed": "3D zobrazení se nepodařilo spustit."
+  },
+  "moveInference": {
+    "onAxisX": "Na ose X",
+    "onAxisY": "Na ose Y",
+    "fromPoint": "Od bodu",
+    "extension": "Na prodloužení",
+    "parallel": "Rovnoběžně",
+    "perpendicular": "Kolmo",
+    "intersection": "Průsečík",
+    "polar": "Polární",
+    "locked": "Uzamčeno"
   }
 }

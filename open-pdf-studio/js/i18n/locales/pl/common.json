@@ -290,5 +290,16 @@
     "readFailed": "Nie można odczytać modelu 3D.",
     "partial": "Nie można odczytać niektórych części modelu 3D (pominięto: {{n}}).",
     "viewerFailed": "Nie można uruchomić widoku 3D."
+  },
+  "moveInference": {
+    "onAxisX": "Na osi X",
+    "onAxisY": "Na osi Y",
+    "fromPoint": "Od punktu",
+    "extension": "Na przedłużeniu",
+    "parallel": "Równolegle",
+    "perpendicular": "Prostopadle",
+    "intersection": "Przecięcie",
+    "polar": "Biegunowe",
+    "locked": "Zablokowane"
   }
 }

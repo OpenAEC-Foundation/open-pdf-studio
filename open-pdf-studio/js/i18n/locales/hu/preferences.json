@@ -165,6 +165,11 @@
     "deletion": "Törlés",
     "confirmBeforeDeleting": "Megerősítés annotációk törlése előtt",
     "snapToPdfContent": "Bekötés a PDF-rajz tartalmához",
+    "moveInference": "Segédvonalak mozgatáskor (G / mv)",
+    "moveInferenceTracking": "Követővonalak (igazítás más geometria pontjaihoz)",
+    "moveInferenceExtension": "Vonalak és falsíkok meghosszabbítása",
+    "moveInferenceParallel": "Párhuzamos / merőleges a közeli vonalakra",
+    "moveInferenceHint": "Tartsa a kurzort röviden egy ponton a felvételéhez, tartsa lenyomva a Shift billentyűt egy segédvonal rögzítéséhez, a Tab vált a távolság és a szög között. A poláris segédvonalak a poláris követés beállításait követik.",
     "navigation": "Navigáció",
     "wheelZoomWithoutCtrl": "Nagyítás egérgörgővel (Ctrl lenyomása nélkül)",
     "dynamicScaling": "Jelölések automatikus méretezése"

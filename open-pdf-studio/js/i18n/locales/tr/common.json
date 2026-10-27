@@ -290,5 +290,16 @@
     "readFailed": "3D model okunamadı.",
     "partial": "3D modelin bazı bölümleri okunamadı ({{n}} atlandı).",
     "viewerFailed": "3D görünüm başlatılamadı."
+  },
+  "moveInference": {
+    "onAxisX": "X ekseninde",
+    "onAxisY": "Y ekseninde",
+    "fromPoint": "Noktadan",
+    "extension": "Uzantıda",
+    "parallel": "Paralel",
+    "perpendicular": "Dik",
+    "intersection": "Kesişim",
+    "polar": "Kutupsal",
+    "locked": "Kilitli"
   }
 }

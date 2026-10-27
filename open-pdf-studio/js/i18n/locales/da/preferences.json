@@ -165,6 +165,11 @@
     "deletion": "Sletning",
     "confirmBeforeDeleting": "Bekræft før sletning af annotationer",
     "snapToPdfContent": "Snap til PDF-tegningsindhold",
+    "moveInference": "Hjælpelinjer ved flytning (G / mv)",
+    "moveInferenceTracking": "Sporingslinjer (juster efter punkter i anden geometri)",
+    "moveInferenceExtension": "Forlængelser af linjer og vægflader",
+    "moveInferenceParallel": "Parallel / vinkelret på nærliggende linjer",
+    "moveInferenceHint": "Hold kort markøren over et punkt for at fange det, hold Shift nede for at låse en hjælpelinje, Tab skifter mellem afstand og vinkel. Polære hjælpelinjer følger indstillingerne for polær sporing.",
     "navigation": "Navigation",
     "wheelZoomWithoutCtrl": "Zoom med musehjulet (uden at holde Ctrl nede)",
     "dynamicScaling": "Skalér markeringer automatisk"

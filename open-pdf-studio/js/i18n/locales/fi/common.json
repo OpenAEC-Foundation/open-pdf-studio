@@ -290,5 +290,16 @@
     "readFailed": "3D-mallia ei voitu lukea.",
     "partial": "Joitakin 3D-mallin osia ei voitu lukea ({{n}} ohitettu).",
     "viewerFailed": "3D-näkymää ei voitu käynnistää."
+  },
+  "moveInference": {
+    "onAxisX": "X-akselilla",
+    "onAxisY": "Y-akselilla",
+    "fromPoint": "Pisteestä",
+    "extension": "Jatkeella",
+    "parallel": "Yhdensuuntainen",
+    "perpendicular": "Kohtisuora",
+    "intersection": "Leikkauspiste",
+    "polar": "Napa",
+    "locked": "Lukittu"
   }
 }

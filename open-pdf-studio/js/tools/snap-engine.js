@@ -369,7 +369,7 @@ export function nearestPointOnEdge(cursorX, cursorY, annotations, currentPage, s
   return bestPoint;
 }
 
-function getEdgeSegments(ann) {
+export function getEdgeSegments(ann) {
   const segments = [];
 
   switch (ann.type) {

@@ -290,5 +290,16 @@
     "readFailed": "Impossible de lire le modèle 3D.",
     "partial": "Certaines parties du modèle 3D n'ont pas pu être lues ({{n}} ignorées).",
     "viewerFailed": "Impossible de démarrer la vue 3D."
+  },
+  "moveInference": {
+    "onAxisX": "Sur l’axe X",
+    "onAxisY": "Sur l’axe Y",
+    "fromPoint": "Depuis le point",
+    "extension": "Sur le prolongement",
+    "parallel": "Parallèle",
+    "perpendicular": "Perpendiculaire",
+    "intersection": "Intersection",
+    "polar": "Polaire",
+    "locked": "Verrouillé"
   }
 }
