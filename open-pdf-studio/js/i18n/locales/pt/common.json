@@ -120,7 +120,79 @@
         "label": "Planta baixa",
         "hint": "Desenhar uma planta arquitetônica: paredes, esquadrias, ambientes, cotas e equipamentos (sanitários, cozinha)",
         "prompt": "Desenhe uma planta arquitetônica. O que desenhar: "
+      },
+      "find-on-sheet": {
+        "label": "Localizar na folha",
+        "hint": "Localizar um termo (nome de ambiente, marcador de corte, símbolo), ir até a página dele e destacar os resultados",
+        "prompt": "Localize nesta folha: "
+      },
+      "explain-selection": {
+        "label": "Explicar seleção",
+        "hint": "Descrever a área, o texto ou a marcação selecionada em linguagem simples, com dimensões quando houver uma escala de medição definida",
+        "prompt": "Explique a seleção."
+      },
+      "compare-sheets": {
+        "label": "Comparar folhas",
+        "hint": "Identificar e marcar o que foi adicionado, removido ou movido em relação a outra página",
+        "prompt": "Compare esta página com a página: "
+      },
+      "measure": {
+        "label": "Medir isto",
+        "hint": "Medir a forma selecionada ou um elemento descrito e informar o resultado na escala do desenho",
+        "prompt": "Meça: "
+      },
+      "take-off": {
+        "label": "Levantar quantitativos",
+        "hint": "Contar ou medir elementos de um mesmo tipo e colocar o resultado como quadro na folha",
+        "prompt": "Levante os quantitativos de: "
+      },
+      "check-scale": {
+        "label": "Verificar a escala",
+        "hint": "Encontrar a escala no selo ou numa cota conhecida e defini-la",
+        "prompt": "Verifique a escala deste desenho."
+      },
+      "review-sheet": {
+        "label": "Revisar folha",
+        "hint": "Adicionar nuvens com comentários numerados nos pontos que um verificador apontaria",
+        "prompt": "Revise esta folha quanto a: "
+      },
+      "stamp-date": {
+        "label": "Carimbar e datar",
+        "hint": "Colocar um carimbo, preencher um campo do selo ou adicionar uma nota de revisão com a data de hoje",
+        "prompt": "Carimbe e date: "
+      },
+      "clean-up": {
+        "label": "Organizar marcações",
+        "hint": "Alinhar, renumerar ou recolorir as marcações existentes de forma consistente",
+        "prompt": "Organize minhas marcações: "
+      },
+      "import-cad": {
+        "label": "Importar desenho",
+        "hint": "Importar um desenho DWG ou DXF como base na escala correta",
+        "prompt": "Importe o desenho (caminho do arquivo DWG ou DXF): "
+      },
+      "export-cad": {
+        "label": "Exportar para CAD",
+        "hint": "Gravar esta página ou a área selecionada num arquivo DXF ou DWG",
+        "prompt": "Exporte esta página para (caminho do arquivo DXF ou DWG): "
       }
+    },
+    "groups": {
+      "document": "Traduzir e resumir",
+      "reading": "Leitura do desenho",
+      "measuring": "Medições e quantitativos",
+      "markup": "Marcações",
+      "structure": "Estrutura e planta baixa",
+      "cad": "Desenhos CAD"
+    },
+    "need": {
+      "document": "Abra um PDF primeiro: esta habilidade funciona no documento aberto.",
+      "selection": "Selecione primeiro uma marcação ou um trecho de texto no desenho e clique na habilidade novamente.",
+      "scale": "Este desenho ainda não tem escala de medição. Defina uma primeiro (por exemplo, com “Verificar a escala”) e tente novamente.",
+      "input": "Complete o texto na caixa de entrada após os dois-pontos e envie.",
+      "selectionOrInput": "Selecione uma forma no desenho ou descreva após os dois-pontos o que medir.",
+      "page": "Informe o número da outra página (1 a {{max}}), não da página atual.",
+      "twoPages": "Este documento tem apenas uma página. Para comparar com outro arquivo, substitua o texto na caixa de entrada pela sua própria pergunta."
     }
   },
   "onlineSymbolLibrary": "Biblioteca de símbolos online",

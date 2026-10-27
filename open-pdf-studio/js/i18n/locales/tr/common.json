@@ -120,7 +120,79 @@
         "label": "Kat planı",
         "hint": "Mimari kat planı çiz: duvarlar, doğramalar, mahaller, ölçülendirme ve donatılar (ıslak hacim, mutfak)",
         "prompt": "Mimari bir kat planı çiz. Çizilecek olan: "
+      },
+      "find-on-sheet": {
+        "label": "Paftada bul",
+        "hint": "Bir terimi (oda adı, kesit işareti, sembol) bul, sayfasına git ve bulunanları vurgula",
+        "prompt": "Bu paftada bul: "
+      },
+      "explain-selection": {
+        "label": "Seçimi açıkla",
+        "hint": "Seçili alanı, metni veya işaretlemeyi sade bir dille açıkla; ölçüm ölçeği ayarlıysa ölçüleriyle birlikte",
+        "prompt": "Seçimi açıkla."
+      },
+      "compare-sheets": {
+        "label": "Paftaları karşılaştır",
+        "hint": "Başka bir sayfaya göre eklenen, kaldırılan veya taşınan öğeleri adlandır ve işaretle",
+        "prompt": "Bu sayfayı şu sayfayla karşılaştır: "
+      },
+      "measure": {
+        "label": "Bunu ölç",
+        "hint": "Seçili şekli veya tarif edilen bir öğeyi ölç ve çizimin ölçeğinde bildir",
+        "prompt": "Ölç: "
+      },
+      "take-off": {
+        "label": "Metraj çıkar",
+        "hint": "Tek türdeki öğeleri say veya ölç ve sonucu paftaya bir çizelge olarak yerleştir",
+        "prompt": "Metraj çıkar: "
+      },
+      "check-scale": {
+        "label": "Ölçeği kontrol et",
+        "hint": "Ölçeği antetten veya bilinen bir ölçüden bul ve ayarla",
+        "prompt": "Bu çizimin ölçeğini kontrol et."
+      },
+      "review-sheet": {
+        "label": "Paftayı denetle",
+        "hint": "Bir kontrolörün dile getireceği noktalar için numaralı yorumlarla bulutlar ekle",
+        "prompt": "Bu paftayı şu açıdan denetle: "
+      },
+      "stamp-date": {
+        "label": "Damgala ve tarih at",
+        "hint": "Bir damga yerleştir, bir antet alanını doldur veya bugünün tarihiyle bir revizyon notu ekle",
+        "prompt": "Damgala ve tarih at: "
+      },
+      "clean-up": {
+        "label": "İşaretlemeleri düzenle",
+        "hint": "Mevcut işaretlemeleri tutarlı biçimde hizala, yeniden numaralandır veya yeniden renklendir",
+        "prompt": "İşaretlemelerimi düzenle: "
+      },
+      "import-cad": {
+        "label": "Çizim içe aktar",
+        "hint": "Bir DWG veya DXF çizimini doğru ölçekte altlık olarak içe aktar",
+        "prompt": "Çizimi içe aktar (DWG veya DXF dosyasının yolu): "
+      },
+      "export-cad": {
+        "label": "CAD'e aktar",
+        "hint": "Bu sayfayı veya seçili alanı bir DXF ya da DWG dosyasına yaz",
+        "prompt": "Bu sayfayı şuraya aktar (DXF veya DWG dosyasının yolu): "
       }
+    },
+    "groups": {
+      "document": "Çevir ve özetle",
+      "reading": "Çizimi okuma",
+      "measuring": "Ölçüm ve metrajlar",
+      "markup": "İşaretleme",
+      "structure": "Taşıyıcı sistem ve kat planı",
+      "cad": "CAD çizimleri"
+    },
+    "need": {
+      "document": "Önce bir PDF açın: bu beceri açık belge üzerinde çalışır.",
+      "selection": "Önce çizimde bir işaretleme veya bir miktar metin seçin, ardından beceriye yeniden tıklayın.",
+      "scale": "Bu çizimin henüz bir ölçüm ölçeği yok. Önce bir ölçek ayarlayın (örneğin \"Ölçeği kontrol et\" ile) ve yeniden deneyin.",
+      "input": "Giriş kutusundaki metni iki noktadan sonra tamamlayın, ardından gönderin.",
+      "selectionOrInput": "Çizimde bir şekil seçin veya neyin ölçüleceğini iki noktadan sonra açıklayın.",
+      "page": "Geçerli sayfanın değil, diğer sayfanın numarasını girin (1 ile {{max}} arası).",
+      "twoPages": "Bu belgede yalnızca bir sayfa var. Başka bir dosyayla karşılaştırmak için giriş kutusundaki metni kendi sorunuzla değiştirin."
     }
   },
   "onlineSymbolLibrary": "Çevrimiçi sembol kitaplığı",

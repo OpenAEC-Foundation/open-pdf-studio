@@ -120,7 +120,79 @@
         "label": "Pôdorys",
         "hint": "Nakresliť stavebný pôdorys: steny, výplne otvorov, miestnosti, kóty a vybavenie (sanita, kuchyňa)",
         "prompt": "Nakresli stavebný pôdorys. Čo nakresliť: "
+      },
+      "find-on-sheet": {
+        "label": "Nájsť na liste",
+        "hint": "Nájsť výraz (názov miestnosti, značku rezu, symbol), prejsť na jeho stranu a zvýrazniť nálezy",
+        "prompt": "Nájdi na tomto liste: "
+      },
+      "explain-selection": {
+        "label": "Vysvetliť výber",
+        "hint": "Opísať vybranú oblasť, text alebo značku jednoduchým jazykom, s rozmermi, ak je nastavená mierka merania",
+        "prompt": "Vysvetli výber."
+      },
+      "compare-sheets": {
+        "label": "Porovnať listy",
+        "hint": "Pomenovať a označiť, čo pribudlo, bolo odstránené alebo presunuté v porovnaní s inou stranou",
+        "prompt": "Porovnaj túto stranu so stranou: "
+      },
+      "measure": {
+        "label": "Zmerať toto",
+        "hint": "Zmerať vybraný tvar alebo opísaný prvok a uviesť výsledok v mierke výkresu",
+        "prompt": "Zmeraj: "
+      },
+      "take-off": {
+        "label": "Výkaz výmer",
+        "hint": "Spočítať alebo zmerať prvky jedného druhu a umiestniť výsledok ako výkaz na list",
+        "prompt": "Urob výkaz výmer pre: "
+      },
+      "check-scale": {
+        "label": "Skontrolovať mierku",
+        "hint": "Zistiť mierku z popisového poľa alebo zo známeho rozmeru a nastaviť ju",
+        "prompt": "Skontroluj mierku tohto výkresu."
+      },
+      "review-sheet": {
+        "label": "Skontrolovať list",
+        "hint": "Pridať obláčiky s číslovanými komentármi pri bodoch, ktoré by namietol kontrolór",
+        "prompt": "Skontroluj tento list z hľadiska: "
+      },
+      "stamp-date": {
+        "label": "Pečiatka a dátum",
+        "hint": "Umiestniť pečiatku, vyplniť položku popisového poľa alebo pridať poznámku o revízii s dnešným dátumom",
+        "prompt": "Pečiatka a dátum: "
+      },
+      "clean-up": {
+        "label": "Upratať značky",
+        "hint": "Jednotne zarovnať, prečíslovať alebo prefarbiť existujúce značky",
+        "prompt": "Uprac moje značky: "
+      },
+      "import-cad": {
+        "label": "Vložiť výkres",
+        "hint": "Importovať výkres DWG alebo DXF ako podklad v správnej mierke",
+        "prompt": "Vlož výkres (cesta k súboru DWG alebo DXF): "
+      },
+      "export-cad": {
+        "label": "Exportovať do CAD",
+        "hint": "Zapísať túto stranu alebo vybranú oblasť do súboru DXF alebo DWG",
+        "prompt": "Exportuj túto stranu do (cesta k súboru DXF alebo DWG): "
       }
+    },
+    "groups": {
+      "document": "Preklad a zhrnutie",
+      "reading": "Čítanie výkresu",
+      "measuring": "Meranie a výmery",
+      "markup": "Označovanie",
+      "structure": "Konštrukcia a pôdorys",
+      "cad": "Výkresy CAD"
+    },
+    "need": {
+      "document": "Najprv otvorte PDF: táto zručnosť pracuje s otvoreným dokumentom.",
+      "selection": "Najprv vyberte značku alebo časť textu na výkrese a potom znova kliknite na zručnosť.",
+      "scale": "Tento výkres zatiaľ nemá mierku merania. Najprv ju nastavte (napríklad pomocou „Skontrolovať mierku“) a skúste to znova.",
+      "input": "Doplňte text vo vstupnom poli za dvojbodkou a potom ho odošlite.",
+      "selectionOrInput": "Vyberte tvar na výkrese alebo za dvojbodkou opíšte, čo treba zmerať.",
+      "page": "Zadajte číslo inej strany (1 až {{max}}), nie aktuálnej strany.",
+      "twoPages": "Tento dokument má iba jednu stranu. Ak ho chcete porovnať s iným súborom, nahraďte text vo vstupnom poli vlastnou otázkou."
     }
   },
   "onlineSymbolLibrary": "Online knižnica symbolov",

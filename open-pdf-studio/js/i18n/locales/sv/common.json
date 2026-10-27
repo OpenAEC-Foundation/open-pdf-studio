@@ -120,7 +120,79 @@
         "label": "Planritning",
         "hint": "Rita en byggnadsplanritning: väggar, fönster och dörrar, rum, måttsättning och inredning (sanitet, kök)",
         "prompt": "Rita en byggnadsplanritning. Vad som ska ritas: "
+      },
+      "find-on-sheet": {
+        "label": "Sök på bladet",
+        "hint": "Sök efter en term (ett rumsnamn, en sektionsmarkering, en symbol), gå till dess sida och markera träffarna",
+        "prompt": "Sök på det här bladet: "
+      },
+      "explain-selection": {
+        "label": "Förklara urvalet",
+        "hint": "Beskriv det valda området, texten eller markeringen på enkel svenska, med mått när en mätskala är inställd",
+        "prompt": "Förklara urvalet."
+      },
+      "compare-sheets": {
+        "label": "Jämför blad",
+        "hint": "Namnge och markera vad som lagts till, tagits bort eller flyttats jämfört med en annan sida",
+        "prompt": "Jämför den här sidan med sida: "
+      },
+      "measure": {
+        "label": "Mät detta",
+        "hint": "Mät den valda formen eller ett beskrivet element och redovisa det i ritningens skala",
+        "prompt": "Mät: "
+      },
+      "take-off": {
+        "label": "Ta fram mängder",
+        "hint": "Räkna eller mät element av ett slag och placera resultatet som en förteckning på bladet",
+        "prompt": "Ta fram mängder: "
+      },
+      "check-scale": {
+        "label": "Kontrollera skalan",
+        "hint": "Hitta skalan i namnrutan eller utifrån ett känt mått och ställ in den",
+        "prompt": "Kontrollera skalan på den här ritningen."
+      },
+      "review-sheet": {
+        "label": "Granska bladet",
+        "hint": "Lägg till moln med numrerade kommentarer för de punkter en granskare skulle ta upp",
+        "prompt": "Granska det här bladet med avseende på: "
+      },
+      "stamp-date": {
+        "label": "Stämpla och datera",
+        "hint": "Placera en stämpel, fyll i ett fält i namnrutan eller lägg till en revideringsanteckning med dagens datum",
+        "prompt": "Stämpla och datera: "
+      },
+      "clean-up": {
+        "label": "Städa markeringar",
+        "hint": "Justera, numrera om eller färga om befintliga markeringar på ett enhetligt sätt",
+        "prompt": "Städa upp mina markeringar: "
+      },
+      "import-cad": {
+        "label": "Hämta in en ritning",
+        "hint": "Importera en DWG- eller DXF-ritning som underlägg i rätt skala",
+        "prompt": "Hämta in ritningen (sökväg till DWG- eller DXF-filen): "
+      },
+      "export-cad": {
+        "label": "Exportera till CAD",
+        "hint": "Skriv den här sidan eller det valda området till en DXF- eller DWG-fil",
+        "prompt": "Exportera den här sidan till (sökväg till DXF- eller DWG-filen): "
       }
+    },
+    "groups": {
+      "document": "Översätt och sammanfatta",
+      "reading": "Läsa ritningen",
+      "measuring": "Mätning och mängder",
+      "markup": "Markeringar",
+      "structure": "Stomme och planritning",
+      "cad": "CAD-ritningar"
+    },
+    "need": {
+      "document": "Öppna en PDF först: den här färdigheten arbetar med det öppna dokumentet.",
+      "selection": "Välj först en markering eller lite text på ritningen och klicka sedan på färdigheten igen.",
+      "scale": "Den här ritningen har ännu ingen mätskala. Ställ in en först (till exempel med ”Kontrollera skalan”) och försök igen.",
+      "input": "Fyll i texten i inmatningsrutan efter kolonet och skicka sedan.",
+      "selectionOrInput": "Välj en form på ritningen, eller beskriv efter kolonet vad som ska mätas.",
+      "page": "Ange numret på den andra sidan (1 till {{max}}), inte den aktuella sidan.",
+      "twoPages": "Det här dokumentet har bara en sida. Om du vill jämföra med en annan fil ersätter du texten i inmatningsrutan med din egen fråga."
     }
   },
   "onlineSymbolLibrary": "Symbolbibliotek online",

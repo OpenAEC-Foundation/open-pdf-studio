@@ -120,7 +120,79 @@
         "label": "Plantegning",
         "hint": "Tegn en bygningsplantegning: vægge, vinduer og døre, rum, målsætning og indretning (sanitet, køkken)",
         "prompt": "Tegn en bygningsplantegning. Hvad der skal tegnes: "
+      },
+      "find-on-sheet": {
+        "label": "Find på arket",
+        "hint": "Find et begreb (et rumnavn, en snitmarkering, et symbol), gå til siden, og fremhæv resultaterne",
+        "prompt": "Find på dette ark: "
+      },
+      "explain-selection": {
+        "label": "Forklar valget",
+        "hint": "Beskriv det valgte område, den valgte tekst eller markering i almindeligt sprog, med mål når en måleskala er angivet",
+        "prompt": "Forklar det valgte."
+      },
+      "compare-sheets": {
+        "label": "Sammenlign ark",
+        "hint": "Navngiv og markér, hvad der er tilføjet, fjernet eller flyttet i forhold til en anden side",
+        "prompt": "Sammenlign denne side med side: "
+      },
+      "measure": {
+        "label": "Mål dette",
+        "hint": "Mål den valgte figur eller et beskrevet element, og angiv det i tegningens skala",
+        "prompt": "Mål: "
+      },
+      "take-off": {
+        "label": "Mængdeudtræk",
+        "hint": "Tæl eller mål elementer af én type, og placér resultatet som en liste på arket",
+        "prompt": "Lav mængdeudtræk af: "
+      },
+      "check-scale": {
+        "label": "Kontrollér skalaen",
+        "hint": "Find skalaen ud fra tegningshovedet eller et kendt mål, og angiv den",
+        "prompt": "Kontrollér skalaen på denne tegning."
+      },
+      "review-sheet": {
+        "label": "Gennemgå ark",
+        "hint": "Tilføj skyer med nummererede kommentarer til de punkter, en kontrollant ville påpege",
+        "prompt": "Gennemgå dette ark for: "
+      },
+      "stamp-date": {
+        "label": "Stempl og datér",
+        "hint": "Placér et stempel, udfyld et felt i tegningshovedet, eller tilføj en revisionsnote med dagens dato",
+        "prompt": "Stempl og datér: "
+      },
+      "clean-up": {
+        "label": "Ryd op i markeringer",
+        "hint": "Justér, omnummerér eller omfarv de eksisterende markeringer ensartet",
+        "prompt": "Ryd op i mine markeringer: "
+      },
+      "import-cad": {
+        "label": "Hent en tegning",
+        "hint": "Importér en DWG- eller DXF-tegning som underlag i den rette skala",
+        "prompt": "Hent tegningen (sti til DWG- eller DXF-filen): "
+      },
+      "export-cad": {
+        "label": "Eksportér til CAD",
+        "hint": "Skriv denne side eller det valgte område til en DXF- eller DWG-fil",
+        "prompt": "Eksportér denne side til (sti til DXF- eller DWG-filen): "
       }
+    },
+    "groups": {
+      "document": "Oversæt og opsummér",
+      "reading": "Læs tegningen",
+      "measuring": "Måling og mængder",
+      "markup": "Markering",
+      "structure": "Konstruktion og plantegning",
+      "cad": "CAD-tegninger"
+    },
+    "need": {
+      "document": "Åbn først en PDF: denne færdighed arbejder på det åbne dokument.",
+      "selection": "Vælg først en markering eller noget tekst på tegningen, og klik derefter på færdigheden igen.",
+      "scale": "Denne tegning har endnu ingen måleskala. Angiv først en (for eksempel med \"Kontrollér skalaen\"), og prøv igen.",
+      "input": "Udfyld teksten i indtastningsfeltet efter kolonet, og send den.",
+      "selectionOrInput": "Vælg en figur på tegningen, eller beskriv efter kolonet, hvad der skal måles.",
+      "page": "Angiv nummeret på den anden side (1 til {{max}}), ikke den aktuelle side.",
+      "twoPages": "Dette dokument har kun én side. Vil du sammenligne med en anden fil, så erstat teksten i indtastningsfeltet med dit eget spørgsmål."
     }
   },
   "onlineSymbolLibrary": "Online symbolbibliotek",

@@ -120,7 +120,79 @@
         "label": "Rzut",
         "hint": "Narysuj rzut architektoniczny: ściany, stolarka, pomieszczenia, wymiary i wyposażenie (sanitariaty, kuchnia)",
         "prompt": "Narysuj rzut architektoniczny. Co narysować: "
+      },
+      "find-on-sheet": {
+        "label": "Znajdź na arkuszu",
+        "hint": "Znajdź termin (nazwę pomieszczenia, oznaczenie przekroju, symbol), przejdź do jego strony i podświetl wyniki",
+        "prompt": "Znajdź na tym arkuszu: "
+      },
+      "explain-selection": {
+        "label": "Objaśnij zaznaczenie",
+        "hint": "Opisz zaznaczony obszar, tekst lub adnotację prostym językiem, z wymiarami, gdy ustawiono skalę pomiarową",
+        "prompt": "Objaśnij zaznaczenie."
+      },
+      "compare-sheets": {
+        "label": "Porównaj arkusze",
+        "hint": "Nazwij i oznacz, co dodano, usunięto lub przesunięto w porównaniu z inną stroną",
+        "prompt": "Porównaj tę stronę ze stroną: "
+      },
+      "measure": {
+        "label": "Zmierz to",
+        "hint": "Zmierz zaznaczony kształt lub opisany element i podaj wynik w skali rysunku",
+        "prompt": "Zmierz: "
+      },
+      "take-off": {
+        "label": "Przedmiar",
+        "hint": "Policz lub zmierz elementy jednego rodzaju i umieść wynik jako zestawienie na arkuszu",
+        "prompt": "Wykonaj przedmiar: "
+      },
+      "check-scale": {
+        "label": "Sprawdź skalę",
+        "hint": "Ustal skalę z tabelki rysunkowej lub znanego wymiaru i ją ustaw",
+        "prompt": "Sprawdź skalę tego rysunku."
+      },
+      "review-sheet": {
+        "label": "Sprawdź arkusz",
+        "hint": "Dodaj chmurki z numerowanymi uwagami w miejscach, które wskazałby sprawdzający",
+        "prompt": "Sprawdź ten arkusz pod kątem: "
+      },
+      "stamp-date": {
+        "label": "Pieczątka i data",
+        "hint": "Umieść pieczątkę, wypełnij pole tabelki rysunkowej lub dodaj notatkę o rewizji z dzisiejszą datą",
+        "prompt": "Pieczątka i data: "
+      },
+      "clean-up": {
+        "label": "Uporządkuj adnotacje",
+        "hint": "Wyrównaj, ponumeruj od nowa lub ujednolić kolory istniejących adnotacji",
+        "prompt": "Uporządkuj moje adnotacje: "
+      },
+      "import-cad": {
+        "label": "Wczytaj rysunek",
+        "hint": "Zaimportuj rysunek DWG lub DXF jako podkład we właściwej skali",
+        "prompt": "Wczytaj rysunek (ścieżka pliku DWG lub DXF): "
+      },
+      "export-cad": {
+        "label": "Eksportuj do CAD",
+        "hint": "Zapisz tę stronę lub zaznaczony obszar do pliku DXF lub DWG",
+        "prompt": "Eksportuj tę stronę do (ścieżka pliku DXF lub DWG): "
       }
+    },
+    "groups": {
+      "document": "Tłumaczenie i streszczenie",
+      "reading": "Czytanie rysunku",
+      "measuring": "Pomiary i ilości",
+      "markup": "Oznaczanie",
+      "structure": "Konstrukcja i rzut",
+      "cad": "Rysunki CAD"
+    },
+    "need": {
+      "document": "Najpierw otwórz PDF: ta umiejętność działa na otwartym dokumencie.",
+      "selection": "Najpierw zaznacz adnotację lub fragment tekstu na rysunku, a potem ponownie kliknij umiejętność.",
+      "scale": "Ten rysunek nie ma jeszcze skali pomiarowej. Najpierw ją ustaw (na przykład za pomocą „Sprawdź skalę”) i spróbuj ponownie.",
+      "input": "Uzupełnij tekst w polu wprowadzania po dwukropku, a potem wyślij.",
+      "selectionOrInput": "Zaznacz kształt na rysunku lub opisz po dwukropku, co zmierzyć.",
+      "page": "Podaj numer innej strony (od 1 do {{max}}), nie bieżącej.",
+      "twoPages": "Ten dokument ma tylko jedną stronę. Aby porównać go z innym plikiem, zastąp tekst w polu wprowadzania własnym pytaniem."
     }
   },
   "onlineSymbolLibrary": "Biblioteka symboli online",

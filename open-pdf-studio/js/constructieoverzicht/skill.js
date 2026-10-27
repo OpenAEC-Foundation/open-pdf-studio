@@ -14,6 +14,7 @@
 
 export const CONSTRUCTIEOVERZICHT_SKILL = {
   id: 'structural-overview',
+  group: 'structure',
   icon: '📐',
   // Naam, uitleg en de tekst in het invoervak staan per taal in de locales
   // (common.assistant.skills.structural-overview); de instructie voor het
