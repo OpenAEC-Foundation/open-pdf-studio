@@ -161,3 +161,37 @@ test('the AUR reference PKGBUILD and .SRCINFO agree (#620)', async () => {
   assert.doesNotMatch(srcinfo, /depends = .*(tesseract|leptonica)/i);
   assert.doesNotMatch(srcinfo, /\r/, '.SRCINFO uses LF line endings');
 });
+
+// GNOME, Cinnamon and KDE only offer an app under "Open With" (and accept it
+// as default PDF viewer) when its desktop entry takes a file through a field
+// code. The startup code and the single-instance callback read plain paths
+// from argv, so every entry uses %F and never %U (file:// URIs) (#748).
+test('every Linux desktop entry passes the opened PDF to the app (#748)', async () => {
+  const base = await readJson('src-tauri/tauri.conf.json');
+  const debTemplate = base.bundle.linux?.deb?.desktopTemplate;
+  const rpmTemplate = base.bundle.linux?.rpm?.desktopTemplate;
+  assert.ok(debTemplate, '.deb (and the AppImage built from it) uses a custom desktop template');
+  assert.equal(rpmTemplate, debTemplate, '.rpm uses the same desktop template');
+
+  const snapcraft = await readFile(new URL('snap/snapcraft.yaml', repoRoot), 'utf8');
+  const heredoc = snapcraft.match(/<< 'EOF'\n([\s\S]*?)\n\s*EOF/);
+  assert.ok(heredoc, 'snapcraft.yaml writes a desktop entry');
+
+  const entries = {
+    [debTemplate]: await readFile(new URL(`src-tauri/${debTemplate}`, appRoot), 'utf8'),
+    'snap/gui/open-pdf-studio.desktop': await readFile(new URL('snap/gui/open-pdf-studio.desktop', repoRoot), 'utf8'),
+    'snap/snapcraft.yaml': heredoc[1].replace(/^ +/gm, ''),
+    'flatpak/org.openaec.OpenPdfStudio.desktop': await readFile(
+      new URL('flatpak/org.openaec.OpenPdfStudio.desktop', repoRoot),
+      'utf8',
+    ),
+  };
+
+  for (const [name, entry] of Object.entries(entries)) {
+    const exec = entry.match(/^Exec=(.*)$/m);
+    assert.ok(exec, `${name} has an Exec line`);
+    assert.match(exec[1], / %F$/, `${name}: Exec ends with the %F field code`);
+    assert.match(entry, /^MimeType=(?:[^\n]*;)?application\/pdf;/m, `${name} declares application/pdf`);
+    assert.match(entry, /^Type=Application$/m, `${name} is an application entry`);
+  }
+});

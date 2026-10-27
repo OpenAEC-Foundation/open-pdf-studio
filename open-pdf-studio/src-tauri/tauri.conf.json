@@ -72,7 +72,11 @@
           "libgtk-3-0",
           "cups-bsd",
           "cups-client"
-        ]
+        ],
+        "desktopTemplate": "linux/open-pdf-studio.desktop"
+      },
+      "rpm": {
+        "desktopTemplate": "linux/open-pdf-studio.desktop"
       }
     },
     "macOS": {

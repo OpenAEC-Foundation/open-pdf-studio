@@ -1,0 +1,15 @@
+[Desktop Entry]
+Name={{name}}
+GenericName=PDF Editor
+{{#if comment}}
+Comment={{comment}}
+{{/if}}
+Exec={{exec}} %F
+Icon={{icon}}
+Terminal=false
+Type=Application
+Categories=Office;Viewer;Graphics;
+MimeType=application/pdf;
+Keywords=PDF;editor;annotator;viewer;document;
+StartupNotify=true
+StartupWMClass={{exec}}
