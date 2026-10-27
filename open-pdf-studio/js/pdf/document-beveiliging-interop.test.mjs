@@ -2,7 +2,8 @@
 // schrijft, controleren met MuPDF en pdf.js (twee onafhankelijke
 // implementaties). De Rust-kant draait via het voorbeeldprogramma
 // open-pdf-security/examples/opds-beveiliging.rs; zonder cargo slaat deze
-// test over.
+// test over. draai-unit-tests.mjs bouwt het vooraf (OPDS_BEVEILIGING_BIN),
+// zodat er tijdens de parallelle tests geen compiler loopt.
 //
 //  - Beveiligen: beide lezers vragen het wachtwoord, weigeren een verkeerd
 //    wachtwoord, zien V 5 / R 6 (AES-256) en de rechten (/P).
@@ -17,29 +18,23 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { beveiligingshulp } from '../../scripts/bouw-beveiligingshulp.mjs';
 import * as mupdf from 'mupdf';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { PDFDocument, PDFName, PDFString, StandardFonts } from 'pdf-lib';
 import { rechtenNaarP, rechtenUitP } from './document-beveiliging.js';
 import { STANDAARD_RECHTEN } from './protect-pdf-regels.js';
 
-const hier = path.dirname(fileURLToPath(import.meta.url));
-const repo = path.resolve(hier, '..', '..', '..');
-const cargo = process.env.CARGO || 'cargo';
 const map = fs.mkdtempSync(path.join(os.tmpdir(), 'opds-beveiliging-'));
 test.after(() => fs.rmSync(map, { recursive: true, force: true }));
 
-// Eenmaal bouwen. Geen cargo: overslaan; een bouwfout: de test faalt.
-const bouw = spawnSync(cargo, ['build', '-q', '-p', 'open-pdf-security', '--example', 'opds-beveiliging'], {
-  cwd: repo, encoding: 'utf8',
-});
-const geenCargo = bouw.error?.code === 'ENOENT' ? 'cargo niet gevonden' : false;
+// Het programma (vooraf gebouwd, of hier). Geen cargo: overslaan; een
+// bouwfout: de test faalt.
+const hulp = beveiligingshulp();
+const geenCargo = hulp.geenCargo ? 'cargo niet gevonden' : false;
 
 function opds(...args) {
-  const r = spawnSync(cargo, ['run', '-q', '-p', 'open-pdf-security', '--example', 'opds-beveiliging', '--', ...args], {
-    cwd: repo, encoding: 'utf8',
-  });
+  const r = spawnSync(hulp.bin, args, { encoding: 'utf8' });
   return { status: r.status, uit: (r.stdout || '').trim(), fout: (r.stderr || '').trim() };
 }
 
@@ -111,7 +106,7 @@ const RECHTEN = { ...STANDAARD_RECHTEN, kopieren: false, wijzigen: false, samens
 const P = rechtenNaarP(RECHTEN);
 
 test('beveiligen: andere lezers vragen het wachtwoord en zien AES-256 en de rechten', { skip: geenCargo }, async () => {
-  assert.equal(bouw.status, 0, `bouwen mislukt: ${bouw.stderr}`);
+  assert.ok(hulp.bin, `bouwen mislukt: ${hulp.fout}`);
   await maakPlattePdf('plat.pdf');
   moetLukken('protect', pad('plat.pdf'), pad('beveiligd.pdf'), 'open-ww-1', 'rechten-ww-1', String(P));
   const bytes = lees('beveiligd.pdf');
