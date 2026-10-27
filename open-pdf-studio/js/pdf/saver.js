@@ -8,7 +8,7 @@ import { markDocumentSaved, updateWindowTitle } from '../ui/chrome/tabs.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
 import { isTauri, invoke, readBinaryFile, writeBinaryFileAtomic, saveFileDialog, unlockFile, lockFile } from '../core/platform.js';
 import { bestandsnaamUitPad } from '../core/bestandsnaam.js';
-import { getCachedPdfBytes, setCachedPdfBytes, hidePdfABar } from './loader.js';
+import { getCachedPdfBytes, setCachedPdfBytes, rememberPreviousPdfBytes, hidePdfABar } from './loader.js';
 import { PDFDocument, PDFString, PDFHexString, PDFName, PDFArray, PDFStream, degrees,
   PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup, PDFOptionList } from 'pdf-lib';
 import { kopNaarLE, koppenSleutel, koppenVan, calloutKoppenNaarBestand } from './lijnkoppen.js';
@@ -3247,7 +3247,9 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       try { await invoke('invalidate_pdf_cache', { path: outputPath }); } catch {}
     }
 
-    // Update cache so subsequent saves use the latest PDF as base
+    // Update cache so subsequent saves use the latest PDF as base. The bytes
+    // it replaces stay available to Compare as "before the last save".
+    rememberPreviousPdfBytes(outputPath);
     setCachedPdfBytes(outputPath, savedBytes.slice());
     // A close/reload during the atomic write cannot be undone here. Keep the
     // new live document dirty, and never publish the old save as its state.

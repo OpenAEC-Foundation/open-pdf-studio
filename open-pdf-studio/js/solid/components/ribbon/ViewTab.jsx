@@ -135,7 +135,7 @@ export default function ViewTab() {
             title={t('compare.title') || 'Compare PDFs'}
             icon={`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="8" height="16"/><rect x="13" y="4" width="8" height="16"/><line x1="11" y1="12" x2="13" y2="12"/></svg>`}
             label={t('compare.title') || 'Compare'}
-            disabled={(state.documents?.length || 0) < 2}
+            disabled={(state.documents?.length || 0) < 1}
             active={compareActive()}
             onClick={() => {
               if (compareActive()) exitCompare();

@@ -52,6 +52,20 @@ export function setCachedPdfBytes(filePath, bytes) {
   originalBytesCache.set(filePath, bytes);
 }
 
+// The bytes of a document as they were before its last save, so Compare can
+// set the saved version against the one before it (#465). Only the last one
+// per path is kept.
+const previousSavedBytes = new Map(); // filePath -> Uint8Array
+
+export function rememberPreviousPdfBytes(filePath) {
+  const bytes = originalBytesCache.get(filePath);
+  if (bytes && bytes.length) previousSavedBytes.set(filePath, bytes);
+}
+
+export function getPreviousPdfBytes(filePath) {
+  return previousSavedBytes.get(filePath) || null;
+}
+
 /**
  * Reload a document's pdfDoc from new bytes (used by Find & Replace).
  * Updates the pdf.js document object without reloading the entire UI.

@@ -17,6 +17,31 @@
 //     wijzigingen.
 
 import { detectChanges } from './change-detector.js';
+import { detectMaskChanges } from './mask-detect.js';
+import { estimateAlignment } from './auto-align.js';
+import { vectorTask } from './vector-diff.js';
+
+/**
+ * Tasks besides the classic RGBA diff. `old`/`new` are then ink masks
+ * ({width, height, stride, data:Uint8Array}, see ink-mask.js):
+ *   'masks' — detectMaskChanges(old, new, options)
+ *   'align' — estimateAlignment(old, new, options)
+ *   'vector' — diffSegments of {segments} (vector-diff.js)
+ */
+export const TASKS = Object.freeze({
+  masks: detectMaskChanges,
+  align: estimateAlignment,
+  vector: vectorTask,
+});
+
+function _runTask(task, oldData, newData, threshold, options, detect) {
+  if (task) {
+    const fn = TASKS[task];
+    if (!fn) throw new Error(`compare: unknown detection task ${task}`);
+    return fn(oldData, newData, options || {});
+  }
+  return threshold === undefined ? detect(oldData, newData) : detect(oldData, newData, threshold);
+}
 
 export const DETECT_REQUEST = 'opds-detect';
 export const DETECT_RESULT = 'opds-detect-result';
@@ -41,16 +66,23 @@ function _pixels(img) {
  * @returns {{message:object, transfer:ArrayBuffer[]}}
  */
 export function buildDetectRequest(id, oldData, newData, opts = {}) {
-  const { threshold, transferOld = false, transferNew = false } = opts;
+  const { threshold, transferOld = false, transferNew = false, task, options } = opts;
   const oldPx = _pixels(oldData);
   const newPx = _pixels(newData);
+  const side = (img, px) => {
+    const out = { width: img.width, height: img.height, data: px };
+    if (img.stride !== undefined) out.stride = img.stride;
+    return out;
+  };
   const message = {
     type: DETECT_REQUEST,
     id,
-    old: { width: oldData.width, height: oldData.height, data: oldPx },
-    new: { width: newData.width, height: newData.height, data: newPx },
+    old: side(oldData, oldPx),
+    new: side(newData, newPx),
   };
   if (threshold !== undefined) message.threshold = threshold;
+  if (task) message.task = task;
+  if (options !== undefined) message.options = options;
   const transfer = [];
   if (transferOld && oldPx && oldPx.buffer) transfer.push(oldPx.buffer);
   if (transferNew && newPx && newPx.buffer && newPx.buffer !== (oldPx && oldPx.buffer)) {
@@ -67,9 +99,7 @@ export function handleDetectMessage(message, detect = detectChanges) {
   if (!message || message.type !== DETECT_REQUEST) return null;
   const { id } = message;
   try {
-    const changes = message.threshold === undefined
-      ? detect(message.old, message.new)
-      : detect(message.old, message.new, message.threshold);
+    const changes = _runTask(message.task, message.old, message.new, message.threshold, message.options, detect);
     return { type: DETECT_RESULT, id, changes };
   } catch (err) {
     return { type: DETECT_ERROR, id, error: String((err && err.message) || err) };
@@ -120,10 +150,8 @@ export function createDetectClient(deps = {}) {
   let inFlight = null; // { id, resolve, reject }
   let pending = null;  // { id, oldData, newData, opts, resolve, reject }
 
-  function _syncRun(id, oldData, newData, threshold) {
-    const changes = threshold === undefined
-      ? detect(oldData, newData)
-      : detect(oldData, newData, threshold);
+  function _syncRun(id, oldData, newData, opts = {}) {
+    const changes = _runTask(opts.task, oldData, newData, opts.threshold, opts.options, detect);
     return { id, changes, stale: id < latest };
   }
 
@@ -180,7 +208,7 @@ export function createDetectClient(deps = {}) {
     if (!w) {
       // Worker viel weg tussen aanvragen: synchroon afmaken.
       try {
-        job.resolve(_syncRun(job.id, job.oldData, job.newData, job.opts.threshold));
+        job.resolve(_syncRun(job.id, job.oldData, job.newData, job.opts));
       } catch (err) {
         job.reject(err);
       }
@@ -217,7 +245,7 @@ export function createDetectClient(deps = {}) {
 
       if (!_ensureWorker()) {
         try {
-          return Promise.resolve(_syncRun(id, oldData, newData, opts.threshold));
+          return Promise.resolve(_syncRun(id, oldData, newData, opts));
         } catch (err) {
           return Promise.reject(err);
         }

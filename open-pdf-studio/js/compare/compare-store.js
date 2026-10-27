@@ -2,9 +2,13 @@
 // Tracks which two PDFs are being compared, the mode, current page-pair and offset.
 // Reactive via solid-js signals so UI re-renders when fields change.
 
-import { createSignal } from 'solid-js';
+import { createSignal, batch } from 'solid-js';
 import { state } from '../core/state.js';
 import { normalizeCompareMode } from './split-line.js';
+import { IDENTITY_ALIGNMENT, normalizeAlignment } from './alignment.js';
+import { DEFAULT_PRESET, normalizePreset } from './detect-plan.js';
+import { assignPair } from './page-pairing.js';
+import { clearCompareSources } from './compare-sources.js';
 
 const [active, setActive] = createSignal(false);
 const [oldPath, setOldPath] = createSignal(null);
@@ -19,7 +23,28 @@ const [newPage, setNewPage] = createSignal(1);
 // mogen verschillende paginaaantallen hebben — elk kent zijn eigen maximum.
 const [oldPageCount, setOldPageCount] = createSignal(1);
 const [newPageCount, setNewPageCount] = createSignal(1);
-const [offset, setOffset] = createSignal({ dx: 0, dy: 0, rotation: 0 });
+// Alignment of the current pair (alignment.js): dx/dy in mm on paper,
+// rotation in degrees and a scale factor, about the page centres.
+const [offset, setOffset] = createSignal({ ...IDENTITY_ALIGNMENT });
+// How the current alignment came about: { source: 'none'|'auto'|'manual',
+// confidence: 0..1|null, method?: string }. `pending` is true while the
+// automatic alignment for this pair has still to run.
+const [alignInfo, setAlignInfoSignal] = createSignal({ source: 'none', confidence: null });
+const [alignPending, setAlignPendingSignal] = createSignal(false);
+// Align each new pair automatically on its first visit.
+const [autoAlign, setAutoAlignSignal] = createSignal(true);
+// Sensitivity preset (detect-plan.js): 'line' | 'scan' | 'text'.
+const [preset, setPresetSignal] = createSignal(DEFAULT_PRESET);
+// Page pairing list (page-pairing.js); empty = index-based pairs.
+const [pairs, setPairsSignal] = createSignal([]);
+const [pairing, setPairingSignal] = createSignal(false);
+// The detection had to stop early (too many differences on this pair).
+const [truncated, setTruncatedSignal] = createSignal(false);
+// Comparison method: 'pixel', or 'vector' where both pages are vector
+// drawings (pixel stays the fallback). methodUsed: what the last detection
+// of the current pair actually used.
+const [method, setMethodSignal] = createSignal('pixel');
+const [methodUsed, setMethodUsedSignal] = createSignal('pixel');
 const [zoom, setZoom] = createSignal(1);
 const [changes, setChangesSignal] = createSignal([]);
 const [focusedChange, setFocusedChangeSignal] = createSignal(null);
@@ -77,7 +102,184 @@ export {
   panelTab as comparePanelTab,
   textChanges as compareTextChanges,
   textComparing as compareTextComparing,
+  alignInfo as compareAlignInfo,
+  alignPending as compareAlignPending,
+  autoAlign as compareAutoAlign,
+  preset as comparePreset,
+  pairs as comparePairs,
+  pairing as comparePairing,
+  truncated as compareTruncated,
+  method as compareMethod,
+  methodUsed as compareMethodUsed,
 };
+
+export function setCompareMethod(m) {
+  setMethodSignal(m === 'vector' ? 'vector' : 'pixel');
+}
+export function setCompareMethodUsed(m) {
+  setMethodUsedSignal(m === 'vector' ? 'vector' : 'pixel');
+}
+
+// Alignments per page pair, so returning to a pair keeps what was found or
+// typed there. Key: `${oldPage}|${newPage}`.
+const _pairAlign = new Map();
+const _pairKey = (o, n) => `${o}|${n}`;
+
+export function compareCurrentPairKey() {
+  return _pairKey(oldPage(), newPage());
+}
+
+function _loadPairAlignment() {
+  const stored = _pairAlign.get(_pairKey(oldPage(), newPage()));
+  batch(() => {
+    if (stored) {
+      setOffset({ ...stored.alignment });
+      setAlignInfoSignal({ source: stored.source, confidence: stored.confidence ?? null, method: stored.method });
+      setAlignPendingSignal(false);
+    } else {
+      setOffset({ ...IDENTITY_ALIGNMENT });
+      setAlignInfoSignal({ source: 'none', confidence: null });
+      setAlignPendingSignal(!!autoAlign());
+    }
+  });
+}
+
+/** Stored alignment of a pair, or null. */
+export function getPairAlignment(o, n) {
+  const s = _pairAlign.get(_pairKey(o, n));
+  return s ? { ...s, alignment: { ...s.alignment } } : null;
+}
+
+/**
+ * Result of an automatic alignment (compare-viewport.js). Stored for its pair;
+ * applied when that pair is still the current one.
+ */
+export function applyAutoAlignment(o, n, result) {
+  if (!result || !result.alignment) return;
+  const entry = {
+    alignment: normalizeAlignment(result.alignment),
+    source: 'auto',
+    confidence: Number.isFinite(result.confidence) ? result.confidence : null,
+    method: result.method,
+  };
+  _pairAlign.set(_pairKey(o, n), entry);
+  if (o !== oldPage() || n !== newPage()) return;
+  batch(() => {
+    setOffset({ ...entry.alignment });
+    setAlignInfoSignal({ source: 'auto', confidence: entry.confidence, method: entry.method });
+    setAlignPendingSignal(false);
+  });
+}
+
+/** The automatic alignment could not run (no ink, worker failure). */
+export function cancelAutoAlignment(o, n) {
+  if (o !== oldPage() || n !== newPage()) return;
+  setAlignPendingSignal(false);
+}
+
+/** "Align automatically" for the current pair. */
+export function requestAutoAlign() {
+  _pairAlign.delete(_pairKey(oldPage(), newPage()));
+  batch(() => {
+    setAlignInfoSignal({ source: 'none', confidence: null });
+    setAlignPendingSignal(true);
+  });
+}
+
+/** Back to no alignment (identity) for the current pair. */
+export function resetCompareAlignment() {
+  const entry = { alignment: { ...IDENTITY_ALIGNMENT }, source: 'manual', confidence: null };
+  _pairAlign.set(_pairKey(oldPage(), newPage()), entry);
+  batch(() => {
+    setOffset({ ...IDENTITY_ALIGNMENT });
+    setAlignInfoSignal({ source: 'manual', confidence: null });
+    setAlignPendingSignal(false);
+  });
+}
+
+export function setCompareAutoAlign(v) {
+  setAutoAlignSignal(!!v);
+  if (v && alignInfo().source === 'none') setAlignPendingSignal(true);
+}
+
+export function setComparePreset(name) {
+  setPresetSignal(normalizePreset(name));
+}
+
+export function setCompareTruncated(v) {
+  setTruncatedSignal(!!v);
+}
+
+export function setComparePairing(v) {
+  setPairingSignal(!!v);
+}
+
+// ── Pairing list ──────────────────────────────────────────────────────────
+// With a pairing list, previous/next walk its matched pairs; without one the
+// historic index-based stepping below applies.
+let _cursor = -1;
+
+function _matched() {
+  return pairs().filter((p) => p.old != null && p.new != null);
+}
+
+function _gotoCursor(i) {
+  const list = _matched();
+  if (!list.length) return false;
+  _cursor = Math.max(0, Math.min(list.length - 1, i));
+  batch(() => {
+    setOldPage(_clampOld(list[_cursor].old));
+    setNewPage(_clampNew(list[_cursor].new));
+    _resetPairDiff();
+    _loadPairAlignment();
+  });
+  return true;
+}
+
+/** Index of the current pair in the matched pairs, or -1. */
+export function compareMatchedIndex() {
+  pairs();
+  oldPage();
+  newPage();
+  const list = _matched();
+  return list.findIndex((p) => p.old === oldPage() && p.new === newPage());
+}
+
+export function compareMatchedCount() {
+  return _matched().length;
+}
+
+/**
+ * Install a pairing list. The view stays on the current pair when it is in
+ * the list, else moves to the pair of the current new (or old) page.
+ */
+export function setComparePairs(rows) {
+  setPairsSignal(Array.isArray(rows) ? rows.slice() : []);
+  const list = _matched();
+  if (!list.length) { _cursor = -1; return; }
+  let i = list.findIndex((p) => p.old === oldPage() && p.new === newPage());
+  if (i < 0) i = list.findIndex((p) => p.new === newPage());
+  if (i < 0) i = list.findIndex((p) => p.old === oldPage());
+  if (i < 0) i = 0;
+  const cur = list[i];
+  if (cur.old === oldPage() && cur.new === newPage()) { _cursor = i; return; }
+  _gotoCursor(i);
+}
+
+/** Correct the pairing: pair old page `o` with new page `n` (null unpairs). */
+export function assignComparePair(o, n) {
+  setPairsSignal(assignPair(pairs(), o, n));
+  if (o != null && n != null) {
+    const i = _matched().findIndex((p) => p.old === o && p.new === n);
+    if (i >= 0) _gotoCursor(i);
+  }
+}
+
+/** Show a row of the pairing list (a matched pair). */
+export function gotoComparePair(o, n) {
+  const i = _matched().findIndex((p) => p.old === o && p.new === n);
+  if (i >= 0) _gotoCursor(i);
+}
 
 export function setComparePanelTab(tab) {
   setPanelTabSignal(tab === 'text' ? 'text' : 'changes');
@@ -149,14 +351,21 @@ function _applyPairIndex() {
 function _resetPairDiff() {
   setChangesSignal([]);
   setFocusedChangeSignal(null);
+  setTruncatedSignal(false);
 }
 
-export function startCompare({ oldFilePath, newFilePath, mode: m, oldPage: op = 1, newPage: np = 1 }) {
+export function startCompare({ oldFilePath, newFilePath, mode: m, oldPage: op = 1, newPage: np = 1, oldPageCount: ocIn, newPageCount: ncIn }) {
   setOldPath(oldFilePath);
   setNewPath(newFilePath);
   setMode(normalizeCompareMode(m));
-  const oc = Math.max(1, _pageCountFor(oldFilePath));
-  const nc = Math.max(1, _pageCountFor(newFilePath));
+  // A side picked from disk has no tab: the dialog passes its page count.
+  const oc = Math.max(1, ocIn || _pageCountFor(oldFilePath));
+  const nc = Math.max(1, ncIn || _pageCountFor(newFilePath));
+  _pairAlign.clear();
+  _cursor = -1;
+  setPairsSignal([]);
+  setPairingSignal(false);
+  setTruncatedSignal(false);
   setOldPageCount(oc);
   setNewPageCount(nc);
   // Klem de start-pagina's binnen hun document zodat we nooit op een
@@ -164,7 +373,7 @@ export function startCompare({ oldFilePath, newFilePath, mode: m, oldPage: op = 
   _pairBase = { old: Math.max(1, Math.min(oc, op)), new: Math.max(1, Math.min(nc, np)) };
   _pairIndex = 0;
   _applyPairIndex();
-  setOffset({ dx: 0, dy: 0, rotation: 0 });
+  _loadPairAlignment();
   setZoom(1);
   _resetPairDiff(); // clean slate — geen selectie en geen lijst van een vorige sessie
   setTextChangesSignal(null); // tekst-diff hoort bij een documentpaar — opnieuw bij nieuwe sessie
@@ -174,6 +383,11 @@ export function startCompare({ oldFilePath, newFilePath, mode: m, oldPage: op = 
 }
 
 export function exitCompare() {
+  clearCompareSources();
+  _pairAlign.clear();
+  _cursor = -1;
+  setPairsSignal([]);
+  setPairingSignal(false);
   setActive(false);
   setFocused(false);
   setOldPath(null);
@@ -191,9 +405,11 @@ export function setCompareMode(m) {
 // Kan het pagina-paar nog vooruit/achteruit? Waar als ten minste één document
 // nog een volgende/vorige pagina heeft. Gebruikt om de knoppen te dimmen.
 export function canNextPagePair() {
+  if (_matched().length) return compareMatchedIndex() < _matched().length - 1;
   return oldPage() < oldPageCount() || newPage() < newPageCount();
 }
 export function canPrevPagePair() {
+  if (_matched().length) return compareMatchedIndex() !== 0;
   return oldPage() > 1 || newPage() > 1;
 }
 
@@ -203,19 +419,35 @@ export function nextPagePair() {
   // op zijn laatste pagina staan terwijl het langere verder gaat. De gedeelde
   // paar-index houdt heen- en terugbladeren symmetrisch.
   if (!canNextPagePair()) return;
+  if (_matched().length) { _gotoCursor(compareMatchedIndex() + 1); return; }
   _pairIndex++;
   _applyPairIndex();
   _resetPairDiff();
+  _loadPairAlignment();
 }
 
 export function prevPagePair() {
   if (!canPrevPagePair()) return;
+  if (_matched().length) {
+    const i = compareMatchedIndex();
+    _gotoCursor(i < 0 ? 0 : i - 1);
+    return;
+  }
   _pairIndex--;
   _applyPairIndex();
   _resetPairDiff();
+  _loadPairAlignment();
 }
 
 export function setPagePair(op, np) {
+  // Met een koppellijst: naar het paar van die pagina's.
+  const list = _matched();
+  if (list.length) {
+    let i = list.findIndex((p) => p.old === op && p.new === np);
+    if (i < 0 && np != null) i = list.findIndex((p) => p.new === np);
+    if (i < 0 && op != null) i = list.findIndex((p) => p.old === op);
+    if (i >= 0) { _gotoCursor(i); return; }
+  }
   // Expliciet gezet paar wordt de nieuwe basis voor de paar-index.
   _pairBase = {
     old: op != null ? _clampOld(op) : oldPage(),
@@ -224,12 +456,20 @@ export function setPagePair(op, np) {
   _pairIndex = 0;
   _applyPairIndex();
   _resetPairDiff();
+  _loadPairAlignment();
 }
 
 export function setCompareZoom(z) {
   setZoom(Math.max(0.1, Math.min(8, z)));
 }
 
+// Manual alignment input: overrides the automatic result for this pair.
 export function setCompareOffset(o) {
-  setOffset({ ...offset(), ...o });
+  const alignment = normalizeAlignment({ ...offset(), ...o });
+  _pairAlign.set(_pairKey(oldPage(), newPage()), { alignment, source: 'manual', confidence: null });
+  batch(() => {
+    setOffset(alignment);
+    setAlignInfoSignal({ source: 'manual', confidence: null });
+    setAlignPendingSignal(false);
+  });
 }

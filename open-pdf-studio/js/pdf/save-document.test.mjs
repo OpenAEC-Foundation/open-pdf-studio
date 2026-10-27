@@ -25,7 +25,7 @@ function harness() {
   const deps = {
     state: { documents: [a, b] }, getActiveDocument: () => active,
     showLoading() {}, hideLoading() {}, updateTabBar() {}, updateWindowTitle() {},
-    getCachedPdfBytes: path => new TextEncoder().encode(path), setCachedPdfBytes() {},
+    getCachedPdfBytes: path => new TextEncoder().encode(path), setCachedPdfBytes() {}, rememberPreviousPdfBytes() {},
     verzamelSchaalBronnen: () => ({}),
     PDFDocument: { load: async bytes => ({ context: { largestObjectNumber: 1 }, getPages: () => [], catalog: { get: () => null },
       formCache: { getValue: () => undefined }, flush: async () => {}, save: async () => bytes }) },

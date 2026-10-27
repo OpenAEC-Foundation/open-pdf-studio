@@ -387,6 +387,12 @@ js/compare/split-line.test.mjs
 js/annotations/opmerkingen-export.test.mjs
 js/annotations/xfdf-pagina.test.mjs
 js/compare/change-detect-worker.test.mjs
+js/compare/compare-detection.test.mjs
+js/compare/compare-alignment.test.mjs
+js/compare/compare-pairing.test.mjs
+js/compare/compare-report.test.mjs
+js/compare/compare-i18n.test.mjs
+js/compare/compare-vector.test.mjs
 js/pdf/thin-lines.test.mjs
 js/assistant-i18n.test.mjs
 js/pdf/three-d/u3d-reader.test.mjs
