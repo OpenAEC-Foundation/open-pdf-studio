@@ -953,7 +953,7 @@ function PageMenuContent() {
 
       <Separator />
 
-      <MenuItem icon={imageIcon} label={t('page.addImage')} onClick={() => setTool('image')} />
+      <MenuItem icon={imageIcon} label={t('page.addImage')} onClick={() => import('../../annotations/image-drop.js').then((m) => m.kiesEnPlaatsAfbeelding())} />
       <MenuItem icon={qrCodeIcon} label={t('page.addQrCode')} onClick={() => setTool('qrCode')} />
 
       <Separator />

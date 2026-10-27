@@ -517,3 +517,7 @@ js/pdf/saver/text-edit-unicode.test.mjs
 js/text/tekstlaag-bron.test.mjs
 js/pdf/saver/text-edit-glyfen.test.mjs
 js/text/tekenafstand.test.mjs
+js/annotations/afbeelding-bron.test.mjs
+js/annotations/crop-invoer.test.mjs
+js/annotations/eigen-stempel-bron.test.mjs
+js/pdf/eigen-stempel-rondgang.test.mjs

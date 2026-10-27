@@ -11,6 +11,7 @@ import { bestandsnaamUitPad } from '../core/bestandsnaam.js';
 import { getCachedPdfBytes, setCachedPdfBytes, hidePdfABar } from './loader.js';
 import { PDFDocument, PDFString, PDFHexString, PDFName, PDFArray, PDFStream, degrees,
   PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup, PDFOptionList } from 'pdf-lib';
+import { insluitBytes } from '../annotations/afbeelding-bron.js';
 import { kopNaarLE, koppenSleutel, koppenVan, calloutKoppenNaarBestand } from './lijnkoppen.js';
 import { bouwKnipselAppearance, tekenKnipselInPagina, alInBasis, markeerGebakken, ruimKnipselRestenOp, CATALOGUS_SLEUTEL as KNIPSEL_CATALOGUS } from './saver/vector-snippet.js';
 import { ruimOngebruikteObjectenOp } from './saver/objecten-opruimen.js';
@@ -167,18 +168,11 @@ function remapAnnotationForRotatedPage(annRaw, rot, cw, ch) {
 // Afbeeldingsbytes uit ann.imageData voor pdf-lib-embedding. Normaal een
 // data:-URL; een blob:-URL (regressie of oude sessie-staat, #352) wordt via
 // fetch gelezen zodat de afbeelding alsnog in het bestand belandt in plaats
-// van een leeg stempel. JPEG wordt aan de magic bytes herkend, want een
-// blob:-URL draagt geen mimetype in zijn tekst.
+// van een leeg stempel. Het formaat komt uit de bytes, niet uit de URL. Een
+// GIF, BMP, WebP of SVG (pdf-lib sluit alleen PNG en JPEG in) wordt eerst
+// PNG: anders faalde embedPng en was het stempel na heropenen weg (#749).
 async function imageBytesFromDataUrl(dataUrl) {
-  let bytes;
-  if (dataUrl.startsWith('blob:')) {
-    bytes = new Uint8Array(await (await fetch(dataUrl)).arrayBuffer());
-  } else {
-    const base64 = dataUrl.split(',')[1];
-    bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
-  }
-  const isJpeg = bytes.length > 2 && bytes[0] === 0xFF && bytes[1] === 0xD8;
-  return { bytes, isJpeg };
+  return insluitBytes(dataUrl);
 }
 
 // Gedeclareerd in het deel hieronder, dat save-document.test.mjs los draait.

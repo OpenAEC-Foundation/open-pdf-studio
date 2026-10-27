@@ -11,6 +11,7 @@ import { BUILTIN_STAMP_DEFAULT_WIDTH, BUILTIN_STAMP_DEFAULT_HEIGHT, BUILT_IN_STA
 import { overrideStampMaat } from './svg-real-size.js';
 import { stampPxPerMm } from './stamp-scale.js';
 import { rasterizeSvg } from './svg-raster.js';
+import { AFBEELDING_EXTENSIES } from './afbeelding-bron.js';
 import { paginaMaat, rechtopRotatie } from '../pdf/weergave-ruimte.js';
 
 // Built-in stamp definitions
@@ -231,21 +232,20 @@ export async function updateStampImage(ann, svgString) {
   else redrawAnnotations();
 }
 
-// Load custom stamp from image file
+// Load custom stamp from image file.
+// Same loader as an inserted image (#749): imageData is a PNG/JPEG data URL
+// that the saver embeds in the appearance stream, and the bitmap comes from
+// that data URL. It used to be an untyped blob: URL — an SVG did not load at
+// all (no stamp on the page), and a GIF/BMP/SVG could not be embedded, so the
+// stamp was gone after save and reopen.
 async function loadCustomStamp(x, y) {
   try {
     const { openFileDialog } = await import('../core/platform.js');
-    const filePath = await openFileDialog(['png', 'jpg', 'jpeg', 'bmp', 'gif', 'svg']);
-    if (!filePath) return;
+    const filePath = await openFileDialog(AFBEELDING_EXTENSIES);
+    if (!filePath || typeof filePath !== 'string') return;
 
-    const { readBinaryFile } = await import('../core/platform.js');
-    const data = await readBinaryFile(filePath);
-    const blob = new Blob([data]);
-    const url = URL.createObjectURL(blob);
-
-    const img = new Image();
-    img.src = url;
-    await new Promise((resolve, reject) => { img.onload = resolve; img.onerror = reject; });
+    const { laadAfbeeldingUitPad } = await import('./image-drop.js');
+    const { img, dataUrl } = await laadAfbeeldingUitPad(filePath);
 
     const { generateImageId } = await import('../utils/helpers.js');
     const imageId = generateImageId();
@@ -270,14 +270,16 @@ async function loadCustomStamp(x, y) {
       stampName: 'Custom',
       stampText: '',
       imageId: imageId,
-      imageData: url,
+      imageData: dataUrl,
       originalWidth: img.naturalWidth,
       originalHeight: img.naturalHeight,
       color: '#000000',
       opacity: 1,
       // Rechtop op het scherm, ook in een gedraaide weergave (#200).
-      rotation: rechtopRotatie()
+      rotation: rechtopRotatie(),
+      lockAspectRatio: true
     });
+    ann._cachedImg = img;
 
     const _doc3 = getActiveDocument();
     if (_doc3) _doc3.annotations.push(ann);
@@ -297,5 +299,6 @@ async function loadCustomStamp(x, y) {
     updateStatusMessage('Custom stamp placed');
   } catch (err) {
     console.error('Failed to load custom stamp:', err);
+    updateStatusMessage('Could not load the image for the stamp');
   }
 }
