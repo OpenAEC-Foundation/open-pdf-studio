@@ -419,7 +419,9 @@
       "symbol": "Πίνακας συμβόλων",
       "text": "Πίνακας κειμένων",
       "full": "Πλήρεις ποσότητες",
-      "image": "Εικόνες & σφραγίδες"
+      "image": "Εικόνες & σφραγίδες",
+      "bendingSchedule": "Πίνακας κάμψης",
+      "rebarWeight": "Πίνακας οπλισμού (βάρος ανά Ø)"
     },
     "preview": "Προεπισκόπηση",
     "exportCsv": "Εξαγωγή CSV",
@@ -579,7 +581,8 @@
       "textBuiltIn": "Κείμενο (εγγενές)",
       "symbol": "Σύμβολο",
       "image": "Εικόνα",
-      "other": "Άλλο"
+      "other": "Άλλο",
+      "reinforcement": "Οπλισμός"
     },
     "field": {
       "category": "Κατηγορία",
@@ -607,7 +610,16 @@
       "width": "Πλάτος",
       "height": "Ύψος",
       "location": "Τοποθεσία",
-      "locationSource": "Προέλευση τοποθεσίας"
+      "locationSource": "Προέλευση τοποθεσίας",
+      "rebarMark": "Αριθμός θέσης",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Σχήμα κάμψης",
+      "rebarGrade": "Ποιότητα χάλυβα",
+      "rebarCount": "Πλήθος ράβδων",
+      "rebarLength": "Μήκος ράβδου",
+      "rebarTotalLength": "Συνολικό μήκος",
+      "rebarMassPerM": "Μάζα ανά μέτρο",
+      "rebarMass": "Μάζα"
     },
     "type": {
       "line": "Γραμμή",
@@ -645,7 +657,8 @@
       "stavenreeks": "Σειρά ράβδων",
       "betonbalk": "Δοκός σκυροδέματος",
       "scheduleTable": "Πίνακας ποσοτήτων",
-      "builtinText": "Κείμενο"
+      "builtinText": "Κείμενο",
+      "rebarPosition": "Ράβδος οπλισμού"
     }
   },
   "parametricSymbol": {

@@ -419,7 +419,9 @@
       "symbol": "علامت شیڈول",
       "text": "متن شیڈول",
       "full": "مکمل مقداریں",
-      "image": "تصاویر اور مہریں"
+      "image": "تصاویر اور مہریں",
+      "bendingSchedule": "سریا موڑ شیڈول",
+      "rebarWeight": "سریا شیڈول (فی Ø وزن)"
     },
     "preview": "پیش منظر",
     "exportCsv": "CSV برآمد کریں",
@@ -579,7 +581,8 @@
       "textBuiltIn": "متن (اصل)",
       "symbol": "علامت",
       "image": "تصویر",
-      "other": "دیگر"
+      "other": "دیگر",
+      "reinforcement": "سریا بندی"
     },
     "field": {
       "category": "زمرہ",
@@ -607,7 +610,16 @@
       "width": "چوڑائی",
       "height": "اونچائی",
       "location": "مقام",
-      "locationSource": "مقام کا ماخذ"
+      "locationSource": "مقام کا ماخذ",
+      "rebarMark": "سریے کا نمبر",
+      "rebarDiameter": "Ø",
+      "rebarShape": "موڑ کی شکل",
+      "rebarGrade": "اسٹیل کا درجہ",
+      "rebarCount": "سریوں کی تعداد",
+      "rebarLength": "سریے کی لمبائی",
+      "rebarTotalLength": "کل لمبائی",
+      "rebarMassPerM": "فی میٹر وزن",
+      "rebarMass": "وزن"
     },
     "type": {
       "line": "لکیر",
@@ -645,7 +657,8 @@
       "stavenreeks": "سریا سیریز",
       "betonbalk": "کنکریٹ بیم",
       "scheduleTable": "مقداروں کی جدول",
-      "builtinText": "متن"
+      "builtinText": "متن",
+      "rebarPosition": "سریا"
     }
   },
   "parametricSymbol": {

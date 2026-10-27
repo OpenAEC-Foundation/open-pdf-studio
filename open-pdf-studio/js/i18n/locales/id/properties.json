@@ -419,7 +419,9 @@
       "symbol": "Daftar simbol",
       "text": "Daftar teks",
       "full": "Kuantitas lengkap",
-      "image": "Gambar & stempel"
+      "image": "Gambar & stempel",
+      "bendingSchedule": "Daftar pembengkokan tulangan",
+      "rebarWeight": "Rekap berat tulangan (per Ø)"
     },
     "preview": "Pratinjau",
     "exportCsv": "Ekspor CSV",
@@ -579,7 +581,8 @@
       "textBuiltIn": "Teks (bawaan)",
       "symbol": "Simbol",
       "image": "Gambar",
-      "other": "Lainnya"
+      "other": "Lainnya",
+      "reinforcement": "Tulangan"
     },
     "field": {
       "category": "Kategori",
@@ -607,7 +610,16 @@
       "width": "Lebar",
       "height": "Tinggi",
       "location": "Lokasi",
-      "locationSource": "Sumber lokasi"
+      "locationSource": "Sumber lokasi",
+      "rebarMark": "Nomor tulangan",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Bentuk bengkokan",
+      "rebarGrade": "Mutu baja",
+      "rebarCount": "Jumlah batang",
+      "rebarLength": "Panjang tulangan",
+      "rebarTotalLength": "Panjang total",
+      "rebarMassPerM": "Berat per meter",
+      "rebarMass": "Berat"
     },
     "type": {
       "line": "Garis",
@@ -645,7 +657,8 @@
       "stavenreeks": "Deret tulangan",
       "betonbalk": "Balok beton",
       "scheduleTable": "Tabel kuantitas",
-      "builtinText": "Teks"
+      "builtinText": "Teks",
+      "rebarPosition": "Batang tulangan"
     }
   },
   "parametricSymbol": {

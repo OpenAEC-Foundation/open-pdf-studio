@@ -419,7 +419,9 @@
       "symbol": "Bảng thống kê ký hiệu",
       "text": "Bảng thống kê văn bản",
       "full": "Khối lượng đầy đủ",
-      "image": "Hình ảnh & con dấu"
+      "image": "Hình ảnh & con dấu",
+      "bendingSchedule": "Bảng thống kê uốn thép",
+      "rebarWeight": "Bảng khối lượng cốt thép (theo Ø)"
     },
     "preview": "Xem trước",
     "exportCsv": "Xuất CSV",
@@ -579,7 +581,8 @@
       "textBuiltIn": "Văn bản (gốc)",
       "symbol": "Ký hiệu",
       "image": "Hình ảnh",
-      "other": "Khác"
+      "other": "Khác",
+      "reinforcement": "Cốt thép"
     },
     "field": {
       "category": "Danh mục",
@@ -607,7 +610,16 @@
       "width": "Chiều rộng",
       "height": "Chiều cao",
       "location": "Vị trí",
-      "locationSource": "Nguồn vị trí"
+      "locationSource": "Nguồn vị trí",
+      "rebarMark": "Số hiệu thanh",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Hình dạng uốn",
+      "rebarGrade": "Mác thép",
+      "rebarCount": "Số thanh",
+      "rebarLength": "Chiều dài thanh",
+      "rebarTotalLength": "Tổng chiều dài",
+      "rebarMassPerM": "Khối lượng trên mét",
+      "rebarMass": "Khối lượng"
     },
     "type": {
       "line": "Đường thẳng",
@@ -645,7 +657,8 @@
       "stavenreeks": "Dãy cốt thép",
       "betonbalk": "Dầm bê tông",
       "scheduleTable": "Bảng khối lượng",
-      "builtinText": "Văn bản"
+      "builtinText": "Văn bản",
+      "rebarPosition": "Thanh cốt thép"
     }
   },
   "parametricSymbol": {

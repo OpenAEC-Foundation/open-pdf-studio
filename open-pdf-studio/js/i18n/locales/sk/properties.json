@@ -419,7 +419,9 @@
       "symbol": "Výkaz symbolov",
       "text": "Výkaz textov",
       "full": "Úplný výkaz výmer",
-      "image": "Obrázky a pečiatky"
+      "image": "Obrázky a pečiatky",
+      "bendingSchedule": "Výpis ohybov",
+      "rebarWeight": "Výkaz výstuže (hmotnosť podľa Ø)"
     },
     "preview": "Náhľad",
     "exportCsv": "Exportovať CSV",
@@ -579,7 +581,8 @@
       "textBuiltIn": "Text (natívny)",
       "symbol": "Symbol",
       "image": "Obrázok",
-      "other": "Ostatné"
+      "other": "Ostatné",
+      "reinforcement": "Výstuž"
     },
     "field": {
       "category": "Kategória",
@@ -607,7 +610,16 @@
       "width": "Šírka",
       "height": "Výška",
       "location": "Umiestnenie",
-      "locationSource": "Zdroj umiestnenia"
+      "locationSource": "Zdroj umiestnenia",
+      "rebarMark": "Pozícia",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Tvar ohybu",
+      "rebarGrade": "Trieda ocele",
+      "rebarCount": "Počet prútov",
+      "rebarLength": "Dĺžka prúta",
+      "rebarTotalLength": "Celková dĺžka",
+      "rebarMassPerM": "Hmotnosť na meter",
+      "rebarMass": "Hmotnosť"
     },
     "type": {
       "line": "Čiara",
@@ -645,7 +657,8 @@
       "stavenreeks": "Rad prútov",
       "betonbalk": "Betónový trám",
       "scheduleTable": "Tabuľka výmer",
-      "builtinText": "Text"
+      "builtinText": "Text",
+      "rebarPosition": "Výstužný prút"
     }
   },
   "parametricSymbol": {

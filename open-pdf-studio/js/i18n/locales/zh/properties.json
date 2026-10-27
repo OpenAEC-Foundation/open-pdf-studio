@@ -419,7 +419,9 @@
       "symbol": "符号明细表",
       "text": "文本明细表",
       "full": "完整工程量",
-      "image": "图像和图章"
+      "image": "图像和图章",
+      "bendingSchedule": "钢筋弯曲表",
+      "rebarWeight": "钢筋重量汇总表（按直径）"
     },
     "preview": "预览",
     "exportCsv": "导出 CSV",
@@ -579,7 +581,8 @@
       "textBuiltIn": "文本（原生）",
       "symbol": "符号",
       "image": "图像",
-      "other": "其他"
+      "other": "其他",
+      "reinforcement": "配筋"
     },
     "field": {
       "category": "类别",
@@ -607,7 +610,16 @@
       "width": "宽度",
       "height": "高度",
       "location": "位置",
-      "locationSource": "位置来源"
+      "locationSource": "位置来源",
+      "rebarMark": "钢筋编号",
+      "rebarDiameter": "Ø",
+      "rebarShape": "弯曲形状",
+      "rebarGrade": "钢材等级",
+      "rebarCount": "根数",
+      "rebarLength": "钢筋长度",
+      "rebarTotalLength": "总长度",
+      "rebarMassPerM": "每米质量",
+      "rebarMass": "质量"
     },
     "type": {
       "line": "线条",
@@ -645,7 +657,8 @@
       "stavenreeks": "钢筋组",
       "betonbalk": "混凝土梁",
       "scheduleTable": "工程量表",
-      "builtinText": "文本"
+      "builtinText": "文本",
+      "rebarPosition": "钢筋"
     }
   },
   "parametricSymbol": {

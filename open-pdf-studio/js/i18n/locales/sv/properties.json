@@ -419,7 +419,9 @@
       "symbol": "Symbolförteckning",
       "text": "Textförteckning",
       "full": "Fullständiga mängder",
-      "image": "Bilder och stämplar"
+      "image": "Bilder och stämplar",
+      "bendingSchedule": "Bockningslista",
+      "rebarWeight": "Armeringsförteckning (vikt per Ø)"
     },
     "preview": "Förhandsvisning",
     "exportCsv": "Exportera CSV",
@@ -579,7 +581,8 @@
       "textBuiltIn": "Text (inbyggd)",
       "symbol": "Symbol",
       "image": "Bild",
-      "other": "Övrigt"
+      "other": "Övrigt",
+      "reinforcement": "Armering"
     },
     "field": {
       "category": "Kategori",
@@ -607,7 +610,16 @@
       "width": "Bredd",
       "height": "Höjd",
       "location": "Plats",
-      "locationSource": "Platskälla"
+      "locationSource": "Platskälla",
+      "rebarMark": "Positionsnummer",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Bockningsform",
+      "rebarGrade": "Stålkvalitet",
+      "rebarCount": "Antal stänger",
+      "rebarLength": "Stånglängd",
+      "rebarTotalLength": "Total längd",
+      "rebarMassPerM": "Vikt per meter",
+      "rebarMass": "Vikt"
     },
     "type": {
       "line": "Linje",
@@ -645,7 +657,8 @@
       "stavenreeks": "Stångserie",
       "betonbalk": "Betongbalk",
       "scheduleTable": "Mängdtabell",
-      "builtinText": "Text"
+      "builtinText": "Text",
+      "rebarPosition": "Armeringsjärn"
     }
   },
   "parametricSymbol": {

@@ -425,7 +425,9 @@
       "symbol": "Llistat de símbols",
       "text": "Llistat de textos",
       "full": "Quantitats completes",
-      "image": "Imatges i segells"
+      "image": "Imatges i segells",
+      "bendingSchedule": "Llistat de doblegat",
+      "rebarWeight": "Resum d'armadures (pes per Ø)"
     },
     "preview": "Previsualització",
     "exportCsv": "Exporta CSV",
@@ -585,7 +587,8 @@
       "textBuiltIn": "Text (natiu)",
       "symbol": "Símbol",
       "image": "Imatge",
-      "other": "Altres"
+      "other": "Altres",
+      "reinforcement": "Armadura"
     },
     "field": {
       "category": "Categoria",
@@ -613,7 +616,16 @@
       "width": "Amplada",
       "height": "Alçada",
       "location": "Ubicació",
-      "locationSource": "Origen de la ubicació"
+      "locationSource": "Origen de la ubicació",
+      "rebarMark": "Marca",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Forma de doblegat",
+      "rebarGrade": "Qualitat de l'acer",
+      "rebarCount": "Nombre de barres",
+      "rebarLength": "Longitud de barra",
+      "rebarTotalLength": "Longitud total",
+      "rebarMassPerM": "Massa per metre",
+      "rebarMass": "Massa"
     },
     "type": {
       "line": "Línia",
@@ -651,7 +663,8 @@
       "stavenreeks": "Sèrie de barres",
       "betonbalk": "Biga de formigó",
       "scheduleTable": "Taula de quantitats",
-      "builtinText": "Text"
+      "builtinText": "Text",
+      "rebarPosition": "Barra d'armadura"
     }
   },
   "parametricSymbol": {

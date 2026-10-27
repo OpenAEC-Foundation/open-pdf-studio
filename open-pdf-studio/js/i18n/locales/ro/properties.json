@@ -419,7 +419,9 @@
       "symbol": "Extras de simboluri",
       "text": "Extras de texte",
       "full": "Cantități complete",
-      "image": "Imagini și ștampile"
+      "image": "Imagini și ștampile",
+      "bendingSchedule": "Extras de fasonare",
+      "rebarWeight": "Extras de armătură (greutate pe Ø)"
     },
     "preview": "Previzualizare",
     "exportCsv": "Exportă CSV",
@@ -579,7 +581,8 @@
       "textBuiltIn": "Text (nativ)",
       "symbol": "Simbol",
       "image": "Imagine",
-      "other": "Altele"
+      "other": "Altele",
+      "reinforcement": "Armătură"
     },
     "field": {
       "category": "Categorie",
@@ -607,7 +610,16 @@
       "width": "Lățime",
       "height": "Înălțime",
       "location": "Locație",
-      "locationSource": "Sursa locației"
+      "locationSource": "Sursa locației",
+      "rebarMark": "Poziție",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Formă de fasonare",
+      "rebarGrade": "Clasa oțelului",
+      "rebarCount": "Număr de bare",
+      "rebarLength": "Lungime bară",
+      "rebarTotalLength": "Lungime totală",
+      "rebarMassPerM": "Masă pe metru",
+      "rebarMass": "Masă"
     },
     "type": {
       "line": "Linie",
@@ -645,7 +657,8 @@
       "stavenreeks": "Serie de bare",
       "betonbalk": "Grindă de beton",
       "scheduleTable": "Tabel de cantități",
-      "builtinText": "Text"
+      "builtinText": "Text",
+      "rebarPosition": "Bară de armătură"
     }
   },
   "parametricSymbol": {

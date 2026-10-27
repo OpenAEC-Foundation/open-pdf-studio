@@ -419,7 +419,9 @@
       "symbol": "Symbol schedule",
       "text": "Text schedule",
       "full": "Full quantities",
-      "image": "Images & stamps"
+      "image": "Images & stamps",
+      "bendingSchedule": "Bending schedule",
+      "rebarWeight": "Rebar weight schedule (per Ø)"
     },
     "preview": "Preview",
     "exportCsv": "Export CSV",
@@ -579,7 +581,8 @@
       "textBuiltIn": "Text (native)",
       "symbol": "Symbol",
       "image": "Image",
-      "other": "Other"
+      "other": "Other",
+      "reinforcement": "Reinforcement"
     },
     "field": {
       "category": "Category",
@@ -607,7 +610,16 @@
       "width": "Width",
       "height": "Height",
       "location": "Location",
-      "locationSource": "Location source"
+      "locationSource": "Location source",
+      "rebarMark": "Bar mark",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Shape code",
+      "rebarGrade": "Steel grade",
+      "rebarCount": "Number of bars",
+      "rebarLength": "Bar length",
+      "rebarTotalLength": "Total length",
+      "rebarMassPerM": "Mass per metre",
+      "rebarMass": "Mass"
     },
     "type": {
       "line": "Line",
@@ -645,7 +657,8 @@
       "stavenreeks": "Bar series",
       "betonbalk": "Concrete beam",
       "scheduleTable": "Quantities table",
-      "builtinText": "Text"
+      "builtinText": "Text",
+      "rebarPosition": "Reinforcement bar"
     }
   },
   "parametricSymbol": {

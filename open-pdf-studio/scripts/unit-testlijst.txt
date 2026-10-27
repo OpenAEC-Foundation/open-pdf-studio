@@ -517,3 +517,11 @@ js/pdf/saver/text-edit-unicode.test.mjs
 js/text/tekstlaag-bron.test.mjs
 js/pdf/saver/text-edit-glyfen.test.mjs
 js/text/tekenafstand.test.mjs
+js/quantities/wapening.test.mjs
+js/symbols/templates/wapeningsdetail.test.mjs
+js/symbols/templates/wapeningsnet.test.mjs
+js/symbols/templates/staaf-plattegrond.test.mjs
+js/symbols/templates/vloer-vorstrand.test.mjs
+js/symbols/templates/staalverbindingen.test.mjs
+js/symbols/templates/wapeningskorf-staat.test.mjs
+js/pdf/wapening-rondgang.test.mjs

@@ -419,7 +419,9 @@
       "symbol": "Symbolen-staat",
       "text": "Tekst-staat",
       "full": "Volledige hoeveelheden",
-      "image": "Afbeeldingen & stempels"
+      "image": "Afbeeldingen & stempels",
+      "bendingSchedule": "Buigstaat",
+      "rebarWeight": "Wapeningsstaat (gewicht per Ø)"
     },
     "preview": "Voorbeeld",
     "exportCsv": "CSV exporteren",
@@ -579,7 +581,8 @@
       "textBuiltIn": "Tekst (native)",
       "symbol": "Symbool",
       "image": "Afbeelding",
-      "other": "Overig"
+      "other": "Overig",
+      "reinforcement": "Wapening"
     },
     "field": {
       "category": "Categorie",
@@ -607,7 +610,16 @@
       "width": "Breedte",
       "height": "Hoogte",
       "location": "Locatie",
-      "locationSource": "Locatiebron"
+      "locationSource": "Locatiebron",
+      "rebarMark": "Staafnummer",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Buigvorm",
+      "rebarGrade": "Staalkwaliteit",
+      "rebarCount": "Aantal staven",
+      "rebarLength": "Staaflengte",
+      "rebarTotalLength": "Totale lengte",
+      "rebarMassPerM": "Massa per meter",
+      "rebarMass": "Gewicht"
     },
     "type": {
       "line": "Lijn",
@@ -645,7 +657,8 @@
       "stavenreeks": "Stavenreeks",
       "betonbalk": "Betonbalk",
       "scheduleTable": "Hoeveelheden-tabel",
-      "builtinText": "Tekst"
+      "builtinText": "Tekst",
+      "rebarPosition": "Wapeningsstaaf"
     }
   },
   "parametricSymbol": {

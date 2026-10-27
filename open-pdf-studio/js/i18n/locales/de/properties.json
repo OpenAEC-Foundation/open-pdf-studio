@@ -419,7 +419,9 @@
       "symbol": "Symbolliste",
       "text": "Textliste",
       "full": "Vollständige Mengen",
-      "image": "Bilder & Stempel"
+      "image": "Bilder & Stempel",
+      "bendingSchedule": "Biegeliste",
+      "rebarWeight": "Stahlliste (Gewicht je Ø)"
     },
     "preview": "Vorschau",
     "exportCsv": "CSV exportieren",
@@ -579,7 +581,8 @@
       "textBuiltIn": "Text (nativ)",
       "symbol": "Symbol",
       "image": "Bild",
-      "other": "Sonstige"
+      "other": "Sonstige",
+      "reinforcement": "Bewehrung"
     },
     "field": {
       "category": "Kategorie",
@@ -607,7 +610,16 @@
       "width": "Breite",
       "height": "Höhe",
       "location": "Standort",
-      "locationSource": "Standortquelle"
+      "locationSource": "Standortquelle",
+      "rebarMark": "Positionsnummer",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Biegeform",
+      "rebarGrade": "Stahlsorte",
+      "rebarCount": "Anzahl Stäbe",
+      "rebarLength": "Stablänge",
+      "rebarTotalLength": "Gesamtlänge",
+      "rebarMassPerM": "Masse pro Meter",
+      "rebarMass": "Gewicht"
     },
     "type": {
       "line": "Linie",
@@ -645,7 +657,8 @@
       "stavenreeks": "Stabreihe",
       "betonbalk": "Betonbalken",
       "scheduleTable": "Mengentabelle",
-      "builtinText": "Text"
+      "builtinText": "Text",
+      "rebarPosition": "Bewehrungsstab"
     }
   },
   "parametricSymbol": {
