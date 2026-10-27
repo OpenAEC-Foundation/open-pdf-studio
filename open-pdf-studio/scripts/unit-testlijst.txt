@@ -510,6 +510,7 @@ js/core/volgende-taak.test.mjs
 js/solid/components/ribbon/na-lettertypen.test.mjs
 js/text/tekst-blokken.test.mjs
 js/tools/text-edit-commit.test.mjs
+js/tools/text-edit-verwijderen.test.mjs
 js/pdf/saver/text-edit-afbeelding.test.mjs
 js/pdf/saver/text-edit-formxobject.test.mjs
 js/pdf/saver/text-edit-mcp-scan.test.mjs
