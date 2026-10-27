@@ -208,6 +208,7 @@ test("the arguments are the ones the print dialog would send", () => {
     zoom: 100,
     centreren: false,
     inhoud: "doc-only",
+    kleur: "color",
     openen: null,
   });
 });
@@ -229,7 +230,26 @@ test("without a known sheet a file print lays every page on its own sheet, a pri
     zoom: 100,
     centreren: true,
     inhoud: "doc-and-markups",
+    kleur: "color",
   });
+});
+
+test("a command prints in the colour mode the dialog remembered (#754)", () => {
+  const grijs = leesPrintOpdracht({ path: DOEL }, { onthouden: { colorMode: "grayscale" }, venster: GEEN_INSTELLING });
+  assert.equal(grijs.kleur, "grayscale");
+  const keuzes = plaatsingKeuzes(grijs, { vel: null });
+  assert.equal(printOpdrachtArgumenten(grijs, { pages: [1], keuzes }).kleur, "grayscale");
+  const zw = leesPrintOpdracht({ printer: "Kantoor" }, { naarBestand: false, onthouden: { colorMode: "bw" } });
+  assert.equal(printOpdrachtArgumenten(zw, { pages: [1], keuzes }).kleur, "bw");
+  // Een kapotte onthouden waarde valt terug op kleur.
+  assert.equal(leesPrintOpdracht({ path: DOEL }, { onthouden: { colorMode: "sepia" } }).kleur, "color");
+  // Het is geen argument van de opdracht.
+  assert.match(leesPrintOpdracht({ path: DOEL, colorMode: "bw" }, {}).error, /unknown argument/);
+  // Het antwoord meldt de kleurmodus; bij grijs staan de pagina's als beeld in het bestand.
+  const uit = printUitkomst(grijs, [], { gerasterd: true });
+  assert.equal(uit.color_mode, "grayscale");
+  assert.deepEqual(uit.warnings, ["color mode grayscale: the pages were printed as images"]);
+  assert.equal(printUitkomst(leesPrintOpdracht({ path: DOEL }, {}), []).color_mode, "color");
 });
 
 test("the command's own page setup gives the dialog functions the requested paper", () => {

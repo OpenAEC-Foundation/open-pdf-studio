@@ -308,4 +308,5 @@ export interface PrintSettings {
   autoCenter: boolean;
   content: 'doc-and-markups' | 'doc-only';
   asImage: boolean;
+  colorMode?: 'color' | 'grayscale' | 'bw';
 }

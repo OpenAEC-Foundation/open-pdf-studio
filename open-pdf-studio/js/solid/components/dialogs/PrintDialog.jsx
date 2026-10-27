@@ -37,6 +37,7 @@ import {
   POSTER_SCHAAL_MIN, POSTER_SCHAAL_MAX, OVERLAP_MAX_MM, SNIJTEKEN_DIKTE_PT,
 } from '../../../pdf/print-poster.js';
 import { leesGetalBegin } from '../../../core/getal-invoer.js';
+import { KLEUR_MODI, geldigeKleurModus } from '../../../pdf/print-kleur.js';
 
 // Vak waarin het voorbeeld het vel tekent, in CSS-pixels.
 const VOORBEELD_BREEDTE = 300;
@@ -58,6 +59,13 @@ const VOLGORDE_PADEN = {
   vertical: { pad: 'M4 3 V13 L12 3 V10', punt: '12,14 9.5,10 14.5,10' },
   'vertical-reversed': { pad: 'M12 3 V13 L4 3 V10', punt: '4,14 1.5,10 6.5,10' },
 };
+// De kleurmodi van de afdruk (#754, print-kleur.js) met hun tekst.
+const KLEUR_TEKST = {
+  color: 'print.colorModeColor',
+  grayscale: 'print.colorModeGrayscale',
+  bw: 'print.colorModeBlackWhite',
+};
+
 const VOLGORDE_TEKST = {
   horizontal: 'print.orderHorizontal',
   'horizontal-reversed': 'print.orderHorizontalReversed',
@@ -111,6 +119,8 @@ export default function PrintDialog(props) {
   const [autoCenter, setAutoCenter] = createSignal(bewaard.autoCenter);
   const [printContent, setPrintContent] = createSignal(bewaard.content);
   const [printAsImage, setPrintAsImage] = createSignal(bewaard.asImage);
+  // Kleur, grijswaarden of zwart-wit (#754): voorbeeld en afdruk gelijk.
+  const [colorMode, setColorMode] = createSignal(bewaard.colorMode);
   const [perSheet, setPerSheet] = createSignal(bewaard.perSheet);
   const [sheetCols, setSheetCols] = createSignal(bewaard.sheetCols);
   const [sheetRows, setSheetRows] = createSignal(bewaard.sheetRows);
@@ -337,18 +347,19 @@ export default function PrintDialog(props) {
 
     const keuzes = plaatsingKeuzes();
     const markeringen = printContent() === 'doc-and-markups';
+    const kleur = colorMode();
     if (poster()) {
       setMeerVoorbeeld(null);
-      await renderPosterVoorbeeld(beurt, pages, markeringen);
+      await renderPosterVoorbeeld(beurt, pages, markeringen, kleur);
       return;
     }
     if (boekje()) {
-      await renderBoekjeVoorbeeld(beurt, doc, pages, keuzes, markeringen);
+      await renderBoekjeVoorbeeld(beurt, doc, pages, keuzes, markeringen, kleur);
       return;
     }
     const raster = meerPerBlad();
     if (raster) {
-      await renderMeerPerBladVoorbeeld(beurt, doc, pages, keuzes, raster, markeringen);
+      await renderMeerPerBladVoorbeeld(beurt, doc, pages, keuzes, raster, markeringen, kleur);
       return;
     }
     setMeerVoorbeeld(null);
@@ -372,7 +383,7 @@ export default function PrintDialog(props) {
       // pagina die haaks op het vel staat.
       const deel = renderDeel(plaatsing, pxPerPt);
       const beeld = deel
-        ? await renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen })
+        ? await renderPrintBeeld(pageNum, pxPerPt, plaatsing, deel, { markeringen, kleur })
         : null;
       if (beurt !== voorbeeldBeurt) return;
 
@@ -391,7 +402,7 @@ export default function PrintDialog(props) {
   // Meerdere pagina's per vel: het getoonde vel met al zijn pagina's, zoals
   // de printopdracht het bouwt (voorbeeldMeerPerBlad in print-meerperblad.js,
   // dezelfde regels als maakMeerPerBlad). De navigatie loopt dan per vel.
-  async function renderMeerPerBladVoorbeeld(beurt, doc, pages, keuzes, raster, markeringen) {
+  async function renderMeerPerBladVoorbeeld(beurt, doc, pages, keuzes, raster, markeringen, kleur) {
     try {
       const velIndex = Math.min(previewIndex(), aantalVellen(pages.length, raster) - 1);
       const opVel = paginasOpVel(pages, velIndex, raster);
@@ -414,7 +425,7 @@ export default function PrintDialog(props) {
       // De volgorde-aanwijzer alleen in het voorbeeld, nooit in de afdruk; bij
       // een folder (elke cel dezelfde pagina) alleen de nummers.
       await tekenCellenVoorbeeld(beurt, v, (cel) => opVel[cel.k], markeringen, {
-        aanwijzer: raster.flyer ? 'nummers' : 'volgorde',
+        aanwijzer: raster.flyer ? 'nummers' : 'volgorde', kleur,
       });
     } catch (e) {
       console.error('Preview render error:', e);
@@ -425,7 +436,7 @@ export default function PrintDialog(props) {
   // vouw de pagina's in genietvolgorde (voorbeeldBoekje in print-boekje.js,
   // dezelfde regels als maakBoekje). Een blanco helft blijft wit. De
   // navigatie loopt per zijde: vel 1 voor, vel 1 achter, vel 2 voor...
-  async function renderBoekjeVoorbeeld(beurt, doc, pages, keuzes, markeringen) {
+  async function renderBoekjeVoorbeeld(beurt, doc, pages, keuzes, markeringen, kleur) {
     try {
       const lijst = boekjeZijden();
       if (!lijst.length) return;
@@ -451,7 +462,7 @@ export default function PrintDialog(props) {
       setAfsnijMelding('');
       if (!v) return;
       // Alleen de nummers: links en rechts van de vouw komen niet na elkaar.
-      await tekenCellenVoorbeeld(beurt, v, (cel) => pages[zijde[cel.k]], markeringen, { aanwijzer: 'nummers' });
+      await tekenCellenVoorbeeld(beurt, v, (cel) => pages[zijde[cel.k]], markeringen, { aanwijzer: 'nummers', kleur });
     } catch (e) {
       console.error('Preview render error:', e);
     }
@@ -466,7 +477,7 @@ export default function PrintDialog(props) {
   // met `gedraaid` (achterkant van een boekje) staat een halve slag gedraaid,
   // een cel met `klem` (kruip) wordt op dat vlak afgeknipt; `v.vouw` tekent
   // de vouw als stippellijn (alleen in het voorbeeld).
-  async function tekenCellenVoorbeeld(beurt, v, paginaVan, markeringen, { aanwijzer = false } = {}) {
+  async function tekenCellenVoorbeeld(beurt, v, paginaVan, markeringen, { aanwijzer = false, kleur = 'color' } = {}) {
     const vak = canvasVak(v.vel);
     const beelden = [];
     const gerenderd = new Map();
@@ -476,7 +487,7 @@ export default function PrintDialog(props) {
       const sleutel = deel ? `${paginaVan(cel)}|${pxPerPt}|${JSON.stringify(deel.px)}` : null;
       let beeld = sleutel ? gerenderd.get(sleutel) : null;
       if (deel && !beeld) {
-        beeld = await renderPrintBeeld(paginaVan(cel), pxPerPt, cel.plaatsing, deel, { markeringen });
+        beeld = await renderPrintBeeld(paginaVan(cel), pxPerPt, cel.plaatsing, deel, { markeringen, kleur });
         gerenderd.set(sleutel, beeld);
       }
       if (beurt !== voorbeeldBeurt) return;
@@ -604,7 +615,7 @@ export default function PrintDialog(props) {
   // (posterIndeling in print-poster.js, dezelfde regel): de pagina geknipt
   // tot het venster van de tegel, de snijtekens en het label. De navigatie
   // loopt per vel; een pagina die niet getegeld wordt is één vel.
-  async function renderPosterVoorbeeld(beurt, pages, markeringen) {
+  async function renderPosterVoorbeeld(beurt, pages, markeringen, kleur) {
     try {
       const vellen = posterVellenLijst();
       setAfsnijMelding('');
@@ -618,7 +629,7 @@ export default function PrintDialog(props) {
       const pxPerPt = v.plaatsing.schaal * MM_PER_PT * vak.pxPerMm;
       const deel = renderDeel(v.plaatsing, pxPerPt);
       const beeld = deel
-        ? await renderPrintBeeld(pageNum, pxPerPt, v.plaatsing, deel, { markeringen })
+        ? await renderPrintBeeld(pageNum, pxPerPt, v.plaatsing, deel, { markeringen, kleur })
         : null;
       if (beurt !== voorbeeldBeurt) return;
 
@@ -983,6 +994,7 @@ export default function PrintDialog(props) {
       autoCenter: autoCenter(),
       content: printContent(),
       asImage: printAsImage(),
+      colorMode: geldigeKleurModus(colorMode()),
       perSheet: perSheet(),
       sheetCols: sheetCols(),
       sheetRows: sheetRows(),
@@ -1041,6 +1053,7 @@ export default function PrintDialog(props) {
         poster: posterKeuze,
         boekje: boekjeKeuze,
         inhoud: printContent(),
+        kleur: geldigeKleurModus(colorMode()),
         openen: openOpgeslagen,
       });
       return;
@@ -1060,6 +1073,7 @@ export default function PrintDialog(props) {
       boekje: boekjeKeuze,
       // "Afdrukken: Document" laat de markeringen ook echt weg.
       inhoud: printContent(),
+      kleur: geldigeKleurModus(colorMode()),
     });
   }
 
@@ -1286,7 +1300,7 @@ export default function PrintDialog(props) {
   // zoom, centreren, automatisch draaien, Pagina-instelling en printerpapier)
   // of de pagina's per vel (aantal, raster, volgorde, rand).
   createEffect(on([
-    previewPages, previewIndex, printContent, plaatsingKeuzes, meerPerBlad, boekje, katern, boekjeZijden,
+    previewPages, previewIndex, printContent, colorMode, plaatsingKeuzes, meerPerBlad, boekje, katern, boekjeZijden,
     bookletCreep, posterVellenLijst,
   ], () => {
     renderPreview();
@@ -1834,6 +1848,20 @@ export default function PrintDialog(props) {
             >
               <option value="doc-and-markups">{t('print.documentAndMarkups')}</option>
               <option value="doc-only">{t('print.document')}</option>
+            </select>
+          </div>
+          <div class="print-row">
+            <label class="print-label">{t('print.colorMode')}</label>
+            <select
+              class="print-select"
+              value={colorMode()}
+              onChange={(e) => setColorMode(geldigeKleurModus(e.target.value))}
+            >
+              <For each={KLEUR_MODI}>
+                {(modus) => (
+                  <option value={modus} selected={modus === colorMode()}>{t(KLEUR_TEKST[modus])}</option>
+                )}
+              </For>
             </select>
           </div>
           <div class="print-row print-checkbox-row">
