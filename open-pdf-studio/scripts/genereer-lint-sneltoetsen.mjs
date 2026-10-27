@@ -89,7 +89,8 @@ export function lintOpdrachtenUit(bronnen) {
 }
 
 export function leesBronnen() {
-  return TABBLADEN.map(([bestand, tab]) => ({ tab, bron: fs.readFileSync(path.join(LINT, bestand), 'utf8') }));
+  // CRLF (a Windows checkout) gives the same list.
+  return TABBLADEN.map(([bestand, tab]) => ({ tab, bron: fs.readFileSync(path.join(LINT, bestand), 'utf8').replace(/\r\n/g, '\n') }));
 }
 
 export function genereer(lijst = lintOpdrachtenUit(leesBronnen())) {

@@ -9,7 +9,9 @@ import { CORE_COMMANDS, RIBBON_ALIASES, FIXED_SHORTCUTS, CATEGORY_ORDER } from '
 import { stripShortcutText, titleWithShortcut, commandLabel, categoryLabel, matchesSearch, groupCommands } from './labels.js';
 import { genereer, DOEL } from '../../../scripts/genereer-lint-sneltoetsen.mjs';
 
-const bron = (pad) => readFileSync(new URL(pad, import.meta.url), 'utf8');
+// Windows checks the sources out with CRLF.
+const lf = (tekst) => tekst.replace(/\r\n/g, '\n');
+const bron = (pad) => lf(readFileSync(new URL(pad, import.meta.url), 'utf8'));
 const LOCALES = new URL('../../i18n/locales/', import.meta.url);
 const json = (locale, ns) => JSON.parse(readFileSync(new URL(`${locale}/${ns}.json`, LOCALES), 'utf8'));
 const opzoeken = (locale, sleutel) => {
@@ -18,7 +20,7 @@ const opzoeken = (locale, sleutel) => {
 };
 
 test('the generated list of ribbon buttons is up to date (node scripts/genereer-lint-sneltoetsen.mjs)', () => {
-  assert.equal(readFileSync(DOEL, 'utf8'), genereer());
+  assert.equal(lf(readFileSync(DOEL, 'utf8')), genereer());
 });
 
 test('the list has the ribbon buttons, each with a tab and a name', () => {

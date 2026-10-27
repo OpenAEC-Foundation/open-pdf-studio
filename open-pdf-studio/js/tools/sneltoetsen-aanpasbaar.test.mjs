@@ -235,9 +235,9 @@ test('T (the one-letter command-line chord) still opens the text box tool, unles
 });
 
 test('Ctrl+P (main.js) and F2 (proofreading mode) ask the registry too', () => {
-  const main = readFileSync(new URL('../main.js', import.meta.url), 'utf8');
+  const main = readFileSync(new URL('../main.js', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
   assert.match(main, /if \(!sneltoetsActief\('file\.print', 'Ctrl\+P'\)\) return;\n\s*e\.stopImmediatePropagation\(\);/);
-  const pm = readFileSync(new URL('./proofreading-mode.js', import.meta.url), 'utf8');
+  const pm = readFileSync(new URL('./proofreading-mode.js', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
   assert.match(pm, /e\.key === 'F2'[^\n]*\n\s*&& sneltoetsActief\('review\.proofreading', 'F2'\)/);
   assert.match(pm, /if \(isSneltoetsOpname\(\)\) return;/);
 });
