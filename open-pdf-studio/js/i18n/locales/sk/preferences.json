@@ -105,7 +105,13 @@
     "headOpenReversed": "Otvorená šípka (obrátená)",
     "headClosedReversed": "Uzavretá šípka (obrátená)",
     "headSlash": "Lomka",
-    "polylineDefaults": "Predvolené nastavenia lomenej čiary"
+    "polylineDefaults": "Predvolené nastavenia lomenej čiary",
+    "smoothing": "Vyhladenie",
+    "pressure": "Prítlak pera",
+    "pressureHint": "Prítlak pera mení šírku ťahu (ťahy myšou majú stálu šírku)",
+    "pressureMinWidth": "Minimálna šírka (%)",
+    "penOnly": "Iba pero (ignorovať dotyk)",
+    "penOnlyHint": "Dotyk nekreslí nástrojom voľnej ruky; užitočné proti dotyku dlane pri písaní perom"
   },
   "shapes": {
     "rectangleDefaults": "Predvolené nastavenia obdĺžnika",

@@ -105,7 +105,13 @@
     "headOpenReversed": "Săgeată deschisă (inversată)",
     "headClosedReversed": "Săgeată închisă (inversată)",
     "headSlash": "Linie oblica",
-    "polylineDefaults": "Valori implicite polilinie"
+    "polylineDefaults": "Valori implicite polilinie",
+    "smoothing": "Netezire",
+    "pressure": "Presiunea stiloului",
+    "pressureHint": "Presiunea stiloului variază grosimea liniei (liniile trase cu mouse-ul păstrează o grosime constantă)",
+    "pressureMinWidth": "Lățime minimă (%)",
+    "penOnly": "Doar stilou (ignoră atingerea)",
+    "penOnlyHint": "Atingerea nu desenează cu instrumentul de mână liberă; util împotriva contactului palmei când scrieți cu stiloul"
   },
   "shapes": {
     "rectangleDefaults": "Valori implicite dreptunghi",

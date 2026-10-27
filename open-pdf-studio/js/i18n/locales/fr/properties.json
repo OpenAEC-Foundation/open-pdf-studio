@@ -722,5 +722,14 @@
     "invalid": "Impossible de mettre à jour l'emplacement",
     "rules": "L'attribution utilise le centre du cadre de délimitation de l'annotation, bords compris. La zone la plus profonde l'emporte, puis la plus petite surface, puis l'ID de zone. Utilisez des polygones droits sans trous ou des rectangles non pivotés. Les identités de zone non valides ou en double sont exclues.",
     "loading": "Chargement des annotations : les emplacements peuvent encore changer."
+  },
+  "ink": {
+    "title": "Encre",
+    "pressure": "Pression du stylet",
+    "pressureHint": "La pression du stylet fait varier l'épaisseur du trait (un trait à la souris garde une épaisseur constante)",
+    "minWidth": "Largeur minimale (%)",
+    "minWidthHint": "Largeur à la pression la plus légère, en pourcentage de l'épaisseur du trait",
+    "smoothing": "Lissage",
+    "smoothingHint": "Intensité du lissage du trait (0 = aucun)"
   }
 }

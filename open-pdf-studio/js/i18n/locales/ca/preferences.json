@@ -105,7 +105,13 @@
     "headOpenReversed": "Fletxa oberta (invertida)",
     "headClosedReversed": "Fletxa tancada (invertida)",
     "headSlash": "Barra",
-    "polylineDefaults": "Valors per defecte de polilínia"
+    "polylineDefaults": "Valors per defecte de polilínia",
+    "smoothing": "Suavitzat",
+    "pressure": "Pressió del llapis",
+    "pressureHint": "La pressió del llapis varia el gruix del traç (els traços amb el ratolí mantenen un gruix constant)",
+    "pressureMinWidth": "Amplada mínima (%)",
+    "penOnly": "Només llapis (ignora el tacte)",
+    "penOnlyHint": "El tacte no dibuixa amb l'eina a mà alçada; útil contra el contacte del palmell en escriure amb el llapis"
   },
   "shapes": {
     "rectangleDefaults": "Valors per defecte del rectangle",

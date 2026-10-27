@@ -722,5 +722,14 @@
     "invalid": "Lokasi tidak dapat diperbarui",
     "rules": "Penetapan menggunakan titik tengah kotak pembatas markup, termasuk tepinya. Zona terdalam diutamakan, lalu luas terkecil, lalu ID zona. Gunakan poligon bersisi lurus tanpa lubang atau kotak tanpa rotasi. Identitas zona yang tidak valid atau duplikat dikecualikan.",
     "loading": "Anotasi sedang dimuat: lokasi masih dapat berubah."
+  },
+  "ink": {
+    "title": "Tinta",
+    "pressure": "Tekanan pena",
+    "pressureHint": "Tekanan pena mengubah lebar goresan (goresan mouse tetap selebar yang sama)",
+    "minWidth": "Lebar minimum (%)",
+    "minWidthHint": "Lebar pada tekanan pena paling ringan, dalam persen dari ketebalan garis",
+    "smoothing": "Penghalusan",
+    "smoothingHint": "Kekuatan penghalusan goresan (0 = tidak ada)"
   }
 }

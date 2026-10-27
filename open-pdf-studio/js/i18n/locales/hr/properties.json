@@ -722,5 +722,14 @@
     "invalid": "Lokaciju nije moguće ažurirati",
     "rules": "Dodjela koristi središte graničnog okvira oznake, uključujući rubove. Prednost ima najdublja zona, zatim najmanja površina, pa ID zone. Koristite ravne mnogokute bez rupa ili nerotirane okvire. Nevaljani ili dvostruki identiteti zona isključuju se.",
     "loading": "Bilješke se učitavaju: lokacije se još mogu promijeniti."
+  },
+  "ink": {
+    "title": "Tinta",
+    "pressure": "Pritisak olovke",
+    "pressureHint": "Pritisak olovke mijenja debljinu poteza (potezi mišem zadržavaju stalnu debljinu)",
+    "minWidth": "Najmanja širina (%)",
+    "minWidthHint": "Širina pri najlakšem pritisku, kao postotak debljine linije",
+    "smoothing": "Zaglađivanje",
+    "smoothingHint": "Jačina zaglađivanja poteza (0 = bez)"
   }
 }

@@ -722,5 +722,14 @@
     "invalid": "Plasseringen kunne ikke oppdateres",
     "rules": "Tildelingen bruker midtpunktet av markeringens omsluttende ramme, kanter inkludert. Den dypeste sonen vinner, deretter minste areal og så sone-ID. Bruk rette polygoner uten hull eller uroterte rektangler. Ugyldige eller dupliserte soneidentiteter utelates.",
     "loading": "Merknader lastes inn: plasseringer kan fortsatt endres."
+  },
+  "ink": {
+    "title": "Blekk",
+    "pressure": "Pennetrykk",
+    "pressureHint": "Pennetrykket endrer strekbredden (musestreker beholder fast bredde)",
+    "minWidth": "Minste bredde (%)",
+    "minWidthHint": "Bredde ved letteste pennetrykk, i prosent av linjebredden",
+    "smoothing": "Utjevning",
+    "smoothingHint": "Styrke på utjevning av streken (0 = ingen)"
   }
 }

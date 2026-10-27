@@ -105,7 +105,13 @@
     "headOpenReversed": "开放箭头（反向）",
     "headClosedReversed": "闭合箭头（反向）",
     "headSlash": "斜线",
-    "polylineDefaults": "折线默认值"
+    "polylineDefaults": "折线默认值",
+    "smoothing": "平滑",
+    "pressure": "笔压",
+    "pressureHint": "笔压会改变笔画宽度（鼠标绘制的笔画宽度保持不变）",
+    "pressureMinWidth": "最小宽度 (%)",
+    "penOnly": "仅限手写笔（忽略触摸）",
+    "penOnlyHint": "触摸不会使用手绘工具绘制；可防止用手写笔书写时手掌误触"
   },
   "shapes": {
     "rectangleDefaults": "矩形默认值",

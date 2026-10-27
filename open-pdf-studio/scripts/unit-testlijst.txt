@@ -517,3 +517,6 @@ js/pdf/saver/text-edit-unicode.test.mjs
 js/text/tekstlaag-bron.test.mjs
 js/pdf/saver/text-edit-glyfen.test.mjs
 js/text/tekenafstand.test.mjs
+js/annotations/pressure-ink.test.mjs
+js/annotations/pressure-ink-wiring.test.mjs
+js/pdf/drukinkt-rondgang.test.mjs

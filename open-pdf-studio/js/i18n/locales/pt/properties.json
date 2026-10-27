@@ -722,5 +722,14 @@
     "invalid": "Não foi possível atualizar a localização",
     "rules": "A atribuição usa o centro da caixa delimitadora da marcação, incluindo as bordas. Prevalece a zona mais profunda, depois a menor área e, por fim, o ID da zona. Use polígonos retos sem furos ou retângulos sem rotação. Identidades de zona inválidas ou duplicadas são excluídas.",
     "loading": "Carregando anotações: as localizações ainda podem mudar."
+  },
+  "ink": {
+    "title": "Tinta",
+    "pressure": "Pressão da caneta",
+    "pressureHint": "A pressão da caneta varia a espessura do traço (traços com o rato mantêm uma espessura constante)",
+    "minWidth": "Largura mínima (%)",
+    "minWidthHint": "Largura com a pressão mais leve, em percentagem da espessura da linha",
+    "smoothing": "Suavização",
+    "smoothingHint": "Intensidade da suavização do traço (0 = nenhuma)"
   }
 }

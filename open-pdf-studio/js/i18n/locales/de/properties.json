@@ -722,5 +722,14 @@
     "invalid": "Standort konnte nicht aktualisiert werden",
     "rules": "Die Zuordnung verwendet den Mittelpunkt des Begrenzungsrahmens der Markierung, einschließlich Kanten. Die tiefste Zone hat Vorrang, dann die kleinste Fläche, dann die Zonen-ID. Verwenden Sie gerade Polygone ohne Löcher oder nicht gedrehte Rechtecke. Ungültige oder doppelte Zonenidentitäten werden ausgeschlossen.",
     "loading": "Anmerkungen werden geladen: Standorte können sich noch ändern."
+  },
+  "ink": {
+    "title": "Tinte",
+    "pressure": "Stiftdruck",
+    "pressureHint": "Der Stiftdruck verändert die Strichbreite (Mausstriche behalten eine feste Breite)",
+    "minWidth": "Mindestbreite (%)",
+    "minWidthHint": "Breite bei leichtestem Stiftdruck, in Prozent der Linienstärke",
+    "smoothing": "Glättung",
+    "smoothingHint": "Stärke der Strichglättung (0 = aus)"
   }
 }

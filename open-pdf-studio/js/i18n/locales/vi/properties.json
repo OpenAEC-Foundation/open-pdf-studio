@@ -722,5 +722,14 @@
     "invalid": "Không thể cập nhật vị trí",
     "rules": "Việc gán dựa trên tâm hộp giới hạn của đánh dấu, tính cả cạnh. Vùng sâu nhất được ưu tiên, sau đó đến diện tích nhỏ nhất, rồi đến ID vùng. Hãy dùng đa giác cạnh thẳng không có lỗ hoặc hộp chưa xoay. Các định danh vùng không hợp lệ hoặc trùng lặp sẽ bị loại trừ.",
     "loading": "Đang tải chú thích: vị trí có thể vẫn thay đổi."
+  },
+  "ink": {
+    "title": "Mực",
+    "pressure": "Lực nhấn bút",
+    "pressureHint": "Lực nhấn bút thay đổi độ rộng nét (nét vẽ bằng chuột giữ độ rộng cố định)",
+    "minWidth": "Độ rộng tối thiểu (%)",
+    "minWidthHint": "Độ rộng ở lực nhấn nhẹ nhất, tính theo phần trăm độ dày đường",
+    "smoothing": "Làm mượt",
+    "smoothingHint": "Mức làm mượt nét (0 = không)"
   }
 }

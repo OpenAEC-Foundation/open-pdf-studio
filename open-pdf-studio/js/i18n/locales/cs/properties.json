@@ -722,5 +722,14 @@
     "invalid": "Umístění nelze aktualizovat",
     "rules": "Přiřazení vychází ze středu ohraničujícího rámečku značky, včetně okrajů. Vyhrává nejhlouběji vnořená zóna, pak nejmenší plocha, pak ID zóny. Používejte mnohoúhelníky s rovnými stranami bez otvorů nebo neotočené obdélníky. Neplatné nebo duplicitní identity zón se vylučují.",
     "loading": "Načítají se anotace: umístění se ještě mohou změnit."
+  },
+  "ink": {
+    "title": "Inkoust",
+    "pressure": "Přítlak pera",
+    "pressureHint": "Přítlak pera mění šířku tahu (tahy myší mají stálou šířku)",
+    "minWidth": "Minimální šířka (%)",
+    "minWidthHint": "Šířka při nejlehčím přítlaku, v procentech tloušťky čáry",
+    "smoothing": "Vyhlazení",
+    "smoothingHint": "Síla vyhlazení tahu (0 = žádné)"
   }
 }

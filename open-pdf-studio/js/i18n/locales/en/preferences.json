@@ -139,7 +139,13 @@
     "headOpenReversed": "Open Arrow (reversed)",
     "headClosedReversed": "Closed Arrow (reversed)",
     "headSlash": "Slash",
-    "polylineDefaults": "Polyline Defaults"
+    "polylineDefaults": "Polyline Defaults",
+    "smoothing": "Smoothing",
+    "pressure": "Pen pressure",
+    "pressureHint": "Pen pressure varies the stroke width (mouse strokes keep a constant width)",
+    "pressureMinWidth": "Minimum width (%)",
+    "penOnly": "Pen only (ignore touch)",
+    "penOnlyHint": "Touch input does not draw with the freehand tool; useful against palm contact while writing with a pen"
   },
   "shapes": {
     "rectangleDefaults": "Rectangle Defaults",

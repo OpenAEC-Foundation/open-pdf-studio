@@ -105,7 +105,13 @@
     "headOpenReversed": "Otwarta strzałka (odwrócona)",
     "headClosedReversed": "Zamknięta strzałka (odwrócona)",
     "headSlash": "Ukośnik",
-    "polylineDefaults": "Ustawienia domyślne polilinii"
+    "polylineDefaults": "Ustawienia domyślne polilinii",
+    "smoothing": "Wygładzanie",
+    "pressure": "Nacisk pióra",
+    "pressureHint": "Nacisk pióra zmienia grubość linii (linie rysowane myszą mają stałą grubość)",
+    "pressureMinWidth": "Minimalna szerokość (%)",
+    "penOnly": "Tylko pióro (ignoruj dotyk)",
+    "penOnlyHint": "Dotyk nie rysuje narzędziem odręcznym; przydatne przeciw dotykowi dłoni podczas pisania piórem"
   },
   "shapes": {
     "rectangleDefaults": "Ustawienia domyślne prostokąta",

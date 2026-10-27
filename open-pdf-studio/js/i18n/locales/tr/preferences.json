@@ -105,7 +105,13 @@
     "headOpenReversed": "Açık Ok (ters)",
     "headClosedReversed": "Kapalı Ok (ters)",
     "headSlash": "Eğik Çizgi",
-    "polylineDefaults": "Çoklu Çizgi Varsayılanları"
+    "polylineDefaults": "Çoklu Çizgi Varsayılanları",
+    "smoothing": "Yumuşatma",
+    "pressure": "Kalem basıncı",
+    "pressureHint": "Kalem basıncı çizgi kalınlığını değiştirir (fareyle çizilen çizgiler sabit kalınlıkta kalır)",
+    "pressureMinWidth": "En küçük genişlik (%)",
+    "penOnly": "Yalnızca kalem (dokunmayı yok say)",
+    "penOnlyHint": "Dokunma serbest çizim aracıyla çizmez; kalemle yazarken avuç içi temasına karşı yararlıdır"
   },
   "shapes": {
     "rectangleDefaults": "Dikdörtgen Varsayılanları",

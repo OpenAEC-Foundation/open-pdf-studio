@@ -164,6 +164,13 @@ export const DEFAULT_PREFERENCES: Preferences = {
   drawStrokeColor: '#FF0000',
   drawLineWidth: 2,
   drawOpacity: 100,
+  // Drukgevoelige inkt (#385): pendruk stuurt de breedte (een muis blijft
+  // vast), minimale breedte in % van de lijndikte, gladheid 0..100, en
+  // alleen de pen tekent (aanraking genegeerd).
+  drawPressure: true,
+  drawPressureMinWidth: 30,
+  drawSmoothing: 50,
+  drawPenOnly: false,
 
   // Line defaults
   lineStrokeColor: '#FF0000',

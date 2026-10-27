@@ -722,5 +722,14 @@
     "invalid": "Sijaintia ei voitu päivittää",
     "rules": "Määritys käyttää merkinnän rajauslaatikon keskipistettä reunat mukaan lukien. Syvin vyöhyke voittaa, sitten pienin pinta-ala ja sitten vyöhykkeen tunnus. Käytä suorasivuisia monikulmioita ilman reikiä tai kiertämättömiä suorakulmioita. Virheelliset tai päällekkäiset vyöhyketunnisteet jätetään pois.",
     "loading": "Merkintöjä ladataan: sijainnit voivat vielä muuttua."
+  },
+  "ink": {
+    "title": "Muste",
+    "pressure": "Kynän paine",
+    "pressureHint": "Kynän paine muuttaa viivan leveyttä (hiirellä piirretty viiva pysyy saman levyisenä)",
+    "minWidth": "Vähimmäisleveys (%)",
+    "minWidthHint": "Leveys kevyimmällä kynän paineella prosentteina viivan leveydestä",
+    "smoothing": "Tasoitus",
+    "smoothingHint": "Viivan tasoituksen voimakkuus (0 = ei tasoitusta)"
   }
 }

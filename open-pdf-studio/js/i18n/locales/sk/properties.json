@@ -722,5 +722,14 @@
     "invalid": "Umiestnenie sa nedá aktualizovať",
     "rules": "Priradenie vychádza zo stredu ohraničujúceho rámčeka označenia vrátane okrajov. Vyhráva najhlbšie vnorená zóna, potom najmenšia plocha, potom ID zóny. Používajte mnohouholníky s rovnými stranami bez otvorov alebo neotočené obdĺžniky. Neplatné alebo duplicitné identity zón sa vylučujú.",
     "loading": "Načítavajú sa anotácie: umiestnenia sa ešte môžu zmeniť."
+  },
+  "ink": {
+    "title": "Atrament",
+    "pressure": "Prítlak pera",
+    "pressureHint": "Prítlak pera mení šírku ťahu (ťahy myšou majú stálu šírku)",
+    "minWidth": "Minimálna šírka (%)",
+    "minWidthHint": "Šírka pri najľahšom prítlaku, v percentách hrúbky čiary",
+    "smoothing": "Vyhladenie",
+    "smoothingHint": "Sila vyhladenia ťahu (0 = žiadne)"
   }
 }

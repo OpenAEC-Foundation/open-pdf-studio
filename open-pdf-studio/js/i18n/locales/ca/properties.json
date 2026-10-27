@@ -728,5 +728,14 @@
     "invalid": "No s'ha pogut actualitzar la ubicació",
     "rules": "L'assignació utilitza el centre del quadre delimitador del marcatge, vores incloses. Guanya la zona més profunda, després l'àrea més petita i després l'identificador de zona. Utilitzeu polígons rectes sense forats o rectangles sense rotació. S'exclouen les identitats de zona no vàlides o duplicades.",
     "loading": "S'estan carregant les anotacions: les ubicacions encara poden canviar."
+  },
+  "ink": {
+    "title": "Tinta",
+    "pressure": "Pressió del llapis",
+    "pressureHint": "La pressió del llapis varia el gruix del traç (els traços amb el ratolí mantenen un gruix constant)",
+    "minWidth": "Amplada mínima (%)",
+    "minWidthHint": "Amplada amb la pressió més suau, com a percentatge del gruix de línia",
+    "smoothing": "Suavitzat",
+    "smoothingHint": "Intensitat del suavitzat del traç (0 = cap)"
   }
 }

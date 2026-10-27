@@ -722,5 +722,14 @@
     "invalid": "A hely nem frissíthető",
     "rules": "A hozzárendelés a jelölés befoglaló téglalapjának középpontján alapul, a széleket is beleértve. A legmélyebben beágyazott zóna nyer, utána a legkisebb terület, majd a zónaazonosító. Egyenes oldalú, lyuk nélküli sokszögeket vagy elforgatás nélküli téglalapokat használjon. Az érvénytelen vagy ismétlődő zónaazonosítók kimaradnak.",
     "loading": "Az annotációk betöltése folyamatban: a helyek még változhatnak."
+  },
+  "ink": {
+    "title": "Tinta",
+    "pressure": "Tollnyomás",
+    "pressureHint": "A tollnyomás változtatja a vonal szélességét (az egérrel húzott vonal szélessége állandó)",
+    "minWidth": "Minimális szélesség (%)",
+    "minWidthHint": "Szélesség a legkisebb tollnyomásnál, a vonalvastagság százalékában",
+    "smoothing": "Simítás",
+    "smoothingHint": "A vonalsimítás erőssége (0 = nincs)"
   }
 }

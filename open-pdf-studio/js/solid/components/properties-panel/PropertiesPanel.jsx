@@ -12,6 +12,7 @@ import RepliesSection from './RepliesSection.jsx';
 import AppearanceSection from './AppearanceSection.jsx';
 import HatchPatternSection from './HatchPatternSection.jsx';
 import LineEndingsSection from './LineEndingsSection.jsx';
+import InkSection from './InkSection.jsx';
 import DimensionsSection from './DimensionsSection.jsx';
 import MeasurementSection from './MeasurementSection.jsx';
 import TextFormatSection from './TextFormatSection.jsx';
@@ -84,6 +85,7 @@ export default function PropertiesPanel() {
             <AppearanceSection />
             <HatchPatternSection />
             <LineEndingsSection />
+            <InkSection />
             <DimensionsSection />
             <MeasurementSection />
             <Show when={annotProps.annotationType === 'viewport'}>

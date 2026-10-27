@@ -105,7 +105,13 @@
     "headOpenReversed": "खुला तीर (उल्टा)",
     "headClosedReversed": "बंद तीर (उल्टा)",
     "headSlash": "स्लैश",
-    "polylineDefaults": "पॉलीलाइन डिफ़ॉल्ट"
+    "polylineDefaults": "पॉलीलाइन डिफ़ॉल्ट",
+    "smoothing": "स्मूदिंग",
+    "pressure": "पेन दबाव",
+    "pressureHint": "पेन का दबाव रेखा की चौड़ाई बदलता है (माउस की रेखाएँ एक समान चौड़ाई रखती हैं)",
+    "pressureMinWidth": "न्यूनतम चौड़ाई (%)",
+    "penOnly": "केवल पेन (स्पर्श अनदेखा करें)",
+    "penOnlyHint": "स्पर्श से फ्रीहैंड टूल से चित्र नहीं बनता; पेन से लिखते समय हथेली के स्पर्श से बचाव के लिए उपयोगी"
   },
   "shapes": {
     "rectangleDefaults": "आयत डिफ़ॉल्ट",

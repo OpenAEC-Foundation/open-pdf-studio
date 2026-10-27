@@ -722,5 +722,14 @@
     "invalid": "Nie można zaktualizować lokalizacji",
     "rules": "Przypisanie opiera się na środku prostokąta ograniczającego znacznik, łącznie z krawędziami. Wygrywa najgłębiej zagnieżdżona strefa, potem najmniejsza powierzchnia, potem identyfikator strefy. Używaj wielokątów o prostych bokach bez otworów lub prostokątów bez obrotu. Nieprawidłowe lub zduplikowane identyfikatory stref są pomijane.",
     "loading": "Trwa wczytywanie adnotacji: lokalizacje mogą się jeszcze zmienić."
+  },
+  "ink": {
+    "title": "Atrament",
+    "pressure": "Nacisk pióra",
+    "pressureHint": "Nacisk pióra zmienia grubość linii (linie rysowane myszą mają stałą grubość)",
+    "minWidth": "Minimalna szerokość (%)",
+    "minWidthHint": "Szerokość przy najlżejszym nacisku, jako procent grubości linii",
+    "smoothing": "Wygładzanie",
+    "smoothingHint": "Siła wygładzania linii (0 = brak)"
   }
 }

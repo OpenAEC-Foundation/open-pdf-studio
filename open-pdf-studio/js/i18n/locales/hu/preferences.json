@@ -105,7 +105,13 @@
     "headOpenReversed": "Nyitott nyíl (fordított)",
     "headClosedReversed": "Zárt nyíl (fordított)",
     "headSlash": "Perjel",
-    "polylineDefaults": "Töröttvonal alapértelmezések"
+    "polylineDefaults": "Töröttvonal alapértelmezések",
+    "smoothing": "Simítás",
+    "pressure": "Tollnyomás",
+    "pressureHint": "A tollnyomás változtatja a vonal szélességét (az egérrel húzott vonal szélessége állandó)",
+    "pressureMinWidth": "Minimális szélesség (%)",
+    "penOnly": "Csak toll (érintés figyelmen kívül hagyása)",
+    "penOnlyHint": "Az érintés nem rajzol a szabadkézi eszközzel; hasznos a tenyér érintése ellen tollal való írás közben"
   },
   "shapes": {
     "rectangleDefaults": "Téglalap alapértelmezések",

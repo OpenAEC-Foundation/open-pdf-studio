@@ -722,5 +722,14 @@
     "invalid": "Konum güncellenemedi",
     "rules": "Atama, kenarlar dahil işaretlemenin sınırlayıcı kutu merkezini kullanır. En derin bölge kazanır, ardından en küçük alan, ardından bölge kimliği. Deliksiz düz kenarlı çokgenler veya döndürülmemiş kutular kullanın. Geçersiz veya yinelenen bölge kimlikleri hariç tutulur.",
     "loading": "Açıklamalar yükleniyor: konumlar hâlâ değişebilir."
+  },
+  "ink": {
+    "title": "Mürekkep",
+    "pressure": "Kalem basıncı",
+    "pressureHint": "Kalem basıncı çizgi kalınlığını değiştirir (fareyle çizilen çizgiler sabit kalınlıkta kalır)",
+    "minWidth": "En küçük genişlik (%)",
+    "minWidthHint": "En hafif basınçtaki genişlik, çizgi kalınlığının yüzdesi olarak",
+    "smoothing": "Yumuşatma",
+    "smoothingHint": "Çizgi yumuşatma gücü (0 = yok)"
   }
 }

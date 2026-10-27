@@ -105,7 +105,13 @@
     "headOpenReversed": "열린 화살표(반대 방향)",
     "headClosedReversed": "닫힌 화살표(반대 방향)",
     "headSlash": "슬래시",
-    "polylineDefaults": "폴리라인 기본값"
+    "polylineDefaults": "폴리라인 기본값",
+    "smoothing": "다듬기",
+    "pressure": "펜 압력",
+    "pressureHint": "펜 압력에 따라 선 굵기가 달라집니다 (마우스로 그린 선은 굵기가 일정합니다)",
+    "pressureMinWidth": "최소 너비 (%)",
+    "penOnly": "펜만 사용 (터치 무시)",
+    "penOnlyHint": "터치로는 자유 그리기 도구로 그리지 않습니다. 펜으로 쓸 때 손바닥이 닿는 것을 막는 데 유용합니다"
   },
   "shapes": {
     "rectangleDefaults": "사각형 기본값",

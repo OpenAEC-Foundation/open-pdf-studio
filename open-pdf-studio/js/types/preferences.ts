@@ -97,6 +97,10 @@ export interface Preferences {
   drawStrokeColor: string;
   drawLineWidth: number;
   drawOpacity: number;
+  drawPressure: boolean;
+  drawPressureMinWidth: number;
+  drawSmoothing: number;
+  drawPenOnly: boolean;
 
   // Line defaults
   lineStrokeColor: string;

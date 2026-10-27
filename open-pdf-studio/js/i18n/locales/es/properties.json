@@ -722,5 +722,14 @@
     "invalid": "No se pudo actualizar la ubicación",
     "rules": "La asignación usa el centro del cuadro delimitador de la marca, bordes incluidos. Prevalece la zona más profunda, luego la de menor área y después el ID de zona. Use polígonos rectos sin huecos o rectángulos sin rotar. Se excluyen las identidades de zona no válidas o duplicadas.",
     "loading": "Cargando anotaciones: las ubicaciones aún pueden cambiar."
+  },
+  "ink": {
+    "title": "Tinta",
+    "pressure": "Presión del lápiz",
+    "pressureHint": "La presión del lápiz varía el grosor del trazo (los trazos con ratón mantienen un grosor constante)",
+    "minWidth": "Ancho mínimo (%)",
+    "minWidthHint": "Ancho con la presión más suave, como porcentaje del grosor de línea",
+    "smoothing": "Suavizado",
+    "smoothingHint": "Intensidad del suavizado del trazo (0 = ninguno)"
   }
 }

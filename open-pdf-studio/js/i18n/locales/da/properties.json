@@ -722,5 +722,14 @@
     "invalid": "Placeringen kunne ikke opdateres",
     "rules": "Tildelingen bruger midten af markeringens afgrænsningsramme, inklusive kanter. Den dybeste zone vinder, derefter det mindste areal og derefter zone-id. Brug lige polygoner uden huller eller uroterede rektangler. Ugyldige eller dublerede zoneidentiteter udelades.",
     "loading": "Annotationer indlæses: placeringer kan stadig ændre sig."
+  },
+  "ink": {
+    "title": "Blæk",
+    "pressure": "Pentryk",
+    "pressureHint": "Pentrykket ændrer stregbredden (musestreger beholder en fast bredde)",
+    "minWidth": "Mindste bredde (%)",
+    "minWidthHint": "Bredde ved letteste pentryk, i procent af stregtykkelsen",
+    "smoothing": "Udglatning",
+    "smoothingHint": "Styrke af stregudglatning (0 = ingen)"
   }
 }

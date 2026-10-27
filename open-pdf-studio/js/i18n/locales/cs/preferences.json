@@ -105,7 +105,13 @@
     "headOpenReversed": "Otevřená šipka (obrácená)",
     "headClosedReversed": "Uzavřená šipka (obrácená)",
     "headSlash": "Lomítko",
-    "polylineDefaults": "Výchozí hodnoty lomené čáry"
+    "polylineDefaults": "Výchozí hodnoty lomené čáry",
+    "smoothing": "Vyhlazení",
+    "pressure": "Přítlak pera",
+    "pressureHint": "Přítlak pera mění šířku tahu (tahy myší mají stálou šířku)",
+    "pressureMinWidth": "Minimální šířka (%)",
+    "penOnly": "Pouze pero (ignorovat dotyk)",
+    "penOnlyHint": "Dotyk nekreslí nástrojem volné ruky; užitečné proti dotyku dlaně při psaní perem"
   },
   "shapes": {
     "rectangleDefaults": "Výchozí hodnoty obdélníku",

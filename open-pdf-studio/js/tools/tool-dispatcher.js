@@ -3,6 +3,7 @@ import { state, getActiveDocument } from '../core/state.js';
 import { resolvePointerCoords, buildToolContext, isModalOpen, applyToolTransform, getEffectiveScale } from './tool-context.js';
 import { zetRechtopRond } from '../pdf/weergave-ruimte.js';
 import { getTool } from './tool-registry.js';
+import { noteerAanwijzer } from './tools/draw-tool.js';
 import { eindEventBijAfbreken } from './aanraak-gebaar.js';
 import { cloneAnnotation } from '../annotations/factory.js';
 import { applyResize, applyMove, applyRotation } from '../annotations/transforms.js';
@@ -206,6 +207,11 @@ export function handlePointerDown(e) {
   // (middelmuis-pan.js, capture op window) — nooit als gereedschapsklik.
   if (e.button === 1) return;
 
+  // Palmafwijzing (#385): een gereedschap kan een aanwijzer weigeren (de hand
+  // op het scherm terwijl de pen schrijft) — dan gebeurt er helemaal niets.
+  const _weiger = getTool(state.currentTool);
+  if (_weiger?.rejectPointer && _weiger.rejectPointer(e, state)) return;
+
   // Dismiss context menu on any canvas click (left or right)
   hideMenu();
 
@@ -364,6 +370,15 @@ function flushWachtendeMove() {
 let _laatsteBeweging = null;
 
 export function handlePointerMove(e) {
+  // Pen in de buurt (ook zwevend): de palmafwijzing van de vrije hand (#385).
+  if (e.pointerType === 'pen') noteerAanwijzer(e);
+  // Een gereedschap dat elke meting wil (de vrije hand: alle coalesced
+  // monsters van een pen) krijgt het ruwe event vóór de bundeling hieronder,
+  // die per beeldframe alleen het laatste event verwerkt.
+  if (state.isDrawing) {
+    const _ruw = getTool(state.currentTool);
+    if (_ruw?.onRawPointerMove) _ruw.onRawPointerMove(e, state);
+  }
   _laatsteBeweging = e;
   if (state.isDragging || state.isResizing || state.isDrawing || state.isRubberBanding) {
     _wachtendeMove = e;

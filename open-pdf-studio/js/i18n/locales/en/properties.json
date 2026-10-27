@@ -722,5 +722,14 @@
     "invalid": "Location could not be updated",
     "rules": "Assignment uses the markup bounding-box centre, including edges. Deepest zone wins, then smallest area, then zone ID. Use straight polygons without holes or unrotated boxes. Invalid or duplicate zone identities are excluded.",
     "loading": "Annotations are loading: locations may still change."
+  },
+  "ink": {
+    "title": "Ink",
+    "pressure": "Pen pressure",
+    "pressureHint": "Pen pressure varies the stroke width (mouse strokes keep a constant width)",
+    "minWidth": "Minimum width (%)",
+    "minWidthHint": "Width at the lightest pen pressure, as a percentage of the line width",
+    "smoothing": "Smoothing",
+    "smoothingHint": "Strength of stroke smoothing (0 = none)"
   }
 }

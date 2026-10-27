@@ -12,6 +12,7 @@ import { leesPlattegrondMeta } from './plattegrond-meta.js';
 import { leesLijnSleutels } from './maatlijn-uit-bestand.js';
 import { blendUitPdf } from '../../annotations/blend-modes.js';
 import { leesStempelAp } from './stempel-ap.js';
+import { leesInktSleutels } from '../saver/inkt-sleutels.js';
 
 // Documenten waarvan de knipsel-bronpagina's al in de store staan: dat
 // uitpakken gebeurt één keer per document, bij het eerste knipsel dat we zien.
@@ -413,6 +414,9 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
       // Boog: middelpunt, straal en hoeken in de app-ruimte van de ongedraaide
       // pagina (zie de 'arc'-tak van saver.js). /Vertices is de benadering
       // voor andere lezers (#619).
+      // Drukgevoelige inkt (#385): druk per punt, minimale breedte, gladheid.
+      if (subtypeName === '/Ink') Object.assign(colors, leesInktSleutels(annotDict, context));
+
       if (subtypeName === '/PolyLine') {
         for (const [sleutel, veld] of [['OPS_CenterX', 'opsCenterX'], ['OPS_CenterY', 'opsCenterY'],
           ['OPS_Radius', 'opsRadius'], ['OPS_StartAngle', 'opsStartAngle'], ['OPS_EndAngle', 'opsEndAngle']]) {

@@ -722,5 +722,14 @@
     "invalid": "Lokasi tidak dapat dikemas kini",
     "rules": "Penetapan menggunakan pusat kotak sempadan penanda, termasuk tepi. Zon paling dalam menang, kemudian keluasan terkecil, kemudian ID zon. Gunakan poligon lurus tanpa lubang atau kotak tanpa putaran. Identiti zon yang tidak sah atau pendua dikecualikan.",
     "loading": "Anotasi sedang dimuatkan: lokasi mungkin masih berubah."
+  },
+  "ink": {
+    "title": "Dakwat",
+    "pressure": "Tekanan pen",
+    "pressureHint": "Tekanan pen mengubah lebar lakaran (lakaran tetikus kekal dengan lebar yang sama)",
+    "minWidth": "Lebar minimum (%)",
+    "minWidthHint": "Lebar pada tekanan pen paling ringan, sebagai peratus ketebalan garisan",
+    "smoothing": "Pelicinan",
+    "smoothingHint": "Kekuatan pelicinan lakaran (0 = tiada)"
   }
 }

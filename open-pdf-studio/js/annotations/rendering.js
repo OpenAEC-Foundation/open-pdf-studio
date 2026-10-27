@@ -9,6 +9,7 @@ import { drawPolygonShape, drawCloudShape, buildPolygonPath, buildPolygonPointsP
 import { tekstvakKnipvlak } from './rendering/textbox-layout.js';
 import { drawArrowheadOnCanvas, applyBorderStyle, drawDimensionLineEnding } from './rendering/decorations.js';
 import { catmullRomSpline } from '../tools/tools/spline-tool.js';
+import { isGladdeInkt, inktGeometrie } from './pressure-ink.js';
 import { catmullRomToBezier, splineArrowEndTangent } from './spline-arrow-geometry.js';
 import { calloutLeiderKoppen } from './callout-koppen.js';
 import { koppenVan } from '../pdf/lijnkoppen.js';
@@ -560,6 +561,31 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
   switch (annotation.type) {
     case 'draw':
       ctx.strokeStyle = strokeColor;
+      // Drukgevoelige / gladde inkt (#385): gevulde omtrek bij variabele
+      // breedte, anders de gladde middellijn. De schermlijndikte (thinLw)
+      // schaalt de hele streek mee.
+      if (isGladdeInkt(annotation)) {
+        const eigen = annotation.lineWidth > 0 ? annotation.lineWidth : 0;
+        const geo = inktGeometrie(annotation, { breedteFactor: eigen ? lw / eigen : 1 });
+        if (geo.variabel) {
+          ctx.fillStyle = strokeColor;
+          ctx.beginPath();
+          for (const ring of geo.ringen) {
+            ring.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
+            ctx.closePath();
+          }
+          ctx.fill('nonzero');
+        } else if (geo.punten.length > 1) {
+          applyBorderStyle(ctx, annotation.borderStyle);
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.beginPath();
+          geo.punten.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+        break;
+      }
       applyBorderStyle(ctx, annotation.borderStyle);
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';

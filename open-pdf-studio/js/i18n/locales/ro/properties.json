@@ -722,5 +722,14 @@
     "invalid": "Locația nu a putut fi actualizată",
     "rules": "Atribuirea folosește centrul casetei de încadrare a marcajului, inclusiv marginile. Câștigă zona cea mai adânc imbricată, apoi cea cu aria cea mai mică, apoi ID-ul zonei. Folosiți poligoane cu laturi drepte, fără găuri, sau casete nerotite. Identitățile de zonă nevalide sau duplicate sunt excluse.",
     "loading": "Adnotările se încarcă: locațiile se pot încă modifica."
+  },
+  "ink": {
+    "title": "Cerneală",
+    "pressure": "Presiunea stiloului",
+    "pressureHint": "Presiunea stiloului variază grosimea liniei (liniile trase cu mouse-ul păstrează o grosime constantă)",
+    "minWidth": "Lățime minimă (%)",
+    "minWidthHint": "Lățimea la cea mai ușoară presiune, ca procent din grosimea liniei",
+    "smoothing": "Netezire",
+    "smoothingHint": "Intensitatea netezirii liniei (0 = deloc)"
   }
 }

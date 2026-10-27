@@ -105,7 +105,13 @@
     "headOpenReversed": "Otvorena strelica (obrnuta)",
     "headClosedReversed": "Zatvorena strelica (obrnuta)",
     "headSlash": "Kosa crta",
-    "polylineDefaults": "Zadane postavke polilinije"
+    "polylineDefaults": "Zadane postavke polilinije",
+    "smoothing": "Zaglađivanje",
+    "pressure": "Pritisak olovke",
+    "pressureHint": "Pritisak olovke mijenja debljinu poteza (potezi mišem zadržavaju stalnu debljinu)",
+    "pressureMinWidth": "Najmanja širina (%)",
+    "penOnly": "Samo olovka (zanemari dodir)",
+    "penOnlyHint": "Dodir ne crta alatom slobodne ruke; korisno protiv dodira dlana pri pisanju olovkom"
   },
   "shapes": {
     "rectangleDefaults": "Zadane postavke pravokutnika",
