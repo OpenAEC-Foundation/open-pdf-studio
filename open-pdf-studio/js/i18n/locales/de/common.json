@@ -412,5 +412,6 @@
     "intersection": "Schnittpunkt",
     "polar": "Polar",
     "locked": "Gesperrt"
-  }
+  },
+  "protectedPdfNoPrint": "Die Berechtigungen dieses Dokuments erlauben kein Drucken."
 }

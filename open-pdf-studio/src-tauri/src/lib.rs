@@ -2853,6 +2853,7 @@ pub fn run(opts: StartupOpts) {
         .manage(LockedFiles(Mutex::new(HashMap::new())))
         .manage(spraak::SpraakProces::default())
         .manage(beveiligde_pdf::BeveiligdeKopieen::default())
+        .manage(pdf_beveiliging::BeveiligingsSessies::default())
         .manage(print_instelling::PrinterDevmodes::default())
         .manage(PdfBytesCache(Mutex::new(HashMap::new())))
         .manage(DocHandleCache(Mutex::new(HashMap::new())))
@@ -3144,7 +3145,11 @@ pub fn run(opts: StartupOpts) {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            pdf_beveiliging::protect_pdf_file,
+            pdf_beveiliging::pdf_security_new,
+            pdf_beveiliging::pdf_security_permissions,
+            pdf_beveiliging::pdf_security_unlock_owner,
+            pdf_beveiliging::pdf_security_release,
+            pdf_beveiliging::write_protected_pdf_atomic,
             spraak::tts_info,
             spraak::tts_speak,
             spraak::tts_stop,
@@ -3249,6 +3254,7 @@ pub fn run(opts: StartupOpts) {
             allow_fs_scope,
             beveiligde_pdf::open_protected_pdf,
             beveiligde_pdf::release_protected_pdf,
+            beveiligde_pdf::verify_pdf_owner_password,
             mcp_app_bridge::app_response,
             mcp_app_bridge::mcp_bridge_ready,
             mcp_extensie_tools::mcp_set_extension_tools,

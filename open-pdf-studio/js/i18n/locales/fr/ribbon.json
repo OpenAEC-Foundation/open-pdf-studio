@@ -350,7 +350,10 @@
     "scanTextNone": "Aucun texte reconnu sur cette page. Lancez d'abord Reconnaissance de texte (OCR).",
     "shiftPage": "Décaler la page",
     "editPages": "Modifier les pages",
-    "editPagesTitle": "Modifier les pages visuellement : réorganiser, faire pivoter, insérer, supprimer, extraire et fractionner"
+    "editPagesTitle": "Modifier les pages visuellement : réorganiser, faire pivoter, insérer, supprimer, extraire et fractionner",
+    "protect": "Protéger",
+    "security": "Sécurité",
+    "securityTitle": "Définir ou supprimer les mots de passe et les droits"
   },
   "help": {
     "settings": "Paramètres",

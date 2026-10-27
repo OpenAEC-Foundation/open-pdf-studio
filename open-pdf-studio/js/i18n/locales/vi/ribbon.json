@@ -350,7 +350,10 @@
     "scanTextNone": "Không có văn bản đã nhận dạng trên trang này. Hãy chạy Nhận dạng văn bản (OCR) trước.",
     "shiftPage": "Dịch chuyển trang",
     "editPages": "Chỉnh sửa trang",
-    "editPagesTitle": "Chỉnh sửa trang trực quan: sắp xếp lại, xoay, chèn, xóa, trích xuất và tách"
+    "editPagesTitle": "Chỉnh sửa trang trực quan: sắp xếp lại, xoay, chèn, xóa, trích xuất và tách",
+    "protect": "Bảo vệ",
+    "security": "Bảo mật",
+    "securityTitle": "Đặt hoặc gỡ mật khẩu và quyền"
   },
   "help": {
     "settings": "Cài đặt",

@@ -110,6 +110,7 @@
   "searchHitsOne": "1 podudaranje",
   "searchHitsMany": "Podudaranja: {{count}}",
   "passwordProtectedBar": "Zaštićeno lozinkom: otvoreno samo za čitanje.",
+  "passwordProtectedEditableBar": "Zaštićeno lozinkom. Spremanje zadržava zaštitu.",
   "documentSearch": {
     "title": "Pretraži dokumente",
     "query": "Tekst za pretraživanje",

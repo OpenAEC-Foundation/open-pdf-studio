@@ -412,5 +412,6 @@
     "intersection": "Metszéspont",
     "polar": "Poláris",
     "locked": "Rögzítve"
-  }
+  },
+  "protectedPdfNoPrint": "A dokumentum jogosultságai nem engedélyezik a nyomtatást."
 }

@@ -15,7 +15,7 @@ import { hasPendingRestore } from '../../core/reader-mode-tracking.js';
 import { actiefNaSluiten } from '../../pdf/handtekeningen/opslaan.js';
 import { compareActive, compareFocused, focusCompareTab, blurCompareTab } from '../../compare/compare-store.js';
 import { volgendTabDoel, voerTabWisselUit } from './tab-sneltoets.js';
-import { isBeveiligdDocument } from '../../pdf/wachtwoord-pdf.js';
+import { isBeveiligdDocument, opslaanGeweigerd, heeftWerkkopie } from '../../pdf/wachtwoord-pdf.js';
 import { hostVersieLabel } from '../../pdf/host-versies.js';
 import i18next from '../../i18n/config.js';
 import { meldWijziging, meldGesloten } from '../../herstel/haken.js';
@@ -265,9 +265,9 @@ export async function closeTab(index, force = false, dialogAction = null) {
   // MCP-brug en tests, die geen OS-dialoog kunnen bedienen maar wél de echte
   // sluitvolgorde (opslaan → opruimen → sluiten) moeten doorlopen.
   let vorigActief = null;
-  // Een met een wachtwoord geopende PDF is alleen-lezen en kan niet
+  // Een beveiligde PDF die niet beveiligd terug te schrijven is, kan niet
   // opgeslagen worden: niets te vragen.
-  if (!force && doc.modified && !isBeveiligdDocument(doc)) {
+  if (!force && doc.modified && !opslaanGeweigerd(doc)) {
     const action = dialogAction || await showUnsavedChangesDialog(doc.fileName);
     if (action === 'cancel') return false;
     if (action === 'save') {
@@ -411,12 +411,16 @@ export async function closeTab(index, force = false, dialogAction = null) {
   // worker-processen hem hebben losgelaten. Rust verwijdert alleen bestanden
   // in zijn eigen map; wat nog in gebruik is, ruimt het afsluiten of de
   // volgende start op.
-  if (isBeveiligdDocument(doc) && doc.filePath && doc.filePath !== doc.originalFilePath
-      && !state.documents.some((d) => d.filePath === doc.filePath)) {
+  if (heeftWerkkopie(doc) && !state.documents.some((d) => d.filePath === doc.filePath)) {
     try {
       await window.__TAURI__?.core?.invoke?.('release_protected_pdf', { path: doc.filePath });
     } catch (e) { console.warn('[tabs] werkkopie van beveiligde PDF niet verwijderd:', e); }
   }
+  // De beveiligingssessies (sleutels in Rust) van dit document vergeten (#378).
+  try {
+    const { geefSessiesVrij } = await import('../../pdf/beveiliging-toepassen.js');
+    await geefSessiesVrij(doc);
+  } catch (e) { console.warn('[tabs] beveiligingssessies niet vrijgegeven:', e); }
 
   return true;
 }
@@ -484,9 +488,9 @@ export async function renameDocument(index, newName) {
 
   const doc = state.documents[index];
 
-  // Met een wachtwoord geopend: alleen-lezen, ook de bestandsnaam. (Het pad
-  // zou bovendien de werkkopie zijn, niet het origineel.)
-  if (isBeveiligdDocument(doc)) {
+  // Met een wachtwoord geopend of uit een ontsleutelde werkkopie: ook de
+  // bestandsnaam blijft (het pad zou de werkkopie zijn, niet het origineel).
+  if (isBeveiligdDocument(doc) || heeftWerkkopie(doc)) {
     const { showMessage } = await import('../../solid/stores/dialogStore.js');
     const i18next = (await import('../../i18n/config.js')).default;
     showMessage(i18next.t('protectedPdfReadOnly'));

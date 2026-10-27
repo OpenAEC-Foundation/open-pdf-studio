@@ -483,6 +483,8 @@ js/text/text-edit-afdekking.test.mjs
 js/pdf/saver/text-edit-tabelranden.test.mjs
 js/pdf/pdf-viewport-paginaschilder.test.mjs
 js/pdf/protect-pdf.test.mjs
+js/pdf/document-beveiliging.test.mjs
+js/pdf/document-beveiliging-interop.test.mjs
 js/pdf/render-diagnostics.test.mjs
 js/pdf/unicode-export-contract.test.mjs
 js/pdf/saver/unicode-layout-guard.test.mjs

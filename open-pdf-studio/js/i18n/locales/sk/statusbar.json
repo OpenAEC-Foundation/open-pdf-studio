@@ -110,6 +110,7 @@
   "searchHitsOne": "1 zhoda",
   "searchHitsMany": "Zhôd: {{count}}",
   "passwordProtectedBar": "Chránené heslom: otvorené iba na čítanie.",
+  "passwordProtectedEditableBar": "Chránené heslom. Uloženie ochranu zachová.",
   "documentSearch": {
     "title": "Prehľadať dokumenty",
     "query": "Hľadaný text",

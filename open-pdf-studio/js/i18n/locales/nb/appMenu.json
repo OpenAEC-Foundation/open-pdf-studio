@@ -140,8 +140,8 @@
     "officeTable": "Tabell",
     "officeText": "Tekst",
     "officeFailed": "Eksport av dokumentet mislyktes.",
-    "protect": "Beskytt med passord",
-    "protectDesc": "Lagre en kopi beskyttet med passord (AES-256)"
+    "protect": "Dokumentsikkerhet",
+    "protectDesc": "Angi eller fjern passord og rettigheter (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Utdataprofil",

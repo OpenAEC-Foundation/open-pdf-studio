@@ -16,7 +16,7 @@ import { getCachedPdfBytes } from './loader.js';
 import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { showMessage } from '../bridge.js';
 import { doelIsGeopend } from './print-doel.js';
-import { opslaanGeweigerd } from './wachtwoord-pdf.js';
+import { heeftBeveiligdeInhoud } from './wachtwoord-pdf.js';
 import { laadBron, berekenDelen, maakDelen } from './splits-document.js';
 import {
   bestandsnamenVoorDelen, padInMap, mbNaarBytes, geldigAantal, geldigeMb, documentNaam,
@@ -54,7 +54,8 @@ function opsomming(namen) {
 export async function splitsDocument({ modus, n = 1, maxMb = 10, delen: gekozen = [], map = '', patroon = '' }) {
   const doc = getActiveDocument();
   if (!doc?.pdfDoc) return { ok: false, reden: 'geen-document' };
-  if (opslaanGeweigerd(doc)) {
+  // De delen zouden onbeveiligd worden: niet voor een beveiligd document.
+  if (heeftBeveiligdeInhoud(doc)) {
     showMessage(t('protected'));
     return { ok: false, reden: 'beveiligd' };
   }

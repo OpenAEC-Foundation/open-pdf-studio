@@ -1,0 +1,19 @@
+[package]
+name = "open-pdf-security"
+version = "2026.43.11"
+edition = "2021"
+license = "MIT"
+description = "Standard security handler of ISO 32000-2 (AES-256, V 5 / R 6): protect a PDF, read its protection and write it back with the same key"
+publish = false
+
+[dependencies]
+# Zelfde lopdf-lijn als de app-crate en open-pdf-render: één versie in de lock.
+lopdf = "0.34"
+aes = "0.8"
+cbc = { version = "0.1", features = ["alloc", "zeroize"] }
+sha2 = "0.10"
+rand = "0.8"
+stringprep = "0.1"
+unicode-normalization = "0.1"
+zeroize = "1"
+serde = { version = "1", features = ["derive"] }

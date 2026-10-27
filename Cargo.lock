@@ -3699,6 +3699,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "open-pdf-security"
+version = "2026.43.11"
+dependencies = [
+ "aes",
+ "cbc",
+ "lopdf",
+ "rand 0.8.6",
+ "serde",
+ "sha2",
+ "stringprep",
+ "unicode-normalization",
+ "zeroize",
+]
+
+[[package]]
 name = "open-pdf-studio"
 version = "2026.44.4"
 dependencies = [
@@ -3726,6 +3741,7 @@ dependencies = [
  "open-pdf-cad",
  "open-pdf-cmyk",
  "open-pdf-render",
+ "open-pdf-security",
  "p256",
  "p384",
  "pdfium-render",
@@ -3741,7 +3757,6 @@ dependencies = [
  "sha1",
  "sha2",
  "spki",
- "stringprep",
  "tauri",
  "tauri-build",
  "tauri-plugin-clipboard-manager",
@@ -3759,7 +3774,6 @@ dependencies = [
  "tauri-plugin-updater",
  "tesseract-rs",
  "tokio",
- "unicode-normalization",
  "url",
  "urlencoding",
  "webview2-com",

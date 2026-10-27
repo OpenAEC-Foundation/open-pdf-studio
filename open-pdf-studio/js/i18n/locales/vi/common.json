@@ -412,5 +412,6 @@
     "intersection": "Giao điểm",
     "polar": "Cực",
     "locked": "Đã khóa"
-  }
+  },
+  "protectedPdfNoPrint": "Quyền của tài liệu này không cho phép in."
 }

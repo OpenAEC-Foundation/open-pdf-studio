@@ -350,7 +350,10 @@
     "scanTextNone": "No hi ha text reconegut en aquesta pàgina. Executeu primer Reconeixement de text (OCR).",
     "shiftPage": "Desplaça la pàgina",
     "editPages": "Edita les pàgines",
-    "editPagesTitle": "Edita les pàgines visualment: reordena, gira, insereix, suprimeix, extreu i divideix"
+    "editPagesTitle": "Edita les pàgines visualment: reordena, gira, insereix, suprimeix, extreu i divideix",
+    "protect": "Protegir",
+    "security": "Seguretat",
+    "securityTitle": "Definir o treure contrasenyes i permisos"
   },
   "help": {
     "settings": "Configuració",

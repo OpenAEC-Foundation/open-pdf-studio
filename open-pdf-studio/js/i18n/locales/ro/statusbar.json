@@ -110,6 +110,7 @@
   "searchHitsOne": "1 potrivire",
   "searchHitsMany": "Potriviri: {{count}}",
   "passwordProtectedBar": "Protejat cu parolă: deschis doar în citire.",
+  "passwordProtectedEditableBar": "Protejat cu parolă. Salvarea păstrează protecția.",
   "documentSearch": {
     "title": "Căutare în documente",
     "query": "Text de căutat",

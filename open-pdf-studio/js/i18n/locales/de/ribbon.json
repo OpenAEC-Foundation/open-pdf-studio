@@ -350,7 +350,10 @@
     "scanTextNone": "Kein erkannter Text auf dieser Seite. Führen Sie zuerst Text erkennen (OCR) aus.",
     "shiftPage": "Seite verschieben",
     "editPages": "Seiten bearbeiten",
-    "editPagesTitle": "Seiten visuell bearbeiten: anordnen, drehen, einfügen, löschen, extrahieren und teilen"
+    "editPagesTitle": "Seiten visuell bearbeiten: anordnen, drehen, einfügen, löschen, extrahieren und teilen",
+    "protect": "Schützen",
+    "security": "Sicherheit",
+    "securityTitle": "Kennwörter und Berechtigungen festlegen oder entfernen"
   },
   "help": {
     "settings": "Einstellungen",

@@ -412,5 +412,6 @@
     "intersection": "交点",
     "polar": "极轴",
     "locked": "已锁定"
-  }
+  },
+  "protectedPdfNoPrint": "此文档的权限不允许打印。"
 }

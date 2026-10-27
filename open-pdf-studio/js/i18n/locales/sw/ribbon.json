@@ -350,7 +350,10 @@
     "scanTextNone": "Hakuna maandishi yaliyotambuliwa kwenye ukurasa huu. Endesha Utambuzi wa Maandishi (OCR) kwanza.",
     "shiftPage": "Hamisha ukurasa",
     "editPages": "Hariri Kurasa",
-    "editPagesTitle": "Hariri kurasa kwa kuona: panga upya, zungusha, ingiza, futa, toa na gawanya"
+    "editPagesTitle": "Hariri kurasa kwa kuona: panga upya, zungusha, ingiza, futa, toa na gawanya",
+    "protect": "Linda",
+    "security": "Usalama",
+    "securityTitle": "Weka au ondoa manenosiri na ruhusa"
   },
   "help": {
     "settings": "Mipangilio",

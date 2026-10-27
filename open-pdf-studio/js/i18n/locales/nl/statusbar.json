@@ -110,6 +110,7 @@
   "searchHitsOne": "1 treffer",
   "searchHitsMany": "{{count}} treffers",
   "passwordProtectedBar": "Beveiligd met een wachtwoord: alleen-lezen geopend.",
+  "passwordProtectedEditableBar": "Beveiligd met een wachtwoord. Opslaan houdt de beveiliging.",
   "documentSearch": {
     "title": "Documenten doorzoeken",
     "query": "Zoektekst",

@@ -350,7 +350,10 @@
     "scanTextNone": "このページには認識されたテキストがありません。先に文字認識（OCR）を実行してください。",
     "shiftPage": "ページをシフト",
     "editPages": "ページの編集",
-    "editPagesTitle": "ページを視覚的に編集: 並べ替え、回転、挿入、削除、抽出、分割"
+    "editPagesTitle": "ページを視覚的に編集: 並べ替え、回転、挿入、削除、抽出、分割",
+    "protect": "保護",
+    "security": "セキュリティ",
+    "securityTitle": "パスワードと権限を設定または解除"
   },
   "help": {
     "settings": "設定",

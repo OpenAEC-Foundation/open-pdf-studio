@@ -552,6 +552,18 @@ export async function writeBinaryFileAtomic(path, data, { annulering = null } = 
   return true;
 }
 
+// A protected PDF (#378): Rust encrypts the plain bytes with the security
+// session `sessie` (src-tauri/src/pdf_beveiliging.rs) and writes atomically.
+export async function writeProtectedPdfAtomic(path, data, sessie) {
+  if (!isTauri()) throw new Error('PROTECTION_NOT_WRITABLE');
+  const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
+  const mobile = window.__TAURI__?.os?.type?.() === 'android';
+  await getTauriCore().invoke('write_protected_pdf_atomic', mobile ? { data: Array.from(bytes) } : bytes, {
+    headers: { 'x-opds-path': encodeURIComponent(path), 'x-opds-security': encodeURIComponent(sessie) },
+  });
+  return true;
+}
+
 // An existing destination surfaces as CHOOSE_NEW_FILE (os error 17 on Unix,
 // 80/183 on Windows).
 async function invokeNew(command, path, data, headers = {}) {

@@ -110,6 +110,7 @@
   "searchHitsOne": "نتيجة واحدة",
   "searchHitsMany": "{{count}} نتائج",
   "passwordProtectedBar": "محمي بكلمة مرور: تم الفتح للقراءة فقط.",
+  "passwordProtectedEditableBar": "محمي بكلمة مرور. الحفظ يُبقي الحماية.",
   "documentSearch": {
     "title": "البحث في المستندات",
     "query": "نص البحث",

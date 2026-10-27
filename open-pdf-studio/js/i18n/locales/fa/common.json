@@ -412,5 +412,6 @@
     "intersection": "تقاطع",
     "polar": "قطبی",
     "locked": "قفل‌شده"
-  }
+  },
+  "protectedPdfNoPrint": "مجوزهای این سند اجازهٔ چاپ نمی‌دهند."
 }

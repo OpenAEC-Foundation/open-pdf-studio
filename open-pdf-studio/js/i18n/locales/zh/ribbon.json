@@ -350,7 +350,10 @@
     "scanTextNone": "此页面上没有已识别的文本。请先运行文字識別（OCR）。",
     "shiftPage": "移動頁面",
     "editPages": "编辑页面",
-    "editPagesTitle": "可视化编辑页面：重新排列、旋转、插入、删除、提取和拆分"
+    "editPagesTitle": "可视化编辑页面：重新排列、旋转、插入、删除、提取和拆分",
+    "protect": "保护",
+    "security": "安全性",
+    "securityTitle": "设置或移除密码和权限"
   },
   "help": {
     "settings": "设置",

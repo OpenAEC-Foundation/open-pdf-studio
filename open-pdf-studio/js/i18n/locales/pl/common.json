@@ -412,5 +412,6 @@
     "intersection": "Przecięcie",
     "polar": "Biegunowe",
     "locked": "Zablokowane"
-  }
+  },
+  "protectedPdfNoPrint": "Uprawnienia tego dokumentu nie zezwalają na drukowanie."
 }

@@ -412,5 +412,6 @@
     "intersection": "Intersection",
     "polar": "Polaire",
     "locked": "Verrouillé"
-  }
+  },
+  "protectedPdfNoPrint": "Les droits de ce document n'autorisent pas l'impression."
 }

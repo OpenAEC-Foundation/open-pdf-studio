@@ -140,8 +140,8 @@
     "officeTable": "جدول",
     "officeText": "متن",
     "officeFailed": "صدور سند ناموفق بود.",
-    "protect": "محافظت با گذرواژه",
-    "protectDesc": "ذخیرهٔ یک نسخهٔ محافظت‌شده با گذرواژه (AES-256)"
+    "protect": "امنیت سند",
+    "protectDesc": "تنظیم یا برداشتن گذرواژه‌ها و مجوزها (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "پروفایل خروجی",

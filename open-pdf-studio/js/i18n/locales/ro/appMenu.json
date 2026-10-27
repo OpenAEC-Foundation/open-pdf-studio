@@ -140,8 +140,8 @@
     "officeTable": "Tabel",
     "officeText": "Text",
     "officeFailed": "Exportul documentului a eșuat.",
-    "protect": "Protejare cu parolă",
-    "protectDesc": "Salvați o copie protejată cu parolă (AES-256)"
+    "protect": "Securitatea documentului",
+    "protectDesc": "Setați sau eliminați parole și drepturi (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Profil de ieșire",

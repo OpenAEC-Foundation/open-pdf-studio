@@ -412,5 +412,6 @@
     "intersection": "交点",
     "polar": "極",
     "locked": "ロック"
-  }
+  },
+  "protectedPdfNoPrint": "この文書の権限では印刷が許可されていません。"
 }

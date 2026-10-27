@@ -24,7 +24,7 @@ test('saver: momentopname schrijft niets weg en markeert niets als opgeslagen', 
   assert.match(s, /const eigenVenster = !momentopname && !alleenAnnotaties;/);
   assert.match(s, /if \(eigenVenster\) toonVoortgang\(\);/);
   assert.match(s, /const annulering = momentopname \? GEEN_ANNULERING :/);
-  assert.match(s, /if \(opslaanGeweigerd\(doc\)\) throw new Error\('password-protected/, 'beveiligd = nooit');
+  assert.match(s, /if \(heeftBeveiligdeInhoud\(doc\)\) throw new Error\('password-protected/, 'beveiligd = nooit');
 });
 
 test('saver: na een geslaagde save gaat de momentopname weg; save wacht op een lopende momentopname', () => {

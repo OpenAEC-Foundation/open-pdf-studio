@@ -350,7 +350,10 @@
     "scanTextNone": "Na ovoj stranici nema prepoznatog teksta. Najprije pokrenite Prepoznavanje teksta (OCR).",
     "shiftPage": "Pomakni stranicu",
     "editPages": "Uredi stranice",
-    "editPagesTitle": "Vizualno uređivanje stranica: promjena redoslijeda, rotiranje, umetanje, brisanje, izdvajanje i dijeljenje"
+    "editPagesTitle": "Vizualno uređivanje stranica: promjena redoslijeda, rotiranje, umetanje, brisanje, izdvajanje i dijeljenje",
+    "protect": "Zaštita",
+    "security": "Sigurnost",
+    "securityTitle": "Postavljanje ili uklanjanje lozinki i dopuštenja"
   },
   "help": {
     "settings": "Postavke",

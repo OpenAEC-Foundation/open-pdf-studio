@@ -33,7 +33,7 @@
 import { createSignal } from 'solid-js';
 import { state } from '../core/state.js';
 import { isHeadless } from '../core/headless.js';
-import { isBeveiligdDocument } from '../pdf/wachtwoord-pdf.js';
+import { heeftBeveiligdeInhoud } from '../pdf/wachtwoord-pdf.js';
 import { TIK_MS, STILTE_MS, MAX_WACHT_MS, vingerafdruk, nieuwPlan, werkBij, isAanDeBeurt, naOpname, vastgelegdPlan } from './planning.js';
 import { sleutelVoor, sessieVoorvoegsel, maakManifest, origineelPadVan, origineelGewijzigd } from './manifest.js';
 import { schrijfMomentopname, schrijfManifest, leesAlle, leesMarkers } from './opslag.js';
@@ -100,7 +100,8 @@ function eigenSleutel(docId) {
 function nietGeschikt(doc) {
   if (!doc?.pdfDoc) return 'not loaded';
   if (doc._isLoading) return 'loading';
-  if (isBeveiligdDocument(doc)) return 'password-protected';
+  // Ontsleutelde inhoud van een beveiligd bestand komt niet in het herstel.
+  if (heeftBeveiligdeInhoud(doc)) return 'password-protected';
   return null;
 }
 

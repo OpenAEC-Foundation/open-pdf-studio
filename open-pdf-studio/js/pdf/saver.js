@@ -6,7 +6,7 @@ import { hasFill, hasStroke, colorWithoutStroke } from '../annotations/fill-util
 import { layoutTextboxForExport } from '../annotations/rendering/shapes.js';
 import { markDocumentSaved, markDocumentModified, updateWindowTitle } from '../ui/chrome/tabs.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
-import { isTauri, invoke, readBinaryFile, writeBinaryFileAtomic, saveFileDialog, unlockFile, lockFile } from '../core/platform.js';
+import { isTauri, invoke, readBinaryFile, writeBinaryFileAtomic, writeProtectedPdfAtomic, saveFileDialog, unlockFile, lockFile } from '../core/platform.js';
 import { bestandsnaamUitPad } from '../core/bestandsnaam.js';
 import { getCachedPdfBytes, setCachedPdfBytes, hidePdfABar } from './loader.js';
 import { PDFDocument, PDFString, PDFHexString, PDFName, PDFArray, PDFStream, degrees,
@@ -35,7 +35,10 @@ import { metOpslagSlot } from '../plugins/opslag-wissel-slot.js';
 import { createPluginPdfAnnotation, renderPluginAnnotationPng, readPluginPdfAnnotation } from '../plugins/plugin-pdf.js';
 import i18next from '../i18n/config.js';
 import { showMessage } from '../bridge.js';
-import { opslaanGeweigerd, isHostAlleenLezen } from './wachtwoord-pdf.js';
+import { opslaanGeweigerd, isHostAlleenLezen, heeftBeveiligdeInhoud } from './wachtwoord-pdf.js';
+import { sessieVoorOpslaan, naOpslaanBeveiliging } from './beveiliging-toepassen.js';
+import { isVersleuteld } from './document-beveiliging.js';
+import { foutMelding } from './protect-pdf-regels.js';
 import { meldOpgeslagen } from '../herstel/haken.js';
 import { opslaanVraagtOpslaanAls } from './handtekeningen/opslaan.js';
 
@@ -201,7 +204,10 @@ let _saveBezig = null;
 // (_pendingBakeInfo) bijwerken.
 let _momentopnameBezig = null;
 
-/** Meldt en weigert het opslaan van een met een wachtwoord geopende PDF. */
+/**
+ * Meldt en weigert het opslaan van een beveiligde PDF waarvan de beveiliging
+ * niet terug te schrijven is (wachtwoord-pdf.js).
+ */
 function weigerOpslaanBeveiligd(doc) {
   if (!opslaanGeweigerd(doc)) return false;
   showMessage(i18next.t('protectedPdfReadOnly'));
@@ -254,8 +260,9 @@ function schrijfFormulierWaarden(pdfDocLib, activeDoc) {
 
 export async function savePDF(saveAsPath = null, opties = {}, activeDoc = getActiveDocument()) {
   if (!activeDoc?.pdfDoc || !state.documents.includes(activeDoc)) return false;
-  // Met een wachtwoord geopend: alleen-lezen, nooit opslaan (ook niet als
-  // kopie), zodat het origineel beveiligd blijft (wachtwoord-pdf.js).
+  // Beveiligd en de beveiliging is niet terug te schrijven: nooit opslaan
+  // (ook niet als kopie), zodat het origineel beveiligd blijft. Met een
+  // beveiligingssessie schrijft opslaan dezelfde beveiliging terug (#378).
   if (weigerOpslaanBeveiligd(activeDoc)) return false;
   // Door de gastsite alleen-lezen geopend (#704): niet terugschrijven naar de
   // site; "Opslaan als" (een download) mag wel, zo gaat er niets verloren.
@@ -362,7 +369,8 @@ export async function bouwAnnotatieDocument(activeDoc = getActiveDocument(), { a
  */
 export async function bouwMomentopname(doc) {
   if (!doc?.pdfDoc) throw new Error('no document');
-  if (opslaanGeweigerd(doc)) throw new Error('password-protected documents are not snapshotted');
+  // Ontsleutelde inhoud van een beveiligd bestand komt niet in het herstel.
+  if (heeftBeveiligdeInhoud(doc)) throw new Error('password-protected documents are not snapshotted');
   if (_saveBezig) await _saveBezig.catch(() => {});
   if (_momentopnameBezig) await _momentopnameBezig.catch(() => {});
   const taak = metOpslagSlot(() => _savePDFNu(null, doc, { momentopname: true }));
@@ -3379,16 +3387,27 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
     // Laatste veilig punt vóór het schrijven.
     annulering.controleer();
+    // Beveiligd (#378): Rust versleutelt met de sessie van het document
+    // (dezelfde wachtwoorden en rechten, of de nieuw ingestelde). Zonder
+    // sessie gewoon schrijven.
+    const beveiligingsSessie = sessieVoorOpslaan(activeDoc);
+
     // Temporarily release lock so we can write, then re-lock
     await unlockFile(outputPath);
     try {
       if (!stillCurrent()) throw changedDuringSave();
-      // Het schrijven zelf is nog te annuleren tot het tijdelijke bestand over
-      // het doel gaat (core/platform.js, src-tauri/src/atomic_file.rs); bij
-      // annuleren verdwijnt het tijdelijke bestand en blijft het doel zoals
-      // het was. Kan de schrijver niet annuleren, dan legt hij de annulering
-      // vóór het schrijven vast.
-      await writeBinaryFileAtomic(outputPath, savedBytes, { annulering });
+      if (beveiligingsSessie) {
+        // De versleutelde schrijver kan niet annuleren: de annulering vóór
+        // het schrijven vastleggen (gooit als er al geannuleerd is).
+        annulering.vastleggen();
+        await writeProtectedPdfAtomic(outputPath, savedBytes, beveiligingsSessie);
+      } else {
+        // Het schrijven zelf is nog te annuleren tot het tijdelijke bestand over
+        // het doel gaat (core/platform.js, src-tauri/src/atomic_file.rs); bij
+        // annuleren verdwijnt het tijdelijke bestand en blijft het doel zoals
+        // het was.
+        await writeBinaryFileAtomic(outputPath, savedBytes, { annulering });
+      }
     } catch (writeErr) {
       // Re-lock before reporting error
       await lockFile(outputPath);
@@ -3438,6 +3457,13 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       if (activeDoc.structEdits) markDocumentModified(activeDoc);
       notifyStructEditsSaved(activeDoc);
     }
+    // De beveiliging staat nu zo in het bestand (of is eraf).
+    naOpslaanBeveiliging(activeDoc);
+    // Versleuteld geschreven naar het bestand waar de weergave uit tekent (of
+    // als kopie): PDFium en de workers openen op pad en zonder wachtwoord. Net
+    // als na een tekstbewerking verder uit een verse, ontsleutelde werkkopie
+    // met de opgeslagen inhoud; het bestand op schijf blijft beveiligd.
+    const naarWerkkopie = !!beveiligingsSessie && (!!saveAsPath || outputPath === currentPath);
 
     // Vastgezette knipsels staan nu in de pagina-inhoud van outputPath. Zie
     // alInBasis(): een volgende save op die basis tekent ze niet nogmaals.
@@ -3490,7 +3516,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     // vorige save is veranderd; anders staat ze al in de geladen werkkopie.
     const ocrLaagGewijzigd = !!ocrUitkomst && ocrUitkomst.signature !== activeDoc?.ocrLayerSignature;
     if (ocrUitkomst && activeDoc) activeDoc.ocrLayerPages = ocrUitkomst.layerPages;
-    if ((textEditsGebakken || ocrLaagGewijzigd) && activeDoc) {
+    if ((textEditsGebakken || ocrLaagGewijzigd || naarWerkkopie) && activeDoc) {
       try {
         if (saveAsPath) activeDoc.saveTargetPath = saveAsPath;
         const { reloadFromBytes } = await import('./page-manager.js');
@@ -3511,6 +3537,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
         // van dat de bewerking uit beeld verdwijnt terwijl ze wél in het
         // bestand staat. (#345)
         if (textEditsGebakken) activeDoc.textEdits = [];
+        // Het beveiligde bestand is het origineel; de weergave de werkkopie.
+        if (naarWerkkopie) activeDoc.originalFilePath = activeDoc.saveTargetPath || outputPath;
         // reloadFromBytes is voor structurele edits en markeert het document
         // als gewijzigd; deze save heeft alles net weggeschreven.
         markDocumentSaved(activeDoc);
@@ -3567,6 +3595,16 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       showMessage(hostMelding);
       return false;
     }
+    // Beveiligd opslaan (#378) faalde met een vaste code van Rust: de
+    // vertaalde melding. Het bestand op schijf bleef ongewijzigd.
+    if (isVersleuteld(activeDoc)) {
+      const { sleutel, opties } = foutMelding(error);
+      if (sleutel !== 'protectPdf.failed') {
+        console.warn('[saver] beveiligd opslaan mislukt:', error?.message || error);
+        showMessage(i18next.t(`dialogs:${sleutel}`, opties));
+        return false;
+      }
+    }
     console.error('Error saving PDF:', error);
     showMessage(i18next.t('failedToSavePdf', { error: error?.message || String(error) }));
     return false;
@@ -3605,6 +3643,31 @@ export async function savePDFAs(doc = getActiveDocument(), explicitPath = null, 
     const wasUntitled = !!doc?.isUntitled || !currentPath;
     const tempPath = (doc?.isUntitled || doc?._renderTemp) ? currentPath : null;
     const success = await savePDF(savePath, opties, doc);
+
+    // Beveiligd opgeslagen (#378): de weergave blijft uit de ontsleutelde
+    // werkkopie (de saver herlaadde die met de opgeslagen inhoud); het
+    // opgeslagen, versleutelde bestand wordt het origineel.
+    if (success && savePath !== currentPath && isVersleuteld(doc)) {
+      const vorigOrigineel = doc.originalFilePath;
+      doc.originalFilePath = savePath;
+      doc.saveTargetPath = savePath;
+      doc.fileName = bestandsnaamUitPad(savePath) || doc.fileName;
+      doc.isUntitled = false;
+      if (vorigOrigineel && vorigOrigineel !== savePath) {
+        try { await unlockFile(vorigOrigineel); } catch { /* best effort */ }
+      }
+      updateWindowTitle();
+      window.__OPDS_SESSION_SAVE__?.();
+      return true;
+    }
+    // Zonder beveiliging opgeslagen vanuit een ontsleutelde werkkopie: het
+    // opgeslagen bestand is voortaan gewoon het document.
+    if (success && savePath !== currentPath && doc?.originalFilePath) {
+      if (doc.originalFilePath !== savePath) {
+        try { await unlockFile(doc.originalFilePath); } catch { /* best effort */ }
+      }
+      doc.originalFilePath = null;
+    }
 
     // If saved to a new path, update the current path and UI
     if (success && savePath !== currentPath) {

@@ -110,6 +110,7 @@
   "searchHitsOne": "1 รายการ",
   "searchHitsMany": "{{count}} รายการ",
   "passwordProtectedBar": "ป้องกันด้วยรหัสผ่าน: เปิดแบบอ่านอย่างเดียว",
+  "passwordProtectedEditableBar": "ป้องกันด้วยรหัสผ่าน การบันทึกจะคงการป้องกันไว้",
   "documentSearch": {
     "title": "ค้นหาเอกสาร",
     "query": "ข้อความค้นหา",

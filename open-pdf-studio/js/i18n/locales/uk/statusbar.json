@@ -110,6 +110,7 @@
   "searchHitsOne": "1 збіг",
   "searchHitsMany": "Збігів: {{count}}",
   "passwordProtectedBar": "Захищено паролем: відкрито лише для читання.",
+  "passwordProtectedEditableBar": "Захищено паролем. Під час збереження захист залишається.",
   "documentSearch": {
     "title": "Пошук у документах",
     "query": "Текст для пошуку",

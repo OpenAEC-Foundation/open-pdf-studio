@@ -1,5 +1,20 @@
 import type { Annotation } from './annotation.js';
 
+/** Documentbeveiliging (#378), zie js/pdf/document-beveiliging.js. */
+export interface DocumentBeveiliging {
+  versleuteld: boolean;
+  /** Naam van de Rust-sessie die versleutelt; null bij een oudere methode. */
+  sessie: string | null;
+  methode: string | null;
+  revisie: number | null;
+  p: number | null;
+  rechten: Record<'print' | 'printHogeKwaliteit' | 'wijzigen' | 'kopieren' | 'annoteren' | 'formulieren' | 'samenstellen' | 'toegankelijkheid', boolean> | null;
+  eigenaarToegang: boolean;
+  openWachtwoord: boolean;
+  magWijzigen: boolean;
+  inAfwachting: boolean;
+}
+
 export interface MeasureScale {
   pixelsPerUnit: number;
   unit: string;
@@ -121,11 +136,16 @@ export interface DocumentState {
   pageDims?: Record<number, { widthPt: number; heightPt: number; rotation?: number }>;
   pdfaCompliance: string | null;
   pdfADismissed: boolean;
-  /** Met een openingswachtwoord geopend: alleen-lezen, kan niet opgeslagen
-   *  worden (js/pdf/wachtwoord-pdf.js). `filePath` is dan de ontsleutelde
+  /** Met een openingswachtwoord geopend (js/pdf/wachtwoord-pdf.js): na een
+   *  herstart vraagt de app het opnieuw. `filePath` is dan de ontsleutelde
    *  werkkopie, `originalFilePath` het bestand van de gebruiker. */
   passwordProtected?: boolean;
   originalFilePath?: string | null;
+  /** Documentbeveiliging (#378): de beveiliging die opslaan schrijft
+   *  (js/pdf/document-beveiliging.js); geen = niet versleuteld. */
+  beveiliging?: DocumentBeveiliging | null;
+  /** Namen van de beveiligingssessies in Rust, vrijgegeven bij sluiten. */
+  _beveiligingSessies?: string[];
   /** De infobalk van een beveiligde PDF is voor dit tabblad weggeklikt. */
   _beveiligdBalkVerborgen?: boolean;
   measureScale: MeasureScale | null;

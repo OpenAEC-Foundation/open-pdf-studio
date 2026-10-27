@@ -110,6 +110,7 @@
   "searchHitsOne": "1 corrispondenza",
   "searchHitsMany": "{{count}} corrispondenze",
   "passwordProtectedBar": "Protetto da password: aperto in sola lettura.",
+  "passwordProtectedEditableBar": "Protetto da password. Il salvataggio mantiene la protezione.",
   "documentSearch": {
     "title": "Cerca nei documenti",
     "query": "Testo da cercare",

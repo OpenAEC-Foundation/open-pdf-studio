@@ -140,8 +140,8 @@
     "officeTable": "Tabela",
     "officeText": "Tekst",
     "officeFailed": "Eksport dokumentu nie powiódł się.",
-    "protect": "Chroń hasłem",
-    "protectDesc": "Zapisz kopię chronioną hasłem (AES-256)"
+    "protect": "Zabezpieczenia dokumentu",
+    "protectDesc": "Ustaw lub usuń hasła i uprawnienia (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Profil wyjściowy",

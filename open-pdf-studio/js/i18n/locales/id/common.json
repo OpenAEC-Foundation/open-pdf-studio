@@ -412,5 +412,6 @@
     "intersection": "Perpotongan",
     "polar": "Polar",
     "locked": "Terkunci"
-  }
+  },
+  "protectedPdfNoPrint": "Izin dokumen ini tidak mengizinkan pencetakan."
 }

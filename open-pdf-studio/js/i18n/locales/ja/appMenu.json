@@ -140,8 +140,8 @@
     "officeTable": "表",
     "officeText": "テキスト",
     "officeFailed": "文書のエクスポートに失敗しました。",
-    "protect": "パスワードで保護",
-    "protectDesc": "パスワードで保護したコピーを保存します (AES-256)"
+    "protect": "文書のセキュリティ",
+    "protectDesc": "パスワードと権限を設定または解除 (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "出力プロファイル",

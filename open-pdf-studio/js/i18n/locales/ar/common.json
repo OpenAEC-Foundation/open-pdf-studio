@@ -412,5 +412,6 @@
     "intersection": "تقاطع",
     "polar": "قطبي",
     "locked": "مثبّت"
-  }
+  },
+  "protectedPdfNoPrint": "لا تسمح أذونات هذا المستند بالطباعة."
 }

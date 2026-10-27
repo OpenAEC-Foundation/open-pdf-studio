@@ -140,8 +140,8 @@
     "officeTable": "Tabulka",
     "officeText": "Text",
     "officeFailed": "Export dokumentu se nezdařil.",
-    "protect": "Chránit heslem",
-    "protectDesc": "Uložit kopii chráněnou heslem (AES-256)"
+    "protect": "Zabezpečení dokumentu",
+    "protectDesc": "Nastavit nebo odebrat hesla a oprávnění (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Výstupní profil",

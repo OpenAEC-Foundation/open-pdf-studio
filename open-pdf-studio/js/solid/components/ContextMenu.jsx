@@ -1019,7 +1019,8 @@ function PageMenuContent() {
       <Separator />
 
       <MenuItem icon={printIcon} label={t('page.printMenu')} shortcut={sneltoetsVoor('file.print')} onClick={() => {
-        import('../stores/dialogStore.js').then(m => m.openDialog('print'));
+        // Via showPrintDialog: de webversie en de rechten van een beveiligd document.
+        import('../../ui/chrome/dialogs.js').then(m => m.showPrintDialog());
       }} />
       <MenuItem icon={findIcon} label={t('page.findMenu')} shortcut={sneltoetsVoor('search.find')} onClick={() => {
         const findBar = document.getElementById('find-bar');

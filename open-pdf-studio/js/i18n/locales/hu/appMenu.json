@@ -140,8 +140,8 @@
     "officeTable": "Táblázat",
     "officeText": "Szöveg",
     "officeFailed": "A dokumentum exportálása sikertelen.",
-    "protect": "Védelem jelszóval",
-    "protectDesc": "Jelszóval védett másolat mentése (AES-256)"
+    "protect": "Dokumentumvédelem",
+    "protectDesc": "Jelszavak és jogosultságok beállítása vagy eltávolítása (AES-256)"
   },
   "pdfxCmyk": {
     "profile": "Kimeneti profil",

@@ -350,7 +350,10 @@
     "scanTextNone": "Tidak ada teks yang dikenali di halaman ini. Jalankan Pengenalan Teks (OCR) terlebih dahulu.",
     "shiftPage": "Geser halaman",
     "editPages": "Edit Halaman",
-    "editPagesTitle": "Edit halaman secara visual: susun ulang, putar, sisipkan, hapus, ekstrak, dan pisahkan"
+    "editPagesTitle": "Edit halaman secara visual: susun ulang, putar, sisipkan, hapus, ekstrak, dan pisahkan",
+    "protect": "Lindungi",
+    "security": "Keamanan",
+    "securityTitle": "Atur atau hapus kata sandi dan izin"
   },
   "help": {
     "settings": "Pengaturan",

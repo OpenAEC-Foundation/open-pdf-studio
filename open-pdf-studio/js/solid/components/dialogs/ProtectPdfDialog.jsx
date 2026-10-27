@@ -1,74 +1,87 @@
-import { createSignal } from 'solid-js';
+import { createSignal, Show, For } from 'solid-js';
 import Dialog from '../Dialog.jsx';
-import { closeDialog, showMessage } from '../../stores/dialogStore.js';
+import { closeDialog } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
-import { controleerWachtwoorden, STANDAARD_RECHTEN, foutMelding } from '../../../pdf/protect-pdf.js';
-
-// De rechten in de volgorde van de dialoog: [sleutel in het rechtenobject, i18n-sleutel].
-const RECHTEN = [
-  ['print', 'protectPdf.allowPrint'],
-  ['printHogeKwaliteit', 'protectPdf.allowPrintHigh'],
-  ['kopieren', 'protectPdf.allowCopy'],
-  ['wijzigen', 'protectPdf.allowEdit'],
-  ['annoteren', 'protectPdf.allowAnnotate'],
-  ['formulieren', 'protectPdf.allowForms'],
-  ['samenstellen', 'protectPdf.allowAssemble'],
-];
+import { getActiveDocument } from '../../../core/state.js';
+import { controleerWachtwoorden, STANDAARD_RECHTEN } from '../../../pdf/protect-pdf-regels.js';
+import { RECHTEN_LIJST, magBeveiligingWijzigen, isVersleuteld } from '../../../pdf/document-beveiliging.js';
+import { updateStatusMessage } from '../../../ui/chrome/status-bar.js';
 
 /**
- * "Beveiligen met wachtwoord": wachtwoorden en rechten voor een beveiligde
- * kopie van het geopende document (js/pdf/protect-pdf.js). Windows-stijl via
- * Dialog.jsx: verplaatsbaar, sluit niet bij een klik ernaast.
+ * Documentbeveiliging (#378): openwachtwoord, rechtenwachtwoord en rechten
+ * (AES-256), of geen beveiliging. De keuze geldt bij het volgende opslaan
+ * (js/pdf/beveiliging-toepassen.js). Windows-stijl via Dialog.jsx:
+ * verplaatsbaar, sluit niet bij een klik ernaast.
  */
 export default function ProtectPdfDialog() {
   const { t } = useTranslation('dialogs');
   const { t: tCommon } = useTranslation('common');
 
+  const doc = getActiveDocument();
+  const huidig = doc?.beveiliging || null;
+  const versleuteld = isVersleuteld(doc);
+
+  const [keuze, setKeuze] = createSignal(versleuteld ? 'wachtwoord' : 'geen');
   const [gebruiker, setGebruiker] = createSignal('');
   const [gebruikerHerhaald, setGebruikerHerhaald] = createSignal('');
   const [eigenaar, setEigenaar] = createSignal('');
   const [eigenaarHerhaald, setEigenaarHerhaald] = createSignal('');
-  const [rechten, setRechten] = createSignal({ ...STANDAARD_RECHTEN });
+  const [huidigWachtwoord, setHuidigWachtwoord] = createSignal('');
+  const [rechten, setRechten] = createSignal({ ...STANDAARD_RECHTEN, ...(huidig?.rechten || {}) });
   const [fout, setFout] = createSignal('');
   const [bezig, setBezig] = createSignal(false);
 
   const close = () => closeDialog('protect-pdf');
-
+  const wachtwoordKeuze = () => keuze() === 'wachtwoord';
   const zetRecht = (sleutel, aan) => setRechten((r) => ({ ...r, [sleutel]: aan }));
+  const wisWachtwoorden = () => {
+    setGebruiker(''); setGebruikerHerhaald(''); setEigenaar(''); setEigenaarHerhaald(''); setHuidigWachtwoord('');
+  };
+  const sluit = () => { wisWachtwoorden(); close(); };
 
   const handleApply = async () => {
     if (bezig()) return;
-    const probleem = controleerWachtwoorden({
+    const invoer = {
       gebruiker: gebruiker(),
       gebruikerHerhaald: gebruikerHerhaald(),
       eigenaar: eigenaar(),
       eigenaarHerhaald: eigenaarHerhaald(),
-    });
-    if (probleem) {
-      setFout(t(probleem));
-      return;
+    };
+    // Nieuwe wachtwoorden controleren; alles leeg bij een beveiligd document
+    // = de huidige wachtwoorden houden.
+    const nieuweWachtwoorden = Object.values(invoer).some(Boolean);
+    if (wachtwoordKeuze() && (nieuweWachtwoorden || !versleuteld)) {
+      const probleem = controleerWachtwoorden(invoer);
+      if (probleem) {
+        setFout(t(probleem));
+        return;
+      }
     }
+    // Hoge kwaliteit hoort bij printen.
+    const r0 = rechten();
+    const gekozen = { ...r0, printHogeKwaliteit: r0.print && r0.printHogeKwaliteit };
     setFout('');
     setBezig(true);
-    const invoer = { gebruiker: gebruiker(), eigenaar: eigenaar(), rechten: rechten() };
-    // De wachtwoorden niet langer in de dialoog laten staan dan nodig.
-    setGebruiker(''); setGebruikerHerhaald(''); setEigenaar(''); setEigenaarHerhaald('');
-    close();
     try {
-      const { maakBeveiligdeKopie } = await import('../../../pdf/protect-pdf.js');
-      const r = await maakBeveiligdeKopie(invoer);
-      if (r.ok) showMessage(t('protectPdf.saved', { path: r.pad }));
-      else if (r.reden === 'doel-is-geopend') showMessage(t('print.targetIsOpenFile'));
-      else if (r.reden === 'beveiligd') showMessage(tCommon('protectedPdfReadOnly'));
-      else if (r.reden === 'mislukt') {
-        // Vaste foutcode van de Rust-kant -> vertaalde melding.
-        const { sleutel, opties } = foutMelding(r.fout);
-        console.warn('Beveiligen mislukt:', r.fout);
-        showMessage(t(sleutel, opties));
+      const { pasBeveiligingToe } = await import('../../../pdf/beveiliging-toepassen.js');
+      const r = await pasBeveiligingToe(doc, {
+        keuze: keuze(),
+        gebruiker: wachtwoordKeuze() ? invoer.gebruiker : '',
+        eigenaar: wachtwoordKeuze() ? invoer.eigenaar : '',
+        rechten: gekozen,
+        huidigWachtwoord: huidigWachtwoord(),
+      });
+      if (!r.ok) {
+        setFout(t(r.fout));
+        return;
       }
+      sluit();
+      if (r.soort !== 'niets') updateStatusMessage(t('protectPdf.pending'));
     } catch (e) {
       console.warn('Beveiligen mislukt:', e?.message || e);
-      showMessage(t('protectPdf.failed', { error: e?.message || String(e) }));
+      setFout(t('protectPdf.failed', { error: e?.message || String(e) }));
+    } finally {
+      setBezig(false);
     }
   };
 
@@ -83,13 +96,13 @@ export default function ProtectPdfDialog() {
     <>
       <div></div>
       <div class="crop-margins-footer-right">
-        <button class="pref-btn pref-btn-primary" id="protect-pdf-apply" disabled={bezig()} onClick={handleApply}>{t('protectPdf.apply')}</button>
-        <button class="pref-btn pref-btn-secondary" onClick={close}>{tCommon('cancel')}</button>
+        <button class="pref-btn pref-btn-primary" id="protect-pdf-apply" disabled={bezig()} onClick={handleApply}>{tCommon('ok')}</button>
+        <button class="pref-btn pref-btn-secondary" onClick={sluit}>{tCommon('cancel')}</button>
       </div>
     </>
   );
 
-  const wachtwoordRij = (labelKey, waarde, zet) => (
+  const wachtwoordRij = (labelKey, waarde, zet, uit = () => false) => (
     <div class="crop-margins-row">
       <label class="crop-margins-label protect-pdf-label">{t(labelKey)}</label>
       <input
@@ -97,12 +110,23 @@ export default function ProtectPdfDialog() {
         class="crop-margins-input-wide"
         autocomplete="new-password"
         spellcheck={false}
+        disabled={uit()}
         value={waarde()}
         onInput={(e) => zet(e.target.value)}
         onKeyDown={onKeyDown}
       />
     </div>
   );
+
+  const huidigeStaat = () => {
+    if (!versleuteld) return t('protectPdf.stateNone');
+    return [
+      t('protectPdf.stateProtected', { method: huidig.methode || '?' }),
+      huidig.openWachtwoord ? t('protectPdf.stateOpenPassword') : t('protectPdf.stateNoOpenPassword'),
+    ].join(' ');
+  };
+
+  const uit = () => !wachtwoordKeuze();
 
   return (
     <Dialog
@@ -112,35 +136,72 @@ export default function ProtectPdfDialog() {
       headerClass="crop-margins-header"
       bodyClass="crop-margins-content"
       footerClass="crop-margins-footer"
-      onClose={close}
+      onClose={sluit}
       footer={footer}
     >
       <div class="crop-margins-form">
         <div class="crop-margins-info">{t('protectPdf.info')}</div>
 
         <fieldset class="pref-fieldset">
+          <legend>{t('protectPdf.current')}</legend>
+          <div id="protect-pdf-state">{huidigeStaat()}</div>
+          <Show when={huidig?.inAfwachting}>
+            <div class="protect-pdf-hint">{t('protectPdf.pending')}</div>
+          </Show>
+          <Show when={versleuteld && !huidig.sessie}>
+            <div class="protect-pdf-hint">{t('protectPdf.olderMethodInfo')}</div>
+          </Show>
+          <Show when={versleuteld && !magBeveiligingWijzigen(huidig)}>
+            {wachtwoordRij('protectPdf.password', huidigWachtwoord, setHuidigWachtwoord)}
+            <div class="protect-pdf-hint">{t('protectPdf.ownerPasswordHint')}</div>
+          </Show>
+        </fieldset>
+
+        <fieldset class="pref-fieldset">
+          <legend>{t('protectPdf.method')}</legend>
+          <label class="pref-checkbox-label">
+            <input type="radio" name="protect-pdf-keuze" checked={keuze() === 'geen'} onChange={() => setKeuze('geen')} />
+            <span>{t('protectPdf.none')}</span>
+          </label>
+          <label class="pref-checkbox-label">
+            <input type="radio" name="protect-pdf-keuze" checked={keuze() === 'wachtwoord'} onChange={() => setKeuze('wachtwoord')} />
+            <span>{t('protectPdf.passwordSecurity')}</span>
+          </label>
+        </fieldset>
+
+        <fieldset class="pref-fieldset">
           <legend>{t('protectPdf.openPassword')}</legend>
-          {wachtwoordRij('protectPdf.password', gebruiker, setGebruiker)}
-          {wachtwoordRij('protectPdf.repeat', gebruikerHerhaald, setGebruikerHerhaald)}
+          {wachtwoordRij('protectPdf.password', gebruiker, setGebruiker, uit)}
+          {wachtwoordRij('protectPdf.repeat', gebruikerHerhaald, setGebruikerHerhaald, uit)}
           <div class="protect-pdf-hint">{t('protectPdf.openPasswordHint')}</div>
         </fieldset>
 
         <fieldset class="pref-fieldset">
           <legend>{t('protectPdf.rightsPassword')}</legend>
-          {wachtwoordRij('protectPdf.password', eigenaar, setEigenaar)}
-          {wachtwoordRij('protectPdf.repeat', eigenaarHerhaald, setEigenaarHerhaald)}
+          {wachtwoordRij('protectPdf.password', eigenaar, setEigenaar, uit)}
+          {wachtwoordRij('protectPdf.repeat', eigenaarHerhaald, setEigenaarHerhaald, uit)}
           <div class="protect-pdf-hint">{t('protectPdf.rightsPasswordHint')} {t('protectPdf.rightsWarning')}</div>
+          <Show when={versleuteld}>
+            <div class="protect-pdf-hint">{t('protectPdf.keepPasswordsHint')}</div>
+          </Show>
         </fieldset>
 
         <fieldset class="pref-fieldset">
           <legend>{t('protectPdf.allow')}</legend>
           <div class="protect-pdf-rechten">
-            {RECHTEN.map(([sleutel, label]) => (
-              <label class="pref-checkbox-label">
-                <input type="checkbox" checked={rechten()[sleutel]} onChange={(e) => zetRecht(sleutel, e.target.checked)} />
-                <span>{t(label)}</span>
-              </label>
-            ))}
+            <For each={RECHTEN_LIJST}>
+              {([sleutel, label]) => (
+                <label class="pref-checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={rechten()[sleutel]}
+                    disabled={uit() || (sleutel === 'printHogeKwaliteit' && !rechten().print)}
+                    onChange={(e) => zetRecht(sleutel, e.target.checked)}
+                  />
+                  <span>{t(label)}</span>
+                </label>
+              )}
+            </For>
           </div>
         </fieldset>
 

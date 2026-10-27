@@ -350,7 +350,10 @@
     "scanTextNone": "Ingen gjenkjent tekst på denne siden. Kjør Tekstgjenkjenning (OCR) først.",
     "shiftPage": "Forskyv side",
     "editPages": "Rediger sider",
-    "editPagesTitle": "Rediger sider visuelt: omorganiser, roter, sett inn, slett, trekk ut og del opp"
+    "editPagesTitle": "Rediger sider visuelt: omorganiser, roter, sett inn, slett, trekk ut og del opp",
+    "protect": "Beskytt",
+    "security": "Sikkerhet",
+    "securityTitle": "Angi eller fjern passord og rettigheter"
   },
   "help": {
     "settings": "Innstillinger",

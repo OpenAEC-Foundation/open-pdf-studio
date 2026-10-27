@@ -350,7 +350,10 @@
     "scanTextNone": "Brak rozpoznanego tekstu na tej stronie. Najpierw uruchom Rozpoznawanie tekstu (OCR).",
     "shiftPage": "Przesuń stronę",
     "editPages": "Edytuj strony",
-    "editPagesTitle": "Edytuj strony wizualnie: zmieniaj kolejność, obracaj, wstawiaj, usuwaj, wyodrębniaj i dziel"
+    "editPagesTitle": "Edytuj strony wizualnie: zmieniaj kolejność, obracaj, wstawiaj, usuwaj, wyodrębniaj i dziel",
+    "protect": "Chroń",
+    "security": "Zabezpieczenia",
+    "securityTitle": "Ustaw lub usuń hasła i uprawnienia"
   },
   "help": {
     "settings": "Ustawienia",

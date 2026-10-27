@@ -110,6 +110,7 @@
   "searchHitsOne": "1 hasil",
   "searchHitsMany": "{{count}} hasil",
   "passwordProtectedBar": "Dilindungi kata sandi: dibuka dalam mode hanya baca.",
+  "passwordProtectedEditableBar": "Dilindungi kata sandi. Menyimpan tetap mempertahankan perlindungan.",
   "documentSearch": {
     "title": "Cari dokumen",
     "query": "Teks pencarian",
