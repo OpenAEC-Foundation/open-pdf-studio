@@ -140,6 +140,7 @@ js/tools/tools/eraser-hit.test.mjs
 ../mcpb/manifest.test.mjs
 js/pdf/saver/geen-rand.test.mjs
 js/pdf/saver/hatch-meta.test.mjs
+js/pdf/saver/arcering-stippen.test.mjs
 js/pdf/saver/pdf-text.test.mjs
 js/tools/tools/filled-area-undo.test.mjs
 js/pdf/loader/annotatie-opmerking.test.mjs
