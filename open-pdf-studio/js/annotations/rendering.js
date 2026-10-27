@@ -72,6 +72,9 @@ import {
 import {
   afdekUitsnede, afdekSleutel, houdAfdekkingen, zetAfdekkingHerteken,
 } from '../text/text-edit-afdekking.js';
+import {
+  type3Voorbeeld, type3Sleutel, houdType3Voorbeelden, zetType3Herteken,
+} from '../text/type3-voorbeeld.js';
 import { viewportGeometrie, rectNaarPagina } from '../pdf/weergave-rotatie.js';
 import { paginaMaat, paginaNaarWeergave, weergaveTransform, weergaveRectNaarPagina, zetRechtopRond } from '../pdf/weergave-ruimte.js';
 import { schaalgebiedStijl } from './scale-region-style.js';
@@ -2694,6 +2697,10 @@ function drawTextEdits(ctx, pageNum) {
   ctx.save();
   ctx.transform(...getPageRotationMatrix(pageWidth, pageHeight, totalRotation));
   const afdekSleutels = [];
+  const type3Sleutels = [];
+  // Pagina-box in user-space: het tekenkader van deze painter (#723).
+  const paginaBox = { x: offXPt, y: offYPt, width: pageWidth, height: pageHeight };
+  const uitvoerType3 = !!_lagen && !_lagen.bewerkhulp;
 
   for (const edit of pageEdits) {
     const fontSize = edit.fontSize;
@@ -2718,7 +2725,27 @@ function drawTextEdits(ctx, pageNum) {
     // In de open editor staat deze tekst al: hier alleen de afdekking.
     const inEditor = !!actief && (edit === actief.afdekking
       || (edit.id != null && (edit.id === actief.recordId || edit.id === actief.afdekking?.id)));
-    const newLines = inEditor ? [] : String(edit.newText ?? '').split('\n');
+    // Type3-font (#723): de tekst zoals de saver hem schrijft, door PDF.js
+    // gerenderd uit een tijdelijk document. Tot die bitmap er is (of als hij
+    // niet kan), de gewone fillText-weergave hieronder.
+    let type3 = null;
+    if (edit.id != null && edit !== actief?.afdekking) {
+      type3Sleutels.push(type3Sleutel(pageNum, edit.id));
+      if (!inEditor) {
+        const m = ctx.getTransform();
+        type3 = type3Voorbeeld(doc, pageNum, edit, paginaBox, Math.hypot(m.a, m.b) || 1,
+          { plannen: !uitvoerType3 });
+      }
+    }
+    if (type3) {
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(
+        type3.canvas,
+        type3.kader.x, type3.kader.y,
+        type3.canvas.width / type3.px, type3.canvas.height / type3.px,
+      );
+    }
+    const newLines = inEditor ? [] : (type3 ? [] : String(edit.newText ?? '').split('\n'));
     for (let i = 0; i < newLines.length; i++) {
       const line = newLines[i];
       if (!line) continue;
@@ -2814,6 +2841,7 @@ function drawTextEdits(ctx, pageNum) {
   }
   ctx.restore();
   houdAfdekkingen(doc, pageNum, afdekSleutels);
+  houdType3Voorbeelden(doc, pageNum, type3Sleutels);
 }
 
 // De PDF-tekstbewerking die nu open staat op deze pagina (#698), alleen op
@@ -2918,13 +2946,16 @@ function vraagTekstBewerkingenOpPagina(vp, pageNum) {
 
 // Een uitsnede zonder tekst is klaar: dezelfde hertekening als na een
 // wijziging aan de bewerking (doorlopend, viewport of enkele pagina).
-zetAfdekkingHerteken(() => {
+function hertekenTekstBewerkingen() {
   const doc = state.documents[state.activeDocumentIndex];
   const vp = window.__pdfViewport;
   if (doc?.viewMode === 'continuous') redrawContinuous();
   else if (vp?.active && doc?.filePath) vp.dirty = true;
   else redrawAnnotations();
-});
+}
+zetAfdekkingHerteken(hertekenTekstBewerkingen);
+// Ook als een voorbeeld in het originele Type3-font klaar is (#723).
+zetType3Herteken(hertekenTekstBewerkingen);
 
 // Redraw all annotations (single page mode)
 // Pass lightweight=true during drag/resize to skip expensive DOM updates

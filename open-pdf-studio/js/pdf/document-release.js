@@ -232,6 +232,12 @@ export async function ruimWerkbestandenOp(doc, paden, middelen = schijfMiddelen(
 export async function geefDocumentVrij(gesloten, overgebleven) {
   const plan = vrijgaveplan(gesloten, overgebleven);
 
+  // Tijdelijke documenten van de live Type3-weergave (#723).
+  try {
+    const { vergeetType3Voorbeelden } = await import('../text/type3-voorbeeld.js');
+    vergeetType3Voorbeelden(gesloten);
+  } catch (e) { console.warn('[release] Type3-voorbeelden:', e); }
+
   if (plan.pdfjsVrijgeven) {
     try { await (gesloten.pdfDoc.loadingTask || gesloten.pdfDoc).destroy(); } catch (e) { console.warn('[release] PDF.js afsluiten:', e); }
   }
