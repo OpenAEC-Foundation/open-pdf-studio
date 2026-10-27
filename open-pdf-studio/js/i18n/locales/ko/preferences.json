@@ -9,7 +9,8 @@
     "behavior": "동작",
     "fileAssociation": "파일 연결",
     "virtualPrinter": "가상 프린터",
-    "pageDisplay": "페이지 표시"
+    "pageDisplay": "페이지 표시",
+    "keyboardShortcuts": "바로 가기 키"
   },
   "resetToDefaults": "기본값으로 초기화",
   "resetConfirm": "모든 환경 설정을 기본값으로 초기화하시겠습니까?",
@@ -291,5 +292,51 @@
     "openArrowReversed": "열린 화살표(반대 방향)",
     "closedArrowReversed": "닫힌 화살표(반대 방향)",
     "slash": "슬래시"
+  },
+  "keyboardShortcuts": {
+    "title": "바로 가기 키",
+    "search": "명령 또는 키로 검색",
+    "command": "명령",
+    "shortcuts": "바로 가기 키",
+    "none": "없음",
+    "noMatches": "검색과 일치하는 명령이 없습니다.",
+    "selectHint": "바로 가기 키를 변경할 명령을 선택하세요.",
+    "addShortcut": "바로 가기 키 추가",
+    "remove": "바로 가기 키 제거",
+    "resetCommand": "기본값으로 재설정",
+    "resetAll": "모두 재설정",
+    "resetAllConfirm": "모든 바로 가기 키를 기본값으로 재설정하시겠습니까?",
+    "import": "가져오기…",
+    "export": "내보내기…",
+    "fileType": "바로 가기 키",
+    "imported": "바로 가기 키를 가져왔습니다. 적용하려면 저장을 클릭하세요.",
+    "importFailed": "올바른 바로 가기 키 파일이 아닙니다.",
+    "exported": "바로 가기 키를 내보냈습니다.",
+    "exportFailed": "바로 가기 키를 내보내지 못했습니다:",
+    "recording": "새 키 조합을 누르세요… (Esc로 취소)",
+    "conflict": "{{keys}}은(는) 이미 “{{command}}”에서 사용 중입니다.",
+    "reassign": "다시 할당",
+    "reserved": "{{keys}}은(는) 고정된 의미가 있어 할당할 수 없습니다.",
+    "defaultLabel": "기본값: {{keys}}",
+    "customize": "사용자 지정…",
+    "fixedGroup": "고정 키",
+    "applyHint": "저장을 클릭하면 변경 사항이 적용됩니다.",
+    "categories": {
+      "file": "파일",
+      "edit": "편집",
+      "view": "보기",
+      "search": "찾기",
+      "tools": "도구",
+      "drafting": "그리기 보조",
+      "panels": "패널",
+      "review": "검토",
+      "help": "도움말",
+      "extensions": "확장 기능",
+      "ribbon": "리본: {{tab}}",
+      "other": "기타"
+    },
+    "commands": {
+      "findNext": "다음 찾기"
+    }
   }
 }

@@ -313,6 +313,10 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // bar height): 'mm' | 'cm' | 'in' | 'pt' (#598). Display only — the model
   // stays in page points.
   paperSizeUnit: 'pt',
+  // Keyboard shortcuts changed by the user (#714): only the commands whose
+  // shortcuts differ from the defaults, { 'view.fitPage': ['Ctrl+K'] }.
+  // See core/keybindings/registry.js.
+  keyboardShortcuts: {},
 
   // Panels
   propertiesPanelVisible: true,

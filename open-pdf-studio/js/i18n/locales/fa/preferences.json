@@ -9,7 +9,8 @@
     "behavior": "رفتار",
     "fileAssociation": "اقتران فایل",
     "virtualPrinter": "چاپگر مجازی",
-    "pageDisplay": "نمایش صفحه"
+    "pageDisplay": "نمایش صفحه",
+    "keyboardShortcuts": "میانبرهای صفحه‌کلید"
   },
   "resetToDefaults": "بازنشانی به پیش‌فرض",
   "resetConfirm": "آیا تمام ترجیحات به مقادیر پیش‌فرض بازنشانی شوند؟",
@@ -291,5 +292,51 @@
     "openArrowReversed": "فلش باز (معکوس)",
     "closedArrowReversed": "فلش بسته (معکوس)",
     "slash": "خط مورب"
+  },
+  "keyboardShortcuts": {
+    "title": "میانبرهای صفحه‌کلید",
+    "search": "جستجو بر اساس فرمان یا کلید",
+    "command": "فرمان",
+    "shortcuts": "میانبرها",
+    "none": "هیچ",
+    "noMatches": "هیچ فرمانی با جستجو مطابقت ندارد.",
+    "selectHint": "یک فرمان را برای تغییر میانبرهایش انتخاب کنید.",
+    "addShortcut": "افزودن میانبر",
+    "remove": "حذف میانبر",
+    "resetCommand": "بازنشانی به پیش‌فرض",
+    "resetAll": "بازنشانی همه",
+    "resetAllConfirm": "همه میانبرهای صفحه‌کلید به پیش‌فرض بازنشانی شوند؟",
+    "import": "وارد کردن…",
+    "export": "صادر کردن…",
+    "fileType": "میانبرهای صفحه‌کلید",
+    "imported": "میانبرها وارد شدند. برای اعمال آن‌ها روی ذخیره کلیک کنید.",
+    "importFailed": "این یک فایل معتبر میانبرهای صفحه‌کلید نیست.",
+    "exported": "میانبرها صادر شدند.",
+    "exportFailed": "صادر کردن میانبرها ناموفق بود:",
+    "recording": "ترکیب کلید جدید را فشار دهید… (Esc برای لغو)",
+    "conflict": "{{keys}} از قبل توسط «{{command}}» استفاده می‌شود.",
+    "reassign": "تخصیص دوباره",
+    "reserved": "{{keys}} معنای ثابتی دارد و قابل تخصیص نیست.",
+    "defaultLabel": "پیش‌فرض: {{keys}}",
+    "customize": "سفارشی‌سازی…",
+    "fixedGroup": "کلیدهای ثابت",
+    "applyHint": "تغییرات با کلیک روی ذخیره اعمال می‌شوند.",
+    "categories": {
+      "file": "پرونده",
+      "edit": "ویرایش",
+      "view": "نما",
+      "search": "جستجو",
+      "tools": "ابزارها",
+      "drafting": "کمک‌های ترسیم",
+      "panels": "پنل‌ها",
+      "review": "بازبینی",
+      "help": "راهنما",
+      "extensions": "افزونه‌ها",
+      "ribbon": "نوار: {{tab}}",
+      "other": "سایر"
+    },
+    "commands": {
+      "findNext": "یافتن بعدی"
+    }
   }
 }

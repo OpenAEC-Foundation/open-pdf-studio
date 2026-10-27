@@ -9,7 +9,8 @@
     "behavior": "Verhalten",
     "fileAssociation": "Dateizuordnung",
     "virtualPrinter": "Virtueller Drucker",
-    "pageDisplay": "Seitenanzeige"
+    "pageDisplay": "Seitenanzeige",
+    "keyboardShortcuts": "Tastenkombinationen"
   },
   "resetToDefaults": "Standardwerte wiederherstellen",
   "resetConfirm": "Alle Einstellungen auf Standardwerte zurücksetzen?",
@@ -291,5 +292,51 @@
     "openArrowReversed": "Offener Pfeil (umgekehrt)",
     "closedArrowReversed": "Geschlossener Pfeil (umgekehrt)",
     "slash": "Schrägstrich"
+  },
+  "keyboardShortcuts": {
+    "title": "Tastenkombinationen",
+    "search": "Nach Befehl oder Taste suchen",
+    "command": "Befehl",
+    "shortcuts": "Tastenkombinationen",
+    "none": "Keine",
+    "noMatches": "Keine Befehle gefunden.",
+    "selectHint": "Wählen Sie einen Befehl, um seine Tastenkombinationen zu ändern.",
+    "addShortcut": "Tastenkombination hinzufügen",
+    "remove": "Tastenkombination entfernen",
+    "resetCommand": "Auf Standard zurücksetzen",
+    "resetAll": "Alle zurücksetzen",
+    "resetAllConfirm": "Alle Tastenkombinationen auf die Standardwerte zurücksetzen?",
+    "import": "Importieren…",
+    "export": "Exportieren…",
+    "fileType": "Tastenkombinationen",
+    "imported": "Tastenkombinationen importiert. Klicken Sie auf Speichern, um sie zu übernehmen.",
+    "importFailed": "Dies ist keine gültige Tastenkombinationsdatei.",
+    "exported": "Tastenkombinationen exportiert.",
+    "exportFailed": "Export der Tastenkombinationen fehlgeschlagen:",
+    "recording": "Drücken Sie die neue Tastenkombination… (Esc bricht ab)",
+    "conflict": "{{keys}} wird bereits von „{{command}}“ verwendet.",
+    "reassign": "Neu zuweisen",
+    "reserved": "{{keys}} hat eine feste Bedeutung und kann nicht zugewiesen werden.",
+    "defaultLabel": "Standard: {{keys}}",
+    "customize": "Anpassen…",
+    "fixedGroup": "Feste Tasten",
+    "applyHint": "Änderungen gelten, sobald Sie auf Speichern klicken.",
+    "categories": {
+      "file": "Datei",
+      "edit": "Bearbeiten",
+      "view": "Ansicht",
+      "search": "Suchen",
+      "tools": "Werkzeuge",
+      "drafting": "Zeichenhilfen",
+      "panels": "Bereiche",
+      "review": "Prüfen",
+      "help": "Hilfe",
+      "extensions": "Erweiterungen",
+      "ribbon": "Menüband: {{tab}}",
+      "other": "Sonstiges"
+    },
+    "commands": {
+      "findNext": "Weitersuchen"
+    }
   }
 }

@@ -236,6 +236,8 @@ export interface Preferences {
   zoomDpi: number;
   pageSharpen: number;
   paperSizeUnit: string;
+  // Keyboard shortcuts changed by the user (#714): command id -> combinations.
+  keyboardShortcuts: Record<string, string[]>;
 
   // Panels
   propertiesPanelVisible: boolean;

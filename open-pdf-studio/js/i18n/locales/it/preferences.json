@@ -9,7 +9,8 @@
     "behavior": "Comportamento",
     "fileAssociation": "Associazione file",
     "virtualPrinter": "Stampante virtuale",
-    "pageDisplay": "Visualizzazione pagina"
+    "pageDisplay": "Visualizzazione pagina",
+    "keyboardShortcuts": "Scorciatoie da tastiera"
   },
   "resetToDefaults": "Ripristina predefiniti",
   "resetConfirm": "Ripristinare tutte le preferenze ai valori predefiniti?",
@@ -291,5 +292,51 @@
     "openArrowReversed": "Freccia aperta (invertita)",
     "closedArrowReversed": "Freccia chiusa (invertita)",
     "slash": "Barra"
+  },
+  "keyboardShortcuts": {
+    "title": "Scorciatoie da tastiera",
+    "search": "Cerca per comando o tasto",
+    "command": "Comando",
+    "shortcuts": "Scorciatoie",
+    "none": "Nessuna",
+    "noMatches": "Nessun comando corrisponde alla ricerca.",
+    "selectHint": "Seleziona un comando per modificarne le scorciatoie.",
+    "addShortcut": "Aggiungi scorciatoia",
+    "remove": "Rimuovi scorciatoia",
+    "resetCommand": "Ripristina predefinito",
+    "resetAll": "Ripristina tutto",
+    "resetAllConfirm": "Ripristinare tutte le scorciatoie da tastiera ai valori predefiniti?",
+    "import": "Importa…",
+    "export": "Esporta…",
+    "fileType": "Scorciatoie da tastiera",
+    "imported": "Scorciatoie importate. Fai clic su Salva per applicarle.",
+    "importFailed": "Questo non è un file di scorciatoie da tastiera valido.",
+    "exported": "Scorciatoie esportate.",
+    "exportFailed": "Esportazione delle scorciatoie non riuscita:",
+    "recording": "Premi la nuova combinazione di tasti… (Esc annulla)",
+    "conflict": "{{keys}} è già usato da «{{command}}».",
+    "reassign": "Riassegna",
+    "reserved": "{{keys}} ha un significato fisso e non può essere assegnato.",
+    "defaultLabel": "Predefinito: {{keys}}",
+    "customize": "Personalizza…",
+    "fixedGroup": "Tasti fissi",
+    "applyHint": "Le modifiche hanno effetto quando fai clic su Salva.",
+    "categories": {
+      "file": "File",
+      "edit": "Modifica",
+      "view": "Visualizza",
+      "search": "Trova",
+      "tools": "Strumenti",
+      "drafting": "Aiuti al disegno",
+      "panels": "Pannelli",
+      "review": "Revisione",
+      "help": "Guida",
+      "extensions": "Estensioni",
+      "ribbon": "Barra multifunzione: {{tab}}",
+      "other": "Altro"
+    },
+    "commands": {
+      "findNext": "Trova successivo"
+    }
   }
 }

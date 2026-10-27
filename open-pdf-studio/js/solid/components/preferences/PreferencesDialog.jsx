@@ -13,14 +13,16 @@ import BehaviorTab from './BehaviorTab.jsx';
 import PageDisplayTab from './PageDisplayTab.jsx';
 import FileAssocTab from './FileAssocTab.jsx';
 import VirtualPrinterTab from './VirtualPrinterTab.jsx';
+import KeyboardShortcutsTab from './KeyboardShortcutsTab.jsx';
 
-const DESKTOP_ONLY_TABS = ['fileassoc', 'vprinter'];
+const DESKTOP_ONLY_TABS = ['fileassoc', 'vprinter', 'shortcuts'];
 
 const TAB_IDS = [
   { id: 'general', key: 'tabs.general' },
   { id: 'annotations', key: 'tabs.annotations' },
   { id: 'behavior', key: 'tabs.behavior' },
   { id: 'pageDisplay', key: 'tabs.pageDisplay' },
+  { id: 'shortcuts', key: 'tabs.keyboardShortcuts' },
   { id: 'fileassoc', key: 'tabs.fileAssociation' },
   { id: 'vprinter', key: 'tabs.virtualPrinter' },
 ];
@@ -49,6 +51,11 @@ const TAB_ICONS = {
   pageDisplay: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="3" y="3" width="18" height="18" rx="1"/><path d="M7 8h10M7 12h10M7 16h10"/>
+    </svg>
+  ),
+  shortcuts: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="6" width="20" height="12" rx="1"/><path d="M6 10h0m4 0h0m4 0h0m4 0h0M7 14h10"/>
     </svg>
   ),
   vprinter: (
@@ -187,6 +194,9 @@ export default function PreferencesDialog(props) {
             </Match>
             <Match when={activeTab() === 'pageDisplay'}>
               <PageDisplayTab prefs={prefs} />
+            </Match>
+            <Match when={activeTab() === 'shortcuts'}>
+              <KeyboardShortcutsTab prefs={prefs} />
             </Match>
             <Match when={activeTab() === 'fileassoc'}>
               <FileAssocTab />

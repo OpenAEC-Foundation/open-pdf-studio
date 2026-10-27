@@ -34,6 +34,7 @@ import {
 import { applyInsert, applyReplace, applyStrike } from '../annotations/corrections/proofreading-apply.js';
 import { correctionKind } from '../annotations/corrections/model.js';
 import { setProofreadingOverlay, clearProofreadingOverlay } from '../annotations/corrections/proofreading-overlay.js';
+import { sneltoetsActief, isSneltoetsOpname } from '../core/keybindings/app-shortcuts.js';
 
 export const PROOFREAD_TOOL = 'proofread';
 
@@ -394,8 +395,12 @@ function modelKlopt() {
 }
 
 function opToets(e) {
+  // De voorkeuren nemen net een nieuwe sneltoets op (#714).
+  if (isSneltoetsOpname()) return;
   if (!isProofreadingActive()) {
+    // F2 tenzij de gebruiker die toets weghaalde of aan iets anders gaf (#714).
     if (e.key === 'F2' && !e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey
+        && sneltoetsActief('review.proofreading', 'F2')
         && !isTextEntryTarget(e.target) && !isModalOpen() && getActiveDocument()?.pdfDoc) {
       e.preventDefault();
       e.stopImmediatePropagation();

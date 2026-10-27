@@ -145,7 +145,7 @@ export default function ViewTab() {
 
         <RibbonGroup label={t('view.window') || 'Window'}>
           <RibbonButton id="ribbon-fullscreen"
-            title={(t('view.fullscreen') || 'Fullscreen') + ' (Ctrl+L / F11)'}
+            title={t('view.fullscreen') || 'Fullscreen'}
             icon={isFullscreen() ? fullscreenExitIcon : fullscreenIcon}
             label={t('view.fullscreen') || 'Fullscreen'}
             active={isFullscreen()}

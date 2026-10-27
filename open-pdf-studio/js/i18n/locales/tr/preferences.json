@@ -9,7 +9,8 @@
     "behavior": "Davranış",
     "fileAssociation": "Dosya İlişkilendirme",
     "virtualPrinter": "Sanal Yazıcı",
-    "pageDisplay": "Sayfa Görünümü"
+    "pageDisplay": "Sayfa Görünümü",
+    "keyboardShortcuts": "Klavye kısayolları"
   },
   "resetToDefaults": "Varsayılanlara Sıfırla",
   "resetConfirm": "Tüm tercihler varsayılan değerlere sıfırlansın mı?",
@@ -291,5 +292,51 @@
     "openArrowReversed": "Açık Ok (ters)",
     "closedArrowReversed": "Kapalı Ok (ters)",
     "slash": "Eğik Çizgi"
+  },
+  "keyboardShortcuts": {
+    "title": "Klavye kısayolları",
+    "search": "Komuta veya tuşa göre ara",
+    "command": "Komut",
+    "shortcuts": "Kısayollar",
+    "none": "Yok",
+    "noMatches": "Aramayla eşleşen komut yok.",
+    "selectHint": "Kısayollarını değiştirmek için bir komut seçin.",
+    "addShortcut": "Kısayol ekle",
+    "remove": "Kısayolu kaldır",
+    "resetCommand": "Varsayılana sıfırla",
+    "resetAll": "Tümünü sıfırla",
+    "resetAllConfirm": "Tüm klavye kısayolları varsayılana sıfırlansın mı?",
+    "import": "İçe aktar…",
+    "export": "Dışa aktar…",
+    "fileType": "Klavye kısayolları",
+    "imported": "Kısayollar içe aktarıldı. Uygulamak için Kaydet'e tıklayın.",
+    "importFailed": "Bu geçerli bir klavye kısayolları dosyası değil.",
+    "exported": "Kısayollar dışa aktarıldı.",
+    "exportFailed": "Kısayollar dışa aktarılamadı:",
+    "recording": "Yeni tuş birleşimine basın… (Esc iptal eder)",
+    "conflict": "{{keys}} zaten “{{command}}” tarafından kullanılıyor.",
+    "reassign": "Yeniden ata",
+    "reserved": "{{keys}} sabit bir anlama sahip ve atanamaz.",
+    "defaultLabel": "Varsayılan: {{keys}}",
+    "customize": "Özelleştir…",
+    "fixedGroup": "Sabit tuşlar",
+    "applyHint": "Değişiklikler Kaydet'e tıkladığınızda geçerli olur.",
+    "categories": {
+      "file": "Dosya",
+      "edit": "Düzen",
+      "view": "Görünüm",
+      "search": "Bul",
+      "tools": "Araçlar",
+      "drafting": "Çizim yardımcıları",
+      "panels": "Paneller",
+      "review": "Gözden geçir",
+      "help": "Yardım",
+      "extensions": "Uzantılar",
+      "ribbon": "Şerit: {{tab}}",
+      "other": "Diğer"
+    },
+    "commands": {
+      "findNext": "Sonrakini bul"
+    }
   }
 }

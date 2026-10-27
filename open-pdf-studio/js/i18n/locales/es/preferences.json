@@ -9,7 +9,8 @@
     "behavior": "Comportamiento",
     "fileAssociation": "Asociación de archivos",
     "virtualPrinter": "Impresora virtual",
-    "pageDisplay": "Visualización de página"
+    "pageDisplay": "Visualización de página",
+    "keyboardShortcuts": "Atajos de teclado"
   },
   "resetToDefaults": "Restablecer valores predeterminados",
   "resetConfirm": "¿Restablecer todas las preferencias a los valores predeterminados?",
@@ -291,5 +292,51 @@
     "openArrowReversed": "Flecha abierta (invertida)",
     "closedArrowReversed": "Flecha cerrada (invertida)",
     "slash": "Barra"
+  },
+  "keyboardShortcuts": {
+    "title": "Atajos de teclado",
+    "search": "Buscar por comando o tecla",
+    "command": "Comando",
+    "shortcuts": "Atajos",
+    "none": "Ninguno",
+    "noMatches": "Ningún comando coincide con la búsqueda.",
+    "selectHint": "Seleccione un comando para cambiar sus atajos.",
+    "addShortcut": "Añadir atajo",
+    "remove": "Quitar atajo",
+    "resetCommand": "Restablecer valor predeterminado",
+    "resetAll": "Restablecer todo",
+    "resetAllConfirm": "¿Restablecer todos los atajos de teclado a sus valores predeterminados?",
+    "import": "Importar…",
+    "export": "Exportar…",
+    "fileType": "Atajos de teclado",
+    "imported": "Atajos importados. Haga clic en Guardar para aplicarlos.",
+    "importFailed": "Este no es un archivo de atajos de teclado válido.",
+    "exported": "Atajos exportados.",
+    "exportFailed": "No se pudieron exportar los atajos:",
+    "recording": "Pulse la nueva combinación de teclas… (Esc cancela)",
+    "conflict": "{{keys}} ya lo usa «{{command}}».",
+    "reassign": "Reasignar",
+    "reserved": "{{keys}} tiene una función fija y no se puede asignar.",
+    "defaultLabel": "Predeterminado: {{keys}}",
+    "customize": "Personalizar…",
+    "fixedGroup": "Teclas fijas",
+    "applyHint": "Los cambios se aplican al hacer clic en Guardar.",
+    "categories": {
+      "file": "Archivo",
+      "edit": "Edición",
+      "view": "Vista",
+      "search": "Buscar",
+      "tools": "Herramientas",
+      "drafting": "Ayudas de dibujo",
+      "panels": "Paneles",
+      "review": "Revisión",
+      "help": "Ayuda",
+      "extensions": "Extensiones",
+      "ribbon": "Cinta: {{tab}}",
+      "other": "Otros"
+    },
+    "commands": {
+      "findNext": "Buscar siguiente"
+    }
   }
 }

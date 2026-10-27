@@ -1,125 +1,103 @@
-import { For } from 'solid-js';
+import { For, createMemo } from 'solid-js';
 import Dialog from '../Dialog.jsx';
-import { closeDialog } from '../../stores/dialogStore.js';
+import { closeDialog, openDialog } from '../../stores/dialogStore.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { sneltoetsen, platform } from '../../../core/keybindings/app-shortcuts.js';
+import { FIXED_SHORTCUTS } from '../../../core/keybindings/default-commands.js';
+import { bindingParts } from '../../../core/keybindings/binding.js';
+import { commandLabel, categoryLabel, groupCommands } from '../../../core/keybindings/labels.js';
+import { sneltoetsVersie } from '../../stores/keybindingStore.js';
 
-const SHORTCUT_CATEGORIES = [
-  {
-    name: 'File',
-    shortcuts: [
-      { action: 'New Document', keys: ['Ctrl', 'N'] },
-      { action: 'Open', keys: ['Ctrl', 'O'] },
-      { action: 'Save', keys: ['Ctrl', 'S'] },
-      { action: 'Print', keys: ['Ctrl', 'P'] },
-      { action: 'Close', keys: ['Ctrl', 'W'] },
-    ],
-  },
-  {
-    name: 'Edit',
-    shortcuts: [
-      { action: 'Undo', keys: ['Ctrl', 'Z'] },
-      { action: 'Redo', keys: ['Ctrl', 'Y'] },
-      { action: 'Delete Annotation', keys: ['Del'] },
-      { action: 'Select All', keys: ['Ctrl', 'A'] },
-      { action: 'Copy', keys: ['Ctrl', 'C'] },
-      { action: 'Paste', keys: ['Ctrl', 'V'] },
-      { action: 'Paste in Place', keys: ['Ctrl', 'Shift', 'V'] },
-      { action: 'Duplicate', keys: ['Ctrl', 'D'] },
-      { action: 'Clear Page', keys: ['Ctrl', 'Shift', 'C'] },
-    ],
-  },
-  {
-    name: 'View',
-    shortcuts: [
-      { action: 'Zoom In', keys: ['Ctrl', '+'] },
-      { action: 'Zoom Out', keys: ['Ctrl', '-'] },
-      { action: 'Actual Size', keys: ['Ctrl', '0'] },
-      { action: 'Fit Width', keys: ['Ctrl', '1'] },
-      { action: 'Fit Page', keys: ['Ctrl', '2'] },
-      { action: 'Rotate Page Right', keys: ['Ctrl', 'Shift', '+'] },
-      { action: 'Rotate Page Left', keys: ['Ctrl', 'Shift', '-'] },
-      { action: 'Thin Lines', keys: ['Ctrl', '5'] },
-      { action: 'Find', keys: ['Ctrl', 'F'] },
-      // Tabblad wisselen (#539). Vertaald via common.json (tabs.*).
-      { actionKey: 'tabs.nextTab', action: 'Next Tab', keys: ['Ctrl', 'Tab'] },
-      { actionKey: 'tabs.previousTab', action: 'Previous Tab', keys: ['Ctrl', 'Shift', 'Tab'] },
-      { actionKey: 'tabs.nextTab', action: 'Next Tab', keys: ['Ctrl', 'PgDn'] },
-      { actionKey: 'tabs.previousTab', action: 'Previous Tab', keys: ['Ctrl', 'PgUp'] },
-      { action: 'Toggle Left Panel', keys: ['F9'] },
-      { action: 'Toggle Annotations', keys: ['F11'] },
-      { action: 'Toggle Properties', keys: ['F12'] },
-    ],
-  },
-  {
-    name: 'Tools',
-    shortcuts: [
-      { action: 'Select', keys: ['V'] },
-      { action: 'Hand', keys: ['H'] },
-      { action: 'Highlight', keys: ['1'] },
-      { action: 'Freehand', keys: ['2'] },
-      { action: 'Line', keys: ['3'] },
-      { action: 'Rectangle', keys: ['4'] },
-      { action: 'Ellipse', keys: ['5'] },
-      { action: 'Text Box', keys: ['T'] },
-      { action: 'Note', keys: ['N'] },
-    ],
-  },
-];
-
+// The shortcuts overview (F1). It shows the CURRENT shortcuts from the
+// registry (#714): every command that has one, by category, then the keys
+// with a fixed meaning (tab switching, FIXED_SHORTCUTS).
 export default function ShortcutsDialog() {
   const close = () => closeDialog('shortcuts');
-  const { t } = useTranslation('common');
-  const actieNaam = (shortcut) => (shortcut.actionKey ? t(shortcut.actionKey, shortcut.action) : shortcut.action);
+  const { t, language } = useTranslation('preferences');
+
+  const groepen = createMemo(() => {
+    sneltoetsVersie();
+    const taal = language();
+    const metToets = sneltoetsen.commands()
+      .map((c) => ({ ...c, bindings: sneltoetsen.bindingsOf(c.id) }))
+      .filter((c) => c.bindings.length > 0);
+    const uit = groupCommands(metToets).map((g) => ({
+      titel: categoryLabel(g.category, t),
+      rijen: g.commands.map((c) => ({ naam: commandLabel(c, t, taal), bindingen: c.bindings })),
+    }));
+    uit.push({
+      titel: t('keyboardShortcuts.fixedGroup'),
+      rijen: FIXED_SHORTCUTS.map((f) => ({ naam: commandLabel(f, t, taal), bindingen: f.keys })),
+    });
+    return uit;
+  });
+
+  // Two columns of about the same length; a category stays in one column.
+  const kolommen = createMemo(() => {
+    const lijst = groepen();
+    const totaal = lijst.reduce((n, g) => n + g.rijen.length + 2, 0);
+    const links = [];
+    const rechts = [];
+    let n = 0;
+    for (const g of lijst) {
+      if (n < totaal / 2) { links.push(g); n += g.rijen.length + 2; } else rechts.push(g);
+    }
+    return [links, rechts];
+  });
+
+  const customize = () => {
+    close();
+    openDialog('preferences', { tab: 'shortcuts' });
+  };
+
+  const footer = (
+    <>
+      <button class="pref-btn pref-btn-secondary" onClick={customize}>{t('keyboardShortcuts.customize')}</button>
+      <div class="pref-footer-right">
+        <button class="pref-btn pref-btn-primary" onClick={close}>{t('common:close')}</button>
+      </div>
+    </>
+  );
 
   return (
     <Dialog
-      title="Keyboard Shortcuts"
+      title={t('keyboardShortcuts.title')}
       dialogClass="shortcuts-dialog"
+      footerClass="preferences-footer"
       onClose={close}
+      footer={footer}
     >
       <div class="shortcuts-grid">
-        <div class="shortcuts-column">
-          <For each={[SHORTCUT_CATEGORIES[0], SHORTCUT_CATEGORIES[1]]}>
-            {(category) => (
-              <div class="shortcuts-category">
-                <h3>{category.name}</h3>
-                <For each={category.shortcuts}>
-                  {(shortcut) => (
-                    <div class="shortcuts-row">
-                      <span class="shortcuts-action">{actieNaam(shortcut)}</span>
-                      <span class="shortcuts-keys">
-                        <For each={shortcut.keys}>
-                          {(key) => <kbd>{key}</kbd>}
-                        </For>
-                      </span>
-                    </div>
-                  )}
-                </For>
-              </div>
-            )}
-          </For>
-        </div>
-        <div class="shortcuts-column">
-          <For each={[SHORTCUT_CATEGORIES[2], SHORTCUT_CATEGORIES[3]]}>
-            {(category) => (
-              <div class="shortcuts-category">
-                <h3>{category.name}</h3>
-                <For each={category.shortcuts}>
-                  {(shortcut) => (
-                    <div class="shortcuts-row">
-                      <span class="shortcuts-action">{actieNaam(shortcut)}</span>
-                      <span class="shortcuts-keys">
-                        <For each={shortcut.keys}>
-                          {(key) => <kbd>{key}</kbd>}
-                        </For>
-                      </span>
-                    </div>
-                  )}
-                </For>
-              </div>
-            )}
-          </For>
-        </div>
+        <For each={kolommen()}>
+          {(kolom) => (
+            <div class="shortcuts-column">
+              <For each={kolom}>
+                {(category) => (
+                  <div class="shortcuts-category">
+                    <h3>{category.titel}</h3>
+                    <For each={category.rijen}>
+                      {(rij) => (
+                        <div class="shortcuts-row">
+                          <span class="shortcuts-action">{rij.naam}</span>
+                          <span class="shortcuts-keys">
+                            <For each={rij.bindingen}>
+                              {(binding, i) => (
+                                <>
+                                  {i() > 0 && <span class="shortcuts-or">/</span>}
+                                  <For each={bindingParts(binding, platform())}>{(key) => <kbd>{key}</kbd>}</For>
+                                </>
+                              )}
+                            </For>
+                          </span>
+                        </div>
+                      )}
+                    </For>
+                  </div>
+                )}
+              </For>
+            </div>
+          )}
+        </For>
       </div>
     </Dialog>
   );

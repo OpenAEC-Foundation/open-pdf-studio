@@ -102,6 +102,7 @@ import { sessieBestanden, bronPad } from './pdf/wachtwoord-pdf.js';
 // De brug naar de gastpagina (#694): alleen in de gehoste bouw.
 import { startHostBrug } from './core/host-brug-start.js';
 import { installeerWorkerShim } from './core/blob-worker.js';
+import { sneltoetsActief } from './core/keybindings/app-shortcuts.js';
 
 // Open PDF files: tabs created instantly, loads serialized through ONE global
 // queue - also across separate openFiles() calls (the Windows single-instance
@@ -172,6 +173,10 @@ function disableBrowserShortcuts() {
     // preventDefault that already suppresses the other accelerators above.
     if (e.key.toLowerCase() === 'p' && !e.shiftKey && !e.altKey && !e.target.matches('input, textarea')) {
       e.preventDefault();
+      // De afdrukdialoog van de WebView blijft altijd weg; de onze opent
+      // alleen zolang Ctrl+P bij Afdrukken hoort. Gaf de gebruiker Ctrl+P aan
+      // een andere opdracht, dan handelt de gewone toetsafhandeling hem af (#714).
+      if (!sneltoetsActief('file.print', 'Ctrl+P')) return;
       e.stopImmediatePropagation();
       import('./ui/chrome/dialogs.js').then(({ showPrintDialog }) => showPrintDialog());
       return;
