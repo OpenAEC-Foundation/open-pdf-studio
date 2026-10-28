@@ -256,3 +256,44 @@ jobs:
 
       - name: Hosted bundle under a strict CSP
         run: npm run test:hosted-csp
+
+  # De Python-bibliotheek (#518): de gegenereerde laag loopt gelijk met
+  # mcp-stdio/tools.json, de tests (tegen een nep-MCP-server, zonder app) slagen
+  # op elk platform en sdist + wheel bouwen.
+  python-library:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, python: '3.9' }
+          - { os: ubuntu-latest, python: '3.13' }
+          - { os: windows-latest, python: '3.12' }
+          - { os: macos-latest, python: '3.12' }
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Generated tool layer is up to date
+        run: node python/scripts/generate-tools.mjs --check
+
+      - name: Test
+        working-directory: python
+        run: python -m unittest discover -s tests -t tests -v
+
+      - name: Build sdist and wheel
+        shell: bash
+        run: |
+          cp LICENSE.md python/LICENSE.md
+          python -m pip install --upgrade build
+          python -m build python --outdir python/dist

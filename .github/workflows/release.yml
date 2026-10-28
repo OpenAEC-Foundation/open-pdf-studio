@@ -696,6 +696,50 @@ jobs:
           VERSION="${{ needs.create-release.outputs.version }}"
           gh release upload "$VERSION" mcpb/dist/open-pdf-studio.mcpb --clobber --repo "${{ github.repository }}"
 
+  python-library:
+    needs: create-release
+    # Python-bibliotheek (#518): sdist + wheel van python/, aan de concept-
+    # release gehangen. Puur Python (py3-none-any): een wheel voor alle
+    # platforms. Publiceren op PyPI is een aparte, handmatige stap (zie
+    # docs/python-library.md).
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Generated tool layer is up to date
+        run: node python/scripts/generate-tools.mjs --check
+
+      - name: Test
+        working-directory: python
+        run: python -m unittest discover -s tests -t tests -v
+
+      - name: Build sdist and wheel
+        run: |
+          cp LICENSE.md python/LICENSE.md
+          python -m pip install --upgrade build
+          python -m build python --outdir python/dist
+          ls -l python/dist
+
+      - name: Attach to the release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.create-release.outputs.version }}
+        run: |
+          gh release upload "$VERSION" python/dist/open_pdf_studio-${VERSION#v}.tar.gz python/dist/open_pdf_studio-${VERSION#v}-py3-none-any.whl --clobber --repo "${{ github.repository }}"
+
   web-bundle:
     # De gehoste webbundel (#692): één keer per tag gebouwd met een relatieve
     # basis (--base=./), zodat een platform dezelfde bestanden onder elk
