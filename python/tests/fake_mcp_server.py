@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import json
 import os
+import socketserver
 import sys
 import threading
 import time
@@ -256,6 +257,17 @@ def handle(msg, *, app_mode=False):
     return err(-32601, f"method not found: {method}")
 
 
+class _QuickHTTPServer(ThreadingHTTPServer):
+    """HTTPServer.server_bind calls socket.getfqdn(), a reverse DNS lookup
+    that can take ~30 s on CI runners (macOS); the fake does not need it."""
+
+    def server_bind(self):
+        socketserver.TCPServer.server_bind(self)
+        host, port = self.server_address[:2]
+        self.server_name = host
+        self.server_port = port
+
+
 def serve_http(port, *, app_mode=False, announce=True):
     class Handler(BaseHTTPRequestHandler):
         def do_POST(self):  # noqa: N802
@@ -279,7 +291,7 @@ def serve_http(port, *, app_mode=False, announce=True):
         def log_message(self, *args):
             pass
 
-    server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    server = _QuickHTTPServer(("127.0.0.1", port), Handler)
     if announce:
         print(f"PORT {server.server_address[1]}", flush=True)
     return server

@@ -20,7 +20,7 @@ app = ops.connect()                          # or: the app that is already runni
 print(app.tools.list_tabs())                 # every MCP tool as a typed method
 ```
 
-Requirements: Python 3.9+ and an installed Open PDF Studio (found on `PATH`, in
+Requirements: Python 3.10+ and an installed Open PDF Studio (found on `PATH`, in
 the standard install location, or via `OPDS_APP`). On Linux without a display,
 install `xvfb`; the launcher then runs the app under `xvfb-run`.
 

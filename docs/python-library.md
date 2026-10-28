@@ -16,7 +16,8 @@ with ops.launch() as app:                      # own headless instance
 
 The package lives in `python/` (import name `open_pdf_studio`, PyPI name
 `open-pdf-studio`), has no dependencies outside the standard library and
-supports Python 3.9+.
+supports Python 3.10+ (3.9 is end-of-life and no longer offered by
+setup-python on current Ubuntu runners).
 
 ## 1. Decision: a thin client over the app's MCP tools
 
@@ -243,7 +244,7 @@ release builds are available in CI; it is listed as a follow-up.
   macOS on x86_64 and arm64; PDFium stays inside the app and does not need to
   be in the wheel) and attaches both to the draft release.
 * **CI:** the `python-library` job in `.github/workflows/ci.yml` runs the
-  tests on Linux (Python 3.9 and 3.13), Windows and macOS and builds the
+  tests on Linux (Python 3.10 and 3.13), Windows and macOS and builds the
   package.
 
 ### Maintainer step: publish to PyPI (not automated yet)

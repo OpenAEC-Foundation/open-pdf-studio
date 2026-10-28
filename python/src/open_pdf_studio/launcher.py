@@ -13,7 +13,9 @@ launcher runs the app under ``xvfb-run``.
 from __future__ import annotations
 
 import collections
+import ntpath
 import os
+import posixpath
 import shutil
 import signal
 import socket
@@ -41,20 +43,24 @@ def candidate_paths(platform: str = sys.platform, env: Optional[Mapping[str, str
     """Standard install locations of the app executable for ``platform``."""
     env = os.environ if env is None else env
     paths: List[str] = []
+    # The target platform's path rules, not the host's: asking for the
+    # Windows paths on Linux (or the reverse) gives the right separators.
     if platform.startswith("win"):
+        join = ntpath.join
         exe = f"{BINARY}.exe"
         for var in ("ProgramFiles", "ProgramW6432", "ProgramFiles(x86)"):
             if env.get(var):
-                paths.append(os.path.join(env[var], "Open PDF Studio", exe))
+                paths.append(join(env[var], "Open PDF Studio", exe))
         if env.get("LOCALAPPDATA"):
             # The per-user NSIS installer.
-            paths.append(os.path.join(env["LOCALAPPDATA"], "Open PDF Studio", exe))
-            paths.append(os.path.join(env["LOCALAPPDATA"], "Programs", "Open PDF Studio", exe))
+            paths.append(join(env["LOCALAPPDATA"], "Open PDF Studio", exe))
+            paths.append(join(env["LOCALAPPDATA"], "Programs", "Open PDF Studio", exe))
     elif platform == "darwin":
-        rel = os.path.join("Open PDF Studio.app", "Contents", "MacOS", BINARY)
-        paths.append(os.path.join("/Applications", rel))
+        join = posixpath.join
+        rel = join("Open PDF Studio.app", "Contents", "MacOS", BINARY)
+        paths.append(join("/Applications", rel))
         if env.get("HOME"):
-            paths.append(os.path.join(env["HOME"], "Applications", rel))
+            paths.append(join(env["HOME"], "Applications", rel))
     else:
         paths += [f"/usr/bin/{BINARY}", f"/usr/local/bin/{BINARY}", f"/snap/bin/{BINARY}", f"/opt/open-pdf-studio/{BINARY}"]
     # dict.fromkeys: keep order, drop duplicates (ProgramFiles == ProgramW6432).
@@ -214,6 +220,7 @@ def launch(
     env: Optional[Mapping[str, str]] = None,
     xvfb: Union[bool, str] = "auto",
     startup_timeout: float = 120.0,
+    webview_timeout: Optional[float] = None,
     timeout: float = 120.0,
 ) -> Client:
     """Start an own Open PDF Studio instance and return a connected client.
@@ -221,7 +228,9 @@ def launch(
     ``app`` is the executable (default: :func:`find_app`) or a command prefix
     such as ``["/path/Open_PDF_Studio.AppImage"]``. The instance gets a free
     port and a temporary data directory unless ``port`` / ``data_dir`` are
-    given. Closing the client stops the instance.
+    given. ``startup_timeout`` bounds the whole startup; ``webview_timeout``
+    (default: the rest of ``startup_timeout``) bounds the wait for the WebView
+    once the MCP server answers. Closing the client stops the instance.
     """
     if app is None:
         prefix = [find_app()]
@@ -254,14 +263,14 @@ def launch(
     proc = AppProcess(popen, data_dir if own_dir else None)
     client = Client(HttpTransport(f"http://127.0.0.1:{port}/mcp", timeout=timeout), process=proc, timeout=timeout)
     try:
-        _wait_until_ready(client, proc, startup_timeout)
+        _wait_until_ready(client, proc, startup_timeout, webview_timeout)
     except BaseException:
         client.close()
         raise
     return client
 
 
-def _wait_until_ready(client: Client, proc: AppProcess, startup_timeout: float) -> None:
+def _wait_until_ready(client: Client, proc: AppProcess, startup_timeout: float, webview_timeout: Optional[float] = None) -> None:
     deadline = time.monotonic() + startup_timeout
 
     def check_alive() -> None:
@@ -280,11 +289,15 @@ def _wait_until_ready(client: Client, proc: AppProcess, startup_timeout: float) 
                 raise AppLaunchError(f"MCP server did not start within {startup_timeout:.0f}s", output=proc.output) from None
             time.sleep(0.25)
     # 2. The WebView listens: the startup marker, or a tool call that succeeds.
+    limit = startup_timeout
+    if webview_timeout is not None:
+        deadline = min(deadline, time.monotonic() + webview_timeout)
+        limit = webview_timeout
     while not proc.ready_marker.wait(0.25):
         check_alive()
         left = deadline - time.monotonic()
         if left <= 0:
-            raise AppLaunchError(f"the app's WebView did not become ready within {startup_timeout:.0f}s", output=proc.output)
+            raise AppLaunchError(f"the app's WebView did not become ready within {limit:.0f}s", output=proc.output)
         try:
             client.call_tool(PROBE_TOOL, {}, timeout=min(left, 20.0))
             return

@@ -8,7 +8,7 @@ name = "open-pdf-studio"
 version = "2026.43.11"
 description = "Python client for Open PDF Studio: script every PDF tool of the app through its MCP tools."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = "LGPL-3.0-or-later"
 authors = [{ name = "OpenAEC Foundation" }]
 keywords = ["pdf", "annotation", "mcp", "open-pdf-studio", "automation"]

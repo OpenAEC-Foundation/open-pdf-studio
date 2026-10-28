@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 import sys
-import time
 import unittest
 
 from helpers import FAKE
@@ -36,12 +35,18 @@ class FindApp(unittest.TestCase):
         self.assertIn("OPDS_APP", str(cm.exception))
 
     def test_candidate_paths_per_platform(self):
+        # Separators follow the target platform, whatever the host is.
         win = candidate_paths("win32", {"ProgramFiles": r"C:\Program Files", "ProgramW6432": r"C:\Program Files", "LOCALAPPDATA": r"C:\Users\u\AppData\Local"})
-        self.assertEqual(len(win), 3)
-        self.assertTrue(all(p.endswith("open-pdf-studio.exe") and "Open PDF Studio" in p for p in win))
-        self.assertTrue(any(p.startswith(r"C:\Users\u\AppData\Local") for p in win))
+        self.assertEqual(win, [
+            r"C:\Program Files\Open PDF Studio\open-pdf-studio.exe",
+            r"C:\Users\u\AppData\Local\Open PDF Studio\open-pdf-studio.exe",
+            r"C:\Users\u\AppData\Local\Programs\Open PDF Studio\open-pdf-studio.exe",
+        ])
         self.assertIn("/snap/bin/open-pdf-studio", candidate_paths("linux", {}))
-        self.assertEqual(candidate_paths("darwin", {})[0], "/Applications/Open PDF Studio.app/Contents/MacOS/open-pdf-studio")
+        self.assertEqual(candidate_paths("darwin", {"HOME": "/Users/u"}), [
+            "/Applications/Open PDF Studio.app/Contents/MacOS/open-pdf-studio",
+            "/Users/u/Applications/Open PDF Studio.app/Contents/MacOS/open-pdf-studio",
+        ])
 
 
 class Command(unittest.TestCase):
@@ -76,7 +81,7 @@ class Launch(unittest.TestCase):
     def launch(self, **env):
         base = dict(os.environ)
         base.update(env)
-        return ops.launch(FAKE_APP, env=base, xvfb=False, startup_timeout=30, timeout=20)
+        return ops.launch(FAKE_APP, env=base, xvfb=False, startup_timeout=300, timeout=20)
 
     def test_starts_a_headless_instance_and_stops_it(self):
         app = self.launch()
@@ -107,11 +112,11 @@ class Launch(unittest.TestCase):
         self.assertIn("simulated startup failure", cm.exception.output)
 
     def test_webview_that_never_gets_ready_times_out(self):
-        base = dict(os.environ, FAKE_NO_MARKER="1", FAKE_READY_DELAY="60")
-        t0 = time.monotonic()
-        with self.assertRaisesRegex(ops.AppLaunchError, "did not become ready"):
-            ops.launch(FAKE_APP, env=base, xvfb=False, startup_timeout=8, timeout=5)
-        self.assertLess(time.monotonic() - t0, 60)
+        # Generous time for the (fake) MCP server to come up on a slow runner,
+        # a short bound for the WebView phase that is under test.
+        base = dict(os.environ, FAKE_NO_MARKER="1", FAKE_READY_DELAY="600")
+        with self.assertRaisesRegex(ops.AppLaunchError, "did not become ready within 2s"):
+            ops.launch(FAKE_APP, env=base, xvfb=False, startup_timeout=300, webview_timeout=2, timeout=5)
 
     def test_missing_executable(self):
         with self.assertRaises(ops.AppLaunchError):
