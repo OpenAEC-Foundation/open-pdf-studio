@@ -36,9 +36,59 @@ pub fn configure_appimage_gio_modules() {
     }
 }
 
+// Flatpak puts /.flatpak-info in every sandbox (the documented way to detect
+// it). In there the CUPS client tools and xdg-utils are missing: printing
+// goes over the CUPS socket or the print portal, and the default PDF app is
+// chosen in the desktop's own settings.
+#[cfg(any(target_os = "linux", test))]
+fn is_flatpak_sandbox(flatpak_info: &Path) -> bool {
+    flatpak_info.is_file()
+}
+
+pub fn running_in_flatpak() -> bool {
+    #[cfg(target_os = "linux")]
+    {
+        is_flatpak_sandbox(Path::new("/.flatpak-info"))
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        false
+    }
+}
+
+/// A strictly confined Snap: snapd sets SNAP and SNAP_NAME for every app it
+/// starts. Like a Flatpak it cannot rely on host tools or write the desktop's
+/// mime associations.
+#[cfg(any(target_os = "linux", test))]
+fn is_snap_omgeving(snap: Option<&OsStr>, snap_name: Option<&OsStr>) -> bool {
+    snap.is_some_and(|s| !s.is_empty()) && snap_name.is_some_and(|s| !s.is_empty())
+}
+
+pub fn running_in_snap() -> bool {
+    #[cfg(target_os = "linux")]
+    {
+        is_snap_omgeving(env::var_os("SNAP").as_deref(), env::var_os("SNAP_NAME").as_deref())
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        false
+    }
+}
+
+/// "flatpak", "snap" or None: the package sandbox this process runs in.
+pub fn sandbox() -> Option<&'static str> {
+    if running_in_flatpak() {
+        Some("flatpak")
+    } else if running_in_snap() {
+        Some("snap")
+    } else {
+        None
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::packaged_gio_module_dir;
+    use super::{is_flatpak_sandbox, is_snap_omgeving, packaged_gio_module_dir};
     use std::env;
     use std::ffi::OsStr;
     use std::path::PathBuf;
@@ -97,5 +147,27 @@ mod tests {
             ),
             None,
         );
+    }
+
+    #[test]
+    fn detects_the_flatpak_sandbox_by_its_info_file() {
+        let dir = env::temp_dir().join(format!("opds-flatpak-info-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let info = dir.join(".flatpak-info");
+        assert!(!is_flatpak_sandbox(&info));
+        std::fs::write(&info, "[Application]\nname=org.openaec.OpenPdfStudio\n").unwrap();
+        assert!(is_flatpak_sandbox(&info));
+        assert!(!is_flatpak_sandbox(&dir), "a directory is not the info file");
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn detects_a_snap_by_its_environment() {
+        let snap = OsStr::new("/snap/open-pdf-studio/12");
+        let naam = OsStr::new("open-pdf-studio");
+        assert!(is_snap_omgeving(Some(snap), Some(naam)));
+        assert!(!is_snap_omgeving(Some(snap), None));
+        assert!(!is_snap_omgeving(None, Some(naam)));
+        assert!(!is_snap_omgeving(Some(OsStr::new("")), Some(naam)));
     }
 }

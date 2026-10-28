@@ -1,6 +1,8 @@
 import { createSignal, onMount, Show } from 'solid-js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { openExtern } from '../../../core/extern-openen.js';
+import { defaultPdfAppStatus, invoke } from '../../../core/platform.js';
+import { huidigeAppTekst, platformUit, zetAlsStandaard } from '../../../core/standaard-pdf-app.js';
 import { showMessage } from '../../stores/dialogStore.js';
 import { GEEN_MINIATUREN, leesMiniatuurStatus, zetMiniaturen } from '../../../core/verkenner-miniaturen.js';
 
@@ -43,57 +45,32 @@ export default function FileAssocTab() {
     setMiniaturenBezig(false);
   }
 
-  async function checkDefaultPdfApp() {
-    try {
-      const os = require('os');
-      const platform = os.platform();
+  // Huidige standaard en "Als standaard instellen" via de Rust-kant
+  // (standaard-pdf-app.js). In een Flatpak/Snap of zonder xdg-mime is het
+  // niet na te gaan of te zetten; dan uitleg in plaats van stil falen.
+  const platform = platformUit(navigator.platform || navigator.userAgent);
+  let status = null;
 
-      if (platform === 'win32') {
-        const { exec } = require('child_process');
-        exec('reg query "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\.pdf\\UserChoice" /v ProgId', (err, stdout) => {
-          if (err) { setCurrentApp(tCommon('unableToDetect')); return; }
-          const match = stdout.match(/ProgId\s+REG_SZ\s+(.+)/);
-          if (match) {
-            let appName = match[1].trim();
-            if (appName.includes('AcroExch') || appName.includes('Acrobat')) appName = 'Adobe Acrobat';
-            else if (appName.includes('Edge')) appName = 'Microsoft Edge';
-            else if (appName.includes('Chrome')) appName = 'Google Chrome';
-            else if (appName.includes('Firefox')) appName = 'Mozilla Firefox';
-            else if (appName.includes('OpenPDFStudio') || appName.includes('open-pdf-studio')) appName = tCommon('appName');
-            else if (appName.includes('SumatraPDF')) appName = 'SumatraPDF';
-            setCurrentApp(appName);
-          } else {
-            setCurrentApp(t('fileAssoc.notSet'));
-          }
-        });
-      } else if (platform === 'darwin') {
-        setCurrentApp(t('fileAssoc.checkFinder'));
-      } else {
-        const { exec } = require('child_process');
-        exec('xdg-mime query default application/pdf', (err, stdout) => {
-          if (err || !stdout.trim()) { setCurrentApp(t('fileAssoc.notSet')); return; }
-          setCurrentApp(stdout.trim().replace('.desktop', ''));
-        });
-      }
-    } catch {
-      setCurrentApp(tCommon('unableToDetect'));
-    }
+  async function checkDefaultPdfApp() {
+    status = await defaultPdfAppStatus();
+    setCurrentApp(huidigeAppTekst(status, { t, tCommon, platform }));
   }
 
   async function handleSetDefault() {
-    const platform = navigator.platform.toLowerCase();
-    if (platform.includes('win')) {
+    if (platform === 'windows') {
       try {
         await openExtern('ms-settings:defaultapps');
         showMessage(t('fileAssoc.windowsInstructions'));
       } catch {
         showMessage(t('fileAssoc.windowsFailed'));
       }
-    } else if (platform.includes('mac')) {
-      showMessage(t('fileAssoc.macInstructions'));
-    } else {
-      showMessage(t('fileAssoc.linuxInstructions'));
+      return;
     }
+    if (!status) status = await defaultPdfAppStatus();
+    const melding = await zetAlsStandaard({ invoke, status, platform });
+    if (melding) showMessage(t(melding.sleutel, melding.opties));
+    // Na een gelukte xdg-mime default staat de nieuwe standaard er meteen.
+    if (melding?.sleutel === 'fileAssoc.linuxDone') checkDefaultPdfApp();
   }
 
   return (

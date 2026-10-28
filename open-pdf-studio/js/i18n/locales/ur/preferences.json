@@ -193,7 +193,12 @@
     "macInstructions": "macOS پر Open PDF Studio کو پہلے سے طے شدہ PDF ویور بنانے کے لیے:\n\n1. فائنڈر میں کسی بھی PDF فائل پر دائیں کلک کریں\n2. \"معلومات حاصل کریں\" منتخب کریں\n3. \"اس سے کھولیں\" کے تحت Open PDF Studio منتخب کریں\n4. \"سب تبدیل کریں...\" پر کلک کریں",
     "linuxInstructions": "لینکس پر Open PDF Studio کو پہلے سے طے شدہ PDF ویور بنانے کے لیے:\n\nٹرمینل میں چلائیں:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "فائنڈر > معلومات حاصل کریں چیک کریں",
-    "notSet": "مقرر نہیں"
+    "notSet": "مقرر نہیں",
+    "chosenInSystemSettings": "سسٹم کی ترتیبات میں منتخب کیا گیا",
+    "sandboxInstructions": "Open PDF Studio ایک {{package}} پیکج کے طور پر چل رہا ہے اور خود ڈیفالٹ PDF ایپ تبدیل نہیں کر سکتا۔\n\nسسٹم کی ترتیبات میں ڈیفالٹ ایپلیکیشنز کے تحت Open PDF Studio منتخب کریں، یا کسی PDF فائل پر دایاں کلک کر کے اس کے ساتھ کھولیں استعمال کریں۔",
+    "xdgMimeMissing": "xdg-mime (پیکج xdg-utils) انسٹال نہیں ہے، اس لیے ڈیفالٹ PDF ایپ یہاں سے سیٹ نہیں کی جا سکتی۔\n\nxdg-utils انسٹال کریں، یا سسٹم کی ترتیبات میں ڈیفالٹ ایپلیکیشنز کے تحت Open PDF Studio منتخب کریں۔",
+    "linuxDone": "Open PDF Studio اب PDF فائلوں کے لیے ڈیفالٹ ایپ ہے۔",
+    "linuxFailed": "Open PDF Studio کو ڈیفالٹ PDF ایپ کے طور پر سیٹ نہیں کیا جا سکا۔\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "فائل ایکسپلورر",

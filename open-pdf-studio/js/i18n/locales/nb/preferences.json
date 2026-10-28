@@ -193,7 +193,12 @@
     "macInstructions": "For å angi Open PDF Studio som standard PDF-leser på macOS:\n\n1. Høyreklikk en PDF-fil i Finder\n2. Velg \"Vis info\"\n3. Under \"Åpne med\", velg Open PDF Studio\n4. Klikk \"Endre alle...\"",
     "linuxInstructions": "For å angi Open PDF Studio som standard PDF-leser på Linux:\n\nKjør i terminal:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Sjekk Finder > Vis info",
-    "notSet": "Ikke angitt"
+    "notSet": "Ikke angitt",
+    "chosenInSystemSettings": "Valgt i systeminnstillingene",
+    "sandboxInstructions": "Open PDF Studio kjører som en {{package}}-pakke og kan ikke selv endre standard-PDF-appen.\n\nVelg Open PDF Studio i systeminnstillingene under Standardprogrammer, eller høyreklikk på en PDF-fil og bruk Åpne med.",
+    "xdgMimeMissing": "xdg-mime (pakken xdg-utils) er ikke installert, så standard-PDF-appen kan ikke angis herfra.\n\nInstaller xdg-utils, eller velg Open PDF Studio i systeminnstillingene under Standardprogrammer.",
+    "linuxDone": "Open PDF Studio er nå standardappen for PDF-filer.",
+    "linuxFailed": "Kunne ikke angi Open PDF Studio som standard-PDF-app.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Filutforsker",

@@ -193,7 +193,12 @@
     "macInstructions": "Để đặt Open PDF Studio làm trình xem PDF mặc định trên macOS:\n\n1. Nhấp chuột phải vào bất kỳ tệp PDF nào trong Finder\n2. Chọn \"Lấy Thông tin\"\n3. Trong \"Mở bằng\", chọn Open PDF Studio\n4. Nhấp \"Thay đổi Tất cả...\"",
     "linuxInstructions": "Để đặt Open PDF Studio làm trình xem PDF mặc định trên Linux:\n\nChạy trong terminal:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Kiểm tra Finder > Lấy Thông tin",
-    "notSet": "Chưa đặt"
+    "notSet": "Chưa đặt",
+    "chosenInSystemSettings": "Đã chọn trong cài đặt hệ thống",
+    "sandboxInstructions": "Open PDF Studio đang chạy dưới dạng gói {{package}} và không thể tự thay đổi ứng dụng PDF mặc định.\n\nHãy chọn Open PDF Studio trong cài đặt hệ thống ở mục Ứng dụng mặc định, hoặc nhấp chuột phải vào tệp PDF và dùng Mở bằng.",
+    "xdgMimeMissing": "xdg-mime (gói xdg-utils) chưa được cài đặt, vì vậy không thể đặt ứng dụng PDF mặc định từ đây.\n\nHãy cài đặt xdg-utils, hoặc chọn Open PDF Studio trong cài đặt hệ thống ở mục Ứng dụng mặc định.",
+    "linuxDone": "Open PDF Studio hiện là ứng dụng mặc định cho tệp PDF.",
+    "linuxFailed": "Không thể đặt Open PDF Studio làm ứng dụng PDF mặc định.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Trình khám phá tệp",

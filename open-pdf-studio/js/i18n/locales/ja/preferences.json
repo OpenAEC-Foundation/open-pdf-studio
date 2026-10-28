@@ -193,7 +193,12 @@
     "macInstructions": "macOS で Open PDF Studio を既定の PDF ビューアーに設定するには：\n\n1. Finder で任意の PDF ファイルを右クリック\n2. 「情報を見る」を選択\n3. 「このアプリケーションで開く」で Open PDF Studio を選択\n4. 「すべてを変更...」をクリック",
     "linuxInstructions": "Linux で Open PDF Studio を既定の PDF ビューアーに設定するには：\n\nターミナルで実行：\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Finder > 情報を見る を確認",
-    "notSet": "未設定"
+    "notSet": "未設定",
+    "chosenInSystemSettings": "システム設定で選択",
+    "sandboxInstructions": "Open PDF Studio は {{package}} パッケージとして実行されているため、既定の PDF アプリを自分で変更できません。\n\nシステム設定の「既定のアプリケーション」で Open PDF Studio を選択するか、PDF ファイルを右クリックして「プログラムから開く」を使用してください。",
+    "xdgMimeMissing": "xdg-mime（パッケージ xdg-utils）がインストールされていないため、ここから既定の PDF アプリを設定できません。\n\nxdg-utils をインストールするか、システム設定の「既定のアプリケーション」で Open PDF Studio を選択してください。",
+    "linuxDone": "Open PDF Studio が PDF ファイルの既定のアプリになりました。",
+    "linuxFailed": "Open PDF Studio を既定の PDF アプリに設定できませんでした。\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "エクスプローラー",

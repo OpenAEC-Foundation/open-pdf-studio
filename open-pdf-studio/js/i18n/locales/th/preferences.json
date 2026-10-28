@@ -193,7 +193,12 @@
     "macInstructions": "เพื่อตั้ง Open PDF Studio เป็นตัวอ่าน PDF เริ่มต้นบน macOS:\n\n1. คลิกขวาที่ไฟล์ PDF ใดก็ได้ใน Finder\n2. เลือก \"ดูข้อมูล\"\n3. ภายใต้ \"เปิดด้วย\" เลือก Open PDF Studio\n4. คลิก \"เปลี่ยนทั้งหมด...\"",
     "linuxInstructions": "เพื่อตั้ง Open PDF Studio เป็นตัวอ่าน PDF เริ่มต้นบน Linux:\n\nรันในเทอร์มินัล:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "ตรวจสอบ Finder > ดูข้อมูล",
-    "notSet": "ยังไม่ได้ตั้งค่า"
+    "notSet": "ยังไม่ได้ตั้งค่า",
+    "chosenInSystemSettings": "เลือกไว้ในการตั้งค่าระบบ",
+    "sandboxInstructions": "Open PDF Studio ทำงานเป็นแพ็กเกจ {{package}} และไม่สามารถเปลี่ยนแอป PDF เริ่มต้นได้เอง\n\nเลือก Open PDF Studio ในการตั้งค่าระบบที่หัวข้อแอปพลิเคชันเริ่มต้น หรือคลิกขวาที่ไฟล์ PDF แล้วใช้ เปิดด้วย",
+    "xdgMimeMissing": "ไม่ได้ติดตั้ง xdg-mime (แพ็กเกจ xdg-utils) จึงไม่สามารถตั้งค่าแอป PDF เริ่มต้นจากที่นี่ได้\n\nติดตั้ง xdg-utils หรือเลือก Open PDF Studio ในการตั้งค่าระบบที่หัวข้อแอปพลิเคชันเริ่มต้น",
+    "linuxDone": "ตอนนี้ Open PDF Studio เป็นแอปเริ่มต้นสำหรับไฟล์ PDF แล้ว",
+    "linuxFailed": "ไม่สามารถตั้ง Open PDF Studio เป็นแอป PDF เริ่มต้นได้\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "ตัวสำรวจไฟล์",

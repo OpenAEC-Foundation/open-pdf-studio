@@ -193,7 +193,12 @@
     "macInstructions": "Aby ustawić Open PDF Studio jako domyślną przeglądarkę PDF na macOS:\n\n1. Kliknij prawym przyciskiem myszy dowolny plik PDF w Finderze\n2. Wybierz \"Informacje\"\n3. W sekcji \"Otwórz za pomocą\" wybierz Open PDF Studio\n4. Kliknij \"Zmień wszystko...\"",
     "linuxInstructions": "Aby ustawić Open PDF Studio jako domyślną przeglądarkę PDF na Linux:\n\nUruchom w terminalu:\nxdg-mime default openpdfstudio.desktop application/pdf",
     "checkFinder": "Sprawdź Finder > Informacje",
-    "notSet": "Nie ustawiono"
+    "notSet": "Nie ustawiono",
+    "chosenInSystemSettings": "Wybrane w ustawieniach systemu",
+    "sandboxInstructions": "Open PDF Studio działa jako pakiet {{package}} i nie może samodzielnie zmienić domyślnej aplikacji PDF.\n\nWybierz Open PDF Studio w ustawieniach systemu w sekcji Aplikacje domyślne lub kliknij prawym przyciskiem plik PDF i użyj opcji Otwórz za pomocą.",
+    "xdgMimeMissing": "xdg-mime (pakiet xdg-utils) nie jest zainstalowany, więc domyślnej aplikacji PDF nie można ustawić stąd.\n\nZainstaluj xdg-utils lub wybierz Open PDF Studio w ustawieniach systemu w sekcji Aplikacje domyślne.",
+    "linuxDone": "Open PDF Studio jest teraz domyślną aplikacją dla plików PDF.",
+    "linuxFailed": "Nie udało się ustawić Open PDF Studio jako domyślnej aplikacji PDF.\n\n{{error}}"
   },
   "explorerThumbnails": {
     "title": "Eksplorator plików",

@@ -5,6 +5,7 @@ import { gastObject } from './gehost.js';
 import { versieVoorOpen } from './host-brug.js';
 import { rustRenderPadBeschikbaar } from '../pdf/render-route.js';
 import { slaOverInHeadless } from './headless.js';
+import { leesStandaardAppStatus } from './standaard-pdf-app.js';
 
 /**
  * Tauri API wrapper module
@@ -868,6 +869,12 @@ export async function isDefaultPdfApp() {
   } catch {
     return false;
   }
+}
+
+// What is known about the default PDF app and whether it can be set here
+// (standaard-pdf-app.js): { isDefault: bool|null, current, canSet, reason }.
+export async function defaultPdfAppStatus() {
+  return leesStandaardAppStatus(invoke);
 }
 
 // Open Windows Default Apps settings page
