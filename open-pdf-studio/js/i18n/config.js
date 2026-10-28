@@ -1,6 +1,7 @@
 import i18next from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { leesOpslag } from '../core/opslag.js';
+import { initialLanguage } from './initial-language.js';
 
 // Naam van de opgeslagen taalkeuze in de browseropslag (core/opslag.js).
 const TAAL_NAAM = 'i18nextLng';
@@ -94,14 +95,16 @@ export async function loadLocale(lng) {
   loadedLanguages.add(base);
 }
 
-// Mirror the LanguageDetector order (stored choice, then navigator) so the
-// language it will pick is already loaded before init.
+const supportedLngs = LANGUAGES.filter(l => l.code !== 'auto').map(l => l.code);
+
+// Resolve browser preferences once: preloading and init must agree even when
+// navigator.languages and navigator.language differ.
 function detectInitialLanguage() {
+  let stored;
   try {
-    const stored = leesOpslag(TAAL_NAAM);
-    if (stored) return stored.split('-')[0];
+    stored = leesOpslag(TAAL_NAAM);
   } catch (_) { /* storage unavailable */ }
-  return (navigator.language || 'en').split('-')[0];
+  return initialLanguage(stored, typeof navigator === 'undefined' ? undefined : navigator, supportedLngs);
 }
 
 const initialResources = { en: await fetchLocale('en') };
@@ -126,6 +129,9 @@ i18next
   .use(taalDetector)
   .init({
     resources: initialResources,
+    lng: initialLng,
+    supportedLngs,
+    load: 'languageOnly',
     ns,
     defaultNS: 'common',
     fallbackLng: 'en',
