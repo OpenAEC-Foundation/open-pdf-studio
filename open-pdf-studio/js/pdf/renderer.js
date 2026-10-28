@@ -2472,7 +2472,7 @@ function recalcBoundsFromPoints(ann, pts) {
   ann.width = maxX - minX; ann.height = maxY - minY;
 }
 
-function rotateAnnotation(ann, normDelta, oldW, oldH) {
+export function rotateAnnotation(ann, normDelta, oldW, oldH) {
   if (normDelta === 0) return;
   let boundsHandled = false;
 

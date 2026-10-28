@@ -328,7 +328,9 @@
     "scanText": "Sửa Văn bản Quét",
     "scanTextHint": "Nhấp vào một từ đã nhận dạng để thay thế. Từ cũ trong bản quét sẽ được che lại.",
     "scanTextNone": "Không có văn bản đã nhận dạng trên trang này. Hãy chạy Nhận dạng văn bản (OCR) trước.",
-    "shiftPage": "Dịch chuyển trang"
+    "shiftPage": "Dịch chuyển trang",
+    "editPages": "Chỉnh sửa trang",
+    "editPagesTitle": "Chỉnh sửa trang trực quan: sắp xếp lại, xoay, chèn, xóa, trích xuất và tách"
   },
   "help": {
     "settings": "Cài đặt",

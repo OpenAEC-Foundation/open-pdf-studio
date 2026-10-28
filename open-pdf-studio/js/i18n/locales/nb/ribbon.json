@@ -328,7 +328,9 @@
     "scanText": "Rediger skannet tekst",
     "scanTextHint": "Klikk på et gjenkjent ord for å erstatte det. Det gamle ordet i skanningen dekkes over.",
     "scanTextNone": "Ingen gjenkjent tekst på denne siden. Kjør Tekstgjenkjenning (OCR) først.",
-    "shiftPage": "Forskyv side"
+    "shiftPage": "Forskyv side",
+    "editPages": "Rediger sider",
+    "editPagesTitle": "Rediger sider visuelt: omorganiser, roter, sett inn, slett, trekk ut og del opp"
   },
   "help": {
     "settings": "Innstillinger",

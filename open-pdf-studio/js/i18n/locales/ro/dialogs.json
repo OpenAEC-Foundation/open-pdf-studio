@@ -1601,12 +1601,28 @@
     }
   },
   "pageOrganizer": {
-    "title": "Reordonare pagini",
-    "hint": "Trageți paginile într-o poziție nouă. Ctrl+clic sau Shift+clic selectează mai multe pagini.",
+    "title": "Editare pagini",
+    "hint": "Trageți paginile pentru a le muta; plasați un fișier PDF pentru a-i insera paginile. Ctrl+clic, Shift+clic sau casetele de selectare aleg mai multe pagini. Nimic nu se schimbă până la Aplicare.",
     "moveLeft": "Mută la stânga",
     "moveRight": "Mută la dreapta",
     "moveToStart": "Mută la început",
     "moveToEnd": "Mută la sfârșit",
-    "selection": "{{selected}} din {{total}} pagini selectate"
+    "selection": "{{selected}} din {{total}} pagini selectate",
+    "rotateLeft": "Rotire la stanga",
+    "rotateRight": "Rotire la dreapta",
+    "split": "Împărțire",
+    "splitTitle": "Plasați marcaje de împărțire în jurul paginilor selectate: fiecare serie devine un fișier separat",
+    "splitHere": "Împărțire aici (plasați sau eliminați un marcaj)",
+    "extractTitle": "Extrageți paginile selectate într-un fișier nou",
+    "blankPage": "Pagină goală",
+    "pagesFromFile": "Pagini din fișier…",
+    "insertHere": "Inserare pagini aici",
+    "select": "Selectare pagină",
+    "zoom": "Zoom",
+    "parts": "Împărțit în {{count}} fișiere la aplicare",
+    "chooseFolder": "Alegeți dosarul pentru fișierele împărțite",
+    "fileFailed": "{{name}} nu a putut fi citit: {{error}}",
+    "applyFailed": "Aplicarea modificărilor paginilor a eșuat: {{error}}",
+    "extractFailed": "Extragerea paginilor a eșuat: {{error}}"
   }
 }

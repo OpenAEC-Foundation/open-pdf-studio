@@ -1601,12 +1601,28 @@
     }
   },
   "pageOrganizer": {
-    "title": "Susun semula halaman",
-    "hint": "Seret halaman ke kedudukan baharu. Ctrl+klik atau Shift+klik memilih beberapa halaman.",
+    "title": "Edit Halaman",
+    "hint": "Seret halaman untuk mengalihkannya; lepaskan fail PDF untuk menyisipkan halamannya. Ctrl+klik, Shift+klik atau kotak semak memilih beberapa halaman. Tiada apa yang berubah sehingga Guna.",
     "moveLeft": "Alih ke kiri",
     "moveRight": "Alih ke kanan",
     "moveToStart": "Alih ke permulaan",
     "moveToEnd": "Alih ke penghujung",
-    "selection": "{{selected}} daripada {{total}} halaman dipilih"
+    "selection": "{{selected}} daripada {{total}} halaman dipilih",
+    "rotateLeft": "Putar Kiri",
+    "rotateRight": "Putar Kanan",
+    "split": "Pisah",
+    "splitTitle": "Letakkan tanda pisah di sekeliling halaman terpilih: setiap siri menjadi fail berasingan",
+    "splitHere": "Pisah di sini (letak atau buang tanda pisah)",
+    "extractTitle": "Ekstrak halaman terpilih ke fail baharu",
+    "blankPage": "Halaman kosong",
+    "pagesFromFile": "Halaman daripada fail…",
+    "insertHere": "Sisipkan halaman di sini",
+    "select": "Pilih halaman",
+    "zoom": "Zum",
+    "parts": "Dipisahkan kepada {{count}} fail apabila digunakan",
+    "chooseFolder": "Pilih folder untuk fail yang dipisahkan",
+    "fileFailed": "Tidak dapat membaca {{name}}: {{error}}",
+    "applyFailed": "Gagal menggunakan suntingan halaman: {{error}}",
+    "extractFailed": "Gagal mengekstrak halaman: {{error}}"
   }
 }

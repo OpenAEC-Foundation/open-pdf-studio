@@ -328,7 +328,9 @@
     "scanText": "Gescande tekst bewerken",
     "scanTextHint": "Klik op een herkend woord om het te vervangen. Het oude woord in de scan wordt afgedekt.",
     "scanTextNone": "Geen herkende tekst op deze pagina. Voer eerst Tekst herkennen (OCR) uit.",
-    "shiftPage": "Pagina verschuiven"
+    "shiftPage": "Pagina verschuiven",
+    "editPages": "Pagina's bewerken",
+    "editPagesTitle": "Pagina's visueel bewerken: ordenen, draaien, invoegen, verwijderen, uitnemen en splitsen"
   },
   "help": {
     "information": "Informatie",

@@ -1601,12 +1601,28 @@
     }
   },
   "pageOrganizer": {
-    "title": "Seiten neu anordnen",
-    "hint": "Ziehen Sie Seiten an eine neue Position. Strg+Klick oder Umschalt+Klick wählt mehrere Seiten aus.",
+    "title": "Seiten bearbeiten",
+    "hint": "Seiten ziehen, um sie zu verschieben; eine PDF-Datei ablegen, um ihre Seiten einzufügen. Strg+Klick, Umschalt+Klick oder die Kontrollkästchen wählen mehrere Seiten. Bis „Übernehmen“ ändert sich nichts.",
     "moveLeft": "Nach links",
     "moveRight": "Nach rechts",
     "moveToStart": "An den Anfang",
     "moveToEnd": "Ans Ende",
-    "selection": "{{selected}} von {{total}} Seiten ausgewählt"
+    "selection": "{{selected}} von {{total}} Seiten ausgewählt",
+    "rotateLeft": "Links drehen",
+    "rotateRight": "Rechts drehen",
+    "split": "Teilen",
+    "splitTitle": "Teilungsmarken um die ausgewählten Seiten setzen: jede Folge wird eine eigene Datei",
+    "splitHere": "Hier teilen (Teilungsmarke setzen oder entfernen)",
+    "extractTitle": "Die ausgewählten Seiten in eine neue Datei extrahieren",
+    "blankPage": "Leere Seite",
+    "pagesFromFile": "Seiten aus Datei…",
+    "insertHere": "Hier Seiten einfügen",
+    "select": "Seite auswählen",
+    "zoom": "Zoom",
+    "parts": "Beim Übernehmen in {{count}} Dateien geteilt",
+    "chooseFolder": "Ordner für die geteilten Dateien wählen",
+    "fileFailed": "{{name}} konnte nicht gelesen werden: {{error}}",
+    "applyFailed": "Die Seitenbearbeitung konnte nicht übernommen werden: {{error}}",
+    "extractFailed": "Die Seiten konnten nicht extrahiert werden: {{error}}"
   }
 }

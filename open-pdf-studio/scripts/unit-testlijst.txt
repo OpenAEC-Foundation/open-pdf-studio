@@ -520,3 +520,7 @@ js/text/tekenafstand.test.mjs
 js/pdf/page-order.test.mjs
 js/pdf/page-manager-volgorde.test.mjs
 js/solid/components/ribbon/reorder-knop.test.mjs
+js/pdf/page-edit-plan.test.mjs
+js/pdf/organizer-grid.test.mjs
+js/pdf/page-manager-edit-pages.test.mjs
+js/solid/components/ribbon/edit-pages-knop.test.mjs

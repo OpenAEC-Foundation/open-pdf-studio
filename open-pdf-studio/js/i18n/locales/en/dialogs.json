@@ -1600,12 +1600,28 @@
     }
   },
   "pageOrganizer": {
-    "title": "Reorder Pages",
-    "hint": "Drag pages to a new position. Ctrl+click or Shift+click selects several pages.",
+    "title": "Edit Pages",
+    "hint": "Drag pages to move them; drop a PDF file to insert its pages. Ctrl+click, Shift+click or the checkboxes select several pages. Nothing changes until Apply.",
     "moveLeft": "Move left",
     "moveRight": "Move right",
     "moveToStart": "Move to start",
     "moveToEnd": "Move to end",
-    "selection": "{{selected}} of {{total}} pages selected"
+    "selection": "{{selected}} of {{total}} pages selected",
+    "rotateLeft": "Rotate Left",
+    "rotateRight": "Rotate Right",
+    "split": "Split",
+    "splitTitle": "Place split marks around the selected pages: each run becomes a separate file",
+    "splitHere": "Split here (place or remove a split mark)",
+    "extractTitle": "Extract the selected pages to a new file",
+    "blankPage": "Blank page",
+    "pagesFromFile": "Pages from file…",
+    "insertHere": "Insert pages here",
+    "select": "Select page",
+    "zoom": "Zoom",
+    "parts": "Split into {{count}} files on Apply",
+    "chooseFolder": "Choose the folder for the split files",
+    "fileFailed": "Could not read {{name}}: {{error}}",
+    "applyFailed": "Applying the page edits failed: {{error}}",
+    "extractFailed": "Extracting the pages failed: {{error}}"
   }
 }

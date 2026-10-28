@@ -1601,12 +1601,28 @@
     }
   },
   "pageOrganizer": {
-    "title": "Oldalak átrendezése",
-    "hint": "Húzza az oldalakat új helyre. Ctrl+kattintás vagy Shift+kattintás több oldalt jelöl ki.",
+    "title": "Oldalak szerkesztése",
+    "hint": "Húzza az oldalakat az áthelyezéshez; ejtsen ide egy PDF-fájlt az oldalai beszúrásához. Ctrl+kattintás, Shift+kattintás vagy a jelölőnégyzetek több oldalt jelölnek ki. Az Alkalmaz gombig semmi sem változik.",
     "moveLeft": "Mozgatás balra",
     "moveRight": "Mozgatás jobbra",
     "moveToStart": "Mozgatás az elejére",
     "moveToEnd": "Mozgatás a végére",
-    "selection": "{{selected}} / {{total}} oldal kijelölve"
+    "selection": "{{selected}} / {{total}} oldal kijelölve",
+    "rotateLeft": "Forgatás balra",
+    "rotateRight": "Forgatás jobbra",
+    "split": "Felosztás",
+    "splitTitle": "Felosztási jelek a kijelölt oldalak köré: minden sorozat külön fájl lesz",
+    "splitHere": "Felosztás itt (felosztási jel elhelyezése vagy eltávolítása)",
+    "extractTitle": "A kijelölt oldalak kibontása új fájlba",
+    "blankPage": "Üres oldal",
+    "pagesFromFile": "Oldalak fájlból…",
+    "insertHere": "Oldalak beszúrása ide",
+    "select": "Oldal kijelölése",
+    "zoom": "Nagyítás",
+    "parts": "Alkalmazáskor {{count}} fájlra osztva",
+    "chooseFolder": "Válassza ki a felosztott fájlok mappáját",
+    "fileFailed": "{{name}} nem olvasható: {{error}}",
+    "applyFailed": "Az oldalmódosítások alkalmazása nem sikerült: {{error}}",
+    "extractFailed": "Az oldalak kibontása nem sikerült: {{error}}"
   }
 }

@@ -328,7 +328,9 @@
     "scanText": "Hariri Maandishi Yaliyochanganuliwa",
     "scanTextHint": "Bofya neno lililotambuliwa ili kulibadilisha. Neno la zamani kwenye skani hufunikwa.",
     "scanTextNone": "Hakuna maandishi yaliyotambuliwa kwenye ukurasa huu. Endesha Utambuzi wa Maandishi (OCR) kwanza.",
-    "shiftPage": "Hamisha ukurasa"
+    "shiftPage": "Hamisha ukurasa",
+    "editPages": "Hariri Kurasa",
+    "editPagesTitle": "Hariri kurasa kwa kuona: panga upya, zungusha, ingiza, futa, toa na gawanya"
   },
   "help": {
     "settings": "Mipangilio",

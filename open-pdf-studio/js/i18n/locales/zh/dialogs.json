@@ -1601,12 +1601,28 @@
     }
   },
   "pageOrganizer": {
-    "title": "重新排列页面",
-    "hint": "将页面拖到新位置。Ctrl+单击或 Shift+单击可选择多个页面。",
+    "title": "编辑页面",
+    "hint": "拖动页面即可移动；拖放 PDF 文件可插入其页面。Ctrl+单击、Shift+单击或复选框可选择多个页面。在“应用”之前不会有任何更改。",
     "moveLeft": "左移",
     "moveRight": "右移",
     "moveToStart": "移到开头",
     "moveToEnd": "移到末尾",
-    "selection": "已选择 {{selected}} / {{total}} 页"
+    "selection": "已选择 {{selected}} / {{total}} 页",
+    "rotateLeft": "向左旋转",
+    "rotateRight": "向右旋转",
+    "split": "拆分",
+    "splitTitle": "在所选页面周围放置拆分标记：每一段成为一个单独的文件",
+    "splitHere": "在此拆分（放置或移除拆分标记）",
+    "extractTitle": "将所选页面提取到新文件",
+    "blankPage": "空白页",
+    "pagesFromFile": "来自文件的页面…",
+    "insertHere": "在此插入页面",
+    "select": "选择页面",
+    "zoom": "缩放",
+    "parts": "应用时拆分为 {{count}} 个文件",
+    "chooseFolder": "选择拆分文件的文件夹",
+    "fileFailed": "无法读取 {{name}}：{{error}}",
+    "applyFailed": "应用页面编辑失败：{{error}}",
+    "extractFailed": "提取页面失败：{{error}}"
   }
 }

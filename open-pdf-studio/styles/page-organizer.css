@@ -1,8 +1,8 @@
-/* Page organizer (#763): drag pages into a new order. Squared corners,
-   default cursor, no transitions. */
+/* Edit Pages organizer (#763, #764): a near full-window, virtualised grid of
+   page thumbnails. Squared corners, default cursor, no transitions. */
 .page-organizer-dialog {
-  width: min(960px, calc(100vw - 40px));
-  height: min(680px, calc(100vh - 40px));
+  width: min(1400px, calc(100vw - 32px));
+  height: calc(100vh - 32px);
 }
 
 .page-organizer-body {
@@ -16,7 +16,7 @@
 .page-organizer-toolbar {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   padding: 4px 8px;
   border-bottom: 1px solid var(--theme-border, #d4d4d4);
   background: var(--theme-bg, #f5f5f5);
@@ -24,7 +24,10 @@
 }
 
 .page-organizer-btn {
-  padding: 2px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
   font-size: 12px;
   font-family: inherit;
   border: 1px solid var(--theme-border, #acacac);
@@ -43,28 +46,45 @@
   opacity: 0.5;
 }
 
+.page-organizer-btn-icon,
+.page-organizer-btn-icon svg {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+}
+
 .page-organizer-sep {
   width: 1px;
   height: 18px;
-  margin: 0 4px;
+  margin: 0 3px;
   background: var(--theme-border, #d4d4d4);
 }
 
+.page-organizer-zoom {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+}
+
+.page-organizer-zoom-slider {
+  width: 110px;
+  cursor: default;
+}
+
 .page-organizer-hint {
-  margin-left: 8px;
+  padding: 2px 8px;
   font-size: 11px;
   color: var(--theme-text-secondary, #666);
+  border-bottom: 1px solid var(--theme-border, #d4d4d4);
+  background: var(--theme-bg, #f5f5f5);
 }
 
 .page-organizer-grid {
+  position: relative;
   flex: 1;
   min-height: 0;
   overflow: auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  align-content: start;
-  gap: 10px 14px;
-  padding: 10px 14px;
   outline: none;
   direction: ltr;
   background: var(--theme-bg, #f5f5f5);
@@ -74,28 +94,43 @@
   box-shadow: inset 0 0 0 1px #0078d7;
 }
 
-.page-organizer-tile {
+.page-organizer-grid.files-over {
+  box-shadow: inset 0 0 0 2px #0078d7;
+}
+
+/* Tiles are placed by organizer-grid.js; only the rows in view exist. */
+.page-organizer-canvas {
   position: relative;
+}
+
+.page-organizer-tile {
+  position: absolute;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 4px;
-  border: 2px solid transparent;
   border-radius: 0;
-  background: transparent;
   cursor: default;
 }
 
-.page-organizer-tile:hover {
+.page-organizer-frame {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid transparent;
+  box-sizing: border-box;
+}
+
+.page-organizer-tile:hover .page-organizer-frame {
   background: var(--theme-thumbnail-hover, rgba(0, 0, 0, 0.05));
 }
 
-.page-organizer-tile.selected {
+.page-organizer-tile.selected .page-organizer-frame {
   background: var(--theme-thumbnail-selected-bg, #cce4f7);
   border-color: var(--theme-thumbnail-selected-border, #0078d7);
 }
 
-.page-organizer-tile.focused {
+.page-organizer-tile.focused .page-organizer-frame {
   outline: 1px dotted var(--theme-text, #333);
   outline-offset: 1px;
 }
@@ -104,24 +139,9 @@
   opacity: 0.4;
 }
 
-/* Drop indicator: a bar in the gap in front of (or after) the tile. */
-.page-organizer-tile.drop-before::before,
-.page-organizer-tile.drop-after::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: #0078d7;
-  pointer-events: none;
-}
-
-.page-organizer-tile.drop-before::before { left: -9px; }
-.page-organizer-tile.drop-after::after { right: -9px; }
-
 .page-organizer-thumb {
-  width: 100%;
-  max-height: 170px;
+  max-width: 92%;
+  max-height: 92%;
   object-fit: contain;
   background: white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -129,17 +149,172 @@
 }
 
 .page-organizer-thumb-empty {
+  max-width: 92%;
+  max-height: 92%;
   background: #e0e0e0;
 }
 
+.page-organizer-thumb-empty.blank {
+  background: #ffffff;
+}
+
+/* Selection checkbox: always visible, top left. */
+.page-organizer-check {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  margin: 0;
+  width: 14px;
+  height: 14px;
+  cursor: default;
+}
+
+/* Quick actions: on hover, keyboard focus or a focused tile. */
+.page-organizer-actions {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: none;
+  gap: 1px;
+}
+
+.page-organizer-tile:hover .page-organizer-actions,
+.page-organizer-tile:focus-within .page-organizer-actions,
+.page-organizer-grid:focus .page-organizer-tile.focused .page-organizer-actions {
+  display: flex;
+}
+
+.page-organizer-action {
+  width: 20px;
+  height: 20px;
+  padding: 2px;
+  border: 1px solid var(--theme-border, #acacac);
+  border-radius: 0;
+  background: var(--theme-surface, #fff);
+  color: var(--theme-text, #333);
+  cursor: default;
+}
+
+.page-organizer-action svg {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+.page-organizer-action:hover {
+  background: var(--theme-hover, #e5f1fb);
+  border-color: #0078d7;
+}
+
+.page-organizer-action-delete:hover {
+  background: #e81123;
+  border-color: #e81123;
+  color: #fff;
+}
+
 .page-organizer-label {
-  margin-top: 4px;
+  margin-top: 2px;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 11px;
+  line-height: 16px;
   color: var(--theme-thumbnail-label, #333);
+}
+
+.page-organizer-pos {
+  color: var(--theme-text-secondary, #888);
+}
+
+/* Gap between two tiles: insert (+) on top, split (scissors) below it. */
+.page-organizer-gutter {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.page-organizer-gap-btn {
+  position: relative;
+  z-index: 1;
+  width: 20px;
+  height: 20px;
+  padding: 2px;
+  border: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--theme-text-secondary, #777);
+  cursor: default;
+}
+
+.page-organizer-gap-btn svg {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+.page-organizer-gap-btn:hover {
+  background: var(--theme-surface, #fff);
+  border-color: #0078d7;
+  color: #0078d7;
+}
+
+.page-organizer-split-btn.on {
+  background: #fde7e9;
+  border-color: #c42b1c;
+  color: #c42b1c;
+}
+
+/* A split mark: the result is cut into separate files here. */
+.page-organizer-split-mark {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  left: 50%;
+  border-left: 2px dashed #c42b1c;
+  pointer-events: none;
+}
+
+/* Drop indicator for moved pages and dropped PDF files. */
+.page-organizer-drop-mark {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 2px);
+  width: 4px;
+  background: #0078d7;
+  pointer-events: none;
+}
+
+.page-organizer-menu {
+  position: absolute;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+  padding: 2px;
+  border: 1px solid var(--theme-border, #acacac);
+  background: var(--theme-surface, #fff);
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.page-organizer-menu-item {
+  padding: 4px 10px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--theme-text, #333);
+  font-size: 12px;
+  font-family: inherit;
+  text-align: left;
+  cursor: default;
+}
+
+.page-organizer-menu-item:hover {
+  background: var(--theme-hover, #e5f1fb);
 }
 
 .page-organizer-status {

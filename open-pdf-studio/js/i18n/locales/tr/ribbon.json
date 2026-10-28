@@ -328,7 +328,9 @@
     "scanText": "Taranmış Metni Düzenle",
     "scanTextHint": "Değiştirmek için tanınan bir kelimeye tıklayın. Taramadaki eski kelime örtülür.",
     "scanTextNone": "Bu sayfada tanınan metin yok. Önce Metin Tanıma (OCR) çalıştırın.",
-    "shiftPage": "Sayfayı kaydır"
+    "shiftPage": "Sayfayı kaydır",
+    "editPages": "Sayfaları Düzenle",
+    "editPagesTitle": "Sayfaları görsel olarak düzenleyin: sıralayın, döndürün, ekleyin, silin, ayıklayın ve bölün"
   },
   "help": {
     "settings": "Ayarlar",

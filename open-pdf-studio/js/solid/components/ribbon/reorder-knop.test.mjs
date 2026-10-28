@@ -38,20 +38,21 @@ test('the dialog host knows the page organizer and loads it on demand', () => {
   assert.match(host, /'page-organizer': PageOrganizerDialog,/);
 });
 
-test('the organizer applies the whole new order once, through reorderPages', () => {
+test('the organizer applies all pending edits once, through applyPageEdits (#764)', () => {
   const dlg = bron('../dialogs/PageOrganizerDialog.jsx');
-  assert.equal((dlg.match(/await reorderPages\(/g) || []).length, 1, 'one call: one undo step');
-  const apply = dlg.slice(dlg.indexOf('const apply = async'), dlg.indexOf('};', dlg.indexOf('const apply = async')));
-  assert.match(apply, /await reorderPages\(next\)/);
+  assert.equal((dlg.match(/await applyPageEdits\(/g) || []).length, 1, 'one call: one undo step');
+  assert.doesNotMatch(dlg, /reorderPages\(/, 'the reorder is part of the plan, not a step of its own');
+  const apply = dlg.slice(dlg.indexOf('const apply = async'), dlg.indexOf('// ── Selection'));
+  assert.match(apply, /await applyPageEdits\(p, \{ sources: bronnen \}\)/);
   assert.match(dlg, /closeDialog\('page-organizer'\)/);
-  for (const naam of ['moveGroupToGap', 'moveSelectionBy', 'moveSelectionToEdge', 'gapFromRects', 'rangeInOrder']) {
-    assert.match(dlg, new RegExp(`\\b${naam}\\(`), `uses ${naam} from page-order.js`);
+  for (const naam of ['moveEntriesToGap', 'moveEntriesBy', 'moveEntriesToEdge', 'gapAtPoint', 'rangeInOrder']) {
+    assert.match(dlg, new RegExp(`\\b${naam}\\(`), `uses ${naam}`);
   }
-  assert.match(dlg, /from '\.\.\/\.\.\/\.\.\/pdf\/page-order\.js'/);
+  assert.match(dlg, /from '\.\.\/\.\.\/\.\.\/pdf\/page-edit-plan\.js'/);
   // Drag, drop indicator, multi-select and the keyboard alternative.
   assert.match(dlg, /onDragStart=/);
   assert.match(dlg, /onDrop=\{handleDrop\}/);
-  assert.match(dlg, /'drop-before': gap\(\) === index\(\)/);
+  assert.match(dlg, /dropGap\(\) === g/);
   assert.match(dlg, /e\.shiftKey/);
   assert.match(dlg, /e\.ctrlKey/);
   assert.match(dlg, /ctrl && \(key === 'ArrowLeft'/);
@@ -81,7 +82,7 @@ test('every locale has real translations of the organizer strings', () => {
   const lees = (taal) => JSON.parse(readFileSync(new URL(`${taal}/dialogs.json`, map), 'utf8')).pageOrganizer;
   const en = lees('en');
   const sleutels = ['title', 'hint', 'moveLeft', 'moveRight', 'moveToStart', 'moveToEnd', 'selection'];
-  assert.deepEqual(Object.keys(en).sort(), [...sleutels].sort());
+  for (const s of sleutels) assert.ok(s in en, `en.${s}`);
   for (const taal of talen) {
     const po = lees(taal);
     assert.ok(po, `${taal} has pageOrganizer`);

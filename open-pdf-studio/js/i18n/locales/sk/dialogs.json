@@ -1601,12 +1601,28 @@
     }
   },
   "pageOrganizer": {
-    "title": "Zmeniť poradie strán",
-    "hint": "Presuňte strany na nové miesto. Ctrl+klik alebo Shift+klik vyberie viac strán.",
+    "title": "Upraviť strany",
+    "hint": "Presuňte strany potiahnutím; pustením súboru PDF vložíte jeho strany. Ctrl+klik, Shift+klik alebo začiarkavacie políčka vyberú viac strán. Do Použiť sa nič nezmení.",
     "moveLeft": "Posunúť doľava",
     "moveRight": "Posunúť doprava",
     "moveToStart": "Presunúť na začiatok",
     "moveToEnd": "Presunúť na koniec",
-    "selection": "Vybraté strany: {{selected}} z {{total}}"
+    "selection": "Vybraté strany: {{selected}} z {{total}}",
+    "rotateLeft": "Otočiť doľava",
+    "rotateRight": "Otočiť doprava",
+    "split": "Rozdeliť",
+    "splitTitle": "Umiestniť značky rozdelenia okolo vybraných strán: každý úsek bude samostatný súbor",
+    "splitHere": "Rozdeliť tu (umiestniť alebo odstrániť značku rozdelenia)",
+    "extractTitle": "Extrahovať vybrané strany do nového súboru",
+    "blankPage": "Prázdna strana",
+    "pagesFromFile": "Strany zo súboru…",
+    "insertHere": "Vložiť strany sem",
+    "select": "Vybrať stranu",
+    "zoom": "Lupa",
+    "parts": "Pri použití rozdelené do {{count}} súborov",
+    "chooseFolder": "Vyberte priečinok pre rozdelené súbory",
+    "fileFailed": "{{name}} sa nepodarilo prečítať: {{error}}",
+    "applyFailed": "Úpravy strán sa nepodarilo použiť: {{error}}",
+    "extractFailed": "Strany sa nepodarilo extrahovať: {{error}}"
   }
 }

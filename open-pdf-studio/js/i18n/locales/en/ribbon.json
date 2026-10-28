@@ -328,7 +328,9 @@
     "scanText": "Edit Scan Text",
     "scanTextHint": "Click a recognised word to replace it. The old word in the scan is covered.",
     "scanTextNone": "No recognised text on this page. Run Recognize Text (OCR) first.",
-    "shiftPage": "Shift Page"
+    "shiftPage": "Shift Page",
+    "editPages": "Edit Pages",
+    "editPagesTitle": "Edit pages visually: reorder, rotate, insert, delete, extract and split"
   },
   "help": {
     "settings": "Settings",

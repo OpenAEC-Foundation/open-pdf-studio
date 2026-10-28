@@ -1601,12 +1601,28 @@
     }
   },
   "pageOrganizer": {
-    "title": "Réorganiser les pages",
-    "hint": "Faites glisser les pages vers une nouvelle position. Ctrl+clic ou Maj+clic sélectionne plusieurs pages.",
+    "title": "Modifier les pages",
+    "hint": "Faites glisser les pages pour les déplacer ; déposez un fichier PDF pour insérer ses pages. Ctrl+clic, Maj+clic ou les cases à cocher sélectionnent plusieurs pages. Rien ne change avant Appliquer.",
     "moveLeft": "Vers la gauche",
     "moveRight": "Vers la droite",
     "moveToStart": "Au début",
     "moveToEnd": "À la fin",
-    "selection": "{{selected}} pages sur {{total}} sélectionnées"
+    "selection": "{{selected}} pages sur {{total}} sélectionnées",
+    "rotateLeft": "Rotation à gauche",
+    "rotateRight": "Rotation à droite",
+    "split": "Fractionner",
+    "splitTitle": "Placer des marques de fractionnement autour des pages sélectionnées : chaque série devient un fichier distinct",
+    "splitHere": "Fractionner ici (placer ou retirer une marque)",
+    "extractTitle": "Extraire les pages sélectionnées dans un nouveau fichier",
+    "blankPage": "Page vierge",
+    "pagesFromFile": "Pages d'un fichier…",
+    "insertHere": "Insérer des pages ici",
+    "select": "Sélectionner la page",
+    "zoom": "Zoom",
+    "parts": "Fractionné en {{count}} fichiers lors de l'application",
+    "chooseFolder": "Choisissez le dossier des fichiers fractionnés",
+    "fileFailed": "Impossible de lire {{name}} : {{error}}",
+    "applyFailed": "L'application des modifications de pages a échoué : {{error}}",
+    "extractFailed": "L'extraction des pages a échoué : {{error}}"
   }
 }

@@ -328,7 +328,9 @@
     "scanText": "Redigera skannad text",
     "scanTextHint": "Klicka på ett igenkänt ord för att ersätta det. Det gamla ordet i skanningen täcks över.",
     "scanTextNone": "Ingen igenkänd text på den här sidan. Kör Textigenkänning (OCR) först.",
-    "shiftPage": "Flytta sida"
+    "shiftPage": "Flytta sida",
+    "editPages": "Redigera sidor",
+    "editPagesTitle": "Redigera sidor visuellt: ordna om, rotera, infoga, ta bort, extrahera och dela"
   },
   "help": {
     "settings": "Inställningar",

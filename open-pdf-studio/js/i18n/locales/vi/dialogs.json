@@ -1601,12 +1601,28 @@
     }
   },
   "pageOrganizer": {
-    "title": "Sắp xếp lại trang",
-    "hint": "Kéo các trang đến vị trí mới. Ctrl+nhấp hoặc Shift+nhấp để chọn nhiều trang.",
+    "title": "Chỉnh sửa trang",
+    "hint": "Kéo trang để di chuyển; thả một tệp PDF để chèn các trang của nó. Ctrl+nhấp, Shift+nhấp hoặc các hộp kiểm chọn nhiều trang. Không có gì thay đổi cho đến khi Áp dụng.",
     "moveLeft": "Chuyển sang trái",
     "moveRight": "Chuyển sang phải",
     "moveToStart": "Chuyển lên đầu",
     "moveToEnd": "Chuyển xuống cuối",
-    "selection": "Đã chọn {{selected}} trên {{total}} trang"
+    "selection": "Đã chọn {{selected}} trên {{total}} trang",
+    "rotateLeft": "Xoay trái",
+    "rotateRight": "Xoay phải",
+    "split": "Tách",
+    "splitTitle": "Đặt dấu tách quanh các trang đã chọn: mỗi đoạn thành một tệp riêng",
+    "splitHere": "Tách tại đây (đặt hoặc bỏ dấu tách)",
+    "extractTitle": "Trích xuất các trang đã chọn sang tệp mới",
+    "blankPage": "Trang trống",
+    "pagesFromFile": "Trang từ tệp…",
+    "insertHere": "Chèn trang tại đây",
+    "select": "Chọn trang",
+    "zoom": "Thu phóng",
+    "parts": "Tách thành {{count}} tệp khi áp dụng",
+    "chooseFolder": "Chọn thư mục cho các tệp đã tách",
+    "fileFailed": "Không thể đọc {{name}}: {{error}}",
+    "applyFailed": "Áp dụng chỉnh sửa trang không thành công: {{error}}",
+    "extractFailed": "Trích xuất trang không thành công: {{error}}"
   }
 }
