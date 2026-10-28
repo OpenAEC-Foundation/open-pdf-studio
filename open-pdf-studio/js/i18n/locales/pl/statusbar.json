@@ -148,5 +148,9 @@
     "title": "Przejdź do następnego zgłoszenia renderowania. Brak zgłoszeń nie gwarantuje pełnego renderowania.",
     "count": "Zgłoszenia renderowania: {{count}}",
     "detail": "Strona {{page}}: {{code}}. Spróbuj mniejszego powiększenia lub otwórz dokument ponownie; kompletność nie jest gwarantowana."
-  }
+  },
+  "sharedReviewActive": "Wspólna recenzja",
+  "sharedReviewUpdates": "Wspólna recenzja: nowe {{n}}",
+  "sharedReviewTitle": "Adnotacje są udostępniane przez {{folder}}. Kliknij, aby otworzyć wspólną recenzję.",
+  "sharedReviewError": "Wspólna recenzja: folder niedostępny"
 }

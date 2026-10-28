@@ -240,3 +240,8 @@
   -webkit-appearance: none;
   margin: 0;
 }
+
+/* Gedeelde beoordeling (#237): vet zolang er ongeziene wijzigingen zijn. */
+.status-review-new span {
+  font-weight: 600;
+}

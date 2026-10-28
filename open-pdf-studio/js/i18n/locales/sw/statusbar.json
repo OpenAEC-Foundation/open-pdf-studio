@@ -148,5 +148,9 @@
     "title": "Nenda kwenye taarifa inayofuata ya uonyeshaji. Kukosekana kwa taarifa hakuhakikishi uonyeshaji kamili.",
     "count": "Taarifa za uonyeshaji: {{count}}",
     "detail": "Ukurasa {{page}}: {{code}}. Jaribu kukuza kidogo au fungua hati upya; ukamilifu haujahakikishwa."
-  }
+  },
+  "sharedReviewActive": "Ukaguzi wa pamoja",
+  "sharedReviewUpdates": "Ukaguzi wa pamoja: {{n}} mapya",
+  "sharedReviewTitle": "Maelezo yanashirikiwa kupitia {{folder}}. Bofya ili kufungua ukaguzi wa pamoja.",
+  "sharedReviewError": "Ukaguzi wa pamoja: folda haipatikani"
 }

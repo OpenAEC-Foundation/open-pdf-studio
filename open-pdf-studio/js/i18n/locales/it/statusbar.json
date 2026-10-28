@@ -148,5 +148,9 @@
     "title": "Vai alla segnalazione di rendering successiva. L’assenza di segnalazioni non garantisce un rendering completo.",
     "count": "Segnalazioni di rendering: {{count}}",
     "detail": "Pagina {{page}}: {{code}}. Prova uno zoom inferiore o riapri il documento; la completezza non è garantita."
-  }
+  },
+  "sharedReviewActive": "Revisione condivisa",
+  "sharedReviewUpdates": "Revisione condivisa: {{n}} nuove",
+  "sharedReviewTitle": "Le annotazioni sono condivise tramite {{folder}}. Fai clic per aprire la revisione condivisa.",
+  "sharedReviewError": "Revisione condivisa: cartella non disponibile"
 }

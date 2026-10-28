@@ -640,3 +640,6 @@ js/pdf/meetvlak-hoekpunten-rondgang.test.mjs
 js/annotations/draaipunt-vormen.test.mjs
 js/ui/chrome/fullscreen.test.mjs
 js/solid/components/ribbon/wand-knop.test.mjs
+js/review/shared-review-core.test.mjs
+js/review/shared-review-xfdf.test.mjs
+js/review/shared-review-wiring.test.mjs

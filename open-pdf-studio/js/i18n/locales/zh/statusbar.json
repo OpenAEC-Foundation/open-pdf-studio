@@ -148,5 +148,9 @@
     "title": "转到下一条渲染提示。没有提示并不保证渲染完整。",
     "count": "渲染提示：{{count}}",
     "detail": "第 {{page}} 页：{{code}}。请尝试降低缩放比例或重新打开文档；不保证完整性。"
-  }
+  },
+  "sharedReviewActive": "共享审阅",
+  "sharedReviewUpdates": "共享审阅：{{n}} 项新更改",
+  "sharedReviewTitle": "批注通过 {{folder}} 共享。点击打开共享审阅。",
+  "sharedReviewError": "共享审阅：文件夹不可用"
 }

@@ -223,5 +223,6 @@
   "workflows": "Fluxos de trabalho de documentos",
   "drawingSets": "Conjuntos de pranchas",
   "sheetLinks": "Links entre pranchas",
-  "approvalRouting": "Fluxo de aprovação"
+  "approvalRouting": "Fluxo de aprovação",
+  "sharedReview": "Revisão partilhada"
 }

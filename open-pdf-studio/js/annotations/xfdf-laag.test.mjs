@@ -46,10 +46,15 @@ test('importeren zonder attribuut: de standaardlaag', () => {
 });
 
 basisTest('xfdf.js schrijft het attribuut bij elke annotatie en leest het bij het importeren', () => {
-  const xfdf = readFileSync(new URL('./xfdf.js', import.meta.url), 'utf8');
+  const xfdf = readFileSync(new URL('./xfdf.js', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
   const common = xfdf.slice(xfdf.indexOf('function commonAttrs('));
-  assert.match(common.slice(0, 1200), /laagAttribuut\(getActiveDocument\(\), ann\)/);
-  const importeer = xfdf.slice(xfdf.indexOf('export function importFromXFDF('), xfdf.indexOf('// Convert a single annotation to XFDF'));
-  assert.match(importeer, /laagUitAttribuut\(activeDoc, el\.getAttribute\('opslayer'\)\)/);
+  // Het document wordt doorgegeven (standaard het actieve); de gedeelde
+  // beoordeling (#237) schrijft ook voor een document dat niet actief is.
+  assert.match(common.slice(0, 1200), /^function commonAttrs\(ann, doc = getActiveDocument\(\)/);
+  assert.match(common.slice(0, 1200), /laagAttribuut\(doc, ann\)/);
+  const lezen = xfdf.slice(xfdf.indexOf('export function parseXfdfDocument('), xfdf.indexOf('// Convert a single annotation to XFDF'));
+  assert.match(lezen, /layer: el\.getAttribute\('opslayer'\)/);
+  const importeer = xfdf.slice(xfdf.indexOf('export function importFromXFDF('), xfdf.indexOf('export function parseXfdfDocument('));
+  assert.match(importeer, /laagUitAttribuut\(activeDoc, layer\)/);
   assert.match(importeer, /assignLayer\(\[ann\], laag\.id\)/);
 });

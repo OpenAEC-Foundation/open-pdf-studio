@@ -223,5 +223,6 @@
   "workflows": "Alur kerja dokumen",
   "drawingSets": "Set gambar",
   "sheetLinks": "Tautan antarlembar",
-  "approvalRouting": "Perutean persetujuan"
+  "approvalRouting": "Perutean persetujuan",
+  "sharedReview": "Tinjauan bersama"
 }

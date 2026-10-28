@@ -148,5 +148,9 @@
     "title": "Aller à l’anomalie de rendu suivante. L’absence d’anomalie ne garantit pas un rendu complet.",
     "count": "Anomalies de rendu : {{count}}",
     "detail": "Page {{page}} : {{code}}. Essayez un zoom plus faible ou rouvrez le document ; l’exhaustivité n’est pas garantie."
-  }
+  },
+  "sharedReviewActive": "Révision partagée",
+  "sharedReviewUpdates": "Révision partagée : {{n}} nouvelles",
+  "sharedReviewTitle": "Les annotations sont partagées via {{folder}}. Cliquez pour ouvrir la révision partagée.",
+  "sharedReviewError": "Révision partagée : dossier indisponible"
 }

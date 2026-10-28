@@ -223,5 +223,6 @@
   "workflows": "Радни токови докумената",
   "drawingSets": "Комплети цртежа",
   "sheetLinks": "Везе између листова",
-  "approvalRouting": "Ток одобравања"
+  "approvalRouting": "Ток одобравања",
+  "sharedReview": "Заједнички преглед"
 }

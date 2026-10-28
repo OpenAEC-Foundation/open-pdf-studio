@@ -148,5 +148,9 @@
     "title": "다음 렌더링 알림으로 이동합니다. 알림이 없어도 완전한 렌더링이 보장되지는 않습니다.",
     "count": "렌더링 알림: {{count}}",
     "detail": "{{page}}페이지: {{code}}. 더 낮은 확대/축소를 시도하거나 문서를 다시 여세요. 완전성은 보장되지 않습니다."
-  }
+  },
+  "sharedReviewActive": "공유 검토",
+  "sharedReviewUpdates": "공유 검토: 새 항목 {{n}}개",
+  "sharedReviewTitle": "주석이 {{folder}}을(를) 통해 공유됩니다. 클릭하면 공유 검토가 열립니다.",
+  "sharedReviewError": "공유 검토: 폴더를 사용할 수 없음"
 }

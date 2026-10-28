@@ -148,5 +148,9 @@
     "title": "Ves a la següent incidència de renderització. No tenir incidències no garanteix una renderització completa.",
     "count": "Incidències de renderització: {{count}}",
     "detail": "Pàgina {{page}}: {{code}}. Proveu un zoom més baix o torneu a obrir el document; la completesa no està garantida."
-  }
+  },
+  "sharedReviewActive": "Revisió compartida",
+  "sharedReviewUpdates": "Revisió compartida: {{n}} noves",
+  "sharedReviewTitle": "Les anotacions es comparteixen a través de {{folder}}. Feu clic per obrir la revisió compartida.",
+  "sharedReviewError": "Revisió compartida: carpeta no disponible"
 }

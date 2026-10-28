@@ -223,5 +223,6 @@
   "workflows": "Ροές εργασιών εγγράφων",
   "drawingSets": "Σύνολα σχεδίων",
   "sheetLinks": "Σύνδεσμοι μεταξύ φύλλων",
-  "approvalRouting": "Δρομολόγηση εγκρίσεων"
+  "approvalRouting": "Δρομολόγηση εγκρίσεων",
+  "sharedReview": "Κοινή αναθεώρηση"
 }

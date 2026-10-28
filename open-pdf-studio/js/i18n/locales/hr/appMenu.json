@@ -223,5 +223,6 @@
   "workflows": "Tijekovi rada dokumenata",
   "drawingSets": "Kompleti nacrta",
   "sheetLinks": "Poveznice između listova",
-  "approvalRouting": "Tijek odobravanja"
+  "approvalRouting": "Tijek odobravanja",
+  "sharedReview": "Zajednički pregled"
 }

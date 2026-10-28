@@ -223,5 +223,6 @@
   "workflows": "Belge iş akışları",
   "drawingSets": "Çizim setleri",
   "sheetLinks": "Paftalar arası bağlantılar",
-  "approvalRouting": "Onay akışı"
+  "approvalRouting": "Onay akışı",
+  "sharedReview": "Paylaşılan inceleme"
 }

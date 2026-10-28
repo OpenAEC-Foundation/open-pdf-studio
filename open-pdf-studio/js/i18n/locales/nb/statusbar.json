@@ -148,5 +148,9 @@
     "title": "Gå til neste gjengivelsesfunn. Ingen funn garanterer ikke en fullstendig gjengivelse.",
     "count": "Gjengivelsesfunn: {{count}}",
     "detail": "Side {{page}}: {{code}}. Prøv lavere zoom, eller åpne dokumentet på nytt; fullstendigheten er ikke garantert."
-  }
+  },
+  "sharedReviewActive": "Delt gjennomgang",
+  "sharedReviewUpdates": "Delt gjennomgang: {{n}} nye",
+  "sharedReviewTitle": "Merknader deles via {{folder}}. Klikk for å åpne den delte gjennomgangen.",
+  "sharedReviewError": "Delt gjennomgang: mappen er utilgjengelig"
 }

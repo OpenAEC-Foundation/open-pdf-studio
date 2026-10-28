@@ -6184,3 +6184,20 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
   flex-shrink: 0;
   color: var(--theme-text-secondary, #666);
 }
+/* Gedeelde beoordeling via een map (#237). */
+.shared-review-dialog { width: min(760px, 95vw); max-height: 92vh; color: var(--theme-text); font-size: 13px; }
+.shared-review-dialog .crop-margins-content { overflow: auto; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
+.shared-review-dialog p { margin: 0; line-height: 1.5; overflow-wrap: anywhere; }
+.shared-review-dialog h3 { margin: 6px 0 0; font-size: 13px; }
+.shared-review-dialog fieldset { padding: 8px 10px; border: 1px solid var(--theme-border); display: flex; flex-direction: column; gap: 4px; }
+.shared-review-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.shared-review-dialog input[type=text], .shared-review-dialog select { background: var(--theme-bg); color: var(--theme-text); border: 1px solid var(--theme-border); padding: 4px; max-width: 100%; }
+.shared-review-dialog select { min-width: 260px; }
+.shared-review-interval { width: 60px; }
+.shared-review-path { font-family: var(--ui-font-mono); font-size: 12px; overflow-wrap: anywhere; color: var(--theme-text-secondary, var(--theme-text)); }
+.shared-review-hint { font-size: 12px; opacity: 0.8; overflow-wrap: anywhere; }
+.shared-review-status { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; }
+.shared-review-error { color: #a4262c; }
+.shared-review-table { border-collapse: collapse; width: 100%; font-size: 12px; }
+.shared-review-table th, .shared-review-table td { border: 1px solid var(--theme-border); padding: 3px 6px; text-align: start; }
+.shared-review-concurrent td { font-style: italic; }

@@ -148,5 +148,9 @@
     "title": "Přejít na další nález vykreslování. Žádné nálezy nezaručují úplné vykreslení.",
     "count": "Nálezy vykreslování: {{count}}",
     "detail": "Strana {{page}}: {{code}}. Zkuste menší přiblížení nebo dokument znovu otevřete; úplnost není zaručena."
-  }
+  },
+  "sharedReviewActive": "Sdílená revize",
+  "sharedReviewUpdates": "Sdílená revize: nové {{n}}",
+  "sharedReviewTitle": "Poznámky jsou sdíleny přes {{folder}}. Kliknutím otevřete sdílenou revizi.",
+  "sharedReviewError": "Sdílená revize: složka nedostupná"
 }

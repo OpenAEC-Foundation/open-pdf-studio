@@ -223,5 +223,6 @@
   "workflows": "Dokumentarbejdsgange",
   "drawingSets": "Tegningssæt",
   "sheetLinks": "Links mellem tegninger",
-  "approvalRouting": "Godkendelsesforløb"
+  "approvalRouting": "Godkendelsesforløb",
+  "sharedReview": "Delt gennemgang"
 }

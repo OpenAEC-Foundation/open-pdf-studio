@@ -64,6 +64,7 @@ import { bouwBijlageAnnotatie, origineleBijlage, bijlageBewerkt } from './bijlag
 import { bijlageInhoud } from '../annotations/bijlage-store.js';
 import { layersForSave, currentLayerId } from '../annotations/annotatie-lagen.js';
 import { vormVan, vakPadPdf } from '../annotations/rendering/textbox-vorm.js';
+import { annotationsForSave as annotationsForSharedReviewSave, afterPdfSaved } from '../review/shared-review-hooks.js';
 import { heeftNietWinAnsi, pdfTextString, toWinAnsiText, winAnsiLiteral, asciiPdfName } from './saver/pdf-text.js';
 import { typemachineVak, typemachineRegelBreedte } from './saver/typemachine.js';
 import { catmullRomSpline } from '../tools/tools/spline-tool.js';
@@ -318,6 +319,8 @@ export async function savePDF(saveAsPath = null, opties = {}, activeDoc = getAct
   const gelukt = await _saveBezig;
   // Opgeslagen: de herstelmomentopname van dit document is niet meer nodig.
   if (gelukt && activeDoc) meldOpgeslagen(activeDoc);
+  // Gedeelde beoordeling (#237): mijn wijzigingen publiceren bij opslaan.
+  if (gelukt && activeDoc) afterPdfSaved(activeDoc);
   if (gelukt && activeDoc) {
     // De vorige uitkomst gold voor het oude bestand: opnieuw verifiëren. Het
     // nieuwe verzoek maakt lopende en eerdere uitkomsten direct ongeldig en
@@ -447,7 +450,9 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     // Ensure AcroForm DR (Default Resources) has fonts for FreeText annotations.
     // PDF viewers resolve font names in DA strings through these resources.
     const doc = activeDoc;
-    const docAnnotations = doc?.annotations || [];
+    // Gedeelde beoordeling (#237): het PDF houdt zijn eigen annotaties; de
+    // gedeelde staan in de beoordelingsmap tot de gebruiker ze importeert.
+    const docAnnotations = annotationsForSharedReviewSave(doc);
     const scaleSources = verzamelSchaalBronnen(doc);
     const ftAnnotations = docAnnotations.filter(a => a.type === 'textbox' || a.type === 'callout');
     if (ftAnnotations.length > 0) {

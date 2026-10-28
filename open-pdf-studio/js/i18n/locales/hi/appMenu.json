@@ -223,5 +223,6 @@
   "workflows": "दस्तावेज़ वर्कफ़्लो",
   "drawingSets": "ड्रॉइंग सेट",
   "sheetLinks": "क्रॉस-शीट लिंक",
-  "approvalRouting": "अनुमोदन रूटिंग"
+  "approvalRouting": "अनुमोदन रूटिंग",
+  "sharedReview": "साझा समीक्षा"
 }
