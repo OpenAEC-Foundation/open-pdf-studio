@@ -30,8 +30,10 @@
         extraInstallCommands = ''
           install -Dm644 ${./flatpak/org.openaec.OpenPdfStudio.desktop} \
             $out/share/applications/org.openaec.OpenPdfStudio.desktop
-          install -Dm644 ${./open-pdf-studio/src-tauri/icons/icon-new.svg} \
-            $out/share/icons/hicolor/scalable/apps/org.openaec.OpenPdfStudio.svg
+          install -Dm644 ${./open-pdf-studio/src-tauri/icons/512x512.png} \
+            $out/share/icons/hicolor/512x512/apps/org.openaec.OpenPdfStudio.png
+          install -Dm644 ${./open-pdf-studio/src-tauri/icons/256x256.png} \
+            $out/share/icons/hicolor/256x256/apps/org.openaec.OpenPdfStudio.png
           install -Dm644 ${./open-pdf-studio/src-tauri/icons/128x128.png} \
             $out/share/icons/hicolor/128x128/apps/org.openaec.OpenPdfStudio.png
           install -Dm644 ${./open-pdf-studio/src-tauri/icons/64x64.png} \

@@ -46,11 +46,14 @@ modules:
       - install -Dm644 flatpak/org.openaec.OpenPdfStudio.desktop ${FLATPAK_DEST}/share/applications/org.openaec.OpenPdfStudio.desktop
       # Install the AppStream metadata
       - install -Dm644 flatpak/org.openaec.OpenPdfStudio.metainfo.xml ${FLATPAK_DEST}/share/metainfo/org.openaec.OpenPdfStudio.metainfo.xml
-      # Install icons
-      - install -Dm644 open-pdf-studio/src-tauri/icons/icon-new.svg ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/org.openaec.OpenPdfStudio.svg
-      - install -Dm644 open-pdf-studio/src-tauri/icons/128x128.png ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/org.openaec.OpenPdfStudio.png
+      # Install icons: the same PNG set as the .deb and AppImage (#774). No
+      # scalable SVG: icon-new.svg is a different design and would win over the
+      # PNGs in the launcher.
       - install -Dm644 open-pdf-studio/src-tauri/icons/32x32.png ${FLATPAK_DEST}/share/icons/hicolor/32x32/apps/org.openaec.OpenPdfStudio.png
       - install -Dm644 open-pdf-studio/src-tauri/icons/64x64.png ${FLATPAK_DEST}/share/icons/hicolor/64x64/apps/org.openaec.OpenPdfStudio.png
+      - install -Dm644 open-pdf-studio/src-tauri/icons/128x128.png ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/org.openaec.OpenPdfStudio.png
+      - install -Dm644 open-pdf-studio/src-tauri/icons/256x256.png ${FLATPAK_DEST}/share/icons/hicolor/256x256/apps/org.openaec.OpenPdfStudio.png
+      - install -Dm644 open-pdf-studio/src-tauri/icons/512x512.png ${FLATPAK_DEST}/share/icons/hicolor/512x512/apps/org.openaec.OpenPdfStudio.png
     sources:
       - type: dir
         path: ..
