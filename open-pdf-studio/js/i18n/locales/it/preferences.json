@@ -167,6 +167,7 @@
     "confirmBeforeDeleting": "Conferma prima di eliminare le annotazioni",
     "navigation": "Navigazione",
     "wheelZoomWithoutCtrl": "Zoom con la rotellina del mouse (senza tenere premuto Ctrl)",
+    "middleDoubleClickFit": "Doppio clic con il tasto centrale del mouse per adattare la pagina",
     "dynamicScaling": "Scala automatica delle annotazioni"
   },
   "fileAssoc": {

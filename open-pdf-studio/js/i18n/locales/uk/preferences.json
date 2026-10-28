@@ -167,6 +167,7 @@
     "snapToPdfContent": "Прив'язка до вмісту креслення PDF",
     "navigation": "Навігація",
     "wheelZoomWithoutCtrl": "Масштабування коліщатком миші (без утримання Ctrl)",
+    "middleDoubleClickFit": "Подвійне клацання середньою кнопкою миші — вписати сторінку",
     "dynamicScaling": "Автомасштабування анотацій"
   },
   "fileAssoc": {

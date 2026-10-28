@@ -167,6 +167,7 @@
     "snapToPdfContent": "สแนปไปยังเนื้อหาแบบใน PDF",
     "navigation": "การนำทาง",
     "wheelZoomWithoutCtrl": "ซูมด้วยล้อเมาส์ (โดยไม่ต้องกด Ctrl)",
+    "middleDoubleClickFit": "ดับเบิลคลิกปุ่มกลางของเมาส์เพื่อปรับให้พอดีหน้า",
     "dynamicScaling": "ปรับขนาดมาร์กอัปอัตโนมัติ"
   },
   "fileAssoc": {

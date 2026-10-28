@@ -31,6 +31,7 @@ import { isTextAnchored } from '../annotations/corrections/model.js';
 import { stopAlleWielScrollers } from './wiel-scroll.js';
 import { werkelijkeGrootteZoom, kalibratieVoor } from './schermkalibratie.js';
 import { thinLinesKey, thinLinesOn } from './thin-lines.js';
+import { voerZoomAllesUit, centreerCorrectie } from './zoom-alles.js';
 // Hi-DPI support: render canvases at device pixel ratio for sharp text
 export function getCanvasDPR() { return window.devicePixelRatio || 1; }
 
@@ -2395,6 +2396,47 @@ export async function fitPage() {
   }
   const newZoom = m.computeFitZoom('page', fit.pageW, fit.pageH, fit.canvasW, fit.canvasH, 0);
   await _applyZoom(fit, newZoom);
+}
+
+// "Zoom alles" (issue #767, dubbelklik met de middelste muisknop): enkele
+// pagina = fitPage(); doorlopend = de pagina in het midden van het venster
+// passend maken en gecentreerd houden. Volgorde in zoom-alles.js.
+export async function zoomAlles() {
+  const doc = getActiveDocument();
+  if (!doc?.pdfDoc) return;
+  const container = document.getElementById('pdf-container');
+  const wrapperVan = (p) => document.querySelector(`#continuous-container .page-wrapper[data-page="${p}"]`);
+  await voerZoomAllesUit({
+    weergaveModus: () => doc.viewMode,
+    boekweergave: () => !!doc.facingSpread,
+    referentiePagina: () => {
+      const els = container ? [...document.querySelectorAll('#continuous-container .page-wrapper')] : [];
+      if (!els.length) return doc.currentPage || null;
+      const box = container.getBoundingClientRect();
+      const idx = pickAnchorPageIndex(els.map((el) => {
+        const r = el.getBoundingClientRect();
+        return { top: r.top, bottom: r.bottom, left: r.left, right: r.right };
+      }), box.top + box.height / 2, box.left + box.width / 2);
+      const p = idx >= 0 ? parseInt(els[idx].dataset.page, 10) : NaN;
+      return Number.isFinite(p) ? p : (doc.currentPage || null);
+    },
+    zetHuidigePagina: (p) => {
+      if (doc.currentPage === p) return;
+      doc.currentPage = p;
+      updateActiveThumbnail();
+      updateAllStatus();
+    },
+    passendOpPagina: () => fitPage(),
+    centreerPagina: (p) => {
+      const el = wrapperVan(p);
+      const pagina = el?.querySelector('.canvas-container-cont') || el;
+      if (!container || !pagina) return;
+      stopAlleWielScrollers();
+      const { dx, dy } = centreerCorrectie(pagina.getBoundingClientRect(), container.getBoundingClientRect());
+      container.scrollLeft += dx;
+      container.scrollTop += dy;
+    },
+  });
 }
 
 export async function actualSize() {

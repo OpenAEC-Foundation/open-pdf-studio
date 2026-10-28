@@ -167,6 +167,7 @@
     "confirmBeforeDeleting": "Potwierdzenie przed usunięciem adnotacji",
     "navigation": "Nawigacja",
     "wheelZoomWithoutCtrl": "Powiększaj kółkiem myszy (bez przytrzymywania Ctrl)",
+    "middleDoubleClickFit": "Dwukrotne kliknięcie środkowym przyciskiem myszy dopasowuje stronę",
     "dynamicScaling": "Automatyczne skalowanie adnotacji"
   },
   "fileAssoc": {

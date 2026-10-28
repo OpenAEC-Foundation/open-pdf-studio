@@ -167,6 +167,7 @@
     "snapToPdfContent": "Привязка к содержимому PDF-чертежа",
     "navigation": "Навигация",
     "wheelZoomWithoutCtrl": "Масштабирование колёсиком мыши (без удержания Ctrl)",
+    "middleDoubleClickFit": "Двойной щелчок средней кнопкой мыши — вписать страницу",
     "dynamicScaling": "Автомасштабирование пометок"
   },
   "fileAssoc": {

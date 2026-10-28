@@ -196,6 +196,7 @@
     "confirmBeforeDeleting": "Confirm before deleting annotations",
     "navigation": "Navigation",
     "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
+    "middleDoubleClickFit": "Double-click the middle mouse button to zoom to fit",
     "dynamicScaling": "Auto-scale markups"
   },
   "pageDisplay": {

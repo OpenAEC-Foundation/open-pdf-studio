@@ -167,6 +167,7 @@
     "snapToPdfContent": "Prichytiť k obsahu výkresu PDF",
     "navigation": "Navigácia",
     "wheelZoomWithoutCtrl": "Lupa kolieskom myši (bez držania Ctrl)",
+    "middleDoubleClickFit": "Dvojklik stredným tlačidlom myši prispôsobí stránku",
     "dynamicScaling": "Automaticky meniť mierku označení"
   },
   "fileAssoc": {

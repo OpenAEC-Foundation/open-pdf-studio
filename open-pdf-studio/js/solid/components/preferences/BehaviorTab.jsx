@@ -163,6 +163,12 @@ export default function BehaviorTab(props) {
             <span>{t('behavior.wheelZoomWithoutCtrl') || 'Zoomen met muiswiel (zonder Ctrl)'}</span>
           </label>
         </div>
+        <div class="pref-row pref-checkbox-row">
+          <label class="pref-checkbox-label">
+            <input type="checkbox" checked={p.middleDoubleClickFit[0]()} onChange={e => p.middleDoubleClickFit[1](e.target.checked)} />
+            <span>{t('behavior.middleDoubleClickFit')}</span>
+          </label>
+        </div>
       </fieldset>
     </>
   );

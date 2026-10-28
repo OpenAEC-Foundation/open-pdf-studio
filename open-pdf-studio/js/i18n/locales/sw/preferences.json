@@ -167,6 +167,7 @@
     "snapToPdfContent": "Pachika kwenye Maudhui ya Mchoro wa PDF",
     "navigation": "Urambazaji",
     "wheelZoomWithoutCtrl": "Kuza kwa gurudumu la kipanya (bila kushikilia Ctrl)",
+    "middleDoubleClickFit": "Bofya mara mbili kitufe cha kati cha kipanya ili kutoshea ukurasa",
     "dynamicScaling": "Badilisha ukubwa wa alama kiotomatiki"
   },
   "fileAssoc": {

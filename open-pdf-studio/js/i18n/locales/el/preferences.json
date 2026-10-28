@@ -167,6 +167,7 @@
     "snapToPdfContent": "Κούμπωμα στο περιεχόμενο σχεδίου PDF",
     "navigation": "Πλοήγηση",
     "wheelZoomWithoutCtrl": "Ζουμ με τον τροχό του ποντικιού (χωρίς να κρατάτε το Ctrl)",
+    "middleDoubleClickFit": "Διπλό κλικ με το μεσαίο κουμπί του ποντικιού για προσαρμογή σελίδας",
     "dynamicScaling": "Αυτόματη κλιμάκωση σημάνσεων"
   },
   "fileAssoc": {

@@ -11,6 +11,9 @@
 // laag-specifieke handler. De pan zelf hergebruikt de bestaande logica:
 // pan-handler.js (scrollende weergaven) en pdf-viewport.js (enkele pagina).
 // Het gedrag staat in maakMiddelmuisHandlers (middelmuis-pan-beleid.js).
+//
+// Dezelfde listeners herkennen ook de dubbelklik met de middelknop (issue
+// #767, middelmuis-dubbelklik.js): die maakt de huidige pagina passend.
 
 import { state, getActiveDocument } from '../core/state.js';
 import { startPan, startContinuousPan } from './pan-handler.js';
@@ -19,6 +22,7 @@ import { finishTextEditing } from './text-editing.js';
 import { rondActievePdfTekstBewerkingAf } from './text-edit-tool.js';
 import { hideMenu } from '../bridge.js';
 import { maakMiddelmuisHandlers } from './middelmuis-pan-beleid.js';
+import { maakMiddelmuisDubbelklik } from './middelmuis-dubbelklik.js';
 
 let _geinstalleerd = false;
 
@@ -39,8 +43,20 @@ export function installeerMiddelmuisPan() {
       else startPan(e, true);
     },
     startViewportPan: (e) => startViewportMiddelmuisPan(e),
+    dubbelklik: maakMiddelmuisDubbelklik(),
+    dubbelklikAan: () => state.preferences?.middleDoubleClickFit !== false,
+    // Dynamisch: renderer.js trekt de hele render-keten mee.
+    zoomAlles: () => {
+      import('../pdf/renderer.js')
+        .then((m) => m.zoomAlles())
+        .catch((err) => console.warn('[middelmuis] zoom alles mislukt:', err));
+    },
   });
   window.addEventListener('pointerdown', h.onPointerDown, { capture: true });
   window.addEventListener('mousedown', h.onMouseDown, { capture: true });
   window.addEventListener('auxclick', h.onAuxClick, { capture: true });
+  window.addEventListener('pointermove', h.onPointerMove, { capture: true, passive: true });
+  window.addEventListener('pointerup', h.onPointerUp, { capture: true });
+  window.addEventListener('pointercancel', h.onPointerCancel, { capture: true });
+  window.addEventListener('blur', h.onPointerCancel);
 }

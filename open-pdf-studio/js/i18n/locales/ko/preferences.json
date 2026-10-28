@@ -167,6 +167,7 @@
     "confirmBeforeDeleting": "주석 삭제 전 확인",
     "navigation": "탐색",
     "wheelZoomWithoutCtrl": "마우스 휠로 확대/축소(Ctrl 키 없이)",
+    "middleDoubleClickFit": "마우스 가운데 버튼을 두 번 클릭하여 페이지 맞춤",
     "dynamicScaling": "마크업 자동 크기 조정"
   },
   "fileAssoc": {

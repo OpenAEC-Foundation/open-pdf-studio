@@ -167,6 +167,7 @@
     "snapToPdfContent": "Bekötés a PDF-rajz tartalmához",
     "navigation": "Navigáció",
     "wheelZoomWithoutCtrl": "Nagyítás egérgörgővel (Ctrl lenyomása nélkül)",
+    "middleDoubleClickFit": "Dupla kattintás a középső egérgombbal az oldal illesztéséhez",
     "dynamicScaling": "Jelölések automatikus méretezése"
   },
   "fileAssoc": {

@@ -167,6 +167,7 @@
     "snapToPdfContent": "PDF ड्रॉइंग सामग्री पर स्नैप करें",
     "navigation": "नेविगेशन",
     "wheelZoomWithoutCtrl": "माउस व्हील से ज़ूम करें (Ctrl दबाए बिना)",
+    "middleDoubleClickFit": "पृष्ठ फ़िट करने के लिए माउस के बीच वाले बटन से डबल-क्लिक करें",
     "dynamicScaling": "मार्कअप स्वतः स्केल करें"
   },
   "fileAssoc": {

@@ -167,6 +167,7 @@
     "confirmBeforeDeleting": "التأكيد قبل حذف التعليقات",
     "navigation": "التنقل",
     "wheelZoomWithoutCtrl": "التكبير بعجلة الماوس (دون الضغط على Ctrl)",
+    "middleDoubleClickFit": "النقر المزدوج بزر الماوس الأوسط لملاءمة الصفحة",
     "dynamicScaling": "تغيير مقياس العلامات تلقائيًا"
   },
   "fileAssoc": {

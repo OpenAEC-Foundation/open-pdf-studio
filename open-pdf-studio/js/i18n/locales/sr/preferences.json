@@ -167,6 +167,7 @@
     "snapToPdfContent": "Привлачење на садржај PDF цртежа",
     "navigation": "Навигација",
     "wheelZoomWithoutCtrl": "Зумирање точкићем миша (без држања тастера Ctrl)",
+    "middleDoubleClickFit": "Двоструки клик средњим тастером миша уклапа страницу",
     "dynamicScaling": "Аутоматски скалирај ознаке"
   },
   "fileAssoc": {

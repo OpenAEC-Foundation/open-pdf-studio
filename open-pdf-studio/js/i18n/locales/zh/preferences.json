@@ -167,6 +167,7 @@
     "confirmBeforeDeleting": "删除批注前确认",
     "navigation": "导航",
     "wheelZoomWithoutCtrl": "使用鼠标滚轮缩放（无需按住 Ctrl）",
+    "middleDoubleClickFit": "双击鼠标中键以适合页面",
     "dynamicScaling": "自动缩放标记"
   },
   "fileAssoc": {

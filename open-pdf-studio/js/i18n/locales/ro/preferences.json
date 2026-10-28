@@ -167,6 +167,7 @@
     "snapToPdfContent": "Fixare la conținutul desenului PDF",
     "navigation": "Navigare",
     "wheelZoomWithoutCtrl": "Zoom cu rotița mouse-ului (fără a ține apăsat Ctrl)",
+    "middleDoubleClickFit": "Dublu clic cu butonul din mijloc al mouse-ului pentru încadrarea paginii",
     "dynamicScaling": "Scalare automată a marcajelor"
   },
   "fileAssoc": {
