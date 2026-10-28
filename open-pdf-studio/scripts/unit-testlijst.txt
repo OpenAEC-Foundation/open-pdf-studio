@@ -517,3 +517,7 @@ js/pdf/saver/text-edit-unicode.test.mjs
 js/text/tekstlaag-bron.test.mjs
 js/pdf/saver/text-edit-glyfen.test.mjs
 js/text/tekenafstand.test.mjs
+js/pdf/saver/opslag-annuleren.test.mjs
+js/pdf/opslaan-annuleren.test.mjs
+js/pdf/opslaan-annuleren-i18n.test.mjs
+js/ui/chrome/laad-annuleren.test.mjs

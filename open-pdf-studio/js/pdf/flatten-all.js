@@ -162,9 +162,17 @@ export async function flattenAllMarkups({ herstelbaar = true, vragen = true, doc
   }
   if (!state.documents.includes(doc)) return { ok: false, reden: 'geen-document' };
 
-  showLoading(t('flattenAll.busy'));
+  // Annuleren (#766): tot het herladen hieronder blijft het document zoals het
+  // was; daarna is het niet meer te annuleren.
+  const { maakOpslagAnnulering, isOpslagGeannuleerd } = await import('./saver/opslag-annuleren.js');
+  const annulering = maakOpslagAnnulering();
+  const toonVoortgang = () => showLoading(t('flattenAll.busy'), {
+    annuleren: () => annulering.annuleer(), annulerenUit: !annulering.kanAnnuleren,
+  });
+  const stopVoortgang = annulering.opWijziging(toonVoortgang);
+  toonVoortgang();
   try {
-    const oudeBytes = await huidigeBytes(doc);
+    const oudeBytes = await annulering.wacht(huidigeBytes(doc));
     if (!oudeBytes) throw new Error('no document bytes');
     const oudeAnnotaties = doc.annotations.map((a) => ({ ...a }));
     const oudeRotaties = { ...(doc.pageRotations || {}) };
@@ -172,7 +180,8 @@ export async function flattenAllMarkups({ herstelbaar = true, vragen = true, doc
 
     const { bouwAnnotatieDocument } = await import('./saver.js');
     const { vlakDocument, ruimOnbereikbaarOp } = await import('./flatten-bytes.js');
-    const { pdfDocLib, eersteNieuwObject } = await bouwAnnotatieDocument(doc);
+    const { pdfDocLib, eersteNieuwObject } = await bouwAnnotatieDocument(doc, { annulering });
+    await annulering.punt();
     // Alleen wat deze bouw uit het model schreef (objectnummer boven
     // eersteNieuwObject): annotaties die de app niet beheert blijven staan,
     // en een schaalgebied blijft meethulp (#611).
@@ -189,10 +198,13 @@ export async function flattenAllMarkups({ herstelbaar = true, vragen = true, doc
       return { ok: false, reden: 'niets-gebakken', ...uitkomst };
     }
     // De vervangen annotaties en hun appearances niet als ballast meenemen.
-    await pdfDocLib.flush();
+    await annulering.wacht(pdfDocLib.flush());
+    await annulering.punt();
     ruimOnbereikbaarOp(pdfDocLib);
-    const nieuweBytes = new Uint8Array(await pdfDocLib.save());
+    const nieuweBytes = new Uint8Array(await annulering.wacht(pdfDocLib.save()));
     if (!state.documents.includes(doc)) return { ok: false, reden: 'geen-document' };
+    // Punt zonder terugkeer: het model gaat nu over op de gevlakte bytes.
+    annulering.vastleggen();
 
     // Wat gebakken is, staat nu in de pagina-inhoud; een markering zonder
     // uiterlijk (een notitie) blijft markering. Een vastgezet knipsel stond
@@ -210,10 +222,15 @@ export async function flattenAllMarkups({ herstelbaar = true, vragen = true, doc
     meld(tekst);
     return { ok: true, herstelbaar, ...uitkomst };
   } catch (e) {
+    if (isOpslagGeannuleerd(e)) {
+      meld(t('flattenAll.cancelled'));
+      return { ok: false, reden: 'geannuleerd' };
+    }
     console.error('[flatten-all] flattening failed:', e);
     showMessage(t('flattenAll.failed', { error: e?.message || String(e) }));
     return { ok: false, reden: 'fout', fout: e?.message || String(e) };
   } finally {
+    stopVoortgang();
     hideLoading();
   }
 }

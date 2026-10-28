@@ -36,7 +36,7 @@ import { OntbrekendeGlyfenFout, isOntbrekendeGlyfenFout } from '../../text/glyf-
 // OntbrekendeGlyfenFout, voordat er iets in het bestand komt. Eerder werden
 // ze stil een '?'.
 export async function saveTextEditsToPages(pdfDocLib, pages, doc = getActiveDocument(),
-  { kiesUnicodeFont = embedMcpTextFont, fontKeten = gebundeldeFontKeten } = {}) {
+  { kiesUnicodeFont = embedMcpTextFont, fontKeten = gebundeldeFontKeten, annulering = null } = {}) {
   if (!doc || !doc.textEdits || doc.textEdits.length === 0) return;
 
   const fontCache = {};
@@ -75,6 +75,9 @@ export async function saveTextEditsToPages(pdfDocLib, pages, doc = getActiveDocu
   }
 
   for (const edit of pending) {
+    // Veilig punt per bewerking: een geannuleerde save stopt hier (#766). De
+    // fout gaat bewust buiten de try hieronder om.
+    if (annulering) await annulering.punt();
     // Eén corrupte/onencodeerbare edit mag NOOIT de hele save laten falen:
     // alle andere wijzigingen (annotaties, andere edits) moeten doorgaan.
     try {

@@ -678,6 +678,7 @@
     "saveNote": "Notatki i inne adnotacje bez wyglądu na stronie pozostają adnotacjami. Plik zmienia się dopiero po zapisaniu; do tego czasu Cofnij odwraca ten krok.",
     "ok": "Spłaszcz",
     "busy": "Spłaszczanie adnotacji...",
+    "cancelled": "Spłaszczanie anulowane. Dokument nie został zmieniony.",
     "nothing": "Ten dokument nie zawiera adnotacji do spłaszczenia.",
     "nothingBaked": "Żadna z adnotacji nie ma wyglądu na stronie, więc nic nie zostało spłaszczone.",
     "notLoaded": "Adnotacje tego dokumentu wciąż się wczytują. Spróbuj ponownie za chwilę.",

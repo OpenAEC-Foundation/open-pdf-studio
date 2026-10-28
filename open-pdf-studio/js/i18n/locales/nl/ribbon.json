@@ -678,6 +678,7 @@
     "saveNote": "Notities en andere markeringen zonder uiterlijk op de pagina blijven markering. Het bestand verandert pas bij opslaan; tot dan maakt Ongedaan maken deze stap ongedaan.",
     "ok": "Afvlakken",
     "busy": "Markeringen afvlakken...",
+    "cancelled": "Vlakken geannuleerd. Het document is niet gewijzigd.",
     "nothing": "Dit document heeft geen markeringen om af te vlakken.",
     "nothingBaked": "Geen van de markeringen heeft een uiterlijk op de pagina; er is niets afgevlakt.",
     "notLoaded": "De markeringen van dit document worden nog geladen. Probeer het zo opnieuw.",

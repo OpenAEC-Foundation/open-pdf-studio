@@ -678,6 +678,7 @@
     "saveNote": "Catatan dan markup lain tanpa tampilan di halaman tetap menjadi markup. File baru berubah saat Anda menyimpan; sampai saat itu Urungkan membatalkan langkah ini.",
     "ok": "Ratakan",
     "busy": "Meratakan markup...",
+    "cancelled": "Perataan dibatalkan. Dokumen tidak diubah.",
     "nothing": "Dokumen ini tidak memiliki markup untuk diratakan.",
     "nothingBaked": "Tidak ada markup yang memiliki tampilan di halaman, jadi tidak ada yang diratakan.",
     "notLoaded": "Markup dokumen ini masih dimuat. Coba lagi sebentar lagi.",

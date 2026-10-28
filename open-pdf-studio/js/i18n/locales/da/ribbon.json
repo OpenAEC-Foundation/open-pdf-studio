@@ -678,6 +678,7 @@
     "saveNote": "Noter og andre markeringer uden udseende på siden forbliver markeringer. Filen ændres først, når du gemmer; indtil da fortryder Fortryd dette trin.",
     "ok": "Fladgør",
     "busy": "Fladgør markeringer...",
+    "cancelled": "Udfladning annulleret. Dokumentet blev ikke ændret.",
     "nothing": "Dette dokument har ingen markeringer at fladgøre.",
     "nothingBaked": "Ingen af markeringerne har et udseende på siden, så intet blev fladgjort.",
     "notLoaded": "Dette dokuments markeringer indlæses stadig. Prøv igen om et øjeblik.",

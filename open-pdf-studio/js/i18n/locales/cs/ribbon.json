@@ -678,6 +678,7 @@
     "saveNote": "Poznámky a další značky bez vzhledu na stránce zůstanou značkami. Soubor se změní až při uložení; do té doby tento krok vrátí Zpět.",
     "ok": "Sloučit",
     "busy": "Slučování značek...",
+    "cancelled": "Sloučení zrušeno. Dokument nebyl změněn.",
     "nothing": "Tento dokument nemá žádné značky ke sloučení.",
     "nothingBaked": "Žádná ze značek nemá vzhled na stránce, nic tedy nebylo sloučeno.",
     "notLoaded": "Značky tohoto dokumentu se stále načítají. Zkuste to za chvíli znovu.",

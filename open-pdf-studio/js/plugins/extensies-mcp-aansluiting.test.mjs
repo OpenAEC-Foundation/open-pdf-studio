@@ -170,7 +170,7 @@ test('plug-in-API, saver en native commando\'s zijn aangesloten', () => {
   const savePdf = saver.slice(saver.indexOf('export async function savePDF('), saver.indexOf('async function _savePDFNu('));
   // Opslaan en een wissel sluiten elkaar uit; het slot komt na de handtekeningvraag.
   assert.match(saver, /^import \{ metOpslagSlot \} from '\.\.\/plugins\/opslag-wissel-slot\.js';$/m);
-  assert.match(savePdf, /_saveBezig = metOpslagSlot\(\(\) => _savePDFNu\(saveAsPath, activeDoc\)\)\.finally\(/);
+  assert.match(savePdf, /_saveBezig = metOpslagSlot\(\(\) => _savePDFNu\(saveAsPath, activeDoc, \{ annulering: opties\.annulering \}\)\)\.finally\(/);
   assert.ok(savePdf.indexOf('bevestigOpslaanMetHandtekeningen') < savePdf.indexOf('metOpslagSlot('), 'na de handtekeningvraag');
   assert.doesNotMatch(saver, /wachtOpExtensieWissel/);
   const lib = lees('../../src-tauri/src/lib.rs');

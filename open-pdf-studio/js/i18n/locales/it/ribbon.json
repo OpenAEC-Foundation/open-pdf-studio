@@ -678,6 +678,7 @@
     "saveNote": "Le note e le altre annotazioni senza aspetto sulla pagina restano annotazioni. Il file cambia solo al salvataggio; fino ad allora Annulla revoca questo passaggio.",
     "ok": "Appiattisci",
     "busy": "Appiattimento delle annotazioni...",
+    "cancelled": "Appiattimento annullato. Il documento non è stato modificato.",
     "nothing": "Questo documento non contiene annotazioni da appiattire.",
     "nothingBaked": "Nessuna annotazione ha un aspetto sulla pagina, quindi non è stato appiattito nulla.",
     "notLoaded": "Le annotazioni di questo documento sono ancora in caricamento. Riprova tra un momento.",

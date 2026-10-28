@@ -2,7 +2,7 @@
 use std::fs::{self, File, OpenOptions};
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 
 static NEXT_TEMP: AtomicU64 = AtomicU64::new(0);
 
@@ -14,7 +14,31 @@ impl Drop for StagedFile {
 }
 
 pub fn write(path: &Path, bytes: &[u8]) -> io::Result<()> {
-    write_with(path, |file| file.write_all(bytes))
+    write_with(path, |file| file.write_all(bytes), || Ok(()))
+}
+
+/// The error text of a write that was cancelled before the replacement.
+pub const CANCELLED: &str = "opds-write-cancelled";
+const CHUNK: usize = 4 << 20;
+
+fn cancelled_error() -> io::Error {
+    io::Error::new(io::ErrorKind::Interrupted, CANCELLED)
+}
+
+/// Like `write`, but stops as soon as `cancelled` is set: between chunks and
+/// once more right before the staged file replaces the destination. A
+/// cancelled write leaves the destination untouched and removes the staged
+/// file. A cancel that arrives after the replacement changes nothing.
+pub fn write_cancellable(path: &Path, bytes: &[u8], cancelled: &AtomicBool) -> io::Result<()> {
+    let check = || if cancelled.load(Ordering::SeqCst) { Err(cancelled_error()) } else { Ok(()) };
+    check()?;
+    write_with(path, |file| {
+        for chunk in bytes.chunks(CHUNK) {
+            check()?;
+            file.write_all(chunk)?;
+        }
+        Ok(())
+    }, check)
 }
 
 /// Publish a complete new file without ever replacing an existing destination.
@@ -42,7 +66,11 @@ pub fn write_new(path: &Path, bytes: &[u8]) -> io::Result<()> {
     fs::hard_link(&staged.0, path)
 }
 
-fn write_with(path: &Path, write_bytes: impl FnOnce(&mut File) -> io::Result<()>) -> io::Result<()> {
+fn write_with(
+    path: &Path,
+    write_bytes: impl FnOnce(&mut File) -> io::Result<()>,
+    before_replace: impl FnOnce() -> io::Result<()>,
+) -> io::Result<()> {
     // Follow existing symlinks, like an ordinary write, instead of replacing the link.
     let target = match fs::canonicalize(path) {
         Ok(target) => target,
@@ -89,6 +117,8 @@ fn write_with(path: &Path, write_bytes: impl FnOnce(&mut File) -> io::Result<()>
     })();
     drop(file);
     result?;
+    // The last point where a cancel still keeps the destination as it was.
+    before_replace()?;
     replace(&staged.0, &target)
 }
 
@@ -158,7 +188,7 @@ mod tests {
         let result = write_with(&path, |file| {
             file.write_all(b"partial")?;
             Err(io::Error::new(io::ErrorKind::Other, "simulated full disk"))
-        });
+        }, || Ok(()));
         assert!(result.is_err());
         assert_eq!(fs::read(&path).unwrap(), b"original");
         assert_eq!(fs::read_dir(&dir.0).unwrap().count(), 1);
@@ -172,9 +202,50 @@ mod tests {
             file.write_all(b"replacement")?;
             fs::create_dir(&path)?;
             fs::write(path.join("keep"), b"untouched")
-        });
+        }, || Ok(()));
         assert!(result.is_err());
         assert_eq!(fs::read(path.join("keep")).unwrap(), b"untouched");
+        assert_eq!(fs::read_dir(&dir.0).unwrap().count(), 1);
+    }
+
+    #[test]
+    fn cancel_before_the_write_keeps_original_and_leaves_no_temp() {
+        let dir = TestDir::new();
+        let path = dir.0.join("document.pdf");
+        fs::write(&path, b"original").unwrap();
+        let cancelled = AtomicBool::new(true);
+        let err = write_cancellable(&path, b"replacement", &cancelled).unwrap_err();
+        assert!(err.to_string().contains(CANCELLED));
+        assert_eq!(fs::read(&path).unwrap(), b"original");
+        assert_eq!(fs::read_dir(&dir.0).unwrap().count(), 1);
+    }
+
+    #[test]
+    fn cancel_after_staging_keeps_original_and_removes_temp() {
+        let dir = TestDir::new();
+        let path = dir.0.join("document.pdf");
+        fs::write(&path, b"original").unwrap();
+        let cancelled = AtomicBool::new(false);
+        // Cancelled while the bytes were being staged: the staged file exists
+        // when the cancel is seen, and must be gone afterwards.
+        let err = write_with(&path, |file| {
+            file.write_all(b"replacement")?;
+            cancelled.store(true, Ordering::SeqCst);
+            Ok(())
+        }, || if cancelled.load(Ordering::SeqCst) { Err(cancelled_error()) } else { Ok(()) }).unwrap_err();
+        assert!(err.to_string().contains(CANCELLED));
+        assert_eq!(fs::read(&path).unwrap(), b"original");
+        assert_eq!(fs::read_dir(&dir.0).unwrap().count(), 1);
+    }
+
+    #[test]
+    fn cancellable_write_without_cancel_replaces_the_file() {
+        let dir = TestDir::new();
+        let path = dir.0.join("document.pdf");
+        fs::write(&path, b"original").unwrap();
+        let big = vec![7u8; CHUNK * 2 + 3];
+        write_cancellable(&path, &big, &AtomicBool::new(false)).unwrap();
+        assert_eq!(fs::read(&path).unwrap(), big);
         assert_eq!(fs::read_dir(&dir.0).unwrap().count(), 1);
     }
 

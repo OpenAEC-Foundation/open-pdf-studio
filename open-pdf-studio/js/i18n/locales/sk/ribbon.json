@@ -678,6 +678,7 @@
     "saveNote": "Poznámky a ďalšie označenia bez vzhľadu na strane zostanú označeniami. Súbor sa zmení až pri uložení; dovtedy tento krok vráti Späť.",
     "ok": "Sploštiť",
     "busy": "Sploštenie označení...",
+    "cancelled": "Zlúčenie zrušené. Dokument sa nezmenil.",
     "nothing": "Tento dokument nemá žiadne označenia na sploštenie.",
     "nothingBaked": "Žiadne z označení nemá vzhľad na strane, nič sa teda nesploštilo.",
     "notLoaded": "Označenia tohto dokumentu sa ešte načítavajú. Skúste to o chvíľu znova.",

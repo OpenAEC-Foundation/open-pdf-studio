@@ -678,6 +678,7 @@
     "saveNote": "Las notas y otras marcas sin apariencia en la página siguen siendo marcas. El archivo solo cambia al guardar; hasta entonces, Deshacer revierte este paso.",
     "ok": "Aplanar",
     "busy": "Aplanando marcas...",
+    "cancelled": "Acoplamiento cancelado. El documento no se ha modificado.",
     "nothing": "Este documento no tiene marcas que aplanar.",
     "nothingBaked": "Ninguna de las marcas tiene apariencia en la página, así que no se aplanó nada.",
     "notLoaded": "Las marcas de este documento aún se están cargando. Inténtelo de nuevo en un momento.",

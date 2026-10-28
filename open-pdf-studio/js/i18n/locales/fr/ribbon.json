@@ -678,6 +678,7 @@
     "saveNote": "Les notes et autres annotations sans apparence sur la page restent des annotations. Le fichier ne change qu'à l'enregistrement ; d'ici là, Annuler annule cette étape.",
     "ok": "Aplatir",
     "busy": "Aplatissement des annotations...",
+    "cancelled": "Aplatissement annulé. Le document n’a pas été modifié.",
     "nothing": "Ce document ne contient aucune annotation à aplatir.",
     "nothingBaked": "Aucune annotation n'a d'apparence sur la page ; rien n'a été aplati.",
     "notLoaded": "Les annotations de ce document sont encore en cours de chargement. Réessayez dans un instant.",

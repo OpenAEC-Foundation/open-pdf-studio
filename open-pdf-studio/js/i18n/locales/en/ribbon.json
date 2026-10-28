@@ -676,6 +676,7 @@
     "saveNote": "Notes and other markups without a page appearance stay markups. The file only changes when you save; until then Undo reverts this step.",
     "ok": "Flatten",
     "busy": "Flattening markups...",
+    "cancelled": "Flattening cancelled. The document was not changed.",
     "nothing": "This document has no markups to flatten.",
     "nothingBaked": "None of the markups has a page appearance, so nothing was flattened.",
     "notLoaded": "The markups of this document are still loading. Try again in a moment.",

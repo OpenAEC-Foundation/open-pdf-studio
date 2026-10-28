@@ -678,6 +678,7 @@
     "saveNote": "Anteckningar och andra markeringar utan utseende på sidan förblir markeringar. Filen ändras först när du sparar; fram till dess ångrar Ångra det här steget.",
     "ok": "Platta till",
     "busy": "Plattar till markeringar...",
+    "cancelled": "Utplattningen avbröts. Dokumentet ändrades inte.",
     "nothing": "Det här dokumentet har inga markeringar att platta till.",
     "nothingBaked": "Ingen av markeringarna har ett utseende på sidan, så inget plattades till.",
     "notLoaded": "Dokumentets markeringar läses fortfarande in. Försök igen om en stund.",

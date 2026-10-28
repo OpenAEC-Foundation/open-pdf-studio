@@ -678,6 +678,7 @@
     "saveNote": "Huomautukset ja muut merkinnät, joilla ei ole ulkoasua sivulla, pysyvät merkintöinä. Tiedosto muuttuu vasta tallennettaessa; siihen asti Kumoa peruu tämän vaiheen.",
     "ok": "Litistä",
     "busy": "Litistetään merkintöjä...",
+    "cancelled": "Litistäminen peruutettiin. Asiakirjaa ei muutettu.",
     "nothing": "Tässä asiakirjassa ei ole litistettäviä merkintöjä.",
     "nothingBaked": "Millään merkinnällä ei ole ulkoasua sivulla, joten mitään ei litistetty.",
     "notLoaded": "Asiakirjan merkintöjä ladataan vielä. Yritä hetken kuluttua uudelleen.",

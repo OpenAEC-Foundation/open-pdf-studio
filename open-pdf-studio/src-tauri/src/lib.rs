@@ -260,11 +260,40 @@ fn write_file(path: String, data: String) -> Result<bool, String> {
     Ok(true)
 }
 
+// Writes that can still be cancelled (#766), by the id from the
+// x-opds-cancel-id header. A cancel for an id that has not started yet is kept,
+// so the write stops before it begins.
+type SchrijfAnnuleringen = std::sync::Mutex<std::collections::HashMap<String, std::sync::Arc<std::sync::atomic::AtomicBool>>>;
+static SCHRIJF_ANNULERINGEN: std::sync::OnceLock<SchrijfAnnuleringen> = std::sync::OnceLock::new();
+
+fn schrijf_annuleringen() -> std::sync::MutexGuard<'static, std::collections::HashMap<String, std::sync::Arc<std::sync::atomic::AtomicBool>>> {
+    SCHRIJF_ANNULERINGEN.get_or_init(Default::default).lock().unwrap_or_else(|e| e.into_inner())
+}
+
+fn schrijf_annulering(id: &str) -> std::sync::Arc<std::sync::atomic::AtomicBool> {
+    schrijf_annuleringen().entry(id.to_string()).or_default().clone()
+}
+
+/// Cancel a running `write_file_atomic` before it replaces its destination.
+#[tauri::command]
+fn cancel_file_write(id: String) {
+    if id.is_empty() || id.len() > 64 { return; }
+    let mut lijst = schrijf_annuleringen();
+    // A cancel that arrived just after its write finished leaves an entry
+    // nobody uses; keep the list small.
+    if lijst.len() > 64 {
+        lijst.retain(|_, vlag| std::sync::Arc::strong_count(vlag) > 1);
+    }
+    lijst.entry(id).or_default().store(true, std::sync::atomic::Ordering::SeqCst);
+}
+
 #[tauri::command]
 async fn write_file_atomic(request: tauri::ipc::Request<'_>) -> Result<(), String> {
     let header = request.headers().get("x-opds-path")
         .ok_or("Missing destination path")?.to_str().map_err(|e| e.to_string())?;
     let path = urlencoding::decode(header).map_err(|e| e.to_string())?.into_owned();
+    let cancel_id = request.headers().get("x-opds-cancel-id")
+        .and_then(|v| v.to_str().ok()).filter(|v| !v.is_empty() && v.len() <= 64).map(str::to_string);
     let bytes = match request.body() {
         tauri::ipc::InvokeBody::Raw(bytes) => bytes.clone(),
         // Android cannot transport a raw IPC body.
@@ -273,9 +302,17 @@ async fn write_file_atomic(request: tauri::ipc::Request<'_>) -> Result<(), Strin
                 .map_err(|e| e.to_string())?
         }
     };
-    tauri::async_runtime::spawn_blocking(move || {
-        atomic_file::write(std::path::Path::new(&path), &bytes).map_err(|e| e.to_string())
-    }).await.map_err(|e| e.to_string())?
+    let Some(id) = cancel_id else {
+        return tauri::async_runtime::spawn_blocking(move || {
+            atomic_file::write(std::path::Path::new(&path), &bytes).map_err(|e| e.to_string())
+        }).await.map_err(|e| e.to_string())?;
+    };
+    let cancelled = schrijf_annulering(&id);
+    let result = tauri::async_runtime::spawn_blocking(move || {
+        atomic_file::write_cancellable(std::path::Path::new(&path), &bytes, &cancelled).map_err(|e| e.to_string())
+    }).await.map_err(|e| e.to_string());
+    schrijf_annuleringen().remove(&id);
+    result?
 }
 
 #[tauri::command]
@@ -3095,6 +3132,7 @@ pub fn run(opts: StartupOpts) {
             read_file,
             write_file,
             write_file_atomic,
+            cancel_file_write,
             write_file_new,
             write_downloaded_file_new,
             file_exists,

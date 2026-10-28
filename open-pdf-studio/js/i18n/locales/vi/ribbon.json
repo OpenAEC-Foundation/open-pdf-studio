@@ -678,6 +678,7 @@
     "saveNote": "Ghi chú và các đánh dấu khác không có hình thức trên trang vẫn là đánh dấu. Tệp chỉ thay đổi khi bạn lưu; trước đó, Hoàn tác sẽ đảo ngược bước này.",
     "ok": "Làm phẳng",
     "busy": "Đang làm phẳng đánh dấu...",
+    "cancelled": "Đã hủy làm phẳng. Tài liệu không bị thay đổi.",
     "nothing": "Tài liệu này không có đánh dấu để làm phẳng.",
     "nothingBaked": "Không đánh dấu nào có hình thức trên trang, nên không có gì được làm phẳng.",
     "notLoaded": "Các đánh dấu của tài liệu này vẫn đang tải. Hãy thử lại sau giây lát.",

@@ -678,6 +678,7 @@
     "saveNote": "Les notes i altres marques sense aparença a la pàgina continuen sent marques. El fitxer només canvia en desar; fins aleshores, Desfés reverteix aquest pas.",
     "ok": "Aplana",
     "busy": "S'estan aplanant les marques...",
+    "cancelled": "Aplanament cancel·lat. El document no s’ha modificat.",
     "nothing": "Aquest document no té marques per aplanar.",
     "nothingBaked": "Cap de les marques té aparença a la pàgina, així que no s'ha aplanat res.",
     "notLoaded": "Les marques d'aquest document encara s'estan carregant. Torneu-ho a provar d'aquí a un moment.",
