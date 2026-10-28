@@ -211,8 +211,10 @@ test('the bundle lists a complete square RGBA icon set for Linux (#774)', async 
 });
 
 test('desktop entries use the installed icon name and the window class (#774)', async () => {
+  // Windows checkouts use CRLF; the checks below work per line.
+  const leesLf = async (url) => (await readFile(url, 'utf8')).replace(/\r\n/g, '\n');
   const base = await readJson('src-tauri/tauri.conf.json');
-  const cargo = await readFile(new URL('src-tauri/Cargo.toml', appRoot), 'utf8');
+  const cargo = await leesLf(new URL('src-tauri/Cargo.toml', appRoot));
   const binary = base.mainBinaryName ?? cargo.match(/^name\s*=\s*"([^"]+)"/m)[1];
   assert.equal(binary, 'open-pdf-studio');
   // Without enableGTKAppId GTK takes the binary name as WM_CLASS and Wayland
@@ -222,16 +224,16 @@ test('desktop entries use the installed icon name and the window class (#774)', 
 
   const flatpakId = 'org.openaec.OpenPdfStudio';
   assert.equal(flatpakId.toLowerCase(), base.identifier.toLowerCase());
-  const manifest = await readFile(new URL(`flatpak/${flatpakId}.yml`, repoRoot), 'utf8');
+  const manifest = await leesLf(new URL(`flatpak/${flatpakId}.yml`, repoRoot));
   assert.match(manifest, new RegExp(`^app-id: ${flatpakId.replace(/\./g, '\\.')}$`, 'm'));
   const flatpak = desktopEntry(
-    await readFile(new URL(`flatpak/${flatpakId}.desktop`, repoRoot), 'utf8'),
+    await leesLf(new URL(`flatpak/${flatpakId}.desktop`, repoRoot)),
   );
   assert.equal(flatpak.Icon, flatpakId);
   assert.equal(flatpak.StartupWMClass, binary);
   assert.doesNotMatch(manifest, /install [^\n]*\.svg/, 'no scalable icon of another design');
 
-  const flake = await readFile(new URL('flake.nix', repoRoot), 'utf8');
+  const flake = await leesLf(new URL('flake.nix', repoRoot));
   assert.doesNotMatch(flake, /install [^\n]*\.svg/, 'no scalable icon of another design');
   for (const size of ['32x32', '64x64', '128x128', '256x256', '512x512']) {
     const target = `hicolor/${size}/apps/${flatpakId}.png`;
@@ -243,12 +245,12 @@ test('desktop entries use the installed icon name and the window class (#774)', 
     assert.ok(flake.includes(`/share/icons/${target}`), `flake installs ${target}`);
   }
 
-  const snapcraft = await readFile(new URL('snap/snapcraft.yaml', repoRoot), 'utf8');
+  const snapcraft = await leesLf(new URL('snap/snapcraft.yaml', repoRoot));
   const snapDesktop = snapcraft.match(/cat > [^\n]*open-pdf-studio\.desktop << 'EOF'\n([\s\S]*?)\n\s*EOF/);
   assert.ok(snapDesktop, 'snapcraft.yaml writes the desktop entry');
   const snapEntries = [
     desktopEntry(snapDesktop[1]),
-    desktopEntry(await readFile(new URL('snap/gui/open-pdf-studio.desktop', repoRoot), 'utf8')),
+    desktopEntry(await leesLf(new URL('snap/gui/open-pdf-studio.desktop', repoRoot))),
   ];
   for (const entry of snapEntries) {
     // The .deb inside the snap puts its icons at hicolor/<size>/apps/<binary>.png;
