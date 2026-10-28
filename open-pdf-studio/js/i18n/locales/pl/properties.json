@@ -807,6 +807,24 @@
     "rules": "Przypisanie opiera się na środku prostokąta ograniczającego znacznik, łącznie z krawędziami. Wygrywa najgłębiej zagnieżdżona strefa, potem najmniejsza powierzchnia, potem identyfikator strefy. Używaj wielokątów o prostych bokach bez otworów lub prostokątów bez obrotu. Nieprawidłowe lub zduplikowane identyfikatory stref są pomijane.",
     "loading": "Trwa wczytywanie adnotacji: lokalizacje mogą się jeszcze zmienić."
   },
+  "dynamicStamp": {
+    "title": "Pola pieczątki",
+    "template": "Szablon",
+    "refresh": "Aktualizuj datę, użytkownika i stronę",
+    "lock": "Zablokuj pieczątkę",
+    "lockConfirm": "Zablokować tę pieczątkę? Jej pól nie będzie już można zmienić.",
+    "locked": "Ta pieczątka jest zablokowana: jej pól nie można już zmienić.",
+    "field": {
+      "date": "Data",
+      "time": "Godzina",
+      "datetime": "Data i godzina",
+      "user": "Użytkownik",
+      "page": "Strona",
+      "pages": "Liczba stron",
+      "filename": "Nazwa pliku",
+      "title": "Tytuł dokumentu"
+    }
+  },
   "toolSets": {
     "title": "Zestawy narzędzi",
     "typeWall": "Ściana",

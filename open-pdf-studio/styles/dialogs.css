@@ -6149,3 +6149,168 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
   flex-shrink: 0;
   color: var(--theme-text-secondary, #666);
 }
+/* Dynamic stamps (#629): picker section, fill-in dialog, template editor.
+   Square corners, compact, theme colours. */
+.stamp-picker-dialog { width: 380px; }
+.stamp-picker-section {
+  margin: 10px 0 4px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--theme-border, #d4d4d4);
+  font-weight: 600;
+  font-size: 12px;
+}
+.stamp-picker-dynamic {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.stamp-picker-dynamic-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--theme-border, #d4d4d4);
+  border-radius: 0;
+  background: var(--theme-surface, #fff);
+  color: var(--theme-text, #222);
+}
+.stamp-picker-dynamic-item:hover { background: var(--theme-hover, #e5f1fb); }
+.stamp-picker-dynamic-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+}
+.stamp-picker-manage { margin-top: 8px; width: 100%; }
+
+.dynamic-stamp-fields-dialog { width: 380px; max-width: 94vw; }
+.dynamic-stamp-fields-preview {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+  border: 1px solid var(--theme-border, #d4d4d4);
+  background: #fff;
+}
+.dynamic-stamp-fields-grid,
+.stamp-templates-grid {
+  display: grid;
+  grid-template-columns: minmax(90px, auto) 1fr;
+  gap: 4px 8px;
+  align-items: center;
+}
+.dynamic-stamp-fields-grid input,
+.stamp-templates-dialog input[type="text"],
+.stamp-templates-dialog input[data-getal],
+.stamp-templates-dialog select {
+  padding: 2px 4px;
+  border: 1px solid var(--theme-border, #acacac);
+  border-radius: 0;
+  font-size: 12px;
+  background: var(--theme-surface, #fff);
+  color: var(--theme-text, #222);
+  min-width: 0;
+}
+.dynamic-stamp-auto { color: var(--theme-text-secondary, #666); }
+
+.stamp-templates-dialog { width: 760px; max-width: 96vw; }
+.stamp-templates-body { display: flex; gap: 10px; min-height: 380px; }
+.stamp-templates-side { width: 200px; flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
+.stamp-templates-list {
+  flex: 1;
+  min-height: 200px;
+  max-height: 420px;
+  overflow-y: auto;
+  border: 1px solid var(--theme-border, #acacac);
+  background: var(--theme-surface, #fff);
+}
+.stamp-templates-group {
+  padding: 2px 6px;
+  font-weight: 600;
+  font-size: 11px;
+  background: var(--theme-bg, #f0f0f0);
+  border-bottom: 1px solid var(--theme-border, #e0e0e0);
+}
+.stamp-templates-item {
+  padding-block: 2px;
+  padding-inline: 14px 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stamp-templates-item:hover { background: var(--theme-hover, #e5f1fb); }
+.stamp-templates-item.selected { background: var(--theme-accent, #0078d7); color: #fff; }
+.stamp-templates-side-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.stamp-templates-side-buttons .pref-btn,
+.stamp-templates-dialog .stamp-templates-row .pref-btn,
+.stamp-templates-inline .pref-btn,
+.stamp-templates-folder .pref-btn,
+.stamp-templates-note .pref-btn { padding: 2px 8px; min-width: 0; }
+.stamp-templates-editor { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; max-height: 520px; }
+.stamp-templates-row { display: flex; align-items: center; gap: 6px; }
+.stamp-templates-row input[type="text"] { flex: 1; }
+.stamp-templates-caption { font-weight: 600; font-size: 12px; margin-top: 4px; }
+.stamp-templates-lines { width: 100%; border-collapse: collapse; font-size: 12px; }
+.stamp-templates-lines th {
+  text-align: start;
+  font-weight: 400;
+  color: var(--theme-text-secondary, #666);
+  padding: 0 3px;
+}
+.stamp-templates-lines td { padding: 1px 3px; }
+.stamp-templates-lines tr.active td { background: var(--theme-hover, #e5f1fb); }
+.stpl-line-text { width: 100%; box-sizing: border-box; }
+.stpl-line-size { width: 52px; }
+.stpl-format { width: 110px; }
+.stpl-center { text-align: center; }
+.stpl-line-buttons { white-space: nowrap; }
+.stpl-mini {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--theme-border, #acacac);
+  border-radius: 0;
+  background: var(--theme-surface, #fff);
+  color: var(--theme-text, #222);
+  font-size: 9px;
+  line-height: 1;
+}
+.stpl-mini:disabled { opacity: 0.4; }
+.stpl-remove:not(:disabled):hover { background: #e81123; border-color: #e81123; color: #fff; }
+.stamp-templates-help,
+.stamp-templates-example { color: var(--theme-text-secondary, #666); font-size: 11px; }
+.stamp-templates-inline { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.stamp-templates-check { display: flex; align-items: center; gap: 6px; }
+.stamp-templates-check input { margin: 0; }
+.stamp-templates-preview {
+  display: flex;
+  justify-content: center;
+  padding: 6px;
+  border: 1px solid var(--theme-border, #d4d4d4);
+  background: #fff;
+}
+.stamp-templates-note {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 6px;
+  border: 1px solid #e6c200;
+  background: #fff8d6;
+  color: #3d3200;
+  font-size: 12px;
+}
+.stamp-templates-folder {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--theme-border, #d4d4d4);
+}
+.stamp-templates-folder input { flex: 1; }
+.stamp-templates-error { color: #c42b1c; font-size: 11px; margin-top: 4px; }

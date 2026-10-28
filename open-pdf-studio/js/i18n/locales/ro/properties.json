@@ -807,6 +807,24 @@
     "rules": "Atribuirea folosește centrul casetei de încadrare a marcajului, inclusiv marginile. Câștigă zona cea mai adânc imbricată, apoi cea cu aria cea mai mică, apoi ID-ul zonei. Folosiți poligoane cu laturi drepte, fără găuri, sau casete nerotite. Identitățile de zonă nevalide sau duplicate sunt excluse.",
     "loading": "Adnotările se încarcă: locațiile se pot încă modifica."
   },
+  "dynamicStamp": {
+    "title": "Campuri stampila",
+    "template": "Sablon",
+    "refresh": "Actualizare data, utilizator si pagina",
+    "lock": "Blocare stampila",
+    "lockConfirm": "Blocati aceasta stampila? Campurile ei nu vor mai putea fi modificate.",
+    "locked": "Aceasta stampila este blocata: campurile ei nu mai pot fi modificate.",
+    "field": {
+      "date": "Data",
+      "time": "Ora",
+      "datetime": "Data si ora",
+      "user": "Utilizator",
+      "page": "Pagina",
+      "pages": "Numar de pagini",
+      "filename": "Nume fisier",
+      "title": "Titlul documentului"
+    }
+  },
   "toolSets": {
     "title": "Seturi de unelte",
     "typeWall": "Perete",

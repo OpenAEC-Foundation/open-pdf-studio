@@ -807,6 +807,24 @@
     "rules": "Dodjela koristi središte graničnog okvira oznake, uključujući rubove. Prednost ima najdublja zona, zatim najmanja površina, pa ID zone. Koristite ravne mnogokute bez rupa ili nerotirane okvire. Nevaljani ili dvostruki identiteti zona isključuju se.",
     "loading": "Bilješke se učitavaju: lokacije se još mogu promijeniti."
   },
+  "dynamicStamp": {
+    "title": "Polja pečata",
+    "template": "Predložak",
+    "refresh": "Ažuriraj datum, korisnika i stranicu",
+    "lock": "Zaključaj pečat",
+    "lockConfirm": "Zaključati ovaj pečat? Njegova polja više se neće moći mijenjati.",
+    "locked": "Ovaj pečat je zaključan: njegova polja više se ne mogu mijenjati.",
+    "field": {
+      "date": "Datum",
+      "time": "Vrijeme",
+      "datetime": "Datum i vrijeme",
+      "user": "Korisnik",
+      "page": "Stranica",
+      "pages": "Broj stranica",
+      "filename": "Naziv datoteke",
+      "title": "Naslov dokumenta"
+    }
+  },
   "toolSets": {
     "title": "Skupovi alata",
     "typeWall": "Zid",

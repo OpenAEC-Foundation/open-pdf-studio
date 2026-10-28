@@ -807,6 +807,24 @@
     "rules": "Tildelingen bruger midten af markeringens afgrænsningsramme, inklusive kanter. Den dybeste zone vinder, derefter det mindste areal og derefter zone-id. Brug lige polygoner uden huller eller uroterede rektangler. Ugyldige eller dublerede zoneidentiteter udelades.",
     "loading": "Annotationer indlæses: placeringer kan stadig ændre sig."
   },
+  "dynamicStamp": {
+    "title": "Stempelfelter",
+    "template": "Skabelon",
+    "refresh": "Opdater dato, bruger og side",
+    "lock": "Lås stempel",
+    "lockConfirm": "Lås dette stempel? Dets felter kan derefter ikke længere ændres.",
+    "locked": "Dette stempel er låst: dets felter kan ikke længere ændres.",
+    "field": {
+      "date": "Dato",
+      "time": "Klokkeslæt",
+      "datetime": "Dato og klokkeslæt",
+      "user": "Bruger",
+      "page": "Side",
+      "pages": "Antal sider",
+      "filename": "Filnavn",
+      "title": "Dokumenttitel"
+    }
+  },
   "toolSets": {
     "title": "Værktøjssæt",
     "typeWall": "Væg",

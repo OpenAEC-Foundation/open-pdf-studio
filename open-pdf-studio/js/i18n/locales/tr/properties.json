@@ -807,6 +807,24 @@
     "rules": "Atama, kenarlar dahil işaretlemenin sınırlayıcı kutu merkezini kullanır. En derin bölge kazanır, ardından en küçük alan, ardından bölge kimliği. Deliksiz düz kenarlı çokgenler veya döndürülmemiş kutular kullanın. Geçersiz veya yinelenen bölge kimlikleri hariç tutulur.",
     "loading": "Açıklamalar yükleniyor: konumlar hâlâ değişebilir."
   },
+  "dynamicStamp": {
+    "title": "Damga alanları",
+    "template": "Şablon",
+    "refresh": "Tarihi, kullanıcıyı ve sayfayı güncelle",
+    "lock": "Damgayı kilitle",
+    "lockConfirm": "Bu damga kilitlensin mi? Alanları artık değiştirilemez.",
+    "locked": "Bu damga kilitli: alanları artık değiştirilemez.",
+    "field": {
+      "date": "Tarih",
+      "time": "Saat",
+      "datetime": "Tarih ve saat",
+      "user": "Kullanıcı",
+      "page": "Sayfa",
+      "pages": "Sayfa sayısı",
+      "filename": "Dosya adı",
+      "title": "Belge başlığı"
+    }
+  },
   "toolSets": {
     "title": "Araç setleri",
     "typeWall": "Duvar",

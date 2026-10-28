@@ -7,6 +7,7 @@ import { calculateDistance, calculateArea, calculatePerimeter, formatMeasurement
 import { findImageForAnnotation, findImageEntryForAnnotation } from './annotation-image-sources.mjs';
 import { ifcCategoryForAnnotationType, ifcCategoryForParametric } from '../../solid/data/ifcCategoryMap.js';
 import { nenIfcForStamp } from '../../solid/data/nenIfcMap.js';
+import { dynamicStampText, applyDynamicStampToAnnotation } from '../../annotations/dynamic-stamp.js';
 import { STAVENREEKS_DEFAULTS } from '../../annotations/stavenreeks.js';
 import { knipselUitExtra } from './vector-snippet-load.js';
 import { hatchUitExtra, vormHatchUitExtra } from '../saver/hatch-meta.js';
@@ -1614,10 +1615,15 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
 
       const gevondenBeeld = findImageEntryForAnnotation(stampImageMap, annot, 'stamp');
       // Een tekststempel van de app: de uitsnede van de weergave is geen bron.
-      const eigenTekst = eigenTekststempel({
-        stampName: extraColors.stampName, opsStampText: extraColors.opsStampText,
-        beeldBron: gevondenBeeld ? (gevondenBeeld.source === 'render' ? 'render' : 'pdf') : null,
-      });
+      // A dynamic stamp (#629) draws itself from template + values; an image
+      // in its appearance belongs to the template, it is not the source.
+      const dynStamp = extraColors.opsDynamicStamp || null;
+      const eigenTekst = dynStamp
+        ? { stampText: dynamicStampText(dynStamp) || dynStamp.template.name }
+        : eigenTekststempel({
+          stampName: extraColors.stampName, opsStampText: extraColors.opsStampText,
+          beeldBron: gevondenBeeld ? (gevondenBeeld.source === 'render' ? 'render' : 'pdf') : null,
+        });
       const stampImgEntry = eigenTekst ? null : gevondenBeeld;
       const dataUrl = stampImgEntry?.dataUrl ?? null;
       // Pixelruimte van de bitmap; zie de saver en stempel-geometrie.js.
@@ -1702,6 +1708,11 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         // saver kiest daarop of hij pagina-/Rotate-compensatie schrijft.
         apImageSpace: stImageSpace
       };
+
+      if (dynStamp) {
+        stampProps.dynamicStamp = dynStamp;
+        applyDynamicStampToAnnotation(stampProps);
+      }
 
       // IFC-classificatie van symboolstempels (NEN 1414 e.d.). Voorkeur:
       // de opgeslagen OPS-sleutels; oudere bestanden zonder die sleutels

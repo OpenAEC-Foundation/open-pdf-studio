@@ -807,6 +807,24 @@
     "rules": "Assignment uses the markup bounding-box centre, including edges. Deepest zone wins, then smallest area, then zone ID. Use straight polygons without holes or unrotated boxes. Invalid or duplicate zone identities are excluded.",
     "loading": "Annotations are loading: locations may still change."
   },
+  "dynamicStamp": {
+    "title": "Stamp fields",
+    "template": "Template",
+    "refresh": "Update date, user and page",
+    "lock": "Lock stamp",
+    "lockConfirm": "Lock this stamp? Its fields can no longer be changed.",
+    "locked": "This stamp is locked: its fields can no longer be changed.",
+    "field": {
+      "date": "Date",
+      "time": "Time",
+      "datetime": "Date and time",
+      "user": "User",
+      "page": "Page",
+      "pages": "Number of pages",
+      "filename": "File name",
+      "title": "Document title"
+    }
+  },
   "toolSets": {
     "title": "Tool Sets",
     "typeWall": "Wall",

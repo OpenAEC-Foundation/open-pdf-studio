@@ -1488,7 +1488,11 @@ function applyAnnotProp(key, value) {
     if (annotProps.locked !== false && key !== 'locked') return;
 
     const originals = selected.map(annotation => cloneAnnotation(annotation));
-    for (const ann of selected) applyPropToAnnotation(ann, key, value);
+    for (const ann of selected) {
+      // A locked dynamic stamp (#629) stays locked.
+      if ((key === 'locked' || key === 'readOnly') && ann.dynamicStamp?.locked) continue;
+      applyPropToAnnotation(ann, key, value);
+    }
     recordBulkModify(selected, originals);
     setAnnotProps(key, value);
 
@@ -1555,6 +1559,12 @@ function applyAnnotProp(key, value) {
     import('../../tools/text-edit-tool.js')
       .then(m => m.applyActiveTextEditStyle && m.applyActiveTextEditStyle(key, value))
       .catch(() => {});
+    return;
+  }
+
+  // A locked dynamic stamp (#629) is final: it cannot be unlocked again.
+  if (currentAnnotation.dynamicStamp?.locked && (key === 'locked' || key === 'readOnly')) {
+    storeShowProperties(currentAnnotation);
     return;
   }
 

@@ -465,6 +465,10 @@ js/tools/tools/polygon-tool.test.mjs
 js/pdf/veelhoek-rondgang.test.mjs
 js/pdf/loader/stempel-geometrie.test.mjs
 js/pdf/stempel-draaiing-rondgang.test.mjs
+js/annotations/dynamic-stamp.test.mjs
+js/annotations/stamp-template-store.test.mjs
+js/pdf/dynamic-stamp-rondgang.test.mjs
+js/i18n/dynamic-stamp-i18n.test.mjs
 js/herstel/planning.test.mjs
 js/herstel/manifest.test.mjs
 js/herstel/opslag.test.mjs

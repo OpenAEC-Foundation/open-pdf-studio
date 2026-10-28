@@ -807,6 +807,24 @@
     "rules": "Việc gán dựa trên tâm hộp giới hạn của đánh dấu, tính cả cạnh. Vùng sâu nhất được ưu tiên, sau đó đến diện tích nhỏ nhất, rồi đến ID vùng. Hãy dùng đa giác cạnh thẳng không có lỗ hoặc hộp chưa xoay. Các định danh vùng không hợp lệ hoặc trùng lặp sẽ bị loại trừ.",
     "loading": "Đang tải chú thích: vị trí có thể vẫn thay đổi."
   },
+  "dynamicStamp": {
+    "title": "Trường của con dấu",
+    "template": "Mẫu",
+    "refresh": "Cập nhật ngày, người dùng và trang",
+    "lock": "Khóa con dấu",
+    "lockConfirm": "Khóa con dấu này? Các trường của nó sẽ không thể thay đổi nữa.",
+    "locked": "Con dấu này đã bị khóa: các trường không thể thay đổi nữa.",
+    "field": {
+      "date": "Ngày",
+      "time": "Giờ",
+      "datetime": "Ngày và giờ",
+      "user": "Người dùng",
+      "page": "Trang",
+      "pages": "Số trang",
+      "filename": "Tên tệp",
+      "title": "Tiêu đề tài liệu"
+    }
+  },
   "toolSets": {
     "title": "Bộ công cụ",
     "typeWall": "Tường",

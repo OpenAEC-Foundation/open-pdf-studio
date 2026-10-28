@@ -807,6 +807,24 @@
     "rules": "Die Zuordnung verwendet den Mittelpunkt des Begrenzungsrahmens der Markierung, einschließlich Kanten. Die tiefste Zone hat Vorrang, dann die kleinste Fläche, dann die Zonen-ID. Verwenden Sie gerade Polygone ohne Löcher oder nicht gedrehte Rechtecke. Ungültige oder doppelte Zonenidentitäten werden ausgeschlossen.",
     "loading": "Anmerkungen werden geladen: Standorte können sich noch ändern."
   },
+  "dynamicStamp": {
+    "title": "Stempelfelder",
+    "template": "Vorlage",
+    "refresh": "Datum, Benutzer und Seite aktualisieren",
+    "lock": "Stempel sperren",
+    "lockConfirm": "Diesen Stempel sperren? Seine Felder können danach nicht mehr geändert werden.",
+    "locked": "Dieser Stempel ist gesperrt: Seine Felder können nicht mehr geändert werden.",
+    "field": {
+      "date": "Datum",
+      "time": "Uhrzeit",
+      "datetime": "Datum und Uhrzeit",
+      "user": "Benutzer",
+      "page": "Seite",
+      "pages": "Seitenanzahl",
+      "filename": "Dateiname",
+      "title": "Dokumenttitel"
+    }
+  },
   "toolSets": {
     "title": "Werkzeugsätze",
     "typeWall": "Wand",

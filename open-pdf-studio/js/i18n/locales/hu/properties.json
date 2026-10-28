@@ -807,6 +807,24 @@
     "rules": "A hozzárendelés a jelölés befoglaló téglalapjának középpontján alapul, a széleket is beleértve. A legmélyebben beágyazott zóna nyer, utána a legkisebb terület, majd a zónaazonosító. Egyenes oldalú, lyuk nélküli sokszögeket vagy elforgatás nélküli téglalapokat használjon. Az érvénytelen vagy ismétlődő zónaazonosítók kimaradnak.",
     "loading": "Az annotációk betöltése folyamatban: a helyek még változhatnak."
   },
+  "dynamicStamp": {
+    "title": "Bélyegzőmezők",
+    "template": "Sablon",
+    "refresh": "Dátum, felhasználó és oldal frissítése",
+    "lock": "Bélyegző zárolása",
+    "lockConfirm": "Zárolja ezt a bélyegzőt? A mezői ezután nem módosíthatók.",
+    "locked": "Ez a bélyegző zárolva van: a mezői már nem módosíthatók.",
+    "field": {
+      "date": "Dátum",
+      "time": "Idő",
+      "datetime": "Dátum és idő",
+      "user": "Felhasználó",
+      "page": "Oldal",
+      "pages": "Oldalak száma",
+      "filename": "Fájlnév",
+      "title": "Dokumentum címe"
+    }
+  },
   "toolSets": {
     "title": "Eszközkészletek",
     "typeWall": "Fal",

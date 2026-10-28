@@ -807,6 +807,24 @@
     "rules": "La asignación usa el centro del cuadro delimitador de la marca, bordes incluidos. Prevalece la zona más profunda, luego la de menor área y después el ID de zona. Use polígonos rectos sin huecos o rectángulos sin rotar. Se excluyen las identidades de zona no válidas o duplicadas.",
     "loading": "Cargando anotaciones: las ubicaciones aún pueden cambiar."
   },
+  "dynamicStamp": {
+    "title": "Campos del sello",
+    "template": "Plantilla",
+    "refresh": "Actualizar fecha, usuario y página",
+    "lock": "Bloquear sello",
+    "lockConfirm": "¿Bloquear este sello? Sus campos ya no podrán modificarse.",
+    "locked": "Este sello está bloqueado: sus campos ya no pueden modificarse.",
+    "field": {
+      "date": "Fecha",
+      "time": "Hora",
+      "datetime": "Fecha y hora",
+      "user": "Usuario",
+      "page": "Página",
+      "pages": "Número de páginas",
+      "filename": "Nombre de archivo",
+      "title": "Título del documento"
+    }
+  },
   "toolSets": {
     "title": "Conjuntos de herramientas",
     "typeWall": "Muro",
