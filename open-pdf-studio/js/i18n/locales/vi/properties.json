@@ -189,7 +189,9 @@
     "bold": "Đậm",
     "italic": "Nghiêng",
     "underline": "Gạch chân",
-    "strikethrough": "Gạch ngang"
+    "strikethrough": "Gạch ngang",
+    "fontNotEmbedded": "Phông {{font}} không được nhúng vào PDF. Trình đọc không có phông này sẽ hiển thị {{fallback}}.",
+    "fontReplaced": "Không thể nhúng phông {{font}} vào PDF. Văn bản được lưu bằng {{fallback}}."
   },
   "paragraph": {
     "title": "Đoạn văn",

@@ -189,7 +189,9 @@
     "bold": "ตัวหนา",
     "italic": "ตัวเอียง",
     "underline": "ขีดเส้นใต้",
-    "strikethrough": "ขีดฆ่า"
+    "strikethrough": "ขีดฆ่า",
+    "fontNotEmbedded": "ฟอนต์ {{font}} ไม่ได้ฝังใน PDF โปรแกรมที่ไม่มีฟอนต์นี้จะแสดง {{fallback}}",
+    "fontReplaced": "ไม่สามารถฝังฟอนต์ {{font}} ใน PDF ได้ ข้อความจะถูกบันทึกเป็น {{fallback}}"
   },
   "paragraph": {
     "title": "ย่อหน้า",

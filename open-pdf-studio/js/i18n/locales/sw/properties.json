@@ -189,7 +189,9 @@
     "bold": "Nzito",
     "italic": "Italiki",
     "underline": "Mstari Chini",
-    "strikethrough": "Mstari Katikati"
+    "strikethrough": "Mstari Katikati",
+    "fontNotEmbedded": "Fonti {{font}} haipachikwi kwenye PDF. Visomaji visivyo na fonti hii huonyesha {{fallback}}.",
+    "fontReplaced": "Fonti {{font}} haiwezi kupachikwa kwenye PDF. Maandishi huhifadhiwa kwa {{fallback}}."
   },
   "paragraph": {
     "title": "Aya",

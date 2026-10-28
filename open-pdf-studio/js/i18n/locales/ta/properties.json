@@ -189,7 +189,9 @@
     "bold": "தடிமன்",
     "italic": "சாய்வு",
     "underline": "அடிக்கோடு",
-    "strikethrough": "நடுக்கோடு"
+    "strikethrough": "நடுக்கோடு",
+    "fontNotEmbedded": "{{font}} எழுத்துரு PDF-இல் உட்பொதிக்கப்படவில்லை. இந்த எழுத்துரு இல்லாத நிரல்கள் {{fallback}} ஐக் காட்டும்.",
+    "fontReplaced": "{{font}} எழுத்துருவை PDF-இல் உட்பொதிக்க முடியாது. உரை {{fallback}} இல் சேமிக்கப்படும்."
   },
   "paragraph": {
     "title": "பத்தி",

@@ -517,3 +517,6 @@ js/pdf/saver/text-edit-unicode.test.mjs
 js/text/tekstlaag-bron.test.mjs
 js/pdf/saver/text-edit-glyfen.test.mjs
 js/text/tekenafstand.test.mjs
+js/core/standaardstijl-lettertype.test.mjs
+js/utils/lettertypen-lijst.test.mjs
+js/pdf/lettertype-rondgang.test.mjs

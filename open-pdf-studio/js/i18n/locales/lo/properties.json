@@ -221,7 +221,9 @@
     "bold": "ໜາ",
     "italic": "ອຽງ",
     "underline": "ຂີດກ້ອງ",
-    "strikethrough": "ຂີດຂ້າ"
+    "strikethrough": "ຂີດຂ້າ",
+    "fontNotEmbedded": "ຟອນ {{font}} ບໍ່ໄດ້ຝັງໃນ PDF. ໂປຣແກຣມທີ່ບໍ່ມີຟອນນີ້ຈະສະແດງ {{fallback}}.",
+    "fontReplaced": "ບໍ່ສາມາດຝັງຟອນ {{font}} ໃນ PDF ໄດ້. ຂໍ້ຄວາມຈະຖືກບັນທຶກເປັນ {{fallback}}."
   },
   "paragraph": {
     "title": "ຫຍໍ້ໜ້າ",

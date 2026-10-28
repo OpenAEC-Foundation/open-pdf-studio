@@ -827,6 +827,10 @@ export function storeShowMultiSelection(selected) {
 }
 
 // Show text edit properties (PDF text editing mode)
+// Lettertype van de PDF-tekst die nu bewerkt wordt (zie hieronder).
+const [pdfTekstBronFont, setPdfTekstBronFont] = createSignal(null);
+export { pdfTekstBronFont };
+
 export function storeShowTextEditProperties(info) {
   const ff = (info.fontFamily || 'Helvetica').toLowerCase();
   let displayFontFamily;
@@ -887,6 +891,10 @@ export function storeShowTextEditProperties(info) {
   };
 
   currentAnnotation = pseudoAnnotation;
+  // Het lettertype waarmee de tekst nu in de PDF staat: zolang dat gekozen
+  // blijft, schrijft de saver de tekst in dat (ingebedde) font terug en is er
+  // niets te melden (TextFormatSection, #765).
+  setPdfTekstBronFont(displayFontFamily);
 
   // First show as textbox to get text format section
   storeShowProperties(pseudoAnnotation);

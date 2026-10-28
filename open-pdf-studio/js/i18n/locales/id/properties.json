@@ -189,7 +189,9 @@
     "bold": "Tebal",
     "italic": "Miring",
     "underline": "Garis Bawah",
-    "strikethrough": "Coret"
+    "strikethrough": "Coret",
+    "fontNotEmbedded": "Font {{font}} tidak disematkan dalam PDF. Pembaca yang tidak memiliki font ini menampilkan {{fallback}}.",
+    "fontReplaced": "Font {{font}} tidak dapat disematkan dalam PDF. Teks disimpan dalam {{fallback}}."
   },
   "paragraph": {
     "title": "Paragraf",

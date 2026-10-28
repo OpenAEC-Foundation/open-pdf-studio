@@ -189,7 +189,9 @@
     "bold": "מודגש",
     "italic": "נטוי",
     "underline": "קו תחתון",
-    "strikethrough": "קו חוצה"
+    "strikethrough": "קו חוצה",
+    "fontNotEmbedded": "הגופן {{font}} אינו מוטמע ב-PDF. תוכנות ללא גופן זה מציגות {{fallback}}.",
+    "fontReplaced": "לא ניתן להטמיע את הגופן {{font}} ב-PDF. הטקסט נשמר בגופן {{fallback}}."
   },
   "paragraph": {
     "title": "פסקה",

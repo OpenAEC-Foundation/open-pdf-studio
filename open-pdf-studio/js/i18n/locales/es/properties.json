@@ -189,7 +189,9 @@
     "bold": "Negrita",
     "italic": "Cursiva",
     "underline": "Subrayado",
-    "strikethrough": "Tachado"
+    "strikethrough": "Tachado",
+    "fontNotEmbedded": "{{font}} no se incrusta en el PDF. Los lectores que no tienen esta fuente muestran {{fallback}}.",
+    "fontReplaced": "{{font}} no se puede incrustar en el PDF. El texto se guarda en {{fallback}}."
   },
   "paragraph": {
     "title": "Párrafo",

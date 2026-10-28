@@ -189,7 +189,9 @@
     "bold": "গাঢ়",
     "italic": "তির্যক",
     "underline": "আন্ডারলাইন",
-    "strikethrough": "স্ট্রাইকথ্রু"
+    "strikethrough": "স্ট্রাইকথ্রু",
+    "fontNotEmbedded": "ফন্ট {{font}} PDF-এ এমবেড করা হয় না। যেসব রিডারে এই ফন্ট নেই সেগুলো {{fallback}} দেখায়।",
+    "fontReplaced": "ফন্ট {{font}} PDF-এ এমবেড করা যায় না। লেখাটি {{fallback}}-এ সংরক্ষিত হয়।"
   },
   "paragraph": {
     "title": "অনুচ্ছেদ",

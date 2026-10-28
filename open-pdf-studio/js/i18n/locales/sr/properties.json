@@ -189,7 +189,9 @@
     "bold": "Подебљано",
     "italic": "Курзив",
     "underline": "Подвучено",
-    "strikethrough": "Прецртано"
+    "strikethrough": "Прецртано",
+    "fontNotEmbedded": "Фонт {{font}} није уграђен у PDF. Читачи без овог фонта приказују {{fallback}}.",
+    "fontReplaced": "Фонт {{font}} не може да се угради у PDF. Текст се чува у фонту {{fallback}}."
   },
   "paragraph": {
     "title": "Параграф",

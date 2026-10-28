@@ -169,7 +169,9 @@
     "bold": "Vet",
     "italic": "Cursief",
     "underline": "Onderstrepen",
-    "strikethrough": "Doorhalen"
+    "strikethrough": "Doorhalen",
+    "fontNotEmbedded": "{{font}} wordt niet in de PDF ingebed. Lezers zonder dit lettertype tonen {{fallback}}.",
+    "fontReplaced": "{{font}} kan niet in de PDF worden ingebed. De tekst wordt opgeslagen in {{fallback}}."
   },
   "paragraph": {
     "title": "Alinea",

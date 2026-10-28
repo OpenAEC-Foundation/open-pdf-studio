@@ -189,7 +189,9 @@
     "bold": "बोल्ड",
     "italic": "इटैलिक",
     "underline": "रेखांकित",
-    "strikethrough": "स्ट्राइकथ्रू"
+    "strikethrough": "स्ट्राइकथ्रू",
+    "fontNotEmbedded": "फ़ॉन्ट {{font}} PDF में एम्बेड नहीं होता। जिन रीडरों में यह फ़ॉन्ट नहीं है वे {{fallback}} दिखाते हैं।",
+    "fontReplaced": "फ़ॉन्ट {{font}} को PDF में एम्बेड नहीं किया जा सकता। टेक्स्ट {{fallback}} में सहेजा जाता है।"
   },
   "paragraph": {
     "title": "अनुच्छेद",

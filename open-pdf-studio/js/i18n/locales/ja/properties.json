@@ -189,7 +189,9 @@
     "bold": "太字",
     "italic": "斜体",
     "underline": "下線",
-    "strikethrough": "取り消し線"
+    "strikethrough": "取り消し線",
+    "fontNotEmbedded": "{{font}} は PDF に埋め込まれません。このフォントがないビューアーでは {{fallback}} で表示されます。",
+    "fontReplaced": "{{font}} は PDF に埋め込めません。テキストは {{fallback}} で保存されます。"
   },
   "paragraph": {
     "title": "段落",

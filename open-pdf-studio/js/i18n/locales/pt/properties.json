@@ -189,7 +189,9 @@
     "bold": "Negrito",
     "italic": "Itálico",
     "underline": "Sublinhado",
-    "strikethrough": "Tachado"
+    "strikethrough": "Tachado",
+    "fontNotEmbedded": "{{font}} não é incorporada no PDF. Leitores sem esta fonte mostram {{fallback}}.",
+    "fontReplaced": "{{font}} não pode ser incorporada no PDF. O texto é guardado em {{fallback}}."
   },
   "paragraph": {
     "title": "Parágrafo",

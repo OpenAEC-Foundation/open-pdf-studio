@@ -7,7 +7,7 @@ import { recordAdd, recordModify, execute } from '../core/undo-manager.js';
 import { cloneAnnotation } from '../annotations/factory.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
 import { injectSyntheticTextSpans } from '../text/text-layer.js';
-import { invertPageRotation, resolveTextEditPageGeometry } from '../text/text-edit-appearance.js';
+import { invertPageRotation, resolveTextEditPageGeometry, toStandardFontName } from '../text/text-edit-appearance.js';
 import { annotationCanvas } from '../ui/dom-elements.js';
 import { viewport as vpState } from '../pdf/pdf-viewport.js';
 import { paginaNaarClient, weergaveRotatie } from '../pdf/weergave-ruimte.js';
@@ -365,28 +365,10 @@ export async function addTextAnnotation(x, y, pageNum, canvasEl) {
   const pdfX = unrotatedPoint.x;
   const pdfY = geometry.pageHeight - unrotatedPoint.y;
 
-  // Map dialog font family + bold/italic to standard PDF font name
-  const fn = (result.fontFamily || 'Arial').toLowerCase();
-  const isBold = result.fontBold || false;
-  const isItalic = result.fontItalic || false;
-  let fontFamily;
-  if (fn.includes('courier') || fn.includes('consolas') || fn.includes('mono')) {
-    fontFamily = isBold && isItalic ? 'Courier-BoldOblique'
-      : isBold ? 'Courier-Bold'
-      : isItalic ? 'Courier-Oblique'
-      : 'Courier';
-  } else if (fn.includes('times') || fn.includes('garamond') || fn.includes('georgia')
-      || fn.includes('palatino') || fn.includes('cambria') || fn.includes('bookman')) {
-    fontFamily = isBold && isItalic ? 'TimesRoman-BoldItalic'
-      : isBold ? 'TimesRoman-Bold'
-      : isItalic ? 'TimesRoman-Italic'
-      : 'TimesRoman';
-  } else {
-    fontFamily = isBold && isItalic ? 'Helvetica-BoldOblique'
-      : isBold ? 'Helvetica-Bold'
-      : isItalic ? 'Helvetica-Oblique'
-      : 'Helvetica';
-  }
+  // Map dialog font family + bold/italic to standard PDF font name. Tekst in
+  // de pagina komt altijd in een standaardletter; de dialoog meldt welke
+  // (lettertype-inbedding.js, #765). Zelfde indeling als PDF-tekst bewerken.
+  const fontFamily = toStandardFontName(result.fontFamily || 'Arial', !!result.fontBold, !!result.fontItalic);
 
   const fontSize = result.fontSize || 16;
 

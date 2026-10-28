@@ -1,6 +1,6 @@
 import { parseEditorDom } from '../../text/editor-dom-parse.js';
 import { PDFName, PDFDict, PDFArray, PDFHexString, PDFString } from 'pdf-lib';
-import { pdfNum, pdfColorToHex, mapPdfFontName, inflateBytes } from './pdf-helpers.js';
+import { pdfNum, pdfColorToHex, mapPdfFontName, inflateBytes, rcLettertype } from './pdf-helpers.js';
 import { fillAlphaAtFirstFill } from './ap-fill-alpha.js';
 import { leesKnipselBronnen, leesKnipselVelden } from './vector-snippet-load.js';
 import { bewaar as bewaarKnipsel } from '../../annotations/vector-snippet-store.js';
@@ -1273,6 +1273,10 @@ const result = {};
             const rcObj = context.lookup(rcRaw) || rcRaw;
             const rcStr = rcObj instanceof PDFHexString ? rcObj.decodeText() : (rcRaw.toString?.() || '');
             if (rcStr) {
+              // Lettertype uit /RC: telt als /DR en /DS er geen geven (#765).
+              const rcFont = rcLettertype(rcObj instanceof PDFHexString ? rcStr
+                : (typeof rcRaw.decodeText === 'function' ? rcRaw.decodeText() : rcStr));
+              if (rcFont) colors.rcFontFamily = rcFont;
               // Check for text-decoration in style attributes
               const decoMatch = rcStr.match(/text-decoration\s*:\s*([^;"']+)/i);
               if (decoMatch) {
@@ -1420,6 +1424,7 @@ const result = {};
             }
           } catch (e) { /* ignore DS parsing errors */ }
         }
+        if (!colors.fontFamily && colors.rcFontFamily) colors.fontFamily = colors.rcFontFamily;
 
         // /Q: uitlijning van de tekst (0 links, 1 midden, 2 rechts) (#619).
         const qRaw = annotDict.get(PDFName.of('Q'));

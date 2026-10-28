@@ -189,7 +189,9 @@
     "bold": "Fet",
     "italic": "Kursiv",
     "underline": "Understreking",
-    "strikethrough": "Gjennomstreking"
+    "strikethrough": "Gjennomstreking",
+    "fontNotEmbedded": "{{font}} bygges ikke inn i PDF-en. Lesere uten denne skrifttypen viser {{fallback}}.",
+    "fontReplaced": "{{font}} kan ikke bygges inn i PDF-en. Teksten lagres i {{fallback}}."
   },
   "paragraph": {
     "title": "Avsnitt",

@@ -189,7 +189,9 @@
     "bold": "Tučné",
     "italic": "Kurzíva",
     "underline": "Podčiarknuté",
-    "strikethrough": "Prečiarknuté"
+    "strikethrough": "Prečiarknuté",
+    "fontNotEmbedded": "Písmo {{font}} sa do PDF nevkladá. Čítačky bez tohto písma zobrazia {{fallback}}.",
+    "fontReplaced": "Písmo {{font}} nemožno vložiť do PDF. Text sa uloží písmom {{fallback}}."
   },
   "paragraph": {
     "title": "Odsek",

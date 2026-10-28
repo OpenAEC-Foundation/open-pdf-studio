@@ -189,7 +189,9 @@
     "bold": "غامق",
     "italic": "مائل",
     "underline": "تسطير",
-    "strikethrough": "يتوسطه خط"
+    "strikethrough": "يتوسطه خط",
+    "fontNotEmbedded": "لا يُضمَّن الخط {{font}} في ملف PDF. تعرض البرامج التي لا تحتوي على هذا الخط {{fallback}}.",
+    "fontReplaced": "لا يمكن تضمين الخط {{font}} في ملف PDF. يُحفظ النص بالخط {{fallback}}."
   },
   "paragraph": {
     "title": "الفقرة",

@@ -189,7 +189,9 @@
     "bold": "Tučné",
     "italic": "Kurzíva",
     "underline": "Podtržené",
-    "strikethrough": "Přeškrtnuté"
+    "strikethrough": "Přeškrtnuté",
+    "fontNotEmbedded": "Písmo {{font}} se do PDF nevkládá. Prohlížeče bez tohoto písma zobrazí {{fallback}}.",
+    "fontReplaced": "Písmo {{font}} nelze vložit do PDF. Text se uloží písmem {{fallback}}."
   },
   "paragraph": {
     "title": "Odstavec",

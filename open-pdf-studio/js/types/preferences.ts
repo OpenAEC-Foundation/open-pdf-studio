@@ -56,6 +56,7 @@ export interface Preferences {
   textboxBorderStyle: string;
   textboxOpacity: number;
   textboxFontSize: number;
+  textboxFontFamily?: string;
 
   // Callout defaults
   calloutFillColor: string;
@@ -65,6 +66,7 @@ export interface Preferences {
   calloutBorderStyle: string;
   calloutOpacity: number;
   calloutFontSize: number;
+  calloutFontFamily?: string;
 
   // Rectangle defaults
   rectFillColor: string;
