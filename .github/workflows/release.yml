@@ -763,6 +763,63 @@ jobs:
           ARCHIVE="dist-webbundel/open-pdf-studio-web-${VERSION#v}.tar.gz"
           gh release upload "$VERSION" "$ARCHIVE" "$ARCHIVE.sha256" --clobber --repo "${{ github.repository }}"
 
+  # winget manifests (#753) for the Windows installers the build job uploaded.
+  # Only generated here: submitting them to the winget community repository
+  # is a maintainer step after the draft release is published, because the
+  # installer URLs only resolve then. See docs/windows-distribution.md.
+  winget-manifests:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    needs: [create-release, build]
+    defaults:
+      run:
+        working-directory: open-pdf-studio
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Download Windows installers from the draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.create-release.outputs.version }}
+        run: |
+          gh release download "$VERSION" --repo "${{ github.repository }}" \
+            --pattern '*-setup.exe' --dir "$RUNNER_TEMP/windows-installers"
+          ls -l "$RUNNER_TEMP/windows-installers"
+
+      - name: Generate winget manifests
+        env:
+          VERSION: ${{ needs.create-release.outputs.version }}
+        run: |
+          node scripts/winget-manifest.mjs \
+            --assets "$RUNNER_TEMP/windows-installers" \
+            --out "$RUNNER_TEMP/winget" \
+            --version "${VERSION#v}" --tag "$VERSION" \
+            --repo "${{ github.repository }}" \
+            --release-date "$(date -u +%F)"
+          find "$RUNNER_TEMP/winget" -type f -print -exec cat {} \;
+
+      - name: Upload winget manifests as workflow artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: winget-manifests
+          path: ${{ runner.temp }}/winget/manifests
+
+      - name: Attach winget manifests to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.create-release.outputs.version }}
+        run: |
+          ARCHIVE="$RUNNER_TEMP/open-pdf-studio-winget-manifests-${VERSION#v}.zip"
+          (cd "$RUNNER_TEMP/winget" && zip -r "$ARCHIVE" manifests)
+          gh release upload "$VERSION" "$ARCHIVE" --clobber --repo "${{ github.repository }}"
+
   publish-release:
     permissions:
       contents: write
