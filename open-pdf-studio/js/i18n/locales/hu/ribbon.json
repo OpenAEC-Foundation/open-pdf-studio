@@ -349,6 +349,11 @@
     "scanTextHint": "Kattintson egy felismert szóra a cseréjéhez. A régi szó a szkennelt képen le lesz takarva.",
     "scanTextNone": "Ezen az oldalon nincs felismert szöveg. Először futtassa a Szövegfelismerés (OCR) funkciót.",
     "shiftPage": "Oldal eltolása",
+    "scanGroup": "Beolvasás",
+    "scan": "Beolvasás",
+    "scanTitle": "Oldalak beolvasása kereshető PDF-be",
+    "batchOcr": "Kötegelt OCR",
+    "batchOcrTitle": "Szövegfelismerés egy mappa összes PDF-fájljában",
     "editPages": "Oldalak szerkesztése",
     "editPagesTitle": "Oldalak vizuális szerkesztése: átrendezés, forgatás, beszúrás, törlés, kibontás és felosztás"
   },

@@ -349,6 +349,11 @@
     "scanTextHint": "Feu clic en una paraula reconeguda per substituir-la. La paraula antiga de l'escaneig queda coberta.",
     "scanTextNone": "No hi ha text reconegut en aquesta pàgina. Executeu primer Reconeixement de text (OCR).",
     "shiftPage": "Desplaça la pàgina",
+    "scanGroup": "Escaneig",
+    "scan": "Escaneja",
+    "scanTitle": "Escaneja pàgines a un PDF amb cerca",
+    "batchOcr": "OCR per lots",
+    "batchOcrTitle": "Reconeix el text de tots els PDF d'una carpeta",
     "editPages": "Edita les pàgines",
     "editPagesTitle": "Edita les pàgines visualment: reordena, gira, insereix, suprimeix, extreu i divideix"
   },

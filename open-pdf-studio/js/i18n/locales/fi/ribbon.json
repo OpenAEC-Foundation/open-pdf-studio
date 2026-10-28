@@ -349,6 +349,11 @@
     "scanTextHint": "Korvaa tunnistettu sana napsauttamalla sitä. Skannauksen vanha sana peitetään.",
     "scanTextNone": "Tällä sivulla ei ole tunnistettua tekstiä. Suorita ensin Tekstintunnistus (OCR).",
     "shiftPage": "Siirrä sivua",
+    "scanGroup": "Skannaus",
+    "scan": "Skannaa",
+    "scanTitle": "Skannaa sivut haettavaksi PDF:ksi",
+    "batchOcr": "Kansion OCR",
+    "batchOcrTitle": "Tunnista teksti kaikista kansion PDF-tiedostoista",
     "editPages": "Muokkaa sivuja",
     "editPagesTitle": "Muokkaa sivuja visuaalisesti: järjestä, kierrä, lisää, poista, irrota ja jaa"
   },

@@ -349,6 +349,11 @@
     "scanTextHint": "Klicken Sie auf ein erkanntes Wort, um es zu ersetzen. Das alte Wort im Scan wird abgedeckt.",
     "scanTextNone": "Kein erkannter Text auf dieser Seite. Führen Sie zuerst Text erkennen (OCR) aus.",
     "shiftPage": "Seite verschieben",
+    "scanGroup": "Scannen",
+    "scan": "Scannen",
+    "scanTitle": "Seiten in ein durchsuchbares PDF scannen",
+    "batchOcr": "Stapel-OCR",
+    "batchOcrTitle": "Text in allen PDF-Dateien eines Ordners erkennen",
     "editPages": "Seiten bearbeiten",
     "editPagesTitle": "Seiten visuell bearbeiten: anordnen, drehen, einfügen, löschen, extrahieren und teilen"
   },

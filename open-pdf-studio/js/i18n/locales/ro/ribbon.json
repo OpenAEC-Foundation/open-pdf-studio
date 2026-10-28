@@ -349,6 +349,11 @@
     "scanTextHint": "Faceți clic pe un cuvânt recunoscut pentru a-l înlocui. Cuvântul vechi din scanare este acoperit.",
     "scanTextNone": "Nu există text recunoscut pe această pagină. Rulați mai întâi Recunoaștere text (OCR).",
     "shiftPage": "Deplasează pagina",
+    "scanGroup": "Scanare",
+    "scan": "Scanează",
+    "scanTitle": "Scanează pagini într-un PDF căutabil",
+    "batchOcr": "OCR în lot",
+    "batchOcrTitle": "Recunoaște textul din toate PDF-urile unui dosar",
     "editPages": "Editare pagini",
     "editPagesTitle": "Editați paginile vizual: reordonare, rotire, inserare, ștergere, extragere și împărțire"
   },

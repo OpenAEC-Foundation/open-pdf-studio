@@ -349,6 +349,11 @@
     "scanTextHint": "Cliquez sur un mot reconnu pour le remplacer. L'ancien mot de la numérisation est masqué.",
     "scanTextNone": "Aucun texte reconnu sur cette page. Lancez d'abord Reconnaissance de texte (OCR).",
     "shiftPage": "Décaler la page",
+    "scanGroup": "Numériser",
+    "scan": "Numériser",
+    "scanTitle": "Numériser des pages en PDF consultable",
+    "batchOcr": "OCR par lot",
+    "batchOcrTitle": "Reconnaître le texte de tous les PDF d'un dossier",
     "editPages": "Modifier les pages",
     "editPagesTitle": "Modifier les pages visuellement : réorganiser, faire pivoter, insérer, supprimer, extraire et fractionner"
   },

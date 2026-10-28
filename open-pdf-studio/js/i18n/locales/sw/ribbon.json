@@ -349,6 +349,11 @@
     "scanTextHint": "Bofya neno lililotambuliwa ili kulibadilisha. Neno la zamani kwenye skani hufunikwa.",
     "scanTextNone": "Hakuna maandishi yaliyotambuliwa kwenye ukurasa huu. Endesha Utambuzi wa Maandishi (OCR) kwanza.",
     "shiftPage": "Hamisha ukurasa",
+    "scanGroup": "Kuchanganua",
+    "scan": "Changanua",
+    "scanTitle": "Changanua kurasa kuwa PDF inayotafutika",
+    "batchOcr": "OCR ya folda",
+    "batchOcrTitle": "Tambua maandishi katika faili zote za PDF za folda",
     "editPages": "Hariri Kurasa",
     "editPagesTitle": "Hariri kurasa kwa kuona: panga upya, zungusha, ingiza, futa, toa na gawanya"
   },
