@@ -1,6 +1,9 @@
 app-id: org.openaec.OpenPdfStudio
+# GNOME 50 is built on freedesktop-sdk 25.08 and still ships WebKitGTK 4.1
+# (webkit2gtk-4.1, GTK 3), which Tauri 2 links against. Check that before
+# moving to a newer runtime.
 runtime: org.gnome.Platform
-runtime-version: '47'
+runtime-version: '50'
 sdk: org.gnome.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.rust-stable
@@ -9,39 +12,86 @@ sdk-extensions:
 command: open-pdf-studio
 
 finish-args:
-  # Windowing
+  # Windowing: Wayland, with X11 only when no Wayland compositor runs.
   - --socket=wayland
   - --socket=fallback-x11
-  # GPU rendering (WebKitGTK)
-  - --device=dri
-  # File access (open/save PDFs)
-  - --filesystem=home
-  # Network (for update checks)
-  - --share=network
-  # IPC (X11 shared memory)
+  # X11 shared memory; without it fallback-x11 renders very slowly.
   - --share=ipc
-  # Printing: lpstat/lp praten met de CUPS-socket; zonder deze regel blijft
-  # de printerlijst in de flatpak leeg (#326).
+  # GPU rendering for WebKitGTK.
+  - --device=dri
+  # No --filesystem: PDFs are opened and saved through the file chooser
+  # portal (GtkFileChooserNative), and "Open with" / drag and drop hand files
+  # over through the document portal.
+  #
+  # Network: signing in with an OpenAEC account (OAuth redirect to a loopback
+  # port plus HTTPS calls to the accounts API), the online symbol library, the
+  # "What's new" release notes, and the optional local MCP connection, which
+  # AI clients outside the sandbox reach on a localhost port.
+  - --share=network
+  # Printing: the print dialog lists the CUPS queues and spools to them.
   - --socket=cups
+  # The single-instance plugin owns <identifier>.SingleInstance on the session
+  # bus (identifier from tauri.conf.json, all lower case, so it is not covered
+  # by the app id). Without it a second launch ("Open with") starts a second
+  # window instead of opening the file in the running one.
+  - --own-name=org.openaec.openpdfstudio.SingleInstance
 
 build-options:
   append-path: /usr/lib/sdk/rust-stable/bin:/usr/lib/sdk/node22/bin
   env:
+    # Offline dependencies: generated-sources-cargo.json fills cargo/vendor and
+    # cargo/config.toml, generated-sources-npm.json fills the npm cache.
+    # Regenerate both with: node flatpak/generate-sources.mjs
     CARGO_HOME: /run/build/open-pdf-studio/cargo
+    CARGO_NET_OFFLINE: 'true'
+    npm_config_cache: /run/build/open-pdf-studio/flatpak-node/npm-cache
+    npm_config_offline: 'true'
     npm_config_nodedir: /usr/lib/sdk/node22
+    # tesseract-rs keeps its Leptonica/Tesseract sources and build cache under
+    # $HOME/.tesseract-rs; keep that inside the build directory.
+    HOME: /run/build/open-pdf-studio/flatpak-home
 
 modules:
   - name: open-pdf-studio
     buildsystem: simple
     build-commands:
-      # Install npm dependencies (offline from vendored sources)
-      - cd open-pdf-studio && npm ci --offline
-      # Build the frontend
-      - cd open-pdf-studio && npm run build
-      # Build the Tauri/Rust backend
-      - cd open-pdf-studio/src-tauri && cargo build --release --offline
-      # Install the binary
-      - install -Dm755 open-pdf-studio/src-tauri/target/release/open-pdf-studio ${FLATPAK_DEST}/bin/open-pdf-studio
+      # tesseract-rs (feature build-tesseract) links Leptonica and Tesseract
+      # statically. It only downloads their sources when they are missing from
+      # $HOME/.tesseract-rs/<target>/third_party, so put the declared sources
+      # there.
+      - |
+        set -e
+        third_party="$HOME/.tesseract-rs/$(rustc -vV | sed -n 's/^host: //p')/third_party"
+        mkdir -p "$third_party"
+        mv tesseract-src/leptonica tesseract-src/tesseract "$third_party/"
+      # PDFium from the declared, checksum-verified archive; tauri.linux.conf.json
+      # bundles it as a resource.
+      - install -Dm644 pdfium/lib/libpdfium.so open-pdf-studio/src-tauri/binaries/linux-x64/libpdfium.so
+      # npm dependencies from the offline cache. No install scripts: the build
+      # only needs vite and its prebuilt platform packages.
+      - cd open-pdf-studio && npm ci --offline --ignore-scripts --no-audit --no-fund
+      # Frontend. --ignore-scripts skips the prebuild hook, which fetches the
+      # OCR assets (declared as sources below) and builds the Windows/macOS
+      # sidecars that Linux does not use.
+      - cd open-pdf-studio && npm run build --ignore-scripts
+      # Tauri/Rust backend from the workspace root (one Cargo.lock, one
+      # target/). custom-protocol makes it serve the embedded frontend instead
+      # of the dev server, like `tauri build` does.
+      - cargo build --release --offline --locked -p open-pdf-studio --features tauri/custom-protocol
+      - install -Dm755 target/release/open-pdf-studio ${FLATPAK_DEST}/bin/open-pdf-studio
+      # Bundle resources where Tauri's resource_dir() looks on Linux:
+      # <prefix>/lib/<productName>.
+      - |
+        set -e
+        res="${FLATPAK_DEST}/lib/Open PDF Studio"
+        install -Dm644 open-pdf-studio/src-tauri/binaries/linux-x64/libpdfium.so "$res/libpdfium.so"
+        install -Dm644 open-pdf-studio/src-tauri/icons/file-icon.ico "$res/file-icon.ico"
+        for dir in kaders onderhoeken tessdata fonts; do
+          mkdir -p "$res/$dir"
+          cp -r "open-pdf-studio/src-tauri/resources/$dir/." "$res/$dir/"
+        done
+      - install -Dm644 LICENSE.md ${FLATPAK_DEST}/share/licenses/${FLATPAK_ID}/LICENSE.md
+      - install -Dm644 pdfium/LICENSE ${FLATPAK_DEST}/share/licenses/${FLATPAK_ID}/pdfium-LICENSE
       # Install the desktop file
       - install -Dm644 flatpak/org.openaec.OpenPdfStudio.desktop ${FLATPAK_DEST}/share/applications/org.openaec.OpenPdfStudio.desktop
       # Install the AppStream metadata
@@ -52,11 +102,68 @@ modules:
       - install -Dm644 open-pdf-studio/src-tauri/icons/32x32.png ${FLATPAK_DEST}/share/icons/hicolor/32x32/apps/org.openaec.OpenPdfStudio.png
       - install -Dm644 open-pdf-studio/src-tauri/icons/64x64.png ${FLATPAK_DEST}/share/icons/hicolor/64x64/apps/org.openaec.OpenPdfStudio.png
     sources:
+      # The app itself. For Flathub, flatpak/flathub-manifest.mjs replaces this
+      # local directory with the release tag and its commit.
       - type: dir
         path: ..
-      # Vendored npm dependencies — generate with:
-      #   flatpak-node-generator npm open-pdf-studio/package-lock.json -o flatpak/node-sources.json
-      - node-sources.json
-      # Vendored Cargo dependencies — generate with:
-      #   flatpak-cargo-generator open-pdf-studio/src-tauri/Cargo.lock -o flatpak/cargo-sources.json
-      - cargo-sources.json
+        skip:
+          - .git
+          - .flatpak-builder
+          - builddir
+          - repo
+          - flathub-out
+          - target
+          - open-pdf-studio/node_modules
+          - open-pdf-studio/dist
+
+      # PDFium (chromium/8076), the same build the release workflows bundle.
+      - type: archive
+        url: https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F8076/pdfium-linux-x64.tgz
+        sha256: d9d67bc40af03aef4fe28a60b19b1086f28ace019c8c9caf19cb7fe3d14ceca3
+        strip-components: 0
+        dest: pdfium
+        only-arches:
+          - x86_64
+
+      # Leptonica and Tesseract at the tags pinned in tesseract-rs's build.rs.
+      - type: git
+        url: https://github.com/DanBloomberg/leptonica.git
+        tag: 1.87.0
+        commit: 13275a278eb55b5746e33f95fbf5a2c8f604b3ab
+        disable-submodules: true
+        dest: tesseract-src/leptonica
+      - type: git
+        url: https://github.com/tesseract-ocr/tesseract.git
+        tag: 5.5.2
+        commit: 6e1d56a847e697de07b38619356550e5cf4e8633
+        disable-submodules: true
+        dest: tesseract-src/tesseract
+
+      # OCR runtime assets, the same files and SHA-256 sums as
+      # open-pdf-studio/scripts/ocr-runtime.mjs, pinned to the commit that last
+      # changed each file.
+      - type: file
+        url: https://github.com/tesseract-ocr/tessdata_fast/raw/923915d4ced2a7235221788285785a29c4a42d4a/eng.traineddata
+        sha256: 7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2
+        dest: open-pdf-studio/src-tauri/resources/tessdata
+        dest-filename: eng.traineddata
+      - type: file
+        url: https://github.com/tesseract-ocr/tessdata_fast/raw/719cfd41d4ab71ecbc3d38fbcfb28fffea6bcccb/chi_tra.traineddata
+        sha256: 529c5b5797d64b126065cd55f2bb4c7fd7b15790798091b1ff259941a829330b
+        dest: open-pdf-studio/src-tauri/resources/tessdata
+        dest-filename: chi_tra.traineddata
+      - type: file
+        url: https://github.com/googlefonts/noto-cjk/raw/165c01b46ea533872e002e0785ff17e44f6d97d8/Sans/SubsetOTF/TC/NotoSansTC-Regular.otf
+        sha256: 5bab0cb3c1cf89dde07c4a95a4054b195afbcfe784d69d75c340780712237537
+        dest: open-pdf-studio/src-tauri/resources/fonts
+        dest-filename: NotoSansTC-Regular.ttf
+      - type: file
+        url: https://github.com/googlefonts/noto-cjk/raw/165c01b46ea533872e002e0785ff17e44f6d97d8/Sans/SubsetOTF/SC/NotoSansSC-Regular.otf
+        sha256: faa6c9df652116dde789d351359f3d7e5d2285a2b2a1f04a2d7244df706d5ea9
+        dest: open-pdf-studio/src-tauri/resources/fonts
+        dest-filename: NotoSansSC-Regular.otf
+
+      # Offline npm and cargo dependencies, generated from the lockfiles with:
+      #   node flatpak/generate-sources.mjs
+      - generated-sources-npm.json
+      - generated-sources-cargo.json

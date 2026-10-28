@@ -36,9 +36,28 @@ pub fn configure_appimage_gio_modules() {
     }
 }
 
+// Flatpak puts /.flatpak-info in every sandbox (the documented way to detect
+// it). Updates then come from the Flatpak remote (Flathub), not from the
+// built-in updater: Flathub does not allow apps to update themselves.
+#[cfg(any(target_os = "linux", test))]
+fn is_flatpak_sandbox(flatpak_info: &Path) -> bool {
+    flatpak_info.is_file()
+}
+
+pub fn running_in_flatpak() -> bool {
+    #[cfg(target_os = "linux")]
+    {
+        is_flatpak_sandbox(Path::new("/.flatpak-info"))
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        false
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::packaged_gio_module_dir;
+    use super::{is_flatpak_sandbox, packaged_gio_module_dir};
     use std::env;
     use std::ffi::OsStr;
     use std::path::PathBuf;
@@ -97,5 +116,17 @@ mod tests {
             ),
             None,
         );
+    }
+
+    #[test]
+    fn detects_the_flatpak_sandbox_by_its_info_file() {
+        let dir = env::temp_dir().join(format!("opds-flatpak-info-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let info = dir.join(".flatpak-info");
+        assert!(!is_flatpak_sandbox(&info));
+        std::fs::write(&info, "[Application]\nname=org.openaec.OpenPdfStudio\n").unwrap();
+        assert!(is_flatpak_sandbox(&info));
+        assert!(!is_flatpak_sandbox(&dir), "a directory is not the info file");
+        std::fs::remove_dir_all(&dir).unwrap();
     }
 }

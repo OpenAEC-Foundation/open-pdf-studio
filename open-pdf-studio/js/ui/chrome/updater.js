@@ -3,7 +3,7 @@
  * Uses Tauri Plugin Updater to check for and install updates.
  */
 
-import { isTauri } from '../../core/platform.js';
+import { invoke, isTauri } from '../../core/platform.js';
 import { check } from '@tauri-apps/plugin-updater';
 import { openDialog } from '../../bridge.js';
 import { leesOpslag } from '../../core/opslag.js';
@@ -19,6 +19,13 @@ export async function checkForUpdates(silent = true) {
   checking = true;
 
   try {
+    // A Flatpak gets its updates from Flathub; the backend does not register
+    // the updater plugin there.
+    if (await updatesManagedExternally()) {
+      if (!silent) showManagedExternallyMessage();
+      return;
+    }
+
     const update = await check();
 
     if (update) {
@@ -35,6 +42,23 @@ export async function checkForUpdates(silent = true) {
     if (!silent) showUpdateError(e);
   } finally {
     checking = false;
+  }
+}
+
+async function updatesManagedExternally() {
+  try {
+    return (await invoke('updates_managed_externally')) === true;
+  } catch {
+    return false; // older backend without the command
+  }
+}
+
+function showManagedExternallyMessage() {
+  if (window.__TAURI__?.dialog?.message) {
+    window.__TAURI__.dialog.message(
+      'This copy of Open PDF Studio is installed as a Flatpak. Updates are installed through your software center or with "flatpak update".',
+      { title: 'Software Update', kind: 'info' }
+    );
   }
 }
 

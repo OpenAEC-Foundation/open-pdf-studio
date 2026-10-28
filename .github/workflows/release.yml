@@ -751,6 +751,46 @@ jobs:
           ARCHIVE="dist-webbundel/open-pdf-studio-web-${VERSION#v}.tar.gz"
           gh release upload "$VERSION" "$ARCHIVE" "$ARCHIVE.sha256" --clobber --repo "${{ github.repository }}"
 
+  flatpak:
+    # Flathub readiness (#389): lints the Flatpak and builds it the way Flathub
+    # does (sandboxed, offline from the declared sources), then lints the
+    # build. Flathub builds and publishes the Flatpak itself, so the bundle is
+    # only a workflow artifact for testing, not a release asset, and this job
+    # does not gate the release.
+    needs: create-release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Install Flatpak tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak appstream desktop-file-utils
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          # flatpak-builder, flathub-build and flatpak-builder-lint, the same
+          # tools the Flathub builders use.
+          flatpak install --user -y --noninteractive flathub org.flatpak.Builder
+
+      - name: Validate and lint the Flatpak
+        run: bash flatpak/ci-check.sh lint
+
+      - name: Build the Flatpak offline and lint the build
+        run: bash flatpak/ci-check.sh build
+
+      - name: Upload the Flatpak bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: open-pdf-studio-flatpak-${{ needs.create-release.outputs.version }}
+          path: org.openaec.OpenPdfStudio.flatpak
+          if-no-files-found: error
+
   publish-release:
     permissions:
       contents: write

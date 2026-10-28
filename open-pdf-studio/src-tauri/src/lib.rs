@@ -241,6 +241,14 @@ fn delete_catalog(id: String) -> Result<bool, String> {
     }
 }
 
+/// True when a package manager installs the updates (Flatpak/Flathub). The
+/// built-in updater is then not registered, and Help > Check for updates says
+/// where updates come from instead.
+#[tauri::command]
+fn updates_managed_externally() -> bool {
+    linux_runtime::running_in_flatpak()
+}
+
 #[tauri::command]
 fn get_username() -> String {
     whoami::username()
@@ -2870,7 +2878,9 @@ pub fn run(opts: StartupOpts) {
                     }
                 }));
         }
-        builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
+        if !linux_runtime::running_in_flatpak() {
+            builder = builder.plugin(tauri_plugin_updater::Builder::new().build());
+        }
     }
 
     // Global system hotkey (PrtScn) for the opt-in "screenshot annotate"
@@ -3089,6 +3099,7 @@ pub fn run(opts: StartupOpts) {
         .invoke_handler(tauri::generate_handler![
             pdf_beveiliging::protect_pdf_file,
             get_opened_file,
+            updates_managed_externally,
             save_session,
             load_session,
             get_username,
