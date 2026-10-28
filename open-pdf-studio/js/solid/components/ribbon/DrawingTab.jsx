@@ -28,7 +28,7 @@ import { alignLeft } from '../../../annotations/alignment.js';
 import { explodeSelection, joinSelection, createCollection, explodeCollection } from '../../../annotations/segment-ops.js';
 import {
   handIcon, selectCommentsIcon, findIcon,
-  lineIcon, arrowIcon, drawIcon, eraserIcon, rectIcon, polylineIcon, textboxIcon, noteIcon, ellipseIcon, circleIcon,
+  lineIcon, arrowIcon, drawIcon, eraserIcon, rectIcon, polylineIcon, textboxIcon, noteIcon, ellipseIcon, circleIcon, countIcon,
   calloutIcon, cloudIcon,
   measureDistanceIcon, measureAngleIcon, measurePerimeterIcon, measureAreaIcon,
   alignLeftIcon, alignTopIcon, alignBottomIcon,
@@ -240,7 +240,7 @@ export function DrawingGroups() {
             disabled={ro()} active={state.currentTool === 'circle'} onClick={() => setTool('circle')} />
           <RibbonButton size="small" id="dr-ellipse" title={`${t('comment.ellipse') || 'Ellipse'} — ${t('drawing.dimHint')}`} icon={ellipseIcon}
             disabled={ro()} active={state.currentTool === 'ellipse'} onClick={() => setTool('ellipse')} />
-          <RibbonButton size="small" id="dr-count" title="Tellen" icon={circleIcon}
+          <RibbonButton size="small" id="dr-count" title="Tellen" icon={countIcon}
             disabled={ro()} active={state.currentTool === 'count'} onClick={() => setTool('count')} />
           <RibbonButton size="small" id="dr-l-shape" title={`${t('drawing.lShape')} — ${t('drawing.dimHint')}`} icon={lShapeIcon}
             disabled={ro()} active={state.currentTool === 'lshape'} onClick={() => setTool('lshape')} />
