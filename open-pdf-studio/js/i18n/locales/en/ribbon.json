@@ -328,7 +328,9 @@
     "scanText": "Edit Scan Text",
     "scanTextHint": "Click a recognised word to replace it. The old word in the scan is covered.",
     "scanTextNone": "No recognised text on this page. Run Recognize Text (OCR) first.",
-    "shiftPage": "Shift Page"
+    "shiftPage": "Shift Page",
+    "editPages": "Edit Pages",
+    "editPagesTitle": "Rotate, reorder, insert, delete and split pages on one visual canvas"
   },
   "help": {
     "settings": "Settings",
@@ -689,5 +691,38 @@
     "noRecovery": "The markups in this document were flattened without allowing unflattening. They are part of the page content and cannot be restored.",
     "done": "Markups restored: {{count}}.",
     "failed": "Unflattening failed: {{error}}"
+  },
+  "organizer": {
+    "title": "Edit Pages",
+    "hint": "Drag a page or a selection to reorder · Ctrl+click and Shift+click to select more · Ctrl+Z undoes within this screen",
+    "pageCount": "{{n}} pages",
+    "removedCount": "{{n}} removed",
+    "insertedCount": "{{n}} inserted",
+    "partCount": "{{n}} files",
+    "selected": "{{n}} selected",
+    "blankSize": "Size of a new blank page",
+    "undo": "Undo (Ctrl+Z)",
+    "redo": "Redo (Ctrl+Y)",
+    "zoomIn": "Larger cards",
+    "zoomOut": "Smaller cards",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…",
+    "deleteSelected": "Delete",
+    "extractSelected": "Extract",
+    "splitAtSelected": "Split here",
+    "clearSelection": "Clear selection",
+    "rotateLeft": "Rotate left",
+    "rotateRight": "Rotate right",
+    "deletePage": "Delete page",
+    "selectPage": "Select page",
+    "blankPage": "New page",
+    "noPreview": "No preview",
+    "inserted": "new",
+    "fromFile": "file",
+    "insertHere": "Insert a blank page here",
+    "splitHere": "Split the document here",
+    "appendHere": "Add a blank page at the end",
+    "applying": "Applying page changes…"
   }
 }

@@ -517,3 +517,5 @@ js/pdf/saver/text-edit-unicode.test.mjs
 js/text/tekstlaag-bron.test.mjs
 js/pdf/saver/text-edit-glyfen.test.mjs
 js/text/tekenafstand.test.mjs
+js/pagina-organizer/organizer-model.test.mjs
+js/pagina-organizer/organizer-apply.test.mjs

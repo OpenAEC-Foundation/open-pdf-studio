@@ -76,6 +76,11 @@ function setupTauriDragDrop() {
       for (const filePath of paths) {
         const ext = getFileExtension(filePath);
         if (ext === '.pdf') {
+          // Staat de pagina-organizer open (#764)? Dan voegt een gesleepte PDF
+          // zijn pagina's toe aan het plan, in plaats van er een tab bij te
+          // openen — de gebruiker sleept hem tussen de kaarten.
+          const organizer = await import('../solid/stores/pagina-organizer-store.js');
+          if (organizer.organizerActief() && await organizer.voegPdfPadToe(filePath)) continue;
           const { index } = createTab(filePath);
           await loadPDFIfNeeded(filePath, index);
         } else if (ext === '.dwg' || ext === '.dxf') {

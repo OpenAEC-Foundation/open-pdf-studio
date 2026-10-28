@@ -1,0 +1,333 @@
+/* Modus "Pagina's bewerken" (#764): het scherm met alle pagina's als kaarten.
+   Dekent het venster af, maar blijft onder de vensters (z-index 9999), zodat
+   een dialoog er altijd bovenop komt. */
+
+.po-root {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  background: var(--theme-bg, #36363E);
+  color: var(--theme-text, #FAFAF9);
+  outline: none;
+  font-size: 13px;
+}
+
+/* ── kopregel ─────────────────────────────────────────────────────────── */
+
+.po-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 14px;
+  background: linear-gradient(to bottom, var(--theme-ribbon-bg-start, #44444C) 0%, var(--theme-ribbon-bg-end, #36363E) 100%);
+  border-bottom: 1px solid var(--theme-ribbon-border, rgba(217, 119, 6, 0.25));
+  flex-shrink: 0;
+}
+
+.po-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-weight: 600;
+  min-width: 0;
+}
+
+.po-title-icon svg { width: 18px; height: 18px; vertical-align: -3px; }
+.po-title small {
+  font-weight: 400;
+  color: var(--theme-text-secondary, rgba(250, 250, 249, 0.6));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.po-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.po-sep {
+  width: 1px;
+  align-self: stretch;
+  margin: 2px 4px;
+  background: var(--theme-border, rgba(217, 119, 6, 0.25));
+}
+
+.po-tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 26px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.po-tool svg { width: 16px; height: 16px; }
+.po-tool:hover:not(:disabled) { background: var(--theme-hover, rgba(217, 119, 6, 0.1)); }
+.po-tool:disabled { opacity: 0.35; cursor: default; }
+
+.po-zoom {
+  min-width: 42px;
+  text-align: center;
+  color: var(--theme-text-secondary, rgba(250, 250, 249, 0.6));
+  font-variant-numeric: tabular-nums;
+}
+
+.po-maat select {
+  background: var(--theme-surface, #44444C);
+  color: inherit;
+  border: 1px solid var(--theme-border, rgba(217, 119, 6, 0.25));
+  border-radius: 3px;
+  padding: 3px 4px;
+  font: inherit;
+}
+
+.po-btn {
+  border: 1px solid var(--theme-border, rgba(217, 119, 6, 0.25));
+  background: var(--theme-surface, #44444C);
+  color: inherit;
+  border-radius: 3px;
+  padding: 4px 10px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.po-btn:hover { background: var(--theme-hover, rgba(217, 119, 6, 0.1)); }
+.po-btn:disabled { opacity: 0.5; cursor: default; }
+.po-btn-quiet { background: transparent; border-color: transparent; }
+.po-btn-quiet:hover { border-color: var(--theme-border, rgba(217, 119, 6, 0.25)); }
+
+.po-btn-primary {
+  background: var(--theme-accent, #D97706);
+  border-color: var(--theme-accent, #D97706);
+  color: #fff;
+  font-weight: 600;
+}
+
+.po-btn-primary:hover:not(:disabled) { background: var(--theme-accent-hover, #EA580C); }
+
+/* ── selectiebalk ─────────────────────────────────────────────────────── */
+
+.po-selbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: var(--theme-surface, #44444C);
+  border-bottom: 1px solid var(--theme-border, rgba(217, 119, 6, 0.25));
+  flex-shrink: 0;
+}
+
+.po-sel-count { font-weight: 600; margin-right: 4px; }
+
+/* ── kaarten ──────────────────────────────────────────────────────────── */
+
+.po-scroll {
+  flex: 1;
+  overflow: auto;
+  padding: 18px;
+}
+
+.po-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 6px;
+  --po-card: 150px;
+}
+
+.po-card {
+  position: relative;
+  width: var(--po-card);
+  padding: 6px;
+  border: 1px solid var(--theme-border, rgba(217, 119, 6, 0.25));
+  border-radius: 4px;
+  background: var(--theme-surface, #44444C);
+  cursor: pointer;
+  /* Grote documenten: kaarten buiten beeld worden niet opgemaakt. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto var(--po-card);
+}
+
+.po-card:hover { border-color: var(--theme-accent, #D97706); }
+.po-card.selected {
+  border-color: var(--theme-accent, #D97706);
+  box-shadow: 0 0 0 2px var(--theme-accent, #D97706);
+}
+.po-card.dragging { opacity: 0.45; }
+.po-card.blanco .po-thumb { background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.06) 0 6px, transparent 6px 12px); }
+
+.po-thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(var(--po-card) * 1.2);
+  background: #fff;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.po-thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+.po-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  border-top-color: rgba(0, 0, 0, 0.45);
+  border-radius: 50%;
+  animation: po-draai 0.9s linear infinite;
+}
+
+@keyframes po-draai { to { transform: rotate(360deg); } }
+
+.po-blank-sheet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  min-height: calc(var(--po-card) * 1.2);
+  background: #fff;
+  color: #666;
+  font-size: 11px;
+  text-align: center;
+  padding: 6px;
+}
+
+.po-card-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding-top: 4px;
+  font-size: 11px;
+  color: var(--theme-text-secondary, rgba(250, 250, 249, 0.6));
+}
+
+.po-card-label em { font-style: normal; opacity: 0.85; }
+
+.po-card-actions {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.po-card:hover .po-card-actions,
+.po-card:focus-within .po-card-actions { opacity: 1; }
+
+.po-act {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #333;
+  cursor: pointer;
+}
+
+.po-act svg { width: 14px; height: 14px; }
+.po-act:hover { background: #fff; border-color: var(--theme-accent, #D97706); }
+.po-act-danger:hover { background: #c0392b; border-color: #c0392b; color: #fff; }
+
+.po-check {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.po-card:hover .po-check,
+.po-card.selected .po-check { opacity: 1; }
+.po-check input { width: 16px; height: 16px; cursor: pointer; }
+
+/* ── gaps tussen de kaarten: + en ✂ ───────────────────────────────────── */
+
+.po-gap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  width: 26px;
+  align-self: stretch;
+  padding-top: 6px;
+}
+
+.po-gap-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px dashed var(--theme-border, rgba(217, 119, 6, 0.25));
+  border-radius: 50%;
+  background: transparent;
+  color: var(--theme-text-secondary, rgba(250, 250, 249, 0.6));
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s, color 0.12s;
+}
+
+.po-gap-btn svg { width: 12px; height: 12px; }
+.po-gap:hover .po-gap-btn { opacity: 1; }
+.po-gap-btn:hover { color: var(--theme-text, #FAFAF9); border-color: var(--theme-accent, #D97706); }
+.po-gap-cut { border-style: solid; }
+.po-gap-cut.actief {
+  opacity: 1;
+  color: #fff;
+  background: var(--theme-accent, #D97706);
+  border-color: var(--theme-accent, #D97706);
+}
+
+.po-drop-line {
+  flex: 1;
+  width: 3px;
+  border-radius: 2px;
+  background: transparent;
+}
+
+.po-gap.po-gap-over .po-drop-line { background: var(--theme-accent, #D97706); }
+.po-gap.po-gap-over .po-gap-btn { opacity: 1; }
+
+/* ── melding en voettekst ─────────────────────────────────────────────── */
+
+.po-notice {
+  padding: 6px 14px;
+  background: rgba(217, 119, 6, 0.18);
+  border-top: 1px solid var(--theme-border, rgba(217, 119, 6, 0.25));
+  color: var(--theme-text, #FAFAF9);
+  flex-shrink: 0;
+}
+
+.po-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 14px;
+  border-top: 1px solid var(--theme-border, rgba(217, 119, 6, 0.25));
+  color: var(--theme-text-secondary, rgba(250, 250, 249, 0.6));
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.po-file { opacity: 0.8; }

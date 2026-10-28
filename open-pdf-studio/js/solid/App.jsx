@@ -25,6 +25,8 @@ import KeystrokeOverlay from './components/KeystrokeOverlay.jsx';
 import BoxSizeOverlay from './components/BoxSizeOverlay.jsx';
 import SketchModeBar from './components/SketchModeBar.jsx';
 import CompareView from './components/compare/CompareView.jsx';
+// Pagina's bewerken (#764): de modus met alle pagina's als kaarten.
+import PagesOrganizer from './components/organizer/PagesOrganizer.jsx';
 import { DockedToolPalette, FloatingToolPalette, DockTargets, PaletteContextMenu } from './components/ToolPalette.jsx';
 import { DockedExtPalette, FloatingExtPalette, ExtDockTargets } from './components/ExtensionToolPalette.jsx';
 import { DockedSymbolPalette, FloatingSymbolPalette, SymbolSettingsDialog } from './components/SymbolPalette.jsx';
@@ -154,6 +156,7 @@ function DesktopApp() {
       <SchedulePanel />
       <AssistantPanel />
       {/* MiniLog floating engine-log overlay removed per user request. */}
+      <PagesOrganizer />
       <LoadingOverlay />
       <TypeLengthHUD />
       <KeystrokeOverlay />

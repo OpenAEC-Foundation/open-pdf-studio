@@ -22,6 +22,9 @@ const splitDocumentIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentC
 
 const scanTextIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 011-1h3M16 4h3a1 1 0 011 1v3M20 16v3a1 1 0 01-1 1h-3M8 20H5a1 1 0 01-1-1v-3"/><path d="M8.5 9.5h7M12 9.5v6"/></svg>`;
 
+// Pagina's bewerken (#764): het scherm met alle pagina's als kaarten.
+const editPagesIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="3" y="3" width="7" height="10"/><rect x="14" y="3" width="7" height="10"/><rect x="3" y="16" width="7" height="5"/><rect x="14" y="16" width="7" height="5"/></svg>`;
+
 export default function OrganizeTab() {
   const { t } = useTranslation('ribbon');
   const ro = () => noPdf() || isPdfAReadOnly();
@@ -31,6 +34,12 @@ export default function OrganizeTab() {
   // van de Start-tab (#200). Draait de geselecteerde miniaturen, of anders de
   // huidige pagina (#464).
   const rotateCurrentPage = (delta) => draaiVanafKnop(delta);
+
+  // De organizer kent pdf-lib en PDF.js: pas laden als de gebruiker hem opent.
+  async function openEditPages() {
+    const { openOrganizer } = await import('../../../solid/stores/pagina-organizer-store.js');
+    openOrganizer();
+  }
 
   function openPageReorder() {
     // Open the left panel and switch to the page-thumbnails tab so the user
@@ -94,6 +103,8 @@ export default function OrganizeTab() {
         </RibbonGroup>
 
         <RibbonGroup label={t('organize.pages')}>
+          <RibbonButton id="edit-pages" title={t('organize.editPagesTitle')} icon={editPagesIcon} label={t('organize.editPages')}
+            disabled={noPdf()} onClick={() => openEditPages()} />
           <RibbonButton id="insert-page" title={t('organize.insertPage')} icon={insertPageIcon} label={t('organize.insert')}
             disabled={noPdf() || isPdfAReadOnly()} onClick={() => showInsertPageDialog()} />
           <RibbonButton id="delete-page" title={t('organize.deletePage')} icon={deletePageIcon} label={t('organize.deleteLabel')}
