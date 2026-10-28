@@ -55,6 +55,8 @@ export async function inspectHiddenInformation(bytes) {
   const pdf=await PDFDocument.load(bytes.slice(),{updateMetadata:false});
   return inventory(pdf);
 }
+/** Delete every object that is not reachable from the trailer; returns the count. */
+export function sweepUnreachable(pdf) { return sweep(pdf); }
 function sweep(pdf) {
   const reachable=walk(pdf,()=>{});let count=0;
   for(const [ref] of pdf.context.enumerateIndirectObjects())if(!reachable.has(ref.toString())){pdf.context.delete(ref);count++;}
@@ -74,6 +76,15 @@ function purgeReferences(pdf,objects,removed){
     if(d){for(const [key,value] of d.entries())if(gone(value))d.delete(key);}
     else if(v instanceof PDFArray){for(let i=v.size()-1;i>=0;i--)if(gone(v.get(i)))v.remove(i);}
   }
+}
+/**
+ * Drop every pointer to the given annotations (refs as strings): /Annots
+ * entries, popups, replies and structure-tree OBJR references.
+ */
+export function purgeAnnotationReferences(pdf,removed){
+  if(!removed.size)return;
+  const objects=[];walk(pdf,(v)=>objects.push(v));
+  purgeReferences(pdf,objects,removed);
 }
 export async function removeHiddenInformation(bytes, categories) {
   if(!Array.isArray(categories)||!categories.length||categories.some(c=>!CATEGORIES.includes(c)))throw new Error('INVALID_REMOVAL_CATEGORIES');

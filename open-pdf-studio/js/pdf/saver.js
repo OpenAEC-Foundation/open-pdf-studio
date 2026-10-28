@@ -727,8 +727,9 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             }
             // Redaction MARK (not yet applied): round-trip via the subtype key so
             // pending marks survive save+reopen instead of being silently dropped.
-            // Other viewers degrade to a plain filled square. (Applying a
-            // redaction converts it to a permanent black box — see redaction.js.)
+            // Other viewers degrade to a plain filled square; the content under
+            // it is still in the file until the mark is applied, which removes
+            // that content from the pages (redaction.js, #762).
             if (ann.type === 'redaction') {
               const rcol = (typeof ann.overlayColor === 'string' && ann.overlayColor.startsWith('#')) ? ann.overlayColor : '#000000';
               annDictObj.OPS_Subtype = PDFString.of('redaction');
@@ -3325,6 +3326,16 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
         opgeslagenStructEdits = activeDoc.structEdits;
         const r = applyEditsToPdf(pdfDocLib, opgeslagenStructEdits);
         if (r.skipped) console.warn(`[saver] ${r.skipped} structure edit(s) no longer match the document and were skipped`);
+      }
+
+      // Redactions applied since the last save (#762): their areas are
+      // recorded on the pages. Remove whatever this save just wrote into the
+      // pages (text edits, OCR text, watermarks) from those areas too; the
+      // record itself is not written to the file. A recovery snapshot keeps
+      // it, so a recovered document still re-applies the areas.
+      {
+        const { applyPendingRedactions } = await import('./redaction/apply.js');
+        await applyPendingRedactions(pdfDocLib, { keepRecord: momentopname });
       }
     }
     await annulering.punt();

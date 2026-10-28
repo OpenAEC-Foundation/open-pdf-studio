@@ -91,7 +91,7 @@ Professional annotation, markup, measurement, redaction and page management — 
 - **Stamps:** 10 built-in stamps (Approved, Rejected, Draft, Confidential, Final, etc.)
 - **Images:** Insert from file, paste from clipboard, or drag-and-drop, with non-destructive cropping
 - **Signatures:** Draw multi-stroke signatures, save up to 5 for quick reuse
-- **Redaction:** Mark areas and apply to permanently remove content
+- **Redaction:** Mark areas and apply to remove the text, images, vector graphics, annotations and form fields under them from the file; saving then rewrites the whole file without earlier versions
 
 ### Measurement Tools
 - Distance, area, and perimeter measurement

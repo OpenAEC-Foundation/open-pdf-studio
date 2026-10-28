@@ -85,6 +85,8 @@ function harness() {
       if (path.includes('opslaan')) return { moetOpnieuwVerifieren: () => false, opslaanAlsStandaardPad: doc => doc.filePath };
       if (path.includes('cad-import')) return { isVoorbeeldPdf: () => false };
       if (path.includes('document-release')) return { losgelatenWerkbestanden: () => [], ruimWerkbestandenOp: async () => {} };
+      // Redactions applied since the last save (#762): none in these documents.
+      if (path.includes('redaction/apply')) return { applyPendingRedactions: async () => null };
       throw new Error(`Unexpected import: ${path}`);
     },
   };
