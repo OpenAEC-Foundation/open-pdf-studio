@@ -15,7 +15,9 @@
 //     headless Chromium een PDF met standaardfonts en een CJK-CMap, tekent
 //     alle tekst, en gaat geen enkel verzoek buiten zijn eigen map;
 //  5. index.html heeft geen inline code en SRI op elk script en stylesheet
-//     (#693).
+//     (#693);
+//  6. geen bestand (ook de derdenvermeldingen niet) bevat code of de naam
+//     van een desktop-pakket zoals de sleepplugin (#776).
 
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -24,7 +26,7 @@ import path from 'node:path';
 import { gunzipSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
-import { BRON, LICENTIE, NOTICES, controleerManifest, leesTar, pakUit, sha256 } from './webbundel.mjs';
+import { BRON, LICENTIE, NOTICES, controleerManifest, leesTar, pakUit, sha256, zoekDesktopCode } from './webbundel.mjs';
 import { inktPerBand, maakProefPdf, openPdfInApp, startServer } from './gehost-proef.mjs';
 import { controleerIndexHtml } from './gehost-html.mjs';
 
@@ -117,6 +119,9 @@ async function hoofd() {
     meld(`  index.html: ${htmlFouten.length ? 'NOT CSP-ready' : 'no inline code, SRI on every script and stylesheet'}`);
   }
   eis(fs.existsSync(path.join(map, NOTICES)) && fs.statSync(path.join(map, NOTICES)).size > 1000, `${NOTICES} missing or empty`);
+  const desktop = zoekDesktopCode(items);
+  eis(desktop.length === 0, `desktop-only code in the bundle: ${desktop.map((t) => `${t.pad} (${t.kenmerk})`).join(', ')}`);
+  meld(`  desktop-only packages: ${desktop.length ? `FOUND in ${desktop.length} file(s)` : 'none'}`);
 
   // 3. bron.json.
   const bron = JSON.parse(fs.readFileSync(path.join(map, BRON), 'utf8'));

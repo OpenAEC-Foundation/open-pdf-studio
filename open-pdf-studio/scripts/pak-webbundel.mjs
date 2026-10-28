@@ -31,6 +31,7 @@ import {
   BRON, MANIFEST, NOTICES, archiefHashTekst, bestandenIn, bronJson, bundelLicenties,
   bundelNaam, maakTar, manifestTekst, noticesTekst, pakketGegevens, pakketMappen, sha256,
 } from './webbundel.mjs';
+import { DESKTOP_PAKKETTEN } from './web-bouw.mjs';
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -119,6 +120,8 @@ export async function pakWebbundel({ tag, commit, out = path.join(APP, 'dist-web
   const mappen = new Set(pakketMappen(ids, APP));
   for (const p of GEKOPIEERDE_PAKKETTEN) mappen.add(path.join(APP, 'node_modules', p).replace(/\\/g, '/'));
   const pakketten = [...mappen].map(pakketGegevens);
+  const desktop = pakketten.filter((p) => DESKTOP_PAKKETTEN.includes(p.naam)).map((p) => p.naam);
+  if (desktop.length) throw new Error(`Desktop-only package(s) in the web bundle: ${desktop.join(', ')} (see scripts/web-bouw.mjs)`);
   const leeg = pakketten.filter((p) => !p.teksten.length).map((p) => p.naam);
   if (leeg.length) console.warn(`[webbundel] no licence file in: ${leeg.join(', ')}`);
 
