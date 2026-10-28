@@ -644,6 +644,165 @@ fn agent_task_result_tool() -> Value {
     })
 }
 
+/// Paginabewerkingen, bladwijzers en watermerken (voorstel uit
+/// docs/python-library.md, #804). Elk gereedschap roept in de WebView dezelfde
+/// functie aan als het lint (js/pdf/mcp-paginabewerkingen.js,
+/// js/ui/panels/bladwijzers-mcp.js, js/watermark/watermerken-mcp.js). Ze staan
+/// in de lijst direct na `app_merge_pdf`.
+fn pagina_tools() -> Vec<Value> {
+    let paginas = |beschrijving: &str| json!({
+        "type": "array",
+        "items": { "type": "integer", "minimum": 1 },
+        "minItems": 1,
+        "description": beschrijving
+    });
+    vec![
+        json!({
+            "name": "app_rotate_pages",
+            "description": "Rotate pages of the active document by a quarter, half or three-quarter turn, as one undo step, the same way Organize > Rotate does: the markups on those pages and the measurement scales of the PDF turn along. Returns { ok, angle, pages, rotations: [{ page, rotation }] }, where rotation is the app's rotation on top of the page's own /Rotate; it is written into the file on save. Refused in a read-only document (PDF/A without editing enabled, password-protected).",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "pages": paginas("Page numbers (1-based) to rotate, each once."),
+                    "angle": { "type": "integer", "enum": [90, 180, 270, -90], "description": "Degrees clockwise; -90 turns counter-clockwise." }
+                },
+                "required": ["pages", "angle"],
+                "additionalProperties": false
+            }
+        }),
+        json!({
+            "name": "app_delete_pages",
+            "description": "Delete pages from the active document, as one undo step, the same way Organize > Delete does: the markups on the deleted pages go with them, the others, the page labels and the measurement scales move along. A document keeps at least one page: deleting every page is refused. Returns { ok, deleted, pagesBefore, pagesAfter, currentPage }. Refused in a read-only document.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "pages": paginas("Page numbers (1-based) to delete, each once.")
+                },
+                "required": ["pages"],
+                "additionalProperties": false
+            }
+        }),
+        json!({
+            "name": "app_insert_blank_pages",
+            "description": "Insert blank pages into the active document, as one undo step, the same way Organize > Insert does. Without widthPt and heightPt the new pages get the size of page `after` (the first page when after is 0). Returns { ok, inserted (the new page numbers), widthPt, heightPt, pagesBefore, pagesAfter, currentPage }. Refused in a read-only document.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "after":    { "type": "integer", "minimum": 0, "description": "Insert after this page number; 0 inserts before the first page." },
+                    "count":    { "type": "integer", "minimum": 1, "maximum": 500, "default": 1, "description": "Number of blank pages." },
+                    "widthPt":  { "type": "number", "minimum": 3, "maximum": 14400, "description": "Page width in points (1/72 inch, A4 is 595.28 x 841.89). Give together with heightPt." },
+                    "heightPt": { "type": "number", "minimum": 3, "maximum": 14400, "description": "Page height in points. Give together with widthPt." }
+                },
+                "required": ["after"],
+                "additionalProperties": false
+            }
+        }),
+        json!({
+            "name": "app_extract_pages",
+            "description": "Write pages of the active document, in the given order, to a new PDF file, the same way Organize > Extract does. An existing file is never replaced: choose a path that does not exist yet. With deleteFromOriginal the pages are then deleted from the document (one undo step); that is refused when it would remove every page. Returns { ok, outputPath, pages, pagesExtracted, deletedFromOriginal, pagesAfter }. Refused in a read-only document.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "pages":              paginas("Page numbers (1-based) to extract, each once, in the order they appear in the new file."),
+                    "outputPath":         { "type": "string", "description": "Absolute path of the new .pdf file; it must not exist yet." },
+                    "deleteFromOriginal": { "type": "boolean", "default": false, "description": "Also delete the extracted pages from the document." }
+                },
+                "required": ["pages", "outputPath"],
+                "additionalProperties": false
+            }
+        }),
+        json!({
+            "name": "app_reorder_pages",
+            "description": "Put the pages of the active document in a new order, as one undo step, the same way dragging thumbnails does: markups, page labels and measurement scales move with their page. order[i] is the current page number that becomes page i+1, and lists every page exactly once (for 3 pages, [3, 1, 2] moves the last page to the front). Returns { ok, changed, order, pages, currentPage }; the current order gives changed false. Refused in a read-only document.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "order": paginas("The new order: every current page number (1-based) exactly once.")
+                },
+                "required": ["order"],
+                "additionalProperties": false
+            }
+        }),
+        json!({
+            "name": "app_shift_pages",
+            "description": "Shift the content of pages by a fixed distance, as one undo step, the same way Organize > Shift page does: the page content is moved (not rasterized), and the markups, links, form fields and measurement scales on those pages move along. Directions are as the page is displayed (including its rotation): dx positive to the right, dy positive up. Returns { ok, pages, dx, dy, shifted } with shifted the number of pages that moved; pages without content and markups are left alone. Refused in a read-only document.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "pages": paginas("Page numbers (1-based) to shift, each once."),
+                    "dx":    { "type": "number", "minimum": -5080, "maximum": 5080, "default": 0, "description": "Horizontal shift in millimetres; positive is to the right." },
+                    "dy":    { "type": "number", "minimum": -5080, "maximum": 5080, "default": 0, "description": "Vertical shift in millimetres; positive is up." }
+                },
+                "required": ["pages"],
+                "additionalProperties": false
+            }
+        }),
+        json!({
+            "name": "app_bookmarks",
+            "description": "Read and edit the bookmarks (outline) of the active document, the same way the Bookmarks panel does; every change is one undo step and is written into the file on save. list returns { ok, count, bookmarks: [{ id, title, page, parentId, level, children, bold, italic, color }] } in panel order (a parent before its children). add takes title, optional page (default the current page), parentId, bold, italic and color, appends the bookmark at the end of its parent and returns { ok, bookmark }. update takes id and any of title (rename), page, bold, italic, color (null clears it). delete takes ids and removes them with everything under them: { ok, deleted, count, remaining }. move takes ids, position (before, after or inside targetId, or end of the top level without targetId) and refuses a move into a bookmark's own children. Edits are refused in a read-only document.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "action":   { "type": "string", "enum": ["list", "add", "update", "delete", "move"] },
+                    "id":       { "type": "string", "description": "update: the bookmark id (from list)." },
+                    "ids":      { "type": "array", "items": { "type": "string" }, "minItems": 1, "description": "delete, move: bookmark ids (from list)." },
+                    "title":    { "type": "string", "maxLength": 1000, "description": "add, update: the bookmark title (one line)." },
+                    "page":     { "type": "integer", "minimum": 1, "description": "add, update: the page the bookmark goes to (1-based)." },
+                    "parentId": { "type": ["string", "null"], "description": "add: put the new bookmark under this bookmark; left out or null: the top level." },
+                    "bold":     { "type": "boolean", "description": "add, update: bold title." },
+                    "italic":   { "type": "boolean", "description": "add, update: italic title." },
+                    "color":    { "type": ["string", "null"], "pattern": "^#[0-9A-Fa-f]{6}$", "description": "add, update: title colour #rrggbb; null clears it." },
+                    "targetId": { "type": "string", "description": "move: the bookmark to move before, after or inside. Not with position end." },
+                    "position": { "type": "string", "enum": ["before", "after", "inside", "end"], "description": "move: before or after targetId (same parent), inside targetId (as its last children), or end of the top level." }
+                },
+                "required": ["action"],
+                "additionalProperties": false
+            }
+        }),
+        json!({
+            "name": "app_watermarks",
+            "description": "List, add and remove the watermarks and headers/footers of the active document, the same way the Watermark, Header & Footer and Manage dialogs do; every change is one undo step, shown at once and written into the pages on save. list returns { ok, count, watermarks } (an image watermark without its image data). add with type text (text, fontFamily, fontSize, color, opacity 0-1, rotation, position, customX/customY, layer), image (imagePath of a PNG or JPEG file, opacity, scale, rotation, position, customX/customY, layer) or headerFooter (headerLeft/Center/Right, footerLeft/Center/Right with the variables {page} {pages} {date} {time} {filename} {title} {bates}, fontFamily, fontSize, color, margins, Bates numbering); pages limits it to those pages, otherwise every page. Fields left out take the dialog defaults. Returns { ok, watermark, count }. remove takes id: { ok, removed, remaining }. Changes are refused in a read-only document.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "action":       { "type": "string", "enum": ["list", "add", "remove"] },
+                    "id":           { "type": "string", "description": "remove: the watermark id (from list)." },
+                    "type":         { "type": "string", "enum": ["text", "image", "headerFooter"], "description": "add: what to add." },
+                    "pages":        paginas("add: only on these page numbers (1-based); left out: every page."),
+                    "text":         { "type": "string", "maxLength": 500, "description": "text: the watermark text." },
+                    "imagePath":    { "type": "string", "description": "image: absolute path of a .png, .jpg or .jpeg file (at most 20 MB)." },
+                    "fontFamily":   { "type": "string", "enum": ["Helvetica", "Arial", "Times New Roman", "Courier", "Georgia"], "description": "text, headerFooter (not Georgia): font. Default Helvetica." },
+                    "fontSize":     { "type": "integer", "minimum": 1, "maximum": 1000, "description": "text (default 72), headerFooter (default 10, at most 200): font size in points." },
+                    "color":        { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$", "description": "text (default #ff0000), headerFooter (default #000000): colour #rrggbb." },
+                    "opacity":      { "type": "number", "minimum": 0, "maximum": 1, "description": "text (default 0.3), image (default 0.2)." },
+                    "rotation":     { "type": "number", "minimum": -360, "maximum": 360, "description": "text (default -45), image (default 0): degrees." },
+                    "scale":        { "type": "number", "minimum": 0.01, "maximum": 10, "description": "image: size factor of the 200 x 200 pt image box (default 1)." },
+                    "position":     { "type": "string", "enum": ["center", "top-left", "top-right", "bottom-left", "bottom-right", "custom"], "description": "text, image: where on the page (default center); custom uses customX/customY." },
+                    "customX":      { "type": "number", "minimum": 0, "maximum": 14400, "description": "text, image with position custom: centre x in points from the left." },
+                    "customY":      { "type": "number", "minimum": 0, "maximum": 14400, "description": "text, image with position custom: centre y in points from the top." },
+                    "layer":        { "type": "string", "enum": ["behind", "infront"], "description": "text, image: behind (default) or in front of the page content." },
+                    "headerLeft":   { "type": "string", "maxLength": 500 },
+                    "headerCenter": { "type": "string", "maxLength": 500 },
+                    "headerRight":  { "type": "string", "maxLength": 500 },
+                    "footerLeft":   { "type": "string", "maxLength": 500 },
+                    "footerCenter": { "type": "string", "maxLength": 500 },
+                    "footerRight":  { "type": "string", "maxLength": 500 },
+                    "marginTop":    { "type": "number", "minimum": 0, "maximum": 1000, "description": "headerFooter: points (default 30)." },
+                    "marginBottom": { "type": "number", "minimum": 0, "maximum": 1000, "description": "headerFooter: points (default 30)." },
+                    "marginLeft":   { "type": "number", "minimum": 0, "maximum": 1000, "description": "headerFooter: points (default 40)." },
+                    "marginRight":  { "type": "number", "minimum": 0, "maximum": 1000, "description": "headerFooter: points (default 40)." },
+                    "batesPrefix":  { "type": "string", "maxLength": 500, "description": "headerFooter: text before the Bates number." },
+                    "batesStart":   { "type": "integer", "minimum": 0, "description": "headerFooter: first Bates number (default 1)." },
+                    "batesDigits":  { "type": "integer", "minimum": 1, "maximum": 12, "description": "headerFooter: digits with leading zeros (default 6)." },
+                    "batesSuffix":  { "type": "string", "maxLength": 500, "description": "headerFooter: text after the Bates number." }
+                },
+                "required": ["action"],
+                "additionalProperties": false
+            }
+        }),
+    ]
+}
+
 /// Handle `tools/list`. Tasks 7-9 will append their tool descriptors to
 /// this array.
 fn handle_tools_list() -> Value {
@@ -2513,6 +2672,11 @@ fn handle_tools_list() -> Value {
         ]
     });
     if let Some(tools) = lijst["tools"].as_array_mut() {
+        let na_samenvoegen = tools
+            .iter()
+            .position(|t| t["name"] == "app_merge_pdf")
+            .map_or(tools.len(), |i| i + 1);
+        tools.splice(na_samenvoegen..na_samenvoegen, pagina_tools());
         tools.extend(extensie_tools());
     }
     lijst
@@ -2579,6 +2743,15 @@ async fn handle_tools_call(state: &AppState, params: &Value) -> Result<Value, (i
         "app_set_window_size"    => tool_set_window_size(state, &arguments).await,
         "app_get_current_tool"   => tool_app_request(state, "mcp:get-current-tool",   &arguments, Duration::from_secs(5)).await,
         "app_merge_pdf"          => tool_app_request(state, "mcp:merge-pdf",           &arguments, Duration::from_secs(60)).await,
+        // Paginabewerkingen laden het document opnieuw: dezelfde grens als samenvoegen.
+        "app_rotate_pages"       => tool_app_request(state, "mcp:rotate-pages",        &arguments, Duration::from_secs(60)).await,
+        "app_delete_pages"       => tool_app_request(state, "mcp:delete-pages",        &arguments, Duration::from_secs(60)).await,
+        "app_insert_blank_pages" => tool_app_request(state, "mcp:insert-blank-pages",  &arguments, Duration::from_secs(60)).await,
+        "app_extract_pages"      => tool_app_request(state, "mcp:extract-pages",       &arguments, Duration::from_secs(120)).await,
+        "app_reorder_pages"      => tool_app_request(state, "mcp:reorder-pages",       &arguments, Duration::from_secs(60)).await,
+        "app_shift_pages"        => tool_app_request(state, "mcp:shift-pages",         &arguments, Duration::from_secs(120)).await,
+        "app_bookmarks"          => tool_app_request(state, "mcp:bookmarks",           &arguments, Duration::from_secs(15)).await,
+        "app_watermarks"         => tool_app_request(state, "mcp:watermarks",          &arguments, Duration::from_secs(30)).await,
         "app_ai_complete"        => tool_app_request(state, "mcp:ai-complete",         &arguments, Duration::from_secs(60)).await,
         "app_accounts_status"    => tool_app_request(state, "mcp:accounts-status",     &arguments, Duration::from_secs(5)).await,
         "app_accounts_fetch"     => tool_app_request(state, "mcp:accounts-fetch",      &arguments, Duration::from_secs(30)).await,
@@ -3355,7 +3528,7 @@ mod tests {
         use crate::mcp_tool_meta::Profiel;
         let publiek = tools_list_voor(Profiel::Publiek);
         let arr = publiek["tools"].as_array().unwrap();
-        assert_eq!(arr.len(), 89);
+        assert_eq!(arr.len(), 97);
         for t in arr {
             let a = &t["annotations"];
             assert!(a["title"].as_str().map_or(false, |s| !s.is_empty()), "{} zonder titel", t["name"]);

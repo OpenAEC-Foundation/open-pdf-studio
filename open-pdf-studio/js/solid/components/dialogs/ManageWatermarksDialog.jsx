@@ -2,7 +2,8 @@ import { For, Show } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog, openDialog } from '../../stores/dialogStore.js';
 import { state, getActiveDocument } from '../../../core/state.js';
-import { recordRemoveWatermark, recordModifyWatermark } from '../../../core/undo-manager.js';
+import { recordModifyWatermark } from '../../../core/undo-manager.js';
+import { verwijderWatermerk } from '../../../watermark/watermerk-bewerken.js';
 import { markDocumentModified } from '../../../ui/chrome/tabs.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
@@ -83,18 +84,11 @@ export default function ManageWatermarksDialog() {
     }
   }
 
+  // Zelfde stap als app_watermarks remove (watermerk-bewerken.js): een
+  // kop-/voettekst eerst uit de weergave, dan undo, gewijzigd, opnieuw tekenen.
   async function handleDelete(wm) {
-    if (!(await voorWijziging(wm))) return;
     const doc = getActiveDocument();
-    const watermarks = doc?.watermarks;
-    if (!watermarks) return;
-    const idx = watermarks.indexOf(wm);
-    if (idx !== -1) {
-      watermarks.splice(idx, 1);
-      recordRemoveWatermark(wm, idx);
-      markDocumentModified();
-      refresh();
-    }
+    if (doc) await verwijderWatermerk(doc, wm.id);
   }
 
   const footer = (

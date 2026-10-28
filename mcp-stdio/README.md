@@ -1,6 +1,6 @@
 # Open PDF Studio — MCP for Claude Desktop / Claude Code
 
-Open PDF Studio ships a **full MCP server inside the app** (89 public tools: open /
+Open PDF Studio ships a **full MCP server inside the app** (97 public tools: open /
 zoom / annotate / save PDFs, drive the assistant, call the OpenAEC AI, inspect
 viewport state, …). It is implemented in Rust (`src-tauri/src/mcp_server.rs`)
 and speaks **HTTP JSON-RPC** on `127.0.0.1:9223/mcp`.
@@ -49,7 +49,7 @@ and `[mcp-bridge] WebView ready, listening for: [...]`.
 
 ```bash
 node mcp-stdio/server.mjs --probe
-# → [open-pdf-studio mcp bridge] OK — 89 tools available at http://127.0.0.1:9223/mcp
+# → [open-pdf-studio mcp bridge] OK — 97 tools available at http://127.0.0.1:9223/mcp
 ```
 
 If you used a non-default port, set it first: `OPS_MCP_PORT=9300 node mcp-stdio/server.mjs --probe`.
@@ -120,6 +120,25 @@ A few of the many PDF tools: `app_open_pdf`, `app_new_blank_pdf`,
 `app_screenshot_view`. The full,
 authoritative list is in `src-tauri/src/mcp_server.rs` (`handle_tools_list`)
 and documented in `docs/superpowers/specs/2026-05-09-mcp-app-tools.md`.
+
+### Pages, bookmarks and watermarks
+
+These tools run the same functions as the Organize ribbon tab and the
+Bookmarks panel, so each call is one undo step and markups, page labels,
+measurement scales and links stay with their page. Page numbers are 1-based.
+All of them are refused in a read-only document (PDF/A without editing
+enabled, password-protected); a document always keeps at least one page.
+
+| Tool | Arguments |
+|---|---|
+| `app_rotate_pages` | `pages: int[]`, `angle: 90 \| 180 \| 270 \| -90` |
+| `app_delete_pages` | `pages: int[]` |
+| `app_insert_blank_pages` | `after: int` (0 = before page 1), `count?`, `widthPt?` + `heightPt?` (default: size of page `after`) |
+| `app_extract_pages` | `pages: int[]` (in file order), `outputPath` (a new `.pdf`, never replaced), `deleteFromOriginal?` |
+| `app_reorder_pages` | `order: int[]` (every current page once; `order[i]` becomes page i+1) |
+| `app_shift_pages` | `pages: int[]`, `dx`, `dy` in mm (as displayed: right / up positive) |
+| `app_bookmarks` | `action: list \| add \| update \| delete \| move`; add `title`, `page?`, `parentId?`; update `id` + `title` / `page` / `bold` / `italic` / `color`; delete `ids`; move `ids`, `position: before \| after \| inside \| end`, `targetId` |
+| `app_watermarks` | `action: list \| add \| remove`; add `type: text \| image \| headerFooter` with the dialog fields and `pages?`; remove `id` |
 
 `app_screenshot_view` captures the page view by default. Pass
 `{"scope":"window"}` for the whole window (ribbon, extension tabs, side
