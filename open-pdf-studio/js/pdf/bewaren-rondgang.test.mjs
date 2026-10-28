@@ -209,7 +209,11 @@ test('een bekend tegelpatroon wordt de arcering van de app en blijft ook als pat
   assert.equal(modellen.find((m) => m.type === 'box').hatchPattern, 'diagonal-right');
   const sq = (await woordenboeken(bytes)).find(({ dict }) => subtype(dict) === '/Square').dict;
   assert.equal(tekst(sq, 'PatternName'), 'Diagonal Up');
-  assert.equal(tekst(sq, 'OPS_HatchPattern'), 'diagonal-right');
+  // Niet bewerkt: het woordenboek blijft dat van het bestand (#629), zonder
+  // eigen arceringssleutels; /PatternName geeft de arcering bij heropenen.
+  // Het bestand had geen appearance: die van de app (met de arcering) komt erbij.
+  assert.equal(sq.get(PDFName.of('OPS_HatchPattern')), undefined);
+  assert.ok(sq.get(PDFName.of('AP')), 'appearance erbij');
 });
 
 test('de catalogussleutels van een ander programma blijven staan (11)', async () => {

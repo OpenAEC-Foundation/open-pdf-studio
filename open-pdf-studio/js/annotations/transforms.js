@@ -1113,6 +1113,11 @@ export function applyMoveGeneric(annotation, dx, dy) {
     if (typeof annotation[kx] === 'number') annotation[kx] += dx;
     if (typeof annotation[ky] === 'number') annotation[ky] += dy;
   }
+  // Het middelpunt van een boog (centerX/centerY, #629): zonder dit bleef
+  // een boog bij verplaatsen staan. Niet in de tabel hierboven: de
+  // draaiwandeling draait een boog (nog) niet.
+  if (typeof annotation.centerX === 'number') annotation.centerX += dx;
+  if (typeof annotation.centerY === 'number') annotation.centerY += dy;
   for (const k of _MOVE_POINT_OBJECTS) {
     const o = annotation[k];
     if (o && typeof o === 'object') {

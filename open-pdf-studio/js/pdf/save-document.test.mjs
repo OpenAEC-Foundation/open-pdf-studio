@@ -35,6 +35,8 @@ function harness() {
     ruimOngebruikteObjectenOp() {}, ruimOngebruikteObjectenOpMetPauzes: async () => {},
     // Annuleren (#766, echt).
     maakOpslagAnnulering, isOpslagGeannuleerd, GEEN_ANNULERING, updateStatusMessage() {},
+    // Geen pagina's, dus geen annotaties om pdfBron van bij te werken (saver/bron-behoud.js).
+    bronNaOpslaan: () => [],
     PDFName: { of: x => x }, KNIPSEL_CATALOGUS: 'snippets',
     getAnnotationStorage: doc => { owners.push(doc); return null; },
     getAnnotIdToFieldName: doc => { owners.push(doc); return new Map(); },
