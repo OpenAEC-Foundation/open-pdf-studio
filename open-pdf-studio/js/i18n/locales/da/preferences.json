@@ -307,7 +307,15 @@
     "butt": "Lige",
     "openArrowReversed": "Åben pil (omvendt)",
     "closedArrowReversed": "Lukket pil (omvendt)",
-    "slash": "Skråstreg"
+    "slash": "Skråstreg",
+    "decimalNotation": "Decimaltegn",
+    "decimalAuto": "Følg sproget",
+    "decimalComma": "Komma (2,50)",
+    "decimalPoint": "Punktum (2.50)",
+    "digitGrouping": "Adskil tusinder (12 345)",
+    "scaleCheck": "Skalakontrol",
+    "scaleCheckOk": "I orden op til",
+    "scaleCheckWarn": "Advarsel op til"
   },
   "keyboardShortcuts": {
     "title": "Tastaturgenveje",

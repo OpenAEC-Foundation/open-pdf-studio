@@ -307,7 +307,15 @@
     "butt": "Egyenes",
     "openArrowReversed": "Nyitott nyíl (fordított)",
     "closedArrowReversed": "Zárt nyíl (fordított)",
-    "slash": "Perjel"
+    "slash": "Perjel",
+    "decimalNotation": "Tizedesjel",
+    "decimalAuto": "Nyelv szerint",
+    "decimalComma": "Vessző (2,50)",
+    "decimalPoint": "Pont (2.50)",
+    "digitGrouping": "Ezresek tagolása (12 345)",
+    "scaleCheck": "Léptékellenőrzés",
+    "scaleCheckOk": "Megfelelő eddig",
+    "scaleCheckWarn": "Figyelmeztetés eddig"
   },
   "keyboardShortcuts": {
     "title": "Billentyűparancsok",

@@ -17,6 +17,7 @@ import { drawDimension, drawMeasureAreaShape, drawCentroidLabel, drawMeasurePeri
 import { vlakZijdeTeksten } from './measurement.js';
 import { vormVan, bouwVakPad } from './rendering/textbox-vorm.js';
 import { maatlijnTekst } from './maat-label.js';
+import { formatGetal, formatMaat } from '../core/maat-notatie.js';
 import { maatlijnVelden } from './maatlijn-geometrie.js';
 import { tagWeergaveParams } from '../plattegrond/ruimte-koppeling.js';
 import { applyHatchFill, applyHatchFillPolygon } from './rendering/hatch-patterns.js';
@@ -178,7 +179,7 @@ function _drawPolarOverlay(ctx, snapResult, scale) {
     }
   } catch (_) { /* ignore */ }
   const angleDeg = (angle * 180 / Math.PI + 360) % 360;
-  const text = `Polar: ${angleDeg.toFixed(2)}° < ${lenInUnits.toFixed(2)} ${unit}`;
+  const text = `Polar: ${formatGetal(angleDeg, 2)}° < ${formatMaat(lenInUnits, unit, 2)}`;
   // Rechtop op het scherm, ook in een gedraaide weergave (#200).
   zetRechtopRond(ctx, snapResult.x, snapResult.y);
   const fontSize = 11 / scale;

@@ -49,6 +49,7 @@
     "dimChainAdd": "Tambah Titik ke Rantai Dimensi",
     "dimChainRemove": "Buang Garis Unjuran daripada Rantai",
     "selectRoom": "Pilih Bilik",
+    "checkScale": "Semak skala dengan garisan ini...",
     "saveToToolSet": "Simpan ke Set Alat"
   },
   "multiSelect": {

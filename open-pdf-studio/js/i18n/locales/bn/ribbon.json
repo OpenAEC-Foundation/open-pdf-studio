@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "স্কেল শনাক্ত হয়েছে",
     "noScaleFound": "কোনো স্কেল পাওয়া যায়নি",
-    "detecting": "শনাক্ত করা হচ্ছে..."
+    "detecting": "শনাক্ত করা হচ্ছে...",
+    "scaleCheck": "স্কেল যাচাই করুন",
+    "scaleCheckTitle": "জানা মাপ নিন এবং স্কেলের বিচ্যুতি শতাংশে দেখান"
   },
   "home": {
     "document": "নথি",

@@ -307,7 +307,15 @@
     "butt": "Plat",
     "openArrowReversed": "Săgeată deschisă (inversată)",
     "closedArrowReversed": "Săgeată închisă (inversată)",
-    "slash": "Linie oblică"
+    "slash": "Linie oblică",
+    "decimalNotation": "Separator zecimal",
+    "decimalAuto": "După limbă",
+    "decimalComma": "Virgulă (2,50)",
+    "decimalPoint": "Punct (2.50)",
+    "digitGrouping": "Grupează miile (12 345)",
+    "scaleCheck": "Verificarea scării",
+    "scaleCheckOk": "Corect până la",
+    "scaleCheckWarn": "Avertisment până la"
   },
   "keyboardShortcuts": {
     "title": "Comenzi rapide de la tastatură",

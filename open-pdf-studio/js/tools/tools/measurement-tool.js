@@ -7,6 +7,7 @@ import { applyToolTransform } from '../tool-context.js';
 import { randkleurenUitVoorkeur } from '../../annotations/fill-utils.js';
 import { zetRechtopRond } from '../../pdf/weergave-ruimte.js';
 import { documentHeeftSchaal } from '../../annotations/schaal-op-punt.js';
+import { formatGetal } from '../../core/maat-notatie.js';
 import {
   enterTypeLengthMode,
   exitTypeLengthMode,
@@ -136,7 +137,7 @@ export const measureDistanceTool = {
       let mText;
       if (dimScale) {
         const pixelDist = Math.sqrt((endX - startX) ** 2 + (endY - startY) ** 2);
-        const v = (pixelDist * dimScale).toFixed(dimPrecision);
+        const v = formatGetal(pixelDist * dimScale, dimPrecision);
         // mm is the implied drawing unit on dimensions — no suffix.
         mText = dimUnit === 'mm' ? v : `${v} ${dimUnit}`;
       } else {
@@ -251,7 +252,7 @@ export const measureDistanceTool = {
     function dimMeasureText(sx, sy, ex, ey) {
       if (dimScale) {
         const pixelDist = Math.sqrt((ex - sx) ** 2 + (ey - sy) ** 2);
-        const v = (pixelDist * dimScale).toFixed(dimPrecision);
+        const v = formatGetal(pixelDist * dimScale, dimPrecision);
         return dimUnit === 'mm' ? v : `${v} ${dimUnit}`;
       }
       const d = ctx.calculateDistance(sx, sy, ex, ey, getActiveDocument()?.currentPage);

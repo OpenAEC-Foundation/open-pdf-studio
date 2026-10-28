@@ -307,7 +307,15 @@
     "butt": "Пласке",
     "openArrowReversed": "Відкрита стрілка (обернена)",
     "closedArrowReversed": "Закрита стрілка (обернена)",
-    "slash": "Коса риска"
+    "slash": "Коса риска",
+    "decimalNotation": "Десятковий роздільник",
+    "decimalAuto": "Як у мові",
+    "decimalComma": "Кома (2,50)",
+    "decimalPoint": "Крапка (2.50)",
+    "digitGrouping": "Розділяти тисячі (12 345)",
+    "scaleCheck": "Перевірка масштабу",
+    "scaleCheckOk": "У нормі до",
+    "scaleCheckWarn": "Попередження до"
   },
   "keyboardShortcuts": {
     "title": "Сполучення клавіш",

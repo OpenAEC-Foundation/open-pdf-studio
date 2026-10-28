@@ -49,6 +49,7 @@
     "dimChainAdd": "Додај тачке у ланац кота",
     "dimChainRemove": "Уклони помоћну линију из ланца",
     "selectRoom": "Изабери просторију",
+    "checkScale": "Провери размеру овом линијом...",
     "saveToToolSet": "Сачувај у скуп алата"
   },
   "multiSelect": {

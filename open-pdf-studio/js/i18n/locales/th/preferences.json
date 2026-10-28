@@ -307,7 +307,15 @@
     "butt": "ปลายตัด",
     "openArrowReversed": "ลูกศรเปิด (กลับด้าน)",
     "closedArrowReversed": "ลูกศรปิด (กลับด้าน)",
-    "slash": "เส้นทแยง"
+    "slash": "เส้นทแยง",
+    "decimalNotation": "ตัวคั่นทศนิยม",
+    "decimalAuto": "ตามภาษา",
+    "decimalComma": "จุลภาค (2,50)",
+    "decimalPoint": "จุด (2.50)",
+    "digitGrouping": "คั่นหลักพัน (12 345)",
+    "scaleCheck": "การตรวจสอบมาตราส่วน",
+    "scaleCheckOk": "ผ่านไม่เกิน",
+    "scaleCheckWarn": "เตือนไม่เกิน"
   },
   "keyboardShortcuts": {
     "title": "แป้นพิมพ์ลัด",

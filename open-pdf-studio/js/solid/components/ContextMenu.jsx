@@ -770,6 +770,11 @@ function AnnotationMenuContent() {
             showCalibrationDialog(px);
           }
         }} />
+        {/* Schaalcontrole (#629): deze maatlijn als tweede bekende maat. */}
+        <MenuItem icon={convertMeasurementIcon} label={t('annotation.checkScale')} onClick={() => {
+          const a = ann();
+          if (a) openDialog('scale-check', { annotationId: a.id });
+        }} />
         <MenuItem icon={convertMeasurementIcon} label={t('annotation.setScale')} onClick={() => {
           const a = ann();
           if (a) {

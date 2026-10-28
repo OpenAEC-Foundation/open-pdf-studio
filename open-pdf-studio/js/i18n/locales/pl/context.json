@@ -49,6 +49,7 @@
     "dimChainAdd": "Dodaj punkty do łańcucha wymiarowego",
     "dimChainRemove": "Usuń linię pomocniczą z łańcucha",
     "selectRoom": "Wybierz pomieszczenie",
+    "checkScale": "Sprawdź skalę tą linią...",
     "saveToToolSet": "Zapisz w zestawie narzędzi"
   },
   "multiSelect": {

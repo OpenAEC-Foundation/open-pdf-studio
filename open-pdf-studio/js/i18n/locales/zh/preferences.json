@@ -307,7 +307,15 @@
     "butt": "平头",
     "openArrowReversed": "开放箭头（反向）",
     "closedArrowReversed": "闭合箭头（反向）",
-    "slash": "斜线"
+    "slash": "斜线",
+    "decimalNotation": "小数分隔符",
+    "decimalAuto": "跟随语言",
+    "decimalComma": "逗号 (2,50)",
+    "decimalPoint": "句点 (2.50)",
+    "digitGrouping": "千位分隔 (12 345)",
+    "scaleCheck": "比例检查",
+    "scaleCheckOk": "合格上限",
+    "scaleCheckWarn": "警告上限"
   },
   "keyboardShortcuts": {
     "title": "键盘快捷键",

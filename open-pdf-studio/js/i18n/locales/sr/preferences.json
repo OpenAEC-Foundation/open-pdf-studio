@@ -307,7 +307,15 @@
     "butt": "Равно",
     "openArrowReversed": "Отворена стрелица (обрнута)",
     "closedArrowReversed": "Затворена стрелица (обрнута)",
-    "slash": "Коса црта"
+    "slash": "Коса црта",
+    "decimalNotation": "Децимални раздвајач",
+    "decimalAuto": "Према језику",
+    "decimalComma": "Зарез (2,50)",
+    "decimalPoint": "Тачка (2.50)",
+    "digitGrouping": "Раздвајај хиљаде (12 345)",
+    "scaleCheck": "Провера размере",
+    "scaleCheckOk": "У реду до",
+    "scaleCheckWarn": "Упозорење до"
   },
   "keyboardShortcuts": {
     "title": "Пречице на тастатури",

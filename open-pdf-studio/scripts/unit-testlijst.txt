@@ -640,3 +640,7 @@ js/pdf/meetvlak-hoekpunten-rondgang.test.mjs
 js/annotations/draaipunt-vormen.test.mjs
 js/ui/chrome/fullscreen.test.mjs
 js/solid/components/ribbon/wand-knop.test.mjs
+js/core/maat-notatie.test.mjs
+js/annotations/schaalcontrole.test.mjs
+js/annotations/schaalcontrole-i18n.test.mjs
+js/pdf/schaal-in-pdf.test.mjs

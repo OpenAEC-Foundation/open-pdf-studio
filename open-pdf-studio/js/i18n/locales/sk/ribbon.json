@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "Mierka zistená",
     "noScaleFound": "Nenašla sa mierka",
-    "detecting": "Rozpoznávanie..."
+    "detecting": "Rozpoznávanie...",
+    "scaleCheck": "Skontrolovať mierku",
+    "scaleCheckTitle": "Odmerať známy rozmer a zobraziť odchýlku mierky v percentách"
   },
   "home": {
     "document": "Dokument",

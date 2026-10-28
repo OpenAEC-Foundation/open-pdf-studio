@@ -307,7 +307,15 @@
     "butt": "Ravno",
     "openArrowReversed": "Otvorena strelica (obrnuta)",
     "closedArrowReversed": "Zatvorena strelica (obrnuta)",
-    "slash": "Kosa crta"
+    "slash": "Kosa crta",
+    "decimalNotation": "Decimalni separator",
+    "decimalAuto": "Prema jeziku",
+    "decimalComma": "Zarez (2,50)",
+    "decimalPoint": "Točka (2.50)",
+    "digitGrouping": "Odvajaj tisućice (12 345)",
+    "scaleCheck": "Provjera mjerila",
+    "scaleCheckOk": "U redu do",
+    "scaleCheckWarn": "Upozorenje do"
   },
   "keyboardShortcuts": {
     "title": "Tipkovnički prečaci",

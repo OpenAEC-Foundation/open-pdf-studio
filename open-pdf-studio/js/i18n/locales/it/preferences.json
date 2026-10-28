@@ -307,7 +307,15 @@
     "butt": "Piatto",
     "openArrowReversed": "Freccia aperta (invertita)",
     "closedArrowReversed": "Freccia chiusa (invertita)",
-    "slash": "Barra"
+    "slash": "Barra",
+    "decimalNotation": "Separatore decimale",
+    "decimalAuto": "Segui la lingua",
+    "decimalComma": "Virgola (2,50)",
+    "decimalPoint": "Punto (2.50)",
+    "digitGrouping": "Separa le migliaia (12 345)",
+    "scaleCheck": "Verifica della scala",
+    "scaleCheckOk": "Corretto fino a",
+    "scaleCheckWarn": "Avviso fino a"
   },
   "keyboardShortcuts": {
     "title": "Scorciatoie da tastiera",

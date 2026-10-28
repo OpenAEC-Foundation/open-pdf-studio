@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detectar escala da legenda",
     "scaleDetected": "Escala detectada",
     "noScaleFound": "Nenhuma escala encontrada",
-    "detecting": "Detectando..."
+    "detecting": "Detectando...",
+    "scaleCheck": "Verificar escala",
+    "scaleCheckTitle": "Medir uma cota conhecida e mostrar o desvio da escala em percentagem"
   },
   "home": {
     "document": "Documento",

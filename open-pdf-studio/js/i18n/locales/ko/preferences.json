@@ -307,7 +307,15 @@
     "butt": "평평한 끝",
     "openArrowReversed": "열린 화살표(반대 방향)",
     "closedArrowReversed": "닫힌 화살표(반대 방향)",
-    "slash": "슬래시"
+    "slash": "슬래시",
+    "decimalNotation": "소수점 기호",
+    "decimalAuto": "언어를 따름",
+    "decimalComma": "쉼표 (2,50)",
+    "decimalPoint": "마침표 (2.50)",
+    "digitGrouping": "천 단위 구분 (12 345)",
+    "scaleCheck": "축척 확인",
+    "scaleCheckOk": "양호 한도",
+    "scaleCheckWarn": "경고 한도"
   },
   "keyboardShortcuts": {
     "title": "바로 가기 키",

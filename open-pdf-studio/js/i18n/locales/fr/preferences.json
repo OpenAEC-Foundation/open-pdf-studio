@@ -307,7 +307,15 @@
     "butt": "Plat",
     "openArrowReversed": "Flèche ouverte (inversée)",
     "closedArrowReversed": "Flèche fermée (inversée)",
-    "slash": "Barre oblique"
+    "slash": "Barre oblique",
+    "decimalNotation": "Séparateur décimal",
+    "decimalAuto": "Selon la langue",
+    "decimalComma": "Virgule (2,50)",
+    "decimalPoint": "Point (2.50)",
+    "digitGrouping": "Séparer les milliers (12 345)",
+    "scaleCheck": "Vérification d'échelle",
+    "scaleCheckOk": "Correct jusqu'à",
+    "scaleCheckWarn": "Avertissement jusqu'à"
   },
   "keyboardShortcuts": {
     "title": "Raccourcis clavier",

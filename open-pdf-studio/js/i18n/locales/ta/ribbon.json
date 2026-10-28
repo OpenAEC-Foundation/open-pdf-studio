@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detect scale from title block",
     "scaleDetected": "அளவுகோல் கண்டறியப்பட்டது",
     "noScaleFound": "அளவுகோல் கிடைக்கவில்லை",
-    "detecting": "கண்டறியப்படுகிறது..."
+    "detecting": "கண்டறியப்படுகிறது...",
+    "scaleCheck": "அளவுகோலைச் சரிபார்",
+    "scaleCheckTitle": "தெரிந்த அளவை அளந்து அளவுகோல் விலகலைச் சதவீதத்தில் காட்டு"
   },
   "home": {
     "document": "ஆவணம்",

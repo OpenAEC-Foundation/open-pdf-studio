@@ -307,7 +307,15 @@
     "butt": "Rett",
     "openArrowReversed": "Åpen pil (omvendt)",
     "closedArrowReversed": "Lukket pil (omvendt)",
-    "slash": "Skråstrek"
+    "slash": "Skråstrek",
+    "decimalNotation": "Desimaltegn",
+    "decimalAuto": "Følg språket",
+    "decimalComma": "Komma (2,50)",
+    "decimalPoint": "Punktum (2.50)",
+    "digitGrouping": "Skill tusener (12 345)",
+    "scaleCheck": "Målestokkontroll",
+    "scaleCheckOk": "I orden opptil",
+    "scaleCheckWarn": "Advarsel opptil"
   },
   "keyboardShortcuts": {
     "title": "Hurtigtaster",

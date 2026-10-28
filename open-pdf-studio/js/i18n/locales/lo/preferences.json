@@ -117,7 +117,15 @@
     "butt": "ຕັດຮາບ",
     "openArrowReversed": "ລູກສອນໂປ່ງ (ກັບດ້ານ)",
     "closedArrowReversed": "ລູກສອນຕັນ (ກັບດ້ານ)",
-    "slash": "ເສັ້ນຂີດຕັດ"
+    "slash": "ເສັ້ນຂີດຕັດ",
+    "decimalNotation": "ຕົວຂັ້ນທົດສະນິຍົມ",
+    "decimalAuto": "ຕາມພາສາ",
+    "decimalComma": "ເຄື່ອງໝາຍຈຸດ (2,50)",
+    "decimalPoint": "ຈຸດ (2.50)",
+    "digitGrouping": "ຂັ້ນຫຼັກພັນ (12 345)",
+    "scaleCheck": "ການກວດສອບມາດຕາສ່ວນ",
+    "scaleCheckOk": "ຜ່ານບໍ່ເກີນ",
+    "scaleCheckWarn": "ເຕືອນບໍ່ເກີນ"
   },
   "drawing": {
     "freehandDefaults": "ຄ່າເລີ່ມຕົ້ນການແຕ້ມອິດສະຫຼະ",

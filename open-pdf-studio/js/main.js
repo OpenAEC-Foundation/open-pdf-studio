@@ -88,6 +88,7 @@ import { initMcpBridge } from './mcp-bridge.js';
 import i18next from './i18n/config.js';
 import { language } from './i18n/useTranslation.js';
 import { installeerGetalVelden, herformatteerGetalVelden } from './ui/getal-veld.js';
+import { stelNotatieBronIn } from './core/maat-notatie.js';
 
 // Solid.js
 import { render } from 'solid-js/web';
@@ -217,6 +218,13 @@ async function init() {
   // Getalvelden accepteren komma én punt; ze tonen het decimaalteken van de
   // app-taal en schakelen mee bij een taalwissel (ui/getal-veld.js).
   installeerGetalVelden({ taal: () => language() });
+  // Maten tonen hetzelfde decimaalteken (of de voorkeur measureDecimalNotation)
+  // en eventueel duizendtalscheiding: "15,60 m²" in het Nederlands (#629).
+  stelNotatieBronIn(() => ({
+    taal: language(),
+    decimaalteken: state.preferences?.measureDecimalNotation,
+    groeperen: !!state.preferences?.measureDigitGrouping,
+  }));
   i18next.on('languageChanged', () => queueMicrotask(() => herformatteerGetalVelden()));
   // Dev: versienummer live uit package.json zodat de titelbalk na een
   // versie-bump klopt zonder Vite-herstart.

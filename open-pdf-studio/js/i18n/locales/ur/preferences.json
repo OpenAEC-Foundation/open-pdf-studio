@@ -307,7 +307,15 @@
     "butt": "سیدھا",
     "openArrowReversed": "کھلا تیر (الٹا)",
     "closedArrowReversed": "بند تیر (الٹا)",
-    "slash": "سلیش"
+    "slash": "سلیش",
+    "decimalNotation": "اعشاری علامت",
+    "decimalAuto": "زبان کے مطابق",
+    "decimalComma": "کاما (2,50)",
+    "decimalPoint": "نقطہ (2.50)",
+    "digitGrouping": "ہزاروں کو الگ کریں (12 345)",
+    "scaleCheck": "پیمانے کی جانچ",
+    "scaleCheckOk": "درست کی حد",
+    "scaleCheckWarn": "انتباہ کی حد"
   },
   "keyboardShortcuts": {
     "title": "کی بورڈ شارٹ کٹس",

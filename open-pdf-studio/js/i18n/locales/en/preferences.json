@@ -119,7 +119,15 @@
     "butt": "Butt",
     "openArrowReversed": "Open Arrow (reversed)",
     "closedArrowReversed": "Closed Arrow (reversed)",
-    "slash": "Slash"
+    "slash": "Slash",
+    "decimalNotation": "Decimal separator",
+    "decimalAuto": "Follow language",
+    "decimalComma": "Comma (2,50)",
+    "decimalPoint": "Point (2.50)",
+    "digitGrouping": "Group thousands (12 345)",
+    "scaleCheck": "Scale check",
+    "scaleCheckOk": "OK up to",
+    "scaleCheckWarn": "Warning up to"
   },
   "drawing": {
     "freehandDefaults": "Freehand Defaults",

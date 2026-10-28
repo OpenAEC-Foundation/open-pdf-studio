@@ -307,7 +307,15 @@
     "butt": "Rovný",
     "openArrowReversed": "Otevřená šipka (obrácená)",
     "closedArrowReversed": "Uzavřená šipka (obrácená)",
-    "slash": "Lomítko"
+    "slash": "Lomítko",
+    "decimalNotation": "Desetinný oddělovač",
+    "decimalAuto": "Podle jazyka",
+    "decimalComma": "Čárka (2,50)",
+    "decimalPoint": "Tečka (2.50)",
+    "digitGrouping": "Oddělovat tisíce (12 345)",
+    "scaleCheck": "Kontrola měřítka",
+    "scaleCheckOk": "V pořádku do",
+    "scaleCheckWarn": "Upozornění do"
   },
   "keyboardShortcuts": {
     "title": "Klávesové zkratky",

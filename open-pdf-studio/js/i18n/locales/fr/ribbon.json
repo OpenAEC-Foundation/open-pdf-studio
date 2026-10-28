@@ -48,7 +48,9 @@
     "autoDetectTitle": "Detecter echelle du cartouche",
     "scaleDetected": "Echelle detectee",
     "noScaleFound": "Aucune echelle trouvee",
-    "detecting": "Detection..."
+    "detecting": "Detection...",
+    "scaleCheck": "Vérifier l'échelle",
+    "scaleCheckTitle": "Mesurer une cote connue et afficher l'écart d'échelle en pourcentage"
   },
   "home": {
     "document": "Document",

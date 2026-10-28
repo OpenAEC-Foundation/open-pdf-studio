@@ -307,7 +307,15 @@
     "butt": "Prosty",
     "openArrowReversed": "Otwarta strzałka (odwrócona)",
     "closedArrowReversed": "Zamknięta strzałka (odwrócona)",
-    "slash": "Ukośnik"
+    "slash": "Ukośnik",
+    "decimalNotation": "Separator dziesiętny",
+    "decimalAuto": "Zgodnie z językiem",
+    "decimalComma": "Przecinek (2,50)",
+    "decimalPoint": "Kropka (2.50)",
+    "digitGrouping": "Grupuj tysiące (12 345)",
+    "scaleCheck": "Sprawdzanie skali",
+    "scaleCheckOk": "Poprawnie do",
+    "scaleCheckWarn": "Ostrzeżenie do"
   },
   "keyboardShortcuts": {
     "title": "Skróty klawiaturowe",

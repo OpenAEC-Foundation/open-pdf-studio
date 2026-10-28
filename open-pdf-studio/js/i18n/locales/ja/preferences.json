@@ -307,7 +307,15 @@
     "butt": "バット",
     "openArrowReversed": "開いた矢印（反転）",
     "closedArrowReversed": "閉じた矢印（反転）",
-    "slash": "スラッシュ"
+    "slash": "スラッシュ",
+    "decimalNotation": "小数点記号",
+    "decimalAuto": "言語に従う",
+    "decimalComma": "カンマ (2,50)",
+    "decimalPoint": "ピリオド (2.50)",
+    "digitGrouping": "桁区切り (12 345)",
+    "scaleCheck": "縮尺の確認",
+    "scaleCheckOk": "良好の上限",
+    "scaleCheckWarn": "警告の上限"
   },
   "keyboardShortcuts": {
     "title": "キーボードショートカット",

@@ -37,6 +37,8 @@ export function createDocument(filePath: string | null = null): DocumentState {
     pdfaCompliance: null,
     pdfADismissed: false,
     measureScale: null,
+    // Schaalcontroles per blad (#629): uit het bestand of nieuw gemeten.
+    scaleChecks: null,
     stylePresets: [],
     // Annotatielagen (#468): leeg = alleen de standaardlaag, zodat een
     // document zonder lagen werkt en bewaard wordt zoals voorheen.

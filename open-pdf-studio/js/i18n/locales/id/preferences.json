@@ -307,7 +307,15 @@
     "butt": "Rata",
     "openArrowReversed": "Panah Terbuka (terbalik)",
     "closedArrowReversed": "Panah Tertutup (terbalik)",
-    "slash": "Garis Miring"
+    "slash": "Garis Miring",
+    "decimalNotation": "Pemisah desimal",
+    "decimalAuto": "Ikuti bahasa",
+    "decimalComma": "Koma (2,50)",
+    "decimalPoint": "Titik (2.50)",
+    "digitGrouping": "Kelompokkan ribuan (12 345)",
+    "scaleCheck": "Pemeriksaan skala",
+    "scaleCheckOk": "Baik hingga",
+    "scaleCheckWarn": "Peringatan hingga"
   },
   "keyboardShortcuts": {
     "title": "Pintasan keyboard",

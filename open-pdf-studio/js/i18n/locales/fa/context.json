@@ -49,6 +49,7 @@
     "dimChainAdd": "افزودن نقاط به زنجیره اندازه",
     "dimChainRemove": "حذف خط رابط از زنجیره",
     "selectRoom": "انتخاب اتاق",
+    "checkScale": "بررسی مقیاس با این خط...",
     "saveToToolSet": "ذخیره در مجموعه ابزار"
   },
   "multiSelect": {

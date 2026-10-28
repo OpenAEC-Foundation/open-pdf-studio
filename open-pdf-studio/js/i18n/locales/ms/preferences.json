@@ -307,7 +307,15 @@
     "butt": "Rata",
     "openArrowReversed": "Anak Panah Terbuka (terbalik)",
     "closedArrowReversed": "Anak Panah Tertutup (terbalik)",
-    "slash": "Palang"
+    "slash": "Palang",
+    "decimalNotation": "Pemisah perpuluhan",
+    "decimalAuto": "Ikut bahasa",
+    "decimalComma": "Koma (2,50)",
+    "decimalPoint": "Titik (2.50)",
+    "digitGrouping": "Kumpulkan ribuan (12 345)",
+    "scaleCheck": "Semakan skala",
+    "scaleCheckOk": "Baik hingga",
+    "scaleCheckWarn": "Amaran hingga"
   },
   "keyboardShortcuts": {
     "title": "Pintasan papan kekunci",

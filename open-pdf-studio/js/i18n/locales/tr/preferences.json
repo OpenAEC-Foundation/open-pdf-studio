@@ -307,7 +307,15 @@
     "butt": "Düz",
     "openArrowReversed": "Açık Ok (ters)",
     "closedArrowReversed": "Kapalı Ok (ters)",
-    "slash": "Eğik Çizgi"
+    "slash": "Eğik Çizgi",
+    "decimalNotation": "Ondalık ayırıcı",
+    "decimalAuto": "Dile göre",
+    "decimalComma": "Virgül (2,50)",
+    "decimalPoint": "Nokta (2.50)",
+    "digitGrouping": "Binlikleri ayır (12 345)",
+    "scaleCheck": "Ölçek denetimi",
+    "scaleCheckOk": "Uygun üst sınırı",
+    "scaleCheckWarn": "Uyarı üst sınırı"
   },
   "keyboardShortcuts": {
     "title": "Klavye kısayolları",

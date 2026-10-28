@@ -307,7 +307,15 @@
     "butt": "Rak",
     "openArrowReversed": "Öppen pil (omvänd)",
     "closedArrowReversed": "Stängd pil (omvänd)",
-    "slash": "Snedstreck"
+    "slash": "Snedstreck",
+    "decimalNotation": "Decimaltecken",
+    "decimalAuto": "Följ språket",
+    "decimalComma": "Komma (2,50)",
+    "decimalPoint": "Punkt (2.50)",
+    "digitGrouping": "Gruppera tusental (12 345)",
+    "scaleCheck": "Skalkontroll",
+    "scaleCheckOk": "Godkänd upp till",
+    "scaleCheckWarn": "Varning upp till"
   },
   "keyboardShortcuts": {
     "title": "Kortkommandon",
