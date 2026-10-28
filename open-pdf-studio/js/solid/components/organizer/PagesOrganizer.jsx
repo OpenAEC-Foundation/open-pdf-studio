@@ -285,14 +285,22 @@ export default function PagesOrganizer() {
   // klik op een knop die verdwijnt (de selectiebalk) raakt het scherm anders
   // de focus kwijt en deed Ctrl+Z niets meer. In de capture-fase, zodat het
   // document zelf geen ongedaan-maakstap van deze wijzigingen ziet.
-  onMount(() => {
-    root?.focus();
+  //
+  // Alleen zolang de modus open is: dit onderdeel staat altijd in de app, dus
+  // een listener die hier in de opbouw wordt gehangen zou Ctrl+S en Delete van
+  // het hele programma overnemen.
+  createEffect(() => {
+    if (!organizerActief()) return;
     window.addEventListener('keydown', toets, true);
+    onCleanup(() => window.removeEventListener('keydown', toets, true));
   });
-  onCleanup(() => {
-    window.removeEventListener('keydown', toets, true);
-    sleepStop();
+
+  // Zodra het scherm er staat, krijgt het de focus (toetsenbord en Escape).
+  createEffect(() => {
+    if (organizerActief() && typeof root?.focus === 'function') root.focus();
   });
+
+  onCleanup(() => sleepStop());
 
   const samenvatting = () => organizerSamenvatting();
 
