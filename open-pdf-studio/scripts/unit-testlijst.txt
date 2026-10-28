@@ -517,3 +517,6 @@ js/pdf/saver/text-edit-unicode.test.mjs
 js/text/tekstlaag-bron.test.mjs
 js/pdf/saver/text-edit-glyfen.test.mjs
 js/text/tekenafstand.test.mjs
+js/pdf/page-order.test.mjs
+js/pdf/page-manager-volgorde.test.mjs
+js/solid/components/ribbon/reorder-knop.test.mjs

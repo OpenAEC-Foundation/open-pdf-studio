@@ -1599,5 +1599,14 @@
       "supersede": "置き換え",
       "expire": "期限切れ"
     }
+  },
+  "pageOrganizer": {
+    "title": "ページの並べ替え",
+    "hint": "ページを新しい位置へドラッグします。Ctrl+クリックまたは Shift+クリックで複数のページを選択できます。",
+    "moveLeft": "左へ移動",
+    "moveRight": "右へ移動",
+    "moveToStart": "先頭へ移動",
+    "moveToEnd": "末尾へ移動",
+    "selection": "{{total}} ページ中 {{selected}} ページを選択"
   }
 }

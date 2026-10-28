@@ -1599,5 +1599,14 @@
       "supersede": "Substituït",
       "expire": "Caducat"
     }
+  },
+  "pageOrganizer": {
+    "title": "Reordena les pàgines",
+    "hint": "Arrossegueu les pàgines a una nova posició. Ctrl+clic o Maj+clic selecciona diverses pàgines.",
+    "moveLeft": "Mou a l'esquerra",
+    "moveRight": "Mou a la dreta",
+    "moveToStart": "Mou a l'inici",
+    "moveToEnd": "Mou al final",
+    "selection": "{{selected}} de {{total}} pàgines seleccionades"
   }
 }

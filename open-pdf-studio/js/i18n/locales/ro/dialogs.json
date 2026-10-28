@@ -1599,5 +1599,14 @@
       "supersede": "Înlocuit",
       "expire": "Expirat"
     }
+  },
+  "pageOrganizer": {
+    "title": "Reordonare pagini",
+    "hint": "Trageți paginile într-o poziție nouă. Ctrl+clic sau Shift+clic selectează mai multe pagini.",
+    "moveLeft": "Mută la stânga",
+    "moveRight": "Mută la dreapta",
+    "moveToStart": "Mută la început",
+    "moveToEnd": "Mută la sfârșit",
+    "selection": "{{selected}} din {{total}} pagini selectate"
   }
 }

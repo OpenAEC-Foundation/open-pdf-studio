@@ -1599,5 +1599,14 @@
       "supersede": "Nahrazeno",
       "expire": "Vypršelo"
     }
+  },
+  "pageOrganizer": {
+    "title": "Změnit pořadí stránek",
+    "hint": "Přetáhněte stránky na nové místo. Ctrl+klik nebo Shift+klik vybere více stránek.",
+    "moveLeft": "Posunout doleva",
+    "moveRight": "Posunout doprava",
+    "moveToStart": "Přesunout na začátek",
+    "moveToEnd": "Přesunout na konec",
+    "selection": "Vybráno stránek: {{selected}} z {{total}}"
   }
 }

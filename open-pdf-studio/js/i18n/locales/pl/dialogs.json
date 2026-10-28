@@ -1599,5 +1599,14 @@
       "supersede": "Zastąpiono",
       "expire": "Wygasło"
     }
+  },
+  "pageOrganizer": {
+    "title": "Zmień kolejność stron",
+    "hint": "Przeciągnij strony w nowe miejsce. Ctrl+klik lub Shift+klik zaznacza kilka stron.",
+    "moveLeft": "Przesuń w lewo",
+    "moveRight": "Przesuń w prawo",
+    "moveToStart": "Przesuń na początek",
+    "moveToEnd": "Przesuń na koniec",
+    "selection": "Zaznaczono stron: {{selected}} z {{total}}"
   }
 }

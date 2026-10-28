@@ -1599,5 +1599,14 @@
       "supersede": "Ersetzt",
       "expire": "Abgelaufen"
     }
+  },
+  "pageOrganizer": {
+    "title": "Seiten neu anordnen",
+    "hint": "Ziehen Sie Seiten an eine neue Position. Strg+Klick oder Umschalt+Klick wählt mehrere Seiten aus.",
+    "moveLeft": "Nach links",
+    "moveRight": "Nach rechts",
+    "moveToStart": "An den Anfang",
+    "moveToEnd": "Ans Ende",
+    "selection": "{{selected}} von {{total}} Seiten ausgewählt"
   }
 }

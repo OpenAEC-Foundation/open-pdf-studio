@@ -1599,5 +1599,14 @@
       "supersede": "Digantikan",
       "expire": "Kedaluwarsa"
     }
+  },
+  "pageOrganizer": {
+    "title": "Susun ulang halaman",
+    "hint": "Seret halaman ke posisi baru. Ctrl+klik atau Shift+klik memilih beberapa halaman.",
+    "moveLeft": "Pindah ke kiri",
+    "moveRight": "Pindah ke kanan",
+    "moveToStart": "Pindah ke awal",
+    "moveToEnd": "Pindah ke akhir",
+    "selection": "{{selected}} dari {{total}} halaman dipilih"
   }
 }

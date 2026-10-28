@@ -1598,5 +1598,14 @@
       "supersede": "Superseded",
       "expire": "Expired"
     }
+  },
+  "pageOrganizer": {
+    "title": "Reorder Pages",
+    "hint": "Drag pages to a new position. Ctrl+click or Shift+click selects several pages.",
+    "moveLeft": "Move left",
+    "moveRight": "Move right",
+    "moveToStart": "Move to start",
+    "moveToEnd": "Move to end",
+    "selection": "{{selected}} of {{total}} pages selected"
   }
 }

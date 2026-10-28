@@ -9,7 +9,6 @@ import { isPdfAReadOnly } from '../../../pdf/loader.js';
 import { showInsertPageDialog, showExtractPagesDialog, showMergePdfsDialog } from '../../../ui/chrome/dialogs.js';
 import { draaiVanafKnop } from '../../../pdf/pagina-draaien.js';
 import { setTool } from '../../../tools/manager.js';
-import { setLeftPanelActiveTab, setLeftPanelCollapsed } from '../../../bridge.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { openDialog } from '../../stores/dialogStore.js';
 import { compareActive, exitCompare } from '../../../compare/compare-store.js';
@@ -32,16 +31,12 @@ export default function OrganizeTab() {
   // huidige pagina (#464).
   const rotateCurrentPage = (delta) => draaiVanafKnop(delta);
 
+  // Opens the page organizer: a thumbnail grid in which pages are dragged
+  // into a new order (#763). Switching the left panel to its thumbnails was
+  // all this did before, and those are already showing by default.
   function openPageReorder() {
-    // Open the left panel and switch to the page-thumbnails tab so the user
-    // can drag pages to reorder.
-    try {
-      setLeftPanelCollapsed(false);
-      setLeftPanelActiveTab('thumbnails');
-    } catch (_) {
-      // Fallback: just toggle whatever panel exists
-      import('../../../ui/panels/left-panel.js').then(m => m.toggleLeftPanel && m.toggleLeftPanel()).catch(() => {});
-    }
+    if (!getActiveDocument()?.pdfDoc) return;
+    openDialog('page-organizer', {});
   }
 
   return (
@@ -106,8 +101,8 @@ export default function OrganizeTab() {
           <RibbonButton id="reorder-pages"
             title={t('organize.reorderPagesTitle') || 'Open thumbnails to drag pages into a new order'}
             icon={reorderIcon}
-            label={t('organize.reorderPages') || 'Volgorde'}
-            disabled={noPdf()} onClick={openPageReorder} />
+            label={t('organize.reorderPages') || 'Reorder'}
+            disabled={ro()} onClick={openPageReorder} />
         </RibbonGroup>
 
         <RibbonGroup label={t('organize.combine')}>

@@ -2,6 +2,7 @@ import { For, onMount } from 'solid-js';
 import { pageCount, selectAllPages, clearPageSelection, getSelectedPagesArray, formatPageRangeString, setContainerRef } from '../../../stores/panels/thumbnailStore.js';
 import { activeTab } from '../../../stores/leftPanelStore.js';
 import ThumbnailItem from '../ThumbnailItem.jsx';
+import { identityOrder, gapForDrop, moveGroupToGap } from '../../../../pdf/page-order.js';
 import { useTranslation } from '../../../../i18n/useTranslation.js';
 
 export default function ThumbnailsPanel() {
@@ -16,16 +17,15 @@ export default function ThumbnailsPanel() {
     import('../../../../pdf/renderer.js').then(m => m.goToPage(pageNum));
   };
 
+  // Dragging a selected page takes the whole selection along (#763).
   const handleReorder = async (fromPage, toPage, dropBefore) => {
     const { reorderPages } = await import('../../../../pdf/page-manager.js');
-    const numPages = pageCount();
-    const currentOrder = Array.from({ length: numPages }, (_, i) => i + 1);
-    const fromIdx = currentOrder.indexOf(fromPage);
-    currentOrder.splice(fromIdx, 1);
-    let toIdx = currentOrder.indexOf(toPage);
-    if (!dropBefore) toIdx++;
-    currentOrder.splice(toIdx, 0, fromPage);
-    await reorderPages(currentOrder);
+    const order = identityOrder(pageCount());
+    const selected = getSelectedPagesArray();
+    const group = selected.includes(fromPage) ? selected : [fromPage];
+    const gap = gapForDrop(order, toPage, dropBefore ? 'before' : 'after');
+    if (gap < 0) return;
+    await reorderPages(moveGroupToGap(order, group, gap));
   };
 
   const handleKeyDown = async (e) => {
