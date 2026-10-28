@@ -1,3 +1,4 @@
+import { ANCHOR_HANDLE } from '../transform-anchor.js';
 import { HANDLE_SIZE, HANDLE_TYPES } from '../../core/constants.js';
 import { state, getActiveDocument, getSelectionBounds, getAnnotationBounds } from '../../core/state.js';
 import { annotationCtx } from '../../ui/dom-elements.js';
@@ -258,6 +259,23 @@ export function drawSelectionHandles(ctx, annotation) {
   handles.forEach(handle => {
     const cx = handle.x + hs / 2;
     const cy = handle.y + hs / 2;
+
+    if (handle.type === ANCHOR_HANDLE) {
+      ctx.save();
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = '#0066cc';
+      ctx.lineWidth = lw;
+      ctx.beginPath();
+      ctx.arc(cx, cy, hs / 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx - hs * 0.8, cy); ctx.lineTo(cx + hs * 0.8, cy);
+      ctx.moveTo(cx, cy - hs * 0.8); ctx.lineTo(cx, cy + hs * 0.8);
+      ctx.stroke();
+      ctx.restore();
+      return;
+    }
 
     // Draw rotation handle as a circle with rotation icon (green color)
     if (handle.type === HANDLE_TYPES.ROTATE) {

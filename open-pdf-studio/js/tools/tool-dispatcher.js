@@ -1,3 +1,5 @@
+import { ANCHOR_HANDLE, setTransformAnchor, resetTransformAnchor, resizeAboutTransformAnchor, rotateAboutTransformAnchor } from '../annotations/transform-anchor.js';
+import { findHandleAt } from '../annotations/handles.js';
 import { batch } from 'solid-js';
 import { state, getActiveDocument } from '../core/state.js';
 import { resolvePointerCoords, buildToolContext, isModalOpen, applyToolTransform, getEffectiveScale } from './tool-context.js';
@@ -5,7 +7,7 @@ import { zetRechtopRond } from '../pdf/weergave-ruimte.js';
 import { getTool } from './tool-registry.js';
 import { eindEventBijAfbreken } from './aanraak-gebaar.js';
 import { cloneAnnotation } from '../annotations/factory.js';
-import { applyResize, applyMove, applyRotation } from '../annotations/transforms.js';
+import { applyResize, applyMove, applyRotation, applyRotateGeneric } from '../annotations/transforms.js';
 import { redrawAnnotations, redrawContinuous, snapToGrid } from '../annotations/rendering.js';
 import { showProperties, showMultiSelectionProperties } from '../ui/panels/properties-panel.js';
 import { startTextEditing, finishTextEditing } from './text-editing.js';
@@ -519,6 +521,15 @@ export function handleDblClick(e) {
     if (dblClickDoc) dblClickDoc.currentPage = coords.pageNum;
   }
 
+  const anchorSelection = getActiveDocument()?.selectedAnnotations || [];
+  const anchorAnn = anchorSelection.length === 1 ? anchorSelection[0] : null;
+  if (state.currentTool === 'select' && anchorAnn &&
+      findHandleAt(coords.x, coords.y, anchorAnn, getEffectiveScale()) === ANCHOR_HANDLE) {
+    resetTransformAnchor(anchorAnn);
+    redraw();
+    return;
+  }
+
   // Delegate to current tool first — multi-click tools (polyline, spline, arc,
   // measureArea, ...) listen for `e.detail === 2` to finish a shape. PointerDown
   // events have detail=0 in Chromium so without this delegation a real
@@ -612,10 +623,24 @@ function _handleResize(ctx, e, coords) {
   if (!ann || !state.originalAnnotation) return;
   const canvasCtx = coords.canvasCtx;
 
+  if (state.activeHandle === ANCHOR_HANDLE) {
+    if (state._dragExitedDeadzone ||
+        Math.hypot(coords.x - state.dragStartX, coords.y - state.dragStartY) >= 3 / getEffectiveScale()) {
+      state._dragExitedDeadzone = true;
+      setTransformAnchor(ann, coords);
+      redraw();
+    }
+    return;
+  }
+
   if (state.activeHandle === 'rotate') {
     Object.assign(ann, cloneAnnotation(state.originalAnnotation));
     state.shiftKeyPressed = e.shiftKey;
-    applyRotation(ann, coords.x, coords.y, state.originalAnnotation);
+    const rotated = rotateAboutTransformAnchor(ann, state.originalAnnotation,
+      { x: state.dragStartX, y: state.dragStartY }, coords,
+      e.shiftKey && state.preferences.enableAngleSnap ? state.preferences.angleSnapDegrees : 0,
+      applyRotateGeneric);
+    if (!rotated) applyRotation(ann, coords.x, coords.y, state.originalAnnotation);
     redraw();
     return;
   }
@@ -678,7 +703,9 @@ function _handleResize(ctx, e, coords) {
   Object.assign(ann, cloneAnnotation(state.originalAnnotation));
   // De zoom gaat mee: ondergrenzen die over het scherm gaan (schaalgebied,
   // viewport, schaalbalk) rekenen in schermpixels, niet in paginapunten.
-  applyResize(ann, state.activeHandle, deltaX, deltaY, state.originalAnnotation, e.shiftKey, e.ctrlKey,
+  const anchoredResize = resizeAboutTransformAnchor(ann, state.originalAnnotation,
+    state.activeHandle, deltaX, deltaY, e.shiftKey, e.ctrlKey, { schaal: resizeScale }, applyResize, applyMove);
+  if (!anchoredResize) applyResize(ann, state.activeHandle, deltaX, deltaY, state.originalAnnotation, e.shiftKey, e.ctrlKey,
     { schaal: resizeScale });
   _pasGripLengteToe(ann);
   _sleepStramienMee(ann);
@@ -698,7 +725,7 @@ function _handleResize(ctx, e, coords) {
   const _isBoxHandle = _rh === 'tl' || _rh === 'tr' || _rh === 'bl' || _rh === 'br' ||
     _rh === 't' || _rh === 'b' || _rh === 'l' || _rh === 'r';
   const _lockRatio = e.shiftKey || ann.lockAspectRatio;
-  if (state.preferences.enableImageAlignSnap && ann.type === 'image' && _isBoxHandle) {
+  if (!anchoredResize && state.preferences.enableImageAlignSnap && ann.type === 'image' && _isBoxHandle) {
     const excludeIds = new Set([ann.id]);
     const refs = collectImageAlignRefs(resizeDoc?.annotations || [], coords.pageNum, excludeIds);
     const tol = (state.preferences.objectSnapRadius || 12) / resizeScale;

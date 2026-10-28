@@ -1,3 +1,4 @@
+import { ANCHOR_HANDLE, restoreTransformAnchor } from '../annotations/transform-anchor.js';
 import { state, getActiveDocument, selectAllOnPage, clearSelection } from '../core/state.js';
 import { undo, redo, recordAdd, recordModify, recordBulkModify, recordClearPage } from '../core/undo-manager.js';
 import { setTool } from './manager.js';
@@ -794,6 +795,9 @@ export async function handleKeydown(e) {
       const _sel = _doc ? _doc.selectedAnnotations : [];
       const ann = _sel.length === 1 ? _sel[0] : null;
       if (ann) {
+        if (state.activeHandle === ANCHOR_HANDLE) {
+          restoreTransformAnchor(ann, state._transformAnchorBefore);
+        }
         // Restore annotation to its pre-stretch state
         Object.assign(ann, state.originalAnnotation);
       }

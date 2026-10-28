@@ -1,3 +1,4 @@
+import { ANCHOR_HANDLE, snapshotTransformAnchor, resetTransformAnchor } from '../../annotations/transform-anchor.js';
 import { getActiveDocument } from '../../core/state.js';
 import { paginaVectorNaarWeergave } from '../../pdf/weergave-ruimte.js';
 
@@ -151,6 +152,13 @@ export const selectTool = {
           ctx.redraw();
           return;
         }
+        if (handleType === ANCHOR_HANDLE && e.detail === 2) {
+          resetTransformAnchor(selAnn);
+          ctx.redraw();
+          return;
+        }
+        state._transformAnchorBefore = handleType === ANCHOR_HANDLE
+          ? snapshotTransformAnchor(selAnn) : null;
         state.isResizing = true;
         state.activeHandle = handleType;
         state.originalAnnotation = ctx.cloneAnnotation(selAnn);

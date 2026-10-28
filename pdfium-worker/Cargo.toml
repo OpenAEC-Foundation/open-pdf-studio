@@ -1,6 +1,6 @@
 [package]
 name = "pdfium-worker"
-version = "2026.43.11"
+version = "2026.44.2"
 edition = "2021"
 
 [[bin]]

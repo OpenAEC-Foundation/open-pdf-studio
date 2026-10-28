@@ -1,3 +1,4 @@
+import { addTransformAnchorHandle } from './transform-anchor.js';
 import { HANDLE_SIZE, HANDLE_TYPES } from '../core/constants.js';
 import { annotationCtx } from '../ui/dom-elements.js';
 import { state, getActiveDocument } from '../core/state.js';
@@ -745,6 +746,7 @@ export function getAnnotationHandles(annotation, scale = 1) {
     }
   }
 
+  addTransformAnchorHandle(handles, annotation, scale, HANDLE_SIZE);
   return handles;
 }
 
