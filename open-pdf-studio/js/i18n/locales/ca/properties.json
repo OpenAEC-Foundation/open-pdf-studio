@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Clip",
+    "iconPushPin": "Xinxeta",
+    "iconGraph": "Gràfic",
+    "iconTag": "Etiqueta"
   },
   "stylePresets": {
     "label": "Estil de línia",
@@ -311,7 +315,8 @@
     "measurePerimeter": "Perímetre",
     "redaction": "Redacció",
     "scaleBar": "Barra d'escala",
-    "parametricSymbol": "Símbol paramètric"
+    "parametricSymbol": "Símbol paramètric",
+    "fileAttachment": "Fitxer adjunt"
   },
   "leftPanel": {
     "togglePanel": "Commuta el panell",
@@ -831,5 +836,12 @@
       "inb-verticaal-breed": "Vertical ample",
       "inb-horizontaal-breed": "Horitzontal ample"
     }
+  },
+  "attachment": {
+    "file": "Fitxer",
+    "size": "Mida",
+    "open": "Obre",
+    "saveAs": "Desa com a...",
+    "noContent": "El contingut d'aquest fitxer no està incrustat al PDF."
   }
 }

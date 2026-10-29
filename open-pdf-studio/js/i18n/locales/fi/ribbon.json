@@ -169,7 +169,9 @@
     "flattenAll": "Litistä kaikki",
     "flattenAllTooltip": "Litistä kaikki merkinnät sivun sisällöksi",
     "unflattenAll": "Kumoa litistys",
-    "unflattenAllTooltip": "Palauta merkinnät, jotka litistettiin palautus sallittuna"
+    "unflattenAllTooltip": "Palauta merkinnät, jotka litistettiin palautus sallittuna",
+    "fileAttachment": "Liitä tiedosto",
+    "fileAttachmentTitle": "Tiedostoliite: napsauta sivua ja valitse tiedosto"
   },
   "view": {
     "pageDisplay": "Sivun näyttö",

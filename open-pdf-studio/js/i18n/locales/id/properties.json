@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Klip kertas",
+    "iconPushPin": "Paku payung",
+    "iconGraph": "Grafik",
+    "iconTag": "Tag"
   },
   "stylePresets": {
     "label": "Gaya garis",
@@ -311,7 +315,8 @@
     "measurePerimeter": "Keliling",
     "redaction": "Redaksi",
     "scaleBar": "Batang Skala",
-    "parametricSymbol": "Simbol Parametrik"
+    "parametricSymbol": "Simbol Parametrik",
+    "fileAttachment": "Lampiran file"
   },
   "leftPanel": {
     "togglePanel": "Tampilkan/Sembunyikan Panel",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "Tegak renggang",
       "inb-horizontaal-breed": "Mendatar renggang"
     }
+  },
+  "attachment": {
+    "file": "File",
+    "size": "Ukuran",
+    "open": "Buka",
+    "saveAs": "Simpan sebagai...",
+    "noContent": "Isi file ini tidak disematkan dalam PDF."
   }
 }

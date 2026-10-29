@@ -142,7 +142,11 @@
     "boxShape": "Vorm",
     "boxShapeRect": "Rechthoek (scherpe hoeken)",
     "boxShapeRounded": "Rechthoek (afgeronde hoeken)",
-    "boxShapeEllipse": "Ellips / cirkel"
+    "boxShapeEllipse": "Ellips / cirkel",
+    "iconPaperclip": "Paperclip",
+    "iconPushPin": "Punaise",
+    "iconGraph": "Grafiek",
+    "iconTag": "Label"
   },
   "stylePresets": {
     "label": "Lijnstijl",
@@ -291,7 +295,8 @@
     "measurePerimeter": "Omtrek",
     "redaction": "Redactie",
     "scaleBar": "Schaalbalk",
-    "parametricSymbol": "Parametrisch symbool"
+    "parametricSymbol": "Parametrisch symbool",
+    "fileAttachment": "Bestandsbijlage"
   },
   "leftPanel": {
     "togglePanel": "Paneel in-/uitschakelen",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "Verticaal breed",
       "inb-horizontaal-breed": "Horizontaal breed"
     }
+  },
+  "attachment": {
+    "file": "Bestand",
+    "size": "Grootte",
+    "open": "Openen",
+    "saveAs": "Opslaan als...",
+    "noContent": "De inhoud van dit bestand is niet in de PDF ingesloten."
   }
 }

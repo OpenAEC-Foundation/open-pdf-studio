@@ -16,7 +16,7 @@ import { redrawAnnotations, redrawContinuous } from '../../../annotations/render
 import {
   highlightIcon, freehandIcon, lineIcon, arrowIcon, polylineIcon,
   rectIcon, ellipseIcon, polygonIcon, cloudIcon, cloudPolylineIcon,
-  textAnnotIcon, textboxIcon, noteIcon, calloutIcon,
+  textAnnotIcon, textboxIcon, noteIcon, fileAttachmentIcon, calloutIcon,
   stampIcon, signatureIcon,
   redactionIcon, applyRedactionsIcon,
   clearPageIcon, clearAllIcon, flattenAllIcon, unflattenAllIcon,
@@ -64,6 +64,8 @@ export function CommentGroups() {
             disabled={noPdf() || isPdfAReadOnly()} active={state.currentTool === 'callout'} onClick={() => setTool('callout')} />
           <RibbonButton id="tool-comment" title={t('comment.note')} icon={noteIcon} label={t('comment.note')}
             disabled={noPdf() || isPdfAReadOnly()} active={state.currentTool === 'comment'} onClick={() => setTool('comment')} />
+          <RibbonButton id="tool-file-attachment" title={t('comment.fileAttachmentTitle')} icon={fileAttachmentIcon} label={t('comment.fileAttachment')}
+            disabled={noPdf() || isPdfAReadOnly()} active={state.currentTool === 'fileAttachment'} onClick={() => setTool('fileAttachment')} />
         </RibbonGroup>
 
         <RibbonGroup label={t('proofread.group')}>

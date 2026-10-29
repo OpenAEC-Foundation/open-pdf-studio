@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Ataş",
+    "iconPushPin": "Raptiye",
+    "iconGraph": "Grafik",
+    "iconTag": "Etiket"
   },
   "stylePresets": {
     "label": "Çizgi stili",
@@ -311,7 +315,8 @@
     "measurePerimeter": "Çevre",
     "redaction": "Karartma",
     "scaleBar": "Ölçek Çubuğu",
-    "parametricSymbol": "Parametrik sembol"
+    "parametricSymbol": "Parametrik sembol",
+    "fileAttachment": "Dosya eki"
   },
   "leftPanel": {
     "togglePanel": "Paneli Aç/Kapat",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "Dikey tarama seyrek",
       "inb-horizontaal-breed": "Yatay tarama seyrek"
     }
+  },
+  "attachment": {
+    "file": "Dosya",
+    "size": "Boyut",
+    "open": "Aç",
+    "saveAs": "Farklı kaydet...",
+    "noContent": "Bu dosyanın içeriği PDF'e gömülü değil."
   }
 }

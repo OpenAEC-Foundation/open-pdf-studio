@@ -1,5 +1,5 @@
 import { parseEditorDom } from '../../text/editor-dom-parse.js';
-import { PDFName, PDFDict, PDFArray, PDFHexString, PDFString } from 'pdf-lib';
+import { PDFName, PDFDict, PDFArray, PDFHexString, PDFString, PDFRef } from 'pdf-lib';
 import { pdfNum, pdfColorToHex, mapPdfFontName, inflateBytes, rcLettertype } from './pdf-helpers.js';
 import { fillAlphaAtFirstFill } from './ap-fill-alpha.js';
 import { leesKnipselBronnen, leesKnipselVelden } from './vector-snippet-load.js';
@@ -12,6 +12,33 @@ import { leesPlattegrondMeta } from './plattegrond-meta.js';
 import { leesLijnSleutels } from './maatlijn-uit-bestand.js';
 import { blendUitPdf } from '../../annotations/blend-modes.js';
 import { leesStempelAp } from './stempel-ap.js';
+import { leesBijlageAnnotatie } from '../bijlage-annotatie.js';
+import { bewaarBijlageInhoud, bijlageItem } from '../../annotations/bijlage-store.js';
+
+// Bijlage-annotaties (#376) die al gelezen zijn, op hun /FS-object: een pagina
+// kan meer dan eens geëxtraheerd worden, de inhoud hoeft maar één keer in de
+// store.
+const _bijlagenGelezen = new WeakMap();
+
+function bijlageUitAnnotatie(context, annotDict) {
+  const fsRaw = annotDict.get(PDFName.of('FS'));
+  const fsObj = context.lookup(fsRaw);
+  const eerder = fsObj && typeof fsObj === 'object' ? _bijlagenGelezen.get(fsObj) : null;
+  // Een sleutel waarvan de inhoud al is vrijgegeven (het document was dicht,
+  // bijlage-store.js) telt niet: dan opnieuw lezen.
+  if (eerder && (!eerder.bestand.key || bijlageItem(eerder.bestand.key))) return { ...eerder };
+  const gelezen = leesBijlageAnnotatie(context, annotDict);
+  if (!gelezen) return null;
+  const { bytes, ruw, ...meta } = gelezen.bestand;
+  const key = (bytes || ruw) ? bewaarBijlageInhoud(bytes ? { bytes } : { ruw }) : null;
+  // Het /FS-object (pdf.js-vorm, `12R`): de saver vindt er het ingesloten
+  // bestand mee terug als de inhoud later niet te lezen is.
+  const fsRef = fsRaw instanceof PDFRef
+    ? `${fsRaw.objectNumber}R${fsRaw.generationNumber ? fsRaw.generationNumber : ''}` : null;
+  const uit = { icoon: gelezen.icoon, bestand: { ...meta, key, fsRef } };
+  if (fsObj && typeof fsObj === 'object') _bijlagenGelezen.set(fsObj, uit);
+  return { ...uit };
+}
 
 // Documenten waarvan de knipsel-bronpagina's al in de store staan: dat
 // uitpakken gebeurt één keer per document, bij het eerste knipsel dat we zien.
@@ -319,6 +346,16 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
             const iv = beI !== undefined ? pdfNum(context.lookup(beI) || beI) : null;
             if (iv !== null) colors.cloudIntensity = iv;
           }
+        }
+      }
+
+      // Bijlage-annotatie (#376): het bestand achter het pictogram.
+      if (subtypeName === '/FileAttachment') {
+        try {
+          const bijlage = bijlageUitAnnotatie(context, annotDict);
+          if (bijlage) colors.bijlage = bijlage;
+        } catch (e) {
+          console.warn('[loader] file attachment could not be read:', e?.message || e);
         }
       }
 

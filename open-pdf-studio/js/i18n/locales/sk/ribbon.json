@@ -169,7 +169,9 @@
     "flattenAll": "Sploštiť všetko",
     "flattenAllTooltip": "Sploštiť všetky označenia do obsahu strany",
     "unflattenAll": "Zrušiť sploštenie",
-    "unflattenAllTooltip": "Obnoviť označenia sploštené s povoleným obnovením"
+    "unflattenAllTooltip": "Obnoviť označenia sploštené s povoleným obnovením",
+    "fileAttachment": "Pripojiť súbor",
+    "fileAttachmentTitle": "Príloha súboru: kliknite na stranu a vyberte súbor"
   },
   "view": {
     "pageDisplay": "Zobrazenie strany",

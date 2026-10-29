@@ -169,7 +169,9 @@
     "flattenAll": "ຮວມທັງໝົດ",
     "flattenAllTooltip": "ຮວມເຄື່ອງໝາຍທັງໝົດເຂົ້າໃນເນື້ອຫາໜ້າ",
     "unflattenAll": "ຍົກເລີກການຮວມ",
-    "unflattenAllTooltip": "ກູ້ຄືນເຄື່ອງໝາຍທີ່ຖືກຮວມໂດຍອະນຸຍາດໃຫ້ກູ້ຄືນ"
+    "unflattenAllTooltip": "ກູ້ຄືນເຄື່ອງໝາຍທີ່ຖືກຮວມໂດຍອະນຸຍາດໃຫ້ກູ້ຄືນ",
+    "fileAttachment": "ແນບໄຟລ໌",
+    "fileAttachmentTitle": "ໄຟລ໌ແນບ: ຄລິກໃສ່ໜ້າ ແລ້ວເລືອກໄຟລ໌"
   },
   "view": {
     "pageDisplay": "ການສະແດງໜ້າເຈ້ຍ",

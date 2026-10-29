@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Paperiliitin",
+    "iconPushPin": "Nasta",
+    "iconGraph": "Kaavio",
+    "iconTag": "Tunniste"
   },
   "stylePresets": {
     "label": "Viivatyyli",
@@ -311,7 +315,8 @@
     "measurePerimeter": "Piiri",
     "redaction": "Poisto",
     "scaleBar": "Mittakaavajana",
-    "parametricSymbol": "Parametrinen symboli"
+    "parametricSymbol": "Parametrinen symboli",
+    "fileAttachment": "Tiedostoliite"
   },
   "leftPanel": {
     "togglePanel": "Näytä/piilota paneeli",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "Pystyviivoitus harva",
       "inb-horizontaal-breed": "Vaakaviivoitus harva"
     }
+  },
+  "attachment": {
+    "file": "Tiedosto",
+    "size": "Koko",
+    "open": "Avaa",
+    "saveAs": "Tallenna nimellä...",
+    "noContent": "Tämän tiedoston sisältöä ei ole upotettu PDF-tiedostoon."
   }
 }

@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Spajalica",
+    "iconPushPin": "Pribadača",
+    "iconGraph": "Grafikon",
+    "iconTag": "Oznaka"
   },
   "stylePresets": {
     "label": "Stil linije",
@@ -311,7 +315,8 @@
     "measurePerimeter": "Opseg",
     "redaction": "Redigiranje",
     "scaleBar": "Grafičko mjerilo",
-    "parametricSymbol": "Parametarski simbol"
+    "parametricSymbol": "Parametarski simbol",
+    "fileAttachment": "Privitak datoteke"
   },
   "leftPanel": {
     "togglePanel": "Prebaci ploču",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "Okomita šrafura rijetka",
       "inb-horizontaal-breed": "Vodoravna šrafura rijetka"
     }
+  },
+  "attachment": {
+    "file": "Datoteka",
+    "size": "Veličina",
+    "open": "Otvori",
+    "saveAs": "Spremi kao...",
+    "noContent": "Sadržaj ove datoteke nije ugrađen u PDF."
   }
 }

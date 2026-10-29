@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Συνδετήρας",
+    "iconPushPin": "Πινέζα",
+    "iconGraph": "Γράφημα",
+    "iconTag": "Ετικέτα"
   },
   "stylePresets": {
     "label": "Στυλ γραμμής",
@@ -311,7 +315,8 @@
     "measurePerimeter": "Περίμετρος",
     "redaction": "Απαλοιφή",
     "scaleBar": "Γραμμή κλίμακας",
-    "parametricSymbol": "Παραμετρικό σύμβολο"
+    "parametricSymbol": "Παραμετρικό σύμβολο",
+    "fileAttachment": "Συνημμένο αρχείο"
   },
   "leftPanel": {
     "togglePanel": "Εναλλαγή πίνακα",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "Κατακόρυφη διαγράμμιση αραιή",
       "inb-horizontaal-breed": "Οριζόντια διαγράμμιση αραιή"
     }
+  },
+  "attachment": {
+    "file": "Αρχείο",
+    "size": "Μέγεθος",
+    "open": "Άνοιγμα",
+    "saveAs": "Αποθήκευση ως...",
+    "noContent": "Το περιεχόμενο αυτού του αρχείου δεν είναι ενσωματωμένο στο PDF."
   }
 }

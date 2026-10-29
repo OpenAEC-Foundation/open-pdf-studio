@@ -169,7 +169,9 @@
     "flattenAll": "Sawazisha zote",
     "flattenAllTooltip": "Sawazisha alama zote kwenye maudhui ya ukurasa",
     "unflattenAll": "Tendua usawazishaji",
-    "unflattenAllTooltip": "Rejesha alama zilizosawazishwa huku urejeshaji ukiruhusiwa"
+    "unflattenAllTooltip": "Rejesha alama zilizosawazishwa huku urejeshaji ukiruhusiwa",
+    "fileAttachment": "Ambatisha faili",
+    "fileAttachmentTitle": "Kiambatisho cha faili: bofya kwenye ukurasa na uchague faili"
   },
   "view": {
     "pageDisplay": "Onyesho la Ukurasa",

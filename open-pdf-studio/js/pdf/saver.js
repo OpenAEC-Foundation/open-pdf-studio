@@ -56,6 +56,8 @@ import { pasBijlagenToe } from './bijlagen.js';
 import { schrijfAnnotatieLagen, ocVoorAnnotatie, laagstandZonderEigenLagen } from './saver/annotatie-lagen.js';
 import { schrijfStandaardLaagstand } from './lagen-boom.js';
 import { standaardOmTeBewaren, naOpslaan as lagenNaOpslaan } from './lagen-schakelen.js';
+import { bouwBijlageAnnotatie, origineleBijlage, bijlageBewerkt } from './bijlage-annotatie.js';
+import { bijlageInhoud } from '../annotations/bijlage-store.js';
 import { layersForSave, currentLayerId } from '../annotations/annotatie-lagen.js';
 import { vormVan, vakPadPdf } from '../annotations/rendering/textbox-vorm.js';
 import { heeftNietWinAnsi, pdfTextString, toWinAnsiText, winAnsiLiteral, asciiPdfName } from './saver/pdf-text.js';
@@ -532,7 +534,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       const handledSubtypes = new Set([
         '/Highlight', '/Underline', '/StrikeOut', '/Squiggly',
         '/Square', '/Circle', '/Line', '/Ink', '/PolyLine', '/Polygon',
-        '/Text', '/FreeText', '/Stamp', '/Caret'
+        '/Text', '/FreeText', '/Stamp', '/Caret', '/FileAttachment'
       ]);
       let annotsArray = [];
       const verwijderdeRefs = []; // weggehaald en uit het model herschreven
@@ -584,6 +586,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       const dictById = new Map();
       // /NM per pagina uniek: een kopie draagt de naam van het origineel mee.
       const gebruikteNm = new Set();
+      // Bijlage-annotaties die ongemoeid blijven (#376, zie 'fileAttachment').
+      const behoudenBijlagen = new Set();
 
       // Add our annotations
       for (const annRaw of pageAnnotations) {
@@ -610,6 +614,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
         const borderWidth = ann.lineWidth ?? 2;
 
         let annotDict;
+        // Een origineel dat ongewijzigd blijft staan in plaats van een nieuwe dict.
+        let behoudenRef = null;
 
         switch (ann.type) {
           case 'highlight':
@@ -1777,6 +1783,49 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             // Draaiing van het pictogram (#619): de specificatie kent er geen
             // sleutel voor; andere lezers tekenen hun eigen pictogram rechtop.
             if (ann.rotation) annotDict.set(PDFName.of('OPS_Rotation'), context.obj(ann.rotation));
+            break;
+          }
+
+          case 'fileAttachment': {
+            // Bijlage-annotatie (#376): pictogram met ingesloten bestand.
+            const faW = ann.width || 24;
+            const faH = ann.height || 24;
+            const faInhoud = await bijlageInhoud(annRaw, activeDoc);
+            const faBestand = annRaw.attachment || {};
+            // Inhoud niet te lezen: het ingesloten bestand mag niet stil
+            // verdwijnen. Onbewerkt blijft het origineel staan zoals het was
+            // (met /FS, /AP en sleutels die de app niet kent); bewerkt krijgt
+            // de nieuwe annotatie de oorspronkelijke bestandsspecificatie.
+            const faOrigineel = faInhoud ? null : origineleBijlage(context, verwijderdeRefs, annRaw);
+            if (faOrigineel?.ref && !alleenAnnotaties && !bijlageBewerkt(annRaw)
+                && !behoudenBijlagen.has(faOrigineel.ref)) {
+              behoudenRef = faOrigineel.ref;
+              behoudenBijlagen.add(behoudenRef);
+              break;
+            }
+            annotDict = bouwBijlageAnnotatie(pdfDocLib, {
+              rect: [convertX(ann.x), convertY(ann.y + faH), convertX(ann.x + faW), convertY(ann.y)],
+              icoon: ann.icon,
+              kleur: ann.color,
+              kleurArray: hexToColorArray(ann.color || '#2B579A'),
+              opacity,
+              tekst: ann.text || '',
+              auteur: pdfTextString(ann.author || 'User'),
+              flags: computeAnnotFlags(ann),
+              tekstObj: pdfTextString,
+              bestand: {
+                naam: faBestand.name || 'attachment',
+                beschrijving: faBestand.description || ann.text || '',
+                mime: faBestand.mime || undefined,
+                aangemaakt: faBestand.createdAt || undefined,
+                gewijzigd: faBestand.modifiedAt || undefined,
+                relatie: faBestand.relationship || undefined,
+                grootte: faBestand.size ?? undefined,
+                ...(faInhoud?.bytes ? { bytes: faInhoud.bytes } : faInhoud?.ruw ? { ruw: faInhoud.ruw } : {}),
+              },
+              bestaandeFs: faOrigineel?.fs,
+            });
+            if (!faInhoud && !faOrigineel && annotDict) console.warn(`[saver] file attachment "${faBestand.name}" has no content; written without /EF`);
             break;
           }
 
@@ -3056,6 +3105,16 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
         // Add annotation to page
         let parentAnnotRef = null;
+        if (behoudenRef) {
+          // Het origineel gaat terug de pagina op; antwoorden en koppelingen
+          // hieronder wijzen ernaar zoals naar een nieuwe annotatie.
+          parentAnnotRef = behoudenRef;
+          annotsArray.push(behoudenRef);
+          verwijderdeRefs.splice(verwijderdeRefs.indexOf(behoudenRef), 1);
+          if (annRaw.nm != null) gebruikteNm.add(String(annRaw.nm));
+          refById.set(annRaw.id, behoudenRef);
+          dictById.set(annRaw.id, context.lookup(behoudenRef));
+        }
         if (annotDict) {
           // Vul-alfa bewaren (zie fillOpacity hierboven) — één plek voor elke
           // annotatiesoort, vlak voordat de dict de pagina in gaat.
@@ -3102,7 +3161,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
         // /Text met /IRT naar deze annotatie (PDF-spec), zodat ze ook in andere
         // programma's bij de annotatie horen en bij heropenen terugkomen.
         if (parentAnnotRef) {
-          for (const antwoord of antwoordAnnotaties(context, ann, parentAnnotRef, annotDict, gebruikteNm)) {
+          const ouderDict = annotDict || (behoudenRef ? context.lookup(behoudenRef) : null);
+          for (const antwoord of antwoordAnnotaties(context, ann, parentAnnotRef, ouderDict, gebruikteNm)) {
             annotsArray.push(context.register(antwoord));
           }
         }
@@ -3179,7 +3239,14 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       applyGroupLinks(context, plan, refById, dictById, annotsArray);
       // Overige koppelingen naar een andere annotatie (#619): /IRT en /RT.
       schrijfKoppelingen(pageAnnotations, refById, dictById);
-      annotsArray = dropOrphanPopups(context, annotsArray, correctionRefKeys(context, verwijderdeRefs));
+      // Ook de popup van een herschreven bijlage-annotatie (#376) valt weg: via
+      // haar /Parent hield die de oude annotatie, en daarmee een kopie van het
+      // ingesloten bestand, bij elke save in het bestand.
+      const popupOuders = correctionRefKeys(context, verwijderdeRefs);
+      for (const ref of verwijderdeRefs) {
+        if (context.lookup(ref)?.get?.(PDFName.of('Subtype'))?.toString() === '/FileAttachment') popupOuders.add(ref.toString());
+      }
+      annotsArray = dropOrphanPopups(context, annotsArray, popupOuders);
 
       // Set the updated annotations array
       page.node.set(PDFName.of('Annots'), context.obj(annotsArray));

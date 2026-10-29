@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Klip kertas",
+    "iconPushPin": "Pin tekan",
+    "iconGraph": "Graf",
+    "iconTag": "Tag"
   },
   "stylePresets": {
     "label": "Gaya garisan",
@@ -311,7 +315,8 @@
     "measurePerimeter": "Perimeter",
     "redaction": "Redaksi",
     "scaleBar": "Bar Skala",
-    "parametricSymbol": "Simbol Parametrik"
+    "parametricSymbol": "Simbol Parametrik",
+    "fileAttachment": "Lampiran fail"
   },
   "leftPanel": {
     "togglePanel": "Togol Panel",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "Menegak jarang",
       "inb-horizontaal-breed": "Mendatar jarang"
     }
+  },
+  "attachment": {
+    "file": "Fail",
+    "size": "Saiz",
+    "open": "Buka",
+    "saveAs": "Simpan sebagai...",
+    "noContent": "Kandungan fail ini tidak dibenamkan dalam PDF."
   }
 }

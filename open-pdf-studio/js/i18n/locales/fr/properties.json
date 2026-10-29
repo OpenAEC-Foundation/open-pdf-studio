@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Trombone",
+    "iconPushPin": "Punaise",
+    "iconGraph": "Graphique",
+    "iconTag": "Étiquette"
   },
   "stylePresets": {
     "label": "Style de ligne",
@@ -311,7 +315,8 @@
     "measurePerimeter": "Périmètre",
     "redaction": "Caviardage",
     "scaleBar": "Barre d'échelle",
-    "parametricSymbol": "Symbole paramétrique"
+    "parametricSymbol": "Symbole paramétrique",
+    "fileAttachment": "Pièce jointe"
   },
   "leftPanel": {
     "togglePanel": "Afficher/masquer le panneau",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "Vertical espacé",
       "inb-horizontaal-breed": "Horizontal espacé"
     }
+  },
+  "attachment": {
+    "file": "Fichier",
+    "size": "Taille",
+    "open": "Ouvrir",
+    "saveAs": "Enregistrer sous...",
+    "noContent": "Le contenu de ce fichier n'est pas incorporé dans le PDF."
   }
 }

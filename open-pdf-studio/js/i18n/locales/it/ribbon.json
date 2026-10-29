@@ -169,7 +169,9 @@
     "flattenAll": "Appiattisci tutto",
     "flattenAllTooltip": "Appiattisci tutte le annotazioni nel contenuto della pagina",
     "unflattenAll": "Annulla appiattimento",
-    "unflattenAllTooltip": "Ripristina le annotazioni appiattite con il ripristino consentito"
+    "unflattenAllTooltip": "Ripristina le annotazioni appiattite con il ripristino consentito",
+    "fileAttachment": "Allega file",
+    "fileAttachmentTitle": "Allegato: fai clic sulla pagina e scegli un file"
   },
   "view": {
     "pageDisplay": "Visualizzazione pagina",

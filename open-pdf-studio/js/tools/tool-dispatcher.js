@@ -577,6 +577,14 @@ export function handleDblClick(e) {
         showProperties(clicked);
         redraw();
       }
+    } else if (clicked.type === 'fileAttachment') {
+      // Bijlage-annotatie (#376): het bestand openen in het standaardprogramma.
+      state.isDrawing = false;
+      if (dblDoc) { dblDoc.selectedAnnotations = [clicked]; dblDoc.selectedAnnotation = clicked; }
+      showProperties(clicked);
+      import('../ui/bijlage-annotaties.js')
+        .then((m) => m.openBijlageAnnotatie(clicked))
+        .catch((err) => console.error('[dispatcher] open attachment failed', err));
     } else if (clicked.type === 'comment') {
       state.isDrawing = false;
       if (dblDoc) { dblDoc.selectedAnnotations = [clicked]; dblDoc.selectedAnnotation = clicked; }

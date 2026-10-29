@@ -228,7 +228,12 @@
     "goToPageLink": "انتقل إلى الصفحة",
     "openExternalFile": "فتح: {{filename}}",
     "destination": "الوجهة: {{name}}",
-    "internalLink": "رابط داخلي"
+    "internalLink": "رابط داخلي",
+    "attachmentOnPage": "الصفحة {{page}}",
+    "attachmentCreated": "تاريخ الإنشاء: {{date}}",
+    "attachmentModified": "تاريخ التعديل: {{date}}",
+    "openAttachmentRiskTitle": "فتح المرفق",
+    "openAttachmentRiskMessage": "يمكن للملف \"{{name}}\" تشغيل برامج على هذا الكمبيوتر. لا تفتحه إلا إذا كنت تثق بمصدره. هل تريد فتحه على أي حال؟"
   },
   "failedToInsertPagesFromFile": "فشل إدراج الصفحات من الملف: {{error}}",
   "previewPdfRefused": "ملف PDF هذا معاينة من استيراد الرسم وقد يكون غير مكتمل. لا يمكن إدراجه أو حفظه؛ استورد الرسم من جديد.",

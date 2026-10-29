@@ -228,7 +228,12 @@
     "goToPageLink": "Иди на страницу",
     "openExternalFile": "Отвори: {{filename}}",
     "destination": "Одредиште: {{name}}",
-    "internalLink": "Унутрашњи линк"
+    "internalLink": "Унутрашњи линк",
+    "attachmentOnPage": "Страница {{page}}",
+    "attachmentCreated": "Направљено: {{date}}",
+    "attachmentModified": "Измењено: {{date}}",
+    "openAttachmentRiskTitle": "Отвори прилог",
+    "openAttachmentRiskMessage": "„{{name}}” може да покреће програме на овом рачунару. Отворите га само ако верујете извору. Ипак отворити?"
   },
   "failedToInsertPagesFromFile": "Уметање страница из датотеке није успело: {{error}}",
   "previewPdfRefused": "Овај PDF је преглед из увоза цртежа и може бити непотпун. Не може се уметнути ни сачувати; поново увезите цртеж.",

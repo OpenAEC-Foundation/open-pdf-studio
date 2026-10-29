@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "คลิปหนีบกระดาษ",
+    "iconPushPin": "หมุด",
+    "iconGraph": "กราฟ",
+    "iconTag": "ป้าย"
   },
   "stylePresets": {
     "label": "รูปแบบเส้น",
@@ -311,7 +315,8 @@
     "measurePerimeter": "เส้นรอบรูป",
     "redaction": "การปกปิด",
     "scaleBar": "แถบมาตราส่วน",
-    "parametricSymbol": "สัญลักษณ์พาราเมตริก"
+    "parametricSymbol": "สัญลักษณ์พาราเมตริก",
+    "fileAttachment": "ไฟล์แนบ"
   },
   "leftPanel": {
     "togglePanel": "สลับแผง",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "เส้นแนวตั้งห่าง",
       "inb-horizontaal-breed": "เส้นแนวนอนห่าง"
     }
+  },
+  "attachment": {
+    "file": "ไฟล์",
+    "size": "ขนาด",
+    "open": "เปิด",
+    "saveAs": "บันทึกเป็น...",
+    "noContent": "เนื้อหาของไฟล์นี้ไม่ได้ฝังอยู่ใน PDF"
   }
 }

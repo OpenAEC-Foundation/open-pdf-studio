@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Кламер",
+    "iconPushPin": "Карфица",
+    "iconGraph": "Диаграма",
+    "iconTag": "Етикет"
   },
   "stylePresets": {
     "label": "Стил на линия",
@@ -311,7 +315,8 @@
     "measurePerimeter": "Периметър",
     "redaction": "Редакция",
     "scaleBar": "Линеен мащаб",
-    "parametricSymbol": "Параметричен символ"
+    "parametricSymbol": "Параметричен символ",
+    "fileAttachment": "Прикачен файл"
   },
   "leftPanel": {
     "togglePanel": "Превключване на панела",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "Вертикална щриховка рядка",
       "inb-horizontaal-breed": "Хоризонтална щриховка рядка"
     }
+  },
+  "attachment": {
+    "file": "Файл",
+    "size": "Размер",
+    "open": "Отваряне",
+    "saveAs": "Запиши като...",
+    "noContent": "Съдържанието на този файл не е вградено в PDF файла."
   }
 }

@@ -169,7 +169,9 @@
     "flattenAll": "Alle reduzieren",
     "flattenAllTooltip": "Alle Markierungen auf den Seiteninhalt reduzieren",
     "unflattenAll": "Reduzieren aufheben",
-    "unflattenAllTooltip": "Markierungen wiederherstellen, die mit erlaubter Wiederherstellung reduziert wurden"
+    "unflattenAllTooltip": "Markierungen wiederherstellen, die mit erlaubter Wiederherstellung reduziert wurden",
+    "fileAttachment": "Datei anhängen",
+    "fileAttachmentTitle": "Dateianhang: auf die Seite klicken und eine Datei wählen"
   },
   "view": {
     "pageDisplay": "Seitenanzeige",

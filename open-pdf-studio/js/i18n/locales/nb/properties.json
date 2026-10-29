@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Binders",
+    "iconPushPin": "Tegnestift",
+    "iconGraph": "Diagram",
+    "iconTag": "Merkelapp"
   },
   "stylePresets": {
     "label": "Linjestil",
@@ -311,7 +315,8 @@
     "measurePerimeter": "Omkrets",
     "redaction": "Sladding",
     "scaleBar": "Målestokklinjal",
-    "parametricSymbol": "Parametrisk symbol"
+    "parametricSymbol": "Parametrisk symbol",
+    "fileAttachment": "Filvedlegg"
   },
   "leftPanel": {
     "togglePanel": "Veksle panel",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "Loddrett åpen",
       "inb-horizontaal-breed": "Vannrett åpen"
     }
+  },
+  "attachment": {
+    "file": "Fil",
+    "size": "Størrelse",
+    "open": "Åpne",
+    "saveAs": "Lagre som...",
+    "noContent": "Innholdet i denne filen er ikke innebygd i PDF-en."
   }
 }

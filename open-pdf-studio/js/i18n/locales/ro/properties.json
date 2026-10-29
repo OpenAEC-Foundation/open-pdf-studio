@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Agrafă",
+    "iconPushPin": "Piuneză",
+    "iconGraph": "Grafic",
+    "iconTag": "Etichetă"
   },
   "stylePresets": {
     "label": "Stil de linie",
@@ -311,7 +315,8 @@
     "measurePerimeter": "Perimetru",
     "redaction": "Redactare",
     "scaleBar": "Bară de scară",
-    "parametricSymbol": "Simbol parametric"
+    "parametricSymbol": "Simbol parametric",
+    "fileAttachment": "Atașament fișier"
   },
   "leftPanel": {
     "togglePanel": "Comutare panou",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "Vertical larg",
       "inb-horizontaal-breed": "Orizontal larg"
     }
+  },
+  "attachment": {
+    "file": "Fișier",
+    "size": "Dimensiune",
+    "open": "Deschide",
+    "saveAs": "Salvare ca...",
+    "noContent": "Conținutul acestui fișier nu este încorporat în PDF."
   }
 }

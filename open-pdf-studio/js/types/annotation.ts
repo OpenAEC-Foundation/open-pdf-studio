@@ -2,7 +2,7 @@ export type AnnotationType =
   | 'highlight' | 'textHighlight' | 'textStrikethrough' | 'textUnderline' | 'textSquiggly'
   | 'caret'
   | 'draw' | 'line' | 'arrow' | 'box' | 'circle'
-  | 'textbox' | 'callout' | 'comment' | 'stamp' | 'image' | 'signature'
+  | 'textbox' | 'callout' | 'comment' | 'fileAttachment' | 'stamp' | 'image' | 'signature'
   | 'polygon' | 'cloud' | 'cloudPolyline' | 'polyline' | 'text'
   | 'arc' | 'spline' | 'splineArrow' | 'redaction'
   | 'measureDistance' | 'measureArea' | 'measurePerimeter' | 'measureAngle'

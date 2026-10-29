@@ -169,7 +169,9 @@
     "flattenAll": "Spljošti sve",
     "flattenAllTooltip": "Spljošti sve oznake u sadržaj stranice",
     "unflattenAll": "Poništi spljoštenje",
-    "unflattenAllTooltip": "Vrati oznake spljoštene uz dopušteno vraćanje"
+    "unflattenAllTooltip": "Vrati oznake spljoštene uz dopušteno vraćanje",
+    "fileAttachment": "Priloži datoteku",
+    "fileAttachmentTitle": "Privitak datoteke: kliknite na stranicu i odaberite datoteku"
   },
   "view": {
     "pageDisplay": "Prikaz stranice",

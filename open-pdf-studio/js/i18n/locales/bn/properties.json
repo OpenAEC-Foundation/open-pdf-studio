@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "পেপারক্লিপ",
+    "iconPushPin": "পুশপিন",
+    "iconGraph": "গ্রাফ",
+    "iconTag": "ট্যাগ"
   },
   "stylePresets": {
     "label": "রেখার শৈলী",
@@ -311,7 +315,8 @@
     "measurePerimeter": "পরিধি",
     "redaction": "সংশোধন",
     "scaleBar": "স্কেল বার",
-    "parametricSymbol": "প্যারামেট্রিক প্রতীক"
+    "parametricSymbol": "প্যারামেট্রিক প্রতীক",
+    "fileAttachment": "ফাইল সংযুক্তি"
   },
   "leftPanel": {
     "togglePanel": "প্যানেল টগল করুন",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "উল্লম্ব বিরল",
       "inb-horizontaal-breed": "অনুভূমিক বিরল"
     }
+  },
+  "attachment": {
+    "file": "ফাইল",
+    "size": "আকার",
+    "open": "খুলুন",
+    "saveAs": "হিসাবে সংরক্ষণ করুন...",
+    "noContent": "এই ফাইলের বিষয়বস্তু PDF-এ এম্বেড করা নেই।"
   }
 }

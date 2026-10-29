@@ -169,7 +169,9 @@
     "flattenAll": "تسطيح الكل",
     "flattenAllTooltip": "تسطيح كل العلامات في محتوى الصفحة",
     "unflattenAll": "التراجع عن التسطيح",
-    "unflattenAllTooltip": "استعادة العلامات التي سُطّحت مع السماح بالاستعادة"
+    "unflattenAllTooltip": "استعادة العلامات التي سُطّحت مع السماح بالاستعادة",
+    "fileAttachment": "إرفاق ملف",
+    "fileAttachmentTitle": "مرفق ملف: انقر على الصفحة واختر ملفًا"
   },
   "view": {
     "pageDisplay": "عرض الصفحة",

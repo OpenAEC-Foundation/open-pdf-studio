@@ -169,7 +169,9 @@
     "flattenAll": "Сравни све",
     "flattenAllTooltip": "Сравни све ознаке у садржај странице",
     "unflattenAll": "Поништи сравњивање",
-    "unflattenAllTooltip": "Врати ознаке сравњене уз дозвољено враћање"
+    "unflattenAllTooltip": "Врати ознаке сравњене уз дозвољено враћање",
+    "fileAttachment": "Приложи датотеку",
+    "fileAttachmentTitle": "Прилог датотеке: кликните на страницу и изаберите датотеку"
   },
   "view": {
     "pageDisplay": "Приказ странице",

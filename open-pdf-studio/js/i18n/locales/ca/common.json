@@ -228,7 +228,12 @@
     "goToPageLink": "Vés a la pàgina",
     "openExternalFile": "Obre: {{filename}}",
     "destination": "Destinació: {{name}}",
-    "internalLink": "Enllaç intern"
+    "internalLink": "Enllaç intern",
+    "attachmentOnPage": "Pàgina {{page}}",
+    "attachmentCreated": "Creat: {{date}}",
+    "attachmentModified": "Modificat: {{date}}",
+    "openAttachmentRiskTitle": "Obre l'adjunt",
+    "openAttachmentRiskMessage": "«{{name}}» pot executar programes en aquest ordinador. Obriu-lo només si confieu en l'origen. Voleu obrir-lo igualment?"
   },
   "failedToInsertPagesFromFile": "No s'han pogut inserir pàgines des del fitxer: {{error}}",
   "previewPdfRefused": "Aquest PDF és una previsualització de la importació del dibuix i pot estar incomplet. No es pot inserir ni desar; torneu a importar el dibuix.",

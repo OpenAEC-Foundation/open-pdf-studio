@@ -228,7 +228,12 @@
     "goToPageLink": "ไปที่หน้า",
     "openExternalFile": "เปิด: {{filename}}",
     "destination": "ปลายทาง: {{name}}",
-    "internalLink": "ลิงก์ภายใน"
+    "internalLink": "ลิงก์ภายใน",
+    "attachmentOnPage": "หน้า {{page}}",
+    "attachmentCreated": "สร้างเมื่อ: {{date}}",
+    "attachmentModified": "แก้ไขเมื่อ: {{date}}",
+    "openAttachmentRiskTitle": "เปิดไฟล์แนบ",
+    "openAttachmentRiskMessage": "\"{{name}}\" สามารถเรียกใช้โปรแกรมบนคอมพิวเตอร์เครื่องนี้ได้ เปิดเฉพาะเมื่อคุณเชื่อถือแหล่งที่มา ต้องการเปิดต่อหรือไม่?"
   },
   "failedToInsertPagesFromFile": "แทรกหน้าจากไฟล์ไม่สำเร็จ: {{error}}",
   "previewPdfRefused": "PDF นี้เป็นตัวอย่างจากการนำเข้าแบบและอาจไม่ครบถ้วน ไม่สามารถแทรกหรือบันทึกได้ โปรดนำเข้าแบบอีกครั้ง",

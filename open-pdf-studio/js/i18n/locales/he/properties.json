@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "מהדק",
+    "iconPushPin": "נעץ",
+    "iconGraph": "תרשים",
+    "iconTag": "תגית"
   },
   "stylePresets": {
     "label": "סגנון קו",
@@ -311,7 +315,8 @@
     "measurePerimeter": "היקף",
     "redaction": "השחרה",
     "scaleBar": "סרגל קנה מידה",
-    "parametricSymbol": "סמל פרמטרי"
+    "parametricSymbol": "סמל פרמטרי",
+    "fileAttachment": "קובץ מצורף"
   },
   "leftPanel": {
     "togglePanel": "החלפת לוח",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "אנכי מרווח",
       "inb-horizontaal-breed": "אופקי מרווח"
     }
+  },
+  "attachment": {
+    "file": "קובץ",
+    "size": "גודל",
+    "open": "פתיחה",
+    "saveAs": "שמירה בשם...",
+    "noContent": "תוכן הקובץ הזה אינו מוטמע ב-PDF."
   }
 }

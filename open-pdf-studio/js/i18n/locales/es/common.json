@@ -228,7 +228,12 @@
     "goToPageLink": "Ir a la página",
     "openExternalFile": "Abrir: {{filename}}",
     "destination": "Destino: {{name}}",
-    "internalLink": "Enlace interno"
+    "internalLink": "Enlace interno",
+    "attachmentOnPage": "Página {{page}}",
+    "attachmentCreated": "Creado: {{date}}",
+    "attachmentModified": "Modificado: {{date}}",
+    "openAttachmentRiskTitle": "Abrir adjunto",
+    "openAttachmentRiskMessage": "«{{name}}» puede ejecutar programas en este equipo. Ábralo solo si confía en el origen. ¿Abrir de todos modos?"
   },
   "failedToInsertPagesFromFile": "No se pudieron insertar páginas desde el archivo: {{error}}",
   "previewPdfRefused": "Este PDF es una vista previa de la importación del dibujo y puede estar incompleto. No se puede insertar ni guardar; vuelva a importar el dibujo.",

@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Скрепка",
+    "iconPushPin": "Кнопка",
+    "iconGraph": "Диаграмма",
+    "iconTag": "Ярлык"
   },
   "stylePresets": {
     "label": "Стиль линии",
@@ -311,7 +315,8 @@
     "measurePerimeter": "Периметр",
     "redaction": "Затирание",
     "scaleBar": "Масштабная линейка",
-    "parametricSymbol": "Параметрический символ"
+    "parametricSymbol": "Параметрический символ",
+    "fileAttachment": "Вложенный файл"
   },
   "leftPanel": {
     "togglePanel": "Переключить панель",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "Вертикальная штриховка редкая",
       "inb-horizontaal-breed": "Горизонтальная штриховка редкая"
     }
+  },
+  "attachment": {
+    "file": "Файл",
+    "size": "Размер",
+    "open": "Открыть",
+    "saveAs": "Сохранить как...",
+    "noContent": "Содержимое этого файла не встроено в PDF."
   }
 }

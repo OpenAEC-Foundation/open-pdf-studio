@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Gem",
+    "iconPushPin": "Häftstift",
+    "iconGraph": "Diagram",
+    "iconTag": "Etikett"
   },
   "stylePresets": {
     "label": "Linjestil",
@@ -311,7 +315,8 @@
     "measurePerimeter": "Omkrets",
     "redaction": "Maskering",
     "scaleBar": "Skalstock",
-    "parametricSymbol": "Parametrisk symbol"
+    "parametricSymbol": "Parametrisk symbol",
+    "fileAttachment": "Filbilaga"
   },
   "leftPanel": {
     "togglePanel": "Växla panel",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "Lodrät gles",
       "inb-horizontaal-breed": "Vågrät gles"
     }
+  },
+  "attachment": {
+    "file": "Fil",
+    "size": "Storlek",
+    "open": "Öppna",
+    "saveAs": "Spara som...",
+    "noContent": "Innehållet i den här filen är inte inbäddat i PDF-filen."
   }
 }

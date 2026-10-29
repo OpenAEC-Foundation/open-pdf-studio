@@ -228,7 +228,12 @@
     "goToPageLink": "Gehe zu Seite",
     "openExternalFile": "Öffnen: {{filename}}",
     "destination": "Ziel: {{name}}",
-    "internalLink": "Interner Link"
+    "internalLink": "Interner Link",
+    "attachmentOnPage": "Seite {{page}}",
+    "attachmentCreated": "Erstellt: {{date}}",
+    "attachmentModified": "Geändert: {{date}}",
+    "openAttachmentRiskTitle": "Anhang öffnen",
+    "openAttachmentRiskMessage": "\"{{name}}\" kann Programme auf diesem Computer ausführen. Öffnen Sie die Datei nur, wenn Sie der Quelle vertrauen. Trotzdem öffnen?"
   },
   "failedToInsertPagesFromFile": "Seiten aus Datei konnten nicht eingefügt werden: {{error}}",
   "previewPdfRefused": "Diese PDF ist eine Vorschau aus dem Zeichnungsimport und kann unvollständig sein. Sie kann nicht eingefügt oder gespeichert werden; importieren Sie die Zeichnung erneut.",

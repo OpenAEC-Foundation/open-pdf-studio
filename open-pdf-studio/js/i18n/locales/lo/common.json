@@ -229,7 +229,12 @@
     "goToPageLink": "ໄປທີ່ໜ້າ",
     "openExternalFile": "ເປີດ: {{filename}}",
     "destination": "ຈຸດໝາຍ: {{name}}",
-    "internalLink": "ລິ້ງພາຍໃນ"
+    "internalLink": "ລິ້ງພາຍໃນ",
+    "attachmentOnPage": "ໜ້າ {{page}}",
+    "attachmentCreated": "ສ້າງເມື່ອ: {{date}}",
+    "attachmentModified": "ແກ້ໄຂເມື່ອ: {{date}}",
+    "openAttachmentRiskTitle": "ເປີດໄຟລ໌ແນບ",
+    "openAttachmentRiskMessage": "\"{{name}}\" ສາມາດເປີດໃຊ້ໂປຣແກຣມໃນຄອມພິວເຕີນີ້ໄດ້. ເປີດສະເພາະເມື່ອທ່ານເຊື່ອຖືແຫຼ່ງທີ່ມາ. ຍັງຕ້ອງການເປີດບໍ?"
   },
   "failedToInsertPagesFromFile": "ແຊກໜ້າຈາກໄຟລ໌ບໍ່ສຳເລັດ: {{error}}",
   "previewPdfRefused": "PDF ນີ້ເປັນພຽງຕົວຢ່າງຈາກການນຳເຂົ້າຮູບແຕ້ມ ແລະ ອາດຈະບໍ່ສົມບູນ. ບໍ່ສາມາດແຊກ ຫຼື ບັນທຶກໄດ້; ກະລຸນານຳເຂົ້າຮູບແຕ້ມອີກຄັ້ງ.",

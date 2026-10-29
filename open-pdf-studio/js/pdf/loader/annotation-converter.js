@@ -42,6 +42,8 @@ import { inzetUitDsMarge, tolerantieVoorDsInzet } from '../../annotations/render
 import { caretPropsFromPdf, textEditPropsFromPdf } from './correction-load.js';
 import { algemeneEigenschappen } from './annotatie-algemeen.js';
 import { ontdraaiVorm } from '../saver/vorm-draaiing.js';
+import { bijlageIcoonUitPdf } from '../../annotations/bijlage-iconen.js';
+import { bijlageBron } from '../bijlage-annotatie.js';
 import { stempelGeometrie, kiesStempelWeergave, oudeStempelDraaiing } from './stempel-geometrie.js';
 
 /**
@@ -62,7 +64,15 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
   }
   // De laag komt uit het bestand (/OC, zie color-extraction.js), nooit uit de
   // huidige laag die createAnnotation voor nieuwe markeringen invult (#468).
-  return zetLaagUitBestand(omgezet, extraVoorAnnotatie(annotColorMap, annot)?.layer);
+  const metLaag = zetLaagUitBestand(omgezet, extraVoorAnnotatie(annotColorMap, annot)?.layer);
+  // Een bijlage-annotatie (#376) onthoudt waar ze vandaan kwam en hoe ze
+  // geladen werd: is haar inhoud bij het opslaan niet te lezen, dan houdt de
+  // saver het origineel (pdf/bijlage-annotatie.js).
+  if (metLaag?.type === 'fileAttachment' && metLaag.attachment) {
+    const fsRef = extraVoorAnnotatie(annotColorMap, annot)?.bijlage?.bestand?.fsRef || null;
+    metLaag.attachment.bron = bijlageBron(metLaag, annot.id, fsRef);
+  }
+  return metLaag;
 }
 
 /**
@@ -1195,6 +1205,39 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         popupOpen: annot.open || false,
         // Draaiing van het pictogram: eigen sleutel /OPS_Rotation (#619).
         ...(extraColors.rotation ? { rotation: extraColors.rotation } : {}),
+      });
+    }
+
+    case 'FileAttachment': {
+      // Bijlage-annotatie (#376): pictogram met een ingesloten bestand. Het
+      // bestand zelf las color-extraction.js met pdf-lib (extraColors.bijlage).
+      const vak = convertRect(rect);
+      const bijlage = extraColors.bijlage || null;
+      const bestand = bijlage?.bestand || {};
+      return createAnnotation({
+        ...baseProps,
+        type: 'fileAttachment',
+        x: vak.x,
+        y: vak.y,
+        width: vak.width || 24,
+        height: vak.height || 24,
+        text: (annot.contentsObj && annot.contentsObj.str) || annot.contents || '',
+        color: colorArrayToHex(annot.color, '#2B579A'),
+        icon: bijlage?.icoon || bijlageIcoonUitPdf(annot.name),
+        attachment: {
+          key: bestand.key || null,
+          name: bestand.naam || annot.file?.filename || 'attachment',
+          description: bestand.beschrijving || annot.file?.description || '',
+          mime: bestand.mime || null,
+          size: bestand.grootte ?? null,
+          createdAt: bestand.aangemaakt || null,
+          modifiedAt: bestand.gewijzigd || null,
+          relationship: bestand.relatie || null,
+          external: !!bestand.extern,
+          // Terugval als de inhoud (nog) niet via pdf-lib gelezen is: pdf.js
+          // levert hem op dit id (getAttachmentContent).
+          pdfjsId: annot.fileId || null,
+        },
       });
     }
 

@@ -228,7 +228,12 @@
     "goToPageLink": "Ir para a página",
     "openExternalFile": "Abrir: {{filename}}",
     "destination": "Destino: {{name}}",
-    "internalLink": "Link interno"
+    "internalLink": "Link interno",
+    "attachmentOnPage": "Página {{page}}",
+    "attachmentCreated": "Criado: {{date}}",
+    "attachmentModified": "Modificado: {{date}}",
+    "openAttachmentRiskTitle": "Abrir anexo",
+    "openAttachmentRiskMessage": "\"{{name}}\" pode executar programas neste computador. Abra-o apenas se confiar na origem. Abrir mesmo assim?"
   },
   "failedToInsertPagesFromFile": "Falha ao inserir páginas do arquivo: {{error}}",
   "previewPdfRefused": "Este PDF é uma pré-visualização da importação do desenho e pode estar incompleto. Não pode ser inserido nem guardado; importe o desenho novamente.",

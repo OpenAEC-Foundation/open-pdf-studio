@@ -169,7 +169,9 @@
     "flattenAll": "すべてフラット化",
     "flattenAllTooltip": "すべてのマークアップをページの内容にフラット化",
     "unflattenAll": "フラット化を元に戻す",
-    "unflattenAllTooltip": "復元を許可してフラット化したマークアップを復元"
+    "unflattenAllTooltip": "復元を許可してフラット化したマークアップを復元",
+    "fileAttachment": "ファイルを添付",
+    "fileAttachmentTitle": "ファイル添付: ページをクリックしてファイルを選択"
   },
   "view": {
     "pageDisplay": "ページ表示",

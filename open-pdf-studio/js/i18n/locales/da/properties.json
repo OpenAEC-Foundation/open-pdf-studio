@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Papirclips",
+    "iconPushPin": "Tegnestift",
+    "iconGraph": "Diagram",
+    "iconTag": "Mærkat"
   },
   "stylePresets": {
     "label": "Linjestil",
@@ -311,7 +315,8 @@
     "measurePerimeter": "Omkreds",
     "redaction": "Redigering",
     "scaleBar": "Skalabjælke",
-    "parametricSymbol": "Parametrisk symbol"
+    "parametricSymbol": "Parametrisk symbol",
+    "fileAttachment": "Vedhæftet fil"
   },
   "leftPanel": {
     "togglePanel": "Skift panel",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "Lodret åben",
       "inb-horizontaal-breed": "Vandret åben"
     }
+  },
+  "attachment": {
+    "file": "Fil",
+    "size": "Størrelse",
+    "open": "Åbn",
+    "saveAs": "Gem som...",
+    "noContent": "Indholdet af denne fil er ikke indlejret i PDF'en."
   }
 }

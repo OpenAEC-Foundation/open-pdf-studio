@@ -169,7 +169,9 @@
     "flattenAll": "Platta till alla",
     "flattenAllTooltip": "Platta till alla markeringar till sidinnehåll",
     "unflattenAll": "Ångra tillplattning",
-    "unflattenAllTooltip": "Återställ markeringar som plattades till med återställning tillåten"
+    "unflattenAllTooltip": "Återställ markeringar som plattades till med återställning tillåten",
+    "fileAttachment": "Bifoga fil",
+    "fileAttachmentTitle": "Filbilaga: klicka på sidan och välj en fil"
   },
   "view": {
     "pageDisplay": "Sidvisning",

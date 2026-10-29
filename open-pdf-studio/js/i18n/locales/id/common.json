@@ -228,7 +228,12 @@
     "goToPageLink": "Ke Halaman",
     "openExternalFile": "Buka: {{filename}}",
     "destination": "Tujuan: {{name}}",
-    "internalLink": "Tautan Internal"
+    "internalLink": "Tautan Internal",
+    "attachmentOnPage": "Halaman {{page}}",
+    "attachmentCreated": "Dibuat: {{date}}",
+    "attachmentModified": "Diubah: {{date}}",
+    "openAttachmentRiskTitle": "Buka lampiran",
+    "openAttachmentRiskMessage": "\"{{name}}\" dapat menjalankan program di komputer ini. Buka hanya jika Anda memercayai sumbernya. Tetap buka?"
   },
   "failedToInsertPagesFromFile": "Gagal menyisipkan halaman dari berkas: {{error}}",
   "previewPdfRefused": "PDF ini adalah pratinjau dari impor gambar dan mungkin tidak lengkap. PDF ini tidak dapat disisipkan atau disimpan; impor ulang gambarnya.",

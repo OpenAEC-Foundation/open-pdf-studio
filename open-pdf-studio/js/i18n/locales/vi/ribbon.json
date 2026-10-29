@@ -169,7 +169,9 @@
     "flattenAll": "Làm phẳng tất cả",
     "flattenAllTooltip": "Làm phẳng tất cả đánh dấu vào nội dung trang",
     "unflattenAll": "Hoàn tác làm phẳng",
-    "unflattenAllTooltip": "Khôi phục các đánh dấu đã làm phẳng khi cho phép khôi phục"
+    "unflattenAllTooltip": "Khôi phục các đánh dấu đã làm phẳng khi cho phép khôi phục",
+    "fileAttachment": "Đính kèm tệp",
+    "fileAttachmentTitle": "Tệp đính kèm: nhấp vào trang và chọn một tệp"
   },
   "view": {
     "pageDisplay": "Hiển thị Trang",

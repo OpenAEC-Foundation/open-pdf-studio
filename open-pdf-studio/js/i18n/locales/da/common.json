@@ -228,7 +228,12 @@
     "goToPageLink": "Gå til side",
     "openExternalFile": "Åbn: {{filename}}",
     "destination": "Destination: {{name}}",
-    "internalLink": "Internt link"
+    "internalLink": "Internt link",
+    "attachmentOnPage": "Side {{page}}",
+    "attachmentCreated": "Oprettet: {{date}}",
+    "attachmentModified": "Ændret: {{date}}",
+    "openAttachmentRiskTitle": "Åbn vedhæftet fil",
+    "openAttachmentRiskMessage": "\"{{name}}\" kan køre programmer på denne computer. Åbn den kun, hvis du har tillid til kilden. Åbn alligevel?"
   },
   "failedToInsertPagesFromFile": "Sider fra filen kunne ikke indsættes: {{error}}",
   "previewPdfRefused": "Denne PDF er en forhåndsvisning fra tegningsimporten og kan være ufuldstændig. Den kan ikke indsættes eller gemmes; importér tegningen igen.",

@@ -169,7 +169,9 @@
     "flattenAll": "รวมทั้งหมด",
     "flattenAllTooltip": "รวมมาร์กอัปทั้งหมดเข้ากับเนื้อหาหน้า",
     "unflattenAll": "เลิกรวม",
-    "unflattenAllTooltip": "กู้คืนมาร์กอัปที่รวมไว้โดยอนุญาตให้กู้คืน"
+    "unflattenAllTooltip": "กู้คืนมาร์กอัปที่รวมไว้โดยอนุญาตให้กู้คืน",
+    "fileAttachment": "แนบไฟล์",
+    "fileAttachmentTitle": "ไฟล์แนบ: คลิกบนหน้าแล้วเลือกไฟล์"
   },
   "view": {
     "pageDisplay": "การแสดงหน้า",

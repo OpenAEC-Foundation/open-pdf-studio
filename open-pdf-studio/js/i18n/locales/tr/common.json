@@ -228,7 +228,12 @@
     "goToPageLink": "Sayfaya git",
     "openExternalFile": "Aç: {{filename}}",
     "destination": "Hedef: {{name}}",
-    "internalLink": "Dahili Bağlantı"
+    "internalLink": "Dahili Bağlantı",
+    "attachmentOnPage": "Sayfa {{page}}",
+    "attachmentCreated": "Oluşturulma: {{date}}",
+    "attachmentModified": "Değiştirilme: {{date}}",
+    "openAttachmentRiskTitle": "Eki aç",
+    "openAttachmentRiskMessage": "\"{{name}}\" bu bilgisayarda program çalıştırabilir. Yalnızca kaynağa güveniyorsanız açın. Yine de açılsın mı?"
   },
   "failedToInsertPagesFromFile": "Dosyadan sayfa eklenemedi: {{error}}",
   "previewPdfRefused": "Bu PDF, çizim içe aktarmanın bir önizlemesidir ve eksik olabilir. Eklenemez veya kaydedilemez; çizimi yeniden içe aktarın.",

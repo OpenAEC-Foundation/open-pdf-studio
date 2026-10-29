@@ -169,7 +169,9 @@
     "flattenAll": "Sloučit vše",
     "flattenAllTooltip": "Sloučit všechny značky do obsahu stránky",
     "unflattenAll": "Zrušit sloučení",
-    "unflattenAllTooltip": "Obnovit značky sloučené s povoleným obnovením"
+    "unflattenAllTooltip": "Obnovit značky sloučené s povoleným obnovením",
+    "fileAttachment": "Připojit soubor",
+    "fileAttachmentTitle": "Příloha souboru: klikněte na stránku a vyberte soubor"
   },
   "view": {
     "pageDisplay": "Zobrazení stránky",

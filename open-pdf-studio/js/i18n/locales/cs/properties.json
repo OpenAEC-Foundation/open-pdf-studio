@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Kancelářská sponka",
+    "iconPushPin": "Připínáček",
+    "iconGraph": "Graf",
+    "iconTag": "Štítek"
   },
   "stylePresets": {
     "label": "Styl čáry",
@@ -311,7 +315,8 @@
     "measurePerimeter": "Obvod",
     "redaction": "Redigování",
     "scaleBar": "Grafické měřítko",
-    "parametricSymbol": "Parametrický symbol"
+    "parametricSymbol": "Parametrický symbol",
+    "fileAttachment": "Příloha souboru"
   },
   "leftPanel": {
     "togglePanel": "Přepnout panel",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "Svislá šrafa řídká",
       "inb-horizontaal-breed": "Vodorovná šrafa řídká"
     }
+  },
+  "attachment": {
+    "file": "Soubor",
+    "size": "Velikost",
+    "open": "Otevřít",
+    "saveAs": "Uložit jako...",
+    "noContent": "Obsah tohoto souboru není vložen do PDF."
   }
 }

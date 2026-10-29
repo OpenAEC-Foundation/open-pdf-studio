@@ -228,7 +228,12 @@
     "goToPageLink": "페이지로 이동",
     "openExternalFile": "열기: {{filename}}",
     "destination": "대상: {{name}}",
-    "internalLink": "내부 링크"
+    "internalLink": "내부 링크",
+    "attachmentOnPage": "{{page}}페이지",
+    "attachmentCreated": "만든 날짜: {{date}}",
+    "attachmentModified": "수정한 날짜: {{date}}",
+    "openAttachmentRiskTitle": "첨부 파일 열기",
+    "openAttachmentRiskMessage": "\"{{name}}\"은(는) 이 컴퓨터에서 프로그램을 실행할 수 있습니다. 출처를 신뢰하는 경우에만 여세요. 그래도 여시겠습니까?"
   },
   "failedToInsertPagesFromFile": "파일에서 페이지를 삽입하지 못했습니다: {{error}}",
   "previewPdfRefused": "이 PDF는 도면 가져오기의 미리 보기이며 내용이 빠져 있을 수 있습니다. 삽입하거나 저장할 수 없습니다. 도면을 다시 가져오십시오.",

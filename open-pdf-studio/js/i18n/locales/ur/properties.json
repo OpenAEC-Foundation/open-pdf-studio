@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "پیپر کلپ",
+    "iconPushPin": "پن",
+    "iconGraph": "گراف",
+    "iconTag": "ٹیگ"
   },
   "stylePresets": {
     "label": "لکیر کا انداز",
@@ -311,7 +315,8 @@
     "measurePerimeter": "فریم",
     "redaction": "ریڈیکشن",
     "scaleBar": "اسکیل بار",
-    "parametricSymbol": "پیرامیٹرک علامت"
+    "parametricSymbol": "پیرامیٹرک علامت",
+    "fileAttachment": "فائل منسلکہ"
   },
   "leftPanel": {
     "togglePanel": "پینل ٹوگل کریں",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "عمودی کشادہ",
       "inb-horizontaal-breed": "افقی کشادہ"
     }
+  },
+  "attachment": {
+    "file": "فائل",
+    "size": "سائز",
+    "open": "کھولیں",
+    "saveAs": "بطور محفوظ کریں...",
+    "noContent": "اس فائل کا مواد PDF میں شامل نہیں ہے۔"
   }
 }

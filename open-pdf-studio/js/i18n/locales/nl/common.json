@@ -195,7 +195,12 @@
     "goToPageLink": "Ga naar pagina",
     "openExternalFile": "Openen: {{filename}}",
     "destination": "Bestemming: {{name}}",
-    "internalLink": "Interne koppeling"
+    "internalLink": "Interne koppeling",
+    "attachmentOnPage": "Pagina {{page}}",
+    "attachmentCreated": "Gemaakt: {{date}}",
+    "attachmentModified": "Gewijzigd: {{date}}",
+    "openAttachmentRiskTitle": "Bijlage openen",
+    "openAttachmentRiskMessage": "\"{{name}}\" kan programma's op deze computer uitvoeren. Open het alleen als u de bron vertrouwt. Toch openen?"
   },
   "collapse": "Inklappen",
   "mixed": "Gemengd",

@@ -233,7 +233,12 @@
     "goToPageLink": "Go to page",
     "openExternalFile": "Open: {{filename}}",
     "destination": "Destination: {{name}}",
-    "internalLink": "Internal Link"
+    "internalLink": "Internal Link",
+    "attachmentOnPage": "Page {{page}}",
+    "attachmentCreated": "Created: {{date}}",
+    "attachmentModified": "Modified: {{date}}",
+    "openAttachmentRiskTitle": "Open attachment",
+    "openAttachmentRiskMessage": "\"{{name}}\" can run programs on this computer. Only open it if you trust the source. Open anyway?"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
   "previewPdfRefused": "This PDF is a preview from the drawing import and may be incomplete. It cannot be inserted or saved; import the drawing again.",

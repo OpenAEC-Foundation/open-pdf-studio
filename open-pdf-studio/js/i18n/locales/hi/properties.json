@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "पेपरक्लिप",
+    "iconPushPin": "पुशपिन",
+    "iconGraph": "ग्राफ़",
+    "iconTag": "टैग"
   },
   "stylePresets": {
     "label": "रेखा शैली",
@@ -311,7 +315,8 @@
     "measurePerimeter": "परिधि",
     "redaction": "संपादन-रहित",
     "scaleBar": "स्केल बार",
-    "parametricSymbol": "पैरामीट्रिक प्रतीक"
+    "parametricSymbol": "पैरामीट्रिक प्रतीक",
+    "fileAttachment": "फ़ाइल अनुलग्नक"
   },
   "leftPanel": {
     "togglePanel": "पैनल टॉगल करें",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "लंबवत विरल",
       "inb-horizontaal-breed": "क्षैतिज विरल"
     }
+  },
+  "attachment": {
+    "file": "फ़ाइल",
+    "size": "आकार",
+    "open": "खोलें",
+    "saveAs": "इस रूप में सहेजें...",
+    "noContent": "इस फ़ाइल की सामग्री PDF में एम्बेड नहीं है।"
   }
 }

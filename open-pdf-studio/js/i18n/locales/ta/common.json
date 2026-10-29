@@ -228,7 +228,12 @@
     "goToPageLink": "பக்கத்திற்குச் செல்",
     "openExternalFile": "திற: {{filename}}",
     "destination": "இலக்கு: {{name}}",
-    "internalLink": "உள் இணைப்பி"
+    "internalLink": "உள் இணைப்பி",
+    "attachmentOnPage": "பக்கம் {{page}}",
+    "attachmentCreated": "உருவாக்கப்பட்டது: {{date}}",
+    "attachmentModified": "மாற்றப்பட்டது: {{date}}",
+    "openAttachmentRiskTitle": "இணைப்பைத் திற",
+    "openAttachmentRiskMessage": "\"{{name}}\" இந்தக் கணினியில் நிரல்களை இயக்கக்கூடும். மூலத்தை நம்பினால் மட்டுமே திறக்கவும். இருப்பினும் திறக்கவா?"
   },
   "failedToInsertPagesFromFile": "கோப்பிலிருந்து பக்கங்களைச் செருக முடியவில்லை: {{error}}",
   "previewPdfRefused": "இந்த PDF வரைபட இறக்குமதியின் முன்னோட்டம்; இது முழுமையற்றதாக இருக்கலாம். இதைச் செருகவோ சேமிக்கவோ முடியாது; வரைபடத்தை மீண்டும் இறக்குமதி செய்யவும்.",

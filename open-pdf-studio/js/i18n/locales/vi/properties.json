@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Kẹp giấy",
+    "iconPushPin": "Ghim",
+    "iconGraph": "Biểu đồ",
+    "iconTag": "Thẻ"
   },
   "stylePresets": {
     "label": "Kiểu đường",
@@ -311,7 +315,8 @@
     "measurePerimeter": "Chu vi",
     "redaction": "Che thông tin",
     "scaleBar": "Thước tỷ lệ",
-    "parametricSymbol": "Ký hiệu tham số"
+    "parametricSymbol": "Ký hiệu tham số",
+    "fileAttachment": "Tệp đính kèm"
   },
   "leftPanel": {
     "togglePanel": "Bật/Tắt Bảng",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "Đường đứng thưa",
       "inb-horizontaal-breed": "Đường ngang thưa"
     }
+  },
+  "attachment": {
+    "file": "Tệp",
+    "size": "Kích thước",
+    "open": "Mở",
+    "saveAs": "Lưu thành...",
+    "noContent": "Nội dung của tệp này không được nhúng trong PDF."
   }
 }

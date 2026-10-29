@@ -228,7 +228,12 @@
     "goToPageLink": "Đi đến trang",
     "openExternalFile": "Mở: {{filename}}",
     "destination": "Đích đến: {{name}}",
-    "internalLink": "Liên kết nội bộ"
+    "internalLink": "Liên kết nội bộ",
+    "attachmentOnPage": "Trang {{page}}",
+    "attachmentCreated": "Tạo: {{date}}",
+    "attachmentModified": "Sửa đổi: {{date}}",
+    "openAttachmentRiskTitle": "Mở tệp đính kèm",
+    "openAttachmentRiskMessage": "\"{{name}}\" có thể chạy chương trình trên máy tính này. Chỉ mở nếu bạn tin tưởng nguồn gốc. Vẫn mở?"
   },
   "failedToInsertPagesFromFile": "Chèn trang từ tệp thất bại: {{error}}",
   "previewPdfRefused": "PDF này là bản xem trước từ việc nhập bản vẽ và có thể chưa đầy đủ. Không thể chèn hoặc lưu nó; hãy nhập lại bản vẽ.",

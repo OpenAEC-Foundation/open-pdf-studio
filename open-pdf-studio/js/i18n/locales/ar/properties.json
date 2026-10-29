@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "مشبك ورق",
+    "iconPushPin": "دبوس",
+    "iconGraph": "رسم بياني",
+    "iconTag": "علامة"
   },
   "stylePresets": {
     "label": "نمط الخط",
@@ -311,7 +315,8 @@
     "measurePerimeter": "محيط",
     "redaction": "تنقيح",
     "scaleBar": "شريط المقياس",
-    "parametricSymbol": "رمز بارامتري"
+    "parametricSymbol": "رمز بارامتري",
+    "fileAttachment": "مرفق ملف"
   },
   "leftPanel": {
     "togglePanel": "تبديل اللوحة",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "رأسي متباعد",
       "inb-horizontaal-breed": "أفقي متباعد"
     }
+  },
+  "attachment": {
+    "file": "الملف",
+    "size": "الحجم",
+    "open": "فتح",
+    "saveAs": "حفظ باسم...",
+    "noContent": "محتوى هذا الملف غير مضمن في ملف PDF."
   }
 }

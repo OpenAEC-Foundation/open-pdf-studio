@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "காகிதக் கிளிப்",
+    "iconPushPin": "குண்டூசி",
+    "iconGraph": "வரைபடம்",
+    "iconTag": "குறிச்சொல்"
   },
   "stylePresets": {
     "label": "கோட்டுப் பாணி",
@@ -311,7 +315,8 @@
     "measurePerimeter": "சுற்றளவு",
     "redaction": "மறைப்பு",
     "scaleBar": "அளவுகோல் பட்டை",
-    "parametricSymbol": "அளவுரு குறியீடு"
+    "parametricSymbol": "அளவுரு குறியீடு",
+    "fileAttachment": "கோப்பு இணைப்பு"
   },
   "leftPanel": {
     "togglePanel": "பேனலை மாற்று",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "செங்குத்து இடைவெளி",
       "inb-horizontaal-breed": "கிடைமட்டம் இடைவெளி"
     }
+  },
+  "attachment": {
+    "file": "கோப்பு",
+    "size": "அளவு",
+    "open": "திற",
+    "saveAs": "இவ்வாறு சேமி...",
+    "noContent": "இந்தக் கோப்பின் உள்ளடக்கம் PDF இல் உட்பொதிக்கப்படவில்லை."
   }
 }

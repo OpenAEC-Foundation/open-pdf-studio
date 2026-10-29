@@ -169,7 +169,9 @@
     "flattenAll": "Tout aplatir",
     "flattenAllTooltip": "Aplatir toutes les annotations dans le contenu de la page",
     "unflattenAll": "Annuler l'aplatissement",
-    "unflattenAllTooltip": "Restaurer les annotations aplaties avec restauration autorisée"
+    "unflattenAllTooltip": "Restaurer les annotations aplaties avec restauration autorisée",
+    "fileAttachment": "Joindre un fichier",
+    "fileAttachmentTitle": "Pièce jointe : cliquez sur la page et choisissez un fichier"
   },
   "view": {
     "pageDisplay": "Affichage de la page",

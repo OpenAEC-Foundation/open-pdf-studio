@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "گیره کاغذ",
+    "iconPushPin": "پونز",
+    "iconGraph": "نمودار",
+    "iconTag": "برچسب"
   },
   "stylePresets": {
     "label": "سبک خط",
@@ -311,7 +315,8 @@
     "measurePerimeter": "محیط",
     "redaction": "ویرایش محرمانه",
     "scaleBar": "نوار مقیاس",
-    "parametricSymbol": "نماد پارامتریک"
+    "parametricSymbol": "نماد پارامتریک",
+    "fileAttachment": "پیوست فایل"
   },
   "leftPanel": {
     "togglePanel": "تغییر وضعیت پنل",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "عمودی باز",
       "inb-horizontaal-breed": "افقی باز"
     }
+  },
+  "attachment": {
+    "file": "فایل",
+    "size": "اندازه",
+    "open": "باز کردن",
+    "saveAs": "ذخیره به عنوان...",
+    "noContent": "محتوای این فایل در PDF جاسازی نشده است."
   }
 }

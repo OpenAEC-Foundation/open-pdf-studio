@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Спајалица",
+    "iconPushPin": "Чиода",
+    "iconGraph": "Графикон",
+    "iconTag": "Ознака"
   },
   "stylePresets": {
     "label": "Стил линије",
@@ -311,7 +315,8 @@
     "measurePerimeter": "Обим",
     "redaction": "Редакција",
     "scaleBar": "Графичка размера",
-    "parametricSymbol": "Параметарски симбол"
+    "parametricSymbol": "Параметарски симбол",
+    "fileAttachment": "Прилог датотеке"
   },
   "leftPanel": {
     "togglePanel": "Прикажи/сакриј панел",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "Усправна шрафура ретка",
       "inb-horizontaal-breed": "Водоравна шрафура ретка"
     }
+  },
+  "attachment": {
+    "file": "Датотека",
+    "size": "Величина",
+    "open": "Отвори",
+    "saveAs": "Сачувај као...",
+    "noContent": "Садржај ове датотеке није уграђен у PDF."
   }
 }

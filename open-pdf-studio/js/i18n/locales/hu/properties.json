@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Gemkapocs",
+    "iconPushPin": "Rajzszög",
+    "iconGraph": "Diagram",
+    "iconTag": "Címke"
   },
   "stylePresets": {
     "label": "Vonalstílus",
@@ -311,7 +315,8 @@
     "measurePerimeter": "Kerület",
     "redaction": "Kitörlés",
     "scaleBar": "Aránymérték",
-    "parametricSymbol": "Paraméteres szimbólum"
+    "parametricSymbol": "Paraméteres szimbólum",
+    "fileAttachment": "Fájlmelléklet"
   },
   "leftPanel": {
     "togglePanel": "Panel váltása",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "Függőleges sraffozás ritka",
       "inb-horizontaal-breed": "Vízszintes sraffozás ritka"
     }
+  },
+  "attachment": {
+    "file": "Fájl",
+    "size": "Méret",
+    "open": "Megnyitás",
+    "saveAs": "Mentés másként...",
+    "noContent": "A fájl tartalma nincs beágyazva a PDF-be."
   }
 }

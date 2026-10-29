@@ -169,7 +169,9 @@
     "flattenAll": "Alles afvlakken",
     "flattenAllTooltip": "Alle markeringen afvlakken tot pagina-inhoud",
     "unflattenAll": "Afvlakken ongedaan",
-    "unflattenAllTooltip": "Markeringen terughalen die zijn afgevlakt met terughalen toegestaan"
+    "unflattenAllTooltip": "Markeringen terughalen die zijn afgevlakt met terughalen toegestaan",
+    "fileAttachment": "Bestand bijvoegen",
+    "fileAttachmentTitle": "Bestandsbijlage: klik op de pagina en kies een bestand"
   },
   "view": {
     "pageDisplay": "Paginaweergave",

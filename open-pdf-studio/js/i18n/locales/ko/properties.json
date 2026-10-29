@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "클립",
+    "iconPushPin": "압정",
+    "iconGraph": "그래프",
+    "iconTag": "태그"
   },
   "stylePresets": {
     "label": "선 스타일",
@@ -311,7 +315,8 @@
     "measurePerimeter": "둘레",
     "redaction": "교정",
     "scaleBar": "축척 막대",
-    "parametricSymbol": "파라메트릭 기호"
+    "parametricSymbol": "파라메트릭 기호",
+    "fileAttachment": "파일 첨부"
   },
   "leftPanel": {
     "togglePanel": "패널 전환",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "세로선 넓음",
       "inb-horizontaal-breed": "가로선 넓음"
     }
+  },
+  "attachment": {
+    "file": "파일",
+    "size": "크기",
+    "open": "열기",
+    "saveAs": "다른 이름으로 저장...",
+    "noContent": "이 파일의 내용은 PDF에 포함되어 있지 않습니다."
   }
 }

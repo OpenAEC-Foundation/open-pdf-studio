@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Kibanio cha karatasi",
+    "iconPushPin": "Pini",
+    "iconGraph": "Grafu",
+    "iconTag": "Lebo"
   },
   "stylePresets": {
     "label": "Mtindo wa mstari",
@@ -311,7 +315,8 @@
     "measurePerimeter": "Mzunguko",
     "redaction": "Ufutaji",
     "scaleBar": "Upau wa Kipimo",
-    "parametricSymbol": "Ishara ya Vigezo"
+    "parametricSymbol": "Ishara ya Vigezo",
+    "fileAttachment": "Kiambatisho cha faili"
   },
   "leftPanel": {
     "togglePanel": "Badilisha Paneli",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "Mistari wima ya mbali",
       "inb-horizontaal-breed": "Mistari mlalo ya mbali"
     }
+  },
+  "attachment": {
+    "file": "Faili",
+    "size": "Ukubwa",
+    "open": "Fungua",
+    "saveAs": "Hifadhi kama...",
+    "noContent": "Maudhui ya faili hii hayajapachikwa kwenye PDF."
   }
 }

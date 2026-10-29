@@ -228,7 +228,12 @@
     "goToPageLink": "পৃষ্ঠায় যান",
     "openExternalFile": "খুলুন: {{filename}}",
     "destination": "গন্তব্য: {{name}}",
-    "internalLink": "অভ্যন্তরীণ লিঙ্ক"
+    "internalLink": "অভ্যন্তরীণ লিঙ্ক",
+    "attachmentOnPage": "পৃষ্ঠা {{page}}",
+    "attachmentCreated": "তৈরি: {{date}}",
+    "attachmentModified": "পরিবর্তিত: {{date}}",
+    "openAttachmentRiskTitle": "সংযুক্তি খুলুন",
+    "openAttachmentRiskMessage": "\"{{name}}\" এই কম্পিউটারে প্রোগ্রাম চালাতে পারে। উৎসের উপর ভরসা থাকলে তবেই এটি খুলুন। তবুও খুলবেন?"
   },
   "failedToInsertPagesFromFile": "ফাইল থেকে পৃষ্ঠা সন্নিবেশ করতে ব্যর্থ: {{error}}",
   "previewPdfRefused": "এই PDF অঙ্কন আমদানির একটি প্রিভিউ এবং অসম্পূর্ণ হতে পারে। এটি সন্নিবেশ বা সংরক্ষণ করা যাবে না; অঙ্কনটি আবার আমদানি করুন।",

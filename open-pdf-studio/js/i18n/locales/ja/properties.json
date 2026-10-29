@@ -162,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "クリップ",
+    "iconPushPin": "押しピン",
+    "iconGraph": "グラフ",
+    "iconTag": "タグ"
   },
   "stylePresets": {
     "label": "線スタイル",
@@ -311,7 +315,8 @@
     "measurePerimeter": "周長",
     "redaction": "墨消し",
     "scaleBar": "スケールバー",
-    "parametricSymbol": "パラメトリックシンボル"
+    "parametricSymbol": "パラメトリックシンボル",
+    "fileAttachment": "ファイル添付"
   },
   "leftPanel": {
     "togglePanel": "パネルの切替",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "縦線 疎",
       "inb-horizontaal-breed": "横線 疎"
     }
+  },
+  "attachment": {
+    "file": "ファイル",
+    "size": "サイズ",
+    "open": "開く",
+    "saveAs": "名前を付けて保存...",
+    "noContent": "このファイルの内容は PDF に埋め込まれていません。"
   }
 }

@@ -81,6 +81,15 @@ export function drawSelectionHandles(ctx, annotation) {
     case 'comment':
       // No selection indicators — fixed-size icon, move only
       break;
+    case 'fileAttachment':
+      // Bijlage-annotatie (#376): gestippeld kader om het pictogram.
+      ctx.save();
+      ctx.setLineDash([3 / sc, 3 / sc]);
+      ctx.lineWidth = 1 / sc;
+      ctx.strokeRect(annotation.x - 2 / sc, annotation.y - 2 / sc,
+        (annotation.width || 24) + 4 / sc, (annotation.height || 24) + 4 / sc);
+      ctx.restore();
+      break;
     case 'count':
       // Telelement: gestippelde ring om de marker zodat de selectie zichtbaar is.
       ctx.save();

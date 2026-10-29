@@ -228,7 +228,12 @@
     "goToPageLink": "Отиди на страница",
     "openExternalFile": "Отвори: {{filename}}",
     "destination": "Дестинация: {{name}}",
-    "internalLink": "Вътрешна връзка"
+    "internalLink": "Вътрешна връзка",
+    "attachmentOnPage": "Страница {{page}}",
+    "attachmentCreated": "Създаден: {{date}}",
+    "attachmentModified": "Променен: {{date}}",
+    "openAttachmentRiskTitle": "Отваряне на прикачения файл",
+    "openAttachmentRiskMessage": "„{{name}}“ може да стартира програми на този компютър. Отворете го само ако имате доверие на източника. Да се отвори ли въпреки това?"
   },
   "failedToInsertPagesFromFile": "Вмъкването на страници от файл е неуспешно: {{error}}",
   "previewPdfRefused": "Този PDF е преглед от импортирането на чертежа и може да е непълен. Не може да бъде вмъкнат или записан; импортирайте чертежа отново.",

@@ -15,7 +15,7 @@
 
 /** Soorten waarvan de saver /Contents uit een eigen veld schrijft. */
 export const SOORTEN_MET_EIGEN_TEKST = new Set([
-  'comment',                                                        // notitietekst
+  'comment', 'fileAttachment',                                      // notitie- en bijlagetekst
   'caret',                                                          // ingevoegde tekst
   'textbox', 'callout',                                             // de tekst zelf
   'stamp', 'vectorSnippet', 'stavenreeks',                          // stempel-/knipsellabel

@@ -228,7 +228,12 @@
     "goToPageLink": "Mergi la pagina",
     "openExternalFile": "Deschidere: {{filename}}",
     "destination": "Destinatie: {{name}}",
-    "internalLink": "Link intern"
+    "internalLink": "Link intern",
+    "attachmentOnPage": "Pagina {{page}}",
+    "attachmentCreated": "Creat: {{date}}",
+    "attachmentModified": "Modificat: {{date}}",
+    "openAttachmentRiskTitle": "Deschide atașamentul",
+    "openAttachmentRiskMessage": "„{{name}}” poate rula programe pe acest computer. Deschideți-l doar dacă aveți încredere în sursă. Deschideți totuși?"
   },
   "failedToInsertPagesFromFile": "Paginile din fișier nu au putut fi inserate: {{error}}",
   "previewPdfRefused": "Acest PDF este o previzualizare din importul desenului și poate fi incomplet. Nu poate fi inserat sau salvat; importați din nou desenul.",

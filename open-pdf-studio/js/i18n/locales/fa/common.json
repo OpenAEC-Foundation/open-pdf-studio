@@ -228,7 +228,12 @@
     "goToPageLink": "رفتن به صفحه",
     "openExternalFile": "باز کردن: {{filename}}",
     "destination": "مقصد: {{name}}",
-    "internalLink": "پیوند داخلی"
+    "internalLink": "پیوند داخلی",
+    "attachmentOnPage": "صفحه {{page}}",
+    "attachmentCreated": "ایجاد: {{date}}",
+    "attachmentModified": "تغییر: {{date}}",
+    "openAttachmentRiskTitle": "باز کردن پیوست",
+    "openAttachmentRiskMessage": "«{{name}}» می‌تواند برنامه‌هایی را روی این رایانه اجرا کند. فقط در صورتی آن را باز کنید که به منبع آن اعتماد دارید. با این حال باز شود؟"
   },
   "failedToInsertPagesFromFile": "درج صفحات از فایل ناموفق بود: {{error}}",
   "previewPdfRefused": "این PDF پیش‌نمایشی از درون‌ریزی نقشه است و ممکن است ناقص باشد. نمی‌توان آن را درج یا ذخیره کرد؛ نقشه را دوباره درون‌ریزی کنید.",

@@ -169,7 +169,9 @@
     "flattenAll": "Flat ut alle",
     "flattenAllTooltip": "Flat ut alle markeringer til sideinnhold",
     "unflattenAll": "Angre utflating",
-    "unflattenAllTooltip": "Gjenopprett markeringer som ble flatet ut med gjenoppretting tillatt"
+    "unflattenAllTooltip": "Gjenopprett markeringer som ble flatet ut med gjenoppretting tillatt",
+    "fileAttachment": "Legg ved fil",
+    "fileAttachmentTitle": "Filvedlegg: klikk på siden og velg en fil"
   },
   "view": {
     "pageDisplay": "Sidevisning",

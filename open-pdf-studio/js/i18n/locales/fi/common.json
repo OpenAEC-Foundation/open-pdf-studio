@@ -228,7 +228,12 @@
     "goToPageLink": "Siirry sivulle",
     "openExternalFile": "Avaa: {{filename}}",
     "destination": "Kohde: {{name}}",
-    "internalLink": "Sisäinen linkki"
+    "internalLink": "Sisäinen linkki",
+    "attachmentOnPage": "Sivu {{page}}",
+    "attachmentCreated": "Luotu: {{date}}",
+    "attachmentModified": "Muokattu: {{date}}",
+    "openAttachmentRiskTitle": "Avaa liite",
+    "openAttachmentRiskMessage": "\"{{name}}\" voi suorittaa ohjelmia tällä tietokoneella. Avaa se vain, jos luotat lähteeseen. Avataanko silti?"
   },
   "failedToInsertPagesFromFile": "Sivujen lisääminen tiedostosta epäonnistui: {{error}}",
   "previewPdfRefused": "Tämä PDF on piirustuksen tuonnin esikatselu ja voi olla puutteellinen. Sitä ei voi lisätä eikä tallentaa; tuo piirustus uudelleen.",

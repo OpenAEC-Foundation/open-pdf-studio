@@ -228,7 +228,12 @@
     "goToPageLink": "עבור לעמוד",
     "openExternalFile": "פתיחה: {{filename}}",
     "destination": "יעד: {{name}}",
-    "internalLink": "קישור פנימי"
+    "internalLink": "קישור פנימי",
+    "attachmentOnPage": "עמוד {{page}}",
+    "attachmentCreated": "נוצר: {{date}}",
+    "attachmentModified": "שונה: {{date}}",
+    "openAttachmentRiskTitle": "פתיחת קובץ מצורף",
+    "openAttachmentRiskMessage": "\"{{name}}\" יכול להפעיל תוכניות במחשב זה. פתחו אותו רק אם אתם סומכים על המקור. לפתוח בכל זאת?"
   },
   "failedToInsertPagesFromFile": "הוספת עמודים מקובץ נכשלה: {{error}}",
   "previewPdfRefused": "קובץ PDF זה הוא תצוגה מקדימה מייבוא השרטוט וייתכן שאינו שלם. לא ניתן להוסיף או לשמור אותו; ייבא את השרטוט מחדש.",

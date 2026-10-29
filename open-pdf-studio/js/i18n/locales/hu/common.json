@@ -228,7 +228,12 @@
     "goToPageLink": "Ugrás az oldalra",
     "openExternalFile": "Megnyitás: {{filename}}",
     "destination": "Célpont: {{name}}",
-    "internalLink": "Belső hivatkozás"
+    "internalLink": "Belső hivatkozás",
+    "attachmentOnPage": "{{page}}. oldal",
+    "attachmentCreated": "Létrehozva: {{date}}",
+    "attachmentModified": "Módosítva: {{date}}",
+    "openAttachmentRiskTitle": "Melléklet megnyitása",
+    "openAttachmentRiskMessage": "A(z) „{{name}}” programokat futtathat ezen a számítógépen. Csak akkor nyissa meg, ha megbízik a forrásban. Megnyitja mégis?"
   },
   "failedToInsertPagesFromFile": "Az oldalak beszúrása fájlból sikertelen: {{error}}",
   "previewPdfRefused": "Ez a PDF a rajzimportálás előnézete, és hiányos lehet. Nem szúrható be és nem menthető; importálja újra a rajzot.",

@@ -228,7 +228,12 @@
     "goToPageLink": "Μετάβαση στη σελίδα",
     "openExternalFile": "Άνοιγμα: {{filename}}",
     "destination": "Προορισμός: {{name}}",
-    "internalLink": "Εσωτερικός σύνδεσμος"
+    "internalLink": "Εσωτερικός σύνδεσμος",
+    "attachmentOnPage": "Σελίδα {{page}}",
+    "attachmentCreated": "Δημιουργήθηκε: {{date}}",
+    "attachmentModified": "Τροποποιήθηκε: {{date}}",
+    "openAttachmentRiskTitle": "Άνοιγμα συνημμένου",
+    "openAttachmentRiskMessage": "Το «{{name}}» μπορεί να εκτελέσει προγράμματα σε αυτόν τον υπολογιστή. Ανοίξτε το μόνο αν εμπιστεύεστε την προέλευσή του. Άνοιγμα παρ' όλα αυτά;"
   },
   "failedToInsertPagesFromFile": "Η εισαγωγή σελίδων από αρχείο απέτυχε: {{error}}",
   "previewPdfRefused": "Αυτό το PDF είναι προεπισκόπηση από την εισαγωγή του σχεδίου και ίσως είναι ελλιπές. Δεν μπορεί να εισαχθεί ή να αποθηκευτεί· εισαγάγετε ξανά το σχέδιο.",

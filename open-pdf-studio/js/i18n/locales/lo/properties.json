@@ -142,7 +142,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "ຄລິບໜີບເຈ້ຍ",
+    "iconPushPin": "ເຂັມໝຸດ",
+    "iconGraph": "ກຣາຟ",
+    "iconTag": "ປ້າຍ"
   },
   "stylePresets": {
     "label": "ຮູບແບບເສັ້ນ",
@@ -343,7 +347,8 @@
     "measurePerimeter": "ລວງຮອບ",
     "redaction": "ການປິດບັງຂໍ້ມູນ",
     "scaleBar": "ແຖບມາດຕາສ່ວນ",
-    "parametricSymbol": "ສັນຍະລັກພາຣາມິເຕີ"
+    "parametricSymbol": "ສັນຍະລັກພາຣາມິເຕີ",
+    "fileAttachment": "ໄຟລ໌ແນບ"
   },
   "leftPanel": {
     "togglePanel": "ເປີດ/ປິດ ແຖບຂ້າງ",
@@ -825,5 +830,12 @@
       "inb-verticaal-breed": "ເສັ້ນແນວຕັ້ງຫ່າງ",
       "inb-horizontaal-breed": "ເສັ້ນແນວນອນຫ່າງ"
     }
+  },
+  "attachment": {
+    "file": "ໄຟລ໌",
+    "size": "ຂະໜາດ",
+    "open": "ເປີດ",
+    "saveAs": "ບັນທຶກເປັນ...",
+    "noContent": "ເນື້ອຫາຂອງໄຟລ໌ນີ້ບໍ່ໄດ້ຝັງຢູ່ໃນ PDF."
   }
 }
