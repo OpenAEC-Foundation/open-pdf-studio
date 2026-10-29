@@ -20,7 +20,7 @@ function refresh() {
 // eerst uit vóór hij verandert of verdwijnt (kopvoet-weergave.js).
 async function voorWijziging(wm) {
   const doc = getActiveDocument();
-  if (wm?.type === 'headerFooter' && kopVoetInWeergave(doc, wm)) await haalKopVoetUitWeergave(doc);
+  if (kopVoetInWeergave(doc, wm)) await haalKopVoetUitWeergave(doc);
   return getActiveDocument() === doc;
 }
 

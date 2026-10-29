@@ -620,3 +620,6 @@ js/pdf/blank-page-setup.test.mjs
 js/pdf/frame-labels.test.mjs
 js/solid/components/ribbon/ribbon-wiel.test.mjs
 js/pdf/lijnstijl-rondgang.test.mjs
+js/watermark/watermark-save.test.mjs
+js/watermark/watermark-hersave.test.mjs
+js/watermark/watermark-custom-position.test.mjs

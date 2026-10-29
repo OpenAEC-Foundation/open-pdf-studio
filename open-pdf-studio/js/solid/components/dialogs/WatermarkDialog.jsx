@@ -6,6 +6,9 @@ import { recordAddWatermark, recordModifyWatermark } from '../../../core/undo-ma
 import { markDocumentModified } from '../../../ui/chrome/tabs.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { kopVoetInWeergave, haalKopVoetUitWeergave } from '../../../watermark/kopvoet-weergave.js';
+import { parseCustomCoordinate, watermarkCustomPosition } from '../../../watermark/watermark-layout.js';
+import { paginaMaat } from '../../../pdf/weergave-ruimte.js';
 
 function generateId() {
   return 'wm-' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
@@ -42,8 +45,9 @@ export default function WatermarkDialog(props) {
     isEditing && !isImageEdit ? (editWm.rotation ?? -45) : -45
   );
   const [position, setPosition] = createSignal(editWm?.position || 'center');
-  const [customX, setCustomX] = createSignal(editWm?.customX || 0);
-  const [customY, setCustomY] = createSignal(editWm?.customY || 0);
+  // Blank Custom X/Y means "not set" (the page centre); 0 is a real position.
+  const [customX, setCustomX] = createSignal(editWm?.customX ?? '');
+  const [customY, setCustomY] = createSignal(editWm?.customY ?? '');
   const [layer, setLayer] = createSignal(editWm?.layer || 'behind');
   const [pageRange, setPageRange] = createSignal(editWm?.pageRange || 'all');
   const [customPages, setCustomPages] = createSignal(editWm?.customPages || '');
@@ -62,10 +66,10 @@ export default function WatermarkDialog(props) {
     isImageEdit ? (editWm.position || 'center') : 'center'
   );
   const [imgCustomX, setImgCustomX] = createSignal(
-    isImageEdit ? (editWm.customX || 0) : 0
+    isImageEdit ? (editWm.customX ?? '') : ''
   );
   const [imgCustomY, setImgCustomY] = createSignal(
-    isImageEdit ? (editWm.customY || 0) : 0
+    isImageEdit ? (editWm.customY ?? '') : ''
   );
   const [imgLayer, setImgLayer] = createSignal(
     isImageEdit ? (editWm.layer || 'behind') : 'behind'
@@ -113,12 +117,13 @@ export default function WatermarkDialog(props) {
       opacity: parseInt(opacity()) / 100,
       rotation: parseInt(rotation()) || 0,
       position: position(),
-      customX: parseInt(customX()) || 0,
-      customY: parseInt(customY()) || 0,
+      customX: parseCustomCoordinate(customX()),
+      customY: parseCustomCoordinate(customY()),
       layer: layer(),
       pageRange: pageRange(),
       customPages: customPages(),
       enabled: true,
+      uitBestand: false,
     };
   }
 
@@ -132,17 +137,39 @@ export default function WatermarkDialog(props) {
       opacity: parseInt(imgOpacity()) / 100,
       rotation: parseInt(imgRotation()) || 0,
       position: imgPosition(),
-      customX: parseInt(imgCustomX()) || 0,
-      customY: parseInt(imgCustomY()) || 0,
+      customX: parseCustomCoordinate(imgCustomX()),
+      customY: parseCustomCoordinate(imgCustomY()),
       layer: imgLayer(),
       pageRange: imgPageRange(),
       customPages: imgCustomPages(),
       scale: parseInt(imgScale()) / 100,
       enabled: true,
+      uitBestand: false,
     };
   }
 
-  function handleAdd() {
+  // Switching to Custom starts X/Y at the position the watermark has now on
+  // the current page, so it stays where it is.
+  function prefillCustom(wm, setX, setY) {
+    const doc = getActiveDocument();
+    const maat = doc ? paginaMaat(doc.currentPage || 1, doc) : null;
+    if (!maat) return;
+    const { x, y } = watermarkCustomPosition(wm, maat.breedte, maat.hoogte);
+    setX(String(x));
+    setY(String(y));
+  }
+
+  function changePosition(value) {
+    if (value === 'custom' && position() !== 'custom') prefillCustom(buildTextWatermark(), setCustomX, setCustomY);
+    setPosition(value);
+  }
+
+  function changeImagePosition(value) {
+    if (value === 'custom' && imgPosition() !== 'custom') prefillCustom(buildImageWatermark(), setImgCustomX, setImgCustomY);
+    setImgPosition(value);
+  }
+
+  async function handleAdd() {
     const tab = activeTab();
     const wm = tab === 'image' ? buildImageWatermark() : buildTextWatermark();
 
@@ -152,6 +179,8 @@ export default function WatermarkDialog(props) {
     }
 
     const doc = getActiveDocument();
+    if (isEditing && kopVoetInWeergave(doc, editWm)) await haalKopVoetUitWeergave(doc);
+    if (getActiveDocument() !== doc) return;
     if (isEditing) {
       const oldState = { ...editWm };
       const watermarks = doc?.watermarks;
@@ -284,7 +313,7 @@ export default function WatermarkDialog(props) {
             <select
               class="watermark-select"
               value={position()}
-              onChange={(e) => setPosition(e.target.value)}
+              onChange={(e) => changePosition(e.target.value)}
             >
               <option value="center">{t('watermark.center')}</option>
               <option value="top-left">{t('watermark.topLeft')}</option>
@@ -414,7 +443,7 @@ export default function WatermarkDialog(props) {
             <select
               class="watermark-select"
               value={imgPosition()}
-              onChange={(e) => setImgPosition(e.target.value)}
+              onChange={(e) => changeImagePosition(e.target.value)}
             >
               <option value="center">{t('watermark.center')}</option>
               <option value="top-left">{t('watermark.topLeft')}</option>
