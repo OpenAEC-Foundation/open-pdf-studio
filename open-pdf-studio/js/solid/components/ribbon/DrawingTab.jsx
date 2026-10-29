@@ -145,10 +145,28 @@ function rotateSelected() {
   recordBulkModify(anns, originals);
 }
 
+// Eén snap-vinkje in de lintgroep 'Snap'. Schakelt de bijbehorende
+// voorkeur en bewaart ze meteen (net als de voorkeuren-dialog).
+function SnapOption(props) {
+  const on = () => state.preferences[props.prefKey] !== false && state.preferences.enableObjectSnap === true;
+  const set = (checked) => { state.preferences[props.prefKey] = checked; savePreferences(); };
+  return (
+    <label class="ribbon-checkbox-option" title={props.label}>
+      <input
+        type="checkbox"
+        checked={on()}
+        disabled={state.preferences.enableObjectSnap !== true}
+        onChange={(e) => set(e.currentTarget.checked)}
+      />
+      <span>{props.label}</span>
+    </label>
+  );
+}
+
 function moveSelected() {
   // CAD-stijl verplaatsen met basispunt (de 'mv'-flow uit g-move-mode):
   // klik 1 kiest het basispunt, slepen óf een getypte verplaatsing (50,0)
-  // plaatst de selectie.
+  // plaatst de selectie. Beide klikken object-snappen naar bestaande punten.
   if (tryStartGMove({ basePoint: true })) {
     updateStatusMessage(
       i18next.t('drawing.moveBase', {
@@ -249,6 +267,27 @@ export function DrawingGroups() {
             onClick={() => import('../../../annotations/image-drop.js').then((m) => m.kiesEnPlaatsAfbeelding())} />
           <RibbonButton size="small" id="dr-remove-image" title={t('drawing.removeImage')} icon={removeImageIcon}
             disabled={ro()} active={state.currentTool === 'removeImage'} onClick={() => startRemoveImageTool()} />
+        </RibbonGroup>
+
+        {/* SNAP — object-snap-modi direct naast de tekeninstrumenten.
+            Zelfde voorkeuren als het Voorkeuren-dialog, zodat het engine-
+            gedeelte (snap-engine.js) ze bij elke muisbeweging leest. */}
+        <RibbonGroup label={t('drawing.snapGroup')}>
+          <div class="ribbon-snap-options">
+            <label class="ribbon-checkbox-option snap-master" title={t('drawing.snapObjectSnapTip')}>
+              <input
+                type="checkbox"
+                checked={state.preferences.enableObjectSnap === true}
+                onChange={(e) => { state.preferences.enableObjectSnap = e.currentTarget.checked; savePreferences(); }}
+              />
+              <span>{t('drawing.snapObjectSnap')}</span>
+            </label>
+            <SnapOption prefKey="snapToEndpoints" label={t('drawing.snapEndpoint')} />
+            <SnapOption prefKey="snapToMidpoints" label={t('drawing.snapMidpoint')} />
+            <SnapOption prefKey="snapToVertices" label={t('drawing.snapVertex')} />
+            <SnapOption prefKey="snapToStartPoints" label={t('drawing.snapStartPoint')} />
+            <SnapOption prefKey="snapToCenters" label={t('drawing.snapCenter')} />
+          </div>
         </RibbonGroup>
 
         {/* LIJN-OPTIES — alleen zichtbaar bij het lijn-gereedschap. Bevat het
@@ -379,7 +418,7 @@ export function DrawingGroups() {
               net, gelijkmatig blok vormt i.p.v. een mix van grote losse
               knoppen en een kleine stapel. */}
           <RibbonButtonStack>
-            <RibbonButton size="small" id="dr-move" title={t('drawing.move')} icon={moveIcon} label={t('drawing.move')}
+            <RibbonButton size="small" id="dr-move" title={t('drawing.moveBasePoint')} icon={moveIcon} label={t('drawing.move')}
               disabled={ro()} onClick={moveSelected} />
             <RibbonButton size="small" id="dr-copy" title={t('drawing.copy')} icon={copyAnnIcon} label={t('drawing.copy')}
               disabled={ro()} onClick={() => duplicateAnnotation()} />

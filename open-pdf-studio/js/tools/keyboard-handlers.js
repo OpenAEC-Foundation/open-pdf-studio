@@ -476,7 +476,7 @@ export async function handleKeydown(e) {
       && aan(e, e.shiftKey ? 'drafting.objectSnap' : 'search.findNext', e.shiftKey ? 'Shift+F3' : 'F3')) {
     e.preventDefault();
     if (e.shiftKey) {
-      // Shift+F3: toggle master Object Snap (OSNAP) setting
+      // Shift+F3: toggle the master object snap setting
       wisselObjectSnap();
       return;
     }

@@ -28,6 +28,8 @@ export interface Preferences {
   snapToEndpoints: boolean;
   snapToMidpoints: boolean;
   snapToCenters: boolean;
+  snapToVertices: boolean;
+  snapToStartPoints: boolean;
   snapToEdges: boolean;
   snapToIntersections: boolean;
   snapToPerpendicular: boolean;

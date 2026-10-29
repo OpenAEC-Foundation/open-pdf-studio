@@ -75,6 +75,7 @@ js/annotations/wand-geometrie.test.mjs
 js/annotations/wand-join.test.mjs
 js/pdf/saver/wand-join-meta.test.mjs
 js/plattegrond/wand-join-mcp.test.mjs
+js/tools/snap-punten.test.mjs
 js/tools/snap-extractie-beleid.test.mjs
 js/tools/snap-geometrie-cache.test.mjs
 js/annotations/schaal-bronnen.test.mjs

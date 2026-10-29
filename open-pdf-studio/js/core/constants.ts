@@ -81,6 +81,11 @@ export const DEFAULT_PREFERENCES: Preferences = {
   snapToEndpoints: true,
   snapToMidpoints: true,
   snapToCenters: true,
+  // Vertex = elk tussenpunt van een polylijn/veelhoek (los van de
+  // eindpunten). Start point = het eerste punt waarmee het object is
+  // getekend (lijnstart, eerste polylijnpunt, eerste hoek).
+  snapToVertices: true,
+  snapToStartPoints: true,
   snapToEdges: false,
   snapToIntersections: true,
   snapToPerpendicular: false,
