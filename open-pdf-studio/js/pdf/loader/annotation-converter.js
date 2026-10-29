@@ -1347,9 +1347,10 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
       // whatever is behind it. No /C ⇒ no fill (transparent).
       const bgColor = extraColors.cColor || null;
 
-      // Border style: 1=SOLID, 2=DASHED, 3=BEVELED, 4=INSET, 5=UNDERLINE
-      const bsStyle = annot.borderStyle?.style;
-      const borderStyle = bsStyle === 2 ? 'dashed' : (bsStyle === 3 || bsStyle === 4 ? 'dotted' : 'solid');
+      // Randstijl zoals bij de andere vormen: het streeppatroon /BS /D
+      // onderscheidt gestippeld ([2 4]) van gestreept ([3 4]); alleen /S /D
+      // zou een gestippeld tekstvak als gestreept heropenen.
+      const borderStyle = mapBorderStyle(annot, extraColors);
       // Zonder rand (#431): /W is 0, de lijndikte-instelling (die ook de
       // binnenmarge van het tekstvak bepaalt) staat in de eigen sleutel.
       const zonderRand = randloosUitExtra(extraColors);

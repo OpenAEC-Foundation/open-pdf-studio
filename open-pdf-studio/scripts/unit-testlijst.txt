@@ -619,3 +619,4 @@ js/pdf/organizer-pointer-drag.test.mjs
 js/pdf/blank-page-setup.test.mjs
 js/pdf/frame-labels.test.mjs
 js/solid/components/ribbon/ribbon-wiel.test.mjs
+js/pdf/lijnstijl-rondgang.test.mjs
