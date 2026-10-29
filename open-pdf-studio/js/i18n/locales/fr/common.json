@@ -250,6 +250,10 @@
     "nextTab": "Onglet suivant",
     "previousTab": "Onglet précédent"
   },
+  "pageNav": {
+    "nextPage": "Page suivante",
+    "previousPage": "Page précédente"
+  },
   "quickAccess": {
     "exportRaster": "Exporter en PDF matriciel (s'ouvre dans un nouvel onglet)"
   },

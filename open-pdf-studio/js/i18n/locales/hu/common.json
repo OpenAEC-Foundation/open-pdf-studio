@@ -250,6 +250,10 @@
     "nextTab": "Következő lap",
     "previousTab": "Előző lap"
   },
+  "pageNav": {
+    "nextPage": "Következő oldal",
+    "previousPage": "Előző oldal"
+  },
   "quickAccess": {
     "exportRaster": "Exportálás raszteres PDF-ként (új lapon nyílik meg)"
   },

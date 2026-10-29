@@ -250,6 +250,10 @@
     "nextTab": "Fila urmatoare",
     "previousTab": "Fila anterioara"
   },
+  "pageNav": {
+    "nextPage": "Pagina urmatoare",
+    "previousPage": "Pagina anterioara"
+  },
   "quickAccess": {
     "exportRaster": "Export ca PDF raster (se deschide într-o filă nouă)"
   },

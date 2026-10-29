@@ -250,6 +250,10 @@
     "nextTab": "Następna karta",
     "previousTab": "Poprzednia karta"
   },
+  "pageNav": {
+    "nextPage": "Następna strona",
+    "previousPage": "Poprzednia strona"
+  },
   "quickAccess": {
     "exportRaster": "Eksportuj jako rastrowy PDF (otwiera się w nowej karcie)"
   },

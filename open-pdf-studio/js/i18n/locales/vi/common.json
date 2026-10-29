@@ -250,6 +250,10 @@
     "nextTab": "Thẻ tiếp theo",
     "previousTab": "Thẻ trước"
   },
+  "pageNav": {
+    "nextPage": "Trang tiếp",
+    "previousPage": "Trang trước"
+  },
   "quickAccess": {
     "exportRaster": "Xuất thành PDF raster (mở trong thẻ mới)"
   },

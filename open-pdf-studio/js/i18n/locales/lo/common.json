@@ -251,6 +251,10 @@
     "nextTab": "ແທັບຖັດໄປ",
     "previousTab": "ແທັບກ່ອນໜ້າ"
   },
+  "pageNav": {
+    "nextPage": "ໜ້າຖັດໄປ",
+    "previousPage": "ໜ້າກ່ອນໜ້າ"
+  },
   "quickAccess": {
     "exportRaster": "ສົ່ງອອກເປັນ Raster PDF (ເປີດໃນແທັບໃໝ່)"
   },

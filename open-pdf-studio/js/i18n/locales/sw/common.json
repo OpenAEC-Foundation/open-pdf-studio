@@ -250,6 +250,10 @@
     "nextTab": "Kichupo Kinachofuata",
     "previousTab": "Kichupo Kilichotangulia"
   },
+  "pageNav": {
+    "nextPage": "Ukurasa Ujao",
+    "previousPage": "Ukurasa Uliopita"
+  },
   "quickAccess": {
     "exportRaster": "Hamisha nje kama PDF ya raster (hufunguka kwenye kichupo kipya)"
   },

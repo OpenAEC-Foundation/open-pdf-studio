@@ -250,6 +250,10 @@
     "nextTab": "Sljedeća kartica",
     "previousTab": "Prethodna kartica"
   },
+  "pageNav": {
+    "nextPage": "Sljedeća stranica",
+    "previousPage": "Prethodna stranica"
+  },
   "quickAccess": {
     "exportRaster": "Izvezi kao rasterski PDF (otvara se u novoj kartici)"
   },

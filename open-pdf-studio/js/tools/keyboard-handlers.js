@@ -38,6 +38,7 @@ import { gevelPreset } from '../gevelelement/herkenning.js';
 import { isTextAnchored, expandCorrectionGroups, replaceParentOf } from '../annotations/corrections/model.js';
 import { deleteAnnotationsWithUndo } from '../annotations/mutations.js';
 import { installProofreadingKeys } from './proofreading-mode.js';
+import { paginaSneltoetsRichting, paginaToetsVoorInvoer, paginaSprongDoel, maakPaginaBladeraar } from '../pdf/pagina-sneltoets.js';
 
 function redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') redrawContinuous();
@@ -276,6 +277,88 @@ function pijlVoorBesturing(e) {
   return typeof t?.closest === 'function' && !!t.closest(PIJL_BESTURING);
 }
 
+// ── Bladeren: PageDown / PageUp naar de volgende/vorige pagina (#751, #713) ──
+// Zelfde navigatie als de knoppen Vorige/Volgende in het lint (goToPage), dus
+// de zoom blijft staan; facing springt een hele spread. De bladeraar laat bij
+// ingedrukt houden toetsherhalingen vallen zolang de vorige sprong nog loopt
+// (render, of de vloeiende scroll in de doorlopende weergave).
+
+// Doorlopende weergave: de pagina die bovenaan in beeld staat. currentPage
+// volgt daar het MIDDEN van het beeld (en loopt tijdens een vloeiende scroll
+// even mee), dus uitgezoomd zou PageDown anders een pagina overslaan.
+function paginaBovenInBeeld(doc) {
+  if (doc?.viewMode !== 'continuous' || doc.facingSpread) return doc?.currentPage || 1;
+  const container = document.getElementById('pdf-container');
+  if (!container) return doc.currentPage || 1;
+  const boven = container.getBoundingClientRect().top + 4;
+  let gevonden = null;
+  document.querySelectorAll('#continuous-container .page-wrapper').forEach((w) => {
+    const pagina = parseInt(w.dataset.page, 10);
+    if (Number.isFinite(pagina) && w.getBoundingClientRect().top <= boven
+        && (gevonden === null || pagina > gevonden)) gevonden = pagina;
+  });
+  return gevonden ?? (doc.currentPage || 1);
+}
+
+// Klaar als de sprong in beeld staat: na een frame, en in de doorlopende
+// weergave pas als de scrollpositie een paar frames stilstaat.
+function paginaSprongInBeeld() {
+  return new Promise((klaar) => {
+    const container = document.getElementById('pdf-container');
+    const scrollt = getActiveDocument()?.viewMode === 'continuous' && !getActiveDocument()?.facingSpread;
+    let vorige = container ? container.scrollTop : 0;
+    let stil = 0;
+    let gedaan = false;
+    const af = () => { if (!gedaan) { gedaan = true; klaar(); } };
+    const stap = () => {
+      if (gedaan) return;
+      if (!scrollt || !container) { setTimeout(af, 0); return; }
+      const nu = container.scrollTop;
+      stil = nu === vorige ? stil + 1 : 0;
+      vorige = nu;
+      if (stil >= 3) af();
+      else requestAnimationFrame(stap);
+    };
+    requestAnimationFrame(stap);
+    // Vangnet voor een verborgen venster waar geen frames komen.
+    setTimeout(af, scrollt ? 1500 : 250);
+  });
+}
+
+const _paginaBladeraar = maakPaginaBladeraar({
+  blader: (richting) => {
+    const doc = getActiveDocument();
+    if (!doc?.pdfDoc) return undefined;
+    const doel = paginaSprongDoel({
+      huidig: paginaBovenInBeeld(doc),
+      totaal: doc.pdfDoc.numPages || 1,
+      facing: !!doc.facingSpread,
+    }, richting);
+    return doel ? goToPage(doel) : undefined;
+  },
+  naBeeld: paginaSprongInBeeld,
+  wacht: (ms) => new Promise((klaar) => setTimeout(klaar, ms)),
+});
+
+/**
+ * PageUp/PageDown zonder Ctrl/Shift/Alt: bladert in de hoofdweergave.
+ * Tekstvelden, keuzelijsten, contenteditable, dialogen en een lopende
+ * tekstbewerking houden de toets. De vergelijkingsweergave vangt hem al in
+ * haar eigen capture-handler af.
+ * @returns {boolean} true als de toets hier is afgehandeld
+ */
+function handlePaginaSneltoets(e) {
+  const richting = paginaSneltoetsRichting(e);
+  if (!richting || e.defaultPrevented) return false;
+  if (paginaToetsVoorInvoer(e.target)) return false;
+  if (isModalOpen() || (typeof getDialogs === 'function' && (getDialogs() || []).length > 0)) return false;
+  if (state.isEditingText || state.pdfTextEditState) return false;
+  if (!getActiveDocument()?.pdfDoc) return false;
+  e.preventDefault();
+  _paginaBladeraar.vraag(richting, !!e.repeat);
+  return true;
+}
+
 export async function handleKeydown(e) {
   // De tabwissel-toetsen zijn al afgehandeld (of bewust geweigerd) door
   // handleTabSneltoets; niets hieronder mag er nog op reageren.
@@ -468,6 +551,9 @@ export async function handleKeydown(e) {
     redraw();
     return;
   }
+
+  // PageDown / PageUp: volgende/vorige pagina (#751, #713).
+  if (handlePaginaSneltoets(e)) return;
 
   // File shortcuts
   if (ctrl && !shift && shortcutKey === 'n') {

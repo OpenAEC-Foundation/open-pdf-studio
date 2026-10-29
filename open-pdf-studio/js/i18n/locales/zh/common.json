@@ -250,6 +250,10 @@
     "nextTab": "下一个标签页",
     "previousTab": "上一个标签页"
   },
+  "pageNav": {
+    "nextPage": "下一页",
+    "previousPage": "上一页"
+  },
   "quickAccess": {
     "exportRaster": "导出为栅格 PDF（在新标签页中打开）"
   },

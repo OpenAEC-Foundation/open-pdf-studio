@@ -250,6 +250,10 @@
     "nextTab": "Nächster Tab",
     "previousTab": "Vorheriger Tab"
   },
+  "pageNav": {
+    "nextPage": "Nächste Seite",
+    "previousPage": "Vorherige Seite"
+  },
   "quickAccess": {
     "exportRaster": "Als Raster-PDF exportieren (öffnet sich in einem neuen Tab)"
   },

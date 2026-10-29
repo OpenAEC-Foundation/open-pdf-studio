@@ -250,6 +250,10 @@
     "nextTab": "التبويب التالي",
     "previousTab": "التبويب السابق"
   },
+  "pageNav": {
+    "nextPage": "الصفحة التالية",
+    "previousPage": "الصفحة السابقة"
+  },
   "quickAccess": {
     "exportRaster": "تصدير كملف PDF نقطي (يُفتح في علامة تبويب جديدة)"
   },

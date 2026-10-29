@@ -250,6 +250,10 @@
     "nextTab": "زبانه بعدی",
     "previousTab": "زبانه قبلی"
   },
+  "pageNav": {
+    "nextPage": "صفحه بعدی",
+    "previousPage": "صفحه قبلی"
+  },
   "quickAccess": {
     "exportRaster": "صدور به‌صورت PDF رستری (در زبانه جدید باز می‌شود)"
   },

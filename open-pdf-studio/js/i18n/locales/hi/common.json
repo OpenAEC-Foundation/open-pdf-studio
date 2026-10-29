@@ -250,6 +250,10 @@
     "nextTab": "अगला टैब",
     "previousTab": "पिछला टैब"
   },
+  "pageNav": {
+    "nextPage": "अगला पृष्ठ",
+    "previousPage": "पिछला पृष्ठ"
+  },
   "quickAccess": {
     "exportRaster": "रास्टर PDF के रूप में निर्यात करें (नए टैब में खुलता है)"
   },

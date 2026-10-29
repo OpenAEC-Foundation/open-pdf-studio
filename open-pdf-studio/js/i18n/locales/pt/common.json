@@ -250,6 +250,10 @@
     "nextTab": "Separador seguinte",
     "previousTab": "Separador anterior"
   },
+  "pageNav": {
+    "nextPage": "Próxima página",
+    "previousPage": "Página anterior"
+  },
   "quickAccess": {
     "exportRaster": "Exportar como PDF rasterizado (abre em uma nova aba)"
   },

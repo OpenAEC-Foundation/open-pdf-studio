@@ -251,6 +251,10 @@
     "nextTab": "Volgend tabblad",
     "previousTab": "Vorig tabblad"
   },
+  "pageNav": {
+    "nextPage": "Volgende pagina",
+    "previousPage": "Vorige pagina"
+  },
   "quickAccess": {
     "exportRaster": "Exporteer als raster-PDF (opent in nieuw tabblad)"
   },
