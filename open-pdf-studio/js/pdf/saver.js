@@ -42,7 +42,7 @@ import { opslaanVraagtOpslaanAls } from './handtekeningen/opslaan.js';
 // Sub-modules
 import { hexToRgb, buildBorderStyle, computeAnnotFlags, mapFontToPdfName,
   ensureAcroFormFonts, stripPdfAMetadata, generateAppearanceStream, zetDoorzichtigheidInAp, tekstvakFontDict, boogHoekenNaRotatie,
-  randSleutelZonderRand, markeerZonderRand, onzichtbaarVlak, vlakRect, metVulGs } from './saver/utils.js';
+  randSleutelZonderRand, markeerZonderRand, onzichtbaarVlak, vlakRect, metVulGs, streepOperator } from './saver/utils.js';
 import { eigenVulDekking } from '../annotations/vul-dekking.js';
 import { saveTextEditsToPages } from './saver/text-edits.js';
 import { isOntbrekendeGlyfenFout, tekensVoorMelding } from '../text/glyf-dekking.js';
@@ -1314,7 +1314,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               }
               if (pgStroke) {
                 const [psr, psg, psb] = hexToRgb(ann.strokeColor || ann.color || '#000000');
-                const pgDash = ann.borderStyle === 'dashed' ? '[8 4] 0 d\n' : ann.borderStyle === 'dotted' ? '[2 2] 0 d\n' : '';
+                const pgDash = streepOperator(ann.borderStyle);
                 pgContent += `q\n${borderWidth} w\n${pgDash}${psr} ${psg} ${psb} RG\n${pad}S\nQ\n`;
               }
               if (pgContent) {
@@ -1557,7 +1557,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
               // Draw callout leader line and arrowhead first (using absolute page coords)
               if (isCallout) {
-                const dashOp = ann.borderStyle === 'dashed' ? '[8 4] 0 d\n' : ann.borderStyle === 'dotted' ? '[2 2] 0 d\n' : '';
+                const dashOp = streepOperator(ann.borderStyle);
                 // Leader armOrigin -> knee -> tip with its heads, as the screen
                 // draws it (calloutLeiderOps, #612). 'curved' = a smooth
                 // Catmull-Rom spline (cubic Bézier `c` operators) through the
@@ -1576,7 +1576,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               }
 
               // Draw text box fill + stroke (absolute coords)
-              const ftDashOp = ann.borderStyle === 'dashed' ? '[8 4] 0 d\n' : ann.borderStyle === 'dotted' ? '[2 2] 0 d\n' : '';
+              const ftDashOp = streepOperator(ann.borderStyle);
               // A border is drawn ONLY when the textbox actually has one. Without
               // this the AP always stroked the rect — with `0 w` (hairline) and a
               // black fallback colour when strokeColor was 'none' — so other

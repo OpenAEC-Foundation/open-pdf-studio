@@ -590,6 +590,7 @@ js/pdf/wapening-rondgang.test.mjs
 js/annotations/pressure-ink.test.mjs
 js/annotations/pressure-ink-wiring.test.mjs
 js/pdf/drukinkt-rondgang.test.mjs
+js/pdf/inkt-streep-rondgang.test.mjs
 js/accessibility/struct-tree.test.mjs
 js/accessibility/struct-edits-rondgang.test.mjs
 js/accessibility/struct-edits-opslagrace.test.mjs
