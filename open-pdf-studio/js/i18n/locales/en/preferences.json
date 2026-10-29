@@ -9,7 +9,8 @@
     "behavior": "Behavior",
     "fileAssociation": "File Association",
     "virtualPrinter": "Virtual Printer",
-    "pageDisplay": "Page Display"
+    "pageDisplay": "Page Display",
+    "keyboardShortcuts": "Keyboard Shortcuts"
   },
   "resetToDefaults": "Reset to Defaults",
   "resetConfirm": "Reset all preferences to default values?",
@@ -46,6 +47,8 @@
     "snapToEndpoints": "Snap to Endpoints / Corners",
     "snapToMidpoints": "Snap to Midpoints",
     "snapToCenters": "Snap to Centers",
+    "snapToVertices": "Snap to Vertices (polyline nodes)",
+    "snapToStartPoints": "Snap to Start Points",
     "snapToEdges": "Snap to Edges",
     "objectSnapRadius": "Snap Radius (px)",
     "snapToPdfContent": "Snap to PDF Drawing Content",
@@ -182,6 +185,8 @@
     "snapToEndpoints": "Snap to Endpoints / Corners",
     "snapToMidpoints": "Snap to Midpoints",
     "snapToCenters": "Snap to Centers",
+    "snapToVertices": "Snap to Vertices (polyline nodes)",
+    "snapToStartPoints": "Snap to Start Points",
     "snapToEdges": "Snap to Edges",
     "snapToIntersections": "Snap to Intersections",
     "snapToPerpendicular": "Snap to Perpendicular",
@@ -196,6 +201,7 @@
     "confirmBeforeDeleting": "Confirm before deleting annotations",
     "navigation": "Navigation",
     "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
+    "middleDoubleClickFit": "Double-click the middle mouse button to zoom to fit",
     "dynamicScaling": "Auto-scale markups"
   },
   "pageDisplay": {
@@ -284,5 +290,51 @@
     "how3": "Preview, reorder, merge and save the jobs as one PDF, or open them in Studio.",
     "openWindow": "Open printer window",
     "openWindowTip": "Show the captured print jobs"
+  },
+  "keyboardShortcuts": {
+    "title": "Keyboard Shortcuts",
+    "search": "Search by command or key",
+    "command": "Command",
+    "shortcuts": "Shortcuts",
+    "none": "None",
+    "noMatches": "No commands match the search.",
+    "selectHint": "Select a command to change its shortcuts.",
+    "addShortcut": "Add shortcut",
+    "remove": "Remove shortcut",
+    "resetCommand": "Reset to default",
+    "resetAll": "Reset all",
+    "resetAllConfirm": "Reset all keyboard shortcuts to their defaults?",
+    "import": "Import…",
+    "export": "Export…",
+    "fileType": "Keyboard shortcuts",
+    "imported": "Shortcuts imported. Click Save to apply them.",
+    "importFailed": "This is not a valid keyboard shortcuts file.",
+    "exported": "Shortcuts exported.",
+    "exportFailed": "Exporting the shortcuts failed:",
+    "recording": "Press the new key combination… (Esc cancels)",
+    "conflict": "{{keys}} is already used by “{{command}}”.",
+    "reassign": "Reassign",
+    "reserved": "{{keys}} has a fixed meaning and cannot be assigned.",
+    "defaultLabel": "Default: {{keys}}",
+    "customize": "Customize…",
+    "fixedGroup": "Fixed keys",
+    "applyHint": "Changes take effect when you click Save.",
+    "categories": {
+      "file": "File",
+      "edit": "Edit",
+      "view": "View",
+      "search": "Find",
+      "tools": "Tools",
+      "drafting": "Drawing aids",
+      "panels": "Panels",
+      "review": "Review",
+      "help": "Help",
+      "extensions": "Extensions",
+      "ribbon": "Ribbon: {{tab}}",
+      "other": "Other"
+    },
+    "commands": {
+      "findNext": "Find Next"
+    }
   }
 }

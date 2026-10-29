@@ -139,9 +139,27 @@
       "nen47-aluminium": "NEN47-19 Алуминијум/бронза/бакар",
       "nen47-kunststof": "NEN47-22 Пластика",
       "nen47-afdichtingsmiddel": "NEN47-23 Заптивна маса",
-      "nen47-maaiveld": "NEN47-25 Ниво терена"
+      "nen47-maaiveld": "NEN47-25 Ниво терена",
+      "staal-dubbel": "Челик (двострука линија)",
+      "raster-liggend": "Правоугаона мрежа положена",
+      "raster-staand": "Правоугаона мрежа усправна",
+      "tegel-halfsteens": "Плочице (вез на пола)",
+      "plank-halfsteens": "Даске (вез на пола)",
+      "grond-blokjes": "Тло (блокови)",
+      "glas-strepen": "Стакло (црте фасаде)",
+      "vloeistof-strepen": "Течност (црте)",
+      "gras-pollen": "Трава (бусенови)",
+      "honingraat": "Саће",
+      "lijnen-groep-verticaal": "Групе усправних линија",
+      "lood-blokken": "Олово (блокови)",
+      "glas-doorsnede": "Стакло (пресек)",
+      "wand-metselwerk": "Зидани зид (парови линија)"
     },
-    "rotation": "Ротација"
+    "rotation": "Ротација",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Стил линије",
@@ -189,7 +207,9 @@
     "bold": "Подебљано",
     "italic": "Курзив",
     "underline": "Подвучено",
-    "strikethrough": "Прецртано"
+    "strikethrough": "Прецртано",
+    "fontNotEmbedded": "Фонт {{font}} није уграђен у PDF. Читачи без овог фонта приказују {{fallback}}.",
+    "fontReplaced": "Фонт {{font}} не може да се угради у PDF. Текст се чува у фонту {{fallback}}."
   },
   "paragraph": {
     "title": "Параграф",
@@ -198,7 +218,11 @@
     "alignCenter": "Поравнај по центру",
     "alignRight": "Поравнај десно",
     "lineSpacing": "Размак између редова",
-    "rotation": "Ротација"
+    "rotation": "Ротација",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Одговори",
@@ -722,5 +746,49 @@
     "invalid": "Ажурирање локације није успело",
     "rules": "Додела користи средиште граничног оквира ознаке, укључујући ивице. Предност има најдубља зона, затим најмања површина, па ID зоне. Користите праве многоуглове без рупа или неротиране правоугаонике. Неважећи или дуплирани идентитети зона се изузимају.",
     "loading": "Анотације се учитавају: локације се још могу променити."
+  },
+  "styleTypeNames": {
+    "filledArea": {
+      "beton": "Бетон",
+      "metselwerk": "Зидање",
+      "isolatie": "Изолација",
+      "zand": "Песак/цемент",
+      "algemeen": "Опште (дијагонално)",
+      "inb-sloop": "Рушење",
+      "inb-staal": "Челик (двострука линија)",
+      "inb-diagonaal-smal": "Дијагонална шрафура густа",
+      "inb-diagonaal-midden": "Дијагонална шрафура средња",
+      "inb-diagonaal-breed": "Дијагонална шрафура ретка",
+      "inb-raster-fijn": "Мрежа фина",
+      "inb-raster-midden": "Мрежа средња",
+      "inb-raster-grof": "Мрежа груба",
+      "inb-raster-liggend-1": "Положена мрежа фина",
+      "inb-raster-liggend-2": "Положена мрежа средња",
+      "inb-raster-liggend-3": "Положена мрежа груба",
+      "inb-raster-staand-1": "Усправна мрежа фина",
+      "inb-raster-staand-2": "Усправна мрежа средња",
+      "inb-raster-staand-3": "Усправна мрежа груба",
+      "inb-tegels-fijn": "Плочице мале",
+      "inb-tegels-midden": "Плочице средње",
+      "inb-tegels-grof": "Плочице велике",
+      "inb-planken-fijn": "Даске уске",
+      "inb-planken-midden": "Даске средње",
+      "inb-planken-grof": "Даске широке",
+      "inb-kruis-fijn": "Унакрсна шрафура фина",
+      "inb-kruis-midden": "Унакрсна шрафура средња",
+      "inb-kruis-grof": "Унакрсна шрафура груба",
+      "inb-baksteen": "Опека",
+      "inb-grond": "Тло",
+      "inb-glas": "Стакло (фасада)",
+      "inb-vloeistof": "Течност",
+      "inb-gras": "Трава",
+      "inb-honingraat": "Саће",
+      "inb-hout": "Дрво (попречни пресек)",
+      "inb-zand": "Песак",
+      "inb-beton": "Бетон (пегав)",
+      "inb-verticaal-smal": "Усправна шрафура густа",
+      "inb-verticaal-breed": "Усправна шрафура ретка",
+      "inb-horizontaal-breed": "Водоравна шрафура ретка"
+    }
   }
 }

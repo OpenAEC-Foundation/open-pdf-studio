@@ -9,7 +9,8 @@
     "behavior": "התנהגות",
     "fileAssociation": "שיוך קבצים",
     "virtualPrinter": "מדפסת וירטואלית",
-    "pageDisplay": "תצוגת עמוד"
+    "pageDisplay": "תצוגת עמוד",
+    "keyboardShortcuts": "קיצורי מקלדת"
   },
   "resetToDefaults": "איפוס לברירת מחדל",
   "resetConfirm": "לאפס את כל ההעדפות לערכי ברירת המחדל?",
@@ -167,6 +168,7 @@
     "snapToPdfContent": "הצמדה לתוכן השרטוט ב-PDF",
     "navigation": "ניווט",
     "wheelZoomWithoutCtrl": "זום בגלגלת העכבר (ללא החזקת Ctrl)",
+    "middleDoubleClickFit": "לחיצה כפולה על לחצן העכבר האמצעי להתאמת העמוד",
     "dynamicScaling": "שינוי קנה מידה אוטומטי של סימונים"
   },
   "fileAssoc": {
@@ -291,5 +293,51 @@
     "openArrowReversed": "חץ פתוח (הפוך)",
     "closedArrowReversed": "חץ סגור (הפוך)",
     "slash": "קו נטוי"
+  },
+  "keyboardShortcuts": {
+    "title": "קיצורי מקלדת",
+    "search": "חיפוש לפי פקודה או מקש",
+    "command": "פקודה",
+    "shortcuts": "קיצורים",
+    "none": "אין",
+    "noMatches": "אין פקודות התואמות לחיפוש.",
+    "selectHint": "בחרו פקודה כדי לשנות את הקיצורים שלה.",
+    "addShortcut": "הוספת קיצור",
+    "remove": "הסרת קיצור",
+    "resetCommand": "איפוס לברירת המחדל",
+    "resetAll": "איפוס הכול",
+    "resetAllConfirm": "לאפס את כל קיצורי המקלדת לברירת המחדל?",
+    "import": "ייבוא…",
+    "export": "ייצוא…",
+    "fileType": "קיצורי מקלדת",
+    "imported": "הקיצורים יובאו. לחצו על שמירה כדי להחיל אותם.",
+    "importFailed": "זהו אינו קובץ קיצורי מקלדת תקין.",
+    "exported": "הקיצורים יוצאו.",
+    "exportFailed": "ייצוא הקיצורים נכשל:",
+    "recording": "הקישו את צירוף המקשים החדש… (Esc לביטול)",
+    "conflict": "{{keys}} כבר בשימוש על ידי \"{{command}}\".",
+    "reassign": "הקצאה מחדש",
+    "reserved": "ל־{{keys}} יש משמעות קבועה ולא ניתן להקצות אותו.",
+    "defaultLabel": "ברירת מחדל: {{keys}}",
+    "customize": "התאמה אישית…",
+    "fixedGroup": "מקשים קבועים",
+    "applyHint": "השינויים ייכנסו לתוקף כשתלחצו על שמירה.",
+    "categories": {
+      "file": "קובץ",
+      "edit": "עריכה",
+      "view": "תצוגה",
+      "search": "חיפוש",
+      "tools": "כלים",
+      "drafting": "עזרי שרטוט",
+      "panels": "חלוניות",
+      "review": "סקירה",
+      "help": "עזרה",
+      "extensions": "הרחבות",
+      "ribbon": "רצועת כלים: {{tab}}",
+      "other": "אחר"
+    },
+    "commands": {
+      "findNext": "חיפוש הבא"
+    }
   }
 }

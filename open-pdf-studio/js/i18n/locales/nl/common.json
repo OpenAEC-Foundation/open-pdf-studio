@@ -31,6 +31,10 @@
   "draw": "Tekenen",
   "saved": "Opgeslagen",
   "documentChangedDuringSave": "Het document is gewijzigd tijdens het opslaan. Sla opnieuw op.",
+  "savingPdf": "PDF opslaan…",
+  "saveCancelling": "Opslaan wordt geannuleerd…",
+  "saveCancelled": "Opslaan geannuleerd. Het bestand is niet gewijzigd.",
+  "saveCancelTooLate": "Het bestand was al opgeslagen; annuleren kon niet meer.",
   "documentChangedDuringExport": "Het document is gewijzigd tijdens het exporteren. Start opnieuw.",
   "rasterExportProgress": "Pagina's rasteren: {{done}} van {{total}}",
   "snippetOutputFailed": "Een vectorknipsel kon niet worden weergegeven, daarom is de export of afdruk gestopt. Probeer het opnieuw.",
@@ -204,6 +208,10 @@
   "noAnnotationsInXfdf": "Geen annotaties gevonden in XFDF-bestand.",
   "noRedactionsOnPage": "Geen redactiemarkeringen op de huidige pagina om toe te passen.",
   "noRedactionsInDocument": "Geen redactiemarkeringen in het document om toe te passen.",
+  "applyRedactionsTitle": "Redacties toepassen",
+  "applyRedactionsPageConfirm": "{{count}} redactiemarkering(en) op pagina {{page}} afdekken met een zwart vlak?",
+  "applyRedactionsAllConfirm": "{{count}} redactiemarkering(en) op {{pages}} pagina('s) afdekken met een zwart vlak?",
+  "applyRedactionsOverlayWarning": "Let op: dit dekt de gemarkeerde gebieden alleen af. De tekst, afbeeldingen en tekeningen eronder worden NIET uit de PDF verwijderd en zijn nog te kopiëren, te doorzoeken of eruit te halen. Gebruik dit niet om gevoelige informatie te verwijderen.",
   "cannotDeleteAllPages": "Kan niet alle pagina's verwijderen. Er moet minstens één pagina overblijven.",
   "cannotDeleteAllPagesSource": "Kan niet alle pagina's uit het brondocument verwijderen.",
   "noPagesSelected": "Geen pagina's geselecteerd om te extraheren.",
@@ -250,6 +258,10 @@
     "closeTab": "Tab sluiten",
     "nextTab": "Volgend tabblad",
     "previousTab": "Vorig tabblad"
+  },
+  "pageNav": {
+    "nextPage": "Volgende pagina",
+    "previousPage": "Vorige pagina"
   },
   "quickAccess": {
     "exportRaster": "Exporteer als raster-PDF (opent in nieuw tabblad)"

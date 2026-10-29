@@ -9,7 +9,8 @@
     "behavior": "動作",
     "fileAssociation": "ファイルの関連付け",
     "virtualPrinter": "仮想プリンター",
-    "pageDisplay": "ページ表示"
+    "pageDisplay": "ページ表示",
+    "keyboardShortcuts": "キーボードショートカット"
   },
   "resetToDefaults": "既定値に戻す",
   "resetConfirm": "すべての環境設定を既定値に戻しますか？",
@@ -167,6 +168,7 @@
     "confirmBeforeDeleting": "注釈を削除する前に確認する",
     "navigation": "ナビゲーション",
     "wheelZoomWithoutCtrl": "マウスホイールでズーム（Ctrl を押さずに）",
+    "middleDoubleClickFit": "マウスの中央ボタンをダブルクリックしてページ全体を表示",
     "dynamicScaling": "マークアップを自動スケーリング"
   },
   "fileAssoc": {
@@ -291,5 +293,51 @@
     "openArrowReversed": "開いた矢印（反転）",
     "closedArrowReversed": "閉じた矢印（反転）",
     "slash": "スラッシュ"
+  },
+  "keyboardShortcuts": {
+    "title": "キーボードショートカット",
+    "search": "コマンドまたはキーで検索",
+    "command": "コマンド",
+    "shortcuts": "ショートカット",
+    "none": "なし",
+    "noMatches": "検索に一致するコマンドはありません。",
+    "selectHint": "ショートカットを変更するコマンドを選択してください。",
+    "addShortcut": "ショートカットを追加",
+    "remove": "ショートカットを削除",
+    "resetCommand": "既定に戻す",
+    "resetAll": "すべて既定に戻す",
+    "resetAllConfirm": "すべてのキーボードショートカットを既定に戻しますか？",
+    "import": "インポート…",
+    "export": "エクスポート…",
+    "fileType": "キーボードショートカット",
+    "imported": "ショートカットをインポートしました。適用するには［保存］をクリックしてください。",
+    "importFailed": "有効なキーボードショートカットファイルではありません。",
+    "exported": "ショートカットをエクスポートしました。",
+    "exportFailed": "ショートカットのエクスポートに失敗しました：",
+    "recording": "新しいキーの組み合わせを押してください…（Esc でキャンセル）",
+    "conflict": "{{keys}} は既に「{{command}}」で使用されています。",
+    "reassign": "割り当て直す",
+    "reserved": "{{keys}} は固定の役割があるため割り当てできません。",
+    "defaultLabel": "既定: {{keys}}",
+    "customize": "カスタマイズ…",
+    "fixedGroup": "固定キー",
+    "applyHint": "変更は［保存］をクリックすると反映されます。",
+    "categories": {
+      "file": "ファイル",
+      "edit": "編集",
+      "view": "表示",
+      "search": "検索",
+      "tools": "ツール",
+      "drafting": "作図補助",
+      "panels": "パネル",
+      "review": "校閲",
+      "help": "ヘルプ",
+      "extensions": "拡張機能",
+      "ribbon": "リボン: {{tab}}",
+      "other": "その他"
+    },
+    "commands": {
+      "findNext": "次を検索"
+    }
   }
 }

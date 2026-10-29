@@ -34,6 +34,10 @@
   "draw": "Dessiner",
   "saved": "Enregistré",
   "documentChangedDuringSave": "Le document a été modifié pendant l'enregistrement. Enregistrez à nouveau.",
+  "savingPdf": "Enregistrement du PDF…",
+  "saveCancelling": "Annulation de l’enregistrement…",
+  "saveCancelled": "Enregistrement annulé. Le fichier n’a pas été modifié.",
+  "saveCancelTooLate": "Le fichier était déjà enregistré ; il était trop tard pour annuler.",
   "documentChangedDuringExport": "Le document a été modifié pendant l'exportation. Recommencez.",
   "rasterExportProgress": "Rastérisation des pages : {{done}} sur {{total}}",
   "search": "Rechercher",
@@ -249,6 +253,10 @@
     "closeTab": "Fermer l'onglet",
     "nextTab": "Onglet suivant",
     "previousTab": "Onglet précédent"
+  },
+  "pageNav": {
+    "nextPage": "Page suivante",
+    "previousPage": "Page précédente"
   },
   "quickAccess": {
     "exportRaster": "Exporter en PDF matriciel (s'ouvre dans un nouvel onglet)"

@@ -9,7 +9,8 @@
     "behavior": "Comportement",
     "fileAssociation": "Association de fichiers",
     "virtualPrinter": "Imprimante virtuelle",
-    "pageDisplay": "Affichage de page"
+    "pageDisplay": "Affichage de page",
+    "keyboardShortcuts": "Raccourcis clavier"
   },
   "resetToDefaults": "Rétablir les valeurs par défaut",
   "resetConfirm": "Réinitialiser toutes les préférences aux valeurs par défaut ?",
@@ -167,6 +168,7 @@
     "confirmBeforeDeleting": "Confirmer avant de supprimer les annotations",
     "navigation": "Navigation",
     "wheelZoomWithoutCtrl": "Zoomer avec la molette de la souris (sans maintenir Ctrl)",
+    "middleDoubleClickFit": "Double-cliquer avec le bouton central de la souris pour ajuster la page",
     "dynamicScaling": "Mise à l'échelle automatique des annotations"
   },
   "fileAssoc": {
@@ -291,5 +293,51 @@
     "openArrowReversed": "Flèche ouverte (inversée)",
     "closedArrowReversed": "Flèche fermée (inversée)",
     "slash": "Barre oblique"
+  },
+  "keyboardShortcuts": {
+    "title": "Raccourcis clavier",
+    "search": "Rechercher par commande ou touche",
+    "command": "Commande",
+    "shortcuts": "Raccourcis",
+    "none": "Aucun",
+    "noMatches": "Aucune commande ne correspond à la recherche.",
+    "selectHint": "Sélectionnez une commande pour modifier ses raccourcis.",
+    "addShortcut": "Ajouter un raccourci",
+    "remove": "Supprimer le raccourci",
+    "resetCommand": "Rétablir la valeur par défaut",
+    "resetAll": "Tout rétablir",
+    "resetAllConfirm": "Rétablir tous les raccourcis clavier par défaut ?",
+    "import": "Importer…",
+    "export": "Exporter…",
+    "fileType": "Raccourcis clavier",
+    "imported": "Raccourcis importés. Cliquez sur Enregistrer pour les appliquer.",
+    "importFailed": "Ce fichier n’est pas un fichier de raccourcis clavier valide.",
+    "exported": "Raccourcis exportés.",
+    "exportFailed": "L’exportation des raccourcis a échoué :",
+    "recording": "Appuyez sur la nouvelle combinaison de touches… (Échap pour annuler)",
+    "conflict": "{{keys}} est déjà utilisé par « {{command}} ».",
+    "reassign": "Réattribuer",
+    "reserved": "{{keys}} a une fonction fixe et ne peut pas être attribué.",
+    "defaultLabel": "Par défaut : {{keys}}",
+    "customize": "Personnaliser…",
+    "fixedGroup": "Touches fixes",
+    "applyHint": "Les modifications s’appliquent quand vous cliquez sur Enregistrer.",
+    "categories": {
+      "file": "Fichier",
+      "edit": "Édition",
+      "view": "Affichage",
+      "search": "Rechercher",
+      "tools": "Outils",
+      "drafting": "Aides au dessin",
+      "panels": "Panneaux",
+      "review": "Révision",
+      "help": "Aide",
+      "extensions": "Extensions",
+      "ribbon": "Ruban : {{tab}}",
+      "other": "Autres"
+    },
+    "commands": {
+      "findNext": "Rechercher le suivant"
+    }
   }
 }

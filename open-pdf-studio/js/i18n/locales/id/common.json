@@ -34,6 +34,10 @@
   "draw": "Gambar",
   "saved": "Tersimpan",
   "documentChangedDuringSave": "Dokumen berubah saat disimpan. Simpan lagi.",
+  "savingPdf": "Menyimpan PDF…",
+  "saveCancelling": "Membatalkan penyimpanan…",
+  "saveCancelled": "Penyimpanan dibatalkan. File tidak diubah.",
+  "saveCancelTooLate": "File sudah tersimpan; sudah terlambat untuk membatalkan.",
   "documentChangedDuringExport": "Dokumen berubah selama ekspor. Mulai lagi.",
   "rasterExportProgress": "Merasterisasi halaman: {{done}} dari {{total}}",
   "search": "Cari",
@@ -249,6 +253,10 @@
     "closeTab": "Tutup tab",
     "nextTab": "Tab Berikutnya",
     "previousTab": "Tab Sebelumnya"
+  },
+  "pageNav": {
+    "nextPage": "Halaman Berikutnya",
+    "previousPage": "Halaman Sebelumnya"
   },
   "quickAccess": {
     "exportRaster": "Ekspor sebagai PDF raster (terbuka di tab baru)"

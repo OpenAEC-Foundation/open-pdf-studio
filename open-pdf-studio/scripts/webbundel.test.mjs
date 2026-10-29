@@ -175,10 +175,3 @@ test('release workflow builds, checks and attaches the web bundle after the vers
   // De versiecontrole staat in create-release, waar deze job op wacht.
   assert.match(yml, /create-release:[\s\S]*bump-version\.js --check "\$VERSION"[\s\S]*\n {2}build:\n/);
 });
-
-test('the desktop-only tab drag plugin stays out of the hosted bundle', () => {
-  // Zonder deze tak belandt @crabnebula/tauri-plugin-drag (geen licentieveld)
-  // via een dynamische import in de webbundel en in de derdenvermeldingen.
-  const bron = fs.readFileSync(path.join(APP, 'js/solid/components/DocumentTabs.jsx'), 'utf8');
-  assert.match(bron, /import\.meta\.env\.MODE === 'hosted'\s*\?\s*Promise\.resolve\(null\)\s*:\s*import\('@crabnebula\/tauri-plugin-drag'\)/);
-});

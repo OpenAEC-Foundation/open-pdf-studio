@@ -363,7 +363,8 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         fillColor: prefs.textboxFillNone ? 'none' : prefs.textboxFillColor,
         textColor: '#000000',
         fontSize: prefs.textboxFontSize,
-        fontFamily: 'Arial',
+        // Het lettertype uit de standaardstijl (#765); eerder altijd Arial.
+        fontFamily: prefs.textboxFontFamily || 'Arial',
         lineWidth: prefs.textboxBorderWidth,
         borderStyle: prefs.textboxBorderStyle,
         opacity: (prefs.textboxOpacity || 100) / 100
@@ -395,7 +396,8 @@ export function buildAnnotationProps(tool, startX, startY, endX, endY, e) {
         fillColor: prefs.calloutFillNone ? 'none' : prefs.calloutFillColor,
         textColor: '#000000',
         fontSize: prefs.calloutFontSize,
-        fontFamily: 'Arial',
+        // Het lettertype uit de standaardstijl (#765); eerder altijd Arial.
+        fontFamily: prefs.calloutFontFamily || 'Arial',
         lineWidth: prefs.calloutBorderWidth,
         borderStyle: prefs.calloutBorderStyle,
         opacity: (prefs.calloutOpacity || 100) / 100

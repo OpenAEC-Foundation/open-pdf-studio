@@ -328,7 +328,9 @@
     "scanText": "Taranmış Metni Düzenle",
     "scanTextHint": "Değiştirmek için tanınan bir kelimeye tıklayın. Taramadaki eski kelime örtülür.",
     "scanTextNone": "Bu sayfada tanınan metin yok. Önce Metin Tanıma (OCR) çalıştırın.",
-    "shiftPage": "Sayfayı kaydır"
+    "shiftPage": "Sayfayı kaydır",
+    "editPages": "Sayfaları Düzenle",
+    "editPagesTitle": "Sayfaları görsel olarak düzenleyin: sıralayın, döndürün, ekleyin, silin, ayıklayın ve bölün"
   },
   "help": {
     "settings": "Ayarlar",
@@ -657,7 +659,9 @@
     "vectorSnippetPasteTitle": "Kesilen alanı vektör verilerini koruyarak buraya yapıştırın",
     "symbolScale": "Ölçek",
     "symbolScaleTitle": "Yeni bir sembolün yerleştirildiği boyut",
-    "symbolScaleCustom": "Özel ölçek"
+    "symbolScaleCustom": "Özel ölçek",
+    "count": "Sayma",
+    "arc": "Yay"
   },
   "proofread": {
     "group": "Düzelti",
@@ -678,6 +682,7 @@
     "saveNote": "Notlar ve sayfada görünümü olmayan diğer işaretlemeler işaretleme olarak kalır. Dosya yalnızca kaydettiğinizde değişir; o zamana kadar Geri Al bu adımı geri alır.",
     "ok": "Düzleştir",
     "busy": "İşaretlemeler düzleştiriliyor...",
+    "cancelled": "Düzleştirme iptal edildi. Belge değiştirilmedi.",
     "nothing": "Bu belgede düzleştirilecek işaretleme yok.",
     "nothingBaked": "İşaretlemelerin hiçbirinin sayfada görünümü yok, bu yüzden hiçbir şey düzleştirilmedi.",
     "notLoaded": "Bu belgenin işaretlemeleri hâlâ yükleniyor. Birazdan yeniden deneyin.",

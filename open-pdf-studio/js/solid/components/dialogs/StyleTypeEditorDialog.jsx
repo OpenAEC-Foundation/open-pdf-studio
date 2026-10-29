@@ -3,7 +3,7 @@ import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { state } from '../../../core/state.js';
 import { savePreferences } from '../../../core/preferences.js';
-import { styleTypesFor, STYLE_TYPES } from '../../../annotations/style-types.js';
+import { styleTypesFor, styleTypeLabel, STYLE_TYPES } from '../../../annotations/style-types.js';
 import { PreviewSwatch } from '../properties-panel/DimensionTypeSection.jsx';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { leesGetalBegin } from '../../../core/getal-invoer.js';
@@ -23,6 +23,7 @@ const KIND_TITLE_KEYS = {
 
 export default function StyleTypeEditorDialog(props) {
   const { t } = useTranslation('dialogs');
+  const { t: tProps } = useTranslation('properties');
   const annType = props.data?.annType || 'line';
   const [version, setVersion] = createSignal(0); // bump to refresh list
 
@@ -139,7 +140,7 @@ export default function StyleTypeEditorDialog(props) {
           {(d) => (
             <div class="ste-row" style={`grid-template-columns:${gridCols}`}>
               <PreviewSwatch annType={annType} entry={d} />
-              <input type="text" class="ste-field" value={d.label}
+              <input type="text" class="ste-field" value={styleTypeLabel(d, tProps)}
                 onChange={(e) => writeEntry(d.id, { label: e.target.value })} />
               <input type="color" class="ste-color" value={(d.color || '#000000').slice(0, 7)} title={t('styleType.color')}
                 onChange={(e) => {

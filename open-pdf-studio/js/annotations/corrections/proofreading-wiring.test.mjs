@@ -28,7 +28,7 @@ test('both render paths draw the cursor and selection of the mode', () => {
 test('the tool is registered, F2 is caught before every other key handler, and the ribbon has the button', () => {
   assert.match(bron('../../tools/tools/index.js'), /registerTool\(PROOFREAD_TOOL, proofreadTool\)/);
   const k = bron('../../tools/keyboard-handlers.js');
-  assert.match(k, /import \{ installProofreadingKeys \} from '\.\/proofreading-mode\.js'/);
+  assert.match(k, /import \{[^}]*\binstallProofreadingKeys\b[^}]*\} from '\.\/proofreading-mode\.js'/);
   const init = k.slice(k.indexOf('export function initKeyboardHandlers'));
   assert.ok(init.indexOf('installProofreadingKeys()') >= 0, 'installed');
   assert.ok(init.indexOf('installProofreadingKeys()') < init.indexOf("window.addEventListener('keydown', handleTabSneltoets, true)"), 'before the other handlers');

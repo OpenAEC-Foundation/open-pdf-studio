@@ -328,7 +328,9 @@
     "scanText": "Edit Teks Pindaian",
     "scanTextHint": "Klik kata yang dikenali untuk menggantinya. Kata lama pada pindaian akan ditutupi.",
     "scanTextNone": "Tidak ada teks yang dikenali di halaman ini. Jalankan Pengenalan Teks (OCR) terlebih dahulu.",
-    "shiftPage": "Geser halaman"
+    "shiftPage": "Geser halaman",
+    "editPages": "Edit Halaman",
+    "editPagesTitle": "Edit halaman secara visual: susun ulang, putar, sisipkan, hapus, ekstrak, dan pisahkan"
   },
   "help": {
     "settings": "Pengaturan",
@@ -657,7 +659,9 @@
     "vectorSnippetPasteTitle": "Tempel area yang dipotong di sini, dengan mempertahankan data vektor",
     "symbolScale": "Skala",
     "symbolScaleTitle": "Ukuran penempatan simbol baru",
-    "symbolScaleCustom": "Skala kustom"
+    "symbolScaleCustom": "Skala kustom",
+    "count": "Hitung",
+    "arc": "Busur"
   },
   "proofread": {
     "group": "Koreksi",
@@ -678,6 +682,7 @@
     "saveNote": "Catatan dan markup lain tanpa tampilan di halaman tetap menjadi markup. File baru berubah saat Anda menyimpan; sampai saat itu Urungkan membatalkan langkah ini.",
     "ok": "Ratakan",
     "busy": "Meratakan markup...",
+    "cancelled": "Perataan dibatalkan. Dokumen tidak diubah.",
     "nothing": "Dokumen ini tidak memiliki markup untuk diratakan.",
     "nothingBaked": "Tidak ada markup yang memiliki tampilan di halaman, jadi tidak ada yang diratakan.",
     "notLoaded": "Markup dokumen ini masih dimuat. Coba lagi sebentar lagi.",

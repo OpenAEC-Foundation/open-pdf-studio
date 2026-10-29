@@ -183,6 +183,10 @@
     "documentAndMarkups": "Dokument og markeringer",
     "document": "Dokument",
     "printAsImage": "Udskriv som billede",
+    "colorMode": "Farvetilstand:",
+    "colorModeColor": "Farve",
+    "colorModeGrayscale": "Gråtoner",
+    "colorModeBlackWhite": "Sort-hvid",
     "pagesToPrint": "side(r) at udskrive",
     "noPrinterSelected": "Ingen printer valgt.",
     "noPagesToPrint": "Ingen sider at udskrive.",
@@ -1605,5 +1609,30 @@
       "supersede": "Erstattet",
       "expire": "Udløbet"
     }
+  },
+  "pageOrganizer": {
+    "title": "Rediger sider",
+    "hint": "Træk sider for at flytte dem; slip en PDF-fil for at indsætte dens sider. Ctrl+klik, Skift+klik eller afkrydsningsfelterne vælger flere sider. Intet ændres før Anvend.",
+    "moveLeft": "Flyt til venstre",
+    "moveRight": "Flyt til højre",
+    "moveToStart": "Flyt til start",
+    "moveToEnd": "Flyt til slut",
+    "selection": "{{selected}} af {{total}} sider valgt",
+    "rotateLeft": "Roter til venstre",
+    "rotateRight": "Roter til højre",
+    "split": "Opdel",
+    "splitTitle": "Sæt opdelingsmærker omkring de valgte sider: hver serie bliver en separat fil",
+    "splitHere": "Opdel her (sæt eller fjern et opdelingsmærke)",
+    "extractTitle": "Udtræk de valgte sider til en ny fil",
+    "blankPage": "Tom side",
+    "pagesFromFile": "Sider fra fil…",
+    "insertHere": "Indsæt sider her",
+    "select": "Vælg side",
+    "zoom": "Zoom",
+    "parts": "Opdeles i {{count}} filer ved Anvend",
+    "chooseFolder": "Vælg mappen til de opdelte filer",
+    "fileFailed": "{{name}} kunne ikke læses: {{error}}",
+    "applyFailed": "Sideredigeringerne kunne ikke anvendes: {{error}}",
+    "extractFailed": "Siderne kunne ikke udtrækkes: {{error}}"
   }
 }

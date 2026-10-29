@@ -34,6 +34,10 @@
   "draw": "आरेखित करें",
   "saved": "सहेजा गया",
   "documentChangedDuringSave": "सहेजते समय दस्तावेज़ बदल गया। फिर से सहेजें।",
+  "savingPdf": "PDF सहेजी जा रही है…",
+  "saveCancelling": "सहेजना रद्द किया जा रहा है…",
+  "saveCancelled": "सहेजना रद्द किया गया। फ़ाइल नहीं बदली।",
+  "saveCancelTooLate": "फ़ाइल पहले ही सहेजी जा चुकी थी; रद्द करने में बहुत देर हो चुकी थी।",
   "documentChangedDuringExport": "निर्यात के दौरान दस्तावेज़ बदल गया। फिर से शुरू करें।",
   "rasterExportProgress": "पृष्ठों को रास्टर किया जा रहा है: {{total}} में से {{done}}",
   "search": "खोजें",
@@ -249,6 +253,10 @@
     "closeTab": "टैब बंद करें",
     "nextTab": "अगला टैब",
     "previousTab": "पिछला टैब"
+  },
+  "pageNav": {
+    "nextPage": "अगला पृष्ठ",
+    "previousPage": "पिछला पृष्ठ"
   },
   "quickAccess": {
     "exportRaster": "रास्टर PDF के रूप में निर्यात करें (नए टैब में खुलता है)"

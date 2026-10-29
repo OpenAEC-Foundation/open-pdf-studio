@@ -44,11 +44,34 @@ const PEN_TYPES = [
     props: { lineWidth: Math.round(0.25 * MM_TO_PT * 100) / 100, color: '#000000', strokeColor: '#000000', borderStyle: 'dashed' } },
 ];
 
+// Translatable type names live in the 'properties' namespace under
+// styleTypeNames.filledArea.<id>. `label` stays the Dutch source name and is
+// the fallback when a key is absent (and what a user rename overrides).
+export const STYLE_TYPE_LABEL_PREFIX = 'styleTypeNames.filledArea.';
+
+// Generic (non-NEN47, non-material-variant) imported hatches whose names are
+// translated per locale. The NEN 47 entries and the Dutch material variants
+// keep their Dutch standard names.
+export const TRANSLATED_INB_HATCH_IDS = new Set([
+  'inb-sloop', 'inb-staal',
+  'inb-diagonaal-smal', 'inb-diagonaal-midden', 'inb-diagonaal-breed',
+  'inb-raster-fijn', 'inb-raster-midden', 'inb-raster-grof',
+  'inb-raster-liggend-1', 'inb-raster-liggend-2', 'inb-raster-liggend-3',
+  'inb-raster-staand-1', 'inb-raster-staand-2', 'inb-raster-staand-3',
+  'inb-tegels-fijn', 'inb-tegels-midden', 'inb-tegels-grof',
+  'inb-planken-fijn', 'inb-planken-midden', 'inb-planken-grof',
+  'inb-kruis-fijn', 'inb-kruis-midden', 'inb-kruis-grof',
+  'inb-baksteen', 'inb-grond', 'inb-glas', 'inb-vloeistof', 'inb-gras',
+  'inb-honingraat', 'inb-hout', 'inb-zand', 'inb-beton',
+  'inb-verticaal-smal', 'inb-verticaal-breed', 'inb-horizontaal-breed',
+]);
+
 // NL material hatches for filled areas.
 function hatch(id, label, color, pattern, extra = {}) {
   return {
     id,
     label,
+    labelKey: STYLE_TYPE_LABEL_PREFIX + id,
     color,
     props: {
       hatchPattern: pattern,
@@ -118,22 +141,24 @@ const INB_HATCH_DEFS = [
   ['inb-verticaal-breed',    'Verticaal breed',             'vertical',         '#000000', 142, '#FFFFFF'],
   ['inb-horizontaal-breed',  'Horizontaal breed',           'horizontal',       '#000000', 142, '#FFFFFF'],
   // -- NEN 47 material hatches (line work only) --
-  ['inb-nen47-01-metselwerk-baksteen',  'NEN47-1 Metselwerk baksteen',          'nen47-metselwerk-baksteen',     '#000000', 213, '#CD7C61'],
+  // No background tint here: the coloured twins follow in the next block
+  // (they used to carry the same tint, which made both lists identical).
+  ['inb-nen47-01-metselwerk-baksteen',  'NEN47-1 Metselwerk baksteen',          'nen47-metselwerk-baksteen',     '#000000', 213],
   ['inb-nen47-02-steenachtig',          'NEN47-2 Speciale steenachtige mat.',   'nen47-speciale-steenachtige',   '#000000', 142],
-  ['inb-nen47-03-kunststeen',           'NEN47-3 Metselwerk kunststeen',        'nen47-metselwerk-kunststeen',   '#000000', 106, '#C0C0C0'],
-  ['inb-nen47-04-scheidingswand',       'NEN47-4 Lichte scheidingswand',        'lijnen-groep-verticaal',        '#000000', 142, '#C0C0C0'],
+  ['inb-nen47-03-kunststeen',           'NEN47-3 Metselwerk kunststeen',        'nen47-metselwerk-kunststeen',   '#000000', 106],
+  ['inb-nen47-04-scheidingswand',       'NEN47-4 Lichte scheidingswand',        'lijnen-groep-verticaal',        '#000000', 142],
   ['inb-nen47-05-gewapend-beton',       'NEN47-5 Gewapend beton (t.p.g.)',      'nen47-gewapend-beton',          '#000000', 100, '#C0C0C0'],
-  ['inb-nen47-06-beton-prefab',         'NEN47-6 Gewapend beton prefab',        'nen47-beton-prefab',            '#000000', 106, '#C0C0C0'],
-  ['inb-nen47-07-ongewapend-beton',     'NEN47-7 Ongewapend beton',             'nen47-ongewapend-beton',        '#000000', 213, '#808080'],
+  ['inb-nen47-06-beton-prefab',         'NEN47-6 Gewapend beton prefab',        'nen47-beton-prefab',            '#000000', 106],
+  ['inb-nen47-07-ongewapend-beton',     'NEN47-7 Ongewapend beton',             'nen47-ongewapend-beton',        '#000000', 213],
   ['inb-nen47-08-sierbeton',            'NEN47-8 Sierbeton',                    'nen47-sierbeton',               '#000000', 213],
-  ['inb-nen47-09-natuursteen',          'NEN47-9 Natuursteen',                  'nen47-natuursteen',             '#FFFFFF', 106, '#403E48'],
+  ['inb-nen47-09-natuursteen',          'NEN47-9 Natuursteen',                  'nen47-natuursteen',             '#000000', 106],
   ['inb-nen47-10-enkele-afwerking',     'NEN47-10 Enkele wand-/vloerafwerking', 'nen47-enkele-afwerking',        '#000000', 213],
   ['inb-nen47-11-samengestelde-afwerking', 'NEN47-11 Samengestelde afwerking',  'nen47-samengestelde-afwerking', '#000000', 213],
-  ['inb-nen47-12-naaldhout',            'NEN47-12 Naaldhout',                   'nen47-naaldhout',               '#000000', 53, '#E6BE9B'],
-  ['inb-nen47-13-loofhout',             'NEN47-13 Loofhout',                    'nen47-loofhout',                '#000000', 80, '#D2AF87'],
-  ['inb-nen47-14-hout-langs',           'NEN47-14 Hout langsarcering',          'nen47-hout-langs',              '#000000', 106, '#E6BE9B'],
-  ['inb-nen47-16-bekledingsplaat',      'NEN47-16 Bekledingsplaat',             'nen47-bekledingsplaat',         '#000000', 106, '#C0C0C0'],
-  ['inb-nen47-17-isolatie',             'NEN47-17 Isolatie',                    'crosshatch',                    '#000000', 25, '#FFF0A0'],
+  ['inb-nen47-12-naaldhout',            'NEN47-12 Naaldhout',                   'nen47-naaldhout',               '#000000', 53],
+  ['inb-nen47-13-loofhout',             'NEN47-13 Loofhout',                    'nen47-loofhout',                '#000000', 80],
+  ['inb-nen47-14-hout-langs',           'NEN47-14 Hout langsarcering',          'nen47-hout-langs',              '#000000', 106],
+  ['inb-nen47-16-bekledingsplaat',      'NEN47-16 Bekledingsplaat',             'nen47-bekledingsplaat',         '#000000', 106],
+  ['inb-nen47-17-isolatie',             'NEN47-17 Isolatie',                    'crosshatch',                    '#000000', 25],
   ['inb-nen47-18-staal',                'NEN47-18 Staal',                       'nen47-staal',                   '#000000', 100],
   ['inb-nen47-19-aluminium',            'NEN47-19 Aluminium/brons/koper',       'nen47-aluminium',               '#000000', 100, '#C0C0C0'],
   ['inb-nen47-20-lood',                 'NEN47-20 Lood',                        'lood-blokken',                  '#000000', 142],
@@ -141,11 +166,11 @@ const INB_HATCH_DEFS = [
   ['inb-nen47-22-kunststof',            'NEN47-22 Kunststof',                   'nen47-kunststof',               '#000000', 106],
   ['inb-nen47-23-afdichtingsmiddel',    'NEN47-23 Afdichtingsmiddel',           'nen47-afdichtingsmiddel',       '#000000', 180],
   ['inb-nen47-24-bitumen',              'NEN47-24 Bitumen',                     'solid',                         '#000000', 100],
-  ['inb-nen47-25-maaiveld',             'NEN47-25 Maaiveld',                    'nen47-maaiveld',                '#000000', 75, '#DFE6D0'],
-  ['inb-nen47-26-zand',                 'NEN47-26 Zand',                        'sand',                          '#000000', 280, '#C9B89C'],
+  ['inb-nen47-25-maaiveld',             'NEN47-25 Maaiveld',                    'nen47-maaiveld',                '#000000', 75],
+  ['inb-nen47-26-zand',                 'NEN47-26 Zand',                        'sand',                          '#000000', 280],
   ['inb-nen47-27-grind',                'NEN47-27 Grind',                       'gravel',                        '#000000', 300],
-  ['inb-nen47-28-water',                'NEN47-28 Water',                       'water',                         '#000000', 95, '#CDE6ED'],
-  ['inb-nen47-29-glas',                 'NEN47-29 Glas',                        'glas-doorsnede',                '#000000', 142, '#ECF0EF'],
+  ['inb-nen47-28-water',                'NEN47-28 Water',                       'water',                         '#000000', 95],
+  ['inb-nen47-29-glas',                 'NEN47-29 Glas',                        'glas-doorsnede',                '#000000', 142],
   // -- NEN 47 hatches with material background colour --
   ['inb-nen47-01-baksteen-gekleurd',    'NEN47-1 Metselwerk baksteen (kleur)',  'nen47-metselwerk-baksteen',     '#000000', 213, '#CD7C61'],
   ['inb-nen47-03-kunststeen-gekleurd',  'NEN47-3 Metselwerk kunststeen (kleur)','nen47-metselwerk-kunststeen',   '#000000', 106, '#C0C0C0'],
@@ -218,6 +243,7 @@ const INB_HATCH_DEFS = [
 const INB_HATCH_TYPES = INB_HATCH_DEFS.map(([id, label, pattern, lineColor, scale, bg]) => ({
   id,
   label,
+  ...(TRANSLATED_INB_HATCH_IDS.has(id) ? { labelKey: STYLE_TYPE_LABEL_PREFIX + id } : {}),
   // Swatch colour next to the selector: background tint when present,
   // otherwise the line colour.
   color: bg || lineColor,
@@ -257,6 +283,8 @@ function _mergeEntry(base, ov) {
   return {
     ...base,
     label: ov.label ?? base.label,
+    // A user rename wins over the translated built-in name.
+    labelKey: ov.label != null ? undefined : base.labelKey,
     color: ov.color ?? base.color,
     props: { ...base.props, ...(ov.props || {}) },
   };
@@ -282,4 +310,16 @@ export function styleTypeProps(annType, typeId) {
   const entry = list && list.find(e => e.id === typeId);
   if (!entry) return null;
   return { ...entry.props, styleType: typeId };
+}
+
+// Display name of a style-type entry: the translated name when the entry has a
+// labelKey that resolves (i18next returns the key itself when it is missing),
+// otherwise its literal label.
+export function styleTypeLabel(entry, t) {
+  if (!entry) return '';
+  if (entry.labelKey && typeof t === 'function') {
+    const v = t(entry.labelKey);
+    if (v && v !== entry.labelKey) return v;
+  }
+  return entry.label || entry.id || '';
 }

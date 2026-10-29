@@ -183,6 +183,10 @@
     "documentAndMarkups": "Document en markeringen",
     "document": "Document",
     "printAsImage": "Afdrukken als afbeelding",
+    "colorMode": "Kleurmodus:",
+    "colorModeColor": "Kleur",
+    "colorModeGrayscale": "Grijswaarden",
+    "colorModeBlackWhite": "Zwart-wit",
     "pagesToPrint": "pagina('s) om af te drukken",
     "noPrinterSelected": "Geen printer geselecteerd.",
     "noPagesToPrint": "Geen pagina's om af te drukken.",
@@ -1605,5 +1609,30 @@
       "supersede": "Vervangen",
       "expire": "Verlopen"
     }
+  },
+  "pageOrganizer": {
+    "title": "Pagina's bewerken",
+    "hint": "Sleep pagina's om ze te verplaatsen; zet een PDF-bestand neer om de pagina's ervan in te voegen. Ctrl+klik, Shift+klik of de selectievakjes kiezen meer pagina's. Er verandert niets tot Toepassen.",
+    "moveLeft": "Naar links",
+    "moveRight": "Naar rechts",
+    "moveToStart": "Naar begin",
+    "moveToEnd": "Naar einde",
+    "selection": "{{selected}} van {{total}} pagina's geselecteerd",
+    "rotateLeft": "Linksom draaien",
+    "rotateRight": "Rechtsom draaien",
+    "split": "Splitsen",
+    "splitTitle": "Splitsmarkeringen rond de geselecteerde pagina's: elke reeks wordt een apart bestand",
+    "splitHere": "Hier splitsen (splitsmarkering plaatsen of weghalen)",
+    "extractTitle": "De geselecteerde pagina's naar een nieuw bestand uitnemen",
+    "blankPage": "Lege pagina",
+    "pagesFromFile": "Pagina's uit bestand…",
+    "insertHere": "Hier pagina's invoegen",
+    "select": "Pagina selecteren",
+    "zoom": "Zoomen",
+    "parts": "Bij Toepassen gesplitst in {{count}} bestanden",
+    "chooseFolder": "Kies de map voor de gesplitste bestanden",
+    "fileFailed": "{{name}} kon niet worden gelezen: {{error}}",
+    "applyFailed": "Het toepassen van de paginabewerkingen is mislukt: {{error}}",
+    "extractFailed": "Het uitnemen van de pagina's is mislukt: {{error}}"
   }
 }

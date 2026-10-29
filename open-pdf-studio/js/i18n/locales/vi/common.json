@@ -34,6 +34,10 @@
   "draw": "Vẽ",
   "saved": "Đã lưu",
   "documentChangedDuringSave": "Tài liệu đã thay đổi trong khi lưu. Hãy lưu lại.",
+  "savingPdf": "Đang lưu PDF…",
+  "saveCancelling": "Đang hủy lưu…",
+  "saveCancelled": "Đã hủy lưu. Tệp không bị thay đổi.",
+  "saveCancelTooLate": "Tệp đã được lưu xong; đã quá muộn để hủy.",
   "documentChangedDuringExport": "Tài liệu đã thay đổi trong khi xuất. Hãy bắt đầu lại.",
   "rasterExportProgress": "Đang raster hóa trang: {{done}} / {{total}}",
   "search": "Tìm kiếm",
@@ -249,6 +253,10 @@
     "closeTab": "Đóng thẻ",
     "nextTab": "Thẻ tiếp theo",
     "previousTab": "Thẻ trước"
+  },
+  "pageNav": {
+    "nextPage": "Trang tiếp",
+    "previousPage": "Trang trước"
   },
   "quickAccess": {
     "exportRaster": "Xuất thành PDF raster (mở trong thẻ mới)"

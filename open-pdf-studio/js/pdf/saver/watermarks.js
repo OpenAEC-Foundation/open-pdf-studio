@@ -31,7 +31,7 @@ async function saveHeaderFootersToPages(pdfDocLib, doc) {
 
 // Save watermarks into PDF pages. Geeft { kopVoet: ids } terug: de
 // kop-/voetteksten die nu als pagina-inhoud in het bestand staan.
-export async function saveWatermarksToPages(pdfDocLib, pages, doc = getActiveDocument()) {
+export async function saveWatermarksToPages(pdfDocLib, pages, doc = getActiveDocument(), { annulering = null } = {}) {
   const kopVoet = await saveHeaderFootersToPages(pdfDocLib, doc);
   const watermarks = (doc?.watermarks || []).filter(w => w?.type !== 'headerFooter');
   if (watermarks.length === 0) return { kopVoet };
@@ -105,6 +105,8 @@ export async function saveWatermarksToPages(pdfDocLib, pages, doc = getActiveDoc
   // then 'infront' watermarks (draw after content)
   for (const layer of ['behind', 'infront']) {
     for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+      // Veilig punt per pagina: een geannuleerde save stopt hier (#766).
+      if (annulering) await annulering.punt();
       const pageNum = pageIndex + 1;
       const page = pages[pageIndex];
       const { width: pw, height: ph } = page.getSize();

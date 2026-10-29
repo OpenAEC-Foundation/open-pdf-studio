@@ -48,6 +48,26 @@ export function bereikenPerAantal(totaal, n) {
 }
 
 /**
+ * Delen die de aanroeper zelf koos (de splitsmarkeringen van Pagina's
+ * bewerken, #764), gecontroleerd: gehele paginanummers binnen het document,
+ * start <= eind, oplopend en zonder overlap. Wat niet klopt valt weg.
+ * @param {{start:number, eind:number}[]} delen
+ */
+export function bereikenUitDelen(delen, totaal) {
+  const uit = [];
+  let vorige = 0;
+  for (const d of Array.isArray(delen) ? delen : []) {
+    const start = Number(d?.start);
+    const eind = Number(d?.eind);
+    if (!Number.isInteger(start) || !Number.isInteger(eind)) continue;
+    if (start < 1 || eind > totaal || start > eind || start <= vorige) continue;
+    uit.push({ start, eind });
+    vorige = eind;
+  }
+  return uit;
+}
+
+/**
  * De bladwijzers op het hoogste niveau (geen ouder, of een ouder die niet
  * bestaat), in de volgorde van het bladwijzerpaneel.
  * @param {{id:string, parentId?:string|null, sortOrder?:number, page:number, title:string}[]} bladwijzers

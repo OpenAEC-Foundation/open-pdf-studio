@@ -1,4 +1,4 @@
-import { layoutTextboxLines, textboxTekstInzet } from './textbox-layout.js';
+import { layoutTextboxLines, textboxTekstInzet, verticaleVerschuiving } from './textbox-layout.js';
 import { klemMaat, MIN_VORM_MAAT_PT } from '../minimummaat.js';
 // First strong-directional character decides the base direction of a text run,
 // mirroring CSS `dir="auto"` (which the free-text/callout editors use, issue #61).
@@ -370,6 +370,8 @@ export function drawTextboxContent(ctx, annotation, padding) {
   const measure = (t, bold, italic) => { ctx.font = fontFor(bold, italic); return ctx.measureText(t).width; };
   const baseFill = ctx.fillStyle;
   const lines = layoutTextboxLines(annotation, maxWidth, measure);
+  // Verticale uitlijning (boven, midden, onder) van het hele tekstblok.
+  y += verticaleVerschuiving(annotation.textVAlign, height - 2 * padding, lines.length * lineHeight);
 
   for (const ln of lines) {
     if (y >= annotation.y + height) break;

@@ -183,6 +183,10 @@
     "documentAndMarkups": "Documento y marcas",
     "document": "Documento",
     "printAsImage": "Imprimir como imagen",
+    "colorMode": "Modo de color:",
+    "colorModeColor": "En color",
+    "colorModeGrayscale": "Escala de grises",
+    "colorModeBlackWhite": "Blanco y negro",
     "pagesToPrint": "página(s) a imprimir",
     "noPrinterSelected": "No se seleccionó ninguna impresora.",
     "noPagesToPrint": "No hay páginas para imprimir.",
@@ -1605,5 +1609,30 @@
       "supersede": "Sustituida",
       "expire": "Caducada"
     }
+  },
+  "pageOrganizer": {
+    "title": "Editar páginas",
+    "hint": "Arrastre las páginas para moverlas; suelte un archivo PDF para insertar sus páginas. Ctrl+clic, Mayús+clic o las casillas seleccionan varias páginas. Nada cambia hasta Aplicar.",
+    "moveLeft": "Mover a la izquierda",
+    "moveRight": "Mover a la derecha",
+    "moveToStart": "Mover al principio",
+    "moveToEnd": "Mover al final",
+    "selection": "{{selected}} de {{total}} páginas seleccionadas",
+    "rotateLeft": "Girar a la izquierda",
+    "rotateRight": "Girar a la derecha",
+    "split": "Dividir",
+    "splitTitle": "Colocar marcas de división alrededor de las páginas seleccionadas: cada serie se convierte en un archivo aparte",
+    "splitHere": "Dividir aquí (colocar o quitar una marca de división)",
+    "extractTitle": "Extraer las páginas seleccionadas a un archivo nuevo",
+    "blankPage": "Página en blanco",
+    "pagesFromFile": "Páginas de un archivo…",
+    "insertHere": "Insertar páginas aquí",
+    "select": "Seleccionar página",
+    "zoom": "Zoom",
+    "parts": "Se dividirá en {{count}} archivos al aplicar",
+    "chooseFolder": "Elija la carpeta para los archivos divididos",
+    "fileFailed": "No se pudo leer {{name}}: {{error}}",
+    "applyFailed": "No se pudieron aplicar los cambios de páginas: {{error}}",
+    "extractFailed": "No se pudieron extraer las páginas: {{error}}"
   }
 }

@@ -232,6 +232,22 @@ function updateVisiblePriorities() {
   }
 }
 
+// The Edit Pages organizer (#764) shows only the tiles in view; the pages it
+// shows go first, the same way the visible thumbnails of the panel do.
+export function prioritizeThumbnails(pageNums) {
+  const activeDoc = getActiveDocument();
+  if (!activeDoc) return;
+  const docCache = thumbnailCache.get(activeDoc.id);
+  if (!docCache) return;
+  let added = false;
+  for (const p of pageNums || []) {
+    if (!Number.isInteger(p) || docCache.has(p)) continue;
+    priorityPages.add(p);
+    added = true;
+  }
+  if (added) startProcessor();
+}
+
 // Switch between tabs
 export function switchLeftPanelTab(panelId) {
   switchToLeftPanelTab(panelId);

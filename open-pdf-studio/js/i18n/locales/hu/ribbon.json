@@ -328,7 +328,9 @@
     "scanText": "Szkennelt szöveg szerkesztése",
     "scanTextHint": "Kattintson egy felismert szóra a cseréjéhez. A régi szó a szkennelt képen le lesz takarva.",
     "scanTextNone": "Ezen az oldalon nincs felismert szöveg. Először futtassa a Szövegfelismerés (OCR) funkciót.",
-    "shiftPage": "Oldal eltolása"
+    "shiftPage": "Oldal eltolása",
+    "editPages": "Oldalak szerkesztése",
+    "editPagesTitle": "Oldalak vizuális szerkesztése: átrendezés, forgatás, beszúrás, törlés, kibontás és felosztás"
   },
   "help": {
     "settings": "Beállítások",
@@ -657,7 +659,9 @@
     "vectorSnippetPasteTitle": "A kivágott terület beillesztése ide, a vektoradatok megőrzésével",
     "symbolScale": "Lépték",
     "symbolScaleTitle": "Az a méret, amelyben az új szimbólum elhelyezésre kerül",
-    "symbolScaleCustom": "Egyéni lépték"
+    "symbolScaleCustom": "Egyéni lépték",
+    "count": "Számlálás",
+    "arc": "Ív"
   },
   "proofread": {
     "group": "Korrektúra",
@@ -678,6 +682,7 @@
     "saveNote": "A jegyzetek és más, az oldalon megjelenés nélküli jelölések jelölések maradnak. A fájl csak mentéskor változik; addig a Visszavonás visszaállítja ezt a lépést.",
     "ok": "Lapítás",
     "busy": "Jelölések lapítása...",
+    "cancelled": "Az egyesítés megszakítva. A dokumentum nem változott.",
     "nothing": "Ebben a dokumentumban nincs lapítható jelölés.",
     "nothingBaked": "Egyik jelölésnek sincs megjelenése az oldalon, így semmi sem lett lapítva.",
     "notLoaded": "A dokumentum jelölései még töltődnek. Próbálja újra egy pillanat múlva.",

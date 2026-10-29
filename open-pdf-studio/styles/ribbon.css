@@ -633,10 +633,18 @@
 
 /* Themed dropdown list: WebView2/Chromium render the popup with the OS
    default unless the option colours are set explicitly, which looked wrong
-   (light popup) on dark themes. */
-.ribbon-form-select option {
-  background: var(--theme-ribbon-input-bg);
+   (light popup) on dark themes. De optie-achtergrond moet dekkend zijn: in
+   het standaardthema is --theme-ribbon-input-bg bijna doorzichtig, en dan
+   kwam de lichte tekst op de witte ondergrond van de lijst (#825). */
+.ribbon-form-select option,
+.ribbon-form-select optgroup {
+  background-color: var(--theme-ribbon-content-bg);
   color: var(--theme-ribbon-input-text);
+}
+
+/* Donkere thema's: ook de lijst zelf (schuifbalk, rand) donker. */
+[data-theme]:not([data-theme="light"]) .ribbon-form-select {
+  color-scheme: dark;
 }
 
 .ribbon-form-select-sm {
@@ -1617,4 +1625,24 @@
 .ribbon-ext-content .ribbon-form-select:focus-visible {
   outline: 1px solid var(--theme-ribbon-tab-active-border);
   outline-offset: -1px;
+}
+
+/* Object-snap-modi in de lintgroep 'Snap': meesterschakelaar boven,
+   daaronder twee kolommen met de vinkjes — compact genoeg voor één groep. */
+.ribbon-snap-options {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 1px 10px;
+  align-content: center;
+  align-self: center;
+  height: 100%;
+  padding: 2px 0;
+}
+.ribbon-snap-options .snap-master {
+  grid-column: 1 / -1;
+  font-weight: 600;
+}
+.ribbon-checkbox-option input[type="checkbox"]:disabled {
+  opacity: 0.45;
+  cursor: default;
 }

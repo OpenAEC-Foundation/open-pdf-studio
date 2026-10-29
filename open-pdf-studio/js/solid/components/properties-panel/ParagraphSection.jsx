@@ -42,6 +42,36 @@ export default function ParagraphSection() {
         </div>
 
         <div class="property-group">
+          <label>{t('paragraph.verticalAlignment')}</label>
+          <div class="text-align-buttons">
+            <button type="button"
+              class={`text-align-btn${annotProps.textVAlign === 'top' ? ' active' : ''}`}
+              title={t('paragraph.alignTop')} disabled={isLocked()}
+              onClick={() => updateAnnotProp('textVAlign', 'top')}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 4h18M7 8h10M7 12h10"/>
+              </svg>
+            </button>
+            <button type="button"
+              class={`text-align-btn${annotProps.textVAlign === 'middle' ? ' active' : ''}`}
+              title={t('paragraph.alignMiddle')} disabled={isLocked()}
+              onClick={() => updateAnnotProp('textVAlign', 'middle')}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12h18M7 8h10M7 16h10"/>
+              </svg>
+            </button>
+            <button type="button"
+              class={`text-align-btn${annotProps.textVAlign === 'bottom' ? ' active' : ''}`}
+              title={t('paragraph.alignBottom')} disabled={isLocked()}
+              onClick={() => updateAnnotProp('textVAlign', 'bottom')}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 20h18M7 16h10M7 12h10"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="property-group">
           <label>{t('paragraph.lineSpacing')}</label>
           <PrefComboBox
             value={() => annotProps.lineSpacing}

@@ -9,7 +9,8 @@
     "behavior": "Perilaku",
     "fileAssociation": "Asosiasi File",
     "virtualPrinter": "Printer Virtual",
-    "pageDisplay": "Tampilan Halaman"
+    "pageDisplay": "Tampilan Halaman",
+    "keyboardShortcuts": "Pintasan keyboard"
   },
   "resetToDefaults": "Atur Ulang ke Bawaan",
   "resetConfirm": "Atur ulang semua preferensi ke nilai bawaan?",
@@ -167,6 +168,7 @@
     "snapToPdfContent": "Snap ke Konten Gambar PDF",
     "navigation": "Navigasi",
     "wheelZoomWithoutCtrl": "Zoom dengan roda mouse (tanpa menahan Ctrl)",
+    "middleDoubleClickFit": "Klik dua kali tombol tengah mouse untuk menyesuaikan halaman",
     "dynamicScaling": "Skalakan markup otomatis"
   },
   "fileAssoc": {
@@ -291,5 +293,51 @@
     "openArrowReversed": "Panah Terbuka (terbalik)",
     "closedArrowReversed": "Panah Tertutup (terbalik)",
     "slash": "Garis Miring"
+  },
+  "keyboardShortcuts": {
+    "title": "Pintasan keyboard",
+    "search": "Cari menurut perintah atau tombol",
+    "command": "Perintah",
+    "shortcuts": "Pintasan",
+    "none": "Tidak ada",
+    "noMatches": "Tidak ada perintah yang cocok dengan pencarian.",
+    "selectHint": "Pilih perintah untuk mengubah pintasannya.",
+    "addShortcut": "Tambah pintasan",
+    "remove": "Hapus pintasan",
+    "resetCommand": "Kembalikan ke default",
+    "resetAll": "Kembalikan semua",
+    "resetAllConfirm": "Kembalikan semua pintasan keyboard ke default?",
+    "import": "Impor…",
+    "export": "Ekspor…",
+    "fileType": "Pintasan keyboard",
+    "imported": "Pintasan diimpor. Klik Simpan untuk menerapkannya.",
+    "importFailed": "Ini bukan file pintasan keyboard yang valid.",
+    "exported": "Pintasan diekspor.",
+    "exportFailed": "Gagal mengekspor pintasan:",
+    "recording": "Tekan kombinasi tombol baru… (Esc membatalkan)",
+    "conflict": "{{keys}} sudah dipakai oleh “{{command}}”.",
+    "reassign": "Tetapkan ulang",
+    "reserved": "{{keys}} memiliki arti tetap dan tidak dapat ditetapkan.",
+    "defaultLabel": "Bawaan: {{keys}}",
+    "customize": "Sesuaikan…",
+    "fixedGroup": "Tombol tetap",
+    "applyHint": "Perubahan berlaku setelah Anda mengklik Simpan.",
+    "categories": {
+      "file": "Berkas",
+      "edit": "Sunting",
+      "view": "Tampilan",
+      "search": "Cari",
+      "tools": "Alat",
+      "drafting": "Bantuan menggambar",
+      "panels": "Panel",
+      "review": "Tinjau",
+      "help": "Bantuan",
+      "extensions": "Ekstensi",
+      "ribbon": "Pita: {{tab}}",
+      "other": "Lainnya"
+    },
+    "commands": {
+      "findNext": "Cari berikutnya"
+    }
   }
 }

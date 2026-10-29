@@ -34,6 +34,10 @@
   "draw": "ترسیم",
   "saved": "ذخیره شد",
   "documentChangedDuringSave": "سند در حین ذخیره تغییر کرد. دوباره ذخیره کنید.",
+  "savingPdf": "در حال ذخیرهٔ PDF…",
+  "saveCancelling": "در حال لغو ذخیره…",
+  "saveCancelled": "ذخیره لغو شد. فایل تغییری نکرد.",
+  "saveCancelTooLate": "فایل پیش‌تر ذخیره شده بود؛ برای لغو دیر بود.",
   "documentChangedDuringExport": "سند در حین صدور تغییر کرد. دوباره شروع کنید.",
   "rasterExportProgress": "شطرنجی‌سازی صفحه‌ها: {{done}} از {{total}}",
   "search": "جستجو",
@@ -249,6 +253,10 @@
     "closeTab": "بستن زبانه",
     "nextTab": "زبانه بعدی",
     "previousTab": "زبانه قبلی"
+  },
+  "pageNav": {
+    "nextPage": "صفحه بعدی",
+    "previousPage": "صفحه قبلی"
   },
   "quickAccess": {
     "exportRaster": "صدور به‌صورت PDF رستری (در زبانه جدید باز می‌شود)"

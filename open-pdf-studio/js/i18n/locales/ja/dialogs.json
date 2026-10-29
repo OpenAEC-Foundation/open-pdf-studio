@@ -183,6 +183,10 @@
     "documentAndMarkups": "ドキュメントと注釈",
     "document": "ドキュメント",
     "printAsImage": "画像として印刷",
+    "colorMode": "カラーモード：",
+    "colorModeColor": "カラー",
+    "colorModeGrayscale": "グレースケール",
+    "colorModeBlackWhite": "白黒",
     "pagesToPrint": "ページを印刷",
     "noPrinterSelected": "プリンターが選択されていません。",
     "noPagesToPrint": "印刷するページがありません。",
@@ -1605,5 +1609,30 @@
       "supersede": "置き換え",
       "expire": "期限切れ"
     }
+  },
+  "pageOrganizer": {
+    "title": "ページの編集",
+    "hint": "ページをドラッグして移動します。PDF ファイルをドロップするとそのページを挿入します。Ctrl+クリック、Shift+クリック、またはチェックボックスで複数ページを選択します。「適用」するまで何も変更されません。",
+    "moveLeft": "左へ移動",
+    "moveRight": "右へ移動",
+    "moveToStart": "先頭へ移動",
+    "moveToEnd": "末尾へ移動",
+    "selection": "{{total}} ページ中 {{selected}} ページを選択",
+    "rotateLeft": "左に回転",
+    "rotateRight": "右に回転",
+    "split": "分割",
+    "splitTitle": "選択したページの前後に分割マークを置きます: 各範囲が別のファイルになります",
+    "splitHere": "ここで分割 (分割マークの配置/解除)",
+    "extractTitle": "選択したページを新しいファイルに抽出",
+    "blankPage": "空白ページ",
+    "pagesFromFile": "ファイルからページ…",
+    "insertHere": "ここにページを挿入",
+    "select": "ページを選択",
+    "zoom": "ズーム",
+    "parts": "適用時に {{count}} 個のファイルに分割",
+    "chooseFolder": "分割したファイルの保存先フォルダーを選択",
+    "fileFailed": "{{name}} を読み込めませんでした: {{error}}",
+    "applyFailed": "ページの編集を適用できませんでした: {{error}}",
+    "extractFailed": "ページを抽出できませんでした: {{error}}"
   }
 }

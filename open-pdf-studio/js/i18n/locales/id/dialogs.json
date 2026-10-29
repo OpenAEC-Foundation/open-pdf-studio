@@ -183,6 +183,10 @@
     "documentAndMarkups": "Dokumen dan Markup",
     "document": "Dokumen",
     "printAsImage": "Cetak sebagai Gambar",
+    "colorMode": "Mode warna:",
+    "colorModeColor": "Berwarna",
+    "colorModeGrayscale": "Skala abu-abu",
+    "colorModeBlackWhite": "Hitam putih",
     "pagesToPrint": "halaman untuk dicetak",
     "noPrinterSelected": "Tidak ada printer yang dipilih.",
     "noPagesToPrint": "Tidak ada halaman untuk dicetak.",
@@ -1605,5 +1609,30 @@
       "supersede": "Digantikan",
       "expire": "Kedaluwarsa"
     }
+  },
+  "pageOrganizer": {
+    "title": "Edit Halaman",
+    "hint": "Seret halaman untuk memindahkannya; jatuhkan file PDF untuk menyisipkan halamannya. Ctrl+klik, Shift+klik, atau kotak centang memilih beberapa halaman. Tidak ada yang berubah sampai Terapkan.",
+    "moveLeft": "Pindah ke kiri",
+    "moveRight": "Pindah ke kanan",
+    "moveToStart": "Pindah ke awal",
+    "moveToEnd": "Pindah ke akhir",
+    "selection": "{{selected}} dari {{total}} halaman dipilih",
+    "rotateLeft": "Putar Kiri",
+    "rotateRight": "Putar Kanan",
+    "split": "Pisahkan",
+    "splitTitle": "Pasang tanda pemisah di sekitar halaman terpilih: setiap rangkaian menjadi file tersendiri",
+    "splitHere": "Pisahkan di sini (pasang atau hapus tanda pemisah)",
+    "extractTitle": "Ekstrak halaman terpilih ke file baru",
+    "blankPage": "Halaman kosong",
+    "pagesFromFile": "Halaman dari file…",
+    "insertHere": "Sisipkan halaman di sini",
+    "select": "Pilih halaman",
+    "zoom": "Zoom",
+    "parts": "Dipisah menjadi {{count}} file saat diterapkan",
+    "chooseFolder": "Pilih folder untuk file hasil pemisahan",
+    "fileFailed": "Tidak dapat membaca {{name}}: {{error}}",
+    "applyFailed": "Gagal menerapkan pengeditan halaman: {{error}}",
+    "extractFailed": "Gagal mengekstrak halaman: {{error}}"
   }
 }

@@ -328,7 +328,9 @@
     "scanText": "Muokkaa skannattua tekstiä",
     "scanTextHint": "Korvaa tunnistettu sana napsauttamalla sitä. Skannauksen vanha sana peitetään.",
     "scanTextNone": "Tällä sivulla ei ole tunnistettua tekstiä. Suorita ensin Tekstintunnistus (OCR).",
-    "shiftPage": "Siirrä sivua"
+    "shiftPage": "Siirrä sivua",
+    "editPages": "Muokkaa sivuja",
+    "editPagesTitle": "Muokkaa sivuja visuaalisesti: järjestä, kierrä, lisää, poista, irrota ja jaa"
   },
   "help": {
     "settings": "Asetukset",
@@ -657,7 +659,9 @@
     "vectorSnippetPasteTitle": "Liitä leikattu alue tähän vektoritiedot säilyttäen",
     "symbolScale": "Mittakaava",
     "symbolScaleTitle": "Koko, jossa uusi symboli sijoitetaan",
-    "symbolScaleCustom": "Mukautettu mittakaava"
+    "symbolScaleCustom": "Mukautettu mittakaava",
+    "count": "Laske",
+    "arc": "Kaari"
   },
   "proofread": {
     "group": "Oikoluku",
@@ -678,6 +682,7 @@
     "saveNote": "Huomautukset ja muut merkinnät, joilla ei ole ulkoasua sivulla, pysyvät merkintöinä. Tiedosto muuttuu vasta tallennettaessa; siihen asti Kumoa peruu tämän vaiheen.",
     "ok": "Litistä",
     "busy": "Litistetään merkintöjä...",
+    "cancelled": "Litistäminen peruutettiin. Asiakirjaa ei muutettu.",
     "nothing": "Tässä asiakirjassa ei ole litistettäviä merkintöjä.",
     "nothingBaked": "Millään merkinnällä ei ole ulkoasua sivulla, joten mitään ei litistetty.",
     "notLoaded": "Asiakirjan merkintöjä ladataan vielä. Yritä hetken kuluttua uudelleen.",

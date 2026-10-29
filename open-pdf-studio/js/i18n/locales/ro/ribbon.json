@@ -328,7 +328,9 @@
     "scanText": "Editare text scanat",
     "scanTextHint": "Faceți clic pe un cuvânt recunoscut pentru a-l înlocui. Cuvântul vechi din scanare este acoperit.",
     "scanTextNone": "Nu există text recunoscut pe această pagină. Rulați mai întâi Recunoaștere text (OCR).",
-    "shiftPage": "Deplasează pagina"
+    "shiftPage": "Deplasează pagina",
+    "editPages": "Editare pagini",
+    "editPagesTitle": "Editați paginile vizual: reordonare, rotire, inserare, ștergere, extragere și împărțire"
   },
   "help": {
     "settings": "Setări",
@@ -657,7 +659,9 @@
     "vectorSnippetPasteTitle": "Lipiți aici zona decupată, păstrând datele vectoriale",
     "symbolScale": "Scară",
     "symbolScaleTitle": "Dimensiunea la care este plasat un simbol nou",
-    "symbolScaleCustom": "Scară personalizată"
+    "symbolScaleCustom": "Scară personalizată",
+    "count": "Numărare",
+    "arc": "Arc"
   },
   "proofread": {
     "group": "Corectură",
@@ -678,6 +682,7 @@
     "saveNote": "Notele și alte marcaje fără aspect pe pagină rămân marcaje. Fișierul se modifică doar la salvare; până atunci, Anulare revine asupra acestui pas.",
     "ok": "Aplatizează",
     "busy": "Se aplatizează marcajele...",
+    "cancelled": "Aplatizare anulată. Documentul nu a fost modificat.",
     "nothing": "Acest document nu are marcaje de aplatizat.",
     "nothingBaked": "Niciun marcaj nu are aspect pe pagină, așa că nu s-a aplatizat nimic.",
     "notLoaded": "Marcajele acestui document încă se încarcă. Încercați din nou peste câteva momente.",

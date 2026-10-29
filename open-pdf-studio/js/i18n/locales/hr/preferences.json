@@ -9,7 +9,8 @@
     "behavior": "Ponašanje",
     "fileAssociation": "Asocijacija datoteka",
     "virtualPrinter": "Virtualni pisač",
-    "pageDisplay": "Prikaz stranice"
+    "pageDisplay": "Prikaz stranice",
+    "keyboardShortcuts": "Tipkovnički prečaci"
   },
   "resetToDefaults": "Vrati na zadano",
   "resetConfirm": "Vratiti sve postavke na zadane vrijednosti?",
@@ -167,6 +168,7 @@
     "snapToPdfContent": "Privlačenje na sadržaj PDF crteža",
     "navigation": "Navigacija",
     "wheelZoomWithoutCtrl": "Zumiranje kotačićem miša (bez držanja tipke Ctrl)",
+    "middleDoubleClickFit": "Dvostruki klik srednjom tipkom miša prilagođava stranicu",
     "dynamicScaling": "Automatski skaliraj oznake"
   },
   "fileAssoc": {
@@ -291,5 +293,51 @@
     "openArrowReversed": "Otvorena strelica (obrnuta)",
     "closedArrowReversed": "Zatvorena strelica (obrnuta)",
     "slash": "Kosa crta"
+  },
+  "keyboardShortcuts": {
+    "title": "Tipkovnički prečaci",
+    "search": "Traži po naredbi ili tipki",
+    "command": "Naredba",
+    "shortcuts": "Prečaci",
+    "none": "Nema",
+    "noMatches": "Nijedna naredba ne odgovara pretraživanju.",
+    "selectHint": "Odaberite naredbu da biste promijenili njezine prečace.",
+    "addShortcut": "Dodaj prečac",
+    "remove": "Ukloni prečac",
+    "resetCommand": "Vrati zadano",
+    "resetAll": "Vrati sve",
+    "resetAllConfirm": "Vratiti sve tipkovničke prečace na zadane vrijednosti?",
+    "import": "Uvezi…",
+    "export": "Izvezi…",
+    "fileType": "Tipkovnički prečaci",
+    "imported": "Prečaci su uvezeni. Kliknite Spremi da biste ih primijenili.",
+    "importFailed": "Ovo nije valjana datoteka tipkovničkih prečaca.",
+    "exported": "Prečaci su izvezeni.",
+    "exportFailed": "Izvoz prečaca nije uspio:",
+    "recording": "Pritisnite novu kombinaciju tipki… (Esc odustaje)",
+    "conflict": "{{keys}} već koristi „{{command}}”.",
+    "reassign": "Ponovno dodijeli",
+    "reserved": "{{keys}} ima fiksno značenje i ne može se dodijeliti.",
+    "defaultLabel": "Zadano: {{keys}}",
+    "customize": "Prilagodi…",
+    "fixedGroup": "Fiksne tipke",
+    "applyHint": "Promjene stupaju na snagu kada kliknete Spremi.",
+    "categories": {
+      "file": "Datoteka",
+      "edit": "Uređivanje",
+      "view": "Prikaz",
+      "search": "Traži",
+      "tools": "Alati",
+      "drafting": "Pomagala za crtanje",
+      "panels": "Ploče",
+      "review": "Pregled",
+      "help": "Pomoć",
+      "extensions": "Proširenja",
+      "ribbon": "Vrpca: {{tab}}",
+      "other": "Ostalo"
+    },
+    "commands": {
+      "findNext": "Traži sljedeće"
+    }
   }
 }

@@ -183,6 +183,10 @@
     "documentAndMarkups": "ເອກະສານ ແລະ ຮອຍໝາຍ",
     "document": "ເອກະສານ",
     "printAsImage": "ພິມເປັນຮູບພາບ",
+    "colorMode": "ໂໝດສີ:",
+    "colorModeColor": "ສີ",
+    "colorModeGrayscale": "ລະດັບສີເທົາ",
+    "colorModeBlackWhite": "ດຳຂາວ",
     "pagesToPrint": "ໜ້າທີ່ຈະພິມ",
     "noPrinterSelected": "ຍັງບໍ່ໄດ້ເລືອກເຄື່ອງພິມ.",
     "noPagesToPrint": "ບໍ່ມີໜ້າທີ່ຈະພິມ.",
@@ -1604,5 +1608,30 @@
       "supersede": "ຖືກແທນທີ່",
       "expire": "ໝົດອາຍຸ"
     }
+  },
+  "pageOrganizer": {
+    "title": "ແກ້ໄຂໜ້າ",
+    "hint": "ລາກໜ້າເພື່ອຍ້າຍ; ວາງໄຟລ໌ PDF ເພື່ອແຊກໜ້າຂອງມັນ. Ctrl+ຄລິກ, Shift+ຄລິກ ຫຼື ກ່ອງໝາຍເລືອກຫຼາຍໜ້າ. ບໍ່ມີຫຍັງປ່ຽນຈົນກວ່າຈະກົດນຳໃຊ້.",
+    "moveLeft": "ຍ້າຍໄປຊ້າຍ",
+    "moveRight": "ຍ້າຍໄປຂວາ",
+    "moveToStart": "ຍ້າຍໄປຈຸດເລີ່ມຕົ້ນ",
+    "moveToEnd": "ຍ້າຍໄປທ້າຍສຸດ",
+    "selection": "ເລືອກແລ້ວ {{selected}} ຈາກ {{total}} ໜ້າ",
+    "rotateLeft": "ໝູນໄປຊ້າຍ",
+    "rotateRight": "ໝູນໄປຂວາ",
+    "split": "ແບ່ງ",
+    "splitTitle": "ວາງເຄື່ອງໝາຍແບ່ງອ້ອມໜ້າທີ່ເລືອກ: ແຕ່ລະຊຸດຈະເປັນໄຟລ໌ແຍກ",
+    "splitHere": "ແບ່ງຢູ່ນີ້ (ວາງ ຫຼື ລຶບເຄື່ອງໝາຍແບ່ງ)",
+    "extractTitle": "ແຍກໜ້າທີ່ເລືອກອອກເປັນໄຟລ໌ໃໝ່",
+    "blankPage": "ໜ້າເປົ່າ",
+    "pagesFromFile": "ໜ້າຈາກໄຟລ໌…",
+    "insertHere": "ແຊກໜ້າຢູ່ນີ້",
+    "select": "ເລືອກໜ້າ",
+    "zoom": "ຊູມ",
+    "parts": "ແບ່ງເປັນ {{count}} ໄຟລ໌ເມື່ອນຳໃຊ້",
+    "chooseFolder": "ເລືອກໂຟລເດີສຳລັບໄຟລ໌ທີ່ແບ່ງ",
+    "fileFailed": "ບໍ່ສາມາດອ່ານ {{name}}: {{error}}",
+    "applyFailed": "ນຳໃຊ້ການແກ້ໄຂໜ້າບໍ່ສຳເລັດ: {{error}}",
+    "extractFailed": "ແຍກໜ້າບໍ່ສຳເລັດ: {{error}}"
   }
 }

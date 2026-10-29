@@ -18,6 +18,8 @@ export const HANDLE_TYPES = {
   LINE_END: 'line_end',
   RADIUS: 'radius',
   ROTATE: 'rotate',
+  // Eigen draaipunt van afbeelding/stempel/handtekening (#826, draaipunt.js).
+  PIVOT: 'pivot',
   CALLOUT_ARROW: 'callout_arrow',
   CALLOUT_KNEE: 'callout_knee',
   CALLOUT_MOVE: 'callout_move',
@@ -79,6 +81,11 @@ export const DEFAULT_PREFERENCES: Preferences = {
   snapToEndpoints: true,
   snapToMidpoints: true,
   snapToCenters: true,
+  // Vertex = elk tussenpunt van een polylijn/veelhoek (los van de
+  // eindpunten). Start point = het eerste punt waarmee het object is
+  // getekend (lijnstart, eerste polylijnpunt, eerste hoek).
+  snapToVertices: true,
+  snapToStartPoints: true,
   snapToEdges: false,
   snapToIntersections: true,
   snapToPerpendicular: false,
@@ -123,6 +130,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   textboxBorderStyle: 'solid',
   textboxOpacity: 100,
   textboxFontSize: 8,
+  textboxFontFamily: 'Arial',
 
   // Callout defaults
   calloutFillColor: '#FFFBEB',
@@ -132,6 +140,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   calloutBorderStyle: 'solid',
   calloutOpacity: 100,
   calloutFontSize: 14,
+  calloutFontFamily: 'Arial',
 
   // Rectangle defaults
   rectFillColor: '#FFFBEB',
@@ -265,6 +274,8 @@ export const DEFAULT_PREFERENCES: Preferences = {
   autoSelectAfterCreate: true,
   confirmBeforeDelete: true,
   wheelZoomWithoutCtrl: false,
+  // Dubbelklik met de middelste muisknop = huidige pagina passend (#767).
+  middleDoubleClickFit: true,
 
   // Startup
   restoreLastSession: false,
@@ -313,6 +324,10 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // bar height): 'mm' | 'cm' | 'in' | 'pt' (#598). Display only — the model
   // stays in page points.
   paperSizeUnit: 'pt',
+  // Keyboard shortcuts changed by the user (#714): only the commands whose
+  // shortcuts differ from the defaults, { 'view.fitPage': ['Ctrl+K'] }.
+  // See core/keybindings/registry.js.
+  keyboardShortcuts: {},
 
   // Panels
   propertiesPanelVisible: true,

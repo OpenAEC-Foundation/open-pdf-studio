@@ -19,7 +19,7 @@ const STUBS = {
   'js/pdf/page-bitmap-cache.js': ['invalidateDocumentBitmaps'],
   'js/pdf/progressive-render.js': ['forgetContentBytes'],
   'js/pdf/tile-cache.js': ['tileCacheClearForFile'],
-  'js/pdf/renderer.js': ['setViewMode', 'fitPage', 'clearBitmapJSCacheForFile', 'clearLowResCacheForFile'],
+  'js/pdf/renderer.js': ['setViewMode', 'fitPage', 'clearBitmapJSCacheForFile', 'clearLowResCacheForFile', 'rotateAnnotation'],
   'js/pdf/form-layer.js': ['resetAnnotationStorage'],
   'js/ui/panels/left-panel.js': ['generateThumbnails', 'clearThumbnailCache'],
   'js/ui/panels/properties-panel.js': ['hideProperties'],

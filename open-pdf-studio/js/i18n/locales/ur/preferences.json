@@ -9,7 +9,8 @@
     "behavior": "رویہ",
     "fileAssociation": "فائل ایسوسی ایشن",
     "virtualPrinter": "ورچوئل پرنٹر",
-    "pageDisplay": "صفحہ ڈسپلے"
+    "pageDisplay": "صفحہ ڈسپلے",
+    "keyboardShortcuts": "کی بورڈ شارٹ کٹس"
   },
   "resetToDefaults": "پہلے سے طے شدہ اقدار پر واپس لائیں",
   "resetConfirm": "تمام ترجیحات کو پہلے سے طے شدہ اقدار پر واپس لائیں؟",
@@ -167,6 +168,7 @@
     "snapToPdfContent": "PDF ڈرائنگ مواد سے سنیپ کریں",
     "navigation": "نیویگیشن",
     "wheelZoomWithoutCtrl": "ماؤس وہیل سے زوم کریں (Ctrl دبائے بغیر)",
+    "middleDoubleClickFit": "صفحہ فٹ کرنے کے لیے ماؤس کے درمیانی بٹن پر ڈبل کلک کریں",
     "dynamicScaling": "مارک اپس کو خودکار اسکیل کریں"
   },
   "fileAssoc": {
@@ -291,5 +293,51 @@
     "openArrowReversed": "کھلا تیر (الٹا)",
     "closedArrowReversed": "بند تیر (الٹا)",
     "slash": "سلیش"
+  },
+  "keyboardShortcuts": {
+    "title": "کی بورڈ شارٹ کٹس",
+    "search": "کمانڈ یا کلید سے تلاش کریں",
+    "command": "کمانڈ",
+    "shortcuts": "شارٹ کٹس",
+    "none": "کوئی نہیں",
+    "noMatches": "تلاش سے کوئی کمانڈ مطابقت نہیں رکھتی۔",
+    "selectHint": "شارٹ کٹس بدلنے کے لیے کوئی کمانڈ منتخب کریں۔",
+    "addShortcut": "شارٹ کٹ شامل کریں",
+    "remove": "شارٹ کٹ ہٹائیں",
+    "resetCommand": "ڈیفالٹ پر بحال کریں",
+    "resetAll": "سب بحال کریں",
+    "resetAllConfirm": "کیا تمام کی بورڈ شارٹ کٹس ڈیفالٹ پر بحال کیے جائیں؟",
+    "import": "درآمد کریں…",
+    "export": "برآمد کریں…",
+    "fileType": "کی بورڈ شارٹ کٹس",
+    "imported": "شارٹ کٹس درآمد ہو گئے۔ لاگو کرنے کے لیے محفوظ کریں پر کلک کریں۔",
+    "importFailed": "یہ کی بورڈ شارٹ کٹس کی درست فائل نہیں ہے۔",
+    "exported": "شارٹ کٹس برآمد ہو گئے۔",
+    "exportFailed": "شارٹ کٹس برآمد نہیں ہو سکے:",
+    "recording": "نیا کلیدی مجموعہ دبائیں… (Esc منسوخ کرتا ہے)",
+    "conflict": "{{keys}} پہلے ہی «{{command}}» استعمال کر رہی ہے۔",
+    "reassign": "دوبارہ تفویض کریں",
+    "reserved": "{{keys}} کا مطلب مقرر ہے اور اسے تفویض نہیں کیا جا سکتا۔",
+    "defaultLabel": "ڈیفالٹ: {{keys}}",
+    "customize": "حسب ضرورت بنائیں…",
+    "fixedGroup": "مقررہ کلیدیں",
+    "applyHint": "تبدیلیاں محفوظ کریں پر کلک کرنے سے نافذ ہوتی ہیں۔",
+    "categories": {
+      "file": "فائل",
+      "edit": "ترمیم",
+      "view": "منظر",
+      "search": "تلاش",
+      "tools": "اوزار",
+      "drafting": "ڈرائنگ معاونات",
+      "panels": "پینلز",
+      "review": "جائزہ",
+      "help": "مدد",
+      "extensions": "ایکسٹینشنز",
+      "ribbon": "ربن: {{tab}}",
+      "other": "دیگر"
+    },
+    "commands": {
+      "findNext": "اگلا تلاش کریں"
+    }
   }
 }

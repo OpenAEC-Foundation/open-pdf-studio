@@ -183,6 +183,10 @@
     "documentAndMarkups": "Asiakirja ja merkinnät",
     "document": "Asiakirja",
     "printAsImage": "Tulosta kuvana",
+    "colorMode": "Väritila:",
+    "colorModeColor": "Värillinen",
+    "colorModeGrayscale": "Harmaasävy",
+    "colorModeBlackWhite": "Mustavalkoinen",
     "pagesToPrint": "tulostettavaa sivua",
     "noPrinterSelected": "Tulostinta ei ole valittu.",
     "noPagesToPrint": "Ei tulostettavia sivuja.",
@@ -1605,5 +1609,30 @@
       "supersede": "Korvattu",
       "expire": "Vanhentunut"
     }
+  },
+  "pageOrganizer": {
+    "title": "Muokkaa sivuja",
+    "hint": "Siirrä sivuja vetämällä; pudota PDF-tiedosto lisätäksesi sen sivut. Ctrl+napsautus, Vaihto+napsautus tai valintaruudut valitsevat useita sivuja. Mikään ei muutu ennen Käytä-painiketta.",
+    "moveLeft": "Siirrä vasemmalle",
+    "moveRight": "Siirrä oikealle",
+    "moveToStart": "Siirrä alkuun",
+    "moveToEnd": "Siirrä loppuun",
+    "selection": "{{selected}}/{{total}} sivua valittu",
+    "rotateLeft": "Kierrä vasemmalle",
+    "rotateRight": "Kierrä oikealle",
+    "split": "Jaa",
+    "splitTitle": "Lisää jakomerkit valittujen sivujen ympärille: jokaisesta jaksosta tulee oma tiedosto",
+    "splitHere": "Jaa tästä (lisää tai poista jakomerkki)",
+    "extractTitle": "Irrota valitut sivut uuteen tiedostoon",
+    "blankPage": "Tyhjä sivu",
+    "pagesFromFile": "Sivut tiedostosta…",
+    "insertHere": "Lisää sivuja tähän",
+    "select": "Valitse sivu",
+    "zoom": "Zoomaus",
+    "parts": "Jaetaan {{count}} tiedostoon käytettäessä",
+    "chooseFolder": "Valitse kansio jaetuille tiedostoille",
+    "fileFailed": "Tiedostoa {{name}} ei voitu lukea: {{error}}",
+    "applyFailed": "Sivumuutosten käyttäminen epäonnistui: {{error}}",
+    "extractFailed": "Sivujen irrottaminen epäonnistui: {{error}}"
   }
 }

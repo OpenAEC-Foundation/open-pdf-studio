@@ -328,7 +328,9 @@
     "scanText": "Upraviť naskenovaný text",
     "scanTextHint": "Kliknutím na rozpoznané slovo ho nahradíte. Pôvodné slovo v skene sa zakryje.",
     "scanTextNone": "Na tejto stránke nie je žiadny rozpoznaný text. Najprv spustite Rozpoznávanie textu (OCR).",
-    "shiftPage": "Posunúť stránku"
+    "shiftPage": "Posunúť stránku",
+    "editPages": "Upraviť strany",
+    "editPagesTitle": "Upraviť strany vizuálne: zmeniť poradie, otočiť, vložiť, odstrániť, extrahovať a rozdeliť"
   },
   "help": {
     "settings": "Nastavenia",
@@ -657,7 +659,9 @@
     "vectorSnippetPasteTitle": "Vložte sem vystrihnutú oblasť so zachovaním vektorových údajov",
     "symbolScale": "Mierka",
     "symbolScaleTitle": "Veľkosť, v ktorej sa umiestni nový symbol",
-    "symbolScaleCustom": "Vlastná mierka"
+    "symbolScaleCustom": "Vlastná mierka",
+    "count": "Počítanie",
+    "arc": "Oblúk"
   },
   "proofread": {
     "group": "Korektúra",
@@ -678,6 +682,7 @@
     "saveNote": "Poznámky a ďalšie označenia bez vzhľadu na strane zostanú označeniami. Súbor sa zmení až pri uložení; dovtedy tento krok vráti Späť.",
     "ok": "Sploštiť",
     "busy": "Sploštenie označení...",
+    "cancelled": "Zlúčenie zrušené. Dokument sa nezmenil.",
     "nothing": "Tento dokument nemá žiadne označenia na sploštenie.",
     "nothingBaked": "Žiadne z označení nemá vzhľad na strane, nič sa teda nesploštilo.",
     "notLoaded": "Označenia tohto dokumentu sa ešte načítavajú. Skúste to o chvíľu znova.",

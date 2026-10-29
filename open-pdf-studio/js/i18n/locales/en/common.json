@@ -34,6 +34,10 @@
   "draw": "Draw",
   "saved": "Saved",
   "documentChangedDuringSave": "The document changed while saving. Save again.",
+  "savingPdf": "Saving PDF…",
+  "saveCancelling": "Cancelling the save…",
+  "saveCancelled": "Save cancelled. The file was not changed.",
+  "saveCancelTooLate": "The file had already been saved; it was too late to cancel.",
   "documentChangedDuringExport": "The document changed during export. Start again.",
   "rasterExportProgress": "Rasterizing pages: {{done}} of {{total}}",
   "snippetOutputFailed": "A vector snippet could not be rendered, so the export or print was stopped. Try again.",
@@ -134,6 +138,10 @@
   "noAnnotationsInXfdf": "No annotations found in XFDF file.",
   "noRedactionsOnPage": "No redaction marks on the current page to apply.",
   "noRedactionsInDocument": "No redaction marks in the document to apply.",
+  "applyRedactionsTitle": "Apply Redactions",
+  "applyRedactionsPageConfirm": "Cover {{count}} redaction mark(s) on page {{page}} with a black box?",
+  "applyRedactionsAllConfirm": "Cover {{count}} redaction mark(s) on {{pages}} page(s) with a black box?",
+  "applyRedactionsOverlayWarning": "Note: this only covers the marked areas. The text, images and graphics underneath are NOT removed from the PDF and can still be copied, searched or extracted. Do not rely on this to remove sensitive information.",
   "cannotDeleteAllPages": "Cannot delete all pages. At least one page must remain.",
   "cannotDeleteAllPagesSource": "Cannot delete all pages from the source document.",
   "noPagesSelected": "No pages selected for extraction.",
@@ -250,6 +258,10 @@
     "closeTab": "Close tab",
     "nextTab": "Next Tab",
     "previousTab": "Previous Tab"
+  },
+  "pageNav": {
+    "nextPage": "Next Page",
+    "previousPage": "Previous Page"
   },
   "quickAccess": {
     "exportRaster": "Export as raster PDF (opens in a new tab)"

@@ -51,6 +51,8 @@ modules:
       - install -Dm644 open-pdf-studio/src-tauri/icons/128x128.png ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/org.openaec.OpenPdfStudio.png
       - install -Dm644 open-pdf-studio/src-tauri/icons/32x32.png ${FLATPAK_DEST}/share/icons/hicolor/32x32/apps/org.openaec.OpenPdfStudio.png
       - install -Dm644 open-pdf-studio/src-tauri/icons/64x64.png ${FLATPAK_DEST}/share/icons/hicolor/64x64/apps/org.openaec.OpenPdfStudio.png
+      - install -Dm644 open-pdf-studio/src-tauri/icons/256x256.png ${FLATPAK_DEST}/share/icons/hicolor/256x256/apps/org.openaec.OpenPdfStudio.png
+      - install -Dm644 open-pdf-studio/src-tauri/icons/512x512.png ${FLATPAK_DEST}/share/icons/hicolor/512x512/apps/org.openaec.OpenPdfStudio.png
     sources:
       - type: dir
         path: ..

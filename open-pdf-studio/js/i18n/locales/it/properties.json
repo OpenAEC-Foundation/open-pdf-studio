@@ -139,9 +139,27 @@
       "nen47-aluminium": "NEN47-19 Alluminio/bronzo/rame",
       "nen47-kunststof": "NEN47-22 Plastica",
       "nen47-afdichtingsmiddel": "NEN47-23 Sigillante",
-      "nen47-maaiveld": "NEN47-25 Piano di campagna"
+      "nen47-maaiveld": "NEN47-25 Piano di campagna",
+      "staal-dubbel": "Acciaio (doppia linea)",
+      "raster-liggend": "Griglia rettangolare orizzontale",
+      "raster-staand": "Griglia rettangolare verticale",
+      "tegel-halfsteens": "Piastrelle (giunti sfalsati)",
+      "plank-halfsteens": "Tavole (giunti sfalsati)",
+      "grond-blokjes": "Terreno (blocchi)",
+      "glas-strepen": "Vetro (tratti di prospetto)",
+      "vloeistof-strepen": "Liquido (tratti)",
+      "gras-pollen": "Erba (ciuffi)",
+      "honingraat": "Nido d'ape",
+      "lijnen-groep-verticaal": "Gruppi di linee verticali",
+      "lood-blokken": "Piombo (blocchi)",
+      "glas-doorsnede": "Vetro (sezione)",
+      "wand-metselwerk": "Parete in muratura (coppie di linee)"
     },
-    "rotation": "Rotazione"
+    "rotation": "Rotazione",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Stile di linea",
@@ -189,7 +207,9 @@
     "bold": "Grassetto",
     "italic": "Corsivo",
     "underline": "Sottolineato",
-    "strikethrough": "Barrato"
+    "strikethrough": "Barrato",
+    "fontNotEmbedded": "{{font}} non viene incorporato nel PDF. I lettori che non hanno questo carattere mostrano {{fallback}}.",
+    "fontReplaced": "{{font}} non può essere incorporato nel PDF. Il testo viene salvato in {{fallback}}."
   },
   "paragraph": {
     "title": "Paragrafo",
@@ -198,7 +218,11 @@
     "alignCenter": "Allinea al centro",
     "alignRight": "Allinea a destra",
     "lineSpacing": "Interlinea",
-    "rotation": "Rotazione"
+    "rotation": "Rotazione",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Risposte",
@@ -722,5 +746,49 @@
     "invalid": "Impossibile aggiornare l'ubicazione",
     "rules": "L'assegnazione usa il centro del riquadro di delimitazione dell'annotazione, bordi inclusi. Prevale la zona più profonda, poi l'area più piccola, poi l'ID della zona. Usa poligoni rettilinei senza fori o rettangoli non ruotati. Le identità di zona non valide o duplicate vengono escluse.",
     "loading": "Caricamento delle annotazioni: le ubicazioni possono ancora cambiare."
+  },
+  "styleTypeNames": {
+    "filledArea": {
+      "beton": "Calcestruzzo",
+      "metselwerk": "Muratura",
+      "isolatie": "Isolamento",
+      "zand": "Sabbia/cemento",
+      "algemeen": "Generale (diagonale)",
+      "inb-sloop": "Demolizione",
+      "inb-staal": "Acciaio (doppia linea)",
+      "inb-diagonaal-smal": "Diagonale fitta",
+      "inb-diagonaal-midden": "Diagonale media",
+      "inb-diagonaal-breed": "Diagonale rada",
+      "inb-raster-fijn": "Griglia fine",
+      "inb-raster-midden": "Griglia media",
+      "inb-raster-grof": "Griglia larga",
+      "inb-raster-liggend-1": "Griglia orizzontale fine",
+      "inb-raster-liggend-2": "Griglia orizzontale media",
+      "inb-raster-liggend-3": "Griglia orizzontale larga",
+      "inb-raster-staand-1": "Griglia verticale fine",
+      "inb-raster-staand-2": "Griglia verticale media",
+      "inb-raster-staand-3": "Griglia verticale larga",
+      "inb-tegels-fijn": "Piastrelle piccole",
+      "inb-tegels-midden": "Piastrelle medie",
+      "inb-tegels-grof": "Piastrelle grandi",
+      "inb-planken-fijn": "Tavole strette",
+      "inb-planken-midden": "Tavole medie",
+      "inb-planken-grof": "Tavole larghe",
+      "inb-kruis-fijn": "Tratteggio incrociato fine",
+      "inb-kruis-midden": "Tratteggio incrociato medio",
+      "inb-kruis-grof": "Tratteggio incrociato largo",
+      "inb-baksteen": "Mattone",
+      "inb-grond": "Terreno",
+      "inb-glas": "Vetro (prospetto)",
+      "inb-vloeistof": "Liquido",
+      "inb-gras": "Erba",
+      "inb-honingraat": "Nido d'ape",
+      "inb-hout": "Legno (di testa)",
+      "inb-zand": "Sabbia",
+      "inb-beton": "Calcestruzzo (puntinato)",
+      "inb-verticaal-smal": "Verticale fitto",
+      "inb-verticaal-breed": "Verticale rado",
+      "inb-horizontaal-breed": "Orizzontale rado"
+    }
   }
 }

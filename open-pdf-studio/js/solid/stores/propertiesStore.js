@@ -112,6 +112,7 @@ const [annotProps, setAnnotProps] = createStore({
   fillOpacity: 100,
   icon: 'comment',
   borderStyle: 'solid',
+  boxShape: 'rect',
   cross: false,
   text: '',
   fontSize: 16,
@@ -122,6 +123,7 @@ const [annotProps, setAnnotProps] = createStore({
   fontUnderline: false,
   fontStrikethrough: false,
   textAlign: 'left',
+  textVAlign: 'top',
   lineSpacing: '1.5',
   rotation: 0,
   imageWidth: 0,
@@ -202,6 +204,7 @@ const [sectionVis, setSectionVis] = createStore({
   colorGroup: false,
   lineWidthGroup: false,
   borderStyleGroup: false,
+  boxShapeGroup: false,
   textGroup: false,
   fontSizeGroup: false,
   opacityGroup: true,
@@ -303,6 +306,7 @@ function computeSectionVisibility(type) {
     colorGroup: !hideColor || isTextMarkup,
     lineWidthGroup: !hideLineWidth,
     borderStyleGroup: hasBorderStyle,
+    boxShapeGroup: type === 'textbox',
     hatchPatternGroup: hasHatchPattern,
     crossGroup: ondersteuntKruis(type),
     textGroup: isTextContent,
@@ -381,6 +385,14 @@ export function storeShowProperties(annotation) {
   if (_corrDoc && isFoldedChild(annotation, _corrDoc.annotations)) {
     annotation = _corrDoc.annotations.find(a => a.id === annotation.inReplyTo) || annotation;
   }
+  // Het paneel bewerkt het exemplaar uit het document (#765). Een net
+  // getekend tekstvak komt hier als het kale object binnen; schrijven
+  // daarop werkt de reactieve store niet bij, terwijl de weergave via de
+  // store leest. Dan bleef bijvoorbeeld het gekozen lettertype Arial.
+  if (_corrDoc && annotation?.id) {
+    const inDocument = _corrDoc.annotations.find(a => a.id === annotation.id);
+    if (inDocument) annotation = inDocument;
+  }
   currentAnnotation = annotation;
   // Fire plugin selection-listeners (separate from property-panel-registry):
   // gives plugins a direct channel to react to selection without scraping DOM.
@@ -421,6 +433,7 @@ export function storeShowProperties(annotation) {
     opacity: annotation.opacity !== undefined ? Math.round(annotation.opacity * 100) : 100,
     icon: annotation.icon || 'comment',
     borderStyle: annotation.borderStyle || 'solid',
+    boxShape: annotation.boxShape || 'rect',
     cross: annotation.cross === true,
     hatchPattern: annotation.hatchPattern || (annotation.type === 'measureArea' ? 'diagonal-left' : 'none'),
     hatchColor: annotation.hatchColor || (annotation.type === 'measureArea' ? '#ff0000' : (annotation.strokeColor || annotation.color || '#000000')),
@@ -435,6 +448,7 @@ export function storeShowProperties(annotation) {
     fontUnderline: annotation.fontUnderline || false,
     fontStrikethrough: annotation.fontStrikethrough || false,
     textAlign: annotation.textAlign || 'left',
+    textVAlign: annotation.textVAlign || 'top',
     lineSpacing: annotation.lineSpacing || '1.5',
     rotation: annotation.rotation || 0,
     // In paginapunten, onafgerond: het paneel toont ze in de gekozen
@@ -637,6 +651,7 @@ export function storeHideProperties() {
     colorGroup: false,
     lineWidthGroup: false,
     borderStyleGroup: false,
+    boxShapeGroup: false,
     textGroup: false,
     fontSizeGroup: false,
     opacityGroup: false,
@@ -744,6 +759,7 @@ export function storeShowMultiSelection(selected) {
     fillOpacity: sharedFillOpacity,
     icon: sharedValue(selected, a => a.icon || 'comment', 'mixed'),
     borderStyle: sharedBorderStyle,
+    boxShape: sharedValue(selected, a => a.boxShape || 'rect', 'mixed'),
     cross: sharedValue(selected, a => a.cross === true, 'mixed'),
     hatchPattern: sharedHatchPattern,
     hatchColor: sharedHatchColor,
@@ -758,6 +774,7 @@ export function storeShowMultiSelection(selected) {
     fontUnderline: sharedValue(selected, a => a.fontUnderline || false, 'mixed'),
     fontStrikethrough: sharedValue(selected, a => a.fontStrikethrough || false, 'mixed'),
     textAlign: sharedValue(selected, a => a.textAlign || 'left', 'mixed'),
+    textVAlign: sharedValue(selected, a => a.textVAlign || 'top', 'mixed'),
     lineSpacing: sharedValue(selected, a => a.lineSpacing || '1.5', 'mixed'),
     rotation: sharedValue(selected, a => a.rotation || 0, 'mixed'),
     imageWidth: 0,
@@ -812,6 +829,7 @@ export function storeShowMultiSelection(selected) {
     colorGroup: allMatch(t => !hideColorTypes.has(t) || isTextAnchored({ type: t })),
     lineWidthGroup: allMatch(t => !hideLineWidthTypes.has(t)),
     borderStyleGroup: allMatch(t => borderStyleTypes.has(t)),
+    boxShapeGroup: allMatch(t => t === 'textbox'),
     hatchPatternGroup: allMatch(t => hatchPatternTypes.has(t)),
     crossGroup: kruisZichtbaarVoorSelectie(selected),
     textGroup: allSameType && (sharedType === 'text' || sharedType === 'comment'),
@@ -827,6 +845,10 @@ export function storeShowMultiSelection(selected) {
 }
 
 // Show text edit properties (PDF text editing mode)
+// Lettertype van de PDF-tekst die nu bewerkt wordt (zie hieronder).
+const [pdfTekstBronFont, setPdfTekstBronFont] = createSignal(null);
+export { pdfTekstBronFont };
+
 export function storeShowTextEditProperties(info) {
   const ff = (info.fontFamily || 'Helvetica').toLowerCase();
   let displayFontFamily;
@@ -887,6 +909,10 @@ export function storeShowTextEditProperties(info) {
   };
 
   currentAnnotation = pseudoAnnotation;
+  // Het lettertype waarmee de tekst nu in de PDF staat: zolang dat gekozen
+  // blijft, schrijft de saver de tekst in dat (ingebedde) font terug en is er
+  // niets te melden (TextFormatSection, #765).
+  setPdfTekstBronFont(displayFontFamily);
 
   // First show as textbox to get text format section
   storeShowProperties(pseudoAnnotation);
@@ -915,6 +941,7 @@ export function storeShowTextEditProperties(info) {
     colorGroup: false,
     lineWidthGroup: false,
     borderStyleGroup: false,
+    boxShapeGroup: false,
     textGroup: false,
     fontSizeGroup: false,
     opacityGroup: false,
@@ -1172,6 +1199,7 @@ function applyPropToAnnotation(ann, key, value) {
     case 'opacity': zetLijnDekking(ann, leesGeheelGetal(value) / 100); break;
     case 'icon': ann.icon = value; break;
     case 'borderStyle': ann.borderStyle = value; break;
+    case 'boxShape': ann.boxShape = value === 'rect' ? undefined : value; break;
     case 'cross': ann.cross = value === true || undefined; break;
     case 'hatchPattern': ann.hatchPattern = value; break;
     case 'hatchColor': ann.hatchColor = value; break;
@@ -1190,6 +1218,7 @@ function applyPropToAnnotation(ann, key, value) {
     case 'fontUnderline': ann.fontUnderline = value; break;
     case 'fontStrikethrough': ann.fontStrikethrough = value; break;
     case 'textAlign': ann.textAlign = value; break;
+    case 'textVAlign': ann.textVAlign = value === 'top' ? undefined : value; break;
     case 'lineSpacing': {
       ann.lineSpacing = leesGetalBegin(value);
       if (['textbox', 'callout'].includes(ann.type) && ann.text) {
@@ -1581,6 +1610,7 @@ function applyAnnotProp(key, value) {
       break;
     case 'icon': currentAnnotation.icon = value; break;
     case 'borderStyle': currentAnnotation.borderStyle = value; break;
+    case 'boxShape': currentAnnotation.boxShape = value === 'rect' ? undefined : value; break;
     case 'cross': currentAnnotation.cross = value === true || undefined; break;
     case 'hatchPattern': currentAnnotation.hatchPattern = value; break;
     case 'hatchColor': currentAnnotation.hatchColor = value; break;
@@ -1599,6 +1629,7 @@ function applyAnnotProp(key, value) {
     case 'fontUnderline': currentAnnotation.fontUnderline = value; break;
     case 'fontStrikethrough': currentAnnotation.fontStrikethrough = value; break;
     case 'textAlign': currentAnnotation.textAlign = value; break;
+    case 'textVAlign': currentAnnotation.textVAlign = value === 'top' ? undefined : value; break;
     case 'lineSpacing': {
       currentAnnotation.lineSpacing = leesGetalBegin(value);
       // Resize textbox height to fit content with new line spacing
@@ -1887,6 +1918,14 @@ function applyAnnotProp(key, value) {
 
   if (!key.startsWith('tb') && !key.includes('.') && !_EIGEN_STORE_SLEUTELS.has(key)) {
     setAnnotProps(key, value);
+  }
+  // Een open tekst-editor toont een nieuw lettertype, een andere grootte of
+  // kleur meteen (#765), zodat wat je typt al in de gekozen stijl staat.
+  if (key === 'fontFamily' || key === 'textFontSize' || key === 'fontSize' || key === 'textColor') {
+    const ann = currentAnnotation;
+    import('../../tools/text-editing.js')
+      .then(m => m.werkEditorStijlBij && m.werkEditorStijlBij(ann))
+      .catch(() => {});
   }
   // Schaalgebied (#611): zonder eigen vulkleur of vul-doorzichtigheid volgt de
   // vulling de kleur en de doorzichtigheid; het paneel toont wat er staat.

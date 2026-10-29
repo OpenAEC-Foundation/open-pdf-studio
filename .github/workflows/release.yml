@@ -9,7 +9,7 @@ on:
       version:
         description: 'Version tag vYYYY.W.N (year, ISO week, sequence); must match the version fields'
         required: true
-        default: 'v2026.44.4'
+        default: 'v2026.44.5'
 
 jobs:
   create-release:
@@ -379,6 +379,17 @@ jobs:
         if: matrix.target == 'macos'
         run: npm run tauri -- build --target universal-apple-darwin --no-bundle
 
+      # The runner has Homebrew: a crate that finds a library there through
+      # pkg-config links it dynamically, and the app then crashes at launch on
+      # every Mac without that package (#750, #361). Fail before notarizing.
+      - name: Verify macOS binaries load no Homebrew libraries
+        if: matrix.target == 'macos'
+        run: |
+          bash scripts/macos-dylib-check.sh \
+            ../target/universal-apple-darwin/release/open-pdf-studio \
+            src-tauri/binaries/pdfium-worker-universal-apple-darwin \
+            src-tauri/binaries/macos-universal/libpdfium.dylib
+
       - name: Upload macOS release assets
         if: matrix.target == 'macos'
         uses: tauri-apps/tauri-action@action-v0.6.1
@@ -425,6 +436,7 @@ jobs:
           codesign --verify --deep --strict --verbose=2 "$APP_PATH"
           spctl --assess --type execute --verbose=4 "$APP_PATH"
           xcrun stapler validate "$APP_PATH"
+          bash scripts/macos-dylib-check.sh "$APP_PATH"
           bash scripts/macos-startup-smoke.sh "$APP_PATH"
 
       - name: Build Tauri app (user installer)

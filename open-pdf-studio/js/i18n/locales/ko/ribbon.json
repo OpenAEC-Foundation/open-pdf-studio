@@ -328,7 +328,9 @@
     "scanText": "스캔 텍스트 편집",
     "scanTextHint": "인식된 단어를 클릭하여 바꿉니다. 스캔에 있는 기존 단어는 가려집니다.",
     "scanTextNone": "이 페이지에 인식된 텍스트가 없습니다. 먼저 텍스트 인식(OCR)을 실행하세요.",
-    "shiftPage": "페이지 이동"
+    "shiftPage": "페이지 이동",
+    "editPages": "페이지 편집",
+    "editPagesTitle": "페이지를 시각적으로 편집: 순서 변경, 회전, 삽입, 삭제, 추출 및 분할"
   },
   "help": {
     "settings": "설정",
@@ -657,7 +659,9 @@
     "vectorSnippetPasteTitle": "잘라낸 영역을 벡터 데이터 그대로 여기에 붙여넣습니다",
     "symbolScale": "축척",
     "symbolScaleTitle": "새 기호를 배치할 때의 크기",
-    "symbolScaleCustom": "사용자 지정 축척"
+    "symbolScaleCustom": "사용자 지정 축척",
+    "count": "개수 세기",
+    "arc": "호"
   },
   "proofread": {
     "group": "교정",
@@ -678,6 +682,7 @@
     "saveNote": "메모 등 페이지에 모양이 없는 마크업은 마크업으로 남습니다. 파일은 저장할 때만 변경되며, 그 전까지는 실행 취소로 이 단계를 되돌릴 수 있습니다.",
     "ok": "병합",
     "busy": "마크업 병합 중...",
+    "cancelled": "병합이 취소되었습니다. 문서는 변경되지 않았습니다.",
     "nothing": "이 문서에는 병합할 마크업이 없습니다.",
     "nothingBaked": "페이지에 모양이 있는 마크업이 없어 아무것도 병합되지 않았습니다.",
     "notLoaded": "이 문서의 마크업을 아직 불러오는 중입니다. 잠시 후 다시 시도하세요.",

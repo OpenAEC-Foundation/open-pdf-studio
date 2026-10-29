@@ -58,9 +58,15 @@
     { "action": "uiState", "selector": ".modal-overlay .modal-dialog", "searchTabs": false, "store": "dlgExtract" },
     { "action": "escape", "ms": 400 },
 
+    { "action": "clickButton", "id": "edit-pages" },
+    { "action": "wait", "ms": 400 },
+    { "action": "uiState", "selector": ".modal-overlay .page-organizer-dialog", "searchTabs": false, "store": "dlgEditPages" },
+    { "action": "escape", "ms": 400 },
+
     { "action": "clickButton", "id": "reorder-pages" },
     { "action": "wait", "ms": 400 },
-    { "action": "uiState", "selector": "#left-panel:not(.collapsed)", "searchTabs": false, "store": "uiReorderPanel" },
+    { "action": "uiState", "selector": ".modal-overlay .page-organizer-dialog", "searchTabs": false, "store": "dlgReorder" },
+    { "action": "escape", "ms": 400 },
 
     { "action": "clickButton", "id": "merge-pdfs" },
     { "action": "wait", "ms": 400 },
@@ -101,7 +107,8 @@
     { "type": "stateEquals", "probe": "pDel0", "field": "pageCount", "value": 3, "label": "documentbegin: 3 pagina's" },
     { "type": "stateEquals", "probe": "pDel1", "field": "pageCount", "value": 2, "label": "delete-page verwijdert pagina (3 → 2, op kopie)" },
     { "type": "dialogOpen", "probe": "dlgExtract", "label": "extract-pages opent dialoog" },
-    { "type": "elementFound", "probe": "uiReorderPanel", "label": "reorder-pages opent miniaturen-paneel" },
+    { "type": "dialogOpen", "probe": "dlgEditPages", "label": "edit-pages opent de pagina-ordenaar (Pagina's bewerken, #764)" },
+    { "type": "dialogOpen", "probe": "dlgReorder", "label": "reorder-pages opent de pagina-ordenaar (miniaturen slepen, #763)" },
     { "type": "dialogOpen", "probe": "dlgMerge", "label": "merge-pdfs opent dialoog" },
     { "type": "dialogOpen", "probe": "dlgWatermark", "label": "add-watermark opent dialoog" },
     { "type": "dialogOpen", "probe": "dlgHeaderFooter", "label": "add-header-footer opent dialoog" },

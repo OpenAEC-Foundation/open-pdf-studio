@@ -328,7 +328,9 @@
     "scanText": "Redigera skannad text",
     "scanTextHint": "Klicka på ett igenkänt ord för att ersätta det. Det gamla ordet i skanningen täcks över.",
     "scanTextNone": "Ingen igenkänd text på den här sidan. Kör Textigenkänning (OCR) först.",
-    "shiftPage": "Flytta sida"
+    "shiftPage": "Flytta sida",
+    "editPages": "Redigera sidor",
+    "editPagesTitle": "Redigera sidor visuellt: ordna om, rotera, infoga, ta bort, extrahera och dela"
   },
   "help": {
     "settings": "Inställningar",
@@ -657,7 +659,9 @@
     "vectorSnippetPasteTitle": "Klistra in det urklippta området här med vektordata bevarade",
     "symbolScale": "Skala",
     "symbolScaleTitle": "Storlek som en ny symbol placeras i",
-    "symbolScaleCustom": "Anpassad skala"
+    "symbolScaleCustom": "Anpassad skala",
+    "count": "Räkna",
+    "arc": "Båge"
   },
   "proofread": {
     "group": "Korrektur",
@@ -678,6 +682,7 @@
     "saveNote": "Anteckningar och andra markeringar utan utseende på sidan förblir markeringar. Filen ändras först när du sparar; fram till dess ångrar Ångra det här steget.",
     "ok": "Platta till",
     "busy": "Plattar till markeringar...",
+    "cancelled": "Utplattningen avbröts. Dokumentet ändrades inte.",
     "nothing": "Det här dokumentet har inga markeringar att platta till.",
     "nothingBaked": "Ingen av markeringarna har ett utseende på sidan, så inget plattades till.",
     "notLoaded": "Dokumentets markeringar läses fortfarande in. Försök igen om en stund.",

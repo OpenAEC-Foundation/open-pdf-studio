@@ -1,4 +1,5 @@
 import { HANDLE_SIZE, HANDLE_TYPES } from '../core/constants.js';
+import { kanDraaipunt, draaipuntLokaal } from './draaipunt.js';
 import { annotationCtx } from '../ui/dom-elements.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { isStramien, stramienAs, slotStatus, UITEINDEN } from './stramien-koppeling.js';
@@ -661,6 +662,12 @@ export function getAnnotationHandles(annotation, scale = 1) {
       handles.push({ type: HANDLE_TYPES.LEFT, x: annotation.x - hs/2, y: annotation.y + annotation.height/2 - hs/2 });
       handles.push({ type: HANDLE_TYPES.RIGHT, x: annotation.x + annotation.width - hs/2, y: annotation.y + annotation.height/2 - hs/2 });
       handles.push({ type: HANDLE_TYPES.ROTATE, x: annotation.x + annotation.width/2 - hs/2, y: annotation.y - 25 / scale - hs/2 });
+      // Eigen draaipunt (#826): een vizier op het draaipunt, standaard het
+      // midden. Draait hieronder mee met het vak.
+      if (kanDraaipunt(annotation)) {
+        const _dp = draaipuntLokaal(annotation);
+        handles.push({ type: HANDLE_TYPES.PIVOT, x: _dp.x - hs / 2, y: _dp.y - hs / 2, isPivot: true });
+      }
       // Stramienlijn: slotje per uiteinde (koppeling met de andere lijnen).
       if (isStramien(annotation)) _stramienSlotGrepen(annotation, scale, handles);
       break;
@@ -900,6 +907,8 @@ export function getCursorForHandle(handleType, rotation, annotation) {
       return 'move';
     case HANDLE_TYPES.ROTATE:
       return 'grab';
+    case HANDLE_TYPES.PIVOT:
+      return 'move';
     case HANDLE_TYPES.CALLOUT_MOVE:
     case HANDLE_TYPES.LABEL_MOVE:
       return 'move';

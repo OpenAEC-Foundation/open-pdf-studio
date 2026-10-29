@@ -328,7 +328,9 @@
     "scanText": "Gescannten Text bearbeiten",
     "scanTextHint": "Klicken Sie auf ein erkanntes Wort, um es zu ersetzen. Das alte Wort im Scan wird abgedeckt.",
     "scanTextNone": "Kein erkannter Text auf dieser Seite. Führen Sie zuerst Text erkennen (OCR) aus.",
-    "shiftPage": "Seite verschieben"
+    "shiftPage": "Seite verschieben",
+    "editPages": "Seiten bearbeiten",
+    "editPagesTitle": "Seiten visuell bearbeiten: anordnen, drehen, einfügen, löschen, extrahieren und teilen"
   },
   "help": {
     "settings": "Einstellungen",
@@ -657,7 +659,9 @@
     "vectorSnippetPasteTitle": "Den ausgeschnittenen Bereich hier einfügen, Vektordaten bleiben erhalten",
     "symbolScale": "Maßstab",
     "symbolScaleTitle": "Größe, in der ein neues Symbol platziert wird",
-    "symbolScaleCustom": "Eigener Maßstab"
+    "symbolScaleCustom": "Eigener Maßstab",
+    "count": "Zählen",
+    "arc": "Bogen"
   },
   "proofread": {
     "group": "Korrektur",
@@ -678,6 +682,7 @@
     "saveNote": "Notizen und andere Markierungen ohne Darstellung auf der Seite bleiben Markierungen. Die Datei ändert sich erst beim Speichern; bis dahin macht Rückgängig diesen Schritt rückgängig.",
     "ok": "Reduzieren",
     "busy": "Markierungen werden reduziert...",
+    "cancelled": "Reduzieren abgebrochen. Das Dokument wurde nicht geändert.",
     "nothing": "Dieses Dokument enthält keine Markierungen zum Reduzieren.",
     "nothingBaked": "Keine der Markierungen hat eine Darstellung auf der Seite; es wurde nichts reduziert.",
     "notLoaded": "Die Markierungen dieses Dokuments werden noch geladen. Versuchen Sie es gleich noch einmal.",

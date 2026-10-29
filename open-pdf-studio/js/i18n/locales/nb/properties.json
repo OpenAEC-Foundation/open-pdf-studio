@@ -139,9 +139,27 @@
       "nen47-aluminium": "NEN47-19 Aluminium/bronse/kobber",
       "nen47-kunststof": "NEN47-22 Plast",
       "nen47-afdichtingsmiddel": "NEN47-23 Fugemasse",
-      "nen47-maaiveld": "NEN47-25 Terrengnivå"
+      "nen47-maaiveld": "NEN47-25 Terrengnivå",
+      "staal-dubbel": "Stål (dobbeltlinje)",
+      "raster-liggend": "Rektangulært rutenett liggende",
+      "raster-staand": "Rektangulært rutenett stående",
+      "tegel-halfsteens": "Fliser (halvsteinsforband)",
+      "plank-halfsteens": "Bord (halvsteinsforband)",
+      "grond-blokjes": "Jord (blokker)",
+      "glas-strepen": "Glass (fasadestreker)",
+      "vloeistof-strepen": "Væske (streker)",
+      "gras-pollen": "Gress (tuer)",
+      "honingraat": "Bikake",
+      "lijnen-groep-verticaal": "Loddrette linjegrupper",
+      "lood-blokken": "Bly (blokker)",
+      "glas-doorsnede": "Glass (snitt)",
+      "wand-metselwerk": "Murvegg (linjepar)"
     },
-    "rotation": "Rotasjon"
+    "rotation": "Rotasjon",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Linjestil",
@@ -189,7 +207,9 @@
     "bold": "Fet",
     "italic": "Kursiv",
     "underline": "Understreking",
-    "strikethrough": "Gjennomstreking"
+    "strikethrough": "Gjennomstreking",
+    "fontNotEmbedded": "{{font}} bygges ikke inn i PDF-en. Lesere uten denne skrifttypen viser {{fallback}}.",
+    "fontReplaced": "{{font}} kan ikke bygges inn i PDF-en. Teksten lagres i {{fallback}}."
   },
   "paragraph": {
     "title": "Avsnitt",
@@ -198,7 +218,11 @@
     "alignCenter": "Midtstill",
     "alignRight": "Høyrejuster",
     "lineSpacing": "Linjeavstand",
-    "rotation": "Rotasjon"
+    "rotation": "Rotasjon",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Svar",
@@ -722,5 +746,49 @@
     "invalid": "Plasseringen kunne ikke oppdateres",
     "rules": "Tildelingen bruker midtpunktet av markeringens omsluttende ramme, kanter inkludert. Den dypeste sonen vinner, deretter minste areal og så sone-ID. Bruk rette polygoner uten hull eller uroterte rektangler. Ugyldige eller dupliserte soneidentiteter utelates.",
     "loading": "Merknader lastes inn: plasseringer kan fortsatt endres."
+  },
+  "styleTypeNames": {
+    "filledArea": {
+      "beton": "Betong",
+      "metselwerk": "Murverk",
+      "isolatie": "Isolasjon",
+      "zand": "Sand/sement",
+      "algemeen": "Generell (diagonal)",
+      "inb-sloop": "Riving",
+      "inb-staal": "Stål (dobbeltlinje)",
+      "inb-diagonaal-smal": "Diagonal tett",
+      "inb-diagonaal-midden": "Diagonal middels",
+      "inb-diagonaal-breed": "Diagonal åpen",
+      "inb-raster-fijn": "Rutenett fint",
+      "inb-raster-midden": "Rutenett middels",
+      "inb-raster-grof": "Rutenett grovt",
+      "inb-raster-liggend-1": "Rutenett liggende fint",
+      "inb-raster-liggend-2": "Rutenett liggende middels",
+      "inb-raster-liggend-3": "Rutenett liggende grovt",
+      "inb-raster-staand-1": "Rutenett stående fint",
+      "inb-raster-staand-2": "Rutenett stående middels",
+      "inb-raster-staand-3": "Rutenett stående grovt",
+      "inb-tegels-fijn": "Fliser små",
+      "inb-tegels-midden": "Fliser middels",
+      "inb-tegels-grof": "Fliser store",
+      "inb-planken-fijn": "Bord smale",
+      "inb-planken-midden": "Bord middels",
+      "inb-planken-grof": "Bord brede",
+      "inb-kruis-fijn": "Kryssskravering fin",
+      "inb-kruis-midden": "Kryssskravering middels",
+      "inb-kruis-grof": "Kryssskravering grov",
+      "inb-baksteen": "Murstein",
+      "inb-grond": "Jord",
+      "inb-glas": "Glass (fasade)",
+      "inb-vloeistof": "Væske",
+      "inb-gras": "Gress",
+      "inb-honingraat": "Bikake",
+      "inb-hout": "Tre (endeved)",
+      "inb-zand": "Sand",
+      "inb-beton": "Betong (flekket)",
+      "inb-verticaal-smal": "Loddrett tett",
+      "inb-verticaal-breed": "Loddrett åpen",
+      "inb-horizontaal-breed": "Vannrett åpen"
+    }
   }
 }

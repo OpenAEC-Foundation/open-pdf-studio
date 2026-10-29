@@ -120,8 +120,26 @@
       "nen47-aluminium": "NEN47-19 ອາລູມິນຽມ/ທອງສຳລິດ/ທອງແດງ",
       "nen47-kunststof": "NEN47-22 ປລາສະຕິກ",
       "nen47-afdichtingsmiddel": "NEN47-23 ວັດສະດຸອັດຮອຍຕໍ່",
-      "nen47-maaiveld": "NEN47-25 ລະດັບໜ້າດິນ"
-    }
+      "nen47-maaiveld": "NEN47-25 ລະດັບໜ້າດິນ",
+      "staal-dubbel": "ເຫຼັກ (ເສັ້ນຄູ່)",
+      "raster-liggend": "ຕາໜ່າງສີ່ຫຼ່ຽມແນວນອນ",
+      "raster-staand": "ຕາໜ່າງສີ່ຫຼ່ຽມແນວຕັ້ງ",
+      "tegel-halfsteens": "ກະເບື້ອງ (ຮອຍຕໍ່ສະຫຼັບ)",
+      "plank-halfsteens": "ແຜ່ນໄມ້ (ຮອຍຕໍ່ສະຫຼັບ)",
+      "grond-blokjes": "ດິນ (ບລັອກ)",
+      "glas-strepen": "ແກ້ວ (ເສັ້ນດ້ານໜ້າ)",
+      "vloeistof-strepen": "ຂອງແຫຼວ (ເສັ້ນ)",
+      "gras-pollen": "ຫຍ້າ (ກໍ)",
+      "honingraat": "ຮັງເຜິ້ງ",
+      "lijnen-groep-verticaal": "ກຸ່ມເສັ້ນແນວຕັ້ງ",
+      "lood-blokken": "ກົ່ວ (ບລັອກ)",
+      "glas-doorsnede": "ແກ້ວ (ໜ້າຕັດ)",
+      "wand-metselwerk": "ຝາກໍ່ (ເສັ້ນຄູ່)"
+    },
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "ຮູບແບບເສັ້ນ",
@@ -221,7 +239,9 @@
     "bold": "ໜາ",
     "italic": "ອຽງ",
     "underline": "ຂີດກ້ອງ",
-    "strikethrough": "ຂີດຂ້າ"
+    "strikethrough": "ຂີດຂ້າ",
+    "fontNotEmbedded": "ຟອນ {{font}} ບໍ່ໄດ້ຝັງໃນ PDF. ໂປຣແກຣມທີ່ບໍ່ມີຟອນນີ້ຈະສະແດງ {{fallback}}.",
+    "fontReplaced": "ບໍ່ສາມາດຝັງຟອນ {{font}} ໃນ PDF ໄດ້. ຂໍ້ຄວາມຈະຖືກບັນທຶກເປັນ {{fallback}}."
   },
   "paragraph": {
     "title": "ຫຍໍ້ໜ້າ",
@@ -230,7 +250,11 @@
     "alignCenter": "ຈັດເຄິ່ງກາງ",
     "alignRight": "ຈັດຊິດຂວາ",
     "lineSpacing": "ໄລຍະຫ່າງແຖວ",
-    "rotation": "ການໝຸນ"
+    "rotation": "ການໝຸນ",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "ການຕອບກັບ",
@@ -722,5 +746,49 @@
     "invalid": "ບໍ່ສາມາດອັບເດດສະຖານທີ່ໄດ້",
     "rules": "ການກຳນົດໃຊ້ຈຸດກາງຂອງກອບຂອບເຂດຂອງເຄື່ອງໝາຍ, ລວມທັງຂອບ. ເຂດທີ່ຢູ່ເລິກສຸດຊະນະ, ຕາມດ້ວຍພື້ນທີ່ນ້ອຍສຸດ, ແລ້ວ ID ຂອງເຂດ. ໃຊ້ຮູບຫຼາຍຫຼ່ຽມເສັ້ນຊື່ທີ່ບໍ່ມີຮູ ຫຼື ກອບທີ່ບໍ່ໝູນ. ຕົວຕົນຂອງເຂດທີ່ບໍ່ຖືກຕ້ອງ ຫຼື ຊ້ຳກັນຈະຖືກຍົກເວັ້ນ.",
     "loading": "ກຳລັງໂຫຼດຄຳອະທິບາຍປະກອບ: ສະຖານທີ່ອາດຍັງປ່ຽນແປງໄດ້."
+  },
+  "styleTypeNames": {
+    "filledArea": {
+      "beton": "ເບຕົງ",
+      "metselwerk": "ວຽກກໍ່",
+      "isolatie": "ສນວນກັນຄວາມຮ້ອນ",
+      "zand": "ຊາຍ/ຊີມັງ",
+      "algemeen": "ທົ່ວໄປ (ເສັ້ນທະແຍງ)",
+      "inb-sloop": "ຮື້ຖອນ",
+      "inb-staal": "ເຫຼັກ (ເສັ້ນຄູ່)",
+      "inb-diagonaal-smal": "ເສັ້ນທະແຍງຖີ່",
+      "inb-diagonaal-midden": "ເສັ້ນທະແຍງປານກາງ",
+      "inb-diagonaal-breed": "ເສັ້ນທະແຍງຫ່າງ",
+      "inb-raster-fijn": "ຕາໜ່າງລະອຽດ",
+      "inb-raster-midden": "ຕາໜ່າງປານກາງ",
+      "inb-raster-grof": "ຕາໜ່າງຫຍາບ",
+      "inb-raster-liggend-1": "ຕາໜ່າງແນວນອນລະອຽດ",
+      "inb-raster-liggend-2": "ຕາໜ່າງແນວນອນປານກາງ",
+      "inb-raster-liggend-3": "ຕາໜ່າງແນວນອນຫຍາບ",
+      "inb-raster-staand-1": "ຕາໜ່າງແນວຕັ້ງລະອຽດ",
+      "inb-raster-staand-2": "ຕາໜ່າງແນວຕັ້ງປານກາງ",
+      "inb-raster-staand-3": "ຕາໜ່າງແນວຕັ້ງຫຍາບ",
+      "inb-tegels-fijn": "ກະເບື້ອງນ້ອຍ",
+      "inb-tegels-midden": "ກະເບື້ອງກາງ",
+      "inb-tegels-grof": "ກະເບື້ອງໃຫຍ່",
+      "inb-planken-fijn": "ແຜ່ນໄມ້ແຄບ",
+      "inb-planken-midden": "ແຜ່ນໄມ້ກາງ",
+      "inb-planken-grof": "ແຜ່ນໄມ້ກວ້າງ",
+      "inb-kruis-fijn": "ຕາໜ່າງແຮເງົາລະອຽດ",
+      "inb-kruis-midden": "ຕາໜ່າງແຮເງົາປານກາງ",
+      "inb-kruis-grof": "ຕາໜ່າງແຮເງົາຫຍາບ",
+      "inb-baksteen": "ດິນຈີ່",
+      "inb-grond": "ດິນ",
+      "inb-glas": "ແກ້ວ (ດ້ານໜ້າ)",
+      "inb-vloeistof": "ຂອງແຫຼວ",
+      "inb-gras": "ຫຍ້າ",
+      "inb-honingraat": "ຮັງເຜິ້ງ",
+      "inb-hout": "ໄມ້ (ໜ້າຕັດຂວາງ)",
+      "inb-zand": "ຊາຍ",
+      "inb-beton": "ເບຕົງ (ຈຸດ)",
+      "inb-verticaal-smal": "ເສັ້ນແນວຕັ້ງຖີ່",
+      "inb-verticaal-breed": "ເສັ້ນແນວຕັ້ງຫ່າງ",
+      "inb-horizontaal-breed": "ເສັ້ນແນວນອນຫ່າງ"
+    }
   }
 }

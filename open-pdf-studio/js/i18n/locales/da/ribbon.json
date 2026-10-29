@@ -328,7 +328,9 @@
     "scanText": "Rediger scannet tekst",
     "scanTextHint": "Klik på et genkendt ord for at erstatte det. Det gamle ord i scanningen dækkes til.",
     "scanTextNone": "Ingen genkendt tekst på denne side. Kør Tekstgenkendelse (OCR) først.",
-    "shiftPage": "Forskyd side"
+    "shiftPage": "Forskyd side",
+    "editPages": "Rediger sider",
+    "editPagesTitle": "Rediger sider visuelt: omarranger, roter, indsæt, slet, udtræk og opdel"
   },
   "help": {
     "settings": "Indstillinger",
@@ -657,7 +659,9 @@
     "vectorSnippetPasteTitle": "Indsæt det udklippede område her med bevarede vektordata",
     "symbolScale": "Skala",
     "symbolScaleTitle": "Størrelse, som et nyt symbol placeres i",
-    "symbolScaleCustom": "Brugerdefineret skala"
+    "symbolScaleCustom": "Brugerdefineret skala",
+    "count": "Tæl",
+    "arc": "Bue"
   },
   "proofread": {
     "group": "Korrektur",
@@ -678,6 +682,7 @@
     "saveNote": "Noter og andre markeringer uden udseende på siden forbliver markeringer. Filen ændres først, når du gemmer; indtil da fortryder Fortryd dette trin.",
     "ok": "Fladgør",
     "busy": "Fladgør markeringer...",
+    "cancelled": "Udfladning annulleret. Dokumentet blev ikke ændret.",
     "nothing": "Dette dokument har ingen markeringer at fladgøre.",
     "nothingBaked": "Ingen af markeringerne har et udseende på siden, så intet blev fladgjort.",
     "notLoaded": "Dette dokuments markeringer indlæses stadig. Prøv igen om et øjeblik.",

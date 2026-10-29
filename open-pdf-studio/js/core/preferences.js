@@ -12,6 +12,7 @@ import { zetRanddikte } from '../annotations/rendering/textbox-layout.js';
 import { getStyleMapping } from './stijl-mapping.js';
 import { setZoomDpi, setZoomDpiSource, normalizeZoomDpi } from './zoom-display.js';
 import { kalibratieVoor } from '../pdf/schermkalibratie.js';
+import { pasSneltoetsVoorkeurToe } from './keybindings/app-shortcuts.js';
 
 // What 100% zoom means (#523), read live so a new calibration, a changed
 // preference or a move to a screen with another scale applies at once: on a
@@ -180,6 +181,9 @@ export function applyPreferences() {
   // Screen resolution behind the 100% zoom label
   setZoomDpi(state.preferences.zoomDpi);
 
+  // Keyboard shortcuts (#714): take effect at once, no restart.
+  pasSneltoetsVoorkeurToe(state.preferences.keyboardShortcuts);
+
   // Update default author from preferences
   state.defaultAuthor = state.preferences.authorName || 'User';
 
@@ -241,6 +245,7 @@ export function setAsDefaultStyle(annotation) {
   if (m.endHead && annotation.endHead) prefs[p + m.endHead] = annotation.endHead;
   if (m.headSize && annotation.headSize) prefs[p + m.headSize] = annotation.headSize;
   if (m.fontSize && annotation.fontSize) prefs[p + m.fontSize] = annotation.fontSize;
+  if (m.fontFamily && annotation.fontFamily && annotation.fontFamily !== 'mixed') prefs[p + m.fontFamily] = annotation.fontFamily;
   if (m.icon && annotation.icon) prefs[p + m.icon] = annotation.icon;
   if (m.overlayColor) prefs[p + m.overlayColor] = annotation.overlayColor || prefs[p + m.overlayColor];
 
@@ -303,6 +308,7 @@ export function applyDefaultStyle(annotation) {
   if (m.endHead && prefs[p + m.endHead]) annotation.endHead = prefs[p + m.endHead];
   if (m.headSize && prefs[p + m.headSize]) annotation.headSize = prefs[p + m.headSize];
   if (m.fontSize && prefs[p + m.fontSize]) annotation.fontSize = prefs[p + m.fontSize];
+  if (m.fontFamily && prefs[p + m.fontFamily]) annotation.fontFamily = prefs[p + m.fontFamily];
   if (m.icon && prefs[p + m.icon]) annotation.icon = prefs[p + m.icon];
   if (m.overlayColor && prefs[p + m.overlayColor]) annotation.overlayColor = prefs[p + m.overlayColor];
 

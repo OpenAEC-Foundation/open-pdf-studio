@@ -2,7 +2,7 @@
 Name=Open PDF Studio
 GenericName=PDF Editor
 Comment=A free, open-source PDF annotation editor
-Exec=open-pdf-studio %f
+Exec=open-pdf-studio %F
 Icon=org.openaec.OpenPdfStudio
 Terminal=false
 Type=Application

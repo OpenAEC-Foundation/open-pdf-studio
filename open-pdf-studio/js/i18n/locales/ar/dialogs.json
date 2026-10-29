@@ -183,6 +183,10 @@
     "documentAndMarkups": "المستند والعلامات",
     "document": "المستند",
     "printAsImage": "طباعة كصورة",
+    "colorMode": "وضع الألوان:",
+    "colorModeColor": "ملون",
+    "colorModeGrayscale": "تدرج رمادي",
+    "colorModeBlackWhite": "أبيض وأسود",
     "pagesToPrint": "صفحة/صفحات للطباعة",
     "noPrinterSelected": "لم يتم تحديد طابعة.",
     "noPagesToPrint": "لا توجد صفحات للطباعة.",
@@ -1605,5 +1609,30 @@
       "supersede": "مستبدَل",
       "expire": "منتهي الصلاحية"
     }
+  },
+  "pageOrganizer": {
+    "title": "تحرير الصفحات",
+    "hint": "اسحب الصفحات لنقلها؛ أفلت ملف PDF لإدراج صفحاته. يحدد Ctrl+نقر أو Shift+نقر أو مربعات الاختيار عدة صفحات. لا يتغير شيء حتى تطبيق.",
+    "moveLeft": "نقل لليسار",
+    "moveRight": "نقل لليمين",
+    "moveToStart": "نقل إلى البداية",
+    "moveToEnd": "نقل إلى النهاية",
+    "selection": "تم تحديد {{selected}} من {{total}} صفحة",
+    "rotateLeft": "تدوير لليسار",
+    "rotateRight": "تدوير لليمين",
+    "split": "تقسيم",
+    "splitTitle": "وضع علامات تقسيم حول الصفحات المحددة: تصبح كل مجموعة ملفًا منفصلًا",
+    "splitHere": "تقسيم هنا (وضع علامة تقسيم أو إزالتها)",
+    "extractTitle": "استخراج الصفحات المحددة إلى ملف جديد",
+    "blankPage": "صفحة فارغة",
+    "pagesFromFile": "صفحات من ملف…",
+    "insertHere": "إدراج صفحات هنا",
+    "select": "تحديد الصفحة",
+    "zoom": "تكبير/تصغير",
+    "parts": "التقسيم إلى {{count}} ملفات عند التطبيق",
+    "chooseFolder": "اختر المجلد للملفات المقسمة",
+    "fileFailed": "تعذرت قراءة {{name}}: {{error}}",
+    "applyFailed": "فشل تطبيق تعديلات الصفحات: {{error}}",
+    "extractFailed": "فشل استخراج الصفحات: {{error}}"
   }
 }

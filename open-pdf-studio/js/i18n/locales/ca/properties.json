@@ -139,9 +139,27 @@
       "nen47-aluminium": "NEN47-19 Alumini/bronze/coure",
       "nen47-kunststof": "NEN47-22 Plàstic",
       "nen47-afdichtingsmiddel": "NEN47-23 Segellant",
-      "nen47-maaiveld": "NEN47-25 Nivell del terreny"
+      "nen47-maaiveld": "NEN47-25 Nivell del terreny",
+      "staal-dubbel": "Acer (línia doble)",
+      "raster-liggend": "Quadrícula rectangular horitzontal",
+      "raster-staand": "Quadrícula rectangular vertical",
+      "tegel-halfsteens": "Rajoles (juntes desplaçades)",
+      "plank-halfsteens": "Taulons (juntes desplaçades)",
+      "grond-blokjes": "Terra (blocs)",
+      "glas-strepen": "Vidre (traços d'alçat)",
+      "vloeistof-strepen": "Líquid (traços)",
+      "gras-pollen": "Gespa (mates)",
+      "honingraat": "Bresca",
+      "lijnen-groep-verticaal": "Grups de línies verticals",
+      "lood-blokken": "Plom (blocs)",
+      "glas-doorsnede": "Vidre (secció)",
+      "wand-metselwerk": "Mur d'obra (parells de línies)"
     },
-    "rotation": "Rotació"
+    "rotation": "Rotació",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Estil de línia",
@@ -189,7 +207,9 @@
     "bold": "Negreta",
     "italic": "Cursiva",
     "underline": "Subratllat",
-    "strikethrough": "Ratllat"
+    "strikethrough": "Ratllat",
+    "fontNotEmbedded": "{{font}} no s'incrusta al PDF. Els lectors que no tenen aquesta font mostren {{fallback}}.",
+    "fontReplaced": "{{font}} no es pot incrustar al PDF. El text es desa en {{fallback}}."
   },
   "paragraph": {
     "title": "Paràgraf",
@@ -198,7 +218,11 @@
     "alignCenter": "Alinea al centre",
     "alignRight": "Alinea a la dreta",
     "lineSpacing": "Interlineat",
-    "rotation": "Rotació"
+    "rotation": "Rotació",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Respostes",
@@ -728,5 +752,49 @@
     "invalid": "No s'ha pogut actualitzar la ubicació",
     "rules": "L'assignació utilitza el centre del quadre delimitador del marcatge, vores incloses. Guanya la zona més profunda, després l'àrea més petita i després l'identificador de zona. Utilitzeu polígons rectes sense forats o rectangles sense rotació. S'exclouen les identitats de zona no vàlides o duplicades.",
     "loading": "S'estan carregant les anotacions: les ubicacions encara poden canviar."
+  },
+  "styleTypeNames": {
+    "filledArea": {
+      "beton": "Formigó",
+      "metselwerk": "Obra de fàbrica",
+      "isolatie": "Aïllament",
+      "zand": "Sorra/ciment",
+      "algemeen": "General (diagonal)",
+      "inb-sloop": "Enderroc",
+      "inb-staal": "Acer (línia doble)",
+      "inb-diagonaal-smal": "Diagonal estreta",
+      "inb-diagonaal-midden": "Diagonal mitjana",
+      "inb-diagonaal-breed": "Diagonal ampla",
+      "inb-raster-fijn": "Quadrícula fina",
+      "inb-raster-midden": "Quadrícula mitjana",
+      "inb-raster-grof": "Quadrícula gruixuda",
+      "inb-raster-liggend-1": "Quadrícula horitzontal fina",
+      "inb-raster-liggend-2": "Quadrícula horitzontal mitjana",
+      "inb-raster-liggend-3": "Quadrícula horitzontal gruixuda",
+      "inb-raster-staand-1": "Quadrícula vertical fina",
+      "inb-raster-staand-2": "Quadrícula vertical mitjana",
+      "inb-raster-staand-3": "Quadrícula vertical gruixuda",
+      "inb-tegels-fijn": "Rajoles petites",
+      "inb-tegels-midden": "Rajoles mitjanes",
+      "inb-tegels-grof": "Rajoles grans",
+      "inb-planken-fijn": "Taulons estrets",
+      "inb-planken-midden": "Taulons mitjans",
+      "inb-planken-grof": "Taulons amples",
+      "inb-kruis-fijn": "Tramat creuat fi",
+      "inb-kruis-midden": "Tramat creuat mitjà",
+      "inb-kruis-grof": "Tramat creuat gruixut",
+      "inb-baksteen": "Maó",
+      "inb-grond": "Terra",
+      "inb-glas": "Vidre (alçat)",
+      "inb-vloeistof": "Líquid",
+      "inb-gras": "Gespa",
+      "inb-honingraat": "Bresca",
+      "inb-hout": "Fusta (testa)",
+      "inb-zand": "Sorra",
+      "inb-beton": "Formigó (clapejat)",
+      "inb-verticaal-smal": "Vertical estret",
+      "inb-verticaal-breed": "Vertical ample",
+      "inb-horizontaal-breed": "Horitzontal ample"
+    }
   }
 }

@@ -1,4 +1,5 @@
 import { HANDLE_SIZE, HANDLE_TYPES } from '../../core/constants.js';
+import { heeftEigenDraaipunt } from '../draaipunt.js';
 import { state, getActiveDocument, getSelectionBounds, getAnnotationBounds } from '../../core/state.js';
 import { annotationCtx } from '../../ui/dom-elements.js';
 import { getAnnotationHandles } from '../handles.js';
@@ -258,6 +259,27 @@ export function drawSelectionHandles(ctx, annotation) {
   handles.forEach(handle => {
     const cx = handle.x + hs / 2;
     const cy = handle.y + hs / 2;
+
+    // Eigen draaipunt (#826): een vizier. Blauw op het midden, oranje als
+    // het verplaatst is, rood tijdens het slepen. Wit eronder voor contrast.
+    if (handle.type === HANDLE_TYPES.PIVOT) {
+      const r = hs * 0.8;
+      const arm = r * 1.7;
+      const actief = state.isResizing && state.activeHandle === HANDLE_TYPES.PIVOT;
+      const kleur = actief ? '#e81123' : (heeftEigenDraaipunt(annotation) ? '#e8590c' : '#0066cc');
+      ctx.save();
+      for (const [stroke, breedte] of [['#ffffff', 3 * lw], [kleur, 1.5 * lw]]) {
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = breedte;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+        ctx.moveTo(cx - arm, cy); ctx.lineTo(cx + arm, cy);
+        ctx.moveTo(cx, cy - arm); ctx.lineTo(cx, cy + arm);
+        ctx.stroke();
+      }
+      ctx.restore();
+      return;
+    }
 
     // Draw rotation handle as a circle with rotation icon (green color)
     if (handle.type === HANDLE_TYPES.ROTATE) {

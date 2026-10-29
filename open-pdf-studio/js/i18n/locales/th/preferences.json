@@ -9,7 +9,8 @@
     "behavior": "พฤติกรรม",
     "fileAssociation": "การเชื่อมโยงไฟล์",
     "virtualPrinter": "เครื่องพิมพ์เสมือน",
-    "pageDisplay": "การแสดงหน้า"
+    "pageDisplay": "การแสดงหน้า",
+    "keyboardShortcuts": "แป้นพิมพ์ลัด"
   },
   "resetToDefaults": "รีเซ็ตเป็นค่าเริ่มต้น",
   "resetConfirm": "รีเซ็ตการตั้งค่าทั้งหมดเป็นค่าเริ่มต้น?",
@@ -167,6 +168,7 @@
     "snapToPdfContent": "สแนปไปยังเนื้อหาแบบใน PDF",
     "navigation": "การนำทาง",
     "wheelZoomWithoutCtrl": "ซูมด้วยล้อเมาส์ (โดยไม่ต้องกด Ctrl)",
+    "middleDoubleClickFit": "ดับเบิลคลิกปุ่มกลางของเมาส์เพื่อปรับให้พอดีหน้า",
     "dynamicScaling": "ปรับขนาดมาร์กอัปอัตโนมัติ"
   },
   "fileAssoc": {
@@ -291,5 +293,51 @@
     "openArrowReversed": "ลูกศรเปิด (กลับด้าน)",
     "closedArrowReversed": "ลูกศรปิด (กลับด้าน)",
     "slash": "เส้นทแยง"
+  },
+  "keyboardShortcuts": {
+    "title": "แป้นพิมพ์ลัด",
+    "search": "ค้นหาตามคำสั่งหรือแป้น",
+    "command": "คำสั่ง",
+    "shortcuts": "แป้นพิมพ์ลัด",
+    "none": "ไม่มี",
+    "noMatches": "ไม่มีคำสั่งที่ตรงกับการค้นหา",
+    "selectHint": "เลือกคำสั่งเพื่อเปลี่ยนแป้นพิมพ์ลัด",
+    "addShortcut": "เพิ่มแป้นพิมพ์ลัด",
+    "remove": "ลบแป้นพิมพ์ลัด",
+    "resetCommand": "คืนค่าเริ่มต้น",
+    "resetAll": "คืนค่าทั้งหมด",
+    "resetAllConfirm": "คืนค่าแป้นพิมพ์ลัดทั้งหมดเป็นค่าเริ่มต้นหรือไม่?",
+    "import": "นำเข้า…",
+    "export": "ส่งออก…",
+    "fileType": "แป้นพิมพ์ลัด",
+    "imported": "นำเข้าแป้นพิมพ์ลัดแล้ว คลิกบันทึกเพื่อใช้งาน",
+    "importFailed": "ไฟล์นี้ไม่ใช่ไฟล์แป้นพิมพ์ลัดที่ถูกต้อง",
+    "exported": "ส่งออกแป้นพิมพ์ลัดแล้ว",
+    "exportFailed": "ส่งออกแป้นพิมพ์ลัดไม่สำเร็จ:",
+    "recording": "กดชุดแป้นใหม่… (Esc เพื่อยกเลิก)",
+    "conflict": "{{keys}} ถูกใช้โดย “{{command}}” แล้ว",
+    "reassign": "กำหนดใหม่",
+    "reserved": "{{keys}} มีความหมายตายตัวและกำหนดไม่ได้",
+    "defaultLabel": "ค่าเริ่มต้น: {{keys}}",
+    "customize": "ปรับแต่ง…",
+    "fixedGroup": "แป้นตายตัว",
+    "applyHint": "การเปลี่ยนแปลงจะมีผลเมื่อคลิกบันทึก",
+    "categories": {
+      "file": "ไฟล์",
+      "edit": "แก้ไข",
+      "view": "มุมมอง",
+      "search": "ค้นหา",
+      "tools": "เครื่องมือ",
+      "drafting": "ตัวช่วยวาด",
+      "panels": "แผง",
+      "review": "ตรวจทาน",
+      "help": "วิธีใช้",
+      "extensions": "ส่วนขยาย",
+      "ribbon": "ริบบอน: {{tab}}",
+      "other": "อื่น ๆ"
+    },
+    "commands": {
+      "findNext": "ค้นหาถัดไป"
+    }
   }
 }

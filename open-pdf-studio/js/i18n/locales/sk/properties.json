@@ -139,9 +139,27 @@
       "nen47-aluminium": "NEN47-19 Hliník/bronz/meď",
       "nen47-kunststof": "NEN47-22 Plast",
       "nen47-afdichtingsmiddel": "NEN47-23 Tesniaca hmota",
-      "nen47-maaiveld": "NEN47-25 Úroveň terénu"
+      "nen47-maaiveld": "NEN47-25 Úroveň terénu",
+      "staal-dubbel": "Oceľ (dvojitá čiara)",
+      "raster-liggend": "Obdĺžniková mriežka ležatá",
+      "raster-staand": "Obdĺžniková mriežka stojatá",
+      "tegel-halfsteens": "Dlaždice (väzba na polovicu)",
+      "plank-halfsteens": "Dosky (väzba na polovicu)",
+      "grond-blokjes": "Zemina (bloky)",
+      "glas-strepen": "Sklo (pohľadové čiarky)",
+      "vloeistof-strepen": "Kvapalina (čiarky)",
+      "gras-pollen": "Tráva (trsy)",
+      "honingraat": "Plást",
+      "lijnen-groep-verticaal": "Skupiny zvislých čiar",
+      "lood-blokken": "Olovo (bloky)",
+      "glas-doorsnede": "Sklo (rez)",
+      "wand-metselwerk": "Murovaná stena (dvojice čiar)"
     },
-    "rotation": "Otočenie"
+    "rotation": "Otočenie",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Štýl čiary",
@@ -189,7 +207,9 @@
     "bold": "Tučné",
     "italic": "Kurzíva",
     "underline": "Podčiarknuté",
-    "strikethrough": "Prečiarknuté"
+    "strikethrough": "Prečiarknuté",
+    "fontNotEmbedded": "Písmo {{font}} sa do PDF nevkladá. Čítačky bez tohto písma zobrazia {{fallback}}.",
+    "fontReplaced": "Písmo {{font}} nemožno vložiť do PDF. Text sa uloží písmom {{fallback}}."
   },
   "paragraph": {
     "title": "Odsek",
@@ -198,7 +218,11 @@
     "alignCenter": "Zarovnať na stred",
     "alignRight": "Zarovnať doprava",
     "lineSpacing": "Riadkovanie",
-    "rotation": "Otočenie"
+    "rotation": "Otočenie",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Odpovede",
@@ -722,5 +746,49 @@
     "invalid": "Umiestnenie sa nedá aktualizovať",
     "rules": "Priradenie vychádza zo stredu ohraničujúceho rámčeka označenia vrátane okrajov. Vyhráva najhlbšie vnorená zóna, potom najmenšia plocha, potom ID zóny. Používajte mnohouholníky s rovnými stranami bez otvorov alebo neotočené obdĺžniky. Neplatné alebo duplicitné identity zón sa vylučujú.",
     "loading": "Načítavajú sa anotácie: umiestnenia sa ešte môžu zmeniť."
+  },
+  "styleTypeNames": {
+    "filledArea": {
+      "beton": "Betón",
+      "metselwerk": "Murivo",
+      "isolatie": "Izolácia",
+      "zand": "Piesok/cement",
+      "algemeen": "Všeobecné (diagonálne)",
+      "inb-sloop": "Búranie",
+      "inb-staal": "Oceľ (dvojitá čiara)",
+      "inb-diagonaal-smal": "Diagonálna šrafa hustá",
+      "inb-diagonaal-midden": "Diagonálna šrafa stredná",
+      "inb-diagonaal-breed": "Diagonálna šrafa riedka",
+      "inb-raster-fijn": "Mriežka jemná",
+      "inb-raster-midden": "Mriežka stredná",
+      "inb-raster-grof": "Mriežka hrubá",
+      "inb-raster-liggend-1": "Mriežka ležatá jemná",
+      "inb-raster-liggend-2": "Mriežka ležatá stredná",
+      "inb-raster-liggend-3": "Mriežka ležatá hrubá",
+      "inb-raster-staand-1": "Mriežka stojatá jemná",
+      "inb-raster-staand-2": "Mriežka stojatá stredná",
+      "inb-raster-staand-3": "Mriežka stojatá hrubá",
+      "inb-tegels-fijn": "Dlaždice malé",
+      "inb-tegels-midden": "Dlaždice stredné",
+      "inb-tegels-grof": "Dlaždice veľké",
+      "inb-planken-fijn": "Dosky úzke",
+      "inb-planken-midden": "Dosky stredné",
+      "inb-planken-grof": "Dosky široké",
+      "inb-kruis-fijn": "Krížová šrafa jemná",
+      "inb-kruis-midden": "Krížová šrafa stredná",
+      "inb-kruis-grof": "Krížová šrafa hrubá",
+      "inb-baksteen": "Tehla",
+      "inb-grond": "Zemina",
+      "inb-glas": "Sklo (pohľad)",
+      "inb-vloeistof": "Kvapalina",
+      "inb-gras": "Tráva",
+      "inb-honingraat": "Plást",
+      "inb-hout": "Drevo (priečny rez)",
+      "inb-zand": "Piesok",
+      "inb-beton": "Betón (škvrnitý)",
+      "inb-verticaal-smal": "Zvislá šrafa hustá",
+      "inb-verticaal-breed": "Zvislá šrafa riedka",
+      "inb-horizontaal-breed": "Vodorovná šrafa riedka"
+    }
   }
 }

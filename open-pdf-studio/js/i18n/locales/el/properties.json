@@ -139,9 +139,27 @@
       "nen47-aluminium": "NEN47-19 Αλουμίνιο/μπρούντζος/χαλκός",
       "nen47-kunststof": "NEN47-22 Πλαστικό",
       "nen47-afdichtingsmiddel": "NEN47-23 Σφραγιστικό",
-      "nen47-maaiveld": "NEN47-25 Στάθμη εδάφους"
+      "nen47-maaiveld": "NEN47-25 Στάθμη εδάφους",
+      "staal-dubbel": "Χάλυβας (διπλή γραμμή)",
+      "raster-liggend": "Ορθογώνιο πλέγμα οριζόντιο",
+      "raster-staand": "Ορθογώνιο πλέγμα κατακόρυφο",
+      "tegel-halfsteens": "Πλακίδια (εναλλασσόμενοι αρμοί)",
+      "plank-halfsteens": "Σανίδες (εναλλασσόμενοι αρμοί)",
+      "grond-blokjes": "Χώμα (μπλοκ)",
+      "glas-strepen": "Γυαλί (γραμμές όψης)",
+      "vloeistof-strepen": "Υγρό (γραμμές)",
+      "gras-pollen": "Γρασίδι (τούφες)",
+      "honingraat": "Κηρήθρα",
+      "lijnen-groep-verticaal": "Ομάδες κατακόρυφων γραμμών",
+      "lood-blokken": "Μόλυβδος (μπλοκ)",
+      "glas-doorsnede": "Γυαλί (τομή)",
+      "wand-metselwerk": "Τοίχος τοιχοποιίας (ζεύγη γραμμών)"
     },
-    "rotation": "Περιστροφή"
+    "rotation": "Περιστροφή",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Στυλ γραμμής",
@@ -189,7 +207,9 @@
     "bold": "Έντονα",
     "italic": "Πλάγια",
     "underline": "Υπογράμμιση",
-    "strikethrough": "Διαγράμμιση"
+    "strikethrough": "Διαγράμμιση",
+    "fontNotEmbedded": "Η γραμματοσειρά {{font}} δεν ενσωματώνεται στο PDF. Οι εφαρμογές χωρίς αυτή τη γραμματοσειρά εμφανίζουν {{fallback}}.",
+    "fontReplaced": "Η γραμματοσειρά {{font}} δεν μπορεί να ενσωματωθεί στο PDF. Το κείμενο αποθηκεύεται σε {{fallback}}."
   },
   "paragraph": {
     "title": "Παράγραφος",
@@ -198,7 +218,11 @@
     "alignCenter": "Στοίχιση στο κέντρο",
     "alignRight": "Στοίχιση δεξιά",
     "lineSpacing": "Διάστιχο",
-    "rotation": "Περιστροφή"
+    "rotation": "Περιστροφή",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Απαντήσεις",
@@ -722,5 +746,49 @@
     "invalid": "Δεν ήταν δυνατή η ενημέρωση της τοποθεσίας",
     "rules": "Η ανάθεση χρησιμοποιεί το κέντρο του περιβάλλοντος πλαισίου της σήμανσης, συμπεριλαμβανομένων των άκρων. Υπερισχύει η βαθύτερη ζώνη, μετά η μικρότερη επιφάνεια και μετά το αναγνωριστικό ζώνης. Χρησιμοποιήστε ευθύγραμμα πολύγωνα χωρίς οπές ή μη περιστραμμένα πλαίσια. Μη έγκυρες ή διπλότυπες ταυτότητες ζωνών εξαιρούνται.",
     "loading": "Οι σχολιασμοί φορτώνονται: οι τοποθεσίες ενδέχεται να αλλάξουν ακόμη."
+  },
+  "styleTypeNames": {
+    "filledArea": {
+      "beton": "Σκυρόδεμα",
+      "metselwerk": "Τοιχοποιία",
+      "isolatie": "Μόνωση",
+      "zand": "Άμμος/τσιμέντο",
+      "algemeen": "Γενική (διαγώνια)",
+      "inb-sloop": "Κατεδάφιση",
+      "inb-staal": "Χάλυβας (διπλή γραμμή)",
+      "inb-diagonaal-smal": "Διαγώνια διαγράμμιση πυκνή",
+      "inb-diagonaal-midden": "Διαγώνια διαγράμμιση μεσαία",
+      "inb-diagonaal-breed": "Διαγώνια διαγράμμιση αραιή",
+      "inb-raster-fijn": "Πλέγμα λεπτό",
+      "inb-raster-midden": "Πλέγμα μεσαίο",
+      "inb-raster-grof": "Πλέγμα αδρό",
+      "inb-raster-liggend-1": "Οριζόντιο πλέγμα λεπτό",
+      "inb-raster-liggend-2": "Οριζόντιο πλέγμα μεσαίο",
+      "inb-raster-liggend-3": "Οριζόντιο πλέγμα αδρό",
+      "inb-raster-staand-1": "Κατακόρυφο πλέγμα λεπτό",
+      "inb-raster-staand-2": "Κατακόρυφο πλέγμα μεσαίο",
+      "inb-raster-staand-3": "Κατακόρυφο πλέγμα αδρό",
+      "inb-tegels-fijn": "Πλακίδια μικρά",
+      "inb-tegels-midden": "Πλακίδια μεσαία",
+      "inb-tegels-grof": "Πλακίδια μεγάλα",
+      "inb-planken-fijn": "Σανίδες στενές",
+      "inb-planken-midden": "Σανίδες μεσαίες",
+      "inb-planken-grof": "Σανίδες φαρδιές",
+      "inb-kruis-fijn": "Διασταυρούμενη διαγράμμιση λεπτή",
+      "inb-kruis-midden": "Διασταυρούμενη διαγράμμιση μεσαία",
+      "inb-kruis-grof": "Διασταυρούμενη διαγράμμιση αδρή",
+      "inb-baksteen": "Τούβλο",
+      "inb-grond": "Χώμα",
+      "inb-glas": "Γυαλί (όψη)",
+      "inb-vloeistof": "Υγρό",
+      "inb-gras": "Γρασίδι",
+      "inb-honingraat": "Κηρήθρα",
+      "inb-hout": "Ξύλο (εγκάρσια τομή)",
+      "inb-zand": "Άμμος",
+      "inb-beton": "Σκυρόδεμα (στικτό)",
+      "inb-verticaal-smal": "Κατακόρυφη διαγράμμιση πυκνή",
+      "inb-verticaal-breed": "Κατακόρυφη διαγράμμιση αραιή",
+      "inb-horizontaal-breed": "Οριζόντια διαγράμμιση αραιή"
+    }
   }
 }

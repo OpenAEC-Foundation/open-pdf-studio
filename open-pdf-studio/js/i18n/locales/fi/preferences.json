@@ -9,7 +9,8 @@
     "behavior": "Toiminta",
     "fileAssociation": "Tiedostoyhteys",
     "virtualPrinter": "Virtuaalitulostin",
-    "pageDisplay": "Sivun näyttö"
+    "pageDisplay": "Sivun näyttö",
+    "keyboardShortcuts": "Pikanäppäimet"
   },
   "resetToDefaults": "Palauta oletukset",
   "resetConfirm": "Palautetaanko kaikki asetukset oletusarvoihin?",
@@ -167,6 +168,7 @@
     "snapToPdfContent": "Kiinnitä PDF-piirustuksen sisältöön",
     "navigation": "Siirtyminen",
     "wheelZoomWithoutCtrl": "Zoomaa hiiren rullalla (ilman Ctrl-näppäintä)",
+    "middleDoubleClickFit": "Hiiren keskipainikkeen kaksoisnapsautus sovittaa sivun",
     "dynamicScaling": "Skaalaa merkinnät automaattisesti"
   },
   "fileAssoc": {
@@ -291,5 +293,51 @@
     "openArrowReversed": "Avoin nuoli (käänteinen)",
     "closedArrowReversed": "Suljettu nuoli (käänteinen)",
     "slash": "Vinoviiva"
+  },
+  "keyboardShortcuts": {
+    "title": "Pikanäppäimet",
+    "search": "Hae komennon tai näppäimen mukaan",
+    "command": "Komento",
+    "shortcuts": "Pikanäppäimet",
+    "none": "Ei mitään",
+    "noMatches": "Haku ei vastaa yhtään komentoa.",
+    "selectHint": "Valitse komento muuttaaksesi sen pikanäppäimiä.",
+    "addShortcut": "Lisää pikanäppäin",
+    "remove": "Poista pikanäppäin",
+    "resetCommand": "Palauta oletus",
+    "resetAll": "Palauta kaikki",
+    "resetAllConfirm": "Palautetaanko kaikki pikanäppäimet oletuksiin?",
+    "import": "Tuo…",
+    "export": "Vie…",
+    "fileType": "Pikanäppäimet",
+    "imported": "Pikanäppäimet tuotu. Ota ne käyttöön valitsemalla Tallenna.",
+    "importFailed": "Tämä ei ole kelvollinen pikanäppäintiedosto.",
+    "exported": "Pikanäppäimet viety.",
+    "exportFailed": "Pikanäppäinten vienti epäonnistui:",
+    "recording": "Paina uutta näppäinyhdistelmää… (Esc peruuttaa)",
+    "conflict": "{{keys}} on jo komennon ”{{command}}” käytössä.",
+    "reassign": "Määritä uudelleen",
+    "reserved": "{{keys}} on varattu kiinteään käyttöön, eikä sitä voi määrittää.",
+    "defaultLabel": "Oletus: {{keys}}",
+    "customize": "Mukauta…",
+    "fixedGroup": "Kiinteät näppäimet",
+    "applyHint": "Muutokset tulevat voimaan, kun valitset Tallenna.",
+    "categories": {
+      "file": "Tiedosto",
+      "edit": "Muokkaa",
+      "view": "Näytä",
+      "search": "Etsi",
+      "tools": "Työkalut",
+      "drafting": "Piirtoapuvälineet",
+      "panels": "Paneelit",
+      "review": "Tarkistus",
+      "help": "Ohje",
+      "extensions": "Laajennukset",
+      "ribbon": "Valintanauha: {{tab}}",
+      "other": "Muut"
+    },
+    "commands": {
+      "findNext": "Etsi seuraava"
+    }
   }
 }

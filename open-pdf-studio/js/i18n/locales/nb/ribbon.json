@@ -328,7 +328,9 @@
     "scanText": "Rediger skannet tekst",
     "scanTextHint": "Klikk på et gjenkjent ord for å erstatte det. Det gamle ordet i skanningen dekkes over.",
     "scanTextNone": "Ingen gjenkjent tekst på denne siden. Kjør Tekstgjenkjenning (OCR) først.",
-    "shiftPage": "Forskyv side"
+    "shiftPage": "Forskyv side",
+    "editPages": "Rediger sider",
+    "editPagesTitle": "Rediger sider visuelt: omorganiser, roter, sett inn, slett, trekk ut og del opp"
   },
   "help": {
     "settings": "Innstillinger",
@@ -657,7 +659,9 @@
     "vectorSnippetPasteTitle": "Lim inn det utklippede området her, med vektordataene bevart",
     "symbolScale": "Målestokk",
     "symbolScaleTitle": "Størrelsen et nytt symbol plasseres i",
-    "symbolScaleCustom": "Egendefinert målestokk"
+    "symbolScaleCustom": "Egendefinert målestokk",
+    "count": "Telling",
+    "arc": "Bue"
   },
   "proofread": {
     "group": "Korrektur",
@@ -678,6 +682,7 @@
     "saveNote": "Notater og andre markeringer uten utseende på siden forblir markeringer. Filen endres først når du lagrer; inntil da angrer Angre dette trinnet.",
     "ok": "Flat ut",
     "busy": "Flater ut markeringer...",
+    "cancelled": "Utflatingen ble avbrutt. Dokumentet ble ikke endret.",
     "nothing": "Dette dokumentet har ingen markeringer å flate ut.",
     "nothingBaked": "Ingen av markeringene har et utseende på siden, så ingenting ble flatet ut.",
     "notLoaded": "Markeringene i dette dokumentet lastes fortsatt inn. Prøv igjen om et øyeblikk.",

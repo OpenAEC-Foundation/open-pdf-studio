@@ -9,7 +9,8 @@
     "behavior": "Comportament",
     "fileAssociation": "Asociere fisiere",
     "virtualPrinter": "Imprimanta virtuala",
-    "pageDisplay": "Afișare pagină"
+    "pageDisplay": "Afișare pagină",
+    "keyboardShortcuts": "Comenzi rapide de la tastatură"
   },
   "resetToDefaults": "Resetare la valori implicite",
   "resetConfirm": "Resetati toate preferintele la valorile implicite?",
@@ -167,6 +168,7 @@
     "snapToPdfContent": "Fixare la conținutul desenului PDF",
     "navigation": "Navigare",
     "wheelZoomWithoutCtrl": "Zoom cu rotița mouse-ului (fără a ține apăsat Ctrl)",
+    "middleDoubleClickFit": "Dublu clic cu butonul din mijloc al mouse-ului pentru încadrarea paginii",
     "dynamicScaling": "Scalare automată a marcajelor"
   },
   "fileAssoc": {
@@ -291,5 +293,51 @@
     "openArrowReversed": "Săgeată deschisă (inversată)",
     "closedArrowReversed": "Săgeată închisă (inversată)",
     "slash": "Linie oblică"
+  },
+  "keyboardShortcuts": {
+    "title": "Comenzi rapide de la tastatură",
+    "search": "Căutați după comandă sau tastă",
+    "command": "Comandă",
+    "shortcuts": "Comenzi rapide",
+    "none": "Niciuna",
+    "noMatches": "Nicio comandă nu corespunde căutării.",
+    "selectHint": "Selectați o comandă pentru a-i schimba comenzile rapide.",
+    "addShortcut": "Adăugați comandă rapidă",
+    "remove": "Eliminați comanda rapidă",
+    "resetCommand": "Restabiliți valoarea implicită",
+    "resetAll": "Restabiliți tot",
+    "resetAllConfirm": "Restabiliți toate comenzile rapide la valorile implicite?",
+    "import": "Importați…",
+    "export": "Exportați…",
+    "fileType": "Comenzi rapide de la tastatură",
+    "imported": "Comenzi rapide importate. Faceți clic pe Salvare pentru a le aplica.",
+    "importFailed": "Acesta nu este un fișier valid de comenzi rapide.",
+    "exported": "Comenzi rapide exportate.",
+    "exportFailed": "Exportul comenzilor rapide a eșuat:",
+    "recording": "Apăsați noua combinație de taste… (Esc anulează)",
+    "conflict": "{{keys}} este deja folosită de „{{command}}”.",
+    "reassign": "Reatribuiți",
+    "reserved": "{{keys}} are o semnificație fixă și nu poate fi atribuită.",
+    "defaultLabel": "Implicit: {{keys}}",
+    "customize": "Personalizați…",
+    "fixedGroup": "Taste fixe",
+    "applyHint": "Modificările se aplică după ce faceți clic pe Salvare.",
+    "categories": {
+      "file": "Fișier",
+      "edit": "Editare",
+      "view": "Vizualizare",
+      "search": "Căutare",
+      "tools": "Instrumente",
+      "drafting": "Ajutoare de desenare",
+      "panels": "Panouri",
+      "review": "Revizuire",
+      "help": "Ajutor",
+      "extensions": "Extensii",
+      "ribbon": "Panglică: {{tab}}",
+      "other": "Altele"
+    },
+    "commands": {
+      "findNext": "Căutați următorul"
+    }
   }
 }

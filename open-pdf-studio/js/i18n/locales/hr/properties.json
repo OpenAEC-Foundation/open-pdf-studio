@@ -139,9 +139,27 @@
       "nen47-aluminium": "NEN47-19 Aluminij/bronca/bakar",
       "nen47-kunststof": "NEN47-22 Plastika",
       "nen47-afdichtingsmiddel": "NEN47-23 Brtvena masa",
-      "nen47-maaiveld": "NEN47-25 Razina terena"
+      "nen47-maaiveld": "NEN47-25 Razina terena",
+      "staal-dubbel": "Čelik (dvostruka linija)",
+      "raster-liggend": "Pravokutna mreža položena",
+      "raster-staand": "Pravokutna mreža uspravna",
+      "tegel-halfsteens": "Pločice (vez na pola)",
+      "plank-halfsteens": "Daske (vez na pola)",
+      "grond-blokjes": "Tlo (blokovi)",
+      "glas-strepen": "Staklo (crte pročelja)",
+      "vloeistof-strepen": "Tekućina (crte)",
+      "gras-pollen": "Trava (busenovi)",
+      "honingraat": "Saće",
+      "lijnen-groep-verticaal": "Skupine okomitih linija",
+      "lood-blokken": "Olovo (blokovi)",
+      "glas-doorsnede": "Staklo (presjek)",
+      "wand-metselwerk": "Zidani zid (parovi linija)"
     },
-    "rotation": "Rotacija"
+    "rotation": "Rotacija",
+    "boxShape": "Shape",
+    "boxShapeRect": "Rectangle (sharp corners)",
+    "boxShapeRounded": "Rectangle (rounded corners)",
+    "boxShapeEllipse": "Ellipse / circle"
   },
   "stylePresets": {
     "label": "Stil linije",
@@ -189,7 +207,9 @@
     "bold": "Podebljano",
     "italic": "Kurziv",
     "underline": "Podcrtano",
-    "strikethrough": "Precrtano"
+    "strikethrough": "Precrtano",
+    "fontNotEmbedded": "Font {{font}} nije ugrađen u PDF. Čitači bez ovog fonta prikazuju {{fallback}}.",
+    "fontReplaced": "Font {{font}} ne može se ugraditi u PDF. Tekst se sprema u fontu {{fallback}}."
   },
   "paragraph": {
     "title": "Odlomak",
@@ -198,7 +218,11 @@
     "alignCenter": "Poravnaj sredinu",
     "alignRight": "Poravnaj desno",
     "lineSpacing": "Razmak između redova",
-    "rotation": "Rotacija"
+    "rotation": "Rotacija",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Odgovori",
@@ -722,5 +746,49 @@
     "invalid": "Lokaciju nije moguće ažurirati",
     "rules": "Dodjela koristi središte graničnog okvira oznake, uključujući rubove. Prednost ima najdublja zona, zatim najmanja površina, pa ID zone. Koristite ravne mnogokute bez rupa ili nerotirane okvire. Nevaljani ili dvostruki identiteti zona isključuju se.",
     "loading": "Bilješke se učitavaju: lokacije se još mogu promijeniti."
+  },
+  "styleTypeNames": {
+    "filledArea": {
+      "beton": "Beton",
+      "metselwerk": "Zidanje",
+      "isolatie": "Izolacija",
+      "zand": "Pijesak/cement",
+      "algemeen": "Općenito (dijagonalno)",
+      "inb-sloop": "Rušenje",
+      "inb-staal": "Čelik (dvostruka linija)",
+      "inb-diagonaal-smal": "Dijagonalna šrafura gusta",
+      "inb-diagonaal-midden": "Dijagonalna šrafura srednja",
+      "inb-diagonaal-breed": "Dijagonalna šrafura rijetka",
+      "inb-raster-fijn": "Mreža fina",
+      "inb-raster-midden": "Mreža srednja",
+      "inb-raster-grof": "Mreža gruba",
+      "inb-raster-liggend-1": "Položena mreža fina",
+      "inb-raster-liggend-2": "Položena mreža srednja",
+      "inb-raster-liggend-3": "Položena mreža gruba",
+      "inb-raster-staand-1": "Uspravna mreža fina",
+      "inb-raster-staand-2": "Uspravna mreža srednja",
+      "inb-raster-staand-3": "Uspravna mreža gruba",
+      "inb-tegels-fijn": "Pločice male",
+      "inb-tegels-midden": "Pločice srednje",
+      "inb-tegels-grof": "Pločice velike",
+      "inb-planken-fijn": "Daske uske",
+      "inb-planken-midden": "Daske srednje",
+      "inb-planken-grof": "Daske široke",
+      "inb-kruis-fijn": "Unakrsna šrafura fina",
+      "inb-kruis-midden": "Unakrsna šrafura srednja",
+      "inb-kruis-grof": "Unakrsna šrafura gruba",
+      "inb-baksteen": "Opeka",
+      "inb-grond": "Tlo",
+      "inb-glas": "Staklo (pročelje)",
+      "inb-vloeistof": "Tekućina",
+      "inb-gras": "Trava",
+      "inb-honingraat": "Saće",
+      "inb-hout": "Drvo (poprečni presjek)",
+      "inb-zand": "Pijesak",
+      "inb-beton": "Beton (pjegavi)",
+      "inb-verticaal-smal": "Okomita šrafura gusta",
+      "inb-verticaal-breed": "Okomita šrafura rijetka",
+      "inb-horizontaal-breed": "Vodoravna šrafura rijetka"
+    }
   }
 }

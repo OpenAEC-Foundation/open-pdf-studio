@@ -14,6 +14,7 @@ import { calloutLeiderKoppen } from './callout-koppen.js';
 import { koppenVan } from '../pdf/lijnkoppen.js';
 import { drawDimension, drawMeasureAreaShape, drawCentroidLabel, drawMeasurePerimeterShape, drawVlakZijdematen } from './rendering/measurements.js';
 import { vlakZijdeTeksten } from './measurement.js';
+import { vormVan, bouwVakPad } from './rendering/textbox-vorm.js';
 import { maatlijnTekst } from './maat-label.js';
 import { maatlijnVelden } from './maatlijn-geometrie.js';
 import { tagWeergaveParams } from '../plattegrond/ruimte-koppeling.js';
@@ -473,6 +474,21 @@ function metVulDekking(ctx, vulAlfa, teken) {
   const lijnAlfa = ctx.globalAlpha;
   ctx.globalAlpha = vulAlfa;
   try { teken(); } finally { ctx.globalAlpha = lijnAlfa; }
+}
+
+// The bitmap of an image annotation or image stamp from its own imageData
+// when the image cache has none for it (e.g. a stamp whose cache entry was
+// never made). Cached under the annotation's imageId; a redraw follows the
+// load (see the callers).
+function beeldUitImageData(annotation) {
+  const bron = annotation.imageData;
+  if (typeof bron !== 'string' || !bron.startsWith('data:image/')) return null;
+  if (typeof Image === 'undefined') return null;
+  const img = new Image();
+  img.src = bron;
+  if (!annotation.imageId) annotation.imageId = 'img_' + (annotation.id || Date.now().toString(36));
+  imageCache.set(annotation.imageId, img);
+  return img;
 }
 
 export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
@@ -1194,6 +1210,9 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
         if (annotation.borderEffect === 'cloudy') {
           buildCloudPath(ctx, annotation.x, annotation.y, tbWidth, tbHeight, tbPuff);
           ctx.fill();
+        } else if (vormVan(annotation) !== 'rect') {
+          bouwVakPad(ctx, annotation.x, annotation.y, tbWidth, tbHeight, vormVan(annotation));
+          ctx.fill();
         } else {
           ctx.fillRect(annotation.x, annotation.y, tbWidth, tbHeight);
         }
@@ -1206,6 +1225,9 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
         applyBorderStyle(ctx, tbBorderStyle);
         if (annotation.borderEffect === 'cloudy') {
           buildCloudPath(ctx, annotation.x, annotation.y, tbWidth, tbHeight, tbPuff);
+          ctx.stroke();
+        } else if (vormVan(annotation) !== 'rect') {
+          bouwVakPad(ctx, annotation.x, annotation.y, tbWidth, tbHeight, vormVan(annotation));
           ctx.stroke();
         } else {
           ctx.strokeRect(annotation.x, annotation.y, tbWidth, tbHeight);
@@ -1398,7 +1420,13 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
 
     case 'image':
       // Draw image with rotation and flip
-      const img = imageCache.get(annotation.imageId);
+      const img = imageCache.get(annotation.imageId) || beeldUitImageData(annotation);
+      // An image that is still loading: redraw once it is ready, otherwise
+      // the "Loading..." placeholder stays until the next redraw.
+      if (img && !img.complete && !img._redrawOnLoad) {
+        img._redrawOnLoad = true;
+        img.addEventListener('load', () => { try { hertekenActieveWeergave(); } catch (_) {} }, { once: true });
+      }
       if (img && img.complete) {
         ctx.save();
 
@@ -1547,6 +1575,9 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
         const raw = annotation._cachedImg;
         if (raw instanceof HTMLImageElement) stampImg = raw;
       }
+      // Bitmap not in the cache (yet), but the image data is on the
+      // annotation (an image stamp, #749): decode it from there.
+      if (!stampImg) stampImg = beeldUitImageData(annotation);
       // An image that is still decoding (just loaded from a PDF): redraw once it
       // is ready, otherwise the stamp stays invisible until the next redraw.
       if (stampImg && !stampImg.complete && !stampImg._redrawOnLoad) {

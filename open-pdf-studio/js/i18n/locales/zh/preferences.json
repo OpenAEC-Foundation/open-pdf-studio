@@ -9,7 +9,8 @@
     "behavior": "行为",
     "fileAssociation": "文件关联",
     "virtualPrinter": "虚拟打印机",
-    "pageDisplay": "页面显示"
+    "pageDisplay": "页面显示",
+    "keyboardShortcuts": "键盘快捷键"
   },
   "resetToDefaults": "恢复默认设置",
   "resetConfirm": "将所有首选项恢复为默认值？",
@@ -167,6 +168,7 @@
     "confirmBeforeDeleting": "删除批注前确认",
     "navigation": "导航",
     "wheelZoomWithoutCtrl": "使用鼠标滚轮缩放（无需按住 Ctrl）",
+    "middleDoubleClickFit": "双击鼠标中键以适合页面",
     "dynamicScaling": "自动缩放标记"
   },
   "fileAssoc": {
@@ -291,5 +293,51 @@
     "openArrowReversed": "开放箭头（反向）",
     "closedArrowReversed": "闭合箭头（反向）",
     "slash": "斜线"
+  },
+  "keyboardShortcuts": {
+    "title": "键盘快捷键",
+    "search": "按命令或按键搜索",
+    "command": "命令",
+    "shortcuts": "快捷键",
+    "none": "无",
+    "noMatches": "没有与搜索匹配的命令。",
+    "selectHint": "选择一个命令以更改其快捷键。",
+    "addShortcut": "添加快捷键",
+    "remove": "删除快捷键",
+    "resetCommand": "恢复默认值",
+    "resetAll": "全部恢复",
+    "resetAllConfirm": "将所有键盘快捷键恢复为默认值？",
+    "import": "导入…",
+    "export": "导出…",
+    "fileType": "键盘快捷键",
+    "imported": "快捷键已导入。单击“保存”以应用。",
+    "importFailed": "这不是有效的键盘快捷键文件。",
+    "exported": "快捷键已导出。",
+    "exportFailed": "导出快捷键失败：",
+    "recording": "请按新的组合键…（按 Esc 取消）",
+    "conflict": "{{keys}} 已被“{{command}}”使用。",
+    "reassign": "重新分配",
+    "reserved": "{{keys}} 有固定用途，无法分配。",
+    "defaultLabel": "默认：{{keys}}",
+    "customize": "自定义…",
+    "fixedGroup": "固定按键",
+    "applyHint": "单击“保存”后更改生效。",
+    "categories": {
+      "file": "文件",
+      "edit": "编辑",
+      "view": "视图",
+      "search": "查找",
+      "tools": "工具",
+      "drafting": "绘图辅助",
+      "panels": "面板",
+      "review": "审阅",
+      "help": "帮助",
+      "extensions": "扩展",
+      "ribbon": "功能区：{{tab}}",
+      "other": "其他"
+    },
+    "commands": {
+      "findNext": "查找下一个"
+    }
   }
 }

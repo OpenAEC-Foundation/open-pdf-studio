@@ -1,7 +1,8 @@
-import { createSignal, onMount, For } from 'solid-js';
+import { createSignal, createMemo, onMount, For, Show } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { systemFontList } from '../../stores/fontStore.js';
+import { lettertypeMelding } from '../../../text/lettertype-inbedding.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 
 const FONT_SIZES = [8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 64, 72];
@@ -9,6 +10,7 @@ const FONT_SIZES = [8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 64, 72
 export default function TextAnnotationDialog(props) {
   const { t } = useTranslation('dialogs');
   const { t: tCommon } = useTranslation('common');
+  const { t: tProps } = useTranslation('properties');
 
   const onResult = props.data?.onResult;
 
@@ -20,6 +22,14 @@ export default function TextAnnotationDialog(props) {
   const [align, setAlign] = createSignal('left');
   const [color, setColor] = createSignal('#000000');
   const [text, setText] = createSignal('');
+
+  // De gekozen letter staat altijd in de lijst, ook als die (nog) leeg is.
+  const fonts = createMemo(() => {
+    const lijst = systemFontList();
+    return lijst.includes(fontFamily()) ? lijst : [fontFamily(), ...lijst];
+  });
+  // Tekst in de pagina komt in een standaardletter (#765): zeg welke.
+  const melding = createMemo(() => lettertypeMelding(fontFamily(), 'paginatekst'));
 
   let textareaRef;
 
@@ -128,8 +138,8 @@ export default function TextAnnotationDialog(props) {
             value={fontFamily()}
             onChange={(e) => setFontFamily(e.target.value)}
           >
-            <For each={systemFontList()}>
-              {(font) => <option value={font} style={{ 'font-family': `'${font}', sans-serif` }}>{font}</option>}
+            <For each={fonts()}>
+              {(font) => <option value={font} selected={font === fontFamily()} style={{ 'font-family': `'${font}', sans-serif` }}>{font}</option>}
             </For>
           </select>
           <select
@@ -238,6 +248,12 @@ export default function TextAnnotationDialog(props) {
           </div>
         </div>
       </div>
+
+      <Show when={melding()}>
+        <div class="font-inbedding-melding" role="note">
+          {tProps(melding().sleutel, { font: melding().font, fallback: melding().fallback })}
+        </div>
+      </Show>
 
       {/* Textarea */}
       <textarea

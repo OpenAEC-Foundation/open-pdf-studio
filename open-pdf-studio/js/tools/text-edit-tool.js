@@ -1,5 +1,6 @@
 import { state, getActiveDocument, getPageRotation } from '../core/state.js';
 import { execute } from '../core/undo-manager.js';
+import { verwijderTextEditRecord } from './text-edit-verwijderen.js';
 import { redrawAnnotations, redrawContinuous } from '../annotations/rendering.js';
 import { showTextEditProperties, hideProperties } from '../ui/panels/properties-panel.js';
 import { markDocumentModified } from '../ui/chrome/tabs.js';
@@ -2337,11 +2338,7 @@ function nudgeActiveTextEdit(dxPdf, dyPdf) {
 
 // Remove a textEdit record from the document (undoable).
 function removeTextEditRecord(rec) {
-  const doc = getActiveDocument();
-  if (!doc || !doc.textEdits) return;
-  const index = doc.textEdits.findIndex(e => e.id === rec.id);
-  if (index === -1) return;
-  execute({ type: 'removeTextEdit', textEdit: { ...rec }, index });
+  if (!verwijderTextEditRecord(getActiveDocument(), rec)) return;
   markDocumentModified();
   reRenderAddedText(rec.page);
 }
