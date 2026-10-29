@@ -213,6 +213,7 @@
     "navigation": "Navigation",
     "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "middleDoubleClickFit": "Double-click the middle mouse button to zoom to fit",
+    "ribbonWheelSwitchesTabs": "Switch ribbon tabs with the mouse wheel",
     "dynamicScaling": "Auto-scale markups"
   },
   "pageDisplay": {

@@ -180,6 +180,7 @@
     "navigation": "Gezinme",
     "wheelZoomWithoutCtrl": "Fare tekerleğiyle yakınlaştır (Ctrl basılı tutmadan)",
     "middleDoubleClickFit": "Sayfayı sığdırmak için farenin orta düğmesine çift tıklayın",
+    "ribbonWheelSwitchesTabs": "Şerit sekmelerini fare tekerleğiyle değiştir",
     "dynamicScaling": "İşaretlemeleri otomatik ölçekle"
   },
   "fileAssoc": {

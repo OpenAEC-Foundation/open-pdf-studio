@@ -1,4 +1,4 @@
-import { Show, Switch, Match, ErrorBoundary, createEffect } from 'solid-js';
+import { Show, Switch, Match, ErrorBoundary, createEffect, onMount, onCleanup } from 'solid-js';
 import RibbonTab from './RibbonTab.jsx';
 import HomeTab from './HomeTab.jsx';
 import DrawingTab from './DrawingTab.jsx';
@@ -11,6 +11,7 @@ import ArrangeTab from './ArrangeTab.jsx';
 import ImageTab from './ImageTab.jsx';
 import ExtensionRibbonTab, { ExtensionTabStrip, isExtensieTabblad } from './ExtensionRibbonTab.jsx';
 import { volgendeTab } from './ribbon-toetsenbord.js';
+import { maakWielStapper, wielTab, lintTabs, heeftEigenWiel } from './ribbon-wiel.js';
 import { lintRegister } from '../../../plugins/ribbon-tab-registry.js';
 import { activeTab, setActiveTab, contextualTabsVisible } from '../../stores/ribbonStore.js';
 import { imageSelected } from '../../stores/imageEditStore.js';
@@ -93,6 +94,30 @@ export default function Ribbon() {
     setActiveTab(volgende);
     requestAnimationFrame(() => knopVan(volgende)?.focus());
   };
+  // Muiswiel boven het lint (#852): één wielklik is één tabblad, zonder
+  // rondloop, alsof de gebruiker het tabblad aanklikt. Het wiel van het lint
+  // scrollt of zoomt nooit het document; invoervakken, keuzelijsten, galerijen
+  // en open uitklapmenu's houden hun eigen wiel, Ctrl/Shift+wiel blijft liggen.
+  onMount(() => {
+    const houder = tablistEl?.parentElement;
+    if (!houder) return;
+    const stapper = maakWielStapper();
+    const opWiel = (e) => {
+      if (state.preferences.ribbonWheelSwitchesTabs === false) return;
+      if (e.defaultPrevented || e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) return;
+      if (heeftEigenWiel(e.target, houder, (el) => getComputedStyle(el))) return;
+      e.preventDefault();
+      const stap = stapper.stap(e);
+      if (!stap) return;
+      const tabs = lintTabs(tablistEl.querySelectorAll('.ribbon-tab[role="tab"]'));
+      const huidig = commentActive() ? 'comment' : activeTab();
+      const volgende = wielTab(tabs, huidig, stap);
+      if (volgende) knopVan(volgende)?.click();
+    };
+    houder.addEventListener('wheel', opWiel, { passive: false });
+    onCleanup(() => houder.removeEventListener('wheel', opWiel));
+  });
+
   const opFocusIn = () => { focusInStrook = true; };
   const opFocusUit = (e) => {
     if (e.relatedTarget && tablistEl?.contains(e.relatedTarget)) return;

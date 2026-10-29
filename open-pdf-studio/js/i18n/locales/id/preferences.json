@@ -180,6 +180,7 @@
     "navigation": "Navigasi",
     "wheelZoomWithoutCtrl": "Zoom dengan roda mouse (tanpa menahan Ctrl)",
     "middleDoubleClickFit": "Klik dua kali tombol tengah mouse untuk menyesuaikan halaman",
+    "ribbonWheelSwitchesTabs": "Ganti tab ribbon dengan roda mouse",
     "dynamicScaling": "Skalakan markup otomatis"
   },
   "fileAssoc": {

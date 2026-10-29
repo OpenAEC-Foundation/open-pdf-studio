@@ -180,6 +180,7 @@
     "navigation": "Navigazione",
     "wheelZoomWithoutCtrl": "Zoom con la rotellina del mouse (senza tenere premuto Ctrl)",
     "middleDoubleClickFit": "Doppio clic con il tasto centrale del mouse per adattare la pagina",
+    "ribbonWheelSwitchesTabs": "Cambia scheda della barra multifunzione con la rotellina del mouse",
     "dynamicScaling": "Scala automatica delle annotazioni"
   },
   "fileAssoc": {

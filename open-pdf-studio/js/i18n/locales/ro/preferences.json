@@ -180,6 +180,7 @@
     "navigation": "Navigare",
     "wheelZoomWithoutCtrl": "Zoom cu rotița mouse-ului (fără a ține apăsat Ctrl)",
     "middleDoubleClickFit": "Dublu clic cu butonul din mijloc al mouse-ului pentru încadrarea paginii",
+    "ribbonWheelSwitchesTabs": "Comută filele panglicii cu rotița mouse-ului",
     "dynamicScaling": "Scalare automată a marcajelor"
   },
   "fileAssoc": {

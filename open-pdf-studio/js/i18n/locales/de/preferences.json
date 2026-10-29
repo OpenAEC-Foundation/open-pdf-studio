@@ -180,6 +180,7 @@
     "navigation": "Navigation",
     "wheelZoomWithoutCtrl": "Mit dem Mausrad zoomen (ohne gedrückte Ctrl-Taste)",
     "middleDoubleClickFit": "Doppelklick mit der mittleren Maustaste passt die Seite ein",
+    "ribbonWheelSwitchesTabs": "Menüband-Registerkarten mit dem Mausrad wechseln",
     "dynamicScaling": "Markierungen automatisch skalieren"
   },
   "fileAssoc": {

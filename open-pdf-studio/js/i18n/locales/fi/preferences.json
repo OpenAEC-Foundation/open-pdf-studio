@@ -180,6 +180,7 @@
     "navigation": "Siirtyminen",
     "wheelZoomWithoutCtrl": "Zoomaa hiiren rullalla (ilman Ctrl-näppäintä)",
     "middleDoubleClickFit": "Hiiren keskipainikkeen kaksoisnapsautus sovittaa sivun",
+    "ribbonWheelSwitchesTabs": "Vaihda valintanauhan välilehteä hiiren rullalla",
     "dynamicScaling": "Skaalaa merkinnät automaattisesti"
   },
   "fileAssoc": {

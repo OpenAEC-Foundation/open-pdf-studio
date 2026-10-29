@@ -180,6 +180,7 @@
     "navigation": "Навигация",
     "wheelZoomWithoutCtrl": "Масштабирование колёсиком мыши (без удержания Ctrl)",
     "middleDoubleClickFit": "Двойной щелчок средней кнопкой мыши — вписать страницу",
+    "ribbonWheelSwitchesTabs": "Переключать вкладки ленты колёсиком мыши",
     "dynamicScaling": "Автомасштабирование пометок"
   },
   "fileAssoc": {

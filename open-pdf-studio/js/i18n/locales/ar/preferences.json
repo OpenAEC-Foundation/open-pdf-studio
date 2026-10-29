@@ -180,6 +180,7 @@
     "navigation": "التنقل",
     "wheelZoomWithoutCtrl": "التكبير بعجلة الماوس (دون الضغط على Ctrl)",
     "middleDoubleClickFit": "النقر المزدوج بزر الماوس الأوسط لملاءمة الصفحة",
+    "ribbonWheelSwitchesTabs": "التبديل بين علامات تبويب الشريط بعجلة الماوس",
     "dynamicScaling": "تغيير مقياس العلامات تلقائيًا"
   },
   "fileAssoc": {

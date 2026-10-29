@@ -180,6 +180,7 @@
     "navigation": "ناوبری",
     "wheelZoomWithoutCtrl": "بزرگ‌نمایی با چرخ ماوس (بدون نگه داشتن Ctrl)",
     "middleDoubleClickFit": "دوبار کلیک با دکمه وسط ماوس برای جا دادن صفحه",
+    "ribbonWheelSwitchesTabs": "جابه‌جایی بین زبانه‌های نوار ابزار با چرخ ماوس",
     "dynamicScaling": "مقیاس خودکار نشانه‌گذاری‌ها"
   },
   "fileAssoc": {

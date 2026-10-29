@@ -180,6 +180,7 @@
     "navigation": "வழிசெலுத்தல்",
     "wheelZoomWithoutCtrl": "சுட்டி உருளையால் பெரிதாக்கு (Ctrl அழுத்தாமல்)",
     "middleDoubleClickFit": "பக்கத்தைப் பொருத்த சுட்டியின் நடு பொத்தானை இருமுறை சொடுக்கவும்",
+    "ribbonWheelSwitchesTabs": "சுட்டி உருளையால் ரிப்பன் தாவல்களை மாற்று",
     "dynamicScaling": "குறியீடுகளைத் தானாக அளவிடு"
   },
   "fileAssoc": {

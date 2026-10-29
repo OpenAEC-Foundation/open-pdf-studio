@@ -180,6 +180,7 @@
     "navigation": "Навігація",
     "wheelZoomWithoutCtrl": "Масштабування коліщатком миші (без утримання Ctrl)",
     "middleDoubleClickFit": "Подвійне клацання середньою кнопкою миші — вписати сторінку",
+    "ribbonWheelSwitchesTabs": "Перемикати вкладки стрічки коліщатком миші",
     "dynamicScaling": "Автомасштабування анотацій"
   },
   "fileAssoc": {

@@ -212,6 +212,7 @@ export interface Preferences {
   confirmBeforeDelete: boolean;
   wheelZoomWithoutCtrl: boolean;
   middleDoubleClickFit: boolean;
+  ribbonWheelSwitchesTabs: boolean;
 
   // Startup
   restoreLastSession: boolean;

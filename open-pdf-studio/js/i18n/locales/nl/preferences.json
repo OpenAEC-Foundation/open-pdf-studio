@@ -184,6 +184,7 @@
     "navigation": "Navigatie",
     "wheelZoomWithoutCtrl": "Zoomen met muiswiel (zonder Ctrl ingedrukt)",
     "middleDoubleClickFit": "Dubbelklikken met de middelste muisknop past de pagina in het venster",
+    "ribbonWheelSwitchesTabs": "Linttabbladen wisselen met het muiswiel",
     "dynamicScaling": "Markeringen automatisch schalen"
   },
   "fileAssoc": {

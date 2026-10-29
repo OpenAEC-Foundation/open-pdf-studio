@@ -180,6 +180,7 @@
     "navigation": "Navigering",
     "wheelZoomWithoutCtrl": "Zooma med mushjulet (utan att hålla ned Ctrl)",
     "middleDoubleClickFit": "Dubbelklicka med mittenknappen för att anpassa sidan",
+    "ribbonWheelSwitchesTabs": "Byt flik i menyfliksområdet med mushjulet",
     "dynamicScaling": "Skala markeringar automatiskt"
   },
   "fileAssoc": {

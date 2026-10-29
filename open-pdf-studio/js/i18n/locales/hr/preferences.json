@@ -180,6 +180,7 @@
     "navigation": "Navigacija",
     "wheelZoomWithoutCtrl": "Zumiranje kotačićem miša (bez držanja tipke Ctrl)",
     "middleDoubleClickFit": "Dvostruki klik srednjom tipkom miša prilagođava stranicu",
+    "ribbonWheelSwitchesTabs": "Mijenjaj kartice vrpce kotačićem miša",
     "dynamicScaling": "Automatski skaliraj oznake"
   },
   "fileAssoc": {

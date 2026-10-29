@@ -180,6 +180,7 @@
     "navigation": "导航",
     "wheelZoomWithoutCtrl": "使用鼠标滚轮缩放（无需按住 Ctrl）",
     "middleDoubleClickFit": "双击鼠标中键以适合页面",
+    "ribbonWheelSwitchesTabs": "使用鼠标滚轮切换功能区选项卡",
     "dynamicScaling": "自动缩放标记"
   },
   "fileAssoc": {

@@ -180,6 +180,7 @@
     "navigation": "Navegação",
     "wheelZoomWithoutCtrl": "Zoom com a roda do mouse (sem segurar Ctrl)",
     "middleDoubleClickFit": "Clicar duas vezes com o botão do meio do rato para ajustar a página",
+    "ribbonWheelSwitchesTabs": "Alternar guias da faixa de opções com a roda do mouse",
     "dynamicScaling": "Dimensionar marcações automaticamente"
   },
   "fileAssoc": {

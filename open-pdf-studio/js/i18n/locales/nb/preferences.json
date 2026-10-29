@@ -180,6 +180,7 @@
     "navigation": "Navigasjon",
     "wheelZoomWithoutCtrl": "Zoom med musehjulet (uten å holde inne Ctrl)",
     "middleDoubleClickFit": "Dobbeltklikk med den midterste museknappen for å tilpasse siden",
+    "ribbonWheelSwitchesTabs": "Bytt fane i båndet med musehjulet",
     "dynamicScaling": "Skaler markeringer automatisk"
   },
   "fileAssoc": {

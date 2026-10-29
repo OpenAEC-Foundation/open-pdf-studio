@@ -180,6 +180,7 @@
     "navigation": "ナビゲーション",
     "wheelZoomWithoutCtrl": "マウスホイールでズーム（Ctrl を押さずに）",
     "middleDoubleClickFit": "マウスの中央ボタンをダブルクリックしてページ全体を表示",
+    "ribbonWheelSwitchesTabs": "マウスホイールでリボンのタブを切り替える",
     "dynamicScaling": "マークアップを自動スケーリング"
   },
   "fileAssoc": {

@@ -180,6 +180,7 @@
     "navigation": "Navigace",
     "wheelZoomWithoutCtrl": "Lupa kolečkem myši (bez držení Ctrl)",
     "middleDoubleClickFit": "Dvojklik prostředním tlačítkem myši přizpůsobí stránku",
+    "ribbonWheelSwitchesTabs": "Přepínat karty pásu karet kolečkem myši",
     "dynamicScaling": "Automaticky měnit měřítko značek"
   },
   "fileAssoc": {

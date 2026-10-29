@@ -180,6 +180,7 @@
     "navigation": "नेविगेशन",
     "wheelZoomWithoutCtrl": "माउस व्हील से ज़ूम करें (Ctrl दबाए बिना)",
     "middleDoubleClickFit": "पृष्ठ फ़िट करने के लिए माउस के बीच वाले बटन से डबल-क्लिक करें",
+    "ribbonWheelSwitchesTabs": "माउस व्हील से रिबन टैब बदलें",
     "dynamicScaling": "मार्कअप स्वतः स्केल करें"
   },
   "fileAssoc": {

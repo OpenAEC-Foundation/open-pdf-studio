@@ -290,6 +290,8 @@ export const DEFAULT_PREFERENCES: Preferences = {
   wheelZoomWithoutCtrl: false,
   // Dubbelklik met de middelste muisknop = huidige pagina passend (#767).
   middleDoubleClickFit: true,
+  // Muiswiel boven het lint wisselt van tabblad (#852).
+  ribbonWheelSwitchesTabs: true,
 
   // Startup
   restoreLastSession: false,

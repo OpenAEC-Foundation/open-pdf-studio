@@ -180,6 +180,7 @@
     "navigation": "Điều hướng",
     "wheelZoomWithoutCtrl": "Thu phóng bằng con lăn chuột (không cần giữ Ctrl)",
     "middleDoubleClickFit": "Nhấp đúp nút giữa chuột để vừa trang",
+    "ribbonWheelSwitchesTabs": "Chuyển tab ribbon bằng con lăn chuột",
     "dynamicScaling": "Tự động co giãn đánh dấu"
   },
   "fileAssoc": {

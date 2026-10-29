@@ -180,6 +180,7 @@
     "navigation": "Nawigacja",
     "wheelZoomWithoutCtrl": "Powiększaj kółkiem myszy (bez przytrzymywania Ctrl)",
     "middleDoubleClickFit": "Dwukrotne kliknięcie środkowym przyciskiem myszy dopasowuje stronę",
+    "ribbonWheelSwitchesTabs": "Przełączaj karty wstążki kółkiem myszy",
     "dynamicScaling": "Automatyczne skalowanie adnotacji"
   },
   "fileAssoc": {
