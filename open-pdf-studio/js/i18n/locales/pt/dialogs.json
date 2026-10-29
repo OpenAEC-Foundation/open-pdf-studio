@@ -360,7 +360,11 @@
     "chooseImage": "Escolher imagem...",
     "scale": "Escala:",
     "selectImageFirst": "Selecione uma imagem primeiro.",
-    "defaultText": "RASCUNHO"
+    "defaultText": "RASCUNHO",
+    "autoFit": "Ajustar automaticamente à página",
+    "autoFitHint": "Ajusta o texto a cada página. O tamanho mostrado é o da página atual.",
+    "increaseFontSize": "Aumentar tamanho da fonte",
+    "decreaseFontSize": "Diminuir tamanho da fonte"
   },
   "headerFooter": {
     "addTitle": "Adicionar cabeçalho/rodapé",

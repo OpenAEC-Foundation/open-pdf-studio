@@ -360,7 +360,11 @@
     "chooseImage": "Valitse kuva...",
     "scale": "Skaalaus:",
     "selectImageFirst": "Valitse ensin kuva.",
-    "defaultText": "LUONNOS"
+    "defaultText": "LUONNOS",
+    "autoFit": "Sovita automaattisesti sivulle",
+    "autoFitHint": "Sovittaa tekstin jokaiselle sivulle. Näytetty koko koskee nykyistä sivua.",
+    "increaseFontSize": "Suurenna fonttikokoa",
+    "decreaseFontSize": "Pienennä fonttikokoa"
   },
   "headerFooter": {
     "addTitle": "Lisää ylätunniste/alatunniste",

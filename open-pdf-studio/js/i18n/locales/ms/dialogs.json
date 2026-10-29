@@ -360,7 +360,11 @@
     "chooseImage": "Pilih Imej...",
     "scale": "Skala:",
     "selectImageFirst": "Sila pilih imej terlebih dahulu.",
-    "defaultText": "DRAF"
+    "defaultText": "DRAF",
+    "autoFit": "Muat automatik pada halaman",
+    "autoFitHint": "Memuatkan teks pada setiap halaman. Saiz yang ditunjukkan adalah untuk halaman semasa.",
+    "increaseFontSize": "Besarkan saiz fon",
+    "decreaseFontSize": "Kecilkan saiz fon"
   },
   "headerFooter": {
     "addTitle": "Tambah Pengepala/Pengaki",

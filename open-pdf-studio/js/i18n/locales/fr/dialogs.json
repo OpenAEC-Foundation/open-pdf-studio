@@ -360,7 +360,11 @@
     "chooseImage": "Choisir une image...",
     "scale": "Échelle :",
     "selectImageFirst": "Veuillez d'abord sélectionner une image.",
-    "defaultText": "BROUILLON"
+    "defaultText": "BROUILLON",
+    "autoFit": "Ajuster automatiquement à la page",
+    "autoFitHint": "Ajuste le texte à chaque page. La taille affichée est celle de la page actuelle.",
+    "increaseFontSize": "Augmenter la taille de police",
+    "decreaseFontSize": "Réduire la taille de police"
   },
   "headerFooter": {
     "addTitle": "Ajouter un en-tête/pied de page",

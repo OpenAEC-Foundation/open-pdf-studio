@@ -360,7 +360,11 @@
     "chooseImage": "Vybrať obrázok...",
     "scale": "Mierka:",
     "selectImageFirst": "Prosím, najprv vyberte obrázok.",
-    "defaultText": "NÁVRH"
+    "defaultText": "NÁVRH",
+    "autoFit": "Automaticky prispôsobiť strane",
+    "autoFitHint": "Prispôsobí text každej strane. Zobrazená veľkosť platí pre aktuálnu stranu.",
+    "increaseFontSize": "Zväčšiť veľkosť písma",
+    "decreaseFontSize": "Zmenšiť veľkosť písma"
   },
   "headerFooter": {
     "addTitle": "Pridať hlavičku/pätu",

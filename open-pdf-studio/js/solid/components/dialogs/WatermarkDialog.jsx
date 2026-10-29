@@ -1,4 +1,4 @@
-import { createSignal, Show } from 'solid-js';
+import { createSignal, createMemo, Show } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog, showMessage } from '../../stores/dialogStore.js';
 import { state, getActiveDocument } from '../../../core/state.js';
@@ -7,7 +7,11 @@ import { markDocumentModified } from '../../../ui/chrome/tabs.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { kopVoetInWeergave, haalKopVoetUitWeergave } from '../../../watermark/kopvoet-weergave.js';
-import { parseCustomCoordinate, watermarkCustomPosition } from '../../../watermark/watermark-layout.js';
+import {
+  clampWatermarkFontSize, stepWatermarkFontSize, watermarkFontSizeFromField, watermarkAutoFitSize,
+  WATERMARK_FONT_MIN, WATERMARK_FONT_MAX,
+  parseCustomCoordinate, watermarkCustomPosition,
+} from '../../../watermark/watermark-layout.js';
 import { paginaMaat } from '../../../pdf/weergave-ruimte.js';
 
 function generateId() {
@@ -36,7 +40,12 @@ export default function WatermarkDialog(props) {
   // Text tab signals
   const [text, setText] = createSignal(editWm?.text || t('watermark.defaultText'));
   const [font, setFont] = createSignal(editWm?.fontFamily || 'Helvetica');
+  // The manual size stays as it is while auto-fit is on, so turning auto-fit
+  // off brings it back (#849).
+  // A stored size outside 4-288 pt stays as it is until the field is edited.
   const [fontSize, setFontSize] = createSignal(editWm?.fontSize || 72);
+  const [fontSizeEdited, setFontSizeEdited] = createSignal(false);
+  const [autoFit, setAutoFit] = createSignal(!isImageEdit && !!editWm?.autoFit);
   const [color, setColor] = createSignal(editWm?.color || '#ff0000');
   const [opacity, setOpacity] = createSignal(
     isEditing && !isImageEdit ? Math.round((editWm.opacity || 0.3) * 100) : 30
@@ -51,6 +60,24 @@ export default function WatermarkDialog(props) {
   const [layer, setLayer] = createSignal(editWm?.layer || 'behind');
   const [pageRange, setPageRange] = createSignal(editWm?.pageRange || 'all');
   const [customPages, setCustomPages] = createSignal(editWm?.customPages || '');
+
+  // Auto-fit is worked out per page when drawing and saving; the field shows
+  // the size on the current page.
+  const autoFitSize = createMemo(() => {
+    const doc = getActiveDocument();
+    const maat = doc ? paginaMaat(doc.currentPage || 1, doc) : null;
+    if (!maat) return null;
+    const size = watermarkAutoFitSize(
+      { text: text() || t('watermark.defaultText'), fontFamily: font(), rotation: parseInt(rotation()) || 0 },
+      maat.breedte, maat.hoogte,
+    );
+    return Math.round(size * 10) / 10;
+  });
+
+  const stepFontSize = (direction) => {
+    setFontSizeEdited(true);
+    setFontSize(String(stepWatermarkFontSize(fontSize(), direction)));
+  };
 
   // Image tab signals
   const [imgOpacity, setImgOpacity] = createSignal(
@@ -112,7 +139,8 @@ export default function WatermarkDialog(props) {
       type: 'textWatermark',
       text: text() || t('watermark.defaultText'),
       fontFamily: font(),
-      fontSize: parseInt(fontSize()) || 72,
+      fontSize: watermarkFontSizeFromField(fontSize(), { edited: fontSizeEdited(), stored: editWm?.fontSize }),
+      autoFit: autoFit(),
       color: color(),
       opacity: parseInt(opacity()) / 100,
       rotation: parseInt(rotation()) || 0,
@@ -265,16 +293,43 @@ export default function WatermarkDialog(props) {
               <option value="Georgia">Georgia</option>
             </select>
           </div>
-          <div class="watermark-row">
+          <div class="watermark-row watermark-row-wrap">
             <label class="watermark-label">{t('watermark.fontSize')}</label>
-            <input
-              type="text" inputmode="decimal" data-getal
-              class="watermark-input watermark-input-sm"
-              value={fontSize()}
-              min="8"
-              max="200"
-              onInput={(e) => setFontSize(e.target.value)}
-            />
+            <div class="watermark-spin" classList={{ disabled: autoFit() }}>
+              <input
+                type="text" inputmode="decimal" data-getal
+                class="watermark-spin-input"
+                aria-label={t('watermark.fontSize')}
+                value={autoFit() ? (autoFitSize() ?? '') : fontSize()}
+                min={WATERMARK_FONT_MIN}
+                max={WATERMARK_FONT_MAX}
+                step="1"
+                disabled={autoFit()}
+                onInput={(e) => { setFontSizeEdited(true); setFontSize(e.target.value); }}
+                onChange={(e) => setFontSize(String(clampWatermarkFontSize(e.target.value)))}
+              />
+              <div class="watermark-spin-buttons">
+                <button
+                  type="button" class="watermark-spin-btn" tabIndex={-1}
+                  title={t('watermark.increaseFontSize')} aria-label={t('watermark.increaseFontSize')}
+                  disabled={autoFit()} onClick={() => stepFontSize(1)}
+                ><svg width="7" height="4" viewBox="0 0 7 4" aria-hidden="true"><path d="M0 4L3.5 0L7 4Z" fill="currentColor" /></svg></button>
+                <button
+                  type="button" class="watermark-spin-btn" tabIndex={-1}
+                  title={t('watermark.decreaseFontSize')} aria-label={t('watermark.decreaseFontSize')}
+                  disabled={autoFit()} onClick={() => stepFontSize(-1)}
+                ><svg width="7" height="4" viewBox="0 0 7 4" aria-hidden="true"><path d="M0 0L7 0L3.5 4Z" fill="currentColor" /></svg></button>
+              </div>
+            </div>
+            <span class="watermark-unit">pt</span>
+            <label class="watermark-check" title={t('watermark.autoFitHint')}>
+              <input
+                type="checkbox"
+                checked={autoFit()}
+                onChange={(e) => setAutoFit(e.target.checked)}
+              />
+              {t('watermark.autoFit')}
+            </label>
           </div>
           <div class="watermark-row">
             <label class="watermark-label">{t('watermark.color')}</label>

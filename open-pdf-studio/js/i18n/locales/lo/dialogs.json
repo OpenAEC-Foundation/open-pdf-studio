@@ -360,7 +360,11 @@
     "chooseImage": "ເລືອກຮູບພາບ...",
     "scale": "ມາດຕາສ່ວນ:",
     "selectImageFirst": "ກະລຸນາເລືອກຮູບພາບກ່ອນ.",
-    "defaultText": "DRAFT"
+    "defaultText": "DRAFT",
+    "autoFit": "ປັບໃຫ້ພໍດີກັບໜ້າອັດຕະໂນມັດ",
+    "autoFitHint": "ປັບຂໍ້ຄວາມໃຫ້ພໍດີກັບແຕ່ລະໜ້າ. ຂະໜາດທີ່ສະແດງແມ່ນສຳລັບໜ້າປັດຈຸບັນ.",
+    "increaseFontSize": "ເພີ່ມຂະໜາດຟອນຕ໌",
+    "decreaseFontSize": "ຫຼຸດຂະໜາດຟອນຕ໌"
   },
   "headerFooter": {
     "addTitle": "ເພີ່ມຫົວ/ທ້າຍໜ້າ",

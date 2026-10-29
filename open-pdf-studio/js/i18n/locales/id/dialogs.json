@@ -360,7 +360,11 @@
     "chooseImage": "Pilih Gambar...",
     "scale": "Skala:",
     "selectImageFirst": "Silakan pilih gambar terlebih dahulu.",
-    "defaultText": "DRAF"
+    "defaultText": "DRAF",
+    "autoFit": "Sesuaikan otomatis dengan halaman",
+    "autoFitHint": "Menyesuaikan teks dengan setiap halaman. Ukuran yang ditampilkan berlaku untuk halaman saat ini.",
+    "increaseFontSize": "Perbesar ukuran font",
+    "decreaseFontSize": "Perkecil ukuran font"
   },
   "headerFooter": {
     "addTitle": "Tambah Header/Footer",

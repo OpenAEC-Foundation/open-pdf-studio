@@ -360,7 +360,11 @@
     "chooseImage": "Vybrat obrázek...",
     "scale": "Měřítko:",
     "selectImageFirst": "Nejprve prosím vyberte obrázek.",
-    "defaultText": "NÁVRH"
+    "defaultText": "NÁVRH",
+    "autoFit": "Automaticky přizpůsobit stránce",
+    "autoFitHint": "Přizpůsobí text každé stránce. Zobrazená velikost platí pro aktuální stránku.",
+    "increaseFontSize": "Zvětšit velikost písma",
+    "decreaseFontSize": "Zmenšit velikost písma"
   },
   "headerFooter": {
     "addTitle": "Přidat záhlaví/zápatí",

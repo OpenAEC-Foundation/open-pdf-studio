@@ -360,7 +360,11 @@
     "chooseImage": "Wybierz obraz...",
     "scale": "Skala:",
     "selectImageFirst": "Proszę najpierw wybrać obraz.",
-    "defaultText": "WERSJA ROBOCZA"
+    "defaultText": "WERSJA ROBOCZA",
+    "autoFit": "Automatycznie dopasuj do strony",
+    "autoFitHint": "Dopasowuje tekst do każdej strony. Wyświetlany rozmiar dotyczy bieżącej strony.",
+    "increaseFontSize": "Zwiększ rozmiar czcionki",
+    "decreaseFontSize": "Zmniejsz rozmiar czcionki"
   },
   "headerFooter": {
     "addTitle": "Dodaj nagłówek/stopkę",

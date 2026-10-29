@@ -360,7 +360,11 @@
     "chooseImage": "Alegere imagine...",
     "scale": "Scara:",
     "selectImageFirst": "Selectati mai intai o imagine.",
-    "defaultText": "CIORNA"
+    "defaultText": "CIORNA",
+    "autoFit": "Potrivire automată la pagină",
+    "autoFitHint": "Potrivește textul pe fiecare pagină. Dimensiunea afișată este pentru pagina curentă.",
+    "increaseFontSize": "Mărește dimensiunea fontului",
+    "decreaseFontSize": "Micșorează dimensiunea fontului"
   },
   "headerFooter": {
     "addTitle": "Adaugare antet/subsol",

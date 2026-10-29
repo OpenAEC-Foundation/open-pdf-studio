@@ -9,7 +9,7 @@ import { watermarkFont, watermarkPosition, watermarkTextPlacement, watermarkPage
 
 const KEY = 'OPS_Watermark';
 const RESOURCES = 'OPS_WatermarkResources';
-const FIELDS = ['id', 'type', 'text', 'fontFamily', 'fontSize', 'color', 'imageData', 'width', 'height',
+const FIELDS = ['id', 'type', 'text', 'fontFamily', 'fontSize', 'autoFit', 'color', 'imageData', 'width', 'height',
   'scale', 'opacity', 'rotation', 'position', 'customX', 'customY', 'layer', 'pageRange', 'customPages', 'enabled'];
 const supported = w => w && ['textWatermark', 'imageWatermark'].includes(w.type) && typeof w.id === 'string' && w.id;
 const textOf = x => x instanceof PDFString || x instanceof PDFHexString ? x.decodeText() : null;

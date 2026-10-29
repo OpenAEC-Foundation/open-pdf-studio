@@ -360,7 +360,11 @@
     "chooseImage": "画像を選択...",
     "scale": "スケール：",
     "selectImageFirst": "先に画像を選択してください。",
-    "defaultText": "下書き"
+    "defaultText": "下書き",
+    "autoFit": "ページに自動フィット",
+    "autoFitHint": "各ページに合わせてテキストを調整します。表示されるサイズは現在のページのものです。",
+    "increaseFontSize": "フォントサイズを大きくする",
+    "decreaseFontSize": "フォントサイズを小さくする"
   },
   "headerFooter": {
     "addTitle": "ヘッダー/フッターを追加",

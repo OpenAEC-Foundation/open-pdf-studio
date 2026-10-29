@@ -360,7 +360,11 @@
     "chooseImage": "Trieu una imatge...",
     "scale": "Escala:",
     "selectImageFirst": "Seleccioneu primer una imatge.",
-    "defaultText": "ESBORRANY"
+    "defaultText": "ESBORRANY",
+    "autoFit": "Ajusta automàticament a la pàgina",
+    "autoFitHint": "Ajusta el text a cada pàgina. La mida que es mostra és la de la pàgina actual.",
+    "increaseFontSize": "Augmenta la mida de la lletra",
+    "decreaseFontSize": "Redueix la mida de la lletra"
   },
   "headerFooter": {
     "addTitle": "Afegeix capçalera/peu de pàgina",

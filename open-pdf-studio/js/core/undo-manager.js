@@ -570,7 +570,7 @@ function applyUndo(cmd, lookup) {
     }
     case 'modifyWatermark': {
       const idx = doc.watermarks.findIndex(w => w.id === cmd.id);
-      if (idx !== -1) Object.assign(doc.watermarks[idx], cmd.oldState);
+      if (idx !== -1) zetWatermerkStaat(doc.watermarks[idx], cmd.oldState);
       break;
     }
     case 'addBookmark': {
@@ -714,7 +714,7 @@ function applyRedo(cmd, lookup) {
     }
     case 'modifyWatermark': {
       const idx = doc.watermarks.findIndex(w => w.id === cmd.id);
-      if (idx !== -1) Object.assign(doc.watermarks[idx], cmd.newState);
+      if (idx !== -1) zetWatermerkStaat(doc.watermarks[idx], cmd.newState);
       break;
     }
     case 'addBookmark': {
@@ -1022,6 +1022,13 @@ export function flushPropertyChange() {
   pendingPropertyChange = null;
   clearTimeout(propertyChangeTimer);
   updateButtons();
+}
+
+// Een watermerk krijgt precies de bewaarde stand terug: ook instellingen die
+// de wijziging toevoegde (zoals autoFit, #849) verdwijnen weer.
+function zetWatermerkStaat(wm, staat) {
+  for (const sleutel of Object.keys(wm)) if (!(sleutel in staat)) delete wm[sleutel];
+  Object.assign(wm, staat);
 }
 
 // Watermark undo/redo helpers

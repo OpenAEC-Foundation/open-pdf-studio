@@ -360,7 +360,11 @@
     "chooseImage": "Välj bild...",
     "scale": "Skala:",
     "selectImageFirst": "Välj en bild först.",
-    "defaultText": "UTKAST"
+    "defaultText": "UTKAST",
+    "autoFit": "Anpassa automatiskt till sidan",
+    "autoFitHint": "Anpassar texten till varje sida. Storleken som visas gäller aktuell sida.",
+    "increaseFontSize": "Öka teckenstorlek",
+    "decreaseFontSize": "Minska teckenstorlek"
   },
   "headerFooter": {
     "addTitle": "Lägg till sidhuvud/sidfot",

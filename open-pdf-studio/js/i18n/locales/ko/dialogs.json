@@ -360,7 +360,11 @@
     "chooseImage": "이미지 선택...",
     "scale": "배율:",
     "selectImageFirst": "먼저 이미지를 선택하십시오.",
-    "defaultText": "초안"
+    "defaultText": "초안",
+    "autoFit": "페이지에 자동 맞춤",
+    "autoFitHint": "각 페이지에 맞게 텍스트를 조정합니다. 표시된 크기는 현재 페이지 기준입니다.",
+    "increaseFontSize": "글꼴 크기 늘리기",
+    "decreaseFontSize": "글꼴 크기 줄이기"
   },
   "headerFooter": {
     "addTitle": "머리글/바닥글 추가",

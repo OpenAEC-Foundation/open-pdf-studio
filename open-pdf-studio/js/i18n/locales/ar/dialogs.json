@@ -360,7 +360,11 @@
     "chooseImage": "اختيار صورة...",
     "scale": "المقياس:",
     "selectImageFirst": "يرجى اختيار صورة أولاً.",
-    "defaultText": "مسودة"
+    "defaultText": "مسودة",
+    "autoFit": "ملاءمة تلقائية للصفحة",
+    "autoFitHint": "يلائم النص كل صفحة. الحجم المعروض خاص بالصفحة الحالية.",
+    "increaseFontSize": "تكبير حجم الخط",
+    "decreaseFontSize": "تصغير حجم الخط"
   },
   "headerFooter": {
     "addTitle": "إضافة رأس/تذييل",

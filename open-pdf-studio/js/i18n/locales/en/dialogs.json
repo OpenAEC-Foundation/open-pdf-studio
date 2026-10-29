@@ -360,7 +360,11 @@
     "chooseImage": "Choose Image...",
     "scale": "Scale:",
     "selectImageFirst": "Please select an image first.",
-    "defaultText": "DRAFT"
+    "defaultText": "DRAFT",
+    "autoFit": "Auto-fit to page",
+    "autoFitHint": "Fits the text to each page. The size shown is for the current page.",
+    "increaseFontSize": "Increase font size",
+    "decreaseFontSize": "Decrease font size"
   },
   "headerFooter": {
     "addTitle": "Add Header/Footer",

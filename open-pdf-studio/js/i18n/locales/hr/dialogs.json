@@ -360,7 +360,11 @@
     "chooseImage": "Odaberite sliku...",
     "scale": "Mjerilo:",
     "selectImageFirst": "Molimo prvo odaberite sliku.",
-    "defaultText": "NACRT"
+    "defaultText": "NACRT",
+    "autoFit": "Automatski prilagodi stranici",
+    "autoFitHint": "Prilagođava tekst svakoj stranici. Prikazana veličina odnosi se na trenutačnu stranicu.",
+    "increaseFontSize": "Povećaj veličinu fonta",
+    "decreaseFontSize": "Smanji veličinu fonta"
   },
   "headerFooter": {
     "addTitle": "Dodaj zaglavlje/podnožje",

@@ -360,7 +360,11 @@
     "chooseImage": "เลือกรูปภาพ...",
     "scale": "มาตราส่วน:",
     "selectImageFirst": "กรุณาเลือกรูปภาพก่อน",
-    "defaultText": "ฉบับร่าง"
+    "defaultText": "ฉบับร่าง",
+    "autoFit": "ปรับให้พอดีกับหน้าอัตโนมัติ",
+    "autoFitHint": "ปรับข้อความให้พอดีกับแต่ละหน้า ขนาดที่แสดงเป็นของหน้าปัจจุบัน",
+    "increaseFontSize": "เพิ่มขนาดฟอนต์",
+    "decreaseFontSize": "ลดขนาดฟอนต์"
   },
   "headerFooter": {
     "addTitle": "เพิ่มหัวกระดาษ/ท้ายกระดาษ",

@@ -341,7 +341,11 @@
     "chooseImage": "Afbeelding kiezen...",
     "scale": "Schaal:",
     "selectImageFirst": "Selecteer eerst een afbeelding.",
-    "defaultText": "CONCEPT"
+    "defaultText": "CONCEPT",
+    "autoFit": "Automatisch passend op pagina",
+    "autoFitHint": "Past de tekst op elke pagina. De getoonde grootte geldt voor de huidige pagina.",
+    "increaseFontSize": "Lettergrootte vergroten",
+    "decreaseFontSize": "Lettergrootte verkleinen"
   },
   "headerFooter": {
     "addTitle": "Koptekst/voettekst toevoegen",

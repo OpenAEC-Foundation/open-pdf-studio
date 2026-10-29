@@ -360,7 +360,11 @@
     "chooseImage": "Kép választása...",
     "scale": "Méretezés:",
     "selectImageFirst": "Kérem, először válasszon egy képet.",
-    "defaultText": "TERVEZET"
+    "defaultText": "TERVEZET",
+    "autoFit": "Automatikus igazítás az oldalhoz",
+    "autoFitHint": "A szöveget minden oldalhoz igazítja. A megjelenített méret az aktuális oldalra vonatkozik.",
+    "increaseFontSize": "Betűméret növelése",
+    "decreaseFontSize": "Betűméret csökkentése"
   },
   "headerFooter": {
     "addTitle": "Élőfej/élőláb hozzáadása",

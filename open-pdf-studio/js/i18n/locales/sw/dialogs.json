@@ -360,7 +360,11 @@
     "chooseImage": "Chagua Picha...",
     "scale": "Kipimo:",
     "selectImageFirst": "Tafadhali chagua picha kwanza.",
-    "defaultText": "RASIMU"
+    "defaultText": "RASIMU",
+    "autoFit": "Linganisha kiotomatiki na ukurasa",
+    "autoFitHint": "Hulinganisha maandishi na kila ukurasa. Ukubwa unaoonyeshwa ni wa ukurasa wa sasa.",
+    "increaseFontSize": "Ongeza ukubwa wa fonti",
+    "decreaseFontSize": "Punguza ukubwa wa fonti"
   },
   "headerFooter": {
     "addTitle": "Ongeza Kichwa/Kiguu",

@@ -360,7 +360,11 @@
     "chooseImage": "انتخاب تصویر...",
     "scale": "مقیاس:",
     "selectImageFirst": "لطفاً ابتدا یک تصویر انتخاب کنید.",
-    "defaultText": "پیش‌نویس"
+    "defaultText": "پیش‌نویس",
+    "autoFit": "تطبیق خودکار با صفحه",
+    "autoFitHint": "متن را با هر صفحه تطبیق می‌دهد. اندازهٔ نمایش‌داده‌شده مربوط به صفحهٔ فعلی است.",
+    "increaseFontSize": "افزایش اندازهٔ قلم",
+    "decreaseFontSize": "کاهش اندازهٔ قلم"
   },
   "headerFooter": {
     "addTitle": "افزودن سرصفحه/پاصفحه",

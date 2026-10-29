@@ -130,12 +130,14 @@ test('other annotations on the page are untouched by watermark saves', async () 
 test('the screen draws text watermarks where the saved file has them', async () => {
   const { renderWatermarksBehind } = await import('./watermark-renderer.js');
   const { Util, getDocument } = await import('pdfjs-dist/legacy/build/pdf.mjs');
-  for (const [position, rotation, pageRotation] of [['center', -45, 0], ['top-left', 0, 0], ['bottom-right', 30, 90]]) {
+  for (const [position, rotation, pageRotation, autoFit] of [
+    ['center', -45, 0], ['top-left', 0, 0], ['bottom-right', 30, 90], ['center', -45, 90, true], ['top-right', 0, 0, true],
+  ]) {
     const pdf = await PDFDocument.create();
     const page = pdf.addPage([700, 900]);
     page.setCropBox(50, 60, 600, 800);
     page.setRotation(degrees(pageRotation));
-    const wm = mark({ text: 'WAVE AVATAR', fontSize: 40, position, rotation });
+    const wm = mark({ text: 'WAVE AVATAR', fontSize: 40, position, rotation, autoFit: !!autoFit });
     const doc = openDoc([wm]);
     const bytes = await save(doc, await pdf.save());
 
@@ -158,9 +160,24 @@ test('the screen draws text watermarks where the saved file has them', async () 
     renderWatermarksBehind(ctx, 1, view.width, view.height);
     const [, tx, ty] = calls.find(c => c[0] === 'translate');
     const [, , , baseline] = calls.find(c => c[0] === 'fillText');
+    assert.ok(Math.abs(parseFloat(ctx_state.font) - Math.hypot(item.transform[0], item.transform[1])) < 0.01, 'same size');
     const screen = { x: tx - Math.sin(a) * baseline, y: ty + Math.cos(a) * baseline };
     assert.equal(ctx_state.textAlign, 'center');
     assert.ok(Math.abs(screen.x - saved.x) < 0.5 && Math.abs(screen.y - saved.y) < 0.5,
       `${position}/${rotation}/${pageRotation}: screen ${JSON.stringify(screen)} saved ${JSON.stringify(saved)}`);
   }
+});
+
+test('undo of an edit removes settings the edit added, redo brings them back', async () => {
+  const doc = openDoc([mark()]);
+  const wm = doc.watermarks[0];
+  const before = { ...wm };
+  Object.assign(wm, { autoFit: true, fontSize: 30 });
+  undo.recordModifyWatermark(wm.id, before, { ...wm });
+  await undo.undo();
+  assert.equal('autoFit' in state.documents[0].watermarks[0], false);
+  assert.equal(state.documents[0].watermarks[0].fontSize, 48);
+  await undo.redo();
+  assert.equal(state.documents[0].watermarks[0].autoFit, true);
+  assert.equal(state.documents[0].watermarks[0].fontSize, 30);
 });

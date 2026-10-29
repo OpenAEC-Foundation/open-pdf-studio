@@ -360,7 +360,11 @@
     "chooseImage": "Görüntü Seç...",
     "scale": "Ölçek:",
     "selectImageFirst": "Lütfen önce bir görüntü seçin.",
-    "defaultText": "TASLAK"
+    "defaultText": "TASLAK",
+    "autoFit": "Sayfaya otomatik sığdır",
+    "autoFitHint": "Metni her sayfaya sığdırır. Gösterilen boyut geçerli sayfa içindir.",
+    "increaseFontSize": "Yazı tipi boyutunu artır",
+    "decreaseFontSize": "Yazı tipi boyutunu azalt"
   },
   "headerFooter": {
     "addTitle": "Üstbilgi/Altbilgi Ekle",

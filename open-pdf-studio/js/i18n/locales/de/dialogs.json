@@ -360,7 +360,11 @@
     "chooseImage": "Bild auswählen...",
     "scale": "Skalierung:",
     "selectImageFirst": "Bitte wählen Sie zuerst ein Bild aus.",
-    "defaultText": "ENTWURF"
+    "defaultText": "ENTWURF",
+    "autoFit": "Automatisch an Seite anpassen",
+    "autoFitHint": "Passt den Text an jede Seite an. Die angezeigte Größe gilt für die aktuelle Seite.",
+    "increaseFontSize": "Schriftgröße erhöhen",
+    "decreaseFontSize": "Schriftgröße verringern"
   },
   "headerFooter": {
     "addTitle": "Kopf-/Fußzeile hinzufügen",

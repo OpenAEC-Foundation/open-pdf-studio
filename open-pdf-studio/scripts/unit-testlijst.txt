@@ -623,3 +623,5 @@ js/pdf/lijnstijl-rondgang.test.mjs
 js/watermark/watermark-save.test.mjs
 js/watermark/watermark-hersave.test.mjs
 js/watermark/watermark-custom-position.test.mjs
+js/watermark/watermark-autofit.test.mjs
+js/watermark/watermark-dialog-i18n.test.mjs

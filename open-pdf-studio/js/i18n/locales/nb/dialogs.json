@@ -360,7 +360,11 @@
     "chooseImage": "Velg bilde...",
     "scale": "Skalering:",
     "selectImageFirst": "Vennligst velg et bilde først.",
-    "defaultText": "UTKAST"
+    "defaultText": "UTKAST",
+    "autoFit": "Tilpass automatisk til siden",
+    "autoFitHint": "Tilpasser teksten til hver side. Størrelsen som vises, gjelder gjeldende side.",
+    "increaseFontSize": "Øk skriftstørrelse",
+    "decreaseFontSize": "Reduser skriftstørrelse"
   },
   "headerFooter": {
     "addTitle": "Legg til topptekst/bunntekst",

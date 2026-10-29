@@ -360,7 +360,11 @@
     "chooseImage": "Elegir imagen...",
     "scale": "Escala:",
     "selectImageFirst": "Seleccione una imagen primero.",
-    "defaultText": "BORRADOR"
+    "defaultText": "BORRADOR",
+    "autoFit": "Ajustar automáticamente a la página",
+    "autoFitHint": "Ajusta el texto a cada página. El tamaño mostrado corresponde a la página actual.",
+    "increaseFontSize": "Aumentar tamaño de fuente",
+    "decreaseFontSize": "Reducir tamaño de fuente"
   },
   "headerFooter": {
     "addTitle": "Agregar encabezado/pie de página",

@@ -12,6 +12,16 @@ import { toWinAnsiText } from '../pdf/saver/pdf-text.js';
 /** Distance between a corner watermark and the page edges. */
 export const WATERMARK_MARGIN = 40;
 
+/**
+ * Range of the font size field in the dialog, in points (#849). A stored size
+ * outside it (from an earlier version) is drawn and saved as it is, up to the
+ * sanity bound WATERMARK_FONT_LIMIT.
+ */
+export const WATERMARK_FONT_MIN = 4;
+export const WATERMARK_FONT_MAX = 288;
+export const WATERMARK_FONT_LIMIT = 5000;
+const WATERMARK_FONT_DEFAULT = 72;
+
 export function watermarkFont(family) {
   const name = String(family || '').toLowerCase();
   return name.includes('courier') ? 'Courier' : name.includes('times') ? 'Times-Roman' : 'Helvetica';
@@ -75,12 +85,65 @@ export function watermarkPosition(wm, pageWidth, pageHeight, width = 0, height =
   }
 }
 
+/** A manual font size within WATERMARK_FONT_MIN..MAX; nonsense becomes 72. */
+export function clampWatermarkFontSize(value) {
+  const n = Number.parseFloat(value);
+  if (!Number.isFinite(n) || n <= 0) return WATERMARK_FONT_DEFAULT;
+  return Math.min(WATERMARK_FONT_MAX, Math.max(WATERMARK_FONT_MIN, n));
+}
+
+/** A stored size as it is drawn and saved: unclamped, within the sanity bound. */
+function storedFontSize(value) {
+  const n = Number.parseFloat(value);
+  if (!Number.isFinite(n) || n <= 0) return WATERMARK_FONT_DEFAULT;
+  return Math.min(WATERMARK_FONT_LIMIT, n);
+}
+
+/**
+ * The size the dialog stores: the field within the range, but a stored size
+ * outside the range stays as it is while the user has not edited the field.
+ */
+export function watermarkFontSizeFromField(value, { edited = true, stored } = {}) {
+  const n = Number.parseFloat(stored);
+  if (!edited && Number.isFinite(n) && n > 0) return storedFontSize(n);
+  return clampWatermarkFontSize(value);
+}
+
+/** One step of the stepper buttons: to the next whole point, within the range. */
+export function stepWatermarkFontSize(value, direction) {
+  const current = clampWatermarkFontSize(value);
+  const next = direction > 0 ? Math.floor(current) + 1 : Math.ceil(current) - 1;
+  return Math.min(WATERMARK_FONT_MAX, Math.max(WATERMARK_FONT_MIN, next));
+}
+
+/**
+ * The largest size at which the rotated text box fits on a page of this
+ * display size, WATERMARK_MARGIN from every edge (never below the minimum).
+ */
+export function watermarkAutoFitSize(wm, pageWidth, pageHeight) {
+  const unit = watermarkTextBox(wm, 1);
+  const a = ((wm?.rotation || 0) * Math.PI) / 180;
+  const cos = Math.abs(Math.cos(a)), sin = Math.abs(Math.sin(a));
+  const perW = cos * unit.width + sin * unit.height;
+  const perH = sin * unit.width + cos * unit.height;
+  const roomW = Math.max(0, pageWidth - 2 * WATERMARK_MARGIN);
+  const roomH = Math.max(0, pageHeight - 2 * WATERMARK_MARGIN);
+  const size = Math.min(perW > 0 ? roomW / perW : Infinity, perH > 0 ? roomH / perH : Infinity);
+  return Number.isFinite(size) ? Math.max(WATERMARK_FONT_MIN, size) : WATERMARK_FONT_DEFAULT;
+}
+
+/** The font size on a page of this display size: auto-fit or the manual size. */
+export function watermarkFontSize(wm, pageWidth, pageHeight) {
+  if (wm?.autoFit) return watermarkAutoFitSize(wm, pageWidth, pageHeight);
+  return storedFontSize(wm?.fontSize);
+}
+
 /**
  * Everything needed to draw a text watermark on a page of this display size:
  * the text, its size and width, the centre and the baseline offset below it.
  */
 export function watermarkTextPlacement(wm, pageWidth, pageHeight) {
-  const size = wm?.fontSize || 72;
+  const size = watermarkFontSize(wm, pageWidth, pageHeight);
   const text = watermarkText(wm);
   const box = watermarkTextBox(wm, size);
   return {

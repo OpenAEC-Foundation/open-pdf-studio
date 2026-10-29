@@ -360,7 +360,11 @@
     "chooseImage": "בחירת תמונה...",
     "scale": "קנה מידה:",
     "selectImageFirst": "אנא בחר תמונה תחילה.",
-    "defaultText": "טיוטה"
+    "defaultText": "טיוטה",
+    "autoFit": "התאמה אוטומטית לעמוד",
+    "autoFitHint": "מתאים את הטקסט לכל עמוד. הגודל המוצג הוא של העמוד הנוכחי.",
+    "increaseFontSize": "הגדלת גודל הגופן",
+    "decreaseFontSize": "הקטנת גודל הגופן"
   },
   "headerFooter": {
     "addTitle": "הוספת כותרת עליונה/תחתונה",
