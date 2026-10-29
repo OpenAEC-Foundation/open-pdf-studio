@@ -76,7 +76,7 @@ function pathOps(pts, X, Y, close) {
 // emits PDF operators. Works in APP space (matches canvas), converting every
 // endpoint to PDF coords via X()/Y(). The polygon clip path must already be set
 // by the caller (W n) before these ops run.
-function hatchFamilyOps(fam, bounds, scale, rot, center, colorRgb) {
+function hatchFamilyOps(fam, bounds, scale, rot, center, colorRgb, clip) {
   const angleRad = (fam.angle * Math.PI) / 180;
   const cosA = Math.cos(angleRad);
   const sinA = Math.sin(angleRad);
@@ -109,17 +109,56 @@ function hatchFamilyOps(fam, bounds, scale, rot, center, colorRgb) {
     const dotR = Math.max(0.5, 1 * scale);
     const dotSpacing = deltaX || spacing;
     const dotsPerLine = Math.ceil((halfDiag * 2) / dotSpacing) + 2;
+    // Alleen stippen die het knipvlak kunnen raken. Het rooster dekt de hele
+    // opgeblazen omhullende (zijde ~2x de diagonaal plus marge), terwijl W n
+    // bijna alles daarvan wegknipt: een vlak van 250x150 pt met 'concrete'
+    // schreef zo ~140.000 stippen (45 MB). De posities blijven absoluut
+    // (anker + i*spacing + j*dotSpacing), dus het beeld is identiek.
+    let iVan = -numLines, iTot = numLines, jVan = -dotsPerLine, jTot = dotsPerLine;
+    let binnen = () => true;
+    if (clip) {
+      const kMinX = clip.minX - dotR, kMaxX = clip.maxX + dotR;
+      const kMinY = clip.minY - dotR, kMaxY = clip.maxY + dotR;
+      const ax = cx + originX, ay = cy + originY;
+      // Hoeken van het knipvak terug naar het ongedraaide rooster, dan
+      // projecteren op de lijnnormaal n = (-sin, cos) en de lijnrichting d.
+      let pMin = Infinity, pMax = -Infinity, tMin = Infinity, tMax = -Infinity;
+      for (const hx of [kMinX, kMaxX]) {
+        for (const hy of [kMinY, kMaxY]) {
+          let ux = hx, uy = hy;
+          if (rot) {
+            const ddx = hx - center.cx, ddy = hy - center.cy;
+            ux = center.cx + ddx * cr + ddy * sr;
+            uy = center.cy - ddx * sr + ddy * cr;
+          }
+          const X = ux - ax, Y = uy - ay;
+          const p = X * (-sinA) + Y * cosA;
+          const t = X * cosA + Y * sinA;
+          if (p < pMin) pMin = p;
+          if (p > pMax) pMax = p;
+          if (t < tMin) tMin = t;
+          if (t > tMax) tMax = t;
+        }
+      }
+      if (!Number.isFinite(pMin) || !Number.isFinite(tMin)) return '';
+      iVan = Math.max(iVan, Math.floor(pMin / spacing) - 1);
+      iTot = Math.min(iTot, Math.ceil(pMax / spacing) + 1);
+      jVan = Math.max(jVan, Math.floor(tMin / dotSpacing) - 1);
+      jTot = Math.min(jTot, Math.ceil(tMax / dotSpacing) + 1);
+      binnen = (x, y) => x >= kMinX && x <= kMaxX && y >= kMinY && y <= kMaxY;
+    }
     let s = `${f(colorRgb[0])} ${f(colorRgb[1])} ${f(colorRgb[2])} rg\n`;
     const k = 0.5522847498;
-    for (let i = -numLines; i <= numLines; i++) {
+    for (let i = iVan; i <= iTot; i++) {
       const perp = i * spacing;
       const baseX = cx + perp * (-sinA);
       const baseY = cy + perp * cosA;
-      for (let j = -dotsPerLine; j <= dotsPerLine; j++) {
+      for (let j = jVan; j <= jTot; j++) {
         const along = j * dotSpacing;
         let dx = baseX + originX + along * cosA;
         let dy = baseY + originY + along * sinA;
         [dx, dy] = rotate(dx, dy);
+        if (!binnen(dx, dy)) continue;
         // bezier circle radius dotR centered at (dx,dy) in APP space; convert.
         s += `${f(gX(dx))} ${f(gY(dy + dotR))} m\n`;
         s += `${f(gX(dx + k * dotR))} ${f(gY(dy + dotR))} ${f(gX(dx + dotR))} ${f(gY(dy + k * dotR))} ${f(gX(dx + dotR))} ${f(gY(dy))} c\n`;
@@ -158,7 +197,9 @@ let gX = (x) => x, gY = (y) => y;
 
 // Build the full hatch fill (clip to polygon+holes, then all line families).
 // `points`/`holes` are app-space. Returns ops (already includes q/Q).
-export function hatchFillOps({ points, holes, hatchPattern, hatchColorRgb, hatchScale, hatchAngle, X, Y }) {
+// `volledigRooster` schrijft het hele stippenrooster zonder te knippen tot het
+// vlak; alleen om in tests het beeld te vergelijken.
+export function hatchFillOps({ points, holes, hatchPattern, hatchColorRgb, hatchScale, hatchAngle, X, Y, volledigRooster = false }) {
   const families = getHatchLineFamilies(hatchPattern);
   if (families === null) return '';
   gX = X; gY = Y;
@@ -184,7 +225,8 @@ export function hatchFillOps({ points, holes, hatchPattern, hatchColorRgb, hatch
     s += ringPathOps(points, holes, X, Y);
     s += 'f\n';
   } else {
-    for (const fam of families) s += hatchFamilyOps(fam, bounds, scale, hatchAngle || 0, center, hatchColorRgb);
+    for (const fam of families) s += hatchFamilyOps(fam, bounds, scale, hatchAngle || 0, center, hatchColorRgb,
+      volledigRooster ? null : { minX, minY, maxX, maxY });
   }
   s += 'Q\n';
   return s;

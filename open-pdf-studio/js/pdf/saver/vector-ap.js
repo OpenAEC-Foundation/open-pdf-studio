@@ -6,6 +6,9 @@ import { PDFName } from 'pdf-lib';
 // [x1,y1,x2,y2] the appearance is drawn against. Types that previously wrote NO
 // appearance stream were invisible (or showed only a bare outline) in other PDF
 // viewers, which rely on /AP; see issue #256.
+/** Vanaf deze lengte (tekens) wordt een vector-appearance met Flate opgeslagen. */
+export const VECTOR_AP_FLATE_VANAF = 16 * 1024;
+
 export function attachVectorAP(context, annotDict, built, rect) {
   if (!built || !built.content) return;
   const [x1, y1, x2, y2] = rect;
@@ -30,9 +33,14 @@ export function attachVectorAP(context, annotDict, built, rect) {
   if (built.xobjects) {
     resources.XObject = context.obj(built.xobjects);
   }
-  const apStream = context.stream(built.content, {
+  const dict = {
     Type: 'XObject', Subtype: 'Form', BBox: [x1, y1, x2, y2],
     Matrix: [1, 0, 0, 1, -x1, -y1], Resources: context.obj(resources),
-  });
+  };
+  // Een grote appearance (arcering met duizenden stippen of lijnen) gaat
+  // gecomprimeerd: herhalende operatoren krimpen ~10x. Kleine blijven leesbaar.
+  const apStream = built.content.length > VECTOR_AP_FLATE_VANAF
+    ? context.flateStream(built.content, dict)
+    : context.stream(built.content, dict);
   annotDict.set(PDFName.of('AP'), context.obj({ N: context.register(apStream) }));
 }
