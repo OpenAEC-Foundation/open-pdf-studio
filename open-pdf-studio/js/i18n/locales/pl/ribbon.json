@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "Wklej tutaj wycięty obszar, zachowując dane wektorowe",
     "symbolScale": "Skala",
     "symbolScaleTitle": "Rozmiar, w jakim umieszczany jest nowy symbol",
-    "symbolScaleCustom": "Skala niestandardowa"
+    "symbolScaleCustom": "Skala niestandardowa",
+    "count": "Liczenie",
+    "arc": "Łuk"
   },
   "proofread": {
     "group": "Korekta",

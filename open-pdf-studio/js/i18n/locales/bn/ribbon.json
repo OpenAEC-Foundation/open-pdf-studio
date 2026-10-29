@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "কাটা অংশটি এখানে পেস্ট করুন, ভেক্টর ডেটা অক্ষুণ্ণ রেখে",
     "symbolScale": "স্কেল",
     "symbolScaleTitle": "নতুন প্রতীক যে আকারে বসানো হয়",
-    "symbolScaleCustom": "কাস্টম স্কেল"
+    "symbolScaleCustom": "কাস্টম স্কেল",
+    "count": "গণনা",
+    "arc": "চাপ"
   },
   "proofread": {
     "group": "প্রুফ রিডিং",

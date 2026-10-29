@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "Pega aquí el área recortada, conservando los datos vectoriales",
     "symbolScale": "Escala",
     "symbolScaleTitle": "Tamaño con el que se coloca un símbolo nuevo",
-    "symbolScaleCustom": "Escala personalizada"
+    "symbolScaleCustom": "Escala personalizada",
+    "count": "Contar",
+    "arc": "Arco"
   },
   "proofread": {
     "group": "Revisión",

@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "بخش بریده‌شده را اینجا بچسبانید، با حفظ داده‌های برداری",
     "symbolScale": "مقیاس",
     "symbolScaleTitle": "اندازه‌ای که نماد جدید با آن قرار می‌گیرد",
-    "symbolScaleCustom": "مقیاس سفارشی"
+    "symbolScaleCustom": "مقیاس سفارشی",
+    "count": "شمارش",
+    "arc": "کمان"
   },
   "proofread": {
     "group": "نمونه‌خوانی",

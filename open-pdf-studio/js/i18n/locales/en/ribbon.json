@@ -621,7 +621,9 @@
     "vectorSnippetPasteTitle": "Paste the cut area here, keeping its vector data",
     "symbolScale": "Scale",
     "symbolScaleTitle": "Size at which a new symbol is placed",
-    "symbolScaleCustom": "Custom scale"
+    "symbolScaleCustom": "Custom scale",
+    "count": "Count",
+    "arc": "Arc"
   },
   "theme": {
     "system": "System (Auto Detect)",

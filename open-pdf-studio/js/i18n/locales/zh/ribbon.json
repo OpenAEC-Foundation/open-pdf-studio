@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "在此处粘贴剪切的区域，保留矢量数据",
     "symbolScale": "比例",
     "symbolScaleTitle": "放置新符号时的尺寸",
-    "symbolScaleCustom": "自定义比例"
+    "symbolScaleCustom": "自定义比例",
+    "count": "计数",
+    "arc": "圆弧"
   },
   "proofread": {
     "group": "校对",

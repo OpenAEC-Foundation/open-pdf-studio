@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "Coller ici la zone découpée en conservant ses données vectorielles",
     "symbolScale": "Échelle",
     "symbolScaleTitle": "Taille à laquelle un nouveau symbole est placé",
-    "symbolScaleCustom": "Échelle personnalisée"
+    "symbolScaleCustom": "Échelle personnalisée",
+    "count": "Compter",
+    "arc": "Arc"
   },
   "proofread": {
     "group": "Relecture",

@@ -612,7 +612,9 @@
     "vectorSnippetPasteTitle": "ວາງພື້ນທີ່ທີ່ຕັດມາລົງບ່ອນນີ້ ໂດຍຮັກສາຂໍ້ມູນເວັກເຕີໄວ້",
     "symbolScale": "ມາດຕາສ່ວນ",
     "symbolScaleTitle": "ຂະໜາດທີ່ສັນຍະລັກໃໝ່ຈະຖືກວາງ",
-    "symbolScaleCustom": "ມາດຕາສ່ວນກຳນົດເອງ"
+    "symbolScaleCustom": "ມາດຕາສ່ວນກຳນົດເອງ",
+    "count": "ນັບ",
+    "arc": "ເສັ້ນໂຄ້ງ"
   },
   "theme": {
     "system": "ຕາມລະບົບ (ກວດຫາອັດຕະໂນມັດ)",

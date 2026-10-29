@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "Klistra in det urklippta området här med vektordata bevarade",
     "symbolScale": "Skala",
     "symbolScaleTitle": "Storlek som en ny symbol placeras i",
-    "symbolScaleCustom": "Anpassad skala"
+    "symbolScaleCustom": "Anpassad skala",
+    "count": "Räkna",
+    "arc": "Båge"
   },
   "proofread": {
     "group": "Korrektur",

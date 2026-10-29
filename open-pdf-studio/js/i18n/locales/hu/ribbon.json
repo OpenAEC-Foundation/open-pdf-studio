@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "A kivágott terület beillesztése ide, a vektoradatok megőrzésével",
     "symbolScale": "Lépték",
     "symbolScaleTitle": "Az a méret, amelyben az új szimbólum elhelyezésre kerül",
-    "symbolScaleCustom": "Egyéni lépték"
+    "symbolScaleCustom": "Egyéni lépték",
+    "count": "Számlálás",
+    "arc": "Ív"
   },
   "proofread": {
     "group": "Korrektúra",

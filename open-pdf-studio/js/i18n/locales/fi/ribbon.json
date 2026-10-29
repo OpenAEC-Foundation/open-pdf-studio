@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "Liitä leikattu alue tähän vektoritiedot säilyttäen",
     "symbolScale": "Mittakaava",
     "symbolScaleTitle": "Koko, jossa uusi symboli sijoitetaan",
-    "symbolScaleCustom": "Mukautettu mittakaava"
+    "symbolScaleCustom": "Mukautettu mittakaava",
+    "count": "Laske",
+    "arc": "Kaari"
   },
   "proofread": {
     "group": "Oikoluku",

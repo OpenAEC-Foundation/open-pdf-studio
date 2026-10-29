@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "Lim inn det utklippede området her, med vektordataene bevart",
     "symbolScale": "Målestokk",
     "symbolScaleTitle": "Størrelsen et nytt symbol plasseres i",
-    "symbolScaleCustom": "Egendefinert målestokk"
+    "symbolScaleCustom": "Egendefinert målestokk",
+    "count": "Telling",
+    "arc": "Bue"
   },
   "proofread": {
     "group": "Korrektur",

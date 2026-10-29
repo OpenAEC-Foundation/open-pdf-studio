@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "切り抜いた領域をベクターデータのままここに貼り付けます",
     "symbolScale": "尺度",
     "symbolScaleTitle": "新しいシンボルを配置するときのサイズ",
-    "symbolScaleCustom": "カスタム尺度"
+    "symbolScaleCustom": "カスタム尺度",
+    "count": "カウント",
+    "arc": "円弧"
   },
   "proofread": {
     "group": "校正",

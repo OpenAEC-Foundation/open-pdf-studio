@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "Bandika eneo lililokatwa hapa, ukihifadhi data ya vekta",
     "symbolScale": "Kipimo",
     "symbolScaleTitle": "Ukubwa wa kuweka alama mpya",
-    "symbolScaleCustom": "Kipimo maalum"
+    "symbolScaleCustom": "Kipimo maalum",
+    "count": "Hesabu",
+    "arc": "Tao"
   },
   "proofread": {
     "group": "Usahihishaji",

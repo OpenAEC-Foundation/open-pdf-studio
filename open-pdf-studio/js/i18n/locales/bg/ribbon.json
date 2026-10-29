@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "Поставете изрязаната област тук, като запазите векторните данни",
     "symbolScale": "Мащаб",
     "symbolScaleTitle": "Размер, в който се поставя нов символ",
-    "symbolScaleCustom": "Потребителски мащаб"
+    "symbolScaleCustom": "Потребителски мащаб",
+    "count": "Броене",
+    "arc": "Дъга"
   },
   "proofread": {
     "group": "Коректура",

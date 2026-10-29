@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "잘라낸 영역을 벡터 데이터 그대로 여기에 붙여넣습니다",
     "symbolScale": "축척",
     "symbolScaleTitle": "새 기호를 배치할 때의 크기",
-    "symbolScaleCustom": "사용자 지정 축척"
+    "symbolScaleCustom": "사용자 지정 축척",
+    "count": "개수 세기",
+    "arc": "호"
   },
   "proofread": {
     "group": "교정",

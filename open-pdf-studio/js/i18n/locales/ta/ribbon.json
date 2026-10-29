@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "வெட்டிய பகுதியை வெக்டர் தரவுடன் இங்கே ஒட்டவும்",
     "symbolScale": "அளவுகோல்",
     "symbolScaleTitle": "புதிய குறியீடு வைக்கப்படும் அளவு",
-    "symbolScaleCustom": "தனிப்பயன் அளவுகோல்"
+    "symbolScaleCustom": "தனிப்பயன் அளவுகோல்",
+    "count": "எண்ணிக்கை",
+    "arc": "வில்"
   },
   "proofread": {
     "group": "மெய்ப்புத் திருத்தம்",

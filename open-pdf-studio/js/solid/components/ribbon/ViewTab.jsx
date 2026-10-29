@@ -122,7 +122,7 @@ export default function ViewTab() {
               and the plugin extension-palette buttons were removed from this
               tab on request (the palettes themselves still exist and can be
               re-exposed later if needed). */}
-          <RibbonButton id="ribbon-symbol-palette" title="Toolpalette" icon={toolPaletteIcon} label="Toolpalette"
+          <RibbonButton id="ribbon-symbol-palette" title={t('view.toolPalette')} icon={toolPaletteIcon} label={t('view.toolPaletteLabel')}
             active={symbolPaletteVisible()} onClick={toggleSymbolPalette} />
         </RibbonGroup>
 

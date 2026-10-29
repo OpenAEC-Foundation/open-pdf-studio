@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "Enganxa aquí l'àrea retallada, conservant les dades vectorials",
     "symbolScale": "Escala",
     "symbolScaleTitle": "Mida amb què es col·loca un símbol nou",
-    "symbolScaleCustom": "Escala personalitzada"
+    "symbolScaleCustom": "Escala personalitzada",
+    "count": "Comptar",
+    "arc": "Arc"
   },
   "proofread": {
     "group": "Revisió",

@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "Den ausgeschnittenen Bereich hier einfügen, Vektordaten bleiben erhalten",
     "symbolScale": "Maßstab",
     "symbolScaleTitle": "Größe, in der ein neues Symbol platziert wird",
-    "symbolScaleCustom": "Eigener Maßstab"
+    "symbolScaleCustom": "Eigener Maßstab",
+    "count": "Zählen",
+    "arc": "Bogen"
   },
   "proofread": {
     "group": "Korrektur",

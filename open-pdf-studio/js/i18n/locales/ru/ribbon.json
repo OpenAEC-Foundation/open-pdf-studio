@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "Вставить сюда вырезанную область с сохранением векторных данных",
     "symbolScale": "Масштаб",
     "symbolScaleTitle": "Размер, в котором размещается новый символ",
-    "symbolScaleCustom": "Свой масштаб"
+    "symbolScaleCustom": "Свой масштаб",
+    "count": "Подсчёт",
+    "arc": "Дуга"
   },
   "proofread": {
     "group": "Корректура",

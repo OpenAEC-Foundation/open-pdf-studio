@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "Lipiți aici zona decupată, păstrând datele vectoriale",
     "symbolScale": "Scară",
     "symbolScaleTitle": "Dimensiunea la care este plasat un simbol nou",
-    "symbolScaleCustom": "Scară personalizată"
+    "symbolScaleCustom": "Scară personalizată",
+    "count": "Numărare",
+    "arc": "Arc"
   },
   "proofread": {
     "group": "Corectură",

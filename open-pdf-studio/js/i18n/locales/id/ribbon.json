@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "Tempel area yang dipotong di sini, dengan mempertahankan data vektor",
     "symbolScale": "Skala",
     "symbolScaleTitle": "Ukuran penempatan simbol baru",
-    "symbolScaleCustom": "Skala kustom"
+    "symbolScaleCustom": "Skala kustom",
+    "count": "Hitung",
+    "arc": "Busur"
   },
   "proofread": {
     "group": "Koreksi",

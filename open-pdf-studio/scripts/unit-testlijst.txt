@@ -561,3 +561,4 @@ js/annotations/rendering/textbox-vorm.test.mjs
 js/annotations/rendering/textbox-vuitlijning.test.mjs
 js/ui/lint-keuzelijst-thema.test.mjs
 js/tools/tools/dubbelklik-greep.test.mjs
+js/solid/components/ribbon/lint-tooltips-i18n.test.mjs

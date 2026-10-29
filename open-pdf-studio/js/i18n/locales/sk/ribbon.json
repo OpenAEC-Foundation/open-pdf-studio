@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "Vložte sem vystrihnutú oblasť so zachovaním vektorových údajov",
     "symbolScale": "Mierka",
     "symbolScaleTitle": "Veľkosť, v ktorej sa umiestni nový symbol",
-    "symbolScaleCustom": "Vlastná mierka"
+    "symbolScaleCustom": "Vlastná mierka",
+    "count": "Počítanie",
+    "arc": "Oblúk"
   },
   "proofread": {
     "group": "Korektúra",

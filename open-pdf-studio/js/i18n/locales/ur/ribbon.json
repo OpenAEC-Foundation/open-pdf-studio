@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "کاٹا گیا حصہ یہاں چسپاں کریں، ویکٹر ڈیٹا برقرار رکھتے ہوئے",
     "symbolScale": "پیمانہ",
     "symbolScaleTitle": "وہ سائز جس پر نیا نشان رکھا جاتا ہے",
-    "symbolScaleCustom": "حسب ضرورت پیمانہ"
+    "symbolScaleCustom": "حسب ضرورت پیمانہ",
+    "count": "گنتی",
+    "arc": "قوس"
   },
   "proofread": {
     "group": "پروف ریڈنگ",

@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "Indsæt det udklippede område her med bevarede vektordata",
     "symbolScale": "Skala",
     "symbolScaleTitle": "Størrelse, som et nyt symbol placeres i",
-    "symbolScaleCustom": "Brugerdefineret skala"
+    "symbolScaleCustom": "Brugerdefineret skala",
+    "count": "Tæl",
+    "arc": "Bue"
   },
   "proofread": {
     "group": "Korrektur",

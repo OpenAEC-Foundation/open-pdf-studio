@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "الصق المنطقة المقتطعة هنا مع الحفاظ على بياناتها المتجهة",
     "symbolScale": "المقياس",
     "symbolScaleTitle": "الحجم الذي يُوضع به رمز جديد",
-    "symbolScaleCustom": "مقياس مخصص"
+    "symbolScaleCustom": "مقياس مخصص",
+    "count": "عدّ",
+    "arc": "قوس"
   },
   "proofread": {
     "group": "التدقيق",

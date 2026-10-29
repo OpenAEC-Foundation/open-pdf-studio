@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "วางพื้นที่ที่ตัดไว้ที่นี่ โดยคงข้อมูลเวกเตอร์ไว้",
     "symbolScale": "มาตราส่วน",
     "symbolScaleTitle": "ขนาดที่ใช้วางสัญลักษณ์ใหม่",
-    "symbolScaleCustom": "มาตราส่วนกำหนดเอง"
+    "symbolScaleCustom": "มาตราส่วนกำหนดเอง",
+    "count": "นับ",
+    "arc": "ส่วนโค้ง"
   },
   "proofread": {
     "group": "พิสูจน์อักษร",

@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "Kesilen alanı vektör verilerini koruyarak buraya yapıştırın",
     "symbolScale": "Ölçek",
     "symbolScaleTitle": "Yeni bir sembolün yerleştirildiği boyut",
-    "symbolScaleCustom": "Özel ölçek"
+    "symbolScaleCustom": "Özel ölçek",
+    "count": "Sayma",
+    "arc": "Yay"
   },
   "proofread": {
     "group": "Düzelti",

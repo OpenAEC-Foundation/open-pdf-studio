@@ -241,7 +241,7 @@ export function DrawingGroups() {
             disabled={ro()} active={state.currentTool === 'eraser'} onClick={() => setTool('eraser')} />
           <RibbonButton size="small" id="dr-rect" title={`${t('comment.rectangle')} — ${t('drawing.dimHint')}`} icon={rectIcon}
             disabled={ro()} active={state.currentTool === 'box'} onClick={() => setTool('box')} />
-          <RibbonButton size="small" id="dr-arc" title="Arc" icon={arcIcon}
+          <RibbonButton size="small" id="dr-arc" title={t('drawing.arc')} icon={arcIcon}
             disabled={ro()} active={state.currentTool === 'arc'} onClick={() => setTool('arc')} />
           <RibbonButton size="small" id="dr-polyline" title={`${t('comment.polylineTitle')} — ${t('drawing.dimHint')}`} icon={polylineIcon}
             disabled={ro()} active={state.currentTool === 'polyline'} onClick={() => setTool('polyline')} />
@@ -258,7 +258,7 @@ export function DrawingGroups() {
             disabled={ro()} active={state.currentTool === 'circle'} onClick={() => setTool('circle')} />
           <RibbonButton size="small" id="dr-ellipse" title={`${t('comment.ellipse') || 'Ellipse'} — ${t('drawing.dimHint')}`} icon={ellipseIcon}
             disabled={ro()} active={state.currentTool === 'ellipse'} onClick={() => setTool('ellipse')} />
-          <RibbonButton size="small" id="dr-count" title="Tellen" icon={circleIcon}
+          <RibbonButton size="small" id="dr-count" title={t('drawing.count')} icon={circleIcon}
             disabled={ro()} active={state.currentTool === 'count'} onClick={() => setTool('count')} />
           <RibbonButton size="small" id="dr-l-shape" title={`${t('drawing.lShape')} — ${t('drawing.dimHint')}`} icon={lShapeIcon}
             disabled={ro()} active={state.currentTool === 'lshape'} onClick={() => setTool('lshape')} />

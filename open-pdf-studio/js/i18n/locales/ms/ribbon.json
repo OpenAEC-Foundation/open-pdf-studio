@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "Tampal kawasan yang dipotong di sini, dengan mengekalkan data vektor",
     "symbolScale": "Skala",
     "symbolScaleTitle": "Saiz simbol baharu diletakkan",
-    "symbolScaleCustom": "Skala tersuai"
+    "symbolScaleCustom": "Skala tersuai",
+    "count": "Kira",
+    "arc": "Lengkok"
   },
   "proofread": {
     "group": "Pembacaan Pruf",

@@ -659,7 +659,9 @@
     "vectorSnippetPasteTitle": "Dán vùng đã cắt vào đây, giữ nguyên dữ liệu vector",
     "symbolScale": "Tỷ lệ",
     "symbolScaleTitle": "Kích thước khi đặt một ký hiệu mới",
-    "symbolScaleCustom": "Tỷ lệ tùy chỉnh"
+    "symbolScaleCustom": "Tỷ lệ tùy chỉnh",
+    "count": "Đếm",
+    "arc": "Cung"
   },
   "proofread": {
     "group": "Hiệu đính",
