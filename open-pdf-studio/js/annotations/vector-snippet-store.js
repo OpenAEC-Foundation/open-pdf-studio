@@ -3,7 +3,9 @@
 // Een knipsel draagt zijn eigen kopie van de bronpagina, zodat het blijft
 // werken als de bron gesloten, verplaatst of gewijzigd is. Tien knipsels uit
 // hetzelfde blad hoeven die kopie niet tien keer te bewaren: de annotatie
-// draagt alleen een sleutel, de bytes staan hier.
+// draagt alleen een sleutel, de bytes staan hier. (Een knipsel uit een zware
+// tekening krijgt een teruggesnoeide kopie met een eigen sleutel, #509 — zie
+// pdf/vector-cull.js.)
 //
 // De pdfium-worker rendert vanaf een PAD, niet vanuit bytes (zie
 // pdfium-worker/src/main.rs). Wie een voorvertoning wil vraagt daarom padVan()
