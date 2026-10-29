@@ -15,6 +15,7 @@ import {
   ZOOM_LEVELS, DEFAULT_ZOOM_INDEX, GUTTER, LABEL_HEIGHT, clampZoomIndex, zoomStep, gridLayout,
   cellPosition, tilePosition, visibleRange, gapAtPoint, scrollTopFor,
 } from '../../../pdf/organizer-grid.js';
+import { createOrganizerPointerDrag } from '../../../pdf/organizer-pointer-drag.js';
 import { setPageDropTarget } from '../../../ui/page-drop-target.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 
@@ -66,6 +67,9 @@ export default function PageOrganizerDialog() {
   const [sourceNames, setSourceNames] = createSignal({});
   const [fileThumbs, setFileThumbs] = createStore({});
   let gridRef;
+  let pointerDrag;
+  let dragFrame = null;
+  let dragPoint = null;
   let closed = false;
 
   const tile = () => ZOOM_LEVELS[zoom()];
@@ -305,6 +309,7 @@ export default function PageOrganizerDialog() {
   // Tab still reach the dialog.
   const handleKeyDown = (e) => {
     if (e.key !== 'Escape' && e.key !== 'Tab') e.stopPropagation();
+    if (e.key === 'Escape' && pointerDrag?.isDragging()) { e.preventDefault(); e.stopPropagation(); pointerDrag.cancel(); return; }
     if (e.key === 'Escape' && insertMenu()) { e.stopPropagation(); setInsertMenu(null); return; }
     const list = keysOf(plan());
     if (!list.length) return;
@@ -358,30 +363,35 @@ export default function PageOrganizerDialog() {
     else if (clientY > r.bottom - 30) gridRef.scrollTop += 20;
   };
 
-  const handleDragStart = (e, key) => {
-    // Dragging a page outside the selection drags that page alone.
-    if (!selected().has(key)) selectOnly(key);
-    setInsertMenu(null);
-    setDragKind('move');
-    try {
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', selectedKeys().join(','));
-    } catch { /* some engines refuse data on dragstart */ }
+  const updatePointerGap = (point) => {
+    const { x, y, inside } = contentPoint(point.clientX, point.clientY);
+    const gap = gapAtPoint(layout(), x, y);
+    setDropGap(!inside || isNoOpGap(keysOf(plan()), selectedKeys(), gap) ? null : gap);
+  };
+  const scrollDrag = () => {
+    if (!dragPoint) return;
+    if (contentPoint(dragPoint.clientX, dragPoint.clientY).inside) autoScroll(dragPoint.clientY);
+    updatePointerGap(dragPoint);
+    dragFrame = requestAnimationFrame(scrollDrag);
+  };
+  const stopPointerScroll = () => {
+    if (dragFrame != null) cancelAnimationFrame(dragFrame);
+    dragFrame = null;
+    dragPoint = null;
   };
 
   const draggingFiles = (e) => Array.from(e.dataTransfer?.types || []).includes('Files');
 
   const handleDragOver = (e) => {
-    const files = dragKind() !== 'move' && draggingFiles(e);
-    if (dragKind() !== 'move' && !files) return;
+    if (pointerDrag?.isDragging() || !draggingFiles(e)) return;
     e.preventDefault();
     e.stopPropagation();
-    if (files) setDragKind('files');
+    setDragKind('files');
     autoScroll(e.clientY);
     const { x, y } = contentPoint(e.clientX, e.clientY);
     const g = gapAtPoint(layout(), x, y);
-    setDropGap(dragKind() === 'move' && isNoOpGap(keysOf(plan()), selectedKeys(), g) ? null : g);
-    try { e.dataTransfer.dropEffect = files ? 'copy' : 'move'; } catch { /* read-only in some engines */ }
+    setDropGap(g);
+    try { e.dataTransfer.dropEffect = 'copy'; } catch { /* read-only in some engines */ }
   };
 
   const endDrag = () => {
@@ -390,19 +400,12 @@ export default function PageOrganizerDialog() {
   };
 
   const handleDrop = async (e) => {
-    const kind = dragKind();
-    if (kind !== 'move' && !draggingFiles(e)) return;
+    if (pointerDrag?.isDragging() || !draggingFiles(e)) return;
     e.preventDefault();
     e.stopPropagation();
     const { x, y } = contentPoint(e.clientX, e.clientY);
-    const g = kind === 'move' ? dropGap() : gapAtPoint(layout(), x, y);
+    const g = gapAtPoint(layout(), x, y);
     endDrag();
-    if (kind === 'move') {
-      if (g == null) return;
-      commit(moveEntriesToGap(plan(), selectedKeys(), g));
-      scrollToKey(focusKey());
-      return;
-    }
     // An external PDF (browser): its pages go in at the drop position.
     const files = Array.from(e.dataTransfer?.files || []).filter((f) => isPdfName(f.name));
     let at = g;
@@ -491,15 +494,44 @@ export default function PageOrganizerDialog() {
       ro = new ResizeObserver(measure);
       ro.observe(gridRef);
     }
+    pointerDrag = createOrganizerPointerDrag(gridRef, {
+      keyAt(target) {
+        if (busy() || target.closest?.('button, input, select, a')) return null;
+        const tile = target.closest?.('.page-organizer-tile');
+        return tile && gridRef.contains(tile) ? tile.dataset.key : null;
+      },
+      start(key) {
+        if (!selected().has(key)) selectOnly(key);
+        setInsertMenu(null);
+        setDragKind('move');
+        gridRef.focus();
+      },
+      move(event) {
+        dragPoint = { clientX: event.clientX, clientY: event.clientY };
+        updatePointerGap(dragPoint);
+        if (dragFrame == null) dragFrame = requestAnimationFrame(scrollDrag);
+      },
+      finish(event) {
+        stopPointerScroll();
+        if (!event.cancelled) updatePointerGap(event);
+        const gap = event.cancelled ? null : dropGap();
+        endDrag();
+        if (gap != null) {
+          commit(moveEntriesToGap(plan(), selectedKeys(), gap));
+          scrollToKey(focusKey());
+        }
+      },
+    });
     const unregister = setPageDropTarget({
       over(x, y) {
-        if (!gridRef) return;
+        if (!gridRef || pointerDrag.isDragging()) return;
         const p = contentPoint(x, y);
         setDragKind('files');
         setDropGap(p.inside ? gapAtPoint(layout(), p.x, p.y) : entries().length);
       },
-      leave() { endDrag(); },
+      leave() { if (!pointerDrag.isDragging()) endDrag(); },
       async drop(paths, x, y) {
+        if (pointerDrag.isDragging()) return;
         const p = gridRef ? contentPoint(x, y) : { inside: false };
         const g = p.inside ? gapAtPoint(layout(), p.x, p.y) : entries().length;
         endDrag();
@@ -507,6 +539,8 @@ export default function PageOrganizerDialog() {
       },
     });
     onCleanup(() => {
+      pointerDrag.destroy();
+      stopPointerScroll();
       unregister();
       ro?.disconnect();
       clearTimeout(prioTimer);
@@ -644,11 +678,10 @@ export default function PageOrganizerDialog() {
                   data-page={e.kind === 'page' ? e.page : undefined}
                   role="option"
                   aria-selected={sel()}
-                  draggable={true}
+                  draggable={false}
                   title={labelFor(e)}
                   onClick={(ev) => handleTileClick(ev, e.key)}
-                  onDragStart={(ev) => handleDragStart(ev, e.key)}
-                  onDragEnd={endDrag}
+                  onDragStart={(ev) => ev.preventDefault()}
                 >
                   <div class="page-organizer-frame" style={{ width: `${tile()}px`, height: `${tile()}px` }}>
                     <Show when={src()} fallback={

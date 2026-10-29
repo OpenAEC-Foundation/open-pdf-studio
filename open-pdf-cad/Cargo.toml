@@ -1,6 +1,6 @@
 [package]
 name = "open-pdf-cad"
-version = "2026.44.2"
+version = "2026.44.11"
 edition = "2021"
 license = "LGPL-3.0-or-later"
 description = "CAD exchange for PDF pages: exports vector content to DXF and DWG through one shared geometry model"
