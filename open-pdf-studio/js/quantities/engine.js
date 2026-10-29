@@ -38,8 +38,9 @@ function applyFmt(f, fmt, elements) {
     unit: eenheidVoor(f, elements),
     decimals: f.dec != null ? f.dec : (f.kind === 'number' ? 2 : 0),
     align: f.kind === 'number' ? 'right' : 'left',
-    // Beeldkolommen tellen nooit mee in som/subtotalen.
-    total: !isImage,
+    // Beeldkolommen tellen nooit mee in som/subtotalen; een veld met
+    // sum: false (diameter, lengte per staaf) ook niet.
+    total: !isImage && f.sum !== false,
   };
   if (isImage) return { ...base, total: false };
   if (!fmt) return base;
@@ -49,7 +50,7 @@ function applyFmt(f, fmt, elements) {
     unit: fmt.unit != null ? fmt.unit : base.unit,
     decimals: fmt.decimals != null ? fmt.decimals : base.decimals,
     align: fmt.align || base.align,
-    total: fmt.total !== false,
+    total: fmt.total != null ? fmt.total !== false : base.total,
   };
 }
 

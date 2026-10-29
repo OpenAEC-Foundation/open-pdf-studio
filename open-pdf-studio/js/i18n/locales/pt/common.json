@@ -124,7 +124,79 @@
         "label": "Planta baixa",
         "hint": "Desenhar uma planta arquitetônica: paredes, esquadrias, ambientes, cotas e equipamentos (sanitários, cozinha)",
         "prompt": "Desenhe uma planta arquitetônica. O que desenhar: "
+      },
+      "find-on-sheet": {
+        "label": "Localizar na folha",
+        "hint": "Localizar um termo (nome de ambiente, marcador de corte, símbolo), ir até a página dele e destacar os resultados",
+        "prompt": "Localize nesta folha: "
+      },
+      "explain-selection": {
+        "label": "Explicar seleção",
+        "hint": "Descrever a área, o texto ou a marcação selecionada em linguagem simples, com dimensões quando houver uma escala de medição definida",
+        "prompt": "Explique a seleção."
+      },
+      "compare-sheets": {
+        "label": "Comparar folhas",
+        "hint": "Identificar e marcar o que foi adicionado, removido ou movido em relação a outra página",
+        "prompt": "Compare esta página com a página: "
+      },
+      "measure": {
+        "label": "Medir isto",
+        "hint": "Medir a forma selecionada ou um elemento descrito e informar o resultado na escala do desenho",
+        "prompt": "Meça: "
+      },
+      "take-off": {
+        "label": "Levantar quantitativos",
+        "hint": "Contar ou medir elementos de um mesmo tipo e colocar o resultado como quadro na folha",
+        "prompt": "Levante os quantitativos de: "
+      },
+      "check-scale": {
+        "label": "Verificar a escala",
+        "hint": "Encontrar a escala no selo ou numa cota conhecida e defini-la",
+        "prompt": "Verifique a escala deste desenho."
+      },
+      "review-sheet": {
+        "label": "Revisar folha",
+        "hint": "Adicionar nuvens com comentários numerados nos pontos que um verificador apontaria",
+        "prompt": "Revise esta folha quanto a: "
+      },
+      "stamp-date": {
+        "label": "Carimbar e datar",
+        "hint": "Colocar um carimbo, preencher um campo do selo ou adicionar uma nota de revisão com a data de hoje",
+        "prompt": "Carimbe e date: "
+      },
+      "clean-up": {
+        "label": "Organizar marcações",
+        "hint": "Alinhar, renumerar ou recolorir as marcações existentes de forma consistente",
+        "prompt": "Organize minhas marcações: "
+      },
+      "import-cad": {
+        "label": "Importar desenho",
+        "hint": "Importar um desenho DWG ou DXF como base na escala correta",
+        "prompt": "Importe o desenho (caminho do arquivo DWG ou DXF): "
+      },
+      "export-cad": {
+        "label": "Exportar para CAD",
+        "hint": "Gravar esta página ou a área selecionada num arquivo DXF ou DWG",
+        "prompt": "Exporte esta página para (caminho do arquivo DXF ou DWG): "
       }
+    },
+    "groups": {
+      "document": "Traduzir e resumir",
+      "reading": "Leitura do desenho",
+      "measuring": "Medições e quantitativos",
+      "markup": "Marcações",
+      "structure": "Estrutura e planta baixa",
+      "cad": "Desenhos CAD"
+    },
+    "need": {
+      "document": "Abra um PDF primeiro: esta habilidade funciona no documento aberto.",
+      "selection": "Selecione primeiro uma marcação ou um trecho de texto no desenho e clique na habilidade novamente.",
+      "scale": "Este desenho ainda não tem escala de medição. Defina uma primeiro (por exemplo, com “Verificar a escala”) e tente novamente.",
+      "input": "Complete o texto na caixa de entrada após os dois-pontos e envie.",
+      "selectionOrInput": "Selecione uma forma no desenho ou descreva após os dois-pontos o que medir.",
+      "page": "Informe o número da outra página (1 a {{max}}), não da página atual.",
+      "twoPages": "Este documento tem apenas uma página. Para comparar com outro arquivo, substitua o texto na caixa de entrada pela sua própria pergunta."
     }
   },
   "onlineSymbolLibrary": "Biblioteca de símbolos online",
@@ -228,7 +300,12 @@
     "goToPageLink": "Ir para a página",
     "openExternalFile": "Abrir: {{filename}}",
     "destination": "Destino: {{name}}",
-    "internalLink": "Link interno"
+    "internalLink": "Link interno",
+    "attachmentOnPage": "Página {{page}}",
+    "attachmentCreated": "Criado: {{date}}",
+    "attachmentModified": "Modificado: {{date}}",
+    "openAttachmentRiskTitle": "Abrir anexo",
+    "openAttachmentRiskMessage": "\"{{name}}\" pode executar programas neste computador. Abra-o apenas se confiar na origem. Abrir mesmo assim?"
   },
   "failedToInsertPagesFromFile": "Falha ao inserir páginas do arquivo: {{error}}",
   "previewPdfRefused": "Este PDF é uma pré-visualização da importação do desenho e pode estar incompleto. Não pode ser inserido nem guardado; importe o desenho novamente.",
@@ -298,5 +375,42 @@
     "readFailed": "Não foi possível ler o modelo 3D.",
     "partial": "Algumas partes do modelo 3D não puderam ser lidas ({{n}} ignoradas).",
     "viewerFailed": "Não foi possível iniciar a visualização 3D."
+  },
+  "readAloud": {
+    "title": "Ler em voz alta",
+    "play": "Ler",
+    "pause": "Pausar",
+    "resume": "Retomar",
+    "stop": "Parar",
+    "close": "Fechar",
+    "voice": "Voz",
+    "defaultVoice": "Voz predefinida",
+    "rate": "Velocidade",
+    "loading": "A preparar...",
+    "reading": "A ler",
+    "paused": "Em pausa",
+    "page": "página {{page}}",
+    "tagOrder": "ordem das etiquetas",
+    "contentOrder": "ordem das páginas",
+    "noEngine": "Não há nenhum motor de voz disponível neste sistema.",
+    "noEngineLinux": "Nenhum motor de voz encontrado. Instale o speech-dispatcher (spd-say) ou o espeak-ng e tente novamente.",
+    "speechFailed": "A leitura parou devido a um erro.",
+    "nothingToRead": "Não há texto para ler.",
+    "online": "(online)",
+    "allowOnline": "Vozes online",
+    "allowOnlineHint": "Oferecer também vozes online. Com uma voz online, o texto lido é enviado para um serviço de voz online.",
+    "onlyOnlineVoices": "Só há vozes online disponíveis. Ative Vozes online para usar uma; o texto lido é então enviado para um serviço de voz online.",
+    "noLocalVoice": "Nenhuma voz local está instalada para este idioma; é usada a voz local predefinida."
+  },
+  "moveInference": {
+    "onAxisX": "No eixo X",
+    "onAxisY": "No eixo Y",
+    "fromPoint": "A partir do ponto",
+    "extension": "No prolongamento",
+    "parallel": "Paralelo",
+    "perpendicular": "Perpendicular",
+    "intersection": "Interseção",
+    "polar": "Polar",
+    "locked": "Bloqueado"
   }
 }

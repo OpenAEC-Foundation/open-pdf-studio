@@ -357,7 +357,9 @@ export async function closeTab(index, force = false, dialogAction = null) {
   // het ruimt ook de tijdelijke werkbestanden van het document op, en wie het
   // laatste tabblad sluit en meteen afsluit, liet die anders staan (#400).
   const vrijgave = import('../../pdf/document-release.js')
-    .then(({ geefDocumentVrij }) => geefDocumentVrij(doc, state.documents))
+    .then(({ geefDocumentVrij }) => geefDocumentVrij(doc, state.documents, {
+      klembord: [state.clipboardAnnotation, state.clipboardAnnotations],
+    }))
     .catch((e) => console.warn('[tabs] vrijgeven van document mislukt:', e));
 
   // Een gesloten document gebruikt zijn knipsel-bronnen niet meer; wat nergens

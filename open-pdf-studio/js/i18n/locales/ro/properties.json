@@ -41,7 +41,10 @@
     "cancelled": "Anulat",
     "completed": "Finalizat",
     "reviewed": "Revizuit",
-    "statusSetBy": "Setat de {{author}} pe {{date}}"
+    "statusSetBy": "Setat de {{author}} pe {{date}}",
+    "layer": "Strat",
+    "layerMarkupGroup": "Straturi de marcaje",
+    "layerDocumentGroup": "Straturile documentului"
   },
   "colorNone": "Niciunul",
   "moreColors": "Mai multe culori...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Agrafă",
+    "iconPushPin": "Piuneză",
+    "iconGraph": "Grafic",
+    "iconTag": "Etichetă"
   },
   "stylePresets": {
     "label": "Stil de linie",
@@ -308,7 +315,8 @@
     "measurePerimeter": "Perimetru",
     "redaction": "Redactare",
     "scaleBar": "Bară de scară",
-    "parametricSymbol": "Simbol parametric"
+    "parametricSymbol": "Simbol parametric",
+    "fileAttachment": "Atașament fișier"
   },
   "leftPanel": {
     "togglePanel": "Comutare panou",
@@ -379,22 +387,54 @@
     "exportComments": "Exportă comentarii în fișier de date...",
     "exportSelectedComments": "Exportă comentariile selectate în fișier de date...",
     "exportListCsv": "Exportă lista în CSV...",
-    "summarizeComingSoon": "În curând",
     "listExported": "Lista de comentarii a fost exportată în CSV",
     "csvPage": "Pagină",
     "csvType": "Tip",
     "csvAuthor": "Autor",
-    "csvDate": "Dată",
     "csvStatus": "Stare",
     "csvSubject": "Subiect",
     "csvContents": "Conținut",
     "csvColor": "Culoare",
     "csvLayer": "Strat",
+    "csvId": "ID",
+    "csvCreated": "Creat",
+    "csvModified": "Modificat",
+    "csvStatusBy": "Stare setată de",
+    "csvStatusAt": "Data stării",
+    "csvReplyCount": "Număr de răspunsuri",
+    "csvReplies": "Răspunsuri",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "Lățime",
+    "csvHeight": "Înălțime",
+    "filterBar": "Filtre",
+    "filterAll": "(Toate)",
+    "filterPages": "Pagini",
+    "filterDate": "Dată",
+    "filterFrom": "De la",
+    "filterTo": "Până la",
+    "filterClear": "Șterge filtrele",
+    "setStatusSelected": "Setează starea selecției",
+    "setStatusListed": "Setează starea tuturor celor listate",
+    "statusChanged": "Stare modificată: {{count}}",
+    "summaryTitle": "Rezumatul comentariilor",
+    "summaryDocument": "Document",
+    "summaryCreated": "Creat",
+    "summaryCount": "Comentarii",
+    "summaryNoText": "(fără text de comentariu)",
+    "summaryBusy": "Se creează rezumatul comentariilor...",
+    "summaryExported": "Rezumatul comentariilor a fost exportat în PDF",
+    "summaryFailed": "Rezumatul comentariilor nu a putut fi creat",
     "schedules": "Extrase",
     "addPage": "Adăugare pagină",
     "pageLabels": "Etichete de pagină (generator de nume)",
     "portfolio": "Portofoliu PDF",
-    "recognizeForm": "Recunoaștere câmpuri de formular"
+    "recognizeForm": "Recunoaștere câmpuri de formular",
+    "layersSetDefault": "Setează ca implicit",
+    "layersSetDefaultTitle": "Păstrează vizibilitatea actuală a straturilor ca stare implicită a documentului. Este scrisă în fișier la următoarea salvare.",
+    "layersDefaultPending": "Devine implicit la salvare",
+    "layerLocked": "Strat blocat: nu poate fi activat sau dezactivat",
+    "layerRadioGroup": "Grup de alegere: activarea acestui strat le dezactivează pe celelalte din grup"
   },
   "scaleBar": {
     "title": "Bară de scară",
@@ -443,7 +483,9 @@
       "symbol": "Extras de simboluri",
       "text": "Extras de texte",
       "full": "Cantități complete",
-      "image": "Imagini și ștampile"
+      "image": "Imagini și ștampile",
+      "bendingSchedule": "Extras de fasonare",
+      "rebarWeight": "Extras de armătură (greutate pe Ø)"
     },
     "preview": "Previzualizare",
     "exportCsv": "Exportă CSV",
@@ -603,7 +645,8 @@
       "textBuiltIn": "Text (nativ)",
       "symbol": "Simbol",
       "image": "Imagine",
-      "other": "Altele"
+      "other": "Altele",
+      "reinforcement": "Armătură"
     },
     "field": {
       "category": "Categorie",
@@ -631,7 +674,16 @@
       "width": "Lățime",
       "height": "Înălțime",
       "location": "Locație",
-      "locationSource": "Sursa locației"
+      "locationSource": "Sursa locației",
+      "rebarMark": "Poziție",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Formă de fasonare",
+      "rebarGrade": "Clasa oțelului",
+      "rebarCount": "Număr de bare",
+      "rebarLength": "Lungime bară",
+      "rebarTotalLength": "Lungime totală",
+      "rebarMassPerM": "Masă pe metru",
+      "rebarMass": "Masă"
     },
     "type": {
       "line": "Linie",
@@ -669,7 +721,8 @@
       "stavenreeks": "Serie de bare",
       "betonbalk": "Grindă de beton",
       "scheduleTable": "Tabel de cantități",
-      "builtinText": "Text"
+      "builtinText": "Text",
+      "rebarPosition": "Bară de armătură"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "Vertical larg",
       "inb-horizontaal-breed": "Orizontal larg"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "Mută mai sus în ordinea de citire",
+    "moveDown": "Mută mai jos în ordinea de citire",
+    "checkAccessibility": "Verifică accesibilitatea",
+    "altText": "Text alternativ",
+    "altTextPlaceholder": "Descrieți imaginea pentru cei care nu o pot vedea...",
+    "noAlt": "Fără text alternativ",
+    "role": "Rol",
+    "mappedTo": "{{role}} este asociat cu {{standard}}",
+    "content": "Conținut {{mcid}} (pagina {{page}})",
+    "annotationRef": "Adnotare (pagina {{page}})"
+  },
+  "ink": {
+    "title": "Cerneală",
+    "pressure": "Presiunea stiloului",
+    "pressureHint": "Presiunea stiloului variază grosimea liniei (liniile trase cu mouse-ul păstrează o grosime constantă)",
+    "minWidth": "Lățime minimă (%)",
+    "minWidthHint": "Lățimea la cea mai ușoară presiune, ca procent din grosimea liniei",
+    "smoothing": "Netezire",
+    "smoothingHint": "Intensitatea netezirii liniei (0 = deloc)"
+  },
+  "attachment": {
+    "file": "Fișier",
+    "size": "Dimensiune",
+    "open": "Deschide",
+    "saveAs": "Salvare ca...",
+    "noContent": "Conținutul acestui fișier nu este încorporat în PDF."
   }
 }

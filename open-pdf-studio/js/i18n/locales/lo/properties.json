@@ -21,7 +21,10 @@
     "cancelled": "ຍົກເລີກແລ້ວ",
     "completed": "ສຳເລັດແລ້ວ",
     "reviewed": "ກວດສອບແລ້ວ",
-    "statusSetBy": "ກຳນົດໂດຍ {{author}} ເມື່ອ {{date}}"
+    "statusSetBy": "ກຳນົດໂດຍ {{author}} ເມື່ອ {{date}}",
+    "layer": "ຊັ້ນ",
+    "layerMarkupGroup": "ເລເຢີເຄື່ອງໝາຍ",
+    "layerDocumentGroup": "ຊັ້ນຂອງເອກະສານ"
   },
   "colorNone": "ບໍ່ມີ",
   "moreColors": "ສີເພີ່ມເຕີມ...",
@@ -139,7 +142,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "ຄລິບໜີບເຈ້ຍ",
+    "iconPushPin": "ເຂັມໝຸດ",
+    "iconGraph": "ກຣາຟ",
+    "iconTag": "ປ້າຍ"
   },
   "stylePresets": {
     "label": "ຮູບແບບເສັ້ນ",
@@ -340,7 +347,8 @@
     "measurePerimeter": "ລວງຮອບ",
     "redaction": "ການປິດບັງຂໍ້ມູນ",
     "scaleBar": "ແຖບມາດຕາສ່ວນ",
-    "parametricSymbol": "ສັນຍະລັກພາຣາມິເຕີ"
+    "parametricSymbol": "ສັນຍະລັກພາຣາມິເຕີ",
+    "fileAttachment": "ໄຟລ໌ແນບ"
   },
   "leftPanel": {
     "togglePanel": "ເປີດ/ປິດ ແຖບຂ້າງ",
@@ -407,17 +415,44 @@
     "exportComments": "ສົ່ງອອກຄຳເຫັນໄປຍັງໄຟລ໌ຂໍ້ມູນ...",
     "exportSelectedComments": "ສົ່ງອອກຄຳເຫັນທີ່ເລືອກໄປຍັງໄຟລ໌ຂໍ້ມູນ...",
     "exportListCsv": "ສົ່ງອອກລາຍການເປັນ CSV...",
-    "summarizeComingSoon": "ໄວໆນີ້",
     "listExported": "ສົ່ງອອກລາຍການຄຳເຫັນເປັນ CSV ແລ້ວ",
     "csvPage": "ໜ້າ",
     "csvType": "ປະເພດ",
     "csvAuthor": "ຜູ້ຂຽນ",
-    "csvDate": "ວັນທີ",
     "csvStatus": "ສະຖານະ",
     "csvSubject": "ຫົວເລື່ອງ",
     "csvContents": "ເນື້ອຫາ",
     "csvColor": "ສີ",
     "csvLayer": "ຊັ້ນ",
+    "csvId": "ລະຫັດ",
+    "csvCreated": "ສ້າງເມື່ອ",
+    "csvModified": "ແກ້ໄຂເມື່ອ",
+    "csvStatusBy": "ສະຖານະຕັ້ງໂດຍ",
+    "csvStatusAt": "ວັນທີຂອງສະຖານະ",
+    "csvReplyCount": "ຈຳນວນການຕອບກັບ",
+    "csvReplies": "ການຕອບກັບ",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "ຄວາມກວ້າງ",
+    "csvHeight": "ຄວາມສູງ",
+    "filterBar": "ຕົວກອງ",
+    "filterAll": "(ທັງໝົດ)",
+    "filterPages": "ໜ້າ",
+    "filterDate": "ວັນທີ",
+    "filterFrom": "ຈາກ",
+    "filterTo": "ຫາ",
+    "filterClear": "ລ້າງຕົວກອງ",
+    "setStatusSelected": "ຕັ້ງສະຖານະຂອງລາຍການທີ່ເລືອກ",
+    "setStatusListed": "ຕັ້ງສະຖານະຂອງທຸກລາຍການໃນລາຍຊື່",
+    "statusChanged": "ປ່ຽນສະຖານະແລ້ວ: {{count}}",
+    "summaryTitle": "ສະຫຼຸບຄຳເຫັນ",
+    "summaryDocument": "ເອກະສານ",
+    "summaryCreated": "ສ້າງເມື່ອ",
+    "summaryCount": "ຄຳເຫັນ",
+    "summaryNoText": "(ບໍ່ມີຂໍ້ຄວາມຄຳເຫັນ)",
+    "summaryBusy": "ກຳລັງສ້າງສະຫຼຸບຄຳເຫັນ...",
+    "summaryExported": "ສົ່ງອອກສະຫຼຸບຄຳເຫັນເປັນ PDF ແລ້ວ",
+    "summaryFailed": "ບໍ່ສາມາດສ້າງສະຫຼຸບຄຳເຫັນໄດ້",
     "filterLabel": "ຕົວກັ່ນຕອງ",
     "expandAll": "ຂະຫຍາຍທັງໝົດ",
     "collapseAll": "ຫຍໍ້ເຂົ້າທັງໝົດ",
@@ -426,7 +461,12 @@
     "addPage": "ເພີ່ມໜ້າ",
     "pageLabels": "ປ້າຍຊື່ໜ້າ (ຕົວສ້າງຊື່)",
     "portfolio": "ແຟ້ມສະສົມ PDF",
-    "recognizeForm": "ຮັບຮູ້ຊ່ອງຟອມ"
+    "recognizeForm": "ຮັບຮູ້ຊ່ອງຟອມ",
+    "layersSetDefault": "ຕັ້ງເປັນຄ່າເລີ່ມຕົ້ນ",
+    "layersSetDefaultTitle": "ເກັບການສະແດງຊັ້ນປັດຈຸບັນເປັນສະຖານະເລີ່ມຕົ້ນຂອງເອກະສານ. ມັນຈະຖືກຂຽນລົງໄຟລ໌ເມື່ອບັນທຶກຄັ້ງຕໍ່ໄປ.",
+    "layersDefaultPending": "ຈະເປັນຄ່າເລີ່ມຕົ້ນເມື່ອບັນທຶກ",
+    "layerLocked": "ຊັ້ນທີ່ລັອກ: ບໍ່ສາມາດເປີດ ຫຼື ປິດໄດ້",
+    "layerRadioGroup": "ກຸ່ມທາງເລືອກ: ການເປີດຊັ້ນນີ້ຈະປິດຊັ້ນອື່ນໃນກຸ່ມ"
   },
   "schedules": {
     "title": "ຕາຕະລາງລາຍການ",
@@ -443,7 +483,9 @@
       "symbol": "ຕາຕະລາງສັນຍະລັກ",
       "text": "ຕາຕະລາງຂໍ້ຄວາມ",
       "full": "ປະລິມານລວມທັງໝົດ",
-      "image": "ຮູບພາບ ແລະ ກາປະທັບ"
+      "image": "ຮູບພາບ ແລະ ກາປະທັບ",
+      "bendingSchedule": "ຕາຕະລາງການງໍເຫຼັກ",
+      "rebarWeight": "ຕາຕະລາງນ້ຳໜັກເຫຼັກເສີມ (ຕາມ Ø)"
     },
     "preview": "ສະແດງຕົວຢ່າງ",
     "exportCsv": "ສົ່ງອອກ CSV",
@@ -603,7 +645,8 @@
       "textBuiltIn": "ຂໍ້ຄວາມ (ດັ້ງເດີມ)",
       "symbol": "ສັນຍະລັກ",
       "image": "ຮູບພາບ",
-      "other": "ອື່ນໆ"
+      "other": "ອື່ນໆ",
+      "reinforcement": "ເຫຼັກເສີມ"
     },
     "field": {
       "category": "ໝວດໝູ່",
@@ -631,7 +674,16 @@
       "width": "ລວງກວ້າງ",
       "height": "ລວງສູງ",
       "location": "ສະຖານທີ່",
-      "locationSource": "ແຫຼ່ງທີ່ມາຂອງສະຖານທີ່"
+      "locationSource": "ແຫຼ່ງທີ່ມາຂອງສະຖານທີ່",
+      "rebarMark": "ເລກເຫຼັກ",
+      "rebarDiameter": "Ø",
+      "rebarShape": "ຮູບແບບການງໍ",
+      "rebarGrade": "ຊັ້ນຄຸນນະພາບເຫຼັກ",
+      "rebarCount": "ຈຳນວນເສັ້ນ",
+      "rebarLength": "ລວງຍາວເຫຼັກ",
+      "rebarTotalLength": "ລວງຍາວລວມ",
+      "rebarMassPerM": "ນ້ຳໜັກຕໍ່ແມັດ",
+      "rebarMass": "ນ້ຳໜັກ"
     },
     "type": {
       "line": "ເສັ້ນຊື່",
@@ -669,7 +721,8 @@
       "stavenreeks": "ຊຸດເຫຼັກເສັ້ນ",
       "betonbalk": "ຄານເບຕົງ",
       "scheduleTable": "ຕາຕະລາງປະລິມານວັດສະດຸ",
-      "builtinText": "ຂໍ້ຄວາມ"
+      "builtinText": "ຂໍ້ຄວາມ",
+      "rebarPosition": "ທ່ອນເຫຼັກເສີມ"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "ເສັ້ນແນວຕັ້ງຫ່າງ",
       "inb-horizontaal-breed": "ເສັ້ນແນວນອນຫ່າງ"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "ຍ້າຍຂຶ້ນໃນລຳດັບການອ່ານ",
+    "moveDown": "ຍ້າຍລົງໃນລຳດັບການອ່ານ",
+    "checkAccessibility": "ກວດສອບການເຂົ້າເຖິງ",
+    "altText": "ຂໍ້ຄວາມອະທິບາຍຮູບພາບ",
+    "altTextPlaceholder": "ອະທິບາຍຮູບພາບສຳລັບຜູ້ທີ່ເບິ່ງບໍ່ເຫັນ...",
+    "noAlt": "ບໍ່ມີຂໍ້ຄວາມອະທິບາຍ",
+    "role": "ບົດບາດ",
+    "mappedTo": "{{role}} ຖືກຈັບຄູ່ກັບ {{standard}}",
+    "content": "ເນື້ອຫາ {{mcid}} (ໜ້າ {{page}})",
+    "annotationRef": "ຄຳອະທິບາຍປະກອບ (ໜ້າ {{page}})"
+  },
+  "ink": {
+    "title": "ໝຶກ",
+    "pressure": "ແຮງກົດປາກກາ",
+    "pressureHint": "ແຮງກົດປາກກາປ່ຽນຄວາມກວ້າງຂອງເສັ້ນ (ເສັ້ນຈາກເມົ້າມີຄວາມກວ້າງຄົງທີ່)",
+    "minWidth": "ຄວາມກວ້າງຕໍ່າສຸດ (%)",
+    "minWidthHint": "ຄວາມກວ້າງທີ່ແຮງກົດເບົາທີ່ສຸດ ເປັນເປີເຊັນຂອງຄວາມໜາເສັ້ນ",
+    "smoothing": "ການເຮັດໃຫ້ລຽບ",
+    "smoothingHint": "ລະດັບການເຮັດໃຫ້ເສັ້ນລຽບ (0 = ບໍ່ມີ)"
+  },
+  "attachment": {
+    "file": "ໄຟລ໌",
+    "size": "ຂະໜາດ",
+    "open": "ເປີດ",
+    "saveAs": "ບັນທຶກເປັນ...",
+    "noContent": "ເນື້ອຫາຂອງໄຟລ໌ນີ້ບໍ່ໄດ້ຝັງຢູ່ໃນ PDF."
   }
 }

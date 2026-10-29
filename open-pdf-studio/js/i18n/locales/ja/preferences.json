@@ -106,7 +106,13 @@
     "headOpenReversed": "開いた矢印（反転）",
     "headClosedReversed": "閉じた矢印（反転）",
     "headSlash": "スラッシュ",
-    "polylineDefaults": "ポリラインの既定値"
+    "polylineDefaults": "ポリラインの既定値",
+    "smoothing": "スムージング",
+    "pressure": "筆圧",
+    "pressureHint": "筆圧で線の太さが変わります（マウスの線は一定の太さです）",
+    "pressureMinWidth": "最小幅 (%)",
+    "penOnly": "ペンのみ（タッチを無視）",
+    "penOnlyHint": "タッチではフリーハンドツールで描画しません。ペンで書くときの手のひらの接触を防ぐのに役立ちます"
   },
   "shapes": {
     "rectangleDefaults": "四角形の既定値",
@@ -162,6 +168,11 @@
     "snapToNearest": "近接点にスナップ",
     "objectSnapRadius": "スナップ半径（ピクセル）",
     "snapToPdfContent": "PDF の図形内容にスナップ",
+    "moveInference": "移動時の推論ガイド (G / mv)",
+    "moveInferenceTracking": "トラッキング線 (他の図形の点に位置合わせ)",
+    "moveInferenceExtension": "線と壁面の延長線",
+    "moveInferenceParallel": "近くの線に平行 / 垂直",
+    "moveInferenceHint": "点の上にカーソルを少し置くと取得され、Shift を押し続けるとガイドがロックされ、Tab で距離と角度を切り替えます。極ガイドは極トラッキングの設定に従います。",
     "creation": "作成",
     "autoSelectAfterCreation": "作成後に注釈を自動選択する",
     "deletion": "削除",

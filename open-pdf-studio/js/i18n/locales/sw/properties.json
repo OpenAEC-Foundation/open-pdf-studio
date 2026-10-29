@@ -41,7 +41,10 @@
     "cancelled": "Imeghairiwa",
     "completed": "Imekamilika",
     "reviewed": "Imepitiwa",
-    "statusSetBy": "Imewekwa na {{author}} tarehe {{date}}"
+    "statusSetBy": "Imewekwa na {{author}} tarehe {{date}}",
+    "layer": "Tabaka",
+    "layerMarkupGroup": "Tabaka za alama",
+    "layerDocumentGroup": "Tabaka za hati"
   },
   "colorNone": "Hakuna",
   "moreColors": "Rangi Zaidi...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Kibanio cha karatasi",
+    "iconPushPin": "Pini",
+    "iconGraph": "Grafu",
+    "iconTag": "Lebo"
   },
   "stylePresets": {
     "label": "Mtindo wa mstari",
@@ -308,7 +315,8 @@
     "measurePerimeter": "Mzunguko",
     "redaction": "Ufutaji",
     "scaleBar": "Upau wa Kipimo",
-    "parametricSymbol": "Ishara ya Vigezo"
+    "parametricSymbol": "Ishara ya Vigezo",
+    "fileAttachment": "Kiambatisho cha faili"
   },
   "leftPanel": {
     "togglePanel": "Badilisha Paneli",
@@ -379,22 +387,54 @@
     "exportComments": "Hamisha maoni kwenye faili ya data...",
     "exportSelectedComments": "Hamisha maoni yaliyochaguliwa kwenye faili ya data...",
     "exportListCsv": "Hamisha orodha kwenda CSV...",
-    "summarizeComingSoon": "Inakuja hivi karibuni",
     "listExported": "Orodha ya maoni imehamishwa kwenda CSV",
     "csvPage": "Ukurasa",
     "csvType": "Aina",
     "csvAuthor": "Mwandishi",
-    "csvDate": "Tarehe",
     "csvStatus": "Hali",
     "csvSubject": "Mada",
     "csvContents": "Maudhui",
     "csvColor": "Rangi",
     "csvLayer": "Tabaka",
+    "csvId": "Kitambulisho",
+    "csvCreated": "Imeundwa",
+    "csvModified": "Imebadilishwa",
+    "csvStatusBy": "Hali imewekwa na",
+    "csvStatusAt": "Tarehe ya hali",
+    "csvReplyCount": "Idadi ya majibu",
+    "csvReplies": "Majibu",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "Upana",
+    "csvHeight": "Urefu",
+    "filterBar": "Vichujio",
+    "filterAll": "(Zote)",
+    "filterPages": "Kurasa",
+    "filterDate": "Tarehe",
+    "filterFrom": "Kuanzia",
+    "filterTo": "Hadi",
+    "filterClear": "Futa vichujio",
+    "setStatusSelected": "Weka hali ya vilivyochaguliwa",
+    "setStatusListed": "Weka hali ya vyote vilivyoorodheshwa",
+    "statusChanged": "Hali imebadilishwa: {{count}}",
+    "summaryTitle": "Muhtasari wa maoni",
+    "summaryDocument": "Hati",
+    "summaryCreated": "Imeundwa",
+    "summaryCount": "Maoni",
+    "summaryNoText": "(hakuna maandishi ya maoni)",
+    "summaryBusy": "Inaunda muhtasari wa maoni...",
+    "summaryExported": "Muhtasari wa maoni umehamishwa kwenda PDF",
+    "summaryFailed": "Muhtasari wa maoni haukuweza kuundwa",
     "schedules": "Majedwali ya orodha",
     "addPage": "Ongeza ukurasa",
     "pageLabels": "Lebo za kurasa (kiunda majina)",
     "portfolio": "Jalada la PDF",
-    "recognizeForm": "Tambua sehemu za fomu"
+    "recognizeForm": "Tambua sehemu za fomu",
+    "layersSetDefault": "Weka kama chaguo-msingi",
+    "layersSetDefaultTitle": "Hifadhi mwonekano wa sasa wa tabaka kama hali chaguo-msingi ya hati. Huandikwa kwenye faili utakapohifadhi tena.",
+    "layersDefaultPending": "Itakuwa chaguo-msingi ukihifadhi",
+    "layerLocked": "Tabaka lililofungwa: haliwezi kuwashwa wala kuzimwa",
+    "layerRadioGroup": "Kikundi cha chaguo: kuwasha tabaka hili huzima tabaka zingine za kikundi"
   },
   "scaleBar": {
     "title": "Upau wa Kipimo",
@@ -443,7 +483,9 @@
       "symbol": "Jedwali la ishara",
       "text": "Jedwali la maandishi",
       "full": "Viwango kamili",
-      "image": "Picha na mihuri"
+      "image": "Picha na mihuri",
+      "bendingSchedule": "Jedwali la kupinda nondo",
+      "rebarWeight": "Jedwali la uzito wa nondo (kwa Ø)"
     },
     "preview": "Hakikisho",
     "exportCsv": "Hamisha CSV",
@@ -603,7 +645,8 @@
       "textBuiltIn": "Maandishi (asili)",
       "symbol": "Alama",
       "image": "Picha",
-      "other": "Nyingine"
+      "other": "Nyingine",
+      "reinforcement": "Uimarishaji (nondo)"
     },
     "field": {
       "category": "Kategoria",
@@ -631,7 +674,16 @@
       "width": "Upana",
       "height": "Kimo",
       "location": "Mahali",
-      "locationSource": "Chanzo cha mahali"
+      "locationSource": "Chanzo cha mahali",
+      "rebarMark": "Namba ya nondo",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Umbo la kupinda",
+      "rebarGrade": "Daraja la chuma",
+      "rebarCount": "Idadi ya nondo",
+      "rebarLength": "Urefu wa nondo",
+      "rebarTotalLength": "Jumla ya urefu",
+      "rebarMassPerM": "Uzito kwa mita",
+      "rebarMass": "Uzito"
     },
     "type": {
       "line": "Mstari",
@@ -669,7 +721,8 @@
       "stavenreeks": "Mfululizo wa nondo",
       "betonbalk": "Boriti ya zege",
       "scheduleTable": "Jedwali la viwango",
-      "builtinText": "Maandishi"
+      "builtinText": "Maandishi",
+      "rebarPosition": "Nondo"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "Mistari wima ya mbali",
       "inb-horizontaal-breed": "Mistari mlalo ya mbali"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "Sogeza juu katika mpangilio wa kusoma",
+    "moveDown": "Sogeza chini katika mpangilio wa kusoma",
+    "checkAccessibility": "Kagua ufikivu",
+    "altText": "Maandishi mbadala",
+    "altTextPlaceholder": "Eleza picha kwa wasioweza kuiona...",
+    "noAlt": "Hakuna maandishi mbadala",
+    "role": "Jukumu",
+    "mappedTo": "{{role}} imeunganishwa na {{standard}}",
+    "content": "Maudhui {{mcid}} (ukurasa {{page}})",
+    "annotationRef": "Kidokezo (ukurasa {{page}})"
+  },
+  "ink": {
+    "title": "Wino",
+    "pressure": "Shinikizo la kalamu",
+    "pressureHint": "Shinikizo la kalamu hubadilisha upana wa mstari (mistari ya kipanya hubaki na upana usiobadilika)",
+    "minWidth": "Upana wa chini (%)",
+    "minWidthHint": "Upana kwa shinikizo jepesi zaidi, kama asilimia ya unene wa mstari",
+    "smoothing": "Ulainishaji",
+    "smoothingHint": "Nguvu ya kulainisha mstari (0 = hakuna)"
+  },
+  "attachment": {
+    "file": "Faili",
+    "size": "Ukubwa",
+    "open": "Fungua",
+    "saveAs": "Hifadhi kama...",
+    "noContent": "Maudhui ya faili hii hayajapachikwa kwenye PDF."
   }
 }

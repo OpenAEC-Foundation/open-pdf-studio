@@ -41,7 +41,10 @@
     "cancelled": "ยกเลิกแล้ว",
     "completed": "เสร็จสิ้นแล้ว",
     "reviewed": "ตรวจสอบแล้ว",
-    "statusSetBy": "ตั้งโดย {{author}} เมื่อ {{date}}"
+    "statusSetBy": "ตั้งโดย {{author}} เมื่อ {{date}}",
+    "layer": "ชั้น",
+    "layerMarkupGroup": "เลเยอร์มาร์กอัป",
+    "layerDocumentGroup": "ชั้นของเอกสาร"
   },
   "colorNone": "ไม่มี",
   "moreColors": "สีเพิ่มเติม...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "คลิปหนีบกระดาษ",
+    "iconPushPin": "หมุด",
+    "iconGraph": "กราฟ",
+    "iconTag": "ป้าย"
   },
   "stylePresets": {
     "label": "รูปแบบเส้น",
@@ -308,7 +315,8 @@
     "measurePerimeter": "เส้นรอบรูป",
     "redaction": "การปกปิด",
     "scaleBar": "แถบมาตราส่วน",
-    "parametricSymbol": "สัญลักษณ์พาราเมตริก"
+    "parametricSymbol": "สัญลักษณ์พาราเมตริก",
+    "fileAttachment": "ไฟล์แนบ"
   },
   "leftPanel": {
     "togglePanel": "สลับแผง",
@@ -379,22 +387,54 @@
     "exportComments": "ส่งออกความคิดเห็นไปยังไฟล์ข้อมูล...",
     "exportSelectedComments": "ส่งออกความคิดเห็นที่เลือกไปยังไฟล์ข้อมูล...",
     "exportListCsv": "ส่งออกรายการเป็น CSV...",
-    "summarizeComingSoon": "เร็วๆ นี้",
     "listExported": "ส่งออกรายการความคิดเห็นเป็น CSV แล้ว",
     "csvPage": "หน้า",
     "csvType": "ประเภท",
     "csvAuthor": "ผู้เขียน",
-    "csvDate": "วันที่",
     "csvStatus": "สถานะ",
     "csvSubject": "หัวเรื่อง",
     "csvContents": "เนื้อหา",
     "csvColor": "สี",
     "csvLayer": "เลเยอร์",
+    "csvId": "รหัส",
+    "csvCreated": "สร้างเมื่อ",
+    "csvModified": "แก้ไขเมื่อ",
+    "csvStatusBy": "สถานะตั้งโดย",
+    "csvStatusAt": "วันที่ของสถานะ",
+    "csvReplyCount": "จำนวนการตอบกลับ",
+    "csvReplies": "การตอบกลับ",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "ความกว้าง",
+    "csvHeight": "ความสูง",
+    "filterBar": "ตัวกรอง",
+    "filterAll": "(ทั้งหมด)",
+    "filterPages": "หน้า",
+    "filterDate": "วันที่",
+    "filterFrom": "จาก",
+    "filterTo": "ถึง",
+    "filterClear": "ล้างตัวกรอง",
+    "setStatusSelected": "ตั้งสถานะของรายการที่เลือก",
+    "setStatusListed": "ตั้งสถานะของทุกรายการในรายการ",
+    "statusChanged": "เปลี่ยนสถานะแล้ว: {{count}}",
+    "summaryTitle": "สรุปความคิดเห็น",
+    "summaryDocument": "เอกสาร",
+    "summaryCreated": "สร้างเมื่อ",
+    "summaryCount": "ความคิดเห็น",
+    "summaryNoText": "(ไม่มีข้อความความคิดเห็น)",
+    "summaryBusy": "กำลังสร้างสรุปความคิดเห็น...",
+    "summaryExported": "ส่งออกสรุปความคิดเห็นเป็น PDF แล้ว",
+    "summaryFailed": "ไม่สามารถสร้างสรุปความคิดเห็นได้",
     "schedules": "ตารางรายการ",
     "addPage": "เพิ่มหน้า",
     "pageLabels": "ป้ายชื่อหน้า (ตัวสร้างชื่อ)",
     "portfolio": "พอร์ตโฟลิโอ PDF",
-    "recognizeForm": "รู้จำฟิลด์ฟอร์ม"
+    "recognizeForm": "รู้จำฟิลด์ฟอร์ม",
+    "layersSetDefault": "ตั้งเป็นค่าเริ่มต้น",
+    "layersSetDefaultTitle": "เก็บการแสดงผลชั้นปัจจุบันเป็นสถานะเริ่มต้นของเอกสาร จะถูกเขียนลงไฟล์เมื่อบันทึกครั้งถัดไป",
+    "layersDefaultPending": "จะเป็นค่าเริ่มต้นเมื่อบันทึก",
+    "layerLocked": "ชั้นที่ล็อค: ไม่สามารถเปิดหรือปิดได้",
+    "layerRadioGroup": "กลุ่มตัวเลือก: การเปิดชั้นนี้จะปิดชั้นอื่นในกลุ่ม"
   },
   "scaleBar": {
     "title": "แถบมาตราส่วน",
@@ -443,7 +483,9 @@
       "symbol": "ตารางรายการสัญลักษณ์",
       "text": "ตารางรายการข้อความ",
       "full": "ปริมาณทั้งหมด",
-      "image": "รูปภาพและตราประทับ"
+      "image": "รูปภาพและตราประทับ",
+      "bendingSchedule": "ตารางการดัดเหล็ก",
+      "rebarWeight": "ตารางน้ำหนักเหล็กเสริม (ตาม Ø)"
     },
     "preview": "ตัวอย่าง",
     "exportCsv": "ส่งออก CSV",
@@ -603,7 +645,8 @@
       "textBuiltIn": "ข้อความ (ในตัว)",
       "symbol": "สัญลักษณ์",
       "image": "รูปภาพ",
-      "other": "อื่นๆ"
+      "other": "อื่นๆ",
+      "reinforcement": "เหล็กเสริม"
     },
     "field": {
       "category": "หมวดหมู่",
@@ -631,7 +674,16 @@
       "width": "ความกว้าง",
       "height": "ความสูง",
       "location": "ตำแหน่ง",
-      "locationSource": "แหล่งที่มาของตำแหน่ง"
+      "locationSource": "แหล่งที่มาของตำแหน่ง",
+      "rebarMark": "หมายเลขเหล็ก",
+      "rebarDiameter": "Ø",
+      "rebarShape": "รูปแบบการดัด",
+      "rebarGrade": "ชั้นคุณภาพเหล็ก",
+      "rebarCount": "จำนวนเส้น",
+      "rebarLength": "ความยาวเหล็กเสริม",
+      "rebarTotalLength": "ความยาวรวม",
+      "rebarMassPerM": "น้ำหนักต่อเมตร",
+      "rebarMass": "น้ำหนัก"
     },
     "type": {
       "line": "เส้น",
@@ -669,7 +721,8 @@
       "stavenreeks": "ชุดเหล็กเสริม",
       "betonbalk": "คานคอนกรีต",
       "scheduleTable": "ตารางปริมาณ",
-      "builtinText": "ข้อความ"
+      "builtinText": "ข้อความ",
+      "rebarPosition": "ท่อนเหล็กเสริม"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "เส้นแนวตั้งห่าง",
       "inb-horizontaal-breed": "เส้นแนวนอนห่าง"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "เลื่อนขึ้นในลำดับการอ่าน",
+    "moveDown": "เลื่อนลงในลำดับการอ่าน",
+    "checkAccessibility": "ตรวจสอบการเข้าถึง",
+    "altText": "ข้อความแทน",
+    "altTextPlaceholder": "อธิบายรูปภาพสำหรับผู้ที่มองไม่เห็น...",
+    "noAlt": "ไม่มีข้อความแทน",
+    "role": "บทบาท",
+    "mappedTo": "{{role}} ถูกจับคู่กับ {{standard}}",
+    "content": "เนื้อหา {{mcid}} (หน้า {{page}})",
+    "annotationRef": "คำอธิบายประกอบ (หน้า {{page}})"
+  },
+  "ink": {
+    "title": "หมึก",
+    "pressure": "แรงกดปากกา",
+    "pressureHint": "แรงกดปากกาเปลี่ยนความกว้างของเส้น (เส้นจากเมาส์มีความกว้างคงที่)",
+    "minWidth": "ความกว้างต่ำสุด (%)",
+    "minWidthHint": "ความกว้างที่แรงกดเบาที่สุด เป็นเปอร์เซ็นต์ของความหนาเส้น",
+    "smoothing": "การทำให้เรียบ",
+    "smoothingHint": "ระดับการทำให้เส้นเรียบ (0 = ไม่มี)"
+  },
+  "attachment": {
+    "file": "ไฟล์",
+    "size": "ขนาด",
+    "open": "เปิด",
+    "saveAs": "บันทึกเป็น...",
+    "noContent": "เนื้อหาของไฟล์นี้ไม่ได้ฝังอยู่ใน PDF"
   }
 }

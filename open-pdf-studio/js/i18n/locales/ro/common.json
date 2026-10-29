@@ -124,7 +124,79 @@
         "label": "Plan de nivel",
         "hint": "Desenează un plan arhitectural: pereți, tâmplărie, încăperi, cote și dotări (sanitare, bucătărie)",
         "prompt": "Desenează un plan arhitectural. Ce trebuie desenat: "
+      },
+      "find-on-sheet": {
+        "label": "Caută pe planșă",
+        "hint": "Caută un termen (un nume de încăpere, un marcaj de secțiune, un simbol), mergi la pagina lui și evidențiază rezultatele",
+        "prompt": "Caută pe această planșă: "
+      },
+      "explain-selection": {
+        "label": "Explică selecția",
+        "hint": "Descrie în limbaj simplu zona, textul sau marcajul selectat, cu dimensiuni dacă este setată o scară de măsurare",
+        "prompt": "Explică selecția."
+      },
+      "compare-sheets": {
+        "label": "Compară planșe",
+        "hint": "Numește și marchează ce a fost adăugat, eliminat sau mutat față de altă pagină",
+        "prompt": "Compară această pagină cu pagina: "
+      },
+      "measure": {
+        "label": "Măsoară asta",
+        "hint": "Măsoară forma selectată sau un element descris și raportează rezultatul la scara planșei",
+        "prompt": "Măsoară: "
+      },
+      "take-off": {
+        "label": "Antemăsurătoare",
+        "hint": "Numără sau măsoară elementele de un singur tip și plasează rezultatul ca tabel pe planșă",
+        "prompt": "Fă antemăsurătoarea pentru: "
+      },
+      "check-scale": {
+        "label": "Verifică scara",
+        "hint": "Determină scara din cartuș sau dintr-o cotă cunoscută și seteaz-o",
+        "prompt": "Verifică scara acestei planșe."
+      },
+      "review-sheet": {
+        "label": "Verifică planșa",
+        "hint": "Adaugă nori cu comentarii numerotate la punctele pe care le-ar semnala un verificator",
+        "prompt": "Verifică această planșă pentru: "
+      },
+      "stamp-date": {
+        "label": "Ștampilă și dată",
+        "hint": "Plasează o ștampilă, completează un câmp din cartuș sau adaugă o notă de revizie cu data de azi",
+        "prompt": "Ștampilă și dată: "
+      },
+      "clean-up": {
+        "label": "Ordonează marcajele",
+        "hint": "Aliniază, renumerotează sau recolorează uniform marcajele existente",
+        "prompt": "Ordonează-mi marcajele: "
+      },
+      "import-cad": {
+        "label": "Importă un desen",
+        "hint": "Importă un desen DWG sau DXF ca fundal la scara corectă",
+        "prompt": "Importă desenul (calea fișierului DWG sau DXF): "
+      },
+      "export-cad": {
+        "label": "Exportă în CAD",
+        "hint": "Scrie această pagină sau zona selectată într-un fișier DXF sau DWG",
+        "prompt": "Exportă această pagină în (calea fișierului DXF sau DWG): "
       }
+    },
+    "groups": {
+      "document": "Traducere și rezumat",
+      "reading": "Citirea planșei",
+      "measuring": "Măsurători și cantități",
+      "markup": "Marcaje",
+      "structure": "Structură și plan de nivel",
+      "cad": "Desene CAD"
+    },
+    "need": {
+      "document": "Deschideți mai întâi un PDF: această abilitate lucrează pe documentul deschis.",
+      "selection": "Selectați mai întâi un marcaj sau un text pe planșă, apoi faceți din nou clic pe abilitate.",
+      "scale": "Această planșă nu are încă o scară de măsurare. Setați mai întâi una (de exemplu cu „Verifică scara”) și încercați din nou.",
+      "input": "Completați textul din caseta de introducere după cele două puncte, apoi trimiteți.",
+      "selectionOrInput": "Selectați o formă pe planșă sau descrieți după cele două puncte ce trebuie măsurat.",
+      "page": "Introduceți numărul celeilalte pagini (de la 1 la {{max}}), nu al paginii curente.",
+      "twoPages": "Acest document are o singură pagină. Pentru a compara cu alt fișier, înlocuiți textul din caseta de introducere cu propria întrebare."
     }
   },
   "onlineSymbolLibrary": "Bibliotecă de simboluri online",
@@ -228,7 +300,12 @@
     "goToPageLink": "Mergi la pagina",
     "openExternalFile": "Deschidere: {{filename}}",
     "destination": "Destinatie: {{name}}",
-    "internalLink": "Link intern"
+    "internalLink": "Link intern",
+    "attachmentOnPage": "Pagina {{page}}",
+    "attachmentCreated": "Creat: {{date}}",
+    "attachmentModified": "Modificat: {{date}}",
+    "openAttachmentRiskTitle": "Deschide atașamentul",
+    "openAttachmentRiskMessage": "„{{name}}” poate rula programe pe acest computer. Deschideți-l doar dacă aveți încredere în sursă. Deschideți totuși?"
   },
   "failedToInsertPagesFromFile": "Paginile din fișier nu au putut fi inserate: {{error}}",
   "previewPdfRefused": "Acest PDF este o previzualizare din importul desenului și poate fi incomplet. Nu poate fi inserat sau salvat; importați din nou desenul.",
@@ -298,5 +375,42 @@
     "readFailed": "Modelul 3D nu a putut fi citit.",
     "partial": "Unele părți ale modelului 3D nu au putut fi citite ({{n}} omise).",
     "viewerFailed": "Vizualizarea 3D nu a putut fi pornită."
+  },
+  "readAloud": {
+    "title": "Citire cu voce tare",
+    "play": "Citește",
+    "pause": "Pauză",
+    "resume": "Reia",
+    "stop": "Oprește",
+    "close": "Închide",
+    "voice": "Voce",
+    "defaultVoice": "Voce implicită",
+    "rate": "Viteză",
+    "loading": "Se pregătește...",
+    "reading": "Se citește",
+    "paused": "În pauză",
+    "page": "pagina {{page}}",
+    "tagOrder": "ordinea etichetelor",
+    "contentOrder": "ordinea paginilor",
+    "noEngine": "Nu există niciun motor de vorbire disponibil pe acest sistem.",
+    "noEngineLinux": "Nu s-a găsit niciun motor de vorbire. Instalați speech-dispatcher (spd-say) sau espeak-ng și încercați din nou.",
+    "speechFailed": "Citirea s-a oprit din cauza unei erori.",
+    "nothingToRead": "Nu există text de citit.",
+    "online": "(online)",
+    "allowOnline": "Voci online",
+    "allowOnlineHint": "Oferă și voci online. Cu o voce online, textul citit este trimis unui serviciu vocal online.",
+    "onlyOnlineVoices": "Sunt disponibile doar voci online. Activați Voci online pentru a folosi una; textul citit este atunci trimis unui serviciu vocal online.",
+    "noLocalVoice": "Nu este instalată nicio voce locală pentru această limbă; se folosește vocea locală implicită."
+  },
+  "moveInference": {
+    "onAxisX": "Pe axa X",
+    "onAxisY": "Pe axa Y",
+    "fromPoint": "Din punct",
+    "extension": "Pe prelungire",
+    "parallel": "Paralel",
+    "perpendicular": "Perpendicular",
+    "intersection": "Intersecție",
+    "polar": "Polar",
+    "locked": "Blocat"
   }
 }

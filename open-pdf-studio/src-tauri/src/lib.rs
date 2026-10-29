@@ -45,6 +45,7 @@ mod standaard_app;
 #[cfg(target_os = "windows")]
 pub mod print_windows;
 pub mod render_to_png;
+pub mod spraak;
 // Miniaturen van PDF's in Windows Verkenner (#605); buiten Windows niet beschikbaar.
 pub mod verkenner_miniaturen;
 pub mod window_mgmt;
@@ -2848,6 +2849,7 @@ pub fn run(opts: StartupOpts) {
     let mut builder = tauri::Builder::default()
         .manage(OpenedFiles(Mutex::new(opened_files)))
         .manage(LockedFiles(Mutex::new(HashMap::new())))
+        .manage(spraak::SpraakProces::default())
         .manage(beveiligde_pdf::BeveiligdeKopieen::default())
         .manage(print_instelling::PrinterDevmodes::default())
         .manage(PdfBytesCache(Mutex::new(HashMap::new())))
@@ -3141,6 +3143,9 @@ pub fn run(opts: StartupOpts) {
         })
         .invoke_handler(tauri::generate_handler![
             pdf_beveiliging::protect_pdf_file,
+            spraak::tts_info,
+            spraak::tts_speak,
+            spraak::tts_stop,
             get_opened_file,
             save_session,
             load_session,

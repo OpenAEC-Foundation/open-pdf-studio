@@ -717,6 +717,12 @@
   cursor: not-allowed;
 }
 
+/* Knoppen naast elkaar (bijlage-annotatie: Openen / Opslaan als, #376) */
+.prop-button-row {
+  display: flex;
+  gap: 4px;
+}
+
 
 
 /* ── Lijnstijl-presets (WEERGAVE-sectie, issue #268) ─────────────────────── */

@@ -41,7 +41,10 @@
     "cancelled": "Annulleret",
     "completed": "Fuldført",
     "reviewed": "Gennemgået",
-    "statusSetBy": "Angivet af {{author}} den {{date}}"
+    "statusSetBy": "Angivet af {{author}} den {{date}}",
+    "layer": "Lag",
+    "layerMarkupGroup": "Markeringslag",
+    "layerDocumentGroup": "Dokumentets lag"
   },
   "colorNone": "Ingen",
   "moreColors": "Flere farver...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Papirclips",
+    "iconPushPin": "Tegnestift",
+    "iconGraph": "Diagram",
+    "iconTag": "Mærkat"
   },
   "stylePresets": {
     "label": "Linjestil",
@@ -308,7 +315,8 @@
     "measurePerimeter": "Omkreds",
     "redaction": "Redigering",
     "scaleBar": "Skalabjælke",
-    "parametricSymbol": "Parametrisk symbol"
+    "parametricSymbol": "Parametrisk symbol",
+    "fileAttachment": "Vedhæftet fil"
   },
   "leftPanel": {
     "togglePanel": "Skift panel",
@@ -379,22 +387,54 @@
     "exportComments": "Eksportér kommentarer til datafil...",
     "exportSelectedComments": "Eksportér valgte kommentarer til datafil...",
     "exportListCsv": "Eksportér listen til CSV...",
-    "summarizeComingSoon": "Kommer snart",
     "listExported": "Kommentarlisten er eksporteret til CSV",
     "csvPage": "Side",
     "csvType": "Type",
     "csvAuthor": "Forfatter",
-    "csvDate": "Dato",
     "csvStatus": "Status",
     "csvSubject": "Emne",
     "csvContents": "Indhold",
     "csvColor": "Farve",
     "csvLayer": "Lag",
+    "csvId": "ID",
+    "csvCreated": "Oprettet",
+    "csvModified": "Ændret",
+    "csvStatusBy": "Status angivet af",
+    "csvStatusAt": "Statusdato",
+    "csvReplyCount": "Antal svar",
+    "csvReplies": "Svar",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "Bredde",
+    "csvHeight": "Højde",
+    "filterBar": "Filtre",
+    "filterAll": "(Alle)",
+    "filterPages": "Sider",
+    "filterDate": "Dato",
+    "filterFrom": "Fra",
+    "filterTo": "Til",
+    "filterClear": "Ryd filtre",
+    "setStatusSelected": "Angiv status for markerede",
+    "setStatusListed": "Angiv status for alle viste",
+    "statusChanged": "Status ændret: {{count}}",
+    "summaryTitle": "Kommentaroversigt",
+    "summaryDocument": "Dokument",
+    "summaryCreated": "Oprettet",
+    "summaryCount": "Kommentarer",
+    "summaryNoText": "(ingen kommentartekst)",
+    "summaryBusy": "Opretter kommentaroversigt...",
+    "summaryExported": "Kommentaroversigt eksporteret til PDF",
+    "summaryFailed": "Kommentaroversigten kunne ikke oprettes",
     "schedules": "Lister",
     "addPage": "Tilføj side",
     "pageLabels": "Sideetiketter (navnegenerator)",
     "portfolio": "PDF-portefølje",
-    "recognizeForm": "Genkend formularfelter"
+    "recognizeForm": "Genkend formularfelter",
+    "layersSetDefault": "Angiv som standard",
+    "layersSetDefaultTitle": "Gem lagenes aktuelle synlighed som dokumentets standardtilstand. Den skrives til filen, næste gang du gemmer.",
+    "layersDefaultPending": "Bliver standard ved næste gem",
+    "layerLocked": "Låst lag: kan ikke slås til eller fra",
+    "layerRadioGroup": "Valggruppe: når dette lag slås til, slås de andre lag i gruppen fra"
   },
   "scaleBar": {
     "title": "Skalabjælke",
@@ -443,7 +483,9 @@
       "symbol": "Symbolliste",
       "text": "Tekstliste",
       "full": "Fulde mængder",
-      "image": "Billeder og stempler"
+      "image": "Billeder og stempler",
+      "bendingSchedule": "Bukkeliste",
+      "rebarWeight": "Armeringsliste (vægt pr. Ø)"
     },
     "preview": "Eksempel",
     "exportCsv": "Eksportér CSV",
@@ -603,7 +645,8 @@
       "textBuiltIn": "Tekst (indbygget)",
       "symbol": "Symbol",
       "image": "Billede",
-      "other": "Andet"
+      "other": "Andet",
+      "reinforcement": "Armering"
     },
     "field": {
       "category": "Kategori",
@@ -631,7 +674,16 @@
       "width": "Bredde",
       "height": "Højde",
       "location": "Placering",
-      "locationSource": "Kilde til placering"
+      "locationSource": "Kilde til placering",
+      "rebarMark": "Positionsnummer",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Bukkeform",
+      "rebarGrade": "Stålkvalitet",
+      "rebarCount": "Antal stænger",
+      "rebarLength": "Stanglængde",
+      "rebarTotalLength": "Samlet længde",
+      "rebarMassPerM": "Masse pr. meter",
+      "rebarMass": "Vægt"
     },
     "type": {
       "line": "Linje",
@@ -669,7 +721,8 @@
       "stavenreeks": "Stangserie",
       "betonbalk": "Betonbjælke",
       "scheduleTable": "Mængdetabel",
-      "builtinText": "Tekst"
+      "builtinText": "Tekst",
+      "rebarPosition": "Armeringsjern"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "Lodret åben",
       "inb-horizontaal-breed": "Vandret åben"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "Flyt op i læserækkefølgen",
+    "moveDown": "Flyt ned i læserækkefølgen",
+    "checkAccessibility": "Kontrollér tilgængelighed",
+    "altText": "Alternativ tekst",
+    "altTextPlaceholder": "Beskriv billedet for dem, der ikke kan se det...",
+    "noAlt": "Ingen alternativ tekst",
+    "role": "Rolle",
+    "mappedTo": "{{role}} er knyttet til {{standard}}",
+    "content": "Indhold {{mcid}} (side {{page}})",
+    "annotationRef": "Kommentar (side {{page}})"
+  },
+  "ink": {
+    "title": "Blæk",
+    "pressure": "Pentryk",
+    "pressureHint": "Pentrykket ændrer stregbredden (musestreger beholder en fast bredde)",
+    "minWidth": "Mindste bredde (%)",
+    "minWidthHint": "Bredde ved letteste pentryk, i procent af stregtykkelsen",
+    "smoothing": "Udglatning",
+    "smoothingHint": "Styrke af stregudglatning (0 = ingen)"
+  },
+  "attachment": {
+    "file": "Fil",
+    "size": "Størrelse",
+    "open": "Åbn",
+    "saveAs": "Gem som...",
+    "noContent": "Indholdet af denne fil er ikke indlejret i PDF'en."
   }
 }

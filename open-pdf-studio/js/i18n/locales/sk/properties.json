@@ -41,7 +41,10 @@
     "cancelled": "Zrušené",
     "completed": "Dokončené",
     "reviewed": "Skontrolované",
-    "statusSetBy": "Nastavil(a) {{author}} dňa {{date}}"
+    "statusSetBy": "Nastavil(a) {{author}} dňa {{date}}",
+    "layer": "Vrstva",
+    "layerMarkupGroup": "Vrstvy označení",
+    "layerDocumentGroup": "Vrstvy dokumentu"
   },
   "colorNone": "Žiadna",
   "moreColors": "Viac farieb...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Kancelárska spinka",
+    "iconPushPin": "Pripináčik",
+    "iconGraph": "Graf",
+    "iconTag": "Štítok"
   },
   "stylePresets": {
     "label": "Štýl čiary",
@@ -308,7 +315,8 @@
     "measurePerimeter": "Obvod",
     "redaction": "Redigovanie",
     "scaleBar": "Grafická mierka",
-    "parametricSymbol": "Parametrický symbol"
+    "parametricSymbol": "Parametrický symbol",
+    "fileAttachment": "Príloha súboru"
   },
   "leftPanel": {
     "togglePanel": "Prepnúť panel",
@@ -379,22 +387,54 @@
     "exportComments": "Exportovať komentáre do dátového súboru...",
     "exportSelectedComments": "Exportovať vybrané komentáre do dátového súboru...",
     "exportListCsv": "Exportovať zoznam do CSV...",
-    "summarizeComingSoon": "Už čoskoro",
     "listExported": "Zoznam komentárov bol exportovaný do CSV",
     "csvPage": "Strana",
     "csvType": "Typ",
     "csvAuthor": "Autor",
-    "csvDate": "Dátum",
     "csvStatus": "Stav",
     "csvSubject": "Predmet",
     "csvContents": "Obsah",
     "csvColor": "Farba",
     "csvLayer": "Vrstva",
+    "csvId": "ID",
+    "csvCreated": "Vytvorené",
+    "csvModified": "Zmenené",
+    "csvStatusBy": "Stav nastavil",
+    "csvStatusAt": "Dátum stavu",
+    "csvReplyCount": "Počet odpovedí",
+    "csvReplies": "Odpovede",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "Šírka",
+    "csvHeight": "Výška",
+    "filterBar": "Filtre",
+    "filterAll": "(Všetko)",
+    "filterPages": "Strany",
+    "filterDate": "Dátum",
+    "filterFrom": "Od",
+    "filterTo": "Do",
+    "filterClear": "Vymazať filtre",
+    "setStatusSelected": "Nastaviť stav vybraných",
+    "setStatusListed": "Nastaviť stav všetkých zobrazených",
+    "statusChanged": "Stav zmenený: {{count}}",
+    "summaryTitle": "Súhrn komentárov",
+    "summaryDocument": "Dokument",
+    "summaryCreated": "Vytvorené",
+    "summaryCount": "Komentáre",
+    "summaryNoText": "(bez textu komentára)",
+    "summaryBusy": "Vytvára sa súhrn komentárov...",
+    "summaryExported": "Súhrn komentárov bol exportovaný do PDF",
+    "summaryFailed": "Súhrn komentárov sa nepodarilo vytvoriť",
     "schedules": "Výkazy",
     "addPage": "Pridať stranu",
     "pageLabels": "Menovky strán (tvorba názvov)",
     "portfolio": "Portfólio PDF",
-    "recognizeForm": "Rozpoznať polia formulára"
+    "recognizeForm": "Rozpoznať polia formulára",
+    "layersSetDefault": "Nastaviť ako predvolené",
+    "layersSetDefaultTitle": "Uložiť aktuálnu viditeľnosť vrstiev ako predvolený stav dokumentu. Zapíše sa do súboru pri ďalšom uložení.",
+    "layersDefaultPending": "Pri uložení sa stane predvoleným",
+    "layerLocked": "Zamknutá vrstva: nedá sa zapnúť ani vypnúť",
+    "layerRadioGroup": "Skupina volieb: zapnutím tejto vrstvy sa ostatné vrstvy skupiny vypnú"
   },
   "scaleBar": {
     "title": "Grafická mierka",
@@ -443,7 +483,9 @@
       "symbol": "Výkaz symbolov",
       "text": "Výkaz textov",
       "full": "Úplný výkaz výmer",
-      "image": "Obrázky a pečiatky"
+      "image": "Obrázky a pečiatky",
+      "bendingSchedule": "Výpis ohybov",
+      "rebarWeight": "Výkaz výstuže (hmotnosť podľa Ø)"
     },
     "preview": "Náhľad",
     "exportCsv": "Exportovať CSV",
@@ -603,7 +645,8 @@
       "textBuiltIn": "Text (natívny)",
       "symbol": "Symbol",
       "image": "Obrázok",
-      "other": "Ostatné"
+      "other": "Ostatné",
+      "reinforcement": "Výstuž"
     },
     "field": {
       "category": "Kategória",
@@ -631,7 +674,16 @@
       "width": "Šírka",
       "height": "Výška",
       "location": "Umiestnenie",
-      "locationSource": "Zdroj umiestnenia"
+      "locationSource": "Zdroj umiestnenia",
+      "rebarMark": "Pozícia",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Tvar ohybu",
+      "rebarGrade": "Trieda ocele",
+      "rebarCount": "Počet prútov",
+      "rebarLength": "Dĺžka prúta",
+      "rebarTotalLength": "Celková dĺžka",
+      "rebarMassPerM": "Hmotnosť na meter",
+      "rebarMass": "Hmotnosť"
     },
     "type": {
       "line": "Čiara",
@@ -669,7 +721,8 @@
       "stavenreeks": "Rad prútov",
       "betonbalk": "Betónový trám",
       "scheduleTable": "Tabuľka výmer",
-      "builtinText": "Text"
+      "builtinText": "Text",
+      "rebarPosition": "Výstužný prút"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "Zvislá šrafa riedka",
       "inb-horizontaal-breed": "Vodorovná šrafa riedka"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "Posunúť vyššie v poradí čítania",
+    "moveDown": "Posunúť nižšie v poradí čítania",
+    "checkAccessibility": "Skontrolovať prístupnosť",
+    "altText": "Alternatívny text",
+    "altTextPlaceholder": "Opíšte obrázok pre tých, ktorí ho nevidia...",
+    "noAlt": "Bez alternatívneho textu",
+    "role": "Rola",
+    "mappedTo": "{{role}} je mapovaná na {{standard}}",
+    "content": "Obsah {{mcid}} (strana {{page}})",
+    "annotationRef": "Poznámka (strana {{page}})"
+  },
+  "ink": {
+    "title": "Atrament",
+    "pressure": "Prítlak pera",
+    "pressureHint": "Prítlak pera mení šírku ťahu (ťahy myšou majú stálu šírku)",
+    "minWidth": "Minimálna šírka (%)",
+    "minWidthHint": "Šírka pri najľahšom prítlaku, v percentách hrúbky čiary",
+    "smoothing": "Vyhladenie",
+    "smoothingHint": "Sila vyhladenia ťahu (0 = žiadne)"
+  },
+  "attachment": {
+    "file": "Súbor",
+    "size": "Veľkosť",
+    "open": "Otvoriť",
+    "saveAs": "Uložiť ako...",
+    "noContent": "Obsah tohto súboru nie je vložený do PDF."
   }
 }

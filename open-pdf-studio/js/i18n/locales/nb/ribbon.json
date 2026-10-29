@@ -169,7 +169,9 @@
     "flattenAll": "Flat ut alle",
     "flattenAllTooltip": "Flat ut alle markeringer til sideinnhold",
     "unflattenAll": "Angre utflating",
-    "unflattenAllTooltip": "Gjenopprett markeringer som ble flatet ut med gjenoppretting tillatt"
+    "unflattenAllTooltip": "Gjenopprett markeringer som ble flatet ut med gjenoppretting tillatt",
+    "fileAttachment": "Legg ved fil",
+    "fileAttachmentTitle": "Filvedlegg: klikk på siden og velg en fil"
   },
   "view": {
     "pageDisplay": "Sidevisning",
@@ -208,7 +210,15 @@
     "rotateViewLeft": "Roter visning mot venstre",
     "rotateViewRight": "Roter visning mot høyre",
     "rotateViewLeftTitle": "Roterer visningen 90° mot klokken. Selve dokumentet endres ikke.",
-    "rotateViewRightTitle": "Roterer visningen 90° med klokken. Selve dokumentet endres ikke."
+    "rotateViewRightTitle": "Roterer visningen 90° med klokken. Selve dokumentet endres ikke.",
+    "accessibilityGroup": "Tilgjengelighet",
+    "readAloud": "Les høyt",
+    "readAloudPause": "Pause",
+    "readAloudTitle": "Les markeringen, eller dokumentet fra gjeldende side, høyt",
+    "tagsPanel": "Tagger",
+    "tagsPanelTitle": "Vis strukturtaggene i dokumentet",
+    "accessibilityCheck": "Kontroller",
+    "accessibilityCheckTitle": "Se etter manglende alternativ tekst og innhold uten tagger"
   },
   "elementVisibility": {
     "buttonTitle": "Elementsynlighet — vis/skjul og demp merknadstyper",

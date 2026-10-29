@@ -106,7 +106,13 @@
     "headOpenReversed": "Fletxa oberta (invertida)",
     "headClosedReversed": "Fletxa tancada (invertida)",
     "headSlash": "Barra",
-    "polylineDefaults": "Valors per defecte de polilínia"
+    "polylineDefaults": "Valors per defecte de polilínia",
+    "smoothing": "Suavitzat",
+    "pressure": "Pressió del llapis",
+    "pressureHint": "La pressió del llapis varia el gruix del traç (els traços amb el ratolí mantenen un gruix constant)",
+    "pressureMinWidth": "Amplada mínima (%)",
+    "penOnly": "Només llapis (ignora el tacte)",
+    "penOnlyHint": "El tacte no dibuixa amb l'eina a mà alçada; útil contra el contacte del palmell en escriure amb el llapis"
   },
   "shapes": {
     "rectangleDefaults": "Valors per defecte del rectangle",
@@ -166,6 +172,11 @@
     "deletion": "Supressió",
     "confirmBeforeDeleting": "Confirma abans de suprimir anotacions",
     "snapToPdfContent": "Ajusta al contingut del dibuix PDF",
+    "moveInference": "Inferència en moure (G / mv)",
+    "moveInferenceTracking": "Línies de rastreig (alinea amb punts d’altres geometries)",
+    "moveInferenceExtension": "Prolongacions de línies i cares de murs",
+    "moveInferenceParallel": "Paral·lel / perpendicular a línies properes",
+    "moveInferenceHint": "Atureu el cursor un moment sobre un punt per adquirir-lo, manteniu Maj premuda per bloquejar una guia, Tab alterna entre distància i angle. Les guies polars segueixen la configuració del rastreig polar.",
     "navigation": "Navegació",
     "wheelZoomWithoutCtrl": "Zoom amb la roda del ratolí (sense mantenir premut Ctrl)",
     "middleDoubleClickFit": "Feu doble clic amb el botó central del ratolí per ajustar la pàgina",

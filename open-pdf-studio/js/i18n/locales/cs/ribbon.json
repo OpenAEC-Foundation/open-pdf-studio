@@ -169,7 +169,9 @@
     "flattenAll": "Sloučit vše",
     "flattenAllTooltip": "Sloučit všechny značky do obsahu stránky",
     "unflattenAll": "Zrušit sloučení",
-    "unflattenAllTooltip": "Obnovit značky sloučené s povoleným obnovením"
+    "unflattenAllTooltip": "Obnovit značky sloučené s povoleným obnovením",
+    "fileAttachment": "Připojit soubor",
+    "fileAttachmentTitle": "Příloha souboru: klikněte na stránku a vyberte soubor"
   },
   "view": {
     "pageDisplay": "Zobrazení stránky",
@@ -208,7 +210,15 @@
     "rotateViewLeft": "Otočit zobrazení doleva",
     "rotateViewRight": "Otočit zobrazení doprava",
     "rotateViewLeftTitle": "Otočí zobrazení o 90° proti směru hodinových ručiček. Samotný dokument se nemění.",
-    "rotateViewRightTitle": "Otočí zobrazení o 90° ve směru hodinových ručiček. Samotný dokument se nemění."
+    "rotateViewRightTitle": "Otočí zobrazení o 90° ve směru hodinových ručiček. Samotný dokument se nemění.",
+    "accessibilityGroup": "Přístupnost",
+    "readAloud": "Číst nahlas",
+    "readAloudPause": "Pozastavit",
+    "readAloudTitle": "Přečíst nahlas výběr, nebo dokument od aktuální stránky",
+    "tagsPanel": "Značky",
+    "tagsPanelTitle": "Zobrazit strukturní značky dokumentu",
+    "accessibilityCheck": "Zkontrolovat",
+    "accessibilityCheckTitle": "Vyhledat chybějící alternativní text a obsah bez značek"
   },
   "elementVisibility": {
     "buttonTitle": "Viditelnost prvků — zobrazit/skrýt a ztlumit typy anotací",

@@ -228,9 +228,25 @@ export async function ruimWerkbestandenOp(doc, paden, middelen = schijfMiddelen(
 /**
  * Voert het vrijgaveplan uit. Fouten in één stap houden de andere niet
  * tegen: het document is al dicht, dit is opruimen.
+ * @param {object} gesloten
+ * @param {object[]} overgebleven
+ * @param {{klembord?: unknown[]}} [opties]  klembord: gekopieerde annotaties,
+ *   die de inhoud van hun bijlage nog nodig hebben
  */
-export async function geefDocumentVrij(gesloten, overgebleven) {
+export async function geefDocumentVrij(gesloten, overgebleven, { klembord = [] } = {}) {
   const plan = vrijgaveplan(gesloten, overgebleven);
+
+  // De bestanden achter bijlage-annotaties (#376) van dit document.
+  try {
+    const { geefBijlagenVrij } = await import('../annotations/bijlage-store.js');
+    geefBijlagenVrij(gesloten, overgebleven, klembord);
+  } catch (e) { console.warn('[release] bijlage-inhoud vrijgeven:', e); }
+
+  // Tijdelijke documenten van de live Type3-weergave (#723).
+  try {
+    const { vergeetType3Voorbeelden } = await import('../text/type3-voorbeeld.js');
+    vergeetType3Voorbeelden(gesloten);
+  } catch (e) { console.warn('[release] Type3-voorbeelden:', e); }
 
   if (plan.pdfjsVrijgeven) {
     try { await (gesloten.pdfDoc.loadingTask || gesloten.pdfDoc).destroy(); } catch (e) { console.warn('[release] PDF.js afsluiten:', e); }

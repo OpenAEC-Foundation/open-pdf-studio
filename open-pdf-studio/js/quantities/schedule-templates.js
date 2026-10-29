@@ -68,6 +68,32 @@ export const STANDARD_SCHEDULE_TEMPLATES = [
     },
   },
   {
+    // Buigstaat (bending schedule): één regel per staafnummer met Ø, vorm,
+    // lengte, aantal, totale lengte en gewicht. Gevuld uit de wapenings-
+    // regels van quantities/wapening.js (stavenreeks + wapeningssymbolen).
+    id: 'buigstaat',
+    nameKey: 'schedules.tpl.bendingSchedule',
+    config: {
+      categories: ['reinforcement'],
+      fields: ['rebarMark', 'rebarDiameter', 'rebarShape', 'rebarLength', 'rebarCount',
+        'rebarTotalLength', 'rebarMass', 'rebarGrade'],
+      sort: [{ field: 'rebarMark', dir: 'asc', group: false }],
+      itemize: true,
+    },
+  },
+  {
+    // Wapeningsstaat (gewicht per diameter): gegroepeerd per Ø, alleen de
+    // subtotalen van lengte en gewicht.
+    id: 'wapeningsstaat',
+    nameKey: 'schedules.tpl.rebarWeight',
+    config: {
+      categories: ['reinforcement'],
+      fields: ['rebarDiameter', 'rebarMassPerM', 'rebarCount', 'rebarTotalLength', 'rebarMass'],
+      sort: [{ field: 'rebarDiameter', dir: 'asc', group: true, header: true, footer: true }],
+      itemize: false,
+    },
+  },
+  {
     id: 'full',
     nameKey: 'schedules.tpl.full',
     config: {

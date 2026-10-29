@@ -24,6 +24,9 @@
 // plaatsing schaalgebied-bewust wordt gemaat (net als de staalprofielen).
 
 import {
+  STAALKWALITEITEN, STANDAARD_STAALKWALITEIT, aantalOverBreedte, staafLengte,
+} from '../../quantities/wapening.js';
+import {
   labelLayout,
   diameterSignSegments,
   approxTextWidth,
@@ -282,6 +285,40 @@ function _stirrupLabel(cmds, X, Y, S, x, yMid, prefix, d, afstand, font) {
   return wl + gap + signW + gap + wr;
 }
 
+/**
+ * Staven van de korf over de balklengte: boven-, onder- en zijstaven
+ * (recht, lengte − 2 × dekking) en de gesloten beugels (vorm 51, buitenmaat
+ * = doorsnede − 2 × dekking). Zonder balklengte: geen staven.
+ */
+export function wapeningskorfStaven(params) {
+  const p = params || {};
+  const L = layoutMm(p);
+  const lengte = _num(p.lengte, 0, 0);
+  if (!(lengte > 0)) return [];
+  const kw = String(p.staalkwaliteit || STANDAARD_STAALKWALITEIT).toUpperCase();
+  const staalkwaliteit = STAALKWALITEITEN.includes(kw) ? kw : STANDAARD_STAALKWALITEIT;
+  const start = Number(p.staafnummerStart);
+  const metNummer = String(p.staafnummerStart ?? '').trim() !== '' && Number.isInteger(start);
+  let volgend = start;
+  const nr = () => (metNummer ? String(volgend++) : '');
+  const netto = Math.max(0, lengte - 2 * L.dekking);
+  const uit = [];
+  const recht = (aantal, diameter, omschrijving) => {
+    if (aantal > 0) uit.push({ staafnummer: nr(), aantal, diameter, lengteMm: Math.round(netto), vormcode: '00', staalkwaliteit, omschrijving });
+  };
+  recht(L.bovenAantal, L.bovenDiameter, 'boven');
+  recht(L.onderAantal, L.onderDiameter, 'onder');
+  recht(L.zijAantal, L.zijDiameter, 'zij');
+  const a = Math.max(0, L.breedte - 2 * L.dekking);
+  const b = Math.max(0, L.hoogte - 2 * L.dekking);
+  uit.push({
+    staafnummer: nr(), aantal: aantalOverBreedte(netto, L.beugelAfstand), diameter: L.beugelDiameter,
+    afstand: L.beugelAfstand, lengteMm: staafLengte('51', { a, b }, L.beugelDiameter),
+    vormcode: '51', staalkwaliteit, omschrijving: 'beugel',
+  });
+  return uit;
+}
+
 export const wapeningskorfTemplate = {
   id: 'wapeningskorf',
   name: 'Wapeningskorf',
@@ -304,7 +341,17 @@ export const wapeningskorfTemplate = {
     { key: 'naam', label: 'Onderschrift', labelEn: 'Caption', type: 'string', default: 'Korf A' },
     { key: 'toonMaatlijnen', label: 'Maatlijnen tonen', labelEn: 'Show dimensions', type: 'boolean', default: true },
     { key: 'toonLabels', label: 'Labels tonen', labelEn: 'Show labels', type: 'boolean', default: true },
+    // Buigstaat (#312): zonder balklengte telt de korf niet mee in de staat.
+    { key: 'lengte', label: 'Balklengte voor staat (mm, 0 = niet tellen)', labelEn: 'Beam length for schedule (mm, 0 = not counted)', type: 'number', default: 0, min: 0, step: 100 },
+    { key: 'staafnummerStart', label: 'Eerste staafnummer', labelEn: 'First bar mark', type: 'string', default: '' },
+    {
+      key: 'staalkwaliteit', label: 'Staalkwaliteit', labelEn: 'Steel grade', type: 'enum',
+      default: STANDAARD_STAALKWALITEIT, options: STAALKWALITEITEN,
+    },
   ],
+
+  // Staven over de balklengte voor de buigstaat (quantities/wapening.js).
+  rebarItems: wapeningskorfStaven,
 
   // Lokale mm-geometrie — ook het aangrijpingspunt voor de unittest.
   layoutMm,

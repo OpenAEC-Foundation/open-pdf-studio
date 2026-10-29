@@ -1628,5 +1628,26 @@
     "fileFailed": "Tidak dapat membaca {{name}}: {{error}}",
     "applyFailed": "Gagal menggunakan suntingan halaman: {{error}}",
     "extractFailed": "Gagal mengekstrak halaman: {{error}}"
+  },
+  "accessibilityReport": {
+    "title": "Semakan Kebolehcapaian",
+    "starting": "Menyemak...",
+    "checking": "Menyemak halaman {{done}} daripada {{total}}...",
+    "noIssues": "Tiada masalah ditemui.",
+    "summary": "{{count}} masalah ditemui. Dwiklik item untuk pergi ke halamannya.",
+    "failed": "Semakan tidak dapat dijalankan pada dokumen ini.",
+    "recheck": "Semak semula",
+    "close": "Tutup",
+    "goTo": "Dwiklik untuk pergi ke halaman",
+    "page": "Halaman {{page}}",
+    "kind": {
+      "notTagged": "Dokumen tidak bertag: tiada pepohon struktur, jadi teknologi bantuan tidak dapat mengikut susunan bacaannya.",
+      "notMarked": "Dokumen tidak ditanda sebagai bertag (/MarkInfo /Marked).",
+      "noLanguage": "Bahasa dokumen tidak ditetapkan.",
+      "figureNoAlt": "{{role}} tanpa teks alternatif",
+      "pageNotTagged": "Tiada kandungan bertag pada halaman ini ({{count}} item teks)",
+      "untaggedContent": "{{count}} item teks di luar tag",
+      "annotationNoText": "Anotasi ({{type}}) tanpa penerangan"
+    }
   }
 }

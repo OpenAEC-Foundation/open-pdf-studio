@@ -1628,5 +1628,26 @@
     "fileFailed": "{{name}} nelze přečíst: {{error}}",
     "applyFailed": "Úpravy stránek se nepodařilo použít: {{error}}",
     "extractFailed": "Stránky se nepodařilo extrahovat: {{error}}"
+  },
+  "accessibilityReport": {
+    "title": "Kontrola přístupnosti",
+    "starting": "Probíhá kontrola...",
+    "checking": "Kontroluje se stránka {{done}} z {{total}}...",
+    "noIssues": "Nebyly nalezeny žádné problémy.",
+    "summary": "Počet nalezených problémů: {{count}}. Dvojitým kliknutím na položku přejdete na její stránku.",
+    "failed": "Kontrolu tohoto dokumentu nebylo možné provést.",
+    "recheck": "Zkontrolovat znovu",
+    "close": "Zavřít",
+    "goTo": "Dvojitým kliknutím přejdete na stránku",
+    "page": "Stránka {{page}}",
+    "kind": {
+      "notTagged": "Dokument nemá značky: chybí strom struktury, takže asistenční technologie nemohou sledovat pořadí čtení.",
+      "notMarked": "Dokument není označen jako označkovaný (/MarkInfo /Marked).",
+      "noLanguage": "Jazyk dokumentu není nastaven.",
+      "figureNoAlt": "{{role}} bez alternativního textu",
+      "pageNotTagged": "Na této stránce není žádný označkovaný obsah (textové položky: {{count}})",
+      "untaggedContent": "Textové položky mimo značky: {{count}}",
+      "annotationNoText": "Poznámka ({{type}}) bez popisu"
+    }
   }
 }

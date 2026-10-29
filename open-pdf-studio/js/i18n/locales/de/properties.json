@@ -41,7 +41,10 @@
     "cancelled": "Abgebrochen",
     "completed": "Abgeschlossen",
     "reviewed": "Überprüft",
-    "statusSetBy": "Festgelegt von {{author}} am {{date}}"
+    "statusSetBy": "Festgelegt von {{author}} am {{date}}",
+    "layer": "Ebene",
+    "layerMarkupGroup": "Markierungsebenen",
+    "layerDocumentGroup": "Dokumentebenen"
   },
   "colorNone": "Keine",
   "moreColors": "Weitere Farben...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Büroklammer",
+    "iconPushPin": "Reißzwecke",
+    "iconGraph": "Diagramm",
+    "iconTag": "Etikett"
   },
   "stylePresets": {
     "label": "Linienstil",
@@ -308,7 +315,8 @@
     "measurePerimeter": "Umfang",
     "redaction": "Schwärzung",
     "scaleBar": "Maßstabsleiste",
-    "parametricSymbol": "Parametrisches Symbol"
+    "parametricSymbol": "Parametrisches Symbol",
+    "fileAttachment": "Dateianhang"
   },
   "leftPanel": {
     "togglePanel": "Seitenleiste ein-/ausblenden",
@@ -379,22 +387,54 @@
     "exportComments": "Kommentare in Datendatei exportieren...",
     "exportSelectedComments": "Ausgewählte Kommentare in Datendatei exportieren...",
     "exportListCsv": "Liste als CSV exportieren...",
-    "summarizeComingSoon": "Demnächst verfügbar",
     "listExported": "Kommentarliste als CSV exportiert",
     "csvPage": "Seite",
     "csvType": "Typ",
     "csvAuthor": "Autor",
-    "csvDate": "Datum",
     "csvStatus": "Status",
     "csvSubject": "Betreff",
     "csvContents": "Inhalt",
     "csvColor": "Farbe",
     "csvLayer": "Ebene",
+    "csvId": "ID",
+    "csvCreated": "Erstellt",
+    "csvModified": "Geändert",
+    "csvStatusBy": "Status gesetzt von",
+    "csvStatusAt": "Statusdatum",
+    "csvReplyCount": "Anzahl Antworten",
+    "csvReplies": "Antworten",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "Breite",
+    "csvHeight": "Höhe",
+    "filterBar": "Filter",
+    "filterAll": "(Alle)",
+    "filterPages": "Seiten",
+    "filterDate": "Datum",
+    "filterFrom": "Von",
+    "filterTo": "Bis",
+    "filterClear": "Filter löschen",
+    "setStatusSelected": "Status der Auswahl festlegen",
+    "setStatusListed": "Status aller angezeigten festlegen",
+    "statusChanged": "Status geändert: {{count}}",
+    "summaryTitle": "Kommentarübersicht",
+    "summaryDocument": "Dokument",
+    "summaryCreated": "Erstellt",
+    "summaryCount": "Kommentare",
+    "summaryNoText": "(kein Kommentartext)",
+    "summaryBusy": "Kommentarübersicht wird erstellt...",
+    "summaryExported": "Kommentarübersicht als PDF exportiert",
+    "summaryFailed": "Die Kommentarübersicht konnte nicht erstellt werden",
     "schedules": "Listen",
     "addPage": "Seite hinzufügen",
     "pageLabels": "Seitenbeschriftungen (Namensgenerator)",
     "portfolio": "PDF-Portfolio",
-    "recognizeForm": "Formularfelder erkennen"
+    "recognizeForm": "Formularfelder erkennen",
+    "layersSetDefault": "Als Standard festlegen",
+    "layersSetDefaultTitle": "Die aktuelle Sichtbarkeit der Ebenen als Standardzustand des Dokuments speichern. Sie wird beim nächsten Speichern in die Datei geschrieben.",
+    "layersDefaultPending": "Wird beim Speichern zum Standard",
+    "layerLocked": "Gesperrte Ebene: kann nicht ein- oder ausgeschaltet werden",
+    "layerRadioGroup": "Auswahlgruppe: Wenn diese Ebene eingeschaltet wird, werden die anderen Ebenen der Gruppe ausgeschaltet"
   },
   "scaleBar": {
     "title": "Maßstabsleiste",
@@ -443,7 +483,9 @@
       "symbol": "Symbolliste",
       "text": "Textliste",
       "full": "Vollständige Mengen",
-      "image": "Bilder & Stempel"
+      "image": "Bilder & Stempel",
+      "bendingSchedule": "Biegeliste",
+      "rebarWeight": "Stahlliste (Gewicht je Ø)"
     },
     "preview": "Vorschau",
     "exportCsv": "CSV exportieren",
@@ -603,7 +645,8 @@
       "textBuiltIn": "Text (nativ)",
       "symbol": "Symbol",
       "image": "Bild",
-      "other": "Sonstige"
+      "other": "Sonstige",
+      "reinforcement": "Bewehrung"
     },
     "field": {
       "category": "Kategorie",
@@ -631,7 +674,16 @@
       "width": "Breite",
       "height": "Höhe",
       "location": "Standort",
-      "locationSource": "Standortquelle"
+      "locationSource": "Standortquelle",
+      "rebarMark": "Positionsnummer",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Biegeform",
+      "rebarGrade": "Stahlsorte",
+      "rebarCount": "Anzahl Stäbe",
+      "rebarLength": "Stablänge",
+      "rebarTotalLength": "Gesamtlänge",
+      "rebarMassPerM": "Masse pro Meter",
+      "rebarMass": "Gewicht"
     },
     "type": {
       "line": "Linie",
@@ -669,7 +721,8 @@
       "stavenreeks": "Stabreihe",
       "betonbalk": "Betonbalken",
       "scheduleTable": "Mengentabelle",
-      "builtinText": "Text"
+      "builtinText": "Text",
+      "rebarPosition": "Bewehrungsstab"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "Vertikal weit",
       "inb-horizontaal-breed": "Horizontal weit"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "In der Lesereihenfolge nach oben",
+    "moveDown": "In der Lesereihenfolge nach unten",
+    "checkAccessibility": "Barrierefreiheit prüfen",
+    "altText": "Alternativtext",
+    "altTextPlaceholder": "Beschreiben Sie das Bild für Menschen, die es nicht sehen können...",
+    "noAlt": "Kein Alternativtext",
+    "role": "Rolle",
+    "mappedTo": "{{role}} ist {{standard}} zugeordnet",
+    "content": "Inhalt {{mcid}} (Seite {{page}})",
+    "annotationRef": "Anmerkung (Seite {{page}})"
+  },
+  "ink": {
+    "title": "Tinte",
+    "pressure": "Stiftdruck",
+    "pressureHint": "Der Stiftdruck verändert die Strichbreite (Mausstriche behalten eine feste Breite)",
+    "minWidth": "Mindestbreite (%)",
+    "minWidthHint": "Breite bei leichtestem Stiftdruck, in Prozent der Linienstärke",
+    "smoothing": "Glättung",
+    "smoothingHint": "Stärke der Strichglättung (0 = aus)"
+  },
+  "attachment": {
+    "file": "Datei",
+    "size": "Größe",
+    "open": "Öffnen",
+    "saveAs": "Speichern unter...",
+    "noContent": "Der Inhalt dieser Datei ist nicht in die PDF eingebettet."
   }
 }

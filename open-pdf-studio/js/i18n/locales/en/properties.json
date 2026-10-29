@@ -21,7 +21,10 @@
     "cancelled": "Cancelled",
     "completed": "Completed",
     "reviewed": "Reviewed",
-    "statusSetBy": "Set by {{author}} on {{date}}"
+    "statusSetBy": "Set by {{author}} on {{date}}",
+    "layer": "Layer",
+    "layerMarkupGroup": "Markup layers",
+    "layerDocumentGroup": "Document layers"
   },
   "colorNone": "None",
   "moreColors": "More Colors...",
@@ -139,7 +142,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Paperclip",
+    "iconPushPin": "Push Pin",
+    "iconGraph": "Graph",
+    "iconTag": "Tag"
   },
   "stylePresets": {
     "label": "Line style",
@@ -340,7 +347,8 @@
     "measurePerimeter": "Perimeter",
     "redaction": "Redaction",
     "scaleBar": "Scale Bar",
-    "parametricSymbol": "Parametric Symbol"
+    "parametricSymbol": "Parametric Symbol",
+    "fileAttachment": "File Attachment"
   },
   "leftPanel": {
     "togglePanel": "Toggle Panel",
@@ -407,17 +415,44 @@
     "exportComments": "Export Comments to Data File...",
     "exportSelectedComments": "Export Selected Comments to Data File...",
     "exportListCsv": "Export List to CSV...",
-    "summarizeComingSoon": "Coming soon",
     "listExported": "Comment list exported to CSV",
     "csvPage": "Page",
     "csvType": "Type",
     "csvAuthor": "Author",
-    "csvDate": "Date",
     "csvStatus": "Status",
     "csvSubject": "Subject",
     "csvContents": "Contents",
     "csvColor": "Color",
     "csvLayer": "Layer",
+    "csvId": "ID",
+    "csvCreated": "Created",
+    "csvModified": "Modified",
+    "csvStatusBy": "Status Set By",
+    "csvStatusAt": "Status Date",
+    "csvReplyCount": "Number of Replies",
+    "csvReplies": "Replies",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "Width",
+    "csvHeight": "Height",
+    "filterBar": "Filters",
+    "filterAll": "(All)",
+    "filterPages": "Pages",
+    "filterDate": "Date",
+    "filterFrom": "From",
+    "filterTo": "To",
+    "filterClear": "Clear Filters",
+    "setStatusSelected": "Set Status of Selected",
+    "setStatusListed": "Set Status of All Listed",
+    "statusChanged": "Status changed: {{count}}",
+    "summaryTitle": "Comment Summary",
+    "summaryDocument": "Document",
+    "summaryCreated": "Created",
+    "summaryCount": "Comments",
+    "summaryNoText": "(no comment text)",
+    "summaryBusy": "Creating comment summary...",
+    "summaryExported": "Comment summary exported to PDF",
+    "summaryFailed": "Could not create the comment summary",
     "filterLabel": "Filter",
     "expandAll": "Expand All",
     "collapseAll": "Collapse All",
@@ -426,7 +461,12 @@
     "addPage": "Add page",
     "pageLabels": "Page labels (name builder)",
     "portfolio": "PDF portfolio",
-    "recognizeForm": "Recognize form fields"
+    "recognizeForm": "Recognize form fields",
+    "layersSetDefault": "Set as default",
+    "layersSetDefaultTitle": "Store the current layer visibility as the document's default state. It is written to the file the next time you save.",
+    "layersDefaultPending": "Saved as default on next save",
+    "layerLocked": "Locked layer: cannot be switched on or off",
+    "layerRadioGroup": "Choice group: switching this layer on switches the others in its group off"
   },
   "schedules": {
     "title": "Schedules",
@@ -443,7 +483,9 @@
       "symbol": "Symbol schedule",
       "text": "Text schedule",
       "full": "Full quantities",
-      "image": "Images & stamps"
+      "image": "Images & stamps",
+      "bendingSchedule": "Bending schedule",
+      "rebarWeight": "Rebar weight schedule (per Ø)"
     },
     "preview": "Preview",
     "exportCsv": "Export CSV",
@@ -603,7 +645,8 @@
       "textBuiltIn": "Text (native)",
       "symbol": "Symbol",
       "image": "Image",
-      "other": "Other"
+      "other": "Other",
+      "reinforcement": "Reinforcement"
     },
     "field": {
       "category": "Category",
@@ -631,7 +674,16 @@
       "width": "Width",
       "height": "Height",
       "location": "Location",
-      "locationSource": "Location source"
+      "locationSource": "Location source",
+      "rebarMark": "Bar mark",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Shape code",
+      "rebarGrade": "Steel grade",
+      "rebarCount": "Number of bars",
+      "rebarLength": "Bar length",
+      "rebarTotalLength": "Total length",
+      "rebarMassPerM": "Mass per metre",
+      "rebarMass": "Mass"
     },
     "type": {
       "line": "Line",
@@ -669,7 +721,8 @@
       "stavenreeks": "Bar series",
       "betonbalk": "Concrete beam",
       "scheduleTable": "Quantities table",
-      "builtinText": "Text"
+      "builtinText": "Text",
+      "rebarPosition": "Reinforcement bar"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "Vertical wide",
       "inb-horizontaal-breed": "Horizontal wide"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "Move up in reading order",
+    "moveDown": "Move down in reading order",
+    "checkAccessibility": "Check accessibility",
+    "altText": "Alternate text",
+    "altTextPlaceholder": "Describe the image for people who cannot see it...",
+    "noAlt": "No alternate text",
+    "role": "Role",
+    "mappedTo": "{{role}} is mapped to {{standard}}",
+    "content": "Content {{mcid}} (page {{page}})",
+    "annotationRef": "Annotation (page {{page}})"
+  },
+  "ink": {
+    "title": "Ink",
+    "pressure": "Pen pressure",
+    "pressureHint": "Pen pressure varies the stroke width (mouse strokes keep a constant width)",
+    "minWidth": "Minimum width (%)",
+    "minWidthHint": "Width at the lightest pen pressure, as a percentage of the line width",
+    "smoothing": "Smoothing",
+    "smoothingHint": "Strength of stroke smoothing (0 = none)"
+  },
+  "attachment": {
+    "file": "File",
+    "size": "Size",
+    "open": "Open",
+    "saveAs": "Save As...",
+    "noContent": "The content of this file is not embedded in the PDF."
   }
 }

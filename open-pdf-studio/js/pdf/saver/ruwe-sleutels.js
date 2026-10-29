@@ -62,6 +62,13 @@ export const EIGEN_SLEUTELS = new Set([
   'Rotation',
 ]);
 
+/**
+ * Per soort de sleutels die het model bezit. Een bijlage-annotatie (#376)
+ * heeft haar bestand in het model (bijlage-store): /FS en /AF schrijft de
+ * saver daar opnieuw uit.
+ */
+const EIGEN_PER_SOORT = { '/FileAttachment': new Set(['FS', 'AF']) };
+
 /** Sleutels die vorm beschrijven; zie de kop van dit bestand. */
 export const GEOMETRIE_SLEUTELS = new Set([
   'Path', 'PathPressureList', 'PressureList', 'Curves', 'SO', 'CLEx', 'Segments',
@@ -168,9 +175,11 @@ export function leesRuweSleutels(context, dict) {
   if (!(dict instanceof PDFDict)) return undefined;
   const uit = {};
   const staat = { knopen: 0, bytes: 0 };
+  const eigenSoort = EIGEN_PER_SOORT[dict.get(PDFName.of('Subtype'))?.toString() || ''];
   for (const [k, v] of dict.entries()) {
     const sleutel = k.decodeText();
     if (sleutel.startsWith('OPS_') || (EIGEN_SLEUTELS.has(sleutel) && sleutel !== 'IT')) continue;
+    if (eigenSoort?.has(sleutel)) continue;
     try {
       uit[sleutel] = codeer(context, v, staat, []);
     } catch (e) {

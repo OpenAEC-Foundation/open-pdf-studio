@@ -215,7 +215,8 @@ export async function slaPrintOpAlsPdf({
     try {
       if (!vectorMogelijk(kleur)) throw new Error(`colour mode ${kleur} prints page images`);
       ({ pdf } = await bouwVectorPrintPdf({
-        bronBytes: await bronBytesVan(doc),
+        // Met de geschakelde laagstand (#377): de afdruk toont wat in beeld is.
+        bronBytes: await (await import('./lagen-schakelen.js')).bytesMetLaagstand(doc, await bronBytesVan(doc)),
         paginas: pages.map((pageNum) => ({ index: pageNum - 1, extraRotatie: getPageRotation(pageNum) })),
         keuzes: { papier: bronVel, orientatie: bronOrientatie, schaling, zoom, centreren },
         beelden: ({ index, plaatsing }) => markeringBeelden(index + 1, plaatsing, markeringen),

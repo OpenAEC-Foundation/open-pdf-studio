@@ -41,7 +41,10 @@
     "cancelled": "Annulé",
     "completed": "Terminé",
     "reviewed": "Révisé",
-    "statusSetBy": "Défini par {{author}} le {{date}}"
+    "statusSetBy": "Défini par {{author}} le {{date}}",
+    "layer": "Calque",
+    "layerMarkupGroup": "Calques d'annotations",
+    "layerDocumentGroup": "Calques du document"
   },
   "colorNone": "Aucune",
   "moreColors": "Plus de couleurs...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Trombone",
+    "iconPushPin": "Punaise",
+    "iconGraph": "Graphique",
+    "iconTag": "Étiquette"
   },
   "stylePresets": {
     "label": "Style de ligne",
@@ -308,7 +315,8 @@
     "measurePerimeter": "Périmètre",
     "redaction": "Caviardage",
     "scaleBar": "Barre d'échelle",
-    "parametricSymbol": "Symbole paramétrique"
+    "parametricSymbol": "Symbole paramétrique",
+    "fileAttachment": "Pièce jointe"
   },
   "leftPanel": {
     "togglePanel": "Afficher/masquer le panneau",
@@ -379,22 +387,54 @@
     "exportComments": "Exporter les commentaires vers un fichier...",
     "exportSelectedComments": "Exporter les commentaires sélectionnés vers un fichier...",
     "exportListCsv": "Exporter la liste en CSV...",
-    "summarizeComingSoon": "Bientôt disponible",
     "listExported": "Liste des commentaires exportée en CSV",
     "csvPage": "Page",
     "csvType": "Type",
     "csvAuthor": "Auteur",
-    "csvDate": "Date",
     "csvStatus": "Statut",
     "csvSubject": "Objet",
     "csvContents": "Contenu",
     "csvColor": "Couleur",
     "csvLayer": "Calque",
+    "csvId": "ID",
+    "csvCreated": "Créé",
+    "csvModified": "Modifié",
+    "csvStatusBy": "Statut défini par",
+    "csvStatusAt": "Date du statut",
+    "csvReplyCount": "Nombre de réponses",
+    "csvReplies": "Réponses",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "Largeur",
+    "csvHeight": "Hauteur",
+    "filterBar": "Filtres",
+    "filterAll": "(Tous)",
+    "filterPages": "Pages",
+    "filterDate": "Date",
+    "filterFrom": "Du",
+    "filterTo": "Au",
+    "filterClear": "Effacer les filtres",
+    "setStatusSelected": "Définir le statut de la sélection",
+    "setStatusListed": "Définir le statut de tous les éléments listés",
+    "statusChanged": "Statut modifié : {{count}}",
+    "summaryTitle": "Résumé des commentaires",
+    "summaryDocument": "Document",
+    "summaryCreated": "Créé le",
+    "summaryCount": "Commentaires",
+    "summaryNoText": "(aucun texte de commentaire)",
+    "summaryBusy": "Création du résumé des commentaires...",
+    "summaryExported": "Résumé des commentaires exporté en PDF",
+    "summaryFailed": "Impossible de créer le résumé des commentaires",
     "schedules": "Nomenclatures",
     "addPage": "Ajouter une page",
     "pageLabels": "Étiquettes de page (générateur de noms)",
     "portfolio": "Portfolio PDF",
-    "recognizeForm": "Reconnaître les champs de formulaire"
+    "recognizeForm": "Reconnaître les champs de formulaire",
+    "layersSetDefault": "Définir par défaut",
+    "layersSetDefaultTitle": "Enregistrer la visibilité actuelle des calques comme état par défaut du document. Elle est écrite dans le fichier au prochain enregistrement.",
+    "layersDefaultPending": "Deviendra l'état par défaut à l'enregistrement",
+    "layerLocked": "Calque verrouillé : impossible de l'afficher ou de le masquer",
+    "layerRadioGroup": "Groupe de choix : afficher ce calque masque les autres calques du groupe"
   },
   "scaleBar": {
     "title": "Barre d'échelle",
@@ -443,7 +483,9 @@
       "symbol": "Nomenclature des symboles",
       "text": "Nomenclature des textes",
       "full": "Quantités complètes",
-      "image": "Images et tampons"
+      "image": "Images et tampons",
+      "bendingSchedule": "Nomenclature de façonnage",
+      "rebarWeight": "Récapitulatif des aciers (poids par Ø)"
     },
     "preview": "Aperçu",
     "exportCsv": "Exporter en CSV",
@@ -603,7 +645,8 @@
       "textBuiltIn": "Texte (natif)",
       "symbol": "Symbole",
       "image": "Image",
-      "other": "Autre"
+      "other": "Autre",
+      "reinforcement": "Armatures"
     },
     "field": {
       "category": "Catégorie",
@@ -631,7 +674,16 @@
       "width": "Largeur",
       "height": "Hauteur",
       "location": "Emplacement",
-      "locationSource": "Source de l'emplacement"
+      "locationSource": "Source de l'emplacement",
+      "rebarMark": "Repère",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Code de façonnage",
+      "rebarGrade": "Nuance d'acier",
+      "rebarCount": "Nombre de barres",
+      "rebarLength": "Longueur de barre",
+      "rebarTotalLength": "Longueur totale",
+      "rebarMassPerM": "Masse par mètre",
+      "rebarMass": "Masse"
     },
     "type": {
       "line": "Ligne",
@@ -669,7 +721,8 @@
       "stavenreeks": "Série de barres",
       "betonbalk": "Poutre en béton",
       "scheduleTable": "Tableau des quantités",
-      "builtinText": "Texte"
+      "builtinText": "Texte",
+      "rebarPosition": "Barre d'armature"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "Vertical espacé",
       "inb-horizontaal-breed": "Horizontal espacé"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "Monter dans l'ordre de lecture",
+    "moveDown": "Descendre dans l'ordre de lecture",
+    "checkAccessibility": "Vérifier l'accessibilité",
+    "altText": "Texte de remplacement",
+    "altTextPlaceholder": "Décrivez l'image pour les personnes qui ne peuvent pas la voir...",
+    "noAlt": "Aucun texte de remplacement",
+    "role": "Rôle",
+    "mappedTo": "{{role}} est associé à {{standard}}",
+    "content": "Contenu {{mcid}} (page {{page}})",
+    "annotationRef": "Annotation (page {{page}})"
+  },
+  "ink": {
+    "title": "Encre",
+    "pressure": "Pression du stylet",
+    "pressureHint": "La pression du stylet fait varier l'épaisseur du trait (un trait à la souris garde une épaisseur constante)",
+    "minWidth": "Largeur minimale (%)",
+    "minWidthHint": "Largeur à la pression la plus légère, en pourcentage de l'épaisseur du trait",
+    "smoothing": "Lissage",
+    "smoothingHint": "Intensité du lissage du trait (0 = aucun)"
+  },
+  "attachment": {
+    "file": "Fichier",
+    "size": "Taille",
+    "open": "Ouvrir",
+    "saveAs": "Enregistrer sous...",
+    "noContent": "Le contenu de ce fichier n'est pas incorporé dans le PDF."
   }
 }

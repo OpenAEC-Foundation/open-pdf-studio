@@ -140,6 +140,31 @@ export default function BehaviorTab(props) {
       </fieldset>
 
       <fieldset class="pref-fieldset">
+        <legend>{t('behavior.moveInference')}</legend>
+        <div class="pref-row pref-checkbox-row">
+          <label class="pref-checkbox-label">
+            <input type="checkbox" checked={p.moveInferenceTracking[0]()} onChange={e => p.moveInferenceTracking[1](e.target.checked)} />
+            <span>{t('behavior.moveInferenceTracking')}</span>
+          </label>
+        </div>
+        <div class="pref-row pref-checkbox-row">
+          <label class="pref-checkbox-label">
+            <input type="checkbox" checked={p.moveInferenceExtension[0]()} onChange={e => p.moveInferenceExtension[1](e.target.checked)} />
+            <span>{t('behavior.moveInferenceExtension')}</span>
+          </label>
+        </div>
+        <div class="pref-row pref-checkbox-row">
+          <label class="pref-checkbox-label">
+            <input type="checkbox" checked={p.moveInferenceParallel[0]()} onChange={e => p.moveInferenceParallel[1](e.target.checked)} />
+            <span>{t('behavior.moveInferenceParallel')}</span>
+          </label>
+        </div>
+        <div class="pref-row">
+          <span class="pref-hint">{t('behavior.moveInferenceHint')}</span>
+        </div>
+      </fieldset>
+
+      <fieldset class="pref-fieldset">
         <legend>{t('behavior.creation')}</legend>
         <div class="pref-row pref-checkbox-row">
           <label class="pref-checkbox-label">

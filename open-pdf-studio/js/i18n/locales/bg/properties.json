@@ -41,7 +41,10 @@
     "cancelled": "Отменено",
     "completed": "Завършено",
     "reviewed": "Прегледано",
-    "statusSetBy": "Зададено от {{author}} на {{date}}"
+    "statusSetBy": "Зададено от {{author}} на {{date}}",
+    "layer": "Слой",
+    "layerMarkupGroup": "Слоеве с маркировки",
+    "layerDocumentGroup": "Слоеве на документа"
   },
   "colorNone": "Няма",
   "moreColors": "Повече цветове...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Кламер",
+    "iconPushPin": "Карфица",
+    "iconGraph": "Диаграма",
+    "iconTag": "Етикет"
   },
   "stylePresets": {
     "label": "Стил на линия",
@@ -308,7 +315,8 @@
     "measurePerimeter": "Периметър",
     "redaction": "Редакция",
     "scaleBar": "Линеен мащаб",
-    "parametricSymbol": "Параметричен символ"
+    "parametricSymbol": "Параметричен символ",
+    "fileAttachment": "Прикачен файл"
   },
   "leftPanel": {
     "togglePanel": "Превключване на панела",
@@ -379,22 +387,54 @@
     "exportComments": "Експортиране на коментари във файл...",
     "exportSelectedComments": "Експортиране на избрани коментари във файл...",
     "exportListCsv": "Експортиране на списъка в CSV...",
-    "summarizeComingSoon": "Очаквайте скоро",
     "listExported": "Списъкът с коментари е експортиран в CSV",
     "csvPage": "Страница",
     "csvType": "Тип",
     "csvAuthor": "Автор",
-    "csvDate": "Дата",
     "csvStatus": "Състояние",
     "csvSubject": "Тема",
     "csvContents": "Съдържание",
     "csvColor": "Цвят",
     "csvLayer": "Слой",
+    "csvId": "ИД",
+    "csvCreated": "Създадено",
+    "csvModified": "Променено",
+    "csvStatusBy": "Статус зададен от",
+    "csvStatusAt": "Дата на статуса",
+    "csvReplyCount": "Брой отговори",
+    "csvReplies": "Отговори",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "Ширина",
+    "csvHeight": "Височина",
+    "filterBar": "Филтри",
+    "filterAll": "(Всички)",
+    "filterPages": "Страници",
+    "filterDate": "Дата",
+    "filterFrom": "От",
+    "filterTo": "До",
+    "filterClear": "Изчисти филтрите",
+    "setStatusSelected": "Задай статус на избраните",
+    "setStatusListed": "Задай статус на всички показани",
+    "statusChanged": "Статусът е променен: {{count}}",
+    "summaryTitle": "Обобщение на коментарите",
+    "summaryDocument": "Документ",
+    "summaryCreated": "Създадено",
+    "summaryCount": "Коментари",
+    "summaryNoText": "(няма текст на коментара)",
+    "summaryBusy": "Създаване на обобщение на коментарите...",
+    "summaryExported": "Обобщението на коментарите е експортирано в PDF",
+    "summaryFailed": "Обобщението на коментарите не можа да бъде създадено",
     "schedules": "Спецификации",
     "addPage": "Добавяне на страница",
     "pageLabels": "Етикети на страници (създаване на имена)",
     "portfolio": "PDF портфолио",
-    "recognizeForm": "Разпознаване на полета на формуляр"
+    "recognizeForm": "Разпознаване на полета на формуляр",
+    "layersSetDefault": "Задай по подразбиране",
+    "layersSetDefaultTitle": "Запазване на текущата видимост на слоевете като състояние по подразбиране на документа. Записва се във файла при следващото запазване.",
+    "layersDefaultPending": "Става по подразбиране при запазване",
+    "layerLocked": "Заключен слой: не може да се включва или изключва",
+    "layerRadioGroup": "Група за избор: включването на този слой изключва другите слоеве в групата"
   },
   "scaleBar": {
     "title": "Линеен мащаб",
@@ -443,7 +483,9 @@
       "symbol": "Спецификация на символи",
       "text": "Спецификация на текстове",
       "full": "Пълни количества",
-      "image": "Изображения и печати"
+      "image": "Изображения и печати",
+      "bendingSchedule": "Спецификация за огъване",
+      "rebarWeight": "Спецификация на армировката (маса по Ø)"
     },
     "preview": "Преглед",
     "exportCsv": "Експортиране в CSV",
@@ -603,7 +645,8 @@
       "textBuiltIn": "Текст (вграден)",
       "symbol": "Символ",
       "image": "Изображение",
-      "other": "Друго"
+      "other": "Друго",
+      "reinforcement": "Армировка"
     },
     "field": {
       "category": "Категория",
@@ -631,7 +674,16 @@
       "width": "Ширина",
       "height": "Височина",
       "location": "Местоположение",
-      "locationSource": "Източник на местоположението"
+      "locationSource": "Източник на местоположението",
+      "rebarMark": "Позиция",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Форма на огъване",
+      "rebarGrade": "Клас на стоманата",
+      "rebarCount": "Брой пръти",
+      "rebarLength": "Дължина на пръта",
+      "rebarTotalLength": "Обща дължина",
+      "rebarMassPerM": "Маса на метър",
+      "rebarMass": "Маса"
     },
     "type": {
       "line": "Линия",
@@ -669,7 +721,8 @@
       "stavenreeks": "Серия пръти",
       "betonbalk": "Бетонна греда",
       "scheduleTable": "Таблица с количества",
-      "builtinText": "Текст"
+      "builtinText": "Текст",
+      "rebarPosition": "Армировъчен прът"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "Вертикална щриховка рядка",
       "inb-horizontaal-breed": "Хоризонтална щриховка рядка"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "Нагоре в реда на четене",
+    "moveDown": "Надолу в реда на четене",
+    "checkAccessibility": "Проверка на достъпността",
+    "altText": "Алтернативен текст",
+    "altTextPlaceholder": "Опишете изображението за хората, които не могат да го видят...",
+    "noAlt": "Няма алтернативен текст",
+    "role": "Роля",
+    "mappedTo": "{{role}} е съпоставена с {{standard}}",
+    "content": "Съдържание {{mcid}} (страница {{page}})",
+    "annotationRef": "Анотация (страница {{page}})"
+  },
+  "ink": {
+    "title": "Мастило",
+    "pressure": "Натиск на писалката",
+    "pressureHint": "Натискът на писалката променя дебелината на линията (линиите с мишка запазват постоянна дебелина)",
+    "minWidth": "Минимална ширина (%)",
+    "minWidthHint": "Ширина при най-лекия натиск, като процент от дебелината на линията",
+    "smoothing": "Изглаждане",
+    "smoothingHint": "Сила на изглаждането на линията (0 = без)"
+  },
+  "attachment": {
+    "file": "Файл",
+    "size": "Размер",
+    "open": "Отваряне",
+    "saveAs": "Запиши като...",
+    "noContent": "Съдържанието на този файл не е вградено в PDF файла."
   }
 }

@@ -100,6 +100,13 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // guide lines); while resizing, its width/height snaps to another image's
   // width/height ("equal width"). Uses objectSnapRadius as its tolerance.
   enableImageAlignSnap: true,
+  // Move inference (#519, G / mv): tracking lines through points of other
+  // geometry (and acquired points), extension lines of lines / wall faces,
+  // and parallel / perpendicular guides. Polar during a move follows the
+  // polar-tracking settings above.
+  moveInferenceTracking: true,
+  moveInferenceExtension: true,
+  moveInferenceParallel: true,
   // CAD behavior — keep drawing tool active after committing one annotation
   // so the user can place multiple in a row without re-selecting the tool.
   // Esc returns to select.
@@ -173,6 +180,13 @@ export const DEFAULT_PREFERENCES: Preferences = {
   drawStrokeColor: '#FF0000',
   drawLineWidth: 2,
   drawOpacity: 100,
+  // Drukgevoelige inkt (#385): pendruk stuurt de breedte (een muis blijft
+  // vast), minimale breedte in % van de lijndikte, gladheid 0..100, en
+  // alleen de pen tekent (aanraking genegeerd).
+  drawPressure: true,
+  drawPressureMinWidth: 30,
+  drawSmoothing: 50,
+  drawPenOnly: false,
 
   // Line defaults
   lineStrokeColor: '#FF0000',
@@ -305,6 +319,12 @@ export const DEFAULT_PREFERENCES: Preferences = {
 
   // View
   thinLines: false,
+  // Read aloud (#384): voice id ('' = the engine's default) and rate (1 = normal).
+  readAloudVoice: '',
+  readAloudRate: 1,
+  // Online voices send the text being read to an online speech service:
+  // only after the user opts in.
+  readAloudAllowOnline: false,
   showScrollbars: false,
   // Zware raster-pagina's (grote content-stream, bv. CAD-tekeningen met
   // miljoenen segmenten) progressief tegel-voor-tegel invullen via de

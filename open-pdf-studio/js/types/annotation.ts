@@ -2,7 +2,7 @@ export type AnnotationType =
   | 'highlight' | 'textHighlight' | 'textStrikethrough' | 'textUnderline' | 'textSquiggly'
   | 'caret'
   | 'draw' | 'line' | 'arrow' | 'box' | 'circle'
-  | 'textbox' | 'callout' | 'comment' | 'stamp' | 'image' | 'signature'
+  | 'textbox' | 'callout' | 'comment' | 'fileAttachment' | 'stamp' | 'image' | 'signature'
   | 'polygon' | 'cloud' | 'cloudPolyline' | 'polyline' | 'text'
   | 'arc' | 'spline' | 'splineArrow' | 'redaction'
   | 'measureDistance' | 'measureArea' | 'measurePerimeter' | 'measureAngle'
@@ -76,6 +76,14 @@ export interface LineAnnotation extends AnnotationBase {
 
 export interface DrawAnnotation extends AnnotationBase {
   path: Point[];
+  /** Pen pressure 0..1 per point of path (pen strokes only, #385). */
+  pressures?: number[];
+  /** Width at pressure 0, in percent of lineWidth (5..100). */
+  inkMinWidth?: number;
+  /** Stroke smoothing 0..100; 0 draws the raw polyline. */
+  inkSmoothing?: number;
+  /** false: ignore pressures and draw a constant width. */
+  inkPressure?: boolean;
 }
 
 export interface PolylineAnnotation extends AnnotationBase {
@@ -161,6 +169,10 @@ export type Annotation = AnnotationBase & {
   endX?: number;
   endY?: number;
   path?: Point[];
+  pressures?: number[];  // Freehand: pen pressure per path point (#385)
+  inkMinWidth?: number;
+  inkSmoothing?: number;
+  inkPressure?: boolean;
   points?: Point[];
   controlPoints?: Point[];  // Spline control points
   holes?: Point[][];  // Cutout polygons for measureArea
@@ -238,6 +250,8 @@ export type Annotation = AnnotationBase & {
   count?: number;              // aantal staven (= poten/punten)
   diameter?: number;           // staafdiameter in mm (6..40)
   barLengthMm?: number;        // staaflengte in mm (0 = onbekend)
+  barMark?: string;            // staafnummer in de buigstaat ('' = automatisch)
+  steelGrade?: string;         // staalkwaliteit ('' = B500B)
   legDir?: 'down-left' | 'down-right' | 'up-left' | 'up-right';
   legLength?: number;          // pootlengte in px (canvas)
   lineTail?: number;           // uitloop van de aanhaallijn voorbij de laatste poot (px)

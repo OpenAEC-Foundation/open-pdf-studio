@@ -169,7 +169,9 @@
     "flattenAll": "Alles afvlakken",
     "flattenAllTooltip": "Alle markeringen afvlakken tot pagina-inhoud",
     "unflattenAll": "Afvlakken ongedaan",
-    "unflattenAllTooltip": "Markeringen terughalen die zijn afgevlakt met terughalen toegestaan"
+    "unflattenAllTooltip": "Markeringen terughalen die zijn afgevlakt met terughalen toegestaan",
+    "fileAttachment": "Bestand bijvoegen",
+    "fileAttachmentTitle": "Bestandsbijlage: klik op de pagina en kies een bestand"
   },
   "view": {
     "pageDisplay": "Paginaweergave",
@@ -208,7 +210,15 @@
     "keystrokesHint": "Toon ingedrukte sneltoetsen links onderin (voor video-opnames)",
     "readerMode": "Leesmodus",
     "readerModeTip": "Onthoud de pagina, scrollpositie en het zoomniveau van deze PDF, ook nadat je hem sluit en weer opent. Zolang dit aan staat, staat er een klein bestand naast deze PDF; dat verschijnt dus ook in mappen die met de cloud synchroniseren (OneDrive, Dropbox, enz.). Uitzetten verwijdert dat bestand.",
-    "readerModeSaveFailed": "Leesmodus kon de instelling voor deze PDF niet opslaan. De map is mogelijk alleen-lezen."
+    "readerModeSaveFailed": "Leesmodus kon de instelling voor deze PDF niet opslaan. De map is mogelijk alleen-lezen.",
+    "accessibilityGroup": "Toegankelijkheid",
+    "readAloud": "Voorlezen",
+    "readAloudPause": "Pauzeren",
+    "readAloudTitle": "De selectie, of het document vanaf de huidige pagina, voorlezen",
+    "tagsPanel": "Tags",
+    "tagsPanelTitle": "De structuurtags van het document tonen",
+    "accessibilityCheck": "Controleren",
+    "accessibilityCheckTitle": "Controleren op ontbrekende alternatieve tekst en content zonder tags"
   },
   "elementVisibility": {
     "buttonTitle": "Zichtbaarheid Elementen — toon/verberg en dim annotatie-soorten",

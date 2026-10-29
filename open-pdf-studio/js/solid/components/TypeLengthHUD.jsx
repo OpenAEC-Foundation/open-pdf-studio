@@ -4,6 +4,7 @@ import {
   typeLengthCursor,
   typeLengthFormat,
   typeLengthActive,
+  typeLengthFocus,
   getTypeLengthStart,
 } from '../../tools/type-length-input.js';
 import { state, getActiveDocument } from '../../core/state.js';
@@ -100,7 +101,21 @@ export default function TypeLengthHUD() {
           when={typeLengthBuffer().length > 0}
           fallback={<span style={{ color: '#888888' }}>{_placeholder()}</span>}
         >
-          <span>{typeLengthBuffer()}</span>
+          <Show
+            when={typeLengthFormat() === 'polar' && typeLengthBuffer().includes('<')}
+            fallback={<span>{typeLengthBuffer()}</span>}
+          >
+            {/* Polar entry: the field Tab focused is underlined. */}
+            <span>
+              <span style={{ 'text-decoration': typeLengthFocus() === 'dist' ? 'underline' : 'none' }}>
+                {typeLengthBuffer().slice(0, typeLengthBuffer().indexOf('<'))}
+              </span>
+              <span>&lt;</span>
+              <span style={{ 'text-decoration': typeLengthFocus() === 'dist' ? 'none' : 'underline' }}>
+                {typeLengthBuffer().slice(typeLengthBuffer().indexOf('<') + 1)}
+              </span>
+            </span>
+          </Show>
           <Show when={_hintFor(typeLengthFormat()).text}>
             <span style={{ color: _hintFor(typeLengthFormat()).color, 'font-size': '10px' }}>
               {_hintFor(typeLengthFormat()).text}

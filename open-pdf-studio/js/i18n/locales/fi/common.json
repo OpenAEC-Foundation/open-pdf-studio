@@ -124,7 +124,79 @@
         "label": "Pohjapiirustus",
         "hint": "Piirrä rakennuksen pohjapiirustus: seinät, ikkunat ja ovet, tilat, mitoitus ja kalusteet (saniteetti, keittiö)",
         "prompt": "Piirrä rakennuksen pohjapiirustus. Mitä piirretään: "
+      },
+      "find-on-sheet": {
+        "label": "Etsi arkilta",
+        "hint": "Etsi termi (tilan nimi, leikkausmerkki, symboli), siirry sen sivulle ja korosta osumat",
+        "prompt": "Etsi tältä arkilta: "
+      },
+      "explain-selection": {
+        "label": "Selitä valinta",
+        "hint": "Kuvaile valittu alue, teksti tai merkintä selkokielellä, mittoineen, kun mittakaava on asetettu",
+        "prompt": "Selitä valinta."
+      },
+      "compare-sheets": {
+        "label": "Vertaa arkkeja",
+        "hint": "Nimeä ja merkitse, mitä on lisätty, poistettu tai siirretty toiseen sivuun verrattuna",
+        "prompt": "Vertaa tätä sivua sivuun: "
+      },
+      "measure": {
+        "label": "Mittaa tämä",
+        "hint": "Mittaa valittu muoto tai kuvailtu elementti ja ilmoita tulos piirustuksen mittakaavassa",
+        "prompt": "Mittaa: "
+      },
+      "take-off": {
+        "label": "Määrälaskenta",
+        "hint": "Laske tai mittaa samanlaiset elementit ja sijoita tulos luettelona arkille",
+        "prompt": "Laske määrät: "
+      },
+      "check-scale": {
+        "label": "Tarkista mittakaava",
+        "hint": "Selvitä mittakaava nimiöstä tai tunnetusta mitasta ja aseta se",
+        "prompt": "Tarkista tämän piirustuksen mittakaava."
+      },
+      "review-sheet": {
+        "label": "Tarkasta arkki",
+        "hint": "Lisää pilviä ja numeroituja kommentteja kohtiin, joihin tarkastaja puuttuisi",
+        "prompt": "Tarkasta tämä arkki seuraavien osalta: "
+      },
+      "stamp-date": {
+        "label": "Leima ja päiväys",
+        "hint": "Lisää leima, täytä nimiön kenttä tai lisää muutosmerkintä tämän päivän päiväyksellä",
+        "prompt": "Leimaa ja päivää: "
+      },
+      "clean-up": {
+        "label": "Siisti merkinnät",
+        "hint": "Tasaa, numeroi uudelleen tai väritä olemassa olevat merkinnät yhtenäisesti",
+        "prompt": "Siisti merkintäni: "
+      },
+      "import-cad": {
+        "label": "Tuo piirustus",
+        "hint": "Tuo DWG- tai DXF-piirustus taustakuvaksi oikeassa mittakaavassa",
+        "prompt": "Tuo piirustus (DWG- tai DXF-tiedoston polku): "
+      },
+      "export-cad": {
+        "label": "Vie CAD-muotoon",
+        "hint": "Kirjoita tämä sivu tai valittu alue DXF- tai DWG-tiedostoon",
+        "prompt": "Vie tämä sivu tiedostoon (DXF- tai DWG-tiedoston polku): "
       }
+    },
+    "groups": {
+      "document": "Käännä ja tiivistä",
+      "reading": "Piirustuksen lukeminen",
+      "measuring": "Mittaus ja määrät",
+      "markup": "Merkintöjen teko",
+      "structure": "Rakenne ja pohjapiirustus",
+      "cad": "CAD-piirustukset"
+    },
+    "need": {
+      "document": "Avaa ensin PDF: tämä taito toimii avoimessa asiakirjassa.",
+      "selection": "Valitse ensin merkintä tai tekstiä piirustuksesta ja napsauta sitten taitoa uudelleen.",
+      "scale": "Tällä piirustuksella ei ole vielä mittakaavaa. Aseta se ensin (esimerkiksi taidolla \"Tarkista mittakaava\") ja yritä uudelleen.",
+      "input": "Täydennä syöttökentän teksti kaksoispisteen jälkeen ja lähetä se.",
+      "selectionOrInput": "Valitse muoto piirustuksesta tai kuvaile kaksoispisteen jälkeen, mitä mitataan.",
+      "page": "Anna toisen sivun numero (1–{{max}}), ei nykyisen sivun.",
+      "twoPages": "Tässä asiakirjassa on vain yksi sivu. Jos haluat verrata toiseen tiedostoon, korvaa syöttökentän teksti omalla kysymykselläsi."
     }
   },
   "onlineSymbolLibrary": "Online-symbolikirjasto",
@@ -228,7 +300,12 @@
     "goToPageLink": "Siirry sivulle",
     "openExternalFile": "Avaa: {{filename}}",
     "destination": "Kohde: {{name}}",
-    "internalLink": "Sisäinen linkki"
+    "internalLink": "Sisäinen linkki",
+    "attachmentOnPage": "Sivu {{page}}",
+    "attachmentCreated": "Luotu: {{date}}",
+    "attachmentModified": "Muokattu: {{date}}",
+    "openAttachmentRiskTitle": "Avaa liite",
+    "openAttachmentRiskMessage": "\"{{name}}\" voi suorittaa ohjelmia tällä tietokoneella. Avaa se vain, jos luotat lähteeseen. Avataanko silti?"
   },
   "failedToInsertPagesFromFile": "Sivujen lisääminen tiedostosta epäonnistui: {{error}}",
   "previewPdfRefused": "Tämä PDF on piirustuksen tuonnin esikatselu ja voi olla puutteellinen. Sitä ei voi lisätä eikä tallentaa; tuo piirustus uudelleen.",
@@ -298,5 +375,42 @@
     "readFailed": "3D-mallia ei voitu lukea.",
     "partial": "Joitakin 3D-mallin osia ei voitu lukea ({{n}} ohitettu).",
     "viewerFailed": "3D-näkymää ei voitu käynnistää."
+  },
+  "readAloud": {
+    "title": "Lue ääneen",
+    "play": "Lue",
+    "pause": "Tauko",
+    "resume": "Jatka",
+    "stop": "Pysäytä",
+    "close": "Sulje",
+    "voice": "Ääni",
+    "defaultVoice": "Oletusääni",
+    "rate": "Nopeus",
+    "loading": "Valmistellaan...",
+    "reading": "Luetaan",
+    "paused": "Tauolla",
+    "page": "sivu {{page}}",
+    "tagOrder": "tunnistejärjestys",
+    "contentOrder": "sivujärjestys",
+    "noEngine": "Tässä järjestelmässä ei ole puhesyntetisaattoria.",
+    "noEngineLinux": "Puhesyntetisaattoria ei löytynyt. Asenna speech-dispatcher (spd-say) tai espeak-ng ja yritä uudelleen.",
+    "speechFailed": "Lukeminen keskeytyi virheen vuoksi.",
+    "nothingToRead": "Luettavaa tekstiä ei ole.",
+    "online": "(verkko)",
+    "allowOnline": "Verkkoäänet",
+    "allowOnlineHint": "Tarjoa myös verkkoääniä. Verkkoääntä käytettäessä luettava teksti lähetetään verkon puhepalveluun.",
+    "onlyOnlineVoices": "Saatavilla on vain verkkoääniä. Ota Verkkoäänet käyttöön, jos haluat käyttää jotakin niistä; luettava teksti lähetetään silloin verkon puhepalveluun.",
+    "noLocalVoice": "Tälle kielelle ei ole asennettu paikallista ääntä; käytetään paikallista oletusääntä."
+  },
+  "moveInference": {
+    "onAxisX": "X-akselilla",
+    "onAxisY": "Y-akselilla",
+    "fromPoint": "Pisteestä",
+    "extension": "Jatkeella",
+    "parallel": "Yhdensuuntainen",
+    "perpendicular": "Kohtisuora",
+    "intersection": "Leikkauspiste",
+    "polar": "Napa",
+    "locked": "Lukittu"
   }
 }

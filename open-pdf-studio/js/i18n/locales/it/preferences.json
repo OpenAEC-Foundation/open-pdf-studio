@@ -106,7 +106,13 @@
     "headOpenReversed": "Freccia aperta (invertita)",
     "headClosedReversed": "Freccia chiusa (invertita)",
     "headSlash": "Barra",
-    "polylineDefaults": "Predefiniti polilinea"
+    "polylineDefaults": "Predefiniti polilinea",
+    "smoothing": "Smussatura",
+    "pressure": "Pressione della penna",
+    "pressureHint": "La pressione della penna varia lo spessore del tratto (i tratti col mouse mantengono uno spessore costante)",
+    "pressureMinWidth": "Larghezza minima (%)",
+    "penOnly": "Solo penna (ignora il tocco)",
+    "penOnlyHint": "Il tocco non disegna con lo strumento a mano libera; utile contro il contatto del palmo mentre si scrive con la penna"
   },
   "shapes": {
     "rectangleDefaults": "Predefiniti rettangolo",
@@ -162,6 +168,11 @@
     "snapToNearest": "Aggancia al più vicino",
     "objectSnapRadius": "Raggio di aggancio (pixel)",
     "snapToPdfContent": "Aggancia al contenuto del disegno PDF",
+    "moveInference": "Inferenza durante lo spostamento (G / mv)",
+    "moveInferenceTracking": "Linee di puntamento (allinea ai punti di altre geometrie)",
+    "moveInferenceExtension": "Estensioni di linee e facce di muri",
+    "moveInferenceParallel": "Parallelo / perpendicolare a linee vicine",
+    "moveInferenceHint": "Soffermati su un punto per acquisirlo, tieni premuto Maiusc per bloccare una guida, Tab passa tra distanza e angolo. Le guide polari seguono le impostazioni del puntamento polare.",
     "creation": "Creazione",
     "autoSelectAfterCreation": "Seleziona automaticamente l'annotazione dopo la creazione",
     "deletion": "Eliminazione",

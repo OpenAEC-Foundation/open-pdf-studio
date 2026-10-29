@@ -41,7 +41,10 @@
     "cancelled": "Cancel·lat",
     "completed": "Completat",
     "reviewed": "Revisat",
-    "statusSetBy": "Definit per {{author}} el {{date}}"
+    "statusSetBy": "Definit per {{author}} el {{date}}",
+    "layer": "Capa",
+    "layerMarkupGroup": "Capes de marques",
+    "layerDocumentGroup": "Capes del document"
   },
   "colorNone": "Cap",
   "moreColors": "Més colors...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Clip",
+    "iconPushPin": "Xinxeta",
+    "iconGraph": "Gràfic",
+    "iconTag": "Etiqueta"
   },
   "stylePresets": {
     "label": "Estil de línia",
@@ -308,7 +315,8 @@
     "measurePerimeter": "Perímetre",
     "redaction": "Redacció",
     "scaleBar": "Barra d'escala",
-    "parametricSymbol": "Símbol paramètric"
+    "parametricSymbol": "Símbol paramètric",
+    "fileAttachment": "Fitxer adjunt"
   },
   "leftPanel": {
     "togglePanel": "Commuta el panell",
@@ -375,17 +383,44 @@
     "exportComments": "Exporta els comentaris a un fitxer de dades...",
     "exportSelectedComments": "Exporta els comentaris seleccionats a un fitxer de dades...",
     "exportListCsv": "Exporta la llista a CSV...",
-    "summarizeComingSoon": "Properament",
     "listExported": "Llista de comentaris exportada a CSV",
     "csvPage": "Pàgina",
     "csvType": "Tipus",
     "csvAuthor": "Autor",
-    "csvDate": "Data",
     "csvStatus": "Estat",
     "csvSubject": "Assumpte",
     "csvContents": "Contingut",
     "csvColor": "Color",
     "csvLayer": "Capa",
+    "csvId": "ID",
+    "csvCreated": "Creat",
+    "csvModified": "Modificat",
+    "csvStatusBy": "Estat establert per",
+    "csvStatusAt": "Data de l'estat",
+    "csvReplyCount": "Nombre de respostes",
+    "csvReplies": "Respostes",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "Amplada",
+    "csvHeight": "Alçada",
+    "filterBar": "Filtres",
+    "filterAll": "(Tots)",
+    "filterPages": "Pàgines",
+    "filterDate": "Data",
+    "filterFrom": "Des de",
+    "filterTo": "Fins a",
+    "filterClear": "Esborra els filtres",
+    "setStatusSelected": "Estableix l'estat de la selecció",
+    "setStatusListed": "Estableix l'estat de tots els llistats",
+    "statusChanged": "Estat canviat: {{count}}",
+    "summaryTitle": "Resum de comentaris",
+    "summaryDocument": "Document",
+    "summaryCreated": "Creat",
+    "summaryCount": "Comentaris",
+    "summaryNoText": "(sense text de comentari)",
+    "summaryBusy": "S'està creant el resum de comentaris...",
+    "summaryExported": "Resum de comentaris exportat a PDF",
+    "summaryFailed": "No s'ha pogut crear el resum de comentaris",
     "sortByPage": "Pàgina",
     "sortByType": "Tipus",
     "sortByAuthor": "Autor",
@@ -400,7 +435,12 @@
     "addPage": "Afegeix una pàgina",
     "pageLabels": "Etiquetes de pàgina (generador de noms)",
     "portfolio": "Portafolis PDF",
-    "recognizeForm": "Reconeix camps de formulari"
+    "recognizeForm": "Reconeix camps de formulari",
+    "layersSetDefault": "Estableix com a predeterminat",
+    "layersSetDefaultTitle": "Desa la visibilitat actual de les capes com a estat predeterminat del document. S'escriu al fitxer la propera vegada que deseu.",
+    "layersDefaultPending": "Serà el predeterminat en desar",
+    "layerLocked": "Capa bloquejada: no es pot activar ni desactivar",
+    "layerRadioGroup": "Grup d'opcions: activar aquesta capa desactiva les altres capes del grup"
   },
   "scaleBar": {
     "title": "Barra d'escala",
@@ -449,7 +489,9 @@
       "symbol": "Llistat de símbols",
       "text": "Llistat de textos",
       "full": "Quantitats completes",
-      "image": "Imatges i segells"
+      "image": "Imatges i segells",
+      "bendingSchedule": "Llistat de doblegat",
+      "rebarWeight": "Resum d'armadures (pes per Ø)"
     },
     "preview": "Previsualització",
     "exportCsv": "Exporta CSV",
@@ -609,7 +651,8 @@
       "textBuiltIn": "Text (natiu)",
       "symbol": "Símbol",
       "image": "Imatge",
-      "other": "Altres"
+      "other": "Altres",
+      "reinforcement": "Armadura"
     },
     "field": {
       "category": "Categoria",
@@ -637,7 +680,16 @@
       "width": "Amplada",
       "height": "Alçada",
       "location": "Ubicació",
-      "locationSource": "Origen de la ubicació"
+      "locationSource": "Origen de la ubicació",
+      "rebarMark": "Marca",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Forma de doblegat",
+      "rebarGrade": "Qualitat de l'acer",
+      "rebarCount": "Nombre de barres",
+      "rebarLength": "Longitud de barra",
+      "rebarTotalLength": "Longitud total",
+      "rebarMassPerM": "Massa per metre",
+      "rebarMass": "Massa"
     },
     "type": {
       "line": "Línia",
@@ -675,7 +727,8 @@
       "stavenreeks": "Sèrie de barres",
       "betonbalk": "Biga de formigó",
       "scheduleTable": "Taula de quantitats",
-      "builtinText": "Text"
+      "builtinText": "Text",
+      "rebarPosition": "Barra d'armadura"
     }
   },
   "parametricSymbol": {
@@ -796,5 +849,33 @@
       "inb-verticaal-breed": "Vertical ample",
       "inb-horizontaal-breed": "Horitzontal ample"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "Puja en l'ordre de lectura",
+    "moveDown": "Baixa en l'ordre de lectura",
+    "checkAccessibility": "Comprova l'accessibilitat",
+    "altText": "Text alternatiu",
+    "altTextPlaceholder": "Descriviu la imatge per a qui no la pot veure...",
+    "noAlt": "Sense text alternatiu",
+    "role": "Funció",
+    "mappedTo": "{{role}} s'assigna a {{standard}}",
+    "content": "Contingut {{mcid}} (pàgina {{page}})",
+    "annotationRef": "Anotació (pàgina {{page}})"
+  },
+  "ink": {
+    "title": "Tinta",
+    "pressure": "Pressió del llapis",
+    "pressureHint": "La pressió del llapis varia el gruix del traç (els traços amb el ratolí mantenen un gruix constant)",
+    "minWidth": "Amplada mínima (%)",
+    "minWidthHint": "Amplada amb la pressió més suau, com a percentatge del gruix de línia",
+    "smoothing": "Suavitzat",
+    "smoothingHint": "Intensitat del suavitzat del traç (0 = cap)"
+  },
+  "attachment": {
+    "file": "Fitxer",
+    "size": "Mida",
+    "open": "Obre",
+    "saveAs": "Desa com a...",
+    "noContent": "El contingut d'aquest fitxer no està incrustat al PDF."
   }
 }

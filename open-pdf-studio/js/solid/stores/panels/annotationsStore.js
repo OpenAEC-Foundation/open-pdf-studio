@@ -1,4 +1,5 @@
 import { createSignal } from 'solid-js';
+import { leegFilter, filterActief } from '../../../annotations/opmerkingen-overzicht.js';
 
 const [items, setItems] = createSignal([]);
 const [countText, setCountText] = createSignal('0 annotations');
@@ -52,6 +53,26 @@ function toggleHiddenStatus(statusKey) {
   }).catch(() => { /* renderer nog niet geladen */ });
 }
 
+// Filterbalk van het opmerkingenoverzicht (#383): auteur, soort, pagina- en
+// datumbereik. Werkt alleen op de lijst (en daarmee op CSV en rapport); het
+// statusfilter hierboven werkt ook op het canvas.
+const [listFilter, setListFilterSignal] = createSignal(leegFilter());
+const [filterOptions, setFilterOptions] = createSignal({ authors: [], types: [] });
+const [filterBarOpen, setFilterBarOpen] = createSignal(false);
+
+function updateListFilter(patch) {
+  setListFilterSignal(prev => ({ ...prev, ...(patch || {}) }));
+}
+
+function clearListFilter() {
+  setListFilterSignal(leegFilter());
+}
+
+/** Staat er iets in de filterbalk of in het statusfilter? */
+function anyListFilterActive() {
+  return filterActief(listFilter()) || hiddenStatuses().size > 0;
+}
+
 function toggleGroup(groupKey) {
   setCollapsedGroups(prev => {
     const next = new Set(prev);
@@ -77,4 +98,7 @@ export {
   filterMode, setFilterMode,
   hiddenStatuses, toggleHiddenStatus, isStatusHidden,
   collapsedGroups, toggleGroup, expandAllGroups, collapseAllGroups,
+  listFilter, updateListFilter, clearListFilter, anyListFilterActive,
+  filterOptions, setFilterOptions,
+  filterBarOpen, setFilterBarOpen,
 };

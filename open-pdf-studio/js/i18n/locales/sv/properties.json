@@ -41,7 +41,10 @@
     "cancelled": "Avbruten",
     "completed": "Slutförd",
     "reviewed": "Granskad",
-    "statusSetBy": "Angiven av {{author}} den {{date}}"
+    "statusSetBy": "Angiven av {{author}} den {{date}}",
+    "layer": "Lager",
+    "layerMarkupGroup": "Markeringslager",
+    "layerDocumentGroup": "Dokumentets lager"
   },
   "colorNone": "Ingen",
   "moreColors": "Fler färger...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Gem",
+    "iconPushPin": "Häftstift",
+    "iconGraph": "Diagram",
+    "iconTag": "Etikett"
   },
   "stylePresets": {
     "label": "Linjestil",
@@ -308,7 +315,8 @@
     "measurePerimeter": "Omkrets",
     "redaction": "Maskering",
     "scaleBar": "Skalstock",
-    "parametricSymbol": "Parametrisk symbol"
+    "parametricSymbol": "Parametrisk symbol",
+    "fileAttachment": "Filbilaga"
   },
   "leftPanel": {
     "togglePanel": "Växla panel",
@@ -379,22 +387,54 @@
     "exportComments": "Exportera kommentarer till datafil...",
     "exportSelectedComments": "Exportera valda kommentarer till datafil...",
     "exportListCsv": "Exportera listan till CSV...",
-    "summarizeComingSoon": "Kommer snart",
     "listExported": "Kommentarslistan har exporterats till CSV",
     "csvPage": "Sida",
     "csvType": "Typ",
     "csvAuthor": "Författare",
-    "csvDate": "Datum",
     "csvStatus": "Status",
     "csvSubject": "Ämne",
     "csvContents": "Innehåll",
     "csvColor": "Färg",
     "csvLayer": "Lager",
+    "csvId": "ID",
+    "csvCreated": "Skapad",
+    "csvModified": "Ändrad",
+    "csvStatusBy": "Status satt av",
+    "csvStatusAt": "Statusdatum",
+    "csvReplyCount": "Antal svar",
+    "csvReplies": "Svar",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "Bredd",
+    "csvHeight": "Höjd",
+    "filterBar": "Filter",
+    "filterAll": "(Alla)",
+    "filterPages": "Sidor",
+    "filterDate": "Datum",
+    "filterFrom": "Från",
+    "filterTo": "Till",
+    "filterClear": "Rensa filter",
+    "setStatusSelected": "Ange status för markerade",
+    "setStatusListed": "Ange status för alla listade",
+    "statusChanged": "Status ändrad: {{count}}",
+    "summaryTitle": "Kommentarssammanfattning",
+    "summaryDocument": "Dokument",
+    "summaryCreated": "Skapad",
+    "summaryCount": "Kommentarer",
+    "summaryNoText": "(ingen kommentarstext)",
+    "summaryBusy": "Skapar kommentarssammanfattning...",
+    "summaryExported": "Kommentarssammanfattning exporterad till PDF",
+    "summaryFailed": "Det gick inte att skapa kommentarssammanfattningen",
     "schedules": "Förteckningar",
     "addPage": "Lägg till sida",
     "pageLabels": "Sidetiketter (namnbyggare)",
     "portfolio": "PDF-portfölj",
-    "recognizeForm": "Identifiera formulärfält"
+    "recognizeForm": "Identifiera formulärfält",
+    "layersSetDefault": "Ange som standard",
+    "layersSetDefaultTitle": "Spara lagrens aktuella synlighet som dokumentets standardläge. Det skrivs till filen nästa gång du sparar.",
+    "layersDefaultPending": "Blir standard när du sparar",
+    "layerLocked": "Låst lager: kan inte slås på eller av",
+    "layerRadioGroup": "Valgrupp: när detta lager slås på slås de andra lagren i gruppen av"
   },
   "scaleBar": {
     "title": "Skalstock",
@@ -443,7 +483,9 @@
       "symbol": "Symbolförteckning",
       "text": "Textförteckning",
       "full": "Fullständiga mängder",
-      "image": "Bilder och stämplar"
+      "image": "Bilder och stämplar",
+      "bendingSchedule": "Bockningslista",
+      "rebarWeight": "Armeringsförteckning (vikt per Ø)"
     },
     "preview": "Förhandsvisning",
     "exportCsv": "Exportera CSV",
@@ -603,7 +645,8 @@
       "textBuiltIn": "Text (inbyggd)",
       "symbol": "Symbol",
       "image": "Bild",
-      "other": "Övrigt"
+      "other": "Övrigt",
+      "reinforcement": "Armering"
     },
     "field": {
       "category": "Kategori",
@@ -631,7 +674,16 @@
       "width": "Bredd",
       "height": "Höjd",
       "location": "Plats",
-      "locationSource": "Platskälla"
+      "locationSource": "Platskälla",
+      "rebarMark": "Positionsnummer",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Bockningsform",
+      "rebarGrade": "Stålkvalitet",
+      "rebarCount": "Antal stänger",
+      "rebarLength": "Stånglängd",
+      "rebarTotalLength": "Total längd",
+      "rebarMassPerM": "Vikt per meter",
+      "rebarMass": "Vikt"
     },
     "type": {
       "line": "Linje",
@@ -669,7 +721,8 @@
       "stavenreeks": "Stångserie",
       "betonbalk": "Betongbalk",
       "scheduleTable": "Mängdtabell",
-      "builtinText": "Text"
+      "builtinText": "Text",
+      "rebarPosition": "Armeringsjärn"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "Lodrät gles",
       "inb-horizontaal-breed": "Vågrät gles"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "Flytta upp i läsordningen",
+    "moveDown": "Flytta ned i läsordningen",
+    "checkAccessibility": "Kontrollera tillgänglighet",
+    "altText": "Alternativtext",
+    "altTextPlaceholder": "Beskriv bilden för den som inte kan se den...",
+    "noAlt": "Ingen alternativtext",
+    "role": "Roll",
+    "mappedTo": "{{role}} är mappad till {{standard}}",
+    "content": "Innehåll {{mcid}} (sida {{page}})",
+    "annotationRef": "Kommentar (sida {{page}})"
+  },
+  "ink": {
+    "title": "Bläck",
+    "pressure": "Penntryck",
+    "pressureHint": "Penntrycket ändrar linjebredden (musdrag behåller en fast bredd)",
+    "minWidth": "Minsta bredd (%)",
+    "minWidthHint": "Bredd vid lättaste penntryck, i procent av linjebredden",
+    "smoothing": "Utjämning",
+    "smoothingHint": "Styrka på utjämningen av draget (0 = ingen)"
+  },
+  "attachment": {
+    "file": "Fil",
+    "size": "Storlek",
+    "open": "Öppna",
+    "saveAs": "Spara som...",
+    "noContent": "Innehållet i den här filen är inte inbäddat i PDF-filen."
   }
 }

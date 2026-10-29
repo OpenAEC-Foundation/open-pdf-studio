@@ -83,13 +83,14 @@ function buildFontInfos(context, fontDict) {
   for (const key of fontDict.keys()) {
     let info = {
       bytesPerCode: 1, map: null, inverse: null, subset: false, key: nameStr(key),
-      baseFont: '', variant: null, widthOf: null, hasGlyph: null,
+      baseFont: '', variant: null, widthOf: null, hasGlyph: null, subtype: '',
     };
     try {
       const f = fontDict.lookupMaybe(key, PDFDict);
       if (!f) { infos.set(nameStr(key), info); continue; }
       const subtype = nameStr(f.lookupMaybe(PDFName.of('Subtype'), PDFName));
       const baseFont = nameStr(f.lookupMaybe(PDFName.of('BaseFont'), PDFName));
+      info.subtype = subtype;
       info.subset = isSubsetFontName(baseFont);
       info.baseFont = baseFont;
       info.variant = fontVariantFromBaseName(baseFont);
@@ -127,16 +128,27 @@ function buildFontInfos(context, fontDict) {
         const widthsArr = f.lookupMaybe(PDFName.of('Widths'), PDFArray);
         if (widthsArr && typeof fc?.asNumber === 'function') {
           const first = fc.asNumber();
+          // Type3: de /Widths staan in glyfruimte; de /FontMatrix zet ze om
+          // naar tekstruimte. In 1000-units is dat × FontMatrix[0] × 1000
+          // (voor de gangbare [0.001 0 0 0.001 0 0] precies 1).
+          const schaal = subtype === 'Type3' ? type3BreedteSchaal(context, f) : 1;
           const widths = [];
           for (let i = 0; i < widthsArr.size(); i++) {
             const el = context.lookup(widthsArr.get(i));
-            widths.push(typeof el?.asNumber === 'function' ? el.asNumber() : 0);
+            widths.push(typeof el?.asNumber === 'function' ? el.asNumber() * schaal : 0);
           }
           info.widthOf = (code) => {
             const w = widths[code - first];
             return w === undefined ? undefined : w;
           };
           info.hasGlyph = (code) => code >= first && (widths[code - first] || 0) > 0;
+          if (subtype === 'Type3') {
+            // Een Type3-glyf bestaat alleen als zijn naam (uit /Differences)
+            // een /CharProcs-procedure heeft (#723). Ontbreekt die, dan
+            // schrijft de saver de run in Standard-14, net als de weergave.
+            const metProc = type3CodesMetProcedure(context, f);
+            info.hasGlyph = (code) => code >= first && metProc.has(code);
+          }
         }
       }
 
@@ -190,12 +202,44 @@ function buildFontInfos(context, fontDict) {
     } catch (_) {
       info = {
         bytesPerCode: 1, map: null, inverse: null, subset: false, key: nameStr(key),
-        baseFont: '', variant: null, widthOf: null, hasGlyph: null,
+        baseFont: '', variant: null, widthOf: null, hasGlyph: null, subtype: '',
       };
     }
     infos.set(nameStr(key), info);
   }
   return infos;
+}
+
+// Type3: FontMatrix[0] × 1000 (breedte in glyfruimte → 1000-units), of 1.
+function type3BreedteSchaal(context, f) {
+  try {
+    const arr = f.lookupMaybe(PDFName.of('FontMatrix'), PDFArray);
+    const a = arr && arr.size() === 6 ? context.lookup(arr.get(0)) : null;
+    const v = typeof a?.asNumber === 'function' ? a.asNumber() : NaN;
+    return Number.isFinite(v) && v > 0 ? v * 1000 : 1;
+  } catch (_) { return 1; }
+}
+
+// Type3: de codes waarvan de glyfnaam (uit /Encoding /Differences) een
+// procedure in /CharProcs heeft.
+function type3CodesMetProcedure(context, f) {
+  const codes = new Set();
+  try {
+    const procs = f.lookupMaybe(PDFName.of('CharProcs'), PDFDict);
+    const enc = context.lookup(f.get(PDFName.of('Encoding')));
+    const diffs = enc instanceof PDFDict ? enc.lookupMaybe(PDFName.of('Differences'), PDFArray) : null;
+    if (!procs || !diffs) return codes;
+    let code = 0;
+    for (let i = 0; i < diffs.size(); i++) {
+      const el = context.lookup(diffs.get(i));
+      if (typeof el?.asNumber === 'function') { code = el.asNumber(); continue; }
+      if (el instanceof PDFName) {
+        if (procs.has(el)) codes.add(code);
+        code++;
+      }
+    }
+  } catch (_) { /* geen bruikbare procedures */ }
+  return codes;
 }
 
 // Familie-index over de pagina-fonts: genormaliseerde familie → per
@@ -284,16 +328,89 @@ export function applyInPlaceTextEdits(pdfDocLib, pages, edits) {
 }
 
 function applyForPage(pdfDocLib, page, pageEdits, results) {
-  const context = pdfDocLib.context;
   page.node.normalize();
   const contents = page.node.Contents();
   if (!(contents instanceof PDFArray)) return;
+  const ana = analyseerPagina(pdfDocLib, page, pageEdits);
+  if (!ana || ana.editMatches.length === 0) return;
+  const context = pdfDocLib.context;
+  const { editMatches, ops, entries, fontInfos, resources } = ana;
+
+  // Splices toepassen en de betrokken streams vervangen (opnieuw geflate't).
+  const removeIdx = [...new Set(editMatches.flatMap(ana.removalFor))];
+  const splices = planSplices(ops, removeIdx);
+  const perStream = new Map();
+  for (const sp of splices) {
+    if (!perStream.has(sp.si)) perStream.set(sp.si, []);
+    perStream.get(sp.si).push(sp);
+  }
+  for (const [si, list] of perStream) {
+    const entry = entries[si];
+    const newText = applySplices(entry.text, list);
+    if (entry.form) {
+      // Formulier: de stream onder dezelfde verwijzing vervangen, met zijn
+      // eigen woordenboek (BBox, Matrix, Resources, ...).
+      const dict = entry.form.xo.dict.clone(context);
+      dict.delete(PDFName.of('DecodeParms'));
+      dict.delete(PDFName.of('Length'));
+      dict.set(PDFName.of('Filter'), PDFName.of('FlateDecode'));
+      const ingepakt = context.flateStream(latin1ToBytes(newText)).getContents();
+      context.assign(entry.form.ref, PDFRawStream.of(dict, ingepakt));
+      continue;
+    }
+    const newStream = context.flateStream(latin1ToBytes(newText));
+    const newRef = context.register(newStream);
+    contents.set(entry.arrayIdx, newRef);
+  }
+
+  // De nieuwe tekst komt in de pagina zelf. Een font uit een formulier krijgt
+  // daarom ook een sleutel in de /Font van de pagina: dezelfde als het font
+  // daar al staat, anders een vrije naam.
+  const paginaSleutel = (fontKey) => {
+    const fi = fontInfos.get(fontKey);
+    if (!fi?.bron) return fontKey;
+    if (fi.paginaSleutel) return fi.paginaSleutel;
+    let paginaFonts = resources.lookupMaybe(PDFName.of('Font'), PDFDict);
+    if (!paginaFonts) {
+      paginaFonts = context.obj({});
+      resources.set(PDFName.of('Font'), paginaFonts);
+    }
+    const waarde = fi.bron.dict.get(PDFName.of(fi.bron.naam));
+    for (const [k, v] of paginaFonts.entries()) {
+      if (v === waarde) { fi.paginaSleutel = nameStr(k); return fi.paginaSleutel; }
+    }
+    let naam = fi.bron.naam;
+    for (let n = 1; paginaFonts.has(PDFName.of(naam)); n++) naam = `${fi.bron.naam}_fx${n}`;
+    paginaFonts.set(PDFName.of(naam), waarde);
+    fi.paginaSleutel = naam;
+    return naam;
+  };
+  for (const m of editMatches) results.set(m.edit, maakInPlaceResultaat(ana, m, paginaSleutel));
+}
+
+/**
+ * Het lees-deel van de in-place-analyse: decodeert de content streams van de
+ * pagina, zoekt per edit een unieke match en houdt alleen edits over die
+ * veilig te knippen zijn. Verandert niets aan het document (ook geen
+ * normalize), zodat de live weergave (#723) het op het gedeelde document kan
+ * draaien en precies dezelfde match en codering krijgt als de saver.
+ *
+ * @returns {null|{ editMatches, ops, entries, fontInfos, usedCodes,
+ *   familyIndex, resources, removalFor }}
+ */
+export function analyseerPagina(pdfDocLib, page, pageEdits) {
+  const context = pdfDocLib.context;
+  const contents = page.node.Contents();
+  // Na normalize altijd een array; zonder normalize kan het één stream zijn.
+  const inhoud = contents instanceof PDFArray ? contents.asArray()
+    : (contents instanceof PDFStream ? [contents] : null);
+  if (!inhoud) return null;
 
   // Content streams decoderen; alleen ruwe (originele) streams zijn splicebaar.
   const entries = [];
   const streamTexts = [];
-  for (let i = 0; i < contents.size(); i++) {
-    const ref = contents.get(i);
+  for (let i = 0; i < inhoud.length; i++) {
+    const ref = inhoud[i];
     const stream = context.lookup(ref);
     let text = '';
     let spliceable = false;
@@ -446,168 +563,129 @@ function applyForPage(pdfDocLib, page, pageEdits, results) {
     );
     editMatches.splice(victim, 1);
   }
-  if (editMatches.length === 0) return;
-
-  // Splices toepassen en de betrokken streams vervangen (opnieuw geflate't).
-  const removeIdx = [...new Set(editMatches.flatMap(removalFor))];
-  const splices = planSplices(ops, removeIdx);
-  const perStream = new Map();
-  for (const sp of splices) {
-    if (!perStream.has(sp.si)) perStream.set(sp.si, []);
-    perStream.get(sp.si).push(sp);
-  }
-  for (const [si, list] of perStream) {
-    const entry = entries[si];
-    const newText = applySplices(entry.text, list);
-    if (entry.form) {
-      // Formulier: de stream onder dezelfde verwijzing vervangen, met zijn
-      // eigen woordenboek (BBox, Matrix, Resources, ...).
-      const dict = entry.form.xo.dict.clone(context);
-      dict.delete(PDFName.of('DecodeParms'));
-      dict.delete(PDFName.of('Length'));
-      dict.set(PDFName.of('Filter'), PDFName.of('FlateDecode'));
-      const ingepakt = context.flateStream(latin1ToBytes(newText)).getContents();
-      context.assign(entry.form.ref, PDFRawStream.of(dict, ingepakt));
-      continue;
-    }
-    const newStream = context.flateStream(latin1ToBytes(newText));
-    const newRef = context.register(newStream);
-    contents.set(entry.arrayIdx, newRef);
-  }
-
-  // Resultaat per edit: her-encodering van nieuwe tekst in het font van de
-  // gematchte regel (of de laatste bekende regel voor extra nieuwe regels),
-  // inclusief familie-varianten (vet/cursief), echte glyfbreedtes en de
-  // Tc/Tw/Tz-tekst-state van de originele run.
-  const familyIndex = buildFamilyIndex(fontInfos);
-  // De nieuwe tekst komt in de pagina zelf. Een font uit een formulier krijgt
-  // daarom ook een sleutel in de /Font van de pagina: dezelfde als het font
-  // daar al staat, anders een vrije naam.
-  const paginaSleutel = (fontKey) => {
-    const fi = fontInfos.get(fontKey);
-    if (!fi?.bron) return fontKey;
-    if (fi.paginaSleutel) return fi.paginaSleutel;
-    let paginaFonts = resources.lookupMaybe(PDFName.of('Font'), PDFDict);
-    if (!paginaFonts) {
-      paginaFonts = context.obj({});
-      resources.set(PDFName.of('Font'), paginaFonts);
-    }
-    const waarde = fi.bron.dict.get(PDFName.of(fi.bron.naam));
-    for (const [k, v] of paginaFonts.entries()) {
-      if (v === waarde) { fi.paginaSleutel = nameStr(k); return fi.paginaSleutel; }
-    }
-    let naam = fi.bron.naam;
-    for (let n = 1; paginaFonts.has(PDFName.of(naam)); n++) naam = `${fi.bron.naam}_fx${n}`;
-    paginaFonts.set(PDFName.of(naam), waarde);
-    fi.paginaSleutel = naam;
-    return naam;
+  return {
+    editMatches, ops, entries, fontInfos, usedCodes, resources, removalFor,
+    familyIndex: buildFamilyIndex(fontInfos),
   };
-  for (const m of editMatches) {
-    const lineFirstOps = m.lineMatches.map(win => (win && win.length ? ops[win[0]] : null));
-    const lineFontKeys = lineFirstOps.map(op => (op ? op.font : null));
-    const lastKnown = [...lineFontKeys].reverse().find(k => k) || null;
-    const fontForLine = (lineIdx) => {
-      const k = lineFontKeys[Math.min(lineIdx, lineFontKeys.length - 1)] ?? null;
-      return k || lastKnown;
-    };
-    // Tekst-state (Tc/Tw/Tz) van de eerste op van de regel — de terugge-
-    // schreven run neemt die over zodat de visuele breedte klopt.
-    const lineTextState = (lineIdx) => {
-      const op = lineFirstOps[Math.min(lineIdx, Math.max(0, lineFirstOps.length - 1))]
-        || lineFirstOps.find(o => o) || null;
-      return op ? { tc: op.tc || 0, tw: op.tw || 0, tz: op.tz ?? 100 } : { tc: 0, tw: 0, tz: 100 };
-    };
-    // Glyf beschikbaar? Eerst de font-structuur (Widths/W: dekt de hele
-    // subset, ook codes die op deze pagina toevallig niet voorkwamen),
-    // met de op deze pagina gebruikte codes als vangnet.
-    const glyphAvailable = (fi, fontKey, code) => {
-      if (usedCodes.get(fontKey)?.has(code)) return true;
-      if (fi.hasGlyph) return fi.hasGlyph(code);
-      return !fi.subset;
-    };
-    // Werkelijke uitgestrektheid van de ORIGINELE runs langs de baseline,
-    // t.o.v. het anker van de eerste regel: het afdekvlak moet ook verre
-    // kolommen (en de scan-pixels eronder) volledig dekken. De oude
-    // tekenaantal-schatting telde kolom-gaten niet mee, waardoor het laatste
-    // cijfer van een buurgetal buiten het vlak kon vallen en als 'extra'
-    // cijfer zichtbaar bleef.
-    let coverExtent = 0;
-    {
-      const l0 = (m.matchedLines || [])[0];
-      if (l0) {
-        const rad0 = ((Number(l0.angle) || 0) * Math.PI) / 180;
-        const cos0 = Math.cos(rad0);
-        const sin0 = Math.sin(rad0);
-        const u0 = (Number(l0.x) || 0) * cos0 + (Number(l0.y) || 0) * sin0;
-        for (const win of m.lineMatches) {
-          if (!win) continue;
-          for (const oi of win) {
-            const op = ops[oi];
-            const fi2 = fontInfos.get(op.font);
-            let w;
-            if (fi2 && fi2.widthOf && Array.isArray(op.codes) && op.codes.length) {
-              w = computeRunWidth(op.codes, fi2.widthOf, {
-                size: op.sizeEff, tc: op.tc, tw: op.tw, tz: op.tz,
-                bytesPerCode: fi2.bytesPerCode,
-              });
-            } else {
-              w = (op.text ? op.text.length : 0) * (op.sizeEff || 10) * 0.6;
-            }
-            const u = op.x * cos0 + op.y * sin0;
-            coverExtent = Math.max(coverExtent, (u - u0) + w);
+}
+
+/**
+ * Resultaat van één gematchte edit: hoe de saver de nieuwe tekst in het
+ * originele font codeert (encodeRun), met tekst-state en afdekgegevens.
+ * `paginaSleutel` zet een interne fontsleutel om naar de naam waaronder het
+ * font in de doelpagina staat (de saver: de /Font van de pagina; de live
+ * weergave: het tijdelijke voorbeeld-document).
+ */
+export function maakInPlaceResultaat(ana, m, paginaSleutel = (k) => k) {
+  const { ops, fontInfos, usedCodes, familyIndex } = ana;
+  const lineFirstOps = m.lineMatches.map(win => (win && win.length ? ops[win[0]] : null));
+  const lineFontKeys = lineFirstOps.map(op => (op ? op.font : null));
+  const lastKnown = [...lineFontKeys].reverse().find(k => k) || null;
+  const fontForLine = (lineIdx) => {
+    const k = lineFontKeys[Math.min(lineIdx, lineFontKeys.length - 1)] ?? null;
+    return k || lastKnown;
+  };
+  // Tekst-state (Tc/Tw/Tz) van de eerste op van de regel — de terugge-
+  // schreven run neemt die over zodat de visuele breedte klopt.
+  const lineTextState = (lineIdx) => {
+    const op = lineFirstOps[Math.min(lineIdx, Math.max(0, lineFirstOps.length - 1))]
+      || lineFirstOps.find(o => o) || null;
+    return op ? { tc: op.tc || 0, tw: op.tw || 0, tz: op.tz ?? 100 } : { tc: 0, tw: 0, tz: 100 };
+  };
+  // Glyf beschikbaar? Eerst de font-structuur (Widths/W: dekt de hele
+  // subset, ook codes die op deze pagina toevallig niet voorkwamen),
+  // met de op deze pagina gebruikte codes als vangnet.
+  const glyphAvailable = (fi, fontKey, code) => {
+    if (usedCodes.get(fontKey)?.has(code)) return true;
+    if (fi.hasGlyph) return fi.hasGlyph(code);
+    return !fi.subset;
+  };
+  // Werkelijke uitgestrektheid van de ORIGINELE runs langs de baseline,
+  // t.o.v. het anker van de eerste regel: het afdekvlak moet ook verre
+  // kolommen (en de scan-pixels eronder) volledig dekken. De oude
+  // tekenaantal-schatting telde kolom-gaten niet mee, waardoor het laatste
+  // cijfer van een buurgetal buiten het vlak kon vallen en als 'extra'
+  // cijfer zichtbaar bleef.
+  let coverExtent = 0;
+  {
+    const l0 = (m.matchedLines || [])[0];
+    if (l0) {
+      const rad0 = ((Number(l0.angle) || 0) * Math.PI) / 180;
+      const cos0 = Math.cos(rad0);
+      const sin0 = Math.sin(rad0);
+      const u0 = (Number(l0.x) || 0) * cos0 + (Number(l0.y) || 0) * sin0;
+      for (const win of m.lineMatches) {
+        if (!win) continue;
+        for (const oi of win) {
+          const op = ops[oi];
+          const fi2 = fontInfos.get(op.font);
+          let w;
+          if (fi2 && fi2.widthOf && Array.isArray(op.codes) && op.codes.length) {
+            w = computeRunWidth(op.codes, fi2.widthOf, {
+              size: op.sizeEff, tc: op.tc, tw: op.tw, tz: op.tz,
+              bytesPerCode: fi2.bytesPerCode,
+            });
+          } else {
+            w = (op.text ? op.text.length : 0) * (op.sizeEff || 10) * 0.6;
           }
+          const u = op.x * cos0 + op.y * sin0;
+          coverExtent = Math.max(coverExtent, (u - u0) + w);
         }
       }
     }
-    results.set(m.edit, {
-      removedOriginal: true,
-      // Vet/cursief van het originele font van de regel (uit de BaseFont), of
-      // null. Voor een terugvalfont dat dezelfde dikte moet houden.
-      lineFontVariant: (lineIdx) => fontInfos.get(fontForLine(lineIdx))?.variant || null,
-      needsCover: m.needsCover,
-      coverExtent,
-      lineTextState,
-      // Codeert één run naar het originele font van de regel — of naar een
-      // vet/cursief-variant uit dezelfde familie als het document die draagt.
-      // flags: { bold, italic, baseBold, baseItalic } (absoluut t.o.v. de
-      // gedetecteerde regelbasis). sizePt bepaalt de berekende breedte.
-      // Retour: { fontKey, hex, width, bytesPerCode, tc, tw, tz } of null
-      // (→ Standard-14-pad voor precies deze run).
-      encodeRun: (text, lineIdx, sizePt, flags = null) => {
-        let fontKey = fontForLine(lineIdx);
-        if (!fontKey) return null;
-        if (flags && (flags.bold !== flags.baseBold || flags.italic !== flags.baseItalic)) {
-          // De gebruiker week af van de regelbasis: zoek de juiste variant
-          // binnen dezelfde familie; ontbreekt die → Standard-14-pad.
-          const fam = fontInfos.get(fontKey)?.variant?.family;
-          const slot = `${flags.bold ? 'b' : ''}${flags.italic ? 'i' : ''}` || 'r';
-          fontKey = (fam && familyIndex.get(fam)?.[slot]) || null;
-          if (!fontKey) return null;
-        }
-        const fi = fontInfos.get(fontKey);
-        if (!fi || !fi.inverse) return null;
-        // Zonder breedte-informatie is de pen-advance niet te bepalen —
-        // dan liever het meetbare Standard-14-pad.
-        if (!fi.widthOf) return null;
-        const codes = encodeTextToCodes(text, fi.inverse);
-        if (!codes) return null;
-        if (!codes.every(c => glyphAvailable(fi, fontKey, c))) return null;
-        const st = lineTextState(lineIdx);
-        const width = computeRunWidth(codes, fi.widthOf, {
-          size: sizePt, tc: st.tc, tw: st.tw, tz: st.tz, bytesPerCode: fi.bytesPerCode,
-        });
-        return {
-          fontKey: paginaSleutel(fontKey),
-          hex: codesToHexString(codes, fi.bytesPerCode),
-          width,
-          bytesPerCode: fi.bytesPerCode,
-          tc: st.tc,
-          tw: st.tw,
-          tz: st.tz,
-        };
-      },
-    });
   }
+  return {
+    removedOriginal: true,
+    // Vet/cursief van het originele font van de regel (uit de BaseFont), of
+    // null. Voor een terugvalfont dat dezelfde dikte moet houden.
+    lineFontVariant: (lineIdx) => fontInfos.get(fontForLine(lineIdx))?.variant || null,
+    needsCover: m.needsCover,
+    coverExtent,
+    lineTextState,
+    // Codeert één run naar het originele font van de regel — of naar een
+    // vet/cursief-variant uit dezelfde familie als het document die draagt.
+    // flags: { bold, italic, baseBold, baseItalic } (absoluut t.o.v. de
+    // gedetecteerde regelbasis). sizePt bepaalt de berekende breedte.
+    // Retour: { fontKey, hex, bronFontKey, codes, width, bytesPerCode, tc,
+    // tw, tz } of null
+    // (→ Standard-14-pad voor precies deze run).
+    encodeRun: (text, lineIdx, sizePt, flags = null) => {
+      let fontKey = fontForLine(lineIdx);
+      if (!fontKey) return null;
+      if (flags && (flags.bold !== flags.baseBold || flags.italic !== flags.baseItalic)) {
+        // De gebruiker week af van de regelbasis: zoek de juiste variant
+        // binnen dezelfde familie; ontbreekt die → Standard-14-pad.
+        const fam = fontInfos.get(fontKey)?.variant?.family;
+        const slot = `${flags.bold ? 'b' : ''}${flags.italic ? 'i' : ''}` || 'r';
+        fontKey = (fam && familyIndex.get(fam)?.[slot]) || null;
+        if (!fontKey) return null;
+      }
+      const fi = fontInfos.get(fontKey);
+      if (!fi || !fi.inverse) return null;
+      // Zonder breedte-informatie is de pen-advance niet te bepalen —
+      // dan liever het meetbare Standard-14-pad.
+      if (!fi.widthOf) return null;
+      const codes = encodeTextToCodes(text, fi.inverse);
+      if (!codes) return null;
+      if (!codes.every(c => glyphAvailable(fi, fontKey, c))) return null;
+      const st = lineTextState(lineIdx);
+      const width = computeRunWidth(codes, fi.widthOf, {
+        size: sizePt, tc: st.tc, tw: st.tw, tz: st.tz, bytesPerCode: fi.bytesPerCode,
+      });
+      return {
+        fontKey: paginaSleutel(fontKey),
+        hex: codesToHexString(codes, fi.bytesPerCode),
+        // De interne sleutel en de codes zelf, voor de live weergave (#723).
+        bronFontKey: fontKey,
+        codes,
+        width,
+        bytesPerCode: fi.bytesPerCode,
+        tc: st.tc,
+        tw: st.tw,
+        tz: st.tz,
+      };
+    },
+  };
 }
 
 // Afbeeldingen uit de Do-records van een content stream (de pagina, of een

@@ -169,7 +169,9 @@
     "flattenAll": "سب ہموار کریں",
     "flattenAllTooltip": "تمام مارک اپس کو صفحے کے مواد میں ہموار کریں",
     "unflattenAll": "ہموار کرنا واپس لیں",
-    "unflattenAllTooltip": "وہ مارک اپس بحال کریں جو بحالی کی اجازت کے ساتھ ہموار کیے گئے تھے"
+    "unflattenAllTooltip": "وہ مارک اپس بحال کریں جو بحالی کی اجازت کے ساتھ ہموار کیے گئے تھے",
+    "fileAttachment": "فائل منسلک کریں",
+    "fileAttachmentTitle": "فائل منسلکہ: صفحے پر کلک کریں اور ایک فائل منتخب کریں"
   },
   "view": {
     "pageDisplay": "صفحہ کی نمائش",
@@ -208,7 +210,15 @@
     "rotateViewLeft": "منظر بائیں گھمائیں",
     "rotateViewRight": "منظر دائیں گھمائیں",
     "rotateViewLeftTitle": "منظر کو گھڑی کی سوئیوں کے مخالف 90° گھماتا ہے۔ دستاویز خود تبدیل نہیں ہوتی۔",
-    "rotateViewRightTitle": "منظر کو گھڑی کی سوئیوں کی سمت 90° گھماتا ہے۔ دستاویز خود تبدیل نہیں ہوتی۔"
+    "rotateViewRightTitle": "منظر کو گھڑی کی سوئیوں کی سمت 90° گھماتا ہے۔ دستاویز خود تبدیل نہیں ہوتی۔",
+    "accessibilityGroup": "رسائی",
+    "readAloud": "بلند آواز میں پڑھیں",
+    "readAloudPause": "توقف",
+    "readAloudTitle": "انتخاب، یا موجودہ صفحے سے دستاویز، بلند آواز میں پڑھیں",
+    "tagsPanel": "ٹیگز",
+    "tagsPanelTitle": "دستاویز کے ساختی ٹیگز دکھائیں",
+    "accessibilityCheck": "جانچ",
+    "accessibilityCheckTitle": "غائب متبادل متن اور بغیر ٹیگ والا مواد تلاش کریں"
   },
   "elementVisibility": {
     "buttonTitle": "عناصر کی مرئیت — تشریح کی اقسام دکھائیں/چھپائیں اور مدھم کریں",

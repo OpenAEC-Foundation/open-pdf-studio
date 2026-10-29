@@ -106,7 +106,13 @@
     "headOpenReversed": "Açık Ok (ters)",
     "headClosedReversed": "Kapalı Ok (ters)",
     "headSlash": "Eğik Çizgi",
-    "polylineDefaults": "Çoklu Çizgi Varsayılanları"
+    "polylineDefaults": "Çoklu Çizgi Varsayılanları",
+    "smoothing": "Yumuşatma",
+    "pressure": "Kalem basıncı",
+    "pressureHint": "Kalem basıncı çizgi kalınlığını değiştirir (fareyle çizilen çizgiler sabit kalınlıkta kalır)",
+    "pressureMinWidth": "En küçük genişlik (%)",
+    "penOnly": "Yalnızca kalem (dokunmayı yok say)",
+    "penOnlyHint": "Dokunma serbest çizim aracıyla çizmez; kalemle yazarken avuç içi temasına karşı yararlıdır"
   },
   "shapes": {
     "rectangleDefaults": "Dikdörtgen Varsayılanları",
@@ -162,6 +168,11 @@
     "snapToNearest": "En Yakına Yakala",
     "objectSnapRadius": "Yakalama Yarıçapı (piksel)",
     "snapToPdfContent": "PDF Çizim İçeriğine Yakala",
+    "moveInference": "Taşırken çıkarım (G / mv)",
+    "moveInferenceTracking": "İzleme çizgileri (diğer geometrinin noktalarıyla hizala)",
+    "moveInferenceExtension": "Çizgilerin ve duvar yüzlerinin uzantıları",
+    "moveInferenceParallel": "Yakındaki çizgilere paralel / dik",
+    "moveInferenceHint": "Bir noktayı yakalamak için imleci kısa süre üzerinde tutun, bir kılavuzu kilitlemek için Shift tuşunu basılı tutun, Tab mesafe ile açı arasında geçiş yapar. Kutupsal kılavuzlar kutupsal izleme ayarlarını izler.",
     "creation": "Oluşturma",
     "autoSelectAfterCreation": "Oluşturduktan sonra açıklamayı otomatik seç",
     "deletion": "Silme",

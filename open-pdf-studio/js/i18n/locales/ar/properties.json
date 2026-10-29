@@ -41,7 +41,10 @@
     "cancelled": "ملغي",
     "completed": "مكتمل",
     "reviewed": "تمت المراجعة",
-    "statusSetBy": "عيّنها {{author}} في {{date}}"
+    "statusSetBy": "عيّنها {{author}} في {{date}}",
+    "layer": "الطبقة",
+    "layerMarkupGroup": "طبقات العلامات",
+    "layerDocumentGroup": "طبقات المستند"
   },
   "colorNone": "بدون",
   "moreColors": "ألوان أخرى...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "مشبك ورق",
+    "iconPushPin": "دبوس",
+    "iconGraph": "رسم بياني",
+    "iconTag": "علامة"
   },
   "stylePresets": {
     "label": "نمط الخط",
@@ -308,7 +315,8 @@
     "measurePerimeter": "محيط",
     "redaction": "تنقيح",
     "scaleBar": "شريط المقياس",
-    "parametricSymbol": "رمز بارامتري"
+    "parametricSymbol": "رمز بارامتري",
+    "fileAttachment": "مرفق ملف"
   },
   "leftPanel": {
     "togglePanel": "تبديل اللوحة",
@@ -379,22 +387,54 @@
     "exportComments": "تصدير التعليقات إلى ملف بيانات...",
     "exportSelectedComments": "تصدير التعليقات المحددة إلى ملف بيانات...",
     "exportListCsv": "تصدير القائمة إلى CSV...",
-    "summarizeComingSoon": "قريبًا",
     "listExported": "تم تصدير قائمة التعليقات إلى CSV",
     "csvPage": "الصفحة",
     "csvType": "النوع",
     "csvAuthor": "المؤلف",
-    "csvDate": "التاريخ",
     "csvStatus": "الحالة",
     "csvSubject": "الموضوع",
     "csvContents": "المحتوى",
     "csvColor": "اللون",
     "csvLayer": "الطبقة",
+    "csvId": "المعرّف",
+    "csvCreated": "تاريخ الإنشاء",
+    "csvModified": "تاريخ التعديل",
+    "csvStatusBy": "الحالة عيّنها",
+    "csvStatusAt": "تاريخ الحالة",
+    "csvReplyCount": "عدد الردود",
+    "csvReplies": "الردود",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "العرض",
+    "csvHeight": "الارتفاع",
+    "filterBar": "عوامل التصفية",
+    "filterAll": "(الكل)",
+    "filterPages": "الصفحات",
+    "filterDate": "التاريخ",
+    "filterFrom": "من",
+    "filterTo": "إلى",
+    "filterClear": "مسح عوامل التصفية",
+    "setStatusSelected": "تعيين حالة المحدد",
+    "setStatusListed": "تعيين حالة كل المدرج",
+    "statusChanged": "تم تغيير الحالة: {{count}}",
+    "summaryTitle": "ملخص التعليقات",
+    "summaryDocument": "المستند",
+    "summaryCreated": "تاريخ الإنشاء",
+    "summaryCount": "التعليقات",
+    "summaryNoText": "(لا يوجد نص للتعليق)",
+    "summaryBusy": "جارٍ إنشاء ملخص التعليقات...",
+    "summaryExported": "تم تصدير ملخص التعليقات إلى PDF",
+    "summaryFailed": "تعذّر إنشاء ملخص التعليقات",
     "schedules": "جداول الكميات",
     "addPage": "إضافة صفحة",
     "pageLabels": "تسميات الصفحات (منشئ الأسماء)",
     "portfolio": "حافظة PDF",
-    "recognizeForm": "التعرف على حقول النموذج"
+    "recognizeForm": "التعرف على حقول النموذج",
+    "layersSetDefault": "تعيين كافتراضي",
+    "layersSetDefaultTitle": "حفظ ظهور الطبقات الحالي كحالة افتراضية للمستند. يُكتب في الملف عند الحفظ التالي.",
+    "layersDefaultPending": "ستصبح الافتراضية عند الحفظ",
+    "layerLocked": "طبقة مقفلة: لا يمكن تشغيلها أو إيقافها",
+    "layerRadioGroup": "مجموعة اختيار: تشغيل هذه الطبقة يوقف الطبقات الأخرى في المجموعة"
   },
   "scaleBar": {
     "title": "شريط المقياس",
@@ -443,7 +483,9 @@
       "symbol": "جدول الرموز",
       "text": "جدول النصوص",
       "full": "الكميات الكاملة",
-      "image": "الصور والأختام"
+      "image": "الصور والأختام",
+      "bendingSchedule": "جدول ثني القضبان",
+      "rebarWeight": "جدول التسليح (الوزن لكل Ø)"
     },
     "preview": "معاينة",
     "exportCsv": "تصدير CSV",
@@ -603,7 +645,8 @@
       "textBuiltIn": "نص (أصلي)",
       "symbol": "رمز",
       "image": "صورة",
-      "other": "أخرى"
+      "other": "أخرى",
+      "reinforcement": "تسليح"
     },
     "field": {
       "category": "الفئة",
@@ -631,7 +674,16 @@
       "width": "العرض",
       "height": "الارتفاع",
       "location": "الموقع",
-      "locationSource": "مصدر الموقع"
+      "locationSource": "مصدر الموقع",
+      "rebarMark": "رقم القضيب",
+      "rebarDiameter": "Ø",
+      "rebarShape": "شكل الثني",
+      "rebarGrade": "رتبة الفولاذ",
+      "rebarCount": "عدد القضبان",
+      "rebarLength": "طول القضيب",
+      "rebarTotalLength": "الطول الإجمالي",
+      "rebarMassPerM": "الكتلة لكل متر",
+      "rebarMass": "الكتلة"
     },
     "type": {
       "line": "خط",
@@ -669,7 +721,8 @@
       "stavenreeks": "سلسلة قضبان",
       "betonbalk": "جسر خرساني",
       "scheduleTable": "جدول الكميات",
-      "builtinText": "نص"
+      "builtinText": "نص",
+      "rebarPosition": "قضيب تسليح"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "رأسي متباعد",
       "inb-horizontaal-breed": "أفقي متباعد"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "نقل لأعلى في ترتيب القراءة",
+    "moveDown": "نقل لأسفل في ترتيب القراءة",
+    "checkAccessibility": "فحص إمكانية الوصول",
+    "altText": "النص البديل",
+    "altTextPlaceholder": "صِف الصورة لمن لا يستطيع رؤيتها...",
+    "noAlt": "لا يوجد نص بديل",
+    "role": "الدور",
+    "mappedTo": "الدور {{role}} مُعيَّن إلى {{standard}}",
+    "content": "المحتوى {{mcid}} (الصفحة {{page}})",
+    "annotationRef": "تعليق توضيحي (الصفحة {{page}})"
+  },
+  "ink": {
+    "title": "الحبر",
+    "pressure": "ضغط القلم",
+    "pressureHint": "يغيّر ضغط القلم عرض الخط (تحتفظ خطوط الفأرة بعرض ثابت)",
+    "minWidth": "أدنى عرض (%)",
+    "minWidthHint": "العرض عند أخف ضغط للقلم، كنسبة مئوية من سماكة الخط",
+    "smoothing": "التنعيم",
+    "smoothingHint": "قوة تنعيم الخط (0 = بلا تنعيم)"
+  },
+  "attachment": {
+    "file": "الملف",
+    "size": "الحجم",
+    "open": "فتح",
+    "saveAs": "حفظ باسم...",
+    "noContent": "محتوى هذا الملف غير مضمن في ملف PDF."
   }
 }

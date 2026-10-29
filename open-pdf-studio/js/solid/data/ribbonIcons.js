@@ -107,6 +107,8 @@ export const textAnnotIcon = `<svg fill="none" stroke="currentColor" viewBox="0 
 
 export const textboxIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" stroke-width="2" stroke-dasharray="3 2"/><text x="12" y="15" text-anchor="middle" font-size="10" font-weight="bold" font-family="sans-serif" fill="currentColor" stroke="none">T</text><line x1="8" y1="8" x2="8" y2="16" stroke-width="1.5"/></svg>`;
 
+// Bijlage-annotatie (#376): paperclip.
+export const fileAttachmentIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>`;
 export const noteIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>`;
 
 export const calloutIcon = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="3" width="13" height="10" stroke-width="1.8"/><line x1="11.5" y1="6.5" x2="19.5" y2="6.5" stroke-width="1.2" opacity="0.5"/><line x1="11.5" y1="9.5" x2="17" y2="9.5" stroke-width="1.2" opacity="0.5"/><path d="M9,8 L5,8 L2,20" stroke-width="1.8" stroke-linejoin="round" fill="none"/><path d="M2,20 L0.5,17 L4,17.5 Z" fill="currentColor" stroke="none"/></svg>`;

@@ -106,7 +106,13 @@
     "headOpenReversed": "Panah Terbuka (terbalik)",
     "headClosedReversed": "Panah Tertutup (terbalik)",
     "headSlash": "Garis Miring",
-    "polylineDefaults": "Bawaan Polyline"
+    "polylineDefaults": "Bawaan Polyline",
+    "smoothing": "Penghalusan",
+    "pressure": "Tekanan pena",
+    "pressureHint": "Tekanan pena mengubah lebar goresan (goresan mouse tetap selebar yang sama)",
+    "pressureMinWidth": "Lebar minimum (%)",
+    "penOnly": "Hanya pena (abaikan sentuhan)",
+    "penOnlyHint": "Sentuhan tidak menggambar dengan alat tangan bebas; berguna mencegah sentuhan telapak tangan saat menulis dengan pena"
   },
   "shapes": {
     "rectangleDefaults": "Bawaan Persegi Panjang",
@@ -166,6 +172,11 @@
     "deletion": "Penghapusan",
     "confirmBeforeDeleting": "Konfirmasi sebelum menghapus anotasi",
     "snapToPdfContent": "Snap ke Konten Gambar PDF",
+    "moveInference": "Inferensi saat memindahkan (G / mv)",
+    "moveInferenceTracking": "Garis pelacakan (sejajarkan dengan titik geometri lain)",
+    "moveInferenceExtension": "Perpanjangan garis dan muka dinding",
+    "moveInferenceParallel": "Sejajar / tegak lurus terhadap garis di dekatnya",
+    "moveInferenceHint": "Arahkan kursor sebentar pada sebuah titik untuk menangkapnya, tahan Shift untuk mengunci garis bantu, Tab beralih antara jarak dan sudut. Garis bantu polar mengikuti pengaturan pelacakan polar.",
     "navigation": "Navigasi",
     "wheelZoomWithoutCtrl": "Zoom dengan roda mouse (tanpa menahan Ctrl)",
     "middleDoubleClickFit": "Klik dua kali tombol tengah mouse untuk menyesuaikan halaman",

@@ -1628,5 +1628,26 @@
     "fileFailed": "无法读取 {{name}}：{{error}}",
     "applyFailed": "应用页面编辑失败：{{error}}",
     "extractFailed": "提取页面失败：{{error}}"
+  },
+  "accessibilityReport": {
+    "title": "辅助功能检查",
+    "starting": "正在检查...",
+    "checking": "正在检查第 {{done}} 页，共 {{total}} 页...",
+    "noIssues": "未发现问题。",
+    "summary": "发现 {{count}} 个问题。双击某项可转到其所在页面。",
+    "failed": "无法对此文档运行检查。",
+    "recheck": "重新检查",
+    "close": "关闭",
+    "goTo": "双击转到该页面",
+    "page": "第 {{page}} 页",
+    "kind": {
+      "notTagged": "文档没有标签：没有结构树，因此辅助技术无法按阅读顺序朗读。",
+      "notMarked": "文档未标记为已加标签 (/MarkInfo /Marked)。",
+      "noLanguage": "未设置文档语言。",
+      "figureNoAlt": "没有替代文本的 {{role}}",
+      "pageNotTagged": "此页面没有加标签的内容（{{count}} 个文本项）",
+      "untaggedContent": "标签之外的文本项：{{count}} 个",
+      "annotationNoText": "没有说明的注释（{{type}}）"
+    }
   }
 }

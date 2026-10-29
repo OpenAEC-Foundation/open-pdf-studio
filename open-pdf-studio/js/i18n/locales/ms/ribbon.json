@@ -169,7 +169,9 @@
     "flattenAll": "Ratakan semua",
     "flattenAllTooltip": "Ratakan semua penanda ke dalam kandungan halaman",
     "unflattenAll": "Buat asal perataan",
-    "unflattenAllTooltip": "Pulihkan penanda yang diratakan dengan pemulihan dibenarkan"
+    "unflattenAllTooltip": "Pulihkan penanda yang diratakan dengan pemulihan dibenarkan",
+    "fileAttachment": "Lampirkan fail",
+    "fileAttachmentTitle": "Lampiran fail: klik pada halaman dan pilih fail"
   },
   "view": {
     "pageDisplay": "Paparan Halaman",
@@ -208,7 +210,15 @@
     "rotateViewLeft": "Putar Paparan ke Kiri",
     "rotateViewRight": "Putar Paparan ke Kanan",
     "rotateViewLeftTitle": "Memutar paparan 90° lawan arah jam. Dokumen itu sendiri tidak berubah.",
-    "rotateViewRightTitle": "Memutar paparan 90° ikut arah jam. Dokumen itu sendiri tidak berubah."
+    "rotateViewRightTitle": "Memutar paparan 90° ikut arah jam. Dokumen itu sendiri tidak berubah.",
+    "accessibilityGroup": "Kebolehcapaian",
+    "readAloud": "Baca dengan kuat",
+    "readAloudPause": "Jeda",
+    "readAloudTitle": "Baca pilihan, atau dokumen dari halaman semasa, dengan kuat",
+    "tagsPanel": "Tag",
+    "tagsPanelTitle": "Tunjukkan tag struktur dokumen",
+    "accessibilityCheck": "Semak",
+    "accessibilityCheckTitle": "Cari teks alternatif yang tiada dan kandungan tanpa tag"
   },
   "elementVisibility": {
     "buttonTitle": "Keterlihatan Elemen — tunjuk/sembunyi dan malapkan jenis anotasi",
