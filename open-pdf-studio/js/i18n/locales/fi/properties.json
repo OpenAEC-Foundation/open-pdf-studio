@@ -41,7 +41,10 @@
     "cancelled": "Peruutettu",
     "completed": "Valmis",
     "reviewed": "Tarkastettu",
-    "statusSetBy": "Asettanut {{author}} {{date}}"
+    "statusSetBy": "Asettanut {{author}} {{date}}",
+    "layer": "Taso",
+    "layerMarkupGroup": "Merkintätasot",
+    "layerDocumentGroup": "Asiakirjan tasot"
   },
   "colorNone": "Ei mitään",
   "moreColors": "Lisää värejä...",
@@ -421,7 +424,12 @@
     "addPage": "Lisää sivu",
     "pageLabels": "Sivujen nimiöt (nimien muodostus)",
     "portfolio": "PDF-portfolio",
-    "recognizeForm": "Tunnista lomakekentät"
+    "recognizeForm": "Tunnista lomakekentät",
+    "layersSetDefault": "Aseta oletukseksi",
+    "layersSetDefaultTitle": "Tallenna tasojen nykyinen näkyvyys asiakirjan oletustilaksi. Se kirjoitetaan tiedostoon seuraavan tallennuksen yhteydessä.",
+    "layersDefaultPending": "Tulee oletukseksi tallennettaessa",
+    "layerLocked": "Lukittu taso: ei voi kytkeä päälle tai pois",
+    "layerRadioGroup": "Valintaryhmä: tämän tason kytkeminen päälle kytkee ryhmän muut tasot pois"
   },
   "scaleBar": {
     "title": "Mittakaavajana",

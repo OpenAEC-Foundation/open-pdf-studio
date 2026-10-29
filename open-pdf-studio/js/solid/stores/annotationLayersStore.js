@@ -19,6 +19,7 @@ import {
   getLayers, findLayer, layerDisplayName, nextLayerName,
   annotationsOnLayer, assignLayer, setCurrentLayer, layerIdOf, annotationsInDocument,
 } from '../../annotations/annotatie-lagen.js';
+import { annotatieLaagIdVoorOcg, ocgVoorAnnotatieLaagId } from '../../pdf/laag-ids.js';
 
 const [panelVisible, setPanelVisible] = createSignal(false);
 const [layersVersion, setLayersVersion] = createSignal(0);
@@ -115,7 +116,15 @@ export function setAnnotationLayerFlag(id, sleutel, waarde) {
   if (!['visible', 'printable', 'locked'].includes(sleutel)) return;
   const doc = getActiveDocument();
   if (!doc) return;
-  if (updateLayer(doc, id, { [sleutel]: !!waarde }).ok) naWijziging(doc);
+  if (!updateLayer(doc, id, { [sleutel]: !!waarde }).ok) return;
+  naWijziging(doc);
+  // Een laag van de tekening (#377): de inhoud van de tekening gaat mee aan
+  // of uit, zoals in het paneel Lagen.
+  const ocg = sleutel === 'visible' ? ocgVoorAnnotatieLaagId(id) : null;
+  if (ocg) {
+    import('../../ui/panels/layers.js').then((m) => m.toggleLayer(ocg, !!waarde))
+      .catch((e) => console.warn('[lagen] laag van de tekening niet geschakeld:', e));
+  }
 }
 
 export function setAnnotationLayerColor(id, kleur) {
@@ -227,6 +236,35 @@ export async function moveAnnotationsToAnnotationLayer(anns, id) {
   undo.recordBulkModify(te, voor);
   await naWijziging(doc, { gewijzigd: false });
   lijstBijwerken();
+  return n;
+}
+
+/**
+ * Markeringen op een laag van de tekening zetten (#377): de laag wordt een
+ * annotatielaag met dezelfde OCG (id 'ocg-<object>-<generatie>', zie
+ * saver/annotatie-lagen.js), zodat de markeringen met de laag aan en uit
+ * gaan en bij het opslaan /OC naar die OCG krijgen.
+ * @param {object[]} anns
+ * @param {string} ocgId  laag-id van pdf.js (`12R`)
+ * @param {{name?: string, visible?: boolean}} [laag]  naam en stand in het paneel Lagen
+ * @returns {Promise<number>} hoeveel markeringen er verplaatst zijn
+ */
+export async function moveAnnotationsToDrawingLayer(anns, ocgId, { name = '', visible = true } = {}) {
+  const doc = getActiveDocument();
+  const id = annotatieLaagIdVoorOcg(ocgId);
+  if (!doc || !id) return 0;
+  const nieuw = !findLayer(doc, id);
+  if (nieuw) {
+    const basis = String(name || '').trim() || ocgId;
+    let r = addLayer(doc, { id, name: basis, visible });
+    for (let n = 2; !r.ok && r.error === 'name-taken' && n < 100; n++) {
+      r = addLayer(doc, { id, name: `${basis} (${n})`, visible });
+    }
+    if (!r.ok) return 0;
+  }
+  const n = await moveAnnotationsToAnnotationLayer(anns, id);
+  // De laag is nieuw in het model: bij het opslaan komt hij in het bestand.
+  if (nieuw) markeerGewijzigd();
   return n;
 }
 

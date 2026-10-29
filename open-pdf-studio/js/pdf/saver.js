@@ -53,7 +53,9 @@ import { saveBookmarksToOutline } from './saver/bookmarks.js';
 import { saveStylePresetsToCatalog } from './saver/style-presets.js';
 import { slaPaginaLabelsOp } from './pagina-labels.js';
 import { pasBijlagenToe } from './bijlagen.js';
-import { schrijfAnnotatieLagen, ocVoorAnnotatie } from './saver/annotatie-lagen.js';
+import { schrijfAnnotatieLagen, ocVoorAnnotatie, laagstandZonderEigenLagen } from './saver/annotatie-lagen.js';
+import { schrijfStandaardLaagstand } from './lagen-boom.js';
+import { standaardOmTeBewaren, naOpslaan as lagenNaOpslaan } from './lagen-schakelen.js';
 import { layersForSave, currentLayerId } from '../annotations/annotatie-lagen.js';
 import { vormVan, vakPadPdf } from '../annotations/rendering/textbox-vorm.js';
 import { heeftNietWinAnsi, pdfTextString, toWinAnsiText, winAnsiLiteral, asciiPdfName } from './saver/pdf-text.js';
@@ -454,6 +456,16 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       standaardNaam: i18next.t('ribbon:annotationLayers.defaultName'),
       huidigeLaag: currentLayerId(doc),
     });
+
+    // De laagstand als standaard (#377): na "Als standaard instellen" in het
+    // paneel Lagen gaat de geschakelde stand van de tekening als /D /ON /OFF
+    // het bestand in. De eigen annotatielagen staan er net al in; een
+    // overgenomen laag van de tekening ('ocg-…') niet: die volgt deze stand.
+    const laagStandaard = standaardOmTeBewaren(doc);
+    if (laagStandaard) {
+      laagstandZonderEigenLagen(laagStandaard, laagOcgs);
+      schrijfStandaardLaagstand(pdfDocLib, laagStandaard);
+    }
 
     // Group annotations by page
     const annotationsByPage = {};
@@ -3307,6 +3319,10 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
     // Mark document as saved
     markDocumentSaved(activeDoc);
+    // Lagen (#377): de bewaarde stand is nu de beginstand van het bestand, en
+    // een weergavekopie volgt de nieuwe bytes.
+    lagenNaOpslaan(activeDoc, { standBewaard: !!laagStandaard })
+      .catch((e) => console.warn('[lagen] na opslaan:', e));
 
     // Vastgezette knipsels staan nu in de pagina-inhoud van outputPath. Zie
     // alInBasis(): een volgende save op die basis tekent ze niet nogmaals.

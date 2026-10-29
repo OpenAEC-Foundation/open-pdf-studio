@@ -41,7 +41,10 @@
     "cancelled": "Otkazano",
     "completed": "Završeno",
     "reviewed": "Pregledano",
-    "statusSetBy": "Postavio/la {{author}} dana {{date}}"
+    "statusSetBy": "Postavio/la {{author}} dana {{date}}",
+    "layer": "Sloj",
+    "layerMarkupGroup": "Slojevi oznaka",
+    "layerDocumentGroup": "Slojevi dokumenta"
   },
   "colorNone": "Ništa",
   "moreColors": "Više boja...",
@@ -421,7 +424,12 @@
     "addPage": "Dodaj stranicu",
     "pageLabels": "Oznake stranica (izrada naziva)",
     "portfolio": "PDF portfelj",
-    "recognizeForm": "Prepoznaj polja obrasca"
+    "recognizeForm": "Prepoznaj polja obrasca",
+    "layersSetDefault": "Postavi kao zadano",
+    "layersSetDefaultTitle": "Spremi trenutačnu vidljivost slojeva kao zadano stanje dokumenta. Zapisuje se u datoteku pri sljedećem spremanju.",
+    "layersDefaultPending": "Postaje zadano pri spremanju",
+    "layerLocked": "Zaključani sloj: ne može se uključiti ni isključiti",
+    "layerRadioGroup": "Grupa izbora: uključivanje ovog sloja isključuje ostale slojeve grupe"
   },
   "scaleBar": {
     "title": "Grafičko mjerilo",

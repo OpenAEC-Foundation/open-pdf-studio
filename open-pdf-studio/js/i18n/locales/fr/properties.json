@@ -41,7 +41,10 @@
     "cancelled": "Annulé",
     "completed": "Terminé",
     "reviewed": "Révisé",
-    "statusSetBy": "Défini par {{author}} le {{date}}"
+    "statusSetBy": "Défini par {{author}} le {{date}}",
+    "layer": "Calque",
+    "layerMarkupGroup": "Calques d'annotations",
+    "layerDocumentGroup": "Calques du document"
   },
   "colorNone": "Aucune",
   "moreColors": "Plus de couleurs...",
@@ -421,7 +424,12 @@
     "addPage": "Ajouter une page",
     "pageLabels": "Étiquettes de page (générateur de noms)",
     "portfolio": "Portfolio PDF",
-    "recognizeForm": "Reconnaître les champs de formulaire"
+    "recognizeForm": "Reconnaître les champs de formulaire",
+    "layersSetDefault": "Définir par défaut",
+    "layersSetDefaultTitle": "Enregistrer la visibilité actuelle des calques comme état par défaut du document. Elle est écrite dans le fichier au prochain enregistrement.",
+    "layersDefaultPending": "Deviendra l'état par défaut à l'enregistrement",
+    "layerLocked": "Calque verrouillé : impossible de l'afficher ou de le masquer",
+    "layerRadioGroup": "Groupe de choix : afficher ce calque masque les autres calques du groupe"
   },
   "scaleBar": {
     "title": "Barre d'échelle",

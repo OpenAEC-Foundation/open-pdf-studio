@@ -41,7 +41,10 @@
     "cancelled": "Đã hủy",
     "completed": "Hoàn thành",
     "reviewed": "Đã xem xét",
-    "statusSetBy": "Đặt bởi {{author}} lúc {{date}}"
+    "statusSetBy": "Đặt bởi {{author}} lúc {{date}}",
+    "layer": "Lớp",
+    "layerMarkupGroup": "Lớp đánh dấu",
+    "layerDocumentGroup": "Lớp của tài liệu"
   },
   "colorNone": "Không có",
   "moreColors": "Thêm Màu...",
@@ -421,7 +424,12 @@
     "addPage": "Thêm trang",
     "pageLabels": "Nhãn trang (trình tạo tên)",
     "portfolio": "Danh mục PDF",
-    "recognizeForm": "Nhận dạng trường biểu mẫu"
+    "recognizeForm": "Nhận dạng trường biểu mẫu",
+    "layersSetDefault": "Đặt làm mặc định",
+    "layersSetDefaultTitle": "Lưu trạng thái hiển thị hiện tại của các lớp làm trạng thái mặc định của tài liệu. Trạng thái này được ghi vào tệp ở lần lưu tiếp theo.",
+    "layersDefaultPending": "Sẽ thành mặc định khi lưu",
+    "layerLocked": "Lớp bị khóa: không thể bật hoặc tắt",
+    "layerRadioGroup": "Nhóm lựa chọn: bật lớp này sẽ tắt các lớp khác trong nhóm"
   },
   "scaleBar": {
     "title": "Thước tỷ lệ",

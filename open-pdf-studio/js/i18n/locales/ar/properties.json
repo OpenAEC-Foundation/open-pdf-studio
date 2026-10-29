@@ -41,7 +41,10 @@
     "cancelled": "ملغي",
     "completed": "مكتمل",
     "reviewed": "تمت المراجعة",
-    "statusSetBy": "عيّنها {{author}} في {{date}}"
+    "statusSetBy": "عيّنها {{author}} في {{date}}",
+    "layer": "الطبقة",
+    "layerMarkupGroup": "طبقات العلامات",
+    "layerDocumentGroup": "طبقات المستند"
   },
   "colorNone": "بدون",
   "moreColors": "ألوان أخرى...",
@@ -421,7 +424,12 @@
     "addPage": "إضافة صفحة",
     "pageLabels": "تسميات الصفحات (منشئ الأسماء)",
     "portfolio": "حافظة PDF",
-    "recognizeForm": "التعرف على حقول النموذج"
+    "recognizeForm": "التعرف على حقول النموذج",
+    "layersSetDefault": "تعيين كافتراضي",
+    "layersSetDefaultTitle": "حفظ ظهور الطبقات الحالي كحالة افتراضية للمستند. يُكتب في الملف عند الحفظ التالي.",
+    "layersDefaultPending": "ستصبح الافتراضية عند الحفظ",
+    "layerLocked": "طبقة مقفلة: لا يمكن تشغيلها أو إيقافها",
+    "layerRadioGroup": "مجموعة اختيار: تشغيل هذه الطبقة يوقف الطبقات الأخرى في المجموعة"
   },
   "scaleBar": {
     "title": "شريط المقياس",

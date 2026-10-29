@@ -36,7 +36,11 @@ function harness() {
     PDFName: { of: x => x }, KNIPSEL_CATALOGUS: 'snippets',
     getAnnotationStorage: doc => { owners.push(doc); return null; },
     getAnnotIdToFieldName: doc => { owners.push(doc); return new Map(); },
-    schrijfAnnotatieLagen() {}, maakCjkFontKeten: () => ({}), layersForSave: doc => { owners.push(doc); return []; }, currentLayerId() {},
+    schrijfAnnotatieLagen() {},
+    // Laagstand als standaard (#377): niets klaargezet in deze documenten.
+    standaardOmTeBewaren: () => null, schrijfStandaardLaagstand() {}, laagstandZonderEigenLagen() {},
+    lagenNaOpslaan: async () => {},
+    maakCjkFontKeten: () => ({}), layersForSave: doc => { owners.push(doc); return []; }, currentLayerId() {},
     saveTextEditsToPages: async (_pdf, _pages, doc) => owners.push(doc),
     saveWatermarksToPages: async (_pdf, _pages, doc) => owners.push(doc),
     // Geen OCR-resultaten in deze documenten: geen laag (saver/ocr-text-layer.js).

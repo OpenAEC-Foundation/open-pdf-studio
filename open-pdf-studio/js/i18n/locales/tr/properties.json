@@ -41,7 +41,10 @@
     "cancelled": "İptal Edildi",
     "completed": "Tamamlandı",
     "reviewed": "İncelendi",
-    "statusSetBy": "{{author}} tarafından {{date}} tarihinde ayarlandı"
+    "statusSetBy": "{{author}} tarafından {{date}} tarihinde ayarlandı",
+    "layer": "Katman",
+    "layerMarkupGroup": "İşaretleme katmanları",
+    "layerDocumentGroup": "Belge katmanları"
   },
   "colorNone": "Yok",
   "moreColors": "Daha Fazla Renk...",
@@ -421,7 +424,12 @@
     "addPage": "Sayfa ekle",
     "pageLabels": "Sayfa etiketleri (ad oluşturucu)",
     "portfolio": "PDF portföyü",
-    "recognizeForm": "Form alanlarını tanı"
+    "recognizeForm": "Form alanlarını tanı",
+    "layersSetDefault": "Varsayılan yap",
+    "layersSetDefaultTitle": "Katmanların geçerli görünürlüğünü belgenin varsayılan durumu olarak sakla. Bir sonraki kaydetmede dosyaya yazılır.",
+    "layersDefaultPending": "Kaydedince varsayılan olacak",
+    "layerLocked": "Kilitli katman: açılamaz veya kapatılamaz",
+    "layerRadioGroup": "Seçim grubu: bu katmanı açmak gruptaki diğer katmanları kapatır"
   },
   "scaleBar": {
     "title": "Ölçek Çubuğu",

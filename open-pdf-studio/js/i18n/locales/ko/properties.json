@@ -41,7 +41,10 @@
     "cancelled": "취소됨",
     "completed": "완료됨",
     "reviewed": "검토됨",
-    "statusSetBy": "{{date}}에 {{author}}님이 설정"
+    "statusSetBy": "{{date}}에 {{author}}님이 설정",
+    "layer": "레이어",
+    "layerMarkupGroup": "마크업 레이어",
+    "layerDocumentGroup": "문서 레이어"
   },
   "colorNone": "없음",
   "moreColors": "더 많은 색상...",
@@ -421,7 +424,12 @@
     "addPage": "페이지 추가",
     "pageLabels": "페이지 레이블(이름 작성기)",
     "portfolio": "PDF 포트폴리오",
-    "recognizeForm": "양식 필드 인식"
+    "recognizeForm": "양식 필드 인식",
+    "layersSetDefault": "기본값으로 설정",
+    "layersSetDefaultTitle": "현재 레이어 표시 상태를 문서의 기본 상태로 저장합니다. 다음에 저장할 때 파일에 기록됩니다.",
+    "layersDefaultPending": "저장 시 기본값이 됩니다",
+    "layerLocked": "잠긴 레이어: 켜거나 끌 수 없습니다",
+    "layerRadioGroup": "선택 그룹: 이 레이어를 켜면 그룹의 다른 레이어가 꺼집니다"
   },
   "scaleBar": {
     "title": "축척 막대",

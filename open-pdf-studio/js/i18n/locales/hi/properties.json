@@ -41,7 +41,10 @@
     "cancelled": "रद्द",
     "completed": "पूर्ण",
     "reviewed": "समीक्षित",
-    "statusSetBy": "{{author}} द्वारा {{date}} को सेट किया गया"
+    "statusSetBy": "{{author}} द्वारा {{date}} को सेट किया गया",
+    "layer": "परत",
+    "layerMarkupGroup": "मार्कअप परतें",
+    "layerDocumentGroup": "दस्तावेज़ की परतें"
   },
   "colorNone": "कोई नहीं",
   "moreColors": "और रंग...",
@@ -421,7 +424,12 @@
     "addPage": "पृष्ठ जोड़ें",
     "pageLabels": "पृष्ठ लेबल (नाम निर्माता)",
     "portfolio": "PDF पोर्टफोलियो",
-    "recognizeForm": "फ़ॉर्म फ़ील्ड पहचानें"
+    "recognizeForm": "फ़ॉर्म फ़ील्ड पहचानें",
+    "layersSetDefault": "डिफ़ॉल्ट के रूप में सेट करें",
+    "layersSetDefaultTitle": "परतों की वर्तमान दृश्यता को दस्तावेज़ की डिफ़ॉल्ट स्थिति के रूप में रखें। यह अगली बार सहेजने पर फ़ाइल में लिखी जाती है।",
+    "layersDefaultPending": "सहेजने पर डिफ़ॉल्ट बनेगी",
+    "layerLocked": "लॉक की गई परत: इसे चालू या बंद नहीं किया जा सकता",
+    "layerRadioGroup": "विकल्प समूह: इस परत को चालू करने से समूह की अन्य परतें बंद हो जाती हैं"
   },
   "scaleBar": {
     "title": "स्केल बार",

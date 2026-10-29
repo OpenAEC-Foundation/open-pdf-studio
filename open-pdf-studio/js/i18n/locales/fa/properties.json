@@ -41,7 +41,10 @@
     "cancelled": "لغوشده",
     "completed": "تکمیل‌شده",
     "reviewed": "بررسی‌شده",
-    "statusSetBy": "تنظیم‌شده توسط {{author}} در {{date}}"
+    "statusSetBy": "تنظیم‌شده توسط {{author}} در {{date}}",
+    "layer": "لایه",
+    "layerMarkupGroup": "لایه‌های نشانه‌گذاری",
+    "layerDocumentGroup": "لایه‌های سند"
   },
   "colorNone": "هیچ",
   "moreColors": "رنگ‌های بیشتر...",
@@ -421,7 +424,12 @@
     "addPage": "افزودن صفحه",
     "pageLabels": "برچسب‌های صفحه (سازنده نام)",
     "portfolio": "پرتفولیوی PDF",
-    "recognizeForm": "شناسایی فیلدهای فرم"
+    "recognizeForm": "شناسایی فیلدهای فرم",
+    "layersSetDefault": "تنظیم به‌عنوان پیش‌فرض",
+    "layersSetDefaultTitle": "نمایان بودن فعلی لایه‌ها به‌عنوان وضعیت پیش‌فرض سند نگه داشته شود. در ذخیره بعدی در فایل نوشته می‌شود.",
+    "layersDefaultPending": "هنگام ذخیره پیش‌فرض می‌شود",
+    "layerLocked": "لایه قفل‌شده: نمی‌توان آن را روشن یا خاموش کرد",
+    "layerRadioGroup": "گروه انتخاب: روشن کردن این لایه، لایه‌های دیگر گروه را خاموش می‌کند"
   },
   "scaleBar": {
     "title": "نوار مقیاس",

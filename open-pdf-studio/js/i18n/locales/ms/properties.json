@@ -41,7 +41,10 @@
     "cancelled": "Dibatalkan",
     "completed": "Selesai",
     "reviewed": "Disemak",
-    "statusSetBy": "Ditetapkan oleh {{author}} pada {{date}}"
+    "statusSetBy": "Ditetapkan oleh {{author}} pada {{date}}",
+    "layer": "Lapisan",
+    "layerMarkupGroup": "Lapisan penanda",
+    "layerDocumentGroup": "Lapisan dokumen"
   },
   "colorNone": "Tiada",
   "moreColors": "Lagi Warna...",
@@ -421,7 +424,12 @@
     "addPage": "Tambah halaman",
     "pageLabels": "Label halaman (pembina nama)",
     "portfolio": "Portfolio PDF",
-    "recognizeForm": "Kenal pasti medan borang"
+    "recognizeForm": "Kenal pasti medan borang",
+    "layersSetDefault": "Tetapkan sebagai lalai",
+    "layersSetDefaultTitle": "Simpan keterlihatan lapisan semasa sebagai keadaan lalai dokumen. Ia ditulis ke fail apabila anda menyimpan seterusnya.",
+    "layersDefaultPending": "Menjadi lalai apabila disimpan",
+    "layerLocked": "Lapisan dikunci: tidak boleh dihidupkan atau dimatikan",
+    "layerRadioGroup": "Kumpulan pilihan: menghidupkan lapisan ini mematikan lapisan lain dalam kumpulan"
   },
   "scaleBar": {
     "title": "Bar Skala",

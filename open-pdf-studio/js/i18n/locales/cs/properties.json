@@ -41,7 +41,10 @@
     "cancelled": "Zrušeno",
     "completed": "Dokončeno",
     "reviewed": "Zkontrolováno",
-    "statusSetBy": "Nastavil(a) {{author}} dne {{date}}"
+    "statusSetBy": "Nastavil(a) {{author}} dne {{date}}",
+    "layer": "Vrstva",
+    "layerMarkupGroup": "Vrstvy značek",
+    "layerDocumentGroup": "Vrstvy dokumentu"
   },
   "colorNone": "Žádná",
   "moreColors": "Další barvy...",
@@ -421,7 +424,12 @@
     "addPage": "Přidat stránku",
     "pageLabels": "Popisky stránek (tvorba názvů)",
     "portfolio": "Portfolio PDF",
-    "recognizeForm": "Rozpoznat pole formuláře"
+    "recognizeForm": "Rozpoznat pole formuláře",
+    "layersSetDefault": "Nastavit jako výchozí",
+    "layersSetDefaultTitle": "Uložit aktuální viditelnost vrstev jako výchozí stav dokumentu. Zapíše se do souboru při příštím uložení.",
+    "layersDefaultPending": "Při uložení se stane výchozím",
+    "layerLocked": "Uzamčená vrstva: nelze ji zapnout ani vypnout",
+    "layerRadioGroup": "Skupina voleb: zapnutím této vrstvy se ostatní vrstvy skupiny vypnou"
   },
   "scaleBar": {
     "title": "Grafické měřítko",

@@ -21,7 +21,10 @@
     "cancelled": "Cancelled",
     "completed": "Completed",
     "reviewed": "Reviewed",
-    "statusSetBy": "Set by {{author}} on {{date}}"
+    "statusSetBy": "Set by {{author}} on {{date}}",
+    "layer": "Layer",
+    "layerMarkupGroup": "Markup layers",
+    "layerDocumentGroup": "Document layers"
   },
   "colorNone": "None",
   "moreColors": "More Colors...",
@@ -453,7 +456,12 @@
     "addPage": "Add page",
     "pageLabels": "Page labels (name builder)",
     "portfolio": "PDF portfolio",
-    "recognizeForm": "Recognize form fields"
+    "recognizeForm": "Recognize form fields",
+    "layersSetDefault": "Set as default",
+    "layersSetDefaultTitle": "Store the current layer visibility as the document's default state. It is written to the file the next time you save.",
+    "layersDefaultPending": "Saved as default on next save",
+    "layerLocked": "Locked layer: cannot be switched on or off",
+    "layerRadioGroup": "Choice group: switching this layer on switches the others in its group off"
   },
   "schedules": {
     "title": "Schedules",

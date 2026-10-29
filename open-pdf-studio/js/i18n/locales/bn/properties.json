@@ -41,7 +41,10 @@
     "cancelled": "বাতিল করা হয়েছে",
     "completed": "সম্পন্ন",
     "reviewed": "পর্যালোচিত",
-    "statusSetBy": "{{date}} তারিখে {{author}} নির্ধারণ করেছেন"
+    "statusSetBy": "{{date}} তারিখে {{author}} নির্ধারণ করেছেন",
+    "layer": "স্তর",
+    "layerMarkupGroup": "মার্কআপ স্তর",
+    "layerDocumentGroup": "নথির স্তর"
   },
   "colorNone": "কোনোটি নয়",
   "moreColors": "আরও রঙ...",
@@ -421,7 +424,12 @@
     "addPage": "পৃষ্ঠা যোগ করুন",
     "pageLabels": "পৃষ্ঠা লেবেল (নাম নির্মাতা)",
     "portfolio": "PDF পোর্টফোলিও",
-    "recognizeForm": "ফর্ম ক্ষেত্র শনাক্ত করুন"
+    "recognizeForm": "ফর্ম ক্ষেত্র শনাক্ত করুন",
+    "layersSetDefault": "ডিফল্ট হিসেবে সেট করুন",
+    "layersSetDefaultTitle": "স্তরগুলোর বর্তমান দৃশ্যমানতা নথির ডিফল্ট অবস্থা হিসেবে রাখুন। পরের বার সংরক্ষণের সময় এটি ফাইলে লেখা হয়।",
+    "layersDefaultPending": "সংরক্ষণে ডিফল্ট হবে",
+    "layerLocked": "লক করা স্তর: এটি চালু বা বন্ধ করা যায় না",
+    "layerRadioGroup": "পছন্দ গোষ্ঠী: এই স্তর চালু করলে গোষ্ঠীর অন্য স্তরগুলো বন্ধ হয়ে যায়"
   },
   "scaleBar": {
     "title": "স্কেল বার",

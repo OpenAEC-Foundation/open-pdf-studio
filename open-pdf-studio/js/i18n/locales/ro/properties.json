@@ -41,7 +41,10 @@
     "cancelled": "Anulat",
     "completed": "Finalizat",
     "reviewed": "Revizuit",
-    "statusSetBy": "Setat de {{author}} pe {{date}}"
+    "statusSetBy": "Setat de {{author}} pe {{date}}",
+    "layer": "Strat",
+    "layerMarkupGroup": "Straturi de marcaje",
+    "layerDocumentGroup": "Straturile documentului"
   },
   "colorNone": "Niciunul",
   "moreColors": "Mai multe culori...",
@@ -421,7 +424,12 @@
     "addPage": "Adăugare pagină",
     "pageLabels": "Etichete de pagină (generator de nume)",
     "portfolio": "Portofoliu PDF",
-    "recognizeForm": "Recunoaștere câmpuri de formular"
+    "recognizeForm": "Recunoaștere câmpuri de formular",
+    "layersSetDefault": "Setează ca implicit",
+    "layersSetDefaultTitle": "Păstrează vizibilitatea actuală a straturilor ca stare implicită a documentului. Este scrisă în fișier la următoarea salvare.",
+    "layersDefaultPending": "Devine implicit la salvare",
+    "layerLocked": "Strat blocat: nu poate fi activat sau dezactivat",
+    "layerRadioGroup": "Grup de alegere: activarea acestui strat le dezactivează pe celelalte din grup"
   },
   "scaleBar": {
     "title": "Bară de scară",

@@ -41,7 +41,10 @@
     "cancelled": "ยกเลิกแล้ว",
     "completed": "เสร็จสิ้นแล้ว",
     "reviewed": "ตรวจสอบแล้ว",
-    "statusSetBy": "ตั้งโดย {{author}} เมื่อ {{date}}"
+    "statusSetBy": "ตั้งโดย {{author}} เมื่อ {{date}}",
+    "layer": "ชั้น",
+    "layerMarkupGroup": "เลเยอร์มาร์กอัป",
+    "layerDocumentGroup": "ชั้นของเอกสาร"
   },
   "colorNone": "ไม่มี",
   "moreColors": "สีเพิ่มเติม...",
@@ -421,7 +424,12 @@
     "addPage": "เพิ่มหน้า",
     "pageLabels": "ป้ายชื่อหน้า (ตัวสร้างชื่อ)",
     "portfolio": "พอร์ตโฟลิโอ PDF",
-    "recognizeForm": "รู้จำฟิลด์ฟอร์ม"
+    "recognizeForm": "รู้จำฟิลด์ฟอร์ม",
+    "layersSetDefault": "ตั้งเป็นค่าเริ่มต้น",
+    "layersSetDefaultTitle": "เก็บการแสดงผลชั้นปัจจุบันเป็นสถานะเริ่มต้นของเอกสาร จะถูกเขียนลงไฟล์เมื่อบันทึกครั้งถัดไป",
+    "layersDefaultPending": "จะเป็นค่าเริ่มต้นเมื่อบันทึก",
+    "layerLocked": "ชั้นที่ล็อค: ไม่สามารถเปิดหรือปิดได้",
+    "layerRadioGroup": "กลุ่มตัวเลือก: การเปิดชั้นนี้จะปิดชั้นอื่นในกลุ่ม"
   },
   "scaleBar": {
     "title": "แถบมาตราส่วน",

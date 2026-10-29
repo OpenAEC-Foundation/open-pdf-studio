@@ -41,7 +41,10 @@
     "cancelled": "Abgebrochen",
     "completed": "Abgeschlossen",
     "reviewed": "Überprüft",
-    "statusSetBy": "Festgelegt von {{author}} am {{date}}"
+    "statusSetBy": "Festgelegt von {{author}} am {{date}}",
+    "layer": "Ebene",
+    "layerMarkupGroup": "Markierungsebenen",
+    "layerDocumentGroup": "Dokumentebenen"
   },
   "colorNone": "Keine",
   "moreColors": "Weitere Farben...",
@@ -421,7 +424,12 @@
     "addPage": "Seite hinzufügen",
     "pageLabels": "Seitenbeschriftungen (Namensgenerator)",
     "portfolio": "PDF-Portfolio",
-    "recognizeForm": "Formularfelder erkennen"
+    "recognizeForm": "Formularfelder erkennen",
+    "layersSetDefault": "Als Standard festlegen",
+    "layersSetDefaultTitle": "Die aktuelle Sichtbarkeit der Ebenen als Standardzustand des Dokuments speichern. Sie wird beim nächsten Speichern in die Datei geschrieben.",
+    "layersDefaultPending": "Wird beim Speichern zum Standard",
+    "layerLocked": "Gesperrte Ebene: kann nicht ein- oder ausgeschaltet werden",
+    "layerRadioGroup": "Auswahlgruppe: Wenn diese Ebene eingeschaltet wird, werden die anderen Ebenen der Gruppe ausgeschaltet"
   },
   "scaleBar": {
     "title": "Maßstabsleiste",

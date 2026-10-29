@@ -274,6 +274,8 @@ export {
   setItems as setLayerItems,
   setCountText as setLayerCountText,
   setEmptyMessage as setLayerEmptyMessage,
+  setCanSetDefault as setLayerCanSetDefault,
+  setDefaultPending as setLayerDefaultPending,
 } from './solid/stores/panels/layersStore.js';
 
 export {

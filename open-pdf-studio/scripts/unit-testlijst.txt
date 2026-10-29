@@ -511,6 +511,10 @@ scripts/gehost-html.test.mjs
 js/core/extern-openen.test.mjs
 js/search/find-bar-resultaten.test.mjs
 js/pdf/laagstand.test.mjs
+js/pdf/lagen-boom.test.mjs
+js/pdf/lagen-render.test.mjs
+js/pdf/saver/annotatie-lagen-tekening.test.mjs
+js/annotations/laag-keuze.test.mjs
 js/pdf/vul-dekking-rondgang.test.mjs
 js/symbols/profieltype.test.mjs
 js/tools/editor-ondergrond.test.mjs

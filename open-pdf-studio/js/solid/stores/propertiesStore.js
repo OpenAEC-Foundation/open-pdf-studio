@@ -1,3 +1,4 @@
+import { laagKeuzeWaarde, leesLaagKeuze } from '../../annotations/laag-keuze.js';
 import { createSignal, batch } from 'solid-js';
 import { DRAFTING_RULE_TYPES, effectiveDraftingLineWidth } from '../../annotations/drafting-rules.js';
 import { createStore } from 'solid-js/store';
@@ -99,6 +100,8 @@ const [annotProps, setAnnotProps] = createStore({
   printable: true,
   readOnly: false,
   marked: false,
+  // Laag (#377): de waarde van de keuzelijst, zie annotations/laag-keuze.js.
+  layer: '',
   altText: '',
   status: 'none',
   statusBy: '',
@@ -411,6 +414,7 @@ export function storeShowProperties(annotation) {
     printable: annotation.printable !== false,
     readOnly: annotation.readOnly || false,
     marked: annotation.marked || false,
+    layer: laagKeuzeWaarde(annotation, getActiveDocument()),
     altText: annotation.altText || '',
     status: annotation.status || 'none',
     statusBy: annotation.statusBy || '',
@@ -748,6 +752,7 @@ export function storeShowMultiSelection(selected) {
     printable: sharedPrintable,
     readOnly: sharedReadOnly,
     marked: sharedMarked,
+    layer: sharedValue(selected, a => laagKeuzeWaarde(a, getActiveDocument()), 'mixed'),
     altText: sharedAltText,
     status: sharedStatus,
     color: sharedColor,
@@ -2109,6 +2114,26 @@ export function getLineWidthLabel() {
 }
 
 // Get the current annotation reference
+/**
+ * Keuzelijst "Laag" (#377): de selectie naar een markeringslaag of een laag
+ * van de tekening. Eén undo-stap (annotationLayersStore).
+ * @param {string} waarde  'a:<laag-id>' of 'o:<pdf.js-id>'
+ * @param {{name?: string, visible?: boolean}} [tekeningLaag]  bij 'o:'
+ */
+export async function setAnnotationLayerProp(waarde, tekeningLaag = {}) {
+  const keuze = leesLaagKeuze(waarde);
+  const doc = getActiveDocument();
+  if (!keuze || !doc) return;
+  const selectie = doc.selectedAnnotations?.length ? [...doc.selectedAnnotations]
+    : (currentAnnotation ? [currentAnnotation] : []);
+  const te = selectie.filter(a => !a.locked);
+  if (!te.length) return;
+  const lagen = await import('./annotationLayersStore.js');
+  if (keuze.soort === 'tekening') await lagen.moveAnnotationsToDrawingLayer(te, keuze.id, tekeningLaag);
+  else await lagen.moveAnnotationsToAnnotationLayer(te, keuze.id);
+  setAnnotProps('layer', sharedValue(te, a => laagKeuzeWaarde(a, doc), 'mixed'));
+}
+
 export function getCurrentAnnotation() {
   return currentAnnotation;
 }

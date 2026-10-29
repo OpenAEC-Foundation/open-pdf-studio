@@ -41,7 +41,10 @@
     "cancelled": "منسوخ",
     "completed": "مکمل",
     "reviewed": "جائزہ شدہ",
-    "statusSetBy": "{{author}} نے {{date}} کو مقرر کیا"
+    "statusSetBy": "{{author}} نے {{date}} کو مقرر کیا",
+    "layer": "پرت",
+    "layerMarkupGroup": "مارک اپ پرتیں",
+    "layerDocumentGroup": "دستاویز کی پرتیں"
   },
   "colorNone": "کوئی نہیں",
   "moreColors": "مزید رنگ...",
@@ -421,7 +424,12 @@
     "addPage": "صفحہ شامل کریں",
     "pageLabels": "صفحہ لیبلز (نام ساز)",
     "portfolio": "PDF پورٹ فولیو",
-    "recognizeForm": "فارم فیلڈز کی شناخت کریں"
+    "recognizeForm": "فارم فیلڈز کی شناخت کریں",
+    "layersSetDefault": "بطور ڈیفالٹ مقرر کریں",
+    "layersSetDefaultTitle": "پرتوں کی موجودہ نمائش کو دستاویز کی ڈیفالٹ حالت کے طور پر محفوظ کریں۔ یہ اگلی بار محفوظ کرنے پر فائل میں لکھی جاتی ہے۔",
+    "layersDefaultPending": "محفوظ کرنے پر ڈیفالٹ بن جائے گی",
+    "layerLocked": "مقفل پرت: اسے آن یا آف نہیں کیا جا سکتا",
+    "layerRadioGroup": "انتخابی گروپ: اس پرت کو آن کرنے سے گروپ کی دوسری پرتیں آف ہو جاتی ہیں"
   },
   "scaleBar": {
     "title": "اسکیل بار",
