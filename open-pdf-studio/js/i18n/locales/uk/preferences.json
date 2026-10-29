@@ -180,7 +180,8 @@
     "navigation": "Навігація",
     "wheelZoomWithoutCtrl": "Масштабування коліщатком миші (без утримання Ctrl)",
     "middleDoubleClickFit": "Подвійне клацання середньою кнопкою миші — вписати сторінку",
-    "dynamicScaling": "Автомасштабування анотацій"
+    "dynamicScaling": "Автомасштабування анотацій",
+    "ribbonWheelTabs": "Перемикати вкладки стрічки коліщатком миші"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Програма PDF за замовчуванням",

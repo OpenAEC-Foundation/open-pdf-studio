@@ -180,7 +180,8 @@
     "navigation": "Gezinme",
     "wheelZoomWithoutCtrl": "Fare tekerleğiyle yakınlaştır (Ctrl basılı tutmadan)",
     "middleDoubleClickFit": "Sayfayı sığdırmak için farenin orta düğmesine çift tıklayın",
-    "dynamicScaling": "İşaretlemeleri otomatik ölçekle"
+    "dynamicScaling": "İşaretlemeleri otomatik ölçekle",
+    "ribbonWheelTabs": "Fare tekerleğiyle şerit sekmelerini değiştir"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Varsayılan PDF Uygulaması",

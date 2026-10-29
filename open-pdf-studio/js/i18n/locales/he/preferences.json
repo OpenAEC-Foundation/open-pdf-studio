@@ -180,7 +180,8 @@
     "navigation": "ניווט",
     "wheelZoomWithoutCtrl": "זום בגלגלת העכבר (ללא החזקת Ctrl)",
     "middleDoubleClickFit": "לחיצה כפולה על לחצן העכבר האמצעי להתאמת העמוד",
-    "dynamicScaling": "שינוי קנה מידה אוטומטי של סימונים"
+    "dynamicScaling": "שינוי קנה מידה אוטומטי של סימונים",
+    "ribbonWheelTabs": "החלפת כרטיסיות ברצועת הכלים באמצעות גלגלת העכבר"
   },
   "fileAssoc": {
     "defaultPdfApplication": "יישום PDF ברירת מחדל",

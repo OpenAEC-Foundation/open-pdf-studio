@@ -180,7 +180,8 @@
     "navigation": "ناوبری",
     "wheelZoomWithoutCtrl": "بزرگ‌نمایی با چرخ ماوس (بدون نگه داشتن Ctrl)",
     "middleDoubleClickFit": "دوبار کلیک با دکمه وسط ماوس برای جا دادن صفحه",
-    "dynamicScaling": "مقیاس خودکار نشانه‌گذاری‌ها"
+    "dynamicScaling": "مقیاس خودکار نشانه‌گذاری‌ها",
+    "ribbonWheelTabs": "تغییر زبانه‌های نوار ابزار با چرخ ماوس"
   },
   "fileAssoc": {
     "defaultPdfApplication": "برنامه PDF پیش‌فرض",

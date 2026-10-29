@@ -180,7 +180,8 @@
     "navigation": "Navigacija",
     "wheelZoomWithoutCtrl": "Zumiranje kotačićem miša (bez držanja tipke Ctrl)",
     "middleDoubleClickFit": "Dvostruki klik srednjom tipkom miša prilagođava stranicu",
-    "dynamicScaling": "Automatski skaliraj oznake"
+    "dynamicScaling": "Automatski skaliraj oznake",
+    "ribbonWheelTabs": "Mijenjaj kartice vrpce kotačićem miša"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Zadana PDF aplikacija",

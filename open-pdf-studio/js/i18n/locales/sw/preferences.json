@@ -180,7 +180,8 @@
     "navigation": "Urambazaji",
     "wheelZoomWithoutCtrl": "Kuza kwa gurudumu la kipanya (bila kushikilia Ctrl)",
     "middleDoubleClickFit": "Bofya mara mbili kitufe cha kati cha kipanya ili kutoshea ukurasa",
-    "dynamicScaling": "Badilisha ukubwa wa alama kiotomatiki"
+    "dynamicScaling": "Badilisha ukubwa wa alama kiotomatiki",
+    "ribbonWheelTabs": "Badilisha vichupo vya utepe kwa gurudumu la kipanya"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Programu Chaguo-msingi ya PDF",

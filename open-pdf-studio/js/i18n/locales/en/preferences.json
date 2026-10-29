@@ -213,7 +213,8 @@
     "navigation": "Navigation",
     "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "middleDoubleClickFit": "Double-click the middle mouse button to zoom to fit",
-    "dynamicScaling": "Auto-scale markups"
+    "dynamicScaling": "Auto-scale markups",
+    "ribbonWheelTabs": "Switch ribbon tabs with the mouse wheel"
   },
   "pageDisplay": {
     "rendering": "Rendering",

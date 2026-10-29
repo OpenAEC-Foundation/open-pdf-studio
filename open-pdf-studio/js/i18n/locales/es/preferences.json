@@ -180,7 +180,8 @@
     "navigation": "Navegación",
     "wheelZoomWithoutCtrl": "Zoom con la rueda del ratón (sin mantener Ctrl)",
     "middleDoubleClickFit": "Doble clic con el botón central del ratón para ajustar la página",
-    "dynamicScaling": "Escalar marcas automáticamente"
+    "dynamicScaling": "Escalar marcas automáticamente",
+    "ribbonWheelTabs": "Cambiar las pestañas de la cinta con la rueda del ratón"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Aplicación PDF predeterminada",

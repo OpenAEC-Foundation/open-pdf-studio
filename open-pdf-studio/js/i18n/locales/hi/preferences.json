@@ -180,7 +180,8 @@
     "navigation": "नेविगेशन",
     "wheelZoomWithoutCtrl": "माउस व्हील से ज़ूम करें (Ctrl दबाए बिना)",
     "middleDoubleClickFit": "पृष्ठ फ़िट करने के लिए माउस के बीच वाले बटन से डबल-क्लिक करें",
-    "dynamicScaling": "मार्कअप स्वतः स्केल करें"
+    "dynamicScaling": "मार्कअप स्वतः स्केल करें",
+    "ribbonWheelTabs": "माउस व्हील से रिबन टैब बदलें"
   },
   "fileAssoc": {
     "defaultPdfApplication": "डिफ़ॉल्ट PDF एप्लिकेशन",

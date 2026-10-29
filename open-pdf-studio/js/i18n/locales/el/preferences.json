@@ -180,7 +180,8 @@
     "navigation": "Πλοήγηση",
     "wheelZoomWithoutCtrl": "Ζουμ με τον τροχό του ποντικιού (χωρίς να κρατάτε το Ctrl)",
     "middleDoubleClickFit": "Διπλό κλικ με το μεσαίο κουμπί του ποντικιού για προσαρμογή σελίδας",
-    "dynamicScaling": "Αυτόματη κλιμάκωση σημάνσεων"
+    "dynamicScaling": "Αυτόματη κλιμάκωση σημάνσεων",
+    "ribbonWheelTabs": "Εναλλαγή καρτελών της κορδέλας με τον τροχό του ποντικιού"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Προεπιλεγμένη εφαρμογή PDF",

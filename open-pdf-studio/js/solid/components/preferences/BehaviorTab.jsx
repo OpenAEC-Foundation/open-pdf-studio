@@ -196,6 +196,12 @@ export default function BehaviorTab(props) {
         <legend>{t('behavior.navigation') || 'Navigatie'}</legend>
         <div class="pref-row pref-checkbox-row">
           <label class="pref-checkbox-label">
+            <input id="pref-ribbon-wheel-tabs" type="checkbox" checked={p.ribbonWheelTabs[0]()} onChange={e => p.ribbonWheelTabs[1](e.target.checked)} />
+            <span>{t('behavior.ribbonWheelTabs')}</span>
+          </label>
+        </div>
+        <div class="pref-row pref-checkbox-row">
+          <label class="pref-checkbox-label">
             <input type="checkbox" checked={p.wheelZoomWithoutCtrl[0]()} onChange={e => p.wheelZoomWithoutCtrl[1](e.target.checked)} />
             <span>{t('behavior.wheelZoomWithoutCtrl') || 'Zoomen met muiswiel (zonder Ctrl)'}</span>
           </label>

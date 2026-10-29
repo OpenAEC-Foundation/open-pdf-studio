@@ -180,7 +180,8 @@
     "navigation": "Navigazione",
     "wheelZoomWithoutCtrl": "Zoom con la rotellina del mouse (senza tenere premuto Ctrl)",
     "middleDoubleClickFit": "Doppio clic con il tasto centrale del mouse per adattare la pagina",
-    "dynamicScaling": "Scala automatica delle annotazioni"
+    "dynamicScaling": "Scala automatica delle annotazioni",
+    "ribbonWheelTabs": "Cambia le schede della barra multifunzione con la rotellina del mouse"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Applicazione PDF predefinita",

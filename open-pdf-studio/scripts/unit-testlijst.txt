@@ -612,3 +612,4 @@ js/annotations/measure-depth.test.mjs
 js/solid/stores/toolSetsStore.test.mjs
 js/solid/stores/toolSetsStore-opslag.test.mjs
 js/core/standaardstijl-gereedschapsset.test.mjs
+js/solid/components/ribbon/ribbon-wheel.test.mjs

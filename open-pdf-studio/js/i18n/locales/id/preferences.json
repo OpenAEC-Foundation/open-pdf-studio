@@ -180,7 +180,8 @@
     "navigation": "Navigasi",
     "wheelZoomWithoutCtrl": "Zoom dengan roda mouse (tanpa menahan Ctrl)",
     "middleDoubleClickFit": "Klik dua kali tombol tengah mouse untuk menyesuaikan halaman",
-    "dynamicScaling": "Skalakan markup otomatis"
+    "dynamicScaling": "Skalakan markup otomatis",
+    "ribbonWheelTabs": "Ganti tab pita dengan roda tetikus"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Aplikasi PDF Bawaan",

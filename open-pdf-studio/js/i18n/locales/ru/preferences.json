@@ -180,7 +180,8 @@
     "navigation": "Навигация",
     "wheelZoomWithoutCtrl": "Масштабирование колёсиком мыши (без удержания Ctrl)",
     "middleDoubleClickFit": "Двойной щелчок средней кнопкой мыши — вписать страницу",
-    "dynamicScaling": "Автомасштабирование пометок"
+    "dynamicScaling": "Автомасштабирование пометок",
+    "ribbonWheelTabs": "Переключать вкладки ленты колёсиком мыши"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Приложение PDF по умолчанию",

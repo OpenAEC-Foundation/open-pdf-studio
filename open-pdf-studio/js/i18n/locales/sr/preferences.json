@@ -180,7 +180,8 @@
     "navigation": "Навигација",
     "wheelZoomWithoutCtrl": "Зумирање точкићем миша (без држања тастера Ctrl)",
     "middleDoubleClickFit": "Двоструки клик средњим тастером миша уклапа страницу",
-    "dynamicScaling": "Аутоматски скалирај ознаке"
+    "dynamicScaling": "Аутоматски скалирај ознаке",
+    "ribbonWheelTabs": "Мењај картице траке помоћу точкића миша"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Подразумевана PDF апликација",

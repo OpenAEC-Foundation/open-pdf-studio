@@ -121,6 +121,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // Ribbon collapsed state: when true the ribbon body is hidden and only the
   // tab strip is shown (toggled by the chevron at the end of the tab strip).
   ribbonCollapsed: false,
+  ribbonWheelTabs: true,
 
   // Appearance
   defaultAnnotationColor: '#FF0000',

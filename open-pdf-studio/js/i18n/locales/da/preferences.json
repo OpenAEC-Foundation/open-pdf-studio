@@ -180,7 +180,8 @@
     "navigation": "Navigation",
     "wheelZoomWithoutCtrl": "Zoom med musehjulet (uden at holde Ctrl nede)",
     "middleDoubleClickFit": "Dobbeltklik med den midterste museknap for at tilpasse siden",
-    "dynamicScaling": "Skalér markeringer automatisk"
+    "dynamicScaling": "Skalér markeringer automatisk",
+    "ribbonWheelTabs": "Skift faner på båndet med musehjulet"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Standard PDF-program",

@@ -180,7 +180,8 @@
     "navigation": "التنقل",
     "wheelZoomWithoutCtrl": "التكبير بعجلة الماوس (دون الضغط على Ctrl)",
     "middleDoubleClickFit": "النقر المزدوج بزر الماوس الأوسط لملاءمة الصفحة",
-    "dynamicScaling": "تغيير مقياس العلامات تلقائيًا"
+    "dynamicScaling": "تغيير مقياس العلامات تلقائيًا",
+    "ribbonWheelTabs": "تبديل علامات تبويب الشريط باستخدام عجلة الماوس"
   },
   "fileAssoc": {
     "defaultPdfApplication": "تطبيق PDF الافتراضي",

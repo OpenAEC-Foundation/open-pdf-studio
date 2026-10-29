@@ -180,7 +180,8 @@
     "navigation": "Navigáció",
     "wheelZoomWithoutCtrl": "Nagyítás egérgörgővel (Ctrl lenyomása nélkül)",
     "middleDoubleClickFit": "Dupla kattintás a középső egérgombbal az oldal illesztéséhez",
-    "dynamicScaling": "Jelölések automatikus méretezése"
+    "dynamicScaling": "Jelölések automatikus méretezése",
+    "ribbonWheelTabs": "Váltás a menüszalag lapjai között az egérgörgővel"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Alapértelmezett PDF alkalmazás",

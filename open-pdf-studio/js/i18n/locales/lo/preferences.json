@@ -209,7 +209,8 @@
     "navigation": "ການເລື່ອນເບິ່ງ",
     "wheelZoomWithoutCtrl": "ຊູມດ້ວຍລໍ້ເມົ້າ (ໂດຍບໍ່ຕ້ອງກົດ Ctrl ຄ້າງ)",
     "middleDoubleClickFit": "ຄລິກສອງເທື່ອດ້ວຍປຸ່ມກາງຂອງເມົ້າເພື່ອປັບໃຫ້ພໍດີໜ້າ",
-    "dynamicScaling": "ປັບຂະໜາດເຄື່ອງໝາຍອັດຕະໂນມັດ"
+    "dynamicScaling": "ປັບຂະໜາດເຄື່ອງໝາຍອັດຕະໂນມັດ",
+    "ribbonWheelTabs": "ປ່ຽນແຖບຣິບບອນດ້ວຍລໍ້ເມົາສ໌"
   },
   "pageDisplay": {
     "rendering": "ການປະມວນຜົນສະແດງຜົນ",

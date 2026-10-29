@@ -180,7 +180,8 @@
     "navigation": "Navigation",
     "wheelZoomWithoutCtrl": "Mit dem Mausrad zoomen (ohne gedrückte Ctrl-Taste)",
     "middleDoubleClickFit": "Doppelklick mit der mittleren Maustaste passt die Seite ein",
-    "dynamicScaling": "Markierungen automatisch skalieren"
+    "dynamicScaling": "Markierungen automatisch skalieren",
+    "ribbonWheelTabs": "Registerkarten des Menübands mit dem Mausrad wechseln"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Standard-PDF-Anwendung",

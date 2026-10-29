@@ -184,7 +184,8 @@
     "navigation": "Navigatie",
     "wheelZoomWithoutCtrl": "Zoomen met muiswiel (zonder Ctrl ingedrukt)",
     "middleDoubleClickFit": "Dubbelklikken met de middelste muisknop past de pagina in het venster",
-    "dynamicScaling": "Markeringen automatisch schalen"
+    "dynamicScaling": "Markeringen automatisch schalen",
+    "ribbonWheelTabs": "Linttabbladen wisselen met het muiswiel"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Standaard PDF-toepassing",

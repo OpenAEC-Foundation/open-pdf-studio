@@ -180,7 +180,8 @@
     "navigation": "Điều hướng",
     "wheelZoomWithoutCtrl": "Thu phóng bằng con lăn chuột (không cần giữ Ctrl)",
     "middleDoubleClickFit": "Nhấp đúp nút giữa chuột để vừa trang",
-    "dynamicScaling": "Tự động co giãn đánh dấu"
+    "dynamicScaling": "Tự động co giãn đánh dấu",
+    "ribbonWheelTabs": "Chuyển thẻ dải băng bằng con lăn chuột"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Ứng dụng PDF Mặc định",

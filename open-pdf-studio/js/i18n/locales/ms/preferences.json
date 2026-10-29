@@ -180,7 +180,8 @@
     "navigation": "Navigasi",
     "wheelZoomWithoutCtrl": "Zum dengan roda tetikus (tanpa menahan Ctrl)",
     "middleDoubleClickFit": "Klik dua kali butang tengah tetikus untuk muat halaman",
-    "dynamicScaling": "Skala automatik penanda"
+    "dynamicScaling": "Skala automatik penanda",
+    "ribbonWheelTabs": "Tukar tab reben dengan roda tetikus"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Aplikasi PDF Lalai",

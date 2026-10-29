@@ -180,7 +180,8 @@
     "navigation": "การนำทาง",
     "wheelZoomWithoutCtrl": "ซูมด้วยล้อเมาส์ (โดยไม่ต้องกด Ctrl)",
     "middleDoubleClickFit": "ดับเบิลคลิกปุ่มกลางของเมาส์เพื่อปรับให้พอดีหน้า",
-    "dynamicScaling": "ปรับขนาดมาร์กอัปอัตโนมัติ"
+    "dynamicScaling": "ปรับขนาดมาร์กอัปอัตโนมัติ",
+    "ribbonWheelTabs": "สลับแท็บริบบอนด้วยล้อเมาส์"
   },
   "fileAssoc": {
     "defaultPdfApplication": "แอปพลิเคชัน PDF เริ่มต้น",

@@ -180,7 +180,8 @@
     "navigation": "নেভিগেশন",
     "wheelZoomWithoutCtrl": "মাউস হুইল দিয়ে জুম করুন (Ctrl না চেপে)",
     "middleDoubleClickFit": "পৃষ্ঠা মানানসই করতে মাউসের মাঝের বোতামে ডাবল-ক্লিক করুন",
-    "dynamicScaling": "মার্কআপ স্বয়ংক্রিয়ভাবে স্কেল করুন"
+    "dynamicScaling": "মার্কআপ স্বয়ংক্রিয়ভাবে স্কেল করুন",
+    "ribbonWheelTabs": "মাউসের চাকা দিয়ে রিবনের ট্যাব পরিবর্তন করুন"
   },
   "fileAssoc": {
     "defaultPdfApplication": "ডিফল্ট PDF অ্যাপ্লিকেশন",

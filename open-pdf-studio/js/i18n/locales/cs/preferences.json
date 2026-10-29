@@ -180,7 +180,8 @@
     "navigation": "Navigace",
     "wheelZoomWithoutCtrl": "Lupa kolečkem myši (bez držení Ctrl)",
     "middleDoubleClickFit": "Dvojklik prostředním tlačítkem myši přizpůsobí stránku",
-    "dynamicScaling": "Automaticky měnit měřítko značek"
+    "dynamicScaling": "Automaticky měnit měřítko značek",
+    "ribbonWheelTabs": "Přepínat karty pásu karet kolečkem myši"
   },
   "fileAssoc": {
     "defaultPdfApplication": "Výchozí aplikace pro PDF",

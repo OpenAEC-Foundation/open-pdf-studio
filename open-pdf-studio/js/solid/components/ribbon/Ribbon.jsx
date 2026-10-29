@@ -1,4 +1,4 @@
-import { Show, Switch, Match, ErrorBoundary, createEffect } from 'solid-js';
+import { Show, Switch, Match, ErrorBoundary, createEffect, onMount, onCleanup } from 'solid-js';
 import RibbonTab from './RibbonTab.jsx';
 import HomeTab from './HomeTab.jsx';
 import DrawingTab from './DrawingTab.jsx';
@@ -11,6 +11,7 @@ import ArrangeTab from './ArrangeTab.jsx';
 import ImageTab from './ImageTab.jsx';
 import ExtensionRibbonTab, { ExtensionTabStrip, isExtensieTabblad } from './ExtensionRibbonTab.jsx';
 import { volgendeTab } from './ribbon-toetsenbord.js';
+import { bindRibbonWheel } from './ribbon-wheel.js';
 import { lintRegister } from '../../../plugins/ribbon-tab-registry.js';
 import { activeTab, setActiveTab, contextualTabsVisible } from '../../stores/ribbonStore.js';
 import { imageSelected } from '../../stores/imageEditStore.js';
@@ -56,6 +57,11 @@ const INGEBOUWDE_TABBLADEN = new Set(['home', 'view', 'drawing', 'comment', 'mea
 export default function Ribbon() {
   const { t } = useTranslation('ribbon');
   let tablistEl;
+  onMount(() => {
+    const root = tablistEl?.closest('.ribbon-container');
+    if (root) onCleanup(bindRibbonWheel(root, tablistEl,
+      () => state.preferences.ribbonWheelTabs !== false, activeTab));
+  });
   // Stond de focus in de tabstrook? Dan gaat hij na het verdwijnen van een
   // tabblad naar de knop van het nieuwe actieve tabblad.
   let focusInStrook = false;

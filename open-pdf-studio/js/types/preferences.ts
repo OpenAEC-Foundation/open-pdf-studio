@@ -46,6 +46,7 @@ export interface Preferences {
   keepToolActive: boolean;
   lineContinue: boolean;
   ribbonCollapsed: boolean;
+  ribbonWheelTabs: boolean;
 
   // Appearance
   defaultAnnotationColor: string;

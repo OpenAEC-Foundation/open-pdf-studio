@@ -180,7 +180,8 @@
     "navigation": "ナビゲーション",
     "wheelZoomWithoutCtrl": "マウスホイールでズーム（Ctrl を押さずに）",
     "middleDoubleClickFit": "マウスの中央ボタンをダブルクリックしてページ全体を表示",
-    "dynamicScaling": "マークアップを自動スケーリング"
+    "dynamicScaling": "マークアップを自動スケーリング",
+    "ribbonWheelTabs": "マウスホイールでリボンのタブを切り替える"
   },
   "fileAssoc": {
     "defaultPdfApplication": "既定の PDF アプリケーション",
