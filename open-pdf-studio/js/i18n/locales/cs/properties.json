@@ -483,7 +483,9 @@
       "symbol": "Výkaz symbolů",
       "text": "Výkaz textů",
       "full": "Úplný výkaz výměr",
-      "image": "Obrázky a razítka"
+      "image": "Obrázky a razítka",
+      "bendingSchedule": "Výpis ohybů",
+      "rebarWeight": "Výkaz výztuže (hmotnost dle Ø)"
     },
     "preview": "Náhled",
     "exportCsv": "Exportovat CSV",
@@ -643,7 +645,8 @@
       "textBuiltIn": "Text (nativní)",
       "symbol": "Symbol",
       "image": "Obrázek",
-      "other": "Ostatní"
+      "other": "Ostatní",
+      "reinforcement": "Výztuž"
     },
     "field": {
       "category": "Kategorie",
@@ -671,7 +674,16 @@
       "width": "Šířka",
       "height": "Výška",
       "location": "Umístění",
-      "locationSource": "Zdroj umístění"
+      "locationSource": "Zdroj umístění",
+      "rebarMark": "Pozice",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Tvar ohybu",
+      "rebarGrade": "Třída oceli",
+      "rebarCount": "Počet prutů",
+      "rebarLength": "Délka prutu",
+      "rebarTotalLength": "Celková délka",
+      "rebarMassPerM": "Hmotnost na metr",
+      "rebarMass": "Hmotnost"
     },
     "type": {
       "line": "Čára",
@@ -709,7 +721,8 @@
       "stavenreeks": "Řada prutů",
       "betonbalk": "Betonový trám",
       "scheduleTable": "Tabulka výměr",
-      "builtinText": "Text"
+      "builtinText": "Text",
+      "rebarPosition": "Výztužný prut"
     }
   },
   "parametricSymbol": {

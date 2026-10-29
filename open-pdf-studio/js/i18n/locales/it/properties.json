@@ -483,7 +483,9 @@
       "symbol": "Abaco dei simboli",
       "text": "Abaco dei testi",
       "full": "Quantità complete",
-      "image": "Immagini e timbri"
+      "image": "Immagini e timbri",
+      "bendingSchedule": "Distinta di piegatura",
+      "rebarWeight": "Riepilogo armature (peso per Ø)"
     },
     "preview": "Anteprima",
     "exportCsv": "Esporta CSV",
@@ -643,7 +645,8 @@
       "textBuiltIn": "Testo (nativo)",
       "symbol": "Simbolo",
       "image": "Immagine",
-      "other": "Altro"
+      "other": "Altro",
+      "reinforcement": "Armatura"
     },
     "field": {
       "category": "Categoria",
@@ -671,7 +674,16 @@
       "width": "Larghezza",
       "height": "Altezza",
       "location": "Ubicazione",
-      "locationSource": "Origine dell'ubicazione"
+      "locationSource": "Origine dell'ubicazione",
+      "rebarMark": "Posizione",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Forma di piegatura",
+      "rebarGrade": "Qualità dell'acciaio",
+      "rebarCount": "Numero di barre",
+      "rebarLength": "Lunghezza barra",
+      "rebarTotalLength": "Lunghezza totale",
+      "rebarMassPerM": "Massa al metro",
+      "rebarMass": "Massa"
     },
     "type": {
       "line": "Linea",
@@ -709,7 +721,8 @@
       "stavenreeks": "Serie di barre",
       "betonbalk": "Trave in calcestruzzo",
       "scheduleTable": "Tabella delle quantità",
-      "builtinText": "Testo"
+      "builtinText": "Testo",
+      "rebarPosition": "Barra d'armatura"
     }
   },
   "parametricSymbol": {

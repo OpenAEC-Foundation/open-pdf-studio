@@ -483,7 +483,9 @@
       "symbol": "Спецификација симбола",
       "text": "Спецификација текстова",
       "full": "Потпуне количине",
-      "image": "Слике и печати"
+      "image": "Слике и печати",
+      "bendingSchedule": "Спецификација савијања",
+      "rebarWeight": "Спецификација арматуре (маса по Ø)"
     },
     "preview": "Преглед",
     "exportCsv": "Извези CSV",
@@ -643,7 +645,8 @@
       "textBuiltIn": "Текст (изворни)",
       "symbol": "Симбол",
       "image": "Слика",
-      "other": "Остало"
+      "other": "Остало",
+      "reinforcement": "Арматура"
     },
     "field": {
       "category": "Категорија",
@@ -671,7 +674,16 @@
       "width": "Ширина",
       "height": "Висина",
       "location": "Локација",
-      "locationSource": "Извор локације"
+      "locationSource": "Извор локације",
+      "rebarMark": "Позиција",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Облик савијања",
+      "rebarGrade": "Квалитет челика",
+      "rebarCount": "Број шипки",
+      "rebarLength": "Дужина шипке",
+      "rebarTotalLength": "Укупна дужина",
+      "rebarMassPerM": "Маса по метру",
+      "rebarMass": "Маса"
     },
     "type": {
       "line": "Линија",
@@ -709,7 +721,8 @@
       "stavenreeks": "Низ шипки",
       "betonbalk": "Бетонска греда",
       "scheduleTable": "Табела количина",
-      "builtinText": "Текст"
+      "builtinText": "Текст",
+      "rebarPosition": "Арматурна шипка"
     }
   },
   "parametricSymbol": {

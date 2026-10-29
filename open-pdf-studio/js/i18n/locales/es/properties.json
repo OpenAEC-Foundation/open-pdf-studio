@@ -483,7 +483,9 @@
       "symbol": "Listado de símbolos",
       "text": "Listado de textos",
       "full": "Cantidades completas",
-      "image": "Imágenes y sellos"
+      "image": "Imágenes y sellos",
+      "bendingSchedule": "Planilla de doblado",
+      "rebarWeight": "Resumen de armaduras (peso por Ø)"
     },
     "preview": "Vista previa",
     "exportCsv": "Exportar CSV",
@@ -643,7 +645,8 @@
       "textBuiltIn": "Texto (nativo)",
       "symbol": "Símbolo",
       "image": "Imagen",
-      "other": "Otros"
+      "other": "Otros",
+      "reinforcement": "Armadura"
     },
     "field": {
       "category": "Categoría",
@@ -671,7 +674,16 @@
       "width": "Ancho",
       "height": "Altura",
       "location": "Ubicación",
-      "locationSource": "Origen de la ubicación"
+      "locationSource": "Origen de la ubicación",
+      "rebarMark": "Marca",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Forma de doblado",
+      "rebarGrade": "Calidad del acero",
+      "rebarCount": "Número de barras",
+      "rebarLength": "Longitud de barra",
+      "rebarTotalLength": "Longitud total",
+      "rebarMassPerM": "Masa por metro",
+      "rebarMass": "Masa"
     },
     "type": {
       "line": "Línea",
@@ -709,7 +721,8 @@
       "stavenreeks": "Serie de barras",
       "betonbalk": "Viga de hormigón",
       "scheduleTable": "Tabla de cantidades",
-      "builtinText": "Texto"
+      "builtinText": "Texto",
+      "rebarPosition": "Barra de armadura"
     }
   },
   "parametricSymbol": {

@@ -483,7 +483,9 @@
       "symbol": "ตารางรายการสัญลักษณ์",
       "text": "ตารางรายการข้อความ",
       "full": "ปริมาณทั้งหมด",
-      "image": "รูปภาพและตราประทับ"
+      "image": "รูปภาพและตราประทับ",
+      "bendingSchedule": "ตารางการดัดเหล็ก",
+      "rebarWeight": "ตารางน้ำหนักเหล็กเสริม (ตาม Ø)"
     },
     "preview": "ตัวอย่าง",
     "exportCsv": "ส่งออก CSV",
@@ -643,7 +645,8 @@
       "textBuiltIn": "ข้อความ (ในตัว)",
       "symbol": "สัญลักษณ์",
       "image": "รูปภาพ",
-      "other": "อื่นๆ"
+      "other": "อื่นๆ",
+      "reinforcement": "เหล็กเสริม"
     },
     "field": {
       "category": "หมวดหมู่",
@@ -671,7 +674,16 @@
       "width": "ความกว้าง",
       "height": "ความสูง",
       "location": "ตำแหน่ง",
-      "locationSource": "แหล่งที่มาของตำแหน่ง"
+      "locationSource": "แหล่งที่มาของตำแหน่ง",
+      "rebarMark": "หมายเลขเหล็ก",
+      "rebarDiameter": "Ø",
+      "rebarShape": "รูปแบบการดัด",
+      "rebarGrade": "ชั้นคุณภาพเหล็ก",
+      "rebarCount": "จำนวนเส้น",
+      "rebarLength": "ความยาวเหล็กเสริม",
+      "rebarTotalLength": "ความยาวรวม",
+      "rebarMassPerM": "น้ำหนักต่อเมตร",
+      "rebarMass": "น้ำหนัก"
     },
     "type": {
       "line": "เส้น",
@@ -709,7 +721,8 @@
       "stavenreeks": "ชุดเหล็กเสริม",
       "betonbalk": "คานคอนกรีต",
       "scheduleTable": "ตารางปริมาณ",
-      "builtinText": "ข้อความ"
+      "builtinText": "ข้อความ",
+      "rebarPosition": "ท่อนเหล็กเสริม"
     }
   },
   "parametricSymbol": {

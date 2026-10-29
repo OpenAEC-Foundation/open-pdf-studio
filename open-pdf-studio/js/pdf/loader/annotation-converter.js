@@ -1585,6 +1585,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           count: extraColors.srCount ?? 3,
           diameter: extraColors.srDiameter ?? 12,
           barLengthMm: extraColors.srBarLengthMm ?? 0,
+          barMark: extraColors.srBarMark || '',
+          steelGrade: extraColors.srSteelGrade || '',
           legDir: extraColors.srLegDir || 'down-left',
           legLength: extraColors.srLegLength ?? STAVENREEKS_DEFAULTS.legLength,
           lineTail: extraColors.srLineTail ?? STAVENREEKS_DEFAULTS.lineTail,

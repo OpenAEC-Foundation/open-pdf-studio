@@ -483,7 +483,9 @@
       "symbol": "குறியீட்டு அட்டவணை",
       "text": "உரை அட்டவணை",
       "full": "முழு அளவுகள்",
-      "image": "படங்கள் & முத்திரைகள்"
+      "image": "படங்கள் & முத்திரைகள்",
+      "bendingSchedule": "கம்பி வளைப்பு அட்டவணை",
+      "rebarWeight": "கம்பி எடை அட்டவணை (Ø வாரியாக)"
     },
     "preview": "முன்னோட்டம்",
     "exportCsv": "CSV ஏற்றுமதி",
@@ -643,7 +645,8 @@
       "textBuiltIn": "உரை (உள்ளமைந்தது)",
       "symbol": "குறியீடு",
       "image": "படம்",
-      "other": "மற்றவை"
+      "other": "மற்றவை",
+      "reinforcement": "வலுவூட்டல்"
     },
     "field": {
       "category": "வகைப்பாடு",
@@ -671,7 +674,16 @@
       "width": "அகலம்",
       "height": "உயரம்",
       "location": "இடம்",
-      "locationSource": "இட மூலம்"
+      "locationSource": "இட மூலம்",
+      "rebarMark": "கம்பி எண்",
+      "rebarDiameter": "Ø",
+      "rebarShape": "வளைவு வடிவம்",
+      "rebarGrade": "எஃகு தரம்",
+      "rebarCount": "கம்பிகளின் எண்ணிக்கை",
+      "rebarLength": "கம்பி நீளம்",
+      "rebarTotalLength": "மொத்த நீளம்",
+      "rebarMassPerM": "மீட்டருக்கு நிறை",
+      "rebarMass": "நிறை"
     },
     "type": {
       "line": "கோடு",
@@ -709,7 +721,8 @@
       "stavenreeks": "கம்பித் தொடர்",
       "betonbalk": "கான்கிரீட் உத்திரம்",
       "scheduleTable": "அளவு அட்டவணை",
-      "builtinText": "உரை"
+      "builtinText": "உரை",
+      "rebarPosition": "வலுவூட்டல் கம்பி"
     }
   },
   "parametricSymbol": {

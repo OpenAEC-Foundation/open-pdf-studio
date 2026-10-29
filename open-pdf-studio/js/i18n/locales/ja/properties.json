@@ -483,7 +483,9 @@
       "symbol": "シンボル集計表",
       "text": "テキスト集計表",
       "full": "全数量",
-      "image": "画像とスタンプ"
+      "image": "画像とスタンプ",
+      "bendingSchedule": "鉄筋加工表",
+      "rebarWeight": "鉄筋重量集計表（径別）"
     },
     "preview": "プレビュー",
     "exportCsv": "CSV をエクスポート",
@@ -643,7 +645,8 @@
       "textBuiltIn": "テキスト（ネイティブ）",
       "symbol": "シンボル",
       "image": "画像",
-      "other": "その他"
+      "other": "その他",
+      "reinforcement": "鉄筋"
     },
     "field": {
       "category": "カテゴリ",
@@ -671,7 +674,16 @@
       "width": "幅",
       "height": "高さ",
       "location": "場所",
-      "locationSource": "場所の取得元"
+      "locationSource": "場所の取得元",
+      "rebarMark": "鉄筋番号",
+      "rebarDiameter": "Ø",
+      "rebarShape": "加工形状",
+      "rebarGrade": "鋼種",
+      "rebarCount": "本数",
+      "rebarLength": "鉄筋長さ",
+      "rebarTotalLength": "総延長",
+      "rebarMassPerM": "単位質量",
+      "rebarMass": "質量"
     },
     "type": {
       "line": "線",
@@ -709,7 +721,8 @@
       "stavenreeks": "鉄筋列",
       "betonbalk": "コンクリート梁",
       "scheduleTable": "数量表",
-      "builtinText": "テキスト"
+      "builtinText": "テキスト",
+      "rebarPosition": "鉄筋材"
     }
   },
   "parametricSymbol": {

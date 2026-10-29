@@ -483,7 +483,9 @@
       "symbol": "Jadual simbol",
       "text": "Jadual teks",
       "full": "Kuantiti penuh",
-      "image": "Imej & setem"
+      "image": "Imej & setem",
+      "bendingSchedule": "Jadual lenturan bar",
+      "rebarWeight": "Jadual berat tetulang (mengikut Ø)"
     },
     "preview": "Pratonton",
     "exportCsv": "Eksport CSV",
@@ -643,7 +645,8 @@
       "textBuiltIn": "Teks (asli)",
       "symbol": "Simbol",
       "image": "Imej",
-      "other": "Lain-lain"
+      "other": "Lain-lain",
+      "reinforcement": "Tetulang"
     },
     "field": {
       "category": "Kategori",
@@ -671,7 +674,16 @@
       "width": "Lebar",
       "height": "Tinggi",
       "location": "Lokasi",
-      "locationSource": "Sumber lokasi"
+      "locationSource": "Sumber lokasi",
+      "rebarMark": "Tanda bar",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Bentuk lenturan",
+      "rebarGrade": "Gred keluli",
+      "rebarCount": "Bilangan bar",
+      "rebarLength": "Panjang bar",
+      "rebarTotalLength": "Jumlah panjang",
+      "rebarMassPerM": "Jisim per meter",
+      "rebarMass": "Jisim"
     },
     "type": {
       "line": "Garisan",
@@ -709,7 +721,8 @@
       "stavenreeks": "Siri bar tetulang",
       "betonbalk": "Rasuk konkrit",
       "scheduleTable": "Jadual kuantiti",
-      "builtinText": "Teks"
+      "builtinText": "Teks",
+      "rebarPosition": "Bar tetulang"
     }
   },
   "parametricSymbol": {

@@ -577,3 +577,11 @@ js/annotations/rendering/textbox-vuitlijning.test.mjs
 js/ui/lint-keuzelijst-thema.test.mjs
 js/tools/tools/dubbelklik-greep.test.mjs
 js/solid/components/ribbon/lint-tooltips-i18n.test.mjs
+js/quantities/wapening.test.mjs
+js/symbols/templates/wapeningsdetail.test.mjs
+js/symbols/templates/wapeningsnet.test.mjs
+js/symbols/templates/staaf-plattegrond.test.mjs
+js/symbols/templates/vloer-vorstrand.test.mjs
+js/symbols/templates/staalverbindingen.test.mjs
+js/symbols/templates/wapeningskorf-staat.test.mjs
+js/pdf/wapening-rondgang.test.mjs

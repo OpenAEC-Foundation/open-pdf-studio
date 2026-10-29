@@ -483,7 +483,9 @@
       "symbol": "기호 일람표",
       "text": "텍스트 일람표",
       "full": "전체 물량",
-      "image": "이미지 및 스탬프"
+      "image": "이미지 및 스탬프",
+      "bendingSchedule": "철근 가공표",
+      "rebarWeight": "철근 중량 집계표 (직경별)"
     },
     "preview": "미리 보기",
     "exportCsv": "CSV 내보내기",
@@ -643,7 +645,8 @@
       "textBuiltIn": "텍스트(기본)",
       "symbol": "기호",
       "image": "이미지",
-      "other": "기타"
+      "other": "기타",
+      "reinforcement": "철근"
     },
     "field": {
       "category": "범주",
@@ -671,7 +674,16 @@
       "width": "너비",
       "height": "높이",
       "location": "위치",
-      "locationSource": "위치 출처"
+      "locationSource": "위치 출처",
+      "rebarMark": "철근 번호",
+      "rebarDiameter": "Ø",
+      "rebarShape": "가공 형상",
+      "rebarGrade": "강종",
+      "rebarCount": "본수",
+      "rebarLength": "철근 길이",
+      "rebarTotalLength": "총길이",
+      "rebarMassPerM": "단위 질량",
+      "rebarMass": "질량"
     },
     "type": {
       "line": "선",
@@ -709,7 +721,8 @@
       "stavenreeks": "철근 배열",
       "betonbalk": "콘크리트 보",
       "scheduleTable": "물량표",
-      "builtinText": "텍스트"
+      "builtinText": "텍스트",
+      "rebarPosition": "철근 바"
     }
   },
   "parametricSymbol": {

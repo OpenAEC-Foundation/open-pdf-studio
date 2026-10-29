@@ -483,7 +483,9 @@
       "symbol": "Symboliluettelo",
       "text": "Tekstiluettelo",
       "full": "Kaikki määrät",
-      "image": "Kuvat ja leimat"
+      "image": "Kuvat ja leimat",
+      "bendingSchedule": "Taivutusluettelo",
+      "rebarWeight": "Raudoitusluettelo (paino Ø:n mukaan)"
     },
     "preview": "Esikatselu",
     "exportCsv": "Vie CSV",
@@ -643,7 +645,8 @@
       "textBuiltIn": "Teksti (alkuperäinen)",
       "symbol": "Symboli",
       "image": "Kuva",
-      "other": "Muu"
+      "other": "Muu",
+      "reinforcement": "Raudoitus"
     },
     "field": {
       "category": "Luokka",
@@ -671,7 +674,16 @@
       "width": "Leveys",
       "height": "Korkeus",
       "location": "Sijainti",
-      "locationSource": "Sijainnin lähde"
+      "locationSource": "Sijainnin lähde",
+      "rebarMark": "Positio",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Taivutusmuoto",
+      "rebarGrade": "Teräslaji",
+      "rebarCount": "Tankojen määrä",
+      "rebarLength": "Tangon pituus",
+      "rebarTotalLength": "Kokonaispituus",
+      "rebarMassPerM": "Massa metriä kohti",
+      "rebarMass": "Massa"
     },
     "type": {
       "line": "Viiva",
@@ -709,7 +721,8 @@
       "stavenreeks": "Tankosarja",
       "betonbalk": "Betonipalkki",
       "scheduleTable": "Määrätaulukko",
-      "builtinText": "Teksti"
+      "builtinText": "Teksti",
+      "rebarPosition": "Raudoitustanko"
     }
   },
   "parametricSymbol": {

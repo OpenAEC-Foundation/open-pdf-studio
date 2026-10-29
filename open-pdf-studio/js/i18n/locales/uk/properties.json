@@ -483,7 +483,9 @@
       "symbol": "Специфікація символів",
       "text": "Специфікація текстів",
       "full": "Повні обсяги",
-      "image": "Зображення та штампи"
+      "image": "Зображення та штампи",
+      "bendingSchedule": "Відомість гнуття",
+      "rebarWeight": "Відомість арматури (маса за Ø)"
     },
     "preview": "Попередній перегляд",
     "exportCsv": "Експорт CSV",
@@ -643,7 +645,8 @@
       "textBuiltIn": "Текст (вбудований)",
       "symbol": "Символ",
       "image": "Зображення",
-      "other": "Інше"
+      "other": "Інше",
+      "reinforcement": "Армування"
     },
     "field": {
       "category": "Категорія",
@@ -671,7 +674,16 @@
       "width": "Ширина",
       "height": "Висота",
       "location": "Розташування",
-      "locationSource": "Джерело розташування"
+      "locationSource": "Джерело розташування",
+      "rebarMark": "Позиція",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Форма гнуття",
+      "rebarGrade": "Клас сталі",
+      "rebarCount": "Кількість стрижнів",
+      "rebarLength": "Довжина стрижня",
+      "rebarTotalLength": "Загальна довжина",
+      "rebarMassPerM": "Маса на метр",
+      "rebarMass": "Маса"
     },
     "type": {
       "line": "Лінія",
@@ -709,7 +721,8 @@
       "stavenreeks": "Ряд стрижнів",
       "betonbalk": "Бетонна балка",
       "scheduleTable": "Таблиця обсягів",
-      "builtinText": "Текст"
+      "builtinText": "Текст",
+      "rebarPosition": "Арматурний стрижень"
     }
   },
   "parametricSymbol": {

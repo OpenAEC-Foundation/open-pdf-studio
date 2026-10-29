@@ -710,6 +710,10 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
         if (srLd) colors.srLegDir = srLd;
         const srLs = srStr('OPS_SRLabelSide');
         if (srLs) colors.srLabelSide = srLs;
+        const srBm = srStr('OPS_SRBarMark');
+        if (srBm) colors.srBarMark = srBm;
+        const srSg = srStr('OPS_SRSteelGrade');
+        if (srSg) colors.srSteelGrade = srSg;
         const srGeom = srArr('OPS_SRGeom');
         if (srGeom && srGeom.length === 4) colors.srGeom = srGeom;
         const srRect = srArr('OPS_SRRect');

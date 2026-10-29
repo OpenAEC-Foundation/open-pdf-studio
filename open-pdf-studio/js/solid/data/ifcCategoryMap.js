@@ -108,6 +108,13 @@ const PARAMETRIC_ID_DEFAULT = {
   'wapeningskorf': 'IfcReinforcingBar',
   'wapeningsstaaf': 'IfcReinforcingBar',
   'netwapening': 'IfcReinforcingBar',
+  // Constructieve tekengereedschappen (#312).
+  'wapeningsdetail': 'IfcReinforcingBar',
+  'staaf-plattegrond': 'IfcReinforcingBar',
+  'wapeningsnet': 'IfcReinforcingMesh',
+  'vloer-vorstrand': 'IfcReinforcingBar',
+  'kopplaat': 'IfcPlate',
+  'voetplaat': 'IfcPlate',
   'sondering': 'IfcAnnotation',
   'paalpuntniveau': 'IfcAnnotation',
   'overspanningspijl-vloer': 'IfcAnnotation',

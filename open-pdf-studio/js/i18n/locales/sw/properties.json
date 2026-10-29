@@ -483,7 +483,9 @@
       "symbol": "Jedwali la ishara",
       "text": "Jedwali la maandishi",
       "full": "Viwango kamili",
-      "image": "Picha na mihuri"
+      "image": "Picha na mihuri",
+      "bendingSchedule": "Jedwali la kupinda nondo",
+      "rebarWeight": "Jedwali la uzito wa nondo (kwa Ø)"
     },
     "preview": "Hakikisho",
     "exportCsv": "Hamisha CSV",
@@ -643,7 +645,8 @@
       "textBuiltIn": "Maandishi (asili)",
       "symbol": "Alama",
       "image": "Picha",
-      "other": "Nyingine"
+      "other": "Nyingine",
+      "reinforcement": "Uimarishaji (nondo)"
     },
     "field": {
       "category": "Kategoria",
@@ -671,7 +674,16 @@
       "width": "Upana",
       "height": "Kimo",
       "location": "Mahali",
-      "locationSource": "Chanzo cha mahali"
+      "locationSource": "Chanzo cha mahali",
+      "rebarMark": "Namba ya nondo",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Umbo la kupinda",
+      "rebarGrade": "Daraja la chuma",
+      "rebarCount": "Idadi ya nondo",
+      "rebarLength": "Urefu wa nondo",
+      "rebarTotalLength": "Jumla ya urefu",
+      "rebarMassPerM": "Uzito kwa mita",
+      "rebarMass": "Uzito"
     },
     "type": {
       "line": "Mstari",
@@ -709,7 +721,8 @@
       "stavenreeks": "Mfululizo wa nondo",
       "betonbalk": "Boriti ya zege",
       "scheduleTable": "Jedwali la viwango",
-      "builtinText": "Maandishi"
+      "builtinText": "Maandishi",
+      "rebarPosition": "Nondo"
     }
   },
   "parametricSymbol": {

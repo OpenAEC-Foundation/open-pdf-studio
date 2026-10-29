@@ -483,7 +483,9 @@
       "symbol": "جدول الرموز",
       "text": "جدول النصوص",
       "full": "الكميات الكاملة",
-      "image": "الصور والأختام"
+      "image": "الصور والأختام",
+      "bendingSchedule": "جدول ثني القضبان",
+      "rebarWeight": "جدول التسليح (الوزن لكل Ø)"
     },
     "preview": "معاينة",
     "exportCsv": "تصدير CSV",
@@ -643,7 +645,8 @@
       "textBuiltIn": "نص (أصلي)",
       "symbol": "رمز",
       "image": "صورة",
-      "other": "أخرى"
+      "other": "أخرى",
+      "reinforcement": "تسليح"
     },
     "field": {
       "category": "الفئة",
@@ -671,7 +674,16 @@
       "width": "العرض",
       "height": "الارتفاع",
       "location": "الموقع",
-      "locationSource": "مصدر الموقع"
+      "locationSource": "مصدر الموقع",
+      "rebarMark": "رقم القضيب",
+      "rebarDiameter": "Ø",
+      "rebarShape": "شكل الثني",
+      "rebarGrade": "رتبة الفولاذ",
+      "rebarCount": "عدد القضبان",
+      "rebarLength": "طول القضيب",
+      "rebarTotalLength": "الطول الإجمالي",
+      "rebarMassPerM": "الكتلة لكل متر",
+      "rebarMass": "الكتلة"
     },
     "type": {
       "line": "خط",
@@ -709,7 +721,8 @@
       "stavenreeks": "سلسلة قضبان",
       "betonbalk": "جسر خرساني",
       "scheduleTable": "جدول الكميات",
-      "builtinText": "نص"
+      "builtinText": "نص",
+      "rebarPosition": "قضيب تسليح"
     }
   },
   "parametricSymbol": {

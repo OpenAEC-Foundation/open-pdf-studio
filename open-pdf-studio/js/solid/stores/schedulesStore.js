@@ -11,6 +11,8 @@ import '../../quantities/label-i18n.js';
 import { getMeasureScale } from '../../annotations/measurement.js';
 import { metSchaalBronnen } from '../../annotations/schaal-bronnen.js';
 import { countTallies } from './countStore.js';
+import { wapeningsElementen } from '../../quantities/wapening.js';
+import { getTemplate } from '../../symbols/registry.js';
 import { STANDARD_SCHEDULE_TEMPLATES, getTemplateById } from '../../quantities/schedule-templates.js';
 
 // Lijnvormige types zónder eigen measureValue: lengte moet uit geometrie +
@@ -42,14 +44,17 @@ function countCatName(categoryId) {
 }
 
 /** Alle annotaties van het actieve document, verrijkt zoals de engine verwacht. */
-function collectElements() {
+function collectElements(categories = []) {
   const doc = getActiveDocument();
   // Eén doorloop: de schaalbronnen één keer verzamelen, niet per lijn (#491).
-  return metSchaalBronnen(() => (doc?.annotations || []).map(a => {
+  const anns = metSchaalBronnen(() => (doc?.annotations || []).map(a => {
     if (a.type === 'count') return { ...a, __countCatName: countCatName(a.categoryId) };
     if (LENGTH_TYPES.has(a.type) && typeof a.measureValue !== 'number') return withLengthScale(a);
     return a;
   }));
+  // Wapening (buigstaat/wapeningsstaat): alleen als de staat erom vraagt.
+  if (!(categories || []).includes('reinforcement')) return anns;
+  return [...anns, ...wapeningsElementen(doc?.annotations || [], getTemplate)];
 }
 
 // --- Persistente lijst van schedules ---
@@ -127,7 +132,7 @@ export function getScheduleById(id) {
 /** Bouw het (reactieve) engine-resultaat voor een schedule tegen het actieve doc. */
 export function buildResultForSchedule(schedule) {
   if (!schedule) return null;
-  return buildSchedule(collectElements(), schedule.config);
+  return buildSchedule(collectElements(schedule.config?.categories), schedule.config);
 }
 
 export { schedules, setSchedules, STANDARD_SCHEDULE_TEMPLATES };

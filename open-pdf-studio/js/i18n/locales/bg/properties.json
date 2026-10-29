@@ -483,7 +483,9 @@
       "symbol": "Спецификация на символи",
       "text": "Спецификация на текстове",
       "full": "Пълни количества",
-      "image": "Изображения и печати"
+      "image": "Изображения и печати",
+      "bendingSchedule": "Спецификация за огъване",
+      "rebarWeight": "Спецификация на армировката (маса по Ø)"
     },
     "preview": "Преглед",
     "exportCsv": "Експортиране в CSV",
@@ -643,7 +645,8 @@
       "textBuiltIn": "Текст (вграден)",
       "symbol": "Символ",
       "image": "Изображение",
-      "other": "Друго"
+      "other": "Друго",
+      "reinforcement": "Армировка"
     },
     "field": {
       "category": "Категория",
@@ -671,7 +674,16 @@
       "width": "Ширина",
       "height": "Височина",
       "location": "Местоположение",
-      "locationSource": "Източник на местоположението"
+      "locationSource": "Източник на местоположението",
+      "rebarMark": "Позиция",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Форма на огъване",
+      "rebarGrade": "Клас на стоманата",
+      "rebarCount": "Брой пръти",
+      "rebarLength": "Дължина на пръта",
+      "rebarTotalLength": "Обща дължина",
+      "rebarMassPerM": "Маса на метър",
+      "rebarMass": "Маса"
     },
     "type": {
       "line": "Линия",
@@ -709,7 +721,8 @@
       "stavenreeks": "Серия пръти",
       "betonbalk": "Бетонна греда",
       "scheduleTable": "Таблица с количества",
-      "builtinText": "Текст"
+      "builtinText": "Текст",
+      "rebarPosition": "Армировъчен прът"
     }
   },
   "parametricSymbol": {

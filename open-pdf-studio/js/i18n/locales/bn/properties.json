@@ -483,7 +483,9 @@
       "symbol": "প্রতীক শিডিউল",
       "text": "টেক্সট শিডিউল",
       "full": "সম্পূর্ণ পরিমাণ",
-      "image": "ছবি ও স্ট্যাম্প"
+      "image": "ছবি ও স্ট্যাম্প",
+      "bendingSchedule": "রড বাঁকানোর শিডিউল",
+      "rebarWeight": "রডের ওজন শিডিউল (প্রতি Ø)"
     },
     "preview": "প্রাকদর্শন",
     "exportCsv": "CSV রপ্তানি করুন",
@@ -643,7 +645,8 @@
       "textBuiltIn": "টেক্সট (মূল)",
       "symbol": "প্রতীক",
       "image": "চিত্র",
-      "other": "অন্যান্য"
+      "other": "অন্যান্য",
+      "reinforcement": "রড (রিইনফোর্সমেন্ট)"
     },
     "field": {
       "category": "বিভাগ",
@@ -671,7 +674,16 @@
       "width": "প্রস্থ",
       "height": "উচ্চতা",
       "location": "অবস্থান",
-      "locationSource": "অবস্থানের উৎস"
+      "locationSource": "অবস্থানের উৎস",
+      "rebarMark": "রড চিহ্ন",
+      "rebarDiameter": "Ø",
+      "rebarShape": "বাঁকানোর আকৃতি",
+      "rebarGrade": "ইস্পাতের গ্রেড",
+      "rebarCount": "রডের সংখ্যা",
+      "rebarLength": "রডের দৈর্ঘ্য",
+      "rebarTotalLength": "মোট দৈর্ঘ্য",
+      "rebarMassPerM": "প্রতি মিটার ভর",
+      "rebarMass": "ভর"
     },
     "type": {
       "line": "রেখা",
@@ -709,7 +721,8 @@
       "stavenreeks": "রড সিরিজ",
       "betonbalk": "কংক্রিট বিম",
       "scheduleTable": "পরিমাণ সারণি",
-      "builtinText": "পাঠ্য"
+      "builtinText": "পাঠ্য",
+      "rebarPosition": "রড"
     }
   },
   "parametricSymbol": {

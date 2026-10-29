@@ -10,6 +10,8 @@ import '../../quantities/label-i18n.js';
 import { getMeasureScale } from '../../annotations/measurement.js';
 import { metSchaalBronnen } from '../../annotations/schaal-bronnen.js';
 import { countTallies } from './countStore.js';
+import { wapeningsElementen } from '../../quantities/wapening.js';
+import { getTemplate } from '../../symbols/registry.js';
 import { scheduleVisible, setScheduleVisible, toggleSchedule } from './scheduleStore.js';
 
 // Lijnvormige annotatietypes zónder eigen measureValue: hun lengte moet uit de
@@ -97,7 +99,10 @@ function collectElements() {
     return a;
   }));
   const bi = selectedCategories().includes('text-built-in') ? builtInText() : [];
-  const elements = [...anns, ...bi];
+  // Wapening: buigstaat-regels uit stavenreeksen en wapeningssymbolen.
+  const rebar = selectedCategories().includes('reinforcement')
+    ? wapeningsElementen(doc?.annotations || [], getTemplate) : [];
+  const elements = [...anns, ...bi, ...rebar];
   // De Locatie-kolommen kosten per element een zone-opzoeking: alleen als de
   // staat ze toont, erop filtert of erop sorteert.
   if (!scheduleUsesLocation({ fields: scheduledFields(), filters: filters(), sort: sortLevels() })) return elements;

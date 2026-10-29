@@ -227,6 +227,16 @@ export const wapeningsstaafTemplate = {
   editableLabels(params, bbox) {
     return editableLineLabels(params || {}, bbox, false, true);
   },
+  // Buigstaat (#312): een rechte staaf, aantal × lengte.
+  rebarItems(params) {
+    const p = params || {};
+    return [{
+      aantal: integer(p.aantal, 3, 1),
+      diameter: positiveNumber(p.diameter, 8, 1),
+      lengteMm: positiveNumber(p.lengte, 1600, 1),
+      vormcode: '00',
+    }];
+  },
   realSizeMm(params) {
     return { width: positiveNumber(params?.lengte, 1600, 1), height: 240 };
   },

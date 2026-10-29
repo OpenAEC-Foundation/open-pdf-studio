@@ -483,7 +483,9 @@
       "symbol": "ຕາຕະລາງສັນຍະລັກ",
       "text": "ຕາຕະລາງຂໍ້ຄວາມ",
       "full": "ປະລິມານລວມທັງໝົດ",
-      "image": "ຮູບພາບ ແລະ ກາປະທັບ"
+      "image": "ຮູບພາບ ແລະ ກາປະທັບ",
+      "bendingSchedule": "ຕາຕະລາງການງໍເຫຼັກ",
+      "rebarWeight": "ຕາຕະລາງນ້ຳໜັກເຫຼັກເສີມ (ຕາມ Ø)"
     },
     "preview": "ສະແດງຕົວຢ່າງ",
     "exportCsv": "ສົ່ງອອກ CSV",
@@ -643,7 +645,8 @@
       "textBuiltIn": "ຂໍ້ຄວາມ (ດັ້ງເດີມ)",
       "symbol": "ສັນຍະລັກ",
       "image": "ຮູບພາບ",
-      "other": "ອື່ນໆ"
+      "other": "ອື່ນໆ",
+      "reinforcement": "ເຫຼັກເສີມ"
     },
     "field": {
       "category": "ໝວດໝູ່",
@@ -671,7 +674,16 @@
       "width": "ລວງກວ້າງ",
       "height": "ລວງສູງ",
       "location": "ສະຖານທີ່",
-      "locationSource": "ແຫຼ່ງທີ່ມາຂອງສະຖານທີ່"
+      "locationSource": "ແຫຼ່ງທີ່ມາຂອງສະຖານທີ່",
+      "rebarMark": "ເລກເຫຼັກ",
+      "rebarDiameter": "Ø",
+      "rebarShape": "ຮູບແບບການງໍ",
+      "rebarGrade": "ຊັ້ນຄຸນນະພາບເຫຼັກ",
+      "rebarCount": "ຈຳນວນເສັ້ນ",
+      "rebarLength": "ລວງຍາວເຫຼັກ",
+      "rebarTotalLength": "ລວງຍາວລວມ",
+      "rebarMassPerM": "ນ້ຳໜັກຕໍ່ແມັດ",
+      "rebarMass": "ນ້ຳໜັກ"
     },
     "type": {
       "line": "ເສັ້ນຊື່",
@@ -709,7 +721,8 @@
       "stavenreeks": "ຊຸດເຫຼັກເສັ້ນ",
       "betonbalk": "ຄານເບຕົງ",
       "scheduleTable": "ຕາຕະລາງປະລິມານວັດສະດຸ",
-      "builtinText": "ຂໍ້ຄວາມ"
+      "builtinText": "ຂໍ້ຄວາມ",
+      "rebarPosition": "ທ່ອນເຫຼັກເສີມ"
     }
   },
   "parametricSymbol": {

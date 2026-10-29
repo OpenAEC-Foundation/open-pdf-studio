@@ -483,7 +483,9 @@
       "symbol": "Szimbólumkimutatás",
       "text": "Szövegkimutatás",
       "full": "Teljes mennyiségek",
-      "image": "Képek és bélyegzők"
+      "image": "Képek és bélyegzők",
+      "bendingSchedule": "Hajlítási kimutatás",
+      "rebarWeight": "Vasalási kimutatás (tömeg Ø szerint)"
     },
     "preview": "Előnézet",
     "exportCsv": "CSV exportálása",
@@ -643,7 +645,8 @@
       "textBuiltIn": "Szöveg (natív)",
       "symbol": "Szimbólum",
       "image": "Kép",
-      "other": "Egyéb"
+      "other": "Egyéb",
+      "reinforcement": "Vasalás"
     },
     "field": {
       "category": "Kategória",
@@ -671,7 +674,16 @@
       "width": "Szélesség",
       "height": "Magasság",
       "location": "Hely",
-      "locationSource": "Hely forrása"
+      "locationSource": "Hely forrása",
+      "rebarMark": "Tételszám",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Hajlítási forma",
+      "rebarGrade": "Acélminőség",
+      "rebarCount": "Rudak száma",
+      "rebarLength": "Rúdhossz",
+      "rebarTotalLength": "Teljes hossz",
+      "rebarMassPerM": "Folyóméter-tömeg",
+      "rebarMass": "Tömeg"
     },
     "type": {
       "line": "Vonal",
@@ -709,7 +721,8 @@
       "stavenreeks": "Rúdsorozat",
       "betonbalk": "Betongerenda",
       "scheduleTable": "Mennyiségtáblázat",
-      "builtinText": "Szöveg"
+      "builtinText": "Szöveg",
+      "rebarPosition": "Betonacél rúd"
     }
   },
   "parametricSymbol": {

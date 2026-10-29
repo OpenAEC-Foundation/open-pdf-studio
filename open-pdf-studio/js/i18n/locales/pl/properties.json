@@ -483,7 +483,9 @@
       "symbol": "Zestawienie symboli",
       "text": "Zestawienie tekstów",
       "full": "Pełne ilości",
-      "image": "Obrazy i pieczątki"
+      "image": "Obrazy i pieczątki",
+      "bendingSchedule": "Wykaz gięcia",
+      "rebarWeight": "Zestawienie stali (masa wg Ø)"
     },
     "preview": "Podgląd",
     "exportCsv": "Eksportuj CSV",
@@ -643,7 +645,8 @@
       "textBuiltIn": "Tekst (natywny)",
       "symbol": "Symbol",
       "image": "Obraz",
-      "other": "Inne"
+      "other": "Inne",
+      "reinforcement": "Zbrojenie"
     },
     "field": {
       "category": "Kategoria",
@@ -671,7 +674,16 @@
       "width": "Szerokość",
       "height": "Wysokość",
       "location": "Lokalizacja",
-      "locationSource": "Źródło lokalizacji"
+      "locationSource": "Źródło lokalizacji",
+      "rebarMark": "Numer pręta",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Kształt gięcia",
+      "rebarGrade": "Gatunek stali",
+      "rebarCount": "Liczba prętów",
+      "rebarLength": "Długość pręta",
+      "rebarTotalLength": "Długość całkowita",
+      "rebarMassPerM": "Masa na metr",
+      "rebarMass": "Masa"
     },
     "type": {
       "line": "Linia",
@@ -709,7 +721,8 @@
       "stavenreeks": "Seria prętów",
       "betonbalk": "Belka betonowa",
       "scheduleTable": "Tabela ilości",
-      "builtinText": "Tekst"
+      "builtinText": "Tekst",
+      "rebarPosition": "Pręt zbrojeniowy"
     }
   },
   "parametricSymbol": {

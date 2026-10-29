@@ -483,7 +483,9 @@
       "symbol": "جدول نمادها",
       "text": "جدول متن‌ها",
       "full": "مقادیر کامل",
-      "image": "تصاویر و مهرها"
+      "image": "تصاویر و مهرها",
+      "bendingSchedule": "جدول خم میلگرد",
+      "rebarWeight": "جدول وزن میلگرد (به تفکیک Ø)"
     },
     "preview": "پیش‌نمایش",
     "exportCsv": "صدور CSV",
@@ -643,7 +645,8 @@
       "textBuiltIn": "متن (داخلی)",
       "symbol": "نماد",
       "image": "تصویر",
-      "other": "سایر"
+      "other": "سایر",
+      "reinforcement": "آرماتور"
     },
     "field": {
       "category": "دسته",
@@ -671,7 +674,16 @@
       "width": "عرض",
       "height": "ارتفاع",
       "location": "مکان",
-      "locationSource": "منبع مکان"
+      "locationSource": "منبع مکان",
+      "rebarMark": "شماره میلگرد",
+      "rebarDiameter": "Ø",
+      "rebarShape": "شکل خم",
+      "rebarGrade": "رده فولاد",
+      "rebarCount": "تعداد میلگرد",
+      "rebarLength": "طول میلگرد",
+      "rebarTotalLength": "طول کل",
+      "rebarMassPerM": "وزن در متر",
+      "rebarMass": "وزن"
     },
     "type": {
       "line": "خط",
@@ -709,7 +721,8 @@
       "stavenreeks": "سری میلگرد",
       "betonbalk": "تیر بتنی",
       "scheduleTable": "جدول مقادیر",
-      "builtinText": "متن"
+      "builtinText": "متن",
+      "rebarPosition": "میلگرد"
     }
   },
   "parametricSymbol": {

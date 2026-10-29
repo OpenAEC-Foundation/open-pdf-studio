@@ -483,7 +483,9 @@
       "symbol": "Iskaz simbola",
       "text": "Iskaz tekstova",
       "full": "Potpune količine",
-      "image": "Slike i pečati"
+      "image": "Slike i pečati",
+      "bendingSchedule": "Iskaz savijanja",
+      "rebarWeight": "Iskaz armature (masa po Ø)"
     },
     "preview": "Pretpregled",
     "exportCsv": "Izvezi CSV",
@@ -643,7 +645,8 @@
       "textBuiltIn": "Tekst (izvorni)",
       "symbol": "Simbol",
       "image": "Slika",
-      "other": "Ostalo"
+      "other": "Ostalo",
+      "reinforcement": "Armatura"
     },
     "field": {
       "category": "Kategorija",
@@ -671,7 +674,16 @@
       "width": "Širina",
       "height": "Visina",
       "location": "Lokacija",
-      "locationSource": "Izvor lokacije"
+      "locationSource": "Izvor lokacije",
+      "rebarMark": "Pozicija",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Oblik savijanja",
+      "rebarGrade": "Kvaliteta čelika",
+      "rebarCount": "Broj šipki",
+      "rebarLength": "Duljina šipke",
+      "rebarTotalLength": "Ukupna duljina",
+      "rebarMassPerM": "Masa po metru",
+      "rebarMass": "Masa"
     },
     "type": {
       "line": "Linija",
@@ -709,7 +721,8 @@
       "stavenreeks": "Niz šipki",
       "betonbalk": "Betonska greda",
       "scheduleTable": "Tablica količina",
-      "builtinText": "Tekst"
+      "builtinText": "Tekst",
+      "rebarPosition": "Armaturna šipka"
     }
   },
   "parametricSymbol": {

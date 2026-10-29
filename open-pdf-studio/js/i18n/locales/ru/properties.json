@@ -483,7 +483,9 @@
       "symbol": "Спецификация символов",
       "text": "Спецификация текстов",
       "full": "Полные количества",
-      "image": "Изображения и штампы"
+      "image": "Изображения и штампы",
+      "bendingSchedule": "Ведомость гибки",
+      "rebarWeight": "Ведомость арматуры (масса по Ø)"
     },
     "preview": "Предпросмотр",
     "exportCsv": "Экспорт в CSV",
@@ -643,7 +645,8 @@
       "textBuiltIn": "Текст (встроенный)",
       "symbol": "Символ",
       "image": "Изображение",
-      "other": "Прочее"
+      "other": "Прочее",
+      "reinforcement": "Армирование"
     },
     "field": {
       "category": "Категория",
@@ -671,7 +674,16 @@
       "width": "Ширина",
       "height": "Высота",
       "location": "Расположение",
-      "locationSource": "Источник расположения"
+      "locationSource": "Источник расположения",
+      "rebarMark": "Позиция",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Форма гибки",
+      "rebarGrade": "Класс стали",
+      "rebarCount": "Количество стержней",
+      "rebarLength": "Длина стержня",
+      "rebarTotalLength": "Общая длина",
+      "rebarMassPerM": "Масса на метр",
+      "rebarMass": "Масса"
     },
     "type": {
       "line": "Линия",
@@ -709,7 +721,8 @@
       "stavenreeks": "Ряд стержней",
       "betonbalk": "Бетонная балка",
       "scheduleTable": "Таблица количеств",
-      "builtinText": "Текст"
+      "builtinText": "Текст",
+      "rebarPosition": "Арматурный стержень"
     }
   },
   "parametricSymbol": {

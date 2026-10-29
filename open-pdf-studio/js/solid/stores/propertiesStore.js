@@ -171,6 +171,8 @@ const [annotProps, setAnnotProps] = createStore({
   srFontSize: STAVENREEKS_DEFAULTS.fontSize,
   srDiameter: 12,
   srBarLengthMm: 0,
+  srBarMark: '',
+  srSteelGrade: '',
   srLegDir: 'down-left',
   srLegLength: 24,
   srLabelSide: 'end',
@@ -537,6 +539,8 @@ export function storeShowProperties(annotation) {
     srCount: annotation.count ?? 3,
     srDiameter: annotation.diameter ?? 12,
     srBarLengthMm: annotation.barLengthMm ?? 0,
+    srBarMark: annotation.barMark ?? '',
+    srSteelGrade: annotation.steelGrade ?? '',
     srLegDir: annotation.legDir || 'down-left',
     srLegLength: annotation.legLength ?? STAVENREEKS_DEFAULTS.legLength,
     srLineTail: annotation.lineTail ?? STAVENREEKS_DEFAULTS.lineTail,
@@ -1257,6 +1261,8 @@ function applyPropToAnnotation(ann, key, value) {
     case 'srCount': ann.count = Math.max(1, Math.min(999, leesGeheelGetal(value) || 1)); break;
     case 'srDiameter': ann.diameter = leesGetalBegin(value) || 12; break;
     case 'srBarLengthMm': ann.barLengthMm = Math.max(0, leesGetalBegin(value) || 0); break;
+    case 'srBarMark': ann.barMark = String(value ?? '').trim(); break;
+    case 'srSteelGrade': ann.steelGrade = String(value ?? '').trim().toUpperCase(); break;
     case 'srLegDir': ann.legDir = value; break;
     case 'srLegLength': ann.legLength = Math.max(1, leesGetalBegin(value) || STAVENREEKS_DEFAULTS.legLength); break;
     case 'srLineTail': ann.lineTail = _clampLineTail(value); break;
@@ -1768,6 +1774,14 @@ function applyAnnotProp(key, value) {
     }
     case 'srBarLengthMm': {
       currentAnnotation.barLengthMm = Math.max(0, leesGetalBegin(value) || 0);
+      break;
+    }
+    case 'srBarMark': {
+      currentAnnotation.barMark = String(value ?? '').trim();
+      break;
+    }
+    case 'srSteelGrade': {
+      currentAnnotation.steelGrade = String(value ?? '').trim().toUpperCase();
       break;
     }
     case 'srLegDir': {

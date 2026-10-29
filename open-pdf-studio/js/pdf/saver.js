@@ -2324,6 +2324,9 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               OPS_SRCount: srGeom.params.count,
               OPS_SRDiameter: srGeom.params.diameter,
               OPS_SRBarLengthMm: srGeom.params.barLengthMm,
+              // Staafnummer en staalkwaliteit voor de buigstaat (leeg = automatisch).
+              ...(String(ann.barMark ?? '').trim() ? { OPS_SRBarMark: pdfTextString(String(ann.barMark).trim()) } : {}),
+              ...(String(ann.steelGrade ?? '').trim() ? { OPS_SRSteelGrade: pdfTextString(String(ann.steelGrade).trim()) } : {}),
               OPS_SRLegDir: pdfTextString(srGeom.params.legDir),
               OPS_SRLegLength: srGeom.params.legLength,
               OPS_SRLineTail: srGeom.params.lineTail,

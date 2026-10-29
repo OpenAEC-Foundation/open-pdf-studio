@@ -483,7 +483,9 @@
       "symbol": "प्रतीक शेड्यूल",
       "text": "टेक्स्ट शेड्यूल",
       "full": "पूर्ण मात्राएं",
-      "image": "छवियां और स्टैम्प"
+      "image": "छवियां और स्टैम्प",
+      "bendingSchedule": "सरिया मोड़ शेड्यूल",
+      "rebarWeight": "सरिया भार शेड्यूल (प्रति Ø)"
     },
     "preview": "पूर्वावलोकन",
     "exportCsv": "CSV निर्यात करें",
@@ -643,7 +645,8 @@
       "textBuiltIn": "टेक्स्ट (मूल)",
       "symbol": "प्रतीक",
       "image": "छवि",
-      "other": "अन्य"
+      "other": "अन्य",
+      "reinforcement": "सरिया (सुदृढ़ीकरण)"
     },
     "field": {
       "category": "श्रेणी",
@@ -671,7 +674,16 @@
       "width": "चौड़ाई",
       "height": "ऊंचाई",
       "location": "स्थान",
-      "locationSource": "स्थान स्रोत"
+      "locationSource": "स्थान स्रोत",
+      "rebarMark": "सरिया चिह्न",
+      "rebarDiameter": "Ø",
+      "rebarShape": "मोड़ आकृति",
+      "rebarGrade": "इस्पात ग्रेड",
+      "rebarCount": "सरियों की संख्या",
+      "rebarLength": "सरिये की लंबाई",
+      "rebarTotalLength": "कुल लंबाई",
+      "rebarMassPerM": "प्रति मीटर द्रव्यमान",
+      "rebarMass": "द्रव्यमान"
     },
     "type": {
       "line": "रेखा",
@@ -709,7 +721,8 @@
       "stavenreeks": "सरिया श्रृंखला",
       "betonbalk": "कंक्रीट बीम",
       "scheduleTable": "मात्रा तालिका",
-      "builtinText": "टेक्स्ट"
+      "builtinText": "टेक्स्ट",
+      "rebarPosition": "सरिया"
     }
   },
   "parametricSymbol": {

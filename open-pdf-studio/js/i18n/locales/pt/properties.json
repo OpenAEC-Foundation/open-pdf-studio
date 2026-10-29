@@ -483,7 +483,9 @@
       "symbol": "Quadro de símbolos",
       "text": "Quadro de textos",
       "full": "Quantitativos completos",
-      "image": "Imagens e carimbos"
+      "image": "Imagens e carimbos",
+      "bendingSchedule": "Mapa de dobragem",
+      "rebarWeight": "Resumo de armaduras (peso por Ø)"
     },
     "preview": "Pré-visualização",
     "exportCsv": "Exportar CSV",
@@ -643,7 +645,8 @@
       "textBuiltIn": "Texto (nativo)",
       "symbol": "Símbolo",
       "image": "Imagem",
-      "other": "Outros"
+      "other": "Outros",
+      "reinforcement": "Armadura"
     },
     "field": {
       "category": "Categoria",
@@ -671,7 +674,16 @@
       "width": "Largura",
       "height": "Altura",
       "location": "Localização",
-      "locationSource": "Origem da localização"
+      "locationSource": "Origem da localização",
+      "rebarMark": "Marca",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Forma de dobragem",
+      "rebarGrade": "Classe do aço",
+      "rebarCount": "Número de barras",
+      "rebarLength": "Comprimento da barra",
+      "rebarTotalLength": "Comprimento total",
+      "rebarMassPerM": "Massa por metro",
+      "rebarMass": "Massa"
     },
     "type": {
       "line": "Linha",
@@ -709,7 +721,8 @@
       "stavenreeks": "Série de barras",
       "betonbalk": "Viga de concreto",
       "scheduleTable": "Tabela de quantitativos",
-      "builtinText": "Texto"
+      "builtinText": "Texto",
+      "rebarPosition": "Barra de armadura"
     }
   },
   "parametricSymbol": {

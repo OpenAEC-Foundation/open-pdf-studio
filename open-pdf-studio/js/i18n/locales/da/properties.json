@@ -483,7 +483,9 @@
       "symbol": "Symbolliste",
       "text": "Tekstliste",
       "full": "Fulde mængder",
-      "image": "Billeder og stempler"
+      "image": "Billeder og stempler",
+      "bendingSchedule": "Bukkeliste",
+      "rebarWeight": "Armeringsliste (vægt pr. Ø)"
     },
     "preview": "Eksempel",
     "exportCsv": "Eksportér CSV",
@@ -643,7 +645,8 @@
       "textBuiltIn": "Tekst (indbygget)",
       "symbol": "Symbol",
       "image": "Billede",
-      "other": "Andet"
+      "other": "Andet",
+      "reinforcement": "Armering"
     },
     "field": {
       "category": "Kategori",
@@ -671,7 +674,16 @@
       "width": "Bredde",
       "height": "Højde",
       "location": "Placering",
-      "locationSource": "Kilde til placering"
+      "locationSource": "Kilde til placering",
+      "rebarMark": "Positionsnummer",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Bukkeform",
+      "rebarGrade": "Stålkvalitet",
+      "rebarCount": "Antal stænger",
+      "rebarLength": "Stanglængde",
+      "rebarTotalLength": "Samlet længde",
+      "rebarMassPerM": "Masse pr. meter",
+      "rebarMass": "Vægt"
     },
     "type": {
       "line": "Linje",
@@ -709,7 +721,8 @@
       "stavenreeks": "Stangserie",
       "betonbalk": "Betonbjælke",
       "scheduleTable": "Mængdetabel",
-      "builtinText": "Tekst"
+      "builtinText": "Tekst",
+      "rebarPosition": "Armeringsjern"
     }
   },
   "parametricSymbol": {

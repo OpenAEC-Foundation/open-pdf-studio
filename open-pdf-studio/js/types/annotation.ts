@@ -238,6 +238,8 @@ export type Annotation = AnnotationBase & {
   count?: number;              // aantal staven (= poten/punten)
   diameter?: number;           // staafdiameter in mm (6..40)
   barLengthMm?: number;        // staaflengte in mm (0 = onbekend)
+  barMark?: string;            // staafnummer in de buigstaat ('' = automatisch)
+  steelGrade?: string;         // staalkwaliteit ('' = B500B)
   legDir?: 'down-left' | 'down-right' | 'up-left' | 'up-right';
   legLength?: number;          // pootlengte in px (canvas)
   lineTail?: number;           // uitloop van de aanhaallijn voorbij de laatste poot (px)

@@ -483,7 +483,9 @@
       "symbol": "Nomenclature des symboles",
       "text": "Nomenclature des textes",
       "full": "Quantités complètes",
-      "image": "Images et tampons"
+      "image": "Images et tampons",
+      "bendingSchedule": "Nomenclature de façonnage",
+      "rebarWeight": "Récapitulatif des aciers (poids par Ø)"
     },
     "preview": "Aperçu",
     "exportCsv": "Exporter en CSV",
@@ -643,7 +645,8 @@
       "textBuiltIn": "Texte (natif)",
       "symbol": "Symbole",
       "image": "Image",
-      "other": "Autre"
+      "other": "Autre",
+      "reinforcement": "Armatures"
     },
     "field": {
       "category": "Catégorie",
@@ -671,7 +674,16 @@
       "width": "Largeur",
       "height": "Hauteur",
       "location": "Emplacement",
-      "locationSource": "Source de l'emplacement"
+      "locationSource": "Source de l'emplacement",
+      "rebarMark": "Repère",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Code de façonnage",
+      "rebarGrade": "Nuance d'acier",
+      "rebarCount": "Nombre de barres",
+      "rebarLength": "Longueur de barre",
+      "rebarTotalLength": "Longueur totale",
+      "rebarMassPerM": "Masse par mètre",
+      "rebarMass": "Masse"
     },
     "type": {
       "line": "Ligne",
@@ -709,7 +721,8 @@
       "stavenreeks": "Série de barres",
       "betonbalk": "Poutre en béton",
       "scheduleTable": "Tableau des quantités",
-      "builtinText": "Texte"
+      "builtinText": "Texte",
+      "rebarPosition": "Barre d'armature"
     }
   },
   "parametricSymbol": {
