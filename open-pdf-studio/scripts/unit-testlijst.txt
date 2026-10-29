@@ -300,6 +300,7 @@ js/pdf/schermkalibratie-i18n.test.mjs
 js/core/basis-url.test.mjs
 js/core/opslag.test.mjs
 js/core/ai-sleutel.test.mjs
+js/core/werkplek-app.test.mjs
 js/core/host-opslag.test.mjs
 js/pdf/bijlagen.test.mjs
 js/watermark/kopvoet.test.mjs

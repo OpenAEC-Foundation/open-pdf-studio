@@ -98,6 +98,7 @@ import { instantieRol, taakToegestaan } from './core/instantie-rol.js';
 import { meldSchoonAfsluiten } from './herstel/haken.js';
 import { sessieHerstelBeleid } from './core/sessie-herstel.js';
 import { sessieBestanden, bronPad } from './pdf/wachtwoord-pdf.js';
+import { isGehost } from './core/gehost.js';
 
 // Open PDF files: tabs created instantly, loads serialized through ONE global
 // queue - also across separate openFiles() calls (the Windows single-instance
@@ -275,6 +276,15 @@ async function init() {
   // MCP server's `app_*` tools are available during the remaining startup.
   // Inert outside Tauri.
   initMcpBridge().catch(e => console.warn('initMcpBridge failed:', e));
+
+  // In de OpenAEC-werkplek: de app als gereedschap voor de assistent van de
+  // site (window.__OPDS_APP__, core/werkplek-app.js). Draait in de browser,
+  // zonder de MCP-server van de desktop-app.
+  if (isGehost()) {
+    import('./core/werkplek-app-omgeving.js')
+      .then(m => m.installeerWerkplekApp())
+      .catch(e => console.warn('werkplek-app unavailable:', e));
+  }
 
   // "Open PDF Printer" job queue: watch the spool so prints from ANY
   // application pop the in-app sort/merge dialog. No-op when the virtual
