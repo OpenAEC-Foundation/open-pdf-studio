@@ -364,7 +364,9 @@
     "autoFit": "Automatisch an Seite anpassen",
     "autoFitHint": "Passt den Text an jede Seite an. Die angezeigte Größe gilt für die aktuelle Seite.",
     "increaseFontSize": "Schriftgröße erhöhen",
-    "decreaseFontSize": "Schriftgröße verringern"
+    "decreaseFontSize": "Schriftgröße verringern",
+    "textHistory": "Zuvor verwendete Texte",
+    "removeFromHistory": "Aus dem Verlauf entfernen"
   },
   "headerFooter": {
     "addTitle": "Kopf-/Fußzeile hinzufügen",

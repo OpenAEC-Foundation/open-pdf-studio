@@ -364,7 +364,9 @@
     "autoFit": "Automatski prilagodi stranici",
     "autoFitHint": "Prilagođava tekst svakoj stranici. Prikazana veličina odnosi se na trenutačnu stranicu.",
     "increaseFontSize": "Povećaj veličinu fonta",
-    "decreaseFontSize": "Smanji veličinu fonta"
+    "decreaseFontSize": "Smanji veličinu fonta",
+    "textHistory": "Prethodno korišteni tekstovi",
+    "removeFromHistory": "Ukloni iz povijesti"
   },
   "headerFooter": {
     "addTitle": "Dodaj zaglavlje/podnožje",

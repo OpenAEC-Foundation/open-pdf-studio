@@ -364,7 +364,9 @@
     "autoFit": "Ajusta automàticament a la pàgina",
     "autoFitHint": "Ajusta el text a cada pàgina. La mida que es mostra és la de la pàgina actual.",
     "increaseFontSize": "Augmenta la mida de la lletra",
-    "decreaseFontSize": "Redueix la mida de la lletra"
+    "decreaseFontSize": "Redueix la mida de la lletra",
+    "textHistory": "Textos utilitzats anteriorment",
+    "removeFromHistory": "Elimina de l'historial"
   },
   "headerFooter": {
     "addTitle": "Afegeix capçalera/peu de pàgina",

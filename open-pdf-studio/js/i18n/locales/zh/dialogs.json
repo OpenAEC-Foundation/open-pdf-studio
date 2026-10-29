@@ -364,7 +364,9 @@
     "autoFit": "自动适应页面",
     "autoFitHint": "使文字适应每一页。显示的大小为当前页的大小。",
     "increaseFontSize": "增大字号",
-    "decreaseFontSize": "减小字号"
+    "decreaseFontSize": "减小字号",
+    "textHistory": "以前使用过的文本",
+    "removeFromHistory": "从历史记录中删除"
   },
   "headerFooter": {
     "addTitle": "添加页眉/页脚",

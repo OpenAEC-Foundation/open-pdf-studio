@@ -364,7 +364,9 @@
     "autoFit": "ページに自動フィット",
     "autoFitHint": "各ページに合わせてテキストを調整します。表示されるサイズは現在のページのものです。",
     "increaseFontSize": "フォントサイズを大きくする",
-    "decreaseFontSize": "フォントサイズを小さくする"
+    "decreaseFontSize": "フォントサイズを小さくする",
+    "textHistory": "以前に使用したテキスト",
+    "removeFromHistory": "履歴から削除"
   },
   "headerFooter": {
     "addTitle": "ヘッダー/フッターを追加",

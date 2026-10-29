@@ -364,7 +364,9 @@
     "autoFit": "Auto-fit to page",
     "autoFitHint": "Fits the text to each page. The size shown is for the current page.",
     "increaseFontSize": "Increase font size",
-    "decreaseFontSize": "Decrease font size"
+    "decreaseFontSize": "Decrease font size",
+    "textHistory": "Previously used texts",
+    "removeFromHistory": "Remove from history"
   },
   "headerFooter": {
     "addTitle": "Add Header/Footer",

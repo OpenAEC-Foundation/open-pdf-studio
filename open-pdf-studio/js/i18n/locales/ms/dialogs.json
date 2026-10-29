@@ -364,7 +364,9 @@
     "autoFit": "Muat automatik pada halaman",
     "autoFitHint": "Memuatkan teks pada setiap halaman. Saiz yang ditunjukkan adalah untuk halaman semasa.",
     "increaseFontSize": "Besarkan saiz fon",
-    "decreaseFontSize": "Kecilkan saiz fon"
+    "decreaseFontSize": "Kecilkan saiz fon",
+    "textHistory": "Teks yang pernah digunakan",
+    "removeFromHistory": "Alih keluar daripada sejarah"
   },
   "headerFooter": {
     "addTitle": "Tambah Pengepala/Pengaki",

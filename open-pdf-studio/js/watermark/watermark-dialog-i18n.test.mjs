@@ -1,5 +1,6 @@
-// The strings of the watermark dialog (font size and auto-fit, #849) are in
-// every locale, translated, with the English placeholders.
+// The strings of the watermark dialog (font size and auto-fit, #849; text
+// history, #850) are in every locale, translated, with the English
+// placeholders.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -10,7 +11,7 @@ const talen = readdirSync(map);
 const dialogs = (taal) => JSON.parse(readFileSync(`${map}${taal}/dialogs.json`, 'utf8')).watermark;
 const plaatshouders = (s) => [...String(s).matchAll(/\{\{(\w+)\}\}/g)].map((m) => m[1]).sort();
 
-const SLEUTELS = ['autoFit', 'autoFitHint', 'increaseFontSize', 'decreaseFontSize'];
+const SLEUTELS = ['autoFit', 'autoFitHint', 'increaseFontSize', 'decreaseFontSize', 'textHistory', 'removeFromHistory'];
 
 test('every locale has the watermark dialog strings', () => {
   assert.ok(talen.length >= 40);
@@ -29,4 +30,6 @@ test('every locale has the watermark dialog strings', () => {
 test('English and Dutch wording', () => {
   assert.equal(dialogs('en').autoFit, 'Auto-fit to page');
   assert.equal(dialogs('nl').autoFit, 'Automatisch passend op pagina');
+  assert.equal(dialogs('en').removeFromHistory, 'Remove from history');
+  assert.equal(dialogs('nl').removeFromHistory, 'Verwijderen uit geschiedenis');
 });

@@ -1,4 +1,4 @@
-import { createSignal, createMemo, Show } from 'solid-js';
+import { createSignal, createMemo, Show, For } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog, showMessage } from '../../stores/dialogStore.js';
 import { state, getActiveDocument } from '../../../core/state.js';
@@ -13,6 +13,10 @@ import {
   parseCustomCoordinate, watermarkCustomPosition,
 } from '../../../watermark/watermark-layout.js';
 import { paginaMaat } from '../../../pdf/weergave-ruimte.js';
+import {
+  readWatermarkHistory, lastWatermarkText, rememberWatermarkText, forgetWatermarkText,
+  watermarkSuggestions, moveSuggestionIndex,
+} from '../../../watermark/watermark-text-history.js';
 
 function generateId() {
   return 'wm-' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
@@ -38,7 +42,8 @@ export default function WatermarkDialog(props) {
   const [activeTab, setActiveTab] = createSignal(isImageEdit ? 'image' : 'text');
 
   // Text tab signals
-  const [text, setText] = createSignal(editWm?.text || t('watermark.defaultText'));
+  // A new watermark starts with the last used text (#850).
+  const [text, setText] = createSignal(editWm?.text || lastWatermarkText() || t('watermark.defaultText'));
   const [font, setFont] = createSignal(editWm?.fontFamily || 'Helvetica');
   // The manual size stays as it is while auto-fit is on, so turning auto-fit
   // off brings it back (#849).
@@ -60,6 +65,52 @@ export default function WatermarkDialog(props) {
   const [layer, setLayer] = createSignal(editWm?.layer || 'behind');
   const [pageRange, setPageRange] = createSignal(editWm?.pageRange || 'all');
   const [customPages, setCustomPages] = createSignal(editWm?.customPages || '');
+
+  // Earlier texts offered while typing (#850).
+  const [history, setHistory] = createSignal(readWatermarkHistory());
+  const [suggestOpen, setSuggestOpen] = createSignal(false);
+  const [activeSuggestion, setActiveSuggestion] = createSignal(-1);
+  const suggestions = createMemo(() => watermarkSuggestions(history(), text()));
+  const suggestVisible = () => suggestOpen() && suggestions().length > 0;
+
+  function closeSuggestions() {
+    setSuggestOpen(false);
+    setActiveSuggestion(-1);
+  }
+
+  function chooseSuggestion(entry) {
+    setText(entry);
+    closeSuggestions();
+  }
+
+  function removeSuggestion(entry) {
+    setHistory(forgetWatermarkText(entry));
+    setActiveSuggestion((i) => Math.min(i, suggestions().length - 1));
+  }
+
+  // A native listener on the field runs before the document listener of the
+  // dialog, so an Escape that closes the list does not close the dialog too.
+  function onTextKeyDown(e) {
+    const count = suggestions().length;
+    const handled = () => { e.preventDefault(); e.stopPropagation(); };
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (!count) return;
+      handled();
+      const from = suggestVisible() ? activeSuggestion() : -1;
+      setSuggestOpen(true);
+      setActiveSuggestion(moveSuggestionIndex(from, count, e.key === 'ArrowDown' ? 1 : -1));
+    } else if (e.key === 'Enter' && suggestVisible() && activeSuggestion() >= 0) {
+      handled();
+      chooseSuggestion(suggestions()[activeSuggestion()]);
+    } else if (e.key === 'Escape' && suggestVisible()) {
+      handled();
+      e.__dialoogGesloten = true;
+      closeSuggestions();
+    } else if (e.key === 'Delete' && e.shiftKey && suggestVisible() && activeSuggestion() >= 0) {
+      handled();
+      removeSuggestion(suggestions()[activeSuggestion()]);
+    }
+  }
 
   // Auto-fit is worked out per page when drawing and saving; the field shows
   // the size on the current page.
@@ -222,6 +273,8 @@ export default function WatermarkDialog(props) {
       recordAddWatermark(wm);
     }
 
+    if (wm.type === 'textWatermark') rememberWatermarkText(wm.text);
+
     markDocumentModified();
     refresh();
     close();
@@ -270,14 +323,52 @@ export default function WatermarkDialog(props) {
       >
         <div class="watermark-form">
           <div class="watermark-row">
-            <label class="watermark-label">{t('watermark.textLabel')}</label>
-            <input
-              type="text"
-              class="watermark-input"
-              value={text()}
-              placeholder={t('watermark.watermarkText')}
-              onInput={(e) => setText(e.target.value)}
-            />
+            <label class="watermark-label" for="watermark-text-input">{t('watermark.textLabel')}</label>
+            <div class="watermark-combo">
+              <input
+                id="watermark-text-input"
+                type="text"
+                class="watermark-input"
+                autocomplete="off"
+                role="combobox"
+                aria-autocomplete="list"
+                aria-controls="watermark-text-suggestions"
+                aria-expanded={suggestVisible() ? 'true' : 'false'}
+                aria-activedescendant={suggestVisible() && activeSuggestion() >= 0 ? `watermark-text-suggestion-${activeSuggestion()}` : undefined}
+                value={text()}
+                placeholder={t('watermark.watermarkText')}
+                onInput={(e) => { setText(e.target.value); setActiveSuggestion(-1); setSuggestOpen(true); }}
+                on:keydown={onTextKeyDown}
+                onBlur={closeSuggestions}
+              />
+              <Show when={suggestVisible()}>
+                <ul id="watermark-text-suggestions" class="watermark-suggest" role="listbox" aria-label={t('watermark.textHistory')}>
+                  <For each={suggestions()}>
+                    {(entry, i) => (
+                      <li
+                        id={`watermark-text-suggestion-${i()}`}
+                        class="watermark-suggest-item"
+                        classList={{ active: i() === activeSuggestion() }}
+                        role="option"
+                        aria-selected={i() === activeSuggestion() ? 'true' : 'false'}
+                        onMouseDown={(e) => { e.preventDefault(); chooseSuggestion(entry); }}
+                        onMouseEnter={() => setActiveSuggestion(i())}
+                      >
+                        <span class="watermark-suggest-text">{entry}</span>
+                        <button
+                          type="button"
+                          class="watermark-suggest-remove"
+                          tabIndex={-1}
+                          title={t('watermark.removeFromHistory')}
+                          aria-label={t('watermark.removeFromHistory')}
+                          onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); removeSuggestion(entry); }}
+                        >&times;</button>
+                      </li>
+                    )}
+                  </For>
+                </ul>
+              </Show>
+            </div>
           </div>
           <div class="watermark-row">
             <label class="watermark-label">{t('watermark.font')}</label>

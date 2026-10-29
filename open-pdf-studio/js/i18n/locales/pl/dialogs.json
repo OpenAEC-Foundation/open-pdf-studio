@@ -364,7 +364,9 @@
     "autoFit": "Automatycznie dopasuj do strony",
     "autoFitHint": "Dopasowuje tekst do każdej strony. Wyświetlany rozmiar dotyczy bieżącej strony.",
     "increaseFontSize": "Zwiększ rozmiar czcionki",
-    "decreaseFontSize": "Zmniejsz rozmiar czcionki"
+    "decreaseFontSize": "Zmniejsz rozmiar czcionki",
+    "textHistory": "Wcześniej używane teksty",
+    "removeFromHistory": "Usuń z historii"
   },
   "headerFooter": {
     "addTitle": "Dodaj nagłówek/stopkę",

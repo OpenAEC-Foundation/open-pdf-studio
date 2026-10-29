@@ -364,7 +364,9 @@
     "autoFit": "ປັບໃຫ້ພໍດີກັບໜ້າອັດຕະໂນມັດ",
     "autoFitHint": "ປັບຂໍ້ຄວາມໃຫ້ພໍດີກັບແຕ່ລະໜ້າ. ຂະໜາດທີ່ສະແດງແມ່ນສຳລັບໜ້າປັດຈຸບັນ.",
     "increaseFontSize": "ເພີ່ມຂະໜາດຟອນຕ໌",
-    "decreaseFontSize": "ຫຼຸດຂະໜາດຟອນຕ໌"
+    "decreaseFontSize": "ຫຼຸດຂະໜາດຟອນຕ໌",
+    "textHistory": "ຂໍ້ຄວາມທີ່ເຄີຍໃຊ້",
+    "removeFromHistory": "ລຶບອອກຈາກປະຫວັດ"
   },
   "headerFooter": {
     "addTitle": "ເພີ່ມຫົວ/ທ້າຍໜ້າ",

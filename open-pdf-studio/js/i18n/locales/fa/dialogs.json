@@ -364,7 +364,9 @@
     "autoFit": "تطبیق خودکار با صفحه",
     "autoFitHint": "متن را با هر صفحه تطبیق می‌دهد. اندازهٔ نمایش‌داده‌شده مربوط به صفحهٔ فعلی است.",
     "increaseFontSize": "افزایش اندازهٔ قلم",
-    "decreaseFontSize": "کاهش اندازهٔ قلم"
+    "decreaseFontSize": "کاهش اندازهٔ قلم",
+    "textHistory": "متن‌های استفاده‌شدهٔ قبلی",
+    "removeFromHistory": "حذف از تاریخچه"
   },
   "headerFooter": {
     "addTitle": "افزودن سرصفحه/پاصفحه",

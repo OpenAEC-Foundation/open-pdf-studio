@@ -364,7 +364,9 @@
     "autoFit": "Tilpass automatisk til siden",
     "autoFitHint": "Tilpasser teksten til hver side. Størrelsen som vises, gjelder gjeldende side.",
     "increaseFontSize": "Øk skriftstørrelse",
-    "decreaseFontSize": "Reduser skriftstørrelse"
+    "decreaseFontSize": "Reduser skriftstørrelse",
+    "textHistory": "Tidligere brukte tekster",
+    "removeFromHistory": "Fjern fra loggen"
   },
   "headerFooter": {
     "addTitle": "Legg til topptekst/bunntekst",

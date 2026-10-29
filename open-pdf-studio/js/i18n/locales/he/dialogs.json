@@ -364,7 +364,9 @@
     "autoFit": "התאמה אוטומטית לעמוד",
     "autoFitHint": "מתאים את הטקסט לכל עמוד. הגודל המוצג הוא של העמוד הנוכחי.",
     "increaseFontSize": "הגדלת גודל הגופן",
-    "decreaseFontSize": "הקטנת גודל הגופן"
+    "decreaseFontSize": "הקטנת גודל הגופן",
+    "textHistory": "טקסטים שהיו בשימוש בעבר",
+    "removeFromHistory": "הסרה מההיסטוריה"
   },
   "headerFooter": {
     "addTitle": "הוספת כותרת עליונה/תחתונה",

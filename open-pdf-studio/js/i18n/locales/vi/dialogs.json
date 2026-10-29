@@ -364,7 +364,9 @@
     "autoFit": "Tự động vừa trang",
     "autoFitHint": "Điều chỉnh văn bản vừa với từng trang. Kích thước hiển thị là của trang hiện tại.",
     "increaseFontSize": "Tăng cỡ chữ",
-    "decreaseFontSize": "Giảm cỡ chữ"
+    "decreaseFontSize": "Giảm cỡ chữ",
+    "textHistory": "Văn bản đã dùng trước đây",
+    "removeFromHistory": "Xóa khỏi lịch sử"
   },
   "headerFooter": {
     "addTitle": "Thêm Đầu trang/Chân trang",

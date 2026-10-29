@@ -364,7 +364,9 @@
     "autoFit": "Ajustar automaticamente à página",
     "autoFitHint": "Ajusta o texto a cada página. O tamanho mostrado é o da página atual.",
     "increaseFontSize": "Aumentar tamanho da fonte",
-    "decreaseFontSize": "Diminuir tamanho da fonte"
+    "decreaseFontSize": "Diminuir tamanho da fonte",
+    "textHistory": "Textos usados anteriormente",
+    "removeFromHistory": "Remover do histórico"
   },
   "headerFooter": {
     "addTitle": "Adicionar cabeçalho/rodapé",

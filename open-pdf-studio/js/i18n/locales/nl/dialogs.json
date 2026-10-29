@@ -345,7 +345,9 @@
     "autoFit": "Automatisch passend op pagina",
     "autoFitHint": "Past de tekst op elke pagina. De getoonde grootte geldt voor de huidige pagina.",
     "increaseFontSize": "Lettergrootte vergroten",
-    "decreaseFontSize": "Lettergrootte verkleinen"
+    "decreaseFontSize": "Lettergrootte verkleinen",
+    "textHistory": "Eerder gebruikte teksten",
+    "removeFromHistory": "Verwijderen uit geschiedenis"
   },
   "headerFooter": {
     "addTitle": "Koptekst/voettekst toevoegen",

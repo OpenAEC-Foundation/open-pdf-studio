@@ -364,7 +364,9 @@
     "autoFit": "Automatikus igazítás az oldalhoz",
     "autoFitHint": "A szöveget minden oldalhoz igazítja. A megjelenített méret az aktuális oldalra vonatkozik.",
     "increaseFontSize": "Betűméret növelése",
-    "decreaseFontSize": "Betűméret csökkentése"
+    "decreaseFontSize": "Betűméret csökkentése",
+    "textHistory": "Korábban használt szövegek",
+    "removeFromHistory": "Eltávolítás az előzményekből"
   },
   "headerFooter": {
     "addTitle": "Élőfej/élőláb hozzáadása",

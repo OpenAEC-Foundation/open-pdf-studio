@@ -364,7 +364,9 @@
     "autoFit": "Automaticky prispôsobiť strane",
     "autoFitHint": "Prispôsobí text každej strane. Zobrazená veľkosť platí pre aktuálnu stranu.",
     "increaseFontSize": "Zväčšiť veľkosť písma",
-    "decreaseFontSize": "Zmenšiť veľkosť písma"
+    "decreaseFontSize": "Zmenšiť veľkosť písma",
+    "textHistory": "Predtým použité texty",
+    "removeFromHistory": "Odstrániť z histórie"
   },
   "headerFooter": {
     "addTitle": "Pridať hlavičku/pätu",

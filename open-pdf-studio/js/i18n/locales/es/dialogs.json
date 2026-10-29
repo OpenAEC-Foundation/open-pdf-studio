@@ -364,7 +364,9 @@
     "autoFit": "Ajustar automáticamente a la página",
     "autoFitHint": "Ajusta el texto a cada página. El tamaño mostrado corresponde a la página actual.",
     "increaseFontSize": "Aumentar tamaño de fuente",
-    "decreaseFontSize": "Reducir tamaño de fuente"
+    "decreaseFontSize": "Reducir tamaño de fuente",
+    "textHistory": "Textos usados anteriormente",
+    "removeFromHistory": "Quitar del historial"
   },
   "headerFooter": {
     "addTitle": "Agregar encabezado/pie de página",

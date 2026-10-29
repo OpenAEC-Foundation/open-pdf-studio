@@ -364,7 +364,9 @@
     "autoFit": "Sovita automaattisesti sivulle",
     "autoFitHint": "Sovittaa tekstin jokaiselle sivulle. Näytetty koko koskee nykyistä sivua.",
     "increaseFontSize": "Suurenna fonttikokoa",
-    "decreaseFontSize": "Pienennä fonttikokoa"
+    "decreaseFontSize": "Pienennä fonttikokoa",
+    "textHistory": "Aiemmin käytetyt tekstit",
+    "removeFromHistory": "Poista historiasta"
   },
   "headerFooter": {
     "addTitle": "Lisää ylätunniste/alatunniste",

@@ -3113,6 +3113,73 @@
   width: 70px;
 }
 
+/* Watermark text with earlier texts as suggestions (#850) */
+.watermark-combo {
+  position: relative;
+  flex: 1;
+  display: flex;
+  min-width: 0;
+}
+
+.watermark-combo .watermark-input {
+  min-width: 0;
+}
+
+.watermark-suggest {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 168px;
+  overflow-y: auto;
+  border: 1px solid var(--theme-border, #d4d4d4);
+  border-radius: 0;
+  background: var(--theme-surface, #fff);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.watermark-suggest-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 2px 2px 6px;
+  font-size: 12px;
+  color: var(--theme-text, #333);
+}
+
+.watermark-suggest-item.active {
+  background: var(--theme-accent, #0078d4);
+  color: #fff;
+}
+
+.watermark-suggest-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.watermark-suggest-remove {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.watermark-suggest-remove:hover {
+  background: #e81123;
+  color: #fff;
+}
+
 /* Font size: a numeric field with up/down buttons, and auto-fit (#849) */
 .watermark-row-wrap {
   flex-wrap: wrap;

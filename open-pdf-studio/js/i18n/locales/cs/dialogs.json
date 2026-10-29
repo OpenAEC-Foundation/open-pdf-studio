@@ -364,7 +364,9 @@
     "autoFit": "Automaticky přizpůsobit stránce",
     "autoFitHint": "Přizpůsobí text každé stránce. Zobrazená velikost platí pro aktuální stránku.",
     "increaseFontSize": "Zvětšit velikost písma",
-    "decreaseFontSize": "Zmenšit velikost písma"
+    "decreaseFontSize": "Zmenšit velikost písma",
+    "textHistory": "Dříve použité texty",
+    "removeFromHistory": "Odebrat z historie"
   },
   "headerFooter": {
     "addTitle": "Přidat záhlaví/zápatí",

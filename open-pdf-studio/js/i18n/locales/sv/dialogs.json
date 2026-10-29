@@ -364,7 +364,9 @@
     "autoFit": "Anpassa automatiskt till sidan",
     "autoFitHint": "Anpassar texten till varje sida. Storleken som visas gäller aktuell sida.",
     "increaseFontSize": "Öka teckenstorlek",
-    "decreaseFontSize": "Minska teckenstorlek"
+    "decreaseFontSize": "Minska teckenstorlek",
+    "textHistory": "Tidigare använda texter",
+    "removeFromHistory": "Ta bort från historiken"
   },
   "headerFooter": {
     "addTitle": "Lägg till sidhuvud/sidfot",

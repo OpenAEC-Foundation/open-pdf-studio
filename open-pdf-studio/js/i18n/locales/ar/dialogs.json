@@ -364,7 +364,9 @@
     "autoFit": "ملاءمة تلقائية للصفحة",
     "autoFitHint": "يلائم النص كل صفحة. الحجم المعروض خاص بالصفحة الحالية.",
     "increaseFontSize": "تكبير حجم الخط",
-    "decreaseFontSize": "تصغير حجم الخط"
+    "decreaseFontSize": "تصغير حجم الخط",
+    "textHistory": "النصوص المستخدمة سابقًا",
+    "removeFromHistory": "إزالة من السجل"
   },
   "headerFooter": {
     "addTitle": "إضافة رأس/تذييل",

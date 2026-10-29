@@ -364,7 +364,9 @@
     "autoFit": "Linganisha kiotomatiki na ukurasa",
     "autoFitHint": "Hulinganisha maandishi na kila ukurasa. Ukubwa unaoonyeshwa ni wa ukurasa wa sasa.",
     "increaseFontSize": "Ongeza ukubwa wa fonti",
-    "decreaseFontSize": "Punguza ukubwa wa fonti"
+    "decreaseFontSize": "Punguza ukubwa wa fonti",
+    "textHistory": "Maandishi yaliyotumika awali",
+    "removeFromHistory": "Ondoa kwenye historia"
   },
   "headerFooter": {
     "addTitle": "Ongeza Kichwa/Kiguu",

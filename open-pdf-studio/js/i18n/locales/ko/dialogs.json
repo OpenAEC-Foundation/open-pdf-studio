@@ -364,7 +364,9 @@
     "autoFit": "페이지에 자동 맞춤",
     "autoFitHint": "각 페이지에 맞게 텍스트를 조정합니다. 표시된 크기는 현재 페이지 기준입니다.",
     "increaseFontSize": "글꼴 크기 늘리기",
-    "decreaseFontSize": "글꼴 크기 줄이기"
+    "decreaseFontSize": "글꼴 크기 줄이기",
+    "textHistory": "이전에 사용한 텍스트",
+    "removeFromHistory": "기록에서 제거"
   },
   "headerFooter": {
     "addTitle": "머리글/바닥글 추가",

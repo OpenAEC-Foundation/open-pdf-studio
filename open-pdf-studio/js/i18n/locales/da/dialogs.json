@@ -364,7 +364,9 @@
     "autoFit": "Tilpas automatisk til siden",
     "autoFitHint": "Tilpasser teksten til hver side. Den viste størrelse gælder den aktuelle side.",
     "increaseFontSize": "Forøg skriftstørrelse",
-    "decreaseFontSize": "Formindsk skriftstørrelse"
+    "decreaseFontSize": "Formindsk skriftstørrelse",
+    "textHistory": "Tidligere brugte tekster",
+    "removeFromHistory": "Fjern fra historik"
   },
   "headerFooter": {
     "addTitle": "Tilføj sidehoved/sidefod",

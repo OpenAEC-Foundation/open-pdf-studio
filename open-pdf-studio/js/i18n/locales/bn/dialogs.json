@@ -364,7 +364,9 @@
     "autoFit": "পৃষ্ঠায় স্বয়ংক্রিয়ভাবে মানানসই",
     "autoFitHint": "প্রতিটি পৃষ্ঠায় লেখা মানানসই করে। দেখানো আকারটি বর্তমান পৃষ্ঠার জন্য।",
     "increaseFontSize": "ফন্টের আকার বাড়ান",
-    "decreaseFontSize": "ফন্টের আকার কমান"
+    "decreaseFontSize": "ফন্টের আকার কমান",
+    "textHistory": "আগে ব্যবহৃত লেখা",
+    "removeFromHistory": "ইতিহাস থেকে সরান"
   },
   "headerFooter": {
     "addTitle": "শিরোনাম/পাদটীকা যোগ করুন",

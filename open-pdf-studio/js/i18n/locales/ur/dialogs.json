@@ -364,7 +364,9 @@
     "autoFit": "صفحے پر خودکار فٹ",
     "autoFitHint": "متن کو ہر صفحے پر فٹ کرتا ہے۔ دکھایا گیا سائز موجودہ صفحے کا ہے۔",
     "increaseFontSize": "فونٹ کا سائز بڑھائیں",
-    "decreaseFontSize": "فونٹ کا سائز گھٹائیں"
+    "decreaseFontSize": "فونٹ کا سائز گھٹائیں",
+    "textHistory": "پہلے استعمال شدہ متن",
+    "removeFromHistory": "تاریخچے سے ہٹائیں"
   },
   "headerFooter": {
     "addTitle": "ہیڈر/فوٹر شامل کریں",

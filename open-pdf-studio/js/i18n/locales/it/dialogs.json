@@ -364,7 +364,9 @@
     "autoFit": "Adatta automaticamente alla pagina",
     "autoFitHint": "Adatta il testo a ogni pagina. La dimensione mostrata è quella della pagina corrente.",
     "increaseFontSize": "Aumenta dimensione carattere",
-    "decreaseFontSize": "Riduci dimensione carattere"
+    "decreaseFontSize": "Riduci dimensione carattere",
+    "textHistory": "Testi usati in precedenza",
+    "removeFromHistory": "Rimuovi dalla cronologia"
   },
   "headerFooter": {
     "addTitle": "Aggiungi intestazione/piè di pagina",

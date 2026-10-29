@@ -364,7 +364,9 @@
     "autoFit": "ปรับให้พอดีกับหน้าอัตโนมัติ",
     "autoFitHint": "ปรับข้อความให้พอดีกับแต่ละหน้า ขนาดที่แสดงเป็นของหน้าปัจจุบัน",
     "increaseFontSize": "เพิ่มขนาดฟอนต์",
-    "decreaseFontSize": "ลดขนาดฟอนต์"
+    "decreaseFontSize": "ลดขนาดฟอนต์",
+    "textHistory": "ข้อความที่เคยใช้",
+    "removeFromHistory": "ลบออกจากประวัติ"
   },
   "headerFooter": {
     "addTitle": "เพิ่มหัวกระดาษ/ท้ายกระดาษ",

@@ -364,7 +364,9 @@
     "autoFit": "Sayfaya otomatik sığdır",
     "autoFitHint": "Metni her sayfaya sığdırır. Gösterilen boyut geçerli sayfa içindir.",
     "increaseFontSize": "Yazı tipi boyutunu artır",
-    "decreaseFontSize": "Yazı tipi boyutunu azalt"
+    "decreaseFontSize": "Yazı tipi boyutunu azalt",
+    "textHistory": "Daha önce kullanılan metinler",
+    "removeFromHistory": "Geçmişten kaldır"
   },
   "headerFooter": {
     "addTitle": "Üstbilgi/Altbilgi Ekle",

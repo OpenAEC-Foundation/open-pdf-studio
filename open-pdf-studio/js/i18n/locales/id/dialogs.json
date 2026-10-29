@@ -364,7 +364,9 @@
     "autoFit": "Sesuaikan otomatis dengan halaman",
     "autoFitHint": "Menyesuaikan teks dengan setiap halaman. Ukuran yang ditampilkan berlaku untuk halaman saat ini.",
     "increaseFontSize": "Perbesar ukuran font",
-    "decreaseFontSize": "Perkecil ukuran font"
+    "decreaseFontSize": "Perkecil ukuran font",
+    "textHistory": "Teks yang pernah digunakan",
+    "removeFromHistory": "Hapus dari riwayat"
   },
   "headerFooter": {
     "addTitle": "Tambah Header/Footer",
