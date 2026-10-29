@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "가로선 넓음"
     }
   },
+  "tagsPanel": {
+    "moveUp": "읽기 순서에서 위로 이동",
+    "moveDown": "읽기 순서에서 아래로 이동",
+    "checkAccessibility": "접근성 검사",
+    "altText": "대체 텍스트",
+    "altTextPlaceholder": "이미지를 볼 수 없는 사람을 위해 이미지를 설명하세요...",
+    "noAlt": "대체 텍스트 없음",
+    "role": "역할",
+    "mappedTo": "{{role}}은(는) {{standard}}에 매핑됨",
+    "content": "콘텐츠 {{mcid}} ({{page}}페이지)",
+    "annotationRef": "주석 ({{page}}페이지)"
+  },
   "ink": {
     "title": "잉크",
     "pressure": "펜 압력",

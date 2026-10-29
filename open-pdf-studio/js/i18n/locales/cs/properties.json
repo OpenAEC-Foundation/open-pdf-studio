@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "Vodorovná šrafa řídká"
     }
   },
+  "tagsPanel": {
+    "moveUp": "Posunout výš v pořadí čtení",
+    "moveDown": "Posunout níž v pořadí čtení",
+    "checkAccessibility": "Zkontrolovat přístupnost",
+    "altText": "Alternativní text",
+    "altTextPlaceholder": "Popište obrázek pro ty, kdo ho nevidí...",
+    "noAlt": "Bez alternativního textu",
+    "role": "Role",
+    "mappedTo": "{{role}} je mapována na {{standard}}",
+    "content": "Obsah {{mcid}} (stránka {{page}})",
+    "annotationRef": "Poznámka (stránka {{page}})"
+  },
   "ink": {
     "title": "Inkoust",
     "pressure": "Přítlak pera",

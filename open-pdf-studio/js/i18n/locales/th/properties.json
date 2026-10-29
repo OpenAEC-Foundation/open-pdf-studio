@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "เส้นแนวนอนห่าง"
     }
   },
+  "tagsPanel": {
+    "moveUp": "เลื่อนขึ้นในลำดับการอ่าน",
+    "moveDown": "เลื่อนลงในลำดับการอ่าน",
+    "checkAccessibility": "ตรวจสอบการเข้าถึง",
+    "altText": "ข้อความแทน",
+    "altTextPlaceholder": "อธิบายรูปภาพสำหรับผู้ที่มองไม่เห็น...",
+    "noAlt": "ไม่มีข้อความแทน",
+    "role": "บทบาท",
+    "mappedTo": "{{role}} ถูกจับคู่กับ {{standard}}",
+    "content": "เนื้อหา {{mcid}} (หน้า {{page}})",
+    "annotationRef": "คำอธิบายประกอบ (หน้า {{page}})"
+  },
   "ink": {
     "title": "หมึก",
     "pressure": "แรงกดปากกา",

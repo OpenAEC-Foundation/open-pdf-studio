@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "Mendatar renggang"
     }
   },
+  "tagsPanel": {
+    "moveUp": "Pindah ke atas dalam urutan baca",
+    "moveDown": "Pindah ke bawah dalam urutan baca",
+    "checkAccessibility": "Periksa aksesibilitas",
+    "altText": "Teks alternatif",
+    "altTextPlaceholder": "Jelaskan gambar untuk orang yang tidak dapat melihatnya...",
+    "noAlt": "Tidak ada teks alternatif",
+    "role": "Peran",
+    "mappedTo": "{{role}} dipetakan ke {{standard}}",
+    "content": "Konten {{mcid}} (halaman {{page}})",
+    "annotationRef": "Anotasi (halaman {{page}})"
+  },
   "ink": {
     "title": "Tinta",
     "pressure": "Tekanan pena",

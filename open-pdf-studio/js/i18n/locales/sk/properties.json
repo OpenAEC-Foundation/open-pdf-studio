@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "Vodorovná šrafa riedka"
     }
   },
+  "tagsPanel": {
+    "moveUp": "Posunúť vyššie v poradí čítania",
+    "moveDown": "Posunúť nižšie v poradí čítania",
+    "checkAccessibility": "Skontrolovať prístupnosť",
+    "altText": "Alternatívny text",
+    "altTextPlaceholder": "Opíšte obrázok pre tých, ktorí ho nevidia...",
+    "noAlt": "Bez alternatívneho textu",
+    "role": "Rola",
+    "mappedTo": "{{role}} je mapovaná na {{standard}}",
+    "content": "Obsah {{mcid}} (strana {{page}})",
+    "annotationRef": "Poznámka (strana {{page}})"
+  },
   "ink": {
     "title": "Atrament",
     "pressure": "Prítlak pera",

@@ -210,7 +210,15 @@
     "rotateViewLeft": "Kierrä näkymää vasemmalle",
     "rotateViewRight": "Kierrä näkymää oikealle",
     "rotateViewLeftTitle": "Kiertää näkymää 90° vastapäivään. Itse asiakirja ei muutu.",
-    "rotateViewRightTitle": "Kiertää näkymää 90° myötäpäivään. Itse asiakirja ei muutu."
+    "rotateViewRightTitle": "Kiertää näkymää 90° myötäpäivään. Itse asiakirja ei muutu.",
+    "accessibilityGroup": "Saavutettavuus",
+    "readAloud": "Lue ääneen",
+    "readAloudPause": "Tauko",
+    "readAloudTitle": "Lue valinta tai asiakirja nykyiseltä sivulta alkaen ääneen",
+    "tagsPanel": "Tunnisteet",
+    "tagsPanelTitle": "Näytä asiakirjan rakennetunnisteet",
+    "accessibilityCheck": "Tarkista",
+    "accessibilityCheckTitle": "Etsi puuttuvia vaihtoehtoisia tekstejä ja tunnisteetonta sisältöä"
   },
   "elementVisibility": {
     "buttonTitle": "Elementtien näkyvyys — näytä/piilota ja himmennä merkintätyyppejä",

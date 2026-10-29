@@ -210,7 +210,15 @@
     "rotateViewLeft": "Rotire vizualizare la stânga",
     "rotateViewRight": "Rotire vizualizare la dreapta",
     "rotateViewLeftTitle": "Rotește vizualizarea cu 90° în sens invers acelor de ceasornic. Documentul în sine nu se modifică.",
-    "rotateViewRightTitle": "Rotește vizualizarea cu 90° în sensul acelor de ceasornic. Documentul în sine nu se modifică."
+    "rotateViewRightTitle": "Rotește vizualizarea cu 90° în sensul acelor de ceasornic. Documentul în sine nu se modifică.",
+    "accessibilityGroup": "Accesibilitate",
+    "readAloud": "Citire cu voce tare",
+    "readAloudPause": "Pauză",
+    "readAloudTitle": "Citește cu voce tare selecția sau documentul de la pagina curentă",
+    "tagsPanel": "Etichete",
+    "tagsPanelTitle": "Afișează etichetele de structură ale documentului",
+    "accessibilityCheck": "Verificare",
+    "accessibilityCheckTitle": "Caută text alternativ lipsă și conținut fără etichete"
   },
   "elementVisibility": {
     "buttonTitle": "Vizibilitatea elementelor — afișare/ascundere și estompare tipuri de adnotări",

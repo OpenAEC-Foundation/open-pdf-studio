@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "Vízszintes sraffozás ritka"
     }
   },
+  "tagsPanel": {
+    "moveUp": "Feljebb az olvasási sorrendben",
+    "moveDown": "Lejjebb az olvasási sorrendben",
+    "checkAccessibility": "Akadálymentesség ellenőrzése",
+    "altText": "Helyettesítő szöveg",
+    "altTextPlaceholder": "Írja le a képet azoknak, akik nem látják...",
+    "noAlt": "Nincs helyettesítő szöveg",
+    "role": "Szerepkör",
+    "mappedTo": "{{role}} leképezése: {{standard}}",
+    "content": "Tartalom {{mcid}} ({{page}}. oldal)",
+    "annotationRef": "Megjegyzés ({{page}}. oldal)"
+  },
   "ink": {
     "title": "Tinta",
     "pressure": "Tollnyomás",

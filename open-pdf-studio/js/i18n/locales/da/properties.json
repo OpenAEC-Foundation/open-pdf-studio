@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "Vandret åben"
     }
   },
+  "tagsPanel": {
+    "moveUp": "Flyt op i læserækkefølgen",
+    "moveDown": "Flyt ned i læserækkefølgen",
+    "checkAccessibility": "Kontrollér tilgængelighed",
+    "altText": "Alternativ tekst",
+    "altTextPlaceholder": "Beskriv billedet for dem, der ikke kan se det...",
+    "noAlt": "Ingen alternativ tekst",
+    "role": "Rolle",
+    "mappedTo": "{{role}} er knyttet til {{standard}}",
+    "content": "Indhold {{mcid}} (side {{page}})",
+    "annotationRef": "Kommentar (side {{page}})"
+  },
   "ink": {
     "title": "Blæk",
     "pressure": "Pentryk",

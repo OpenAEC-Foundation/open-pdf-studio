@@ -210,7 +210,15 @@
     "rotateViewLeft": "보기 왼쪽으로 회전",
     "rotateViewRight": "보기 오른쪽으로 회전",
     "rotateViewLeftTitle": "보기를 시계 반대 방향으로 90° 회전합니다. 문서 자체는 변경되지 않습니다.",
-    "rotateViewRightTitle": "보기를 시계 방향으로 90° 회전합니다. 문서 자체는 변경되지 않습니다."
+    "rotateViewRightTitle": "보기를 시계 방향으로 90° 회전합니다. 문서 자체는 변경되지 않습니다.",
+    "accessibilityGroup": "접근성",
+    "readAloud": "소리 내어 읽기",
+    "readAloudPause": "일시 중지",
+    "readAloudTitle": "선택 영역 또는 현재 페이지부터 문서를 소리 내어 읽습니다",
+    "tagsPanel": "태그",
+    "tagsPanelTitle": "문서의 구조 태그를 표시합니다",
+    "accessibilityCheck": "검사",
+    "accessibilityCheckTitle": "누락된 대체 텍스트와 태그가 없는 콘텐츠를 찾습니다"
   },
   "elementVisibility": {
     "buttonTitle": "요소 가시성 — 주석 유형 표시/숨기기 및 흐리게 하기",

@@ -210,7 +210,15 @@
     "rotateViewLeft": "Girar visualização à esquerda",
     "rotateViewRight": "Girar visualização à direita",
     "rotateViewLeftTitle": "Gira a visualização 90° no sentido anti-horário. O documento em si não muda.",
-    "rotateViewRightTitle": "Gira a visualização 90° no sentido horário. O documento em si não muda."
+    "rotateViewRightTitle": "Gira a visualização 90° no sentido horário. O documento em si não muda.",
+    "accessibilityGroup": "Acessibilidade",
+    "readAloud": "Ler em voz alta",
+    "readAloudPause": "Pausar",
+    "readAloudTitle": "Ler em voz alta a seleção, ou o documento a partir da página atual",
+    "tagsPanel": "Etiquetas",
+    "tagsPanelTitle": "Mostrar as etiquetas de estrutura do documento",
+    "accessibilityCheck": "Verificar",
+    "accessibilityCheckTitle": "Procurar texto alternativo em falta e conteúdo sem etiquetas"
   },
   "elementVisibility": {
     "buttonTitle": "Visibilidade de elementos — mostrar/ocultar e esmaecer tipos de anotação",

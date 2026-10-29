@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "Orizontal larg"
     }
   },
+  "tagsPanel": {
+    "moveUp": "Mută mai sus în ordinea de citire",
+    "moveDown": "Mută mai jos în ordinea de citire",
+    "checkAccessibility": "Verifică accesibilitatea",
+    "altText": "Text alternativ",
+    "altTextPlaceholder": "Descrieți imaginea pentru cei care nu o pot vedea...",
+    "noAlt": "Fără text alternativ",
+    "role": "Rol",
+    "mappedTo": "{{role}} este asociat cu {{standard}}",
+    "content": "Conținut {{mcid}} (pagina {{page}})",
+    "annotationRef": "Adnotare (pagina {{page}})"
+  },
   "ink": {
     "title": "Cerneală",
     "pressure": "Presiunea stiloului",

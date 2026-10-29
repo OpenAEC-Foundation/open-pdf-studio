@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "क्षैतिज विरल"
     }
   },
+  "tagsPanel": {
+    "moveUp": "पढ़ने के क्रम में ऊपर ले जाएँ",
+    "moveDown": "पढ़ने के क्रम में नीचे ले जाएँ",
+    "checkAccessibility": "सुलभता जाँचें",
+    "altText": "वैकल्पिक टेक्स्ट",
+    "altTextPlaceholder": "छवि का वर्णन उनके लिए करें जो इसे नहीं देख सकते...",
+    "noAlt": "कोई वैकल्पिक टेक्स्ट नहीं",
+    "role": "भूमिका",
+    "mappedTo": "{{role}} को {{standard}} से मैप किया गया है",
+    "content": "सामग्री {{mcid}} (पृष्ठ {{page}})",
+    "annotationRef": "एनोटेशन (पृष्ठ {{page}})"
+  },
   "ink": {
     "title": "स्याही",
     "pressure": "पेन दबाव",

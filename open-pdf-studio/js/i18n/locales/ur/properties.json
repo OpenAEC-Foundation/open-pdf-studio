@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "افقی کشادہ"
     }
   },
+  "tagsPanel": {
+    "moveUp": "پڑھنے کی ترتیب میں اوپر لے جائیں",
+    "moveDown": "پڑھنے کی ترتیب میں نیچے لے جائیں",
+    "checkAccessibility": "رسائی کی جانچ کریں",
+    "altText": "متبادل متن",
+    "altTextPlaceholder": "تصویر کو ان لوگوں کے لیے بیان کریں جو اسے نہیں دیکھ سکتے...",
+    "noAlt": "کوئی متبادل متن نہیں",
+    "role": "کردار",
+    "mappedTo": "{{role}} کو {{standard}} سے منسلک کیا گیا ہے",
+    "content": "مواد {{mcid}} (صفحہ {{page}})",
+    "annotationRef": "تشریح (صفحہ {{page}})"
+  },
   "ink": {
     "title": "روشنائی",
     "pressure": "قلم کا دباؤ",

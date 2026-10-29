@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "أفقي متباعد"
     }
   },
+  "tagsPanel": {
+    "moveUp": "نقل لأعلى في ترتيب القراءة",
+    "moveDown": "نقل لأسفل في ترتيب القراءة",
+    "checkAccessibility": "فحص إمكانية الوصول",
+    "altText": "النص البديل",
+    "altTextPlaceholder": "صِف الصورة لمن لا يستطيع رؤيتها...",
+    "noAlt": "لا يوجد نص بديل",
+    "role": "الدور",
+    "mappedTo": "الدور {{role}} مُعيَّن إلى {{standard}}",
+    "content": "المحتوى {{mcid}} (الصفحة {{page}})",
+    "annotationRef": "تعليق توضيحي (الصفحة {{page}})"
+  },
   "ink": {
     "title": "الحبر",
     "pressure": "ضغط القلم",

@@ -210,7 +210,15 @@
     "rotateViewLeft": "چرخش نما به چپ",
     "rotateViewRight": "چرخش نما به راست",
     "rotateViewLeftTitle": "نما را 90° خلاف جهت عقربه‌های ساعت می‌چرخاند. خود سند تغییر نمی‌کند.",
-    "rotateViewRightTitle": "نما را 90° در جهت عقربه‌های ساعت می‌چرخاند. خود سند تغییر نمی‌کند."
+    "rotateViewRightTitle": "نما را 90° در جهت عقربه‌های ساعت می‌چرخاند. خود سند تغییر نمی‌کند.",
+    "accessibilityGroup": "دسترس‌پذیری",
+    "readAloud": "بلندخوانی",
+    "readAloudPause": "مکث",
+    "readAloudTitle": "خواندن بلند متن انتخاب‌شده، یا سند از صفحهٔ فعلی",
+    "tagsPanel": "برچسب‌ها",
+    "tagsPanelTitle": "نمایش برچسب‌های ساختاری سند",
+    "accessibilityCheck": "بررسی",
+    "accessibilityCheckTitle": "جست‌وجوی متن جایگزین جاافتاده و محتوای بدون برچسب"
   },
   "elementVisibility": {
     "buttonTitle": "نمایانی المان‌ها — نمایش/پنهان کردن و کم‌رنگ کردن انواع حاشیه‌نویسی",

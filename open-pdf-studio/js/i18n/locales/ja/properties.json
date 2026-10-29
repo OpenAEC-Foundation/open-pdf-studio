@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "横線 疎"
     }
   },
+  "tagsPanel": {
+    "moveUp": "読み上げ順序で上へ移動",
+    "moveDown": "読み上げ順序で下へ移動",
+    "checkAccessibility": "アクセシビリティをチェック",
+    "altText": "代替テキスト",
+    "altTextPlaceholder": "画像が見えない人のために画像を説明してください...",
+    "noAlt": "代替テキストなし",
+    "role": "ロール",
+    "mappedTo": "{{role}} は {{standard}} に対応付けられています",
+    "content": "コンテンツ {{mcid}} ({{page}} ページ)",
+    "annotationRef": "注釈 ({{page}} ページ)"
+  },
   "ink": {
     "title": "インク",
     "pressure": "筆圧",

@@ -4,7 +4,7 @@ import { showLoading, hideLoading } from '../ui/chrome/dialogs.js';
 import { hexToColorArray } from '../utils/colors.js';
 import { hasFill, hasStroke, colorWithoutStroke } from '../annotations/fill-utils.js';
 import { layoutTextboxForExport } from '../annotations/rendering/shapes.js';
-import { markDocumentSaved, updateWindowTitle } from '../ui/chrome/tabs.js';
+import { markDocumentSaved, markDocumentModified, updateWindowTitle } from '../ui/chrome/tabs.js';
 import { updateStatusMessage } from '../ui/chrome/status-bar.js';
 import { isTauri, invoke, readBinaryFile, writeBinaryFileAtomic, saveFileDialog, unlockFile, lockFile } from '../core/platform.js';
 import { bestandsnaamUitPad } from '../core/bestandsnaam.js';
@@ -52,6 +52,8 @@ import { saveWatermarksToPages } from './saver/watermarks.js';
 import { writeOcrLayers } from './saver/ocr-text-layer.js';
 import { maakCjkFontKeten } from './saver/cjk-fonts.js';
 import { saveBookmarksToOutline } from './saver/bookmarks.js';
+import { applyEditsToPdf, hasEdits, editsAfterSave } from '../accessibility/struct-edits.js';
+import { notifyStructEditsSaved } from '../accessibility/struct-tree-events.js';
 import { saveStylePresetsToCatalog } from './saver/style-presets.js';
 import { slaPaginaLabelsOp } from './pagina-labels.js';
 import { pasBijlagenToe } from './bijlagen.js';
@@ -378,6 +380,10 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
   const sourcePdf = activeDoc?.pdfDoc;
   const stillCurrent = () => state.documents.includes(activeDoc)
     && activeDoc.pdfDoc === sourcePdf && activeDoc.filePath === currentPath;
+  // The structure edits (tags panel, #384) this save writes. The panel puts a
+  // new object on the document per edit, so after the save an edit made
+  // during it is told apart by reference and kept (editsAfterSave).
+  let opgeslagenStructEdits = null;
   const changedDuringSave = () => new Error(i18next.t('documentChangedDuringSave', {
     defaultValue: 'The document changed while saving. Save again.',
   }));
@@ -3310,6 +3316,13 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
       // Bijlagen die in het paneel zijn toegevoegd of verwijderd (bijlagen.js).
       pasBijlagenToe(pdfDocLib, activeDoc.bijlagenWijzigingen);
+
+      // Tags panel (#384): alt text and reading order of structure elements.
+      if (hasEdits(activeDoc?.structEdits)) {
+        opgeslagenStructEdits = activeDoc.structEdits;
+        const r = applyEditsToPdf(pdfDocLib, opgeslagenStructEdits);
+        if (r.skipped) console.warn(`[saver] ${r.skipped} structure edit(s) no longer match the document and were skipped`);
+      }
     }
     await annulering.punt();
 
@@ -3411,6 +3424,17 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     // een weergavekopie volgt de nieuwe bytes.
     lagenNaOpslaan(activeDoc, { standBewaard: !!laagStandaard })
       .catch((e) => console.warn('[lagen] na opslaan:', e));
+
+    // The structure edits are in the file now; the tags panel reads the tree
+    // again from the saved bytes (the keys of the edits belong to the old ones).
+    // Only the edits this save wrote are cleared: an alt text or order changed
+    // during a long save stays, rebased on the saved structure, and keeps the
+    // document modified, so it is not lost.
+    if (activeDoc?.structEdits) {
+      activeDoc.structEdits = editsAfterSave(activeDoc.structEdits, opgeslagenStructEdits);
+      if (activeDoc.structEdits) markDocumentModified(activeDoc);
+      notifyStructEditsSaved(activeDoc);
+    }
 
     // Vastgezette knipsels staan nu in de pagina-inhoud van outputPath. Zie
     // alInBasis(): een volgende save op die basis tekent ze niet nogmaals.

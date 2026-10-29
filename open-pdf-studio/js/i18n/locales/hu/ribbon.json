@@ -210,7 +210,15 @@
     "rotateViewLeft": "Nézet forgatása balra",
     "rotateViewRight": "Nézet forgatása jobbra",
     "rotateViewLeftTitle": "Az óramutató járásával ellentétesen 90°-kal elforgatja a nézetet. Maga a dokumentum nem változik.",
-    "rotateViewRightTitle": "Az óramutató járásával megegyezően 90°-kal elforgatja a nézetet. Maga a dokumentum nem változik."
+    "rotateViewRightTitle": "Az óramutató járásával megegyezően 90°-kal elforgatja a nézetet. Maga a dokumentum nem változik.",
+    "accessibilityGroup": "Akadálymentesség",
+    "readAloud": "Felolvasás",
+    "readAloudPause": "Szünet",
+    "readAloudTitle": "A kijelölés vagy a dokumentum felolvasása az aktuális oldaltól",
+    "tagsPanel": "Címkék",
+    "tagsPanelTitle": "A dokumentum szerkezeti címkéinek megjelenítése",
+    "accessibilityCheck": "Ellenőrzés",
+    "accessibilityCheckTitle": "Hiányzó helyettesítő szöveg és címkézetlen tartalom keresése"
   },
   "elementVisibility": {
     "buttonTitle": "Elemek láthatósága — annotációtípusok megjelenítése/elrejtése és halványítása",

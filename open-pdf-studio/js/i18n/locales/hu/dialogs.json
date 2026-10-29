@@ -1628,5 +1628,26 @@
     "fileFailed": "{{name}} nem olvasható: {{error}}",
     "applyFailed": "Az oldalmódosítások alkalmazása nem sikerült: {{error}}",
     "extractFailed": "Az oldalak kibontása nem sikerült: {{error}}"
+  },
+  "accessibilityReport": {
+    "title": "Akadálymentességi ellenőrzés",
+    "starting": "Ellenőrzés...",
+    "checking": "{{done}}. oldal ellenőrzése ({{total}} közül)...",
+    "noIssues": "Nem található probléma.",
+    "summary": "{{count}} probléma található. Kattintson duplán egy elemre az oldalához ugráshoz.",
+    "failed": "Az ellenőrzést nem sikerült lefuttatni ezen a dokumentumon.",
+    "recheck": "Újraellenőrzés",
+    "close": "Bezárás",
+    "goTo": "Kattintson duplán az oldalra ugráshoz",
+    "page": "{{page}}. oldal",
+    "kind": {
+      "notTagged": "A dokumentum nincs címkézve: nincs szerkezeti fa, így a kisegítő technológiák nem tudják követni az olvasási sorrendet.",
+      "notMarked": "A dokumentum nincs címkézettként megjelölve (/MarkInfo /Marked).",
+      "noLanguage": "A dokumentum nyelve nincs beállítva.",
+      "figureNoAlt": "{{role}} helyettesítő szöveg nélkül",
+      "pageNotTagged": "Ezen az oldalon nincs címkézett tartalom ({{count}} szövegelem)",
+      "untaggedContent": "{{count}} szövegelem a címkéken kívül",
+      "annotationNoText": "Megjegyzés ({{type}}) leírás nélkül"
+    }
   }
 }

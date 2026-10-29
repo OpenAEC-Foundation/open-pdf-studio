@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "افقی باز"
     }
   },
+  "tagsPanel": {
+    "moveUp": "انتقال به بالا در ترتیب خواندن",
+    "moveDown": "انتقال به پایین در ترتیب خواندن",
+    "checkAccessibility": "بررسی دسترس‌پذیری",
+    "altText": "متن جایگزین",
+    "altTextPlaceholder": "تصویر را برای کسانی که نمی‌توانند آن را ببینند توصیف کنید...",
+    "noAlt": "بدون متن جایگزین",
+    "role": "نقش",
+    "mappedTo": "{{role}} به {{standard}} نگاشت شده است",
+    "content": "محتوای {{mcid}} (صفحهٔ {{page}})",
+    "annotationRef": "حاشیه‌نویسی (صفحهٔ {{page}})"
+  },
   "ink": {
     "title": "جوهر",
     "pressure": "فشار قلم",

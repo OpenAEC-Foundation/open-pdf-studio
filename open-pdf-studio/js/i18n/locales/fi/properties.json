@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "Vaakaviivoitus harva"
     }
   },
+  "tagsPanel": {
+    "moveUp": "Siirrä ylös lukujärjestyksessä",
+    "moveDown": "Siirrä alas lukujärjestyksessä",
+    "checkAccessibility": "Tarkista saavutettavuus",
+    "altText": "Vaihtoehtoinen teksti",
+    "altTextPlaceholder": "Kuvaile kuva niille, jotka eivät näe sitä...",
+    "noAlt": "Ei vaihtoehtoista tekstiä",
+    "role": "Rooli",
+    "mappedTo": "{{role}} on yhdistetty rooliin {{standard}}",
+    "content": "Sisältö {{mcid}} (sivu {{page}})",
+    "annotationRef": "Merkintä (sivu {{page}})"
+  },
   "ink": {
     "title": "Muste",
     "pressure": "Kynän paine",

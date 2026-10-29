@@ -242,6 +242,9 @@ export interface Preferences {
 
   // View
   thinLines: boolean;
+  readAloudVoice: string;
+  readAloudRate: number;
+  readAloudAllowOnline: boolean;
   showScrollbars: boolean;
   progressiveRender: boolean;
   screenCalibration: Record<string, number>;

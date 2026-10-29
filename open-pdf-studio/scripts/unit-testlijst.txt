@@ -590,3 +590,10 @@ js/pdf/wapening-rondgang.test.mjs
 js/annotations/pressure-ink.test.mjs
 js/annotations/pressure-ink-wiring.test.mjs
 js/pdf/drukinkt-rondgang.test.mjs
+js/accessibility/struct-tree.test.mjs
+js/accessibility/struct-edits-rondgang.test.mjs
+js/accessibility/struct-edits-opslagrace.test.mjs
+js/accessibility/struct-model.test.mjs
+js/accessibility/report.test.mjs
+js/accessibility/speech.test.mjs
+js/accessibility/accessibility-i18n.test.mjs

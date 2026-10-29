@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "Orizzontale rado"
     }
   },
+  "tagsPanel": {
+    "moveUp": "Sposta su nell'ordine di lettura",
+    "moveDown": "Sposta giù nell'ordine di lettura",
+    "checkAccessibility": "Verifica accessibilità",
+    "altText": "Testo alternativo",
+    "altTextPlaceholder": "Descrivi l'immagine per chi non può vederla...",
+    "noAlt": "Nessun testo alternativo",
+    "role": "Ruolo",
+    "mappedTo": "{{role}} è associato a {{standard}}",
+    "content": "Contenuto {{mcid}} (pagina {{page}})",
+    "annotationRef": "Annotazione (pagina {{page}})"
+  },
   "ink": {
     "title": "Inchiostro",
     "pressure": "Pressione della penna",

@@ -210,7 +210,15 @@
     "rotateViewLeft": "Obróć widok w lewo",
     "rotateViewRight": "Obróć widok w prawo",
     "rotateViewLeftTitle": "Obraca widok o 90° przeciwnie do ruchu wskazówek zegara. Sam dokument się nie zmienia.",
-    "rotateViewRightTitle": "Obraca widok o 90° zgodnie z ruchem wskazówek zegara. Sam dokument się nie zmienia."
+    "rotateViewRightTitle": "Obraca widok o 90° zgodnie z ruchem wskazówek zegara. Sam dokument się nie zmienia.",
+    "accessibilityGroup": "Dostępność",
+    "readAloud": "Czytaj na głos",
+    "readAloudPause": "Wstrzymaj",
+    "readAloudTitle": "Czytaj na głos zaznaczenie lub dokument od bieżącej strony",
+    "tagsPanel": "Znaczniki",
+    "tagsPanelTitle": "Pokaż znaczniki struktury dokumentu",
+    "accessibilityCheck": "Sprawdź",
+    "accessibilityCheckTitle": "Szukaj brakującego tekstu alternatywnego i treści bez znaczników"
   },
   "elementVisibility": {
     "buttonTitle": "Widoczność elementów — pokaż/ukryj i przyciemnij typy adnotacji",

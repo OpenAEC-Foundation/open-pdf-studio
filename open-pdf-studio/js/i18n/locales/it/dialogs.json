@@ -1628,5 +1628,26 @@
     "fileFailed": "Impossibile leggere {{name}}: {{error}}",
     "applyFailed": "Applicazione delle modifiche alle pagine non riuscita: {{error}}",
     "extractFailed": "Estrazione delle pagine non riuscita: {{error}}"
+  },
+  "accessibilityReport": {
+    "title": "Verifica accessibilità",
+    "starting": "Verifica in corso...",
+    "checking": "Verifica della pagina {{done}} di {{total}}...",
+    "noIssues": "Nessun problema trovato.",
+    "summary": "{{count}} problema/i trovato/i. Fai doppio clic su una voce per andare alla sua pagina.",
+    "failed": "Impossibile eseguire la verifica su questo documento.",
+    "recheck": "Verifica di nuovo",
+    "close": "Chiudi",
+    "goTo": "Doppio clic per andare alla pagina",
+    "page": "Pagina {{page}}",
+    "kind": {
+      "notTagged": "Il documento non ha tag: non c'è un albero della struttura, quindi le tecnologie assistive non possono seguirne l'ordine di lettura.",
+      "notMarked": "Il documento non è contrassegnato come dotato di tag (/MarkInfo /Marked).",
+      "noLanguage": "La lingua del documento non è impostata.",
+      "figureNoAlt": "{{role}} senza testo alternativo",
+      "pageNotTagged": "Nessun contenuto con tag in questa pagina ({{count}} elementi di testo)",
+      "untaggedContent": "{{count}} elemento/i di testo fuori dai tag",
+      "annotationNoText": "Annotazione ({{type}}) senza descrizione"
+    }
   }
 }

@@ -210,7 +210,15 @@
     "rotateViewLeft": "表示を左に回転",
     "rotateViewRight": "表示を右に回転",
     "rotateViewLeftTitle": "表示を反時計回りに90°回転します。文書そのものは変更されません。",
-    "rotateViewRightTitle": "表示を時計回りに90°回転します。文書そのものは変更されません。"
+    "rotateViewRightTitle": "表示を時計回りに90°回転します。文書そのものは変更されません。",
+    "accessibilityGroup": "アクセシビリティ",
+    "readAloud": "読み上げ",
+    "readAloudPause": "一時停止",
+    "readAloudTitle": "選択範囲、または現在のページ以降の文書を読み上げます",
+    "tagsPanel": "タグ",
+    "tagsPanelTitle": "文書の構造タグを表示します",
+    "accessibilityCheck": "チェック",
+    "accessibilityCheckTitle": "代替テキストの欠落とタグなしコンテンツを確認します"
   },
   "elementVisibility": {
     "buttonTitle": "要素の表示設定 — 注釈の種類ごとに表示/非表示や淡色表示を切り替えます",

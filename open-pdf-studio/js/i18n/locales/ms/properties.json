@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "Mendatar jarang"
     }
   },
+  "tagsPanel": {
+    "moveUp": "Alih ke atas dalam susunan bacaan",
+    "moveDown": "Alih ke bawah dalam susunan bacaan",
+    "checkAccessibility": "Semak kebolehcapaian",
+    "altText": "Teks alternatif",
+    "altTextPlaceholder": "Huraikan imej untuk mereka yang tidak dapat melihatnya...",
+    "noAlt": "Tiada teks alternatif",
+    "role": "Peranan",
+    "mappedTo": "{{role}} dipetakan kepada {{standard}}",
+    "content": "Kandungan {{mcid}} (halaman {{page}})",
+    "annotationRef": "Anotasi (halaman {{page}})"
+  },
   "ink": {
     "title": "Dakwat",
     "pressure": "Tekanan pen",

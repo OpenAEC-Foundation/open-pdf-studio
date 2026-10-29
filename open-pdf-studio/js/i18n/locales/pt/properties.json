@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "Horizontal largo"
     }
   },
+  "tagsPanel": {
+    "moveUp": "Subir na ordem de leitura",
+    "moveDown": "Descer na ordem de leitura",
+    "checkAccessibility": "Verificar acessibilidade",
+    "altText": "Texto alternativo",
+    "altTextPlaceholder": "Descreva a imagem para quem não a pode ver...",
+    "noAlt": "Sem texto alternativo",
+    "role": "Função",
+    "mappedTo": "{{role}} está associado a {{standard}}",
+    "content": "Conteúdo {{mcid}} (página {{page}})",
+    "annotationRef": "Anotação (página {{page}})"
+  },
   "ink": {
     "title": "Tinta",
     "pressure": "Pressão da caneta",

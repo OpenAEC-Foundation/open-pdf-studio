@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "אופקי מרווח"
     }
   },
+  "tagsPanel": {
+    "moveUp": "העברה למעלה בסדר הקריאה",
+    "moveDown": "העברה למטה בסדר הקריאה",
+    "checkAccessibility": "בדיקת נגישות",
+    "altText": "טקסט חלופי",
+    "altTextPlaceholder": "תארו את התמונה עבור מי שאינו יכול לראות אותה...",
+    "noAlt": "אין טקסט חלופי",
+    "role": "תפקיד",
+    "mappedTo": "{{role}} ממופה אל {{standard}}",
+    "content": "תוכן {{mcid}} (עמוד {{page}})",
+    "annotationRef": "הערה (עמוד {{page}})"
+  },
   "ink": {
     "title": "דיו",
     "pressure": "לחץ עט",

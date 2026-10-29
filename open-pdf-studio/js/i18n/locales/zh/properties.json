@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "横线 疏"
     }
   },
+  "tagsPanel": {
+    "moveUp": "在阅读顺序中上移",
+    "moveDown": "在阅读顺序中下移",
+    "checkAccessibility": "检查辅助功能",
+    "altText": "替代文本",
+    "altTextPlaceholder": "为看不到图像的人描述该图像...",
+    "noAlt": "无替代文本",
+    "role": "角色",
+    "mappedTo": "{{role}} 映射到 {{standard}}",
+    "content": "内容 {{mcid}}（第 {{page}} 页）",
+    "annotationRef": "注释（第 {{page}} 页）"
+  },
   "ink": {
     "title": "墨迹",
     "pressure": "笔压",

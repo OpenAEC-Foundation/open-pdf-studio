@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "ເສັ້ນແນວນອນຫ່າງ"
     }
   },
+  "tagsPanel": {
+    "moveUp": "ຍ້າຍຂຶ້ນໃນລຳດັບການອ່ານ",
+    "moveDown": "ຍ້າຍລົງໃນລຳດັບການອ່ານ",
+    "checkAccessibility": "ກວດສອບການເຂົ້າເຖິງ",
+    "altText": "ຂໍ້ຄວາມອະທິບາຍຮູບພາບ",
+    "altTextPlaceholder": "ອະທິບາຍຮູບພາບສຳລັບຜູ້ທີ່ເບິ່ງບໍ່ເຫັນ...",
+    "noAlt": "ບໍ່ມີຂໍ້ຄວາມອະທິບາຍ",
+    "role": "ບົດບາດ",
+    "mappedTo": "{{role}} ຖືກຈັບຄູ່ກັບ {{standard}}",
+    "content": "ເນື້ອຫາ {{mcid}} (ໜ້າ {{page}})",
+    "annotationRef": "ຄຳອະທິບາຍປະກອບ (ໜ້າ {{page}})"
+  },
   "ink": {
     "title": "ໝຶກ",
     "pressure": "ແຮງກົດປາກກາ",

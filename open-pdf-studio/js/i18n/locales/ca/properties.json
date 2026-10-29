@@ -850,6 +850,18 @@
       "inb-horizontaal-breed": "Horitzontal ample"
     }
   },
+  "tagsPanel": {
+    "moveUp": "Puja en l'ordre de lectura",
+    "moveDown": "Baixa en l'ordre de lectura",
+    "checkAccessibility": "Comprova l'accessibilitat",
+    "altText": "Text alternatiu",
+    "altTextPlaceholder": "Descriviu la imatge per a qui no la pot veure...",
+    "noAlt": "Sense text alternatiu",
+    "role": "Funció",
+    "mappedTo": "{{role}} s'assigna a {{standard}}",
+    "content": "Contingut {{mcid}} (pàgina {{page}})",
+    "annotationRef": "Anotació (pàgina {{page}})"
+  },
   "ink": {
     "title": "Tinta",
     "pressure": "Pressió del llapis",

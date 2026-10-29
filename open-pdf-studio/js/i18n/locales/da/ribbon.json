@@ -210,7 +210,15 @@
     "rotateViewLeft": "Roter visning til venstre",
     "rotateViewRight": "Roter visning til højre",
     "rotateViewLeftTitle": "Roterer visningen 90° mod uret. Selve dokumentet ændres ikke.",
-    "rotateViewRightTitle": "Roterer visningen 90° med uret. Selve dokumentet ændres ikke."
+    "rotateViewRightTitle": "Roterer visningen 90° med uret. Selve dokumentet ændres ikke.",
+    "accessibilityGroup": "Tilgængelighed",
+    "readAloud": "Læs højt",
+    "readAloudPause": "Pause",
+    "readAloudTitle": "Læs markeringen, eller dokumentet fra den aktuelle side, højt",
+    "tagsPanel": "Tags",
+    "tagsPanelTitle": "Vis dokumentets strukturtags",
+    "accessibilityCheck": "Kontrollér",
+    "accessibilityCheckTitle": "Søg efter manglende alternativ tekst og indhold uden tags"
   },
   "elementVisibility": {
     "buttonTitle": "Elementsynlighed — vis/skjul og dæmp annotationstyper",

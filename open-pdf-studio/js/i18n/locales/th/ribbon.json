@@ -210,7 +210,15 @@
     "rotateViewLeft": "หมุนมุมมองไปทางซ้าย",
     "rotateViewRight": "หมุนมุมมองไปทางขวา",
     "rotateViewLeftTitle": "หมุนมุมมอง 90° ทวนเข็มนาฬิกา เอกสารจะไม่เปลี่ยนแปลง",
-    "rotateViewRightTitle": "หมุนมุมมอง 90° ตามเข็มนาฬิกา เอกสารจะไม่เปลี่ยนแปลง"
+    "rotateViewRightTitle": "หมุนมุมมอง 90° ตามเข็มนาฬิกา เอกสารจะไม่เปลี่ยนแปลง",
+    "accessibilityGroup": "การเข้าถึง",
+    "readAloud": "อ่านออกเสียง",
+    "readAloudPause": "หยุดชั่วคราว",
+    "readAloudTitle": "อ่านออกเสียงส่วนที่เลือก หรือเอกสารตั้งแต่หน้าปัจจุบัน",
+    "tagsPanel": "แท็ก",
+    "tagsPanelTitle": "แสดงแท็กโครงสร้างของเอกสาร",
+    "accessibilityCheck": "ตรวจสอบ",
+    "accessibilityCheckTitle": "ค้นหาข้อความแทนที่ขาดหายและเนื้อหาที่ไม่มีแท็ก"
   },
   "elementVisibility": {
     "buttonTitle": "การมองเห็นองค์ประกอบ — แสดง/ซ่อนและทำให้จางตามประเภทคำอธิบายประกอบ",

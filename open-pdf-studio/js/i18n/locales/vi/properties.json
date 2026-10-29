@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "Đường ngang thưa"
     }
   },
+  "tagsPanel": {
+    "moveUp": "Di chuyển lên trong thứ tự đọc",
+    "moveDown": "Di chuyển xuống trong thứ tự đọc",
+    "checkAccessibility": "Kiểm tra trợ năng",
+    "altText": "Văn bản thay thế",
+    "altTextPlaceholder": "Mô tả hình ảnh cho những người không thể nhìn thấy...",
+    "noAlt": "Không có văn bản thay thế",
+    "role": "Vai trò",
+    "mappedTo": "{{role}} được ánh xạ tới {{standard}}",
+    "content": "Nội dung {{mcid}} (trang {{page}})",
+    "annotationRef": "Chú thích (trang {{page}})"
+  },
   "ink": {
     "title": "Mực",
     "pressure": "Lực nhấn bút",

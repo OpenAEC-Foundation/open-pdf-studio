@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "Mistari mlalo ya mbali"
     }
   },
+  "tagsPanel": {
+    "moveUp": "Sogeza juu katika mpangilio wa kusoma",
+    "moveDown": "Sogeza chini katika mpangilio wa kusoma",
+    "checkAccessibility": "Kagua ufikivu",
+    "altText": "Maandishi mbadala",
+    "altTextPlaceholder": "Eleza picha kwa wasioweza kuiona...",
+    "noAlt": "Hakuna maandishi mbadala",
+    "role": "Jukumu",
+    "mappedTo": "{{role}} imeunganishwa na {{standard}}",
+    "content": "Maudhui {{mcid}} (ukurasa {{page}})",
+    "annotationRef": "Kidokezo (ukurasa {{page}})"
+  },
   "ink": {
     "title": "Wino",
     "pressure": "Shinikizo la kalamu",

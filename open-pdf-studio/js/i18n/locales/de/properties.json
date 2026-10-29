@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "Horizontal weit"
     }
   },
+  "tagsPanel": {
+    "moveUp": "In der Lesereihenfolge nach oben",
+    "moveDown": "In der Lesereihenfolge nach unten",
+    "checkAccessibility": "Barrierefreiheit prüfen",
+    "altText": "Alternativtext",
+    "altTextPlaceholder": "Beschreiben Sie das Bild für Menschen, die es nicht sehen können...",
+    "noAlt": "Kein Alternativtext",
+    "role": "Rolle",
+    "mappedTo": "{{role}} ist {{standard}} zugeordnet",
+    "content": "Inhalt {{mcid}} (Seite {{page}})",
+    "annotationRef": "Anmerkung (Seite {{page}})"
+  },
   "ink": {
     "title": "Tinte",
     "pressure": "Stiftdruck",

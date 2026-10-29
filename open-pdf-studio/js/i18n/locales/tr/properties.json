@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "Yatay tarama seyrek"
     }
   },
+  "tagsPanel": {
+    "moveUp": "Okuma sırasında yukarı taşı",
+    "moveDown": "Okuma sırasında aşağı taşı",
+    "checkAccessibility": "Erişilebilirliği denetle",
+    "altText": "Alternatif metin",
+    "altTextPlaceholder": "Görüntüyü göremeyenler için açıklayın...",
+    "noAlt": "Alternatif metin yok",
+    "role": "Rol",
+    "mappedTo": "{{role}}, {{standard}} ile eşlenmiş",
+    "content": "İçerik {{mcid}} (sayfa {{page}})",
+    "annotationRef": "Ek açıklama (sayfa {{page}})"
+  },
   "ink": {
     "title": "Mürekkep",
     "pressure": "Kalem basıncı",

@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "Vannrett åpen"
     }
   },
+  "tagsPanel": {
+    "moveUp": "Flytt opp i leserekkefølgen",
+    "moveDown": "Flytt ned i leserekkefølgen",
+    "checkAccessibility": "Kontroller tilgjengelighet",
+    "altText": "Alternativ tekst",
+    "altTextPlaceholder": "Beskriv bildet for dem som ikke kan se det...",
+    "noAlt": "Ingen alternativ tekst",
+    "role": "Rolle",
+    "mappedTo": "{{role}} er tilordnet {{standard}}",
+    "content": "Innhold {{mcid}} (side {{page}})",
+    "annotationRef": "Merknad (side {{page}})"
+  },
   "ink": {
     "title": "Blekk",
     "pressure": "Pennetrykk",

@@ -7,6 +7,7 @@ import { opslaanVraagtOpslaanAls } from './handtekeningen/opslaan.js';
 import { isOntbrekendeGlyfenFout, tekensVoorMelding } from '../text/glyf-dekking.js';
 import { hostFoutMelding } from '../core/host-brug.js';
 import { maakOpslagAnnulering, isOpslagGeannuleerd, GEEN_ANNULERING } from './saver/opslag-annuleren.js';
+import { hasEdits, editsAfterSave, withAlt, editsOf } from '../accessibility/struct-edits.js';
 
 // Execute the production save functions with controlled I/O. The app imports
 // require a webview; only those dependencies and dynamic imports are replaced.
@@ -22,7 +23,7 @@ function harness() {
   const a = { id: 'a', pdfDoc: {}, filePath: 'a.pdf', annotations: [], modified: true, undoStack: [] };
   const b = { id: 'b', pdfDoc: {}, filePath: 'b.pdf', annotations: [], modified: true, undoStack: [] };
   let active = a;
-  const writes = [], owners = [], attachmentEdits = [], opgeslagenGemeld = [];
+  const writes = [], owners = [], attachmentEdits = [], opgeslagenGemeld = [], structWritten = [], structSavedNotified = [];
   const deps = {
     state: { documents: [a, b] }, getActiveDocument: () => active,
     showLoading() {}, hideLoading() {}, updateTabBar() {}, updateWindowTitle() {},
@@ -48,6 +49,12 @@ function harness() {
     saveBookmarksToOutline: (_pdf, doc) => owners.push(doc), saveStylePresetsToCatalog() {},
     slaPaginaLabelsOp: (_pdf, doc) => owners.push(doc),
     pasBijlagenToe: (_pdf, wijzigingen) => attachmentEdits.push(wijzigingen),
+    // Structuurbewerkingen van het tagspaneel (#384): het schrijven is een stub,
+    // de keuze wat na opslaan blijft staan is echt (struct-edits.js).
+    hasEdits, editsAfterSave,
+    applyEditsToPdf: (_pdf, edits) => { structWritten.push(edits); return { applied: 1, skipped: 0 }; },
+    notifyStructEditsSaved: doc => structSavedNotified.push(doc),
+    markDocumentModified: doc => { doc.modified = true; },
     unlockFile: async () => {}, lockFile: async () => {},
     writeBinaryFileAtomic: async (path, bytes) => { writes.push({ path, source: new TextDecoder().decode(bytes) }); },
     isTauri: () => false, markeerGebakken() {}, hidePdfABar() {}, stripPdfAMetadata() {},
@@ -80,7 +87,7 @@ function harness() {
   };
   // A with scope keeps the injected dependencies mutable across awaits.
   const api = new Function('deps', `with (deps) { ${saved}\n${functions}\n return {savePDF, savePDFAs, bouwMomentopname}; }`)(deps);
-  return { a, b, deps, api, writes, owners, attachmentEdits, opgeslagenGemeld, switchToB: () => { active = b; } };
+  return { a, b, deps, api, writes, owners, attachmentEdits, opgeslagenGemeld, structWritten, structSavedNotified, switchToB: () => { active = b; } };
 }
 
 test('tab switch during signature verification still saves A to the requested path', async () => {
@@ -492,4 +499,36 @@ test('a failed save does not report the document as saved', async () => {
   h.deps.writeBinaryFileAtomic = async () => { throw new Error('disk full'); };
   assert.equal(await h.api.savePDF(null, { zonderHandtekeningVraag: true }), false);
   assert.deepEqual(h.opgeslagenGemeld, []);
+});
+
+test('structure edits that were written are cleared after the save (#384)', async () => {
+  const h = harness();
+  h.a.structEdits = withAlt(editsOf({}), '0.2', 'Figure', 'written');
+  const written = h.a.structEdits;
+  assert.equal(await h.api.savePDF('copy-of-a.pdf'), true);
+  assert.deepEqual(h.structWritten, [written]);
+  assert.equal(h.a.structEdits, null);
+  assert.equal(h.a.modified, false);
+  assert.deepEqual(h.structSavedNotified, [h.a], 'the tags panel rereads the saved tree');
+});
+
+test('an alt text edited during a long save is kept and the document stays modified (#384)', async () => {
+  const h = harness(), gate = deferred(), entered = deferred();
+  h.a.structEdits = withAlt(editsOf({}), '0.2', 'Figure', 'written');
+  const written = h.a.structEdits;
+  h.deps.writeBinaryFileAtomic = async (path, bytes) => {
+    entered.resolve();
+    await gate.promise;
+    h.writes.push({ path, source: new TextDecoder().decode(bytes) });
+  };
+  const saving = h.api.savePDF('copy-of-a.pdf');
+  await entered.promise;
+  // The tags panel puts a new object on the document per edit.
+  h.a.structEdits = withAlt(h.a.structEdits, '0.3', 'Para', 'made during the save');
+  gate.resolve();
+  assert.equal(await saving, true);
+  assert.deepEqual(h.structWritten, [written], 'the save wrote the edits as they were');
+  assert.deepEqual(h.a.structEdits, { alt: { '0.3': { role: 'Para', value: 'made during the save' } }, order: {} },
+    'only the edit the save did not write is left');
+  assert.equal(h.a.modified, true, 'the unsaved edit keeps the document modified');
 });

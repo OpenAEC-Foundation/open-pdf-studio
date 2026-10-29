@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "Horizontal espacé"
     }
   },
+  "tagsPanel": {
+    "moveUp": "Monter dans l'ordre de lecture",
+    "moveDown": "Descendre dans l'ordre de lecture",
+    "checkAccessibility": "Vérifier l'accessibilité",
+    "altText": "Texte de remplacement",
+    "altTextPlaceholder": "Décrivez l'image pour les personnes qui ne peuvent pas la voir...",
+    "noAlt": "Aucun texte de remplacement",
+    "role": "Rôle",
+    "mappedTo": "{{role}} est associé à {{standard}}",
+    "content": "Contenu {{mcid}} (page {{page}})",
+    "annotationRef": "Annotation (page {{page}})"
+  },
   "ink": {
     "title": "Encre",
     "pressure": "Pression du stylet",

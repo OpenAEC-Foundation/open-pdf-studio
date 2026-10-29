@@ -844,6 +844,18 @@
       "inb-horizontaal-breed": "Horizontal wide"
     }
   },
+  "tagsPanel": {
+    "moveUp": "Move up in reading order",
+    "moveDown": "Move down in reading order",
+    "checkAccessibility": "Check accessibility",
+    "altText": "Alternate text",
+    "altTextPlaceholder": "Describe the image for people who cannot see it...",
+    "noAlt": "No alternate text",
+    "role": "Role",
+    "mappedTo": "{{role}} is mapped to {{standard}}",
+    "content": "Content {{mcid}} (page {{page}})",
+    "annotationRef": "Annotation (page {{page}})"
+  },
   "ink": {
     "title": "Ink",
     "pressure": "Pen pressure",

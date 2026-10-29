@@ -210,7 +210,15 @@
     "rotateViewLeft": "סיבוב התצוגה שמאלה",
     "rotateViewRight": "סיבוב התצוגה ימינה",
     "rotateViewLeftTitle": "מסובב את התצוגה ב-90° נגד כיוון השעון. המסמך עצמו אינו משתנה.",
-    "rotateViewRightTitle": "מסובב את התצוגה ב-90° בכיוון השעון. המסמך עצמו אינו משתנה."
+    "rotateViewRightTitle": "מסובב את התצוגה ב-90° בכיוון השעון. המסמך עצמו אינו משתנה.",
+    "accessibilityGroup": "נגישות",
+    "readAloud": "הקראה",
+    "readAloudPause": "השהיה",
+    "readAloudTitle": "הקראת הבחירה, או המסמך מהעמוד הנוכחי",
+    "tagsPanel": "תגים",
+    "tagsPanelTitle": "הצגת תגי המבנה של המסמך",
+    "accessibilityCheck": "בדיקה",
+    "accessibilityCheckTitle": "חיפוש טקסט חלופי חסר ותוכן ללא תגים"
   },
   "elementVisibility": {
     "buttonTitle": "נראות רכיבים — הצגה/הסתרה ועמעום של סוגי הערות",
