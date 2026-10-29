@@ -138,6 +138,8 @@
     "pageBorder": "Imprimer le contour de page",
     "perSheetNote": "Chaque page est mise à l'échelle pour tenir dans sa cellule : la mise à l'échelle de page ci-dessus ne s'applique donc pas.",
     "poster": "Poster (mosaïque)",
+    "posterOverview": "Vue d’ensemble du poster",
+    "posterOverlapLegend": "Les zones colorées sont répétées sur les feuilles adjacentes",
     "posterScale": "Échelle de la mosaïque",
     "posterOverlap": "Chevauchement",
     "posterCutMarks": "Traits de coupe",

@@ -138,6 +138,8 @@
     "pageBorder": "Skriv ut sidekant",
     "perSheetNote": "Hver side skaleres for å passe i sin celle, så sideskaleringen ovenfor gjelder ikke.",
     "poster": "Plakat (fliser)",
+    "posterOverview": "Plakatoversikt",
+    "posterOverlapLegend": "Skyggelagte områder gjentas på tilstøtende ark",
     "posterScale": "Flisskala",
     "posterOverlap": "Overlapp",
     "posterCutMarks": "Skjæremerker",

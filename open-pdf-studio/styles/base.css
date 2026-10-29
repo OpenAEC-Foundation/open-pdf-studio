@@ -6,6 +6,20 @@
   scrollbar-color: var(--theme-border) var(--theme-panel-bg);
 }
 
+/* Shared controls for locale-aware numeric fields, shown on hover/focus. */
+input.numeric-field-stepping { padding-inline-end: 19px !important; }
+.numeric-field-controls {
+  position: fixed; z-index: 2147483647; width: 16px; flex-direction: column;
+  background: var(--theme-bg, #f0f0f0); color: var(--theme-text, #333);
+}
+.numeric-field-controls button {
+  flex: 1; min-height: 0; width: 16px; padding: 0; border: 0; border-radius: 0;
+  border-inline-start: 1px solid var(--theme-border, #b0b0b0);
+  font-size: 10px; line-height: 1; background: inherit; color: inherit; cursor: default;
+}
+.numeric-field-controls button + button { border-top: 1px solid var(--theme-border, #b0b0b0); }
+.numeric-field-controls button:hover { background: var(--theme-hover, #d4e8fc); }
+
 *::-webkit-scrollbar {
   width: 8px;
   height: 8px;

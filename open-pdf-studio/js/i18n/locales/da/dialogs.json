@@ -138,6 +138,8 @@
     "pageBorder": "Udskriv sidekant",
     "perSheetNote": "Hver side skaleres, så den passer i sin celle, så sideskaleringen ovenfor gælder ikke.",
     "poster": "Plakat (felter)",
+    "posterOverview": "Plakatoversigt",
+    "posterOverlapLegend": "Skyggelagte områder gentages på tilstødende ark",
     "posterScale": "Feltskala",
     "posterOverlap": "Overlap",
     "posterCutMarks": "Skæremærker",

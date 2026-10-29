@@ -138,6 +138,8 @@
     "pageBorder": "Seitenrahmen drucken",
     "perSheetNote": "Jede Seite wird auf ihre Zelle skaliert, daher gilt die obige Seitenskalierung nicht.",
     "poster": "Poster (Kacheln)",
+    "posterOverview": "Posterübersicht",
+    "posterOverlapLegend": "Markierte Bereiche werden auf benachbarten Blättern wiederholt",
     "posterScale": "Kachelmaßstab",
     "posterOverlap": "Überlappung",
     "posterCutMarks": "Schnittmarken",

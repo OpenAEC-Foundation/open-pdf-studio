@@ -138,6 +138,8 @@
     "pageBorder": "ページの境界線を印刷",
     "perSheetNote": "各ページはセルに収まるように拡大縮小されるため、上のページの拡大縮小設定は適用されません。",
     "poster": "ポスター（タイル）",
+    "posterOverview": "ポスター全体のプレビュー",
+    "posterOverlapLegend": "色付きの部分は隣接する用紙に重複して印刷されます",
     "posterScale": "タイルの倍率",
     "posterOverlap": "重なり",
     "posterCutMarks": "トンボ（裁断マーク）",

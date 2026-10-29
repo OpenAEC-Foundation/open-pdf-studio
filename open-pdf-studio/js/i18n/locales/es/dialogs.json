@@ -138,6 +138,8 @@
     "pageBorder": "Imprimir borde de página",
     "perSheetNote": "Cada página se escala para ajustarse a su celda, por lo que no se aplica el escalado de página anterior.",
     "poster": "Póster (mosaico)",
+    "posterOverview": "Vista general del póster",
+    "posterOverlapLegend": "Las zonas sombreadas se repiten en las hojas adyacentes",
     "posterScale": "Escala del mosaico",
     "posterOverlap": "Superposición",
     "posterCutMarks": "Marcas de corte",
