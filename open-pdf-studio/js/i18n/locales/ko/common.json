@@ -124,7 +124,79 @@
         "label": "평면도",
         "hint": "건축 평면도 그리기: 벽, 창호, 실, 치수, 설비(위생, 주방)",
         "prompt": "건축 평면도를 그려 주세요. 그릴 내용: "
+      },
+      "find-on-sheet": {
+        "label": "시트에서 찾기",
+        "hint": "용어(실 이름, 단면 표시, 기호)를 찾아 해당 페이지로 이동하고 결과를 강조 표시",
+        "prompt": "이 시트에서 찾기: "
+      },
+      "explain-selection": {
+        "label": "선택 항목 설명",
+        "hint": "선택한 영역, 텍스트 또는 마크업을 쉬운 말로 설명하고, 측정 축척이 설정되어 있으면 치수도 제공",
+        "prompt": "선택 항목을 설명해 주세요."
+      },
+      "compare-sheets": {
+        "label": "시트 비교",
+        "hint": "다른 페이지와 비교하여 추가, 삭제 또는 이동된 항목을 명시하고 표시",
+        "prompt": "이 페이지와 비교할 페이지: "
+      },
+      "measure": {
+        "label": "이것 측정",
+        "hint": "선택한 도형이나 설명한 요소를 측정하여 도면 축척으로 보고",
+        "prompt": "측정해 주세요: "
+      },
+      "take-off": {
+        "label": "물량 산출",
+        "hint": "한 종류의 요소를 세거나 측정하고 결과를 일람표로 시트에 배치",
+        "prompt": "물량 산출 대상: "
+      },
+      "check-scale": {
+        "label": "축척 확인",
+        "hint": "표제란이나 알려진 치수에서 축척을 찾아 설정",
+        "prompt": "이 도면의 축척을 확인해 주세요."
+      },
+      "review-sheet": {
+        "label": "시트 검토",
+        "hint": "검토자가 지적할 부분에 번호가 매겨진 의견과 함께 구름 표시 추가",
+        "prompt": "이 시트의 검토 항목: "
+      },
+      "stamp-date": {
+        "label": "스탬프 및 날짜",
+        "hint": "스탬프 배치, 표제란 항목 입력 또는 오늘 날짜로 개정 메모 추가",
+        "prompt": "스탬프 및 날짜: "
+      },
+      "clean-up": {
+        "label": "마크업 정리",
+        "hint": "기존 마크업을 일관되게 정렬, 번호 재지정 또는 색상 변경",
+        "prompt": "내 마크업 정리: "
+      },
+      "import-cad": {
+        "label": "도면 가져오기",
+        "hint": "DWG 또는 DXF 도면을 올바른 축척의 언더레이로 가져오기",
+        "prompt": "도면 가져오기(DWG 또는 DXF 파일 경로): "
+      },
+      "export-cad": {
+        "label": "CAD로 내보내기",
+        "hint": "이 페이지나 선택 영역을 DXF 또는 DWG 파일로 쓰기",
+        "prompt": "이 페이지를 내보낼 위치(DXF 또는 DWG 파일 경로): "
       }
+    },
+    "groups": {
+      "document": "번역 및 요약",
+      "reading": "도면 읽기",
+      "measuring": "측정 및 수량",
+      "markup": "마크업",
+      "structure": "구조 및 평면도",
+      "cad": "CAD 도면"
+    },
+    "need": {
+      "document": "먼저 PDF를 여세요. 이 기능은 열려 있는 문서에서 작동합니다.",
+      "selection": "먼저 도면에서 마크업이나 텍스트를 선택한 다음 기능을 다시 클릭하세요.",
+      "scale": "이 도면에는 아직 측정 축척이 없습니다. 먼저 축척을 설정한 후(예: \"축척 확인\" 사용) 다시 시도하세요.",
+      "input": "입력란의 콜론 뒤에 텍스트를 완성한 다음 보내세요.",
+      "selectionOrInput": "도면에서 도형을 선택하거나 콜론 뒤에 측정할 대상을 설명하세요.",
+      "page": "현재 페이지가 아닌 다른 페이지 번호(1~{{max}})를 입력하세요.",
+      "twoPages": "이 문서는 페이지가 하나뿐입니다. 다른 파일과 비교하려면 입력란의 텍스트를 직접 작성한 질문으로 바꾸세요."
     }
   },
   "onlineSymbolLibrary": "온라인 기호 라이브러리",
@@ -228,7 +300,12 @@
     "goToPageLink": "페이지로 이동",
     "openExternalFile": "열기: {{filename}}",
     "destination": "대상: {{name}}",
-    "internalLink": "내부 링크"
+    "internalLink": "내부 링크",
+    "attachmentOnPage": "{{page}}페이지",
+    "attachmentCreated": "만든 날짜: {{date}}",
+    "attachmentModified": "수정한 날짜: {{date}}",
+    "openAttachmentRiskTitle": "첨부 파일 열기",
+    "openAttachmentRiskMessage": "\"{{name}}\"은(는) 이 컴퓨터에서 프로그램을 실행할 수 있습니다. 출처를 신뢰하는 경우에만 여세요. 그래도 여시겠습니까?"
   },
   "failedToInsertPagesFromFile": "파일에서 페이지를 삽입하지 못했습니다: {{error}}",
   "previewPdfRefused": "이 PDF는 도면 가져오기의 미리 보기이며 내용이 빠져 있을 수 있습니다. 삽입하거나 저장할 수 없습니다. 도면을 다시 가져오십시오.",
@@ -298,5 +375,42 @@
     "readFailed": "3D 모델을 읽을 수 없습니다.",
     "partial": "3D 모델의 일부를 읽을 수 없습니다({{n}}개 건너뜀).",
     "viewerFailed": "3D 보기를 시작할 수 없습니다."
+  },
+  "readAloud": {
+    "title": "소리 내어 읽기",
+    "play": "읽기",
+    "pause": "일시 중지",
+    "resume": "계속",
+    "stop": "중지",
+    "close": "닫기",
+    "voice": "음성",
+    "defaultVoice": "기본 음성",
+    "rate": "속도",
+    "loading": "준비 중...",
+    "reading": "읽는 중",
+    "paused": "일시 중지됨",
+    "page": "{{page}}페이지",
+    "tagOrder": "태그 순서",
+    "contentOrder": "페이지 순서",
+    "noEngine": "이 시스템에서 사용할 수 있는 음성 엔진이 없습니다.",
+    "noEngineLinux": "음성 엔진을 찾을 수 없습니다. speech-dispatcher(spd-say) 또는 espeak-ng를 설치한 후 다시 시도하세요.",
+    "speechFailed": "오류로 인해 읽기가 중지되었습니다.",
+    "nothingToRead": "읽을 텍스트가 없습니다.",
+    "online": "(온라인)",
+    "allowOnline": "온라인 음성",
+    "allowOnlineHint": "온라인 음성도 표시합니다. 온라인 음성을 사용하면 읽는 텍스트가 온라인 음성 서비스로 전송됩니다.",
+    "onlyOnlineVoices": "온라인 음성만 사용할 수 있습니다. 사용하려면 온라인 음성을 켜십시오. 그러면 읽는 텍스트가 온라인 음성 서비스로 전송됩니다.",
+    "noLocalVoice": "이 언어의 로컬 음성이 설치되어 있지 않아 기본 로컬 음성을 사용합니다."
+  },
+  "moveInference": {
+    "onAxisX": "X축 위",
+    "onAxisY": "Y축 위",
+    "fromPoint": "점에서",
+    "extension": "연장선 위",
+    "parallel": "평행",
+    "perpendicular": "수직",
+    "intersection": "교차점",
+    "polar": "극좌표",
+    "locked": "고정됨"
   }
 }

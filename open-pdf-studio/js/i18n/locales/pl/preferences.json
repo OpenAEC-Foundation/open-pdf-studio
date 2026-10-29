@@ -106,7 +106,13 @@
     "headOpenReversed": "Otwarta strzałka (odwrócona)",
     "headClosedReversed": "Zamknięta strzałka (odwrócona)",
     "headSlash": "Ukośnik",
-    "polylineDefaults": "Ustawienia domyślne polilinii"
+    "polylineDefaults": "Ustawienia domyślne polilinii",
+    "smoothing": "Wygładzanie",
+    "pressure": "Nacisk pióra",
+    "pressureHint": "Nacisk pióra zmienia grubość linii (linie rysowane myszą mają stałą grubość)",
+    "pressureMinWidth": "Minimalna szerokość (%)",
+    "penOnly": "Tylko pióro (ignoruj dotyk)",
+    "penOnlyHint": "Dotyk nie rysuje narzędziem odręcznym; przydatne przeciw dotykowi dłoni podczas pisania piórem"
   },
   "shapes": {
     "rectangleDefaults": "Ustawienia domyślne prostokąta",
@@ -162,6 +168,11 @@
     "snapToNearest": "Przyciągaj do najbliższego",
     "objectSnapRadius": "Promień przyciągania (piksele)",
     "snapToPdfContent": "Przyciągaj do zawartości rysunku PDF",
+    "moveInference": "Wskazówki przy przesuwaniu (G / mv)",
+    "moveInferenceTracking": "Linie śledzenia (wyrównanie do punktów innej geometrii)",
+    "moveInferenceExtension": "Przedłużenia linii i lic ścian",
+    "moveInferenceParallel": "Równolegle / prostopadle do pobliskich linii",
+    "moveInferenceHint": "Przytrzymaj kursor chwilę nad punktem, aby go przechwycić, przytrzymaj Shift, aby zablokować linię pomocniczą, Tab przełącza między odległością a kątem. Linie biegunowe działają według ustawień śledzenia biegunowego.",
     "creation": "Tworzenie",
     "autoSelectAfterCreation": "Automatycznie zaznacz adnotację po utworzeniu",
     "deletion": "Usuwanie",

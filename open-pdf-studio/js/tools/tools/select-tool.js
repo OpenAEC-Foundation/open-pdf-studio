@@ -493,7 +493,12 @@ export const selectTool = {
     }
     state.hoverAnnotation = hoverAnnotation || null;
     canvas.title = (hoverAnnotation?.type === 'comment' && !hoverAnnotation.popupOpen && hoverAnnotation.text)
-      ? hoverAnnotation.text.split('\n').slice(0, 5).join('\n') : '';
+      ? hoverAnnotation.text.split('\n').slice(0, 5).join('\n')
+      // Bijlage-annotatie (#376): de bestandsnaam en de beschrijving.
+      : hoverAnnotation?.type === 'fileAttachment'
+        ? [hoverAnnotation.attachment?.name, hoverAnnotation.text !== hoverAnnotation.attachment?.name ? hoverAnnotation.text : '']
+          .filter(Boolean).join('\n')
+        : '';
   },
 
   // Escape: één niveau terug — sub-element → component → (dispatcher wist

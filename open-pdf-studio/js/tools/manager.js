@@ -263,7 +263,7 @@ function setAnnotationCanvasForTextAccess(enabled) {
 
 // Some tools call setTool('select') after committing one annotation. With
 // `keepToolActive=true` (default) the tool stays active so the user can place
-// multiple shapes in a row without re-clicking the toolbar. AutoCAD-style.
+// multiple shapes in a row without re-clicking the toolbar, as in CAD programs.
 // Esc returns to select-tool. Tools should call this helper instead of setTool('select') directly.
 export function maybeRevertToSelect() {
   if (state.preferences?.keepToolActive !== false) return;

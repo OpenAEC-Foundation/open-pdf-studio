@@ -40,6 +40,9 @@ export interface Preferences {
   objectSnapRadius: number;
   snapToPdfContent: boolean;
   enableImageAlignSnap: boolean;
+  moveInferenceTracking: boolean;
+  moveInferenceExtension: boolean;
+  moveInferenceParallel: boolean;
   keepToolActive: boolean;
   lineContinue: boolean;
   ribbonCollapsed: boolean;
@@ -101,6 +104,10 @@ export interface Preferences {
   drawStrokeColor: string;
   drawLineWidth: number;
   drawOpacity: number;
+  drawPressure: boolean;
+  drawPressureMinWidth: number;
+  drawSmoothing: number;
+  drawPenOnly: boolean;
 
   // Line defaults
   lineStrokeColor: string;
@@ -235,6 +242,9 @@ export interface Preferences {
 
   // View
   thinLines: boolean;
+  readAloudVoice: string;
+  readAloudRate: number;
+  readAloudAllowOnline: boolean;
   showScrollbars: boolean;
   progressiveRender: boolean;
   screenCalibration: Record<string, number>;

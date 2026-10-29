@@ -40,3 +40,23 @@ test("geen status telt als 'none'", () => {
   toggleHiddenStatus('none');
   assert.equal(isStatusHidden({}), false);
 });
+
+// Filterbalk van het overzicht (#383): de store bewaart de invoer zoals hij
+// getypt is; schoonmaken gebeurt bij het filteren (opmerkingen-overzicht.js).
+test('filterbalk: bijwerken, actief-vlag en wissen', async () => {
+  const { listFilter, updateListFilter, clearListFilter, anyListFilterActive } = await import('./annotationsStore.js');
+  assert.equal(anyListFilterActive(), false);
+  updateListFilter({ auteur: 'Anna' });
+  updateListFilter({ paginaVan: '3' });
+  assert.equal(listFilter().auteur, 'Anna');
+  assert.equal(listFilter().paginaVan, '3');
+  assert.equal(anyListFilterActive(), true);
+  clearListFilter();
+  assert.equal(listFilter().auteur, '');
+  assert.equal(anyListFilterActive(), false);
+  // Een uitgevinkte status telt ook als actief filter.
+  toggleHiddenStatus('rejected');
+  assert.equal(anyListFilterActive(), true);
+  toggleHiddenStatus('rejected');
+  assert.equal(anyListFilterActive(), false);
+});

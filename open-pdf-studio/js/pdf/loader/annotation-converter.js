@@ -42,7 +42,10 @@ import { inzetUitDsMarge, tolerantieVoorDsInzet } from '../../annotations/render
 import { caretPropsFromPdf, textEditPropsFromPdf } from './correction-load.js';
 import { algemeneEigenschappen } from './annotatie-algemeen.js';
 import { ontdraaiVorm } from '../saver/vorm-draaiing.js';
+import { bijlageIcoonUitPdf } from '../../annotations/bijlage-iconen.js';
+import { bijlageBron } from '../bijlage-annotatie.js';
 import { stempelGeometrie, kiesStempelWeergave, oudeStempelDraaiing } from './stempel-geometrie.js';
+import { inktUitBestand } from './inkt-uit-bestand.js';
 
 /**
  * Zet een PDF-annotatie om naar het model van de app.
@@ -62,7 +65,15 @@ export async function convertPdfAnnotation(annot, pageNum, viewport, stampImageM
   }
   // De laag komt uit het bestand (/OC, zie color-extraction.js), nooit uit de
   // huidige laag die createAnnotation voor nieuwe markeringen invult (#468).
-  return zetLaagUitBestand(omgezet, extraVoorAnnotatie(annotColorMap, annot)?.layer);
+  const metLaag = zetLaagUitBestand(omgezet, extraVoorAnnotatie(annotColorMap, annot)?.layer);
+  // Een bijlage-annotatie (#376) onthoudt waar ze vandaan kwam en hoe ze
+  // geladen werd: is haar inhoud bij het opslaan niet te lezen, dan houdt de
+  // saver het origineel (pdf/bijlage-annotatie.js).
+  if (metLaag?.type === 'fileAttachment' && metLaag.attachment) {
+    const fsRef = extraVoorAnnotatie(annotColorMap, annot)?.bijlage?.bestand?.fsRef || null;
+    metLaag.attachment.bron = bijlageBron(metLaag, annot.id, fsRef);
+  }
+  return metLaag;
 }
 
 /**
@@ -657,7 +668,9 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           color: colorArrayToHex(annot.color, '#000000'),
           strokeColor: colorArrayToHex(annot.color, '#000000'),
           lineWidth: extraColors.borderWidth ?? annot.borderStyle?.width ?? 2,
-          borderStyle: mapBorderStyle(annot, extraColors)
+          borderStyle: mapBorderStyle(annot, extraColors),
+          // Drukgevoelige inkt (#385): alleen als de druk bij de punten past.
+          ...inktUitBestand(extraColors, path.length),
         });
       }
       break;
@@ -1198,6 +1211,39 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
       });
     }
 
+    case 'FileAttachment': {
+      // Bijlage-annotatie (#376): pictogram met een ingesloten bestand. Het
+      // bestand zelf las color-extraction.js met pdf-lib (extraColors.bijlage).
+      const vak = convertRect(rect);
+      const bijlage = extraColors.bijlage || null;
+      const bestand = bijlage?.bestand || {};
+      return createAnnotation({
+        ...baseProps,
+        type: 'fileAttachment',
+        x: vak.x,
+        y: vak.y,
+        width: vak.width || 24,
+        height: vak.height || 24,
+        text: (annot.contentsObj && annot.contentsObj.str) || annot.contents || '',
+        color: colorArrayToHex(annot.color, '#2B579A'),
+        icon: bijlage?.icoon || bijlageIcoonUitPdf(annot.name),
+        attachment: {
+          key: bestand.key || null,
+          name: bestand.naam || annot.file?.filename || 'attachment',
+          description: bestand.beschrijving || annot.file?.description || '',
+          mime: bestand.mime || null,
+          size: bestand.grootte ?? null,
+          createdAt: bestand.aangemaakt || null,
+          modifiedAt: bestand.gewijzigd || null,
+          relationship: bestand.relatie || null,
+          external: !!bestand.extern,
+          // Terugval als de inhoud (nog) niet via pdf-lib gelezen is: pdf.js
+          // levert hem op dit id (getAttachmentContent).
+          pdfjsId: annot.fileId || null,
+        },
+      });
+    }
+
     case 'FreeText': {
       // Extract font size, font family, bold/italic, and text color
       let fontSize = 14;
@@ -1542,6 +1588,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           count: extraColors.srCount ?? 3,
           diameter: extraColors.srDiameter ?? 12,
           barLengthMm: extraColors.srBarLengthMm ?? 0,
+          barMark: extraColors.srBarMark || '',
+          steelGrade: extraColors.srSteelGrade || '',
           legDir: extraColors.srLegDir || 'down-left',
           legLength: extraColors.srLegLength ?? STAVENREEKS_DEFAULTS.legLength,
           lineTail: extraColors.srLineTail ?? STAVENREEKS_DEFAULTS.lineTail,

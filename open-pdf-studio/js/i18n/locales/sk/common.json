@@ -124,7 +124,79 @@
         "label": "Pôdorys",
         "hint": "Nakresliť stavebný pôdorys: steny, výplne otvorov, miestnosti, kóty a vybavenie (sanita, kuchyňa)",
         "prompt": "Nakresli stavebný pôdorys. Čo nakresliť: "
+      },
+      "find-on-sheet": {
+        "label": "Nájsť na liste",
+        "hint": "Nájsť výraz (názov miestnosti, značku rezu, symbol), prejsť na jeho stranu a zvýrazniť nálezy",
+        "prompt": "Nájdi na tomto liste: "
+      },
+      "explain-selection": {
+        "label": "Vysvetliť výber",
+        "hint": "Opísať vybranú oblasť, text alebo značku jednoduchým jazykom, s rozmermi, ak je nastavená mierka merania",
+        "prompt": "Vysvetli výber."
+      },
+      "compare-sheets": {
+        "label": "Porovnať listy",
+        "hint": "Pomenovať a označiť, čo pribudlo, bolo odstránené alebo presunuté v porovnaní s inou stranou",
+        "prompt": "Porovnaj túto stranu so stranou: "
+      },
+      "measure": {
+        "label": "Zmerať toto",
+        "hint": "Zmerať vybraný tvar alebo opísaný prvok a uviesť výsledok v mierke výkresu",
+        "prompt": "Zmeraj: "
+      },
+      "take-off": {
+        "label": "Výkaz výmer",
+        "hint": "Spočítať alebo zmerať prvky jedného druhu a umiestniť výsledok ako výkaz na list",
+        "prompt": "Urob výkaz výmer pre: "
+      },
+      "check-scale": {
+        "label": "Skontrolovať mierku",
+        "hint": "Zistiť mierku z popisového poľa alebo zo známeho rozmeru a nastaviť ju",
+        "prompt": "Skontroluj mierku tohto výkresu."
+      },
+      "review-sheet": {
+        "label": "Skontrolovať list",
+        "hint": "Pridať obláčiky s číslovanými komentármi pri bodoch, ktoré by namietol kontrolór",
+        "prompt": "Skontroluj tento list z hľadiska: "
+      },
+      "stamp-date": {
+        "label": "Pečiatka a dátum",
+        "hint": "Umiestniť pečiatku, vyplniť položku popisového poľa alebo pridať poznámku o revízii s dnešným dátumom",
+        "prompt": "Pečiatka a dátum: "
+      },
+      "clean-up": {
+        "label": "Upratať značky",
+        "hint": "Jednotne zarovnať, prečíslovať alebo prefarbiť existujúce značky",
+        "prompt": "Uprac moje značky: "
+      },
+      "import-cad": {
+        "label": "Vložiť výkres",
+        "hint": "Importovať výkres DWG alebo DXF ako podklad v správnej mierke",
+        "prompt": "Vlož výkres (cesta k súboru DWG alebo DXF): "
+      },
+      "export-cad": {
+        "label": "Exportovať do CAD",
+        "hint": "Zapísať túto stranu alebo vybranú oblasť do súboru DXF alebo DWG",
+        "prompt": "Exportuj túto stranu do (cesta k súboru DXF alebo DWG): "
       }
+    },
+    "groups": {
+      "document": "Preklad a zhrnutie",
+      "reading": "Čítanie výkresu",
+      "measuring": "Meranie a výmery",
+      "markup": "Označovanie",
+      "structure": "Konštrukcia a pôdorys",
+      "cad": "Výkresy CAD"
+    },
+    "need": {
+      "document": "Najprv otvorte PDF: táto zručnosť pracuje s otvoreným dokumentom.",
+      "selection": "Najprv vyberte značku alebo časť textu na výkrese a potom znova kliknite na zručnosť.",
+      "scale": "Tento výkres zatiaľ nemá mierku merania. Najprv ju nastavte (napríklad pomocou „Skontrolovať mierku“) a skúste to znova.",
+      "input": "Doplňte text vo vstupnom poli za dvojbodkou a potom ho odošlite.",
+      "selectionOrInput": "Vyberte tvar na výkrese alebo za dvojbodkou opíšte, čo treba zmerať.",
+      "page": "Zadajte číslo inej strany (1 až {{max}}), nie aktuálnej strany.",
+      "twoPages": "Tento dokument má iba jednu stranu. Ak ho chcete porovnať s iným súborom, nahraďte text vo vstupnom poli vlastnou otázkou."
     }
   },
   "onlineSymbolLibrary": "Online knižnica symbolov",
@@ -228,7 +300,12 @@
     "goToPageLink": "Prejsť na stranu",
     "openExternalFile": "Otvoriť: {{filename}}",
     "destination": "Cieľ: {{name}}",
-    "internalLink": "Interný odkaz"
+    "internalLink": "Interný odkaz",
+    "attachmentOnPage": "Strana {{page}}",
+    "attachmentCreated": "Vytvorené: {{date}}",
+    "attachmentModified": "Zmenené: {{date}}",
+    "openAttachmentRiskTitle": "Otvoriť prílohu",
+    "openAttachmentRiskMessage": "„{{name}}“ môže na tomto počítači spúšťať programy. Otvorte ju, len ak dôverujete zdroju. Napriek tomu otvoriť?"
   },
   "failedToInsertPagesFromFile": "Vloženie strán zo súboru zlyhalo: {{error}}",
   "previewPdfRefused": "Toto PDF je náhľad z importu výkresu a môže byť neúplné. Nedá sa vložiť ani uložiť; importujte výkres znova.",
@@ -298,5 +375,42 @@
     "readFailed": "3D model sa nepodarilo načítať.",
     "partial": "Niektoré časti 3D modelu sa nepodarilo načítať (vynechané: {{n}}).",
     "viewerFailed": "3D zobrazenie sa nepodarilo spustiť."
+  },
+  "readAloud": {
+    "title": "Čítať nahlas",
+    "play": "Čítať",
+    "pause": "Pozastaviť",
+    "resume": "Pokračovať",
+    "stop": "Zastaviť",
+    "close": "Zavrieť",
+    "voice": "Hlas",
+    "defaultVoice": "Predvolený hlas",
+    "rate": "Rýchlosť",
+    "loading": "Pripravuje sa...",
+    "reading": "Číta sa",
+    "paused": "Pozastavené",
+    "page": "strana {{page}}",
+    "tagOrder": "poradie značiek",
+    "contentOrder": "poradie strán",
+    "noEngine": "V tomto systéme nie je k dispozícii žiadny hlasový modul.",
+    "noEngineLinux": "Nenašiel sa žiadny hlasový modul. Nainštalujte speech-dispatcher (spd-say) alebo espeak-ng a skúste to znova.",
+    "speechFailed": "Čítanie sa zastavilo pre chybu.",
+    "nothingToRead": "Nie je čo čítať.",
+    "online": "(online)",
+    "allowOnline": "Online hlasy",
+    "allowOnlineHint": "Ponúkať aj online hlasy. S online hlasom sa čítaný text odosiela do online rečovej služby.",
+    "onlyOnlineVoices": "K dispozícii sú len online hlasy. Zapnite Online hlasy, ak chcete niektorý použiť; čítaný text sa potom odosiela do online rečovej služby.",
+    "noLocalVoice": "Pre tento jazyk nie je nainštalovaný žiadny miestny hlas; použije sa predvolený miestny hlas."
+  },
+  "moveInference": {
+    "onAxisX": "Na osi X",
+    "onAxisY": "Na osi Y",
+    "fromPoint": "Od bodu",
+    "extension": "Na predĺžení",
+    "parallel": "Rovnobežne",
+    "perpendicular": "Kolmo",
+    "intersection": "Priesečník",
+    "polar": "Polárne",
+    "locked": "Uzamknuté"
   }
 }

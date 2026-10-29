@@ -124,7 +124,79 @@
         "label": "Pianta",
         "hint": "Disegna una pianta architettonica: muri, serramenti, locali, quote e arredi (sanitari, cucina)",
         "prompt": "Disegna una pianta architettonica. Cosa disegnare: "
+      },
+      "find-on-sheet": {
+        "label": "Cerca nel foglio",
+        "hint": "Cerca un termine (nome di un locale, indicatore di sezione, simbolo), vai alla sua pagina ed evidenzia i risultati",
+        "prompt": "Cerca in questo foglio: "
+      },
+      "explain-selection": {
+        "label": "Spiega la selezione",
+        "hint": "Descrivi l'area, il testo o l'annotazione selezionati in linguaggio semplice, con le dimensioni se è impostata una scala di misura",
+        "prompt": "Spiega la selezione."
+      },
+      "compare-sheets": {
+        "label": "Confronta fogli",
+        "hint": "Indica e contrassegna cosa è stato aggiunto, rimosso o spostato rispetto a un'altra pagina",
+        "prompt": "Confronta questa pagina con la pagina: "
+      },
+      "measure": {
+        "label": "Misura questo",
+        "hint": "Misura la forma selezionata o un elemento descritto e riporta il risultato nella scala del disegno",
+        "prompt": "Misura: "
+      },
+      "take-off": {
+        "label": "Computo quantità",
+        "hint": "Conta o misura gli elementi di un tipo e inserisci il risultato come tabella sul foglio",
+        "prompt": "Computa le quantità di: "
+      },
+      "check-scale": {
+        "label": "Verifica la scala",
+        "hint": "Ricava la scala dal cartiglio o da una quota nota e impostala",
+        "prompt": "Verifica la scala di questo disegno."
+      },
+      "review-sheet": {
+        "label": "Revisiona foglio",
+        "hint": "Aggiungi nuvole con commenti numerati sui punti che un verificatore solleverebbe",
+        "prompt": "Revisiona questo foglio per: "
+      },
+      "stamp-date": {
+        "label": "Timbro e data",
+        "hint": "Inserisci un timbro, compila un campo del cartiglio o aggiungi una nota di revisione con la data di oggi",
+        "prompt": "Applica timbro e data: "
+      },
+      "clean-up": {
+        "label": "Riordina annotazioni",
+        "hint": "Allinea, rinumera o ricolora in modo coerente le annotazioni esistenti",
+        "prompt": "Riordina le mie annotazioni: "
+      },
+      "import-cad": {
+        "label": "Importa un disegno",
+        "hint": "Importa un disegno DWG o DXF come base di riferimento alla scala corretta",
+        "prompt": "Importa il disegno (percorso del file DWG o DXF): "
+      },
+      "export-cad": {
+        "label": "Esporta in CAD",
+        "hint": "Scrivi questa pagina o l'area selezionata in un file DXF o DWG",
+        "prompt": "Esporta questa pagina in (percorso del file DXF o DWG): "
       }
+    },
+    "groups": {
+      "document": "Traduci e riassumi",
+      "reading": "Lettura del disegno",
+      "measuring": "Misure e quantità",
+      "markup": "Annotazioni",
+      "structure": "Struttura e pianta",
+      "cad": "Disegni CAD"
+    },
+    "need": {
+      "document": "Apri prima un PDF: questa abilità lavora sul documento aperto.",
+      "selection": "Seleziona prima un'annotazione o del testo sul disegno, poi fai di nuovo clic sull'abilità.",
+      "scale": "Questo disegno non ha ancora una scala di misura. Impostane prima una (ad esempio con «Verifica la scala») e riprova.",
+      "input": "Completa il testo nella casella di input dopo i due punti, poi invia.",
+      "selectionOrInput": "Seleziona una forma sul disegno, oppure descrivi dopo i due punti cosa misurare.",
+      "page": "Inserisci il numero dell'altra pagina (da 1 a {{max}}), non quello della pagina corrente.",
+      "twoPages": "Questo documento ha una sola pagina. Per confrontarlo con un altro file, sostituisci il testo nella casella di input con la tua domanda."
     }
   },
   "onlineSymbolLibrary": "Libreria di simboli online",
@@ -228,7 +300,12 @@
     "goToPageLink": "Vai alla pagina",
     "openExternalFile": "Apri: {{filename}}",
     "destination": "Destinazione: {{name}}",
-    "internalLink": "Collegamento interno"
+    "internalLink": "Collegamento interno",
+    "attachmentOnPage": "Pagina {{page}}",
+    "attachmentCreated": "Creato: {{date}}",
+    "attachmentModified": "Modificato: {{date}}",
+    "openAttachmentRiskTitle": "Apri allegato",
+    "openAttachmentRiskMessage": "\"{{name}}\" può eseguire programmi su questo computer. Aprilo solo se ti fidi della fonte. Aprire comunque?"
   },
   "failedToInsertPagesFromFile": "Impossibile inserire pagine dal file: {{error}}",
   "previewPdfRefused": "Questo PDF è un’anteprima dell’importazione del disegno e può essere incompleto. Non può essere inserito né salvato; importare di nuovo il disegno.",
@@ -298,5 +375,42 @@
     "readFailed": "Impossibile leggere il modello 3D.",
     "partial": "Impossibile leggere alcune parti del modello 3D ({{n}} saltate).",
     "viewerFailed": "Impossibile avviare la vista 3D."
+  },
+  "readAloud": {
+    "title": "Leggi ad alta voce",
+    "play": "Leggi",
+    "pause": "Pausa",
+    "resume": "Riprendi",
+    "stop": "Interrompi",
+    "close": "Chiudi",
+    "voice": "Voce",
+    "defaultVoice": "Voce predefinita",
+    "rate": "Velocità",
+    "loading": "Preparazione...",
+    "reading": "Lettura in corso",
+    "paused": "In pausa",
+    "page": "pagina {{page}}",
+    "tagOrder": "ordine dei tag",
+    "contentOrder": "ordine delle pagine",
+    "noEngine": "Nessun motore vocale disponibile su questo sistema.",
+    "noEngineLinux": "Nessun motore vocale trovato. Installa speech-dispatcher (spd-say) o espeak-ng e riprova.",
+    "speechFailed": "La lettura si è interrotta a causa di un errore.",
+    "nothingToRead": "Non c'è testo da leggere.",
+    "online": "(online)",
+    "allowOnline": "Voci online",
+    "allowOnlineHint": "Offri anche le voci online. Con una voce online il testo letto viene inviato a un servizio vocale online.",
+    "onlyOnlineVoices": "Sono disponibili solo voci online. Attiva Voci online per usarne una; il testo letto viene allora inviato a un servizio vocale online.",
+    "noLocalVoice": "Nessuna voce locale installata per questa lingua; viene usata la voce locale predefinita."
+  },
+  "moveInference": {
+    "onAxisX": "Sull’asse X",
+    "onAxisY": "Sull’asse Y",
+    "fromPoint": "Dal punto",
+    "extension": "Sull’estensione",
+    "parallel": "Parallelo",
+    "perpendicular": "Perpendicolare",
+    "intersection": "Intersezione",
+    "polar": "Polare",
+    "locked": "Bloccato"
   }
 }

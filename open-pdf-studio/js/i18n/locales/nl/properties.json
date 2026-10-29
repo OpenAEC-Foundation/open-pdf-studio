@@ -21,7 +21,10 @@
     "cancelled": "Geannuleerd",
     "completed": "Voltooid",
     "reviewed": "Beoordeeld",
-    "statusSetBy": "Gezet door {{author}} op {{date}}"
+    "statusSetBy": "Gezet door {{author}} op {{date}}",
+    "layer": "Laag",
+    "layerMarkupGroup": "Markeringslagen",
+    "layerDocumentGroup": "Lagen van het document"
   },
   "colorNone": "Geen",
   "moreColors": "Meer kleuren...",
@@ -139,7 +142,11 @@
     "boxShape": "Vorm",
     "boxShapeRect": "Rechthoek (scherpe hoeken)",
     "boxShapeRounded": "Rechthoek (afgeronde hoeken)",
-    "boxShapeEllipse": "Ellips / cirkel"
+    "boxShapeEllipse": "Ellips / cirkel",
+    "iconPaperclip": "Paperclip",
+    "iconPushPin": "Punaise",
+    "iconGraph": "Grafiek",
+    "iconTag": "Label"
   },
   "stylePresets": {
     "label": "Lijnstijl",
@@ -288,7 +295,8 @@
     "measurePerimeter": "Omtrek",
     "redaction": "Redactie",
     "scaleBar": "Schaalbalk",
-    "parametricSymbol": "Parametrisch symbool"
+    "parametricSymbol": "Parametrisch symbool",
+    "fileAttachment": "Bestandsbijlage"
   },
   "leftPanel": {
     "togglePanel": "Paneel in-/uitschakelen",
@@ -358,23 +366,55 @@
     "exportComments": "Opmerkingen exporteren naar gegevensbestand...",
     "exportSelectedComments": "Geselecteerde opmerkingen exporteren naar gegevensbestand...",
     "exportListCsv": "Lijst exporteren naar CSV...",
-    "summarizeComingSoon": "Binnenkort beschikbaar",
     "listExported": "Opmerkingenlijst geëxporteerd naar CSV",
     "csvPage": "Pagina",
     "csvType": "Type",
     "csvAuthor": "Auteur",
-    "csvDate": "Datum",
     "csvStatus": "Status",
     "csvSubject": "Onderwerp",
     "csvContents": "Inhoud",
     "csvColor": "Kleur",
     "csvLayer": "Laag",
+    "csvId": "ID",
+    "csvCreated": "Aangemaakt",
+    "csvModified": "Gewijzigd",
+    "csvStatusBy": "Status gezet door",
+    "csvStatusAt": "Statusdatum",
+    "csvReplyCount": "Aantal reacties",
+    "csvReplies": "Reacties",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "Breedte",
+    "csvHeight": "Hoogte",
+    "filterBar": "Filters",
+    "filterAll": "(Alle)",
+    "filterPages": "Pagina's",
+    "filterDate": "Datum",
+    "filterFrom": "Van",
+    "filterTo": "Tot",
+    "filterClear": "Filters wissen",
+    "setStatusSelected": "Status van selectie instellen",
+    "setStatusListed": "Status van alle getoonde instellen",
+    "statusChanged": "Status gewijzigd: {{count}}",
+    "summaryTitle": "Overzicht van opmerkingen",
+    "summaryDocument": "Document",
+    "summaryCreated": "Gemaakt",
+    "summaryCount": "Opmerkingen",
+    "summaryNoText": "(geen opmerkingstekst)",
+    "summaryBusy": "Overzicht van opmerkingen maken...",
+    "summaryExported": "Overzicht van opmerkingen geëxporteerd naar PDF",
+    "summaryFailed": "Het overzicht van opmerkingen kon niet worden gemaakt",
     "measurements": "Metingen",
     "schedules": "Staten",
     "addPage": "Pagina toevoegen",
     "pageLabels": "Paginalabels (naambouwer)",
     "portfolio": "PDF-portfolio",
-    "recognizeForm": "Formuliervelden herkennen"
+    "recognizeForm": "Formuliervelden herkennen",
+    "layersSetDefault": "Als standaard instellen",
+    "layersSetDefaultTitle": "De huidige zichtbaarheid van de lagen bewaren als standaardstand van het document. Die wordt bij de volgende keer opslaan in het bestand geschreven.",
+    "layersDefaultPending": "Wordt bij opslaan de standaard",
+    "layerLocked": "Vergrendelde laag: kan niet aan of uit worden gezet",
+    "layerRadioGroup": "Keuzegroep: deze laag aanzetten zet de andere lagen van de groep uit"
   },
   "scaleBar": {
     "title": "Schaalbalk",
@@ -443,7 +483,9 @@
       "symbol": "Symbolen-staat",
       "text": "Tekst-staat",
       "full": "Volledige hoeveelheden",
-      "image": "Afbeeldingen & stempels"
+      "image": "Afbeeldingen & stempels",
+      "bendingSchedule": "Buigstaat",
+      "rebarWeight": "Wapeningsstaat (gewicht per Ø)"
     },
     "preview": "Voorbeeld",
     "exportCsv": "CSV exporteren",
@@ -603,7 +645,8 @@
       "textBuiltIn": "Tekst (native)",
       "symbol": "Symbool",
       "image": "Afbeelding",
-      "other": "Overig"
+      "other": "Overig",
+      "reinforcement": "Wapening"
     },
     "field": {
       "category": "Categorie",
@@ -631,7 +674,16 @@
       "width": "Breedte",
       "height": "Hoogte",
       "location": "Locatie",
-      "locationSource": "Locatiebron"
+      "locationSource": "Locatiebron",
+      "rebarMark": "Staafnummer",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Buigvorm",
+      "rebarGrade": "Staalkwaliteit",
+      "rebarCount": "Aantal staven",
+      "rebarLength": "Staaflengte",
+      "rebarTotalLength": "Totale lengte",
+      "rebarMassPerM": "Massa per meter",
+      "rebarMass": "Gewicht"
     },
     "type": {
       "line": "Lijn",
@@ -669,7 +721,8 @@
       "stavenreeks": "Stavenreeks",
       "betonbalk": "Betonbalk",
       "scheduleTable": "Hoeveelheden-tabel",
-      "builtinText": "Tekst"
+      "builtinText": "Tekst",
+      "rebarPosition": "Wapeningsstaaf"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "Verticaal breed",
       "inb-horizontaal-breed": "Horizontaal breed"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "Omhoog in de leesvolgorde",
+    "moveDown": "Omlaag in de leesvolgorde",
+    "checkAccessibility": "Toegankelijkheid controleren",
+    "altText": "Alternatieve tekst",
+    "altTextPlaceholder": "Beschrijf de afbeelding voor wie hem niet kan zien...",
+    "noAlt": "Geen alternatieve tekst",
+    "role": "Rol",
+    "mappedTo": "{{role}} is gekoppeld aan {{standard}}",
+    "content": "Inhoud {{mcid}} (pagina {{page}})",
+    "annotationRef": "Annotatie (pagina {{page}})"
+  },
+  "ink": {
+    "title": "Inkt",
+    "pressure": "Pendruk",
+    "pressureHint": "Pendruk varieert de lijndikte (een muisstreek houdt een vaste dikte)",
+    "minWidth": "Minimale breedte (%)",
+    "minWidthHint": "Breedte bij de lichtste pendruk, als percentage van de lijndikte",
+    "smoothing": "Gladheid",
+    "smoothingHint": "Sterkte van het gladmaken van de streek (0 = uit)"
+  },
+  "attachment": {
+    "file": "Bestand",
+    "size": "Grootte",
+    "open": "Openen",
+    "saveAs": "Opslaan als...",
+    "noContent": "De inhoud van dit bestand is niet in de PDF ingesloten."
   }
 }

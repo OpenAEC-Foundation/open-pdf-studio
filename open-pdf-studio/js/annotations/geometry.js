@@ -163,6 +163,7 @@ function getAnnotationCenterAndSize(ann) {
         height: h
       };
     case 'comment':
+    case 'fileAttachment':
       const cw = ann.width || 24;
       const ch = ann.height || 24;
       return {
@@ -404,6 +405,7 @@ export function findAnnotationAt(x, y, pageNum = null) {
         break;
       }
       case 'comment':
+      case 'fileAttachment':
         const cw = ann.width || 24;
         const ch = ann.height || 24;
         // Transform click point by inverse rotation if annotation is rotated
@@ -762,6 +764,7 @@ export function isPointInsideAnnotation(x, y, annotation) {
       return Math.sqrt(dcx * dcx + dcy * dcy) <= 11;
     }
     case 'comment':
+    case 'fileAttachment':
       const commentW = annotation.width || 24;
       const commentH = annotation.height || 24;
       return localX >= annotation.x && localX <= annotation.x + commentW &&

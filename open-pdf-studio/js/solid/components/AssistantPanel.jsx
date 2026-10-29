@@ -11,8 +11,12 @@
 // skill instructions themselves stay in one language (assistant-skills.js).
 import { createSignal, For, Show, createEffect } from 'solid-js';
 import { registerAssistantSubmit, registerAssistantMessages, enqueueAssistantQuestion, relayClientActive } from '../../assistant-mcp-relay.js';
-import { ASSISTANT_SKILLS, buildSystemPrompt, skillKeys, skillMessage } from '../../assistant-skills.js';
-import { getActiveDocument } from '../../core/state.js';
+import {
+  ASSISTANT_SKILL_GROUPS, buildSystemPrompt, skillKeys, skillMessage, skillGroupKey, skillsInGroup,
+  skillBlocker, skillInputProblem, skillInputRest,
+} from '../../assistant-skills.js';
+import { skillContextFromDocument } from '../../assistant-skill-context.js';
+import { getActiveDocument, state } from '../../core/state.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
 import { LANGUAGES } from '../../i18n/config.js';
 import { leesAiSleutel, bewaarAiSleutel, ruimAiSleutelOpAlsGast } from '../../core/ai-sleutel.js';
@@ -89,6 +93,10 @@ export default function AssistantPanel() {
   const [showKey, setShowKey] = createSignal(false);
   // A skill chip that put its prefix in the input box and waits for the rest.
   const [pendingSkill, setPendingSkill] = createSignal(null);
+  // The skill tab that is shown, and the message of a skill that could not be
+  // sent yet (no selection, no scale, input missing): { key, params }.
+  const [activeGroup, setActiveGroup] = createSignal(ASSISTANT_SKILL_GROUPS[0].id);
+  const [notice, setNotice] = createSignal(null);
   let messagesEnd, inputEl, keyEl;
 
   const activeDocName = () => getActiveDocument()?.fileName || null;
@@ -105,6 +113,11 @@ export default function AssistantPanel() {
   // Read per request, so a language change in the app applies to the next question.
   function systemPrompt() {
     return buildSystemPrompt(currentLanguage(language()));
+  }
+
+  // The app state a skill needs, read at the moment of sending.
+  function skillContext() {
+    return skillContextFromDocument({ doc: getActiveDocument(), textSelection: state.textSelection });
   }
 
   function saveKey() {
@@ -126,7 +139,16 @@ export default function AssistantPanel() {
     } else {
       shown = (typeof explicit === 'string' ? explicit : input()).trim();
       const skill = typeof explicit === 'string' ? null : pendingSkill();
-      if (skill) ({ shown, model } = skillMessage(skill, t(skillKeys(skill).prompt), shown));
+      if (skill) {
+        // Check again on sending: the selection or the page may have changed
+        // since the chip was clicked. A problem keeps the text in the box.
+        const prompt = t(skillKeys(skill).prompt);
+        const ctx = skillContext();
+        const rest = skillInputRest(skill, prompt, shown);
+        const problem = rest == null ? null : (skillBlocker(skill, ctx) || skillInputProblem(skill, rest, ctx));
+        if (problem) { setNotice(problem); return; }
+        ({ shown, model } = skillMessage(skill, prompt, shown, ctx));
+      }
     }
     shown = String(shown || '').trim();
     if (!shown || loading()) return;
@@ -137,6 +159,7 @@ export default function AssistantPanel() {
     setMessages((m) => [...m, userMessage]);
     setInput('');
     setPendingSkill(null);
+    setNotice(null);
     setLoading(true);
     // Claude (Anthropic) direct call — the default when a personal Anthropic key
     // is set via the 🔑 button.
@@ -221,14 +244,20 @@ export default function AssistantPanel() {
   // app language and sends its fixed instruction through the assistant (and thus
   // the relay to the brain), which executes it via MCP tools. A skill that needs
   // input pre-fills the box with its localized prefix.
+  // A skill whose preconditions fail (no document, no selection, no scale)
+  // shows why in the panel instead of sending.
   function runSkill(skill) {
     const prompt = t(skillKeys(skill).prompt);
+    const ctx = skillContext();
+    const blocked = skillBlocker(skill, ctx);
+    setNotice(blocked);
+    if (blocked) return;
     if (skill.needsInput) {
       setPendingSkill(skill);
       setInput(prompt);
       inputEl?.focus();
     } else {
-      send(skillMessage(skill, prompt));
+      send(skillMessage(skill, prompt, undefined, ctx));
     }
   }
 
@@ -288,9 +317,28 @@ export default function AssistantPanel() {
             <div ref={messagesEnd} />
           </div>
 
+          <Show when={notice()}>
+            <div class="chat-notice" role="status">{t(notice().key, notice().params)}</div>
+          </Show>
+
           <Show when={!loading()}>
-            <div class="chat-chips">
-              <For each={ASSISTANT_SKILLS}>
+            <div class="chat-skill-groups" role="tablist">
+              <For each={ASSISTANT_SKILL_GROUPS}>
+                {(group) => (
+                  <button
+                    class={`chat-skill-group${activeGroup() === group.id ? ' active' : ''}`}
+                    role="tab"
+                    aria-selected={activeGroup() === group.id}
+                    data-group={group.id}
+                    title={t(skillGroupKey(group))}
+                    onClick={() => { setActiveGroup(group.id); setNotice(null); }}
+                  >{group.icon}</button>
+                )}
+              </For>
+              <span class="chat-skill-group-name">{t(skillGroupKey(activeGroup()))}</span>
+            </div>
+            <div class="chat-chips" role="tabpanel">
+              <For each={skillsInGroup(activeGroup())}>
                 {(skill) => (
                   <button class="chat-chip" data-skill={skill.id} title={t(skillKeys(skill).hint)} onClick={() => runSkill(skill)}>
                     {skill.icon} {t(skillKeys(skill).label)}

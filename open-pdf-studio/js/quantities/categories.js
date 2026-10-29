@@ -32,6 +32,7 @@ const CATEGORY_KEYS = {
   'count': 'count',
   'symbol': 'symbol',
   'image': 'image',
+  'reinforcement': 'reinforcement',
   'other': 'other',
 };
 
@@ -43,6 +44,7 @@ export const CATEGORY_FALLBACKS = {
   'count': 'Count',
   'symbol': 'Symbol',
   'image': 'Image',
+  'reinforcement': 'Reinforcement',
   'other': 'Other',
 };
 
@@ -54,7 +56,7 @@ export function categoryLabel(cat) {
 }
 
 export const CATEGORY_ORDER = [
-  'area', 'line-based', 'count', 'text-annotation', 'text-built-in', 'symbol', 'image', 'other',
+  'area', 'line-based', 'count', 'reinforcement', 'text-annotation', 'text-built-in', 'symbol', 'image', 'other',
 ];
 
 const TYPE_TO_CATEGORY = {
@@ -88,6 +90,8 @@ export const TYPE_NAMES = {
   stavenreeks: 'Bar series',
   betonbalk: 'Concrete beam',
   scheduleTable: 'Quantities table', builtinText: 'Text',
+  // Wapening: één buigstaat-regel (pseudo-element uit quantities/wapening.js).
+  rebarPosition: 'Reinforcement bar',
 };
 
 /** Weergavenaam van een elementtype in de actieve taal. */
@@ -112,6 +116,15 @@ const F = (key, fallback, kind, get, unit = '', dec, unitOf) => ({
 // Wrapper voor stavenreeks-specifieke velden binnen de gedeelde 'line-based'-
 // categorie: geeft null (lege cel) voor elk ander lijnvormig element.
 const srField = (get) => (el) => (el.type === 'stavenreeks' ? get(el) : null);
+
+// Velden die per regel een eigenschap zijn (diameter, lengte per staaf,
+// kg/m): optellen in een subtotaal zou onzin opleveren.
+const geenSom = (f) => { f.sum = false; return f; };
+
+// Buigstaat-regel (pseudo-element 'rebarPosition', zie quantities/wapening.js).
+const rb = (get) => (el) => (el.rebar ? get(el.rebar) : null);
+// Een numeriek staafnummer als getal, zodat 2 vóór 10 sorteert.
+const staafnummerWaarde = (r) => (/^\d+$/.test(r.staafnummer) ? Number(r.staafnummer) : r.staafnummer);
 
 const MM2 = 'mm\u00B2';
 const M2 = 'm\u00B2';
@@ -316,6 +329,17 @@ export const FIELD_REGISTRY = {
     F('imageName', 'File name', 'text', imageName),
     F('width', 'Width', 'number', el => el.originalWidth || el.width || 0, 'px', 0),
     F('height', 'Height', 'number', el => el.originalHeight || el.height || 0, 'px', 0),
+  ],
+  'reinforcement': [...COMMON,
+    F('rebarMark', 'Bar mark', 'text', rb(staafnummerWaarde)),
+    geenSom(F('rebarDiameter', 'Ø', 'number', rb(r => r.diameter), 'mm', 0)),
+    F('rebarShape', 'Shape code', 'text', rb(r => r.vormcode)),
+    F('rebarGrade', 'Steel grade', 'text', rb(r => r.staalkwaliteit)),
+    F('rebarCount', 'Number of bars', 'number', rb(r => r.aantal), '', 0),
+    geenSom(F('rebarLength', 'Bar length', 'number', rb(r => r.lengteMm), 'mm', 0)),
+    F('rebarTotalLength', 'Total length', 'number', rb(r => r.totaleLengteM), 'm', 2),
+    geenSom(F('rebarMassPerM', 'Mass per metre', 'number', rb(r => r.massaPerMeter), 'kg/m', 3)),
+    F('rebarMass', 'Mass', 'number', rb(r => r.massaKg), 'kg', 1),
   ],
   'other': [...COMMON],
 };

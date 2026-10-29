@@ -579,6 +579,10 @@ export const kokerTemplate = _kokerTemplate();
 export const hoeklijnTemplate = _hoeklijnTemplate();
 export { _hoeklijnPts as hoeklijnPts, HOEKLIJN as HOEKLIJN_TABEL, KOKER as KOKER_TABEL };
 
+// I-/H-profielen ([maat, h, b, tw, tf, r] in mm) voor de staalverbindingen
+// (kopplaat bij ligger, voetplaat bij kolom — templates/staalverbindingen.js).
+export const I_PROFIEL_TABEL = [...HEA, ...HEB, ...IPE];
+
 // Geometry/behaviour helpers, reused by the catalog-driven steel templates
 // (js/symbols/steel-catalog.js) so downloaded country catalogs render and
 // behave EXACTLY like the built-in NL profiles. Pure re-exports — the NL

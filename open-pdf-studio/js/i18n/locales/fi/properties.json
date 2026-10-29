@@ -41,7 +41,10 @@
     "cancelled": "Peruutettu",
     "completed": "Valmis",
     "reviewed": "Tarkastettu",
-    "statusSetBy": "Asettanut {{author}} {{date}}"
+    "statusSetBy": "Asettanut {{author}} {{date}}",
+    "layer": "Taso",
+    "layerMarkupGroup": "Merkintätasot",
+    "layerDocumentGroup": "Asiakirjan tasot"
   },
   "colorNone": "Ei mitään",
   "moreColors": "Lisää värejä...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Paperiliitin",
+    "iconPushPin": "Nasta",
+    "iconGraph": "Kaavio",
+    "iconTag": "Tunniste"
   },
   "stylePresets": {
     "label": "Viivatyyli",
@@ -308,7 +315,8 @@
     "measurePerimeter": "Piiri",
     "redaction": "Poisto",
     "scaleBar": "Mittakaavajana",
-    "parametricSymbol": "Parametrinen symboli"
+    "parametricSymbol": "Parametrinen symboli",
+    "fileAttachment": "Tiedostoliite"
   },
   "leftPanel": {
     "togglePanel": "Näytä/piilota paneeli",
@@ -379,22 +387,54 @@
     "exportComments": "Vie kommentit datatiedostoon...",
     "exportSelectedComments": "Vie valitut kommentit datatiedostoon...",
     "exportListCsv": "Vie luettelo CSV-tiedostoon...",
-    "summarizeComingSoon": "Tulossa pian",
     "listExported": "Kommenttiluettelo viety CSV-tiedostoon",
     "csvPage": "Sivu",
     "csvType": "Tyyppi",
     "csvAuthor": "Tekijä",
-    "csvDate": "Päivämäärä",
     "csvStatus": "Tila",
     "csvSubject": "Aihe",
     "csvContents": "Sisältö",
     "csvColor": "Väri",
     "csvLayer": "Taso",
+    "csvId": "Tunnus",
+    "csvCreated": "Luotu",
+    "csvModified": "Muokattu",
+    "csvStatusBy": "Tilan asettaja",
+    "csvStatusAt": "Tilan päivämäärä",
+    "csvReplyCount": "Vastausten määrä",
+    "csvReplies": "Vastaukset",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "Leveys",
+    "csvHeight": "Korkeus",
+    "filterBar": "Suodattimet",
+    "filterAll": "(Kaikki)",
+    "filterPages": "Sivut",
+    "filterDate": "Päivämäärä",
+    "filterFrom": "Alkaen",
+    "filterTo": "Asti",
+    "filterClear": "Tyhjennä suodattimet",
+    "setStatusSelected": "Aseta valittujen tila",
+    "setStatusListed": "Aseta kaikkien listattujen tila",
+    "statusChanged": "Tila muutettu: {{count}}",
+    "summaryTitle": "Kommenttiyhteenveto",
+    "summaryDocument": "Asiakirja",
+    "summaryCreated": "Luotu",
+    "summaryCount": "Kommentit",
+    "summaryNoText": "(ei kommenttitekstiä)",
+    "summaryBusy": "Luodaan kommenttiyhteenvetoa...",
+    "summaryExported": "Kommenttiyhteenveto viety PDF-tiedostoon",
+    "summaryFailed": "Kommenttiyhteenvetoa ei voitu luoda",
     "schedules": "Luettelot",
     "addPage": "Lisää sivu",
     "pageLabels": "Sivujen nimiöt (nimien muodostus)",
     "portfolio": "PDF-portfolio",
-    "recognizeForm": "Tunnista lomakekentät"
+    "recognizeForm": "Tunnista lomakekentät",
+    "layersSetDefault": "Aseta oletukseksi",
+    "layersSetDefaultTitle": "Tallenna tasojen nykyinen näkyvyys asiakirjan oletustilaksi. Se kirjoitetaan tiedostoon seuraavan tallennuksen yhteydessä.",
+    "layersDefaultPending": "Tulee oletukseksi tallennettaessa",
+    "layerLocked": "Lukittu taso: ei voi kytkeä päälle tai pois",
+    "layerRadioGroup": "Valintaryhmä: tämän tason kytkeminen päälle kytkee ryhmän muut tasot pois"
   },
   "scaleBar": {
     "title": "Mittakaavajana",
@@ -443,7 +483,9 @@
       "symbol": "Symboliluettelo",
       "text": "Tekstiluettelo",
       "full": "Kaikki määrät",
-      "image": "Kuvat ja leimat"
+      "image": "Kuvat ja leimat",
+      "bendingSchedule": "Taivutusluettelo",
+      "rebarWeight": "Raudoitusluettelo (paino Ø:n mukaan)"
     },
     "preview": "Esikatselu",
     "exportCsv": "Vie CSV",
@@ -603,7 +645,8 @@
       "textBuiltIn": "Teksti (alkuperäinen)",
       "symbol": "Symboli",
       "image": "Kuva",
-      "other": "Muu"
+      "other": "Muu",
+      "reinforcement": "Raudoitus"
     },
     "field": {
       "category": "Luokka",
@@ -631,7 +674,16 @@
       "width": "Leveys",
       "height": "Korkeus",
       "location": "Sijainti",
-      "locationSource": "Sijainnin lähde"
+      "locationSource": "Sijainnin lähde",
+      "rebarMark": "Positio",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Taivutusmuoto",
+      "rebarGrade": "Teräslaji",
+      "rebarCount": "Tankojen määrä",
+      "rebarLength": "Tangon pituus",
+      "rebarTotalLength": "Kokonaispituus",
+      "rebarMassPerM": "Massa metriä kohti",
+      "rebarMass": "Massa"
     },
     "type": {
       "line": "Viiva",
@@ -669,7 +721,8 @@
       "stavenreeks": "Tankosarja",
       "betonbalk": "Betonipalkki",
       "scheduleTable": "Määrätaulukko",
-      "builtinText": "Teksti"
+      "builtinText": "Teksti",
+      "rebarPosition": "Raudoitustanko"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "Pystyviivoitus harva",
       "inb-horizontaal-breed": "Vaakaviivoitus harva"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "Siirrä ylös lukujärjestyksessä",
+    "moveDown": "Siirrä alas lukujärjestyksessä",
+    "checkAccessibility": "Tarkista saavutettavuus",
+    "altText": "Vaihtoehtoinen teksti",
+    "altTextPlaceholder": "Kuvaile kuva niille, jotka eivät näe sitä...",
+    "noAlt": "Ei vaihtoehtoista tekstiä",
+    "role": "Rooli",
+    "mappedTo": "{{role}} on yhdistetty rooliin {{standard}}",
+    "content": "Sisältö {{mcid}} (sivu {{page}})",
+    "annotationRef": "Merkintä (sivu {{page}})"
+  },
+  "ink": {
+    "title": "Muste",
+    "pressure": "Kynän paine",
+    "pressureHint": "Kynän paine muuttaa viivan leveyttä (hiirellä piirretty viiva pysyy saman levyisenä)",
+    "minWidth": "Vähimmäisleveys (%)",
+    "minWidthHint": "Leveys kevyimmällä kynän paineella prosentteina viivan leveydestä",
+    "smoothing": "Tasoitus",
+    "smoothingHint": "Viivan tasoituksen voimakkuus (0 = ei tasoitusta)"
+  },
+  "attachment": {
+    "file": "Tiedosto",
+    "size": "Koko",
+    "open": "Avaa",
+    "saveAs": "Tallenna nimellä...",
+    "noContent": "Tämän tiedoston sisältöä ei ole upotettu PDF-tiedostoon."
   }
 }

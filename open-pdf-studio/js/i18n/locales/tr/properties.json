@@ -41,7 +41,10 @@
     "cancelled": "İptal Edildi",
     "completed": "Tamamlandı",
     "reviewed": "İncelendi",
-    "statusSetBy": "{{author}} tarafından {{date}} tarihinde ayarlandı"
+    "statusSetBy": "{{author}} tarafından {{date}} tarihinde ayarlandı",
+    "layer": "Katman",
+    "layerMarkupGroup": "İşaretleme katmanları",
+    "layerDocumentGroup": "Belge katmanları"
   },
   "colorNone": "Yok",
   "moreColors": "Daha Fazla Renk...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Ataş",
+    "iconPushPin": "Raptiye",
+    "iconGraph": "Grafik",
+    "iconTag": "Etiket"
   },
   "stylePresets": {
     "label": "Çizgi stili",
@@ -308,7 +315,8 @@
     "measurePerimeter": "Çevre",
     "redaction": "Karartma",
     "scaleBar": "Ölçek Çubuğu",
-    "parametricSymbol": "Parametrik sembol"
+    "parametricSymbol": "Parametrik sembol",
+    "fileAttachment": "Dosya eki"
   },
   "leftPanel": {
     "togglePanel": "Paneli Aç/Kapat",
@@ -379,22 +387,54 @@
     "exportComments": "Yorumları veri dosyasına aktar...",
     "exportSelectedComments": "Seçili yorumları veri dosyasına aktar...",
     "exportListCsv": "Listeyi CSV olarak dışa aktar...",
-    "summarizeComingSoon": "Yakında",
     "listExported": "Yorum listesi CSV olarak dışa aktarıldı",
     "csvPage": "Sayfa",
     "csvType": "Tür",
     "csvAuthor": "Yazar",
-    "csvDate": "Tarih",
     "csvStatus": "Durum",
     "csvSubject": "Konu",
     "csvContents": "İçerik",
     "csvColor": "Renk",
     "csvLayer": "Katman",
+    "csvId": "Kimlik",
+    "csvCreated": "Oluşturulma",
+    "csvModified": "Değiştirilme",
+    "csvStatusBy": "Durumu ayarlayan",
+    "csvStatusAt": "Durum tarihi",
+    "csvReplyCount": "Yanıt sayısı",
+    "csvReplies": "Yanıtlar",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "Genişlik",
+    "csvHeight": "Yükseklik",
+    "filterBar": "Filtreler",
+    "filterAll": "(Tümü)",
+    "filterPages": "Sayfalar",
+    "filterDate": "Tarih",
+    "filterFrom": "Başlangıç",
+    "filterTo": "Bitiş",
+    "filterClear": "Filtreleri temizle",
+    "setStatusSelected": "Seçilenlerin durumunu ayarla",
+    "setStatusListed": "Listelenen tümünün durumunu ayarla",
+    "statusChanged": "Durum değiştirildi: {{count}}",
+    "summaryTitle": "Yorum özeti",
+    "summaryDocument": "Belge",
+    "summaryCreated": "Oluşturulma",
+    "summaryCount": "Yorumlar",
+    "summaryNoText": "(yorum metni yok)",
+    "summaryBusy": "Yorum özeti oluşturuluyor...",
+    "summaryExported": "Yorum özeti PDF olarak dışa aktarıldı",
+    "summaryFailed": "Yorum özeti oluşturulamadı",
     "schedules": "Çizelgeler",
     "addPage": "Sayfa ekle",
     "pageLabels": "Sayfa etiketleri (ad oluşturucu)",
     "portfolio": "PDF portföyü",
-    "recognizeForm": "Form alanlarını tanı"
+    "recognizeForm": "Form alanlarını tanı",
+    "layersSetDefault": "Varsayılan yap",
+    "layersSetDefaultTitle": "Katmanların geçerli görünürlüğünü belgenin varsayılan durumu olarak sakla. Bir sonraki kaydetmede dosyaya yazılır.",
+    "layersDefaultPending": "Kaydedince varsayılan olacak",
+    "layerLocked": "Kilitli katman: açılamaz veya kapatılamaz",
+    "layerRadioGroup": "Seçim grubu: bu katmanı açmak gruptaki diğer katmanları kapatır"
   },
   "scaleBar": {
     "title": "Ölçek Çubuğu",
@@ -443,7 +483,9 @@
       "symbol": "Sembol çizelgesi",
       "text": "Metin çizelgesi",
       "full": "Tam metraj",
-      "image": "Görüntüler ve damgalar"
+      "image": "Görüntüler ve damgalar",
+      "bendingSchedule": "Bükme listesi",
+      "rebarWeight": "Donatı metrajı (Ø'ya göre ağırlık)"
     },
     "preview": "Önizleme",
     "exportCsv": "CSV dışa aktar",
@@ -603,7 +645,8 @@
       "textBuiltIn": "Metin (yerleşik)",
       "symbol": "Sembol",
       "image": "Görüntü",
-      "other": "Diğer"
+      "other": "Diğer",
+      "reinforcement": "Donatı"
     },
     "field": {
       "category": "Kategori",
@@ -631,7 +674,16 @@
       "width": "Genişlik",
       "height": "Yükseklik",
       "location": "Konum",
-      "locationSource": "Konum kaynağı"
+      "locationSource": "Konum kaynağı",
+      "rebarMark": "Poz no",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Bükme şekli",
+      "rebarGrade": "Çelik sınıfı",
+      "rebarCount": "Çubuk sayısı",
+      "rebarLength": "Çubuk uzunluğu",
+      "rebarTotalLength": "Toplam uzunluk",
+      "rebarMassPerM": "Metre ağırlığı",
+      "rebarMass": "Ağırlık"
     },
     "type": {
       "line": "Çizgi",
@@ -669,7 +721,8 @@
       "stavenreeks": "Çubuk serisi",
       "betonbalk": "Beton kiriş",
       "scheduleTable": "Metraj tablosu",
-      "builtinText": "Metin"
+      "builtinText": "Metin",
+      "rebarPosition": "Donatı çubuğu"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "Dikey tarama seyrek",
       "inb-horizontaal-breed": "Yatay tarama seyrek"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "Okuma sırasında yukarı taşı",
+    "moveDown": "Okuma sırasında aşağı taşı",
+    "checkAccessibility": "Erişilebilirliği denetle",
+    "altText": "Alternatif metin",
+    "altTextPlaceholder": "Görüntüyü göremeyenler için açıklayın...",
+    "noAlt": "Alternatif metin yok",
+    "role": "Rol",
+    "mappedTo": "{{role}}, {{standard}} ile eşlenmiş",
+    "content": "İçerik {{mcid}} (sayfa {{page}})",
+    "annotationRef": "Ek açıklama (sayfa {{page}})"
+  },
+  "ink": {
+    "title": "Mürekkep",
+    "pressure": "Kalem basıncı",
+    "pressureHint": "Kalem basıncı çizgi kalınlığını değiştirir (fareyle çizilen çizgiler sabit kalınlıkta kalır)",
+    "minWidth": "En küçük genişlik (%)",
+    "minWidthHint": "En hafif basınçtaki genişlik, çizgi kalınlığının yüzdesi olarak",
+    "smoothing": "Yumuşatma",
+    "smoothingHint": "Çizgi yumuşatma gücü (0 = yok)"
+  },
+  "attachment": {
+    "file": "Dosya",
+    "size": "Boyut",
+    "open": "Aç",
+    "saveAs": "Farklı kaydet...",
+    "noContent": "Bu dosyanın içeriği PDF'e gömülü değil."
   }
 }

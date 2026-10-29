@@ -1628,5 +1628,26 @@
     "fileFailed": "{{name}}을(를) 읽을 수 없습니다: {{error}}",
     "applyFailed": "페이지 편집을 적용하지 못했습니다: {{error}}",
     "extractFailed": "페이지를 추출하지 못했습니다: {{error}}"
+  },
+  "accessibilityReport": {
+    "title": "접근성 검사",
+    "starting": "검사 중...",
+    "checking": "{{total}}페이지 중 {{done}}페이지 검사 중...",
+    "noIssues": "문제가 발견되지 않았습니다.",
+    "summary": "문제 {{count}}개가 발견되었습니다. 항목을 두 번 클릭하면 해당 페이지로 이동합니다.",
+    "failed": "이 문서에서 검사를 실행할 수 없습니다.",
+    "recheck": "다시 검사",
+    "close": "닫기",
+    "goTo": "두 번 클릭하여 페이지로 이동",
+    "page": "{{page}}페이지",
+    "kind": {
+      "notTagged": "문서에 태그가 없습니다. 구조 트리가 없어 보조 기술이 읽기 순서를 따를 수 없습니다.",
+      "notMarked": "문서가 태그된 문서로 표시되어 있지 않습니다(/MarkInfo /Marked).",
+      "noLanguage": "문서 언어가 설정되지 않았습니다.",
+      "figureNoAlt": "대체 텍스트가 없는 {{role}}",
+      "pageNotTagged": "이 페이지에 태그된 콘텐츠가 없습니다(텍스트 항목 {{count}}개)",
+      "untaggedContent": "태그 밖의 텍스트 항목 {{count}}개",
+      "annotationNoText": "설명이 없는 주석({{type}})"
+    }
   }
 }

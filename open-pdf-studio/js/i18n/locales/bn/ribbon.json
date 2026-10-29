@@ -169,7 +169,9 @@
     "flattenAll": "সব সমতল করুন",
     "flattenAllTooltip": "সব মার্কআপ পৃষ্ঠার বিষয়বস্তুতে সমতল করুন",
     "unflattenAll": "সমতল করা পূর্বাবস্থায় ফেরান",
-    "unflattenAllTooltip": "পুনরুদ্ধারের অনুমতি দিয়ে সমতল করা মার্কআপ পুনরুদ্ধার করুন"
+    "unflattenAllTooltip": "পুনরুদ্ধারের অনুমতি দিয়ে সমতল করা মার্কআপ পুনরুদ্ধার করুন",
+    "fileAttachment": "ফাইল সংযুক্ত করুন",
+    "fileAttachmentTitle": "ফাইল সংযুক্তি: পৃষ্ঠায় ক্লিক করুন এবং একটি ফাইল বেছে নিন"
   },
   "view": {
     "pageDisplay": "পৃষ্ঠা প্রদর্শন",
@@ -208,7 +210,15 @@
     "rotateViewLeft": "দৃশ্য বামে ঘোরান",
     "rotateViewRight": "দৃশ্য ডানে ঘোরান",
     "rotateViewLeftTitle": "দৃশ্যটি ঘড়ির কাঁটার বিপরীতে 90° ঘোরান। নথিটি নিজে পরিবর্তিত হয় না।",
-    "rotateViewRightTitle": "দৃশ্যটি ঘড়ির কাঁটার দিকে 90° ঘোরান। নথিটি নিজে পরিবর্তিত হয় না।"
+    "rotateViewRightTitle": "দৃশ্যটি ঘড়ির কাঁটার দিকে 90° ঘোরান। নথিটি নিজে পরিবর্তিত হয় না।",
+    "accessibilityGroup": "অ্যাক্সেসযোগ্যতা",
+    "readAloud": "জোরে পড়ুন",
+    "readAloudPause": "বিরতি",
+    "readAloudTitle": "নির্বাচন, অথবা বর্তমান পৃষ্ঠা থেকে নথি, জোরে পড়ুন",
+    "tagsPanel": "ট্যাগ",
+    "tagsPanelTitle": "নথির কাঠামো ট্যাগ দেখান",
+    "accessibilityCheck": "পরীক্ষা",
+    "accessibilityCheckTitle": "অনুপস্থিত বিকল্প পাঠ্য এবং ট্যাগবিহীন বিষয়বস্তু খুঁজুন"
   },
   "elementVisibility": {
     "buttonTitle": "উপাদানের দৃশ্যমানতা — টীকার ধরন দেখান/লুকান ও ম্লান করুন",

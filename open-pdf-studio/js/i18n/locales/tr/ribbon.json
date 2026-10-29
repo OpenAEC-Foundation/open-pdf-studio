@@ -169,7 +169,9 @@
     "flattenAll": "Tümünü düzleştir",
     "flattenAllTooltip": "Tüm işaretlemeleri sayfa içeriğine düzleştir",
     "unflattenAll": "Düzleştirmeyi geri al",
-    "unflattenAllTooltip": "Geri yüklemeye izin verilerek düzleştirilen işaretlemeleri geri yükle"
+    "unflattenAllTooltip": "Geri yüklemeye izin verilerek düzleştirilen işaretlemeleri geri yükle",
+    "fileAttachment": "Dosya ekle",
+    "fileAttachmentTitle": "Dosya eki: sayfaya tıklayın ve bir dosya seçin"
   },
   "view": {
     "pageDisplay": "Sayfa Görüntüleme",
@@ -208,7 +210,15 @@
     "rotateViewLeft": "Görünümü Sola Döndür",
     "rotateViewRight": "Görünümü Sağa Döndür",
     "rotateViewLeftTitle": "Görünümü saat yönünün tersine 90° döndürür. Belgenin kendisi değişmez.",
-    "rotateViewRightTitle": "Görünümü saat yönünde 90° döndürür. Belgenin kendisi değişmez."
+    "rotateViewRightTitle": "Görünümü saat yönünde 90° döndürür. Belgenin kendisi değişmez.",
+    "accessibilityGroup": "Erişilebilirlik",
+    "readAloud": "Sesli oku",
+    "readAloudPause": "Duraklat",
+    "readAloudTitle": "Seçimi veya belgeyi geçerli sayfadan itibaren sesli oku",
+    "tagsPanel": "Etiketler",
+    "tagsPanelTitle": "Belgenin yapı etiketlerini göster",
+    "accessibilityCheck": "Denetle",
+    "accessibilityCheckTitle": "Eksik alternatif metni ve etiketsiz içeriği ara"
   },
   "elementVisibility": {
     "buttonTitle": "Eleman Görünürlüğü — açıklama türlerini göster/gizle ve soluklaştır",

@@ -41,7 +41,10 @@
     "cancelled": "لغوشده",
     "completed": "تکمیل‌شده",
     "reviewed": "بررسی‌شده",
-    "statusSetBy": "تنظیم‌شده توسط {{author}} در {{date}}"
+    "statusSetBy": "تنظیم‌شده توسط {{author}} در {{date}}",
+    "layer": "لایه",
+    "layerMarkupGroup": "لایه‌های نشانه‌گذاری",
+    "layerDocumentGroup": "لایه‌های سند"
   },
   "colorNone": "هیچ",
   "moreColors": "رنگ‌های بیشتر...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "گیره کاغذ",
+    "iconPushPin": "پونز",
+    "iconGraph": "نمودار",
+    "iconTag": "برچسب"
   },
   "stylePresets": {
     "label": "سبک خط",
@@ -308,7 +315,8 @@
     "measurePerimeter": "محیط",
     "redaction": "ویرایش محرمانه",
     "scaleBar": "نوار مقیاس",
-    "parametricSymbol": "نماد پارامتریک"
+    "parametricSymbol": "نماد پارامتریک",
+    "fileAttachment": "پیوست فایل"
   },
   "leftPanel": {
     "togglePanel": "تغییر وضعیت پنل",
@@ -379,22 +387,54 @@
     "exportComments": "صادر کردن نظرات به فایل داده...",
     "exportSelectedComments": "صادر کردن نظرات انتخاب‌شده به فایل داده...",
     "exportListCsv": "صدور فهرست به CSV...",
-    "summarizeComingSoon": "به‌زودی",
     "listExported": "فهرست نظرها به CSV صادر شد",
     "csvPage": "صفحه",
     "csvType": "نوع",
     "csvAuthor": "نویسنده",
-    "csvDate": "تاریخ",
     "csvStatus": "وضعیت",
     "csvSubject": "موضوع",
     "csvContents": "محتوا",
     "csvColor": "رنگ",
     "csvLayer": "لایه",
+    "csvId": "شناسه",
+    "csvCreated": "ایجاد شده",
+    "csvModified": "تغییر یافته",
+    "csvStatusBy": "وضعیت تنظیم شده توسط",
+    "csvStatusAt": "تاریخ وضعیت",
+    "csvReplyCount": "تعداد پاسخ‌ها",
+    "csvReplies": "پاسخ‌ها",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "عرض",
+    "csvHeight": "ارتفاع",
+    "filterBar": "فیلترها",
+    "filterAll": "(همه)",
+    "filterPages": "صفحه‌ها",
+    "filterDate": "تاریخ",
+    "filterFrom": "از",
+    "filterTo": "تا",
+    "filterClear": "پاک کردن فیلترها",
+    "setStatusSelected": "تنظیم وضعیت موارد انتخاب‌شده",
+    "setStatusListed": "تنظیم وضعیت همه موارد فهرست‌شده",
+    "statusChanged": "وضعیت تغییر کرد: {{count}}",
+    "summaryTitle": "خلاصه نظرها",
+    "summaryDocument": "سند",
+    "summaryCreated": "ایجاد شده",
+    "summaryCount": "نظرها",
+    "summaryNoText": "(بدون متن نظر)",
+    "summaryBusy": "در حال ایجاد خلاصه نظرها...",
+    "summaryExported": "خلاصه نظرها به PDF صادر شد",
+    "summaryFailed": "ایجاد خلاصه نظرها ممکن نشد",
     "schedules": "جدول‌های مقادیر",
     "addPage": "افزودن صفحه",
     "pageLabels": "برچسب‌های صفحه (سازنده نام)",
     "portfolio": "پرتفولیوی PDF",
-    "recognizeForm": "شناسایی فیلدهای فرم"
+    "recognizeForm": "شناسایی فیلدهای فرم",
+    "layersSetDefault": "تنظیم به‌عنوان پیش‌فرض",
+    "layersSetDefaultTitle": "نمایان بودن فعلی لایه‌ها به‌عنوان وضعیت پیش‌فرض سند نگه داشته شود. در ذخیره بعدی در فایل نوشته می‌شود.",
+    "layersDefaultPending": "هنگام ذخیره پیش‌فرض می‌شود",
+    "layerLocked": "لایه قفل‌شده: نمی‌توان آن را روشن یا خاموش کرد",
+    "layerRadioGroup": "گروه انتخاب: روشن کردن این لایه، لایه‌های دیگر گروه را خاموش می‌کند"
   },
   "scaleBar": {
     "title": "نوار مقیاس",
@@ -443,7 +483,9 @@
       "symbol": "جدول نمادها",
       "text": "جدول متن‌ها",
       "full": "مقادیر کامل",
-      "image": "تصاویر و مهرها"
+      "image": "تصاویر و مهرها",
+      "bendingSchedule": "جدول خم میلگرد",
+      "rebarWeight": "جدول وزن میلگرد (به تفکیک Ø)"
     },
     "preview": "پیش‌نمایش",
     "exportCsv": "صدور CSV",
@@ -603,7 +645,8 @@
       "textBuiltIn": "متن (داخلی)",
       "symbol": "نماد",
       "image": "تصویر",
-      "other": "سایر"
+      "other": "سایر",
+      "reinforcement": "آرماتور"
     },
     "field": {
       "category": "دسته",
@@ -631,7 +674,16 @@
       "width": "عرض",
       "height": "ارتفاع",
       "location": "مکان",
-      "locationSource": "منبع مکان"
+      "locationSource": "منبع مکان",
+      "rebarMark": "شماره میلگرد",
+      "rebarDiameter": "Ø",
+      "rebarShape": "شکل خم",
+      "rebarGrade": "رده فولاد",
+      "rebarCount": "تعداد میلگرد",
+      "rebarLength": "طول میلگرد",
+      "rebarTotalLength": "طول کل",
+      "rebarMassPerM": "وزن در متر",
+      "rebarMass": "وزن"
     },
     "type": {
       "line": "خط",
@@ -669,7 +721,8 @@
       "stavenreeks": "سری میلگرد",
       "betonbalk": "تیر بتنی",
       "scheduleTable": "جدول مقادیر",
-      "builtinText": "متن"
+      "builtinText": "متن",
+      "rebarPosition": "میلگرد"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "عمودی باز",
       "inb-horizontaal-breed": "افقی باز"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "انتقال به بالا در ترتیب خواندن",
+    "moveDown": "انتقال به پایین در ترتیب خواندن",
+    "checkAccessibility": "بررسی دسترس‌پذیری",
+    "altText": "متن جایگزین",
+    "altTextPlaceholder": "تصویر را برای کسانی که نمی‌توانند آن را ببینند توصیف کنید...",
+    "noAlt": "بدون متن جایگزین",
+    "role": "نقش",
+    "mappedTo": "{{role}} به {{standard}} نگاشت شده است",
+    "content": "محتوای {{mcid}} (صفحهٔ {{page}})",
+    "annotationRef": "حاشیه‌نویسی (صفحهٔ {{page}})"
+  },
+  "ink": {
+    "title": "جوهر",
+    "pressure": "فشار قلم",
+    "pressureHint": "فشار قلم پهنای خط را تغییر می‌دهد (خط‌های موس پهنای ثابت دارند)",
+    "minWidth": "کمترین پهنا (%)",
+    "minWidthHint": "پهنا در سبک‌ترین فشار قلم، به‌صورت درصدی از ضخامت خط",
+    "smoothing": "هموارسازی",
+    "smoothingHint": "شدت هموارسازی خط (۰ = بدون)"
+  },
+  "attachment": {
+    "file": "فایل",
+    "size": "اندازه",
+    "open": "باز کردن",
+    "saveAs": "ذخیره به عنوان...",
+    "noContent": "محتوای این فایل در PDF جاسازی نشده است."
   }
 }

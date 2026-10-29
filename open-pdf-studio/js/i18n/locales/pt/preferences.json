@@ -106,7 +106,13 @@
     "headOpenReversed": "Seta aberta (invertida)",
     "headClosedReversed": "Seta fechada (invertida)",
     "headSlash": "Barra",
-    "polylineDefaults": "Padrões de polilinha"
+    "polylineDefaults": "Padrões de polilinha",
+    "smoothing": "Suavização",
+    "pressure": "Pressão da caneta",
+    "pressureHint": "A pressão da caneta varia a espessura do traço (traços com o rato mantêm uma espessura constante)",
+    "pressureMinWidth": "Largura mínima (%)",
+    "penOnly": "Apenas caneta (ignorar toque)",
+    "penOnlyHint": "O toque não desenha com a ferramenta à mão livre; útil contra o contacto da palma ao escrever com a caneta"
   },
   "shapes": {
     "rectangleDefaults": "Padrões do retângulo",
@@ -162,6 +168,11 @@
     "snapToNearest": "Encaixar no mais próximo",
     "objectSnapRadius": "Raio de encaixe (pixels)",
     "snapToPdfContent": "Encaixar no conteúdo do desenho PDF",
+    "moveInference": "Inferência ao mover (G / mv)",
+    "moveInferenceTracking": "Linhas de rastreamento (alinhar com pontos de outra geometria)",
+    "moveInferenceExtension": "Prolongamentos de linhas e faces de paredes",
+    "moveInferenceParallel": "Paralelo / perpendicular a linhas próximas",
+    "moveInferenceHint": "Passe o cursor brevemente sobre um ponto para o adquirir, mantenha Shift premido para bloquear uma guia, Tab alterna entre distância e ângulo. As guias polares seguem as definições do rastreamento polar.",
     "creation": "Criação",
     "autoSelectAfterCreation": "Selecionar automaticamente a anotação após a criação",
     "deletion": "Exclusão",

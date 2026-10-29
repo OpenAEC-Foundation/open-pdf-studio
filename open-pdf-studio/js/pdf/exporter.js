@@ -91,10 +91,13 @@ export async function renderPageOffscreen(pageNum, exportScale, { deel = null, m
   const pdfCtx = pdfCanvas.getContext('2d');
 
   // Render PDF page
+  // Geschakelde lagen (#377): afdrukken en exporteren tonen wat in beeld is.
+  const { pdfjsLaagOpties } = await import('./lagen-schakelen.js');
   const renderContext = {
     canvasContext: pdfCtx,
     viewport: viewport,
-    annotationMode: 0
+    annotationMode: 0,
+    ...pdfjsLaagOpties(doc),
   };
   // Part of the page: shifted so the part starts at pixel (0,0); the canvas
   // clips the rest.

@@ -1628,5 +1628,26 @@
     "fileFailed": "Kunne ikke lese {{name}}: {{error}}",
     "applyFailed": "Kunne ikke bruke sideendringene: {{error}}",
     "extractFailed": "Kunne ikke trekke ut sidene: {{error}}"
+  },
+  "accessibilityReport": {
+    "title": "Tilgjengelighetskontroll",
+    "starting": "Kontrollerer...",
+    "checking": "Kontrollerer side {{done}} av {{total}}...",
+    "noIssues": "Fant ingen problemer.",
+    "summary": "Fant {{count}} problem(er). Dobbeltklikk på et element for å gå til siden.",
+    "failed": "Kontrollen kunne ikke kjøres på dette dokumentet.",
+    "recheck": "Kontroller på nytt",
+    "close": "Lukk",
+    "goTo": "Dobbeltklikk for å gå til siden",
+    "page": "Side {{page}}",
+    "kind": {
+      "notTagged": "Dokumentet har ingen tagger: det finnes ikke noe strukturtre, så hjelpemidler kan ikke følge leserekkefølgen.",
+      "notMarked": "Dokumentet er ikke merket som tagget (/MarkInfo /Marked).",
+      "noLanguage": "Dokumentspråket er ikke angitt.",
+      "figureNoAlt": "{{role}} uten alternativ tekst",
+      "pageNotTagged": "Ikke noe tagget innhold på denne siden ({{count}} tekstelementer)",
+      "untaggedContent": "{{count}} tekstelement(er) utenfor taggene",
+      "annotationNoText": "Merknad ({{type}}) uten beskrivelse"
+    }
   }
 }

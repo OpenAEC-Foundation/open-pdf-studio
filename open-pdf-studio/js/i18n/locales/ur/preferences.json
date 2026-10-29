@@ -106,7 +106,13 @@
     "headOpenReversed": "کھلا تیر (الٹا)",
     "headClosedReversed": "بند تیر (الٹا)",
     "headSlash": "سلیش",
-    "polylineDefaults": "پولی لائن ڈیفالٹس"
+    "polylineDefaults": "پولی لائن ڈیفالٹس",
+    "smoothing": "ہمواری",
+    "pressure": "قلم کا دباؤ",
+    "pressureHint": "قلم کا دباؤ لکیر کی چوڑائی بدلتا ہے (ماؤس کی لکیریں یکساں چوڑائی رکھتی ہیں)",
+    "pressureMinWidth": "کم از کم چوڑائی (%)",
+    "penOnly": "صرف قلم (چھونے کو نظرانداز کریں)",
+    "penOnlyHint": "چھونے سے فری ہینڈ ٹول سے ڈرائنگ نہیں ہوتی؛ قلم سے لکھتے وقت ہتھیلی کے لمس سے بچاؤ کے لیے مفید"
   },
   "shapes": {
     "rectangleDefaults": "مستطیل ڈیفالٹس",
@@ -166,6 +172,11 @@
     "deletion": "حذف",
     "confirmBeforeDeleting": "تشریحات حذف کرنے سے پہلے تصدیق کریں",
     "snapToPdfContent": "PDF ڈرائنگ مواد سے سنیپ کریں",
+    "moveInference": "منتقل کرتے وقت رہنما خطوط (G / mv)",
+    "moveInferenceTracking": "ٹریکنگ خطوط (دوسری جیومیٹری کے نقاط سے سیدھ)",
+    "moveInferenceExtension": "خطوط اور دیوار کی سطحوں کی توسیع",
+    "moveInferenceParallel": "قریبی خطوط کے متوازی / عمودی",
+    "moveInferenceHint": "کسی نقطے کو پکڑنے کے لیے کرسر کو لمحہ بھر اس پر رکھیں، رہنما خط کو مقفل کرنے کے لیے Shift دبائے رکھیں، Tab فاصلے اور زاویے کے درمیان بدلتا ہے۔ پولر رہنما خطوط پولر ٹریکنگ کی ترتیبات کی پیروی کرتے ہیں۔",
     "navigation": "نیویگیشن",
     "wheelZoomWithoutCtrl": "ماؤس وہیل سے زوم کریں (Ctrl دبائے بغیر)",
     "middleDoubleClickFit": "صفحہ فٹ کرنے کے لیے ماؤس کے درمیانی بٹن پر ڈبل کلک کریں",

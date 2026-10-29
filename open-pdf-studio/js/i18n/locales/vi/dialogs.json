@@ -1628,5 +1628,26 @@
     "fileFailed": "Không thể đọc {{name}}: {{error}}",
     "applyFailed": "Áp dụng chỉnh sửa trang không thành công: {{error}}",
     "extractFailed": "Trích xuất trang không thành công: {{error}}"
+  },
+  "accessibilityReport": {
+    "title": "Kiểm tra trợ năng",
+    "starting": "Đang kiểm tra...",
+    "checking": "Đang kiểm tra trang {{done}}/{{total}}...",
+    "noIssues": "Không tìm thấy vấn đề nào.",
+    "summary": "Tìm thấy {{count}} vấn đề. Nhấp đúp vào một mục để đi tới trang của mục đó.",
+    "failed": "Không thể chạy kiểm tra trên tài liệu này.",
+    "recheck": "Kiểm tra lại",
+    "close": "Đóng",
+    "goTo": "Nhấp đúp để đi tới trang",
+    "page": "Trang {{page}}",
+    "kind": {
+      "notTagged": "Tài liệu chưa được gắn thẻ: không có cây cấu trúc nên công nghệ hỗ trợ không thể theo dõi thứ tự đọc.",
+      "notMarked": "Tài liệu chưa được đánh dấu là đã gắn thẻ (/MarkInfo /Marked).",
+      "noLanguage": "Chưa đặt ngôn ngữ của tài liệu.",
+      "figureNoAlt": "{{role}} không có văn bản thay thế",
+      "pageNotTagged": "Không có nội dung được gắn thẻ trên trang này ({{count}} mục văn bản)",
+      "untaggedContent": "{{count}} mục văn bản nằm ngoài thẻ",
+      "annotationNoText": "Chú thích ({{type}}) không có mô tả"
+    }
   }
 }

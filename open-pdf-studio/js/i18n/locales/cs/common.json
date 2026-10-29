@@ -124,7 +124,79 @@
         "label": "Půdorys",
         "hint": "Nakreslit stavební půdorys: stěny, výplně otvorů, místnosti, kóty a vybavení (sanita, kuchyně)",
         "prompt": "Nakresli stavební půdorys. Co nakreslit: "
+      },
+      "find-on-sheet": {
+        "label": "Najít na listu",
+        "hint": "Najít výraz (název místnosti, značku řezu, symbol), přejít na jeho stránku a zvýraznit nálezy",
+        "prompt": "Najdi na tomto listu: "
+      },
+      "explain-selection": {
+        "label": "Vysvětlit výběr",
+        "hint": "Srozumitelně popsat vybranou oblast, text nebo značku, s rozměry, je-li nastaveno měřítko",
+        "prompt": "Vysvětli výběr."
+      },
+      "compare-sheets": {
+        "label": "Porovnat listy",
+        "hint": "Pojmenovat a označit, co bylo oproti jiné stránce přidáno, odstraněno nebo přesunuto",
+        "prompt": "Porovnej tuto stránku se stránkou: "
+      },
+      "measure": {
+        "label": "Změřit toto",
+        "hint": "Změřit vybraný tvar nebo popsaný prvek a uvést výsledek v měřítku výkresu",
+        "prompt": "Změř: "
+      },
+      "take-off": {
+        "label": "Vykázat výměry",
+        "hint": "Spočítat nebo změřit prvky jednoho druhu a umístit výsledek jako výkaz na list",
+        "prompt": "Vykaž výměry: "
+      },
+      "check-scale": {
+        "label": "Zkontrolovat měřítko",
+        "hint": "Zjistit měřítko z rohového razítka nebo známého rozměru a nastavit ho",
+        "prompt": "Zkontroluj měřítko tohoto výkresu."
+      },
+      "review-sheet": {
+        "label": "Revidovat list",
+        "hint": "Přidat obláčky s číslovanými komentáři k bodům, které by vznesl kontrolor",
+        "prompt": "Zkontroluj tento list z hlediska: "
+      },
+      "stamp-date": {
+        "label": "Razítko a datum",
+        "hint": "Umístit razítko, vyplnit pole rohového razítka nebo přidat poznámku o revizi s dnešním datem",
+        "prompt": "Orazítkuj a datuj: "
+      },
+      "clean-up": {
+        "label": "Uklidit značky",
+        "hint": "Jednotně zarovnat, přečíslovat nebo přebarvit stávající značky",
+        "prompt": "Ukliď moje značky: "
+      },
+      "import-cad": {
+        "label": "Vložit výkres",
+        "hint": "Importovat výkres DWG nebo DXF jako podklad ve správném měřítku",
+        "prompt": "Vlož výkres (cesta k souboru DWG nebo DXF): "
+      },
+      "export-cad": {
+        "label": "Export do CAD",
+        "hint": "Zapsat tuto stránku nebo vybranou oblast do souboru DXF nebo DWG",
+        "prompt": "Exportuj tuto stránku do (cesta k souboru DXF nebo DWG): "
       }
+    },
+    "groups": {
+      "document": "Překlad a shrnutí",
+      "reading": "Čtení výkresu",
+      "measuring": "Měření a výměry",
+      "markup": "Značkování",
+      "structure": "Konstrukce a půdorys",
+      "cad": "Výkresy CAD"
+    },
+    "need": {
+      "document": "Nejprve otevřete PDF: tato dovednost pracuje s otevřeným dokumentem.",
+      "selection": "Nejprve vyberte značku nebo část textu ve výkresu a pak znovu klikněte na dovednost.",
+      "scale": "Tento výkres zatím nemá měřítko pro měření. Nejprve ho nastavte (například pomocí „Zkontrolovat měřítko“) a zkuste to znovu.",
+      "input": "Doplňte text ve vstupním poli za dvojtečku a poté ho odešlete.",
+      "selectionOrInput": "Vyberte tvar ve výkresu, nebo za dvojtečkou popište, co se má změřit.",
+      "page": "Zadejte číslo jiné stránky (1 až {{max}}), ne aktuální stránky.",
+      "twoPages": "Tento dokument má jen jednu stránku. Chcete-li ho porovnat s jiným souborem, nahraďte text ve vstupním poli vlastní otázkou."
     }
   },
   "onlineSymbolLibrary": "Online knihovna symbolů",
@@ -228,7 +300,12 @@
     "goToPageLink": "Přejít na stránku",
     "openExternalFile": "Otevřít: {{filename}}",
     "destination": "Cíl: {{name}}",
-    "internalLink": "Interní odkaz"
+    "internalLink": "Interní odkaz",
+    "attachmentOnPage": "Strana {{page}}",
+    "attachmentCreated": "Vytvořeno: {{date}}",
+    "attachmentModified": "Změněno: {{date}}",
+    "openAttachmentRiskTitle": "Otevřít přílohu",
+    "openAttachmentRiskMessage": "„{{name}}“ může na tomto počítači spouštět programy. Otevřete ji, jen pokud zdroji důvěřujete. Přesto otevřít?"
   },
   "failedToInsertPagesFromFile": "Vložení stránek ze souboru se nezdařilo: {{error}}",
   "previewPdfRefused": "Toto PDF je náhled z importu výkresu a může být neúplné. Nelze je vložit ani uložit; importujte výkres znovu.",
@@ -298,5 +375,42 @@
     "readFailed": "3D model se nepodařilo načíst.",
     "partial": "Některé části 3D modelu se nepodařilo načíst (vynecháno: {{n}}).",
     "viewerFailed": "3D zobrazení se nepodařilo spustit."
+  },
+  "readAloud": {
+    "title": "Číst nahlas",
+    "play": "Číst",
+    "pause": "Pozastavit",
+    "resume": "Pokračovat",
+    "stop": "Zastavit",
+    "close": "Zavřít",
+    "voice": "Hlas",
+    "defaultVoice": "Výchozí hlas",
+    "rate": "Rychlost",
+    "loading": "Příprava...",
+    "reading": "Čte se",
+    "paused": "Pozastaveno",
+    "page": "stránka {{page}}",
+    "tagOrder": "pořadí značek",
+    "contentOrder": "pořadí stránek",
+    "noEngine": "V tomto systému není k dispozici žádný hlasový modul.",
+    "noEngineLinux": "Nebyl nalezen žádný hlasový modul. Nainstalujte speech-dispatcher (spd-say) nebo espeak-ng a zkuste to znovu.",
+    "speechFailed": "Čtení se zastavilo kvůli chybě.",
+    "nothingToRead": "Není co číst.",
+    "online": "(online)",
+    "allowOnline": "Online hlasy",
+    "allowOnlineHint": "Nabízet i online hlasy. S online hlasem se předčítaný text odesílá do online řečové služby.",
+    "onlyOnlineVoices": "K dispozici jsou jen online hlasy. Zapněte Online hlasy, chcete-li některý použít; předčítaný text se pak odesílá do online řečové služby.",
+    "noLocalVoice": "Pro tento jazyk není nainstalován žádný místní hlas; použije se výchozí místní hlas."
+  },
+  "moveInference": {
+    "onAxisX": "Na ose X",
+    "onAxisY": "Na ose Y",
+    "fromPoint": "Od bodu",
+    "extension": "Na prodloužení",
+    "parallel": "Rovnoběžně",
+    "perpendicular": "Kolmo",
+    "intersection": "Průsečík",
+    "polar": "Polární",
+    "locked": "Uzamčeno"
   }
 }

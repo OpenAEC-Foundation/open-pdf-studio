@@ -41,7 +41,10 @@
     "cancelled": "בוטל",
     "completed": "הושלם",
     "reviewed": "נסקר",
-    "statusSetBy": "הוגדר על ידי {{author}} בתאריך {{date}}"
+    "statusSetBy": "הוגדר על ידי {{author}} בתאריך {{date}}",
+    "layer": "שכבה",
+    "layerMarkupGroup": "שכבות סימון",
+    "layerDocumentGroup": "שכבות המסמך"
   },
   "colorNone": "ללא",
   "moreColors": "צבעים נוספים...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "מהדק",
+    "iconPushPin": "נעץ",
+    "iconGraph": "תרשים",
+    "iconTag": "תגית"
   },
   "stylePresets": {
     "label": "סגנון קו",
@@ -308,7 +315,8 @@
     "measurePerimeter": "היקף",
     "redaction": "השחרה",
     "scaleBar": "סרגל קנה מידה",
-    "parametricSymbol": "סמל פרמטרי"
+    "parametricSymbol": "סמל פרמטרי",
+    "fileAttachment": "קובץ מצורף"
   },
   "leftPanel": {
     "togglePanel": "החלפת לוח",
@@ -379,22 +387,54 @@
     "exportComments": "ייצא הערות לקובץ נתונים...",
     "exportSelectedComments": "ייצא הערות נבחרות לקובץ נתונים...",
     "exportListCsv": "ייצוא הרשימה ל-CSV...",
-    "summarizeComingSoon": "בקרוב",
     "listExported": "רשימת ההערות יוצאה ל-CSV",
     "csvPage": "עמוד",
     "csvType": "סוג",
     "csvAuthor": "מחבר",
-    "csvDate": "תאריך",
     "csvStatus": "מצב",
     "csvSubject": "נושא",
     "csvContents": "תוכן",
     "csvColor": "צבע",
     "csvLayer": "שכבה",
+    "csvId": "מזהה",
+    "csvCreated": "נוצר",
+    "csvModified": "שונה",
+    "csvStatusBy": "הסטטוס נקבע על ידי",
+    "csvStatusAt": "תאריך הסטטוס",
+    "csvReplyCount": "מספר תגובות",
+    "csvReplies": "תגובות",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "רוחב",
+    "csvHeight": "גובה",
+    "filterBar": "מסננים",
+    "filterAll": "(הכול)",
+    "filterPages": "עמודים",
+    "filterDate": "תאריך",
+    "filterFrom": "מ-",
+    "filterTo": "עד",
+    "filterClear": "ניקוי מסננים",
+    "setStatusSelected": "הגדרת סטטוס לנבחרים",
+    "setStatusListed": "הגדרת סטטוס לכל המופיעים ברשימה",
+    "statusChanged": "הסטטוס שונה: {{count}}",
+    "summaryTitle": "סיכום הערות",
+    "summaryDocument": "מסמך",
+    "summaryCreated": "נוצר",
+    "summaryCount": "הערות",
+    "summaryNoText": "(אין טקסט הערה)",
+    "summaryBusy": "יוצר סיכום הערות...",
+    "summaryExported": "סיכום ההערות יוצא ל-PDF",
+    "summaryFailed": "לא ניתן ליצור את סיכום ההערות",
     "schedules": "טבלאות כמויות",
     "addPage": "הוספת עמוד",
     "pageLabels": "תוויות עמודים (בונה שמות)",
     "portfolio": "תיק PDF",
-    "recognizeForm": "זיהוי שדות טופס"
+    "recognizeForm": "זיהוי שדות טופס",
+    "layersSetDefault": "הגדר כברירת מחדל",
+    "layersSetDefaultTitle": "שמירת הנראות הנוכחית של השכבות כמצב ברירת המחדל של המסמך. היא נכתבת לקובץ בשמירה הבאה.",
+    "layersDefaultPending": "תהפוך לברירת מחדל בשמירה",
+    "layerLocked": "שכבה נעולה: לא ניתן להפעיל או לכבות אותה",
+    "layerRadioGroup": "קבוצת בחירה: הפעלת שכבה זו מכבה את שאר השכבות בקבוצה"
   },
   "scaleBar": {
     "title": "סרגל קנה מידה",
@@ -443,7 +483,9 @@
       "symbol": "טבלת סמלים",
       "text": "טבלת טקסטים",
       "full": "כמויות מלאות",
-      "image": "תמונות וחותמות"
+      "image": "תמונות וחותמות",
+      "bendingSchedule": "רשימת כיפוף",
+      "rebarWeight": "ריכוז ברזל (משקל לפי Ø)"
     },
     "preview": "תצוגה מקדימה",
     "exportCsv": "ייצוא CSV",
@@ -603,7 +645,8 @@
       "textBuiltIn": "טקסט (מקורי)",
       "symbol": "סמל",
       "image": "תמונה",
-      "other": "אחר"
+      "other": "אחר",
+      "reinforcement": "זיון"
     },
     "field": {
       "category": "קטגוריה",
@@ -631,7 +674,16 @@
       "width": "רוחב",
       "height": "גובה",
       "location": "מיקום",
-      "locationSource": "מקור המיקום"
+      "locationSource": "מקור המיקום",
+      "rebarMark": "מספר מוט",
+      "rebarDiameter": "Ø",
+      "rebarShape": "צורת כיפוף",
+      "rebarGrade": "סוג פלדה",
+      "rebarCount": "מספר מוטות",
+      "rebarLength": "אורך מוט",
+      "rebarTotalLength": "אורך כולל",
+      "rebarMassPerM": "מסה למטר",
+      "rebarMass": "מסה"
     },
     "type": {
       "line": "קו",
@@ -669,7 +721,8 @@
       "stavenreeks": "סדרת מוטות",
       "betonbalk": "קורת בטון",
       "scheduleTable": "טבלת כמויות",
-      "builtinText": "טקסט"
+      "builtinText": "טקסט",
+      "rebarPosition": "מוט זיון"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "אנכי מרווח",
       "inb-horizontaal-breed": "אופקי מרווח"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "העברה למעלה בסדר הקריאה",
+    "moveDown": "העברה למטה בסדר הקריאה",
+    "checkAccessibility": "בדיקת נגישות",
+    "altText": "טקסט חלופי",
+    "altTextPlaceholder": "תארו את התמונה עבור מי שאינו יכול לראות אותה...",
+    "noAlt": "אין טקסט חלופי",
+    "role": "תפקיד",
+    "mappedTo": "{{role}} ממופה אל {{standard}}",
+    "content": "תוכן {{mcid}} (עמוד {{page}})",
+    "annotationRef": "הערה (עמוד {{page}})"
+  },
+  "ink": {
+    "title": "דיו",
+    "pressure": "לחץ עט",
+    "pressureHint": "לחץ העט משנה את עובי הקו (קווים בעכבר שומרים על עובי קבוע)",
+    "minWidth": "רוחב מינימלי (%)",
+    "minWidthHint": "הרוחב בלחץ הקל ביותר, באחוזים מעובי הקו",
+    "smoothing": "החלקה",
+    "smoothingHint": "עוצמת החלקת הקו (0 = ללא)"
+  },
+  "attachment": {
+    "file": "קובץ",
+    "size": "גודל",
+    "open": "פתיחה",
+    "saveAs": "שמירה בשם...",
+    "noContent": "תוכן הקובץ הזה אינו מוטמע ב-PDF."
   }
 }

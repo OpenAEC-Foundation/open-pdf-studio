@@ -41,7 +41,10 @@
     "cancelled": "Dibatalkan",
     "completed": "Selesai",
     "reviewed": "Ditinjau",
-    "statusSetBy": "Diatur oleh {{author}} pada {{date}}"
+    "statusSetBy": "Diatur oleh {{author}} pada {{date}}",
+    "layer": "Lapisan",
+    "layerMarkupGroup": "Lapisan markup",
+    "layerDocumentGroup": "Lapisan dokumen"
   },
   "colorNone": "Tidak Ada",
   "moreColors": "Warna Lainnya...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Klip kertas",
+    "iconPushPin": "Paku payung",
+    "iconGraph": "Grafik",
+    "iconTag": "Tag"
   },
   "stylePresets": {
     "label": "Gaya garis",
@@ -308,7 +315,8 @@
     "measurePerimeter": "Keliling",
     "redaction": "Redaksi",
     "scaleBar": "Batang Skala",
-    "parametricSymbol": "Simbol Parametrik"
+    "parametricSymbol": "Simbol Parametrik",
+    "fileAttachment": "Lampiran file"
   },
   "leftPanel": {
     "togglePanel": "Tampilkan/Sembunyikan Panel",
@@ -379,22 +387,54 @@
     "exportComments": "Ekspor komentar ke file data...",
     "exportSelectedComments": "Ekspor komentar terpilih ke file data...",
     "exportListCsv": "Ekspor daftar ke CSV...",
-    "summarizeComingSoon": "Segera hadir",
     "listExported": "Daftar komentar diekspor ke CSV",
     "csvPage": "Halaman",
     "csvType": "Jenis",
     "csvAuthor": "Penulis",
-    "csvDate": "Tanggal",
     "csvStatus": "Status",
     "csvSubject": "Subjek",
     "csvContents": "Isi",
     "csvColor": "Warna",
     "csvLayer": "Lapisan",
+    "csvId": "ID",
+    "csvCreated": "Dibuat",
+    "csvModified": "Diubah",
+    "csvStatusBy": "Status diatur oleh",
+    "csvStatusAt": "Tanggal status",
+    "csvReplyCount": "Jumlah balasan",
+    "csvReplies": "Balasan",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "Lebar",
+    "csvHeight": "Tinggi",
+    "filterBar": "Filter",
+    "filterAll": "(Semua)",
+    "filterPages": "Halaman",
+    "filterDate": "Tanggal",
+    "filterFrom": "Dari",
+    "filterTo": "Sampai",
+    "filterClear": "Hapus filter",
+    "setStatusSelected": "Atur status yang dipilih",
+    "setStatusListed": "Atur status semua yang tercantum",
+    "statusChanged": "Status diubah: {{count}}",
+    "summaryTitle": "Ringkasan komentar",
+    "summaryDocument": "Dokumen",
+    "summaryCreated": "Dibuat",
+    "summaryCount": "Komentar",
+    "summaryNoText": "(tidak ada teks komentar)",
+    "summaryBusy": "Membuat ringkasan komentar...",
+    "summaryExported": "Ringkasan komentar diekspor ke PDF",
+    "summaryFailed": "Ringkasan komentar tidak dapat dibuat",
     "schedules": "Daftar",
     "addPage": "Tambah halaman",
     "pageLabels": "Label halaman (pembuat nama)",
     "portfolio": "Portofolio PDF",
-    "recognizeForm": "Kenali bidang formulir"
+    "recognizeForm": "Kenali bidang formulir",
+    "layersSetDefault": "Jadikan bawaan",
+    "layersSetDefaultTitle": "Simpan visibilitas lapisan saat ini sebagai keadaan bawaan dokumen. Ditulis ke berkas saat Anda menyimpan berikutnya.",
+    "layersDefaultPending": "Menjadi bawaan saat disimpan",
+    "layerLocked": "Lapisan terkunci: tidak dapat dinyalakan atau dimatikan",
+    "layerRadioGroup": "Grup pilihan: menyalakan lapisan ini mematikan lapisan lain dalam grup"
   },
   "scaleBar": {
     "title": "Batang Skala",
@@ -443,7 +483,9 @@
       "symbol": "Daftar simbol",
       "text": "Daftar teks",
       "full": "Kuantitas lengkap",
-      "image": "Gambar & stempel"
+      "image": "Gambar & stempel",
+      "bendingSchedule": "Daftar pembengkokan tulangan",
+      "rebarWeight": "Rekap berat tulangan (per Ø)"
     },
     "preview": "Pratinjau",
     "exportCsv": "Ekspor CSV",
@@ -603,7 +645,8 @@
       "textBuiltIn": "Teks (bawaan)",
       "symbol": "Simbol",
       "image": "Gambar",
-      "other": "Lainnya"
+      "other": "Lainnya",
+      "reinforcement": "Tulangan"
     },
     "field": {
       "category": "Kategori",
@@ -631,7 +674,16 @@
       "width": "Lebar",
       "height": "Tinggi",
       "location": "Lokasi",
-      "locationSource": "Sumber lokasi"
+      "locationSource": "Sumber lokasi",
+      "rebarMark": "Nomor tulangan",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Bentuk bengkokan",
+      "rebarGrade": "Mutu baja",
+      "rebarCount": "Jumlah batang",
+      "rebarLength": "Panjang tulangan",
+      "rebarTotalLength": "Panjang total",
+      "rebarMassPerM": "Berat per meter",
+      "rebarMass": "Berat"
     },
     "type": {
       "line": "Garis",
@@ -669,7 +721,8 @@
       "stavenreeks": "Deret tulangan",
       "betonbalk": "Balok beton",
       "scheduleTable": "Tabel kuantitas",
-      "builtinText": "Teks"
+      "builtinText": "Teks",
+      "rebarPosition": "Batang tulangan"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "Tegak renggang",
       "inb-horizontaal-breed": "Mendatar renggang"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "Pindah ke atas dalam urutan baca",
+    "moveDown": "Pindah ke bawah dalam urutan baca",
+    "checkAccessibility": "Periksa aksesibilitas",
+    "altText": "Teks alternatif",
+    "altTextPlaceholder": "Jelaskan gambar untuk orang yang tidak dapat melihatnya...",
+    "noAlt": "Tidak ada teks alternatif",
+    "role": "Peran",
+    "mappedTo": "{{role}} dipetakan ke {{standard}}",
+    "content": "Konten {{mcid}} (halaman {{page}})",
+    "annotationRef": "Anotasi (halaman {{page}})"
+  },
+  "ink": {
+    "title": "Tinta",
+    "pressure": "Tekanan pena",
+    "pressureHint": "Tekanan pena mengubah lebar goresan (goresan mouse tetap selebar yang sama)",
+    "minWidth": "Lebar minimum (%)",
+    "minWidthHint": "Lebar pada tekanan pena paling ringan, dalam persen dari ketebalan garis",
+    "smoothing": "Penghalusan",
+    "smoothingHint": "Kekuatan penghalusan goresan (0 = tidak ada)"
+  },
+  "attachment": {
+    "file": "File",
+    "size": "Ukuran",
+    "open": "Buka",
+    "saveAs": "Simpan sebagai...",
+    "noContent": "Isi file ini tidak disematkan dalam PDF."
   }
 }

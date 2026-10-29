@@ -5,7 +5,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
-  ASSISTANT_SKILLS, SKILLS_SYSTEM_PROMPT, buildSystemPrompt, languageInstruction, skillKeys, skillMessage,
+  ASSISTANT_SKILLS, ASSISTANT_SKILL_GROUPS, SKILL_NEED_KEYS, SKILLS_SYSTEM_PROMPT, buildSystemPrompt, languageInstruction,
+  skillGroupKey, skillKeys, skillMessage,
 } from './assistant-skills.js';
 
 // De assistent volgt de app-taal (#452, punt 4): elke tekst die de gebruiker
@@ -75,6 +76,23 @@ test('elke vaardigheid heeft naam, uitleg en tekst in alle talen; geen losse sle
         assert.match(opPad(common, skillKeys(skill).prompt), /[:：]\s?$/, `${taal} ${skill.id}.prompt`);
       }
     }
+  }
+});
+
+// De groepen en de meldingen van de poortjes (#452): elke groep heeft een
+// naam, elke melding die skillBlocker/skillInputProblem kan geven bestaat, in
+// alle talen; need.page houdt {{max}} en need.scale noemt de vertaalde naam
+// van "Check the scale".
+test('elke vaardigheidsgroep en elke melding staat in alle talen', () => {
+  const NEED = SKILL_NEED_KEYS.map((k) => k.replace(/^assistant\.need\./, '')).sort();
+  for (const taal of TALEN) {
+    const common = lees(taal);
+    assert.deepEqual(Object.keys(common.assistant.groups).sort(), ASSISTANT_SKILL_GROUPS.map((g) => g.id).sort(), `${taal}: groepen`);
+    for (const g of ASSISTANT_SKILL_GROUPS) assert.ok(String(opPad(common, skillGroupKey(g)) || '').trim(), `${taal} ${g.id}`);
+    assert.deepEqual(Object.keys(common.assistant.need).sort(), NEED, `${taal}: meldingen`);
+    for (const k of SKILL_NEED_KEYS) assert.ok(String(opPad(common, k) || '').trim(), `${taal} ${k}`);
+    assert.ok(common.assistant.need.page.includes('{{max}}'), `${taal} need.page houdt {{max}}`);
+    assert.ok(common.assistant.need.scale.includes(common.assistant.skills['check-scale'].label), `${taal} need.scale noemt de vaardigheid`);
   }
 });
 

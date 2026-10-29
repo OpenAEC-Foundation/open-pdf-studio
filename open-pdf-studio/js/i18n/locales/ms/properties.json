@@ -41,7 +41,10 @@
     "cancelled": "Dibatalkan",
     "completed": "Selesai",
     "reviewed": "Disemak",
-    "statusSetBy": "Ditetapkan oleh {{author}} pada {{date}}"
+    "statusSetBy": "Ditetapkan oleh {{author}} pada {{date}}",
+    "layer": "Lapisan",
+    "layerMarkupGroup": "Lapisan penanda",
+    "layerDocumentGroup": "Lapisan dokumen"
   },
   "colorNone": "Tiada",
   "moreColors": "Lagi Warna...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Klip kertas",
+    "iconPushPin": "Pin tekan",
+    "iconGraph": "Graf",
+    "iconTag": "Tag"
   },
   "stylePresets": {
     "label": "Gaya garisan",
@@ -308,7 +315,8 @@
     "measurePerimeter": "Perimeter",
     "redaction": "Redaksi",
     "scaleBar": "Bar Skala",
-    "parametricSymbol": "Simbol Parametrik"
+    "parametricSymbol": "Simbol Parametrik",
+    "fileAttachment": "Lampiran fail"
   },
   "leftPanel": {
     "togglePanel": "Togol Panel",
@@ -379,22 +387,54 @@
     "exportComments": "Eksport komen ke fail data...",
     "exportSelectedComments": "Eksport komen terpilih ke fail data...",
     "exportListCsv": "Eksport senarai ke CSV...",
-    "summarizeComingSoon": "Akan datang",
     "listExported": "Senarai ulasan dieksport ke CSV",
     "csvPage": "Halaman",
     "csvType": "Jenis",
     "csvAuthor": "Pengarang",
-    "csvDate": "Tarikh",
     "csvStatus": "Status",
     "csvSubject": "Subjek",
     "csvContents": "Kandungan",
     "csvColor": "Warna",
     "csvLayer": "Lapisan",
+    "csvId": "ID",
+    "csvCreated": "Dicipta",
+    "csvModified": "Diubah suai",
+    "csvStatusBy": "Status ditetapkan oleh",
+    "csvStatusAt": "Tarikh status",
+    "csvReplyCount": "Bilangan balasan",
+    "csvReplies": "Balasan",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "Lebar",
+    "csvHeight": "Tinggi",
+    "filterBar": "Penapis",
+    "filterAll": "(Semua)",
+    "filterPages": "Halaman",
+    "filterDate": "Tarikh",
+    "filterFrom": "Dari",
+    "filterTo": "Hingga",
+    "filterClear": "Kosongkan penapis",
+    "setStatusSelected": "Tetapkan status yang dipilih",
+    "setStatusListed": "Tetapkan status semua yang disenaraikan",
+    "statusChanged": "Status diubah: {{count}}",
+    "summaryTitle": "Ringkasan ulasan",
+    "summaryDocument": "Dokumen",
+    "summaryCreated": "Dicipta",
+    "summaryCount": "Ulasan",
+    "summaryNoText": "(tiada teks ulasan)",
+    "summaryBusy": "Mencipta ringkasan ulasan...",
+    "summaryExported": "Ringkasan ulasan dieksport ke PDF",
+    "summaryFailed": "Ringkasan ulasan tidak dapat dicipta",
     "schedules": "Jadual",
     "addPage": "Tambah halaman",
     "pageLabels": "Label halaman (pembina nama)",
     "portfolio": "Portfolio PDF",
-    "recognizeForm": "Kenal pasti medan borang"
+    "recognizeForm": "Kenal pasti medan borang",
+    "layersSetDefault": "Tetapkan sebagai lalai",
+    "layersSetDefaultTitle": "Simpan keterlihatan lapisan semasa sebagai keadaan lalai dokumen. Ia ditulis ke fail apabila anda menyimpan seterusnya.",
+    "layersDefaultPending": "Menjadi lalai apabila disimpan",
+    "layerLocked": "Lapisan dikunci: tidak boleh dihidupkan atau dimatikan",
+    "layerRadioGroup": "Kumpulan pilihan: menghidupkan lapisan ini mematikan lapisan lain dalam kumpulan"
   },
   "scaleBar": {
     "title": "Bar Skala",
@@ -443,7 +483,9 @@
       "symbol": "Jadual simbol",
       "text": "Jadual teks",
       "full": "Kuantiti penuh",
-      "image": "Imej & setem"
+      "image": "Imej & setem",
+      "bendingSchedule": "Jadual lenturan bar",
+      "rebarWeight": "Jadual berat tetulang (mengikut Ø)"
     },
     "preview": "Pratonton",
     "exportCsv": "Eksport CSV",
@@ -603,7 +645,8 @@
       "textBuiltIn": "Teks (asli)",
       "symbol": "Simbol",
       "image": "Imej",
-      "other": "Lain-lain"
+      "other": "Lain-lain",
+      "reinforcement": "Tetulang"
     },
     "field": {
       "category": "Kategori",
@@ -631,7 +674,16 @@
       "width": "Lebar",
       "height": "Tinggi",
       "location": "Lokasi",
-      "locationSource": "Sumber lokasi"
+      "locationSource": "Sumber lokasi",
+      "rebarMark": "Tanda bar",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Bentuk lenturan",
+      "rebarGrade": "Gred keluli",
+      "rebarCount": "Bilangan bar",
+      "rebarLength": "Panjang bar",
+      "rebarTotalLength": "Jumlah panjang",
+      "rebarMassPerM": "Jisim per meter",
+      "rebarMass": "Jisim"
     },
     "type": {
       "line": "Garisan",
@@ -669,7 +721,8 @@
       "stavenreeks": "Siri bar tetulang",
       "betonbalk": "Rasuk konkrit",
       "scheduleTable": "Jadual kuantiti",
-      "builtinText": "Teks"
+      "builtinText": "Teks",
+      "rebarPosition": "Bar tetulang"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "Menegak jarang",
       "inb-horizontaal-breed": "Mendatar jarang"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "Alih ke atas dalam susunan bacaan",
+    "moveDown": "Alih ke bawah dalam susunan bacaan",
+    "checkAccessibility": "Semak kebolehcapaian",
+    "altText": "Teks alternatif",
+    "altTextPlaceholder": "Huraikan imej untuk mereka yang tidak dapat melihatnya...",
+    "noAlt": "Tiada teks alternatif",
+    "role": "Peranan",
+    "mappedTo": "{{role}} dipetakan kepada {{standard}}",
+    "content": "Kandungan {{mcid}} (halaman {{page}})",
+    "annotationRef": "Anotasi (halaman {{page}})"
+  },
+  "ink": {
+    "title": "Dakwat",
+    "pressure": "Tekanan pen",
+    "pressureHint": "Tekanan pen mengubah lebar lakaran (lakaran tetikus kekal dengan lebar yang sama)",
+    "minWidth": "Lebar minimum (%)",
+    "minWidthHint": "Lebar pada tekanan pen paling ringan, sebagai peratus ketebalan garisan",
+    "smoothing": "Pelicinan",
+    "smoothingHint": "Kekuatan pelicinan lakaran (0 = tiada)"
+  },
+  "attachment": {
+    "file": "Fail",
+    "size": "Saiz",
+    "open": "Buka",
+    "saveAs": "Simpan sebagai...",
+    "noContent": "Kandungan fail ini tidak dibenamkan dalam PDF."
   }
 }

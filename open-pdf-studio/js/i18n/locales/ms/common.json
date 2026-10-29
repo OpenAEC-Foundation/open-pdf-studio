@@ -124,7 +124,79 @@
         "label": "Pelan lantai",
         "hint": "Lukis pelan lantai seni bina: dinding, bingkai pintu dan tingkap, ruang, dimensi dan kelengkapan (sanitari, dapur)",
         "prompt": "Lukis pelan lantai seni bina. Apa yang perlu dilukis: "
+      },
+      "find-on-sheet": {
+        "label": "Cari pada helaian",
+        "hint": "Cari istilah (nama bilik, penanda keratan, simbol), pergi ke halamannya dan serlahkan padanan",
+        "prompt": "Cari pada helaian ini: "
+      },
+      "explain-selection": {
+        "label": "Terangkan pilihan",
+        "hint": "Huraikan kawasan, teks atau penanda yang dipilih dalam bahasa mudah, dengan dimensi apabila skala ukuran ditetapkan",
+        "prompt": "Terangkan pilihan ini."
+      },
+      "compare-sheets": {
+        "label": "Banding helaian",
+        "hint": "Namakan dan tandakan apa yang ditambah, dibuang atau dialihkan berbanding halaman lain",
+        "prompt": "Bandingkan halaman ini dengan halaman: "
+      },
+      "measure": {
+        "label": "Ukur ini",
+        "hint": "Ukur bentuk yang dipilih atau elemen yang diterangkan dan laporkan dalam skala lukisan",
+        "prompt": "Ukur: "
+      },
+      "take-off": {
+        "label": "Ambil kuantiti",
+        "hint": "Kira atau ukur elemen sejenis dan letakkan hasilnya sebagai jadual pada helaian",
+        "prompt": "Ambil kuantiti: "
+      },
+      "check-scale": {
+        "label": "Semak skala",
+        "hint": "Cari skala daripada blok tajuk atau dimensi yang diketahui dan tetapkannya",
+        "prompt": "Semak skala lukisan ini."
+      },
+      "review-sheet": {
+        "label": "Semak helaian",
+        "hint": "Tambah awan dengan ulasan bernombor pada perkara yang akan dibangkitkan oleh penyemak",
+        "prompt": "Semak helaian ini untuk: "
+      },
+      "stamp-date": {
+        "label": "Cop dan tarikh",
+        "hint": "Letakkan cop, isi medan blok tajuk atau tambah nota semakan dengan tarikh hari ini",
+        "prompt": "Cop dan tarikh: "
+      },
+      "clean-up": {
+        "label": "Kemaskan penanda",
+        "hint": "Jajarkan, nomborkan semula atau warnakan semula penanda sedia ada secara seragam",
+        "prompt": "Kemaskan penanda saya: "
+      },
+      "import-cad": {
+        "label": "Bawa masuk lukisan",
+        "hint": "Import lukisan DWG atau DXF sebagai lapisan dasar pada skala yang betul",
+        "prompt": "Bawa masuk lukisan (laluan fail DWG atau DXF): "
+      },
+      "export-cad": {
+        "label": "Eksport ke CAD",
+        "hint": "Tulis halaman ini atau kawasan yang dipilih ke fail DXF atau DWG",
+        "prompt": "Eksport halaman ini ke (laluan fail DXF atau DWG): "
       }
+    },
+    "groups": {
+      "document": "Terjemah dan ringkaskan",
+      "reading": "Membaca lukisan",
+      "measuring": "Ukuran dan kuantiti",
+      "markup": "Penandaan",
+      "structure": "Struktur dan pelan lantai",
+      "cad": "Lukisan CAD"
+    },
+    "need": {
+      "document": "Buka PDF dahulu: kemahiran ini berfungsi pada dokumen yang dibuka.",
+      "selection": "Pilih penanda atau sebahagian teks pada lukisan dahulu, kemudian klik kemahiran itu sekali lagi.",
+      "scale": "Lukisan ini belum mempunyai skala ukuran. Tetapkan satu dahulu (contohnya dengan \"Semak skala\") dan cuba lagi.",
+      "input": "Lengkapkan teks dalam kotak input selepas titik bertindih, kemudian hantar.",
+      "selectionOrInput": "Pilih bentuk pada lukisan, atau terangkan selepas titik bertindih apa yang hendak diukur.",
+      "page": "Masukkan nombor halaman yang lain (1 hingga {{max}}), bukan halaman semasa.",
+      "twoPages": "Dokumen ini hanya mempunyai satu halaman. Untuk membandingkan dengan fail lain, gantikan teks dalam kotak input dengan soalan anda sendiri."
     }
   },
   "onlineSymbolLibrary": "Pustaka simbol dalam talian",
@@ -228,7 +300,12 @@
     "goToPageLink": "Pergi ke halaman",
     "openExternalFile": "Buka: {{filename}}",
     "destination": "Destinasi: {{name}}",
-    "internalLink": "Pautan Dalaman"
+    "internalLink": "Pautan Dalaman",
+    "attachmentOnPage": "Halaman {{page}}",
+    "attachmentCreated": "Dicipta: {{date}}",
+    "attachmentModified": "Diubah suai: {{date}}",
+    "openAttachmentRiskTitle": "Buka lampiran",
+    "openAttachmentRiskMessage": "\"{{name}}\" boleh menjalankan program pada komputer ini. Buka hanya jika anda mempercayai sumbernya. Buka juga?"
   },
   "failedToInsertPagesFromFile": "Gagal memasukkan halaman daripada fail: {{error}}",
   "previewPdfRefused": "PDF ini ialah pratonton daripada import lukisan dan mungkin tidak lengkap. Ia tidak boleh disisipkan atau disimpan; import lukisan itu semula.",
@@ -298,5 +375,42 @@
     "readFailed": "Model 3D tidak dapat dibaca.",
     "partial": "Sesetengah bahagian model 3D tidak dapat dibaca ({{n}} dilangkau).",
     "viewerFailed": "Paparan 3D tidak dapat dimulakan."
+  },
+  "readAloud": {
+    "title": "Baca dengan kuat",
+    "play": "Baca",
+    "pause": "Jeda",
+    "resume": "Sambung semula",
+    "stop": "Henti",
+    "close": "Tutup",
+    "voice": "Suara",
+    "defaultVoice": "Suara lalai",
+    "rate": "Kelajuan",
+    "loading": "Menyediakan...",
+    "reading": "Sedang membaca",
+    "paused": "Dijeda",
+    "page": "halaman {{page}}",
+    "tagOrder": "susunan tag",
+    "contentOrder": "susunan halaman",
+    "noEngine": "Tiada enjin pertuturan tersedia pada sistem ini.",
+    "noEngineLinux": "Enjin pertuturan tidak ditemui. Pasang speech-dispatcher (spd-say) atau espeak-ng dan cuba lagi.",
+    "speechFailed": "Bacaan terhenti kerana ralat.",
+    "nothingToRead": "Tiada teks untuk dibaca.",
+    "online": "(dalam talian)",
+    "allowOnline": "Suara dalam talian",
+    "allowOnlineHint": "Tawarkan juga suara dalam talian. Dengan suara dalam talian, teks yang dibaca dihantar ke perkhidmatan pertuturan dalam talian.",
+    "onlyOnlineVoices": "Hanya suara dalam talian tersedia. Hidupkan Suara dalam talian untuk menggunakannya; teks yang dibaca kemudian dihantar ke perkhidmatan pertuturan dalam talian.",
+    "noLocalVoice": "Tiada suara setempat dipasang untuk bahasa ini; suara setempat lalai digunakan."
+  },
+  "moveInference": {
+    "onAxisX": "Pada paksi X",
+    "onAxisY": "Pada paksi Y",
+    "fromPoint": "Dari titik",
+    "extension": "Pada lanjutan",
+    "parallel": "Selari",
+    "perpendicular": "Serenjang",
+    "intersection": "Persilangan",
+    "polar": "Kutub",
+    "locked": "Dikunci"
   }
 }

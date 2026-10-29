@@ -106,7 +106,13 @@
     "headOpenReversed": "فلش باز (معکوس)",
     "headClosedReversed": "فلش بسته (معکوس)",
     "headSlash": "خط مورب",
-    "polylineDefaults": "پیش‌فرض‌های چندخطی"
+    "polylineDefaults": "پیش‌فرض‌های چندخطی",
+    "smoothing": "هموارسازی",
+    "pressure": "فشار قلم",
+    "pressureHint": "فشار قلم پهنای خط را تغییر می‌دهد (خط‌های موس پهنای ثابت دارند)",
+    "pressureMinWidth": "کمترین پهنا (%)",
+    "penOnly": "فقط قلم (نادیده گرفتن لمس)",
+    "penOnlyHint": "لمس با ابزار دست‌آزاد نقاشی نمی‌کند؛ برای جلوگیری از تماس کف دست هنگام نوشتن با قلم مفید است"
   },
   "shapes": {
     "rectangleDefaults": "پیش‌فرض‌های مستطیل",
@@ -162,6 +168,11 @@
     "snapToNearest": "چسبندگی به نزدیک‌ترین",
     "objectSnapRadius": "شعاع چسبندگی (پیکسل)",
     "snapToPdfContent": "چسبندگی به محتوای نقشه PDF",
+    "moveInference": "خطوط راهنما هنگام جابه‌جایی (G / mv)",
+    "moveInferenceTracking": "خطوط ردیابی (هم‌ترازی با نقاط هندسه‌های دیگر)",
+    "moveInferenceExtension": "امتداد خطوط و وجه‌های دیوار",
+    "moveInferenceParallel": "موازی / عمود بر خطوط نزدیک",
+    "moveInferenceHint": "برای گرفتن یک نقطه، نشانگر را لحظه‌ای روی آن نگه دارید، برای قفل کردن یک راهنما Shift را نگه دارید، Tab بین فاصله و زاویه جابه‌جا می‌شود. راهنماهای قطبی از تنظیمات ردیابی قطبی پیروی می‌کنند.",
     "creation": "ایجاد",
     "autoSelectAfterCreation": "انتخاب خودکار حاشیه‌نویسی پس از ایجاد",
     "deletion": "حذف",

@@ -159,7 +159,8 @@ test('het paneel laat de vinkjes schakelen (#684), met de standaardcursor', () =
   const lagen = lees('../ui/panels/layers.js');
   const css = lees('../../styles/panels.css');
   const vinkje = paneel.slice(paneel.indexOf('<input'), paneel.indexOf('/>', paneel.indexOf('<input')));
-  assert.doesNotMatch(vinkje, /disabled/, 'het vinkje is niet meer alleen-lezen');
+  // Alleen een vergrendelde laag (/Locked, #377) heeft een grijs vinkje.
+  assert.match(vinkje, /disabled=\{!!layer\.locked\}/, 'het vinkje is alleen bij /Locked alleen-lezen');
   assert.match(vinkje, /onChange=\{\(e\) => wissel\(layer, e\.currentTarget\.checked\)\}/);
   assert.match(paneel, /m\.toggleLayer\(layer\.id, zichtbaar\)/);
   assert.match(lagen, /export async function toggleLayer\(id, zichtbaar\)/);

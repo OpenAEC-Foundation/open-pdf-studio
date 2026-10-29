@@ -75,9 +75,11 @@ const FormRecognitionDialog = lazy(() => import('./dialogs/FormRecognitionDialog
 const SymbolSearchDialog = lazy(() => import('./dialogs/SymbolSearchDialog.jsx'));
 const WorkbookBindingsDialog = lazy(() => import('./dialogs/WorkbookBindingsDialog.jsx'));
 const PageOrganizerDialog = lazy(() => import('./dialogs/PageOrganizerDialog.jsx'));
+const AccessibilityReportDialog = lazy(() => import('./dialogs/AccessibilityReportDialog.jsx'));
 
 const DIALOG_MAP = {
   'portfolio': PortfolioDialog,
+  'accessibility-report': AccessibilityReportDialog,
   'form-recognition': FormRecognitionDialog,
   'symbol-search': SymbolSearchDialog,
   'workbook-bindings': WorkbookBindingsDialog,

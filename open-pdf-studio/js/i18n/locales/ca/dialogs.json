@@ -1628,5 +1628,26 @@
     "fileFailed": "No s'ha pogut llegir {{name}}: {{error}}",
     "applyFailed": "No s'han pogut aplicar els canvis de pàgines: {{error}}",
     "extractFailed": "No s'han pogut extreure les pàgines: {{error}}"
+  },
+  "accessibilityReport": {
+    "title": "Comprovació d'accessibilitat",
+    "starting": "S'està comprovant...",
+    "checking": "S'està comprovant la pàgina {{done}} de {{total}}...",
+    "noIssues": "No s'ha trobat cap problema.",
+    "summary": "S'han trobat {{count}} problema(es). Feu doble clic en un element per anar a la seva pàgina.",
+    "failed": "No s'ha pogut fer la comprovació en aquest document.",
+    "recheck": "Torna a comprovar",
+    "close": "Tanca",
+    "goTo": "Feu doble clic per anar a la pàgina",
+    "page": "Pàgina {{page}}",
+    "kind": {
+      "notTagged": "El document no està etiquetat: no té arbre d'estructura, de manera que la tecnologia d'assistència no pot seguir-ne l'ordre de lectura.",
+      "notMarked": "El document no està marcat com a etiquetat (/MarkInfo /Marked).",
+      "noLanguage": "No s'ha definit l'idioma del document.",
+      "figureNoAlt": "{{role}} sense text alternatiu",
+      "pageNotTagged": "No hi ha contingut etiquetat en aquesta pàgina ({{count}} elements de text)",
+      "untaggedContent": "{{count}} element(s) de text fora de les etiquetes",
+      "annotationNoText": "Anotació ({{type}}) sense descripció"
+    }
   }
 }

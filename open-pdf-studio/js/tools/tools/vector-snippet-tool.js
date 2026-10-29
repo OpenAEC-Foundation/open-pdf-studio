@@ -80,9 +80,9 @@ export async function knipselVanVak(vak, paginaNr) {
   const srcBox = appVakNaarPdfVak(vak, pagina.getCropBox(), paginaRotatie(pagina) + appRotatie);
   if (!srcBox) return { fout: 'vak te klein' };
 
-  // De hele bronpagina gaat mee, niet het bijgesneden vak: dat is wat het
-  // inbedden nodig heeft. Zie js/pdf/vector-embed.js.
-  const mini = await knipselAlsMiniPdf(bronBytes, paginaNr - 1, appRotatie, bron);
+  // De bronpagina gaat mee op volle maat (srcBox blijft in haar coördinaten),
+  // maar teruggesnoeid tot wat het vak raakt (#509). Zie js/pdf/vector-cull.js.
+  const mini = await knipselAlsMiniPdf(bronBytes, paginaNr - 1, appRotatie, bron, srcBox);
   const sleutel = bewaar(mini);
 
   return {

@@ -41,7 +41,10 @@
     "cancelled": "रद्द",
     "completed": "पूर्ण",
     "reviewed": "समीक्षित",
-    "statusSetBy": "{{author}} द्वारा {{date}} को सेट किया गया"
+    "statusSetBy": "{{author}} द्वारा {{date}} को सेट किया गया",
+    "layer": "परत",
+    "layerMarkupGroup": "मार्कअप परतें",
+    "layerDocumentGroup": "दस्तावेज़ की परतें"
   },
   "colorNone": "कोई नहीं",
   "moreColors": "और रंग...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "पेपरक्लिप",
+    "iconPushPin": "पुशपिन",
+    "iconGraph": "ग्राफ़",
+    "iconTag": "टैग"
   },
   "stylePresets": {
     "label": "रेखा शैली",
@@ -308,7 +315,8 @@
     "measurePerimeter": "परिधि",
     "redaction": "संपादन-रहित",
     "scaleBar": "स्केल बार",
-    "parametricSymbol": "पैरामीट्रिक प्रतीक"
+    "parametricSymbol": "पैरामीट्रिक प्रतीक",
+    "fileAttachment": "फ़ाइल अनुलग्नक"
   },
   "leftPanel": {
     "togglePanel": "पैनल टॉगल करें",
@@ -379,22 +387,54 @@
     "exportComments": "टिप्पणियाँ डेटा फ़ाइल में निर्यात करें...",
     "exportSelectedComments": "चयनित टिप्पणियाँ डेटा फ़ाइल में निर्यात करें...",
     "exportListCsv": "सूची को CSV में निर्यात करें...",
-    "summarizeComingSoon": "जल्द आ रहा है",
     "listExported": "टिप्पणी सूची CSV में निर्यात की गई",
     "csvPage": "पृष्ठ",
     "csvType": "प्रकार",
     "csvAuthor": "लेखक",
-    "csvDate": "दिनांक",
     "csvStatus": "स्थिति",
     "csvSubject": "विषय",
     "csvContents": "सामग्री",
     "csvColor": "रंग",
     "csvLayer": "परत",
+    "csvId": "आईडी",
+    "csvCreated": "बनाया गया",
+    "csvModified": "संशोधित",
+    "csvStatusBy": "स्थिति सेट करने वाला",
+    "csvStatusAt": "स्थिति की तिथि",
+    "csvReplyCount": "उत्तरों की संख्या",
+    "csvReplies": "उत्तर",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "चौड़ाई",
+    "csvHeight": "ऊँचाई",
+    "filterBar": "फ़िल्टर",
+    "filterAll": "(सभी)",
+    "filterPages": "पृष्ठ",
+    "filterDate": "तिथि",
+    "filterFrom": "से",
+    "filterTo": "तक",
+    "filterClear": "फ़िल्टर साफ़ करें",
+    "setStatusSelected": "चयनित की स्थिति सेट करें",
+    "setStatusListed": "सूची में सभी की स्थिति सेट करें",
+    "statusChanged": "स्थिति बदली गई: {{count}}",
+    "summaryTitle": "टिप्पणी सारांश",
+    "summaryDocument": "दस्तावेज़",
+    "summaryCreated": "बनाया गया",
+    "summaryCount": "टिप्पणियाँ",
+    "summaryNoText": "(कोई टिप्पणी पाठ नहीं)",
+    "summaryBusy": "टिप्पणी सारांश बनाया जा रहा है...",
+    "summaryExported": "टिप्पणी सारांश PDF में निर्यात किया गया",
+    "summaryFailed": "टिप्पणी सारांश नहीं बनाया जा सका",
     "schedules": "शेड्यूल",
     "addPage": "पृष्ठ जोड़ें",
     "pageLabels": "पृष्ठ लेबल (नाम निर्माता)",
     "portfolio": "PDF पोर्टफोलियो",
-    "recognizeForm": "फ़ॉर्म फ़ील्ड पहचानें"
+    "recognizeForm": "फ़ॉर्म फ़ील्ड पहचानें",
+    "layersSetDefault": "डिफ़ॉल्ट के रूप में सेट करें",
+    "layersSetDefaultTitle": "परतों की वर्तमान दृश्यता को दस्तावेज़ की डिफ़ॉल्ट स्थिति के रूप में रखें। यह अगली बार सहेजने पर फ़ाइल में लिखी जाती है।",
+    "layersDefaultPending": "सहेजने पर डिफ़ॉल्ट बनेगी",
+    "layerLocked": "लॉक की गई परत: इसे चालू या बंद नहीं किया जा सकता",
+    "layerRadioGroup": "विकल्प समूह: इस परत को चालू करने से समूह की अन्य परतें बंद हो जाती हैं"
   },
   "scaleBar": {
     "title": "स्केल बार",
@@ -443,7 +483,9 @@
       "symbol": "प्रतीक शेड्यूल",
       "text": "टेक्स्ट शेड्यूल",
       "full": "पूर्ण मात्राएं",
-      "image": "छवियां और स्टैम्प"
+      "image": "छवियां और स्टैम्प",
+      "bendingSchedule": "सरिया मोड़ शेड्यूल",
+      "rebarWeight": "सरिया भार शेड्यूल (प्रति Ø)"
     },
     "preview": "पूर्वावलोकन",
     "exportCsv": "CSV निर्यात करें",
@@ -603,7 +645,8 @@
       "textBuiltIn": "टेक्स्ट (मूल)",
       "symbol": "प्रतीक",
       "image": "छवि",
-      "other": "अन्य"
+      "other": "अन्य",
+      "reinforcement": "सरिया (सुदृढ़ीकरण)"
     },
     "field": {
       "category": "श्रेणी",
@@ -631,7 +674,16 @@
       "width": "चौड़ाई",
       "height": "ऊंचाई",
       "location": "स्थान",
-      "locationSource": "स्थान स्रोत"
+      "locationSource": "स्थान स्रोत",
+      "rebarMark": "सरिया चिह्न",
+      "rebarDiameter": "Ø",
+      "rebarShape": "मोड़ आकृति",
+      "rebarGrade": "इस्पात ग्रेड",
+      "rebarCount": "सरियों की संख्या",
+      "rebarLength": "सरिये की लंबाई",
+      "rebarTotalLength": "कुल लंबाई",
+      "rebarMassPerM": "प्रति मीटर द्रव्यमान",
+      "rebarMass": "द्रव्यमान"
     },
     "type": {
       "line": "रेखा",
@@ -669,7 +721,8 @@
       "stavenreeks": "सरिया श्रृंखला",
       "betonbalk": "कंक्रीट बीम",
       "scheduleTable": "मात्रा तालिका",
-      "builtinText": "टेक्स्ट"
+      "builtinText": "टेक्स्ट",
+      "rebarPosition": "सरिया"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "लंबवत विरल",
       "inb-horizontaal-breed": "क्षैतिज विरल"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "पढ़ने के क्रम में ऊपर ले जाएँ",
+    "moveDown": "पढ़ने के क्रम में नीचे ले जाएँ",
+    "checkAccessibility": "सुलभता जाँचें",
+    "altText": "वैकल्पिक टेक्स्ट",
+    "altTextPlaceholder": "छवि का वर्णन उनके लिए करें जो इसे नहीं देख सकते...",
+    "noAlt": "कोई वैकल्पिक टेक्स्ट नहीं",
+    "role": "भूमिका",
+    "mappedTo": "{{role}} को {{standard}} से मैप किया गया है",
+    "content": "सामग्री {{mcid}} (पृष्ठ {{page}})",
+    "annotationRef": "एनोटेशन (पृष्ठ {{page}})"
+  },
+  "ink": {
+    "title": "स्याही",
+    "pressure": "पेन दबाव",
+    "pressureHint": "पेन का दबाव रेखा की चौड़ाई बदलता है (माउस की रेखाएँ एक समान चौड़ाई रखती हैं)",
+    "minWidth": "न्यूनतम चौड़ाई (%)",
+    "minWidthHint": "सबसे हल्के पेन दबाव पर चौड़ाई, रेखा की मोटाई के प्रतिशत के रूप में",
+    "smoothing": "स्मूदिंग",
+    "smoothingHint": "रेखा स्मूदिंग की तीव्रता (0 = कोई नहीं)"
+  },
+  "attachment": {
+    "file": "फ़ाइल",
+    "size": "आकार",
+    "open": "खोलें",
+    "saveAs": "इस रूप में सहेजें...",
+    "noContent": "इस फ़ाइल की सामग्री PDF में एम्बेड नहीं है।"
   }
 }

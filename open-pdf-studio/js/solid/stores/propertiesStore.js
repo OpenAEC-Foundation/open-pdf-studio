@@ -1,3 +1,4 @@
+import { laagKeuzeWaarde, leesLaagKeuze } from '../../annotations/laag-keuze.js';
 import { createSignal, batch } from 'solid-js';
 import { DRAFTING_RULE_TYPES, effectiveDraftingLineWidth } from '../../annotations/drafting-rules.js';
 import { createStore } from 'solid-js/store';
@@ -55,6 +56,7 @@ import { heeftVulDekking, zetLijnDekking } from '../../annotations/vul-dekking.j
 import { isWisselbaarProfiel, profielTypen, wisselProfielType } from '../../symbols/profieltype.js';
 import { schaalgebiedStijl } from '../../annotations/scale-region-style.js';
 import { leesGetalBegin, leesGeheelGetal } from '../../core/getal-invoer.js';
+import { inktPaneelWaarden, inktPropWaarde } from '../../annotations/pressure-ink-panel.js';
 
 // Types whose single 'color' control IS their stroke colour and which render
 // via `strokeColor || color`. For these, the 'color' control must mirror onto
@@ -99,6 +101,8 @@ const [annotProps, setAnnotProps] = createStore({
   printable: true,
   readOnly: false,
   marked: false,
+  // Laag (#377): de waarde van de keuzelijst, zie annotations/laag-keuze.js.
+  layer: '',
   altText: '',
   status: 'none',
   statusBy: '',
@@ -111,6 +115,9 @@ const [annotProps, setAnnotProps] = createStore({
   opacity: 100,
   fillOpacity: 100,
   icon: 'comment',
+  attachmentName: '',
+  attachmentSize: null,
+  attachmentMime: '',
   borderStyle: 'solid',
   boxShape: 'rect',
   cross: false,
@@ -139,6 +146,11 @@ const [annotProps, setAnnotProps] = createStore({
   startHead: 'none',
   endHead: 'open',
   headSize: 12,
+  // Vrije hand (#385): drukgevoeligheid, minimale breedte (%), gladheid.
+  inkPressure: true,
+  inkHasPressure: false,
+  inkMinWidth: 30,
+  inkSmoothing: 0,
   arrowLength: '',
   measureScale: 0,
   measureUnit: '',
@@ -165,6 +177,8 @@ const [annotProps, setAnnotProps] = createStore({
   srFontSize: STAVENREEKS_DEFAULTS.fontSize,
   srDiameter: 12,
   srBarLengthMm: 0,
+  srBarMark: '',
+  srSteelGrade: '',
   srLegDir: 'down-left',
   srLegLength: 24,
   srLabelSide: 'end',
@@ -186,6 +200,7 @@ const [sectionVis, setSectionVis] = createStore({
   replies: false,
   appearance: false,
   lineEndings: false,
+  ink: false,
   dimensions: false,
   textFormat: false,
   paragraph: false,
@@ -197,6 +212,7 @@ const [sectionVis, setSectionVis] = createStore({
   customFields: false,
   // Sub-group visibility
   iconGroup: false,
+  attachmentGroup: false,
   fillColorGroup: false,
   fillNoneAllowed: true,
   strokeColorGroup: false,
@@ -260,11 +276,11 @@ function computeSectionVisibility(type) {
   const isTextbox = ['textbox', 'callout'].includes(type);
   const isShape = ['line', 'arrow', 'box', 'circle', 'draw', 'textbox', 'callout'].includes(type);
   // Een invoegteken (#508) heeft de ingevoegde tekst als inhoud.
-  const isTextContent = type === 'text' || type === 'comment' || type === 'caret';
+  const isTextContent = type === 'text' || type === 'comment' || type === 'caret' || type === 'fileAttachment';
   const isImage = type === 'image';
   const isLineOrArrow = type === 'arrow' || type === 'line';
   const isTextMarkup = isTextAnchored({ type });
-  const hideLineWidth = ['highlight', 'comment', 'image', 'textHighlight', 'caret'].includes(type);
+  const hideLineWidth = ['highlight', 'comment', 'fileAttachment', 'image', 'textHighlight', 'caret'].includes(type);
   // Schaalgebied (#611): eigen vulkleur en vul-doorzichtigheid; "geen" vulling
   // is daar vul-doorzichtigheid 0, want zonder vulkleur volgt de vulling de
   // randkleur (het oude uiterlijk).
@@ -289,6 +305,7 @@ function computeSectionVisibility(type) {
     replies: !isScaleBar,
     appearance: !isScaleBar,
     lineEndings: lintZetLijnkoppen(type) || type === 'measureDistance' || type === 'measurePerimeter',
+    ink: type === 'draw',
     dimensions: isLineOrArrow,
     measurement: isMeasurement,
     scaleBar: isScaleBar,
@@ -298,7 +315,9 @@ function computeSectionVisibility(type) {
     image: isImage,
     actions: true,
     customFields: hasCustomFields,
-    iconGroup: type === 'comment',
+    // Bijlage-annotatie (#376) heeft haar eigen pictogrammen (/Name).
+    iconGroup: type === 'comment' || type === 'fileAttachment',
+    attachmentGroup: type === 'fileAttachment',
     fillColorGroup: hasFillColor,
     fillNoneAllowed: !isScaleRegion,
     strokeColorGroup: isShape || type === 'measureDistance' || type === 'measureArea' || type === 'measurePerimeter' || type === 'filledArea',
@@ -411,6 +430,7 @@ export function storeShowProperties(annotation) {
     printable: annotation.printable !== false,
     readOnly: annotation.readOnly || false,
     marked: annotation.marked || false,
+    layer: laagKeuzeWaarde(annotation, getActiveDocument()),
     altText: annotation.altText || '',
     status: annotation.status || 'none',
     statusBy: annotation.statusBy || '',
@@ -431,7 +451,10 @@ export function storeShowProperties(annotation) {
         : DRAFTING_RULE_TYPES.has(annotation.type)
           ? Math.round(effectiveDraftingLineWidth(annotation) * 100) / 100 : 3),
     opacity: annotation.opacity !== undefined ? Math.round(annotation.opacity * 100) : 100,
-    icon: annotation.icon || 'comment',
+    icon: annotation.icon || (annotation.type === 'fileAttachment' ? 'paperclip' : 'comment'),
+    attachmentName: annotation.attachment?.name || '',
+    attachmentSize: annotation.attachment?.size ?? null,
+    attachmentMime: annotation.attachment?.mime || '',
     borderStyle: annotation.borderStyle || 'solid',
     boxShape: annotation.boxShape || 'rect',
     cross: annotation.cross === true,
@@ -470,6 +493,7 @@ export function storeShowProperties(annotation) {
       endHead: annotation.endHead || (annotation.type === 'measureDistance' ? 'openCircle' : 'open'),
       headSize: annotation.headSize || 12,
     }),
+    ...inktPaneelWaarden(annotation),
     arrowLength: (annotation.type === 'arrow' || annotation.type === 'line')
       ? (() => {
           // Show the length in measured units (mm etc.), resolved at the
@@ -524,6 +548,8 @@ export function storeShowProperties(annotation) {
     srCount: annotation.count ?? 3,
     srDiameter: annotation.diameter ?? 12,
     srBarLengthMm: annotation.barLengthMm ?? 0,
+    srBarMark: annotation.barMark ?? '',
+    srSteelGrade: annotation.steelGrade ?? '',
     srLegDir: annotation.legDir || 'down-left',
     srLegLength: annotation.legLength ?? STAVENREEKS_DEFAULTS.legLength,
     srLineTail: annotation.lineTail ?? STAVENREEKS_DEFAULTS.lineTail,
@@ -635,6 +661,7 @@ export function storeHideProperties() {
     replies: false,
     appearance: false,
     lineEndings: false,
+    ink: false,
     dimensions: false,
     measurement: false,
     scaleBar: false,
@@ -748,6 +775,7 @@ export function storeShowMultiSelection(selected) {
     printable: sharedPrintable,
     readOnly: sharedReadOnly,
     marked: sharedMarked,
+    layer: sharedValue(selected, a => laagKeuzeWaarde(a, getActiveDocument()), 'mixed'),
     altText: sharedAltText,
     status: sharedStatus,
     color: sharedColor,
@@ -789,6 +817,10 @@ export function storeShowMultiSelection(selected) {
     startHead: sharedValue(selected, a => koppenVan(a).startHead, 'mixed'),
     endHead: sharedValue(selected, a => koppenVan(a).endHead, 'mixed'),
     headSize: sharedValue(selected, a => koppenVan(a).headSize, 'mixed'),
+    inkPressure: sharedValue(selected, a => a.inkPressure !== false, 'mixed'),
+    inkMinWidth: sharedValue(selected, a => inktPaneelWaarden(a).inkMinWidth, 'mixed'),
+    inkSmoothing: sharedValue(selected, a => inktPaneelWaarden(a).inkSmoothing, 'mixed'),
+    inkHasPressure: selected.some(a => Array.isArray(a.pressures) && a.pressures.length > 0),
     arrowLength: '',
     replies: [],
     multiCount: selected.length,
@@ -801,7 +833,7 @@ export function storeShowMultiSelection(selected) {
   const fillColorTypes = new Set(['highlight', 'box', 'circle', 'polygon', 'cloud', 'textbox', 'callout', 'arrow', 'line', 'scaleRegion']);
   const strokeColorTypes = new Set(['line', 'arrow', 'box', 'circle', 'draw', 'textbox', 'callout', 'polygon', 'cloud']);
   const hideColorTypes = new Set(['line', 'arrow', 'box', 'circle', 'draw', 'highlight', 'image', 'textbox', 'callout', 'polygon', 'cloud']);
-  const hideLineWidthTypes = new Set(['highlight', 'comment', 'image', 'textHighlight', 'caret']);
+  const hideLineWidthTypes = new Set(['highlight', 'comment', 'fileAttachment', 'image', 'textHighlight', 'caret']);
   const borderStyleTypes = new Set(['textbox', 'callout', 'arrow', 'line', 'box', 'circle', 'polygon', 'cloud', 'draw', 'polyline', 'splineArrow']);
   const hatchPatternTypes = new Set(['box', 'circle', 'polygon', 'cloud', 'measureArea', 'filledArea']);
   const rotationTypes = new Set(['box', 'circle', 'polygon', 'cloud', 'highlight', 'redaction', 'comment', 'stamp', 'signature']);
@@ -814,6 +846,7 @@ export function storeShowMultiSelection(selected) {
     replies: false,
     appearance: true,
     lineEndings: allSameType && lintZetLijnkoppen(sharedType),
+    ink: allSameType && sharedType === 'draw',
     dimensions: false,
     measurement: false,
     textFormat: allMatch(t => textboxTypes.has(t)),
@@ -926,6 +959,7 @@ export function storeShowTextEditProperties(info) {
     replies: false,
     appearance: false,
     lineEndings: false,
+    ink: false,
     dimensions: false,
     measurement: false,
     textFormat: true,
@@ -1198,6 +1232,9 @@ function applyPropToAnnotation(ann, key, value) {
     // Bij een vorm met aparte vul-dekking houdt de vulling haar dekking (#685).
     case 'opacity': zetLijnDekking(ann, leesGeheelGetal(value) / 100); break;
     case 'icon': ann.icon = value; break;
+    case 'inkPressure': case 'inkMinWidth': case 'inkSmoothing':
+      Object.assign(ann, inktPropWaarde(key, value));
+      break;
     case 'borderStyle': ann.borderStyle = value; break;
     case 'boxShape': ann.boxShape = value === 'rect' ? undefined : value; break;
     case 'cross': ann.cross = value === true || undefined; break;
@@ -1243,6 +1280,8 @@ function applyPropToAnnotation(ann, key, value) {
     case 'srCount': ann.count = Math.max(1, Math.min(999, leesGeheelGetal(value) || 1)); break;
     case 'srDiameter': ann.diameter = leesGetalBegin(value) || 12; break;
     case 'srBarLengthMm': ann.barLengthMm = Math.max(0, leesGetalBegin(value) || 0); break;
+    case 'srBarMark': ann.barMark = String(value ?? '').trim(); break;
+    case 'srSteelGrade': ann.steelGrade = String(value ?? '').trim().toUpperCase(); break;
     case 'srLegDir': ann.legDir = value; break;
     case 'srLegLength': ann.legLength = Math.max(1, leesGetalBegin(value) || STAVENREEKS_DEFAULTS.legLength); break;
     case 'srLineTail': ann.lineTail = _clampLineTail(value); break;
@@ -1687,6 +1726,10 @@ function applyAnnotProp(key, value) {
     case 'startHead': currentAnnotation.startHead = value; break;
     case 'endHead': currentAnnotation.endHead = value; break;
     case 'headSize': currentAnnotation.headSize = leesGeheelGetal(value); break;
+    case 'inkPressure': case 'inkMinWidth': case 'inkSmoothing':
+      Object.assign(currentAnnotation, inktPropWaarde(key, value));
+      value = inktPaneelWaarden(currentAnnotation)[key];
+      break;
     case 'measureScale':
       currentAnnotation.measureScale = leesGetalBegin(value) || 0;
       recomputeMeasureText(currentAnnotation);
@@ -1754,6 +1797,14 @@ function applyAnnotProp(key, value) {
     }
     case 'srBarLengthMm': {
       currentAnnotation.barLengthMm = Math.max(0, leesGetalBegin(value) || 0);
+      break;
+    }
+    case 'srBarMark': {
+      currentAnnotation.barMark = String(value ?? '').trim();
+      break;
+    }
+    case 'srSteelGrade': {
+      currentAnnotation.steelGrade = String(value ?? '').trim().toUpperCase();
       break;
     }
     case 'srLegDir': {
@@ -2109,6 +2160,26 @@ export function getLineWidthLabel() {
 }
 
 // Get the current annotation reference
+/**
+ * Keuzelijst "Laag" (#377): de selectie naar een markeringslaag of een laag
+ * van de tekening. Eén undo-stap (annotationLayersStore).
+ * @param {string} waarde  'a:<laag-id>' of 'o:<pdf.js-id>'
+ * @param {{name?: string, visible?: boolean}} [tekeningLaag]  bij 'o:'
+ */
+export async function setAnnotationLayerProp(waarde, tekeningLaag = {}) {
+  const keuze = leesLaagKeuze(waarde);
+  const doc = getActiveDocument();
+  if (!keuze || !doc) return;
+  const selectie = doc.selectedAnnotations?.length ? [...doc.selectedAnnotations]
+    : (currentAnnotation ? [currentAnnotation] : []);
+  const te = selectie.filter(a => !a.locked);
+  if (!te.length) return;
+  const lagen = await import('./annotationLayersStore.js');
+  if (keuze.soort === 'tekening') await lagen.moveAnnotationsToDrawingLayer(te, keuze.id, tekeningLaag);
+  else await lagen.moveAnnotationsToAnnotationLayer(te, keuze.id);
+  setAnnotProps('layer', sharedValue(te, a => laagKeuzeWaarde(a, doc), 'mixed'));
+}
+
 export function getCurrentAnnotation() {
   return currentAnnotation;
 }

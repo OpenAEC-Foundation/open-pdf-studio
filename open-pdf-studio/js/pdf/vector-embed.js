@@ -133,9 +133,15 @@ export function paginaRotatie(page) {
 
 /**
  * Trekt één pagina uit een PDF los tot een zelfstandige eenpagina-PDF. Dat is
- * wat een knipsel bij zich draagt: de héle bronpagina, niet het bijgesneden
- * vak — want dat is wat bedKnipselIn nodig heeft. copyPages neemt alleen de
- * resources mee waar die pagina naar verwijst.
+ * wat een knipsel bij zich draagt. copyPages neemt alleen de resources mee
+ * waar die pagina naar verwijst.
+ *
+ * Met `vak` (het geknipte vak, ongedraaide gebruikersruimte) wordt de pagina
+ * teruggesnoeid tot wat dat vak kan raken (#509, zie vector-cull.js): de
+ * paginamaat en de coördinaten blijven gelijk, dus srcBox en weergaveVak
+ * kloppen nog, maar de voorvertoning en het opgeslagen knipsel dragen niet
+ * meer de hele tekening mee. Zonder `vak` gaat de hele pagina mee (een
+ * ingevoegde CAD-tekening die je in zijn geheel plaatst).
  *
  * `extraRotatie` is een draaiing die alleen in de app bestaat (nog niet
  * opgeslagen): die gaat mee in de /Rotate van de mini-PDF, zodat het knipsel
@@ -143,21 +149,36 @@ export function paginaRotatie(page) {
  * @returns {Promise<Uint8Array>}
  */
 const miniPdfs = new WeakMap();
+/** Een gesnoeide mini-PDF moet hooguit dit deel van de volle zijn. */
+export const SNOEI_DREMPEL = 0.5;
 
-export async function knipselAlsMiniPdf(bronBytes, paginaIndex = 0, extraRotatie = 0, geladenBron = null) {
+export async function knipselAlsMiniPdf(bronBytes, paginaIndex = 0, extraRotatie = 0, geladenBron = null, vak = null) {
+  const snoei = normaliseerVak(vak);
+  if (snoei) {
+    // Een gesnoeide mini-PDF hoort bij één vak: niet bewaren, de knipselstore
+    // ontdubbelt al op inhoud. Alleen gebruiken als hij hooguit de helft van
+    // de volle is: knipsels van dezelfde pagina delen de volle mini-PDF (één
+    // sleutel), gesnoeide niet. Gebruikt het vak vrijwel alle fonts en
+    // afbeeldingen van het blad, dan zou elk knipsel die opnieuw meedragen.
+    const [vol, gesnoeid] = await Promise.all([
+      knipselAlsMiniPdf(bronBytes, paginaIndex, extraRotatie, geladenBron),
+      maakMiniPdf(bronBytes, paginaIndex, extraRotatie, geladenBron, snoei),
+    ]);
+    return gesnoeid.length <= vol.length * SNOEI_DREMPEL ? gesnoeid : vol;
+  }
   let bladen = miniPdfs.get(bronBytes);
   if (!bladen) miniPdfs.set(bronBytes, bladen = new Map());
   const key = `${paginaIndex}|${_kwartslag(extraRotatie)}`;
   if (!bladen.has(key)) {
-    const taak = maakMiniPdf(bronBytes, paginaIndex, extraRotatie, geladenBron);
+    const taak = maakMiniPdf(bronBytes, paginaIndex, extraRotatie, geladenBron, null);
     bladen.set(key, taak);
     taak.catch(() => bladen.delete(key));
   }
   return bladen.get(key);
 }
 
-async function maakMiniPdf(bronBytes, paginaIndex, extraRotatie, geladenBron) {
-  const { PDFDocument, degrees } = await import('pdf-lib');
+async function maakMiniPdf(bronBytes, paginaIndex, extraRotatie, geladenBron, vak) {
+  const { PDFDocument, PDFName, degrees } = await import('pdf-lib');
   const bron = geladenBron || await PDFDocument.load(bronBytes);
   const mini = await PDFDocument.create();
   const [pagina] = await mini.copyPages(bron, [paginaIndex]);
@@ -165,6 +186,15 @@ async function maakMiniPdf(bronBytes, paginaIndex, extraRotatie, geladenBron) {
     pagina.setRotation(degrees(_kwartslag(paginaRotatie(pagina) + _kwartslag(extraRotatie))));
   }
   mini.addPage(pagina);
+  const { snoeiPagina } = await import('./vector-cull.js');
+  const { ruimOnbereikbaarOp } = await import('./flatten-bytes.js');
+  // Annotaties tekent geen van de afnemers: de worker rendert de mini-PDF
+  // zonder, en embedPage neemt alleen de inhoud. Hun /P wijst bovendien naar
+  // de oorspronkelijke pagina, zodat copyPages die met al haar inhoud nóg
+  // een keer meekopieerde (#509).
+  pagina.node.delete(PDFName.of('Annots'));
+  if (vak) snoeiPagina(mini, pagina, vak);
+  ruimOnbereikbaarOp(mini);
   return await mini.save();
 }
 
@@ -176,6 +206,27 @@ async function maakMiniPdf(bronBytes, paginaIndex, extraRotatie, geladenBron) {
 export function metInhoud(pagina) {
   if (!pagina.node.Contents()) pagina.pushOperators();
   return pagina;
+}
+
+// Per doel-document: bronobjecten mogen nooit PDFRefs tussen saves delen.
+const gedeeldeBronnen = new WeakMap();
+// Per doel-document: de zware bron-Forms, voor knipselBronWortels.
+const bronForms = new WeakMap();
+
+/**
+ * De woordenboeken van de zware bron-Forms die in `doelDoc` zijn ingebed. Na
+ * `await doelDoc.flush()` staan ze in de context; ruimKnipselRestenOp voegt
+ * via deze wortels de fonts en afbeeldingen samen die gesnoeide knipsels van
+ * dezelfde bronpagina elk opnieuw meebrachten (#509).
+ * @returns {object[]} PDFDicts
+ */
+export function knipselBronWortels(doelDoc) {
+  const uit = [];
+  for (const form of bronForms.get(doelDoc) || []) {
+    const stream = form.ref ? doelDoc.context.lookup(form.ref) : null;
+    if (stream?.dict) uit.push(stream.dict);
+  }
+  return uit;
 }
 
 /**
@@ -191,9 +242,6 @@ export function metInhoud(pagina) {
  * @param {number} [paginaIndex]
  * @returns {Promise<{ingebed:object, breedte:number, hoogte:number, rotatie:number}>}
  */
-// Per doel-document: bronobjecten mogen nooit PDFRefs tussen saves delen.
-const gedeeldeBronnen = new WeakMap();
-
 export async function bedKnipselIn(doelDoc, bronBytes, srcBox, paginaIndex = 0, { alsGroep = false } = {}) {
   const vak = normaliseerVak(srcBox);
   if (!vak) throw new Error('vak te klein of ontaard');
@@ -215,6 +263,9 @@ export async function bedKnipselIn(doelDoc, bronBytes, srcBox, paginaIndex = 0, 
       };
       // Identiteitsmatrix: de wrappers knippen in oorspronkelijke PDF-coördinaten.
       const bronForm = await doelDoc.embedPage(pagina, volledig, [1, 0, 0, 1, 0, 0]);
+      let forms = bronForms.get(doelDoc);
+      if (!forms) bronForms.set(doelDoc, forms = new Set());
+      forms.add(bronForm);
       return { bronForm, rotatie: paginaRotatie(pagina), vakken: new Map() };
     })();
     bladen.set(paginaIndex, laden);

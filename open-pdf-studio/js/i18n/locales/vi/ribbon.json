@@ -169,7 +169,9 @@
     "flattenAll": "Làm phẳng tất cả",
     "flattenAllTooltip": "Làm phẳng tất cả đánh dấu vào nội dung trang",
     "unflattenAll": "Hoàn tác làm phẳng",
-    "unflattenAllTooltip": "Khôi phục các đánh dấu đã làm phẳng khi cho phép khôi phục"
+    "unflattenAllTooltip": "Khôi phục các đánh dấu đã làm phẳng khi cho phép khôi phục",
+    "fileAttachment": "Đính kèm tệp",
+    "fileAttachmentTitle": "Tệp đính kèm: nhấp vào trang và chọn một tệp"
   },
   "view": {
     "pageDisplay": "Hiển thị Trang",
@@ -208,7 +210,15 @@
     "rotateViewLeft": "Xoay chế độ xem sang trái",
     "rotateViewRight": "Xoay chế độ xem sang phải",
     "rotateViewLeftTitle": "Xoay chế độ xem 90° ngược chiều kim đồng hồ. Bản thân tài liệu không thay đổi.",
-    "rotateViewRightTitle": "Xoay chế độ xem 90° theo chiều kim đồng hồ. Bản thân tài liệu không thay đổi."
+    "rotateViewRightTitle": "Xoay chế độ xem 90° theo chiều kim đồng hồ. Bản thân tài liệu không thay đổi.",
+    "accessibilityGroup": "Trợ năng",
+    "readAloud": "Đọc to",
+    "readAloudPause": "Tạm dừng",
+    "readAloudTitle": "Đọc to phần đã chọn, hoặc tài liệu từ trang hiện tại",
+    "tagsPanel": "Thẻ",
+    "tagsPanelTitle": "Hiển thị các thẻ cấu trúc của tài liệu",
+    "accessibilityCheck": "Kiểm tra",
+    "accessibilityCheckTitle": "Tìm văn bản thay thế bị thiếu và nội dung chưa gắn thẻ"
   },
   "elementVisibility": {
     "buttonTitle": "Hiển thị đối tượng — hiện/ẩn và làm mờ các loại chú thích",

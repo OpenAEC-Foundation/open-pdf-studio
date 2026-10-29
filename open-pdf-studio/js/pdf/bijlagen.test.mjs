@@ -4,6 +4,7 @@ import { randomBytes } from 'node:crypto';
 import { PDFDocument, PDFName, PDFHexString, PDFDict } from 'pdf-lib';
 import {
   pasBijlagenToe, leesBijlageNamen, vrijeNaam, metToegevoegd, metVerwijderd, zichtbareBijlagen, wijzigingenVan,
+  isUitvoerbaarBestand, tijdelijkeBijlageNaam,
 } from './bijlagen.js';
 
 const tekst = (s) => new TextEncoder().encode(s);
@@ -132,4 +133,30 @@ test('the panel model: unique names, replace, remove and the visible list', () =
   kopie.verwijderd.push('y');
   assert.deepEqual(doc.bijlagenWijzigingen.verwijderd, ['x']);
   assert.deepEqual(wijzigingenVan({}), leeg);
+});
+
+test('opening asks first for files the system runs, installs or follows', () => {
+  for (const naam of [
+    'setup.exe', 'run.BAT', 'x.msc', 'help.chm', 'link.url', 'disk.iso', 'snel.lnk', 'scherm.scr', 'app.hta',
+    'paneel.cpl', 'tool.jar', 'script.ps1', 'script.vbs', 'script.wsf', 'x.scf', 'x.application', 'x.appref-ms',
+    'x.vb', 'x.ws', 'x.inf', 'x.vhd', 'x.msix', 'x.settingcontent-ms', 'x.py', 'x.sh', 'x.desktop', 'x.AppImage',
+    'x.dmg', 'x.pkg', 'x.command', 'x.workflow',
+    // Windows negeert punten en spaties aan het eind.
+    'setup.exe.', 'setup.exe  ', 'map/sub\\setup.exe',
+  ]) assert.equal(isUitvoerbaarBestand(naam), true, naam);
+  for (const naam of ['tekening.pdf', 'model.ifc', 'staat.xlsx', 'foto.jpg', 'exe', 'readme', '', null, 'notes.txt', 'archief.zip']) {
+    assert.equal(isUitvoerbaarBestand(naam), false, String(naam));
+  }
+});
+
+test('a file name from a PDF becomes a safe temp file name', () => {
+  assert.equal(tijdelijkeBijlageNaam('..\\..\\Windows\\evil.exe'), 'evil.exe');
+  assert.equal(tijdelijkeBijlageNaam('/etc/passwd'), 'passwd');
+  assert.equal(tijdelijkeBijlageNaam('notes.txt:hidden.exe'), 'notes.txt_hidden.exe');
+  assert.equal(isUitvoerbaarBestand(tijdelijkeBijlageNaam('notes.txt:hidden.exe')), true);
+  assert.equal(tijdelijkeBijlageNaam('a<b>|c?.pdf'), 'a_b__c_.pdf');
+  assert.equal(tijdelijkeBijlageNaam('setup.exe. . '), 'setup.exe');
+  assert.equal(tijdelijkeBijlageNaam('..'), 'attachment');
+  assert.equal(tijdelijkeBijlageNaam(''), 'attachment');
+  assert.equal(tijdelijkeBijlageNaam(undefined), 'attachment');
 });
