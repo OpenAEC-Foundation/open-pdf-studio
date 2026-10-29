@@ -260,6 +260,24 @@ test('unreadable content, not edited: the original annotation stays as it was', 
   assert.equal(popups[0].get(N('Parent')), eigenRef);
 });
 
+test('readable content, not edited: the original annotation stays as it was', async () => {
+  const bron = await blad_metExtraSleutels();
+  const voor = bijlageAnnots(await PDFDocument.load(bron))[0];
+  const apVoor = voor.lookup(N('AP')).toString();
+  const modellen = await laad(bron);
+  assert.equal(lees(bijlageBytes(modellen[0].attachment.key)), 'PK-xlsx-inhoud', 'the content is readable');
+  const bytes = await opslaan(bron, modellen);
+
+  const pdf = await PDFDocument.load(bytes);
+  const annots = bijlageAnnots(pdf);
+  assert.equal(annots.length, 1, 'no duplicate');
+  const fs = annots[0].lookup(N('FS'));
+  assert.equal(fs.lookup(N('VendorKey'))?.asNumber(), 42, 'unknown file specification keys are kept');
+  assert.equal(fs.lookup(N('CI'))?.lookup(N('Status'))?.toString(), '/Approved', 'the collection item is kept');
+  assert.equal(annots[0].lookup(N('AP')).toString(), apVoor, 'the original appearance is kept');
+  assert.equal(ingeslotenBestand(bytes), 'PK-xlsx-inhoud');
+});
+
 test('unreadable content, edited: the new annotation keeps the original file specification', async () => {
   const bron = await blad_metExtraSleutels();
   const modellen = await laadZonderInhoud(bron);

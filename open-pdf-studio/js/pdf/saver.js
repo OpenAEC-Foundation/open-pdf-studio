@@ -1816,11 +1816,12 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             const faH = ann.height || 24;
             const faInhoud = await bijlageInhoud(annRaw, activeDoc);
             const faBestand = annRaw.attachment || {};
-            // Inhoud niet te lezen: het ingesloten bestand mag niet stil
-            // verdwijnen. Onbewerkt blijft het origineel staan zoals het was
-            // (met /FS, /AP en sleutels die de app niet kent); bewerkt krijgt
-            // de nieuwe annotatie de oorspronkelijke bestandsspecificatie.
-            const faOrigineel = faInhoud ? null : origineleBijlage(context, verwijderdeRefs, annRaw);
+            // Onbewerkt blijft het origineel staan zoals het was (met /FS, /AP
+            // en sleutels die de app niet kent, zoals /CI), ook als de inhoud
+            // te lezen is. Bewerkt en de inhoud niet te lezen: de nieuwe
+            // annotatie krijgt de oorspronkelijke bestandsspecificatie, zodat
+            // het ingesloten bestand niet stil verdwijnt.
+            const faOrigineel = origineleBijlage(context, verwijderdeRefs, annRaw);
             if (faOrigineel?.ref && !alleenAnnotaties && !bijlageBewerkt(annRaw)
                 && !behoudenBijlagen.has(faOrigineel.ref)) {
               behoudenRef = faOrigineel.ref;
@@ -1847,7 +1848,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
                 grootte: faBestand.size ?? undefined,
                 ...(faInhoud?.bytes ? { bytes: faInhoud.bytes } : faInhoud?.ruw ? { ruw: faInhoud.ruw } : {}),
               },
-              bestaandeFs: faOrigineel?.fs,
+              bestaandeFs: faInhoud ? undefined : faOrigineel?.fs,
             });
             if (!faInhoud && !faOrigineel && annotDict) console.warn(`[saver] file attachment "${faBestand.name}" has no content; written without /EF`);
             break;
