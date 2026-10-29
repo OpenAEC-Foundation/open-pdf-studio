@@ -2712,6 +2712,8 @@ export function clearPdfView() {
   // Deactivate vector viewport so its RAF loop stops redrawing the last
   // viewed document on the now-empty canvas.
   if (window.__pdfViewport) window.__pdfViewport.active = false;
+  // De caches hieronder sluiten ook de getoonde bitmap.
+  import('./pdf-viewport.js').then(m => m.laatBitmapsLos()).catch(() => {});
 
   // Clear single page mode canvases
   const pdfCtx = pdfCanvas.getContext('2d');

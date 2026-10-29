@@ -373,6 +373,7 @@ export async function closeTab(index, force = false, dialogAction = null) {
   if (state.documents.length === 0) {
     state.activeDocumentIndex = -1;
     clearPdfView();
+    import('../../pdf/pdf-viewport.js').then(m => m.vergeetGetoondDocument()).catch(() => {});
     clearThumbnails();
     refreshAllTabs();
     updateWindowTitle();

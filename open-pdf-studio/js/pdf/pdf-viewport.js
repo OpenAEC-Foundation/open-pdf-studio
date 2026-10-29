@@ -1110,6 +1110,25 @@ export function wisselBestandspad(oudPad, nieuwPad) {
   return true;
 }
 
+// De PDF-weergave is leeggemaakt (clearPdfView): die sluit alle bitmaps in de
+// caches, ook de getoonde. Bleef de viewport ze vasthouden, dan tekende elk
+// frame bij terugkomst op hetzelfde pad een gesloten bitmap ("the image source
+// is detached") tot er een nieuwe binnen was. Het pad blijft staan, zodat een
+// tabwissel via een leeg tabblad de bewaarde zoom niet kwijtraakt.
+export function laatBitmapsLos() {
+  viewport.currentBitmap = null;
+  viewport.currentTile = null;
+  viewport.currentTileMeta = null;
+}
+
+// Het laatste tabblad is dicht: de viewport vergeet ook het document, zodat
+// hetzelfde bestand opnieuw openen als nieuw document telt en passend begint.
+export function vergeetGetoondDocument() {
+  viewport.active = false;
+  viewport.filePath = null;
+  laatBitmapsLos();
+}
+
 // Geeft true terug als de bewaarde weergavestand van een eerder getoond
 // document is teruggezet (tabwissel, #539); de aanroeper haalt dan ook de
 // gecachte scherpe tegel erbij.
