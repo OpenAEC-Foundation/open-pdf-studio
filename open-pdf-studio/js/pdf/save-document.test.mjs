@@ -24,6 +24,7 @@ function harness() {
   const b = { id: 'b', pdfDoc: {}, filePath: 'b.pdf', annotations: [], modified: true, undoStack: [] };
   let active = a;
   const writes = [], owners = [], attachmentEdits = [], opgeslagenGemeld = [], structWritten = [], structSavedNotified = [];
+  const laagstandVerhuisd = [];
   const deps = {
     state: { documents: [a, b] }, getActiveDocument: () => active,
     showLoading() {}, hideLoading() {}, updateTabBar() {}, updateWindowTitle() {},
@@ -41,6 +42,8 @@ function harness() {
     // Laagstand als standaard (#377): niets klaargezet in deze documenten.
     standaardOmTeBewaren: () => null, schrijfStandaardLaagstand() {}, laagstandZonderEigenLagen() {},
     lagenNaOpslaan: async () => {},
+    // Opslaan als verhuist de laagstand mee naar het nieuwe pad (#684).
+    verhuisLaagstand: (doc, oud, nieuw) => { laagstandVerhuisd.push([doc.id, oud, nieuw]); return false; },
     maakCjkFontKeten: () => ({}), layersForSave: doc => { owners.push(doc); return []; }, currentLayerId() {},
     saveTextEditsToPages: async (_pdf, _pages, doc) => owners.push(doc),
     saveWatermarksToPages: async (_pdf, _pages, doc) => owners.push(doc),
@@ -87,7 +90,7 @@ function harness() {
   };
   // A with scope keeps the injected dependencies mutable across awaits.
   const api = new Function('deps', `with (deps) { ${saved}\n${functions}\n return {savePDF, savePDFAs, bouwMomentopname}; }`)(deps);
-  return { a, b, deps, api, writes, owners, attachmentEdits, opgeslagenGemeld, structWritten, structSavedNotified, switchToB: () => { active = b; } };
+  return { a, b, deps, api, writes, owners, attachmentEdits, opgeslagenGemeld, structWritten, structSavedNotified, laagstandVerhuisd, switchToB: () => { active = b; } };
 }
 
 test('tab switch during signature verification still saves A to the requested path', async () => {
@@ -190,6 +193,7 @@ test('explicit Save As path retargets A without opening a file dialog', async ()
   assert.deepEqual(h.writes, [{ path: 'translated.pdf', source: 'a.pdf' }]);
   assert.equal(h.a.filePath, 'translated.pdf');
   assert.equal(h.b.filePath, 'b.pdf');
+  assert.deepEqual(h.laagstandVerhuisd, [['a', 'a.pdf', 'translated.pdf']], 'the layer view state moves with A');
 });
 
 test('closed document is not saved after the confirmation wait', async () => {

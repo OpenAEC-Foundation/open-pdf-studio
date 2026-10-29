@@ -59,7 +59,7 @@ import { slaPaginaLabelsOp } from './pagina-labels.js';
 import { pasBijlagenToe } from './bijlagen.js';
 import { schrijfAnnotatieLagen, ocVoorAnnotatie, laagstandZonderEigenLagen } from './saver/annotatie-lagen.js';
 import { schrijfStandaardLaagstand } from './lagen-boom.js';
-import { standaardOmTeBewaren, naOpslaan as lagenNaOpslaan } from './lagen-schakelen.js';
+import { standaardOmTeBewaren, naOpslaan as lagenNaOpslaan, verhuisLaagstand } from './lagen-schakelen.js';
 import { bouwBijlageAnnotatie, origineleBijlage, bijlageBewerkt } from './bijlage-annotatie.js';
 import { bijlageInhoud } from '../annotations/bijlage-store.js';
 import { layersForSave, currentLayerId } from '../annotations/annotatie-lagen.js';
@@ -3625,6 +3625,9 @@ export async function savePDFAs(doc = getActiveDocument(), explicitPath = null, 
         doc.isUntitled = false; // now a real, user-chosen file
         doc.saveTargetPath = null; // lives at its real path now; no separate save target
         doc._renderTemp = false;
+        // De geschakelde laagstand verhuist mee naar het nieuwe pad, voordat
+        // het paneel hem leest (anders vervalt hij als verouderd).
+        verhuisLaagstand(doc, weergavePad, savePath);
       }
       // De weergave verhuist mee naar het opgeslagen bestand (zelfde bytes),
       // vóórdat de werkkopie hieronder van schijf gaat. Anders vraagt de
