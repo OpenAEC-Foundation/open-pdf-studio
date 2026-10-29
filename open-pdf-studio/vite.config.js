@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import solidPlugin from 'vite-plugin-solid';
+import { pdfjsPostscriptProgress } from './scripts/pdfjs-postscript-progress.mjs';
 import { pdfjsAssets } from './scripts/pdfjs-assets.mjs';
 import { readFileSync } from 'fs';
 import { pdfjsWorkerOudeWebview, voorafScriptPlugin } from './scripts/oude-webview.mjs';
@@ -20,7 +21,7 @@ const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
 // (gehost of OPDS_WEB_BUILD=1) krijgen desktopmodules als de sleepplugin een
 // lege vervanger (#776, scripts/web-bouw.mjs).
 export default defineConfig(({ mode }) => ({
-  plugins: [solidPlugin(), pdfjsAssets(), voorafScriptPlugin(), pdfjsWorkerOudeWebview(), gehostHtmlPlugin()],
+  plugins: [solidPlugin(), pdfjsAssets(), voorafScriptPlugin(), pdfjsPostscriptProgress(), pdfjsWorkerOudeWebview(), gehostHtmlPlugin()],
   resolve: {
     alias: [
       // PDF.js 6's modern build calls Map.prototype.getOrInsertComputed and
@@ -68,8 +69,8 @@ export default defineConfig(({ mode }) => ({
         chunkFileNames: 'assets/[name]-[hash].js',
         // Same treatment for assets, but ONLY for .mjs files (don't touch
         // CSS, images, fonts, etc). PDF.js's worker is loaded via
-        //   new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url)
-        // which Vite handles as an asset import — without this, the
+        //   virtual:opds-pdfjs-worker-url (scripts/pdfjs-postscript-progress.mjs)
+        // is emitted as an asset — without this, the
         // worker is emitted as `pdf.worker-HASH.mjs` and the web build
         // can't fetch it.
         assetFileNames: (assetInfo) => {
