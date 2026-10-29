@@ -106,7 +106,13 @@
     "headOpenReversed": "Flecha abierta (invertida)",
     "headClosedReversed": "Flecha cerrada (invertida)",
     "headSlash": "Barra",
-    "polylineDefaults": "Valores predeterminados de polílínea"
+    "polylineDefaults": "Valores predeterminados de polílínea",
+    "smoothing": "Suavizado",
+    "pressure": "Presión del lápiz",
+    "pressureHint": "La presión del lápiz varía el grosor del trazo (los trazos con ratón mantienen un grosor constante)",
+    "pressureMinWidth": "Ancho mínimo (%)",
+    "penOnly": "Solo lápiz (ignorar toque)",
+    "penOnlyHint": "El toque no dibuja con la herramienta a mano alzada; útil contra el contacto de la palma al escribir con lápiz"
   },
   "shapes": {
     "rectangleDefaults": "Valores predeterminados de rectángulo",
@@ -162,6 +168,11 @@
     "snapToNearest": "Ajustar al más cercano",
     "objectSnapRadius": "Radio de ajuste (píxeles)",
     "snapToPdfContent": "Ajustar al contenido del dibujo PDF",
+    "moveInference": "Inferencia al mover (G / mv)",
+    "moveInferenceTracking": "Líneas de rastreo (alinear con puntos de otra geometría)",
+    "moveInferenceExtension": "Prolongaciones de líneas y caras de muros",
+    "moveInferenceParallel": "Paralelo / perpendicular a líneas cercanas",
+    "moveInferenceHint": "Sitúe el cursor un momento sobre un punto para adquirirlo, mantenga Mayús para bloquear una guía, Tab alterna entre distancia y ángulo. Las guías polares siguen la configuración del rastreo polar.",
     "creation": "Creación",
     "autoSelectAfterCreation": "Seleccionar automáticamente la anotación después de crearla",
     "deletion": "Eliminación",

@@ -124,7 +124,79 @@
         "label": "Plantegning",
         "hint": "Tegn en bygningsplantegning: vegger, vinduer og dører, rom, målsetting og innredning (sanitær, kjøkken)",
         "prompt": "Tegn en bygningsplantegning. Hva som skal tegnes: "
+      },
+      "find-on-sheet": {
+        "label": "Finn på arket",
+        "hint": "Finn et begrep (et romnavn, en snittmarkering, et symbol), gå til siden og uthev treffene",
+        "prompt": "Finn på dette arket: "
+      },
+      "explain-selection": {
+        "label": "Forklar utvalget",
+        "hint": "Beskriv det valgte området, teksten eller markeringen med enkle ord, med mål når en målestokk er angitt",
+        "prompt": "Forklar utvalget."
+      },
+      "compare-sheets": {
+        "label": "Sammenlign ark",
+        "hint": "Navngi og marker det som er lagt til, fjernet eller flyttet sammenlignet med en annen side",
+        "prompt": "Sammenlign denne siden med side: "
+      },
+      "measure": {
+        "label": "Mål dette",
+        "hint": "Mål den valgte figuren eller et beskrevet element og oppgi resultatet i tegningens målestokk",
+        "prompt": "Mål: "
+      },
+      "take-off": {
+        "label": "Mengdeuttak",
+        "hint": "Tell eller mål elementer av én type og plasser resultatet som en liste på arket",
+        "prompt": "Ta ut mengder for: "
+      },
+      "check-scale": {
+        "label": "Kontroller målestokken",
+        "hint": "Finn målestokken fra tittelfeltet eller et kjent mål og angi den",
+        "prompt": "Kontroller målestokken på denne tegningen."
+      },
+      "review-sheet": {
+        "label": "Kontroller arket",
+        "hint": "Legg til skyer med nummererte kommentarer ved punktene en kontrollør ville tatt opp",
+        "prompt": "Kontroller dette arket for: "
+      },
+      "stamp-date": {
+        "label": "Stempel og dato",
+        "hint": "Plasser et stempel, fyll ut et felt i tittelfeltet eller legg til en revisjonsmerknad med dagens dato",
+        "prompt": "Stempel og dato: "
+      },
+      "clean-up": {
+        "label": "Rydd i markeringer",
+        "hint": "Juster, nummerer om eller fargelegg de eksisterende markeringene ensartet",
+        "prompt": "Rydd opp i markeringene mine: "
+      },
+      "import-cad": {
+        "label": "Hent inn tegning",
+        "hint": "Importer en DWG- eller DXF-tegning som underlag i riktig målestokk",
+        "prompt": "Hent inn tegningen (bane til DWG- eller DXF-filen): "
+      },
+      "export-cad": {
+        "label": "Eksporter til CAD",
+        "hint": "Skriv denne siden eller det valgte området til en DXF- eller DWG-fil",
+        "prompt": "Eksporter denne siden til (bane til DXF- eller DWG-filen): "
       }
+    },
+    "groups": {
+      "document": "Oversett og oppsummer",
+      "reading": "Lese tegningen",
+      "measuring": "Måling og mengder",
+      "markup": "Markering",
+      "structure": "Konstruksjon og plantegning",
+      "cad": "CAD-tegninger"
+    },
+    "need": {
+      "document": "Åpne en PDF først: denne ferdigheten virker på det åpne dokumentet.",
+      "selection": "Velg en markering eller litt tekst på tegningen først, og klikk deretter på ferdigheten igjen.",
+      "scale": "Denne tegningen har ingen målestokk ennå. Angi en først (for eksempel med «Kontroller målestokken») og prøv igjen.",
+      "input": "Fullfør teksten i inndatafeltet etter kolonet, og send deretter.",
+      "selectionOrInput": "Velg en figur på tegningen, eller beskriv etter kolonet hva som skal måles.",
+      "page": "Angi nummeret på den andre siden (1 til {{max}}), ikke den gjeldende siden.",
+      "twoPages": "Dette dokumentet har bare én side. For å sammenligne med en annen fil, erstatt teksten i inndatafeltet med ditt eget spørsmål."
     }
   },
   "onlineSymbolLibrary": "Nettbasert symbolbibliotek",
@@ -228,7 +300,12 @@
     "goToPageLink": "Gå til side",
     "openExternalFile": "Åpne: {{filename}}",
     "destination": "Destinasjon: {{name}}",
-    "internalLink": "Intern lenke"
+    "internalLink": "Intern lenke",
+    "attachmentOnPage": "Side {{page}}",
+    "attachmentCreated": "Opprettet: {{date}}",
+    "attachmentModified": "Endret: {{date}}",
+    "openAttachmentRiskTitle": "Åpne vedlegg",
+    "openAttachmentRiskMessage": "«{{name}}» kan kjøre programmer på denne datamaskinen. Åpne den bare hvis du stoler på kilden. Åpne likevel?"
   },
   "failedToInsertPagesFromFile": "Kunne ikke sette inn sider fra filen: {{error}}",
   "previewPdfRefused": "Denne PDF-en er en forhåndsvisning fra tegningsimporten og kan være ufullstendig. Den kan ikke settes inn eller lagres; importer tegningen på nytt.",
@@ -298,5 +375,42 @@
     "readFailed": "3D-modellen kunne ikke leses.",
     "partial": "Noen deler av 3D-modellen kunne ikke leses ({{n}} hoppet over).",
     "viewerFailed": "3D-visningen kunne ikke startes."
+  },
+  "readAloud": {
+    "title": "Les høyt",
+    "play": "Les",
+    "pause": "Pause",
+    "resume": "Fortsett",
+    "stop": "Stopp",
+    "close": "Lukk",
+    "voice": "Stemme",
+    "defaultVoice": "Standardstemme",
+    "rate": "Hastighet",
+    "loading": "Forbereder...",
+    "reading": "Leser høyt",
+    "paused": "Satt på pause",
+    "page": "side {{page}}",
+    "tagOrder": "taggrekkefølge",
+    "contentOrder": "siderekkefølge",
+    "noEngine": "Ingen talesyntese er tilgjengelig på dette systemet.",
+    "noEngineLinux": "Fant ingen talesyntese. Installer speech-dispatcher (spd-say) eller espeak-ng og prøv igjen.",
+    "speechFailed": "Opplesingen stoppet på grunn av en feil.",
+    "nothingToRead": "Det er ingen tekst å lese.",
+    "online": "(nett)",
+    "allowOnline": "Nettstemmer",
+    "allowOnlineHint": "Tilby også nettstemmer. Med en nettstemme sendes teksten som leses opp, til en taletjeneste på nettet.",
+    "onlyOnlineVoices": "Bare nettstemmer er tilgjengelige. Slå på Nettstemmer for å bruke en; teksten som leses opp, sendes da til en taletjeneste på nettet.",
+    "noLocalVoice": "Ingen lokal stemme er installert for dette språket; den lokale standardstemmen brukes."
+  },
+  "moveInference": {
+    "onAxisX": "På X-aksen",
+    "onAxisY": "På Y-aksen",
+    "fromPoint": "Fra punkt",
+    "extension": "På forlengelse",
+    "parallel": "Parallell",
+    "perpendicular": "Vinkelrett",
+    "intersection": "Skjæringspunkt",
+    "polar": "Polar",
+    "locked": "Låst"
   }
 }

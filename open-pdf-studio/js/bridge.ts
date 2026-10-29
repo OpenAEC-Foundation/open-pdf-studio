@@ -274,6 +274,8 @@ export {
   setItems as setLayerItems,
   setCountText as setLayerCountText,
   setEmptyMessage as setLayerEmptyMessage,
+  setCanSetDefault as setLayerCanSetDefault,
+  setDefaultPending as setLayerDefaultPending,
 } from './solid/stores/panels/layersStore.js';
 
 export {
@@ -292,5 +294,20 @@ export {
   setTree as setTagTree,
   setCountText as setTagCountText,
   setEmptyMessage as setTagEmptyMessage,
+  setSelected as setTagSelected,
+  setHasTree as setTagHasTree,
 } from './solid/stores/panels/tagsStore.js';
+
+export {
+  setVisible as setReadAloudVisible,
+  setStatus as setReadAloudStatus,
+  setVoices as setReadAloudVoices,
+  setVoice as setReadAloudVoice,
+  setRate as setReadAloudRate,
+  setEngineKind as setReadAloudEngineKind,
+  setMessageKey as setReadAloudMessageKey,
+  setReadingPage as setReadAloudPage,
+  setAllowOnline as setReadAloudAllowOnline,
+  setOnlineVoices as setReadAloudOnlineVoices,
+} from './solid/stores/readAloudStore.js';
 

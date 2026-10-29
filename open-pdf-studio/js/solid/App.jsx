@@ -8,6 +8,7 @@ import LeftPanel from './components/left-panel/LeftPanel.jsx';
 import ElementVisibilityPanel from './components/left-panel/ElementVisibilityPanel.jsx';
 import AnnotationLayersPanel from './components/left-panel/AnnotationLayersPanel.jsx';
 import FindBar from './components/FindBar.jsx';
+import ReadAloudBar from './components/ReadAloudBar.jsx';
 import FormFieldsBar from './components/FormFieldsBar.jsx';
 import PdfABar from './components/PdfABar.jsx';
 import ThreeDView, { ThreeDSnapshotBar } from './components/ThreeDLazy.jsx';
@@ -97,6 +98,7 @@ function DesktopApp() {
             {(p) => <ExtDockTargets descriptor={p} />}
           </For>
           <FindBar />
+          <ReadAloudBar />
 
           <div id="placeholder">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

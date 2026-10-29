@@ -41,7 +41,10 @@
     "cancelled": "Anulowane",
     "completed": "Zakończone",
     "reviewed": "Zrecenzowane",
-    "statusSetBy": "Ustawione przez {{author}} dnia {{date}}"
+    "statusSetBy": "Ustawione przez {{author}} dnia {{date}}",
+    "layer": "Warstwa",
+    "layerMarkupGroup": "Warstwy adnotacji",
+    "layerDocumentGroup": "Warstwy dokumentu"
   },
   "colorNone": "Brak",
   "moreColors": "Więcej Kolorów...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Spinacz",
+    "iconPushPin": "Pinezka",
+    "iconGraph": "Wykres",
+    "iconTag": "Etykieta"
   },
   "stylePresets": {
     "label": "Styl linii",
@@ -308,7 +315,8 @@
     "measurePerimeter": "Obwód",
     "redaction": "Redakcja",
     "scaleBar": "Podziałka liniowa",
-    "parametricSymbol": "Symbol parametryczny"
+    "parametricSymbol": "Symbol parametryczny",
+    "fileAttachment": "Załącznik pliku"
   },
   "leftPanel": {
     "togglePanel": "Przełącz Panel",
@@ -379,22 +387,54 @@
     "exportComments": "Eksportuj komentarze do pliku danych...",
     "exportSelectedComments": "Eksportuj wybrane komentarze do pliku danych...",
     "exportListCsv": "Eksportuj listę do CSV...",
-    "summarizeComingSoon": "Wkrótce",
     "listExported": "Lista komentarzy wyeksportowana do CSV",
     "csvPage": "Strona",
     "csvType": "Typ",
     "csvAuthor": "Autor",
-    "csvDate": "Data",
     "csvStatus": "Status",
     "csvSubject": "Temat",
     "csvContents": "Treść",
     "csvColor": "Kolor",
     "csvLayer": "Warstwa",
+    "csvId": "ID",
+    "csvCreated": "Utworzono",
+    "csvModified": "Zmodyfikowano",
+    "csvStatusBy": "Status ustawiony przez",
+    "csvStatusAt": "Data statusu",
+    "csvReplyCount": "Liczba odpowiedzi",
+    "csvReplies": "Odpowiedzi",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "Szerokość",
+    "csvHeight": "Wysokość",
+    "filterBar": "Filtry",
+    "filterAll": "(Wszystkie)",
+    "filterPages": "Strony",
+    "filterDate": "Data",
+    "filterFrom": "Od",
+    "filterTo": "Do",
+    "filterClear": "Wyczyść filtry",
+    "setStatusSelected": "Ustaw status zaznaczonych",
+    "setStatusListed": "Ustaw status wszystkich na liście",
+    "statusChanged": "Zmieniono status: {{count}}",
+    "summaryTitle": "Podsumowanie komentarzy",
+    "summaryDocument": "Dokument",
+    "summaryCreated": "Utworzono",
+    "summaryCount": "Komentarze",
+    "summaryNoText": "(brak tekstu komentarza)",
+    "summaryBusy": "Tworzenie podsumowania komentarzy...",
+    "summaryExported": "Podsumowanie komentarzy wyeksportowano do PDF",
+    "summaryFailed": "Nie można utworzyć podsumowania komentarzy",
     "schedules": "Zestawienia",
     "addPage": "Dodaj stronę",
     "pageLabels": "Etykiety stron (kreator nazw)",
     "portfolio": "Portfolio PDF",
-    "recognizeForm": "Rozpoznaj pola formularza"
+    "recognizeForm": "Rozpoznaj pola formularza",
+    "layersSetDefault": "Ustaw jako domyślne",
+    "layersSetDefaultTitle": "Zapisz bieżącą widoczność warstw jako domyślny stan dokumentu. Zostanie zapisana w pliku przy następnym zapisie.",
+    "layersDefaultPending": "Stanie się domyślne po zapisaniu",
+    "layerLocked": "Warstwa zablokowana: nie można jej włączyć ani wyłączyć",
+    "layerRadioGroup": "Grupa wyboru: włączenie tej warstwy wyłącza pozostałe warstwy grupy"
   },
   "scaleBar": {
     "title": "Podziałka liniowa",
@@ -443,7 +483,9 @@
       "symbol": "Zestawienie symboli",
       "text": "Zestawienie tekstów",
       "full": "Pełne ilości",
-      "image": "Obrazy i pieczątki"
+      "image": "Obrazy i pieczątki",
+      "bendingSchedule": "Wykaz gięcia",
+      "rebarWeight": "Zestawienie stali (masa wg Ø)"
     },
     "preview": "Podgląd",
     "exportCsv": "Eksportuj CSV",
@@ -603,7 +645,8 @@
       "textBuiltIn": "Tekst (natywny)",
       "symbol": "Symbol",
       "image": "Obraz",
-      "other": "Inne"
+      "other": "Inne",
+      "reinforcement": "Zbrojenie"
     },
     "field": {
       "category": "Kategoria",
@@ -631,7 +674,16 @@
       "width": "Szerokość",
       "height": "Wysokość",
       "location": "Lokalizacja",
-      "locationSource": "Źródło lokalizacji"
+      "locationSource": "Źródło lokalizacji",
+      "rebarMark": "Numer pręta",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Kształt gięcia",
+      "rebarGrade": "Gatunek stali",
+      "rebarCount": "Liczba prętów",
+      "rebarLength": "Długość pręta",
+      "rebarTotalLength": "Długość całkowita",
+      "rebarMassPerM": "Masa na metr",
+      "rebarMass": "Masa"
     },
     "type": {
       "line": "Linia",
@@ -669,7 +721,8 @@
       "stavenreeks": "Seria prętów",
       "betonbalk": "Belka betonowa",
       "scheduleTable": "Tabela ilości",
-      "builtinText": "Tekst"
+      "builtinText": "Tekst",
+      "rebarPosition": "Pręt zbrojeniowy"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "Kreskowanie pionowe rzadkie",
       "inb-horizontaal-breed": "Kreskowanie poziome rzadkie"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "Przenieś wyżej w kolejności czytania",
+    "moveDown": "Przenieś niżej w kolejności czytania",
+    "checkAccessibility": "Sprawdź dostępność",
+    "altText": "Tekst alternatywny",
+    "altTextPlaceholder": "Opisz obraz dla osób, które go nie widzą...",
+    "noAlt": "Brak tekstu alternatywnego",
+    "role": "Rola",
+    "mappedTo": "{{role}} jest mapowana na {{standard}}",
+    "content": "Treść {{mcid}} (strona {{page}})",
+    "annotationRef": "Adnotacja (strona {{page}})"
+  },
+  "ink": {
+    "title": "Atrament",
+    "pressure": "Nacisk pióra",
+    "pressureHint": "Nacisk pióra zmienia grubość linii (linie rysowane myszą mają stałą grubość)",
+    "minWidth": "Minimalna szerokość (%)",
+    "minWidthHint": "Szerokość przy najlżejszym nacisku, jako procent grubości linii",
+    "smoothing": "Wygładzanie",
+    "smoothingHint": "Siła wygładzania linii (0 = brak)"
+  },
+  "attachment": {
+    "file": "Plik",
+    "size": "Rozmiar",
+    "open": "Otwórz",
+    "saveAs": "Zapisz jako...",
+    "noContent": "Zawartość tego pliku nie jest osadzona w pliku PDF."
   }
 }

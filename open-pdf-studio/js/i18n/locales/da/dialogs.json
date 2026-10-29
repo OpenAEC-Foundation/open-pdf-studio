@@ -1634,5 +1634,26 @@
     "fileFailed": "{{name}} kunne ikke læses: {{error}}",
     "applyFailed": "Sideredigeringerne kunne ikke anvendes: {{error}}",
     "extractFailed": "Siderne kunne ikke udtrækkes: {{error}}"
+  },
+  "accessibilityReport": {
+    "title": "Tilgængelighedskontrol",
+    "starting": "Kontrollerer...",
+    "checking": "Kontrollerer side {{done}} af {{total}}...",
+    "noIssues": "Ingen problemer fundet.",
+    "summary": "{{count}} problem(er) fundet. Dobbeltklik på et element for at gå til dets side.",
+    "failed": "Kontrollen kunne ikke udføres på dette dokument.",
+    "recheck": "Kontrollér igen",
+    "close": "Luk",
+    "goTo": "Dobbeltklik for at gå til siden",
+    "page": "Side {{page}}",
+    "kind": {
+      "notTagged": "Dokumentet har ingen tags: der er intet strukturtræ, så hjælpemidler kan ikke følge læserækkefølgen.",
+      "notMarked": "Dokumentet er ikke markeret som tagget (/MarkInfo /Marked).",
+      "noLanguage": "Dokumentets sprog er ikke angivet.",
+      "figureNoAlt": "{{role}} uden alternativ tekst",
+      "pageNotTagged": "Intet tagget indhold på denne side ({{count}} tekstelementer)",
+      "untaggedContent": "{{count}} tekstelement(er) uden for tags",
+      "annotationNoText": "Kommentar ({{type}}) uden beskrivelse"
+    }
   }
 }

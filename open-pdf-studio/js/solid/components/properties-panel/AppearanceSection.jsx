@@ -94,17 +94,25 @@ export default function AppearanceSection() {
               <Show when={annotProps.icon === 'mixed'}>
                 <option value="mixed" disabled hidden>{tCommon('mixed')}</option>
               </Show>
-              <option value="comment">{t('appearance.iconComment')}</option>
-              <option value="note">{t('appearance.iconNote')}</option>
-              <option value="help">{t('appearance.iconHelp')}</option>
-              <option value="insert">{t('appearance.iconInsert')}</option>
-              <option value="key">{t('appearance.iconKey')}</option>
-              <option value="newparagraph">{t('appearance.iconNewParagraph')}</option>
-              <option value="paragraph">{t('appearance.iconParagraph')}</option>
-              <option value="check">{t('appearance.iconCheck')}</option>
-              <option value="circle">{t('appearance.iconCircle')}</option>
-              <option value="cross">{t('appearance.iconCross')}</option>
-              <option value="star">{t('appearance.iconStar')}</option>
+              <Show when={sectionVis.attachmentGroup} fallback={<>
+                <option value="comment">{t('appearance.iconComment')}</option>
+                <option value="note">{t('appearance.iconNote')}</option>
+                <option value="help">{t('appearance.iconHelp')}</option>
+                <option value="insert">{t('appearance.iconInsert')}</option>
+                <option value="key">{t('appearance.iconKey')}</option>
+                <option value="newparagraph">{t('appearance.iconNewParagraph')}</option>
+                <option value="paragraph">{t('appearance.iconParagraph')}</option>
+                <option value="check">{t('appearance.iconCheck')}</option>
+                <option value="circle">{t('appearance.iconCircle')}</option>
+                <option value="cross">{t('appearance.iconCross')}</option>
+                <option value="star">{t('appearance.iconStar')}</option>
+              </>}>
+                {/* Bijlage-annotatie (#376): de vier /Name-waarden van de specificatie. */}
+                <option value="paperclip">{t('appearance.iconPaperclip')}</option>
+                <option value="pushpin">{t('appearance.iconPushPin')}</option>
+                <option value="graph">{t('appearance.iconGraph')}</option>
+                <option value="tag">{t('appearance.iconTag')}</option>
+              </Show>
             </select>
           </div>
         </Show>

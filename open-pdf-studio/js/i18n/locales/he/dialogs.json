@@ -1634,5 +1634,26 @@
     "fileFailed": "לא ניתן לקרוא את {{name}}: {{error}}",
     "applyFailed": "החלת עריכות העמודים נכשלה: {{error}}",
     "extractFailed": "חילוץ העמודים נכשל: {{error}}"
+  },
+  "accessibilityReport": {
+    "title": "בדיקת נגישות",
+    "starting": "בודק...",
+    "checking": "בודק עמוד {{done}} מתוך {{total}}...",
+    "noIssues": "לא נמצאו בעיות.",
+    "summary": "נמצאו {{count}} בעיות. לחצו פעמיים על פריט כדי לעבור לעמוד שלו.",
+    "failed": "לא ניתן היה להריץ את הבדיקה על מסמך זה.",
+    "recheck": "בדיקה חוזרת",
+    "close": "סגירה",
+    "goTo": "לחצו פעמיים כדי לעבור לעמוד",
+    "page": "עמוד {{page}}",
+    "kind": {
+      "notTagged": "למסמך אין תגים: אין עץ מבנה, ולכן טכנולוגיות מסייעות אינן יכולות לעקוב אחר סדר הקריאה.",
+      "notMarked": "המסמך אינו מסומן כמתויג (/MarkInfo /Marked).",
+      "noLanguage": "שפת המסמך לא הוגדרה.",
+      "figureNoAlt": "{{role}} ללא טקסט חלופי",
+      "pageNotTagged": "אין תוכן מתויג בעמוד זה ({{count}} פריטי טקסט)",
+      "untaggedContent": "{{count}} פריטי טקסט מחוץ לתגים",
+      "annotationNoText": "הערה ({{type}}) ללא תיאור"
+    }
   }
 }

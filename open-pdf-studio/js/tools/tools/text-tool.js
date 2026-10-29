@@ -22,6 +22,21 @@ export const commentTool = {
   },
 };
 
+// Bijlage-annotatie (#376): klik, kies een bestand, het pictogram staat er.
+export const fileAttachmentTool = {
+  name: 'fileAttachment',
+  cursor: 'crosshair',
+
+  onPointerDown(ctx, e) {
+    if (e && (e.button === 2 || e.detail === 2)) return;
+    const { x, y, pageNum } = ctx;
+    import('../../ui/bijlage-annotaties.js')
+      .then((m) => m.plaatsBijlageAnnotatie(x, y, pageNum))
+      .catch((err) => console.error('[fileAttachment] place failed', err))
+      .finally(() => import('../../tools/manager.js').then((m) => m.maybeRevertToSelect && m.maybeRevertToSelect()));
+  },
+};
+
 export const textTool = {
   name: 'text',
   cursor: 'text',

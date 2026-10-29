@@ -10,7 +10,8 @@
 // werken (scherper hertekenen bij inzoomen, of later alsnog vastzetten).
 
 import { PDFName, PDFRef, PDFDict, PDFArray, PDFStream } from 'pdf-lib';
-import { bedKnipselIn } from '../vector-embed.js';
+import { bedKnipselIn, knipselBronWortels } from '../vector-embed.js';
+import { ontdubbel } from '../vector-cull.js';
 import { flattenKnipselSleutels } from '../flatten-bytes.js';
 
 /** Sleutel van het woordenboek met bronpagina's op de catalogus. */
@@ -232,6 +233,11 @@ function _bereikbaar(context, starts) {
  */
 export function ruimKnipselRestenOp(doc, oudeStempels = [], { nieuwVanaf } = {}) {
   const context = doc.context;
+
+  // Gesnoeide knipsels van één bronpagina brachten elk hun eigen kopie van
+  // dezelfde fonts en afbeeldingen mee (#509): samenvoegen.
+  const wortels = knipselBronWortels(doc);
+  if (wortels.length > 1) ontdubbel(context, wortels);
 
   const gebruikt = new Set();
   for (const pagina of doc.getPages()) {

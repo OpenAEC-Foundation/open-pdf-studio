@@ -11,7 +11,10 @@
 //
 // Puur pdf-lib, geen app-imports: zo is het in node te testen.
 
-import { PDFName, PDFDict, PDFArray, PDFStream, PDFRef, PDFString, PDFHexString } from 'pdf-lib';
+import {
+  PDFName, PDFDict, PDFArray, PDFStream, PDFRawStream, PDFRef, PDFString, PDFHexString, PDFNumber,
+  decodePDFRawStream,
+} from 'pdf-lib';
 
 /** @typedef {{ naam: string, bytes: Uint8Array, mime?: string, beschrijving?: string,
  *              aangemaakt?: string, gewijzigd?: string }} Bijlage */
@@ -73,6 +76,48 @@ export function zichtbareBijlagen(basis, wijzigingen) {
   ];
 }
 
+// Bestanden die het systeem uitvoert, installeert, koppelt of als snelkoppeling
+// volgt in plaats van ze alleen te tonen: eerst vragen (ui/panels/attachments.js).
+const UITVOERBAAR = new Set([
+  // Windows: programma's, installatiepakketten, scripts, snelkoppelingen
+  'exe', 'com', 'bat', 'cmd', 'msi', 'msp', 'mst', 'msc', 'msix', 'msixbundle', 'appx', 'appxbundle',
+  'scr', 'pif', 'cpl', 'dll', 'ocx', 'sys', 'drv', 'gadget', 'application', 'appref-ms', 'xbap', 'xll',
+  'ps1', 'ps1xml', 'ps2', 'ps2xml', 'psc1', 'psc2', 'psd1', 'psm1', 'msh', 'msh1', 'msh2', 'mshxml',
+  'vb', 'vbs', 'vbe', 'js', 'jse', 'ws', 'wsf', 'wsc', 'wsh', 'hta', 'chm', 'hlp', 'inf', 'ins', 'isp',
+  'reg', 'lnk', 'url', 'scf', 'website', 'settingcontent-ms', 'library-ms', 'search-ms', 'searchconnector-ms',
+  'iso', 'img', 'vhd', 'vhdx', 'diagcab', 'jnlp', 'jar',
+  // Scripttalen die vaak aan een interpreter gekoppeld zijn
+  'py', 'pyw', 'pyc', 'pl', 'rb', 'php', 'lua', 'tcl',
+  // Linux en macOS
+  'sh', 'bash', 'zsh', 'csh', 'ksh', 'fish', 'run', 'bin', 'desktop', 'appimage', 'deb', 'rpm', 'snap', 'flatpakref',
+  'app', 'command', 'tool', 'pkg', 'mpkg', 'dmg', 'scpt', 'scptd', 'applescript', 'workflow', 'action',
+  'terminal', 'webloc', 'inetloc', 'fileloc',
+]);
+
+/**
+ * Moet er gevraagd worden voor het openen van dit bestand? Windows negeert
+ * punten en spaties aan het eind van een naam ("x.exe. " is x.exe), dus die
+ * tellen niet mee.
+ */
+export function isUitvoerbaarBestand(filename) {
+  const naam = String(filename || '').split(/[\\/]/).pop().replace(/[\s.]+$/, '');
+  const punt = naam.lastIndexOf('.');
+  return punt >= 0 && UITVOERBAAR.has(naam.slice(punt + 1).toLowerCase());
+}
+
+/**
+ * Een bestandsnaam uit een PDF als naam in de tijdelijke map: geen pad, geen
+ * tekens die Windows niet toestaat (ook niet ':' van een alternatieve
+ * gegevensstroom), geen punten of spaties aan het eind.
+ */
+export function tijdelijkeBijlageNaam(filename) {
+  const naam = String(filename || '').split(/[\\/]/).pop()
+    // eslint-disable-next-line no-control-regex
+    .replace(/[<>:"|?*\u0000-\u001f]/g, '_')
+    .replace(/[\s.]+$/, '');
+  return naam && !/^\.+$/.test(naam) ? naam : 'attachment';
+}
+
 function tekstVan(obj) {
   if (obj instanceof PDFHexString || obj instanceof PDFString) {
     try { return obj.decodeText(); } catch { return null; }
@@ -113,25 +158,144 @@ export function leesBijlageNamen(pdfDoc) {
   return ef ? bladen(pdfDoc.context, ef).map(([sleutel]) => tekstVan(sleutel)).filter((n) => n !== null) : [];
 }
 
-function maakBestandsspecificatie(pdfDoc, bijlage) {
+// /F is een bytestring (de bestandsnaam voor oudere lezers): bij een naam in
+// gewone ASCII die naam zelf, anders UTF-16 zoals /UF.
+function bestandsnaamBytes(naam) {
+  if (/^[\x20-\x7e]*$/.test(naam)) {
+    return PDFHexString.of([...naam].map((c) => c.charCodeAt(0).toString(16).padStart(2, '0')).join(''));
+  }
+  return PDFHexString.fromText(naam);
+}
+
+/**
+ * Een bestandsspecificatie met ingesloten bestand (ISO 32000 7.11.3/7.11.4):
+ * /Type /Filespec, /F en /UF, /EF met de stroom (/Type /EmbeddedFile,
+ * /Subtype het mime-type, /Params met /Size en de datums), /Desc en
+ * /AFRelationship. Met `bijlage.ruw` (een stroom die bij het laden niet te
+ * decoderen was) gaan de bytes met hun eigen filter ongewijzigd terug.
+ * @returns {import('pdf-lib').PDFRef}
+ */
+export function maakBestandsspecificatie(pdfDoc, bijlage) {
   const { context } = pdfDoc;
-  const params = { Size: bijlage.bytes.length };
   const datum = (iso) => { const d = iso ? new Date(iso) : null; return d && !Number.isNaN(d.getTime()) ? PDFString.fromDate(d) : undefined; };
+  const grootte = bijlage.ruw ? (bijlage.grootte ?? undefined) : bijlage.bytes.length;
+  const params = { Size: grootte };
   params.CreationDate = datum(bijlage.aangemaakt);
   params.ModDate = datum(bijlage.gewijzigd);
-  const stroom = context.register(context.flateStream(bijlage.bytes, {
+  const kop = {
     Type: 'EmbeddedFile',
+    // /Subtype is een naam: een mime-type als 'text/plain' wordt #2f-gecodeerd.
     Subtype: bijlage.mime || undefined,
     Params: params,
-  }));
+  };
+  let stroom;
+  if (bijlage.ruw) {
+    const r = bijlage.ruw;
+    const dict = context.obj({ ...kop, Length: r.bytes.length });
+    if (r.filter) dict.set(PDFName.of('Filter'), context.obj(r.filter));
+    if (r.decodeParms) dict.set(PDFName.of('DecodeParms'), context.obj(r.decodeParms));
+    stroom = context.register(PDFRawStream.of(dict, r.bytes));
+  } else {
+    stroom = context.register(context.flateStream(bijlage.bytes, kop));
+  }
   return context.register(context.obj({
     Type: 'Filespec',
-    F: PDFHexString.fromText(bijlage.naam),
+    F: bestandsnaamBytes(bijlage.naam),
     UF: PDFHexString.fromText(bijlage.naam),
     EF: { F: stroom, UF: stroom },
     Desc: PDFHexString.fromText(bijlage.beschrijving || bijlage.naam),
-    AFRelationship: 'Unspecified',
+    AFRelationship: bijlage.relatie || 'Unspecified',
   }));
+}
+
+function pdfDatumNaarIso(tekst) {
+  const m = /^D?:?(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?([Zz+\-])?(\d{2})?'?(\d{2})?/.exec(String(tekst || '').trim());
+  if (!m) return null;
+  const [, j, mo = '01', d = '01', u = '00', mi = '00', s = '00', teken, ou, om] = m;
+  let iso = `${j}-${mo}-${d}T${u}:${mi}:${s}`;
+  iso += (teken === '+' || teken === '-') ? `${teken}${ou || '00'}:${om || '00'}` : 'Z';
+  const dt = new Date(iso);
+  return Number.isNaN(dt.getTime()) ? null : dt.toISOString();
+}
+
+function naamWaarde(obj) {
+  return obj instanceof PDFName ? obj.decodeText() : null;
+}
+
+/**
+ * Leest een bestandsspecificatie, ook een van een ander programma: naam (/UF,
+ * /F, /Unix, /Mac, /DOS), beschrijving, mime-type, grootte en datums, en de
+ * inhoud uit /EF. Een stroom die pdf-lib niet kan decoderen komt mee als
+ * `ruw` (bytes, /Filter, /DecodeParms als JSON-vrije pdf-lib-objecten
+ * omgezet naar namen en getallen), zodat opslaan hem niet kwijtraakt.
+ * Een /FS die een tekenreeks is (een extern bestand) geeft alleen de naam.
+ * @returns {null|{naam:string, beschrijving:string, mime:string|null, grootte:number|null,
+ *   aangemaakt:string|null, gewijzigd:string|null, relatie:string|null,
+ *   bytes?:Uint8Array, ruw?:{bytes:Uint8Array, filter:any, decodeParms:any}, extern?:boolean}}
+ */
+export function leesBestandsspecificatie(context, fsObj) {
+  const fs = fsObj instanceof PDFRef ? context.lookup(fsObj) : fsObj;
+  const tekst = tekstVan(fs);
+  if (tekst !== null) {
+    return { naam: tekst.split(/[\\/]/).pop() || tekst, beschrijving: '', mime: null, grootte: null, aangemaakt: null, gewijzigd: null, relatie: null, extern: true };
+  }
+  if (!(fs instanceof PDFDict)) return null;
+  const veld = (d, k) => (d instanceof PDFDict ? d.lookup(PDFName.of(k)) : undefined);
+  let naam = null;
+  for (const k of ['UF', 'F', 'Unix', 'Mac', 'DOS']) {
+    naam = tekstVan(veld(fs, k));
+    if (naam) break;
+  }
+  naam = (naam || '').replace(/\\/g, '/').split('/').pop() || 'bijlage';
+  const uit = {
+    naam,
+    beschrijving: tekstVan(veld(fs, 'Desc')) || '',
+    mime: null, grootte: null, aangemaakt: null, gewijzigd: null,
+    relatie: naamWaarde(veld(fs, 'AFRelationship')),
+  };
+  const ef = veld(fs, 'EF');
+  let stroom = null;
+  for (const k of ['UF', 'F', 'Unix', 'Mac', 'DOS']) {
+    const s = veld(ef, k);
+    if (s instanceof PDFStream) { stroom = s; break; }
+  }
+  if (!stroom) return { ...uit, extern: true };
+  const kop = stroom.dict;
+  const sub = naamWaarde(kop.lookup(PDFName.of('Subtype')));
+  if (sub) uit.mime = sub;
+  const params = kop.lookup(PDFName.of('Params'));
+  if (params instanceof PDFDict) {
+    const size = params.lookup(PDFName.of('Size'));
+    if (size instanceof PDFNumber) uit.grootte = size.asNumber();
+    const cd = params.lookup(PDFName.of('CreationDate'));
+    const md = params.lookup(PDFName.of('ModDate'));
+    uit.aangemaakt = cd instanceof PDFString || cd instanceof PDFHexString ? pdfDatumNaarIso(cd.decodeText()) : null;
+    uit.gewijzigd = md instanceof PDFString || md instanceof PDFHexString ? pdfDatumNaarIso(md.decodeText()) : null;
+  }
+  try {
+    const bytes = stroom instanceof PDFRawStream ? decodePDFRawStream(stroom).decode() : stroom.getContents();
+    uit.bytes = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    if (uit.grootte === null) uit.grootte = uit.bytes.length;
+  } catch {
+    const ruwWaarde = (o) => {
+      const v = o instanceof PDFRef ? context.lookup(o) : o;
+      if (v instanceof PDFName) return v.decodeText();
+      if (v instanceof PDFNumber) return v.asNumber();
+      if (v instanceof PDFArray) return v.asArray().map(ruwWaarde);
+      if (v instanceof PDFDict) {
+        const d = {};
+        for (const [k, w] of v.entries()) d[k.decodeText()] = ruwWaarde(w);
+        return d;
+      }
+      return null;
+    };
+    uit.ruw = {
+      bytes: stroom.getContents(),
+      filter: ruwWaarde(kop.get(PDFName.of('Filter'))),
+      decodeParms: ruwWaarde(kop.get(PDFName.of('DecodeParms'))),
+    };
+  }
+  return uit;
 }
 
 // Verwijst een object (diep, binnen directe woordenboeken en arrays) naar `ref`?

@@ -1634,5 +1634,26 @@
     "fileFailed": "Impossible de lire {{name}} : {{error}}",
     "applyFailed": "L'application des modifications de pages a échoué : {{error}}",
     "extractFailed": "L'extraction des pages a échoué : {{error}}"
+  },
+  "accessibilityReport": {
+    "title": "Vérification de l'accessibilité",
+    "starting": "Vérification...",
+    "checking": "Vérification de la page {{done}} sur {{total}}...",
+    "noIssues": "Aucun problème trouvé.",
+    "summary": "{{count}} problème(s) trouvé(s). Double-cliquez sur un élément pour aller à sa page.",
+    "failed": "La vérification n'a pas pu être effectuée sur ce document.",
+    "recheck": "Vérifier à nouveau",
+    "close": "Fermer",
+    "goTo": "Double-cliquez pour aller à la page",
+    "page": "Page {{page}}",
+    "kind": {
+      "notTagged": "Le document n'est pas balisé : il n'a pas d'arborescence de structure, les technologies d'assistance ne peuvent donc pas suivre son ordre de lecture.",
+      "notMarked": "Le document n'est pas marqué comme balisé (/MarkInfo /Marked).",
+      "noLanguage": "La langue du document n'est pas définie.",
+      "figureNoAlt": "{{role}} sans texte de remplacement",
+      "pageNotTagged": "Aucun contenu balisé sur cette page ({{count}} éléments de texte)",
+      "untaggedContent": "{{count}} élément(s) de texte hors des balises",
+      "annotationNoText": "Annotation ({{type}}) sans description"
+    }
   }
 }

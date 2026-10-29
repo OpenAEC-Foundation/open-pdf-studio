@@ -106,7 +106,13 @@
     "headOpenReversed": "Otvorená šípka (obrátená)",
     "headClosedReversed": "Uzavretá šípka (obrátená)",
     "headSlash": "Lomka",
-    "polylineDefaults": "Predvolené nastavenia lomenej čiary"
+    "polylineDefaults": "Predvolené nastavenia lomenej čiary",
+    "smoothing": "Vyhladenie",
+    "pressure": "Prítlak pera",
+    "pressureHint": "Prítlak pera mení šírku ťahu (ťahy myšou majú stálu šírku)",
+    "pressureMinWidth": "Minimálna šírka (%)",
+    "penOnly": "Iba pero (ignorovať dotyk)",
+    "penOnlyHint": "Dotyk nekreslí nástrojom voľnej ruky; užitočné proti dotyku dlane pri písaní perom"
   },
   "shapes": {
     "rectangleDefaults": "Predvolené nastavenia obdĺžnika",
@@ -166,6 +172,11 @@
     "deletion": "Odstraňovanie",
     "confirmBeforeDeleting": "Potvrdiť pred odstránením anotácií",
     "snapToPdfContent": "Prichytiť k obsahu výkresu PDF",
+    "moveInference": "Pomocné čiary pri presune (G / mv)",
+    "moveInferenceTracking": "Sledovacie čiary (zarovnanie k bodom inej geometrie)",
+    "moveInferenceExtension": "Predĺženia čiar a líc stien",
+    "moveInferenceParallel": "Rovnobežne / kolmo k blízkym čiaram",
+    "moveInferenceHint": "Krátko podržte kurzor nad bodom, aby sa zachytil, podržte Shift na uzamknutie pomocnej čiary, Tab prepína medzi vzdialenosťou a uhlom. Polárne pomocné čiary sa riadia nastavením polárneho sledovania.",
     "navigation": "Navigácia",
     "wheelZoomWithoutCtrl": "Lupa kolieskom myši (bez držania Ctrl)",
     "middleDoubleClickFit": "Dvojklik stredným tlačidlom myši prispôsobí stránku",

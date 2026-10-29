@@ -124,7 +124,79 @@
         "label": "Grundriss",
         "hint": "Einen Bauplan-Grundriss zeichnen: Wände, Fenster und Türen, Räume, Bemaßung und Einrichtung (Sanitär, Küche)",
         "prompt": "Zeichne einen Grundriss. Was gezeichnet werden soll: "
+      },
+      "find-on-sheet": {
+        "label": "Auf Blatt suchen",
+        "hint": "Einen Begriff suchen (Raumname, Schnittmarkierung, Symbol), zu seiner Seite springen und die Treffer hervorheben",
+        "prompt": "Suche auf diesem Blatt: "
+      },
+      "explain-selection": {
+        "label": "Auswahl erklären",
+        "hint": "Den ausgewählten Bereich, Text oder die Markierung verständlich beschreiben, mit Abmessungen, wenn ein Messmaßstab festgelegt ist",
+        "prompt": "Erkläre die Auswahl."
+      },
+      "compare-sheets": {
+        "label": "Blätter vergleichen",
+        "hint": "Benennen und markieren, was gegenüber einer anderen Seite hinzugefügt, entfernt oder verschoben wurde",
+        "prompt": "Vergleiche diese Seite mit Seite: "
+      },
+      "measure": {
+        "label": "Dies messen",
+        "hint": "Die ausgewählte Form oder ein beschriebenes Element messen und im Maßstab der Zeichnung angeben",
+        "prompt": "Miss: "
+      },
+      "take-off": {
+        "label": "Mengen ermitteln",
+        "hint": "Elemente einer Art zählen oder messen und das Ergebnis als Liste auf dem Blatt platzieren",
+        "prompt": "Ermittle die Mengen: "
+      },
+      "check-scale": {
+        "label": "Maßstab prüfen",
+        "hint": "Den Maßstab aus dem Schriftfeld oder einer bekannten Abmessung ermitteln und festlegen",
+        "prompt": "Prüfe den Maßstab dieser Zeichnung."
+      },
+      "review-sheet": {
+        "label": "Blatt prüfen",
+        "hint": "Wolken mit nummerierten Kommentaren zu den Punkten hinzufügen, die ein Prüfer anmerken würde",
+        "prompt": "Prüfe dieses Blatt auf: "
+      },
+      "stamp-date": {
+        "label": "Stempeln und datieren",
+        "hint": "Einen Stempel setzen, ein Schriftfeld ausfüllen oder einen Revisionsvermerk mit dem heutigen Datum hinzufügen",
+        "prompt": "Stempeln und datieren: "
+      },
+      "clean-up": {
+        "label": "Markierungen ordnen",
+        "hint": "Die vorhandenen Markierungen einheitlich ausrichten, neu nummerieren oder umfärben",
+        "prompt": "Räume meine Markierungen auf: "
+      },
+      "import-cad": {
+        "label": "Zeichnung einfügen",
+        "hint": "Eine DWG- oder DXF-Zeichnung als Unterlage im richtigen Maßstab importieren",
+        "prompt": "Füge die Zeichnung ein (Pfad der DWG- oder DXF-Datei): "
+      },
+      "export-cad": {
+        "label": "Nach CAD exportieren",
+        "hint": "Diese Seite oder den ausgewählten Bereich in eine DXF- oder DWG-Datei schreiben",
+        "prompt": "Exportiere diese Seite nach (Pfad der DXF- oder DWG-Datei): "
       }
+    },
+    "groups": {
+      "document": "Übersetzen und zusammenfassen",
+      "reading": "Zeichnung lesen",
+      "measuring": "Messen und Mengen",
+      "markup": "Markieren",
+      "structure": "Tragwerk und Grundriss",
+      "cad": "CAD-Zeichnungen"
+    },
+    "need": {
+      "document": "Öffnen Sie zuerst ein PDF: Diese Fähigkeit arbeitet mit dem geöffneten Dokument.",
+      "selection": "Wählen Sie zuerst eine Markierung oder etwas Text auf der Zeichnung aus und klicken Sie dann erneut auf die Fähigkeit.",
+      "scale": "Diese Zeichnung hat noch keinen Messmaßstab. Legen Sie zuerst einen fest (zum Beispiel mit „Maßstab prüfen“) und versuchen Sie es erneut.",
+      "input": "Ergänzen Sie den Text im Eingabefeld nach dem Doppelpunkt und senden Sie ihn dann ab.",
+      "selectionOrInput": "Wählen Sie eine Form auf der Zeichnung aus oder beschreiben Sie nach dem Doppelpunkt, was gemessen werden soll.",
+      "page": "Geben Sie die Nummer der anderen Seite ein (1 bis {{max}}), nicht die der aktuellen Seite.",
+      "twoPages": "Dieses Dokument hat nur eine Seite. Um mit einer anderen Datei zu vergleichen, ersetzen Sie den Text im Eingabefeld durch Ihre eigene Frage."
     }
   },
   "onlineSymbolLibrary": "Online-Symbolbibliothek",
@@ -228,7 +300,12 @@
     "goToPageLink": "Gehe zu Seite",
     "openExternalFile": "Öffnen: {{filename}}",
     "destination": "Ziel: {{name}}",
-    "internalLink": "Interner Link"
+    "internalLink": "Interner Link",
+    "attachmentOnPage": "Seite {{page}}",
+    "attachmentCreated": "Erstellt: {{date}}",
+    "attachmentModified": "Geändert: {{date}}",
+    "openAttachmentRiskTitle": "Anhang öffnen",
+    "openAttachmentRiskMessage": "\"{{name}}\" kann Programme auf diesem Computer ausführen. Öffnen Sie die Datei nur, wenn Sie der Quelle vertrauen. Trotzdem öffnen?"
   },
   "failedToInsertPagesFromFile": "Seiten aus Datei konnten nicht eingefügt werden: {{error}}",
   "previewPdfRefused": "Diese PDF ist eine Vorschau aus dem Zeichnungsimport und kann unvollständig sein. Sie kann nicht eingefügt oder gespeichert werden; importieren Sie die Zeichnung erneut.",
@@ -298,5 +375,42 @@
     "readFailed": "Das 3D-Modell konnte nicht gelesen werden.",
     "partial": "Einige Teile des 3D-Modells konnten nicht gelesen werden ({{n}} übersprungen).",
     "viewerFailed": "Die 3D-Ansicht konnte nicht gestartet werden."
+  },
+  "readAloud": {
+    "title": "Vorlesen",
+    "play": "Lesen",
+    "pause": "Anhalten",
+    "resume": "Fortsetzen",
+    "stop": "Stoppen",
+    "close": "Schließen",
+    "voice": "Stimme",
+    "defaultVoice": "Standardstimme",
+    "rate": "Geschwindigkeit",
+    "loading": "Wird vorbereitet...",
+    "reading": "Wird vorgelesen",
+    "paused": "Angehalten",
+    "page": "Seite {{page}}",
+    "tagOrder": "Tag-Reihenfolge",
+    "contentOrder": "Seitenreihenfolge",
+    "noEngine": "Auf diesem System ist keine Sprachausgabe verfügbar.",
+    "noEngineLinux": "Keine Sprachausgabe gefunden. Installieren Sie speech-dispatcher (spd-say) oder espeak-ng und versuchen Sie es erneut.",
+    "speechFailed": "Das Vorlesen wurde wegen eines Fehlers beendet.",
+    "nothingToRead": "Es gibt keinen Text zum Vorlesen.",
+    "online": "(online)",
+    "allowOnline": "Online-Stimmen",
+    "allowOnlineHint": "Auch Online-Stimmen anbieten. Mit einer Online-Stimme wird der vorgelesene Text an einen Online-Sprachdienst gesendet.",
+    "onlyOnlineVoices": "Es sind nur Online-Stimmen verfügbar. Aktivieren Sie Online-Stimmen, um eine zu verwenden; der vorgelesene Text wird dann an einen Online-Sprachdienst gesendet.",
+    "noLocalVoice": "Für diese Sprache ist keine lokale Stimme installiert; die lokale Standardstimme wird verwendet."
+  },
+  "moveInference": {
+    "onAxisX": "Auf X-Achse",
+    "onAxisY": "Auf Y-Achse",
+    "fromPoint": "Von Punkt",
+    "extension": "Auf Verlängerung",
+    "parallel": "Parallel",
+    "perpendicular": "Senkrecht",
+    "intersection": "Schnittpunkt",
+    "polar": "Polar",
+    "locked": "Gesperrt"
   }
 }

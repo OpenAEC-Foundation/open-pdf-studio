@@ -106,7 +106,13 @@
     "headOpenReversed": "Nyitott nyíl (fordított)",
     "headClosedReversed": "Zárt nyíl (fordított)",
     "headSlash": "Perjel",
-    "polylineDefaults": "Töröttvonal alapértelmezések"
+    "polylineDefaults": "Töröttvonal alapértelmezések",
+    "smoothing": "Simítás",
+    "pressure": "Tollnyomás",
+    "pressureHint": "A tollnyomás változtatja a vonal szélességét (az egérrel húzott vonal szélessége állandó)",
+    "pressureMinWidth": "Minimális szélesség (%)",
+    "penOnly": "Csak toll (érintés figyelmen kívül hagyása)",
+    "penOnlyHint": "Az érintés nem rajzol a szabadkézi eszközzel; hasznos a tenyér érintése ellen tollal való írás közben"
   },
   "shapes": {
     "rectangleDefaults": "Téglalap alapértelmezések",
@@ -166,6 +172,11 @@
     "deletion": "Törlés",
     "confirmBeforeDeleting": "Megerősítés annotációk törlése előtt",
     "snapToPdfContent": "Bekötés a PDF-rajz tartalmához",
+    "moveInference": "Segédvonalak mozgatáskor (G / mv)",
+    "moveInferenceTracking": "Követővonalak (igazítás más geometria pontjaihoz)",
+    "moveInferenceExtension": "Vonalak és falsíkok meghosszabbítása",
+    "moveInferenceParallel": "Párhuzamos / merőleges a közeli vonalakra",
+    "moveInferenceHint": "Tartsa a kurzort röviden egy ponton a felvételéhez, tartsa lenyomva a Shift billentyűt egy segédvonal rögzítéséhez, a Tab vált a távolság és a szög között. A poláris segédvonalak a poláris követés beállításait követik.",
     "navigation": "Navigáció",
     "wheelZoomWithoutCtrl": "Nagyítás egérgörgővel (Ctrl lenyomása nélkül)",
     "middleDoubleClickFit": "Dupla kattintás a középső egérgombbal az oldal illesztéséhez",

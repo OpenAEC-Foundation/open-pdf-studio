@@ -41,7 +41,10 @@
     "cancelled": "Cancelado",
     "completed": "Completado",
     "reviewed": "Revisado",
-    "statusSetBy": "Establecido por {{author}} el {{date}}"
+    "statusSetBy": "Establecido por {{author}} el {{date}}",
+    "layer": "Capa",
+    "layerMarkupGroup": "Capas de marcas",
+    "layerDocumentGroup": "Capas del documento"
   },
   "colorNone": "Ninguno",
   "moreColors": "Más colores...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Clip",
+    "iconPushPin": "Chincheta",
+    "iconGraph": "Gráfico",
+    "iconTag": "Etiqueta"
   },
   "stylePresets": {
     "label": "Estilo de línea",
@@ -308,7 +315,8 @@
     "measurePerimeter": "Perímetro",
     "redaction": "Redacción",
     "scaleBar": "Barra de escala",
-    "parametricSymbol": "Símbolo paramétrico"
+    "parametricSymbol": "Símbolo paramétrico",
+    "fileAttachment": "Archivo adjunto"
   },
   "leftPanel": {
     "togglePanel": "Alternar panel",
@@ -379,22 +387,54 @@
     "exportComments": "Exportar comentarios a archivo de datos...",
     "exportSelectedComments": "Exportar comentarios seleccionados a archivo de datos...",
     "exportListCsv": "Exportar lista a CSV...",
-    "summarizeComingSoon": "Próximamente",
     "listExported": "Lista de comentarios exportada a CSV",
     "csvPage": "Página",
     "csvType": "Tipo",
     "csvAuthor": "Autor",
-    "csvDate": "Fecha",
     "csvStatus": "Estado",
     "csvSubject": "Asunto",
     "csvContents": "Contenido",
     "csvColor": "Color",
     "csvLayer": "Capa",
+    "csvId": "ID",
+    "csvCreated": "Creado",
+    "csvModified": "Modificado",
+    "csvStatusBy": "Estado establecido por",
+    "csvStatusAt": "Fecha del estado",
+    "csvReplyCount": "Número de respuestas",
+    "csvReplies": "Respuestas",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "Ancho",
+    "csvHeight": "Alto",
+    "filterBar": "Filtros",
+    "filterAll": "(Todos)",
+    "filterPages": "Páginas",
+    "filterDate": "Fecha",
+    "filterFrom": "Desde",
+    "filterTo": "Hasta",
+    "filterClear": "Borrar filtros",
+    "setStatusSelected": "Establecer estado de la selección",
+    "setStatusListed": "Establecer estado de todos los listados",
+    "statusChanged": "Estado cambiado: {{count}}",
+    "summaryTitle": "Resumen de comentarios",
+    "summaryDocument": "Documento",
+    "summaryCreated": "Creado",
+    "summaryCount": "Comentarios",
+    "summaryNoText": "(sin texto de comentario)",
+    "summaryBusy": "Creando resumen de comentarios...",
+    "summaryExported": "Resumen de comentarios exportado a PDF",
+    "summaryFailed": "No se pudo crear el resumen de comentarios",
     "schedules": "Listados",
     "addPage": "Añadir página",
     "pageLabels": "Etiquetas de página (generador de nombres)",
     "portfolio": "Portafolio PDF",
-    "recognizeForm": "Reconocer campos de formulario"
+    "recognizeForm": "Reconocer campos de formulario",
+    "layersSetDefault": "Establecer como predeterminado",
+    "layersSetDefaultTitle": "Guardar la visibilidad actual de las capas como estado predeterminado del documento. Se escribe en el archivo la próxima vez que guarde.",
+    "layersDefaultPending": "Será el predeterminado al guardar",
+    "layerLocked": "Capa bloqueada: no se puede activar ni desactivar",
+    "layerRadioGroup": "Grupo de opciones: al activar esta capa se desactivan las demás capas del grupo"
   },
   "scaleBar": {
     "title": "Barra de escala",
@@ -443,7 +483,9 @@
       "symbol": "Listado de símbolos",
       "text": "Listado de textos",
       "full": "Cantidades completas",
-      "image": "Imágenes y sellos"
+      "image": "Imágenes y sellos",
+      "bendingSchedule": "Planilla de doblado",
+      "rebarWeight": "Resumen de armaduras (peso por Ø)"
     },
     "preview": "Vista previa",
     "exportCsv": "Exportar CSV",
@@ -603,7 +645,8 @@
       "textBuiltIn": "Texto (nativo)",
       "symbol": "Símbolo",
       "image": "Imagen",
-      "other": "Otros"
+      "other": "Otros",
+      "reinforcement": "Armadura"
     },
     "field": {
       "category": "Categoría",
@@ -631,7 +674,16 @@
       "width": "Ancho",
       "height": "Altura",
       "location": "Ubicación",
-      "locationSource": "Origen de la ubicación"
+      "locationSource": "Origen de la ubicación",
+      "rebarMark": "Marca",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Forma de doblado",
+      "rebarGrade": "Calidad del acero",
+      "rebarCount": "Número de barras",
+      "rebarLength": "Longitud de barra",
+      "rebarTotalLength": "Longitud total",
+      "rebarMassPerM": "Masa por metro",
+      "rebarMass": "Masa"
     },
     "type": {
       "line": "Línea",
@@ -669,7 +721,8 @@
       "stavenreeks": "Serie de barras",
       "betonbalk": "Viga de hormigón",
       "scheduleTable": "Tabla de cantidades",
-      "builtinText": "Texto"
+      "builtinText": "Texto",
+      "rebarPosition": "Barra de armadura"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "Vertical ancho",
       "inb-horizontaal-breed": "Horizontal ancho"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "Subir en el orden de lectura",
+    "moveDown": "Bajar en el orden de lectura",
+    "checkAccessibility": "Comprobar accesibilidad",
+    "altText": "Texto alternativo",
+    "altTextPlaceholder": "Describa la imagen para quien no pueda verla...",
+    "noAlt": "Sin texto alternativo",
+    "role": "Función",
+    "mappedTo": "{{role}} se asigna a {{standard}}",
+    "content": "Contenido {{mcid}} (página {{page}})",
+    "annotationRef": "Anotación (página {{page}})"
+  },
+  "ink": {
+    "title": "Tinta",
+    "pressure": "Presión del lápiz",
+    "pressureHint": "La presión del lápiz varía el grosor del trazo (los trazos con ratón mantienen un grosor constante)",
+    "minWidth": "Ancho mínimo (%)",
+    "minWidthHint": "Ancho con la presión más suave, como porcentaje del grosor de línea",
+    "smoothing": "Suavizado",
+    "smoothingHint": "Intensidad del suavizado del trazo (0 = ninguno)"
+  },
+  "attachment": {
+    "file": "Archivo",
+    "size": "Tamaño",
+    "open": "Abrir",
+    "saveAs": "Guardar como...",
+    "noContent": "El contenido de este archivo no está incrustado en el PDF."
   }
 }

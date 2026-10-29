@@ -26,6 +26,9 @@ const _MATEN = {
   'M24': { d: 24, s: 36, k: 15,   m: 19 },
 };
 
+// Ook gebruikt door de staalverbindingen (kopplaat, voetplaat).
+export const BOUT_MATEN = _MATEN;
+
 const _snapPoints = (params, bbox) => {
   const { x, y, width: w, height: h } = bbox;
   return [

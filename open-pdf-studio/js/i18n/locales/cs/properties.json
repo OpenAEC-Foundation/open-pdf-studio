@@ -41,7 +41,10 @@
     "cancelled": "Zrušeno",
     "completed": "Dokončeno",
     "reviewed": "Zkontrolováno",
-    "statusSetBy": "Nastavil(a) {{author}} dne {{date}}"
+    "statusSetBy": "Nastavil(a) {{author}} dne {{date}}",
+    "layer": "Vrstva",
+    "layerMarkupGroup": "Vrstvy značek",
+    "layerDocumentGroup": "Vrstvy dokumentu"
   },
   "colorNone": "Žádná",
   "moreColors": "Další barvy...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Kancelářská sponka",
+    "iconPushPin": "Připínáček",
+    "iconGraph": "Graf",
+    "iconTag": "Štítek"
   },
   "stylePresets": {
     "label": "Styl čáry",
@@ -308,7 +315,8 @@
     "measurePerimeter": "Obvod",
     "redaction": "Redigování",
     "scaleBar": "Grafické měřítko",
-    "parametricSymbol": "Parametrický symbol"
+    "parametricSymbol": "Parametrický symbol",
+    "fileAttachment": "Příloha souboru"
   },
   "leftPanel": {
     "togglePanel": "Přepnout panel",
@@ -379,22 +387,54 @@
     "exportComments": "Exportovat komentáře do datového souboru...",
     "exportSelectedComments": "Exportovat vybrané komentáře do datového souboru...",
     "exportListCsv": "Exportovat seznam do CSV...",
-    "summarizeComingSoon": "Již brzy",
     "listExported": "Seznam komentářů byl exportován do CSV",
     "csvPage": "Stránka",
     "csvType": "Typ",
     "csvAuthor": "Autor",
-    "csvDate": "Datum",
     "csvStatus": "Stav",
     "csvSubject": "Předmět",
     "csvContents": "Obsah",
     "csvColor": "Barva",
     "csvLayer": "Vrstva",
+    "csvId": "ID",
+    "csvCreated": "Vytvořeno",
+    "csvModified": "Změněno",
+    "csvStatusBy": "Stav nastavil",
+    "csvStatusAt": "Datum stavu",
+    "csvReplyCount": "Počet odpovědí",
+    "csvReplies": "Odpovědi",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "Šířka",
+    "csvHeight": "Výška",
+    "filterBar": "Filtry",
+    "filterAll": "(Vše)",
+    "filterPages": "Stránky",
+    "filterDate": "Datum",
+    "filterFrom": "Od",
+    "filterTo": "Do",
+    "filterClear": "Vymazat filtry",
+    "setStatusSelected": "Nastavit stav vybraných",
+    "setStatusListed": "Nastavit stav všech zobrazených",
+    "statusChanged": "Stav změněn: {{count}}",
+    "summaryTitle": "Souhrn komentářů",
+    "summaryDocument": "Dokument",
+    "summaryCreated": "Vytvořeno",
+    "summaryCount": "Komentáře",
+    "summaryNoText": "(bez textu komentáře)",
+    "summaryBusy": "Vytváření souhrnu komentářů...",
+    "summaryExported": "Souhrn komentářů exportován do PDF",
+    "summaryFailed": "Souhrn komentářů se nepodařilo vytvořit",
     "schedules": "Výkazy",
     "addPage": "Přidat stránku",
     "pageLabels": "Popisky stránek (tvorba názvů)",
     "portfolio": "Portfolio PDF",
-    "recognizeForm": "Rozpoznat pole formuláře"
+    "recognizeForm": "Rozpoznat pole formuláře",
+    "layersSetDefault": "Nastavit jako výchozí",
+    "layersSetDefaultTitle": "Uložit aktuální viditelnost vrstev jako výchozí stav dokumentu. Zapíše se do souboru při příštím uložení.",
+    "layersDefaultPending": "Při uložení se stane výchozím",
+    "layerLocked": "Uzamčená vrstva: nelze ji zapnout ani vypnout",
+    "layerRadioGroup": "Skupina voleb: zapnutím této vrstvy se ostatní vrstvy skupiny vypnou"
   },
   "scaleBar": {
     "title": "Grafické měřítko",
@@ -443,7 +483,9 @@
       "symbol": "Výkaz symbolů",
       "text": "Výkaz textů",
       "full": "Úplný výkaz výměr",
-      "image": "Obrázky a razítka"
+      "image": "Obrázky a razítka",
+      "bendingSchedule": "Výpis ohybů",
+      "rebarWeight": "Výkaz výztuže (hmotnost dle Ø)"
     },
     "preview": "Náhled",
     "exportCsv": "Exportovat CSV",
@@ -603,7 +645,8 @@
       "textBuiltIn": "Text (nativní)",
       "symbol": "Symbol",
       "image": "Obrázek",
-      "other": "Ostatní"
+      "other": "Ostatní",
+      "reinforcement": "Výztuž"
     },
     "field": {
       "category": "Kategorie",
@@ -631,7 +674,16 @@
       "width": "Šířka",
       "height": "Výška",
       "location": "Umístění",
-      "locationSource": "Zdroj umístění"
+      "locationSource": "Zdroj umístění",
+      "rebarMark": "Pozice",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Tvar ohybu",
+      "rebarGrade": "Třída oceli",
+      "rebarCount": "Počet prutů",
+      "rebarLength": "Délka prutu",
+      "rebarTotalLength": "Celková délka",
+      "rebarMassPerM": "Hmotnost na metr",
+      "rebarMass": "Hmotnost"
     },
     "type": {
       "line": "Čára",
@@ -669,7 +721,8 @@
       "stavenreeks": "Řada prutů",
       "betonbalk": "Betonový trám",
       "scheduleTable": "Tabulka výměr",
-      "builtinText": "Text"
+      "builtinText": "Text",
+      "rebarPosition": "Výztužný prut"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "Svislá šrafa řídká",
       "inb-horizontaal-breed": "Vodorovná šrafa řídká"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "Posunout výš v pořadí čtení",
+    "moveDown": "Posunout níž v pořadí čtení",
+    "checkAccessibility": "Zkontrolovat přístupnost",
+    "altText": "Alternativní text",
+    "altTextPlaceholder": "Popište obrázek pro ty, kdo ho nevidí...",
+    "noAlt": "Bez alternativního textu",
+    "role": "Role",
+    "mappedTo": "{{role}} je mapována na {{standard}}",
+    "content": "Obsah {{mcid}} (stránka {{page}})",
+    "annotationRef": "Poznámka (stránka {{page}})"
+  },
+  "ink": {
+    "title": "Inkoust",
+    "pressure": "Přítlak pera",
+    "pressureHint": "Přítlak pera mění šířku tahu (tahy myší mají stálou šířku)",
+    "minWidth": "Minimální šířka (%)",
+    "minWidthHint": "Šířka při nejlehčím přítlaku, v procentech tloušťky čáry",
+    "smoothing": "Vyhlazení",
+    "smoothingHint": "Síla vyhlazení tahu (0 = žádné)"
+  },
+  "attachment": {
+    "file": "Soubor",
+    "size": "Velikost",
+    "open": "Otevřít",
+    "saveAs": "Uložit jako...",
+    "noContent": "Obsah tohoto souboru není vložen do PDF."
   }
 }

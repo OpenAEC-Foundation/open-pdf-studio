@@ -169,7 +169,9 @@
     "flattenAll": "Alle reduzieren",
     "flattenAllTooltip": "Alle Markierungen auf den Seiteninhalt reduzieren",
     "unflattenAll": "Reduzieren aufheben",
-    "unflattenAllTooltip": "Markierungen wiederherstellen, die mit erlaubter Wiederherstellung reduziert wurden"
+    "unflattenAllTooltip": "Markierungen wiederherstellen, die mit erlaubter Wiederherstellung reduziert wurden",
+    "fileAttachment": "Datei anhängen",
+    "fileAttachmentTitle": "Dateianhang: auf die Seite klicken und eine Datei wählen"
   },
   "view": {
     "pageDisplay": "Seitenanzeige",
@@ -208,7 +210,15 @@
     "rotateViewLeft": "Ansicht links drehen",
     "rotateViewRight": "Ansicht rechts drehen",
     "rotateViewLeftTitle": "Dreht die Ansicht um 90° gegen den Uhrzeigersinn. Das Dokument selbst ändert sich nicht.",
-    "rotateViewRightTitle": "Dreht die Ansicht um 90° im Uhrzeigersinn. Das Dokument selbst ändert sich nicht."
+    "rotateViewRightTitle": "Dreht die Ansicht um 90° im Uhrzeigersinn. Das Dokument selbst ändert sich nicht.",
+    "accessibilityGroup": "Barrierefreiheit",
+    "readAloud": "Vorlesen",
+    "readAloudPause": "Anhalten",
+    "readAloudTitle": "Die Auswahl oder das Dokument ab der aktuellen Seite vorlesen",
+    "tagsPanel": "Tags",
+    "tagsPanelTitle": "Die Struktur-Tags des Dokuments anzeigen",
+    "accessibilityCheck": "Prüfen",
+    "accessibilityCheckTitle": "Auf fehlenden Alternativtext und Inhalt ohne Tags prüfen"
   },
   "elementVisibility": {
     "buttonTitle": "Elementsichtbarkeit — Anmerkungstypen ein-/ausblenden und dimmen",

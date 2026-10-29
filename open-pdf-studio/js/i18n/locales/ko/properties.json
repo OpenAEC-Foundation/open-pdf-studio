@@ -41,7 +41,10 @@
     "cancelled": "취소됨",
     "completed": "완료됨",
     "reviewed": "검토됨",
-    "statusSetBy": "{{date}}에 {{author}}님이 설정"
+    "statusSetBy": "{{date}}에 {{author}}님이 설정",
+    "layer": "레이어",
+    "layerMarkupGroup": "마크업 레이어",
+    "layerDocumentGroup": "문서 레이어"
   },
   "colorNone": "없음",
   "moreColors": "더 많은 색상...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "클립",
+    "iconPushPin": "압정",
+    "iconGraph": "그래프",
+    "iconTag": "태그"
   },
   "stylePresets": {
     "label": "선 스타일",
@@ -308,7 +315,8 @@
     "measurePerimeter": "둘레",
     "redaction": "교정",
     "scaleBar": "축척 막대",
-    "parametricSymbol": "파라메트릭 기호"
+    "parametricSymbol": "파라메트릭 기호",
+    "fileAttachment": "파일 첨부"
   },
   "leftPanel": {
     "togglePanel": "패널 전환",
@@ -379,22 +387,54 @@
     "exportComments": "주석을 데이터 파일로 내보내기...",
     "exportSelectedComments": "선택한 주석을 데이터 파일로 내보내기...",
     "exportListCsv": "목록을 CSV로 내보내기...",
-    "summarizeComingSoon": "곧 제공 예정",
     "listExported": "주석 목록을 CSV로 내보냈습니다",
     "csvPage": "페이지",
     "csvType": "유형",
     "csvAuthor": "작성자",
-    "csvDate": "날짜",
     "csvStatus": "상태",
     "csvSubject": "제목",
     "csvContents": "내용",
     "csvColor": "색상",
     "csvLayer": "레이어",
+    "csvId": "ID",
+    "csvCreated": "만든 날짜",
+    "csvModified": "수정한 날짜",
+    "csvStatusBy": "상태 설정자",
+    "csvStatusAt": "상태 날짜",
+    "csvReplyCount": "답글 수",
+    "csvReplies": "답글",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "너비",
+    "csvHeight": "높이",
+    "filterBar": "필터",
+    "filterAll": "(모두)",
+    "filterPages": "페이지",
+    "filterDate": "날짜",
+    "filterFrom": "시작",
+    "filterTo": "끝",
+    "filterClear": "필터 지우기",
+    "setStatusSelected": "선택 항목의 상태 설정",
+    "setStatusListed": "목록의 모든 항목 상태 설정",
+    "statusChanged": "상태 변경됨: {{count}}",
+    "summaryTitle": "주석 요약",
+    "summaryDocument": "문서",
+    "summaryCreated": "만든 날짜",
+    "summaryCount": "주석",
+    "summaryNoText": "(주석 텍스트 없음)",
+    "summaryBusy": "주석 요약을 만드는 중...",
+    "summaryExported": "주석 요약을 PDF로 내보냈습니다",
+    "summaryFailed": "주석 요약을 만들 수 없습니다",
     "schedules": "일람표",
     "addPage": "페이지 추가",
     "pageLabels": "페이지 레이블(이름 작성기)",
     "portfolio": "PDF 포트폴리오",
-    "recognizeForm": "양식 필드 인식"
+    "recognizeForm": "양식 필드 인식",
+    "layersSetDefault": "기본값으로 설정",
+    "layersSetDefaultTitle": "현재 레이어 표시 상태를 문서의 기본 상태로 저장합니다. 다음에 저장할 때 파일에 기록됩니다.",
+    "layersDefaultPending": "저장 시 기본값이 됩니다",
+    "layerLocked": "잠긴 레이어: 켜거나 끌 수 없습니다",
+    "layerRadioGroup": "선택 그룹: 이 레이어를 켜면 그룹의 다른 레이어가 꺼집니다"
   },
   "scaleBar": {
     "title": "축척 막대",
@@ -443,7 +483,9 @@
       "symbol": "기호 일람표",
       "text": "텍스트 일람표",
       "full": "전체 물량",
-      "image": "이미지 및 스탬프"
+      "image": "이미지 및 스탬프",
+      "bendingSchedule": "철근 가공표",
+      "rebarWeight": "철근 중량 집계표 (직경별)"
     },
     "preview": "미리 보기",
     "exportCsv": "CSV 내보내기",
@@ -603,7 +645,8 @@
       "textBuiltIn": "텍스트(기본)",
       "symbol": "기호",
       "image": "이미지",
-      "other": "기타"
+      "other": "기타",
+      "reinforcement": "철근"
     },
     "field": {
       "category": "범주",
@@ -631,7 +674,16 @@
       "width": "너비",
       "height": "높이",
       "location": "위치",
-      "locationSource": "위치 출처"
+      "locationSource": "위치 출처",
+      "rebarMark": "철근 번호",
+      "rebarDiameter": "Ø",
+      "rebarShape": "가공 형상",
+      "rebarGrade": "강종",
+      "rebarCount": "본수",
+      "rebarLength": "철근 길이",
+      "rebarTotalLength": "총길이",
+      "rebarMassPerM": "단위 질량",
+      "rebarMass": "질량"
     },
     "type": {
       "line": "선",
@@ -669,7 +721,8 @@
       "stavenreeks": "철근 배열",
       "betonbalk": "콘크리트 보",
       "scheduleTable": "물량표",
-      "builtinText": "텍스트"
+      "builtinText": "텍스트",
+      "rebarPosition": "철근 바"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "세로선 넓음",
       "inb-horizontaal-breed": "가로선 넓음"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "읽기 순서에서 위로 이동",
+    "moveDown": "읽기 순서에서 아래로 이동",
+    "checkAccessibility": "접근성 검사",
+    "altText": "대체 텍스트",
+    "altTextPlaceholder": "이미지를 볼 수 없는 사람을 위해 이미지를 설명하세요...",
+    "noAlt": "대체 텍스트 없음",
+    "role": "역할",
+    "mappedTo": "{{role}}은(는) {{standard}}에 매핑됨",
+    "content": "콘텐츠 {{mcid}} ({{page}}페이지)",
+    "annotationRef": "주석 ({{page}}페이지)"
+  },
+  "ink": {
+    "title": "잉크",
+    "pressure": "펜 압력",
+    "pressureHint": "펜 압력에 따라 선 굵기가 달라집니다 (마우스로 그린 선은 굵기가 일정합니다)",
+    "minWidth": "최소 너비 (%)",
+    "minWidthHint": "가장 약한 펜 압력에서의 너비 (선 굵기에 대한 백분율)",
+    "smoothing": "다듬기",
+    "smoothingHint": "선 다듬기 강도 (0 = 없음)"
+  },
+  "attachment": {
+    "file": "파일",
+    "size": "크기",
+    "open": "열기",
+    "saveAs": "다른 이름으로 저장...",
+    "noContent": "이 파일의 내용은 PDF에 포함되어 있지 않습니다."
   }
 }

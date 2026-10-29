@@ -19,6 +19,10 @@
 //   - 'Y' constrains movement to the Y-axis (press the same key again to clear)
 //   - Mouse click (left) or 'Enter' commits the new position (records undo)
 //   - 'Escape' or right-click cancels and restores original positions
+//   - Inference (#519, move-inference.js): tracking/alignment lines, acquired
+//     points (hover briefly), extension lines, parallel/perpendicular and
+//     polar guides; Shift locks the shown guide, Tab switches the typed
+//     entry between distance and angle
 //
 // Implementation notes:
 //   - originals[] holds deep clones (cloneAnnotation) of each selected annotation
@@ -48,9 +52,15 @@ import { getCachedPdfSnapPoints } from './pdf-snap-extractor.js';
 import {
   enterTypeLengthMode, exitTypeLengthMode, typeLengthHasBuffer,
   consumeKey as typeLengthConsumeKey, applyToEndpoint as typeLengthApply,
-  setTypeLengthCursorScreen,
+  setTypeLengthCursorScreen, cycleTypeLengthField,
 } from './type-length-input.js';
 import { snapAngle } from '../utils/helpers.js';
+import {
+  createPointIndex, createMoveInferenceSession, buildInferenceOverlay, publishInferenceOverlay,
+  axisLockLine, isPointSnapType, snapPriority, resolveSnapPriority, INFERENCE_PRIORITY,
+} from './move-inference.js';
+import { weergaveRotatie } from '../pdf/weergave-ruimte.js';
+import { isKwartslag } from '../pdf/weergave-rotatie.js';
 
 // Ids of every annotation in the move session — the moving selection must
 // never snap onto itself (single OR multi).
@@ -67,10 +77,20 @@ function _excludeSet() {
 function _snapSessionPoint(c, { includeTargets = false } = {}) {
   const doc = getActiveDocument();
   if (!doc) return { x: c.x, y: c.y, snapped: false };
-  return performSnap(
-    c.x, c.y, doc.annotations || [], doc.currentPage || 1, doc.scale || 1.5,
+  const page = _sessionPage();
+  const r = performSnap(
+    c.x, c.y, doc.annotations || [], page, doc.scale || 1.5,
     includeTargets ? undefined : _excludeSet()
   );
+  // Page tag: the continuous render path draws the indicator on this page only.
+  return r.snapped ? { ...r, page } : r;
+}
+
+// The page the session works on: the page of the moved annotations (in
+// continuous mode doc.currentPage need not be the page under the cursor).
+function _sessionPage() {
+  const doc = getActiveDocument();
+  return mode?.targets?.[0]?.page || doc?.currentPage || 1;
 }
 
 // Corner-to-corner object snap: when a snap point OF THE MOVING SELECTION
@@ -78,38 +98,72 @@ function _snapSessionPoint(c, { includeTargets = false } = {}) {
 // point, the delta is adjusted so the two points click together exactly —
 // "de hoek van het element" snaps, not just the cursor. Candidates are
 // cached at session start; own points simply translate with the delta.
-const _OBJ_SNAP_MAX_STATIC = 6000; // guard against pathological documents
+// Static candidates live in a spatial index (inference-engine.js), so dense
+// CAD pages keep object snap and inference instead of switching them off.
+// PDF content beyond this many points is limited to a window around the
+// cursor at session start.
+const _OBJ_SNAP_MAX_STATIC = 250000;
+const _PDF_WINDOW = 3000; // app units around the session start
 
 function _cacheObjectSnapPoints() {
   const doc = getActiveDocument();
   if (!doc || !mode) return;
-  const page = doc.currentPage || 1;
+  const page = _sessionPage();
   try {
     mode.ownPoints = collectSnapPoints(mode.targets, page);
     const statics = collectSnapPoints(doc.annotations || [], page, _excludeSet());
     if (state.preferences.snapToPdfContent) {
-      for (const pt of getCachedPdfSnapPoints(page)) statics.push(pt);
+      const pdf = getCachedPdfSnapPoints(page);
+      const room = _OBJ_SNAP_MAX_STATIC - statics.length;
+      if (pdf.length <= room) {
+        for (const pt of pdf) statics.push(pt);
+      } else {
+        const cx = mode.startSeeded ? mode.startX : (state._lastMouseAppX || 0);
+        const cy = mode.startSeeded ? mode.startY : (state._lastMouseAppY || 0);
+        for (const pt of pdf) {
+          if (statics.length >= _OBJ_SNAP_MAX_STATIC) break;
+          if (Math.abs(pt.x - cx) <= _PDF_WINDOW && Math.abs(pt.y - cy) <= _PDF_WINDOW) statics.push(pt);
+        }
+      }
     }
     const c2d = doc.cursor2D;
     if (c2d && c2d.page === page) statics.push({ x: c2d.x, y: c2d.y, type: 'endpoint', annotation: null });
-    mode.staticPoints = statics.length <= _OBJ_SNAP_MAX_STATIC ? statics : [];
+    mode.staticPoints = statics;
   } catch (_) {
     mode.ownPoints = [];
     mode.staticPoints = [];
+  }
+  mode.staticIndex = createPointIndex(mode.staticPoints);
+  try {
+    mode.inference = createMoveInferenceSession({
+      staticIndex: mode.staticIndex,
+      annotations: doc.annotations || [],
+      page,
+      excludeIds: _excludeSet(),
+      ownPoints: mode.ownPoints,
+      start: { x: mode.startX, y: mode.startY },
+      pdfSegments: !!(state.preferences.snapToPdfContent && state.preferences.enableObjectSnap),
+      onAcquire: () => {
+        if (!mode || mode.awaitingBase || !mode.rawCursor) return;
+        _track(mode.rawCursor, mode.lastShift);
+        redraw();
+      },
+    });
+  } catch (_) {
+    mode.inference = null;
   }
 }
 
 // Find the best own-point→static-point pairing for a candidate delta.
 // Returns { dist, ddx, ddy, sp } or null.
 function _bestObjectSnap(dx, dy, tol) {
-  if (!mode?.ownPoints?.length || !mode?.staticPoints?.length) return null;
+  if (!mode?.ownPoints?.length || !mode?.staticIndex?.size) return null;
   let best = null;
   for (const op of mode.ownPoints) {
     const px = op.x + dx, py = op.y + dy;
-    for (const sp of mode.staticPoints) {
-      const ddx = sp.x - px, ddy = sp.y - py;
-      const d = Math.hypot(ddx, ddy);
-      if (d <= tol && (!best || d < best.dist)) best = { dist: d, ddx, ddy, sp };
+    const n = mode.staticIndex.nearest(px, py, tol);
+    if (n && (!best || n.dist < best.dist)) {
+      best = { dist: n.dist, ddx: n.point.x - px, ddy: n.point.y - py, sp: n.point };
     }
   }
   return best;
@@ -220,79 +274,141 @@ function onMouseMove(e) {
     enterTypeLengthMode(mode.startX, mode.startY);
     return;
   }
-  // Shift = CAD ortho/angle constraint: snap the start→cursor direction to
-  // preferences.angleSnapDegrees multiples (45°). The constrained cursor is
-  // the basis for everything below (typed distance follows the snapped ray).
+  _track(cRaw, e.shiftKey);
+  redraw();
+}
+
+// One tracking step: cursor → (snapped / inferred / typed) delta, applied to
+// the selection. Also run by the acquisition timer and on Shift release.
+function _track(cRaw, shiftKey) {
+  const prefs = state.preferences;
+  const doc = getActiveDocument();
+  const scale = doc?.scale || 1.5;
+  const start = { x: mode.startX, y: mode.startY };
+  const page = _sessionPage();
+  mode.rawCursor = cRaw;
+  mode.lastShift = !!shiftKey;
+  if (mode.inference) mode.inference.setStart(start);
+
+  // Shift: with a guide on screen it LOCKS that guide (the cursor may move
+  // away, the move stays on the line); without one it is the CAD ortho/angle
+  // constraint: the start→cursor direction snaps to angleSnapDegrees
+  // multiples (45°).
+  if (!shiftKey) mode.lockedLine = null;
+  else if (!mode.lockedLine && mode.lastInference?.lockable) mode.lockedLine = mode.lastInference.lockable;
+  const constrainAngle = !!shiftKey && !mode.lockedLine && prefs.enableAngleSnap;
   let cur = cRaw;
-  if (e.shiftKey && state.preferences.enableAngleSnap) {
+  if (constrainAngle) {
     const ddx = cRaw.x - mode.startX;
     const ddy = cRaw.y - mode.startY;
     const len = Math.hypot(ddx, ddy);
     if (len > 1e-6) {
       const ang = snapAngle(Math.atan2(ddy, ddx) * (180 / Math.PI),
-        state.preferences.angleSnapDegrees || 45) * (Math.PI / 180);
+        prefs.angleSnapDegrees || 45) * (Math.PI / 180);
       cur = { x: mode.startX + len * Math.cos(ang), y: mode.startY + len * Math.sin(ang) };
     }
   }
-  mode.lastCursor = cur;
 
-  // Typed coordinate input ("100", "100,50", "100<45", "=x,y") overrides
-  // every snap: the number IS the instruction.
-  const typed = typeLengthApply(mode.startX, mode.startY, cur.x, cur.y);
-  if (typed.constrained) {
-    let dx = typed.x - mode.startX;
-    let dy = typed.y - mode.startY;
-    if (mode.lockAxis === 'x') dy = 0;
-    else if (mode.lockAxis === 'y') dx = 0;
-    state.lastSnapResult = null;
-    mode.lastDx = dx;
-    mode.lastDy = dy;
-    applyDeltaToAll(dx, dy);
-    redraw();
-    return;
-  }
-
-  // Two independent snap candidates against the (possibly angle-constrained)
-  // cursor; the closest one wins (stacking them would double-correct):
-  //   1. cursor snap — the cursor itself lands on a static point (also the
-  //      precision channel of the 'mv' base-point flow)
-  //   2. object snap — a corner/endpoint of the MOVING selection lands on a
-  //      static point ("hoek van het element" klikt vast)
-  let dx = cur.x - mode.startX;
-  let dy = cur.y - mode.startY;
+  // Candidates, resolved by priority (inference-engine.js):
+  //   1. point object snaps — the cursor itself, or a corner/endpoint of the
+  //      MOVING selection ("hoek van het element"), lands on a static point;
+  //      of these two the closest wins (stacking them would double-correct)
+  //   2. inference — intersections of guides, tracking / extension /
+  //      parallel / perpendicular / polar / axis lines
+  //   3. soft snaps — edge, nearest, grid
+  // Typed coordinates override all of them (below).
+  let dx = cur.x - start.x;
+  let dy = cur.y - start.y;
   if (mode.lockAxis === 'x') dy = 0;
   else if (mode.lockAxis === 'y') dx = 0;
 
-  let indicator = null;
-  // While Shift constrains the angle, object/cursor snaps are off — the
-  // constraint is the instruction.
-  const constrainAngle = e.shiftKey && state.preferences.enableAngleSnap;
-  const cursorSnap = constrainAngle ? { snapped: false } : _snapSessionPoint(cur);
+  const freeSnaps = !constrainAngle && !mode.lockedLine;
+  const cursorSnap = freeSnaps ? _snapSessionPoint(cur) : { snapped: false };
   const cursorDist = cursorSnap.snapped ? Math.hypot(cursorSnap.x - cur.x, cursorSnap.y - cur.y) : Infinity;
-  const doc = getActiveDocument();
-  const tol = (state.preferences.objectSnapRadius || 12) / (doc?.scale || 1.5);
+  const tol = (prefs.objectSnapRadius || 12) / scale;
   // Object snap: skipped while an axis is locked (it would break the lock)
   // and in the base-point flow (the user picked their reference point).
-  const objSnap = (!mode.lockAxis && !mode.basePointFlow && !constrainAngle)
+  const objSnap = (!mode.lockAxis && !mode.basePointFlow && freeSnaps)
     ? _bestObjectSnap(dx, dy, tol) : null;
 
+  const cands = [];
   if (objSnap && objSnap.dist <= cursorDist) {
+    cands.push({ src: 'object', priority: INFERENCE_PRIORITY.point, dist: objSnap.dist, hover: objSnap.sp });
+  } else if (cursorSnap.snapped) {
+    cands.push({ src: 'cursor', priority: snapPriority(cursorSnap.type), dist: cursorDist,
+      hover: isPointSnapType(cursorSnap.type) ? cursorSnap : null });
+  }
+  const pointWins = cands.length && cands[0].priority >= INFERENCE_PRIORITY.point;
+  // Hovering a static point briefly acquires it as a tracking point.
+  if (mode.inference) mode.inference.hover(pointWins ? cands[0].hover : null);
+
+  let inferred = null;
+  if (!pointWins && !constrainAngle && mode.inference) {
+    const lockLine = mode.lockedLine || axisLockLine(start, mode.lockAxis);
+    try {
+      inferred = mode.inference.infer(cur, { prefs, scale, lockLine });
+    } catch (err) {
+      console.warn('[gmove] inference failed:', err);
+      inferred = null;
+    }
+    // An X/Y axis lock alone is not an inference: only crossings with guides.
+    if (inferred && inferred.kind === 'locked' && !mode.lockedLine) inferred = null;
+    if (inferred) cands.push({ src: 'inference', priority: inferred.priority, dist: inferred.dist });
+  }
+
+  const win = resolveSnapPriority(cands);
+  let indicator = null;
+  if (win?.src === 'object') {
     dx += objSnap.ddx;
     dy += objSnap.ddy;
-    indicator = { x: objSnap.sp.x, y: objSnap.sp.y, snapped: true, type: objSnap.sp.type || 'endpoint' };
-  } else if (cursorSnap.snapped) {
-    dx = cursorSnap.x - mode.startX;
-    dy = cursorSnap.y - mode.startY;
+    indicator = { x: objSnap.sp.x, y: objSnap.sp.y, snapped: true, type: objSnap.sp.type || 'endpoint', page };
+  } else if (win?.src === 'cursor') {
+    dx = cursorSnap.x - start.x;
+    dy = cursorSnap.y - start.y;
     if (mode.lockAxis === 'x') dy = 0;
     else if (mode.lockAxis === 'y') dx = 0;
     indicator = cursorSnap;
+  } else if (win?.src === 'inference') {
+    dx = inferred.x - start.x;
+    dy = inferred.y - start.y;
+    if (mode.lockAxis === 'x') dy = 0;
+    else if (mode.lockAxis === 'y') dx = 0;
+  }
+  mode.lastInference = win?.src === 'inference' ? inferred : null;
+
+  // The (snapped / inferred) position is the DIRECTION for a typed distance.
+  const dir = Math.hypot(dx, dy) > 1e-9 ? { x: start.x + dx, y: start.y + dy } : cur;
+  mode.lastCursor = dir;
+
+  // Typed coordinate input ("100", "100,50", "100<45", "=x,y") overrides
+  // every snap: the number IS the instruction. A plain distance moves along
+  // the inferred direction.
+  const typed = typeLengthApply(start.x, start.y, dir.x, dir.y);
+  if (typed.constrained) {
+    dx = typed.x - start.x;
+    dy = typed.y - start.y;
+    if (mode.lockAxis === 'x') dy = 0;
+    else if (mode.lockAxis === 'y') dx = 0;
+    indicator = null;
   }
   state.lastSnapResult = indicator;
+  _publishOverlay();
 
   mode.lastDx = dx;
   mode.lastDy = dy;
   applyDeltaToAll(dx, dy);
-  redraw();
+}
+
+function _publishOverlay() {
+  if (!mode) return;
+  const doc = getActiveDocument();
+  publishInferenceOverlay(buildInferenceOverlay(mode.lastInference, {
+    page: _sessionPage(),
+    start: { x: mode.startX, y: mode.startY },
+    acquired: mode.inference ? mode.inference.acquired() : [],
+    quarterTurn: isKwartslag(weergaveRotatie(doc)),
+    scale: doc?.scale || 1.5,
+  }));
 }
 
 function onKeyDown(e) {
@@ -307,6 +423,22 @@ function onKeyDown(e) {
   // with a valid buffer commits at the typed position; un-handled keys
   // (Escape with empty buffer, x/y, plain Enter) fall through below.
   if (!mode.awaitingBase && mode.startSeeded) {
+    // Tab switches the typed entry between distance and angle ("100" →
+    // "100<", then toggles the field). Always swallowed: focus must not
+    // leave the canvas mid-move.
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      e.stopPropagation();
+      if (cycleTypeLengthField()) {
+        const lc = mode.lastCursor || { x: mode.startX + 1, y: mode.startY };
+        const p = typeLengthApply(mode.startX, mode.startY, lc.x, lc.y);
+        mode.lastDx = p.x - mode.startX;
+        mode.lastDy = p.y - mode.startY;
+        applyDeltaToAll(mode.lastDx, mode.lastDy);
+        redraw();
+      }
+      return;
+    }
     const r = typeLengthConsumeKey(e.key);
     if (r.handled) {
       e.preventDefault();
@@ -404,6 +536,7 @@ function onMouseDown(e) {
         mode.startY = snapped.y;
         mode.startSeeded = true;
         mode.awaitingBase = false;
+        if (mode.inference) mode.inference.setStart({ x: mode.startX, y: mode.startY });
         state.lastSnapResult = snapped.snapped ? snapped : null;
         // From the base point on, typed distances steer the move ("100",
         // "100,50", "100<45", "=x,y") — scale-region aware at the anchor.
@@ -416,6 +549,16 @@ function onMouseDown(e) {
     e.preventDefault();
     e.stopPropagation();
     cancelMove();
+  }
+}
+
+// Releasing Shift drops a locked guide at once (no mouse move needed).
+function onKeyUp(e) {
+  if (!mode || e.key !== 'Shift') return;
+  if (mode.lockedLine && !mode.awaitingBase && mode.startSeeded && mode.rawCursor) {
+    mode.lockedLine = null;
+    _track(mode.rawCursor, false);
+    redraw();
   }
 }
 
@@ -434,6 +577,7 @@ function attachListeners() {
   document.addEventListener('mousedown', onMouseDown, true);
   document.addEventListener('pointerdown', onMouseDown, true);
   document.addEventListener('keydown', onKeyDown, true);
+  document.addEventListener('keyup', onKeyUp, true);
   document.addEventListener('contextmenu', onContextMenu, true);
 }
 
@@ -443,12 +587,15 @@ function detachListeners() {
   document.removeEventListener('mousedown', onMouseDown, true);
   document.removeEventListener('pointerdown', onMouseDown, true);
   document.removeEventListener('keydown', onKeyDown, true);
+  document.removeEventListener('keyup', onKeyUp, true);
   document.removeEventListener('contextmenu', onContextMenu, true);
 }
 
 function endMode() {
   detachListeners();
   exitTypeLengthMode();
+  try { mode?.inference?.dispose(); } catch (_) { /* overlay cleanup is best-effort */ }
+  publishInferenceOverlay(null);
   state.gMoveMode = null;
   state.lastSnapResult = null;
   mode = null;
@@ -517,7 +664,7 @@ export function cancelMove() {
  * Caller should preventDefault on the keypress when this returns true.
  */
 /**
- * options.basePoint: true → AutoCAD-style two-click flow ('mv' chord):
+ * options.basePoint: true → CAD-style two-click flow ('mv' chord):
  * click 1 picks the (object-snapped) BASE point, the selection then tracks
  * the cursor relative to it, click 2 commits — exact point-to-point moves.
  * Default (G key): Blender-style, selection follows immediately.
@@ -566,7 +713,14 @@ export function tryStartGMove(options = {}) {
     lastDy: 0,
     lastCursor: hasTracker ? { x: startX, y: startY } : null,
     ownPoints: [],
-    staticPoints: []
+    staticPoints: [],
+    staticIndex: null,
+    // Inference (#519): session, last shown inference, Shift-locked guide.
+    inference: null,
+    lastInference: null,
+    lockedLine: null,
+    rawCursor: null,
+    lastShift: false
   };
   // Candidates for corner-to-corner object snap; own points translate with
   // the delta, static geometry doesn't change during the session.

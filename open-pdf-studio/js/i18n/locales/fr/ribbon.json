@@ -169,7 +169,9 @@
     "flattenAll": "Tout aplatir",
     "flattenAllTooltip": "Aplatir toutes les annotations dans le contenu de la page",
     "unflattenAll": "Annuler l'aplatissement",
-    "unflattenAllTooltip": "Restaurer les annotations aplaties avec restauration autorisée"
+    "unflattenAllTooltip": "Restaurer les annotations aplaties avec restauration autorisée",
+    "fileAttachment": "Joindre un fichier",
+    "fileAttachmentTitle": "Pièce jointe : cliquez sur la page et choisissez un fichier"
   },
   "view": {
     "pageDisplay": "Affichage de la page",
@@ -208,7 +210,15 @@
     "rotateViewLeft": "Faire pivoter l'affichage à gauche",
     "rotateViewRight": "Faire pivoter l'affichage à droite",
     "rotateViewLeftTitle": "Fait pivoter l'affichage de 90° dans le sens antihoraire. Le document lui-même ne change pas.",
-    "rotateViewRightTitle": "Fait pivoter l'affichage de 90° dans le sens horaire. Le document lui-même ne change pas."
+    "rotateViewRightTitle": "Fait pivoter l'affichage de 90° dans le sens horaire. Le document lui-même ne change pas.",
+    "accessibilityGroup": "Accessibilité",
+    "readAloud": "Lecture à voix haute",
+    "readAloudPause": "Pause",
+    "readAloudTitle": "Lire à voix haute la sélection, ou le document à partir de la page actuelle",
+    "tagsPanel": "Balises",
+    "tagsPanelTitle": "Afficher les balises de structure du document",
+    "accessibilityCheck": "Vérifier",
+    "accessibilityCheckTitle": "Rechercher le texte de remplacement manquant et le contenu non balisé"
   },
   "elementVisibility": {
     "buttonTitle": "Visibilité des éléments — afficher/masquer et atténuer les types d'annotation",

@@ -41,7 +41,10 @@
     "cancelled": "Lemondva",
     "completed": "Befejezve",
     "reviewed": "Felülvizsgálva",
-    "statusSetBy": "Beállította: {{author}}, {{date}}"
+    "statusSetBy": "Beállította: {{author}}, {{date}}",
+    "layer": "Réteg",
+    "layerMarkupGroup": "Jelölésrétegek",
+    "layerDocumentGroup": "A dokumentum rétegei"
   },
   "colorNone": "Nincs",
   "moreColors": "További színek...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Gemkapocs",
+    "iconPushPin": "Rajzszög",
+    "iconGraph": "Diagram",
+    "iconTag": "Címke"
   },
   "stylePresets": {
     "label": "Vonalstílus",
@@ -308,7 +315,8 @@
     "measurePerimeter": "Kerület",
     "redaction": "Kitörlés",
     "scaleBar": "Aránymérték",
-    "parametricSymbol": "Paraméteres szimbólum"
+    "parametricSymbol": "Paraméteres szimbólum",
+    "fileAttachment": "Fájlmelléklet"
   },
   "leftPanel": {
     "togglePanel": "Panel váltása",
@@ -379,22 +387,54 @@
     "exportComments": "Megjegyzések exportálása adatfájlba...",
     "exportSelectedComments": "Kijelölt megjegyzések exportálása adatfájlba...",
     "exportListCsv": "Lista exportálása CSV-be...",
-    "summarizeComingSoon": "Hamarosan",
     "listExported": "A megjegyzéslista exportálva CSV-be",
     "csvPage": "Oldal",
     "csvType": "Típus",
     "csvAuthor": "Szerző",
-    "csvDate": "Dátum",
     "csvStatus": "Állapot",
     "csvSubject": "Tárgy",
     "csvContents": "Tartalom",
     "csvColor": "Szín",
     "csvLayer": "Réteg",
+    "csvId": "Azonosító",
+    "csvCreated": "Létrehozva",
+    "csvModified": "Módosítva",
+    "csvStatusBy": "Állapotot beállította",
+    "csvStatusAt": "Állapot dátuma",
+    "csvReplyCount": "Válaszok száma",
+    "csvReplies": "Válaszok",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "Szélesség",
+    "csvHeight": "Magasság",
+    "filterBar": "Szűrők",
+    "filterAll": "(Összes)",
+    "filterPages": "Oldalak",
+    "filterDate": "Dátum",
+    "filterFrom": "Ettől",
+    "filterTo": "Eddig",
+    "filterClear": "Szűrők törlése",
+    "setStatusSelected": "Kijelöltek állapotának beállítása",
+    "setStatusListed": "Az összes listázott állapotának beállítása",
+    "statusChanged": "Állapot módosítva: {{count}}",
+    "summaryTitle": "Megjegyzések összesítése",
+    "summaryDocument": "Dokumentum",
+    "summaryCreated": "Létrehozva",
+    "summaryCount": "Megjegyzések",
+    "summaryNoText": "(nincs megjegyzésszöveg)",
+    "summaryBusy": "Megjegyzés-összesítő készítése...",
+    "summaryExported": "A megjegyzés-összesítő PDF-be exportálva",
+    "summaryFailed": "A megjegyzés-összesítőt nem sikerült elkészíteni",
     "schedules": "Kimutatások",
     "addPage": "Oldal hozzáadása",
     "pageLabels": "Oldalcímkék (névkészítő)",
     "portfolio": "PDF-portfólió",
-    "recognizeForm": "Űrlapmezők felismerése"
+    "recognizeForm": "Űrlapmezők felismerése",
+    "layersSetDefault": "Beállítás alapértelmezettként",
+    "layersSetDefaultTitle": "A rétegek jelenlegi láthatóságának mentése a dokumentum alapértelmezett állapotaként. A következő mentéskor kerül a fájlba.",
+    "layersDefaultPending": "Mentéskor ez lesz az alapértelmezett",
+    "layerLocked": "Zárolt réteg: nem kapcsolható be vagy ki",
+    "layerRadioGroup": "Választócsoport: e réteg bekapcsolása kikapcsolja a csoport többi rétegét"
   },
   "scaleBar": {
     "title": "Aránymérték",
@@ -443,7 +483,9 @@
       "symbol": "Szimbólumkimutatás",
       "text": "Szövegkimutatás",
       "full": "Teljes mennyiségek",
-      "image": "Képek és bélyegzők"
+      "image": "Képek és bélyegzők",
+      "bendingSchedule": "Hajlítási kimutatás",
+      "rebarWeight": "Vasalási kimutatás (tömeg Ø szerint)"
     },
     "preview": "Előnézet",
     "exportCsv": "CSV exportálása",
@@ -603,7 +645,8 @@
       "textBuiltIn": "Szöveg (natív)",
       "symbol": "Szimbólum",
       "image": "Kép",
-      "other": "Egyéb"
+      "other": "Egyéb",
+      "reinforcement": "Vasalás"
     },
     "field": {
       "category": "Kategória",
@@ -631,7 +674,16 @@
       "width": "Szélesség",
       "height": "Magasság",
       "location": "Hely",
-      "locationSource": "Hely forrása"
+      "locationSource": "Hely forrása",
+      "rebarMark": "Tételszám",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Hajlítási forma",
+      "rebarGrade": "Acélminőség",
+      "rebarCount": "Rudak száma",
+      "rebarLength": "Rúdhossz",
+      "rebarTotalLength": "Teljes hossz",
+      "rebarMassPerM": "Folyóméter-tömeg",
+      "rebarMass": "Tömeg"
     },
     "type": {
       "line": "Vonal",
@@ -669,7 +721,8 @@
       "stavenreeks": "Rúdsorozat",
       "betonbalk": "Betongerenda",
       "scheduleTable": "Mennyiségtáblázat",
-      "builtinText": "Szöveg"
+      "builtinText": "Szöveg",
+      "rebarPosition": "Betonacél rúd"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "Függőleges sraffozás ritka",
       "inb-horizontaal-breed": "Vízszintes sraffozás ritka"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "Feljebb az olvasási sorrendben",
+    "moveDown": "Lejjebb az olvasási sorrendben",
+    "checkAccessibility": "Akadálymentesség ellenőrzése",
+    "altText": "Helyettesítő szöveg",
+    "altTextPlaceholder": "Írja le a képet azoknak, akik nem látják...",
+    "noAlt": "Nincs helyettesítő szöveg",
+    "role": "Szerepkör",
+    "mappedTo": "{{role}} leképezése: {{standard}}",
+    "content": "Tartalom {{mcid}} ({{page}}. oldal)",
+    "annotationRef": "Megjegyzés ({{page}}. oldal)"
+  },
+  "ink": {
+    "title": "Tinta",
+    "pressure": "Tollnyomás",
+    "pressureHint": "A tollnyomás változtatja a vonal szélességét (az egérrel húzott vonal szélessége állandó)",
+    "minWidth": "Minimális szélesség (%)",
+    "minWidthHint": "Szélesség a legkisebb tollnyomásnál, a vonalvastagság százalékában",
+    "smoothing": "Simítás",
+    "smoothingHint": "A vonalsimítás erőssége (0 = nincs)"
+  },
+  "attachment": {
+    "file": "Fájl",
+    "size": "Méret",
+    "open": "Megnyitás",
+    "saveAs": "Mentés másként...",
+    "noContent": "A fájl tartalma nincs beágyazva a PDF-be."
   }
 }

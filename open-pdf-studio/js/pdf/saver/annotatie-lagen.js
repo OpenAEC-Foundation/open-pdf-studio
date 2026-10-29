@@ -37,6 +37,18 @@
 // staan (geen tweede groep met dezelfde naam) en is daarna een eigen laag.
 // Een OCG waar geen annotatie naar wijst (inhoud van de tekening, een
 // watermerk) is geen annotatielaag en blijft buiten het paneel.
+//
+// Een laag van de tekening als annotatielaag (#377): in het eigenschappen-
+// paneel kan een markering op een laag van de tekening gezet worden. Dat is
+// dezelfde route: een laag 'ocg-<object>-<generatie>' die bij het opslaan
+// de OCG van de tekening zelf als /OC krijgt. Zo'n "overgenomen" OCG blijft
+// een laag van de tekening: hij houdt zijn plek in /Order, /Locked en
+// /RBGroups, blijft in het paneel Lagen staan, en verdwijnt niet uit het
+// bestand als de annotatielaag weggaat (alleen de OPS_-sleutels gaan eraf).
+// Ook zijn /Name en zijn beginstand in /D blijven van de tekening: de naam in
+// het paneel en de geschakelde zichtbaarheid zijn weergave. Alleen "Als
+// standaard instellen" (saver.js, laagstandZonderEigenLagen) zet een nieuwe
+// beginstand.
 
 import { PDFName, PDFArray, PDFDict, PDFRef, PDFBool } from 'pdf-lib';
 import { pdfTextString, decodePdfTextObject } from './pdf-text.js';
@@ -71,6 +83,11 @@ function isOnwaar(context, raw) {
 }
 
 const VREEMD_ID = /^ocg-(\d+)-(\d+)$/;
+
+/** Is dit het id van een overgenomen OCG (van de tekening of een ander programma)? */
+function isOvergenomenId(id) {
+  return typeof id === 'string' && VREEMD_ID.test(id);
+}
 
 /** Het laag-id voor een OCG van een ander programma (zie de kop). */
 function vreemdId(ref) {
@@ -173,6 +190,40 @@ function verwijderEigen(pdfDoc, eigen) {
   if (!ocgs || ocgs.size() === 0) pdfDoc.catalog.delete(N('OCProperties'));
 }
 
+const EIGEN_SLEUTELS = ['OPS_LayerId', 'OPS_Color', 'OPS_Locked', 'OPS_Printable'];
+
+/**
+ * Eigen OCG's die uit het model verdwenen: een OCG die we zelf maakten gaat
+ * weg; een overgenomen OCG (zie de kop) blijft als laag van de tekening
+ * staan, zonder onze sleutels.
+ */
+function ruimEigenOp(pdfDoc, weg) {
+  const context = pdfDoc.context;
+  const verwijderen = new Set();
+  for (const [id, ref] of weg) {
+    if (!isOvergenomenId(id)) {
+      verwijderen.add(ref);
+      continue;
+    }
+    const dict = context.lookup(ref);
+    if (!(dict instanceof PDFDict)) continue;
+    for (const k of EIGEN_SLEUTELS) dict.delete(N(k));
+    if (isEigenUsage(context, dict.get(N('Usage')))) dict.delete(N('Usage'));
+  }
+  if (verwijderen.size) verwijderEigen(pdfDoc, verwijderen);
+}
+
+/** Staat `ref` ergens in deze (mogelijk geneste) array? */
+function bevat(context, array, ref, diepte = 0) {
+  if (!array || diepte > 10) return false;
+  for (const e of array.asArray()) {
+    if (e === ref) return true;
+    const genest = opgezocht(context, e);
+    if (genest instanceof PDFArray && bevat(context, genest, ref, diepte + 1)) return true;
+  }
+  return false;
+}
+
 /**
  * Schrijf de annotatielagen in het document.
  *
@@ -191,7 +242,7 @@ export function schrijfAnnotatieLagen(pdfDoc, lagen, { standaardNaam = 'Default'
 
   if (!Array.isArray(lagen) || lagen.length === 0) {
     if (bestaand.size === 0 && catalog.get(N(LAGEN_CATALOGUS_SLEUTEL)) === undefined) return null;
-    verwijderEigen(pdfDoc, new Set(bestaand.values()));
+    ruimEigenOp(pdfDoc, bestaand);
     catalog.delete(N(LAGEN_CATALOGUS_SLEUTEL));
     return null;
   }
@@ -208,7 +259,11 @@ export function schrijfAnnotatieLagen(pdfDoc, lagen, { standaardNaam = 'Default'
     }
     const naam = laag.id === DEFAULT_LAYER_ID ? standaardNaam : laag.name;
     dict.set(N('Type'), N('OCG'));
-    dict.set(N('Name'), pdfTextString(naam || laag.id));
+    // Een overgenomen OCG houdt de naam die hij in het bestand heeft: de naam
+    // in het paneel kan afwijken (een achtervoegsel " (2)" tegen dubbele
+    // namen, of hernoemd), maar de laag van de tekening heet zoals hij heet.
+    const naamUitBestand = isOvergenomenId(laag.id) && tekst(context, dict.get(N('Name')));
+    if (!naamUitBestand) dict.set(N('Name'), pdfTextString(naam || laag.id));
     dict.set(N('OPS_LayerId'), pdfTextString(laag.id));
     zetOfWis(dict, 'OPS_Color', laag.color ? pdfTextString(laag.color) : null);
     zetOfWis(dict, 'OPS_Locked', laag.locked ? PDFBool.True : null);
@@ -231,35 +286,55 @@ export function schrijfAnnotatieLagen(pdfDoc, lagen, { standaardNaam = 'Default'
     ocgs = context.obj([]);
     oc.set(N('OCGs'), ocgs);
   }
-  const vreemdeOcgs = ocgs.asArray().filter((r) => !(r instanceof PDFRef && alleEigen.has(r)));
-  vervangInhoud(ocgs, [...vreemdeOcgs, ...eigenRefs]);
+  // Overgenomen OCG's (zie de kop) houden hun plek in /OCGs, in de boom, hun
+  // slot en hun keuzegroep. Dat geldt ook voor een overgenomen OCG die uit
+  // het model verdween (de annotatielaag is weg): na een eerdere save staat
+  // hij met zijn 'ocg-'-id in `bestaand`, en de inhoud van de tekening eronder
+  // moet schakelbaar blijven.
+  const overgenomen = new Set([
+    ...lagen.filter((l) => l && isOvergenomenId(l.id)).map((l) => refs.get(l.id)),
+    ...[...bestaand].filter(([id]) => isOvergenomenId(id)).map(([, r]) => r),
+  ].filter(Boolean));
+  // Wat al in /OCGs stond, heeft al een beginstand in /D: die is van het
+  // bestand. Alleen "Als standaard instellen" (saver.js) verandert hem.
+  const alInBestand = new Set(ocgs.asArray().filter((r) => r instanceof PDFRef));
+  const standVanBestand = new Set([...overgenomen].filter((r) => alInBestand.has(r)));
+  const vreemdeOcgs = ocgs.asArray().filter((r) => !(r instanceof PDFRef && alleEigen.has(r) && !overgenomen.has(r)));
+  vervangInhoud(ocgs, [...vreemdeOcgs, ...eigenRefs.filter((r) => !vreemdeOcgs.includes(r))]);
 
   let d = opgezocht(context, oc.get(N('D')));
   if (!(d instanceof PDFDict)) {
     d = context.obj({});
     oc.set(N('D'), d);
   }
-  for (const sleutel of ['Locked', 'RBGroups']) zonderEigen(context, arrayVan(context, d, sleutel), alleEigen);
+  const losTeMaken = new Set([...alleEigen].filter((r) => !overgenomen.has(r)));
+  for (const sleutel of ['Locked', 'RBGroups']) zonderEigen(context, arrayVan(context, d, sleutel), losTeMaken);
 
   // Volgorde in het lagenpaneel van andere lezers: de tekening eerst, dan de
   // annotatielagen in de volgorde van ons paneel.
   let order = arrayVan(context, d, 'Order');
   if (order) {
-    zonderEigen(context, order, alleEigen);
-    for (const r of eigenRefs) order.push(r);
+    const alInBoom = new Set([...overgenomen].filter((r) => bevat(context, order, r)));
+    zonderEigen(context, order, new Set([...alleEigen].filter((r) => !alInBoom.has(r))));
+    for (const r of eigenRefs) if (!alInBoom.has(r)) order.push(r);
   } else {
-    order = context.obj([...vreemdeOcgs, ...eigenRefs]);
+    order = context.obj([...vreemdeOcgs, ...eigenRefs.filter((r) => !vreemdeOcgs.includes(r))]);
     d.set(N('Order'), order);
   }
 
   // Zichtbaarheid: /OFF bij een basisstand AAN (standaard), /ON bij /OFF.
+  // Een overgenomen OCG van de tekening houdt de beginstand van het bestand:
+  // zijn zichtbaarheid in het model is de weergave (#377), geen standaard.
   const basisUit = String(d.get(N('BaseState'))) === '/OFF';
-  const verborgen = lagen.filter((l) => l && l.visible === false).map((l) => refs.get(l.id)).filter(Boolean);
-  const zichtbaar = eigenRefs.filter((r) => !verborgen.includes(r));
+  const metStand = eigenRefs.filter((r) => !standVanBestand.has(r));
+  const verborgen = lagen.filter((l) => l && l.visible === false).map((l) => refs.get(l.id))
+    .filter((r) => r && !standVanBestand.has(r));
+  const zichtbaar = metStand.filter((r) => !verborgen.includes(r));
+  const standOpnieuw = new Set([...alleEigen].filter((r) => !standVanBestand.has(r)));
   let uit = arrayVan(context, d, 'OFF');
-  zonderEigen(context, uit, alleEigen);
+  zonderEigen(context, uit, standOpnieuw);
   let aan = arrayVan(context, d, 'ON');
-  zonderEigen(context, aan, alleEigen);
+  zonderEigen(context, aan, standOpnieuw);
   if (basisUit) {
     if (!aan && zichtbaar.length) { aan = context.obj([]); d.set(N('ON'), aan); }
     for (const r of zichtbaar) aan.push(r);
@@ -290,10 +365,26 @@ export function schrijfAnnotatieLagen(pdfDoc, lagen, { standaardNaam = 'Default'
   catalog.set(N(LAGEN_CATALOGUS_SLEUTEL), eigen);
 
   // Lagen die uit het model verdwenen zijn: nergens meer genoemd.
-  const weg = new Set([...bestaand].filter(([id]) => !refs.has(id)).map(([, r]) => r));
-  if (weg.size) verwijderEigen(pdfDoc, weg);
+  const weg = new Map([...bestaand].filter(([id, r]) => !refs.has(id) && !eigenRefs.includes(r)));
+  if (weg.size) ruimEigenOp(pdfDoc, weg);
 
   return refs;
+}
+
+/**
+ * "Als standaard instellen" (#377): de stand uit het paneel Lagen (pdf.js-id
+ * → zichtbaar) zonder de eigen annotatielagen, want die schreef
+ * schrijfAnnotatieLagen al. Een overgenomen laag van de tekening ('ocg-…')
+ * blijft erin: zijn beginstand komt alleen via deze weg in het bestand.
+ * @param {Map<string, boolean>|null} stand  wordt in place aangepast
+ * @param {Map<string, PDFRef>|null} refs  wat schrijfAnnotatieLagen teruggaf
+ */
+export function laagstandZonderEigenLagen(stand, refs) {
+  if (!(stand instanceof Map) || !(refs instanceof Map)) return stand;
+  for (const [id, ref] of refs) {
+    if (!isOvergenomenId(id) && ref instanceof PDFRef) stand.delete(pdfjsId(ref));
+  }
+  return stand;
 }
 
 /** De OCG voor /OC op een annotatie; een onbekende laag krijgt die van de standaardlaag. */
@@ -405,7 +496,8 @@ export function leesAnnotatieLagen(pdfDoc) {
       });
       perId.set(id, ref);
     }
-    const eigenOcgIds = new Set([...perId.values()].map(pdfjsId));
+    // Een overgenomen OCG (#377) blijft een laag van de tekening.
+    const eigenOcgIds = new Set([...perId].filter(([id]) => !isOvergenomenId(id)).map(([, r]) => pdfjsId(r)));
     for (const [id, ref] of vreemd) {
       if (perId.has(id)) continue;
       const dict = context.lookup(ref);

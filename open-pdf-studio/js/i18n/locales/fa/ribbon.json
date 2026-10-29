@@ -169,7 +169,9 @@
     "flattenAll": "مسطح‌سازی همه",
     "flattenAllTooltip": "مسطح‌سازی همهٔ نشانه‌گذاری‌ها در محتوای صفحه",
     "unflattenAll": "لغو مسطح‌سازی",
-    "unflattenAllTooltip": "بازگرداندن نشانه‌گذاری‌هایی که با اجازهٔ بازگردانی مسطح شده‌اند"
+    "unflattenAllTooltip": "بازگرداندن نشانه‌گذاری‌هایی که با اجازهٔ بازگردانی مسطح شده‌اند",
+    "fileAttachment": "پیوست کردن فایل",
+    "fileAttachmentTitle": "پیوست فایل: روی صفحه کلیک کنید و فایلی را انتخاب کنید"
   },
   "view": {
     "pageDisplay": "نمایش صفحه",
@@ -208,7 +210,15 @@
     "rotateViewLeft": "چرخش نما به چپ",
     "rotateViewRight": "چرخش نما به راست",
     "rotateViewLeftTitle": "نما را 90° خلاف جهت عقربه‌های ساعت می‌چرخاند. خود سند تغییر نمی‌کند.",
-    "rotateViewRightTitle": "نما را 90° در جهت عقربه‌های ساعت می‌چرخاند. خود سند تغییر نمی‌کند."
+    "rotateViewRightTitle": "نما را 90° در جهت عقربه‌های ساعت می‌چرخاند. خود سند تغییر نمی‌کند.",
+    "accessibilityGroup": "دسترس‌پذیری",
+    "readAloud": "بلندخوانی",
+    "readAloudPause": "مکث",
+    "readAloudTitle": "خواندن بلند متن انتخاب‌شده، یا سند از صفحهٔ فعلی",
+    "tagsPanel": "برچسب‌ها",
+    "tagsPanelTitle": "نمایش برچسب‌های ساختاری سند",
+    "accessibilityCheck": "بررسی",
+    "accessibilityCheckTitle": "جست‌وجوی متن جایگزین جاافتاده و محتوای بدون برچسب"
   },
   "elementVisibility": {
     "buttonTitle": "نمایانی المان‌ها — نمایش/پنهان کردن و کم‌رنگ کردن انواع حاشیه‌نویسی",

@@ -106,7 +106,13 @@
     "headOpenReversed": "열린 화살표(반대 방향)",
     "headClosedReversed": "닫힌 화살표(반대 방향)",
     "headSlash": "슬래시",
-    "polylineDefaults": "폴리라인 기본값"
+    "polylineDefaults": "폴리라인 기본값",
+    "smoothing": "다듬기",
+    "pressure": "펜 압력",
+    "pressureHint": "펜 압력에 따라 선 굵기가 달라집니다 (마우스로 그린 선은 굵기가 일정합니다)",
+    "pressureMinWidth": "최소 너비 (%)",
+    "penOnly": "펜만 사용 (터치 무시)",
+    "penOnlyHint": "터치로는 자유 그리기 도구로 그리지 않습니다. 펜으로 쓸 때 손바닥이 닿는 것을 막는 데 유용합니다"
   },
   "shapes": {
     "rectangleDefaults": "사각형 기본값",
@@ -162,6 +168,11 @@
     "snapToNearest": "근처점에 스냅",
     "objectSnapRadius": "스냅 반경(픽셀)",
     "snapToPdfContent": "PDF 도면 내용에 스냅",
+    "moveInference": "이동 시 추론 안내선 (G / mv)",
+    "moveInferenceTracking": "추적선 (다른 도형의 점에 정렬)",
+    "moveInferenceExtension": "선과 벽면의 연장선",
+    "moveInferenceParallel": "가까운 선에 평행 / 수직",
+    "moveInferenceHint": "점 위에 커서를 잠시 두면 점을 획득하고, Shift를 누르고 있으면 안내선이 고정되며, Tab으로 거리와 각도를 전환합니다. 극좌표 안내선은 극좌표 추적 설정을 따릅니다.",
     "creation": "생성",
     "autoSelectAfterCreation": "생성 후 주석 자동 선택",
     "deletion": "삭제",

@@ -47,10 +47,15 @@ export { parseCoordBuffer };
 const [_buffer, _setBuffer] = createSignal('');
 const [_cursorScreen, _setCursorScreen] = createSignal({ x: 0, y: 0 });
 const [_format, _setFormat] = createSignal('empty');
+// Which field of a polar entry ("d<θ") receives the typed characters:
+// 'end' = the field at the end of the buffer (default), 'dist' = the distance
+// before '<'. Tab (cycleTypeLengthField) switches between them.
+const [_focus, _setFocus] = createSignal('end');
 
 export const typeLengthBuffer = _buffer;
 export const typeLengthCursor = _cursorScreen;
 export const typeLengthFormat = _format;
+export const typeLengthFocus = _focus;
 
 // ── Internal mode state ────────────────────────────────────────────────────
 // `active` is een signal zodat de HUD-knop ook zichtbaar wordt zodra een
@@ -83,6 +88,7 @@ export function enterTypeLengthMode(startX, startY) {
   _mode.startY = startY;
   _setBuffer('');
   _setFormat('empty');
+  _setFocus('end');
 }
 
 /** Deactivate (called from tool onDeactivate or after final commit). */
@@ -92,12 +98,14 @@ export function exitTypeLengthMode() {
   _mode.startY = 0;
   _setBuffer('');
   _setFormat('empty');
+  _setFocus('end');
 }
 
 /** Clear only the buffer but keep the mode active. */
 export function clearTypeLengthBuffer() {
   _setBuffer('');
   _setFormat('empty');
+  _setFocus('end');
 }
 
 /** Update startX/Y for tools that move along (e.g. polyline next segment). */
@@ -106,6 +114,7 @@ export function setTypeLengthStart(x, y) {
   _mode.startY = y;
   _setBuffer('');
   _setFormat('empty');
+  _setFocus('end');
 }
 
 /** Called from the canvas pointermove so the HUD can follow the cursor. */
@@ -134,6 +143,12 @@ function _reparse() {
  */
 export function consumeKey(key) {
   if (!_active()) return { handled: false };
+
+  // Editing the DISTANCE of a polar entry after Tab moved the focus there.
+  if (_focus() === 'dist' && _buffer().includes('<')) {
+    const r = _consumeInDistanceField(key);
+    if (r) return r;
+  }
 
   // Allow chars that participate in any of the four formats: digits, '.', ',',
   // '<', '=', '-' plus the editing keys.
@@ -208,9 +223,46 @@ export function consumeKey(key) {
     if (_buffer().length === 0) return { handled: false };
     _setBuffer('');
     _setFormat('empty');
+    _setFocus('end');
     return { handled: true, aborted: true };
   }
   return { handled: false };
+}
+
+// Keys typed while the distance field of "d<θ" has the focus. Returns null
+// for keys that behave as usual (Enter, Escape, Tab, unrelated keys).
+function _consumeInDistanceField(key) {
+  const buf = _buffer();
+  const i = buf.indexOf('<');
+  const left = buf.slice(0, i), right = buf.slice(i);
+  const set = (l) => { _setBuffer(l + right); _reparse(); return { handled: true, committed: false }; };
+  if (/^[0-9]$/.test(key) || key === '.') return set(left + key);
+  if (key === '-') return left.length === 0 ? set('-') : { handled: true, committed: false };
+  if (key === 'Backspace') return set(left.slice(0, -1));
+  if (key === ',' || key === '<' || key === '=') return { handled: true, committed: false };
+  return null;
+}
+
+/**
+ * Tab while typing: switch between distance and angle. A plain length
+ * ("100") becomes a polar entry ("100<") with the angle field focused; in a
+ * polar entry Tab toggles the focus between distance and angle.
+ * Returns true when the key was used.
+ */
+export function cycleTypeLengthField() {
+  if (!_active()) return false;
+  const r = parseCoordBuffer(_buffer());
+  if (r.kind === 'length' && r.a != null) {
+    _setBuffer(_buffer() + '<');
+    _reparse();
+    _setFocus('end');
+    return true;
+  }
+  if (r.kind === 'polar') {
+    _setFocus(_focus() === 'dist' ? 'end' : 'dist');
+    return true;
+  }
+  return false;
 }
 
 // ── Endpoint constraint ────────────────────────────────────────────────────

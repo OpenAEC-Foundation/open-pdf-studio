@@ -1634,5 +1634,26 @@
     "fileFailed": "Imeshindwa kusoma {{name}}: {{error}}",
     "applyFailed": "Imeshindwa kutekeleza mabadiliko ya kurasa: {{error}}",
     "extractFailed": "Imeshindwa kutoa kurasa: {{error}}"
+  },
+  "accessibilityReport": {
+    "title": "Ukaguzi wa Ufikivu",
+    "starting": "Inakagua...",
+    "checking": "Inakagua ukurasa {{done}} kati ya {{total}}...",
+    "noIssues": "Hakuna matatizo yaliyopatikana.",
+    "summary": "Matatizo {{count}} yamepatikana. Bofya mara mbili kipengee ili kwenda kwenye ukurasa wake.",
+    "failed": "Ukaguzi haukuweza kufanyika kwenye hati hii.",
+    "recheck": "Kagua tena",
+    "close": "Funga",
+    "goTo": "Bofya mara mbili ili kwenda kwenye ukurasa",
+    "page": "Ukurasa {{page}}",
+    "kind": {
+      "notTagged": "Hati haina lebo: hakuna mti wa muundo, kwa hivyo teknolojia saidizi haziwezi kufuata mpangilio wa kusoma.",
+      "notMarked": "Hati haijawekwa alama kuwa na lebo (/MarkInfo /Marked).",
+      "noLanguage": "Lugha ya hati haijawekwa.",
+      "figureNoAlt": "{{role}} bila maandishi mbadala",
+      "pageNotTagged": "Hakuna maudhui yenye lebo kwenye ukurasa huu (vipengee {{count}} vya maandishi)",
+      "untaggedContent": "Vipengee {{count}} vya maandishi nje ya lebo",
+      "annotationNoText": "Kidokezo ({{type}}) bila maelezo"
+    }
   }
 }

@@ -106,7 +106,13 @@
     "headOpenReversed": "Mshale Wazi (kinyume)",
     "headClosedReversed": "Mshale Uliofungwa (kinyume)",
     "headSlash": "Mstari wa Mkato",
-    "polylineDefaults": "Chaguo-msingi za Mistari Mingi"
+    "polylineDefaults": "Chaguo-msingi za Mistari Mingi",
+    "smoothing": "Ulainishaji",
+    "pressure": "Shinikizo la kalamu",
+    "pressureHint": "Shinikizo la kalamu hubadilisha upana wa mstari (mistari ya kipanya hubaki na upana usiobadilika)",
+    "pressureMinWidth": "Upana wa chini (%)",
+    "penOnly": "Kalamu tu (puuza mguso)",
+    "penOnlyHint": "Mguso hauchori kwa zana ya mkono huru; husaidia kuzuia kiganja kugusa skrini unapoandika kwa kalamu"
   },
   "shapes": {
     "rectangleDefaults": "Chaguo-msingi za Mstatili",
@@ -166,6 +172,11 @@
     "deletion": "Ufutaji",
     "confirmBeforeDeleting": "Thibitisha kabla ya kufuta maoni",
     "snapToPdfContent": "Pachika kwenye Maudhui ya Mchoro wa PDF",
+    "moveInference": "Mistari ya makisio wakati wa kusogeza (G / mv)",
+    "moveInferenceTracking": "Mistari ya ufuatiliaji (panga na pointi za jiometri nyingine)",
+    "moveInferenceExtension": "Miendelezo ya mistari na nyuso za kuta",
+    "moveInferenceParallel": "Sambamba / pembemraba na mistari iliyo karibu",
+    "moveInferenceHint": "Weka kiteuzi kwa muda mfupi juu ya pointi ili kuinasa, shikilia Shift ili kufunga mstari mwongozo, Tab hubadilisha kati ya umbali na pembe. Miongozo ya kipolari hufuata mipangilio ya ufuatiliaji wa kipolari.",
     "navigation": "Urambazaji",
     "wheelZoomWithoutCtrl": "Kuza kwa gurudumu la kipanya (bila kushikilia Ctrl)",
     "middleDoubleClickFit": "Bofya mara mbili kitufe cha kati cha kipanya ili kutoshea ukurasa",

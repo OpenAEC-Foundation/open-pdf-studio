@@ -106,7 +106,13 @@
     "headOpenReversed": "开放箭头（反向）",
     "headClosedReversed": "闭合箭头（反向）",
     "headSlash": "斜线",
-    "polylineDefaults": "折线默认值"
+    "polylineDefaults": "折线默认值",
+    "smoothing": "平滑",
+    "pressure": "笔压",
+    "pressureHint": "笔压会改变笔画宽度（鼠标绘制的笔画宽度保持不变）",
+    "pressureMinWidth": "最小宽度 (%)",
+    "penOnly": "仅限手写笔（忽略触摸）",
+    "penOnlyHint": "触摸不会使用手绘工具绘制；可防止用手写笔书写时手掌误触"
   },
   "shapes": {
     "rectangleDefaults": "矩形默认值",
@@ -162,6 +168,11 @@
     "snapToNearest": "捕捉到最近点",
     "objectSnapRadius": "捕捉半径（像素）",
     "snapToPdfContent": "捕捉到 PDF 图形内容",
+    "moveInference": "移动时的推断辅助线 (G / mv)",
+    "moveInferenceTracking": "追踪线（与其他图形的点对齐）",
+    "moveInferenceExtension": "直线和墙面的延长线",
+    "moveInferenceParallel": "与附近直线平行 / 垂直",
+    "moveInferenceHint": "将光标在某点上短暂停留即可获取该点，按住 Shift 锁定辅助线，Tab 在距离和角度之间切换。极轴辅助线遵循极轴追踪设置。",
     "creation": "创建",
     "autoSelectAfterCreation": "创建后自动选择批注",
     "deletion": "删除",

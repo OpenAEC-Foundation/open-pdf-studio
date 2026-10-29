@@ -2332,7 +2332,7 @@
           "type": "string"
         },
         "templateId": {
-          "description": "Template for a new schedule: area, length, count, symbol, text, image or full. Default: area.",
+          "description": "Template for a new schedule: area, length, count, symbol, text, image, full, buigstaat (rebar bending schedule) or wapeningsstaat (rebar weight per diameter). Default: area.",
           "type": "string"
         },
         "x": {

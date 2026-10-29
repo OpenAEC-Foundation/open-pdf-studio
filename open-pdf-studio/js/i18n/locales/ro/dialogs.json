@@ -1634,5 +1634,26 @@
     "fileFailed": "{{name}} nu a putut fi citit: {{error}}",
     "applyFailed": "Aplicarea modificărilor paginilor a eșuat: {{error}}",
     "extractFailed": "Extragerea paginilor a eșuat: {{error}}"
+  },
+  "accessibilityReport": {
+    "title": "Verificare accesibilitate",
+    "starting": "Se verifică...",
+    "checking": "Se verifică pagina {{done}} din {{total}}...",
+    "noIssues": "Nu s-au găsit probleme.",
+    "summary": "S-au găsit {{count}} probleme. Faceți dublu clic pe un element pentru a merge la pagina lui.",
+    "failed": "Verificarea nu a putut fi efectuată pentru acest document.",
+    "recheck": "Verifică din nou",
+    "close": "Închide",
+    "goTo": "Dublu clic pentru a merge la pagină",
+    "page": "Pagina {{page}}",
+    "kind": {
+      "notTagged": "Documentul nu are etichete: nu există un arbore de structură, deci tehnologiile de asistare nu pot urmări ordinea de citire.",
+      "notMarked": "Documentul nu este marcat ca etichetat (/MarkInfo /Marked).",
+      "noLanguage": "Limba documentului nu este setată.",
+      "figureNoAlt": "{{role}} fără text alternativ",
+      "pageNotTagged": "Niciun conținut etichetat pe această pagină ({{count}} elemente de text)",
+      "untaggedContent": "{{count}} element(e) de text în afara etichetelor",
+      "annotationNoText": "Adnotare ({{type}}) fără descriere"
+    }
   }
 }

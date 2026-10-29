@@ -5948,3 +5948,52 @@ select.ste-field { padding: 2px 4px; cursor: pointer; }
 .approval-recipient, .approval-field { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .approval-field input { width: 65px; }
 .approval-routing-dialog canvas { max-width: 100%; align-self: flex-start; flex-shrink: 0; }
+
+/* ===== Accessibility report (#384) ===== */
+.accessibility-report-dialog {
+  min-width: 420px;
+  max-width: 560px;
+}
+.accessibility-report-body {
+  padding: 12px 16px;
+  font-size: 12px;
+  color: var(--theme-text, #1a1a1a);
+}
+.accessibility-report-body p {
+  margin: 0 0 8px;
+}
+.accessibility-report-list {
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid var(--theme-border, #d4d4d4);
+  background: var(--theme-surface, #fff);
+}
+.accessibility-report-item {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 3px 6px;
+  border-bottom: 1px solid var(--theme-border, #e5e5e5);
+}
+.accessibility-report-item:hover {
+  background: var(--theme-hover, #e5f1fb);
+}
+.accessibility-report-severity {
+  width: 14px;
+  flex-shrink: 0;
+  text-align: center;
+}
+.accessibility-report-item.error .accessibility-report-severity {
+  color: #c42b1c;
+}
+.accessibility-report-item.warning .accessibility-report-severity {
+  color: #9d5d00;
+}
+.accessibility-report-text {
+  flex: 1;
+  min-width: 0;
+}
+.accessibility-report-page {
+  flex-shrink: 0;
+  color: var(--theme-text-secondary, #666);
+}

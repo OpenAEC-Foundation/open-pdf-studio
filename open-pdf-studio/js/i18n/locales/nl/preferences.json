@@ -108,7 +108,13 @@
     "end": "Eind",
     "headButt": "Plat",
     "headOpenReversed": "Open pijl (omgekeerd)",
-    "headClosedReversed": "Gesloten pijl (omgekeerd)"
+    "headClosedReversed": "Gesloten pijl (omgekeerd)",
+    "smoothing": "Gladheid",
+    "pressure": "Pendruk",
+    "pressureHint": "Pendruk varieert de lijndikte (een muisstreek houdt een vaste dikte)",
+    "pressureMinWidth": "Minimale breedte (%)",
+    "penOnly": "Alleen pen (aanraking negeren)",
+    "penOnlyHint": "Aanraking tekent niet met de vrije hand; handig tegen de handpalm op het scherm tijdens het schrijven met een pen"
   },
   "shapes": {
     "rectangleDefaults": "Rechthoek standaardwaarden",
@@ -170,6 +176,11 @@
     "snapToNearest": "Uitlijnen op dichtstbijzijnde",
     "objectSnapRadius": "Uitlijnstraal (pixels)",
     "snapToPdfContent": "Uitlijnen op PDF-tekeninhoud",
+    "moveInference": "Hulplijnen bij verplaatsen (G / mv)",
+    "moveInferenceTracking": "Volglijnen (uitlijnen op punten van andere geometrie)",
+    "moveInferenceExtension": "Verlengden van lijnen en wandvlakken",
+    "moveInferenceParallel": "Evenwijdig / loodrecht op lijnen in de buurt",
+    "moveInferenceHint": "Houd de cursor even op een punt om het vast te pakken, houd Shift ingedrukt om een hulplijn vast te zetten, Tab wisselt tussen afstand en hoek. Poolhulplijnen volgen de instellingen van poolvolging.",
     "navigation": "Navigatie",
     "wheelZoomWithoutCtrl": "Zoomen met muiswiel (zonder Ctrl ingedrukt)",
     "middleDoubleClickFit": "Dubbelklikken met de middelste muisknop past de pagina in het venster",

@@ -1634,5 +1634,26 @@
     "fileFailed": "{{name}} を読み込めませんでした: {{error}}",
     "applyFailed": "ページの編集を適用できませんでした: {{error}}",
     "extractFailed": "ページを抽出できませんでした: {{error}}"
+  },
+  "accessibilityReport": {
+    "title": "アクセシビリティ チェック",
+    "starting": "チェック中...",
+    "checking": "{{total}} ページ中 {{done}} ページ目をチェック中...",
+    "noIssues": "問題は見つかりませんでした。",
+    "summary": "{{count}} 件の問題が見つかりました。項目をダブルクリックするとそのページへ移動します。",
+    "failed": "この文書ではチェックを実行できませんでした。",
+    "recheck": "再チェック",
+    "close": "閉じる",
+    "goTo": "ダブルクリックでページへ移動",
+    "page": "{{page}} ページ",
+    "kind": {
+      "notTagged": "文書にタグがありません。構造ツリーがないため、支援技術は読み上げ順序をたどれません。",
+      "notMarked": "文書がタグ付きとしてマークされていません (/MarkInfo /Marked)。",
+      "noLanguage": "文書の言語が設定されていません。",
+      "figureNoAlt": "代替テキストのない {{role}}",
+      "pageNotTagged": "このページにはタグ付きコンテンツがありません (テキスト項目 {{count}} 件)",
+      "untaggedContent": "タグ外のテキスト項目 {{count}} 件",
+      "annotationNoText": "説明のない注釈 ({{type}})"
+    }
   }
 }

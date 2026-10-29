@@ -41,7 +41,10 @@
     "cancelled": "ரத்துசெய்யப்பட்டது",
     "completed": "நிறைவடைந்தது",
     "reviewed": "மதிப்பாய்வு செய்யப்பட்டது",
-    "statusSetBy": "{{author}} அவர்களால் {{date}} அன்று அமைக்கப்பட்டது"
+    "statusSetBy": "{{author}} அவர்களால் {{date}} அன்று அமைக்கப்பட்டது",
+    "layer": "அடுக்கு",
+    "layerMarkupGroup": "குறியீட்டு அடுக்குகள்",
+    "layerDocumentGroup": "ஆவண அடுக்குகள்"
   },
   "colorNone": "எதுவுமில்லை",
   "moreColors": "மேலும் நிறங்கள்...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "காகிதக் கிளிப்",
+    "iconPushPin": "குண்டூசி",
+    "iconGraph": "வரைபடம்",
+    "iconTag": "குறிச்சொல்"
   },
   "stylePresets": {
     "label": "கோட்டுப் பாணி",
@@ -308,7 +315,8 @@
     "measurePerimeter": "சுற்றளவு",
     "redaction": "மறைப்பு",
     "scaleBar": "அளவுகோல் பட்டை",
-    "parametricSymbol": "அளவுரு குறியீடு"
+    "parametricSymbol": "அளவுரு குறியீடு",
+    "fileAttachment": "கோப்பு இணைப்பு"
   },
   "leftPanel": {
     "togglePanel": "பேனலை மாற்று",
@@ -379,22 +387,54 @@
     "exportComments": "கருத்துகளை தரவு கோப்பில் ஏற்றுமதி...",
     "exportSelectedComments": "தேர்ந்தெடுத்த கருத்துகளை தரவு கோப்பில் ஏற்றுமதி...",
     "exportListCsv": "பட்டியலை CSV-க்கு ஏற்றுமதி செய்...",
-    "summarizeComingSoon": "விரைவில் வருகிறது",
     "listExported": "கருத்துப் பட்டியல் CSV-க்கு ஏற்றுமதி செய்யப்பட்டது",
     "csvPage": "பக்கம்",
     "csvType": "வகை",
     "csvAuthor": "ஆசிரியர்",
-    "csvDate": "தேதி",
     "csvStatus": "நிலை",
     "csvSubject": "பொருள்",
     "csvContents": "உள்ளடக்கம்",
     "csvColor": "நிறம்",
     "csvLayer": "அடுக்கு",
+    "csvId": "அடையாளம்",
+    "csvCreated": "உருவாக்கப்பட்டது",
+    "csvModified": "மாற்றப்பட்டது",
+    "csvStatusBy": "நிலையை அமைத்தவர்",
+    "csvStatusAt": "நிலை தேதி",
+    "csvReplyCount": "பதில்களின் எண்ணிக்கை",
+    "csvReplies": "பதில்கள்",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "அகலம்",
+    "csvHeight": "உயரம்",
+    "filterBar": "வடிகட்டிகள்",
+    "filterAll": "(அனைத்தும்)",
+    "filterPages": "பக்கங்கள்",
+    "filterDate": "தேதி",
+    "filterFrom": "இருந்து",
+    "filterTo": "வரை",
+    "filterClear": "வடிகட்டிகளை அழி",
+    "setStatusSelected": "தேர்ந்தெடுத்தவற்றின் நிலையை அமை",
+    "setStatusListed": "பட்டியலில் உள்ள அனைத்தின் நிலையை அமை",
+    "statusChanged": "நிலை மாற்றப்பட்டது: {{count}}",
+    "summaryTitle": "கருத்துச் சுருக்கம்",
+    "summaryDocument": "ஆவணம்",
+    "summaryCreated": "உருவாக்கப்பட்டது",
+    "summaryCount": "கருத்துகள்",
+    "summaryNoText": "(கருத்து உரை இல்லை)",
+    "summaryBusy": "கருத்துச் சுருக்கம் உருவாக்கப்படுகிறது...",
+    "summaryExported": "கருத்துச் சுருக்கம் PDF-க்கு ஏற்றுமதி செய்யப்பட்டது",
+    "summaryFailed": "கருத்துச் சுருக்கத்தை உருவாக்க முடியவில்லை",
     "schedules": "அட்டவணைகள்",
     "addPage": "பக்கத்தைச் சேர்",
     "pageLabels": "பக்க லேபிள்கள் (பெயர் உருவாக்கி)",
     "portfolio": "PDF போர்ட்ஃபோலியோ",
-    "recognizeForm": "படிவப் புலங்களை அடையாளம் காண்"
+    "recognizeForm": "படிவப் புலங்களை அடையாளம் காண்",
+    "layersSetDefault": "இயல்புநிலையாக அமை",
+    "layersSetDefaultTitle": "அடுக்குகளின் தற்போதைய தெரிவுநிலையை ஆவணத்தின் இயல்புநிலை நிலையாக வைக்கவும். அடுத்த முறை சேமிக்கும்போது இது கோப்பில் எழுதப்படும்.",
+    "layersDefaultPending": "சேமிக்கும்போது இயல்புநிலையாகும்",
+    "layerLocked": "பூட்டப்பட்ட அடுக்கு: இதை இயக்கவோ அணைக்கவோ முடியாது",
+    "layerRadioGroup": "தேர்வுக் குழு: இந்த அடுக்கை இயக்கினால் குழுவின் மற்ற அடுக்குகள் அணைக்கப்படும்"
   },
   "scaleBar": {
     "title": "அளவுகோல் பட்டை",
@@ -443,7 +483,9 @@
       "symbol": "குறியீட்டு அட்டவணை",
       "text": "உரை அட்டவணை",
       "full": "முழு அளவுகள்",
-      "image": "படங்கள் & முத்திரைகள்"
+      "image": "படங்கள் & முத்திரைகள்",
+      "bendingSchedule": "கம்பி வளைப்பு அட்டவணை",
+      "rebarWeight": "கம்பி எடை அட்டவணை (Ø வாரியாக)"
     },
     "preview": "முன்னோட்டம்",
     "exportCsv": "CSV ஏற்றுமதி",
@@ -603,7 +645,8 @@
       "textBuiltIn": "உரை (உள்ளமைந்தது)",
       "symbol": "குறியீடு",
       "image": "படம்",
-      "other": "மற்றவை"
+      "other": "மற்றவை",
+      "reinforcement": "வலுவூட்டல்"
     },
     "field": {
       "category": "வகைப்பாடு",
@@ -631,7 +674,16 @@
       "width": "அகலம்",
       "height": "உயரம்",
       "location": "இடம்",
-      "locationSource": "இட மூலம்"
+      "locationSource": "இட மூலம்",
+      "rebarMark": "கம்பி எண்",
+      "rebarDiameter": "Ø",
+      "rebarShape": "வளைவு வடிவம்",
+      "rebarGrade": "எஃகு தரம்",
+      "rebarCount": "கம்பிகளின் எண்ணிக்கை",
+      "rebarLength": "கம்பி நீளம்",
+      "rebarTotalLength": "மொத்த நீளம்",
+      "rebarMassPerM": "மீட்டருக்கு நிறை",
+      "rebarMass": "நிறை"
     },
     "type": {
       "line": "கோடு",
@@ -669,7 +721,8 @@
       "stavenreeks": "கம்பித் தொடர்",
       "betonbalk": "கான்கிரீட் உத்திரம்",
       "scheduleTable": "அளவு அட்டவணை",
-      "builtinText": "உரை"
+      "builtinText": "உரை",
+      "rebarPosition": "வலுவூட்டல் கம்பி"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "செங்குத்து இடைவெளி",
       "inb-horizontaal-breed": "கிடைமட்டம் இடைவெளி"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "வாசிப்பு வரிசையில் மேலே நகர்த்து",
+    "moveDown": "வாசிப்பு வரிசையில் கீழே நகர்த்து",
+    "checkAccessibility": "அணுகல்தன்மையைச் சரிபார்",
+    "altText": "மாற்று உரை",
+    "altTextPlaceholder": "படத்தைப் பார்க்க முடியாதவர்களுக்காக அதை விவரிக்கவும்...",
+    "noAlt": "மாற்று உரை இல்லை",
+    "role": "பங்கு",
+    "mappedTo": "{{role}} என்பது {{standard}} உடன் இணைக்கப்பட்டுள்ளது",
+    "content": "உள்ளடக்கம் {{mcid}} (பக்கம் {{page}})",
+    "annotationRef": "குறிப்புரை (பக்கம் {{page}})"
+  },
+  "ink": {
+    "title": "மை",
+    "pressure": "பேனா அழுத்தம்",
+    "pressureHint": "பேனா அழுத்தம் கோட்டின் அகலத்தை மாற்றும் (சுட்டி கோடுகள் நிலையான அகலத்தில் இருக்கும்)",
+    "minWidth": "குறைந்தபட்ச அகலம் (%)",
+    "minWidthHint": "மிக இலகுவான அழுத்தத்தில் அகலம், கோட்டு தடிமனின் சதவீதமாக",
+    "smoothing": "மென்மையாக்கல்",
+    "smoothingHint": "கோட்டை மென்மையாக்கும் வலிமை (0 = இல்லை)"
+  },
+  "attachment": {
+    "file": "கோப்பு",
+    "size": "அளவு",
+    "open": "திற",
+    "saveAs": "இவ்வாறு சேமி...",
+    "noContent": "இந்தக் கோப்பின் உள்ளடக்கம் PDF இல் உட்பொதிக்கப்படவில்லை."
   }
 }

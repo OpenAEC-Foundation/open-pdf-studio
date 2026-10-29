@@ -1634,5 +1634,26 @@
     "fileFailed": "{{name}} konnte nicht gelesen werden: {{error}}",
     "applyFailed": "Die Seitenbearbeitung konnte nicht übernommen werden: {{error}}",
     "extractFailed": "Die Seiten konnten nicht extrahiert werden: {{error}}"
+  },
+  "accessibilityReport": {
+    "title": "Barrierefreiheitsprüfung",
+    "starting": "Wird geprüft...",
+    "checking": "Seite {{done}} von {{total}} wird geprüft...",
+    "noIssues": "Keine Probleme gefunden.",
+    "summary": "{{count}} Problem(e) gefunden. Doppelklicken Sie auf einen Eintrag, um zur Seite zu wechseln.",
+    "failed": "Die Prüfung konnte für dieses Dokument nicht ausgeführt werden.",
+    "recheck": "Erneut prüfen",
+    "close": "Schließen",
+    "goTo": "Doppelklicken, um zur Seite zu wechseln",
+    "page": "Seite {{page}}",
+    "kind": {
+      "notTagged": "Das Dokument hat keine Tags: Es gibt keinen Strukturbaum, daher können Hilfstechnologien der Lesereihenfolge nicht folgen.",
+      "notMarked": "Das Dokument ist nicht als getaggt gekennzeichnet (/MarkInfo /Marked).",
+      "noLanguage": "Die Dokumentsprache ist nicht festgelegt.",
+      "figureNoAlt": "{{role}} ohne Alternativtext",
+      "pageNotTagged": "Kein getaggter Inhalt auf dieser Seite ({{count}} Textelemente)",
+      "untaggedContent": "{{count}} Textelement(e) außerhalb der Tags",
+      "annotationNoText": "Anmerkung ({{type}}) ohne Beschreibung"
+    }
   }
 }

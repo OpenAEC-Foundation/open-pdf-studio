@@ -125,7 +125,79 @@
         "label": "Floor plan",
         "hint": "Draw an architectural floor plan: walls, frames, rooms, dimensions and fittings (sanitary, kitchen)",
         "prompt": "Draw an architectural floor plan. What to draw: "
+      },
+      "find-on-sheet": {
+        "label": "Find on sheet",
+        "hint": "Find a term (a room name, a section marker, a symbol), go to its page and highlight the hits",
+        "prompt": "Find on this sheet: "
+      },
+      "explain-selection": {
+        "label": "Explain selection",
+        "hint": "Describe the selected area, text or markup in plain language, with dimensions when a measuring scale is set",
+        "prompt": "Explain the selection."
+      },
+      "compare-sheets": {
+        "label": "Compare sheets",
+        "hint": "Name and mark what was added, removed or moved compared with another page",
+        "prompt": "Compare this page with page: "
+      },
+      "measure": {
+        "label": "Measure this",
+        "hint": "Measure the selected shape or a described element and report it in the drawing's scale",
+        "prompt": "Measure: "
+      },
+      "take-off": {
+        "label": "Take off",
+        "hint": "Count or measure elements of one kind and place the result as a schedule on the sheet",
+        "prompt": "Take off: "
+      },
+      "check-scale": {
+        "label": "Check the scale",
+        "hint": "Find the scale from the title block or a known dimension and set it",
+        "prompt": "Check the scale of this drawing."
+      },
+      "review-sheet": {
+        "label": "Review sheet",
+        "hint": "Add clouds with numbered comments for the points a checker would raise",
+        "prompt": "Review this sheet for: "
+      },
+      "stamp-date": {
+        "label": "Stamp and date",
+        "hint": "Place a stamp, fill a title block field or add a revision note with today's date",
+        "prompt": "Stamp and date: "
+      },
+      "clean-up": {
+        "label": "Tidy markups",
+        "hint": "Align, renumber or recolour the existing markups consistently",
+        "prompt": "Clean up my markups: "
+      },
+      "import-cad": {
+        "label": "Bring in a drawing",
+        "hint": "Import a DWG or DXF drawing as an underlay at the right scale",
+        "prompt": "Bring in the drawing (path of the DWG or DXF file): "
+      },
+      "export-cad": {
+        "label": "Export to CAD",
+        "hint": "Write this page or the selected area to a DXF or DWG file",
+        "prompt": "Export this page to (path of the DXF or DWG file): "
       }
+    },
+    "groups": {
+      "document": "Translate and summarise",
+      "reading": "Reading the drawing",
+      "measuring": "Measuring and quantities",
+      "markup": "Marking up",
+      "structure": "Structure and floor plan",
+      "cad": "CAD drawings"
+    },
+    "need": {
+      "document": "Open a PDF first: this skill works on the open document.",
+      "selection": "Select a markup or some text on the drawing first, then click the skill again.",
+      "scale": "This drawing has no measuring scale yet. Set one first (for example with \"Check the scale\") and try again.",
+      "input": "Complete the text in the input box after the colon, then send.",
+      "selectionOrInput": "Select a shape on the drawing, or describe after the colon what to measure.",
+      "page": "Enter the number of the other page (1 to {{max}}), not the current page.",
+      "twoPages": "This document has only one page. To compare with another file, replace the text in the input box with your own question."
     }
   },
   "onlineSymbolLibrary": "Online symbol library",
@@ -233,7 +305,12 @@
     "goToPageLink": "Go to page",
     "openExternalFile": "Open: {{filename}}",
     "destination": "Destination: {{name}}",
-    "internalLink": "Internal Link"
+    "internalLink": "Internal Link",
+    "attachmentOnPage": "Page {{page}}",
+    "attachmentCreated": "Created: {{date}}",
+    "attachmentModified": "Modified: {{date}}",
+    "openAttachmentRiskTitle": "Open attachment",
+    "openAttachmentRiskMessage": "\"{{name}}\" can run programs on this computer. Only open it if you trust the source. Open anyway?"
   },
   "failedToInsertPagesFromFile": "Failed to insert pages from file: {{error}}",
   "previewPdfRefused": "This PDF is a preview from the drawing import and may be incomplete. It cannot be inserted or saved; import the drawing again.",
@@ -302,5 +379,42 @@
     "readFailed": "The 3D model could not be read.",
     "partial": "Some parts of the 3D model could not be read ({{n}} skipped).",
     "viewerFailed": "The 3D view could not be started."
+  },
+  "readAloud": {
+    "title": "Read aloud",
+    "play": "Read",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Stop",
+    "close": "Close",
+    "voice": "Voice",
+    "defaultVoice": "Default voice",
+    "rate": "Speed",
+    "loading": "Preparing...",
+    "reading": "Reading",
+    "paused": "Paused",
+    "page": "page {{page}}",
+    "tagOrder": "tag order",
+    "contentOrder": "page order",
+    "noEngine": "No speech engine is available on this system.",
+    "noEngineLinux": "No speech engine found. Install speech-dispatcher (spd-say) or espeak-ng and try again.",
+    "speechFailed": "Speech stopped because of an error.",
+    "nothingToRead": "There is no text to read.",
+    "online": "(online)",
+    "allowOnline": "Online voices",
+    "allowOnlineHint": "Also offer online voices. With an online voice the text being read is sent to an online speech service.",
+    "onlyOnlineVoices": "Only online voices are available. Turn on Online voices to use one; the text being read is then sent to an online speech service.",
+    "noLocalVoice": "No local voice is installed for this language; the default local voice is used."
+  },
+  "moveInference": {
+    "onAxisX": "On X axis",
+    "onAxisY": "On Y axis",
+    "fromPoint": "From point",
+    "extension": "On extension",
+    "parallel": "Parallel",
+    "perpendicular": "Perpendicular",
+    "intersection": "Intersection",
+    "polar": "Polar",
+    "locked": "Locked"
   }
 }

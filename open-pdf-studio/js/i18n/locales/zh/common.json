@@ -124,7 +124,79 @@
         "label": "平面图",
         "hint": "绘制建筑平面图：墙体、门窗、房间、尺寸标注和设施（卫浴、厨房）",
         "prompt": "绘制建筑平面图。要绘制的内容："
+      },
+      "find-on-sheet": {
+        "label": "在图纸中查找",
+        "hint": "查找术语（房间名称、剖切符号、图例符号），跳转到所在页面并高亮匹配项",
+        "prompt": "在此图纸中查找："
+      },
+      "explain-selection": {
+        "label": "解释所选内容",
+        "hint": "用通俗的语言描述所选区域、文本或标注；若已设置测量比例，则附带尺寸",
+        "prompt": "解释所选内容。"
+      },
+      "compare-sheets": {
+        "label": "比较图纸",
+        "hint": "与另一页相比，指出并标记新增、删除或移动的内容",
+        "prompt": "将此页与以下页码比较："
+      },
+      "measure": {
+        "label": "测量此项",
+        "hint": "测量所选形状或所描述的构件，并按图纸比例报告结果",
+        "prompt": "测量："
+      },
+      "take-off": {
+        "label": "工程量统计",
+        "hint": "统计或测量同一类构件，并将结果以明细表形式放置在图纸上",
+        "prompt": "统计工程量："
+      },
+      "check-scale": {
+        "label": "检查比例",
+        "hint": "从图签或已知尺寸确定比例并进行设置",
+        "prompt": "检查此图纸的比例。"
+      },
+      "review-sheet": {
+        "label": "审查图纸",
+        "hint": "为审图人员会提出的问题添加带编号批注的云线",
+        "prompt": "审查此图纸，重点："
+      },
+      "stamp-date": {
+        "label": "盖章并注明日期",
+        "hint": "放置印章、填写图签字段或添加带今天日期的修订说明",
+        "prompt": "盖章并注明日期："
+      },
+      "clean-up": {
+        "label": "整理标注",
+        "hint": "统一对齐、重新编号或重新着色现有标注",
+        "prompt": "整理我的标注："
+      },
+      "import-cad": {
+        "label": "导入图纸",
+        "hint": "以正确比例将 DWG 或 DXF 图纸导入为底图",
+        "prompt": "导入图纸（DWG 或 DXF 文件路径）："
+      },
+      "export-cad": {
+        "label": "导出为 CAD",
+        "hint": "将此页或所选区域写入 DXF 或 DWG 文件",
+        "prompt": "将此页导出到（DXF 或 DWG 文件路径）："
       }
+    },
+    "groups": {
+      "document": "翻译与总结",
+      "reading": "识读图纸",
+      "measuring": "测量与工程量",
+      "markup": "标注",
+      "structure": "结构与平面图",
+      "cad": "CAD 图纸"
+    },
+    "need": {
+      "document": "请先打开一个 PDF：此技能作用于已打开的文档。",
+      "selection": "请先在图纸上选择一个标注或一些文本，然后再次点击该技能。",
+      "scale": "此图纸尚未设置测量比例。请先设置（例如使用“检查比例”），然后重试。",
+      "input": "请在输入框中冒号后补全文本，然后发送。",
+      "selectionOrInput": "请在图纸上选择一个形状，或在冒号后描述要测量的内容。",
+      "page": "请输入另一页的页码（1 到 {{max}}），而不是当前页。",
+      "twoPages": "此文档只有一页。如需与其他文件比较，请将输入框中的文本替换为你自己的问题。"
     }
   },
   "onlineSymbolLibrary": "在线符号库",
@@ -228,7 +300,12 @@
     "goToPageLink": "跳转到页面",
     "openExternalFile": "打开：{{filename}}",
     "destination": "目标：{{name}}",
-    "internalLink": "内部链接"
+    "internalLink": "内部链接",
+    "attachmentOnPage": "第 {{page}} 页",
+    "attachmentCreated": "创建时间: {{date}}",
+    "attachmentModified": "修改时间: {{date}}",
+    "openAttachmentRiskTitle": "打开附件",
+    "openAttachmentRiskMessage": "“{{name}}”可能会在此计算机上运行程序。只有在信任其来源时才打开。仍要打开吗?"
   },
   "failedToInsertPagesFromFile": "从文件插入页面失败：{{error}}",
   "previewPdfRefused": "此 PDF 是图纸导入的预览，内容可能不完整。不能插入或保存；请重新导入图纸。",
@@ -298,5 +375,42 @@
     "readFailed": "无法读取 3D 模型。",
     "partial": "3D 模型的部分内容无法读取（已跳过 {{n}} 个）。",
     "viewerFailed": "无法启动 3D 视图。"
+  },
+  "readAloud": {
+    "title": "朗读",
+    "play": "朗读",
+    "pause": "暂停",
+    "resume": "继续",
+    "stop": "停止",
+    "close": "关闭",
+    "voice": "语音",
+    "defaultVoice": "默认语音",
+    "rate": "语速",
+    "loading": "正在准备...",
+    "reading": "正在朗读",
+    "paused": "已暂停",
+    "page": "第 {{page}} 页",
+    "tagOrder": "标签顺序",
+    "contentOrder": "页面顺序",
+    "noEngine": "此系统上没有可用的语音引擎。",
+    "noEngineLinux": "未找到语音引擎。请安装 speech-dispatcher (spd-say) 或 espeak-ng 后重试。",
+    "speechFailed": "朗读因出错而停止。",
+    "nothingToRead": "没有可朗读的文本。",
+    "online": "（在线）",
+    "allowOnline": "在线语音",
+    "allowOnlineHint": "同时提供在线语音。使用在线语音时，朗读的文本会发送到在线语音服务。",
+    "onlyOnlineVoices": "只有在线语音可用。请打开“在线语音”以使用其中之一；朗读的文本随后会发送到在线语音服务。",
+    "noLocalVoice": "未安装此语言的本地语音；将使用默认的本地语音。"
+  },
+  "moveInference": {
+    "onAxisX": "在 X 轴上",
+    "onAxisY": "在 Y 轴上",
+    "fromPoint": "自点",
+    "extension": "在延长线上",
+    "parallel": "平行",
+    "perpendicular": "垂直",
+    "intersection": "交点",
+    "polar": "极轴",
+    "locked": "已锁定"
   }
 }

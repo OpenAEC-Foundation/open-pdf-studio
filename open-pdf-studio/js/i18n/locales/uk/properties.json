@@ -41,7 +41,10 @@
     "cancelled": "Скасовано",
     "completed": "Завершено",
     "reviewed": "Переглянуто",
-    "statusSetBy": "Установлено: {{author}}, {{date}}"
+    "statusSetBy": "Установлено: {{author}}, {{date}}",
+    "layer": "Шар",
+    "layerMarkupGroup": "Шари розмітки",
+    "layerDocumentGroup": "Шари документа"
   },
   "colorNone": "Немає",
   "moreColors": "Більше кольорів...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "Скріпка",
+    "iconPushPin": "Кнопка",
+    "iconGraph": "Діаграма",
+    "iconTag": "Ярлик"
   },
   "stylePresets": {
     "label": "Стиль лінії",
@@ -308,7 +315,8 @@
     "measurePerimeter": "Периметр",
     "redaction": "Редагування тексту",
     "scaleBar": "Масштабна лінійка",
-    "parametricSymbol": "Параметричний символ"
+    "parametricSymbol": "Параметричний символ",
+    "fileAttachment": "Вкладений файл"
   },
   "leftPanel": {
     "togglePanel": "Перемкнути панель",
@@ -379,22 +387,54 @@
     "exportComments": "Експорт коментарів у файл даних...",
     "exportSelectedComments": "Експорт вибраних коментарів у файл даних...",
     "exportListCsv": "Експортувати список у CSV...",
-    "summarizeComingSoon": "Незабаром",
     "listExported": "Список коментарів експортовано в CSV",
     "csvPage": "Сторінка",
     "csvType": "Тип",
     "csvAuthor": "Автор",
-    "csvDate": "Дата",
     "csvStatus": "Статус",
     "csvSubject": "Тема",
     "csvContents": "Вміст",
     "csvColor": "Колір",
     "csvLayer": "Шар",
+    "csvId": "ІД",
+    "csvCreated": "Створено",
+    "csvModified": "Змінено",
+    "csvStatusBy": "Статус встановив",
+    "csvStatusAt": "Дата статусу",
+    "csvReplyCount": "Кількість відповідей",
+    "csvReplies": "Відповіді",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "Ширина",
+    "csvHeight": "Висота",
+    "filterBar": "Фільтри",
+    "filterAll": "(Усі)",
+    "filterPages": "Сторінки",
+    "filterDate": "Дата",
+    "filterFrom": "З",
+    "filterTo": "По",
+    "filterClear": "Скинути фільтри",
+    "setStatusSelected": "Встановити статус вибраних",
+    "setStatusListed": "Встановити статус усіх у списку",
+    "statusChanged": "Статус змінено: {{count}}",
+    "summaryTitle": "Зведення коментарів",
+    "summaryDocument": "Документ",
+    "summaryCreated": "Створено",
+    "summaryCount": "Коментарі",
+    "summaryNoText": "(немає тексту коментаря)",
+    "summaryBusy": "Створення зведення коментарів...",
+    "summaryExported": "Зведення коментарів експортовано в PDF",
+    "summaryFailed": "Не вдалося створити зведення коментарів",
     "schedules": "Специфікації",
     "addPage": "Додати сторінку",
     "pageLabels": "Мітки сторінок (конструктор назв)",
     "portfolio": "PDF-портфоліо",
-    "recognizeForm": "Розпізнати поля форми"
+    "recognizeForm": "Розпізнати поля форми",
+    "layersSetDefault": "Зробити типовим",
+    "layersSetDefaultTitle": "Зберегти поточну видимість шарів як типовий стан документа. Його буде записано у файл під час наступного збереження.",
+    "layersDefaultPending": "Стане типовим під час збереження",
+    "layerLocked": "Заблокований шар: його не можна ввімкнути чи вимкнути",
+    "layerRadioGroup": "Група вибору: увімкнення цього шару вимикає інші шари групи"
   },
   "scaleBar": {
     "title": "Масштабна лінійка",
@@ -443,7 +483,9 @@
       "symbol": "Специфікація символів",
       "text": "Специфікація текстів",
       "full": "Повні обсяги",
-      "image": "Зображення та штампи"
+      "image": "Зображення та штампи",
+      "bendingSchedule": "Відомість гнуття",
+      "rebarWeight": "Відомість арматури (маса за Ø)"
     },
     "preview": "Попередній перегляд",
     "exportCsv": "Експорт CSV",
@@ -603,7 +645,8 @@
       "textBuiltIn": "Текст (вбудований)",
       "symbol": "Символ",
       "image": "Зображення",
-      "other": "Інше"
+      "other": "Інше",
+      "reinforcement": "Армування"
     },
     "field": {
       "category": "Категорія",
@@ -631,7 +674,16 @@
       "width": "Ширина",
       "height": "Висота",
       "location": "Розташування",
-      "locationSource": "Джерело розташування"
+      "locationSource": "Джерело розташування",
+      "rebarMark": "Позиція",
+      "rebarDiameter": "Ø",
+      "rebarShape": "Форма гнуття",
+      "rebarGrade": "Клас сталі",
+      "rebarCount": "Кількість стрижнів",
+      "rebarLength": "Довжина стрижня",
+      "rebarTotalLength": "Загальна довжина",
+      "rebarMassPerM": "Маса на метр",
+      "rebarMass": "Маса"
     },
     "type": {
       "line": "Лінія",
@@ -669,7 +721,8 @@
       "stavenreeks": "Ряд стрижнів",
       "betonbalk": "Бетонна балка",
       "scheduleTable": "Таблиця обсягів",
-      "builtinText": "Текст"
+      "builtinText": "Текст",
+      "rebarPosition": "Арматурний стрижень"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "Вертикальне штрихування рідке",
       "inb-horizontaal-breed": "Горизонтальне штрихування рідке"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "Вище в порядку читання",
+    "moveDown": "Нижче в порядку читання",
+    "checkAccessibility": "Перевірити доступність",
+    "altText": "Альтернативний текст",
+    "altTextPlaceholder": "Опишіть зображення для тих, хто не може його побачити...",
+    "noAlt": "Немає альтернативного тексту",
+    "role": "Роль",
+    "mappedTo": "{{role}} зіставлено з {{standard}}",
+    "content": "Вміст {{mcid}} (сторінка {{page}})",
+    "annotationRef": "Анотація (сторінка {{page}})"
+  },
+  "ink": {
+    "title": "Чорнило",
+    "pressure": "Натиск пера",
+    "pressureHint": "Натиск пера змінює товщину штриха (штрихи мишею зберігають сталу товщину)",
+    "minWidth": "Мінімальна ширина (%)",
+    "minWidthHint": "Ширина за найлегшого натиску, у відсотках від товщини лінії",
+    "smoothing": "Згладжування",
+    "smoothingHint": "Сила згладжування штриха (0 = немає)"
+  },
+  "attachment": {
+    "file": "Файл",
+    "size": "Розмір",
+    "open": "Відкрити",
+    "saveAs": "Зберегти як...",
+    "noContent": "Вміст цього файлу не вбудовано в PDF."
   }
 }

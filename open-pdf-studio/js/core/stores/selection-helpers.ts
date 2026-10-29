@@ -150,6 +150,7 @@ export function getAnnotationBounds(ann: Annotation): AnnotationBounds | null {
     case 'text':
       return { x: ann.x!, y: ann.y! - (ann.fontSize || 16), width: 100, height: ann.fontSize || 16 };
     case 'comment':
+    case 'fileAttachment':
       return { x: ann.x!, y: ann.y!, width: ann.width || 24, height: ann.height || 24 };
     case 'box':
     case 'mask':

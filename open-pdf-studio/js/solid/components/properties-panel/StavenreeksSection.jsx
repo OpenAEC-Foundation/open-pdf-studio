@@ -9,6 +9,7 @@ import { annotProps, updateAnnotProp } from '../../stores/propertiesStore.js';
 import CollapsibleSection from './CollapsibleSection.jsx';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { STAVENREEKS_DIAMETERS, labelText } from '../../../annotations/stavenreeks.js';
+import { STAALKWALITEITEN, STANDAARD_STAALKWALITEIT } from '../../../quantities/wapening.js';
 
 // Pootrichting: {boven|onder} × {links|rechts hellend}. De pijltjes tonen de
 // stand van de poot t.o.v. de reekslijn.
@@ -62,6 +63,30 @@ export default function StavenreeksSection() {
             disabled={locked()}
             onChange={(e) => updateAnnotProp('srBarLengthMm', e.target.value)}
           />
+        </div>
+
+        {/* Staafnummer en staalkwaliteit voor de buigstaat. Leeg nummer =
+            automatisch volgnummer; zonder staaflengte telt de reeks niet mee. */}
+        <div class="property-group">
+          <label>{t('quantities.field.rebarMark')}</label>
+          <input type="text" id="prop-sr-barmark"
+            value={annotProps.srBarMark}
+            disabled={locked()}
+            onChange={(e) => updateAnnotProp('srBarMark', e.target.value)}
+          />
+        </div>
+
+        <div class="property-group">
+          <label>{t('quantities.field.rebarGrade')}</label>
+          <select id="prop-sr-steelgrade"
+            value={annotProps.srSteelGrade || STANDAARD_STAALKWALITEIT}
+            disabled={locked()}
+            onChange={(e) => updateAnnotProp('srSteelGrade', e.target.value)}
+          >
+            <For each={STAALKWALITEITEN}>{(kw) => (
+              <option value={kw}>{kw}</option>
+            )}</For>
+          </select>
         </div>
 
         <div class="property-group">

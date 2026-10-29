@@ -1634,5 +1634,26 @@
     "fileFailed": "Tidak dapat membaca {{name}}: {{error}}",
     "applyFailed": "Gagal menerapkan pengeditan halaman: {{error}}",
     "extractFailed": "Gagal mengekstrak halaman: {{error}}"
+  },
+  "accessibilityReport": {
+    "title": "Pemeriksaan Aksesibilitas",
+    "starting": "Memeriksa...",
+    "checking": "Memeriksa halaman {{done}} dari {{total}}...",
+    "noIssues": "Tidak ditemukan masalah.",
+    "summary": "Ditemukan {{count}} masalah. Klik dua kali sebuah item untuk membuka halamannya.",
+    "failed": "Pemeriksaan tidak dapat dijalankan pada dokumen ini.",
+    "recheck": "Periksa lagi",
+    "close": "Tutup",
+    "goTo": "Klik dua kali untuk membuka halaman",
+    "page": "Halaman {{page}}",
+    "kind": {
+      "notTagged": "Dokumen tidak memiliki tag: tidak ada pohon struktur, sehingga teknologi bantu tidak dapat mengikuti urutan bacanya.",
+      "notMarked": "Dokumen tidak ditandai sebagai bertag (/MarkInfo /Marked).",
+      "noLanguage": "Bahasa dokumen belum diatur.",
+      "figureNoAlt": "{{role}} tanpa teks alternatif",
+      "pageNotTagged": "Tidak ada konten bertag di halaman ini ({{count}} item teks)",
+      "untaggedContent": "{{count}} item teks di luar tag",
+      "annotationNoText": "Anotasi ({{type}}) tanpa deskripsi"
+    }
   }
 }

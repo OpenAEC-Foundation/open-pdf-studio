@@ -41,7 +41,10 @@
     "cancelled": "取消",
     "completed": "完了",
     "reviewed": "レビュー済み",
-    "statusSetBy": "{{author}} が {{date}} に設定"
+    "statusSetBy": "{{author}} が {{date}} に設定",
+    "layer": "レイヤー",
+    "layerMarkupGroup": "マークアップレイヤー",
+    "layerDocumentGroup": "文書のレイヤー"
   },
   "colorNone": "なし",
   "moreColors": "その他の色...",
@@ -159,7 +162,11 @@
     "boxShape": "Shape",
     "boxShapeRect": "Rectangle (sharp corners)",
     "boxShapeRounded": "Rectangle (rounded corners)",
-    "boxShapeEllipse": "Ellipse / circle"
+    "boxShapeEllipse": "Ellipse / circle",
+    "iconPaperclip": "クリップ",
+    "iconPushPin": "押しピン",
+    "iconGraph": "グラフ",
+    "iconTag": "タグ"
   },
   "stylePresets": {
     "label": "線スタイル",
@@ -308,7 +315,8 @@
     "measurePerimeter": "周長",
     "redaction": "墨消し",
     "scaleBar": "スケールバー",
-    "parametricSymbol": "パラメトリックシンボル"
+    "parametricSymbol": "パラメトリックシンボル",
+    "fileAttachment": "ファイル添付"
   },
   "leftPanel": {
     "togglePanel": "パネルの切替",
@@ -379,22 +387,54 @@
     "exportComments": "コメントをデータファイルにエクスポート...",
     "exportSelectedComments": "選択したコメントをデータファイルにエクスポート...",
     "exportListCsv": "リストを CSV にエクスポート...",
-    "summarizeComingSoon": "近日公開",
     "listExported": "コメントリストを CSV にエクスポートしました",
     "csvPage": "ページ",
     "csvType": "種類",
     "csvAuthor": "作成者",
-    "csvDate": "日付",
     "csvStatus": "ステータス",
     "csvSubject": "件名",
     "csvContents": "内容",
     "csvColor": "色",
     "csvLayer": "レイヤー",
+    "csvId": "ID",
+    "csvCreated": "作成日時",
+    "csvModified": "更新日時",
+    "csvStatusBy": "ステータス設定者",
+    "csvStatusAt": "ステータス日時",
+    "csvReplyCount": "返信数",
+    "csvReplies": "返信",
+    "csvX": "X",
+    "csvY": "Y",
+    "csvWidth": "幅",
+    "csvHeight": "高さ",
+    "filterBar": "フィルター",
+    "filterAll": "(すべて)",
+    "filterPages": "ページ",
+    "filterDate": "日付",
+    "filterFrom": "開始",
+    "filterTo": "終了",
+    "filterClear": "フィルターをクリア",
+    "setStatusSelected": "選択項目のステータスを設定",
+    "setStatusListed": "一覧のすべてのステータスを設定",
+    "statusChanged": "ステータスを変更しました: {{count}}",
+    "summaryTitle": "コメントの要約",
+    "summaryDocument": "文書",
+    "summaryCreated": "作成日時",
+    "summaryCount": "コメント",
+    "summaryNoText": "(コメントテキストなし)",
+    "summaryBusy": "コメントの要約を作成しています...",
+    "summaryExported": "コメントの要約を PDF にエクスポートしました",
+    "summaryFailed": "コメントの要約を作成できませんでした",
     "schedules": "集計表",
     "addPage": "ページを追加",
     "pageLabels": "ページラベル (名前ビルダー)",
     "portfolio": "PDF ポートフォリオ",
-    "recognizeForm": "フォームフィールドの認識"
+    "recognizeForm": "フォームフィールドの認識",
+    "layersSetDefault": "既定に設定",
+    "layersSetDefaultTitle": "現在のレイヤーの表示状態を文書の既定の状態として保存します。次回の保存時にファイルに書き込まれます。",
+    "layersDefaultPending": "保存時に既定になります",
+    "layerLocked": "ロックされたレイヤー: オン/オフを切り替えられません",
+    "layerRadioGroup": "選択グループ: このレイヤーをオンにすると、グループ内の他のレイヤーはオフになります"
   },
   "scaleBar": {
     "title": "スケールバー",
@@ -443,7 +483,9 @@
       "symbol": "シンボル集計表",
       "text": "テキスト集計表",
       "full": "全数量",
-      "image": "画像とスタンプ"
+      "image": "画像とスタンプ",
+      "bendingSchedule": "鉄筋加工表",
+      "rebarWeight": "鉄筋重量集計表（径別）"
     },
     "preview": "プレビュー",
     "exportCsv": "CSV をエクスポート",
@@ -603,7 +645,8 @@
       "textBuiltIn": "テキスト（ネイティブ）",
       "symbol": "シンボル",
       "image": "画像",
-      "other": "その他"
+      "other": "その他",
+      "reinforcement": "鉄筋"
     },
     "field": {
       "category": "カテゴリ",
@@ -631,7 +674,16 @@
       "width": "幅",
       "height": "高さ",
       "location": "場所",
-      "locationSource": "場所の取得元"
+      "locationSource": "場所の取得元",
+      "rebarMark": "鉄筋番号",
+      "rebarDiameter": "Ø",
+      "rebarShape": "加工形状",
+      "rebarGrade": "鋼種",
+      "rebarCount": "本数",
+      "rebarLength": "鉄筋長さ",
+      "rebarTotalLength": "総延長",
+      "rebarMassPerM": "単位質量",
+      "rebarMass": "質量"
     },
     "type": {
       "line": "線",
@@ -669,7 +721,8 @@
       "stavenreeks": "鉄筋列",
       "betonbalk": "コンクリート梁",
       "scheduleTable": "数量表",
-      "builtinText": "テキスト"
+      "builtinText": "テキスト",
+      "rebarPosition": "鉄筋材"
     }
   },
   "parametricSymbol": {
@@ -790,5 +843,33 @@
       "inb-verticaal-breed": "縦線 疎",
       "inb-horizontaal-breed": "横線 疎"
     }
+  },
+  "tagsPanel": {
+    "moveUp": "読み上げ順序で上へ移動",
+    "moveDown": "読み上げ順序で下へ移動",
+    "checkAccessibility": "アクセシビリティをチェック",
+    "altText": "代替テキスト",
+    "altTextPlaceholder": "画像が見えない人のために画像を説明してください...",
+    "noAlt": "代替テキストなし",
+    "role": "ロール",
+    "mappedTo": "{{role}} は {{standard}} に対応付けられています",
+    "content": "コンテンツ {{mcid}} ({{page}} ページ)",
+    "annotationRef": "注釈 ({{page}} ページ)"
+  },
+  "ink": {
+    "title": "インク",
+    "pressure": "筆圧",
+    "pressureHint": "筆圧で線の太さが変わります（マウスの線は一定の太さです）",
+    "minWidth": "最小幅 (%)",
+    "minWidthHint": "最も軽い筆圧での幅（線幅に対する割合）",
+    "smoothing": "スムージング",
+    "smoothingHint": "線のスムージングの強さ（0 = なし）"
+  },
+  "attachment": {
+    "file": "ファイル",
+    "size": "サイズ",
+    "open": "開く",
+    "saveAs": "名前を付けて保存...",
+    "noContent": "このファイルの内容は PDF に埋め込まれていません。"
   }
 }

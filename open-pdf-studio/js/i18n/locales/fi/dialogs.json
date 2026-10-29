@@ -1634,5 +1634,26 @@
     "fileFailed": "Tiedostoa {{name}} ei voitu lukea: {{error}}",
     "applyFailed": "Sivumuutosten käyttäminen epäonnistui: {{error}}",
     "extractFailed": "Sivujen irrottaminen epäonnistui: {{error}}"
+  },
+  "accessibilityReport": {
+    "title": "Saavutettavuuden tarkistus",
+    "starting": "Tarkistetaan...",
+    "checking": "Tarkistetaan sivua {{done}}/{{total}}...",
+    "noIssues": "Ongelmia ei löytynyt.",
+    "summary": "Löytyi {{count}} ongelmaa. Siirry kohteen sivulle kaksoisnapsauttamalla sitä.",
+    "failed": "Tarkistusta ei voitu suorittaa tälle asiakirjalle.",
+    "recheck": "Tarkista uudelleen",
+    "close": "Sulje",
+    "goTo": "Siirry sivulle kaksoisnapsauttamalla",
+    "page": "Sivu {{page}}",
+    "kind": {
+      "notTagged": "Asiakirjassa ei ole tunnisteita: rakennepuuta ei ole, joten avustavat teknologiat eivät voi seurata lukujärjestystä.",
+      "notMarked": "Asiakirjaa ei ole merkitty tunnisteelliseksi (/MarkInfo /Marked).",
+      "noLanguage": "Asiakirjan kieltä ei ole määritetty.",
+      "figureNoAlt": "{{role}} ilman vaihtoehtoista tekstiä",
+      "pageNotTagged": "Tällä sivulla ei ole tunnisteellista sisältöä ({{count}} tekstikohdetta)",
+      "untaggedContent": "{{count}} tekstikohdetta tunnisteiden ulkopuolella",
+      "annotationNoText": "Merkintä ({{type}}) ilman kuvausta"
+    }
   }
 }

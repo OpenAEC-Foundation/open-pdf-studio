@@ -1634,5 +1634,26 @@
     "fileFailed": "Não foi possível ler {{name}}: {{error}}",
     "applyFailed": "Falha ao aplicar as edições de páginas: {{error}}",
     "extractFailed": "Falha ao extrair as páginas: {{error}}"
+  },
+  "accessibilityReport": {
+    "title": "Verificação de acessibilidade",
+    "starting": "A verificar...",
+    "checking": "A verificar a página {{done}} de {{total}}...",
+    "noIssues": "Nenhum problema encontrado.",
+    "summary": "{{count}} problema(s) encontrado(s). Faça duplo clique num item para ir para a sua página.",
+    "failed": "Não foi possível executar a verificação neste documento.",
+    "recheck": "Verificar novamente",
+    "close": "Fechar",
+    "goTo": "Duplo clique para ir para a página",
+    "page": "Página {{page}}",
+    "kind": {
+      "notTagged": "O documento não tem etiquetas: não existe árvore de estrutura, pelo que as tecnologias de apoio não conseguem seguir a ordem de leitura.",
+      "notMarked": "O documento não está marcado como etiquetado (/MarkInfo /Marked).",
+      "noLanguage": "O idioma do documento não está definido.",
+      "figureNoAlt": "{{role}} sem texto alternativo",
+      "pageNotTagged": "Nenhum conteúdo etiquetado nesta página ({{count}} itens de texto)",
+      "untaggedContent": "{{count}} item(ns) de texto fora das etiquetas",
+      "annotationNoText": "Anotação ({{type}}) sem descrição"
+    }
   }
 }

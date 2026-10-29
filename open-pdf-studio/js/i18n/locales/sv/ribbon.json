@@ -169,7 +169,9 @@
     "flattenAll": "Platta till alla",
     "flattenAllTooltip": "Platta till alla markeringar till sidinnehåll",
     "unflattenAll": "Ångra tillplattning",
-    "unflattenAllTooltip": "Återställ markeringar som plattades till med återställning tillåten"
+    "unflattenAllTooltip": "Återställ markeringar som plattades till med återställning tillåten",
+    "fileAttachment": "Bifoga fil",
+    "fileAttachmentTitle": "Filbilaga: klicka på sidan och välj en fil"
   },
   "view": {
     "pageDisplay": "Sidvisning",
@@ -208,7 +210,15 @@
     "rotateViewLeft": "Rotera vyn åt vänster",
     "rotateViewRight": "Rotera vyn åt höger",
     "rotateViewLeftTitle": "Roterar vyn 90° moturs. Själva dokumentet ändras inte.",
-    "rotateViewRightTitle": "Roterar vyn 90° medurs. Själva dokumentet ändras inte."
+    "rotateViewRightTitle": "Roterar vyn 90° medurs. Själva dokumentet ändras inte.",
+    "accessibilityGroup": "Tillgänglighet",
+    "readAloud": "Läs upp",
+    "readAloudPause": "Pausa",
+    "readAloudTitle": "Läs upp markeringen, eller dokumentet från aktuell sida",
+    "tagsPanel": "Taggar",
+    "tagsPanelTitle": "Visa dokumentets strukturtaggar",
+    "accessibilityCheck": "Kontrollera",
+    "accessibilityCheckTitle": "Sök efter saknad alternativtext och innehåll utan taggar"
   },
   "elementVisibility": {
     "buttonTitle": "Elementsynlighet — visa/dölj och dämpa anteckningstyper",

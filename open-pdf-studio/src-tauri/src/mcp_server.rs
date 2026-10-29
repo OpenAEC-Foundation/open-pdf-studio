@@ -2308,7 +2308,7 @@ fn handle_tools_list() -> Value {
                     "type": "object",
                     "properties": {
                         "scheduleId": { "type": "string", "description": "Reuse an existing schedule instead of creating one." },
-                        "templateId": { "type": "string", "description": "Template for a new schedule: area, length, count, symbol, text, image or full. Default: area." },
+                        "templateId": { "type": "string", "description": "Template for a new schedule: area, length, count, symbol, text, image, full, buigstaat (rebar bending schedule) or wapeningsstaat (rebar weight per diameter). Default: area." },
                         "name":       { "type": "string", "description": "Display name for the schedule." },
                         "config":     { "type": "object", "description": "Schedule config: categories, fields, filters, sort, itemize, format. Overrides the template.", "additionalProperties": true },
                         "page":       { "type": "number", "description": "Page to place the table on (default: current page)." },
