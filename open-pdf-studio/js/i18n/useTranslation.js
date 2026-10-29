@@ -1,5 +1,6 @@
 import { createSignal } from 'solid-js';
 import i18next, { isRTL, loadLocale, LANGUAGES } from './config.js';
+import { initialLanguage } from './initial-language.js';
 
 const [language, setLanguage] = createSignal(i18next.language || 'en');
 
@@ -41,10 +42,11 @@ export function useTranslation(ns = 'common') {
 export async function changeLanguage(lang) {
   let finalLang = lang;
   if (lang === 'auto') {
-    const detected = i18next.services.languageDetector.detect();
-    const resolvedLang = Array.isArray(detected) ? detected[0] : detected;
-    const baseLang = resolvedLang ? resolvedLang.split('-')[0] : 'en';
-    finalLang = LANGUAGES.some((l) => l.code === baseLang) ? baseLang : 'en';
+    // Same rule as at startup (initial-language.js): the first supported
+    // browser preference, not only the detector's first guess. The stored
+    // choice is skipped: "auto" means follow the system.
+    const supported = LANGUAGES.filter((l) => l.code !== 'auto').map((l) => l.code);
+    finalLang = initialLanguage(undefined, typeof navigator === 'undefined' ? undefined : navigator, supported);
   }
   // Locales load lazily; make sure the target language's bundles are in
   // before switching so there is no flash of untranslated keys.
