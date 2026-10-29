@@ -39,29 +39,7 @@ export async function saveTextEditsToPages(pdfDocLib, pages, doc = getActiveDocu
   { kiesUnicodeFont = embedMcpTextFont, fontKeten = gebundeldeFontKeten, annulering = null } = {}) {
   if (!doc || !doc.textEdits || doc.textEdits.length === 0) return;
 
-  const fontCache = {};
-  async function getEditFont(fontFamily) {
-    if (fontCache[fontFamily]) return fontCache[fontFamily];
-    // Map font family string (may include bold/italic variant) to StandardFonts
-    const fontMap = {
-      'Courier': StandardFonts.Courier,
-      'Courier-Bold': StandardFonts.CourierBold,
-      'Courier-Oblique': StandardFonts.CourierOblique,
-      'Courier-BoldOblique': StandardFonts.CourierBoldOblique,
-      'TimesRoman': StandardFonts.TimesRoman,
-      'TimesRoman-Bold': StandardFonts.TimesRomanBold,
-      'TimesRoman-Italic': StandardFonts.TimesRomanItalic,
-      'TimesRoman-BoldItalic': StandardFonts.TimesRomanBoldItalic,
-      'Helvetica': StandardFonts.Helvetica,
-      'Helvetica-Bold': StandardFonts.HelveticaBold,
-      'Helvetica-Oblique': StandardFonts.HelveticaOblique,
-      'Helvetica-BoldOblique': StandardFonts.HelveticaBoldOblique,
-    };
-    const stdFont = fontMap[fontFamily] || StandardFonts.Helvetica;
-    const font = await pdfDocLib.embedFont(stdFont);
-    fontCache[fontFamily] = font;
-    return font;
-  }
+  const getEditFont = maakEditFontLader(pdfDocLib);
 
   const pending = doc.textEdits.filter(e => e && !e.baked);
   if (pending.length === 0) return;
@@ -91,6 +69,46 @@ export async function saveTextEditsToPages(pdfDocLib, pages, doc = getActiveDocu
       );
     }
   }
+}
+
+/**
+ * Tekent de nieuwe tekst van één edit precies zoals de saver dat doet, met
+ * een gegeven in-place-resultaat (encodeRun enz.). Voor de live weergave in
+ * het originele font (#723): die tekent zo een tijdelijk document dat
+ * dezelfde operatoren en glyfcodes bevat als het opgeslagen bestand.
+ * Fouten (bv. OntbrekendeGlyfenFout) gaan naar de aanroeper.
+ */
+export async function tekenTextEdit(pdfDocLib, pages, edit, inplace,
+  { kiesUnicodeFont = embedMcpTextFont, fontKeten = gebundeldeFontKeten } = {}) {
+  await saveOneTextEdit(pdfDocLib, pages, edit, maakEditFontLader(pdfDocLib), inplace || null,
+    { kiesUnicodeFont, fontKeten });
+}
+
+// Standard-14-fonts per familievariant, één keer ingebed per document.
+function maakEditFontLader(pdfDocLib) {
+  const fontCache = {};
+  return async function getEditFont(fontFamily) {
+    if (fontCache[fontFamily]) return fontCache[fontFamily];
+    // Map font family string (may include bold/italic variant) to StandardFonts
+    const fontMap = {
+      'Courier': StandardFonts.Courier,
+      'Courier-Bold': StandardFonts.CourierBold,
+      'Courier-Oblique': StandardFonts.CourierOblique,
+      'Courier-BoldOblique': StandardFonts.CourierBoldOblique,
+      'TimesRoman': StandardFonts.TimesRoman,
+      'TimesRoman-Bold': StandardFonts.TimesRomanBold,
+      'TimesRoman-Italic': StandardFonts.TimesRomanItalic,
+      'TimesRoman-BoldItalic': StandardFonts.TimesRomanBoldItalic,
+      'Helvetica': StandardFonts.Helvetica,
+      'Helvetica-Bold': StandardFonts.HelveticaBold,
+      'Helvetica-Oblique': StandardFonts.HelveticaOblique,
+      'Helvetica-BoldOblique': StandardFonts.HelveticaBoldOblique,
+    };
+    const stdFont = fontMap[fontFamily] || StandardFonts.Helvetica;
+    const font = await pdfDocLib.embedFont(stdFont);
+    fontCache[fontFamily] = font;
+    return font;
+  };
 }
 
 // Tekent één run in het originele paginafont via rauwe operatoren op het

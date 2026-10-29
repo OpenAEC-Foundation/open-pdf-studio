@@ -597,3 +597,4 @@ js/accessibility/struct-model.test.mjs
 js/accessibility/report.test.mjs
 js/accessibility/speech.test.mjs
 js/accessibility/accessibility-i18n.test.mjs
+js/text/type3-voorbeeld.test.mjs

@@ -1090,7 +1090,9 @@ export function markAllAnnotationPagesLoaded(numPages, doc) {
 }
 
 // Get or lazily load the shared pdf-lib document for color extraction
-async function getSharedPdfLibDoc(doc) {
+// Ook gelezen door de live Type3-weergave van tekstbewerkingen (#723),
+// alleen lezend.
+export async function getSharedPdfLibDoc(doc) {
   if (!doc) {
     doc = getActiveDocument();
   }
