@@ -12,6 +12,7 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { DESKTOP_KENMERKEN } from './web-bouw.mjs';
 
 export const LICENTIE = 'LGPL-3.0-or-later';
 export const BRONCODE_REPO = 'https://github.com/OpenAEC-Foundation/open-pdf-studio';
@@ -234,6 +235,23 @@ export function noticesTekst(pakketten, bundelLicenties = []) {
 /** Losse licentiebestanden die al in de bundel staan (bv. pdfjs/LICENSE). */
 export function bundelLicenties(bestanden) {
   return bestanden.filter((pad) => isLicentieNaam(pad.split('/').pop()));
+}
+
+// ── Desktopcode ─────────────────────────────────────────────────────────────
+
+/**
+ * Bestanden van de bundel waarin code of de naam van een desktop-pakket
+ * staat (#776); leeg = schoon.
+ * @param {{ pad: string, data: Buffer|Uint8Array|string }[]} items
+ * @returns {{ pad: string, kenmerk: string }[]}
+ */
+export function zoekDesktopCode(items) {
+  const treffers = [];
+  for (const { pad, data } of items) {
+    const buf = Buffer.isBuffer(data) || typeof data === 'string' ? Buffer.from(data) : Buffer.from(data.buffer, data.byteOffset, data.byteLength);
+    for (const kenmerk of DESKTOP_KENMERKEN) if (buf.includes(kenmerk)) treffers.push({ pad, kenmerk });
+  }
+  return treffers;
 }
 
 // ── tar (ustar) ─────────────────────────────────────────────────────────────

@@ -501,6 +501,7 @@ js/sheet-links/model.test.mjs
 js/approval-routing/model.test.mjs
 js/approval-routing/origin.test.mjs
 scripts/webbundel.test.mjs
+scripts/web-bouw.test.mjs
 scripts/gehost-html.test.mjs
 js/core/extern-openen.test.mjs
 js/search/find-bar-resultaten.test.mjs
