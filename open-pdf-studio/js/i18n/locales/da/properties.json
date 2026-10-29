@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Vandret åben"
     }
   },
+  "ink": {
+    "title": "Blæk",
+    "pressure": "Pentryk",
+    "pressureHint": "Pentrykket ændrer stregbredden (musestreger beholder en fast bredde)",
+    "minWidth": "Mindste bredde (%)",
+    "minWidthHint": "Bredde ved letteste pentryk, i procent af stregtykkelsen",
+    "smoothing": "Udglatning",
+    "smoothingHint": "Styrke af stregudglatning (0 = ingen)"
+  },
   "attachment": {
     "file": "Fil",
     "size": "Størrelse",

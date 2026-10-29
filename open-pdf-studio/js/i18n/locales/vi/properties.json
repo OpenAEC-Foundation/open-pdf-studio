@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Đường ngang thưa"
     }
   },
+  "ink": {
+    "title": "Mực",
+    "pressure": "Lực nhấn bút",
+    "pressureHint": "Lực nhấn bút thay đổi độ rộng nét (nét vẽ bằng chuột giữ độ rộng cố định)",
+    "minWidth": "Độ rộng tối thiểu (%)",
+    "minWidthHint": "Độ rộng ở lực nhấn nhẹ nhất, tính theo phần trăm độ dày đường",
+    "smoothing": "Làm mượt",
+    "smoothingHint": "Mức làm mượt nét (0 = không)"
+  },
   "attachment": {
     "file": "Tệp",
     "size": "Kích thước",

@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "横線 疎"
     }
   },
+  "ink": {
+    "title": "インク",
+    "pressure": "筆圧",
+    "pressureHint": "筆圧で線の太さが変わります（マウスの線は一定の太さです）",
+    "minWidth": "最小幅 (%)",
+    "minWidthHint": "最も軽い筆圧での幅（線幅に対する割合）",
+    "smoothing": "スムージング",
+    "smoothingHint": "線のスムージングの強さ（0 = なし）"
+  },
   "attachment": {
     "file": "ファイル",
     "size": "サイズ",

@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Horizontal espacé"
     }
   },
+  "ink": {
+    "title": "Encre",
+    "pressure": "Pression du stylet",
+    "pressureHint": "La pression du stylet fait varier l'épaisseur du trait (un trait à la souris garde une épaisseur constante)",
+    "minWidth": "Largeur minimale (%)",
+    "minWidthHint": "Largeur à la pression la plus légère, en pourcentage de l'épaisseur du trait",
+    "smoothing": "Lissage",
+    "smoothingHint": "Intensité du lissage du trait (0 = aucun)"
+  },
   "attachment": {
     "file": "Fichier",
     "size": "Taille",

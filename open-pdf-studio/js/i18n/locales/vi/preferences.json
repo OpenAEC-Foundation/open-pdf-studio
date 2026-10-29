@@ -106,7 +106,13 @@
     "headOpenReversed": "Mũi tên mở (đảo ngược)",
     "headClosedReversed": "Mũi tên đóng (đảo ngược)",
     "headSlash": "Gạch chéo",
-    "polylineDefaults": "Mặc định Đường gấp khúc"
+    "polylineDefaults": "Mặc định Đường gấp khúc",
+    "smoothing": "Làm mượt",
+    "pressure": "Lực nhấn bút",
+    "pressureHint": "Lực nhấn bút thay đổi độ rộng nét (nét vẽ bằng chuột giữ độ rộng cố định)",
+    "pressureMinWidth": "Độ rộng tối thiểu (%)",
+    "penOnly": "Chỉ bút (bỏ qua cảm ứng)",
+    "penOnlyHint": "Chạm không vẽ bằng công cụ vẽ tự do; hữu ích để tránh lòng bàn tay chạm màn hình khi viết bằng bút"
   },
   "shapes": {
     "rectangleDefaults": "Mặc định Hình chữ nhật",

@@ -106,7 +106,13 @@
     "headOpenReversed": "فلش باز (معکوس)",
     "headClosedReversed": "فلش بسته (معکوس)",
     "headSlash": "خط مورب",
-    "polylineDefaults": "پیش‌فرض‌های چندخطی"
+    "polylineDefaults": "پیش‌فرض‌های چندخطی",
+    "smoothing": "هموارسازی",
+    "pressure": "فشار قلم",
+    "pressureHint": "فشار قلم پهنای خط را تغییر می‌دهد (خط‌های موس پهنای ثابت دارند)",
+    "pressureMinWidth": "کمترین پهنا (%)",
+    "penOnly": "فقط قلم (نادیده گرفتن لمس)",
+    "penOnlyHint": "لمس با ابزار دست‌آزاد نقاشی نمی‌کند؛ برای جلوگیری از تماس کف دست هنگام نوشتن با قلم مفید است"
   },
   "shapes": {
     "rectangleDefaults": "پیش‌فرض‌های مستطیل",

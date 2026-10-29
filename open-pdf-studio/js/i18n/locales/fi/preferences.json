@@ -106,7 +106,13 @@
     "headOpenReversed": "Avoin nuoli (käänteinen)",
     "headClosedReversed": "Suljettu nuoli (käänteinen)",
     "headSlash": "Vinoviiva",
-    "polylineDefaults": "Murtoviivan oletukset"
+    "polylineDefaults": "Murtoviivan oletukset",
+    "smoothing": "Tasoitus",
+    "pressure": "Kynän paine",
+    "pressureHint": "Kynän paine muuttaa viivan leveyttä (hiirellä piirretty viiva pysyy saman levyisenä)",
+    "pressureMinWidth": "Vähimmäisleveys (%)",
+    "penOnly": "Vain kynä (ohita kosketus)",
+    "penOnlyHint": "Kosketus ei piirrä vapaalla kädellä; hyödyllinen kämmenen kosketusta vastaan kynällä kirjoitettaessa"
   },
   "shapes": {
     "rectangleDefaults": "Suorakulmion oletukset",

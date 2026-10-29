@@ -12,6 +12,7 @@ import { leesPlattegrondMeta } from './plattegrond-meta.js';
 import { leesLijnSleutels } from './maatlijn-uit-bestand.js';
 import { blendUitPdf } from '../../annotations/blend-modes.js';
 import { leesStempelAp } from './stempel-ap.js';
+import { leesInktSleutels } from '../saver/inkt-sleutels.js';
 import { leesBijlageAnnotatie } from '../bijlage-annotatie.js';
 import { bewaarBijlageInhoud, bijlageItem } from '../../annotations/bijlage-store.js';
 
@@ -446,6 +447,9 @@ export async function extractAnnotationColors(pageNum, pdfDoc) {
       if (zoneText && zoneText.length < 2000) { try { colors.spatialZone = JSON.parse(zoneText); } catch {} }
       const locationOverride = leesPdfTekst(context, annotDict.get(PDFName.of('OPS_LocationOverride')));
       if (typeof locationOverride === 'string') colors.locationOverride = locationOverride.slice(0, 1000);
+
+      // Drukgevoelige inkt (#385): druk per punt, minimale breedte, gladheid.
+      if (subtypeName === '/Ink') Object.assign(colors, leesInktSleutels(annotDict, context));
 
       // Boog: middelpunt, straal en hoeken in de app-ruimte van de ongedraaide
       // pagina (zie de 'arc'-tak van saver.js). /Vertices is de benadering

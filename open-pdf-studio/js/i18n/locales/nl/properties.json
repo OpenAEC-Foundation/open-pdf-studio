@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Horizontaal breed"
     }
   },
+  "ink": {
+    "title": "Inkt",
+    "pressure": "Pendruk",
+    "pressureHint": "Pendruk varieert de lijndikte (een muisstreek houdt een vaste dikte)",
+    "minWidth": "Minimale breedte (%)",
+    "minWidthHint": "Breedte bij de lichtste pendruk, als percentage van de lijndikte",
+    "smoothing": "Gladheid",
+    "smoothingHint": "Sterkte van het gladmaken van de streek (0 = uit)"
+  },
   "attachment": {
     "file": "Bestand",
     "size": "Grootte",

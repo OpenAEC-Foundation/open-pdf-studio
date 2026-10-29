@@ -106,7 +106,13 @@
     "headOpenReversed": "Åben pil (omvendt)",
     "headClosedReversed": "Lukket pil (omvendt)",
     "headSlash": "Skråstreg",
-    "polylineDefaults": "Polylinjestandarder"
+    "polylineDefaults": "Polylinjestandarder",
+    "smoothing": "Udglatning",
+    "pressure": "Pentryk",
+    "pressureHint": "Pentrykket ændrer stregbredden (musestreger beholder en fast bredde)",
+    "pressureMinWidth": "Mindste bredde (%)",
+    "penOnly": "Kun pen (ignorer berøring)",
+    "penOnlyHint": "Berøring tegner ikke med frihåndsværktøjet; nyttigt mod håndfladekontakt, når du skriver med pen"
   },
   "shapes": {
     "rectangleDefaults": "Rektangelstandarder",

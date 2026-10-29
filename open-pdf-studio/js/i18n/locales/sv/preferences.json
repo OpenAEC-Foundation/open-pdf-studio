@@ -106,7 +106,13 @@
     "headOpenReversed": "Öppen pil (omvänd)",
     "headClosedReversed": "Stängd pil (omvänd)",
     "headSlash": "Snedstreck",
-    "polylineDefaults": "Standardvärden för polylinje"
+    "polylineDefaults": "Standardvärden för polylinje",
+    "smoothing": "Utjämning",
+    "pressure": "Penntryck",
+    "pressureHint": "Penntrycket ändrar linjebredden (musdrag behåller en fast bredd)",
+    "pressureMinWidth": "Minsta bredd (%)",
+    "penOnly": "Endast penna (ignorera beröring)",
+    "penOnlyHint": "Beröring ritar inte med frihandsverktyget; användbart mot handflatan när du skriver med penna"
   },
   "shapes": {
     "rectangleDefaults": "Standardvärden för rektangel",

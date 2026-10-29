@@ -106,7 +106,13 @@
     "headOpenReversed": "Offener Pfeil (umgekehrt)",
     "headClosedReversed": "Geschlossener Pfeil (umgekehrt)",
     "headSlash": "Schrägstrich",
-    "polylineDefaults": "Polylinien-Standardwerte"
+    "polylineDefaults": "Polylinien-Standardwerte",
+    "smoothing": "Glättung",
+    "pressure": "Stiftdruck",
+    "pressureHint": "Der Stiftdruck verändert die Strichbreite (Mausstriche behalten eine feste Breite)",
+    "pressureMinWidth": "Mindestbreite (%)",
+    "penOnly": "Nur Stift (Berührung ignorieren)",
+    "penOnlyHint": "Berührung zeichnet nicht mit dem Freihandwerkzeug; hilfreich gegen Handballenkontakt beim Schreiben mit dem Stift"
   },
   "shapes": {
     "rectangleDefaults": "Rechteck-Standardwerte",

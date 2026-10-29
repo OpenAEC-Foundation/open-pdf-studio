@@ -274,6 +274,13 @@ export function setAsDefaultStyle(annotation) {
   // Zijdematen van een meetvlak (#536): aan of uit, standaard uit.
   if (m.edgeLengths) prefs[p + m.edgeLengths] = annotation.measureShowEdgeLengths === true;
 
+  // Vrije hand (#385): pendruk, minimale breedte en gladheid.
+  if (m.ink) {
+    prefs[p + 'Pressure'] = annotation.inkPressure !== false;
+    if (annotation.inkMinWidth != null) prefs[p + 'PressureMinWidth'] = annotation.inkMinWidth;
+    if (annotation.inkSmoothing != null) prefs[p + 'Smoothing'] = annotation.inkSmoothing;
+  }
+
   savePreferences();
   updateStatusMessage('Style set as default');
 }
@@ -334,6 +341,14 @@ export function applyDefaultStyle(annotation) {
   }
 
   if (m.edgeLengths) annotation.measureShowEdgeLengths = prefs[p + m.edgeLengths] === true;
+
+  // Vrije hand (#385). De druk zelf hoort bij de streek; hier alleen of hij
+  // meetelt, de minimale breedte en de gladheid.
+  if (m.ink) {
+    annotation.inkPressure = prefs[p + 'Pressure'] === false ? false : undefined;
+    if (prefs[p + 'PressureMinWidth'] != null) annotation.inkMinWidth = prefs[p + 'PressureMinWidth'];
+    if (prefs[p + 'Smoothing'] != null) annotation.inkSmoothing = prefs[p + 'Smoothing'];
+  }
 
   annotation.modifiedAt = new Date().toISOString();
 }

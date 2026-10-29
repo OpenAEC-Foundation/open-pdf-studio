@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Vågrät gles"
     }
   },
+  "ink": {
+    "title": "Bläck",
+    "pressure": "Penntryck",
+    "pressureHint": "Penntrycket ändrar linjebredden (musdrag behåller en fast bredd)",
+    "minWidth": "Minsta bredd (%)",
+    "minWidthHint": "Bredd vid lättaste penntryck, i procent av linjebredden",
+    "smoothing": "Utjämning",
+    "smoothingHint": "Styrka på utjämningen av draget (0 = ingen)"
+  },
   "attachment": {
     "file": "Fil",
     "size": "Storlek",

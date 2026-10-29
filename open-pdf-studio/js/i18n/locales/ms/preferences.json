@@ -106,7 +106,13 @@
     "headOpenReversed": "Anak Panah Terbuka (terbalik)",
     "headClosedReversed": "Anak Panah Tertutup (terbalik)",
     "headSlash": "Palang",
-    "polylineDefaults": "Lalai Polyline"
+    "polylineDefaults": "Lalai Polyline",
+    "smoothing": "Pelicinan",
+    "pressure": "Tekanan pen",
+    "pressureHint": "Tekanan pen mengubah lebar lakaran (lakaran tetikus kekal dengan lebar yang sama)",
+    "pressureMinWidth": "Lebar minimum (%)",
+    "penOnly": "Pen sahaja (abaikan sentuhan)",
+    "penOnlyHint": "Sentuhan tidak melukis dengan alat bebas; berguna mengelakkan sentuhan tapak tangan semasa menulis dengan pen"
   },
   "shapes": {
     "rectangleDefaults": "Lalai Segi Empat Tepat",

@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Orizontal larg"
     }
   },
+  "ink": {
+    "title": "Cerneală",
+    "pressure": "Presiunea stiloului",
+    "pressureHint": "Presiunea stiloului variază grosimea liniei (liniile trase cu mouse-ul păstrează o grosime constantă)",
+    "minWidth": "Lățime minimă (%)",
+    "minWidthHint": "Lățimea la cea mai ușoară presiune, ca procent din grosimea liniei",
+    "smoothing": "Netezire",
+    "smoothingHint": "Intensitatea netezirii liniei (0 = deloc)"
+  },
   "attachment": {
     "file": "Fișier",
     "size": "Dimensiune",

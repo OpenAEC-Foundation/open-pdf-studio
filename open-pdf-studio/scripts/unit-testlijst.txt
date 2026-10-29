@@ -585,3 +585,6 @@ js/symbols/templates/vloer-vorstrand.test.mjs
 js/symbols/templates/staalverbindingen.test.mjs
 js/symbols/templates/wapeningskorf-staat.test.mjs
 js/pdf/wapening-rondgang.test.mjs
+js/annotations/pressure-ink.test.mjs
+js/annotations/pressure-ink-wiring.test.mjs
+js/pdf/drukinkt-rondgang.test.mjs

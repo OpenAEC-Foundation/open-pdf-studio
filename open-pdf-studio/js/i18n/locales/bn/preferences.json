@@ -106,7 +106,13 @@
     "headOpenReversed": "খোলা তীর (বিপরীত)",
     "headClosedReversed": "বন্ধ তীর (বিপরীত)",
     "headSlash": "স্ল্যাশ",
-    "polylineDefaults": "পলিলাইন ডিফল্ট"
+    "polylineDefaults": "পলিলাইন ডিফল্ট",
+    "smoothing": "মসৃণকরণ",
+    "pressure": "কলমের চাপ",
+    "pressureHint": "কলমের চাপে রেখার প্রস্থ বদলায় (মাউসের রেখার প্রস্থ স্থির থাকে)",
+    "pressureMinWidth": "ন্যূনতম প্রস্থ (%)",
+    "penOnly": "শুধু কলম (স্পর্শ উপেক্ষা)",
+    "penOnlyHint": "স্পর্শে ফ্রিহ্যান্ড টুল দিয়ে আঁকা হয় না; কলম দিয়ে লেখার সময় হাতের তালুর স্পর্শ এড়াতে উপযোগী"
   },
   "shapes": {
     "rectangleDefaults": "আয়তক্ষেত্র ডিফল্ট",

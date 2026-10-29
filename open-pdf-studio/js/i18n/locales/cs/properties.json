@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Vodorovná šrafa řídká"
     }
   },
+  "ink": {
+    "title": "Inkoust",
+    "pressure": "Přítlak pera",
+    "pressureHint": "Přítlak pera mění šířku tahu (tahy myší mají stálou šířku)",
+    "minWidth": "Minimální šířka (%)",
+    "minWidthHint": "Šířka při nejlehčím přítlaku, v procentech tloušťky čáry",
+    "smoothing": "Vyhlazení",
+    "smoothingHint": "Síla vyhlazení tahu (0 = žádné)"
+  },
   "attachment": {
     "file": "Soubor",
     "size": "Velikost",

@@ -108,7 +108,13 @@
     "end": "Eind",
     "headButt": "Plat",
     "headOpenReversed": "Open pijl (omgekeerd)",
-    "headClosedReversed": "Gesloten pijl (omgekeerd)"
+    "headClosedReversed": "Gesloten pijl (omgekeerd)",
+    "smoothing": "Gladheid",
+    "pressure": "Pendruk",
+    "pressureHint": "Pendruk varieert de lijndikte (een muisstreek houdt een vaste dikte)",
+    "pressureMinWidth": "Minimale breedte (%)",
+    "penOnly": "Alleen pen (aanraking negeren)",
+    "penOnlyHint": "Aanraking tekent niet met de vrije hand; handig tegen de handpalm op het scherm tijdens het schrijven met een pen"
   },
   "shapes": {
     "rectangleDefaults": "Rechthoek standaardwaarden",

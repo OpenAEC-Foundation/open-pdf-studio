@@ -76,6 +76,14 @@ export interface LineAnnotation extends AnnotationBase {
 
 export interface DrawAnnotation extends AnnotationBase {
   path: Point[];
+  /** Pen pressure 0..1 per point of path (pen strokes only, #385). */
+  pressures?: number[];
+  /** Width at pressure 0, in percent of lineWidth (5..100). */
+  inkMinWidth?: number;
+  /** Stroke smoothing 0..100; 0 draws the raw polyline. */
+  inkSmoothing?: number;
+  /** false: ignore pressures and draw a constant width. */
+  inkPressure?: boolean;
 }
 
 export interface PolylineAnnotation extends AnnotationBase {
@@ -161,6 +169,10 @@ export type Annotation = AnnotationBase & {
   endX?: number;
   endY?: number;
   path?: Point[];
+  pressures?: number[];  // Freehand: pen pressure per path point (#385)
+  inkMinWidth?: number;
+  inkSmoothing?: number;
+  inkPressure?: boolean;
   points?: Point[];
   controlPoints?: Point[];  // Spline control points
   holes?: Point[][];  // Cutout polygons for measureArea

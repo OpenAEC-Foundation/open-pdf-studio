@@ -11,7 +11,7 @@ export function getStyleMapping(type) {
   const hasHatch = ['box', 'circle', 'polygon', 'cloud'].includes(type);
   switch (type) {
     case 'draw':
-      return { prefix: 'draw', stroke: 'StrokeColor', width: 'LineWidth', opacity: 'Opacity' };
+      return { prefix: 'draw', stroke: 'StrokeColor', width: 'LineWidth', opacity: 'Opacity', ink: true };
     case 'highlight':
       return { prefix: 'highlight', color: 'Color', opacity: 'Opacity' };
     case 'line':

@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Horizontal wide"
     }
   },
+  "ink": {
+    "title": "Ink",
+    "pressure": "Pen pressure",
+    "pressureHint": "Pen pressure varies the stroke width (mouse strokes keep a constant width)",
+    "minWidth": "Minimum width (%)",
+    "minWidthHint": "Width at the lightest pen pressure, as a percentage of the line width",
+    "smoothing": "Smoothing",
+    "smoothingHint": "Strength of stroke smoothing (0 = none)"
+  },
   "attachment": {
     "file": "File",
     "size": "Size",

@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Horizontal weit"
     }
   },
+  "ink": {
+    "title": "Tinte",
+    "pressure": "Stiftdruck",
+    "pressureHint": "Der Stiftdruck verändert die Strichbreite (Mausstriche behalten eine feste Breite)",
+    "minWidth": "Mindestbreite (%)",
+    "minWidthHint": "Breite bei leichtestem Stiftdruck, in Prozent der Linienstärke",
+    "smoothing": "Glättung",
+    "smoothingHint": "Stärke der Strichglättung (0 = aus)"
+  },
   "attachment": {
     "file": "Datei",
     "size": "Größe",

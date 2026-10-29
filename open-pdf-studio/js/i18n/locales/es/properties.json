@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Horizontal ancho"
     }
   },
+  "ink": {
+    "title": "Tinta",
+    "pressure": "Presión del lápiz",
+    "pressureHint": "La presión del lápiz varía el grosor del trazo (los trazos con ratón mantienen un grosor constante)",
+    "minWidth": "Ancho mínimo (%)",
+    "minWidthHint": "Ancho con la presión más suave, como porcentaje del grosor de línea",
+    "smoothing": "Suavizado",
+    "smoothingHint": "Intensidad del suavizado del trazo (0 = ninguno)"
+  },
   "attachment": {
     "file": "Archivo",
     "size": "Tamaño",

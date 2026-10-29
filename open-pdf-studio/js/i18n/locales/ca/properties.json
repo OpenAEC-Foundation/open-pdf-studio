@@ -850,6 +850,15 @@
       "inb-horizontaal-breed": "Horitzontal ample"
     }
   },
+  "ink": {
+    "title": "Tinta",
+    "pressure": "Pressió del llapis",
+    "pressureHint": "La pressió del llapis varia el gruix del traç (els traços amb el ratolí mantenen un gruix constant)",
+    "minWidth": "Amplada mínima (%)",
+    "minWidthHint": "Amplada amb la pressió més suau, com a percentatge del gruix de línia",
+    "smoothing": "Suavitzat",
+    "smoothingHint": "Intensitat del suavitzat del traç (0 = cap)"
+  },
   "attachment": {
     "file": "Fitxer",
     "size": "Mida",

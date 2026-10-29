@@ -106,7 +106,13 @@
     "headOpenReversed": "سهم مفتوح (معكوس)",
     "headClosedReversed": "سهم مغلق (معكوس)",
     "headSlash": "شرطة مائلة",
-    "polylineDefaults": "إعدادات الخط المتعدد الافتراضية"
+    "polylineDefaults": "إعدادات الخط المتعدد الافتراضية",
+    "smoothing": "التنعيم",
+    "pressure": "ضغط القلم",
+    "pressureHint": "يغيّر ضغط القلم عرض الخط (تحتفظ خطوط الفأرة بعرض ثابت)",
+    "pressureMinWidth": "أدنى عرض (%)",
+    "penOnly": "القلم فقط (تجاهل اللمس)",
+    "penOnlyHint": "لا يرسم اللمس بأداة الرسم الحر؛ مفيد ضد ملامسة راحة اليد أثناء الكتابة بالقلم"
   },
   "shapes": {
     "rectangleDefaults": "إعدادات المستطيل الافتراضية",

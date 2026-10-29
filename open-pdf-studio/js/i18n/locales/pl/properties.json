@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Kreskowanie poziome rzadkie"
     }
   },
+  "ink": {
+    "title": "Atrament",
+    "pressure": "Nacisk pióra",
+    "pressureHint": "Nacisk pióra zmienia grubość linii (linie rysowane myszą mają stałą grubość)",
+    "minWidth": "Minimalna szerokość (%)",
+    "minWidthHint": "Szerokość przy najlżejszym nacisku, jako procent grubości linii",
+    "smoothing": "Wygładzanie",
+    "smoothingHint": "Siła wygładzania linii (0 = brak)"
+  },
   "attachment": {
     "file": "Plik",
     "size": "Rozmiar",

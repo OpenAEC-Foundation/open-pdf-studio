@@ -106,7 +106,13 @@
     "headOpenReversed": "کھلا تیر (الٹا)",
     "headClosedReversed": "بند تیر (الٹا)",
     "headSlash": "سلیش",
-    "polylineDefaults": "پولی لائن ڈیفالٹس"
+    "polylineDefaults": "پولی لائن ڈیفالٹس",
+    "smoothing": "ہمواری",
+    "pressure": "قلم کا دباؤ",
+    "pressureHint": "قلم کا دباؤ لکیر کی چوڑائی بدلتا ہے (ماؤس کی لکیریں یکساں چوڑائی رکھتی ہیں)",
+    "pressureMinWidth": "کم از کم چوڑائی (%)",
+    "penOnly": "صرف قلم (چھونے کو نظرانداز کریں)",
+    "penOnlyHint": "چھونے سے فری ہینڈ ٹول سے ڈرائنگ نہیں ہوتی؛ قلم سے لکھتے وقت ہتھیلی کے لمس سے بچاؤ کے لیے مفید"
   },
   "shapes": {
     "rectangleDefaults": "مستطیل ڈیفالٹس",

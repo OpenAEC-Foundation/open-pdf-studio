@@ -106,7 +106,13 @@
     "headOpenReversed": "Mshale Wazi (kinyume)",
     "headClosedReversed": "Mshale Uliofungwa (kinyume)",
     "headSlash": "Mstari wa Mkato",
-    "polylineDefaults": "Chaguo-msingi za Mistari Mingi"
+    "polylineDefaults": "Chaguo-msingi za Mistari Mingi",
+    "smoothing": "Ulainishaji",
+    "pressure": "Shinikizo la kalamu",
+    "pressureHint": "Shinikizo la kalamu hubadilisha upana wa mstari (mistari ya kipanya hubaki na upana usiobadilika)",
+    "pressureMinWidth": "Upana wa chini (%)",
+    "penOnly": "Kalamu tu (puuza mguso)",
+    "penOnlyHint": "Mguso hauchori kwa zana ya mkono huru; husaidia kuzuia kiganja kugusa skrini unapoandika kwa kalamu"
   },
   "shapes": {
     "rectangleDefaults": "Chaguo-msingi za Mstatili",

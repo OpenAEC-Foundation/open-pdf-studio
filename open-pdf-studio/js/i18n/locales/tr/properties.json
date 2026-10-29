@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Yatay tarama seyrek"
     }
   },
+  "ink": {
+    "title": "Mürekkep",
+    "pressure": "Kalem basıncı",
+    "pressureHint": "Kalem basıncı çizgi kalınlığını değiştirir (fareyle çizilen çizgiler sabit kalınlıkta kalır)",
+    "minWidth": "En küçük genişlik (%)",
+    "minWidthHint": "En hafif basınçtaki genişlik, çizgi kalınlığının yüzdesi olarak",
+    "smoothing": "Yumuşatma",
+    "smoothingHint": "Çizgi yumuşatma gücü (0 = yok)"
+  },
   "attachment": {
     "file": "Dosya",
     "size": "Boyut",

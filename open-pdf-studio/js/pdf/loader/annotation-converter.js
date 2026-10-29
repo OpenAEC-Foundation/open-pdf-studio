@@ -45,6 +45,7 @@ import { ontdraaiVorm } from '../saver/vorm-draaiing.js';
 import { bijlageIcoonUitPdf } from '../../annotations/bijlage-iconen.js';
 import { bijlageBron } from '../bijlage-annotatie.js';
 import { stempelGeometrie, kiesStempelWeergave, oudeStempelDraaiing } from './stempel-geometrie.js';
+import { inktUitBestand } from './inkt-uit-bestand.js';
 
 /**
  * Zet een PDF-annotatie om naar het model van de app.
@@ -667,7 +668,9 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           color: colorArrayToHex(annot.color, '#000000'),
           strokeColor: colorArrayToHex(annot.color, '#000000'),
           lineWidth: extraColors.borderWidth ?? annot.borderStyle?.width ?? 2,
-          borderStyle: mapBorderStyle(annot, extraColors)
+          borderStyle: mapBorderStyle(annot, extraColors),
+          // Drukgevoelige inkt (#385): alleen als de druk bij de punten past.
+          ...inktUitBestand(extraColors, path.length),
         });
       }
       break;

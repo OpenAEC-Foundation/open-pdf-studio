@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Mendatar jarang"
     }
   },
+  "ink": {
+    "title": "Dakwat",
+    "pressure": "Tekanan pen",
+    "pressureHint": "Tekanan pen mengubah lebar lakaran (lakaran tetikus kekal dengan lebar yang sama)",
+    "minWidth": "Lebar minimum (%)",
+    "minWidthHint": "Lebar pada tekanan pen paling ringan, sebagai peratus ketebalan garisan",
+    "smoothing": "Pelicinan",
+    "smoothingHint": "Kekuatan pelicinan lakaran (0 = tiada)"
+  },
   "attachment": {
     "file": "Fail",
     "size": "Saiz",

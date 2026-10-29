@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Vodoravna šrafura rijetka"
     }
   },
+  "ink": {
+    "title": "Tinta",
+    "pressure": "Pritisak olovke",
+    "pressureHint": "Pritisak olovke mijenja debljinu poteza (potezi mišem zadržavaju stalnu debljinu)",
+    "minWidth": "Najmanja širina (%)",
+    "minWidthHint": "Širina pri najlakšem pritisku, kao postotak debljine linije",
+    "smoothing": "Zaglađivanje",
+    "smoothingHint": "Jačina zaglađivanja poteza (0 = bez)"
+  },
   "attachment": {
     "file": "Datoteka",
     "size": "Veličina",

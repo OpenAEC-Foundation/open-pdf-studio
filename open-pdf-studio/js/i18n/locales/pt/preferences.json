@@ -106,7 +106,13 @@
     "headOpenReversed": "Seta aberta (invertida)",
     "headClosedReversed": "Seta fechada (invertida)",
     "headSlash": "Barra",
-    "polylineDefaults": "Padrões de polilinha"
+    "polylineDefaults": "Padrões de polilinha",
+    "smoothing": "Suavização",
+    "pressure": "Pressão da caneta",
+    "pressureHint": "A pressão da caneta varia a espessura do traço (traços com o rato mantêm uma espessura constante)",
+    "pressureMinWidth": "Largura mínima (%)",
+    "penOnly": "Apenas caneta (ignorar toque)",
+    "penOnlyHint": "O toque não desenha com a ferramenta à mão livre; útil contra o contacto da palma ao escrever com a caneta"
   },
   "shapes": {
     "rectangleDefaults": "Padrões do retângulo",

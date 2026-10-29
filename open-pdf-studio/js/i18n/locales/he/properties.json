@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "אופקי מרווח"
     }
   },
+  "ink": {
+    "title": "דיו",
+    "pressure": "לחץ עט",
+    "pressureHint": "לחץ העט משנה את עובי הקו (קווים בעכבר שומרים על עובי קבוע)",
+    "minWidth": "רוחב מינימלי (%)",
+    "minWidthHint": "הרוחב בלחץ הקל ביותר, באחוזים מעובי הקו",
+    "smoothing": "החלקה",
+    "smoothingHint": "עוצמת החלקת הקו (0 = ללא)"
+  },
   "attachment": {
     "file": "קובץ",
     "size": "גודל",

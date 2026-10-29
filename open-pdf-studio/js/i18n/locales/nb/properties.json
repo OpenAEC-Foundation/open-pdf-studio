@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Vannrett åpen"
     }
   },
+  "ink": {
+    "title": "Blekk",
+    "pressure": "Pennetrykk",
+    "pressureHint": "Pennetrykket endrer strekbredden (musestreker beholder fast bredde)",
+    "minWidth": "Minste bredde (%)",
+    "minWidthHint": "Bredde ved letteste pennetrykk, i prosent av linjebredden",
+    "smoothing": "Utjevning",
+    "smoothingHint": "Styrke på utjevning av streken (0 = ingen)"
+  },
   "attachment": {
     "file": "Fil",
     "size": "Størrelse",

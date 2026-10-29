@@ -106,7 +106,13 @@
     "headOpenReversed": "חץ פתוח (הפוך)",
     "headClosedReversed": "חץ סגור (הפוך)",
     "headSlash": "קו נטוי",
-    "polylineDefaults": "ברירות מחדל לקו מרובה"
+    "polylineDefaults": "ברירות מחדל לקו מרובה",
+    "smoothing": "החלקה",
+    "pressure": "לחץ עט",
+    "pressureHint": "לחץ העט משנה את עובי הקו (קווים בעכבר שומרים על עובי קבוע)",
+    "pressureMinWidth": "רוחב מינימלי (%)",
+    "penOnly": "עט בלבד (התעלם ממגע)",
+    "penOnlyHint": "מגע אינו מצייר בכלי היד החופשית; שימושי נגד מגע כף היד בזמן כתיבה בעט"
   },
   "shapes": {
     "rectangleDefaults": "ברירות מחדל למלבן",

@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Vaakaviivoitus harva"
     }
   },
+  "ink": {
+    "title": "Muste",
+    "pressure": "Kynän paine",
+    "pressureHint": "Kynän paine muuttaa viivan leveyttä (hiirellä piirretty viiva pysyy saman levyisenä)",
+    "minWidth": "Vähimmäisleveys (%)",
+    "minWidthHint": "Leveys kevyimmällä kynän paineella prosentteina viivan leveydestä",
+    "smoothing": "Tasoitus",
+    "smoothingHint": "Viivan tasoituksen voimakkuus (0 = ei tasoitusta)"
+  },
   "attachment": {
     "file": "Tiedosto",
     "size": "Koko",

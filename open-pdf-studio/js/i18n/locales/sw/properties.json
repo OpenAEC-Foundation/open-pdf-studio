@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Mistari mlalo ya mbali"
     }
   },
+  "ink": {
+    "title": "Wino",
+    "pressure": "Shinikizo la kalamu",
+    "pressureHint": "Shinikizo la kalamu hubadilisha upana wa mstari (mistari ya kipanya hubaki na upana usiobadilika)",
+    "minWidth": "Upana wa chini (%)",
+    "minWidthHint": "Upana kwa shinikizo jepesi zaidi, kama asilimia ya unene wa mstari",
+    "smoothing": "Ulainishaji",
+    "smoothingHint": "Nguvu ya kulainisha mstari (0 = hakuna)"
+  },
   "attachment": {
     "file": "Faili",
     "size": "Ukubwa",

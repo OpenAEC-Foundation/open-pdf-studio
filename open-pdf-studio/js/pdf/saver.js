@@ -24,6 +24,8 @@ import { schrijfMeetvlakSchaal, meetvlakRect } from './saver/meetvlak-opslaan.js
 import { vlakZijdeTeksten } from '../annotations/measurement.js';
 import { verzamelSchaalBronnen } from '../annotations/schaal-op-punt.js';
 import { attachVectorAP } from './saver/vector-ap.js';
+import { isGladdeInkt, inktAppearanceInhoud } from '../annotations/pressure-ink.js';
+import { inktSleutels } from './saver/inkt-sleutels.js';
 import { MODEL_ID_SLEUTEL } from './flatten-bytes.js';
 import { schaalgebiedAppearance } from './saver/scale-region-ap.js';
 import { bytesVan as knipselBytesVan } from '../annotations/vector-snippet-store.js';
@@ -952,7 +954,11 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             const inkDict = {
               Type: 'Annot',
               Subtype: 'Ink',
-              Rect: [minX - borderWidth, minY - borderWidth, maxX + borderWidth, maxY + borderWidth],
+              // Een gladde streek kan iets buiten de ingevoerde punten buigen.
+              Rect: (() => {
+                const pad = borderWidth + (isGladdeInkt(ann) ? 1 : 0);
+                return [minX - pad, minY - pad, maxX + pad, maxY + pad];
+              })(),
               InkList: [inkList],
               C: strokeColorArr,
               CA: opacity,
@@ -964,7 +970,19 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
             inkDict.BS = buildBorderStyle(context, borderWidth, ann.borderStyle);
 
+            // Drukgevoelige / gladde inkt (#385): /InkList blijft de
+            // middellijn (andere lezers: vaste breedte /BS /W), de appearance
+            // tekent de gladde streek met variabele breedte als gevuld vlak.
+            // De druk per punt, de minimale breedte en de gladheid gaan in
+            // eigen sleutels mee, zodat de streek na heropenen bewerkbaar blijft.
+            Object.assign(inkDict, inktSleutels(ann));
+
             annotDict = context.obj(inkDict);
+            if (isGladdeInkt(ann)) {
+              attachVectorAP(context, annotDict, {
+                content: inktAppearanceInhoud(ann, convertX, convertY, hexToRgb(ann.strokeColor || ann.color || '#000000')),
+              }, inkDict.Rect);
+            }
             break;
           }
 

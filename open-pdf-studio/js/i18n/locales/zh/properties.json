@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "横线 疏"
     }
   },
+  "ink": {
+    "title": "墨迹",
+    "pressure": "笔压",
+    "pressureHint": "笔压会改变笔画宽度（鼠标绘制的笔画宽度保持不变）",
+    "minWidth": "最小宽度 (%)",
+    "minWidthHint": "最轻笔压时的宽度，占线宽的百分比",
+    "smoothing": "平滑",
+    "smoothingHint": "笔画平滑强度（0 = 无）"
+  },
   "attachment": {
     "file": "文件",
     "size": "大小",

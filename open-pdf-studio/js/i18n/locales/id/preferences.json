@@ -106,7 +106,13 @@
     "headOpenReversed": "Panah Terbuka (terbalik)",
     "headClosedReversed": "Panah Tertutup (terbalik)",
     "headSlash": "Garis Miring",
-    "polylineDefaults": "Bawaan Polyline"
+    "polylineDefaults": "Bawaan Polyline",
+    "smoothing": "Penghalusan",
+    "pressure": "Tekanan pena",
+    "pressureHint": "Tekanan pena mengubah lebar goresan (goresan mouse tetap selebar yang sama)",
+    "pressureMinWidth": "Lebar minimum (%)",
+    "penOnly": "Hanya pena (abaikan sentuhan)",
+    "penOnlyHint": "Sentuhan tidak menggambar dengan alat tangan bebas; berguna mencegah sentuhan telapak tangan saat menulis dengan pena"
   },
   "shapes": {
     "rectangleDefaults": "Bawaan Persegi Panjang",

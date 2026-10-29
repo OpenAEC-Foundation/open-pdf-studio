@@ -106,7 +106,13 @@
     "headOpenReversed": "Flecha abierta (invertida)",
     "headClosedReversed": "Flecha cerrada (invertida)",
     "headSlash": "Barra",
-    "polylineDefaults": "Valores predeterminados de polílínea"
+    "polylineDefaults": "Valores predeterminados de polílínea",
+    "smoothing": "Suavizado",
+    "pressure": "Presión del lápiz",
+    "pressureHint": "La presión del lápiz varía el grosor del trazo (los trazos con ratón mantienen un grosor constante)",
+    "pressureMinWidth": "Ancho mínimo (%)",
+    "penOnly": "Solo lápiz (ignorar toque)",
+    "penOnlyHint": "El toque no dibuja con la herramienta a mano alzada; útil contra el contacto de la palma al escribir con lápiz"
   },
   "shapes": {
     "rectangleDefaults": "Valores predeterminados de rectángulo",

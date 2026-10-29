@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Mendatar renggang"
     }
   },
+  "ink": {
+    "title": "Tinta",
+    "pressure": "Tekanan pena",
+    "pressureHint": "Tekanan pena mengubah lebar goresan (goresan mouse tetap selebar yang sama)",
+    "minWidth": "Lebar minimum (%)",
+    "minWidthHint": "Lebar pada tekanan pena paling ringan, dalam persen dari ketebalan garis",
+    "smoothing": "Penghalusan",
+    "smoothingHint": "Kekuatan penghalusan goresan (0 = tidak ada)"
+  },
   "attachment": {
     "file": "File",
     "size": "Ukuran",

@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Vodorovná šrafa riedka"
     }
   },
+  "ink": {
+    "title": "Atrament",
+    "pressure": "Prítlak pera",
+    "pressureHint": "Prítlak pera mení šírku ťahu (ťahy myšou majú stálu šírku)",
+    "minWidth": "Minimálna šírka (%)",
+    "minWidthHint": "Šírka pri najľahšom prítlaku, v percentách hrúbky čiary",
+    "smoothing": "Vyhladenie",
+    "smoothingHint": "Sila vyhladenia ťahu (0 = žiadne)"
+  },
   "attachment": {
     "file": "Súbor",
     "size": "Veľkosť",

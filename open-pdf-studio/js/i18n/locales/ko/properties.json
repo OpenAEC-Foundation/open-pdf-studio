@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "가로선 넓음"
     }
   },
+  "ink": {
+    "title": "잉크",
+    "pressure": "펜 압력",
+    "pressureHint": "펜 압력에 따라 선 굵기가 달라집니다 (마우스로 그린 선은 굵기가 일정합니다)",
+    "minWidth": "최소 너비 (%)",
+    "minWidthHint": "가장 약한 펜 압력에서의 너비 (선 굵기에 대한 백분율)",
+    "smoothing": "다듬기",
+    "smoothingHint": "선 다듬기 강도 (0 = 없음)"
+  },
   "attachment": {
     "file": "파일",
     "size": "크기",

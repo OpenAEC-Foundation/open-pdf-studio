@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Orizzontale rado"
     }
   },
+  "ink": {
+    "title": "Inchiostro",
+    "pressure": "Pressione della penna",
+    "pressureHint": "La pressione della penna varia lo spessore del tratto (i tratti col mouse mantengono uno spessore costante)",
+    "minWidth": "Larghezza minima (%)",
+    "minWidthHint": "Larghezza con la pressione più leggera, in percentuale dello spessore della linea",
+    "smoothing": "Smussatura",
+    "smoothingHint": "Intensità della smussatura del tratto (0 = nessuna)"
+  },
   "attachment": {
     "file": "File",
     "size": "Dimensione",

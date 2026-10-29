@@ -844,6 +844,15 @@
       "inb-horizontaal-breed": "Horizontal largo"
     }
   },
+  "ink": {
+    "title": "Tinta",
+    "pressure": "Pressão da caneta",
+    "pressureHint": "A pressão da caneta varia a espessura do traço (traços com o rato mantêm uma espessura constante)",
+    "minWidth": "Largura mínima (%)",
+    "minWidthHint": "Largura com a pressão mais leve, em percentagem da espessura da linha",
+    "smoothing": "Suavização",
+    "smoothingHint": "Intensidade da suavização do traço (0 = nenhuma)"
+  },
   "attachment": {
     "file": "Arquivo",
     "size": "Tamanho",

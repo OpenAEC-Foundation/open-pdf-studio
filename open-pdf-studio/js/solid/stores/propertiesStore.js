@@ -56,6 +56,7 @@ import { heeftVulDekking, zetLijnDekking } from '../../annotations/vul-dekking.j
 import { isWisselbaarProfiel, profielTypen, wisselProfielType } from '../../symbols/profieltype.js';
 import { schaalgebiedStijl } from '../../annotations/scale-region-style.js';
 import { leesGetalBegin, leesGeheelGetal } from '../../core/getal-invoer.js';
+import { inktPaneelWaarden, inktPropWaarde } from '../../annotations/pressure-ink-panel.js';
 
 // Types whose single 'color' control IS their stroke colour and which render
 // via `strokeColor || color`. For these, the 'color' control must mirror onto
@@ -145,6 +146,11 @@ const [annotProps, setAnnotProps] = createStore({
   startHead: 'none',
   endHead: 'open',
   headSize: 12,
+  // Vrije hand (#385): drukgevoeligheid, minimale breedte (%), gladheid.
+  inkPressure: true,
+  inkHasPressure: false,
+  inkMinWidth: 30,
+  inkSmoothing: 0,
   arrowLength: '',
   measureScale: 0,
   measureUnit: '',
@@ -194,6 +200,7 @@ const [sectionVis, setSectionVis] = createStore({
   replies: false,
   appearance: false,
   lineEndings: false,
+  ink: false,
   dimensions: false,
   textFormat: false,
   paragraph: false,
@@ -298,6 +305,7 @@ function computeSectionVisibility(type) {
     replies: !isScaleBar,
     appearance: !isScaleBar,
     lineEndings: lintZetLijnkoppen(type) || type === 'measureDistance' || type === 'measurePerimeter',
+    ink: type === 'draw',
     dimensions: isLineOrArrow,
     measurement: isMeasurement,
     scaleBar: isScaleBar,
@@ -485,6 +493,7 @@ export function storeShowProperties(annotation) {
       endHead: annotation.endHead || (annotation.type === 'measureDistance' ? 'openCircle' : 'open'),
       headSize: annotation.headSize || 12,
     }),
+    ...inktPaneelWaarden(annotation),
     arrowLength: (annotation.type === 'arrow' || annotation.type === 'line')
       ? (() => {
           // Show the length in measured units (mm etc.), resolved at the
@@ -652,6 +661,7 @@ export function storeHideProperties() {
     replies: false,
     appearance: false,
     lineEndings: false,
+    ink: false,
     dimensions: false,
     measurement: false,
     scaleBar: false,
@@ -807,6 +817,10 @@ export function storeShowMultiSelection(selected) {
     startHead: sharedValue(selected, a => koppenVan(a).startHead, 'mixed'),
     endHead: sharedValue(selected, a => koppenVan(a).endHead, 'mixed'),
     headSize: sharedValue(selected, a => koppenVan(a).headSize, 'mixed'),
+    inkPressure: sharedValue(selected, a => a.inkPressure !== false, 'mixed'),
+    inkMinWidth: sharedValue(selected, a => inktPaneelWaarden(a).inkMinWidth, 'mixed'),
+    inkSmoothing: sharedValue(selected, a => inktPaneelWaarden(a).inkSmoothing, 'mixed'),
+    inkHasPressure: selected.some(a => Array.isArray(a.pressures) && a.pressures.length > 0),
     arrowLength: '',
     replies: [],
     multiCount: selected.length,
@@ -832,6 +846,7 @@ export function storeShowMultiSelection(selected) {
     replies: false,
     appearance: true,
     lineEndings: allSameType && lintZetLijnkoppen(sharedType),
+    ink: allSameType && sharedType === 'draw',
     dimensions: false,
     measurement: false,
     textFormat: allMatch(t => textboxTypes.has(t)),
@@ -944,6 +959,7 @@ export function storeShowTextEditProperties(info) {
     replies: false,
     appearance: false,
     lineEndings: false,
+    ink: false,
     dimensions: false,
     measurement: false,
     textFormat: true,
@@ -1216,6 +1232,9 @@ function applyPropToAnnotation(ann, key, value) {
     // Bij een vorm met aparte vul-dekking houdt de vulling haar dekking (#685).
     case 'opacity': zetLijnDekking(ann, leesGeheelGetal(value) / 100); break;
     case 'icon': ann.icon = value; break;
+    case 'inkPressure': case 'inkMinWidth': case 'inkSmoothing':
+      Object.assign(ann, inktPropWaarde(key, value));
+      break;
     case 'borderStyle': ann.borderStyle = value; break;
     case 'boxShape': ann.boxShape = value === 'rect' ? undefined : value; break;
     case 'cross': ann.cross = value === true || undefined; break;
@@ -1707,6 +1726,10 @@ function applyAnnotProp(key, value) {
     case 'startHead': currentAnnotation.startHead = value; break;
     case 'endHead': currentAnnotation.endHead = value; break;
     case 'headSize': currentAnnotation.headSize = leesGeheelGetal(value); break;
+    case 'inkPressure': case 'inkMinWidth': case 'inkSmoothing':
+      Object.assign(currentAnnotation, inktPropWaarde(key, value));
+      value = inktPaneelWaarden(currentAnnotation)[key];
+      break;
     case 'measureScale':
       currentAnnotation.measureScale = leesGetalBegin(value) || 0;
       recomputeMeasureText(currentAnnotation);
