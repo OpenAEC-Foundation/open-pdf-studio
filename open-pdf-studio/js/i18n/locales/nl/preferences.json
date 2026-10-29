@@ -9,7 +9,8 @@
     "behavior": "Gedrag",
     "fileAssociation": "Bestandskoppeling",
     "virtualPrinter": "Virtuele printer",
-    "pageDisplay": "Paginaweergave"
+    "pageDisplay": "Paginaweergave",
+    "keyboardShortcuts": "Sneltoetsen"
   },
   "resetToDefaults": "Standaardwaarden herstellen",
   "resetConfirm": "Alle voorkeuren terugzetten naar standaardwaarden?",
@@ -291,5 +292,51 @@
     "openArrowReversed": "Open pijl (omgekeerd)",
     "closedArrowReversed": "Gesloten pijl (omgekeerd)",
     "slash": "Schuine streep"
+  },
+  "keyboardShortcuts": {
+    "title": "Sneltoetsen",
+    "search": "Zoeken op opdracht of toets",
+    "command": "Opdracht",
+    "shortcuts": "Sneltoetsen",
+    "none": "Geen",
+    "noMatches": "Geen opdrachten gevonden.",
+    "selectHint": "Kies een opdracht om de sneltoetsen te wijzigen.",
+    "addShortcut": "Sneltoets toevoegen",
+    "remove": "Sneltoets verwijderen",
+    "resetCommand": "Standaard herstellen",
+    "resetAll": "Alles herstellen",
+    "resetAllConfirm": "Alle sneltoetsen terugzetten naar de standaard?",
+    "import": "Importeren…",
+    "export": "Exporteren…",
+    "fileType": "Sneltoetsen",
+    "imported": "Sneltoetsen geïmporteerd. Klik op Opslaan om ze toe te passen.",
+    "importFailed": "Dit is geen geldig sneltoetsenbestand.",
+    "exported": "Sneltoetsen geëxporteerd.",
+    "exportFailed": "Exporteren van de sneltoetsen mislukt:",
+    "recording": "Druk op de nieuwe toetscombinatie… (Esc annuleert)",
+    "conflict": "{{keys}} wordt al gebruikt door ‘{{command}}’.",
+    "reassign": "Opnieuw toewijzen",
+    "reserved": "{{keys}} heeft een vaste betekenis en kan niet worden toegewezen.",
+    "defaultLabel": "Standaard: {{keys}}",
+    "customize": "Aanpassen…",
+    "fixedGroup": "Vaste toetsen",
+    "applyHint": "Wijzigingen gelden zodra u op Opslaan klikt.",
+    "categories": {
+      "file": "Bestand",
+      "edit": "Bewerken",
+      "view": "Beeld",
+      "search": "Zoeken",
+      "tools": "Gereedschappen",
+      "drafting": "Tekenhulpen",
+      "panels": "Panelen",
+      "review": "Controle",
+      "help": "Help",
+      "extensions": "Extensies",
+      "ribbon": "Lint: {{tab}}",
+      "other": "Overig"
+    },
+    "commands": {
+      "findNext": "Volgende zoeken"
+    }
   }
 }

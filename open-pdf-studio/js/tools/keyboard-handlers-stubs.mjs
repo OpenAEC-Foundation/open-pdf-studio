@@ -1,5 +1,5 @@
 // Laadhaken voor tests van keyboard-handlers.js (#551): het echte bestand
-// laadt, maar elke relatieve import ervan wordt een stub. Elke geïmporteerde
+// laadt, maar elke relatieve import ervan wordt een stub (ook een dynamische). Elke geïmporteerde
 // naam wordt een functie die doorgeeft aan globalThis.__khStubs[naam]
 // (ontbreekt die, dan doet ze niets); `state` is het object
 // globalThis.__khStubs.state. Zet __khStubs dus vóór de import neer.
@@ -17,10 +17,16 @@ function namen() {
   if (namenPerBron) return namenPerBron;
   const bron = readFileSync(new URL(DOEL), 'utf8');
   namenPerBron = new Map();
-  for (const m of bron.matchAll(/^import\s*\{([^}]*)\}\s*from\s*'([^']+)';/gm)) {
-    const lijst = m[1].split(',').map((s) => s.trim()).filter(Boolean)
-      .map((s) => s.split(/\s+as\s+/)[0].trim());
-    namenPerBron.set(m[2], [...(namenPerBron.get(m[2]) ?? []), ...lijst]);
+  const voeg = (spec, lijst) => namenPerBron.set(spec, [...(namenPerBron.get(spec) ?? []), ...lijst]);
+  const namenUit = (tekst) => tekst.split(',').map((s) => s.trim()).filter(Boolean)
+    .map((s) => s.split(/\s+as\s+|\s*:\s*/)[0].trim());
+  for (const m of bron.matchAll(/^import\s*\{([^}]*)\}\s*from\s*'([^']+)';/gm)) voeg(m[2], namenUit(m[1]));
+  // Ook dynamische imports (#714): `const { a, b } = await import('x')`,
+  // `import('x').then(({ a }) => ...)` en `import('x').then(m => m.a())`.
+  for (const m of bron.matchAll(/const\s*\{([^}]*)\}\s*=\s*await\s+import\('([^']+)'\)/g)) voeg(m[2], namenUit(m[1]));
+  for (const m of bron.matchAll(/import\('([^']+)'\)\.then\(\s*\(\s*\{([^}]*)\}\s*\)/g)) voeg(m[1], namenUit(m[2]));
+  for (const m of bron.matchAll(/import\('([^']+)'\)\.then\(\s*(\w+)\s*=>([^\n]*)/g)) {
+    voeg(m[1], [...m[3].matchAll(new RegExp(`\\b${m[2]}\\.(\\w+)`, 'g'))].map((x) => x[1]));
   }
   return namenPerBron;
 }

@@ -93,12 +93,16 @@ test('in de vergelijkingsweergave bladert alleen PageUp/PageDown zonder Ctrl', (
   assert.ok(ctrlRegel >= 0 && ctrlRegel < toetsen.indexOf("e.key === 'PageDown'"), 'Ctrl+PageDown is de tabwissel');
 });
 
-test('het sneltoetsenoverzicht noemt de nieuwe toetsen', () => {
+test('het sneltoetsenoverzicht noemt de nieuwe toetsen', async () => {
+  // Sinds #714 komt het overzicht uit het sneltoetsenregister; de vaste
+  // toetsen van de tabwissel staan in FIXED_SHORTCUTS.
   const dialoog = bron('solid/components/dialogs/ShortcutsDialog.jsx');
-  assert.match(dialoog, /'tabs\.nextTab'[^\n]*\['Ctrl', 'Tab'\]/);
-  assert.match(dialoog, /'tabs\.previousTab'[^\n]*\['Ctrl', 'Shift', 'Tab'\]/);
-  assert.match(dialoog, /'tabs\.nextTab'[^\n]*\['Ctrl', 'PgDn'\]/);
-  assert.match(dialoog, /'tabs\.previousTab'[^\n]*\['Ctrl', 'PgUp'\]/);
+  assert.match(dialoog, /FIXED_SHORTCUTS\.map\(/);
+  const { FIXED_SHORTCUTS } = await import('../../core/keybindings/default-commands.js');
+  const volgende = FIXED_SHORTCUTS.find((f) => f.labelKey === 'common:tabs.nextTab');
+  const vorige = FIXED_SHORTCUTS.find((f) => f.labelKey === 'common:tabs.previousTab');
+  assert.deepEqual(volgende.keys, ['Ctrl+Tab', 'Ctrl+PageDown']);
+  assert.deepEqual(vorige.keys, ['Ctrl+Shift+Tab', 'Ctrl+PageUp']);
 });
 
 // ── Vertalingen ──────────────────────────────────────────────────────────────

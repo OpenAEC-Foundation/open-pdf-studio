@@ -9,7 +9,8 @@
     "behavior": "Viselkedés",
     "fileAssociation": "Fájltársítás",
     "virtualPrinter": "Virtuális nyomtató",
-    "pageDisplay": "Oldal megjelenítése"
+    "pageDisplay": "Oldal megjelenítése",
+    "keyboardShortcuts": "Billentyűparancsok"
   },
   "resetToDefaults": "Alapértelmezések visszaállítása",
   "resetConfirm": "Visszaállítja az összes beállítást az alapértelmezett értékekre?",
@@ -291,5 +292,51 @@
     "openArrowReversed": "Nyitott nyíl (fordított)",
     "closedArrowReversed": "Zárt nyíl (fordított)",
     "slash": "Perjel"
+  },
+  "keyboardShortcuts": {
+    "title": "Billentyűparancsok",
+    "search": "Keresés parancs vagy billentyű szerint",
+    "command": "Parancs",
+    "shortcuts": "Billentyűparancsok",
+    "none": "Nincs",
+    "noMatches": "Egy parancs sem felel meg a keresésnek.",
+    "selectHint": "Válasszon egy parancsot a billentyűparancsai módosításához.",
+    "addShortcut": "Billentyűparancs hozzáadása",
+    "remove": "Billentyűparancs eltávolítása",
+    "resetCommand": "Alapértelmezés visszaállítása",
+    "resetAll": "Összes visszaállítása",
+    "resetAllConfirm": "Visszaállítja az összes billentyűparancsot az alapértelmezésre?",
+    "import": "Importálás…",
+    "export": "Exportálás…",
+    "fileType": "Billentyűparancsok",
+    "imported": "Billentyűparancsok importálva. Az alkalmazáshoz kattintson a Mentés gombra.",
+    "importFailed": "Ez nem érvényes billentyűparancs-fájl.",
+    "exported": "Billentyűparancsok exportálva.",
+    "exportFailed": "A billentyűparancsok exportálása nem sikerült:",
+    "recording": "Nyomja le az új billentyűkombinációt… (Esc: mégse)",
+    "conflict": "A(z) {{keys}} billentyűt már a(z) „{{command}}” használja.",
+    "reassign": "Átrendelés",
+    "reserved": "A(z) {{keys}} rögzített jelentésű, nem rendelhető hozzá.",
+    "defaultLabel": "Alapértelmezés: {{keys}}",
+    "customize": "Testreszabás…",
+    "fixedGroup": "Rögzített billentyűk",
+    "applyHint": "A módosítások a Mentés gombra kattintva lépnek életbe.",
+    "categories": {
+      "file": "Fájl",
+      "edit": "Szerkesztés",
+      "view": "Nézet",
+      "search": "Keresés",
+      "tools": "Eszközök",
+      "drafting": "Rajzsegédek",
+      "panels": "Panelek",
+      "review": "Ellenőrzés",
+      "help": "Súgó",
+      "extensions": "Bővítmények",
+      "ribbon": "Menüszalag: {{tab}}",
+      "other": "Egyéb"
+    },
+    "commands": {
+      "findNext": "Következő keresése"
+    }
   }
 }

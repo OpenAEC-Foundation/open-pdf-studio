@@ -19,10 +19,36 @@ import { openAppMenu } from '../../../ui/chrome/menus.js';
 import { state } from '../../../core/state.js';
 import { savePreferences } from '../../../core/preferences.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
+import { zetLintUitvoerder } from '../../../core/keybindings/app-shortcuts.js';
 
 // Het register van extensietabbladen (#551) zet een verdwenen actief tabblad
 // zelf terug op 'home'; daarvoor kent het hier het actieve tabblad.
 lintRegister.koppelLint({ lees: activeTab, zet: setActiveTab });
+
+// Een sneltoets voor een lintknop (#714) klikt die knop. Alleen het open
+// tabblad staat in de DOM: staat de knop op een ander tabblad (of is het lint
+// ingeklapt), dan zet dit dat tabblad heel even neer, klikt en zet alles
+// terug. Solid werkt de DOM synchroon bij, er komt geen frame tussen.
+zetLintUitvoerder((knopId, tab) => {
+  const klik = (el) => {
+    if (!el || el.disabled) return false;
+    el.click();
+    return true;
+  };
+  const el = document.getElementById(knopId);
+  if (el) return klik(el);
+  if (!tab) return false;
+  const vorigTab = activeTab();
+  const ingeklapt = state.preferences.ribbonCollapsed === true;
+  try {
+    if (ingeklapt) state.preferences.ribbonCollapsed = false;
+    setActiveTab(tab);
+    return klik(document.getElementById(knopId));
+  } finally {
+    setActiveTab(vorigTab);
+    if (ingeklapt) state.preferences.ribbonCollapsed = true;
+  }
+});
 
 // De ingebouwde tab-id's ('measure' is de oude naam van 'comment').
 const INGEBOUWDE_TABBLADEN = new Set(['home', 'view', 'drawing', 'comment', 'measure', 'organize', 'help', 'format', 'arrange', 'image']);

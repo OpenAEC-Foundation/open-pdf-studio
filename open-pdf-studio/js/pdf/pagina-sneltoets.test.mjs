@@ -182,10 +182,16 @@ test('de vergelijkingsweergave houdt haar eigen PageUp/PageDown in de capture-fa
   assert.match(toetsen, /e\.key === 'PageDown'[\s\S]*e\.stopPropagation\(\)/);
 });
 
-test('het sneltoetsenoverzicht noemt PgDn en PgUp', () => {
-  const dialoog = bron('solid/components/dialogs/ShortcutsDialog.jsx');
-  assert.match(dialoog, /'pageNav\.nextPage'[^\n]*keys: \['PgDn'\]/);
-  assert.match(dialoog, /'pageNav\.previousPage'[^\n]*keys: \['PgUp'\]/);
+// Het sneltoetsenoverzicht (F1) komt sinds #714 uit het sneltoetsregister:
+// daar zijn PageDown/PageUp de standaardtoetsen van volgende/vorige pagina.
+test('het sneltoetsenregister kent PageDown en PageUp als volgende/vorige pagina', () => {
+  const opdrachten = bron('core/keybindings/default-commands.js');
+  assert.match(opdrachten, /id: 'view\.nextPage'[^\n]*labelKey: 'common:pageNav\.nextPage'[^\n]*defaults: \['PageDown'\]/);
+  assert.match(opdrachten, /id: 'view\.previousPage'[^\n]*labelKey: 'common:pageNav\.previousPage'[^\n]*defaults: \['PageUp'\]/);
+  const kh = bron('tools/keyboard-handlers.js');
+  const sneltoets = blok(kh, 'function handlePaginaSneltoets', '\n}\n');
+  assert.match(sneltoets, /aan\(e, 'view\.nextPage', 'PageDown'\)/);
+  assert.match(sneltoets, /aan\(e, 'view\.previousPage', 'PageUp'\)/);
 });
 
 const LOCALES = join(js, 'i18n/locales');

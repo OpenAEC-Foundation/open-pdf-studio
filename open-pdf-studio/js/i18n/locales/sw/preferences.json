@@ -9,7 +9,8 @@
     "behavior": "Tabia",
     "fileAssociation": "Ushirikiano wa Faili",
     "virtualPrinter": "Printa Pepe",
-    "pageDisplay": "Onyesho la Ukurasa"
+    "pageDisplay": "Onyesho la Ukurasa",
+    "keyboardShortcuts": "Njia za mkato za kibodi"
   },
   "resetToDefaults": "Weka Upya Chaguo-msingi",
   "resetConfirm": "Weka upya mapendeleo yote kuwa chaguo-msingi?",
@@ -291,5 +292,51 @@
     "openArrowReversed": "Mshale Wazi (kinyume)",
     "closedArrowReversed": "Mshale Uliofungwa (kinyume)",
     "slash": "Mstari wa Mkato"
+  },
+  "keyboardShortcuts": {
+    "title": "Njia za mkato za kibodi",
+    "search": "Tafuta kwa amri au kitufe",
+    "command": "Amri",
+    "shortcuts": "Njia za mkato",
+    "none": "Hakuna",
+    "noMatches": "Hakuna amri inayolingana na utafutaji.",
+    "selectHint": "Chagua amri ili kubadilisha njia zake za mkato.",
+    "addShortcut": "Ongeza njia ya mkato",
+    "remove": "Ondoa njia ya mkato",
+    "resetCommand": "Rejesha chaguo-msingi",
+    "resetAll": "Rejesha zote",
+    "resetAllConfirm": "Rejesha njia zote za mkato za kibodi kwenye chaguo-msingi?",
+    "import": "Leta…",
+    "export": "Hamisha…",
+    "fileType": "Njia za mkato za kibodi",
+    "imported": "Njia za mkato zimeletwa. Bofya Hifadhi ili kuzitumia.",
+    "importFailed": "Hii si faili halali ya njia za mkato za kibodi.",
+    "exported": "Njia za mkato zimehamishwa.",
+    "exportFailed": "Kuhamisha njia za mkato kumeshindikana:",
+    "recording": "Bonyeza mchanganyiko mpya wa vitufe… (Esc inaghairi)",
+    "conflict": "{{keys}} tayari inatumiwa na “{{command}}”.",
+    "reassign": "Kabidhi upya",
+    "reserved": "{{keys}} ina maana isiyobadilika na haiwezi kukabidhiwa.",
+    "defaultLabel": "Chaguo-msingi: {{keys}}",
+    "customize": "Badilisha…",
+    "fixedGroup": "Vitufe visivyobadilika",
+    "applyHint": "Mabadiliko yanaanza kutumika unapobofya Hifadhi.",
+    "categories": {
+      "file": "Faili",
+      "edit": "Hariri",
+      "view": "Mwonekano",
+      "search": "Tafuta",
+      "tools": "Zana",
+      "drafting": "Visaidizi vya kuchora",
+      "panels": "Paneli",
+      "review": "Kagua",
+      "help": "Msaada",
+      "extensions": "Viendelezi",
+      "ribbon": "Utepe: {{tab}}",
+      "other": "Nyingine"
+    },
+    "commands": {
+      "findNext": "Tafuta inayofuata"
+    }
   }
 }

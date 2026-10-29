@@ -9,7 +9,8 @@
     "behavior": "Zachowanie",
     "fileAssociation": "Skojarzenie plików",
     "virtualPrinter": "Drukarka wirtualna",
-    "pageDisplay": "Wyświetlanie strony"
+    "pageDisplay": "Wyświetlanie strony",
+    "keyboardShortcuts": "Skróty klawiaturowe"
   },
   "resetToDefaults": "Przywróć ustawienia domyślne",
   "resetConfirm": "Przywrócić wszystkie preferencje do wartości domyślnych?",
@@ -291,5 +292,51 @@
     "openArrowReversed": "Otwarta strzałka (odwrócona)",
     "closedArrowReversed": "Zamknięta strzałka (odwrócona)",
     "slash": "Ukośnik"
+  },
+  "keyboardShortcuts": {
+    "title": "Skróty klawiaturowe",
+    "search": "Szukaj według polecenia lub klawisza",
+    "command": "Polecenie",
+    "shortcuts": "Skróty",
+    "none": "Brak",
+    "noMatches": "Żadne polecenie nie pasuje do wyszukiwania.",
+    "selectHint": "Wybierz polecenie, aby zmienić jego skróty.",
+    "addShortcut": "Dodaj skrót",
+    "remove": "Usuń skrót",
+    "resetCommand": "Przywróć domyślne",
+    "resetAll": "Przywróć wszystko",
+    "resetAllConfirm": "Przywrócić wszystkie skróty klawiaturowe do wartości domyślnych?",
+    "import": "Importuj…",
+    "export": "Eksportuj…",
+    "fileType": "Skróty klawiaturowe",
+    "imported": "Skróty zaimportowane. Kliknij Zapisz, aby je zastosować.",
+    "importFailed": "To nie jest prawidłowy plik skrótów klawiaturowych.",
+    "exported": "Skróty wyeksportowane.",
+    "exportFailed": "Eksport skrótów nie powiódł się:",
+    "recording": "Naciśnij nową kombinację klawiszy… (Esc anuluje)",
+    "conflict": "{{keys}} jest już używany przez „{{command}}”.",
+    "reassign": "Przypisz ponownie",
+    "reserved": "{{keys}} ma stałe znaczenie i nie można go przypisać.",
+    "defaultLabel": "Domyślnie: {{keys}}",
+    "customize": "Dostosuj…",
+    "fixedGroup": "Stałe klawisze",
+    "applyHint": "Zmiany obowiązują po kliknięciu Zapisz.",
+    "categories": {
+      "file": "Plik",
+      "edit": "Edycja",
+      "view": "Widok",
+      "search": "Znajdź",
+      "tools": "Narzędzia",
+      "drafting": "Pomoce rysunkowe",
+      "panels": "Panele",
+      "review": "Recenzja",
+      "help": "Pomoc",
+      "extensions": "Rozszerzenia",
+      "ribbon": "Wstążka: {{tab}}",
+      "other": "Inne"
+    },
+    "commands": {
+      "findNext": "Znajdź następny"
+    }
   }
 }

@@ -451,7 +451,7 @@ export function DrawingGroups() {
         <RibbonGroup label={t('drawing.clipboard')}>
           <RibbonButton id="dr-paste" title={t('drawing.paste')} icon={pasteIcon} label={t('drawing.paste')}
             disabled={ro()} onClick={pasteFromClipboard} />
-          <RibbonButton id="dr-paste-in-place" title={`${t('drawing.pasteInPlace')} (Ctrl+Shift+V)`} icon={pasteInPlaceIcon} label={t('drawing.pasteInPlace')}
+          <RibbonButton id="dr-paste-in-place" title={t('drawing.pasteInPlace')} icon={pasteInPlaceIcon} label={t('drawing.pasteInPlace')}
             disabled={ro()} onClick={() => pasteAnnotationsInPlace()} />
           {/* Knippen / Kopiëren / Verwijderen — icon-only (issue #278);
               de naam blijft als tooltip beschikbaar. */}

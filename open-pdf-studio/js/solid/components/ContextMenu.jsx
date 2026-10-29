@@ -67,6 +67,7 @@ import {
   revealInFileManagerLabelKey,
   canRevealInFileManager,
 } from '../../core/file-manager-reveal.js';
+import { sneltoetsVoor } from '../stores/keybindingStore.js';
 
 function redraw() {
   if (getActiveDocument()?.viewMode === 'continuous') {
@@ -525,7 +526,7 @@ function AnnotationMenuContent() {
         <Separator />
       </Show>
 
-      <MenuItem icon={cutIcon} label={tCommon('cut')} shortcut="Ctrl+X" disabled={isPaarVergrendeld()} onClick={() => {
+      <MenuItem icon={cutIcon} label={tCommon('cut')} shortcut={sneltoetsVoor('edit.cut')} disabled={isPaarVergrendeld()} onClick={() => {
         const a = ann();
         const doc = getActiveDocument();
         // Een vervanging (#508) wordt in haar geheel geknipt.
@@ -536,9 +537,9 @@ function AnnotationMenuContent() {
         hideProperties();
         redraw();
       }} />
-      <MenuItem icon={copyIcon} label={tCommon('copy')} shortcut="Ctrl+C" onClick={() => copyAnnotation(ann())} />
-      <MenuItem icon={pasteIcon} label={tCommon('paste')} shortcut="Ctrl+V" onClick={() => pasteFromClipboard()} />
-      <MenuItem icon={pasteIcon} label={tCommon('pasteInPlace')} shortcut="Ctrl+Shift+V" onClick={() => pasteAnnotationsInPlace()} />
+      <MenuItem icon={copyIcon} label={tCommon('copy')} shortcut={sneltoetsVoor('edit.copy')} onClick={() => copyAnnotation(ann())} />
+      <MenuItem icon={pasteIcon} label={tCommon('paste')} shortcut={sneltoetsVoor('edit.paste')} onClick={() => pasteFromClipboard()} />
+      <MenuItem icon={pasteIcon} label={tCommon('pasteInPlace')} shortcut={sneltoetsVoor('edit.pasteInPlace')} onClick={() => pasteAnnotationsInPlace()} />
 
       <Separator />
 
@@ -556,7 +557,7 @@ function AnnotationMenuContent() {
         <Separator />
       </Show>
 
-      <MenuItem icon={deleteIcon} label={tCommon('delete')} shortcut="Delete" disabled={isPaarVergrendeld()} onClick={async () => {
+      <MenuItem icon={deleteIcon} label={tCommon('delete')} shortcut={sneltoetsVoor('edit.delete')} disabled={isPaarVergrendeld()} onClick={async () => {
         const a = ann();
         const confirmed = await showConfirm({
           title: t('deleteAnnotation.title'),
@@ -967,8 +968,8 @@ function PageMenuContent() {
 
       <MenuItem icon={pageCutIcon} label={tCommon('cut')} shortcut="Ctrl+X" disabled={true} />
       <MenuItem icon={pageCopyIcon} label={tCommon('copy')} shortcut="Ctrl+C" disabled={true} />
-      <MenuItem icon={pagePasteIcon} label={tCommon('paste')} shortcut="Ctrl+V" onClick={() => pasteFromClipboard()} />
-      <MenuItem icon={pagePasteIcon} label={tCommon('pasteInPlace')} shortcut="Ctrl+Shift+V" onClick={() => pasteAnnotationsInPlace()} />
+      <MenuItem icon={pagePasteIcon} label={tCommon('paste')} shortcut={sneltoetsVoor('edit.paste')} onClick={() => pasteFromClipboard()} />
+      <MenuItem icon={pagePasteIcon} label={tCommon('pasteInPlace')} shortcut={sneltoetsVoor('edit.pasteInPlace')} onClick={() => pasteAnnotationsInPlace()} />
 
       <Separator />
 
@@ -1007,10 +1008,10 @@ function PageMenuContent() {
 
       <Separator />
 
-      <MenuItem icon={printIcon} label={t('page.printMenu')} shortcut="Ctrl+P" onClick={() => {
+      <MenuItem icon={printIcon} label={t('page.printMenu')} shortcut={sneltoetsVoor('file.print')} onClick={() => {
         import('../stores/dialogStore.js').then(m => m.openDialog('print'));
       }} />
-      <MenuItem icon={findIcon} label={t('page.findMenu')} shortcut="Ctrl+F" onClick={() => {
+      <MenuItem icon={findIcon} label={t('page.findMenu')} shortcut={sneltoetsVoor('search.find')} onClick={() => {
         const findBar = document.getElementById('find-bar');
         const findInput = document.getElementById('find-input');
         if (findBar) { findBar.style.display = 'flex'; if (findInput) findInput.focus(); }
