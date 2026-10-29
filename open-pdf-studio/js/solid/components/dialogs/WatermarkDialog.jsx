@@ -7,6 +7,8 @@ import { markDocumentModified } from '../../../ui/chrome/tabs.js';
 import { redrawAnnotations, redrawContinuous } from '../../../annotations/rendering.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 
+import { kopVoetInWeergave, haalKopVoetUitWeergave } from '../../../watermark/kopvoet-weergave.js';
+
 function generateId() {
   return 'wm-' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
 }
@@ -119,6 +121,7 @@ export default function WatermarkDialog(props) {
       pageRange: pageRange(),
       customPages: customPages(),
       enabled: true,
+      uitBestand: false,
     };
   }
 
@@ -139,10 +142,11 @@ export default function WatermarkDialog(props) {
       customPages: imgCustomPages(),
       scale: parseInt(imgScale()) / 100,
       enabled: true,
+      uitBestand: false,
     };
   }
 
-  function handleAdd() {
+  async function handleAdd() {
     const tab = activeTab();
     const wm = tab === 'image' ? buildImageWatermark() : buildTextWatermark();
 
@@ -152,6 +156,8 @@ export default function WatermarkDialog(props) {
     }
 
     const doc = getActiveDocument();
+    if (isEditing && kopVoetInWeergave(doc, editWm)) await haalKopVoetUitWeergave(doc);
+    if (getActiveDocument() !== doc) return;
     if (isEditing) {
       const oldState = { ...editWm };
       const watermarks = doc?.watermarks;

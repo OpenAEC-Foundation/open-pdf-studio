@@ -200,10 +200,10 @@ test('text edits: a cancel stops before the next edit, past the per-edit error g
 test('watermarks: one checkpoint per page, a cancel stops the loop', async () => {
   const pdf = await PDFDocument.create();
   for (let i = 0; i < 4; i++) pdf.addPage([200, 200]);
-  const doc = { watermarks: [{ id: 'w', type: 'text', enabled: false, text: 'X' }] };
+  const doc = { watermarks: [{ id: 'w', type: 'textWatermark', enabled: true, text: 'X' }] };
   const vrij = telAnnulering();
   await saveWatermarksToPages(pdf, pdf.getPages(), doc, { annulering: vrij.a });
-  assert.equal(vrij.aantal(), 8, 'two layers of four pages');
+  assert.equal(vrij.aantal(), 4, 'one checkpoint for each page actually written');
   const gestopt = telAnnulering(3);
   await assert.rejects(saveWatermarksToPages(pdf, pdf.getPages(), doc, { annulering: gestopt.a }), OpslagGeannuleerd);
   assert.equal(gestopt.aantal(), 3);

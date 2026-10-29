@@ -1,6 +1,6 @@
 {
   "name": "open-pdf-studio",
-  "version": "2026.44.2",
+  "version": "2026.44.12",
   "description": "A free, open-source PDF annotation editor built with Tauri",
   "scripts": {
     "prepare:native-runtime": "node scripts/native-runtime.mjs",
@@ -65,6 +65,7 @@
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "6.4.299",
     "solid-js": "^1.9.11",
-    "three": "0.170.0"
+    "three": "0.170.0",
+    "@pdf-lib/standard-fonts": "^1.0.0"
   }
 }

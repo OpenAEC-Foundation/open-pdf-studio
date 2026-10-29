@@ -4,6 +4,9 @@ import {
   KOPVOET_VAKKEN, vakPositie, vulKopVoetIn, kopVoetWaarden, toegepastePaginas, kopVoetInWeergave,
 } from './kopvoet-tekst.js';
 
+import { watermarkPosition, watermarkBaseline, watermarkFont } from './watermark-layout.js';
+import { toWinAnsiText } from '../pdf/saver/pdf-text.js';
+
 const imageCache = new Map();
 
 function shouldRenderOnPage(watermark, pageNum, totalPages) {
@@ -17,36 +20,18 @@ function shouldRenderOnPage(watermark, pageNum, totalPages) {
   return true;
 }
 
-function getPosition(position, customX, customY, pageWidth, pageHeight, objWidth, objHeight) {
-  switch (position) {
-    case 'center':
-      return { x: pageWidth / 2, y: pageHeight / 2 };
-    case 'top-left':
-      return { x: objWidth / 2 + 40, y: objHeight / 2 + 40 };
-    case 'top-right':
-      return { x: pageWidth - objWidth / 2 - 40, y: objHeight / 2 + 40 };
-    case 'bottom-left':
-      return { x: objWidth / 2 + 40, y: pageHeight - objHeight / 2 - 40 };
-    case 'bottom-right':
-      return { x: pageWidth - objWidth / 2 - 40, y: pageHeight - objHeight / 2 - 40 };
-    case 'custom':
-      return { x: customX || pageWidth / 2, y: customY || pageHeight / 2 };
-    default:
-      return { x: pageWidth / 2, y: pageHeight / 2 };
-  }
-}
-
 function renderTextWatermark(ctx, wm, pageWidth, pageHeight) {
-  const pos = getPosition(wm.position, wm.customX, wm.customY, pageWidth, pageHeight, 0, 0);
+  const pos = watermarkPosition(wm, pageWidth, pageHeight);
   ctx.save();
   ctx.globalAlpha = wm.opacity !== undefined ? wm.opacity : 0.3;
   ctx.translate(pos.x, pos.y);
   ctx.rotate((wm.rotation || 0) * Math.PI / 180);
-  ctx.font = `${wm.fontSize || 72}px ${wm.fontFamily || 'Helvetica'}`;
+  const family = watermarkFont(wm.fontFamily);
+  ctx.font = `${wm.fontSize || 72}px ${family === 'Times-Roman' ? 'Times New Roman' : family}`;
   ctx.fillStyle = wm.color || '#ff0000';
   ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(wm.text || '', 0, 0);
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillText(toWinAnsiText(wm.text || '', { newlines: 'space' }), 0, watermarkBaseline(wm.fontFamily, wm.fontSize || 72));
   ctx.restore();
 }
 
@@ -62,10 +47,10 @@ function renderImageWatermark(ctx, wm, pageWidth, pageHeight) {
 
   if (!img.complete) return;
 
-  const scale = wm.scale || 1;
-  const w = (wm.width || img.naturalWidth || 200) * scale;
-  const h = (wm.height || img.naturalHeight || 200) * scale;
-  const pos = getPosition(wm.position, wm.customX, wm.customY, pageWidth, pageHeight, w, h);
+  const scale = wm.scale ?? 1;
+  const w = (wm.width || 200) * scale;
+  const h = (wm.height || 200) * scale;
+  const pos = watermarkPosition(wm, pageWidth, pageHeight, w, h);
 
   ctx.save();
   ctx.globalAlpha = wm.opacity !== undefined ? wm.opacity : 0.2;
@@ -114,7 +99,7 @@ function renderWatermarksForLayer(ctx, layer, pageNum, pageWidth, pageHeight) {
     if (wm.type === 'headerFooter' && layer !== 'infront') continue;
     if (!shouldRenderOnPage(wm, pageNum, totalPages)) continue;
     // Al als pagina-inhoud in het weergegeven bestand: niet dubbel tekenen.
-    if (wm.type === 'headerFooter' && kopVoetInWeergave(doc, wm)) continue;
+    if (kopVoetInWeergave(doc, wm)) continue;
 
     switch (wm.type) {
       case 'textWatermark':
