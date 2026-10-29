@@ -1,5 +1,11 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "بڑا فارمیٹ",
+      "detailblad": "تفصیلات کا ورق",
+      "voorblad": "سرورق"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
     "title": "نئی دستاویز",
     "paperSize": "کاغذ کا سائز:",
     "widthMm": "چوڑائی (mm):",

@@ -1,5 +1,11 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "பெரிய வடிவம்",
+      "detailblad": "விவரத் தாள்",
+      "voorblad": "அட்டைத் தாள்"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
     "title": "புதிய ஆவணம்",
     "paperSize": "தாள் அளவு:",
     "widthMm": "அகலம் (mm):",

@@ -1,5 +1,11 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "פורמט גדול",
+      "detailblad": "גיליון פרטים",
+      "voorblad": "גיליון שער"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
     "title": "מסמך חדש",
     "paperSize": "גודל נייר:",
     "widthMm": "רוחב (mm):",

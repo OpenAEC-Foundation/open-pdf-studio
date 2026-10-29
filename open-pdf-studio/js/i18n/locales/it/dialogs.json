@@ -1,5 +1,11 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Grande formato",
+      "detailblad": "Foglio dei dettagli",
+      "voorblad": "Copertina"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
     "title": "Nuovo documento",
     "paperSize": "Formato carta:",
     "widthMm": "Larghezza (mm):",

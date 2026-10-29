@@ -1,5 +1,11 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Format besar",
+      "detailblad": "Lembar detail",
+      "voorblad": "Lembar sampul"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
     "title": "Dokumen Baru",
     "paperSize": "Ukuran Kertas:",
     "widthMm": "Lebar (mm):",

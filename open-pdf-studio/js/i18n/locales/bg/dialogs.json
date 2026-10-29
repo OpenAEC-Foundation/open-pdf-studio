@@ -1,5 +1,11 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Голям формат",
+      "detailblad": "Лист с детайли",
+      "voorblad": "Заглавен лист"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
     "title": "Нов документ",
     "paperSize": "Размер на хартията:",
     "widthMm": "Ширина (mm):",

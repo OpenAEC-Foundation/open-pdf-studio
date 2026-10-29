@@ -1,5 +1,11 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Format besar",
+      "detailblad": "Helaian butiran",
+      "voorblad": "Helaian muka depan"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
     "title": "Dokumen Baharu",
     "paperSize": "Saiz Kertas:",
     "widthMm": "Lebar (mm):",

@@ -1,5 +1,11 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Gran format",
+      "detailblad": "Full de detalls",
+      "voorblad": "Full de portada"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
     "title": "Document nou",
     "paperSize": "Mida del paper:",
     "widthMm": "Amplada (mm):",

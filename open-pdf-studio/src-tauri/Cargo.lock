@@ -3223,7 +3223,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-render"
-version = "2026.43.11"
+version = "2026.44.4"
 dependencies = [
  "flate2",
  "hayro-font",
@@ -3237,7 +3237,7 @@ dependencies = [
 
 [[package]]
 name = "open-pdf-studio"
-version = "2026.43.11"
+version = "2026.44.4"
 dependencies = [
  "axum",
  "base64 0.22.1",

@@ -1,5 +1,11 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "ຮູບແບບຂະໜາດໃຫຍ່",
+      "detailblad": "ແຜ່ນລາຍລະອຽດ",
+      "voorblad": "ແຜ່ນປົກ"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
     "title": "ເອກະສານໃໝ່",
     "paperSize": "ຂະໜາດເຈ້ຍ:",
     "widthMm": "ລວງກວ້າງ (ມມ):",

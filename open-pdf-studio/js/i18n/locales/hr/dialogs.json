@@ -1,5 +1,11 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Veliki format",
+      "detailblad": "List s detaljima",
+      "voorblad": "Naslovni list"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
     "title": "Novi dokument",
     "paperSize": "Veličina papira:",
     "widthMm": "Širina (mm):",

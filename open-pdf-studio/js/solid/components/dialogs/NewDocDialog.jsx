@@ -39,6 +39,9 @@ export { PAPER_SIZES };
 export default function NewDocDialog() {
   const { t } = useTranslation('dialogs');
   const { t: tCommon } = useTranslation('common');
+  const frameStyleLabel = (style) => ['grootformaat', 'detailblad', 'voorblad'].includes(style)
+    ? t(`newDoc.frameStyles.${style}`)
+    : _cap(style);
 
   const [paperSize, setPaperSize] = createSignal(DEFAULT_PAPER);
   const [orientation, setOrientation] = createSignal(DEFAULT_ORIENTATION);
@@ -248,7 +251,13 @@ export default function NewDocDialog() {
     const dims = getDimensions();
     const base = `${dims.widthMm} x ${dims.heightMm} mm (${dims.label})`;
     const f = resolvedFrame();
-    return f ? `${base} — ${f.fileName}` : base;
+    return f ? t('newDoc.framePreview', {
+      style: frameStyleLabel(f.stijl),
+      paper: dims.label,
+      orientation: tCommon(orientation()),
+      width: dims.widthMm,
+      height: dims.heightMm,
+    }) : base;
   });
 
   // Eigen onderhoek toevoegen: kies een PDF, kopieer hem naar de
@@ -316,7 +325,7 @@ export default function NewDocDialog() {
           >
             <option value="">{t('newDoc.noFrame')}</option>
             <For each={frameIndex()?.stijlen || []}>{(s) => (
-              <option value={s}>{_cap(s)}</option>
+              <option value={s}>{frameStyleLabel(s)}</option>
             )}</For>
           </select>
           <button

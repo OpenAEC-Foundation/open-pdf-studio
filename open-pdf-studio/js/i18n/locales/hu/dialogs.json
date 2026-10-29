@@ -1,5 +1,11 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Nagy formátum",
+      "detailblad": "Részletrajzlap",
+      "voorblad": "Fedőlap"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
     "title": "Új dokumentum",
     "paperSize": "Papírméret:",
     "widthMm": "Szélesség (mm):",

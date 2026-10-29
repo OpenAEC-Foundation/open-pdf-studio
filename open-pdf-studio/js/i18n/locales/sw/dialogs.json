@@ -1,5 +1,11 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Muundo mkubwa",
+      "detailblad": "Karatasi ya maelezo",
+      "voorblad": "Karatasi ya jalada"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
     "title": "Hati Mpya",
     "paperSize": "Ukubwa wa Karatasi:",
     "widthMm": "Upana (mm):",

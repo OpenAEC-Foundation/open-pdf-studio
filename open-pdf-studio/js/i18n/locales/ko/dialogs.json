@@ -1,5 +1,11 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "대형 형식",
+      "detailblad": "상세 도면",
+      "voorblad": "표지"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
     "title": "새 문서",
     "paperSize": "용지 크기:",
     "widthMm": "너비 (mm):",
