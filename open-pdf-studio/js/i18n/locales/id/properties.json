@@ -204,7 +204,11 @@
     "alignCenter": "Rata Tengah",
     "alignRight": "Rata Kanan",
     "lineSpacing": "Spasi Baris",
-    "rotation": "Rotasi"
+    "rotation": "Rotasi",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Balasan",

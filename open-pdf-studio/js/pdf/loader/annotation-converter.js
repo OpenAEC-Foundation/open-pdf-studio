@@ -1405,6 +1405,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
           fontUnderline: fontUnderline,
           fontStrikethrough: fontStrikethrough,
           ...(textAlign ? { textAlign } : {}),
+          // Verticale uitlijning: de callout tekent en bewaart hem net als een tekstvak.
+          ...(extraColors.textVAlign ? { textVAlign: extraColors.textVAlign } : {}),
           arrowX: clArrowVx,
           arrowY: clArrowVy,
           kneeX: clKneeVx,
@@ -1456,6 +1458,7 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
         height: ftHeight,
         rotation: ftRotation,
         ...(extraColors.boxShape ? { boxShape: extraColors.boxShape } : {}),
+        ...(extraColors.textVAlign ? { textVAlign: extraColors.textVAlign } : {}),
         text: text,
         ...(textRuns ? { textRuns } : {}),
         color: borderColor,

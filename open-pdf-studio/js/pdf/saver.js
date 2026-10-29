@@ -45,7 +45,7 @@ import { eigenVulDekking } from '../annotations/vul-dekking.js';
 import { saveTextEditsToPages } from './saver/text-edits.js';
 import { isOntbrekendeGlyfenFout, tekensVoorMelding } from '../text/glyf-dekking.js';
 import { hostFoutMelding } from '../core/host-brug.js';
-import { runsToText, dsMargeUitInzet } from '../annotations/rendering/textbox-layout.js';
+import { runsToText, dsMargeUitInzet, verticaleVerschuiving } from '../annotations/rendering/textbox-layout.js';
 import { saveWatermarksToPages } from './saver/watermarks.js';
 import { writeOcrLayers } from './saver/ocr-text-layer.js';
 import { maakCjkFontKeten } from './saver/cjk-fonts.js';
@@ -1624,6 +1624,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
                 const boxTop = needsRotationInAP ? visH : tbY2;
                 const bottomLimit = needsRotationInAP ? 0 : tbY1;
                 let textY = boxTop - pad - layout.halfLeading - layout.ascent;
+                // Verticale uitlijning (boven, midden, onder) van het tekstblok.
+                textY -= verticaleVerschuiving(ann.textVAlign, visH - 2 * pad, layout.lines.length * lineHeight);
 
                 ftStreamContent += 'BT\n';
                 const basisKleur = ann.textColor ? `${tr} ${tg} ${tb}` : '0 0 0';
@@ -1726,6 +1728,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               annotDict.set(PDFName.of('OPS_Rotation'), context.obj(ftRotation));
               // The shape of the box (rounded or oval); a rectangle is the default and gets no key.
               if (vormVan(ann) !== 'rect') annotDict.set(PDFName.of('OPS_BoxShape'), PDFName.of(vormVan(ann)));
+              // Vertical alignment of the text; top is the default and gets no key.
+              if (ann.textVAlign === 'middle' || ann.textVAlign === 'bottom') annotDict.set(PDFName.of('OPS_TextVAlign'), PDFName.of(ann.textVAlign));
             }
 
             break;

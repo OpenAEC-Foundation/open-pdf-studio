@@ -204,7 +204,11 @@
     "alignCenter": "Centrera",
     "alignRight": "Högerjustera",
     "lineSpacing": "Radavstånd",
-    "rotation": "Rotation"
+    "rotation": "Rotation",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Svar",

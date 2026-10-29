@@ -204,7 +204,11 @@
     "alignCenter": "По центру",
     "alignRight": "По правому краю",
     "lineSpacing": "Межстрочный интервал",
-    "rotation": "Поворот"
+    "rotation": "Поворот",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Ответы",

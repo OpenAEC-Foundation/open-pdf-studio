@@ -204,7 +204,11 @@
     "alignCenter": "Ortala",
     "alignRight": "Sağa Hizala",
     "lineSpacing": "Satır Aralığı",
-    "rotation": "Döndürme"
+    "rotation": "Döndürme",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Yanıtlar",

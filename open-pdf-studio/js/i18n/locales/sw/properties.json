@@ -204,7 +204,11 @@
     "alignCenter": "Pangilia Katikati",
     "alignRight": "Pangilia Kulia",
     "lineSpacing": "Nafasi ya Mistari",
-    "rotation": "Mzunguko"
+    "rotation": "Mzunguko",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Majibu",

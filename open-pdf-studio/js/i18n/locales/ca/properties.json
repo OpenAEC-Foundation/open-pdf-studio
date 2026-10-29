@@ -204,7 +204,11 @@
     "alignCenter": "Alinea al centre",
     "alignRight": "Alinea a la dreta",
     "lineSpacing": "Interlineat",
-    "rotation": "Rotació"
+    "rotation": "Rotació",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Respostes",

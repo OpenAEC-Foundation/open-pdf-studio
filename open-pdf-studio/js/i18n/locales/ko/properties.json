@@ -204,7 +204,11 @@
     "alignCenter": "가운데 맞춤",
     "alignRight": "오른쪽 맞춤",
     "lineSpacing": "줄 간격",
-    "rotation": "회전"
+    "rotation": "회전",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "답글",

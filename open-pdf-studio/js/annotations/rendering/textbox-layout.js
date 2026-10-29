@@ -285,3 +285,23 @@ export function pasRegelafstandAanDoos({ lineSpacing, fontSize, boxHeight, paddi
   }
   return { lineSpacing, height: neededHeight };
 }
+
+/** De mogelijke verticale uitlijningen van de tekst in een tekstvak. */
+export const TEKST_V_UITLIJNINGEN = Object.freeze(['top', 'middle', 'bottom']);
+
+/**
+ * Hoeveel de tekst naar beneden schuift voor de verticale uitlijning: 0 voor
+ * boven (de standaard), de helft van de vrije ruimte voor midden, de hele
+ * vrije ruimte voor onder. Past de tekst niet in het vak, dan blijft hij boven
+ * beginnen (er is geen vrije ruimte). Eén regel voor canvas, editor en opslag.
+ * @param {string|undefined} uitlijning 'top' | 'middle' | 'bottom'
+ * @param {number} binnenHoogte hoogte van het vak min de inzet boven en onder
+ * @param {number} tekstHoogte regels x regelafstand
+ */
+export function verticaleVerschuiving(uitlijning, binnenHoogte, tekstHoogte) {
+  const ruimte = binnenHoogte - tekstHoogte;
+  if (!(ruimte > 0)) return 0;
+  if (uitlijning === 'middle') return ruimte / 2;
+  if (uitlijning === 'bottom') return ruimte;
+  return 0;
+}

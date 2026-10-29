@@ -1451,6 +1451,14 @@ const result = {};
           if (naam === 'rounded' || naam === 'ellipse') colors.boxShape = naam;
         }
 
+        // Verticale uitlijning van de tekst (midden of onder; boven is de standaard).
+        const opsVUitRaw = annotDict.get(PDFName.of('OPS_TextVAlign'));
+        if (opsVUitRaw) {
+          const vu = context.lookup(opsVUitRaw) || opsVUitRaw;
+          const vnaam = typeof vu?.asString === 'function' ? vu.asString().replace(/^\//, '') : '';
+          if (vnaam === 'middle' || vnaam === 'bottom') colors.textVAlign = vnaam;
+        }
+
         // /LE van een callout (#612): volgens de specificatie één naam, sommige
         // programma's schrijven een rij. pdf.js geeft /LE alleen voor lijnen.
         const ftLeRaw = annotDict.get(PDFName.of('LE'));

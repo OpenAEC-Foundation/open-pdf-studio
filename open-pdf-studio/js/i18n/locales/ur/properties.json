@@ -204,7 +204,11 @@
     "alignCenter": "مرکز سیدھ",
     "alignRight": "دائیں سیدھ",
     "lineSpacing": "سطر کا فاصلہ",
-    "rotation": "گھماؤ"
+    "rotation": "گھماؤ",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "جوابات",

@@ -204,7 +204,11 @@
     "alignCenter": "居中对齐",
     "alignRight": "右对齐",
     "lineSpacing": "行间距",
-    "rotation": "旋转"
+    "rotation": "旋转",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "回复",

@@ -204,7 +204,11 @@
     "alignCenter": "Zarovnat na střed",
     "alignRight": "Zarovnat vpravo",
     "lineSpacing": "Řádkování",
-    "rotation": "Otočení"
+    "rotation": "Otočení",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "Odpovědi",

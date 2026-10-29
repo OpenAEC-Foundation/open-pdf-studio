@@ -204,7 +204,11 @@
     "alignCenter": "יישור למרכז",
     "alignRight": "יישור לימין",
     "lineSpacing": "ריווח שורות",
-    "rotation": "סיבוב"
+    "rotation": "סיבוב",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "תגובות",

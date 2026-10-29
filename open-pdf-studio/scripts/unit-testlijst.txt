@@ -552,3 +552,5 @@ js/annotations/redaction-melding.test.mjs
 js/annotations/draaipunt.test.mjs
 
 js/annotations/rendering/textbox-vorm.test.mjs
+
+js/annotations/rendering/textbox-vuitlijning.test.mjs

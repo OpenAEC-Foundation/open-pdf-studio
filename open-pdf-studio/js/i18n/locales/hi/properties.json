@@ -204,7 +204,11 @@
     "alignCenter": "केंद्र में संरेखित करें",
     "alignRight": "दाएं संरेखित करें",
     "lineSpacing": "पंक्ति अंतर",
-    "rotation": "घुमाव"
+    "rotation": "घुमाव",
+    "verticalAlignment": "Vertical alignment",
+    "alignTop": "Align top",
+    "alignMiddle": "Centre vertically",
+    "alignBottom": "Align bottom"
   },
   "replies": {
     "title": "उत्तर",
