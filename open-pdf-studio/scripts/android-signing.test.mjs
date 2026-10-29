@@ -8,7 +8,7 @@ import { spawnSync } from 'node:child_process';
 
 const signingTest = process.platform === 'win32' ? test.skip : test;
 
-const workflow = readFileSync(new URL('../../.github/workflows/release.yml', import.meta.url), 'utf8');
+const workflow = readFileSync(new URL('../../.github/workflows/release.yml', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
 const step = workflow.split('      - name: Sign APK\n')[1]?.split('\n      - name:')[0];
 assert.ok(step, 'Sign APK step exists');
 const shell = step.split('        run: |\n')[1].split('\n').map(line => line.replace(/^ {10}/, '')).join('\n');
