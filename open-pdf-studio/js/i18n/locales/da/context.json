@@ -48,7 +48,8 @@
     "setScale": "Angiv skala...",
     "dimChainAdd": "Tilføj punkter til målkæden",
     "dimChainRemove": "Fjern hjælpelinje fra kæden",
-    "selectRoom": "Vælg rum"
+    "selectRoom": "Vælg rum",
+    "saveToToolSet": "Gem i værktøjssæt"
   },
   "multiSelect": {
     "copyAnnotations": "Kopier {{count}} annotationer",

@@ -850,6 +850,21 @@
   flex-shrink: 0;
 }
 
+/* Gekozen keuze in een splitknopmenu (bv. View > Split, #715). */
+.ribbon-split-btn-menu-item.active {
+  background: var(--theme-ribbon-btn-active-bg, var(--theme-ribbon-btn-hover));
+  font-weight: 600;
+}
+
+.ribbon-split-btn-menu-item:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.ribbon-split-btn-menu-item:disabled:hover {
+  background: none;
+}
+
 /* Ribbon dropdown */
 .ribbon-dropdown {
   position: relative;

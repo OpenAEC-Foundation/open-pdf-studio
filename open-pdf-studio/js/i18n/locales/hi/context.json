@@ -48,7 +48,8 @@
     "setScale": "स्केल सेट करें...",
     "dimChainAdd": "डायमेंशन श्रृंखला में बिंदु जोड़ें",
     "dimChainRemove": "श्रृंखला से एक्सटेंशन लाइन हटाएं",
-    "selectRoom": "कमरा चुनें"
+    "selectRoom": "कमरा चुनें",
+    "saveToToolSet": "टूल सेट में सहेजें"
   },
   "multiSelect": {
     "copyAnnotations": "{{count}} एनोटेशन कॉपी करें",

@@ -48,7 +48,8 @@
     "setScale": "Definir escala...",
     "dimChainAdd": "Adicionar pontos à cadeia de cotas",
     "dimChainRemove": "Remover linha de extensão da cadeia",
-    "selectRoom": "Selecionar ambiente"
+    "selectRoom": "Selecionar ambiente",
+    "saveToToolSet": "Salvar no conjunto de ferramentas"
   },
   "multiSelect": {
     "copyAnnotations": "Copiar {{count}} anotações",

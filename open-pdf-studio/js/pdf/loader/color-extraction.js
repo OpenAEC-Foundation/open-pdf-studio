@@ -1127,8 +1127,11 @@ const result = {};
             if (dArr && typeof dArr.size === 'function' && dArr.size() >= 2) {
               const d0 = pdfNum(dArr.get(0));
               const d1 = pdfNum(dArr.get(1));
-              // Short dash segments (<=3) indicate dotted; longer ones are dashed
-              if (d0 !== null && d0 <= 3 && d1 !== null && d1 <= 3) {
+              // Short dash segments (<=3) indicate dotted; longer ones are dashed.
+              // The app writes dotted as the screen pattern [2 4]
+              // (saver/utils.js buildBorderStyle; older versions [2 2]).
+              const eigenStippel = dArr.size() === 2 && d0 === 2 && d1 === 4;
+              if (eigenStippel || (d0 !== null && d0 <= 3 && d1 !== null && d1 <= 3)) {
                 colors.borderStyle = 'dotted';
               } else {
                 colors.borderStyle = 'dashed';

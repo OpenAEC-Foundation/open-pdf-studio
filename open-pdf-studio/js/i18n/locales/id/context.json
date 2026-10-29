@@ -48,7 +48,8 @@
     "setScale": "Atur Skala...",
     "dimChainAdd": "Tambah Titik ke Rantai Dimensi",
     "dimChainRemove": "Hapus Garis Bantu dari Rantai",
-    "selectRoom": "Pilih Ruang"
+    "selectRoom": "Pilih Ruang",
+    "saveToToolSet": "Simpan ke Set Alat"
   },
   "multiSelect": {
     "copyAnnotations": "Salin {{count}} Anotasi",

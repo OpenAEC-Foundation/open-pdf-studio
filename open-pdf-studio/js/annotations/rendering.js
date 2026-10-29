@@ -82,6 +82,8 @@ import {
 import { viewportGeometrie, rectNaarPagina } from '../pdf/weergave-rotatie.js';
 import { paginaMaat, paginaNaarWeergave, weergaveTransform, weergaveRectNaarPagina, zetRechtopRond } from '../pdf/weergave-ruimte.js';
 import { schaalgebiedStijl } from './scale-region-style.js';
+import { meld as meldSplit } from '../pdf/split-view/split-haken.js';
+import { schermSchaal, weergaveRotatieVan } from '../pdf/split-view/paneel-weergave.js';
 
 // Re-export everything that external code needs
 export { drawPolygonShape, drawCloudShape, buildPolygonPath, buildCloudPath } from './rendering/shapes.js';
@@ -266,7 +268,7 @@ function thinLw(width) {
   // Blank docs (no filePath) bypass the viewport singleton and use doc.scale.
   const scale = (vp && vp.active && _doc?.filePath)
     ? vp.zoom
-    : (_doc?.scale || 1);
+    : (schermSchaal(_doc) || 1);
   // Lineweight display OFF ('TL'): EVERYTHING renders as a true hairline —
   // exactly 1 screen pixel at any zoom (CAD LWDISPLAY off). Below 100 % zoom
   // a stroke gets at least one screen pixel.
@@ -660,7 +662,7 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
 
       // Create offscreen canvas at scaled resolution to avoid pixelation when zoomed
       const arrowDoc = state.documents[state.activeDocumentIndex];
-      const arrowScale = (arrowDoc ? arrowDoc.scale : 1) || 1;
+      const arrowScale = (arrowDoc ? schermSchaal(arrowDoc) : 1) || 1;
       const offCanvas = document.createElement('canvas');
       offCanvas.width = offW * arrowScale;
       offCanvas.height = offH * arrowScale;
@@ -1066,12 +1068,12 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
         const popY = annotation.popupY !== undefined ? annotation.popupY : annotation.y;
 
         const doc = state.documents[state.activeDocumentIndex];
-        const scl = (doc ? doc.scale : 1) || 1;
+        const scl = (doc ? schermSchaal(doc) : 1) || 1;
         // De popup is een rechtop staand schermvenster met zijn linkerbovenhoek
         // op (popupX, popupY). Bij een gedraaide weergave (#200) ligt dat vak in
         // de paginaruimte anders: via de weergave terugrekenen.
         let popBox = { x: popX, y: popY, width: 230 / scl, height: 150 / scl };
-        if (doc?.viewRotation) {
+        if (weergaveRotatieVan(doc)) {
           const hoek = paginaNaarWeergave(annotation.page, popX, popY, doc);
           popBox = weergaveRectNaarPagina(annotation.page, { x: hoek.x, y: hoek.y, width: popBox.width, height: popBox.height }, doc);
         }
@@ -1414,7 +1416,7 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
       const vpz = window.__pdfViewport;
       const zoom = (vpz && vpz.active)
         ? vpz.zoom
-        : (state.documents[state.activeDocumentIndex]?.scale || 1);
+        : (schermSchaal(state.documents[state.activeDocumentIndex]) || 1);
       // Afdruk of export: het beeld komt uit bereidKnipselsVoorUitvoer, nooit
       // uit de schermcache, en ontbreekt het, dan stopt de uitvoer in plaats
       // van het lege kader af te drukken (#511).
@@ -2751,7 +2753,7 @@ function drawTextEdits(ctx, pageNum) {
   const dims = doc.pageDims?.[pageNum];
   // Text-edit records stay in the page's unrotated PDF frame. Apply the page
   // matrix only while painting so save coordinates remain stable across turns.
-  const fallbackScale = doc.scale || 1;
+  const fallbackScale = schermSchaal(doc) || 1;
   // Oorsprong van de pagina-box (meestal 0,0; CAD-plots hebben vaak een
   // MediaBox rond de oorsprong). PDF-tekstcoördinaten staan in ECHTE
   // user-space, de tekenlaag werkt in app-ruimte 0..breedte/hoogte.
@@ -3368,6 +3370,9 @@ export function redrawAnnotations(lightweight = false) {
     // Show/hide contextual ribbon tabs based on selection
     updateContextualTabs();
   }
+
+  // Gesplitste weergave (#715): het andere paneel tekent de wijziging mee.
+  meldSplit('annotatiesHertekend');
 }
 
 // Render annotations for a specific page (continuous mode)
@@ -3438,7 +3443,7 @@ function tekenPaginaLagen(ctx, pageNum, width, height, overrideDpr, renderOffset
 
   // Read scale and annotations from the active document directly
   const doc = state.documents[state.activeDocumentIndex];
-  const scale = doc ? doc.scale : 1;
+  const scale = doc ? schermSchaal(doc) : 1;
   const annotations = lagen.markeringen && doc ? doc.annotations : [];
 
   // Apply scale transformation for zooming (includes hi-DPI factor)
@@ -3695,4 +3700,7 @@ export function redrawContinuous(lightweight = false) {
     // Show/hide contextual ribbon tabs based on selection
     updateContextualTabs();
   }
+
+  // Gesplitste weergave (#715): het andere paneel tekent de wijziging mee.
+  meldSplit('annotatiesHertekend');
 }

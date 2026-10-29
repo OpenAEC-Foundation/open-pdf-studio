@@ -13,6 +13,7 @@ import { weergaveNaarPagina } from '../pdf/weergave-ruimte.js';
 import { cancelParametricSymbolInput } from './parametric-symbol-editing.js';
 import { syncSymbolInsertSession } from '../symbols/symbol-insert-format-store.js';
 import { applyOverlayPointerEvents } from '../pdf/link-layer.js';
+import { endToolSetSession } from './tool-set-session.js';
 import {
   doorvalVoorSelectie, staatBovenTekst, klikDoelSoort, heftKlikSelectieOp,
 } from './select-doorval.js';
@@ -276,6 +277,10 @@ export function setTool(tool) {
   if (isPdfAReadOnly() && !READONLY_ALLOWED_TOOLS.has(tool)) {
     return;
   }
+
+  // Any tool choice ends an active tool set item (#311); the Tool Sets panel
+  // makes its item active again right after choosing the item's tool.
+  endToolSetSession();
 
   // Deactivate the current tool via lifecycle
   if (state.currentTool !== tool) {

@@ -50,7 +50,8 @@ test('de gereedschapsstandaard staat bij de andere standaarden van het meetvlak'
   const v = bron('../core/preferences.js');
   // De stijltabel per soort staat sinds #668 in stijl-mapping.js.
   assert.match(bron('../core/stijl-mapping.js'), /case 'measureArea':\n\s+return \{[^}]*edgeLengths: 'ShowEdgeLengths'/);
-  assert.match(v, /if \(m\.edgeLengths\) prefs\[p \+ m\.edgeLengths\] = annotation\.measureShowEdgeLengths === true;/);
+  // Het schrijven staat sinds #311 in style-prefs.js (gedeeld met de werkkist).
+  assert.match(bron('../core/style-prefs.js'), /if \(m\.edgeLengths\) prefs\[p \+ m\.edgeLengths\] = annotation\.measureShowEdgeLengths === true;/);
   assert.match(v, /if \(m\.edgeLengths\) annotation\.measureShowEdgeLengths = prefs\[p \+ m\.edgeLengths\] === true;/);
   assert.match(bron('../core/constants.ts'), /\n\s+measureAreaShowEdgeLengths: false,/);
   assert.match(bron('../types/preferences.ts'), /\n\s+measureAreaShowEdgeLengths: boolean;/);

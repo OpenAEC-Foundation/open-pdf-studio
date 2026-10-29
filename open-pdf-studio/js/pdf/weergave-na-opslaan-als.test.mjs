@@ -47,6 +47,12 @@ const canvas = { width: 0, height: 0, style: {}, getContext: () => nepCtx };
 const WERK = 'C:/Temp/opds-edit-1761210000000.pdf';
 const DOEL = 'C:/Docs/kopie.pdf';
 const wacht = (ms) => new Promise((r) => setTimeout(r, ms));
+// De aanvraag loopt via een dynamische import: wachten op de voorwaarde zelf,
+// want onder een belaste testrun is een vaste pauze soms te kort.
+async function wachtTot(voorwaarde, grens = 10000) {
+  const einde = Date.now() + grens;
+  while (!voorwaarde() && Date.now() < einde) await wacht(5);
+}
 
 function opzet() {
   vp.initViewport(canvas, () => {});
@@ -68,14 +74,16 @@ test('de viewport tekent na de wissel uit het opgeslagen bestand, met dezelfde z
   assert.equal(viewport.dirty, true);
 
   // De orchestrator haalt meteen een verse bitmap, uit het nieuwe pad.
-  await wacht(200);
+  await wachtTot(() => aanvragen.length > 0);
+  await wacht(100); // ook late aanvragen meenemen in de controle hieronder
   assert.ok(aanvragen.length > 0, 'een nieuwe bitmap wordt aangevraagd');
   assert.ok(aanvragen.every((p) => p === DOEL), `alleen uit het opgeslagen bestand: ${aanvragen}`);
 
   // En een zoomwissel daarna vraagt ook uit het nieuwe pad.
   aanvragen.length = 0;
   vp.setZoomAtPoint(400, 300, 4);
-  await wacht(200);
+  await wachtTot(() => aanvragen.length > 0);
+  await wacht(100); // ook late aanvragen meenemen in de controle hieronder
   assert.ok(aanvragen.length > 0);
   assert.ok(aanvragen.every((p) => p === DOEL));
 

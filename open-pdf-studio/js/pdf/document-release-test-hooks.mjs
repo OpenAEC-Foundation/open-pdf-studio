@@ -12,6 +12,7 @@ const STUBS = {
   'js/pdf/renderer.js': ['clearBitmapJSCacheForFile', 'clearLowResCacheForFile'],
   'js/tools/pdf-snap-extractor.js': ['vergeetSnapGeometrie'],
   'js/core/platform.js': ['isTauri', 'invoke', 'unlockFile'],
+  'js/pdf/split-view/paneel-bitmaps.js': ['vergeetPaneelBeelden'],
 };
 
 function bron(namen) {

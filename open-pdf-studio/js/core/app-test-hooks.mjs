@@ -133,6 +133,9 @@ export function buildSchedule(...args) {
 /** Het kleine stukje browser dat de app-modules bij het laden aanraken. */
 export function installeerBrowserStubs() {
   globalThis.window ??= globalThis;
+  // Modules die bij het laden een venster-luisteraar zetten (split-haken.js).
+  globalThis.window.addEventListener ??= () => {};
+  globalThis.window.removeEventListener ??= () => {};
   globalThis.document ??= {
     querySelector: () => null,
     querySelectorAll: () => [],

@@ -14,6 +14,7 @@
 // Het rekenwerk zelf staat in weergave-rotatie.js.
 
 import { getActiveDocument } from '../core/state.js';
+import { weergaveRotatieVan } from './split-view/paneel-weergave.js';
 import {
   normaliseerRotatie,
   isKwartslag,
@@ -29,7 +30,7 @@ import {
 
 /** De weergaverotatie van een document (standaard het actieve): 0/90/180/270. */
 export function weergaveRotatie(doc = getActiveDocument()) {
-  return normaliseerRotatie(doc?.viewRotation);
+  return normaliseerRotatie(weergaveRotatieVan(doc));
 }
 
 function viewportVoor(doc) {

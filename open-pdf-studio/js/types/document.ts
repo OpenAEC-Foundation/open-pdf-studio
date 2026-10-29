@@ -115,6 +115,9 @@ export interface DocumentState {
   /** Weergave draaien (#200): 0/90/180/270, rechtsom, voor alle pagina's van
    *  dit tabblad. Alleen de weergave; het document verandert niet. */
   viewRotation?: number;
+  /** Gesplitste weergave (#715): null/afwezig = één paneel. Alleen wat de
+   *  interface toont; de standen per paneel houdt pdf/split-view/split-view.js. */
+  splitView?: { richting: 'vertical' | 'horizontal'; actief: 0 | 1; verhouding: number; sync: boolean } | null;
   pageDims?: Record<number, { widthPt: number; heightPt: number; rotation?: number }>;
   pdfaCompliance: string | null;
   pdfADismissed: boolean;

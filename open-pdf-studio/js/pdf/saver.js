@@ -42,7 +42,7 @@ import { opslaanVraagtOpslaanAls } from './handtekeningen/opslaan.js';
 // Sub-modules
 import { hexToRgb, buildBorderStyle, computeAnnotFlags, mapFontToPdfName,
   ensureAcroFormFonts, stripPdfAMetadata, generateAppearanceStream, zetDoorzichtigheidInAp, tekstvakFontDict, boogHoekenNaRotatie,
-  randSleutelZonderRand, markeerZonderRand, onzichtbaarVlak, vlakRect, metVulGs } from './saver/utils.js';
+  randSleutelZonderRand, markeerZonderRand, onzichtbaarVlak, vlakRect, metVulGs, streepOperator } from './saver/utils.js';
 import { eigenVulDekking } from '../annotations/vul-dekking.js';
 import { saveTextEditsToPages } from './saver/text-edits.js';
 import { isOntbrekendeGlyfenFout, tekensVoorMelding } from '../text/glyf-dekking.js';
@@ -59,7 +59,7 @@ import { slaPaginaLabelsOp } from './pagina-labels.js';
 import { pasBijlagenToe } from './bijlagen.js';
 import { schrijfAnnotatieLagen, ocVoorAnnotatie, laagstandZonderEigenLagen } from './saver/annotatie-lagen.js';
 import { schrijfStandaardLaagstand } from './lagen-boom.js';
-import { standaardOmTeBewaren, naOpslaan as lagenNaOpslaan } from './lagen-schakelen.js';
+import { standaardOmTeBewaren, naOpslaan as lagenNaOpslaan, verhuisLaagstand } from './lagen-schakelen.js';
 import { bouwBijlageAnnotatie, origineleBijlage, bijlageBewerkt } from './bijlage-annotatie.js';
 import { bijlageInhoud } from '../annotations/bijlage-store.js';
 import { layersForSave, currentLayerId } from '../annotations/annotatie-lagen.js';
@@ -1314,7 +1314,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               }
               if (pgStroke) {
                 const [psr, psg, psb] = hexToRgb(ann.strokeColor || ann.color || '#000000');
-                const pgDash = ann.borderStyle === 'dashed' ? '[8 4] 0 d\n' : ann.borderStyle === 'dotted' ? '[2 2] 0 d\n' : '';
+                const pgDash = streepOperator(ann.borderStyle);
                 pgContent += `q\n${borderWidth} w\n${pgDash}${psr} ${psg} ${psb} RG\n${pad}S\nQ\n`;
               }
               if (pgContent) {
@@ -1557,7 +1557,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
               // Draw callout leader line and arrowhead first (using absolute page coords)
               if (isCallout) {
-                const dashOp = ann.borderStyle === 'dashed' ? '[8 4] 0 d\n' : ann.borderStyle === 'dotted' ? '[2 2] 0 d\n' : '';
+                const dashOp = streepOperator(ann.borderStyle);
                 // Leader armOrigin -> knee -> tip with its heads, as the screen
                 // draws it (calloutLeiderOps, #612). 'curved' = a smooth
                 // Catmull-Rom spline (cubic Bézier `c` operators) through the
@@ -1576,7 +1576,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
               }
 
               // Draw text box fill + stroke (absolute coords)
-              const ftDashOp = ann.borderStyle === 'dashed' ? '[8 4] 0 d\n' : ann.borderStyle === 'dotted' ? '[2 2] 0 d\n' : '';
+              const ftDashOp = streepOperator(ann.borderStyle);
               // A border is drawn ONLY when the textbox actually has one. Without
               // this the AP always stroked the rect — with `0 w` (hairline) and a
               // black fallback colour when strokeColor was 'none' — so other
@@ -2868,6 +2868,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
             // Holle punten van een omtrekmaat uit een ander programma.
             Object.assign(mpDict, kopVullingSleutels(ann));
             annotDict = context.obj(mpDict);
+            // Diepte van de omtrekmaat (#311).
+            schrijfPlattegrondMeta(annotDict, ann, context, convertX, convertY);
             annotDict.set(PDFName.of('BS'), buildBorderStyle(context, borderWidth, ann.borderStyle));
             // Vector /AP so the polyline AND the perimeter value label render in
             // other viewers (label was Contents-only) — issue #256.
@@ -3623,6 +3625,9 @@ export async function savePDFAs(doc = getActiveDocument(), explicitPath = null, 
         doc.isUntitled = false; // now a real, user-chosen file
         doc.saveTargetPath = null; // lives at its real path now; no separate save target
         doc._renderTemp = false;
+        // De geschakelde laagstand verhuist mee naar het nieuwe pad, voordat
+        // het paneel hem leest (anders vervalt hij als verouderd).
+        verhuisLaagstand(doc, weergavePad, savePath);
       }
       // De weergave verhuist mee naar het opgeslagen bestand (zelfde bytes),
       // vóórdat de werkkopie hieronder van schijf gaat. Anders vraagt de

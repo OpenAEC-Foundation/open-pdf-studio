@@ -48,7 +48,8 @@
     "setScale": "Ange skala...",
     "dimChainAdd": "Lägg till punkter i måttkedjan",
     "dimChainRemove": "Ta bort hjälplinje från kedjan",
-    "selectRoom": "Välj rum"
+    "selectRoom": "Välj rum",
+    "saveToToolSet": "Spara i verktygsuppsättning"
   },
   "multiSelect": {
     "copyAnnotations": "Kopiera {{count}} anteckningar",

@@ -54,7 +54,8 @@
     "dimChainAdd": "Punten toevoegen aan maatketting",
     "dimChainRemove": "Hulplijn uit maatketting halen",
     "selectRoom": "Ruimte selecteren",
-    "editViewportScale": "Viewport-schaal bewerken"
+    "editViewportScale": "Viewport-schaal bewerken",
+    "saveToToolSet": "Opslaan in werkkist"
   },
   "multiSelect": {
     "copyAnnotations": "{{count}} annotaties kopiëren",

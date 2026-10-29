@@ -1,5 +1,6 @@
 import { Show, For } from 'solid-js';
-import { annotProps, sectionVis, updateAnnotProp, cycleSelectNext } from '../../stores/propertiesStore.js';
+import { annotProps, sectionVis, updateAnnotProp, cycleSelectNext, getCurrentAnnotation } from '../../stores/propertiesStore.js';
+import { depthQuantity, formatDepthQuantity } from '../../../annotations/measure-depth.js';
 import CollapsibleSection from './CollapsibleSection.jsx';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 
@@ -20,6 +21,18 @@ function papierMm(waarde) {
 export default function MeasurementSection() {
   const { t } = useTranslation('properties');
   const isLocked = () => annotProps.locked === true || annotProps.locked === 'mixed';
+
+  // Oppervlak (lengte × diepte) of inhoud (vlak × diepte), #311. Leest de
+  // velden van het paneel zodat het meerekent bij een andere diepte/eenheid.
+  const depthResult = () => {
+    void annotProps.measureDepth; void annotProps.measureUnit;
+    void annotProps.measureScale; void annotProps.measurePrecision;
+    if (annotProps.multiCount > 0) return null;
+    const ann = getCurrentAnnotation();
+    if (!ann || ann.id === '__tool-defaults__') return null;
+    return depthQuantity(ann);
+  };
+  const depthUnit = () => String(annotProps.measureUnit || '').replace(/²$/, '');
 
   return (
     <Show when={sectionVis.measurement}>
@@ -123,6 +136,26 @@ export default function MeasurementSection() {
             <option value="px">px</option>
           </select>
         </div>
+
+        {/* Diepte (#311): hoogte van een wand, dikte van een vloer, … in de
+            eenheid van de meting. Maakt van een lengte een oppervlak en van
+            een vlak een inhoud. */}
+        <div class="property-group">
+          <label>{depthUnit() ? t('measurement.depthUnit', { unit: depthUnit() }) : t('measurement.depth')}</label>
+          <input type="text" inputmode="decimal" data-getal step="1" min="0"
+            value={annotProps.measureDepth ?? ''}
+            placeholder={t('measurement.depthNone')}
+            title={t('measurement.depthTooltip')}
+            disabled={isLocked()}
+            onChange={(e) => updateAnnotProp('measureDepth', e.target.value)}
+          />
+        </div>
+        <Show when={depthResult()}>
+          <div class="property-group">
+            <label>{depthResult().kind === 'volume' ? t('measurement.volume') : t('measurement.surface')}</label>
+            <input type="text" readonly value={formatDepthQuantity(depthResult())} />
+          </div>
+        </Show>
 
         <div class="property-group">
           <label>{t('measurement.precision')}</label>

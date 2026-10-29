@@ -8,7 +8,6 @@ import { generateThumbnails, clearThumbnails, clearThumbnailCache, refreshActive
 import { cancelAnnotationLoading, hidePdfABar } from '../../pdf/loader.js';
 import { savePDF } from '../../pdf/saver.js';
 import { unlockFile, lockFile, renameFile, fileExists } from '../../core/platform.js';
-import { bestandsnaamUitPad } from '../../core/bestandsnaam.js';
 import { cancelPendingZoom } from '../setup/navigation-events.js';
 import { closeAllPopups } from '../../bridge.js';
 import { persistReaderPosition, restoreReaderPosition } from '../../pdf/reader-mode-view.js';
@@ -20,6 +19,7 @@ import { isBeveiligdDocument } from '../../pdf/wachtwoord-pdf.js';
 import { hostVersieLabel } from '../../pdf/host-versies.js';
 import i18next from '../../i18n/config.js';
 import { meldWijziging, meldGesloten } from '../../herstel/haken.js';
+import { meld as meldSplit } from '../../pdf/split-view/split-haken.js';
 
 /**
  * Create a new tab for a document
@@ -100,6 +100,11 @@ export function switchToTab(index) {
 
   // Update tab bar UI
   updateTabBar();
+
+  // Gesplitste weergave (#715): lay-out van het aankomende document (wel of
+  // niet gesplitst) vóór het renderen, zodat de viewer meteen de juiste maat
+  // heeft.
+  meldSplit('actiefDocument', getActiveDocument());
 
   // Hide form fields bar and PDF/A bar before rendering (will be re-shown if new doc has them)
   hideFormFieldsBar();
@@ -347,6 +352,8 @@ export async function closeTab(index, force = false, dialogAction = null) {
   state.documents.splice(index, 1);
   // Gesloten (opgeslagen of bewust niet): de herstelmomentopname kan weg.
   meldGesloten(doc);
+  // Gesplitste weergave (#715): sluiten sluit beide panelen.
+  meldSplit('documentGesloten', doc);
 
   // Geef vrij wat dit document in het geheugen vasthield: de PDF.js-instantie,
   // de ruwe bestandsbytes, vector-commandobuffers, bitmaps en de documentcaches
@@ -543,8 +550,8 @@ export async function renameDocument(index, newName) {
     // Update document state
     const doc = getActiveDocument();
     if (doc) {
-      doc.filePath = newPath;
-      doc.fileName = (newPath && bestandsnaamUitPad(newPath)) || 'Untitled';
+      const { verhuisOpenDocument } = await import('../../pdf/pad-verhuizen.js');
+      await verhuisOpenDocument(doc, oldPath, newPath);
     }
     updateWindowTitle();
     return true;
