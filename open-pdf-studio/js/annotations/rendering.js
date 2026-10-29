@@ -475,6 +475,21 @@ function metVulDekking(ctx, vulAlfa, teken) {
   try { teken(); } finally { ctx.globalAlpha = lijnAlfa; }
 }
 
+// The bitmap of an image annotation or image stamp from its own imageData
+// when the image cache has none for it (e.g. a stamp whose cache entry was
+// never made). Cached under the annotation's imageId; a redraw follows the
+// load (see the callers).
+function beeldUitImageData(annotation) {
+  const bron = annotation.imageData;
+  if (typeof bron !== 'string' || !bron.startsWith('data:image/')) return null;
+  if (typeof Image === 'undefined') return null;
+  const img = new Image();
+  img.src = bron;
+  if (!annotation.imageId) annotation.imageId = 'img_' + (annotation.id || Date.now().toString(36));
+  imageCache.set(annotation.imageId, img);
+  return img;
+}
+
 export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
   // ── Weergavefilters ────────────────────────────────────────────────────
   // Eén centraal predicaat (annotations/view-filters.js) bundelt de
@@ -1398,7 +1413,13 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
 
     case 'image':
       // Draw image with rotation and flip
-      const img = imageCache.get(annotation.imageId);
+      const img = imageCache.get(annotation.imageId) || beeldUitImageData(annotation);
+      // An image that is still loading: redraw once it is ready, otherwise
+      // the "Loading..." placeholder stays until the next redraw.
+      if (img && !img.complete && !img._redrawOnLoad) {
+        img._redrawOnLoad = true;
+        img.addEventListener('load', () => { try { hertekenActieveWeergave(); } catch (_) {} }, { once: true });
+      }
       if (img && img.complete) {
         ctx.save();
 
@@ -1547,6 +1568,9 @@ export function drawAnnotation(ctx, annotation, snippetBitmaps = null) {
         const raw = annotation._cachedImg;
         if (raw instanceof HTMLImageElement) stampImg = raw;
       }
+      // Bitmap not in the cache (yet), but the image data is on the
+      // annotation (an image stamp, #749): decode it from there.
+      if (!stampImg) stampImg = beeldUitImageData(annotation);
       // An image that is still decoding (just loaded from a PDF): redraw once it
       // is ready, otherwise the stamp stays invisible until the next redraw.
       if (stampImg && !stampImg.complete && !stampImg._redrawOnLoad) {

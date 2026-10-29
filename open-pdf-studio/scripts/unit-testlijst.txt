@@ -544,3 +544,7 @@ js/solid/stores/lettertype-tekstvak.test.mjs
 js/core/standaardstijl-lettertype.test.mjs
 js/utils/lettertypen-lijst.test.mjs
 js/pdf/lettertype-rondgang.test.mjs
+js/annotations/afbeelding-bron.test.mjs
+js/annotations/crop-invoer.test.mjs
+js/annotations/eigen-stempel-bron.test.mjs
+js/pdf/eigen-stempel-rondgang.test.mjs
