@@ -664,7 +664,7 @@ export function cancelMove() {
  * Caller should preventDefault on the keypress when this returns true.
  */
 /**
- * options.basePoint: true → AutoCAD-style two-click flow ('mv' chord):
+ * options.basePoint: true → CAD-style two-click flow ('mv' chord):
  * click 1 picks the (object-snapped) BASE point, the selection then tracks
  * the cursor relative to it, click 2 commits — exact point-to-point moves.
  * Default (G key): Blender-style, selection follows immediately.
