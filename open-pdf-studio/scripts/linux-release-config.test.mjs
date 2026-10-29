@@ -161,3 +161,16 @@ test('the AUR reference PKGBUILD and .SRCINFO agree (#620)', async () => {
   assert.doesNotMatch(srcinfo, /depends = .*(tesseract|leptonica)/i);
   assert.doesNotMatch(srcinfo, /\r/, '.SRCINFO uses LF line endings');
 });
+
+test('the .deb/AppImage desktop file accepts files, so "Open with" lists the app (#748)', async () => {
+  const base = await readJson('src-tauri/tauri.conf.json');
+  const linux = await readJson('src-tauri/tauri.linux.conf.json');
+  const template = linux.bundle.linux?.deb?.desktopTemplate ?? base.bundle.linux?.deb?.desktopTemplate;
+  assert.ok(template, 'bundle.linux.deb.desktopTemplate is set (the AppImage reuses it)');
+  const desktop = await readFile(new URL(`src-tauri/${template}`, appRoot), 'utf8');
+  // Without a field code GNOME/Cinnamon do not offer the app for files.
+  assert.match(desktop, /^Exec=\{\{exec\}\} %U$/m);
+  // The MimeType list must end with ';' (Tauri joins the types without one).
+  assert.match(desktop, /^MimeType=\{\{mime_type\}\};$/m);
+  assert.match(desktop, /^Icon=\{\{icon\}\}$/m);
+});

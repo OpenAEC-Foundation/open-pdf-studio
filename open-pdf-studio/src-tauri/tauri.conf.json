@@ -67,6 +67,7 @@
     },
     "linux": {
       "deb": {
+        "desktopTemplate": "linux/open-pdf-studio.desktop",
         "depends": [
           "libwebkit2gtk-4.1-0",
           "libgtk-3-0",
