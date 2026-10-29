@@ -328,7 +328,9 @@
     "scanText": "Edytuj zeskanowany tekst",
     "scanTextHint": "Kliknij rozpoznane słowo, aby je zastąpić. Stare słowo na skanie zostanie zakryte.",
     "scanTextNone": "Brak rozpoznanego tekstu na tej stronie. Najpierw uruchom Rozpoznawanie tekstu (OCR).",
-    "shiftPage": "Przesuń stronę"
+    "shiftPage": "Przesuń stronę",
+    "editPages": "Edytuj strony",
+    "editPagesTitle": "Edytuj strony wizualnie: zmieniaj kolejność, obracaj, wstawiaj, usuwaj, wyodrębniaj i dziel"
   },
   "help": {
     "settings": "Ustawienia",

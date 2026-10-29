@@ -328,7 +328,9 @@
     "scanText": "Sunting Teks Imbasan",
     "scanTextHint": "Klik perkataan yang dikenal pasti untuk menggantikannya. Perkataan lama dalam imbasan akan ditutup.",
     "scanTextNone": "Tiada teks yang dikenal pasti pada halaman ini. Jalankan Pengecaman Teks (OCR) dahulu.",
-    "shiftPage": "Alih halaman"
+    "shiftPage": "Alih halaman",
+    "editPages": "Edit Halaman",
+    "editPagesTitle": "Edit halaman secara visual: susun semula, putar, sisip, padam, ekstrak dan pisah"
   },
   "help": {
     "settings": "Tetapan",

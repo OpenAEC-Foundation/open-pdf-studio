@@ -328,7 +328,9 @@
     "scanText": "Uredi skenirani tekst",
     "scanTextHint": "Kliknite prepoznatu riječ da biste je zamijenili. Stara riječ u skenu bit će prekrivena.",
     "scanTextNone": "Na ovoj stranici nema prepoznatog teksta. Najprije pokrenite Prepoznavanje teksta (OCR).",
-    "shiftPage": "Pomakni stranicu"
+    "shiftPage": "Pomakni stranicu",
+    "editPages": "Uredi stranice",
+    "editPagesTitle": "Vizualno uređivanje stranica: promjena redoslijeda, rotiranje, umetanje, brisanje, izdvajanje i dijeljenje"
   },
   "help": {
     "settings": "Postavke",

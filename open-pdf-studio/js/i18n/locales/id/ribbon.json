@@ -328,7 +328,9 @@
     "scanText": "Edit Teks Pindaian",
     "scanTextHint": "Klik kata yang dikenali untuk menggantinya. Kata lama pada pindaian akan ditutupi.",
     "scanTextNone": "Tidak ada teks yang dikenali di halaman ini. Jalankan Pengenalan Teks (OCR) terlebih dahulu.",
-    "shiftPage": "Geser halaman"
+    "shiftPage": "Geser halaman",
+    "editPages": "Edit Halaman",
+    "editPagesTitle": "Edit halaman secara visual: susun ulang, putar, sisipkan, hapus, ekstrak, dan pisahkan"
   },
   "help": {
     "settings": "Pengaturan",

@@ -1605,12 +1605,28 @@
     }
   },
   "pageOrganizer": {
-    "title": "페이지 순서 변경",
-    "hint": "페이지를 새 위치로 끌어 놓으세요. Ctrl+클릭 또는 Shift+클릭으로 여러 페이지를 선택합니다.",
+    "title": "페이지 편집",
+    "hint": "페이지를 끌어 이동합니다. PDF 파일을 놓으면 해당 페이지가 삽입됩니다. Ctrl+클릭, Shift+클릭 또는 확인란으로 여러 페이지를 선택합니다. 적용할 때까지 아무것도 바뀌지 않습니다.",
     "moveLeft": "왼쪽으로 이동",
     "moveRight": "오른쪽으로 이동",
     "moveToStart": "처음으로 이동",
     "moveToEnd": "끝으로 이동",
-    "selection": "{{total}}페이지 중 {{selected}}페이지 선택됨"
+    "selection": "{{total}}페이지 중 {{selected}}페이지 선택됨",
+    "rotateLeft": "왼쪽으로 회전",
+    "rotateRight": "오른쪽으로 회전",
+    "split": "분할",
+    "splitTitle": "선택한 페이지 주위에 분할 표시 배치: 각 구간이 별도 파일이 됩니다",
+    "splitHere": "여기서 분할 (분할 표시 배치 또는 제거)",
+    "extractTitle": "선택한 페이지를 새 파일로 추출",
+    "blankPage": "빈 페이지",
+    "pagesFromFile": "파일에서 페이지…",
+    "insertHere": "여기에 페이지 삽입",
+    "select": "페이지 선택",
+    "zoom": "확대/축소",
+    "parts": "적용 시 {{count}}개 파일로 분할",
+    "chooseFolder": "분할된 파일을 저장할 폴더 선택",
+    "fileFailed": "{{name}}을(를) 읽을 수 없습니다: {{error}}",
+    "applyFailed": "페이지 편집을 적용하지 못했습니다: {{error}}",
+    "extractFailed": "페이지를 추출하지 못했습니다: {{error}}"
   }
 }

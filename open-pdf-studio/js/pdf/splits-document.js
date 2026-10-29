@@ -21,7 +21,7 @@ import { PDFDocument, PDFName, PDFArray, PDFDict, PDFNumber, PDFRef, degrees } f
 import { schrijfPaginaLabels } from './pagina-labels.js';
 import { saveBookmarksToOutline } from './saver/bookmarks.js';
 import {
-  bereikenPerAantal, bereikenOpBladwijzers, bereikenOpGrootte,
+  bereikenPerAantal, bereikenOpBladwijzers, bereikenOpGrootte, bereikenUitDelen,
   bladwijzersVoorDeel, labelsVoorDeel, rotatiesVoorDeel,
 } from './splits-logica.js';
 
@@ -146,12 +146,16 @@ export async function deelBytes(bron, opties) {
 /**
  * Welke pagina's samen een deel worden.
  * @param {PDFDocument} bron
- * @param {{ modus:'pages'|'bookmarks'|'size', n?:number, maxBytes?:number,
+ * @param {{ modus:'pages'|'bookmarks'|'size'|'ranges', n?:number, maxBytes?:number,
+ *           delen?:{start:number, eind:number}[],
  *           bladwijzers?:object[], rotaties?:object, labels?:string[]|null }} opties
+ *   modus 'ranges': de delen staan al vast (`delen`, de splitsmarkeringen van
+ *   Pagina's bewerken, #764)
  * @returns {Promise<{start:number, eind:number, titel?:string|null, teGroot?:boolean}[]>}
  */
-export async function berekenDelen(bron, { modus, n = 1, maxBytes = 0, bladwijzers = [], rotaties = {}, labels = null }) {
+export async function berekenDelen(bron, { modus, n = 1, maxBytes = 0, delen = [], bladwijzers = [], rotaties = {}, labels = null }) {
   const totaal = bron.getPageCount();
+  if (modus === 'ranges') return bereikenUitDelen(delen, totaal);
   if (modus === 'bookmarks') return bereikenOpBladwijzers(bladwijzers, totaal);
   if (modus === 'size') {
     return bereikenOpGrootte(totaal, maxBytes, async (start, eind) => (

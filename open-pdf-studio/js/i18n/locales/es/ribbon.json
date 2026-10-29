@@ -328,7 +328,9 @@
     "scanText": "Editar texto escaneado",
     "scanTextHint": "Haga clic en una palabra reconocida para reemplazarla. La palabra antigua del escaneo queda cubierta.",
     "scanTextNone": "No hay texto reconocido en esta página. Ejecute primero Reconocimiento de texto (OCR).",
-    "shiftPage": "Desplazar página"
+    "shiftPage": "Desplazar página",
+    "editPages": "Editar páginas",
+    "editPagesTitle": "Editar páginas visualmente: reordenar, girar, insertar, eliminar, extraer y dividir"
   },
   "help": {
     "settings": "Configuración",

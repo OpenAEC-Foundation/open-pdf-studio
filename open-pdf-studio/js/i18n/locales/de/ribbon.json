@@ -328,7 +328,9 @@
     "scanText": "Gescannten Text bearbeiten",
     "scanTextHint": "Klicken Sie auf ein erkanntes Wort, um es zu ersetzen. Das alte Wort im Scan wird abgedeckt.",
     "scanTextNone": "Kein erkannter Text auf dieser Seite. Führen Sie zuerst Text erkennen (OCR) aus.",
-    "shiftPage": "Seite verschieben"
+    "shiftPage": "Seite verschieben",
+    "editPages": "Seiten bearbeiten",
+    "editPagesTitle": "Seiten visuell bearbeiten: anordnen, drehen, einfügen, löschen, extrahieren und teilen"
   },
   "help": {
     "settings": "Einstellungen",

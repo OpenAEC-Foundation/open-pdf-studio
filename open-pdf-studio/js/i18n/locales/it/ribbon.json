@@ -328,7 +328,9 @@
     "scanText": "Modifica testo scansionato",
     "scanTextHint": "Fai clic su una parola riconosciuta per sostituirla. La vecchia parola nella scansione viene coperta.",
     "scanTextNone": "Nessun testo riconosciuto in questa pagina. Esegui prima Riconoscimento testo (OCR).",
-    "shiftPage": "Sposta pagina"
+    "shiftPage": "Sposta pagina",
+    "editPages": "Modifica pagine",
+    "editPagesTitle": "Modifica le pagine visivamente: riordina, ruota, inserisci, elimina, estrai e dividi"
   },
   "help": {
     "settings": "Impostazioni",

@@ -134,6 +134,7 @@ export const RIBBON_COMMANDS = Object.freeze([
   {"id":"ep-compress-pdf","tab":"organize","labelKey":"ribbon:organize.compressLabel"},
   {"id":"rotate-left","tab":"organize","labelKey":"ribbon:home.rotateLeft"},
   {"id":"rotate-right","tab":"organize","labelKey":"ribbon:home.rotateRight"},
+  {"id":"edit-pages","tab":"organize","labelKey":"ribbon:organize.editPages"},
   {"id":"insert-page","tab":"organize","labelKey":"ribbon:organize.insert"},
   {"id":"delete-page","tab":"organize","labelKey":"ribbon:organize.deleteLabel"},
   {"id":"extract-pages","tab":"organize","labelKey":"ribbon:organize.extractLabel"},

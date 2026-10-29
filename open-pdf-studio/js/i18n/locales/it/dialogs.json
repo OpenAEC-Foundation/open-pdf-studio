@@ -1605,12 +1605,28 @@
     }
   },
   "pageOrganizer": {
-    "title": "Riordina pagine",
-    "hint": "Trascina le pagine in una nuova posizione. Ctrl+clic o Maiusc+clic seleziona più pagine.",
+    "title": "Modifica pagine",
+    "hint": "Trascina le pagine per spostarle; rilascia un file PDF per inserirne le pagine. Ctrl+clic, Maiusc+clic o le caselle selezionano più pagine. Nulla cambia fino ad Applica.",
     "moveLeft": "Sposta a sinistra",
     "moveRight": "Sposta a destra",
     "moveToStart": "Sposta all'inizio",
     "moveToEnd": "Sposta alla fine",
-    "selection": "{{selected}} di {{total}} pagine selezionate"
+    "selection": "{{selected}} di {{total}} pagine selezionate",
+    "rotateLeft": "Ruota a sinistra",
+    "rotateRight": "Ruota a destra",
+    "split": "Dividi",
+    "splitTitle": "Inserisci segni di divisione attorno alle pagine selezionate: ogni gruppo diventa un file separato",
+    "splitHere": "Dividi qui (inserisci o rimuovi un segno di divisione)",
+    "extractTitle": "Estrai le pagine selezionate in un nuovo file",
+    "blankPage": "Pagina vuota",
+    "pagesFromFile": "Pagine da file…",
+    "insertHere": "Inserisci pagine qui",
+    "select": "Seleziona pagina",
+    "zoom": "Zoom",
+    "parts": "Diviso in {{count}} file all'applicazione",
+    "chooseFolder": "Scegli la cartella per i file divisi",
+    "fileFailed": "Impossibile leggere {{name}}: {{error}}",
+    "applyFailed": "Applicazione delle modifiche alle pagine non riuscita: {{error}}",
+    "extractFailed": "Estrazione delle pagine non riuscita: {{error}}"
   }
 }

@@ -1605,12 +1605,28 @@
     }
   },
   "pageOrganizer": {
-    "title": "Omorganiser sider",
-    "hint": "Dra sider til en ny plassering. Ctrl+klikk eller Skift+klikk velger flere sider.",
+    "title": "Rediger sider",
+    "hint": "Dra sider for å flytte dem; slipp en PDF-fil for å sette inn sidene i den. Ctrl+klikk, Skift+klikk eller avmerkingsboksene velger flere sider. Ingenting endres før Bruk.",
     "moveLeft": "Flytt til venstre",
     "moveRight": "Flytt til høyre",
     "moveToStart": "Flytt til starten",
     "moveToEnd": "Flytt til slutten",
-    "selection": "{{selected}} av {{total}} sider valgt"
+    "selection": "{{selected}} av {{total}} sider valgt",
+    "rotateLeft": "Roter til venstre",
+    "rotateRight": "Roter til høyre",
+    "split": "Del opp",
+    "splitTitle": "Sett delemerker rundt de valgte sidene: hver serie blir en egen fil",
+    "splitHere": "Del her (sett eller fjern et delemerke)",
+    "extractTitle": "Trekk ut de valgte sidene til en ny fil",
+    "blankPage": "Tom side",
+    "pagesFromFile": "Sider fra fil…",
+    "insertHere": "Sett inn sider her",
+    "select": "Velg side",
+    "zoom": "Zoom",
+    "parts": "Deles i {{count}} filer ved Bruk",
+    "chooseFolder": "Velg mappen for de oppdelte filene",
+    "fileFailed": "Kunne ikke lese {{name}}: {{error}}",
+    "applyFailed": "Kunne ikke bruke sideendringene: {{error}}",
+    "extractFailed": "Kunne ikke trekke ut sidene: {{error}}"
   }
 }

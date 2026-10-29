@@ -1605,12 +1605,28 @@
     }
   },
   "pageOrganizer": {
-    "title": "Sayfaları yeniden sırala",
-    "hint": "Sayfaları yeni bir konuma sürükleyin. Ctrl+tıklama veya Shift+tıklama birden çok sayfa seçer.",
+    "title": "Sayfaları Düzenle",
+    "hint": "Sayfaları taşımak için sürükleyin; sayfalarını eklemek için bir PDF dosyası bırakın. Ctrl+tıklama, Shift+tıklama veya onay kutuları birden çok sayfa seçer. Uygula'ya kadar hiçbir şey değişmez.",
     "moveLeft": "Sola taşı",
     "moveRight": "Sağa taşı",
     "moveToStart": "Başa taşı",
     "moveToEnd": "Sona taşı",
-    "selection": "{{total}} sayfadan {{selected}} tanesi seçili"
+    "selection": "{{total}} sayfadan {{selected}} tanesi seçili",
+    "rotateLeft": "Sola Döndür",
+    "rotateRight": "Sağa Döndür",
+    "split": "Böl",
+    "splitTitle": "Seçili sayfaların çevresine bölme işaretleri koyun: her dizi ayrı bir dosya olur",
+    "splitHere": "Burada böl (bölme işareti koy veya kaldır)",
+    "extractTitle": "Seçili sayfaları yeni bir dosyaya ayıkla",
+    "blankPage": "Boş sayfa",
+    "pagesFromFile": "Dosyadan sayfalar…",
+    "insertHere": "Sayfaları buraya ekle",
+    "select": "Sayfayı seç",
+    "zoom": "Yakınlaştırma",
+    "parts": "Uygulandığında {{count}} dosyaya bölünür",
+    "chooseFolder": "Bölünen dosyalar için klasörü seçin",
+    "fileFailed": "{{name}} okunamadı: {{error}}",
+    "applyFailed": "Sayfa düzenlemeleri uygulanamadı: {{error}}",
+    "extractFailed": "Sayfalar ayıklanamadı: {{error}}"
   }
 }

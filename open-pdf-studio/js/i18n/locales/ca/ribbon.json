@@ -328,7 +328,9 @@
     "scanText": "Edita el text escanejat",
     "scanTextHint": "Feu clic en una paraula reconeguda per substituir-la. La paraula antiga de l'escaneig queda coberta.",
     "scanTextNone": "No hi ha text reconegut en aquesta pàgina. Executeu primer Reconeixement de text (OCR).",
-    "shiftPage": "Desplaça la pàgina"
+    "shiftPage": "Desplaça la pàgina",
+    "editPages": "Edita les pàgines",
+    "editPagesTitle": "Edita les pàgines visualment: reordena, gira, insereix, suprimeix, extreu i divideix"
   },
   "help": {
     "settings": "Configuració",

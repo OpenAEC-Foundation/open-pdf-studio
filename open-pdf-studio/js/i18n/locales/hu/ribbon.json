@@ -328,7 +328,9 @@
     "scanText": "Szkennelt szöveg szerkesztése",
     "scanTextHint": "Kattintson egy felismert szóra a cseréjéhez. A régi szó a szkennelt képen le lesz takarva.",
     "scanTextNone": "Ezen az oldalon nincs felismert szöveg. Először futtassa a Szövegfelismerés (OCR) funkciót.",
-    "shiftPage": "Oldal eltolása"
+    "shiftPage": "Oldal eltolása",
+    "editPages": "Oldalak szerkesztése",
+    "editPagesTitle": "Oldalak vizuális szerkesztése: átrendezés, forgatás, beszúrás, törlés, kibontás és felosztás"
   },
   "help": {
     "settings": "Beállítások",

@@ -1605,12 +1605,28 @@
     }
   },
   "pageOrganizer": {
-    "title": "Reordena les pàgines",
-    "hint": "Arrossegueu les pàgines a una nova posició. Ctrl+clic o Maj+clic selecciona diverses pàgines.",
+    "title": "Edita les pàgines",
+    "hint": "Arrossegueu les pàgines per moure-les; deixeu anar un fitxer PDF per inserir-ne les pàgines. Ctrl+clic, Maj+clic o les caselles seleccionen diverses pàgines. Res no canvia fins a Aplica.",
     "moveLeft": "Mou a l'esquerra",
     "moveRight": "Mou a la dreta",
     "moveToStart": "Mou a l'inici",
     "moveToEnd": "Mou al final",
-    "selection": "{{selected}} de {{total}} pàgines seleccionades"
+    "selection": "{{selected}} de {{total}} pàgines seleccionades",
+    "rotateLeft": "Gira a l'esquerra",
+    "rotateRight": "Gira a la dreta",
+    "split": "Divideix",
+    "splitTitle": "Col·loca marques de divisió al voltant de les pàgines seleccionades: cada sèrie esdevé un fitxer separat",
+    "splitHere": "Divideix aquí (col·loca o treu una marca de divisió)",
+    "extractTitle": "Extreu les pàgines seleccionades a un fitxer nou",
+    "blankPage": "Pàgina en blanc",
+    "pagesFromFile": "Pàgines d'un fitxer…",
+    "insertHere": "Insereix pàgines aquí",
+    "select": "Selecciona la pàgina",
+    "zoom": "Zoom",
+    "parts": "Es dividirà en {{count}} fitxers en aplicar",
+    "chooseFolder": "Trieu la carpeta per als fitxers dividits",
+    "fileFailed": "No s'ha pogut llegir {{name}}: {{error}}",
+    "applyFailed": "No s'han pogut aplicar els canvis de pàgines: {{error}}",
+    "extractFailed": "No s'han pogut extreure les pàgines: {{error}}"
   }
 }

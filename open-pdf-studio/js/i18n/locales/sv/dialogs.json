@@ -1605,12 +1605,28 @@
     }
   },
   "pageOrganizer": {
-    "title": "Ordna om sidor",
-    "hint": "Dra sidor till en ny plats. Ctrl+klick eller Skift+klick markerar flera sidor.",
+    "title": "Redigera sidor",
+    "hint": "Dra sidor för att flytta dem; släpp en PDF-fil för att infoga dess sidor. Ctrl+klick, Skift+klick eller kryssrutorna markerar flera sidor. Inget ändras förrän Verkställ.",
     "moveLeft": "Flytta åt vänster",
     "moveRight": "Flytta åt höger",
     "moveToStart": "Flytta till början",
     "moveToEnd": "Flytta till slutet",
-    "selection": "{{selected}} av {{total}} sidor markerade"
+    "selection": "{{selected}} av {{total}} sidor markerade",
+    "rotateLeft": "Rotera vänster",
+    "rotateRight": "Rotera höger",
+    "split": "Dela",
+    "splitTitle": "Placera delningsmärken runt de markerade sidorna: varje serie blir en egen fil",
+    "splitHere": "Dela här (placera eller ta bort ett delningsmärke)",
+    "extractTitle": "Extrahera de markerade sidorna till en ny fil",
+    "blankPage": "Tom sida",
+    "pagesFromFile": "Sidor från fil…",
+    "insertHere": "Infoga sidor här",
+    "select": "Markera sida",
+    "zoom": "Zoom",
+    "parts": "Delas i {{count}} filer vid Verkställ",
+    "chooseFolder": "Välj mappen för de delade filerna",
+    "fileFailed": "Kunde inte läsa {{name}}: {{error}}",
+    "applyFailed": "Det gick inte att verkställa sidändringarna: {{error}}",
+    "extractFailed": "Det gick inte att extrahera sidorna: {{error}}"
   }
 }
