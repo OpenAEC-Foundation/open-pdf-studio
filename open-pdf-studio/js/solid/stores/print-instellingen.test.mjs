@@ -27,6 +27,7 @@ test('alle gekozen instellingen komen terug', () => {
     autoCenter: false,
     content: 'doc-only',
     asImage: true,
+    colorMode: 'bw',
     perSheet: 'custom',
     sheetCols: 3,
     sheetRows: 4,
@@ -230,4 +231,15 @@ test('afdrukwijze (#607): uit de bewaarde keuzes en terug', () => {
   assert.deepEqual(naarModus('x', nu), nu);
   assert.deepEqual([...MEER_PER_BLAD_KEUZES], ['2', '4', '6', '9', '16', 'custom']);
   for (const k of MEER_PER_BLAD_KEUZES) assert.ok(PRINT_KEUZES.perSheet.includes(k));
+});
+
+test('de kleurmodus (#754) wordt onthouden en een onbekende waarde valt terug op kleur', () => {
+  assert.equal(PRINT_STANDAARD.colorMode, 'color');
+  assert.deepEqual([...PRINT_KEUZES.colorMode], ['color', 'grayscale', 'bw']);
+  for (const modus of PRINT_KEUZES.colorMode) {
+    assert.equal(herstelPrintInstellingen({ colorMode: modus }).colorMode, modus);
+  }
+  for (const kapot of ['sepia', 1, null, true, 'Grayscale']) {
+    assert.equal(herstelPrintInstellingen({ colorMode: kapot }).colorMode, 'color');
+  }
 });

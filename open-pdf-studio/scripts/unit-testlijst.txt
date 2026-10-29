@@ -204,6 +204,7 @@ js/pdf/samenvoegen.test.mjs
 js/pdf/page-manager-samenvoegen.test.mjs
 js/i18n/cad-i18n-interpolatie.test.mjs
 js/pdf/print-opdracht.test.mjs
+js/pdf/print-kleur.test.mjs
 js/pdf/saver/onzichtbaar-vlak.test.mjs
 js/pdf/loader/extra-sleutel.test.mjs
 js/pdf/wolk-rondgang.test.mjs
