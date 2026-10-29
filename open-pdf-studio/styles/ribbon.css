@@ -633,10 +633,18 @@
 
 /* Themed dropdown list: WebView2/Chromium render the popup with the OS
    default unless the option colours are set explicitly, which looked wrong
-   (light popup) on dark themes. */
-.ribbon-form-select option {
-  background: var(--theme-ribbon-input-bg);
+   (light popup) on dark themes. De optie-achtergrond moet dekkend zijn: in
+   het standaardthema is --theme-ribbon-input-bg bijna doorzichtig, en dan
+   kwam de lichte tekst op de witte ondergrond van de lijst (#825). */
+.ribbon-form-select option,
+.ribbon-form-select optgroup {
+  background-color: var(--theme-ribbon-content-bg);
   color: var(--theme-ribbon-input-text);
+}
+
+/* Donkere thema's: ook de lijst zelf (schuifbalk, rand) donker. */
+[data-theme]:not([data-theme="light"]) .ribbon-form-select {
+  color-scheme: dark;
 }
 
 .ribbon-form-select-sm {
