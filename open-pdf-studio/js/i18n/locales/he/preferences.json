@@ -168,6 +168,7 @@
     "snapToPdfContent": "הצמדה לתוכן השרטוט ב-PDF",
     "navigation": "ניווט",
     "wheelZoomWithoutCtrl": "זום בגלגלת העכבר (ללא החזקת Ctrl)",
+    "middleDoubleClickFit": "לחיצה כפולה על לחצן העכבר האמצעי להתאמת העמוד",
     "dynamicScaling": "שינוי קנה מידה אוטומטי של סימונים"
   },
   "fileAssoc": {

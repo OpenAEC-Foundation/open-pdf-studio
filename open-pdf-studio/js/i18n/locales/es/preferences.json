@@ -168,6 +168,7 @@
     "confirmBeforeDeleting": "Confirmar antes de eliminar anotaciones",
     "navigation": "Navegación",
     "wheelZoomWithoutCtrl": "Zoom con la rueda del ratón (sin mantener Ctrl)",
+    "middleDoubleClickFit": "Doble clic con el botón central del ratón para ajustar la página",
     "dynamicScaling": "Escalar marcas automáticamente"
   },
   "fileAssoc": {

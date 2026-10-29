@@ -200,6 +200,7 @@ export interface Preferences {
   autoSelectAfterCreate: boolean;
   confirmBeforeDelete: boolean;
   wheelZoomWithoutCtrl: boolean;
+  middleDoubleClickFit: boolean;
 
   // Startup
   restoreLastSession: boolean;

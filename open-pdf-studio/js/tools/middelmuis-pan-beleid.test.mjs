@@ -104,3 +104,120 @@ test('mousedown-vangnet bij akkoord met linkerknop: alleen preventDefault', () =
   assert.equal(e.prevented, true);
   assert.deepEqual(log, []);
 });
+
+// ── Dubbelklik met de middelknop = zoom alles (issue #767) ──
+
+import { maakMiddelmuisDubbelklik } from './middelmuis-dubbelklik.js';
+
+function maakMetDubbelklik({ modus = 'continuous', aan = true, panning = false } = {}) {
+  let t = 0;
+  const log = [];
+  // Pseudo-gereedschap met een lopende tekenbewerking: de handlers krijgen
+  // er geen toegang toe, dus het gebaar kan hem niet beëindigen.
+  const tekenen = { tool: 'polyline', punten: [[1, 1], [5, 5]], actief: true };
+  const h = maakMiddelmuisHandlers({
+    heeftDocument: () => true,
+    weergaveModus: () => modus,
+    isPanning: () => panning,
+    rondBewerkingenAf: () => log.push('afronden'),
+    sluitMenu: () => log.push('menu'),
+    startScrollPan: () => log.push('scrollpan'),
+    startViewportPan: () => { log.push('viewportpan'); return true; },
+    dubbelklik: maakMiddelmuisDubbelklik({ nu: () => t }),
+    dubbelklikAan: () => aan,
+    zoomAlles: () => log.push('zoomAlles'),
+    plan: (fn) => { log.push('gepland'); fn(); },
+  });
+  const ev = (_type, o = {}) => nepEvent({ event: { clientX: 10, clientY: 10, ...o } });
+  return { h, log, tekenen, op: (ms) => { t = ms; }, ev };
+}
+
+function middelklik(m, t0, { x = 10, y = 10 } = {}) {
+  m.op(t0); m.h.onPointerDown(m.ev('down', { clientX: x, clientY: y }));
+  m.op(t0 + 40); m.h.onPointerUp(m.ev('up', { clientX: x, clientY: y, buttons: 0 }));
+}
+
+test('dubbelklik met de middelknop: elke druk pant gewoon, daarna één keer zoom alles', () => {
+  const m = maakMetDubbelklik({ modus: 'single' });
+  middelklik(m, 0);
+  middelklik(m, 150);
+  assert.deepEqual(m.log, [
+    'afronden', 'menu', 'viewportpan',
+    'afronden', 'menu', 'viewportpan',
+    'gepland', 'zoomAlles',
+  ]);
+});
+
+test('middelsleep pant en zoomt nooit, ook niet direct na een snelle klik', () => {
+  const m = maakMetDubbelklik();
+  middelklik(m, 0);
+  m.op(100); m.h.onPointerDown(m.ev('down'));
+  m.op(120); m.h.onPointerMove(m.ev('move', { button: -1, clientX: 40, clientY: 30 }));
+  m.op(200); m.h.onPointerUp(m.ev('up', { clientX: 40, clientY: 30, buttons: 0 }));
+  assert.ok(!m.log.includes('zoomAlles'));
+  assert.equal(m.log.filter((x) => x === 'scrollpan').length, 2);
+});
+
+test('andere knoppen tellen niet mee voor de dubbelklik', () => {
+  const m = maakMetDubbelklik();
+  for (const t0 of [0, 100]) {
+    m.op(t0); m.h.onPointerDown(m.ev('down', { button: 0, buttons: 1 }));
+    m.op(t0 + 30); m.h.onPointerUp(m.ev('up', { button: 0, buttons: 0 }));
+  }
+  assert.deepEqual(m.log, []);
+});
+
+test('voorkeur uit: middelklikken pannen nog, maar zoomen niet', () => {
+  const m = maakMetDubbelklik({ aan: false });
+  middelklik(m, 0);
+  middelklik(m, 100);
+  assert.ok(!m.log.includes('zoomAlles'));
+  assert.equal(m.log.filter((x) => x === 'scrollpan').length, 2);
+});
+
+test('buiten de weergave telt een middelklik niet mee', () => {
+  const m = maakMetDubbelklik();
+  m.op(0); m.h.onPointerDown(nepEvent({ inWeergave: false, event: { clientX: 10, clientY: 10 } }));
+  m.op(40); m.h.onPointerUp(m.ev('up', { buttons: 0 }));
+  m.op(100); m.h.onPointerDown(nepEvent({ inWeergave: false, event: { clientX: 10, clientY: 10 } }));
+  m.op(140); m.h.onPointerUp(m.ev('up', { buttons: 0 }));
+  assert.deepEqual(m.log, []);
+});
+
+test('tijdens een tekenbewerking met ingedrukte linkerknop (akkoord): zoomt, zonder pan of afronding', () => {
+  const m = maakMetDubbelklik();
+  const voor = JSON.stringify(m.tekenen);
+  // Akkoord: de middelknop-wissels komen als pointermove met button === 1.
+  for (const t0 of [0, 120]) {
+    m.op(t0); m.h.onPointerMove(m.ev('move', { button: 1, buttons: 1 | 4 }));
+    m.op(t0 + 40); m.h.onPointerMove(m.ev('move', { button: 1, buttons: 1 }));
+  }
+  assert.deepEqual(m.log, ['gepland', 'zoomAlles']);
+  assert.equal(JSON.stringify(m.tekenen), voor);
+});
+
+test('tijdens een klik-voor-klik-tekenbewerking blijft de bewerking ongemoeid', () => {
+  const m = maakMetDubbelklik({ modus: 'single' });
+  const voor = JSON.stringify(m.tekenen);
+  middelklik(m, 0);
+  middelklik(m, 150);
+  assert.ok(m.log.includes('zoomAlles'));
+  assert.equal(JSON.stringify(m.tekenen), voor);
+});
+
+test('pointercancel breekt een half afgemaakte dubbelklik af', () => {
+  const m = maakMetDubbelklik();
+  middelklik(m, 0);
+  m.h.onPointerCancel();
+  middelklik(m, 100);
+  assert.ok(!m.log.includes('zoomAlles'));
+});
+
+test('zonder detector werken de nieuwe handlers als no-op (bestaande pan ongewijzigd)', () => {
+  const { h, log } = maak();
+  h.onPointerDown(nepEvent());
+  h.onPointerMove(nepEvent({ event: { button: -1 } }));
+  h.onPointerUp(nepEvent({ event: { buttons: 0 } }));
+  h.onPointerCancel();
+  assert.deepEqual(log, ['afronden', 'menu', 'scrollpan']);
+});

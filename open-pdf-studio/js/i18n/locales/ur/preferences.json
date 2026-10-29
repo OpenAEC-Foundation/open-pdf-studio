@@ -168,6 +168,7 @@
     "snapToPdfContent": "PDF ڈرائنگ مواد سے سنیپ کریں",
     "navigation": "نیویگیشن",
     "wheelZoomWithoutCtrl": "ماؤس وہیل سے زوم کریں (Ctrl دبائے بغیر)",
+    "middleDoubleClickFit": "صفحہ فٹ کرنے کے لیے ماؤس کے درمیانی بٹن پر ڈبل کلک کریں",
     "dynamicScaling": "مارک اپس کو خودکار اسکیل کریں"
   },
   "fileAssoc": {

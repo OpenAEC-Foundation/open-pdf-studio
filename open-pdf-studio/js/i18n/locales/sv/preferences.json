@@ -168,6 +168,7 @@
     "snapToPdfContent": "Fäst mot PDF-ritningsinnehåll",
     "navigation": "Navigering",
     "wheelZoomWithoutCtrl": "Zooma med mushjulet (utan att hålla ned Ctrl)",
+    "middleDoubleClickFit": "Dubbelklicka med mittenknappen för att anpassa sidan",
     "dynamicScaling": "Skala markeringar automatiskt"
   },
   "fileAssoc": {

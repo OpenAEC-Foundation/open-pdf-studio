@@ -50,6 +50,10 @@ function doelVan(e) {
  * @param {() => void} d.sluitMenu            open contextmenu sluiten
  * @param {(e: any) => void} d.startScrollPan pan in een scrollende weergave
  * @param {(e: any) => boolean} d.startViewportPan pan in de viewport; false = niet actief
+ * @param {object} [d.dubbelklik]            detector uit middelmuis-dubbelklik.js (#767)
+ * @param {() => boolean} [d.dubbelklikAan]   voorkeur 'middelste knop dubbelklikken = passend'
+ * @param {() => void} [d.zoomAlles]          huidige pagina passend in beeld
+ * @param {(fn: () => void) => void} [d.plan] uitstel tot na de lopende events
  */
 export function maakMiddelmuisHandlers(d) {
   const actieVoor = (e) => {
@@ -63,8 +67,31 @@ export function maakMiddelmuisHandlers(d) {
     });
   };
 
+  // ── Dubbelklik met de middelknop = zoom alles (issue #767) ──
+  // De detector krijgt elke middelknop-druk in de weergave, ook als er alleen
+  // geblokkeerd wordt (een lopende teken- of sleepbewerking): het gebaar
+  // verandert alleen de zoom en laat het gereedschap ongemoeid.
+  const dk = d.dubbelklik || null;
+  const dkAan = () => !!dk && !!d.zoomAlles && (d.dubbelklikAan ? d.dubbelklikAan() !== false : true);
+  const plan = d.plan || ((fn) => setTimeout(fn, 0));
+
+  function dubbelklikDruk(e, actie) {
+    if (!dk) return;
+    if (actie === 'negeer' || !dkAan()) { dk.reset(); return; }
+    dk.druk(e.clientX, e.clientY);
+  }
+
+  function dubbelklikLos(e) {
+    if (!dk) return;
+    // Pas uitvoeren als de pan van de tweede druk netjes beëindigd is
+    // (die luistert op dezelfde pointerup), anders werkt zijn afronding
+    // het passend maken tegen.
+    if (dk.los(e.clientX, e.clientY) && dkAan()) plan(() => d.zoomAlles());
+  }
+
   function onPointerDown(e) {
     const actie = actieVoor(e);
+    if (e.button === 1) dubbelklikDruk(e, actie);
     if (actie === 'negeer') return;
     // Onderdrukt de autoscroll (en de afgeleide mousedown).
     e.preventDefault();
@@ -94,5 +121,27 @@ export function maakMiddelmuisHandlers(d) {
     if (doel && doel.closest('#pdf-container') && !doel.closest('.compare-view')) e.preventDefault();
   }
 
-  return { onPointerDown, onMouseDown, onAuxClick };
+  // Bewegen breekt een reeks af zodra de cursor buiten de marge komt (een
+  // pan). Een middelknop-wissel terwijl er al een andere knop ingedrukt is
+  // (akkoord) levert geen pointerdown/pointerup maar een pointermove met
+  // button === 1; buttons zegt dan of hij in- of losging.
+  function onPointerMove(e) {
+    if (!dk) return;
+    if (e.button === 1) {
+      if ((e.buttons ?? 0) & 4) dubbelklikDruk(e, actieVoor(e));
+      else dubbelklikLos(e);
+      return;
+    }
+    dk.beweeg(e.clientX, e.clientY);
+  }
+
+  function onPointerUp(e) {
+    if (e.button === 1) dubbelklikLos(e);
+  }
+
+  function onPointerCancel() {
+    if (dk) dk.reset();
+  }
+
+  return { onPointerDown, onMouseDown, onAuxClick, onPointerMove, onPointerUp, onPointerCancel };
 }

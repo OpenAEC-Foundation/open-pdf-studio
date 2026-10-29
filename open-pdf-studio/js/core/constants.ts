@@ -265,6 +265,8 @@ export const DEFAULT_PREFERENCES: Preferences = {
   autoSelectAfterCreate: true,
   confirmBeforeDelete: true,
   wheelZoomWithoutCtrl: false,
+  // Dubbelklik met de middelste muisknop = huidige pagina passend (#767).
+  middleDoubleClickFit: true,
 
   // Startup
   restoreLastSession: false,

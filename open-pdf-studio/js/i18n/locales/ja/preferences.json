@@ -168,6 +168,7 @@
     "confirmBeforeDeleting": "注釈を削除する前に確認する",
     "navigation": "ナビゲーション",
     "wheelZoomWithoutCtrl": "マウスホイールでズーム（Ctrl を押さずに）",
+    "middleDoubleClickFit": "マウスの中央ボタンをダブルクリックしてページ全体を表示",
     "dynamicScaling": "マークアップを自動スケーリング"
   },
   "fileAssoc": {

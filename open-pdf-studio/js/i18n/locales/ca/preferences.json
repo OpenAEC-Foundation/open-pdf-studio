@@ -168,6 +168,7 @@
     "snapToPdfContent": "Ajusta al contingut del dibuix PDF",
     "navigation": "Navegació",
     "wheelZoomWithoutCtrl": "Zoom amb la roda del ratolí (sense mantenir premut Ctrl)",
+    "middleDoubleClickFit": "Feu doble clic amb el botó central del ratolí per ajustar la pàgina",
     "dynamicScaling": "Escala automàticament les marques"
   },
   "fileAssoc": {

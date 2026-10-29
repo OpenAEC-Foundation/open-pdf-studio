@@ -168,6 +168,7 @@
     "snapToPdfContent": "Snap ke Konten Gambar PDF",
     "navigation": "Navigasi",
     "wheelZoomWithoutCtrl": "Zoom dengan roda mouse (tanpa menahan Ctrl)",
+    "middleDoubleClickFit": "Klik dua kali tombol tengah mouse untuk menyesuaikan halaman",
     "dynamicScaling": "Skalakan markup otomatis"
   },
   "fileAssoc": {

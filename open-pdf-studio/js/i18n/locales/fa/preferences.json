@@ -168,6 +168,7 @@
     "confirmBeforeDeleting": "تایید قبل از حذف حاشیه‌نویسی‌ها",
     "navigation": "ناوبری",
     "wheelZoomWithoutCtrl": "بزرگ‌نمایی با چرخ ماوس (بدون نگه داشتن Ctrl)",
+    "middleDoubleClickFit": "دوبار کلیک با دکمه وسط ماوس برای جا دادن صفحه",
     "dynamicScaling": "مقیاس خودکار نشانه‌گذاری‌ها"
   },
   "fileAssoc": {

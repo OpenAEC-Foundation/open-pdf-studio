@@ -168,6 +168,7 @@
     "snapToPdfContent": "Kiinnitä PDF-piirustuksen sisältöön",
     "navigation": "Siirtyminen",
     "wheelZoomWithoutCtrl": "Zoomaa hiiren rullalla (ilman Ctrl-näppäintä)",
+    "middleDoubleClickFit": "Hiiren keskipainikkeen kaksoisnapsautus sovittaa sivun",
     "dynamicScaling": "Skaalaa merkinnät automaattisesti"
   },
   "fileAssoc": {

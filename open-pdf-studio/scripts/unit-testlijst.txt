@@ -153,6 +153,9 @@ js/pdf/print-pagina-instelling.test.mjs
 js/pdf/print-papier.test.mjs
 js/pdf/getoonde-pagina.test.mjs
 js/tools/middelmuis-pan-beleid.test.mjs
+js/tools/middelmuis-dubbelklik.test.mjs
+js/tools/middelmuis-dubbelklik-bedrading.test.mjs
+js/pdf/zoom-alles.test.mjs
 js/annotations/stamp-appearance-sync.test.mjs
 js/annotations/kruis-geometrie.test.mjs
 js/pdf/loader/gedraaide-vorm-maat.test.mjs
