@@ -387,6 +387,7 @@ js/pdf/page-transition.test.mjs
 js/mobile/mobiele-gereedschappen.test.mjs
 js/core/oude-webview.test.mjs
 scripts/oude-webview.test.mjs
+scripts/pdfjs-postscript-progress.test.mjs
 scripts/oude-webview-pdfjs.test.mjs
 scripts/android-config.test.mjs
 js/core/fout-bericht.test.mjs
