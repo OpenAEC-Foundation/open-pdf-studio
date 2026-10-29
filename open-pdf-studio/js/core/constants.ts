@@ -18,6 +18,8 @@ export const HANDLE_TYPES = {
   LINE_END: 'line_end',
   RADIUS: 'radius',
   ROTATE: 'rotate',
+  // Eigen draaipunt van afbeelding/stempel/handtekening (#826, draaipunt.js).
+  PIVOT: 'pivot',
   CALLOUT_ARROW: 'callout_arrow',
   CALLOUT_KNEE: 'callout_knee',
   CALLOUT_MOVE: 'callout_move',

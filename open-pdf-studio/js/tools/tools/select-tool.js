@@ -1,4 +1,5 @@
 import { getActiveDocument } from '../../core/state.js';
+import { heeftEigenDraaipunt } from '../../annotations/draaipunt.js';
 import { paginaVectorNaarWeergave } from '../../pdf/weergave-ruimte.js';
 
 // Sleeprichting op het SCHERM: bij een gedraaide weergave (#200) is naar links
@@ -145,6 +146,17 @@ export const selectTool = {
           const before = ctx.cloneAnnotation(selAnn);
           if (Array.isArray(selAnn.leaders)) {
             selAnn.leaders = selAnn.leaders.filter(l => l.id !== leaderId);
+            selAnn.modifiedAt = new Date().toISOString();
+            recordModify(selAnn.id, before, ctx.cloneAnnotation(selAnn));
+          }
+          ctx.redraw();
+          return;
+        }
+        // Dubbelklik op het draaipunt (#826): terug naar het midden.
+        if (handleType === 'pivot' && e.detail === 2) {
+          if (heeftEigenDraaipunt(selAnn)) {
+            const before = ctx.cloneAnnotation(selAnn);
+            delete selAnn.draaipunt;
             selAnn.modifiedAt = new Date().toISOString();
             recordModify(selAnn.id, before, ctx.cloneAnnotation(selAnn));
           }

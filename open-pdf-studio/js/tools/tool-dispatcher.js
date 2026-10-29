@@ -6,6 +6,7 @@ import { getTool } from './tool-registry.js';
 import { eindEventBijAfbreken } from './aanraak-gebaar.js';
 import { cloneAnnotation } from '../annotations/factory.js';
 import { applyResize, applyMove, applyRotation } from '../annotations/transforms.js';
+import { kanDraaipunt, heeftEigenDraaipunt, draaipuntVoorPunt, draaiOmDraaipunt, houdDraaipuntVast } from '../annotations/draaipunt.js';
 import { redrawAnnotations, redrawContinuous, snapToGrid } from '../annotations/rendering.js';
 import { showProperties, showMultiSelectionProperties } from '../ui/panels/properties-panel.js';
 import { startTextEditing, finishTextEditing } from './text-editing.js';
@@ -615,7 +616,13 @@ function _handleResize(ctx, e, coords) {
   if (state.activeHandle === 'rotate') {
     Object.assign(ann, cloneAnnotation(state.originalAnnotation));
     state.shiftKeyPressed = e.shiftKey;
-    applyRotation(ann, coords.x, coords.y, state.originalAnnotation);
+    const _orig = state.originalAnnotation;
+    if (kanDraaipunt(_orig) && heeftEigenDraaipunt(_orig)) {
+      // Om het eigen draaipunt (#826), relatief aan waar de greep gepakt werd.
+      Object.assign(ann, draaiOmDraaipunt(_orig, state.dragStartX, state.dragStartY, coords.x, coords.y));
+    } else {
+      applyRotation(ann, coords.x, coords.y, _orig);
+    }
     redraw();
     return;
   }
@@ -659,6 +666,23 @@ function _handleResize(ctx, e, coords) {
   const snappedX = snap.snapped ? snap.x : coords.x;
   const snappedY = snap.snapped ? snap.y : coords.y;
   state.lastSnapResult = snap.snapped ? snap : null;
+
+  // Het draaipunt verplaatsen (#826): alleen het punt, het vak blijft staan.
+  // Het snapt mee, zodat het precies op een kenmerk van de tekening kan.
+  if (state.activeHandle === 'pivot') {
+    Object.assign(ann, cloneAnnotation(state.originalAnnotation));
+    const dp = draaipuntVoorPunt(state.originalAnnotation, snappedX, snappedY);
+    if (dp) ann.draaipunt = dp;
+    else delete ann.draaipunt;
+    redraw();
+    if (state.lastSnapResult) {
+      canvasCtx.save();
+      applyToolTransform(canvasCtx);
+      drawSnapIndicator(canvasCtx, state.lastSnapResult, resizeScale);
+      canvasCtx.restore();
+    }
+    return;
+  }
 
   let deltaX, deltaY;
   if (snap.snapped) {
@@ -715,6 +739,12 @@ function _handleResize(ctx, e, coords) {
       state._imageAlignGuides = res.guides;
       state._imageAlignGuidesPage = coords.pageNum;
     }
+  }
+
+  // Schalen met een eigen draaipunt (#826): het draaipunt blijft op dezelfde
+  // plek op de pagina; zonder eigen draaipunt blijft de overliggende greep staan.
+  if (_isBoxHandle && kanDraaipunt(state.originalAnnotation) && heeftEigenDraaipunt(state.originalAnnotation)) {
+    Object.assign(ann, houdDraaipuntVast(state.originalAnnotation, ann));
   }
 
   redraw();

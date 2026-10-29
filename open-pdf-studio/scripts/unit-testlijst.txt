@@ -549,3 +549,4 @@ js/annotations/crop-invoer.test.mjs
 js/annotations/eigen-stempel-bron.test.mjs
 js/pdf/eigen-stempel-rondgang.test.mjs
 js/annotations/redaction-melding.test.mjs
+js/annotations/draaipunt.test.mjs
