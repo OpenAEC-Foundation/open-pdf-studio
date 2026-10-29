@@ -180,6 +180,7 @@
     "navigation": "Navegação",
     "wheelZoomWithoutCtrl": "Zoom com a roda do mouse (sem segurar Ctrl)",
     "middleDoubleClickFit": "Clicar duas vezes com o botão do meio do rato para ajustar a página",
+    "ribbonWheelSwitchesTabs": "Alternar guias da faixa de opções com a roda do mouse",
     "dynamicScaling": "Dimensionar marcações automaticamente"
   },
   "fileAssoc": {
@@ -244,6 +245,9 @@
     "pageSharpenLevel3": "Forte",
     "pageSharpenLevel4": "Máxima",
     "showScrollbars": "Mostrar barras de rolagem da tela de desenho",
+    "backgroundColor": "Cor de fundo",
+    "backgroundColorDefault": "Predefinição",
+    "backgroundColorHint": "Cor da área à volta e entre as páginas. A própria página, a impressão e a exportação não mudam.",
     "panels": "Painéis",
     "showPropertiesPanel": "Mostrar o painel Propriedades por padrão",
     "showToolPalette": "Mostrar a paleta de ferramentas por padrão",
@@ -348,7 +352,9 @@
       "other": "Outros"
     },
     "commands": {
-      "findNext": "Localizar seguinte"
+      "findNext": "Localizar seguinte",
+      "splitPaneLarger": "Aumentar o painel ativo",
+      "splitPaneSmaller": "Diminuir o painel ativo"
     }
   }
 }

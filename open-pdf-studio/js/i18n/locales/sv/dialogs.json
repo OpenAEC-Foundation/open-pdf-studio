@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Storformat",
+      "detailblad": "Detaljblad",
+      "voorblad": "Försättsblad"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "stående",
+      "landscape": "liggande"
+    },
     "title": "Nytt dokument",
     "paperSize": "Pappersstorlek:",
     "widthMm": "Bredd (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "Välj bild...",
     "scale": "Skala:",
     "selectImageFirst": "Välj en bild först.",
-    "defaultText": "UTKAST"
+    "defaultText": "UTKAST",
+    "autoFit": "Anpassa automatiskt till sidan",
+    "autoFitHint": "Anpassar texten till varje sida. Storleken som visas gäller aktuell sida.",
+    "increaseFontSize": "Öka teckenstorlek",
+    "decreaseFontSize": "Minska teckenstorlek",
+    "textHistory": "Tidigare använda texter",
+    "removeFromHistory": "Ta bort från historiken"
   },
   "headerFooter": {
     "addTitle": "Lägg till sidhuvud/sidfot",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Välj mappen för de delade filerna",
     "fileFailed": "Kunde inte läsa {{name}}: {{error}}",
     "applyFailed": "Det gick inte att verkställa sidändringarna: {{error}}",
-    "extractFailed": "Det gick inte att extrahera sidorna: {{error}}"
+    "extractFailed": "Det gick inte att extrahera sidorna: {{error}}",
+    "blankSetup": "Inställning för tom sida",
+    "sameAsAdjacent": "Samma som intilliggande sida",
+    "width": "Bredd:",
+    "height": "Höjd:",
+    "unit": "Enhet:"
   },
   "accessibilityReport": {
     "title": "Tillgänglighetskontroll",

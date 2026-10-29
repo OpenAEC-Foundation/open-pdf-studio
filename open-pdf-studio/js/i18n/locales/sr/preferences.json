@@ -180,6 +180,7 @@
     "navigation": "Навигација",
     "wheelZoomWithoutCtrl": "Зумирање точкићем миша (без држања тастера Ctrl)",
     "middleDoubleClickFit": "Двоструки клик средњим тастером миша уклапа страницу",
+    "ribbonWheelSwitchesTabs": "Мењај картице траке точкићем миша",
     "dynamicScaling": "Аутоматски скалирај ознаке"
   },
   "fileAssoc": {
@@ -244,6 +245,9 @@
     "pageSharpenLevel3": "Јако",
     "pageSharpenLevel4": "Максимално",
     "showScrollbars": "Прикажи траке за померање платна",
+    "backgroundColor": "Боја позадине",
+    "backgroundColorDefault": "Подразумевано",
+    "backgroundColorHint": "Боја површине око страница и између њих. Сама страница, штампање и извоз се не мењају.",
     "panels": "Панели",
     "showPropertiesPanel": "Подразумевано прикажи панел својстава",
     "showToolPalette": "Подразумевано прикажи палету алатки",
@@ -348,7 +352,9 @@
       "other": "Остало"
     },
     "commands": {
-      "findNext": "Пронађи следеће"
+      "findNext": "Пронађи следеће",
+      "splitPaneLarger": "Повећај активно окно",
+      "splitPaneSmaller": "Смањи активно окно"
     }
   }
 }

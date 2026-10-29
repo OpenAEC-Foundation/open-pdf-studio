@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Grootformaat",
+      "detailblad": "Detailblad",
+      "voorblad": "Voorblad"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "staand",
+      "landscape": "liggend"
+    },
     "title": "Nieuw document",
     "paperSize": "Papierformaat:",
     "widthMm": "Breedte (mm):",
@@ -331,7 +341,13 @@
     "chooseImage": "Afbeelding kiezen...",
     "scale": "Schaal:",
     "selectImageFirst": "Selecteer eerst een afbeelding.",
-    "defaultText": "CONCEPT"
+    "defaultText": "CONCEPT",
+    "autoFit": "Automatisch passend op pagina",
+    "autoFitHint": "Past de tekst op elke pagina. De getoonde grootte geldt voor de huidige pagina.",
+    "increaseFontSize": "Lettergrootte vergroten",
+    "decreaseFontSize": "Lettergrootte verkleinen",
+    "textHistory": "Eerder gebruikte teksten",
+    "removeFromHistory": "Verwijderen uit geschiedenis"
   },
   "headerFooter": {
     "addTitle": "Koptekst/voettekst toevoegen",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Kies de map voor de gesplitste bestanden",
     "fileFailed": "{{name}} kon niet worden gelezen: {{error}}",
     "applyFailed": "Het toepassen van de paginabewerkingen is mislukt: {{error}}",
-    "extractFailed": "Het uitnemen van de pagina's is mislukt: {{error}}"
+    "extractFailed": "Het uitnemen van de pagina's is mislukt: {{error}}",
+    "blankSetup": "Instelling lege pagina",
+    "sameAsAdjacent": "Zelfde als aangrenzende pagina",
+    "width": "Breedte:",
+    "height": "Hoogte:",
+    "unit": "Eenheid:"
   },
   "accessibilityReport": {
     "title": "Toegankelijkheidscontrole",

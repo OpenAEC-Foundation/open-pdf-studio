@@ -6,6 +6,7 @@ import { setViewMode, fitPage } from './renderer.js';
 import { generateThumbnails, refreshActiveTab } from '../ui/panels/left-panel.js';
 import { createTab, closeTab, updateWindowTitle, markDocumentModified } from '../ui/chrome/tabs.js';
 import * as pdfjsLib from 'pdfjs-dist';
+import pdfjsWorkerUrl from 'virtual:opds-pdfjs-worker-url';
 import { isTauri, isMobile, heeftRustRenderer, readBinaryFile, openFileDialog, lockFile, invoke } from '../core/platform.js';
 import { PDFDocument } from 'pdf-lib';
 import { resetAnnotationStorage } from './form-layer.js';
@@ -81,17 +82,10 @@ export function clearCachedPdfBytes(filePath) {
   }
 }
 
-// Set worker source (path relative to HTML file, not this module)
-// Dev: Vite herschrijft de new URL(...)-vorm naar een /@fs/-URL en die valt
-// onder server.fs.allow — een verse webview (zonder cache) krijgt daar 403 op,
-// waarna PDF.js' fake-worker-fallback op dezelfde 403 strandt en getDocument
-// nooit resolvet (document laadt nooit). Het kale /node_modules/-pad wordt
-// altijd geserveerd, dus gebruik dat in dev; prod houdt de asset-URL (de
-// worker wordt door rollup als asset geëmit — zie assetFileNames in
-// vite.config.js).
-pdfjsLib.GlobalWorkerOptions.workerSrc = import.meta.env?.DEV
-  ? '/node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs'
-  : new URL('pdfjs-dist/legacy/build/pdf.worker.mjs', import.meta.url).href;
+// Vite serves/emits the pinned worker with the PostScript progress backport.
+// The build hashes the patched bytes; dev retains a same-origin /node_modules/
+// URL so a fresh WebView cannot hit the historical /@fs/ access failure.
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
 
 // Gehoste bouw (#704): in de werkplek (opaque origin) start PDF.js zijn
 // worker niet zelf; hij zou een module-worker uit een blob maken, en die

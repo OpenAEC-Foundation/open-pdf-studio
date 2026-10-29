@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Grande formato",
+      "detailblad": "Foglio dei dettagli",
+      "voorblad": "Copertina"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "verticale",
+      "landscape": "orizzontale"
+    },
     "title": "Nuovo documento",
     "paperSize": "Formato carta:",
     "widthMm": "Larghezza (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "Scegli immagine...",
     "scale": "Scala:",
     "selectImageFirst": "Selezionare prima un'immagine.",
-    "defaultText": "BOZZA"
+    "defaultText": "BOZZA",
+    "autoFit": "Adatta automaticamente alla pagina",
+    "autoFitHint": "Adatta il testo a ogni pagina. La dimensione mostrata è quella della pagina corrente.",
+    "increaseFontSize": "Aumenta dimensione carattere",
+    "decreaseFontSize": "Riduci dimensione carattere",
+    "textHistory": "Testi usati in precedenza",
+    "removeFromHistory": "Rimuovi dalla cronologia"
   },
   "headerFooter": {
     "addTitle": "Aggiungi intestazione/piè di pagina",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Scegli la cartella per i file divisi",
     "fileFailed": "Impossibile leggere {{name}}: {{error}}",
     "applyFailed": "Applicazione delle modifiche alle pagine non riuscita: {{error}}",
-    "extractFailed": "Estrazione delle pagine non riuscita: {{error}}"
+    "extractFailed": "Estrazione delle pagine non riuscita: {{error}}",
+    "blankSetup": "Impostazione pagina vuota",
+    "sameAsAdjacent": "Come la pagina adiacente",
+    "width": "Larghezza:",
+    "height": "Altezza:",
+    "unit": "Unità:"
   },
   "accessibilityReport": {
     "title": "Verifica accessibilità",

@@ -22,7 +22,7 @@ import * as S from './split-staat.js';
 import {
   viewport, volgViewport, leesAnkers, viewportCanvasMaat, pasViewportMaatAan,
   zetViewportStand, stopPanMomentum, wielPanViewport, zoomStepAtPoint,
-  bewaarStandVoorLayoutwissel,
+  bewaarStandVoorLayoutwissel, markAnchored,
 } from '../pdf-viewport.js';
 import { renderPage, renderContinuous, setViewMode, continuousZoomBy } from '../renderer.js';
 import { renderAnnotationsForPage } from '../../annotations/rendering.js';
@@ -33,8 +33,8 @@ import { paginaMaat } from '../weergave-ruimte.js';
 import { thinLinesOn } from '../thin-lines.js';
 import { compareFocused } from '../../compare/compare-store.js';
 import { WEERGAVE_GEDRAAID } from '../weergave-draaien.js';
-
-const ACHTERGROND = '#e0e0e0';
+import { splitOpdrachtActie } from './split-sneltoets.js';
+import { achtergrondKleur, eigenAchtergrond, ACHTERGROND_GEWIJZIGD } from '../pagina-achtergrond.js';
 
 // doc.id → staat (split-staat.js). Bewust buiten de reactieve store: een
 // stand bevat canvassen en bitmaps. Wat de interface nodig heeft staat op
@@ -74,7 +74,11 @@ export function splitsWeergave(richting = 'vertical') {
   const bestaand = _staten.get(doc.id);
   if (bestaand) {
     if (bestaand.richting !== richting) {
-      zetStaat(doc, { ...bestaand, richting: S.RICHTINGEN.includes(richting) ? richting : 'vertical' });
+      // Richting wisselen (#858): elk paneel houdt zijn pagina en zoom, ook
+      // een passende pagina (die zou bij de nieuwe paneelmaat anders opnieuw
+      // passend worden en van zoom veranderen).
+      if (liveViewportToont(doc)) markAnchored();
+      zetStaat(doc, { ...bestaand, stand: S.zetVerankerd(bestaand.stand), richting: S.RICHTINGEN.includes(richting) ? richting : 'vertical' });
       pasSplitLayoutToe();
       planTekenen();
     }
@@ -115,6 +119,22 @@ export function zetSplitVerhouding(v) {
   if (!st) return;
   zetStaat(doc, { ...st, verhouding: S.klemVerhouding(v) });
   pasSplitLayoutToe();
+}
+
+/**
+ * Een splitsopdracht van het toetsenbord (#858): Split Vertical/Horizontal
+ * (die van de splitsing die er al staat heft hem op), Unsplit, en het actieve
+ * paneel 5% groter of kleiner.
+ */
+export function voerSplitOpdrachtUit(id) {
+  const doc = getActiveDocument();
+  if (!doc?.pdfDoc || vergelijkingVoor()) return false;
+  const actie = splitOpdrachtActie(id, splitStaatVan(doc));
+  if (!actie) return false;
+  if (actie.soort === 'opheffen') return hefSplitsingOp();
+  if (actie.soort === 'splitsen') return splitsWeergave(actie.richting);
+  if (actie.soort === 'verhouding') { zetSplitVerhouding(actie.verhouding); return true; }
+  return false;
 }
 
 /** Maak het andere paneel actief (zoals een klik erin). */
@@ -239,6 +259,8 @@ export function initSplitView() {
   volgViewport(() => { if (_zichtbaar && !_tekenBezig) syncVanLive(); });
   if (typeof window !== 'undefined') {
     window.addEventListener(WEERGAVE_GEDRAAID, () => planTekenen());
+    // Een andere achtergrondkleur rond de pagina (#859).
+    window.addEventListener(ACHTERGROND_GEWIJZIGD, () => planTekenen());
   }
 
   if (typeof ResizeObserver !== 'undefined') {
@@ -311,7 +333,7 @@ function leesLiveStand(doc, { metBeeld = false } = {}) {
     vp: null,
     layout: null,
     bevroren: null,
-    achtergrond: ACHTERGROND,
+    achtergrond: achtergrondKleur(),
   };
   if (liveViewportToont(doc)) {
     const ankers = leesAnkers();
@@ -397,7 +419,7 @@ function neemBeeldOp(c, stand, doc) {
     doek.width = W;
     doek.height = H;
     const ctx = doek.getContext('2d');
-    ctx.fillStyle = stand.achtergrond || ACHTERGROND;
+    ctx.fillStyle = paneelAchtergrond(stand);
     ctx.fillRect(0, 0, W, H);
     const cr = c.getBoundingClientRect();
     const tekenEl = (el, wit) => {
@@ -607,6 +629,8 @@ function koppelScheiding(scheiding) {
     e.preventDefault();
     e.stopPropagation();
     slepen = true;
+    // Blijft opgelicht zolang er gesleept wordt, ook buiten het grijpvlak.
+    scheiding.classList.add('split-divider-slepen');
     try { scheiding.setPointerCapture(e.pointerId); } catch { /* oudere webview */ }
   });
   scheiding.addEventListener('pointermove', (e) => {
@@ -628,6 +652,7 @@ function koppelScheiding(scheiding) {
   const stop = (e) => {
     if (!slepen) return;
     slepen = false;
+    scheiding.classList.remove('split-divider-slepen');
     try { scheiding.releasePointerCapture(e.pointerId); } catch { /* al los */ }
   };
   scheiding.addEventListener('pointerup', stop);
@@ -934,6 +959,14 @@ function paginaBeelden(doc, plaatsingen, W, H, dpr) {
   return paneelPdfjsBeelden(doc, plaatsingen, { dpr, W, H, opKlaar: planTekenen });
 }
 
+// De kleur rond de pagina's in het tweede paneel: de eigen kleur van de
+// gebruiker (#859), anders wat de viewer toonde toen het paneel zijn stand
+// kreeg (het lichtgrijs van het viewportcanvas, of het thema rond doorlopende
+// pagina's).
+function paneelAchtergrond(s) {
+  return eigenAchtergrond() || (s?.vp ? achtergrondKleur() : (s?.achtergrond || achtergrondKleur()));
+}
+
 function tekenPaginaLaag(doc, s, plaatsingen, doek, W, H, dpr) {
   const ctx = doek.getContext('2d');
   ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -947,7 +980,7 @@ function tekenPaginaLaag(doc, s, plaatsingen, doek, W, H, dpr) {
     ctx.drawImage(s.bevroren.beeld, 0, 0, doek.width, doek.height);
     return;
   }
-  ctx.fillStyle = s.vp ? ACHTERGROND : (s.achtergrond || ACHTERGROND);
+  ctx.fillStyle = paneelAchtergrond(s);
   ctx.fillRect(0, 0, doek.width, doek.height);
   plaatsingen.forEach((p, i) => {
     const m = vermenigvuldig([p.z, 0, 0, p.z, p.tx, p.ty], p.weergave || [1, 0, 0, 1, 0, 0]);

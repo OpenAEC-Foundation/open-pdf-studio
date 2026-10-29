@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Veliki format",
+      "detailblad": "List s detaljima",
+      "voorblad": "Naslovni list"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "uspravno",
+      "landscape": "vodoravno"
+    },
     "title": "Novi dokument",
     "paperSize": "Veličina papira:",
     "widthMm": "Širina (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "Odaberite sliku...",
     "scale": "Mjerilo:",
     "selectImageFirst": "Molimo prvo odaberite sliku.",
-    "defaultText": "NACRT"
+    "defaultText": "NACRT",
+    "autoFit": "Automatski prilagodi stranici",
+    "autoFitHint": "Prilagođava tekst svakoj stranici. Prikazana veličina odnosi se na trenutačnu stranicu.",
+    "increaseFontSize": "Povećaj veličinu fonta",
+    "decreaseFontSize": "Smanji veličinu fonta",
+    "textHistory": "Prethodno korišteni tekstovi",
+    "removeFromHistory": "Ukloni iz povijesti"
   },
   "headerFooter": {
     "addTitle": "Dodaj zaglavlje/podnožje",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Odaberite mapu za podijeljene datoteke",
     "fileFailed": "Nije moguće pročitati {{name}}: {{error}}",
     "applyFailed": "Primjena izmjena stranica nije uspjela: {{error}}",
-    "extractFailed": "Izdvajanje stranica nije uspjelo: {{error}}"
+    "extractFailed": "Izdvajanje stranica nije uspjelo: {{error}}",
+    "blankSetup": "Postavke prazne stranice",
+    "sameAsAdjacent": "Isto kao susjedna stranica",
+    "width": "Širina:",
+    "height": "Visina:",
+    "unit": "Jedinica:"
   },
   "accessibilityReport": {
     "title": "Provjera pristupačnosti",

@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "قطع بزرگ",
+      "detailblad": "برگه جزئیات",
+      "voorblad": "برگه جلد"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "عمودی",
+      "landscape": "افقی"
+    },
     "title": "سند جدید",
     "paperSize": "اندازه کاغذ:",
     "widthMm": "عرض (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "انتخاب تصویر...",
     "scale": "مقیاس:",
     "selectImageFirst": "لطفاً ابتدا یک تصویر انتخاب کنید.",
-    "defaultText": "پیش‌نویس"
+    "defaultText": "پیش‌نویس",
+    "autoFit": "تطبیق خودکار با صفحه",
+    "autoFitHint": "متن را با هر صفحه تطبیق می‌دهد. اندازهٔ نمایش‌داده‌شده مربوط به صفحهٔ فعلی است.",
+    "increaseFontSize": "افزایش اندازهٔ قلم",
+    "decreaseFontSize": "کاهش اندازهٔ قلم",
+    "textHistory": "متن‌های استفاده‌شدهٔ قبلی",
+    "removeFromHistory": "حذف از تاریخچه"
   },
   "headerFooter": {
     "addTitle": "افزودن سرصفحه/پاصفحه",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "پوشه فایل‌های تقسیم‌شده را انتخاب کنید",
     "fileFailed": "خواندن {{name}} ممکن نشد: {{error}}",
     "applyFailed": "اعمال ویرایش‌های صفحه ناموفق بود: {{error}}",
-    "extractFailed": "استخراج صفحات ناموفق بود: {{error}}"
+    "extractFailed": "استخراج صفحات ناموفق بود: {{error}}",
+    "blankSetup": "تنظیم صفحه خالی",
+    "sameAsAdjacent": "مانند صفحه مجاور",
+    "width": "عرض:",
+    "height": "ارتفاع:",
+    "unit": "واحد:"
   },
   "accessibilityReport": {
     "title": "بررسی دسترس‌پذیری",

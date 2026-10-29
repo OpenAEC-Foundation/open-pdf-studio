@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Suuri formaatti",
+      "detailblad": "Detaljiarkki",
+      "voorblad": "Kansilehti"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "pystysuunta",
+      "landscape": "vaakasuunta"
+    },
     "title": "Uusi asiakirja",
     "paperSize": "Paperikoko:",
     "widthMm": "Leveys (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "Valitse kuva...",
     "scale": "Skaalaus:",
     "selectImageFirst": "Valitse ensin kuva.",
-    "defaultText": "LUONNOS"
+    "defaultText": "LUONNOS",
+    "autoFit": "Sovita automaattisesti sivulle",
+    "autoFitHint": "Sovittaa tekstin jokaiselle sivulle. Näytetty koko koskee nykyistä sivua.",
+    "increaseFontSize": "Suurenna fonttikokoa",
+    "decreaseFontSize": "Pienennä fonttikokoa",
+    "textHistory": "Aiemmin käytetyt tekstit",
+    "removeFromHistory": "Poista historiasta"
   },
   "headerFooter": {
     "addTitle": "Lisää ylätunniste/alatunniste",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Valitse kansio jaetuille tiedostoille",
     "fileFailed": "Tiedostoa {{name}} ei voitu lukea: {{error}}",
     "applyFailed": "Sivumuutosten käyttäminen epäonnistui: {{error}}",
-    "extractFailed": "Sivujen irrottaminen epäonnistui: {{error}}"
+    "extractFailed": "Sivujen irrottaminen epäonnistui: {{error}}",
+    "blankSetup": "Tyhjän sivun asetukset",
+    "sameAsAdjacent": "Sama kuin viereinen sivu",
+    "width": "Leveys:",
+    "height": "Korkeus:",
+    "unit": "Yksikkö:"
   },
   "accessibilityReport": {
     "title": "Saavutettavuuden tarkistus",

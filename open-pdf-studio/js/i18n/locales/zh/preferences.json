@@ -180,6 +180,7 @@
     "navigation": "导航",
     "wheelZoomWithoutCtrl": "使用鼠标滚轮缩放（无需按住 Ctrl）",
     "middleDoubleClickFit": "双击鼠标中键以适合页面",
+    "ribbonWheelSwitchesTabs": "使用鼠标滚轮切换功能区选项卡",
     "dynamicScaling": "自动缩放标记"
   },
   "fileAssoc": {
@@ -244,6 +245,9 @@
     "pageSharpenLevel3": "强",
     "pageSharpenLevel4": "最大",
     "showScrollbars": "显示画布滚动条",
+    "backgroundColor": "背景颜色",
+    "backgroundColorDefault": "默认",
+    "backgroundColorHint": "页面周围和页面之间区域的颜色。页面本身、打印和导出不会改变。",
     "panels": "面板",
     "showPropertiesPanel": "默认显示属性面板",
     "showToolPalette": "默认显示工具选项板",
@@ -348,7 +352,9 @@
       "other": "其他"
     },
     "commands": {
-      "findNext": "查找下一个"
+      "findNext": "查找下一个",
+      "splitPaneLarger": "放大活动窗格",
+      "splitPaneSmaller": "缩小活动窗格"
     }
   }
 }

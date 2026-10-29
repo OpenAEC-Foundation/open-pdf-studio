@@ -1,4 +1,4 @@
-import { createSignal, Switch, Match, For } from 'solid-js';
+import { createSignal, createEffect, onCleanup, Switch, Match, For } from 'solid-js';
 import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { DEFAULT_PREFERENCES } from '../../../core/constants.js';
@@ -6,6 +6,7 @@ import { state, getActiveDocument } from '../../../core/state.js';
 import { savePreferences, applyTheme } from '../../../core/preferences.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
 import { isMobile, isTauri, getUsername } from '../../../core/platform.js';
+import { zetPaginaAchtergrond } from '../../../pdf/pagina-achtergrond.js';
 
 import GeneralTab from './GeneralTab.jsx';
 import AnnotationsTab from './AnnotationsTab.jsx';
@@ -81,6 +82,12 @@ export default function PreferencesDialog(props) {
   const [activeTab, setActiveTab] = createSignal(initialTab);
 
   const prefs = createPrefSignals(state.preferences);
+
+  // Background color around the pages (#859): shown at once while choosing;
+  // closing without saving puts the saved color back (after Save that is the
+  // new one).
+  createEffect(() => zetPaginaAchtergrond(prefs.pageBackgroundColor[0]()));
+  onCleanup(() => zetPaginaAchtergrond(state.preferences.pageBackgroundColor));
 
   function close() {
     closeDialog('preferences');

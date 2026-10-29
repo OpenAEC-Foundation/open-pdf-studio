@@ -180,6 +180,7 @@
     "navigation": "Navigation",
     "wheelZoomWithoutCtrl": "Mit dem Mausrad zoomen (ohne gedrückte Ctrl-Taste)",
     "middleDoubleClickFit": "Doppelklick mit der mittleren Maustaste passt die Seite ein",
+    "ribbonWheelSwitchesTabs": "Menüband-Registerkarten mit dem Mausrad wechseln",
     "dynamicScaling": "Markierungen automatisch skalieren"
   },
   "fileAssoc": {
@@ -244,6 +245,9 @@
     "pageSharpenLevel3": "Stark",
     "pageSharpenLevel4": "Maximal",
     "showScrollbars": "Bildlaufleisten der Zeichenfläche anzeigen",
+    "backgroundColor": "Hintergrundfarbe",
+    "backgroundColorDefault": "Standard",
+    "backgroundColorHint": "Farbe der Fläche um und zwischen den Seiten. Die Seite selbst, Drucken und Exportieren ändern sich nicht.",
     "panels": "Bereiche",
     "showPropertiesPanel": "Eigenschaftenbereich standardmäßig anzeigen",
     "showToolPalette": "Werkzeugpalette standardmäßig anzeigen",
@@ -348,7 +352,9 @@
       "other": "Sonstiges"
     },
     "commands": {
-      "findNext": "Weitersuchen"
+      "findNext": "Weitersuchen",
+      "splitPaneLarger": "Aktiven Bereich vergrößern",
+      "splitPaneSmaller": "Aktiven Bereich verkleinern"
     }
   }
 }

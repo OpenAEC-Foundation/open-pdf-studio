@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Gran format",
+      "detailblad": "Full de detalls",
+      "voorblad": "Full de portada"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "vertical",
+      "landscape": "horitzontal"
+    },
     "title": "Document nou",
     "paperSize": "Mida del paper:",
     "widthMm": "Amplada (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "Trieu una imatge...",
     "scale": "Escala:",
     "selectImageFirst": "Seleccioneu primer una imatge.",
-    "defaultText": "ESBORRANY"
+    "defaultText": "ESBORRANY",
+    "autoFit": "Ajusta automàticament a la pàgina",
+    "autoFitHint": "Ajusta el text a cada pàgina. La mida que es mostra és la de la pàgina actual.",
+    "increaseFontSize": "Augmenta la mida de la lletra",
+    "decreaseFontSize": "Redueix la mida de la lletra",
+    "textHistory": "Textos utilitzats anteriorment",
+    "removeFromHistory": "Elimina de l'historial"
   },
   "headerFooter": {
     "addTitle": "Afegeix capçalera/peu de pàgina",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Trieu la carpeta per als fitxers dividits",
     "fileFailed": "No s'ha pogut llegir {{name}}: {{error}}",
     "applyFailed": "No s'han pogut aplicar els canvis de pàgines: {{error}}",
-    "extractFailed": "No s'han pogut extreure les pàgines: {{error}}"
+    "extractFailed": "No s'han pogut extreure les pàgines: {{error}}",
+    "blankSetup": "Configuració de la pàgina en blanc",
+    "sameAsAdjacent": "Igual que la pàgina adjacent",
+    "width": "Amplada:",
+    "height": "Alçada:",
+    "unit": "Unitat:"
   },
   "accessibilityReport": {
     "title": "Comprovació d'accessibilitat",

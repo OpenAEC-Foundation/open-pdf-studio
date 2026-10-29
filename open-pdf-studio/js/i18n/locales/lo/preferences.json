@@ -209,6 +209,7 @@
     "navigation": "ການເລື່ອນເບິ່ງ",
     "wheelZoomWithoutCtrl": "ຊູມດ້ວຍລໍ້ເມົ້າ (ໂດຍບໍ່ຕ້ອງກົດ Ctrl ຄ້າງ)",
     "middleDoubleClickFit": "ຄລິກສອງເທື່ອດ້ວຍປຸ່ມກາງຂອງເມົ້າເພື່ອປັບໃຫ້ພໍດີໜ້າ",
+    "ribbonWheelSwitchesTabs": "ສະຫຼັບແຖບເມນູດ້ວຍລໍ້ເມົ້າ",
     "dynamicScaling": "ປັບຂະໜາດເຄື່ອງໝາຍອັດຕະໂນມັດ"
   },
   "pageDisplay": {
@@ -223,6 +224,9 @@
     "pageSharpenLevel3": "ແຮງ",
     "pageSharpenLevel4": "ສູງສຸດ",
     "showScrollbars": "ສະແດງແຖບເລື່ອນ (Scrollbars)",
+    "backgroundColor": "ສີພື້ນຫຼັງ",
+    "backgroundColorDefault": "ຄ່າເລີ່ມຕົ້ນ",
+    "backgroundColorHint": "ສີຂອງພື້ນທີ່ອ້ອມຮອບ ແລະ ລະຫວ່າງໜ້າ. ໜ້າເອງ, ການພິມ ແລະ ການສົ່ງອອກບໍ່ປ່ຽນແປງ.",
     "panels": "ແຜງຄວບຄຸມ",
     "showPropertiesPanel": "ສະແດງແຜງຄຸນສົມບັດ (Properties) ເປັນຄ່າເລີ່ມຕົ້ນ",
     "showToolPalette": "ສະແດງແຖບເຄື່ອງມື (Tool Palette) ເປັນຄ່າເລີ່ມຕົ້ນ",
@@ -341,7 +345,9 @@
       "other": "ອື່ນໆ"
     },
     "commands": {
-      "findNext": "ຊອກຫາຖັດໄປ"
+      "findNext": "ຊອກຫາຖັດໄປ",
+      "splitPaneLarger": "ຂະຫຍາຍແຜງທີ່ໃຊ້ງານ",
+      "splitPaneSmaller": "ຫຍໍ້ແຜງທີ່ໃຊ້ງານ"
     }
   }
 }

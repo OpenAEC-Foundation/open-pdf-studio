@@ -20,14 +20,14 @@ function refresh() {
 // eerst uit vóór hij verandert of verdwijnt (kopvoet-weergave.js).
 async function voorWijziging(wm) {
   const doc = getActiveDocument();
-  if (wm?.type === 'headerFooter' && kopVoetInWeergave(doc, wm)) await haalKopVoetUitWeergave(doc);
+  if (kopVoetInWeergave(doc, wm)) await haalKopVoetUitWeergave(doc);
   return getActiveDocument() === doc;
 }
 
-function getWmDescription(wm) {
+function getWmDescription(wm, t) {
   switch (wm.type) {
     case 'textWatermark':
-      return `"${wm.text}" - ${wm.fontSize}px, ${wm.rotation}\u00B0`;
+      return `"${wm.text}" - ${wm.autoFit ? t('watermark.autoFit') : `${wm.fontSize} pt`}, ${wm.rotation}\u00B0`;
     case 'imageWatermark':
       return `Image - ${Math.round((wm.scale || 1) * 100)}% scale`;
     case 'headerFooter': {
@@ -127,7 +127,7 @@ export default function ManageWatermarksDialog() {
               <div class="manage-wm-item">
                 <span class="manage-wm-item-icon">{getWmIcon(wm)}</span>
                 <span class="manage-wm-item-desc">
-                  {getWmDescription(wm)}
+                  {getWmDescription(wm, t)}
                   <span class="manage-wm-item-type">{getWmTypeLabel(wm)}</span>
                 </span>
                 <div class="manage-wm-item-actions">

@@ -29,6 +29,7 @@ import {
   viewportZichtbaar,
 } from './weergave-rotatie.js';
 import { maakWeergaveStand, weergaveGeheugen, wisselWeergave } from './weergave-per-document.js';
+import { achtergrondKleur } from './pagina-achtergrond.js';
 
 // ─── Viewport State (singleton via window to survive HMR/dynamic imports) ───
 if (!window.__pdfViewport) {
@@ -859,7 +860,7 @@ function _tekenViewport() {
   // render fires once when the debounce timer releases.
   if (_zoomFreezeBitmap) {
     _ctx.setTransform(1, 0, 0, 1, 0, 0);
-    _ctx.fillStyle = '#e0e0e0';
+    _ctx.fillStyle = achtergrondKleur();
     _ctx.fillRect(0, 0, _canvas.width, _canvas.height);
     // The snapshot was captured at (_zoomFreezeZoom, _zoomFreezeOffsetX/Y).
     // For a world point W, its snapshot-pixel was:
@@ -908,7 +909,7 @@ function _tekenViewport() {
   _ctx.clearRect(0, 0, _canvas.width, _canvas.height);
 
   // Background (outside page area)
-  _ctx.fillStyle = '#e0e0e0';
+  _ctx.fillStyle = achtergrondKleur();
   _ctx.fillRect(0, 0, _canvas.width, _canvas.height);
 
   // Maten en transform van de pagina. Paginaruimte = na de eigen /Rotate en
@@ -1262,13 +1263,15 @@ export function setPage(filePath, pageNum, pageW, pageH, originX, originY, rotat
   // zijn zoom en uitsnede. MOET vóór het overschrijven van de velden
   // hieronder: de viewport toont op dit moment nog het vertrekkende document.
   let herstel = null;
-  if (isNewDocument) {
-    // Een lopende zoom-bevriezing is een momentopname van het VERTREKKENDE
-    // document; _render() zou die anders tot 150 ms lang over het nieuwe
-    // document tekenen.
+  if (isNewDocument || isPageChange || isRotationChange || isViewRotationChange) {
+    // A zoom snapshot belongs to the departing page/orientation (including
+    // the view rotation, #200: the snapshot is in screen space). It must
+    // never cover the incoming page, including a synchronous cache hit.
     if (_zoomFreezeTimer) clearTimeout(_zoomFreezeTimer);
     _zoomFreezeTimer = null;
     _zoomFreezeBitmap = null;
+  }
+  if (isNewDocument) {
     const dpr = _getDpr();
     const canvasMaat = {
       cssW: _canvas ? _canvas.width / dpr : 0,
@@ -1348,15 +1351,11 @@ export function setPage(filePath, pageNum, pageW, pageH, originX, originY, rotat
     viewport.dirty = true;
   }
 
-  // Ander document: de paginabitmap ervan staat meestal nog in de cache (bij
-  // een tabwissel altijd, voor de zoom waarop het werd verlaten). Meteen
-  // tonen, zodat het eerstvolgende frame het document volledig laat zien en
-  // niet eerst een witte pagina tot de orchestrator (eigen chunk, dus een
-  // dynamische import verderop in renderPage) hem alsnog aanlevert (#539).
-  // Zelfde keuze als ensureBitmapForCurrentView: de beste beschikbare bucket
-  // onder de 4096 px-asgrens. Geen cache-treffer: niets aan de hand, de
-  // orchestrator vult hem zoals altijd.
-  if (isNewDocument) {
+  // Restore the incoming page synchronously for document switches AND page
+  // navigation. A prefetched/previously viewed raster should paint in the
+  // first frame at the current zoom/pan, without waiting for the async
+  // orchestrator import. Match its 4096 px cap and rotation-specific key.
+  if (isNewDocument || isPageChange || isRotationChange) {
     const maxAsPt = Math.max(pageW, pageH);
     if (maxAsPt > 0) {
       const schaal = Math.min(viewport.zoom * _getDpr(), 4096 / maxAsPt);

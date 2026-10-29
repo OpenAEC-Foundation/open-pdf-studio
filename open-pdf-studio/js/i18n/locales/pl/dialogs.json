@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Duży format",
+      "detailblad": "Arkusz szczegółów",
+      "voorblad": "Arkusz tytułowy"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "pionowa",
+      "landscape": "pozioma"
+    },
     "title": "Nowy dokument",
     "paperSize": "Rozmiar papieru:",
     "widthMm": "Szerokość (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "Wybierz obraz...",
     "scale": "Skala:",
     "selectImageFirst": "Proszę najpierw wybrać obraz.",
-    "defaultText": "WERSJA ROBOCZA"
+    "defaultText": "WERSJA ROBOCZA",
+    "autoFit": "Automatycznie dopasuj do strony",
+    "autoFitHint": "Dopasowuje tekst do każdej strony. Wyświetlany rozmiar dotyczy bieżącej strony.",
+    "increaseFontSize": "Zwiększ rozmiar czcionki",
+    "decreaseFontSize": "Zmniejsz rozmiar czcionki",
+    "textHistory": "Wcześniej używane teksty",
+    "removeFromHistory": "Usuń z historii"
   },
   "headerFooter": {
     "addTitle": "Dodaj nagłówek/stopkę",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Wybierz folder dla podzielonych plików",
     "fileFailed": "Nie można odczytać {{name}}: {{error}}",
     "applyFailed": "Nie udało się zastosować zmian stron: {{error}}",
-    "extractFailed": "Nie udało się wyodrębnić stron: {{error}}"
+    "extractFailed": "Nie udało się wyodrębnić stron: {{error}}",
+    "blankSetup": "Ustawienia pustej strony",
+    "sameAsAdjacent": "Jak sąsiednia strona",
+    "width": "Szerokość:",
+    "height": "Wysokość:",
+    "unit": "Jednostka:"
   },
   "accessibilityReport": {
     "title": "Sprawdzanie dostępności",

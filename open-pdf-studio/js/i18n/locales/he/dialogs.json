@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "פורמט גדול",
+      "detailblad": "גיליון פרטים",
+      "voorblad": "גיליון שער"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "לאורך",
+      "landscape": "לרוחב"
+    },
     "title": "מסמך חדש",
     "paperSize": "גודל נייר:",
     "widthMm": "רוחב (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "בחירת תמונה...",
     "scale": "קנה מידה:",
     "selectImageFirst": "אנא בחר תמונה תחילה.",
-    "defaultText": "טיוטה"
+    "defaultText": "טיוטה",
+    "autoFit": "התאמה אוטומטית לעמוד",
+    "autoFitHint": "מתאים את הטקסט לכל עמוד. הגודל המוצג הוא של העמוד הנוכחי.",
+    "increaseFontSize": "הגדלת גודל הגופן",
+    "decreaseFontSize": "הקטנת גודל הגופן",
+    "textHistory": "טקסטים שהיו בשימוש בעבר",
+    "removeFromHistory": "הסרה מההיסטוריה"
   },
   "headerFooter": {
     "addTitle": "הוספת כותרת עליונה/תחתונה",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "בחרו את התיקייה לקבצים המפוצלים",
     "fileFailed": "לא ניתן לקרוא את {{name}}: {{error}}",
     "applyFailed": "החלת עריכות העמודים נכשלה: {{error}}",
-    "extractFailed": "חילוץ העמודים נכשל: {{error}}"
+    "extractFailed": "חילוץ העמודים נכשל: {{error}}",
+    "blankSetup": "הגדרת עמוד ריק",
+    "sameAsAdjacent": "כמו העמוד הסמוך",
+    "width": "רוחב:",
+    "height": "גובה:",
+    "unit": "יחידה:"
   },
   "accessibilityReport": {
     "title": "בדיקת נגישות",

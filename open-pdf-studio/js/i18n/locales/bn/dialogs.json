@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "বড় ফরম্যাট",
+      "detailblad": "বিস্তারিত শিট",
+      "voorblad": "প্রচ্ছদ শিট"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "উলম্ব",
+      "landscape": "আনুভূমিক"
+    },
     "title": "নতুন নথি",
     "paperSize": "কাগজের আকার:",
     "widthMm": "প্রস্থ (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "চিত্র নির্বাচন করুন...",
     "scale": "স্কেল:",
     "selectImageFirst": "অনুগ্রহ করে প্রথমে একটি চিত্র নির্বাচন করুন।",
-    "defaultText": "খসড়া"
+    "defaultText": "খসড়া",
+    "autoFit": "পৃষ্ঠায় স্বয়ংক্রিয়ভাবে মানানসই",
+    "autoFitHint": "প্রতিটি পৃষ্ঠায় লেখা মানানসই করে। দেখানো আকারটি বর্তমান পৃষ্ঠার জন্য।",
+    "increaseFontSize": "ফন্টের আকার বাড়ান",
+    "decreaseFontSize": "ফন্টের আকার কমান",
+    "textHistory": "আগে ব্যবহৃত লেখা",
+    "removeFromHistory": "ইতিহাস থেকে সরান"
   },
   "headerFooter": {
     "addTitle": "শিরোনাম/পাদটীকা যোগ করুন",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "বিভক্ত ফাইলগুলির জন্য ফোল্ডার বেছে নিন",
     "fileFailed": "{{name}} পড়া যায়নি: {{error}}",
     "applyFailed": "পৃষ্ঠা সম্পাদনা প্রয়োগ করা যায়নি: {{error}}",
-    "extractFailed": "পৃষ্ঠাগুলি নিষ্কাশন করা যায়নি: {{error}}"
+    "extractFailed": "পৃষ্ঠাগুলি নিষ্কাশন করা যায়নি: {{error}}",
+    "blankSetup": "ফাঁকা পৃষ্ঠার সেটআপ",
+    "sameAsAdjacent": "পাশের পৃষ্ঠার মতো",
+    "width": "প্রস্থ:",
+    "height": "উচ্চতা:",
+    "unit": "একক:"
   },
   "accessibilityReport": {
     "title": "অ্যাক্সেসযোগ্যতা পরীক্ষা",

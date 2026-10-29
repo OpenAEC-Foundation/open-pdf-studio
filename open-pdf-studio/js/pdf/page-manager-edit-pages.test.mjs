@@ -202,3 +202,43 @@ test('extract writes the selected entries as they will look, the document stays 
   assert.equal(o.bytes(), voor, 'the document is not changed');
   assert.equal(o.undo.length, 0);
 });
+
+// #846: a blank page has exactly the size it was given in the organizer.
+const doos = (page, naam) => {
+  if (!page.node.get(PDFName.of(naam))) return null;
+  return page.node.lookup(PDFName.of(naam), PDFArray).asArray().map((n) => n.asNumber());
+};
+
+test('a blank page with a size gets exactly that page box on Apply and on extract', async () => {
+  const o = await opstelling();
+  let plan = insertBlank(createPlan(4), 1, 1, { width: 1190.55, height: 841.89 }).plan; // 1 _ 2 3 4
+  plan = insertBlank(plan, 0, 1, { width: 595.2755905511812, height: 841.8897637795275 }).plan; // _ 1 _ 2 3 4
+  plan = rotateEntries(plan, [plan.entries[2].key], 90);
+  assert.equal(await pm.applyPageEdits(plan), true);
+  const lib = await PDFDocument.load(o.bytes());
+  assert.deepEqual(doos(lib.getPages()[0], 'MediaBox'), [0, 0, 595.2755905511812, 841.8897637795275]);
+  assert.deepEqual(doos(lib.getPages()[2], 'MediaBox'), [0, 0, 1190.55, 841.89]);
+  assert.equal(doos(lib.getPages()[2], 'CropBox'), null, 'no CropBox: the MediaBox is the page');
+  // Its pending turn goes in /Rotate, the box stays the given size.
+  assert.equal(lib.getPages()[2].getRotation().angle, 90);
+
+  const o2 = await opstelling();
+  const keys = [plan.entries[0].key, plan.entries[2].key];
+  assert.equal(await pm.extractPlannedPages(plan, keys, { savePath: 'blank.pdf' }), true);
+  const uit = await PDFDocument.load(o2.geschreven.get('blank.pdf'));
+  assert.deepEqual(doos(uit.getPages()[0], 'MediaBox'), [0, 0, 595.2755905511812, 841.8897637795275]);
+  assert.deepEqual(doos(uit.getPages()[1], 'MediaBox'), [0, 0, 1190.55, 841.89]);
+  assert.equal(uit.getPages()[1].getRotation().angle, 90);
+});
+
+test('a blank page without a size takes the effective (cropped) box of its neighbour', async () => {
+  const o = await opstelling();
+  // Page 2 (200 x 500) shows cropped to 150 x 400.
+  const lib0 = await PDFDocument.load(o.bytes());
+  lib0.getPages()[1].setCropBox(20, 30, 150, 400);
+  globalThis.__pmTest.impl.setCachedPdfBytes(SLEUTEL, new Uint8Array(await lib0.save()));
+  const plan = insertBlank(createPlan(4), 2).plan; // 1 2 _ 3 4
+  assert.equal(await pm.applyPageEdits(plan), true);
+  const lib = await PDFDocument.load(o.bytes());
+  assert.deepEqual(doos(lib.getPages()[2], 'MediaBox'), [0, 0, 150, 400]);
+});

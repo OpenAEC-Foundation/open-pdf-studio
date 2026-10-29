@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Format mare",
+      "detailblad": "Foaie de detalii",
+      "voorblad": "Foaie de copertă"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "portret",
+      "landscape": "peisaj"
+    },
     "title": "Document nou",
     "paperSize": "Dimensiune hartie:",
     "widthMm": "Latime (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "Alegere imagine...",
     "scale": "Scara:",
     "selectImageFirst": "Selectati mai intai o imagine.",
-    "defaultText": "CIORNA"
+    "defaultText": "CIORNA",
+    "autoFit": "Potrivire automată la pagină",
+    "autoFitHint": "Potrivește textul pe fiecare pagină. Dimensiunea afișată este pentru pagina curentă.",
+    "increaseFontSize": "Mărește dimensiunea fontului",
+    "decreaseFontSize": "Micșorează dimensiunea fontului",
+    "textHistory": "Texte folosite anterior",
+    "removeFromHistory": "Elimină din istoric"
   },
   "headerFooter": {
     "addTitle": "Adaugare antet/subsol",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Alegeți dosarul pentru fișierele împărțite",
     "fileFailed": "{{name}} nu a putut fi citit: {{error}}",
     "applyFailed": "Aplicarea modificărilor paginilor a eșuat: {{error}}",
-    "extractFailed": "Extragerea paginilor a eșuat: {{error}}"
+    "extractFailed": "Extragerea paginilor a eșuat: {{error}}",
+    "blankSetup": "Configurare pagină goală",
+    "sameAsAdjacent": "La fel ca pagina alăturată",
+    "width": "Latime:",
+    "height": "Inaltime:",
+    "unit": "Unitate:"
   },
   "accessibilityReport": {
     "title": "Verificare accesibilitate",

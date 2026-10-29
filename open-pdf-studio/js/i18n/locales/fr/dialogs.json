@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Grand format",
+      "detailblad": "Feuille de détails",
+      "voorblad": "Page de garde"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "portrait",
+      "landscape": "paysage"
+    },
     "title": "Nouveau document",
     "paperSize": "Format du papier :",
     "widthMm": "Largeur (mm) :",
@@ -350,7 +360,13 @@
     "chooseImage": "Choisir une image...",
     "scale": "Échelle :",
     "selectImageFirst": "Veuillez d'abord sélectionner une image.",
-    "defaultText": "BROUILLON"
+    "defaultText": "BROUILLON",
+    "autoFit": "Ajuster automatiquement à la page",
+    "autoFitHint": "Ajuste le texte à chaque page. La taille affichée est celle de la page actuelle.",
+    "increaseFontSize": "Augmenter la taille de police",
+    "decreaseFontSize": "Réduire la taille de police",
+    "textHistory": "Textes utilisés précédemment",
+    "removeFromHistory": "Supprimer de l'historique"
   },
   "headerFooter": {
     "addTitle": "Ajouter un en-tête/pied de page",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Choisissez le dossier des fichiers fractionnés",
     "fileFailed": "Impossible de lire {{name}} : {{error}}",
     "applyFailed": "L'application des modifications de pages a échoué : {{error}}",
-    "extractFailed": "L'extraction des pages a échoué : {{error}}"
+    "extractFailed": "L'extraction des pages a échoué : {{error}}",
+    "blankSetup": "Mise en page de la page vierge",
+    "sameAsAdjacent": "Comme la page adjacente",
+    "width": "Largeur :",
+    "height": "Hauteur :",
+    "unit": "Unité :"
   },
   "accessibilityReport": {
     "title": "Vérification de l'accessibilité",

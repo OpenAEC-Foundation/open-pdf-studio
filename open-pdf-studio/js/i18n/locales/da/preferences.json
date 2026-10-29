@@ -180,6 +180,7 @@
     "navigation": "Navigation",
     "wheelZoomWithoutCtrl": "Zoom med musehjulet (uden at holde Ctrl nede)",
     "middleDoubleClickFit": "Dobbeltklik med den midterste museknap for at tilpasse siden",
+    "ribbonWheelSwitchesTabs": "Skift fane i båndet med musehjulet",
     "dynamicScaling": "Skalér markeringer automatisk"
   },
   "fileAssoc": {
@@ -244,6 +245,9 @@
     "pageSharpenLevel3": "Kraftig",
     "pageSharpenLevel4": "Maksimal",
     "showScrollbars": "Vis lærredets rullepaneler",
+    "backgroundColor": "Baggrundsfarve",
+    "backgroundColorDefault": "Standard",
+    "backgroundColorHint": "Farven på området omkring og mellem siderne. Selve siden, udskrivning og eksport ændres ikke.",
     "panels": "Paneler",
     "showPropertiesPanel": "Vis egenskabspanelet som standard",
     "showToolPalette": "Vis værktøjspaletten som standard",
@@ -348,7 +352,9 @@
       "other": "Andet"
     },
     "commands": {
-      "findNext": "Find næste"
+      "findNext": "Find næste",
+      "splitPaneLarger": "Gør den aktive rude større",
+      "splitPaneSmaller": "Gør den aktive rude mindre"
     }
   }
 }

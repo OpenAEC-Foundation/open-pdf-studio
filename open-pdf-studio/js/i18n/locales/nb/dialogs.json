@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Storformat",
+      "detailblad": "Detaljark",
+      "voorblad": "Forside"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "stående",
+      "landscape": "liggende"
+    },
     "title": "Nytt dokument",
     "paperSize": "Papirstørrelse:",
     "widthMm": "Bredde (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "Velg bilde...",
     "scale": "Skalering:",
     "selectImageFirst": "Vennligst velg et bilde først.",
-    "defaultText": "UTKAST"
+    "defaultText": "UTKAST",
+    "autoFit": "Tilpass automatisk til siden",
+    "autoFitHint": "Tilpasser teksten til hver side. Størrelsen som vises, gjelder gjeldende side.",
+    "increaseFontSize": "Øk skriftstørrelse",
+    "decreaseFontSize": "Reduser skriftstørrelse",
+    "textHistory": "Tidligere brukte tekster",
+    "removeFromHistory": "Fjern fra loggen"
   },
   "headerFooter": {
     "addTitle": "Legg til topptekst/bunntekst",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Velg mappen for de oppdelte filene",
     "fileFailed": "Kunne ikke lese {{name}}: {{error}}",
     "applyFailed": "Kunne ikke bruke sideendringene: {{error}}",
-    "extractFailed": "Kunne ikke trekke ut sidene: {{error}}"
+    "extractFailed": "Kunne ikke trekke ut sidene: {{error}}",
+    "blankSetup": "Oppsett for tom side",
+    "sameAsAdjacent": "Samme som tilstøtende side",
+    "width": "Bredde:",
+    "height": "Høyde:",
+    "unit": "Enhet:"
   },
   "accessibilityReport": {
     "title": "Tilgjengelighetskontroll",

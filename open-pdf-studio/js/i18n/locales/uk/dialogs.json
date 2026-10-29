@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Великий формат",
+      "detailblad": "Аркуш деталей",
+      "voorblad": "Титульний аркуш"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "книжкова",
+      "landscape": "альбомна"
+    },
     "title": "Новий документ",
     "paperSize": "Розмір паперу:",
     "widthMm": "Ширина (мм):",
@@ -350,7 +360,13 @@
     "chooseImage": "Вибрати зображення...",
     "scale": "Масштаб:",
     "selectImageFirst": "Спочатку виберіть зображення.",
-    "defaultText": "ЧЕРНЕТКА"
+    "defaultText": "ЧЕРНЕТКА",
+    "autoFit": "Автопідбір за сторінкою",
+    "autoFitHint": "Підганяє текст під кожну сторінку. Показано розмір для поточної сторінки.",
+    "increaseFontSize": "Збільшити розмір шрифту",
+    "decreaseFontSize": "Зменшити розмір шрифту",
+    "textHistory": "Раніше використані тексти",
+    "removeFromHistory": "Видалити з історії"
   },
   "headerFooter": {
     "addTitle": "Додати колонтитули",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Виберіть теку для розділених файлів",
     "fileFailed": "Не вдалося прочитати {{name}}: {{error}}",
     "applyFailed": "Не вдалося застосувати зміни сторінок: {{error}}",
-    "extractFailed": "Не вдалося видобути сторінки: {{error}}"
+    "extractFailed": "Не вдалося видобути сторінки: {{error}}",
+    "blankSetup": "Налаштування порожньої сторінки",
+    "sameAsAdjacent": "Як у сусідньої сторінки",
+    "width": "Ширина:",
+    "height": "Висота:",
+    "unit": "Одиниця:"
   },
   "accessibilityReport": {
     "title": "Перевірка доступності",

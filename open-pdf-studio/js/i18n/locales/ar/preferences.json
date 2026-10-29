@@ -180,6 +180,7 @@
     "navigation": "التنقل",
     "wheelZoomWithoutCtrl": "التكبير بعجلة الماوس (دون الضغط على Ctrl)",
     "middleDoubleClickFit": "النقر المزدوج بزر الماوس الأوسط لملاءمة الصفحة",
+    "ribbonWheelSwitchesTabs": "التبديل بين علامات تبويب الشريط بعجلة الماوس",
     "dynamicScaling": "تغيير مقياس العلامات تلقائيًا"
   },
   "fileAssoc": {
@@ -244,6 +245,9 @@
     "pageSharpenLevel3": "قوية",
     "pageSharpenLevel4": "قصوى",
     "showScrollbars": "إظهار أشرطة تمرير اللوحة",
+    "backgroundColor": "لون الخلفية",
+    "backgroundColorDefault": "الافتراضي",
+    "backgroundColorHint": "لون المنطقة المحيطة بالصفحات وبينها. لا تتغير الصفحة نفسها ولا الطباعة ولا التصدير.",
     "panels": "لوحات",
     "showPropertiesPanel": "إظهار لوحة الخصائص افتراضيًا",
     "showToolPalette": "إظهار لوحة الأدوات افتراضيًا",
@@ -348,7 +352,9 @@
       "other": "أخرى"
     },
     "commands": {
-      "findNext": "البحث عن التالي"
+      "findNext": "البحث عن التالي",
+      "splitPaneLarger": "تكبير الجزء النشط",
+      "splitPaneSmaller": "تصغير الجزء النشط"
     }
   }
 }

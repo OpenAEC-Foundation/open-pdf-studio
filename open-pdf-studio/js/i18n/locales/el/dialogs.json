@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Μεγάλο μέγεθος",
+      "detailblad": "Φύλλο λεπτομερειών",
+      "voorblad": "Εξώφυλλο"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "κατακόρυφος",
+      "landscape": "οριζόντιος"
+    },
     "title": "Νέο έγγραφο",
     "paperSize": "Μέγεθος χαρτιού:",
     "widthMm": "Πλάτος (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "Επιλογή εικόνας...",
     "scale": "Κλίμακα:",
     "selectImageFirst": "Παρακαλώ επιλέξτε πρώτα μια εικόνα.",
-    "defaultText": "ΠΡΟΣΧΕΔΙΟ"
+    "defaultText": "ΠΡΟΣΧΕΔΙΟ",
+    "autoFit": "Αυτόματη προσαρμογή στη σελίδα",
+    "autoFitHint": "Προσαρμόζει το κείμενο σε κάθε σελίδα. Το μέγεθος που εμφανίζεται αφορά την τρέχουσα σελίδα.",
+    "increaseFontSize": "Αύξηση μεγέθους γραμματοσειράς",
+    "decreaseFontSize": "Μείωση μεγέθους γραμματοσειράς",
+    "textHistory": "Κείμενα που χρησιμοποιήθηκαν προηγουμένως",
+    "removeFromHistory": "Αφαίρεση από το ιστορικό"
   },
   "headerFooter": {
     "addTitle": "Προσθήκη κεφαλίδας/υποσέλιδου",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Επιλέξτε τον φάκελο για τα διαχωρισμένα αρχεία",
     "fileFailed": "Δεν ήταν δυνατή η ανάγνωση του {{name}}: {{error}}",
     "applyFailed": "Η εφαρμογή των αλλαγών σελίδων απέτυχε: {{error}}",
-    "extractFailed": "Η εξαγωγή των σελίδων απέτυχε: {{error}}"
+    "extractFailed": "Η εξαγωγή των σελίδων απέτυχε: {{error}}",
+    "blankSetup": "Ρύθμιση κενής σελίδας",
+    "sameAsAdjacent": "Όπως η γειτονική σελίδα",
+    "width": "Πλάτος:",
+    "height": "Ύψος:",
+    "unit": "Μονάδα:"
   },
   "accessibilityReport": {
     "title": "Έλεγχος προσβασιμότητας",

@@ -180,6 +180,7 @@
     "navigation": "نیویگیشن",
     "wheelZoomWithoutCtrl": "ماؤس وہیل سے زوم کریں (Ctrl دبائے بغیر)",
     "middleDoubleClickFit": "صفحہ فٹ کرنے کے لیے ماؤس کے درمیانی بٹن پر ڈبل کلک کریں",
+    "ribbonWheelSwitchesTabs": "ماؤس وہیل سے ربن ٹیبز تبدیل کریں",
     "dynamicScaling": "مارک اپس کو خودکار اسکیل کریں"
   },
   "fileAssoc": {
@@ -244,6 +245,9 @@
     "pageSharpenLevel3": "تیز",
     "pageSharpenLevel4": "زیادہ سے زیادہ",
     "showScrollbars": "کینوس اسکرول بار دکھائیں",
+    "backgroundColor": "پس منظر کا رنگ",
+    "backgroundColorDefault": "طے شدہ",
+    "backgroundColorHint": "صفحات کے اردگرد اور درمیان کے حصے کا رنگ۔ صفحہ خود، پرنٹنگ اور برآمد تبدیل نہیں ہوتے۔",
     "panels": "پینلز",
     "showPropertiesPanel": "بطور ڈیفالٹ خصوصیات پینل دکھائیں",
     "showToolPalette": "بطور ڈیفالٹ ٹول پیلیٹ دکھائیں",
@@ -348,7 +352,9 @@
       "other": "دیگر"
     },
     "commands": {
-      "findNext": "اگلا تلاش کریں"
+      "findNext": "اگلا تلاش کریں",
+      "splitPaneLarger": "فعال پین بڑا کریں",
+      "splitPaneSmaller": "فعال پین چھوٹا کریں"
     }
   }
 }

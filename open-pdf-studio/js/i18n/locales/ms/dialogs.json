@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Format besar",
+      "detailblad": "Helaian butiran",
+      "voorblad": "Helaian muka depan"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "potret",
+      "landscape": "landskap"
+    },
     "title": "Dokumen Baharu",
     "paperSize": "Saiz Kertas:",
     "widthMm": "Lebar (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "Pilih Imej...",
     "scale": "Skala:",
     "selectImageFirst": "Sila pilih imej terlebih dahulu.",
-    "defaultText": "DRAF"
+    "defaultText": "DRAF",
+    "autoFit": "Muat automatik pada halaman",
+    "autoFitHint": "Memuatkan teks pada setiap halaman. Saiz yang ditunjukkan adalah untuk halaman semasa.",
+    "increaseFontSize": "Besarkan saiz fon",
+    "decreaseFontSize": "Kecilkan saiz fon",
+    "textHistory": "Teks yang pernah digunakan",
+    "removeFromHistory": "Alih keluar daripada sejarah"
   },
   "headerFooter": {
     "addTitle": "Tambah Pengepala/Pengaki",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Pilih folder untuk fail yang dipisahkan",
     "fileFailed": "Tidak dapat membaca {{name}}: {{error}}",
     "applyFailed": "Gagal menggunakan suntingan halaman: {{error}}",
-    "extractFailed": "Gagal mengekstrak halaman: {{error}}"
+    "extractFailed": "Gagal mengekstrak halaman: {{error}}",
+    "blankSetup": "Persediaan halaman kosong",
+    "sameAsAdjacent": "Sama seperti halaman bersebelahan",
+    "width": "Lebar:",
+    "height": "Tinggi:",
+    "unit": "Unit:"
   },
   "accessibilityReport": {
     "title": "Semakan Kebolehcapaian",

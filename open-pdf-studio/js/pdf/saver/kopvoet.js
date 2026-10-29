@@ -14,6 +14,7 @@ import {
   StandardFonts, rgb, degrees, drawText, concatTransformationMatrix, pushGraphicsState, popGraphicsState,
   endMarkedContent,
 } from 'pdf-lib';
+import { removeWatermarkStreams } from './watermark-content.js';
 import { toWinAnsiText } from './pdf-text.js';
 import { KOPVOET_VAKKEN, vakPositie, vulKopVoetIn, kopVoetWaarden, toegepastePaginas } from '../../watermark/kopvoet-tekst.js';
 
@@ -222,7 +223,7 @@ export async function schrijfKopVoeten(pdfDoc, kopVoeten, opties) {
 }
 
 /**
- * De bytes zonder kop-/voettekst-streams, voor de weergave: het scherm tekent
+ * De bytes zonder eigen kop-/voettekst- en watermerkstreams, voor de weergave: het scherm tekent
  * de kop-/voetteksten zelf (watermark-renderer.js). Zonder streams komen de
  * bytes ongewijzigd terug.
  * @param {Uint8Array} bytes
@@ -230,6 +231,7 @@ export async function schrijfKopVoeten(pdfDoc, kopVoeten, opties) {
  */
 export async function zonderKopVoetStromen(bytes) {
   const pdfDoc = await PDFDocument.load(bytes, { ignoreEncryption: true, updateMetadata: false });
-  if (!verwijderKopVoetStromen(pdfDoc, null)) return bytes;
+  const removed = verwijderKopVoetStromen(pdfDoc, null) + removeWatermarkStreams(pdfDoc);
+  if (!removed) return bytes;
   return new Uint8Array(await pdfDoc.save());
 }

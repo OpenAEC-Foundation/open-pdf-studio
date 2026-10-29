@@ -180,6 +180,7 @@
     "navigation": "탐색",
     "wheelZoomWithoutCtrl": "마우스 휠로 확대/축소(Ctrl 키 없이)",
     "middleDoubleClickFit": "마우스 가운데 버튼을 두 번 클릭하여 페이지 맞춤",
+    "ribbonWheelSwitchesTabs": "마우스 휠로 리본 탭 전환",
     "dynamicScaling": "마크업 자동 크기 조정"
   },
   "fileAssoc": {
@@ -244,6 +245,9 @@
     "pageSharpenLevel3": "강하게",
     "pageSharpenLevel4": "최대",
     "showScrollbars": "캔버스 스크롤 막대 표시",
+    "backgroundColor": "배경색",
+    "backgroundColorDefault": "기본값",
+    "backgroundColorHint": "페이지 주변과 페이지 사이 영역의 색입니다. 페이지 자체, 인쇄 및 내보내기는 바뀌지 않습니다.",
     "panels": "패널",
     "showPropertiesPanel": "기본적으로 속성 패널 표시",
     "showToolPalette": "기본적으로 도구 팔레트 표시",
@@ -348,7 +352,9 @@
       "other": "기타"
     },
     "commands": {
-      "findNext": "다음 찾기"
+      "findNext": "다음 찾기",
+      "splitPaneLarger": "활성 창 크게 하기",
+      "splitPaneSmaller": "활성 창 작게 하기"
     }
   }
 }

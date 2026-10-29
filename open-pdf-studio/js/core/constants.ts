@@ -290,6 +290,8 @@ export const DEFAULT_PREFERENCES: Preferences = {
   wheelZoomWithoutCtrl: false,
   // Dubbelklik met de middelste muisknop = huidige pagina passend (#767).
   middleDoubleClickFit: true,
+  // Muiswiel boven het lint wisselt van tabblad (#852).
+  ribbonWheelSwitchesTabs: true,
 
   // Startup
   restoreLastSession: false,
@@ -326,6 +328,10 @@ export const DEFAULT_PREFERENCES: Preferences = {
   // only after the user opts in.
   readAloudAllowOnline: false,
   showScrollbars: false,
+  // Background color around and between the pages in the document view
+  // (#859): '' = the default (light grey #e0e0e0, the theme around continuous
+  // pages), or '#rrggbb'. Display only: never the page, print or export.
+  pageBackgroundColor: '',
   // Zware raster-pagina's (grote content-stream, bv. CAD-tekeningen met
   // miljoenen segmenten) progressief tegel-voor-tegel invullen via de
   // multi-proces worker-pool: parallelle eerste render (sneller), geen

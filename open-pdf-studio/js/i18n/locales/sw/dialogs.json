@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Muundo mkubwa",
+      "detailblad": "Karatasi ya maelezo",
+      "voorblad": "Karatasi ya jalada"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "wima",
+      "landscape": "mlalo"
+    },
     "title": "Hati Mpya",
     "paperSize": "Ukubwa wa Karatasi:",
     "widthMm": "Upana (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "Chagua Picha...",
     "scale": "Kipimo:",
     "selectImageFirst": "Tafadhali chagua picha kwanza.",
-    "defaultText": "RASIMU"
+    "defaultText": "RASIMU",
+    "autoFit": "Linganisha kiotomatiki na ukurasa",
+    "autoFitHint": "Hulinganisha maandishi na kila ukurasa. Ukubwa unaoonyeshwa ni wa ukurasa wa sasa.",
+    "increaseFontSize": "Ongeza ukubwa wa fonti",
+    "decreaseFontSize": "Punguza ukubwa wa fonti",
+    "textHistory": "Maandishi yaliyotumika awali",
+    "removeFromHistory": "Ondoa kwenye historia"
   },
   "headerFooter": {
     "addTitle": "Ongeza Kichwa/Kiguu",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Chagua folda ya faili zilizogawanywa",
     "fileFailed": "Imeshindwa kusoma {{name}}: {{error}}",
     "applyFailed": "Imeshindwa kutekeleza mabadiliko ya kurasa: {{error}}",
-    "extractFailed": "Imeshindwa kutoa kurasa: {{error}}"
+    "extractFailed": "Imeshindwa kutoa kurasa: {{error}}",
+    "blankSetup": "Mpangilio wa ukurasa tupu",
+    "sameAsAdjacent": "Sawa na ukurasa jirani",
+    "width": "Upana:",
+    "height": "Urefu:",
+    "unit": "Kipimo:"
   },
   "accessibilityReport": {
     "title": "Ukaguzi wa Ufikivu",

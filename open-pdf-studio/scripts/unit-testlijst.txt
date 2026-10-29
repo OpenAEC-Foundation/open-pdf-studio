@@ -391,10 +391,11 @@ js/core/mcp-schermafdruk.test.mjs
 js/core/mcp-ui-boom.test.mjs
 js/core/mcp-lint-opdrachten.test.mjs
 js/pdf/wachtwoord-pdf.test.mjs
-js/pdf/page-transition.test.mjs
+js/pdf/pdf-viewport-page-transition.test.mjs
 js/mobile/mobiele-gereedschappen.test.mjs
 js/core/oude-webview.test.mjs
 scripts/oude-webview.test.mjs
+scripts/pdfjs-postscript-progress.test.mjs
 scripts/oude-webview-pdfjs.test.mjs
 scripts/android-config.test.mjs
 js/core/fout-bericht.test.mjs
@@ -605,6 +606,8 @@ js/pdf/split-view/split-view.test.mjs
 js/pdf/page-bitmap-cache-getoond.test.mjs
 js/pdf/split-view/paneel-bitmaps.test.mjs
 js/pdf/split-view/paneel-weergave.test.mjs
+js/pdf/split-view/split-sneltoets.test.mjs
+js/pdf/pagina-achtergrond.test.mjs
 js/pdf/pdf-viewport-gesloten-bitmap.test.mjs
 js/annotations/tool-sets.test.mjs
 js/annotations/tool-sets-wiring.test.mjs
@@ -612,3 +615,14 @@ js/annotations/measure-depth.test.mjs
 js/solid/stores/toolSetsStore.test.mjs
 js/solid/stores/toolSetsStore-opslag.test.mjs
 js/core/standaardstijl-gereedschapsset.test.mjs
+js/pdf/organizer-pointer-drag.test.mjs
+js/pdf/blank-page-setup.test.mjs
+js/pdf/frame-labels.test.mjs
+js/solid/components/ribbon/ribbon-wiel.test.mjs
+js/pdf/lijnstijl-rondgang.test.mjs
+js/watermark/watermark-save.test.mjs
+js/watermark/watermark-hersave.test.mjs
+js/watermark/watermark-custom-position.test.mjs
+js/watermark/watermark-autofit.test.mjs
+js/watermark/watermark-dialog-i18n.test.mjs
+js/watermark/watermark-text-history.test.mjs

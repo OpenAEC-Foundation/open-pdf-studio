@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Khổ lớn",
+      "detailblad": "Bản vẽ chi tiết",
+      "voorblad": "Trang bìa"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "dọc",
+      "landscape": "ngang"
+    },
     "title": "Tài liệu Mới",
     "paperSize": "Khổ giấy:",
     "widthMm": "Chiều rộng (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "Chọn Hình ảnh...",
     "scale": "Tỷ lệ:",
     "selectImageFirst": "Vui lòng chọn hình ảnh trước.",
-    "defaultText": "BẢN NHÁP"
+    "defaultText": "BẢN NHÁP",
+    "autoFit": "Tự động vừa trang",
+    "autoFitHint": "Điều chỉnh văn bản vừa với từng trang. Kích thước hiển thị là của trang hiện tại.",
+    "increaseFontSize": "Tăng cỡ chữ",
+    "decreaseFontSize": "Giảm cỡ chữ",
+    "textHistory": "Văn bản đã dùng trước đây",
+    "removeFromHistory": "Xóa khỏi lịch sử"
   },
   "headerFooter": {
     "addTitle": "Thêm Đầu trang/Chân trang",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Chọn thư mục cho các tệp đã tách",
     "fileFailed": "Không thể đọc {{name}}: {{error}}",
     "applyFailed": "Áp dụng chỉnh sửa trang không thành công: {{error}}",
-    "extractFailed": "Trích xuất trang không thành công: {{error}}"
+    "extractFailed": "Trích xuất trang không thành công: {{error}}",
+    "blankSetup": "Thiết lập trang trống",
+    "sameAsAdjacent": "Giống trang liền kề",
+    "width": "Chiều rộng:",
+    "height": "Chiều cao:",
+    "unit": "Đơn vị:"
   },
   "accessibilityReport": {
     "title": "Kiểm tra trợ năng",

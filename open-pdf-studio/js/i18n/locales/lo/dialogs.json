@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "ຮູບແບບຂະໜາດໃຫຍ່",
+      "detailblad": "ແຜ່ນລາຍລະອຽດ",
+      "voorblad": "ແຜ່ນປົກ"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "ລວງຕັ້ງ",
+      "landscape": "ລວງນອນ"
+    },
     "title": "ເອກະສານໃໝ່",
     "paperSize": "ຂະໜາດເຈ້ຍ:",
     "widthMm": "ລວງກວ້າງ (ມມ):",
@@ -350,7 +360,13 @@
     "chooseImage": "ເລືອກຮູບພາບ...",
     "scale": "ມາດຕາສ່ວນ:",
     "selectImageFirst": "ກະລຸນາເລືອກຮູບພາບກ່ອນ.",
-    "defaultText": "DRAFT"
+    "defaultText": "DRAFT",
+    "autoFit": "ປັບໃຫ້ພໍດີກັບໜ້າອັດຕະໂນມັດ",
+    "autoFitHint": "ປັບຂໍ້ຄວາມໃຫ້ພໍດີກັບແຕ່ລະໜ້າ. ຂະໜາດທີ່ສະແດງແມ່ນສຳລັບໜ້າປັດຈຸບັນ.",
+    "increaseFontSize": "ເພີ່ມຂະໜາດຟອນຕ໌",
+    "decreaseFontSize": "ຫຼຸດຂະໜາດຟອນຕ໌",
+    "textHistory": "ຂໍ້ຄວາມທີ່ເຄີຍໃຊ້",
+    "removeFromHistory": "ລຶບອອກຈາກປະຫວັດ"
   },
   "headerFooter": {
     "addTitle": "ເພີ່ມຫົວ/ທ້າຍໜ້າ",
@@ -1626,7 +1642,12 @@
     "chooseFolder": "ເລືອກໂຟລເດີສຳລັບໄຟລ໌ທີ່ແບ່ງ",
     "fileFailed": "ບໍ່ສາມາດອ່ານ {{name}}: {{error}}",
     "applyFailed": "ນຳໃຊ້ການແກ້ໄຂໜ້າບໍ່ສຳເລັດ: {{error}}",
-    "extractFailed": "ແຍກໜ້າບໍ່ສຳເລັດ: {{error}}"
+    "extractFailed": "ແຍກໜ້າບໍ່ສຳເລັດ: {{error}}",
+    "blankSetup": "ຕັ້ງຄ່າໜ້າເປົ່າ",
+    "sameAsAdjacent": "ຄືກັບໜ້າທີ່ຢູ່ຕິດກັນ",
+    "width": "ລວງກວ້າງ:",
+    "height": "ລວງສູງ:",
+    "unit": "ຫົວໜ່ວຍ:"
   },
   "accessibilityReport": {
     "title": "ການກວດສອບການເຂົ້າເຖິງ",

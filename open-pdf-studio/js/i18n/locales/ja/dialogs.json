@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "大判",
+      "detailblad": "詳細図面",
+      "voorblad": "表紙"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "縦向き",
+      "landscape": "横向き"
+    },
     "title": "新規ドキュメント",
     "paperSize": "用紙サイズ：",
     "widthMm": "幅 (mm)：",
@@ -350,7 +360,13 @@
     "chooseImage": "画像を選択...",
     "scale": "スケール：",
     "selectImageFirst": "先に画像を選択してください。",
-    "defaultText": "下書き"
+    "defaultText": "下書き",
+    "autoFit": "ページに自動フィット",
+    "autoFitHint": "各ページに合わせてテキストを調整します。表示されるサイズは現在のページのものです。",
+    "increaseFontSize": "フォントサイズを大きくする",
+    "decreaseFontSize": "フォントサイズを小さくする",
+    "textHistory": "以前に使用したテキスト",
+    "removeFromHistory": "履歴から削除"
   },
   "headerFooter": {
     "addTitle": "ヘッダー/フッターを追加",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "分割したファイルの保存先フォルダーを選択",
     "fileFailed": "{{name}} を読み込めませんでした: {{error}}",
     "applyFailed": "ページの編集を適用できませんでした: {{error}}",
-    "extractFailed": "ページを抽出できませんでした: {{error}}"
+    "extractFailed": "ページを抽出できませんでした: {{error}}",
+    "blankSetup": "空白ページの設定",
+    "sameAsAdjacent": "隣接ページと同じ",
+    "width": "幅：",
+    "height": "高さ：",
+    "unit": "単位："
   },
   "accessibilityReport": {
     "title": "アクセシビリティ チェック",

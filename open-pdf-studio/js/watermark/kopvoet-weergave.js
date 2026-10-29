@@ -1,4 +1,5 @@
-// Kop-/voetteksten op het scherm tegenover die in het bestand (#375).
+// Kop-/voetteksten op het scherm tegenover die in het bestand (#375). Dezelfde
+// levenscyclus geldt voor tekst- en beeldwatermerken (#847).
 //
 // Het scherm tekent kop-/voetteksten zelf (watermark-renderer.js). Staan ze
 // ook al als pagina-inhoud in het bestand waaruit de pagina's getekend
@@ -17,6 +18,7 @@
 import { getCachedPdfBytes } from '../pdf/loader.js';
 import { readBinaryFile } from '../core/platform.js';
 import { leesKopVoetDefinities, vindKopVoetIds } from '../pdf/saver/kopvoet.js';
+import { readWatermarkDefinitions, watermarkIds } from '../pdf/saver/watermark-content.js';
 
 export { kopVoetInWeergave } from './kopvoet-tekst.js';
 
@@ -27,9 +29,9 @@ export { kopVoetInWeergave } from './kopvoet-tekst.js';
  */
 export function leesKopVoetUitBestand(doc, pdfLibDoc, bron) {
   try { doc.pdfTitel = pdfLibDoc.getTitle() || ''; } catch { doc.pdfTitel = ''; }
-  const definities = leesKopVoetDefinities(pdfLibDoc);
+  const definities = [...leesKopVoetDefinities(pdfLibDoc), ...readWatermarkDefinitions(pdfLibDoc)];
   if (!definities.length) return false;
-  const inPaginas = vindKopVoetIds(pdfLibDoc);
+  const inPaginas = new Set([...vindKopVoetIds(pdfLibDoc), ...watermarkIds(pdfLibDoc)]);
   const huidige = doc.watermarks || [];
   // Een ingeschakelde definitie zonder stream hoort niet meer bij het bestand
   // (een ander programma heeft de pagina's herschreven): niet terugzetten.
@@ -38,7 +40,8 @@ export function leesKopVoetUitBestand(doc, pdfLibDoc, bron) {
     .map((d) => ({ ...d, uitBestand: inPaginas.has(d.id) }));
   if (!nieuw.length) return false;
   doc.watermarks = [...huidige, ...nieuw];
-  doc.kopVoetBekend = [...new Set([...(doc.kopVoetBekend || []), ...nieuw.filter((d) => d.uitBestand).map((d) => d.id)])];
+  // Ook uitgeschakelde definities moeten bij verwijderen uit de catalogus verdwijnen.
+  doc.kopVoetBekend = [...new Set([...(doc.kopVoetBekend || []), ...nieuw.map((d) => d.id)])];
   if (nieuw.some((d) => d.uitBestand)) doc._kopVoetBron = bron;
   return true;
 }
@@ -49,9 +52,9 @@ export function leesKopVoetUitBestand(doc, pdfLibDoc, bron) {
  */
 export function naOpslaanKopVoet(doc, ids, pad) {
   const geschreven = new Set(ids);
-  doc.kopVoetBekend = [...new Set([...(doc.kopVoetBekend || []), ...ids])];
+  doc.kopVoetBekend = [...new Set([...(doc.kopVoetBekend || []), ...ids, ...(doc.watermarks || []).map(w => w.id)])];
   for (const wm of doc.watermarks || []) {
-    if (wm?.type === 'headerFooter') wm.uitBestand = geschreven.has(wm.id);
+    if (wm) wm.uitBestand = geschreven.has(wm.id);
   }
   if (ids.length) doc._kopVoetBron = pad;
   else if (doc._kopVoetBron === pad) doc._kopVoetBron = null;

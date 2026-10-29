@@ -15,6 +15,7 @@ import { getStyleMapping } from './stijl-mapping.js';
 import { setZoomDpi, setZoomDpiSource, normalizeZoomDpi } from './zoom-display.js';
 import { kalibratieVoor } from '../pdf/schermkalibratie.js';
 import { pasSneltoetsVoorkeurToe } from './keybindings/app-shortcuts.js';
+import { zetPaginaAchtergrond } from '../pdf/pagina-achtergrond.js';
 
 // What 100% zoom means (#523), read live so a new calibration, a changed
 // preference or a move to a screen with another scale applies at once: on a
@@ -188,6 +189,9 @@ export function applyPreferences() {
 
   // Keyboard shortcuts (#714): take effect at once, no restart.
   pasSneltoetsVoorkeurToe(state.preferences.keyboardShortcuts);
+
+  // Background color around the pages (#859), at once.
+  zetPaginaAchtergrond(state.preferences.pageBackgroundColor);
 
   // Update default author from preferences
   state.defaultAuthor = state.preferences.authorName || 'User';

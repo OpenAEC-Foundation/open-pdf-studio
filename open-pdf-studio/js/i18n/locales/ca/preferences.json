@@ -180,6 +180,7 @@
     "navigation": "Navegació",
     "wheelZoomWithoutCtrl": "Zoom amb la roda del ratolí (sense mantenir premut Ctrl)",
     "middleDoubleClickFit": "Feu doble clic amb el botó central del ratolí per ajustar la pàgina",
+    "ribbonWheelSwitchesTabs": "Canvia les pestanyes de la cinta amb la roda del ratolí",
     "dynamicScaling": "Escala automàticament les marques"
   },
   "fileAssoc": {
@@ -244,6 +245,9 @@
     "pageSharpenLevel3": "Fort",
     "pageSharpenLevel4": "Màxim",
     "showScrollbars": "Mostra les barres de desplaçament del llenç",
+    "backgroundColor": "Color de fons",
+    "backgroundColorDefault": "Per defecte",
+    "backgroundColorHint": "Color de l'àrea al voltant i entre les pàgines. La pàgina, la impressió i l'exportació no canvien.",
     "panels": "Panells",
     "showPropertiesPanel": "Mostra el panell de propietats per defecte",
     "showToolPalette": "Mostra la paleta d'eines per defecte",
@@ -348,7 +352,9 @@
       "other": "Altres"
     },
     "commands": {
-      "findNext": "Cerca el següent"
+      "findNext": "Cerca el següent",
+      "splitPaneLarger": "Fes més gran la subfinestra activa",
+      "splitPaneSmaller": "Fes més petita la subfinestra activa"
     }
   }
 }

@@ -180,6 +180,7 @@
     "navigation": "ناوبری",
     "wheelZoomWithoutCtrl": "بزرگ‌نمایی با چرخ ماوس (بدون نگه داشتن Ctrl)",
     "middleDoubleClickFit": "دوبار کلیک با دکمه وسط ماوس برای جا دادن صفحه",
+    "ribbonWheelSwitchesTabs": "جابه‌جایی بین زبانه‌های نوار ابزار با چرخ ماوس",
     "dynamicScaling": "مقیاس خودکار نشانه‌گذاری‌ها"
   },
   "fileAssoc": {
@@ -244,6 +245,9 @@
     "pageSharpenLevel3": "قوی",
     "pageSharpenLevel4": "حداکثر",
     "showScrollbars": "نمایش نوارهای پیمایش بوم",
+    "backgroundColor": "رنگ پس‌زمینه",
+    "backgroundColorDefault": "پیش‌فرض",
+    "backgroundColorHint": "رنگ ناحیهٔ اطراف و میان صفحه‌ها. خود صفحه، چاپ و خروجی تغییر نمی‌کنند.",
     "panels": "پانل‌ها",
     "showPropertiesPanel": "نمایش پنل ویژگی‌ها به‌طور پیش‌فرض",
     "showToolPalette": "نمایش پالت ابزار به‌طور پیش‌فرض",
@@ -348,7 +352,9 @@
       "other": "سایر"
     },
     "commands": {
-      "findNext": "یافتن بعدی"
+      "findNext": "یافتن بعدی",
+      "splitPaneLarger": "بزرگ‌تر کردن پنل فعال",
+      "splitPaneSmaller": "کوچک‌تر کردن پنل فعال"
     }
   }
 }

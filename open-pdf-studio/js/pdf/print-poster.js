@@ -62,8 +62,16 @@ export const LABEL_PT = 6;
 export const LABEL_BASIS_MM = 6.3;
 /** Kleiner dan dit (mm) mag een venster niet worden door de strook. */
 const MIN_VENSTER_MM = 20;
-/** Hoeveel mm een pagina een venster mag overschrijden en toch één tegel blijft. */
-const SPELING_MM = 0.5;
+/**
+ * Speling per tegel (mm): zoveel mag een pagina per tegel langer zijn dan het
+ * raster en toch dat aantal tegels houden (#855). ISO-maten zijn bij elke
+ * halvering naar beneden afgerond op hele mm (2 x 420 = 840 mm, een A1 is
+ * 841 mm) en een PDF-pagina is een geheel aantal punten (2384 pt = 841,02
+ * mm); zonder speling werd een A1 op randloze A3 3 x 3 in plaats van 2 x 2.
+ * Het raster ligt gecentreerd, dus het teveel valt verdeeld over beide
+ * buitenranden (bij twee tegels hooguit 0,75 mm per kant).
+ */
+export const SPELING_PER_TEGEL_MM = 0.75;
 
 /** Het vel als het papier onbekend is: A4. */
 export const STANDAARD_VEL = Object.freeze({ breedteMm: 210, hoogteMm: 297 });
@@ -123,14 +131,16 @@ export function posterPapier(papier) {
 /**
  * Het raster langs één as: een pagina van `lengte` mm in vensters van
  * `venster` mm die `overlap` mm overlappen. Het raster ligt gecentreerd over
- * de pagina: `begin` is de plek van de eerste tegel (≤ 0), `stap` de afstand
- * tussen twee tegels.
+ * de pagina: `begin` is de plek van de eerste tegel (≤ 0, of iets meer dan 0
+ * als de pagina binnen de speling langer is dan het raster), `stap` de
+ * afstand tussen twee tegels.
  */
 export function rasterLangs(lengte, venster, overlap) {
   const stap = venster - overlap;
-  const aantal = lengte <= venster + SPELING_MM
-    ? 1
-    : Math.max(1, Math.ceil((lengte - overlap) / stap - 1e-9));
+  // n tegels dekken n * stap + overlap mm, met n * SPELING_PER_TEGEL_MM
+  // speling: het kleinste n waarvoor dat de pagina haalt. De 1e-9 vangt
+  // rekenruis op een precies veelvoud.
+  const aantal = Math.max(1, Math.ceil((lengte - overlap) / (stap + SPELING_PER_TEGEL_MM) - 1e-9));
   const dekking = aantal === 1 ? venster : aantal * stap + overlap;
   return { aantal, begin: (lengte - dekking) / 2, stap };
 }

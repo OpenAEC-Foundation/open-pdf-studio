@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Большой формат",
+      "detailblad": "Лист деталей",
+      "voorblad": "Титульный лист"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "книжная",
+      "landscape": "альбомная"
+    },
     "title": "Новый документ",
     "paperSize": "Размер бумаги:",
     "widthMm": "Ширина (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "Выбрать изображение...",
     "scale": "Масштаб:",
     "selectImageFirst": "Сначала выберите изображение.",
-    "defaultText": "ЧЕРНОВИК"
+    "defaultText": "ЧЕРНОВИК",
+    "autoFit": "Автоподбор по странице",
+    "autoFitHint": "Подгоняет текст под каждую страницу. Показан размер для текущей страницы.",
+    "increaseFontSize": "Увеличить размер шрифта",
+    "decreaseFontSize": "Уменьшить размер шрифта",
+    "textHistory": "Ранее использованные тексты",
+    "removeFromHistory": "Удалить из истории"
   },
   "headerFooter": {
     "addTitle": "Добавить колонтитулы",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Выберите папку для разделённых файлов",
     "fileFailed": "Не удалось прочитать {{name}}: {{error}}",
     "applyFailed": "Не удалось применить изменения страниц: {{error}}",
-    "extractFailed": "Не удалось извлечь страницы: {{error}}"
+    "extractFailed": "Не удалось извлечь страницы: {{error}}",
+    "blankSetup": "Параметры пустой страницы",
+    "sameAsAdjacent": "Как у соседней страницы",
+    "width": "Ширина:",
+    "height": "Высота:",
+    "unit": "Единицы:"
   },
   "accessibilityReport": {
     "title": "Проверка доступности",

@@ -22,6 +22,7 @@ import {
 } from '../stores/print-queue-model.js';
 import { isTauri, invoke, readBinaryFile, writeBinaryFile, saveFileDialog } from '../../core/platform.js';
 import { useTranslation } from '../../i18n/useTranslation.js';
+import pdfjsWorkerUrl from 'virtual:opds-pdfjs-worker-url';
 
 const POLL_MS = 2500;
 const RESULT_MS = 8000;
@@ -34,7 +35,7 @@ let _pdfjs = null;
 async function getPdfjs() {
   if (_pdfjs) return _pdfjs;
   const lib = await import('pdfjs-dist');
-  try { lib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/legacy/build/pdf.worker.mjs', import.meta.url).href; } catch (_) {}
+  try { lib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl; } catch (_) {}
   _pdfjs = lib;
   return lib;
 }

@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Large format",
+      "detailblad": "Detail sheet",
+      "voorblad": "Cover sheet"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "portrait",
+      "landscape": "landscape"
+    },
     "title": "New Document",
     "paperSize": "Paper Size:",
     "widthMm": "Width (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "Choose Image...",
     "scale": "Scale:",
     "selectImageFirst": "Please select an image first.",
-    "defaultText": "DRAFT"
+    "defaultText": "DRAFT",
+    "autoFit": "Auto-fit to page",
+    "autoFitHint": "Fits the text to each page. The size shown is for the current page.",
+    "increaseFontSize": "Increase font size",
+    "decreaseFontSize": "Decrease font size",
+    "textHistory": "Previously used texts",
+    "removeFromHistory": "Remove from history"
   },
   "headerFooter": {
     "addTitle": "Add Header/Footer",
@@ -1626,7 +1642,12 @@
     "chooseFolder": "Choose the folder for the split files",
     "fileFailed": "Could not read {{name}}: {{error}}",
     "applyFailed": "Applying the page edits failed: {{error}}",
-    "extractFailed": "Extracting the pages failed: {{error}}"
+    "extractFailed": "Extracting the pages failed: {{error}}",
+    "blankSetup": "Blank page setup",
+    "sameAsAdjacent": "Same as adjacent page",
+    "width": "Width:",
+    "height": "Height:",
+    "unit": "Unit:"
   },
   "accessibilityReport": {
     "title": "Accessibility Check",

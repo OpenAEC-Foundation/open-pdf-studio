@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Gran formato",
+      "detailblad": "Hoja de detalles",
+      "voorblad": "Hoja de portada"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "vertical",
+      "landscape": "horizontal"
+    },
     "title": "Nuevo documento",
     "paperSize": "Tamaño de papel:",
     "widthMm": "Ancho (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "Elegir imagen...",
     "scale": "Escala:",
     "selectImageFirst": "Seleccione una imagen primero.",
-    "defaultText": "BORRADOR"
+    "defaultText": "BORRADOR",
+    "autoFit": "Ajustar automáticamente a la página",
+    "autoFitHint": "Ajusta el texto a cada página. El tamaño mostrado corresponde a la página actual.",
+    "increaseFontSize": "Aumentar tamaño de fuente",
+    "decreaseFontSize": "Reducir tamaño de fuente",
+    "textHistory": "Textos usados anteriormente",
+    "removeFromHistory": "Quitar del historial"
   },
   "headerFooter": {
     "addTitle": "Agregar encabezado/pie de página",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Elija la carpeta para los archivos divididos",
     "fileFailed": "No se pudo leer {{name}}: {{error}}",
     "applyFailed": "No se pudieron aplicar los cambios de páginas: {{error}}",
-    "extractFailed": "No se pudieron extraer las páginas: {{error}}"
+    "extractFailed": "No se pudieron extraer las páginas: {{error}}",
+    "blankSetup": "Configuración de página en blanco",
+    "sameAsAdjacent": "Igual que la página adyacente",
+    "width": "Ancho:",
+    "height": "Alto:",
+    "unit": "Unidad:"
   },
   "accessibilityReport": {
     "title": "Comprobación de accesibilidad",

@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "பெரிய வடிவம்",
+      "detailblad": "விவரத் தாள்",
+      "voorblad": "அட்டைத் தாள்"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "நிலைக்குத்து",
+      "landscape": "நிலைப்படுக்கை"
+    },
     "title": "புதிய ஆவணம்",
     "paperSize": "தாள் அளவு:",
     "widthMm": "அகலம் (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "படத்தைத் தேர்ந்தெடு...",
     "scale": "அளவீடு:",
     "selectImageFirst": "முதலில் ஒரு படத்தைத் தேர்ந்தெடுக்கவும்.",
-    "defaultText": "வரைவு"
+    "defaultText": "வரைவு",
+    "autoFit": "பக்கத்திற்குத் தானாகப் பொருத்து",
+    "autoFitHint": "உரையை ஒவ்வொரு பக்கத்திற்கும் பொருத்துகிறது. காட்டப்படும் அளவு தற்போதைய பக்கத்திற்கானது.",
+    "increaseFontSize": "எழுத்துரு அளவைக் கூட்டு",
+    "decreaseFontSize": "எழுத்துரு அளவைக் குறை",
+    "textHistory": "முன்பு பயன்படுத்திய உரைகள்",
+    "removeFromHistory": "வரலாற்றிலிருந்து நீக்கு"
   },
   "headerFooter": {
     "addTitle": "தலைப்பு/அடிக்குறிப்பு சேர்",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "பிரித்த கோப்புகளுக்கான கோப்புறையைத் தேர்ந்தெடுக்கவும்",
     "fileFailed": "{{name}} ஐப் படிக்க முடியவில்லை: {{error}}",
     "applyFailed": "பக்கத் திருத்தங்களைப் பயன்படுத்த முடியவில்லை: {{error}}",
-    "extractFailed": "பக்கங்களைப் பிரித்தெடுக்க முடியவில்லை: {{error}}"
+    "extractFailed": "பக்கங்களைப் பிரித்தெடுக்க முடியவில்லை: {{error}}",
+    "blankSetup": "வெற்றுப் பக்க அமைப்பு",
+    "sameAsAdjacent": "அருகிலுள்ள பக்கத்தைப் போலவே",
+    "width": "அகலம்:",
+    "height": "உயரம்:",
+    "unit": "அலகு:"
   },
   "accessibilityReport": {
     "title": "அணுகல்தன்மைச் சரிபார்ப்பு",

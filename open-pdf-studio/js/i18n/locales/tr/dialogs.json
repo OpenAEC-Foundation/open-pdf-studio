@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Büyük format",
+      "detailblad": "Detay sayfası",
+      "voorblad": "Kapak sayfası"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "dikey",
+      "landscape": "yatay"
+    },
     "title": "Yeni Belge",
     "paperSize": "Kağıt Boyutu:",
     "widthMm": "Genişlik (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "Görüntü Seç...",
     "scale": "Ölçek:",
     "selectImageFirst": "Lütfen önce bir görüntü seçin.",
-    "defaultText": "TASLAK"
+    "defaultText": "TASLAK",
+    "autoFit": "Sayfaya otomatik sığdır",
+    "autoFitHint": "Metni her sayfaya sığdırır. Gösterilen boyut geçerli sayfa içindir.",
+    "increaseFontSize": "Yazı tipi boyutunu artır",
+    "decreaseFontSize": "Yazı tipi boyutunu azalt",
+    "textHistory": "Daha önce kullanılan metinler",
+    "removeFromHistory": "Geçmişten kaldır"
   },
   "headerFooter": {
     "addTitle": "Üstbilgi/Altbilgi Ekle",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Bölünen dosyalar için klasörü seçin",
     "fileFailed": "{{name}} okunamadı: {{error}}",
     "applyFailed": "Sayfa düzenlemeleri uygulanamadı: {{error}}",
-    "extractFailed": "Sayfalar ayıklanamadı: {{error}}"
+    "extractFailed": "Sayfalar ayıklanamadı: {{error}}",
+    "blankSetup": "Boş sayfa ayarı",
+    "sameAsAdjacent": "Bitişik sayfayla aynı",
+    "width": "Genişlik:",
+    "height": "Yükseklik:",
+    "unit": "Birim:"
   },
   "accessibilityReport": {
     "title": "Erişilebilirlik denetimi",

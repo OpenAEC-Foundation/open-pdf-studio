@@ -180,6 +180,7 @@
     "navigation": "Điều hướng",
     "wheelZoomWithoutCtrl": "Thu phóng bằng con lăn chuột (không cần giữ Ctrl)",
     "middleDoubleClickFit": "Nhấp đúp nút giữa chuột để vừa trang",
+    "ribbonWheelSwitchesTabs": "Chuyển tab ribbon bằng con lăn chuột",
     "dynamicScaling": "Tự động co giãn đánh dấu"
   },
   "fileAssoc": {
@@ -244,6 +245,9 @@
     "pageSharpenLevel3": "Mạnh",
     "pageSharpenLevel4": "Tối đa",
     "showScrollbars": "Hiển thị thanh cuộn của vùng vẽ",
+    "backgroundColor": "Màu nền",
+    "backgroundColorDefault": "Mặc định",
+    "backgroundColorHint": "Màu của vùng xung quanh và giữa các trang. Bản thân trang, việc in và xuất không thay đổi.",
     "panels": "Bảng điều khiển",
     "showPropertiesPanel": "Hiển thị bảng Thuộc tính theo mặc định",
     "showToolPalette": "Hiển thị bảng công cụ theo mặc định",
@@ -348,7 +352,9 @@
       "other": "Khác"
     },
     "commands": {
-      "findNext": "Tìm tiếp"
+      "findNext": "Tìm tiếp",
+      "splitPaneLarger": "Phóng to ngăn đang hoạt động",
+      "splitPaneSmaller": "Thu nhỏ ngăn đang hoạt động"
     }
   }
 }

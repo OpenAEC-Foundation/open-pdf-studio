@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Velký formát",
+      "detailblad": "List detailů",
+      "voorblad": "Titulní list"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "na výšku",
+      "landscape": "na šířku"
+    },
     "title": "Nový dokument",
     "paperSize": "Velikost papíru:",
     "widthMm": "Šířka (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "Vybrat obrázek...",
     "scale": "Měřítko:",
     "selectImageFirst": "Nejprve prosím vyberte obrázek.",
-    "defaultText": "NÁVRH"
+    "defaultText": "NÁVRH",
+    "autoFit": "Automaticky přizpůsobit stránce",
+    "autoFitHint": "Přizpůsobí text každé stránce. Zobrazená velikost platí pro aktuální stránku.",
+    "increaseFontSize": "Zvětšit velikost písma",
+    "decreaseFontSize": "Zmenšit velikost písma",
+    "textHistory": "Dříve použité texty",
+    "removeFromHistory": "Odebrat z historie"
   },
   "headerFooter": {
     "addTitle": "Přidat záhlaví/zápatí",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Vyberte složku pro rozdělené soubory",
     "fileFailed": "{{name}} nelze přečíst: {{error}}",
     "applyFailed": "Úpravy stránek se nepodařilo použít: {{error}}",
-    "extractFailed": "Stránky se nepodařilo extrahovat: {{error}}"
+    "extractFailed": "Stránky se nepodařilo extrahovat: {{error}}",
+    "blankSetup": "Nastavení prázdné stránky",
+    "sameAsAdjacent": "Stejně jako sousední stránka",
+    "width": "Šířka:",
+    "height": "Výška:",
+    "unit": "Jednotka:"
   },
   "accessibilityReport": {
     "title": "Kontrola přístupnosti",

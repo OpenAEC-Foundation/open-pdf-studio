@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "बड़ा प्रारूप",
+      "detailblad": "विवरण शीट",
+      "voorblad": "आवरण शीट"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "पोर्ट्रेट",
+      "landscape": "लैंडस्केप"
+    },
     "title": "नया दस्तावेज़",
     "paperSize": "कागज़ का आकार:",
     "widthMm": "चौड़ाई (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "छवि चुनें...",
     "scale": "स्केल:",
     "selectImageFirst": "कृपया पहले एक छवि चुनें।",
-    "defaultText": "प्रारूप"
+    "defaultText": "प्रारूप",
+    "autoFit": "पृष्ठ में स्वतः फ़िट करें",
+    "autoFitHint": "टेक्स्ट को हर पृष्ठ में फ़िट करता है। दिखाया गया आकार वर्तमान पृष्ठ के लिए है।",
+    "increaseFontSize": "फ़ॉन्ट आकार बढ़ाएँ",
+    "decreaseFontSize": "फ़ॉन्ट आकार घटाएँ",
+    "textHistory": "पहले उपयोग किए गए टेक्स्ट",
+    "removeFromHistory": "इतिहास से हटाएँ"
   },
   "headerFooter": {
     "addTitle": "शीर्षलेख/पादलेख जोड़ें",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "विभाजित फ़ाइलों के लिए फ़ोल्डर चुनें",
     "fileFailed": "{{name}} पढ़ी नहीं जा सकी: {{error}}",
     "applyFailed": "पृष्ठ संपादन लागू नहीं हो सके: {{error}}",
-    "extractFailed": "पृष्ठ निकाले नहीं जा सके: {{error}}"
+    "extractFailed": "पृष्ठ निकाले नहीं जा सके: {{error}}",
+    "blankSetup": "रिक्त पृष्ठ सेटअप",
+    "sameAsAdjacent": "आसन्न पृष्ठ के समान",
+    "width": "चौड़ाई:",
+    "height": "ऊंचाई:",
+    "unit": "इकाई:"
   },
   "accessibilityReport": {
     "title": "सुलभता जाँच",

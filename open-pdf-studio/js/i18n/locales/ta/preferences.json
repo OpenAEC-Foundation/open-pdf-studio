@@ -180,6 +180,7 @@
     "navigation": "வழிசெலுத்தல்",
     "wheelZoomWithoutCtrl": "சுட்டி உருளையால் பெரிதாக்கு (Ctrl அழுத்தாமல்)",
     "middleDoubleClickFit": "பக்கத்தைப் பொருத்த சுட்டியின் நடு பொத்தானை இருமுறை சொடுக்கவும்",
+    "ribbonWheelSwitchesTabs": "சுட்டி உருளையால் ரிப்பன் தாவல்களை மாற்று",
     "dynamicScaling": "குறியீடுகளைத் தானாக அளவிடு"
   },
   "fileAssoc": {
@@ -244,6 +245,9 @@
     "pageSharpenLevel3": "வலுவானது",
     "pageSharpenLevel4": "அதிகபட்சம்",
     "showScrollbars": "கேன்வாஸ் உருட்டுப்பட்டைகளைக் காட்டு",
+    "backgroundColor": "பின்னணி நிறம்",
+    "backgroundColorDefault": "இயல்புநிலை",
+    "backgroundColorHint": "பக்கங்களைச் சுற்றியும் இடையிலும் உள்ள பகுதியின் நிறம். பக்கம், அச்சிடல், ஏற்றுமதி மாறாது.",
     "panels": "பேனல்கள்",
     "showPropertiesPanel": "இயல்பாகப் பண்புகள் பலகத்தைக் காட்டு",
     "showToolPalette": "இயல்பாகக் கருவித் தட்டைக் காட்டு",
@@ -348,7 +352,9 @@
       "other": "மற்றவை"
     },
     "commands": {
-      "findNext": "அடுத்ததைத் தேடு"
+      "findNext": "அடுத்ததைத் தேடு",
+      "splitPaneLarger": "செயலில் உள்ள பலகத்தைப் பெரிதாக்கு",
+      "splitPaneSmaller": "செயலில் உள்ள பலகத்தைச் சிறிதாக்கு"
     }
   }
 }

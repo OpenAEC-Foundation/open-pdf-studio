@@ -213,6 +213,7 @@
     "navigation": "Navigation",
     "wheelZoomWithoutCtrl": "Zoom with mouse wheel (without holding Ctrl)",
     "middleDoubleClickFit": "Double-click the middle mouse button to zoom to fit",
+    "ribbonWheelSwitchesTabs": "Switch ribbon tabs with the mouse wheel",
     "dynamicScaling": "Auto-scale markups"
   },
   "pageDisplay": {
@@ -227,6 +228,9 @@
     "pageSharpenLevel3": "Strong",
     "pageSharpenLevel4": "Maximum",
     "showScrollbars": "Show canvas scrollbars",
+    "backgroundColor": "Background color",
+    "backgroundColorDefault": "Default",
+    "backgroundColorHint": "Color of the area around and between the pages. The page itself, printing and export are not changed.",
     "panels": "Panels",
     "showPropertiesPanel": "Show Properties Panel by default",
     "showToolPalette": "Show Tool Palette by default",
@@ -345,7 +349,9 @@
       "other": "Other"
     },
     "commands": {
-      "findNext": "Find Next"
+      "findNext": "Find Next",
+      "splitPaneLarger": "Make Active Pane Larger",
+      "splitPaneSmaller": "Make Active Pane Smaller"
     }
   }
 }

@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "بڑا فارمیٹ",
+      "detailblad": "تفصیلات کا ورق",
+      "voorblad": "سرورق"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "عمودی",
+      "landscape": "افقی"
+    },
     "title": "نئی دستاویز",
     "paperSize": "کاغذ کا سائز:",
     "widthMm": "چوڑائی (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "تصویر منتخب کریں...",
     "scale": "اسکیل:",
     "selectImageFirst": "براہ کرم پہلے ایک تصویر منتخب کریں۔",
-    "defaultText": "مسودہ"
+    "defaultText": "مسودہ",
+    "autoFit": "صفحے پر خودکار فٹ",
+    "autoFitHint": "متن کو ہر صفحے پر فٹ کرتا ہے۔ دکھایا گیا سائز موجودہ صفحے کا ہے۔",
+    "increaseFontSize": "فونٹ کا سائز بڑھائیں",
+    "decreaseFontSize": "فونٹ کا سائز گھٹائیں",
+    "textHistory": "پہلے استعمال شدہ متن",
+    "removeFromHistory": "تاریخچے سے ہٹائیں"
   },
   "headerFooter": {
     "addTitle": "ہیڈر/فوٹر شامل کریں",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "تقسیم شدہ فائلوں کے لیے فولڈر منتخب کریں",
     "fileFailed": "{{name}} پڑھی نہیں جا سکی: {{error}}",
     "applyFailed": "صفحات کی ترامیم لاگو نہیں ہو سکیں: {{error}}",
-    "extractFailed": "صفحات نکالے نہیں جا سکے: {{error}}"
+    "extractFailed": "صفحات نکالے نہیں جا سکے: {{error}}",
+    "blankSetup": "خالی صفحے کی ترتیب",
+    "sameAsAdjacent": "ملحقہ صفحے جیسا",
+    "width": "چوڑائی:",
+    "height": "اونچائی:",
+    "unit": "اکائی:"
   },
   "accessibilityReport": {
     "title": "رسائی کی جانچ",

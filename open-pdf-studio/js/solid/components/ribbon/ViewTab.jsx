@@ -28,6 +28,8 @@ import { compareActive, compareFocused, exitCompare } from '../../../compare/com
 import { status as readAloudStatus } from '../../stores/readAloudStore.js';
 import { activeTab as leftPanelTab } from '../../stores/leftPanelStore.js';
 import { splitsWeergave, hefSplitsingOp, zetSplitSync } from '../../../pdf/split-view/split-view.js';
+import { sneltoetsVoor } from '../../stores/keybindingStore.js';
+import { titleWithShortcut } from '../../../core/keybindings/labels.js';
 
 export default function ViewTab() {
   const { t } = useTranslation('ribbon');
@@ -89,18 +91,21 @@ export default function ViewTab() {
             onMainClick={() => { if (splitView()) hefSplitsingOp(); else splitsWeergave('vertical'); }}
           >
             <button class="ribbon-split-btn-menu-item" id="split-menu-vertical"
+              title={titleWithShortcut(t('view.splitVertical'), sneltoetsVoor('view.splitVertical'))}
               classList={{ active: splitView()?.richting === 'vertical' }}
               onClick={() => splitsWeergave('vertical')}>
               <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="14" height="14"><rect x="3" y="4" width="18" height="16"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
               {t('view.splitVertical')}
             </button>
             <button class="ribbon-split-btn-menu-item" id="split-menu-horizontal"
+              title={titleWithShortcut(t('view.splitHorizontal'), sneltoetsVoor('view.splitHorizontal'))}
               classList={{ active: splitView()?.richting === 'horizontal' }}
               onClick={() => splitsWeergave('horizontal')}>
               <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="14" height="14"><rect x="3" y="4" width="18" height="16"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
               {t('view.splitHorizontal')}
             </button>
             <button class="ribbon-split-btn-menu-item" id="split-menu-unsplit"
+              title={titleWithShortcut(t('view.unsplit'), sneltoetsVoor('view.unsplit'))}
               disabled={!splitView()}
               onClick={() => hefSplitsingOp()}>
               <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" width="14" height="14"><rect x="3" y="4" width="18" height="16"/></svg>

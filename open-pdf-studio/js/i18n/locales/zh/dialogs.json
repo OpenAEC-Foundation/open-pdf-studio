@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "大幅面",
+      "detailblad": "详图页",
+      "voorblad": "封面页"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "纵向",
+      "landscape": "横向"
+    },
     "title": "新建文档",
     "paperSize": "纸张大小：",
     "widthMm": "宽度 (mm)：",
@@ -350,7 +360,13 @@
     "chooseImage": "选择图像...",
     "scale": "缩放：",
     "selectImageFirst": "请先选择一张图像。",
-    "defaultText": "草稿"
+    "defaultText": "草稿",
+    "autoFit": "自动适应页面",
+    "autoFitHint": "使文字适应每一页。显示的大小为当前页的大小。",
+    "increaseFontSize": "增大字号",
+    "decreaseFontSize": "减小字号",
+    "textHistory": "以前使用过的文本",
+    "removeFromHistory": "从历史记录中删除"
   },
   "headerFooter": {
     "addTitle": "添加页眉/页脚",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "选择拆分文件的文件夹",
     "fileFailed": "无法读取 {{name}}：{{error}}",
     "applyFailed": "应用页面编辑失败：{{error}}",
-    "extractFailed": "提取页面失败：{{error}}"
+    "extractFailed": "提取页面失败：{{error}}",
+    "blankSetup": "空白页设置",
+    "sameAsAdjacent": "与相邻页面相同",
+    "width": "宽度：",
+    "height": "高度：",
+    "unit": "单位："
   },
   "accessibilityReport": {
     "title": "辅助功能检查",

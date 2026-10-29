@@ -39,6 +39,7 @@ import { isTextAnchored, expandCorrectionGroups, replaceParentOf } from '../anno
 import { deleteAnnotationsWithUndo } from '../annotations/mutations.js';
 import { installProofreadingKeys, toggleProofreading } from './proofreading-mode.js';
 import { paginaSneltoetsRichting, paginaToetsVoorInvoer, paginaSprongDoel, maakPaginaBladeraar } from '../pdf/pagina-sneltoets.js';
+import { splitToetsOpdracht, splitToetsGeblokkeerd, isSplitOpdracht } from '../pdf/split-view/split-sneltoets.js';
 import {
   sneltoetsActief, eigenSneltoetsVoor, voerSneltoetsUit, sneltoetsInInvoer,
   maakStandaardToets, zetIngebouwdeUitvoerder, isSneltoetsOpname,
@@ -86,6 +87,11 @@ async function voerIngebouwdeOpdrachtUit(id, e) {
   // Ctrl+P staat in main.js (vóór de afdrukdialoog van de WebView), F2 in proofreading-mode.js.
   if (id === 'file.print') { showPrintDialog(); return; }
   if (id === 'review.proofreading') { toggleProofreading(); return; }
+  // Gesplitste weergave (#858); Groter/Kleiner hebben geen standaardtoets.
+  if (isSplitOpdracht(id)) {
+    if (!splitToetsGeblokkeerd(e?.target, { modaalOpen: modaalOpen() })) voerSplitOpdracht(id);
+    return;
+  }
   const nep = maakStandaardToets(e, id);
   if (!nep) return;
   nep[GEFORCEERD] = id;
@@ -94,6 +100,10 @@ async function voerIngebouwdeOpdrachtUit(id, e) {
   await voerStandaardToetsUit(nep);
 }
 zetIngebouwdeUitvoerder(voerIngebouwdeOpdrachtUit);
+
+function voerSplitOpdracht(id) {
+  import('../pdf/split-view/split-view.js').then(m => m.voerSplitOpdrachtUit(id)).catch(() => {});
+}
 
 // Paginarotatie via sneltoets. Zelfde undo-bare pad als de draaiknoppen op de
 // tabbladen Beeld en Organiseren (pagina-draaien.js, #464).
@@ -1074,6 +1084,16 @@ async function voerStandaardToetsUit(e) {
     // cross-selection (even when it begins on an element), mirroring the
     // Select ribbon button. Consumed on the next pointerdown in select-tool.
     state.armedMarquee = true;
+  }
+
+  // Gesplitste weergave (#858): Ctrl+\ verticaal, Ctrl+Shift+\ horizontaal;
+  // de toets van de splitsing die er al staat heft hem op. Niet in een dialoog.
+  else if (splitToetsOpdracht(e)) {
+    const splitId = splitToetsOpdracht(e);
+    if (!aan(e, splitId, splitId === 'view.splitHorizontal' ? 'Ctrl+Shift+\\' : 'Ctrl+\\')) return;
+    if (splitToetsGeblokkeerd(e.target, { modaalOpen: modaalOpen() })) return;
+    e.preventDefault();
+    voerSplitOpdracht(splitId);
   }
 
   // Paginarotatie: Ctrl+Shift+Plus = rechtsom, Ctrl+Shift+Min = linksom.

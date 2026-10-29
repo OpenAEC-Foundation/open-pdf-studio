@@ -180,6 +180,7 @@
     "navigation": "Navigace",
     "wheelZoomWithoutCtrl": "Lupa kolečkem myši (bez držení Ctrl)",
     "middleDoubleClickFit": "Dvojklik prostředním tlačítkem myši přizpůsobí stránku",
+    "ribbonWheelSwitchesTabs": "Přepínat karty pásu karet kolečkem myši",
     "dynamicScaling": "Automaticky měnit měřítko značek"
   },
   "fileAssoc": {
@@ -244,6 +245,9 @@
     "pageSharpenLevel3": "Silné",
     "pageSharpenLevel4": "Maximální",
     "showScrollbars": "Zobrazit posuvníky plátna",
+    "backgroundColor": "Barva pozadí",
+    "backgroundColorDefault": "Výchozí",
+    "backgroundColorHint": "Barva plochy kolem stránek a mezi nimi. Samotná stránka, tisk ani export se nemění.",
     "panels": "Panely",
     "showPropertiesPanel": "Ve výchozím stavu zobrazit panel vlastností",
     "showToolPalette": "Ve výchozím stavu zobrazit paletu nástrojů",
@@ -348,7 +352,9 @@
       "other": "Ostatní"
     },
     "commands": {
-      "findNext": "Najít další"
+      "findNext": "Najít další",
+      "splitPaneLarger": "Zvětšit aktivní podokno",
+      "splitPaneSmaller": "Zmenšit aktivní podokno"
     }
   }
 }

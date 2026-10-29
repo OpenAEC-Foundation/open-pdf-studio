@@ -1,6 +1,6 @@
 import { parseEditorDom } from '../../text/editor-dom-parse.js';
 import { PDFName, PDFDict, PDFArray, PDFHexString, PDFString, PDFRef } from 'pdf-lib';
-import { pdfNum, pdfColorToHex, mapPdfFontName, inflateBytes, rcLettertype } from './pdf-helpers.js';
+import { pdfNum, pdfColorToHex, mapPdfFontName, inflateBytes, rcLettertype, lijnstijlUitStreep } from './pdf-helpers.js';
 import { fillAlphaAtFirstFill } from './ap-fill-alpha.js';
 import { leesKnipselBronnen, leesKnipselVelden } from './vector-snippet-load.js';
 import { bewaar as bewaarKnipsel } from '../../annotations/vector-snippet-store.js';
@@ -1125,17 +1125,13 @@ const result = {};
           if (dRaw) {
             const dArr = context.lookup(dRaw) || dRaw;
             if (dArr && typeof dArr.size === 'function' && dArr.size() >= 2) {
-              const d0 = pdfNum(dArr.get(0));
-              const d1 = pdfNum(dArr.get(1));
-              // Short dash segments (<=3) indicate dotted; longer ones are dashed.
-              // The app writes dotted as the screen pattern [2 4]
-              // (saver/utils.js buildBorderStyle; older versions [2 2]).
-              const eigenStippel = dArr.size() === 2 && d0 === 2 && d1 === 4;
-              if (eigenStippel || (d0 !== null && d0 <= 3 && d1 !== null && d1 <= 3)) {
-                colors.borderStyle = 'dotted';
-              } else {
-                colors.borderStyle = 'dashed';
-              }
+              // The app's own patterns (saver/utils.js buildBorderStyle) give
+              // their own style, also dash-dot and long-dash; otherwise short
+              // dashes and gaps (<= 3, older [2 2]) are dotted and the rest is
+              // dashed (older [8 4]).
+              const d = [];
+              for (let i = 0; i < dArr.size(); i++) d.push(pdfNum(dArr.get(i)));
+              colors.borderStyle = lijnstijlUitStreep(d);
             }
           }
         }

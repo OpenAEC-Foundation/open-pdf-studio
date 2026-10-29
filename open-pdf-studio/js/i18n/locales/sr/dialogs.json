@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Велики формат",
+      "detailblad": "Лист детаља",
+      "voorblad": "Насловни лист"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "усправно",
+      "landscape": "водоравно"
+    },
     "title": "Нови документ",
     "paperSize": "Величина папира:",
     "widthMm": "Ширина (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "Изабери слику...",
     "scale": "Размера:",
     "selectImageFirst": "Молимо прво изаберите слику.",
-    "defaultText": "НАЦРТ"
+    "defaultText": "НАЦРТ",
+    "autoFit": "Аутоматски уклопи у страницу",
+    "autoFitHint": "Уклапа текст у сваку страницу. Приказана величина важи за тренутну страницу.",
+    "increaseFontSize": "Повећај величину фонта",
+    "decreaseFontSize": "Смањи величину фонта",
+    "textHistory": "Раније коришћени текстови",
+    "removeFromHistory": "Уклони из историје"
   },
   "headerFooter": {
     "addTitle": "Додај заглавље/подножје",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Изаберите фасциклу за подељене датотеке",
     "fileFailed": "Није могуће прочитати {{name}}: {{error}}",
     "applyFailed": "Примена измена страница није успела: {{error}}",
-    "extractFailed": "Издвајање страница није успело: {{error}}"
+    "extractFailed": "Издвајање страница није успело: {{error}}",
+    "blankSetup": "Подешавање празне странице",
+    "sameAsAdjacent": "Исто као суседна страница",
+    "width": "Ширина:",
+    "height": "Висина:",
+    "unit": "Јединица:"
   },
   "accessibilityReport": {
     "title": "Провера приступачности",

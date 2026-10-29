@@ -180,6 +180,7 @@
     "navigation": "Siirtyminen",
     "wheelZoomWithoutCtrl": "Zoomaa hiiren rullalla (ilman Ctrl-näppäintä)",
     "middleDoubleClickFit": "Hiiren keskipainikkeen kaksoisnapsautus sovittaa sivun",
+    "ribbonWheelSwitchesTabs": "Vaihda valintanauhan välilehteä hiiren rullalla",
     "dynamicScaling": "Skaalaa merkinnät automaattisesti"
   },
   "fileAssoc": {
@@ -244,6 +245,9 @@
     "pageSharpenLevel3": "Voimakas",
     "pageSharpenLevel4": "Maksimi",
     "showScrollbars": "Näytä piirtoalueen vierityspalkit",
+    "backgroundColor": "Taustaväri",
+    "backgroundColorDefault": "Oletus",
+    "backgroundColorHint": "Sivujen ympärillä ja välissä olevan alueen väri. Itse sivu, tulostus ja vienti eivät muutu.",
     "panels": "Paneelit",
     "showPropertiesPanel": "Näytä ominaisuuspaneeli oletuksena",
     "showToolPalette": "Näytä työkalupaletti oletuksena",
@@ -348,7 +352,9 @@
       "other": "Muut"
     },
     "commands": {
-      "findNext": "Etsi seuraava"
+      "findNext": "Etsi seuraava",
+      "splitPaneLarger": "Suurenna aktiivista ruutua",
+      "splitPaneSmaller": "Pienennä aktiivista ruutua"
     }
   }
 }

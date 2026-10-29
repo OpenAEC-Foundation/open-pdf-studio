@@ -180,6 +180,7 @@
     "navigation": "নেভিগেশন",
     "wheelZoomWithoutCtrl": "মাউস হুইল দিয়ে জুম করুন (Ctrl না চেপে)",
     "middleDoubleClickFit": "পৃষ্ঠা মানানসই করতে মাউসের মাঝের বোতামে ডাবল-ক্লিক করুন",
+    "ribbonWheelSwitchesTabs": "মাউস হুইল দিয়ে রিবন ট্যাব বদলান",
     "dynamicScaling": "মার্কআপ স্বয়ংক্রিয়ভাবে স্কেল করুন"
   },
   "fileAssoc": {
@@ -244,6 +245,9 @@
     "pageSharpenLevel3": "জোরালো",
     "pageSharpenLevel4": "সর্বোচ্চ",
     "showScrollbars": "ক্যানভাস স্ক্রলবার দেখান",
+    "backgroundColor": "পটভূমির রং",
+    "backgroundColorDefault": "ডিফল্ট",
+    "backgroundColorHint": "পৃষ্ঠাগুলির চারপাশে ও মাঝখানের অংশের রং। পৃষ্ঠা নিজে, মুদ্রণ ও রপ্তানি বদলায় না।",
     "panels": "প্যানেল",
     "showPropertiesPanel": "ডিফল্টভাবে বৈশিষ্ট্য প্যানেল দেখান",
     "showToolPalette": "ডিফল্টভাবে টুল প্যালেট দেখান",
@@ -348,7 +352,9 @@
       "other": "অন্যান্য"
     },
     "commands": {
-      "findNext": "পরবর্তী খুঁজুন"
+      "findNext": "পরবর্তী খুঁজুন",
+      "splitPaneLarger": "সক্রিয় প্যান বড় করুন",
+      "splitPaneSmaller": "সক্রিয় প্যান ছোট করুন"
     }
   }
 }

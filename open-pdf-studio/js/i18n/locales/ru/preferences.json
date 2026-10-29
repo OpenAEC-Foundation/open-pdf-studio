@@ -180,6 +180,7 @@
     "navigation": "Навигация",
     "wheelZoomWithoutCtrl": "Масштабирование колёсиком мыши (без удержания Ctrl)",
     "middleDoubleClickFit": "Двойной щелчок средней кнопкой мыши — вписать страницу",
+    "ribbonWheelSwitchesTabs": "Переключать вкладки ленты колёсиком мыши",
     "dynamicScaling": "Автомасштабирование пометок"
   },
   "fileAssoc": {
@@ -244,6 +245,9 @@
     "pageSharpenLevel3": "Сильное",
     "pageSharpenLevel4": "Максимальное",
     "showScrollbars": "Показывать полосы прокрутки холста",
+    "backgroundColor": "Цвет фона",
+    "backgroundColorDefault": "По умолчанию",
+    "backgroundColorHint": "Цвет области вокруг страниц и между ними. Сама страница, печать и экспорт не меняются.",
     "panels": "Панели",
     "showPropertiesPanel": "Показывать панель свойств по умолчанию",
     "showToolPalette": "Показывать палитру инструментов по умолчанию",
@@ -348,7 +352,9 @@
       "other": "Прочее"
     },
     "commands": {
-      "findNext": "Найти далее"
+      "findNext": "Найти далее",
+      "splitPaneLarger": "Увеличить активную панель",
+      "splitPaneSmaller": "Уменьшить активную панель"
     }
   }
 }

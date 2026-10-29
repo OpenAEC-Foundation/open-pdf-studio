@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "대형 형식",
+      "detailblad": "상세 도면",
+      "voorblad": "표지"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "세로",
+      "landscape": "가로"
+    },
     "title": "새 문서",
     "paperSize": "용지 크기:",
     "widthMm": "너비 (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "이미지 선택...",
     "scale": "배율:",
     "selectImageFirst": "먼저 이미지를 선택하십시오.",
-    "defaultText": "초안"
+    "defaultText": "초안",
+    "autoFit": "페이지에 자동 맞춤",
+    "autoFitHint": "각 페이지에 맞게 텍스트를 조정합니다. 표시된 크기는 현재 페이지 기준입니다.",
+    "increaseFontSize": "글꼴 크기 늘리기",
+    "decreaseFontSize": "글꼴 크기 줄이기",
+    "textHistory": "이전에 사용한 텍스트",
+    "removeFromHistory": "기록에서 제거"
   },
   "headerFooter": {
     "addTitle": "머리글/바닥글 추가",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "분할된 파일을 저장할 폴더 선택",
     "fileFailed": "{{name}}을(를) 읽을 수 없습니다: {{error}}",
     "applyFailed": "페이지 편집을 적용하지 못했습니다: {{error}}",
-    "extractFailed": "페이지를 추출하지 못했습니다: {{error}}"
+    "extractFailed": "페이지를 추출하지 못했습니다: {{error}}",
+    "blankSetup": "빈 페이지 설정",
+    "sameAsAdjacent": "인접 페이지와 동일",
+    "width": "너비:",
+    "height": "높이:",
+    "unit": "단위:"
   },
   "accessibilityReport": {
     "title": "접근성 검사",

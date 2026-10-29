@@ -184,6 +184,7 @@
     "navigation": "Navigatie",
     "wheelZoomWithoutCtrl": "Zoomen met muiswiel (zonder Ctrl ingedrukt)",
     "middleDoubleClickFit": "Dubbelklikken met de middelste muisknop past de pagina in het venster",
+    "ribbonWheelSwitchesTabs": "Linttabbladen wisselen met het muiswiel",
     "dynamicScaling": "Markeringen automatisch schalen"
   },
   "fileAssoc": {
@@ -251,6 +252,9 @@
     "pageSharpenLevel3": "Sterk",
     "pageSharpenLevel4": "Maximaal",
     "showScrollbars": "Canvas-schuifbalken tonen",
+    "backgroundColor": "Achtergrondkleur",
+    "backgroundColorDefault": "Standaard",
+    "backgroundColorHint": "Kleur van het vlak rond en tussen de pagina's. De pagina zelf, afdrukken en exporteren veranderen niet.",
     "actualSize": "Werkelijke grootte (100%)",
     "calibrationNone": "Niet gekalibreerd voor dit scherm (schaal {{scale}}%). 100% volgt de schermresolutie hierboven.",
     "calibrationActive": "Gekalibreerd voor dit scherm (schaal {{scale}}%): {{ppi}} pixels per inch.",
@@ -352,7 +356,9 @@
       "other": "Overig"
     },
     "commands": {
-      "findNext": "Volgende zoeken"
+      "findNext": "Volgende zoeken",
+      "splitPaneLarger": "Actief paneel groter maken",
+      "splitPaneSmaller": "Actief paneel kleiner maken"
     }
   }
 }

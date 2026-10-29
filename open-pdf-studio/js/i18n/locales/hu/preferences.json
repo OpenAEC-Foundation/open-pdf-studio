@@ -180,6 +180,7 @@
     "navigation": "Navigáció",
     "wheelZoomWithoutCtrl": "Nagyítás egérgörgővel (Ctrl lenyomása nélkül)",
     "middleDoubleClickFit": "Dupla kattintás a középső egérgombbal az oldal illesztéséhez",
+    "ribbonWheelSwitchesTabs": "Menüszalag lapjainak váltása egérgörgővel",
     "dynamicScaling": "Jelölések automatikus méretezése"
   },
   "fileAssoc": {
@@ -244,6 +245,9 @@
     "pageSharpenLevel3": "Erős",
     "pageSharpenLevel4": "Maximális",
     "showScrollbars": "Rajzterület görgetősávjainak megjelenítése",
+    "backgroundColor": "Háttérszín",
+    "backgroundColorDefault": "Alapértelmezett",
+    "backgroundColorHint": "Az oldalak körüli és közötti terület színe. Maga az oldal, a nyomtatás és az exportálás nem változik.",
     "panels": "Panelek",
     "showPropertiesPanel": "Tulajdonságok panel megjelenítése alapértelmezésként",
     "showToolPalette": "Eszközpaletta megjelenítése alapértelmezésként",
@@ -348,7 +352,9 @@
       "other": "Egyéb"
     },
     "commands": {
-      "findNext": "Következő keresése"
+      "findNext": "Következő keresése",
+      "splitPaneLarger": "Aktív panel nagyítása",
+      "splitPaneSmaller": "Aktív panel kicsinyítése"
     }
   }
 }

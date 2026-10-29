@@ -70,8 +70,8 @@ test('rasterLangs: aantal tegels, stap en een gecentreerd raster', () => {
   assert.equal(rasterLangs(210.3, 210, 0).aantal, 1);
 });
 
-test('A1 op A4 op 100 %: 3 x 3 staande vellen', () => {
-  const p = indeling();
+test('A1 op staande A4 op 100 %: 3 x 3 vellen', () => {
+  const p = indeling({ orientatie: 'portrait' });
   assert.equal(p.getegeld, true);
   assert.equal(p.kolommen, 3);
   assert.equal(p.rijen, 3);
@@ -87,37 +87,43 @@ test('A1 op A4 op 100 %: 3 x 3 staande vellen', () => {
   assert.deepEqual(p.vellen.map((v) => `${v.rij},${v.kol}`),
     ['1,1', '1,2', '1,3', '2,1', '2,2', '2,3', '3,1', '3,2', '3,3']);
   assert.deepEqual(p.vellen.map((v) => v.nummer), [1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  // Automatisch: liggende vellen, 594/297 = 2 kolommen, 841/210 = 4,005 → 4
+  // rijen binnen de speling (#855): 8 vellen, zoveel A4's als een A1 groot is.
+  const auto = indeling();
+  assert.equal(auto.vel.orientatie, 'landscape');
+  assert.equal(`${auto.kolommen} x ${auto.rijen}`, '2 x 4');
 });
 
-test('A1 op A3 op 100 %: 2 x 3 vellen, de stand volgt bij gelijkspel de pagina', () => {
+test('A1 op A3 op 100 %: 2 x 2 vellen, de stand volgt bij gelijkspel de pagina', () => {
   const p = indeling({ papier: A3 });
-  assert.equal(p.kolommen * p.rijen, 6);
   assert.equal(p.kolommen, 2);
-  assert.equal(p.rijen, 3);
+  assert.equal(p.rijen, 2);
   assert.equal(p.vel.orientatie, 'portrait');
   const liggend = indeling({ papier: A3, pagina: A1_LIGGEND });
   assert.equal(liggend.vel.orientatie, 'landscape');
-  assert.equal(liggend.kolommen, 3);
+  assert.equal(liggend.kolommen, 2);
   assert.equal(liggend.rijen, 2);
 });
 
 test('A0 op A4 en A3, en andere schalen', () => {
   const a0a4 = indeling({ pagina: A0 });
-  // Staand: 841/210 = 4,005 → 5 kolommen, 1189/297 = 4,003 → 5 rijen (25);
-  // liggend: 841/297 = 2,83 → 3, 1189/210 = 5,66 → 6 (18). Liggend wint.
-  assert.equal(a0a4.vellen.length, 18);
-  assert.equal(a0a4.vel.orientatie, 'landscape');
-  assert.equal(a0a4.kolommen, 3);
-  assert.equal(a0a4.rijen, 6);
+  // Staand: 841/210 = 4,005 en 1189/297 = 4,003, binnen de speling (#855):
+  // 4 x 4 (16); liggend: 841/297 = 2,83 → 3, 1189/210 = 5,66 → 6 (18).
+  assert.equal(a0a4.vellen.length, 16);
+  assert.equal(a0a4.vel.orientatie, 'portrait');
+  assert.equal(a0a4.kolommen, 4);
+  assert.equal(a0a4.rijen, 4);
+  // Op A3: staand 3 x 3 (9), liggend 841/420 → 2 en 1189/297 → 4 (8).
   const a0a3 = indeling({ pagina: A0, papier: A3 });
-  assert.equal(a0a3.kolommen * a0a3.rijen, 9);
+  assert.equal(a0a3.kolommen * a0a3.rijen, 8);
+  assert.equal(a0a3.vel.orientatie, 'landscape');
   // 50 %: een A1 wordt 297 x 420,5 mm; staand 2 x 2 = 4 vellen, liggend
-  // 1 kolom (297 mm) x 3 rijen (420,5 / 210) = 3 vellen.
+  // 1 kolom (297 mm) x 2 rijen (420,5 / 210, binnen de speling) = 2 vellen.
   const half = indeling({ opties: { schaal: 50 } });
   bijna(half.schaal, 0.5);
   assert.equal(half.vel.orientatie, 'landscape');
   assert.equal(half.kolommen, 1);
-  assert.equal(half.rijen, 3);
+  assert.equal(half.rijen, 2);
   bijna(half.paginaMm.breedte, 297, 1e-6);
   const halfStaand = indeling({ opties: { schaal: 50 }, orientatie: 'portrait' });
   assert.equal(halfStaand.kolommen, 2);
@@ -204,17 +210,20 @@ test('automatische stand: de stand met de minste vellen; een vaste stand blijft 
   const staand = indeling({ papier: { ...A4, bedrukbaar }, orientatie: 'portrait', opties });
   assert.equal(staand.vel.orientatie, 'portrait');
   assert.equal(staand.vellen.length, 16);
-  // Een liggende A1 op vaste staande vellen: 841/210 → 5 kolommen, 594/297 → 2 rijen.
+  // Een liggende A1 op vaste staande vellen: 841/210 → 4 kolommen (binnen de
+  // speling), 594/297 → 2 rijen.
   const vast = indeling({ pagina: A1_LIGGEND, orientatie: 'portrait' });
-  assert.equal(vast.kolommen, 5);
+  assert.equal(vast.kolommen, 4);
   assert.equal(vast.rijen, 2);
   assert.equal(vast.vel.orientatie, 'portrait');
   for (const v of vast.vellen) assert.equal(v.plaatsing.gedraaid, false);
-  // Een gedraaid getoonde pagina komt binnen met de getoonde maat: liggend.
+  // Een gedraaid getoonde pagina komt binnen met de getoonde maat (841 x 594):
+  // liggende vellen 3 x 3 (9), staande 4 x 2 (8); de minste wint.
   const autoLiggend = indeling({ pagina: A1_LIGGEND });
-  assert.equal(autoLiggend.vel.orientatie, 'landscape');
-  assert.equal(autoLiggend.kolommen, 3);
-  assert.equal(autoLiggend.rijen, 3);
+  assert.equal(autoLiggend.vel.orientatie, 'portrait');
+  assert.equal(autoLiggend.kolommen, 4);
+  assert.equal(autoLiggend.rijen, 2);
+  assert.equal(indeling({ pagina: A1_LIGGEND, orientatie: 'landscape' }).vellen.length, 9);
 });
 
 test('alleen grote pagina\'s: een pagina die op het vel past gaat gewoon, op het bedrukbare gebied', () => {
@@ -336,13 +345,13 @@ test('labeltekst: bestand, pagina en tegel; alleen tekens die het standaardfont 
 test('vellen van de hele afdruk: per pagina in printvolgorde, met het totaal', () => {
   const opties = { ...KAAL, alleenGroot: true };
   const indelingen = [A4_PAGINA, A1, A4_PAGINA].map((p) => posterIndeling({ papier: A3, orientatie: 'auto', pagina: p, opties }));
-  assert.equal(aantalPosterVellen(indelingen), 1 + 6 + 1);
+  assert.equal(aantalPosterVellen(indelingen), 1 + 4 + 1);
   const vellen = posterVellen(indelingen);
-  assert.equal(vellen.length, 8);
-  assert.deepEqual(vellen.map((v) => v.paginaIndex), [0, 1, 1, 1, 1, 1, 1, 2]);
+  assert.equal(vellen.length, 6);
+  assert.deepEqual(vellen.map((v) => v.paginaIndex), [0, 1, 1, 1, 1, 2]);
   assert.equal(vellen[0].vel.label, null);
   assert.equal(vellen[1].vel.nummer, 1);
-  assert.equal(vellen[6].vel.nummer, 6);
+  assert.equal(vellen[4].vel.nummer, 4);
   assert.equal(aantalPosterVellen([]), 0);
   assert.equal(aantalPosterVellen([null]), 0);
 });
@@ -384,4 +393,77 @@ test('alle locales hebben de posterteksten, vertaald en met dezelfde plaatshoude
   const waarden = { file: 'a.pdf', page: 2, row: 1, col: 3, rows: 2, cols: 4 };
   const engels = en.posterLabelText.replace(/\{\{(\w+)\}\}/g, (_, k) => String(waarden[k]));
   assert.equal(posterLabel({ bestand: 'a.pdf', pagina: 2, rij: 1, kol: 3, rijen: 2, kolommen: 4 }), engels);
+});
+
+// #855: an A1 page on borderless A3 at 100 % with 0 overlap gave 3 x 3. ISO
+// sizes are rounded down to whole mm at every halving (2 x 420 = 840 mm, an
+// A1 is 841 mm) and a PDF page is a whole number of points (2384 pt =
+// 841.02 mm), so an exact multiple came out a hair too long for the grid.
+const ZONDER_RAND = {
+  staand: { links: 0, boven: 0, rechts: 0, onder: 0 },
+  liggend: { links: 0, boven: 0, rechts: 0, onder: 0 },
+};
+const A1_PT = { breedtePt: 1684, hoogtePt: 2384 };
+const A1_PT_LIGGEND = { breedtePt: 2384, hoogtePt: 1684 };
+const A0_PT = { breedtePt: 2384, hoogtePt: 3370 };
+
+test('#855: A1 (in pt) on borderless A3 at 100 % without overlap is 2 x 2', () => {
+  const papier = { ...A3, bedrukbaar: ZONDER_RAND };
+  for (const orientatie of ['landscape', 'auto']) {
+    const p = indeling({ papier, orientatie, pagina: A1_PT_LIGGEND });
+    assert.equal(`${p.kolommen} x ${p.rijen}`, '2 x 2', `liggende A1, stand ${orientatie}`);
+    assert.equal(p.vel.orientatie, 'landscape');
+  }
+  for (const orientatie of ['portrait', 'auto']) {
+    const p = indeling({ papier, orientatie, pagina: A1_PT });
+    assert.equal(`${p.kolommen} x ${p.rijen}`, '2 x 2', `staande A1, stand ${orientatie}`);
+    assert.equal(p.vel.orientatie, 'portrait');
+  }
+  // Also with the mm-exact sizes and without a printable area from the printer.
+  assert.equal(indeling({ papier: A3, pagina: A1_LIGGEND, orientatie: 'landscape' }).vellen.length, 4);
+});
+
+test('#855: A0 (in pt) on borderless A4 at 100 % without overlap is 4 x 4', () => {
+  const p = indeling({ papier: { ...A4, bedrukbaar: ZONDER_RAND }, pagina: A0_PT });
+  assert.equal(`${p.kolommen} x ${p.rijen}`, '4 x 4');
+  assert.equal(p.vel.orientatie, 'portrait');
+  // The page overruns the 4 x 4 grid by about a mm, split over both outer edges.
+  const eerste = p.vellen[0].tegel;
+  assert.ok(eerste.x > 0 && eerste.x < 0.75, `begin x ${eerste.x}`);
+  assert.ok(eerste.y > 0 && eerste.y < 0.75, `begin y ${eerste.y}`);
+  // The cut lines on the outer edges stay inside the window.
+  const v = p.vellen[0];
+  bijna(v.snijlijnen.links, v.venster.x);
+  bijna(v.snijlijnen.boven, v.venster.y);
+});
+
+test('#855: exact multiples use the next count only beyond the rounding allowance', () => {
+  // Floating-point noise on an exact multiple.
+  assert.equal(rasterLangs(594 + 1e-9, 297, 0).aantal, 2);
+  assert.equal(rasterLangs(0.1 * 3 * 2800, 420, 0).aantal, 2);
+  assert.equal(rasterLangs(3 * 99.1, 99.1, 0).aantal, 3);
+  // ISO and point rounding: about a mm over two or four sheets still fits.
+  assert.equal(rasterLangs(841.02, 420, 0).aantal, 2);
+  assert.equal(rasterLangs(1188.86, 297, 0).aantal, 4);
+  // A real excess still gets the next sheet.
+  assert.equal(rasterLangs(845, 420, 0).aantal, 3);
+  assert.equal(rasterLangs(842, 420, 0).aantal, 3);
+  // The allowance never eats into the overlap: 2 x 420 - 10 = 830 < 841.
+  assert.equal(rasterLangs(841.02, 420, 10).aantal, 3);
+  // The grid stays centred: the overrun is split evenly over both edges.
+  const r = rasterLangs(841.02, 420, 0);
+  bijna(r.begin, (841.02 - 840) / 2);
+});
+
+test('#855: printer margins and the cut-mark strip still count against the window', () => {
+  // With the 7 mm strip for cut marks and labels on every edge an A3 window
+  // is 406 x 283 mm, so a 1:1 A1 needs 3 x 3 sheets; that is not rounding.
+  const p = indeling({ papier: { ...A3, bedrukbaar: ZONDER_RAND }, orientatie: 'landscape', pagina: A1_PT_LIGGEND,
+    opties: { snijtekens: true, labels: true } });
+  assert.equal(`${p.kolommen} x ${p.rijen}`, '3 x 3');
+  // 4 mm margins from the printer: 412 x 289 mm, also 3 x 3.
+  const marge = { links: 4, boven: 4, rechts: 4, onder: 4 };
+  const m = indeling({ papier: { ...A3, bedrukbaar: { staand: marge, liggend: marge } }, orientatie: 'landscape',
+    pagina: A1_PT_LIGGEND });
+  assert.equal(`${m.kolommen} x ${m.rijen}`, '3 x 3');
 });

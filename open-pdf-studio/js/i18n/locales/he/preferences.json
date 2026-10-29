@@ -180,6 +180,7 @@
     "navigation": "ניווט",
     "wheelZoomWithoutCtrl": "זום בגלגלת העכבר (ללא החזקת Ctrl)",
     "middleDoubleClickFit": "לחיצה כפולה על לחצן העכבר האמצעי להתאמת העמוד",
+    "ribbonWheelSwitchesTabs": "מעבר בין כרטיסיות רצועת הכלים בגלגלת העכבר",
     "dynamicScaling": "שינוי קנה מידה אוטומטי של סימונים"
   },
   "fileAssoc": {
@@ -244,6 +245,9 @@
     "pageSharpenLevel3": "חזק",
     "pageSharpenLevel4": "מרבי",
     "showScrollbars": "הצגת פסי גלילה של הקנבס",
+    "backgroundColor": "צבע רקע",
+    "backgroundColorDefault": "ברירת מחדל",
+    "backgroundColorHint": "צבע האזור סביב הדפים וביניהם. הדף עצמו, ההדפסה והייצוא אינם משתנים.",
     "panels": "לוחות",
     "showPropertiesPanel": "הצגת חלונית המאפיינים כברירת מחדל",
     "showToolPalette": "הצגת לוח הכלים כברירת מחדל",
@@ -348,7 +352,9 @@
       "other": "אחר"
     },
     "commands": {
-      "findNext": "חיפוש הבא"
+      "findNext": "חיפוש הבא",
+      "splitPaneLarger": "הגדלת החלונית הפעילה",
+      "splitPaneSmaller": "הקטנת החלונית הפעילה"
     }
   }
 }

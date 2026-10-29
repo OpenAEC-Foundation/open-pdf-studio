@@ -180,6 +180,7 @@
     "navigation": "Navigasi",
     "wheelZoomWithoutCtrl": "Zum dengan roda tetikus (tanpa menahan Ctrl)",
     "middleDoubleClickFit": "Klik dua kali butang tengah tetikus untuk muat halaman",
+    "ribbonWheelSwitchesTabs": "Tukar tab reben dengan roda tetikus",
     "dynamicScaling": "Skala automatik penanda"
   },
   "fileAssoc": {
@@ -244,6 +245,9 @@
     "pageSharpenLevel3": "Kuat",
     "pageSharpenLevel4": "Maksimum",
     "showScrollbars": "Tunjukkan bar tatal kanvas",
+    "backgroundColor": "Warna latar belakang",
+    "backgroundColorDefault": "Lalai",
+    "backgroundColorHint": "Warna kawasan di sekeliling dan di antara halaman. Halaman itu sendiri, cetakan dan eksport tidak berubah.",
     "panels": "Panel",
     "showPropertiesPanel": "Tunjukkan Panel Sifat secara lalai",
     "showToolPalette": "Tunjukkan Palet Alat secara lalai",
@@ -348,7 +352,9 @@
       "other": "Lain-lain"
     },
     "commands": {
-      "findNext": "Cari seterusnya"
+      "findNext": "Cari seterusnya",
+      "splitPaneLarger": "Besarkan anak tetingkap aktif",
+      "splitPaneSmaller": "Kecilkan anak tetingkap aktif"
     }
   }
 }

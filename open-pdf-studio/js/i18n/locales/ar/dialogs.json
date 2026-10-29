@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "تنسيق كبير",
+      "detailblad": "ورقة التفاصيل",
+      "voorblad": "ورقة الغلاف"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "عمودي",
+      "landscape": "أفقي"
+    },
     "title": "مستند جديد",
     "paperSize": "حجم الورق:",
     "widthMm": "العرض (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "اختيار صورة...",
     "scale": "المقياس:",
     "selectImageFirst": "يرجى اختيار صورة أولاً.",
-    "defaultText": "مسودة"
+    "defaultText": "مسودة",
+    "autoFit": "ملاءمة تلقائية للصفحة",
+    "autoFitHint": "يلائم النص كل صفحة. الحجم المعروض خاص بالصفحة الحالية.",
+    "increaseFontSize": "تكبير حجم الخط",
+    "decreaseFontSize": "تصغير حجم الخط",
+    "textHistory": "النصوص المستخدمة سابقًا",
+    "removeFromHistory": "إزالة من السجل"
   },
   "headerFooter": {
     "addTitle": "إضافة رأس/تذييل",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "اختر المجلد للملفات المقسمة",
     "fileFailed": "تعذرت قراءة {{name}}: {{error}}",
     "applyFailed": "فشل تطبيق تعديلات الصفحات: {{error}}",
-    "extractFailed": "فشل استخراج الصفحات: {{error}}"
+    "extractFailed": "فشل استخراج الصفحات: {{error}}",
+    "blankSetup": "إعداد الصفحة الفارغة",
+    "sameAsAdjacent": "مثل الصفحة المجاورة",
+    "width": "العرض:",
+    "height": "الارتفاع:",
+    "unit": "الوحدة:"
   },
   "accessibilityReport": {
     "title": "فحص إمكانية الوصول",

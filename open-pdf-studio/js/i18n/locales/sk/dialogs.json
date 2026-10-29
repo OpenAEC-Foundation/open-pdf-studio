@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Veľký formát",
+      "detailblad": "List detailov",
+      "voorblad": "Titulný list"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "na výšku",
+      "landscape": "na šírku"
+    },
     "title": "Nový dokument",
     "paperSize": "Veľkosť papiera:",
     "widthMm": "Šírka (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "Vybrať obrázok...",
     "scale": "Mierka:",
     "selectImageFirst": "Prosím, najprv vyberte obrázok.",
-    "defaultText": "NÁVRH"
+    "defaultText": "NÁVRH",
+    "autoFit": "Automaticky prispôsobiť strane",
+    "autoFitHint": "Prispôsobí text každej strane. Zobrazená veľkosť platí pre aktuálnu stranu.",
+    "increaseFontSize": "Zväčšiť veľkosť písma",
+    "decreaseFontSize": "Zmenšiť veľkosť písma",
+    "textHistory": "Predtým použité texty",
+    "removeFromHistory": "Odstrániť z histórie"
   },
   "headerFooter": {
     "addTitle": "Pridať hlavičku/pätu",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "Vyberte priečinok pre rozdelené súbory",
     "fileFailed": "{{name}} sa nepodarilo prečítať: {{error}}",
     "applyFailed": "Úpravy strán sa nepodarilo použiť: {{error}}",
-    "extractFailed": "Strany sa nepodarilo extrahovať: {{error}}"
+    "extractFailed": "Strany sa nepodarilo extrahovať: {{error}}",
+    "blankSetup": "Nastavenie prázdnej strany",
+    "sameAsAdjacent": "Rovnako ako susedná strana",
+    "width": "Šírka:",
+    "height": "Výška:",
+    "unit": "Jednotka:"
   },
   "accessibilityReport": {
     "title": "Kontrola prístupnosti",

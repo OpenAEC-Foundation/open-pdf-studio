@@ -913,14 +913,26 @@ async function kopieerBronPaginas(destDoc, entries, sources) {
   return kopie;
 }
 
-// Size of a blank entry: that of the nearest document page next to it, the
-// same way up as that page shows after the edit (blankSizeFor), else A4.
-function blankSize(plan, index, oldPages, doc) {
-  const buur = blankSizeNeighbour(plan.entries, index);
+// The box a page shows: its CropBox within its MediaBox (as pdf.js measures
+// a page, so the same size the rest of the app works with).
+function effectiveSize(page) {
+  const span = (r) => ({ x1: Math.min(r.x, r.x + r.width), y1: Math.min(r.y, r.y + r.height), x2: Math.max(r.x, r.x + r.width), y2: Math.max(r.y, r.y + r.height) });
+  const m = span(page.getMediaBox());
+  const c = span(page.getCropBox());
+  const x1 = Math.max(m.x1, c.x1), y1 = Math.max(m.y1, c.y1);
+  const x2 = Math.min(m.x2, c.x2), y2 = Math.min(m.y2, c.y2);
+  return x2 > x1 && y2 > y1 ? { width: x2 - x1, height: y2 - y1 } : { width: m.x2 - m.x1, height: m.y2 - m.y1 };
+}
+
+// Size of a blank entry: the size the organizer gave it (#846, exactly);
+// without one that of the nearest document page next to it, the same way up
+// as that page shows after the edit (blankSizeFor), else A4.
+function blankSize(plan, entry, oldPages, doc) {
+  if (entry.width > 0 && entry.height > 0) return { width: entry.width, height: entry.height };
+  const buur = blankSizeNeighbour(plan.entries, plan.entries.indexOf(entry));
   if (!buur) return { ...A4 };
   const page = oldPages[buur.page - 1];
-  const { width, height } = page.getSize();
-  return blankSizeFor({ width, height }, page.getRotation().angle + (doc.pageRotations?.[buur.page] || 0) + buur.rotation);
+  return blankSizeFor(effectiveSize(page), page.getRotation().angle + (doc.pageRotations?.[buur.page] || 0) + buur.rotation);
 }
 
 /**
@@ -973,7 +985,7 @@ export async function applyPageEdits(plan, { sources = {} } = {}) {
     const nieuw = [];
     for (const e of added) {
       const page = e.kind === 'blank'
-        ? pdfDoc.addPage((({ width, height }) => [width, height])(blankSize(plan, plan.entries.indexOf(e), oldPages, doc)))
+        ? pdfDoc.addPage((({ width, height }) => [width, height])(blankSize(plan, e, oldPages, doc)))
         : pdfDoc.addPage(kopie.get(e.key));
       const r = normRotation(e.rotation);
       if (r) page.setRotation(degrees(normRotation(page.getRotation().angle + r)));
@@ -1079,7 +1091,7 @@ export async function extractPlannedPages(plan, keys, { sources = {}, savePath =
         page = out.addPage(vanBron.get(e.key));
         basis = page.getRotation().angle;
       } else {
-        const { width, height } = blankSize(plan, plan.entries.indexOf(e), oldPages, doc);
+        const { width, height } = blankSize(plan, e, oldPages, doc);
         page = out.addPage([width, height]);
       }
       page.setRotation(degrees(normRotation(basis + e.rotation)));

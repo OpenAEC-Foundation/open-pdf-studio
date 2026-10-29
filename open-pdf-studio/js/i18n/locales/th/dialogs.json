@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "รูปแบบขนาดใหญ่",
+      "detailblad": "แผ่นรายละเอียด",
+      "voorblad": "แผ่นปก"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "แนวตั้ง",
+      "landscape": "แนวนอน"
+    },
     "title": "เอกสารใหม่",
     "paperSize": "ขนาดกระดาษ:",
     "widthMm": "ความกว้าง (mm):",
@@ -350,7 +360,13 @@
     "chooseImage": "เลือกรูปภาพ...",
     "scale": "มาตราส่วน:",
     "selectImageFirst": "กรุณาเลือกรูปภาพก่อน",
-    "defaultText": "ฉบับร่าง"
+    "defaultText": "ฉบับร่าง",
+    "autoFit": "ปรับให้พอดีกับหน้าอัตโนมัติ",
+    "autoFitHint": "ปรับข้อความให้พอดีกับแต่ละหน้า ขนาดที่แสดงเป็นของหน้าปัจจุบัน",
+    "increaseFontSize": "เพิ่มขนาดฟอนต์",
+    "decreaseFontSize": "ลดขนาดฟอนต์",
+    "textHistory": "ข้อความที่เคยใช้",
+    "removeFromHistory": "ลบออกจากประวัติ"
   },
   "headerFooter": {
     "addTitle": "เพิ่มหัวกระดาษ/ท้ายกระดาษ",
@@ -1627,7 +1643,12 @@
     "chooseFolder": "เลือกโฟลเดอร์สำหรับไฟล์ที่แบ่ง",
     "fileFailed": "ไม่สามารถอ่าน {{name}}: {{error}}",
     "applyFailed": "นำการแก้ไขหน้าไปใช้ไม่สำเร็จ: {{error}}",
-    "extractFailed": "แยกหน้าไม่สำเร็จ: {{error}}"
+    "extractFailed": "แยกหน้าไม่สำเร็จ: {{error}}",
+    "blankSetup": "ตั้งค่าหน้าว่าง",
+    "sameAsAdjacent": "เหมือนหน้าที่อยู่ติดกัน",
+    "width": "ความกว้าง:",
+    "height": "ความสูง:",
+    "unit": "หน่วย:"
   },
   "accessibilityReport": {
     "title": "การตรวจสอบการเข้าถึง",

@@ -21,6 +21,7 @@ const app = await import('../core/keybindings/app-shortcuts.js');
 const { extensieOpdrachten } = await import('../plugins/extension-commands.js');
 const { isTextEntryTarget } = await import('../ui/chrome/tab-sneltoets.js');
 const pagina = await import('../pdf/pagina-sneltoets.js');
+const split = await import('../pdf/split-view/split-sneltoets.js');
 
 const log = [];
 const ann = { id: 'a1', type: 'box', page: 1, x: 100, y: 100, width: 50, height: 20 };
@@ -89,6 +90,11 @@ globalThis.__khStubs = {
   paginaSprongDoel: pagina.paginaSprongDoel,
   maakPaginaBladeraar: ({ blader }) => ({ vraag: (richting) => { blader(richting); return true; } }),
   goToPage: noteer('goToPage'),
+  // Split view (#858): the real key logic, the command itself logged.
+  splitToetsOpdracht: split.splitToetsOpdracht,
+  splitToetsGeblokkeerd: split.splitToetsGeblokkeerd,
+  isSplitOpdracht: split.isSplitOpdracht,
+  voerSplitOpdrachtUit: noteer('voerSplitOpdrachtUit'),
   // The registry: the real one.
   sneltoetsActief: app.sneltoetsActief,
   eigenSneltoetsVoor: app.eigenSneltoetsVoor,
@@ -205,9 +211,15 @@ const OUDE_STANDAARDEN = [
   ['help.shortcuts', 'F1', () => toets('F1', 'F1'), ['openDialog shortcuts']],
 ];
 
-test('the registry has exactly the old default keys, each for its old command', () => {
+// Keys added later, each with the issue that added it.
+const NIEUWE_STANDAARDEN = [
+  ['view.splitVertical', 'Ctrl+\\', () => ctrl('\\', 'Backslash'), ['voerSplitOpdrachtUit view.splitVertical']], // #858
+  ['view.splitHorizontal', 'Ctrl+Shift+\\', () => ctrl('|', 'Backslash', { shift: true }), ['voerSplitOpdrachtUit view.splitHorizontal']], // #858
+];
+
+test('the registry has exactly the old default keys (and the later ones), each for its own command', () => {
   begin();
-  const oud = OUDE_STANDAARDEN.map(([id, combo]) => `${id} ${combo}`).sort();
+  const oud = [...OUDE_STANDAARDEN, ...NIEUWE_STANDAARDEN].map(([id, combo]) => `${id} ${combo}`).sort();
   const nu = app.sneltoetsen.commands().flatMap((c) => c.defaults.map((combo) => `${c.id} ${combo}`)).sort();
   assert.deepEqual(nu, oud);
   for (const [id, combo] of OUDE_STANDAARDEN) {
@@ -217,7 +229,7 @@ test('the registry has exactly the old default keys, each for its old command', 
 });
 
 test('every old key still does what it did', async () => {
-  for (const [id, combo, maakToets, verwacht] of OUDE_STANDAARDEN) {
+  for (const [id, combo, maakToets, verwacht] of [...OUDE_STANDAARDEN, ...NIEUWE_STANDAARDEN]) {
     if (!maakToets) continue;
     begin();
     assert.deepEqual(await druk(maakToets(), verwacht.length), verwacht, `${combo} (${id})`);
@@ -364,4 +376,30 @@ test('Cmd on macOS works like Ctrl, for the built-in and for new keys', async ()
   begin({ 'view.fitPage': ['Ctrl+2', 'Ctrl+K'] });
   assert.deepEqual(await druk(toets('s', 'KeyS', { meta: true })), ['savePDF']);
   assert.deepEqual(await druk(toets('k', 'KeyK', { meta: true })), ['fitPage']);
+});
+
+test('split view keys (#858): not while typing or in a dialog; removable; Larger/Smaller on a key of your own', async () => {
+  begin();
+  const veld = (tagName, extra = {}) => ({ tagName, id: 'x', isContentEditable: false, closest: () => null, ...extra });
+  assert.deepEqual(await druk(ctrl('\\', 'Backslash', { target: invoer })), [], 'text box');
+  assert.deepEqual(await druk(ctrl('\\', 'Backslash', { target: veld('TEXTAREA') })), [], 'text area');
+  assert.deepEqual(await druk(ctrl('\\', 'Backslash', { target: veld('SELECT') })), [], 'form list');
+  assert.deepEqual(await druk(ctrl('\\', 'Backslash', { target: veld('DIV', { isContentEditable: true }) })), [], 'contenteditable');
+  assert.deepEqual(await druk(ctrl('\\', 'Backslash', { target: veld('BUTTON', { closest: (sel) => (sel.includes('[role="dialog"]') ? {} : null) }) })), [], 'in a dialog');
+  modaal = true;
+  assert.deepEqual(await druk(ctrl('\\', 'Backslash')), [], 'a modal dialog is open');
+  modaal = false;
+  assert.deepEqual(await druk(ctrl('\\', 'Backslash'), 1), ['voerSplitOpdrachtUit view.splitVertical']);
+
+  begin({ 'view.splitVertical': [] });
+  assert.deepEqual(await druk(ctrl('\\', 'Backslash')), [], 'removed default');
+  begin({ 'view.splitPaneLarger': ['Ctrl+Alt+]'], 'view.splitPaneSmaller': ['Ctrl+Alt+['], 'view.unsplit': ['Ctrl+Alt+U'] });
+  assert.deepEqual(await druk(ctrl(']', 'BracketRight', { alt: true }), 1), ['voerSplitOpdrachtUit view.splitPaneLarger']);
+  assert.deepEqual(await druk(ctrl('[', 'BracketLeft', { alt: true }), 1), ['voerSplitOpdrachtUit view.splitPaneSmaller']);
+  assert.deepEqual(await druk(ctrl('u', 'KeyU', { alt: true }), 1), ['voerSplitOpdrachtUit view.unsplit']);
+  assert.deepEqual(await druk(ctrl(']', 'BracketRight', { alt: true, target: invoer })), [], 'not while typing');
+  modaal = true;
+  assert.deepEqual(await druk(ctrl(']', 'BracketRight', { alt: true })), [], 'not in a dialog');
+  modaal = false;
+  begin();
 });

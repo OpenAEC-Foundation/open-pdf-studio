@@ -180,6 +180,7 @@
     "navigation": "नेविगेशन",
     "wheelZoomWithoutCtrl": "माउस व्हील से ज़ूम करें (Ctrl दबाए बिना)",
     "middleDoubleClickFit": "पृष्ठ फ़िट करने के लिए माउस के बीच वाले बटन से डबल-क्लिक करें",
+    "ribbonWheelSwitchesTabs": "माउस व्हील से रिबन टैब बदलें",
     "dynamicScaling": "मार्कअप स्वतः स्केल करें"
   },
   "fileAssoc": {
@@ -244,6 +245,9 @@
     "pageSharpenLevel3": "तीव्र",
     "pageSharpenLevel4": "अधिकतम",
     "showScrollbars": "कैनवास स्क्रॉलबार दिखाएं",
+    "backgroundColor": "पृष्ठभूमि का रंग",
+    "backgroundColorDefault": "डिफ़ॉल्ट",
+    "backgroundColorHint": "पृष्ठों के आसपास और बीच के क्षेत्र का रंग। पृष्ठ स्वयं, मुद्रण और निर्यात नहीं बदलते।",
     "panels": "पैनल",
     "showPropertiesPanel": "डिफ़ॉल्ट रूप से गुण पैनल दिखाएं",
     "showToolPalette": "डिफ़ॉल्ट रूप से टूल पैलेट दिखाएं",
@@ -348,7 +352,9 @@
       "other": "अन्य"
     },
     "commands": {
-      "findNext": "अगला खोजें"
+      "findNext": "अगला खोजें",
+      "splitPaneLarger": "सक्रिय फलक बड़ा करें",
+      "splitPaneSmaller": "सक्रिय फलक छोटा करें"
     }
   }
 }

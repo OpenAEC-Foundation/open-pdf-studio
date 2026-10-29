@@ -39,7 +39,7 @@ const DIRS = !RECOMPARE && process.argv.length > 3 ? process.argv.slice(3) : DEF
 fs.mkdirSync(OUT, { recursive: true });
 
 // Zware bestanden: één keer voorverwarmen en ruimere wachttijden hanteren.
-const HEAVY = /MV-03|Barn Relocation|Zware vector|5491|2885/i;
+const HEAVY = /MV-03|Barn Relocation|Zware vector|5491|2885|2196-CB-21/i;
 // Vlagregels (zie kalibratie-toelichting in mupdf_compare_helper.py):
 // - occ_miss >= 3        : inhoud aanwezig in referentie maar leeg in de app
 // - occ_match < 0.85     : totale cel-overeenkomst (miss+extra) te laag

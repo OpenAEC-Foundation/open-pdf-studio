@@ -206,6 +206,12 @@ export default function BehaviorTab(props) {
             <span>{t('behavior.middleDoubleClickFit')}</span>
           </label>
         </div>
+        <div class="pref-row pref-checkbox-row">
+          <label class="pref-checkbox-label">
+            <input type="checkbox" id="pref-ribbon-wheel-tabs" checked={p.ribbonWheelSwitchesTabs[0]()} onChange={e => p.ribbonWheelSwitchesTabs[1](e.target.checked)} />
+            <span>{t('behavior.ribbonWheelSwitchesTabs')}</span>
+          </label>
+        </div>
       </fieldset>
     </>
   );
