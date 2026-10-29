@@ -3,6 +3,8 @@ import { useTranslation, localizeNumber } from '../../../i18n/useTranslation.js'
 import { openDialog } from '../../stores/dialogStore.js';
 import { kalibratieVoor, zetKalibratie, wisKalibratie } from '../../../pdf/schermkalibratie.js';
 import PrefSelect from './PrefSelect.jsx';
+import PrefColorPicker from './PrefColorPicker.jsx';
+import { STANDAARD_ACHTERGROND, normaliseerAchtergrond } from '../../../pdf/pagina-achtergrond.js';
 
 // Page sharpening levels 0-4 (render-sharpen.js), written out so every key
 // used here is findable in the locale files.
@@ -65,6 +67,17 @@ export default function PageDisplayTab(props) {
             setValue={p.pageSharpen[1]}
             options={SHARPEN_LEVELS.map((key, v) => ({ value: v, label: t(key) }))}
           />
+        </div>
+        {/* Background color around and between the pages (#859). */}
+        <div class="pref-row">
+          <label>{t('pageDisplay.backgroundColor')}</label>
+          <span class="pref-inline-buttons" id="pref-page-background">
+            <PrefColorPicker value={() => p.pageBackgroundColor[0]() || STANDAARD_ACHTERGROND} setValue={(v) => p.pageBackgroundColor[1](normaliseerAchtergrond(v))} />
+            <button class="pref-btn pref-btn-secondary" id="pref-page-background-default" disabled={!p.pageBackgroundColor[0]()} onClick={() => p.pageBackgroundColor[1]('')}>{t('pageDisplay.backgroundColorDefault')}</button>
+          </span>
+        </div>
+        <div class="pref-row">
+          <span class="pref-hint">{t('pageDisplay.backgroundColorHint')}</span>
         </div>
       </fieldset>
       <fieldset class="pref-fieldset">

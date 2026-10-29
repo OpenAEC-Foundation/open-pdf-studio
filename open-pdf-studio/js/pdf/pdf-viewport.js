@@ -29,6 +29,7 @@ import {
   viewportZichtbaar,
 } from './weergave-rotatie.js';
 import { maakWeergaveStand, weergaveGeheugen, wisselWeergave } from './weergave-per-document.js';
+import { achtergrondKleur } from './pagina-achtergrond.js';
 
 // ─── Viewport State (singleton via window to survive HMR/dynamic imports) ───
 if (!window.__pdfViewport) {
@@ -859,7 +860,7 @@ function _tekenViewport() {
   // render fires once when the debounce timer releases.
   if (_zoomFreezeBitmap) {
     _ctx.setTransform(1, 0, 0, 1, 0, 0);
-    _ctx.fillStyle = '#e0e0e0';
+    _ctx.fillStyle = achtergrondKleur();
     _ctx.fillRect(0, 0, _canvas.width, _canvas.height);
     // The snapshot was captured at (_zoomFreezeZoom, _zoomFreezeOffsetX/Y).
     // For a world point W, its snapshot-pixel was:
@@ -908,7 +909,7 @@ function _tekenViewport() {
   _ctx.clearRect(0, 0, _canvas.width, _canvas.height);
 
   // Background (outside page area)
-  _ctx.fillStyle = '#e0e0e0';
+  _ctx.fillStyle = achtergrondKleur();
   _ctx.fillRect(0, 0, _canvas.width, _canvas.height);
 
   // Maten en transform van de pagina. Paginaruimte = na de eigen /Rotate en

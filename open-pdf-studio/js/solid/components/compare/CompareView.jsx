@@ -812,7 +812,7 @@ export default function CompareView() {
     <Show when={compareActive()}>
       <div
         class="compare-view"
-        style={`position:absolute; inset:0; display:${compareFocused() ? 'flex' : 'none'}; flex-direction:column; background:#2a2a2a;`}
+        style={`position:absolute; inset:0; display:${compareFocused() ? 'flex' : 'none'}; flex-direction:column; background:var(--page-area-bg, #2a2a2a);`}
         onWheel={handleWheel}
       >
         <div

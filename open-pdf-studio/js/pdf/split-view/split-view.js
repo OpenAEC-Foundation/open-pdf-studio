@@ -34,8 +34,7 @@ import { thinLinesOn } from '../thin-lines.js';
 import { compareFocused } from '../../compare/compare-store.js';
 import { WEERGAVE_GEDRAAID } from '../weergave-draaien.js';
 import { splitOpdrachtActie } from './split-sneltoets.js';
-
-const ACHTERGROND = '#e0e0e0';
+import { achtergrondKleur, eigenAchtergrond, ACHTERGROND_GEWIJZIGD } from '../pagina-achtergrond.js';
 
 // doc.id → staat (split-staat.js). Bewust buiten de reactieve store: een
 // stand bevat canvassen en bitmaps. Wat de interface nodig heeft staat op
@@ -260,6 +259,8 @@ export function initSplitView() {
   volgViewport(() => { if (_zichtbaar && !_tekenBezig) syncVanLive(); });
   if (typeof window !== 'undefined') {
     window.addEventListener(WEERGAVE_GEDRAAID, () => planTekenen());
+    // Een andere achtergrondkleur rond de pagina (#859).
+    window.addEventListener(ACHTERGROND_GEWIJZIGD, () => planTekenen());
   }
 
   if (typeof ResizeObserver !== 'undefined') {
@@ -332,7 +333,7 @@ function leesLiveStand(doc, { metBeeld = false } = {}) {
     vp: null,
     layout: null,
     bevroren: null,
-    achtergrond: ACHTERGROND,
+    achtergrond: achtergrondKleur(),
   };
   if (liveViewportToont(doc)) {
     const ankers = leesAnkers();
@@ -418,7 +419,7 @@ function neemBeeldOp(c, stand, doc) {
     doek.width = W;
     doek.height = H;
     const ctx = doek.getContext('2d');
-    ctx.fillStyle = stand.achtergrond || ACHTERGROND;
+    ctx.fillStyle = paneelAchtergrond(stand);
     ctx.fillRect(0, 0, W, H);
     const cr = c.getBoundingClientRect();
     const tekenEl = (el, wit) => {
@@ -958,6 +959,14 @@ function paginaBeelden(doc, plaatsingen, W, H, dpr) {
   return paneelPdfjsBeelden(doc, plaatsingen, { dpr, W, H, opKlaar: planTekenen });
 }
 
+// De kleur rond de pagina's in het tweede paneel: de eigen kleur van de
+// gebruiker (#859), anders wat de viewer toonde toen het paneel zijn stand
+// kreeg (het lichtgrijs van het viewportcanvas, of het thema rond doorlopende
+// pagina's).
+function paneelAchtergrond(s) {
+  return eigenAchtergrond() || (s?.vp ? achtergrondKleur() : (s?.achtergrond || achtergrondKleur()));
+}
+
 function tekenPaginaLaag(doc, s, plaatsingen, doek, W, H, dpr) {
   const ctx = doek.getContext('2d');
   ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -971,7 +980,7 @@ function tekenPaginaLaag(doc, s, plaatsingen, doek, W, H, dpr) {
     ctx.drawImage(s.bevroren.beeld, 0, 0, doek.width, doek.height);
     return;
   }
-  ctx.fillStyle = s.vp ? ACHTERGROND : (s.achtergrond || ACHTERGROND);
+  ctx.fillStyle = paneelAchtergrond(s);
   ctx.fillRect(0, 0, doek.width, doek.height);
   plaatsingen.forEach((p, i) => {
     const m = vermenigvuldig([p.z, 0, 0, p.z, p.tx, p.ty], p.weergave || [1, 0, 0, 1, 0, 0]);

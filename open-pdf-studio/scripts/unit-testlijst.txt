@@ -607,6 +607,7 @@ js/pdf/page-bitmap-cache-getoond.test.mjs
 js/pdf/split-view/paneel-bitmaps.test.mjs
 js/pdf/split-view/paneel-weergave.test.mjs
 js/pdf/split-view/split-sneltoets.test.mjs
+js/pdf/pagina-achtergrond.test.mjs
 js/pdf/pdf-viewport-gesloten-bitmap.test.mjs
 js/annotations/tool-sets.test.mjs
 js/annotations/tool-sets-wiring.test.mjs

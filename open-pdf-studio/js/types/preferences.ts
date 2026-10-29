@@ -246,6 +246,8 @@ export interface Preferences {
   readAloudRate: number;
   readAloudAllowOnline: boolean;
   showScrollbars: boolean;
+  // '' = default, or '#rrggbb' (#859).
+  pageBackgroundColor: string;
   progressiveRender: boolean;
   screenCalibration: Record<string, number>;
   zoomDpi: number;

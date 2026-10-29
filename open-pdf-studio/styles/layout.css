@@ -743,6 +743,13 @@
   overflow-anchor: none;
 }
 
+/* Achtergrondkleur rond en tussen de pagina's (#859): zonder eigen kleur
+   doorzichtig (het thema van .content, zoals altijd); het canvas van de
+   enkele-paginaweergave vult zelf met dezelfde kleur. */
+.main-view #pdf-container.visible {
+  background: var(--page-area-bg, transparent);
+}
+
 /* Gesplitste weergave (#715). #pdf-container staat in #split-host. Zonder
    splitsing is die `display: contents`: voor de lay-out staat #pdf-container
    dan gewoon in .main-view, zoals altijd. Met splitsing is #split-host een
@@ -786,7 +793,8 @@
   min-height: 0;
   position: relative;
   overflow: hidden;
-  background: #e0e0e0;
+  /* Achtergrondkleur rond de pagina (#859); het canvas vult hem ook. */
+  background: var(--page-area-bg, #e0e0e0);
   user-select: none;
   touch-action: none;
 }
