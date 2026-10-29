@@ -250,8 +250,9 @@ export function ocrSignature(results) {
  * layer. Invalid and unencodable unreviewed words are skipped; a reviewed
  * word the font cannot encode fails the save (OCR_REVIEW_TEXT_NOT_ENCODABLE).
  * `strictReviews: false` (crash-recovery snapshot) never fails over OCR.
+ * `annulering` (saver/opslag-annuleren.js): checked before every page.
  */
-export async function writeOcrLayers(pdfDocLib, pages, doc, { loadFontBytes = loadDefaultOcrFontBytes, strictReviews = true } = {}) {
+export async function writeOcrLayers(pdfDocLib, pages, doc, { loadFontBytes = loadDefaultOcrFontBytes, strictReviews = true, annulering = null } = {}) {
   const results = doc?.ocrResults;
   if (!results || !Object.keys(results).length) return null;
   const hasWords = Object.values(results).some((words) => Array.isArray(words) && words.length > 0);
@@ -269,6 +270,8 @@ export async function writeOcrLayers(pdfDocLib, pages, doc, { loadFontBytes = lo
   }
   const layerPages = new Set(Array.isArray(doc.ocrLayerPages) ? doc.ocrLayerPages : []);
   for (const [pageNumStr, words] of Object.entries(results)) {
+    // Een save kan per pagina geannuleerd worden (#766, saver/opslag-annuleren.js).
+    if (annulering) await annulering.punt();
     const pageNum = parseInt(pageNumStr, 10);
     const page = pages[pageNum - 1];
     if (!page) continue;

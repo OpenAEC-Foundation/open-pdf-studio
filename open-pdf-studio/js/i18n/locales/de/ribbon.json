@@ -678,6 +678,7 @@
     "saveNote": "Notizen und andere Markierungen ohne Darstellung auf der Seite bleiben Markierungen. Die Datei ändert sich erst beim Speichern; bis dahin macht Rückgängig diesen Schritt rückgängig.",
     "ok": "Reduzieren",
     "busy": "Markierungen werden reduziert...",
+    "cancelled": "Reduzieren abgebrochen. Das Dokument wurde nicht geändert.",
     "nothing": "Dieses Dokument enthält keine Markierungen zum Reduzieren.",
     "nothingBaked": "Keine der Markierungen hat eine Darstellung auf der Seite; es wurde nichts reduziert.",
     "notLoaded": "Die Markierungen dieses Dokuments werden noch geladen. Versuchen Sie es gleich noch einmal.",

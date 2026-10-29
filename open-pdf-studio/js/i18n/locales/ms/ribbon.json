@@ -678,6 +678,7 @@
     "saveNote": "Nota dan penanda lain tanpa rupa pada halaman kekal sebagai penanda. Fail hanya berubah apabila anda menyimpan; sehingga itu Buat asal membatalkan langkah ini.",
     "ok": "Ratakan",
     "busy": "Meratakan penanda...",
+    "cancelled": "Pemerataan dibatalkan. Dokumen tidak diubah.",
     "nothing": "Dokumen ini tiada penanda untuk diratakan.",
     "nothingBaked": "Tiada penanda yang mempunyai rupa pada halaman, jadi tiada apa yang diratakan.",
     "notLoaded": "Penanda dokumen ini masih dimuatkan. Cuba lagi sebentar nanti.",

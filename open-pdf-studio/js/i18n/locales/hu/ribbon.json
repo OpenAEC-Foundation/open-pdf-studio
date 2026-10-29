@@ -678,6 +678,7 @@
     "saveNote": "A jegyzetek és más, az oldalon megjelenés nélküli jelölések jelölések maradnak. A fájl csak mentéskor változik; addig a Visszavonás visszaállítja ezt a lépést.",
     "ok": "Lapítás",
     "busy": "Jelölések lapítása...",
+    "cancelled": "Az egyesítés megszakítva. A dokumentum nem változott.",
     "nothing": "Ebben a dokumentumban nincs lapítható jelölés.",
     "nothingBaked": "Egyik jelölésnek sincs megjelenése az oldalon, így semmi sem lett lapítva.",
     "notLoaded": "A dokumentum jelölései még töltődnek. Próbálja újra egy pillanat múlva.",

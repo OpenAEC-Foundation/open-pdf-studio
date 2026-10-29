@@ -526,3 +526,7 @@ js/core/keybindings/io.test.mjs
 js/core/keybindings/dispatch.test.mjs
 js/core/keybindings/ribbon-commands.test.mjs
 js/tools/sneltoetsen-aanpasbaar.test.mjs
+js/pdf/saver/opslag-annuleren.test.mjs
+js/pdf/opslaan-annuleren.test.mjs
+js/pdf/opslaan-annuleren-i18n.test.mjs
+js/ui/chrome/laad-annuleren.test.mjs

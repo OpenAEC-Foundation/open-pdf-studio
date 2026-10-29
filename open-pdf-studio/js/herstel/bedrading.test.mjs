@@ -20,7 +20,10 @@ test('saver: momentopname schrijft niets weg en markeert niets als opgeslagen', 
   const gemarkeerd = s.indexOf('markDocumentSaved(activeDoc);');
   assert.ok(begin < schrijf && begin < gemarkeerd, 'terug vóór het wegschrijven en markeren');
   assert.match(s, /if \(alleenAnnotaties \|\| momentopname\) throw error;/, 'geen melding aan de gebruiker');
-  assert.match(s, /if \(!momentopname\) showLoading/);
+  // Geen voortgangsvenster, dus ook geen Annuleren (#766); nooit te annuleren.
+  assert.match(s, /const eigenVenster = !momentopname && !alleenAnnotaties;/);
+  assert.match(s, /if \(eigenVenster\) toonVoortgang\(\);/);
+  assert.match(s, /const annulering = momentopname \? GEEN_ANNULERING :/);
   assert.match(s, /if \(opslaanGeweigerd\(doc\)\) throw new Error\('password-protected/, 'beveiligd = nooit');
 });
 

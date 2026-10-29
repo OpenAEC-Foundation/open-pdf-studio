@@ -6,15 +6,19 @@ import {
   openAppMenu, setAppMenuPanel as setActivePanel,
   setLoadingVisible as setVisible, setLoadingMessage as setMessage,
   setLoadingProgress as setProgress, setLoadingCancelHandler as setCancelHandler,
+  setLoadingCancelDisabled as setCancelDisabled,
 } from '../../bridge.js';
 import i18next from '../../i18n/config.js';
 
 // Show loading overlay. Met `voortgang` (0..1) een voortgangsbalk, met
-// `annuleren` (functie) een knop Annuleren; zonder opties alleen de cirkel.
-export function showLoading(message = 'Loading...', { voortgang = null, annuleren = null } = {}) {
+// `annuleren` (functie) een knop Annuleren (ook Esc); zonder opties alleen de
+// cirkel. `annulerenUit`: de knop blijft staan maar is uit (voorbij het punt
+// zonder terugkeer, #766).
+export function showLoading(message = 'Loading...', { voortgang = null, annuleren = null, annulerenUit = false } = {}) {
   setMessage(message);
   setProgress(Number.isFinite(voortgang) ? Math.max(0, Math.min(1, voortgang)) : null);
   setCancelHandler(() => (typeof annuleren === 'function' ? annuleren : null));
+  setCancelDisabled(!!annulerenUit);
   setVisible(true);
 }
 
@@ -23,6 +27,7 @@ export function hideLoading() {
   setVisible(false);
   setProgress(null);
   setCancelHandler(() => null);
+  setCancelDisabled(false);
 }
 
 // ============================================

@@ -678,6 +678,7 @@
     "saveNote": "Bilješke i druge oznake bez izgleda na stranici ostaju oznake. Datoteka se mijenja tek pri spremanju; do tada Poništi vraća ovaj korak.",
     "ok": "Spljošti",
     "busy": "Spljoštavanje oznaka...",
+    "cancelled": "Spljoštavanje otkazano. Dokument nije promijenjen.",
     "nothing": "Ovaj dokument nema oznaka za spljoštavanje.",
     "nothingBaked": "Nijedna oznaka nema izgled na stranici, pa ništa nije spljošteno.",
     "notLoaded": "Oznake ovog dokumenta još se učitavaju. Pokušajte ponovno za trenutak.",

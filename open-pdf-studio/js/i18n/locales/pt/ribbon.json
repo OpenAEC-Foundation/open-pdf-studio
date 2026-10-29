@@ -678,6 +678,7 @@
     "saveNote": "Notas e outras marcações sem aparência na página continuam sendo marcações. O arquivo só muda ao salvar; até lá, Desfazer reverte esta etapa.",
     "ok": "Achatar",
     "busy": "Achatando marcações...",
+    "cancelled": "Achatamento cancelado. O documento não foi alterado.",
     "nothing": "Este documento não tem marcações para achatar.",
     "nothingBaked": "Nenhuma das marcações tem aparência na página, por isso nada foi achatado.",
     "notLoaded": "As marcações deste documento ainda estão carregando. Tente novamente em instantes.",

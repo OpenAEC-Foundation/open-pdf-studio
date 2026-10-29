@@ -13,7 +13,8 @@ import { PDFDocument, PDFString, PDFHexString, PDFName, PDFArray, PDFStream, deg
   PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup, PDFOptionList } from 'pdf-lib';
 import { kopNaarLE, koppenSleutel, koppenVan, calloutKoppenNaarBestand } from './lijnkoppen.js';
 import { bouwKnipselAppearance, tekenKnipselInPagina, alInBasis, markeerGebakken, ruimKnipselRestenOp, CATALOGUS_SLEUTEL as KNIPSEL_CATALOGUS } from './saver/vector-snippet.js';
-import { ruimOngebruikteObjectenOp } from './saver/objecten-opruimen.js';
+import { ruimOngebruikteObjectenOpMetPauzes } from './saver/objecten-opruimen.js';
+import { maakOpslagAnnulering, isOpslagGeannuleerd, GEEN_ANNULERING } from './saver/opslag-annuleren.js';
 import { schrijfHatchMeta } from './saver/hatch-meta.js';
 import { schrijfWandJoinMeta } from './saver/wand-join-meta.js';
 import { schrijfPlattegrondMeta } from './saver/plattegrond-meta.js';
@@ -308,7 +309,9 @@ export async function savePDF(saveAsPath = null, opties = {}, activeDoc = getAct
   // en zou de saver die annotaties weglaten. De save begint pas na een lopende
   // wissel, en een nieuwe wissel wacht tot de save klaar is. _saveBezig staat
   // meteen, zodat een tweede save ook tijdens het wachten op de eerste wacht.
-  _saveBezig = metOpslagSlot(() => _savePDFNu(saveAsPath, activeDoc)).finally(() => { _saveBezig = null; });
+  // `opties.annulering` (saver/opslag-annuleren.js): een eigen annulering van
+  // de aanroeper; zonder maakt de save er zelf een voor de knop Annuleren.
+  _saveBezig = metOpslagSlot(() => _savePDFNu(saveAsPath, activeDoc, { annulering: opties.annulering })).finally(() => { _saveBezig = null; });
   const gelukt = await _saveBezig;
   // Opgeslagen: de herstelmomentopname van dit document is niet meer nodig.
   if (gelukt && activeDoc) meldOpgeslagen(activeDoc);
@@ -336,12 +339,14 @@ export async function savePDF(saveAsPath = null, opties = {}, activeDoc = getAct
  * uit het model en zonder iets weg te schrijven (Alles vlakken, #615). De
  * annotaties die deze save schreef, hebben een objectnummer boven
  * `eersteNieuwObject`.
+ * Met `annulering` (saver/opslag-annuleren.js) te stoppen; dan gooit het
+ * OpslagGeannuleerd.
  * @returns {Promise<{pdfDocLib: PDFDocument, eersteNieuwObject: number}>}
  */
-export async function bouwAnnotatieDocument(activeDoc = getActiveDocument()) {
+export async function bouwAnnotatieDocument(activeDoc = getActiveDocument(), { annulering = null } = {}) {
   if (!activeDoc?.pdfDoc) throw new Error('no document');
   if (_saveBezig) await _saveBezig.catch(() => {});
-  return metOpslagSlot(() => _savePDFNu(null, activeDoc, { alleenAnnotaties: true }));
+  return metOpslagSlot(() => _savePDFNu(null, activeDoc, { alleenAnnotaties: true, annulering }));
 }
 
 /**
@@ -367,7 +372,7 @@ export async function bouwMomentopname(doc) {
 /** Objecten per pauze bij een momentopname (gewoon opslaan: 5000, pdf-lib-snelheid.js). */
 const MOMENTOPNAME_OBJECTEN_PER_TIK = 500;
 
-async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, momentopname = false } = {}) {
+async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, momentopname = false, annulering: eigenAnnulering = null } = {}) {
   const currentPath = activeDoc?.filePath;
   const sourcePdf = activeDoc?.pdfDoc;
   const stillCurrent = () => state.documents.includes(activeDoc)
@@ -375,8 +380,23 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
   const changedDuringSave = () => new Error(i18next.t('documentChangedDuringSave', {
     defaultValue: 'The document changed while saving. Save again.',
   }));
+  // Annuleren (#766): de knop in het voortgangsvenster en Esc stoppen de save
+  // op het eerstvolgende veilige punt (saver/opslag-annuleren.js). Een
+  // herstelmomentopname is nooit te annuleren; een annulering van de
+  // gebruiker raakt haar dus niet.
+  const annulering = momentopname ? GEEN_ANNULERING : (eigenAnnulering || maakOpslagAnnulering());
+  const toonVoortgang = () => showLoading(
+    annulering.geannuleerd
+      ? i18next.t('saveCancelling', { defaultValue: 'Cancelling the save…' })
+      : i18next.t('savingPdf', { defaultValue: 'Saving PDF…' }),
+    // Na het punt zonder terugkeer blijft de knop staan, maar uit.
+    { annuleren: () => annulering.annuleer(), annulerenUit: !annulering.kanAnnuleren },
+  );
+  // Alles vlakken (alleenAnnotaties) heeft een eigen voortgangsvenster.
+  const eigenVenster = !momentopname && !alleenAnnotaties;
+  const stopVoortgang = eigenVenster ? annulering.opWijziging(toonVoortgang) : null;
   try {
-    if (!momentopname) showLoading('Saving PDF...');
+    if (eigenVenster) toonVoortgang();
 
     // Get original PDF bytes (from cache or disk, with memory key fallback for untitled docs)
     let existingPdfBytes = getCachedPdfBytes(currentPath);
@@ -386,12 +406,12 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       }
     }
     if (!existingPdfBytes) {
-      existingPdfBytes = await readBinaryFile(currentPath);
+      existingPdfBytes = await annulering.wacht(readBinaryFile(currentPath));
     }
 
     const pdfDocLib = momentopname
       ? await PDFDocument.load(existingPdfBytes, { parseSpeed: MOMENTOPNAME_OBJECTEN_PER_TIK })
-      : await PDFDocument.load(existingPdfBytes);
+      : await annulering.wacht(PDFDocument.load(existingPdfBytes));
     // Een voorbeeld van het importvenster kan inhoud missen en wordt nooit
     // als document opgeslagen (#400).
     {
@@ -453,6 +473,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
       // Momentopname: de bediening krijgt na elke pagina even ruimte.
       if (momentopname) await new Promise((r) => setTimeout(r, 0));
+      // Veilig punt per pagina (#766).
+      await annulering.punt();
       const pageNum = pageIndex + 1;
       const page = pages[pageIndex];
 
@@ -558,6 +580,9 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
 
       // Add our annotations
       for (const annRaw of pageAnnotations) {
+        // Veilig punt per annotatie; de event-loop krijgt alleen na een
+        // partij rekenwerk ruimte (saver/opslag-annuleren.js).
+        await annulering.punt();
         // On rotated pages, remap visual coords into the unrotated page frame
         // so the convert helpers below produce correct PDF coordinates. rot 0
         // returns the annotation unchanged (non-rotated pages untouched).
@@ -3154,7 +3179,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     let ocrUitkomst = null;
     if (!alleenAnnotaties) {
       // Burn text edits into the PDF (cover-and-replace)
-      await saveTextEditsToPages(pdfDocLib, pages, activeDoc);
+      await annulering.punt();
+      await saveTextEditsToPages(pdfDocLib, pages, activeDoc, { annulering });
 
       // Write out any OCR results as an invisible searchable text layer.
       // Zonder lettertype (bestand ontbreekt) geen tekstlaag, maar wel een
@@ -3163,11 +3189,13 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       // overgeslagen. Een nagekeken woord dat niet in de laag kan, of
       // nagekeken woorden zonder lettertype, weigeren de opslag (#657); een
       // herstelmomentopname laat zo'n woord weg in plaats van te mislukken.
-      ocrUitkomst = await writeOcrLayers(pdfDocLib, pages, activeDoc, { strictReviews: !momentopname });
+      await annulering.punt();
+      ocrUitkomst = await writeOcrLayers(pdfDocLib, pages, activeDoc, { strictReviews: !momentopname, annulering });
 
       // Burn watermarks into the PDF. Kop-/voetteksten vervangen die van een
       // eerdere save (#375); de uitkomst zegt welke er nu in het bestand staan.
-      watermerkUitkomst = await saveWatermarksToPages(pdfDocLib, pages, activeDoc);
+      await annulering.punt();
+      watermerkUitkomst = await saveWatermarksToPages(pdfDocLib, pages, activeDoc, { annulering });
 
       // Save bookmarks to PDF outline
       saveBookmarksToOutline(pdfDocLib, activeDoc);
@@ -3182,6 +3210,7 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       // Bijlagen die in het paneel zijn toegevoegd of verwijderd (bijlagen.js).
       pasBijlagenToe(pdfDocLib, activeDoc.bijlagenWijzigingen);
     }
+    await annulering.punt();
 
     // Vectorknipsels: opruimen wat de vorige stempels en het inbedden achter-
     // lieten, anders groeit het bestand per save met de hele bronpagina. Eerst
@@ -3192,10 +3221,11 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       || !!pdfDocLib.catalog.get(PDFName.of(KNIPSEL_CATALOGUS));
     if (heeftKnipsels) {
       try {
-        await pdfDocLib.flush();
+        await annulering.wacht(pdfDocLib.flush());
         const r = ruimKnipselRestenOp(pdfDocLib, oudeKnipselStempels, { nieuwVanaf: eersteNieuwObject });
         if (r.verwijderd) console.log(`[saver] knipsel-resten opgeruimd: ${r.verwijderd} objecten, bronnen weg: ${r.bronnenWeg.length}`);
       } catch (err) {
+        if (isOpslagGeannuleerd(err)) throw err;
         console.warn('[saver] knipsel-resten opruimen overgeslagen:', err?.message || err);
       }
     }
@@ -3209,37 +3239,53 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     // nummers: anders groeit het bestand bij elke save (saver/objecten-
     // opruimen.js). Eerst alles laten aanmaken wat pdf-lib anders pas bij
     // save() aanmaakt.
+    await annulering.punt();
     pdfDocLib.formCache.getValue()?.updateFieldAppearances();
-    await pdfDocLib.flush();
-    ruimOngebruikteObjectenOp(pdfDocLib, { nieuwVanaf: eersteNieuwObject });
+    await annulering.wacht(pdfDocLib.flush());
+    // Per partij objecten een veilig punt (#766).
+    await ruimOngebruikteObjectenOpMetPauzes(pdfDocLib, { nieuwVanaf: eersteNieuwObject, annulering });
 
     // Herstelmomentopname: alleen de bytes; niets wegschrijven of bijwerken.
     if (momentopname) {
       return new Uint8Array(await pdfDocLib.save({ objectsPerTick: MOMENTOPNAME_OBJECTEN_PER_TIK }));
     }
 
-    // Save the PDF
-    const pdfBytes = await pdfDocLib.save({ updateFieldAppearances: false });
+    // Save the PDF. pdf-lib serialiseert in partijen en laat zich niet
+    // onderbreken: bij annuleren stopt de save meteen en wordt de uitkomst
+    // van pdf-lib genegeerd.
+    const pdfBytes = await annulering.wacht(pdfDocLib.save({ updateFieldAppearances: false }));
     const outputPath = saveAsPath || activeDoc?.saveTargetPath || currentPath;
     const savedBytes = new Uint8Array(pdfBytes);
     // Structural edits replace the PDF and often move its working path. A
     // serialization started before that replacement must not write old bytes.
     if (!stillCurrent()) throw changedDuringSave();
 
+    // Laatste veilig punt vóór het schrijven.
+    annulering.controleer();
     // Temporarily release lock so we can write, then re-lock
     await unlockFile(outputPath);
     try {
       if (!stillCurrent()) throw changedDuringSave();
-      await writeBinaryFileAtomic(outputPath, savedBytes);
+      // Het schrijven zelf is nog te annuleren tot het tijdelijke bestand over
+      // het doel gaat (core/platform.js, src-tauri/src/atomic_file.rs); bij
+      // annuleren verdwijnt het tijdelijke bestand en blijft het doel zoals
+      // het was. Kan de schrijver niet annuleren, dan legt hij de annulering
+      // vóór het schrijven vast.
+      await writeBinaryFileAtomic(outputPath, savedBytes, { annulering });
     } catch (writeErr) {
       // Re-lock before reporting error
       await lockFile(outputPath);
+      if (isOpslagGeannuleerd(writeErr)) throw writeErr;
       const msg = writeErr?.message || String(writeErr);
       if (msg.includes('denied') || msg.includes('locked') || msg.includes('sharing') || msg.includes('used by another')) {
         throw new Error(i18next.t('fileLocked', { defaultValue: 'The file is being used by another application. Please close it and try again.' }));
       }
       throw writeErr;
     }
+    // Het doel is vervangen: vanaf hier niet meer te annuleren. Een annulering
+    // die tijdens het schrijven binnenkwam, was te laat; de save gaat gewoon
+    // door en meldt dat (geen terugdraaien).
+    annulering.vastleggen({ naSchrijven: true });
     await lockFile(outputPath);
 
     // Invalidate the Rust-side PDF bytes cache so next render reads the updated file
@@ -3358,9 +3404,22 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
       }
     }
 
+    if (annulering.teLaat) {
+      updateStatusMessage(i18next.t('saveCancelTooLate', { defaultValue: 'The file had already been saved; it was too late to cancel.' }));
+    }
     return true;
   } catch (error) {
     if (alleenAnnotaties || momentopname) throw error;
+    // Geannuleerd (#766): het bestand is niet aangeraakt en het document blijft
+    // gewijzigd; geen bytes-cache, geen opgeslagen-markering. De voorlopige
+    // bake-administratie van tekstbewerkingen hoort bij deze save en vervalt.
+    if (isOpslagGeannuleerd(error)) {
+      for (const te of (Array.isArray(activeDoc?.textEdits) ? activeDoc.textEdits : [])) {
+        if (te) delete te._pendingBakeInfo;
+      }
+      updateStatusMessage(i18next.t('saveCancelled', { defaultValue: 'Save cancelled. The file was not changed.' }));
+      return false;
+    }
     // Een tekstbewerking met tekens die geen font heeft (#717): het bestand
     // bleef ongewijzigd; noem de tekens.
     if (isOntbrekendeGlyfenFout(error)) {
@@ -3380,7 +3439,8 @@ async function _savePDFNu(saveAsPath, activeDoc, { alleenAnnotaties = false, mom
     showMessage(i18next.t('failedToSavePdf', { error: error?.message || String(error) }));
     return false;
   } finally {
-    if (!momentopname) hideLoading();
+    stopVoortgang?.();
+    if (eigenVenster) hideLoading();
   }
 }
 
