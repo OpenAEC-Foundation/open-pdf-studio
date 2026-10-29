@@ -51,6 +51,12 @@ function plaatsingen(n, { breedte = 60, hoogte = 80 } = {}) {
 }
 
 const tik = () => new Promise((r) => setTimeout(r, 2));
+// Wachten op de voorwaarde zelf: onder een belaste testrun is de volgorde
+// van de nep-render (timer 0) en een vaste tik niet gegarandeerd.
+async function wachtTot(voorwaarde, grens = 10000) {
+  const einde = Date.now() + grens;
+  while (!voorwaarde() && Date.now() < einde) await tik();
+}
 let getoond = [];
 pbc.registreerGetoondeBitmaps(() => getoond);
 
@@ -130,8 +136,9 @@ test('opheffen laat de claims van het paneel los', async () => {
   const { cache } = maakCache();
   const p = plaatsingen(3);
   pb.paneelBitmaps(p, { filePath: 'x.pdf', dpr: 1, W: 400, H: 400, cache });
-  await tik();
-  const b = pbc.getCachedBitmap('x.pdf', 1, 0, pb.bucketVoor(p[0], p[0].z))?.bitmap;
+  const vind = () => pbc.getCachedBitmap('x.pdf', 1, 0, pb.bucketVoor(p[0], p[0].z))?.bitmap;
+  await wachtTot(vind);
+  const b = vind();
   assert.ok(b);
   pb.laatPaneelBitmapsLos();
   for (let i = 1; i <= 20; i++) pbc.setCachedBitmapEntry('y.pdf', i, 0, 1, bitmap(`y${i}`), 1, 1, 1);

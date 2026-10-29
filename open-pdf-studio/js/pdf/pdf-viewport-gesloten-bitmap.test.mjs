@@ -59,6 +59,12 @@ const nepCtx = new Proxy({}, {
 });
 const canvas = { width: 0, height: 0, style: {}, getContext: () => nepCtx };
 const wacht = (ms) => new Promise((r) => setTimeout(r, ms));
+// De aanvraag loopt via een dynamische import: onder een belaste testrun duurt
+// dat soms langer dan een vaste pauze, dus wachten op de voorwaarde zelf.
+async function wachtTot(voorwaarde, grens = 10000) {
+  const einde = Date.now() + grens;
+  while (!voorwaarde() && Date.now() < einde) await wacht(5);
+}
 
 function gesloten() {
   return { width: 0, height: 0 };
@@ -70,7 +76,9 @@ test('een gesloten paginabitmap wordt niet getekend maar losgelaten en opnieuw a
   vp.setPage('raster.pdf', 1, 600, 800, 0, 0, 0, 0);
   viewport.pageType = 'raster';
   draaiFrames();
-  await wacht(200);
+  // De aanvraag van setPage zelf eerst laten landen.
+  await wachtTot(() => orchestrator > 0);
+  await wacht(50);
 
   const dicht = gesloten();
   viewport.currentBitmap = dicht;
@@ -80,7 +88,7 @@ test('een gesloten paginabitmap wordt niet getekend maar losgelaten en opnieuw a
   assert.doesNotThrow(() => draaiFrames());
   assert.ok(!getekend.includes(dicht), 'de gesloten bitmap wordt niet getekend');
   assert.equal(viewport.currentBitmap, null, 'en losgelaten');
-  await wacht(200);
+  await wachtTot(() => orchestrator > 0);
   assert.ok(orchestrator > 0, 'er wordt een nieuwe aangevraagd');
 
   // Een open bitmap wordt gewoon getekend.

@@ -47,13 +47,15 @@ function openDocument() {
 
 const stored = () => JSON.parse(leesOpslag('toolSets'));
 
-// Writes are chained; wait until the last one landed (no fixed timeout).
+// Writes are chained; wait until the last one landed. The chain awaits
+// dynamic imports, so under a loaded test run a fixed number of ticks is not
+// enough: poll the condition with a generous deadline instead.
 async function settled(check) {
-  for (let i = 0; i < 200; i++) {
-    if (check()) return;
-    await new Promise((r) => setImmediate(r));
+  const end = Date.now() + 10000;
+  while (!check()) {
+    if (Date.now() > end) assert.fail('storage did not settle');
+    await new Promise((r) => setTimeout(r, 2));
   }
-  assert.fail('storage did not settle');
 }
 
 test('the catalog of the previous session is loaded', async () => {
