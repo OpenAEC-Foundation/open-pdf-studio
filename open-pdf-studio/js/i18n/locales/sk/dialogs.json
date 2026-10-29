@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Veľký formát",
+      "detailblad": "List detailov",
+      "voorblad": "Titulný list"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "na výšku",
+      "landscape": "na šírku"
+    },
     "title": "Nový dokument",
     "paperSize": "Veľkosť papiera:",
     "widthMm": "Šírka (mm):",

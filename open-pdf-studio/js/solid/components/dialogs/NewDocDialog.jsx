@@ -4,6 +4,7 @@ import Dialog from '../Dialog.jsx';
 import { closeDialog } from '../../stores/dialogStore.js';
 import { createBlankPDF, createDocFromTemplate } from '../../../pdf/loader.js';
 import { scanFrames, openFramesFolder } from '../../../pdf/frames.js';
+import { frameStyleLabel, framePreviewText } from '../../../pdf/frame-labels.js';
 import { scanTitleBlocks, openTitleBlocksFolder, addTitleBlockFile, composeFrameWithTitleBlock }
   from '../../../pdf/titleblocks.js';
 import { useTranslation } from '../../../i18n/useTranslation.js';
@@ -14,8 +15,6 @@ import { useTranslation } from '../../../i18n/useTranslation.js';
 const DEFAULT_STIJL = 'grootformaat';
 const DEFAULT_PAPER = 'a1';
 const DEFAULT_ORIENTATION = 'landscape';
-
-const _cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
 const PAPER_SIZES = {
   a0:      { width: 2384, height: 3370, label: 'A0', widthMm: 841, heightMm: 1189 },
@@ -245,10 +244,7 @@ export default function NewDocDialog() {
   });
 
   const previewText = createMemo(() => {
-    const dims = getDimensions();
-    const base = `${dims.widthMm} x ${dims.heightMm} mm (${dims.label})`;
-    const f = resolvedFrame();
-    return f ? `${base} — ${f.fileName}` : base;
+    return framePreviewText({ dims: getDimensions(), frame: resolvedFrame(), orientation: orientation(), t });
   });
 
   // Eigen onderhoek toevoegen: kies een PDF, kopieer hem naar de
@@ -316,7 +312,7 @@ export default function NewDocDialog() {
           >
             <option value="">{t('newDoc.noFrame')}</option>
             <For each={frameIndex()?.stijlen || []}>{(s) => (
-              <option value={s}>{_cap(s)}</option>
+              <option value={s}>{frameStyleLabel(s, t)}</option>
             )}</For>
           </select>
           <button

@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "تنسيق كبير",
+      "detailblad": "ورقة التفاصيل",
+      "voorblad": "ورقة الغلاف"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "عمودي",
+      "landscape": "أفقي"
+    },
     "title": "مستند جديد",
     "paperSize": "حجم الورق:",
     "widthMm": "العرض (mm):",

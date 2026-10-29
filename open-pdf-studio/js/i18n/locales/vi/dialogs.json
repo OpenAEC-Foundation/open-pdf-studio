@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Khổ lớn",
+      "detailblad": "Bản vẽ chi tiết",
+      "voorblad": "Trang bìa"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "dọc",
+      "landscape": "ngang"
+    },
     "title": "Tài liệu Mới",
     "paperSize": "Khổ giấy:",
     "widthMm": "Chiều rộng (mm):",

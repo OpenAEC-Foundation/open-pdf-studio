@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "বড় ফরম্যাট",
+      "detailblad": "বিস্তারিত শিট",
+      "voorblad": "প্রচ্ছদ শিট"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "উলম্ব",
+      "landscape": "আনুভূমিক"
+    },
     "title": "নতুন নথি",
     "paperSize": "কাগজের আকার:",
     "widthMm": "প্রস্থ (mm):",

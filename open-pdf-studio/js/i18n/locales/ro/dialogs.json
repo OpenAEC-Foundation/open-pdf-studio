@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Format mare",
+      "detailblad": "Foaie de detalii",
+      "voorblad": "Foaie de copertă"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "portret",
+      "landscape": "peisaj"
+    },
     "title": "Document nou",
     "paperSize": "Dimensiune hartie:",
     "widthMm": "Latime (mm):",

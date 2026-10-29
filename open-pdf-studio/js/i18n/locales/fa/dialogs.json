@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "قطع بزرگ",
+      "detailblad": "برگه جزئیات",
+      "voorblad": "برگه جلد"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "عمودی",
+      "landscape": "افقی"
+    },
     "title": "سند جدید",
     "paperSize": "اندازه کاغذ:",
     "widthMm": "عرض (mm):",

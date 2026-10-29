@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "बड़ा प्रारूप",
+      "detailblad": "विवरण शीट",
+      "voorblad": "आवरण शीट"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "पोर्ट्रेट",
+      "landscape": "लैंडस्केप"
+    },
     "title": "नया दस्तावेज़",
     "paperSize": "कागज़ का आकार:",
     "widthMm": "चौड़ाई (mm):",

@@ -617,3 +617,4 @@ js/solid/stores/toolSetsStore-opslag.test.mjs
 js/core/standaardstijl-gereedschapsset.test.mjs
 js/pdf/organizer-pointer-drag.test.mjs
 js/pdf/blank-page-setup.test.mjs
+js/pdf/frame-labels.test.mjs

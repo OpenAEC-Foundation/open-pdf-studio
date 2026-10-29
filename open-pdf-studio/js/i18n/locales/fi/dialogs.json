@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Suuri formaatti",
+      "detailblad": "Detaljiarkki",
+      "voorblad": "Kansilehti"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "pystysuunta",
+      "landscape": "vaakasuunta"
+    },
     "title": "Uusi asiakirja",
     "paperSize": "Paperikoko:",
     "widthMm": "Leveys (mm):",

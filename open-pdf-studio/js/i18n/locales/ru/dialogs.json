@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Большой формат",
+      "detailblad": "Лист деталей",
+      "voorblad": "Титульный лист"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "книжная",
+      "landscape": "альбомная"
+    },
     "title": "Новый документ",
     "paperSize": "Размер бумаги:",
     "widthMm": "Ширина (mm):",

@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "大幅面",
+      "detailblad": "详图页",
+      "voorblad": "封面页"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "纵向",
+      "landscape": "横向"
+    },
     "title": "新建文档",
     "paperSize": "纸张大小：",
     "widthMm": "宽度 (mm)：",

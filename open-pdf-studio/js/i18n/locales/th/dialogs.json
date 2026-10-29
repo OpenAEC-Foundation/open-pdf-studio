@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "รูปแบบขนาดใหญ่",
+      "detailblad": "แผ่นรายละเอียด",
+      "voorblad": "แผ่นปก"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "แนวตั้ง",
+      "landscape": "แนวนอน"
+    },
     "title": "เอกสารใหม่",
     "paperSize": "ขนาดกระดาษ:",
     "widthMm": "ความกว้าง (mm):",

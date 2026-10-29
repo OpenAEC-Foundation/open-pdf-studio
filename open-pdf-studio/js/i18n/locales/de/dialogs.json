@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Großformat",
+      "detailblad": "Detailblatt",
+      "voorblad": "Deckblatt"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "Hochformat",
+      "landscape": "Querformat"
+    },
     "title": "Neues Dokument",
     "paperSize": "Papierformat:",
     "widthMm": "Breite (mm):",

@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Büyük format",
+      "detailblad": "Detay sayfası",
+      "voorblad": "Kapak sayfası"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "dikey",
+      "landscape": "yatay"
+    },
     "title": "Yeni Belge",
     "paperSize": "Kağıt Boyutu:",
     "widthMm": "Genişlik (mm):",

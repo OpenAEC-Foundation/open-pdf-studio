@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Grootformaat",
+      "detailblad": "Detailblad",
+      "voorblad": "Voorblad"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "staand",
+      "landscape": "liggend"
+    },
     "title": "Nieuw document",
     "paperSize": "Papierformaat:",
     "widthMm": "Breedte (mm):",

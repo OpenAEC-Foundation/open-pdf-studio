@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "Μεγάλο μέγεθος",
+      "detailblad": "Φύλλο λεπτομερειών",
+      "voorblad": "Εξώφυλλο"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "κατακόρυφος",
+      "landscape": "οριζόντιος"
+    },
     "title": "Νέο έγγραφο",
     "paperSize": "Μέγεθος χαρτιού:",
     "widthMm": "Πλάτος (mm):",

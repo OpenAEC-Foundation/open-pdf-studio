@@ -1,5 +1,15 @@
 {
   "newDoc": {
+    "frameStyles": {
+      "grootformaat": "大判",
+      "detailblad": "詳細図面",
+      "voorblad": "表紙"
+    },
+    "framePreview": "{{style}}, {{paper}} {{orientation}}, {{width}} x {{height}} mm",
+    "frameOrientation": {
+      "portrait": "縦向き",
+      "landscape": "横向き"
+    },
     "title": "新規ドキュメント",
     "paperSize": "用紙サイズ：",
     "widthMm": "幅 (mm)：",
