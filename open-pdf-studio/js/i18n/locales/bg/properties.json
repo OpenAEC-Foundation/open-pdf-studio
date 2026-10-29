@@ -189,7 +189,9 @@
     "bold": "Удебелен",
     "italic": "Курсив",
     "underline": "Подчертан",
-    "strikethrough": "Зачеркнат"
+    "strikethrough": "Зачеркнат",
+    "fontNotEmbedded": "Шрифтът {{font}} не се вгражда в PDF файла. Програмите без този шрифт показват {{fallback}}.",
+    "fontReplaced": "Шрифтът {{font}} не може да бъде вграден в PDF файла. Текстът се записва с {{fallback}}."
   },
   "paragraph": {
     "title": "Параграф",

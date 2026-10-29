@@ -189,7 +189,9 @@
     "bold": "Lihavoitu",
     "italic": "Kursiivi",
     "underline": "Alleviivaus",
-    "strikethrough": "Yliviivaus"
+    "strikethrough": "Yliviivaus",
+    "fontNotEmbedded": "Fonttia {{font}} ei upoteta PDF-tiedostoon. Lukuohjelmat, joilla tätä fonttia ei ole, näyttävät fontin {{fallback}}.",
+    "fontReplaced": "Fonttia {{font}} ei voi upottaa PDF-tiedostoon. Teksti tallennetaan fontilla {{fallback}}."
   },
   "paragraph": {
     "title": "Kappale",

@@ -189,7 +189,9 @@
     "bold": "بولڈ",
     "italic": "ترچھا",
     "underline": "خط کشیدہ",
-    "strikethrough": "کاٹا ہوا"
+    "strikethrough": "کاٹا ہوا",
+    "fontNotEmbedded": "فونٹ {{font}} PDF میں شامل نہیں کیا جاتا۔ جن ریڈرز کے پاس یہ فونٹ نہیں وہ {{fallback}} دکھاتے ہیں۔",
+    "fontReplaced": "فونٹ {{font}} PDF میں شامل نہیں کیا جا سکتا۔ متن {{fallback}} میں محفوظ ہوتا ہے۔"
   },
   "paragraph": {
     "title": "پیراگراف",

@@ -189,7 +189,9 @@
     "bold": "Aldin",
     "italic": "Cursiv",
     "underline": "Subliniat",
-    "strikethrough": "Taiatura"
+    "strikethrough": "Taiatura",
+    "fontNotEmbedded": "{{font}} nu este încorporat în PDF. Cititoarele care nu au acest font afișează {{fallback}}.",
+    "fontReplaced": "{{font}} nu poate fi încorporat în PDF. Textul este salvat cu {{fallback}}."
   },
   "paragraph": {
     "title": "Paragraf",

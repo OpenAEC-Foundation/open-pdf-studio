@@ -189,7 +189,9 @@
     "bold": "Kalın",
     "italic": "İtalik",
     "underline": "Altı Çizili",
-    "strikethrough": "Üstü Çizili"
+    "strikethrough": "Üstü Çizili",
+    "fontNotEmbedded": "{{font}} PDF'ye gömülmez. Bu yazı tipine sahip olmayan okuyucular {{fallback}} gösterir.",
+    "fontReplaced": "{{font}} PDF'ye gömülemez. Metin {{fallback}} ile kaydedilir."
   },
   "paragraph": {
     "title": "Paragraf",

@@ -189,7 +189,9 @@
     "bold": "Pogrubienie",
     "italic": "Kursywa",
     "underline": "Podkreślenie",
-    "strikethrough": "Przekreślenie"
+    "strikethrough": "Przekreślenie",
+    "fontNotEmbedded": "Czcionka {{font}} nie jest osadzana w pliku PDF. Czytniki bez tej czcionki pokazują {{fallback}}.",
+    "fontReplaced": "Czcionki {{font}} nie można osadzić w pliku PDF. Tekst zostanie zapisany czcionką {{fallback}}."
   },
   "paragraph": {
     "title": "Akapit",

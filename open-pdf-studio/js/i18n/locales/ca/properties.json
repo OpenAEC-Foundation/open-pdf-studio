@@ -189,7 +189,9 @@
     "bold": "Negreta",
     "italic": "Cursiva",
     "underline": "Subratllat",
-    "strikethrough": "Ratllat"
+    "strikethrough": "Ratllat",
+    "fontNotEmbedded": "{{font}} no s'incrusta al PDF. Els lectors que no tenen aquesta font mostren {{fallback}}.",
+    "fontReplaced": "{{font}} no es pot incrustar al PDF. El text es desa en {{fallback}}."
   },
   "paragraph": {
     "title": "Paràgraf",

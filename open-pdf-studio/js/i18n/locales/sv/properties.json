@@ -189,7 +189,9 @@
     "bold": "Fet",
     "italic": "Kursiv",
     "underline": "Understruken",
-    "strikethrough": "Genomstruken"
+    "strikethrough": "Genomstruken",
+    "fontNotEmbedded": "{{font}} bäddas inte in i PDF:en. Läsare utan detta teckensnitt visar {{fallback}}.",
+    "fontReplaced": "{{font}} kan inte bäddas in i PDF:en. Texten sparas i {{fallback}}."
   },
   "paragraph": {
     "title": "Stycke",

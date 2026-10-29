@@ -189,7 +189,9 @@
     "bold": "Grassetto",
     "italic": "Corsivo",
     "underline": "Sottolineato",
-    "strikethrough": "Barrato"
+    "strikethrough": "Barrato",
+    "fontNotEmbedded": "{{font}} non viene incorporato nel PDF. I lettori che non hanno questo carattere mostrano {{fallback}}.",
+    "fontReplaced": "{{font}} non può essere incorporato nel PDF. Il testo viene salvato in {{fallback}}."
   },
   "paragraph": {
     "title": "Paragrafo",

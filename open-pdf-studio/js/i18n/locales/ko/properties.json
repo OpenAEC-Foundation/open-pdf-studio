@@ -189,7 +189,9 @@
     "bold": "굵게",
     "italic": "기울임꼴",
     "underline": "밑줄",
-    "strikethrough": "취소선"
+    "strikethrough": "취소선",
+    "fontNotEmbedded": "{{font}} 글꼴은 PDF에 포함되지 않습니다. 이 글꼴이 없는 뷰어에서는 {{fallback}}(으)로 표시됩니다.",
+    "fontReplaced": "{{font}} 글꼴은 PDF에 포함할 수 없습니다. 텍스트는 {{fallback}}(으)로 저장됩니다."
   },
   "paragraph": {
     "title": "단락",

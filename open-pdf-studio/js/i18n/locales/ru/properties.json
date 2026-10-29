@@ -189,7 +189,9 @@
     "bold": "Полужирный",
     "italic": "Курсив",
     "underline": "Подчеркнутый",
-    "strikethrough": "Зачеркнутый"
+    "strikethrough": "Зачеркнутый",
+    "fontNotEmbedded": "Шрифт {{font}} не встраивается в PDF. Программы без этого шрифта показывают {{fallback}}.",
+    "fontReplaced": "Шрифт {{font}} невозможно встроить в PDF. Текст сохраняется шрифтом {{fallback}}."
   },
   "paragraph": {
     "title": "Абзац",

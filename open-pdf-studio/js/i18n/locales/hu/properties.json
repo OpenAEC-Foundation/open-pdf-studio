@@ -189,7 +189,9 @@
     "bold": "Félkövér",
     "italic": "Dőlt",
     "underline": "Aláhúzott",
-    "strikethrough": "Áthúzott"
+    "strikethrough": "Áthúzott",
+    "fontNotEmbedded": "A(z) {{font}} betűtípus nem kerül beágyazásra a PDF-be. Az ezt a betűtípust nem ismerő olvasók {{fallback}} betűtípust mutatnak.",
+    "fontReplaced": "A(z) {{font}} betűtípus nem ágyazható be a PDF-be. A szöveg {{fallback}} betűtípussal lesz mentve."
   },
   "paragraph": {
     "title": "Bekezdés",

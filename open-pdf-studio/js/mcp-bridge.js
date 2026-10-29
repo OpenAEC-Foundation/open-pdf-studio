@@ -1449,7 +1449,7 @@ async function _buildCreateProps(type, page, props) {
         fillColor: prefs.calloutFillNone ? 'none' : (prefs.calloutFillColor || '#ffffff'),
         textColor: '#000000',
         fontSize: prefs.calloutFontSize || 12,
-        fontFamily: 'Arial',
+        fontFamily: prefs.calloutFontFamily || 'Arial',
         lineWidth: prefs.calloutBorderWidth || 1,
         borderStyle: prefs.calloutBorderStyle || 'solid',
         opacity: (prefs.calloutOpacity || 100) / 100,

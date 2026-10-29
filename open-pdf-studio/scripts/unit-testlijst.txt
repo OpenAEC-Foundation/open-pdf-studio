@@ -541,3 +541,6 @@ js/pdf/organizer-grid.test.mjs
 js/pdf/page-manager-edit-pages.test.mjs
 js/solid/components/ribbon/edit-pages-knop.test.mjs
 js/solid/stores/lettertype-tekstvak.test.mjs
+js/core/standaardstijl-lettertype.test.mjs
+js/utils/lettertypen-lijst.test.mjs
+js/pdf/lettertype-rondgang.test.mjs

@@ -189,7 +189,9 @@
     "bold": "Fett",
     "italic": "Kursiv",
     "underline": "Unterstrichen",
-    "strikethrough": "Durchgestrichen"
+    "strikethrough": "Durchgestrichen",
+    "fontNotEmbedded": "{{font}} wird nicht in die PDF eingebettet. Programme ohne diese Schriftart zeigen {{fallback}}.",
+    "fontReplaced": "{{font}} kann nicht in die PDF eingebettet werden. Der Text wird in {{fallback}} gespeichert."
   },
   "paragraph": {
     "title": "Absatz",

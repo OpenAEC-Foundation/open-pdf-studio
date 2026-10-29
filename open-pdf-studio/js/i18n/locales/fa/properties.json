@@ -189,7 +189,9 @@
     "bold": "ضخیم",
     "italic": "کج",
     "underline": "زیرخط",
-    "strikethrough": "خط‌خورده"
+    "strikethrough": "خط‌خورده",
+    "fontNotEmbedded": "قلم {{font}} در PDF جاسازی نمی‌شود. برنامه‌هایی که این قلم را ندارند {{fallback}} را نشان می‌دهند.",
+    "fontReplaced": "قلم {{font}} را نمی‌توان در PDF جاسازی کرد. متن با {{fallback}} ذخیره می‌شود."
   },
   "paragraph": {
     "title": "پاراگراف",

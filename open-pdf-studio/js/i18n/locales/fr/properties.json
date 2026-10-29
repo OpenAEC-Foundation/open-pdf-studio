@@ -189,7 +189,9 @@
     "bold": "Gras",
     "italic": "Italique",
     "underline": "Souligné",
-    "strikethrough": "Barré"
+    "strikethrough": "Barré",
+    "fontNotEmbedded": "{{font}} n'est pas incorporée dans le PDF. Les lecteurs qui n'ont pas cette police affichent {{fallback}}.",
+    "fontReplaced": "{{font}} ne peut pas être incorporée dans le PDF. Le texte est enregistré en {{fallback}}."
   },
   "paragraph": {
     "title": "Paragraphe",

@@ -189,7 +189,9 @@
     "bold": "Tebal",
     "italic": "Italik",
     "underline": "Garis Bawah",
-    "strikethrough": "Garis Potong"
+    "strikethrough": "Garis Potong",
+    "fontNotEmbedded": "Fon {{font}} tidak dibenamkan dalam PDF. Pembaca yang tiada fon ini memaparkan {{fallback}}.",
+    "fontReplaced": "Fon {{font}} tidak boleh dibenamkan dalam PDF. Teks disimpan dalam {{fallback}}."
   },
   "paragraph": {
     "title": "Perenggan",

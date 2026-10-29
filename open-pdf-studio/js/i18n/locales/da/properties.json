@@ -189,7 +189,9 @@
     "bold": "Fed",
     "italic": "Kursiv",
     "underline": "Understregning",
-    "strikethrough": "Gennemstregning"
+    "strikethrough": "Gennemstregning",
+    "fontNotEmbedded": "{{font}} indlejres ikke i PDF'en. Læsere uden denne skrifttype viser {{fallback}}.",
+    "fontReplaced": "{{font}} kan ikke indlejres i PDF'en. Teksten gemmes i {{fallback}}."
   },
   "paragraph": {
     "title": "Afsnit",

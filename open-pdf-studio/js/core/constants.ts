@@ -123,6 +123,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   textboxBorderStyle: 'solid',
   textboxOpacity: 100,
   textboxFontSize: 8,
+  textboxFontFamily: 'Arial',
 
   // Callout defaults
   calloutFillColor: '#FFFBEB',
@@ -132,6 +133,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
   calloutBorderStyle: 'solid',
   calloutOpacity: 100,
   calloutFontSize: 14,
+  calloutFontFamily: 'Arial',
 
   // Rectangle defaults
   rectFillColor: '#FFFBEB',

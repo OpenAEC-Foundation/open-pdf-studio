@@ -189,7 +189,9 @@
     "bold": "Podebljano",
     "italic": "Kurziv",
     "underline": "Podcrtano",
-    "strikethrough": "Precrtano"
+    "strikethrough": "Precrtano",
+    "fontNotEmbedded": "Font {{font}} nije ugrađen u PDF. Čitači bez ovog fonta prikazuju {{fallback}}.",
+    "fontReplaced": "Font {{font}} ne može se ugraditi u PDF. Tekst se sprema u fontu {{fallback}}."
   },
   "paragraph": {
     "title": "Odlomak",

@@ -866,3 +866,12 @@
   white-space: normal; max-width: 100%;
 }
 .spatial-location button:disabled { opacity: .5; }
+
+/* Melding onder de lettertypekeuze: het lettertype wordt niet ingebed (#765).
+   Ook in de dialoog "Tekst toevoegen". */
+.font-inbedding-melding {
+  margin: 0 8px 4px;
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--theme-warning, #9a6700);
+}

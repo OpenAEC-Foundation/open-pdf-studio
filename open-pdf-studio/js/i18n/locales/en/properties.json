@@ -221,7 +221,9 @@
     "bold": "Bold",
     "italic": "Italic",
     "underline": "Underline",
-    "strikethrough": "Strikethrough"
+    "strikethrough": "Strikethrough",
+    "fontNotEmbedded": "{{font}} is not embedded in the PDF. Readers that don't have this font show {{fallback}}.",
+    "fontReplaced": "{{font}} can't be embedded in the PDF. The text is saved in {{fallback}}."
   },
   "paragraph": {
     "title": "Paragraph",
