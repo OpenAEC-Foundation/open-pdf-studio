@@ -14,6 +14,7 @@
 
 export const PLATTEGROND_SKILL = {
   id: 'floorplan',
+  group: 'structure',
   icon: '🏠',
   // Naam, uitleg en de tekst in het invoervak staan per taal in de locales
   // (common.assistant.skills.floorplan); de instructie voor het model is

@@ -124,7 +124,79 @@
         "label": "Planta",
         "hint": "Dibuixa una planta arquitectònica: murs, fusteries, estances, cotes i equipament (sanitaris, cuina)",
         "prompt": "Dibuixa una planta arquitectònica. Què cal dibuixar: "
+      },
+      "find-on-sheet": {
+        "label": "Cerca al full",
+        "hint": "Cerca un terme (un nom d'estança, una marca de secció, un símbol), ves a la seva pàgina i ressalta les coincidències",
+        "prompt": "Cerca en aquest full: "
+      },
+      "explain-selection": {
+        "label": "Explica la selecció",
+        "hint": "Descriu en llenguatge planer l'àrea, el text o la marca seleccionats, amb dimensions si hi ha una escala de mesura",
+        "prompt": "Explica'm la selecció."
+      },
+      "compare-sheets": {
+        "label": "Compara fulls",
+        "hint": "Indica i marca què s'ha afegit, eliminat o desplaçat respecte a una altra pàgina",
+        "prompt": "Compara aquesta pàgina amb la pàgina: "
+      },
+      "measure": {
+        "label": "Mesura això",
+        "hint": "Mesura la forma seleccionada o un element descrit i indica-ho a l'escala del plànol",
+        "prompt": "Mesura: "
+      },
+      "take-off": {
+        "label": "Treu amidaments",
+        "hint": "Compta o mesura elements d'un tipus i col·loca el resultat com a taula al full",
+        "prompt": "Treu els amidaments de: "
+      },
+      "check-scale": {
+        "label": "Comprova l'escala",
+        "hint": "Obté l'escala del caixetí o d'una cota coneguda i defineix-la",
+        "prompt": "Comprova l'escala d'aquest plànol."
+      },
+      "review-sheet": {
+        "label": "Revisa el full",
+        "hint": "Afegeix núvols amb comentaris numerats per als punts que assenyalaria un revisor",
+        "prompt": "Revisa aquest full pel que fa a: "
+      },
+      "stamp-date": {
+        "label": "Segella i data",
+        "hint": "Col·loca un segell, omple un camp del caixetí o afegeix una nota de revisió amb la data d'avui",
+        "prompt": "Segella i data: "
+      },
+      "clean-up": {
+        "label": "Endreça les marques",
+        "hint": "Alinea, renumera o canvia el color de les marques existents de manera coherent",
+        "prompt": "Endreça les meves marques: "
+      },
+      "import-cad": {
+        "label": "Porta un plànol",
+        "hint": "Importa un plànol DWG o DXF com a fons de referència a l'escala correcta",
+        "prompt": "Porta el plànol (camí del fitxer DWG o DXF): "
+      },
+      "export-cad": {
+        "label": "Exporta a CAD",
+        "hint": "Escriu aquesta pàgina o l'àrea seleccionada en un fitxer DXF o DWG",
+        "prompt": "Exporta aquesta pàgina a (camí del fitxer DXF o DWG): "
       }
+    },
+    "groups": {
+      "document": "Traduir i resumir",
+      "reading": "Llegir el plànol",
+      "measuring": "Mesuraments i quantitats",
+      "markup": "Marcatge",
+      "structure": "Estructura i planta",
+      "cad": "Plànols CAD"
+    },
+    "need": {
+      "document": "Obre primer un PDF: aquesta habilitat treballa sobre el document obert.",
+      "selection": "Selecciona primer una marca o una mica de text al plànol i torna a fer clic a l'habilitat.",
+      "scale": "Aquest plànol encara no té escala de mesura. Defineix-ne una primer (per exemple amb «Comprova l'escala») i torna-ho a provar.",
+      "input": "Completa el text del quadre d'entrada després dels dos punts i envia'l.",
+      "selectionOrInput": "Selecciona una forma al plànol, o descriu després dels dos punts què cal mesurar.",
+      "page": "Introdueix el número de l'altra pàgina (de l'1 al {{max}}), no el de la pàgina actual.",
+      "twoPages": "Aquest document només té una pàgina. Per comparar-lo amb un altre fitxer, substitueix el text del quadre d'entrada per la teva pròpia pregunta."
     }
   },
   "onlineSymbolLibrary": "Biblioteca de símbols en línia",

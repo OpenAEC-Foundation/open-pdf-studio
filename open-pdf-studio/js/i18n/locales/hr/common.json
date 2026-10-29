@@ -124,7 +124,79 @@
         "label": "Tlocrt",
         "hint": "Nacrtaj arhitektonski tlocrt: zidovi, stolarija, prostorije, kote i oprema (sanitarije, kuhinja)",
         "prompt": "Nacrtaj arhitektonski tlocrt. Što nacrtati: "
+      },
+      "find-on-sheet": {
+        "label": "Traži na listu",
+        "hint": "Pronađi pojam (naziv prostorije, oznaku presjeka, simbol), idi na njegovu stranicu i istakni pogotke",
+        "prompt": "Traži na ovom listu: "
+      },
+      "explain-selection": {
+        "label": "Objasni odabir",
+        "hint": "Opiši odabrano područje, tekst ili oznaku jednostavnim jezikom, s dimenzijama ako je postavljeno mjerilo",
+        "prompt": "Objasni odabir."
+      },
+      "compare-sheets": {
+        "label": "Usporedi listove",
+        "hint": "Navedi i označi što je dodano, uklonjeno ili pomaknuto u odnosu na drugu stranicu",
+        "prompt": "Usporedi ovu stranicu sa stranicom: "
+      },
+      "measure": {
+        "label": "Izmjeri ovo",
+        "hint": "Izmjeri odabrani oblik ili opisani element i iskaži rezultat u mjerilu crteža",
+        "prompt": "Izmjeri: "
+      },
+      "take-off": {
+        "label": "Izvod količina",
+        "hint": "Prebroji ili izmjeri elemente iste vrste i postavi rezultat kao tablicu na list",
+        "prompt": "Izradi izvod količina za: "
+      },
+      "check-scale": {
+        "label": "Provjeri mjerilo",
+        "hint": "Odredi mjerilo iz zaglavlja ili poznate kote i postavi ga",
+        "prompt": "Provjeri mjerilo ovog crteža."
+      },
+      "review-sheet": {
+        "label": "Pregledaj list",
+        "hint": "Dodaj oblake s numeriranim komentarima na mjestima koja bi kontrolor istaknuo",
+        "prompt": "Pregledaj ovaj list s obzirom na: "
+      },
+      "stamp-date": {
+        "label": "Žig i datum",
+        "hint": "Postavi žig, ispuni polje zaglavlja ili dodaj bilješku o reviziji s današnjim datumom",
+        "prompt": "Stavi žig i datum: "
+      },
+      "clean-up": {
+        "label": "Uredi oznake",
+        "hint": "Poravnaj, ponovno numeriraj ili ujednačeno preboji postojeće oznake",
+        "prompt": "Uredi moje oznake: "
+      },
+      "import-cad": {
+        "label": "Uvezi crtež",
+        "hint": "Uvezi DWG ili DXF crtež kao podlogu u ispravnom mjerilu",
+        "prompt": "Uvezi crtež (putanja DWG ili DXF datoteke): "
+      },
+      "export-cad": {
+        "label": "Izvezi u CAD",
+        "hint": "Zapiši ovu stranicu ili odabrano područje u DXF ili DWG datoteku",
+        "prompt": "Izvezi ovu stranicu u (putanja DXF ili DWG datoteke): "
       }
+    },
+    "groups": {
+      "document": "Prevođenje i sažimanje",
+      "reading": "Čitanje crteža",
+      "measuring": "Mjerenje i količine",
+      "markup": "Označavanje",
+      "structure": "Konstrukcija i tlocrt",
+      "cad": "CAD crteži"
+    },
+    "need": {
+      "document": "Najprije otvorite PDF: ova vještina radi na otvorenom dokumentu.",
+      "selection": "Najprije odaberite oznaku ili dio teksta na crtežu, zatim ponovno kliknite vještinu.",
+      "scale": "Ovaj crtež još nema mjerilo. Najprije ga postavite (na primjer vještinom „Provjeri mjerilo”) i pokušajte ponovno.",
+      "input": "Dovršite tekst u polju za unos nakon dvotočke, a zatim ga pošaljite.",
+      "selectionOrInput": "Odaberite oblik na crtežu ili nakon dvotočke opišite što treba izmjeriti.",
+      "page": "Unesite broj druge stranice (od 1 do {{max}}), a ne trenutne stranice.",
+      "twoPages": "Ovaj dokument ima samo jednu stranicu. Za usporedbu s drugom datotekom zamijenite tekst u polju za unos vlastitim pitanjem."
     }
   },
   "onlineSymbolLibrary": "Mrežna knjižnica simbola",

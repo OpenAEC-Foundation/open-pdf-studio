@@ -124,7 +124,79 @@
         "label": "Denah",
         "hint": "Gambar denah arsitektur: dinding, kusen, ruang, dimensi, dan perlengkapan (sanitair, dapur)",
         "prompt": "Gambar denah arsitektur. Yang perlu digambar: "
+      },
+      "find-on-sheet": {
+        "label": "Cari di lembar",
+        "hint": "Cari istilah (nama ruang, penanda potongan, simbol), buka halamannya, dan sorot hasil temuannya",
+        "prompt": "Cari di lembar ini: "
+      },
+      "explain-selection": {
+        "label": "Jelaskan pilihan",
+        "hint": "Jelaskan area, teks, atau anotasi yang dipilih dengan bahasa sederhana, beserta dimensinya bila skala ukur sudah diatur",
+        "prompt": "Jelaskan pilihan ini."
+      },
+      "compare-sheets": {
+        "label": "Bandingkan lembar",
+        "hint": "Sebutkan dan tandai apa yang ditambahkan, dihapus, atau dipindahkan dibandingkan halaman lain",
+        "prompt": "Bandingkan halaman ini dengan halaman: "
+      },
+      "measure": {
+        "label": "Ukur ini",
+        "hint": "Ukur bentuk yang dipilih atau elemen yang dijelaskan dan laporkan dalam skala gambar",
+        "prompt": "Ukur: "
+      },
+      "take-off": {
+        "label": "Hitung kuantitas",
+        "hint": "Hitung atau ukur elemen sejenis dan letakkan hasilnya sebagai daftar pada lembar",
+        "prompt": "Hitung kuantitas: "
+      },
+      "check-scale": {
+        "label": "Periksa skala",
+        "hint": "Tentukan skala dari kop gambar atau dimensi yang diketahui, lalu atur",
+        "prompt": "Periksa skala gambar ini."
+      },
+      "review-sheet": {
+        "label": "Tinjau lembar",
+        "hint": "Tambahkan awan dengan komentar bernomor pada poin-poin yang akan diangkat oleh pemeriksa",
+        "prompt": "Tinjau lembar ini terkait: "
+      },
+      "stamp-date": {
+        "label": "Stempel dan tanggal",
+        "hint": "Bubuhkan stempel, isi kolom kop gambar, atau tambahkan catatan revisi dengan tanggal hari ini",
+        "prompt": "Stempel dan beri tanggal: "
+      },
+      "clean-up": {
+        "label": "Rapikan anotasi",
+        "hint": "Ratakan, beri nomor ulang, atau ubah warna anotasi yang ada secara konsisten",
+        "prompt": "Rapikan anotasi saya: "
+      },
+      "import-cad": {
+        "label": "Masukkan gambar",
+        "hint": "Impor gambar DWG atau DXF sebagai lapisan dasar pada skala yang tepat",
+        "prompt": "Masukkan gambar (jalur file DWG atau DXF): "
+      },
+      "export-cad": {
+        "label": "Ekspor ke CAD",
+        "hint": "Tulis halaman ini atau area yang dipilih ke file DXF atau DWG",
+        "prompt": "Ekspor halaman ini ke (jalur file DXF atau DWG): "
       }
+    },
+    "groups": {
+      "document": "Terjemahkan dan ringkas",
+      "reading": "Membaca gambar kerja",
+      "measuring": "Pengukuran dan kuantitas",
+      "markup": "Anotasi",
+      "structure": "Struktur dan denah",
+      "cad": "Gambar CAD"
+    },
+    "need": {
+      "document": "Buka PDF terlebih dahulu: keterampilan ini bekerja pada dokumen yang terbuka.",
+      "selection": "Pilih anotasi atau sebagian teks pada gambar terlebih dahulu, lalu klik keterampilan itu lagi.",
+      "scale": "Gambar ini belum memiliki skala ukur. Atur skala terlebih dahulu (misalnya dengan \"Periksa skala\") lalu coba lagi.",
+      "input": "Lengkapi teks di kotak input setelah titik dua, lalu kirim.",
+      "selectionOrInput": "Pilih bentuk pada gambar, atau jelaskan setelah titik dua apa yang akan diukur.",
+      "page": "Masukkan nomor halaman lain (1 sampai {{max}}), bukan halaman saat ini.",
+      "twoPages": "Dokumen ini hanya memiliki satu halaman. Untuk membandingkan dengan file lain, ganti teks di kotak input dengan pertanyaan Anda sendiri."
     }
   },
   "onlineSymbolLibrary": "Pustaka simbol daring",

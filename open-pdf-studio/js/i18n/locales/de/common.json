@@ -124,7 +124,79 @@
         "label": "Grundriss",
         "hint": "Einen Bauplan-Grundriss zeichnen: Wände, Fenster und Türen, Räume, Bemaßung und Einrichtung (Sanitär, Küche)",
         "prompt": "Zeichne einen Grundriss. Was gezeichnet werden soll: "
+      },
+      "find-on-sheet": {
+        "label": "Auf Blatt suchen",
+        "hint": "Einen Begriff suchen (Raumname, Schnittmarkierung, Symbol), zu seiner Seite springen und die Treffer hervorheben",
+        "prompt": "Suche auf diesem Blatt: "
+      },
+      "explain-selection": {
+        "label": "Auswahl erklären",
+        "hint": "Den ausgewählten Bereich, Text oder die Markierung verständlich beschreiben, mit Abmessungen, wenn ein Messmaßstab festgelegt ist",
+        "prompt": "Erkläre die Auswahl."
+      },
+      "compare-sheets": {
+        "label": "Blätter vergleichen",
+        "hint": "Benennen und markieren, was gegenüber einer anderen Seite hinzugefügt, entfernt oder verschoben wurde",
+        "prompt": "Vergleiche diese Seite mit Seite: "
+      },
+      "measure": {
+        "label": "Dies messen",
+        "hint": "Die ausgewählte Form oder ein beschriebenes Element messen und im Maßstab der Zeichnung angeben",
+        "prompt": "Miss: "
+      },
+      "take-off": {
+        "label": "Mengen ermitteln",
+        "hint": "Elemente einer Art zählen oder messen und das Ergebnis als Liste auf dem Blatt platzieren",
+        "prompt": "Ermittle die Mengen: "
+      },
+      "check-scale": {
+        "label": "Maßstab prüfen",
+        "hint": "Den Maßstab aus dem Schriftfeld oder einer bekannten Abmessung ermitteln und festlegen",
+        "prompt": "Prüfe den Maßstab dieser Zeichnung."
+      },
+      "review-sheet": {
+        "label": "Blatt prüfen",
+        "hint": "Wolken mit nummerierten Kommentaren zu den Punkten hinzufügen, die ein Prüfer anmerken würde",
+        "prompt": "Prüfe dieses Blatt auf: "
+      },
+      "stamp-date": {
+        "label": "Stempeln und datieren",
+        "hint": "Einen Stempel setzen, ein Schriftfeld ausfüllen oder einen Revisionsvermerk mit dem heutigen Datum hinzufügen",
+        "prompt": "Stempeln und datieren: "
+      },
+      "clean-up": {
+        "label": "Markierungen ordnen",
+        "hint": "Die vorhandenen Markierungen einheitlich ausrichten, neu nummerieren oder umfärben",
+        "prompt": "Räume meine Markierungen auf: "
+      },
+      "import-cad": {
+        "label": "Zeichnung einfügen",
+        "hint": "Eine DWG- oder DXF-Zeichnung als Unterlage im richtigen Maßstab importieren",
+        "prompt": "Füge die Zeichnung ein (Pfad der DWG- oder DXF-Datei): "
+      },
+      "export-cad": {
+        "label": "Nach CAD exportieren",
+        "hint": "Diese Seite oder den ausgewählten Bereich in eine DXF- oder DWG-Datei schreiben",
+        "prompt": "Exportiere diese Seite nach (Pfad der DXF- oder DWG-Datei): "
       }
+    },
+    "groups": {
+      "document": "Übersetzen und zusammenfassen",
+      "reading": "Zeichnung lesen",
+      "measuring": "Messen und Mengen",
+      "markup": "Markieren",
+      "structure": "Tragwerk und Grundriss",
+      "cad": "CAD-Zeichnungen"
+    },
+    "need": {
+      "document": "Öffnen Sie zuerst ein PDF: Diese Fähigkeit arbeitet mit dem geöffneten Dokument.",
+      "selection": "Wählen Sie zuerst eine Markierung oder etwas Text auf der Zeichnung aus und klicken Sie dann erneut auf die Fähigkeit.",
+      "scale": "Diese Zeichnung hat noch keinen Messmaßstab. Legen Sie zuerst einen fest (zum Beispiel mit „Maßstab prüfen“) und versuchen Sie es erneut.",
+      "input": "Ergänzen Sie den Text im Eingabefeld nach dem Doppelpunkt und senden Sie ihn dann ab.",
+      "selectionOrInput": "Wählen Sie eine Form auf der Zeichnung aus oder beschreiben Sie nach dem Doppelpunkt, was gemessen werden soll.",
+      "page": "Geben Sie die Nummer der anderen Seite ein (1 bis {{max}}), nicht die der aktuellen Seite.",
+      "twoPages": "Dieses Dokument hat nur eine Seite. Um mit einer anderen Datei zu vergleichen, ersetzen Sie den Text im Eingabefeld durch Ihre eigene Frage."
     }
   },
   "onlineSymbolLibrary": "Online-Symbolbibliothek",

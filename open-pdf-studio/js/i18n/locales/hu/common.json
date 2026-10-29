@@ -124,7 +124,79 @@
         "label": "Alaprajz",
         "hint": "Építészeti alaprajz rajzolása: falak, nyílászárók, helyiségek, méretezés és berendezés (szaniter, konyha)",
         "prompt": "Rajzolj építészeti alaprajzot. Mit kell rajzolni: "
+      },
+      "find-on-sheet": {
+        "label": "Keresés a lapon",
+        "hint": "Kifejezés (helyiségnév, metszetjel, szimbólum) keresése, ugrás az oldalára és a találatok kiemelése",
+        "prompt": "Keresd meg ezen a lapon: "
+      },
+      "explain-selection": {
+        "label": "Kijelölés magyarázata",
+        "hint": "A kijelölt terület, szöveg vagy jelölés közérthető leírása, méretekkel, ha be van állítva mérési lépték",
+        "prompt": "Magyarázd el a kijelölést."
+      },
+      "compare-sheets": {
+        "label": "Lapok összehasonlítása",
+        "hint": "Annak megnevezése és megjelölése, mi került hozzáadásra, törlésre vagy áthelyezésre egy másik oldalhoz képest",
+        "prompt": "Hasonlítsd össze ezt az oldalt ezzel az oldallal: "
+      },
+      "measure": {
+        "label": "Elem mérése",
+        "hint": "A kijelölt alakzat vagy egy leírt elem megmérése, és az eredmény megadása a rajz léptékében",
+        "prompt": "Mérd meg: "
+      },
+      "take-off": {
+        "label": "Mennyiségkimutatás",
+        "hint": "Egyféle elemek megszámlálása vagy megmérése, és az eredmény elhelyezése kimutatásként a lapon",
+        "prompt": "Készíts mennyiségkimutatást erről: "
+      },
+      "check-scale": {
+        "label": "Lépték ellenőrzése",
+        "hint": "A lépték meghatározása a szövegmezőből vagy egy ismert méretből, és beállítása",
+        "prompt": "Ellenőrizd ennek a rajznak a léptékét."
+      },
+      "review-sheet": {
+        "label": "Lap ellenőrzése",
+        "hint": "Felhők hozzáadása számozott megjegyzésekkel azokhoz a pontokhoz, amelyeket egy ellenőr kifogásolna",
+        "prompt": "Ellenőrizd ezt a lapot a következő szempontból: "
+      },
+      "stamp-date": {
+        "label": "Bélyegző és dátum",
+        "hint": "Bélyegző elhelyezése, a szövegmező egy mezőjének kitöltése vagy revíziós megjegyzés hozzáadása a mai dátummal",
+        "prompt": "Bélyegző és dátum elhelyezése: "
+      },
+      "clean-up": {
+        "label": "Jelölések rendezése",
+        "hint": "A meglévő jelölések egységes igazítása, újraszámozása vagy átszínezése",
+        "prompt": "Rendezd a jelöléseimet: "
+      },
+      "import-cad": {
+        "label": "Rajz behozása",
+        "hint": "DWG- vagy DXF-rajz importálása alátétként a megfelelő léptékben",
+        "prompt": "Hozd be a rajzot (a DWG- vagy DXF-fájl elérési útja): "
+      },
+      "export-cad": {
+        "label": "Exportálás CAD-be",
+        "hint": "Ennek az oldalnak vagy a kijelölt területnek a kiírása DXF- vagy DWG-fájlba",
+        "prompt": "Exportáld ezt az oldalt ide (a DXF- vagy DWG-fájl elérési útja): "
       }
+    },
+    "groups": {
+      "document": "Fordítás és összefoglalás",
+      "reading": "A rajz olvasása",
+      "measuring": "Mérés és mennyiségek",
+      "markup": "Jelölés",
+      "structure": "Szerkezet és alaprajz",
+      "cad": "CAD-rajzok"
+    },
+    "need": {
+      "document": "Először nyisson meg egy PDF-et: ez a képesség a megnyitott dokumentummal dolgozik.",
+      "selection": "Először jelöljön ki egy jelölést vagy szöveget a rajzon, majd kattintson újra a képességre.",
+      "scale": "Ennek a rajznak még nincs mérési léptéke. Először állítson be egyet (például a „Lépték ellenőrzése” képességgel), majd próbálja újra.",
+      "input": "Egészítse ki a beviteli mező szövegét a kettőspont után, majd küldje el.",
+      "selectionOrInput": "Jelöljön ki egy alakzatot a rajzon, vagy írja le a kettőspont után, mit kell megmérni.",
+      "page": "Adja meg a másik oldal számát (1 és {{max}} között), ne az aktuális oldalét.",
+      "twoPages": "Ez a dokumentum csak egy oldalból áll. Ha egy másik fájllal szeretné összehasonlítani, cserélje le a beviteli mező szövegét a saját kérdésére."
     }
   },
   "onlineSymbolLibrary": "Online szimbólumkönyvtár",
