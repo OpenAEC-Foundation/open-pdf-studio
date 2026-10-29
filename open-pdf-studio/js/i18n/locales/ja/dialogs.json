@@ -1627,7 +1627,12 @@
     "chooseFolder": "分割したファイルの保存先フォルダーを選択",
     "fileFailed": "{{name}} を読み込めませんでした: {{error}}",
     "applyFailed": "ページの編集を適用できませんでした: {{error}}",
-    "extractFailed": "ページを抽出できませんでした: {{error}}"
+    "extractFailed": "ページを抽出できませんでした: {{error}}",
+    "blankSetup": "空白ページの設定",
+    "sameAsAdjacent": "隣接ページと同じ",
+    "width": "幅：",
+    "height": "高さ：",
+    "unit": "単位："
   },
   "accessibilityReport": {
     "title": "アクセシビリティ チェック",

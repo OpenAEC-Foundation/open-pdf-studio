@@ -1627,7 +1627,12 @@
     "chooseFolder": "Bölünen dosyalar için klasörü seçin",
     "fileFailed": "{{name}} okunamadı: {{error}}",
     "applyFailed": "Sayfa düzenlemeleri uygulanamadı: {{error}}",
-    "extractFailed": "Sayfalar ayıklanamadı: {{error}}"
+    "extractFailed": "Sayfalar ayıklanamadı: {{error}}",
+    "blankSetup": "Boş sayfa ayarı",
+    "sameAsAdjacent": "Bitişik sayfayla aynı",
+    "width": "Genişlik:",
+    "height": "Yükseklik:",
+    "unit": "Birim:"
   },
   "accessibilityReport": {
     "title": "Erişilebilirlik denetimi",

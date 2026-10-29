@@ -1627,7 +1627,12 @@
     "chooseFolder": "Välj mappen för de delade filerna",
     "fileFailed": "Kunde inte läsa {{name}}: {{error}}",
     "applyFailed": "Det gick inte att verkställa sidändringarna: {{error}}",
-    "extractFailed": "Det gick inte att extrahera sidorna: {{error}}"
+    "extractFailed": "Det gick inte att extrahera sidorna: {{error}}",
+    "blankSetup": "Inställning för tom sida",
+    "sameAsAdjacent": "Samma som intilliggande sida",
+    "width": "Bredd:",
+    "height": "Höjd:",
+    "unit": "Enhet:"
   },
   "accessibilityReport": {
     "title": "Tillgänglighetskontroll",

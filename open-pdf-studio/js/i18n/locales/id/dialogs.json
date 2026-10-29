@@ -1627,7 +1627,12 @@
     "chooseFolder": "Pilih folder untuk file hasil pemisahan",
     "fileFailed": "Tidak dapat membaca {{name}}: {{error}}",
     "applyFailed": "Gagal menerapkan pengeditan halaman: {{error}}",
-    "extractFailed": "Gagal mengekstrak halaman: {{error}}"
+    "extractFailed": "Gagal mengekstrak halaman: {{error}}",
+    "blankSetup": "Pengaturan halaman kosong",
+    "sameAsAdjacent": "Sama dengan halaman di sebelahnya",
+    "width": "Lebar:",
+    "height": "Tinggi:",
+    "unit": "Satuan:"
   },
   "accessibilityReport": {
     "title": "Pemeriksaan Aksesibilitas",

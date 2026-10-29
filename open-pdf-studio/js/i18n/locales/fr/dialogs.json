@@ -1627,7 +1627,12 @@
     "chooseFolder": "Choisissez le dossier des fichiers fractionnés",
     "fileFailed": "Impossible de lire {{name}} : {{error}}",
     "applyFailed": "L'application des modifications de pages a échoué : {{error}}",
-    "extractFailed": "L'extraction des pages a échoué : {{error}}"
+    "extractFailed": "L'extraction des pages a échoué : {{error}}",
+    "blankSetup": "Mise en page de la page vierge",
+    "sameAsAdjacent": "Comme la page adjacente",
+    "width": "Largeur :",
+    "height": "Hauteur :",
+    "unit": "Unité :"
   },
   "accessibilityReport": {
     "title": "Vérification de l'accessibilité",

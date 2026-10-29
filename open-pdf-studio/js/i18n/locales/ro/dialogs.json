@@ -1627,7 +1627,12 @@
     "chooseFolder": "Alegeți dosarul pentru fișierele împărțite",
     "fileFailed": "{{name}} nu a putut fi citit: {{error}}",
     "applyFailed": "Aplicarea modificărilor paginilor a eșuat: {{error}}",
-    "extractFailed": "Extragerea paginilor a eșuat: {{error}}"
+    "extractFailed": "Extragerea paginilor a eșuat: {{error}}",
+    "blankSetup": "Configurare pagină goală",
+    "sameAsAdjacent": "La fel ca pagina alăturată",
+    "width": "Latime:",
+    "height": "Inaltime:",
+    "unit": "Unitate:"
   },
   "accessibilityReport": {
     "title": "Verificare accesibilitate",

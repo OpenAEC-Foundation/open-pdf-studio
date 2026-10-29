@@ -1626,7 +1626,12 @@
     "chooseFolder": "ເລືອກໂຟລເດີສຳລັບໄຟລ໌ທີ່ແບ່ງ",
     "fileFailed": "ບໍ່ສາມາດອ່ານ {{name}}: {{error}}",
     "applyFailed": "ນຳໃຊ້ການແກ້ໄຂໜ້າບໍ່ສຳເລັດ: {{error}}",
-    "extractFailed": "ແຍກໜ້າບໍ່ສຳເລັດ: {{error}}"
+    "extractFailed": "ແຍກໜ້າບໍ່ສຳເລັດ: {{error}}",
+    "blankSetup": "ຕັ້ງຄ່າໜ້າເປົ່າ",
+    "sameAsAdjacent": "ຄືກັບໜ້າທີ່ຢູ່ຕິດກັນ",
+    "width": "ລວງກວ້າງ:",
+    "height": "ລວງສູງ:",
+    "unit": "ຫົວໜ່ວຍ:"
   },
   "accessibilityReport": {
     "title": "ການກວດສອບການເຂົ້າເຖິງ",

@@ -1627,7 +1627,12 @@
     "chooseFolder": "Ordner für die geteilten Dateien wählen",
     "fileFailed": "{{name}} konnte nicht gelesen werden: {{error}}",
     "applyFailed": "Die Seitenbearbeitung konnte nicht übernommen werden: {{error}}",
-    "extractFailed": "Die Seiten konnten nicht extrahiert werden: {{error}}"
+    "extractFailed": "Die Seiten konnten nicht extrahiert werden: {{error}}",
+    "blankSetup": "Leere Seite einrichten",
+    "sameAsAdjacent": "Wie angrenzende Seite",
+    "width": "Breite:",
+    "height": "Höhe:",
+    "unit": "Einheit:"
   },
   "accessibilityReport": {
     "title": "Barrierefreiheitsprüfung",

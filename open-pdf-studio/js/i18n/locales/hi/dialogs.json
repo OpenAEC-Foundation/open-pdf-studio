@@ -1627,7 +1627,12 @@
     "chooseFolder": "विभाजित फ़ाइलों के लिए फ़ोल्डर चुनें",
     "fileFailed": "{{name}} पढ़ी नहीं जा सकी: {{error}}",
     "applyFailed": "पृष्ठ संपादन लागू नहीं हो सके: {{error}}",
-    "extractFailed": "पृष्ठ निकाले नहीं जा सके: {{error}}"
+    "extractFailed": "पृष्ठ निकाले नहीं जा सके: {{error}}",
+    "blankSetup": "रिक्त पृष्ठ सेटअप",
+    "sameAsAdjacent": "आसन्न पृष्ठ के समान",
+    "width": "चौड़ाई:",
+    "height": "ऊंचाई:",
+    "unit": "इकाई:"
   },
   "accessibilityReport": {
     "title": "सुलभता जाँच",

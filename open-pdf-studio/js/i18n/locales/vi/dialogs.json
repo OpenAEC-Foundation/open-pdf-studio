@@ -1627,7 +1627,12 @@
     "chooseFolder": "Chọn thư mục cho các tệp đã tách",
     "fileFailed": "Không thể đọc {{name}}: {{error}}",
     "applyFailed": "Áp dụng chỉnh sửa trang không thành công: {{error}}",
-    "extractFailed": "Trích xuất trang không thành công: {{error}}"
+    "extractFailed": "Trích xuất trang không thành công: {{error}}",
+    "blankSetup": "Thiết lập trang trống",
+    "sameAsAdjacent": "Giống trang liền kề",
+    "width": "Chiều rộng:",
+    "height": "Chiều cao:",
+    "unit": "Đơn vị:"
   },
   "accessibilityReport": {
     "title": "Kiểm tra trợ năng",

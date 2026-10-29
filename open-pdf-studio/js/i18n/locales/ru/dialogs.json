@@ -1627,7 +1627,12 @@
     "chooseFolder": "Выберите папку для разделённых файлов",
     "fileFailed": "Не удалось прочитать {{name}}: {{error}}",
     "applyFailed": "Не удалось применить изменения страниц: {{error}}",
-    "extractFailed": "Не удалось извлечь страницы: {{error}}"
+    "extractFailed": "Не удалось извлечь страницы: {{error}}",
+    "blankSetup": "Параметры пустой страницы",
+    "sameAsAdjacent": "Как у соседней страницы",
+    "width": "Ширина:",
+    "height": "Высота:",
+    "unit": "Единицы:"
   },
   "accessibilityReport": {
     "title": "Проверка доступности",

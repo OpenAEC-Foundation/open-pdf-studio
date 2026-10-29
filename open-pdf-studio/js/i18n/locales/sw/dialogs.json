@@ -1627,7 +1627,12 @@
     "chooseFolder": "Chagua folda ya faili zilizogawanywa",
     "fileFailed": "Imeshindwa kusoma {{name}}: {{error}}",
     "applyFailed": "Imeshindwa kutekeleza mabadiliko ya kurasa: {{error}}",
-    "extractFailed": "Imeshindwa kutoa kurasa: {{error}}"
+    "extractFailed": "Imeshindwa kutoa kurasa: {{error}}",
+    "blankSetup": "Mpangilio wa ukurasa tupu",
+    "sameAsAdjacent": "Sawa na ukurasa jirani",
+    "width": "Upana:",
+    "height": "Urefu:",
+    "unit": "Kipimo:"
   },
   "accessibilityReport": {
     "title": "Ukaguzi wa Ufikivu",

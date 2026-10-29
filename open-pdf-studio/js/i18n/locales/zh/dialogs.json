@@ -1627,7 +1627,12 @@
     "chooseFolder": "选择拆分文件的文件夹",
     "fileFailed": "无法读取 {{name}}：{{error}}",
     "applyFailed": "应用页面编辑失败：{{error}}",
-    "extractFailed": "提取页面失败：{{error}}"
+    "extractFailed": "提取页面失败：{{error}}",
+    "blankSetup": "空白页设置",
+    "sameAsAdjacent": "与相邻页面相同",
+    "width": "宽度：",
+    "height": "高度：",
+    "unit": "单位："
   },
   "accessibilityReport": {
     "title": "辅助功能检查",

@@ -1626,7 +1626,12 @@
     "chooseFolder": "Choose the folder for the split files",
     "fileFailed": "Could not read {{name}}: {{error}}",
     "applyFailed": "Applying the page edits failed: {{error}}",
-    "extractFailed": "Extracting the pages failed: {{error}}"
+    "extractFailed": "Extracting the pages failed: {{error}}",
+    "blankSetup": "Blank page setup",
+    "sameAsAdjacent": "Same as adjacent page",
+    "width": "Width:",
+    "height": "Height:",
+    "unit": "Unit:"
   },
   "accessibilityReport": {
     "title": "Accessibility Check",

@@ -1627,7 +1627,12 @@
     "chooseFolder": "분할된 파일을 저장할 폴더 선택",
     "fileFailed": "{{name}}을(를) 읽을 수 없습니다: {{error}}",
     "applyFailed": "페이지 편집을 적용하지 못했습니다: {{error}}",
-    "extractFailed": "페이지를 추출하지 못했습니다: {{error}}"
+    "extractFailed": "페이지를 추출하지 못했습니다: {{error}}",
+    "blankSetup": "빈 페이지 설정",
+    "sameAsAdjacent": "인접 페이지와 동일",
+    "width": "너비:",
+    "height": "높이:",
+    "unit": "단위:"
   },
   "accessibilityReport": {
     "title": "접근성 검사",

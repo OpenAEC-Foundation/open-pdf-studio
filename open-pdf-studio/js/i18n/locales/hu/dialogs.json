@@ -1627,7 +1627,12 @@
     "chooseFolder": "Válassza ki a felosztott fájlok mappáját",
     "fileFailed": "{{name}} nem olvasható: {{error}}",
     "applyFailed": "Az oldalmódosítások alkalmazása nem sikerült: {{error}}",
-    "extractFailed": "Az oldalak kibontása nem sikerült: {{error}}"
+    "extractFailed": "Az oldalak kibontása nem sikerült: {{error}}",
+    "blankSetup": "Üres oldal beállítása",
+    "sameAsAdjacent": "A szomszédos oldallal azonos",
+    "width": "Szélesség:",
+    "height": "Magasság:",
+    "unit": "Mértékegység:"
   },
   "accessibilityReport": {
     "title": "Akadálymentességi ellenőrzés",

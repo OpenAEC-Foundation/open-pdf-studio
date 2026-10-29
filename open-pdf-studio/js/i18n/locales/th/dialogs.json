@@ -1627,7 +1627,12 @@
     "chooseFolder": "เลือกโฟลเดอร์สำหรับไฟล์ที่แบ่ง",
     "fileFailed": "ไม่สามารถอ่าน {{name}}: {{error}}",
     "applyFailed": "นำการแก้ไขหน้าไปใช้ไม่สำเร็จ: {{error}}",
-    "extractFailed": "แยกหน้าไม่สำเร็จ: {{error}}"
+    "extractFailed": "แยกหน้าไม่สำเร็จ: {{error}}",
+    "blankSetup": "ตั้งค่าหน้าว่าง",
+    "sameAsAdjacent": "เหมือนหน้าที่อยู่ติดกัน",
+    "width": "ความกว้าง:",
+    "height": "ความสูง:",
+    "unit": "หน่วย:"
   },
   "accessibilityReport": {
     "title": "การตรวจสอบการเข้าถึง",

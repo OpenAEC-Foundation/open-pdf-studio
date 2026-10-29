@@ -1627,7 +1627,12 @@
     "chooseFolder": "Velg mappen for de oppdelte filene",
     "fileFailed": "Kunne ikke lese {{name}}: {{error}}",
     "applyFailed": "Kunne ikke bruke sideendringene: {{error}}",
-    "extractFailed": "Kunne ikke trekke ut sidene: {{error}}"
+    "extractFailed": "Kunne ikke trekke ut sidene: {{error}}",
+    "blankSetup": "Oppsett for tom side",
+    "sameAsAdjacent": "Samme som tilstøtende side",
+    "width": "Bredde:",
+    "height": "Høyde:",
+    "unit": "Enhet:"
   },
   "accessibilityReport": {
     "title": "Tilgjengelighetskontroll",

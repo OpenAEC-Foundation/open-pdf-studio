@@ -1627,7 +1627,12 @@
     "chooseFolder": "Escolha a pasta para os arquivos divididos",
     "fileFailed": "Não foi possível ler {{name}}: {{error}}",
     "applyFailed": "Falha ao aplicar as edições de páginas: {{error}}",
-    "extractFailed": "Falha ao extrair as páginas: {{error}}"
+    "extractFailed": "Falha ao extrair as páginas: {{error}}",
+    "blankSetup": "Configuração da página em branco",
+    "sameAsAdjacent": "Igual à página adjacente",
+    "width": "Largura:",
+    "height": "Altura:",
+    "unit": "Unidade:"
   },
   "accessibilityReport": {
     "title": "Verificação de acessibilidade",

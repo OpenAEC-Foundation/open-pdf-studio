@@ -1627,7 +1627,12 @@
     "chooseFolder": "Wybierz folder dla podzielonych plików",
     "fileFailed": "Nie można odczytać {{name}}: {{error}}",
     "applyFailed": "Nie udało się zastosować zmian stron: {{error}}",
-    "extractFailed": "Nie udało się wyodrębnić stron: {{error}}"
+    "extractFailed": "Nie udało się wyodrębnić stron: {{error}}",
+    "blankSetup": "Ustawienia pustej strony",
+    "sameAsAdjacent": "Jak sąsiednia strona",
+    "width": "Szerokość:",
+    "height": "Wysokość:",
+    "unit": "Jednostka:"
   },
   "accessibilityReport": {
     "title": "Sprawdzanie dostępności",

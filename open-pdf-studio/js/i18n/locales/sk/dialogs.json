@@ -1627,7 +1627,12 @@
     "chooseFolder": "Vyberte priečinok pre rozdelené súbory",
     "fileFailed": "{{name}} sa nepodarilo prečítať: {{error}}",
     "applyFailed": "Úpravy strán sa nepodarilo použiť: {{error}}",
-    "extractFailed": "Strany sa nepodarilo extrahovať: {{error}}"
+    "extractFailed": "Strany sa nepodarilo extrahovať: {{error}}",
+    "blankSetup": "Nastavenie prázdnej strany",
+    "sameAsAdjacent": "Rovnako ako susedná strana",
+    "width": "Šírka:",
+    "height": "Výška:",
+    "unit": "Jednotka:"
   },
   "accessibilityReport": {
     "title": "Kontrola prístupnosti",

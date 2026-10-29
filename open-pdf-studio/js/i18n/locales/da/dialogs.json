@@ -1627,7 +1627,12 @@
     "chooseFolder": "Vælg mappen til de opdelte filer",
     "fileFailed": "{{name}} kunne ikke læses: {{error}}",
     "applyFailed": "Sideredigeringerne kunne ikke anvendes: {{error}}",
-    "extractFailed": "Siderne kunne ikke udtrækkes: {{error}}"
+    "extractFailed": "Siderne kunne ikke udtrækkes: {{error}}",
+    "blankSetup": "Opsætning af tom side",
+    "sameAsAdjacent": "Samme som tilstødende side",
+    "width": "Bredde:",
+    "height": "Højde:",
+    "unit": "Enhed:"
   },
   "accessibilityReport": {
     "title": "Tilgængelighedskontrol",

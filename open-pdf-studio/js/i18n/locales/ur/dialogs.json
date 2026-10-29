@@ -1627,7 +1627,12 @@
     "chooseFolder": "تقسیم شدہ فائلوں کے لیے فولڈر منتخب کریں",
     "fileFailed": "{{name}} پڑھی نہیں جا سکی: {{error}}",
     "applyFailed": "صفحات کی ترامیم لاگو نہیں ہو سکیں: {{error}}",
-    "extractFailed": "صفحات نکالے نہیں جا سکے: {{error}}"
+    "extractFailed": "صفحات نکالے نہیں جا سکے: {{error}}",
+    "blankSetup": "خالی صفحے کی ترتیب",
+    "sameAsAdjacent": "ملحقہ صفحے جیسا",
+    "width": "چوڑائی:",
+    "height": "اونچائی:",
+    "unit": "اکائی:"
   },
   "accessibilityReport": {
     "title": "رسائی کی جانچ",

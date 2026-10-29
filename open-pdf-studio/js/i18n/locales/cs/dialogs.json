@@ -1627,7 +1627,12 @@
     "chooseFolder": "Vyberte složku pro rozdělené soubory",
     "fileFailed": "{{name}} nelze přečíst: {{error}}",
     "applyFailed": "Úpravy stránek se nepodařilo použít: {{error}}",
-    "extractFailed": "Stránky se nepodařilo extrahovat: {{error}}"
+    "extractFailed": "Stránky se nepodařilo extrahovat: {{error}}",
+    "blankSetup": "Nastavení prázdné stránky",
+    "sameAsAdjacent": "Stejně jako sousední stránka",
+    "width": "Šířka:",
+    "height": "Výška:",
+    "unit": "Jednotka:"
   },
   "accessibilityReport": {
     "title": "Kontrola přístupnosti",

@@ -9,7 +9,9 @@
 // A plan is { entries, splits, seq }:
 // - entries: the pages of the result, in their new order. Each entry is
 //     { key, kind: 'page', page, rotation }          a page of the document
-//     { key, kind: 'blank', rotation }               a new blank page
+//     { key, kind: 'blank', rotation, width, height } a new blank page;
+//                                                    width x height: its page
+//                                                    box in points (#846)
 //     { key, kind: 'file', source, index, rotation } page `index` (0-based) of
 //                                                    an added PDF `source`
 //   `rotation` is the pending turn in degrees (0, 90, 180, 270) on top of how
@@ -154,17 +156,19 @@ function insertAt(plan, gap, newEntries, seq) {
 }
 
 /**
- * Inserts `count` blank pages in gap `gap`. Their size is decided on Apply:
- * that of the page in front of them, or else the page after them (see
- * blankSizeNeighbour), or A4.
+ * Inserts `count` blank pages in gap `gap`. With `size` ({width, height} in
+ * points, see blank-page-setup.js) that is exactly their page box. Without
+ * it the size is decided on Apply: that of the page in front of them, or
+ * else the page after them (see blankSizeNeighbour), or A4.
  * @returns {{plan: object, keys: string[]}} the plan and the keys of the new pages
  */
-export function insertBlank(plan, gap, count = 1) {
+export function insertBlank(plan, gap, count = 1, size = null) {
   let seq = plan.seq;
   const added = [];
+  const sized = size && size.width > 0 && size.height > 0 ? { width: size.width, height: size.height } : {};
   for (let i = 0; i < Math.max(1, count | 0); i++) {
     seq += 1;
-    added.push({ key: `b${seq}`, kind: 'blank', rotation: 0 });
+    added.push({ key: `b${seq}`, kind: 'blank', rotation: 0, ...sized });
   }
   return { plan: insertAt(plan, gap, added, seq), keys: added.map((e) => e.key) };
 }
@@ -182,6 +186,17 @@ export function insertSource(plan, gap, source, pageCount) {
   }
   if (!added.length) return { plan, keys: [] };
   return { plan: insertAt(plan, gap, added, seq), keys: added.map((e) => e.key) };
+}
+
+/**
+ * The entry a blank page inserted in gap `gap` takes its size from in the
+ * organizer: the one to its left, or the one to its right in gap 0. Any kind
+ * of entry counts. Returns the entry or null.
+ */
+export function adjacentEntry(entries, gap) {
+  if (!entries.length) return null;
+  const g = Math.max(0, Math.min(entries.length, Math.round(Number(gap) || 0)));
+  return g > 0 ? entries[g - 1] : entries[0];
 }
 
 /**

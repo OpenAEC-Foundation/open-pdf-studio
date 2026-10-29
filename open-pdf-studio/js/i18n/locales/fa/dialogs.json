@@ -1627,7 +1627,12 @@
     "chooseFolder": "پوشه فایل‌های تقسیم‌شده را انتخاب کنید",
     "fileFailed": "خواندن {{name}} ممکن نشد: {{error}}",
     "applyFailed": "اعمال ویرایش‌های صفحه ناموفق بود: {{error}}",
-    "extractFailed": "استخراج صفحات ناموفق بود: {{error}}"
+    "extractFailed": "استخراج صفحات ناموفق بود: {{error}}",
+    "blankSetup": "تنظیم صفحه خالی",
+    "sameAsAdjacent": "مانند صفحه مجاور",
+    "width": "عرض:",
+    "height": "ارتفاع:",
+    "unit": "واحد:"
   },
   "accessibilityReport": {
     "title": "بررسی دسترس‌پذیری",

@@ -1627,7 +1627,12 @@
     "chooseFolder": "Scegli la cartella per i file divisi",
     "fileFailed": "Impossibile leggere {{name}}: {{error}}",
     "applyFailed": "Applicazione delle modifiche alle pagine non riuscita: {{error}}",
-    "extractFailed": "Estrazione delle pagine non riuscita: {{error}}"
+    "extractFailed": "Estrazione delle pagine non riuscita: {{error}}",
+    "blankSetup": "Impostazione pagina vuota",
+    "sameAsAdjacent": "Come la pagina adiacente",
+    "width": "Larghezza:",
+    "height": "Altezza:",
+    "unit": "Unità:"
   },
   "accessibilityReport": {
     "title": "Verifica accessibilità",

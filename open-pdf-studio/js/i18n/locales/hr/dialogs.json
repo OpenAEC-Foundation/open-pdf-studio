@@ -1627,7 +1627,12 @@
     "chooseFolder": "Odaberite mapu za podijeljene datoteke",
     "fileFailed": "Nije moguće pročitati {{name}}: {{error}}",
     "applyFailed": "Primjena izmjena stranica nije uspjela: {{error}}",
-    "extractFailed": "Izdvajanje stranica nije uspjelo: {{error}}"
+    "extractFailed": "Izdvajanje stranica nije uspjelo: {{error}}",
+    "blankSetup": "Postavke prazne stranice",
+    "sameAsAdjacent": "Isto kao susjedna stranica",
+    "width": "Širina:",
+    "height": "Visina:",
+    "unit": "Jedinica:"
   },
   "accessibilityReport": {
     "title": "Provjera pristupačnosti",

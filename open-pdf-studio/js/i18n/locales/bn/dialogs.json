@@ -1627,7 +1627,12 @@
     "chooseFolder": "বিভক্ত ফাইলগুলির জন্য ফোল্ডার বেছে নিন",
     "fileFailed": "{{name}} পড়া যায়নি: {{error}}",
     "applyFailed": "পৃষ্ঠা সম্পাদনা প্রয়োগ করা যায়নি: {{error}}",
-    "extractFailed": "পৃষ্ঠাগুলি নিষ্কাশন করা যায়নি: {{error}}"
+    "extractFailed": "পৃষ্ঠাগুলি নিষ্কাশন করা যায়নি: {{error}}",
+    "blankSetup": "ফাঁকা পৃষ্ঠার সেটআপ",
+    "sameAsAdjacent": "পাশের পৃষ্ঠার মতো",
+    "width": "প্রস্থ:",
+    "height": "উচ্চতা:",
+    "unit": "একক:"
   },
   "accessibilityReport": {
     "title": "অ্যাক্সেসযোগ্যতা পরীক্ষা",

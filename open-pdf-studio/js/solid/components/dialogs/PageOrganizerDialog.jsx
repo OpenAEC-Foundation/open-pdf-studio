@@ -3,14 +3,19 @@ import { createStore } from 'solid-js/store';
 import Dialog from '../Dialog.jsx';
 import { closeDialog, showMessage } from '../../stores/dialogStore.js';
 import { thumbnailData, placeholderSize } from '../../stores/panels/thumbnailStore.js';
-import { getActiveDocument } from '../../../core/state.js';
+import { state, getActiveDocument } from '../../../core/state.js';
+import { savePreferences } from '../../../core/preferences.js';
 import { labelVan } from '../../../pdf/pagina-labels.js';
 import { isNoOpGap, rangeInOrder, stepRow } from '../../../pdf/page-order.js';
 import {
   createPlan, keysOf, isPlanUnchanged, isStructureUnchanged, moveEntriesToGap, moveEntriesBy,
   moveEntriesToEdge, rotateEntries, deleteEntries, insertBlank, insertSource, toggleSplit, hasSplitAt,
-  splitAroundSelection, splitRanges, createHistory, pushHistory, undoHistory, redoHistory,
+  splitAroundSelection, splitRanges, createHistory, pushHistory, undoHistory, redoHistory, adjacentEntry,
 } from '../../../pdf/page-edit-plan.js';
+import {
+  BLANK_PRESETS, normalizeBlankSetup, blankSizeFromSetup, setupOrientation, withOrientation, withUnit, withMode,
+  shownEntrySize, thumbBox, fromPoints,
+} from '../../../pdf/blank-page-setup.js';
 import {
   ZOOM_LEVELS, DEFAULT_ZOOM_INDEX, GUTTER, LABEL_HEIGHT, clampZoomIndex, zoomStep, gridLayout,
   cellPosition, tilePosition, visibleRange, gapAtPoint, scrollTopFor,
@@ -60,6 +65,10 @@ export default function PageOrganizerDialog() {
   const [viewW, setViewW] = createSignal(800);
   const [viewH, setViewH] = createSignal(500);
   const [busy, setBusy] = createSignal(false);
+  // Page setup of new blank pages (#846); kept in the preferences.
+  const [blankSetup, setBlankSetup] = createSignal(normalizeBlankSetup(state.preferences?.pageOrganizerBlankSetup));
+  const [setupOpen, setSetupOpen] = createSignal(false);
+  let setupChanged = false;
 
   // Added PDFs: id -> { bytes, name, pageCount, pdf } (pdf: pdf.js document
   // for the thumbnails). Names for the labels in a signal.
@@ -67,6 +76,8 @@ export default function PageOrganizerDialog() {
   const [sourceNames, setSourceNames] = createSignal({});
   const [fileThumbs, setFileThumbs] = createStore({});
   let gridRef;
+  let setupRef;
+  let setupToggleRef;
   let pointerDrag;
   let dragFrame = null;
   let dragPoint = null;
@@ -238,13 +249,94 @@ export default function PageOrganizerDialog() {
     return idx.length ? Math.max(...idx) + 1 : entries().length;
   };
 
-  const addBlank = (gap) => {
+  // The size an entry shows now: its effective page box (pdf.js view: the
+  // CropBox within the MediaBox), turned by /Rotate, the app rotation and
+  // its pending turn. Null when it cannot be measured.
+  const measureEntry = async (e) => {
+    try {
+      if (!e) return null;
+      if (e.kind === 'blank') return shownEntrySize(e);
+      if (e.kind === 'page') {
+        const page = await doc.pdfDoc.getPage(e.page);
+        return shownEntrySize(e, { view: page.view, rotate: page.rotate, appRotation: doc.pageRotations?.[e.page] || 0 });
+      }
+      const src = sources[e.source];
+      if (!src?.pdf) return null;
+      const page = await src.pdf.getPage(e.index + 1);
+      return shownEntrySize(e, { view: page.view, rotate: page.rotate });
+    } catch (err) {
+      console.warn('[edit-pages] could not measure the adjacent page', err);
+      return null;
+    }
+  };
+
+  // A new blank page gets its size now, from the page setup: the thumbnail
+  // and the page Apply writes are exactly that size.
+  const addBlank = async (gap) => {
     setInsertMenu(null);
-    const { plan: next, keys } = insertBlank(plan(), gap);
+    const setup = blankSetup();
+    const adjacent = setup.mode === 'adjacent' ? await measureEntry(adjacentEntry(entries(), gap)) : null;
+    if (closed) return;
+    const { plan: next, keys } = insertBlank(plan(), gap, 1, blankSizeFromSetup(setup, adjacent));
     commit(next);
     selectKeys(keys);
     afterEdit();
   };
+
+  const changeSetup = (next) => {
+    if (next === blankSetup()) return;
+    setBlankSetup(next);
+    setupChanged = true;
+  };
+  const persistSetup = () => {
+    if (!setupChanged || !state.preferences) return;
+    setupChanged = false;
+    try {
+      state.preferences.pageOrganizerBlankSetup = { ...blankSetup() };
+      savePreferences();
+    } catch (err) {
+      console.warn('[edit-pages] could not save the blank page setup', err);
+    }
+  };
+  const closeSetup = (focusToggle = false) => {
+    if (!setupOpen()) return;
+    setSetupOpen(false);
+    persistSetup();
+    if (focusToggle) setupToggleRef?.focus();
+  };
+  const setupChoice = () => { const s = blankSetup(); return s.mode === 'preset' ? s.preset : s.mode; };
+  const chooseSetup = (value) => {
+    const s = blankSetup();
+    if (value === 'adjacent' || value === 'custom') { changeSetup(withMode(s, value)); return; }
+    changeSetup({ ...s, mode: 'preset', preset: value, orientation: setupOrientation(s) || s.orientation });
+  };
+  const setCustomSide = (side, text) => {
+    const v = parseFloat(text);
+    if (!(v > 0)) return;
+    changeSetup({ ...blankSetup(), [side]: v });
+  };
+  // The resulting size, shown under the controls.
+  const setupSummary = () => {
+    const s = blankSetup();
+    if (s.mode === 'adjacent') return '';
+    const { width, height } = blankSizeFromSetup(s);
+    const unit = s.mode === 'custom' ? s.unit : (BLANK_PRESETS[s.preset]?.unit || 'mm');
+    return `${fromPoints(width, unit)} × ${fromPoints(height, unit)} ${unit}`;
+  };
+  const handleSetupKeyDown = (e) => {
+    // Keys typed here are not for the document behind the organizer.
+    if (e.key !== 'Tab') e.stopPropagation();
+    if (e.key === 'Escape') { e.preventDefault(); closeSetup(true); }
+  };
+  createEffect(() => {
+    if (!setupOpen()) return;
+    const outside = (e) => {
+      if (setupRef?.contains(e.target) || setupToggleRef?.contains(e.target)) return;
+      closeSetup();
+    };
+    document.addEventListener('pointerdown', outside, true);
+    onCleanup(() => document.removeEventListener('pointerdown', outside, true));
+  });
 
   // Reads an added PDF (pdf.js: page count and thumbnails) and inserts all
   // its pages in `gap`. Returns the gap after them.
@@ -479,6 +571,22 @@ export default function PageOrganizerDialog() {
     if (e.kind === 'blank') return t('pageOrganizer.blankPage');
     return `${sourceNames()[e.source] || ''} · ${e.index + 1}`;
   };
+  // Tooltip: a blank page also tells its size.
+  const titleFor = (e) => {
+    if (e.kind !== 'blank' || !(e.width > 0 && e.height > 0)) return labelFor(e);
+    const unit = blankSetup().unit;
+    return `${labelFor(e)} (${fromPoints(e.width, unit)} × ${fromPoints(e.height, unit)} ${unit})`;
+  };
+  // A thumbnail without an image: a blank page in its own proportions, a
+  // page that is not drawn yet in those of the thumbnails panel.
+  const emptyThumbStyle = (e) => {
+    const box = e.kind === 'blank' ? thumbBox(e, tile()) : null;
+    return {
+      width: `${box ? box.width : Math.round(tile() * 0.92 * aspect())}px`,
+      height: `${box ? box.height : Math.round(tile() * 0.92)}px`,
+      transform: e.rotation ? `rotate(${e.rotation}deg)` : undefined,
+    };
+  };
 
   // ── Desktop file drops (setup.js routes them here while open) ───────────────
 
@@ -539,6 +647,7 @@ export default function PageOrganizerDialog() {
       },
     });
     onCleanup(() => {
+      persistSetup();
       pointerDrag.destroy();
       stopPointerScroll();
       unregister();
@@ -604,7 +713,57 @@ export default function PageOrganizerDialog() {
         <ToolButton id="page-organizer-extract" label={tCommon('extract')} title={t('pageOrganizer.extractTitle')} disabled={!hasSelection()} onClick={extract} />
         <ToolButton id="page-organizer-split" icon={ICON.split} label={t('pageOrganizer.split')} title={t('pageOrganizer.splitTitle')} disabled={!hasSelection()} onClick={splitSelection} />
         <span class="page-organizer-sep" />
-        <ToolButton id="page-organizer-insert-blank" icon={ICON.insert} label={t('pageOrganizer.blankPage')} onClick={() => addBlank(insertionGap())} />
+        <span class="page-organizer-blank-group">
+          <ToolButton id="page-organizer-insert-blank" icon={ICON.insert} label={t('pageOrganizer.blankPage')} onClick={() => addBlank(insertionGap())} />
+          <button class="page-organizer-btn page-organizer-setup-toggle" id="page-organizer-blank-setup" ref={setupToggleRef}
+            title={t('pageOrganizer.blankSetup')} aria-label={t('pageOrganizer.blankSetup')} aria-haspopup="dialog" aria-expanded={setupOpen()}
+            onClick={() => (setupOpen() ? closeSetup() : setSetupOpen(true))}>
+            <svg viewBox="0 0 8 8" width="8" height="8" aria-hidden="true"><path d="M1 2.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.2" /></svg>
+          </button>
+          <Show when={setupOpen()}>
+            <div class="page-organizer-setup" ref={setupRef} role="dialog" aria-label={t('pageOrganizer.blankSetup')} on:keydown={handleSetupKeyDown}>
+              <label class="page-organizer-setup-row">
+                <span class="page-organizer-setup-label">{t('insertPage.paperSize')}</span>
+                <select class="page-organizer-setup-select" id="page-organizer-blank-size" value={setupChoice()} onChange={(e) => chooseSetup(e.currentTarget.value)}>
+                  <option value="adjacent">{t('pageOrganizer.sameAsAdjacent')}</option>
+                  <For each={Object.entries(BLANK_PRESETS)}>
+                    {([key, p]) => <option value={key}>{`${p.label} (${p.width} × ${p.height} ${p.unit})`}</option>}
+                  </For>
+                  <option value="custom">{t('newDoc.customSize')}</option>
+                </select>
+              </label>
+              <label class="page-organizer-setup-row">
+                <span class="page-organizer-setup-label">{t('insertPage.orientation')}</span>
+                <select class="page-organizer-setup-select" id="page-organizer-blank-orientation" disabled={blankSetup().mode === 'adjacent'}
+                  value={setupOrientation(blankSetup()) || 'portrait'} onChange={(e) => changeSetup(withOrientation(blankSetup(), e.currentTarget.value))}>
+                  <option value="portrait">{t('insertPage.portrait')}</option>
+                  <option value="landscape">{t('insertPage.landscape')}</option>
+                </select>
+              </label>
+              <Show when={blankSetup().mode === 'custom'}>
+                <label class="page-organizer-setup-row">
+                  <span class="page-organizer-setup-label">{t('pageOrganizer.width')}</span>
+                  <input type="text" inputmode="decimal" data-getal class="page-organizer-setup-input" id="page-organizer-blank-width"
+                    value={blankSetup().width} onInput={(e) => setCustomSide('width', e.currentTarget.value)} />
+                </label>
+                <label class="page-organizer-setup-row">
+                  <span class="page-organizer-setup-label">{t('pageOrganizer.height')}</span>
+                  <input type="text" inputmode="decimal" data-getal class="page-organizer-setup-input" id="page-organizer-blank-height"
+                    value={blankSetup().height} onInput={(e) => setCustomSide('height', e.currentTarget.value)} />
+                </label>
+                <label class="page-organizer-setup-row">
+                  <span class="page-organizer-setup-label">{t('pageOrganizer.unit')}</span>
+                  <select class="page-organizer-setup-select" id="page-organizer-blank-unit" value={blankSetup().unit}
+                    onChange={(e) => changeSetup(withUnit(blankSetup(), e.currentTarget.value))}>
+                    <option value="mm">mm</option>
+                    <option value="in">in</option>
+                  </select>
+                </label>
+              </Show>
+              <div class="page-organizer-setup-summary">{setupSummary()}</div>
+            </div>
+          </Show>
+        </span>
         <ToolButton id="page-organizer-insert-file" label={t('pageOrganizer.pagesFromFile')} onClick={() => addFromFile(insertionGap())} />
         <span class="page-organizer-sep" />
         <ToolButton label={t('pageOrganizer.moveToStart')} title={`${t('pageOrganizer.moveToStart')} (Ctrl+Home)`} disabled={!hasSelection()} onClick={() => moveToEdge('start')} />
@@ -679,14 +838,14 @@ export default function PageOrganizerDialog() {
                   role="option"
                   aria-selected={sel()}
                   draggable={false}
-                  title={labelFor(e)}
+                  title={titleFor(e)}
                   onClick={(ev) => handleTileClick(ev, e.key)}
                   onDragStart={(ev) => ev.preventDefault()}
                 >
                   <div class="page-organizer-frame" style={{ width: `${tile()}px`, height: `${tile()}px` }}>
                     <Show when={src()} fallback={
                       <div class="page-organizer-thumb page-organizer-thumb-empty" classList={{ blank: e.kind === 'blank' }}
-                        style={{ height: `${Math.round(tile() * 0.92)}px`, width: `${Math.round(tile() * 0.92 * aspect())}px`, transform: e.rotation ? `rotate(${e.rotation}deg)` : undefined }} />
+                        style={emptyThumbStyle(e)} />
                     }>
                       <img class="page-organizer-thumb" src={src()} draggable={false} alt=""
                         style={{ transform: e.rotation ? `rotate(${e.rotation}deg)` : undefined }} />

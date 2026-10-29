@@ -1627,7 +1627,12 @@
     "chooseFolder": "Kies de map voor de gesplitste bestanden",
     "fileFailed": "{{name}} kon niet worden gelezen: {{error}}",
     "applyFailed": "Het toepassen van de paginabewerkingen is mislukt: {{error}}",
-    "extractFailed": "Het uitnemen van de pagina's is mislukt: {{error}}"
+    "extractFailed": "Het uitnemen van de pagina's is mislukt: {{error}}",
+    "blankSetup": "Instelling lege pagina",
+    "sameAsAdjacent": "Zelfde als aangrenzende pagina",
+    "width": "Breedte:",
+    "height": "Hoogte:",
+    "unit": "Eenheid:"
   },
   "accessibilityReport": {
     "title": "Toegankelijkheidscontrole",

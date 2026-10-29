@@ -1627,7 +1627,12 @@
     "chooseFolder": "Trieu la carpeta per als fitxers dividits",
     "fileFailed": "No s'ha pogut llegir {{name}}: {{error}}",
     "applyFailed": "No s'han pogut aplicar els canvis de pàgines: {{error}}",
-    "extractFailed": "No s'han pogut extreure les pàgines: {{error}}"
+    "extractFailed": "No s'han pogut extreure les pàgines: {{error}}",
+    "blankSetup": "Configuració de la pàgina en blanc",
+    "sameAsAdjacent": "Igual que la pàgina adjacent",
+    "width": "Amplada:",
+    "height": "Alçada:",
+    "unit": "Unitat:"
   },
   "accessibilityReport": {
     "title": "Comprovació d'accessibilitat",

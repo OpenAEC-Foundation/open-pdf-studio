@@ -1627,7 +1627,12 @@
     "chooseFolder": "اختر المجلد للملفات المقسمة",
     "fileFailed": "تعذرت قراءة {{name}}: {{error}}",
     "applyFailed": "فشل تطبيق تعديلات الصفحات: {{error}}",
-    "extractFailed": "فشل استخراج الصفحات: {{error}}"
+    "extractFailed": "فشل استخراج الصفحات: {{error}}",
+    "blankSetup": "إعداد الصفحة الفارغة",
+    "sameAsAdjacent": "مثل الصفحة المجاورة",
+    "width": "العرض:",
+    "height": "الارتفاع:",
+    "unit": "الوحدة:"
   },
   "accessibilityReport": {
     "title": "فحص إمكانية الوصول",
