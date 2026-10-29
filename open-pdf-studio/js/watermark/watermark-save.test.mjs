@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PDFDocument, PDFName, degrees } from 'pdf-lib';
+import { PDFDocument, PDFName, PDFString, PDFHexString, degrees } from 'pdf-lib';
 import { writeWatermarkContent, readWatermarkDefinitions, watermarkIds, removeWatermarkStreams } from '../pdf/saver/watermark-content.js';
 import { schrijfKopVoeten, zonderKopVoetStromen } from '../pdf/saver/kopvoet.js';
 import { watermarkBaseline, watermarkPosition } from './watermark-layout.js';
@@ -169,4 +169,30 @@ test('content burned in by an older version is kept once; the new watermark is n
   }
   const { items } = await textItems(bytes);
   assert.deepEqual(items.map(i => i.text).sort(), ['NEWMARK', 'OLDMARK']);
+});
+
+test('large image definitions survive reopening without decoder argument limits', async () => {
+  // Larger than the JS engine's function-argument limit (which differs by platform).
+  const imageData = 'data:image/png;base64,' + 'A'.repeat(400000);
+  const p = await PDFDocument.create(); p.addPage([600, 800]);
+  const definition = mark({ id: 'large', type: 'imageWatermark', enabled: false, imageData, text: '備考 🧱' });
+  await writeWatermarkContent(p, [definition]);
+  const reloaded = await PDFDocument.load(await p.save());
+  const restored = readWatermarkDefinitions(reloaded);
+  assert.equal(restored.length, 1);
+  assert.equal(restored[0].imageData, imageData);
+  assert.equal(restored[0].text, definition.text);
+});
+
+test('large legacy strings and little-endian definitions retain their encoding', async () => {
+  for (const encoding of ['PDFDocEncoding', 'UTF-16LE']) {
+    const p = await PDFDocument.create(); p.addPage();
+    const definition = mark({ text: encoding === 'UTF-16LE' ? '雪 🧱' : 'Plain text',
+      imageData: 'data:image/png;base64,' + 'A'.repeat(400000) });
+    const json = JSON.stringify([definition]);
+    const stored = encoding === 'PDFDocEncoding' ? PDFString.of(json)
+      : PDFHexString.of(Buffer.from('\ufeff' + json, 'utf16le').toString('hex'));
+    p.catalog.set(PDFName.of('OPS_Watermark'), stored);
+    assert.deepEqual(readWatermarkDefinitions(await PDFDocument.load(await p.save())), [definition]);
+  }
 });

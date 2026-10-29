@@ -3,7 +3,7 @@
 import {
   PDFName, PDFArray, PDFDict, PDFStream, PDFRef, PDFString, PDFHexString,
   degrees, rgb, drawText, drawImage, pushGraphicsState, popGraphicsState,
-  concatTransformationMatrix,
+  concatTransformationMatrix, pdfDocEncodingDecode,
 } from 'pdf-lib';
 import { watermarkFont, watermarkPosition, watermarkTextPlacement, watermarkPageMatrix } from '../../watermark/watermark-layout.js';
 
@@ -12,7 +12,19 @@ const RESOURCES = 'OPS_WatermarkResources';
 const FIELDS = ['id', 'type', 'text', 'fontFamily', 'fontSize', 'autoFit', 'color', 'imageData', 'width', 'height',
   'scale', 'opacity', 'rotation', 'position', 'customX', 'customY', 'layer', 'pageRange', 'customPages', 'enabled'];
 const supported = w => w && ['textWatermark', 'imageWatermark'].includes(w.type) && typeof w.id === 'string' && w.id;
-const textOf = x => x instanceof PDFString || x instanceof PDFHexString ? x.decodeText() : null;
+function textOf(x) {
+  if (!(x instanceof PDFString || x instanceof PDFHexString)) return null;
+  const bytes = x.asBytes();
+  // pdf-lib's decodeText spreads every code point into one function call.
+  // Image definitions can exceed that engine/platform-dependent argument limit.
+  if (bytes[0] === 0xfe && bytes[1] === 0xff) return new TextDecoder('utf-16be').decode(bytes);
+  if (bytes[0] === 0xff && bytes[1] === 0xfe) return new TextDecoder('utf-16le').decode(bytes);
+  let text = '';
+  for (let offset = 0; offset < bytes.length; offset += 8192) {
+    text += pdfDocEncodingDecode(bytes.subarray(offset, offset + 8192));
+  }
+  return text;
+}
 function contents(page) {
   const value = page.node.context.lookup(page.node.get(PDFName.of('Contents')));
   return value instanceof PDFArray ? value : null;
