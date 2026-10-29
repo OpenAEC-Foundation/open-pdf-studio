@@ -94,6 +94,7 @@ js/pdf/weergave-rotatie.test.mjs
 js/pdf/weergave-draaien.test.mjs
 js/annotations/annotatie-omhullende.test.mjs
 js/annotations/rendering/hatch-geometrie.test.mjs
+js/annotations/rendering/hatch-picker.test.mjs
 js/annotations/rendering/textbox-layout.test.mjs
 js/annotations/editable-numbers.test.mjs
 js/core/preferences-mirror.test.mjs
