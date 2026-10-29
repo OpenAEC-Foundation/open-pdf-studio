@@ -303,5 +303,16 @@
     "readFailed": "לא ניתן לקרוא את מודל ה-3D.",
     "partial": "לא ניתן לקרוא חלקים מסוימים של מודל ה-3D ({{n}} דולגו).",
     "viewerFailed": "לא ניתן להפעיל את תצוגת ה-3D."
+  },
+  "moveInference": {
+    "onAxisX": "על ציר X",
+    "onAxisY": "על ציר Y",
+    "fromPoint": "מנקודה",
+    "extension": "על ההמשך",
+    "parallel": "מקביל",
+    "perpendicular": "ניצב",
+    "intersection": "חיתוך",
+    "polar": "קוטבי",
+    "locked": "נעול"
   }
 }

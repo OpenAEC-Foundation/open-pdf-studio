@@ -303,5 +303,16 @@
     "readFailed": "Modeli ya 3D haikuweza kusomwa.",
     "partial": "Baadhi ya sehemu za modeli ya 3D hazikuweza kusomwa ({{n}} zimerukwa).",
     "viewerFailed": "Mwonekano wa 3D haukuweza kuanzishwa."
+  },
+  "moveInference": {
+    "onAxisX": "Kwenye mhimili X",
+    "onAxisY": "Kwenye mhimili Y",
+    "fromPoint": "Kutoka pointi",
+    "extension": "Kwenye mwendelezo",
+    "parallel": "Sambamba",
+    "perpendicular": "Pembemraba",
+    "intersection": "Makutano",
+    "polar": "Kipolari",
+    "locked": "Imefungwa"
   }
 }

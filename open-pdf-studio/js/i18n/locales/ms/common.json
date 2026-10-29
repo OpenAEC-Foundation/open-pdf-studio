@@ -303,5 +303,16 @@
     "readFailed": "Model 3D tidak dapat dibaca.",
     "partial": "Sesetengah bahagian model 3D tidak dapat dibaca ({{n}} dilangkau).",
     "viewerFailed": "Paparan 3D tidak dapat dimulakan."
+  },
+  "moveInference": {
+    "onAxisX": "Pada paksi X",
+    "onAxisY": "Pada paksi Y",
+    "fromPoint": "Dari titik",
+    "extension": "Pada lanjutan",
+    "parallel": "Selari",
+    "perpendicular": "Serenjang",
+    "intersection": "Persilangan",
+    "polar": "Kutub",
+    "locked": "Dikunci"
   }
 }

@@ -303,5 +303,16 @@
     "readFailed": "3D ماڈل پڑھا نہیں جا سکا۔",
     "partial": "3D ماڈل کے کچھ حصے پڑھے نہیں جا سکے ({{n}} چھوڑ دیے گئے)۔",
     "viewerFailed": "3D منظر شروع نہیں کیا جا سکا۔"
+  },
+  "moveInference": {
+    "onAxisX": "X محور پر",
+    "onAxisY": "Y محور پر",
+    "fromPoint": "نقطے سے",
+    "extension": "توسیع پر",
+    "parallel": "متوازی",
+    "perpendicular": "عمودی",
+    "intersection": "تقاطع",
+    "polar": "پولر",
+    "locked": "مقفل"
   }
 }

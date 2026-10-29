@@ -303,5 +303,16 @@
     "readFailed": "3D model sa nepodarilo načítať.",
     "partial": "Niektoré časti 3D modelu sa nepodarilo načítať (vynechané: {{n}}).",
     "viewerFailed": "3D zobrazenie sa nepodarilo spustiť."
+  },
+  "moveInference": {
+    "onAxisX": "Na osi X",
+    "onAxisY": "Na osi Y",
+    "fromPoint": "Od bodu",
+    "extension": "Na predĺžení",
+    "parallel": "Rovnobežne",
+    "perpendicular": "Kolmo",
+    "intersection": "Priesečník",
+    "polar": "Polárne",
+    "locked": "Uzamknuté"
   }
 }

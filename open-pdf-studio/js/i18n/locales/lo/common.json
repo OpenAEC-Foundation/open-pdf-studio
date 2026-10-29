@@ -303,5 +303,16 @@
     "readFailed": "ບໍ່ສາມາດອ່ານແບບຈຳລອງ 3D ໄດ້.",
     "partial": "ບໍ່ສາມາດອ່ານບາງສ່ວນຂອງແບບຈຳລອງ 3D ໄດ້ (ຂ້າມ {{n}}).",
     "viewerFailed": "ບໍ່ສາມາດເລີ່ມມຸມມອງ 3D ໄດ້."
+  },
+  "moveInference": {
+    "onAxisX": "ເທິງແກນ X",
+    "onAxisY": "ເທິງແກນ Y",
+    "fromPoint": "ຈາກຈຸດ",
+    "extension": "ເທິງສ່ວນຕໍ່ຂະຫຍາຍ",
+    "parallel": "ຂະໜານ",
+    "perpendicular": "ຕັ້ງສາກ",
+    "intersection": "ຈຸດຕັດກັນ",
+    "polar": "ແບບຂົ້ວ",
+    "locked": "ລັອກແລ້ວ"
   }
 }

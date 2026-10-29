@@ -303,5 +303,16 @@
     "readFailed": "无法读取 3D 模型。",
     "partial": "3D 模型的部分内容无法读取（已跳过 {{n}} 个）。",
     "viewerFailed": "无法启动 3D 视图。"
+  },
+  "moveInference": {
+    "onAxisX": "在 X 轴上",
+    "onAxisY": "在 Y 轴上",
+    "fromPoint": "自点",
+    "extension": "在延长线上",
+    "parallel": "平行",
+    "perpendicular": "垂直",
+    "intersection": "交点",
+    "polar": "极轴",
+    "locked": "已锁定"
   }
 }

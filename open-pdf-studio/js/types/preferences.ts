@@ -40,6 +40,9 @@ export interface Preferences {
   objectSnapRadius: number;
   snapToPdfContent: boolean;
   enableImageAlignSnap: boolean;
+  moveInferenceTracking: boolean;
+  moveInferenceExtension: boolean;
+  moveInferenceParallel: boolean;
   keepToolActive: boolean;
   lineContinue: boolean;
   ribbonCollapsed: boolean;

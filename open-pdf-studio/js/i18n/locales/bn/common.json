@@ -303,5 +303,16 @@
     "readFailed": "3D মডেলটি পড়া যায়নি।",
     "partial": "3D মডেলের কিছু অংশ পড়া যায়নি ({{n}}টি বাদ দেওয়া হয়েছে)।",
     "viewerFailed": "3D ভিউ চালু করা যায়নি।"
+  },
+  "moveInference": {
+    "onAxisX": "X অক্ষে",
+    "onAxisY": "Y অক্ষে",
+    "fromPoint": "বিন্দু থেকে",
+    "extension": "বর্ধিতাংশে",
+    "parallel": "সমান্তরাল",
+    "perpendicular": "লম্ব",
+    "intersection": "ছেদবিন্দু",
+    "polar": "পোলার",
+    "locked": "লক করা"
   }
 }

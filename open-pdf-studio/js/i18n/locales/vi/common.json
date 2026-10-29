@@ -303,5 +303,16 @@
     "readFailed": "Không thể đọc mô hình 3D.",
     "partial": "Không thể đọc một số phần của mô hình 3D (đã bỏ qua {{n}}).",
     "viewerFailed": "Không thể khởi động chế độ xem 3D."
+  },
+  "moveInference": {
+    "onAxisX": "Trên trục X",
+    "onAxisY": "Trên trục Y",
+    "fromPoint": "Từ điểm",
+    "extension": "Trên đường kéo dài",
+    "parallel": "Song song",
+    "perpendicular": "Vuông góc",
+    "intersection": "Giao điểm",
+    "polar": "Cực",
+    "locked": "Đã khóa"
   }
 }

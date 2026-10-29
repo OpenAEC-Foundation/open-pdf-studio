@@ -303,5 +303,16 @@
     "readFailed": "3D-modellen kunde inte läsas.",
     "partial": "Vissa delar av 3D-modellen kunde inte läsas ({{n}} hoppades över).",
     "viewerFailed": "3D-vyn kunde inte startas."
+  },
+  "moveInference": {
+    "onAxisX": "På X-axeln",
+    "onAxisY": "På Y-axeln",
+    "fromPoint": "Från punkt",
+    "extension": "På förlängning",
+    "parallel": "Parallell",
+    "perpendicular": "Vinkelrät",
+    "intersection": "Skärningspunkt",
+    "polar": "Polär",
+    "locked": "Låst"
   }
 }

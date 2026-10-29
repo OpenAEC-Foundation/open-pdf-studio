@@ -303,5 +303,16 @@
     "readFailed": "No s'ha pogut llegir el model 3D.",
     "partial": "No s'han pogut llegir algunes parts del model 3D ({{n}} omeses).",
     "viewerFailed": "No s'ha pogut iniciar la visualització 3D."
+  },
+  "moveInference": {
+    "onAxisX": "A l’eix X",
+    "onAxisY": "A l’eix Y",
+    "fromPoint": "Des del punt",
+    "extension": "A la prolongació",
+    "parallel": "Paral·lel",
+    "perpendicular": "Perpendicular",
+    "intersection": "Intersecció",
+    "polar": "Polar",
+    "locked": "Bloquejat"
   }
 }

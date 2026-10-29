@@ -303,5 +303,16 @@
     "readFailed": "3D モデルを読み取れませんでした。",
     "partial": "3D モデルの一部を読み取れませんでした ({{n}} 件をスキップ)。",
     "viewerFailed": "3D ビューを開始できませんでした。"
+  },
+  "moveInference": {
+    "onAxisX": "X 軸上",
+    "onAxisY": "Y 軸上",
+    "fromPoint": "点から",
+    "extension": "延長線上",
+    "parallel": "平行",
+    "perpendicular": "垂直",
+    "intersection": "交点",
+    "polar": "極",
+    "locked": "ロック"
   }
 }
