@@ -96,8 +96,9 @@ test('de release ondertekent met een vaste sleutel uit de secrets', () => {
   // Geen wachtwoorden van de vaste sleutel op de opdrachtregel.
   assert.match(job, /--ks-pass env:KS_PASS/);
   assert.match(job, /--key-pass env:KEY_PASS/);
-  // Zonder secrets nog steeds een APK, maar met een waarschuwing.
-  assert.match(job, /::warning title=Android signing::/);
+  // Zonder vaste sleutel geen vervangende identiteit en geen upload.
+  assert.match(job, /::error title=Android signing::/);
+  assert.doesNotMatch(job, /keytool -genkeypair/);
   // De sleutel blijft niet in de bouwmap staan.
   assert.match(job, /rm -f "\$KEYSTORE"/);
   assert.doesNotMatch(job, /\$APK_DIR\/release\.keystore/);

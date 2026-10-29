@@ -397,6 +397,7 @@ js/core/oude-webview.test.mjs
 scripts/oude-webview.test.mjs
 scripts/oude-webview-pdfjs.test.mjs
 scripts/android-config.test.mjs
+scripts/android-signing.test.mjs
 js/core/fout-bericht.test.mjs
 js/core/bestandsnaam.test.mjs
 js/mobile/ipc-wekker.test.mjs

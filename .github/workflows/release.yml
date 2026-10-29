@@ -9,7 +9,7 @@ on:
       version:
         description: 'Version tag vYYYY.W.N (year, ISO week, sequence); must match the version fields'
         required: true
-        default: 'v2026.44.2'
+        default: 'v2026.44.15'
 
 jobs:
   create-release:
@@ -596,8 +596,8 @@ jobs:
       # secrets: ANDROID_KEYSTORE_BASE64 (the keystore file, base64),
       # ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD
       # (alias and key password are optional: "open-pdf-studio" and the
-      # keystore password). Without them the build still produces an APK,
-      # signed with a one-off key, and says so loudly.
+      # keystore password). Missing credentials stop signing and upload: a
+      # one-off fallback key would break updates for installed apps (#842).
       - name: Sign APK
         id: sign-apk
         env:
@@ -615,30 +615,21 @@ jobs:
           echo "Found unsigned APK: $UNSIGNED_APK"
           APK_DIR=$(dirname "$UNSIGNED_APK")
 
-          # The keystore stays outside the build tree and is removed afterwards.
-          KEYSTORE="$RUNNER_TEMP/open-pdf-studio-release.keystore"
-          if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
-            if [ -z "$ANDROID_KEYSTORE_PASSWORD" ]; then
-              echo "::error title=Android signing::ANDROID_KEYSTORE_BASE64 is set but ANDROID_KEYSTORE_PASSWORD is not"
-              exit 1
-            fi
-            printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d '\r\n ' | base64 --decode > "$KEYSTORE"
-            export KS_PASS="$ANDROID_KEYSTORE_PASSWORD"
-            export KEY_PASS="${ANDROID_KEY_PASSWORD:-$ANDROID_KEYSTORE_PASSWORD}"
-            KEY_ALIAS="${ANDROID_KEY_ALIAS:-open-pdf-studio}"
-            echo "Signing with the fixed release key from the repository secrets (alias $KEY_ALIAS)"
-          else
-            echo "::warning title=Android signing::ANDROID_KEYSTORE_BASE64 is not set. This APK is signed with a one-off key and cannot be installed over an earlier version (INSTALL_FAILED_UPDATE_INCOMPATIBLE). Add the ANDROID_KEYSTORE_* signing secrets to the repository."
-            export KS_PASS=openpdfstudio
-            export KEY_PASS=openpdfstudio
-            KEY_ALIAS=release
-            keytool -genkeypair -v \
-              -keystore "$KEYSTORE" \
-              -alias "$KEY_ALIAS" \
-              -keyalg RSA -keysize 2048 -validity 10000 \
-              -storepass "$KS_PASS" -keypass "$KEY_PASS" \
-              -dname "CN=Open PDF Studio, O=OpenAEC Foundation, L=Unknown, ST=Unknown, C=US"
+          # Never create a replacement identity when release credentials are missing.
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ] || [ -z "$ANDROID_KEYSTORE_PASSWORD" ]; then
+            echo "::error title=Android signing::A fixed release key is required. Configure ANDROID_KEYSTORE_BASE64 and ANDROID_KEYSTORE_PASSWORD (see issue #601). No APK will be uploaded."
+            exit 1
           fi
+
+          # Keep the key outside the build tree; clean it on failure as well.
+          KEYSTORE="$RUNNER_TEMP/open-pdf-studio-release.keystore"
+          trap 'rm -f "$KEYSTORE"' EXIT
+          umask 077
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d '\r\n ' | base64 --decode > "$KEYSTORE"
+          export KS_PASS="$ANDROID_KEYSTORE_PASSWORD"
+          export KEY_PASS="${ANDROID_KEY_PASSWORD:-$ANDROID_KEYSTORE_PASSWORD}"
+          KEY_ALIAS="${ANDROID_KEY_ALIAS:-open-pdf-studio}"
+          echo "Signing with the fixed release key from the repository secrets (alias $KEY_ALIAS)"
 
           # Find the build-tools for zipalign and apksigner
           BUILD_TOOLS=$(ls -d $ANDROID_HOME/build-tools/*/ | sort -V | tail -1)
