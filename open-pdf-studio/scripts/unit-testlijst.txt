@@ -591,6 +591,9 @@ js/pdf/wapening-rondgang.test.mjs
 js/annotations/pressure-ink.test.mjs
 js/annotations/pressure-ink-wiring.test.mjs
 js/pdf/drukinkt-rondgang.test.mjs
+js/pdf/inkt-streep-rondgang.test.mjs
+js/pdf/lagen-opslaan-als.test.mjs
+js/pdf/pad-verhuizen.test.mjs
 js/accessibility/struct-tree.test.mjs
 js/accessibility/struct-edits-rondgang.test.mjs
 js/accessibility/struct-edits-opslagrace.test.mjs
@@ -599,3 +602,14 @@ js/accessibility/report.test.mjs
 js/accessibility/speech.test.mjs
 js/accessibility/accessibility-i18n.test.mjs
 js/text/type3-voorbeeld.test.mjs
+js/pdf/split-view/split-view.test.mjs
+js/pdf/page-bitmap-cache-getoond.test.mjs
+js/pdf/split-view/paneel-bitmaps.test.mjs
+js/pdf/split-view/paneel-weergave.test.mjs
+js/pdf/pdf-viewport-gesloten-bitmap.test.mjs
+js/annotations/tool-sets.test.mjs
+js/annotations/tool-sets-wiring.test.mjs
+js/annotations/measure-depth.test.mjs
+js/solid/stores/toolSetsStore.test.mjs
+js/solid/stores/toolSetsStore-opslag.test.mjs
+js/core/standaardstijl-gereedschapsset.test.mjs

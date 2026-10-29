@@ -838,6 +838,19 @@ export async function loadCatalogFile(id) {
   return null;
 }
 
+// The text of a catalog file as stored, or null when there is none. Unlike
+// loadCatalogFile it tells a damaged file (text that does not parse) apart
+// from a missing one, so a caller can keep the damaged file (#311).
+export async function loadCatalogText(id) {
+  const result = await invoke('load_catalog', { id });
+  return typeof result === 'string' ? result : null;
+}
+
+// Store `text` unchanged as a catalog file (a copy of a damaged one).
+export async function saveCatalogText(id, text) {
+  return await invoke('save_catalog', { id, data: String(text) });
+}
+
 export async function deleteCatalogFile(id) {
   try { return await invoke('delete_catalog', { id }); } catch { return false; }
 }

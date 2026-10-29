@@ -14,7 +14,8 @@
 //
 // De stand hoort bij één PDF.js-document en één pad. Vervangt een
 // paginabewerking de bytes (nieuw pdfDoc, nieuw werkbestand), dan geldt weer
-// de beginstand van het document.
+// de beginstand van het document. Opslaan als verhuist hem naar het nieuwe
+// pad (verhuisLaagstand).
 //
 // Bewaren als standaard (#377): "Als standaard instellen" in het paneel zet de
 // huidige stand klaar; de volgende keer opslaan schrijft hem als /D /ON /OFF
@@ -157,6 +158,32 @@ export async function naOpslaan(doc, { standBewaard = false } = {}) {
   } catch (e) {
     console.warn('[lagen] weergavekopie na opslaan niet bijgewerkt:', e);
   }
+}
+
+/**
+ * Opslaan als: het document heeft een nieuw pad, met dezelfde inhoud en
+ * hetzelfde pdf.js-document. De stand verhuist mee, zoals de viewport
+ * (pdf-viewport.js wisselBestandspad), in plaats van als verouderd te
+ * vervallen: het paneel blijft tonen wat de gebruiker had, en "Als standaard
+ * instellen" blijft kunnen. Op de desktop leidt Rust het oude pad niet meer om
+ * en het nieuwe pad naar een kopie van het nieuwe bestand.
+ * Moet direct na het wisselen van doc.filePath, vóór het paneel de stand leest.
+ * @returns {boolean} of er een stand verhuisd is
+ */
+export function verhuisLaagstand(doc, oudPad, nieuwPad) {
+  const stand = doc ? standen.get(doc.id) : null;
+  if (!stand || !nieuwPad || oudPad === nieuwPad) return false;
+  if (stand.pdfDoc !== doc.pdfDoc || stand.pad !== (oudPad || null)) return false;
+  stand.pad = nieuwPad;
+  // De kopie komt voortaan uit de bytes van het nieuwe bestand.
+  stand.bytes = null;
+  stand.basis = undefined;
+  const klaar = stand.rij.then(async () => {
+    if (oudPad && omgeleid.has(oudPad)) await meldKopie(oudPad, null);
+    if (stand.kopie || wijktAf(stand)) await pasStandToe(doc, stand);
+  });
+  stand.rij = klaar.catch((e) => console.warn('[lagen] stand niet verhuisd naar het nieuwe pad:', e));
+  return true;
 }
 
 /**

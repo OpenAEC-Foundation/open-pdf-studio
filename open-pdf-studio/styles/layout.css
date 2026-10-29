@@ -706,7 +706,7 @@
   flex-shrink: 0;
 }
 
-.main-view > #pdf-container.visible,
+.main-view #pdf-container.visible,
 .main-view > #placeholder {
   flex: 1;
   min-height: 0;
@@ -722,7 +722,7 @@
   padding: 20px;
 }
 
-.main-view > #pdf-container.visible {
+.main-view #pdf-container.visible {
   /* Free-pan UX: NO auto-centering. Canvas always top-left of the container.
      Previously used `safe center` which centered the canvas when it fit the
      viewport and fell back to start when it overflowed — the transition
@@ -741,6 +741,89 @@
      browser gekozen ankerknooppunt van maat verandert — dubbele correctie =
      verspringen bij snel zoomen. */
   overflow-anchor: none;
+}
+
+/* Gesplitste weergave (#715). #pdf-container staat in #split-host. Zonder
+   splitsing is die `display: contents`: voor de lay-out staat #pdf-container
+   dan gewoon in .main-view, zoals altijd. Met splitsing is #split-host een
+   flexrij (Split Vertical) of -kolom (Split Horizontal) met de echte viewer,
+   de scheidingslijn en het tweede paneel; de volgorde (CSS order) en de
+   verhouding zet split-view.js. */
+.split-host {
+  display: contents;
+}
+
+.split-host > .split-divider,
+.split-host > .split-pane,
+.split-host > .split-active-frame {
+  display: none;
+}
+
+.split-host.split-aan {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.split-host.split-aan.split-horizontaal {
+  flex-direction: column;
+}
+
+.split-host.split-aan > #pdf-container.visible {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+.split-host.split-aan > .split-pane {
+  display: block;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  background: #e0e0e0;
+  user-select: none;
+  touch-action: none;
+}
+
+.split-pane > canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+}
+
+.split-host.split-aan > .split-divider {
+  display: block;
+  flex: 0 0 5px;
+  background: #d4d4d4;
+  border-left: 1px solid #c4c4c4;
+  border-right: 1px solid #c4c4c4;
+  box-sizing: border-box;
+  touch-action: none;
+}
+
+.split-host.split-aan.split-horizontaal > .split-divider {
+  border-left: none;
+  border-right: none;
+  border-top: 1px solid #c4c4c4;
+  border-bottom: 1px solid #c4c4c4;
+}
+
+/* Het actieve paneel: een kader eroverheen (niet erin, dan zou de viewer
+   kleiner worden). Klikken gaan erdoorheen. */
+.split-host.split-aan > .split-active-frame {
+  display: block;
+  position: absolute;
+  box-sizing: border-box;
+  border: 2px solid var(--theme-accent, #0078d4);
+  pointer-events: none;
+  z-index: 35;
 }
 
 /* Optional canvas scrollbars (toggled via preference `showScrollbars`).

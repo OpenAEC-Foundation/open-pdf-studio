@@ -3,7 +3,7 @@ import { kruisEindpuntenEllips } from '../../annotations/kruis-geometrie.js';
 import { hasFill, hasStroke, colorWithoutStroke, kanZonderRand } from '../../annotations/fill-utils.js';
 import { vlakOmhullende } from '../../annotations/vlak-ringen.js';
 import { blendPdfNaam } from '../../annotations/blend-modes.js';
-import { hatchFillOps } from './appearance-vectors.js';
+import { hatchFillOps, dashArrayForStyle } from './appearance-vectors.js';
 import { eigenVulDekking } from '../../annotations/vul-dekking.js';
 import { STANDAARD_FONTS, tekstvakFontSoort } from './tekstvak-fontnaam.js';
 
@@ -62,27 +62,24 @@ export function hexToRgb(hex) {
   ];
 }
 
-// Dash arrays per border style, mirroring rendering/decorations.js
-// applyBorderStyle so a saved /BS /D pattern matches the on-screen look.
-// Solid → null (no /D; style stays 'S'). Extended (dash-dot) styles used to
-// fall through to solid, making dash-dot / long-dash lines render as plain
-// solid lines in other PDF viewers (issue #256).
-const BORDER_DASH_ARRAYS = {
-  'dashed': [8, 4],
-  'dotted': [2, 2],
-  'dash-dot': [10, 8, 2, 8],
-  'dash-dot-dot': [10, 8, 2, 8, 2, 8],
-  'long-dash': [20, 10],
-  'long-dash-dot': [20, 10, 2, 10],
-  'long-dash-dot-dot': [20, 10, 2, 10, 2, 10],
-};
-
-// Build a BS (Border Style) dictionary
+// Build a BS (Border Style) dictionary. /BS /D is the pattern the screen
+// draws (rendering/decorations.js applyBorderStyle) and the appearances write
+// (appearance-vectors.js dashArrayForStyle), so a reader that rebuilds the
+// appearance from /BS shows the same line. Solid → no /D; style stays 'S'.
+// Extended (dash-dot) styles used to fall through to solid (issue #256).
+// Older versions wrote dashed as [8 4] and dotted as [2 2]; the loader
+// (loader/color-extraction.js) still reads both.
 export function buildBorderStyle(context, width, borderStyle) {
-  const dash = BORDER_DASH_ARRAYS[borderStyle] || null;
+  const dash = dashArrayForStyle(borderStyle);
   const bs = { Type: 'Border', W: width, S: dash ? 'D' : 'S' };
   if (dash) bs.D = dash;
   return context.obj(bs);
+}
+
+/** Dash operator for an appearance stream ('' for a solid line). */
+export function streepOperator(borderStyle) {
+  const dash = dashArrayForStyle(borderStyle);
+  return dash ? `[${dash.join(' ')}] 0 d\n` : '';
 }
 
 // Vormen waarvan de rand via "geen rand" (strokeColor 'none') weg kan — de
@@ -530,7 +527,11 @@ export function generateAppearanceStream(context, ann, convertY) {
         bbox = [0, 0, maxX - minX, maxY - minY];
         const [r, g, b] = hexToRgb(ann.strokeColor || ann.color || '#000000');
         const lw = ann.lineWidth ?? 2;
-        streamContent = `${lw} w\n${r} ${g} ${b} RG\n`;
+        // Round caps and joins plus the dash pattern, as the screen draws the
+        // stroke (rendering.js) and the pressure-ink appearance writes it
+        // (pressure-ink.js inktAppearanceInhoud). Without the dash operator a
+        // dashed or dotted stroke was solid in other readers.
+        streamContent = `${lw} w\n1 J\n1 j\n${r} ${g} ${b} RG\n${streepOperator(ann.borderStyle)}`;
         streamContent += `${ann.path[0].x - minX} ${maxY - ann.path[0].y} m\n`;
         for (let i = 1; i < ann.path.length; i++) {
           streamContent += `${ann.path[i].x - minX} ${maxY - ann.path[i].y} l\n`;

@@ -51,6 +51,7 @@ import CadExportDialog from './dialogs/CadExportDialog.jsx';
 import CadImportDialog from './dialogs/CadImportDialog.jsx';
 import AnnotationLayerDeleteDialog from './dialogs/AnnotationLayerDeleteDialog.jsx';
 import FlattenAllDialog from './dialogs/FlattenAllDialog.jsx';
+import { ToolSetImportDialog, ToolSetConfirmDialog } from './dialogs/ToolSetsDialogs.jsx';
 import TextEditOverlay from './TextEditOverlay.jsx';
 import StavenreeksInlineEditor from './StavenreeksInlineEditor.jsx';
 import ParametricLabelInlineEditor from './ParametricLabelInlineEditor.jsx';
@@ -131,6 +132,8 @@ const DIALOG_MAP = {
   'shortcuts': ShortcutsDialog,
   'extensions': ExtensionsDialog,
   'confirm': ConfirmDialog,
+  'tool-sets-import': ToolSetImportDialog,
+  'tool-sets-confirm': ToolSetConfirmDialog,
   'handtekening-detail': HandtekeningDetailDialog,
   'title-block-edit': TitleBlockDialog,
   'viewport-scale': ViewportScaleDialog,

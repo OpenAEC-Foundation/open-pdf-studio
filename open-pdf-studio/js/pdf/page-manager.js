@@ -1,3 +1,4 @@
+import { meld as meldSplit } from './split-view/split-haken.js';
 import { state, getActiveDocument } from '../core/state.js';
 import { getCachedPdfBytes, setCachedPdfBytes, cancelAnnotationLoading, markAllAnnotationPagesLoaded, laadAnnotatiesVoorPaginas } from './loader.js';
 import { setViewMode, rotateAnnotation } from './renderer.js';
@@ -381,6 +382,9 @@ export async function reloadFromBytes(newBytes, annotations, rotations, targetPa
   // Clamp current page
   const numPages = doc.pdfDoc.numPages;
   doc.currentPage = Math.max(1, Math.min(targetPage, numPages));
+  // Gesplitste weergave (#715): het andere paneel volgt zijn pagina mee, of
+  // gaat naar de dichtstbijzijnde pagina als die van hem verwijderd is.
+  meldSplit('paginaStructuur', { doc, pageMapping: viewportUpdate?.pageMapping || null, numPages });
 
   // Mark all pages as loaded so background loader won't overwrite
   markAllAnnotationPagesLoaded(numPages, doc);

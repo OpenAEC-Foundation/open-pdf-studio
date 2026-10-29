@@ -48,7 +48,8 @@
     "setScale": "স্কেল নির্ধারণ করুন...",
     "dimChainAdd": "ডাইমেনশন চেইনে বিন্দু যোগ করুন",
     "dimChainRemove": "চেইন থেকে এক্সটেনশন লাইন সরান",
-    "selectRoom": "কক্ষ নির্বাচন করুন"
+    "selectRoom": "কক্ষ নির্বাচন করুন",
+    "saveToToolSet": "টুল সেটে সংরক্ষণ করুন"
   },
   "multiSelect": {
     "copyAnnotations": "{{count}} টীকা অনুলিপি করুন",

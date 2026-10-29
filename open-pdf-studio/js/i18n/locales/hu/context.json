@@ -48,7 +48,8 @@
     "setScale": "Méretarány beállítása...",
     "dimChainAdd": "Pontok hozzáadása a méretlánchoz",
     "dimChainRemove": "Segédvonal eltávolítása a láncból",
-    "selectRoom": "Helyiség kijelölése"
+    "selectRoom": "Helyiség kijelölése",
+    "saveToToolSet": "Mentés eszközkészletbe"
   },
   "multiSelect": {
     "copyAnnotations": "{{count}} annotáció másolása",

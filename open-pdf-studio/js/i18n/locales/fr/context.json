@@ -48,7 +48,8 @@
     "setScale": "Définir l'échelle...",
     "dimChainAdd": "Ajouter des points à la cotation continue",
     "dimChainRemove": "Retirer la ligne d'attache de la chaîne",
-    "selectRoom": "Sélectionner la pièce"
+    "selectRoom": "Sélectionner la pièce",
+    "saveToToolSet": "Enregistrer dans un jeu d'outils"
   },
   "multiSelect": {
     "copyAnnotations": "Copier {{count}} annotations",

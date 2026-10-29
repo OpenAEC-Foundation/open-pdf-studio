@@ -48,7 +48,8 @@
     "setScale": "Tetapkan Skala...",
     "dimChainAdd": "Tambah Titik ke Rantai Dimensi",
     "dimChainRemove": "Buang Garis Unjuran daripada Rantai",
-    "selectRoom": "Pilih Bilik"
+    "selectRoom": "Pilih Bilik",
+    "saveToToolSet": "Simpan ke Set Alat"
   },
   "multiSelect": {
     "copyAnnotations": "Salin {{count}} Anotasi",

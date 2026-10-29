@@ -26,6 +26,7 @@ import KeystrokeOverlay from './components/KeystrokeOverlay.jsx';
 import BoxSizeOverlay from './components/BoxSizeOverlay.jsx';
 import SketchModeBar from './components/SketchModeBar.jsx';
 import CompareView from './components/compare/CompareView.jsx';
+import SplitPane from './components/SplitPane.jsx';
 import { DockedToolPalette, FloatingToolPalette, DockTargets, PaletteContextMenu } from './components/ToolPalette.jsx';
 import { DockedExtPalette, FloatingExtPalette, ExtDockTargets } from './components/ExtensionToolPalette.jsx';
 import { DockedSymbolPalette, FloatingSymbolPalette, SymbolSettingsDialog } from './components/SymbolPalette.jsx';
@@ -121,17 +122,22 @@ function DesktopApp() {
 
           <HandtekeningBar />
 
-          <div id="pdf-container">
-            <div id="canvas-wrapper">
-              <div id="canvas-container" class="single-page-container">
-                <canvas id="pdf-canvas"></canvas>
-                <canvas id="text-highlight-canvas"></canvas>
-                <canvas id="annotation-canvas"></canvas>
+          {/* Gesplitste weergave (#715): zonder splitsing is #split-host
+              `display: contents` en staat #pdf-container gewoon in .main-view. */}
+          <div id="split-host" class="split-host">
+            <div id="pdf-container">
+              <div id="canvas-wrapper">
+                <div id="canvas-container" class="single-page-container">
+                  <canvas id="pdf-canvas"></canvas>
+                  <canvas id="text-highlight-canvas"></canvas>
+                  <canvas id="annotation-canvas"></canvas>
+                </div>
+                <div id="continuous-container" class="continuous-container"></div>
               </div>
-              <div id="continuous-container" class="continuous-container"></div>
+              <CanvasScrollbars />
+              <CompareView />
             </div>
-            <CanvasScrollbars />
-            <CompareView />
+            <SplitPane />
           </div>
           <ThreeDView />
         </div>

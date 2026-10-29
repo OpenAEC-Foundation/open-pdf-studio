@@ -12,6 +12,8 @@ import {
   getBestAvailableBitmap,
   ensureBitmap,
   getCachedBitmap,
+  registreerGetoondeBitmaps,
+  ruimUitgesteldOp,
 } from './page-bitmap-cache.js';
 import { tileCoversViewport } from './tile-coverage.js';
 import { bepaalOverlayMaat, pasOverlayMaatToe } from './overlay-canvas-size.js';
@@ -74,6 +76,29 @@ bewaakSchrijven(viewport, 'active', (nieuw, oud) => {
 
 function _wekLus() {
   window.__pdfViewportLus?.plan();
+}
+
+// De paginabitmapcache sluit nooit wat de viewport nu tekent (#715): een
+// verdrongen of ongeldig gemaakte getoonde bitmap blijft open tot hij hier
+// niet meer staat.
+registreerGetoondeBitmaps(() => [viewport.currentBitmap, viewport.currentTile]);
+
+// Een gesloten ImageBitmap heeft breedte 0; drawImage gooit er dan elk frame
+// "the image source is detached" op. Zo'n bitmap (of tegel) laat de viewport
+// los en hij vraagt een nieuwe aan, in plaats van hem te tekenen.
+function _laatGeslotenBeeldenLos() {
+  let los = false;
+  if (viewport.currentBitmap && !(viewport.currentBitmap.width > 0)) {
+    viewport.currentBitmap = null;
+    los = true;
+  }
+  if (viewport.currentTile && !(viewport.currentTile.width > 0)) {
+    viewport.currentTile = null;
+    viewport.currentTileMeta = null;
+    los = true;
+  }
+  if (los) _kickOrchestratorAfterZoom();
+  return los;
 }
 
 /**
@@ -736,6 +761,76 @@ export function clearAnchor() { _anchorActive = false; _strictAnchor = false; }
 let _fitWacht = false;
 export function markAnchored() { _anchorActive = true; }
 
+// ── Gesplitste weergave (#715) ─────────────────────────────────────────────
+// De viewport is één singleton: alleen het actieve paneel heeft hem. Bij het
+// wisselen van paneel bewaart de regelaar (split-view/split-view.js) de stand
+// van het vertrekkende paneel en zet hij die van het aankomende terug.
+
+/** De ankervlaggen: heeft de gebruiker zelf gezoomd/gepand? */
+export function leesAnkers() {
+  return { verankerd: _anchorActive, strikt: _strictAnchor };
+}
+
+/** CSS-maat van het viewportcanvas. */
+export function viewportCanvasMaat() {
+  const dpr = _getDpr();
+  return { cssW: _canvas ? _canvas.width / dpr : 0, cssH: _canvas ? _canvas.height / dpr : 0 };
+}
+
+/** Maak het canvas meteen even groot als #pdf-container (na een lay-outwissel). */
+export function pasViewportMaatAan() {
+  _resizeCanvas();
+}
+
+// Een tabwissel tussen een gesplitst en een niet-gesplitst document verandert
+// de maat van de viewer vóór het renderen, terwijl de viewport nog het
+// vertrekkende document toont. setPage bewaarde die stand (#539) pas daarna:
+// met de nieuwe canvasmaat en een al herankerde verschuiving, zodat de
+// terugkeer niet meer exact was. De regelaar van de gesplitste weergave legt
+// de stand daarom vast vóór hij de maat wijzigt; setPage slaat het bewaren dan
+// over voor dat document.
+let _vertrekAlBewaard = null;
+
+/**
+ * Bewaar de weergavestand van het document dat de viewport nu toont, als dat
+ * niet `nieuwPad` is (er komt een ander document voor). Aanroepen vóór een
+ * lay-outwijziging die de viewer van maat verandert. Geeft true als er iets
+ * bewaard is.
+ */
+export function bewaarStandVoorLayoutwissel(nieuwPad) {
+  if (!viewport.active || !viewport.filePath || viewport.filePath === nieuwPad) return false;
+  const openPaden = (state.documents || []).map((d) => d && d.filePath).filter(Boolean);
+  if (!openPaden.includes(viewport.filePath)) return false;
+  const stand = maakWeergaveStand(viewport, {
+    verankerd: _anchorActive,
+    strikt: _strictAnchor,
+    ...viewportCanvasMaat(),
+  });
+  if (!stand) return false;
+  weergaveGeheugen().bewaar(stand);
+  _vertrekAlBewaard = stand.filePath;
+  return true;
+}
+
+/**
+ * Zet zoom, verschuiving en ankervlaggen van een bewaarde paneelstand terug
+ * (dezelfde pagina staat dan al in de viewport via setPage).
+ */
+export function zetViewportStand({ zoom, offsetX, offsetY, verankerd = true, strikt = false }) {
+  if (!(zoom > 0)) return;
+  if (_zoomFreezeTimer) clearTimeout(_zoomFreezeTimer);
+  _zoomFreezeTimer = null;
+  _zoomFreezeBitmap = null;
+  stopPanMomentum();
+  viewport.zoom = zoom;
+  viewport.offsetX = offsetX;
+  viewport.offsetY = offsetY;
+  _anchorActive = !!verankerd;
+  _strictAnchor = !!strikt;
+  viewport.dirty = true;
+  _kickOrchestratorAfterZoom();
+}
+
 // Eén render: tekenen en daarna de volgers (scrollbalken) bijwerken. Ook na
 // een vroege terugkeer (geen pagina, zoom-snapshot) of als het tekenen faalt:
 // zoom en verschuiving kunnen dan toch veranderd zijn. De fout zelf gaat
@@ -802,6 +897,11 @@ function _tekenViewport() {
   // viewport ends up centered no matter how we got here (zoom out, resize,
   // page nav, etc.).
   clampAndCenter();
+
+  _laatGeslotenBeeldenLos();
+  // Een vervangen bitmap die bij het ongeldig maken nog getoond werd, mag nu
+  // dicht (niets te doen als er geen wacht).
+  ruimUitgesteldOp();
 
   // Reset transform and clear (in device-pixel space)
   _ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -1119,6 +1219,7 @@ export function laatBitmapsLos() {
   viewport.currentBitmap = null;
   viewport.currentTile = null;
   viewport.currentTileMeta = null;
+  ruimUitgesteldOp();
 }
 
 // Het laatste tabblad is dicht: de viewport vergeet ook het document, zodat
@@ -1173,13 +1274,18 @@ export function setPage(filePath, pageNum, pageW, pageH, originX, originY, rotat
       cssW: _canvas ? _canvas.width / dpr : 0,
       cssH: _canvas ? _canvas.height / dpr : 0,
     };
+    // Al bewaard vóór een lay-outwissel (bewaarStandVoorLayoutwissel): die
+    // stand is exact, de huidige waarden zijn al naar de nieuwe maat herankerd.
+    const alBewaard = _vertrekAlBewaard === viewport.filePath;
     herstel = wisselWeergave(weergaveGeheugen(), {
-      vertrek: maakWeergaveStand(viewport, { verankerd: _anchorActive, strikt: _strictAnchor, ...canvasMaat }),
+      vertrek: alBewaard ? null : maakWeergaveStand(viewport, { verankerd: _anchorActive, strikt: _strictAnchor, ...canvasMaat }),
       openPaden: (state.documents || []).map((d) => d && d.filePath).filter(Boolean),
       aankomst: { filePath, pageNum, rotation: (rotation || 0) % 360, viewRotation: nieuweWeergave, pageW, pageH },
       canvas: canvasMaat,
     });
   }
+  // Eenmalig: geldt alleen voor de eerstvolgende setPage na het vastleggen.
+  _vertrekAlBewaard = null;
 
   // Clear stale raster state on page, document OR rotation change so the
   // unified render loop doesn't keep painting the PREVIOUS bitmap (stretched

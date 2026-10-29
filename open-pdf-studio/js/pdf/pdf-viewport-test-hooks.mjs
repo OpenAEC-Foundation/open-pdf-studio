@@ -14,7 +14,10 @@ const STUBS = {
   'js/core/state.js': ['getActiveDocument'],
   'js/pdf/vector-renderer.js': ['renderVectorPage'],
   'js/annotations/geometry.js': ['findAnnotationAt'],
-  'js/pdf/page-bitmap-cache.js': ['computeZoomBucket', 'getBestAvailableBitmap', 'ensureBitmap', 'getCachedBitmap'],
+  'js/pdf/page-bitmap-cache.js': [
+    'computeZoomBucket', 'getBestAvailableBitmap', 'ensureBitmap', 'getCachedBitmap',
+    'registreerGetoondeBitmaps', 'ruimUitgesteldOp',
+  ],
   'js/annotations/rendering.js': ['redrawContinuous', 'redrawAnnotations'],
   'js/pdf/bitmap-orchestrator.js': ['ensureBitmapForCurrentView', 'ensureTileForCurrentView'],
   'js/pdf/renderer.js': ['renderContinuous'],

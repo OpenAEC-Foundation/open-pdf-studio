@@ -779,6 +779,8 @@ async function converteerPdfAnnotatie(annot, pageNum, viewport, stampImageMap, a
             }
           }
           if (extraColors.opsPrecision != null) mpProps.measurePrecision = extraColors.opsPrecision;
+          // Diepte (#311) en andere eigen sleutels van een maat.
+          Object.assign(mpProps, plattegrondUitExtra(extraColors, convertPoint));
           return createAnnotation(mpProps);
         }
 

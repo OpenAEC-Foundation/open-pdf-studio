@@ -15,6 +15,7 @@
 import { arcControlPoint } from '../arc-points.js';
 import { ringenRichten, vlakOmhullende } from '../vlak-ringen.js';
 import { state } from '../../core/state.js';
+import { schermSchaal } from '../../pdf/split-view/paneel-weergave.js';
 
 // Hatch line weight: thin by default (0.4pt — arcering is ondergeschikt
 // lijnwerk), and a TRUE HAIRLINE (1 screen pixel) when lineweight display
@@ -23,7 +24,7 @@ import { state } from '../../core/state.js';
 function _hatchLineWidth(familyWidth) {
   const vp = window.__pdfViewport;
   const doc = state.documents?.[state.activeDocumentIndex];
-  const screenScale = (vp && vp.active && doc?.filePath) ? vp.zoom : (doc?.scale || 1);
+  const screenScale = (vp && vp.active && doc?.filePath) ? vp.zoom : (schermSchaal(doc) || 1);
   if (state.preferences?.thinLines) return screenScale > 0 ? 1 / screenScale : 0.5;
   return familyWidth != null ? familyWidth : 0.4;
 }

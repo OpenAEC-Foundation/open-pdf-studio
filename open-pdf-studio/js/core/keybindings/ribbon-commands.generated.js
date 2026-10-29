@@ -28,6 +28,7 @@ export const RIBBON_COMMANDS = Object.freeze([
   {"id":"facing-view","tab":"view","labelKey":"ribbon:view.facing"},
   {"id":"view-rotate-left","tab":"view","labelKey":"ribbon:view.rotateViewLeft"},
   {"id":"view-rotate-right","tab":"view","labelKey":"ribbon:view.rotateViewRight"},
+  {"id":"split-view-sync","tab":"view","labelKey":"ribbon:view.splitSync"},
   {"id":"thin-lines-toggle","tab":"view","labelKey":"ribbon:view.thinLines","label":"Thin Lines"},
   {"id":"reader-mode-toggle","tab":"view","labelKey":"ribbon:view.readerMode","label":"Reader Mode"},
   {"id":"ribbon-nav-panel","tab":"view","labelKey":"ribbon:view.navigation"},

@@ -42,6 +42,7 @@ import {
 } from '../../annotations/systeem-typen-registry.js';
 import { recalculateAllMeasurements, calculateArea, calculatePerimeter, calculateDistance, formatMeasurement, formatDimensionText, getMeasureScale, herberekenVlakMaat, vlakLengteSchaal } from '../../annotations/measurement.js';
 import { lengteEenheid, schaalInEenheid } from '../../annotations/vlak-zijden.js';
+import { parseDepth } from '../../annotations/measure-depth.js';
 import {
   isRuimteVlak, isRuimteTag, ruimteVanTag, tagWeergaveParams, tagWijziging,
 } from '../../plattegrond/ruimte-koppeling.js';
@@ -156,6 +157,7 @@ const [annotProps, setAnnotProps] = createStore({
   measureUnit: '',
   measurePrecision: 2,
   measureName: '',
+  measureDepth: '',
   dimType: '',
   styleType: '',
   dimExtension: true,
@@ -515,6 +517,8 @@ export function storeShowProperties(annotation) {
     measureUnit: (annotation.type === 'measureArea' ? lengteEenheid(annotation.measureUnit) : annotation.measureUnit) || '',
     measurePrecision: annotation.measurePrecision !== undefined ? annotation.measurePrecision : 2,
     measureName: annotation.measureName || '',
+    // Diepte van de meting (#311), in de eenheid van de meting; leeg = geen.
+    measureDepth: annotation.measureDepth ?? '',
     dimType: annotation.dimType || '',
     styleType: annotation.styleType || annotation.dimType || '',
     dimExtension: annotation.dimExtension !== false, // default ON
@@ -1371,6 +1375,7 @@ function applyPropToAnnotation(ann, key, value) {
     case 'scaleRegionUnits': ann.units = String(value || 'mm'); break;
     case 'scaleRegionLabel': ann.label = String(value || ''); break;
     case 'tintColor': ann.tintColor = value || undefined; break;
+    case 'measureDepth': zetMeetDiepte(ann, value); break;
     default:
       ann[key] = ((key === 'width' || key === 'height') && RECHTHOEK_VORMEN.has(ann.type))
         ? klemMaat(value) : value;
@@ -1390,6 +1395,13 @@ function zetMeetEenheid(ann, eenheid) {
   }
   ann.measureUnit = eenheid;
   recomputeMeasureText(ann);
+}
+
+// Diepte van een meting (#311): een positief getal, of weg.
+function zetMeetDiepte(ann, value) {
+  const d = parseDepth(value);
+  if (d === undefined) delete ann.measureDepth;
+  else ann.measureDepth = d;
 }
 
 // Recompute measurement text for a measurement annotation
@@ -1746,6 +1758,10 @@ function applyAnnotProp(key, value) {
     case 'measureName':
       currentAnnotation.measureName = value;
       if (isRuimteVlak(currentAnnotation)) currentAnnotation.opsRuimteNaam = value;
+      break;
+    case 'measureDepth':
+      zetMeetDiepte(currentAnnotation, value);
+      setAnnotProps('measureDepth', currentAnnotation.measureDepth ?? '');
       break;
     case 'scaleBarUnit': {
       // Unit conversion factors relative to mm

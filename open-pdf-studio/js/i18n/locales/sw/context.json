@@ -48,7 +48,8 @@
     "setScale": "Weka Kipimo...",
     "dimChainAdd": "Ongeza Nukta kwenye Mnyororo wa Vipimo",
     "dimChainRemove": "Ondoa Mstari wa Nyongeza kutoka Mnyororo",
-    "selectRoom": "Chagua Chumba"
+    "selectRoom": "Chagua Chumba",
+    "saveToToolSet": "Hifadhi kwenye Seti ya Zana"
   },
   "multiSelect": {
     "copyAnnotations": "Nakili Maoni {{count}}",

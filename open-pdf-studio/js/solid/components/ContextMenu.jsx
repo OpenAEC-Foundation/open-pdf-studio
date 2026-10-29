@@ -32,6 +32,8 @@ import { startTextEditing } from '../../tools/text-editing.js';
 import { openStickyPopup, closeStickyPopup } from '../stores/stickyNotePopupStore.js';
 import { createTextMarkupAnnotation, createCalloutFromSelection } from '../../text/text-markup.js';
 import { setAsDefaultStyle, applyDefaultStyle } from '../../core/preferences.js';
+import { canSaveToToolSet, saveAnnotationToToolSet } from '../stores/toolSetsStore.js';
+import { toolSetsIcon as toolSetsMenuIcon } from '../data/contextMenuIcons.js';
 import { setTool } from '../../tools/manager.js';
 import { alignAnnotations } from '../../annotations/smart-guides.js';
 import {
@@ -809,6 +811,14 @@ function AnnotationMenuContent() {
           }
         }} />
         <Separator />
+      </Show>
+
+      {/* Tool Sets (#311): everything except the drawn geometry becomes a reusable item. */}
+      <Show when={canSaveToToolSet(ann())}>
+        <MenuItem icon={toolSetsMenuIcon} label={t('annotation.saveToToolSet')} onClick={() => {
+          const a = ann();
+          if (a) saveAnnotationToToolSet(a);
+        }} />
       </Show>
 
       <Submenu icon={styleToolsIcon} label={t('annotation.styleTools')}>

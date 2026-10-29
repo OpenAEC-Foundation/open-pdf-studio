@@ -48,7 +48,8 @@
     "setScale": "Задати масштаб...",
     "dimChainAdd": "Додати точки до розмірного ланцюга",
     "dimChainRemove": "Вилучити виносну лінію з ланцюга",
-    "selectRoom": "Вибрати приміщення"
+    "selectRoom": "Вибрати приміщення",
+    "saveToToolSet": "Зберегти в набір інструментів"
   },
   "multiSelect": {
     "copyAnnotations": "Копіювати {{count}} анотацій",

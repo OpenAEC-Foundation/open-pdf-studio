@@ -3,12 +3,13 @@ import { heeftEigenDraaipunt } from '../draaipunt.js';
 import { state, getActiveDocument, getSelectionBounds, getAnnotationBounds } from '../../core/state.js';
 import { annotationCtx } from '../../ui/dom-elements.js';
 import { getAnnotationHandles } from '../handles.js';
+import { schermSchaal } from '../../pdf/split-view/paneel-weergave.js';
 import { getTemplate } from '../../symbols/registry.js';
 
 // Draw selection highlight and handles
 export function drawSelectionHandles(ctx, annotation) {
   const doc = getActiveDocument();
-  const sc = doc?.scale || 1;
+  const sc = schermSchaal(doc) || 1;
   const isEditingContour = annotation && annotation.type === 'filledArea' &&
     state.editingContour === annotation.id;
 
@@ -260,7 +261,7 @@ export function drawSelectionHandles(ctx, annotation) {
   }
 
   // Draw resize/move handles (scale-independent size)
-  const scale = doc?.scale || 1;
+  const scale = schermSchaal(doc) || 1;
   const handles = getAnnotationHandles(annotation, scale);
   const hs = HANDLE_SIZE / scale;
   const lw = 1 / scale;
@@ -544,7 +545,7 @@ export function drawMultiSelectionBounds(ctx) {
   if (!bounds) return;
 
   const msDoc = getActiveDocument();
-  const sc = msDoc?.scale || 1;
+  const sc = schermSchaal(msDoc) || 1;
   ctx.strokeStyle = '#0066cc';
   ctx.lineWidth = 1.5 / sc;
   ctx.setLineDash([6 / sc, 3 / sc]);

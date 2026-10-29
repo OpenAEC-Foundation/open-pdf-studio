@@ -43,8 +43,10 @@ const f = (n) => {
 const escapePdfText = (s) => winAnsiLiteral(s, { newlines: 'space' });
 
 // Dash arrays mirror rendering/decorations.js applyBorderStyle (screen px ==
-// PDF pt at scale 1). Solid → null (no dash operator).
-function dashArrayForStyle(borderStyle) {
+// PDF pt at scale 1). Solid → null (no dash operator). The single source for
+// every saved dash pattern: the appearances here, /BS /D (utils.js
+// buildBorderStyle) and the inline appearances in saver.js.
+export function dashArrayForStyle(borderStyle) {
   switch (borderStyle) {
     case 'dashed':            return [3, 4];
     case 'dotted':            return [2, 4];
