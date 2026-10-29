@@ -39,6 +39,13 @@ function bevatCorrectie(lijst) {
  * Select tool — click-select, rubber band, drag, resize, Ctrl+drag copy
  * Unified select tool — handles both annotation selection and text selection
  */
+
+// De dubbelklik die tool-dispatcher (handleDblClick) als los object doorgeeft,
+// niet een echte pointerdown.
+export function isNagebootsteDubbelklik(e) {
+  return e?.detail === 2 && !(typeof Event !== 'undefined' && e instanceof Event);
+}
+
 export const selectTool = {
   name: 'select',
   cursor: 'default',
@@ -163,6 +170,13 @@ export const selectTool = {
           ctx.redraw();
           return;
         }
+        // Een dubbelklik komt hier als nagebootste pointerdown (detail 2) ná
+        // de pointerup van de tweede klik (tool-dispatcher handleDblClick).
+        // Daar hoort geen sleep bij: er volgt geen pointerup meer, en de greep
+        // bleef aan de muis hangen (een stempel draaide mee met de muis).
+        // Alleen het nagebootste object: een echte pointerdown kan in sommige
+        // webviews ook detail 2 hebben, en daar volgt wel een pointerup op.
+        if (isNagebootsteDubbelklik(e)) return;
         state.isResizing = true;
         state.activeHandle = handleType;
         state.originalAnnotation = ctx.cloneAnnotation(selAnn);
