@@ -39,3 +39,11 @@ test('een ander tabblad op hetzelfde bestand houdt tegels en snap-geometrie in l
     assert.equal(metPad(naam, 'C:/t/a.pdf'), false, `${naam} niet voor een pad dat nog open is`);
   }
 });
+
+test('sluiten geeft de paginabeelden van het tweede paneel van de gesplitste weergave vrij (#715)', async () => {
+  reset();
+  const dicht = { id: 7, filePath: null, pdfDoc: { destroy: async () => {} } };
+  await geefDocumentVrij(dicht, []);
+  assert.ok(aanroepen().some(([n, d]) => n === 'vergeetPaneelBeelden' && d === dicht),
+    'vergeetPaneelBeelden met het gesloten document');
+});

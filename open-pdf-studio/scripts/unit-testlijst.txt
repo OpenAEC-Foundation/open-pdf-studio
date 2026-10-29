@@ -598,3 +598,8 @@ js/accessibility/report.test.mjs
 js/accessibility/speech.test.mjs
 js/accessibility/accessibility-i18n.test.mjs
 js/text/type3-voorbeeld.test.mjs
+js/pdf/split-view/split-view.test.mjs
+js/pdf/page-bitmap-cache-getoond.test.mjs
+js/pdf/split-view/paneel-bitmaps.test.mjs
+js/pdf/split-view/paneel-weergave.test.mjs
+js/pdf/pdf-viewport-gesloten-bitmap.test.mjs

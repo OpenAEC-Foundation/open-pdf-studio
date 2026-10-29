@@ -248,6 +248,13 @@ export async function geefDocumentVrij(gesloten, overgebleven, { klembord = [] }
     vergeetType3Voorbeelden(gesloten);
   } catch (e) { console.warn('[release] Type3-voorbeelden:', e); }
 
+  // De paginabeelden van het tweede paneel van de gesplitste weergave (#715):
+  // de PDF.js-canvassen houden het document vast, ook na afsluiten.
+  try {
+    const { vergeetPaneelBeelden } = await import('./split-view/paneel-bitmaps.js');
+    vergeetPaneelBeelden(gesloten);
+  } catch (e) { console.warn('[release] beelden van het tweede paneel:', e); }
+
   if (plan.pdfjsVrijgeven) {
     try { await (gesloten.pdfDoc.loadingTask || gesloten.pdfDoc).destroy(); } catch (e) { console.warn('[release] PDF.js afsluiten:', e); }
   }
