@@ -396,6 +396,8 @@ js/mobile/ipc-wekker.test.mjs
 js/ui/ui-lettertype.test.mjs
 js/compare/split-line.test.mjs
 js/annotations/opmerkingen-export.test.mjs
+js/annotations/opmerkingen-overzicht.test.mjs
+js/annotations/opmerkingen-rapport.test.mjs
 js/annotations/xfdf-pagina.test.mjs
 js/compare/change-detect-worker.test.mjs
 js/pdf/thin-lines.test.mjs
