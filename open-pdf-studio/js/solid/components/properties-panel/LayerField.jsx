@@ -30,6 +30,7 @@ async function tekeningLagen(doc) {
 export default function LayerField(props) {
   const { t } = useTranslation('properties');
   const { t: tCommon } = useTranslation('common');
+  const value = () => props.value ?? annotProps.layer;
 
   // Opnieuw bij een ander document, een wijziging aan de markeringslagen of
   // een nieuwe stand in het paneel Lagen.
@@ -52,23 +53,23 @@ export default function LayerField(props) {
   };
 
   return (
-    <div class="property-group">
-      <label>{t('general.layer')}</label>
-      <select value={annotProps.layer}
+    <div class={props.groupClass || 'property-group'}>
+      <label for={props.id}>{props.label || t('general.layer')}</label>
+      <select id={props.id} class={props.selectClass} title={props.title} value={value()}
         disabled={props.disabled}
         onChange={(e) => kies(e.target.value)}>
-        <Show when={annotProps.layer === 'mixed'}>
+        <Show when={value() === 'mixed'}>
           <option value="mixed" disabled hidden>{tCommon('mixed')}</option>
         </Show>
         <optgroup label={t('general.layerMarkupGroup')}>
           <For each={opties().markeringen}>
-            {(o) => <option value={o.waarde} selected={o.waarde === annotProps.layer}>{o.naam}</option>}
+            {(o) => <option value={o.waarde} selected={o.waarde === value()}>{o.naam}</option>}
           </For>
         </optgroup>
         <Show when={opties().tekening.length}>
           <optgroup label={t('general.layerDocumentGroup')}>
             <For each={opties().tekening}>
-              {(o) => <option value={o.waarde} selected={o.waarde === annotProps.layer}>{o.naam}</option>}
+              {(o) => <option value={o.waarde} selected={o.waarde === value()}>{o.naam}</option>}
             </For>
           </optgroup>
         </Show>

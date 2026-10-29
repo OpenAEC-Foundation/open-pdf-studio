@@ -1,0 +1,64 @@
+import assert from 'node:assert/strict';
+import {chromium} from 'playwright';
+import {PDFDocument} from 'pdf-lib';
+const pdf=await PDFDocument.create();pdf.addPage([600,800]);const bytes=[...await pdf.save()];
+const browser=await chromium.launch({headless:true});
+try {
+  const page=await browser.newPage({viewport:{width:1800,height:1100}});
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto(process.argv[2]||'http://127.0.0.1:3067',{waitUntil:'domcontentloaded'});
+  await page.locator('[data-tab="drawing"]').waitFor({timeout:90000});
+  const ids=await page.evaluate(async bytes=>{
+    const {cacheWebFile}=await import('/js/core/platform.js');
+    const {createTab}=await import('/js/ui/chrome/tabs.js');
+    const {loadPDFIfNeeded}=await import('/js/pdf/loader.js');
+    const {createAnnotation}=await import('/js/annotations/factory.js');
+    const {addLayer}=await import('/js/annotations/annotatie-lagen.js');
+    window.layerState=await import('/js/core/state.ts');
+    window.layerStore=await import('/js/solid/stores/annotationLayersStore.js');
+    window.layerProps=await import('/js/ui/panels/properties-panel.js');
+    window.layerUndo=await import('/js/core/undo-manager.js');
+    window.layerRibbon=await import('/js/solid/stores/ribbonStore.js');
+    cacheWebFile('layer-fixture.pdf',new Uint8Array(bytes));
+    const {index}=createTab('layer-fixture.pdf');await loadPDFIfNeeded('layer-fixture.pdf',index);
+    const doc=window.layerState.getActiveDocument();
+    const a=createAnnotation({type:'box',page:1,x:30,y:30,width:100,height:60,color:'#000000',strokeColor:'#000000',lineWidth:1});
+    const b=createAnnotation({type:'box',page:1,x:150,y:30,width:100,height:60,color:'#000000',strokeColor:'#000000',lineWidth:1});
+    doc.annotations.push(a,b);doc.selectedAnnotations=[doc.annotations[0]];
+    window.layerProps.showProperties(doc.annotations[0]);
+    const layer=addLayer(doc,{name:'Test'}).layer;
+    window.layerStore.refreshAnnotationLayers();
+    window.layerRibbon.setContextualTabsVisible(true);window.layerRibbon.setActiveTab('format');
+    return {layer:layer.id,a:a.id,b:b.id};
+  },bytes);
+  const select=page.locator('#fmt-layer');await select.waitFor();
+  assert.ok((await select.locator('option').allTextContents()).includes('Test'),'custom markup layer is offered');
+  assert.equal(await select.inputValue(),'a:default');
+  const before=await page.evaluate(()=>window.layerState.getActiveDocument().undoStack.length);
+  await select.selectOption('a:'+ids.layer);
+  await page.waitForFunction(id=>window.layerState.getActiveDocument().annotations[0].layer===id,ids.layer);
+  assert.equal(await page.evaluate(()=>window.layerState.getActiveDocument().undoStack.length),before+1);
+  await page.evaluate(async()=>{await window.layerUndo.undo();const d=window.layerState.getActiveDocument();d.selectedAnnotations=[d.annotations[0]];window.layerProps.showProperties(d.annotations[0]);});
+  assert.equal(await select.inputValue(),'a:default');
+  await page.evaluate(async()=>{await window.layerUndo.redo();const d=window.layerState.getActiveDocument();d.selectedAnnotations=[...d.annotations];window.layerProps.showMultiSelectionProperties();});
+  await page.waitForFunction(()=>document.querySelector('#fmt-layer').value==='mixed');
+  await select.selectOption('a:'+ids.layer);
+  await page.waitForFunction(id=>window.layerState.getActiveDocument().annotations.every(a=>a.layer===id),ids.layer);
+  await page.evaluate(id=>window.layerStore.renameAnnotationLayer(id,'Renamed'),ids.layer);
+  await page.waitForFunction(()=>[...document.querySelector('#fmt-layer').options].some(o=>o.text==='Renamed'));
+  await page.evaluate(()=>{const d=window.layerState.getActiveDocument();d.selectedAnnotations[0].locked=true;});
+  assert.equal(await select.isDisabled(),true);
+  await page.evaluate(()=>{const d=window.layerState.getActiveDocument();d.selectedAnnotations[0].locked=false;d.selectedAnnotations=[];});
+  assert.equal(await select.isDisabled(),true);
+  // A second document must not inherit the first document's layers or selection.
+  await page.evaluate(async bytes=>{
+    const {cacheWebFile}=await import('/js/core/platform.js');const {createTab}=await import('/js/ui/chrome/tabs.js');
+    const {loadPDFIfNeeded}=await import('/js/pdf/loader.js');
+    cacheWebFile('other-layer-fixture.pdf',new Uint8Array(bytes));const {index}=createTab('other-layer-fixture.pdf');await loadPDFIfNeeded('other-layer-fixture.pdf',index);
+    window.layerRibbon.setContextualTabsVisible(true);window.layerRibbon.setActiveTab('format');
+  },bytes);
+  assert.equal((await select.locator('option').allTextContents()).includes('Renamed'),false);
+  assert.equal(await select.isDisabled(),true);
+  assert.deepEqual(errors,[]);
+  console.log('PASS: Format layer list/assignment, undo/redo, mixed selection, live rename, locks/empty selection, document isolation');
+} finally {await browser.close();}

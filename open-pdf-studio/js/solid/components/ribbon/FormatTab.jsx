@@ -3,6 +3,9 @@ import RibbonGroup from './RibbonGroup.jsx';
 import AdaptiveGroups from './AdaptiveGroups.jsx';
 import ColorPickerButton from './ColorPickerButton.jsx';
 import Dialog from '../Dialog.jsx';
+import LayerField from '../properties-panel/LayerField.jsx';
+import { laagKeuzeWaarde } from '../../../annotations/laag-keuze.js';
+import { layersVersion } from '../../stores/annotationLayersStore.js';
 import {
   fillColor, strokeColor, fmtLineWidth, opacity, fillOpacity, aparteVulDekking, hasFill, borderStyle, blendMode,
   arrowStart, arrowEnd, isLocked, isSingleSymbolStamp,
@@ -83,6 +86,14 @@ export default function FormatTab() {
   const { t } = useTranslation('ribbon');
   const { t: tc } = useTranslation('common');
   const { t: tp } = useTranslation('properties');
+  const layerSelection = () => getActiveDocument()?.selectedAnnotations || [];
+  const selectionLayer = () => {
+    layersVersion();
+    const doc = getActiveDocument(), selection = layerSelection();
+    if (!selection.length) return '';
+    const first = laagKeuzeWaarde(selection[0], doc);
+    return selection.every(ann => laagKeuzeWaarde(ann, doc) === first) ? first : 'mixed';
+  };
 
   // Uitklap-status: stijlgalerij-popup (fmt-style-more) en
   // stijl-gereedschappen-menu (fmt-style-tools), issue #313.
@@ -492,12 +503,9 @@ export default function FormatTab() {
             </button>
           </div>
           <div class="ribbon-grid-col" style={{ 'justify-content': 'center' }}>
-            <div class="ribbon-form-row">
-              <label>{t('format.layerLabel')}</label>
-              <select class="ribbon-form-select" id="fmt-layer" title={t('format.layer')} disabled={invoegen()}>
-                <option value="none">{tc('none')}</option>
-              </select>
-            </div>
+            <LayerField id="fmt-layer" groupClass="ribbon-form-row" selectClass="ribbon-form-select"
+              label={t('format.layerLabel')} title={t('format.layer')} value={selectionLayer()}
+              disabled={invoegen() || !layerSelection().length || layerSelection().some(ann => ann.locked)} />
           </div>
         </RibbonGroup>
       </AdaptiveGroups>
